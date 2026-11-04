@@ -20,6 +20,8 @@ export const ICONS = {
   shell: P('M12 19.2 3.6 12.6C4.6 7.6 8 5 12 5s7.4 2.6 8.4 7.6z') + P('M12 19.2 8.4 6.3M12 19.2V5M12 19.2l3.6-12.9M12 19.2 5.4 9.2M12 19.2l6.6-10', ' stroke-opacity=".6"') + P('M10 20.4h4'),
   memory: P('M12 3c3.5 4 6 7 6 10.5a6 6 0 0 1-12 0C6 10 8.5 7 12 3z') + P('M12 15.2a1 1 0 1 1 1-1 2.2 2.2 0 1 1-2.2-2.2', ' stroke-opacity=".75"'),
   xp: P('M12 3l5 9-5 9-5-9z') + P('M12 8.5l2 3.5-2 3.5-2-3.5z', F),
+  scallop: P('M12 3.2C4.8 5.9 3 13 5.6 19.4h12.8C21 13 19.2 5.9 12 3.2z') + P('M12 3.2v16.2M7.9 6.2l1.3 13.2M16.1 6.2l-1.3 13.2', ' stroke-opacity=".8"'),
+  book: P('M3.6 4.7C7.3 3.8 10.2 4.7 12 6.6c1.8-1.9 4.7-2.8 8.4-1.9v14.6c-3.7-.9-6.6 0-8.4 1.9-1.8-1.9-4.7-2.8-8.4-1.9z') + P('M12 6.6v14.6'),
   coin: C(12, 12, 7.5) + C(12, 12, 5, ' stroke-opacity=".5"') + P('M12 9v6'),
   // ---------------------------------------------------------------- hud buttons
   creel: P('M5 9.5h14l-1.5 10h-11z') + P('M5.6 13.2h12.8M6.1 16.5h11.8M9.4 9.5l.5 10M14.6 9.5l-.5 10', ' stroke-opacity=".6"') + P('M8 9.5c0-3 1.8-4.8 4-4.8s4 1.8 4 4.8'),
@@ -170,163 +172,98 @@ function ring(cx, cy, rx, ry, { w = 3, min = 0.8, nib = -0.7, n = 72 } = {}) {
   }
   return `M${A.map(pt2).join('L')}ZM${B.reverse().map(pt2).join('L')}Z`;
 }
-/** A float (bobber) standing on the water: antenna, a hollow cap, a painted lower half. */
-function bobber(x, y, s = 1, { ring: rings = true } = {}) {
-  const k = (v) => r2(v * s);
-  const out = [];
-  out.push([brush(`M${x} ${y - k(15)} C${x} ${y - k(13)} ${x} ${y - k(11)} ${x} ${y - k(8.6)}`, { w: 1.5 * s, min: 0.5 * s, peak: 0.7 }), 1]);
-  // cap: hollow upper half (ink rim), body: solid lower half; joined by a band
-  out.push([`M${r2(x - k(5.4))} ${r2(y - k(1))}C${r2(x - k(5.4))} ${r2(y - k(6.4))} ${r2(x - k(2.6))} ${r2(y - k(9))} ${x} ${r2(y - k(9))}C${r2(x + k(2.6))} ${r2(y - k(9))} ${r2(x + k(5.4))} ${r2(y - k(6.4))} ${r2(x + k(5.4))} ${r2(y - k(1))}Z`, 0.32]);
-  out.push([brush(`M${r2(x - k(5.4))} ${r2(y - k(1))} C${r2(x - k(5.4))} ${r2(y - k(6.4))} ${r2(x - k(2.6))} ${r2(y - k(9))} ${x} ${r2(y - k(9))} C${r2(x + k(2.6))} ${r2(y - k(9))} ${r2(x + k(5.4))} ${r2(y - k(6.4))} ${r2(x + k(5.4))} ${r2(y - k(1))}`, { w: 1.4 * s, min: 0.7 * s, peak: 0.5 }), 1]);
-  out.push([`M${r2(x - k(5.6))} ${r2(y - k(0.6))}C${r2(x - k(5.6))} ${r2(y + k(4.6))} ${r2(x - k(2.4))} ${r2(y + k(7.6))} ${x} ${r2(y + k(7.6))}C${r2(x + k(2.4))} ${r2(y + k(7.6))} ${r2(x + k(5.6))} ${r2(y + k(4.6))} ${r2(x + k(5.6))} ${r2(y - k(0.6))}Z`, 1]);
-  if (rings) {
-    out.push([brush(`M${r2(x - k(11))} ${r2(y + k(8.6))} C${r2(x - k(6))} ${r2(y + k(11.6))} ${r2(x + k(6))} ${r2(y + k(11.6))} ${r2(x + k(11))} ${r2(y + k(8.6))}`, { w: 1.3 * s, min: 0.2 * s }), 0.8]);
-    out.push([brush(`M${r2(x - k(18))} ${r2(y + k(10))} C${r2(x - k(9))} ${r2(y + k(15.4))} ${r2(x + k(9))} ${r2(y + k(15.4))} ${r2(x + k(18))} ${r2(y + k(10))}`, { w: 0.9 * s, min: 0.15 * s }), 0.45]);
-  }
-  return out;
+// ---------------------------------------------------------------- the ornament family (UI style v2)
+// Pale-ink line ornaments (currentColor) from the approved "Drowned Filigree" mockup: the
+// filigree crest (hook curls, a cast line and reeds with a float in the centre) above headings,
+// the flourish below, the hook curl that draws itself in beside a chosen item, the line-and-curl
+// rule of the HUD and of section heads. They live once in an SVG sprite (spriteSvg(), injected
+// into #ui) with the catch card's ink-wash and brush filters, and again as CSS mask images
+// (--orn-*, ornamentCss()) for pseudo-elements. The brushed ring and ripple stay pen-drawn.
+const SP = (d, w = 1.6, o = 1) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${o < 1 ? ` stroke-opacity="${o}"` : ''}/>`;
+const MP = (d, w = 1.6, o = 1) => `<path d="${d}" fill="none" stroke="#000" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${o < 1 ? ` stroke-opacity="${o}"` : ''}/>`;
+/** Each drawing: viewBox size and a list of [d, strokeWidth, opacity] strokes, plus raw fills. */
+const FIL_HALF = [
+  ['M244 26 C258 26 266 14 280 16 C294 18 292 34 280 33 C272 32 273 23 280 24', 1.6, 1],
+  ['M286 26 L460 26', 1.6, 1],
+  ['M460 26 C474 26 480 36 472 41 C464 46 456 38 462 33', 1.6, 1],
+  ['M330 26 C340 14 356 12 364 20 M372 26 C380 36 396 38 404 30', 1.6, 0.8],
+  ['M300 26 C304 18 312 16 316 20', 1.6, 0.6],
+];
+const DRAW = {
+  crest: { W: 520, H: 52, strokes: [...FIL_HALF, ...FIL_HALF.map(([d, w, o]) => [flip(d, 520), w, o]),
+    ['M260 16 L260 4 M253 27 L267 27', 1.6, 1], ['M267 27 C267 33 264 38 260 38 C256 38 253 33 253 27 C253 21 256 16 260 16 C264 16 267 21 267 27 Z', 1.6, 1]],
+    fills: [dot(260, 44, 2)] },
+  flourish: { W: 320, H: 28, strokes: [
+    ['M172 14 L280 14 C290 14 296 8 304 10 C312 12 310 20 302 19', 1.5, 1], [flip('M172 14 L280 14 C290 14 296 8 304 10 C312 12 310 20 302 19', 320), 1.5, 1],
+    ['M204 14 C210 8 218 7 222 10', 1.3, 0.6], [flip('M204 14 C210 8 218 7 222 10', 320), 1.3, 0.6],
+    ['M148 19 C152 24 168 24 172 19', 1.3, 0.7]],
+    fills: ['M160 2 C162.2 6.2 164.4 8.4 164.4 11.2 A4.4 4.4 0 0 1 155.6 11.2 C155.6 8.4 157.8 6.2 160 2 Z'] },
+  rule: { W: 190, H: 16, strokes: [['M2 8 L150 8 C160 8 166 2 174 4 C182 6 180 14 172 13', 1.4, 1]], fills: [] },
+  hook: { W: 64, H: 32, strokes: [['M60 16 L26 16 C14 16 8 7 14 3 C20 0 25 6 21 10', 1.8, 1], ['M26 16 C20 22 20 28 26 29', 1.8, 1]], fills: [dot(61.5, 16, 2)] },
+  brush: { W: 100, H: 14, strokes: [['M3 9 C30 4 70 4 97 8', 5, 1]], fills: [] },
+};
+const strokesSvg = (dw, P = SP) => dw.strokes.map(([d, w, o]) => P(d, w, o)).join('') + dw.fills.map((d) => `<path d="${d}" fill="${P === SP ? 'currentColor' : '#000'}" stroke="none"/>`).join('');
+/** The sprite: every line ornament as a <symbol>, plus the filters (one per page, in #ui). */
+export function spriteSvg() {
+  const sym = (id, dw) => `<symbol id="gw-${id}" viewBox="0 0 ${dw.W} ${dw.H}">${strokesSvg(dw)}</symbol>`;
+  return `<svg class="gw-sprite" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+    ${sym('crest', DRAW.crest)}${sym('flourish', DRAW.flourish)}${sym('rule', DRAW.rule)}
+    <filter id="gw-ink-edge" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="26" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="1.6"/></filter>
+    <filter id="gw-brush" x="-8%" y="-40%" width="116%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.06 0.5" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>
+    <filter id="gw-brush-fx" x="-4%" y="-8%" width="108%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="0.045 0.32" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="gw-stamp" x="-12%" y="-30%" width="124%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.62" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="d"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.6 0 0 0 2.25" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>
+  </defs></svg>`;
 }
-
-/** Assemble a symmetric ornament: `half` parts are mirrored about the centre, `mid` parts are not. */
-function piece(W, H, half, mid = [], { cls = '', ratio = 'xMidYMid meet' } = {}) {
-  const parts = [];
-  for (const p of half) {
-    if (p.dot) { parts.push([dot(p.dot[0], p.dot[1], p.dot[2]), p.o ?? 1]); parts.push([dot(W - p.dot[0], p.dot[1], p.dot[2]), p.o ?? 1]); continue; }
-    parts.push([brush(p.d, p), p.o ?? 1]);
-    parts.push([brush(flip(p.d, W), p), p.o ?? 1]);
-  }
-  for (const p of mid) parts.push(Array.isArray(p) ? p : p.dot ? [dot(p.dot[0], p.dot[1], p.dot[2]), p.o ?? 1] : [p.raw || brush(p.d, p), p.o ?? 1]);
-  return { W, H, parts, cls, ratio };
-}
+const use = (id, dw, cls) => `<svg class="gw-orn ${cls}" viewBox="0 0 ${dw.W} ${dw.H}" aria-hidden="true" focusable="false"><use href="#gw-${id}"/></svg>`;
+/** A hook curl drawn inline (each stroke its own path, so stroke-dashoffset can draw it in). */
+const hookSvg = (side) => `<svg class="gw-hk gw-hk-${side}" viewBox="0 0 64 32" aria-hidden="true" focusable="false">${DRAW.hook.strokes.map(([d]) => `<path pathLength="100" d="${d}"/>`).join('')}<circle cx="61.5" cy="16" r="2"/></svg>`;
+/** A brushed underline (the catch card's chosen action). */
+const brushSvg = `<svg class="gw-brushline" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" filter="url(#gw-brush)" d="${DRAW.brush.strokes[0][0]}"/></svg>`;
+// Medallion ring (level-up medals, the HUD level, edge markers, the joystick).
+const RING = { W: 100, H: 100, ratio: 'xMidYMid meet', parts: [
+  [ring(50, 50, 44, 44, { w: 3.2, min: 0.9, nib: -0.75 }), 1],
+  [ring(50, 50, 38.5, 38.5, { w: 0.9, min: 0.45, nib: -0.75 }), 0.35],
+  [dot(50, 3.6, 1.9), 1], [dot(50, 96.4, 1.9), 1],
+] };
+// Water ripple under a chosen tile / a leaping fish.
+const RIPPLE = { W: 200, H: 30, ratio: 'xMidYMid meet', parts: [
+  [brush('M60 13 C78 22.4 122 22.4 140 13', { w: 2, min: 0.2 }), 1],
+  [brush('M66 11.6 C84 5.2 116 5.2 134 11.6', { w: 0.9, min: 0.15 }), 0.4],
+  [brush('M26 15 C60 31 140 31 174 15', { w: 1.4, min: 0.1 }), 0.6],
+  [brush('M4 17.6 C50 34 150 34 196 17.6', { w: 0.9, min: 0.05 }), 0.3],
+] };
 const byOpacity = (parts) => {
   const g = new Map();
   for (const [d, o] of parts) { if (!g.has(o)) g.set(o, []); g.get(o).push(d); }
   return [...g].map(([o, ds]) => `<path d="${ds.join('')}"${o < 1 ? ` fill-opacity="${o}"` : ''}/>`).join('');
 };
-/** Inline SVG markup (ink in currentColor). */
-const inline = (pc, cls = pc.cls) => `<svg class="gw-orn ${cls}" viewBox="0 0 ${pc.W} ${pc.H}" preserveAspectRatio="${pc.ratio}" aria-hidden="true" fill="currentColor" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`;
-/** A data: URL of the same drawing, for CSS masks (the colour comes from the element). */
-const maskUrl = (pc) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pc.W} ${pc.H}" preserveAspectRatio="${pc.ratio}" fill="#000" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`)}")`;
+const inlineFill = (pc, cls) => `<svg class="gw-orn ${cls}" viewBox="0 0 ${pc.W} ${pc.H}" aria-hidden="true" fill="currentColor" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`;
+const enc = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+const maskFill = (pc) => enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pc.W} ${pc.H}" preserveAspectRatio="${pc.ratio}" fill="#000" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`);
+const maskStroke = (dw, ratio = 'xMidYMid meet') => enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dw.W} ${dw.H}" preserveAspectRatio="${ratio}">${strokesSvg(dw, MP)}</svg>`);
 
-// ---------------------------------------------------------------- the ornament family
-const P_ = {};
-// Selection twin (left of an item; the right one is the same drawing flipped): a scroll of line
-// curls off a swelling cast of fishing line that ends at a float standing beside the item.
-P_.twin = piece(64, 30, [], [
-  { d: 'M17 16 C11 16 6 14.4 6 11 C6 8 9.4 6.8 11.2 8.4 C12.6 9.7 11.8 11.8 10 11.6', w: 2, min: 0.35, peak: 0.25 },
-  { d: 'M17 16 C26 15 36 16.8 46 15.6', w: 1.7, min: 0.55, peak: 0.45 },
-  { d: 'M27 15.6 C25.4 12.6 22.6 10.4 19.6 9.4', w: 1.3, min: 0.1, peak: 0.35, o: 0.75 },
-  { dot: [3, 15.4, 1.1], o: 0.7 },
-  ...bobber(52.5, 15.6, 0.92).map(([raw, o]) => ({ raw, o })),
-]);
-// Heading crest: a float hangs on its line; slack line sweeps out to both sides and curls into
-// scrolls, reeds rise off it, and the line runs out to a bead.
-P_.crest = piece(320, 46, [
-  { d: 'M150 24 C136 27 124 21 110 21 C97 21 90 28.5 94.5 33 C98 36.4 103.8 33.4 101.4 29.6', w: 2.8, min: 0.4, peak: 0.32 },
-  { d: 'M110 21 C84 20.4 54 24.6 20 24.4', w: 1.5, min: 0.2, peak: 0.12 },
-  { d: 'M126 23.4 C122.6 17.6 116.4 12.6 108.4 9.6', w: 1.9, min: 0.1, peak: 0.35, o: 0.85 },
-  { d: 'M131.5 24.6 C131 19 132.4 14.6 135.4 11', w: 1.3, min: 0.1, peak: 0.4, o: 0.7 },
-  { dot: [16, 24.4, 1.5] },
-  { dot: [62, 22.6, 1.1], o: 0.8 },
-], [
-  { d: 'M160 1 C160 4 160 7 160 10', w: 1.1, min: 0.25, peak: 0.9, o: 0.7 },
-  ...bobber(160, 25, 1.25).map(([raw, o]) => ({ raw, o })),
-]);
-// Closing flourish: a drop falls into rings; line runs out to each side and lifts into a curl.
-P_.flourish = piece(320, 30, [
-  { d: 'M136 17 C114 14 92 13.4 70 15.6 C58 16.8 50 13.6 52 9.6 C53.6 6.6 58.4 7.2 57.8 10.4', w: 2.2, min: 0.3, peak: 0.22 },
-  { d: 'M70 15.6 C52 17.6 34 18 16 17', w: 1.1, min: 0.15, peak: 0.1 },
-  { dot: [12, 17, 1.2] },
-], [
-  { raw: 'M160 3.2C161.6 6.2 163.6 7.8 163.6 10.2A3.6 3.6 0 0 1 156.4 10.2C156.4 7.8 158.4 6.2 160 3.2Z', o: 1 },
-  { d: 'M146 16 C150.6 21.4 169.4 21.4 174 16', w: 1.7, min: 0.25 },
-  { d: 'M148 15 C152 11.6 168 11.6 172 15', w: 0.8, min: 0.2, o: 0.45 },
-  { d: 'M132 18 C140 26.6 180 26.6 188 18', w: 1.2, min: 0.15, o: 0.6 },
-]);
-// Section rule: a single tapered stroke (stretched to fit; thick at the label, thin outward).
-P_.taper = { W: 200, H: 8, parts: [['M0 4C60 3.95 150 3.1 200 2.9L200 5.1C150 4.9 60 4.05 0 4Z', 1]], cls: '', ratio: 'none' };
-// Swash: a short brushed underline (primary actions, the active tab).
-P_.swash = piece(120, 12, [], [
-  { d: 'M6 7.4 C28 4.6 46 8.4 60 6.2 C74 4 92 8.2 114 5.6', w: 2.2, min: 0.25, peak: 0.5 },
-  { dot: [3.2, 7.6, 1] }, { dot: [116.8, 5.4, 1] },
-]);
-// Medallion ring (level-up cards, the HUD level, the journal plate).
-P_.ring = { W: 100, H: 100, cls: '', ratio: 'xMidYMid meet', parts: [
-  [ring(50, 50, 44, 44, { w: 4.2, min: 1, nib: -0.75 }), 1],
-  [ring(50, 50, 38.5, 38.5, { w: 1, min: 0.5, nib: -0.75 }), 0.35],
-  [dot(50, 3.2, 2.1), 1], [dot(50, 96.8, 2.1), 1],
-  [brush('M50 94 C50 98 48 99.6 46.4 99', { w: 1.2, min: 0.2 }), 0.8],
-] };
-// Water ripple under a chosen tile / a leaping fish.
-P_.ripple = piece(200, 30, [], [
-  { d: 'M60 13 C78 22.4 122 22.4 140 13', w: 2.2, min: 0.2 },
-  { d: 'M66 11.6 C84 5.2 116 5.2 134 11.6', w: 0.9, min: 0.15, o: 0.4 },
-  { d: 'M26 15 C60 31 140 31 174 15', w: 1.5, min: 0.1, o: 0.6 },
-  { d: 'M4 17.6 C50 34 150 34 196 17.6', w: 0.9, min: 0.05, o: 0.3 },
-]);
-// Wax seal (the NEW / RECORD stamps): a wobbly disc with two drips and an inner rim.
-P_.seal = (() => {
-  const n = 64, R = 30, pts = [];
-  for (let i = 0; i < n; i++) {
-    const a = (i / n) * Math.PI * 2;
-    const r = R * (1 + 0.045 * Math.sin(a * 5 + 0.6) + 0.03 * Math.sin(a * 9 + 2.1) + 0.02 * Math.sin(a * 13));
-    pts.push([36 + r * Math.cos(a), 34 + r * Math.sin(a)]);
-  }
-  const disc = `M${pts.map(pt2).join('L')}Z`;
-  const drips = 'M23 56C22.6 62 24.4 66 26.2 66C28 66 28.6 61.6 28 57.4ZM44.6 59C44.6 64.4 46 70 48 70C50 70 50.6 64 49.6 58Z';
-  return { W: 72, H: 72, cls: '', ratio: 'xMidYMid meet', parts: [[disc + ring(36, 34, 23.5, 23.5, { w: 1.6, min: 0.6, nib: -0.6 }), 1], [drips, 0.99]] };
-})();
-// The title lock-up: a lantern-float hangs from a long line above the name; reeds and rings
-// mark the waterline below it, where the name is mirrored.
-P_.titleCrest = piece(560, 96, [
-  { d: 'M266 66 C236 76 196 80 156 75 C124 71 106 62 111 52 C115 44.6 125.6 46.6 123.2 54', w: 3.2, min: 0.4, peak: 0.3 },
-  { d: 'M156 75 C120 79 80 80.4 30 78', w: 1.6, min: 0.2, peak: 0.12 },
-  { d: 'M196 77.4 C190 68 180.6 60 168 54.4', w: 2.1, min: 0.1, peak: 0.35, o: 0.85 },
-  { d: 'M204.6 77.8 C204.4 69 207 61.6 212 55.6', w: 1.5, min: 0.1, peak: 0.4, o: 0.7 },
-  { d: 'M88 79.4 C85.6 73.4 81.4 69.4 76 67', w: 1.2, min: 0.1, peak: 0.4, o: 0.6 },
-  { dot: [25, 78, 1.8] }, { dot: [56, 79.2, 1.2], o: 0.8 },
-], [
-  { d: 'M280 0 C280 12 280 24 280 33', w: 1.3, min: 0.4, peak: 0.95, o: 0.75 },
-  // lantern: bail, cap, glass (the flame is drawn by the page), base, and a hook below
-  { d: 'M272.4 40 C272.4 33.4 287.6 33.4 287.6 40', w: 1.6, min: 0.6 },
-  { raw: 'M270 44.4L290 44.4L287 40L273 40Z', o: 1 },
-  { d: 'M272 45 C271 52 271 61 272 68', w: 1.8, min: 0.9 },
-  { d: 'M288 45 C289 52 289 61 288 68', w: 1.8, min: 0.9 },
-  { raw: 'M269 68L291 68L288.4 72.6L271.6 72.6Z', o: 1 },
-  { d: 'M280 72.6 C280 78 280 82 280 86 C280 91.4 274 92 273.4 88 C273.2 86.6 274.4 85.4 275.6 86', w: 1.7, min: 0.3, peak: 0.6 },
-]);
-P_.waterline = piece(560, 46, [
-  { d: 'M280 18 C200 17.4 110 17 26 18.4', w: 1.8, min: 0.2, peak: 0.02 },
-  { d: 'M54 18.6 C52 12 47 5.6 38.6 1.4', w: 2.2, min: 0.1, peak: 0.3, o: 0.9 },
-  { d: 'M62 18.4 C62 11 64 5 68 0.4', w: 1.8, min: 0.1, peak: 0.3, o: 0.8 },
-  { d: 'M70 18.2 C71.6 13.4 75 9.6 79.6 7', w: 1.4, min: 0.1, peak: 0.35, o: 0.65 },
-  { d: 'M46 18.8 C42 14.6 37 12.4 31.4 12', w: 1.2, min: 0.1, peak: 0.4, o: 0.55 },
-  { dot: [20, 18.6, 1.6] },
-], [
-  { d: 'M252 22 C262 30.4 298 30.4 308 22', w: 1.9, min: 0.2 },
-  { d: 'M232 24 C246 37 314 37 328 24', w: 1.3, min: 0.12, o: 0.6 },
-  { d: 'M206 26 C230 44 330 44 354 26', w: 0.9, min: 0.06, o: 0.32 },
-]);
-
-/** The ornaments as inline SVG (currentColor). */
+/** The ornaments as markup. */
 export const ORN = {
-  crest: inline(P_.crest, 'gw-orn-crest'),
-  divider: inline(P_.crest, 'gw-orn-crest'),
-  flourish: inline(P_.flourish, 'gw-orn-flourish'),
-  twin: inline(P_.twin, 'gw-orn-twin'),
-  swash: inline(P_.swash, 'gw-orn-swash'),
-  ring: inline(P_.ring, 'gw-orn-ring'),
-  ripple: inline(P_.ripple, 'gw-orn-ripple'),
-  seal: inline(P_.seal, 'gw-orn-seal'),
-  titleTop: `<svg class="gw-orn gw-title-orn" viewBox="0 0 560 96" aria-hidden="true" fill="currentColor" fill-rule="evenodd"><defs><radialGradient id="gwOrnGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".6"/><stop offset=".45" stop-color="#ff9a3c" stop-opacity=".18"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></radialGradient></defs><circle cx="280" cy="56" r="40" fill="url(#gwOrnGlow)" class="gw-orn-glow"/>${byOpacity(P_.titleCrest.parts)}<path class="gw-orn-flame" d="M280 49c2 3 4.4 4.8 4.4 8.2a4.4 4.4 0 0 1-8.8 0c0-3.4 2.4-5.2 4.4-8.2z"/></svg>`,
-  titleBottom: inline(P_.waterline, 'gw-title-water'),
+  crest: use('crest', DRAW.crest, 'gw-orn-crest'),
+  divider: use('crest', DRAW.crest, 'gw-orn-crest'),
+  flourish: use('flourish', DRAW.flourish, 'gw-orn-flourish'),
+  rule: use('rule', DRAW.rule, 'gw-orn-rule'),
+  hookL: hookSvg('l'),
+  hookR: hookSvg('r'),
+  brush: brushSvg,
+  ring: inlineFill(RING, 'gw-orn-ring'),
+  ripple: inlineFill(RIPPLE, 'gw-orn-ripple'),
+  titleTop: use('crest', DRAW.crest, 'gw-orn-crest gw-title-orn'),
+  titleBottom: '',
   corner: '',
-  rule: inline(P_.taper, 'gw-rule'),
 };
 /** CSS custom properties holding the same drawings as mask images (appended to ui.css). */
 export function ornamentCss() {
-  const v = Object.entries({ twin: P_.twin, crest: P_.crest, flourish: P_.flourish, taper: P_.taper, swash: P_.swash, ring: P_.ring, ripple: P_.ripple, seal: P_.seal })
-    .map(([k, pc]) => `--orn-${k}:${maskUrl(pc)};`).join('');
-  return `\n.gw-ui{${v}}\n`;
+  const v = {
+    crest: maskStroke(DRAW.crest), flourish: maskStroke(DRAW.flourish), rule: maskStroke(DRAW.rule, 'xMaxYMid meet'),
+    hook: maskStroke(DRAW.hook), brush: maskStroke(DRAW.brush, 'none'), ring: maskFill(RING), ripple: maskFill(RIPPLE),
+  };
+  return `\n.gw-ui{${Object.entries(v).map(([k, u]) => `--orn-${k}:${u};`).join('')}}\n`;
 }
 
 
@@ -359,7 +296,7 @@ export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
     ${locked ? '' : `<path d="M0 -10 C2.5 -6 5 -4 5 -0.5 A5 5 0 0 1 -5 -0.5 C-5 -4 -2.5 -6 0 -10z" fill="#fff6dc" opacity=".9"/>`}
     <path d="M0 0v3" stroke="${ink}" stroke-width="1.6"/></g>`;
   const glow = locked ? '' : `<radialGradient id="${g}"><stop offset="0" stop-color="${flame}" stop-opacity=".55"/><stop offset="1" stop-color="${flame}" stop-opacity="0"/></radialGradient>`;
-  const rim = locked ? `<path d="${cloakPath}" fill="none" stroke="rgba(233,226,207,.18)" stroke-width="1"/>` : `<path d="M${50 + 15 * wide} ${top + 24} C${50 + 20 * wide} 72 ${50 + 25 * wide} 90 ${50 + 26 * wide} 112" fill="none" stroke="rgba(233,226,207,.45)" stroke-width="1.2"/>`;
+  const rim = locked ? `<path d="${cloakPath}" fill="none" stroke="rgba(214,214,228,.18)" stroke-width="1"/>` : `<path d="M${50 + 15 * wide} ${top + 24} C${50 + 20 * wide} 72 ${50 + 25 * wide} 90 ${50 + 26 * wide} 112" fill="none" stroke="rgba(214,214,228,.45)" stroke-width="1.2"/>`;
   return `<svg class="gw-portrait" viewBox="0 0 100 120" aria-hidden="true"><defs>${glow}</defs>
     ${locked ? '' : `<circle cx="50" cy="${top - 14}" r="34" fill="url(#${g})" class="gw-pglow"/>`}
     <ellipse cx="50" cy="114" rx="${30 * wide}" ry="4" fill="rgba(0,0,0,.45)"/>
@@ -385,14 +322,14 @@ export function murkPortrait() {
     <path d="M45 75 q9 -6 18 0 q-9 3 -18 0z" fill="#e8d66a" class="gw-murk-eye"/><path d="M81 75 q9 -6 18 0 q-9 3 -18 0z" fill="#e8d66a" class="gw-murk-eye"/>
     <path d="M47 72 q7 -3 14 0 M83 72 q7 -3 14 0" stroke="#2a241e" stroke-width="3" fill="none"/>
     <path d="M34 92 q38 14 76 0" fill="none" stroke="#07080d" stroke-width="2.4"/>
-    <path d="M62 64 h20" stroke="rgba(233,226,207,.25)" stroke-width="1.2"/>
-    <path d="M22 106 c10 -20 30 -32 50 -34" fill="none" stroke="rgba(233,226,207,.22)" stroke-width="1.2"/>
+    <path d="M62 64 h20" stroke="rgba(214,214,228,.25)" stroke-width="1.2"/>
+    <path d="M22 106 c10 -20 30 -32 50 -34" fill="none" stroke="rgba(214,214,228,.22)" stroke-width="1.2"/>
     <path d="M62 14 C76 9 92 14 96 30 L98 70" fill="none" stroke="rgba(200,180,150,.5)" stroke-width="1.2"/>
     <path d="M98 70 C120 74 132 96 126 118" fill="none" stroke="rgba(200,180,150,.46)" stroke-width="1.2"/></svg>`;
 }
 
 /** A small drowned lantern for the Shrine; lit = 0..1 (level / maxLevel). */
-export function relicLantern(lit = 0, { hidden = false, color = '#ffc46b', uid = 'r' } = {}) {
+export function relicLantern(lit = 0, { hidden = false, color = '#f0a64c', uid = 'r' } = {}) {
   const k = Math.max(0, Math.min(1, lit));
   const id = `rl${uid}`;
   const glass = hidden ? '#0b0d11' : k > 0 ? `url(#${id}g)` : '#12161c';
@@ -400,12 +337,12 @@ export function relicLantern(lit = 0, { hidden = false, color = '#ffc46b', uid =
     <defs><radialGradient id="${id}"><stop offset="0" stop-color="${color}" stop-opacity="${0.15 + 0.6 * k}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>
     <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1d10"/><stop offset="1" stop-color="${color}" stop-opacity="${0.25 + 0.55 * k}"/></linearGradient></defs>
     ${k > 0 && !hidden ? `<circle cx="24" cy="40" r="${16 + 8 * k}" fill="url(#${id})" class="gw-relic-glow"/>` : ''}
-    <path d="M24 0 v10" stroke="rgba(233,226,207,.35)" stroke-width="1" stroke-dasharray="2 2"/>
-    <circle cx="24" cy="12" r="3" fill="none" stroke="rgba(233,226,207,.55)" stroke-width="1.2"/>
+    <path d="M24 0 v10" stroke="rgba(214,214,228,.35)" stroke-width="1" stroke-dasharray="2 2"/>
+    <circle cx="24" cy="12" r="3" fill="none" stroke="rgba(214,214,228,.55)" stroke-width="1.2"/>
     <path d="M15 20 h18 l-3 -5 h-12 z" fill="#14171d" stroke="#07080d" stroke-width="1.2"/>
-    <path d="M14 20 h20 l-2 4 v22 l2 4 h-20 l2 -4 v-22 z" fill="${glass}" stroke="${hidden ? 'rgba(233,226,207,.18)' : 'rgba(233,226,207,.6)'}" stroke-width="1.2"/>
+    <path d="M14 20 h20 l-2 4 v22 l2 4 h-20 l2 -4 v-22 z" fill="${glass}" stroke="${hidden ? 'rgba(214,214,228,.18)' : 'rgba(214,214,228,.6)'}" stroke-width="1.2"/>
     <path d="M20 24 v22 M28 24 v22" stroke="rgba(7,8,13,.8)" stroke-width="1.2"/>
-    ${k > 0 && !hidden ? `<g transform="translate(24 45) scale(${0.7 + 0.7 * k})"><path d="M0 -10 C2.5 -6 5 -4 5 -0.5 A5 5 0 0 1 -5 -0.5 C-5 -4 -2.5 -6 0 -10z" fill="${color}" class="gw-relic-flame"/><path d="M0 -4 C1 -2.6 2 -1.8 2 -0.4 A2 2 0 0 1 -2 -0.4 C-2 -1.8 -1 -2.6 0 -4z" fill="#fff3d6"/></g>` : `<path d="M24 41 v3" stroke="rgba(233,226,207,.25)" stroke-width="1.2"/>`}
+    ${k > 0 && !hidden ? `<g transform="translate(24 45) scale(${0.7 + 0.7 * k})"><path d="M0 -10 C2.5 -6 5 -4 5 -0.5 A5 5 0 0 1 -5 -0.5 C-5 -4 -2.5 -6 0 -10z" fill="${color}" class="gw-relic-flame"/><path d="M0 -4 C1 -2.6 2 -1.8 2 -0.4 A2 2 0 0 1 -2 -0.4 C-2 -1.8 -1 -2.6 0 -4z" fill="#fff3d6"/></g>` : `<path d="M24 41 v3" stroke="rgba(214,214,228,.25)" stroke-width="1.2"/>`}
     <path d="M14 50 h20 l-3 5 h-14 z" fill="#14171d" stroke="#07080d" stroke-width="1.2"/>
     ${hidden ? '<text x="24" y="42" text-anchor="middle" class="gw-relic-q">?</text>' : ''}</svg>`;
 }

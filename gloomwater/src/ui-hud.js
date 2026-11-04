@@ -17,68 +17,48 @@ export function createHud(K) {
   <div class="gw-xp" aria-hidden="true"><div class="gw-xp-fill"></div><div class="gw-xp-spark"></div></div>
   <div class="gw-top">
     <div class="gw-tl">
-      <div class="gw-level" title="Your flame's level">
-        <svg viewBox="0 0 44 44" aria-hidden="true"><path class="d1" d="M22 2 42 22 22 42 2 22z"/><path class="d2" d="M22 7.5 36.5 22 22 36.5 7.5 22z"/></svg>
-        <span class="gw-level-n">1</span>
+      <div class="gw-clock" aria-label="Day and phase">
+        <div class="gw-clock-day">Day I</div>
+        <div class="gw-clock-zone"><span class="gw-zone-n"></span><span class="gw-phase-w"></span></div>
+        <svg class="gw-clock-svg" viewBox="0 0 240 18" aria-hidden="true">
+          <g class="gw-clock-segs"></g><path class="gw-clock-curl" d="M196 9 C206 9 212 3 220 5 C228 7 226 15 218 14"/><g class="gw-clock-ticks"></g>
+          <circle class="gw-clock-glow" r="6.5" cy="9"/><circle class="gw-clock-bead" r="2.8" cy="9"/>
+        </svg>
+        <div class="gw-clock-phase"></div>
       </div>
-      <div class="gw-boons"><div class="gw-boon-row" data-row="w"></div><div class="gw-boon-row" data-row="p"></div></div>
-    </div>
-    <div class="gw-clock" aria-label="Day and phase">
-      <svg class="gw-clock-svg" viewBox="0 0 220 76" aria-hidden="true">
-        <path class="gw-clock-outer"/><path class="gw-clock-inner"/>
-        <g class="gw-clock-segs"></g><g class="gw-clock-ticks"></g>
-        <circle class="gw-clock-glow" r="9"/><circle class="gw-clock-bead" r="3.6"/>
-      </svg>
-      <div class="gw-clock-text"><div class="gw-clock-day">Day 1</div><div class="gw-clock-zone"></div></div>
-      <div class="gw-clock-phase"></div>
+      <div class="gw-tl2">
+        <div class="gw-level" title="Your flame's level"><span class="gw-level-n">1</span></div>
+        <div class="gw-boons"><div class="gw-boon-row" data-row="w"></div><div class="gw-boon-row" data-row="p"></div></div>
+      </div>
     </div>
     <div class="gw-tr">
       <div class="gw-stats">
-        <div class="gw-stat gw-st-shells" title="Shells">${icon('shell')}<span class="gw-shells-n">0</span><span class="gw-shells-pop"></span></div>
-        <div class="gw-stat gw-st-creel" title="Creel">${icon('creel')}<span class="gw-creel-n">0/4</span></div>
+        <div class="gw-stat gw-st-shells" title="Shells">${icon('scallop')}<span class="gw-shells-n">0</span><span class="gw-shells-pop"></span></div>
+        <button class="gw-stat gw-hbtn gw-st-creel" type="button" data-act="creel" aria-label="Creel (C)" title="Creel (C)">${icon('creel')}<span class="gw-creel-n">0/4</span></button>
+        <button class="gw-stat gw-hbtn gw-st-journal" type="button" data-act="journal" aria-label="Journal (J)" title="Journal (J)">${icon('book')}<span class="gw-journal-n">0 / 0</span></button>
+        <button class="gw-hbtn gw-hb-pause" type="button" data-act="pause" aria-label="Pause (Esc)" title="Pause (Esc)">${icon('pause')}</button>
+      </div>
+      <div class="gw-tr2">
         <button class="gw-stat gw-st-bait" type="button" title="Equipped bait — tap to change (B)"><span class="gw-bait-ico"></span><span class="gw-bait-name"></span><span class="gw-bait-count"></span></button>
         <div class="gw-streak" title="Perfect-hook streak"></div>
-      </div>
-      <div class="gw-hbtns">
-        <button class="gw-hbtn" type="button" data-act="creel" aria-label="Creel (C)" title="Creel (C)">${icon('creel')}</button>
-        <button class="gw-hbtn" type="button" data-act="journal" aria-label="Journal (J)" title="Journal (J)">${icon('journal')}</button>
-        <button class="gw-hbtn" type="button" data-act="pause" aria-label="Pause (Esc)" title="Pause (Esc)">${icon('pause')}</button>
       </div>
     </div>
   </div>
   <div class="gw-cluster">
     <div class="gw-embers"></div>
-    <svg class="gw-sat" viewBox="0 0 40 120" aria-hidden="true">
-      <path class="gw-sat-track" d="M34 112 C8 96 6 34 30 8" pathLength="100"/>
-      <path class="gw-sat-fill" d="M34 112 C8 96 6 34 30 8" pathLength="100" stroke-dasharray="100 100"/>
-      <g class="gw-sat-drips"><path d="M14.6 80 q1.6 4 0 7 q-1.6 -3 0 -7z"/><path d="M12.2 58 q1.5 3.6 0 6.4 q-1.5 -2.8 0 -6.4z"/><path d="M16.3 34 q1.3 3.2 0 5.6 q-1.3 -2.4 0 -5.6z"/></g>
+    <svg class="gw-lantern" viewBox="0 0 280 170" aria-hidden="true">
+      <defs><radialGradient id="gwLanGlow"><stop offset="0" stop-color="#ed9e3b" stop-opacity=".5"/><stop offset=".5" stop-color="#ed9e3b" stop-opacity=".14"/><stop offset="1" stop-color="#ed9e3b" stop-opacity="0"/></radialGradient></defs>
+      <circle class="gw-lan-glow" cx="140" cy="124" r="62" fill="url(#gwLanGlow)"/>
+      <path class="gw-oil-track" d="M36 162 A104 104 0 0 1 244 162"/>
+      <path class="gw-oil-arc" d="M36 162 A104 104 0 0 1 244 162" pathLength="100" stroke-dasharray="100 100"/>
+      <path class="gw-sat-track" d="M58 162 A82 82 0 0 1 222 162"/>
+      <path class="gw-sat-fill" d="M58 162 A82 82 0 0 1 222 162" pathLength="100" stroke-dasharray="100 100"/>
+      <path class="gw-lan-ticks" d="M140 52 V42 M36 162 l-8 4 M244 162 l8 4"/>
+      <g class="gw-lan-fl"><path class="gw-lan-fo" d="M0 -16 C4.5 -8 7 -4 7 1 A7 7 0 0 1 -7 1 C-7 -4 -4.5 -8 0 -16 Z"/><path class="gw-lan-fi" d="M0 -5 C1.6 -2.6 2.6 -1.4 2.6 .6 A2.6 2.6 0 0 1 -2.6 .6 C-2.6 -1.4 -1.6 -2.6 0 -5 Z"/></g>
+      <path class="gw-lan-candle" d="M131 116 h18 a2 2 0 0 1 2 2 v24 h-22 v-24 a2 2 0 0 1 2 -2 z M140 116 v-4"/>
     </svg>
-    <svg class="gw-lantern" viewBox="0 0 80 132" aria-hidden="true">
-      <defs>
-        <linearGradient id="gwOilG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9601c"/><stop offset=".55" stop-color="#ffab45"/><stop offset="1" stop-color="#ffe2a0"/></linearGradient>
-        <radialGradient id="gwLanGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".55"/><stop offset=".45" stop-color="#ff9a3c" stop-opacity=".16"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></radialGradient>
-        <clipPath id="gwGlassClip"><rect x="21" y="40" width="38" height="62" rx="6"/></clipPath>
-      </defs>
-      <circle class="gw-lan-glow" cx="40" cy="70" r="60" fill="url(#gwLanGlow)"/>
-      <circle class="gw-flr-track" cx="40" cy="25" r="16"/>
-      <circle class="gw-flr-fill" cx="40" cy="25" r="16" pathLength="100" transform="rotate(-90 40 25)"/>
-      <path class="gw-lan-metal" d="M33.5 15.5a6.5 6.5 0 0 1 13 0"/>
-      <path class="gw-lan-cap" d="M25 33h30l-5-12H30z"/><path class="gw-lan-cap2" d="M22 40h36l-3-7H25z"/>
-      <g clip-path="url(#gwGlassClip)">
-        <rect class="gw-glass-bg" x="21" y="40" width="38" height="62"/>
-        <g class="gw-oil"><rect x="21" y="40" width="38" height="62" fill="url(#gwOilG)"/><path class="gw-oil-surf" d="M21 40.5 q4.75 -2 9.5 0 t9.5 0 t9.5 0 t9.5 0"/></g>
-        <g class="gw-lan-fl"><path d="M0 -14 C3 -8 7 -5 7 0 A7 7 0 0 1 -7 0 C-7 -4 -4 -6 -2 -9 C-1.5 -6.5 -.5 -5.5 .6 -5 C-.6 -8.2 -.6 -11 0 -14z" class="gw-lan-fo"/><path d="M0 -5 C1.4 -3 2.8 -2 2.8 0 A2.8 2.8 0 0 1 -2.8 0 C-2.8 -2 -1.4 -3 0 -5z" class="gw-lan-fi"/></g>
-        <path class="gw-glass-shine" d="M25 46 v44" />
-      </g>
-      <rect class="gw-glass-frame" x="21" y="40" width="38" height="62" rx="6"/>
-      <path class="gw-glass-bars" d="M30.5 40v62M49.5 40v62"/>
-      <g class="gw-cracks"><path d="M24 52l6 5-2 6 5 4"/><path d="M56 60l-5 3 1 6-4 3"/><path d="M33 98l3-6 5 1 2-5"/></g>
-      <path class="gw-lan-base" d="M22 102h36l4 9H18z"/><path class="gw-lan-foot" d="M20 111h40l-4 7H24z"/>
-      <path class="gw-lan-orn" d="M25 33c-6 0-8.5 3.5-6 7.5M55 33c6 0 8.5 3.5 6 7.5M18 111c-4.5 1.8-4.5 6.5 0 7.5M62 111c4.5 1.8 4.5 6.5 0 7.5M21 102c-3 -2 -3 -6 0 -8M59 102c3 -2 3 -6 0 -8"/>
-      <circle class="gw-lan-rivet" cx="31" cy="37" r="1"/><circle class="gw-lan-rivet" cx="40" cy="37" r="1"/><circle class="gw-lan-rivet" cx="49" cy="37" r="1"/>
-    </svg>
-    <div class="gw-oil-n" title="Lantern oil">100</div>
-    <div class="gw-sat-n" title="Satiety">100</div>
+    <div class="gw-oil-n" title="Lantern oil"><small>Oil</small><span>100</span></div>
+    <div class="gw-sat-n" title="Satiety">${icon('food')}<span>100</span></div>
   </div>
   <div class="gw-actions">
     <button class="gw-pill" type="button"><span class="gw-pill-ico"></span><span class="gw-pill-label">Trade</span><kbd>E</kbd></button>
@@ -116,12 +96,12 @@ export function createHud(K) {
   const R = {
     xpFill: $('.gw-xp-fill'), xpSpark: $('.gw-xp-spark'), level: $('.gw-level'), levelN: $('.gw-level-n'),
     boonW: $('[data-row="w"]'), boonP: $('[data-row="p"]'),
-    clock: $('.gw-clock'), clockSvg: $('.gw-clock-svg'), clockOuter: $('.gw-clock-outer'), clockInner: $('.gw-clock-inner'), clockSegs: $('.gw-clock-segs'), clockTicks: $('.gw-clock-ticks'),
-    bead: $('.gw-clock-bead'), beadGlow: $('.gw-clock-glow'), day: $('.gw-clock-day'), zone: $('.gw-clock-zone'), phase: $('.gw-clock-phase'),
-    shells: $('.gw-shells-n'), shellsPop: $('.gw-shells-pop'), shellsBox: $('.gw-st-shells'), creelN: $('.gw-creel-n'), creelBox: $('.gw-st-creel'),
+    clock: $('.gw-clock'), clockSvg: $('.gw-clock-svg'), clockSegs: $('.gw-clock-segs'), clockTicks: $('.gw-clock-ticks'),
+    bead: $('.gw-clock-bead'), beadGlow: $('.gw-clock-glow'), day: $('.gw-clock-day'), zone: $('.gw-zone-n'), phaseW: $('.gw-phase-w'), phase: $('.gw-clock-phase'),
+    shells: $('.gw-shells-n'), shellsPop: $('.gw-shells-pop'), shellsBox: $('.gw-st-shells'), creelN: $('.gw-creel-n'), creelBox: $('.gw-st-creel'), journalN: $('.gw-journal-n'),
     bait: $('.gw-st-bait'), baitIco: $('.gw-bait-ico'), baitName: $('.gw-bait-name'), baitCount: $('.gw-bait-count'), streak: $('.gw-streak'),
-    cluster: $('.gw-cluster'), embers: $('.gw-embers'), satFill: $('.gw-sat-fill'), satDrips: [...el.querySelectorAll('.gw-sat-drips path')],
-    oil: $('.gw-oil'), lanFl: $('.gw-lan-fl'), lanGlow: $('.gw-lan-glow'), flrFill: $('.gw-flr-fill'), oilN: $('.gw-oil-n'), satN: $('.gw-sat-n'),
+    cluster: $('.gw-cluster'), embers: $('.gw-embers'), satFill: $('.gw-sat-fill'),
+    oilArc: $('.gw-oil-arc'), lanFl: $('.gw-lan-fl'), lanGlow: $('.gw-lan-glow'), oilN: $('.gw-oil-n span'), satN: $('.gw-sat-n span'),
     burnFish: $('.gw-burn-fish'), flareCharges: $('.gw-flare-charges'),
     pill: $('.gw-pill'), pillLabel: $('.gw-pill-label'), pillIco: $('.gw-pill-ico'), burn: $('.gw-burn'), burnLabel: $('.gw-burn-label'),
     flare: $('.gw-flare'), joyzone: $('.gw-joyzone'), joyBase: $('.gw-joy-base'), joyKnob: $('.gw-joy-knob'), joyHint: $('.gw-joy-hint'),
@@ -196,13 +176,11 @@ export function createHud(K) {
   R.joyzone.addEventListener('lostpointercapture', joyEnd);
   function joyReset() { if (joy.id !== null) joyEnd({ pointerId: joy.id }); ctx.input?.joy?.set?.(0, 0); }
 
-  // ------------------------------------------------------------------ clock geometry
-  const CX = 110, CY = 128, CR = 110, A0 = 150 * DEG, A1 = 30 * DEG;
-  const pt = (a, r = CR) => [CX + r * Math.cos(a), CY - r * Math.sin(a)];
-  const angAt = (f) => A0 - (A0 - A1) * f;
-  function arcD(a0, a1, r = CR) { const p0 = pt(a0, r), p1 = pt(a1, r); return `M${p0[0].toFixed(2)} ${p0[1].toFixed(2)}A${r} ${r} 0 0 1 ${p1[0].toFixed(2)} ${p1[1].toFixed(2)}`; }
-  R.clockOuter.setAttribute('d', arcD(A0 + 2 * DEG, A1 - 2 * DEG, CR + 7));
-  R.clockInner.setAttribute('d', arcD(A0 + 1 * DEG, A1 - 1 * DEG, CR - 6));
+  // ------------------------------------------------------------------ the day line (UI style v2)
+  // Under the day and the lake: a hairline that is the day itself, one stretch per phase, a bead
+  // where the hour stands, and the line ends in a curl (the mockup's line-and-curl rule).
+  const LX0 = 4, LX1 = 196, LY = 9;
+  const xAt = (f) => LX0 + (LX1 - LX0) * f;
   let clockDay = -1, clockDur = [120, 14, 90, 8], clockTotal = 232;
   function buildClock(day) {
     const P = D().BALANCE?.phases || { calm: 120, dusk: 14, gloomtide: 90, dawn: 8 };
@@ -212,16 +190,19 @@ export function createHud(K) {
     let f = 0, segs = '', ticks = '';
     for (let i = 0; i < 4; i++) {
       const f1 = f + clockDur[i] / clockTotal;
-      const gap = 0.9 * DEG;
-      segs += `<path class="gw-seg gw-seg-${PHASES[i]}" d="${arcD(angAt(f) - (i ? gap : 0), angAt(f1) + (i < 3 ? gap : 0))}"/>`;
-      if (i > 0) { const a = angAt(f), p0 = pt(a, CR - 5), p1 = pt(a, CR + 5); ticks += `<path class="gw-tick" d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)}L${p1[0].toFixed(1)} ${p1[1].toFixed(1)}"/>`; }
-      if (PHASES[i] === 'gloomtide') { const a = angAt(f + (clockDur[i] * 0.93) / clockTotal), p0 = pt(a, CR - 3.5), p1 = pt(a, CR + 3.5); ticks += `<path class="gw-tick gw-tick-hush" d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)}L${p1[0].toFixed(1)} ${p1[1].toFixed(1)}"/>`; }
+      const g = i ? 1.6 : 0, g1 = i < 3 ? 1.6 : 0;
+      segs += `<path class="gw-seg gw-seg-${PHASES[i]}" d="M${(xAt(f) + g).toFixed(1)} ${LY}H${(xAt(f1) - g1).toFixed(1)}"/>`;
+      if (i > 0) ticks += `<path class="gw-tick" d="M${xAt(f).toFixed(1)} ${LY - 3.5}V${LY + 3.5}"/>`;
+      if (PHASES[i] === 'gloomtide') { const x = xAt(f + (clockDur[i] * 0.93) / clockTotal); ticks += `<path class="gw-tick gw-tick-hush" d="M${x.toFixed(1)} ${LY - 2.5}V${LY + 2.5}"/>`; }
       f = f1;
     }
-    for (const a of [A0 + 2 * DEG, A1 - 2 * DEG]) { const p = pt(a, CR + 7); ticks += `<path class="gw-tick-end" d="M${p[0].toFixed(1)} ${(p[1] - 3).toFixed(1)}l3 3-3 3-3-3z"/>`; }
+    ticks += `<circle class="gw-tick-end" cx="${LX0}" cy="${LY}" r="1.6"/>`;
     R.clockSegs.innerHTML = segs;
     R.clockTicks.innerHTML = ticks;
   }
+  const ROMAN = [['X', 10], ['IX', 9], ['V', 5], ['IV', 4], ['I', 1]];
+  const roman = (n) => { if (n > 39 || n < 1) return String(n); let s = ''; for (const [r, v] of ROMAN) while (n >= v) { s += r; n -= v; } return s; };
+  const PHASE_WORD = { calm: 'calm', dusk: 'dusk', gloomtide: 'Gloomtide', dawn: 'grey dawn' };
   const mmss = (s) => { s = Math.max(0, Math.ceil(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 
   // ------------------------------------------------------------------ embers
@@ -231,13 +212,13 @@ export function createHud(K) {
     emberN = n;
     R.embers.innerHTML = '';
     emberEls.length = 0;
-    const step = Math.min(16, n > 1 ? 112 / (n - 1) : 0) * DEG;
-    const RR = 92;
+    const step = Math.min(13, n > 1 ? 96 / (n - 1) : 0) * DEG;
+    const RR = 126;
     for (let i = 0; i < n; i++) {
       const a = (i - (n - 1) / 2) * step;
       const e = h('div', 'gw-emb', EMBER_SVG);
-      e.style.left = (110 + RR * Math.sin(a) - 10).toFixed(1) + 'px';
-      e.style.top = (115 - RR * Math.cos(a) - 14).toFixed(1) + 'px';
+      e.style.left = (140 + RR * Math.sin(a) - 8).toFixed(1) + 'px';
+      e.style.top = (162 - RR * Math.cos(a) - 11).toFixed(1) + 'px';
       e.style.setProperty('--d', (Math.random() * 1.6).toFixed(2) + 's');
       R.embers.appendChild(e);
       emberEls.push(e);
@@ -299,7 +280,7 @@ export function createHud(K) {
   const targets = [];
   for (let i = 0; i < MK_N; i++) targets.push({ kind: '', pos: new THREE.Vector3(), dist: 0, on: false });
   const MK_ICON = { merchant: 'lantern', gate: 'gate', gateSealed: 'gate', spot: 'spot', spotRare: 'spot', legend: 'star', elite: 'eye', boss: 'eye', stolen: 'fish' };
-  let insetTop = 70, insetBottom = 26, insetSide = 24, clockHalf = 150, clockDrop = 34;
+  let insetTop = 70, insetBottom = 26, insetSide = 24, tlW = 340, tlH = 200, trW = 470, trH = 132;
   function gatherTargets() {
     let n = 0;
     const pp = ctx.player?.position;
@@ -359,7 +340,9 @@ export function createHud(K) {
       const sy = dy !== 0 ? ((dy > 0 ? y1 : y0) - cy) / dy : Infinity;
       const s = Math.min(Math.abs(sx), Math.abs(sy));
       let mx = cx + dx * s, my = cy + dy * s;
-      if (my <= y0 + 1 && Math.abs(mx - cx) < clockHalf) my = y0 + clockDrop;
+      // the top corners hold the day and the purse: markers on the top edge drop below them
+      if (my <= y0 + 1 && mx < tlW) my = Math.max(my, tlH);
+      else if (my <= y0 + 1 && mx > W - trW) my = Math.max(my, trH);
       if (my >= H - 200 && (mx > W - 140 || Math.abs(mx - cx) < 130)) my = H - 210;
       if (mk.kind !== t.kind) {
         mk.kind = t.kind;
@@ -511,11 +494,8 @@ export function createHud(K) {
     const oil = Math.max(0, num(r.oil));
     const of = Math.max(0, Math.min(1, oil / maxOil));
     const ofq = q(of, 160);
-    const sy = Math.max(0.001, ofq), sx = 0.62 + 0.38 * ofq;
-    setAttr(R.oil, 'oilT', 'transform', `translate(40 102) scale(${sx.toFixed(3)} ${sy.toFixed(3)}) translate(-40 -102)`);
-    setStyle(R.oil, 'oilO', 'opacity', (0.4 + 0.6 * ofq).toFixed(3));
-    const flY = 102 - 62 * ofq;
-    setAttr(R.lanFl, 'lanFl', 'transform', `translate(40 ${Math.max(54, Math.min(96, flY + 2)).toFixed(1)}) scale(${(0.35 + 0.75 * ofq).toFixed(3)})`);
+    setAttr(R.oilArc, 'oilA', 'stroke-dasharray', `${(ofq * 100).toFixed(1)} 100`);
+    setAttr(R.lanFl, 'lanFl', 'transform', `translate(140 ${(111 - 2 * ofq).toFixed(1)}) scale(${(0.35 + 0.75 * ofq).toFixed(3)})`);
     setStyle(R.lanGlow, 'lanG', 'opacity', (0.15 + 0.85 * ofq).toFixed(3));
     setText(R.oilN, 'oilN', String(Math.round(oil)));
     toggle(R.cluster, 'cl', 'gw-oil-low', of <= 0.25);
@@ -524,7 +504,6 @@ export function createHud(K) {
     const sat = Math.max(0, num(r.satiety));
     const sf = Math.max(0, Math.min(1, sat / maxSat));
     setAttr(R.satFill, 'satF', 'stroke-dasharray', `${(q(sf, 200) * 100).toFixed(1)} 100`);
-    for (let i = 0; i < R.satDrips.length; i++) toggle(R.satDrips[i], 'drip' + i, 'gw-on', sf > [0.22, 0.5, 0.78][i]);
     setText(R.satN, 'satN', String(Math.round(sat)));
     toggle(R.cluster, 'cl', 'gw-sat-low', sf <= 0.2);
     for (const k in lowFlags) { if (lowFlags[k] > 0) { lowFlags[k] -= dt; if (lowFlags[k] <= 0) R.cluster.classList.remove('gw-warn-' + k); } }
@@ -538,7 +517,6 @@ export function createHud(K) {
     const canAfford = oil >= cost || charges > 0;
     setText(R.flareCharges, 'flC', charges ? `×${charges}` : '');
     const rq = q(ready, 100);
-    setAttr(R.flrFill, 'flrF', 'stroke-dasharray', `${(rq * 100).toFixed(0)} 100`);
     toggle(R.cluster, 'cl', 'gw-flare-ready', ready >= 1 && canAfford);
     setVar(R.flare, 'flK', '--k', rq.toFixed(2));
     toggle(R.flare, 'fl', 'gw-ready', ready >= 1 && canAfford);
@@ -590,6 +568,8 @@ export function createHud(K) {
       const cs = Math.max(1, Math.round(stat('creelSize')));
       const cn = arr(r.creel).length;
       setText(R.creelN, 'creel', `${cn}/${cs}`);
+      const J = K.meta().journal || {};
+      setText(R.journalN, 'jn', `${arr(D().SPECIES).filter((x) => J[x.id]).length} / ${arr(D().SPECIES).length}`);
       toggle(R.creelBox, 'cb', 'gw-full', cn >= cs);
       const eq = safe(() => ctx.progression?.getEquippedBait?.(), r.equippedBait ?? null);
       const eqId = typeof eq === 'object' && eq ? eq.id : eq;
@@ -608,7 +588,7 @@ export function createHud(K) {
     // ---- clock
     const pi = K.phaseInfo();
     const day = Math.max(1, Math.round(num(pi?.day, num(r.day, 1))));
-    if (day !== clockDay) { clockDay = day; buildClock(day); setText(R.day, 'day', `Day ${day}`); }
+    if (day !== clockDay) { clockDay = day; buildClock(day); setText(R.day, 'day', `Day ${roman(day)}`); R.day.setAttribute('aria-label', `Day ${day}`); }
     const phase = pi?.phase || r.phase || 'calm';
     const idx = Math.max(0, PHASES.indexOf(phase));
     const ptime = num(pi?.time, num(r.phaseTime));
@@ -616,17 +596,17 @@ export function createHud(K) {
     let before = 0;
     for (let i = 0; i < idx; i++) before += clockDur[i];
     const f = Math.max(0, Math.min(1, (before + Math.min(ptime, clockDur[idx])) / clockTotal));
-    const bp = pt(angAt(f));
-    const bx = bp[0].toFixed(1), by = bp[1].toFixed(1);
-    setAttr(R.bead, 'bx', 'cx', bx); setAttr(R.bead, 'by', 'cy', by);
-    setAttr(R.beadGlow, 'gx', 'cx', bx); setAttr(R.beadGlow, 'gy', 'cy', by);
+    const bx = xAt(f).toFixed(1);
+    setAttr(R.bead, 'bx', 'cx', bx);
+    setAttr(R.beadGlow, 'gx', 'cx', bx);
+    setText(R.phaseW, 'phw', ` · ${PHASE_WORD[phase] || phase}`);
     if (phase !== phaseShown) { phaseShown = phase; R.clock.dataset.phase = phase; el.dataset.phase = phase; }
     const remain = pdur - ptime;
     let ptxt;
     if (phase === 'calm') ptxt = `Gloomtide in ${mmss(remain + clockDur[1])}`;
     else if (phase === 'dusk') ptxt = `Gloomtide in ${mmss(remain)}`;
     else if (phase === 'gloomtide') ptxt = `Dawn in ${mmss(remain)}`;
-    else ptxt = 'Grey dawn';
+    else ptxt = 'The dark lets go';
     setText(R.phase, 'ptxt', ptxt);
 
     // ---- markers & fishing
@@ -640,9 +620,9 @@ export function createHud(K) {
 
   function onResize(w, hgt) {
     const narrow = w < 700;
-    insetTop = narrow ? 168 : 60;
-    clockHalf = narrow ? 0 : 150;
-    clockDrop = narrow ? 0 : 52;
+    insetTop = narrow ? 176 : 64;
+    tlW = narrow ? 0 : 340; tlH = 214;
+    trW = narrow ? 0 : 470; trH = 140;
     insetBottom = narrow ? 30 : 26;
     insetSide = narrow ? 20 : 26;
     try {
@@ -666,10 +646,10 @@ export function createHud(K) {
       const p = z?.palette || {};
       // zone tokens (DESIGN §21.1); the fallbacks are the Mossmere "Moonlit slate" values
       const vars = {
-        '--zone-glow': K.cssHex(p.glow, '#a9b9f0'),
-        '--zone-accent': K.cssHex(p.accent, '#c4b8ec'),
-        '--zone-fog': K.cssHex(p.fog, '#262f40'),
-        '--zone-lamp': K.cssHex(p.lamp ?? p.glow, '#c8d2f0'),
+        '--zone-glow': K.cssHex(p.glow, '#9fa2d8'),
+        '--zone-accent': K.cssHex(p.accent, '#b9b0e6'),
+        '--zone-fog': K.cssHex(p.fog, '#1d245d'),
+        '--zone-lamp': K.cssHex(p.lamp ?? p.glow, '#c9c7ee'),
       };
       // the gate marker wears the gate's filigree colour (world-art: glow/accent mixed half and half)
       if (typeof p.glow === 'number' && typeof p.accent === 'number') {
