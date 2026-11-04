@@ -1370,12 +1370,7 @@ export function create(ctx) {
         bus.on('run:end', () => { hardReset(); clearSpots(); });
         bus.on('player:died', () => hardReset());
         bus.on('flow:change', ({ flow } = {}) => { if (flow !== 'playing') { hardReset(); if (flow === 'title') clearSpots(); } });
-        bus.on('shop:buy', ({ itemId, item } = {}) => {
-          if (itemId === 'tide_chart' || item?.id === 'tide_chart') {
-            const tc = BAL('spots').tideChart || {};
-            addSpots(num(item?.give?.spots, num(tc.count, 2)), { rare: tc.rare !== false, untilDusk: true, source: 'tide_chart' });
-          }
-        });
+        // the Tide Chart's spots arrive through fishing.addSpots(), which progression calls on purchase
         bus.on('player:damage', ({ source } = {}) => { if (typeof source === 'string' && /hand|grasp|slam/i.test(source)) slam(); });
         bus.on('fish:action', () => { if (S.catchFv) S.catchT = Math.max(S.catchT, 90 - 0.6); });
         bus.on('ui:modal', ({ open } = {}) => { if (open === false && S.catchFv && S.catchT > 0.3) releaseCatch(); });

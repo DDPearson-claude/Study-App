@@ -47,8 +47,10 @@ function makeStub(label) {
 
 // ------------------------------------------------------------------ ctx
 const saved = loadSave();
+// Touch mode comes from the input device only. Viewport size drives layout breakpoints in CSS,
+// never the control scheme (a short laptop window is still a mouse + keyboard).
 const isMobile = (() => {
-  try { return matchMedia('(pointer: coarse)').matches || Math.min(innerWidth, innerHeight) < 600; } catch { return false; }
+  try { return matchMedia('(pointer: coarse)').matches || (matchMedia('(hover: none)').matches && navigator.maxTouchPoints > 0); } catch { return false; }
 })();
 
 const ctx = {
@@ -107,7 +109,7 @@ const game = {
     try { summary = ctx.progression.summarizeRun(cause); } catch (e) { report('summarizeRun', e); }
     if (!summary || summary.isStub) summary = { cause, day: ctx.state.run.day, memories: 0, breakdown: [], records: [] };
     const meta = ctx.state.meta;
-    meta.deaths = (meta.deaths || 0) + 1;
+    if (cause !== 'victory' && cause !== 'abandoned') meta.deaths = (meta.deaths || 0) + 1;
     meta.bestDay = Math.max(meta.bestDay || 0, ctx.state.run.day || 0);
     ctx.state.run.active = false;
     setFlow('dead');
@@ -200,52 +202,72 @@ function unlockAudio() {
   audioUnlocked = true;
   try { ctx.audio.unlock?.(); } catch (e) { report('audio.unlock', e); }
 }
+function toNdc(e, out) {
+  return out.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+}
 function setPointer(e) {
   input.x = e.clientX; input.y = e.clientY;
-  input.ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  toNdc(e, input.ndc);
 }
 function gameAcceptsInput() {
   return ctx.flow === 'playing' && !ctx.paused && !safe(() => ctx.ui.isBlocking?.(), false);
 }
 function safe(fn, fallback) { try { const v = fn(); return v && v.isStub ? fallback : v; } catch (e) { report('input', e); return fallback; } }
 
-let pointerActive = false;
-function pressAction() {
+// Multi-touch (DESIGN §3.2): one finger holds the reel while another taps gloomlings. Only the
+// pointer whose press reached fishing (fishPointerId) moves the aim or releases the hold; any
+// other pointer zaps / opens the shop and never touches fishing while that hold lasts.
+// input.ndc / input.down follow the primary pointer (the fishing pointer while one exists).
+const downPointers = new Set();
+let fishPointerId = null;
+let primaryId = null;
+const tapNdc = new THREE.Vector2();
+function pressAction(e) {
   if (!gameAcceptsInput()) return;
-  if (safe(() => ctx.combat.onPointerDown?.(input.ndc), false) === true) return;
-  if (safe(() => ctx.actors.pickMerchant?.(input.ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
+  const ndc = toNdc(e, tapNdc);
+  if (safe(() => ctx.combat.onPointerDown?.(ndc), false) === true) return;
+  if (safe(() => ctx.actors.pickMerchant?.(ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
     ctx.ui.openShop?.();
     return;
   }
-  pointerActive = true;
+  if (fishPointerId !== null && e.pointerId !== fishPointerId) return; // a second finger never re-enters fishing
+  fishPointerId = e.pointerId;
+  setPointer(e);
   safe(() => ctx.fishing.onPointerDown?.(), null);
 }
-function releaseAction() {
-  if (!pointerActive) return;
-  pointerActive = false;
+function releaseFishing() {
+  if (fishPointerId === null) return;
+  fishPointerId = null;
   safe(() => ctx.fishing.onPointerUp?.(), null);
 }
 
 host.addEventListener('pointerdown', (e) => {
   unlockAudio();
-  setPointer(e);
-  input.down = true; input.pressed = true;
+  downPointers.add(e.pointerId);
+  if (primaryId === null && fishPointerId === null) { primaryId = e.pointerId; setPointer(e); input.pressed = true; }
+  input.down = true;
   try { host.setPointerCapture?.(e.pointerId); } catch { /* ignore */ }
-  pressAction();
+  pressAction(e);
   e.preventDefault();
 });
 host.addEventListener('pointermove', (e) => {
+  const own = fishPointerId !== null ? e.pointerId === fishPointerId : (primaryId === null || e.pointerId === primaryId);
+  if (!own) return;
   setPointer(e);
-  if (gameAcceptsInput()) safe(() => ctx.fishing.onPointerMove?.(input.ndc), null);
+  if (fishPointerId !== null && gameAcceptsInput()) safe(() => ctx.fishing.onPointerMove?.(input.ndc), null);
 });
 const up = (e) => {
-  setPointer(e);
-  if (!input.down) return;
-  input.down = false; input.released = true;
-  releaseAction();
+  if (!downPointers.delete(e.pointerId)) return;
+  const wasFish = e.pointerId === fishPointerId;
+  if (wasFish || e.pointerId === primaryId) setPointer(e);
+  if (e.pointerId === primaryId) primaryId = null;
+  if (wasFish) releaseFishing();
+  input.down = fishPointerId !== null || primaryId !== null;
+  if (!input.down) input.released = true;
 };
 host.addEventListener('pointerup', up);
 host.addEventListener('pointercancel', up);
+host.addEventListener('lostpointercapture', up);
 host.addEventListener('contextmenu', (e) => e.preventDefault());
 window.addEventListener('pointerdown', unlockAudio, { capture: true });
 
@@ -254,6 +276,9 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);
   if (safe(() => ctx.ui.handleKey?.(e.code), false) === true) { e.preventDefault(); return; }
+  // Space is the flare key: while a run is on screen (incl. a level-up / catch card that just
+  // popped up, or the fresh death screen) it must never fall through and click a focused button.
+  if (e.code === 'Space' && (ctx.flow === 'playing' || ctx.flow === 'dead')) e.preventDefault();
   if (e.code === 'Escape' || e.code === 'KeyP') {
     if (ctx.flow === 'playing') { game.togglePause(); e.preventDefault(); }
     return;
@@ -263,7 +288,10 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'KeyF') { safe(() => ctx.combat.flare?.(), null); e.preventDefault(); }
   else if (e.code === 'KeyE') { safe(() => ctx.player.interact?.(), null); e.preventDefault(); }
 });
-window.addEventListener('keyup', (e) => { input.keys.delete(e.code); });
+window.addEventListener('keyup', (e) => {
+  input.keys.delete(e.code);
+  if (e.code === 'Space' && (ctx.flow === 'playing' || ctx.flow === 'dead')) e.preventDefault();
+});
 const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 function updateMoveInput() {
   const k = input.keys;
@@ -279,7 +307,9 @@ window.addEventListener('blur', () => {
   input.keys.clear();
   input.move.set(0, 0);
   input.joy.set(0, 0);
-  if (input.down) { input.down = false; input.released = true; releaseAction(); }
+  downPointers.clear(); primaryId = null;
+  if (input.down) { input.down = false; input.released = true; }
+  releaseFishing();
 });
 
 // ------------------------------------------------------------------ resize / visibility

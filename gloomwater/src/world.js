@@ -120,7 +120,7 @@ export function create(ctx) {
     }
   }
 
-  function setZone(id, { instant = false } = {}) {
+  function setZone(id, { instant = false, flash = true } = {}) {
     const z = typeof id === 'object' && id ? id : resolveZone(id);
     if (!z) return;
     if (zone && z.id === zone.id && arena) {
@@ -128,7 +128,7 @@ export function create(ctx) {
       return;
     }
     if (!instant && arena) {
-      ctx.render?.flash?.(0x000000, 1, 0.8);
+      if (flash) ctx.render?.flash?.(0x000000, 1, 0.8);   // render already fades in from black on zone:change
       fogPush = 2.2;
     }
     setLayout(z);
@@ -270,7 +270,7 @@ export function create(ctx) {
   }
 
   const wl = [];
-  for (let i = 0; i < 6; i++) wl.push({ position: new THREE.Vector3(), color: new THREE.Color(), intensity: 0, distance: 12 });
+  for (let i = 0; i < 6; i++) wl.push({ position: new THREE.Vector3(), color: new THREE.Color(), intensity: 0, distance: 12, radius: undefined, ring: 0 });
   const waterLights = [];
   const MERCHANT_LAMP = new THREE.Color(0x9fe08a);
   function updateWaterLights() {
@@ -281,6 +281,9 @@ export function create(ctx) {
       const s = wl[i++];
       lan.getWorldPosition(s.position);
       s.color.copy(lan.color); s.intensity = lan.intensity; s.distance = lan.distance || 14;
+      // the water's lit pool + warm reach ring follow the gameplay light radius, not the PointLight falloff
+      const lr = ctx.survival && !ctx.survival.isStub ? Number(ctx.survival.lightRadius) : NaN;
+      s.radius = Number.isFinite(lr) && lr > 0 ? lr : undefined; s.ring = 0.5;
       waterLights.push(s);
     }
     const m = ctx.actors?.merchant;
@@ -388,7 +391,14 @@ export function create(ctx) {
   function getMerchantDock(day = 1) {
     const docks = layout?.docks;
     if (!docks?.length) { const a = (day | 0) * 2.1; return { position: new THREE.Vector3(Math.cos(a) * 25, 0, Math.sin(a) * 25), yaw: 0 }; }
-    const i = (((day | 0) - 1) % docks.length + docks.length) % docks.length;
+    // DESIGN §4.6: day 1 = docks[0]; then (seed + 2·day) % n, never yesterday's dock again
+    const n = docks.length, seed = (layout.seed | 0) >>> 0;
+    let i = 0;
+    for (let dd = 2; dd <= Math.max(1, day | 0); dd++) {
+      let j = (seed + 2 * dd) % n;
+      if (j === i && n > 1) j = (j + 1) % n;
+      i = j;
+    }
     const d = docks[i];
     return { position: new THREE.Vector3(d.x, 0, d.z), yaw: d.yaw };
   }
@@ -416,7 +426,7 @@ export function create(ctx) {
     init() {
       const s = scene();
       if (s) s.add(group);
-      ctx.bus.on('zone:change', ({ zone: z } = {}) => { if (z) setZone(z, { instant: !arena }); });
+      ctx.bus.on('zone:change', ({ zone: z } = {}) => { if (z) setZone(z, { instant: !arena, flash: !(ctx.render && !ctx.render.isStub) }); });
       ctx.bus.on('gate:open', () => { if (defaultGateState(zone) !== 'hidden') setGateState('open'); });
       ctx.bus.on('run:start', () => { if (zone) setGateState(defaultGateState(zone), true); });
       buildVisuals();

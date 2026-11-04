@@ -390,9 +390,11 @@ export function create(ctx) {
         play('reel_tick', scratch);
       }
       // strain whine
-      const danger = fv?.danger === true;
+      // fishing.view.danger is a 0..1 number (DESIGN §5.10); a boolean is still honoured
+      const dangerK = typeof fv?.danger === 'boolean' ? (fv.danger ? 1 : 0) : clamp(num(fv?.danger));
+      const danger = dangerK > 0.5;
       if (!strain) strain = makeOscLoop('sawtooth', 600, 'bandpass', 1400, 7, N.sfxDry);
-      const lvl = danger ? 0.035 + 0.11 * clamp((tension - 0.7) / 0.3) : (tension > 0.6 ? 0.012 * (tension - 0.6) / 0.4 : 0);
+      const lvl = danger ? (0.035 + 0.11 * Math.max(clamp((tension - 0.7) / 0.3), (dangerK - 0.5) * 2)) : (tension > 0.6 ? 0.012 * (tension - 0.6) / 0.4 : 0);
       setT(strain, 'g', strain.g.gain, lvl * 0.9, 0.06);
       setT(strain, 'o', strain.o.frequency, 480 + 900 * clamp(tension), 0.05, 0.004);
       setT(strain, 'f', strain.flt.frequency, 1100 + 1500 * clamp(tension), 0.05, 0.004);
@@ -419,11 +421,11 @@ export function create(ctx) {
       wasClean = clean;
     } else if (charge) { charge = killLoop(charge); wasClean = false; }
 
-    // --- heartbeat on the last Ember
+    // --- heartbeat at hp ≤ 2 (DESIGN §6.6), quicker on the last Ember
     const hp = num(run?.hp, 99);
-    if (live && hp > 0 && hp <= 1) {
+    if (live && hp > 0 && hp <= 2) {
       hbTimer -= dt;
-      if (hbTimer <= 0) { play('heartbeat'); hbTimer = 60 / (phaseInfo()?.isNight ? 104 : 78); }
+      if (hbTimer <= 0) { play('heartbeat', hp <= 1 ? undefined : { volume: 0.7 }); hbTimer = 60 / ((phaseInfo()?.isNight ? 104 : 78) * (hp <= 1 ? 1 : 0.8)); }
     } else hbTimer = 0.4;
 
     // --- lantern aura crackle (scaled by shades inside the light)
@@ -466,7 +468,7 @@ export function create(ctx) {
     const P = music.params;
     const fv = fishView();
     P.tension = clamp(num(fv?.tension), 0, 1);
-    P.danger = fv?.danger === true;
+    P.danger = typeof fv?.danger === 'boolean' ? fv.danger : num(fv?.danger) > 0.5;
     P.legend = fv?.rarity === 'legendary';
     const es = enemyList();
     P.enemies = es ? es.length : 0;

@@ -155,6 +155,8 @@ export function create(ctx) {
     let nl = 0;
     for (const m of latched) if (m) nl++;
     prod *= Math.pow(L.mothDim ?? 0.88, nl);
+    // a legendary's Eclipse phase (fishing.lightMult, DESIGN §5.6) dims the lantern under the same floor
+    try { const fm = ctx.fishing?.lightMult; if (real(ctx.fishing) && typeof fm === 'number' && fm > 0 && fm < 1) prod *= fm; } catch { /* optional */ }
     lightDims = Math.max(L.dimFloor ?? 0.5, prod);
     flareBoostT = Math.max(0, flareBoostT - dt);
     flareBoost = flareBoostT > 0 ? (C.B?.combat?.flare?.lightBoost ?? 1.4) : 1;
@@ -170,7 +172,8 @@ export function create(ctx) {
       const r = surv / base;
       survAppliesMult = Math.abs(r - M) < Math.abs(r - 1);
     }
-    C.lightR = C.lanternOut ? surv : (survAppliesMult ? surv : surv * M) + lightAdd;
+    // survival.lightRadius already folds in lightMult and Gutsfire's lightAdd when appliesCombatLight
+    C.lightR = C.lanternOut ? surv : (survAppliesMult ? surv : surv * M + lightAdd);
   }
   C.tryLatch = (e) => {
     const max = e.def.maxLatched ?? 4;
@@ -204,9 +207,16 @@ export function create(ctx) {
     const dm = C.diff?.damageMult ?? 1;
     let n = embers > 0 ? Math.max(1, Math.floor(embers * dm)) : 0;
     if (o.boss) n = Math.min(C.B?.damage?.bossHitCap ?? 3, n);
-    if (inv) { if (oil > 0) C.addOil(-oil * (C.B?.damage?.iframeOilMult ?? 0.5)); return; }
+    if (inv) { if (oil > 0) C.addOil(-oil * (C.B?.damage?.iframeOilMult ?? 0.5)); return 0; }
     if (oil > 0) C.addOil(-oil);
-    if (n > 0) { try { ctx.survival?.damage?.(n, source || 'gloom'); } catch (e) { C.report('survival.damage', e); } }
+    let lost = 0;
+    if (n > 0) {
+      try {
+        const r = ctx.survival?.damage?.(n, source || 'gloom');
+        lost = real(ctx.survival) && typeof r === 'number' ? r : n;   // survival returns the Embers lost (0 when warded)
+      } catch (e) { C.report('survival.damage', e); }
+    }
+    return lost;
   };
   C.knockPlayer = (dx, dz, dist) => {
     if (!real(ctx.player) || !ctx.player.position) return;
@@ -216,6 +226,8 @@ export function create(ctx) {
   C.pullPlayer = (dx, dz, speed, dt) => {
     const p = ctx.player?.position;
     if (!real(ctx.player) || !p || grip) return;
+    // the raft controller owns its velocity: ask it to drift toward the maw this frame
+    if (typeof ctx.player.pull === 'function') { try { ctx.player.pull(p.x + dx * 10, p.z + dz * 10, speed); return; } catch { /* fall back */ } }
     p.x += dx * speed * dt; p.z += dz * speed * dt;
     ctx.world?.collide?.(p, C.B?.move?.raftRadius ?? 1.6);
   };
@@ -231,6 +243,7 @@ export function create(ctx) {
   };
   C.gripPlayer = (e, g) => {
     grip = { e, t: g.time ?? 3, oil: g.oilPerSec ?? 3, zaps: 0, need: g.zapsToBreak ?? 3, x: C.raft.x, z: C.raft.z };
+    try { ctx.player?.root?.(grip.t); } catch { /* optional; combat.rooted also stops the raft */ }
     ctx.bus.emit('toast', { text: 'The Grasp holds you. Zap it three times!', kind: 'bad' });
   };
   function updatePlayerEffects(dt, t) {
@@ -268,7 +281,6 @@ export function create(ctx) {
     const pr = ctx.progression;
     try {
       if (real(pr) && typeof pr.addShells === 'function') { pr.addShells(n, 'combat'); return; }
-      if (real(pr) && typeof pr.earnShells === 'function') { pr.earnShells(n, 'combat'); return; }
       if (typeof ctx.debug?.addShells === 'function') { ctx.debug.addShells(n); return; }
     } catch (e) { C.report('giveShells', e); }
     C.run.shells = (C.run.shells || 0) + n;
@@ -857,8 +869,7 @@ export function create(ctx) {
     if (!e) return null;
     bossRef = e;
     ctx.bus.emit('enemy:spawn', { enemy: e });
-    ctx.bus.emit('boss:spawn', { enemy: e });
-    C.shake(0.5, 1.2);
+    ctx.bus.emit('boss:spawn', { enemy: e });   // render owns the boss-rise shake
     ctx.water?.splash?.(e.position.x, e.position.z, { size: 3, count: 40 });
     return e;
   }
@@ -1087,6 +1098,8 @@ export function create(ctx) {
     get auraRadius() { return C.lanternOut ? 0 : C.lightR; },
     get speedMult() { return C.inSlick ? (C.B?.move?.slickMult ?? 0.6) : 1; },
     get rooted() { return !!grip; },
+    /** A free flare burst (Second Wick revive, DESIGN §6.7): no oil, no charge, cooldown untouched. */
+    freeFlare() { if (!C.run || ctx.flow !== 'playing') return false; fullFlare(); return true; },
     get flareCooldown() { return flareCd; },
     get flareCooldownTotal() { return flareTotal; },
     get flareCost() { return C.stats?.flareCost ?? 16; },

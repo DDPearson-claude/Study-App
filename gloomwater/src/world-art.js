@@ -523,6 +523,14 @@ export function buildArena(ctx, L, opts = {}) {
     }
   }
 
+  // ---------------- named set pieces on authored islands (data.js arena.islands[].kind)
+  for (const o of L.islands) {
+    if (o.kind === 'giant') P.statue(o.x, o.z, o.r * 0.42, 0.12, surf(o, o.x, o.z));          // the Kneeling giants
+    else if (o.kind === 'monolith') P.obelisk(o.x, o.z, o.r * 0.34, rng.range(9, 13));          // Glasswater's monolith ring
+    else if (o.kind === 'wreck') P.wreck(o.x, o.z, o.r * 0.9, o.rot);                         // funeral barges
+    else if (o.kind === 'tower') P.column(o.x - o.r * 0.1, o.z + o.r * 0.15, o.r * 0.22, rng.range(7, 10), true, surf(o, o.x, o.z)); // the Drowned Gatehouse
+  }
+
   for (const o of L.islands) delete o._pos;
   // ---------------- pillars / wrecks
   for (const p of L.pillars) {

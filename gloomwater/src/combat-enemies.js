@@ -686,9 +686,9 @@ export function createEnemies(C) {
     C.shake(0.42, 0.45);
     if (d <= R + 0.6 && C.canHurtPlayer()) {
       const dx = raft.x - p.x, dz = raft.z - p.z, dd = Math.hypot(dx, dz) || 1;
-      C.damagePlayer(e.damage, e.enemyId, e.oilDrain * (C.diff?.drainMult ?? 1), { elite: true });
+      const lost = C.damagePlayer(e.damage, e.enemyId, e.oilDrain * (C.diff?.drainMult ?? 1), { elite: true });
       C.knockPlayer(dd > 0.3 ? dx / dd : 1, dd > 0.3 ? dz / dd : 0, e.def.knock ?? 4);
-      if (e.def.snapsLine) C.snapLine?.();
+      if (e.def.snapsLine && lost > 0) C.snapLine?.();   // a warded / i-framed slam keeps the line
       const m = e.mods;
       if (m?.tipsCreel) C.tipCreel?.(m.tipsCreel, p);
       if (m?.grip) C.gripPlayer?.(e, m.grip);

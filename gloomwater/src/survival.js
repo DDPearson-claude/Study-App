@@ -118,13 +118,24 @@ export function create(ctx) {
   }
   let diffKey = '';
   const diffCache = { drainMult: 1, damageMult: 1, heat: 0 };
+  function nightInZone(run) {
+    // nights spent in the current lake (linger Heat, DESIGN §7.2) — same rule as combat's director
+    const p = ctx.progression;
+    if (real(p) && typeof p.getNightInZone === 'function') {
+      try { const n = Number(p.getNightInZone()); if (Number.isFinite(n) && n > 0) return n | 0; } catch { /* fall through */ }
+    }
+    const entered = run?.flags?.zoneEnteredDay;
+    if (Number.isFinite(entered)) return Math.max(1, (run.day || 1) - entered + 1);
+    return Math.max(1, run?.day || 1);
+  }
   function diff(run) {
     const zi = zoneIndex(run);
-    const key = `${run.day | 0}|${zi}`;
+    const niz = nightInZone(run);
+    const key = `${run.day | 0}|${zi}|${niz}`;
     if (key !== diffKey) {
       diffKey = key;
       let d = null;
-      try { d = D().difficultyFor?.(run.day | 0 || 1, zi, 0.5); } catch { d = null; }
+      try { d = D().difficultyFor?.(run.day | 0 || 1, zi, 0.5, { nightInZone: niz }); } catch { d = null; }
       diffCache.drainMult = num(d?.drainMult, 1);
       diffCache.damageMult = num(d?.damageMult, 1);
       diffCache.heat = num(d?.heat, 0);
@@ -297,7 +308,7 @@ export function create(ctx) {
         s.out = true;
         s.darkT = 0;
         emit('lantern:out', {});
-        toast('Darkness. Burn a fish to relight your lantern.', 'bad');
+        if (!real(ctx.ui)) toast('Darkness. Burn a fish to relight your lantern.', 'bad');   // ui owns this message (tip, then toast)
         vibrate(40);
       }
     } else if (s.out && run.oil > 0) {
@@ -346,10 +357,9 @@ export function create(ctx) {
 
   function hurtFeedback(embers, src) {
     const env = ENV_SOURCES.has(src);
-    ctx.render?.shake?.(Math.min(0.6, (env ? 0.16 : 0.26) + 0.08 * embers), 0.4);
+    // render shakes on player:damage and ui-hud vibrates on touch; survival only adds the red flash
     ctx.render?.flash?.(0x7a140a, Math.min(0.3, (env ? 0.1 : 0.14) + 0.05 * embers), 0.32);
     ctx.actors?.setPose?.('hurt');
-    vibrate(25);
     // wax and cinders knocked off the flame
     const h = headPos();
     fx.motes(h.x, h.y + 0.1, h.z, { count: 7 + 3 * embers, color: src === 'darkness' ? GUTTER : HURT, speed: 5, spread: 0.5, life: 0.6, size: 0.1, gravity: -7, damping: 1.4, shape: 'burst', intensity: 0.75 });
@@ -542,15 +552,34 @@ export function create(ctx) {
     }
     // fallback (combat publishes nothing): survival applies the dims it can observe itself
     let dims = mods;
-    const cd = c ? c.lightDim : undefined;
+    const cd = c ? c.lightDims : undefined;
     if (typeof cd === 'number' && Number.isFinite(cd) && cd > 0) dims *= cd;
     if (real(ctx.player) && ctx.player.inSlick === true) dims *= num(L.slick, 0.8);
+    const fm = real(ctx.fishing) ? ctx.fishing.lightMult : undefined;   // legendary Eclipse (combat folds it in when present)
+    if (typeof fm === 'number' && fm > 0 && fm < 1) dims *= fm;
     dims = Math.max(num(L.dimFloor, 0.5), dims);
     const F = cfgFlare();
     const boostMax = num(F.lightBoost, 1.4);
     const boost = T.flareBoost > 0 ? 1 + (boostMax - 1) * Math.min(1, T.flareBoost / 0.5) : 1;
     const guts = T.gutsT > 0 ? T.gutsBonus : 0;
     return Math.max(0.5, radius * dims * boost + guts);
+  }
+
+  /**
+   * DESIGN §5.6: a gloom-time legendary fight holds the Gloomtide open until it resolves. The
+   * clock still runs into the hush (k ≥ 0.93, nothing spawns) and waits there instead of
+   * breaking to dawn under the fight.
+   */
+  function holdsGloomtide(run) {
+    if (run.phase !== 'gloomtide') return false;
+    const f = ctx.fishing;
+    if (!real(f)) return false;
+    const st = f.state;
+    if (st !== 'reeling' && st !== 'landing') return false;
+    const v = f.view;
+    if (!v || v.rarity !== 'legendary') return false;
+    const sp = D().SPECIES_BY_ID?.[v.speciesId];
+    return !sp || sp.time !== 'calm';
   }
 
   // ---------------------------------------------------------------- simulation
@@ -568,6 +597,7 @@ export function create(ctx) {
     // clock
     run.phaseTime += dt;
     let dur = phaseDuration(run.phase, run.day);
+    if (holdsGloomtide(run)) run.phaseTime = Math.min(run.phaseTime, Math.max(0, dur - 0.05));
     let guard = 0;
     while (run.phaseTime >= dur && guard++ < 8) {
       run.phaseTime -= dur;
@@ -768,6 +798,9 @@ export function create(ctx) {
       return T.god || T.iframes > 0 || T.dead || !playing(run);
     },
     isGod: () => T.god,
+    /** Jump the clock to a phase (e.g. the Pale Leviathan landing ends the Gloomtide). */
+    setPhase(name) { return setPhase(name); },
+    get holdingGloomtide() { const r = ctx.state.run; return !!r && holdsGloomtide(r); },
     addIframes(seconds) { return api.grantIframes(seconds); },
     setLightMod,
     clearLightMod,
