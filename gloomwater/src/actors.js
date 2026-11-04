@@ -33,7 +33,7 @@ export function create(ctx) {
   const pool = makeLightPool(); group.add(pool.mesh);
   const line = makeLine(44); group.add(line.mesh);
   const bobber = makeBobber(); group.add(bobber.group);
-  const ringMat = new THREE.MeshBasicMaterial({ color: 0xffc27a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: true });
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xead6a8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: true });
   const bobRing = new THREE.Mesh(new THREE.RingGeometry(0.82, 1, 40, 1), ringMat);
   bobRing.rotation.x = -Math.PI / 2; bobRing.renderOrder = 2; bobRing.visible = false; group.add(bobRing);
   const merchantR = createMerchant(ctx); group.add(merchantR.object3d);
@@ -76,9 +76,9 @@ export function create(ctx) {
     raft.lflame.outerMat.uniforms.uColor.value.copy(lc);
     raft.halo.material.color.copy(lc);
     raft.glassMat.color.copy(lc).multiplyScalar(1.6);
-    // the pool fill leans gold: added over cold slate/indigo water, a redder amber reads copper/rose
+    // the pool fill leans gold: added over cold indigo water, a redder amber reads copper/rose
+    // (no reach ring: the soft pool itself shows how far the light goes, DESIGN §19.1)
     pool.mat.uniforms.uColor.value.copy(lc).lerp(new THREE.Color(0xffc46a), 0.45);
-    pool.mat.uniforms.uRing.value.copy(lc).lerp(new THREE.Color(0xffe2b0), 0.35);
   }
   function autoRaftLevel() {
     if (st.raftLevelExplicit) return;
@@ -307,7 +307,6 @@ export function create(ctx) {
       pu.uK.value = lit ? (0.5 + 0.5 * lv) * (1 + st.boost * 1.4) : damp(pu.uK.value, 0, 6, dt);
       pu.uDanger.value = lit ? low : 0;
       const R = Math.max(0.5, st.radiusCur * (1 + st.boost * 0.08));
-      pu.uRadius.value = R;
       pool.mesh.visible = pu.uK.value > 0.01;
       if (pool.mesh.visible) pool.layout(px, pz, R, hasWater() ? H : null, 0.07);
       // brazier
@@ -466,7 +465,7 @@ export function create(ctx) {
       bobRing.visible = true;
       bobRing.position.set(x, h + 0.075, z);
       bobRing.scale.setScalar((0.25 + ph * (B.state === 'bite' ? 1.4 : 0.9)) * Math.max(1, far * 0.8));
-      ringMat.color.set(B.state === 'bite' ? 0xff5a3a : 0xffc27a);
+      ringMat.color.set(B.state === 'bite' ? 0xff5a3a : 0xead6a8);   // pale gold-stone ripple (transient), red on a bite
       ringMat.opacity = (1 - ph) * (B.state === 'bite' ? 0.9 : 0.5);
     } else bobRing.visible = false;
   }
