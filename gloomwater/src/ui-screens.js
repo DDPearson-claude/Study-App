@@ -372,7 +372,7 @@ export function createScreens(K) {
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
-            <p class="gw-cc-note">${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)}` : ''} <span class="gw-cc-note-more">${esc(N.more)}</span></p>
+            <p class="gw-cc-note">${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
             <div class="gw-cc-kicker">${esc(N.kicker)}</div>
@@ -392,6 +392,7 @@ export function createScreens(K) {
       content.querySelector('[data-room]')?.addEventListener('click', () => { s.room = !s.room; sfx('ui_click'); entry.render(); });
       const right = content.querySelector('.gw-cc-right');
       if (full && s.room) {
+        pn.classList.add('gw-cc-rooming');
         const list = h('div', 'gw-room');
         for (const f of arr(r?.creel)) {
           const fsp = K.speciesData(f.speciesId);
@@ -765,7 +766,7 @@ export function createScreens(K) {
       const T = D().TEXT || {};
       const allSp = arr(D().SPECIES);
       const named = allSp.filter((x) => J[x.id]).length;
-      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: 'gw-p-wide gw-p-journal', kicker: icon('journal') });
+      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: 'gw-p-wide gw-p-journal' });
       const tabList = zones.map((z) => { const sps = allSp.filter((x) => x.zone === z.id); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: `${n}/${sps.length}` }; });
       pn.insertBefore(tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; entry.render(); }), content);
       const z = K.zoneData(s.zone);
