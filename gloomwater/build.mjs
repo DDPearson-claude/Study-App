@@ -22,7 +22,7 @@ const args = Object.fromEntries(process.argv.slice(2).map(a => {
   return [k, v === undefined ? true : v];
 }));
 
-const MODULES = ['render', 'water', 'world', 'actors', 'models', 'fishing', 'survival', 'progression', 'ui', 'audio'];
+const MODULES = ['render', 'water', 'world', 'actors', 'models', 'fishing', 'survival', 'progression', 'ui', 'audio', 'player', 'combat'];
 let stubbed = new Set();
 if (args.stub) String(args.stub).split(',').forEach(m => stubbed.add(m.trim()));
 if (args.only) {
