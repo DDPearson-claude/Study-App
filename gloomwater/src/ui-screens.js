@@ -1086,7 +1086,7 @@ export function createScreens(K) {
       const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}`);
       wrap.innerHTML = `<div class="gw-death-veil"></div><div class="gw-death-inner gw-scroll">
         <div class="gw-death-head"><div class="gw-death-candle"><i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
-        <div class="gw-death-line">Day ${fmt(S.day || 1)} · ${esc(z?.name || '')} · Level ${fmt(S.level || 1)}${ch ? ` · ${esc(ch.name)}` : ''}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
+        <div class="gw-death-line">${[`Day ${fmt(S.day || 1)}`, esc(z?.name || ''), `Level ${fmt(S.level || 1)}`, ch ? esc(ch.name) : ''].filter(Boolean).map((x) => `<span>${x}</span>`).join(' · ')}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
         <div class="gw-pdiv">${ORN.flourish}</div></div>
         <div class="gw-death-cols">
           <section class="gw-death-mem"><h2>${esc(T.memoriesHeader || 'What the Water Remembers')}</h2><div class="gw-mem-rows"></div>
