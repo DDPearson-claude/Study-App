@@ -257,6 +257,7 @@ export function create(ctx) {
     const steps = Math.min(12, Math.max(1, Math.ceil(dt / MAX_STEP)));
     const h = dt / steps;
     for (let i = 0; i < steps; i++) integrate(h);
+    leash();
 
     velocity.set(cv.x + ext.x + pullV.x, 0, cv.z + ext.z + pullV.z);
     const sp = Math.hypot(velocity.x, velocity.z);
@@ -303,6 +304,30 @@ export function create(ctx) {
       const pz = position.z + _r.z * 1.25 * paddleSide - _f.z * 0.3;
       ripple(px, pz, 0.22 + 0.33 * frac);
     }
+  }
+
+  /**
+   * v3 Scorched (CONTRACT §13.4): a forced lamp-watch holds the raft within its radius (10 m) of the anchor until dawn.
+   * survival.lampWatch is null outside a v3 run, so this never acts in v1 or The Long Descent. The outward part of the
+   * paddling and knockback velocity is dropped, so the raft slides along the edge instead of bouncing.
+   */
+  function leash() {
+    const s = ctx.survival;
+    if (!real(s)) return;
+    let lw = null;
+    try { lw = s.lampWatch; } catch { lw = null; }
+    if (!lw || lw.forced !== true || !Number.isFinite(lw.x) || !Number.isFinite(lw.z)) return;
+    const R = Math.max(1, num(lw.radius, 10));
+    const dx = position.x - lw.x, dz = position.z - lw.z;
+    const d = Math.hypot(dx, dz);
+    if (d <= R || d < 1e-6) return;
+    const nx = dx / d, nz = dz / d;
+    position.x = lw.x + nx * R;
+    position.z = lw.z + nz * R;
+    const vc = cv.x * nx + cv.z * nz;
+    if (vc > 0) { cv.x -= vc * nx; cv.z -= vc * nz; }
+    const ve = ext.x * nx + ext.z * nz;
+    if (ve > 0) { ext.x -= ve * nx; ext.z -= ve * nz; }
   }
 
   // ---------------------------------------------------------------- interactions
