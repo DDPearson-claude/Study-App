@@ -71,6 +71,9 @@ uniform vec4 uRaft;           // x, z, radius, speed
 uniform sampler2D uDepthTex;  // world.getDepth baked over the arena (0 shallow .. 1 deep)
 uniform float uDepthScale;    // 1 / (2 · half-extent)
 uniform float uDepthOn;
+uniform float uWaveT;
+uniform vec4 uWaveA[4];   // same swell as the vertex shader
+uniform vec2 uWaveB[4];
 varying vec3 vWorld;
 varying vec3 vGradH;
 
@@ -142,7 +145,14 @@ void main() {
   float camD = length(cameraPosition - P);
   float near = 1.0 - smoothstep(22.0, 95.0, camD);
 
-  vec2 g = vGradH.xy;
+  // swell slope evaluated per fragment: interpolating it across the (3 m on low) grid cells made
+  // piecewise-linear normals whose banded fresnel showed as hard-edged dark polygons
+  vec2 g = vec2(0.0);
+  for (int i = 0; i < 4; i++) {
+    vec4 a = uWaveA[i];
+    float ph = a.z * (a.x * xz.x + a.y * xz.y) + uWaveB[i].x * uWaveT + uWaveB[i].y;
+    g += a.w * a.z * cos(ph) * a.xy;
+  }
 #ifndef GW_LOW
   g += chopGrad(xz, uTime) * (0.25 + 0.75 * near);
 #else

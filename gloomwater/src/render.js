@@ -32,8 +32,10 @@ const TIER_ORDER = ['low', 'medium', 'high'];
 const MODES = {
   title: { elev: 15, dist: 15.5, aim: 0, aimY: 2.9, fov: 42, ahead: 0, stiff: 2.2 },
   sail:  { elev: 32, dist: 16.5, aim: 6.5, aimY: 0.6, fov: 50, ahead: 0.55, stiff: 3.6 },
-  fish:  { elev: 34, dist: 14.0, aim: 0.8, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 },
-  reel:  { elev: 25, dist: 10.0, aim: 0.4, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4 },
+  // fish / reel look a little behind the raft so it sits at ~45–65% height, clear of the
+  // bottom-centre lantern cluster and reel gauge, with the bobber still well below the clock
+  fish:  { elev: 34, dist: 14.0, aim: -2.5, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 },
+  reel:  { elev: 25, dist: 10.0, aim: -3.0, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4 },
   night: { elev: 53, dist: 24.0, aim: 2.0, aimY: 0.0, fov: 52, ahead: 0.35, stiff: 4.2 },
   shop:  { elev: 18, dist: 10.0, aim: 0, aimY: 1.5, fov: 44, ahead: 0, stiff: 2.4 },
   death: { elev: 36, dist: 12.5, aim: 0, aimY: 0.6, fov: 46, ahead: 0, stiff: 1.4 },
@@ -92,6 +94,17 @@ export function create(ctx) {
   const renderPass = new RenderPass(scene, camera);
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(256, 256), GRADE_DEFAULT.bloomStrength, GRADE_DEFAULT.bloomRadius, GRADE_DEFAULT.bloomThreshold);
   bloomPass.highPassUniforms.smoothWidth.value = 0.22;   // soft knee: no popping glows
+  // Clamp what feeds the bloom: a tiny HDR-hot sprite (eyes, motes, cinders, Warden glow) otherwise
+  // pours its whole energy through the half-res mips and blooms into a visible square on low.
+  {
+    const hp = bloomPass.materialHighPassFilter;
+    hp.uniforms.uBloomClamp = { value: 3.0 };
+    hp.fragmentShader = hp.fragmentShader
+      .replace('uniform float smoothWidth;', 'uniform float smoothWidth;\nuniform float uBloomClamp;')
+      .replace('gl_FragColor = mix( outputColor, texel, alpha );',
+        'float lum = max(luminance( texel.xyz ), 1e-4);\n\t\t\ttexel.rgb *= min(1.0, uBloomClamp / lum);\n\t\t\tgl_FragColor = mix( outputColor, texel, alpha );');
+    hp.needsUpdate = true;
+  }
   const gradePass = new ShaderPass(GradeShader);
   const gu = gradePass.uniforms;
   const outputPass = new OutputPass();
@@ -151,6 +164,7 @@ export function create(ctx) {
     tierName = name;
     const t = TIERS[name];
     bloomScale = t.bloomScale;
+    bloomPass.materialHighPassFilter.uniforms.uBloomClamp.value = name === 'low' ? 2.0 : 3.0;
     buildComposer(ctx.isMobile ? 0 : t.samples);
     const m = gradePass.material;
     if (m.defines.GW_PAPER !== t.paper || m.defines.GW_FRINGE !== t.fringe) {
@@ -410,7 +424,7 @@ export function create(ctx) {
     if (mode === 'fish' || mode === 'reel') {
       const b = bobber();
       if (b) {
-        const w = mode === 'reel' ? 0.4 : 0.44;
+        const w = mode === 'reel' ? 0.28 : 0.3;
         out.x = lerp(p.x, b.x, w); out.z = lerp(p.z, b.z, w);
       } else if (mode === 'fish') {
         const aim = Number(ctx.fishing?.view?.aim);
@@ -633,7 +647,7 @@ export function create(ctx) {
       on('fishing:surge', ({ strength }) => { shake(clamp(0.06 + 0.08 * (Number(strength) || 1), 0, 0.3), 0.3); });
       on('fishing:caught', () => { kick(-2); pulse({ bloom: 0.3 }); });
       on('fishing:escaped', ({ reason }) => { if (reason === 'snap') { shake(0.22, 0.3); pulse({ fringe: 1 }); } });
-      on('flare', () => { kick(4); pulse({ bloom: 0.7 }); shake(0.18, 0.3); });
+      on('flare', () => { kick(4); pulse({ bloom: 0.4 }); shake(0.18, 0.3); });   // a softer pulse: the flare must not wash the frame
       on('levelup', () => { pulse({ bloom: 0.5 }); kick(-1.5); });
       on('boss:spawn', ({ enemy }) => {
         shake(0.6, 1.2); pulse({ vignette: 0.25 });
