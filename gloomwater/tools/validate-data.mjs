@@ -305,6 +305,28 @@ for (const t of D.TIPS) {
 }
 ok(new Set(D.TIPS.map((t) => t.id)).size === D.TIPS.length, 'duplicate tip ids');
 
+// ---------------------------------------------------------------------------- palette rule (DESIGN §19.1)
+// Green and teal (hue 65–195°) only as rare trace accents: no data colour (fish, characters, lake palettes,
+// rarity colours) may sit in that band with any real saturation. The Mossback Perch's breath of sage (≤ 0.13) passes.
+const hsl = (n) => {
+  const r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+  if (d === 0) return { h: -1, s: 0, l };
+  let h = mx === r ? 60 * (((g - b) / d) % 6) : mx === g ? 60 * ((b - r) / d + 2) : 60 * ((r - g) / d + 4);
+  if (h < 0) h += 360;
+  return { h, s: d / (1 - Math.abs(2 * l - 1)), l };
+};
+const PAL_MAX_SAT = 0.15;
+const palCheck = (path, n) => {
+  if (!isNum(n)) return;
+  const { h, s } = hsl(n);
+  ok(!(h >= 65 && h <= 195 && s >= PAL_MAX_SAT), `palette: ${path} #${n.toString(16).padStart(6, '0')} is green/teal (hue ${h.toFixed(0)}°, sat ${s.toFixed(2)}); DESIGN §19.1`);
+};
+for (const s of D.SPECIES) for (const k of ['body', 'belly', 'fin', 'glow']) palCheck(`species ${s.id}.model.${k}`, s.model?.[k]);
+for (const c of D.CHARACTERS) for (const [k, v] of Object.entries(c.look || {})) if (k !== 'scale') palCheck(`character ${c.id}.look.${k}`, v);
+for (const z of D.ZONES) for (const [k, v] of Object.entries(z.palette || {})) if (k !== 'fogDensity') palCheck(`zone ${z.id}.palette.${k}`, v);
+for (const [k, v] of Object.entries(D.RARITY_COLORS || {})) palCheck(`RARITY_COLORS.${k}`, v);
+
 // ---------------------------------------------------------------------------- originality scan (display strings)
 const BANNED = /\b(hollow ?knight|hallownest|geo|soul|charms?|vessels?|grubs?|husks?|lumafly|dreamers?|mourner|greenpath|archives|masks?|shades?)\b/i;
 const seen = new Set();
