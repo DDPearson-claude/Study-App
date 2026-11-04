@@ -17,6 +17,16 @@ import { uid, clamp } from './core.js';
 import { createChallenges } from './progression-challenges.js';
 import { createMarket } from './progression-market.js';
 import * as V3H from './progression-v3.js';
+import * as DATA from './data.js';
+
+/**
+ * Pg0 as a module export (CONTRACT §13.1 boot: main may migrate the raw envelope before any module is created):
+ * migrateSave(save, data = the build's data module) -> save, ids only, idempotent; a no-op with the v3 flag off.
+ * The instance method `progression.migrateSave(save)` does the same with ctx.data.
+ */
+export function migrateSave(save, data = DATA) {
+  return V3H.migrateSave(data, save);
+}
 
 const QUALITY_RANK = { normal: 0, fine: 1, perfect: 2 };
 const BAIT_PREFERENCE = ['mireworm', 'lumen_moss', 'spore_cake', 'ember_roe', 'glass_larva', 'shimmerfly'];

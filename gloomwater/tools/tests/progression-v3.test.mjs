@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import * as dataV1 from '../../src/data.js';                 // evaluated first: GW_V3 unset → the flag-off build
 import { createBus, defaultMeta, makeRng } from '../../src/core.js';
-import { create } from '../../src/progression.js';
+import { create, migrateSave as migrateSaveModule } from '../../src/progression.js';
 import * as V3H from '../../src/progression-v3.js';
 
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_WALK = false;
@@ -128,6 +128,11 @@ const V1_SAVE = () => ({
   const v1 = V1_SAVE(), v1c = clone(v1);
   V3H.migrateSave(dataV1, v1);
   eq(v1, v1c, 'flag off: migrateSave leaves the save untouched');
+  // the module export main may call at boot, before any module exists (CONTRACT §13.1)
+  const mv = V1_SAVE(), mvc = clone(mv);
+  migrateSaveModule(mv);
+  eq(mv, mvc, "module migrateSave(save) uses the build's data (here the flag-off build): untouched");
+  ok(migrateSaveModule(V1_SAVE(), data).run.bait.last_candle === 1, 'module migrateSave(save, v3 data) renames');
 }
 {
   // through progression: main calls migrateSave(envelope) at boot (CONTRACT §13.1) …
