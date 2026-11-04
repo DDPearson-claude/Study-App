@@ -5,7 +5,6 @@
 import * as THREE from 'three';
 
 const PHASES = ['calm', 'dusk', 'gloomtide', 'dawn'];
-const PHASE_LABEL = { calm: 'Calm', dusk: 'Dusk', gloomtide: 'Gloomtide', dawn: 'Dawn' };
 const DEG = Math.PI / 180;
 const EMBER_SVG = `<svg viewBox="0 0 20 28" aria-hidden="true"><path class="o" d="M10 1.5C12 7 18 10 18 18a8 8 0 0 1-16 0c0-4 2.4-6.4 4-9 .6 2.6 1.6 4 3 4.6C8 10.5 8 6.5 10 1.5z"/><path class="i" d="M10 13c1.4 1.8 3 3 3 5.4a3 3 0 0 1-6 0c0-2.2 1.6-3.4 3-5.4z"/><path class="w" d="M10 22.5v4"/></svg><i class="gw-smoke"></i>`;
 
@@ -94,17 +93,17 @@ export function createHud(K) {
     </div>
     <div class="gw-bite"><svg viewBox="0 0 70 70" aria-hidden="true"><circle class="t" cx="35" cy="35" r="30"/><circle class="r" cx="35" cy="35" r="30" pathLength="100" transform="rotate(-90 35 35)"/></svg><span>!</span></div>
     <div class="gw-reel">
-      <div class="gw-reel-head">
+      <div class="gw-reel-name"></div>
+      <div class="gw-reel-row">
         <div class="gw-reel-medal"><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="t" cx="24" cy="24" r="20"/><circle class="f" cx="24" cy="24" r="20" pathLength="100" transform="rotate(-90 24 24)"/></svg>${icon('fish', { cls: 'gw-reel-fishico' })}</div>
-        <div class="gw-reel-name"></div>
+        <div class="gw-reel-gauge">
+          <div class="gw-reel-safe"></div><div class="gw-reel-decoy"></div><div class="gw-reel-sweet"></div>
+          <div class="gw-reel-shard"></div><div class="gw-reel-shard"></div>
+          <div class="gw-reel-danger"></div><div class="gw-reel-needle"></div>
+          <i class="gw-reel-cap l"></i><i class="gw-reel-cap r"></i>
+        </div>
+        <div class="gw-reel-surge"><span class="gw-surge-glyph">▼</span><span class="gw-surge-text">Ease</span></div>
       </div>
-      <div class="gw-reel-gauge">
-        <div class="gw-reel-safe"></div><div class="gw-reel-decoy"></div><div class="gw-reel-sweet"></div>
-        <div class="gw-reel-shard"></div><div class="gw-reel-shard"></div>
-        <div class="gw-reel-danger"></div><div class="gw-reel-needle"></div>
-        <i class="gw-reel-cap l"></i><i class="gw-reel-cap r"></i>
-      </div>
-      <div class="gw-reel-surge"><span class="gw-surge-glyph">▼</span><span class="gw-surge-text">Ease</span></div>
       <div class="gw-reel-hint"></div>
       <div class="gw-reel-result"></div>
     </div>
@@ -357,6 +356,7 @@ export function createHud(K) {
       const s = Math.min(Math.abs(sx), Math.abs(sy));
       let mx = cx + dx * s, my = cy + dy * s;
       if (my <= y0 + 1 && Math.abs(mx - cx) < clockHalf) my = y0 + clockDrop;
+      if (my >= H - 200 && (mx > W - 140 || Math.abs(mx - cx) < 130)) my = H - 210;
       if (mk.kind !== t.kind) {
         mk.kind = t.kind;
         mk.el.className = `gw-mark gw-mk-${t.kind}${mk.on ? ' gw-on' : ''}`;
@@ -372,10 +372,9 @@ export function createHud(K) {
 
   // ------------------------------------------------------------------ fishing ui
   const rp = new THREE.Vector3();
-  let reelShowT = 0, resultT = 0, lastFishState = 'idle', reelCount = 0;
+  let reelShowT = 0, resultT = 0, reelCount = 0;
   function onFishingState({ state, prev } = {}) {
     if (state === 'reeling' && prev !== 'reeling') reelCount++;
-    lastFishState = state;
   }
   function showResult(text, cls) {
     R.reelResult.textContent = text;
@@ -400,7 +399,7 @@ export function createHud(K) {
       toggle(R.charge, 'chg', 'gw-clean', c >= 0.92);
       const hint = typeof v.hint === 'string' ? v.hint : '';
       const depth = hint === 'shallow' || hint === 'mid' || hint === 'deep' ? hint : '';
-      setText(R.chargeDepth, 'chgD', depth ? (depth === 'mid' ? 'mid water' : depth + ' water') : '');
+      setText(R.chargeDepth, 'chgD', '');
       setAttr(R.chargeDepth, 'chgDc', 'data-depth', depth);
     }
     // bite prompt at the bobber
@@ -429,7 +428,7 @@ export function createHud(K) {
     const danger = typeof v.danger === 'boolean' ? (v.danger ? 1 : 0) : Math.max(0, Math.min(1, num(v.danger)));
     setStyle(R.danger, 'dng', 'opacity', q(danger, 50).toFixed(2));
     toggle(R.reel, 'reel', 'gw-danger', danger > 0.55);
-    const inSweet = T >= sMin && T <= sMax, inSafe = T >= 0.15 && T <= 0.85;
+    const inSweet = T >= sMin && T <= sMax, inSafe = T >= (typeof v.safeMin === 'number' ? v.safeMin : 0.15) && T <= (typeof v.safeMax === 'number' ? v.safeMax : 0.85);
     toggle(R.reel, 'reel', 'gw-sweet-in', inSweet);
     toggle(R.reel, 'reel', 'gw-safe-out', !inSafe);
     const hidden = !!v.bandsHidden;
@@ -466,13 +465,17 @@ export function createHud(K) {
     setText(R.reelName, 'rname', sp ? sp.name : '');
     setVar(R.reel, 'rcol', '--rc', K.rarityCss(v.rarity || sp?.rarity || 'common'));
     toggle(R.reel, 'reel', 'gw-legend', (v.rarity || sp?.rarity) === 'legendary');
-    const hint = typeof v.hint === 'string' && v.hint && !['shallow', 'mid', 'deep'].includes(v.hint) ? v.hint : (num(K.meta().runs, 0) <= 2 && reelCount <= 3 ? 'Hold to reel · release to ease' : '');
+    const phaseName = typeof v.phaseName === 'string' && v.phaseName ? v.phaseName : '';
+    const hint = phaseName || (typeof v.hint === 'string' && v.hint && !['shallow', 'mid', 'deep'].includes(v.hint) ? v.hint : (num(K.meta().runs, 0) <= 2 && reelCount <= 3 ? 'Hold to reel · release to ease' : ''));
+    const sfMin = typeof v.safeMin === 'number' ? v.safeMin : 0.15, sfMax = typeof v.safeMax === 'number' ? v.safeMax : 0.85;
+    setStyle(R.safeB, 'sfL', 'left', (sfMin * 100).toFixed(1) + '%');
+    setStyle(R.safeB, 'sfW', 'width', ((sfMax - sfMin) * 100).toFixed(1) + '%');
     setText(R.reelHint, 'rhint', hint);
   }
 
   // ------------------------------------------------------------------ state
   let visible = false, shellsShown = -1, shellsTarget = 0, popT = 0, statsDirty = true, statsTimer = 0;
-  let prevHp = -1, lastZone = null, xpShown = 0, levelShown = -1, phaseShown = '', lowFlags = { oil: 0, satiety: 0, hp: 0 };
+  let prevHp = -1, xpShown = 0, levelShown = -1, phaseShown = '', lowFlags = { oil: 0, satiety: 0, hp: 0 };
 
   function setVisible(v) {
     visible = !!v;
@@ -648,7 +651,6 @@ export function createHud(K) {
     dirtyBoons() { boonsDirty = true; },
     dirtyStats() { statsDirty = true; },
     onZone(z) {
-      lastZone = z;
       const p = z?.palette || {};
       el.style.setProperty('--zone-glow', K.cssHex(p.glow, '#6ff5c8'));
       el.style.setProperty('--zone-accent', K.cssHex(p.accent, '#d6f59a'));

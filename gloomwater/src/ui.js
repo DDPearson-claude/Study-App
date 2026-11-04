@@ -129,6 +129,7 @@ export function create(ctx) {
     wrap.appendChild(body);
     entry.body = body;
     entry.render = () => {
+      statFrame = -1;
       const scrolls = [...body.querySelectorAll('.gw-scroll')].map((s) => s.scrollTop);
       body.innerHTML = '';
       try { render(entry, body); } catch (e) { report(`render(${id})`, e); body.appendChild(h('div', 'gw-panel gw-error', `<p>The ink ran. (${esc(e?.message || e)})</p>`)); }
@@ -318,7 +319,7 @@ export function create(ctx) {
     out.ok = false;
     if (!pos || typeof pos.x !== 'number') return out;
     const cam = ctx.render?.camera;
-    if (cam && cam.isCamera && cam.matrixWorldInverse) {
+    if (cam && cam.isCamera === true && cam.matrixWorldInverse?.isMatrix4) {
       _v.set(pos.x, pos.y || 0, pos.z).applyMatrix4(cam.matrixWorldInverse);
       out.behind = _v.z > -0.01;
       _v.applyMatrix4(cam.projectionMatrix);
@@ -525,7 +526,7 @@ export function create(ctx) {
       if (!zonesSeen.has(z.id)) {
         zonesSeen.add(z.id);
         const line = D().TEXT?.zoneEnter?.[z.id];
-        if (line) setTimeout(() => { if (ctx.flow === 'playing') toast(line, 'lore'); }, prev ? 3800 : 4200);
+        if (line) setTimeout(() => { if (ctx.flow === 'playing') toast(line, 'lore'); }, prev ? 4400 : 5200);
       }
     });
     on('phase:change', ({ phase, day }) => {
@@ -689,6 +690,9 @@ export function create(ctx) {
           }
         }
         layers.toasts.classList.toggle('gw-low', hasBlocking());
+        const S = settings();
+        root.classList.toggle('gw-calm-fx', S.reducedFlashing === true);
+        root.classList.toggle('gw-no-dmg', S.damageNumbers === false);
         hud.update(dt);
         for (const m of stack) { m.t += dt; m.tick?.(dt); }
         updateWorldText(dt);

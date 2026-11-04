@@ -535,6 +535,6 @@ function paint(g, W, H, species, sil, pad, dpr) {
     else if (shape === 'jelly') drawJelly(g, col, U, sil, rng, m);
     else if (shape === 'crayfish') drawCrayfish(g, col, U, sil, rng, m);
     else drawGeneric(g, SHAPES.minnow, col, U, sil, rng, m);
-  } catch (e) { /* never break a screen over an illustration */ }
+  } catch { /* never break a screen over an illustration */ }
   g.restore();
 }

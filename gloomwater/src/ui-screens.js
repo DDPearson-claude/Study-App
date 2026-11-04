@@ -52,9 +52,10 @@ export function createScreens(K) {
     return t;
   }
   const tabKeys = (entry, ids, get, set) => (code) => {
-    if (code !== 'BracketLeft' && code !== 'BracketRight' && code !== 'KeyQ' && code !== 'KeyE' && code !== 'Tab_') return false;
+    if (code !== 'BracketLeft' && code !== 'BracketRight' && code !== 'ArrowLeft' && code !== 'ArrowRight') return false;
+    if (code.startsWith('Arrow') && document.activeElement?.type === 'range') return false;
     const i = ids.indexOf(get());
-    const d = code === 'BracketLeft' || code === 'KeyQ' ? -1 : 1;
+    const d = code === 'BracketLeft' || code === 'ArrowLeft' ? -1 : 1;
     set(ids[(i + d + ids.length) % ids.length]);
     sfx('ui_click');
     entry.render();
