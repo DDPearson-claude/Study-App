@@ -1222,7 +1222,7 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 | `--chip-pos` | #d6e2f6, border rgba(170,190,235,.32) | positive stat chips |
 | `--lore` | #ccc4ea (lilac-silver) | lore toast title, shop kicker |
 | `--halo` | rgba(180,196,240,.35) | banner and logotype glow, loader title glow |
-| `--mk-gate` | #c0bcf0, glow rgba(182,184,238,.45) | gate edge marker (the gate's periwinkle-lilac filigree) |
+| `--mk-gate` | #c0bcf0, glow rgba(182,184,238,.45) | gate edge marker (the gate's periwinkle-lilac filigree); `ui-hud.onZone` re-derives it per lake from the filigree (glow/accent half and half, lifted 12% toward white), so it follows the gate in every lake (Mossmere #c0c1f0) |
 | `--mk-spot` | #d0c8f4, glow rgba(208,200,244,.3) | spot edge marker (the lilac-moon spot pulse) |
 | `--mk-merchant` | #a6d4a0, glow rgba(166,212,160,.4) | Murk's edge marker: the one sage-green UI trace (his lamp) |
 | `--reel-shard` | #e8f4ff → #5cbcff, glow rgba(92,188,255,.85) | Glass Sovereign reel shards |

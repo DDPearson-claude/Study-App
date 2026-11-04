@@ -174,27 +174,27 @@ export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
     ${locked ? '<text x="50" y="92" text-anchor="middle" class="gw-portrait-q">?</text>' : ''}</svg>`;
 }
 
-/** Old Murk: a hunched mossy toad under a towering pack, a dim green lamp. */
+/** Old Murk: a hunched umber toad under a towering pack, a dim sage lamp (the UI's one green trace). */
 export function murkPortrait() {
   return `<svg class="gw-murk" viewBox="0 0 140 120" aria-hidden="true">
-    <defs><radialGradient id="murkLamp"><stop offset="0" stop-color="#b8ff9a" stop-opacity=".8"/><stop offset=".4" stop-color="#5fd38a" stop-opacity=".25"/><stop offset="1" stop-color="#5fd38a" stop-opacity="0"/></radialGradient></defs>
+    <defs><radialGradient id="murkLamp"><stop offset="0" stop-color="#d2ecc8" stop-opacity=".8"/><stop offset=".4" stop-color="#8fbf88" stop-opacity=".25"/><stop offset="1" stop-color="#8fbf88" stop-opacity="0"/></radialGradient></defs>
     <circle cx="112" cy="40" r="30" fill="url(#murkLamp)" class="gw-murk-glow"/>
-    <path d="M34 88 C30 50 40 22 62 14 C76 9 92 14 96 30 L98 88 Z" fill="#0d0f0c" stroke="#07080d" stroke-width="2"/>
-    <path d="M44 30 h44 M42 46 h50 M40 62 h54 M40 76 h56" stroke="rgba(160,190,140,.18)" stroke-width="2"/>
-    <path d="M62 14 c-2 -8 4 -12 10 -10" fill="none" stroke="rgba(160,190,140,.3)" stroke-width="1.5"/>
-    <path d="M96 30 q14 -18 16 -4 v8" fill="none" stroke="#2a2c26" stroke-width="2.4"/>
-    <path d="M106 34 h12 l-2 4 h-8 z M108 38 h8 l1.5 9 h-11 z" fill="#1b1e18" stroke="#07080d" stroke-width="1.2"/>
-    <circle cx="112" cy="43" r="3.2" fill="#c8ffb0" class="gw-murk-flame"/>
-    <path d="M14 118 C10 94 22 74 46 70 C58 54 86 54 98 70 C120 74 132 96 126 118 Z" fill="#1c2419" stroke="#07080d" stroke-width="2.2"/>
-    <path d="M30 96 c8 -4 14 -2 18 2 M92 98 c6 -5 14 -4 20 1 M58 108 c4 -3 10 -3 14 0" fill="none" stroke="rgba(170,200,140,.22)" stroke-width="2"/>
-    <ellipse cx="54" cy="74" rx="11" ry="8" fill="#232c1f" stroke="#07080d" stroke-width="2"/><ellipse cx="90" cy="74" rx="11" ry="8" fill="#232c1f" stroke="#07080d" stroke-width="2"/>
+    <path d="M34 88 C30 50 40 22 62 14 C76 9 92 14 96 30 L98 88 Z" fill="#0f0c0a" stroke="#07080d" stroke-width="2"/>
+    <path d="M44 30 h44 M42 46 h50 M40 62 h54 M40 76 h56" stroke="rgba(200,180,150,.2)" stroke-width="2"/>
+    <path d="M62 14 c-2 -8 4 -12 10 -10" fill="none" stroke="rgba(200,180,150,.34)" stroke-width="1.5"/>
+    <path d="M96 30 q14 -18 16 -4 v8" fill="none" stroke="#2c2722" stroke-width="2.4"/>
+    <path d="M106 34 h12 l-2 4 h-8 z M108 38 h8 l1.5 9 h-11 z" fill="#1d1916" stroke="#07080d" stroke-width="1.2"/>
+    <circle cx="112" cy="43" r="3.2" fill="#e0f4d6" class="gw-murk-flame"/>
+    <path d="M14 118 C10 94 22 74 46 70 C58 54 86 54 98 70 C120 74 132 96 126 118 Z" fill="#2a241e" stroke="#07080d" stroke-width="2.2"/>
+    <path d="M30 96 c8 -4 14 -2 18 2 M92 98 c6 -5 14 -4 20 1 M58 108 c4 -3 10 -3 14 0" fill="none" stroke="rgba(200,180,150,.26)" stroke-width="2"/>
+    <ellipse cx="54" cy="74" rx="11" ry="8" fill="#1e1a16" stroke="#07080d" stroke-width="2"/><ellipse cx="90" cy="74" rx="11" ry="8" fill="#1e1a16" stroke="#07080d" stroke-width="2"/>
     <path d="M45 75 q9 -6 18 0 q-9 3 -18 0z" fill="#e8d66a" class="gw-murk-eye"/><path d="M81 75 q9 -6 18 0 q-9 3 -18 0z" fill="#e8d66a" class="gw-murk-eye"/>
-    <path d="M47 72 q7 -3 14 0 M83 72 q7 -3 14 0" stroke="#1c2419" stroke-width="3" fill="none"/>
+    <path d="M47 72 q7 -3 14 0 M83 72 q7 -3 14 0" stroke="#2a241e" stroke-width="3" fill="none"/>
     <path d="M34 92 q38 14 76 0" fill="none" stroke="#07080d" stroke-width="2.4"/>
     <path d="M62 64 h20" stroke="rgba(233,226,207,.25)" stroke-width="1.2"/>
     <path d="M22 106 c10 -20 30 -32 50 -34" fill="none" stroke="rgba(233,226,207,.22)" stroke-width="1.2"/>
-    <path d="M62 14 C76 9 92 14 96 30 L98 70" fill="none" stroke="rgba(190,230,170,.32)" stroke-width="1.2"/>
-    <path d="M98 70 C120 74 132 96 126 118" fill="none" stroke="rgba(190,230,170,.3)" stroke-width="1.2"/></svg>`;
+    <path d="M62 14 C76 9 92 14 96 30 L98 70" fill="none" stroke="rgba(200,180,150,.5)" stroke-width="1.2"/>
+    <path d="M98 70 C120 74 132 96 126 118" fill="none" stroke="rgba(200,180,150,.46)" stroke-width="1.2"/></svg>`;
 }
 
 /** A small drowned lantern for the Shrine; lit = 0..1 (level / maxLevel). */

@@ -664,9 +664,21 @@ export function createHud(K) {
     dirtyStats() { statsDirty = true; },
     onZone(z) {
       const p = z?.palette || {};
-      el.style.setProperty('--zone-glow', K.cssHex(p.glow, '#6ff5c8'));
-      el.style.setProperty('--zone-accent', K.cssHex(p.accent, '#d6f59a'));
-      K.root.style.setProperty('--zone-glow', K.cssHex(p.glow, '#6ff5c8'));
+      // zone tokens (DESIGN §21.1); the fallbacks are the Mossmere "Moonlit slate" values
+      const vars = {
+        '--zone-glow': K.cssHex(p.glow, '#a9b9f0'),
+        '--zone-accent': K.cssHex(p.accent, '#c4b8ec'),
+        '--zone-fog': K.cssHex(p.fog, '#262f40'),
+        '--zone-lamp': K.cssHex(p.lamp ?? p.glow, '#c8d2f0'),
+      };
+      // the gate marker wears the gate's filigree colour (world-art: glow/accent mixed half and half)
+      if (typeof p.glow === 'number' && typeof p.accent === 'number') {
+        const ch = (n, i) => (n >> (16 - 8 * i)) & 255;
+        const fil = [0, 1, 2].map((i) => Math.round((ch(p.glow, i) + ch(p.accent, i)) / 2));
+        vars['--mk-gate'] = '#' + fil.map((c) => Math.round(c + (255 - c) * 0.12).toString(16).padStart(2, '0')).join('');
+        vars['--mk-gate-glow'] = `rgba(${fil.join(', ')}, .45)`;
+      }
+      for (const k in vars) { el.style.setProperty(k, vars[k]); K.root.style.setProperty(k, vars[k]); }
       setText(R.zone, 'zone', z?.name || '');
     },
     onPhase(phase) { if (phase) el.dataset.phase = phase; },

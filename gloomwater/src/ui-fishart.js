@@ -6,7 +6,7 @@
 const INK = '#07080d';
 const BONE = '233,226,207';
 
-const hex = (n, d = '#7a8a86') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' && n ? n : d));
+const hex = (n, d = '#7a808c') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' && n ? n : d));
 function rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 function mix(a, b, t) { const A = rgb(a), B = rgb(b); return '#' + [0, 1, 2].map((i) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0')).join(''); }
 function rgba(h, a) { const [r, g, b] = rgb(h); return `rgba(${r},${g},${b},${a})`; }
@@ -509,7 +509,7 @@ export function drawFish(canvas, species, opts = {}) {
 function paint(g, W, H, species, sil, pad, dpr) {
   const m = species?.model || {};
   const shape = m.shape || 'minnow';
-  const col = { body: hex(m.body, '#5f716c'), belly: hex(m.belly, '#cdd6c8'), fin: hex(m.fin, '#34433f'), glow: m.glow != null ? hex(m.glow) : null };
+  const col = { body: hex(m.body, '#6e7684'), belly: hex(m.belly, '#d8dae0'), fin: hex(m.fin, '#3c4452'), glow: m.glow != null ? hex(m.glow) : null };
   col.glowEye = col.glow || '#ffd98a';
   const rng = seedRng(species?.id || 'x');
   const p = SHAPES[shape];

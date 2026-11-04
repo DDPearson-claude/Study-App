@@ -329,3 +329,10 @@ trace accents). Where each channel ended up:
 6. **Water shader and lantern pool:** the lantern's light-pool decal fill leans gold (`actors.js`, lerp
    to `0xffc46a`); warm lights lean gold on the water; inside a light pool the cold base drains to
    warm grey (poolK ×20, cap 0.92); mist strokes and crests carry a silver sheen lifted toward foam.
+7. **UI (merge branch `gw-merge-palette`):** `ui.css` defines every DESIGN §21.1 token on `.gw-ui`
+   and the Fine badge, positive chips, lore toast title, shop kicker, banner/logotype glows, panel
+   haze, gate/spot/merchant markers, depth labels and reel shards read them; `ui-hud.onZone` sets
+   `--zone-glow/-accent/-fog/-lamp` (and the per-lake gate marker) with Moonlit slate fallbacks;
+   `ui-screens` waystone/zone-card fallbacks, `ui-icons` Murk portrait (umber body, sage lamp),
+   `ui-fishart` fallback colours and the `template.html` loader moved too. The only greens left in
+   the UI are the merchant marker and the portrait's lamp/flame.
