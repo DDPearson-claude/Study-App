@@ -268,7 +268,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   function revive() { dead = false; action = null; flameOut = false; explicitBase = null; cur.melt = 0; }
   // Flame colour follows vitality (DESIGN §19.7): the look's colour when healthy, orange-red and
   // shorter below 50%, a guttering pale blue at the last Ember.
-  const RED = new THREE.Color(0xff5a2a), BLUE = new THREE.Color(0x9fd8ff), CORE = new THREE.Color(0xfff2c8), CORE_BLUE = new THREE.Color(0xe8f6ff);
+  const RED = new THREE.Color(0xff5a2a), BLUE = new THREE.Color(0xa2c8ff), CORE = new THREE.Color(0xfff2c8), CORE_BLUE = new THREE.Color(0xe8f6ff);
   function applyFlameColor() {
     const v = vitality;
     if (v <= lastEmber) flameCol.copy(BLUE);

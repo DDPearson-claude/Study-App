@@ -11,7 +11,8 @@ import { buildArena } from './world-art.js';
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
   id: 'mossmere', index: 0, name: 'The Mossmere', arena: { radius: 60, islands: 6, pillars: 10, seed: 1307 },
-  palette: { fog: 0x1a3436, fogDensity: 0.016, water: 0x1f3d3b, waterDeep: 0x081719, foam: 0xbfe3d4, glow: 0x6ff5c8, accent: 0xd6f59a, ambient: 0x3d6662, ink: 0x050c0d, far: 0x5a9488, light: 0xcff7e6 },
+  palette: { fog: 0x262f40, fogDensity: 0.016, water: 0x232b3a, waterDeep: 0x080b12, foam: 0xd6deee, glow: 0xa9b9f0, accent: 0xc4b8ec, lamp: 0xc8d2f0, ambient: 0x46526a, ink: 0x05070a, far: 0x8292b4, light: 0xdae2f4 },
+  grade: { tint: 0x4c5278 },
 };
 
 export function create(ctx) {
@@ -20,8 +21,8 @@ export function create(ctx) {
 
   // lights: hemisphere + directional "crack light" + two accent point lights (always present
   // so the light count — and therefore shader programs — never changes)
-  const hemi = new THREE.HemisphereLight(0x8fb8c0, 0x0a1012, 1.4);
-  const dir = new THREE.DirectionalLight(0xcff7e6, 2.0);
+  const hemi = new THREE.HemisphereLight(0x9ca8bc, 0x0a0c12, 1.4);
+  const dir = new THREE.DirectionalLight(0xdae2f4, 2.0);
   dir.position.set(-10, 80, -20);
   group.add(hemi, dir, dir.target);
   const accents = [0, 1].map(() => {
@@ -97,6 +98,7 @@ export function create(ctx) {
     refillObstacles();
     const p = Object.assign({}, FALLBACK_ZONE.palette, z.palette || {});
     for (const k of ['fog', 'far', 'light', 'glow', 'ambient', 'ink', 'water', 'waterDeep', 'foam', 'accent']) zc[k] = new THREE.Color(p[k]);
+    zc.lamp = new THREE.Color((z.palette ? z.palette.lamp : p.lamp) ?? p.glow);   // optional cold lamp colour (island lamps, buoys, statue orbs, lit windows)
     zc.fogDensity = p.fogDensity || 0.016;
   }
 
@@ -210,17 +212,22 @@ export function create(ctx) {
   function sendGrade(force) {
     const g = zone?.grade || {};
     const n = mood.night, w = mood.warm;
-    col.a.set(g.tint ?? 0x2e6b63).lerp(NIGHT_TINT, n).lerp(DAWN_TINT, w * 0.7);
+    // night keeps a fifth of the lake's own tint, so the lakes (and Mossmere day vs night) stay
+    // apart by hue at the Gloomtide, not only by brightness
+    // dawn warms the highlights (warm split-tone) more than the shadows: shadows that go orange read
+    // as mud on slate water, cool shadows under warm light read as a pearl dawn
+    col.a.set(g.tint ?? 0x4c5278).lerp(NIGHT_TINT, n * 0.8).lerp(DAWN_TINT, w * 0.2);
     const grade = {
       exposure: (g.exposure ?? 1) * (1 - 0.2 * n + 0.05 * w),
       bloomStrength: (g.bloomStrength ?? 0.9) * (1 + 0.15 * n + 0.1 * w),
       bloomRadius: g.bloomRadius ?? 0.6,
       bloomThreshold: g.bloomThreshold ?? 0.72,
       tint: col.a.getHex(),
-      tintAmount: (g.tintAmount ?? 0.18) + (0.32 - (g.tintAmount ?? 0.18)) * n + 0.06 * w,
+      tintAmount: (g.tintAmount ?? 0.18) + (0.32 - (g.tintAmount ?? 0.18)) * n,
       vignette: (g.vignette ?? 0.38) + 0.16 * n,
       saturation: (g.saturation ?? 0.85) * (1 - 0.2 * n + 0.08 * w),
       grain: (g.grain ?? 0.05) + 0.02 * n,
+      warmAmount: (g.warmAmount ?? 0.14) + 0.16 * w,
     };
     let changed = force;
     for (const k in grade) if (!changed && Math.abs((lastGrade[k] ?? -99) - grade[k]) > (k === 'tint' ? 0 : 0.004)) changed = true;
@@ -270,11 +277,12 @@ export function create(ctx) {
   }
 
   const wl = [];
-  for (let i = 0; i < 6; i++) wl.push({ position: new THREE.Vector3(), color: new THREE.Color(), intensity: 0, distance: 12, radius: undefined, ring: 0 });
+  for (let i = 0; i < 6; i++) wl.push({ position: new THREE.Vector3(), color: new THREE.Color(), intensity: 0, distance: 12, radius: undefined, ring: 0, streak: 1 });
   const waterLights = [];
-  const MERCHANT_LAMP = new THREE.Color(0x9fe08a);
+  const MERCHANT_LAMP = new THREE.Color(0xa6d4a0);   // the one deliberate green trace: Murk's sage lamp
   function updateWaterLights() {
     waterLights.length = 0;
+    for (const s of wl) { s.streak = 1; s.radius = undefined; s.ring = 0; }   // slots are reused: no stale lantern radius/ring on another light
     let i = 0;
     const lan = ctx.actors?.lanternLight;
     if (lan && !ctx.actors.isStub && lan.isLight) {
@@ -290,7 +298,8 @@ export function create(ctx) {
     if (m && !ctx.actors.isStub && m.present === true && m.position && typeof m.position.x === 'number') {
       const s = wl[i++];
       s.position.set(m.position.x, (m.position.y || 0) + 2.2, m.position.z);
-      s.color.copy(MERCHANT_LAMP); s.intensity = 2.5 * env.glowK; s.distance = 10;
+      // a pinpoint, not a column: half the reflection streak and a dimmer pool than other lights
+      s.color.copy(MERCHANT_LAMP); s.intensity = 1.5 * env.glowK; s.distance = 8; s.streak = 0.45;
       waterLights.push(s);
     }
     if (arena) {
@@ -318,7 +327,7 @@ export function create(ctx) {
       if (!f || f.halo < 0) continue;
       const moored = here && Math.hypot(m.position.x - d.x, m.position.z - d.z) < 4;
       const k = moored ? 1.6 : 0.8;
-      const c = zc.glow;
+      const c = zc.lamp || zc.glow;
       arena.halos.setColor(f.halo, c.r * k, c.g * k, c.b * k);
     }
     arena.halos.touchColors();

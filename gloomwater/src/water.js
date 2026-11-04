@@ -58,11 +58,11 @@ export function create(ctx) {
     uWaveT: { value: 0 },
     uWaveA: { value: waveA },
     uWaveB: { value: waveB },
-    uDeep: { value: new THREE.Color(0x081719) },
-    uShallow: { value: new THREE.Color(0x1f3d3b) },
-    uFoam: { value: new THREE.Color(0xbfe3d4) },
-    uGlow: { value: new THREE.Color(0x6ff5c8) },
-    uSky: { value: new THREE.Color(0x1a3436) },
+    uDeep: { value: new THREE.Color(0x080b12) },
+    uShallow: { value: new THREE.Color(0x232b3a) },
+    uFoam: { value: new THREE.Color(0xd6deee) },
+    uGlow: { value: new THREE.Color(0xa9b9f0) },
+    uSky: { value: new THREE.Color(0x262f40) },
     uArenaR: { value: 60 },
     uRip: { value: rip },
     uRipN: { value: 0 },
@@ -130,8 +130,8 @@ export function create(ctx) {
 
   // ---------------------------------------------------------------- palette
   const palTgt = {
-    deep: new THREE.Color(0x081719), shallow: new THREE.Color(0x1f3d3b), foam: new THREE.Color(0xbfe3d4),
-    glow: new THREE.Color(0x6ff5c8), fogColor: null,
+    deep: new THREE.Color(0x080b12), shallow: new THREE.Color(0x232b3a), foam: new THREE.Color(0xd6deee),
+    glow: new THREE.Color(0xa9b9f0), fogColor: null,
   };
   const skyTgt = new THREE.Color();
   let fogColorAt = -999;

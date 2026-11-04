@@ -108,7 +108,7 @@ export function createRaft(ctx) {
   creel.updateMatrix();
   staticParts.push(paint(xf(new THREE.CylinderGeometry(0.22, 0.22, 0.035, 14), { p: [0, 0.355, 0], r: [0.12, 0, 0] }), 0x6a4c2c).applyMatrix4(creel.matrix));
   ropeParts.push(xf(new THREE.TorusGeometry(0.2, 0.012, 4, 14, Math.PI), { p: [0, 0.34, 0] }).applyMatrix4(creel.matrix));
-  const tailMat = M(toonMaterial({ color: 0x8aa098, rim: 0.4, side: THREE.DoubleSide }));
+  const tailMat = M(toonMaterial({ color: 0x8e96a0, rim: 0.4, side: THREE.DoubleSide }));
   const tailShape = new THREE.Shape(); tailShape.moveTo(0, 0); tailShape.lineTo(0.05, 0.12); tailShape.quadraticCurveTo(0, 0.09, -0.05, 0.12); tailShape.lineTo(0, 0);
   const tails = [];
   for (let i = 0; i < 3; i++) {

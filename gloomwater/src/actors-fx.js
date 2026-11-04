@@ -104,7 +104,7 @@ export function makeLightPool() {
   geo.setIndex(idx);
   const mat = new THREE.ShaderMaterial({
     vertexShader: POOL_VS, fragmentShader: POOL_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: { uColor: { value: new THREE.Color(0xff9f45) }, uRing: { value: new THREE.Color(0xffc477) }, uK: { value: 1 }, uT: { value: 0 }, uPulse: { value: 0 }, uDanger: { value: 0 }, uRadius: { value: 8 } },
+    uniforms: { uColor: { value: new THREE.Color(0xffb85a) }, uRing: { value: new THREE.Color(0xffc477) }, uK: { value: 1 }, uT: { value: 0 }, uPulse: { value: 0 }, uDanger: { value: 0 }, uRadius: { value: 8 } },
   });
   mat.polygonOffset = true; mat.polygonOffsetFactor = -2; mat.polygonOffsetUnits = -2;
   const mesh = new THREE.Mesh(geo, mat);
@@ -136,11 +136,11 @@ export function makeLine(segments = 40) {
   const geo = new THREE.BufferGeometry();
   const pa = new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage);
   geo.setAttribute('position', pa); geo.setIndex(idx);
-  const mat = new THREE.MeshBasicMaterial({ color: 0xdde6e2, side: THREE.DoubleSide, fog: true, toneMapped: false });
+  const mat = new THREE.MeshBasicMaterial({ color: 0xe2e5ec, side: THREE.DoubleSide, fog: true, toneMapped: false });
   const mesh = new THREE.Mesh(geo, mat); mesh.frustumCulled = false; mesh.name = 'fishingLine'; mesh.visible = false;
   const pts = []; for (let i = 0; i < N; i++) pts.push(new THREE.Vector3());
   const T = new THREE.Vector3(), V = new THREE.Vector3(), S = new THREE.Vector3();
-  const base = new THREE.Color(0xdde6e2), warm = new THREE.Color(0xffd08a), hot = new THREE.Color(0xff5a3c);
+  const base = new THREE.Color(0xe2e5ec), warm = new THREE.Color(0xffd08a), hot = new THREE.Color(0xff5a3c);
   return {
     mesh, mat, pts,
     /** Compute the curve: tip -> end with parabolic slack sag, lying on the water where it touches. */

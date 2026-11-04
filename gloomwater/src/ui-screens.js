@@ -274,7 +274,7 @@ export function createScreens(K) {
           b.type = 'button';
           const purse = num(econ.waystonePurse?.[zid]), lv = num(econ.waystoneLevels?.[zid]);
           b.innerHTML = `<b>${esc(z?.name || zid)}</b><small>${zid === 'mossmere' ? 'The first water' : `${fmt(purse)} Shells · ${lv} banked levels`}</small>`;
-          b.style.setProperty('--zc', K.cssHex(z?.palette?.glow, '#6ff5c8'));
+          b.style.setProperty('--zc', K.cssHex(z?.palette?.glow, '#a9b9f0'));
           b.addEventListener('click', () => { s.zone = zid; sfx('ui_click'); entry.render(); });
           row.appendChild(b);
         }
@@ -928,7 +928,7 @@ export function createScreens(K) {
       const shells = num(r?.shells);
       const phase = K.phaseInfo()?.phase || r?.phase;
       const okPhase = arr(D().BALANCE?.travel?.phases || ['calm', 'dawn']).includes(phase);
-      content.innerHTML = `<div class="gw-zone-card" style="--zc:${K.cssHex(next.palette?.glow, '#6ff5c8')};--zf:${K.cssHex(next.palette?.fog, '#1a3436')};--za:${K.cssHex(next.palette?.accent, '#d6f59a')}">
+      content.innerHTML = `<div class="gw-zone-card" style="--zc:${K.cssHex(next.palette?.glow, '#a9b9f0')};--zf:${K.cssHex(next.palette?.fog, '#262f40')};--za:${K.cssHex(next.palette?.accent, '#c4b8ec')}">
           <div class="gw-zone-sky"></div><div class="gw-kicker">Below lies</div><h3>${esc(next.name)}</h3><div class="gw-catch-epithet">${esc(next.subtitle || '')}</div>
           <p class="gw-lore">${esc(next.description || '')}</p></div>`;
       if (info.open) {
