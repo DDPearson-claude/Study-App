@@ -1,7 +1,7 @@
 // Headless Chromium smoke test for Gloomwater.
 //
 //   node tools/playtest.mjs [--html=index.html] [--shots=tools/out/shots] [--script=path.mjs]
-//                           [--width=1280] [--height=720] [--mobile] [--wait=4000]
+//                           [--width=1280] [--height=720] [--mobile] [--wait=4000] [--lean[=0.45]]
 //
 // Default scenario: load page, wait, screenshot title, start a new run, wait,
 // screenshot, perform a cast (hold+release), wait, screenshot. Prints all console
@@ -83,6 +83,11 @@ const api = { page, shot, wait, frames, evalGame, hold, click, log, width, heigh
 const t0 = Date.now();
 await page.goto(pathToFileURL(htmlPath).href);
 await wait(Number(args.wait || 4000));
+// --lean[=0.45]: render below CSS resolution (debug.renderScale) for fast, logic-only runs
+if (args.lean) {
+  const sc = args.lean === true ? 0.45 : Number(args.lean);
+  await evalGame((sc) => window.__gw?.debug?.renderScale?.(sc), sc).catch(() => {});
+}
 
 try {
   if (args.script) {
