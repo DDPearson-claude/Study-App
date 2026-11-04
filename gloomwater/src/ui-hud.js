@@ -309,7 +309,7 @@ export function createHud(K) {
     if (m && m.present === true && m.position) add('merchant', m.position);
     const r = run();
     const gate = safe(() => ctx.world?.getGate?.(), null);
-    if (gate?.position) add(r?.gateOpen ? 'gate' : 'gateSealed', gate.position);
+    if (gate?.position && safe(() => ctx.world?.getGateState?.(), null) !== 'hidden') add(r?.gateOpen ? 'gate' : 'gateSealed', gate.position);
     // nearest two spots
     let s1 = null, s2 = null, d1 = 1e9, d2 = 1e9;
     for (const s of arr(ctx.fishing?.spots)) {
@@ -528,7 +528,7 @@ export function createHud(K) {
     setText(R.satN, 'satN', String(Math.round(sat)));
     toggle(R.cluster, 'cl', 'gw-sat-low', sf <= 0.2);
     for (const k in lowFlags) { if (lowFlags[k] > 0) { lowFlags[k] -= dt; if (lowFlags[k] <= 0) R.cluster.classList.remove('gw-warn-' + k); } }
-    const dark = safe(() => r.flags?.lanternOut, false) || oil <= 0.01;
+    const dark = safe(() => ctx.survival?.lanternOut === true, false) || oil <= 0.01;
     toggle(R.vigDark, 'vd', 'gw-on', dark);
 
     // ---- flare ring + button

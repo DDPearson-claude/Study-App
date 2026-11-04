@@ -1091,6 +1091,8 @@ export function create(ctx) {
     get xp() { return ctx.state.run?.xp || 0; },
     get xpNext() { return ctx.state.run?.xpNext || (data().xpForLevel?.(ctx.state.run?.level || 1) ?? 5); },
     get pendingCount() { return levels.pendingCount; },
+    /** 'level' | 'gift' | 'draft' for the open pick (null when none). */
+    get levelUpKind() { return levels.current?.type || null; },
     get lightMult() { return lightDims * flareBoost; },
     get lightDims() { return lightDims; },
     get flareBoost() { return flareBoost; },
@@ -1196,7 +1198,7 @@ export function create(ctx) {
     flare,
     flareReady() { return flareCd <= 0 ? 1 : clamp01(1 - flareCd / Math.max(0.01, flareTotal)); },
     canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
-    addXp(n) { if (!C.run) C.run = ctx.state.run; levels.addXp(n); },
+    addXp(n) { if (!C.run) C.run = ctx.state.run; levels.gainXp(n); },
     chooseBoon(boonId) { if (!C.run) C.run = ctx.state.run; return levels.chooseBoon(boonId); },
     reroll() { return levels.reroll(); },
     skip() { return levels.skip(); },

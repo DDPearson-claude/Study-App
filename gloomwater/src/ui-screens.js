@@ -152,6 +152,8 @@ export function createScreens(K) {
     oil: Math.round(num(f?.oil) * stat('oilYieldMult')),
   });
   const qualityOf = (q) => D().QUALITY?.[q] || { label: cap(q || 'normal') };
+  /** Quality pill: only Fine / Shimmering get one (a plain catch's label would read like a rarity). */
+  const qPill = (q) => (!q || q === 'normal' ? '' : `<span class="gw-q gw-q--${esc(q)}">${q === 'perfect' ? icon('star') : ''}${esc(qualityOf(q).label)}</span>`);
 
   function doFishAction(fish, action) {
     const res = safe(() => ctx.progression?.fishAction?.(fish?.uid && arr(run()?.creel).includes(fish) ? fish.uid : fish, action), null);
@@ -319,7 +321,7 @@ export function createScreens(K) {
         <div class="gw-catch-art"><div class="gw-catch-halo"></div></div>
         <h2 class="gw-catch-name">${esc(sp.name)}</h2>
         ${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
-        <div class="gw-catch-meta"><span class="gw-catch-kg">${fmtKg(fish.weight)}</span><span class="gw-q gw-q--${esc(fish.quality || 'normal')}">${fish.quality === 'perfect' ? icon('star') : ''}${esc(q.label || 'Common')}</span></div>
+        <div class="gw-catch-meta"><span class="gw-catch-kg">${fmtKg(fish.weight)}</span>${qPill(fish.quality)}</div>
         ${p.isNew && sp.lore ? `<p class="gw-lore">${esc(sp.lore)}</p>` : ''}
         <div class="gw-catch-yield"><span>${icon('shell')}<b>${fmt(y.sell)}</b><small>to Old Murk</small></span><span>${icon('food')}<b>+${fmt(y.food)}</b><small>satiety</small></span><span>${icon('oil')}<b>+${fmt(y.oil)}</b><small>oil</small></span></div>
         ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}`;
@@ -368,7 +370,7 @@ export function createScreens(K) {
       const rerollsLeft = Math.max(0, Math.round(stat('rerolls') - num(r?.rerollsUsed)));
       const canSkip = typeof ctx.combat?.skipBoon === 'function' || typeof ctx.combat?.skip === 'function';
       const lp = K.lastLevelUp && (K.lastLevelUp.options === s.ref || K.lastLevelUp.options === list) ? K.lastLevelUp : null;
-      const draft = !!(lp?.draft || s.draft || num(safe(() => ctx.combat?.draftRemaining, 0)) > 0);
+      const draft = !!(lp?.draft || s.draft || safe(() => ctx.combat?.levelUpKind, null) === 'draft');
       const gift = !!lp?.gift;
       const remaining = Math.max(0, Math.round(num(lp?.remaining, 0)));
       const wrap = h('div', 'gw-lu');
@@ -378,6 +380,7 @@ export function createScreens(K) {
       body.appendChild(wrap);
       const cards = wrap.querySelector('.gw-lu-cards');
       cards.style.setProperty('--n', list.length);
+      wrap.classList.toggle('gw-lu--many', list.length >= 4);
       list.forEach((o, i) => {
         const b = K.boonData(o.boonId) || {};
         const kindle = !!o.kindle || (num(o.level) >= 6 && !!b.kindle);
@@ -579,7 +582,7 @@ export function createScreens(K) {
         const row = h('div', `gw-item gw-fishrow r-${sp?.rarity || 'common'}`);
         row.style.setProperty('--rc', K.rarityCss(sp?.rarity));
         row.appendChild(fishCanvas(sp, 74, 40));
-        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}<span class="gw-q gw-q--${esc(f.quality || 'normal')}">${esc(qualityOf(f.quality).label)}</span></div><div class="gw-item-desc">${fmtKg(f.weight)}${sp?.rarity === 'legendary' ? ' · Trophy or Toll: its price pays the way down, or keep it to mount for Memories.' : ''}</div></div>`);
+        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}${qPill(f.quality)}</div><div class="gw-item-desc">${fmtKg(f.weight)}${sp?.rarity === 'legendary' ? ' · Trophy or Toll: its price pays the way down, or keep it to mount for Memories.' : ''}</div></div>`);
         row.appendChild(btn(`Sell ${shellTag(y.sell)}`, { cls: 'gw-buy', onClick: () => { if (doFishAction(f, 'sell')) { murkSay(entry, sp?.rarity === 'legendary' ? 'legendary' : 'sell'); entry.render(); } }, sound: false }));
         content.appendChild(row);
       }
@@ -639,7 +642,7 @@ export function createScreens(K) {
         const row = h('div', `gw-item gw-fishrow r-${sp?.rarity || 'common'}`);
         row.style.setProperty('--rc', K.rarityCss(sp?.rarity));
         row.appendChild(fishCanvas(sp, 80, 44));
-        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}<span class="gw-q gw-q--${esc(f.quality || 'normal')}">${esc(qualityOf(f.quality).label)}</span></div><div class="gw-item-desc">${fmtKg(f.weight)} · worth ${fmt(y.sell)} Shells</div></div>`);
+        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}${qPill(f.quality)}</div><div class="gw-item-desc">${fmtKg(f.weight)} · worth ${fmt(y.sell)} Shells</div></div>`);
         const acts = h('div', 'gw-fish-acts');
         acts.appendChild(btn(`Eat <em>+${y.food}</em>`, { cls: 'gw-btn--sm', icon: 'food', onClick: () => { if (doFishAction(f, 'eat')) entry.render(); } }));
         acts.appendChild(btn(`Render <em>+${y.oil}</em>`, { cls: 'gw-btn--sm', icon: 'oil', onClick: () => { if (doFishAction(f, 'render')) entry.render(); } }));
@@ -950,7 +953,9 @@ export function createScreens(K) {
   };
   function topDamage() {
     let best = null, n = 0;
-    for (const [k, v] of K.dmgSources || []) if (v > n) { best = k; n = v; }
+    const tally = run()?.stats?.damageSources;   // survival's persistent per-run tally (survives Continue)
+    const src = tally && typeof tally === 'object' && Object.keys(tally).length ? Object.entries(tally) : (K.dmgSources || []);
+    for (const [k, v] of src) if (v > n) { best = k; n = v; }
     if (!best) return null;
     const e = D().ENEMY_BY_ID?.[best];
     const kind = e?.model || best;

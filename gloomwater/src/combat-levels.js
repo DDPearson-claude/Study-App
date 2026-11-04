@@ -404,7 +404,9 @@ export function createLevels(C) {
   }
 
   return {
-    drop, pullCinders, collectAll, clearCinders, oilMote, addXp, levelUp, chooseBoon, reroll, skip, getBoons, queueGift, queueDraft,
+    drop, pullCinders, collectAll, clearCinders, oilMote, addXp, levelUp,
+    /** XP from outside the cinder magnet (fish cinders): also feeds the aggregated xp:gain event. */
+    gainXp(n) { if (n > 0) { addXp(n); xpAcc += n; } }, chooseBoon, reroll, skip, getBoons, queueGift, queueDraft,
     restorePending, reset, update, ensureRunFields,
     get pendingOptions() { return pendingOptions; }, get pendingCount() { return queue.length + (pendingOptions ? 1 : 0); },
     get cinderCount() { return liveCinders; },

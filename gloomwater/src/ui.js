@@ -114,6 +114,8 @@ export function create(ctx) {
   const hasBlocking = () => stack.some((m) => m.blocking);
   function openModal(id, render, opts = {}) {
     closeModal(id, { silent: true, instant: true });
+    // a previous copy still fading out (260 ms) must not linger beside the new one (e.g. back-to-back level-ups)
+    for (const old of layers.modals.querySelectorAll(`[data-modal="${id}"]`)) old.remove();
     const wrap = h('div', `gw-modal gw-m-${id} ${opts.screen ? 'gw-screen' : ''} ${opts.cls || ''}`);
     wrap.setAttribute('role', 'dialog');
     wrap.setAttribute('aria-modal', 'true');
@@ -139,6 +141,7 @@ export function create(ctx) {
     entry.render();
     layers.modals.appendChild(wrap);
     stack.push(entry);
+    markCovered();
     void wrap.offsetWidth;
     wrap.classList.add('gw-in');
     if (opts.focus !== false) setTimeout(() => focusFirst(wrap), 30);
@@ -149,6 +152,7 @@ export function create(ctx) {
     const i = stack.findIndex((m) => m.id === id);
     if (i < 0) return false;
     const [entry] = stack.splice(i, 1);
+    markCovered();
     try { entry.onClose?.(entry); } catch (e) { report('onClose', e); }
     const el = entry.el;
     el.classList.remove('gw-in');
@@ -158,6 +162,10 @@ export function create(ctx) {
     const t = top();
     if (t && !instant) setTimeout(() => focusFirst(t.el), 40);
     return true;
+  }
+  /** A full screen (title, death, victory) under another modal fades its own text so it cannot bleed through. */
+  function markCovered() {
+    for (let i = 0; i < stack.length; i++) stack[i].el.classList.toggle('gw-covered', i < stack.length - 1 && stack[i].el.classList.contains('gw-screen'));
   }
   function closeAll(filter = null) {
     for (const m of [...stack].reverse()) if (!filter || filter(m)) closeModal(m.id);
@@ -186,8 +194,23 @@ export function create(ctx) {
       toast(text, kind, opts);
     }, 160);
   }
+  const heldToasts = [];
+  /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it (≤ 5 s). */
+  const bannerBusy = () => !!(bannerEl && !bannerEl.classList.contains('gw-out')) || bannerQ.length > 0;
+  function flushHeldToasts(force = false) {
+    if (!heldToasts.length) return;
+    const now = performance.now();
+    while (heldToasts.length && (force || !bannerBusy() || now - heldToasts[0].at > 5000)) {
+      const q = heldToasts.shift();
+      toast(q.text, q.kind, { ...q.opts, now: true });
+    }
+  }
   function toast(text, kind = 'info', opts = {}) {
     if (!text) return;
+    if (!opts.now && kind !== 'bad' && ctx.flow === 'playing' && !hasBlocking() && bannerBusy()) {
+      if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now() });
+      return;
+    }
     const now = performance.now();
     const key = kind + '|' + text;
     if (recentToast.has(key) && now - recentToast.get(key) < 2200) return;
@@ -237,7 +260,8 @@ export function create(ctx) {
     title = String(title);
     const now = performance.now() / 1000;
     const kind = opts.kind || inferKind(title) || 'phase';
-    if (title === lastBannerTitle && now - lastBannerAt < 3) {
+    const dedupe = kind === 'boss' || inferKind(title) === 'boss' ? 8 : 3;   // a Warden is bannered before it rises and again on boss:spawn
+    if (title === lastBannerTitle && now - lastBannerAt < dedupe) {
       // the same banner from two sources (bus + direct call): keep one, prefer the specific style
       const q = bannerQ.find((b) => b.title === title);
       if (q && kind !== 'phase') q.kind = kind;
@@ -263,7 +287,15 @@ export function create(ctx) {
     bannerEl.classList.add('gw-in');
     bannerT = 0; bannerDur = b.dur;
   }
+  function clearBanners() {
+    bannerQ.length = 0;
+    if (bannerEl) { bannerEl.remove(); bannerEl = null; }
+  }
   function updateBanner(dt) {
+    // banners wait behind blocking modals (level-up, catch card, shop, death) instead of bleeding through
+    const blocked = hasBlocking();
+    layers.banner.classList.toggle('gw-hidden', blocked);
+    if (blocked) return;
     if (bannerEl) {
       bannerT += dt;
       if (bannerT > bannerDur && !bannerEl.classList.contains('gw-out')) { bannerEl.classList.remove('gw-in'); bannerEl.classList.add('gw-out'); }
@@ -295,7 +327,7 @@ export function create(ctx) {
     }
   }
   function updateTips() {
-    if (!tipQ.length || ctx.flow !== 'playing' || has('levelup') || has('pause')) return;
+    if (!tipQ.length || ctx.flow !== 'playing' || hasBlocking() || has('pause') || bannerBusy()) return;
     const now = performance.now() / 1000;
     if (now - lastTipAt < 6) return;
     while (tipQ.length && now - tipQ[0].at > 40) tipQ.shift();
@@ -443,8 +475,7 @@ export function create(ctx) {
     if (!f) { toast(r.creel?.length ? 'Only a legend is left in the creel.' : 'The creel is empty. Nothing to burn.', 'bad'); sfx('denied'); return false; }
     const res = safe(() => ctx.progression?.fishAction?.(f.uid, 'render'), null);
     if (res && res.ok === false) { toast(res.msg || 'It will not burn.', 'bad'); sfx('denied'); return false; }
-    burnLock = performance.now() + num(D().BALANCE?.economy?.burnFishTime, 0.8) * 1000;
-    safe(() => ctx.actors?.setPose?.('eat'), null);
+    burnLock = performance.now() + num(D().BALANCE?.economy?.burnFishTime, 0.8) * 1000;   // actors tosses it into the brazier on fish:action render
     hud?.pulse?.('burn');
     return true;
   }
@@ -516,7 +547,7 @@ export function create(ctx) {
       hud.reset();
       if (continued) toast('The descent continues.', 'lore');
     });
-    on('run:end', () => { closeAll(); catchQ.length = 0; levelQ.length = 0; hud.setVisible(false); });
+    on('run:end', () => { closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; hud.setVisible(false); });
     on('zone:change', ({ zone, prev }) => {
       closeModal('descend'); closeModal('shop');
       const z = zoneData(zone);
@@ -557,8 +588,6 @@ export function create(ctx) {
       const sp = speciesData(speciesId);
       if (sp?.rarity === 'legendary') banner(sp.name, sp.epithet || '', { kind: 'legend', dur: 3.2 });
     });
-    on('formation', (p) => { if (p?.name) banner(fill(D().TEXT?.formationBanner || '{name}', { name: p.name }), '', { kind: 'formation' }); });
-    on('formation:spawn', (p) => { if (p?.name || p?.formation?.name) banner(p.name || p.formation.name, '', { kind: 'formation' }); });
     on('fish:landed', (p) => {
       if (!p?.fish) return;
       catchQ.push(p);
@@ -697,6 +726,7 @@ export function create(ctx) {
         for (const m of stack) { m.t += dt; m.tick?.(dt); }
         updateWorldText(dt);
         updateBanner(dt);
+        flushHeldToasts(ctx.flow !== 'playing');
         updateTips();
         updateTweens(dt);
       } catch (e) { report('update', e); }

@@ -119,6 +119,7 @@
 .gw-modal.gw-in .gw-modal-body { transform: none; }
 .gw-screen { padding: 0; }
 .gw-screen .gw-modal-body { width: 100%; height: 100%; transform: none; }
+.gw-screen.gw-covered .gw-modal-body { opacity: .08; transition: opacity .3s ease; }
 
 .gw-panel {
   position: relative; pointer-events: auto; display: flex; flex-direction: column;
@@ -196,7 +197,8 @@
 }
 .gw-toast.gw-in { opacity: 1; transform: none; }
 .gw-toast.gw-out { opacity: 0; transform: translateY(-4px); transition-duration: .35s; }
-.gw-toasts.gw-low { top: calc(var(--sat) + 4px); }
+.gw-toasts.gw-low { top: auto; bottom: calc(var(--sab) + 10px); }   /* modal headers / close buttons stay clear */
+.gw-banner-layer.gw-hidden { visibility: hidden; }
 .gw-toasts.gw-low .gw-toast:nth-last-child(n+3) { display: none; }
 .gw-toasts.gw-low .gw-toast { font-size: 15.5px; padding: 5px 22px; }
 .gw-toast-ico { width: 19px; height: 19px; color: var(--bone-b); }
@@ -667,6 +669,8 @@
 .gw-card.gw-chosen { transform: translateY(-12px) scale(1.04); }
 .gw-card.gw-chosen::after { opacity: .85; }
 .gw-lu-foot { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; opacity: 0; animation: gwFade .6s .5s forwards; }
+/* reroll / skip always reachable: the footer sticks to the bottom of the scrolling picker */
+.gw-lu-foot { position: sticky; bottom: -14px; z-index: 2; width: 100%; padding: 14px 0 12px; background: linear-gradient(180deg, rgba(3, 4, 6, 0), rgba(3, 4, 6, .86) 40%); }
 
 /* ================================================================ SHOP */
 .gw-p-shop { padding-top: 18px; height: min(700px, calc(100vh - 24px - var(--sat) - var(--sab))); }
@@ -863,6 +867,8 @@
 .gw-dl-row.gw-bad .gw-ico { color: #ff7a64; }
 .gw-death-btns { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; opacity: 0; animation: gwFade 1s 1.6s forwards; }
 .gw-death-btns .gw-btn { min-width: 160px; }
+/* the way forward is always on screen: the button row sticks to the bottom of the scrolling summary */
+.gw-death .gw-death-btns { position: sticky; bottom: calc(-1 * (var(--sab) + 26px)); z-index: 2; margin: 18px -22px 0; padding: 22px 22px calc(var(--sab) + 18px); background: linear-gradient(180deg, rgba(2, 3, 5, 0), rgba(2, 3, 5, .9) 34%, rgba(2, 3, 5, .96)); }
 .gw-victory .gw-death-head h1 { color: #ffefc4; text-shadow: 0 0 40px rgba(255, 200, 110, .5), 0 0 3px #000; }
 .gw-victory .gw-death-veil { background: radial-gradient(ellipse 80% 70% at 50% 28%, rgba(60, 46, 18, .45), rgba(4, 4, 3, .92) 78%); }
 
@@ -979,6 +985,18 @@
   .gw-catch-actions .gw-btn { font-size: 13.5px; }
   .gw-reel { bottom: calc(var(--sab) + 176px); }
   .gw-reel-surge { width: 44px; }
+}
+@media (max-width: 520px) {
+  .gw-lu--many .gw-lu-cards { gap: 10px; padding-top: 4px; }
+  .gw-lu--many .gw-card { padding: 11px 12px 14px; grid-template-columns: 46px minmax(0, 1fr); column-gap: 12px; }
+  .gw-lu--many .gw-card-medal { width: 44px; height: 44px; }
+  .gw-lu--many .gw-card-medal .gw-ico { width: 24px; height: 24px; }
+  .gw-lu--many .gw-card-frame::before, .gw-lu--many .gw-card-frame::after { left: 28px; }
+  .gw-lu--many .gw-card-desc { font-size: 14.5px; line-height: 1.25; }
+  .gw-lu--many .gw-card-note { font-size: 13.5px; }
+  .gw-lu--many .gw-card-tags { display: none; }
+  .gw-lu--many .gw-lu-head p { display: none; }
+  .gw-lu--many .gw-lu-head h2 { font-size: 24px; }
 }
 @media (max-height: 740px) {
   .gw-catch-art canvas { max-height: 136px; width: auto !important; }
