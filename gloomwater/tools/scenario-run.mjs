@@ -73,7 +73,7 @@ export default async function (api) {
   check(s.modal === 'title', 'title screen is open', s.modal);
   check(await g(() => window.__gw.game.hasSavedRun()) === false, 'fresh profile has no saved run');
   // render well below CSS resolution: invariants, not beauty (keeps the run fast on software GL)
-  const lean = () => g(() => { window.__gw.render.setQuality?.('low'); window.__gw.debug.renderScale?.(0.45); });
+  const lean = () => g(() => { window.__gw.render.setQuality?.('low'); window.__gw.debug.renderScale?.(0.35); });
   await lean();
   await g(() => { window.__ev = {}; for (const e of ['run:start', 'run:end', 'zone:change', 'phase:change', 'levelup', 'boon:chosen', 'fish:landed', 'shop:buy', 'enemy:slain', 'xp:gain', 'player:died']) window.__gw.bus.on(e, () => { window.__ev[e] = (window.__ev[e] || 0) + 1; }); });
 
@@ -95,7 +95,6 @@ export default async function (api) {
   check(Math.abs(w.spawn - 46) < 3, 'raft spawns at the authored south spawn', w.spawn);
   check(w.runs === 1 && w.gate === 'sealed', 'meta.runs counted, gate sealed', w);
   await g(() => { window.__gw.ui.closeAll(); window.__gw.debug.god(true); });
-  await shot('run-01-start');
 
   // ------------------------------------------------------------------ fish: cast by mouse, hook, land
   step('fish');
@@ -255,7 +254,9 @@ export default async function (api) {
 
   // ------------------------------------------------------------------ pause
   step('pause');
-  await g(() => { if (window.__gw.ui.isBlocking()) window.__gw.ui.closeAll(); });
+  await pickAllLevelUps();   // a pick saved with the run reopens on Continue (it blocks the pause menu by design)
+  await g(() => { if (window.__gw.ui.isBlocking() && !window.__gw.combat.pendingOptions) window.__gw.ui.closeAll(); });
+  await waitFor(() => !window.__gw.ui.isBlocking(), null, 20);
   await frames(2);
   await page.keyboard.press('Escape');
   await frames(3);
