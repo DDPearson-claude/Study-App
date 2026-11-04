@@ -419,6 +419,8 @@ window.addEventListener('pagehide', () => game.save());
 // ------------------------------------------------------------------ debug helpers
 /** Read another module's state for a debug readout: never reports, never returns a stub. */
 function peek(fn, fallback = null) { try { const v = fn(); return v === undefined || (v && v.isStub) ? fallback : v; } catch { return fallback; } }
+// a module may have put its own v3 readout on ctx.debug during init (progression does): main's v3() merges it in
+const moduleV3 = typeof ctx.debug.v3 === 'function' ? ctx.debug.v3 : null;
 Object.assign(ctx.debug, {
   // the base time scale; a running slowmo beat keeps its factor on top of it and restores to this
   timeScale(x = 1) { slowmo.setBase(x); return x; },
@@ -427,14 +429,19 @@ Object.assign(ctx.debug, {
   /** CONTRACT §13.11: the v3 state at a glance (feature-detected; null where a module does not provide it yet). */
   v3() {
     const r = ctx.state.run;
+    const extra = peek(() => moduleV3?.()) || {};
+    const known = Object.fromEntries(Object.entries(extra).filter(([, v]) => v !== null && v !== undefined));
     return {
-      enabled: data.V3_ENABLED === true, phase: data.V3_ENABLED ? data.V3_PHASE : null, switch: V3_FLAGS.source,
+      ...extra,
       flow: ctx.flow, outing: r?.outing ?? null, nightMode: r?.nightMode ?? null, day: r?.day ?? null,
       farWater: peek(() => ctx.progression.getFarWater?.()) ?? r?.farWater ?? null,
       favour: peek(() => ctx.fishing.view?.favour),
       pressure: r?.pressure ?? null,
       liveWell: peek(() => ctx.progression.getLiveWell?.()),
       residents: peek(() => ctx.progression.getResidents?.(r?.zone)),
+      ...known, // what the owning module knows wins over main's generic readout
+      // main's own facts always win
+      enabled: data.V3_ENABLED === true, phase: data.V3_ENABLED ? data.V3_PHASE : null, switch: V3_FLAGS.source,
       cinematic: ctx.cinematic, slowmo: slowmo.state,
     };
   },

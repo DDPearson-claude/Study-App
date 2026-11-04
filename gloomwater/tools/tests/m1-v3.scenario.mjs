@@ -235,6 +235,41 @@ export default async function (api) {
   check(s.mode === 'lantern' && s.outing === 'normal', 'Continue keeps the locked night mode', s);
   await noErrors();
 
+  // ------------------------------------------------------------------ Pg0 through main's boot (when progression has it)
+  step('boot migration: raw envelope → progression.migrateSave → defaults');
+  if (!(await g(() => typeof window.__gw.progression.migrateSave === 'function'))) log('note: progression.migrateSave is not in this build; the boot migration step is skipped');
+  else {
+    // a v1 save: the Pale Leviathan landed, Drowned Marrow in the bait bag and its unlock, no v3ids
+    await g(() => {
+      const c = window.__gw;
+      const meta = JSON.parse(JSON.stringify(c.state.meta));
+      const run = JSON.parse(JSON.stringify(c.state.run));
+      delete meta.v3ids; delete meta.lastCharacter;
+      for (const k of Object.keys(meta.journal)) if (k === 'lantern_swallower') delete meta.journal[k];
+      meta.journal.pale_leviathan = { caught: 1, biggest: 410, firstDay: 4, firstRun: 2 };
+      meta.unlocks = { ...meta.unlocks, 'bait:pale_marrow': true };
+      run.bait = { pale_marrow: 2 }; run.legendaries = { pale_leviathan: true };
+      c.game.save = () => {};   // nothing may overwrite the planted save before the reload
+      localStorage.setItem('gloomwater.save.v1', JSON.stringify({ version: 1, savedAt: Date.now(), meta, run }));
+    });
+    const read = () => g(() => {
+      const c = window.__gw, m = c.state.meta;
+      return { lev: !!m.journal.pale_leviathan, sw: m.journal.lantern_swallower?.caught ?? null, unlockOld: !!m.unlocks?.['bait:pale_marrow'], unlockNew: !!m.unlocks?.['bait:last_candle'], v3ids: m.v3ids === true, schema: 'schema' in m, cont: c.game.hasSavedRun() };
+    });
+    await page.reload({ waitUntil: 'commit', timeout: 240000 });
+    await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title', null, { timeout: 240000 });
+    let m = await read();
+    check(!m.lev && m.sw === 1 && m.unlockNew && !m.unlockOld && m.v3ids && !m.schema, 'the v1 save loads with the Lantern-Swallower in the Journal and the Last Candle unlock (v3ids set, no schema)', m);
+    s = await g(() => { const c = window.__gw; c.game.continueRun(); c.ui.closeAll?.(); const r = c.state.run; return { bait: r.bait, leg: r.legendaries }; });
+    check(s.bait?.last_candle === 2 && !s.bait?.pale_marrow && s.leg?.lantern_swallower && !s.leg?.pale_leviathan, 'the continued run carries Last Candle and the Lantern-Swallower', s);
+    await g(() => window.__gw.game.toTitle());
+    await page.reload({ waitUntil: 'commit', timeout: 240000 });
+    await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title', null, { timeout: 240000 });
+    const m2 = await read();
+    check(JSON.stringify(m2) === JSON.stringify(m), 'a second load changes nothing', { m, m2 });
+    await noErrors();
+  }
+
   // ------------------------------------------------------------------ the stored switch
   step('localStorage switch (debug.setV3)');
   await g(() => { const c = window.__gw; c.debug.setV3(true, 1); c.game.toTitle(); });
