@@ -243,6 +243,13 @@ function releaseFishing() {
 
 host.addEventListener('pointerdown', (e) => {
   unlockAudio();
+  if (e.isPrimary) {
+    // the browser's primary pointer means no other pointer of this kind is down: forget any
+    // stale ids (an up lost to a blur or a stolen capture) before tracking this press
+    for (const id of downPointers) if (id !== e.pointerId) downPointers.delete(id);
+    if (fishPointerId !== null && fishPointerId !== e.pointerId) releaseFishing();
+    primaryId = null;
+  }
   downPointers.add(e.pointerId);
   if (primaryId === null && fishPointerId === null) { primaryId = e.pointerId; setPointer(e); input.pressed = true; }
   input.down = true;
