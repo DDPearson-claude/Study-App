@@ -12,11 +12,11 @@ import {
 export const GLOOM_RIM = 0x8a76bd; // DESIGN §19: gloomlings are rim-lit violet (#6b5b8f), lifted a touch for readability
 export const KIND_DEFAULTS = {
   wisp: { tint: 0x07080d, eye: 0xe8f1f2, radius: 0.42, hover: 0.8 },
-  mite: { tint: 0x0a0a10, eye: 0xd6f59a, radius: 0.26, hover: 0.1 },
-  moth: { tint: 0x6a5f78, eye: 0x9fe8ff, radius: 0.5, hover: 1.5 },
-  eel: { tint: 0x07080d, eye: 0xd6f59a, radius: 0.5, hover: -0.05 },
+  mite: { tint: 0x0a0a10, eye: 0xe6e9ff, radius: 0.26, hover: 0.1 },
+  moth: { tint: 0x6a5f78, eye: 0xb8ccff, radius: 0.5, hover: 1.5 },
+  eel: { tint: 0x07080d, eye: 0xe6e9ff, radius: 0.5, hover: -0.05 },
   hand: { tint: 0x07080d, eye: 0xe8f1f2, radius: 1.5, hover: 0 },
-  warden: { tint: 0x050c0d, eye: 0x6ff5c8, radius: 2.4, hover: 0 },
+  warden: { tint: 0x05070a, eye: 0xdbe2ff, radius: 2.4, hover: 0 },
 };
 
 // ------------------------------------------------------------------ shared geometry builders (also used by swarms)

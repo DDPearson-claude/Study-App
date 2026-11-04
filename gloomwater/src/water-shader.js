@@ -341,6 +341,12 @@ void main() {
     }
   }
 
+  // ---- warm light owns the water it touches: inside a light pool the lake's cold cast drains
+  // to grey before the pool is added, so the lantern reads amber on slate/indigo water
+  // (amber + blue would otherwise mix to rose)
+  float poolK = clamp(dot(pool, vec3(0.2126, 0.7152, 0.0722)) * 16.0, 0.0, 0.8);
+  col = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))) * vec3(1.12, 1.0, 0.78), poolK);
+
   // ---- caustic shimmer (bioluminescent everywhere faintly, golden inside light pools)
 #ifndef GW_LOW
   float caus = caustic(xz * 0.32, uTime * 0.55);

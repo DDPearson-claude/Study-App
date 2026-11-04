@@ -411,7 +411,7 @@ export function create(ctx) {
     }
     if (S.spot) {
       S.rareSpot = !!S.spot.rare;
-      fx.pulse(x, z, { color: S.rareSpot ? 0xffd98a : 0x9fe8d8, r0: 0.3, r1: 2.6, duration: 1.1, alpha: 0.9, width: 0.08 });
+      fx.pulse(x, z, { color: S.rareSpot ? 0xffd98a : 0xbcd0f4, r0: 0.3, r1: 2.6, duration: 1.1, alpha: 0.9, width: 0.08 });
     }
     view.inSpot = !!S.spot;
     if (S.clean) {
@@ -586,10 +586,10 @@ export function create(ctx) {
         if (sp?.boss && sp.id === 'belled_matriarch') {
           // a bell tolls beneath the raft before every surge
           call(() => ctx.audio?.play?.('dusk_toll', { volume: 0.55, pitch: 1.35 }));
-          fx.pulse(V.raft.x, V.raft.z, { color: 0x9ff0c0, r0: 0.6, r1: 7, duration: 1.4, width: 0.09, alpha: 0.8 });
+          fx.pulse(V.raft.x, V.raft.z, { color: 0xd8e0ff, r0: 0.6, r1: 7, duration: 1.4, width: 0.09, alpha: 0.8 });
         } else if (sp?.boss && sp.id === 'glass_sovereign') {
           call(() => ctx.audio?.play?.('charge_ping', { volume: 0.7, pitch: 0.55 }));
-          fx.pulse(F.fv ? V.fish.x : V.bob.x, F.fv ? V.fish.z : V.bob.z, { color: 0x5ff2ff, r0: 0.4, r1: 4, duration: 0.9, width: 0.05, alpha: 0.8 });
+          fx.pulse(F.fv ? V.fish.x : V.bob.x, F.fv ? V.fish.z : V.bob.z, { color: 0x5cc8ff, r0: 0.4, r1: 4, duration: 0.9, width: 0.05, alpha: 0.8 });
         }
         if (ctx.isMobile) call(() => navigator.vibrate?.(25));
         break;
@@ -1121,7 +1121,7 @@ export function create(ctx) {
     let tip = null;
     try { tip = ctx.actors?.getRodTip?.(); } catch { /* optional */ }
     if (!(tip && Number.isFinite(tip.x))) tip = V.tip.set(raft.x, 1.8, raft.z);
-    const col = key === 'mid' ? 0xffc27a : key === 'deep' ? 0xb48cff : key === 'blocked' ? 0xff7a6a : key === 'anchoring' ? 0x8d9aa0 : 0x9fe8d8;
+    const col = key === 'mid' ? 0xffc27a : key === 'deep' ? 0xb48cff : key === 'blocked' ? 0xff7a6a : key === 'anchoring' ? 0x8d9aa0 : 0xa8c8f0;
     fx.setArc(!view.anchoring, tip, V.target.x, V.target.z, num(C.arcHeight, 0.25) * S.castDist, col, 0.75);
   }
 
@@ -1382,7 +1382,7 @@ export function create(ctx) {
       }
       try {
         const z = zoneData();
-        fx.setZoneColor(z?.palette?.glow ?? 0x6ff5c8);
+        fx.setZoneColor(z?.palette?.glow ?? 0xa9b9f0);
       } catch { /* optional */ }
       Object.assign(ctx.debug || (ctx.debug = {}), {
         forceBite: () => { try { return debugForceBite(); } catch (e) { report(e); return false; } },
@@ -1416,7 +1416,7 @@ export function create(ctx) {
         S.zonePending -= dt;
         if (S.zonePending <= 0) {
           S.zonePending = 0;
-          try { fx.setZoneColor(zoneData()?.palette?.glow ?? 0x6ff5c8); } catch { /* optional */ }
+          try { fx.setZoneColor(zoneData()?.palette?.glow ?? 0xa9b9f0); } catch { /* optional */ }
           seedSpots();
           S.lastPhase = phaseNow();
         }

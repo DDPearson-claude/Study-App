@@ -585,7 +585,7 @@ function eyeGeos(eyes, type, glowCol) {
 }
 
 // ------------------------------------------------------------------ factory
-const DEFAULT_MODEL = { shape: 'minnow', body: 0x6f8f86, belly: 0xd9e8dc, fin: 0x34544f, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
+const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
 
 export function createFishFactory(ctx) {
   const cache = new Map();

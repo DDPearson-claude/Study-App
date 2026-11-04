@@ -138,7 +138,7 @@ export function glowTexture(size = 128, falloff = 2.2) {
 }
 
 /** Additive glow sprite (bloom-friendly). */
-export function glowSprite({ color = 0x9fe8ff, size = 1, opacity = 0.8, falloff = 2.2 } = {}) {
+export function glowSprite({ color = 0xc6d2f0, size = 1, opacity = 0.8, falloff = 2.2 } = {}) {
   const mat = new THREE.SpriteMaterial({
     map: glowTexture(128, falloff), color, transparent: true, opacity,
     blending: THREE.AdditiveBlending, depthWrite: false, fog: true,
@@ -150,7 +150,7 @@ export function glowSprite({ color = 0x9fe8ff, size = 1, opacity = 0.8, falloff 
 }
 
 /** Unlit glowing material for bioluminescent bits (eyes, spots, crystals). Pushes into bloom. */
-export function glowMaterial(color = 0x9fe8ff, intensity = 2.0, { transparent = false, opacity = 1 } = {}) {
+export function glowMaterial(color = 0xc6d2f0, intensity = 2.0, { transparent = false, opacity = 1 } = {}) {
   const c = new THREE.Color(color).multiplyScalar(intensity);
   return new THREE.MeshBasicMaterial({ color: c, transparent, opacity, fog: true, toneMapped: false });
 }

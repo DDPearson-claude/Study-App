@@ -11,7 +11,7 @@ import { buildArena } from './world-art.js';
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
   id: 'mossmere', index: 0, name: 'The Mossmere', arena: { radius: 60, islands: 6, pillars: 10, seed: 1307 },
-  palette: { fog: 0x1a3436, fogDensity: 0.016, water: 0x1f3d3b, waterDeep: 0x081719, foam: 0xbfe3d4, glow: 0x6ff5c8, accent: 0xd6f59a, ambient: 0x3d6662, ink: 0x050c0d, far: 0x5a9488, light: 0xcff7e6 },
+  palette: { fog: 0x222a3a, fogDensity: 0.016, water: 0x1b2230, waterDeep: 0x07090f, foam: 0xd0d9ea, glow: 0xa9b9f0, accent: 0xd6dccd, ambient: 0x3a4560, ink: 0x05070a, far: 0x7a8aac, light: 0xd6e0f4 },
 };
 
 export function create(ctx) {
@@ -20,8 +20,8 @@ export function create(ctx) {
 
   // lights: hemisphere + directional "crack light" + two accent point lights (always present
   // so the light count — and therefore shader programs — never changes)
-  const hemi = new THREE.HemisphereLight(0x8fb8c0, 0x0a1012, 1.4);
-  const dir = new THREE.DirectionalLight(0xcff7e6, 2.0);
+  const hemi = new THREE.HemisphereLight(0x9aa6b8, 0x0a0c10, 1.4);
+  const dir = new THREE.DirectionalLight(0xd6e0f4, 2.0);
   dir.position.set(-10, 80, -20);
   group.add(hemi, dir, dir.target);
   const accents = [0, 1].map(() => {
@@ -210,7 +210,7 @@ export function create(ctx) {
   function sendGrade(force) {
     const g = zone?.grade || {};
     const n = mood.night, w = mood.warm;
-    col.a.set(g.tint ?? 0x2e6b63).lerp(NIGHT_TINT, n).lerp(DAWN_TINT, w * 0.7);
+    col.a.set(g.tint ?? 0x48526e).lerp(NIGHT_TINT, n).lerp(DAWN_TINT, w * 0.7);
     const grade = {
       exposure: (g.exposure ?? 1) * (1 - 0.2 * n + 0.05 * w),
       bloomStrength: (g.bloomStrength ?? 0.9) * (1 + 0.15 * n + 0.1 * w),
@@ -272,7 +272,7 @@ export function create(ctx) {
   const wl = [];
   for (let i = 0; i < 6; i++) wl.push({ position: new THREE.Vector3(), color: new THREE.Color(), intensity: 0, distance: 12 });
   const waterLights = [];
-  const MERCHANT_LAMP = new THREE.Color(0x9fe08a);
+  const MERCHANT_LAMP = new THREE.Color(0xa6d4a0);   // the one deliberate green trace: Murk's sage lamp
   function updateWaterLights() {
     waterLights.length = 0;
     let i = 0;

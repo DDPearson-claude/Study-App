@@ -556,8 +556,8 @@ violent surges), leaper (surges = leaps; slack risk).
   + `toon.addOutline`); minimal faces — glowing eyes.
 - **Layered depth:** 4–6 parallax silhouette rings of cavern architecture fading from
   ink-dark to luminous mist in the zone's fog colour.
-- **Limited palettes:** Mossmere teal/moss green; Sporewood Pools dusky plum +
-  amber/pink spores; Glasswater Vault indigo + cyan/violet crystals; Pale Abyss
+- **Limited palettes:** Mossmere moonlit slate + silver (green only as a trace); Sporewood Pools dusky plum +
+  amber/pink spores; Glasswater Vault saturated indigo + ice-cyan/violet crystals; Pale Abyss
   near-black + bone-white + sickly gold.
 - **Light is life:** the warm amber lantern is the only warm light in a cold world.
   Bloom on glows, drifting motes, light shafts, vignette, fine grain. The swarm reads
