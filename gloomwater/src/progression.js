@@ -304,6 +304,25 @@ export function create(ctx) {
   }
 
   const pending = new Map();        // landed fish awaiting a catch-card decision: uid -> {fish, t}
+  /** Mirror undecided catches into the saved run so a reload with the catch card open keeps them. */
+  function syncPending() {
+    const r = run();
+    if (!r?.flags) return;
+    if (pending.size) r.flags.pendingCatch = [...pending.values()].map((p) => p.fish);
+    else if (r.flags.pendingCatch) delete r.flags.pendingCatch;
+  }
+  /** On Continue: catches that were still on the card when the page closed go into the creel. */
+  function restorePending() {
+    const r = run();
+    const list = Array.isArray(r?.flags?.pendingCatch) ? r.flags.pendingCatch : [];
+    delete r?.flags?.pendingCatch;
+    for (const fish of list) {
+      if (!fish?.uid || (r.creel || []).some((f) => f.uid === fish.uid)) continue;
+      const name = species(fish.speciesId)?.name || 'fish';
+      if (addToCreel(fish)) toast(`The ${name} you landed waits in your creel.`, 'info');
+      else toast(`${D().TEXT?.creelFull || 'Your creel is full.'} The ${name} slips back into the water.`, 'bad');
+    }
+  }
   const gone = new Set();           // uids eaten / rendered / sold / released / stolen (never act on them twice)
   function creelSize() { return Math.max(0, getStats().creelSize | 0); }
   function addToCreel(fish) {
@@ -560,6 +579,7 @@ export function create(ctx) {
 
     // the catch card (then the cinders, so a level-up picker queues behind it) ----
     pending.set(fish.uid, { fish, t: 0 });
+    syncPending();
     ctx.bus.emit('fish:landed', { fish, isNew, isRecord, species: sp, firstShells, xp, mastered: entry.caught === (J.masteryAt ?? 10) });
     try { ctx.combat?.addXp?.(xp); } catch (err) { report('combat.addXp', err); }
 
@@ -583,7 +603,7 @@ export function create(ctx) {
     market.bountyEvent('fish', { fish, species: sp, depth: cast.depth, inSpot: cast.inSpot });
     challenges.hooks.fish(fish, sp);
     evaluateGate();
-    if (sp.final && !f.victory) {
+    if (sp.final && !f.victory && (!sp.zone || sp.zone === r.zone)) {   // only in its own (final) lake
       f.victory = true;
       f.firstVictory = !m.victory;
       requestSave();
@@ -986,6 +1006,7 @@ export function create(ctx) {
     r.creel = r.creel || []; r.bait = r.bait || {}; r.upgrades = r.upgrades || {}; r.legendaries = r.legendaries || {}; r.bounties = r.bounties || [];
     r.boons = r.boons || {};
     if (!continued) r.flags.startBestLevel = meta()?.bestLevel || 0;
+    if (continued) restorePending(); else delete r.flags.pendingCatch;
     market.reset();
     gateSynced = null;
     syncGateVisual(true);
@@ -1164,6 +1185,7 @@ export function create(ctx) {
     on('fishing:land', ({ position }) => { lastCast = castInfoAt(position); });
     on('fishing:hook', onHook);
     on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved') r.flags.streak = 0; });
+    on('fishing:escaped', () => { const r = run(); if (r?.stats) r.stats.fishLost = (r.stats.fishLost | 0) + 1; });
     on('enemy:slain', onEnemySlain);
     on('boss:slain', onBossSlain);
     on('player:damage', ({ amount, source }) => {
@@ -1199,6 +1221,7 @@ export function create(ctx) {
     if (expects.length) settleRewards();
     gateTimer -= dt;
     if (gateTimer <= 0) { gateTimer = 0.5; evaluateGate(); }
+    if ((r.flags?.pendingCatch?.length || 0) !== pending.size) syncPending();
     if (pending.size && dt > 0 && ctx.ui?.isBlocking?.() !== true) {
       for (const [id, p] of pending) {
         p.t += dt;
