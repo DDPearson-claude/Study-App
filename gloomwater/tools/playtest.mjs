@@ -8,7 +8,8 @@
 // errors / page errors and ctx.errors, and exits non-zero if any page error occurred.
 //
 // Custom scenario: --script=file.mjs exporting `default async function (api)` where
-// api = { page, shot(name), wait(ms), evalGame(fn, arg), hold(ms, x?, y?), click(x, y), log }
+// api = { page, shot(name), wait(ms), frames(n), evalGame(fn, arg), hold(ms, x?, y?), click(x, y), log,
+//         width, height, args }. A scenario may return { failures: [string] } (or throw) to fail the run.
 import { createRequire } from 'node:module';
 import { resolve, dirname } from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -51,12 +52,23 @@ page.on('pageerror', (e) => pageErrors.push(String(e?.stack || e)));
 await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
 
 const wait = (ms) => page.waitForTimeout(ms);
+// Software GL on a shared machine can drop to ~1 fps: give screenshots time, retry once, and
+// never fail a scenario on a screenshot timeout alone (it is logged instead).
 const shot = async (name) => {
   const p = resolve(shotsDir, `${name}.png`);
-  await page.screenshot({ path: p });
-  console.log('screenshot', p);
-  return p;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      await page.screenshot({ path: p, timeout: 90000 });
+      console.log('screenshot', p);
+      return p;
+    } catch (e) {
+      console.log(`screenshot ${name} failed (attempt ${attempt + 1}): ${String(e?.message || e).split('\n')[0]}`);
+    }
+  }
+  return null;
 };
+/** Resolve after n rendered frames (game time advances only with frames). */
+const frames = (n = 1) => page.evaluate((n) => new Promise((r) => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); }), n);
 const evalGame = (fn, arg) => page.evaluate(fn, arg);
 const hold = async (ms, x = width / 2, y = height * 0.6) => {
   await page.mouse.move(x, y);
@@ -66,7 +78,7 @@ const hold = async (ms, x = width / 2, y = height * 0.6) => {
 };
 const click = async (x, y) => { await page.mouse.click(x, y); };
 const log = (...a) => console.log('[scenario]', ...a);
-const api = { page, shot, wait, evalGame, hold, click, log, width, height };
+const api = { page, shot, wait, frames, evalGame, hold, click, log, width, height, args };
 
 const t0 = Date.now();
 await page.goto(pathToFileURL(htmlPath).href);
@@ -75,7 +87,8 @@ await wait(Number(args.wait || 4000));
 try {
   if (args.script) {
     const mod = await import(pathToFileURL(resolve(process.cwd(), String(args.script))).href);
-    await mod.default(api);
+    const res = await mod.default(api);
+    for (const f of (res && Array.isArray(res.failures) ? res.failures : [])) pageErrors.push('assertion: ' + f);
   } else {
     await shot('01-title');
     await evalGame(() => window.__gw?.game?.startNewRun({}));
