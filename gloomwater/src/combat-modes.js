@@ -21,9 +21,11 @@ export function anchorStates(data) {
   const a = data?.AUTOFISH?.play?.anchor;
   return Array.isArray(a?.states) ? new Set(a.states) : ANCHOR_STATES;
 }
-/** Is the anchor holding? Only on the v3 path (V3_ENABLED); v1 keeps its knockback. */
-export function anchored(state, data) {
-  return data?.V3_ENABLED === true && typeof state === 'string' && anchorStates(data).has(state);
+/** Is the anchor holding? Only on the v3 path (V3_ENABLED); v1 keeps its knockback. `fishing.isAnchored()` wins when present. */
+export function anchored(state, data, fishing = null) {
+  if (data?.V3_ENABLED !== true) return false;
+  if (fishing && typeof fishing.isAnchored === 'function') { try { const a = fishing.isAnchored(); if (typeof a === 'boolean') return a; } catch { /* fall through */ } }
+  return typeof state === 'string' && anchorStates(data).has(state);
 }
 /**
  * Does a hand slam that lands now part the line (`fishing.partLine('staggered')`)? Automatic fishing: only during a play

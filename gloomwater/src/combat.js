@@ -126,7 +126,7 @@ export function create(ctx) {
    * The hard rule (Still / Lantern) and, with automatic fishing, the anchor in EVERY v3 mode (Gloomtide and The Long Descent
    * too; C7): nothing combat does moves the Wick or the raft from the strike until the card or the note. v1 keeps its knockback.
    */
-  C.holdStill = () => M.anchored(fishState(), data()) || (!!C.mode && !M.knockWhileHooked(C.mode, BAL()) && C.hooked());
+  C.holdStill = () => M.anchored(fishState(), data(), real(ctx.fishing) ? ctx.fishing : null) || (!!C.mode && !M.knockWhileHooked(C.mode, BAL()) && C.hooked());
   /** Automatic fishing is in this build (fishing exposes partLine / setTutorial): the legend snags are staged beats. */
   C.autoFishing = () => { const f = ctx.fishing; return data()?.V3_ENABLED === true && real(f) && (typeof f.partLine === 'function' || typeof f.setTutorial === 'function'); };
   /** Is the player moving (for the level-up modal rule)? Raft speed or a held move input. */

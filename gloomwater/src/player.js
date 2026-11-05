@@ -128,6 +128,9 @@ export function create(ctx) {
   }
   function anchoredNow() {
     if (!V3()) return false;
+    // fishing knows exactly when the note shows (isAnchored); without it, the anchor's states
+    const f = ctx.fishing;
+    if (real(f) && typeof f.isAnchored === 'function') { try { const a = f.isAnchored(); if (typeof a === 'boolean') return a; } catch { /* fall through */ } }
     return anchorStates().has(fishingState());
   }
   const feLocks = () => { try { return ctx.firstEvening?.locksMovement?.() === true; } catch { return false; } };
