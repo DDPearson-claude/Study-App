@@ -2,9 +2,14 @@
 // CONTRACT §7 water. A camera-following grid recentred in grid-sized snaps (waves never
 // swim), world-space swell that getHeight() reproduces exactly, and a stylised
 // fragment shader (see water-shader.js). Splashes are a pooled Points system.
+// v3 (CONTRACT §13.7 water; DESIGN §25.6.1, §25.8.3): addRipple / addWake take an optional sign tag
+// ({kind, size}) that rides the same ripple / wake arrays (water-signs.js packs it; no new uniform), and
+// setGlowtide(k) drives the night sparkle (uGlowtide, compiled out on low; water eases it from the night
+// phase by itself in a v3 build until someone sets it).
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
 import { WATER_VERT, WATER_FRAG, SPLASH_VERT, SPLASH_FRAG } from './water-shader.js';
+import { SIGN_ID, SIGN_CAP, signId, signLength, signLife, encodeSignRipple, encodeSignWake, glowtideFor } from './water-signs.js';
 
 const MAX_RIP = 32;
 const MAX_WAKE = 32;
@@ -16,6 +21,9 @@ const GRID_SIZE = 340;               // m — covers a radius-85 arena from any 
 const GRID_SEGS = { low: 110, medium: 160, high: 200 };
 const MAX_PARTICLES = 640;
 const GRAVITY = -13;
+const SIGN_RIP_POOL = 24;            // v3 sign marks (fishing-fx's tagged ripples): ≤ 6 signs alive, ≈ 15 marks at worst
+const SIGN_WAKE_POOL = 12;
+const GLOW_GOLD = new THREE.Color(0xe8be77);   // pale gold (DESIGN §19.1): the Glowtide's warm glints
 
 // Swell: direction (deg), wavelength (m), amplitude (m), speed factor. Gentle cavern lake.
 const SWELL = [
@@ -84,6 +92,8 @@ export function create(ctx) {
     uNeb: { value: new THREE.Color(0xd296ae) }, uNebV: { value: new THREE.Color(0x433e74) }, uNebK: { value: 0 },
     uNeb1: { value: new THREE.Vector4(0, 0.2, -1, 0) }, uNeb2: { value: new THREE.Vector4(0, 0.5, -1, 0) },
     uBandN: { value: new THREE.Vector3(1, 0, 0) },
+    // v3 night sparkle (setGlowtide; DESIGN §25.8.3): the one uniform the v3 water adds in P1 (CONTRACT §13.9)
+    uGlowtide: { value: 0 },
   }]);
   // merge() clones values — re-point the typed arrays so writes land in the live uniforms
   uniforms.uWaveA.value = waveA; uniforms.uWaveB.value = waveB;
@@ -96,7 +106,9 @@ export function create(ctx) {
     uniforms,
     vertexShader: WATER_VERT,
     fragmentShader: WATER_FRAG,
-    defines: { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L },
+    // GW_V3: the v3 sign marks and the Glowtide are compiled only in a v3 build (data carries BALANCE.nightModes),
+    // so a v1 / v2 build keeps the base shader and its compile time (CONTRACT §13.0: modules feature-detect v3)
+    defines: ctx.data?.BALANCE?.nightModes ? { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L, GW_V3: 1 } : { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L },
     fog: true,
     lights: false,
   });
@@ -156,6 +168,38 @@ export function create(ctx) {
     if (!skyEver) { skyEver = true; U.uStars.value = skyTgt2.stars; U.uStarDen.value = skyTgt2.den; U.uNebK.value = skyTgt2.nebK; }
   }
 
+  // ---------------------------------------------------------------- Glowtide (v3, DESIGN §25.8.3)
+  /**
+   * setGlowtide(k 0..1) — the night sparkle on whatever stirs the water (wakes, ripples, signs, droplets).
+   * A number holds until the next call; null hands it back to water's own drive, which (in a v3 build:
+   * BALANCE.nightModes exists) follows the night from survival.getPhaseInfo() (glowtideFor). The term is
+   * compiled out on low, where the value is ignored. CONTRACT §13.7.
+   */
+  let glowManual = null;
+  let glowTarget = 0;
+  function setGlowtide(k) {
+    if (k === null || k === undefined) { glowManual = null; return; }
+    const v = Number(k);
+    if (Number.isFinite(v)) glowManual = clamp(v, 0, 1);
+  }
+  function glowAuto() {
+    if (!ctx.data?.BALANCE?.nightModes) return 0;          // v1 / v2 build: no Glowtide (CONTRACT §13.0)
+    if (!ctx.state?.run || ctx.flow !== 'playing') return 0;
+    const s = isReal(ctx.survival) ? ctx.survival : null;
+    let info = null;
+    try { info = s?.getPhaseInfo?.() ?? null; } catch { info = null; }
+    return glowtideFor(info);
+  }
+  /** The Glowtide's live strength (0 on low, where the shader term is compiled out). */
+  const glowNow = () => (tier === 'low' ? 0 : U.uGlowtide.value);
+  function stepGlowtide(dt) {
+    glowTarget = glowManual ?? glowAuto();
+    const g = U.uGlowtide.value;
+    if (g === glowTarget) return;
+    const nv = damp(g, glowTarget, 1.6, dt);
+    U.uGlowtide.value = Math.abs(nv - glowTarget) < 0.002 ? glowTarget : nv;
+  }
+
   // ---------------------------------------------------------------- palette
   const palTgt = {
     deep: new THREE.Color(0x0a081e), shallow: new THREE.Color(0x2e2664), foam: new THREE.Color(0xd8d6e6),
@@ -192,8 +236,19 @@ export function create(ctx) {
   const rips = [];   // ring buffer of {x, z, t0, s}
   for (let i = 0; i < MAX_RIP; i++) rips.push({ x: 0, z: 0, t0: -999, s: 0 });
   let ripHead = 0;
+  let signRipN = 0, signWakeN = 0;
   const nowT = () => (ctx.time?.t || 0) % 3600;
+  /**
+   * addRipple(x, z, strength = 1, delay | opts) — a ring on the water. opts (v3, optional):
+   * {kind: 'rise'|'boil'|'nervous'|'strike'|'bubbles'|'glow', size: fish length m (or sizeClass), delay}
+   * paints that sign's surface instead (see signRipple); without a known kind it is a plain ripple.
+   */
   function addRipple(x, z, strength = 1, delay = 0) {
+    if (delay && typeof delay === 'object') {
+      const id = signId(delay.kind);
+      if (id) return signRipple(x, z, strength, id, delay);
+      delay = delay.delay;
+    }
     x = Number(x); z = Number(z);
     if (!isFinite(x) || !isFinite(z)) return;
     const s = clamp(Number(strength) || 1, 0.05, 3);
@@ -208,9 +263,77 @@ export function create(ctx) {
     r.x = x; r.z = z; r.t0 = t; r.s = s;
     ripHead = (slot + 1) % MAX_RIP;
   }
+  // ---- v3 sign marks (DESIGN §25.6.1). fishing-fx owns the signs and asks for their ripples with a kind;
+  // each tagged ripple is one mark the shader paints for SIGN_LIFE[kind] s (a rise's kiss and three rings, a
+  // boil's slick, a nervous patch, a strike's slap and slick, a bubble cluster, a night fish's glow). They
+  // live in their own small pool and are packed into uRip ahead of the plain ripples (SIGN_CAP slots), so a
+  // fast raft's wake and splashes never push a sign off the water, nor a burst of signs the raft's rings.
+  const signRips = [];
+  for (let i = 0; i < SIGN_RIP_POOL; i++) signRips.push({ x: 0, z: 0, t0: -999, w: 0, id: 0, life: 0, fry: 0, seq: 0, L: 0, k: 0 });
+  let signRipHead = 0;
+  const signLive = [];
+  let signSeq = 0;
+  const newestFirst = (a, b) => b.seq - a.seq;
+  const KIND_NAME = Object.fromEntries(Object.entries(SIGN_ID).map(([k, v]) => [v, k]));
+  function signRipple(x, z, strength, id, o) {
+    x = Number(x); z = Number(z);
+    if (!isFinite(x) || !isFinite(z)) return;
+    const inten = strength === undefined || strength === null ? 1 : Number(strength);
+    if (!(inten > 0.01)) return;
+    const t = nowT() + Math.max(0, Number(o.delay) || 0);
+    const L = signLength(KIND_NAME[id], o);
+    let slot = signRipHead;
+    for (let i = 0; i < SIGN_RIP_POOL; i++) {
+      const m = signRips[(signRipHead + i) % SIGN_RIP_POOL];
+      if (t - m.t0 > m.life) { slot = (signRipHead + i) % SIGN_RIP_POOL; break; }
+    }
+    const m = signRips[slot];
+    m.x = x; m.z = z; m.t0 = t; m.id = id; m.life = signLife(id);
+    m.w = encodeSignRipple(id, L, Math.min(1, inten));
+    m.L = L; m.k = Math.min(1, inten);
+    m.fry = id === SIGN_ID.nervous ? 0.15 : 0; m.seq = ++signSeq;
+    signRipHead = (slot + 1) % SIGN_RIP_POOL;
+    // a strike throws its own crown of droplets (the slap); one splash call is enough for the whole sign
+    if (id === SIGN_ID.strike && !o.noSplash) splashDrops(x, z, 1.1 + Math.min(L, 3) * 0.45, 26 + Math.round(Math.min(L, 3) * 8));
+  }
+  /** Fry leaping out of a live nervous patch now and then (pooled splash points: no extra draw call). */
+  function stepSignFx(dt, t) {
+    for (const m of signRips) {
+      if (m.id !== SIGN_ID.nervous) continue;
+      const age = t - m.t0;
+      if (age < 0.3 || age > m.life - 0.8) continue;
+      m.fry -= dt;
+      if (m.fry > 0) continue;
+      m.fry = 0.12 + rand() * 0.32;
+      const R = (1.15 + 0.6 * Math.min(m.L || 0.6, 3)) * 0.7;
+      const a = rand() * Math.PI * 2, r0 = Math.sqrt(rand()) * R;
+      const px = m.x + Math.cos(a) * r0, pz = m.z + Math.sin(a) * r0;
+      const y0 = api.getHeight(px, pz);
+      const sp = 1.4 + rand() * 1.6;
+      lightAt(px, pz, litCol);
+      splashCol.copy(U.uFoam.value).multiplyScalar(0.55).add(litCol);
+      if (glowNow() > 0.05) splashCol.lerp(U.uStarCol.value, 0.5 * glowNow());
+      spawnParticle(px, y0 + 0.04, pz, Math.cos(a) * sp, 1.6 + rand() * 1.4, Math.sin(a) * sp, 0.04 + rand() * 0.025, 0.45 + rand() * 0.25, splashCol, (0.9 + rand() * 0.5) * (m.k || 1), 0);
+    }
+  }
+
   function packRipples(t) {
     let n = 0;
     const max = material.defines.MAX_RIP;
+    const cap = Math.min(max, (SIGN_CAP[tier] || SIGN_CAP.high).rip);
+    signLive.length = 0;
+    for (let i = 0; i < SIGN_RIP_POOL; i++) {
+      const m = signRips[i];
+      const age = t - m.t0;
+      if (age >= -2 && age <= m.life) signLive.push(m);
+    }
+    if (signLive.length > cap) signLive.sort(newestFirst);   // over the cap the newest marks win (a trail's tail fades first)
+    for (let i = 0; i < signLive.length && n < cap; i++) {
+      const m = signLive[i];
+      rip[n * 4] = m.x; rip[n * 4 + 1] = m.z; rip[n * 4 + 2] = m.t0; rip[n * 4 + 3] = m.w;
+      n++;
+    }
+    signRipN = n;
     for (let i = 0; i < MAX_RIP && n < max; i++) {
       const r = rips[i];
       const age = t - r.t0;
@@ -255,15 +378,44 @@ export function create(ctx) {
     }
     writeWake(x, z, dx, dz, s, t);
   }
-  function addWake(x, z, dirX = 0, dirZ = 1, strength = 1) {
+  /**
+   * addWake(x, z, dirX, dirZ, strength, opts?) — a V-wake mark. opts (v3, optional): {kind} tags it as a
+   * sign's wake (fishing-fx: a glow trail's wake is light, `kind: 'glow'`; other kinds draw as plain wakes
+   * but keep their own reserved slots). A tagged wake does not count as the player's wake.
+   */
+  function addWake(x, z, dirX = 0, dirZ = 1, strength = 1, opts) {
     x = Number(x); z = Number(z); dirX = Number(dirX); dirZ = Number(dirZ);
     if (!isFinite(x) || !isFinite(z) || !isFinite(dirX) || !isFinite(dirZ)) return;
+    const id = opts && typeof opts === 'object' ? signId(opts.kind) : 0;
+    if (id) return signWake(x, z, dirX, dirZ, strength, id);
     lastExternalWake = ctx.time?.t || 0;
     pushWake(x, z, dirX, dirZ, strength, nowT());
+  }
+  const signWakes = [];
+  for (let i = 0; i < SIGN_WAKE_POOL; i++) signWakes.push({ x: 0, z: 0, t0: -999, dx: 0, dz: 1, w: 0 });
+  let signWakeHead = 0;
+  function signWake(x, z, dirX, dirZ, strength, id) {
+    const l = Math.hypot(dirX, dirZ);
+    if (l < 1e-4) return;
+    const s = clamp(Number(strength ?? 1) || 0, 0, 1);
+    if (s < 0.02) return;
+    const w = signWakes[signWakeHead];
+    w.x = x; w.z = z; w.t0 = nowT(); w.dx = dirX / l; w.dz = dirZ / l; w.w = encodeSignWake(id, s);
+    signWakeHead = (signWakeHead + 1) % SIGN_WAKE_POOL;
   }
   function packWakes(t) {
     let n = 0, cx = 0, cz = 0;
     const max = material.defines.MAX_WAKE;
+    const cap = Math.min(max, (SIGN_CAP[tier] || SIGN_CAP.high).wake);
+    for (let i = 0; i < SIGN_WAKE_POOL && n < cap; i++) {
+      const w = signWakes[i];
+      const age = t - w.t0;
+      if (age < 0 || age > WAKE_LIFE) continue;
+      wakeU[n * 4] = w.x; wakeU[n * 4 + 1] = w.z; wakeU[n * 4 + 2] = w.t0; wakeU[n * 4 + 3] = w.w;
+      wakeD[n * 2] = w.dx; wakeD[n * 2 + 1] = w.dz;
+      cx += w.x; cz += w.z; n++;
+    }
+    signWakeN = n;
     for (let i = 0; i < MAX_WAKE && n < max; i++) {
       const w = wakes[i];
       const age = t - w.t0;
@@ -510,6 +662,43 @@ export function create(ctx) {
     pSize[i] = pSize[j]; pLife[i] = pLife[j]; pMax[i] = pMax[j]; pBase[i] = pBase[j]; pAlpha[i] = pAlpha[j]; pFlag[i] = pFlag[j];
   }
 
+  /** A crown and a column of droplets in splashCol (set by the caller) at (x, z). */
+  function emitDrops(x, z, size, count) {
+    const y0 = api.getHeight(x, z);
+    const sq = Math.sqrt(size);
+    // droplets catch the nearby lights: pale ink in the dark, warm sparks in the lantern's pool
+    lightAt(x, z, litCol);
+    splashCol.multiplyScalar(0.32).add(litCol);
+    // v3 Glowtide: at night some droplets catch the sparkle too (starlight, now and then pale gold)
+    const gk = glowNow();
+    for (let i = 0; i < count; i++) {
+      const a = rand() * Math.PI * 2;
+      const crown = rand() < 0.7;      // a ring crown, plus a central column
+      const lat = crown ? (0.8 + rand() * 1.5) * sq : rand() * 0.45 * sq;
+      const up = crown ? (2.0 + rand() * 2.4) * sq : (3.4 + rand() * 3.4) * sq;
+      const r0 = crown ? 0.18 * sq : 0.05;
+      const psz = (0.035 + rand() * 0.055) * (0.75 + sq * 0.3), plife = 0.6 + rand() * 0.6;
+      let c = splashCol, b = 0.6 + rand() * 0.8;
+      if (gk > 0.05 && rand() < 0.4 * gk) {
+        c = glowDrop.copy(U.uStarCol.value).lerp(U.uGlow.value, 0.35);
+        if (rand() < 0.2) c.copy(GLOW_GOLD);
+        c.multiplyScalar(0.5 + 0.5 * gk);
+        b = 1.2 + rand() * 0.9;
+      }
+      spawnParticle(
+        x + Math.cos(a) * r0, y0 + 0.05, z + Math.sin(a) * r0,
+        Math.cos(a) * lat, up, Math.sin(a) * lat,
+        psz, plife, c, b, 0,
+      );
+    }
+  }
+  const glowDrop = new THREE.Color();
+  /** Droplets only (a strike sign's slap): no ripples of its own, the sign mark paints the rings. */
+  function splashDrops(x, z, size, count) {
+    splashCol.copy(U.uFoam.value);
+    emitDrops(x, z, clamp(size, 0.1, 4), Math.round(clamp(count, 1, 160)));
+  }
+
   function splash(x, z, opts = {}) {
     x = Number(x); z = Number(z);
     if (!isFinite(x) || !isFinite(z)) return;
@@ -518,23 +707,7 @@ export function create(ctx) {
     if (opts.color !== undefined && opts.color !== null) {
       try { opts.color.isColor ? splashCol.copy(opts.color) : splashCol.set(opts.color); } catch { splashCol.copy(U.uFoam.value); }
     } else splashCol.copy(U.uFoam.value);
-    const y0 = api.getHeight(x, z);
-    const sq = Math.sqrt(size);
-    // droplets catch the nearby lights: pale ink in the dark, warm sparks in the lantern's pool
-    lightAt(x, z, litCol);
-    splashCol.multiplyScalar(0.32).add(litCol);
-    for (let i = 0; i < count; i++) {
-      const a = rand() * Math.PI * 2;
-      const crown = rand() < 0.7;      // a ring crown, plus a central column
-      const lat = crown ? (0.8 + rand() * 1.5) * sq : rand() * 0.45 * sq;
-      const up = crown ? (2.0 + rand() * 2.4) * sq : (3.4 + rand() * 3.4) * sq;
-      const r0 = crown ? 0.18 * sq : 0.05;
-      spawnParticle(
-        x + Math.cos(a) * r0, y0 + 0.05, z + Math.sin(a) * r0,
-        Math.cos(a) * lat, up, Math.sin(a) * lat,
-        (0.035 + rand() * 0.055) * (0.75 + sq * 0.3), 0.6 + rand() * 0.6, splashCol, 0.6 + rand() * 0.8, 0,
-      );
-    }
+    emitDrops(x, z, size, count);
     addRipple(x, z, size);
     if (size > 0.6) addRipple(x, z, size * 0.6, 0.18);
     if (size > 1.6) addRipple(x, z, size * 0.4, 0.42);
@@ -616,6 +789,21 @@ export function create(ctx) {
   const api = {
     mesh, points, material,
     init() {
+      // debug readout (extra): what the water is painting now
+      if (ctx.debug) {
+        ctx.debug.water = () => {
+          const t = nowT();
+          const kinds = {};
+          for (const m of signRips) if (t - m.t0 >= -2 && t - m.t0 <= m.life) kinds[KIND_NAME[m.id]] = (kinds[KIND_NAME[m.id]] || 0) + 1;
+          let sw = 0;
+          for (const w of signWakes) if (t - w.t0 >= 0 && t - w.t0 <= WAKE_LIFE) sw++;
+          return {
+            tier, glowtide: U.uGlowtide.value, glowTarget, glowManual, glowLive: glowNow(), lowDefine: !!material.defines.GW_LOW,
+            ripN: U.uRipN.value, wakeN: U.uWakeN.value, signRipN, signWakeN, signMarks: kinds, signWakes: sw,
+            uniforms: Object.keys(U).sort(), maxRip: material.defines.MAX_RIP, maxWake: material.defines.MAX_WAKE, particles: live,
+          };
+        };
+      }
       const scene = ctx.render?.scene;
       if (scene && !ctx.render.isStub) { scene.add(mesh); scene.add(points); }
       applyZonePalette(ctx.state?.run?.zone || ctx.data?.ZONES?.[0]?.id, true);
@@ -630,6 +818,8 @@ export function create(ctx) {
           // the old lake's rings and trails do not follow us down
           for (const r of rips) r.t0 = -999;
           for (const w of wakes) w.t0 = -999;
+          for (const m of signRips) m.t0 = -999;
+          for (const w of signWakes) w.t0 = -999;
           lastWake = null;
           live = 0;
         } catch (err) { console.error('[water] zone:change', err); }
@@ -672,6 +862,7 @@ export function create(ctx) {
       U.uStars.value += (skyTgt2.stars - U.uStars.value) * a;
       U.uStarDen.value += (skyTgt2.den - U.uStarDen.value) * a;
       U.uNebK.value += (skyTgt2.nebK - U.uNebK.value) * a;
+      stepGlowtide(dt);
 
       // player-relative bits
       const pl = isReal(ctx.player) ? ctx.player : null;
@@ -702,6 +893,7 @@ export function create(ctx) {
       packWakes(t);
       packLights(realT);
       if (ctx.flow === 'playing' || ctx.flow === 'title') ambience(dt, px, pz);
+      stepSignFx(dt, t);
       updateParticles(dt);
 
       const r = ctx.render?.renderer;
@@ -735,6 +927,9 @@ export function create(ctx) {
     setPalette,
     setLights,
     setSky,
+    setGlowtide,
+    /** v3: the Glowtide's live value (0..1) and whether a caller holds it (extra; tests, ui). */
+    get glowtide() { return glowNow(); },
     /** Optional override of the foam circles (default: world.getObstacles()). null = back to world. */
     setObstacles(list) { manualObstacles = Array.isArray(list) ? list : null; obstaclesDirty = true; },
     /** Drip from the cavern roof at (x, z) (extra): a falling droplet that rings on impact. */
