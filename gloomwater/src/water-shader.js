@@ -230,7 +230,7 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
       // a ring on real water is never a clean line: it catches the sky in a few long arcs and goes dark
       // between them (noise read around the circle, so the arcs keep their angles as the ring spreads),
       // with a darker trough just inside each crest
-      float arcs = 0.22 + 0.78 * smoothstep(0.28, 0.72, wNoise(n * 1.05 + vec2(seed * 17.0 + fj * 5.3, fj * 3.1 + seed * 9.0)));
+      float arcs = 0.14 + 0.86 * smoothstep(0.32, 0.66, wNoise(n * 1.45 + vec2(seed * 17.0 + fj * 5.3, fj * 3.1 + seed * 9.0)));
       sLine += ring * rf * arcs * (rise ? 0.62 + 0.25 * nz : 0.52 + 0.35 * nz);
       float xt = (d - rad + ww * 1.7) / ww;
       sDark += exp(-xt * xt) * sqrt(w / ww) * rf * (0.6 + 0.4 * arcs) * 0.26;
@@ -288,7 +288,7 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     float rim = exp(-xr * xr) * sqrt(wR / wwR);
     float side = 0.55 + 0.45 * (e.x / max(ed, 1e-3)) * (seed > 0.5 ? 1.0 : -1.0);
     vec2 en = e / max(ed, 1e-3);
-    float arcs = 0.3 + 0.7 * smoothstep(0.25, 0.7, wNoise(en * 1.2 + seed * 23.0));
+    float arcs = 0.16 + 0.84 * smoothstep(0.3, 0.66, wNoise(en * 1.6 + seed * 23.0));
     sLine += rim * fade * (0.35 + 0.45 * side) * arcs;
     float r2 = rimR * (1.0 + age * 0.45);
     float out2 = sgRing(ed, r2, 0.05, fwE) * fade * (1.0 - k) * 0.32 * (0.2 + 0.8 * smoothstep(0.3, 0.7, wNoise(en * 1.1 + seed * 31.0 + 4.0)));
