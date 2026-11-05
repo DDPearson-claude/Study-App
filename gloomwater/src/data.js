@@ -3670,8 +3670,9 @@ export const AUTOFISH = {
     // the raft (or the planted Wick on foot) is anchored in EVERY night mode: movement input is ignored and not buffered, nothing in
     // combat moves it (no knockback, slam knock or shove), and only the play's own tow (play[class].tow, planned from class and z) moves
     // it. Gloomtide: the same anchor, so a telegraphed hand slam is answered with fire, not feet (aura, weapons, zaps, Flare work as
-    // usual; hits cost Embers, without knockback), and a slam that lands parts a non-legendary line ('staggered').
-    anchor: { from: 'strike', until: ['card', 'gotAwayNote'], states: ['reeling', 'landing', 'lost'], modes: ['still', 'lantern', 'gloomtide'],
+    // usual; hits cost Embers, without knockback), and a slam that lands parts a non-legendary line ('staggered'). `hub`: the same anchor
+    // at the Landing, where the First Evening's run-less play has no night mode.
+    anchor: { from: 'strike', until: ['card', 'gotAwayNote'], states: ['reeling', 'landing', 'lost'], modes: ['still', 'lantern', 'gloomtide'], hub: true,
       moveInput: 'ignored', buffered: false, combatMoves: false, towOnly: true, gloomtide: { slamPartsLine: true, taps: 'zap', knockback: false } },
   },
   // legends: identity is known (legend pool + legend bait), so their real model shows and their plays are authored set pieces

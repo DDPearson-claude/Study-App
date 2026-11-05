@@ -5,7 +5,7 @@
 //    or use main's rollout switch once it lands)
 //   node tools/playtest.mjs --html=tools/out/p1-progression-v3.html --script=tools/tests/p1-progression.scenario.mjs --width=960 --height=540 --lean
 // Flow: boot (v3 on, meta.v3ids) → Pg0: a v1 save in localStorage, reload, Continue → renamed ids; a second reload changes
-// nothing → wipe → Pg12: run 1 is the First Outing (still), run 2 is a normal outing in a mode; fight stats from upgrades →
+// nothing → wipe → Pg12: run 1 is the First Outing (still), run 2 is a normal outing in a mode; Hold (no fight stats) from upgrades →
 // Pg1: an Elder Reedjaw (z 2.8) measured once before the card, 127 Shells, class first / Elder Log banked and saved at once,
 // a first Elder release banks +8 at once; a real (v1-rolled) catch measured through the compat path; reload keeps the
 // records → the death screen: no species row, the nights row at the tally's values, titled Snuffed.
@@ -82,7 +82,7 @@ export default async function (api) {
   await errs();
 
   // ------------------------------------------------------------------------------------------------ Pg12
-  step('Pg12: the First Outing, then a normal outing; fight stats from upgrades');
+  step('Pg12: the First Outing, then a normal outing; Hold from upgrades, no fight stats');
   await g(() => { window.__gw.game.wipeAll(); });
   await frames(3);
   const nm0 = await g(() => window.__gw.progression.getNightModes());
@@ -92,8 +92,9 @@ export default async function (api) {
   const r1 = await g(() => window.__gw.debug.v3());
   check(r1.outing === 'first' && r1.nightMode === 'still', 'run 1 is the First Outing, still (asked for Gloomtide)', r1);
   check(await g(() => [1, 2, 3, 4].every((n) => !window.__gw.data.swarmTonight(window.__gw.state.run.nightMode, n, window.__gw.state.run.outing))), 'no swarm on any night of run 1');
-  const st = await g(() => { const c = window.__gw; const r = c.state.run; r.upgrades = { rod_ashwood: 3, rod_whalebone: 2, reel_brass: 4, reel_drag: 3 }; c.progression.invalidateStats(); const s = c.progression.getStats(); const out = { shock: s.shock, pipBonus: s.pipBonus, absorb: s.absorb, dragAt: s.dragAt }; r.upgrades = {}; c.progression.invalidateStats(); return out; });
-  check(st.shock === 0.22 && st.pipBonus === 1 && st.absorb === 0.76 && st.dragAt === 0.8, 'getStats carries shock / pipBonus / absorb / dragAt from owned upgrades', st);
+  // D1′ retired the manual reel's v3 fight stats: owned upgrades add Hold (data.upgradeHold), never shock / pipBonus / absorb / dragAt
+  const st = await g(() => { const c = window.__gw; const r = c.state.run; r.upgrades = { rod_ashwood: 3, rod_whalebone: 2, reel_brass: 4, reel_drag: 3 }; c.progression.invalidateStats(); const s = c.progression.getStats(); const out = { shock: s.shock ?? null, pipBonus: s.pipBonus ?? null, absorb: s.absorb ?? null, dragAt: s.dragAt ?? null, reelHold: c.data.upgradeHold(r.upgrades).reel }; r.upgrades = {}; c.progression.invalidateStats(); return out; });
+  check(st.shock === null && st.pipBonus === null && st.absorb === null && st.dragAt === null && st.reelHold === 12, 'owned upgrades add Hold (upgradeHold, reel 7/7 → 12), no v3 fight stats on getStats (retired by D1′)', st);
   await shot('p1prog-01-first-outing');
   await g(() => window.__gw.game.endRun('abandoned'));
   await frames(3);

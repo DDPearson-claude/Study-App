@@ -7,13 +7,13 @@
 // builds that carry main's rollout switch), starts a run (nightMode Lantern; set on the run when progression predates Pg12) and
 // drives window.__gw through fishing's debug hooks with a seeded size roll (debug.fishSeed):
 //   - F4 / F2: a forced Elder Reedjaw at the stopgap's giant water plays the dome tell, bites with {sizeClass, biteTell}, hooks
-//     with pips, and fights with the size-scaled difficulty and an old trick pending; a Lantern slam neither snaps nor ends it;
+//     with no pips and no old trick (both retired with the manual reel's data by D1′); a Lantern slam neither snaps nor ends it;
 //   - F1 / F13: open water never rolls past 2.64 at μ 1.8; the float's notches are the same for two species at one point;
 //     three catches at a giant spot raise "gone quiet", dawn clears it; fishing:caught carries z / class / length / favours;
 //   - F7: Night Rise +0.25 on a night cast; a 14 m shove while waiting keeps the line in Lantern (player.js's knock check asks
 //     fishing.cancel('moved'), which discounts combat displacement); a slam and a shove during a fight leave the fish on;
 //   - F4: a lapsed bite is let pass (fishing:miss passed, refundBait when progression has it) and banks +0.15 for the next cast.
-// Screenshots: the Elder's dome tell, the fight with pips, the Night Rise cast.
+// Screenshots: the Elder's dome tell, the fight, the Night Rise cast.
 export default async function (api) {
   const { page, frames, evalGame: g, log, shot } = api;
   const failures = [];
@@ -33,7 +33,7 @@ export default async function (api) {
   await page.goto(page.url().split('?')[0] + '?v3=1&v3phase=1', { waitUntil: 'commit', timeout: 240000 });
   await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title', null, { timeout: 240000 });
   await g(() => { try { window.__gw.render.setQuality?.('low'); window.__gw.debug.renderScale?.(0.5); } catch { /* optional */ } });
-  let s = await g(() => ({ en: window.__gw.data.V3_ENABLED, ph: window.__gw.data.V3_PHASE, size: !!window.__gw.data.BALANCE.size?.fight }));
+  let s = await g(() => ({ en: window.__gw.data.V3_ENABLED, ph: window.__gw.data.V3_PHASE, size: !!window.__gw.data.BALANCE.size?.z }));
   check(s.en === true && s.ph === 1 && s.size, 'v3 phase-1 data in the build', s);
 
   step('start a run (Lantern)');
@@ -89,17 +89,18 @@ export default async function (api) {
     c.debug.instantCatch();
     return { state: a.state, reel: a.reel, pips, afterSlam };
   });
-  check(s.state === 'reeling' && s.pips && s.pips.n >= 2, 'hooked with hook-hold pips', { state: s.state, pips: s.pips });
-  check(s.reel && s.reel.trickDone === false && s.reel.stamina > 20, 'the reel carries the Elder scaling (stamina × 1.4 × g^1.3) and a pending old trick', s.reel);
+  // D1′ retired the pips, the old trick and the size → fight table with the manual reel's data; the P1 reel runs on its defaults until F2′
+  check(s.state === 'reeling' && !s.pips, 'hooked; no hook-hold pips (retired by D1′)', { state: s.state, pips: s.pips });
+  check(s.reel && s.reel.trick === false && s.reel.trickDone === true, 'no old trick pending (retired by D1′)', s.reel);
   check(s.afterSlam === 'reeling', 'Lantern: a slam (fishing.slam and combat\'s cancel(\'snap\')) neither snaps nor ends the fight', s.afterSlam);
   await frames(3);
   ev = await g(() => window.__ev.slice());
   const caught = ev.filter((x) => x.e === 'fishing:caught').pop();
   check(caught?.p.z === 2.95 && caught.p.sizeClass === 'elder' && caught.p.length > 120 && Array.isArray(caught.p.favours), 'fishing:caught carries z, class, length (cm) and the favours', caught?.p);
   await closeCard();
-  // a fresh Elder on the line for the screenshot (pips on the HUD when the ui reads view.pips)
+  // a fresh Elder on the line for the screenshot
   await g(() => { window.__gw.fishing.cancel('reset'); window.__gw.debug.fishHook('reedjaw_pike', { z: 2.95 }); });
-  await shot('p1f-elder-fight-pips');
+  await shot('p1f-elder-fight');
   await reset();
   await closeCard();
 
