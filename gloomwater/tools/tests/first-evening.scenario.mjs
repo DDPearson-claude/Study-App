@@ -459,9 +459,18 @@ export default async function (api) {
     await frames(3);
     let started = false;
     if (viaUi) {
-      started = await g(() => { const b = [...document.querySelectorAll('#ui button')].find((x) => x.offsetParent && /descend as|choose the nights|your first outing/i.test(x.textContent)); if (b) { b.click(); return true; } return false; });
-      await frames(3);
-      if (!/descend as/i.test(await g(() => document.getElementById('ui')?.innerText || ''))) { /* one step */ } else await g(() => { const b = [...document.querySelectorAll('#ui button')].find((x) => x.offsetParent && /descend as/i.test(x.textContent)); if (b) b.click(); });
+      // the New Descent screen: the nights (or the Wick) first, then "Descend as …", until the glide starts
+      for (let i = 0; i < 30 && !started; i++) {
+        await frames(3);
+        started = await g(() => !!window.__gw.player.glideState || window.__gw.flow !== 'title');
+        if (started) break;
+        await g(() => {
+          const vis = [...document.querySelectorAll('#ui button')].filter((x) => x.offsetParent);
+          const b = vis.find((x) => /^\s*descend as/i.test(x.textContent)) || vis.find((x) => /^\s*(your first outing|choose the nights)\s*$/i.test(x.textContent));
+          b?.click();
+        });
+      }
+      if (!started) note('the New Descent screen did not start a run in 30 tries; game.startNewRun()');
     }
     if (!started) await g(() => window.__gw.game.startNewRun({ character: 'wick', nightMode: 'lantern' }));
     await frames(2);
@@ -548,7 +557,8 @@ export default async function (api) {
         const st = await p2.evaluate(() => {
           const ev = window.__rel || [];
           if (ev.some((x) => x.e === 'firstEvening:step' || x.e === 'run:start')) return 'done';
-          const b = [...document.querySelectorAll('#ui button')].find((x) => x.offsetParent && /descend as|your first outing|choose the nights/i.test(x.textContent));
+          const vis = [...document.querySelectorAll('#ui button')].filter((x) => x.offsetParent);
+          const b = vis.find((x) => /^\s*descend as/i.test(x.textContent)) || vis.find((x) => /^\s*(your first outing|choose the nights)\s*$/i.test(x.textContent));
           if (b) { b.click(); return 'clicked'; }
           return 'wait';
         });
