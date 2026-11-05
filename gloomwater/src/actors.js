@@ -71,7 +71,7 @@ export function create(ctx) {
     lastCreel: -1, creelT: 0, t: 0, snapT: 0, puffAt: -9, arriveFrame: -1, brazierDelay: 0,
     // v3 measuring: explicit pose (setPose), the ceremony's pose (fishing.view.measure), the held v3 fish's own pose, the
     // alongside side, the fish's hand-over blend, and the cord (explicit showCord wins and sticks; else the view drives it)
-    meas: { pose: null, cerPose: null, auto: null, active: null, t: 0, side: 1, vphase: null, vphaseT: 0, idleT: 0,
+    meas: { pose: null, cerPose: null, auto: null, active: null, t: 0, side: 1, across: false, end: 1, vphase: null, vphaseT: 0, idleT: 0,
       blend: 1, from: null, rippleT: 0, fill: { k: 0, saved: null }, expo: 0, cord: { explicit: false, L: 0, k: 0, kShow: 0, show: false, autoL: 0, autoK: 0, autoShow: false } },
   };
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tip = new THREE.Vector3(), end = new THREE.Vector3(), camPos = new THREE.Vector3();
@@ -281,9 +281,10 @@ export function create(ctx) {
       { // the close-up's exposure (eased): the lantern right over the Wick comes down while the camera is near
         const M = st.meas; M.expo = damp(M.expo, env.closeK, 6, dt); if (Math.abs(M.expo - env.closeK) < 1e-3) M.expo = env.closeK;
       }
-      if (mp) wick.setMeasure({ lenB: measureLength() / Math.max(0.1, wick.group.scale.x), side: st.meas.side, faceYaw: mp === 'measureAlongside' ? st.meas.side * Math.PI / 2 : null });
-      { // an alongside fish: the Wick kneels at the deck's edge on its side, then walks home
-        const hx = mp === 'measureAlongside' ? st.meas.side * 0.6 : WICK_HOME.x, hz = mp === 'measureAlongside' ? 0.3 : WICK_HOME.z;
+      const across = mp === 'measureAlongside' && st.meas.across;
+      if (mp) wick.setMeasure({ lenB: measureLength() / Math.max(0.1, wick.group.scale.x), side: st.meas.side, faceYaw: mp === 'measureAlongside' ? (across ? (st.meas.end > 0 ? 0 : Math.PI) : st.meas.side * Math.PI / 2) : null });
+      { // an alongside fish: the Wick kneels at the deck's edge on its side (or at the near end, over a fish laid across), then walks home
+        const hx = mp === 'measureAlongside' ? st.meas.side * (across ? 0.3 : 0.6) : WICK_HOME.x, hz = mp === 'measureAlongside' ? (across ? st.meas.end * 0.95 : 0.3) : WICK_HOME.z;
         wick.group.position.x = damp(wick.group.position.x, hx, 4.5, dt); wick.group.position.z = damp(wick.group.position.z, hz, 4.5, dt);
       }
       wick.update(dt, t, env);
@@ -311,6 +312,7 @@ export function create(ctx) {
           try { fv.update?.(dt, t, { swim: 0.35, struggle: 0.25 + Math.max(0, Math.sin(t * 1.7)) * 0.35 }); } catch { /* visual */ }
         }
       }
+      stepPoleAside(mp);
       if (mp && wick.stowed?.visible) {   // a close-up from the bow: the stowed rod would stand in front of the subject like a post
         const dSub = camPos.distanceTo(mv.focusR > 0 ? mv.focus : wick.group.getWorldPosition(tmp));
         wick.stowed.updateWorldMatrix(true, false);
@@ -376,7 +378,7 @@ export function create(ctx) {
       raft.halo.material.opacity = 0.26 * Math.min(1.6, glow) * (1 - 0.85 * lck);
       raft.lflame.outerMat.uniforms.uI.value = LFLAME_I * (1 - 0.45 * lck);
       raft.halo.scale.setScalar(2.2 * (0.6 + 0.4 * Math.min(1.5, glow)) * (1 + st.boost * 0.8));
-      raft.lflame.group.visible = lit;
+      raft.lflame.group.visible = lit && !poleSeen.hidden;   // (stepped aside with the pole in a measuring close-up)
       raft.lflame.group.scale.setScalar(0.45 + 0.55 * lv * (1 + st.boost * 0.5));
       raft.lflame.outerMat.uniforms.uT.value = t * 1.1; raft.lflame.innerMat.uniforms.uT.value = t * 1.3;
       raft.lflame.outerMat.uniforms.uWild.value = low * 1.2;
@@ -469,7 +471,19 @@ export function create(ctx) {
     /** While a measuring pose is up: the sphere around the fish and the Wick (for the trophy camera), else null. */
     getMeasureFocus(out = new THREE.Vector3()) {
       if (!st.meas.active || !(mv.focusR > 0)) return null;
-      return { center: out.copy(mv.focus), radius: mv.focusR, pose: st.meas.active };
+      const r = { center: out.copy(mv.focus), radius: mv.focusR, pose: st.meas.active };
+      // the held fish's own frame (render may frame a long legend along its length): centre, snout → tail axis, length
+      const fv = st.catchFish, obj = fv?.object3d;
+      if (obj && obj.parent) {
+        const L = fv.length || 0.5, b = fv.bounds || { noseZ: L * 0.5, tailZ: -L * 0.5 };
+        obj.updateWorldMatrix(true, false);
+        const F = focusFish;
+        F.axis.set(0, 0, -1).transformDirection(obj.matrixWorld);   // local +z is the snout
+        F.center.set(0, 0, (b.noseZ + b.tailZ) / 2).applyMatrix4(obj.matrixWorld);
+        F.length = L;
+        r.fish = F;
+      }
+      return r;
     },
     get measurePose() { return st.meas.active; },
     /** The laid cord (tests, ui): {k, length, start, end (the fully laid end), radius} or null while rolled up. */
@@ -629,7 +643,7 @@ export function create(ctx) {
     if (M.pose && !vm && !fv && !ctx.cinematic) { M.idleT += dt; if (M.idleT > 1) M.pose = null; } else M.idleT = 0;
     const active = M.pose || M.cerPose || (fv ? M.auto : null) || null;
     if (active !== M.active) {
-      if (active === 'measureAlongside') M.side = pickSide();
+      if (active === 'measureAlongside') { M.side = pickSide(); pickAcross(M); }
       M.active = active; M.t = 0;
     } else M.t += dt;
     return active;
@@ -643,6 +657,44 @@ export function create(ctx) {
     raft.yawGroup.updateMatrixWorld();
     mv.p.copy(camPos); raft.yawGroup.worldToLocal(mv.p);
     return mv.p.x >= 0 ? 1 : -1;
+  }
+  /** v3 measuring close-up: the raft's pole, its hanging lantern, pennant and chime step aside (hidden; the lantern's light
+   *  stays) while they stand in front of the subject: nearer the camera than 0.9 × the subject and inside its framed radius.
+   *  Decided once per pose (no flicker as the trophy camera settles), restored the moment the pose ends. */
+  const poleSeen = { pose: null, hidden: false, a: new THREE.Vector3(), d: new THREE.Vector3() };
+  const focusFish = { center: new THREE.Vector3(), axis: new THREE.Vector3(), length: 0 };
+  function stepPoleAside(mp) {
+    const pp = raft.poleParts;
+    if (!pp) return;
+    if (!mp || !(mv.focusR > 0)) {
+      if (poleSeen.hidden) for (const o of pp.items) o.visible = true;
+      poleSeen.hidden = false; poleSeen.pose = null;
+      return;
+    }
+    if (poleSeen.pose === mp && st.meas.t > 0.6) return;   // settle for the first 0.6 s of the pose, then hold the decision
+    poleSeen.pose = mp;
+    const dir = poleSeen.d.subVectors(mv.focus, camPos), dSub = dir.length();
+    if (dSub < 1e-3) return;
+    dir.multiplyScalar(1 / dSub);
+    raft.deck.updateWorldMatrix(true, false);
+    let block = false;
+    for (const p of pp.samples) {
+      const w = poleSeen.a.copy(p).applyMatrix4(raft.deck.matrixWorld).sub(camPos);
+      const along = w.dot(dir);
+      if (along <= 0.2 || along > dSub * 0.9) continue;
+      const perp = Math.sqrt(Math.max(0, w.lengthSq() - along * along));
+      if (perp < mv.focusR * (along / dSub) * 1.05 + 0.08) { block = true; break; }   // inside the subject's cone at that depth
+    }
+    if (block !== poleSeen.hidden) { for (const o of pp.items) o.visible = !block; poleSeen.hidden = block; }
+  }
+  /** When the raft's long axis (local z) points at the camera (|raftForward · view| > 0.7) an alongside fish would be seen
+   *  end-on: it lies across the near end of the raft instead, side-on to the camera, with the Wick kneeling over it. */
+  function pickAcross(M) {
+    raft.yawGroup.updateMatrixWorld();
+    mv.p.copy(camPos); raft.yawGroup.worldToLocal(mv.p);
+    const h = Math.hypot(mv.p.x, mv.p.z);
+    M.across = h > 1e-3 && Math.abs(mv.p.z) / h > 0.7;
+    M.end = mv.p.z >= 0 ? 1 : -1;
   }
   /** Move the fish into world space at its true size, easing from where it was (fishing's landing spot, or the hands). */
   function beginHandOver(obj) {
@@ -693,8 +745,13 @@ export function create(ctx) {
     } else {   // alongside: on its side at the surface, beside the raft, snout by the kneeling Wick, tail toward the stern
       raft.yawGroup.updateMatrixWorld();
       const rad = ray ? b.halfW : Math.max(b.halfW, (b.top - b.bottom) * 0.5);
-      mv.p.set(M.side * (1.2 + rad * 1.05), 0, 0.45 - b.noseZ).applyMatrix4(raft.yawGroup.matrixWorld);
-      mv.z.set(0, 0, 1).transformDirection(raft.yawGroup.matrixWorld); mv.z.y = 0; mv.z.normalize();
+      if (M.across) {   // across the near end: snout by the kneeling Wick, the body running off past the far side of the raft
+        mv.p.set(M.side * (0.3 - b.noseZ), 0, M.end * (1.3 + rad * 1.05)).applyMatrix4(raft.yawGroup.matrixWorld);
+        mv.z.set(M.side, 0, 0).transformDirection(raft.yawGroup.matrixWorld); mv.z.y = 0; mv.z.normalize();
+      } else {
+        mv.p.set(M.side * (1.2 + rad * 1.05), 0, 0.45 - b.noseZ).applyMatrix4(raft.yawGroup.matrixWorld);
+        mv.z.set(0, 0, 1).transformDirection(raft.yawGroup.matrixWorld); mv.z.y = 0; mv.z.normalize();
+      }
       if (ray) { mv.y.copy(UP); mv.x.crossVectors(mv.y, mv.z).normalize(); }   // a ray lies flat, disc up
       else {   // the flank faces the camera, tipped at least 30° up: it lies on its side, spent
         mv.s.subVectors(camPos, mv.p); mv.s.addScaledVector(mv.z, -mv.s.dot(mv.z));
@@ -711,7 +768,7 @@ export function create(ctx) {
       if (M.rippleT <= 0) {   // the water laps at its tail and flank
         M.rippleT = 0.8 + Math.random() * 0.9;
         mv.s.copy(mv.c).addScaledVector(mv.z, b.tailZ * (0.6 + Math.random() * 0.4));
-        ctx.water?.addRipple?.(mv.s.x, mv.s.z, 0.35 + Math.min(2, L * 0.12));
+        ctx.water?.addRipple?.(mv.s.x, mv.s.z, 0.3 + Math.min(0.2, L * 0.03));   // small laps: a big ring here would circle the raft
       }
     }
     mv.m.makeBasis(mv.x, mv.y, mv.z); mv.q.setFromRotationMatrix(mv.m);

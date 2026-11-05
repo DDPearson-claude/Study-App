@@ -41,6 +41,13 @@ export default async function (api) {
     b.click();
     return true;
   }, [label, scope]);
+  // v3 (DESIGN §25.14.2 U17): New Descent is two steps (the Wick, then the nights); v1 descends from the first
+  const descendAs = async () => {
+    if (await clickButton('Descend as')) return true;
+    if (!(await clickButton('Your first outing')) && !(await clickButton('Choose the nights'))) return false;
+    await frames(3);
+    return clickButton('Descend as');
+  };
   const waitFor = async (fn, arg, maxFrames = 80) => {
     for (let i = 0; i < maxFrames; i++) {
       if (await g(fn, arg)) return true;
@@ -82,7 +89,7 @@ export default async function (api) {
   check(await clickButton('New Descent', '.gw-m-title'), 'title has a New Descent button');
   await frames(3);
   check(await g(() => window.__gw.debug.ui().openModal) === 'newdescent', 'New Descent opens the character / Waystone picker');
-  check(await clickButton('Descend as'), 'picker has a Descend button');
+  check(await descendAs(), 'picker has a Descend button');
   await waitFor(() => window.__gw.flow === 'playing');
   await frames(4);
   s = await S();
@@ -220,7 +227,7 @@ export default async function (api) {
   if (await g(() => window.__gw.debug.ui().openModal) === 'shrine') await g(() => window.__gw.ui.closeAll());
   if (!(await clickButton('New Descent', '.gw-m-death'))) await g(() => window.__gw.ui.openNewDescent());
   await frames(3);
-  check(await clickButton('Descend as'), 'second descent from the summary');
+  check(await descendAs(), 'second descent from the summary');
   await waitFor(() => window.__gw.flow === 'playing');
   await frames(4);
   s = await S();

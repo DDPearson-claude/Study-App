@@ -72,7 +72,7 @@ export function createHudV3(K, el, R, w) {
   R.reel.appendChild(trickEl);
   // the near-miss card
   const nm = h('div', 'gw-nearmiss', `<svg class="gw-nm-wash" viewBox="0 0 560 190" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M26 22 C160 8 400 10 536 24 C550 80 548 130 532 170 C380 184 170 184 30 172 C14 130 14 70 26 22 Z"/></svg>
-    <canvas class="gw-nm-fish" width="150" height="70"></canvas><div class="gw-nm-txt"><div class="gw-nm-k">The one that got away</div><div class="gw-nm-title"></div><div class="gw-nm-est"></div>
+    <canvas class="gw-nm-fish" width="150" height="70"></canvas><div class="gw-nm-txt"><div class="gw-nm-k"></div><div class="gw-nm-title"></div><div class="gw-nm-est"></div>
     <div class="gw-nm-line"></div><div class="gw-nm-rate"></div><div class="gw-nm-tip"></div></div>`);
   nm.setAttribute('role', 'status');
   el.appendChild(nm);
@@ -85,7 +85,7 @@ export function createHudV3(K, el, R, w) {
   el.appendChild(sc);
   const scT = { k: sc.querySelector('.gw-sc-k'), title: sc.querySelector('.gw-sc-title'), lines: sc.querySelector('.gw-sc-lines'), note: sc.querySelector('.gw-sc-note') };
   const nmFish = nm.querySelector('.gw-nm-fish');
-  const nmT = { title: nm.querySelector('.gw-nm-title'), est: nm.querySelector('.gw-nm-est'), line: nm.querySelector('.gw-nm-line'), rate: nm.querySelector('.gw-nm-rate'), tip: nm.querySelector('.gw-nm-tip') };
+  const nmT = { k: nm.querySelector('.gw-nm-k'), title: nm.querySelector('.gw-nm-title'), est: nm.querySelector('.gw-nm-est'), line: nm.querySelector('.gw-nm-line'), rate: nm.querySelector('.gw-nm-rate'), tip: nm.querySelector('.gw-nm-tip') };
 
   // ------------------------------------------------------------------ state
   let live = false, vis = null, hitAt = -1e9, swarmSeen = false, nightKey = '';
@@ -213,8 +213,16 @@ export function createHudV3(K, el, R, w) {
   // ------------------------------------------------------------------ the status line (S2 guttering, S6, Scorched)
   function lampsOf(r) {
     const wl = safe(() => (ctx.world && !ctx.world.isStub ? ctx.world.getWatchLamps?.() : null), null);
-    if (Array.isArray(wl) && wl.length) return wl;
+    // a §24 sister-candle's pool exists only while it is lit (world reports lit:false until then), as survival reads it
+    if (Array.isArray(wl) && wl.length) return wl.filter((l) => l && l.lit !== false);
     return arr(K.zoneData(r.zone)?.arena?.watchLamps);
+  }
+  /** TEXT_V3.hud copy with {m}/{s} slots; a number and its unit never break apart */
+  function hudLine(key, fallback, vars = {}) {
+    const tpl = D().TEXT_V3?.hud?.[key];
+    return String(typeof tpl === 'string' && tpl ? tpl : fallback)
+      .replace(/\{(\w+)\}/g, (m0, k) => (vars[k] === undefined ? m0 : String(vars[k])))
+      .replace(/(\d) (m|s)\b/g, '$1\u00a0$2');
   }
   let statusKind = '';
   function setStatus(kind, ico, text) {
@@ -231,17 +239,17 @@ export function createHudV3(K, el, R, w) {
     const pp = ctx.player?.position;
     if (safe(() => S?.guttering, false)) {
       const left = Math.max(0, Math.ceil(num(safe(() => S.gutterLeft, 0))));
-      setStatus('gutter', 'lantern', `Guttering · ${left}\u00a0s · ${K.burnable() ? 'render a fish to relight' : 'the creel is empty: catch one, fast'}`);
+      setStatus('gutter', 'lantern', hudLine(K.burnable() ? 'gutter' : 'gutterEmpty', K.burnable() ? 'Guttering · {s} s · render a fish to relight' : 'Guttering · {s} s · the creel is empty: catch one, fast', { s: left }));
       return;
     }
     const lw = safe(() => S?.lampWatch, null) || r.lampWatch || null;
     const fishR = Math.round(num(LW.fishWithin, 10));
     if (lw) {
-      if (lw.forced) { setStatus('scorch', 'ember', `Scorched · held here till dawn · fish within ${fishR}\u00a0m`); return; }
+      if (lw.forced) { setStatus('scorch', 'ember', hudLine('scorchedWatch', 'Scorched · held here till dawn · fish within {m} m', { m: fishR })); return; }
       const lim = num(lw.radius, num(LW.radius, 6)) + num(LW.leaveCancels, 10);
       const d = pp ? Math.hypot(pp.x - num(lw.x), pp.z - num(lw.z)) : 0;
-      if (d > lim - 4) setStatus('stray', 'watchlamp', `Stray no farther · the watch breaks at ${Math.round(lim)}\u00a0m`);
-      else setStatus('watch', 'watchlamp', `Lamp-watch · the Gloom keeps away · fish within ${fishR}\u00a0m`);
+      if (d > lim - 4) setStatus('stray', 'watchlamp', hudLine('stray', 'Stray no farther · the watch breaks at {m} m', { m: Math.round(lim) }));
+      else setStatus('watch', 'watchlamp', hudLine('lampWatch', 'Lamp-watch · the Gloom keeps away · fish within {m} m', { m: fishR }));
       return;
     }
     const modes = arr(LW.modes).length ? LW.modes : ['lantern'];
@@ -252,7 +260,7 @@ export function createHudV3(K, el, R, w) {
       const info = V.nearestLamp(lampsOf(r), pp.x, pp.z, stat('moveSpeed') || 6);
       if (info) {
         watchTarget = info;
-        if (info.inside) setStatus('watch', 'watchlamp', "In the watch-lamp's light · stay till dusk ends");
+        if (info.inside) setStatus('watch', 'watchlamp', hudLine('watchHere', "In the watch-lamp's light · stay till dusk ends"));
         else setStatus('lamp', 'watchlamp', V.watchLineText(D(), info));
         return;
       }
@@ -340,7 +348,7 @@ export function createHudV3(K, el, R, w) {
   function tellCount(id) { let n = 0; for (let i = 1; i <= 3; i++) if (seen(`ui_tell_${id}_${i}`)) n = i; return n; }
   function paintTell(st, v) {
     const id = (st === 'waiting' || st === 'bite') && bobP.ok ? v.biteTell : null;
-    const T = id ? V.tellInfo(id) : null;
+    const T = id ? V.tellInfo(id, D()) : null;
     toggle(tell, 'tell', 'gw-on', !!T);
     if (!T) { tellId = ''; return; }
     if (id !== tellId) {
@@ -420,6 +428,7 @@ export function createHudV3(K, el, R, w) {
     const est = (L, e) => L * (1 + (Math.random() * 2 - 1) * e * 0.5);   // within ±8% of the truth, as the card says "~"
     const M = V.nearMiss(D(), p, { rating: rating(zone), round: est });
     // the species on its own line, then its class and estimated length (the model's one-line title is M.title)
+    nmT.k.textContent = D().TEXT_V3?.nearMissKicker || 'The one that got away';
     nmT.title.textContent = M.species?.name || M.title;
     nmT.est.innerHTML = M.species ? `${M.cls ? `<b>${esc(M.cls.label)}</b>` : ''}${M.cls && M.est ? ' · ' : ''}<span class="gw-nm-len">${esc(M.est)}</span>` : '';
     nmT.est.className = `gw-nm-est${M.cls ? ` gw-cls-${M.cls.id}` : ''}`;

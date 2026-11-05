@@ -4015,6 +4015,31 @@ export const TEXT_V3 = {
   tips: {
     snap: 'Let go on the hiss.', thrown: 'Keep the line tight through a leap.', spooled: 'Ease the drag before a runner turns.', fouled: 'Ease off when the chain clanks.',
   },
+  // the v3 HUD's and screens' copy (ui reads TEXT_V3.x ?? its own fallback): the float's favour, the class tells, the status line
+  hud: {
+    favourBands: ['the water gives nothing away', 'a little favour', 'the water favours you', 'the water leans your way', 'the water is with you', 'everything is in your favour'],
+    tellWords: {
+      doublePop: { word: 'a quick double pop', short: 'pop, pop' }, plunge: { word: 'a clean plunge', short: 'a plunge' },
+      dragUnder: { word: 'a slow drag under', short: 'a slow drag' }, flatSlide: { word: 'it lies flat, then slides', short: 'lies flat' },
+      dome: { word: 'the water domes', short: 'a dome' },
+    },
+    watchHere: "In the watch-lamp's light · stay till dusk ends",
+    lampWatch: 'Lamp-watch · the Gloom keeps away · fish within {m} m',
+    scorchedWatch: 'Scorched · held here till dawn · fish within {m} m',
+    stray: 'Stray no farther · the watch breaks at {m} m',
+    gutter: 'Guttering · {s} s · render a fish to relight',
+    gutterEmpty: 'Guttering · {s} s · the creel is empty: catch one, fast',
+  },
+  stillnightSub: 'Night Rise. The big ones come up',
+  swarmOpen: ['The Gloom Stirs', 'Guard your light. It passes before the night is out.'],
+  swarmClose: 'The swarm withdraws. The rest of the night is yours.',
+  lampWatchBanner: ['Lamp-watch', 'The Gloom keeps away tonight. Fish near the lamp.'],
+  nearMissKicker: 'The one that got away',
+  snuffedEpitaphs: [
+    'The oil ran out first. Then the light. Then the small flame that held the rod.',
+    'It guttered for a long while, and fished the whole time.',
+    'A thread of smoke over still water, and a rod still in the rest.',
+  ],
 };
 export const TIPS_V3 = [
   { id: 'v3_walk', phase: 3, trigger: 'hub:enter', text: 'Walk the Landing. The jetty end glows: cast from it.' },

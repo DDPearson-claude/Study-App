@@ -669,7 +669,8 @@ export function create(ctx) {
     }
     const lw = lampWatchLimit();
     if (lw && Math.hypot(V.target.x - lw.x, V.target.z - lw.z) > lw.r) {
-      emit('toast', { text: `On a lamp-watch you fish within ${Math.round(lw.r)} m of the lamp.`, kind: 'info' });
+      const tpl = D().TEXT?.v3?.lampWatchCast;
+      emit('toast', { text: typeof tpl === 'string' && tpl ? tpl.replace('{m}', String(Math.round(lw.r))) : `On a lamp-watch you fish within ${Math.round(lw.r)} m of the lamp.`, kind: 'info' });
       setState('idle');
       return;
     }
@@ -918,7 +919,8 @@ export function create(ctx) {
     rollSize();
     const sp = S.species;
     S.tell = sp?.rarity === 'legendary' ? 'dome' : classOf(S.sizeClass)?.bite || 'plunge';
-    const dur = { doublePop: 0.36, plunge: 0, dragUnder: num(BAL('bite').dragUnder, 0.4), flatSlide: 0.5, dome: 0.6 }[S.tell] ?? 0;
+    const TL = BAL('bite').tells || {};   // the class tells' float animations (s), BALANCE.bite.tells
+    const dur = { doublePop: num(TL.doublePop, 0.36), plunge: 0, dragUnder: num(BAL('bite').dragUnder, 0.4), flatSlide: num(TL.flatSlide, 0.5), dome: num(TL.dome, 0.6) }[S.tell] ?? 0;
     S.tellStart = Math.max(S.stateT, S.waitDur - dur);
     S.tellPops = 0;
     V.tmp.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
@@ -1111,7 +1113,10 @@ export function create(ctx) {
   function leapSplash(x, z) {
     const L = S.fishLen;
     call(() => ctx.water?.splash?.(x, z, { size: 0.6 + L * 0.6, count: 18 }));
-    if (S.species?.id === 'drifting_grove') {
+    if (S.veiled) {
+      // v3: the species stays hidden until landed, so the leap's spray is the same pale water for every fish
+      fx.burst(x, 0.3, z, { color: 0xd9dcea, count: 8 + Math.round(Math.min(10, L * 4)), spread: 1.2 + L * 0.3, up: 2.2, gravity: 6, size: 0.05, life: 0.6 });
+    } else if (S.species?.id === 'drifting_grove') {
       fx.burst(x, 0.4, z, { color: 0xffb46a, color2: 0xff8fc0, count: 26, spread: 2.2, up: 2.4, gravity: -0.4, drag: 1.6, size: 0.1, life: 2.2, radius: 0.8 });
     } else if (S.species?.model?.glow && !S.veiled) {
       fx.burst(x, 0.3, z, { color: S.species.model.glow, count: 10, spread: 1.4, up: 2.6, gravity: 5, size: 0.06, life: 0.7 });
@@ -1146,7 +1151,12 @@ export function create(ctx) {
         fv.object3d.scale.setScalar(boost);
         S.fishLen = L0 * boost;
       }
-      if (S.veiled) fv.object3d.visible = false;   // v3: only its dark shape shows in the water (the shadow), never the species
+      if (S.veiled) {
+        // v3: only its dark shape shows in the water (the shadow), never the species; the model, when it can be inked
+        // (models FishVisual.setSilhouette), is a night-ink silhouette at its true size and shows only out of the water (a leap)
+        try { fv.setSilhouette?.(1); } catch (e) { report(e); }
+        fv.object3d.visible = false;
+      }
       fishHolder.add(fv.object3d);
     } else { F.fv = null; S.fishLen = trueL ?? 0.5; }
     V.fish.copy(V.bob);
@@ -1155,6 +1165,7 @@ export function create(ctx) {
     if (!F.fv) return;
     if (flee) {
       if (S.flee) disposeFv(S.flee.fv);
+      if (S.veiled && F.fv.object3d) F.fv.object3d.visible = false;   // v3: a lost fish goes unseen (the got-away note names it)
       S.flee = { fv: F.fv, t: 0, dir: V.lineDir.clone(), pos: V.fish.clone(), yaw: F.yaw };
     } else disposeFv(F.fv);
     F.fv = null;
@@ -1217,6 +1228,8 @@ export function create(ctx) {
     F.yaw += dy * (1 - Math.exp(-6 * dt));
     if (F.fv) {
       const o = F.fv.object3d;
+      // v3: a veiled fish is seen only as a backlit night-ink silhouette, and only while a leap holds it above the water
+      if (S.veiled) o.visible = F.leap && y > wy + 0.05 && (F.fv.silhouette ?? 0) >= 0.999;
       o.position.copy(V.fish);
       o.rotation.set(-pitch, F.yaw, 0, 'YXZ');
       const struggle = surging ? 1.4 : warn > 0 ? 0.5 + warn * 0.6 : 0.25 + (reel?.T || 0) * 0.4;
@@ -1284,6 +1297,7 @@ export function create(ctx) {
   /** v3: the landed fish shows itself (model, HUD name and rarity) as it leaves the water. */
   function unveil() {
     S.veiled = false;
+    try { F.fv?.setSilhouette?.(0); } catch (e) { report(e); }
     if (F.fv?.object3d) F.fv.object3d.visible = true;
     view.speciesId = S.species?.id || null; view.rarity = S.species?.rarity || null;
   }
@@ -1444,10 +1458,10 @@ export function create(ctx) {
     const pl = placeById(fish.place);
     const landmark = pl ? (D().landmarkOf?.(pl) ?? null) : null;
     call(() => ctx.render?.setTrophyTarget?.({ length: Lm, landmark, position: { x: from.x, y: from.y, z: from.z }, place: fish.place ?? null }));
-    // the scoop: a splash and a ring at true scale (no clamps)
+    // the scoop: a splash at true scale (no clamps). No ripple and no pulse ring: beside the raft either would grow round
+    // the raft under the trophy camera (art rule: never a ring around the raft); spray carries a big fish's weight instead
     call(() => ctx.water?.splash?.(from.x, from.z, { size: 0.6 + Lm * 0.6, count: Math.round(16 + 6 * Math.min(Lm, 6)) }));
-    call(() => ctx.water?.addRipple?.(from.x, from.z, 0.6 + Lm * 0.5));
-    if (Lm > 1.4) fx.pulse(from.x, from.z, { color: 0xd8d6ee, r0: 0.4, r1: 1 + Lm, duration: 1.2, width: 0.1, alpha: 0.75 });
+    if (Lm > 1.4) fx.burst(from.x, 0.3, from.z, { color: 0xd9dcea, count: Math.round(10 + 3 * Math.min(Lm, 6)), spread: 1.2 + Lm * 0.2, up: 2.4, gravity: 6, size: 0.06, life: 0.7, radius: Math.min(2, Lm * 0.25) });
     call(() => ctx.ui?.showMeasure?.(view.measure));
     return promise;
   }
@@ -1640,7 +1654,7 @@ export function create(ctx) {
     disposeHooked(true);
     fx.setShadow(false);
     if (spV3(sp) && S.zRolled && sp.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex(BAL('ceremony').nearMiss?.fromClass || 'prize')) {
-      emit('fish:escaped-big', { speciesId: sp.id, z: S.z, sizeClass: S.sizeClass, length: Math.round(S.lengthCm * 10) / 10, progress: P,
+      emit('fish:escaped-big', { speciesId: sp.id, z: S.z, sizeClass: S.sizeClass, ancient: !!S.ancient, length: Math.round(S.lengthCm * 10) / 10, progress: P,
         cause: reason === 'snap' || reason === 'thrown' || reason === 'spooled' ? reason : 'slack', place: S.cast?.place?.id || null, markedFish: false });
     }
     emit('fishing:escaped', { speciesId: sp?.id || null, reason, ...extra });
@@ -1875,7 +1889,7 @@ export function create(ctx) {
   /** Night Eyes: glow trails show (and appear) 50% farther (combat.boonProcs('night').glowTrailRangeMult). */
   const glowRangeMult = () => Math.max(1, num(procs('night')?.glowTrailRangeMult, 1));
   /** Water paints the sign marks itself from the tagged ripples (Wa2); without it fishing-fx's linework carries the whole sign. */
-  const waterPaintsSigns = () => isReal(ctx.water) && (Array.isArray(ctx.water.signKinds) || typeof ctx.water.setGlowtide === 'function');
+  const waterPaintsSigns = () => isReal(ctx.water) && Array.isArray(ctx.water.signKinds);   // water.signKinds exists only in a v3 build (setGlowtide is in every build)
   /**
    * A pre-rolled fish for a sign at (x, z): a species the water there holds for the bait on the hook (surface feeders for a rise,
    * night fish for a glow trail, one that can be a Prize+ for a boil) and its size score from the favour there (capped by the
@@ -2574,7 +2588,7 @@ export function create(ctx) {
           extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean,
           // v3 visual half
           fishLen: S.fishLen, meshScale: F.fv?.object3d?.scale?.x ?? null, fvLength: F.fv?.length ?? null, revealed: !!S.revealed,
-          meshVisible: F.fv?.object3d ? F.fv.object3d.visible !== false : null, veiled: !!S.veiled,
+          meshVisible: F.fv?.object3d ? F.fv.object3d.visible !== false : null, veiled: !!S.veiled, silhouette: F.fv ? (F.fv.silhouette ?? null) : null, leap: !!F.leap,
           sign: S.signHit ? { kind: S.signHit.rule.kind, id: S.signHit.rule.id, inSign: !!S.signHit.rule.inSign, spook: !!S.signHit.rule.spook } : null,
           prerollTook: !!S.prerollTook, chum: S.chumArmed, signs: S.signs.length, ceremony: !!S.cer }),
       });

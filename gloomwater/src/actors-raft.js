@@ -54,8 +54,11 @@ export function createRaft(ctx) {
   const polePts = bezierPts([[-0.8, DECK_Y - 0.05, -1.02], [-0.92, 1.2, -1.05], [-0.62, 2.0, -0.98], [-0.72, 2.5, -0.85]], 16);
   const armPts = bezierPts([[-0.72, 2.46, -0.86], [-0.5, 2.62, -0.62], [HOOK.x, HOOK.y + 0.06, HOOK.z]], 10);
   const poleG = mergeGeos([tube(polePts, (u) => 0.05 - u * 0.018, 7), tube(armPts, (u) => 0.03 - u * 0.012, 6)]);
-  staticParts.push(paint(poleG, 0x2b1e14));
-  const wraps = ropeParts;
+  // v3: the pole is its own mesh so the measuring close-up can step it aside when it stands in front of the catch
+  // (v1 / v2 keep it merged into the hull exactly as before)
+  const poleOwn = !!ctx.data?.V3_ENABLED;
+  if (!poleOwn) staticParts.push(paint(poleG, 0x2b1e14));
+  const wraps = poleOwn ? [] : ropeParts;   // v3: the pole's rope wraps go with the pole (they step aside with it)
   for (const y of [0.55, 0.62, 2.35, 2.42]) wraps.push(xf(new THREE.TorusGeometry(0.052, 0.012, 4, 10), { p: [-0.86 + (y > 2 ? 0.18 : 0), y, -1.04 + (y > 2 ? 0.15 : 0)], r: [Math.PI / 2, 0, 0] }));
 
   // ---------------------------------------------------------------- lantern (pendulum)
@@ -121,6 +124,11 @@ export function createRaft(ctx) {
   staticParts.push(paint(mergeGeos([xf(new THREE.CylinderGeometry(0.028, 0.04, 0.32, 6), { p: [0.78, DECK_Y + 0.16, 0.98] }), xf(new THREE.TorusGeometry(0.035, 0.011, 4, 8), { p: [0.78, DECK_Y + 0.32, 0.98], r: [Math.PI / 2, 0, 0] }), spike([0.78, DECK_Y + 0.3, 0.98], [0.4, 1, 0.2], 0.012, 0.12, 4)]), 0xd8d0b8)); // bone rod-rest
   const hull = new THREE.Mesh(mergeGeos(staticParts), woodMat); hull.name = 'raftHull';
   outlineSmooth(hull, 0.02); deck.add(hull);
+  let pole = null;
+  if (poleOwn) {
+    pole = new THREE.Mesh(paint(poleG, 0x2b1e14), woodMat); pole.name = 'raftPole'; outlineSmooth(pole, 0.02); deck.add(pole);
+    pole.add(new THREE.Mesh(mergeGeos(wraps), ropeMat));
+  }
   deck.add(new THREE.Mesh(mergeGeos(ropeParts), ropeMat));
 
   // ---------------------------------------------------------------- base details: oxblood pennant + bone chime
@@ -129,7 +137,8 @@ export function createRaft(ctx) {
   { const pp = penGrid.attributes.position; for (let i = 0; i < pp.count; i++) { const x = pp.getX(i), y = pp.getY(i); if (x > 0.36 && Math.abs(y) < 0.02) pp.setX(i, x - 0.14 * ((x - 0.36) / 0.14)); } } // swallowtail
   const penBase = Float32Array.from(penGrid.attributes.position.array);
   const pennant = new THREE.Mesh(penGrid, clothMat); pennant.position.set(-0.7, 2.66, -0.86); pennant.rotation.y = Math.PI * 0.85; deck.add(pennant);
-  deck.add(new THREE.Mesh(xf(new THREE.CylinderGeometry(0.012, 0.012, 0.34, 5), { p: [-0.7, 2.6, -0.86] }), darkWood));
+  const penStick = new THREE.Mesh(xf(new THREE.CylinderGeometry(0.012, 0.012, 0.34, 5), { p: [-0.7, 2.6, -0.86] }), darkWood);
+  deck.add(penStick);
   const boneMat = M(toonMaterial({ color: 0xd8d0b8, rim: 0.4 }));
   const chime = new THREE.Group(); chime.position.set(-0.5, 2.55, -0.66); deck.add(chime);
   for (let i = 0; i < 3; i++) {
@@ -236,6 +245,8 @@ export function createRaft(ctx) {
 
   return {
     yawGroup, tilt, deck, lantern, lanternPivot, light, glassMat, halo, lflame, brazier: { group: brazier, coalsMat, flame: bFlame },
+    // v3 measuring close-up: the pole and what hangs from it (the lantern's light itself is never hidden)
+    poleParts: pole ? { pole, items: [pole, iron, glass, lflame.group, halo, pennant, penStick, chime], samples: [...polePts, ...armPts, new THREE.Vector3(HOOK.x, HOOK.y - 0.46, HOOK.z)] } : null,
     details, waterShadow, mats, tailMat,
     setLevel, swing, setCreelCount, setTrophies, animate, nudge(x, z) { pend.vx += x; pend.vz += z; },
     get level() { return level; },

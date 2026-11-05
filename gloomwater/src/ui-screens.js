@@ -447,7 +447,7 @@ export function createScreens(K) {
     pn.classList.add('gw-cc-haspick');
     const left = bankedNow();
     const wrap = h('div', `gw-cc-pick${P.chosen ? ' gw-chosen' : ''}`);
-    const beads = `<span class="gw-cc-beads" aria-hidden="true">${'<i></i>'.repeat(Math.min(4, Math.max(1, left || 1)))}</span>`;
+    const beads = `<span class="gw-cc-beads" aria-hidden="true">${'<i></i>'.repeat(Math.min(3, Math.max(1, left || 1)))}</span>`;
     if (P.chosen) {
       wrap.innerHTML = `<div class="gw-cc-pick-h">${icon(P.chosen.icon)}<span><b>${esc(P.chosen.name)}</b> \u00b7 ${esc(P.chosen.lv === 'New' ? 'yours for the descent' : P.chosen.lv)}</span></div>
         ${left > 0 ? `<div class="gw-cc-pick-sub">${left} more ${left === 1 ? 'waits' : 'wait'} for the next card or the dawn bell</div>` : '<div class="gw-cc-pick-sub">Your flame remembers.</div>'}`;
@@ -1278,7 +1278,7 @@ export function createScreens(K) {
       const snuffed = cause === 'snuffed';
       const T3 = D().TEXT_V3 || {};
       const title = victory ? (T.victoryTitle || 'The Light Comes Up') : cause === 'abandoned' ? 'The Flame Let Go' : snuffed ? (T3.snuffedTitle || S.title || 'Snuffed') : (T.deathTitle?.[cause] || T.deathTitle?.default || 'Extinguished');
-      if (!entry.state.epitaph) entry.state.epitaph = victory ? (T.victorySubtitle || '') : snuffed ? (K.pick(D().EPITAPHS?.snuffed) || K.pick(SNUFF_EPITAPHS)) : K.pick(D().EPITAPHS?.[cause]) || K.pick(D().EPITAPHS?.default) || '';
+      if (!entry.state.epitaph) entry.state.epitaph = victory ? (T.victorySubtitle || '') : snuffed ? (K.pick(D().TEXT_V3?.snuffedEpitaphs) || K.pick(D().EPITAPHS?.snuffed) || K.pick(SNUFF_EPITAPHS)) : K.pick(D().EPITAPHS?.[cause]) || K.pick(D().EPITAPHS?.default) || '';
       const z = K.zoneData(S.zone);
       const ch = D().CHARACTER_BY_ID?.[S.character];
       const flav = snuffed ? { text: T3.snuffedWake || D().EXPEDITION?.snuffed?.line || 'Murk found your raft drifting.' } : arr(T.summaryFlavour).find((f) => num(S.day, 1) <= num(f.maxDay, 999));

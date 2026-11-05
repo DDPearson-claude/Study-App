@@ -1006,8 +1006,9 @@ export function createFishingFx(ctx) {
      *  ribbon (Elder; an Ancient's thread is gold). Small/Keeper get a soft ink tick. */
     stampFlash(x, y, z, seal = null, ancient = false) {
       const col = seal === 'inkStamp' ? 0xede6d3 : seal === 'oxbloodWax' ? 0xc0504a : seal === 'blackWaxRibbon' ? (ancient ? 0xf0d48e : 0xc9c3e8) : 0xd9d4ef;
-      fx.pulse(x, z, { color: col, r0: 0.15, r1: seal ? 1.9 : 1.0, duration: seal ? 0.9 : 0.6, width: seal ? 0.09 : 0.05, alpha: 0.95, y: y });
-      fx.burst(x, y, z, { color: col, color2: ancient ? 0xf6e2a8 : 0xfff6e0, count: seal ? 18 : 7, spread: 1.6, up: 1.4, gravity: 3, size: 0.05, life: 0.8, radius: 0.12 });
+      // no ring: it would circle the Wick on the raft (art rule); a soft spray of glints off the stamp instead
+      fx.burst(x, y, z, { color: col, color2: ancient ? 0xf6e2a8 : 0xfff6e0, count: seal ? 22 : 8, spread: 1.3, up: 1.6, gravity: 2.4, size: 0.05, life: 0.9, radius: 0.1 });
+      if (seal) fx.burst(x, y + 0.1, z, { color: 0xfff6e0, color2: col, count: 8, spread: 0.6, up: 0.8, gravity: 0.6, drag: 1.4, size: 0.035, life: 1.2, radius: 0.06 });
     },
     /** The leap reveal's rim flash: a pale-gold ring under the breaching fish and glints along its body. */
     revealFlash(x, y, z, L, heading = 0) {

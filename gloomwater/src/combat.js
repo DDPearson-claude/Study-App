@@ -72,7 +72,8 @@ const COL = {
 function cosmeticRng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const HOOKED = M.HOOKED_STATES;   // reeling, landing
 // Lantern's Warden rises this far into the swarm window (window-relative k): its banner then lasts 3 s, leaving it ≈ 33 s
-// of the 40.5 s window before it withdraws (DESIGN §25.5.1 gives the cadence and hp, not the moment)
+// of the 40.5 s window before it withdraws (DESIGN §25.5.1 gives the cadence and hp, not the moment). The data's
+// BALANCE.nightModes.lantern.wardens.at owns it; this is the fallback.
 const LANTERN_BOSS_AT = 0.1;
 
 export function create(ctx) {
@@ -113,6 +114,7 @@ export function create(ctx) {
     releaseAtDawn: false, releaseAfterCard: false, lastLanded: null, snagsThisFight: 0,
   };
   const BAL = () => C.B || data().BALANCE || {};
+  const lanternBossAt = () => { const a = Number(BAL().nightModes?.lantern?.wardens?.at); return Number.isFinite(a) && a >= 0 ? a : LANTERN_BOSS_AT; };
   function refreshMode() {
     const run = C.run || ctx.state.run;
     C.mode = M.modeOf(run, data().BALANCE);
@@ -1022,7 +1024,7 @@ export function create(ctx) {
       spawnFormation();
     }
     // Warden: banner at bossAt, rises 3 s later
-    if (D.boss && night.bossState === 'none' && k >= (C.mode === 'lantern' ? Math.min(D.bossAt ?? 0.35, LANTERN_BOSS_AT) : (D.bossAt ?? 0.35)) && !quiet) {
+    if (D.boss && night.bossState === 'none' && k >= (C.mode === 'lantern' ? Math.min(D.bossAt ?? 0.35, lanternBossAt()) : (D.bossAt ?? 0.35)) && !quiet) {
       const def = data().ENEMY_BY_ID?.[D.boss];
       const blocked = def?.neverDuringLegend && hooked && ctx.fishing?.view?.speciesId === def.neverDuringLegend;
       if (def && !blocked) {

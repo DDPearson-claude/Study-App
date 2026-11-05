@@ -390,6 +390,8 @@ export function create(ctx) {
   // ---------------------------------------------------------------- helpers
   const emit = (e, p) => ctx.bus.emit(e, p);
   const toast = (text, kind = 'info') => emit('toast', { text, kind });
+  /** data copy (TEXT.v3.*) with {m}-style slots, falling back to the built-in line */
+  const fillText = (tpl, fallback, vars = {}) => String(typeof tpl === 'string' && tpl ? tpl : fallback).replace(/\{(\w+)\}/g, (m0, k) => (vars[k] !== undefined ? vars[k] : m0));
   function playerPos(out = _v) {
     const p = ctx.player?.position;
     if (real(ctx.player) && p && Number.isFinite(p.x)) return out.set(p.x, 0, p.z);
@@ -609,7 +611,8 @@ export function create(ctx) {
     delete run.scorched.pending;
     run.lampWatch = { lampId: null, x, z, forced: true, radius: watchRadius(run) };
     emit('lampwatch:start', { lampId: null, zone: run.zone, forced: true });
-    fx.ring(x, z, { radius: watchRadius(run), color: SCORCH, duration: 1.1, width: 0.06, opacity: 0.55, breakup: 0.6, wash: 0.18 });
+    // no ring round the raft (art rule): a few slow embers drift up off the water where the watch is anchored
+    fx.motes(x, 0.2, z, { count: 12, color: SCORCH, speed: 0.7, spread: 0.4, life: 1.6, size: 0.1, gravity: 0.25, damping: 1.1, shape: 'rise', radius: 0.9, intensity: 0.6 });
   }
   const watchRadius = (run) => Math.max(1, num(modeCfg(run)?.scorched?.lampWatchR, num(B().nightModes?.lampWatch?.fishWithin, V3_FALLBACK.watchR)));
 
@@ -626,7 +629,8 @@ export function create(ctx) {
   function watchLamps(run) {
     const w = ctx.world;
     if (real(w) && typeof w.getWatchLamps === 'function') {
-      try { const l = w.getWatchLamps(); if (Array.isArray(l)) return l; } catch { /* fall through */ }
+      // a §24 sister-candle's pool exists only while it is lit (DESIGN §25.5.2): world reports it with lit:false until then
+      try { const l = w.getWatchLamps(); if (Array.isArray(l)) return l.filter((e) => e && e.lit !== false); } catch { /* fall through */ }
     }
     const a = zoneData(run)?.arena || {};
     const out = Array.isArray(a.watchLamps) ? a.watchLamps.slice() : [];
@@ -655,8 +659,11 @@ export function create(ctx) {
       run.lampWatch = { lampId: l.id ?? null, x, z, forced: false, radius: r };
       run.stats.lampWatches = (run.stats.lampWatches | 0) + 1;
       emit('lampwatch:start', { lampId: l.id ?? null, zone: run.zone, forced: false });
-      fx.ring(x, z, { radius: r, color: GOLD, duration: 1.2, width: 0.05, opacity: 0.5, breakup: 0.5, wash: 0.12 });
-      toast(`Lamp-watch. The Gloom keeps away tonight; fish within ${Math.round(num(lampWatchCfg()?.fishWithin, 10))} m of the lamp.`, 'good');
+      // no ring round the pool (the raft sits in it; art rule): the lamp itself answers (world brightens the watched lamp)
+      // with a breath of candle motes rising off its glass
+      fx.motes(x, num(l?.position?.y, 0) + 1.1, z, { count: 14, color: GOLD, speed: 0.6, spread: 0.35, life: 1.8, size: 0.09, gravity: 0.3, damping: 1.0, shape: 'rise', radius: 0.35, intensity: 0.7 });
+      // ui owns this message (its banner and the HUD's status line); the toast is for a build without one
+      if (!real(ctx.ui)) toast(fillText(D().TEXT?.v3?.lampWatchStart, `Lamp-watch. The Gloom keeps away tonight; fish within {m} m of the lamp.`, { m: Math.round(num(lampWatchCfg()?.fishWithin, 10)) }), 'good');
       return;
     }
   }
@@ -669,7 +676,7 @@ export function create(ctx) {
     const lim = num(lw.radius, num(lampWatchCfg()?.radius, 6)) + num(lampWatchCfg()?.leaveCancels, 10);
     if ((p.x - lw.x) ** 2 + (p.z - lw.z) ** 2 <= lim * lim) return;
     endLampWatch(run);
-    toast('You left the lamp-watch. The Gloom stirs.', 'bad');
+    toast(fillText(D().TEXT?.v3?.lampWatchLeave, 'You left the lamp-watch. The Gloom stirs.'), 'bad');
   }
 
   /**

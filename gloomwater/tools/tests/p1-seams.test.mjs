@@ -111,6 +111,18 @@ section('S6 lamp-watch: in Lantern, standing in a watch-lamp pool when dusk ends
   const rw = w.startRun({ nightMode: 'lantern', day: 2 });
   w.tickTo('gloomtide');
   ok(rw.lampWatch?.lampId === 'test_lamp', 'world.getWatchLamps() (W1) wins over the data fallback');
+  // gw-p1-full: an unlit §24 sister-candle (lit:false) holds no watch; the start toast is the ui's (banner + HUD) when a ui exists
+  const wu = survivalEnv({ pos: [100, 100], world: { getWatchLamps: () => [{ id: 'unlit', x: 100, z: 101, radius: 6, lit: false }] } });
+  const ru = wu.startRun({ nightMode: 'lantern', day: 2 });
+  wu.tickTo('gloomtide');
+  ok(!ru.lampWatch && wu.count('lampwatch:start') === 0, 'an unlit watch candle (lit:false) holds no watch');
+  ok(!w.events.some((x) => x.e === 'toast' && /^Lamp-watch\./.test(x.p.text || '')), 'with a ui present survival does not toast the lamp-watch start');
+  const wn = survivalEnv({ pos: [100, 100], world: { getWatchLamps: () => [{ id: 'test_lamp', position: { x: 100, z: 101 }, radius: 6 }] } });
+  wn.ctx.ui = { isStub: true };
+  wn.startRun({ nightMode: 'lantern', day: 2 });
+  wn.tickTo('gloomtide');
+  const tl = wn.events.filter((x) => x.e === 'toast').map((x) => x.p.text).find((t) => /^Lamp-watch\./.test(t || ''));
+  ok(tl === data.TEXT_V3.lampWatchStart.replace('{m}', String(data.BALANCE.nightModes.lampWatch.fishWithin)), `without a ui the toast reads TEXT.v3.lampWatchStart (${tl})`);
   const dbg = survivalEnv({ pos: [0, 0] });
   dbg.startRun({ nightMode: 'lantern', day: 2 });
   const forced = dbg.ctx.debug.lampWatch('w_buoy');

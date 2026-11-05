@@ -32,13 +32,13 @@ Math.random = mul(20261105);
 // =====================================================================================================================
 // the env: real progression + real fishing on one fake ctx
 // =====================================================================================================================
-function makeEnv({ D = data, mode = 'lantern', phase = 'calm', raft = [0, 46], a2 = true, swarm = false, seed = 7, runs = 1, paints = false } = {}) {
+function makeEnv({ D = data, mode = 'lantern', phase = 'calm', raft = [0, 46], a2 = true, swarm = false, seed = 7, runs = 1, paints = false, sil = false } = {}) {
   const bus = createBus();
   const events = [];
   const origEmit = bus.emit.bind(bus);
   bus.emit = (e, p = {}) => { events.push({ e, p, t: ctx.time.t }); origEmit(e, p); };
   const ph = { phase, day: 1 };
-  const calls = { splash: [], ripple: [], wake: [], slowmo: [], cord: [], pose: [], showCatch: [], trophy: [], glow: [], cine: [], save: 0, createFish: [] };
+  const calls = { splash: [], ripple: [], wake: [], slowmo: [], cord: [], pose: [], showCatch: [], trophy: [], glow: [], cine: [], save: 0, createFish: [], sil: [] };
   let cine = false;
   const zone = D.ZONES.find((z) => z.id === 'mossmere');
   const wrng = mul(seed * 31 + 5);
@@ -63,7 +63,8 @@ function makeEnv({ D = data, mode = 'lantern', phase = 'calm', raft = [0, 46], a
       splash(x, z, o = {}) { calls.splash.push({ x, z, size: o.size }); },
       addRipple(x, z, s, o) { calls.ripple.push({ x, z, s, o: o && typeof o === 'object' ? o : null }); },
       addWake(x, z, dx, dz, s, o) { calls.wake.push({ x, z, s, o: o || null }); },
-      ...(paints ? { setGlowtide() {} } : {}),
+      setGlowtide() {},   // every build has it (CONTRACT §13.7 water); only a v3 water that paints signs has signKinds
+      ...(paints ? { signKinds: ['rise', 'boil', 'nervous', 'strike', 'bubbles', 'glow'] } : {}),
     },
     actors: {
       setLine() {}, setBobber() {}, setPose(n) { calls.pose.push(n); }, setAim() {}, setCharge() {}, setReel() {}, getRodTip: () => null,
@@ -77,7 +78,9 @@ function makeEnv({ D = data, mode = 'lantern', phase = 'calm', raft = [0, 46], a
         const sp = D.SPECIES_BY_ID[id];
         const L = w && typeof w === 'object' && sp?.size ? D.sizeLength(sp, w.z, w.zone) / 100 : 0.5;
         calls.createFish.push({ id, arg: w, L });
-        return { object3d: new THREE.Group(), length: L, update() {}, setGlow(k) { calls.glow.push(k); }, dispose() {} };
+        const fv = { object3d: new THREE.Group(), length: L, update() {}, setGlow(k) { calls.glow.push(k); }, dispose() {} };
+        if (sil) { fv.silhouette = 0; fv.setSilhouette = (k) => { fv.silhouette = k; calls.sil.push(k); }; }   // models' FishVisual.setSilhouette
+        return fv;
       },
     },
     render: { setTrophyTarget(t) { calls.trophy.push(t); }, getYaw: () => 0 },
@@ -484,6 +487,35 @@ section('the species stays unknown until it is landed: a dark shape at true leng
   env.reset();
   env.ctx.debug.fishHook('lantern_swallower', { z: 0 });
   ok(env.F.view.speciesId === 'lantern_swallower' && env.dbg().meshVisible === true, 'a legend (named by its pool and bait) is shown as it is');
+  env.reset();
+}
+
+// =====================================================================================================================
+section('the hooked fish is inked (models setSilhouette): hidden in the water, a night-ink silhouette only above it in a leap');
+{
+  const env = makeEnv({ seed: 95, sil: true });
+  env.ctx.debug.fishHook('gloam_eel', { z: 1.6 });
+  ok(env.calls.sil[0] === 1 && env.dbg().silhouette === 1 && env.dbg().meshVisible === false, 'hooked: setSilhouette(1) and hidden in the water');
+  const clampT = (T) => Math.min(0.6, Math.max(0.35, T));
+  let seenInLeap = false, seenElse = false, leapFrames = 0;
+  for (let k = 0; k < 6 && !seenInLeap; k++) {
+    env.ctx.debug.fishSurge();
+    for (let i = 0; i < 90 && env.F.state === 'reeling'; i++) {
+      const r = env.ctx.debug.fishReel(); if (r) { r.P = Math.min(r.P, 0.3); r.T = clampT(r.T); }
+      env.ctx.fishing.onPointerDown(); env.tick(1);
+      const d = env.dbg(), leaping = d.leap === true;   // the leap's arc (it can outlast the reel's surge by a few frames)
+      if (d.meshVisible) { if (leaping) { seenInLeap = true; leapFrames++; } else seenElse = true; }
+      if (env.F.view.speciesId !== null) seenElse = true;
+    }
+  }
+  ok(!seenElse, 'never seen, and never named, outside a leap');
+  ok(seenInLeap || !env.calls.sil.length, `in a leap it shows only as the silhouette (${leapFrames} frames)`);
+  env.ctx.debug.instantCatch(null, { ceremony: true });
+  ok(env.calls.sil[env.calls.sil.length - 1] === 0 && env.dbg().veiled === false, 'landed: setSilhouette(0) gives the species back');
+  env.F.skipCeremony(); env.tick(40);
+  env.reset();
+  env.ctx.debug.fishHook('lantern_swallower', { z: 0 });
+  ok(env.calls.sil.filter((k) => k === 1).length === 1 && env.dbg().silhouette === 0, 'a legend is never inked');
   env.reset();
 }
 

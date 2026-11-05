@@ -91,7 +91,8 @@ const BANDS = [
 ];
 export function favourBand(n, quiet = false, D = null) {
   if (quiet) return D?.TEXT_V3?.quiet || 'The water here has gone quiet.';
-  return BANDS[Math.max(0, Math.min(5, Math.round(num(n))))];
+  const i = Math.max(0, Math.min(5, Math.round(num(n))));
+  return D?.TEXT_V3?.hud?.favourBands?.[i] || BANDS[i];
 }
 
 export const FAMILY_LABEL = { place: 'Place', hour: 'Hour', match: 'Match', tackle: 'Tackle', signs: 'Signs', pressure: 'Pressure', debug: 'Set' };
@@ -162,7 +163,12 @@ export const TELLS = {
   flatSlide: { word: 'it lies flat, then slides', short: 'lies flat', cls: 'trophy' },
   dome: { word: 'the water domes', short: 'a dome', cls: 'elder' },
 };
-export function tellInfo(id) { return TELLS[id] || null; }
+export function tellInfo(id, D = null) {
+  const t = TELLS[id];
+  if (!t) return null;
+  const w = D?.TEXT_V3?.hud?.tellWords?.[id];
+  return w ? { ...t, word: w.word || t.word, short: w.short || t.short } : t;
+}
 
 const SEALS = { prize: 'inkStamp', trophy: 'oxbloodWax', elder: 'blackWaxRibbon' };
 export function classInfo(D, id, ancient = false) {

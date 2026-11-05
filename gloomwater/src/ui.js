@@ -608,7 +608,7 @@ export function create(ctx) {
     if (p.phase === 'dusk') return [T.dusk?.[0] || 'The Light Thins', swarm ? (T3.stirs || 'The Gloom stirs tonight.').replace(/\.$/, '') : (T3.lastLight || 'The big ones come up at dusk.').replace(/\.$/, ''), 'phase'];
     if (p.phase === 'gloomtide') {
       if (swarm) return [T.gloomtide?.[0] || 'The Gloomtide Rises', T.gloomtide?.[1] || 'Guard your flame', 'gloom'];
-      return [nightWord(D(), { swarm: false }), 'Night Rise. The big ones come up', 'phase'];
+      return [nightWord(D(), { swarm: false }), T3.stillnightSub || 'Night Rise. The big ones come up', 'phase'];
     }
     return T[p.phase] || null;
   }
@@ -686,21 +686,20 @@ export function create(ctx) {
       hud.pulse('level');
       if (!pendingOptions() && arr(p?.options).length) levelQ.push(p.options);
     });
-    on('toast', ({ text, kind }) => {
-      // v3: the lamp-watch's start is said by its banner and the HUD's status line (survival's toast would repeat it)
-      if (v3Run(D(), run()) && /^Lamp-watch\. /.test(String(text || ''))) return;
-      toast(text, kind || 'info');
-    });
+    // v3: the lamp-watch's start is said by its banner and the HUD's status line; survival only toasts it with no ui present
+    on('toast', ({ text, kind }) => toast(text, kind || 'info'));
     // v3 night modes (DESIGN §25.5): the swarm window and the lamp-watch are moments, not just HUD state
     on('swarm:window', ({ state, mode, reason }) => {
       if (!v3Run(D(), run()) || mode !== 'lantern') return;
-      if (state === 'open') banner('The Gloom Stirs', 'Guard your light. It passes before the night is out.', { kind: 'gloom', dur: 2.6 });
-      else if (reason === 'window') toast('The swarm withdraws. The rest of the night is yours.', 'lore');
+      const T3 = D().TEXT_V3 || {};
+      if (state === 'open') banner(T3.swarmOpen?.[0] || 'The Gloom Stirs', T3.swarmOpen?.[1] || 'Guard your light. It passes before the night is out.', { kind: 'gloom', dur: 2.6 });
+      else if (reason === 'window') toast(T3.swarmClose || 'The swarm withdraws. The rest of the night is yours.', 'lore');
     });
     on('lampwatch:start', ({ forced }) => {
       if (!v3Run(D(), run())) return;
       if (forced) return;   // the Scorched card (and the HUD line) say it
-      banner('Lamp-watch', 'The Gloom keeps away tonight. Fish near the lamp.', { kind: 'dawn', dur: 3 });
+      const LB = D().TEXT_V3?.lampWatchBanner || [];
+      banner(LB[0] || 'Lamp-watch', LB[1] || 'The Gloom keeps away tonight. Fish near the lamp.', { kind: 'dawn', dur: 3 });
     });
     on('levelup:banked', () => hud.pulse('level'));
     on('player:damage', ({ amount, source }) => {
