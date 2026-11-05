@@ -53,17 +53,29 @@ export default async function (api) {
   const since = (n, e) => g(([n, e]) => (window.__cr || []).slice(n).filter((x) => !e || x.e === e), [n, e]);
   // jump the night clock to night k (survival owns run.phaseTime)
   const atK = (k) => g((k) => { const c = window.__gw, r = c.state.run, d = c.survival.getPhaseInfo().duration || 90; r.phaseTime = k * d; return c.survival.getPhaseInfo().k; }, k);
-  const night = async (n) => g((n) => { const c = window.__gw; c.ui.closeAll?.(); c.debug.setDay(n); c.debug.setOil(100); c.debug.setPhase('dusk'); c.debug.setPhase('gloomtide'); return c.survival.getPhaseInfo(); }, n);
+  const night = async (n) => { await pickOpen(); return g((n) => { const c = window.__gw; c.ui.closeAll?.(); c.debug.setDay(n); c.debug.setOil(100); c.debug.setPhase('dusk'); c.debug.setPhase('gloomtide'); return c.survival.getPhaseInfo(); }, n); };
   const runUntilK = async (k, maxFrames = 600, each) => {
     for (let i = 0; i < maxFrames; i++) {
       const s = await g(() => { const c = window.__gw; if ((c.state.run?.oil ?? 100) < 40) c.debug.setOil(100); return { k: c.survival.getPhaseInfo().k, phase: c.state.run?.phase, flow: c.flow }; });
       if (s.phase !== 'gloomtide' || s.k >= k || s.flow !== 'playing') return s;
       if (each) await each(s);
+      if (i % 4 === 3) await pickOpen();
       await frames(1);
     }
     return null;
   };
-  const C = () => g(() => window.__gw.debug.combatV3());
+  // a swarm level-up opens its pick at once when the Wick is still with no line out (a modal pauses the game): take it
+  const pickOpen = async () => {
+    for (let i = 0; i < 12; i++) {
+      const m = await g(() => window.__gw.debug.ui?.()?.openModal ?? null);
+      if (m !== 'levelup') return i;
+      await g(() => { const c = window.__gw, o = c.combat.pendingOptions; if (o?.length) c.combat.chooseBoon(o[0].boonId); });
+      await frames(2);
+    }
+    return 12;
+  };
+  // clear the water without rewards (no Cinders, no XP): the withdrawal combat uses for a Scorched night
+  const quiet = () => g(() => { const c = window.__gw; c.combat.killAll('scorched'); });
 
   // ------------------------------------------------------------------ boot with v3 on, fresh save
   step('boot (?v3=1, phase 1)');
@@ -109,17 +121,32 @@ export default async function (api) {
     if (!diffCheck && st.k > 0.12) {
       diffCheck = await g(() => {
         const c = window.__gw, v = c.debug.combatV3(), d = c.data;
-        const wk = Math.min(1, Math.max(0, (v.k - v.window.start) / (v.window.end - v.window.start)));
-        const raw = d.difficultyFor(v.day, 0, wk, { nightInZone: v.day });
+        // the director's difficulty is refreshed every few frames: compare it with difficultyFor at its own window k
+        const raw = d.difficultyFor(v.diff.day ?? v.day, 0, v.diff.k, { nightInZone: v.day });
         const m = d.BALANCE.nightModes.lantern.mult;
         return { v: v.diff, want: { spawnRate: raw.spawnRate * m.spawnRate, hpMult: raw.hpMult * m.hpMult, maxAlive: Math.max(1, Math.round(raw.maxAlive * m.maxAlive)), eliteEvery: raw.heat < 3 ? 0 : raw.eliteEvery * 2 }, open: v.open };
       });
     }
     if (!shotTaken && st.k > 0.2) { shotTaken = true; await safeShot('v3-lantern-swarm'); }
     if (!fodder && st.k > 0.28) {
-      fodder = await g(() => { const c = window.__gw; c.debug.setOil(90); const hp = c.state.run.hp; c.debug.spawn('gloomling', 3, 2.2); return { hp, oil: c.state.run.oil }; });
-      for (let i = 0; i < 30; i++) await frames(1);
-      const after = await g(() => ({ hp: window.__gw.state.run.hp, oil: window.__gw.state.run.oil }));
+      // gloomlings put on the raft: their contact must drain oil (survival.addOil < 0 from combat) and take no Embers
+      fodder = await g(() => {
+        const c = window.__gw, sv = c.survival;
+        window.__oilHits = []; window.__dmg = [];
+        if (!sv.__wrapped) {
+          const ao = sv.addOil.bind(sv), dm = sv.damage.bind(sv);
+          sv.addOil = (n, ...r) => { if (n < 0 && window.__oilHits) window.__oilHits.push(n); return ao(n, ...r); };
+          sv.damage = (n, src, ...r) => { if (window.__dmg) window.__dmg.push([n, src]); return dm(n, src, ...r); };
+          sv.__wrapped = true;
+        }
+        const hp = c.state.run.hp;
+        const made = c.debug.spawn('gloomling', 3, 9) || [];
+        for (const e of made) { e.position.set(c.player.position.x + 0.4, 0, c.player.position.z + 0.3); e.spawnT = 0; e.state = 'move'; }
+        return { hp, n: made.length };
+      });
+      for (let i = 0; i < 12; i++) await frames(1);
+      const after = await g(() => ({ hp: window.__gw.state.run.hp, oilHits: window.__oilHits.length, oilLost: +window.__oilHits.reduce((a, b) => a + b, 0).toFixed(2), dmg: window.__dmg.filter((x) => /gloomling/.test(String(x[1]))) }));
+      await g(() => { window.__oilHits = null; window.__dmg = null; });
       fodder = { before: fodder, after };
     }
   });
@@ -134,7 +161,7 @@ export default async function (api) {
     check(Math.abs(diffCheck.v.spawnRate - diffCheck.want.spawnRate) < 0.02, 'spawnRate = difficultyFor × 0.55', diffCheck);
     check(Math.abs(diffCheck.v.hpMult - diffCheck.want.hpMult) < 0.01 && diffCheck.v.maxAlive === diffCheck.want.maxAlive && diffCheck.v.eliteEvery === diffCheck.want.eliteEvery, 'hpMult × 0.8, maxAlive × 0.6, elites by the Heat-3 rule', diffCheck);
   } else check(false, 'the window opened');
-  if (fodder) check(fodder.after.hp === fodder.before.hp && fodder.after.oil < fodder.before.oil, 'fodder contact drains oil and costs no Embers', fodder);
+  if (fodder) check(fodder.before.n > 0 && fodder.after.hp === fodder.before.hp && fodder.after.oilHits > 0 && fodder.after.dmg.length === 0, 'fodder contact drains oil and costs no Embers', fodder);
   s = await g(() => ({ alive: window.__gw.combat.enemies.filter((e) => e.alive).length, active: window.__gw.combat.swarmActive, k: window.__gw.survival.getPhaseInfo().k }));
   check(s.alive === 0 && !s.active, 'after k 0.50 the swarm has withdrawn (the quiet tail)', s);
 
@@ -158,13 +185,14 @@ export default async function (api) {
   const slam = async () => g(async () => {
     const c = window.__gw;
     c.debug.setHp(5);
-    c.debug.killAll();
+    c.combat.killAll('scorched');
     c.debug.fishHook('dusk_minnow');
     const p0 = { x: c.player.position.x, z: c.player.position.z }, hp0 = c.state.run.hp, st0 = c.fishing.state;
     const hand = c.debug.spawn('drowned_hand', 1)?.[0] || c.combat.enemies.find((e) => e.enemyId === 'drowned_hand');
     if (hand) { hand.state = 'slam'; hand.stateT = 0.3; hand.n = 0; hand.position.set(c.player.position.x, 0, c.player.position.z); }
     return { p0, hp0, st0, hand: !!hand };
   });
+  await pickOpen();
   let sl = await slam();
   m0 = await mark();
   for (let i = 0; i < 6; i++) await frames(1);
@@ -177,11 +205,14 @@ export default async function (api) {
   check(Math.hypot(after.x - sl.p0.x, after.z - sl.p0.z) < 0.05, 'Lantern: the slam and the lingering hand moved neither the Wick nor the raft', { p0: sl.p0, after });
   check(!esc.some((x) => x.p?.reason === 'snap') && ['reeling', 'landing'].includes(after.st), 'Lantern: the line did not snap', { st: after.st, esc });
   check(after.hp < sl.hp0, 'Lantern: the telegraphed slam cost Embers', { hp0: sl.hp0, hp: after.hp });
-  await g(() => { const c = window.__gw; c.debug.killAll(); c.fishing.cancel?.('debug'); });
+  await g(() => { const c = window.__gw; c.combat.killAll('scorched'); c.fishing.cancel?.('debug'); });
+  await pickOpen();
 
   step('C6 the same slam in Gloomtide (today: knock and snap)');
   await g(() => window.__gw.debug.mode('gloomtide'));
   await frames(2);
+  await pickOpen();
+  await pickOpen();
   sl = await slam();
   m0 = await mark();
   for (let i = 0; i < 6; i++) await frames(1);
@@ -189,13 +220,14 @@ export default async function (api) {
   const esc2 = await since(m0, 'fishing:escaped');
   check(Math.hypot(after.x - sl.p0.x, after.z - sl.p0.z) > 0.3 || esc2.length > 0, 'Gloomtide: the slam knocks the raft', { p0: sl.p0, after });
   check(esc2.some((x) => x.p?.reason === 'snap') || !['reeling', 'landing'].includes(after.st), 'Gloomtide: the slam snaps a normal line', { st: after.st, esc2 });
-  await g(() => { const c = window.__gw; c.debug.killAll(); c.fishing.cancel?.('debug'); c.debug.mode('lantern'); });
+  await g(() => { const c = window.__gw; c.combat.killAll('scorched'); c.fishing.cancel?.('debug'); c.debug.mode('lantern'); });
+  await pickOpen();
 
   step('C6 Scorched (Lantern, Embers to 0)');
-  await night(2); await atK(0.15); await frames(4);
+  await night(2); await atK(0.15); await frames(4); await pickOpen();
   s = await g(() => {
     const c = window.__gw;
-    c.debug.killAll(); c.fishing.cancel?.('debug');
+    c.combat.killAll('scorched'); c.fishing.cancel?.('debug');
     c.debug.setOil(100);
     c.debug.spawn('gloomling', 4, 10);
     c.debug.setHp(1);
@@ -225,6 +257,7 @@ export default async function (api) {
 
   // ------------------------------------------------------------------ C3: banked level-ups
   step('C3 banked level-ups');
+  await pickOpen();
   await g(() => { const c = window.__gw; c.ui.closeAll?.(); c.debug.setDay(3); c.debug.setPhase('calm'); c.debug.timeScale?.(1); c.debug.setOil(100); });
   await frames(3);
   s = await g(() => { const c = window.__gw; c.debug.forceBite({ speciesId: 'dusk_minnow' }); return c.fishing.state; });
@@ -298,10 +331,10 @@ export default async function (api) {
 
   // ------------------------------------------------------------------ C4: Grasping Dark as snags
   step('C4 a Grasping Dark snag on the Lantern-Swallower (Lantern)');
-  await night(2); await atK(0.15); await frames(3);
+  await night(2); await atK(0.15); await frames(3); await pickOpen();
   s = await g(() => {
     const c = window.__gw;
-    c.ui.closeAll?.(); c.debug.killAll(); c.debug.setHp(5); c.debug.timeScale?.(1);
+    c.ui.closeAll?.(); c.combat.killAll('scorched'); c.debug.setHp(5); c.debug.timeScale?.(1);
     c.debug.fishHook('lantern_swallower');
     return { st: c.fishing.state, sp: c.fishing.view?.speciesId };
   });

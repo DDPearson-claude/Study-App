@@ -1615,7 +1615,7 @@ export function create(ctx) {
             levelBank: run?.levelBank | 0, pending: levels.pendingCount, queued: levels.queuedCount, banked: !!levels.current?.banked, uiDriven: levels.uiDriven,
             modalOk: C.modalOk(), hooked: C.hooked(), holdStill: C.holdStill(), snags: snags.map((x) => ({ t: +x.t.toFixed(2), lead: x.lead, hit: x.hit, x: x.x, z: x.z })),
             snagsThisFight: NM.snagsThisFight, swarmSeen: !!run?.flags?.swarmSeen,
-            diff: C.diff ? { spawnRate: C.diff.spawnRate, maxAlive: C.diff.maxAlive, hpMult: C.diff.hpMult, eliteEvery: C.diff.eliteEvery, boss: C.diff.boss, bossHpMult: C.diff.bossHpMult, formationAt: C.diff.formationAt, heat: C.diff.heat } : null,
+            diff: C.diff ? { k: C.diff.k, day: C.diff.day, spawnRate: C.diff.spawnRate, maxAlive: C.diff.maxAlive, hpMult: C.diff.hpMult, eliteEvery: C.diff.eliteEvery, boss: C.diff.boss, bossHpMult: C.diff.bossHpMult, formationAt: C.diff.formationAt, heat: C.diff.heat } : null,
             enemies: enemies.length, boss: bossRef?.enemyId || null, bossHp: bossRef ? Math.round(bossRef.maxHp) : null,
           };
         },
