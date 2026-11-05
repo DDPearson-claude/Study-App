@@ -376,7 +376,8 @@ const scan = (v, path) => {
   for (const [k, c] of Object.entries(v)) if (!/^(id|icon|behavior|weapon|model|shape|type|trigger|mechanic)$/.test(k)) scan(c, `${path}.${k}`);
 };
 const V3_TEXT_EXPORTS = ['SPECIES_V3', 'FOUND_RELICS', 'AGE_MARKS', 'VISTAS', 'REMNANTS', 'MOSSMERE_V3', 'PLACES_V3', 'WALK_SYNC_V3', 'CONDITIONS', 'RUMOURS', 'TODAYS_RUMOUR', 'TACKLE', 'OUTFIT', 'LURES', 'EXPEDITION', 'LONG_DESCENT',
-  'RELICS_V3', 'BOONS_V3', 'CHARACTERS_V3', 'CHALLENGES_V3', 'COSMETICS_V3', 'LEDGER', 'COVE', 'TEXT_V3', 'TIPS_V3', 'MERCHANT_LINES_V3', 'ELDER_NAMES'];
+  'RELICS_V3', 'BOONS_V3', 'CHARACTERS_V3', 'CHALLENGES_V3', 'COSMETICS_V3', 'LEDGER', 'COVE', 'TEXT_V3', 'TIPS_V3', 'MERCHANT_LINES_V3', 'ELDER_NAMES',
+  'CATCH_V3', 'AUTOFISH', 'FIRST_EVENING'];
 for (const k of ['ZONES', 'SPECIES', 'BAITS', 'UPGRADES', 'SUPPLIES', 'RELICS', 'ENEMIES', 'BOONS', 'CHARACTERS', 'CHALLENGES', 'BOUNTIES', 'TIPS', 'MERCHANT_LINES', 'EPITAPHS', 'TEXT', 'FORMATIONS', ...(WALK ? ['ARENA_V2', 'WALK_FORMATIONS', 'WALK_BOUNTIES'] : []), ...(V3 ? V3_TEXT_EXPORTS : [])]) scan(D[k], k);
 checks++;
 
@@ -805,7 +806,8 @@ if (V3) {
     'LURES', 'COMBAT_KIT', 'EXPEDITION', 'LONG_DESCENT', 'ECONOMY_V3', 'MEMORIES_V3', 'RELICS_V3', 'ANGLER_POOL', 'BOONS_V3', 'CHARACTERS_V3', 'GLOOM_TAB', 'CHALLENGES_V3',
     'CHALLENGE_TABS_V3', 'COSMETICS_V3', 'LEDGER', 'COVE', 'RENAMES', 'TEXT_V3', 'TIPS_V3', 'MERCHANT_LINES_V3', 'FOUND_RELICS', 'AGE_MARKS', 'VISTAS', 'REMNANTS',
     'sizeL50', 'sizeLength', 'sizeWeight', 'sizeClassOf', 'isAncient', 'maxZFor', 'reachOf', 'favourNotches', 'classOdds', 'fishValueV3', 'fishYieldV3', 'farWaterFor',
-    'swarmTonight', 'swarmWindow', 'tallyFor', 'frameFor'];
+    'swarmTonight', 'swarmWindow', 'tallyFor', 'frameFor', 'CATCH_V3', 'AUTOFISH', 'FIRST_EVENING', 'catchChance', 'catchParts', 'catchOdds', 'catchItemHold',
+    'catchItemTargets', 'catchBuffHold', 'catchBestItem', 'catchRating', 'catchDisplay', 'catchClassAllowed', 'catchHomeLake'];
   for (const k of V3_EXPORTS) ok(k in D && k in V1, `v3 export ${k} must exist in every build (inert when V3 is off)`);
   const MERGED = ['bite'];   // v3 keys merged into an existing v1 block (CONTRACT §13.8); every other BALANCE_V3 key is a new block
   for (const k of Object.keys(B3)) {
@@ -1059,7 +1061,8 @@ if (V3) {
   ok(JSON.stringify(D.TACKLE.drag.presets) === '{"light":0.7,"set":0.8,"firm":0.9}' && D.TACKLE.drag.fromReelTier === 2 && D.TACKLE.reel.every((r) => (r.tier >= 2) === (r.drag === 'presets')), 'drag presets from Reel T2');
   ok(D.OUTFIT.length === 4 && D.OUTFIT.every((o) => JSON.stringify(o.prices) === '[80,240,600]' && o.maxLevel === 3) && D.OUTFIT.reduce((a, o) => a + o.prices.reduce((x, y) => x + y, 0), 0) === 3680, 'outfit: 4 items × 80 / 240 / 600 (3,680)');
   for (const o of D.OUTFIT) { for (const k of Object.keys(o.effects)) ok(isStatKey(k), `outfit ${o.id} effect ${k} is not a STATS key`); ok(!!D.UPGRADE_BY_ID[o.from], `outfit ${o.id} from ${o.from}`); }
-  ok(JSON.stringify(D.LURES.map((l) => l.price)) === '[40,90,120,260,1200]' && D.LURES.reduce((a, l) => a + l.price, 0) === 1710, 'lures 40 / 90 / 120 / 260 / 1,200 (1,710)');
+  ok(JSON.stringify(D.LURES.map((l) => l.price)) === '[40,90,120,260,1200,220,480,950,1600]' && D.LURES.reduce((a, l) => a + l.price, 0) === 4960,
+    'lures 40 / 90 / 120 / 260 / 1,200 + the giants\' lures 220 / 480 / 950 / 1,600 (4,960; DESIGN §25.6.3)');
   ok(D.LURES.every((l) => l.family === null || D.FISH_FAMILIES.includes(l.family)), 'lure families');
   for (const id of D.COMBAT_KIT.ids) ok(D.UPGRADE_BY_ID[id] && !D.OUTFIT.some((o) => o.from === id), `combat kit ${id}`);
   const KIT = { lantern_mantle: [22, 56, 120, 224], lantern_lens: [36, 80, 168], lantern_striker: [22, 60, 132], raft_hull: [44, 100, 208], raft_hearth: [104, 240] };
@@ -1177,7 +1180,8 @@ if (V3) {
   const coverAt = (need) => { let lo = 0, hi = 40; for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (netAt(m) >= need) hi = m; else lo = m; } return hi; };
   ok(within(netAt(1.5), 1096, 1) && within(netAt(4.5), 4660, 1) && within(netAt(8.5), 10952, 1) && within(netAt(14), 22661, 1) && within(netAt(16), 26919, 1), 'cumulative net 1,096 / 4,660 / 10,952 / 22,661 / 26,919 at h1.5 / 4.5 / 8.5 / 14 / 16');
   let spend = 0, lastH = 0, worst = 0;
-  const SPENDS = [430, 590, 670, 850, 1300, 1750, 2200, 2470, 2720, 2900, 3060, 3360, 3780, 4260, 5660, 7060, 8460, 8800, 9700, 10800, 14000, 14640, 17840, 21040, 21520, 23920, 25120, 26320, 28240];
+  // DESIGN §25.10.2 (automatic fishing: + the giants' lures and the expected legend attempts, 3 / 3 / 3 / 4 baits)
+  const SPENDS = [430, 590, 710, 890, 1110, 1560, 2010, 2460, 2730, 2980, 3250, 3730, 3890, 4190, 4610, 5090, 6490, 7890, 8840, 9350, 10250, 11650, 12750, 15950, 17550, 18830, 22030, 25230, 25710, 28110, 29310, 30510, 32430];
   EC.timeline.forEach(([h, items], i) => {
     const c = items.reduce((a, k) => a + cost(k), 0); spend += c;
     ok(Number.isFinite(c), `timeline h${h}: unknown item in ${items}`);
@@ -1186,7 +1190,9 @@ if (V3) {
     ok(h >= lastH && within(at, h, EC.tolerance), `timeline h${h}: income first covers ${spend} at h${at.toFixed(2)} (± ${EC.tolerance} h)`);
     lastH = h;
   });
-  ok(spend === EC.mainSinks && within(coverAt(EC.mainSinks), EC.meetsAt, EC.tolerance), `income and the main sinks (${EC.mainSinks}) meet at h${coverAt(EC.mainSinks).toFixed(2)} (brief ≈ h${EC.meetsAt})`);
+  ok(spend === EC.mainSinks && within(coverAt(EC.mainSinks), EC.meetsAt, EC.tolerance), `income and the main sinks (${EC.mainSinks}) meet at h${coverAt(EC.mainSinks).toFixed(2)} (≈ h${EC.meetsAt})`);
+  { const lh = (b) => EC.timeline.filter(([, it]) => it.includes(`bait:${b}`)).flatMap(([, it]) => it.filter((k) => k === `bait:${b}`)).length;
+    ok(lh('heartmoss') === 3 && lh('glowcap_bulb') === 3 && lh('prism_moth') === 3 && lh('last_candle') === 4, 'the timeline buys the expected legend attempts: 3 / 3 / 3 / 4 baits (CATCH_V3 wounds; tools/sim/catch-v3.mjs)'); }
   // gates along the timeline: tiers on sale only after their Waystone, legend baits before their gate opens
   const tollH = Object.fromEntries(EC.timeline.flatMap(([h, it]) => it.filter((k) => k.startsWith('toll:')).map((k) => [k.split(':')[1], h])));
   for (const [h, items] of EC.timeline) for (const k of items) {
@@ -1568,6 +1574,116 @@ if (V3) {
     const ups = Object.fromEntries(D.UPGRADES.map((u) => [u.id, u.maxLevel]));
     ok(JSON.stringify(D.upgradeTiers({})) === '{"rod":0,"line":0,"reel":0,"creel":0}' && JSON.stringify(D.upgradeTiers(ups)) === '{"rod":4,"line":4,"reel":4,"creel":4}', 'upgradeTiers: no upgrades → T0, every level → T4');
     for (const k of ['shock', 'absorb', 'pipBonus', 'dragAt']) ok(k in D.STATS && !(k in V1.STATS) && !(k in W2.STATS), `STATS.${k} exists only in v3 builds`); }
+
+  // ---- automatic fishing (DESIGN §25.6, CONTRACT §13.7; the user's direction of 2026-11-05): the catch model, the strike, the play,
+  // leaps and the hidden-information data, the First Evening. Never 100%: every cap < 1 and no item, strike, buff or bonus reaches one.
+  { const CT = D.CATCH_V3, AF = D.AUTOFISH, FE = D.FIRST_EVENING, CLS = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+    const SV = D.SPECIES_V3, TT = (n) => ({ rod: n, line: n, reel: n });
+    // caps, floor, scale
+    ok(Object.values(CT.cap).every((c) => c > CT.floor && c < 1), `CATCH_V3: every cap is below 1 and above the floor (${JSON.stringify(CT.cap)})`);
+    ok(CT.floor >= 0.01 && CT.floor < 0.05 && CT.scale > 0, 'CATCH_V3: floor in [0.01, 0.05), scale > 0');
+    ok(CLS.every((c, i) => i === 0 || CT.cap[c] <= CT.cap[CLS[i - 1]]) && CT.cap.legend <= CT.cap.ancient, 'CATCH_V3: bigger classes never have a higher cap');
+    ok(CLS.every((c, i) => i === 0 || CT.class[c] > CT.class[CLS[i - 1]]), 'CATCH_V3: bigger is harder (class Fight rises with every class)');
+    // tackle Hold
+    for (const slot of ['rod', 'line', 'reel']) ok(D.TACKLE[slot].every((t, i) => Number.isFinite(t.hold) && (i === 0 ? t.hold === 0 : t.hold > D.TACKLE[slot][i - 1].hold)), `TACKLE.${slot}: hold starts at 0 and rises strictly with tier`);
+    ok(JSON.stringify([0, 1, 2, 3, 4].map((n) => ['rod', 'line', 'reel'].reduce((a, s) => a + D.TACKLE[s][n].hold, 0))) === '[0,6,15,25,37]', 'TACKLE: matched sets give 0 / 6 / 15 / 25 / 37 Hold');
+    ok(JSON.stringify(D.tackleStats({ rod: 3, line: 4, reel: 2 }).hold) === JSON.stringify({ rod: 8, line: 13, reel: 5 }), 'tackleStats(loadout).hold reads TACKLE hold per slot');
+    for (const st of D.FISH_STYLES) { const e = CT.emphasis[st]; ok(e && within(e.rod + e.line + e.reel, 3, 1e-9) && st in CT.style, `CATCH_V3: style ${st} has an emphasis averaging 1 and a Fight term`); }
+    // strike
+    ok(CT.strike.clean > CT.strike.struck && CT.strike.struck > 0 && CT.strike.early < 0 && CT.strike.early === CT.strike.late, 'CATCH_V3.strike: clean > struck > 0 > early = late');
+    const SW = AF.strike.window;
+    ok(CLS.every((c, i) => SW[c] > 0 && (i === 0 || SW[c] >= SW[CLS[i - 1]])) && SW.legend >= SW.ancient, 'AUTOFISH.strike.window: by class (never by species), never shorter for a bigger class');
+    ok(CLS.every((c) => Math.max(AF.strike.cleanMin, AF.strike.cleanFrac * SW[c]) < SW[c]) && AF.strike.clamp[0] <= SW.small && AF.strike.clamp[1] >= SW.legend, 'AUTOFISH.strike: the Clean part fits every window; the clamp holds every window');
+    ok(AF.strike.grades.every((g) => g in CT.strike) && AF.strike.reference === CT.display.reference.strike, 'AUTOFISH.strike grades match CATCH_V3.strike; the log uses the reference strike');
+    // items: every bait / lure target exists, every lure and non-legend bait has an entry
+    const baitIds = new Set([...D.BAITS, ...D.WALK_BAITS].filter((b) => !b.legend).map((b) => b.id)), lureIds = new Set(D.LURES.map((l) => l.id));
+    for (const [id, it] of Object.entries(CT.items)) {
+      const real = it.kind === 'bait' ? baitIds.has(id) || id === 'cut_strip' : it.kind === 'lure' ? lureIds.has(id) : !!D.UPGRADE_BY_ID[id];
+      ok(real, `CATCH_V3.items.${id}: no ${it.kind} with that id`);
+      ok(Number.isFinite(it.hold ?? it.holdPerLevel) && (it.hold ?? it.holdPerLevel) > 0, `CATCH_V3.items.${id}: a positive Hold`);
+      if (it.species) for (const sid of it.species) ok(!!byId[sid] && byId[sid].rarity !== 'legendary', `CATCH_V3.items.${id}: target ${sid} is not a species`);
+      if (it.family) ok(D.FISH_FAMILIES.includes(it.family), `CATCH_V3.items.${id}: family ${it.family}`);
+      ok(D.catchItemTargets(id).length > 0 || it.kind === 'upgrade' && SV.some((s) => s.family === it.family), `CATCH_V3.items.${id} helps no species`);
+      for (const sid of D.catchItemTargets(id)) ok(!!byId[sid], `CATCH_V3.items.${id}: target ${sid} missing from SPECIES_V3`);
+    }
+    for (const l of D.LURES) ok(CT.items[l.id]?.kind === 'lure' && (!l.species || JSON.stringify(l.species) === JSON.stringify(CT.items[l.id].species)), `lure ${l.id}: a CATCH_V3 item with the same targets`);
+    for (const id of baitIds) ok(CT.items[id]?.kind === 'bait', `bait ${id}: no CATCH_V3 item (every bait helps something)`);
+    ok(Object.values(CT.items).filter((it) => it.all).length === 1 && CT.items.shimmerfly.all, 'exactly one global bait (Shimmerfly); everything else is fish-specific');
+    for (const id of CT.fouledSpecies) ok(!!byId[id], `CATCH_V3.fouledSpecies: ${id}`);
+    for (const s of SV.filter((x) => x.rarity === 'legendary')) ok(Number.isFinite(CT.legend.fight[s.id]) && D.FISH_STYLES.includes(CT.legend.style[s.id]), `CATCH_V3.legend: ${s.id} has a Fight and a style`);
+    for (const lake of Object.keys(CT.lake)) ok(lake === 'cove' || LAKES.includes(lake), `CATCH_V3.lake: ${lake}`);
+    for (const id of Object.keys(CT.buffs.boons)) ok(D.BOONS.some((b) => b.id === id), `CATCH_V3.buffs.boons: ${id}`);
+    for (const id of Object.keys(CT.buffs.relics)) ok(D.RELICS_V3.some((r) => r.id === id) || D.RELICS.some((r) => r.id === id), `CATCH_V3.buffs.relics: ${id}`);
+    for (const id of Object.keys(CT.buffs.wicks)) ok(D.CHARACTERS.some((c) => c.id === id), `CATCH_V3.buffs.wicks: ${id}`);
+    for (const id of AF.strike.windowBuffs) ok(D.BOONS.some((b) => b.id === id) || D.RELICS_V3.some((r) => r.id === id) || !!D.UPGRADE_BY_ID[id], `AUTOFISH.strike.windowBuffs: ${id}`);
+    // never 100%: no tackle, item, strike, buff, Marked Fish or wound reaches a cap, anywhere
+    { let worst = 0, who = '';
+      for (const s of SV) for (const c of [...CLS, 'legend']) for (const it of [null, ...Object.keys(CT.items)]) {
+        const q = D.catchParts(s, c, { ...TT(4), item: it, itemLevel: 3 }, { strike: 'clean', buffs: 99, marked: true, wounds: 99 });
+        if (q && q.p / q.cap > worst) { worst = q.p / q.cap; who = `${s.id} ${c}${it ? ` + ${it}` : ''} ${(q.p * 100).toFixed(3)}%`; }
+        if (q) ok(q.p < q.cap && q.p < 1 && D.catchDisplay(q.p) < q.cap * 100, `never 100%: ${s.id} ${c}${it ? ` + ${it}` : ''} reaches its cap`);
+      }
+      checks++; if (process.argv.includes('--verbose')) console.log(`  catch: closest to a cap ${who}`); }
+    // the targets (CATCH_V3.targets)
+    const G = CT.targets;
+    { let e0 = 0, who = '';
+      for (const s of SV) if (D.catchClassAllowed(s, 'elder')) for (const it of [null, ...Object.keys(CT.items).filter((k) => CT.items[k].kind !== 'upgrade')]) {
+        const p = D.catchChance(s, 'elder', { ...TT(0), item: it }, { strike: 'struck' }); if (p > e0) { e0 = p; who = `${s.id}${it ? ` + ${it}` : ''}`; } }
+      ok(e0 <= G.elderT0Max, `every Elder at matched T0 (reference strike, no buffs, any one bait or lure) ≤ ${G.elderT0Max * 100}%: ${who} ${(e0 * 100).toFixed(1)}%`); }
+    { const c0 = SV.filter((s) => s.zone === 'mossmere' && s.rarity === 'common').flatMap((s) => ['small', 'keeper'].map((c) => D.catchChance(s, c, TT(0))));
+      ok(c0.every((p) => p >= G.commonsT0[0] && p <= G.commonsT0[1]), `Mossmere commons on T0 land ${G.commonsT0.join('–')} (never boring, never guaranteed): ${c0.map((p) => p.toFixed(2)).join(' ')}`); }
+    const REF = Object.values(D.TACKLE.reference);
+    for (const id of REF.slice(0, 2)) {
+      ok([0, 1, 2].every((n) => D.catchChance(id, 'elder', TT(n)) <= G.headlineElderEarlyMax), `${id}: its Elder stays ≤ ${G.headlineElderEarlyMax * 100}% on T0–T2 (Q3, hard until late tackle)`);
+      const p4 = D.catchChance(id, 'elder', { ...TT(4), item: D.catchBestItem(byId[id]).id });
+      ok(p4 >= G.headlineElderT4Item[0] && p4 <= G.headlineElderT4Item[1], `${id}: its Elder on T4 with its best item ${(p4 * 100).toFixed(0)}% (target ${G.headlineElderT4Item.map((x) => x * 100).join('–')}%)`);
+    }
+    ok(SV.every((s) => !D.catchClassAllowed(s, 'ancient') || D.catchChance(s, 'ancient', { ...TT(4), item: D.catchBestItem(s).id }, { strike: 'clean', buffs: 99, marked: true }) < G.ancientMax), `no Ancient ever lands ${G.ancientMax * 100}% or better`);
+    ok(SV.filter((s) => s.rarity === 'legendary').every((s) => D.catchChance(s, 'legend', TT(4), { strike: 'clean', buffs: 99, wounds: 99 }) < G.legendMax), `no legend ever lands ${G.legendMax * 100}% or better`);
+    { const q = D.catchChance('quayling', 'small', TT(0), { lake: 'cove' }); ok(q >= G.tutorial[0] && q <= G.tutorial[1], `the tutorial Quayling (Small, T0, struck) ${(q * 100).toFixed(1)}% (${G.tutorial.join('–')}): likely, never certain`); }
+    ok(D.catchChance('quayling', 'prize', TT(4)) === null && D.catchChance('lampwarden_angler', 'elder', TT(4)) === null && D.catchOdds('belled_matriarch', TT(0)).legend > 0, 'catchChance: out-of-reach classes are null; legends have one row');
+    ok(D.catchDisplay(0.94999) === 94 && D.catchDisplay(null) === null, 'the logs round down (a cap is never printed)');
+    ok(Object.values(CT.economy.norm).every((v) => v > 0.5 && v <= 1) && CT.economy.norm.cove === 1, 'CATCH_V3.economy.norm in (0.5, 1] per lake');
+    ok(AF.rating.words.every(([t], i, a) => i === 0 || t < a[i - 1][0]) && AF.rating.words.at(-1)[0] === 0, 'AUTOFISH.rating words: descending thresholds down to 0');
+    for (const z of LAKES) { const r = D.catchRating(z, TT(4)); ok(r && r.held && typeof (r.word ?? '') === 'string', `catchRating(${z}, T4) names a class held`); }
+    // the play: class bands rise and never overlap; every loss lands in the second half
+    ok(CLS.every((c, i) => AF.play[c].dur[0] < AF.play[c].dur[1] && (i === 0 || AF.play[c].dur[0] >= AF.play[CLS[i - 1]].dur[1])) && AF.play.legend.dur[0] >= AF.play.ancient.dur[1], 'AUTOFISH.play: durations rise with class and never overlap (class and z only)');
+    ok(Object.values(AF.loss.at).every(([a, b]) => a >= AF.loss.minAt && b <= 0.97 && a < b), `AUTOFISH.loss: every cause lands at ≥ ${AF.loss.minAt} of the play (the first half is outcome-blind)`);
+    for (const st of D.FISH_STYLES) { const w = AF.loss.byStyle[st]; ok(w && within(Object.values(w).reduce((a, b) => a + b, 0), 1, 1e-9) && Object.keys(w).every((k) => k in AF.loss.at), `AUTOFISH.loss.byStyle.${st}: weights sum to 1 over real causes`); }
+    for (const c of CLS) ok(!!AF.loss.byClass[c] && !!AF.leap.perClassMax && c in AF.leap.perClassMax, `AUTOFISH: ${c} has loss and leap rules`);
+    ok(Object.keys(AF.loss.hint).every((k) => k in AF.loss.at || AF.loss.external.includes(k)) && Object.values(AF.loss.hint).every((h) => h === null || h in AF.text.hint), 'every loss cause maps to a gear hint the text has');
+    // leaps: real species, sane values, several leapers per lake, and the ambiguity rule over every phase's roster
+    for (const [id, v] of Object.entries(AF.leaps)) {
+      const s = byId[id];
+      ok(!!s && s.rarity !== 'legendary' && !s.cove && D.catchClassAllowed(s, 'keeper'), `AUTOFISH.leaps.${id}: a non-legendary lake species that can reach Keeper`);
+      ok(Array.isArray(v) && v[0] > 0 && v[0] <= 1 && Number.isInteger(v[1]) && v[1] >= 1 && v[1] <= 3 && v[2] in AF.leap.when, `AUTOFISH.leaps.${id}: [chance (0, 1], max 1–3, window]`);
+    }
+    ok(Object.values(AF.leap.when).every(([a, b]) => a > 0 && b < 1 && a < b), 'AUTOFISH.leap.when windows inside the play');
+    for (const z of LAKES) { const n = SV.filter((s) => (s.zone === z || (s.zones || []).includes(z)) && AF.leaps[s.id]).length; ok(n >= AF.leapRule.minLeapersPerLake, `${z}: ${n} species can leap (≥ ${AF.leapRule.minLeapersPerLake}), so a leap never pins one`); }
+    { const { leapCells } = await import('./sim/catch-v3.mjs');
+      const walkPlaces = new Set(Object.values(D.ARENA_V2).flatMap((a) => (a.places || []).map((p) => p.id)));
+      let cells = 0;
+      for (const walk of [false, true]) for (let P = 1; P <= 4; P++) {
+        const roster = SV.filter((s) => (s.src === 'walk' ? walk : s.phase <= P) && (walk || !(s.src === 'walk' || (s.place && walkPlaces.has(s.place)))));
+        for (const c of leapCells(roster, { walk, phase: P })) { cells++; ok(c.ok, `leap ambiguity (P${P}${walk ? ' + §24' : ''}): ${c.label}: ${c.n} leaper(s), top ${(c.share * 100).toFixed(0)}% (${c.split})`); }
+      }
+      if (process.argv.includes('--verbose')) console.log(`  leaps: ${cells} cells over 8 rosters`); }
+    // presentation data: one proxy for every species, the got-away note after the loss
+    ok(AF.proxy.aspect > 0 && AF.proxy.length === 'true' && AF.proxy.oneMesh, 'AUTOFISH.proxy: one generic night-ink shape at true length');
+    ok(AF.gotAway.estimate === D.BALANCE_V3.ceremony.nearMiss?.estimate || AF.gotAway.estimate === 0.08, 'the got-away length estimate is ±8% (§25.7.4)');
+    // every player-facing string of automatic fishing and the First Evening: one line (≤ 90), no %, no exclamation mark
+    const strs = []; const walkS = (v, path) => { if (typeof v === 'string') strs.push([v, path]); else if (v && typeof v === 'object') for (const [k, c] of Object.entries(v)) walkS(c, `${path}.${k}`); };
+    walkS(AF.text, 'AUTOFISH.text'); walkS(FE.text, 'FIRST_EVENING.text'); walkS(FE.tips, 'FIRST_EVENING.tips');
+    for (const [v, path] of strs) ok(v.length <= FE.lines.maxChars && !v.includes('%') && !v.includes('!'), `${path}: "${v.slice(0, 60)}" must be ≤ ${FE.lines.maxChars} characters with no % and no "!"`);
+    // the First Evening
+    ok(FE.steps.length === new Set(FE.steps).size && FE.steps.every((st) => st in FE.stepSec) && FE.steps[0] === 'framing' && FE.steps.at(-1) === 'setout', 'FIRST_EVENING.steps: unique, timed, framing → setout');
+    { const sum = FE.steps.reduce((a, st) => a + FE.stepSec[st], 0); ok(within(sum, FE.budget.reference, 3) && sum <= FE.budget.targetMax && FE.budget.slowReaderMax <= 90 && within(sum - FE.stepSec.framing, FE.budget.skipFraming, 3), `FIRST_EVENING: the reference player reaches the Mossmere in ${sum} s (≈ ${FE.budget.reference}, ≤ ${FE.budget.targetMax}; slow reader < 90)`); }
+    ok(['outcome', 'chance', 'sizeClass'].every((k) => FE.tutorialApi.rejects.includes(k) && !FE.tutorialApi.accepts.includes(k)), 'FIRST_EVENING: the tutorial can shorten waits, never pass an outcome, a class or a chance');
+    ok(D.COVE.fishing.species.includes('quayling') && byId.quayling?.maxClass === 'keeper' && FE.text.lore.length === 3, 'FIRST_EVENING: the cove Quayling (≤ Keeper) and three lore lines');
+    for (const id of FE.wake.coldCandles) ok(D.CHARACTERS.some((c) => c.id === id) || id === 'wayfarer', `FIRST_EVENING.wake.coldCandles: ${id}`);
+    ok(FE.marksSeen.every((id) => D.TIPS.some((t) => t.id === id)), 'FIRST_EVENING.marksSeen names real tips');
+    ok(D.COVE.v0.posts.some((p) => p.id === FE.gate.post), `FIRST_EVENING.gate.post ${FE.gate.post} is a Landing v0 post`);
+  }
 
   // ---- cameras: every framing preset carries render's full parameter set
   for (const [k, c] of Object.entries(B3.cameras)) {

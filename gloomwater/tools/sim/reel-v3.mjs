@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+// LEGACY (2026-11-05). v3 fishing is AUTOMATIC: one land chance per hooked fish from tools/sim/catch-v3.mjs / data.catchChance
+// (DESIGN §25.6, the user's direction). This manual tension-reel sim no longer gates any v3 number (land rates, the gear gate,
+// the tackle rating, §25.6.9). It is kept only (a) as the history of the manual v3 reel that the P1 build still runs until the AF
+// build removes it, and (b) beside tools/sim/reel.mjs as the reference for the v1 hold-to-reel game, which stays bit-identical
+// with V3_ENABLED off. validate-data still runs its Ancient-length check while BALANCE_V3.size.reel exists; AF retires both.
 // tools/sim/reel-v3.mjs — the v3 reel sim (BRIEF-v3 §5.5–§5.9; T1). Port of tools/out/pivot/reel-v3-sim.mjs that
 // reads every number from src/data.js instead of private copies:
 //   tackle tiers per slot      TACKLE.rod / line / reel (slackTime, shock, hookWindow, pips; lineStrength, slackAdd;
