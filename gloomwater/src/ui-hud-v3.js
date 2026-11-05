@@ -266,7 +266,7 @@ export function createHudV3(K, el, R, w) {
     const W = K.vw, H = K.vh;
     const top = W < 700 ? 190 : 118;
     const open = fav.classList.contains('gw-open');
-    const wHalf = open ? Math.min(150, W * 0.44) : 74;
+    const wHalf = open ? Math.min(164, W * 0.44) : 74;
     const listH = open ? (favList.offsetHeight || 120) : 0;
     const x = Math.max(16 + wHalf, Math.min(W - 16 - wHalf, p.x + 36));
     const below = p.y - 70 < top;
