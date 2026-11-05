@@ -1232,7 +1232,8 @@ export function create(ctx) {
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);
     const wig = Math.sin(F.phase * (surging ? 16 : 7 + warn * 6)) * (surging ? 1 : 0.45 + warn * 0.4);
-    if (S.veiled) fx.setShadow(true, px, pz, Math.max(0.05, L * 1.15), F.yaw, F.leap ? 0.1 : 0.58 + warn * 0.12, wig, F.leap ? 0.02 : 0.12 + warn * 0.3);   // v3: a dark shape at its true length
+    // v3: a dark shape at its true length (the shadow quad's body spans ≈ 1.2 × len), a faint pale rim where it breaks the skin
+    if (S.veiled) fx.setShadow(true, px, pz, Math.max(0.04, L * 0.9), F.yaw, F.leap ? 0.1 : 0.74 + warn * 0.12, wig, F.leap ? 0.02 : 0.22 + warn * 0.3);
     else fx.setShadow(true, px, pz, Math.max(spV3(sp) ? 0.05 : 0.5, L * 1.3), F.yaw, F.leap ? 0.16 : 0.42, wig, F.leap ? 0.05 : 0.25 + warn * 0.45);   // v3: no floor (true scale)
   }
 

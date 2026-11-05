@@ -123,7 +123,7 @@ export default async function (api) {
     }, [[
       { kind: 'rise', ...at(-5.5, 11), sp: 'candlefin_koi', size: 2.1 },
       { kind: 'boil', ...at(5, 15), sp: 'weeping_carp', size: 2.2 },
-      { kind: 'nervous', ...at(-9, 21) },
+      { kind: 'nervous', ...at(-2.5, 18) },   // in open water, clear of the island and the legend pool
       { kind: 'bubbles', ...at(2.5, 24), h: fwd.y + 1.2 },
       { kind: 'rise', ...at(9, 7), sp: 'dusk_minnow', size: -0.6 },
     ]]);
@@ -135,7 +135,14 @@ export default async function (api) {
     }
     await g(([p]) => window.__gw.debug.sign('strike', { x: p.x, z: p.z, ttl: 14 }), [at(7.5, 9)]);
     await frames(8);
-    s = await g(() => ({ n: window.__gw.fishing.signs.length, calls: window.__gw.render.renderer?.info?.render?.calls, inst: window.__gw.debug.fishSigns().map((x) => `${x.kind}:${x.shows}`) }));
+    s = await g(() => {
+      const c = window.__gw, cam = c.render.camera, cv = c.render.renderer.domElement, V = c.THREE ? new c.THREE.Vector3() : null;
+      // where each sign lands on screen (CSS px) and how far it is from the Wick: the read is judged at that distance
+      const scr = (x, z) => { if (!V || !cam) return null; V.set(x, 0, z).project(cam); return [Math.round((V.x + 1) / 2 * cv.clientWidth), Math.round((1 - V.y) / 2 * cv.clientHeight)]; };
+      const p = c.player.position;
+      return { n: c.fishing.signs.length, calls: c.render.renderer?.info?.render?.calls,
+        inst: c.fishing.signs.map((x) => `${x.kind}:${Math.round(Math.hypot(x.position.x - p.x, x.position.z - p.z))}m@${scr(x.position.x, x.position.z)}`) };
+    });
     log('signs', JSON.stringify(s));
     await shot(mobile ? 'm-signs-day' : 'signs-day');
     }
@@ -196,8 +203,8 @@ export default async function (api) {
     await frames(8);
     await g(() => { const c = window.__gw; c.debug.fishHook('reedjaw_pike', { z: 2.95 }); });
     await frames(12);
-    // software GL runs at 1–8 fps: the ceremony's real-time clock is slowed 20× so each beat can be caught on camera
-    await g(() => { const c = window.__gw; c.debug.cerRate?.(0.05); c.debug.instantCatch(null, { ceremony: true }); });
+    // software GL runs at 1–8 fps: the ceremony's clock runs at 0.3 so each beat can be caught on camera (main's 20 s cinematic valve still holds)
+    await g(() => { const c = window.__gw; c.debug.cerRate?.(0.3); c.debug.instantCatch(null, { ceremony: true }); });
     const cer = [['scoop', 0.65], ['pose', 0], ['cord', 0.55], ['banners', 0]];
     for (const [ph, k] of cer) {
       // scoop: k of the way through its beat (by time); cord: k of the cord unrolled
@@ -217,7 +224,7 @@ export default async function (api) {
     step('look: a Keeper\'s short ceremony');
     await g(() => { const c = window.__gw; c.debug.fishHook('mossback_perch', { z: 0.5 }); });
     await frames(10);
-    await g(() => { const c = window.__gw; c.debug.cerRate?.(0.05); c.debug.instantCatch(null, { ceremony: true }); });
+    await g(() => { const c = window.__gw; c.debug.cerRate?.(0.3); c.debug.instantCatch(null, { ceremony: true }); });
     await waitFor(() => window.__gw.fishing.view.measure?.phase === 'cord', null, 200);
     await shot(mobile ? 'm-cer-keeper-cord' : 'cer-keeper-cord');
     await g(() => window.__gw.debug.cerRate?.(1));

@@ -397,6 +397,11 @@ const vec3 INK = vec3(0.03, 0.025, 0.08);
 const float GAIN = 0.5;    // the linework sits ON the water, it does not glow (no bloom halos)
 float h11(float n) { return fract(sin(n * 127.1) * 43758.5453); }
 float n11(float x) { float i = floor(x), f = fract(x); return mix(h11(i), h11(i + 1.0), f * f * (3.0 - 2.0 * f)); }
+float n21(vec2 p) {
+  vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  float n = i.x + i.y * 57.0;
+  return mix(mix(h11(n), h11(n + 1.0), f.x), mix(h11(n + 57.0), h11(n + 58.0), f.x), f.y);
+}
 // metres per pixel at this fragment, taken once in uniform control flow (derivatives inside the loops' branches are undefined)
 float MPP = 0.01;
 // a line of width w (m) at signed distance d; never thinner than ~1 px so far signs stay readable, dimmer when thickened
@@ -504,10 +509,13 @@ void main() {
     float wv = sin(q.x * 13.0 + age * 7.0 + seed * 9.0) * sin(q.y * 11.0 - age * 6.0);
     light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
     // from afar the patch reads as a darker, shivering disc full of twinkling fry, with a pale broken rim; up close the hops carry it
-    light += mix(STAR, GOLD, 0.2) * glints(q, 0.55, age, seed, 0.55) * m * (0.6 + 1.6 * far) * uSurf;
-    light += STAR * m * (0.06 + 0.05 * sin(age * 9.0 + d * 6.0)) * far * uSurf;
-    ripple(d, ang, r * 0.95, 0.03, (0.1 + 0.8 * far) * uSurf, seed + 3.0, light, ink);
-    ink += m * 0.17;
+    light += mix(STAR, GOLD, 0.2) * glints(q, 0.5, age, seed, 0.65) * m * (0.6 + 1.6 * far) * uSurf;
+    // the shiver of the skin (a textured shimmer, never a flat lens) and a few drifting arcs at its edge (never a whole ring)
+    float shv = n21(q * 2.2 + vec2(age * 0.7, -age * 0.5) + seed * 13.0) * n21(q * 3.7 - vec2(age * 0.4, age * 0.9) - seed * 7.0);
+    light += STAR * m * (0.04 + 0.3 * smoothstep(0.12, 0.5, shv)) * far * uSurf;
+    float arcs = smoothstep(0.55, 0.85, n11(ang * 2.5 + seed * 17.0 + age * 0.5));
+    light += STAR * lineAA(d - r * 0.95, 0.03) * arcs * (0.08 + 0.45 * far) * uSurf;
+    ink += m * 0.17 * (1.0 - 0.5 * far);
     float ca = age * 0.45 + seed * 6.0, cr = r * 0.32;
     vec2 cp = vec2(cos(ca), sin(ca)) * cr;
     float hh = ca + 1.5708;
@@ -542,7 +550,7 @@ void main() {
     light += mix(STAR, GOLD, 0.2) * exp(-dot(q, q) * 4.0) * (0.1 + 0.25 * far) * uSurf;
     // from afar the beads merge into a faint pale lane that ends in the head's cluster
     float lw = abs(q.x - 0.28 * sin(-q.y * 1.6 + seed * 6.0));
-    light += STAR * smoothstep(0.22, 0.0, lw) * step(q.y, 0.0) * smoothstep(-3.2, -0.2, q.y) * 0.22 * far * uSurf;
+    light += STAR * smoothstep(0.3, 0.0, lw) * step(q.y, 0.0) * smoothstep(-3.2, -0.2, q.y) * 0.34 * far * uSurf;
     // the bottom feeder: a blurred deep shadow under the head and a faint darker lane behind it
     ink += smoothstep(0.25, -0.3, fishSdf(q + vec2(0.0, L * 0.3), L, asp, wig * 0.2)) * 0.24;
     float lane = smoothstep(0.35, 0.0, abs(q.x - 0.28 * sin(-q.y * 1.6 + seed * 6.0))) * step(q.y, 0.0) * smoothstep(-trail, -0.2, q.y);
@@ -555,17 +563,17 @@ void main() {
     // a fish-shaped light under the skin, a soft pool of it spreading through the water, and a short fading wake
     float e = length(vec2(u.x / (0.12 + 0.22 * L), (u.y - 0.05 * L) / (0.18 + 0.55 * L)));
     float e2 = length(vec2(u.x / (0.6 + 0.5 * L), (u.y + 0.1 * L) / (0.9 + 0.8 * L)));
-    float core = exp(-e * e * 2.0), halo = exp(-e2 * e2 * 1.6) * 0.42;
+    float core = exp(-e * e * 1.4), halo = exp(-e2 * e2 * 1.3) * 0.6;
     float tailK = q.y < 0.0 ? exp(q.y / (0.9 + 0.5 * L)) * exp(-u.x * u.x / (0.04 + 0.04 * -q.y)) * 0.3 : 0.0;
     float caus = (0.9 + 0.1 * sin(q.x * 7.0 + uTime * 2.3) * sin(q.y * 6.0 - uTime * 1.9));
     float flick = 0.88 + 0.12 * sin(uTime * 7.0 + seed * 13.0);
     vec3 gc = mix(GOLD, vec3(1.0, 0.68, 0.38), 0.4);   // candle amber: it can never be mistaken for a reflected star
-    light += gc * (core * 1.4 + halo * caus + tailK) * br * flick * 1.8;
+    light += gc * (core * 0.85 + halo * caus + tailK * 0.7) * br * flick * 1.6;
     // the V its passage draws on the surface: two pale broken crests opening behind the head
     float hsG = 3.0 + 1.0 * L, behind = -q.y + 0.15 * L;
     float vw = abs(abs(q.x) - behind * 0.36);
-    float vfade = step(0.0, behind) * exp(-behind / (1.2 + 0.6 * L)) * smoothstep(-(hsG + 1.0), -(hsG - 0.4), q.y);
-    light += STAR * lineAA(vw, 0.018 + 0.006 * L) * vfade * (0.35 + 0.65 * n11(behind * 4.0 + seed * 9.0 - uTime * 2.0)) * 0.9 * uSurf;
+    float vfade = step(0.0, behind) * exp(-behind / (0.8 + 0.4 * L)) * smoothstep(-(hsG + 1.0), -(hsG - 0.4), q.y);
+    light += STAR * lineAA(vw, 0.018 + 0.006 * L) * vfade * (0.25 + 0.75 * n11(behind * 4.0 + seed * 9.0 - uTime * 2.0)) * 0.45 * uSurf;
     ink += smoothstep(0.02, -0.03, fishSdf(q, L * 0.9, asp, wig)) * 0.22;
   }
   float a = clamp(ink * k, 0.0, 0.8);
