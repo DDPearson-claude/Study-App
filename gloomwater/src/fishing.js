@@ -38,7 +38,7 @@
 //       (slam(), cancel('snap') ignored), lineBroken() ignores raft displacement that no paddling caused (knockback, shoves,
 //       pulls) and so does a cancel('moved') with no paddling behind it; isHooked() for combat's no-knock / no-creelsnatch rules;
 //       the Lantern-Swallower's Grasping Dark becomes two telegraphed snags (snag(): warning, then +0.2 tension; legendQuiet)
-//   events (additive): fishing:caught + {z, sizeClass, ancient, length (cm), favours, place, mu}; fishing:hook + {pips};
+//   events (additive): fishing:caught + {z, sizeClass, ancient, length (cm), favours, place, pressureKey, mu}; fishing:hook + {pips};
 //   fishing:surge + {trick}; fishing:oldTrick {speciesId, kind, style}; fishing:pip {n, max}; fishing:tell {speciesId, sizeClass,
 //   biteTell, lead}; fishing:snag {state: 'warn'|'hit', lead, spike}; fishing:miss {reason: 'passed', refunded, favour};
 //   fishing:escaped reasons + 'thrown' (pips) / 'spooled'; fish:escaped-big (Prize+).  API: isHooked(), lineBroken(), snag(opts),
@@ -1174,7 +1174,7 @@ export function create(ctx) {
     const phase = phaseNow();
     const v3 = spV3(sp) && S.zRolled;
     const v3x = v3 ? { z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: Math.round(S.lengthCm * 10) / 10, favours: S.favourTerms.map((t) => ({ ...t })),
-      place: S.cast?.place?.id || null, mu: round2(S.mu) } : null;
+      place: S.cast?.place?.id || null, pressureKey: S.cast?.pressureKey || null, mu: round2(S.mu) } : null;
     if (v3 && S.cast?.pressureKey && sp.rarity !== 'legendary') S.pressure[S.cast.pressureKey] = (S.pressure[S.cast.pressureKey] || 0) + 1;   // pressure: −0.12 per catch here today
     const fv = F.fv; F.fv = null;
     fx.setShadow(false);

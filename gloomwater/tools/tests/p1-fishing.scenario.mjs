@@ -53,7 +53,16 @@ export default async function (api) {
   const place = (x, z) => g(([x, z]) => { const c = window.__gw; c.player.position.set(x, 0, z); c.player.velocity?.set?.(0, 0, 0); }, [x, z]);
   const fish = () => g(() => window.__gw.debug.fishing());
   const reset = async () => { await g(() => window.__gw.fishing.cancel('reset')); await frames(2); };
-  const closeCard = async () => { await g(() => { try { window.__gw.ui.closeAll?.(); } catch { /* optional */ } }); await frames(3); };
+  // the catch card, and a level-up picker a landed Elder's XP may open (banked level-ups are combat's C3): clear both
+  const closeCard = async () => {
+    for (let i = 0; i < 10; i++) {
+      const m = await g(() => { const c = window.__gw; try { const o = c.combat.pendingOptions; if (o?.length) c.combat.chooseBoon?.(o[0].boonId ?? o[0].id ?? o[0]); } catch { /* optional */ } return c.debug.ui?.()?.openModal ?? null; });
+      if (m === 'levelup') await page.keyboard.press('Digit1');   // the picker's own key, as tools/scenario-run.mjs does
+      else await g(() => { try { window.__gw.ui.closeAll?.(); } catch { /* optional */ } });
+      await frames(4);
+      if (!(await g(() => !!window.__gw.ui.isBlocking?.()))) break;
+    }
+  };
   await g(() => window.__gw.debug.fishSeed(20261104));
 
   step('F4 / F2: an Elder Reedjaw at the stopgap giant water');
@@ -123,6 +132,8 @@ export default async function (api) {
   step('F1 / F13: pressure at a giant spot, "gone quiet", dawn');
   await place(4, 14.8);
   await frames(4);
+  // the Elder above was landed at this spot: a dawn first, so the count starts from zero today
+  await g(() => window.__gw.bus.emit('phase:change', { phase: 'dawn', prev: 'gloomtide' }));
   s = await g(() => {
     const c = window.__gw, quiet = [], pr = [];
     for (let i = 0; i < 4; i++) {
@@ -172,22 +183,22 @@ export default async function (api) {
   await closeCard();
   await g(() => (window.__gw.debug.setPhase ? window.__gw.debug.setPhase('calm') : window.__gw.survival.setPhase?.('calm')));
   // the night may have brought a swarm (and a level-up picker, which pauses the game clock): clear both before timing a bite window
-  for (let i = 0; i < 6; i++) {
-    await g(() => { const c = window.__gw; try { c.combat.killAll?.('dawn'); } catch { /* optional */ } try { const o = c.combat.pendingOptions; if (o?.length) c.combat.chooseBoon?.(o[0].id ?? o[0]); } catch { /* optional */ } try { c.ui.closeAll?.(); } catch { /* optional */ } });
-    await frames(3);
-    if (!(await g(() => !!window.__gw.ui.isBlocking?.()))) break;
-  }
+  await g(() => { try { window.__gw.combat.killAll?.('dawn'); } catch { /* optional */ } });
+  await closeCard();
   await frames(6);
 
   step('F4: let it pass');
   await place(0, 46);
   await frames(4);
+  await closeCard();   // a modal (catch card, picker) freezes the clock and the bite would never lapse
+  const modal = await g(() => ({ blocking: !!window.__gw.ui.isBlocking?.(), modal: window.__gw.debug.ui?.()?.openModal ?? null }));
+  if (modal.blocking) log('still blocking before the let-it-pass cast', JSON.stringify(modal));
   await g(() => { window.__ev.length = 0; window.__gw.debug.forceBite({ speciesId: 'mossback_perch' }); });
   await waitFor(() => window.__gw.fishing.state !== 'bite', null, 200);
   ev = await g(() => window.__ev.slice());
   const miss = ev.filter((x) => x.e === 'fishing:miss').pop();
   const hasRefund = await g(() => typeof window.__gw.progression.refundBait === 'function');
-  const why = await g(() => ({ state: window.__gw.fishing.state, blocking: !!window.__gw.ui.isBlocking?.(), paused: window.__gw.paused, flow: window.__gw.flow }));
+  const why = await g(() => ({ state: window.__gw.fishing.state, blocking: !!window.__gw.ui.isBlocking?.(), modal: window.__gw.debug.ui?.()?.openModal ?? null, paused: window.__gw.paused, flow: window.__gw.flow }));
   check(miss?.p.reason === 'passed' && (!hasRefund || miss.p.refunded !== undefined), 'a lapsed bite is let pass (refundBait when progression has it)', { miss: miss?.p, hasRefund, why });
   await frames(30);
   s = await g(() => { const c = window.__gw; c.debug.forceBite({ speciesId: 'mossback_perch' }); const v = (c.fishing.view.favour?.terms || []).find((t) => t.id === 'letItPass')?.value ?? 0; c.fishing.cancel('reset'); return v; });

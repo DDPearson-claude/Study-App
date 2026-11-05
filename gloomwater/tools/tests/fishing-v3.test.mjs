@@ -188,6 +188,8 @@ section('F1 pressure: −0.12 per catch at a place, floor −0.6, reset at dawn;
   }
   ok(quiet.join() === 'false,false,false,true,true,true', `"gone quiet" from the 4th cast (after 3 catches): ${quiet.join()}`);
   ok(env.ctx.debug.fishPressure().mm_deep_centre === 6, 'six catches counted at the giant spot');
+  const lastCaught = [...env.events].reverse().find((x) => x.e === 'fishing:caught');
+  ok(lastCaught?.p.pressureKey === 'mm_deep_centre' && lastCaught.p.place === null, `fishing:caught names the pressure key (${lastCaught?.p.pressureKey}) for progression's pressure; place stays null in stopgap water`);
   env.ctx.bus.emit('phase:change', { phase: 'dawn', prev: 'gloomtide' });
   env.ctx.debug.forceBite({ speciesId: 'mossback_perch' });
   ok(pressureTerm() === 0 && env.F.view.favour.quiet === false, 'dawn resets pressure');
@@ -394,6 +396,16 @@ section('F1 in game: fishing.rollSize — 10,000 seeded rolls per μ in giant wa
   ok(max <= 2.64, `in game, open water at μ 1.8: max z ${max.toFixed(3)} ≤ 2.64`);
   const fav = env.F.favourAt({ x: 4, z: 6 }), favSp = env.F.favourAt({ x: 4, z: 6 }, 'reedjaw_pike');
   ok(fav && favSp && Number.isFinite(fav.mu) && Array.isArray(fav.terms) && Number.isFinite(favSp.mu), `favourAt(point) ${fav?.mu} / favourAt(point, species) ${favSp?.mu}`);
+}
+section('F13 the float follows the hour while the bobber waits (refreshed twice a second)');
+{
+  const env = makeEnv({ raft: [30, 30], phase: 'calm' });
+  env.ctx.debug.forceBite({ speciesId: 'mossback_perch', wait: 4 });
+  const a = { ...env.F.view.favour };
+  env.setPhase('dusk'); env.tick(20);
+  const b = { ...env.F.view.favour };
+  ok(!a.terms.some((t) => t.id === 'dusk') && b.terms.some((t) => t.id === 'dusk') && near(b.mu - a.mu, 0.2, 1e-9) && env.F.state === 'waiting',
+    `calm μ ${a.mu} → dusk μ ${b.mu} on the same waiting float`);
 }
 section('F13 the float is cleared once the fish is on; the bite tell too');
 {
