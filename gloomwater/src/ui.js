@@ -7,7 +7,8 @@ import css from './ui.css';
 import { icon, ORN, ornamentCss, spriteSvg } from './ui-icons.js';
 import { createHud } from './ui-hud.js';
 import { createScreens } from './ui-screens.js';
-import { v3Run, nightWord } from './ui-v3.js';
+import { createMeasure } from './ui-measure.js';
+import { v3Run, nightWord, pickMomentOk } from './ui-v3.js';
 
 export function create(ctx) {
   // ------------------------------------------------------------------ root & style
@@ -126,7 +127,7 @@ export function create(ctx) {
     wrap.setAttribute('role', 'dialog');
     wrap.setAttribute('aria-modal', 'true');
     wrap.dataset.modal = id;
-    const entry = { id, el: wrap, blocking: opts.blocking !== false, onKey: opts.onKey || null, onClose: opts.onClose || null,
+    const entry = { id, el: wrap, blocking: opts.blocking !== false, quiet: !!opts.quiet, onKey: opts.onKey || null, onClose: opts.onClose || null,
       onEscape: opts.onEscape || null, state: opts.state || {}, render: null, t: 0 };
     if (!opts.screen) {
       const scrim = h('div', 'gw-scrim');
@@ -151,7 +152,9 @@ export function create(ctx) {
     void wrap.offsetWidth;
     wrap.classList.add('gw-in');
     if (opts.focus !== false) setTimeout(() => focusFirst(wrap), 30);
-    try { ctx.bus.emit('ui:modal', { open: true, id }); } catch { /* ignore */ }
+    // a quiet layer (the measuring overlay) is not a modal to the rest of the game: no ui:modal (no click, and fishing keeps
+    // the caught fish held up for the card that follows)
+    if (!opts.quiet) { try { ctx.bus.emit('ui:modal', { open: true, id }); } catch { /* ignore */ } }
     return entry;
   }
   function closeModal(id, { silent = false, instant = false } = {}) {
@@ -164,7 +167,7 @@ export function create(ctx) {
     el.classList.remove('gw-in');
     el.classList.add('gw-out');
     if (instant) el.remove(); else setTimeout(() => el.remove(), 260);
-    if (!silent) { try { ctx.bus.emit('ui:modal', { open: false, id }); } catch { /* ignore */ } }
+    if (!silent && !entry.quiet) { try { ctx.bus.emit('ui:modal', { open: false, id }); } catch { /* ignore */ } }
     const t = top();
     if (t && !instant) setTimeout(() => focusFirst(t.el), 40);
     return true;
@@ -188,6 +191,7 @@ export function create(ctx) {
   }
 
   // ------------------------------------------------------------------ toasts
+  let measure = null;   // the measuring overlay (created with the screens below)
   const toasts = [];
   const recentToast = new Map();
   const recentTexts = [];
@@ -208,7 +212,7 @@ export function create(ctx) {
     const now = performance.now();
     while (heldToasts.length) {
       const q = heldToasts[0];
-      const ready = force || (q.modal ? !hasBlocking() : (!bannerBusy() || now - q.at > 5000));
+      const ready = force || (q.modal ? !hasBlocking() && !measure?.active() : (!bannerBusy() || now - q.at > 5000));
       if (!ready) break;
       heldToasts.shift();
       if (q.modal && now - q.at > 30000) continue;   // stale news from behind a long modal
@@ -222,7 +226,7 @@ export function create(ctx) {
     if (ctx.flow === 'dead' && kind !== 'good') return;   // the death summary says it all
     if (!opts.now && ctx.flow === 'playing') {
       // flavour waits behind blocking modals (shop, catch card, level-up) and banners; warnings never wait
-      const modal = hasBlocking() && HOLD_BEHIND_MODAL.has(kind);
+      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && !!measure?.active());
       if (modal || (kind !== 'bad' && !hasBlocking() && bannerBusy())) {
         if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now(), modal });
         return;
@@ -553,6 +557,9 @@ export function create(ctx) {
   };
   const screens = createScreens(K);
   K.screens = screens;
+  // v3: the measuring overlay (U3); the catch card waits for it
+  measure = createMeasure(K);
+  K.measure = measure;
   const hud = createHud(K);
   K.hud = hud;
 
@@ -565,6 +572,27 @@ export function create(ctx) {
   K.dmgSources = dmgSources;
   K.markResolved = (sig, ref) => { resolvedSig = sig; resolvedRef = ref || null; };
   K.optionsSig = (opts) => arr(opts).map((o) => `${o?.boonId}:${o?.level}`).join('|') + '@' + num(run()?.level, 0);
+
+  // v3 (U14): banked level-ups wait for the measuring card or the dawn bell, and open only at a still moment
+  let dawnBell = false, stillT = 0;
+  const bankedLevels = () => Math.max(0, Math.round(num(safe(() => ctx.combat?.bankedLevels, run()?.levelBank), num(run()?.levelBank))));
+  function pickMoment() {
+    const f = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing : null;
+    const i = ctx.input || {};
+    const mv = Math.hypot(num(i.move?.x) + num(i.joy?.x), num(i.move?.y) + num(i.joy?.y));
+    return pickMomentOk({ fishingState: f?.state || 'idle', speed: num(ctx.player?.speed), moveInput: mv, cinematic: !!ctx.cinematic, blocking: hasBlocking(), measuring: !!measure?.holding() });
+  }
+  function updateDawnBell(dt) {
+    if (!v3Run(D(), run())) { dawnBell = false; return; }
+    const ok = pickMoment();
+    stillT = ok ? stillT + dt : 0;
+    if (!dawnBell) return;
+    if (bankedLevels() <= 0 || typeof ctx.combat?.offerBanked !== 'function') { dawnBell = false; return; }
+    if (stillT < 0.5 || pendingOptions()) return;
+    const opts = safe(() => ctx.combat.offerBanked(), null);
+    dawnBell = false;
+    if (Array.isArray(opts) && opts.length) screens.openLevelUp(opts, { banked: 'dawn' });
+  }
 
   function pendingOptions() {
     const p = safe(() => ctx.combat?.pendingOptions, null);
@@ -599,10 +627,11 @@ export function create(ctx) {
       if (!continued) zonesSeen = new Set();
       dmgSources.clear();
       catchQ.length = 0; levelQ.length = 0; resolvedSig = ''; resolvedRef = null;
+      dawnBell = false; stillT = 0; K.nextBanked = null;
       hud.reset();
       if (continued) toast('The descent continues.', 'lore');
     });
-    on('run:end', () => { closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; for (const t of [...toasts]) dropToast(t, true); hud.setVisible(false); });
+    on('run:end', () => { measure.reset(); closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; for (const t of [...toasts]) dropToast(t, true); hud.setVisible(false); });
     on('zone:change', ({ zone, prev }) => {
       closeModal('descend'); closeModal('shop');
       const z = zoneData(zone);
@@ -620,6 +649,7 @@ export function create(ctx) {
       const pb = v3Run(D(), run()) ? v3PhaseBanner(p) : D().TEXT?.phaseBanner?.[phase];
       if (pb) banner(fill(pb[0], { day: day ?? run()?.day ?? 1 }), fill(pb[1] || '', { day }), { kind: pb[2] || (phase === 'gloomtide' ? 'gloom' : phase === 'dawn' ? 'dawn' : 'phase') });
       if (phase === 'dusk' && has('shop')) closeModal('shop');
+      if (v3Run(D(), run())) { if (phase === 'dawn' && bankedLevels() > 0) dawnBell = true; else if (phase === 'dusk') dawnBell = false; }
       hud.onPhase(phase);
     });
     on('boss:spawn', ({ enemy }) => {
@@ -644,8 +674,10 @@ export function create(ctx) {
       const sp = speciesData(speciesId);
       if (sp?.rarity === 'legendary') banner(sp.name, sp.epithet || '', { kind: 'legend', dur: 3.2 });
     });
+    on('fish:measured', (p) => measure.onMeasured(p));
     on('fish:landed', (p) => {
       if (!p?.fish) return;
+      measure.onLanded(p);
       catchQ.push(p);
       hud.dirtyStats();
     });
@@ -786,14 +818,15 @@ export function create(ctx) {
           if (ctx.paused && !has('pause')) screens.openPause();
           else if (!ctx.paused && has('pause')) { closeModal('pause'); closeAll((m) => m.state?.pauseChild); }
           // queued decisions: catch card first, then level-up picks
-          if (!hasBlocking()) {
+          if (!hasBlocking() && !measure.holding()) {
             if (catchQ.length) screens.showCatch(catchQ.shift());
             else {
               const po = pendingOptions();
-              if (po && (po !== resolvedRef || K.optionsSig(po) !== resolvedSig)) screens.openLevelUp(po);
+              if (po && (po !== resolvedRef || K.optionsSig(po) !== resolvedSig)) { screens.openLevelUp(po, K.nextBanked ? { banked: K.nextBanked } : undefined); K.nextBanked = null; }
               else if (!po && levelQ.length) screens.openLevelUp(levelQ.shift());
             }
           }
+          updateDawnBell(dt);
         }
         layers.toasts.classList.toggle('gw-low', hasBlocking() && ctx.flow === 'playing');
         layers.toasts.classList.toggle('gw-dead', ctx.flow === 'dead');
@@ -827,6 +860,8 @@ export function create(ctx) {
     openNewDescent: () => screens.openNewDescent(),
     closeAll: () => closeAll(),
     showCatch: (fish, info = {}) => screens.showCatch({ fish, ...info }),
+    showMeasure: (m) => measure.show(m),
+    measureDebug: () => measure.debug(),
     toast: (text, kind) => toast(text, kind),
     floatText, damageNumber,
     banner: (title, subtitle, opts) => banner(title, subtitle, opts),

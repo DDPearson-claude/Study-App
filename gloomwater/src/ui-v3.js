@@ -260,3 +260,168 @@ export function watchLineText(D, info) {
   // non-breaking spaces keep each number with its unit when the line wraps on a phone
   return fill(tpl, { m: Math.round(info.dist), s: Math.max(1, Math.round(info.secs)) }).replace(/(\d) (m|s)\b/g, '$1\u00a0$2');
 }
+
+// ------------------------------------------------------------------ the measuring overlay (U3, DESIGN §25.6.8)
+/**
+ * The ceremony's beats for one fish, as fishing plans them (F5): SIZE_CLASSES[].ceremony (Small / Keeper 1.2 s, Prize 2.4,
+ * Trophy 3.5, Elder and every legend 5) laid on BALANCE.ceremony.beats' 3.6 s reference; every class plays the short 1.2 s
+ * variant during an active swarm window. An Elder (and a legend) is skippable only after skipAfter (0.6 s); every other class
+ * at once. Returns {dur, scoop, cordStart, cordEnd, cordDur, skipAfter, elderish, short}.
+ */
+export function measurePlan(D, { sizeClass = 'keeper', legendary = false, short = false } = {}) {
+  const C = D?.BALANCE?.ceremony || {};
+  const B = C.beats || {};
+  const ref = num(arr(B.banners)[1], 3.6) || 3.6;
+  const sc = (id) => arr(D?.SIZE_CLASSES).find((c) => c?.id === id);
+  const FALL = { small: 1.2, keeper: 1.2, prize: 2.4, trophy: 3.5, elder: 5 };
+  const base = legendary ? num(sc('elder')?.ceremony, 5) : num(sc(sizeClass)?.ceremony, FALL[sizeClass] ?? 1.2);
+  const dur = short ? num(C.cinematic?.duringSwarm, 1.2) : base;
+  const k = dur / ref;
+  const elderish = !!legendary || sizeClass === 'elder';
+  const cordStart = num(arr(B.cord)[0], 1.4) * k, cordEnd = num(arr(B.cord)[1], 2.8) * k;
+  return { dur, scoop: num(arr(B.scoop)[1], 0.6) * k, cordStart, cordEnd, cordDur: Math.max(0.05, cordEnd - cordStart),
+    skipAfter: elderish ? num(C.skipAfter, 0.6) : 0, elderish, short: !!short };
+}
+/** Where the ceremony stands at t s: {phase: 'scoop'|'pose'|'cord'|'banners'|'card', k (cord 0–1), count (cm), stamped}.
+ *  The count eases out onto the final knot (count = L · (1 − (1 − k)²)), as fishing's and audio's cords do. */
+export function measureAt(plan, t, length) {
+  const L = Math.max(0, num(length));
+  t = Math.max(0, num(t));
+  if (!plan) return { phase: 'card', k: 1, count: L, stamped: true };
+  if (t >= plan.dur) return { phase: 'card', k: 1, count: L, stamped: true };
+  if (t >= plan.cordEnd) return { phase: 'banners', k: 1, count: L, stamped: true };
+  if (t >= plan.cordStart) {
+    const k = Math.min(1, (t - plan.cordStart) / plan.cordDur);
+    return { phase: 'cord', k, count: L * (1 - (1 - k) * (1 - k)), stamped: false };
+  }
+  return { phase: t < plan.scoop ? 'scoop' : 'pose', k: 0, count: 0, stamped: false };
+}
+/** May a tap skip the ceremony now? (Small to Trophy at once; an Elder or a legend after skipAfter.) */
+export function measureSkippable(plan, t) { return !!plan && num(t) >= num(plan.skipAfter); }
+
+const NICE_STEPS = [0.5, 1, 2, 2.5, 5, 10, 20, 25, 50, 100, 200, 250, 500];
+/**
+ * The knotted cord as a ruler for one species (lengths in cm): from 0 to the species' "said to reach" (or past the fish when
+ * it is longer), a knot every `step`, the class bands at the lengths SIZE_CLASSES' zMax gives, and the PB mark. Returns
+ * {max, step, knots: [cm], bands: [{cls, label, from, to}], marks: [{cls, label, cm}], best}. A legend has no bands.
+ */
+export function cordRuler(D, sp, length, { zone = null, best = null } = {}) {
+  const L = Math.max(0.1, num(length, 1));
+  let reach = NaN;
+  try { reach = typeof D?.reachOf === 'function' && sp?.size ? D.reachOf(sp, zone) : NaN; } catch { reach = NaN; }
+  const max0 = Math.max(Number.isFinite(reach) && reach > 0 ? reach : L * 1.4, L * 1.06, num(best) * 1.04);
+  const step = NICE_STEPS.find((s) => max0 / s <= 16) || 1000;
+  const max = Math.ceil(max0 / step) * step;
+  const knots = [];
+  for (let c = step; c < max - 1e-6; c += step) knots.push(Math.round(c * 100) / 100);
+  const bands = [], marks = [];
+  const C = arr(D?.SIZE_CLASSES);
+  if (sp?.size && sp.rarity !== 'legendary' && typeof D?.sizeLength === 'function' && C.length) {
+    let from = 0;
+    for (let i = 0; i < C.length; i++) {
+      const c = C[i];
+      let to = max;
+      if (Number.isFinite(c.zMax)) { try { to = Math.min(max, D.sizeLength(sp, c.zMax, zone)); } catch { to = max; } }
+      const label = classInfo(D, c.id)?.label || cap(c.id);
+      if (to > from) bands.push({ cls: c.id, label, from: Math.round(from * 10) / 10, to: Math.round(to * 10) / 10 });
+      if (i > 0 && from < max) marks.push({ cls: c.id, label, cm: Math.round(from * 10) / 10 });
+      from = to;
+    }
+  }
+  const b = num(best, 0);
+  return { max, step, knots, bands, marks, best: b > 0 && Math.abs(b - L) > 0.05 ? Math.round(b * 10) / 10 : null };
+}
+
+/** A length for a banner line: "112", "8.4" under 20 cm (the template carries the unit). */
+const cmNum = (cm) => { cm = num(cm); return cm < 20 ? (Math.round(cm * 10) / 10).toString() : Math.round(cm).toString(); };
+const RECORD_ORDER = { oldLedger: 0, classFirst: 1, pb: 2, isNew: 3, elderLog: 4, place: 5, resident: 6 };
+/**
+ * The ceremony's banners (DESIGN §25.6.8 "New best: 112 cm (was 97)" · "First Trophy Reedjaw" · "Old Ledger beaten"), from
+ * fish:measured's records (+ a first catch of the species). Most telling first, at most `max`. [{kind, text, sub, tone}]
+ */
+export function recordLines(D, { records = [], isNew = false, species = null, length = 0, max = 3 } = {}) {
+  const T = D?.TEXT_V3 || {};
+  const name = species?.name || '';
+  const out = [];
+  const seen = new Set();
+  for (const r of arr(records)) {
+    if (!r || typeof r !== 'object') continue;
+    let line = null;
+    if (r.kind === 'pb') {
+      const was = r.prevLength != null ? cmNum(r.prevLength) : null;
+      const tpl = T.newBest || 'New best: {cm} cm (was {was})';
+      line = { kind: 'pb', text: was ? fill(tpl, { cm: cmNum(r.length ?? length), was }) : fill(tpl, { cm: cmNum(r.length ?? length) }).replace(/\s*\(was \{was\}\)/, ''), sub: name, tone: 'gold' };
+    } else if (r.kind === 'classFirst') {
+      const cls = classInfo(D, r.sizeClass, !!r.ancient)?.label || cap(r.sizeClass);
+      line = { kind: 'classFirst', text: fill(T.classFirst || 'First {class} {species}', { class: cls, species: name }).replace(/\s+$/, ''), sub: r.memories ? `+${r.memories} Memories` : '', tone: r.ancient ? 'gold' : 'seal' };
+    } else if (r.kind === 'oldLedger') {
+      line = { kind: 'oldLedger', text: T.oldLedger || 'Old Ledger beaten', sub: "Murk's bell rings across the lake", tone: 'gold' };
+    } else if (r.kind === 'elderLog') {
+      line = { kind: 'elderLog', text: 'Written in the Elder Log', sub: r.name || '', tone: 'ink' };
+    } else if (r.kind === 'place' || r.kind === 'resident') {
+      line = { kind: r.kind, text: r.kind === 'place' ? 'A new record for this place' : 'A resident giant, landed', sub: '', tone: 'ink' };
+    }
+    if (line && !seen.has(line.kind + line.text)) { seen.add(line.kind + line.text); out.push(line); }
+  }
+  if (isNew && !out.some((l) => l.kind === 'pb')) out.push({ kind: 'isNew', text: 'A new name for the Journal', sub: name, tone: 'pink' });
+  out.sort((a, b) => (RECORD_ORDER[a.kind] ?? 9) - (RECORD_ORDER[b.kind] ?? 9));
+  return out.slice(0, Math.max(0, max));
+}
+
+// ------------------------------------------------------------------ New Descent mode cards (U17)
+const MODE_FALLBACK = {
+  still: { name: 'Still', line: 'No swarm. Every night is yours to fish.' },
+  lantern: { name: 'Lantern', line: 'A light swarm on every other night, early on. It never costs a fish on your line.' },
+  gloomtide: { name: 'Gloomtide', line: 'The full swarm, every night. The old stakes.' },
+};
+/**
+ * The New Descent mode cards from progression.getNightModes() (or, without it, BALANCE.nightModes and meta.runs): run 1 (a
+ * fresh save) shows only the First Outing card; from run 2 Still / Lantern / Gloomtide with Lantern preselected, one line
+ * each. Returns {first, selected, cards: [{id, name, line}]} or null when there are no night modes (flag off).
+ */
+export function modeCards(D, nm, { runs = 0 } = {}) {
+  const NM = D?.BALANCE?.nightModes;
+  if (!nm && !NM) return null;
+  const T = D?.TEXT_V3 || {};
+  const first = nm ? !!nm.firstOuting : num(runs) === 0;
+  if (first) {
+    const line = nm?.firstOutingLine || D?.EXPEDITION?.firstOuting?.line || 'Every night of your first outing is still.';
+    return { first: true, selected: 'first', cards: [{ id: 'first', name: T.firstOuting || 'First Outing', line }] };
+  }
+  const order = arr(nm?.modes).length ? nm.modes.map((m) => m.id) : arr(NM?.order).length ? NM.order : ['still', 'lantern', 'gloomtide'];
+  const cards = order.map((id) => {
+    const m = arr(nm?.modes).find((x) => x?.id === id) || {};
+    return { id, name: m.name && m.name !== id ? m.name : (T.modes?.[id]?.name || MODE_FALLBACK[id]?.name || cap(id)), line: m.line || T.modes?.[id]?.line || MODE_FALLBACK[id]?.line || '' };
+  });
+  const dflt = nm?.default || NM?.default || 'lantern';
+  return { first: false, selected: order.includes(dflt) ? dflt : order[0], cards };
+}
+
+// ------------------------------------------------------------------ banked picks (U14) and the Scorched card (U18)
+/** A banked Boon pick may open only at a still moment: no line out, not moving, no ceremony, nothing blocking. */
+export function pickMomentOk({ fishingState = 'idle', speed = 0, moveInput = 0, cinematic = false, blocking = false, measuring = false } = {}) {
+  const lineOut = typeof fishingState === 'string' && fishingState !== 'idle' && fishingState !== 'lost';
+  return !lineOut && num(speed) <= 0.75 && num(moveInput) <= 0.12 && !cinematic && !blocking && !measuring;
+}
+/** The Scorched card's lines (Lantern, Embers at 0: the run continues). o = {oil (lost), fishWithin (m), pending (a fight on)}. */
+export function scorchedLines(D, { oil = null, fishWithin = null, pending = false } = {}) {
+  const NM = D?.BALANCE?.nightModes || {};
+  const lost = Math.round(Math.abs(num(oil, num(NM.lantern?.scorched?.oil, -30))));
+  const r = Math.round(num(fishWithin, num(NM.lantern?.scorched?.lampWatchR, num(NM.lampWatch?.fishWithin, 10))));
+  return {
+    title: D?.TEXT_V3?.scorchedTitle || 'Scorched',
+    kicker: 'Your Embers are spent',
+    lines: [
+      'The Gloom withdraws for the night.',
+      `Your lantern lost ${lost} oil.`,
+      pending ? 'Land your fish. You keep watch where the fight ends.' : `Keep watch here till dawn · fish within ${r} m.`,
+    ],
+    note: 'Your Embers mend at dawn.',
+  };
+}
+/** The Snuffed death screen's words when the summary carries none of its own. */
+export const SNUFF_EPITAPHS = [
+  'The oil ran out first. Then the light. Then the small flame that held the rod.',
+  'It guttered for a long while, and fished the whole time.',
+  'A thread of smoke over still water, and a rod still in the rest.',
+];

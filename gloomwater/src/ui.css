@@ -801,6 +801,23 @@
 .gw-nm-rate { font: italic 400 16px/1.3 var(--f-body); color: var(--ink-dim); }
 .gw-nm-rate:empty, .gw-nm-tip:empty { display: none; }
 .gw-nm-tip { margin-top: 4px; font: 400 20px/1.25 var(--f-hand); color: var(--gold); }
+/* the Scorched card (U18): Lantern, Embers at 0 — the swarm withdraws, the run goes on; three spent Embers and a thread of smoke */
+.gw-scorched { position: absolute; left: 50%; top: calc(var(--sat) + 19vh); width: min(560px, 94vw); min-height: 170px; margin-left: calc(min(560px, 94vw) / -2); padding: 26px 44px 26px 30px;
+  display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 4px 22px; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-10px);
+  transition: opacity .6s ease, transform .8s var(--ease-ink), visibility 0s .8s; }
+.gw-scorched.gw-on { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .5s ease, transform .8s var(--ease-ink), visibility 0s; cursor: pointer; }
+.gw-sc-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
+.gw-sc-wash path { fill: rgba(var(--veil-rgb), .9); }
+.gw-sc-glyph { width: 96px; height: 84px; overflow: visible; }
+.gw-sc-ember { fill: #2a1a1c; stroke: #c4594c; stroke-width: 1.4; filter: drop-shadow(0 0 4px rgba(224, 90, 72, .55)); }
+.gw-scorched.gw-on .gw-sc-ember { animation: gwScorchDie 1.4s ease-out both; }
+.gw-sc-smoke { fill: none; stroke: rgba(214, 214, 228, .6); stroke-width: 1.3; stroke-linecap: round; stroke-dasharray: 100 100; stroke-dashoffset: 100; }
+.gw-scorched.gw-on .gw-sc-smoke { animation: gwSmokeRise 2.4s .6s ease-out forwards; }
+.gw-sc-k { font: 400 13px/1.2 var(--f-display); letter-spacing: .26em; text-transform: uppercase; color: var(--ink-dim); }
+.gw-sc-title { margin: 2px 0 4px; font: 400 34px/1.05 var(--f-display); letter-spacing: .22em; text-transform: uppercase; color: #f4c0b2; text-shadow: 0 0 22px rgba(224, 90, 72, .5), 0 1px 2px #000; }
+.gw-sc-lines p { margin: 0; font: 400 18px/1.32 var(--f-body); color: var(--ink); }
+.gw-sc-lines p:first-child { font-style: italic; color: var(--ink-dim); }
+.gw-sc-note { margin-top: 5px; font: 400 21px/1.2 var(--f-hand); color: var(--gold); }
 
 /* ================================================================ TITLE
    The name in wide capitals near the top, the filigree under it and the tagline; the menu is a
@@ -872,6 +889,33 @@
 .gw-way.gw-on { color: var(--ink-hi); text-shadow: 0 0 14px var(--glow); }
 .gw-way.gw-on::after { opacity: .9; }
 
+/* v3 night-mode cards (DESIGN §25.14.2 U17): three small ink scenes, a name between hook curls when chosen, one line each */
+.gw-modes { padding-top: 0; }
+.gw-modes .gw-group { margin: 8px 0 6px; }
+.gw-mode-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.gw-mode { pointer-events: auto; position: relative; flex: 0 1 236px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px 16px;
+  background: none; border: none; cursor: pointer; color: var(--ink-dim); text-align: center; transition: color .25s, transform .35s var(--ease-ink); }
+.gw-mode::before { content: ''; position: absolute; inset: -4px -6px; z-index: -1; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .35s;
+  background: radial-gradient(ellipse 50% 50% at 50% 42%, rgba(160, 150, 240, .16), transparent 70%); }
+.gw-mode:hover, .gw-mode:focus-visible { color: var(--ink); outline: none; transform: translateY(-2px); }
+.gw-mode.gw-on { color: var(--ink-hi); }
+.gw-mode.gw-on::before { opacity: 1; }
+.gw-mode-vig { display: block; width: 150px; height: 56px; opacity: .62; transition: opacity .3s; }
+.gw-mode-vig svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.gw-mode:hover .gw-mode-vig, .gw-mode.gw-on .gw-mode-vig { opacity: 1; }
+.gw-mode-name { position: relative; display: inline-flex; align-items: center; --hw: 1.9em; --hg: .45em; }
+.gw-mode-name b { font: 400 18px/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .16em; font-weight: 400; text-shadow: var(--ink-shadow); }
+.gw-mode.gw-on .gw-mode-name b { text-shadow: 0 0 16px var(--glow), var(--ink-shadow); }
+.gw-mode.gw-on .gw-hk, .gw-mode:focus-visible .gw-hk { opacity: 1; }
+.gw-mode.gw-on .gw-hk path, .gw-mode:focus-visible .gw-hk path { stroke-dashoffset: 0; }
+.gw-mode.gw-on .gw-hk circle { opacity: 1; }
+.gw-mode-line { font: italic 400 16px/1.32 var(--f-body); color: var(--ink-faint); max-width: 25ch; text-shadow: var(--ink-shadow); }
+.gw-mode.gw-on .gw-mode-line { color: var(--ink-dim); }
+.gw-mode kbd { position: absolute; top: 4px; left: 12px; font: italic 400 13px/1 var(--f-body); color: var(--ink-faint); opacity: .7; }
+.gw-modes--first .gw-mode { flex-basis: 340px; cursor: default; transform: none; }
+.gw-modes--first .gw-mode-line { max-width: 34ch; }
+.gw-vig-gloom { animation: gwBreath 4s ease-in-out infinite; }
+
 /* ================================================================ CATCH CARD (direction C)
    A feathered ink patch instead of a box; the fish as a pale ink sketch over a measuring line and
    a handwritten note; the name in IM Fell English SC, a red rubber stamp, handwritten numbers,
@@ -939,6 +983,42 @@
 .gw-cc-favw b { font: 400 12.5px/1 var(--f-display); font-style: normal; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-dim); margin-right: 6px; vertical-align: 1px; }
 .gw-cc-favw.gw-none { color: var(--ink-dim); }
 /* making room: the card gives the creel list the space (lore and epithet step aside) */
+/* v3 (U14): the banked Boon pick on the card, in the field-journal hand: gold beads for the levels waiting, three boons as
+   small ink medals with a name and one line; the chosen one keeps its brush stroke */
+.gw-cc-pick { position: relative; margin: 6px 0 0 2px; padding-top: 8px; display: grid; gap: 4px; }
+.gw-cc-pick::before { content: ''; position: absolute; left: 0; right: 18%; top: 0; height: 8px; background: rgba(232, 190, 119, .7); -webkit-mask: var(--orn-rule) left center / contain no-repeat; mask: var(--orn-rule) left center / contain no-repeat; opacity: .55; }
+.gw-cc-pick-h { display: flex; align-items: center; gap: 10px; font: 400 15px/1.2 var(--f-display); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); text-shadow: 0 0 12px rgba(232, 190, 119, .25); }
+.gw-cc-pick-h .gw-ico { width: 22px; height: 22px; color: var(--gold); }
+.gw-cc-pick-h b { font-weight: 400; color: #f3dfb6; }
+.gw-cc-beads { display: inline-flex; gap: 4px; }
+.gw-cc-beads i { width: 7px; height: 7px; transform: rotate(45deg); background: var(--gold); box-shadow: 0 0 6px rgba(232, 190, 119, .8); animation: gwBreath 2.4s ease-in-out infinite; }
+.gw-cc-beads i:nth-child(2) { animation-delay: .3s; } .gw-cc-beads i:nth-child(3) { animation-delay: .6s; }
+.gw-cc-pick-sub { font: italic 400 16px/1.3 var(--f-body); color: var(--ink-dim); }
+.gw-cc-boons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 8px; margin-top: 2px; }
+.gw-cc-boon { pointer-events: auto; position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: start; gap: 2px 8px; padding: 6px 6px 10px 2px; min-height: 44px;
+  background: none; border: none; cursor: pointer; text-align: left; color: var(--ink-dim); transition: color .25s; }
+.gw-cc-boon-medal { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--rc, var(--ink)); background: radial-gradient(circle, rgba(var(--veil-rgb), .9) 55%, transparent 72%);
+  box-shadow: inset 0 0 0 1.4px color-mix(in srgb, var(--rc, #ece8f4) 70%, transparent), 0 0 10px color-mix(in srgb, var(--rc, #a096f0) 30%, transparent); }
+.gw-cc-boon-medal .gw-ico { width: 20px; height: 20px; }
+.gw-cc-boon-t { display: grid; gap: 1px; min-width: 0; }
+.gw-cc-boon-t b { font: 400 17px/1.15 var(--f-fell); color: #ece8f4; font-weight: 400; }
+.gw-cc-boon-t em { font: 400 13px/1.1 var(--f-display); font-style: normal; letter-spacing: .14em; text-transform: uppercase; color: var(--rc, var(--ink-dim)); }
+.gw-cc-boon-t small { font: italic 400 14.5px/1.25 var(--f-body); color: var(--ink-dim); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.gw-cc-boon kbd { position: absolute; left: -4px; top: 0; font: italic 400 12px/1 var(--f-body); color: var(--ink-faint); }
+.gw-cc-boon::after { content: ''; position: absolute; left: 44px; right: 8px; bottom: 2px; height: 7px; background: var(--gold); -webkit-mask: var(--orn-brush) center / 100% 100% no-repeat; mask: var(--orn-brush) center / 100% 100% no-repeat; opacity: 0; clip-path: inset(0 100% 0 0); transition: opacity .3s, clip-path .6s var(--ease-ink); }
+.gw-cc-boon:hover::after, .gw-cc-boon:focus-visible::after, .gw-cc-boon.gw-picked::after { opacity: .8; clip-path: inset(0); }
+.gw-cc-boon:hover .gw-cc-boon-t b, .gw-cc-boon:focus-visible .gw-cc-boon-t b { color: #f6f3fb; text-shadow: 0 0 12px rgba(232, 190, 119, .3); }
+.gw-cc-boon:focus-visible { outline: none; }
+.gw-cc-pick.gw-choosing .gw-cc-boon:not(.gw-picked) { opacity: .25; transition: opacity .3s; }
+.gw-cc-boon.gw-picked .gw-cc-boon-medal { animation: gwBump .4s ease; }
+.gw-cc-pick-skip { justify-self: start; min-height: 32px; font-size: 15px; color: var(--ink-faint); }
+.gw-cc-pick-skip em { font: 400 1em/1 var(--f-hand); color: var(--gold); font-style: normal; margin-left: 4px; }
+.gw-cc-pick.gw-chosen .gw-cc-pick-h { text-transform: none; letter-spacing: .02em; font: italic 400 18px/1.3 var(--f-body); color: var(--ink); }
+.gw-cc-haspick .gw-cc-note { font-size: 21px; line-height: 1.32; margin-top: 2px; }
+.gw-cc-haspick .gw-cc-note-more { display: none; }
+.gw-cc-haspick .gw-fish-ink { max-height: 128px; width: auto !important; }
+/* the level-up picker when it carries a banked pick (after the card, or at the dawn bell) */
+.gw-lu--banked .gw-lu-head .gw-kicker { color: var(--gold); }
 .gw-cc-rooming .gw-cc-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr); align-items: start; }
 .gw-cc-rooming .gw-cc-lore, .gw-cc-rooming .gw-cc-epithet { display: none; }
 .gw-cc-rooming .gw-room-name small { display: inline; margin-left: 8px; }
@@ -1150,6 +1230,15 @@
 .gw-pause-menu { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 10px auto 0; width: 100%; }
 .gw-mbtn { font-size: var(--t-menu-2); min-height: 52px; --ls: .16em; padding: 2px 2.4em; }
 .gw-mbtn small { margin-left: 6px; }
+/* v3 pause: quick links in a lake (Journal, Challenges, Settings, Title) as four small glyph words in one row */
+.gw-quick { display: flex; justify-content: center; gap: 0 4px; margin: 6px 0 4px; flex-wrap: wrap; }
+.gw-qbtn { flex-direction: column; gap: 4px; min-height: 64px; min-width: 104px; padding: 6px 12px 8px; font-size: 15.5px; --ls: .18em; }
+.gw-qbtn .gw-qico { display: block; width: 26px; height: 26px; color: var(--ink-dim); transition: color .3s, filter .3s; }
+.gw-qbtn .gw-qico .gw-ico { width: 26px; height: 26px; }
+.gw-qbtn::after { content: ''; position: absolute; left: 50%; bottom: 2px; width: 56px; height: 8px; margin-left: -28px; background: currentColor; -webkit-mask: var(--orn-flourish) center / contain no-repeat; mask: var(--orn-flourish) center / contain no-repeat; opacity: 0; clip-path: inset(0 50%); transition: opacity .3s, clip-path .6s var(--ease-ink); }
+.gw-qbtn:hover:not(:disabled) .gw-qico, .gw-qbtn:focus-visible .gw-qico { color: var(--ink-hi); filter: drop-shadow(0 0 8px var(--glow)); }
+.gw-qbtn:hover:not(:disabled)::after, .gw-qbtn:focus-visible::after { opacity: .7; clip-path: inset(0); }
+.gw-quick + .gw-btn--danger { margin-top: 6px; font-size: 17px; opacity: .85; }
 .gw-pause-note { font-style: italic; color: var(--ink-faint); font-size: var(--t-small); margin: 12px 0 0; }
 .gw-pause-boons { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 20px; justify-content: center; }
 .gw-pause-boons .gw-group { width: 100%; }
@@ -1222,6 +1311,15 @@
 .gw-victory .gw-death-head h1 { color: #fbefd6; text-shadow: 0 0 40px rgba(232, 190, 119, .5), 0 0 3px #000; }
 .gw-victory .gw-death-veil { background: radial-gradient(ellipse 80% 70% at 50% 28%, rgba(80, 60, 30, .4), rgba(8, 8, 14, .92) 78%); }
 
+/* v3: Snuffed (DESIGN §25.14.2 U18): the wick out, a thread of smoke rising from it, the title in cold lavender stone */
+.gw-snuffed .gw-death-candle i { display: none; }
+.gw-smoke-thread { position: absolute; left: 50%; bottom: 22px; width: 40px; height: 96px; margin-left: -20px; overflow: visible; pointer-events: none; }
+.gw-smoke-thread path { fill: none; stroke: rgba(214, 214, 228, .55); stroke-width: 1.6; stroke-linecap: round; stroke-dasharray: 100 100; stroke-dashoffset: 100; filter: blur(.6px); animation: gwSmokeRise 3.6s .4s ease-out forwards, gwSmokeSway 6s 4s ease-in-out infinite; }
+.gw-smoke-thread .gw-st2 { stroke: rgba(174, 172, 208, .35); stroke-width: 1.1; animation-delay: 1.2s, 4.6s; }
+.gw-snuffed .gw-death-head { padding-top: 70px; }
+.gw-snuffed .gw-death-head h1 { color: #dcdbea; letter-spacing: .3em; margin-right: -.3em; text-shadow: 0 0 30px rgba(4, 5, 12, .9), 0 0 50px rgba(174, 172, 208, .28); }
+.gw-snuffed .gw-death-veil { background: radial-gradient(ellipse 80% 70% at 50% 26%, rgba(67, 62, 116, .32), rgba(8, 9, 22, .92) 76%); }
+.gw-snuffed .gw-death-flav { font-family: var(--f-hand); font-style: normal; font-size: 22px; color: rgba(232, 190, 119, .85); }
 /* ================================================================ VICTORY */
 .gw-m-victory .gw-scrim { background: radial-gradient(ellipse at 50% 45%, rgba(80, 60, 30, .35), rgba(5, 6, 14, .9) 75%); }
 .gw-victory-card { position: relative; text-align: center; max-width: min(900px, 96vw); padding: 24px 24px; color: var(--ink-dim); }
@@ -1230,6 +1328,139 @@
 .gw-victory-card h1 { position: relative; font: 400 clamp(32px, 5.4vw, 62px)/1.08 var(--f-display); text-transform: uppercase; letter-spacing: .16em; margin: 6px -.16em 6px 0; color: #fbefd6; text-shadow: 0 0 40px rgba(232, 190, 119, .6), 0 0 3px #000; }
 .gw-victory-lines p { position: relative; opacity: 0; animation: gwFadeUp 1.4s forwards; animation-delay: calc(.8s + var(--i) * 1.4s); font-style: italic; font-size: clamp(18px, 2.3vw, 23px); color: var(--ink); margin: 14px auto; max-width: 52ch; }
 .gw-victory-card .gw-death-btns { animation-delay: 5.5s; position: relative; }
+
+/* ================================================================ v3: the measuring overlay (U3, DESIGN §25.6.8)
+   The catch ceremony's payoff, in the catch card's ink-wash language: a feathered band of night ink at the foot of the
+   trophy camera's frame, the fish as a pale ink sketch lying along a knotted cord that unrolls while the centimetres tick
+   up in pale-gold handwriting, the species' class bands as faint washes, the seal pressed onto the last knot, the red class
+   stamp beside the count, and the record banners at the top of the screen. */
+.gw-m-measure .gw-modal-body { width: 100%; height: 100%; }
+.gw-ms { position: absolute; inset: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.gw-ms-band { position: absolute; left: 50%; bottom: calc(var(--sab) + 14px); width: min(880px, calc(100vw - 40px)); padding: 22px 70px 30px; display: grid; gap: 2px; isolation: isolate; color: #ece8f4;
+  opacity: 0; transform: translate(-50%, 18px); transition: opacity .45s ease, transform .8s var(--ease-ink); }
+.gw-ms.gw-in .gw-ms-band { opacity: 1; transform: translate(-50%, 0); }
+.gw-ms.gw-out .gw-ms-band { opacity: 0; transform: translate(-50%, 10px); transition-duration: .32s, .4s; }
+.gw-ms.gw-out .gw-ms-recs { opacity: 0; transition: opacity .3s ease; }
+.gw-ms-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; pointer-events: none; }
+.gw-ms-wash path { fill: rgba(9, 9, 22, .86); }
+.gw-ms-wash .gw-ms-gild { fill: rgba(232, 190, 119, .12); transform: scale(1.02); transform-origin: 50% 50%; }
+.gw-ms-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px 22px; min-height: 58px; }
+.gw-ms-id { min-width: 0; }
+.gw-ms-k { font: 400 12.5px/1.2 var(--f-display); letter-spacing: .28em; text-transform: uppercase; color: var(--ink-dim); opacity: 0; }
+.gw-ms.gw-in .gw-ms-k { animation: gwFade .6s .05s ease forwards; }
+.gw-ms-name { font: 400 34px/1.06 var(--f-fell); color: #ece8f4; text-shadow: 0 0 2px rgba(0, 0, 0, .7); clip-path: inset(-10% 100% -20% 0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gw-ms.gw-in .gw-ms-name { animation: gwInkIn .75s .12s var(--ease-ink) forwards; }
+.gw-legend .gw-ms-name { color: #f3e3c0; }
+.gw-ms-elder { font: 400 25px/1.1 var(--f-hand); color: var(--gold); text-shadow: 0 0 12px rgba(232, 190, 119, .3); clip-path: inset(-20% 100% -30% 0); }
+.gw-ms-elder:empty { display: none; }
+.gw-ms.gw-stamped .gw-ms-elder { animation: gwInkIn 1s .3s var(--ease-ink) forwards; }
+.gw-ms-res { display: flex; align-items: center; gap: 18px; flex: none; }
+.gw-ms-count { font: 400 48px/.9 var(--f-hand); color: var(--gold); text-shadow: 0 0 16px rgba(232, 190, 119, .28); white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; opacity: .3; transition: opacity .4s; }
+.gw-ms.gw-cording .gw-ms-count { opacity: 1; }
+.gw-ms-count b { font-weight: 400; display: inline-block; min-width: 2.2ch; }
+.gw-ms-count small { font-size: .5em; margin-left: 6px; color: rgba(232, 190, 119, .8); }
+.gw-ms.gw-stamped .gw-ms-count b { animation: gwCountSet .5s ease; }
+.gw-ms-stamp { opacity: 0; transform: rotate(-7deg); transform-origin: 50% 50%; order: -1; }
+.gw-ms-stamp span { display: inline-block; font: 400 24px/1 var(--f-fell); letter-spacing: .2em; text-transform: uppercase; padding: 5px 10px 4px 15px; color: #e05a48; border: 3px solid #e05a48; border-radius: 4px; mix-blend-mode: screen; filter: url(#gw-stamp); }
+.gw-ms.gw-stamped .gw-ms-stamp { opacity: .95; animation: gwStamp .42s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+.gw-legend .gw-ms-stamp span { box-shadow: 0 0 0 2px rgba(9, 9, 22, .9), 0 0 0 4px rgba(232, 190, 119, .7); }
+.gw-ms-ruler { position: relative; height: 150px; margin-top: 4px; }
+/* the fish: a ghost first, then the ink follows the cord */
+.gw-ms-fishbox { position: absolute; left: 0; bottom: 62px; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
+.gw-ms-fishbox canvas { display: block; }
+.gw-ms-fish-ghost { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity .6s ease; }
+.gw-ms.gw-pose .gw-ms-fish-ghost { opacity: .16; }
+.gw-ms-ink { position: relative; display: flex; justify-content: center; width: 100%; clip-path: inset(-30% 100% -30% -2%); filter: drop-shadow(0 0 8px rgba(160, 150, 240, .22)); }
+.gw-legend .gw-ms-ink { filter: drop-shadow(0 0 10px rgba(232, 190, 119, .35)); }
+/* the cord and the class bands */
+.gw-ms-cord { position: absolute; left: 0; bottom: 32px; width: 100%; height: 60px; overflow: visible; pointer-events: none; }
+.gw-ms-bands { opacity: 0; transition: opacity .7s ease; }
+.gw-ms.gw-pose .gw-ms-bands { opacity: 1; }
+.gw-msb { fill: transparent; }
+.gw-msb-keeper { fill: rgba(126, 129, 180, .08); }
+.gw-msb-prize { fill: rgba(160, 150, 240, .13); }
+.gw-msb-trophy { fill: rgba(196, 89, 76, .16); }
+.gw-msb-elder { fill: rgba(232, 190, 119, .14); }
+.gw-ms-ghost { fill: none; stroke: rgba(236, 232, 244, .2); stroke-width: 1.2; stroke-dasharray: 2 6; }
+.gw-ms-rope { fill: none; stroke-linecap: round; }
+.gw-ms-rope-a { stroke: #ece8f4; stroke-width: 2.4; stroke-dasharray: 8 2.5; }
+.gw-ms-rope-b { stroke: rgba(9, 9, 22, .55); stroke-width: 1.1; stroke-dasharray: 2 8.5; stroke-dashoffset: 4; }
+.gw-legend .gw-ms-rope-a { stroke: #f3e3c0; }
+.gw-ms-knot { position: absolute; bottom: 62px; width: 7px; height: 7px; margin: 0 0 -3.5px -3.5px; border-radius: 50%; background: rgba(236, 232, 244, .2); transform: scale(.55); transition: transform .3s cubic-bezier(.2, 1.6, .4, 1), background .2s, box-shadow .3s; pointer-events: none; }
+.gw-ms-knot.gw-on { background: #ece8f4; transform: scale(1); box-shadow: 0 0 6px rgba(160, 150, 240, .55); }
+.gw-ms-knot.gw-atmark { opacity: 0; }
+.gw-ms-knot0 { width: 11px; height: 11px; margin: 0 0 -5.5px -5.5px; background: #ece8f4; transform: none; box-shadow: 0 0 6px rgba(160, 150, 240, .5); border-radius: 46% 54% 50% 50%; }
+.gw-ms-marks { position: absolute; left: 0; right: 0; bottom: 0; height: 62px; pointer-events: none; }
+.gw-ms-mark { --cc: var(--ink); position: absolute; bottom: 0; display: flex; flex-direction: column; align-items: center; transform: translateX(-50%); }
+.gw-ms-mark i { width: 0; height: 38px; border-left: 1.5px solid rgba(236, 232, 244, .3); margin-bottom: 5px; transition: border-color .3s; }
+.gw-ms-mark b { font: 400 12.5px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); white-space: nowrap; transition: color .3s, text-shadow .3s; }
+.gw-msm-keeper { --cc: #e2e0f4; } .gw-msm-prize { --cc: #cfc8ff; } .gw-msm-trophy { --cc: #f4b8aa; } .gw-msm-elder { --cc: var(--gold); }
+.gw-ms-mark.gw-hit i { border-color: var(--cc); }
+.gw-ms-mark.gw-hit b { color: var(--cc); text-shadow: 0 0 12px var(--cc); animation: gwMarkHit .7s cubic-bezier(.2, 1.5, .4, 1); }
+.gw-ms-best { position: absolute; bottom: 62px; display: flex; flex-direction: column-reverse; align-items: center; transform: translateX(-50%); }
+.gw-ms-best i { width: 0; height: 22px; border-left: 1.5px dashed rgba(232, 190, 119, .75); }
+.gw-ms-best b { font: 400 17px/1 var(--f-hand); color: rgba(232, 190, 119, .9); margin-bottom: 2px; }
+.gw-ms-bead { position: absolute; bottom: 62px; left: 0; width: 14px; height: 14px; margin: 0 0 -7px -7px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fff6e2 0 22%, var(--gold) 40%, rgba(232, 190, 119, 0) 72%); box-shadow: 0 0 14px rgba(232, 190, 119, .7); opacity: 0; transition: opacity .3s; }
+.gw-ms.gw-cording .gw-ms-bead { opacity: 1; }
+.gw-ms.gw-stamped:not(.gw-noseal) .gw-ms-bead { opacity: 0; }
+/* the seal, pressed onto the last knot */
+.gw-ms-seal { position: absolute; bottom: 62px; left: 0; width: 66px; height: 66px; margin: 0 0 -33px -33px; opacity: 0; pointer-events: none; }
+.gw-ms-seal:empty { display: none; }
+.gw-ms-seal::before { content: ''; position: absolute; inset: -22px; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle at 18% 30%, rgba(236, 232, 244, .7) 0 1.6px, transparent 2.4px), radial-gradient(circle at 82% 24%, rgba(236, 232, 244, .6) 0 1.4px, transparent 2.2px),
+    radial-gradient(circle at 88% 70%, rgba(236, 232, 244, .55) 0 2px, transparent 2.8px), radial-gradient(circle at 12% 76%, rgba(236, 232, 244, .5) 0 1.3px, transparent 2px),
+    radial-gradient(circle at 50% 6%, rgba(236, 232, 244, .5) 0 1.2px, transparent 2px), radial-gradient(circle at 46% 96%, rgba(236, 232, 244, .45) 0 1.6px, transparent 2.4px); }
+.gw-cls-trophy .gw-ms-seal::before { filter: sepia(1) hue-rotate(-30deg) saturate(3) brightness(.8); }
+.gw-ms-sealsvg { width: 100%; height: 100%; transform: rotate(11deg); filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .85)); }
+.gw-ms.gw-stamped .gw-ms-seal { opacity: 1; animation: gwSealSlam .5s cubic-bezier(.2, 1.4, .4, 1) both; }
+.gw-ms.gw-stamped .gw-ms-seal::before { animation: gwSplat .7s .08s ease-out both; }
+.gw-ms.gw-stamped .gw-ms-band { animation: gwThump .34s .06s ease-out; }
+.gw-ms-band.gw-nope { animation: gwNope .3s ease; }
+.gw-ms-skip { position: absolute; right: 74px; bottom: 12px; font: italic 400 14.5px/1 var(--f-body); color: var(--ink-faint); opacity: 0; transition: opacity .5s; pointer-events: none; }
+.gw-ms.gw-can-skip .gw-ms-skip { opacity: .85; }
+/* the record banners, at the top of the screen */
+.gw-ms-recs { position: absolute; left: 50%; top: calc(var(--sat) + 8vh); transform: translateX(-50%); width: min(760px, 94vw); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; pointer-events: none; }
+.gw-ms-rec { --tc: var(--ink); --tg: rgba(160, 150, 240, .4); position: relative; padding: 8px 46px 6px; opacity: 0; animation: gwRecIn .75s calc(var(--i) * .24s) var(--ease-ink) forwards; }
+.gw-ms-rec::before { content: ''; position: absolute; inset: -12px -40px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse 50% 56% at 50% 50%, rgba(var(--veil-rgb), .82), rgba(var(--veil-rgb), .38) 58%, transparent 100%); }
+.gw-ms-rec b { display: block; font: 400 26px/1.15 var(--f-display); letter-spacing: .09em; color: var(--tc); text-shadow: 0 0 18px var(--tg), 0 1px 2px #000; }
+.gw-ms-rec small { display: block; font: italic 400 17px/1.3 var(--f-body); color: var(--ink-dim); margin-top: 1px; }
+.gw-ms-rec-u { display: block; width: 64%; height: 10px; margin: 3px auto 0; overflow: visible; }
+.gw-ms-rec-u path { fill: none; stroke: var(--tc); stroke-width: 3; stroke-linecap: round; opacity: .7; stroke-dasharray: 100 100; stroke-dashoffset: 100; animation: gwInkTick .8s calc(.3s + var(--i) * .24s) var(--ease-ink) forwards; }
+.gw-tone-gold { --tc: #f3dfb6; --tg: rgba(232, 190, 119, .5); }
+.gw-tone-seal { --tc: #f6c9bf; --tg: rgba(224, 90, 72, .4); }
+.gw-tone-pink { --tc: #f0c8d8; --tg: rgba(210, 150, 174, .45); }
+.gw-tone-ink { --tc: var(--ink); }
+.gw-ms-rec:first-child b { font-size: 30px; }
+@media (max-width: 700px) {
+  .gw-ms-band { width: calc(100vw - 12px); padding: 20px 26px 30px; bottom: calc(var(--sab) + 10px); }
+  .gw-ms-head { flex-wrap: wrap; min-height: 0; align-items: flex-end; }
+  .gw-ms-id { flex: 1 1 100%; }
+  .gw-ms-name { font-size: 27px; }
+  .gw-ms-k { font-size: 11px; letter-spacing: .22em; }
+  .gw-ms-elder { font-size: 21px; }
+  .gw-ms-res { flex: 1 1 100%; justify-content: space-between; margin-top: 2px; }
+  .gw-ms-count { font-size: 40px; }
+  .gw-ms-stamp span { font-size: 19px; padding: 4px 8px 3px 12px; border-width: 2.5px; }
+  .gw-ms-ruler { height: 132px; }
+  .gw-ms-mark b { font-size: 10.5px; letter-spacing: .14em; }
+  .gw-ms-mark i { height: 36px; }
+  .gw-ms-seal { width: 54px; height: 54px; margin: 0 0 -27px -27px; }
+  .gw-ms-skip { right: 28px; bottom: 11px; font-size: 13.5px; }
+  .gw-ms-recs { top: calc(var(--sat) + 14vh); }
+  .gw-ms-rec { padding: 6px 18px 4px; }
+  .gw-ms-rec b, .gw-ms-rec:first-child b { font-size: 21px; letter-spacing: .06em; }
+  .gw-ms-rec small { font-size: 15px; }
+}
+@media (max-height: 560px) and (min-width: 701px) {
+  .gw-ms-band { padding: 16px 64px 26px; bottom: calc(var(--sab) + 6px); width: min(820px, calc(100vw - 40px)); }
+  .gw-ms-head { min-height: 50px; }
+  .gw-ms-name { font-size: 30px; }
+  .gw-ms-count { font-size: 42px; }
+  .gw-ms-ruler { height: 128px; }
+  .gw-ms-recs { top: calc(var(--sat) + 5vh); }
+  .gw-ms-rec b { font-size: 23px; } .gw-ms-rec:first-child b { font-size: 26px; }
+}
 
 /* ================================================================ responsive */
 @media (max-width: 760px) {
@@ -1348,6 +1579,11 @@
   .gw-cc-lore { order: 9; font-size: 17px; margin-top: 4px; }
   .gw-cc .gw-catch-full { order: 10; }
   .gw-room { order: 11; }
+  .gw-cc-pick { order: 11; margin-top: 8px; }
+  .gw-cc-boons { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .gw-cc-boon { padding: 5px 4px 9px 0; }
+  .gw-cc-boon-t small { -webkit-line-clamp: 1; }
+  .gw-cc-haspick .gw-cc-lore { display: none; }
   .gw-cc .gw-catch-actions { order: 12; display: grid; grid-template-columns: 1fr 1fr; justify-items: start; gap: 0 18px; margin-top: 10px; }
   .gw-m-catch { align-items: flex-start; }
   .gw-cc-rooming .gw-cc-art, .gw-cc-rooming .gw-cc-measure, .gw-cc-rooming .gw-cc-note, .gw-cc-rooming .gw-cc-lore, .gw-cc-rooming .gw-cc-epithet { display: none; }
@@ -1411,6 +1647,11 @@
   .gw-nm-rate { font-size: 15.5px; }
   .gw-nm-tip { font-size: 18px; }
   .gw-nm-k { font-size: 12.5px; letter-spacing: .2em; }
+  .gw-scorched { top: calc(var(--sat) + 24vh); width: calc(100vw - 20px); margin-left: calc(50vw * -1 + 10px); grid-template-columns: 64px minmax(0, 1fr); gap: 2px 12px; padding: 22px 24px 22px 16px; }
+  .gw-sc-glyph { width: 64px; height: 56px; }
+  .gw-sc-title { font-size: 27px; letter-spacing: .18em; }
+  .gw-sc-lines p { font-size: 16.5px; }
+  .gw-sc-note { font-size: 19px; }
 }
 @media (max-width: 520px) {
   .gw-lu--many .gw-lu-cards { gap: 0; padding-top: 2px; }
@@ -1438,6 +1679,11 @@
   .gw-cc-v3 .gw-cc-act { font-size: 21px; min-height: 42px; padding: 4px 0 6px; }
   .gw-cc-v3 .gw-cc-elder { font-size: 24px; }
   .gw-cc-v3 .gw-cc-right { gap: 4px; }
+  .gw-cc-haspick .gw-fish-ink { max-height: 96px; }
+  .gw-cc-haspick .gw-cc-measure { height: 20px; }
+  .gw-cc-haspick .gw-cc-note { font-size: 19px; line-height: 1.25; }
+  .gw-cc-pick { margin-top: 2px; padding-top: 6px; gap: 2px; }
+  .gw-cc-boon-t small { -webkit-line-clamp: 2; font-size: 14px; }
   .gw-title-menu { padding-top: 10px; }
   .gw-tbtn { min-height: 46px; }
 }
@@ -1519,3 +1765,12 @@
 @keyframes gwPipLost { 0% { fill: #ff8a70; transform: scale(1.8); } 100% { transform: scale(1); } }
 @keyframes gwHandRise { from { transform: translateY(20px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-2px); opacity: 1; } }
 @keyframes gwTrick { 0% { opacity: 0; transform: translateY(6px); } 15% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes gwCountSet { 0% { transform: scale(1); } 35% { transform: scale(1.12); text-shadow: 0 0 22px rgba(232, 190, 119, .7); } 100% { transform: scale(1); } }
+@keyframes gwMarkHit { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@keyframes gwSealSlam { 0% { opacity: 0; transform: scale(2.6) rotate(-24deg); } 55% { opacity: 1; transform: scale(.88) rotate(4deg); } 78% { transform: scale(1.06) rotate(-1deg); } 100% { opacity: 1; transform: none; } }
+@keyframes gwSplat { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.25); } }
+@keyframes gwThump { 0%, 100% { translate: 0 0; } 30% { translate: 0 3px; } 60% { translate: 0 -1px; } }
+@keyframes gwRecIn { from { opacity: 0; transform: translateY(-12px) scale(.96); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes gwSmokeRise { to { stroke-dashoffset: 0; } }
+@keyframes gwSmokeSway { 0%, 100% { transform: translateX(0) skewX(0deg); } 50% { transform: translateX(2px) skewX(-4deg); } }
+@keyframes gwScorchDie { 0% { fill: #f08a3a; stroke: #ffd08a; filter: drop-shadow(0 0 10px rgba(240, 138, 58, .9)); } 100% { fill: #2a1a1c; stroke: #c4594c; } }

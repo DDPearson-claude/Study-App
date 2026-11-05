@@ -3,9 +3,9 @@
 // Shrine of Drowned Lanterns, trials (challenges), settings, pause, Descend, death and
 // victory. Built on the modal stack in ui.js. Imported only by ui.js.
 import { loadSave } from './core.js';
-import { wickPortrait, murkPortrait, relicLantern, sealSvg } from './ui-icons.js';
+import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
-import { classInfo, fmtLength, favourGroups, favourMu, notchesFor } from './ui-v3.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS } from './ui-v3.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -226,8 +226,11 @@ export function createScreens(K) {
   function openNewDescent() {
     const m = meta();
     const chars = characters();
-    const st = { sel: null, zone: 'mossmere', titleChild: true };
+    const st = { sel: null, zone: 'mossmere', titleChild: true, mode: null };
     st.sel = (chars.find((c) => c.id === m.lastCharacter && c.unlocked) || chars.find((c) => c.unlocked) || chars[0])?.id;
+    // v3 (DESIGN §25.14.2 U17): the night-mode cards; a fresh save sees only the First Outing, from run 2 Lantern is preselected
+    const nightModes = () => (D().V3_ENABLED ? modeCards(D(), safe(() => ctx.progression?.getNightModes?.(), null), { runs: num(meta().runs) }) : null);
+    st.mode = nightModes()?.selected ?? null;
     K.openModal('newdescent', (entry, body) => {
       const s = entry.state;
       const list = characters();
@@ -291,11 +294,35 @@ export function createScreens(K) {
         ws.appendChild(row);
         content.appendChild(ws);
       }
+      const mc = nightModes();
+      if (mc) {
+        if (!mc.cards.some((x) => x.id === s.mode)) s.mode = mc.selected;
+        const sec = h('section', `gw-modes${mc.first ? ' gw-modes--first' : ''}`);
+        sec.innerHTML = `<div class="gw-group">${mc.first ? 'Your first outing' : 'The nights'}<span>${mc.first ? 'every night still' : 'chosen for the whole descent'}</span></div>`;
+        const row = h('div', 'gw-mode-row');
+        row.setAttribute('role', mc.first ? 'group' : 'radiogroup');
+        mc.cards.forEach((card, i) => {
+          const b = h('button', `gw-mode gw-mode--${esc(card.id)}${card.id === s.mode ? ' gw-on' : ''}`);
+          b.type = 'button';
+          b.dataset.mode = card.id;
+          b.setAttribute('role', mc.first ? 'note' : 'radio');
+          if (!mc.first) b.setAttribute('aria-checked', card.id === s.mode ? 'true' : 'false');
+          b.innerHTML = `<span class="gw-mode-vig">${modeVignette(card.id)}</span><span class="gw-mode-name">${ORN.hookL}<b>${esc(card.name)}</b>${ORN.hookR}</span><span class="gw-mode-line">${esc(card.line)}</span>${!mc.first && !K.isTouch ? `<kbd>${i + 1}</kbd>` : ''}`;
+          if (!mc.first) b.addEventListener('click', () => { if (s.mode !== card.id) { s.mode = card.id; sfx('ui_click'); entry.render(); } });
+          row.appendChild(b);
+        });
+        sec.appendChild(row);
+        content.appendChild(sec);
+      }
       content.classList.add('gw-scroll');
       foot.appendChild(btn('Back', { onClick: () => K.closeModal('newdescent') }));
       foot.appendChild(btn(c?.unlocked ? `Descend as ${esc(c.name)}` : 'Locked', {
         cls: 'gw-btn--primary', disabled: !c?.unlocked, autofocus: true, icon: 'flame',
-        onClick: () => { const zone = s.zone, ch = s.sel; K.closeAll(); ctx.game?.startNewRun?.({ startZone: zone, character: ch }); },
+        onClick: () => {
+          const zone = s.zone, ch = s.sel, nm = mc && !mc.first && s.mode !== 'first' ? s.mode : undefined;
+          K.closeAll();
+          ctx.game?.startNewRun?.(mc ? { startZone: zone, character: ch, nightMode: nm } : { startZone: zone, character: ch });
+        },
       }));
     }, { state: st, onKey: (code) => {
       if (code === 'ArrowLeft' || code === 'ArrowRight') {
@@ -304,6 +331,8 @@ export function createScreens(K) {
         s.sel = list[(i + (code === 'ArrowLeft' ? -1 : 1) + list.length) % list.length].id; sfx('ui_hover', { volume: 0.3 }); t.render(); return true;
       }
       if (code === 'Enter') { const b = K.top()?.el.querySelector('.gw-pf .gw-btn--primary:not([disabled])'); if (b && document.activeElement?.tagName !== 'BUTTON') { b.click(); return true; } }
+      const dm = /^(?:Digit|Numpad)([1-3])$/.exec(code);
+      if (dm) { const b = K.top()?.el.querySelectorAll('.gw-mode[role="radio"]')[Number(dm[1]) - 1]; if (b) { b.click(); return true; } }
       return false;
     } });
   }
@@ -377,6 +406,90 @@ export function createScreens(K) {
     const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${PHASE_WHEN[ph] || ''}${r?.day ? `, day ${r.day}` : ''}`;
     return { stamp, kicker, len, phrase, more, legend, size };
   }
+  // ------------------------------------------------------------------ U14: the banked Boon pick on the card
+  /** Is this pick a banked one the ui presents? (combat.offerBanked; the open offer is current.banked) */
+  const bankedNow = () => Math.max(0, Math.round(num(safe(() => ctx.combat?.bankedLevels, run()?.levelBank), num(run()?.levelBank))));
+  function boonOption(o, r) {
+    const b = K.boonData(o.boonId) || {};
+    const kindle = !!o.kindle || (num(o.level) >= 6 && !!b.kindle);
+    const rarity = kindle ? 'legendary' : (o.rarity || b.rarity || 'common');
+    const isNew = o.isNew ?? !num(r?.boons?.[o.boonId]);
+    return { b, kindle, rarity, name: o.name || (kindle ? b.kindle?.name : b.name) || o.boonId, desc: o.desc || (kindle ? b.kindle?.desc : b.desc) || '',
+      lv: kindle ? 'Kindled' : isNew ? 'New' : `Lv ${num(o.level, 2) - 1} \u2192 ${num(o.level, 2)}`, icon: o.icon || b.icon || 'star' };
+  }
+  function bankedPick(entry, pn, content) {
+    const s = entry.state;
+    const r = run();
+    if (!v3Run(D(), r) || K.isStub(ctx.combat) || typeof ctx.combat?.offerBanked !== 'function') return;
+    if (!s.pick) {
+      if (bankedNow() <= 0) return;
+      s.pick = { chosen: null, total: bankedNow() };
+    }
+    const P = s.pick;
+    const open = safe(() => ctx.combat.pendingOptions, null);
+    let opts = Array.isArray(open) && open.length && open === P.ref ? open : null;
+    if (!opts && !P.chosen && bankedNow() > 0) { opts = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(opts) && opts.length) P.ref = opts; else opts = null; }
+    if (!opts && !P.chosen) return;
+    pn.classList.add('gw-cc-haspick');
+    const left = bankedNow();
+    const wrap = h('div', `gw-cc-pick${P.chosen ? ' gw-chosen' : ''}`);
+    const beads = `<span class="gw-cc-beads" aria-hidden="true">${'<i></i>'.repeat(Math.min(4, Math.max(1, left || 1)))}</span>`;
+    if (P.chosen) {
+      wrap.innerHTML = `<div class="gw-cc-pick-h">${icon(P.chosen.icon)}<span><b>${esc(P.chosen.name)}</b> \u00b7 ${esc(P.chosen.lv === 'New' ? 'yours for the descent' : P.chosen.lv)}</span></div>
+        ${left > 0 ? `<div class="gw-cc-pick-sub">${left} more ${left === 1 ? 'waits' : 'wait'} for the next card or the dawn bell</div>` : '<div class="gw-cc-pick-sub">Your flame remembers.</div>'}`;
+    } else {
+      wrap.innerHTML = `<div class="gw-cc-pick-h">${beads}<span>Your flame grew while you fished</span></div>
+        <div class="gw-cc-pick-sub">Choose a boon${left > 1 ? ` \u00b7 ${left} waiting` : ''}</div><div class="gw-cc-boons"></div>`;
+      const row = wrap.querySelector('.gw-cc-boons');
+      opts.slice(0, 3).forEach((o, i) => {
+        const B = boonOption(o, r);
+        const bt = h('button', `gw-cc-boon r-${B.rarity}${B.kindle ? ' gw-kindle' : ''}`);
+        bt.type = 'button';
+        bt.style.setProperty('--rc', K.rarityCss(B.rarity));
+        bt.title = `${B.name}: ${B.desc}`;
+        bt.innerHTML = `<span class="gw-cc-boon-medal">${icon(B.icon)}</span><span class="gw-cc-boon-t"><b>${esc(B.name)}</b><em>${esc(B.lv)}</em><small>${esc(B.desc)}</small></span>${K.isTouch ? '' : `<kbd>${i + 5}</kbd>`}`;
+        bt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (P.busy) return;
+          P.busy = true;
+          bt.classList.add('gw-picked');
+          wrap.classList.add('gw-choosing');
+          sfx('ui_click');
+          K.markResolved(K.optionsSig(opts), opts);
+          let ok = false;
+          try { ok = ctx.combat.chooseBoon(o.boonId) !== false; } catch (err) { K.report('chooseBoon', err); }
+          K.hud?.dirtyBoons?.();
+          setTimeout(() => {
+            P.busy = false;
+            if (!ok) { entry.render(); return; }
+            P.ref = null;
+            // the next banked level (if any) offers itself on the same card; the last one leaves its name
+            if (bankedNow() > 0) { const nx = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(nx) && nx.length) { P.ref = nx; P.chosen = null; entry.render(); return; } }
+            P.chosen = B;
+            entry.render();
+          }, 420);
+        });
+        row.appendChild(bt);
+      });
+      if (typeof ctx.combat?.skip === 'function') {
+        const sk = h('button', 'gw-link gw-cc-pick-skip', `Skip it <em>+${fmt(num(D().BALANCE?.combat?.skipShells ?? D().BALANCE?.xp?.skipShells, 8) * (1 + K.zoneIndex()))} Shells</em>`);
+        sk.type = 'button';
+        sk.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (P.busy) return;
+          K.markResolved(K.optionsSig(opts), opts);
+          try { ctx.combat.skip(); } catch (err) { K.report('skip', err); }
+          P.ref = null;
+          if (bankedNow() > 0) { const nx = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(nx) && nx.length) { P.ref = nx; entry.render(); return; } }
+          P.chosen = { name: 'Skipped', lv: 'Shells instead', icon: 'shell' };
+          entry.render();
+        });
+        wrap.appendChild(sk);
+      }
+    }
+    // the pick sits under the sketch and its note (one column on a phone: just above the actions)
+    (content.querySelector('.gw-cc-left') || content).appendChild(wrap);
+  }
   function showCatch(p) {
     const fish = p?.fish;
     if (!fish) return;
@@ -444,6 +557,8 @@ export function createScreens(K) {
         }
         right.appendChild(list);
       }
+      // v3 (DESIGN §25.5.4, §25.14.2 U14): a level-up banked while fishing is chosen here, at a still moment
+      if (N.v3) bankedPick(entry, pn, content);
       const act = (a) => () => { if (s.locked) return; if (doFishAction(fish, a)) { s.locked = true; K.closeModal('catch'); } };
       foot.classList.add('gw-catch-actions');
       right.appendChild(foot);
@@ -456,6 +571,8 @@ export function createScreens(K) {
       onKey: (code) => {
         const map = { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
         if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
+        const bm = /^(?:Digit|Numpad)([5-7])$/.exec(code);
+        if (bm) { const b = K.top()?.el.querySelectorAll('.gw-cc-boon:not([disabled])')[Number(bm[1]) - 5]; if (b) { b.click(); return true; } }
         // the actions read left to right: arrows move the brush stroke along them
         if (code === 'ArrowLeft' || code === 'ArrowRight' || code === 'ArrowUp' || code === 'ArrowDown') {
           const btns = [...(K.top()?.el.querySelectorAll('.gw-catch-actions .gw-btn:not([disabled])') || [])];
@@ -471,7 +588,7 @@ export function createScreens(K) {
   }
 
   // ================================================================== LEVEL-UP PICKER
-  function openLevelUp(options) {
+  function openLevelUp(options, extra = {}) {
     let opts = Array.isArray(options) && options.length ? options : safe(() => ctx.combat?.pendingOptions, null);
     if (!Array.isArray(opts) || !opts.length) return;
     const lu = K.openModal('levelup', (entry, body) => {
@@ -484,9 +601,13 @@ export function createScreens(K) {
       const draft = !!(lp?.draft || s.draft || safe(() => ctx.combat?.levelUpKind, null) === 'draft');
       const gift = !!lp?.gift;
       const remaining = Math.max(0, Math.round(num(lp?.remaining, 0)));
-      const wrap = h('div', 'gw-lu');
-      wrap.innerHTML = `<div class="gw-lu-head"><div class="gw-kicker">${gift ? 'The Warden falls silent' : `Level ${fmt(num(lp?.level, num(r?.level, 1)))}`}${remaining ? ` · ${remaining} more to choose` : ''}</div><h2>${gift ? "A Warden's Gift" : draft ? 'The Kindling Draft' : 'Your Flame Grows'}</h2>
-        <div class="gw-pdiv">${ORN.divider}</div><p>${esc(gift ? 'Choose what it leaves you.' : draft ? (D().TEXT?.kindlingDraft || 'Choose what the Waystone carried.') : 'Choose a boon. It lasts the whole descent.')}</p></div>
+      // v3 (U14): a banked pick says where it waited (the measuring card's moment, or the dawn bell)
+      const banked = v3Run(D(), r) && !gift && !draft ? (s.banked || (lp?.banked ? ((K.phaseInfo()?.phase || r?.phase) === 'dawn' ? 'dawn' : 'card') : null)) : null;
+      s.banked = banked;
+      const kick = gift ? 'The Warden falls silent' : banked === 'dawn' ? 'The dawn bell' : banked ? 'Banked while you fished' : `Level ${fmt(num(lp?.level, num(r?.level, 1)))}`;
+      const wrap = h('div', `gw-lu${banked ? ' gw-lu--banked' : ''}`);
+      wrap.innerHTML = `<div class="gw-lu-head"><div class="gw-kicker">${kick}${remaining ? ` · ${remaining} more to choose` : ''}</div><h2>${gift ? "A Warden's Gift" : draft ? 'The Kindling Draft' : banked ? 'Your Flame Grew' : 'Your Flame Grows'}</h2>
+        <div class="gw-pdiv">${ORN.divider}</div><p>${esc(gift ? 'Choose what it leaves you.' : draft ? (D().TEXT?.kindlingDraft || 'Choose what the Waystone carried.') : banked === 'dawn' ? 'The night is over. Choose what your flame learned in it.' : banked ? 'Choose a boon. It lasts the whole descent.' : 'Choose a boon. It lasts the whole descent.')}</p></div>
         <div class="gw-lu-cards"></div><div class="gw-lu-foot"></div>`;
       body.appendChild(wrap);
       const cards = wrap.querySelector('.gw-lu-cards');
@@ -524,7 +645,7 @@ export function createScreens(K) {
       foot.appendChild(btn(`Reroll <em>${rerollsLeft}</em>`, { key: 'R', icon: 'reroll', disabled: rerollsLeft <= 0 && !draft, onClick: () => reroll(entry) }));
       if (canSkip) foot.appendChild(btn(`Skip <em>+${fmt(num(D().BALANCE?.combat?.skipShells ?? D().BALANCE?.xp?.skipShells, 8) * (1 + K.zoneIndex()))}</em>`, { key: 'S', icon: 'shell', onClick: () => skip(entry) }));
       if (draft) foot.appendChild(btn('Auto-draft', { icon: 'flame', onClick: () => autoDraft(entry) }));
-    }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-levelup', state: { options: opts, ref: opts, locked: false },
+    }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-levelup', state: { options: opts, ref: opts, locked: false, banked: extra.banked || null },
       onKey: (code) => {
         const t = K.top();
         const m = /^(?:Digit|Numpad)([1-4])$/.exec(code);
@@ -562,6 +683,7 @@ export function createScreens(K) {
       try { ctx.combat?.chooseBoon?.(o.boonId); } catch (e) { K.report('chooseBoon', e); }
       K.hud?.dirtyBoons?.();
       K.closeModal('levelup');
+      chainBanked(s);
     }, 300);
   }
   function reroll(entry) {
@@ -583,6 +705,15 @@ export function createScreens(K) {
     K.markResolved(K.optionsSig(s.options), s.ref);
     try { fn.call(ctx.combat); } catch (e) { K.report('skip', e); }
     K.closeModal('levelup');
+    chainBanked(s);
+  }
+  /** v3: the rest of the bank follows at the same still moment (the card's, or the dawn bell's). */
+  function chainBanked(s) {
+    if (!s?.banked || !v3Run(D(), run()) || bankedNow() <= 0 || typeof ctx.combat?.offerBanked !== 'function') return;
+    const f = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing : null;
+    if (!pickMomentOk({ fishingState: f?.state || 'idle', speed: num(ctx.player?.speed), cinematic: !!ctx.cinematic })) return;
+    const nx = safe(() => ctx.combat.offerBanked(), null);
+    if (Array.isArray(nx) && nx.length) K.nextBanked = s.banked;
   }
   function autoDraft(entry) {
     const s = entry?.state;
@@ -901,7 +1032,7 @@ export function createScreens(K) {
   }
 
   // ================================================================== CHALLENGES (Trials)
-  function openChallenges() {
+  function openChallenges(extra = {}) {
     K.openModal('challenges', (entry, body) => {
       const list = challenges();
       const T = D().TEXT || {};
@@ -927,7 +1058,7 @@ export function createScreens(K) {
         content.appendChild(sec);
       }
       foot.appendChild(btn('Close', { onClick: () => K.closeModal('challenges'), autofocus: true }));
-    }, { state: { titleChild: true } });
+    }, { state: { titleChild: true, ...extra } });
   }
 
   // ================================================================== SETTINGS
@@ -1008,10 +1139,24 @@ export function createScreens(K) {
       const { content, foot } = panel(entry, body, { title: 'The Water Waits', sub: r ? `Day ${r.day || 1} · ${esc(z?.name || '')} · Level ${r.level || 1}${ch ? ` · ${esc(ch.name)}` : ''}` : '', cls: 'gw-p-pause', close: false });
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn('Resume', { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
-      menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
-      menu.appendChild(btn('Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
-      menu.appendChild(btn('Return to Title', { cls: 'gw-mbtn', icon: 'gate', title: 'Your descent will wait for you', onClick: () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); } }));
-      menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } }) }));
+      if (v3Run(D(), r)) {
+        // v3 (DESIGN §25.14.2 U18; CONTRACT §13.7 ui): quick links in a lake: Journal, Challenges, Settings, Title (tackle and
+        // outfit are fitted only at home), then the way out
+        const quick = h('div', 'gw-quick');
+        const link = (id, label, ic, fn, title = '') => { const b = btn(label, { cls: 'gw-qbtn', icon: ic, hooks: false, onClick: fn, title }); b.dataset.link = id; b.insertAdjacentHTML('afterbegin', `<span class="gw-qico">${icon(ic)}</span>`); quick.appendChild(b); };
+        link('journal', 'Journal', 'journal', () => openJournal({ pauseChild: true }), 'Every name the water has given you');
+        link('challenges', 'Trials', 'ledger', () => openChallenges({ pauseChild: true }), 'Challenges and their rewards');
+        link('settings', 'Settings', 'sun', () => openSettings({ pauseChild: true }), 'Sound, picture and fishing');
+        link('title', 'Title', 'gate', () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); }, 'Your descent will wait for you');
+        menu.appendChild(quick);
+        menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } }) }));
+      }
+      if (!v3Run(D(), r)) menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
+      if (!v3Run(D(), r)) {
+        menu.appendChild(btn('Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
+        menu.appendChild(btn('Return to Title', { cls: 'gw-mbtn', icon: 'gate', title: 'Your descent will wait for you', onClick: () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); } }));
+        menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } }) }));
+      }
       content.appendChild(menu);
       content.insertAdjacentHTML('beforeend', '<p class="gw-pause-note">Returning to the title keeps this descent waiting.</p>');
       const boons = arr(safe(() => ctx.combat?.getBoons?.(), null));
@@ -1116,15 +1261,20 @@ export function createScreens(K) {
       const T = D().TEXT || {};
       const cause = S.cause || 'gloom';
       const victory = cause === 'victory';
-      const title = victory ? (T.victoryTitle || 'The Light Comes Up') : cause === 'abandoned' ? 'The Flame Let Go' : (T.deathTitle?.[cause] || T.deathTitle?.default || 'Extinguished');
-      if (!entry.state.epitaph) entry.state.epitaph = victory ? (T.victorySubtitle || '') : K.pick(D().EPITAPHS?.[cause]) || K.pick(D().EPITAPHS?.default) || '';
+      // v3 (DESIGN §25.14.2 U18): a snuff (oil) ends the run under its own name
+      const snuffed = cause === 'snuffed';
+      const T3 = D().TEXT_V3 || {};
+      const title = victory ? (T.victoryTitle || 'The Light Comes Up') : cause === 'abandoned' ? 'The Flame Let Go' : snuffed ? (T3.snuffedTitle || S.title || 'Snuffed') : (T.deathTitle?.[cause] || T.deathTitle?.default || 'Extinguished');
+      if (!entry.state.epitaph) entry.state.epitaph = victory ? (T.victorySubtitle || '') : snuffed ? (K.pick(D().EPITAPHS?.snuffed) || K.pick(SNUFF_EPITAPHS)) : K.pick(D().EPITAPHS?.[cause]) || K.pick(D().EPITAPHS?.default) || '';
       const z = K.zoneData(S.zone);
       const ch = D().CHARACTER_BY_ID?.[S.character];
-      const flav = arr(T.summaryFlavour).find((f) => num(S.day, 1) <= num(f.maxDay, 999));
+      const flav = snuffed ? { text: T3.snuffedWake || D().EXPEDITION?.snuffed?.line || 'Murk found your raft drifting.' } : arr(T.summaryFlavour).find((f) => num(S.day, 1) <= num(f.maxDay, 999));
+      // a Still run never met the swarm: its nights are what it fished, not what it fought
+      const stillRun = !!S.nightMode && S.nightMode === 'still';
       const legends = typeof S.legendaries === 'number' ? S.legendaries : Array.isArray(S.legendaries) ? S.legendaries.length : S.legendaries && typeof S.legendaries === 'object' ? Object.keys(S.legendaries).length : 0;
-      const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}`);
+      const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}${snuffed ? ' gw-snuffed' : ''}`);
       wrap.innerHTML = `<div class="gw-death-veil"></div><div class="gw-death-inner gw-scroll">
-        <div class="gw-death-head"><div class="gw-death-candle"><i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
+        <div class="gw-death-head"><div class="gw-death-candle">${snuffed ? '<svg class="gw-smoke-thread" viewBox="0 0 40 96" aria-hidden="true"><path pathLength="100" d="M20 94 C13 82 27 74 20 62 C13 50 28 42 21 30 C16 21 24 12 19 3"/><path class="gw-st2" pathLength="100" d="M21 92 C26 80 15 70 22 58 C28 47 17 38 23 26"/></svg>' : ''}<i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
         <div class="gw-death-line">${[`Day ${fmt(S.day || 1)}`, esc(z?.name || ''), `Level ${fmt(S.level || 1)}`, ch ? esc(ch.name) : ''].filter(Boolean).map((x) => `<span>${x}</span>`).join(' · ')}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
         <div class="gw-pdiv">${ORN.flourish}</div></div>
         <div class="gw-death-cols">
@@ -1132,7 +1282,7 @@ export function createScreens(K) {
             <div class="gw-mem-total">${'<span>'}${icon('memory')}<b class="gw-mem-n">0</b></span><small>Memories banked · ${fmt(meta().memories || 0)} held</small></div></section>
           <section class="gw-death-side">
             <div class="gw-death-stats">
-              <div><b>${fmt(S.fishCaught || 0)}</b><small>fish landed</small></div><div><b>${fmt(S.enemiesSlain || 0)}</b><small>gloomlings dispersed</small></div>
+              <div><b>${fmt(S.fishCaught || 0)}</b><small>fish landed</small></div>${stillRun ? `<div><b>${fmt(S.nightsSurvived || arr(S.nights).length || 0)}</b><small>still nights fished</small></div>` : `<div><b>${fmt(S.enemiesSlain || 0)}</b><small>gloomlings dispersed</small></div>`}
               <div><b>${fmt(S.shellsEarned || 0)}</b><small>Shells earned</small></div><div><b>${fmt(S.newSpecies || 0)}</b><small>new names</small></div>
               ${legends ? `<div><b>${fmt(legends)}</b><small>legends hauled</small></div>` : ''}</div>
             <div class="gw-death-lists"></div></section>
@@ -1158,8 +1308,8 @@ export function createScreens(K) {
       const chs = arr(S.challengesCompleted);
       if (chs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Trials completed</div>${chs.map((c) => `<div class="gw-dl-row gw-good">${icon('check')}<span><b>${esc(c?.name || c)}</b>${c?.reward ? `<small>${esc([c.reward.unlock ? K.unlockLabel(c.reward.unlock) : '', c.reward.memories ? `+${c.reward.memories} Memories` : ''].filter(Boolean).join(' · '))}</small>` : ''}</span></div>`).join('')}</div>`);
       const nm = nearMisses(S);
-      const td = !victory ? topDamage() : null;
-      if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon('eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
+      const td = snuffed ? { line: 'The lantern guttered out.', tip: S.tip || 'Render a fish before the oil runs dry: Burn (R) works without opening the creel.', icon: 'lantern' } : !victory ? topDamage() : null;
+      if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon(td.icon || 'eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
       const nav = wrap.querySelector('.gw-death-btns');
       nav.appendChild(btn('Shrine', { icon: 'memory', sub: `${fmt(meta().memories || 0)} Memories`, onClick: () => openShrine() }));
       nav.appendChild(btn('New Descent', { cls: 'gw-btn--primary', icon: 'flame', autofocus: true, onClick: () => openNewDescent() }));

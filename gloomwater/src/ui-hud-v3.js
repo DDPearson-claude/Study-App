@@ -76,6 +76,14 @@ export function createHudV3(K, el, R, w) {
     <div class="gw-nm-line"></div><div class="gw-nm-rate"></div><div class="gw-nm-tip"></div></div>`);
   nm.setAttribute('role', 'status');
   el.appendChild(nm);
+  // the Scorched card (U18: Lantern, Embers at 0; the run continues): a non-blocking ink patch, gone on a tap or after 8 s
+  const SCORCH_EMBERS = [14, 30, 46].map((x, i) => `<g transform="translate(${x} ${i === 1 ? 30 : 34})"><path class="gw-sc-ember" d="M0-13c1.6 4.2 6 6.6 6 11.6a6 6 0 0 1-12 0c0-3.4 2-5 3.2-7 .5 2 1.3 3 2.3 3.6C-1-7.4-1-10.4 0-13z"/></g>`).join('');
+  const sc = h('div', 'gw-scorched', `<svg class="gw-sc-wash" viewBox="0 0 560 220" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M24 24 C170 8 400 10 538 26 C552 90 550 150 534 198 C380 212 170 212 28 200 C12 150 12 80 24 24 Z"/></svg>
+    <svg class="gw-sc-glyph" viewBox="0 0 60 52" aria-hidden="true">${SCORCH_EMBERS}<path class="gw-sc-smoke" pathLength="100" d="M30 16 C26 10 34 6 30 0"/></svg>
+    <div class="gw-sc-txt"><div class="gw-sc-k"></div><div class="gw-sc-title"></div><div class="gw-sc-lines"></div><div class="gw-sc-note"></div></div>`);
+  sc.setAttribute('role', 'status');
+  el.appendChild(sc);
+  const scT = { k: sc.querySelector('.gw-sc-k'), title: sc.querySelector('.gw-sc-title'), lines: sc.querySelector('.gw-sc-lines'), note: sc.querySelector('.gw-sc-note') };
   const nmFish = nm.querySelector('.gw-nm-fish');
   const nmT = { title: nm.querySelector('.gw-nm-title'), est: nm.querySelector('.gw-nm-est'), line: nm.querySelector('.gw-nm-line'), rate: nm.querySelector('.gw-nm-rate'), tip: nm.querySelector('.gw-nm-tip') };
 
@@ -84,6 +92,7 @@ export function createHudV3(K, el, R, w) {
   let favN = -1, favQuiet = null, favSig = '', favOpen = false, favHover = false, favPress = null, favPinned = false;
   let tellId = '', pipMax = 0, pipN = 0, clsShown = '', snagT = 0, snagLead = 1, trickT = 0, nmT0 = 0, nmQ = [];
   let watchTarget = null;
+  let scT0 = 0;
   const memo = new Map();
   const last = (k) => memo.get(k);
   const lastSet = (k, v) => memo.set(k, v);
@@ -130,6 +139,7 @@ export function createHudV3(K, el, R, w) {
   });
   on('fishing:oldTrick', () => { trickT = 2.4; trickEl.textContent = 'An old trick. Read it.'; restartAnim(trickEl, 'gw-on'); });
   on('fish:escaped-big', (p) => { nmQ.push({ p, at: performance.now() }); });
+  on('player:scorched', () => showScorched());
 
   // ------------------------------------------------------------------ frame
   /** The §25.5.7 visibility for this frame (null when this is not a v3 run). Called by ui-hud before it paints vitals. */
@@ -167,7 +177,7 @@ export function createHudV3(K, el, R, w) {
     toggle(el, 'v3', 'gw-wf-mode', vis.wellFed);
     toggle(R.burn, 'v3', 'gw-relight', vis.relight);
     // the measuring ceremony (ctx.cinematic, F5): the fight's gauge and the buttons step back for the camera and the overlay
-    toggle(el, 'v3', 'gw-cine', !!ctx.cinematic);
+    toggle(el, 'v3', 'gw-cine', !!ctx.cinematic || !!K.measure?.active?.());
     // Well-fed glyph
     const fed = !!safe(() => S?.wellFed, false);
     toggle(wf, 'wf', 'gw-fed', fed);
@@ -429,6 +439,29 @@ export function createHudV3(K, el, R, w) {
     nmT0 = 7.5;
   }
   nm.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); nmT0 = Math.min(nmT0, 0.01); });
+
+  // ------------------------------------------------------------------ the Scorched card
+  function showScorched() {
+    const r = run();
+    const pending = !!r?.scorched?.pending || ['reeling', 'landing'].includes(fishV()?.state);
+    const L = V.scorchedLines(D(), { pending });
+    scT.k.textContent = L.kicker;
+    scT.title.textContent = L.title;
+    scT.lines.innerHTML = L.lines.map((x) => `<p>${esc(x)}</p>`).join('');
+    scT.note.textContent = L.note;
+    sc.setAttribute('aria-label', `${L.title}. ${L.lines.join(' ')} ${L.note}`);
+    sc.classList.remove('gw-out');
+    restartAnim(sc, 'gw-on');
+    scT0 = 8;
+    // a near-miss card waiting behind it keeps its turn
+    if (nmT0 > 0) { nmT0 = 0; nm.classList.remove('gw-on'); }
+  }
+  sc.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); scT0 = Math.min(scT0, 0.01); });
+  function scorchTick(dt) {
+    if (scT0 <= 0) return;
+    scT0 -= dt;
+    if (scT0 <= 0) { sc.classList.remove('gw-on'); sc.classList.add('gw-out'); }
+  }
   function nearMissTick(dt) {
     const f = fishV();
     if (nmT0 > 0) {
@@ -445,10 +478,13 @@ export function createHudV3(K, el, R, w) {
 
   return {
     frame, markers, fishing, reelHint,
-    update(dt) { if (live) nearMissTick(dt); else if (nmT0 > 0) { nmT0 = 0; nm.classList.remove('gw-on'); } },
+    update(dt) {
+      if (live) { if (scT0 <= 0) nearMissTick(dt); scorchTick(dt); }
+      else { if (nmT0 > 0) { nmT0 = 0; nm.classList.remove('gw-on'); } if (scT0 > 0) { scT0 = 0; sc.classList.remove('gw-on'); } }
+    },
     get vis() { return vis; },
     get live() { return live; },
-    reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; tellId = ''; pipMax = 0; pipN = 0; clsShown = ''; snagT = 0; nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); },
+    reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; tellId = ''; pipMax = 0; pipN = 0; clsShown = ''; snagT = 0; nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); },
     /** the clock's durations from survival (v3 phases: 210 / 20 / 90 / 10 on day 1) */
     durations(day) {
       if (!live) return null;

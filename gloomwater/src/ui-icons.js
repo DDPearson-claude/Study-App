@@ -373,3 +373,54 @@ export function relicLantern(lit = 0, { hidden = false, color = '#f0a64c', uid =
     <path d="M14 50 h20 l-3 5 h-14 z" fill="#14171d" stroke="#07080d" stroke-width="1.2"/>
     ${hidden ? '<text x="24" y="42" text-anchor="middle" class="gw-relic-q">?</text>' : ''}</svg>`;
 }
+
+// ---------------------------------------------------------------- night-mode vignettes (New Descent, DESIGN §25.5.1, U17)
+// Small pen-and-ink scenes (160×64) for the mode cards: pale ink in currentColor, one warm or cool accent each. Still: a
+// crescent and its broken reflection on flat water; Lantern: a lantern on a crooked pole, a few far motes of Gloom with
+// pink eyes; Gloomtide: Gloom rising in tendrils from a rough sea, many eyes; First Outing: the little raft, its candle and a
+// cast line under a crescent.
+const VB = (inner, cls = '') => `<svg class="gw-vig-svg ${cls}" viewBox="0 0 160 64" aria-hidden="true" focusable="false">${inner}</svg>`;
+const BP = (d, o = {}, extra = '') => `<path d="${brush(d, o)}" fill="currentColor"${extra}/>`;
+const waterLines = (o = 1) => BP('M10 50 C40 49 80 49 112 50', { w: 1.6, min: 0.2 }, o < 1 ? ` fill-opacity="${o}"` : '')
+  + BP('M30 55 C60 54.4 96 54.4 140 55.2', { w: 1.3, min: 0.2 }, ` fill-opacity="${0.7 * o}"`) + BP('M54 59.6 C80 59.2 110 59.2 132 59.8', { w: 1, min: 0.15 }, ` fill-opacity="${0.45 * o}"`);
+const crescent = (x, y, r, fill, op = 1) => `<path d="M${x + r * 0.2} ${y - r}A${r} ${r} 0 1 0 ${x + r * 0.2} ${y + r}A${r * 0.78} ${r * 0.78} 0 1 1 ${x + r * 0.2} ${y - r}Z" fill="${fill}" fill-opacity="${op}"/>`;
+const star = (x, y, r = 0.9, op = 0.8) => `<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor" fill-opacity="${op}"/>`;
+const glow = (x, y, r, color, op) => [1, 0.66, 0.38].map((k, i) => `<circle cx="${x}" cy="${y}" r="${r * k}" fill="${color}" fill-opacity="${op * (0.35 + i * 0.32)}"/>`).join('');
+const eyes = (x, y, s = 1) => `<circle cx="${x - 1.6 * s}" cy="${y}" r="${0.85 * s}" fill="#e7a3bd"/><circle cx="${x + 1.6 * s}" cy="${y}" r="${0.85 * s}" fill="#e7a3bd"/>`;
+export function modeVignette(id) {
+  if (id === 'still') {
+    return VB(`${star(34, 14)}${star(56, 26, 0.7, 0.6)}${star(20, 30, 0.8, 0.5)}${star(76, 10, 0.6, 0.55)}${star(142, 30, 0.7, 0.5)}
+      ${glow(112, 20, 13, '#e8be77', 0.08)}${crescent(112, 20, 8.5, '#efd7a4')}
+      ${waterLines()}${BP('M104 53 C108 52.6 114 52.6 118 53', { w: 1.6, min: 0.3 }, ' style="fill:#e8be77" fill-opacity=".55"')}
+      ${BP('M107 57.4 C110 57.1 113 57.1 116 57.4', { w: 1.2, min: 0.2 }, ' style="fill:#e8be77" fill-opacity=".35"')}
+      ${BP('M18 60 C19 50 20 42 24 33', { w: 1.3, min: 0.2 }, ' fill-opacity=".7"')}${BP('M24 60 C25 52 27 46 31 40', { w: 1.1, min: 0.2 }, ' fill-opacity=".5"')}`, 'gw-vig-still');
+  }
+  if (id === 'lantern') {
+    return VB(`${star(22, 12, 0.7, 0.5)}${star(128, 8, 0.7, 0.45)}
+      ${BP('M30 62 C34 40 44 22 66 12 C72 9.6 78 10 80 14', { w: 1.9, min: 0.5, peak: 0.3 })}${BP('M80 14 L80 20', { w: 1, min: 0.6 })}
+      ${glow(80, 30, 15, '#ed9e3b', 0.12)}
+      <path d="M75.4 22h9.2l-1.4 2.2v9.6l1.4 2.2h-9.2l1.4-2.2v-9.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+      <path d="M80 26.2c1.3 1.6 2.2 2.6 2.2 4a2.2 2.2 0 0 1-4.4 0c0-1.4.9-2.4 2.2-4z" fill="#f2b45a"/>
+      ${waterLines()}${BP('M74 52.4 C78 52 82 52 86 52.4', { w: 1.6, min: 0.3 }, ' style="fill:#ed9e3b" fill-opacity=".5"')}
+      <g class="gw-vig-gloom" fill-opacity=".55">${BP('M124 40 C120 34 126 30 130 32 C134 34 132 40 128 42', { w: 2.6, min: 0.4 }, ' style="fill:#7d73b8"')}${eyes(128, 35.5, 0.8)}
+      ${BP('M142 30 C139 25 144 22 147 24 C150 26 148 31 145 32', { w: 2.2, min: 0.4 }, ' style="fill:#7d73b8"')}${eyes(145.5, 26.6, 0.65)}
+      ${BP('M110 22 C108 18 112 16 114 17.4 C116 19 114 22 112 23', { w: 1.7, min: 0.3 }, ' style="fill:#7d73b8"')}</g>`, 'gw-vig-lantern');
+  }
+  if (id === 'gloomtide') {
+    return VB(`${crescent(30, 16, 7, '#efd7a4', 0.35)}
+      ${BP('M8 48 C18 42 26 46 34 48 C44 51 50 42 62 44 C72 46 78 50 90 46 C102 42 110 48 122 46 C134 44 142 48 152 46', { w: 1.8, min: 0.3 })}
+      ${BP('M14 55 C30 51 44 56 60 53 C76 50 92 56 108 53 C124 50 138 55 150 53', { w: 1.3, min: 0.2 }, ' fill-opacity=".6"')}
+      ${BP('M18 60.4 C50 58.6 100 59.2 142 60', { w: 1, min: 0.15 }, ' fill-opacity=".4"')}
+      <g style="fill:#8b80c8" fill-opacity=".72">${BP('M58 46 C52 34 64 26 60 14 C58 8 64 6 66 10', { w: 3.2, min: 0.5, peak: 0.25 })}${BP('M92 45 C98 34 86 26 94 16 C98 11 104 13 102 18', { w: 3, min: 0.5, peak: 0.25 })}
+      ${BP('M120 45 C116 36 126 30 122 22', { w: 2.4, min: 0.4, peak: 0.3 })}${BP('M40 46 C36 38 44 34 42 26', { w: 2.2, min: 0.4, peak: 0.3 })}</g>
+      ${eyes(62, 24, 1)}${eyes(95, 26, 1.1)}${eyes(122, 32, 0.8)}${eyes(42, 34, 0.75)}${eyes(76, 36, 0.7)}${eyes(108, 18, 0.6)}${eyes(136, 26, 0.6)}`, 'gw-vig-gloomtide');
+  }
+  // the First Outing: the raft, its candle, a cast line to a float, under a crescent
+  return VB(`${star(26, 12, 0.8, 0.6)}${star(48, 22, 0.6, 0.5)}${star(140, 14, 0.7, 0.5)}${glow(118, 18, 11, '#e8be77', 0.07)}${crescent(118, 18, 7, '#efd7a4')}
+    ${glow(60, 38, 9, '#ed9e3b', 0.13)}
+    <path d="M44 47h32l-3 3.6H47z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M52 47v3.4M60 47v3.4M68 47v3.4" stroke="currentColor" stroke-width=".9" stroke-opacity=".6"/>
+    <path d="M58.4 40.6h3.2v6.4h-3.2z" fill="currentColor" fill-opacity=".85"/><path d="M60 35.2c1 1.3 1.7 2 1.7 3.1a1.7 1.7 0 0 1-3.4 0c0-1.1.7-1.8 1.7-3.1z" fill="#f2b45a"/>
+    ${BP('M64 46 C72 34 84 26 98 22', { w: 1.3, min: 0.3, peak: 0.2 })}<path d="M98 22 C106 30 112 40 116 49" fill="none" stroke="currentColor" stroke-width=".6" stroke-opacity=".55"/>
+    <circle cx="116.4" cy="49.6" r="1.6" fill="#e05a48"/>
+    ${waterLines()}`, 'gw-vig-first');
+}
