@@ -13,7 +13,10 @@ const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 export const ONE_SHOT = { cast: 0.5, hookset: 0.42, eat: 1.7, flare: 0.95, zap: 0.38, hurt: 0.55, celebrate: 1.5, levelup: 1.35, toss: 0.8, die: 1e9 };
 const BRAZIER_YAW = Math.atan2(-0.74, 0.68); // raft-local direction from the Wick's spot to the brazier
-export const CONTINUOUS = new Set(['idle', 'paddle', 'charge', 'wait', 'reel', 'strain', 'catch']);
+export const CONTINUOUS = new Set(['idle', 'paddle', 'charge', 'wait', 'reel', 'strain', 'catch', 'measurePalm', 'measureArms', 'measureHang', 'measureAlongside']);
+// v3 measuring poses (DESIGN §25.6.8; CONTRACT §13.7 actors setPose): chosen by the fish's length, the Wick is 0.85 m
+export const MEASURE = new Set(['measurePalm', 'measureArms', 'measureHang', 'measureAlongside']);
+const SHOULDER_Y = 0.43, SHOULDER_X = 0.19, SHOULDER_Z = 0.03, ARM = 0.17;
 const BUILDS = { wick: [1, 1, 1], taper: [0.86, 1.12, 0.86], stub: [1.04, 0.94, 1.04], tallow: [1.12, 0.88, 1.12], ashwick: [0.97, 1.03, 0.97], glimmer: [1, 1, 1] };
 // per-character flame shape [width, height] and eye shape [w, h] (DESIGN §11/§19.7)
 const FLAMES = { stub: [1.45, 1.55], tallow: [1.15, 0.72], taper: [0.9, 1.1] };
@@ -80,6 +83,22 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const cloakMat = M(deformToon({ color: 0xffffff, vertexColors: true, rim: 0.42, rimPower: 0.58 }, cloakSpec));
   const cloakOutline = M(deformOutline({ thickness: 0.02 }, cloakSpec));
   const eyeMat = M(new THREE.MeshBasicMaterial({ color: new THREE.Color(DEFAULT_LOOK.eyes).multiplyScalar(3), toneMapped: false, fog: true }));
+  // measuring close-ups (the trophy camera 1.6–5 m away, the lantern hanging right over the Wick): the pale wax under the
+  // lantern would read as one white blot, so the Wick's own exposure comes down with the camera's nearness: the wax and the
+  // cloth darken toward their lit tones, and the pale toon rims turn lantern-warm and soft (k = how far each one comes down)
+  const EXPO = [{ m: headMat, k: 0.52 }, { m: rigidMat, k: 0.45 }, { m: hatMat, k: 0.25 }, { m: cloakMat, k: 0.25 }]
+    .map((e) => ({ ...e, rim: e.m.userData.rim, col: e.m.userData.rim.gwRimColor.value.clone(), str: e.m.userData.rim.gwRimStrength.value }));
+  const RIM_WARM = new THREE.Color(0xffb878);
+  let expo = 0;
+  function applyExposure(k) {
+    if (k === expo) return;
+    expo = k;
+    for (const e of EXPO) {
+      e.m.color.setScalar(1 - e.k * k);
+      e.rim.gwRimColor.value.copy(e.col).lerp(RIM_WARM, k);
+      e.rim.gwRimStrength.value = e.str * (1 - 0.6 * k);
+    }
+  }
 
   // ---------------------------------------------------------------- legs (leg + wax foot per bone)
   const legs = [];
@@ -223,6 +242,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let vitality = 1, flameK = 1, flameOut = false, blinkT = 2, blink = 0, paddlePhase = 0, crankPhase = 0, facing = 0;
   let look = { ...DEFAULT_LOOK }, buildS = BUILDS.wick, flameBaseY = 0.355, flameBaseX = 0;
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
+  // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
+  const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
   const flameCol = new THREE.Color(DEFAULT_LOOK.flame), baseFlameCol = new THREE.Color(DEFAULT_LOOK.flame);
   const tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), tmpM = new THREE.Matrix4();
 
@@ -284,7 +305,62 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   }
 
   // ---------------------------------------------------------------- pose functions
+  /** Arm IK in body space: raise / swing / stretch the arm so its hand reaches (tx, ty, tz). */
+  function reach(o, side, tx, ty, tz, maxStretch = 1.9) {
+    const sx = side === 'r' ? -SHOULDER_X : SHOULDER_X;
+    let vx = tx - sx, vy = ty - SHOULDER_Y, vz = tz - SHOULDER_Z;
+    const len = Math.hypot(vx, vy, vz) || 1e-4;
+    vx /= len; vy /= len; vz /= len;
+    const out = Math.asin(clamp(side === 'r' ? -vx : vx, -1, 1)), raise = Math.atan2(vz, -vy), st = clamp(len / ARM, 0.7, maxStretch);
+    if (side === 'r') { o.rRaise = raise; o.rOut = out; o.rStretch = st; } else { o.lRaise = raise; o.lOut = out; o.lStretch = st; }
+  }
+  /** The four measuring poses (DESIGN §25.6.8). Hands are placed by IK; actors puts the fish on them. */
+  function poseMeasure(name, o, t) {
+    const breathe = Math.sin(t * 1.7) * 0.022, L = clamp(meas.lenB, 0.02, 3), pt = poseT;
+    const settle = pt < 0.55 ? Math.sin(Math.min(1, pt / 0.55) * Math.PI) : 0;   // a little lift as the pose lands
+    switch (name) {
+      case 'measurePalm': {   // cupped in both hands at the chest, the head bowed over it; a glance up now and then
+        const s = clamp(L * 0.3, 0.035, 0.085);
+        const look = Math.sin(pt * 1.25) > 0.55 ? 1 : 0;
+        reach(o, 'r', -s, 0.42 + settle * 0.03, 0.38); reach(o, 'l', s, 0.42 + settle * 0.03, 0.38);   // offered up, out in front of the collar
+        o.pitch = 0.1; o.sq = breathe * 0.6 + 0.02; o.y = settle * 0.02;
+        o.hPitch = look ? -0.06 : 0.22; o.hRoll = Math.sin(pt * 0.7) * 0.07; o.hYaw = look ? 0 : Math.sin(pt * 0.5) * 0.08;
+        o.eye = 1.25; o.glow = 1.3; o.flame = 0.18 + settle * 0.2; o.legL = 0.04; o.legR = -0.04;
+        break;
+      }
+      case 'measureArms': {   // held up across the chest, a hand under each end, proud
+        const s = clamp(L * 0.31, 0.11, 0.36), lift = 0.47 + settle * 0.06;
+        reach(o, 'r', -s, lift, 0.33); reach(o, 'l', s, lift, 0.33);
+        o.pitch = -0.07; o.sq = breathe + 0.03; o.y = settle * 0.06;
+        o.hPitch = -0.1; o.hRoll = Math.sin(pt * 0.6) * 0.05;
+        o.eye = 0.5; o.eyeLift = 0.012; o.glow = 1.35; o.flame = 0.35 + settle * 0.25; o.legL = -0.08; o.legR = 0.1;
+        break;
+      }
+      case 'measureHang': {   // side-on, the rod reaching out and up in both hands, the fish hanging head-up off its tip
+        const strain = clamp(0.15 + L * 0.12, 0.15, 0.45);
+        o.rod = 0.6 - strain * 0.15; o.rRaise = 1.4; o.rOut = 0.12; o.lRaise = 1.22; o.lOut = -0.05;
+        o.pitch = -0.1 - strain * 0.22 + Math.sin(pt * 1.4) * 0.02; o.sq = -0.03 + breathe * 0.5; o.twist = 0.08;
+        o.hPitch = -0.34; o.hYaw = -0.32; o.eye = 0.62; o.eyeLift = 0.01; o.glow = 1.3; o.flame = 0.3 + settle * 0.2;   // looks up at it, a glance to us
+        o.legL = -0.22 - strain * 0.2; o.legR = 0.26 + strain * 0.2;
+        break;
+      }
+      case 'measureAlongside': {   // kneeling at the deck's edge over the fish, one hand on the cord's ring at its snout
+        o.y = -0.065 + breathe * 0.2; o.pitch = 0.32 + Math.sin(pt * 0.9) * 0.02; o.sq = -0.04;
+        reach(o, 'r', -0.06, 0.12, 0.43, 2.1);
+        o.lRaise = 0.35; o.lOut = 0.32;
+        o.hPitch = 0.3; o.hYaw = Math.sin(pt * 0.4) * 0.12; o.eye = 1.15; o.glow = 1.3; o.flame = 0.2;
+        o.legL = -1.05; o.legR = -0.35;
+        break;
+      }
+      default: break;
+    }
+    if (meas.stamp > 0) {   // the seal stamps: a satisfied little bob and the flame flares
+      const k = meas.stamp;
+      o.sq += Math.sin((1 - k) * Math.PI * 2) * 0.05 * k; o.flame += 0.7 * k; o.glow += 0.5 * k; o.eye = Math.min(o.eye, 0.55 + (1 - k) * 0.5);
+    }
+  }
   function poseBase(name, o, t, env) {
+    if (MEASURE.has(name)) { poseMeasure(name, o, t); return; }
     const breathe = Math.sin(t * 1.7) * 0.022;
     switch (name) {
       case 'paddle': {
@@ -427,8 +503,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   function update(dt, t, env) {
     poseT += dt;
     // resolve base pose
-    let b = explicitBase || env.autoBase || 'idle';
-    if (holding) b = 'catch';
+    let b = (MEASURE.has(env.measurePose) ? env.measurePose : null) || explicitBase || env.autoBase || 'idle';
+    if (holding && !MEASURE.has(b)) b = 'catch';
+    meas.stamp = Math.max(0, meas.stamp - dt * 1.6);
     if ((b === 'idle' || b === 'paddle') && env.moving) b = 'paddle';
     else if (b === 'paddle' && !env.moving) b = 'idle';
     if (b !== base) { base = b; poseT = 0; }
@@ -447,6 +524,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     // facing: aim / catch-to-camera / forward
     let face = 0;
     if (pointYaw !== null && aimHold > 0) { aimHold -= dt; face = wrapPi(pointYaw - env.heading); if (aimHold <= 0) pointYaw = null; }
+    else if (base === 'measureAlongside' && Number.isFinite(meas.faceYaw)) face = meas.faceYaw;
+    else if (base === 'measureHang' && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading + 1.05);   // side-on: rod and fish across the frame
+    else if (MEASURE.has(base) && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading);
     else if (base === 'catch' && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading);
     else if (action === 'toss' || (base === 'idle' && env.warm)) face = BRAZIER_YAW;
     else if (Number.isFinite(env.targetYaw) && base !== 'paddle' && base !== 'catch') face = wrapPi(env.targetYaw - env.heading);
@@ -476,9 +556,16 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     const open = clamp(cur.eye, 0.05, 1.6) * (blink > 0 ? 0.12 : 1);
     eyes.scale.set((1 + (cur.eye > 1 ? (cur.eye - 1) * 0.3 : 0)) * eyeShape[0], open * eyeShape[1], 1);
     eyes.position.y = 0.14 + cur.eyeLift;
-    eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3 * clamp(cur.glow, 0, 3) * (0.35 + 0.65 * Math.max(0.15, vitality)));
+    // a measuring close-up (the trophy camera 1.6–5 m away) would bloom the head flame and eyes into a white blot: damp them,
+    // and bring the Wick's own exposure down (eased, so the cut to the trophy camera never pops)
+    const ckT = MEASURE.has(base) ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
+    let ck = damp(expo, ckT, 6, dt);
+    if (Math.abs(ck - ckT) < 1e-3) ck = ckT;
+    applyExposure(ck);
+    eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3 * clamp(cur.glow, 0, 3) * (0.35 + 0.65 * Math.max(0.15, vitality)) * (1 - 0.72 * ck));
     // props
-    const prop = action === 'eat' || action === 'die' ? 'none' : base === 'paddle' ? 'oar' : base === 'catch' ? (catchBig ? 'rod' : 'none') : 'rod';
+    const prop = action === 'eat' || action === 'die' ? 'none' : base === 'paddle' ? 'oar' : base === 'catch' ? (catchBig ? 'rod' : 'none')
+      : MEASURE.has(base) ? (base === 'measureHang' ? 'rod' : 'none') : 'rod';
     rod.visible = prop === 'rod'; stowed.visible = !rod.visible;
     paddle.visible = prop === 'oar'; paddleStowed.visible = !paddle.visible;
     // flame
@@ -494,9 +581,10 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     flame.outerMat.uniforms.uT.value = t; flame.innerMat.uniforms.uT.value = t * 1.13;
     const wild = (1 - flameK) * 0.9 + Math.max(0, cur.flame) * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
     flame.outerMat.uniforms.uWild.value = wild; flame.innerMat.uniforms.uWild.value = wild;
-    flame.outerMat.uniforms.uI.value = 1.6 + flameK * 0.9 + Math.max(0, cur.flame) * 0.8;
-    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6);
-    flame.halo.scale.setScalar(0.75 * (1 + Math.max(0, cur.flame) * 0.5));
+    flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + Math.max(0, cur.flame) * 0.8) * (1 - 0.7 * ck);
+    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck);
+    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6) * (1 - 0.88 * ck);
+    flame.halo.scale.setScalar(0.75 * (1 + Math.max(0, cur.flame) * 0.5) * (1 - 0.5 * ck));
     // lean flame against motion
     const lx = clamp(-(env.localVel?.x || 0) * 0.018 - cur.roll * 0.15, -0.3, 0.3), lz = clamp(-(env.localVel?.z || 0) * 0.018 + cur.pitch * 0.1, -0.3, 0.3);
     flame.outerMat.uniforms.uLean.value.set(lx, lz); flame.innerMat.uniforms.uLean.value.set(lx * 0.7, lz * 0.7);
@@ -551,7 +639,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
 
   setLook(DEFAULT_LOOK);
   return {
-    group, head, body, flame, holdAnchor, rod, rodTipLocal, tipGlint, shadowMesh: shadow, mats,
+    group, head, body, flame, holdAnchor, rod, rodTipLocal, tipGlint, shadowMesh: shadow, mats, stowed,
     setLook, setPose, revive, bendRod, getRodTip, update,
     setCharge(k) { charge = clamp(Number(k) || 0, 0, 1); },
     setReel(k, lat = 0) { reelK = Math.max(0, Number(k) || 0); reelLat = Number(lat) || 0; },
@@ -564,6 +652,17 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     },
     ringBell(s = 1) { bellV += 6 * s; },
     setHolding(on, big = false) { holding = !!on; catchBig = !!big; },
+    /** Measuring: the held fish's length in body units, the alongside side and facing (raft-local yaw). */
+    setMeasure({ lenB, side, faceYaw } = {}) {
+      if (Number.isFinite(lenB)) meas.lenB = lenB;
+      if (side === 1 || side === -1) meas.side = side;
+      meas.faceYaw = Number.isFinite(faceYaw) ? faceYaw : null;
+    },
+    /** The seal stamps (fish:measured): a satisfied bob, a flare of the head flame and a few sparks. */
+    stamp() { meas.stamp = 1; if (!dead) sparks(6); },
+    /** World position of a hand ('r' | 'l'). */
+    getHandPos(side = 'r', out = new THREE.Vector3()) { const h = (side === 'l' ? arms.l : arms.r).hand; h.updateWorldMatrix(true, false); return h.getWorldPosition(out); },
+    get basePose() { return base; },
     get pose() { return action || base; },
     get dead() { return dead; },
     flameColor: flameCol,
