@@ -2633,7 +2633,7 @@ export const V3_ENABLED = globalThis.GW_V3 === true;
 // module evaluates; the default 4 carries everything, so tools see the whole design. Each phase's build sets it.
 export const V3_PHASE = Math.max(1, Math.min(4, Math.floor(Number(globalThis.GW_V3_PHASE ?? 4)) || 4));
 // BALANCE_V3 blocks that join BALANCE after P1 (every other block lands with P1's code; validated per phase).
-export const V3_BLOCK_PHASE = { residents: 2, markedFish: 2, farWater: 3, liveWell: 3 };
+export const V3_BLOCK_PHASE = { residents: 2, markedFish: 1, farWater: 3, liveWell: 3 };   // markedFish: the light P1 form ships with automatic fishing
 
 const v3clone = (o) => JSON.parse(JSON.stringify(o));
 const v3r = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
@@ -2651,7 +2651,7 @@ export const SIZE_CLASSES = [
 ];
 
 // ---- BALANCE_V3: merged into BALANCE when V3_ENABLED (the brief's `BALANCE.size`, `.farWater`,
-// `.liveWell`, `.oil`, `.wellFed`, `.nightModes`, `.tackleRating`, `.cameras` …). Every block is new except
+// `.liveWell`, `.oil`, `.wellFed`, `.nightModes`, `.cameras` …). Every block is new except
 // `bite`, whose v3 keys are merged into v1's BALANCE.bite; no v1 / v2 key is ever replaced (validated),
 // so The Long Descent keeps today's numbers.
 export const BALANCE_V3 = {
@@ -2677,36 +2677,9 @@ export const BALANCE_V3 = {
     // mix (0.942 / 1.201) keeps the average yield at today's (a Mossmere common renders ≈ 17 oil, brief §3.4; validated from the mix).
     yield: { perZ: 0.3, clamp: [0.7, 2.5], factor: 0.784, mix: 1.201 },
     valueMix: { mu: [[0, 0.25], [0.3, 0.3], [0.6, 0.25], [1.0, 0.15], [1.5, 0.05]], giantShare: 1 / 3, sizeKMean: 0.942, multiplier: 1.428 },   // the normaliser behind 0.66 (roster-v3)
-    // size → fight (brief §5.5), applied to species.difficulty BEFORE createReel; g = e^(gPerZ · z)
-    fight: {
-      gPerZ: 0.2, powerExp: 1.6, powerExpBy: { sinker: 1.15, sulker: 1.15 }, staminaExp: 1.0, surgeTimeExp: 0.5,
-      sweetExp: -0.5, sweetMin: 0.4, erraticPerZ: 0.08, erraticMax: 0.9, surgeEveryExp: -0.6,
-      elderZ: 2.65, elderStep: 1.08, elderStaminaExp: 1.3,              // above the Elder cut: power × 1.08 × g^(1.6 + age·(z − 2.65)), stamina × g^1.3
-      elderAge: { mossmere: 1.2, sporewood: 0.9, glasswater: 0.7, paleabyss: 0.35 },   // old water keeps its oldest fish hard
-      legendZ: 0,                                                         // legends fight at z 0 (only the global stamina × 1.4 applies)
-    },
-    // reel-model edits (fishing-reel.js; brief §5.5): stamina × 1.4 for every fish; easing uses load; fatigue clock
-    reel: {
-      staminaMult: 1.4,
-      easeByLoad: { base: 0.8, perLoad: 0.2 },                            // released: target = −fallBase / (base + perLoad · pw / LS)
-      fatigue: { after: 60, perS: 0.01, floor: 0.6, elderFloor: 0.8 },    // non-legendaries: power × max(floor, 1 − perS·(t − after))
-      oldTrick: { at: 0.55, warnMult: 0.6, powerMult: 1.3, secondAfter: 0.9, mixedRead: true,   // every Elder, once, when progress first passes 55%
-        byStyle: { runner: 'doubleRun', darter: 'doubleRun', sinker: 'sulk', sulker: 'sulk', leaper: 'secondLeap', thrasher: 'bore', steady: 'bore' } },
-      // s on a phone, full tackle (T1 targets). "Ancients ≈ 3 min" is checked as median ≤ 180 × 1.15 (T4, skilled) with < 2%
-      // time-outs for every species that can be an Elder (validated at k 160); knownGaps are the brief's own gaps, retuned with
-      // their verbs (the runner P3, the sulker P4) or kept as an Ancient wall by the brief's own table.
-      targets: { elderMedian: 120, ancientMedian: 180, ancientTolerance: 1.15, maxTimeouts: 0.02,
-        knownGaps: { blind_scrivener: 'sulker (P4)', the_footnote: 'sulker (P4)', the_unpaid_fare: 'sulker (P4)', candlewake_sturgeon: 'runner (P3), retuned in P4',
-          shardspine_eel: 'the brief\'s reel-v3-elders table: T4 Elder 60 / Ancient 1 (an Ancient wall by design)' } },
-      // Drag (every fight from T0; the sims' land rates depend on it): while tension T > dragAt and rising, the reel absorbs
-      // dT × absorb (Reel tier) and progress slips slipPerAbsorb per unit absorbed. Spooled = progress 0 with cumulative slip
-      // > 0.5, any species (the runner only makes it likelier). dragAt = the fitted preset (Set 0.80 below Reel T2).
-      drag: { from: 'TACKLE.drag', slipPerAbsorb: 0.08, spooled: { progress: 0, slip: 0.5, species: 'any' } },
-      // fight verbs, one per lake (P3 runner, P4 sulker; simulated in tools/sim/reel-v3.mjs before their code)
-      runner: { hissTell: 0.8, runTime: 'surgeTime × 2√g', holdTMult: 1.8, releaseLossPerS: 0.05, turnTime: 2, turnMult: 1.5, phase: 3 },
-      sulker: { every: [10, 14], time: [4, 6], holdCreep: 0.3, minRelease: 0.3, liftGain: 0.04, phase: 4 },
-      foul: { chance: 0.15, warn: 0.3, spike: 0.15 },                     // §24's foul rule, reused at the Gatehouse Door and the Chain Garden
-    },
+    // (D1′, the AF build's data: the manual v3 reel's `fight` (size → difficulty, Elder age and step) and `reel` (stamina, easing,
+    // fatigue, old tricks, drag and Spooled, the runner / sulker verbs, the foul spike, the reel-sim targets) are retired; automatic
+    // fishing's land chance is CATCH_V3 and its play AUTOFISH.play. v1 (flag off) keeps BALANCE.reel untouched.)
   },
 
   // ---- The float's favour μ (brief §5.1, §6.1): one formula, shown as 0–5 ink notches by family.
@@ -2757,7 +2730,6 @@ export const BALANCE_V3 = {
     // a lapsed bite (no hook attempt) refunds the cast's general bait (progression.refundBait) and adds +0.15 favour to the next
     // cast in the same water (the same place, or within 6 m of the lapsed bobber), cap +0.3, reset on a hook or after 60 s
     letItPass: { favour: 0.15, cap: 0.3, resetAfter: 60, keepsBait: 'refund', sameWater: { place: true, radius: 6 } },
-    pips: { fromClass: 'prize', perfect: 3, normal: 2, rodBonusFrom: 3, lowTension: 0.15, legendaries: false },
     leapReveal: { fromClass: 'prize', time: 0.25, timescale: 0.35, rimFlash: true },
     // the class tells' float animations (s; fishing:tell `dur`): Small's double pop, Trophy's flat slide, Elder's dome (Keeper's
     // plunge has none; Prize's drag-under is `dragUnder` above). `lead` = how long before the bite the tell may begin (s).
@@ -2777,7 +2749,6 @@ export const BALANCE_V3 = {
     wickHeight: 0.85,
     camera: { base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50 },   // trophy distance clamp(1.2 + 1.6·L, 1.6, 16) m
     ancientThread: 'gold', mmBelow: 20,                                  // lengths under 20 cm print in mm (the Cupbearer, the Quayling's fry)
-    nearMiss: { estimate: 0.08, fromClass: 'prize' },                    // near-miss card: estimated class and length ±8%
   },
   records: {
     oldLedgerZ: 2.3, oldLedgerMemories: 5,            // a figure "since before the Fall" at mid-Trophy for every species
@@ -2803,7 +2774,9 @@ export const BALANCE_V3 = {
     checks: { mossmereDay: 28.3, mossmereDay1: 30.1, renderedCommon: 17, footLantern: { day: 7, night: 5 } },   // brief §3.4 arithmetic (validated)
   },
   // ---- Satiety → Well-fed (brief §9.1): no starvation, ever.
-  wellFed: { drainMult: 0.5, at: 0.6, effects: { reelSpeed: 0.08, sweetZone: 0.01 }, dawnMendCombat: 1, starvation: false, glyph: true },
+  // Well-fed: +2 Hold under automatic fishing (a run buff, counted under CATCH_V3.buffs.runCap through progression.getCatchBuffs);
+  // `hold` is not a STATS key, so getStats ignores it (was reelSpeed +0.08, sweetZone +0.01 on the manual reel)
+  wellFed: { drainMult: 0.5, at: 0.6, effects: { hold: 2 }, dawnMendCombat: 1, starvation: false, glyph: true },
 
   // ---- Far Water (brief §3.4): both begin with the first dawn of an expedition (day 2).
   farWater: {
@@ -2920,7 +2893,8 @@ export const BALANCE_V3 = {
     reroll: { onLanding: 'nextSetOut', afterInLakeDays: 3 },
     stamp: 'Resident', checks: { elderShare: 0.124, ancientShare: 0.011, meanZ: 2.27 },
   },
-  markedFish: { fromClass: 'trophy', max: 6, startProgress: 'min(0.3, 0.5 × pEscape)', replacesResident: true, glint: true },
+  markedFish: { fromClass: { openWater: 'elder', place: 'trophy' }, max: 6, perLake: 2, hold: 6, holdOnce: true, replacesResident: true, glint: 'showsOnly',
+    anchorP1: 'escapePoint', anchorR: 8, showsPerCalm: 2, show: 'boilWithGlint', anchorP2: 'nearestPlace', nearestPlaceR: 25 },   // P1 (no places): it stays within 8 m of where it was lost; P2 moves it to the nearest place   // automatic fishing: +6 Hold on its re-hook, once (CATCH_V3.markedFish); the glint shows before the cast, never in a play
 
   // ---- Place rules v3 (brief §7.0): two new rule types and five fields; pressure; Astir in the Mossmere.
   placesV3: {
@@ -2946,29 +2920,13 @@ export const BALANCE_V3 = {
     dropIn: { lock: 'rule.lock', landsAt: 'targetCentre', skips: ['arc', 'obstacle', 'openWater'], hold: 0.7, centreOpenMargin: 0.5 },
   },
 
-  // ---- P1–P2 and The Long Descent: effective tackle tiers from per-run UPGRADES (data.upgradeTiers): tier = floor(4 × levels / max
-  // levels) over the slot's upgrades (rod 6 → T4 at 6; line 6; reel 7; creel 4). Fixes shock, pips, absorb and the rating index.
+  // ---- P1–P2 and The Long Descent: effective tackle tiers from per-run UPGRADES: the unrounded tier 4 × levels ÷ the slot's levels
+  // (rod 6, line 6, reel 7, creel 4) gives each slot's Hold (data.upgradeHold, every level counts); the rounded tier
+  // (data.upgradeTiers) gives the tackle rating's words (catchRating).
   upgradeTiers: { slots: { rod: ['rod_ashwood', 'rod_whalebone'], line: ['line_gut', 'line_silver'], reel: ['reel_brass', 'reel_drag'], creel: ['creel_wicker'] },
-    uses: ['shock', 'pipBonus', 'absorb', 'dragAt', 'tackleRating'] },
-  // v3 fight stats (STATS keys added by the v3 build; T0 values are the base, TACKLE tiers replace them)
-  stats: { shock: { label: 'Shock', base: 0, fmt: 'pct', min: 0, max: 0.6 }, absorb: { label: 'Drag Absorb', base: 0.30, fmt: 'pct', min: 0, max: 0.95 },
-    pipBonus: { label: 'Hook Pips', base: 0, fmt: 'int', min: 0, max: 2 }, dragAt: { label: 'Drag Set', base: 0.80, fmt: 'pct', min: 0.6, max: 0.95 } },
-
-  // ---- Generated by tools/sim/reel-v3.mjs --write-rating (skilled, k 400): for each lake and each fitted
-  // loadout index rod·25 + line·5 + reel, the largest class landed ≥ 50% against the lake's reference
-  // species (0 Small … 4 Elder, −1 none) and the next class's land %. Placeholder until written: matched sets only.
-  // @tackleRating-begin (written by `node tools/sim/reel-v3.mjs --write-rating --apply`; do not edit by hand)
-  tackleRating: { k: 400, skill: 'skilled', index: 'rod * 25 + line * 5 + reel', classes: ['small','keeper','prize','trophy','elder'], lakes: {
-    mossmere: { reference: 'reedjaw_pike', cls: '33333333333333433334333443333333333333343333433344333333333333334333443334433333333333333433344334443333333333333343334433444',
-      next: [0, 0, 0, 1, 19, 0, 0, 3, 17, 33, 0, 5, 12, 26, 51, 4, 15, 27, 43, 59, 16, 23, 45, 56, 68, 0, 0, 0, 2, 20, 0, 0, 2, 14, 37, 1, 3, 14, 33, 55, 7, 14, 28, 43, 68, 13, 27, 40, 57, 71, 0, 0, 0, 1, 19, 0, 0, 3, 15, 33, 0, 5, 15, 29, 55, 5, 12, 28, 50, 64, 15, 25, 45, 59, 71, 0, 0, 0, 2, 31, 0, 0, 4, 22, 48, 1, 6, 17, 41, 62, 6, 20, 40, 55, 75, 21, 38, 55, 75, 82, 0, 0, 0, 3, 36, 0, 0, 4, 25, 46, 1, 7, 20, 42, 66, 10, 20, 35, 56, 78, 24, 31, 56, 70, 82] },
-    sporewood: { reference: 'mildew_angler', cls: '22333223332233322333223341233322333233332333312334222332233322333233342233423333333333333433344333442233333333333343334433344',
-      next: [20, 36, 0, 0, 0, 34, 48, 0, 3, 33, 33, 49, 9, 27, 41, 39, 46, 19, 32, 47, 40, 49, 22, 42, 54, 47, 41, 0, 0, 0, 28, 46, 0, 8, 28, 37, 1, 10, 24, 42, 42, 8, 18, 36, 49, 50, 48, 24, 42, 54, 21, 42, 49, 0, 0, 35, 47, 0, 8, 34, 44, 46, 12, 29, 45, 36, 9, 19, 36, 51, 37, 50, 28, 43, 52, 31, 0, 0, 0, 0, 0, 0, 1, 10, 42, 0, 3, 17, 48, 56, 7, 17, 32, 51, 72, 12, 27, 41, 57, 76, 32, 49, 0, 0, 0, 0, 0, 1, 11, 45, 0, 3, 15, 44, 60, 6, 17, 35, 55, 74, 16, 27, 45, 65, 75] },
-    glasswater: { reference: 'mirror_pike', cls: '12233222332233323333233341223322333223332333433334123332233323333233343333422333233333333433334333442233323334333343334433444',
-      next: [42, 32, 43, 0, 0, 30, 41, 49, 7, 24, 33, 43, 8, 20, 39, 41, 6, 14, 33, 49, 43, 14, 27, 40, 59, 46, 31, 47, 0, 1, 25, 40, 1, 8, 23, 34, 49, 7, 23, 39, 44, 7, 17, 36, 55, 6, 16, 27, 47, 63, 49, 35, 0, 0, 1, 24, 43, 1, 8, 29, 36, 1, 11, 26, 45, 47, 9, 18, 40, 52, 6, 14, 26, 47, 62, 27, 45, 0, 0, 2, 45, 0, 0, 15, 44, 0, 2, 16, 39, 62, 3, 13, 32, 49, 75, 12, 25, 46, 62, 78, 25, 47, 0, 0, 1, 47, 0, 1, 16, 52, 0, 4, 19, 44, 64, 4, 15, 34, 59, 74, 12, 30, 52, 63, 79] },
-    paleabyss: { reference: 'gilt_eyed_eel', cls: '12233223332333323333333331223322333233333333333334122332233323333333333333322233223332333333334333441223322333233333333433334',
-      next: [39, 7, 27, 0, 0, 13, 31, 0, 0, 5, 28, 0, 1, 7, 27, 45, 2, 9, 20, 37, 1, 8, 22, 35, 47, 41, 8, 27, 0, 0, 14, 27, 0, 0, 7, 29, 0, 0, 9, 30, 0, 2, 10, 28, 42, 3, 10, 18, 33, 50, 36, 10, 28, 0, 0, 13, 29, 0, 0, 4, 31, 0, 2, 9, 34, 0, 3, 10, 26, 39, 3, 8, 22, 37, 47, 2, 12, 36, 0, 0, 17, 38, 0, 0, 9, 44, 0, 1, 14, 40, 0, 2, 15, 37, 52, 4, 15, 28, 51, 66, 50, 10, 35, 0, 0, 19, 39, 0, 0, 6, 42, 0, 2, 14, 44, 1, 2, 18, 39, 55, 7, 16, 33, 49, 69] },
-  } },
-  // @tackleRating-end
+    uses: ['hold', 'rating'] },
+  // (D1′: the v3 fight stats `stats` (shock, absorb, pipBonus, dragAt) and the reel sim's `tackleRating` table are retired; the
+  // tackle rating is catchRating, in words.)
 };
 
 // ---- The roster: 53 species (brief §6.5). Grammar per lake: 3–4 everyday commons → uncommons → rares
@@ -2979,7 +2937,7 @@ export const BALANCE_V3 = {
 //   style  the v3 fight style (steady/darter/sinker/thrasher/leaper + runner (P3) / sulker (P4)); behavior
 //          stays the reel core's base until those verbs land
 //   family insect | predator | bottom | glow (read only by lures)    prefers  hush | drip | mist (the field-note
-//   condition: Match favour +0.3)    oldTrick  from style    phase 1–4 (in the build from that phase)
+//   condition: Match favour +0.3)    phase 1–4 (in the build from that phase)
 //   src 'v1' | 'walk' | 'v3'    place / cond (place-kept: eligible only there, under that state)
 //   weather (a hard condition gate)    spots {placeId: mult}    maxClass    zones (Wanderers)
 // Kept-fish conds extend §24's (buff / deed / reflection / plumbBottom / window) with live (a rhythm's live
@@ -3015,11 +2973,10 @@ function sv3(srcId, v3, patch = {}) {
   if (patch.model) out.model = { ...s.model, ...patch.model };
   return out;
 }
-// derived fields shared by every row (style → oldTrick; night-only from time; v1 weight range from the size model)
+// derived fields shared by every row (night-only from time; v1 weight range from the size model)
 function v3fin(s) {
   s.style = s.style || s.behavior;
   s.night = s.time === 'gloom';
-  if (s.rarity !== 'legendary') s.oldTrick = BALANCE_V3.size.reel.oldTrick.byStyle[s.style];
   const L50 = typeof s.size.L50 === 'number' ? s.size.L50 : Math.min(...Object.values(s.size.L50));
   const L = (z) => L50 * Math.exp(s.size.sigma * z + BALANCE_V3.size.tail * Math.max(0, z - BALANCE_V3.size.tailFrom) ** 2);
   const zHi = BALANCE_V3.size.classMaxZ[s.maxClass] ?? BALANCE_V3.size.reachZ;
@@ -3185,7 +3142,7 @@ export const SPECIES_V3 = [
   {
     id: 'quayling', name: 'Quayling', zone: 'cove', cove: true, rarity: 'common', tier: 1, value: 0, noSale: true, food: 4, oil: 4,
     time: 'any', depth: [0, 1], bait: null, behavior: 'darter', difficulty: diff(1, 'darter'), maxClass: 'keeper',
-    size: sz(14, 0.10, 'minnow'), family: 'insect', prefers: 'drip', phase: 3, src: 'v3',
+    size: sz(14, 0.10, 'minnow'), family: 'insect', prefers: 'drip', phase: 1, src: 'v3',   // FE-D1: phase 1 (the First Evening), cove-only
     model: { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x9a5a40, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.3, curiousEye: true },
     hint: 'Off the Landing\'s jetty. Old Murk will not buy it.',
     lore: 'A quayside minnow with rust-flecked fins and one curious eye. It lives in Murk\'s front yard and has opinions about him.' },
@@ -3490,32 +3447,33 @@ export const RUMOURS = [
 export const TODAYS_RUMOUR = { perRealDay: 1, giantsOnly: true, residentChance: 0.6, favour: 0.3,
   lines: ['An Elder {species} turns at {place}.', 'Something old feeds at {place} tonight.', '{place} is holding a giant. Murk swears it.'] };
 
-// ---- Tackle: persistent, per slot, bought and fitted at the Gear Bench (brief §5.6). Stats are ABSOLUTE
-// (they replace the STATS base for that key; Wicks, outfit, relics and Boons add on top). T2–T4 need a proof
-// catch; T3 needs the Sporewood Waystone lit, T4 the Glasswater one. shock = the Rod's surge absorb
-// (surgeHoldMult × (1 − shock)); pips = extra hook-hold pips; absorb = the Reel's drag absorb above dragAt.
+// ---- Tackle: persistent, per slot, bought and fitted at the Gear Bench (brief §5.6). `hold` is the automatic-fishing term
+// (CATCH_V3: Rod, Line and Reel are the global gear). castMax, hookWindow and creelSize are ABSOLUTE (they replace the STATS base;
+// Wicks, outfit, relics and Boons add on top). T2–T4 need a proof catch; T3 needs the Sporewood Waystone lit, T4 the Glasswater one.
+// (D1′: the manual reel's per-tier stats (slack grace, shock, pips, line strength, reel speed, sweet band, drag presets and absorb)
+// and the reel-sim tables (rating, gate, legends, targets) are retired.)
 export const TACKLE = {
   slots: ['rod', 'line', 'reel', 'creel'],
   rod: [
-    { tier: 0, id: 'willow_switch', name: 'Willow Switch', castMax: 16, hookWindow: 1.00, slackTime: 1.4, shock: 0, pips: 0, price: 0, proof: null, onSale: 'start' },
-    { tier: 1, id: 'ashwood_rod', name: 'Ashwood', castMax: 17.5, hookWindow: 1.04, slackTime: 1.6, shock: 0.08, pips: 0, price: 120, proof: null, onSale: 'start' },
-    { tier: 2, id: 'whalebone_rod', name: 'Whalebone', castMax: 19, hookWindow: 1.08, slackTime: 1.8, shock: 0.15, pips: 0, price: 450, proof: 'mossmere_prize', onSale: 'start' },
-    { tier: 3, id: 'glassreed_rod', name: 'Glassreed', castMax: 20.5, hookWindow: 1.12, slackTime: 2.0, shock: 0.22, pips: 1, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
-    { tier: 4, id: 'lantern_spine', name: 'Lantern-Spine', castMax: 22, hookWindow: 1.16, slackTime: 2.2, shock: 0.30, pips: 1, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+    { tier: 0, id: 'willow_switch', name: 'Willow Switch', hold: 0, castMax: 16, hookWindow: 1.00, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'ashwood_rod', name: 'Ashwood', hold: 2, castMax: 17.5, hookWindow: 1.04, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'whalebone_rod', name: 'Whalebone', hold: 5, castMax: 19, hookWindow: 1.08, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'glassreed_rod', name: 'Glassreed', hold: 8, castMax: 20.5, hookWindow: 1.12, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'lantern_spine', name: 'Lantern-Spine', hold: 12, castMax: 22, hookWindow: 1.16, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
   ],
   line: [
-    { tier: 0, id: 'twine', name: 'Twine', lineStrength: 1.00, price: 0, proof: null, onSale: 'start' },
-    { tier: 1, id: 'braided_gut', name: 'Braided Gut', lineStrength: 1.15, price: 120, proof: null, onSale: 'start' },
-    { tier: 2, id: 'waxed_silk', name: 'Waxed Silk', lineStrength: 1.32, price: 450, proof: 'mossmere_prize', onSale: 'start' },
-    { tier: 3, id: 'glass_gut', name: 'Glass-Gut', lineStrength: 1.52, clear: true, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
-    { tier: 4, id: 'silverthread', name: 'Silverthread', lineStrength: 1.75, slackAdd: 0.2, clear: true, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+    { tier: 0, id: 'twine', name: 'Twine', hold: 0, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'braided_gut', name: 'Braided Gut', hold: 2, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'waxed_silk', name: 'Waxed Silk', hold: 5, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'glass_gut', name: 'Glass-Gut', hold: 9, clear: true, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'silverthread', name: 'Silverthread', hold: 13, clear: true, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
   ],
   reel: [
-    { tier: 0, id: 'wooden_winch', name: 'Wooden Winch', reelSpeed: 1.00, sweetZone: 0.16, drag: 'fixed', absorb: 0.30, price: 0, proof: null, onSale: 'start' },
-    { tier: 1, id: 'brass_spool', name: 'Brass Spool', reelSpeed: 1.12, sweetZone: 0.17, drag: 'fixed', absorb: 0.45, price: 120, proof: null, onSale: 'start' },
-    { tier: 2, id: 'clockwork_reel', name: 'Clockwork', reelSpeed: 1.25, sweetZone: 0.18, drag: 'presets', absorb: 0.58, price: 450, proof: 'mossmere_prize', onSale: 'start' },
-    { tier: 3, id: 'whisper_drag', name: 'Whisper Drag', reelSpeed: 1.40, sweetZone: 0.19, drag: 'presets', absorb: 0.68, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
-    { tier: 4, id: 'tidewheel', name: 'Tidewheel', reelSpeed: 1.55, sweetZone: 0.20, drag: 'presets', absorb: 0.76, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+    { tier: 0, id: 'wooden_winch', name: 'Wooden Winch', hold: 0, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'brass_spool', name: 'Brass Spool', hold: 2, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'clockwork_reel', name: 'Clockwork', hold: 5, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'whisper_drag', name: 'Whisper Drag', hold: 8, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'tidewheel', name: 'Tidewheel', hold: 12, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
   ],
   creel: [
     { tier: 0, id: 'wicker_creel', name: 'Wicker', creelSize: 4, liveWell: 1, nights: 3, price: 0, proof: null, onSale: 'start' },
@@ -3529,38 +3487,10 @@ export const TACKLE = {
     sporewood_trophy_or_glasswater_prize: [{ zone: 'sporewood', class: 'trophy' }, { zone: 'glasswater', class: 'prize' }],
     glasswater_trophy: [{ zone: 'glasswater', class: 'trophy' }],
   },
-  drag: { presets: { light: 0.70, set: 0.80, firm: 0.90 }, fixed: 'set', fromReelTier: 2, cycle: 'tapReelIcon', slipLoss: 0.08 },
   clearWater: { zones: ['glasswater'], belowLineTier: 3, waitMult: 1.12, favour: -0.1 },
-  lostLureFrac: 0.25,
+  lostLureFrac: 0,               // automatic fishing: a snapped line costs only the bait; a lure is never lost (a dice loss must not tax the giants' lures; was 0.25)
   catalogue: { rod: 5170, line: 5170, reel: 5170, creel: 3100, total: 18610 },
   reference: { mossmere: 'reedjaw_pike', sporewood: 'mildew_angler', glasswater: 'mirror_pike', paleabyss: 'gilt_eyed_eel' },
-  // Matched-set tackle rating (brief §5.6; skilled ≥ 50% vs the reference species): [class, next class land %].
-  rating: {
-    mossmere:   [['trophy', 0], ['trophy', 0], ['trophy', 15], ['elder', 55], ['elder', 82]],
-    sporewood:  [['prize', 20], ['prize', 46], ['trophy', 12], ['elder', 51], ['elder', 75]],
-    glasswater: [['keeper', 42], ['prize', 40], ['trophy', 11], ['trophy', 49], ['elder', 79]],
-    paleabyss:  [['keeper', 39], ['prize', 27], ['trophy', 2], ['trophy', 37], ['elder', 69]],
-  },
-  // The gear gate (reel-v3 --gate --k 400, skilled; Prize / Trophy / Elder / Ancient land %, T0…T4).
-  gate: {
-    reedjaw_pike:  [[77, 52, 0, 0], [89, 76, 0, 0], [94, 87, 15, 0], [100, 99, 55, 0], [100, 100, 82, 44]],
-    mildew_angler: [[56, 20, 0, 0], [61, 46, 0, 0], [77, 58, 12, 0], [99, 88, 51, 0], [100, 94, 75, 51]],
-    mirror_pike:   [[42, 14, 0, 0], [70, 40, 0, 0], [85, 72, 11, 0], [98, 94, 49, 0], [100, 98, 79, 46]],
-    gilt_eyed_eel: [[39, 3, 0, 0], [68, 27, 0, 0], [85, 66, 2, 0], [96, 92, 37, 0], [100, 98, 69, 43]],
-  },
-  legends: {   // novice / skilled / expert, T0…T4 matched; the Lantern-Swallower also on mixed sets
-    belled_matriarch:  [[56, 82, 85], [84, 90, 91], [99, 100, 100], [100, 100, 100], [100, 100, 100]],
-    drifting_grove:    [[31, 76, 89], [64, 87, 95], [84, 94, 97], [97, 98, 99], [100, 100, 100]],
-    glass_sovereign:   [[4, 47, 74], [20, 64, 86], [38, 80, 93], [85, 98, 99], [100, 100, 100]],
-    lantern_swallower: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 14, 50], [27, 83, 98]],
-    lanternSwallowerMixed: { R3L4E3: [5, 41, 78], R4L4E3: [6, 46, 85], R3L4E4: [20, 77, 97] },
-  },
-  // Land-rate targets for hooked fish (brief §5.9): [novice, skilled, expert] %, ranges as [lo, hi].
-  targets: {
-    commons: [97, 99, 100], keeperRares: [85, 95, 99], prize: [70, 90, 97], trophy: [45, 75, 90],
-    elderOnCurve: [[0, 15], [15, 35], [25, 45]], elderOnArrival: [0, 10],
-    elderT4Reference: [65, 80], ancientT4Reference: [40, 55], elderT4Tolerance: 2.5,
-  },
 };
 // ---- Outfit: the four all-mode per-run upgrades, now persistent (brief §5.6). Effects are per level, in STATS units.
 export const OUTFIT = [
@@ -3573,16 +3503,379 @@ export const OUTFIT = [
   { id: 'boots', name: 'Cork-Soled Boots', from: 'boots_cork', maxLevel: 3, prices: [80, 240, 600], onSale: 'sporewood', effects: { stride: 0.35 },
     desc: 'Stride +0.35 m/s on foot per level.' },
 ];
-// ---- Lures: permanent tackle (brief §5.3). You equip a lure or a bait; a snap loses the lure (replacement 25%).
+// ---- Lures: permanent tackle from P3 (brief §5.3); per-run at 40% from Murk in P1–P2 runs (AUTOFISH.runLures). You equip a lure or a
+// bait; under automatic fishing a snapped line never loses the lure (TACKLE.lostLureFrac 0).
 export const LURES = [
-  { id: 'feather_fly', name: 'Feather Fly', depth: 'surface', family: 'insect', attract: 2, favour: 0, riseWaitMult: 0.5, price: 40, onSale: 'start' },
+  { id: 'feather_fly', name: 'Feather Fly', depth: 'surface', family: 'insect', attract: 2, favour: 0, riseWaitMult: 0.5, price: 120, onSale: 'start' },   // 40 → 120 with AF: +5 Hold on every insect feeder
   { id: 'glimmer_spoon', name: 'Glimmer Spoon', from: 'lure_glimmer', depth: 'mid', family: 'predator', attract: 2.5, favour: 0.2, price: 90, onSale: 'start' },
   { id: 'bone_jig', name: 'Bone Jig', depth: 'bottom', family: 'bottom', attract: 2.5, favour: 0.2, price: 120, onSale: 'start' },
   { id: 'moth_popper', name: 'Moth Popper', depth: 'surface', family: null, night: true, attract: 2, favour: 0.2, price: 260, onSale: 'sporewood' },
   { id: 'lantern_lure', name: 'Lantern Lure', depth: 'midDeep', family: 'glow', attract: 2.5, favour: 0.4, price: 1200, onSale: 'glasswater' },
+  // the giants' lures (automatic fishing, DESIGN §25.6.3): one per lake, +10 Hold on three named giants (CATCH_V3.items), nothing else
+  { id: 'bell_spinner', name: 'Harbour-Bell Spinner', depth: 'mid', family: null, species: ['reedjaw_pike', 'weeping_carp', 'bridgechain_sturgeon'], attract: 1.5, favour: 0, price: 220, onSale: 'start',
+    desc: "A clapper from a drowned harbour bell. The moat's old giants still come when it rings." },
+  { id: 'sporelamp_fly', name: 'Spore-Lamp Fly', depth: 'surface', family: null, species: ['mildew_angler', 'nightbloom_carp', 'velvet_ray'], attract: 1.5, favour: 0, price: 480, onSale: 'sporewood',
+    desc: 'A fly tied around one soft lit spore. The old ones of the Pools rise to it as if to a memory.' },
+  { id: 'mirror_shard', name: 'Mirror Shard', depth: 'midDeep', family: null, species: ['mirror_pike', 'blind_scrivener', 'shardspine_eel'], attract: 1.5, favour: 0, price: 950, onSale: 'glasswater',
+    desc: "A sliver of the Vault's glass. It shows a fish itself, and the oldest cannot look away." },
+  { id: 'ferry_coin', name: "Ferryman's Coin", depth: 'deep', family: null, species: ['gilt_eyed_eel', 'candlewake_sturgeon', 'shroud_ray'], attract: 1.5, favour: 0, price: 1600, onSale: 'paleabyss',
+    desc: 'The fare nobody paid. The great ones of the Deep still come to collect it.' },
 ];
 // The five combat upgrades stay per expedition as Murk's combat kit, sold only in combat modes at 40% (brief §3.6, §9.3).
 export const COMBAT_KIT = { ids: ['lantern_mantle', 'lantern_lens', 'lantern_striker', 'raft_hull', 'raft_hearth'], priceMult: 0.4, modes: ['lantern', 'gloomtide'] };
+
+// =====================================================================================
+// Automatic fishing (v3; the user's direction of 2026-11-05, DESIGN §25.6, CONTRACT §13.7). Always exported, read only
+// when V3_ENABLED (fishing, progression, ui, tools); v1 (flag off) keeps today's hold-to-reel game bit-identical.
+//   p = max( floor, cap[class] · σ( scale · (Hold − Fight) ) )          σ(x) = 1 / (1 + e^−x); every cap < 1, so p < 1 always
+//   Hold  = wick + tackle (TACKLE[slot][tier].hold, weighted by the fish's style; fractional tiers interpolate, P1–P2 runs use
+//           upgradeHold) + one bait OR lure (only on the fish it helps; a per-run upgrade lure never stacks with it: the larger counts)
+//           + strike + buffs (relics ≤ 3, run buffs ≤ 4, together ≤ 6) + Marked Fish (once) + legend wounds
+//   Fight = lake + rarity + style + headline + kept + fouled + class (+ the lake's Elder step + the Elder rarity step, Elder and Ancient)
+// One roll per hooked fish, at the strike, from the fish that bit; the play (the automatic reel-in) performs that result.
+// =====================================================================================
+export const CATCH_V3 = {
+  scale: 0.1,                     // logits per Hold point: +10 roughly doubles low odds, ≈ +24 points at even odds, little near the cap
+  floor: 0.01,                    // every hooked fish keeps a sliver of a chance (a starter-tackle Elder is a 1% story, never 0%); 0.02 hid tackle steps in the log
+  cap: { small: 0.95, keeper: 0.95, prize: 0.93, trophy: 0.88, elder: 0.78, ancient: 0.5, legend: 0.5 },   // never 100%; giants never better than a coin flip
+  wick: 10,                       // the Wick's own craft (every Wick the same; quirks are buffs)
+  // ---- Fight: the fish
+  lake: { cove: -12, mossmere: 0, sporewood: 7, glasswater: 16, paleabyss: 24 },   // Wanderers use the lake they are hooked in
+  rarity: { common: 0, uncommon: 4, rare: 8 },
+  style: { steady: 0, darter: 0, sinker: 1, leaper: 1, thrasher: 2, runner: 2, sulker: 2 },
+  headline: 2,                    // the lake's reference species (TACKLE.reference: Reedjaw Pike, Mildew Angler, Mirror Pike, Gilt-Eyed Eel)
+  kept: -2,                       // place-kept fish (solving the place earns a fairer fight)
+  fouled: 3, fouledSpecies: ['old_portcullis', 'candlewake_sturgeon'],   // fish that live among chains (the Gatehouse Door, the Chain Garden)
+  class: { small: -10, keeper: -6, prize: 7, trophy: 15, elder: 24, ancient: 28 },   // "bigger is harder" (the user's answer 2); Small / Keeper eased so a hook lands ≈ 8 in 10 (AF review)
+  elderStep: { cove: 0, mossmere: 12, sporewood: 7, glasswater: 3, paleabyss: 2 },   // early water keeps its oldest fish hard (Q3); the Gilt-Eyed Eel stays the hardest regular fish
+  elderRarity: { common: 2, uncommon: 4, rare: 6 },
+  // ---- Hold: the Wick and the kit (tackle Hold per tier lives on TACKLE[slot][tier].hold: 0 / 2 / 5 / 8–9 / 12–13)
+  emphasis: {                     // the slot a fish tests (weights average 1, so a matched set is almost style-blind); also the loss cause
+    leaper: { rod: 1.6, line: 0.7, reel: 0.7 }, runner: { rod: 0.7, line: 0.7, reel: 1.6 },
+    thrasher: { rod: 0.7, line: 1.6, reel: 0.7 }, sinker: { rod: 0.7, line: 1.6, reel: 0.7 }, sulker: { rod: 0.7, line: 1.6, reel: 0.7 },
+    steady: { rod: 1, line: 1, reel: 1 }, darter: { rod: 1, line: 1, reel: 1 },
+  },
+  strike: { clean: 4, struck: 2, early: 0, late: 0 },     // AUTOFISH.strike has the windows; 'struck' is the log's reference strike; a mistimed tap is "a bit lower" (−2 vs the log)
+  // the specific gear: one bait OR one lure is equipped; it adds Hold only to the fish it helps (nothing for anything else)
+  //   attract: BAITS[].bonus.attract ∪ species whose `bait` is this one · all: every fish · night: night-only species, at night
+  //   family: species of that FISH_FAMILIES tag · species: the named species only
+  items: {
+    mireworm:      { kind: 'bait', hold: 5, attract: true },
+    lumen_moss:    { kind: 'bait', hold: 5, attract: true },
+    spore_cake:    { kind: 'bait', hold: 5, attract: true },
+    ember_roe:     { kind: 'bait', hold: 6, attract: true },   // still favour +0.35, so it also brings bigger fish
+    glass_larva:   { kind: 'bait', hold: 5, attract: true },
+    shimmerfly:    { kind: 'bait', hold: 2, all: true },       // the one global bait
+    wick_worm:     { kind: 'bait', hold: 4, attract: true },   // §24's place-kept fish
+    cut_strip:     { kind: 'bait', hold: 4, family: 'predator' },
+    feather_fly:   { kind: 'lure', hold: 5, family: 'insect' },
+    glimmer_spoon: { kind: 'lure', hold: 6, family: 'predator' },
+    bone_jig:      { kind: 'lure', hold: 6, family: 'bottom' },
+    moth_popper:   { kind: 'lure', hold: 6, night: true },
+    lantern_lure:  { kind: 'lure', hold: 8, family: 'glow' },
+    bell_spinner:  { kind: 'lure', hold: 10, species: ['reedjaw_pike', 'weeping_carp', 'bridgechain_sturgeon'] },   // the giants' lures (one per lake)
+    sporelamp_fly: { kind: 'lure', hold: 10, species: ['mildew_angler', 'nightbloom_carp', 'velvet_ray'] },
+    mirror_shard:  { kind: 'lure', hold: 10, species: ['mirror_pike', 'blind_scrivener', 'shardspine_eel'] },
+    ferry_coin:    { kind: 'lure', hold: 10, species: ['gilt_eyed_eel', 'candlewake_sturgeon', 'shroud_ray'] },
+    lure_glimmer:  { kind: 'upgrade', holdPerLevel: 2, family: 'predator' },   // the per-run Glimmer Spoon (UPGRADES; P1–P2 runs, The Long Descent), levels 1–3: loadout.upgrade, never stacked with the item (max)
+  },
+  // buffs: relics at most +3, run buffs (Well-fed, Boons, a Wick's quirk) at most +4, all together at most +6 Hold. Owned relics are in
+  // the log's figures (display.reference.buffs 'relics'); run buffs are not. Strike-window buffs add no Hold (AUTOFISH.strike.windowBuffs).
+  buffs: {
+    cap: 6, relicCap: 3, runCap: 4, wellFed: 2,   // Well-fed replaces reelSpeed +0.08 / sweetZone +0.01
+    boons: { steady_reel: { perLevel: 1 }, gilded_hook: { hold: 2 }, patient_line: { perLevel: 1, styles: ['leaper', 'runner'] } },
+    relics: { seven_knots: { perLevel: 1 }, steady_hook: { perLevel: 1 }, measuring_cord: { level: 2, hold: 2, fromClass: 'prize' } },
+    wicks: { ashwick: { hold: 3, on: 'firstHookEachNight' } },   // Burned Once (was: the first surge telegraphed 0.3 s longer)
+  },
+  markedFish: 6,                  // a re-hooked Marked Fish remembers the hook and is tired: +6 Hold, once (T5 reports the first-Elder hour; raise to 9 before touching Elder odds)
+  legend: {                       // legends: their own Fight, the legend cap, no bait or lure Hold (the legend bait is the ticket)
+    fight: { belled_matriarch: 16, drifting_grove: 28, glass_sovereign: 40, lantern_swallower: 56 },      // persistent tackle (expeditions, P3+)
+    fightRun: { belled_matriarch: 14, drifting_grove: 22, glass_sovereign: 30, lantern_swallower: 36 },   // per-run gear (P1–P2 runs, The Long Descent: mods.perRun)
+    style: { belled_matriarch: 'steady', drifting_grove: 'leaper', glass_sovereign: 'leaper', lantern_swallower: 'sinker' },
+    woundPerEscape: 6, woundCap: 18,          // each escape: +6 Hold on the next attempt, up to +18, kept in meta until landed (The Long Descent: per descent, in run)
+    woundScope: { expedition: 'meta.legendWounds', run: 'meta.legendWounds', descent: 'run.legendWounds' },
+    growthPerLanding: 2, growthCap: 10,       // each landing makes it older and heavier (the +7% weight rule): +2 Fight, up to +10
+  },
+  gloomtide: { slamPartsLine: true },   // Gloomtide (and The Long Descent) only: a hand slam that lands during a play parts the line
+  // the economy: automatic plays are shorter, so more fish land per day; value, food, oil and fish XP are multiplied per lake so
+  // Shells, food and oil per in-lake day stay at ECONOMY_V3.income (tools/sim/catch-v3.mjs prints it; the balance sim T3 owns it)
+  economy: { norm: { cove: 1, mossmere: 0.78, sporewood: 0.72, glasswater: 0.64, paleabyss: 0.56 }, appliesTo: ['value', 'food', 'oil', 'fishXp'], from: 'AF', fishXpOwner: 'combat.fishXpForMode' },
+  // the logs (the only place a % is ever shown): on-time strike, owned relics in (no run buffs), rounded DOWN so a cap is never printed
+  display: { round: 'floor', reference: { strike: 'struck', buffs: 'relics', marked: false }, unseen: '?', unreachable: '—' },
+  // targets (validate-data and tools/sim/catch-v3.mjs check them)
+  targets: {
+    relicHoldByTier: [0, 1, 2, 3, 3],    // the owned relic Hold a player has at each matched tier (in the log; the targets below use it)
+    commonsT0: [0.75, 0.9],              // Mossmere commons, Small and Keeper, matched T0, no item: ≈ 8 in 10, never guaranteed
+    elderT0Max: 0.1,                     // every Elder at matched T0, on-time strike, no buffs, with or without any one item
+    headlineElderEarlyMax: 0.1,          // Reedjaw Pike and Mildew Angler Elders on T0–T2, no item
+    headlineElderT4Item: [0.45, 0.7],    // the early lakes' headline Elders (Reedjaw, Mildew Angler, and Mirror Pike) on T4 with their best item and T4's relics
+    deepHeadlineT4Item: [0.3, 0.45],     // the Gilt-Eyed Eel: the endgame's hardest regular fish, deliberately below the band, never out of reach
+    ancientMax: 0.5, legendMax: 0.5,     // never better than a coin flip, whatever you bring
+    familyLureGain: 10, giantsLureGain: [15, 25],   // average points on targets (Prize / Trophy on the lake's own tackle)
+    tutorial: [0.85, 0.95],              // the Quayling, Small, matched T0, on-time strike
+    levelGain: 1,                        // every per-run rod / line / reel level raises the Reedjaw Pike's Trophy chance (others at 0) by ≥ 1 point
+    perRunSwallower: { R3L2E3: [0.15, 0.25], T4Max: 0.45 },   // the Lantern-Swallower on per-run gear (first attempt, no wounds)
+    noviceCleanSmall: 0.2,               // a novice (median reaction 0.36 s, touch) strikes Clean on ≥ 20% of Small bites (AUTOFISH.strike)
+  },
+};
+
+export const AUTOFISH = {
+  // ---- the strike: the one input after the cast (DESIGN §25.6.4). Windows by size class, never by species.
+  strike: {
+    window: { small: 0.6, keeper: 0.7, prize: 0.8, trophy: 0.85, elder: 0.9, ancient: 0.9, legend: 1.0 },   // s after the "!"
+    // win = clamp(window[class] × getStats().hookWindow × (1 + bait.bonus.hookWindow) × place.hookWindowMult + place.hookWindowAdd
+    //            (+ a wounded legend's windowBonus), clamp). hookWindow is the additive multiplier (Rod, Boons, relics, Wicks, perks, Spore
+    //            Cake); BALANCE.bite.holdMult is not applied on the AF path (its 10% is in the table). Never by species.
+    rodMult: 'TACKLE.rod[].hookWindow', windowBuffs: ['hungry_waters', 'feather_touch', 'gilded_hook', 'steady_hook', 'lure_feather'],
+    clamp: [0.35, 1.4], cleanFrac: 0.4, cleanMin: 0.3, earlyGrace: 0.3, lateGrace: 0.3,
+    lastDip: 0.25,                // every class tell ends with the same 0.25 s last dip before the "!", so Clean is a rhythm to learn
+    latencyComp: { touch: 0.07, mouse: 0.03, key: 0.02 },   // s subtracted from the tap time before grading (input and display latency)
+    priority: 'bite',             // while fishing.state is 'bite', the pointer and Space / Enter go to the strike first in every mode (F stays Flare)
+    reaction: { novice: [0.36, 0.3], average: [0.3, 0.28], expert: [0.24, 0.25] },   // [median s, log-σ] after the "!" (catch-v3's strike model)
+    grades: ['clean', 'struck', 'early', 'late'], reference: 'struck', streak: 'clean',   // the perfect-hook streak counts Clean strikes
+    ring: { default: 'firstExpedition', options: ['always', 'firstExpedition', 'never'], startPx: { phone: 64, desktop: 80 }, widthPx: 2 },
+    showStruckWord: 20,           // "Struck" is printed under the float for the first 20 strikes; Clean / Early / Late always
+    haptic: { clean: [12, 40, 12], struck: [15], early: [8], late: [8], loss: [40],
+      bite: { small: [10], keeper: [15], prize: [20], trophy: [20, 60, 20], elder: [35, 60, 35], ancient: [35, 60, 35] } },
+  },
+  // ---- the play: the automatic reel-in, planned from size class and z only (planPlay), generated before the outcome is applied
+  play: {
+    small:   { dur: [2, 3],   runs: [0, 0], surges: [0, 0], glimpses: [0, 0], lastStand: 0, still: 0, tow: 0,   bend: 0.25, shake: 0,    music: 'calm' },
+    keeper:  { dur: [3, 5],   runs: [1, 1], surges: [0, 1], glimpses: [1, 1], lastStand: 0, still: 0, tow: 0,   bend: 0.45, shake: 0.04, music: 'calmPulse' },
+    prize:   { dur: [5, 8],   runs: [1, 2], surges: [1, 2], glimpses: [1, 2], lastStand: 0, still: 0, tow: 0.2, bend: 0.65, shake: 0.08, music: 'reelLow' },
+    trophy:  { dur: [8, 12],  runs: [2, 2], surges: [2, 3], glimpses: [2, 3], lastStand: 0, still: 0, tow: 0.6, bend: 0.8,  shake: 0.12, music: 'reelMid' },
+    elder:   { dur: [12, 20], runs: [3, 3], surges: [3, 5], glimpses: [3, 4], lastStand: 1, still: 0, tow: 1.5, bend: 0.95, shake: 0.18, music: 'reelFull', pass: true },
+    ancient: { dur: [20, 30], runs: [4, 4], surges: [4, 6], glimpses: [4, 5], lastStand: 2, still: 1, tow: 2.5, bend: 1.0,  shake: 0.22, music: 'reelHeart', pass: 'longerThanRaft' },
+    legend:  { dur: [30, 60], authored: true },
+    jitter: [0.92, 1.08],         // dur = lerp(min, max, z's place in its class band) × U(jitter)
+    firstGlimpse: { keeper: [0.7, 0.85], prize: [0.35, 0.5], trophy: [0.3, 0.45], elder: [0.25, 0.4], ancient: [0.2, 0.35] },   // the class estimate stamps here (Prize+)
+    lastStandAt: { elder: [[0.55, 0.7]], ancient: [[0.55, 0.65], [0.8, 0.88]] },
+    beat: { take: [0.3, 0.8], gain: [0.5, 2], run: [0.6, 4], hold: [0.5, 2], surge: [0.3, 0.8], glimpse: [0.6, 1.5], leap: [0.35, 1.2],
+      lastStand: [2, 4], still: [1.5, 1.5], lift: [0.6, 1.2], loss: [0.4, 1], scare: [0.5, 1.2] },
+    // the fitted tackle shows in every play (planned from the mean fitted tier, which the player knows; never from species or outcome)
+    tackle: { durPerTier: -0.05, bendPerTier: -0.04, strainPitchPerTier: -1, models: 'fitted' },
+    // scares: a slack moment or a surface head-shake that recovers, planned before the outcome (count by class); a lost play with a
+    // scare inside its loss window loses on the scare with loss.onScare
+    scare: { small: [0, 0], keeper: [0, 1], prize: [1, 1], trophy: [1, 2], elder: [1, 2], ancient: [2, 2] },
+    // a place's own beat replaces one gain beat when the fish is hooked there (P2: the Mossmere's places; §24's with §24)
+    placeBeats: { under_the_span: 'grind', lily_maze: 'lilies', gatehouse_door: 'chains', chain_garden: 'chains', ferry_market: 'glassClear', mirror_nave: 'glassClear' },
+    // fully automatic after the strike (the user's decision 3, DESIGN §25.0.2c: "Strike, then automatic", no cut): nothing the player
+    // does during a play changes the odds or ends it early. There is no cut (no glyph, no key, no 'cut' loss cause) and no leash.
+    inputs: {
+      pan: 20,                    // drag orbits the camera ±20° in yaw and springs back
+      hurry: { classes: ['small', 'keeper'], mult: 2.5, fromRun: 2 },   // from expedition 2 (P1–P2: meta.runs ≥ 2); speeds the play, never ends it
+      endsEarly: false,           // no input ends a play; the one outside event is Gloomtide's hand slam (CATCH_V3.gloomtide)
+    },
+    // the anchor (replaces the 2 m leash): from the strike until the card or the got-away note (fishing.state reeling / landing / lost)
+    // the raft (or the planted Wick on foot) is anchored in EVERY night mode: movement input is ignored and not buffered, nothing in
+    // combat moves it (no knockback, slam knock or shove), and only the play's own tow (play[class].tow, planned from class and z) moves
+    // it. Gloomtide: the same anchor, so a telegraphed hand slam is answered with fire, not feet (aura, weapons, zaps, Flare work as
+    // usual; hits cost Embers, without knockback), and a slam that lands parts a non-legendary line ('staggered'). `hub`: the same anchor
+    // at the Landing, where the First Evening's run-less play has no night mode.
+    anchor: { from: 'strike', until: ['card', 'gotAwayNote'], states: ['reeling', 'landing', 'lost'], modes: ['still', 'lantern', 'gloomtide'], hub: true,
+      moveInput: 'ignored', buffered: false, combatMoves: false, towOnly: true, gloomtide: { slamPartsLine: true, taps: 'zap', knockback: false } },
+  },
+  // legends: identity is known (legend pool + legend bait), so their real model shows and their plays are authored set pieces
+  legendPlays: {
+    belled_matriarch:  { dur: 36, set: ['take', 'toll', 'run', 'toll', 'circle', 'lastStand', 'lift'] },
+    drifting_grove:    { dur: 44, set: ['take', 'bloomingDive', 'leap', 'run', 'bloomingDive', 'leap', 'lift'], leaps: [0.4, 0.8] },
+    glass_sovereign:   { dur: 50, set: ['take', 'leap', 'shatterRun', 'leap', 'hold', 'leap', 'lift'], leaps: [0.25, 0.55, 0.85] },
+    lantern_swallower: { dur: 60, set: ['take', 'emberSurge', 'graspingDark', 'run', 'emberSurge', 'graspingDark', 'still', 'lastStand', 'lift'] },
+  },
+  // ---- leaps (the user's follow-up: "Some fish species would jump out the water so keep that for certain fish"). Per species only the
+  // chance that a play (Keeper+) leaps at all (leaps[id]); how many leaps and where they fall come from ONE class-level table shared by
+  // every leaping species, because a per-species count or window was a species signature (the AF review). A leap is a backlit
+  // silhouette of the night-ink proxy at presentLength (never the species' own outline): no colour, pattern, glow or eye-shine.
+  // Several species leap in every water (leapRule), so a leap never pins one.
+  leap: {
+    kind: { keeper: 'skip', prize: 'leap', trophy: 'leap', elder: 'breach', ancient: 'breach' },
+    count: { keeper: [[1, 1]], prize: [[1, 0.75], [2, 0.25]], trophy: [[1, 0.6], [2, 0.4]], elder: [[1, 0.5], [2, 0.35], [3, 0.15]], ancient: [[2, 0.6], [3, 0.4]] },
+    perClassMax: { small: 0, keeper: 1, prize: 2, trophy: 2, elder: 3, ancient: 3 },
+    when: [0.15, 0.85], minGap: 0.12,   // one window for every leaper and class; each leap at random inside it
+    slowmo: { seconds: 0.25, scale: 0.35, fromClass: 'prize' }, silhouette: { mesh: 'proxy', length: 'presentLength', fill: 0x04050a, rim: 'keyLight', spray: [0xeae4d3, 0xffb347] },
+  },
+  leaps: {   // chance per play (Keeper+) that the play has leaps
+    gloam_eel: 0.6, reedjaw_pike: 0.3, bridgechain_sturgeon: 0.35, lampsipper: 0.3, candlefin_koi: 0.25, dusk_minnow: 0.15,
+    weeping_carp: 0.15, mossback_perch: 0.08, the_remembered_sun: 0.6, velvet_ray: 0.25, nightbloom_carp: 0.2, hushcap_koi: 0.2,
+    harpstring_eel: 0.15, threadling_eel: 0.1, plumgill_perch: 0.1, sporebelly_puffer: 0.12, mildew_angler: 0.05, vesper_gar: 0.4,
+    mirror_pike: 0.3, rainglass_darter: 0.25, shardspine_eel: 0.2, the_unreflected: 0.2, prism_minnow: 0.15, the_sexton: 0.1,
+    glassgill_perch: 0.12, glassblown_puffer: 0.08, shroud_ray: 0.45, wax_bearer: 0.45, candlewake_sturgeon: 0.35, gilt_eyed_eel: 0.15,
+    ossuary_fry: 0.15, the_clapper: 0.15, the_namesake: 0.15, pallid_wraithfin: 0.15, funeral_veil: 0.1, the_unpaid_fare: 0.05,
+    pilgrim_salmon: 0.5, hearthfish: 0.45,
+  },
+  // the leap ambiguity rule (validate-data): in every lake × hour × depth band × bait or lure, over the species that can bite there
+  // (open water; each kept place with its kept species at × keptWeight), weighted by roll weight × leap chance: the species that
+  // can leap number 0 or ≥ 2, and none makes up more than maxShare of the expected leaps (maxShareItem when a bait or lure tilts
+  // the pool: a chosen tilt is the player's own targeting, and two attract-able leapers cannot both stay under 70%). A leap never
+  // pins one species.
+  leapRule: { bands: [[0, 0.34], [0.33, 0.67], [0.66, 1]], hours: ['calm', 'dusk', 'gloomtide'], classes: ['keeper', 'prize', 'trophy', 'elder'], maxShare: 0.7, maxShareItem: 0.8, keptWeight: 8, minLeapersPerLake: 5 },
+  // the same test for the bite itself (biteRule): over the species that can bite in a lake × hour × depth band × bait or lure × class,
+  // weighted by roll weight × the class's share at μ 0.4 (open water, z ≤ 2.64; giant water for Elders), there are 0 or ≥ 2 species
+  // and none above maxShare (maxShareItem with a chosen bait or lure). `accepted` lists the cells the rule knowingly lets through, each
+  // with its reason (the water's own character, read before the cast: e.g. a deep pool at dusk that mostly holds perch).
+  biteRule: { classes: ['small', 'keeper', 'prize', 'trophy', 'elder'], mu: 0.4, maxShare: 0.75, maxShareItem: 0.85,
+    accepted: [   // every class of these cells (prefix match), in any phase's roster: a perch bait or lure in perch water, chosen and read before the cast
+      ...['calm', 'dusk', 'gloomtide'].flatMap((h) => ['mireworm', 'glimmer_spoon'].map((it) => ({ cell: `sporewood · ${h} · 0.66–1 · ${it}`,
+        reason: `${it === 'mireworm' ? 'Mire Worms' : 'the predator lure'} in the Pools' deep water: the Plumgill Perch's own ${it === 'mireworm' ? 'bait' : 'prey'} where it is the common fish` }))),
+      { cell: 'glasswater · gloomtide · 0.66–1 · glass_larva', reason: "Glass Larvae in the Vault's deep water at night: the Glassgill Perch's own bait where it is the common fish" },
+    ] },
+  // signs: a sign kind may tilt its pre-rolled fish (rise: surface feeders; glow: night fish; nervous / strike: predators × 3; bubbles:
+  // bottom × 2), but where the tilted pool at that point would have < minSpecies species or a top share above maxShare, fishing pre-rolls
+  // from the blind pool instead (the kind still shows; its tilt is dropped there). Checked at runtime on every pre-roll; validate-data
+  // reports how many cells fall back.
+  signRule: { minSpecies: 2, maxShare: 0.8, fallback: 'blindPool' },
+  // ---- the loss: decided at the strike, shown on a readable moment in the second half of the play (outcome-blind first half)
+  loss: {
+    minAt: 0.5, quietBeat: 0.6,   // no loss before half the planned play; after a loss, 0.6 s with no UI, then the got-away note
+    at: { snapped: [0.55, 0.85], thrown: [0.5, 0.9], spat: [0.88, 0.95], spooled: [0.5, 0.8], fouled: [0.5, 0.8] },
+    byStyle: {                    // ordinary-beat causes, by the slot the fish tests (rod → thrown, reel → spooled, line → snapped)
+      leaper: { thrown: 0.6, snapped: 0.25, spooled: 0.15 }, runner: { spooled: 0.6, snapped: 0.25, thrown: 0.15 },
+      thrasher: { snapped: 0.6, thrown: 0.25, spooled: 0.15 }, sinker: { snapped: 0.6, thrown: 0.25, spooled: 0.15 },
+      sulker: { snapped: 0.6, thrown: 0.25, spooled: 0.15 }, steady: { thrown: 0.4, snapped: 0.4, spooled: 0.2 },
+      darter: { thrown: 0.5, snapped: 0.3, spooled: 0.2 },
+    },
+    byClass: {                    // which causes a class can have, and the spat weight added to the style's
+      small: { only: ['spat', 'thrown'] }, keeper: { only: ['spat', 'thrown'] },
+      prize: { no: ['spooled'], spat: 0.1 }, trophy: { no: ['spooled'], spat: 0.1 }, elder: { spat: 0.05 }, ancient: { spat: 0.05 },
+    },
+    onLeap: { leaper: 0.6, other: 0.35 },   // a lost play with a leap in the loss window throws the hook on the leap with this chance
+    onScare: 0.4,                            // a lost play with a scare in the loss window loses on the scare (thrown or spat) with this chance
+    mistimedSpat: 2, chainFouled: 0.5,       // Early / Late strikes double the spat weight; at a foul place half of losses are fouled
+    external: ['staggered'],                 // the one event that ends a play outside the roll: Gloomtide's hand slam (CATCH_V3.gloomtide); no player input ends a play
+    // the draw order at the strike is fixed and unconditional, so a land and a loss on the same seed share a plan: [planSeed, u, causeU, momentU]
+    draws: ['planSeed', 'u', 'causeU', 'momentU'],
+    hint: { snapped: 'line', thrown: 'rod', spooled: 'reel', spat: 'strike', fouled: 'place', staggered: null },
+  },
+  // ---- what a hooked fish looks like until the reveal: one generic night-ink proxy for every species. Its length is presentLength(lake,
+  // z): a stylised ladder by size class (× the lake, stretched a little by z inside the class), never the species' true length, which
+  // with the class tell was a species fingerprint (the AF review). Class is honest at every stage; length is honest from the reveal on.
+  // It drives everything length-scaled before the reveal: the proxy, shadow, splash, wake, spray, glimpse rings, leap height / arc / slap,
+  // every pitch or weight of sound, the Wick's effort, rise-ring radius, boil ellipse, glow-trail brightness, visible / pre-rolled /
+  // resident proxies, fishing:reel.length and signs[].prerolled. Legends (exempt) show their real model at true length.
+  proxy: { aspect: 4.2, fill: 0x04050a, rim: 'keyLight', length: 'class', minPx: 24, ringBelowMin: true, oneMesh: true, light: false,
+    ladder: { small: 0.25, keeper: 0.4, prize: 0.6, trophy: 0.9, elder: 1.5, ancient: 2.8 },   // m at the lake's × 1 (an Ancient's pass is longer than the 2.6 m raft)
+    lakeMult: { cove: 0.55, mossmere: 1, sporewood: 1.1, glasswater: 1.2, paleabyss: 1.35 }, zStretch: 0.12, wake: 'plain' },
+  revealWipe: 0.35,               // at the scoop (plan fraction 1.0, after the latest spat) the ink lifts off in a brush wipe, the proxy eases to true length and
+                                  // the real model appears (createFish is first called here); fishing:caught fires when the wipe ends
+  // ---- let it pass: a passed Prize+ bite lingers, so passing on a size hint is a real bet (change the bait or lure, cast back)
+  letPass: { classes: ['prize', 'trophy', 'elder', 'ancient'], lingers: 45, radius: 6, rebite: 0.5, keeps: ['speciesId', 'z'], once: true, refund: true, favour: 0.15 },
+  // ---- the got-away note (the user's answer 4): after the fish is gone, never during the play, never a %
+  gotAway: { estimate: 0.08, word: 'near', round: [[20, 1], [100, 5], [Infinity, 10]], toast: ['small', 'keeper', 'prize'], toastSec: 2.5, cardSec: 7.5,
+    markedFrom: { openWater: 'elder', place: 'trophy' }, journalLast: 5, glimpsed: true, oddsLink: 'whenIdle', pinsGearCompare: true },
+  // ---- the Set Out card's tackle rating, in words only (computed from catchChance against the lake's reference species)
+  rating: { holdsAt: 0.5, words: [[0.4, 'a coin flip'], [0.15, 'a long shot'], [0.05, 'rarely held'], [0, 'beyond this tackle']] },
+  logLock: true,                  // the log (Journal, gear log) cannot be opened from the cast until the line is back (the card or the got-away note shows)
+  logLockRoutes: ['KeyJ', 'pauseJournal', 'ledgerEntry', 'gearBench', 'murkLureRows', 'murkBaitRows', 'feLogGlyph', 'gotAwayLink'],
+  // the measuring cord, from the reveal on, carries two knots: your PB (oxblood) and the Old Ledger (black); passing your PB plays a sting
+  // and a Small / Keeper ceremony stretches to 2.4 s when it happens
+  ceremony: { cordMarks: ['pb', 'ledger'], pbSting: true, pbStretch: 2.4 },
+  // P1–P2 runs: every lure (the giants' lures included) is sold by Murk per run at 40% of its persistent price, from its lake's lighting
+  // (onSale); the run keeps it until it ends; one bait OR one lure is equipped. From P3 lures are persistent (Gear Bench, meta.lures).
+  runLures: { phases: [1, 2], priceMult: 0.4, seller: 'murk', scope: 'run', ids: 'LURES' },
+  // catch quality (Fine, Shimmering) no longer comes from reel skill: the strike, a live sign, a Clean Cast, bait or relic shimmer.
+  // QUALITY's thresholds (Fine 0.45, Shimmering 0.78) and its small random upgrades stay. A clean strike off a Clean Cast is Fine.
+  quality: { strike: { clean: 0.35, struck: 0.15, early: 0, late: 0 }, sign: 0.15, rareSign: 0.25, cleanCast: 0.1, shimmer: 'bait + relic (as v1)' },
+  text: {
+    strike: { clean: 'Clean', struck: 'Struck', early: 'Early', late: 'Late' }, strikeLine: 'Strike: {grade}',
+    estimate: 'by the look of it: {class}',
+    kicker: 'THE ONE THAT GOT AWAY', size: '{a} {class}, near {len}.', stillOut: "It's still out there, {place}.", stillOutWater: "It's still out there, in that deep water.",
+    oddsLink: 'Odds in your log',
+    toast: '{a} {species} {cause}.',
+    cause: {
+      snapped: 'It parted the line.', snappedLong: 'It parted the line on its last run.', thrown: 'It threw the hook.',
+      thrownLeap: 'It threw the hook mid-leap.', spat: 'It spat the hook at the raft.', spooled: 'It took every turn of line on the reel.',
+      fouled: 'It wrapped the line on the chains.', staggered: 'The line parted when you staggered.',
+    },
+    toastCause: { snapped: 'parted the line', thrown: 'threw the hook', spat: 'spat the hook', spooled: 'stripped the reel', fouled: 'fouled the line', staggered: 'parted the line' },
+    hint: { line: 'Heavier line holds the long runs.', rod: 'A stiffer rod sets the hook deeper.', reel: 'A bigger reel carries more line.',
+      strike: 'A clean strike holds better.', place: 'Here, the chains take their share.' },
+    rating: 'Against the {species}: holds {held}s. {next}s are {word}.', ratingNone: 'Against the {species}: even Smalls are {word}.',
+    log: { title: 'Your odds', with: 'With the {item}:', strike: 'A clean strike adds a little; an early or late one costs a little.',
+      gloomtide: 'Gloomtide: a hand slam that lands parts the line.', unseen: 'Land or lose one to learn its odds.', marked: '{name}, {class}, near {len}' },
+    gear: { tackle: '+{hold} Hold on every fish · counts ×1.6 against {styles}.', item: '+{hold} Hold against {targets}.', none: 'Helps nothing you have met yet.',
+      compare: '{name} ({class}): {from} → {to} with this.', lastAway: 'The {name} that {cause} ({class})' },
+    logLocked: 'Reel in first.',
+    // (D1′: the automatic-fishing tips moved into TIPS_V3 as directed tips: af_changed, af_letpass, af_strikeReminder, af_hurry)
+  },
+  // ---- the time model of one cast (s) and an average player (tools/sim/catch-v3.mjs; the pacing and balance sims)
+  time: { cast: 1.8, wait: 7.5, strike: 0.6, lostNote: 1.6, card: 2.0, ceremony: { small: 1.2, keeper: 1.2, prize: 2.4, trophy: 3.5, elder: 5, ancient: 5 } },
+  // hurry: the share of Small and Keeper plays hurried (× 2.5) from the 2nd run with the ceremony tapped to tapTo s
+  player: { strike: { clean: 0.35, struck: 0.5, early: 0.075, late: 0.075 }, letPass: 0.08, fishSecPerDay: 144, hurry: 0.5, tapTo: 0.5 },
+};
+
+// The First Evening: the opening and its tutorial at the Landing (DESIGN §25.4.8; the user's request of 2026-11-05). Always
+// exported; read by the FE build (src/first-evening.js and its seams). FE-D1 (done): the Quayling is a phase-1 species (cove-only:
+// in no lake's pool), the lines are TEXT_V3.firstEvening and the tips are directed TIPS_V3 entries (shown by the director as
+// `firstEvening:line {kind: 'tip', key}`, never by a bus trigger in a lake).
+export const FIRST_EVENING = {
+  phase: 1, after: 'AF', shipsWith: 'AF',   // one release gate: no user-facing build carries AF without FE (else fallback F0)
+  budget: { reference: 54.5, skipFraming: 45.5, targetMax: 75, slowReaderMax: 90, toCard: 50, toLake: 60 },   // s from Begin (validated)
+  steps: ['framing', 'wake', 'cast', 'wait', 'strike', 'play', 'measure', 'odds', 'gate', 'plan', 'setout'],
+  stepSec: { framing: 9, wake: 8, cast: 3, wait: 2.5, strike: 0.5, play: 2.5, measure: 5, odds: 6, gate: 8, plan: 4, setout: 6 },   // the reference player
+  // what each step must fit (validated: stepSec ≥ max(anim, murkAt + the Murk line's hold), the director never cuts a line short;
+  // a Murk line may play over an animation or an action, never over the strike window)
+  stepAnim: { framing: 9, wake: 3.4, cast: 3, wait: 2.5, strike: 0.5, play: 2.5, measure: 5, odds: 0, gate: 8, plan: 4, setout: 6 },
+  stepMurk: { wake: { key: 'murkWake', at: 1.2, then: 0.8 }, odds: { key: 'murkOdds', at: 0 }, gate: { key: 'murkGate', at: 0 }, setout: { key: 'murkFirstOil', at: 0.5 } },
+  shot: [   // render 'prologue' keyframes (render convention; yaw 0 = north), one continuous move with no cuts
+    { t: 0.0, focus: [6, 0, -18],      elev: 14, dist: 34,  aimY: 5, fov: 46 },
+    { t: 3.0, focus: [-4, 0.6, -4],    elev: 18, dist: 18,  aimY: 2, fov: 46 },
+    { t: 6.2, focus: [-18, 0.6, -4.5], elev: 16, dist: 6.5, aimY: 1, fov: 42 },
+  ],
+  lines: { hold: 2.6, fade: 0.4, murkHold: 2.4, murkPerChar: 0.05, maxChars: 90 },
+  ember: { x: 6.75, z: -34, y: -1.5, at: 0.8, pulse: 1.2, hideWhen: 'swallowerHome', before: 'channelCard' },   // the great lantern's last ember, a sprite in front of the channel-mouth card
+  wake: { candle: { x: -18.6, z: -2.4 }, seconds: 2.6, lanternStart: 0.7, wipe: 0.8, raftAt: 'cove_jetty', coldCandles: ['taper', 'stub', 'tallow', 'ashwick', 'wayfarer'] },
+  // the first tip shows when the float settles (before any nibble can be tapped), not on the first nibble
+  waitTipOn: 'floatSettled',
+  bite: { nibbleAt: [1.2, 1.8], biteAt: [2.5, 3.5], retryBiteAt: [1.5, 2.5], retryNibbles: 0, maxLosses: 3 },   // waits and presentation only
+  tutorialApi: { accepts: ['nibbleAt', 'biteAt', 'retryBiteAt', 'retryNibbles', 'strikeRing', 'estimate'], rejects: ['outcome', 'sizeClass', 'chance', 'z', 'speciesId'] },
+  strikeRing: 'firstExpedition', estimate: { plays: 2, classes: ['small', 'keeper'] },
+  odds: { glow: 5, glowUntil: 'logOpened', opens: { section: 'odds', species: 'quayling' } },
+  // the cove is closed (COVE.arena.closure): breakwaters east and west, and a soft wall across the arch span that only a glide passes.
+  // The auto-sail (FE-S1) steers straight to each `via` point, then to `joinAt` (a straight line from the west end of the post's reach
+  // would clip the quay); the glide then runs [joinAt, ...COVE.setOutPath.slice(glideFrom)], so it never doubles back past the jetty.
+  // Validated (FE-T1): from every closed-cove raft-water point within the post's 5 m reach the lane stays on raft water and clears the
+  // jetty, Murk's barge and the Waystones by the raft radius + 0.3 m, and so does the join into the glide.
+  gate: { post: 'map_table', via: [[-3, 11.5]], joinAt: [8, 7], glideFrom: 1, softWall: 'COVE.arena.closure.softWall' },
+  // Set Out from the post: an input-locked auto-sail to joinAt at raft speed (during Murk's line), then the 3 s glide along COVE.setOutPath
+  setOut: { autoSail: 'raftSpeed', glide: 3, skippable: false, lanternTo: 1.0, lanternOver: 0.8, character: 'wick', nightMode: 'still', outing: 'first' },
+  // every later P1–P2 run sets out from the Landing too (never a cold start): title → New Descent → the raft at the jetty → the glide
+  // (skippable after the first) with one Murk line; a snuff cuts to the hearth for 3 s before the Snuffed summary
+  everyRun: { from: 'cove_jetty', glide: 3, skippableAfterFirst: true, murk: ['murkRun1', 'murkRun2', 'murkRun3', 'murkRun4'] },
+  snuffed: { hearth: 3, line: 'snuffedLine' },
+  resume: { beforeCatch: 'cast', afterCatch: 'gate', framingReplays: false },
+  skip: { confirmSec: 2.5, to: 'plan', grants: false },
+  legacy: { when: 'meta.firstEvening === undefined && (meta.runs > 0 || a non-cove journal entry)', sets: { done: true, legacy: true }, firstBiteTip: 'af_changed',
+    offer: { text: 'legacyOffer', runs: 'replay', dismiss: 'notNow', once: true } },   // a title ribbon on a legacy save's first v3 boot
+  replay: { from: 'settings', sandbox: true, grants: false, writes: false, endsAt: 'gate' },
+  marksSeen: ['cast_basics', 'nibble_wait', 'miss_early', 'miss_late', 'sail_basics'],
+  firstLight: true,               // the Quayling counts for First Light (+5 Memories), as §18.1 meant for minute one
+  text: {
+    lore: ['The great lantern fell, and the kingdom followed it into the lake.', 'Its last candles came ashore here. They fish to stay lit.', 'You are one of them.'],
+    murkWake: "Awake, little Wick? You're guttering. Fish make oil; oil makes light.",
+    murkWakeP3: "Water's that way.",
+    murkSpooked: 'Too keen. It felt you. Again.',
+    murkPassed: "It let go. Bait's still on. Again.",
+    murkLost: ['Happens to all of us. Again.', 'Twice. The water keeps score. Once more.', "Some nights. Come on, the chart won't read itself."],
+    murkOdds: 'Your odds are in the log. Better tackle, better odds. Never certain.',
+    murkGate: "The real water's through the gate. Chart's on the table.",
+    murkFirstOil: "First oil's on me. The rest you fish for.",
+    murkReplay: "Same as it ever was. The gate's where you left it.",
+    murkRun1: 'Mind the oil. The water keeps what it takes.', murkRun2: 'Bring me something with a story.',
+    murkRun3: "The big ones come up at dusk. They always did.", murkRun4: 'Back already? Good. Out you go.',
+    snuffedLine: 'Murk found your raft drifting.',
+    legacyOffer: 'A new first evening (1 min)', notNow: 'Not now',
+    outingLines: ['Every night of your first outing is still.', 'The dark is patient with new flames.'],
+    skip: 'Skip', skipConfirm: 'Skip the first evening?', replay: 'Replay the first evening', logGlyph: 'Odds are in the log',
+  },
+  tips: {
+    fe_walk: 'Walk with WASD or the left stick. Tap a glow to walk there.',   // P3 (on foot)
+    fe_cast: 'Hold on the water. Let go to cast.',
+    fe_wait: 'Wait for it to go under.',
+    fe_strike: { touch: 'Now. Tap.', desktop: 'Now. Click.' },
+    fe_play: "The line does the rest. You'll know what it is when it's in.",
+    fe_sail: { desktop: 'Sail with WASD or the left stick.', touch: 'Sail with the left stick.' },
+  },
+};
 
 // ---- The expedition (brief §3.2–§3.5, §3.8). Phase names stay internal (`gloomtide` = night).
 export const EXPEDITION = {
@@ -3640,18 +3933,21 @@ export const ECONOMY_V3 = {
   },
   modeMult: { still: 1.03, lantern: 1.0, gloomtide: 0.92 }, qualityMult: 1.15,
   spans: { mossmere: [0, 1.5], sporewood: [1.5, 4.5], glasswater: [4.5, 8.5], paleabyss: [8.5, Infinity] },
-  // §9.2: purchases in a sensible order, each placed at the first moment cumulative net covers it (validated ±0.1 h).
+  // §9.2: purchases in a sensible order, each placed at the first moment cumulative net covers it (validated ±0.1 h). Automatic
+  // fishing (DESIGN §25.10.2) adds the four giants' lures and the expected legend attempts (3 / 3 / 3 / 4 baits, CATCH_V3.legend wounds);
+  // the AF review buys the Feather Fly (120) and the Harbour-Bell Spinner while still in the Mossmere, before the toll.
   timeline: [
-    [0.6, ['rod:1', 'line:1', 'reel:1', 'creel:1']], [0.8, ['outfit:chimney:1', 'outfit:brazier:1']], [1.0, ['bait:heartmoss', 'bait:heartmoss']],
-    [1.2, ['toll:sporewood']], [1.7, ['line:2']], [2.1, ['reel:2']], [2.4, ['rod:2']], [2.7, ['creel:2']],
-    [2.9, ['lure:feather_fly', 'lure:glimmer_spoon', 'lure:bone_jig']], [3.0, ['bait:glowcap_bulb', 'bait:glowcap_bulb']],
-    [3.2, ['outfit:oars:1', 'outfit:boots:1']], [3.4, ['pond:2']], [3.8, ['toll:glasswater']], [4.2, ['outfit:chimney:2', 'outfit:brazier:2']],
-    [5.1, ['line:3']], [6.0, ['reel:3']], [6.9, ['rod:3']], [7.1, ['bait:prism_moth', 'bait:prism_moth']], [7.7, ['toll:paleabyss']],
-    [8.4, ['lure:moth_popper', 'creel:3']], [10.0, ['line:4']], [10.3, ['bait:last_candle', 'bait:last_candle']], [11.8, ['reel:4']], [13.3, ['rod:4']],
-    [13.5, ['outfit:oars:2', 'outfit:boots:2']], [14.6, ['outfit:chimney:3', 'outfit:brazier:3', 'outfit:oars:3', 'outfit:boots:3']],
-    [15.2, ['pond:3']], [15.8, ['lure:lantern_lure']], [16.7, ['creel:4']],
+    [0.6, ['rod:1', 'line:1', 'reel:1', 'creel:1']], [0.7, ['lure:feather_fly']], [1.0, ['lure:bell_spinner']], [1.2, ['bait:heartmoss', 'bait:heartmoss', 'bait:heartmoss']],
+    [1.5, ['toll:sporewood']], [1.6, ['outfit:chimney:1', 'outfit:brazier:1']], [2.0, ['line:2']], [2.4, ['reel:2']], [2.7, ['rod:2']], [3.0, ['creel:2']],
+    [3.2, ['lure:glimmer_spoon', 'lure:bone_jig']], [3.4, ['bait:glowcap_bulb', 'bait:glowcap_bulb', 'bait:glowcap_bulb']],
+    [3.8, ['lure:sporelamp_fly']], [3.9, ['outfit:oars:1', 'outfit:boots:1']], [4.2, ['pond:2']], [4.5, ['toll:glasswater']],
+    [4.8, ['outfit:chimney:2', 'outfit:brazier:2']], [5.7, ['line:3']], [6.6, ['reel:3']], [7.2, ['lure:mirror_shard']],
+    [7.5, ['bait:prism_moth', 'bait:prism_moth', 'bait:prism_moth']], [8.1, ['toll:paleabyss']], [8.9, ['rod:3']], [9.4, ['lure:moth_popper', 'creel:3']],
+    [10.9, ['line:4']], [11.6, ['lure:ferry_coin']], [12.2, ['bait:last_candle', 'bait:last_candle', 'bait:last_candle', 'bait:last_candle']], [13.7, ['reel:4']],
+    [15.2, ['rod:4']], [15.5, ['outfit:oars:2', 'outfit:boots:2']], [16.6, ['outfit:chimney:3', 'outfit:brazier:3', 'outfit:oars:3', 'outfit:boots:3']],
+    [17.2, ['pond:3']], [17.7, ['lure:lantern_lure']], [18.6, ['creel:4']],
   ],
-  mainSinks: 28240, meetsAt: 16.7, tolerance: 0.1,
+  mainSinks: 32510, meetsAt: 18.6, tolerance: 0.1,
   pond: { tier1: { slots: 3, free: 'firstLivePrize' }, tiers: [{ tier: 2, price: 300, slots: 5, needsNamed: 15 }, { tier: 3, price: 1200, slots: 6, r: 4.0, needsWaystone: 'glasswater' }], maxLength: 1.4, r: 2.8 },
   legendBaits: { heartmoss: 40, glowcap_bulb: 90, prism_moth: 170, last_candle: 320 },
   chum: { id: 'murks_chum', name: "Murk's Chum", price: 30, perVisit: 1, sign: 'nervous', time: 30, replaces: 'tide_chart' },
@@ -3679,9 +3975,33 @@ export const MEMORIES_V3 = {
   cut: ['old_debt', 'waystone_sporewood', 'waystone_glasswater', 'waystone_paleabyss'], refundOnMigration: true,
   lanterns: 'totalRelicLevels',
 };
+// D1′: v3 wording for the Boons, relics, per-run tackle and Wicks whose text or effects named a reel stat (reel speed, line strength, the sweet band,
+// slack grace). Their Hold lives in CATCH_V3.buffs (Boons, relics) or upgradeHold (per-run rod / line / reel levels); v3 builds also
+// drop the dead reel stats from their effects, so no effect line names one (v1, flag off, keeps every text and effect).
+export const DESC_V3 = {
+  boons: {
+    steady_reel: { desc: '+1 Hold on every fish per level.', effects: {} },
+    gilded_hook: { desc: 'Rarer fish, a longer strike window, +2 Hold, and Old Murk pays 15% more.' },
+  },
+  relics: {
+    seven_knots: { desc: 'Each knot was tied by a different Wick. None have come undone. +1 Hold on every fish per level.', effects: {} },
+    steady_hook: { desc: 'Blunted with use. It still remembers exactly when to bite. A wider strike window and +1 Hold per level.', effects: { hookWindow: 0.08 } },
+  },
+  upgrades: {
+    rod_whalebone: { desc: 'Feels every twitch. More time to strike, and the hook stays set through the leaps.', effects: { hookWindow: 0.12 } },
+    line_gut: { effects: {} }, line_silver: { effects: {} }, reel_brass: { effects: {} },
+    reel_drag: { desc: 'A soft brake. A running fish no longer strips the reel so easily.', effects: {} },
+  },
+  characters: {   // every Wick holds a fish the same (CATCH_V3.wick); a Wick's fishing edge is its quirk
+    taper: { desc: 'Tall and thin. Casts far and finds rare fish, but its light burns weak and it carries little oil.',
+      effects: { castMax: 4, hookWindow: 0.10, rarityBonus: 0.04, auraDps: -0.4, maxOil: -10 } },
+    ashwick: { effects: { auraDps: 0.8, damageMult: 0.15, critChance: 0.05, zapDamage: 3, zapCost: -0.3, hookWindow: -0.15, maxOil: -15, creelSize: -1 } },
+  },
+  deadStats: ['reelSpeed', 'lineStrength', 'sweetZone', 'slackTime'],   // v1 reel stats that v3 fishing never reads
+};
 const RELIC_NEW_V3 = [
   { id: 'measuring_cord', name: 'Measuring Cord', icon: 'cord', maxLevel: 2, costs: [60, 180], effects: {}, special: 'measuringCord', unlock: 'first_prize', shelf: 'fishing',
-    desc: 'A knotted cord that has measured a great many fish. L1: the bite tell also shows an estimated length. L2: Prize and bigger hooks get +1 hook-hold pip.' },
+    desc: 'A knotted cord that has measured a great many fish. L1: the bite tell also names the size class. L2: +2 Hold on Prize and bigger.' },
   { id: 'murks_spyglass', name: "Murk's Spyglass", icon: 'spyglass', maxLevel: 1, costs: [150], effects: {}, special: 'spyglass', unlock: 'old_ledger_five', shelf: 'fishing',
     desc: 'The forecast reaches two days ahead in every lake, and the Map Table marks the residents you know about.' },
   { id: 'rumour_shell', name: 'Rumour Shell', icon: 'shell', maxLevel: 2, costs: [120, 300], effects: {}, special: 'rumourShell', unlock: 'ten_trophies', shelf: 'fishing',
@@ -3693,7 +4013,7 @@ export const RELICS_V3 = v3uniq(RELICS, WALK_RELICS, RELIC_NEW_V3)
   .map((r) => {
     const shelf = MEMORIES_V3.gloomRelics.includes(r.id) ? 'gloom' : 'fishing';
     const out = { ...v3clone(r), shelf, baseCosts: r.costs.slice(), costs: r.costs.map((c) => Math.max(5, Math.round((c * MEMORIES_V3.shelves[shelf].costMult) / 5) * 5)) };
-    if (r.id === 'seven_knots') out.effects = { lineStrength: 0.05 };   // halved (brief §9.4)
+    if (DESC_V3.relics[r.id]) Object.assign(out, DESC_V3.relics[r.id]);   // D1′: Hold (CATCH_V3.buffs.relics) instead of line strength / the sweet band
     if (r.id === 'second_wick') out.perExpedition = 1;
     if (r.id === 'remembrance') out.memMultOn = 'tally';
     if (WALK_RELICS.some((w) => w.id === r.id)) out.needsWalk = true;
@@ -3705,13 +4025,13 @@ export const ANGLER_POOL = ['steady_reel', 'hungry_waters', 'lucky_knot', 'gutsf
 export const BOONS_V3 = [
   { id: 'long_cast', name: 'Long Cast', icon: 'cast', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { castMax: 1.5 }, unlock: null, tags: ['fishing', 'angler'],
     desc: '+1.5 m cast range per level.', lore: 'Farther out, the water has not heard of you yet.' },
-  { id: 'patient_line', name: 'Patient Line', icon: 'line', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { slackTime: 0.2 }, unlock: null, tags: ['fishing', 'angler'],
-    desc: '+0.2 s slack grace per level.', lore: 'A slack line is only a line that is waiting.' },
+  { id: 'patient_line', name: 'Patient Line', icon: 'line', rarity: 'common', maxLevel: 3, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'angler'],
+    desc: '+1 Hold per level against leapers and runners.', lore: 'A slack line is only a line that is waiting.' },   // the Hold: CATCH_V3.buffs.boons (was slack grace +0.2 s)
   { id: 'feather_touch', name: 'Feather Touch', icon: 'hook', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { hookWindow: 0.06 }, unlock: null, tags: ['fishing', 'angler'],
     desc: '+0.06 hook window per level.', lore: 'Strike the way you would wake a friend.' },
   { id: 'night_eyes', name: 'Night Eyes', icon: 'eye', rarity: 'rare', maxLevel: 1, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'night', 'angler'],
     proc: { on: 'night', levels: [{ glowTrailRangeMult: 1.5, nightBiteSpeed: 0.10 }] },
-    desc: 'Glow trails show from 50% farther, and night fish bite 10% sooner.', lore: 'The dark is full of small lights, once you stop looking for big ones.' },
+    desc: 'Glow trails show from 50% farther, and every bite at night comes 10% sooner.', lore: 'The dark is full of small lights, once you stop looking for big ones.' },
   { id: 'wanderers_stride', name: "Wanderer's Stride", icon: 'boots', rarity: 'common', maxLevel: 2, kind: 'stat', effects: { stride: 0.3 }, unlock: null, tags: ['movement', 'foot', 'angler'],
     proc: { on: 'foot', levels: [{ footOilMult: 0.9 }, { footOilMult: 0.8 }] },
     desc: '+0.3 m/s on foot and 10% less oil burned on foot, per level.', lore: 'Walk as if the road were glad of you.' },
@@ -3725,7 +4045,7 @@ export const CHARACTERS_V3 = {
   taper:    { fishing: { id: 'anglers_ember', name: "Angler's Ember", desc: 'Fish give double XP.', fishXpMult: 2 } },
   stub:     { fishing: { id: 'quick_feet', name: 'Quick Feet', desc: '+0.4 m/s on foot. A cast within 5 s of stopping counts as Clean from a charge of 0.8.', stride: 0.4, cleanAfterStop: 5, cleanAt: 0.8 } },
   tallow:   { fishing: { id: 'slow_melt_oil', name: 'Slow Melt', desc: 'Oil burns 20% slower on foot.', footOilMult: 0.8 } },
-  ashwick:  { fishing: { id: 'burned_once', name: 'Burned Once', desc: 'The first surge of every fight is telegraphed 0.3 s longer.', firstSurgeWarnAdd: 0.3 } },
+  ashwick:  { fishing: { id: 'burned_once', name: 'Burned Once', desc: '+3 Hold on the first fish hooked each night.', firstHookHold: 3 } },   // CATCH_V3.buffs.wicks.ashwick (was: the first surge telegraphed 0.3 s longer)
   wayfarer: { fishing: { id: 'shore_sense', name: 'Shore Sense', desc: 'On foot, signs show from 50% farther. The first sister-candle lit in each lake costs no oil.', signRangeMult: 1.5, firstShareFree: true }, needsWalk: true },
 };
 
@@ -3813,7 +4133,8 @@ export const LEDGER = {
 // ---- The Landing: a walkable 3D cove (brief §3.7). Not in ZONES or ZONE_BY_ID; entered by
 // zone:change {zone: 'cove', hub: true}. x east, z south (−z = north, up-screen); y = walk height (m).
 export const COVE = {
-  id: 'cove', index: -1, hub: true, theme: 'cove', name: 'The Landing',   // theme 'cove': world-layout / world-art build no Mossmere set-pieces here (themeOf must not clamp −1 to the Mossmere) subtitle: 'A Drowned Ferry Cove', mode: 'foot',
+  id: 'cove', index: -1, hub: true, theme: 'cove', name: 'The Landing',   // theme 'cove': world-layout / world-art build no Mossmere set-pieces here (themeOf must not clamp −1 to the Mossmere)
+  subtitle: 'A Drowned Ferry Cove', mode: 'foot',   // world.getMode() returns COVE.v0.mode ('raft') while §24's foot core is not in the build
   description: 'An old ferry landing tucked under the kingdom\'s outer wall: a sheltered pocket of still water behind a broken sea-gate. The ferrymen pinned their best catches to the harbour wall. It is bare now.',
   arena: {
     // shoreNotch (CONTRACT §13.8): a = centre angle in degrees, atan2(z, x) convention (270 = north at x 0); w = metres of arc at R;
@@ -3845,7 +4166,15 @@ export const COVE = {
       ],
     },
     shortcuts: [{ id: 'cove_stair', name: 'The Silted Stair', opens: 'glasswaterLit' }],
-    moorings: [{ id: 'cove_jetty', name: 'The Jetty', stand: { x: 3.5, z: 2 }, slot: { x: 6, z: 2 }, yawDeg: 90, bell: false }],
+    moorings: [{ id: 'cove_jetty', name: 'The Jetty', stand: { x: 3.5, z: 2 }, slot: { x: 7, z: 2 }, yawDeg: 90, bell: false }],   // the slot clears the jetty by the raft radius (validated); the raft spawns here in raft mode
+    // the cove is closed to the raft (validated: no raft path from the mooring crosses archLineZ): the drowned outer wall's foot runs
+    // as low breakwaters (cheap ink geometry, raft obstacles) from the galleries to the west leg, from the east leg to the cliff, and
+    // west of the galleries to the cliff; the arch span itself is a soft wall that only a glide passes
+    closure: {
+      breakwaters: [{ id: 'bw_west_leg', pts: [[-6, -15], [-3, -18]], w: 1.2, h: 0.8 }, { id: 'bw_east', pts: [[15, -18], [36.4, -21]], w: 1.2, h: 0.8 },
+        { id: 'bw_far_west', pts: [[-33.5, -16], [-41, -16]], w: 1.2, h: 0.8 }],
+      softWall: { pts: [[-3, -18], [15, -18]], passes: 'glide' },
+    },
   },
   lowSouth: { dist: 14, max: 1.0, halfW: 4 },          // nothing above 1 m within 14 m south of any walkway (validated)
   walkSpeed: 5.04, tapToWalk: true,                   // = §24's BALANCE.walk.speedMult 0.84 × raft speed 6 (the brief's 5.2 used an older 0.86)
@@ -3857,7 +4186,7 @@ export const COVE = {
     { id: 'gear_bench', name: 'Gear Bench', x: -26, z: -5, pill: 'Tackle', opens: 'tackle' },
     { id: 'shrine', name: 'Shrine of Drowned Lanterns', x: -30, z: 0, pill: 'Shrine', opens: 'shrine', lanterns: 'totalRelicLevels' },
     { id: 'murk', name: "Murk's Barge", x: 4, z: -6.5, pill: 'Trade', opens: 'shop', range: 5, tabs: ['sell', 'bait', 'supplies', 'ledger', 'rumours', 'cosmetics'] },
-    { id: 'raft', name: 'Raft', x: 6, z: 2, pill: 'Board', opens: 'setOutGlide', needs: 'pendingSetOut' },
+    { id: 'raft', name: 'Raft', x: 7, z: 2, pill: 'Board', opens: 'setOutGlide', needs: 'pendingSetOut' },
     // the walls: one station per wing, on its gallery facing the wall (range 4); taps on frames route through world.pickFrame
     { id: 'wall_mossmere', name: 'Mossmere wing', x: -24.75, z: -11.5, pill: 'Look', opens: 'wall', range: 4, wing: 'mossmere' },
     { id: 'wall_sporewood', name: 'Sporewood wing', x: -11.25, z: -11.5, pill: 'Look', opens: 'wall', range: 4, wing: 'sporewood' },
@@ -3868,10 +4197,10 @@ export const COVE = {
   ],
   // NNE of the jetty head (4, 2): 4.5 m away, 27° from up-screen (§24.5: cast water within ±50° of up-screen), clear of the
   // Set Out path and 4.9 m from Murk's barge; the practice fight is a Reedjaw at z 1.4 that cannot escape, capped at 20 s
-  testBuoy: { x: 6, z: -2, fight: 'fixedPull', rewards: false, practice: { species: 'reedjaw_pike', z: 1.4, escape: false, cap: 20, shows: ['tensionBand', 'dragPreset', 'shock'] } },
+  testBuoy: { x: 6, z: -2, r: 1.2, offDuring: 'firstEvening', phase: 3, rewards: false, practice: { kind: 'strikeFloat', biteEvery: [2.5, 3.5], grades: true, samplePlay: ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'], odds: false, fish: false } },   // automatic fishing: a practice float (strike timing + sample plays; no fish, no odds)
   // scripted raft glides (player.glide): out under the arch through the Waystone sill's gap (W2 4.5 / W3 9 at z −15.3, stone r 0.4:
   // 3.7 m clear), east of Murk's barge (≥ 3.9 m from its pad centre); Homecoming runs it backwards and moors at the jetty
-  setOutPath: [[6, 2], [11, 1], [11, -9], [6.75, -13], [6.75, -18], [6.75, -24]], archLineZ: -18, homeInPath: [[6.75, -24], [6.75, -13], [11, -9], [11, 1], [6, 2]],
+  setOutPath: [[7, 2], [11, 1], [11, -9], [6.75, -13], [6.75, -18], [6.75, -24]], archLineZ: -18, homeInPath: [[6.75, -24], [6.75, -13], [11, -9], [11, 1], [7, 2]],
   homecoming: { spawn: 'raftAtMooring', skipped: 'jettySpawn' },
   fishing: { species: ['quayling'], sale: false, memoriesFirstOnly: true },
   seaGate: { legs: [{ x: -3, z: -18 }, { x: 15, z: -18 }], crown: 9.5, span: 16, legendsY: [3.5, 6.5], swallowerY: 7, build: 'taperTube' },
@@ -4008,13 +4337,10 @@ export const TEXT_V3 = {
   lampWatchStart: 'Lamp-watch. The Gloom keeps away tonight; fish within {m} m of the lamp.',   // survival, at dusk's end in a watch-lamp's pool
   lampWatchLeave: 'You left the lamp-watch. The Gloom stirs.',                                 // survival, > 10 m out of the pool
   lampWatchCast: 'On a lamp-watch you fish within {m} m of the lamp.',                          // fishing, a cast beyond the limit is refused
-  nearMiss: '{cause} at {pct}%. Your tackle is rated {rating} here.',
   newBest: 'New best: {cm} cm (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
   stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
-  causes: { snap: 'Snapped', thrown: 'Thrown hook', spooled: 'Spooled', fouled: 'Fouled' },
-  tips: {
-    snap: 'Let go on the hiss.', thrown: 'Keep the line tight through a leap.', spooled: 'Ease the drag before a runner turns.', fouled: 'Ease off when the chain clanks.',
-  },
+  firstEvening: FIRST_EVENING.text,   // FE-D1: the opening's lore lines, Murk's lines, the ribbon and the Skip / Replay words (one source)
+  // (D1′: the near-miss card's line, its cause names and its tension tips are retired; the got-away note's words are AUTOFISH.text)
   // the v3 HUD's and screens' copy (ui reads TEXT_V3.x ?? its own fallback): the float's favour, the class tells, the status line
   hud: {
     favourBands: ['the water gives nothing away', 'a little favour', 'the water favours you', 'the water leans your way', 'the water is with you', 'everything is in your favour'],
@@ -4048,6 +4374,19 @@ export const TIPS_V3 = [
   { id: 'v3_mark', phase: 3, trigger: 'fish:measured', text: 'Mark a Prize or bigger for home. It must survive the nights.' },
   { id: 'v3_farwater', phase: 3, trigger: 'farwater:dawn', text: 'Far Water: the fishing gets better, the way home costs more.' },
   { id: 'v3_resident', phase: 2, trigger: 'resident:show', text: 'A resident giant showed itself. Cast within 3 m, quickly.' },
+  // automatic fishing (moved from AUTOFISH.text.tips by D1′). Directed tips: the module that knows the moment emits `tip:show {id}`
+  // (ui keys it as `tip:show:<id>`), so today's manual-reel code, which never emits it, never shows them:
+  //   af_changed: progression or the First Evening, at a legacy save's first v3 bite (FIRST_EVENING.legacy.firstBiteTip)
+  //   af_letpass: fishing, at the first Prize+ tell · af_hurry: fishing, at the first Small / Keeper play from the 2nd run
+  //   af_strikeReminder: the First Evening, at the first lake bite after a fumbled tutorial strike
+  { id: 'af_changed', phase: 1, trigger: 'tip:show:af_changed', text: 'Tap when it goes under. The line does the rest now; your odds are in the log.' },
+  { id: 'af_letpass', phase: 1, trigger: 'tip:show:af_letpass', text: "Let a big one go, change your lure, cast back. It's still there." },
+  { id: 'af_strikeReminder', phase: 1, trigger: 'tip:show:af_strikeReminder', text: 'Tap when it goes under.' },
+  { id: 'af_hurry', phase: 1, trigger: 'tip:show:af_hurry', text: 'Hold to hurry a small fish in. It changes nothing but the wait.' },
+  // the First Evening's tips (FE-D1), one source (FIRST_EVENING.tips): the director shows each as `firstEvening:line {kind: 'tip', key}`
+  // in its own step (allowsTip), and ui marks it seen; `touch` is the phone wording. fe_walk waits for P3 (on foot).
+  ...Object.entries(FIRST_EVENING.tips).map(([id, t]) => ({ id, phase: id === 'fe_walk' ? 3 : 1, trigger: `firstEvening:line:${id}`, directed: 'firstEvening',
+    text: typeof t === 'string' ? t : t.desktop, ...(typeof t === 'string' ? {} : { touch: t.touch }) })),
 ];
 export const MERCHANT_LINES_V3 = {
   frontYard: ["Lives in my front yard. I don't buy those. The real water's through the gate."],
@@ -4148,7 +4487,8 @@ export function frameFor(sp) {
 /** Which seals a species can earn (brief §6.3): the Quayling none; a species capped below Elder loses its Elder seal. */
 export function sealsFor(sp) {
   if (sp.cove || sp.rarity === 'legendary') return [];
-  return BALANCE_V3.records.seals.classes.filter((c) => c !== 'elder' || !(BALANCE_V3.records.seals.noElder.includes(sp.id) || (sp.maxClass && SZB.classMaxZ[sp.maxClass] < SZB.fight.elderZ)));
+  const elderCut = SIZE_CLASSES.find((c) => c.id === 'trophy').zMax;   // z 2.65
+  return BALANCE_V3.records.seals.classes.filter((c) => c !== 'elder' || !(BALANCE_V3.records.seals.noElder.includes(sp.id) || (sp.maxClass && SZB.classMaxZ[sp.maxClass] < elderCut)));
 }
 /** The one place-membership helper for v3 consumers: the place of `zone` whose water contains (x, z), or null. Searches the zone's
  *  arena.places (the Mossmere's v3 places from P2; §24's places in walking builds) and then §24's ARENA_V2 (v2's placeAt stays for v2). */
@@ -4162,31 +4502,165 @@ export function landmarkOf(place) {
   if (!place) return null;
   return place.landmark ? { ...place.landmark } : { x: place.x ?? place.water?.x ?? 0, y: 2, z: place.z ?? place.water?.z ?? 0 };
 }
-/** Fight stats of a tackle loadout (the reel sim and progression.getStats share it). TACKLE tier values REPLACE the STATS base for
- *  castMax, hookWindow, slackTime, lineStrength, reelSpeed, sweetZone and creelSize; Wick, relics, Boons and outfit then add. */
-export function tackleStats(t = {}, drag = 'set') {
+/** The stats of a fitted tackle loadout (P3's progression.getStats): TACKLE tier values REPLACE the STATS base for castMax, hookWindow
+ *  and creelSize (Wick, relics, Boons and outfit then add), plus the Creel's Live Well, and `hold` per slot for catchChance. */
+export function tackleStats(t = {}) {
   const r = TACKLE.rod[t.rod | 0], l = TACKLE.line[t.line | 0], e = TACKLE.reel[t.reel | 0], c = TACKLE.creel[t.creel | 0];
-  const preset = e.drag === 'presets' ? (TACKLE.drag.presets[drag] ?? TACKLE.drag.presets.set) : TACKLE.drag.presets[TACKLE.drag.fixed];
-  return { castMax: r.castMax, hookWindow: r.hookWindow, slackTime: r.slackTime + (l.slackAdd || 0), shock: r.shock, pipBonus: r.pips,
-    lineStrength: l.lineStrength, reelSpeed: e.reelSpeed, sweetZone: e.sweetZone, absorb: e.absorb, dragAt: preset, creelSize: c.creelSize };
+  return { castMax: r.castMax, hookWindow: r.hookWindow, creelSize: c.creelSize, liveWell: c.liveWell, nights: c.nights,
+    hold: { rod: r.hold, line: l.hold, reel: e.hold } };
 }
-/** P1–P2 and The Long Descent (per-run UPGRADES, no tiers): the effective tackle tier per slot from owned upgrade levels. Only shock,
- *  pips, absorb and the tackle rating come from it; the other stats stay computeStats(UPGRADES). */
+/** P1–P2 and The Long Descent (per-run UPGRADES, no tiers): the effective tackle tier per slot from owned upgrade levels. Under
+ *  automatic fishing it gives the tackle rating's words only (catchRating); each slot's Hold comes from upgradeHold (every level counts). */
 export function upgradeTiers(levels = {}) {
+  const out = {};
+  for (const [slot, f] of Object.entries(upgradeTierFrac(levels))) out[slot] = Math.min(4, Math.floor(f + 1e-9));
+  return out;
+}
+/** The unrounded effective tier per slot: 4 × levels bought ÷ the slot's levels. */
+export function upgradeTierFrac(levels = {}) {
   const T = BALANCE_V3.upgradeTiers, out = {};
   for (const [slot, ids] of Object.entries(T.slots)) {
     const n = ids.reduce((a, id) => a + (levels[id] | 0), 0), max = ids.reduce((a, id) => a + (UPGRADES.find((u) => u.id === id)?.maxLevel | 0), 0);
-    out[slot] = Math.min(4, Math.floor((n * 4) / Math.max(1, max) + 1e-9));
+    out[slot] = Math.min(4, (n * 4) / Math.max(1, max));
   }
   return out;
 }
+/** Tackle Hold of a (possibly fractional) tier: linear between TACKLE[slot][⌊t⌋].hold and the next tier's. */
+export function tackleHoldAt(slot, t) {
+  const T = TACKLE[slot], x = Math.max(0, Math.min(4, +t || 0)), i = Math.min(3, Math.floor(x + 1e-9)), f = x - i;
+  return T[i].hold + (T[i + 1].hold - T[i].hold) * f;
+}
+/** P1–P2 runs and The Long Descent: each slot's Hold from owned upgrade levels, interpolated (so every rod, line and reel level adds
+ *  Hold; the rounded tier still gives the rating). catchChance reads it through loadout.hold. */
+export function upgradeHold(levels = {}) {
+  const f = upgradeTierFrac(levels);
+  return { rod: tackleHoldAt('rod', f.rod), line: tackleHoldAt('line', f.line), reel: tackleHoldAt('reel', f.reel) };
+}
+
+// ---- Automatic fishing helpers (CATCH_V3). One formula for fishing's roll, the logs (Journal, gear log) and the tackle rating.
+// Loadout = {rod, line, reel, hold?: {rod, line, reel}, item?, itemLevel?, upgrade?: {id, level}} (tiers 0–4, fractional tiers
+// interpolate; `hold` overrides the tiers' Hold: P1–P2 runs and The Long Descent pass upgradeHold(run.upgrades); item = the one bait
+// or lure on the line AT THE CAST; upgrade = a per-run upgrade lure such as lure_glimmer, which never stacks with the item: the fish
+// gets the larger). Mods = {lake?, strike?: 'clean'|'struck'|'early'|'late' (default 'struck', the log's reference), buffs?: number |
+// {wellFed, boons, relics, character, firstHookTonight}, marked?, wounds?, landings?, night?, perRun?}. Pure: no state, no RNG.
+const CATCH_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+const CATCH_CLASS_MAX = { keeper: 1, prize: 2, trophy: 3, elder: 5 };
+const catchSp = (s) => (typeof s === 'string' ? SPECIES_V3_BY_ID[s] : s) || null;
+export function catchHomeLake(sp) { sp = catchSp(sp); return sp ? (sp.zone || sp.zones?.[0] || null) : null; }
+/** Can this species be this class at all (species caps: the Quayling at Keeper, the Lampwarden at Trophy)? Legends: 'legend' only. */
+export function catchClassAllowed(sp, cls) {
+  sp = catchSp(sp); if (!sp) return false;
+  if (sp.rarity === 'legendary') return cls === 'legend';
+  const i = CATCH_CLASSES.indexOf(cls); if (i < 0) return false;
+  return !sp.maxClass || i <= (CATCH_CLASS_MAX[sp.maxClass] ?? 5);
+}
+const CATCH_ATTRACT = new Map();   // bait id → the species it helps (built on first use, after the v3 patch has run)
+const catchAttractSet = (id) => {
+  if (!CATCH_ATTRACT.has(id)) CATCH_ATTRACT.set(id, new Set([...([...BAITS, ...WALK_BAITS].find((b) => b.id === id)?.bonus?.attract || []), ...SPECIES_V3.filter((s) => s.bait === id).map((s) => s.id)]));
+  return CATCH_ATTRACT.get(id);
+};
+/** The Hold one bait or lure gives this species (0 if it does not help it). ctx: {night, itemLevel}. Legends take none. */
+export function catchItemHold(itemId, sp, ctx = {}) {
+  sp = catchSp(sp); const it = CATCH_V3.items[itemId];
+  if (!sp || !it || sp.rarity === 'legendary') return 0;
+  const hold = it.holdPerLevel ? it.holdPerLevel * Math.max(0, ctx.itemLevel ?? 1) : it.hold;
+  if (it.all) return hold;
+  if (it.species) return it.species.includes(sp.id) ? hold : 0;
+  if (it.night) return sp.night && (ctx.night ?? true) ? hold : 0;
+  if (it.family) return sp.family === it.family ? hold : 0;
+  if (it.attract) return catchAttractSet(itemId).has(sp.id) ? hold : 0;
+  return 0;
+}
+/** Every species (non-legendary, SPECIES_V3) an item helps: the gear log's list and validate-data's "every target exists". */
+export function catchItemTargets(itemId) { return SPECIES_V3.filter((s) => s.rarity !== 'legendary' && catchItemHold(itemId, s) > 0).map((s) => s.id); }
+/** The buffs' Hold for this fish: relics ≤ relicCap, run buffs (Well-fed, Boons, a Wick's quirk) ≤ runCap, together ≤ cap.
+ *  ctx: {wellFed, boons: {id: level}, relics: {id: level}, character, firstHookTonight}. */
+export function catchBuffHold(sp, cls, ctx = {}, style = catchSp(sp)?.style) {
+  const B = CATCH_V3.buffs; let run = ctx.wellFed ? B.wellFed : 0, rel = 0;
+  for (const [id, r] of Object.entries(B.boons)) { const lv = ctx.boons?.[id] | 0; if (lv && (!r.styles || r.styles.includes(style))) run += r.perLevel ? r.perLevel * lv : r.hold; }
+  for (const [id, r] of Object.entries(B.relics)) {
+    const lv = ctx.relics?.[id] | 0;
+    if (!lv || (r.level && lv < r.level) || (r.fromClass && (cls === 'legend' ? false : CATCH_CLASSES.indexOf(cls) < CATCH_CLASSES.indexOf(r.fromClass)))) continue;
+    rel += r.perLevel ? r.perLevel * lv : r.hold;
+  }
+  const q = B.wicks[ctx.character]; if (q && (q.on !== 'firstHookEachNight' || ctx.firstHookTonight)) run += q.hold;
+  return Math.min(B.cap, Math.min(B.relicCap ?? B.cap, rel) + Math.min(B.runCap ?? B.cap, run));
+}
+/** The whole computation: {p, hold, fight, cap, lake, style, terms} or null when the class is out of reach. */
+export function catchParts(spOrId, cls, loadout = {}, mods = {}) {
+  const C = CATCH_V3, sp = catchSp(spOrId); if (!sp) return null;
+  const legend = sp.rarity === 'legendary'; if (legend) cls = 'legend';
+  if (!catchClassAllowed(sp, cls)) return null;
+  const style = legend ? C.legend.style[sp.id] : sp.style, w = C.emphasis[style] || C.emphasis.steady;
+  const slotHold = (s) => (loadout.hold && Number.isFinite(loadout.hold[s]) ? loadout.hold[s] : tackleHoldAt(s, loadout[s] ?? 0));
+  const tackle = slotHold('rod') * w.rod + slotHold('line') * w.line + slotHold('reel') * w.reel;
+  const itemH = legend || !loadout.item ? 0 : catchItemHold(loadout.item, sp, { night: mods.night, itemLevel: loadout.itemLevel });
+  const upH = legend || !loadout.upgrade?.id ? 0 : catchItemHold(loadout.upgrade.id, sp, { night: mods.night, itemLevel: loadout.upgrade.level ?? 1 });
+  const item = Math.max(itemH, upH);
+  const strike = C.strike[mods.strike ?? C.display.reference.strike] ?? 0;
+  const buffs = mods.buffs && typeof mods.buffs === 'object' ? catchBuffHold(sp, cls, mods.buffs, style) : Math.min(C.buffs.cap, Math.max(0, +mods.buffs || 0));
+  const marked = mods.marked && !legend ? C.markedFish : 0;
+  const wounds = legend ? Math.min(C.legend.woundCap, (mods.wounds | 0) * C.legend.woundPerEscape) : 0;
+  const hold = C.wick + tackle + item + strike + buffs + marked + wounds;
+  const lake = mods.lake ?? catchHomeLake(sp);
+  let fight;
+  if (legend) fight = (mods.perRun ? C.legend.fightRun[sp.id] : C.legend.fight[sp.id]) + Math.min(C.legend.growthCap, (mods.landings | 0) * C.legend.growthPerLanding);
+  else {
+    fight = (C.lake[lake] ?? 0) + (C.rarity[sp.rarity] ?? 0) + (C.style[style] ?? 0) + (Object.values(TACKLE.reference).includes(sp.id) ? C.headline : 0)
+      + (sp.place ? C.kept : 0) + (C.fouledSpecies.includes(sp.id) ? C.fouled : 0) + C.class[cls];
+    if (cls === 'elder' || cls === 'ancient') fight += (C.elderStep[lake] ?? 0) + (C.elderRarity[sp.rarity] ?? 0);
+  }
+  const cap = C.cap[cls];
+  const p = Math.max(C.floor, cap / (1 + Math.exp(-C.scale * (hold - fight))));
+  return { p, hold, fight, cap, lake, style, terms: { wick: C.wick, tackle, item, strike, buffs, marked, wounds } };
+}
+/** The chance a hooked fish of this species and size class is landed (always < its cap < 1), or null when out of reach. */
+export function catchChance(speciesId, sizeClass, loadout = {}, mods = {}) { return catchParts(speciesId, sizeClass, loadout, mods)?.p ?? null; }
+/** The Journal's "Your odds" row: {small…ancient: p|null} (legends: {legend: p}), at the log's reference strike unless mods say otherwise. */
+export function catchOdds(speciesId, loadout = {}, mods = {}) {
+  const sp = catchSp(speciesId); if (!sp) return null;
+  if (sp.rarity === 'legendary') return { legend: catchChance(sp, 'legend', loadout, mods) };
+  return Object.fromEntries(CATCH_CLASSES.map((c) => [c, catchChance(sp, c, loadout, mods)]));
+}
+/** The best single bait or lure (by Hold) for a species among `ids` (default: every bait and lure): {id, hold}. */
+export function catchBestItem(sp, ids = Object.keys(CATCH_V3.items).filter((k) => CATCH_V3.items[k].kind !== 'upgrade'), ctx = {}) {
+  let best = { id: null, hold: 0 };
+  for (const id of ids) { const h = catchItemHold(id, sp, ctx); if (h > best.hold) best = { id, hold: h }; }
+  return best;
+}
+/** A probability as the logs print it: whole percent, rounded DOWN (so a cap is never printed); null stays null. */
+export function catchDisplay(p) { return p == null ? null : Math.floor(p * 100 + 1e-9); }
+/** The Set Out card's tackle rating in words: the largest class held ≥ 50% against the lake's reference species, and a word for the next. */
+export function catchRating(lake, loadout = {}, mods = {}) {
+  const ref = TACKLE.reference[lake]; if (!ref) return null;
+  const A = AUTOFISH.rating, cls = ['small', 'keeper', 'prize', 'trophy', 'elder'];
+  let held = null;
+  for (const c of cls) if ((catchChance(ref, c, loadout, { ...mods, lake }) ?? 0) >= A.holdsAt) held = c;
+  const next = held ? cls[cls.indexOf(held) + 1] ?? null : 'small';
+  const p = next ? catchChance(ref, next, loadout, { ...mods, lake }) : null;
+  const word = p == null ? null : A.words.find(([t]) => p >= t)[1];
+  return { reference: ref, held, next, word };
+}
+
+/** What the player sees of a hooked (or pre-rolled, visible, resident) fish before the reveal: the night-ink proxy's length in metres,
+ *  from the lake and z only (AUTOFISH.proxy: a stylised ladder by size class, stretched a little by z inside its class). Never takes a
+ *  species, so length can never name one; true length first shows at the reveal. */
+export function presentLength(lake, z) {
+  const P = AUTOFISH.proxy, cls = isAncient(z) ? 'ancient' : sizeClassOf(z);
+  const lo = cls === 'small' ? SZB.z.min : cls === 'ancient' ? SZB.ancient : SIZE_CLASSES[SIZE_CLASSES.findIndex((c) => c.id === cls) - 1].zMax;
+  const hi = cls === 'elder' ? SZB.ancient : cls === 'ancient' ? SZB.z.max : SIZE_CLASSES.find((c) => c.id === cls).zMax;
+  const t = Math.max(0, Math.min(1, (z - lo) / (hi - lo)));
+  return P.ladder[cls] * (1 + P.zStretch * (t - 0.5)) * (P.lakeMult[lake] ?? 1);
+}
+/** The leap distribution of a play by size class (shared by every leaping species): [[count, p], …]; Small never leaps. */
+export function leapCountsFor(sizeClass) { return AUTOFISH.leap.count[sizeClass] || []; }
 
 // ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps. Gated by V3_PHASE so each
 // phase's build carries exactly its data (DESIGN §25.14.1 "which data lands when"; validate-data runs a pass per phase):
-//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), v3 STATS keys, the 32 P1 species (+ §24's 8 kept fish with §24), the renames
+//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), the 32 P1 lake species and the cove's Quayling (+ §24's 8 kept fish with §24), the renames
 //       (Pg0 migrates the ids), Murk's Chum, Angler Boons and tags, the Wicks' fishing halves, P1 tips, text, the Mossmere's rust
 //       accent and buoy watch-lamps, §24 place sync and watch lamps (when §24 is in), raft fallbacks (stopgap giants, watch lamps)
-//   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 36
+//   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 37
 //   P3  + farWater / liveWell, RELICS_V3 (cuts, shelves, costs), CHALLENGES_V3, Homeward stones, the welcome purse, species → 47
 //   P4  + the Moon Cistern and the six P4 species (→ 53)
 if (V3_ENABLED) {
@@ -4194,7 +4668,6 @@ if (V3_ENABLED) {
   const keepWalk = (x) => WALK_ENABLED || !x.needsWalk;
   const walkPlace = new Set(PLACES.map((p) => p.id));
   Object.assign(STATS, WALK_STATS);                                    // stride exists in v3 (Boots, Wanderer's Stride, Quick Feet) even without §24
-  for (const [k, v] of Object.entries(BALANCE_V3.stats)) STATS[k] = { ...v };   // shock, absorb, pipBonus, dragAt (T0 values)
   for (const [k, v] of Object.entries(BALANCE_V3)) {                 // new blocks are assigned; an existing block (bite) gains the v3 keys only (validated)
     if ((V3_BLOCK_PHASE[k] ?? 1) > P) continue;
     if (BALANCE[k] && typeof BALANCE[k] === 'object' && !Array.isArray(BALANCE[k])) Object.assign(BALANCE[k], v); else BALANCE[k] = v;
@@ -4213,7 +4686,12 @@ if (V3_ENABLED) {
   if (P >= 3) { RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk)); }
   BOONS.push(...BOONS_V3);
   for (const b of BOONS) if (ANGLER_POOL.includes(b.id) && !b.tags.includes('angler')) b.tags = [...b.tags, 'angler'];
+  // D1′: v3 wording and effects for the Boons, relics and per-run tackle that named a reel stat (DESC_V3)
+  for (const b of BOONS) if (DESC_V3.boons[b.id]) Object.assign(b, v3clone(DESC_V3.boons[b.id]));
+  for (const u of UPGRADES) if (DESC_V3.upgrades[u.id]) Object.assign(u, v3clone(DESC_V3.upgrades[u.id]));
+  if (P < 3) for (const r of RELICS) if (DESC_V3.relics[r.id]) Object.assign(r, v3clone(DESC_V3.relics[r.id]));
   for (const c of CHARACTERS) if (CHARACTERS_V3[c.id]) c.fishing = v3clone(CHARACTERS_V3[c.id].fishing);
+  for (const c of CHARACTERS) if (DESC_V3.characters[c.id]) Object.assign(c, v3clone(DESC_V3.characters[c.id]));
   if (P >= 3) {
     CHALLENGES.length = 0;
     CHALLENGES.push(...CHALLENGES_V3.filter(keepWalk));

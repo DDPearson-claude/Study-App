@@ -7,10 +7,10 @@
 //
 // run 1 (New Descent through the ui): the First Outing, all still (main → progression → combat / survival agree);
 //   S1–S3: day-1 calm 210 s, dusk 20, night 90, dawn 10, day-2 calm 180; oil/s from the raft context table; Well-fed at full
-//   satiety (+reelSpeed in getStats), satiety 0 harmless;
+//   satiety (+2 Hold in data, no reel stat on getStats since D1′), satiety 0 harmless;
 //   F1: 30 forced bites at μ 1.8 in the stopgap giant water (mm_deep_centre) hold Elders, 30 in open water stay ≤ 2.64;
-//   F4 / F2: a forced Elder Reedjaw plays the dome tell (audio bite_dome), bites {elder, dome}, hooks with pips; past 55 % the
-//   old trick fires (fishing:oldTrick, audio); landing it: fishing:caught → fish:measured → fish:landed {measured}, the PB in
+//   F4 / F2: a forced Elder Reedjaw plays the dome tell (audio bite_dome), bites {elder, dome}, hooks (no pips and no old trick:
+//   both retired with the manual reel's data by D1′); landing it: fishing:caught → fish:measured → fish:landed {measured}, the PB in
 //   meta and in the saved envelope (main saves on fish:measured), audio seal_stamp; a Still night: Night Rise (audio), the
 //   stillnight mood, no spawns; S2 guttering → Snuffed (player:died {cause: 'snuffed'}).
 // run 2 (Lantern): night 1 spawns nothing; night 2 spawns only inside k 0.05–0.50, and a hand slam on a hooked fish moves
@@ -97,7 +97,7 @@ export default async function (api) {
   await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title', null, { timeout: 240000 });
   await frames(2);
   await g(() => { try { window.__gw.render.setQuality?.('low'); window.__gw.debug.renderScale?.(0.35); } catch { /* optional */ } });
-  let s = await g(() => { const c = window.__gw, d = c.data; return { en: d.V3_ENABLED, ph: d.V3_PHASE, runs: c.state.meta.runs, size: !!d.BALANCE.size?.fight, nm: !!d.BALANCE.nightModes, oil: !!d.BALANCE.oil?.context, sw: c.debug.v3?.()?.switch ?? null }; });
+  let s = await g(() => { const c = window.__gw, d = c.data; return { en: d.V3_ENABLED, ph: d.V3_PHASE, runs: c.state.meta.runs, size: !!d.BALANCE.size?.z, nm: !!d.BALANCE.nightModes, oil: !!d.BALANCE.oil?.context, sw: c.debug.v3?.()?.switch ?? null }; });
   check(s.en === true && s.ph === 1 && s.size && s.nm && s.oil, 'v3 phase-1 data in the build (size, nightModes, oil table)', s);
   check(s.runs === 0, 'a fresh save', s.runs);
   await recorder();
@@ -130,15 +130,15 @@ export default async function (api) {
     s = await g(() => {
       const c = window.__gw;
       c.progression.invalidateStats?.();
-      const full = c.progression.getStats().reelSpeed;
+      const full = c.progression.getStats().reelSpeed, hold = c.data.BALANCE.wellFed?.effects?.hold;
       c.debug.setSatiety(30); c.progression.invalidateStats?.();
       const low = { reel: c.progression.getStats().reelSpeed, fed: c.survival.wellFed };
       c.debug.setSatiety(0);
-      return { full, low, hp: c.state.run.hp };
+      return { full, low, hold, hp: c.state.run.hp };
     });
     for (let i = 0; i < 30; i++) await frames(1);   // ≈ 6 s of game time at satiety 0 (timeScale 4)
     const hp2 = await g(() => window.__gw.state.run.hp);
-    check(s.low.fed === false && Math.abs(s.full - s.low.reel - 0.08) < 1e-6, 'Well-fed adds reelSpeed +0.08 (lost below 60 %)', s);
+    check(s.low.fed === false && Math.abs(s.full - s.low.reel) < 1e-6 && s.hold === 2, 'Well-fed is +2 Hold (D1′), adds no reel speed, and is lost below 60 %', s);
     check(hp2 === s.hp, 'satiety 0 costs no Embers', { before: s.hp, after: hp2 });
     await g(() => window.__gw.debug.setSatiety(100));
 
@@ -175,7 +175,7 @@ export default async function (api) {
     });
     check(s.n === 30 && s.max <= 2.64 && s.keys.join() === 'null', 'open water never rolls past a top Trophy (2.64)', s);
 
-    step('F4 / F2: an Elder Reedjaw — the dome tell, pips, the old trick, the landing and the PB');
+    step('F4 / F2: an Elder Reedjaw — the dome tell, the hook, the landing and the PB');
     await g(() => window.__gw.debug.timeScale?.(1));   // real time for the bite window (a 4× clock outruns the round-trips)
     await place(4, 14.8);
     await frames(3);
@@ -187,7 +187,7 @@ export default async function (api) {
     await safeShot('smoke-elder-dome');
     // hook in the same evaluate that sees the bite (a round-trip can outlast the hook window on a 1–8 fps page)
     let hookedAt = null;
-    // and jump the fight past 55 % at once, so the old trick comes (the reel starts it on its next update)
+    // and jump the fight past 55 % at once (D1′: no old trick comes; the P1 reel runs on its defaults until F2′)
     await waitFor(() => {
       const c = window.__gw, f = c.fishing;
       if (f.state !== 'bite') return false;
@@ -202,17 +202,17 @@ export default async function (api) {
     check(tell?.p.biteTell === 'dome' && typeof tell.p.dur === 'number' && bite?.p.sizeClass === 'elder' && bite.p.biteTell === 'dome', 'fishing:tell {dome, dur}, then fishing:bite {elder, dome}', { tell: tell?.p, bite: bite?.p });
     const dome = await heard(tA, 'bite_dome');
     check(dome.length >= 1, 'audio plays bite_dome for the Elder tell', dome.length);
-    // a small bot keeps the Elder on while the trick plays (tension held under 0.45)
+    // a small bot keeps the Elder on for a moment past 55 % (tension held under 0.45): no old trick comes
     s = hookedAt || {};
-    check(s.state === 'reeling' && s.pips?.n >= 2 && s.trickDone === false, 'hooked with hook-hold pips and an old trick pending', s);
+    check(s.state === 'reeling' && !s.pips && s.trickDone !== false, 'hooked; no hook-hold pips and no old trick pending (retired by D1′)', s);
     let trick = null;
-    for (let i = 0; i < 120 && !trick; i++) {
+    for (let i = 0; i < 20 && !trick; i++) {
       const k = await g(() => { const c = window.__gw, f = c.fishing, T = f.view?.tension ?? 0; if (f.state === 'reeling') { if (T < 0.45) f.onPointerDown(); else f.onPointerUp(); } return f.state; });
       trick = (await since(m0, 'fishing:oldTrick')).pop() || null;
       if (k !== 'reeling') break;
       await frames(1);
     }
-    check(!!trick && ['pull', 'leap'].includes(trick.p.kind), 'past 55 % the Elder plays its old trick (fishing:oldTrick)', trick?.p);
+    check(!trick, 'past 55 % no old trick fires (fishing:oldTrick retired by D1′)', trick?.p);
     tA = await audioT();
     m0 = await mark();
     await g(() => { const c = window.__gw; c.fishing.onPointerUp(); c.debug.instantCatch(); });

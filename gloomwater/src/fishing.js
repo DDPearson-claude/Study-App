@@ -287,7 +287,8 @@ export function create(ctx) {
   function expRand(mean) { return -Math.log(1 - Math.random() * 0.999) * mean; }
 
   // ---------------------------------------------------------------- v3: size, favour, places, night modes
-  const v3on = () => !!BAL('size').fight && Array.isArray(D().SIZE_CLASSES);
+  // v3 is on when the size model is in BALANCE (D1′ retired BALANCE.size.fight with the manual reel, so it is no longer the marker)
+  const v3on = () => !!BAL('size').z && Array.isArray(D().SIZE_CLASSES);
   const spV3 = (sp) => !!sp?.size && v3on();
   const rnd = () => (S.rng || Math.random)();
   const prog = () => (isReal(ctx.progression) ? ctx.progression : null);
