@@ -3771,6 +3771,9 @@ export const AUTOFISH = {
   // ---- the Set Out card's tackle rating, in words only (computed from catchChance against the lake's reference species)
   rating: { holdsAt: 0.5, words: [[0.35, 'a coin flip'], [0.15, 'a long shot'], [0.05, 'rarely held'], [0, 'beyond this tackle']] },
   logLock: true,                  // the log (Journal, gear log) cannot be opened from the cast until the line is back
+  // catch quality (Fine, Shimmering) no longer comes from reel skill: the strike, a live sign, a Clean Cast, bait or relic shimmer.
+  // QUALITY's thresholds (Fine 0.45, Shimmering 0.78) and its small random upgrades stay. A clean strike off a Clean Cast is Fine.
+  quality: { strike: { clean: 0.35, struck: 0.15, early: 0, late: 0 }, sign: 0.15, rareSign: 0.25, cleanCast: 0.1, shimmer: 'bait + relic (as v1)' },
   text: {
     strike: { clean: 'Clean', struck: 'Struck', early: 'Early', late: 'Late' }, strikeLine: 'Strike: {grade}',
     estimate: 'by the look of it: {class}',
@@ -3784,7 +3787,7 @@ export const AUTOFISH = {
     toastCause: { snapped: 'parted the line', thrown: 'threw the hook', spat: 'spat the hook', spooled: 'stripped the reel', fouled: 'fouled the line', staggered: 'parted the line', cut: 'was cut loose' },
     hint: { line: 'Heavier line holds the long runs.', rod: 'A stiffer rod sets the hook deeper.', reel: 'A bigger reel carries more line.',
       strike: 'A clean strike holds better.', place: 'Here, the chains take their share.' },
-    rating: 'Holds {held}s here. {next}s are {word}.', ratingNone: 'Nothing here is a sure thing on this tackle.',
+    rating: 'Against the {species}: holds {held}s. {next}s are {word}.', ratingNone: 'Against the {species}: even Smalls are {word}.',
     log: { title: 'Your odds', with: 'With the {item}:', strike: 'A clean strike adds a little; an early or late one costs a little.',
       gloomtide: 'Gloomtide: a hand slam that lands parts the line.', unseen: 'Land or lose one to learn its odds.', marked: '{name}, {class}, near {len}' },
     gear: { tackle: '+{hold} Hold on every fish · counts ×1.3 against {styles}.', item: '+{hold} Hold against {targets}.', none: 'Helps nothing you have met yet.' },
