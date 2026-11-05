@@ -336,3 +336,47 @@ trace accents). Where each channel ended up:
    `ui-screens` waystone/zone-card fallbacks, `ui-icons` Murk portrait (umber body, sage lamp),
    `ui-fishart` fallback colours and the `template.html` loader moved too. The only greens left in
    the UI are the merchant marker and the portrait's lamp/flame.
+
+## 13. The "Starlit" pass (branch `gw-starlit`, from the user's colour reference)
+
+The user's reference (four screenshots: indigo-violet starry sky over ruins, lavender mist, a pink
+nebula, candle amber, autumn gold, pale stone, reflective water; mood only) replaces Moonlit slate.
+Reference palette: night ink #0A0C19, deep indigo #1D245D, violet dusk #433E74, lavender mist
+#7E81B4, nebula pink #D296AE, candle amber #ED9E3B, pale gold #E8BE77, autumn ochre #B8893A, pale
+stone #D6D6E4. Every value moved through the §12 sources; DESIGN §19.2 holds the full table.
+
+1. **Zone palette:** new signatures per lake (Mossmere "starlit moat", Sporewood "ember garden",
+   Glasswater "sapphire orrery", Pallid Deep "candle requiem"); new optional keys `candle` (warm
+   pinpoints on stone: ring windows, landmark windows/braziers, lamp heads, statue orbs, candles on
+   ruins; falls back to `lamp`), `nebula` (vault nebula, its haze on the far rings and its water
+   reflection) and `stars` (starlight brightness/density). `lamp` now means cold lamps ON THE WATER
+   only (buoys, dock halos). `validate-data` rejects any palette colour in hue 65–195°.
+2. **Grade and moods:** lake tints moved to indigo / violet-magenta / sapphire / violet-black;
+   NIGHT_TINT #1e2466, COLD #0b0d2e, WARM #f2cfa4, DAWN_TINT #b898c0 (rose-lavender), new DAWN_MIST
+   #9a92c8; the grade's warm split-tone colour is sent by world (#f4cc96, #f0c8a8 at dawn) and its
+   base amount drops to 0.07 (stars, foam and pale stone stay cool-white).
+3. **Fallback copies:** world.js, world-art.js, water.js, render.js, render-grade.js, fishing-fx.js,
+   fishing.js and models-creatures.js (Warden tint) carry the Starlit Mossmere values.
+4. **KIT:** indigo-slate rock, violet-grey lichen, pale stone (#8a8ca8) in the Mossmere with dun-ochre
+   reeds and lily pads; Sporewood caps autumn ochre (#5e3c1e → #b8893a) on pale stalks; Glasswater
+   sapphire; the Pallid Deep bone stone with a violet cast.
+5. **Starlight** (`src/starlight-glsl.js`): the vault dome and the water share the star/nebula GLSL;
+   ring materials take a nebula haze uniform. No new draw calls.
+6. **Lantern ring removed:** `actors-fx.js` light pool (uRing/uRadius, notches, lip, stepped spill,
+   concentric ripple lines gone) and the water shader's reach-ring term; world/water no longer send
+   `ring`. The bobber's idle ripple ring is pale gold-stone (#ead6a8).
+7. **UI (not touched here; the UI lead owns `ui.css`, `ui*.js`, `template.html`):** the runtime
+   `--zone-glow/-accent/-fog/-lamp` tokens follow the new palettes automatically; the DESIGN §21.1
+   fallback values still name the Moonlit slate Mossmere (#a9b9f0 / #c4b8ec / #262f40 / #c8d2f0) and
+   should move to #bab2ee / #d6d6e4 / #3a3070 / #b6b0f0 (round 4 values).
+8. **Round 4 (distinct lakes, readable nights, the flare):** the Mossmere moved to violet dusk (fog
+   #3a3070, water #2e2664, tint #40347e, hue ≈ 248°) and Glasswater to cobalt sapphire (fog #172a7c,
+   water #10226e, tint #203ca8, hue ≈ 228°), so the two blue lakes no longer share a hue; the Pallid
+   Deep's fog/water/ambient lifted a step (#2c2448 / #1e183c / #463e6c). Night keeps each lake's own
+   hue (fog ×0.38 with 22% of COLD, grade tint 35% to NIGHT_TINT, tintAmount → 0.28, water ×0.66) and
+   thins the water's stars (brightness ×(1 − 0.32n), density ×(1 − 0.38n)); the reflected stars stay
+   round (chop nudge 0.035). The flare has no full-screen flash (a local pale-gold GLOW decal instead),
+   light flashes mix in sqrt space in the grade, survival's event rings are pale gold #f0d49c, and the
+   orbit weapon's persistent dashed ring and combat's "cinder line" fallback ring are gone.
+9. **Round 5:** night luminance floors (fog and water linear 0.012, deep 0.0018, hue kept: lifts the
+   Pallid Deep and Sporewood Gloomtides) and a per-lake dawn mist (half #9a92c8, half the lake's `far`).

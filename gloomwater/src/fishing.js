@@ -1876,7 +1876,7 @@ export function create(ctx) {
       }
       try {
         const z = zoneData();
-        fx.setZoneColor(z?.palette?.glow ?? 0xa9b9f0);
+        fx.setZoneColor(z?.palette?.glow ?? 0xb2b4ec);
       } catch { /* optional */ }
       Object.assign(ctx.debug || (ctx.debug = {}), {
         forceBite: (opts) => { try { return debugForceBite(opts); } catch (e) { report(e); return false; } },
@@ -1929,7 +1929,7 @@ export function create(ctx) {
         S.zonePending -= dt;
         if (S.zonePending <= 0) {
           S.zonePending = 0;
-          try { fx.setZoneColor(zoneData()?.palette?.glow ?? 0xa9b9f0); } catch { /* optional */ }
+          try { fx.setZoneColor(zoneData()?.palette?.glow ?? 0xb2b4ec); } catch { /* optional */ }
           seedSpots();
           S.lastPhase = phaseNow();
         }

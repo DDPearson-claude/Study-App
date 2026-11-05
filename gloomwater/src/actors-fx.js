@@ -62,33 +62,34 @@ const POOL_VS = /* glsl */`
 attribute vec2 aPolar;
 varying vec2 vPolar;
 void main() { vPolar = aPolar; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+// The pool is a soft wash of warm light that simply fades out where the lantern's reach ends:
+// no rim, no notches, no reach ring (the lit water itself shows how far the light goes). A
+// faint angular unevenness keeps it from reading as a perfect CG disc; low oil warms it toward
+// ember red and lets it breathe.
 const POOL_FS = /* glsl */`
-uniform vec3 uColor, uRing; uniform float uK, uT, uPulse, uDanger, uRadius;
+uniform vec3 uColor; uniform float uK, uT, uPulse, uDanger;
 varying vec2 vPolar;
+float pHash(float n) { return fract(sin(n) * 43758.5453); }
+float pNoise(float x) { float i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(pHash(i), pHash(i + 1.0), f); }
 void main() {
   float r = vPolar.x, ang = vPolar.y;
-  float fill = pow(clamp(1.0 - r, 0.0, 1.0), 1.6) * 0.13 + (1.0 - smoothstep(0.0, 0.35, r)) * 0.05;
-  float lip = smoothstep(0.7, 0.995, r) * (1.0 - smoothstep(0.995, 1.01, r)) * 0.06;
-  float wpx = clamp(0.1 / max(uRadius, 1.0), 0.006, 0.03);
-  float ring = exp(-pow((r - 1.0) / wpx, 2.0)) * 0.95 + exp(-pow((r - 1.0) / (wpx * 5.0), 2.0)) * 0.22;
-  float a2 = ang + uT * 0.035;
-  float notch = smoothstep(0.82, 1.0, cos(a2 * 40.0)) * exp(-pow((r - 0.968) / (wpx * 1.2), 2.0)) * 0.55;
-  float a3 = ang - uT * 0.05;
-  float notch2 = smoothstep(0.93, 1.0, cos(a3 * 8.0)) * exp(-pow((r - 1.035) / (wpx * 1.3), 2.0)) * 0.6;
-  float rip = pow(sin((r * 3.0 - uT * 0.22) * 6.2831) * 0.5 + 0.5, 14.0) * smoothstep(0.15, 0.45, r) * (1.0 - smoothstep(0.75, 0.95, r)) * 0.035;
-  float spill = (1.0 - smoothstep(1.0, 1.25, r)) * step(1.0, r) * 0.07;
-  float k = uK * (0.88 + 0.12 * uPulse);
-  vec3 ringCol = mix(uRing, vec3(1.0, 0.25, 0.12), uDanger * (0.55 + 0.45 * sin(uT * 7.0)));
-  vec3 col = uColor * (fill + lip + rip + spill) + ringCol * (ring + notch + notch2);
-  gl_FragColor = vec4(col * k, 1.0);
+  // the outline wobbles a little (two slow angular noises), so the fade never traces a circle
+  float wob = (pNoise(ang * 2.546 + uT * 0.07) - 0.5) * 0.12 + (pNoise(ang * 6.366 - uT * 0.11 + 9.0) - 0.5) * 0.06;
+  float rr = r / (1.0 + wob);
+  float fill = pow(clamp(1.0 - rr / 1.18, 0.0, 1.0), 1.8) * 0.15 + (1.0 - smoothstep(0.0, 0.4, rr)) * 0.05;
+  // drifting light-on-water blotches inside the pool (not rings)
+  float blot = pNoise(ang * 4.0 + rr * 3.0 - uT * 0.15) * pNoise(ang * 7.0 - rr * 5.0 + uT * 0.1 + 3.0);
+  fill *= 0.86 + 0.28 * blot;
+  float k = uK * (0.9 + 0.1 * uPulse);
+  vec3 col = mix(uColor, uColor * vec3(1.0, 0.42, 0.26), uDanger * (0.45 + 0.35 * sin(uT * 5.0)));
+  gl_FragColor = vec4(col * fill * k, 1.0);
   #include <colorspace_fragment>
 }`;
 export function makeLightPool() {
   const AN = 64;
+  // even rows out to 1.32 R: the soft fade (with its wobble) ends before the last row
   const radii = [];
-  for (let i = 0; i <= 9; i++) radii.push((i / 9) * 0.84);
-  for (let i = 1; i <= 14; i++) radii.push(0.84 + (i / 14) * 0.24);
-  for (let i = 1; i <= 4; i++) radii.push(1.08 + (i / 4) * 0.2);
+  for (let i = 0; i <= 16; i++) radii.push((i / 16) * 1.32);
   const RN = radii.length;
   const pos = new Float32Array(RN * (AN + 1) * 3), polar = new Float32Array(RN * (AN + 1) * 2), idx = [];
   for (let i = 0; i < RN; i++) for (let j = 0; j <= AN; j++) {
@@ -104,7 +105,7 @@ export function makeLightPool() {
   geo.setIndex(idx);
   const mat = new THREE.ShaderMaterial({
     vertexShader: POOL_VS, fragmentShader: POOL_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: { uColor: { value: new THREE.Color(0xffb85a) }, uRing: { value: new THREE.Color(0xffc477) }, uK: { value: 1 }, uT: { value: 0 }, uPulse: { value: 0 }, uDanger: { value: 0 }, uRadius: { value: 8 } },
+    uniforms: { uColor: { value: new THREE.Color(0xffc46a) }, uK: { value: 1 }, uT: { value: 0 }, uPulse: { value: 0 }, uDanger: { value: 0 } },
   });
   mat.polygonOffset = true; mat.polygonOffsetFactor = -2; mat.polygonOffsetUnits = -2;
   const mesh = new THREE.Mesh(geo, mat);

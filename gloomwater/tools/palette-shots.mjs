@@ -144,6 +144,12 @@ export default async function (api) {
         }
         return c.combat.enemies?.length || 0;
       };
+      // advance combat on game time without rendering, so a fresh swarm has surfaced and closed in
+      // whatever the frame rate (at 1-2 fps a few real seconds are only a fraction of a game second)
+      H.pumpCombat = (sec = 2) => {
+        let t = c.time.t;
+        for (let i = 0; i < Math.round(sec / 0.05); i++) { t += 0.05; try { c.combat.update(0.05, t); } catch { /* keep pumping */ } }
+      };
       H.flare = () => {
         try { c.debug.flareReset?.(); c.debug.setOil?.(1000); } catch { /* optional */ }
         return c.combat.flare?.();
@@ -289,7 +295,7 @@ export default async function (api) {
     const n = await g(() => window.__pal.spawnSwarm(40));
     log(`${zone}: ${n} enemies`);
     await wait(2500);   // let them close on the light for a few real frames
-    await g(() => { window.__pal.clearUi(); window.__pal.spawnSwarm(40); window.__pal.settle(1); window.__pal.snap(); });
+    await g(() => { window.__pal.clearUi(); window.__pal.spawnSwarm(40); window.__pal.pumpCombat(2); window.__pal.spawnSwarm(40); window.__pal.pumpCombat(0.6); window.__pal.settle(1); window.__pal.snap(); });
     await wait(1200);
     if (want(swarmFile)) await shot(swarmFile);
     if (!want(flareFile)) return;
@@ -340,7 +346,7 @@ export default async function (api) {
     await g((s) => { window.__pal.settle(s); window.__pal.snap(); }, SETTLE);
     await g(() => window.__pal.spawnSwarm(40));
     await wait(2500);
-    await g(() => { window.__pal.clearUi(); window.__pal.spawnSwarm(40); window.__pal.settle(1); window.__pal.snap(); });
+    await g(() => { window.__pal.clearUi(); window.__pal.spawnSwarm(40); window.__pal.pumpCombat(2); window.__pal.spawnSwarm(40); window.__pal.pumpCombat(0.6); window.__pal.settle(1); window.__pal.snap(); });
     await wait(1200);
     const full = await shot('x20-swarm-full');   // then the centre crop, for eyes vs motes at night
     await page.screenshot({ path: full.replace('x20-swarm-full', 'x20-swarm-closeup'), clip: { x: Math.round(width * 0.2), y: Math.round(height * 0.12), width: Math.round(width * 0.6), height: Math.round(height * 0.6) } });

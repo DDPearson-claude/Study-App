@@ -16,7 +16,7 @@ export const KIND_DEFAULTS = {
   moth: { tint: 0x6a5f78, eye: 0xb8ccff, radius: 0.5, hover: 1.5 },
   eel: { tint: 0x07080d, eye: 0xf2b6c8, radius: 0.5, hover: -0.05 },
   hand: { tint: 0x07080d, eye: 0xecf0f6, radius: 1.5, hover: 0 },
-  warden: { tint: 0x05070a, eye: 0xdbe2ff, radius: 2.4, hover: 0 },
+  warden: { tint: 0x06071a, eye: 0xdbe2ff, radius: 2.4, hover: 0 },
 };
 
 // ------------------------------------------------------------------ shared geometry builders (also used by swarms)

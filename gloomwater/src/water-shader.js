@@ -2,7 +2,9 @@
 // Vertex: world-space swell from 4 sines (water.js getHeight() evaluates the identical sum).
 // Fragment: ink-dark base, banded fresnel toward the mist, painterly dashed streak
 // reflections of up to 6 lights, light pools with caustic shimmer, ripple rings,
-// V-wakes, foam rings around obstacles & the shore, bioluminescent glints, scene fog.
+// V-wakes, foam rings around obstacles & the shore, bioluminescent glints, the vault's stars and
+// nebula mirrored in the lake (starlight-glsl.js, DESIGN §19.1), scene fog.
+import { STARLIGHT_GLSL } from './starlight-glsl.js';
 
 export const WATER_VERT = /* glsl */`
 #include <common>
@@ -74,8 +76,19 @@ uniform float uDepthOn;
 uniform float uWaveT;
 uniform vec4 uWaveA[4];   // same swell as the vertex shader
 uniform vec2 uWaveB[4];
+uniform float uStars, uStarDen, uNebK;   // starlight (water.setSky)
+uniform vec3 uStarCol, uNeb, uNebV, uBandN;
+uniform vec4 uNeb1, uNeb2;
 varying vec3 vWorld;
 varying vec3 vGradH;
+#ifdef GW_LOW
+#define SL_LAYERS 1
+#else
+#define SL_LAYERS 2
+#endif
+#define SL_DV vec3(1.0, 0.68, 1.0)
+#define SL_NEB_CHEAP 1
+${STARLIGHT_GLSL}
 
 float wHash(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -293,7 +306,11 @@ void main() {
   vec3 base = mix(uDeep, uShallow, shallow * 0.7);
   float blot = wNoise(xz * 0.045 + vec2(uTime * 0.004, 0.0)) * 0.6 + wNoise(xz * 0.13 - uTime * 0.01) * 0.4;
   base *= 0.8 + 0.4 * blot;
-  vec3 col = mix(base, uSky, clamp(0.1 + fb * 0.85, 0.0, 0.92));
+  // the surface mirrors a night sky: lavender haze (= the fog colour, so far water melts into it)
+  // near the horizon, deepening toward the zenith, so the near water reads deep and the stars show
+  float skyUp = smoothstep(0.12, 0.75, reflect(-V, N).y);
+  vec3 skyC = uSky * mix(1.0, 0.42, skyUp);
+  vec3 col = mix(base, skyC, clamp(0.1 + fb * 0.85, 0.0, 0.92));
   // mirrored silhouettes show where the surface reflects most (grazing, far water)
   col = mix(col, uDeep * 0.25, refl * clamp(0.18 + fb * 1.4, 0.0, 0.88));
   // painterly mist strokes: long view-perpendicular brush marks where the fresnel lifts
@@ -326,12 +343,7 @@ void main() {
     float cut = 1.0 - smoothstep(R * 0.45, R, d);
     float pk = att * cut + cut * 0.035;
     pk = mix(pk, toon3(pk), 0.45);
-    // optional rim: a faint warm ring marking the light's reach (the lantern's safe circle)
-    float ringK = fract(lc.w);
-    if (ringK > 0.001) {
-      float rx = (d - R * 0.93) / (0.28 + R * 0.02);
-      pk += exp(-rx * rx) * ringK * 0.65 * (0.6 + 0.4 * wNoise(xz * 1.5 + uTime * 0.4));
-    }
+    // no reach ring: a light's pool simply fades out where its reach ends (DESIGN §19.1)
     vec3 L = normalize(lp.xyz - P);
     float diff = 0.3 + 0.7 * max(dot(N, L), 0.0);
     // warm lights lean gold on the water: amber laid over cold blue water otherwise drifts to
@@ -369,6 +381,29 @@ void main() {
   float poolK = clamp(dot(pool, vec3(0.2126, 0.7152, 0.0722)) * 20.0, 0.0, 0.92);
   col = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))) * vec3(1.1, 1.0, 0.72), poolK);
 
+  // ---- starlight: the vault's stars (and its nebula) mirrored in the lake. The lookup mirrors the
+  // view in a nearly flat surface (a mirror keeps the stars round and lets them glide with the
+  // camera like real reflections); the swell and chop only nudge them a few pixels and a drifting
+  // ripple noise breaks them up and makes them flicker. They fade under the lantern's pool, behind
+  // mirrored silhouettes and in foam, are strongest toward grazing water (fresnel), and the scene
+  // fog takes the far ones.
+  vec3 Ns = normalize(vec3(-g.x * 0.035, 1.0, -g.y * 0.035));   // a gentle nudge: more and the chop smears each star into a streak
+  vec3 Rs = reflect(-V, Ns);
+  float spx = length(fwidth(reflect(-V, vec3(0.0, 1.0, 0.0)))) * 1.25;
+  if (uStars > 0.001 || uNebK > 0.001) {
+    float starVis = (1.0 - poolK) * (1.0 - refl * 0.85) * (1.0 - clamp(foam + wake, 0.0, 1.0)) * smoothstep(0.0, 0.06, Rs.y);
+    float mirror = 0.45 + 0.55 * clamp(fb * 1.8, 0.0, 1.0);
+    float rip = wNoise(xz * 1.7 + vec2(uTime * 0.35, -uTime * 0.27)) * wNoise(xz * 0.6 - vec2(uTime * 0.12, 0.0) + 5.0);
+    float brk = smoothstep(0.06, 0.32, rip);
+    vec3 skyR = slStars(Rs, spx, uTime, uStarDen * 0.6, uStarCol, slBand(Rs, uBandN)) * (uStars * 1.25 * brk);
+#ifndef GW_LOW
+    // the nebula sits low in the sky, so only the far (grazing) water mirrors it
+    float lowSky = 1.0 - smoothstep(0.12, 0.42, Rs.y);
+    if (lowSky > 0.01) skyR += slNebula(Rs, uNeb1, uNeb2, uNeb, uNebV) * (uNebK * 0.6 * lowSky);
+#endif
+    col += skyR * starVis * mirror;
+  }
+
   // ---- caustic shimmer (bioluminescent everywhere faintly, golden inside light pools)
 #ifndef GW_LOW
   float caus = caustic(xz * 0.32, uTime * 0.55);
@@ -389,7 +424,8 @@ void main() {
     float tw = pow(max(0.0, sin(uTime * (0.5 + gr * 1.5) + gr * 40.0)), 8.0);
     float gl = (1.0 - smoothstep(0.0, 0.06, gd)) * tw * near * 1.6;
     float pl = dot(pool, vec3(0.333));
-    col += mix(uGlow * 0.55, pool * 6.0 + uGlow * 0.2, clamp(pl * 4.0, 0.0, 1.0)) * gl;
+    vec3 gcol = mix(uStarCol, uGlow, 0.35) * 0.55;   // star-like glints (never a Cinder's amber)
+    col += mix(gcol, pool * 6.0 + uGlow * 0.2, clamp(pl * 4.0, 0.0, 1.0)) * gl;
   }
 
   // ---- foam & ink-pale lines, lit by the nearby lights
