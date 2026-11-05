@@ -253,9 +253,10 @@ export default async function (api) {
     await frame('c2-lantern-night-flare', () => {
       const c = window.__gw, H = window.__w;
       H.goZone('mossmere'); H.mode('lantern'); H.at(2, 'gloomtide', 0.3); H.place(2, 40);
+      H.pumpCombat(0.6);   // combat sees the raft where it now is and opens tonight's window
       c.debug.flareReset?.(); c.debug.setOil(1000);
       return { ...H.info(), flared: c.combat.flare() };
-    }, { combat: 0.15, settle: 1.5, render: 300 });
+    }, { combat: 0.1, settle: 1.5, render: 1500 });
     await g(() => window.__gw.combat.killAll?.('dawn'));
     step('C2: a Flare where the table hides it does nothing and costs no oil');
     s = await g(() => {
