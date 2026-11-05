@@ -201,8 +201,26 @@ export default async function (api) {
   const why = await g(() => ({ state: window.__gw.fishing.state, blocking: !!window.__gw.ui.isBlocking?.(), modal: window.__gw.debug.ui?.()?.openModal ?? null, paused: window.__gw.paused, flow: window.__gw.flow }));
   check(miss?.p.reason === 'passed' && (!hasRefund || miss.p.refunded !== undefined), 'a lapsed bite is let pass (refundBait when progression has it)', { miss: miss?.p, hasRefund, why });
   await frames(30);
-  s = await g(() => { const c = window.__gw; c.debug.forceBite({ speciesId: 'mossback_perch' }); const v = (c.fishing.view.favour?.terms || []).find((t) => t.id === 'letItPass')?.value ?? 0; c.fishing.cancel('reset'); return v; });
-  check(s === 0.15, 'the next cast in the same water: +0.15', s);
+  // the next forced cast aims where the pointer is over a camera that has moved since: land it back within 6 m of the lapsed
+  // bobber by shifting the raft by the miss (at most 4 tries), then read the float
+  s = await g(() => {
+    const c = window.__gw, lp = c.debug.fishing().letPass, out = { lp, tries: [] };
+    if (!lp) return out;
+    for (let i = 0; i < 4; i++) {
+      c.debug.forceBite({ speciesId: 'mossback_perch' });
+      const b = c.fishing.bobberPos, d = b ? Math.hypot(b.x - lp.x, b.z - lp.z) : null;
+      const v = (c.fishing.view.favour?.terms || []).find((t) => t.id === 'letItPass')?.value ?? 0;
+      out.tries.push({ d: d == null ? null : Math.round(d * 10) / 10, v });
+      const ox = b ? lp.x - b.x : 0, oz = b ? lp.z - b.z : 0;
+      c.fishing.cancel('reset');
+      if (d != null && d <= 5.5) break;
+      c.player.position.set(c.player.position.x + ox, 0, c.player.position.z + oz); c.player.velocity?.set?.(0, 0, 0);
+    }
+    return out;
+  });
+  const last = s.tries?.[s.tries.length - 1];
+  check(!!s.lp && last && last.d <= 5.5 && last.v === 0.15 && s.tries.every((t) => (t.d <= 6 ? t.v === 0.15 : t.v === 0)),
+    'the next cast in the same water (within 6 m): +0.15; farther casts get none', s);
 
   const errs = await g(() => window.__gw.errors.slice());
   check(errs.length === 0, 'ctx.errors stays empty', errs);
