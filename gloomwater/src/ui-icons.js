@@ -20,6 +20,8 @@ export const ICONS = {
   shell: P('M12 19.2 3.6 12.6C4.6 7.6 8 5 12 5s7.4 2.6 8.4 7.6z') + P('M12 19.2 8.4 6.3M12 19.2V5M12 19.2l3.6-12.9M12 19.2 5.4 9.2M12 19.2l6.6-10', ' stroke-opacity=".6"') + P('M10 20.4h4'),
   memory: P('M12 3c3.5 4 6 7 6 10.5a6 6 0 0 1-12 0C6 10 8.5 7 12 3z') + P('M12 15.2a1 1 0 1 1 1-1 2.2 2.2 0 1 1-2.2-2.2', ' stroke-opacity=".75"'),
   xp: P('M12 3l5 9-5 9-5-9z') + P('M12 8.5l2 3.5-2 3.5-2-3.5z', F),
+  scallop: P('M12 3.2C4.8 5.9 3 13 5.6 19.4h12.8C21 13 19.2 5.9 12 3.2z') + P('M12 3.2v16.2M7.9 6.2l1.3 13.2M16.1 6.2l-1.3 13.2', ' stroke-opacity=".8"'),
+  book: P('M3.6 4.7C7.3 3.8 10.2 4.7 12 6.6c1.8-1.9 4.7-2.8 8.4-1.9v14.6c-3.7-.9-6.6 0-8.4 1.9-1.8-1.9-4.7-2.8-8.4-1.9z') + P('M12 6.6v14.6'),
   coin: C(12, 12, 7.5) + C(12, 12, 5, ' stroke-opacity=".5"') + P('M12 9v6'),
   // ---------------------------------------------------------------- hud buttons
   creel: P('M5 9.5h14l-1.5 10h-11z') + P('M5.6 13.2h12.8M6.1 16.5h11.8M9.4 9.5l.5 10M14.6 9.5l-.5 10', ' stroke-opacity=".6"') + P('M8 9.5c0-3 1.8-4.8 4-4.8s4 1.8 4 4.8'),
@@ -104,37 +106,166 @@ const ALIASES = { food_loaf: 'food', gear: 'rod', bait: 'worm', supplies: 'oil',
 export function icon(name, { size = null, cls = '', title = '' } = {}) {
   const key = ICONS[name] ? name : ICONS[ALIASES[name]] ? ALIASES[name] : 'star';
   const sz = size ? ` width="${size}" height="${size}"` : '';
-  return `<svg class="gw-ico ${cls}" viewBox="0 0 24 24"${sz} fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${title ? `<title>${title}</title>` : ''}${ICONS[key]}</svg>`;
+  return `<svg class="gw-ico ${cls}" viewBox="0 0 24 24"${sz} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${title ? `<title>${title}</title>` : ''}${ICONS[key]}</svg>`;
 }
 export const hasIcon = (name) => !!(ICONS[name] || ALIASES[name]);
 
-// ---------------------------------------------------------------- ornaments
-export const ORN = {
-  divider: `<svg class="gw-divider" viewBox="0 0 240 16" preserveAspectRatio="xMidYMid meet" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M6 8h82" stroke-opacity=".55"/><path d="M152 8h82" stroke-opacity=".55"/>
-    <path d="M88 8c5 0 8-5 4.5-6.5S87 3.5 90 5" /><path d="M152 8c-5 0-8-5-4.5-6.5S153 3.5 150 5"/>
-    <path d="M88 8c5 0 8 5 4.5 6.5S87 12.5 90 11" stroke-opacity=".6"/><path d="M152 8c-5 0-8 5-4.5 6.5s5.5-2 2.5-3.5" stroke-opacity=".6"/>
-    <path d="M120 1.5l6.5 6.5-6.5 6.5-6.5-6.5z"/><path d="M120 5l3 3-3 3-3-3z" fill="currentColor" stroke="none" fill-opacity=".8"/>
-    <circle cx="104" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="136" cy="8" r="1.4" fill="currentColor" stroke="none"/>
-    <circle cx="4" cy="8" r="1" fill="currentColor" stroke="none" fill-opacity=".6"/><circle cx="236" cy="8" r="1" fill="currentColor" stroke="none" fill-opacity=".6"/></svg>`,
-  corner: `<svg viewBox="0 0 44 44" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M2.5 42V16C2.5 8.5 8.5 2.5 16 2.5h26"/><path d="M7 36V18c0-6 5-11 11-11h18" stroke-opacity=".45"/>
-    <path d="M11 30c0-9 6-16.5 17-17.5" stroke-opacity=".7"/><path d="M28 12.5c3 0 4.5 2.4 3 4s-4 .3-3-1.6"/>
-    <path d="M11 30c0 3-2.4 4.5-4 3s-.3-4 1.6-3" stroke-opacity=".7"/><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>`,
-  titleTop: `<svg class="gw-title-orn" viewBox="0 0 420 70" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M20 62c40 0 70-6 100-22s58-30 90-30 60 14 90 30 60 22 100 22" stroke-opacity=".5"/>
-    <path d="M60 64c30-1 56-6 80-17" stroke-opacity=".35"/><path d="M360 64c-30-1-56-6-80-17" stroke-opacity=".35"/>
-    <path d="M210 10V2" /><path d="M204 18h12l-2-6h-8z"/><path d="M203 18l2 14h10l2-14"/><path d="M205 32h10l-1.5 4h-7z"/>
-    <circle cx="210" cy="25" r="7" class="gw-orn-glow" stroke="none"/>
-    <path d="M210 21.5c1 1.4 2 2.2 2 3.6a2 2 0 0 1-4 0c0-1.4 1-2.2 2-3.6z" fill="currentColor" stroke="none" class="gw-orn-flame"/>
-    <path d="M150 30c6-3 9-9 5-11s-6 3-3 4" stroke-opacity=".7"/><path d="M270 30c-6-3-9-9-5-11s6 3 3 4" stroke-opacity=".7"/>
-    <circle cx="120" cy="40" r="1.5" fill="currentColor" stroke="none" fill-opacity=".7"/><circle cx="300" cy="40" r="1.5" fill="currentColor" stroke="none" fill-opacity=".7"/></svg>`,
-  titleBottom: `<svg class="gw-title-orn" viewBox="0 0 420 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M30 12c20 0 20 6 40 6s20-6 40-6 20 6 40 6 20-6 40-6" stroke-opacity=".45"/><path d="M230 12c20 0 20 6 40 6s20-6 40-6 20 6 40 6 20-6 40-6" stroke-opacity=".45"/>
-    <path d="M210 4l7 8-7 8-7-8z"/><path d="M210 20v8" stroke-opacity=".6"/><path d="M210 31c.9 1.3 1.6 2 1.6 3a1.6 1.6 0 0 1-3.2 0c0-1 .7-1.7 1.6-3z" fill="currentColor" stroke="none" fill-opacity=".7"/>
-    <circle cx="20" cy="12" r="1.2" fill="currentColor" stroke="none" fill-opacity=".5"/><circle cx="400" cy="12" r="1.2" fill="currentColor" stroke="none" fill-opacity=".5"/></svg>`,
-  rule: `<svg class="gw-rule" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4 Q150 1 300 4 Q150 7 0 4z" fill="currentColor"/></svg>`,
+// ---------------------------------------------------------------- the ink brush
+// "Drowned Filigree": every ornament is pale ink drawn with a pen, not a hairline. A centre line
+// (absolute M/C path) is turned into a filled outline whose width swells and tapers, so each
+// stroke has thick and thin and pointed ends. The left half of a symmetric piece is authored
+// once and mirrored. Motifs: fishing line, hooks, floats, reeds, water rings and wax.
+const nums = (d) => d.match(/-?\d*\.?\d+(?:e-?\d+)?/g).map(Number);
+function segsOf(d) {
+  const v = nums(d);
+  const out = [];
+  let x = v[0], y = v[1];
+  for (let i = 2; i + 5 < v.length; i += 6) { out.push([x, y, v[i], v[i + 1], v[i + 2], v[i + 3], v[i + 4], v[i + 5]]); x = v[i + 4]; y = v[i + 5]; }
+  return out;
+}
+const bz = (s, t) => { const u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t; return [a * s[0] + b * s[2] + c * s[4] + e * s[6], a * s[1] + b * s[3] + c * s[5] + e * s[7]]; };
+const bzd = (s, t) => { const u = 1 - t; return [3 * u * u * (s[2] - s[0]) + 6 * u * t * (s[4] - s[2]) + 3 * t * t * (s[6] - s[4]), 3 * u * u * (s[3] - s[1]) + 6 * u * t * (s[5] - s[3]) + 3 * t * t * (s[7] - s[5])]; };
+const r2 = (v) => Math.round(v * 100) / 100;
+const pt2 = (q) => `${r2(q[0])} ${r2(q[1])}`;
+/** Mirror a centre line (all coordinates are x,y pairs) about x = W / 2. */
+const flip = (d, W) => { let i = 0; return d.replace(/-?\d*\.?\d+(?:e-?\d+)?/g, (m) => (i++ % 2 === 0 ? r2(W - Number(m)) : m)); };
+
+/** A pen stroke along `d`: width `w` at its fullest, `min` at the ends, fullest at `peak` (0..1). */
+export function brush(d, { w = 2, min = 0.3, peak = 0.5, pow = 1, n = 16 } = {}) {
+  const segs = segsOf(d);
+  const P = [];
+  segs.forEach((s, si) => {
+    for (let i = si ? 1 : 0; i <= n; i++) {
+      const t = i / n, p = bz(s, t);
+      let [dx, dy] = bzd(s, t);
+      if (Math.abs(dx) + Math.abs(dy) < 1e-6) [dx, dy] = bzd(s, t < 0.5 ? t + 0.01 : t - 0.01);
+      const L = Math.hypot(dx, dy) || 1;
+      P.push([p[0], p[1], -dy / L, dx / L]);
+    }
+  });
+  const len = [0];
+  for (let i = 1; i < P.length; i++) len.push(len[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+  const total = len[len.length - 1] || 1;
+  const pk = Math.max(0.001, Math.min(0.999, peak));
+  const A = [], B = [];
+  P.forEach((p, i) => {
+    const t = len[i] / total;
+    const s = t < pk ? 0.5 * t / pk : 0.5 + 0.5 * (t - pk) / (1 - pk);
+    const hw = (min + (w - min) * Math.pow(Math.sin(Math.PI * s), pow)) / 2;
+    A.push([p[0] + p[2] * hw, p[1] + p[3] * hw]);
+    B.push([p[0] - p[2] * hw, p[1] - p[3] * hw]);
+  });
+  return `M${A.map(pt2).join('L')}L${B.reverse().map(pt2).join('L')}Z`;
+}
+/** A filled dot (a bead, a drop of wax, a rivet). */
+const dot = (x, y, r) => `M${r2(x - r)} ${r2(y)}A${r} ${r} 0 1 0 ${r2(x + r)} ${r2(y)}A${r} ${r} 0 1 0 ${r2(x - r)} ${r2(y)}Z`;
+/** A closed calligraphic ring: a broad nib held at `nib` radians makes it thick and thin. */
+function ring(cx, cy, rx, ry, { w = 3, min = 0.8, nib = -0.7, n = 72 } = {}) {
+  const A = [], B = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a);
+    const tx = -rx * Math.sin(a), ty = ry * Math.cos(a), L = Math.hypot(tx, ty) || 1;
+    const nx = ty / L, ny = -tx / L;
+    const hw = (min + (w - min) * Math.abs(Math.sin(Math.atan2(ty, tx) - nib))) / 2;
+    A.push([x + nx * hw, y + ny * hw]); B.push([x - nx * hw, y - ny * hw]);
+  }
+  return `M${A.map(pt2).join('L')}ZM${B.reverse().map(pt2).join('L')}Z`;
+}
+// ---------------------------------------------------------------- the ornament family (UI style v2)
+// Pale-ink line ornaments (currentColor) from the approved "Drowned Filigree" mockup: the
+// filigree crest (hook curls, a cast line and reeds with a float in the centre) above headings,
+// the flourish below, the hook curl that draws itself in beside a chosen item, the line-and-curl
+// rule of the HUD and of section heads. They live once in an SVG sprite (spriteSvg(), injected
+// into #ui) with the catch card's ink-wash and brush filters, and again as CSS mask images
+// (--orn-*, ornamentCss()) for pseudo-elements. The brushed ring and ripple stay pen-drawn.
+const SP = (d, w = 1.6, o = 1) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${o < 1 ? ` stroke-opacity="${o}"` : ''}/>`;
+const MP = (d, w = 1.6, o = 1) => `<path d="${d}" fill="none" stroke="#000" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${o < 1 ? ` stroke-opacity="${o}"` : ''}/>`;
+/** Each drawing: viewBox size and a list of [d, strokeWidth, opacity] strokes, plus raw fills. */
+const FIL_HALF = [
+  ['M244 26 C258 26 266 14 280 16 C294 18 292 34 280 33 C272 32 273 23 280 24', 1.6, 1],
+  ['M286 26 L460 26', 1.6, 1],
+  ['M460 26 C474 26 480 36 472 41 C464 46 456 38 462 33', 1.6, 1],
+  ['M330 26 C340 14 356 12 364 20 M372 26 C380 36 396 38 404 30', 1.6, 0.8],
+  ['M300 26 C304 18 312 16 316 20', 1.6, 0.6],
+];
+const DRAW = {
+  crest: { W: 520, H: 52, strokes: [...FIL_HALF, ...FIL_HALF.map(([d, w, o]) => [flip(d, 520), w, o]),
+    ['M260 16 L260 4 M253 27 L267 27', 1.6, 1], ['M267 27 C267 33 264 38 260 38 C256 38 253 33 253 27 C253 21 256 16 260 16 C264 16 267 21 267 27 Z', 1.6, 1]],
+    fills: [dot(260, 44, 2)] },
+  flourish: { W: 320, H: 28, strokes: [
+    ['M172 14 L280 14 C290 14 296 8 304 10 C312 12 310 20 302 19', 1.5, 1], [flip('M172 14 L280 14 C290 14 296 8 304 10 C312 12 310 20 302 19', 320), 1.5, 1],
+    ['M204 14 C210 8 218 7 222 10', 1.3, 0.6], [flip('M204 14 C210 8 218 7 222 10', 320), 1.3, 0.6],
+    ['M148 19 C152 24 168 24 172 19', 1.3, 0.7]],
+    fills: ['M160 2 C162.2 6.2 164.4 8.4 164.4 11.2 A4.4 4.4 0 0 1 155.6 11.2 C155.6 8.4 157.8 6.2 160 2 Z'] },
+  rule: { W: 190, H: 16, strokes: [['M2 8 L150 8 C160 8 166 2 174 4 C182 6 180 14 172 13', 1.4, 1]], fills: [] },
+  hook: { W: 64, H: 32, strokes: [['M60 16 L26 16 C14 16 8 7 14 3 C20 0 25 6 21 10', 1.8, 1], ['M26 16 C20 22 20 28 26 29', 1.8, 1]], fills: [dot(61.5, 16, 2)] },
+  brush: { W: 100, H: 14, strokes: [['M3 9 C30 4 70 4 97 8', 5, 1]], fills: [] },
 };
+const strokesSvg = (dw, P = SP) => dw.strokes.map(([d, w, o]) => P(d, w, o)).join('') + dw.fills.map((d) => `<path d="${d}" fill="${P === SP ? 'currentColor' : '#000'}" stroke="none"/>`).join('');
+/** The sprite: every line ornament as a <symbol>, plus the filters (one per page, in #ui). */
+export function spriteSvg() {
+  const sym = (id, dw) => `<symbol id="gw-${id}" viewBox="0 0 ${dw.W} ${dw.H}">${strokesSvg(dw)}</symbol>`;
+  return `<svg class="gw-sprite" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+    ${sym('crest', DRAW.crest)}${sym('flourish', DRAW.flourish)}${sym('rule', DRAW.rule)}
+    <filter id="gw-ink-edge" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="26" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="1.6"/></filter>
+    <filter id="gw-brush" x="-8%" y="-40%" width="116%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.06 0.5" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>
+    <filter id="gw-brush-fx" x="-4%" y="-8%" width="108%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="0.045 0.32" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="gw-stamp" x="-12%" y="-30%" width="124%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.62" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="d"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.6 0 0 0 2.25" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>
+  </defs></svg>`;
+}
+const use = (id, dw, cls) => `<svg class="gw-orn ${cls}" viewBox="0 0 ${dw.W} ${dw.H}" aria-hidden="true" focusable="false"><use href="#gw-${id}"/></svg>`;
+/** A hook curl drawn inline (each stroke its own path, so stroke-dashoffset can draw it in). */
+const hookSvg = (side) => `<svg class="gw-hk gw-hk-${side}" viewBox="0 0 64 32" aria-hidden="true" focusable="false">${DRAW.hook.strokes.map(([d]) => `<path pathLength="100" d="${d}"/>`).join('')}<circle cx="61.5" cy="16" r="2"/></svg>`;
+/** A brushed underline (the catch card's chosen action). */
+const brushSvg = `<svg class="gw-brushline" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" filter="url(#gw-brush)" d="${DRAW.brush.strokes[0][0]}"/></svg>`;
+// Medallion ring (level-up medals, the HUD level, edge markers, the joystick).
+const RING = { W: 100, H: 100, ratio: 'xMidYMid meet', parts: [
+  [ring(50, 50, 44, 44, { w: 3.2, min: 0.9, nib: -0.75 }), 1],
+  [ring(50, 50, 38.5, 38.5, { w: 0.9, min: 0.45, nib: -0.75 }), 0.35],
+  [dot(50, 3.6, 1.9), 1], [dot(50, 96.4, 1.9), 1],
+] };
+// Water ripple under a chosen tile / a leaping fish.
+const RIPPLE = { W: 200, H: 30, ratio: 'xMidYMid meet', parts: [
+  [brush('M60 13 C78 22.4 122 22.4 140 13', { w: 2, min: 0.2 }), 1],
+  [brush('M66 11.6 C84 5.2 116 5.2 134 11.6', { w: 0.9, min: 0.15 }), 0.4],
+  [brush('M26 15 C60 31 140 31 174 15', { w: 1.4, min: 0.1 }), 0.6],
+  [brush('M4 17.6 C50 34 150 34 196 17.6', { w: 0.9, min: 0.05 }), 0.3],
+] };
+const byOpacity = (parts) => {
+  const g = new Map();
+  for (const [d, o] of parts) { if (!g.has(o)) g.set(o, []); g.get(o).push(d); }
+  return [...g].map(([o, ds]) => `<path d="${ds.join('')}"${o < 1 ? ` fill-opacity="${o}"` : ''}/>`).join('');
+};
+const inlineFill = (pc, cls) => `<svg class="gw-orn ${cls}" viewBox="0 0 ${pc.W} ${pc.H}" aria-hidden="true" fill="currentColor" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`;
+const enc = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+const maskFill = (pc) => enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pc.W} ${pc.H}" preserveAspectRatio="${pc.ratio}" fill="#000" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`);
+const maskStroke = (dw, ratio = 'xMidYMid meet') => enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dw.W} ${dw.H}" preserveAspectRatio="${ratio}">${strokesSvg(dw, MP)}</svg>`);
+
+/** The ornaments as markup. */
+export const ORN = {
+  crest: use('crest', DRAW.crest, 'gw-orn-crest'),
+  divider: use('crest', DRAW.crest, 'gw-orn-crest'),
+  flourish: use('flourish', DRAW.flourish, 'gw-orn-flourish'),
+  rule: use('rule', DRAW.rule, 'gw-orn-rule'),
+  hookL: hookSvg('l'),
+  hookR: hookSvg('r'),
+  brush: brushSvg,
+  ring: inlineFill(RING, 'gw-orn-ring'),
+  ripple: inlineFill(RIPPLE, 'gw-orn-ripple'),
+  titleTop: use('crest', DRAW.crest, 'gw-orn-crest gw-title-orn'),
+  titleBottom: '',
+  corner: '',
+};
+/** CSS custom properties holding the same drawings as mask images (appended to ui.css). */
+export function ornamentCss() {
+  const v = {
+    crest: maskStroke(DRAW.crest), flourish: maskStroke(DRAW.flourish), rule: maskStroke(DRAW.rule, 'xMaxYMid meet'),
+    hook: maskStroke(DRAW.hook), brush: maskStroke(DRAW.brush, 'none'), ring: maskFill(RING), ripple: maskFill(RIPPLE),
+  };
+  return `\n.gw-ui{${Object.entries(v).map(([k, u]) => `--orn-${k}:${u};`).join('')}}\n`;
+}
+
 
 // ---------------------------------------------------------------- portraits
 const hex = (n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));
@@ -165,7 +296,7 @@ export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
     ${locked ? '' : `<path d="M0 -10 C2.5 -6 5 -4 5 -0.5 A5 5 0 0 1 -5 -0.5 C-5 -4 -2.5 -6 0 -10z" fill="#fff6dc" opacity=".9"/>`}
     <path d="M0 0v3" stroke="${ink}" stroke-width="1.6"/></g>`;
   const glow = locked ? '' : `<radialGradient id="${g}"><stop offset="0" stop-color="${flame}" stop-opacity=".55"/><stop offset="1" stop-color="${flame}" stop-opacity="0"/></radialGradient>`;
-  const rim = locked ? `<path d="${cloakPath}" fill="none" stroke="rgba(233,226,207,.18)" stroke-width="1"/>` : `<path d="M${50 + 15 * wide} ${top + 24} C${50 + 20 * wide} 72 ${50 + 25 * wide} 90 ${50 + 26 * wide} 112" fill="none" stroke="rgba(233,226,207,.45)" stroke-width="1.2"/>`;
+  const rim = locked ? `<path d="${cloakPath}" fill="none" stroke="rgba(214,214,228,.18)" stroke-width="1"/>` : `<path d="M${50 + 15 * wide} ${top + 24} C${50 + 20 * wide} 72 ${50 + 25 * wide} 90 ${50 + 26 * wide} 112" fill="none" stroke="rgba(214,214,228,.45)" stroke-width="1.2"/>`;
   return `<svg class="gw-portrait" viewBox="0 0 100 120" aria-hidden="true"><defs>${glow}</defs>
     ${locked ? '' : `<circle cx="50" cy="${top - 14}" r="34" fill="url(#${g})" class="gw-pglow"/>`}
     <ellipse cx="50" cy="114" rx="${30 * wide}" ry="4" fill="rgba(0,0,0,.45)"/>
@@ -191,14 +322,14 @@ export function murkPortrait() {
     <path d="M45 75 q9 -6 18 0 q-9 3 -18 0z" fill="#e8d66a" class="gw-murk-eye"/><path d="M81 75 q9 -6 18 0 q-9 3 -18 0z" fill="#e8d66a" class="gw-murk-eye"/>
     <path d="M47 72 q7 -3 14 0 M83 72 q7 -3 14 0" stroke="#2a241e" stroke-width="3" fill="none"/>
     <path d="M34 92 q38 14 76 0" fill="none" stroke="#07080d" stroke-width="2.4"/>
-    <path d="M62 64 h20" stroke="rgba(233,226,207,.25)" stroke-width="1.2"/>
-    <path d="M22 106 c10 -20 30 -32 50 -34" fill="none" stroke="rgba(233,226,207,.22)" stroke-width="1.2"/>
+    <path d="M62 64 h20" stroke="rgba(214,214,228,.25)" stroke-width="1.2"/>
+    <path d="M22 106 c10 -20 30 -32 50 -34" fill="none" stroke="rgba(214,214,228,.22)" stroke-width="1.2"/>
     <path d="M62 14 C76 9 92 14 96 30 L98 70" fill="none" stroke="rgba(200,180,150,.5)" stroke-width="1.2"/>
     <path d="M98 70 C120 74 132 96 126 118" fill="none" stroke="rgba(200,180,150,.46)" stroke-width="1.2"/></svg>`;
 }
 
 /** A small drowned lantern for the Shrine; lit = 0..1 (level / maxLevel). */
-export function relicLantern(lit = 0, { hidden = false, color = '#ffc46b', uid = 'r' } = {}) {
+export function relicLantern(lit = 0, { hidden = false, color = '#f0a64c', uid = 'r' } = {}) {
   const k = Math.max(0, Math.min(1, lit));
   const id = `rl${uid}`;
   const glass = hidden ? '#0b0d11' : k > 0 ? `url(#${id}g)` : '#12161c';
@@ -206,12 +337,12 @@ export function relicLantern(lit = 0, { hidden = false, color = '#ffc46b', uid =
     <defs><radialGradient id="${id}"><stop offset="0" stop-color="${color}" stop-opacity="${0.15 + 0.6 * k}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>
     <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1d10"/><stop offset="1" stop-color="${color}" stop-opacity="${0.25 + 0.55 * k}"/></linearGradient></defs>
     ${k > 0 && !hidden ? `<circle cx="24" cy="40" r="${16 + 8 * k}" fill="url(#${id})" class="gw-relic-glow"/>` : ''}
-    <path d="M24 0 v10" stroke="rgba(233,226,207,.35)" stroke-width="1" stroke-dasharray="2 2"/>
-    <circle cx="24" cy="12" r="3" fill="none" stroke="rgba(233,226,207,.55)" stroke-width="1.2"/>
+    <path d="M24 0 v10" stroke="rgba(214,214,228,.35)" stroke-width="1" stroke-dasharray="2 2"/>
+    <circle cx="24" cy="12" r="3" fill="none" stroke="rgba(214,214,228,.55)" stroke-width="1.2"/>
     <path d="M15 20 h18 l-3 -5 h-12 z" fill="#14171d" stroke="#07080d" stroke-width="1.2"/>
-    <path d="M14 20 h20 l-2 4 v22 l2 4 h-20 l2 -4 v-22 z" fill="${glass}" stroke="${hidden ? 'rgba(233,226,207,.18)' : 'rgba(233,226,207,.6)'}" stroke-width="1.2"/>
+    <path d="M14 20 h20 l-2 4 v22 l2 4 h-20 l2 -4 v-22 z" fill="${glass}" stroke="${hidden ? 'rgba(214,214,228,.18)' : 'rgba(214,214,228,.6)'}" stroke-width="1.2"/>
     <path d="M20 24 v22 M28 24 v22" stroke="rgba(7,8,13,.8)" stroke-width="1.2"/>
-    ${k > 0 && !hidden ? `<g transform="translate(24 45) scale(${0.7 + 0.7 * k})"><path d="M0 -10 C2.5 -6 5 -4 5 -0.5 A5 5 0 0 1 -5 -0.5 C-5 -4 -2.5 -6 0 -10z" fill="${color}" class="gw-relic-flame"/><path d="M0 -4 C1 -2.6 2 -1.8 2 -0.4 A2 2 0 0 1 -2 -0.4 C-2 -1.8 -1 -2.6 0 -4z" fill="#fff3d6"/></g>` : `<path d="M24 41 v3" stroke="rgba(233,226,207,.25)" stroke-width="1.2"/>`}
+    ${k > 0 && !hidden ? `<g transform="translate(24 45) scale(${0.7 + 0.7 * k})"><path d="M0 -10 C2.5 -6 5 -4 5 -0.5 A5 5 0 0 1 -5 -0.5 C-5 -4 -2.5 -6 0 -10z" fill="${color}" class="gw-relic-flame"/><path d="M0 -4 C1 -2.6 2 -1.8 2 -0.4 A2 2 0 0 1 -2 -0.4 C-2 -1.8 -1 -2.6 0 -4z" fill="#fff3d6"/></g>` : `<path d="M24 41 v3" stroke="rgba(214,214,228,.25)" stroke-width="1.2"/>`}
     <path d="M14 50 h20 l-3 5 h-14 z" fill="#14171d" stroke="#07080d" stroke-width="1.2"/>
     ${hidden ? '<text x="24" y="42" text-anchor="middle" class="gw-relic-q">?</text>' : ''}</svg>`;
 }

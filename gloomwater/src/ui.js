@@ -4,7 +4,7 @@
 // and full screens), ui-icons.js (SVG glyphs/ornaments), ui-fishart.js (fish drawings).
 import * as THREE from 'three';
 import css from './ui.css';
-import { icon, ORN } from './ui-icons.js';
+import { icon, ORN, ornamentCss, spriteSvg } from './ui-icons.js';
 import { createHud } from './ui-hud.js';
 import { createScreens } from './ui-screens.js';
 
@@ -15,8 +15,12 @@ export function create(ctx) {
   root.classList.add('gw-ui');
   const style = document.createElement('style');
   style.id = 'gw-ui-style';
-  style.textContent = css;
+  style.textContent = css + ornamentCss();   // the ornament drawings as --orn-* mask images
   document.head.appendChild(style);
+  // the line ornaments and the ink-wash / brush filters, once per page (UI style v2, DESIGN §21.6)
+  if (!root.querySelector(':scope > .gw-sprite')) root.insertAdjacentHTML('afterbegin', spriteSvg());
+  // the catch card's faces load before the first catch, so it never shows them in a fallback face
+  try { for (const f of ["400 24px 'IM Fell English SC'", "400 24px 'Cedarville Cursive'", "italic 400 20px 'Alegreya'"]) document.fonts?.load?.(f).catch(() => {}); } catch { /* fonts optional */ }
 
   const isTouch = (() => {
     try { return !!ctx.isMobile || matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window; } catch { return !!ctx.isMobile; }
@@ -63,7 +67,8 @@ export function create(ctx) {
   const speciesData = (id) => D().SPECIES_BY_ID?.[id] || arr(D().SPECIES).find((s) => s.id === id) || null;
   const boonData = (id) => D().BOON_BY_ID?.[id] || arr(D().BOONS).find((b) => b.id === id) || null;
   const baitData = (id) => D().BAIT_BY_ID?.[id] || arr(D().BAITS).find((b) => b.id === id) || null;
-  const rarityCss = (r) => cssHex(D().RARITY_COLORS?.[r], '#d8d2c0');
+  // the UI reads common catches in pale stone (the reference palette) rather than the world's warm bone
+  const rarityCss = (r) => (r === 'common' || !r ? '#d6d6e4' : cssHex(D().RARITY_COLORS?.[r], '#d6d6e4'));
   const phaseInfo = () => safe(() => ctx.survival?.getPhaseInfo?.(), null);
 
   /** "+3 m Cast Range" style effect lines from a {statKey: delta} map. */
@@ -301,10 +306,10 @@ export function create(ctx) {
     if (!b) return;
     bannerEl?.remove();
     bannerEl = h('div', `gw-banner gw-banner--${b.kind}`, `
-      <div class="gw-banner-orn">${ORN.divider}</div>
+      <div class="gw-banner-orn">${ORN.crest}</div>
       <div class="gw-banner-title">${esc(b.title)}</div>
       ${b.subtitle ? `<div class="gw-banner-sub">${esc(b.subtitle)}</div>` : ''}
-      <div class="gw-banner-orn gw-banner-orn--b">${ORN.divider}</div>`);
+      <div class="gw-banner-orn gw-banner-orn--b">${ORN.flourish}</div>`);
     bannerEl.dataset.title = b.title;
     layers.banner.appendChild(bannerEl);
     void bannerEl.offsetWidth;

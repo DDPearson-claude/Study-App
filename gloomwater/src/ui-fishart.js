@@ -4,7 +4,7 @@
 // Imported only by the ui module.
 
 const INK = '#07080d';
-const BONE = '233,226,207';
+const BONE = '214,214,228';
 
 const hex = (n, d = '#7a808c') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' && n ? n : d));
 function rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
@@ -537,4 +537,67 @@ function paint(g, W, H, species, sil, pad, dpr) {
     else drawGeneric(g, SHAPES.minnow, col, U, sil, rng, m);
   } catch { /* never break a screen over an illustration */ }
   g.restore();
+}
+
+/**
+ * The same species as a pale ink sketch (the catch card, DESIGN §21.6). The illustration is drawn
+ * as usual, then its own ink lines (outline, fins, rays, gill, eye, scales) are lifted out of the
+ * fills: luminance over white paper, minus a blurred copy of itself, keeps only thin dark strokes.
+ * They are redrawn in `color`, so every species keeps its own shape and markings.
+ * opts: {w, h, pad, color, gain}
+ */
+export function drawFishInk(canvas, species, opts = {}) {
+  const w = opts.w || 300, h = opts.h || 150;
+  const src = document.createElement('canvas');
+  drawFish(src, species, { w, h, pad: opts.pad, silhouette: false });
+  const W = src.width, H = src.height;
+  canvas.width = W; canvas.height = H;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const g = canvas.getContext('2d');
+  const sg = src.getContext('2d');
+  if (!g || !sg || !W || !H) return canvas;
+  const d = sg.getImageData(0, 0, W, H).data;
+  const n = W * H;
+  const L = new Float32Array(n);
+  for (let i = 0, j = 0; i < n; i++, j += 4) {
+    const a = d[j + 3] / 255;
+    L[i] = 1 - a + a * ((0.299 * d[j] + 0.587 * d[j + 1] + 0.114 * d[j + 2]) / 255);
+  }
+  const r = Math.max(1, Math.round(1.6 * (W / w)));
+  const B = boxBlur(boxBlur(L, W, H, r), W, H, r);
+  const out = g.createImageData(W, H);
+  const o = out.data;
+  const [cr, cg, cb] = rgb(opts.color || '#ece8f4');
+  const gain = opts.gain || 5.5;
+  for (let i = 0, j = 0; i < n; i++, j += 4) {
+    let k = (B[i] - L[i]) * gain;
+    if (k <= 0.03) continue;
+    if (k > 1) k = 1;
+    o[j] = cr; o[j + 1] = cg; o[j + 2] = cb; o[j + 3] = Math.round(255 * Math.pow(k, 0.8));
+  }
+  g.putImageData(out, 0, 0);
+  return canvas;
+}
+/** Separable box blur of a W×H float field (radius r, edges clamped). */
+function boxBlur(src, W, H, r) {
+  const tmp = new Float32Array(src.length), dst = new Float32Array(src.length);
+  const inv = 1 / (2 * r + 1);
+  for (let y = 0; y < H; y++) {
+    const row = y * W;
+    let acc = 0;
+    for (let x = -r; x <= r; x++) acc += src[row + Math.min(W - 1, Math.max(0, x))];
+    for (let x = 0; x < W; x++) {
+      tmp[row + x] = acc * inv;
+      acc += src[row + Math.min(W - 1, x + r + 1)] - src[row + Math.max(0, x - r)];
+    }
+  }
+  for (let x = 0; x < W; x++) {
+    let acc = 0;
+    for (let y = -r; y <= r; y++) acc += tmp[Math.min(H - 1, Math.max(0, y)) * W + x];
+    for (let y = 0; y < H; y++) {
+      dst[y * W + x] = acc * inv;
+      acc += tmp[Math.min(H - 1, y + r + 1) * W + x] - tmp[Math.max(0, y - r) * W + x];
+    }
+  }
+  return dst;
 }
