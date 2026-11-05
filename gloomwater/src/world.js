@@ -41,7 +41,11 @@ export function create(ctx) {
   const lastGrade = {};
   const mood = { night: 0.18, warm: 0.1 };
   const env = { night: 0, warm: 0, fog: new THREE.Color(), fogDensity: 0.016, glowK: 1, shaftK: 1, partK: 1, starK: 1, starDen: 1, nebK: 1 };
-  const col = { fog: new THREE.Color(), nightFog: new THREE.Color(), dawnFog: new THREE.Color(), a: new THREE.Color(), b: new THREE.Color() };
+  const col = { fog: new THREE.Color(), nightFog: new THREE.Color(), dawnFog: new THREE.Color(), dawnMist: new THREE.Color(), a: new THREE.Color(), b: new THREE.Color() };
+  // night floors (linear luminance): the darkest lakes (the Pallid Deep, Sporewood) are lifted to at
+  // least this at the Gloomtide, hue kept, so the raft, the swarm's silhouettes and its eyes still read
+  const NIGHT_FOG_MIN = 0.012, NIGHT_WATER_MIN = 0.012, NIGHT_DEEP_MIN = 0.0018;
+  const liftLum = (c, min) => { const l = c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722; if (l > 1e-6 && l < min) c.multiplyScalar(min / l); return c; };
   // Starlit moods (DESIGN §19.1): night sinks to ink-indigo with more stars; dawn is a pale gold
   // light over lavender mist with rose-lavender shadows (never orange-brown)
   const COLD = new THREE.Color(0x0b0d2e), WARM = new THREE.Color(0xf2cfa4), NIGHT_TINT = new THREE.Color(0x1e2466), DAWN_TINT = new THREE.Color(0xb898c0);
@@ -187,8 +191,10 @@ export function create(ctx) {
     // fog
     // night keeps each lake's own hue in its mist (a shared cold target made every Gloomtide the
     // same blue-black) and a little more light, so ink silhouettes still read on the water
-    col.nightFog.copy(zc.fog).multiplyScalar(0.38).lerp(COLD, 0.22);
-    col.dawnFog.copy(zc.fog).lerp(DAWN_MIST, 0.22).lerp(WARM, 0.06).multiplyScalar(1.1);
+    liftLum(col.nightFog.copy(zc.fog).multiplyScalar(0.38).lerp(COLD, 0.22), NIGHT_FOG_MIN);
+    // dawn mist leans to each lake's own far colour, so the dawns differ as much as the nights
+    col.dawnMist.copy(DAWN_MIST).lerp(zc.far, 0.5);
+    col.dawnFog.copy(zc.fog).lerp(col.dawnMist, 0.22).lerp(WARM, 0.06).multiplyScalar(1.1);
     col.fog.copy(zc.fog).lerp(col.nightFog, n).lerp(col.dawnFog, w * 0.55);
     fogPush = Math.max(0, fogPush - dt * 1.4);
     const density = zc.fogDensity * (1 + 0.5 * n - 0.1 * w) * (1 + fogPush);
@@ -255,8 +261,8 @@ export function create(ctx) {
     const n = mood.night;
     // night water stays a deep version of the lake's own colour (not one shared blue-black), light
     // enough that an ink-black gloomling still reads as a silhouette on it
-    col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.42 * n);
-    col.b.copy(zc.water).lerp(COLD, 0.12 * n).multiplyScalar(1 - 0.34 * n).lerp(DAWN_MIST, mood.warm * 0.06);
+    liftLum(col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.42 * n), NIGHT_DEEP_MIN * n);
+    liftLum(col.b.copy(zc.water).lerp(COLD, 0.12 * n).multiplyScalar(1 - 0.34 * n), NIGHT_WATER_MIN * n).lerp(col.dawnMist, mood.warm * 0.06);
     try {
       ctx.water?.setPalette?.({ deep: col.a.getHex(), shallow: col.b.getHex(), foam: zc.foam.getHex(), glow: zc.glow.getHex(), fogColor: env.fog.getHex() });
     } catch (e) { /* optional */ }

@@ -378,3 +378,5 @@ stone #D6D6E4. Every value moved through the §12 sources; DESIGN §19.2 holds t
    round (chop nudge 0.035). The flare has no full-screen flash (a local pale-gold GLOW decal instead),
    light flashes mix in sqrt space in the grade, survival's event rings are pale gold #f0d49c, and the
    orbit weapon's persistent dashed ring and combat's "cinder line" fallback ring are gone.
+9. **Round 5:** night luminance floors (fog and water linear 0.012, deep 0.0018, hue kept: lifts the
+   Pallid Deep and Sporewood Gloomtides) and a per-lake dawn mist (half #9a92c8, half the lake's `far`).
