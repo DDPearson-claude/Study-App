@@ -81,6 +81,7 @@ const ALL_MOODS = [...MOODS, ...V3_MOODS];
 const LOG_MAX = 240;
 const SFX_LEVEL = 0.85;
 const STILL_DUCK = 0.02;      // v3: the score in the Ancient's still (1.5 s of silence, DESIGN §25.6.5)
+const AF_MUSIC = 0.8;         // v3: the score sits back a little under an automatic play, so the reel's own sounds lead
 
 export function create(ctx) {
   let ac = null, eng = null, music = null, N = null;
@@ -208,8 +209,8 @@ export function create(ctx) {
     const now = ac.currentTime;
     if (now >= duckUntil) duckAmt = 1;
     const pausedish = ctx.flow === 'playing' && music.mood !== 'victory' && (ctx.paused === true || isBlocking());
-    // v3: the Ancient's still holds the score near silence (STILL_DUCK); 1 at every other moment (v1 included)
-    const want = curve(set.music) * MUSIC_LEVEL * (pausedish ? 0.6 : 1) * duckAmt * (now < af.stillUntil ? STILL_DUCK : 1);
+    // v3: the Ancient's still holds the score near silence (STILL_DUCK), an automatic play sits it back (AF_MUSIC); 1 otherwise (v1)
+    const want = curve(set.music) * MUSIC_LEVEL * (pausedish ? 0.6 : 1) * duckAmt * (now < af.stillUntil ? STILL_DUCK : af.active ? AF_MUSIC : 1);
     if (Math.abs(want - musicGainApplied) > 0.001) {
       const tc = want < musicGainApplied ? 0.06 : 0.5;
       N.musicVol.gain.setTargetAtTime(want, now, tc);
@@ -569,8 +570,12 @@ export function create(ctx) {
     afNote(p.phase, p.kind, dur);
     if (!overlay) afFadeHeld();
     if (p.phase === 'still') {
-      // the still (Ancient): everything stops — the hum, the drone, the score — then it thunders off on the next beat
-      af.humMuteUntil = now + dur; af.stillUntil = now + dur; af.afterStill = true; af.droneTarget = 0;   // busGains drops the score
+      // the still (Ancient): everything stops — the hum, the drone, the score — then it thunders off on the next beat. Gated on
+      // the audio clock at once (a slow frame must not let the line hum on into the silence), and brought back at its end.
+      af.humMuteUntil = now + dur; af.stillUntil = now + dur; af.afterStill = true; af.droneTarget = 0;
+      afHumGate(now + dur);
+      afDroneGate(now + dur);
+      afScoreGate(now + dur);
       return;
     }
     if (p.phase === 'loss') { af.humTarget = 0; return; }   // fishing:escaped carries the cause and its sound
@@ -584,7 +589,7 @@ export function create(ctx) {
       if (h && V3.SUSTAINED.has(snd.name)) af.held.push(h);
       if (h && snd.name === 'strain_whine') af.strain = r3(snd.opts.freq);
     }
-    if (p.phase === 'scare') af.humMuteUntil = now + clamp(dur * 0.45, 0.2, 0.6);   // the line's hum stops; then it returns
+    if (p.phase === 'scare') { af.humMuteUntil = now + clamp(dur * 0.45, 0.2, 0.6); afHumGate(af.humMuteUntil); }   // the hum stops; then it returns
     else if (!overlay) af.humTarget = HUM_BY_PHASE[p.phase] ?? 0.6;
     if (p.phase === 'lastStand') af.droneTarget = Math.min(1.5, (af.music?.drone || 0) * 1.6);   // the drone swells
     else if (!overlay) af.droneTarget = af.music?.drone || 0;
@@ -595,6 +600,7 @@ export function create(ctx) {
     const cls = af.cls || V3.playClass(p);
     const k = V3.lengthK(af.cls ? af.len : V3.classLength(ctx.data, cls, afLake()));
     af.humTarget = 0; af.humMuteUntil = ac.currentTime + 30; af.droneTarget = 0;
+    afHumGate(af.humMuteUntil);
     afNote('lost', p.reason, 0);
     play(name, { k, cls, staggered: p.reason === 'staggered', why: p.reason, pan: bobberPan(), force: true });
     af.active = false;
@@ -609,6 +615,32 @@ export function create(ctx) {
     afFadeHeld();
     afNote('caught', null, 0);
     af.humTarget = 0; af.droneTarget = 0; af.active = false;
+  }
+  /** Silence the line's hum now, on the audio clock, and bring it back at `until` (a scare's slack moment, the still, a loss). */
+  function afHumGate(until) {
+    const l = af.hum;
+    if (!l || l.dead) return;
+    const now = ac.currentTime, g = l.g.gain;
+    try {
+      g.cancelScheduledValues(now); g.setTargetAtTime(0, now, 0.015);
+      if (until - now < 20) g.setTargetAtTime(af.humTarget * 0.045 * 0.95, until, 0.12);
+    } catch { /* ignore */ }
+    l._g = 0;   // the per-frame update keeps off the gain until the gate ends
+  }
+  /** The drone falls silent for the still and comes back with the crash (tc 0.9). */
+  function afDroneGate(until) {
+    const l = af.drone;
+    if (!l || l.dead) return;
+    const now = ac.currentTime, g = l.g.gain;
+    try { g.cancelScheduledValues(now); g.setTargetAtTime(0, now, 0.03); g.setTargetAtTime((af.music?.drone || 0) * 0.06, until, 0.9); } catch { /* ignore */ }
+    l._g = 0;
+  }
+  /** The score holds its breath through the still (busGains applies it now) and returns at its end on the audio clock. */
+  function afScoreGate(until) {
+    if (!N) return;
+    busGains();
+    const back = curve(set.music) * MUSIC_LEVEL * AF_MUSIC;
+    try { for (const g of [N.musicVol.gain, N.musicWetVol.gain, N.musicDlyVol.gain]) g.setTargetAtTime(back, until, 0.5); } catch { /* ignore */ }
   }
   function makeHum(f) {
     const l = makeOscLoop('triangle', f, 'bandpass', f * 2, 4, N.sfxDry);
@@ -637,7 +669,7 @@ export function create(ctx) {
       if (!af.hum || af.hum.dead) af.hum = makeHum(f);
       const line = clamp(num(fv?.play?.line, 0.5), 0, 1);
       const muted = now < af.humMuteUntil;
-      setT(af.hum, 'g', af.hum.g.gain, muted ? 0 : af.humTarget * 0.045 * (0.7 + 0.5 * line), muted ? 0.015 : 0.12);
+      if (!muted) setT(af.hum, 'g', af.hum.g.gain, af.humTarget * 0.045 * (0.7 + 0.5 * line), 0.12);   // muted: afHumGate holds it
       setT(af.hum, 'o', af.hum.o.frequency, f * (1 + 0.1 * line), 0.25, 0.004);
       setT(af.hum, 'f', af.hum.flt.frequency, f * 2 * (1 + 0.1 * line), 0.25, 0.004);
       af.humIdle = 0;
@@ -650,7 +682,7 @@ export function create(ctx) {
     if (droning) {
       if (!af.drone || af.drone.dead) af.drone = makeDrone();
       const still = now < af.stillUntil;
-      setT(af.drone, 'g', af.drone.g.gain, still ? 0 : af.droneTarget * 0.06 * (ctx.paused === true ? 0.5 : 1), still ? 0.03 : 0.9);
+      if (!still) setT(af.drone, 'g', af.drone.g.gain, af.droneTarget * 0.06 * (ctx.paused === true ? 0.5 : 1), 0.9);   // still: afDroneGate holds it
       setT(af.drone, 'c', af.drone.flt.frequency, 200 + 240 * clamp(af.droneTarget, 0, 1.5), 0.8, 0.01);
       af.droneIdle = 0;
     } else if (af.drone) {
