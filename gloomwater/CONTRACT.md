@@ -619,8 +619,10 @@ violent surges), leaper (surges = leaps; slack risk).
   wash that fades out at the reach: never a ring (no persistent ring around the raft at all). A
   flare blooms warm pale gold around the raft and fades; it never flashes the whole screen. Bloom on glows, drifting motes, light shafts,
   vignette, fine grain. The swarm reads as ink against the lantern's warm pool.
-- **UI:** thin ornate bone-white linework, serif type (Cinzel / Cormorant Garamond,
-  Georgia fallback), ink-wash panels, restrained motion.
+- **UI ("Drowned Filigree", DESIGN §21.6):** no boxes; words float on soft night-ink veils with a
+  filigree crest and flourish, twin hook curls that draw in on the chosen item; Marcellus SC titles and
+  labels, Alegreya reading text; the catch card is an ink-wash field-journal page (line-art fish,
+  handwritten pale-gold note, red stamp). Restrained motion.
 - **Originality:** no Hollow Knight characters (no white horned masks), names
   (Hallownest, Geo, Soul, Charms, Masks…), places, music or HUD layout.
 

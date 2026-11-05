@@ -367,8 +367,8 @@ stone #D6D6E4. Every value moved through the §12 sources; DESIGN §19.2 holds t
    `ring`. The bobber's idle ripple ring is pale gold-stone (#ead6a8).
 7. **UI (not touched here; the UI lead owns `ui.css`, `ui*.js`, `template.html`):** the runtime
    `--zone-glow/-accent/-fog/-lamp` tokens follow the new palettes automatically; the DESIGN §21.1
-   fallback values still name the Moonlit slate Mossmere (#a9b9f0 / #c4b8ec / #262f40 / #c8d2f0) and
-   should move to #bab2ee / #d6d6e4 / #3a3070 / #b6b0f0 (round 4 values).
+   fallback values named the Moonlit slate Mossmere; since the integration merge §21.1 lists the
+   v2 interface's lavender fallbacks (#9fa2d8 / #b9b0e6 / #1d245d / #c9c7ee) from `ui.css`.
 8. **Round 4 (distinct lakes, readable nights, the flare):** the Mossmere moved to violet dusk (fog
    #3a3070, water #2e2664, tint #40347e, hue ≈ 248°) and Glasswater to cobalt sapphire (fog #172a7c,
    water #10226e, tint #203ca8, hue ≈ 228°), so the two blue lakes no longer share a hue; the Pallid

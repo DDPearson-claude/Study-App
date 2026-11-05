@@ -1251,38 +1251,34 @@ Sky placement per lake (`world-art.js` SKY; azimuth from north, + = east; the ti
 ## 21. UI/UX
 
 ### 21.1 Style
-*Type, linework and panels are now set by §21.6 (UI style v2); the colour roles below still apply.*
+*Type, linework and panels are set by §21.6 (UI style v2, Drowned Filigree); this section keeps the colour roles.*
 
-Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (near-black, 70–85% opacity, soft paper texture), serif type (Cinzel for titles, Cormorant Garamond for body; Georgia fallback), restrained motion (fades and 150–250 ms eases), rarity colours from `RARITY_COLORS`. Nothing loud; nothing that copies another game's HUD.
+Pale ink linework and words floating on night-ink veils (no boxes), Marcellus SC for titles and labels, Alegreya for reading text (Georgia fallback), restrained motion (fades and 150–250 ms eases; hooks draw in ≈ 1 s), rarity colours from `RARITY_COLORS`. Nothing loud; nothing that copies another game's HUD.
 
-**Colour tokens** (Moonlit slate; the UI follows §19's palette rule: no mint, teal or lime anywhere, the only green is Murk's sage lamp marker and portrait lamp). The Fine badge, positive stat chips, lore toast title and shop kicker, banner/logotype/loader glows, panel haze, gate and spot markers, shallow depth label, reel shards, Murk portrait body and the `--zone-glow` / `--zone-accent` fallbacks must all move off mint/teal to these values; only the merchant marker and the portrait's lamp stay sage.
+**Colour tokens** (the reference palette of docs/v3/ui/CHOICE.md, defined on `.gw-ui` in `ui.css`; the UI follows §19's palette rule: no mint, teal or lime anywhere, the only green is Murk's sage lamp marker and portrait lamp).
 
 | token | value | used for |
 |---|---|---|
-| `--bone` / text | #e9e2cf (keep it warm) | linework, body text |
-| `--muted` | #9aa3b4 (pewter) | secondary text |
-| `--ink` | #06080c | outlines, deepest panel ink |
-| `--bg` | #0b0e15 | screen backgrounds |
-| `--panel` / `--panel-hi` | rgba(18,23,34,.82) / rgba(30,37,52,.9) | ink-wash panels |
-| `--panel-haze` | rgba(70,82,110,.18) | the panel/modal radial haze (was a teal haze) |
-| `--line` | rgba(196,206,226,.22) | hairlines on panels |
-| `--zone-glow` / `--zone-accent` / `--zone-fog` / `--zone-lamp` | runtime from `palette.glow` / `.accent` / `.fog` / `.lamp ?? .glow`; fallbacks #a9b9f0 / #c4b8ec / #262f40 / #c8d2f0 | day-arc calm segment, zone cards, waystones |
-| `--amber` / `--amber-hi` / `--ember` | #ffb347 / #ffd98a / #ff8a3d | the lantern, oil, Cinders, flare (readability: unchanged) |
-| `--blood` / `--danger-deep` | #e0533d / #5a0a14 | danger, low HP (unchanged) |
-| `--r-common` … `--r-legendary` | #d8d2c0 · #a6c6e6 · #b48cff · #ff8fc0 · #e8c66a | `RARITY_COLORS` (uncommon is a pale moonstone, apart from Glasswater's ice-blue) |
-| `--q-fine` | #a6c6e6, border rgba(166,198,230,.5) | Fine quality badge (`QUALITY.fine`) |
-| `--q-perfect` | #ffe2a8 | Shimmering quality |
-| `--depth-shallow` / `-mid` / `-deep` | #a8c8f0 / #ffc27a / #b48cff | charge-meter depth label (matches the reticle) |
-| `--chip-pos` | #d6e2f6, border rgba(170,190,235,.32) | positive stat chips |
-| `--lore` | #ccc4ea (lilac-silver) | lore toast title, shop kicker |
-| `--halo` | rgba(180,196,240,.35) | banner and logotype glow, loader title glow |
-| `--mk-gate` | #c0bcf0, glow rgba(182,184,238,.45) | gate edge marker (the gate's periwinkle-lilac filigree); `ui-hud.onZone` re-derives it per lake from the filigree (glow/accent half and half, lifted 12% toward white), so it follows the gate in every lake (Mossmere #c0c1f0) |
-| `--mk-spot` | #d0c8f4, glow rgba(208,200,244,.3) | spot edge marker (the lilac-moon spot pulse) |
+| `--night` / `--veil` | #0a0c19 / rgba(10,12,25,.84) | the night-ink pools behind modals, screen backgrounds |
+| `--indigo` · `--violet` · `--lavender` | #1d245d · #433e74 · #7e81b4 | deep fields, mid tones, haze |
+| `--ink` / `--ink-hi` / `--ink-dim` | #ecebf6 / #f8f7fe / #aeacd0 | text and linework; secondary text (`--bone*` are aliases) |
+| `--ink-line` / `--ink-ghost` | rgba(174,172,208,.36) / .14 | hairlines, faint rules |
+| `--glow` / `--halo` | rgba(160,150,240,.5) / rgba(160,150,240,.4) | the chosen item's glow; banner, logotype and loader glow |
+| `--zone-glow` / `--zone-accent` / `--zone-fog` / `--zone-lamp` | runtime from `palette.glow` / `.accent` / `.fog` / `.lamp ?? .glow`; lavender fallbacks #9fa2d8 / #b9b0e6 / #1d245d / #c9c7ee | day-line calm stretch, zone cards, waystones |
+| `--amber` / `--amber-hi` (= `--gold`) / `--ember` | #ed9e3b / #e8be77 / #e0803a | the lantern, oil, Cinders, flare; pale gold for trophies, prices, handwriting |
+| `--pink` | #d296ae | rare moments: "new" kickers, the Gloomtide |
+| `--ochre` · `--stone` | #b8893a · #d6d6e4 | autumn accents; satiety, common rarity in the UI |
+| `--blood` / `--danger-deep` / `--danger-ink` | #d9534a / #5a0a14 / #f0aaa6 | danger, low HP, the catch card's rubber stamp |
+| `--rc` (per element) | `RARITY_COLORS`: #d8d2c0 · #a6c6e6 · #b48cff · #ff8fc0 · #e8c66a | rarity of a boon, fish or card, set inline via `rarityCss()` |
+| `--q-fine` / `--q-perfect` | #b6c4ec / #f3d9a6 | Fine / Shimmering quality |
+| `--depth-shallow` / `-mid` / `-deep` | #b4c2ee / #f0b46a / #b48cff | charge-meter depth label (matches the reticle) |
+| `--chip-pos` / `--lore` | #dcdaf4 / #c9c2ee | positive stat chips; lore toast title, shop kicker |
+| `--mk-gate` | #c0bcf0, glow rgba(182,184,238,.45) | gate edge marker; `ui-hud.onZone` re-derives it per lake from the gate filigree (glow/accent half and half, lifted 12% toward white) |
+| `--mk-spot` | #d0c8f4, glow rgba(208,200,244,.3) | spot edge marker |
 | `--mk-merchant` | #a6d4a0, glow rgba(166,212,160,.4) | Murk's edge marker: the one sage-green UI trace (his lamp) |
 | `--reel-shard` | #e8f4ff → #5cbcff, glow rgba(92,188,255,.85) | Glass Sovereign reel shards |
-| loader | background #0c1018, title glow rgba(180,196,240,.35) | boot screen |
-| Murk portrait | body #2a241e / #1e1a16 / #0f0c0a, strokes rgba(200,180,150,.5), lamp #d2ecc8 → #8fbf88, flame #e0f4d6 | shop and merchant portrait (umber toad, sage lamp) |
-| fish-art fallback | body #6e7684, belly #d8dae0, fin #3c4452 | journal/catch art when a species has no model colours |
+| loader | radial #1d245d → #0a0c19, title glow rgba(160,150,240,.5) | boot screen |
+| Murk portrait | umber body, sage lamp | shop and merchant portrait |
 
 ### 21.2 HUD (playing)
 - **Bottom-centre "lantern cluster"** (the original signature layout): a vertical lantern-glass **oil gauge** (amber fill that dims and narrows as it empties; cracks glow at ≤ 25%); a curved **wax-drip satiety bar** hugging its left side; a row of small **Ember flames** in an arc above the lantern (the last one gutters blue). Flare cooldown is a ring around the lantern's cap on desktop.
@@ -1302,7 +1298,7 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 - **Catch card** (blocking): the fish model (`actors.showCatch`), name (+ epithet), weight, quality badge, sale / food / oil numbers with multipliers applied, **NEW** and **RECORD** ribbons, the lore line on first catch. Buttons: **Keep** (if full: a mini list to swap out a fish), **Eat (+X)**, **Render (+X)**, **Release (+luck)**. Legendaries: Keep (Trophy) or Release-to-Murk later.
 - **Level-up picker** (blocking, auto-opens on `levelup`): 3–4 cards with rarity border, icon, name, "NEW" or "Lv 2 → 3", the level `note`, tags; Kindle cards gilded with both icons fused. Reroll (count) and Skip (+Shells) buttons; keys 1–4 / R / S.
 - **Shop** (§13.2), **Creel** (fish list with Eat / Render / Release, bait equip), **Journal** (§16), **Descend** (§14), **Pause** (resume, settings, abandon run, title).
-- **Title:** GLOOMWATER in Cinzel over the slow title camera; Continue / New Descent (character select with locked silhouettes + their challenge, Waystone choice) / Shrine / Challenges / Journal / Settings; the tagline.
+- **Title:** GLOOMWATER in Marcellus SC (§21.6) over the slow title camera; Continue / New Descent (character select with locked silhouettes + their challenge, Waystone choice) / Shrine / Challenges / Journal / Settings; the tagline.
 - **Kindling Draft** (Waystone starts): fast consecutive pick screens with an auto-draft button.
 - **Death:** the cause title ("Your Light Went Out"), an epitaph, day / lake / level, the Memories breakdown counting up, records, challenges completed this run, **near-miss lines** (toll distance, next relic cost, the legendary's escape progress, the next locked Wick's challenge progress), the top damage source with one tip; buttons Shrine / New Descent / Title.
 - **Victory:** the victory text over the candle-lighting sequence; Return to the Surface / Keep Drifting (endless).
