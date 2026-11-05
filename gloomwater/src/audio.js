@@ -74,7 +74,7 @@ export function create(ctx) {
   let lastProgress = 0, wasDanger = false, wasSurgeWarn = false, wasClean = false, statsT = 99, statsCache = null, fishIdle = 0;
   let strain = null, charge = null, aura = null, water = null;
   const scratch = { volume: 1, pitch: 1, pan: 0, delay: 0, crit: false, big: false, elite: false, perfect: false, dying: false, force: false, rarity: undefined, power: undefined, anchored: undefined, resource: undefined,
-    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined };
+    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined };
   let inPointer = false, zapFrame = -1;
   let rmsBuf = null;
   let override = null;          // debug: force score params, e.g. {intensity: 0.8, tension: 0.6}
@@ -210,7 +210,9 @@ export function create(ctx) {
     const vol = clamp(num(o.volume, 1), 0, 2) * (def.gain ?? 1) * (1 + (Math.random() * 2 - 1) * (def.vj ?? 0.1));
     const pitch = clamp(num(o.pitch, 1), 0.25, 4) * (1 + (Math.random() * 2 - 1) * (def.pj ?? 0.04));
     if (vol <= 0.0005) return null;
-    const t = now + 0.005 + Math.max(0, num(o.delay, 0));
+    // o.at (v3): an absolute start on the audio clock, so a run of scheduled sounds (the cord's knots) keeps its spacing
+    // even when the clock moves while they are being built
+    const t = typeof o.at === 'number' && o.at > now + 0.005 ? o.at : now + 0.005 + Math.max(0, num(o.delay, 0));
     const v = eng.voice(tag);
     let out = null;
     try {
@@ -257,7 +259,7 @@ export function create(ctx) {
     const s = scratch;
     s.volume = 1; s.pitch = 1; s.pan = 0; s.delay = 0; s.crit = false; s.big = false; s.elite = false; s.perfect = false;
     s.dying = false; s.force = false; s.rarity = undefined; s.power = undefined; s.anchored = undefined; s.resource = undefined;
-    s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined;
+    s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined; s.at = undefined;
     return s;
   }
   function phaseInfo() {
@@ -406,15 +408,16 @@ export function create(ctx) {
     const plan = V3.cordPlan({ length: info.length, dur, chimes, thresholds: V3.cordThresholds(data, sp, info.zone ?? null) });
     const voices = [];
     const n = plan.ticks.length;
+    const base = ac.currentTime + 0.01 + Math.max(0, t0);   // one clock for the whole cord
     for (const tk of plan.ticks) {
-      resetScratch(); scratch.delay = t0 + tk.t; scratch.pitch = tk.pitch; scratch.volume = 0.8 + 0.2 * (tk.i / n); scratch.force = true;
+      resetScratch(); scratch.at = base + tk.t; scratch.pitch = tk.pitch; scratch.volume = 0.8 + 0.2 * (tk.i / n); scratch.force = true;
       const h = playV('cord_tick', scratch); if (h) voices.push(h);
     }
     for (const ch of plan.chimes) {
-      resetScratch(); scratch.delay = t0 + ch.t; scratch.cls = ch.cls; scratch.force = true;
+      resetScratch(); scratch.at = base + ch.t; scratch.cls = ch.cls; scratch.force = true;
       const h = playV('class_chime', scratch); if (h) voices.push(h);
     }
-    cord = { voices, key: info.key ?? null, start: ac.currentTime + t0, end: ac.currentTime + t0 + plan.dur, ticks: n, chimes: plan.chimes.map((c) => c.cls) };
+    cord = { voices, key: info.key ?? null, start: base, end: base + plan.dur, ticks: n, chimes: plan.chimes.map((c) => c.cls) };
     return plan;
   }
   /** fishing.view.measure: the cord beat of the ceremony starts the knot ticks (CONTRACT §13.7 fishing view.measure). */
@@ -588,12 +591,13 @@ export function create(ctx) {
       wasClean = clean;
     } else if (charge) { charge = killLoop(charge); wasClean = false; }
 
-    // --- v3: the Stillnight bed (night air, far frogs, reed crickets) under the stillnight score
-    if (live && music.mood === 'stillnight') {
+    // --- v3: the Stillnight bed (night air, far frogs, reed crickets) under the stillnight score; like the water bed the
+    // air keeps on under a modal or the pause (softer), the frogs and crickets only while the night runs
+    if (flow === 'playing' && !!run && music.mood === 'stillnight') {
       if (!bed) bed = makeNoiseLoop('brown', 'lowpass', 340, 0.6, N.sfxDry);
-      setT(bed, 'g', bed.g.gain, 0.035, 1.2);
+      setT(bed, 'g', bed.g.gain, live ? 0.035 : 0.018, 1.2);
       bedIdle = 0;
-      bedTimer -= dt;
+      if (live) bedTimer -= dt;
       if (bedTimer <= 0) {
         resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.6; scratch.volume = 0.7 + Math.random() * 0.3;
         play('stillnight_bed', scratch);
@@ -746,7 +750,7 @@ export function create(ctx) {
     on('fishing:tell', (p) => {
       const name = V3.tellSfx(p.biteTell);
       if (!name) return;
-      tell = { name, why: p.biteTell, at: gameT() + V3.tellDelay(p.biteTell, p.lead, ctx.data), played: false };
+      tell = { name, why: p.biteTell, at: gameT() + V3.tellDelay(p.biteTell, p.lead, ctx.data, p.dur), played: false };
       tellTick();
     });
     on('fishing:state', (p) => { if (tell && p.state !== 'waiting' && p.state !== 'bite') dropTell(); });
@@ -764,9 +768,10 @@ export function create(ctx) {
         const plan = num(p.length) > 0 ? startCord({ speciesId: p.speciesId, sizeClass: p.sizeClass, length: num(p.length), zone: catchInfo?.zone ?? ctx.state?.run?.zone ?? null, key },
           V3.compactCordDuration(p.sizeClass)) : null;
         if (cord) cord.compact = true;
-        delay = plan ? plan.dur + 0.04 : 0;
+        delay = plan && cord ? Math.max(0, cord.end + 0.04 - ac.currentTime) : 0;
       }
-      resetScratch(); scratch.seal = seal; scratch.ancient = V3.goldThread({ ancient: p.ancient, legendary }); scratch.delay = delay; scratch.force = true;
+      resetScratch(); scratch.seal = seal; scratch.ancient = V3.goldThread({ ancient: p.ancient, legendary }); scratch.force = true;
+      if (delay > 0) scratch.at = ac.currentTime + delay; else scratch.delay = 0;
       if (!seal) scratch.why = p.sizeClass || null;
       play('seal_stamp', scratch);
       if (seal === 'blackWaxRibbon') duck(0.6, 0.9 + delay);
@@ -907,6 +912,7 @@ export function create(ctx) {
       window.addEventListener('touchend', onGesture, { capture: true, passive: true });
       ctx.debug.audio = () => ({
         state: ac ? ac.state : 'locked',
+        time: ac ? ac.currentTime : 0,
         mood: music?.mood || null,
         zone: music?.zone || null,
         voices: eng ? eng.active : 0,
@@ -916,7 +922,7 @@ export function create(ctx) {
         forced,
         intensity: music ? +music.params.intensity.toFixed(3) : 0,
         played, last: lastName,
-        loops: { strain: !!strain && !strain.dead, charge: !!charge && !charge.dead, aura: !!aura && !aura.dead, water: !!water, bed: !!bed && !bed.dead },
+        loops: { strain: !!strain && !strain.dead, charge: !!charge && !charge.dead, aura: !!aura && !aura.dead, water: !!water, bed: !!bed && !bed.dead && (bed._g ?? 0) > 0 },
         auto: unlocked ? autoMood() : null,
         nightMode: nightMode(),
         cord: cord ? { ticks: cord.ticks, chimes: cord.chimes.slice(), end: cord.end, compact: !!cord.compact, active: !!ac && ac.currentTime < cord.end } : null,

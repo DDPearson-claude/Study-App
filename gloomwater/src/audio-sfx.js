@@ -526,7 +526,7 @@ export const SFX_V3 = {
   } },
 
   // ------------------------------------------------------------- the night (§25.5)
-  night_rise: { gain: 0.8, gap: 3, max: 1, pri: 3, wet: 0.6, dly: 0.25, fn(v, out, t, p, o, eng) {
+  night_rise: { gain: 0.8, gap: 3, max: 2, pri: 3, wet: 0.6, dly: 0.25, fn(v, out, t, p, o, eng) {
     // Night Rise, the big-fish hour: a figure rising from low in the lake's key (o.root), bubbles climbing, a glint above
     const r = clamp(o.root ?? 50, 40, 60);
     for (const [s, dt, vel] of [[-12, 0, 0.5], [-5, 0.3, 0.46], [0, 0.6, 0.44], [2, 0.86, 0.4], [7, 1.22, 0.5]]) {

@@ -34,9 +34,11 @@ export function tellDuration(biteTell, data) {
   if (biteTell === 'dragUnder') return num(data?.BALANCE?.bite?.dragUnder, TELL_DUR.dragUnder);
   return num(TELL_DUR[biteTell], 0);
 }
-/** fishing:tell fires `lead` s before the bite; the tell's animation (and its sound) starts dur s before the bite. */
-export function tellDelay(biteTell, lead, data) {
-  return Math.max(0, num(lead, 0) - tellDuration(biteTell, data));
+/** fishing:tell fires `lead` s before the bite; the tell's animation (and its sound) starts dur s before the bite
+ *  (the event's own `dur` when fishing sends it, else TELL_DUR / BALANCE.bite.dragUnder). */
+export function tellDelay(biteTell, lead, data, dur) {
+  const d = typeof dur === 'number' && Number.isFinite(dur) && dur >= 0 ? dur : tellDuration(biteTell, data);
+  return Math.max(0, num(lead, 0) - d);
 }
 
 // ------------------------------------------------------------------ rise rings (DESIGN §25.6.1)
