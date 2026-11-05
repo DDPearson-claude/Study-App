@@ -112,7 +112,7 @@ section('data: bite tells, the Lantern Warden, the lamp-watch text, the fish pal
   ok(/\{m\}/.test(T.lampWatchCast), 'TEXT.v3.lampWatchCast (with {m})');
   // the keys around the new lines are untouched (the lamp-watch lines sit between watchLamp and nearMiss)
   eq(T.watchLamp, 'Nearest watch-lamp {m} m · ≈ {s} s', 'TEXT.v3.watchLamp kept');
-  eq(T.nearMiss, '{cause} at {pct}%. Your tackle is rated {rating} here.', 'TEXT.v3.nearMiss kept');
+  eq(T.nearMiss, undefined, 'TEXT.v3.nearMiss is retired by D1′ (the got-away note replaces the near-miss card)');
   ok(Object.values(T).every((v) => v !== undefined && v !== null && v !== ''), 'no empty TEXT.v3 line');
   // A3 targets (DESIGN §25.7.7)
   const M = (id) => D.SPECIES_BY_ID[id].model;

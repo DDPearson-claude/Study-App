@@ -103,20 +103,20 @@ eq(V.fmtLength(0, D), '—', 'unknown');
 
 section('tackle rating and the near-miss card (DESIGN §25.6.7)');
 const r0 = V.tackleRating(D, 'mossmere', { rod: 0, line: 0, reel: 0 });
-eq(r0 && { cls: r0.cls, next: r0.next, pct: r0.nextPct }, { cls: 'trophy', next: 'elder', pct: 0 }, 'Mossmere T0: Trophy (Elder 0%)');
+eq(r0, null, 'D1′ retired the reel-sim rating tables: no numeric tackle rating (the words come with U19)');
 const r4 = V.tackleRating(D, 'mossmere', { rod: 4, line: 4, reel: 4 });
-eq(r4?.cls, 'elder', 'Mossmere T4: Elder');
+eq(r4, null, 'no rating at T4 either (D1′)');
 const rFb = V.tackleRating({ TACKLE: D.TACKLE, SIZE_CLASSES: D.SIZE_CLASSES }, 'mossmere', { rod: 2, line: 2, reel: 2 });
-eq(rFb && [rFb.cls, rFb.nextPct], ['trophy', 15], 'matched-set fallback (TACKLE.rating) without the generated table');
+eq(rFb, null, 'no matched-set fallback: TACKLE.rating is retired (D1′)');
 eq(V.tackleRating(D, 'nowhere', {}), null, 'an unknown lake has no rating');
 const nm = V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'trophy', length: 108, progress: 0.84, cause: 'snap' }, { rating: r0 });
 eq(nm.title, 'Reedjaw Pike · Trophy · ~108 cm', 'title');
 eq(nm.line, 'Snapped at 84%.', 'cause and % landed');
-eq(nm.rating.replace(/\u00a0/g, ' '), 'Your tackle is rated Trophy here (Elders 0%).', 'rating (DESIGN\'s words; a no-break space keeps "Elders 0%" together)');
-eq(nm.tip, 'Let go on the hiss.', 'tip (TEXT_V3.tips.snap)');
+eq(nm.rating, '', 'no rating line once the rating is retired (D1′)');
+eq(nm.tip, '', 'no tension tip: TEXT_V3.tips is retired (D1′; the got-away note replaces the card in U2′)');
 const nm2 = V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'elder', ancient: true, length: 160, progress: 0.4, cause: 'thrown' }, { round: (L, e) => L * (1 + e) });
 eq(nm2.title, 'Reedjaw Pike · Ancient · ~173 cm', 'an estimate within ±8% (here +8%)');
-eq([nm2.line, nm2.rating, nm2.tip], ['Thrown hook at 40%.', '', 'Keep the line tight through a leap.'], 'thrown hook, no rating');
+eq([nm2.line, nm2.rating, nm2.tip], ['Thrown hook at 40%.', '', ''], 'thrown hook, no rating, no tip (D1′)');
 eq(V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'prize', length: 70, progress: 0.2, cause: 'slack' }).line, 'Slipped the slack at 20%.', 'slack (no TEXT_V3 cause)');
 
 section('watch-lamps (S6)');
