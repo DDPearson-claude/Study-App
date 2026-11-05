@@ -72,12 +72,12 @@ export function createHudV3(K, el, R, w) {
   R.reel.appendChild(trickEl);
   // the near-miss card
   const nm = h('div', 'gw-nearmiss', `<svg class="gw-nm-wash" viewBox="0 0 560 190" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M26 22 C160 8 400 10 536 24 C550 80 548 130 532 170 C380 184 170 184 30 172 C14 130 14 70 26 22 Z"/></svg>
-    <canvas class="gw-nm-fish" width="150" height="70"></canvas><div class="gw-nm-txt"><div class="gw-nm-k">The one that got away</div><div class="gw-nm-title"></div>
+    <canvas class="gw-nm-fish" width="150" height="70"></canvas><div class="gw-nm-txt"><div class="gw-nm-k">The one that got away</div><div class="gw-nm-title"></div><div class="gw-nm-est"></div>
     <div class="gw-nm-line"></div><div class="gw-nm-rate"></div><div class="gw-nm-tip"></div></div>`);
   nm.setAttribute('role', 'status');
   el.appendChild(nm);
   const nmFish = nm.querySelector('.gw-nm-fish');
-  const nmT = { title: nm.querySelector('.gw-nm-title'), line: nm.querySelector('.gw-nm-line'), rate: nm.querySelector('.gw-nm-rate'), tip: nm.querySelector('.gw-nm-tip') };
+  const nmT = { title: nm.querySelector('.gw-nm-title'), est: nm.querySelector('.gw-nm-est'), line: nm.querySelector('.gw-nm-line'), rate: nm.querySelector('.gw-nm-rate'), tip: nm.querySelector('.gw-nm-tip') };
 
   // ------------------------------------------------------------------ state
   let live = false, vis = null, hitAt = -1e9, swarmSeen = false, nightKey = '';
@@ -143,7 +143,7 @@ export function createHudV3(K, el, R, w) {
     const pi = K.phaseInfo() || {};
     const phase = pi.phase || r.phase || 'calm';
     const key = `${r.id ?? ''}:${r.day}`;
-    if (key !== nightKey) { nightKey = key; if (phase === 'calm') swarmSeen = false; }
+    if (key !== nightKey) { nightKey = key; swarmSeen = false; }
     const cb = ctx.combat && !ctx.combat.isStub ? ctx.combat : null;
     const swarmNight = !!safe(() => cb?.swarmTonight, false);
     const swarmActive = !!safe(() => cb?.swarmActive, false);
@@ -155,7 +155,8 @@ export function createHudV3(K, el, R, w) {
       hp: num(r.hp), maxHp: Math.max(1, Math.round(stat('maxHp'))),
     });
     vis.mode = mode; vis.phase = phase; vis.swarmNight = swarmNight; vis.swarmActive = swarmActive;
-    vis.swarmWord = mode === 'gloomtide' || swarmActive || swarmSeen || swarmNight;
+    // tonight reads Gloomtide once a swarm came (to dawn, even through Lantern's quiet tail); a Still run never does
+    vis.swarmWord = mode !== 'still' && (mode === 'gloomtide' || swarmActive || swarmSeen || swarmNight);
     toggle(el, 'v3', 'gw-hide-embers', !vis.embers);
     toggle(el, 'v3', 'gw-hide-flare', !vis.flare);
     toggle(el, 'v3', 'gw-hide-burn', !vis.burn);
@@ -174,7 +175,8 @@ export function createHudV3(K, el, R, w) {
     if (wf.title !== wtitle) wf.title = wtitle;
     // banked level-ups wait for the card or the dawn bell: a small count on the level ring
     const nb = Math.max(0, Math.round(num(safe(() => cb?.bankedLevels, r.levelBank), num(r.levelBank))));
-    setText(bank, 'bank', nb ? String(nb) : '');
+    setText(bank, 'bank', nb ? `+${nb}` : '');
+    if (nb && bank.title !== 'Level-ups waiting: they come with the next catch card or the dawn bell') bank.title = 'Level-ups waiting: they come with the next catch card or the dawn bell';
     toggle(bank, 'bank', 'gw-on', nb > 0);
     paintForecast(r, phase, mode, swarmNight);
     paintStatus(r, pi, phase, mode, swarmNight, S);
@@ -214,17 +216,17 @@ export function createHudV3(K, el, R, w) {
     const pp = ctx.player?.position;
     if (safe(() => S?.guttering, false)) {
       const left = Math.max(0, Math.ceil(num(safe(() => S.gutterLeft, 0))));
-      setStatus('gutter', 'lantern', `Guttering · ${left} s · render a fish to relight`);
+      setStatus('gutter', 'lantern', `Guttering · ${left}\u00a0s · ${K.burnable() ? 'render a fish to relight' : 'the creel is empty: catch one, fast'}`);
       return;
     }
     const lw = safe(() => S?.lampWatch, null) || r.lampWatch || null;
     const fishR = Math.round(num(LW.fishWithin, 10));
     if (lw) {
-      if (lw.forced) { setStatus('scorch', 'ember', `Scorched · held here till dawn · fish within ${fishR} m`); return; }
+      if (lw.forced) { setStatus('scorch', 'ember', `Scorched · held here till dawn · fish within ${fishR}\u00a0m`); return; }
       const lim = num(lw.radius, num(LW.radius, 6)) + num(LW.leaveCancels, 10);
       const d = pp ? Math.hypot(pp.x - num(lw.x), pp.z - num(lw.z)) : 0;
-      if (d > lim - 4) setStatus('stray', 'watchlamp', `Stray no farther · the watch breaks at ${Math.round(lim)} m`);
-      else setStatus('watch', 'watchlamp', `Lamp-watch · the Gloom keeps away · fish within ${fishR} m`);
+      if (d > lim - 4) setStatus('stray', 'watchlamp', `Stray no farther · the watch breaks at ${Math.round(lim)}\u00a0m`);
+      else setStatus('watch', 'watchlamp', `Lamp-watch · the Gloom keeps away · fish within ${fishR}\u00a0m`);
       return;
     }
     const modes = arr(LW.modes).length ? LW.modes : ['lantern'];
@@ -252,6 +254,20 @@ export function createHudV3(K, el, R, w) {
     const x = Math.max(16 + wHalf, Math.min(W - 16 - wHalf, p.x + dx));
     const y = Math.max(top, Math.min(H - 230, p.y + dy));
     setStyle(node, key, 'transform', `translate3d(${x.toFixed(0)}px,${y.toFixed(0)}px,0)`);
+  }
+  /** The float's favour never covers the bobber: above-right of it when there is room, else below; the list opens away
+   *  from the bobber when it fits. */
+  function placeFav(p) {
+    const W = K.vw, H = K.vh;
+    const top = W < 700 ? 190 : 118;
+    const open = fav.classList.contains('gw-open');
+    const wHalf = open ? Math.min(150, W * 0.44) : 74;
+    const listH = open ? (favList.offsetHeight || 120) : 0;
+    const x = Math.max(16 + wHalf, Math.min(W - 16 - wHalf, p.x + 36));
+    const below = p.y - 70 < top;
+    const y = Math.max(top, Math.min(H - 250, below ? p.y + 46 : p.y - 66));
+    toggle(fav, 'fav', 'gw-list-up', !below && y - 20 - listH > (W < 700 ? 150 : 90));
+    setStyle(fav, 'favT', 'transform', `translate3d(${x.toFixed(0)}px,${y.toFixed(0)}px,0)`);
   }
   const bobP = { x: 0, y: 0, ok: false };
   function fishing(dt) {
@@ -303,7 +319,7 @@ export function createHudV3(K, el, R, w) {
     paintFavOpen();
     // dims while a tell plays beside it
     toggle(fav, 'fav', 'gw-dim', !!v.biteTell);
-    placeNear(fav, 'favT', bobP, 34, -64, fav.classList.contains('gw-open') ? 130 : 70);
+    placeFav(bobP);
   }
 
   function tellCount(id) { let n = 0; for (let i = 1; i <= 3; i++) if (seen(`ui_tell_${id}_${i}`)) n = i; return n; }
@@ -324,7 +340,7 @@ export function createHudV3(K, el, R, w) {
       if (n < 3) markSeen(`ui_tell_${id}_${n + 1}`);
       restartAnim(tell, 'gw-pop');
     }
-    placeNear(tell, 'tellT', bobP, -84, -58, 58);
+    placeNear(tell, 'tellT', bobP, -92, -62, 66);
   }
 
   function paintPips(lost) {
@@ -332,13 +348,13 @@ export function createHudV3(K, el, R, w) {
     if (!max) { pipSvg.innerHTML = ''; toggle(R.reelMedalBox, 'pips', 'gw-has-pips', false); return; }
     toggle(R.reelMedalBox, 'pips', 'gw-has-pips', true);
     // beads along the medal's lower arc (the hook icon sits inside the ring)
-    const span = Math.min(130, 34 * (max - 1));
+    const span = Math.min(120, 38 * (max - 1));
     let s = '';
     for (let i = 0; i < max; i++) {
       const a = (90 + (max > 1 ? -span / 2 + (span * i) / (max - 1) : 0)) * Math.PI / 180;
       const x = 24 + 20 * Math.cos(a), y = 24 + 20 * Math.sin(a);
       const litP = i < pipN;
-      s += `<circle class="gw-pip${litP ? ' gw-lit' : ''}${lost && i === pipN ? ' gw-lost' : ''}${litP && pipN === 1 ? ' gw-last' : ''}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.6"/>`;
+      s += `<circle class="gw-pip${litP ? ' gw-lit' : ''}${lost && i === pipN ? ' gw-lost' : ''}${litP && pipN === 1 ? ' gw-last' : ''}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4.8"/>`;
     }
     pipSvg.innerHTML = s;
   }
@@ -388,7 +404,11 @@ export function createHudV3(K, el, R, w) {
     const zone = r?.zone || null;
     const est = (L, e) => L * (1 + (Math.random() * 2 - 1) * e * 0.5);   // within ±8% of the truth, as the card says "~"
     const M = V.nearMiss(D(), p, { rating: rating(zone), round: est });
-    nmT.title.textContent = M.title;
+    // the species on its own line, then its class and estimated length (the model's one-line title is M.title)
+    nmT.title.textContent = M.species?.name || M.title;
+    nmT.est.innerHTML = M.species ? `${M.cls ? `<b>${esc(M.cls.label)}</b>` : ''}${M.cls && M.est ? ' · ' : ''}<span class="gw-nm-len">${esc(M.est)}</span>` : '';
+    nmT.est.className = `gw-nm-est${M.cls ? ` gw-cls-${M.cls.id}` : ''}`;
+    nm.setAttribute('aria-label', `${M.title}. ${M.line} ${M.rating} ${M.tip}`);
     nmT.line.textContent = M.line;
     nmT.rate.textContent = M.rating;
     nmT.tip.textContent = M.tip;
@@ -397,6 +417,7 @@ export function createHudV3(K, el, R, w) {
       drawFish(nmFish, M.species || { id: p.speciesId }, { w: 150, h: 70, pad: 0.06, silhouette: true });
       const g = nmFish.getContext('2d');
       if (g) { g.save(); g.globalCompositeOperation = 'source-in'; g.fillStyle = 'rgba(190, 186, 226, .72)'; g.fillRect(0, 0, nmFish.width, nmFish.height); g.restore(); }
+      nmFish.style.width = ''; nmFish.style.height = '';   // drawFish sizes the canvas inline; the CSS sizes it per screen
     } catch (e) { K.report('nearmiss art', e); }
     nm.classList.remove('gw-out');
     restartAnim(nm, 'gw-on');

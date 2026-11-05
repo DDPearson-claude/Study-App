@@ -346,8 +346,10 @@ export function createScreens(K) {
     const len = fmtLength(fish.length, D());
     const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
       : p.isRecord ? 'biggest yet!' : ci.id === 'trophy' ? CLASS_PHRASE.trophy : p.isNew ? 'a first!' : CLASS_PHRASE[ci.id] || '';
+    // the bait it took: the cast's own (its favour term names it) before whatever is equipped now
+    const castBait = arr(fish.favours).map((t) => (t?.family === 'tackle' ? K.baitData(t.id) : null)).find(Boolean);
     const eq = safe(() => ctx.progression?.getEquippedBait?.(), r?.equippedBait ?? null);
-    const bait = K.baitData(typeof eq === 'object' && eq ? eq.id : eq);
+    const bait = castBait || K.baitData(typeof eq === 'object' && eq ? eq.id : eq);
     const ph = K.phaseInfo()?.phase || r?.phase || 'calm';
     const night = ph === 'gloomtide' && r?.nightMode && r.nightMode !== 'gloomtide' && !safe(() => ctx.combat?.swarmActive, false) ? 'on a still night' : PHASE_WHEN[ph];
     const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${night || ''}${r?.day ? `, day ${r.day}` : ''}`;

@@ -124,7 +124,7 @@ const lamps = D.ZONE_BY_ID.mossmere.arena.watchLamps;
 eq(lamps.map((l) => l.id), ['se_buoy', 'w_buoy'], 'the Mossmere\'s two buoy-lamps (v3 data)');
 const n1 = V.nearestLamp(lamps, 19.8, 37.8 - 40, 6);
 eq([n1.lamp.id, Math.round(n1.dist), n1.inside, Math.round(n1.secs * 10) / 10], ['se_buoy', 40, false, 5.7], 'nearest lamp, distance and seconds to its pool at raft speed');
-eq(V.watchLineText(D, n1), 'Nearest watch-lamp 40 m · ≈ 6 s', 'the line from TEXT_V3.watchLamp');
+eq(V.watchLineText(D, n1), 'Nearest watch-lamp 40\u00a0m · ≈ 6\u00a0s', 'the line from TEXT_V3.watchLamp');
 ok(V.nearestLamp(lamps, -46.7, 12, 6).inside, 'inside a pool (r 6)');
 eq(V.nearestLamp([], 0, 0), null, 'no lamps');
 eq(V.nearestLamp([{ position: { x: 3, z: 4 }, radius: 6 }], 0, 0).dist, 5, 'world.getWatchLamps() entries with a position');

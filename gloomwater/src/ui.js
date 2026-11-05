@@ -685,7 +685,12 @@ export function create(ctx) {
         if (msg) toast(msg, 'bad', { icon: resource === 'oil' ? 'oil' : resource === 'hp' ? 'ember' : 'food' });
       }
     });
-    on('lantern:out', () => { hud.onLantern(false); if (tipSeen('lantern_out')) toast('Darkness. Burn a fish to relight your lantern.', 'bad', { icon: 'lantern' }); });
+    on('lantern:out', () => {
+      hud.onLantern(false);
+      // v3: 0 oil gutters for 25 s before the Snuff; the HUD's status line counts it down
+      if (v3Run(D(), run())) toast(`Guttering. ${isTouch ? 'Tap Relight' : 'Press R'} to render a fish into oil.`, 'bad', { icon: 'lantern' });
+      else if (tipSeen('lantern_out')) toast('Darkness. Burn a fish to relight your lantern.', 'bad', { icon: 'lantern' });
+    });
     on('lantern:lit', () => hud.onLantern(true));
     on('shells:change', ({ delta }) => hud.onShells(num(delta)));
     on('xp:gain', () => hud.pulse('xp'));

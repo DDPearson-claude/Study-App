@@ -165,7 +165,7 @@ export default async function (api) {
     await freeze(true);
     await frames(2);
     s = await S();
-    check(/watch-lamp \d+ m · ≈ \d+ s/.test(s.status), 'Lantern swarm night from the 85% bell: "Nearest watch-lamp N m · ≈ N s"', s.status);
+    check(/watch-lamp \d+\sm · ≈ \d+\ss/.test(s.status), 'Lantern swarm night from the 85% bell: "Nearest watch-lamp N m · ≈ N s"', s.status);
     await shot('02-watchlamp-line');
     await freeze(false);
     // standing in the South-East buoy-lamp's pool as dusk ends: the lamp-watch
@@ -330,7 +330,7 @@ export default async function (api) {
     await waitFor(() => document.querySelector('#ui .gw-nearmiss')?.classList.contains('gw-on'), null, 60, 200);
     await freeze(true);
     await wait(900);
-    s = await g(() => ({ t: document.querySelector('#ui .gw-nm-title')?.textContent, l: document.querySelector('#ui .gw-nm-line')?.textContent, r: document.querySelector('#ui .gw-nm-rate')?.textContent, tip: document.querySelector('#ui .gw-nm-tip')?.textContent }));
+    s = await g(() => ({ t: `${document.querySelector('#ui .gw-nm-title')?.textContent} · ${document.querySelector('#ui .gw-nm-est')?.textContent}`, l: document.querySelector('#ui .gw-nm-line')?.textContent, r: document.querySelector('#ui .gw-nm-rate')?.textContent, tip: document.querySelector('#ui .gw-nm-tip')?.textContent }));
     check(/Reedjaw Pike · Trophy · ~\d+ cm/.test(s.t) && /Snapped at 84%/.test(s.l) && /rated/.test(s.r) && s.tip, 'fish:escaped-big: the near-miss card (silhouette, class, ~length, %, cause, rating, tip)', s);
     await shot('15-nearmiss');
     await freeze(false);

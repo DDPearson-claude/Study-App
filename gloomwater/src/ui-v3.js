@@ -257,5 +257,6 @@ export function nearestLamp(lamps, x, z, speed = 6) {
 export function watchLineText(D, info) {
   if (!info) return '';
   const tpl = D?.TEXT_V3?.watchLamp || 'Nearest watch-lamp {m} m · ≈ {s} s';
-  return fill(tpl, { m: Math.round(info.dist), s: Math.max(1, Math.round(info.secs)) });
+  // non-breaking spaces keep each number with its unit when the line wraps on a phone
+  return fill(tpl, { m: Math.round(info.dist), s: Math.max(1, Math.round(info.secs)) }).replace(/(\d) (m|s)\b/g, '$1\u00a0$2');
 }
