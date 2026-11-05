@@ -1,8 +1,17 @@
 // render.js — GLOOMWATER renderer, camera rig and post-processing (render author).
 // CONTRACT §7 render. Owns: WebGLRenderer, scene, camera, scene.fog (FogExp2) + clear
 // colour, the post chain RenderPass → UnrealBloomPass → grade → OutputPass, the camera
-// rig (title / sail / fish / reel / night / shop / death), screen shake, flashes and
+// rig (title / sail / fish / reel / night / shop / death, and with v3 on the trophy shot), screen shake, flashes and
 // quality tiers.
+//
+// v3 (CONTRACT §13.7 render, DESIGN §25.14.2 R1 / R2; only while data.V3_ENABLED): sail / fish / reel take every number
+// from BALANCE.cameras (render's convention, render-camera.js); the reel distance follows the line distance only, never
+// the size class; the night overview blends in only while combat.swarmActive (a Stillnight, Lantern's quiet nights and
+// tail and a lamp-watch keep the sail / fish framings). setTrophyTarget({length, landmark, position}) starts the `trophy`
+// shot (distance clamp(1.2 + 1.6·L, 1.6, 16) m around actors' measuring focus, the crane to 50° above 4 m, the yaw toward
+// the landmark by at most ±35° from north, none without one); setTrophyTarget(null) holds it while the catch card is up
+// and then eases back. fishing:reveal (the leap reveal) plays a short push-in on the breach and goes through
+// ctx.game.slowmo (0.25 s at 0.35; main owns ctx.time.timeScale). With the flag off the rig is v1's, number for number.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -11,6 +20,10 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { clamp, damp, lerp, smoothstep, easeInOutSine } from './core.js';
 import { GradeShader } from './render-grade.js';
+import {
+  v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
+  fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
+} from './render-camera.js';
 
 const DEG = Math.PI / 180;
 const TAU = Math.PI * 2;
@@ -29,7 +42,7 @@ const TIER_ORDER = ['low', 'medium', 'high'];
 // Camera presets. elev = camera elevation above the focus (deg), dist = focus→camera (m),
 // aim = look-target lead along the view direction (m), aimY = look-target height (m),
 // fov = vertical fov on landscape (deg), ahead = velocity look-ahead (s), stiff = focus spring ω.
-const MODES = {
+export const MODES = {
   title: { elev: 15, dist: 15.5, aim: 0, aimY: 2.9, fov: 42, ahead: 0, stiff: 2.2 },
   sail:  { elev: 32, dist: 16.5, aim: 6.5, aimY: 0.6, fov: 50, ahead: 0.55, stiff: 3.6 },
   fish:  { elev: 34, dist: 14.0, aim: 0.8, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 },
@@ -37,7 +50,15 @@ const MODES = {
   night: { elev: 53, dist: 24.0, aim: 2.0, aimY: 0.0, fov: 52, ahead: 0.35, stiff: 4.2 },
   shop:  { elev: 18, dist: 10.0, aim: 0, aimY: 1.5, fov: 44, ahead: 0, stiff: 2.4 },
   death: { elev: 36, dist: 12.5, aim: 0, aimY: 0.6, fov: 46, ahead: 0, stiff: 1.4 },
+  // the measuring ceremony's close-up (v3 R2; only while a trophy target is set): dist / elev / fov / aimY are computed
+  trophy: { elev: 18, dist: 1.6, aim: 0, aimY: 0.6, fov: 44, ahead: 0, stiff: 2.4 },
 };
+// v3 automatic fishing: how much of AUTOFISH.play[class].shake each beat of the play gives the camera, and the class ladder.
+const REEL_SHAKE = { take: 0.8, run: 0.6, surge: 1, lastStand: 1.2, loss: 0.7, hold: 0.25 };
+const CLASS_RANK = { small: 0, keeper: 1, prize: 2, trophy: 3, elder: 4, ancient: 5, legend: 6 };
+// v3: after the card's turn the trophy framing holds while a blocking modal (the catch card) is up, then eases back.
+const TROPHY_HOLD_GRACE = 0.6;
+const TROPHY_HOLD_MAX = 90;
 const PARAM_KEYS = ['elev', 'dist', 'aim', 'aimY', 'fov', 'ahead', 'stiff'];
 // When the line runs up-screen (away from the camera) the fish / reel framing looks a little behind
 // the raft and leans less toward the bobber, so the raft sits above the reel gauge (≈62%) and the
@@ -71,6 +92,12 @@ function springStep(st, target, omega, dt) {
 }
 
 export function create(ctx) {
+  // v3 camera presets (CONTRACT §13.7 render): read once, like data itself (the flag is fixed for the page load)
+  const V3 = ctx.data?.V3_ENABLED === true;
+  const CAMS = V3 ? v3Presets(ctx.data?.BALANCE?.cameras, MODES) : null;
+  const P = CAMS ? CAMS.modes : MODES;   // the presets in force (v1's own table with the flag off)
+  const TROPHY = CAMS ? CAMS.trophy : trophyRule(ctx.data?.BALANCE?.cameras, ctx.data?.BALANCE?.ceremony?.camera);
+
   // ---------------------------------------------------------------- renderer & scene
   const renderer = new THREE.WebGLRenderer({
     antialias: false, alpha: false, stencil: false, depth: true, powerPreference: 'high-performance',
@@ -304,7 +331,7 @@ export function create(ctx) {
 
   // ---------------------------------------------------------------- camera rig state
   const cur = {}, tgt = {};
-  for (const k of PARAM_KEYS) cur[k] = tgt[k] = MODES.title[k];
+  for (const k of PARAM_KEYS) cur[k] = tgt[k] = P.title[k];
   let yaw = 0.55, titleYaw = 0.55, deathYaw = 0, deathT0 = 0;
   let upCast = 1;
   let mode = 'title', prevMode = 'title';
@@ -321,6 +348,13 @@ export function create(ctx) {
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const projV = new THREE.Vector3();
   let nightK = 0;
+  // the trophy shot (v3 R2): on while fishing's ceremony holds a target; hold after it while the catch card is up
+  const trophy = {
+    on: false, hold: false, t: 0, holdT: 0, L: 0.5, dist: TROPHY.min ?? 1.6, crane: false, yaw: 0, r: 0.6,
+    landmark: null, place: null, from: new THREE.Vector3(), subject: new THREE.Vector3(), measured: false,
+  };
+  const subjTmp = new THREE.Vector3();
+  let trophyK = 0;   // eased 0..1 weight of the trophy grade
   let lastStatsAt = -10, maxHp = 5;
   let qualityCheckAt = 0;
 
@@ -352,11 +386,53 @@ export function create(ctx) {
     if (!isReal(ctx.ui)) return false;
     try { return ctx.ui.isShopOpen?.() === true; } catch { return false; }
   }
+  function uiBlocking() {
+    if (!isReal(ctx.ui)) return false;
+    try { return ctx.ui.isBlocking?.() === true; } catch { return false; }
+  }
+  /** combat.swarmActive (v3): inside the swarm window now, or a Gloomtide calm raid. Render's night overview follows it. */
+  function swarmActive() {
+    if (!isReal(ctx.combat)) return false;
+    try { return ctx.combat.swarmActive === true; } catch { return false; }
+  }
+  const trophyLive = () => (trophy.on || trophy.hold) && (ctx.flow === 'playing' || ctx.flow === 'hub');
+  /**
+   * The trophy shot's subject: actors' measuring focus (the fish and the Wick, weighted toward the fish) when actors
+   * provides it, else the Wick's head drawn toward where the fish was landed. Writes trophy.subject / trophy.r.
+   */
+  function updateTrophySubject() {
+    let mf = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getMeasureFocus === 'function') {
+      try { mf = ctx.actors.getMeasureFocus(subjTmp); } catch { mf = null; }
+    }
+    const c = mf && mf.center;
+    if (c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z)) {
+      trophy.subject.set(c.x, c.y, c.z);
+      trophy.r = Math.max(0.35, Number(mf.radius) || trophy.L * 0.5);
+      return;
+    }
+    // fallback: the head (flame) of the Wick, or a point 0.9 m over the deck, toward the landing spot by pose
+    let head = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getHeadPos === 'function') {
+      try { head = ctx.actors.getHeadPos(subjTmp); } catch { head = null; }
+    }
+    if (!head || !Number.isFinite(head.x)) {
+      const p = playerPos();
+      head = subjTmp.set(p ? p.x : trophy.from.x, 0.9, p ? p.z : trophy.from.z);
+    }
+    const L = trophy.L;
+    const w = L < 0.85 ? 0.12 : L < 2 ? 0.3 : 0.55;   // held fish sit by the Wick; an alongside one lies out by the landing spot
+    trophy.subject.copy(head).lerp(trophy.from, w);
+    // held fish: around the preset's aimY over the Wick's feet (the hands), lifted with a hanging fish; alongside: the water line
+    trophy.subject.y = L < 2 ? Math.max(TROPHY.aimY ?? 0.6, head.y - 0.25 - Math.min(L, 2) * 0.2) : Math.max(0.2, head.y * 0.4);
+    trophy.r = head.distanceTo(trophy.from) * Math.max(w, 1 - w) * (L < 2 ? 0.4 : 1) + Math.max(L * 0.5, 0.35);
+  }
 
   function pickMode() {
     const flow = ctx.flow;
     if (flow === 'title' || flow === 'boot') return 'title';
     if (flow === 'dead') return 'death';
+    if (trophyLive()) return 'trophy';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';
     const fs = fishingState();
@@ -367,6 +443,11 @@ export function create(ctx) {
   }
 
   function computeNightK(dt) {
+    if (V3) {
+      // v3: the overview follows the swarm (combat.swarmActive), never the phase alone (BALANCE.cameras.night)
+      nightK = damp(nightK, nightTarget({ playing: ctx.flow === 'playing', swarmActive: swarmActive() }), CAMS.nightBlend, dt);
+      return;
+    }
     const info = phaseInfo();
     let k = 0;
     if (info) {
@@ -380,11 +461,12 @@ export function create(ctx) {
   }
 
   function fillTargets(p) {
-    const base = MODES[mode];
+    const base = P[mode];
     for (const k of PARAM_KEYS) tgt[k] = base[k];
     const nk = nightK;
+    if (mode === 'trophy') { fillTrophy(); return; }   // its own portrait fit (the distance is the rule's)
     if (mode === 'sail' || mode === 'night') {
-      const s = MODES.sail, n = MODES.night;
+      const s = P.sail, n = P.night;
       for (const k of PARAM_KEYS) tgt[k] = lerp(s[k], n[k], nk);
     } else if (mode === 'fish' || mode === 'reel') {
       const b = bobber();
@@ -396,21 +478,29 @@ export function create(ctx) {
       if (b && p && sep > 0.5) along = (-Math.sin(yaw) * (b.x - p.x) - Math.cos(yaw) * (b.z - p.z)) / sep;
       else if (mode === 'fish' && isFinite(Number(ctx.fishing?.view?.aim))) along = Math.cos(Number(ctx.fishing.view.aim) - yaw);
       upCast = smoothstep(-0.1, 0.7, along);
-      tgt.aim = lerp(base.aim, UPCAST[mode].aim, upCast);
       sep = clamp(sep, 0, 40);
-      if (mode === 'fish') {
+      if (V3) {
+        // data's aim frames the common up-screen cast; a cast toward the camera keeps render's plain lean
+        tgt.aim = lerp(CAMS.downAim[mode], base.aim, upCast);
+        if (mode === 'fish') {
+          tgt.dist = fishDistance(sep, base);
+          tgt.elev = fishElev(sep, base);
+        } else tgt.dist = reelDistance(sep, base);   // line distance only: never the size class (nor the tension it pulls)
+      } else if (mode === 'fish') {
+        tgt.aim = lerp(base.aim, UPCAST[mode].aim, upCast);
         tgt.dist = Math.max(base.dist, 8.5 + sep * 0.78);
         tgt.elev = base.elev + clamp(sep - 12, 0, 20) * 0.4;
       } else {
+        tgt.aim = lerp(base.aim, UPCAST[mode].aim, upCast);
         tgt.dist = Math.max(base.dist, 7.5 + sep * 0.6);
         const tension = Number(ctx.fishing?.view?.tension) || 0;
         tgt.dist -= clamp(tension, 0, 1) * 0.9;
         tgt.fov -= clamp(tension - 0.6, 0, 0.4) * 6;
       }
-      // night fishing keeps a little of the swarm overview
+      // night fishing keeps a little of the swarm overview (v3: only while a swarm is up)
       const nn = nk * 0.45;
-      tgt.elev = lerp(tgt.elev, MODES.night.elev, nn);
-      tgt.dist = lerp(tgt.dist, Math.max(tgt.dist, MODES.night.dist * 0.85), nn);
+      tgt.elev = lerp(tgt.elev, P.night.elev, nn);
+      tgt.dist = lerp(tgt.dist, Math.max(tgt.dist, P.night.dist * 0.85), nn);
     } else if (mode === 'shop') {
       const m = merchantPos();
       if (m && p) tgt.dist = clamp(Math.hypot(m.x - p.x, m.z - p.z) * 0.9 + 5.5, 8, 17);
@@ -430,7 +520,25 @@ export function create(ctx) {
     }
   }
 
+  /**
+   * The trophy shot (v3 R2): the rule's distance and crane; the subject raised above the frame's centre (ui's measuring band
+   * owns its foot) and the fov widened only as far as the subject needs (a phone held upright: across, then a step back).
+   */
+  function fillTrophy() {
+    const T = TROPHY;
+    tgt.elev = trophyElev(trophy.L, T, trophy.t);
+    tgt.aim = T.aim ?? 0;
+    tgt.ahead = 0;
+    tgt.stiff = T.stiff ?? 2.4;
+    const up = trophyUp(trophy.L, T);
+    const fit = trophyFit(T.fov ?? 44, trophy.r, trophy.dist, W / H, { across: trophyAcross(trophy.L), up });
+    tgt.dist = fit.dist;   // the rule's distance (a phone held upright may step back, as raft presets do)
+    tgt.fov = fit.fov;
+    tgt.aimY = trophyLift(tgt.dist, tgt.fov, tgt.elev, up);
+  }
+
   function focusFor(p, out) {
+    if (mode === 'trophy') return out.copy(trophy.subject);   // the fish and the Wick, at their own height
     if (!p) return out.set(0, 0, 8);
     out.set(p.x, 0, p.z);
     if (mode === 'fish' || mode === 'reel') {
@@ -467,6 +575,7 @@ export function create(ctx) {
   }
 
   function targetYaw(p) {
+    if (mode === 'trophy') return trophy.yaw;
     if (mode === 'title') return titleYaw;
     if (mode === 'death') return deathYaw + (time - deathT0) * 0.045;
     if (mode === 'shop') {
@@ -480,8 +589,31 @@ export function create(ctx) {
     return 0;   // fixed world yaw: screen-up ≈ world −Z
   }
 
+  /** The trophy shot's clocks (v3 R2): its crane time, and the hold that keeps the framing while the catch card is up. */
+  function updateTrophy(dt) {
+    if (trophy.on) trophy.t += dt;
+    else if (trophy.hold) {
+      trophy.t += dt;
+      trophy.holdT += dt;
+      const fs = fishingState();
+      const away = (ctx.flow !== 'playing' && ctx.flow !== 'hub') || (fs !== 'idle' && fs !== 'landing');
+      if (away || trophy.holdT > TROPHY_HOLD_MAX || (trophy.holdT > TROPHY_HOLD_GRACE && !uiBlocking())) trophy.hold = false;
+    }
+    if (trophyLive()) updateTrophySubject();
+  }
+
+  // the trophy shot's moves in and out are eased both ways (critically damped springs on the rig's parameters and yaw);
+  // every other move keeps v1's exponential ease. curV tracks each parameter's velocity so a spring starts from the
+  // motion already under way.
+  const curV = {};
+  for (const k of PARAM_KEYS) curV[k] = 0;
+  const yawS = { x: 0, v: 0 };
+  const springPrm = { x: 0, v: 0 };
+  const TROPHY_IN = 3.2, TROPHY_OUT = 2.4, TROPHY_OUT_T = 3;
+
   function updateCamera(dt) {
     computeNightK(dt);
+    updateTrophy(dt);
     const next = pickMode();
     if (next !== mode) {
       prevMode = mode; mode = next; modeT = 0;
@@ -494,7 +626,18 @@ export function create(ctx) {
     const p = playerPos();
     fillTargets(p);
     const lam = prevMode === 'title' && modeT < 3 ? 1.5 : mode === 'death' ? 1.2 : 2.6;
-    for (const k of PARAM_KEYS) cur[k] = damp(cur[k], tgt[k], lam, dt);
+    const trophyMove = mode === 'trophy' ? TROPHY_IN : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? TROPHY_OUT : 0;
+    for (const k of PARAM_KEYS) {
+      const before = cur[k];
+      if (trophyMove > 0 && dt > 0) {
+        springPrm.x = cur[k]; springPrm.v = curV[k];
+        cur[k] = springStep(springPrm, tgt[k], trophyMove, dt);
+        curV[k] = springPrm.v;
+      } else {
+        cur[k] = damp(cur[k], tgt[k], lam, dt);
+        curV[k] = dt > 0 ? (cur[k] - before) / dt : 0;
+      }
+    }
 
     focusFor(p, focusTarget);
     const jump = Math.hypot(focusTarget.x - fX.x, focusTarget.z - fZ.x);
@@ -510,7 +653,15 @@ export function create(ctx) {
     }
 
     const ty = targetYaw(p);
-    yaw += wrapAngle(ty - yaw) * (1 - Math.exp(-(mode === 'title' ? 3 : lam) * dt));
+    if (trophyMove > 0 && dt > 0) {
+      yawS.x = yaw;
+      springStep(yawS, yaw + wrapAngle(ty - yaw), trophyMove, dt);
+      yaw = yawS.x;
+    } else {
+      const y0 = yaw;
+      yaw += wrapAngle(ty - yaw) * (1 - Math.exp(-(mode === 'title' ? 3 : lam) * dt));
+      yawS.v = dt > 0 ? wrapAngle(yaw - y0) / dt : 0;
+    }
     yaw = wrapAngle(yaw);
 
     // spherical placement around the focus
@@ -521,13 +672,16 @@ export function create(ctx) {
     camPos.set(fX.x + sy * ce * cur.dist, fY.x + se * cur.dist, fZ.x + cy * ce * cur.dist);
     lookTarget.set(fX.x + fwd.x * cur.aim, fY.x + cur.aimY, fZ.x + fwd.z * cur.aim);
 
-    // subtle hand-held sway + a hint of the swell
-    const swayAmt = (mode === 'title' ? 0.22 : mode === 'night' ? 0.08 : 0.12) * (reducedMotion ? 0.2 : 1);
+    // subtle hand-held sway + a hint of the swell (a close-up breathes less; the held subject already rides the swell)
+    const close = mode === 'trophy' ? clamp(cur.dist / 10, 0.12, 1) : 1;
+    const swayAmt = (mode === 'title' ? 0.22 : mode === 'night' ? 0.08 : 0.12) * close * (reducedMotion ? 0.2 : 1);
     camPos.x += Math.sin(time * 0.37) * swayAmt;
     camPos.y += Math.sin(time * 0.53 + 1.3) * swayAmt * 0.8;
     const wh = isReal(ctx.water) && ctx.water.getHeight ? Number(ctx.water.getHeight(fX.x, fZ.x)) || 0 : 0;
-    camPos.y += wh * 0.25; lookTarget.y += wh * 0.4;
-    if (camPos.y < 1.2) camPos.y = 1.2;
+    if (mode !== 'trophy') { camPos.y += wh * 0.25; lookTarget.y += wh * 0.4; }
+    // the floor: v1's 1.2 m; the trophy close-up may sit lower (a palm-sized catch is filmed from chest height)
+    const floorY = mode === 'trophy' ? 0.5 : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? lerp(0.5, 1.2, smoothstep(0, TROPHY_OUT_T, modeT)) : 1.2;
+    if (camPos.y < floorY) camPos.y = floorY;
 
     camera.position.copy(camPos);
     camera.up.set(0, 1, 0);
@@ -558,6 +712,48 @@ export function create(ctx) {
     }
     camera.updateMatrixWorld();
     if (fx.attention) { fx.attentionT += dt; if (fx.attentionT > fx.attentionDur) fx.attention = null; }
+  }
+
+  /**
+   * setTrophyTarget({length, landmark, position, place}) (CONTRACT §13.7 render; fishing's ceremony calls it at the scoop):
+   * length = the fish's true length in metres, landmark = data.landmarkOf(place) | null, position = where it was landed.
+   * null = the card's turn: the framing holds while the catch card is up, then eases back to sail.
+   */
+  function setTrophyTarget(t) {
+    if (!t || typeof t !== 'object') {
+      if (trophy.on) { trophy.on = false; trophy.hold = true; trophy.holdT = 0; }
+      return false;
+    }
+    const L = Number(t.length);
+    if (!(L > 0) || !Number.isFinite(L)) return false;
+    trophy.on = true; trophy.hold = false; trophy.t = 0; trophy.holdT = 0;
+    trophy.L = L;
+    trophy.dist = trophyDistance(L, TROPHY);
+    trophy.crane = trophyCranes(L, TROPHY);
+    const lm = t.landmark;
+    trophy.landmark = lm && Number.isFinite(Number(lm.x)) && Number.isFinite(Number(lm.z))
+      ? { x: Number(lm.x), y: Number(lm.y) || 0, z: Number(lm.z) } : null;
+    trophy.place = t.place ?? null;
+    const p = playerPos();
+    const pos = t.position;
+    if (pos && Number.isFinite(Number(pos.x)) && Number.isFinite(Number(pos.z))) trophy.from.set(Number(pos.x), Number(pos.y) || 0, Number(pos.z));
+    else trophy.from.set(p ? p.x : fX.x, 0.5, p ? p.z : fZ.x);
+    // the yaw is chosen once, from the Wick (the subject's anchor), so the frame does not wander as the fish is lifted
+    trophy.yaw = trophyYaw(p || trophy.from, trophy.landmark, TROPHY.yawMax ?? 35);
+    updateTrophySubject();
+    return true;
+  }
+
+  /**
+   * The leap beat (v3): time slows through main (ctx.game.slowmo; a second start inside the same beat changes nothing, so
+   * fishing and render may both ask), and the camera leans into the breach with a short push-in, scaled by size only.
+   */
+  function leapBeat(position, lengthM, seconds, scale) {
+    try { ctx.game?.slowmo?.(seconds, scale); } catch (e) { console.error('[render] slowmo', e); }
+    const big = clamp((Number(lengthM) || 1) / 3, 0, 1);
+    kick(-(2.5 + 2 * big));
+    shake(0.08 + 0.1 * big, 0.35);
+    if (position && Number.isFinite(Number(position.x))) attention(position, 1.2, 0.22 + 0.1 * big);
   }
 
   // ---------------------------------------------------------------- grade update
@@ -595,6 +791,7 @@ export function create(ctx) {
     const fk = fx.flashT < 1 ? fx.flashPeak * Math.pow(1 - fx.flashT, 2) : 0;
 
     const reel = mode === 'reel' ? 1 : 0;
+    trophyK = damp(trophyK, mode === 'trophy' ? 1 : 0, 2.4, dt);
     const heart = reducedFlashing() ? 0.6 : 0.5 + 0.5 * Math.sin(time * TAU * 1.1) * Math.sin(time * TAU * 1.1);
     renderer.toneMappingExposure = BASE_EXPOSURE * Math.max(0.05, gCur.exposure) * (1 - fx.death * 0.18) * (1 - fx.dark * 0.12);
     bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + fx.bloomPulse));
@@ -602,14 +799,15 @@ export function create(ctx) {
     bloomPass.threshold = Math.max(0, gCur.bloomThreshold);
 
     gu.uTime.value = time % 1000;
-    gu.uSaturation.value = Math.max(0, gCur.saturation * (1 - fx.death * 0.55));
-    gu.uContrast.value = clamp(gCur.contrast + reel * 0.04 + fx.death * 0.05, 0.6, 1.6);
+    // the trophy shot (v3) is the payoff: a touch richer and a softer frame around the catch (0 with the flag off)
+    gu.uSaturation.value = Math.max(0, gCur.saturation * (1 + trophyK * 0.06) * (1 - fx.death * 0.55));
+    gu.uContrast.value = clamp(gCur.contrast + reel * 0.04 + trophyK * 0.03 + fx.death * 0.05, 0.6, 1.6);
     gu.uTint.value.copy(cCur.tint);
     gu.uTintAmount.value = clamp(gCur.tintAmount, 0, 1);
     gu.uWarm.value.copy(cCur.warm);
     gu.uWarmAmount.value = clamp(gCur.warmAmount, 0, 1);
     gu.uLift.value = Math.max(0, gCur.lift);
-    gu.uVignette.value = clamp(gCur.vignette + reel * 0.08 + fx.vigPulse + fx.death * 0.25 + fx.dark * 0.22 + fx.danger * 0.06 * heart, 0, 1);
+    gu.uVignette.value = clamp(gCur.vignette + reel * 0.08 + trophyK * 0.07 + fx.vigPulse + fx.death * 0.25 + fx.dark * 0.22 + fx.danger * 0.06 * heart, 0, 1);
     gu.uFringe.value = Math.max(0, gCur.fringe * (1 + fx.fringePulse) + fx.danger * 0.3);
     gu.uPaper.value = Math.max(0, gCur.paper);
     gu.uGrain.value = Math.max(0, gCur.grain * (1 + fx.death * 0.6 + fx.dark * 0.5));
@@ -641,7 +839,31 @@ export function create(ctx) {
     init() {
       const q = ctx.state?.meta?.settings?.quality;
       setQuality(typeof q === 'string' ? q : 'auto');
-      if (ctx.debug) ctx.debug.renderScale = (x = 1) => { prScale = clamp(Number(x) || 1, 0.2, 1); resize(W, H); return prScale; };
+      if (ctx.debug) {
+        ctx.debug.renderScale = (x = 1) => { prScale = clamp(Number(x) || 1, 0.2, 1); resize(W, H); return prScale; };
+        // the camera rig at a glance (tests, screenshots): the mode, the eased parameters and their targets, the presets in
+        // force, the measured pitch, the night weight and the swarm it follows, and the trophy shot
+        ctx.debug.camera = () => {
+          const r1 = (x) => Math.round(x * 1000) / 1000;
+          const prm = (o) => Object.fromEntries(PARAM_KEYS.map((k) => [k, r1(o[k])]));
+          camera.getWorldDirection(tmpV2);
+          const subj = trophyLive() ? trophy.subject : null;
+          return {
+            v3: V3, mode, prevMode, modeT: r1(modeT), cur: prm(cur), tgt: prm(tgt), yawDeg: r1(yaw / DEG), fov: r1(camera.fov),
+            pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
+            focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
+            camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
+            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H),
+            presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
+            trophy: trophy.on || trophy.hold ? {
+              on: trophy.on, hold: trophy.hold, t: r1(trophy.t), length: trophy.L, dist: r1(trophy.dist), crane: trophy.crane,
+              yawDeg: r1(trophy.yaw / DEG), landmark: trophy.landmark, place: trophy.place, radius: r1(trophy.r),
+              subject: subj ? { x: r1(subj.x), y: r1(subj.y), z: r1(subj.z) } : null,
+              camToSubject: subj ? r1(camera.position.distanceTo(subj)) : null,
+            } : null,
+          };
+        };
+      }
       const bus = ctx.bus;
       if (!bus) return;
       const on = (evt, fn) => bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { console.error('[render]', evt, e); } });
@@ -659,6 +881,32 @@ export function create(ctx) {
       on('fishing:hook', ({ perfect }) => { kick(perfect ? -4 : -2.5); shake(0.14, 0.25); if (perfect) pulse({ bloom: 0.35 }); });
       on('fishing:surge', ({ strength }) => { shake(clamp(0.06 + 0.08 * (Number(strength) || 1), 0, 0.3), 0.3); });
       on('fishing:caught', () => { kick(-2); pulse({ bloom: 0.3 }); });
+      if (V3) {
+        // the leap reveal (DESIGN §25.6.5): the first breach of a Prize+ fish. Time slows through main
+        // (ctx.game.slowmo 0.25 s at 0.35; a second start in the same beat changes nothing), and the camera leans into
+        // the breach with a short push-in: size-scaled, never species-specific (the species stays unknown until landed)
+        on('fishing:reveal', ({ position, lengthM, time: sec, timescale }) => {
+          const LR = ctx.data?.BALANCE?.bite?.leapReveal || {};
+          leapBeat(position, lengthM, Number.isFinite(Number(sec)) ? Number(sec) : (LR.time ?? 0.25),
+            Number.isFinite(Number(timescale)) ? Number(timescale) : (LR.timescale ?? 0.35));
+        });
+        // automatic fishing (DESIGN §25.6 rewrite, CONTRACT §13.7a `fishing:reel`; inert until fishing emits it): the play's
+        // beats shake the camera by size class (AUTOFISH.play[class].shake) and a Prize+ leap slows time through main
+        // (AUTOFISH.leap.slowmo). Class, strength and length only: nothing here can tell one species from another.
+        on('fishing:reel', ({ phase, sizeClass, strength, dur, length }) => {
+          const AF = ctx.data?.AUTOFISH;
+          const k = clamp(Number.isFinite(Number(strength)) ? Number(strength) : 1, 0, 1.5);
+          const amt = (Number(AF?.play?.[sizeClass]?.shake) || 0) * (REEL_SHAKE[phase] || 0) * k;
+          if (amt > 0) shake(amt, clamp(Number(dur) || 0.4, 0.2, 1.2));
+          if (phase !== 'leap') return;
+          const S = AF?.leap?.slowmo || {};
+          if ((CLASS_RANK[sizeClass] ?? -1) < (CLASS_RANK[S.fromClass ?? 'prize'] ?? 2)) return;
+          const b = bobber();
+          leapBeat(b ? { x: b.x, z: b.z } : null, (Number(length) || 100) / 100, S.seconds ?? 0.25, S.scale ?? 0.35);
+        });
+        // run over mid-ceremony: no trophy framing outlives its run
+        on('run:end', () => { trophy.on = false; trophy.hold = false; });
+      }
       on('fishing:escaped', ({ reason }) => { if (reason === 'snap') { shake(0.22, 0.3); pulse({ fringe: 1 }); } });
       on('flare', () => { kick(4); pulse({ bloom: 0.4 }); shake(0.18, 0.3); });   // a softer pulse: the flare must not wash the frame
       on('levelup', () => { pulse({ bloom: 0.5 }); kick(-1.5); });
@@ -707,18 +955,20 @@ export function create(ctx) {
       return out;
     },
     shake, flash, pulse, kick, attention,
+    setTrophyTarget,
     getCameraMode() { return mode; },
     /** Jump the rig straight to its current target (cuts, tests). */
     snapCamera() {
       const p = playerPos();
       computeNightK(10);
+      if (trophyLive()) { updateTrophySubject(); if (trophy.on) trophy.t = Math.max(trophy.t, 10); }
       mode = pickMode();
       fillTargets(p);
-      for (const k of PARAM_KEYS) cur[k] = tgt[k];
+      for (const k of PARAM_KEYS) { cur[k] = tgt[k]; curV[k] = 0; }
       focusFor(p, focusTarget);
       fX.x = focusTarget.x; fY.x = focusTarget.y; fZ.x = focusTarget.z;
       fX.v = fY.v = fZ.v = 0;
-      yaw = wrapAngle(targetYaw(p));
+      yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
       focusInit = true;
       updateCamera(0);
     },
