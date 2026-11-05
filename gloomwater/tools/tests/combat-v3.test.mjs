@@ -322,7 +322,7 @@ seed(51);
   ok(env.calls.damage.length > d0, 'Gloomtide: contact costs Embers as today');
 }
 
-section('C6 the hard rule: a slam / shove while reeling moves nothing and snaps nothing (Still, Lantern)');
+section('C6 the hard rule: a slam / shove while reeling moves nothing and snaps nothing (Still, Lantern); C7 the anchor holds in Gloomtide too');
 for (const mode of ['lantern', 'still', 'gloomtide']) {
   seed(61);
   const env = makeEnv({ mode, day: 2 });
@@ -338,8 +338,11 @@ for (const mode of ['lantern', 'still', 'gloomtide']) {
   env.runFor(0.3);
   const moved = env.ctx.player.position.distanceTo(p0);
   if (mode === 'gloomtide') {
-    ok(env.calls.knock.length > 0, 'Gloomtide: the slam knocks the raft (today)');
-    ok(env.calls.cancel.includes('snap'), 'Gloomtide: the slam snaps a normal line (today)');
+    // C7 (DESIGN §25.0.2c, the anchor in every mode): the slam costs Embers and (on P1's manual reel, no partLine) snaps the
+    // line, but nothing moves the raft while a fish is on
+    eq(env.calls.knock.length, 0, 'Gloomtide (C7 the anchor): no knockback while reeling');
+    near(moved, 0, 'Gloomtide (C7 the anchor): the raft did not move', 1e-9);
+    ok(env.calls.cancel.includes('snap'), 'Gloomtide: the slam snaps a normal line (P1 fishing without partLine)');
   } else {
     eq(env.calls.knock.length, 0, `${mode}: no knockback while reeling`);
     near(moved, 0, `${mode}: the raft did not move (slam knock, linger push)`, 1e-9);
@@ -359,8 +362,7 @@ for (const mode of ['lantern', 'gloomtide']) {
   if (e) { e.position.set(0.6, 0, 0); e.spawnT = 0; e.contactCd = 0; }
   env.runFor(0.1);
   ok(env.calls.addOil.length > o0, `${mode}: it made contact (oil drained)`);
-  if (mode === 'lantern') eq(env.calls.knock.length, 0, 'Lantern: the shove does not move the raft while landing');
-  else ok(env.calls.knock.length > 0, 'Gloomtide: the shove knocks the raft while landing (today)');
+  eq(env.calls.knock.length, 0, `${mode}: the shove does not move the raft while landing (C7: the anchor in every mode)`);
   env.ctx.fishing.state = 'idle';
   const k0 = env.calls.knock.length;
   env.ctx.player.position.set(0, 0, 0);
@@ -568,16 +570,18 @@ section('C3 XP per mode');
   ok(n !== data.fishXpFor(sp.rarity, 0), `the zone factor matters for a Sporewood ${sp.rarity} (${n} vs ${data.fishXpFor(sp.rarity, 0)})`);
   env.bus.emit('fish:landed', { fish: { uid: 'q', speciesId: sp.id }, species: sp, xp: n });
   env.combat.addXp(n);
-  eq(env.run.xp, Math.max(1, Math.round(data.fishXpFor(sp.rarity, 0) * 1.4)), 'Still: fish XP × 1.4 with no zone factor (progression did not apply it)');
+  // C7 (automatic fishing): fish XP also takes the lake's economy normaliser (CATCH_V3.economy.norm; combat owns it)
+  const NORM = data.CATCH_V3.economy.norm;
+  eq(env.run.xp, Math.max(1, Math.round(data.fishXpFor(sp.rarity, 0) * 1.4 * NORM.sporewood)), 'Still: fish XP × 1.4 with no zone factor (progression did not apply it), × the Sporewood norm');
   const env2 = makeEnv({ mode: 'still', day: 1 });
   env2.run.xpNext = 1000;
   env2.combat.addXp(7, { source: 'fish', modeApplied: true });
-  eq(env2.run.xp, 7, 'modeApplied: taken as given (progression applied the mode)');
+  eq(env2.run.xp, Math.round(7 * NORM.mossmere), 'modeApplied: the mode taken as given (progression applied it); × the Mossmere norm (C7)');
   const env3 = makeEnv({ mode: 'lantern', day: 1, zone: 'sporewood' });
   env3.run.xpNext = 1000;
   env3.bus.emit('fish:landed', { fish: { uid: 'q', speciesId: sp.id }, species: sp, xp: n });
   env3.combat.addXp(n);
-  eq(env3.run.xp, n, 'Lantern: fish XP × 1.0 with the zone factor');
+  eq(env3.run.xp, Math.max(1, Math.round(n * NORM.sporewood)), 'Lantern: fish XP × 1.0 with the zone factor, × the Sporewood norm');
   // discovery: +4 per new place under the shared 12 a day
   const env4 = makeEnv({ mode: 'lantern', day: 1 });
   env4.run.xpNext = 1000;
