@@ -15,8 +15,8 @@
 //   node tools/sim/catch-v3.mjs --leaps         the leap, bite and sign ambiguity rules, cell by cell (worst cells first)
 //   node tools/sim/catch-v3.mjs --md            markdown tables               --json  CATCH_V3 + AUTOFISH as JSON
 //   node tools/sim/catch-v3.mjs --strike clean|struck|early|late   (default struck: the log's reference strike)
-// Deterministic (closed form; the outing estimate is an expectation, no RNG). The manual tension reel's sim, reel-v3.mjs, is
-// legacy: it no longer gates v3 fishing (see its header).
+// Deterministic (closed form; the outing estimate is an expectation, no RNG). The manual tension reel's sim (reel-v3.mjs) was
+// retired with its data by D1′ (DESIGN §25.14.2a); tools/sim/reel.mjs stays for v1.
 import * as D from '../../src/data.js';
 
 const C = D.CATCH_V3, A = D.AUTOFISH;

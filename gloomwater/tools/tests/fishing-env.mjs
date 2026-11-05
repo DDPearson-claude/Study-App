@@ -1,5 +1,5 @@
-// A fake game ctx around the real src/fishing.js (no renderer, no other modules), for the v3 fishing tests and the reel-sim parity
-// driver. Not a test on its own (no .test.mjs suffix): tools/tests/fishing-v3.test.mjs and tools/tests/fishing-reel-bot.mjs use it.
+// A fake game ctx around the real src/fishing.js (no renderer, no other modules), for the v3 fishing tests. Not a test on its own
+// (no .test.mjs suffix): tools/tests/fishing-v3.test.mjs uses it.
 //
 //   import { makeFishingEnv } from './fishing-env.mjs';
 //   const env = makeFishingEnv({ data: D, mode: 'lantern', phase: 'calm', raft: [30, 30], zoneId: 'mossmere', stats: {...} });

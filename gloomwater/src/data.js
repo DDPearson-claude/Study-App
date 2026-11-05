@@ -2651,7 +2651,7 @@ export const SIZE_CLASSES = [
 ];
 
 // ---- BALANCE_V3: merged into BALANCE when V3_ENABLED (the brief's `BALANCE.size`, `.farWater`,
-// `.liveWell`, `.oil`, `.wellFed`, `.nightModes`, `.tackleRating`, `.cameras` …). Every block is new except
+// `.liveWell`, `.oil`, `.wellFed`, `.nightModes`, `.cameras` …). Every block is new except
 // `bite`, whose v3 keys are merged into v1's BALANCE.bite; no v1 / v2 key is ever replaced (validated),
 // so The Long Descent keeps today's numbers.
 export const BALANCE_V3 = {
@@ -2677,36 +2677,9 @@ export const BALANCE_V3 = {
     // mix (0.942 / 1.201) keeps the average yield at today's (a Mossmere common renders ≈ 17 oil, brief §3.4; validated from the mix).
     yield: { perZ: 0.3, clamp: [0.7, 2.5], factor: 0.784, mix: 1.201 },
     valueMix: { mu: [[0, 0.25], [0.3, 0.3], [0.6, 0.25], [1.0, 0.15], [1.5, 0.05]], giantShare: 1 / 3, sizeKMean: 0.942, multiplier: 1.428 },   // the normaliser behind 0.66 (roster-v3)
-    // size → fight (brief §5.5), applied to species.difficulty BEFORE createReel; g = e^(gPerZ · z)
-    fight: {
-      gPerZ: 0.2, powerExp: 1.6, powerExpBy: { sinker: 1.15, sulker: 1.15 }, staminaExp: 1.0, surgeTimeExp: 0.5,
-      sweetExp: -0.5, sweetMin: 0.4, erraticPerZ: 0.08, erraticMax: 0.9, surgeEveryExp: -0.6,
-      elderZ: 2.65, elderStep: 1.08, elderStaminaExp: 1.3,              // above the Elder cut: power × 1.08 × g^(1.6 + age·(z − 2.65)), stamina × g^1.3
-      elderAge: { mossmere: 1.2, sporewood: 0.9, glasswater: 0.7, paleabyss: 0.35 },   // old water keeps its oldest fish hard
-      legendZ: 0,                                                         // legends fight at z 0 (only the global stamina × 1.4 applies)
-    },
-    // reel-model edits (fishing-reel.js; brief §5.5): stamina × 1.4 for every fish; easing uses load; fatigue clock
-    reel: {
-      staminaMult: 1.4,
-      easeByLoad: { base: 0.8, perLoad: 0.2 },                            // released: target = −fallBase / (base + perLoad · pw / LS)
-      fatigue: { after: 60, perS: 0.01, floor: 0.6, elderFloor: 0.8 },    // non-legendaries: power × max(floor, 1 − perS·(t − after))
-      oldTrick: { at: 0.55, warnMult: 0.6, powerMult: 1.3, secondAfter: 0.9, mixedRead: true,   // every Elder, once, when progress first passes 55%
-        byStyle: { runner: 'doubleRun', darter: 'doubleRun', sinker: 'sulk', sulker: 'sulk', leaper: 'secondLeap', thrasher: 'bore', steady: 'bore' } },
-      // s on a phone, full tackle (T1 targets). "Ancients ≈ 3 min" is checked as median ≤ 180 × 1.15 (T4, skilled) with < 2%
-      // time-outs for every species that can be an Elder (validated at k 160); knownGaps are the brief's own gaps, retuned with
-      // their verbs (the runner P3, the sulker P4) or kept as an Ancient wall by the brief's own table.
-      targets: { elderMedian: 120, ancientMedian: 180, ancientTolerance: 1.15, maxTimeouts: 0.02,
-        knownGaps: { blind_scrivener: 'sulker (P4)', the_footnote: 'sulker (P4)', the_unpaid_fare: 'sulker (P4)', candlewake_sturgeon: 'runner (P3), retuned in P4',
-          shardspine_eel: 'the brief\'s reel-v3-elders table: T4 Elder 60 / Ancient 1 (an Ancient wall by design)' } },
-      // Drag (every fight from T0; the sims' land rates depend on it): while tension T > dragAt and rising, the reel absorbs
-      // dT × absorb (Reel tier) and progress slips slipPerAbsorb per unit absorbed. Spooled = progress 0 with cumulative slip
-      // > 0.5, any species (the runner only makes it likelier). dragAt = the fitted preset (Set 0.80 below Reel T2).
-      drag: { from: 'TACKLE.drag', slipPerAbsorb: 0.08, spooled: { progress: 0, slip: 0.5, species: 'any' } },
-      // fight verbs, one per lake (P3 runner, P4 sulker; simulated in tools/sim/reel-v3.mjs before their code)
-      runner: { hissTell: 0.8, runTime: 'surgeTime × 2√g', holdTMult: 1.8, releaseLossPerS: 0.05, turnTime: 2, turnMult: 1.5, phase: 3 },
-      sulker: { every: [10, 14], time: [4, 6], holdCreep: 0.3, minRelease: 0.3, liftGain: 0.04, phase: 4 },
-      foul: { chance: 0.15, warn: 0.3, spike: 0.15 },                     // §24's foul rule, reused at the Gatehouse Door and the Chain Garden
-    },
+    // (D1′, the AF build's data: the manual v3 reel's `fight` (size → difficulty, Elder age and step) and `reel` (stamina, easing,
+    // fatigue, old tricks, drag and Spooled, the runner / sulker verbs, the foul spike, the reel-sim targets) are retired; automatic
+    // fishing's land chance is CATCH_V3 and its play AUTOFISH.play. v1 (flag off) keeps BALANCE.reel untouched.)
   },
 
   // ---- The float's favour μ (brief §5.1, §6.1): one formula, shown as 0–5 ink notches by family.
@@ -2757,7 +2730,6 @@ export const BALANCE_V3 = {
     // a lapsed bite (no hook attempt) refunds the cast's general bait (progression.refundBait) and adds +0.15 favour to the next
     // cast in the same water (the same place, or within 6 m of the lapsed bobber), cap +0.3, reset on a hook or after 60 s
     letItPass: { favour: 0.15, cap: 0.3, resetAfter: 60, keepsBait: 'refund', sameWater: { place: true, radius: 6 } },
-    pips: { fromClass: 'prize', perfect: 3, normal: 2, rodBonusFrom: 3, lowTension: 0.15, legendaries: false },
     leapReveal: { fromClass: 'prize', time: 0.25, timescale: 0.35, rimFlash: true },
   },
 
@@ -2774,7 +2746,6 @@ export const BALANCE_V3 = {
     wickHeight: 0.85,
     camera: { base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50 },   // trophy distance clamp(1.2 + 1.6·L, 1.6, 16) m
     ancientThread: 'gold', mmBelow: 20,                                  // lengths under 20 cm print in mm (the Cupbearer, the Quayling's fry)
-    nearMiss: { estimate: 0.08, fromClass: 'prize' },                    // near-miss card: estimated class and length ±8%
   },
   records: {
     oldLedgerZ: 2.3, oldLedgerMemories: 5,            // a figure "since before the Fall" at mid-Trophy for every species
@@ -2800,7 +2771,9 @@ export const BALANCE_V3 = {
     checks: { mossmereDay: 28.3, mossmereDay1: 30.1, renderedCommon: 17, footLantern: { day: 7, night: 5 } },   // brief §3.4 arithmetic (validated)
   },
   // ---- Satiety → Well-fed (brief §9.1): no starvation, ever.
-  wellFed: { drainMult: 0.5, at: 0.6, effects: { reelSpeed: 0.08, sweetZone: 0.01 }, dawnMendCombat: 1, starvation: false, glyph: true },
+  // Well-fed: +2 Hold under automatic fishing (a run buff, counted under CATCH_V3.buffs.runCap through progression.getCatchBuffs);
+  // `hold` is not a STATS key, so getStats ignores it (was reelSpeed +0.08, sweetZone +0.01 on the manual reel)
+  wellFed: { drainMult: 0.5, at: 0.6, effects: { hold: 2 }, dawnMendCombat: 1, starvation: false, glyph: true },
 
   // ---- Far Water (brief §3.4): both begin with the first dawn of an expedition (day 2).
   farWater: {
@@ -2944,29 +2917,13 @@ export const BALANCE_V3 = {
     dropIn: { lock: 'rule.lock', landsAt: 'targetCentre', skips: ['arc', 'obstacle', 'openWater'], hold: 0.7, centreOpenMargin: 0.5 },
   },
 
-  // ---- P1–P2 and The Long Descent: effective tackle tiers from per-run UPGRADES (data.upgradeTiers): tier = floor(4 × levels / max
-  // levels) over the slot's upgrades (rod 6 → T4 at 6; line 6; reel 7; creel 4). Fixes shock, pips, absorb and the rating index.
+  // ---- P1–P2 and The Long Descent: effective tackle tiers from per-run UPGRADES: the unrounded tier 4 × levels ÷ the slot's levels
+  // (rod 6, line 6, reel 7, creel 4) gives each slot's Hold (data.upgradeHold, every level counts); the rounded tier
+  // (data.upgradeTiers) gives the tackle rating's words (catchRating).
   upgradeTiers: { slots: { rod: ['rod_ashwood', 'rod_whalebone'], line: ['line_gut', 'line_silver'], reel: ['reel_brass', 'reel_drag'], creel: ['creel_wicker'] },
-    uses: ['shock', 'pipBonus', 'absorb', 'dragAt', 'tackleRating'] },
-  // v3 fight stats (STATS keys added by the v3 build; T0 values are the base, TACKLE tiers replace them)
-  stats: { shock: { label: 'Shock', base: 0, fmt: 'pct', min: 0, max: 0.6 }, absorb: { label: 'Drag Absorb', base: 0.30, fmt: 'pct', min: 0, max: 0.95 },
-    pipBonus: { label: 'Hook Pips', base: 0, fmt: 'int', min: 0, max: 2 }, dragAt: { label: 'Drag Set', base: 0.80, fmt: 'pct', min: 0.6, max: 0.95 } },
-
-  // ---- Generated by tools/sim/reel-v3.mjs --write-rating (skilled, k 400): for each lake and each fitted
-  // loadout index rod·25 + line·5 + reel, the largest class landed ≥ 50% against the lake's reference
-  // species (0 Small … 4 Elder, −1 none) and the next class's land %. Placeholder until written: matched sets only.
-  // @tackleRating-begin (written by `node tools/sim/reel-v3.mjs --write-rating --apply`; do not edit by hand)
-  tackleRating: { k: 400, skill: 'skilled', index: 'rod * 25 + line * 5 + reel', classes: ['small','keeper','prize','trophy','elder'], lakes: {
-    mossmere: { reference: 'reedjaw_pike', cls: '33333333333333433334333443333333333333343333433344333333333333334333443334433333333333333433344334443333333333333343334433444',
-      next: [0, 0, 0, 1, 19, 0, 0, 3, 17, 33, 0, 5, 12, 26, 51, 4, 15, 27, 43, 59, 16, 23, 45, 56, 68, 0, 0, 0, 2, 20, 0, 0, 2, 14, 37, 1, 3, 14, 33, 55, 7, 14, 28, 43, 68, 13, 27, 40, 57, 71, 0, 0, 0, 1, 19, 0, 0, 3, 15, 33, 0, 5, 15, 29, 55, 5, 12, 28, 50, 64, 15, 25, 45, 59, 71, 0, 0, 0, 2, 31, 0, 0, 4, 22, 48, 1, 6, 17, 41, 62, 6, 20, 40, 55, 75, 21, 38, 55, 75, 82, 0, 0, 0, 3, 36, 0, 0, 4, 25, 46, 1, 7, 20, 42, 66, 10, 20, 35, 56, 78, 24, 31, 56, 70, 82] },
-    sporewood: { reference: 'mildew_angler', cls: '22333223332233322333223341233322333233332333312334222332233322333233342233423333333333333433344333442233333333333343334433344',
-      next: [20, 36, 0, 0, 0, 34, 48, 0, 3, 33, 33, 49, 9, 27, 41, 39, 46, 19, 32, 47, 40, 49, 22, 42, 54, 47, 41, 0, 0, 0, 28, 46, 0, 8, 28, 37, 1, 10, 24, 42, 42, 8, 18, 36, 49, 50, 48, 24, 42, 54, 21, 42, 49, 0, 0, 35, 47, 0, 8, 34, 44, 46, 12, 29, 45, 36, 9, 19, 36, 51, 37, 50, 28, 43, 52, 31, 0, 0, 0, 0, 0, 0, 1, 10, 42, 0, 3, 17, 48, 56, 7, 17, 32, 51, 72, 12, 27, 41, 57, 76, 32, 49, 0, 0, 0, 0, 0, 1, 11, 45, 0, 3, 15, 44, 60, 6, 17, 35, 55, 74, 16, 27, 45, 65, 75] },
-    glasswater: { reference: 'mirror_pike', cls: '12233222332233323333233341223322333223332333433334123332233323333233343333422333233333333433334333442233323334333343334433444',
-      next: [42, 32, 43, 0, 0, 30, 41, 49, 7, 24, 33, 43, 8, 20, 39, 41, 6, 14, 33, 49, 43, 14, 27, 40, 59, 46, 31, 47, 0, 1, 25, 40, 1, 8, 23, 34, 49, 7, 23, 39, 44, 7, 17, 36, 55, 6, 16, 27, 47, 63, 49, 35, 0, 0, 1, 24, 43, 1, 8, 29, 36, 1, 11, 26, 45, 47, 9, 18, 40, 52, 6, 14, 26, 47, 62, 27, 45, 0, 0, 2, 45, 0, 0, 15, 44, 0, 2, 16, 39, 62, 3, 13, 32, 49, 75, 12, 25, 46, 62, 78, 25, 47, 0, 0, 1, 47, 0, 1, 16, 52, 0, 4, 19, 44, 64, 4, 15, 34, 59, 74, 12, 30, 52, 63, 79] },
-    paleabyss: { reference: 'gilt_eyed_eel', cls: '12233223332333323333333331223322333233333333333334122332233323333333333333322233223332333333334333441223322333233333333433334',
-      next: [39, 7, 27, 0, 0, 13, 31, 0, 0, 5, 28, 0, 1, 7, 27, 45, 2, 9, 20, 37, 1, 8, 22, 35, 47, 41, 8, 27, 0, 0, 14, 27, 0, 0, 7, 29, 0, 0, 9, 30, 0, 2, 10, 28, 42, 3, 10, 18, 33, 50, 36, 10, 28, 0, 0, 13, 29, 0, 0, 4, 31, 0, 2, 9, 34, 0, 3, 10, 26, 39, 3, 8, 22, 37, 47, 2, 12, 36, 0, 0, 17, 38, 0, 0, 9, 44, 0, 1, 14, 40, 0, 2, 15, 37, 52, 4, 15, 28, 51, 66, 50, 10, 35, 0, 0, 19, 39, 0, 0, 6, 42, 0, 2, 14, 44, 1, 2, 18, 39, 55, 7, 16, 33, 49, 69] },
-  } },
-  // @tackleRating-end
+    uses: ['hold', 'rating'] },
+  // (D1′: the v3 fight stats `stats` (shock, absorb, pipBonus, dragAt) and the reel sim's `tackleRating` table are retired; the
+  // tackle rating is catchRating, in words.)
 };
 
 // ---- The roster: 53 species (brief §6.5). Grammar per lake: 3–4 everyday commons → uncommons → rares
@@ -2977,7 +2934,7 @@ export const BALANCE_V3 = {
 //   style  the v3 fight style (steady/darter/sinker/thrasher/leaper + runner (P3) / sulker (P4)); behavior
 //          stays the reel core's base until those verbs land
 //   family insect | predator | bottom | glow (read only by lures)    prefers  hush | drip | mist (the field-note
-//   condition: Match favour +0.3)    oldTrick  from style    phase 1–4 (in the build from that phase)
+//   condition: Match favour +0.3)    phase 1–4 (in the build from that phase)
 //   src 'v1' | 'walk' | 'v3'    place / cond (place-kept: eligible only there, under that state)
 //   weather (a hard condition gate)    spots {placeId: mult}    maxClass    zones (Wanderers)
 // Kept-fish conds extend §24's (buff / deed / reflection / plumbBottom / window) with live (a rhythm's live
@@ -3013,11 +2970,10 @@ function sv3(srcId, v3, patch = {}) {
   if (patch.model) out.model = { ...s.model, ...patch.model };
   return out;
 }
-// derived fields shared by every row (style → oldTrick; night-only from time; v1 weight range from the size model)
+// derived fields shared by every row (night-only from time; v1 weight range from the size model)
 function v3fin(s) {
   s.style = s.style || s.behavior;
   s.night = s.time === 'gloom';
-  if (s.rarity !== 'legendary') s.oldTrick = BALANCE_V3.size.reel.oldTrick.byStyle[s.style];
   const L50 = typeof s.size.L50 === 'number' ? s.size.L50 : Math.min(...Object.values(s.size.L50));
   const L = (z) => L50 * Math.exp(s.size.sigma * z + BALANCE_V3.size.tail * Math.max(0, z - BALANCE_V3.size.tailFrom) ** 2);
   const zHi = BALANCE_V3.size.classMaxZ[s.maxClass] ?? BALANCE_V3.size.reachZ;
@@ -3488,32 +3444,33 @@ export const RUMOURS = [
 export const TODAYS_RUMOUR = { perRealDay: 1, giantsOnly: true, residentChance: 0.6, favour: 0.3,
   lines: ['An Elder {species} turns at {place}.', 'Something old feeds at {place} tonight.', '{place} is holding a giant. Murk swears it.'] };
 
-// ---- Tackle: persistent, per slot, bought and fitted at the Gear Bench (brief §5.6). Stats are ABSOLUTE
-// (they replace the STATS base for that key; Wicks, outfit, relics and Boons add on top). T2–T4 need a proof
-// catch; T3 needs the Sporewood Waystone lit, T4 the Glasswater one. shock = the Rod's surge absorb
-// (surgeHoldMult × (1 − shock)); pips = extra hook-hold pips; absorb = the Reel's drag absorb above dragAt.
+// ---- Tackle: persistent, per slot, bought and fitted at the Gear Bench (brief §5.6). `hold` is the automatic-fishing term
+// (CATCH_V3: Rod, Line and Reel are the global gear). castMax, hookWindow and creelSize are ABSOLUTE (they replace the STATS base;
+// Wicks, outfit, relics and Boons add on top). T2–T4 need a proof catch; T3 needs the Sporewood Waystone lit, T4 the Glasswater one.
+// (D1′: the manual reel's per-tier stats (slack grace, shock, pips, line strength, reel speed, sweet band, drag presets and absorb)
+// and the reel-sim tables (rating, gate, legends, targets) are retired.)
 export const TACKLE = {
   slots: ['rod', 'line', 'reel', 'creel'],
   rod: [
-    { tier: 0, id: 'willow_switch', name: 'Willow Switch', hold: 0, castMax: 16, hookWindow: 1.00, slackTime: 1.4, shock: 0, pips: 0, price: 0, proof: null, onSale: 'start' },
-    { tier: 1, id: 'ashwood_rod', name: 'Ashwood', hold: 2, castMax: 17.5, hookWindow: 1.04, slackTime: 1.6, shock: 0.08, pips: 0, price: 120, proof: null, onSale: 'start' },
-    { tier: 2, id: 'whalebone_rod', name: 'Whalebone', hold: 5, castMax: 19, hookWindow: 1.08, slackTime: 1.8, shock: 0.15, pips: 0, price: 450, proof: 'mossmere_prize', onSale: 'start' },
-    { tier: 3, id: 'glassreed_rod', name: 'Glassreed', hold: 8, castMax: 20.5, hookWindow: 1.12, slackTime: 2.0, shock: 0.22, pips: 1, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
-    { tier: 4, id: 'lantern_spine', name: 'Lantern-Spine', hold: 12, castMax: 22, hookWindow: 1.16, slackTime: 2.2, shock: 0.30, pips: 1, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+    { tier: 0, id: 'willow_switch', name: 'Willow Switch', hold: 0, castMax: 16, hookWindow: 1.00, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'ashwood_rod', name: 'Ashwood', hold: 2, castMax: 17.5, hookWindow: 1.04, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'whalebone_rod', name: 'Whalebone', hold: 5, castMax: 19, hookWindow: 1.08, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'glassreed_rod', name: 'Glassreed', hold: 8, castMax: 20.5, hookWindow: 1.12, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'lantern_spine', name: 'Lantern-Spine', hold: 12, castMax: 22, hookWindow: 1.16, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
   ],
   line: [
-    { tier: 0, id: 'twine', name: 'Twine', hold: 0, lineStrength: 1.00, price: 0, proof: null, onSale: 'start' },
-    { tier: 1, id: 'braided_gut', name: 'Braided Gut', hold: 2, lineStrength: 1.15, price: 120, proof: null, onSale: 'start' },
-    { tier: 2, id: 'waxed_silk', name: 'Waxed Silk', hold: 5, lineStrength: 1.32, price: 450, proof: 'mossmere_prize', onSale: 'start' },
-    { tier: 3, id: 'glass_gut', name: 'Glass-Gut', hold: 9, lineStrength: 1.52, clear: true, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
-    { tier: 4, id: 'silverthread', name: 'Silverthread', hold: 13, lineStrength: 1.75, slackAdd: 0.2, clear: true, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+    { tier: 0, id: 'twine', name: 'Twine', hold: 0, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'braided_gut', name: 'Braided Gut', hold: 2, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'waxed_silk', name: 'Waxed Silk', hold: 5, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'glass_gut', name: 'Glass-Gut', hold: 9, clear: true, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'silverthread', name: 'Silverthread', hold: 13, clear: true, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
   ],
   reel: [
-    { tier: 0, id: 'wooden_winch', name: 'Wooden Winch', hold: 0, reelSpeed: 1.00, sweetZone: 0.16, drag: 'fixed', absorb: 0.30, price: 0, proof: null, onSale: 'start' },
-    { tier: 1, id: 'brass_spool', name: 'Brass Spool', hold: 2, reelSpeed: 1.12, sweetZone: 0.17, drag: 'fixed', absorb: 0.45, price: 120, proof: null, onSale: 'start' },
-    { tier: 2, id: 'clockwork_reel', name: 'Clockwork', hold: 5, reelSpeed: 1.25, sweetZone: 0.18, drag: 'presets', absorb: 0.58, price: 450, proof: 'mossmere_prize', onSale: 'start' },
-    { tier: 3, id: 'whisper_drag', name: 'Whisper Drag', hold: 8, reelSpeed: 1.40, sweetZone: 0.19, drag: 'presets', absorb: 0.68, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
-    { tier: 4, id: 'tidewheel', name: 'Tidewheel', hold: 12, reelSpeed: 1.55, sweetZone: 0.20, drag: 'presets', absorb: 0.76, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+    { tier: 0, id: 'wooden_winch', name: 'Wooden Winch', hold: 0, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'brass_spool', name: 'Brass Spool', hold: 2, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'clockwork_reel', name: 'Clockwork', hold: 5, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'whisper_drag', name: 'Whisper Drag', hold: 8, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'tidewheel', name: 'Tidewheel', hold: 12, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
   ],
   creel: [
     { tier: 0, id: 'wicker_creel', name: 'Wicker', creelSize: 4, liveWell: 1, nights: 3, price: 0, proof: null, onSale: 'start' },
@@ -3527,42 +3484,10 @@ export const TACKLE = {
     sporewood_trophy_or_glasswater_prize: [{ zone: 'sporewood', class: 'trophy' }, { zone: 'glasswater', class: 'prize' }],
     glasswater_trophy: [{ zone: 'glasswater', class: 'trophy' }],
   },
-  drag: { presets: { light: 0.70, set: 0.80, firm: 0.90 }, fixed: 'set', fromReelTier: 2, cycle: 'tapReelIcon', slipLoss: 0.08 },   // cut with the manual reel (AF, DESIGN §25.6.6)
   clearWater: { zones: ['glasswater'], belowLineTier: 3, waitMult: 1.12, favour: -0.1 },
   lostLureFrac: 0,               // automatic fishing: a snapped line costs only the bait; a lure is never lost (a dice loss must not tax the giants' lures; was 0.25)
   catalogue: { rod: 5170, line: 5170, reel: 5170, creel: 3100, total: 18610 },
   reference: { mossmere: 'reedjaw_pike', sporewood: 'mildew_angler', glasswater: 'mirror_pike', paleabyss: 'gilt_eyed_eel' },
-  // `hold` on every Rod / Line / Reel tier is the automatic-fishing term (CATCH_V3, DESIGN §25.6.6): it replaces shock, pips,
-  // absorb, the drag point, line strength, reel speed and the sweet band when the AF build lands. Until then the manual v3 reel keeps
-  // reading those stats, and the four tables below (rating, gate, legends, targets: reel-sim numbers) stay for it. They are
-  // SUPERSEDED for v3 fishing by catchRating / catchChance and the odds tables of tools/sim/catch-v3.mjs.
-  // Matched-set tackle rating (brief §5.6; skilled ≥ 50% vs the reference species): [class, next class land %].
-  rating: {
-    mossmere:   [['trophy', 0], ['trophy', 0], ['trophy', 15], ['elder', 55], ['elder', 82]],
-    sporewood:  [['prize', 20], ['prize', 46], ['trophy', 12], ['elder', 51], ['elder', 75]],
-    glasswater: [['keeper', 42], ['prize', 40], ['trophy', 11], ['trophy', 49], ['elder', 79]],
-    paleabyss:  [['keeper', 39], ['prize', 27], ['trophy', 2], ['trophy', 37], ['elder', 69]],
-  },
-  // The gear gate (reel-v3 --gate --k 400, skilled; Prize / Trophy / Elder / Ancient land %, T0…T4).
-  gate: {
-    reedjaw_pike:  [[77, 52, 0, 0], [89, 76, 0, 0], [94, 87, 15, 0], [100, 99, 55, 0], [100, 100, 82, 44]],
-    mildew_angler: [[56, 20, 0, 0], [61, 46, 0, 0], [77, 58, 12, 0], [99, 88, 51, 0], [100, 94, 75, 51]],
-    mirror_pike:   [[42, 14, 0, 0], [70, 40, 0, 0], [85, 72, 11, 0], [98, 94, 49, 0], [100, 98, 79, 46]],
-    gilt_eyed_eel: [[39, 3, 0, 0], [68, 27, 0, 0], [85, 66, 2, 0], [96, 92, 37, 0], [100, 98, 69, 43]],
-  },
-  legends: {   // novice / skilled / expert, T0…T4 matched; the Lantern-Swallower also on mixed sets
-    belled_matriarch:  [[56, 82, 85], [84, 90, 91], [99, 100, 100], [100, 100, 100], [100, 100, 100]],
-    drifting_grove:    [[31, 76, 89], [64, 87, 95], [84, 94, 97], [97, 98, 99], [100, 100, 100]],
-    glass_sovereign:   [[4, 47, 74], [20, 64, 86], [38, 80, 93], [85, 98, 99], [100, 100, 100]],
-    lantern_swallower: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 14, 50], [27, 83, 98]],
-    lanternSwallowerMixed: { R3L4E3: [5, 41, 78], R4L4E3: [6, 46, 85], R3L4E4: [20, 77, 97] },
-  },
-  // Land-rate targets for hooked fish (brief §5.9): [novice, skilled, expert] %, ranges as [lo, hi].
-  targets: {
-    commons: [97, 99, 100], keeperRares: [85, 95, 99], prize: [70, 90, 97], trophy: [45, 75, 90],
-    elderOnCurve: [[0, 15], [15, 35], [25, 45]], elderOnArrival: [0, 10],
-    elderT4Reference: [65, 80], ancientT4Reference: [40, 55], elderT4Tolerance: 2.5,
-  },
 };
 // ---- Outfit: the four all-mode per-run upgrades, now persistent (brief §5.6). Effects are per level, in STATS units.
 export const OUTFIT = [
@@ -3866,12 +3791,7 @@ export const AUTOFISH = {
     gear: { tackle: '+{hold} Hold on every fish · counts ×1.6 against {styles}.', item: '+{hold} Hold against {targets}.', none: 'Helps nothing you have met yet.',
       compare: '{name} ({class}): {from} → {to} with this.', lastAway: 'The {name} that {cause} ({class})' },
     logLocked: 'Reel in first.',
-    tips: {   // moved into TIPS_V3 by the AF build (they would mislead in today's manual-reel build)
-      af_changed: 'Tap when it goes under. The line does the rest now; your odds are in the log.',
-      af_letpass: "Let a big one go, change your lure, cast back. It's still there.",
-      af_strikeReminder: 'Tap when it goes under.',
-      af_hurry: 'Hold to hurry a small fish in. It changes nothing but the wait.',
-    },
+    // (D1′: the automatic-fishing tips moved into TIPS_V3 as directed tips: af_changed, af_letpass, af_strikeReminder, af_hurry)
   },
   // ---- the time model of one cast (s) and an average player (tools/sim/catch-v3.mjs; the pacing and balance sims)
   time: { cast: 1.8, wait: 7.5, strike: 0.6, lostNote: 1.6, card: 2.0, ceremony: { small: 1.2, keeper: 1.2, prize: 2.4, trophy: 3.5, elder: 5, ancient: 5 } },
@@ -4046,6 +3966,30 @@ export const MEMORIES_V3 = {
   cut: ['old_debt', 'waystone_sporewood', 'waystone_glasswater', 'waystone_paleabyss'], refundOnMigration: true,
   lanterns: 'totalRelicLevels',
 };
+// D1′: v3 wording for the Boons, relics, per-run tackle and Wicks whose text or effects named a reel stat (reel speed, line strength, the sweet band,
+// slack grace). Their Hold lives in CATCH_V3.buffs (Boons, relics) or upgradeHold (per-run rod / line / reel levels); v3 builds also
+// drop the dead reel stats from their effects, so no effect line names one (v1, flag off, keeps every text and effect).
+export const DESC_V3 = {
+  boons: {
+    steady_reel: { desc: '+1 Hold on every fish per level.', effects: {} },
+    gilded_hook: { desc: 'Rarer fish, a longer strike window, +2 Hold, and Old Murk pays 15% more.' },
+  },
+  relics: {
+    seven_knots: { desc: 'Each knot was tied by a different Wick. None have come undone. +1 Hold on every fish per level.', effects: {} },
+    steady_hook: { desc: 'Blunted with use. It still remembers exactly when to bite. A wider strike window and +1 Hold per level.', effects: { hookWindow: 0.08 } },
+  },
+  upgrades: {
+    rod_whalebone: { desc: 'Feels every twitch. More time to strike, and the hook stays set through the leaps.', effects: { hookWindow: 0.12 } },
+    line_gut: { effects: {} }, line_silver: { effects: {} }, reel_brass: { effects: {} },
+    reel_drag: { desc: 'A soft brake. A running fish no longer strips the reel so easily.', effects: {} },
+  },
+  characters: {   // every Wick holds a fish the same (CATCH_V3.wick); a Wick's fishing edge is its quirk
+    taper: { desc: 'Tall and thin. Casts far and finds rare fish, but its light burns weak and it carries little oil.',
+      effects: { castMax: 4, hookWindow: 0.10, rarityBonus: 0.04, auraDps: -0.4, maxOil: -10 } },
+    ashwick: { effects: { auraDps: 0.8, damageMult: 0.15, critChance: 0.05, zapDamage: 3, zapCost: -0.3, hookWindow: -0.15, maxOil: -15, creelSize: -1 } },
+  },
+  deadStats: ['reelSpeed', 'lineStrength', 'sweetZone', 'slackTime'],   // v1 reel stats that v3 fishing never reads
+};
 const RELIC_NEW_V3 = [
   { id: 'measuring_cord', name: 'Measuring Cord', icon: 'cord', maxLevel: 2, costs: [60, 180], effects: {}, special: 'measuringCord', unlock: 'first_prize', shelf: 'fishing',
     desc: 'A knotted cord that has measured a great many fish. L1: the bite tell also names the size class. L2: +2 Hold on Prize and bigger.' },
@@ -4060,7 +4004,7 @@ export const RELICS_V3 = v3uniq(RELICS, WALK_RELICS, RELIC_NEW_V3)
   .map((r) => {
     const shelf = MEMORIES_V3.gloomRelics.includes(r.id) ? 'gloom' : 'fishing';
     const out = { ...v3clone(r), shelf, baseCosts: r.costs.slice(), costs: r.costs.map((c) => Math.max(5, Math.round((c * MEMORIES_V3.shelves[shelf].costMult) / 5) * 5)) };
-    if (r.id === 'seven_knots') out.effects = { lineStrength: 0.05 };   // halved (brief §9.4)
+    if (DESC_V3.relics[r.id]) Object.assign(out, DESC_V3.relics[r.id]);   // D1′: Hold (CATCH_V3.buffs.relics) instead of line strength / the sweet band
     if (r.id === 'second_wick') out.perExpedition = 1;
     if (r.id === 'remembrance') out.memMultOn = 'tally';
     if (WALK_RELICS.some((w) => w.id === r.id)) out.needsWalk = true;
@@ -4072,8 +4016,8 @@ export const ANGLER_POOL = ['steady_reel', 'hungry_waters', 'lucky_knot', 'gutsf
 export const BOONS_V3 = [
   { id: 'long_cast', name: 'Long Cast', icon: 'cast', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { castMax: 1.5 }, unlock: null, tags: ['fishing', 'angler'],
     desc: '+1.5 m cast range per level.', lore: 'Farther out, the water has not heard of you yet.' },
-  { id: 'patient_line', name: 'Patient Line', icon: 'line', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { slackTime: 0.2 }, unlock: null, tags: ['fishing', 'angler'],
-    desc: '+0.2 s slack grace per level.', lore: 'A slack line is only a line that is waiting.' },
+  { id: 'patient_line', name: 'Patient Line', icon: 'line', rarity: 'common', maxLevel: 3, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'angler'],
+    desc: '+1 Hold per level against leapers and runners.', lore: 'A slack line is only a line that is waiting.' },   // the Hold: CATCH_V3.buffs.boons (was slack grace +0.2 s)
   { id: 'feather_touch', name: 'Feather Touch', icon: 'hook', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { hookWindow: 0.06 }, unlock: null, tags: ['fishing', 'angler'],
     desc: '+0.06 hook window per level.', lore: 'Strike the way you would wake a friend.' },
   { id: 'night_eyes', name: 'Night Eyes', icon: 'eye', rarity: 'rare', maxLevel: 1, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'night', 'angler'],
@@ -4092,7 +4036,7 @@ export const CHARACTERS_V3 = {
   taper:    { fishing: { id: 'anglers_ember', name: "Angler's Ember", desc: 'Fish give double XP.', fishXpMult: 2 } },
   stub:     { fishing: { id: 'quick_feet', name: 'Quick Feet', desc: '+0.4 m/s on foot. A cast within 5 s of stopping counts as Clean from a charge of 0.8.', stride: 0.4, cleanAfterStop: 5, cleanAt: 0.8 } },
   tallow:   { fishing: { id: 'slow_melt_oil', name: 'Slow Melt', desc: 'Oil burns 20% slower on foot.', footOilMult: 0.8 } },
-  ashwick:  { fishing: { id: 'burned_once', name: 'Burned Once', desc: 'The first surge of every fight is telegraphed 0.3 s longer.', firstSurgeWarnAdd: 0.3 } },
+  ashwick:  { fishing: { id: 'burned_once', name: 'Burned Once', desc: '+3 Hold on the first fish hooked each night.', firstHookHold: 3 } },   // CATCH_V3.buffs.wicks.ashwick (was: the first surge telegraphed 0.3 s longer)
   wayfarer: { fishing: { id: 'shore_sense', name: 'Shore Sense', desc: 'On foot, signs show from 50% farther. The first sister-candle lit in each lake costs no oil.', signRangeMult: 1.5, firstShareFree: true }, needsWalk: true },
 };
 
@@ -4380,13 +4324,10 @@ export const TEXT_V3 = {
   quiet: 'The water here has gone quiet.', listless: 'It had grown listless. You let it go.', snuffedWake: 'Murk found your raft drifting.',
   sank: 'Sank with the creel, night {n}', stirs: 'The Gloom stirs tonight.', lastLight: 'The big ones come up at dusk.',
   markForHome: 'Mark for home?', liveWell: 'keeps {n} nights', farWater: 'Far Water', homewardDistance: 'Homeward stone {m} m',
-  watchLamp: 'Nearest watch-lamp {m} m · ≈ {s} s', nearMiss: '{cause} at {pct}%. Your tackle is rated {rating} here.',
+  watchLamp: 'Nearest watch-lamp {m} m · ≈ {s} s',
   newBest: 'New best: {cm} cm (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
   stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
-  causes: { snap: 'Snapped', thrown: 'Thrown hook', spooled: 'Spooled', fouled: 'Fouled' },
-  tips: {
-    snap: 'Let go on the hiss.', thrown: 'Keep the line tight through a leap.', spooled: 'Ease the drag before a runner turns.', fouled: 'Ease off when the chain clanks.',
-  },
+  // (D1′: the near-miss card's line, its cause names and its tension tips are retired; the got-away note's words are AUTOFISH.text)
 };
 export const TIPS_V3 = [
   { id: 'v3_walk', phase: 3, trigger: 'hub:enter', text: 'Walk the Landing. The jetty end glows: cast from it.' },
@@ -4395,6 +4336,15 @@ export const TIPS_V3 = [
   { id: 'v3_mark', phase: 3, trigger: 'fish:measured', text: 'Mark a Prize or bigger for home. It must survive the nights.' },
   { id: 'v3_farwater', phase: 3, trigger: 'farwater:dawn', text: 'Far Water: the fishing gets better, the way home costs more.' },
   { id: 'v3_resident', phase: 2, trigger: 'resident:show', text: 'A resident giant showed itself. Cast within 3 m, quickly.' },
+  // automatic fishing (moved from AUTOFISH.text.tips by D1′). Directed tips: the module that knows the moment emits `tip:show {id}`
+  // (ui keys it as `tip:show:<id>`), so today's manual-reel code, which never emits it, never shows them:
+  //   af_changed: progression or the First Evening, at a legacy save's first v3 bite (FIRST_EVENING.legacy.firstBiteTip)
+  //   af_letpass: fishing, at the first Prize+ tell · af_hurry: fishing, at the first Small / Keeper play from the 2nd run
+  //   af_strikeReminder: the First Evening, at the first lake bite after a fumbled tutorial strike
+  { id: 'af_changed', phase: 1, trigger: 'tip:show:af_changed', text: 'Tap when it goes under. The line does the rest now; your odds are in the log.' },
+  { id: 'af_letpass', phase: 1, trigger: 'tip:show:af_letpass', text: "Let a big one go, change your lure, cast back. It's still there." },
+  { id: 'af_strikeReminder', phase: 1, trigger: 'tip:show:af_strikeReminder', text: 'Tap when it goes under.' },
+  { id: 'af_hurry', phase: 1, trigger: 'tip:show:af_hurry', text: 'Hold to hurry a small fish in. It changes nothing but the wait.' },
 ];
 export const MERCHANT_LINES_V3 = {
   frontYard: ["Lives in my front yard. I don't buy those. The real water's through the gate."],
@@ -4495,7 +4445,8 @@ export function frameFor(sp) {
 /** Which seals a species can earn (brief §6.3): the Quayling none; a species capped below Elder loses its Elder seal. */
 export function sealsFor(sp) {
   if (sp.cove || sp.rarity === 'legendary') return [];
-  return BALANCE_V3.records.seals.classes.filter((c) => c !== 'elder' || !(BALANCE_V3.records.seals.noElder.includes(sp.id) || (sp.maxClass && SZB.classMaxZ[sp.maxClass] < SZB.fight.elderZ)));
+  const elderCut = SIZE_CLASSES.find((c) => c.id === 'trophy').zMax;   // z 2.65
+  return BALANCE_V3.records.seals.classes.filter((c) => c !== 'elder' || !(BALANCE_V3.records.seals.noElder.includes(sp.id) || (sp.maxClass && SZB.classMaxZ[sp.maxClass] < elderCut)));
 }
 /** The one place-membership helper for v3 consumers: the place of `zone` whose water contains (x, z), or null. Searches the zone's
  *  arena.places (the Mossmere's v3 places from P2; §24's places in walking builds) and then §24's ARENA_V2 (v2's placeAt stays for v2). */
@@ -4509,18 +4460,15 @@ export function landmarkOf(place) {
   if (!place) return null;
   return place.landmark ? { ...place.landmark } : { x: place.x ?? place.water?.x ?? 0, y: 2, z: place.z ?? place.water?.z ?? 0 };
 }
-/** Fight stats of a tackle loadout (the reel sim and progression.getStats share it); + `hold` per slot for catchChance (AF). TACKLE tier values REPLACE the STATS base for
- *  castMax, hookWindow, slackTime, lineStrength, reelSpeed, sweetZone and creelSize; Wick, relics, Boons and outfit then add. */
-export function tackleStats(t = {}, drag = 'set') {
+/** The stats of a fitted tackle loadout (P3's progression.getStats): TACKLE tier values REPLACE the STATS base for castMax, hookWindow
+ *  and creelSize (Wick, relics, Boons and outfit then add), plus the Creel's Live Well, and `hold` per slot for catchChance. */
+export function tackleStats(t = {}) {
   const r = TACKLE.rod[t.rod | 0], l = TACKLE.line[t.line | 0], e = TACKLE.reel[t.reel | 0], c = TACKLE.creel[t.creel | 0];
-  const preset = e.drag === 'presets' ? (TACKLE.drag.presets[drag] ?? TACKLE.drag.presets.set) : TACKLE.drag.presets[TACKLE.drag.fixed];
-  return { castMax: r.castMax, hookWindow: r.hookWindow, slackTime: r.slackTime + (l.slackAdd || 0), shock: r.shock, pipBonus: r.pips,
-    lineStrength: l.lineStrength, reelSpeed: e.reelSpeed, sweetZone: e.sweetZone, absorb: e.absorb, dragAt: preset, creelSize: c.creelSize,
-    hold: { rod: r.hold, line: l.hold, reel: e.hold } };   // hold: the automatic-fishing tackle term (catchChance); the reel stats retire with AF
+  return { castMax: r.castMax, hookWindow: r.hookWindow, creelSize: c.creelSize, liveWell: c.liveWell, nights: c.nights,
+    hold: { rod: r.hold, line: l.hold, reel: e.hold } };
 }
-/** P1–P2 and The Long Descent (per-run UPGRADES, no tiers): the effective tackle tier per slot from owned upgrade levels. Only shock,
- *  pips, absorb and the tackle rating come from it; the other stats stay computeStats(UPGRADES). Under automatic fishing it gives the
- *  rating in words only; each slot's Hold comes from upgradeHold (every level counts). */
+/** P1–P2 and The Long Descent (per-run UPGRADES, no tiers): the effective tackle tier per slot from owned upgrade levels. Under
+ *  automatic fishing it gives the tackle rating's words only (catchRating); each slot's Hold comes from upgradeHold (every level counts). */
 export function upgradeTiers(levels = {}) {
   const out = {};
   for (const [slot, f] of Object.entries(upgradeTierFrac(levels))) out[slot] = Math.min(4, Math.floor(f + 1e-9));
@@ -4667,7 +4615,7 @@ export function leapCountsFor(sizeClass) { return AUTOFISH.leap.count[sizeClass]
 
 // ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps. Gated by V3_PHASE so each
 // phase's build carries exactly its data (DESIGN §25.14.1 "which data lands when"; validate-data runs a pass per phase):
-//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), v3 STATS keys, the 32 P1 species (+ §24's 8 kept fish with §24), the renames
+//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), the 32 P1 species (+ §24's 8 kept fish with §24), the renames
 //       (Pg0 migrates the ids), Murk's Chum, Angler Boons and tags, the Wicks' fishing halves, P1 tips, text, the Mossmere's rust
 //       accent and buoy watch-lamps, §24 place sync and watch lamps (when §24 is in), raft fallbacks (stopgap giants, watch lamps)
 //   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 36
@@ -4678,7 +4626,6 @@ if (V3_ENABLED) {
   const keepWalk = (x) => WALK_ENABLED || !x.needsWalk;
   const walkPlace = new Set(PLACES.map((p) => p.id));
   Object.assign(STATS, WALK_STATS);                                    // stride exists in v3 (Boots, Wanderer's Stride, Quick Feet) even without §24
-  for (const [k, v] of Object.entries(BALANCE_V3.stats)) STATS[k] = { ...v };   // shock, absorb, pipBonus, dragAt (T0 values)
   for (const [k, v] of Object.entries(BALANCE_V3)) {                 // new blocks are assigned; an existing block (bite) gains the v3 keys only (validated)
     if ((V3_BLOCK_PHASE[k] ?? 1) > P) continue;
     if (BALANCE[k] && typeof BALANCE[k] === 'object' && !Array.isArray(BALANCE[k])) Object.assign(BALANCE[k], v); else BALANCE[k] = v;
@@ -4697,7 +4644,12 @@ if (V3_ENABLED) {
   if (P >= 3) { RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk)); }
   BOONS.push(...BOONS_V3);
   for (const b of BOONS) if (ANGLER_POOL.includes(b.id) && !b.tags.includes('angler')) b.tags = [...b.tags, 'angler'];
+  // D1′: v3 wording and effects for the Boons, relics and per-run tackle that named a reel stat (DESC_V3)
+  for (const b of BOONS) if (DESC_V3.boons[b.id]) Object.assign(b, v3clone(DESC_V3.boons[b.id]));
+  for (const u of UPGRADES) if (DESC_V3.upgrades[u.id]) Object.assign(u, v3clone(DESC_V3.upgrades[u.id]));
+  if (P < 3) for (const r of RELICS) if (DESC_V3.relics[r.id]) Object.assign(r, v3clone(DESC_V3.relics[r.id]));
   for (const c of CHARACTERS) if (CHARACTERS_V3[c.id]) c.fishing = v3clone(CHARACTERS_V3[c.id].fishing);
+  for (const c of CHARACTERS) if (DESC_V3.characters[c.id]) Object.assign(c, v3clone(DESC_V3.characters[c.id]));
   if (P >= 3) {
     CHALLENGES.length = 0;
     CHALLENGES.push(...CHALLENGES_V3.filter(keepWalk));

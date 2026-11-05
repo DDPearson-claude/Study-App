@@ -55,7 +55,7 @@ const STAT_KEYS = ['maxHp', 'maxOil', 'maxSatiety', 'oilDrain', 'satietyDrain', 
   'flareRadius', 'flareCooldown', 'zapCost', 'zapDamage', 'damageMult', 'cooldownMult', 'critChance', 'moveSpeed',
   'pickupRadius', 'xpMult', 'luck', 'rerolls', 'dawnHeal', 'castMax', 'lineStrength', 'reelSpeed', 'sweetZone',
   'biteSpeed', 'hookWindow', 'rarityBonus', 'creelSize', 'sellMult', 'foodMult', 'oilYieldMult', 'armor', 'slackTime',
-  'nibbleTells', ...(WALK ? ['stride'] : []), ...(V3 ? ['shock', 'absorb', 'pipBonus', 'dragAt'] : [])];   // v2 (walking): stride, + m/s on foot (DESIGN §24.3); v3: the fight stats tiers replace (CONTRACT §13.7)
+  'nibbleTells', ...(WALK ? ['stride'] : [])];   // v2 (walking): stride, + m/s on foot (DESIGN §24.3); v3 adds no STATS key (D1′ retired the manual reel's fight stats)
 const FMTS = new Set(['int', 'pct', 'x', 'm', 's', 'num']);
 for (const k of STAT_KEYS) {
   const s = D.STATS[k];
@@ -206,7 +206,7 @@ for (const r of D.RELICS) {
   ok(r.unlock === null || !!D.CHALLENGE_BY_ID[r.unlock], `relic ${r.id} unlock ${r.unlock} is not a challenge`);
   if (r.special) ok(/^(startShells:\d+|startKit|shimmer:[\d.]+|memMult:[\d.]+|secondWick|waystone:(sporewood|glasswater|paleabyss)|lampRadius:\d+|shortcutStart:\d+|measuringCord|spyglass|rumourShell)$/.test(r.special) && (WALK || !/^(lampRadius|shortcutStart)/.test(r.special))
     && (V3 || !/^(measuringCord|spyglass|rumourShell)$/.test(r.special)), `relic ${r.id} special '${r.special}' unknown`);
-  ok(Object.keys(r.effects || {}).length > 0 || !!r.special, `relic ${r.id} does nothing`);
+  ok(Object.keys(r.effects || {}).length > 0 || !!r.special || (V3 && !!D.CATCH_V3.buffs.relics[r.id]), `relic ${r.id} does nothing`);   // v3: Hold from CATCH_V3.buffs
 }
 for (const s of D.SUPPLIES) for (const k of Object.keys(s.give || {})) ok(['oil', 'satiety', 'hp', 'flareCharges', 'spots', ...(WALK ? ['stake'] : []), ...(V3 ? ['chum'] : [])].includes(k), `supply ${s.id} give key ${k}`);
 
@@ -242,7 +242,7 @@ for (const b of D.BOONS) {
   } else {
     ok(isObj(b.effects), `stat boon ${b.id} effects{}`);
     for (const [k, v] of Object.entries(b.effects || {})) ok(isStatKey(k) && isNum(v), `stat boon ${b.id} effect ${k} not a STATS key`);
-    ok(Object.keys(b.effects || {}).length > 0 || !!b.proc, `stat boon ${b.id} does nothing`);
+    ok(Object.keys(b.effects || {}).length > 0 || !!b.proc || (V3 && !!D.CATCH_V3.buffs.boons[b.id]), `stat boon ${b.id} does nothing`);   // v3: Hold from CATCH_V3.buffs
     if (b.proc?.levels) ok(b.proc.levels.length === b.maxLevel, `stat boon ${b.id} proc.levels.length !== maxLevel`);
   }
 }
@@ -439,6 +439,8 @@ if (WALK) {
     'player:mode': ['ashore', 'board', 'spawn'], 'lamp:snuffed': ['slam', 'moths', 'eclipse', 'legend'],
   };
   if (V3) Object.assign(EV, { 'hub:enter': null, 'fish:measured': null, 'farwater:dawn': null, 'resident:show': null, 'expedition:start': null, 'expedition:end': null });
+  // v3 directed tips (D1′): `tip:show {id}` is emitted by the module that knows the moment (fishing, progression, the First Evening)
+  if (V3) EV['tip:show'] = D.TIPS_V3.filter((t) => t.trigger.startsWith('tip:show:')).map((t) => t.id);
   if (V3) EV['interact:change'] = [...EV['interact:change'], 'jetty', 'station', 'homeward'];
   for (const t of D.TIPS) {
     const parts = t.trigger.split(':'), ev = parts.slice(0, 2).join(':'), disc = parts[2];
@@ -883,7 +885,7 @@ if (V3) {
       continue;
     }
     ok(D.WEATHER.includes(s.prefers), `species ${id} prefers (field-note condition) ${s.prefers}`);
-    ok(s.oldTrick === SZ.reel.oldTrick.byStyle[s.style], `species ${id} old trick must follow its style`);
+    ok(!('oldTrick' in s), `species ${id} carries an old trick (retired with the manual reel, D1′)`);
     ok(s.size.sigma >= SZ.sigma[0] - 1e-9 && s.size.sigma <= SZ.sigma[1] + 1e-9, `species ${id} σ ${s.size.sigma} outside ${SZ.sigma}`);
     ok(s.size.k === SZ.k[s.size.body], `species ${id} size.k must be the ${s.size.body} body constant`);
     const L50 = D.sizeL50(s, zone), ceil = D.sizeLength(s, SZ.reachZ, zone);
@@ -956,18 +958,8 @@ if (V3) {
   ok(within(mix, VM.multiplier, 0.005) && within(VM.sizeKMean / mix, SZ.value.factor, 0.005), `value factor: sizeK ${VM.sizeKMean} / mix ${mix.toFixed(3)} = ${(VM.sizeKMean / mix).toFixed(3)} (data ${SZ.value.factor})`);
   ok(within(VM.mu.reduce((a, [, w]) => a + w, 0), 1, 1e-9), 'value mix weights sum to 1');
   ok(D.fishValueV3(byId.pilgrim_salmon, 0, { zone: 'paleabyss' }) === Math.round(30 * 3.0 * 0.66), 'Wanderer values scale with the lake valueMult');
-  // size → fight (brief §5.5 table)
-  const F = SZ.fight, g = (z) => Math.exp(F.gPerZ * z);
-  const FT = [[-0.8, 0.85, 0.77, 0.85, 0.92, 1.08, 0, 1.10], [0.4, 1.08, 1.14, 1.08, 1.04, 0.96, 0.03, 0.95], [1.4, 1.32, 1.57, 1.32, 1.15, 0.87, 0.11, 0.85],
-    [2.2, 1.55, 2.02, 1.55, 1.25, 0.80, 0.18, 0.77], [2.95, 1.80, null, 2.15, 1.34, 0.75, 0.24, 0.70], [3.35, 1.95, null, 2.39, 1.40, 0.72, 0.27, 0.67]];
-  for (const [z, gg, pw, st, surge, sweet, err, every] of FT) {
-    const over = z > F.elderZ;
-    ok(within(g(z), gg, 0.01) && (pw === null || within(g(z) ** F.powerExp, pw, 0.01)) && within(g(z) ** (over ? F.elderStaminaExp : F.staminaExp), st, 0.01)
-      && within(g(z) ** F.surgeTimeExp, surge, 0.01) && within(g(z) ** F.sweetExp, sweet, 0.01) && within(F.erraticPerZ * Math.max(0, z), err, 0.01) && within(g(z) ** F.surgeEveryExp, every, 0.01),
-    `size → fight at z ${z} matches the brief §5.5 table`);
-  }
-  ok(JSON.stringify(F.elderAge) === '{"mossmere":1.2,"sporewood":0.9,"glasswater":0.7,"paleabyss":0.35}' && F.elderStep === 1.08 && SZ.reel.staminaMult === 1.4 && SZ.reel.fatigue.elderFloor === 0.8
-    && SZ.reel.oldTrick.at === 0.55 && SZ.reel.oldTrick.warnMult === 0.6 && SZ.reel.oldTrick.powerMult === 1.3, 'Elder age per lake, step 1.08, stamina × 1.4, fatigue floor 0.8, old trick 55% / × 0.6 warn / × 1.3 power');
+  // D1′: the manual reel's size → fight and reel blocks are retired (automatic fishing: CATCH_V3 decides, AUTOFISH.play performs)
+  ok(!('fight' in SZ) && !('reel' in SZ), 'BALANCE.size carries no manual-reel block (fight, reel: retired by D1′)');
   // residents (brief §7.0)
   const R3 = B3.residents, erf = (x) => { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
   const Phi = (x) => 0.5 * (1 + erf((x - R3.z.mean) / R3.z.sd / Math.SQRT2)), top = Phi(R3.z.max) - Phi(R3.z.min);
@@ -979,11 +971,11 @@ if (V3) {
   // ---- signs, bite, ceremony (brief §5.1–§5.8)
   ok(JSON.stringify(Object.keys(B3.signs.kinds)) === '["rise","boil","nervous","strike","bubbles","glow"]' && B3.signs.maxAlive === 6 && B3.signs.kinds.glow.night, 'six signs (≤ 6 alive; the glow trail is night only)');
   ok(JSON.stringify(D.SIZE_CLASSES.map((c) => c.bite)) === '["doublePop","plunge","dragUnder","flatSlide","dome"]', 'one bite tell per class');
-  ok(B3.bite.pips.perfect === 3 && B3.bite.pips.normal === 2 && B3.bite.pips.rodBonusFrom === 3 && D.TACKLE.rod.every((r) => r.pips === (r.tier >= 3 ? 1 : 0)), 'hook-hold pips: 3 / 2, +1 from Rod T3');
+  ok(!('pips' in B3.bite) && !('pips' in D.BALANCE.bite) && !('nearMiss' in B3.ceremony), 'no hook-hold pips and no near-miss card config (retired by D1′; the got-away note is AUTOFISH.gotAway)');
   ok(JSON.stringify(D.SIZE_CLASSES.map((c) => c.ceremony)) === '[1.2,1.2,2.4,3.5,5]' && JSON.stringify(B3.ceremony.poses.map((p) => p.below)) === JSON.stringify([0.25, 0.85, 2.0, null].map((v) => v ?? Infinity)) || B3.ceremony.poses[3].below === Infinity, 'ceremony times and poses by length');
   const sealSpecies = S.filter((s) => D.sealsFor(s).length > 0), sealTotal = sealSpecies.reduce((a, s) => a + D.sealsFor(s).length, 0);
   ok(B3.ceremony.wickHeight === 0.85 && B3.records.oldLedgerZ === 2.3 && B3.records.seals.total === sealTotal && sealTotal === 143 && sealSpecies.length === 48, `the Wick is 0.85 m; Old Ledger at z 2.3; 48 species × 3 − the Lampwarden's Elder = ${sealTotal} seals (143)`);
-  ok(S.every((s) => !s.maxClass || s.cove || D.sealsFor(s).length === (SZ.classMaxZ[s.maxClass] >= SZ.fight.elderZ ? 3 : B3.records.seals.classes.filter((c) => c !== 'elder').length)) && D.sealsFor(byId.lampwarden_angler).join() === 'prize,trophy', 'a species capped below Elder has no Elder seal');
+  ok(S.every((s) => !s.maxClass || s.cove || D.sealsFor(s).length === (SZ.classMaxZ[s.maxClass] >= D.SIZE_CLASSES[3].zMax ? 3 : B3.records.seals.classes.filter((c) => c !== 'elder').length)) && D.sealsFor(byId.lampwarden_angler).join() === 'prize,trophy', 'a species capped below Elder has no Elder seal');
   ok(S.filter((s) => s.rarity !== 'legendary' && !s.cove).length === B3.records.seals.species, 'the seal grid covers the 48 non-legendary lake and Wanderer species');
 
   // ---- oil, Far Water, the Live Well (brief §3.4)
@@ -1050,15 +1042,16 @@ if (V3) {
     ok(JSON.stringify(tiers.map((t) => t.price)) === JSON.stringify(PR[slot]), `TACKLE.${slot} prices ${tiers.map((t) => t.price)} (brief ${PR[slot]})`);
     ok(tiers.every((t) => t.tier < 2 ? t.proof === null : !!D.TACKLE.proofs[t.proof]), `TACKLE.${slot}: T2–T4 need a proof catch, T0–T1 none`);
     ok(tiers.every((t) => (t.tier <= 2 ? t.onSale === 'start' : t.onSale === (t.tier === 3 ? 'sporewood' : 'glasswater'))), `TACKLE.${slot}: T3 with Sporewood lit, T4 with Glasswater lit`);
-    const STAT = { rod: ['castMax', 'hookWindow', 'slackTime', 'shock'], line: ['lineStrength'], reel: ['reelSpeed', 'sweetZone', 'absorb'], creel: ['creelSize', 'liveWell', 'nights'] }[slot];
+    const STAT = { rod: ['hold', 'castMax', 'hookWindow'], line: ['hold'], reel: ['hold'], creel: ['creelSize', 'liveWell', 'nights'] }[slot];
+    const RETIRED = ['slackTime', 'shock', 'pips', 'lineStrength', 'slackAdd', 'reelSpeed', 'sweetZone', 'drag', 'absorb'];
+    ok(tiers.every((t) => RETIRED.every((k) => !(k in t))), `TACKLE.${slot}: no manual-reel stat on any tier (retired by D1′)`);
     for (const k of STAT) ok(tiers.every((t, i) => i === 0 || t[k] >= tiers[i - 1][k]), `TACKLE.${slot}.${k} never drops with tier`);
     ok(D.TACKLE.catalogue[slot] === tiers.reduce((a, t) => a + t.price, 0), `TACKLE.catalogue.${slot}`);
   }
   ok(D.TACKLE.catalogue.total === 18610 && D.TACKLE.catalogue.total === D.TACKLE.slots.reduce((a, s) => a + D.TACKLE.catalogue[s], 0), 'tackle catalogue 18,610');
-  ok(D.TACKLE.rod[0].castMax === D.STATS.castMax.base && D.TACKLE.line[0].lineStrength === D.STATS.lineStrength.base && D.TACKLE.reel[0].reelSpeed === D.STATS.reelSpeed.base
-    && D.TACKLE.reel[0].sweetZone === D.STATS.sweetZone.base && D.TACKLE.creel[0].creelSize === D.STATS.creelSize.base, 'T0 tackle equals the STATS base');
+  ok(D.TACKLE.rod[0].castMax === D.STATS.castMax.base && D.TACKLE.rod[0].hookWindow === 1 && D.TACKLE.creel[0].creelSize === D.STATS.creelSize.base, 'T0 tackle equals the STATS base');
   ok(D.TACKLE.creel[0].creelSize === 4 && D.TACKLE.creel[4].creelSize === 8, 'the creel range (4–8) equals today\'s per-run Woven Creel range');
-  ok(JSON.stringify(D.TACKLE.drag.presets) === '{"light":0.7,"set":0.8,"firm":0.9}' && D.TACKLE.drag.fromReelTier === 2 && D.TACKLE.reel.every((r) => (r.tier >= 2) === (r.drag === 'presets')), 'drag presets from Reel T2');
+  ok(['drag', 'rating', 'gate', 'legends', 'targets'].every((k) => !(k in D.TACKLE)) && !('tackleRating' in B3) && !('tackleRating' in D.BALANCE) && !('stats' in B3), 'no drag presets, reel-sim tables, tackleRating or v3 fight stats (retired by D1′; the rating is catchRating, in words)');
   ok(D.OUTFIT.length === 4 && D.OUTFIT.every((o) => JSON.stringify(o.prices) === '[80,240,600]' && o.maxLevel === 3) && D.OUTFIT.reduce((a, o) => a + o.prices.reduce((x, y) => x + y, 0), 0) === 3680, 'outfit: 4 items × 80 / 240 / 600 (3,680)');
   for (const o of D.OUTFIT) { for (const k of Object.keys(o.effects)) ok(isStatKey(k), `outfit ${o.id} effect ${k} is not a STATS key`); ok(!!D.UPGRADE_BY_ID[o.from], `outfit ${o.id} from ${o.from}`); }
   ok(JSON.stringify(D.LURES.map((l) => l.price)) === '[120,90,120,260,1200,220,480,950,1600]' && D.LURES.reduce((a, l) => a + l.price, 0) === 5040,
@@ -1067,50 +1060,6 @@ if (V3) {
   for (const id of D.COMBAT_KIT.ids) ok(D.UPGRADE_BY_ID[id] && !D.OUTFIT.some((o) => o.from === id), `combat kit ${id}`);
   const KIT = { lantern_mantle: [22, 56, 120, 224], lantern_lens: [36, 80, 168], lantern_striker: [22, 60, 132], raft_hull: [44, 100, 208], raft_hearth: [104, 240] };
   for (const [id, exp] of Object.entries(KIT)) ok(JSON.stringify(D.UPGRADE_BY_ID[id].costs.map((c) => Math.round(c * D.COMBAT_KIT.priceMult))) === JSON.stringify(exp), `combat kit ${id} at 40%: ${exp}`);
-  // rating: the matched-set table follows the gate table; the generated table agrees on matched sets
-  const CL = ['small', 'keeper', 'prize', 'trophy', 'elder'];
-  for (const z of LAKES) {
-    const gate = D.TACKLE.gate[D.TACKLE.reference[z]];
-    D.TACKLE.rating[z].forEach(([cls, nextP], t) => {
-      const [P, T, E] = gate[t]; let c = 1, nxt = P;
-      if (P >= 50) { c = 2; nxt = T; } if (P >= 50 && T >= 50) { c = 3; nxt = E; } if (P >= 50 && T >= 50 && E >= 50) { c = 4; nxt = E; }
-      ok(cls === CL[c] && nextP === nxt, `${z} T${t} rating ${cls} (${nextP}%) must follow the gate table (${CL[c]}, ${nxt}%)`);
-    });
-  }
-  const TR = B3.tackleRating;
-  if (ok(isObj(TR) && TR.k >= 200 && LAKES.every((z) => TR.lakes[z]?.cls?.length === 125 && TR.lakes[z]?.next?.length === 125), 'BALANCE.tackleRating: 125 loadouts × 4 lakes (tools/sim/reel-v3.mjs --write-rating --apply)')) {
-    for (const z of LAKES) {
-      ok(TR.lakes[z].reference === D.TACKLE.reference[z], `tackleRating ${z} reference species`);
-      for (let t = 0; t <= 4; t++) {
-        const i = 31 * t, [cls, nextP] = D.TACKLE.rating[z][t];
-        ok(TR.classes[+TR.lakes[z].cls[i]] === cls && within(TR.lakes[z].next[i], nextP, 2), `tackleRating ${z} matched T${t}: ${TR.classes[+TR.lakes[z].cls[i]]} ${TR.lakes[z].next[i]}% vs the brief ${cls} ${nextP}%`);
-      }
-      // near-monotone: upgrading one slot rarely lowers the rated class (sim noise at the 50% line; ≤ 3% of single-slot upgrades)
-      let drops = 0, pairs = 0;
-      for (let r = 0; r < 5; r++) for (let l = 0; l < 5; l++) for (let e = 0; e < 5; e++) {
-        const i = r * 25 + l * 5 + e, c = +TR.lakes[z].cls[i];
-        for (const j of [r < 4 ? i + 25 : -1, l < 4 ? i + 5 : -1, e < 4 ? i + 1 : -1]) if (j >= 0) { pairs++; if (+TR.lakes[z].cls[j] < c) drops++; }
-      }
-      ok(drops / pairs <= 0.03, `tackleRating ${z}: ${drops} of ${pairs} single-slot upgrades lower the rating (≤ 3%: noise at the 50% line)`);
-    }
-  }
-  // the gear gate from the reel sim, within tolerance (brief §5.6; skilled; same seeds as the table, k 160)
-  const SIM = await import('./sim/reel-v3.mjs');
-  const KV = 160, TOL = 8;
-  for (const z of LAKES) {
-    const id = D.TACKLE.reference[z], sp = byId[id], gate = D.TACKLE.gate[id];
-    for (const [t, ci, col] of [[2, 4, 2], [3, 4, 2], [4, 4, 2], [4, 5, 3], [1, 3, 1]]) {
-      const c = SIM.CLASSES[ci], p = Math.round(100 * SIM.cell(sp, c.z, SIM.loadout(t), 'skilled', c.ci, KV).p);
-      ok(within(p, gate[t][col], TOL), `reel sim: ${id} ${c.label} on T${t} lands ${p}% (gate table ${gate[t][col]}% ± ${TOL})`);
-    }
-    const e4 = gate[4][2], a4 = gate[4][3], TT = D.TACKLE.targets;
-    ok(e4 >= TT.elderT4Reference[0] && e4 <= TT.elderT4Reference[1] + TT.elderT4Tolerance, `${id}: Elder on T4 ${e4}% (target ${TT.elderT4Reference} + ${TT.elderT4Tolerance})`);
-    ok(a4 >= TT.ancientT4Reference[0] && a4 <= TT.ancientT4Reference[1], `${id}: Ancient on T4 ${a4}% (target ${TT.ancientT4Reference})`);
-    ok(gate[0][2] <= TT.elderOnArrival[1] && gate[1][2] <= TT.elderOnArrival[1], `${id}: headline Elders are a wall on T0–T1 (≤ ${TT.elderOnArrival[1]}%)`);
-  }
-  const lev = byId.lantern_swallower, levP = Math.round(100 * SIM.cell(lev, 0, SIM.loadout(4), 'skilled', 0, KV).p);
-  ok(within(levP, D.TACKLE.legends.lantern_swallower[4][1], TOL), `reel sim: the Lantern-Swallower on full T4 lands ${levP}% skilled (brief ${D.TACKLE.legends.lantern_swallower[4][1]}%)`);
-  ok(D.TACKLE.legends.lantern_swallower.slice(0, 3).every((r) => r.every((v) => v === 0)), 'the Lantern-Swallower needs Line T4');
 
   // ---- the expedition and The Long Descent (brief §3)
   const E3 = D.EXPEDITION;
@@ -1225,7 +1174,7 @@ if (V3) {
   ok(lv('gloom') === M3.shelves.gloom.levels && baseCost('gloom') === M3.shelves.gloom.base && within(nowCost('gloom'), M3.shelves.gloom.base * M3.shelves.gloom.costMult, 30),
     `Gloom shelf: ${lv('gloom')} levels, ${baseCost('gloom')} → ${nowCost('gloom')} (brief 14, 3,125 → ≈ 2,190)`);
   ok(lv('fishing') + lv('gloom') === 60, 'the Shrine shows ≈ 60 drowned lanterns (total relic levels, read from data)');
-  ok(M3.cut.every((id) => !D.RELIC_BY_ID[id] && V1.RELIC_BY_ID[id]) && D.RELIC_BY_ID.seven_knots.effects.lineStrength === 0.05, 'Waystone relics and Murk\'s Old Debt cut; Seven Knots halved');
+  ok(M3.cut.every((id) => !D.RELIC_BY_ID[id] && V1.RELIC_BY_ID[id]) && Object.keys(D.RELIC_BY_ID.seven_knots.effects).length === 0 && D.CATCH_V3.buffs.relics.seven_knots.perLevel === 1, 'Waystone relics and Murk\'s Old Debt cut; Seven Knots gives Hold (CATCH_V3.buffs), no line strength');
   ok(D.ANGLER_POOL.length === 15 && D.ANGLER_POOL.every((id) => D.BOON_BY_ID[id]?.tags.includes('angler')), 'the Angler pool: 9 existing + 6 new Boons, all tagged');
   for (const b of D.BOONS_V3) ok(!Object.keys(b.effects).includes('favour') && !b.opens, `Angler Boon ${b.id}: no Boon adds favour or opens a place`);
   for (const c of D.CHARACTERS) ok(isObj(c.fishing) && isStr(c.fishing.name) && isStr(c.fishing.desc), `Wick ${c.id} needs a fishing half (brief §4.5)`);
@@ -1553,27 +1502,14 @@ if (V3) {
     ok(near(D.MOSSMERE_V3.cracks[0], D.PLACE_V3_BY_ID.ferry_market) < 0.01 && near(D.MOSSMERE_V3.landmarks.find((l) => l.id === 'moon_eye'), D.PLACE_V3_BY_ID.ferry_market) < 0.01, 'the Moon-Eye\'s authored crack and landmark stand over the Ferry-Market');
     ok(D.MOSSMERE_V3.redress.reduce((a, r) => a + r.calls, 0) === 4 && D.PLACE_V3_BY_ID.buoy_lights.build.includes('y 0'), 'the harbour re-dress (W9) is 4 calls; the buoy-lanterns draw at the surface'); }
 
-  // ---- the reel: every species that can be an Elder lands an Ancient on full T4 inside ≈ 3 min (skilled, k 160)
-  { const RT = SZ.reel.targets, KR = 160, slow = [];
-    const mulR = (a) => function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-    for (const sp of S.filter((x) => D.sealsFor(x).includes('elder') && !RT.knownGaps[x.id])) {
-      const c = SIM.CLASSES[5], zone = sp.zone ?? sp.zones[0], d = SIM.scaleDifficulty(sp.difficulty, sp.behavior, c.z, zone), g = SIM.loadout(4);
-      let seed = 0; for (const ch of sp.id + 'skilled' + g.id + c.z) seed = (seed * 31 + ch.charCodeAt(0)) | 0;
-      const rng = mulR(seed), ts = []; let to = 0;
-      for (let i = 0; i < KR; i++) { const r = SIM.fight({ ...sp, zone }, d, g, SIM.SK.skilled, c.ci, c.z, rng); if (r.landed) ts.push(r.time); else if (r.reason === 'timeout') to++; }
-      ts.sort((a, b) => a - b); const med = ts.length ? ts[ts.length >> 1] : Infinity;
-      if (!(med <= RT.ancientMedian * RT.ancientTolerance) || to / KR >= RT.maxTimeouts) slow.push(`${sp.id} (median ${Math.round(med)} s, ${to} time-outs)`);
-    }
-    ok(slow.length === 0, `Ancients on full T4 (skilled) must land within ${RT.ancientMedian} × ${RT.ancientTolerance} s with < ${100 * RT.maxTimeouts}% time-outs: ${slow.join('; ')}`);
-    ok(Object.keys(RT.knownGaps).every((id) => byId[id]), 'reel known gaps name real species'); }
-
   // ---- tackle stats and the P1–P2 tier mapping
-  { const t0 = D.tackleStats({}), g0 = SIM.loadout(0), t4 = D.tackleStats({ rod: 4, line: 4, reel: 4, creel: 4 }, 'firm');
-    ok(t0.slackTime === g0.slackTime && t0.shock === g0.shock && t0.absorb === g0.dragQ && t0.lineStrength === g0.LS && t0.reelSpeed === g0.RS && t0.pipBonus === g0.pipBonus && t0.dragAt === 0.8, 'tackleStats(T0) is the reel sim\'s T0 loadout (slack 1.4: tiers replace the STATS base)');
-    ok(t4.dragAt === 0.9 && t4.creelSize === 8 && within(t4.slackTime, 2.4, 1e-9), 'tackleStats(T4, firm): drag preset from Reel T2, Silverthread adds slack');
+  { const t0 = D.tackleStats({}), t4 = D.tackleStats({ rod: 4, line: 4, reel: 4, creel: 4 });
+    ok(t0.castMax === 16 && t0.hookWindow === 1 && t0.creelSize === 4 && JSON.stringify(t0.hold) === '{"rod":0,"line":0,"reel":0}', 'tackleStats(T0): castMax 16, hook window × 1, creel 4, no Hold');
+    ok(t4.castMax === 22 && t4.creelSize === 8 && t4.liveWell === 3 && JSON.stringify(t4.hold) === '{"rod":12,"line":13,"reel":12}', 'tackleStats(T4): castMax 22, creel 8 with 3 Live Well slots, Hold 12 / 13 / 12');
+    ok(Object.keys(t4).every((k) => ['castMax', 'hookWindow', 'creelSize', 'liveWell', 'nights', 'hold'].includes(k)), 'tackleStats carries no manual-reel stat (D1′)');
     const ups = Object.fromEntries(D.UPGRADES.map((u) => [u.id, u.maxLevel]));
     ok(JSON.stringify(D.upgradeTiers({})) === '{"rod":0,"line":0,"reel":0,"creel":0}' && JSON.stringify(D.upgradeTiers(ups)) === '{"rod":4,"line":4,"reel":4,"creel":4}', 'upgradeTiers: no upgrades → T0, every level → T4');
-    for (const k of ['shock', 'absorb', 'pipBonus', 'dragAt']) ok(k in D.STATS && !(k in V1.STATS) && !(k in W2.STATS), `STATS.${k} exists only in v3 builds`); }
+    for (const k of ['shock', 'absorb', 'pipBonus', 'dragAt']) ok(!(k in D.STATS) && !(k in V1.STATS) && !(k in W2.STATS), `STATS.${k} exists in no build (retired by D1′)`); }
 
   // ---- automatic fishing (DESIGN §25.6, CONTRACT §13.7; the user's direction of 2026-11-05): the catch model, the strike, the play,
   // leaps and the hidden-information data, the First Evening. Never 100%: every cap < 1 and no item, strike, buff or bonus reaches one.
@@ -1721,7 +1657,23 @@ if (V3) {
     ok(CLS.every((c) => Array.isArray(AF.play.scare[c]) && AF.play.scare[c][0] <= AF.play.scare[c][1]) && AF.loss.onScare > 0 && AF.loss.onScare < 1 && JSON.stringify(AF.loss.draws) === '["planSeed","u","causeU","momentU"]', 'AUTOFISH: scares by class, losses on a scare, the unconditional draw order');
     ok(AF.gotAway.toast.includes('prize') && AF.gotAway.markedFrom.openWater === 'elder' && AF.gotAway.markedFrom.place === 'trophy' && D.V3_BLOCK_PHASE.markedFish === 1, 'got-away: Prize losses toast, open-water Marked Fish from Elder up (places from Trophy); the light Marked Fish ships at phase 1');
     ok(D.TACKLE.lostLureFrac === 0 && AF.runLures.priceMult === 0.4 && AF.runLures.phases.join() === '1,2', 'a snapped line never loses a lure; P1–P2 runs sell lures at 40%');
-    ok(AF.gotAway.estimate === D.BALANCE_V3.ceremony.nearMiss?.estimate || AF.gotAway.estimate === 0.08, 'the got-away length estimate is ±8% (§25.7.4)');
+    // D1′ (the AF build's data): the manual reel's data is gone from the v3 build; its tips moved; Well-fed is +2 Hold; no v3 effect names a dead reel stat
+    { const T3 = D.TEXT_V3, tipIds = D.TIPS_V3.map((t) => t.id), AFT = ['af_changed', 'af_letpass', 'af_strikeReminder', 'af_hurry'];
+      ok(!('tips' in AF.text) && ['nearMiss', 'causes', 'tips'].every((k) => !(k in T3)), 'AUTOFISH.text.tips and TEXT_V3.nearMiss / causes / tips are retired (the tips live in TIPS_V3)');
+      ok(AFT.every((id) => { const t = D.TIPS_V3.find((x) => x.id === id); return t && t.phase === 1 && t.trigger === `tip:show:${id}` && isStr(t.text); }) && AFT.every((id) => D.TIPS.some((t) => t.id === id)),
+        'the automatic-fishing tips are directed TIPS_V3 entries (trigger tip:show:<id>, phase 1), so a build without the AF code never shows them');
+      ok(new Set(tipIds).size === tipIds.length, 'TIPS_V3 ids are unique');
+      ok(JSON.stringify(D.BALANCE.wellFed.effects) === JSON.stringify({ hold: CT.buffs.wellFed }) && !('hold' in D.STATS), 'Well-fed is +2 Hold (a run buff through getCatchBuffs; not a STATS key)');
+      const dead = D.DESC_V3.deadStats, hits = [];
+      for (const [name, list] of [['BOONS', D.BOONS], ['RELICS', D.RELICS], ['UPGRADES', D.UPGRADES], ['CHARACTERS', D.CHARACTERS], ['OUTFIT', D.OUTFIT]]) for (const x of list) for (const k of dead) if (k in (x.effects || {})) hits.push(`${name}.${x.id}.${k}`);
+      for (const [k, p] of Object.entries(D.JOURNAL_PERKS || {})) for (const st of dead) if (st in (p.effects || {})) hits.push(`JOURNAL_PERKS.${k}.${st}`);
+      ok(hits.length === 0, `no v3 effect names a reel stat v3 fishing never reads (${dead.join(', ')}): ${hits.join(', ')}`);
+      const reelWords = /reel speed|reel \d+% faster|line strength|sweet band|sweet zone|slack grace|slack line|tension/i, words = [];
+      for (const [name, list] of [['BOONS', D.BOONS], ['RELICS', D.RELICS], ['UPGRADES', D.UPGRADES], ['CHARACTERS', D.CHARACTERS]]) for (const x of list) for (const t of [x.desc, x.fishing?.desc, x.quirk?.desc]) if (typeof t === 'string' && reelWords.test(t)) words.push(`${name}.${x.id}`);
+      ok(words.length === 0, `no v3 Boon, relic, per-run tackle or Wick text names a manual-reel stat: ${words.join(', ')}`);
+      for (const [id, b] of Object.entries(CT.buffs.boons)) ok(D.BOON_BY_ID[id] && /Hold/.test(D.BOON_BY_ID[id].desc), `Boon ${id} says what Hold it gives`);
+      ok(/Hold/.test(D.CHARACTER_BY_ID.ashwick.fishing.desc) && D.CHARACTER_BY_ID.ashwick.fishing.firstHookHold === CT.buffs.wicks.ashwick.hold, "Ashwick's Burned Once gives +3 Hold on the first fish hooked each night"); }
+    ok(AF.gotAway.estimate === 0.08 && D.BALANCE_V3.records.escapeEstimate === AF.gotAway.estimate, 'the got-away length estimate is ±8% (§25.7.4)');
     // every player-facing string of automatic fishing and the First Evening: one line (≤ 90), no %, no exclamation mark
     const strs = []; const walkS = (v, path) => { if (typeof v === 'string') strs.push([v, path]); else if (v && typeof v === 'object') for (const [k, c] of Object.entries(v)) walkS(c, `${path}.${k}`); };
     walkS(AF.text, 'AUTOFISH.text'); walkS(FE.text, 'FIRST_EVENING.text'); walkS(FE.tips, 'FIRST_EVENING.tips');
