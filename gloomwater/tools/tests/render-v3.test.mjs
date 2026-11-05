@@ -108,16 +108,23 @@ section('R2 trophy distance, crane, yaw');
   near(C.trophyYaw(at, { x: -30, y: 3, z: -4 }, 35) / DEG, 35, 'a landmark due west → clamped to +35°', 1e-9);
   ok(Math.abs(C.trophyYaw(at, { x: 11, y: 3, z: 40 }, 35)) <= 35 * DEG + 1e-12, 'a landmark behind → never more than ±35°');
   eq(C.trophyYaw(at, { x: 10, y: 3, z: -4 }, 35), 0, 'a landmark on the subject → north');
-  // close-up lift and the portrait fit
-  near(C.trophyAimY(14.8, T), 0.6, 'at range the look target sits aimY 0.6 above the subject');
-  ok(C.trophyAimY(1.6, T) < 0.2 && C.trophyAimY(1.6, T) > 0, 'in a close-up the lift shrinks (the palm catch stays centred)');
-  eq(C.trophyFov(44, 0.5, 1.6, 16 / 9), 44, 'landscape palm shot keeps fov 44');
-  eq(C.trophyFov(44, 1.0, 3.12, 16 / 9), 44, 'landscape hang shot keeps fov 44');
-  const pf = C.trophyFov(44, 1.0, 3.12, 390 / 844);
+  // the subject raised above the frame's centre (ui's band owns its foot) and the fov fit
+  const lift = C.trophyLift(3.12, 44, 18);
+  ok(lift < 0, 'the camera looks a little below the subject (it sits above the frame centre)');
+  near(Math.atan(-lift * Math.cos(18 * DEG) / 3.12), Math.atan(2 * C.TROPHY_UP * Math.tan(22 * DEG)), 'the subject sits TROPHY_UP of the frame height above centre', 1e-12);
+  ok(C.trophyLift(14.8, 46, 50) < C.trophyLift(14.8, 46, 18), 'looking down from the crane needs a deeper offset for the same screen lift');
+  eq(C.trophyFov(44, 0.5, 3.12, 16 / 9), 44, 'a subject that fits keeps the preset fov 44');
+  const fh = C.trophyFov(44, 1.25, 3.12, 16 / 9);
+  ok(fh > 44 && fh < 52, `a tall hang subject widens a little so its top clears the frame (got ${fh.toFixed(1)})`);
+  const tTop = Math.tan(fh / 2 * DEG) * (1 - 2 * C.TROPHY_UP) * 3.12;
+  ok(tTop >= 1.25 * 0.95 - 1e-9, 'the widened fov covers the raised subject\'s top');
+  const pf = C.trophyFov(44, 1.6, 3.12, 390 / 844);
   ok(pf > 44 && pf <= 80, `portrait widens the fov so the subject fits across (got ${pf.toFixed(1)})`);
-  const hHalf = Math.atan(Math.tan(pf / 2 * DEG) * (390 / 844));
-  ok(Math.tan(hHalf) * 3.12 >= 1.0 * 1.15 - 1e-9 || pf === 80, 'the widened fov covers the subject\'s radius horizontally');
-  eq(C.trophyFov(44, 6, 14.8, 390 / 844, 80), 80, 'never past the cap');
+  ok(Math.tan(pf / 2 * DEG) * (390 / 844) * 3.12 >= 1.6 * 0.6 * 0.95 - 1e-9, 'across: a held fish counts 0.6 of its radius');
+  const pw = C.trophyFov(44, 1.6, 3.12, 390 / 844, { wide: true });
+  ok(pw > pf, 'an alongside fish (wide) needs the whole radius across');
+  eq(C.trophyFov(44, 9, 14.8, 390 / 844, { wide: true, cap: 80 }), 80, 'never past the cap');
+  eq([C.trophyUp(0.2, T), C.trophyUp(0.6, T), C.trophyUp(1.2, T), C.trophyUp(3, T), C.trophyUp(8.5, T)], [0.06, C.TROPHY_UP, C.TROPHY_UP, 0.11, 0.14], 'the subject rides higher for an alongside fish and under the crane');
 }
 
 console.log(`render-v3: ${pass} passed, ${fail} failed`);

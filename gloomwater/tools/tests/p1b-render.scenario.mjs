@@ -344,6 +344,79 @@ export default async function (api) {
     }
   }
 
+  // ------------------------------------------------------------------ R2 with fishing's measuring ceremony (P1b F5 + actors A2)
+  // Runs where fishing.startCeremony exists (the P1b staging merge); on this branch alone it logs a skip.
+  if (want('ceremony')) {
+    step('R2 the real ceremony: forced 0.2 m, 1.2 m and 8.5 m landings');
+    const has = await g(() => typeof window.__gw.fishing.startCeremony === 'function' && typeof window.__gw.debug.cerRate === 'function');
+    if (!has) log('skip: this build has no measuring ceremony (fishing P1b F5); the trophy rule is proven above');
+    else {
+      await clearModals();
+      await g(() => { const c = window.__gw; c.fishing.cancel('debug'); if (c.state.run.phase !== 'calm') c.debug.setPhase('calm'); c.debug.god?.(true); });
+      await clearModals();
+      const cases = [
+        { id: 'dusk_minnow', target: 0.2, want: 1.6, crane: false, pose: 'palm' },
+        { id: 'reedjaw_pike', target: 1.2, want: 3.12, crane: false, pose: 'hang' },
+        { id: 'lantern_swallower', target: 8.5, want: 14.8, crane: true, pose: 'alongside' },
+      ];
+      for (const k of cases) {
+        await place(k.target > 4 ? 6 : 0, 30);
+        await settle(6);
+        const z = await g(([id, L]) => {
+          const d = window.__gw.data, sp = d.SPECIES_BY_ID[id];
+          let lo = -2, hi = 3.6;
+          for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (d.sizeLength(sp, m) / 100 < L) lo = m; else hi = m; }
+          return (lo + hi) / 2;
+        }, [k.id, k.target]);
+        // a slow ceremony clock so the beats can be photographed on software GL; the camera keeps real time
+        const r = await g(([id, z]) => {
+          const c = window.__gw;
+          c.fishing.cancel('debug');
+          c.debug.cerRate(0.3);
+          window.__trophyCalls = [];
+          if (!window.__trophySpy) {
+            window.__trophySpy = true;
+            const orig = c.render.setTrophyTarget;
+            c.render.setTrophyTarget = (t) => { window.__trophyCalls?.push(t ? { length: t.length, landmark: t.landmark ?? null } : null); return orig(t); };
+          }
+          return c.debug.instantCatch(id, { z, ceremony: true });
+        }, [k.id, z]);
+        await waitFor(() => !!window.__gw.debug.ceremony?.()?.active, null, 30);
+        // the shot settles during the pose / cord beats
+        let c = null, cer = null;
+        for (let i = 0; i < 240; i++) {
+          await frames(1);
+          [c, cer] = await g(() => [window.__gw.debug.camera(), window.__gw.debug.ceremony?.()]);
+          // settled: the rule's distance and crane, and the focus spring has caught the posed subject
+          const settled = c.mode === 'trophy' && Math.abs(c.cur.dist - k.want) < 0.03 && (!k.crane || Math.abs(c.cur.elev - 50) < 0.4)
+            && Math.abs((c.trophy?.camToSubject ?? 0) - k.want) < 0.1;
+          if (settled && cer?.posed) break;
+          if (!cer?.active) break;
+        }
+        const calls = await g(() => window.__trophyCalls.slice());
+        check(r && calls.length >= 1 && Math.abs(calls[0].length - k.target) < 0.002 && calls[0].landmark === null, `${k.target} m: fishing hands render the true length and no landmark (no place in P1)`, calls);
+        check(c.mode === 'trophy' && Math.abs(c.cur.dist - k.want) < 0.05, `${k.target} m landing → the camera at ${k.want} m`, { dist: c.cur.dist, camToSubject: c.trophy?.camToSubject, pose: cer?.pose });
+        check(Math.abs((c.trophy?.camToSubject ?? 0) - k.want) < 0.15, 'measured from the framed subject (the fish and the Wick)', c.trophy?.camToSubject);
+        check(k.crane ? Math.abs(c.cur.elev - 50) < 0.6 : Math.abs(c.cur.elev - 18) < 0.6, k.crane ? 'cranes to 50° on the 8.5 m legend' : 'no crane', c.cur.elev);
+        check(Math.abs(c.yawDeg) < 0.3, 'no place → the yaw stays north', c.yawDeg);
+        check(cer?.pose === k.pose, `the ${k.pose} pose`, cer?.pose);
+        await safeShot(`r2-ceremony-${String(k.target).replace('.', '_')}m`);
+        // the card's turn: fishing clears the target; the shot holds under the card and eases back after it
+        await g(() => window.__gw.debug.cerRate(1));
+        await waitFor(() => !window.__gw.debug.ceremony?.()?.active, null, 200);
+        await settle(12);
+        const held = await g(() => ({ cam: window.__gw.debug.camera(), modal: window.__gw.debug.ui?.()?.openModal ?? null, blocking: !!window.__gw.ui.isBlocking?.(), calls: window.__trophyCalls.slice() }));
+        check(held.calls[held.calls.length - 1] === null, 'fishing clears the target at the card\'s turn', held.calls);
+        check(!held.blocking || (held.cam.mode === 'trophy' && held.cam.trophy?.hold), 'the trophy framing holds under the catch card', { modal: held.modal, mode: held.cam.mode });
+        if (k.target === 1.2) await safeShot('r2-ceremony-card');
+        await clearModals();
+        await settle(90);
+        const back = await cam();
+        check(back.mode === 'sail', 'after the card the camera eases back to sail', back.mode);
+      }
+    }
+  }
+
   step('errors');
   await noErrors();
   return { failures };

@@ -24,8 +24,22 @@ export const TROPHY_DEFAULT = Object.freeze({
 /** The crane (L > craneAbove) rises during the pose beat: it starts after the scoop has settled and takes CRANE_TIME. */
 export const CRANE_DELAY = 0.35;
 export const CRANE_TIME = 1.6;
-/** The subject sits a little below the frame's centre (sky above it); in a close-up the lift shrinks with the distance. */
-export const TROPHY_LIFT_REF = 7.5;
+/**
+ * The subject (actors' measuring focus: the fish and the Wick) sits this fraction of the frame height ABOVE the centre:
+ * ui's measuring band owns the foot of the frame during the ceremony (DESIGN §25.6.8, U3), so the catch is framed in the
+ * open upper part, against the Starlit sky and the place's landmark.
+ */
+export const TROPHY_UP = 0.08;
+/**
+ * How far above the centre the subject sits, by the pose its length gives (DESIGN §25.6.8): a palm catch keeps the Wick's
+ * flame in frame (0.06); a held fish 0.08; an alongside fish lies out toward the camera's side of the raft and its near
+ * part is what ui's band would veil, so it rides higher (0.11), and higher again under the crane, looking down (0.14).
+ */
+export function trophyUp(L, T = TROPHY_DEFAULT) {
+  const l = num(L, 0.5);
+  if (trophyCranes(l, T)) return 0.14;
+  return l >= 2 ? 0.11 : l < 0.25 ? 0.06 : TROPHY_UP;
+}
 
 function pickParams(src, into) {
   if (!src || typeof src !== 'object') return into;
@@ -113,17 +127,24 @@ export function trophyYaw(from, landmark, yawMaxDeg = 35) {
   const lim = Math.abs(num(yawMaxDeg, 35)) * DEG;
   return clamp(Math.atan2(-dx, -dz), -lim, lim);
 }
-/** How far above the subject the camera looks (m): the preset's aimY at range, less in a close-up. */
-export function trophyAimY(dist, T = TROPHY_DEFAULT) { return num(T.aimY, 0.6) * clamp(num(dist, 1.6) / TROPHY_LIFT_REF, 0.2, 1); }
 /**
- * Vertical fov (deg) that keeps a subject of `radius` metres at `dist` in frame on a screen of `aspect` (w / h): the preset's
- * fov on landscape; widened on a phone held upright so the fish and the Wick fit across, never past `cap`.
+ * The look target's height relative to the subject (m; negative = below it) that puts the subject `up` of the frame height
+ * above the centre, for a camera `dist` metres away at `elevDeg` with a vertical fov of `fovDeg`.
  */
-export function trophyFov(baseFov, radius, dist, aspect, cap = 80) {
-  const f0 = num(baseFov, 44), d = Math.max(0.3, num(dist, 1.6)), r = Math.max(0, num(radius, 0)) * 1.15;
+export function trophyLift(dist, fovDeg, elevDeg, up = TROPHY_UP) {
+  const ang = Math.atan(2 * num(up, TROPHY_UP) * Math.tan(num(fovDeg, 44) * DEG / 2));
+  return -num(dist, 1.6) * Math.tan(ang) / Math.max(0.3, Math.cos(num(elevDeg, 18) * DEG));
+}
+/**
+ * Vertical fov (deg) for the trophy shot: the preset's 44°, widened only as far as the subject (actors' focus radius, m)
+ * needs: its top must clear the frame's top edge with the subject raised `up` (ui's band may veil its foot), and on a phone
+ * held upright it must fit across. A held fish (palm / arms / hang) is taller than wide; an alongside one (`wide`) is not.
+ */
+export function trophyFov(baseFov, radius, dist, aspect, { up = TROPHY_UP, wide = false, cap = 80 } = {}) {
+  const f0 = num(baseFov, 44), d = Math.max(0.3, num(dist, 1.6)), r = Math.max(0, num(radius, 0)) * 0.95;
   const a = Math.max(0.2, num(aspect, 16 / 9));
-  const needV = 2 * Math.atan(r / d) / DEG;
-  const needH = 2 * Math.atan(r / d);
-  const vFromH = 2 * Math.atan(Math.tan(needH / 2) / a) / DEG;
-  return clamp(Math.max(f0, needV, vFromH), f0, Math.max(f0, cap));
+  const tTop = r / (d * Math.max(0.2, 1 - 2 * up));
+  const tAcross = (wide ? r : r * 0.6) / (d * a);
+  const need = 2 * Math.atan(Math.max(tTop, tAcross)) / DEG;
+  return clamp(Math.max(f0, need), f0, Math.max(f0, cap));
 }

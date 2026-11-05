@@ -21,7 +21,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { clamp, damp, lerp, smoothstep, easeInOutSine } from './core.js';
 import { GradeShader } from './render-grade.js';
 import {
-  v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyAimY, trophyFov,
+  v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFov, trophyUp,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
 } from './render-camera.js';
 
@@ -53,6 +53,9 @@ export const MODES = {
   // the measuring ceremony's close-up (v3 R2; only while a trophy target is set): dist / elev / fov / aimY are computed
   trophy: { elev: 18, dist: 1.6, aim: 0, aimY: 0.6, fov: 44, ahead: 0, stiff: 2.4 },
 };
+// v3 automatic fishing: how much of AUTOFISH.play[class].shake each beat of the play gives the camera, and the class ladder.
+const REEL_SHAKE = { take: 0.8, run: 0.6, surge: 1, lastStand: 1.2, loss: 0.7, hold: 0.25 };
+const CLASS_RANK = { small: 0, keeper: 1, prize: 2, trophy: 3, elder: 4, ancient: 5, legend: 6 };
 // v3: after the card's turn the trophy framing holds while a blocking modal (the catch card) is up, then eases back.
 const TROPHY_HOLD_GRACE = 0.6;
 const TROPHY_HOLD_MAX = 90;
@@ -420,7 +423,8 @@ export function create(ctx) {
     const L = trophy.L;
     const w = L < 0.85 ? 0.12 : L < 2 ? 0.3 : 0.55;   // held fish sit by the Wick; an alongside one lies out by the landing spot
     trophy.subject.copy(head).lerp(trophy.from, w);
-    trophy.subject.y = L < 2 ? Math.max(0.4, head.y - 0.25 - Math.min(L, 2) * 0.2) : Math.max(0.2, head.y * 0.4);
+    // held fish: around the preset's aimY over the Wick's feet (the hands), lifted with a hanging fish; alongside: the water line
+    trophy.subject.y = L < 2 ? Math.max(TROPHY.aimY ?? 0.6, head.y - 0.25 - Math.min(L, 2) * 0.2) : Math.max(0.2, head.y * 0.4);
     trophy.r = head.distanceTo(trophy.from) * Math.max(w, 1 - w) * (L < 2 ? 0.4 : 1) + Math.max(L * 0.5, 0.35);
   }
 
@@ -516,16 +520,20 @@ export function create(ctx) {
     }
   }
 
-  /** The trophy shot (v3 R2): the rule's distance, the crane, a close-up lift, a phone-portrait fov that fits the subject. */
+  /**
+   * The trophy shot (v3 R2): the rule's distance and crane; the subject raised above the frame's centre (ui's measuring band
+   * owns its foot) and the fov widened only as far as the subject needs (a phone held upright: across).
+   */
   function fillTrophy() {
     const T = TROPHY;
     tgt.dist = trophy.dist;
     tgt.elev = trophyElev(trophy.L, T, trophy.t);
     tgt.aim = T.aim ?? 0;
-    tgt.aimY = trophyAimY(trophy.dist, T);
     tgt.ahead = 0;
     tgt.stiff = T.stiff ?? 2.4;
-    tgt.fov = trophyFov(T.fov ?? 44, trophy.r, trophy.dist, W / H, 80);
+    const up = trophyUp(trophy.L, T);
+    tgt.fov = trophyFov(T.fov ?? 44, trophy.r, trophy.dist, W / H, { wide: trophy.L >= 2, up });
+    tgt.aimY = trophyLift(trophy.dist, tgt.fov, tgt.elev, up);
   }
 
   function focusFor(p, out) {
@@ -735,6 +743,18 @@ export function create(ctx) {
     return true;
   }
 
+  /**
+   * The leap beat (v3): time slows through main (ctx.game.slowmo; a second start inside the same beat changes nothing, so
+   * fishing and render may both ask), and the camera leans into the breach with a short push-in, scaled by size only.
+   */
+  function leapBeat(position, lengthM, seconds, scale) {
+    try { ctx.game?.slowmo?.(seconds, scale); } catch (e) { console.error('[render] slowmo', e); }
+    const big = clamp((Number(lengthM) || 1) / 3, 0, 1);
+    kick(-(2.5 + 2 * big));
+    shake(0.08 + 0.1 * big, 0.35);
+    if (position && Number.isFinite(Number(position.x))) attention(position, 1.2, 0.22 + 0.1 * big);
+  }
+
   // ---------------------------------------------------------------- grade update
   const vit = { hp: Infinity, hpK: 1, dark: 0 };
   function refreshVitals() {
@@ -866,13 +886,22 @@ export function create(ctx) {
         // the breach with a short push-in: size-scaled, never species-specific (the species stays unknown until landed)
         on('fishing:reveal', ({ position, lengthM, time: sec, timescale }) => {
           const LR = ctx.data?.BALANCE?.bite?.leapReveal || {};
-          const s = Number.isFinite(Number(sec)) ? Number(sec) : (LR.time ?? 0.25);
-          const k = Number.isFinite(Number(timescale)) ? Number(timescale) : (LR.timescale ?? 0.35);
-          try { ctx.game?.slowmo?.(s, k); } catch (e) { console.error('[render] slowmo', e); }
-          const big = clamp((Number(lengthM) || 1) / 3, 0, 1);
-          kick(-(2.5 + 2 * big));
-          shake(0.08 + 0.1 * big, 0.35);
-          if (position && Number.isFinite(Number(position.x))) attention(position, 1.2, 0.22 + 0.1 * big);
+          leapBeat(position, lengthM, Number.isFinite(Number(sec)) ? Number(sec) : (LR.time ?? 0.25),
+            Number.isFinite(Number(timescale)) ? Number(timescale) : (LR.timescale ?? 0.35));
+        });
+        // automatic fishing (DESIGN §25.6 rewrite, CONTRACT §13.7a `fishing:reel`; inert until fishing emits it): the play's
+        // beats shake the camera by size class (AUTOFISH.play[class].shake) and a Prize+ leap slows time through main
+        // (AUTOFISH.leap.slowmo). Class, strength and length only: nothing here can tell one species from another.
+        on('fishing:reel', ({ phase, sizeClass, strength, dur, length }) => {
+          const AF = ctx.data?.AUTOFISH;
+          const k = clamp(Number.isFinite(Number(strength)) ? Number(strength) : 1, 0, 1.5);
+          const amt = (Number(AF?.play?.[sizeClass]?.shake) || 0) * (REEL_SHAKE[phase] || 0) * k;
+          if (amt > 0) shake(amt, clamp(Number(dur) || 0.4, 0.2, 1.2));
+          if (phase !== 'leap') return;
+          const S = AF?.leap?.slowmo || {};
+          if ((CLASS_RANK[sizeClass] ?? -1) < (CLASS_RANK[S.fromClass ?? 'prize'] ?? 2)) return;
+          const b = bobber();
+          leapBeat(b ? { x: b.x, z: b.z } : null, (Number(length) || 100) / 100, S.seconds ?? 0.25, S.scale ?? 0.35);
         });
         // run over mid-ceremony: no trophy framing outlives its run
         on('run:end', () => { trophy.on = false; trophy.hold = false; });
