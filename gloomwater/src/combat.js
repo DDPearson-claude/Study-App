@@ -1137,8 +1137,11 @@ export function create(ctx) {
   // ---------------------------------------------------------------- v3: legend snags (C4, DESIGN §25.5.6)
   // In Still and Lantern the Lantern-Swallower's Grasping Dark summons no hands: each scripted summon becomes a snag. A
   // dark hand rises under the water on the line `lead` s ahead (1 s), then the line takes a +`spike` tension spike
-  // (0.2) through fishing.snag(); the player releases through it as through a surge. Nothing spawns, nothing is hurt.
+  // (0.2) through fishing.snag({lead: 0, spike}); the player releases through it as through a surge. Nothing spawns,
+  // nothing is hurt. When fishing runs the snag itself (its own summon rule; it emits fishing:snag warn), combat only
+  // draws the hand for it (`visual`), so the telegraph looks the same whichever module owns the timing.
   const snags = [];
+  let snagEcho = false;   // fishing:snag events caused by combat's own fishing.snag() call
   const snagPt = new THREE.Vector3();
   let snagHand = null;
   const SNAG_COL = { ink: lin(0x040508, 1), pale: lin(0xe9e2cf, 1.3), paleHot: lin(0xf4efe2, 2.2) };
@@ -1181,17 +1184,28 @@ export function create(ctx) {
     let spiked = false;
     try {
       const f = ctx.fishing;
-      if (real(f) && C.hooked()) {
-        if (typeof f.snag === 'function') { f.snag(s.spike); spiked = true; }
+      if (s.visual) spiked = true;   // fishing owns this snag's spike (it scheduled it with the same lead)
+      else if (real(f) && C.hooked()) {
+        if (typeof f.snag === 'function') { snagEcho = true; try { spiked = f.snag({ lead: 0, spike: s.spike }) !== false; } finally { snagEcho = false; } }
         else if (typeof f.slam === 'function' && f.view?.rarity === 'legendary') { f.slam(); spiked = true; }   // v1 fishing: a legend slam is a spike
       }
-    } catch (e) { C.report('snag', e); }
+    } catch (e) { snagEcho = false; C.report('snag', e); }
     ctx.water?.splash?.(s.x, s.z, { size: 1.4, count: 18 });
     fx.ink(s.x, 0.3, s.z, 6, 1.2);
     fx.timedDecal({ x: s.x, z: s.z, r0: 0.6, r1: 3.4, life: 0.5, color: SNAG_COL.paleHot, p1: 0.08, alpha: 0.85 });
     C.shake(0.2, 0.3);
     try { ctx.audio?.play?.('enemy_hit', { volume: 0.8, pitch: 0.55 }); } catch { /* optional */ }
-    ctx.bus.emit('legend:snag', { phase: 'hit', speciesId: s.speciesId, x: s.x, z: s.z, spike: s.spike, spiked, n: s.n });
+    if (!s.visual) ctx.bus.emit('legend:snag', { phase: 'hit', speciesId: s.speciesId, x: s.x, z: s.z, spike: s.spike, spiked, n: s.n });
+  }
+  /** fishing ran a snag itself (fishing:snag warn): draw the rising hand on the line for its lead time. */
+  function onFishingSnag(p = {}) {
+    if (snagEcho || p.state !== 'warn' || !C.mode || !C.hooked()) return;
+    const lead = Number.isFinite(p.lead) ? p.lead : 1;
+    if (!(lead > 0.05)) return;
+    const pt = snagPoint(snagPt);
+    let sid = null;
+    try { sid = ctx.fishing?.view?.speciesId || null; } catch { sid = null; }
+    snags.push({ t: 0, lead, spike: Number.isFinite(p.spike) ? p.spike : 0.2, x: pt.x, z: pt.z, hit: false, post: 0.75, seed: Math.random(), speciesId: sid, n: 0, visual: true });
   }
   function updateSnags(dt, t) {
     if (!snags.length) { if (snagHand) snagHand.object3d.visible = false; return; }
@@ -1501,6 +1515,7 @@ export function create(ctx) {
         if (C.mode && NM.open && lampWatchHolds()) closeWindow('lampwatch');
       });
       bus.on('fishing:hook', () => { NM.snagsThisFight = 0; });
+      bus.on('fishing:snag', (p) => { try { onFishingSnag(p || {}); } catch (e) { C.report('fishing:snag', e); } });
       bus.on('fish:landed', (p) => { if (C.mode) onFishLanded(p || {}); });
       bus.on('place:discover', ({ first } = {}) => {
         if (!C.run || !C.mode || first === false) return;
