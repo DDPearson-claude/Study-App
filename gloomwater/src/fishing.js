@@ -106,7 +106,6 @@ const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const isReal = (m) => !!m && !m.isStub;
 const TELL_LEAD = 0.6;               // v3: the size is rolled and the class's bite tell starts this long before the bite
 const TELL_LEAD_AF = 0.9;            // automatic fishing: the longest class tell (0.6 s) + the 0.25 s last dip, rolled just before
-const AF_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const ANCHOR_STATES = new Set(['reeling', 'landing', 'lost']);
 function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
@@ -1397,11 +1396,9 @@ export function create(ctx) {
     }
     if (S.bannerT >= 0) { S.bannerT -= dt; if (S.bannerT < 0) { const sp = S.species; call(() => ctx.ui?.banner?.(sp?.name || '', sp?.epithet || '')); } }
     const pr = presentAt(plan, S.playT, PRES);
-    // the pan: a drag orbits the camera ±20° and springs back (camera only)
-    const panMax = num(AF().play?.inputs?.pan, 20);
+    // the pan: a drag orbits the camera ±20° (onPointerMove) and springs back on release (camera only: render.setPan)
     if (!S.panFrom) S.panYaw = damp(S.panYaw, 0, 6, dt);
     call(() => ctx.render?.setPan?.(S.panYaw));
-    void panMax;
     updatePlayFish(dt, t, pr);
     updatePlayView(pr);
     if (S.playT >= plan.end - 1e-9 && !plan.loss) startRevealAF();
