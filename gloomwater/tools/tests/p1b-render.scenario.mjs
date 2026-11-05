@@ -59,6 +59,8 @@ export default async function (api) {
     return { ...p, fov: Math.min(78, p.fov + pf * 22), dist: p.dist * (1 + pf * 0.38), elev: Math.min(80, p.elev + pf * 7) };
   };
   const matches = (c, p, keys, eps = 0.06) => keys.every((k) => Math.abs(c.cur[k] - p[k]) <= eps * Math.max(1, Math.abs(p[k])) * (k === 'aim' ? 2 : 1));
+  // the trophy distance on this screen: the rule's exactly on landscape; a phone held upright may step back (≤ 1.6×)
+  const distOk = (d, want) => (portrait ? d >= want - 0.05 && d <= want * 1.6 + 0.05 : Math.abs(d - want) < 0.05);
   const pitchFor = (p) => Math.atan2(p.dist * Math.sin(p.elev * Math.PI / 180) - p.aimY, p.dist * Math.cos(p.elev * Math.PI / 180) + p.aim) * 180 / Math.PI;
 
   // ------------------------------------------------------------------ boot: v3 on at phase 1, a fresh save
@@ -162,9 +164,10 @@ export default async function (api) {
     };
     const fk = await fight(0.4), fe = await fight(2.9);
     const R = CAMS.reel;
-    const expect = (sep) => Math.max(R.dist, 7.5 + Math.min(40, Math.max(0, sep)) * 0.6);
+    const aspect = (await cam()).aspect;
+    const expect = (sep) => widened({ ...R, dist: Math.max(R.dist, 7.5 + Math.min(40, Math.max(0, sep)) * 0.6) }, aspect).dist;
     const bad = [...fk, ...fe].filter((r) => r.mode === 'reel' && r.sep != null && Math.abs(r.tgt - expect(r.sep)) > 1e-3);
-    check(fk.length > 5 && fe.length > 5 && bad.length === 0, 'in both fights the reel target = max(10, 7.5 + 0.6 × line distance), whatever the tension', { keeper: fk.length, elder: fe.length, bad: bad.slice(0, 3), tK: Math.max(...fk.map((r) => r.T)), tE: Math.max(...fe.map((r) => r.T)) });
+    check(fk.length > 5 && fe.length > 5 && bad.length === 0, 'in both fights the reel target = max(10, 7.5 + 0.6 × line distance)' + (portrait ? ' (× v1 portrait widening)' : '') + ', whatever the tension', { keeper: fk.length, elder: fe.length, bad: bad.slice(0, 3), tK: Math.max(...fk.map((r) => r.T)), tE: Math.max(...fe.map((r) => r.T)) });
     await freeze(false);
     await settle(10);
   }
@@ -283,12 +286,12 @@ export default async function (api) {
         const set = c.render.setTrophyTarget({ length: L, landmark: null, position: { x: p.x + 1.4, y: 0, z: p.z - 1.4 }, place: null });
         return { okc, set };
       }, [k.id, z, k.target]);
-      await settle(k.crane ? 120 : 80);
+      await settle(k.crane ? 140 : 100);
       const c = await cam();
       check(r.set && c.mode === 'trophy' && !!c.trophy, `${k.target} m: the trophy shot is on`, { r, mode: c.mode });
       if (c.trophy) {
         check(Math.abs(c.trophy.dist - k.want) < 1e-6, `${k.target} m → the rule's distance ${k.want} m`, c.trophy.dist);
-        check(Math.abs(c.cur.dist - k.want) < 0.05 && Math.abs(c.trophy.camToSubject - k.want) < 0.12, `the camera sits ${k.want} m from the subject`, { rig: c.cur.dist, camToSubject: c.trophy.camToSubject });
+        check(distOk(c.cur.dist, k.want) && Math.abs(c.trophy.camToSubject - c.cur.dist) < 0.12, `the camera sits ${k.want} m from the subject` + (portrait ? ' (portrait: or steps back to fit)' : ''), { rig: c.cur.dist, camToSubject: c.trophy.camToSubject, fov: c.fov });
         check(k.crane ? Math.abs(c.cur.elev - 50) < 0.6 : Math.abs(c.cur.elev - 18) < 0.6, k.crane ? 'cranes to 50°' : 'stays at 18° (no crane at or below 4 m)', c.cur.elev);
         check(Math.abs(c.yawDeg) < 0.3 && c.trophy.yawDeg === 0, 'no place → the yaw stays north', { yaw: c.yawDeg });
       }
@@ -388,15 +391,15 @@ export default async function (api) {
           await frames(1);
           [c, cer] = await g(() => [window.__gw.debug.camera(), window.__gw.debug.ceremony?.()]);
           // settled: the rule's distance and crane, and the focus spring has caught the posed subject
-          const settled = c.mode === 'trophy' && Math.abs(c.cur.dist - k.want) < 0.03 && (!k.crane || Math.abs(c.cur.elev - 50) < 0.4)
-            && Math.abs((c.trophy?.camToSubject ?? 0) - k.want) < 0.1;
+          const settled = c.mode === 'trophy' && Math.abs(c.cur.dist - c.tgt.dist) < 0.03 && (!k.crane || Math.abs(c.cur.elev - 50) < 0.4)
+            && Math.abs((c.trophy?.camToSubject ?? 0) - c.cur.dist) < 0.1;
           if (settled && cer?.posed) break;
           if (!cer?.active) break;
         }
         const calls = await g(() => window.__trophyCalls.slice());
         check(r && calls.length >= 1 && Math.abs(calls[0].length - k.target) < 0.002 && calls[0].landmark === null, `${k.target} m: fishing hands render the true length and no landmark (no place in P1)`, calls);
-        check(c.mode === 'trophy' && Math.abs(c.cur.dist - k.want) < 0.05, `${k.target} m landing → the camera at ${k.want} m`, { dist: c.cur.dist, camToSubject: c.trophy?.camToSubject, pose: cer?.pose });
-        check(Math.abs((c.trophy?.camToSubject ?? 0) - k.want) < 0.15, 'measured from the framed subject (the fish and the Wick)', c.trophy?.camToSubject);
+        check(c.mode === 'trophy' && c.trophy?.dist === k.want && distOk(c.cur.dist, k.want), `${k.target} m landing → the camera at ${k.want} m` + (portrait ? ' (portrait: or steps back to fit)' : ''), { rule: c.trophy?.dist, dist: c.cur.dist, fov: c.fov, camToSubject: c.trophy?.camToSubject, pose: cer?.pose });
+        check(Math.abs((c.trophy?.camToSubject ?? 0) - c.cur.dist) < 0.15, 'measured from the framed subject (the fish and the Wick)', c.trophy?.camToSubject);
         check(k.crane ? Math.abs(c.cur.elev - 50) < 0.6 : Math.abs(c.cur.elev - 18) < 0.6, k.crane ? 'cranes to 50° on the 8.5 m legend' : 'no crane', c.cur.elev);
         check(Math.abs(c.yawDeg) < 0.3, 'no place → the yaw stays north', c.yawDeg);
         check(cer?.pose === k.pose, `the ${k.pose} pose`, cer?.pose);

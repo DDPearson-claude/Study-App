@@ -120,10 +120,23 @@ section('R2 trophy distance, crane, yaw');
   ok(tTop >= 1.25 * 0.95 - 1e-9, 'the widened fov covers the raised subject\'s top');
   const pf = C.trophyFov(44, 1.6, 3.12, 390 / 844);
   ok(pf > 44 && pf <= 80, `portrait widens the fov so the subject fits across (got ${pf.toFixed(1)})`);
-  ok(Math.tan(pf / 2 * DEG) * (390 / 844) * 3.12 >= 1.6 * 0.6 * 0.95 - 1e-9, 'across: a held fish counts 0.6 of its radius');
-  const pw = C.trophyFov(44, 1.6, 3.12, 390 / 844, { wide: true });
-  ok(pw > pf, 'an alongside fish (wide) needs the whole radius across');
-  eq(C.trophyFov(44, 9, 14.8, 390 / 844, { wide: true, cap: 80 }), 80, 'never past the cap');
+  const pf2 = C.trophyFov(44, 1.2, 3.12, 390 / 844, { across: C.trophyAcross(1.2) });
+  ok(Math.tan(pf2 / 2 * DEG) * (390 / 844) * 3.12 >= 1.2 * C.trophyAcross(1.2) * 0.95 - 1e-9, 'across: a hanging fish spans 0.85 of its radius sideways');
+  ok(pf2 < C.trophyFov(44, 1.2, 3.12, 390 / 844), 'a held fish needs less width than its whole radius');
+  eq([C.trophyAcross(0.2), C.trophyAcross(0.6), C.trophyAcross(1.2), C.trophyAcross(8.5)], [0.65, 0.75, 0.85, 1], 'across shares by pose');
+  eq(C.trophyFov(44, 9, 14.8, 390 / 844, { cap: 80 }), 80, 'never past the cap');
+  // trophyFit: landscape keeps the rule's distance; portrait fits up to 66°, then steps back (≤ 1.6×)
+  for (const [L, r] of [[0.2, 0.7], [1.2, 1.8], [8.5, 5.5]]) {
+    const dd = C.trophyDistance(L, T), up = C.trophyUp(L, T), across = C.trophyAcross(L);
+    const land = C.trophyFit(44, r, dd, 16 / 9, { up, across });
+    eq(land.dist, dd, `landscape ${L} m: the rule's distance ${dd} m`);
+    ok(land.fov >= 44 && land.fov <= 80, `landscape ${L} m: fov ${land.fov.toFixed(1)} within 44–80`);
+    const port = C.trophyFit(44, r, dd, 390 / 844, { up, across });
+    ok(port.fov <= C.TROPHY_PORTRAIT_FOV + 1e-9 && port.dist >= dd - 1e-9 && port.dist <= dd * C.TROPHY_PORTRAIT_BACK + 1e-9, `portrait ${L} m: fov ${port.fov.toFixed(1)} ≤ 66, distance ${port.dist.toFixed(2)} in [rule, 1.6× rule]`);
+    const t = Math.tan(port.fov / 2 * DEG);
+    ok(port.dist === dd * C.TROPHY_PORTRAIT_BACK || C.trophyNeed(r, port.dist, 390 / 844, { up, across }) <= t + 1e-9, `portrait ${L} m: the subject fits`);
+  }
+  eq(C.trophyFit(44, 0.7, 1.6, 390 / 844, { up: 0.06, across: 0.65 }).dist, 1.6, 'a palm catch on a phone keeps 1.6 m');
   eq([C.trophyUp(0.2, T), C.trophyUp(0.6, T), C.trophyUp(1.2, T), C.trophyUp(3, T), C.trophyUp(8.5, T)], [0.06, C.TROPHY_UP, C.TROPHY_UP, 0.11, 0.14], 'the subject rides higher for an alongside fish and under the crane');
 }
 

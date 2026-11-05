@@ -21,7 +21,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { clamp, damp, lerp, smoothstep, easeInOutSine } from './core.js';
 import { GradeShader } from './render-grade.js';
 import {
-  v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFov, trophyUp,
+  v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
 } from './render-camera.js';
 
@@ -522,18 +522,19 @@ export function create(ctx) {
 
   /**
    * The trophy shot (v3 R2): the rule's distance and crane; the subject raised above the frame's centre (ui's measuring band
-   * owns its foot) and the fov widened only as far as the subject needs (a phone held upright: across).
+   * owns its foot) and the fov widened only as far as the subject needs (a phone held upright: across, then a step back).
    */
   function fillTrophy() {
     const T = TROPHY;
-    tgt.dist = trophy.dist;
     tgt.elev = trophyElev(trophy.L, T, trophy.t);
     tgt.aim = T.aim ?? 0;
     tgt.ahead = 0;
     tgt.stiff = T.stiff ?? 2.4;
     const up = trophyUp(trophy.L, T);
-    tgt.fov = trophyFov(T.fov ?? 44, trophy.r, trophy.dist, W / H, { wide: trophy.L >= 2, up });
-    tgt.aimY = trophyLift(trophy.dist, tgt.fov, tgt.elev, up);
+    const fit = trophyFit(T.fov ?? 44, trophy.r, trophy.dist, W / H, { across: trophyAcross(trophy.L), up });
+    tgt.dist = fit.dist;   // the rule's distance (a phone held upright may step back, as raft presets do)
+    tgt.fov = fit.fov;
+    tgt.aimY = trophyLift(tgt.dist, tgt.fov, tgt.elev, up);
   }
 
   function focusFor(p, out) {

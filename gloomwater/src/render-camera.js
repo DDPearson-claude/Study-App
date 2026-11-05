@@ -136,15 +136,44 @@ export function trophyLift(dist, fovDeg, elevDeg, up = TROPHY_UP) {
   return -num(dist, 1.6) * Math.tan(ang) / Math.max(0.3, Math.cos(num(elevDeg, 18) * DEG));
 }
 /**
+ * How much of the subject's radius it spans across the frame, by pose: a palm catch is the Wick's own width, a fish held
+ * across the arms a little more, one hanging off the rod tip stands out beside the Wick, an alongside fish is all length.
+ */
+export function trophyAcross(L) {
+  const l = num(L, 0.5);
+  return l < 0.25 ? 0.65 : l < 0.85 ? 0.75 : l < 2 ? 0.85 : 1;
+}
+/**
  * Vertical fov (deg) for the trophy shot: the preset's 44°, widened only as far as the subject (actors' focus radius, m)
  * needs: its top must clear the frame's top edge with the subject raised `up` (ui's band may veil its foot), and on a phone
- * held upright it must fit across. A held fish (palm / arms / hang) is taller than wide; an alongside one (`wide`) is not.
+ * held upright it must fit across (`across` = the share of the radius it spans sideways, trophyAcross).
  */
-export function trophyFov(baseFov, radius, dist, aspect, { up = TROPHY_UP, wide = false, cap = 80 } = {}) {
-  const f0 = num(baseFov, 44), d = Math.max(0.3, num(dist, 1.6)), r = Math.max(0, num(radius, 0)) * 0.95;
+export function trophyFov(baseFov, radius, dist, aspect, { up = TROPHY_UP, across = 1, cap = 80 } = {}) {
+  const f0 = num(baseFov, 44);
+  const need = 2 * Math.atan(trophyNeed(radius, dist, aspect, { up, across })) / DEG;
+  return clamp(Math.max(f0, need), f0, Math.max(f0, cap));
+}
+/** tan(half the vertical fov) the subject needs at `dist` (trophyFov's two tests: its top, and across). */
+export function trophyNeed(radius, dist, aspect, { up = TROPHY_UP, across = 1 } = {}) {
+  const d = Math.max(0.3, num(dist, 1.6)), r = Math.max(0, num(radius, 0)) * 0.95;
   const a = Math.max(0.2, num(aspect, 16 / 9));
   const tTop = r / (d * Math.max(0.2, 1 - 2 * up));
-  const tAcross = (wide ? r : r * 0.6) / (d * a);
-  const need = 2 * Math.atan(Math.max(tTop, tAcross)) / DEG;
-  return clamp(Math.max(f0, need), f0, Math.max(f0, cap));
+  const tAcross = r * clamp(num(across, 1), 0, 1) / (d * a);
+  return Math.max(tTop, tAcross);
+}
+/** The phone held upright: the trophy fov stops at a comfortable 66°, and the camera steps back instead (raft presets widen
+ *  on a portrait screen too); never past 1.6× the rule's distance. Landscape keeps the rule's distance exactly. */
+export const TROPHY_PORTRAIT_FOV = 66;
+export const TROPHY_PORTRAIT_BACK = 1.6;
+/**
+ * The trophy shot's fov and distance on this screen: landscape → the rule's distance, the fov fitted (trophyFov, cap 80);
+ * portrait → the fov fitted up to TROPHY_PORTRAIT_FOV, then the distance grows until the subject fits.
+ */
+export function trophyFit(baseFov, radius, dist, aspect, { up = TROPHY_UP, across = 1 } = {}) {
+  const f0 = num(baseFov, 44), d = Math.max(0.3, num(dist, 1.6)), a = num(aspect, 16 / 9);
+  if (!(a < 1)) return { fov: trophyFov(f0, radius, d, a, { up, across, cap: 80 }), dist: d };
+  const capF = Math.max(f0, TROPHY_PORTRAIT_FOV), tCap = Math.tan(capF * DEG / 2);
+  const tNeed = trophyNeed(radius, d, a, { up, across });
+  if (tNeed <= tCap) return { fov: clamp(Math.max(f0, 2 * Math.atan(tNeed) / DEG), f0, capF), dist: d };
+  return { fov: capF, dist: Math.min(d * TROPHY_PORTRAIT_BACK, d * tNeed / tCap) };
 }
