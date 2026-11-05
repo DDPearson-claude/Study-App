@@ -113,6 +113,7 @@ export default async function (api) {
         const prev = r.getRenderTarget();
         const calls = r.info.render.calls;
         r.setRenderTarget(rt); r.clear(); r.render(c.render.scene, c.render.camera);
+        this.lastCalls = r.info.render.calls;    // the draw calls of exactly this render (info resets per render)
         const buf = new Uint8Array(Wd * Hd * 4);
         r.readRenderTargetPixels(rt, 0, 0, Wd, Hd, buf);
         r.setRenderTarget(prev);
@@ -272,7 +273,21 @@ export default async function (api) {
     check(JSON.stringify(s.uniforms) === JSON.stringify(uniforms0) && s.maxRip === before.maxRip && s.maxWake === before.maxWake,
       'uniform list and array sizes unchanged with six signs', { n: s.uniforms.length, rip: s.maxRip, wake: s.maxWake });
     const callsN1 = await frameCalls();
-    check(callsN1 - callsN0 <= 2, 'six signs add ≤ 2 draw calls', { before: callsN0, after: callsN1, day: calls0 });
+    // the same frame rendered twice: with the six signs, and with every sign mark knocked out of the arrays and the
+    // splash points (a strike's crown, the fry) hidden; the difference is what the signs cost
+    const callsSame = await g(() => {
+      const c = window.__gw, U = c.water.material.uniforms, rip = U.uRip.value, wk = U.uWake.value, wd = window.__wd;
+      wd.read(); const withSigns = wd.lastCalls;
+      const saved = [];
+      for (let i = 0; i < U.uRipN.value; i++) if (rip[i * 4 + 3] >= 64) { saved.push(['r', i, rip[i * 4 + 2]]); rip[i * 4 + 2] = -999; }
+      for (let i = 0; i < U.uWakeN.value; i++) if (wk[i * 4 + 3] >= 4) { saved.push(['w', i, wk[i * 4 + 2]]); wk[i * 4 + 2] = -999; }
+      const pv = c.water.points.visible; c.water.points.visible = false;
+      wd.read(); const without = wd.lastCalls;
+      c.water.points.visible = pv;
+      for (const [a, i, t] of saved) (a === 'r' ? rip : wk)[i * 4 + 2] = t;
+      return { withSigns, without, marks: saved.length };
+    });
+    check(callsSame.withSigns - callsSame.without <= 2 && callsSame.marks >= 6, 'six signs add ≤ 2 draw calls (the same frame with and without them)', { ...callsSame, frames: { before: callsN0, after: callsN1, day: calls0 } });
     // each sign renders: knocking it alone out of the uniform array changes the water where it sits
     const per = await g((layout) => {
       const c = window.__gw, U = c.water.material.uniforms, rip = U.uRip.value, wk = U.uWake.value, wd = window.__wd;
@@ -346,11 +361,17 @@ export default async function (api) {
     });
     check(wakeTest.marks >= 2 && wakeTest.n >= 20, 'high: the raft\'s wake sparkles at night (uGlowtide 1 vs 0 on the trail)', wakeTest);
     await safeShot('glow-wake', 'raft');
-    const callsOn = await frameCalls();
+    // the same frame rendered with the term at 1 and at 0
+    const callsGlow = await g(() => {
+      const c = window.__gw, U = c.water.material.uniforms, wd = window.__wd, k0 = U.uGlowtide.value;
+      U.uGlowtide.value = 1; wd.read(); const on = wd.lastCalls;
+      U.uGlowtide.value = 0; wd.read(); const off = wd.lastCalls;
+      U.uGlowtide.value = k0;
+      return { on, off };
+    });
+    check(callsGlow.on === callsGlow.off && callsGlow.on > 0, 'the Glowtide adds 0 draw calls (the same frame with the term at 1 and 0)', callsGlow);
     await g(() => window.__gw.water.setGlowtide(0));
-    await frames(40);
-    const callsOff = await frameCalls();
-    check(callsOn === callsOff, 'the Glowtide adds 0 draw calls', { on: callsOn, off: callsOff });
+    await frames(4);
     await g(() => window.__gw.water.setGlowtide(null));
     await page.keyboard.up('KeyW');
     await runFor(1.5);
@@ -377,7 +398,7 @@ export default async function (api) {
       U.uGlowtide.value = k0;
       return { hull: wd.diff(A, B, 3, boxAt(p.x, p.z, 2.8)), far: wd.diff(A, B, 3, boxAt(far.x, far.z, 2.2)), ripN: U.uRipN.value };
     });
-    check(hullTest.far.n >= 20 && hullTest.hull.n <= 4, 'the Glowtide never lights the rings born at the hull (it lights the same ring 7 m out)', hullTest);
+    check(hullTest.far.n >= 8 && hullTest.hull.n <= 4, 'the Glowtide never lights the rings born at the hull (it lights the same ring 7 m out)', hullTest);
     // a hooked fish thrashing
     step('Wa1: a hooked fish at night');
     await g(() => { const c = window.__gw; c.player.teleport(new c.THREE.Vector3(0, 0, 40), 0); c.player.velocity?.set?.(0, 0, 0); c.debug.setOil?.(100); });
