@@ -48,6 +48,7 @@ near(V3.tellDelay('dragUnder', 0.6, data3), 0.6 - data3.BALANCE.bite.dragUnder, 
 near(V3.tellDelay('plunge', 0.6, data3), 0.6, 'the plunge is the bite itself');
 near(V3.tellDelay('dome', 0.6, data3), 0, 'the dome bulges 0.6 s before the bite');
 near(V3.tellDelay('flatSlide', 0.2, data3), 0, 'a short lead never schedules into the past');
+near(V3.tellDelay('flatSlide', 0.6, data3, 0.3), 0.3, "fishing:tell's own dur wins when it sends one");
 
 section('audio-v3: rise rings');
 eq(['small', 'keeper', 'prize', 'trophy', 'elder', undefined].map(V3.riseSfx), ['rise_plip', 'rise_plip', 'rise_gulp', 'rise_gulp', 'rise_gulp', 'rise_plip'], 'plip for Small / Keeper, gulp for Prize+');
@@ -299,6 +300,14 @@ function moodsOver(h, seconds) { const seen = new Set(); for (let t = 0; t < sec
   ok(d.loops.bed === true, 'Still: the Stillnight bed loop runs');
   ok(count(h.log().slice(n0), 'stillnight_bed') >= 1, 'Still: the bed breathes (stillnight_bed)');
   eq([d.auto, d.nightMode], ['stillnight', 'still'], 'debug.audio(): auto mood and night mode');
+  // under the pause (or a modal) the night air keeps on, softer, and the frogs fall quiet until the night runs again
+  h.ctx.paused = true;
+  const nb = count(h.log(), 'stillnight_bed');
+  h.step(8);
+  ok(h.ctx.debug.audio().loops.bed === true && count(h.log(), 'stillnight_bed') === nb, 'paused: the air keeps on, no breaths');
+  h.ctx.paused = false;
+  h.step(6);
+  ok(count(h.log(), 'stillnight_bed') > nb, 'unpaused: the breaths return');
   // dawn: the bed stops with the night
   h.run = null;
   h.ctx.state.run.phase = 'dawn'; h.ctx.survival.info = { phase: 'dawn', day: 1, time: 0, duration: 10, k: 0, isNight: false };
