@@ -9,6 +9,7 @@ import { createHud } from './ui-hud.js';
 import { createScreens } from './ui-screens.js';
 import { createMeasure } from './ui-measure.js';
 import { v3Run, nightWord, pickMomentOk } from './ui-v3.js';
+import { afOn, logLocked as logLockedFor } from './ui-af.js';
 
 export function create(ctx) {
   // ------------------------------------------------------------------ root & style
@@ -155,6 +156,8 @@ export function create(ctx) {
     // a quiet layer (the measuring overlay) is not a modal to the rest of the game: no ui:modal (no click, and fishing keeps
     // the caught fish held up for the card that follows)
     if (!opts.quiet) { try { ctx.bus.emit('ui:modal', { open: true, id }); } catch { /* ignore */ } }
+    // AF + FE (CONTRACT §13.5): a screen opened (the First Evening's odds step listens for the journal); v3 builds only
+    if (D().V3_ENABLED) { try { ctx.bus.emit('ui:screen', { id, open: true, section: opts.state?.section ?? null, speciesId: opts.state?.sel ?? null }); } catch { /* ignore */ } }
     return entry;
   }
   function closeModal(id, { silent = false, instant = false } = {}) {
@@ -168,6 +171,7 @@ export function create(ctx) {
     el.classList.add('gw-out');
     if (instant) el.remove(); else setTimeout(() => el.remove(), 260);
     if (!silent && !entry.quiet) { try { ctx.bus.emit('ui:modal', { open: false, id }); } catch { /* ignore */ } }
+    if (D().V3_ENABLED) { try { ctx.bus.emit('ui:screen', { id, open: false }); } catch { /* ignore */ } }
     const t = top();
     if (t && !instant) setTimeout(() => focusFirst(t.el), 40);
     return true;
@@ -241,7 +245,7 @@ export function create(ctx) {
     if (recentToast.size > 40) for (const [k, t] of recentToast) if (now - t > 5000) recentToast.delete(k);
     while (toasts.length >= 3) dropToast(toasts[0], true);
     const glyph = opts.icon || (kind === 'tip' ? 'quill' : kind === 'good' ? 'star' : kind === 'bad' ? 'eye' : kind === 'lore' ? null : null);
-    const el = h('div', `gw-toast gw-toast--${kind}`, `${glyph ? icon(glyph, { cls: 'gw-toast-ico' }) : ''}<span>${esc(text)}</span>`);
+    const el = h('div', `gw-toast gw-toast--${kind}${opts.cls ? ` ${opts.cls}` : ''}`, `${glyph ? icon(glyph, { cls: 'gw-toast-ico' }) : ''}<span>${esc(text)}</span>`);
     if (opts.title) el.insertAdjacentHTML('afterbegin', `<b class="gw-toast-title">${esc(opts.title)}</b>`);
     layers.toasts.appendChild(el);
     const entry = { el, dead: false, held: false };
@@ -546,13 +550,35 @@ export function create(ctx) {
     toast(next ? `Bait: ${baitData(next)?.name || next}` : 'Bare hook', 'info', { icon: next ? (baitData(next)?.icon || 'worm') : 'hook', dur: 1600 });
   }
 
+  // ------------------------------------------------------------------ the log lock (automatic fishing, AUTOFISH.logLock)
+  // From the cast until the line is back the Journal and the gear log cannot be opened, by any route: J, the HUD's Journal, pause →
+  // Journal, the ledger entry, Murk's bait and lure rows (the shop), the First Evening's log glyph, the got-away link. It lifts when
+  // the catch card shows, or when the got-away note shows after a loss (fish:escaped follows fishing:escaped by the 0.6 s quiet beat).
+  let awaitingNote = false, awaitingSince = 0;
+  function logLocked() {
+    if (!afOn(D())) return false;
+    const f = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing : null;
+    const state = typeof f?.state === 'string' ? f.state : 'idle';
+    if (awaitingNote && (state !== 'lost' || performance.now() - awaitingSince > 4000)) awaitingNote = false;   // never wedged shut
+    return logLockedFor({ af: true, state, awaitingNote, cardOpen: stack.some((m) => m.id === 'catch') });
+  }
+  /** Refuse a log route while a line is out: "Reel in first." (the toast never waits). Returns true when refused. */
+  function refuseLocked(route = '') {
+    if (!logLocked()) return false;
+    toast(D().AUTOFISH?.text?.logLocked || 'Reel in first.', 'bad', { icon: 'hook', dur: 1800, cls: 'gw-toast--lock' });
+    sfx('denied', { volume: 0.5 });
+    try { ctx.bus.emit('ui:refused', { route, reason: 'logLock' }); } catch { /* ignore */ }
+    return true;
+  }
+
   // ------------------------------------------------------------------ assemble
   const K = {
     ctx, root, layers, D, h, esc, fill, fmt, fmtKg, cssHex, pick, num, arr, safe, isStub, report, sfx,
     stats, stat, run, meta, settings, zoneData, zoneIndex, speciesData, boonData, baitData, rarityCss, phaseInfo,
     fmtEffect, effectLines, unlockLabel, icon, ORN, isTouch,
     openModal, closeModal, closeAll, top, has, hasBlocking, userEscape, entry: (id) => stack.find((m) => m.id === id) || null,
-    toast, banner, tween, floatText, project, burnable, burnFish, baitCycle, tipSeen,
+    toast, banner, tween, floatText, project, burnable, burnFish, baitCycle, tipSeen, logLocked, refuseLocked,
+    openLog: (o) => screens.openLog(o),
     get vw() { return vw; }, get vh() { return vh; },
   };
   const screens = createScreens(K);
@@ -759,7 +785,11 @@ export function create(ctx) {
     on('shop:buy', () => hud.dirtyStats());
     on('relic:buy', () => screens.refreshIfOpen?.('shrine'));
     on('gate:open', () => hud.dirtyStats());
-    on('fishing:state', (p) => hud.onFishingState?.(p));
+    on('fishing:state', (p) => { hud.onFishingState?.(p); if (p?.state === 'idle' || p?.state === 'charging') awaitingNote = false; });
+    // automatic fishing: a loss (fishing:escaped, no species) holds the lock until its note (fish:escaped) shows
+    on('fishing:escaped', () => { if (afOn(D())) { awaitingNote = true; awaitingSince = performance.now(); } });
+    on('fish:escaped', () => { awaitingNote = false; });
+    on('fishing:cast', () => { awaitingNote = false; });
   }
 
   // ------------------------------------------------------------------ resize
@@ -783,8 +813,8 @@ export function create(ctx) {
       return false;
     }
     if (ctx.flow === 'playing' && !ctx.paused) {
-      if (code === 'KeyC') { screens.openCreel(); return true; }
-      if (code === 'KeyJ') { screens.openJournal(); return true; }
+      if (code === 'KeyC') { if (!refuseLocked('KeyC')) screens.openCreel(); return true; }
+      if (code === 'KeyJ') { if (!refuseLocked('KeyJ')) screens.openJournal(); return true; }
       if (code === 'KeyR') { burnFish(); return true; }
       if (code === 'KeyB') { baitCycle(); return true; }
     }
@@ -804,6 +834,9 @@ export function create(ctx) {
         stack: stack.map((m) => m.id),
         tips: { queue: tipQ.map((q) => q.tip.id), seen: Object.keys(meta().seenTips || {}) },
         toasts: toasts.length,
+        // v3 (CONTRACT §13.11): the hub flag and the open screen; automatic fishing: the lock and the play's on-screen state
+        hub: ctx.flow === 'hub', screen: top()?.id ?? null,
+        ...(afOn(D()) ? { logLocked: logLocked(), awaitingNote, af: hud.afDebug?.() ?? null } : {}),
       });
     },
     update(frameDt) {
@@ -850,6 +883,12 @@ export function create(ctx) {
     openShop: () => screens.openShop(),
     openCreel: () => screens.openCreel(),
     openJournal: () => screens.openJournal(),
+    /** CONTRACT §13.7 ui: the Journal at a species' page (section 'odds' scrolls to Your odds); refused while a line is out */
+    openLog: (o) => screens.openLog(o),
+    /** automatic fishing: the gear log (P1–P2: Murk's Gear, Bait and Lure rows; refused while a line is out) */
+    openTackle: () => screens.openTackle(),
+    showGotAway: (p) => hud.showGotAway?.(p),
+    logLocked: () => logLocked(),
     openShrine: () => screens.openShrine(),
     openChallenges: () => screens.openChallenges(),
     openSettings: () => screens.openSettings(),

@@ -4,7 +4,8 @@
 //   node build.mjs --dev --out=tools/out/p1b-ui.html
 //   node tools/playtest.mjs --html=tools/out/p1b-ui.html --shots=tools/out/p1b-shots/desktop --script=tools/tests/p1b-ui.scenario.mjs --width=960 --height=540
 //   node tools/playtest.mjs --html=tools/out/p1b-ui.html --shots=tools/out/p1b-shots/phone --script=tools/tests/p1b-ui.scenario.mjs --mobile
-//   (--only=calm,tell,… takes a subset; frames: calm, watch, swarm, still, favour, tell, reel, catch, nearmiss, gutter)
+//   (--only=calm,tell,… takes a subset; frames: calm, watch, swarm, still, favour, tell, reel, catch, gutter; the got-away note
+//   that replaced the near-miss card, the strike and the logs are tools/tests/af-ui.scenario.mjs)
 //
 // Web fonts: like tools/ui-shots.mjs, the Google stylesheets the page links are served from tools/out/.font-cache (fetched
 // with curl on a miss), so the shots show the real type. Gameplay time is frozen (timeScale 0) for most frames; the HUD
@@ -280,28 +281,18 @@ export default async function (api) {
   }
 
   if (want('reel')) {
+    // automatic fishing (AF U2′, tools/tests/af-ui.scenario.mjs has the full set): no reel bar, pips or snag glyph; the class
+    // estimate stamps after the first glimpse
     await idleFishing();
     await g(() => window.__gw.debug.fishHook?.('reedjaw_pike', { z: 2.35 }));
     await waitFor(() => window.__gw.fishing.state === 'reeling', null, 60);
     await frames(4);
     await freeze(true);
-    // the first breach revealed a Trophy; one of three pips already lost on a leap
-    await g(() => { const v = window.__gw.fishing.view; v.sizeClass = 'trophy'; v.ancient = false; v.pips = { n: 2, max: 3 }; });
+    await g(() => { const v = window.__gw.fishing.view; v.sizeClass = 'trophy'; v.ancient = false; });
     await frames(3);
-    s = await g(() => ({ cls: document.querySelector('#ui .gw-reel-class')?.textContent, pips: document.querySelectorAll('#ui .gw-pip').length, lit: document.querySelectorAll('#ui .gw-pip.gw-lit').length }));
-    check(/Trophy/.test(s.cls) && s.pips === 3 && s.lit === 2, 'reeling: the class estimate after the breach and the hook-hold pips', s);
-    await shot('11-reel-class-pips');
-    // an Elder, with its seal
-    await g(() => { const v = window.__gw.fishing.view; v.sizeClass = 'elder'; v.ancient = true; v.pips = { n: 1, max: 3 }; });
-    await frames(3);
-    await shot('12-reel-ancient-lastpip');
-    // the snag: a hand rises under the line (C4), "ease"
-    await g(() => { const v = window.__gw.fishing.view; v.sizeClass = 'trophy'; v.ancient = false; v.pips = { n: 2, max: 3 }; window.__gw.fishing.snag?.({ lead: 40, spike: 0.2 }); });
-    await wait(1200);
-    await frames(3);
-    s = await g(() => ({ on: document.querySelector('#ui .gw-reel-snag')?.classList.contains('gw-on'), hint: document.querySelector('#ui .gw-reel-hint')?.textContent }));
-    check(s.on && /grasps/.test(s.hint), 'fishing:snag warn: the snag glyph and its words', s);
-    await shot('13-reel-snag');
+    s = await g(() => ({ cls: document.querySelector('#ui .gw-play-est')?.textContent, reel: getComputedStyle(document.querySelector('#ui .gw-reel')).display, pips: document.querySelectorAll('#ui .gw-pip').length }));
+    check(/Trophy/.test(s.cls) && s.reel === 'none' && s.pips === 0, 'reeling: the class estimate after the glimpse; no reel bar and no pips (AF)', s);
+    await shot('11-reel-class');
     await freeze(false);
     await idleFishing();
   }
@@ -320,20 +311,6 @@ export default async function (api) {
       await frames(3);
     }
     await clearModals();
-  }
-
-  if (want('nearmiss')) {
-    await clearModals();
-    await idleFishing();
-    await frames(3);
-    await g(() => window.__gw.bus.emit('fish:escaped-big', { speciesId: 'reedjaw_pike', z: 2.3, sizeClass: 'trophy', length: 108, progress: 0.84, cause: 'snap', place: null, markedFish: false }));
-    await waitFor(() => document.querySelector('#ui .gw-nearmiss')?.classList.contains('gw-on'), null, 60, 200);
-    await freeze(true);
-    await wait(900);
-    s = await g(() => ({ t: `${document.querySelector('#ui .gw-nm-title')?.textContent} · ${document.querySelector('#ui .gw-nm-est')?.textContent}`, l: document.querySelector('#ui .gw-nm-line')?.textContent, r: document.querySelector('#ui .gw-nm-rate')?.textContent, tip: document.querySelector('#ui .gw-nm-tip')?.textContent }));
-    check(/Reedjaw Pike · Trophy · ~\d+ cm/.test(s.t) && /Snapped at 84%/.test(s.l) && /rated/.test(s.r) && s.tip, 'fish:escaped-big: the near-miss card (silhouette, class, ~length, %, cause, rating, tip)', s);
-    await shot('15-nearmiss');
-    await freeze(false);
   }
 
   if (want('gutter')) {

@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { drawFish } from './ui-fishart.js';
 import { createHudV3 } from './ui-hud-v3.js';
 import { nightWord } from './ui-v3.js';
+import { afOn } from './ui-af.js';
 
 const PHASES = ['calm', 'dusk', 'gloomtide', 'dawn'];
 const DEG = Math.PI / 180;
@@ -100,7 +101,7 @@ export function createHud(K) {
     boonW: $('[data-row="w"]'), boonP: $('[data-row="p"]'),
     clock: $('.gw-clock'), clockSvg: $('.gw-clock-svg'), clockSegs: $('.gw-clock-segs'), clockTicks: $('.gw-clock-ticks'),
     bead: $('.gw-clock-bead'), beadGlow: $('.gw-clock-glow'), day: $('.gw-clock-day'), zone: $('.gw-zone-n'), phaseW: $('.gw-phase-w'), phase: $('.gw-clock-phase'),
-    shells: $('.gw-shells-n'), shellsPop: $('.gw-shells-pop'), shellsBox: $('.gw-st-shells'), creelN: $('.gw-creel-n'), creelBox: $('.gw-st-creel'), journalN: $('.gw-journal-n'),
+    shells: $('.gw-shells-n'), shellsPop: $('.gw-shells-pop'), shellsBox: $('.gw-st-shells'), creelN: $('.gw-creel-n'), creelBox: $('.gw-st-creel'), journalN: $('.gw-journal-n'), journalBtn: $('.gw-st-journal'),
     bait: $('.gw-st-bait'), baitIco: $('.gw-bait-ico'), baitName: $('.gw-bait-name'), baitCount: $('.gw-bait-count'), streak: $('.gw-streak'),
     cluster: $('.gw-cluster'), embers: $('.gw-embers'), satFill: $('.gw-sat-fill'),
     oilArc: $('.gw-oil-arc'), lanFl: $('.gw-lan-fl'), lanGlow: $('.gw-lan-glow'), oilN: $('.gw-oil-n span'), satN: $('.gw-sat-n span'),
@@ -378,8 +379,10 @@ export function createHud(K) {
     R.reelResult.className = `gw-reel-result gw-on ${cls}`;
     resultT = 1.3;
   }
-  ctx.bus?.on?.('fishing:escaped', (p) => showResult(p?.reason === 'snap' ? 'Snapped' : p?.cut ? 'Line cut' : 'Slipped free', 'bad'));
-  ctx.bus?.on?.('fishing:caught', () => showResult('Landed', 'good'));
+  // v1's result words over the reel line; automatic fishing has neither the line nor the words (a loss is 0.6 s with no UI at all,
+  // then the got-away note; a landing is the reveal and the measuring ceremony)
+  ctx.bus?.on?.('fishing:escaped', (p) => { if (!afOn(D())) showResult(p?.reason === 'snap' ? 'Snapped' : p?.cut ? 'Line cut' : 'Slipped free', 'bad'); });
+  ctx.bus?.on?.('fishing:caught', () => { if (!afOn(D())) showResult('Landed', 'good'); });
   function paintFishing(dt) {
     const f = ctx.fishing;
     const st = f && !f.isStub ? f.state : 'idle';
@@ -402,13 +405,22 @@ export function createHud(K) {
     }
     // bite prompt at the bobber
     const biting = st === 'bite';
+    const af = afOn(D());
     toggle(R.bite, 'bite', 'gw-on', biting);
     if (biting && f.bobberPos) {
       rp.copy(f.bobberPos); rp.y += 0.5;
       const p = K.project(rp);
       if (p.ok) setStyle(R.bite, 'biteT', 'transform', `translate3d(${p.x.toFixed(0)}px,${(p.y - 40).toFixed(0)}px,0)`);
       setAttr(R.biteRing, 'biteR', 'stroke-dasharray', `${(Math.max(0, Math.min(1, num(v.biteWindow, 1))) * 100).toFixed(1)} 100`);
-      setVar(R.bite, 'biteC', '--rc', v.rarity ? K.rarityCss(v.rarity) : '#ffe2a8');
+      // automatic fishing: no rarity tint on the "!" (the strike ring, when on, is ui-hud-v3's closing ring)
+      setVar(R.bite, 'biteC', '--rc', !af && v.rarity ? K.rarityCss(v.rarity) : '#ffe2a8');
+    }
+    // automatic fishing (U2′): the reel bar, its pips and the Ease glyph are gone; the rod and the line are the HUD
+    if (af) {
+      reelShowT = 0; resultT = 0;
+      toggle(R.reel, 'reel', 'gw-on', false);
+      toggle(R.reel, 'reel', 'gw-active', false);
+      return;
     }
     // reel gauge
     const reeling = st === 'reeling' || st === 'landing';
@@ -464,7 +476,7 @@ export function createHud(K) {
     setVar(R.reel, 'rcol', '--rc', K.rarityCss(v.rarity || sp?.rarity || 'common'));
     toggle(R.reel, 'reel', 'gw-legend', (v.rarity || sp?.rarity) === 'legendary');
     const phaseName = typeof v.phaseName === 'string' && v.phaseName ? v.phaseName : '';
-    const hint = v3.reelHint() || phaseName || (typeof v.hint === 'string' && v.hint && !['shallow', 'mid', 'deep'].includes(v.hint) ? v.hint : (num(K.meta().runs, 0) <= 2 && reelCount <= 3 ? 'Hold to reel · release to ease' : ''));
+    const hint = phaseName || (typeof v.hint === 'string' && v.hint && !['shallow', 'mid', 'deep'].includes(v.hint) ? v.hint : (num(K.meta().runs, 0) <= 2 && reelCount <= 3 ? 'Hold to reel · release to ease' : ''));
     const sfMin = typeof v.safeMin === 'number' ? v.safeMin : 0.15, sfMax = typeof v.safeMax === 'number' ? v.safeMax : 0.85;
     setStyle(R.safeB, 'sfL', 'left', (sfMin * 100).toFixed(1) + '%');
     setStyle(R.safeB, 'sfW', 'width', ((sfMax - sfMin) * 100).toFixed(1) + '%');
@@ -491,7 +503,10 @@ export function createHud(K) {
     const r = run();
     const show = visible && !!r && ctx.flow === 'playing';
     toggle(el, 'hud', 'gw-live', show);
-    if (!show) return;
+    // the Landing (flow 'hub', no run): automatic fishing still needs its strike word, ring, estimate and got-away note
+    const hubFish = !show && ctx.flow === 'hub' && afOn(D()) && !K.hasBlocking();
+    toggle(el, 'hud', 'gw-hubfish', hubFish);
+    if (!show) { if (hubFish) { toggle(el, 'af', 'gw-af', true); v3.update(dt); paintFishing(dt); } return; }
     const blocked = K.hasBlocking();
     toggle(el, 'hud', 'gw-blocked', blocked);
     if (blocked && joy.id !== null) joyReset();
@@ -549,7 +564,16 @@ export function createHud(K) {
     }
     const relight = !!vis?.relight;
     setText(R.burnLabel, 'bnL', relight ? 'Relight' : bf ? `+${bOil}` : 'Burn');
-    setAttr(R.burn, 'bnT', 'title', bf ? `${relight ? 'Relight: render' : 'Burn'} ${K.speciesData(bf.speciesId)?.name || 'a fish'} for +${bOil} oil (R)` : `${relight ? 'Relight' : 'Burn a fish'} (R) — the creel is empty`);
+    // while a line is out no species name sits in the HUD, not even a creel fish's (the hidden-information scan reads titles too)
+    const lineOut = !!K.logLocked?.();
+    setAttr(R.burn, 'bnT', 'title', bf ? `${relight ? 'Relight: render' : 'Burn'} ${lineOut ? 'a fish' : K.speciesData(bf.speciesId)?.name || 'a fish'} for +${bOil} oil (R)` : `${relight ? 'Relight' : 'Burn a fish'} (R) — the creel is empty`);
+    // the log lock (AUTOFISH.logLock): the Journal (and, with no modal while a line is out, the creel) say "Reel in first."
+    const lockWord = D().AUTOFISH?.text?.logLocked || 'Reel in first.';
+    toggle(R.journalBtn, 'lkJ', 'gw-locked', lineOut);
+    toggle(R.creelBox, 'lkC', 'gw-locked', lineOut);
+    setAttr(R.journalBtn, 'jbT', 'title', lineOut ? lockWord : 'Journal (J)');
+    setAttr(R.journalBtn, 'jbA', 'aria-label', lineOut ? `Journal: ${lockWord}` : 'Journal (J)');
+    setAttr(R.creelBox, 'cbT', 'title', lineOut ? lockWord : 'Creel (C)');
 
     // ---- interact pill
     const it = safe(() => ctx.player?.interactable, null);
@@ -662,6 +686,10 @@ export function createHud(K) {
     setVisible, reset, update, onResize, onFishingState,
     /** v3: a card of the HUD's own owns the middle of the screen (the Scorched card) */
     cardUp: () => !!v3.cardUp,
+    /** automatic fishing: the got-away note for a fish:escaped payload (CONTRACT §13.7 ui showGotAway) */
+    showGotAway: (p) => v3.showGotAway(p),
+    noteUp: () => !!v3.noteUp,
+    afDebug: () => v3.debug(),
     dirtyBoons() { boonsDirty = true; },
     dirtyStats() { statsDirty = true; },
     onZone(z) {
