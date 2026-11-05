@@ -919,7 +919,8 @@ export function create(ctx) {
     if (!C.run) return false;
     if (!C.mode) return C.phase === 'gloomtide';
     if (C.phase === 'gloomtide' && NM.open) return true;
-    if (C.mode === 'gloomtide' && (C.phase === 'calm' || C.phase === 'dusk') && enemies.length > 0) return true;   // a calm raid / dusk scouts
+    // a fight in progress: a Gloomtide calm raid or dusk scouts, or any gloomling still up (a withdrawing Warden is not a fight)
+    for (const e of enemies) if (e?.alive && !(e.boss && e.state === 'withdraw')) return true;
     return false;
   }
 
