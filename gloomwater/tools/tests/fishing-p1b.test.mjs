@@ -26,6 +26,8 @@ const section = (s) => console.log(`- ${s}`);
 const near = (a, b, eps) => Math.abs(a - b) <= eps;
 function mul(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const DT = 1 / 30;
+// every roll seeded (fishing's own seeded draws come from debug.fishSeed; the v1 rolls it keeps unseeded use Math.random)
+Math.random = mul(20261105);
 
 // =====================================================================================================================
 // the env: real progression + real fishing on one fake ctx
@@ -334,14 +336,14 @@ section('F6 Murk\'s Chum: buying it makes the next cast spawn a 30 s nervous sig
   const env = makeEnv({ seed: 51 });
   const P = env.P;
   env.run.shells = 500;
-  // Old Murk moored: buy the supply through progression's shop (it calls fishing.armChum())
-  env.ctx.actors.merchant.present = true;
-  const items = P.shop?.getItems?.() || [];
-  const chumItem = (items.supplies || items.find?.((x) => x.id === 'murks_chum') ? null : null);
-  void chumItem;
-  const bought = P.shop?.buy?.('supply', 'murks_chum') ?? P.shop?.buySupply?.('murks_chum');
-  if (!env.F.chumArmed) env.F.armChum();   // a shop that cannot trade in this fake ctx: arm it the way the purchase does
-  ok(env.F.chumArmed === true, `armChum() arms the next cast (shop: ${bought?.ok ?? 'n/a'})`);
+  // Old Murk moored and the shop open: buy the supply through progression's shop (buySupply calls fishing.armChum())
+  env.ctx.state.meta.shells = 500;
+  env.ctx.debug.summonMerchant?.();
+  env.ctx.ui.isShopOpen = () => true;
+  ok(env.F.chumArmed !== true, 'not armed before the purchase');
+  const bought = P.shop?.buy?.('supply:murks_chum');
+  env.ctx.ui.isShopOpen = () => false;
+  ok(bought?.ok === true && env.F.chumArmed === true, `buying Murk's Chum arms the next cast (${bought?.msg})`);
   const before = env.F.signs.length;
   env.ctx.debug.forceBite({ wait: 10 });
   const chum = env.F.signs.find((s) => s.chum);
@@ -444,8 +446,8 @@ section('F3 the leap reveal: the first Prize+ breach slows time once (0.25 s at 
   breaches();
   ok(env.calls.slowmo.length === 1 && env.calls.slowmo[0][0] === 0.25 && env.calls.slowmo[0][1] === 0.35, `ctx.game.slowmo(0.25, 0.35) once (${JSON.stringify(env.calls.slowmo)})`);
   const rv = env.events.filter((x) => x.e === 'fishing:reveal');
-  ok(rv.length === 1 && rv[0].p.sizeClass === 'prize' && rv[0].p.speciesId === 'gloam_eel' && rv[0].p.lengthM > 0.5 && Number.isFinite(rv[0].p.position?.x)
-    && rv[0].p.estimate.lo < rv[0].p.length && rv[0].p.estimate.hi > rv[0].p.length, `fishing:reveal {sizeClass, length, estimate, position} (${JSON.stringify(rv[0]?.p?.estimate)})`);
+  ok(rv.length === 1 && rv[0].p.sizeClass === 'prize' && !('speciesId' in rv[0].p) && rv[0].p.lengthM > 0.5 && Number.isFinite(rv[0].p.position?.x)
+    && rv[0].p.estimate.lo < rv[0].p.length && rv[0].p.estimate.hi > rv[0].p.length, `fishing:reveal {sizeClass, length, estimate, position}, never the species (${JSON.stringify(rv[0]?.p?.estimate)})`);
   ok(seenView?.sizeClass === 'prize' && seenView.estimate?.lo > 0, `view.sizeClass and the class estimate after the breach (${JSON.stringify(seenView)})`);
   ok(env.calls.glow.includes(2.2), 'the rim flash');
   breaches(); breaches();
@@ -454,6 +456,34 @@ section('F3 the leap reveal: the first Prize+ breach slows time once (0.25 s at 
   env.ctx.debug.fishHook('gloam_eel', { z: 0.2 });   // a Keeper
   breaches();
   ok(env.calls.slowmo.length === 1, 'a Keeper\'s breach reveals nothing');
+  env.reset();
+}
+
+// =====================================================================================================================
+section('the species stays unknown until it is landed: a dark shape at true length in the fight, no name, no model');
+{
+  const env = makeEnv({ seed: 95 });
+  env.ctx.debug.fishHook('gloam_eel', { z: 1.6 });
+  let hidden = true, shaped = true, n = 0;
+  const clampT = (T) => Math.min(0.6, Math.max(0.35, T));
+  env.ctx.debug.fishSurge();
+  for (let i = 0; i < 120 && env.F.state === 'reeling'; i++) {
+    const r = env.ctx.debug.fishReel(); if (r) { r.P = Math.min(r.P, 0.3); r.T = clampT(r.T); }   // keep it on the line
+    env.ctx.fishing.onPointerDown(); env.tick(1); n++;
+    const d = env.dbg();
+    if (env.F.view.speciesId !== null || env.F.view.rarity !== null || d.meshVisible !== false) hidden = false;
+    if (!(d.meshScale === 1 && near(d.fishLen, d.fvLength, 1e-9))) shaped = false;
+  }
+  ok(n > 60 && hidden, `no species id, no rarity and the model hidden at every moment of the fight (${n} frames, through a breach)`);
+  ok(shaped, 'the hidden model keeps its true length (scale 1), the shadow uses it');
+  ok(env.events.filter((x) => x.e === 'toast').every((x) => !/eel/i.test(x.p.text || '')), 'no toast names it');
+  env.ctx.debug.instantCatch(null, { ceremony: true });
+  ok(env.calls.showCatch.length === 0 || env.calls.showCatch.every(Boolean), 'landed: the model is handed over');
+  ok(env.dbg().veiled === false, 'landed: unveiled');
+  env.F.skipCeremony(); env.tick(40);
+  env.reset();
+  env.ctx.debug.fishHook('lantern_swallower', { z: 0 });
+  ok(env.F.view.speciesId === 'lantern_swallower' && env.dbg().meshVisible === true, 'a legend (named by its pool and bait) is shown as it is');
   env.reset();
 }
 

@@ -20,6 +20,9 @@ export default async function (api) {
   const failures = [];
   const part = api.args?.part ? String(api.args.part) : 'all';
   const mobile = !!api.args?.mobile;
+  // --only=signs,chum,night,fight,elder,keeper picks look steps (short targeted runs on a loaded machine)
+  const only = api.args?.only ? new Set(String(api.args.only).split(',')) : null;
+  const want = (k) => !only || only.has(k);
   let stepName = 'boot';
   const t0 = Date.now();
   const step = (s) => { stepName = s; log(`---- ${s}  (+${((Date.now() - t0) / 1000).toFixed(0)} s)`); };
@@ -109,6 +112,7 @@ export default async function (api) {
 
   // ===================================================================== look
   if (part === 'all' || part === 'look') {
+    if (want('signs')) {
     step('look: the six signs in calm at the sail framing');
     await place(0, 46);
     await frames(6);
@@ -134,13 +138,17 @@ export default async function (api) {
     s = await g(() => ({ n: window.__gw.fishing.signs.length, calls: window.__gw.render.renderer?.info?.render?.calls, inst: window.__gw.debug.fishSigns().map((x) => `${x.kind}:${x.shows}`) }));
     log('signs', JSON.stringify(s));
     await shot(mobile ? 'm-signs-day' : 'signs-day');
+    }
 
+    if (want('chum')) {
     step('look: Murk\'s Chum at the next cast');
     await g(() => { const c = window.__gw; c.fishing.signs.length = 0; c.fishing.armChum(); c.debug.forceBite({ wait: 20 }); });
     await frames(40);
     await shot(mobile ? 'm-chum' : 'chum');
     await g(() => window.__gw.fishing.cancel('reset'));
+    }
 
+    if (want('night')) {
     step('look: night — glow trails under the stars');
     await g(() => { const c = window.__gw; c.debug.setPhase('dusk'); c.debug.setPhase('gloomtide'); c.combat.killAll?.('dawn'); });
     await clearModals();
@@ -159,45 +167,63 @@ export default async function (api) {
     await shot(mobile ? 'm-signs-night' : 'signs-night');
     await g(() => { const c = window.__gw; c.debug.setPhase('dawn'); c.debug.setPhase('calm'); });
     await clearModals();
+    }
 
-    step('look: the leap reveal of a Prize');
+    if (want('fight')) {
+    step('look: a Prize on the line — a dark shape at its true length, the species unseen; its breach');
     await place(0, 46);
     await frames(10);
     await g(() => { const c = window.__gw; c.fishing.signs.length = 0; c.debug.fishHook('gloam_eel', { z: 1.6 }); window.__ev.length = 0; });
-    await frames(30);
+    // keep it on the line (hold, progress capped, tension in a safe band) while the camera settles: the dark shape on the line
+    const keep = () => g(() => { const c = window.__gw; if (c.fishing.state !== 'reeling') return false; c.fishing.onPointerDown(); const r = c.debug.fishReel(); if (r) { r.P = Math.min(r.P, 0.4); r.T = Math.min(0.6, Math.max(r.T, 0.4)); } return true; });
+    for (let i = 0; i < 10; i++) { await keep(); await frames(2); }
+    s = await g(() => { const c = window.__gw, d = c.debug.fishing(); return { st: c.fishing.state, sp: c.fishing.view.speciesId, rarity: c.fishing.view.rarity, mesh: d.meshVisible, len: d.fishLen, hud: document.querySelector('.gw-reel-name')?.textContent ?? null }; });
+    check(s.st === 'reeling' && s.sp === null && s.rarity === null && s.mesh === false && !s.hud, 'in the fight the species stays unknown (no id, no rarity, no model, no HUD name)', s);
+    await shot(mobile ? 'm-fight' : 'fight');
     await g(() => window.__gw.debug.fishSurge());
-    const rev = await waitFor(() => { const c = window.__gw; c.fishing.onPointerDown(); const r = c.debug.fishReel(); if (r) r.P = Math.min(r.P, 0.4); return window.__ev.some((x) => x.e === 'fishing:reveal'); }, null, 200);
-    check(rev, 'the breach plays the reveal');
+    let rev = false;
+    for (let i = 0; i < 120 && !rev; i++) { if (!(await keep())) break; rev = await g(() => window.__ev.some((x) => x.e === 'fishing:reveal')); if (!rev) await frames(1); }
+    log('reveal state', JSON.stringify(await g(() => ({ st: window.__gw.fishing.state, ev: window.__ev.filter((x) => x.e === 'fishing:reveal').map((x) => x.p), view: window.__gw.fishing.view.sizeClass }))));
+    check(rev, 'the breach plays the reveal (size class only)');
     await shot(mobile ? 'm-leap-reveal' : 'leap-reveal');
     await g(() => window.__gw.fishing.cancel('reset'));
     await clearModals();
+    }
 
+    if (want('elder')) {
     step('look: the measuring ceremony of an Elder Reedjaw');
     await place(0, 46);
     await frames(8);
     await g(() => { const c = window.__gw; c.debug.fishHook('reedjaw_pike', { z: 2.95 }); });
     await frames(12);
-    await g(() => window.__gw.debug.instantCatch(null, { ceremony: true }));
+    // software GL runs at 1–8 fps: the ceremony's real-time clock is slowed 20× so each beat can be caught on camera
+    await g(() => { const c = window.__gw; c.debug.cerRate?.(0.05); c.debug.instantCatch(null, { ceremony: true }); });
     const cer = [['scoop', 0.65], ['pose', 0], ['cord', 0.55], ['banners', 0]];
     for (const [ph, k] of cer) {
-      await waitFor(([ph, k]) => { const m = window.__gw.fishing.view.measure; return !!m && (m.phase === ph && (m.k ?? 0) >= k || ['card'].includes(m.phase)); }, [ph, k], 400);
+      // scoop: k of the way through its beat (by time); cord: k of the cord unrolled
+      await waitFor(([ph, k]) => { const m = window.__gw.fishing.view.measure; if (!m) return false; if (m.phase === 'card') return true; if (m.phase !== ph) return false; return ph === 'scoop' ? m.t >= (m.beats?.scoop ?? 0.6) * k : (m.k ?? 0) >= k; }, [ph, k], 400);
       const m = await g(() => ({ ...window.__gw.fishing.view.measure, records: undefined }));
       log('measure', JSON.stringify(m));
       await shot(`${mobile ? 'm-' : ''}cer-elder-${ph}`);
     }
+    await g(() => window.__gw.debug.cerRate?.(1));
     await waitFor(() => !window.__gw.fishing.inCeremony, null, 400);
     await frames(10);
     await shot(mobile ? 'm-cer-elder-card' : 'cer-elder-card', { dom: true });
     await clearModals();
+    }
 
+    if (want('keeper')) {
     step('look: a Keeper\'s short ceremony');
     await g(() => { const c = window.__gw; c.debug.fishHook('mossback_perch', { z: 0.5 }); });
     await frames(10);
-    await g(() => window.__gw.debug.instantCatch(null, { ceremony: true }));
+    await g(() => { const c = window.__gw; c.debug.cerRate?.(0.05); c.debug.instantCatch(null, { ceremony: true }); });
     await waitFor(() => window.__gw.fishing.view.measure?.phase === 'cord', null, 200);
     await shot(mobile ? 'm-cer-keeper-cord' : 'cer-keeper-cord');
+    await g(() => window.__gw.debug.cerRate?.(1));
     await waitFor(() => !window.__gw.fishing.inCeremony, null, 200);
     await clearModals();
+    }
   }
 
   // ===================================================================== accept
