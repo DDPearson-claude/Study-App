@@ -224,7 +224,11 @@ export default async function (api) {
     const iM = evs.findIndex((x) => x.e === 'fish:measured'), iL = evs.findIndex((x) => x.e === 'fish:landed');
     check(evs.filter((x) => x.e === 'fishing:caught').length === 1 && evs.filter((x) => x.e === 'fish:measured').length === 1 && evs.filter((x) => x.e === 'fish:landed').length === 1
       && iM >= 0 && iM < iL && evs[iL].p.measured === true, 'one fishing:caught; fish:measured once, then fish:landed {measured: true}', evs.map((x) => [x.e, x.p?.measured]));
-    check(meas?.p.sizeClass === 'elder' && meas.p.z === 2.95 && meas.p.length > 120 && (meas.p.records || []).some((r) => r.kind === 'pb'), 'fish:measured carries the Elder\'s class, z, length and a PB record', meas?.p && { z: meas.p.z, cls: meas.p.sizeClass, len: meas.p.length, rec: (meas.p.records || []).map((r) => r.kind), name: meas.p.name });
+    // a first catch of the species is "new", not a 'pb' record (progression writes the PB into the journal either way)
+    const recs = (meas?.p.records || []);
+    check(meas?.p.sizeClass === 'elder' && meas.p.z === 2.95 && meas.p.length > 120 && !!meas.p.name
+      && recs.some((r) => r.kind === 'classFirst' && r.sizeClass === 'elder') && recs.some((r) => r.kind === 'elderLog'),
+      'fish:measured carries the Elder\'s class, z, length, its name, the Elder class first and the Elder Log line', meas?.p && { z: meas.p.z, cls: meas.p.sizeClass, len: meas.p.length, rec: recs.map((r) => r.kind), name: meas.p.name });
     s = await g(() => {
       const c = window.__gw, j = c.state.meta.journal?.reedjaw_pike;
       let saved = null;
@@ -319,12 +323,16 @@ export default async function (api) {
           const p0 = { x: c.player.position.x, z: c.player.position.z }, st0 = c.fishing.state;
           const hand = c.debug.spawn('drowned_hand', 1)?.[0];
           if (hand) { hand.state = 'slam'; hand.stateT = 0.3; hand.n = 0; hand.position.set(c.player.position.x, 0, c.player.position.z); }
-          c.player.applyKnock?.(6, 0);   // a shove on top (Bulwark-like): no knock while hooked
           return { p0, st0, hand: !!hand, hp0: c.state.run.hp };
         });
         const n0 = await mark();
-        for (let i = 0; i < 10; i++) {
-          await g(() => { const c = window.__gw, f = c.fishing, T = f.view?.tension ?? 0; if (f.state === 'reeling') { if (T < 0.45) f.onPointerDown(); else f.onPointerUp(); } });
+        for (let i = 0; i < 12; i++) {
+          // after the slam the hand lingers against the raft (combat's pushPlayerOut shove), as in tools/tests/p1-combat.scenario.mjs
+          await g((i) => {
+            const c = window.__gw, f = c.fishing, T = f.view?.tension ?? 0;
+            if (i === 5) for (const e of c.combat.enemies) if (e.enemyId === 'drowned_hand') { e.state = 'linger'; e.stateT = 0; e.position.set(c.player.position.x + 0.2, 0, c.player.position.z); }
+            if (f.state === 'reeling') { if (T < 0.45) f.onPointerDown(); else f.onPointerUp(); }
+          }, i);
           await frames(1);
         }
         const b = await g(() => { const c = window.__gw; return { x: c.player.position.x, z: c.player.position.z, st: c.fishing.state, hp: c.state.run.hp }; });
@@ -340,7 +348,7 @@ export default async function (api) {
     check(win[0]?.p.state === 'open' && Math.abs(win[0].k - 0.05) < 0.03 && win.some((w) => w.p.state === 'close' && Math.abs(w.k - 0.5) < 0.03), 'swarm:window opens at 0.05 and closes at 0.50', win.map((w) => [w.p.state, w.k]));
     check(!!slamRes && slamRes.a.st0 === 'reeling' && slamRes.a.hand, 'a fish on the line and a hand slamming the raft', slamRes);
     if (slamRes) {
-      check(slamRes.moved < 0.05, 'the slam and the shove moved neither the Wick nor the raft', { moved: slamRes.moved });
+      check(slamRes.moved < 0.05, 'the slam and the lingering hand\'s shove moved neither the Wick nor the raft', { moved: slamRes.moved });
       check(!slamRes.esc.includes('snap') && ['reeling', 'landing'].includes(slamRes.b.st), 'the line did not snap; the fish is still on', slamRes);
     }
     s = await g(() => ({ alive: window.__gw.combat.enemies.filter((e) => e.alive && !(e.boss && e.state === 'withdraw')).length, active: window.__gw.combat.swarmActive }));
