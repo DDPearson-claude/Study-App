@@ -618,11 +618,12 @@ export function create(ctx) {
     fx.timedDecal({ x, z, r0: radius * 0.5, r1: radius * 1.05, life: o.mini ? 0.5 : 0.9, color: COL.flareGlow, type: DECAL.GLOW, p1: 2.2, alpha: o.mini ? 0.14 : 0.24, ease: 3 });
     const n = o.mini ? 18 : 46;
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU + Math.random() * 0.2, sp = radius * (1.1 + Math.random() * 0.6);
+      // v3: a wider spread of speeds, so the burst scatters as a spray of light rather than a ring of sparks round the raft
+      const a = (i / n) * TAU + Math.random() * 0.2, sp = radius * (C.mode ? 0.35 + Math.random() * 1.5 : 1.1 + Math.random() * 0.6);
       fx.sparks.emit(L.x, L.y, L.z, Math.cos(a) * sp, 1 + Math.random() * 3, Math.sin(a) * sp, COL.flare.r, COL.flare.g, COL.flare.b, 0.2 + Math.random() * 0.15, 0.55 + Math.random() * 0.3, 1, -0.2, 2.2, -3);
     }
     fx.burst(L.x, L.y, L.z, COL.flare, o.mini ? 6 : 12, 2, 0.25, 0.45, 3, -1);
-    ctx.water?.addRipple?.(x, z, o.mini ? 1.2 : 2.5);
+    ctx.water?.addRipple?.(x, z, C.mode ? (o.mini ? 0.9 : 1.6) : (o.mini ? 1.2 : 2.5));   // v3: a gentler ripple (no lingering ring round the raft)
   };
   function flare() {
     const run = C.run;

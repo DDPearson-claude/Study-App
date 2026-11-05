@@ -4,7 +4,7 @@
 //   node build.mjs --dev --out=tools/out/p1b-world/v3.html
 //   node tools/playtest.mjs --html=tools/out/p1b-world/v3.html --shots=tools/out/p1b-world/shots \
 //        --script=tools/tests/p1b-world.scenario.mjs --width=960 --height=540
-//   (add --mobile for a 390 px phone; --only=api,lamps,legend,c2,lakes runs a part; --low renders at quality low)
+//   (add --mobile for a 390 px phone; --only=api,lamps,legend,c2,flare,lakes runs a part; --low renders at quality low)
 //
 // W1  every lake: world.getWatchLamps() returns 2 lamps at the drawn dock buoy-lamps (≤ 0.1 m from ZONES[].arena.watchLamps)
 //     with radius 6, and world.getGiantSpots() returns the 3 stopgap waters (RAFT_FALLBACK_V3); survival's lamp-watch takes
@@ -77,7 +77,7 @@ export default async function (api) {
     H.goZone = (zone) => {
       const r = H.ensureRun();
       if (!(r.zonesUnlocked || []).includes(zone)) r.zonesUnlocked = [...(r.zonesUnlocked || []), zone];
-      try { c.combat.killAll?.('debug'); } catch { /* optional */ }
+      try { c.combat.killAll?.('dawn'); } catch { /* optional */ }
       if (r.zone !== zone) { r.zone = zone; r.gateOpen = false; c.bus.emit('zone:change', { zone, prev: null }); }
       return r.zone;
     };
@@ -141,6 +141,14 @@ export default async function (api) {
       check(s.places === 0 && s.spots === 3 && s.ids === s.want, `${zid}: getGiantSpots() → the 3 stopgap waters (no places in P1)`, s);
       check(s.vis && s.vis.lamps === 2 && s.vis.legend === true, `${zid}: v3 visuals built (2 watch-lamp pools, the legend glimmer)`, s.vis);
     }
+    step('§25.8.8 world budget: the v3 visuals add at most 4 draw calls (world ≤ 50 on high)');
+    s = await g(() => {
+      const c = window.__gw, H = window.__w;
+      H.goZone('mossmere');
+      let n = 0; c.world.group.traverseVisible((o) => { if ((o.isMesh || o.isPoints || o.isLine) && o.material && !(o.isInstancedMesh && o.count === 0)) n++; });
+      return { worldCalls: n, v3: c.debug.worldV3().visuals, quality: c.render.quality };
+    });
+    check(s.v3.calls <= 3 && s.worldCalls <= 50, `world draw calls ${s.worldCalls} (≤ 50; the v3 pools + glimmer ${s.v3.calls} + the amber buoy glass 1)`, s);
     step('S6 seam: survival takes the lamp from world.getWatchLamps()');
     s = await g(() => {
       const c = window.__gw, H = window.__w;
@@ -227,6 +235,28 @@ export default async function (api) {
     }
     s = await g(() => { const c = window.__gw, H = window.__w; H.mode('lantern'); H.at(1, 'gloomtide', 0.3); H.pumpCombat(0.2); return { p: c.combat.presentation, swarm: c.combat.swarmTonight }; });
     check(s.swarm === false && s.p.aura === 0 && !s.p.flare && !s.p.embers, 'Lantern on a quiet (odd) night: no aura, no Flare, no Embers', s);
+    step('C2 frames: each mode at calm, dusk and night');
+    for (const mode of ['still', 'lantern', 'gloomtide']) {
+      for (const [phase, k, tag] of [['calm', 0.4, 'calm'], ['dusk', 0.7, 'dusk'], ['gloomtide', 0.3, 'night']]) {
+        await frame(`c2-${mode}-${tag}`, ([mode, phase, k]) => {
+          const H = window.__w;
+          H.goZone('mossmere'); H.mode(mode); H.at(2, phase, k); H.place(2, 40);
+          window.__gw.combat.killAll?.('dawn');
+          return H.info();
+        }, { combat: phase === 'gloomtide' ? 4 : 2, settle: 4, arg: [mode, phase, k] });
+        await g(() => window.__gw.combat.killAll?.('dawn'));
+      }
+    }
+  }
+  if (want('c2') || want('flare')) {
+    // the Flare by night mode: a Lantern swarm night shows it, and its light rolls out as a soft wash (no ring round the raft)
+    await frame('c2-lantern-night-flare', () => {
+      const c = window.__gw, H = window.__w;
+      H.goZone('mossmere'); H.mode('lantern'); H.at(2, 'gloomtide', 0.3); H.place(2, 40);
+      c.debug.flareReset?.(); c.debug.setOil(1000);
+      return { ...H.info(), flared: c.combat.flare() };
+    }, { combat: 0.15, settle: 1.5, render: 300 });
+    await g(() => window.__gw.combat.killAll?.('dawn'));
     step('C2: a Flare where the table hides it does nothing and costs no oil');
     s = await g(() => {
       const c = window.__gw, H = window.__w;
@@ -241,19 +271,6 @@ export default async function (api) {
     check(s.b.ok === true && s.b.cd > 0, 'Gloomtide: the Flare works in calm (always shown; its cooldown starts)', s.b);
     await noErrors();
 
-    step('C2 frames: each mode at calm, dusk and night');
-    for (const mode of ['still', 'lantern', 'gloomtide']) {
-      for (const [phase, k, tag] of [['calm', 0.4, 'calm'], ['dusk', 0.7, 'dusk'], ['gloomtide', 0.3, 'night']]) {
-        await frame(`c2-${mode}-${tag}`, ([mode, phase, k]) => {
-          const H = window.__w;
-          H.goZone('mossmere'); H.mode(mode); H.at(2, phase, k); H.place(2, 40);
-          window.__gw.combat.killAll?.('debug');
-          return H.info();
-        }, { combat: phase === 'gloomtide' ? 4 : 2, settle: 4, arg: [mode, phase, k] });
-        await g(() => window.__gw.combat.killAll?.('debug'));
-      }
-    }
-    await noErrors();
   }
 
   const e = await g(() => window.__gw.errors.slice());
