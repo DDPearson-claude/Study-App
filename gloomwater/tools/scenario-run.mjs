@@ -12,6 +12,8 @@
 // an undecided catch survives the reload) → pause. Keeps to a few screenshots so it runs in a few
 // minutes even on slow software GL.
 export default async function (api) {
+  // v3 (FE-T2, CONTRACT §13.12 Testing): `--scenario=first-evening` runs the First Evening scenario (tools/tests/first-evening.scenario.mjs)
+  if (api.args?.scenario === 'first-evening') return (await import('./tests/first-evening.scenario.mjs')).default(api);
   const { page, wait, frames, evalGame: g, log, shot, width, height } = api;
   const failures = [];
   let stepName = 'boot';
