@@ -262,3 +262,45 @@ export function discoveryXp(kind, run, B) {
   log.n = num(log.n, 0) + got;
   return got;
 }
+
+// ---------------------------------------------------------------- C2: what combat shows by day (DESIGN §25.5.7)
+const smooth01 = (x) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
+/**
+ * How combat presents itself this frame in this mode (`BALANCE.nightModes[mode].hud`), the §25.5.7 table:
+ *   aura   0–1, the lantern aura's presence. It is a soft wash of warm light within the lantern's reach and embers lifting
+ *          off the lit water — never a ring (the user's art rule: the lantern's reach is a soft wash only). `ring`:
+ *          'never' (Still) · 'swarmDusk' (Lantern: hidden in calm and dawn, fades in through dusk on swarm nights only) ·
+ *          'calmRaidOrDusk' (Gloomtide: hidden in calm and dawn except during a calm raid; on from dusk).
+ *   embers the Embers arc: 'hidden' · 'swarmOrHit' (from dusk on swarm nights, for `embersHitShow` s after a hit, while
+ *          Scorched) · 'always'.
+ *   flare  the Flare (button and key): 'hidden' · 'swarmDusk' (from dusk on swarm nights) · 'always'.
+ * Inputs: phase, phaseK (0–1 through it), swarmNight (combat.swarmTonight), swarmActive (combat.swarmActive: a window, a
+ * Gloomtide night or a calm raid), hitT (s since the last Ember lost), scorched. v1 (mode null): no aura is drawn (as
+ * today), Embers and Flare always. Kept in step with ui-v3's hudVisibility so the Flare key and button always agree.
+ */
+export function presentation(mode, B, { phase = 'calm', phaseK = 0, swarmNight = false, swarmActive = false, hitT = Infinity, scorched = false } = {}) {
+  const hud = mode ? modeCfg(mode, B)?.hud : null;
+  if (!hud) return { aura: 0, embers: true, flare: true };
+  const night = phase === 'dusk' || phase === 'gloomtide';
+  const swarmDusk = (night && swarmNight) || swarmActive;
+  let aura;
+  switch (hud.ring) {
+    case 'never': aura = 0; break;
+    case 'swarmDusk': aura = swarmActive ? 1 : !(night && swarmNight) ? 0 : phase === 'dusk' ? smooth01(phaseK) : 1; break;
+    case 'calmRaidOrDusk': aura = !night ? (swarmActive ? 1 : 0) : phase === 'dusk' ? smooth01(phaseK / 0.35) : 1; break;
+    default: aura = swarmDusk ? 1 : 0;
+  }
+  let embers;
+  switch (hud.embers) {
+    case 'hidden': embers = false; break;
+    case 'swarmOrHit': embers = swarmDusk || num(hitT, Infinity) <= num(hud.embersHitShow, 4) || !!scorched; break;
+    default: embers = true;
+  }
+  let flare;
+  switch (hud.flare) {
+    case 'hidden': flare = false; break;
+    case 'swarmDusk': flare = swarmDusk; break;
+    default: flare = true;
+  }
+  return { aura, embers, flare };
+}

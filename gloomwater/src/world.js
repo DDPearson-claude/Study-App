@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { clamp, damp, smoothstep, TAU } from './core.js';
 import { buildLayout, depthAt, isOpenWaterL } from './world-layout.js';
 import { buildArena } from './world-art.js';
+import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
 
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
@@ -33,6 +34,10 @@ export function create(ctx) {
   });
 
   let zone = null, layout = null, arena = null;
+  // v3 (W1, CONTRACT §13.7 world): the lake's watch-lamps and stopgap giant water (pure data, cached per lake) and the v3
+  // visuals (watch-lamp pools, the legend pool's low glimmer); all empty / null with the flag off
+  let watchLamps = [], giantSpots = [], v3vis = null;
+  const v3Info = { night: 0, fogDensity: 0.016, lamps: [], moored: [], legendK: 0 };
   const bounds = { radius: 60 };
   const obstacles = [];                 // stable array (refilled in place)
   const gateInfo = { position: new THREE.Vector3(), radius: 4.5 };
@@ -109,15 +114,37 @@ export function create(ctx) {
     zc.fogDensity = p.fogDensity || 0.016;
     zc.stars = Number.isFinite(p.stars) ? p.stars : 1;
     zc.nebula = new THREE.Color(p.nebula ?? 0xd296ae);
+    zc.candle = new THREE.Color(p.candle ?? p.lamp ?? p.glow);
+    watchLamps = watchLampsFor(z, layout, { radius: lampRadius() });
+    giantSpots = giantSpotsFor(z);
+    v3Info.lamps = watchLamps.map(() => ({ k: 0, watch: 0 }));
+    v3Info.moored = watchLamps.map(() => false);
   }
+  const lampRadius = () => { const r = Number(ctx.data?.BALANCE?.nightModes?.lampWatch?.radius); return Number.isFinite(r) && r > 0 ? r : 6; };
+  // the legend pool's tall golden column is cut in v3: world draws its low gold glimmer (feature-detected from the v3 data)
+  const legendGlimmerOn = () => ctx.data?.BALANCE?.signs?.legendPool?.column === 'lowGlimmer';
 
   function buildVisuals() {
     const s = scene();
     if (!s || !layout) return;
+    if (v3vis) { v3vis.dispose(); v3vis = null; }
     if (arena) { arena.dispose(); arena = null; }
     try {
-      arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500 });
+      const watchDocks = new Set(watchLamps.filter((l) => l.kind === 'buoy' && l.dock != null).map((l) => l.dock));
+      arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500, ...(watchDocks.size ? { watchDocks } : {}) });
       group.add(arena.group);
+      const v3Lamps = watchLamps.filter((l) => l.kind === 'buoy');
+      const v3Legend = legendGlimmerOn() && layout.legendPool ? layout.legendPool : null;
+      if (v3Lamps.length || v3Legend) {
+        try {
+          v3vis = buildWorldV3(ctx, layout, arena, { lamps: v3Lamps, legend: v3Legend, pal: Object.assign({}, FALLBACK_ZONE.palette, zone.palette || {}), quality: quality() });
+          group.add(v3vis.group);
+        } catch (e) {
+          console.error('[world] v3 visuals failed', e);
+          ctx.errors?.push?.(`world.v3: ${e?.message || e}`);
+          v3vis = null;
+        }
+      }
       arena.setGate(gateState, true);
       // the directional light follows the main ceiling crack
       dir.position.copy(arena.crackTop);
@@ -366,11 +393,58 @@ export function create(ctx) {
       const d = layout.docks[i], f = arena.dockBuoys[i];
       if (!f || f.halo < 0) continue;
       const moored = here && Math.hypot(m.position.x - d.x, m.position.z - d.z) < 4;
+      if (f.watch) { const li = watchLamps.findIndex((l) => l.dock === i); if (li >= 0) v3Info.moored[li] = !!moored; continue; }   // world-v3 colours the watch-lamps
       const k = moored ? 1.6 : 0.8;
       const c = zc.lamp || zc.glow;
       arena.halos.setColor(f.halo, c.r * k, c.g * k, c.b * k);
     }
     arena.halos.touchColors();
+  }
+
+  // ------------------------------------------------------------------ v3 (W1): watch-lamps and the legend pool
+  const peek = (fn, fb = null) => { try { const v = fn(); return v === undefined || (v && v.isStub) ? fb : v; } catch { return fb; } };
+  /** The lake's watch-lamps; a §24 sister-candle's pool exists only while it is lit (progression.isLampLit). */
+  function getWatchLamps() {
+    for (const l of watchLamps) {
+      if (l.kind !== 'candle') continue;
+      const src = (zone?.arena?.lamps || []).find((q) => q.id === l.id);
+      l.lit = src?.lit === true || peek(() => ctx.progression?.isLampLit?.(l.id)) === true;
+    }
+    return watchLamps;
+  }
+  /** What the v3 visuals show this frame (render-only reads: night mode, phase, the lamp-watch, the legend pool's state). */
+  function updateV3(dt, t) {
+    const run = ctx.state?.run;
+    const pi = phaseInfo();
+    const phase = pi?.phase || 'calm', k = clamp(Number(pi?.k) || 0);
+    let mode = peek(() => ctx.combat?.nightMode) ?? run?.nightMode ?? null;
+    if (run?.outing === 'first') mode = 'still';
+    const LW = ctx.data?.BALANCE?.nightModes?.lampWatch;
+    const watchMode = !!run && run.outing !== 'descent' && (Array.isArray(LW?.modes) ? LW.modes : ['lantern']).includes(mode);
+    const swarm = watchMode && peek(() => ctx.combat?.swarmTonight, false) === true;
+    // the lamps call you in a lamp-watch mode on a swarm night: from Murk's 85 % bell, through dusk, and all that night
+    const bell = Number.isFinite(LW?.hudFromMurkBell) ? LW.hudFromMurkBell : 0.85;
+    const calling = swarm && ((phase === 'calm' && k >= bell) || phase === 'dusk' || phase === 'gloomtide');
+    const lw = peek(() => ctx.survival?.lampWatch) ?? run?.lampWatch ?? null;
+    const n = env.night;
+    for (let i = 0; i < watchLamps.length; i++) {
+      const l = watchLamps[i], o = v3Info.lamps[i];
+      const watching = !!lw && !lw.forced && lw.lampId != null && lw.lampId === l.id;
+      const base = l.lit === false ? 0 : 0.34 + 0.62 * n;
+      o.k = Math.min(1.6, base * (calling ? 1.3 : 1) * (watching ? 1.3 : 1));
+      o.watch = watching ? 1 : 0;
+    }
+    // the legend pool: a faint glimmer always; it brightens while the legend is listening (fishing.legendPool.active),
+    // dims while spooked and all but goes out once this run has landed the lake's legend
+    let legendK = 0;
+    if (v3vis?.legend) {
+      const lp = peek(() => ctx.fishing?.legendPool);
+      const legId = zone?.legendary;
+      const landed = !!(legId && run?.legendaries?.[legId]);
+      legendK = (landed ? 0.14 : lp?.active ? 1 : lp?.dim ? 0.25 : 0.55) * (0.85 + 0.3 * n);
+    }
+    v3Info.night = n; v3Info.fogDensity = env.fogDensity; v3Info.legendK = legendK;
+    v3vis.update(dt, t, v3Info);
   }
 
   // ------------------------------------------------------------------ gameplay queries
@@ -481,6 +555,15 @@ export function create(ctx) {
       buildVisuals();
       computeMood(1, true);
       applyAtmosphere(0, true);
+      // v3 debug hooks (CONTRACT §13.11): world giantSpots(), plus the watch-lamps and the v3 visuals at a glance
+      if (ctx.debug && typeof ctx.debug === 'object' && ctx.data?.BALANCE?.nightModes) {
+        Object.assign(ctx.debug, {
+          giantSpots: () => giantSpots.map((g) => ({ ...g, r: Array.isArray(g.r) ? g.r.slice() : g.r })),
+          watchLamps: () => getWatchLamps().map((l) => ({ id: l.id, name: l.name, x: +l.x.toFixed(2), z: +l.z.toFixed(2), radius: l.radius, lit: l.lit, dock: l.dock, kind: l.kind })),
+          worldV3: () => ({ zone: zone?.id ?? null, lamps: watchLamps.length, giantSpots: giantSpots.length, visuals: v3vis?.stats?.() ?? null,
+            lampK: v3vis ? v3vis.lamps.map((s) => +s.k.toFixed(3)) : [], legendK: v3vis?.legend ? +v3vis.legend.k.toFixed(3) : null }),
+        });
+      }
     },
     update(dt, t) {
       if (!zone) return;
@@ -492,6 +575,7 @@ export function create(ctx) {
       arena.update(d, t || 0, focus, env);
       pickTimer -= d;
       if (pickTimer <= 0) { pickTimer = 0.3; pickAnchors(focus); updateDocks(); }
+      if (v3vis) { try { updateV3(d, t || 0); } catch (e) { ctx.errors?.push?.(`world.v3: ${e?.message || e}`); v3vis?.dispose(); v3vis = null; } }
       updateAccents(d);
       updateWaterLights();
     },
@@ -507,6 +591,11 @@ export function create(ctx) {
     setGateState,
     getGateState: () => gateState,
     getObstacles: () => obstacles,
+    // ---- v3 (CONTRACT §13.7 world; empty arrays in a flag-off build)
+    /** The lake's two watch-lamps [{id, name, position, x, z, radius, lit, dock, kind}] (the same array each call). */
+    getWatchLamps,
+    /** The stopgap's holdsGiants water [{id, kind: 'ring'|'disc', x, z, r}] in a lake whose places are not in the build. */
+    getGiantSpots: () => giantSpots,
     // ---- optional extras (not in CONTRACT; safe to ignore)
     getShoreRadius: (angle) => shoreR(angle),
     getDocks: () => (layout?.docks || []).map((d) => ({ position: new THREE.Vector3(d.x, 0, d.z), yaw: d.yaw })),

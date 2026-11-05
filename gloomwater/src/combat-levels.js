@@ -365,7 +365,9 @@ export function createLevels(C) {
       if (opt.isKindle) {
         const kb = ctx.data.TEXT?.kindleBanner || ['{name}', 'The flame remembers'];
         ctx.ui?.banner?.(kb[0].replace('{name}', b.kindle.name), kb[1]);
-        fx.timedDecal({ x: raft.x, z: raft.z, r0: 1, r1: 12, life: 1.2, color: lin(0xe8c66a, 2.4), p1: 0.06, p2: 0.1 });
+        // v3 (C2): no ring around the raft: the Kindle's light swells out as a soft wash
+        if (C.mode) fx.timedDecal({ x: raft.x, z: raft.z, r0: 1.5, r1: 12, life: 1.2, color: lin(0xe8c66a, 2.0), type: DECAL.GLOW, p1: 1.6, alpha: 0.24, ease: 3 });
+        else fx.timedDecal({ x: raft.x, z: raft.z, r0: 1, r1: 12, life: 1.2, color: lin(0xe8c66a, 2.4), p1: 0.06, p2: 0.1 });
       }
       ctx.bus.emit('boon:chosen', { boonId, level: run.boons[boonId], kindle: !!opt.isKindle, kind: b.kind });
     }
