@@ -195,7 +195,9 @@ export default async function (api) {
 
   // ------------------------------------------------------------------ death → summary → Shrine
   step('death');
-  await g(() => { const c = window.__gw; c.ui.closeAll(); c.debug.god(false); c.survival.damage(99, 'gloom'); });
+  // v3 runs (the oil table in the build): only oil snuffs in Still and Lantern, so the run ends Snuffed (DESIGN §25.3.3);
+  // flag off (and The Long Descent) it is today's Embers death
+  await g(() => { const c = window.__gw; c.ui.closeAll(); c.debug.god(false); if (c.data.BALANCE.oil?.context && c.state.run?.outing !== 'descent' && c.debug.snuff) c.debug.snuff(); else c.survival.damage(99, 'gloom'); });
   await waitFor(() => window.__gw.flow === 'dead', null, 30);
   await waitFor(() => window.__gw.debug.ui().openModal === 'death', null, 40);
   s = await S();
@@ -236,7 +238,8 @@ export default async function (api) {
   // ------------------------------------------------------------------ save → reload → Continue
   step('reload');
   await g(() => { const c = window.__gw; c.ui.closeAll(); c.debug.giveFish(); c.debug.addShells(77); });
-  const saved = await g(() => { const c = window.__gw; c.debug.instantCatch(); return { id: c.state.run.id, creel: c.state.run.creel.length, shells: c.state.run.shells, day: c.state.run.day }; });
+  // v3 (the oil table in the build): progression.measure puts the catch in the creel at the stamp, before the card opens
+  const saved = await g(() => { const c = window.__gw; c.debug.instantCatch(); const v3 = !!c.data.BALANCE.oil?.context; return { id: c.state.run.id, creel: c.state.run.creel.length, shells: c.state.run.shells, day: c.state.run.day, v3, lastUid: v3 ? c.state.run.creel.at(-1)?.uid ?? null : null }; });
   await waitFor(() => window.__gw.debug.ui().openModal === 'catch', null, 60);
   await g(() => window.__gw.game.save());
   await page.reload();
@@ -249,7 +252,10 @@ export default async function (api) {
   await frames(6);
   s = await S();
   check(s.runId === saved.id && s.day === saved.day, 'Continue restores the same run', { s, saved });
-  check(s.creel === saved.creel + 1, 'the catch left on the card survives the reload (in the creel)', { creel: s.creel, before: saved.creel });
+  if (saved.v3) {
+    const inCreel = await g((uid) => (window.__gw.state.run?.creel || []).some((f) => f.uid === uid), saved.lastUid);
+    check(s.creel === saved.creel && !!saved.lastUid && inCreel, 'the catch on the card survives the reload (in the creel since the stamp)', { creel: s.creel, before: saved.creel, uid: saved.lastUid, inCreel });
+  } else check(s.creel === saved.creel + 1, 'the catch left on the card survives the reload (in the creel)', { creel: s.creel, before: saved.creel });
   check(s.shells >= saved.shells, 'Shells survive the reload', { s: s.shells, saved: saved.shells });
 
   // ------------------------------------------------------------------ pause

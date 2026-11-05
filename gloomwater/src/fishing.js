@@ -19,9 +19,34 @@
 //   fishing:escaped {cut:true} when the line is cut by sailing away mid-fight
 //   fishing:hook extras {legendary, name, epithet}; fishing:nibble {tell, feint}
 // Debug: forceBite(), instantCatch(id?), plus fishHook(id), fishSpot(rare), fishing().
+//
+// v3 (DESIGN §25.6–§25.7, CONTRACT §13.7; feature-detected: the v3 build merges BALANCE.size / favour / nightModes and gives
+// species `size`, otherwise every v3 path is skipped and fishing is exactly v1 / v2):
+//   F1  the size score z ~ N(μ, 1) truncated [−2, 3.6] replaces rollWeight; μ is the favour stack by family (BALANCE.favour, cap
+//       1.8); classes Small … Elder (Ancient z ≥ 3.2); caps: species / place maxClass, a top Trophy outside giant water (holdsGiants
+//       places, the stopgap arena.giantSpots / world.getGiantSpots()), giantsKept lifts both for its kept species; pressure −0.12
+//       per catch at a place (or stopgap giant water) today, floor −0.6, reset at dawn
+//   F2  size scales species.difficulty before createReel (fishing-reel.js scaleDifficultyV3: Elder age per lake, step × 1.08,
+//       stamina g^1.3) and the reel gets its v3 edits (reelOptsV3: fatigue, easing by load, the old trick, drag absorb / slip and
+//       Spooled from stats.absorb / dragAt, Rod shock, pips + stats.pipBonus)
+//   F4  class bite tells (view.biteTell, fishing:tell, fishing:bite + {sizeClass, biteTell}), Prize+ hold the bait 10% longer,
+//       let it pass (a lapsed bite with no tap: progression.refundBait + favour +0.15 for the next cast within 6 m / in the same
+//       place, cap 0.3, reset on a hook or after 60 s; fishing:miss {reason: 'passed'}), hook-hold pips (view.pips, fishing:pip)
+//   F13 view.favour {mu, notches, terms, quiet}: the float's μ (species-independent terms + each species-specific term as the max
+//       over the bait's eligible pool), so it never reveals the rolled species; quiet at pressure ≤ −0.36
+//   F7  Night Rise +0.25 on every night cast; in Still and Lantern (run.nightMode; the First Outing too) slams never snap
+//       (slam(), cancel('snap') ignored), lineBroken() ignores raft displacement that no paddling caused (knockback, shoves,
+//       pulls) and so does a cancel('moved') with no paddling behind it; isHooked() for combat's no-knock / no-creelsnatch rules;
+//       the Lantern-Swallower's Grasping Dark becomes two telegraphed snags (snag(): warning, then +0.2 tension; legendQuiet)
+//   events (additive): fishing:caught + {z, sizeClass, ancient, length (cm), favours, place, pressureKey, mu}; fishing:hook + {pips};
+//   fishing:surge + {trick}; fishing:oldTrick {speciesId, kind, style}; fishing:pip {n, max}; fishing:tell {speciesId, sizeClass,
+//   biteTell, lead}; fishing:snag {state: 'warn'|'hit', lead, spike}; fishing:miss {reason: 'passed', refunded, favour};
+//   fishing:escaped reasons + 'thrown' (pips) / 'spooled'; fish:escaped-big (Prize+).  API: isHooked(), lineBroken(), snag(opts),
+//   rollSize(species, mu, {place, maxClass, giant}), favourAt(point, species?).  Debug: forceBite({speciesId, z, place, wait}),
+//   instantCatch(id, {z}), fishHook(id, {z}), setFavour(mu|null), fishSeed(n|null), fishPressure(), fishReel().
 import * as THREE from 'three';
 import { clamp, lerp, damp, smoothstep, TAU } from './core.js';
-import { createReel } from './fishing-reel.js';
+import { createReel, scaleDifficultyV3, reelOptsV3, rollZ, capZ, inGiantSpot, floatFavour, sumFavour, classIndex } from './fishing-reel.js';
 import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
@@ -30,6 +55,8 @@ const SPOT_SLOTS = MAX_SLOTS - 2;    // feeding spots use slots 0..7
 const FALLBACK_DIFF = { power: 0.6, surgeEvery: 6.5, surgeTime: 0.7, stamina: 5, sweet: 1.3, erratic: 0.05, window: 1.1 };
 const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const isReal = (m) => !!m && !m.isStub;
+const TELL_LEAD = 0.6;               // v3: the size is rolled and the class's bite tell starts this long before the bite
+function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
 export function create(ctx) {
   const D = () => ctx.data || {};
@@ -46,6 +73,8 @@ export function create(ctx) {
     surgeKind: null, decoyMin: null, decoyMax: null, shards: null, bandsHidden: false, phaseName: '',
     legendary: false, enraged: false, inSpot: false, tell: null, anchoring: false, holding: false, lightMult: 1, snapAt: 1,
     safeMin: 0.15, safeMax: 0.85, depth: 0,
+    // v3 (CONTRACT §13.7; null / false in v1 builds)
+    favour: null, sizeClass: null, ancient: false, pips: null, biteTell: null, slip: 0, place: null, drag: null, lure: null, measure: null, cove: false,
   };
 
   // ---------------------------------------------------------------- internal state
@@ -72,6 +101,11 @@ export function create(ctx) {
     spotTimers: [], spotDesired: 3, spotSeq: 0, lastPhase: '', legendDimUntil: -1, legendToastDay: -1, legendK: 0,
     tideAt: -10, slamAt: -10,
     stats: null, statsT: -1,
+    // v3: size, favour, tells, let it pass, pressure, mode rules
+    rng: null, cast: null, z: null, zRolled: false, sizeClass: null, ancient: false, lengthCm: 0, mu: 0, favourTerms: [],
+    tell: null, tellStart: 0, tellPops: 0, tellDir: new THREE.Vector3(1, 0, 0), hookTried: false, revealed: false,
+    letPass: null, pressure: {}, floatT: 0, favourOverride: null, forceZ: null, forceSpecies: null, forcePlace: null,
+    extShift: new THREE.Vector3(), lastRaft: new THREE.Vector3(), lastRaftOk: false, snags: [],
   };
   const V = {
     raft: new THREE.Vector3(), aimDir: new THREE.Vector3(0, 0, -1), aimPoint: new THREE.Vector3(), target: new THREE.Vector3(),
@@ -130,6 +164,16 @@ export function create(ctx) {
     let s = null;
     try { s = ctx.progression?.getStats?.(); } catch (e) { report(e); }
     S.stats = s && !s.isStub && typeof s === 'object' ? { ...base, ...s } : base;
+    // v3: a progression without the P1 fight stats (no v3 API, or no absorb in its stats) → shock / pipBonus / absorb / dragAt
+    // from the effective tiers of the run's upgrades (data.upgradeTiers → data.tackleStats), as CONTRACT §13.7 getStats does
+    // for P1–P2 runs. (A v1 getStats copies every STATS key, so the v3 keys are present there at their T0 base.)
+    const v3prog = typeof prog()?.measure === 'function' && !!s && typeof s === 'object' && 'absorb' in s;
+    if (v3on() && !v3prog && run()?.upgrades && typeof D().tackleStats === 'function' && typeof D().upgradeTiers === 'function') {
+      try {
+        const t = D().tackleStats(D().upgradeTiers(run().upgrades));
+        Object.assign(S.stats, { shock: t.shock, pipBonus: t.pipBonus, absorb: t.absorb, dragAt: t.dragAt });
+      } catch (e) { report(e); }
+    }
     S.statsT = S.clock;
     return S.stats;
   }
@@ -185,7 +229,10 @@ export function create(ctx) {
     return 'deep';
   }
   const timeOk = (sp, phase) => { const t = sp?.time || 'any'; return t === 'calm' ? phase !== 'gloomtide' : t === 'gloom' ? phase === 'gloomtide' : true; };
-  function starving() { const r = run(); return !!r && num(r.satiety, 1) <= 0; }
+  function starving() {
+    if (v3on() && BAL('wellFed').starvation === false) return false;   // v3: no starvation, ever (Well-fed instead)
+    const r = run(); return !!r && num(r.satiety, 1) <= 0;
+  }
   function pity() {
     const r = run(); if (!r) return false;
     const P = BAL('bite').pity || {};
@@ -204,6 +251,223 @@ export function create(ctx) {
   }
   const U = (a, b) => a + (b - a) * Math.random();
   function expRand(mean) { return -Math.log(1 - Math.random() * 0.999) * mean; }
+
+  // ---------------------------------------------------------------- v3: size, favour, places, night modes
+  const v3on = () => !!BAL('size').fight && Array.isArray(D().SIZE_CLASSES);
+  const spV3 = (sp) => !!sp?.size && v3on();
+  const rnd = () => (S.rng || Math.random)();
+  const prog = () => (isReal(ctx.progression) ? ctx.progression : null);
+  const round2 = (v) => Math.round(v * 100) / 100;
+  function nightMode() {
+    const m = run()?.nightMode;
+    if (typeof m === 'string') return m;
+    const c = isReal(ctx.combat) ? ctx.combat.nightMode : null;
+    return typeof c === 'string' ? c : null;
+  }
+  /** Still and Lantern (and the all-still First Outing): combat never costs a hooked fish (the hard rule, DESIGN §25.5.3;
+   *  BALANCE.nightModes[mode].threat). Gloomtide and The Long Descent keep today's slams. */
+  function hookSafe() {
+    if (!v3on()) return false;
+    const r = run();
+    if (r?.outing === 'first') return true;
+    if (r?.outing === 'descent') return false;
+    const m = nightMode(), NM = m ? BAL('nightModes')[m] : null;
+    if (!NM) return false;
+    return m === 'still' || NM.threat?.slamSnaps === false;
+  }
+  /** v3: the run's Angler Boon procs for one trigger (combat.boonProcs, CONTRACT §13.7): Night Eyes ('night':
+   *  nightBiteSpeed), Quiet Hands ('cast': cleanAt). null without v3 data or without the combat API. */
+  function procs(on) {
+    if (!v3on()) return null;
+    const c = ctx.combat;
+    if (!isReal(c) || typeof c.boonProcs !== 'function') return null;
+    try { const p = c.boonProcs(on); return p && typeof p === 'object' ? p : null; } catch (e) { report(e); return null; }
+  }
+  /** The Clean Cast threshold: BALANCE.cast.cleanAt, widened by Quiet Hands (0.92 → 0.88) in v3. */
+  function cleanAt(C = BAL('cast')) {
+    const base = num(C.cleanAt, 0.92);
+    const q = num(procs('cast')?.cleanAt, NaN);
+    return Number.isFinite(q) ? Math.min(base, q) : base;
+  }
+  /** v3 lamp-watch (DESIGN §25.5.2): during a lamp-watch at a watch-lamp the bobber must land within fishWithin (10 m) of
+   *  it. A forced (Scorched) watch has no lamp and no cast limit (the raft is leashed instead). null when no limit applies. */
+  function lampWatchLimit() {
+    if (!v3on()) return null;
+    const sv = ctx.survival;
+    if (!isReal(sv)) return null;
+    let lw = null;
+    try { lw = sv.lampWatch; } catch { lw = null; }
+    if (!lw || lw.forced || !Number.isFinite(lw.x) || !Number.isFinite(lw.z)) return null;
+    return { x: lw.x, z: lw.z, r: num(BAL('nightModes').lampWatch?.fishWithin, 10) };
+  }
+  function moveInput() {
+    const i = ctx.input;
+    return i ? Math.hypot((i.move?.x || 0) + (i.joy?.x || 0), (i.move?.y || 0) + (i.joy?.y || 0)) > 0.15 : false;
+  }
+  /** The place whose water holds (x, z), from the places in THIS build (data.placeAtV3 over the zone's arena.places), or null. */
+  function placeAt(x, z) {
+    const zd = zoneData(), list = zd?.arena?.places;
+    if (S.forcePlace) { const f = (list || []).find((p) => p.id === S.forcePlace) || D().PLACE_V3_BY_ID?.[S.forcePlace]; if (f) return f; }   // debug
+    if (!Array.isArray(list) || !list.length) return null;
+    try { const p = D().placeAtV3?.(zd.id, x, z); if (p && list.some((q) => q.id === p.id)) return p; } catch (e) { report(e); }
+    const pc = D().placeContains;
+    if (typeof pc === 'function') for (const p of list) if (pc(p, x, z)) return p;
+    return null;
+  }
+  /** The stopgap's giant water in a lake whose places are not in the build (world.getGiantSpots(), else arena.giantSpots). */
+  function giantSpots() {
+    let g = null;
+    try { g = ctx.world?.getGiantSpots?.(); } catch { /* optional */ }
+    if (Array.isArray(g) && !g.isStub) return g;
+    return zoneData()?.arena?.giantSpots || [];
+  }
+  // a holdsGiants place gated by a place state (giantsWhile / giantsDuring) reads as ungated only once the P2 place kit owns it
+  const placeHoldsGiants = (p) => !!p?.holdsGiants && !p.giantsWhile && !p.giantsDuring;
+  /** What the water at (x, z) is: {place, giantSpot, giant (Elders may roll), pressureKey}. */
+  function waterInfo(x, z) {
+    const place = placeAt(x, z);
+    let gs = null;
+    if (!place) for (const g of giantSpots()) if (inGiantSpot(g, x, z)) { gs = g; break; }
+    return { place, giantSpot: gs, giant: place ? placeHoldsGiants(place) : !!gs, pressureKey: place?.id || gs?.id || null };
+  }
+  /** Pressure at a place (or stopgap giant water): −0.12 per catch there today, floor −0.6 (progression's getPressure when it has one). */
+  function pressureFavour(key) {
+    if (!key) return 0;
+    const F = BAL('favour').pressure || {};
+    const local = Math.max(num(F.floor, -0.6), num(F.perCatch, -0.12) * (S.pressure[key] || 0));
+    let pv = 0;
+    try { const v = prog()?.getPressure?.(key); if (Number.isFinite(v)) pv = v; } catch { /* optional */ }
+    return Math.min(local, pv, 0);
+  }
+  function condition() {
+    try {
+      const c = prog()?.getCondition?.(zoneData()?.id);
+      return typeof c === 'string' ? c : (c && typeof c === 'object' ? (c.id ?? c.archetype ?? null) : null);
+    } catch { return null; }
+  }
+  function todaysRumour() {
+    try { const r = prog()?.getTodaysRumour?.(); return r && typeof r === 'object' && !r.isStub ? r : null; } catch { return null; }
+  }
+  function placeAstir(id) {
+    try { const ps = prog()?.getPlaces?.(zoneData()?.id); return Array.isArray(ps) && !!ps.find((p) => p.id === id)?.astir; } catch { return false; }
+  }
+  function equippedLure() {
+    const id = run()?.lure;
+    return typeof id === 'string' ? (D().LURES || []).find((l) => l.id === id) || null : null;
+  }
+  function lineTier() {
+    try { const t = prog()?.getTackle?.(); if (Number.isFinite(t?.fitted?.line)) return t.fitted.line; } catch { /* optional */ }
+    try { return D().upgradeTiers?.(run()?.upgrades || {})?.line ?? 0; } catch { return 0; }
+  }
+  function dragName(at) {
+    const P = D().TACKLE?.drag?.presets || {};
+    let best = null, bd = Infinity;
+    for (const [k, v] of Object.entries(P)) if (Math.abs(v - at) < bd) { bd = Math.abs(v - at); best = k; }
+    return best;
+  }
+  /** The species-independent favour terms of a cast (DESIGN §25.7.2): place, hour, a bait's or lure's base term, Clean Cast,
+   *  clear water, signs, let it pass, pressure. */
+  function baseTerms(info) {
+    const Fv = BAL('favour'), T = Fv.tackle || {}, H = Fv.hour || {}, out = [];
+    if (info.place) {
+      out.push(placeAstir(info.place.id) ? { family: 'place', id: 'astir', value: num(Fv.place?.astir, 0.35) }
+        : { family: 'place', id: 'inside', value: num(Fv.place?.inside, 0.15) });
+    }
+    const ph = info.phase;
+    if (ph === 'dusk') out.push({ family: 'hour', id: 'dusk', value: num(H.dusk, 0.2) });
+    else if (ph === 'dawn') out.push({ family: 'hour', id: 'dawn', value: num(H.dawn, 0.2) });
+    else if (ph === 'gloomtide') out.push({ family: 'hour', id: 'nightRise', value: num(H.nightRise, 0.25) });   // every night mode
+    if (info.condition === 'hush') out.push({ family: 'hour', id: 'hush', value: num(H.hush, 0.2) });
+    let fw = null;
+    try { fw = prog()?.getFarWater?.(); } catch { /* optional (P3) */ }
+    const fwv = Math.min(num(H.farWaterCap, 0.24), num(fw?.favour, 0));
+    if (fwv > 0) out.push({ family: 'hour', id: 'farWater', value: fwv });
+    if (info.baitId) {
+      const bv = num(T.bait?.[info.baitId], num(baitById(info.baitId)?.bonus?.weightBias, 0));   // a bait's weightBias is favour now
+      if (bv) out.push({ family: 'tackle', id: info.baitId, value: bv });
+    }
+    const lure = info.lure;
+    if (lure && !lure.family && (!lure.night || ph === 'gloomtide') && num(T.lure?.[lure.id], num(lure.favour, 0))) {
+      out.push({ family: 'tackle', id: lure.id, value: num(T.lure?.[lure.id], num(lure.favour, 0)) });
+    }
+    if (info.clean) out.push({ family: 'tackle', id: 'cleanCast', value: num(T.cleanCast, 0.1) });
+    const CW = D().TACKLE?.clearWater;
+    if (CW && CW.zones?.includes(zoneData()?.id) && lineTier() < num(CW.belowLineTier, 3)) out.push({ family: 'tackle', id: 'clearWater', value: num(CW.favour, -0.1) });
+    const sk = info.sign?.kind;
+    if (sk && num(Fv.signs?.[sk], 0)) out.push({ family: 'signs', id: sk, value: num(Fv.signs[sk], 0) });
+    if (info.letPass > 0) out.push({ family: 'signs', id: 'letItPass', value: info.letPass });
+    const pr = pressureFavour(info.pressureKey);
+    if (pr < 0) out.push({ family: 'pressure', id: 'pressure', value: round2(pr) });
+    return out;
+  }
+  /** The species-specific favour terms (depth lower third, family lure, Cut Strip, the field-note condition, today's rumour). */
+  function speciesTerms(sp, info) {
+    const Fv = BAL('favour'), T = Fv.tackle || {}, out = [];
+    const d = sp?.depth;
+    if (Array.isArray(d) && d[1] > d[0] && info.depth >= d[0] + (d[1] - d[0]) * (2 / 3) && info.depth <= d[1]) {
+      out.push({ family: 'tackle', id: 'depthLowerThird', value: num(T.depthLowerThird, 0.25) });
+    }
+    if (info.baitId === 'cut_strip' && sp.family === 'predator') out.push({ family: 'tackle', id: 'cutStrip', value: num(T.cutStrip, 0.3) });
+    const lure = info.lure;
+    if (lure?.family && lure.family === sp.family) out.push({ family: 'tackle', id: lure.id, value: num(T.lure?.[lure.id], num(lure.favour, 0)) });
+    if (info.condition && sp.prefers === info.condition) out.push({ family: 'match', id: 'condition', value: num(Fv.match?.condition, 0.3) });
+    const tr = info.rumour;
+    if (tr?.speciesId === sp.id && (!tr.place || tr.place === info.place?.id) && (!tr.zone || tr.zone === zoneData()?.id)) {
+      out.push({ family: 'match', id: 'rumour', value: num(Fv.match?.rumour, 0.3) });
+    }
+    return out.filter((t) => t.value);
+  }
+  /** Cast context for the favour formula at the bobber (refreshed: the hour, the condition and the rumour can change). */
+  function castInfo(x, z, depth) {
+    const w = waterInfo(x, z);
+    return { x, z, depth, ...w, baitId: S.castBait, clean: !!S.clean, lure: equippedLure(), sign: null, letPass: 0,
+      phase: phaseNow(), condition: condition(), rumour: todaysRumour() };
+  }
+  function refreshInfo(info) { info.phase = phaseNow(); info.condition = condition(); info.rumour = todaysRumour(); return info; }
+  /** favourAt (CONTRACT §13.7): with a species its full μ (the roll); without, the float's μ. */
+  function favourAt(info, sp = null) {
+    const cap = num(BAL('favour').cap, 1.8);
+    if (S.favourOverride != null) return { mu: S.favourOverride, terms: [{ family: 'debug', id: 'setFavour', value: S.favourOverride }] };
+    const base = baseTerms(info);
+    if (sp) { const terms = [...base, ...speciesTerms(sp, info)]; return { mu: sumFavour(terms, cap), terms }; }
+    const pool = speciesPool(info.depth, info.baitId, info.phase).filter((q) => q.size);
+    const pref = info.rumour?.speciesId ? pool.find((q) => q.id === info.rumour.speciesId) : null;
+    return floatFavour(base, pool.map((q) => speciesTerms(q, info)), cap, pref ? speciesTerms(pref, info) : null);
+  }
+  function refreshFloat() {
+    const info = S.cast;
+    if (!info || !v3on()) { view.favour = null; return; }
+    refreshInfo(info);
+    const f = favourAt(info);
+    const quietAt = num(BAL('favour').pressure?.quietAt, -0.36);
+    view.favour = { mu: round2(f.mu), notches: num(D().favourNotches?.(f.mu), 0), terms: f.terms, quiet: pressureFavour(info.pressureKey) <= quietAt };
+  }
+  /** Roll the size score of the hooked species (F1): z ~ N(μ, 1) truncated to the cast's cap; legends are authored (μ 0). */
+  function rollSize(sp = S.species, info = S.cast) {
+    if (!spV3(sp)) return;
+    const SZ = BAL('size');
+    const zone = zoneData()?.id || run()?.zone || null;
+    if (!info) info = castInfo(V.bob.x, V.bob.z, S.depth);
+    refreshInfo(info);
+    let z;
+    if (sp.rarity === 'legendary') {
+      z = S.forceZ != null ? S.forceZ : rollZ(0, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1) });
+      S.mu = 0; S.favourTerms = [];
+    } else {
+      const f = favourAt(info, sp);
+      const cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ });
+      z = S.forceZ != null ? S.forceZ : rollZ(f.mu, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
+      S.mu = f.mu; S.favourTerms = f.terms.filter((t) => t.value);
+    }
+    S.forceZ = null;
+    S.z = Math.round(z * 1e4) / 1e4; S.zRolled = true;
+    S.sizeClass = D().sizeClassOf(S.z);
+    S.ancient = S.sizeClass === 'elder' && !!D().isAncient?.(S.z);
+    S.lengthCm = D().sizeLength(sp, S.z, zone);
+    const kg = D().sizeWeight(sp, S.lengthCm);
+    S.weight = kg < 1 ? Math.round(kg * 1000) / 1000 : Math.round(kg * 100) / 100;
+  }
+  const classOf = (id) => (D().SIZE_CLASSES || []).find((c) => c.id === id) || null;
 
   let legendCache = { zone: undefined, info: null };
   function legendInfo() {
@@ -235,6 +499,8 @@ export function create(ctx) {
     view.surgeKind = null; view.decoyMin = null; view.decoyMax = null; view.shards = null; view.bandsHidden = false;
     view.phaseName = ''; view.legendary = false; view.enraged = false; view.tell = null; view.anchoring = false;
     view.holding = false; view.lightMult = 1; view.snapAt = 1; view.inSpot = false;
+    view.favour = null; view.sizeClass = null; view.ancient = false; view.pips = null; view.biteTell = null; view.slip = 0; view.place = null;
+    S.cast = null; S.tell = null;
   }
 
   /** Silent reset (death, zone change, run end, title). No miss/escape events. */
@@ -242,7 +508,7 @@ export function create(ctx) {
     disposeHooked(false);
     if (S.flee) { disposeFv(S.flee.fv); S.flee = null; }
     if (clearCatch) releaseCatch();
-    S.reel = null; S.holding = false; S.summons.length = 0; S.bannerT = -1;
+    S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     api.bobberPos = null;
     resetView();
     fx.hideTransient();
@@ -257,7 +523,7 @@ export function create(ctx) {
 
   function toLost(dur, keepLine = true) {
     S.lostDur = dur; S.lostLine = keepLine;
-    S.reel = null; S.holding = false;
+    S.reel = null; S.holding = false; S.snags.length = 0;
     resetView();
     setState('lost');
   }
@@ -281,6 +547,7 @@ export function create(ctx) {
         toLost(num(BAL('cast').spookReelIn, 1.5));
         break;
       case 'bite':
+        S.hookTried = true;   // any tap in the window is a hook attempt (no "let it pass")
         hook();
         break;
       case 'reeling':
@@ -357,13 +624,20 @@ export function create(ctx) {
       setState('idle');
       return;
     }
+    const lw = lampWatchLimit();
+    if (lw && Math.hypot(V.target.x - lw.x, V.target.z - lw.z) > lw.r) {
+      emit('toast', { text: `On a lamp-watch you fish within ${Math.round(lw.r)} m of the lamp.`, kind: 'info' });
+      setState('idle');
+      return;
+    }
     beginCast(d, S.charge);
   }
 
   function beginCast(dist, power, instant = false) {
     const C = BAL('cast');
     S.castDist = dist;
-    S.clean = power >= num(C.cleanAt, 0.92);
+    S.extShift.set(0, 0, 0);   // raft displacement no paddling caused, since this cast (lineBroken in Still / Lantern)
+    S.clean = power >= cleanAt(C);
     // bait: one general charge per cast; legend baits are spent by progression on hook
     const eq = equippedBaitId();
     let consumed = null;
@@ -418,20 +692,34 @@ export function create(ctx) {
       call(() => ctx.ui?.floatText?.(V.bob.clone().setY(0.6), 'Clean Cast', 'clean'));
       fx.burst(x, 0.15, z, { color: 0xffe2a8, color2: 0xe9e2cf, count: 14, spread: 1.6, up: 2.2, gravity: 4, size: 0.07, life: 0.9 });
     }
+    if (v3on()) {
+      S.cast = castInfo(x, z, S.depth);
+      const LP = BAL('bite').letItPass || {};
+      if (S.letPass && S.clock - S.letPass.at > num(LP.resetAfter, 60)) S.letPass = null;
+      if (S.letPass && (Math.hypot(S.letPass.x - x, S.letPass.z - z) <= num(LP.sameWater?.radius, 6)
+        || (S.letPass.place && S.letPass.place === S.cast.place?.id))) S.cast.letPass = S.letPass.value;
+      view.place = S.cast.place?.id || null;
+      refreshFloat(); S.floatT = 0.5;
+    }
     rollBite();
     setState('waiting');
   }
 
-  function rollSpecies(depth, rb, baitId) {
+  /** The species that can bite here (zone, hour, depth band, bait), with today's fallbacks. */
+  function speciesPool(depth, baitId, phase) {
     const z = zoneData();
     const zoneId = z?.id || run()?.zone;
-    const phase = phaseNow();
-    const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
-    const attract = baitById(baitId)?.bonus?.attract || [];
     const all = (D().SPECIES || []).filter((s) => s.zone === zoneId && s.rarity !== 'legendary');
     let pool = all.filter((s) => timeOk(s, phase) && depth >= num(s.depth?.[0], 0) && depth <= num(s.depth?.[1], 1) && (!s.bait || s.bait === baitId));
     if (!pool.length) pool = all.filter((s) => !s.bait && timeOk(s, phase));
     if (!pool.length) pool = all.length ? all : (D().SPECIES || []).filter((s) => s.rarity !== 'legendary');
+    return pool;
+  }
+  function rollSpecies(depth, rb, baitId) {
+    const phase = phaseNow();
+    const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
+    const attract = baitById(baitId)?.bonus?.attract || [];
+    const pool = speciesPool(depth, baitId, phase);
     if (!pool.length) return null;
     let total = 0;
     const w = pool.map((s) => {
@@ -467,7 +755,8 @@ export function create(ctx) {
     if (lg && baitId && baitId === lg.baitId && timeOk(lg.species, phase) && S.clock >= S.legendDimUntil
       && Math.hypot(V.bob.x - lg.x, V.bob.z - lg.z) <= lg.r) S.legendCast = true;
     let sp;
-    if (S.legendCast) sp = lg.species;
+    if (S.forceSpecies) { sp = S.forceSpecies; S.forceSpecies = null; S.legendCast = sp.rarity === 'legendary'; }   // debug forceBite({speciesId})
+    else if (S.legendCast) sp = lg.species;
     else {
       const rb = num(st.rarityBonus, 0) + baitBonus(baitId, 'rarityBonus')
         + (S.spot ? (S.rareSpot ? num(SP.rareRarity, 0.25) : num(SP.rarity, 0.1)) : 0)
@@ -475,9 +764,12 @@ export function create(ctx) {
       sp = rollSpecies(S.depth, rb, baitId);
     }
     S.species = sp;
-    S.weight = sp ? rollWeight(sp, baitId) : 1;
+    S.zRolled = false; S.z = null; S.sizeClass = null; S.ancient = false; S.tell = null; S.hookTried = false; S.revealed = false;
+    if (spV3(sp)) S.weight = 1;   // v3: the size score is rolled when the bite begins (rollSize), not here
+    else S.weight = sp ? rollWeight(sp, baitId) : 1;
     // wait
-    const biteSpeed = Math.max(0.1, num(st.biteSpeed, 1) + baitBonus(baitId, 'biteSpeed'));
+    const biteSpeed = Math.max(0.1, num(st.biteSpeed, 1) + baitBonus(baitId, 'biteSpeed')
+      + (gloom ? num(procs('night')?.nightBiteSpeed, 0) : 0));   // v3 Night Eyes: night bite speed +10%
     let W = (num(Bt.waitBase, 3) + expRand(num(Bt.waitMean, 5.5)))
       / (biteSpeed * (S.spot ? 1 / num(SP.waitMult, 0.55) : 1) * (gloom ? num(Bt.gloomMult, 1.15) : 1))
       * (S.clean ? num(C.cleanBiteMult, 0.85) : 1) * (isPity ? num(Bt.pity?.waitMult, 0.7) : 1);
@@ -531,14 +823,74 @@ export function create(ctx) {
     const hw = Math.max(0.1, stat('hookWindow', 1) + baitBonus(S.castBait, 'hookWindow'));
     S.window = clamp(num(sp.difficulty?.window, 1) * hw * (starving() ? 0.85 : 1) + (wounded > 0 ? num(L.windowBonus, 0.1) : 0),
       num(Bt.windowMin, 0.35), num(Bt.windowMax, 1.4));
+    const v3 = spV3(sp);
+    if (v3) {
+      if (!S.zRolled) rollSize();
+      if (!S.tell) S.tell = sp.rarity === 'legendary' ? 'dome' : classOf(S.sizeClass)?.bite || 'plunge';
+      // Prize+ fish hold the bait 10% longer (DESIGN §25.6.4)
+      if (classIndex(S.sizeClass) >= classIndex(Bt.holdMultFrom || 'prize')) S.window *= num(Bt.holdMult, 1.1);
+      view.biteTell = S.tell;
+    }
     const x = V.bob.x, z = V.bob.z;
-    call(() => ctx.water?.splash?.(x, z, { size: 0.5, count: 12 }));
+    call(() => ctx.water?.splash?.(x, z, { size: v3 ? 0.5 + 0.12 * Math.max(0, classIndex(S.sizeClass) - 1) : 0.5, count: 12 }));
     call(() => ctx.water?.addRipple?.(x, z, 1.2));
     fx.pulse(x, z, { color: 0xff8a5a, r0: 0.2, r1: 1.2, duration: 0.45, width: 0.07, alpha: 1 });
     fx.pulse(x, z, { color: 0xffc27a, r0: 0.4, r1: 2.0, duration: 0.8, width: 0.05, alpha: 0.6 });
     view.tell = null;
     setState('bite');
-    emit('fishing:bite', { speciesId: sp.id });
+    emit('fishing:bite', v3 ? { speciesId: sp.id, sizeClass: S.sizeClass, biteTell: S.tell } : { speciesId: sp.id });
+  }
+
+  /** The class's bite tell (F4): the size is rolled now and the bobber shows it before the "!" (readable with sound off). */
+  function beginTell() {
+    rollSize();
+    const sp = S.species;
+    S.tell = sp?.rarity === 'legendary' ? 'dome' : classOf(S.sizeClass)?.bite || 'plunge';
+    const dur = { doublePop: 0.36, plunge: 0, dragUnder: num(BAL('bite').dragUnder, 0.4), flatSlide: 0.5, dome: 0.6 }[S.tell] ?? 0;
+    S.tellStart = Math.max(S.stateT, S.waitDur - dur);
+    S.tellPops = 0;
+    V.tmp.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
+    if (V.tmp.lengthSq() > 1e-4) V.tmp.normalize(); else V.tmp.set(0, 0, -1);
+    S.tellDir.set(-V.tmp.z, 0, V.tmp.x).multiplyScalar(Math.random() < 0.5 ? -1 : 1);   // a sideways slide for the flat tell
+    view.biteTell = S.tell;
+    emit('fishing:tell', { speciesId: sp?.id || null, sizeClass: S.sizeClass, biteTell: S.tell, lead: Math.max(0, S.waitDur - S.stateT), dur });
+  }
+  /** The tell's bobber pose at its progress k (0 → 1): {dip (m below the surface), slide (m), state}. */
+  function tellPose(k) {
+    const x = V.bob.x, z = V.bob.z;
+    switch (S.tell) {
+      case 'doublePop': {   // Small: a quick double pop
+        const pop = (k < 0.22) || (k >= 0.5 && k < 0.72);
+        const n = k >= 0.5 ? 2 : 1;
+        if (S.tellPops < n) { S.tellPops = n; fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.1, r1: 0.55, duration: 0.3, alpha: 0.7 }); }
+        return { dip: pop ? 0.08 : 0, slide: 0, state: pop ? 'nibble' : 'floating' };
+      }
+      case 'dragUnder': {   // Prize: a slow drag-under
+        if (!S.tellPops) { S.tellPops = 1; fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.2, r1: 1.6, duration: 0.9, width: 0.06, alpha: 0.75 }); }
+        return { dip: num(BAL('bite').plunge, 0.25) * smoothstep(0, 1, k), slide: 0.25 * k, state: 'nibble' };
+      }
+      case 'flatSlide': {   // Trophy: the bobber lies flat, then slides away
+        if (!S.tellPops) { S.tellPops = 1; fx.pulse(x, z, { color: 0xb0483c, r0: 0.25, r1: 1.4, duration: 0.8, width: 0.07, alpha: 0.8 }); }
+        if (k > 0.3) call(() => ctx.water?.addWake?.(x, z, S.tellDir.x, S.tellDir.z, 0.35));
+        return { dip: -0.03, slide: 0.7 * smoothstep(0.3, 1, k), state: 'floating' };
+      }
+      case 'dome': {        // Elder: a dome of water bulges up under the bobber first
+        if (S.tellPops < 1) { S.tellPops = 1; fx.pulse(x, z, { color: 0x1a1f2c, r0: 0.3, r1: 2.6, duration: 1.0, width: 0.14, alpha: 0.9 }); call(() => ctx.water?.addRipple?.(x, z, 1.6)); }
+        if (S.tellPops < 2 && k > 0.55) { S.tellPops = 2; fx.pulse(x, z, { color: 0xd8d0ff, r0: 0.4, r1: 3.2, duration: 0.8, width: 0.05, alpha: 0.55 }); call(() => ctx.water?.addRipple?.(x, z, 2.2)); }
+        return { dip: -0.18 * smoothstep(0, 0.8, k), slide: 0, state: 'floating' };
+      }
+      default: return { dip: 0, slide: 0, state: 'floating' };
+    }
+  }
+  /** Let it pass (F4): the lapsed bite's general bait comes back and the next cast in the same water gets +0.15 favour (cap 0.3). */
+  function letItPass() {
+    const LP = BAL('bite').letItPass || {};
+    const b = S.castBait ? baitById(S.castBait) : null;
+    let refunded = false;
+    if (b && !b.legend) { try { refunded = prog()?.refundBait?.(S.castBait) === true; } catch (e) { report(e); } }
+    const prev = S.letPass && S.clock - S.letPass.at <= num(LP.resetAfter, 60) ? S.letPass.value : 0;
+    S.letPass = { value: Math.min(num(LP.cap, 0.3), round2(prev + num(LP.favour, 0.15))), x: V.bob.x, z: V.bob.z, place: S.cast?.place?.id || null, at: S.clock };
+    return refunded;
   }
 
   function hook() {
@@ -551,15 +903,27 @@ export function create(ctx) {
     S.perfect = perfect;
     // (the perfect-hook streak lives in run.flags.streak and is kept by progression from fishing:hook / fishing:miss)
     const legendary = sp.rarity === 'legendary';
-    // reel model
+    // reel model (v3: size scales the species before createReel, and the reel gets its v3 edits)
     const st = stats();
+    let diff = sp.difficulty || FALLBACK_DIFF, v3opts;
+    if (spV3(sp)) {
+      if (!S.zRolled) rollSize();
+      const SZ = BAL('size');
+      const zone = sp.zone && SZ.fight?.elderAge?.[sp.zone] != null ? sp.zone : (zoneData()?.id || run()?.zone);
+      diff = scaleDifficultyV3(diff, sp.behavior || 'steady', legendary ? num(SZ.fight?.legendZ, 0) : S.z, zone, SZ, BAL('reel'));
+      v3opts = reelOptsV3({ size: SZ, bite: BAL('bite'), stats: st, z: S.z, legendary, perfect, style: sp.style || sp.behavior, sizeClass: S.sizeClass });
+      S.letPass = null;   // a hook resets let it pass
+    }
     S.reel = createReel({
-      R: BAL('reel'), sp: sp.difficulty || FALLBACK_DIFF, behavior: sp.behavior || 'steady', boss: sp.boss || null, legendary,
+      R: BAL('reel'), sp: diff, behavior: sp.behavior || 'steady', boss: sp.boss || null, legendary,
       LS: num(st.lineStrength, 1), RS: num(st.reelSpeed, 1) * (starving() ? 0.75 : 1), sweetZone: num(st.sweetZone, 0.16),
       slackTime: num(st.slackTime, 1.6), perfect, startP: S.wounded, onEvent: onReelEvent,
+      ...(v3opts ? { v3: v3opts, rng: S.rng || undefined } : {}),
     });
+    view.pips = v3opts && S.reel.pipsMax ? { n: S.reel.pips, max: S.reel.pipsMax } : null;
+    if (v3opts) { view.favour = null; view.biteTell = null; }   // the float and its tell are gone once the fish is on (the card lists the favours)
     S.holding = true;   // the hook tap is the start of the hold
-    S.moveHold = 0; S.gearT = 0; S.summons.length = 0;
+    S.moveHold = 0; S.gearT = 0; S.summons.length = 0; S.snags.length = 0;
     S.hookDist = Math.max(2.5, Math.hypot(V.bob.x - raftPos().x, V.bob.z - raftPos().z));
     V.lineDir.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
     if (V.lineDir.lengthSq() < 1e-4) V.lineDir.set(0, 0, -1); else V.lineDir.normalize();
@@ -571,7 +935,8 @@ export function create(ctx) {
     fx.pulse(x, z, { color: perfect ? 0xffe2a8 : 0xe9e2cf, r0: 0.2, r1: perfect ? 1.9 : 1.3, duration: 0.55, width: 0.05, alpha: 0.7 });
     if (perfect) fx.burst(x, 0.3, z, { color: 0xffe2a8, color2: 0xffffff, count: 16, spread: 2, up: 3, gravity: 5, size: 0.07, life: 0.8 });
     setState('reeling');
-    emit('fishing:hook', { speciesId: sp.id, perfect, legendary, name: sp.name, epithet: sp.epithet || '' });
+    emit('fishing:hook', v3opts ? { speciesId: sp.id, perfect, legendary, name: sp.name, epithet: sp.epithet || '', pips: S.reel.pipsMax ? S.reel.pips : null }
+      : { speciesId: sp.id, perfect, legendary, name: sp.name, epithet: sp.epithet || '' });
     if (legendary) {
       S.bannerT = num(BAL('legend').bannerDelay, 0.4);
       view.phaseName = S.reel.phaseName;
@@ -594,8 +959,18 @@ export function create(ctx) {
         if (ctx.isMobile) call(() => navigator.vibrate?.(25));
         break;
       case 'surge':
-        emit('fishing:surge', { strength: p.strength, kind: p.kind });
+        emit('fishing:surge', p.trick ? { strength: p.strength, kind: p.kind, trick: true } : { strength: p.strength, kind: p.kind });
         onSurgeVisual(p.kind, p.duration);
+        break;
+      case 'oldTrick':   // every Elder, once past 55%: a short-warning surge whose kind must be read (DESIGN §25.6.5)
+        emit('fishing:oldTrick', { speciesId: sp?.id || null, kind: p.kind, style: p.style || null });
+        fx.pulse(V.fish.x, V.fish.z, { color: 0x1a1f2c, r0: 0.5, r1: 4.2, duration: 0.9, width: 0.12, alpha: 0.85 });
+        call(() => ctx.render?.shake?.(0.12, 0.3));
+        break;
+      case 'pip':        // a hook-hold pip lost (tension dipped below 0.15 in a surge)
+        view.pips = { n: p.n, max: p.max };
+        emit('fishing:pip', { n: p.n, max: p.max });
+        fx.burst(V.mouth.x, Math.max(0.2, V.mouth.y + 0.2), V.mouth.z, { color: 0xe9e2cf, color2: 0xffe2a8, count: 6, spread: 1.2, up: 1.6, gravity: 6, size: 0.05, life: 0.5 });
         break;
       case 'surgeEnd': break;
       case 'phase':
@@ -629,6 +1004,7 @@ export function create(ctx) {
   function onSurgeVisual(kind, duration) {
     const x = V.fish.x, z = V.fish.z, L = S.fishLen;
     if (kind === 'leap') {
+      if (S.zRolled && !S.revealed && S.species?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.revealed = true; view.sizeClass = S.sizeClass; view.ancient = S.ancient; }
       F.leap = true; F.leapT = 0; F.leapCount = 0;
       F.leapDur = clamp(Math.min(duration, 0.7 + L * 0.25), 0.5, 1.6);
       F.leapH = clamp(0.7 + L * 0.55, 0.8, 3.2);
@@ -784,6 +1160,7 @@ export function create(ctx) {
 
   function startLanding() {
     S.quality = computeQuality();
+    if (S.zRolled && S.species?.rarity !== 'legendary') { view.sizeClass = S.sizeClass; view.ancient = S.ancient; S.revealed = true; }   // legends carry no class
     F.landing = true;
     F.landFrom.copy(V.fish);
     S.holding = false;
@@ -827,6 +1204,10 @@ export function create(ctx) {
     const weight = num(opts.weight, S.weight);
     const quality = opts.quality || S.quality || 'normal';
     const phase = phaseNow();
+    const v3 = spV3(sp) && S.zRolled;
+    const v3x = v3 ? { z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: Math.round(S.lengthCm * 10) / 10, favours: S.favourTerms.map((t) => ({ ...t })),
+      place: S.cast?.place?.id || null, pressureKey: S.cast?.pressureKey || null, mu: round2(S.mu) } : null;
+    if (v3 && S.cast?.pressureKey && sp.rarity !== 'legendary') S.pressure[S.cast.pressureKey] = (S.pressure[S.cast.pressureKey] || 0) + 1;   // pressure: −0.12 per catch here today
     const fv = F.fv; F.fv = null;
     fx.setShadow(false);
     if (fv) {
@@ -850,6 +1231,7 @@ export function create(ctx) {
       speciesId: sp.id, weight, quality,
       legendary, final: !!sp.final, perfect: !!S.perfect, inSpot: !!S.spot, rareSpot: !!S.rareSpot,
       depth: S.depth, night: phase === 'gloomtide', zone: zoneData()?.id || run()?.zone || null,
+      ...(v3x || {}),
     });
     if (legendary) {
       const r = run();
@@ -886,6 +1268,10 @@ export function create(ctx) {
     } else call(() => ctx.water?.splash?.(x, z, { size: 0.4, count: 8 }));
     disposeHooked(true);
     fx.setShadow(false);
+    if (spV3(sp) && S.zRolled && sp.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex(BAL('ceremony').nearMiss?.fromClass || 'prize')) {
+      emit('fish:escaped-big', { speciesId: sp.id, z: S.z, sizeClass: S.sizeClass, length: Math.round(S.lengthCm * 10) / 10, progress: P,
+        cause: reason === 'snap' || reason === 'thrown' || reason === 'spooled' ? reason : 'slack', place: S.cast?.place?.id || null, markedFish: false });
+    }
     emit('fishing:escaped', { speciesId: sp?.id || null, reason, ...extra });
     toLost(reason === 'snap' ? 0.35 : num(BAL('cast').reelInTime, 0.6), reason !== 'snap');
     if (reason !== 'snap') V.bob.set(x, 0, z);
@@ -893,6 +1279,10 @@ export function create(ctx) {
 
   // ---------------------------------------------------------------- cancel / slam
   function cancel(reason = 'moved') {
+    if (reason === 'snap' && hookSafe()) return;   // Still / Lantern: a slam never snaps the line (DESIGN §25.5.3)
+    // Still / Lantern: a "the raft was dragged away from the bobber" cancel with no paddling behind it is combat displacement
+    // (a knock, a shove, a pull); fishing's own lineBroken() discounts it, so the line stays out (CONTRACT §13.7 the hard rule)
+    if (reason === 'moved' && (state === 'casting' || state === 'waiting' || state === 'bite') && hookSafe() && !moveInput() && !lineBroken()) return;
     if (reason === 'snap') {   // e.g. a hand slam (combat) snaps a non-legendary line
       if (state === 'reeling' || state === 'landing') { if (S.reel) S.reel.done = true; escaped('snap'); }
       else if (state === 'bite') {
@@ -930,8 +1320,21 @@ export function create(ctx) {
     if (S.clock - S.slamAt < 0.3) return;
     S.slamAt = S.clock;
     if (state !== 'reeling' || !S.reel) return;
+    if (hookSafe()) return;   // Still / Lantern: a slam neither snaps nor spikes a hooked line
     if (S.species?.rarity === 'legendary') S.reel.spike(0.25);
     else { S.reel.done = true; escaped('snap', { slam: true }); }
+  }
+  /** A telegraphed snag on a hooked line (Still / Lantern legend fights, DESIGN §25.5.6; combat may call it too): a dark shape
+   *  rises under the water at the fish, and `lead` s later the line takes +spike tension. Released through, it is a surge;
+   *  it never snaps a line by itself. Returns false when nothing is hooked. */
+  function snag({ lead = 1, spike = 0.2 } = {}) {
+    if (state !== 'reeling' || !S.reel) return false;
+    const l = Math.max(0, num(lead, 1)), sp = clamp(num(spike, 0.2), 0, 0.6);
+    S.snags.push({ at: S.reel.time + l, spike: sp });
+    fx.pulse(V.fish.x, V.fish.z, { color: 0x14161e, r0: 0.3, r1: 2.4, duration: Math.max(0.4, l), width: 0.16, alpha: 0.9 });
+    call(() => ctx.water?.addRipple?.(V.fish.x, V.fish.z, 1.4));
+    emit('fishing:snag', { state: 'warn', lead: l, spike: sp });
+    return true;
   }
 
   // ---------------------------------------------------------------- catch display
@@ -1113,7 +1516,9 @@ export function create(ctx) {
     aCall('setCharge', S.charge);
     // visuals
     const raft = raftPos();
-    const clean = S.charge >= num(C.cleanAt, 0.92) ? 1 : 0;
+    const cAt = cleanAt(C);
+    if (v3on()) view.cleanAt = cAt;
+    const clean = S.charge >= cAt ? 1 : 0;
     const key = view.anchoring ? 'anchoring' : S.blocked ? 'blocked' : S.band;
     const size = (1.05 + 0.045 * S.castDist) / 0.74;
     fx.setReticle(true, V.target.x, V.target.z, size, key, clean, view.anchoring ? 0.55 : 1, S.clock * 0.6);
@@ -1137,7 +1542,10 @@ export function create(ctx) {
 
   function lineBroken() {
     const raft = raftPos();
-    return Math.hypot(V.bob.x - raft.x, V.bob.z - raft.z) > S.castDist + num(BAL('cast').lineBreakDist, 4);
+    let x = raft.x, z = raft.z;
+    // Still / Lantern: distance that combat added (knockback, shoves, pulls: raft motion with no paddling) never breaks the line
+    if (hookSafe()) { x -= S.extShift.x; z -= S.extShift.z; }
+    return Math.hypot(V.bob.x - x, V.bob.z - z) > S.castDist + num(BAL('cast').lineBreakDist, 4);
   }
 
   function updateWaiting(dt) {
@@ -1176,12 +1584,31 @@ export function create(ctx) {
       if (S.dipKind === 'tell') { const k = S.dipT; dip = (k > 0.34 || (k < 0.22 && k > 0)) ? num(Bt.nibbleDip, 0.06) : 0; if (k > 0.22 && k <= 0.34) bobState = 'floating'; }
       else dip = S.dipKind === 'feint' ? num(Bt.feintDip, 0.12) : num(Bt.nibbleDip, 0.06);
     } else view.tell = null;
+    // v3: the class's bite tell plays over the last moments before the bite
+    let slide = 0;
+    if (spV3(S.species)) {
+      if (!S.zRolled && S.stateT >= S.waitDur - TELL_LEAD) beginTell();
+      if (S.tell && S.stateT >= S.tellStart) {
+        const span = Math.max(1e-3, S.waitDur - S.tellStart);
+        const tp = tellPose(clamp((S.stateT - S.tellStart) / span, 0, 1));
+        dip = tp.dip; bobState = tp.state; slide = tp.slide;
+      }
+    }
+    let ox = 0, oz = 0;
+    if (slide && S.tell === 'flatSlide') { ox = S.tellDir.x * slide; oz = S.tellDir.z * slide; }   // slides sideways
+    else if (slide && S.tell === 'dragUnder') {                                                    // dragged away from the raft
+      const dx = V.bob.x - V.raft.x, dz = V.bob.z - V.raft.z, l = Math.hypot(dx, dz) || 1;
+      ox = (dx / l) * slide; oz = (dz / l) * slide;
+    }
     const h = waterH(V.bob.x, V.bob.z);
-    V.tmp.set(V.bob.x, h - dip, V.bob.z);
+    V.tmp.set(V.bob.x + ox, h - dip, V.bob.z + oz);
     aBob(true, V.tmp, bobState);
     aLine(true, V.tmp, 0.05, 0.7);
     aCall('setAim', Math.atan2(-(V.bob.x - V.raft.x), -(V.bob.z - V.raft.z)));
-    if (S.stateT >= S.waitDur) bite();
+    if (S.stateT >= S.waitDur) {
+      if (slide && (S.tell === 'flatSlide' || S.tell === 'dragUnder')) V.bob.set(V.tmp.x, 0, V.tmp.z);   // the bite happens where the tell left the float
+      bite();
+    }
   }
 
   function updateBite(dt) {
@@ -1192,7 +1619,9 @@ export function create(ctx) {
     aBob(true, V.tmp, 'bite');
     aLine(true, V.tmp, 0.4, 0.1);
     if (S.stateT > S.window) {
-      emit('fishing:miss', { reason: 'late' });
+      const passed = spV3(S.species) && !S.hookTried;   // v3: a bite left alone is a choice, not a miss (let it pass)
+      if (passed) { const refunded = letItPass(); emit('fishing:miss', { reason: 'passed', refunded, favour: S.letPass?.value ?? 0 }); }
+      else emit('fishing:miss', { reason: 'late' });
       call(() => ctx.water?.addRipple?.(V.bob.x, V.bob.z, 0.5));
       toLost(num(BAL('cast').reelInTime, 0.6));
     }
@@ -1206,7 +1635,9 @@ export function create(ctx) {
     if (S.gearT <= 0) {
       S.gearT = 0.5;
       const st = stats();
-      reel.setGear({ LS: num(st.lineStrength, 1), RS: num(st.reelSpeed, 1) * (starving() ? 0.75 : 1), sweetZone: num(st.sweetZone, 0.16), slackTime: num(st.slackTime, 1.6) });
+      reel.setGear({ LS: num(st.lineStrength, 1), RS: num(st.reelSpeed, 1) * (starving() ? 0.75 : 1), sweetZone: num(st.sweetZone, 0.16), slackTime: num(st.slackTime, 1.6),
+        absorb: num(st.absorb, NaN), dragAt: num(st.dragAt, NaN), shock: num(st.shock, NaN) });
+      if (v3on()) { view.drag = dragName(num(st.dragAt, 0.8)); view.lure = run()?.lure ?? null; }
     }
     // cut line: holding movement for 0.6 s (fallback if player.js doesn't call cancel)
     const mv = ctx.input ? Math.hypot((ctx.input.move?.x || 0) + (ctx.input.joy?.x || 0), (ctx.input.move?.y || 0) + (ctx.input.joy?.y || 0)) : 0;
@@ -1225,10 +1656,16 @@ export function create(ctx) {
       const s = S.summons[i];
       if (reel.time >= s.at) { S.summons.splice(i, 1); summon(s); }
     }
+    for (let i = S.snags.length - 1; i >= 0; i--) {   // telegraphed snags: the spike lands `lead` s after the warning
+      const s = S.snags[i];
+      if (reel.time >= s.at) { S.snags.splice(i, 1); reel.spike(s.spike); emit('fishing:snag', { state: 'hit', spike: s.spike }); call(() => ctx.render?.shake?.(0.1, 0.25)); }
+    }
     if (reel.done) {
       if (reel.result === 'landed') startLanding();
       else if (reel.result === 'snap') escaped('snap');
       else if (reel.result === 'slack') escaped('slack');
+      else if (reel.result === 'thrown') escaped('thrown');     // v3: hook-hold pips ran out
+      else if (reel.result === 'spooled') escaped('spooled');   // v3: progress 0 after the drag slipped
       return;
     }
     updateHooked(dt, t);
@@ -1240,6 +1677,7 @@ export function create(ctx) {
     view.phaseName = reel.phaseName; view.enraged = reel.enraged; view.holding = S.holding; view.lightMult = reel.lightMult;
     view.snapAt = reel.snapAt || 1;
     view.hint = S.species?.rarity === 'legendary' ? reel.phaseName : '';
+    view.slip = reel.slipped || 0;
     // actors
     const leaping = F.leap;
     if (leaping) V.lineEnd.copy(V.mouth);
@@ -1260,6 +1698,10 @@ export function create(ctx) {
   }
 
   function summon(s) {
+    // v3, Still and Lantern: the Lantern-Swallower's Grasping Dark summons no hands; each becomes a telegraphed snag instead
+    // (BALANCE.nightModes.legendQuiet: a hand silhouette under the water `lead` s ahead, then +spike tension; DESIGN §25.5.6)
+    const LQ = hookSafe() ? BAL('nightModes').legendQuiet?.[S.species?.id] : null;
+    if (LQ && typeof LQ === 'object' && LQ.snags) { snag({ lead: num(LQ.lead, 1), spike: num(LQ.spike, 0.2) }); return; }
     // the Pale Leviathan's Grasping Dark: scripted Ringed Grasp hands with full telegraphs
     const pos = raftPos().clone();
     const opts = { force: true, zoneMod: s.zoneMod, scripted: true, source: 'legendary' };
@@ -1296,10 +1738,23 @@ export function create(ctx) {
   }
 
   // ---------------------------------------------------------------- debug
-  function debugForceBite() {
+  /** forceBite() / forceBite({speciesId, z, place, wait}) (CONTRACT §13.11): the next bite now, optionally of a species, a size
+   *  score (used as-is, past every cap) and as if cast inside a place. `wait` (s, or true = 1.5 s) lands the bobber and lets the
+   *  short wait and the class's bite tell play out instead of jumping to the bite. */
+  function debugForceBite(opts = {}) {
     if (!playing()) return false;
     if (state === 'reeling' || state === 'landing') return false;
-    if (state === 'bite') { S.stateT = 0; return true; }
+    const o = opts && typeof opts === 'object' ? opts : {};
+    const fsp = o.speciesId ? speciesById(o.speciesId) : null;
+    if (o.speciesId && !fsp) return false;
+    if (state === 'bite') {
+      if (fsp || o.z != null) {
+        if (fsp) S.species = fsp;
+        if (spV3(S.species)) { S.forceZ = o.z ?? null; S.zRolled = false; S.tell = null; rollSize(); S.tell = S.species.rarity === 'legendary' ? 'dome' : classOf(S.sizeClass)?.bite || 'plunge'; view.biteTell = S.tell; }
+      }
+      S.stateT = 0; return true;
+    }
+    S.forceSpecies = fsp; S.forceZ = o.z ?? null; S.forcePlace = o.place || null;
     if (state === 'idle' || state === 'charging' || state === 'lost') {
       const raft = raftPos();
       if (state !== 'charging') {
@@ -1312,16 +1767,33 @@ export function create(ctx) {
       S.aimYaw = Math.atan2(-V.aimDir.x, -V.aimDir.z);
       beginCast(d || 4, 0.6, true);
     } else if (state === 'casting') land();
-    if (state === 'waiting') { S.events.length = 0; bite(); }
-    return state === 'bite';
+    if (state === 'waiting') {
+      if (fsp && S.species !== fsp) { S.species = fsp; S.zRolled = false; }
+      if (o.z != null && spV3(S.species)) { S.forceZ = o.z; S.zRolled = false; }
+      S.events.length = 0;
+      if (o.wait) { S.waitDur = Math.max(TELL_LEAD + 0.1, o.wait === true ? 1.5 : num(o.wait, 1.5)); S.stateT = 0; }
+      else bite();
+    }
+    S.forceSpecies = null; S.forcePlace = null;
+    return o.wait ? state === 'waiting' : state === 'bite';
   }
-  function debugInstantCatch(speciesId) {
+  function debugInstantCatch(speciesId, opts = {}) {
     if (!playing()) return false;
     let sp = speciesById(speciesId);
     if (!sp) sp = S.species && BUSY.has(state) && state !== 'charging' ? S.species : null;
     if (!sp) sp = rollSpecies(depthAt(raftPos().x, raftPos().z - 8), stat('rarityBonus', 0), equippedBaitId()) || (D().SPECIES || [])[0];
     if (!sp) return false;
-    const weight = sp === S.species ? S.weight : rollWeight(sp, equippedBaitId());
+    let weight;
+    if (spV3(sp)) {   // v3: the size score (forced, the one already rolled, or rolled now at the raft)
+      const zf = opts && typeof opts === 'object' ? opts.z : undefined;
+      if (zf != null || !(sp === S.species && S.zRolled)) {
+        const r0 = raftPos();
+        if (!S.cast) S.cast = castInfo(r0.x, r0.z, depthAt(r0.x, r0.z));
+        S.forceZ = zf ?? null;
+        S.species = sp; rollSize(sp, S.cast);
+      }
+      weight = S.weight;
+    } else weight = sp === S.species ? S.weight : rollWeight(sp, equippedBaitId());
     const quality = state === 'reeling' && S.reel ? computeQuality() : 'normal';
     S.reel = null;
     if (!F.fv || S.species !== sp) {
@@ -1332,14 +1804,15 @@ export function create(ctx) {
     caught({ species: sp, weight, quality });
     return true;
   }
-  function debugHook(speciesId) {
+  function debugHook(speciesId, opts = {}) {
     if (!playing()) return false;
     const sp = speciesById(speciesId);
     if (!sp) return false;
     if (state === 'reeling' || state === 'landing') hardReset();
     if (state !== 'bite') debugForceBite();
     if (state !== 'bite') return false;
-    S.species = sp; S.weight = rollWeight(sp, null);
+    S.species = sp;
+    if (spV3(sp)) { S.forceZ = opts?.z ?? null; S.zRolled = false; rollSize(); } else S.weight = rollWeight(sp, null);
     S.window = 99; S.stateT = 0;
     hook();
     return state === 'reeling';
@@ -1360,13 +1833,39 @@ export function create(ctx) {
     isBusy() { return BUSY.has(state); },
     slam() { try { slam(); } catch (e) { report(e); } },
     addSpots(n, opts) { try { return addSpots(n, opts || {}); } catch (e) { report(e); return 0; } },
+    // v3 (CONTRACT §13.7)
+    isHooked() { return state === 'reeling' || state === 'landing'; },
+    snag(opts) { try { return snag(opts || {}); } catch (e) { report(e); return false; } },
+    lineBroken() { try { return (state === 'casting' || state === 'waiting' || state === 'bite') && lineBroken(); } catch (e) { report(e); return false; } },
+    /** z for a species at favour μ: z ~ N(μ, 1) truncated to the cap (species / place maxClass, a top Trophy outside giant water). */
+    rollSize(species, mu = 0, { place = null, maxClass = null, giant = false } = {}) {
+      try {
+        const sp = typeof species === 'string' ? speciesById(species) : species;
+        const SZ = BAL('size');
+        if (!sp || !SZ.z) return null;
+        let cap = capZ({ species: sp, place, giantWater: giant, size: SZ });
+        if (maxClass && SZ.classMaxZ?.[maxClass] != null) cap = Math.min(cap, SZ.classMaxZ[maxClass]);
+        return rollZ(num(mu, 0), rnd, { min: num(SZ.z.min, -2), max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap });
+      } catch (e) { report(e); return null; }
+    },
+    /** favourAt({x, z}, species?) -> {mu, terms}: with a species its full μ, without it the float's μ (CONTRACT §13.7). */
+    favourAt(point, species = null) {
+      try {
+        if (!v3on() || !point || !Number.isFinite(point.x)) return null;
+        const info = castInfo(point.x, point.z, depthAt(point.x, point.z));
+        const sp = typeof species === 'string' ? speciesById(species) : species;
+        const f = favourAt(info, sp || null);
+        return { mu: round2(f.mu), terms: f.terms };
+      } catch (e) { report(e); return null; }
+    },
 
     init() {
       if (ctx.render?.scene && !ctx.render.isStub) ctx.render.scene.add(fx.group);
       const bus = ctx.bus;
       if (bus) {
         bus.on('zone:change', () => { hardReset(); clearSpots(); S.lastPhase = ''; S.legendDimUntil = -1; S.zonePending = 0.35; });
-        bus.on('run:start', () => { hardReset(); clearSpots(); S.lastPhase = ''; S.legendDimUntil = -1; S.legendToastDay = -1; S.zonePending = 0.35; });
+        bus.on('run:start', () => { hardReset(); clearSpots(); S.lastPhase = ''; S.legendDimUntil = -1; S.legendToastDay = -1; S.zonePending = 0.35; S.pressure = {}; S.letPass = null; });
+        bus.on('phase:change', ({ phase } = {}) => { if (phase === 'dawn') S.pressure = {}; });   // v3: pressure resets at dawn
         bus.on('run:end', () => { hardReset(); clearSpots(); });
         bus.on('player:died', () => hardReset());
         bus.on('flow:change', ({ flow } = {}) => { if (flow !== 'playing') { hardReset(); if (flow === 'title') clearSpots(); } });
@@ -1380,13 +1879,23 @@ export function create(ctx) {
         fx.setZoneColor(z?.palette?.glow ?? 0xb2b4ec);
       } catch { /* optional */ }
       Object.assign(ctx.debug || (ctx.debug = {}), {
-        forceBite: () => { try { return debugForceBite(); } catch (e) { report(e); return false; } },
-        instantCatch: (id) => { try { return debugInstantCatch(id); } catch (e) { report(e); return false; } },
-        fishHook: (id) => { try { return debugHook(id); } catch (e) { report(e); return false; } },
+        forceBite: (opts) => { try { return debugForceBite(opts); } catch (e) { report(e); return false; } },
+        instantCatch: (id, opts) => { try { return debugInstantCatch(id, opts); } catch (e) { report(e); return false; } },
+        fishHook: (id, opts) => { try { return debugHook(id, opts); } catch (e) { report(e); return false; } },
+        // v3 (CONTRACT §13.11)
+        setFavour: (mu = null) => { S.favourOverride = Number.isFinite(mu) ? mu : null; if (S.cast) refreshFloat(); return S.favourOverride; },
+        fishSeed: (seed = null) => { S.rng = Number.isFinite(seed) ? mulberry32(seed | 0) : null; return !!S.rng; },
+        fishPressure: () => ({ ...S.pressure }),
+        fishReel: () => S.reel,   // the live reel (tests drive pips / drag through it)
         fishSurge: () => { if (S.reel) { S.reel.forceSurge(); return true; } return false; },
         fishSpot: (rare = false) => { try { const s = spawnSpot({ rare }); return s ? { x: s.position.x, z: s.position.z } : null; } catch (e) { report(e); return null; } },
         fishing: () => ({ state, species: S.species?.id || null, weight: S.weight, depth: S.depth, wait: S.waitDur, events: S.events.map((e) => e.type), spot: !!S.spot, legend: S.legendCast,
-          reel: S.reel ? { T: S.reel.T, P: S.reel.P, phase: S.reel.phaseName, surge: S.reel.surge, kind: S.reel.surgeKind } : null, spots: api.spots.length, quality: S.quality, q: S.qScore }),
+          reel: S.reel ? { T: S.reel.T, P: S.reel.P, phase: S.reel.phaseName, surge: S.reel.surge, kind: S.reel.surgeKind, pips: S.reel.pips, slipped: S.reel.slipped, trick: S.reel.trick, trickDone: S.reel.trickDone, mode: S.reel.surgeMode, stamina: S.reel.stamina, power: S.reel.species?.power } : null,
+          spots: api.spots.length, quality: S.quality, q: S.qScore,
+          // v3
+          z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: S.lengthCm ? Math.round(S.lengthCm * 10) / 10 : null, mu: S.mu, terms: S.favourTerms, tell: S.tell,
+          place: S.cast?.place?.id || null, giant: !!S.cast?.giant, pressureKey: S.cast?.pressureKey || null, letPass: S.letPass ? { ...S.letPass } : null,
+          extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean }),
       });
     },
 
@@ -1406,6 +1915,15 @@ export function create(ctx) {
         S.stateT += dt;
       }
       raftPos();
+      // raft motion with no paddling (knockback, shoves, pulls) since the cast: lineBroken() ignores it in Still / Lantern
+      if (S.lastRaftOk && (state === 'casting' || state === 'waiting' || state === 'bite') && !moveInput()) {
+        S.extShift.x += V.raft.x - S.lastRaft.x; S.extShift.z += V.raft.z - S.lastRaft.z;
+      }
+      S.lastRaft.copy(V.raft); S.lastRaftOk = true;
+      if (S.cast && dt > 0 && (state === 'waiting' || state === 'bite')) {   // the float's favour follows the hour, signs and pressure
+        S.floatT -= dt;
+        if (S.floatT <= 0) { S.floatT = 0.5; try { refreshFloat(); } catch (e) { report(e); } }
+      }
       // zone settle: (re)seed spots once the world has rebuilt
       if (S.zonePending > 0 && dt > 0) {
         S.zonePending -= dt;

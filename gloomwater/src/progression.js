@@ -6,12 +6,31 @@
 // Trials / unlocks / Wicks / Relics / Waystones (progression-challenges.js), run summaries
 // and Memories. Pure logic: everything visible goes out through the bus (toast, events)
 // and the contract APIs of world / actors / ui.
+//
+// v3 (DESIGN §25, CONTRACT §13; only when data.V3_ENABLED): migrateSave (Pg0, ids only), createRun with
+// nightMode / outing (Pg12; run 1 is the First Outing, all still), getStats' fight stats from
+// data.upgradeTiers (shock, pipBonus, absorb, dragAt), makeFish(speciesId, z, quality, {favours, place}) and
+// measure(fish) (Pg1: the size model's figures, records, class firsts, instant Memories per
+// MEMORIES_V3.interim, first-release Memories), refundBait, and the interim death screen (no species row,
+// the nights row per night from the tally's values). With the flag off every path below is v1's.
 import { uid, clamp } from './core.js';
 import { createChallenges } from './progression-challenges.js';
 import { createMarket } from './progression-market.js';
+import * as V3H from './progression-v3.js';
+import * as DATA from './data.js';
+
+/**
+ * Pg0 as a module export (CONTRACT §13.1 boot: main may migrate the raw envelope before any module is created):
+ * migrateSave(save, data = the build's data module) -> save, ids only, idempotent; a no-op with the v3 flag off.
+ * The instance method `progression.migrateSave(save)` does the same with ctx.data.
+ */
+export function migrateSave(save, data = DATA) {
+  return V3H.migrateSave(data, save);
+}
 
 const QUALITY_RANK = { normal: 0, fine: 1, perfect: 2 };
 const BAIT_PREFERENCE = ['mireworm', 'lumen_moss', 'spore_cake', 'ember_roe', 'glass_larva', 'shimmerfly'];
+const SNUFF_TIP = 'The lantern guttered out. Render a fish before the oil runs dry: Burn (R) works without opening the creel.';
 const DAMAGE_TIPS = {
   darkness: 'Render a fish the moment your lantern gutters. Burn (R) works without opening the creel.',
   starvation: 'Eat a common fish each calm; a full belly also mends an extra Ember at dawn.',
@@ -31,6 +50,13 @@ export function create(ctx) {
   const BAL = (k) => D().BALANCE?.[k] || {};
   const real = (v) => (v && !v.isStub ? v : null);
   const report = (where, err) => { console.error(`[progression] ${where}`, err); ctx.errors?.push?.(`progression.${where}: ${err?.message || err}`); };
+  /** The v3 build (data.V3_ENABLED). Every v3 branch below is behind it; flag off = v1 behaviour. */
+  const V3 = () => D().V3_ENABLED === true;
+  /** P1–P2 rules for Memories (MEMORIES_V3.interim): which discoveries bank at once. */
+  const interim = () => D().MEMORIES_V3?.interim || null;
+  const instantMemory = (id) => { const I = interim(); return !I || (I.instant || []).includes(id); };
+  /** v3 rules apply to this run (The Long Descent keeps v1 / v2 rules except fishing's, CONTRACT §13.0). */
+  const v3Run = (r = run()) => V3() && !!r && r.outing !== 'descent';
 
   // ------------------------------------------------------------------ lookups
   const lookup = (map, arr, id) => (id == null ? null : D()[map]?.[id] || (D()[arr] || []).find((x) => x.id === id) || null);
@@ -52,6 +78,7 @@ export function create(ctx) {
   // ------------------------------------------------------------------ small helpers
   const toast = (text, kind = 'info') => { if (text) ctx.bus.emit('toast', { text, kind }); };
   const fmtKg = (kg) => { const v = Number(kg) || 0; return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : Math.round(v).toString()) + ' kg'; };
+  const fmtCm = (cm) => { const v = Number(cm) || 0; return v < 20 ? v.toFixed(1) : Math.round(v).toString(); };   // v3 lengths ("{cm} cm")
   const qualityLabel = (q) => D().QUALITY?.[q]?.label || 'Common';
   const round2 = (v) => Math.round(v * 100) / 100;
   let saveQueued = false;
@@ -84,6 +111,20 @@ export function create(ctx) {
   let statsVersion = 0;
   const cache = { run: undefined, frame: -1, version: -1, out: {} };
   function invalidate() { statsVersion++; }
+  const FIGHT_STATS = ['shock', 'pipBonus', 'absorb', 'dragAt'];
+  /** v3 fight stats of a run's owned upgrades: data.tackleStats(data.upgradeTiers(run.upgrades), drag preset). */
+  function fightStatsOf(r) {
+    const d = D();
+    if (typeof d.tackleStats !== 'function' || typeof d.upgradeTiers !== 'function') return null;
+    try { return d.tackleStats(d.upgradeTiers(r?.upgrades || {}), r?.flags?.drag || 'set'); } catch (e) { report('tackleStats', e); return null; }
+  }
+  /** Well-fed (BALANCE.wellFed): satiety at or above `at` of the run's max satiety. */
+  function wellFedOf(r, st) {
+    const W = BAL('wellFed');
+    if (!r || W.at == null) return false;
+    const max = st?.maxSatiety ?? D().STATS?.maxSatiety?.base ?? 100;
+    return (Number(r.satiety) || 0) >= W.at * max - 1e-9;
+  }
   function computeStats(out, r) {
     const STATS = D().STATS || {};
     const m = meta() || {};
@@ -92,6 +133,12 @@ export function create(ctx) {
       if (!effects || !lvl) return;
       for (const k in effects) { const v = effects[k]; if (typeof v === 'number' && k in out) out[k] += v * lvl; }
     };
+    if (r && V3()) {
+      // Pg12 (P1–P2 runs and The Long Descent): today's computeStats(UPGRADES) plus the fight stats of the effective
+      // tackle tiers of the owned upgrades (CONTRACT §13.7 getStats): shock, pipBonus, absorb, dragAt replace their base.
+      const ts = fightStatsOf(r);
+      for (const k of FIGHT_STATS) if (k in STATS && typeof ts?.[k] === 'number') out[k] = ts[k];
+    }
     if (r) {
       add(character(r.character)?.effects, 1);
       const ups = r.upgrades || {};
@@ -107,6 +154,8 @@ export function create(ctx) {
     const perks = D().JOURNAL_PERKS || {};
     const un = m.unlocks || {};
     for (const z in perks) if (un[`perk:${z}`]) add(perks[z].effects, 1);
+    // S3 seam (v3): Well-fed is a stat bonus, so it lives here; survival owns satiety and reads isWellFed()
+    if (r && V3() && wellFedOf(r, out)) add(BAL('wellFed').effects, 1);
     for (const k in STATS) {
       const s = STATS[k];
       let v = Math.round(out[k] * 1e6) / 1e6;
@@ -221,11 +270,26 @@ export function create(ctx) {
     const c = character(id);
     return !!c && (!c.unlock || challenges.isUnlocked(`character:${c.id}`));
   }
-  function createRun({ startZone = 'mossmere', character: charId = null } = {}) {
+  /**
+   * v3 (Pg12): the run's outing and night mode. Run 1 (meta.runs === 0, read before main counts the run) is the
+   * First Outing: every night still, in the First Outing's lake with its Wick, whatever was asked. Later runs take
+   * the chosen mode (BALANCE.nightModes.order), else the default (Lantern). The Long Descent is always Gloomtide.
+   */
+  function outingFor({ nightMode, outing } = {}) {
+    const NM = BAL('nightModes');
+    const first = D().EXPEDITION?.firstOuting || {};
+    if ((meta()?.runs || 0) === 0 && outing !== 'descent') return { outing: 'first', nightMode: first.nightMode || NM.firstOuting || 'still', zone: first.zone, character: first.character };
+    if (outing === 'descent') return { outing: 'descent', nightMode: D().LONG_DESCENT?.nightMode || 'gloomtide' };
+    const order = NM.order || ['still', 'lantern', 'gloomtide'];
+    return { outing: 'normal', nightMode: order.includes(nightMode) ? nightMode : (NM.default || 'lantern') };
+  }
+  function createRun({ startZone = 'mossmere', character: charId = null, nightMode = null, outing = null } = {}) {
     const data = D();
     const zones = data.ZONES || [];
     const econ = BAL('economy');
     const chars = data.CHARACTERS || [];
+    const om = V3() ? outingFor({ nightMode, outing }) : null;
+    if (om?.outing === 'first') { if (om.zone) startZone = om.zone; if (om.character && character(om.character)) charId = om.character; }
     const cid = characterUsable(charId) ? charId : (chars.find((c) => !c.unlock)?.id || chars[0]?.id || null);
     const ch = character(cid);
     const waystones = challenges.getWaystones();
@@ -261,6 +325,13 @@ export function create(ctx) {
       r.flags.waystoneStart = zid;
       r.flags.bankedLevels = econ.waystoneLevels?.[zid] || 0;
     }
+    if (om) {
+      // locked for the run: nothing in progression changes it after this (combat's test-only debug.mode aside)
+      r.outing = om.outing;
+      r.nightMode = om.nightMode;
+      r.tally = { dawns: 0, stillNights: 0, swarmNights: 0 };
+      r.flags.nightLog = [];
+    }
     r.equippedBait = firstGeneralBait(r);
     const st = computeStats({}, r);
     r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100;
@@ -268,7 +339,9 @@ export function create(ctx) {
   }
 
   // ------------------------------------------------------------------ fish & creel (DESIGN §9)
-  function makeFish(speciesId, weight, quality = 'normal') {
+  /** v1: makeFish(speciesId, weightKg, quality). v3: makeFish(speciesId, z, quality, {favours, place}) (CONTRACT §13.7). */
+  function makeFish(speciesId, weight, quality = 'normal', opts = {}) {
+    if (V3()) return makeFishV3(speciesId, weight, quality, opts);
     const sp = species(speciesId);
     const econ = BAL('economy');
     const Qs = D().QUALITY || {};
@@ -289,6 +362,38 @@ export function create(ctx) {
       value, food, oil, caughtDay: run()?.day ?? 1,
       rarity: sp?.rarity || 'common', legendary: sp?.rarity === 'legendary', zone: sp?.zone || null,
     };
+  }
+  /**
+   * Pg1 (CONTRACT §13.2 Fish, §13.7 makeFish): the Fish of size score z. Fishing calls this at the landing and holds
+   * the result; progression writes nothing on it until measure(fish). Length (cm) / weight (kg) / class / value / food
+   * / oil come from the data helpers (value × 0.66, food and oil × 0.784; Far Water lands with P3). Elders get a name.
+   */
+  function makeFishV3(speciesId, z, quality = 'normal', { favours = [], place = null } = {}) {
+    const sp = species(speciesId);
+    const Qs = D().QUALITY || {};
+    const Q = Qs[quality] || Qs.normal || { id: 'normal', valueMult: 1, yieldMult: 1 };
+    const r = run();
+    const st = BAL('economy').streak || {};
+    const streak = Math.min(r?.flags?.streak || 0, st.maxSteps ?? 5);
+    const catchZone = r?.zone || sp?.zone || null;
+    const fishUid = uid('fish');
+    const base = {
+      uid: fishUid, speciesId, quality: Q.id || quality, caughtDay: r?.day ?? 1,
+      rarity: sp?.rarity || 'common', legendary: sp?.rarity === 'legendary', zone: sp?.zone || null,
+    };
+    if (!sp?.size) {   // unknown species or no size data: a v1-shaped fish at the mean weight, so nothing downstream breaks
+      const w = sp?.weight ? (sp.weight[0] + sp.weight[1]) / 2 : 1;
+      return { ...base, z: 0, sizeClass: 'keeper', ancient: false, length: 0, weight: round2(w), value: Math.max(1, sp?.value ?? 1), food: Math.max(1, sp?.food ?? 1), oil: Math.max(1, sp?.oil ?? 1), favours: [], place, marked: false };
+    }
+    const fig = V3H.fishFigures(D(), sp, Number(z), { quality: Q, streak: 1 + (st.perStep ?? 0.1) * streak, zone: catchZone });
+    const fish = {
+      ...base, ...fig,
+      favours: Array.isArray(favours) ? favours.map((t) => ({ family: t?.family, id: t?.id, value: Number(t?.value) || 0 })) : [],
+      place: typeof place === 'object' && place ? place.id ?? null : place ?? null,
+      marked: false,
+    };
+    if (fig.sizeClass === 'elder' && !fish.legendary) fish.name = V3H.elderName(D(), sp, fishUid, catchZone);
+    return fish;
   }
   const sellValue = (fish) => Math.max(1, Math.round((fish?.value || 0) * (getStats().sellMult ?? 1)));
   /** What each catch action would yield right now (for the catch card / creel UI). */
@@ -414,11 +519,31 @@ export function create(ctx) {
         r.flags.mercy = Math.min(M.cap ?? 0.1, before + (M.perRelease ?? 0.02));
         const luck = round2(r.flags.mercy - before);
         invalidate();
-        return done({ luck }, luck > 0 ? 'The water remembers your mercy.' : 'It slips away. Your luck is already as kind as it gets today.');
+        const memories = V3() ? firstRelease(fish, sp) : 0;
+        const msg = luck > 0 ? 'The water remembers your mercy.' : 'It slips away. Your luck is already as kind as it gets today.';
+        return done(memories ? { luck, memories } : { luck }, memories ? `${msg} +${memories} Memories.` : msg);
       }
       default:
         return { ok: false, msg: `Unknown action "${action}".`, gained: {} };
     }
+  }
+  /** v3: the first release of a species at Prize / Trophy / Elder banks +1 / +3 / +8 Memories at once (MEMORIES_V3.firstRelease). */
+  function firstRelease(fish, sp) {
+    const cls = fish?.sizeClass;
+    if (!sp || !cls || !(D().sealsFor?.(sp) || []).includes(cls) || !instantNow('firstRelease')) return 0;
+    const m = meta();
+    m.journal = m.journal || {};
+    const entry = m.journal[sp.id] || (m.journal[sp.id] = { caught: 0, biggest: 0 });
+    entry.released = entry.released || {};
+    if (entry.released[cls]) return 0;
+    entry.released[cls] = true;
+    const n = D().MEMORIES_V3?.firstRelease?.[cls] || 0;
+    if (n > 0) {
+      addMemories(n, 'firstRelease');
+      toast(`First ${classLabel(cls)} ${sp.name} set free · +${n} Memor${n === 1 ? 'y' : 'ies'}`, 'good');
+    }
+    requestSave();
+    return n;
   }
   /** Burn-a-fish (DESIGN §8.6): the lowest-value non-legendary fish in the creel. */
   function getBurnCandidate() {
@@ -515,8 +640,29 @@ export function create(ctx) {
     if (!b || n <= 0) { afterBaitSpent(id); return null; }
     if (b.legend) return id;
     r.bait[id] = n - 1;
+    lastSpent = { id, refunded: false };
     afterBaitSpent(id);
     return id;
+  }
+  /**
+   * v3 "let it pass" (CONTRACT §13.7 refundBait): fishing calls this on a lapsed bite with no hook attempt; the cast's
+   * general bait comes back (once per cast: only the bait the last cast spent). Re-equips it if the bag had run dry.
+   */
+  let lastSpent = null;
+  function refundBait(baitId) {
+    const r = run();
+    if (!r || !V3()) return false;
+    const id = baitId != null ? String(baitId) : lastSpent?.id;
+    const b = bait(id);
+    if (!b || b.legend || !lastSpent || lastSpent.id !== id || lastSpent.refunded) return false;
+    lastSpent.refunded = true;
+    r.bait = r.bait || {};
+    r.bait[id] = (r.bait[id] | 0) + 1;
+    if (!r.equippedBait || (r.bait[r.equippedBait] | 0) <= 0) {
+      r.equippedBait = id;
+      ctx.bus.emit('bait:change', { baitId: id });
+    }
+    return true;
   }
 
   // ------------------------------------------------------------------ landing a fish (fishing:caught)
@@ -531,7 +677,18 @@ export function create(ctx) {
       const sp = s?.position;
       if (sp && typeof sp.x === 'number' && Math.hypot(sp.x - pos.x, sp.z - pos.z) <= (s.radius || R)) { inSpot = true; break; }
     }
-    return { depth, inSpot };
+    if (!V3()) return { depth, inSpot };
+    // v3 (F6): signs replace feeding spots; "cast inside a live sign" (each kind's cast radius, BALANCE.signs.kinds)
+    let inSign = false;
+    const kinds = BAL('signs').kinds || {};
+    const signs = ctx.fishing?.signs;
+    for (const s of Array.isArray(signs) ? signs : []) {
+      const sp = s?.position;
+      const kr = kinds[s?.kind]?.castR;
+      const rad = typeof s?.radius === 'number' ? s.radius : typeof kr === 'number' ? kr : 3;
+      if (sp && typeof sp.x === 'number' && Math.hypot(sp.x - pos.x, sp.z - pos.z) <= rad) { inSign = true; break; }
+    }
+    return { depth, inSpot: inSpot || inSign, inSign };
   }
 
   function landFish(e = {}) {
@@ -610,6 +767,199 @@ export function create(ctx) {
       challenges.hooks.victory();
       ctx.bus.emit('victory', { speciesId: sp.id });
     }
+    return fish;
+  }
+
+  // ------------------------------------------------------------------ v3: measuring a fish (Pg1; CONTRACT §13.7 measure)
+  const measured = new Map();       // fish uid -> the result of its measure (fish:measured fires once per fish)
+  const interimOn = () => { const I = interim(); return !!I && (I.phases || [1, 2]).includes(D().V3_PHASE); };
+  const instantNow = (id) => !interimOn() || instantMemory(id);
+  const classLabel = (cls, ancient) => (ancient ? D().TEXT_V3?.classes?.ancient : null) || D().TEXT_V3?.classes?.[cls] || D().SIZE_CLASSES?.find((c) => c.id === cls)?.label || cls;
+  /** Fish XP for this run's night mode (BALANCE.nightModes[mode].xp: Still × 1.4 with no zone factor) + discovery XP (≤ cap a day). */
+  function fishXpV3(r, sp, { isNew, classFirst }) {
+    const NM = BAL('nightModes')[r?.nightMode] || null;
+    const X = NM?.xp || {};
+    const zi = X.zoneFactor === false ? 0 : zoneIndexOf(sp.zone);
+    const c = character(r?.character);
+    const quirkMult = c?.quirk?.fishXpMult ?? c?.fishing?.fishXpMult ?? 1;
+    const base = Math.max(1, Math.round((D().fishXpFor?.(sp.rarity, zi) ?? 3) * (getStats().xpMult ?? 1) * quirkMult * (X.fishMult ?? 1)));
+    const DISC = BAL('xpModes').discovery;
+    let disc = 0;
+    if (DISC && r?.flags) {
+      const want = (isNew ? DISC.species || 0 : 0) + (classFirst ? DISC.classFirst || 0 : 0);
+      const day = r.day || 1;
+      const log = r.flags.discoveryXp?.day === day ? r.flags.discoveryXp : (r.flags.discoveryXp = { day, n: 0 });
+      disc = Math.max(0, Math.min(want, (DISC.dailyCap ?? 12) - log.n));
+      log.n += disc;
+    }
+    return { xp: base + disc, fishXp: base, discoveryXp: disc };
+  }
+  /**
+   * measure(fish) -> {records}: called by fishing at the seal stamp (DESIGN §25.6.8). Does every duty of v1's
+   * landFish: journal (count, PB, class first, seals, Old Ledger, best setup, last lengths), the Elder Log, instant
+   * Memories (MEMORIES_V3; P1–P2 per its interim list), XP, bounty / challenge hooks, the gate and victory; adds the
+   * Fish to the creel (or leaves it on the card when the creel is full); then emits fish:measured and fish:landed
+   * {measured: true}. Without a run (the cove, P3): journal and records only. Fires once per fish.
+   */
+  function measure(fish) {
+    if (!fish || !fish.speciesId) return { records: [] };
+    if (!V3()) { const f = landFish({ speciesId: fish.speciesId, weight: fish.weight, quality: fish.quality }); return { records: [], fish: f }; }
+    if (fish.uid && measured.has(fish.uid)) return measured.get(fish.uid);
+    const sp = species(fish.speciesId);
+    if (!sp) return { records: [] };
+    const r = run();
+    const live = !!r && r.active !== false;
+    const m = meta();
+    const MV = D().MEMORIES_V3 || {};
+    const T3 = D().TEXT_V3 || {};
+    const f = live ? (r.flags = r.flags || {}) : {};
+    const cls = fish.sizeClass || D().sizeClassOf?.(fish.z ?? 0) || 'keeper';
+    const canSeal = D().sealsFor?.(sp) || [];
+    const records = [];
+    const memLines = [];
+    const bank = (n, source, label) => { n = Math.round(Number(n) || 0); if (n <= 0) return; addMemories(n, source); memLines.push(`${label} · +${n} Memor${n === 1 ? 'y' : 'ies'}`); };
+
+    // journal: count, PB (length, then weight), best setup, last lengths -------------------------------
+    m.journal = m.journal || {};
+    const prev = m.journal[sp.id];
+    const isNew = !(prev?.caught > 0);
+    const entry = prev || { caught: 0, biggest: 0, firstDay: r?.day ?? 1, firstRun: m.runs || 1 };
+    const prevLength = entry.pbLength ?? null;
+    const prevWeight = entry.pbWeight ?? entry.biggest ?? 0;
+    const isPB = isNew || (prevLength != null ? fish.length > prevLength : fish.weight > (entry.biggest || 0));
+    entry.caught = (entry.caught || 0) + 1;
+    entry.biggest = Math.max(entry.biggest || 0, fish.weight || 0);
+    if (isNew) { entry.firstDay = r?.day ?? 1; entry.firstRun = m.runs || 1; }
+    if (isPB) {
+      entry.pbLength = fish.length; entry.pbWeight = fish.weight; entry.pbZ = fish.z;
+      entry.bestSetup = (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value }));
+      if (!isNew) records.push({ kind: 'pb', length: fish.length, weight: fish.weight, prevLength, prevWeight });
+      if (entry.bestSetup.length) records.push({ kind: 'bestSetup', favours: entry.bestSetup });
+    }
+    entry.lastLengths = [...(Array.isArray(entry.lastLengths) ? entry.lastLengths : []), fish.length].slice(-12);
+    m.journal[sp.id] = entry;
+
+    // class seals and class firsts ---------------------------------------------------------------------
+    let classFirst = false;
+    if (canSeal.includes(cls)) {
+      entry.seals = entry.seals || {};
+      if (!entry.seals[cls]) {
+        entry.seals[cls] = true;
+        classFirst = true;
+        const mem = instantNow('classFirst') ? (MV.classFirst?.[cls] || 0) : 0;
+        records.push({ kind: 'classFirst', sizeClass: cls, memories: mem });
+        bank(mem, 'classFirst', (T3.classFirst || 'First {class} {species}').replace('{class}', classLabel(cls)).replace('{species}', sp.name));
+      }
+      if (fish.ancient && cls === 'elder' && !entry.seals.ancient) {
+        entry.seals.ancient = true;
+        records.push({ kind: 'classFirst', sizeClass: 'elder', ancient: true });
+        const lake = r?.zone || sp.zone;
+        m.firstAncients = m.firstAncients || {};
+        if (lake && !m.firstAncients[lake] && instantNow('firstAncient')) {
+          m.firstAncients[lake] = sp.id;
+          bank(MV.firstAncientPerLake, 'firstAncient', `First ${classLabel('elder', true)} in ${zone(lake)?.name || 'this lake'}`);
+        }
+      }
+    }
+    // the Old Ledger: a figure "since before the Fall" at z 2.3 for every species with seals ------------
+    const ledgerZ = BAL('records').oldLedgerZ;
+    if (canSeal.length && ledgerZ != null && (fish.z ?? -Infinity) >= ledgerZ && !entry.oldLedger) {
+      entry.oldLedger = true;
+      const mem = instantNow('oldLedger') ? (MV.oldLedger ?? BAL('records').oldLedgerMemories ?? 0) : 0;
+      records.push({ kind: 'oldLedger', memories: mem });
+      bank(mem, 'oldLedger', T3.oldLedger || 'Old Ledger beaten');
+    }
+    // the Elder Log ------------------------------------------------------------------------------------
+    if (cls === 'elder' && !fish.legendary) {
+      m.elderLog = Array.isArray(m.elderLog) ? m.elderLog : [];
+      m.elderLog.push({ name: fish.name || null, speciesId: sp.id, length: fish.length, weight: fish.weight, z: fish.z, ancient: !!fish.ancient,
+        place: fish.place ?? null, zone: r?.zone || sp.zone || null, expedition: m.runs || 1, day: r?.day ?? 1, character: r?.character || null });
+      if (m.elderLog.length > 400) m.elderLog.splice(0, m.elderLog.length - 400);
+      records.push({ kind: 'elderLog', name: fish.name || null });
+    }
+    // a new name in the Journal banks at once in v3 (the death screen drops its species row) -------------
+    if (isNew && instantNow('newSpecies')) addMemories(MV.newSpecies ?? BAL('journal').newSpeciesMemories ?? 3, 'journal');
+
+    // counters, first-catch Shells, XP (live runs only) ------------------------------------------------
+    const econ = BAL('economy');
+    const J = BAL('journal');
+    let firstShells = 0;
+    let xpInfo = { xp: 0 };
+    if (live) {
+      r.stats = r.stats || freshRunStats();
+      r.stats.fishCaught = (r.stats.fishCaught || 0) + 1;
+      f.landed = (f.landed | 0) + 1;
+      if (!r.stats.biggest || fish.weight > (r.stats.biggest.weight || 0)) r.stats.biggest = { speciesId: sp.id, weight: fish.weight, length: fish.length };
+      m.totalFish = (m.totalFish || 0) + 1;
+      if (phaseInfo().phase === 'gloomtide') { f.nightCatch = (f.nightCatch | 0) + 1; f.maxNightCatch = Math.max(f.maxNightCatch | 0, f.nightCatch); }
+      if (sp.rarity === 'legendary') { r.legendaries = r.legendaries || {}; r.legendaries[sp.id] = true; }
+      if (!isNew && records.some((x) => x.kind === 'pb')) (f.records = f.records || []).push({ speciesId: sp.id, weight: fish.weight, length: fish.length, prev: prevWeight, prevLength });
+      if (classFirst) (f.classFirsts = f.classFirsts || []).push({ speciesId: sp.id, sizeClass: cls });
+      if (isNew) {
+        r.stats.newSpecies = (r.stats.newSpecies || 0) + 1;
+        if (sp.rarity !== 'legendary' || econ.newSpeciesLegendary !== false) firstShells = Math.round((econ.newSpeciesShells ?? 1.5) * (sp.value || 0));
+        if (firstShells > 0) addShells(firstShells, 'journal');
+      }
+      xpInfo = fishXpV3(r, sp, { isNew, classFirst });
+      // the creel (CONTRACT §13.7): a full creel leaves the fish on the card (Keep then offers a swap)
+      if (!addToCreel(fish)) { pending.set(fish.uid, { fish, t: 0 }); syncPending(); }
+    }
+
+    // fish:measured at the stamp, then fish:landed opens the card ---------------------------------------
+    const result = { records, fish, isNew, isRecord: !isNew && isPB, sizeClass: cls };
+    if (fish.uid) measured.set(fish.uid, result);
+    ctx.bus.emit('fish:measured', {
+      speciesId: sp.id, z: fish.z, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, weight: fish.weight,
+      favours: fish.favours || [], records, name: fish.name || null, place: fish.place ?? null, fish, cove: !live,
+    });
+    ctx.bus.emit('fish:landed', {
+      fish, isNew, isRecord: !isNew && isPB, species: sp, firstShells, xp: xpInfo.xp, mastered: entry.caught === (J.masteryAt ?? 10),
+      measured: true, records, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, cove: !live,
+    });
+    if (live && xpInfo.xp > 0) { try { ctx.combat?.addXp?.(xpInfo.xp, { source: 'fish', speciesId: sp.id, fishXp: xpInfo.fishXp, discoveryXp: xpInfo.discoveryXp, modeApplied: true }); } catch (err) { report('combat.addXp', err); } }
+
+    // aftermath: journal milestones, Memories toast, bounties, trials, gate, victory --------------------
+    if (isNew) {
+      ctx.bus.emit('journal:new', { speciesId: sp.id });
+      const mem = instantNow('newSpecies') ? (MV.newSpecies ?? J.newSpeciesMemories ?? 3) : (J.newSpeciesMemories ?? 3);
+      toast(`New in the Journal: ${sp.name}${firstShells ? ` · +${firstShells} Shells` : ''} · +${mem} Memories`, 'good');
+      journalMilestones(sp.zone);
+    }
+    if (memLines.length) toast(memLines.join(' · '), 'good');
+    if (entry.caught === (J.masteryAt ?? 10)) {
+      addMemories(J.masteryMemories ?? 2, 'mastery');
+      toast(`${sp.name}: the Journal page is inked in gold · +${J.masteryMemories ?? 2} Memories`, 'good');
+    }
+    if (!live) return result;
+    if (sp.rarity === 'legendary' && market.isPresent()) {
+      const l = D().MERCHANT_LINES?.legendary || [];
+      if (l.length) toast(`Old Murk: "${l[(Math.random() * l.length) | 0]}"`, 'lore');
+    }
+    market.bountyEvent('fish', { fish, species: sp, depth: lastCast.depth, inSpot: lastCast.inSpot, inSign: lastCast.inSign });
+    challenges.hooks.fish(fish, sp);
+    evaluateGate();
+    if (sp.final && !f.victory && (!sp.zone || sp.zone === r.zone)) {   // only in its own (final) lake
+      f.victory = true;
+      f.firstVictory = !m.victory;
+      requestSave();
+      challenges.hooks.victory();
+      ctx.bus.emit('victory', { speciesId: sp.id });
+    }
+    return result;
+  }
+  /** fishing:caught. v1: landFish. v3: informational when it carries the Fish (fishing measures at the stamp);
+   *  a fishing build that still rolls weights (no Fish on the event) is measured here from the weight's size score. */
+  function onCaught(e = {}) {
+    if (!V3()) return landFish(e);
+    if (e.fish && typeof e.fish === 'object') return null;
+    const r = run();
+    if (!r || r.active === false) return null;
+    const sp = species(e.speciesId);
+    if (!sp) return null;
+    const z = Number.isFinite(e.z) ? e.z : V3H.zFromWeight(D(), sp, Number(e.weight), r.zone || sp.zone);
+    const fish = makeFishV3(sp.id, z, e.quality || 'normal', { favours: e.favours || [], place: e.place ?? null });
+    if (e.depth != null || e.inSpot != null || e.spot != null) lastCast = { ...lastCast, depth: e.depth ?? lastCast.depth, inSpot: !!(e.inSpot ?? e.spot ?? lastCast.inSpot) };
+    measure(fish);
     return fish;
   }
 
@@ -786,8 +1136,19 @@ export function create(ctx) {
         caught: e?.caught || 0, biggest: e?.biggest || 0, firstDay: e?.firstDay ?? null, firstRun: e?.firstRun ?? null,
         mastered: (e?.caught || 0) >= masteryAt, hint: discovered ? '' : journalHint(sp),
         name: discovered ? sp.name : '???',
+        ...(V3() ? journalV3(sp, e) : {}),
       };
     });
+  }
+  /** v3 Journal fields (U9 reads them in P3; harmless before): PB, seals, Old Ledger, last lengths, "said to reach". */
+  function journalV3(sp, e) {
+    let reach = null;
+    try { reach = sp.size ? Math.round(D().reachOf(sp, run()?.zone || sp.zone) * 10) / 10 : null; } catch { reach = null; }
+    return {
+      pbLength: e?.pbLength ?? null, pbWeight: e?.pbWeight ?? null, pbZ: e?.pbZ ?? null, bestSetup: e?.bestSetup || [],
+      seals: { prize: false, trophy: false, elder: false, ancient: false, ...(e?.seals || {}) }, sealClasses: D().sealsFor?.(sp) || [],
+      oldLedger: !!e?.oldLedger, lastLengths: e?.lastLengths || [], released: { ...(e?.released || {}) }, reach,
+    };
   }
   function getJournalSummary() {
     const j = meta()?.journal || {};
@@ -813,6 +1174,31 @@ export function create(ctx) {
     m.unlocks.records = rec;
     return rec;
   }
+  /** P1–P2 nights row: each endured night at the tally's value (MEMORIES_V3.interim.nights), from run.flags.nightLog. */
+  function nightTallyMemories(r, zi) {
+    const log = Array.isArray(r?.flags?.nightLog) ? r.flags.nightLog : [];
+    let total = 0;
+    for (const n of log) total += V3H.nightMemories(D(), n.kind, n.zi ?? zi);
+    const nights = Math.max(r?.flags?.nights || 0, r?.stats?.nightsSurvived || 0);
+    for (let i = log.length; i < nights; i++) total += V3H.nightMemories(D(), r?.nightMode === 'gloomtide' ? 'gloom' : 'still', zi);   // nights from before the log (a continued v1 run)
+    return Math.round(total);
+  }
+  /** v3 death screen (MEMORIES_V3.interim, P1–P2): v1 memoriesFor without its species row (new species bank at the stamp
+   *  in v3) and, outside The Long Descent, with its nights row replaced per night by the tally's values; Remembrance
+   *  multiplies the result as memoriesFor does. */
+  function v3Memories(input, r, zi, { tallyNights = true } = {}) {
+    const data = D();
+    const I = interim() || {};
+    const L = data.TEXT?.memoryLabels || {};
+    const drop = new Set([...(I.drop || []), 'newSpecies']);
+    const base = data.memoriesFor?.({ ...input, newSpecies: drop.has('newSpecies') ? 0 : input.newSpecies, memMult: 0 }) || { total: 0, breakdown: [] };
+    const rows = (base.breakdown || []).filter((row) => !tallyNights || row.label !== L.nights).map((row) => ({ ...row }));
+    const nights = tallyNights ? nightTallyMemories(r, zi) : 0;
+    if (nights > 0) rows.unshift({ label: L.nights || 'Nights endured', value: nights });
+    let total = rows.reduce((a, x) => a + x.value, 0);
+    if (input.memMult > 0) { const extra = Math.round(total * input.memMult); rows.push({ label: L.remembrance || 'Remembrance', value: extra }); total += extra; }
+    return { total, breakdown: rows.filter((x) => x.value > 0) };
+  }
   let lastSummary = null;
   function summarizeRun(cause = 'unknown') {
     const r = run();
@@ -837,7 +1223,8 @@ export function create(ctx) {
       bossesSlain: Math.max(r.stats?.bossesSlain || 0, f.bosses || 0),
       trophies, memMult: challenges.specialSum('memMult'), victory: !!f.victory, firstVictory: f.firstVictory !== false,
     };
-    const mem = data.memoriesFor?.(input) || { total: 0, breakdown: [] };
+    const interimRun = v3Run(r) && interimOn();
+    const mem = (V3() ? v3Memories(input, r, zi, { tallyNights: v3Run(r) }) : data.memoriesFor?.(input)) || { total: 0, breakdown: [] };
     let total = mem.total || 0;
     const breakdown = (mem.breakdown || []).map((row) => ({ ...row }));
     const extra = f.bountyMemories || 0;
@@ -861,7 +1248,16 @@ export function create(ctx) {
     const lines = [];
     for (const x of f.records || []) {
       const sp = species(x.speciesId);
-      lines.push((T.biggest || 'Biggest catch: {name}, {kg} kg').replace('{name}', sp?.name || x.speciesId).replace('{kg}', fmtKg(x.weight).replace(' kg', '')));
+      if (V3() && x.length != null) {
+        const nb = (data.TEXT_V3?.newBest || 'New best: {cm} cm (was {was})').replace('{cm}', fmtCm(x.length)).replace('{was}', x.prevLength != null ? fmtCm(x.prevLength) : fmtKg(x.prev || 0));
+        lines.push(`${sp?.name || x.speciesId} · ${nb}`);
+      } else lines.push((T.biggest || 'Biggest catch: {name}, {kg} kg').replace('{name}', sp?.name || x.speciesId).replace('{kg}', fmtKg(x.weight).replace(' kg', '')));
+    }
+    if (V3()) {
+      for (const x of f.classFirsts || []) {
+        const sp = species(x.speciesId);
+        lines.push((data.TEXT_V3?.classFirst || 'First {class} {species}').replace('{class}', classLabel(x.sizeClass)).replace('{species}', sp?.name || x.speciesId));
+      }
     }
     const beat = (key, value, prevValue, text) => { if (value > (prevValue || 0) && (prevValue || 0) > 0) lines.push(text); if (!preview && value > (rec[key] || 0)) rec[key] = value; };
     beat('bestDay', r.day || 1, Math.max(m.bestDay || 0, rec.bestDay || 0), `Longest descent: Day ${r.day}`);
@@ -884,6 +1280,13 @@ export function create(ctx) {
       nearMiss: nearMisses(r, total), ...damageReport(r),
       trophies: trophySpecies.map((s) => s.id),
     };
+    if (V3()) {
+      Object.assign(summary, {
+        outing: r.outing || 'normal', nightMode: r.nightMode || null, classFirsts: (f.classFirsts || []).map((x) => ({ ...x })),
+        nights: (f.nightLog || []).map((n) => n.kind), interim: interimRun,
+      });
+      if (cause === 'snuffed') Object.assign(summary, { topDamage: { source: 'snuffed', count: 1 }, tip: SNUFF_TIP });
+    }
 
     if (!preview) {
       addMemories(total, 'run');
@@ -900,6 +1303,7 @@ export function create(ctx) {
   function pickText(arr) { return arr?.length ? arr[(Math.random() * arr.length) | 0] : ''; }
   function deathTitle(cause) {
     if (cause === 'victory' || cause === 'victory-preview') return D().TEXT?.victoryTitle || 'The Light Comes Up';
+    if (V3() && cause === 'snuffed') return D().TEXT_V3?.snuffedTitle || 'Snuffed';
     const t = D().TEXT?.deathTitle || {};
     return t[cause] || t.default || 'Extinguished';
   }
@@ -1005,6 +1409,17 @@ export function create(ctx) {
     r.stats = Object.assign(freshRunStats(), r.stats || {});
     r.creel = r.creel || []; r.bait = r.bait || {}; r.upgrades = r.upgrades || {}; r.legendaries = r.legendaries || {}; r.bounties = r.bounties || [];
     r.boons = r.boons || {};
+    if (V3()) {
+      measured.clear();
+      lastSpent = null;
+      // Pg0 when main did not migrate the envelope (ids only, idempotent), then the v3 run fields a v1 run lacks:
+      // a run started before the v3 build continues under its own (v1) rules, i.e. Gloomtide
+      migrateSave({ meta: meta(), run: r });
+      if (!r.outing) r.outing = 'normal';
+      if (!r.nightMode) r.nightMode = r.outing === 'first' ? 'still' : r.outing === 'descent' ? 'gloomtide' : (continued ? 'gloomtide' : (BAL('nightModes').default || 'lantern'));
+      r.tally = r.tally || { dawns: 0, stillNights: 0, swarmNights: 0 };
+      if (!Array.isArray(r.flags.nightLog)) r.flags.nightLog = [];
+    }
     if (!continued) r.flags.startBestLevel = meta()?.bestLevel || 0;
     if (continued) restorePending(); else delete r.flags.pendingCatch;
     market.reset();
@@ -1023,9 +1438,15 @@ export function create(ctx) {
     const f = r.flags;
     if (phase === 'gloomtide') {
       f.nightActive = true; f.nightSlain = 0; f.nightCatch = 0; f.nightDamaged = false; f.nightFlares = 0;
+      if (V3() && r.nightMode) {
+        const sw = real(ctx.combat)?.swarmTonight;
+        f.nightSeen = { day: r.day || 1, zi: zoneIndexOf(r.zone), opened: false, watch: false, scorched: false,
+          planned: typeof sw === 'boolean' ? sw : !!D().swarmTonight?.(r.nightMode, r.day || 1, r.outing) };
+      }
     } else if (phase === 'dawn' && f.nightActive) {
       f.nightActive = false;
       f.nights = (f.nights | 0) + 1;
+      if (V3() && r.nightMode) logNight(r);
       f.deepestEndured = Math.max(f.deepestEndured ?? -1, zoneIndexOf(r.zone));
       f.maxNightSlain = Math.max(f.maxNightSlain | 0, f.nightSlain | 0);
       const day = r.day || 1;
@@ -1034,6 +1455,22 @@ export function create(ctx) {
     }
     if (phase !== 'calm') market.update();
   }
+
+  /** v3: the night that just ended goes into run.flags.nightLog (still / Lantern still / swarm / Gloomtide) and run.tally. */
+  function logNight(r) {
+    const f = r.flags;
+    const seen = f.nightSeen || { day: (r.day || 1), zi: zoneIndexOf(r.zone), planned: false };
+    const mode = r.outing === 'first' ? 'still' : r.nightMode;
+    const kind = V3H.nightKind(mode, seen);
+    f.nightLog = Array.isArray(f.nightLog) ? f.nightLog : [];
+    f.nightLog.push({ day: seen.day ?? r.day ?? 1, zi: seen.zi ?? zoneIndexOf(r.zone), kind });
+    f.nightSeen = null;
+    const t = (r.tally = r.tally || { dawns: 0, stillNights: 0, swarmNights: 0 });
+    t.dawns = (t.dawns | 0) + 1;
+    if (kind === 'swarm' || kind === 'gloom') t.swarmNights = (t.swarmNights | 0) + 1;
+    else t.stillNights = (t.stillNights | 0) + 1;
+  }
+  const nightSeen = () => { const r = run(); return V3() && r?.flags?.nightActive ? r.flags.nightSeen : null; };
 
   function onDayStart() {
     const r = run();
@@ -1179,12 +1616,24 @@ export function create(ctx) {
     if (prev === null) market.reset();     // main's run start / continue: the barge re-moors via update()
   }
 
+  /**
+   * Pg0 (CONTRACT §13.2): migrateSave(save) -> save, ids only, on the envelope {version, meta, run}; main calls it at
+   * boot. Flag off: untouched. Idempotent: a second call changes nothing (meta.v3ids; a run without old ids).
+   */
+  function migrateSave(save) {
+    try { return V3H.migrateSave(D(), save); } catch (e) { report('migrateSave', e); return save; }
+  }
+
   function init() {
+    // Pg0 also runs here on the live meta, so a main that does not call migrateSave yet still gets renamed ids
+    // (the saved run is renamed when it is continued, in onRunStart)
+    if (V3() && meta()) migrateSave({ meta: meta(), run: null });
     const on = (evt, fn) => ctx.bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { report(`on(${evt})`, e); } });
-    on('fishing:caught', landFish);
+    on('fishing:caught', onCaught);
     on('fishing:land', ({ position }) => { lastCast = castInfoAt(position); });
     on('fishing:hook', onHook);
-    on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved') r.flags.streak = 0; });
+    // a let-it-pass ('passed', v3 F4) is a choice, not a miss: it keeps the perfect-hook streak (DESIGN §25.6.4)
+    on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved' && reason !== 'passed') r.flags.streak = 0; });
     on('fishing:escaped', () => { const r = run(); if (r?.stats) r.stats.fishLost = (r.stats.fishLost | 0) + 1; });
     on('enemy:slain', onEnemySlain);
     on('boss:slain', onBossSlain);
@@ -1198,10 +1647,16 @@ export function create(ctx) {
     });
     on('flare', () => { const r = run(); if (r && (r.flags.nightActive || phaseInfo().phase === 'gloomtide')) r.flags.nightFlares = (r.flags.nightFlares | 0) + 1; });
     on('levelup', onLevelUp);
+    // v3 C3: a level-up banked outside a swarm emits 'levelup' only when its pick is offered; the level counts now
+    on('levelup:banked', ({ level }) => { if (level > 0) onLevelUp({ level }); });
     on('boon:chosen', onBoonChosen);
     on('phase:change', onPhaseChange);
     on('day:start', onDayStart);
     on('zone:change', onZoneChange);
+    // v3: what the night held, for the P1–P2 nights row (swarm window, lamp-watch, Scorched)
+    on('swarm:window', ({ state }) => { const s = nightSeen(); if (s && state === 'open') s.opened = true; });
+    on('lampwatch:start', () => { const s = nightSeen(); if (s) s.watch = true; });   // leaving the pool opens the window (swarm:window decides)
+    on('player:scorched', () => { const s = nightSeen(); if (s) s.scorched = true; });
     on('run:start', onRunStart);
     on('run:end', () => { pending.clear(); });
     on('flow:change', ({ flow }) => {
@@ -1233,7 +1688,13 @@ export function create(ctx) {
     }
   }
 
-  // ------------------------------------------------------------------ debug (CONTRACT §11)
+  // ------------------------------------------------------------------ debug (CONTRACT §11, §13.11)
+  /** z for a v3 debug fish: a number is z; {z} is z; {weight} (kg) maps through the size model; nothing is z 0. */
+  function debugZ(sid, arg) {
+    const sp = species(sid);
+    if (typeof arg === 'object' && arg) return Number.isFinite(arg.z) ? arg.z : arg.weight > 0 ? V3H.zFromWeight(D(), sp, arg.weight, run()?.zone || sp?.zone) : 0;
+    return Number.isFinite(arg) ? arg : 0;
+  }
   function registerDebug() {
     const dbg = ctx.debug || (ctx.debug = {});
     Object.assign(dbg, {
@@ -1254,13 +1715,35 @@ export function create(ctx) {
         invalidate();
         return true;
       },
+      // v1: (id, weightKg, quality). v3: (id, z | {z, weight, favours, place}, quality): z is the size score (weight → z if only a weight is given)
       giveFish(id, weight, quality = 'normal') {
         const r = run();
         const sid = species(id) ? id : (D().SPECIES || []).find((s) => s.zone === r?.zone && s.rarity === 'common')?.id || D().SPECIES?.[0]?.id;
-        const fish = makeFish(sid, weight, quality);
+        const fish = V3() ? makeFishV3(sid, debugZ(sid, weight), quality, typeof weight === 'object' && weight ? weight : {}) : makeFish(sid, weight, quality);
         return addToCreel(fish) ? fish : null;
       },
-      landFish(id, weight, quality = 'normal') { return landFish({ speciesId: id || D().SPECIES?.[0]?.id, weight, quality }); },
+      landFish(id, weight, quality = 'normal') {
+        const sid = id || D().SPECIES?.[0]?.id;
+        if (!V3()) return landFish({ speciesId: sid, weight, quality });
+        if (!species(sid)) return null;
+        const fish = makeFishV3(sid, debugZ(sid, weight), quality, typeof weight === 'object' && weight ? weight : {});
+        measure(fish);
+        return fish;
+      },
+      /** v3 (CONTRACT §13.11): migrate a save envelope (object or JSON string) without touching the live state. */
+      migrate(saveJson) {
+        const save = typeof saveJson === 'string' ? JSON.parse(saveJson) : JSON.parse(JSON.stringify(saveJson || {}));
+        return migrateSave(save);
+      },
+      phase() { return V3() ? D().V3_PHASE ?? null : null; },
+      v3() {
+        const r = run();
+        return {
+          flow: ctx.flow, outing: r?.outing ?? null, nightMode: r?.nightMode ?? null, day: r?.day ?? null, farWater: null,
+          favour: real(ctx.fishing)?.view?.favour ?? null, pressure: r?.pressure ?? null, liveWell: null, residents: meta()?.residents ?? null,
+          tally: r?.tally ? { ...r.tally } : null, nightLog: r?.flags?.nightLog ? r.flags.nightLog.slice() : null, v3ids: !!meta()?.v3ids, phase: D().V3_PHASE ?? null,
+        };
+      },
       openGate() { return openGate({ forced: true }); },
       completeChallenge(id) { return challenges.complete(id); },
       unlockAll() { for (const c of D().CHALLENGES || []) challenges.complete(c.id, { silent: true }); return true; },
@@ -1287,5 +1770,19 @@ export function create(ctx) {
     isMerchantPresent: () => market.isPresent(), getPendingCatch: () => [...pending.values()].map((p) => p.fish),
     getBountyLog: () => run()?.flags?.bountyLog || [], getRecords: () => ({ ...(meta()?.unlocks?.records || {}) }),
     invalidateStats: invalidate,
+    // v3 (CONTRACT §13.7; inert with the flag off: migrateSave returns the save, measure falls back to v1, refundBait false)
+    migrateSave, measure, refundBait,
+    isWellFed: () => { const r = run(); return V3() && !!r && wellFedOf(r, getStats()); },
+    /** v3 New Descent (U17): whether the next run is the First Outing, and the mode cards to offer (Lantern preselected). */
+    getNightModes: () => {
+      if (!V3()) return null;
+      const NM = BAL('nightModes');
+      const first = (meta()?.runs || 0) === 0;
+      const order = NM.order || ['still', 'lantern', 'gloomtide'];
+      const T = D().TEXT_V3?.modes || {};
+      return { firstOuting: first, default: first ? (NM.firstOuting || 'still') : (NM.default || 'lantern'),
+        modes: first ? [] : order.map((id) => ({ id, name: T[id]?.name || id, line: T[id]?.line || '' })),
+        firstOutingLine: D().EXPEDITION?.firstOuting?.line || '' };
+    },
   };
 }
