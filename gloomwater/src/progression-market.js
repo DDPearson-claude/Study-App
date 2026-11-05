@@ -189,7 +189,7 @@ export function createMarket(S) {
       canBuy: !reason, reason, count: b.count ?? 1, owned, legend: !!b.legend, baitId: b.id,
       effectText: S.baitBonusText(b),
       // v3 automatic fishing: the bait's Hold and whom it helps (the gear log's line at Murk's bait rows; never a %)
-      ...(S.isV3?.() && D().CATCH_V3?.items?.[b.id] ? { hold: D().CATCH_V3.items[b.id].hold ?? 0, targets: S.af?.targetsOf?.(b.id) ?? [] } : {}),
+      ...(S.isV3?.() && D().CATCH_V3?.items?.[b.id] ? { hold: D().CATCH_V3.items[b.id].hold ?? 0, targets: S.af?.targetsOf?.(b.id) ?? [], holdText: S.af?.holdText?.(b.id) || '' } : {}),
     };
   }
   function supplyItem(s, r) {
@@ -222,7 +222,7 @@ export function createMarket(S) {
       id: `lure:${L.id}`, kind: 'lure', category: 'lure', tab: 'lure', icon: 'lure', name: L.name,
       desc: L.desc || '', price: x.price, level: x.owned ? 1 : 0, maxLevel: 1, owned: x.owned, canBuy: !reason, reason, lureId: L.id,
       hold, targets: S.af?.targetsOf?.(L.id) ?? [], giants: Array.isArray(L.species), equipped: S.af?.equippedItem?.(r) === L.id,
-      depth: L.depth || null, effectText: `+${hold} Hold`,
+      depth: L.depth || null, holdText: S.af?.holdText?.(L.id) || `+${hold} Hold`, effectText: S.af?.holdText?.(L.id) || `+${hold} Hold`,
     };
   }
   function ledgerItem(b) {

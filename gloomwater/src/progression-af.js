@@ -306,6 +306,22 @@ export function createAutofish(S) {
     if (it.night) return { night: true, met: seen };
     return seen;
   }
+  const FAMILY_WORDS = { insect: 'insect feeders', predator: 'predators', bottom: 'bottom feeders', glow: 'glow fish' };
+  /** The gear log's line for a bait or lure, from AUTOFISH.text.gear.item ("+10 Hold against Reedjaw Pike, Weeping Carp."); never a %. */
+  function holdText(itemId) {
+    const it = C3()?.items?.[itemId];
+    if (!it) return '';
+    const T = AF()?.text?.gear || {};
+    const hold = it.holdPerLevel ? `${it.holdPerLevel} per level` : it.hold;
+    if (it.all) return (T.tackle || '+{hold} Hold on every fish').split(' · ')[0].replace('{hold}', hold).replace(/\.$/, '') + '.';
+    const t = targetsOf(itemId);
+    let whom;
+    if (it.family) whom = FAMILY_WORDS[it.family] || it.family;
+    else if (it.night) whom = 'night fish, at night';
+    else whom = (Array.isArray(t) ? t : []).map((id) => S.species(id)?.name).filter(Boolean).join(', ');
+    if (!whom) return T.none || 'Helps nothing you have met yet.';
+    return (T.item || '+{hold} Hold against {targets}.').replace('{hold}', hold).replace('{targets}', whom);
+  }
   /** Did a proof catch (TACKLE.proofs) happen: a class seal on any species of that lake. */
   function proofDone(proofId) {
     const opts = D().TACKLE?.proofs?.[proofId];
@@ -577,7 +593,7 @@ export function createAutofish(S) {
   return {
     on, perRunOf, runLuresOn, expeditions, lure, isLure, ownedLure, lureLit, runLurePrice, runLures, grantRunLure,
     equippedItem, syncEquipped, equipLure, getEquippedLure, noteCast, noteHook,
-    getLoadout, getCatchBuffs, getCatchMods, ownedRelics, getOdds, compareOdds, getGearLog, getPinned, pinGear, getTackleRating, targetsOf,
+    getLoadout, getCatchBuffs, getCatchMods, ownedRelics, getOdds, compareOdds, getGearLog, getPinned, pinGear, getTackleRating, targetsOf, holdText,
     woundsOf, addLegendWound, clearLegendWounds, getMarkedFish, addMarkedFish, markedFishHooked, removeMarkedFish, nameElder,
     onEscaped, gotAwayLines, getFishingCounters,
   };
