@@ -2630,7 +2630,7 @@ export function create(ctx) {
       drawSpotsSafe();
     },
   };
-  function drawSpotsSafe() { try { if (playing() || ctx.flow === 'dead') drawSpots(); else { fx.clearSlots(); fx.setLegendPool(false); } } catch (e) { report(e); } }
+  function drawSpotsSafe() { try { if (playing() || ctx.flow === 'dead') drawSpots(); else { fx.clearSlots(); fx.setLegendPool(false); fx.beginSigns(); fx.endSigns(); } } catch (e) { report(e); } }
   S.zonePending = 0;
   return api;
 }
