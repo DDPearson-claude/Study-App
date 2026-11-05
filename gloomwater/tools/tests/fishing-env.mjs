@@ -11,6 +11,7 @@ import * as THREE from 'three';
 import { createBus } from '../../src/core.js';
 
 // fishing-fx builds canvas label textures at creation: a minimal 2D canvas is enough in node
+globalThis.GW_DEBUG = true;   // the scenario runner's debug switch (CONTRACT §13.1): fishing's hidden-state hooks register in v3 builds
 globalThis.document = globalThis.document || { createElement: () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: (t, k) => (k === 'measureText' ? () => ({ width: 40 }) : () => {}) }) }) };
 const { create: createFishing } = await import('../../src/fishing.js');
 

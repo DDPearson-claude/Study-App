@@ -16,6 +16,7 @@ import { create as createProgression } from '../../src/progression.js';
 import { create as createFishing } from '../../src/fishing.js';
 
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_WALK = false;
+globalThis.GW_DEBUG = true;   // the scenario runner's debug switch: fishing's hidden-state hooks register in v3 builds (CONTRACT §13.1)
 const data = await import('../../src/data.js?fishing-p1b');
 delete globalThis.GW_V3; delete globalThis.GW_V3_PHASE; delete globalThis.GW_WALK;
 
@@ -377,7 +378,7 @@ section('F6 quality: "cast inside a live sign" replaces the feeding-spot bonus')
   };
   const open = q(null);
   const inSign = q(() => { signAt(env, 'bubbles', { dx: 0.5 }); env.tick(2); });
-  ok(near(inSign - open, data.BALANCE.spots.quality, 1e-6), `inside a sign: quality +${data.BALANCE.spots.quality} (${open.toFixed(3)} → ${inSign.toFixed(3)})`);
+  ok(near(inSign - open, data.AUTOFISH.quality.sign, 1e-6), `inside a sign: quality +${data.AUTOFISH.quality.sign} (AUTOFISH.quality; ${open.toFixed(3)} → ${inSign.toFixed(3)})`);
   const c0 = env.events.filter((x) => x.e === 'fishing:caught').slice(-2);
   ok(c0[0].p.inSign === false && c0[1].p.inSign === true && c0[1].p.sign === 'bubbles' && c0[1].p.inSpot === true, 'fishing:caught carries inSign / sign (and inSpot for v1 listeners)');
   const lands = env.events.filter((x) => x.e === 'fishing:land').slice(-2);
@@ -402,120 +403,89 @@ section('F6 Night Eyes: glow trails show from 50% farther (glowTrailRangeMult)')
 }
 
 // =====================================================================================================================
-section('F3 true scale: the hooked fish is createFish(species, {z}) at scale 1 all fight; no boost, no clamps');
+section('F3 → AF (F17): before the reveal the hooked fish is the night-ink proxy at its class length; no species model exists; a legend is itself');
 {
   const env = makeEnv({ seed: 81 });
+  const n0 = env.calls.createFish.length;
+  env.calls.splash.length = 0;
   env.ctx.debug.fishHook('dusk_minnow', { z: -1.5 });
   let d = env.dbg();
-  const cf = env.calls.createFish.at(-1);
-  ok(cf && typeof cf.arg === 'object' && cf.arg.z === -1.5, 'createFish gets {z} (not a weight)');
-  ok(d.meshScale === 1 && near(d.fishLen, d.fvLength, 1e-9) && near(d.fishLen, data.sizeLength(data.SPECIES_BY_ID.dusk_minnow, -1.5, 'mossmere') / 100, 1e-9),
-    `a small minnow: mesh scale 1, splash / wake length = createFish length = ${(d.fishLen * 100).toFixed(1)} cm (the old floor was 12 cm and the boost 1.45×)`);
-  let ok1 = true;
-  for (let i = 0; i < 150; i++) { env.ctx.fishing.onPointerDown(); env.tick(1); if (env.F.state === 'reeling') { const x = env.dbg(); if (x.meshScale !== 1) ok1 = false; } }
-  ok(ok1, 'mesh scale stays 1 at every moment of the fight');
+  const pl = data.presentLength('mossmere', -1.5);
+  ok(env.calls.createFish.length === n0, 'no createFish at the strike (it is first called at the reveal)');
+  ok(near(d.fishLen, pl, 1e-9) && !near(pl, data.sizeLength(data.SPECIES_BY_ID.dusk_minnow, -1.5, 'mossmere') / 100, 0.01), `the proxy is ${(pl * 100).toFixed(1)} cm (presentLength), not the minnow's own length`);
+  const hs = env.calls.splash.at(-1);
+  ok(hs && near(hs.size, 0.45 + 0.25 * pl, 1e-6), `the strike's splash uses the class length (size ${hs?.size?.toFixed(3)})`);
+  let none = true;
+  for (let i = 0; i < 150 && env.F.state === 'reeling'; i++) { env.tick(1); if (env.F.state === 'reeling' && (env.calls.createFish.length !== n0 || env.F.view.speciesId !== null)) none = false; }
+  ok(none, 'no species model and no species id at any moment of the play');
   env.reset();
-  // a forced 8.5 m legend: its splash uses 8.5 m
+  // a legend (named by its pool and bait): its own model at its true length, no 6 m cap
   env.calls.splash.length = 0;
   env.ctx.debug.fishHook('lantern_swallower', { z: 0 });
   d = env.dbg();
   const Lsw = data.sizeLength(data.SPECIES_BY_ID.lantern_swallower, 0, 'mossmere') / 100;
-  ok(near(Lsw, 8.5, 0.05) && near(d.fishLen, Lsw, 1e-9) && d.meshScale === 1, `the Lantern-Swallower is ${Lsw.toFixed(2)} m on the line (no 6 m cap)`);
-  const hs = env.calls.splash.at(-1);
-  ok(hs && near(hs.size, 0.6 + Lsw * 0.4, 1e-6), `its hook splash uses ${Lsw.toFixed(2)} m (size ${hs?.size?.toFixed(2)})`);
+  ok(near(Lsw, 8.5, 0.05) && near(d.fishLen, Lsw, 1e-9) && d.meshScale === 1 && env.F.view.speciesId === 'lantern_swallower', `the Lantern-Swallower is itself, ${Lsw.toFixed(2)} m on the line (no 6 m cap)`);
   env.calls.splash.length = 0;
   env.ctx.debug.instantCatch(null, { ceremony: true });
-  const sc = env.calls.splash.find((s) => near(s.size, 0.6 + Lsw * 0.6, 1e-6));
+  const sc = env.calls.splash.find((x) => near(x.size, 0.6 + Lsw * 0.6, 1e-6));
   ok(!!sc, `the scoop splashes at true scale (0.6 + 0.6 × ${Lsw.toFixed(2)} m)`);
   env.F.skipCeremony(); env.tick(40);
   env.reset();
 }
 
 // =====================================================================================================================
-section('F3 the leap reveal: the first Prize+ breach slows time once (0.25 s at 0.35) and emits fishing:reveal');
+section('AF leaps (F2′): the first Prize+ leap slows time once (0.25 s at 0.35); the class estimate stamps at the first glimpse; no fishing:reveal');
 {
   const env = makeEnv({ seed: 91 });
-  env.ctx.debug.fishHook('gloam_eel', { z: 1.6 });   // a leaper, Prize
-  ok(env.F.view.sizeClass === null, 'the class is hidden before the breach');
-  let seenView = null;
-  const breaches = () => {
-    env.ctx.debug.fishSurge();
-    for (let i = 0; i < 90; i++) {
-      if (env.F.state === 'reeling') { const r = env.ctx.debug.fishReel(); if (r) r.P = Math.min(r.P, 0.3); }   // keep it on the line
-      env.ctx.fishing.onPointerDown(); env.tick(1);
-      if (!seenView && env.count('fishing:reveal')) seenView = { sizeClass: env.F.view.sizeClass, estimate: env.F.view.estimate };
-    }
-  };
-  breaches();
-  ok(env.calls.slowmo.length === 1 && env.calls.slowmo[0][0] === 0.25 && env.calls.slowmo[0][1] === 0.35, `ctx.game.slowmo(0.25, 0.35) once (${JSON.stringify(env.calls.slowmo)})`);
-  const rv = env.events.filter((x) => x.e === 'fishing:reveal');
-  ok(rv.length === 1 && rv[0].p.sizeClass === 'prize' && !('speciesId' in rv[0].p) && rv[0].p.lengthM > 0.5 && Number.isFinite(rv[0].p.position?.x)
-    && rv[0].p.estimate.lo < rv[0].p.length && rv[0].p.estimate.hi > rv[0].p.length, `fishing:reveal {sizeClass, length, estimate, position}, never the species (${JSON.stringify(rv[0]?.p?.estimate)})`);
-  ok(seenView?.sizeClass === 'prize' && seenView.estimate?.lo > 0, `view.sizeClass and the class estimate after the breach (${JSON.stringify(seenView)})`);
-  ok(env.calls.glow.includes(2.2), 'the rim flash');
-  breaches(); breaches();
-  ok(env.calls.slowmo.length === 1 && env.count('fishing:reveal') === 1, 'later breaches play no second reveal');
+  const keep = data.AUTOFISH.leaps.gloam_eel;
+  data.AUTOFISH.leaps.gloam_eel = 1;   // this play surely leaps
+  env.ctx.debug.fishOutcome('land');
+  env.ctx.debug.fishHook('gloam_eel', { z: 1.6 });   // a Prize
+  ok(env.F.view.sizeClass === null, 'the class is not stamped at the strike');
+  const plan = env.ctx.debug.fishPlan();
+  const g0 = plan.events.find((e) => e.phase === 'glimpse' && e.first);
+  let stampedAt = null, sawLeap = false;
+  for (let i = 0; i < 30 * 12 && env.F.state === 'reeling'; i++) {
+    env.tick(1);
+    if (stampedAt === null && env.F.view.sizeClass) stampedAt = env.ctx.debug.fishPlay()?.t ?? null;
+    if (env.F.view.play?.leap) sawLeap = true;
+  }
+  ok(env.calls.slowmo.length === 1 && env.calls.slowmo[0][0] === 0.25 && env.calls.slowmo[0][1] === 0.35, `ctx.game.slowmo(0.25, 0.35) once on the first leap (${JSON.stringify(env.calls.slowmo)}; ${plan.leapCount} leaps)`);
+  ok(sawLeap && env.count('fishing:reveal') === 0, 'leaps play as the proxy; fishing:reveal is dropped (the reveal is fishing:caught)');
+  ok(stampedAt !== null && g0 && Math.abs(stampedAt - g0.at) < 0.1, `view.sizeClass stamps at the first glimpse (${stampedAt?.toFixed(2)} s; plan ${g0?.at})`);
+  for (let i = 0; i < 300 && env.F.state !== 'idle'; i++) { env.F.skipCeremony(); env.tick(1); }
   env.reset();
   env.ctx.debug.fishHook('gloam_eel', { z: 0.2 });   // a Keeper
-  breaches();
-  ok(env.calls.slowmo.length === 1, 'a Keeper\'s breach reveals nothing');
+  for (let i = 0; i < 30 * 8 && env.F.state === 'reeling'; i++) env.tick(1);
+  ok(env.calls.slowmo.length === 1, 'a Keeper\'s skip slows nothing');
+  data.AUTOFISH.leaps.gloam_eel = keep;
+  env.ctx.debug.fishOutcome(null);
+  for (let i = 0; i < 300 && env.F.state !== 'idle'; i++) { env.F.skipCeremony(); env.tick(1); }
   env.reset();
 }
 
 // =====================================================================================================================
-section('the species stays unknown until it is landed: a dark shape at true length in the fight, no name, no model');
-{
-  const env = makeEnv({ seed: 95 });
-  env.ctx.debug.fishHook('gloam_eel', { z: 1.6 });
-  let hidden = true, shaped = true, n = 0;
-  const clampT = (T) => Math.min(0.6, Math.max(0.35, T));
-  env.ctx.debug.fishSurge();
-  for (let i = 0; i < 120 && env.F.state === 'reeling'; i++) {
-    const r = env.ctx.debug.fishReel(); if (r) { r.P = Math.min(r.P, 0.3); r.T = clampT(r.T); }   // keep it on the line
-    env.ctx.fishing.onPointerDown(); env.tick(1); n++;
-    const d = env.dbg();
-    if (env.F.view.speciesId !== null || env.F.view.rarity !== null || d.meshVisible !== false) hidden = false;
-    if (!(d.meshScale === 1 && near(d.fishLen, d.fvLength, 1e-9))) shaped = false;
-  }
-  ok(n > 60 && hidden, `no species id, no rarity and the model hidden at every moment of the fight (${n} frames, through a breach)`);
-  ok(shaped, 'the hidden model keeps its true length (scale 1), the shadow uses it');
-  ok(env.events.filter((x) => x.e === 'toast').every((x) => !/eel/i.test(x.p.text || '')), 'no toast names it');
-  env.ctx.debug.instantCatch(null, { ceremony: true });
-  ok(env.calls.showCatch.length === 0 || env.calls.showCatch.every(Boolean), 'landed: the model is handed over');
-  ok(env.dbg().veiled === false, 'landed: unveiled');
-  env.F.skipCeremony(); env.tick(40);
-  env.reset();
-  env.ctx.debug.fishHook('lantern_swallower', { z: 0 });
-  ok(env.F.view.speciesId === 'lantern_swallower' && env.dbg().meshVisible === true, 'a legend (named by its pool and bait) is shown as it is');
-  env.reset();
-}
-
-// =====================================================================================================================
-section('the hooked fish is inked (models setSilhouette): hidden in the water, a night-ink silhouette only above it in a leap');
+section('the species stays unknown until the reveal: no name, no rarity, no model, no true length in the play; the reveal inks it back');
 {
   const env = makeEnv({ seed: 95, sil: true });
+  env.ctx.debug.fishOutcome('land');
   env.ctx.debug.fishHook('gloam_eel', { z: 1.6 });
-  ok(env.calls.sil[0] === 1 && env.dbg().silhouette === 1 && env.dbg().meshVisible === false, 'hooked: setSilhouette(1) and hidden in the water');
-  const clampT = (T) => Math.min(0.6, Math.max(0.35, T));
-  let seenInLeap = false, seenElse = false, leapFrames = 0;
-  for (let k = 0; k < 6 && !seenInLeap; k++) {
-    env.ctx.debug.fishSurge();
-    for (let i = 0; i < 90 && env.F.state === 'reeling'; i++) {
-      const r = env.ctx.debug.fishReel(); if (r) { r.P = Math.min(r.P, 0.3); r.T = clampT(r.T); }
-      env.ctx.fishing.onPointerDown(); env.tick(1);
-      const d = env.dbg(), leaping = d.leap === true;   // the leap's arc (it can outlast the reel's surge by a few frames)
-      if (d.meshVisible) { if (leaping) { seenInLeap = true; leapFrames++; } else seenElse = true; }
-      if (env.F.view.speciesId !== null) seenElse = true;
-    }
+  let hidden = true, n = 0;
+  for (let i = 0; i < 30 * 12 && env.F.state === 'reeling'; i++) {
+    env.tick(1); n++;
+    if (env.F.state === 'reeling' && (env.F.view.speciesId !== null || env.F.view.rarity !== null || env.calls.createFish.some((c) => c.id === 'gloam_eel'))) hidden = false;
   }
-  ok(!seenElse, 'never seen, and never named, outside a leap');
-  ok(seenInLeap || !env.calls.sil.length, `in a leap it shows only as the silhouette (${leapFrames} frames)`);
-  env.ctx.debug.instantCatch(null, { ceremony: true });
-  ok(env.calls.sil[env.calls.sil.length - 1] === 0 && env.dbg().veiled === false, 'landed: setSilhouette(0) gives the species back');
+  ok(n > 60 && hidden, `no species id, no rarity and no species model at any moment of the play (${n} frames)`);
+  ok(env.events.filter((x) => x.e === 'toast').every((x) => !/eel/i.test(x.p.text || '')), 'no toast names it');
+  for (let i = 0; i < 30 && env.F.state === 'landing' && !env.count('fishing:caught'); i++) env.tick(1);
+  const cf = env.calls.createFish.filter((c) => c.id === 'gloam_eel');
+  ok(cf.length === 1 && env.calls.sil[0] === 1 && env.calls.sil[env.calls.sil.length - 1] === 0, `the reveal: createFish once (${cf.length}), inked 1 → 0 over the wipe (${env.calls.sil.length} steps)`);
+  ok(env.count('fishing:caught') === 1, 'fishing:caught as the wipe ends');
   env.F.skipCeremony(); env.tick(40);
   env.reset();
   env.ctx.debug.fishHook('lantern_swallower', { z: 0 });
-  ok(env.calls.sil.filter((k) => k === 1).length === 1 && env.dbg().silhouette === 0, 'a legend is never inked');
+  ok(env.F.view.speciesId === 'lantern_swallower' && env.dbg().meshVisible === true && !env.calls.sil.slice(-3).includes(1), 'a legend (named by its pool and bait) is shown as it is, never inked');
+  env.ctx.debug.fishOutcome(null);
   env.reset();
 }
 
