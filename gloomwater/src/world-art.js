@@ -779,8 +779,17 @@ export function buildArena(ctx, L, opts = {}) {
   const nDecorBuoys = theme === 'paleabyss' ? 4 : 6;
   const buoyT = makeFloatType(buoyBody, buoyMat, L.docks.length + nDecorBuoys, 'buoys');
   const buoyG = makeFloatType(buoyGlass, buoyGlowMat, L.docks.length + nDecorBuoys, 'buoyLamps');
+  // v3 (W1): the lake's two watch-lamps are dock buoys burning candle amber, not the cold buoy lamp (opts.watchDocks:
+  // dock indices from world-v3's watchLampsFor; absent in a flag-off build, so nothing below changes there)
+  const watchDocks = opts.watchDocks instanceof Set && opts.watchDocks.size ? opts.watchDocks : null;
+  const watchG = watchDocks ? makeFloatType(buoyGlass, M(glowMaterial(mixHex(pal.candle, 0xffd59a, 0.35), 3.2)), watchDocks.size, 'watchLampGlass') : null;
   const dockBuoys = [];
-  for (const d of L.docks) dockBuoys.push(addFloater([buoyT, buoyG], d.buoy.x, d.buoy.z, { halo: scaleArr(PL.lamp, 0.9), haloSize: 2.4, haloY: 1.0, bob: 0.8 }));
+  for (let di = 0; di < L.docks.length; di++) {
+    const d = L.docks[di], w = !!watchG && watchDocks.has(di);
+    const f = addFloater([buoyT, w ? watchG : buoyG], d.buoy.x, d.buoy.z, w ? { s: 1.18, halo: scaleArr(PL.candle, 1.0), haloSize: 3.4, haloY: 1.0, bob: 0.8 } : { halo: scaleArr(PL.lamp, 0.9), haloSize: 2.4, haloY: 1.0, bob: 0.8 });
+    if (w) f.watch = true;
+    dockBuoys.push(f);
+  }
   const openPts = (n, minD, test) => {
     const out = [];
     for (let tries = 0; tries < n * 40 && out.length < n; tries++) {
