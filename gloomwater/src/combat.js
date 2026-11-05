@@ -44,6 +44,12 @@
 //       withdraws until dawn and no Cinders drop; in Still / Lantern a slam never snaps, no knockback / shove / pull moves
 //       the raft while a fish is hooked, and a tap while hooked is not combat's; a creelsnatch never acts while hooked and
 //       never takes a fish marked for home (every mode).
+//   C2  The day screen carries no combat (DESIGN §25.5.7, combat-modes presentation()): the lantern aura is hidden in calm
+//       and dawn and shows by mode (Still never; Lantern fades in through dusk on swarm nights; Gloomtide from dusk and in
+//       calm raids) as a soft warm wash within the reach with embers lifting off the lit water, never a ring; the Flare
+//       (key and button) works only where the table shows it (Still never; Lantern from dusk on swarm nights; Gloomtide
+//       always) and costs nothing when refused; presentation / auraShown / embersShown / flareShown tell the ui. The
+//       raft-centred rings a flare, a gutter-burst, Gutsfire or a Kindle drew become soft swelling washes in v3.
 //   No persistent lantern-reach ring is drawn in v3 (the user's call; the light pool shows the reach).
 import * as THREE from 'three';
 import { createFx, DECAL, lin } from './combat-fx.js';
@@ -59,7 +65,11 @@ const COL = {
   zap: lin(0xfff1cf, 3.2), zapGlow: lin(0xffc870, 2.2), flare: lin(0xf6e2bc, 2.6), flareHot: lin(0xfff6e6, 3.4), flareRing: lin(0xf2d6a0, 2.0), flareGlow: lin(0xe8be77, 2.0),   // Starlit: pale gold, not orange (DESIGN §19.1)
   burn: lin(0xffa040, 2.4), burnHot: lin(0xffd080, 3), gutter: lin(0xe8b860, 1.6), edge: lin(0xffb347, 1), grip: lin(0xe8c66a, 1.8), ink: lin(0x040508, 1),
   gold: lin(0xe8c66a, 2.4),
+  // v3 C2: the lantern aura is a soft wash of warm light within the reach and embers lifting off the lit water (never a ring)
+  auraWash: lin(0xf2c27a, 1.0), auraEmber: lin(0xffc46a, 2.0), auraEmberPale: lin(0xf6dca0, 1.8),
 };
+// tiny local PRNG for cosmetic embers: the presentation never consumes Math.random (seeded tests stay stable)
+function cosmeticRng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const HOOKED = M.HOOKED_STATES;   // reeling, landing
 // Lantern's Warden rises this far into the swarm window (window-relative k): its banner then lasts 3 s, leaving it ≈ 33 s
 // of the 40.5 s window before it withdraws (DESIGN §25.5.1 gives the cadence and hp, not the moment)
@@ -596,8 +606,13 @@ export function create(ctx) {
     }
     // VFX: an expanding ring of light on the water, a pool flash, sparks from the lantern
     const L = C.lantern;
-    fx.timedDecal({ x, z, r0: 0.6, r1: radius, life: 0.55, color: COL.flareRing, p1: 0.07, p2: 0.06, alpha: 0.9 });
-    fx.timedDecal({ x, z, r0: radius * 0.6, r1: radius * 1.15, life: 0.9, color: COL.flareRing, type: DECAL.DASHRING, p1: 0.03, p2: 28, ease: 3, alpha: 0.45 });
+    if (C.mode) {
+      // v3: no ring around the raft, ever: the flare's light rolls out as a soft swelling wash of pale gold
+      fx.timedDecal({ x, z, r0: radius * 0.2, r1: radius, life: o.mini ? 0.4 : 0.55, color: COL.flareRing, type: DECAL.GLOW, p1: 1.1, alpha: o.mini ? 0.16 : 0.26 });
+    } else {
+      fx.timedDecal({ x, z, r0: 0.6, r1: radius, life: 0.55, color: COL.flareRing, p1: 0.07, p2: 0.06, alpha: 0.9 });
+      fx.timedDecal({ x, z, r0: radius * 0.6, r1: radius * 1.15, life: 0.9, color: COL.flareRing, type: DECAL.DASHRING, p1: 0.03, p2: 28, ease: 3, alpha: 0.45 });
+    }
     // the flare's light: a warm pale-gold bloom on the water around the raft that swells and fades
     // (never a full-screen flash: a flat white mix greys the whole night frame, DESIGN §19.1)
     fx.timedDecal({ x, z, r0: radius * 0.5, r1: radius * 1.05, life: o.mini ? 0.5 : 0.9, color: COL.flareGlow, type: DECAL.GLOW, p1: 2.2, alpha: o.mini ? 0.14 : 0.24, ease: 3 });
@@ -612,6 +627,8 @@ export function create(ctx) {
   function flare() {
     const run = C.run;
     if (!run || ctx.flow !== 'playing' || ctx.paused) return false;
+    // v3 C2: no Flare where the mode's table hides it (Still; Lantern outside a swarm night's dusk and night): the key does nothing
+    if (C.mode && !presentNow().flare) return false;
     const S = C.stats;
     const deny = (msg) => {
       if (ctx.time.t < denyT) return false;
@@ -1329,12 +1346,56 @@ export function create(ctx) {
     try { processBursts(); } catch (e) { C.report('bursts', e); }
     try { warden.updateGlobal(dt, t); } catch (e) { C.report('warden', e); }
     try { aura(dt, t); } catch (e) { C.report('aura', e); }
+    if (C.mode) { try { drawAuraPresence(dt, t); } catch (e) { C.report('aura presence', e); } }
     try { weapons.update(dt, t); } catch (e) { C.report('weapons', e); }
     if (C.mode) { try { updateV3(dt, t); } catch (e) { C.report('v3', e); } }
     try { levels.update(dt, t); } catch (e) { C.report('levels', e); }
     try { updatePlayerEffects(dt, t); } catch (e) { C.report('player fx', e); }
     try { enemiesSys.render(dt, t); } catch (e) { C.report('enemies.render', e); }
     fx.end(dt, t);
+  }
+
+  // ---------------------------------------------------------------- v3 C2: what combat shows by mode (DESIGN §25.5.7)
+  const present = { aura: 0, embers: true, flare: true };
+  let auraVis = 0, emberAcc = 0, lastHitAt = -1e9;
+  const crng = cosmeticRng(0x51ed270b);
+  /** The §25.5.7 table for this frame (combat-modes presentation()); v1: no aura, Embers and Flare always. */
+  function refreshPresent() {
+    if (!C.mode) { present.aura = 0; present.embers = true; present.flare = true; return present; }
+    const p = M.presentation(C.mode, BAL(), {
+      phase: C.phase, phaseK: C.phaseK, swarmNight: tonightSwarms(), swarmActive: swarmActiveNow(),
+      hitT: (ctx.time?.t ?? 0) - lastHitAt, scorched: !!C.run?.scorched,
+    });
+    present.aura = p.aura; present.embers = p.embers; present.flare = p.flare;
+    return present;
+  }
+  /** The same, read outside combat's update (ui, the Flare key): refresh the run, mode and phase first. */
+  function presentNow() {
+    refreshMode();   // (never adopts a run here: update() does that, with its run:start bookkeeping)
+    if (!C.mode) return refreshPresent();
+    try { phaseInfo(); } catch { /* keep the last phase */ }
+    return refreshPresent();
+  }
+  /**
+   * The lantern aura's presence (v3): a soft warm wash within the reach and a few embers lifting off the lit water while
+   * the mode's table shows the aura; it fades in and out, and it is never a ring (DESIGN §19.1, the user's art rule).
+   */
+  function drawAuraPresence(dt, t) {
+    refreshPresent();
+    const target = C.lanternOut ? 0 : present.aura;
+    auraVis += (target - auraVis) * (1 - Math.exp(-dt * 1.6));
+    if (auraVis < 0.01) { emberAcc = 0; return; }
+    const R = Math.max(1, C.lightR);
+    const c = COL.auraWash, pulse = 0.9 + 0.1 * Math.sin(t * 1.3);
+    fx.decalsG.add(C.raft.x, C.raft.z, R, R, 0, DECAL.GLOW, c.r, c.g, c.b, 0.07 * auraVis * pulse, 1.5);
+    emberAcc = Math.min(4, emberAcc + dt * 6 * auraVis);
+    while (emberAcc >= 1) {
+      emberAcc -= 1;
+      const a = crng() * TAU, d = (0.25 + 0.7 * Math.sqrt(crng())) * R;
+      const e = crng() < 0.55 ? COL.auraEmber : COL.auraEmberPale;
+      fx.sparks.emit(C.raft.x + Math.cos(a) * d, 0.22, C.raft.z + Math.sin(a) * d, (crng() - 0.5) * 0.25, 0.45 + crng() * 0.6, (crng() - 0.5) * 0.25,
+        e.r, e.g, e.b, 0.06 + crng() * 0.05, 1.4 + crng() * 1.2, 0.75 * Math.min(1, auraVis * 1.2), -0.015, 0.5, 0.12);
+    }
   }
 
   // ---------------------------------------------------------------- v3 per-frame upkeep
@@ -1446,6 +1507,12 @@ export function create(ctx) {
     get swarmActive() { return swarmActiveNow(); },
     /** Banked level-ups waiting for the measuring card or the dawn bell (= run.levelBank). */
     get bankedLevels() { return ctx.state.run?.levelBank | 0; },
+    /** C2 (DESIGN §25.5.7): this frame's presentation by mode {aura 0–1, embers, flare}; v1 {aura: 0, embers: true, flare: true}. */
+    get presentation() { const p = presentNow(); return { aura: p.aura, embers: p.embers, flare: p.flare }; },
+    /** The lantern aura's presence now (0–1; the soft wash fades toward the table's value). */
+    get auraShown() { return C.mode ? +auraVis.toFixed(3) : 0; },
+    get embersShown() { return presentNow().embers; },
+    get flareShown() { return presentNow().flare; },
     /** The ui shows a banked pick (measuring card, dawn bell): the offer to choose from with chooseBoon(), or null. */
     offerBanked() { if (!C.run) C.run = ctx.state.run; refreshMode(); return C.mode ? levels.offerBanked({ ui: true }) : null; },
     /** Discovery XP under the daily cap shared with progression ('species' | 'place' | 'classFirst'). Returns the XP given. */
@@ -1522,6 +1589,7 @@ export function create(ctx) {
         if (xp > 0) levels.gainXp(xp);
       });
       bus.on('player:damage', ({ amount } = {}) => {
+        if (amount >= 1) lastHitAt = ctx.time?.t ?? 0;   // v3 C2: the Embers arc shows for a few seconds after a hit (Lantern)
         if (!(amount >= 1) || !C.run) return;
         weapons.onHurt();
         // Gutter-burst: a free radial knock on every Ember lost
@@ -1539,7 +1607,8 @@ export function create(ctx) {
           e.stun = Math.max(e.stun, gb.stun ?? 0.5);
         }
         if (tallow && q.burstDamage) C.flareBurst(C.raft.x, C.raft.z, R, 1, { free: true, mini: true, source: 'gutter' });
-        fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 0.8, r1: R, life: 0.45, color: COL.gutter, p1: 0.12, p2: 0.1, alpha: 0.9 });
+        if (C.mode) fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: R * 0.25, r1: R, life: 0.45, color: COL.gutter, type: DECAL.GLOW, p1: 1.4, alpha: 0.32 });   // v3: a wash, not a ring
+        else fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 0.8, r1: R, life: 0.45, color: COL.gutter, p1: 0.12, p2: 0.1, alpha: 0.9 });
         fx.burst(C.raft.x, 1.2, C.raft.z, COL.gutter, 16, R * 1.4, 0.16, 0.4, 1, -2);
       });
       bus.on('fish:action', ({ action } = {}) => {
@@ -1549,7 +1618,8 @@ export function create(ctx) {
         if (lv > 0 && pr?.levels) {
           gutsP = pr.levels[Math.min(lv, pr.levels.length) - 1];
           gutsT = gutsP?.time || 6;
-          fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 1, r1: C.lightR + 2, life: 0.7, color: COL.burnHot, p1: 0.08, p2: 0.12 });
+          if (C.mode) fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 1, r1: C.lightR + 2, life: 0.7, color: COL.burnHot, type: DECAL.GLOW, p1: 1.6, alpha: 0.22, ease: 3 });   // v3: a wash, not a ring
+          else fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 1, r1: C.lightR + 2, life: 0.7, color: COL.burnHot, p1: 0.08, p2: 0.12 });
         }
       });
       bus.on('fish:landed', () => {
@@ -1613,6 +1683,7 @@ export function create(ctx) {
             levelBank: run?.levelBank | 0, pending: levels.pendingCount, queued: levels.queuedCount, banked: !!levels.current?.banked, uiDriven: levels.uiDriven,
             modalOk: C.modalOk(), hooked: C.hooked(), holdStill: C.holdStill(), snags: snags.map((x) => ({ t: +x.t.toFixed(2), lead: x.lead, hit: x.hit, x: x.x, z: x.z })),
             snagsThisFight: NM.snagsThisFight, swarmSeen: !!run?.flags?.swarmSeen,
+            present: { ...presentNow() }, auraShown: +auraVis.toFixed(3),
             diff: C.diff ? { k: C.diff.k, day: C.diff.day, spawnRate: C.diff.spawnRate, maxAlive: C.diff.maxAlive, hpMult: C.diff.hpMult, eliteEvery: C.diff.eliteEvery, boss: C.diff.boss, bossHpMult: C.diff.bossHpMult, formationAt: C.diff.formationAt, heat: C.diff.heat } : null,
             enemies: enemies.length, boss: bossRef?.enemyId || null, bossHp: bossRef ? Math.round(bossRef.maxHp) : null,
           };
@@ -1625,7 +1696,7 @@ export function create(ctx) {
     onPointerDown,
     flare,
     flareReady() { return flareCd <= 0 ? 1 : clamp01(1 - flareCd / Math.max(0.01, flareTotal)); },
-    canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
+    canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; if (C.mode && !presentNow().flare) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
     addXp(n, opts) { if (!C.run) C.run = ctx.state.run; refreshMode(); if (C.mode) addXpV3(n, opts); else levels.gainXp(n); },
     chooseBoon(boonId) { if (!C.run) C.run = ctx.state.run; return levels.chooseBoon(boonId); },
     reroll() { return levels.reroll(); },
