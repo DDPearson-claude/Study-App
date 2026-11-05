@@ -4,7 +4,7 @@
 // victory. Built on the modal stack in ui.js. Imported only by ui.js.
 import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern } from './ui-icons.js';
-import { drawFish } from './ui-fishart.js';
+import { drawFish, drawFishInk } from './ui-fishart.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -15,12 +15,12 @@ export function createScreens(K) {
   const uid = () => (++uidN).toString(36);
 
   // ------------------------------------------------------------------ building blocks
-  const CORNERS = ['tl', 'tr', 'bl', 'br'].map((c) => `<i class="gw-corner gw-corner--${c}" aria-hidden="true">${ORN.corner}</i>`).join('');
+  // UI style v2 (DESIGN §21.6): no box. A panel is a pool of night ink under its content, a
+  // filigree crest above the title and a flourish closing it (drawn by CSS).
   function panel(entry, body, { title = '', sub = '', cls = '', close = true, kicker = '' } = {}) {
     const p = h('div', `gw-panel ${cls}`);
-    p.innerHTML = `${CORNERS}<div class="gw-grain"></div>
-      ${close ? `<button class="gw-x" type="button" aria-label="Close" title="Close (Esc)">${icon('close')}</button>` : ''}
-      ${title ? `<header class="gw-ph">${kicker ? `<div class="gw-kicker">${kicker}</div>` : ''}<h2>${esc(title)}</h2>${sub ? `<div class="gw-psub">${sub}</div>` : ''}<div class="gw-pdiv">${ORN.divider}</div></header>` : ''}
+    p.innerHTML = `${close ? `<button class="gw-x" type="button" aria-label="Close" title="Close (Esc)">${icon('close')}</button>` : ''}
+      ${title ? `<header class="gw-ph"><div class="gw-pdiv">${ORN.crest}</div>${kicker ? `<div class="gw-kicker">${kicker}</div>` : ''}<h2>${esc(title)}</h2>${sub ? `<div class="gw-psub">${sub}</div>` : ''}</header>` : ''}
       <div class="gw-pc"></div><footer class="gw-pf"></footer>`;
     body.appendChild(p);
     p.querySelector('.gw-x')?.addEventListener('click', () => { sfx('ui_click'); K.userEscape(entry); });
@@ -29,7 +29,10 @@ export function createScreens(K) {
   function btn(label, opts = {}) {
     const b = h('button', `gw-btn ${opts.cls || ''}`);
     b.type = 'button';
-    b.innerHTML = `${opts.key ? `<kbd>${esc(opts.key)}</kbd>` : ''}${opts.icon ? icon(opts.icon) : ''}<span>${label}</span>${opts.sub ? `<small>${opts.sub}</small>` : ''}`;
+    // the label span carries the twin hook curls that draw in when the item is chosen (or, on the
+    // catch card, a brushed underline); the first direct <span> stays the plain label
+    const deco = opts.hooks === false ? [opts.brush ? ORN.brush : '', ''] : [ORN.hookL, ORN.hookR];
+    b.innerHTML = `${opts.key ? `<kbd>${esc(opts.key)}</kbd>` : ''}${opts.icon ? icon(opts.icon) : ''}<span>${deco[0]}${label}${deco[1]}</span>${opts.sub ? `<small>${opts.sub}</small>` : ''}`;
     if (opts.title) b.title = opts.title;
     if (opts.action) b.dataset.action = opts.action;
     if (opts.disabled) b.disabled = true;
@@ -176,28 +179,34 @@ export function createScreens(K) {
       const total = arr(D().SPECIES).length;
       if (!entry.state.tagline) entry.state.tagline = Math.random() < 0.55 ? (T.tagline || '') : (K.pick(T.taglineAlts) || T.tagline || '');
       const wrap = h('div', 'gw-title');
+      const name = T.title || 'GLOOMWATER';
+      const meta1 = m.runs ? [`${named} of ${total} species named`, `${fmt(m.memories || 0)} Memories`, `${fmt(m.runs)} descent${m.runs === 1 ? '' : 's'}`, `deepest ${esc(zDeep?.name || 'The Mossmere')}`, `best day ${fmt(m.bestDay || 0)}`]
+        : ['No Wick has gone down yet', `${named} of ${total} species named`];
+      if (m.victories) meta1.push(`${m.victories} light${m.victories > 1 ? 's' : ''} raised`);
       wrap.innerHTML = `<div class="gw-title-veil"></div>
         <div class="gw-title-inner">
-          <div class="gw-logo">${ORN.titleTop}<h1 class="gw-logotype" aria-label="${esc(T.title || 'GLOOMWATER')}">${[...(T.title || 'GLOOMWATER')].map((c, i) => `<span style="--i:${i}">${esc(c)}</span>`).join('')}</h1>${ORN.titleBottom}
-          <p class="gw-tagline">${esc(entry.state.tagline)}</p></div>
-          <div class="gw-title-lower">
+          <div class="gw-logo"><h1 class="gw-logotype" aria-label="${esc(name)}">${[...name].map((c, i) => `<span style="--i:${i}">${esc(c)}</span>`).join('')}</h1>
+            <div class="gw-title-fil">${ORN.crest}</div>
+            <p class="gw-tagline">${esc(entry.state.tagline)}</p></div>
           <nav class="gw-title-menu"></nav>
-          ${!m.runs ? `<p class="gw-title-premise">${esc(T.premise || '')}</p>` : ''}
-          <div class="gw-title-meta">${m.runs ? `<span>${fmt(m.runs)} descent${m.runs === 1 ? '' : 's'}</span><span>Deepest: ${esc(zDeep?.name || 'The Mossmere')}</span><span>Best day ${fmt(m.bestDay || 0)}</span>` : '<span>No Wick has gone down yet.</span>'}<span>${icon('memory')} ${fmt(m.memories || 0)} Memories</span><span>Journal ${named}/${total}</span>${m.victories ? `<span>${icon('star')} ${m.victories} light${m.victories > 1 ? 's' : ''} raised</span>` : ''}</div>
+          <div class="gw-title-lower">
+            ${!m.runs ? `<p class="gw-title-premise">${esc(T.premise || '')}</p>` : ''}
+            <div class="gw-title-meta">${meta1.map((x, i) => `<span${i > 1 ? ' class="gw-meta-x"' : ''}>${x}</span>`).join('')}</div>
           </div>
         </div>`;
       body.appendChild(wrap);
       const nav = wrap.querySelector('.gw-title-menu');
-      const add = (label, sub, fn, opts = {}) => { const b = btn(label, { cls: 'gw-tbtn', sub, onClick: fn, ...opts }); nav.appendChild(b); return b; };
+      // quiet words in a column; only Continue keeps a line beneath it (the others say theirs on hover)
+      const add = (label, sub, fn, opts = {}) => { const b = btn(label, { cls: 'gw-tbtn', onClick: fn, ...opts }); if (sub) b.title = sub.replace(/&amp;/g, '&'); nav.appendChild(b); return b; };
       if (hasRun) {
         const z = K.zoneData(saved?.zone);
-        add('Continue', saved ? `Day ${saved.day || 1} · ${esc(z?.name || '')}` : '', () => { K.closeAll(); ctx.game?.continueRun?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main' });
+        add('Continue', '', () => { K.closeAll(); ctx.game?.continueRun?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main', sub: saved ? `Day ${saved.day || 1} · ${esc(z?.name || '')}` : '' });
       }
-      add('New Descent', hasRun ? 'abandons the waiting one' : 'begin', () => openNewDescent(), { autofocus: !hasRun, cls: hasRun ? 'gw-tbtn' : 'gw-tbtn gw-tbtn--main' });
-      add('Shrine', `${fmt(m.memories || 0)} Memories`, () => openShrine());
-      add('Trials', `${challenges().filter((c) => c.done).length} / ${arr(D().CHALLENGES).length}`, () => openChallenges());
+      add('New Descent', hasRun ? 'Begins a new descent and abandons the waiting one' : '', () => openNewDescent(), { autofocus: !hasRun, cls: hasRun ? 'gw-tbtn' : 'gw-tbtn gw-tbtn--main' });
       add('Journal', `${named} / ${total} named`, () => openJournal());
-      add('Settings', 'sound · picture', () => openSettings({ titleChild: true }));
+      add('Shrine', `${fmt(m.memories || 0)} Memories`, () => openShrine());
+      add('Trials', `${challenges().filter((c) => c.done).length} / ${arr(D().CHALLENGES).length} complete`, () => openChallenges());
+      add('Settings', 'Sound and picture', () => openSettings({ titleChild: true }));
     }, { screen: true, blocking: false, onEscape: () => {}, onKey: menuArrows });
   }
   function menuArrows(code) {
@@ -274,7 +283,7 @@ export function createScreens(K) {
           b.type = 'button';
           const purse = num(econ.waystonePurse?.[zid]), lv = num(econ.waystoneLevels?.[zid]);
           b.innerHTML = `<b>${esc(z?.name || zid)}</b><small>${zid === 'mossmere' ? 'The first water' : `${fmt(purse)} Shells · ${lv} banked levels`}</small>`;
-          b.style.setProperty('--zc', K.cssHex(z?.palette?.glow, '#a9b9f0'));
+          b.style.setProperty('--zc', K.cssHex(z?.palette?.glow, '#9fa2d8'));
           b.addEventListener('click', () => { s.zone = zid; sfx('ui_click'); entry.render(); });
           row.appendChild(b);
         }
@@ -299,6 +308,44 @@ export function createScreens(K) {
   }
 
   // ================================================================== CATCH CARD
+  // Direction C, "Ink-Wash Field Journal" (DESIGN §21.6): a feathered patch of ink instead of a
+  // box; the fish as a pale ink sketch derived from its own illustration, a measuring line and a
+  // handwritten note built from the real catch; the species name in IM Fell English SC, a red
+  // rubber stamp for its class, handwritten length / weight / worth, one lore line and the
+  // actions as words with a brush stroke under the chosen one. One column on a phone.
+  // condition factor K (weight g = K · length cm³ / 100) per body shape, for the length estimate
+  const SHAPE_K = { minnow: 1.0, perch: 1.3, crayfish: 2.2, carp: 1.8, koi: 1.5, pike: 0.68, eel: 0.18, puffer: 3.2, ray: 1.6, angler: 2.6, jelly: 0.9, ghost: 0.55, leviathan: 0.85 };
+  function fishLength(sp, kg) {
+    const k = SHAPE_K[sp?.model?.shape] || 1.1;
+    const cm = Math.cbrt((100 * Math.max(0.001, num(kg)) * 1000) / k);
+    return cm >= 100 ? `${(cm / 100).toFixed(2)} m` : `${Math.max(1, Math.round(cm))} cm`;
+  }
+  function sizeClass(sp, kg) {
+    const [w0, w1] = arr(sp?.weight).length ? sp.weight : [0, 1];
+    const t = w1 > w0 ? (num(kg) - w0) / (w1 - w0) : 0.5;
+    return t >= 0.86 ? 'trophy' : t >= 0.6 ? 'large' : t < 0.2 ? 'small' : 'fair';
+  }
+  const PHASE_WHEN = { calm: 'in the calm', dusk: 'at dusk', gloomtide: 'in the Gloomtide', dawn: 'at grey dawn' };
+  const firstSentence = (t) => { const m = /^(.+?[.!?])(\s|$)/.exec(String(t || '').trim()); return m ? m[1] : String(t || '').trim(); };
+  /** The catch as the journal records it: stamp, kicker, note, numbers. */
+  function catchNotes(p, sp, fish) {
+    const r = run();
+    const legend = sp.rarity === 'legendary';
+    const size = sizeClass(sp, fish.weight);
+    const q = fish.quality || 'normal';
+    const stamp = legend ? 'Legend' : p.isRecord ? 'Record' : p.isNew ? 'New' : q === 'perfect' ? 'Shimmering' : q === 'fine' ? 'Fine' : cap(size);
+    const z = K.zoneData(sp.zone) || K.zoneData(r?.zone);
+    const zn = (z?.name || '').replace(/^The /, 'the ');
+    const kicker = legend ? `A legend of ${zn || 'the deep'}` : p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal' : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`;
+    const len = fishLength(sp, fish.weight);
+    const phrase = legend ? 'the legend itself!' : p.isRecord ? 'biggest yet!' : p.isNew ? 'a first!' : q === 'perfect' ? 'it shimmers!'
+      : q === 'fine' ? 'a fine one.' : size === 'trophy' ? 'a real trophy!' : size === 'large' ? 'a good one.' : size === 'small' ? 'only a little one.' : '';
+    const eq = safe(() => ctx.progression?.getEquippedBait?.(), r?.equippedBait ?? null);
+    const bait = K.baitData(typeof eq === 'object' && eq ? eq.id : eq);
+    const ph = K.phaseInfo()?.phase || r?.phase || 'calm';
+    const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${PHASE_WHEN[ph] || ''}${r?.day ? `, day ${r.day}` : ''}`;
+    return { stamp, kicker, len, phrase, more, legend, size };
+  }
   function showCatch(p) {
     const fish = p?.fish;
     if (!fish) return;
@@ -311,25 +358,41 @@ export function createScreens(K) {
       const cs = Math.round(stat('creelSize'));
       const inCreel = arr(r?.creel).includes(fish);
       const full = !inCreel && arr(r?.creel).length >= cs;
-      const q = qualityOf(fish.quality);
-      const z = K.zoneData(sp.zone);
-      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}`, close: false });
+      const N = s.notes || (s.notes = catchNotes(p, sp, fish));
+      const phone = K.vw < 700;
+      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
-      pn.insertAdjacentHTML('beforeend', `<div class="gw-catch-ribbons">${p.isNew ? '<span class="gw-ribbon gw-ribbon--new">New</span>' : ''}${p.isRecord ? `<span class="gw-ribbon gw-ribbon--rec">${esc(D().TEXT?.newRecord || 'Record')}</span>` : ''}</div>`);
-      content.innerHTML = `
-        <div class="gw-kicker">${esc(RARITY_LABEL[sp.rarity] || 'Common')} · ${esc(z?.name || '')}</div>
-        <div class="gw-catch-art"><div class="gw-catch-halo"></div></div>
-        <h2 class="gw-catch-name">${esc(sp.name)}</h2>
-        ${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
-        <div class="gw-catch-meta"><span class="gw-catch-kg">${fmtKg(fish.weight)}</span>${qPill(fish.quality)}</div>
-        ${p.isNew && sp.lore ? `<p class="gw-lore">${esc(sp.lore)}</p>` : ''}
-        <div class="gw-catch-yield"><span>${icon('shell')}<b>${fmt(y.sell)}</b><small>to Old Murk</small></span><span>${icon('food')}<b>+${fmt(y.food)}</b><small>satiety</small></span><span>${icon('oil')}<b>+${fmt(y.oil)}</b><small>oil</small></span></div>
-        ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}`;
-      const art = content.querySelector('.gw-catch-art');
-      art.appendChild(fishCanvas(sp, K.vw < 520 ? 260 : 330, K.vw < 520 ? 140 : 172, { pad: 0.06 }));
-      if (fish.quality === 'perfect') art.classList.add('gw-shimmer');
+      // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
+      const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
+        : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
+      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${legend ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
+      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd><dt>worth</dt><dd>${fmt(y.sell)} shells</dd></dl>`;
+      const lore = firstSentence(sp.lore) || hintFor(sp);
+      content.innerHTML = `<div class="gw-cc-grid">
+          <div class="gw-cc-left">
+            <div class="gw-cc-art"></div>
+            <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
+            <p class="gw-cc-note">${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+          </div>
+          <div class="gw-cc-right">
+            <div class="gw-cc-kicker">${esc(N.kicker)}</div>
+            <h2 class="gw-catch-name">${esc(sp.name)}</h2>
+            ${sp.epithet ? `<div class="gw-cc-epithet">${esc(sp.epithet)}</div>` : ''}
+            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span></div>
+            ${stats}
+            <p class="gw-cc-lore">${esc(lore)}</p>
+            ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}
+          </div>
+        </div>`;
+      const art = content.querySelector('.gw-cc-art');
+      const aw = phone ? 300 : 400, ah = phone ? 120 : 170;
+      const c = h('canvas', 'gw-fishart gw-fish-ink');
+      try { drawFishInk(c, sp, { w: aw, h: ah, pad: 0.05, color: legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { K.report('fishart', e); }
+      art.appendChild(c);
       content.querySelector('[data-room]')?.addEventListener('click', () => { s.room = !s.room; sfx('ui_click'); entry.render(); });
+      const right = content.querySelector('.gw-cc-right');
       if (full && s.room) {
+        pn.classList.add('gw-cc-rooming');
         const list = h('div', 'gw-room');
         for (const f of arr(r?.creel)) {
           const fsp = K.speciesData(f.speciesId);
@@ -337,25 +400,35 @@ export function createScreens(K) {
           const row = h('div', 'gw-room-row');
           row.appendChild(fishCanvas(fsp, 56, 30));
           row.insertAdjacentHTML('beforeend', `<span class="gw-room-name">${esc(fsp?.name || f.speciesId)}<small>${fmtKg(f.weight)}</small></span>`);
-          row.appendChild(btn(`Eat +${fy.food}`, { cls: 'gw-btn--sm', onClick: () => { if (doFishAction(f, 'eat')) entry.render(); } }));
-          row.appendChild(btn(`Render +${fy.oil}`, { cls: 'gw-btn--sm', onClick: () => { if (doFishAction(f, 'render')) entry.render(); } }));
+          row.appendChild(btn(`Eat <em>+${fy.food}</em>`, { cls: 'gw-btn--sm gw-cc-act', hooks: false, brush: true, onClick: () => { if (doFishAction(f, 'eat')) entry.render(); } }));
+          row.appendChild(btn(`Render <em>+${fy.oil}</em>`, { cls: 'gw-btn--sm gw-cc-act', hooks: false, brush: true, onClick: () => { if (doFishAction(f, 'render')) entry.render(); } }));
           list.appendChild(row);
         }
-        content.appendChild(list);
+        right.appendChild(list);
       }
       const act = (a) => () => { if (s.locked) return; if (doFishAction(fish, a)) { s.locked = true; K.closeModal('catch'); } };
       foot.classList.add('gw-catch-actions');
-      foot.appendChild(btn(legend ? 'Keep (Trophy)' : 'Keep', { key: '1', icon: 'creel', action: 'keep', cls: 'gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
-      foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { key: '2', icon: 'food', action: 'eat', onClick: act('eat'), autofocus: full }));
-      foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { key: '3', icon: 'oil', action: 'render', onClick: act('render') }));
-      if (!legend) foot.appendChild(btn('Release <em>+luck</em>', { key: '4', icon: 'wave', action: 'release', title: '+2% rare-fish luck until tomorrow', onClick: act('release') }));
-    }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center',
+      right.appendChild(foot);
+      const A = { hooks: false, brush: true };
+      foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
+      foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
+      foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
+      if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: '+2% rare-fish luck until tomorrow', onClick: act('release') }));
+    }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-catch',
       onKey: (code) => {
         const map = { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
-        if (!map[code]) return false;
-        const b = K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`);
-        b?.click();
-        return true;
+        if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
+        // the actions read left to right: arrows move the brush stroke along them
+        if (code === 'ArrowLeft' || code === 'ArrowRight' || code === 'ArrowUp' || code === 'ArrowDown') {
+          const btns = [...(K.top()?.el.querySelectorAll('.gw-catch-actions .gw-btn:not([disabled])') || [])];
+          if (!btns.length) return false;
+          const i = btns.indexOf(document.activeElement);
+          const d = code === 'ArrowLeft' || code === 'ArrowUp' ? -1 : 1;
+          btns[(i + d + btns.length) % btns.length].focus();
+          sfx('ui_hover', { volume: 0.3 });
+          return true;
+        }
+        return false;
       } });
   }
 
@@ -693,7 +766,7 @@ export function createScreens(K) {
       const T = D().TEXT || {};
       const allSp = arr(D().SPECIES);
       const named = allSp.filter((x) => J[x.id]).length;
-      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: 'gw-p-wide gw-p-journal', kicker: icon('journal') });
+      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: 'gw-p-wide gw-p-journal' });
       const tabList = zones.map((z) => { const sps = allSp.filter((x) => x.zone === z.id); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: `${n}/${sps.length}` }; });
       pn.insertBefore(tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; entry.render(); }), content);
       const z = K.zoneData(s.zone);
@@ -928,7 +1001,7 @@ export function createScreens(K) {
       const shells = num(r?.shells);
       const phase = K.phaseInfo()?.phase || r?.phase;
       const okPhase = arr(D().BALANCE?.travel?.phases || ['calm', 'dawn']).includes(phase);
-      content.innerHTML = `<div class="gw-zone-card" style="--zc:${K.cssHex(next.palette?.glow, '#a9b9f0')};--zf:${K.cssHex(next.palette?.fog, '#262f40')};--za:${K.cssHex(next.palette?.accent, '#c4b8ec')}">
+      content.innerHTML = `<div class="gw-zone-card" style="--zc:${K.cssHex(next.palette?.glow, '#9fa2d8')};--zf:${K.cssHex(next.palette?.fog, '#1d245d')};--za:${K.cssHex(next.palette?.accent, '#b9b0e6')}">
           <div class="gw-zone-sky"></div><div class="gw-kicker">Below lies</div><h3>${esc(next.name)}</h3><div class="gw-catch-epithet">${esc(next.subtitle || '')}</div>
           <p class="gw-lore">${esc(next.description || '')}</p></div>`;
       if (info.open) {
@@ -1013,8 +1086,8 @@ export function createScreens(K) {
       const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}`);
       wrap.innerHTML = `<div class="gw-death-veil"></div><div class="gw-death-inner gw-scroll">
         <div class="gw-death-head"><div class="gw-death-candle"><i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
-        <div class="gw-death-line">Day ${fmt(S.day || 1)} · ${esc(z?.name || '')} · Level ${fmt(S.level || 1)}${ch ? ` · ${esc(ch.name)}` : ''}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
-        <div class="gw-pdiv">${ORN.divider}</div></div>
+        <div class="gw-death-line">${[`Day ${fmt(S.day || 1)}`, esc(z?.name || ''), `Level ${fmt(S.level || 1)}`, ch ? esc(ch.name) : ''].filter(Boolean).map((x) => `<span>${x}</span>`).join(' · ')}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
+        <div class="gw-pdiv">${ORN.flourish}</div></div>
         <div class="gw-death-cols">
           <section class="gw-death-mem"><h2>${esc(T.memoriesHeader || 'What the Water Remembers')}</h2><div class="gw-mem-rows"></div>
             <div class="gw-mem-total">${'<span>'}${icon('memory')}<b class="gw-mem-n">0</b></span><small>Memories banked · ${fmt(meta().memories || 0)} held</small></div></section>
