@@ -142,7 +142,8 @@ export function createWeapons(C) {
         fx.burst(x, y, z, COL.coal, 5, 2.5, 0.12, 0.35);
       }
     }
-    if (activeK > 0.05) fx.decalsG.add(raft.x, raft.z, R, R, 0, DECAL.DASHRING, COL.coalHalo.r, COL.coalHalo.g, COL.coalHalo.b, 0.18 * activeK * (halo ? 1.6 : 1), 0.035, n * 3, -w.a);
+    // no orbit ring on the water: the coals and their sparks trace the path (a persistent ring around the
+    // raft is never drawn, DESIGN §19.1 No ring)
   }
 
   // ---------------------------------------------------------------- MOTES

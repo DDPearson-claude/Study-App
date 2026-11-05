@@ -387,7 +387,7 @@ void main() {
   // ripple noise breaks them up and makes them flicker. They fade under the lantern's pool, behind
   // mirrored silhouettes and in foam, are strongest toward grazing water (fresnel), and the scene
   // fog takes the far ones.
-  vec3 Ns = normalize(vec3(-g.x * 0.07, 1.0, -g.y * 0.07));
+  vec3 Ns = normalize(vec3(-g.x * 0.035, 1.0, -g.y * 0.035));   // a gentle nudge: more and the chop smears each star into a streak
   vec3 Rs = reflect(-V, Ns);
   float spx = length(fwidth(reflect(-V, vec3(0.0, 1.0, 0.0)))) * 1.25;
   if (uStars > 0.001 || uNebK > 0.001) {

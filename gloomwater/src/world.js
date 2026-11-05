@@ -11,8 +11,8 @@ import { buildArena } from './world-art.js';
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
   id: 'mossmere', index: 0, name: 'The Mossmere', arena: { radius: 60, islands: 6, pillars: 10, seed: 1307 },
-  palette: { fog: 0x262c64, fogDensity: 0.016, water: 0x1e2458, waterDeep: 0x070919, foam: 0xd6d6e4, glow: 0xb2b4ec, accent: 0xd6d6e4, lamp: 0xaeb2f0, candle: 0xed9e3b, ambient: 0x3c4284, ink: 0x06071a, far: 0x7e81b4, light: 0xcfd0f2, nebula: 0xd296ae, stars: 1.0 },
-  grade: { tint: 0x2a3478 },
+  palette: { fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6, glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2, nebula: 0xd296ae, stars: 1.0 },
+  grade: { tint: 0x40347e },
 };
 
 export function create(ctx) {
@@ -185,7 +185,9 @@ export function create(ctx) {
     if (!zone) return;
     const n = mood.night, w = mood.warm;
     // fog
-    col.nightFog.copy(zc.fog).multiplyScalar(0.3).lerp(COLD, 0.45);
+    // night keeps each lake's own hue in its mist (a shared cold target made every Gloomtide the
+    // same blue-black) and a little more light, so ink silhouettes still read on the water
+    col.nightFog.copy(zc.fog).multiplyScalar(0.38).lerp(COLD, 0.22);
     col.dawnFog.copy(zc.fog).lerp(DAWN_MIST, 0.22).lerp(WARM, 0.06).multiplyScalar(1.1);
     col.fog.copy(zc.fog).lerp(col.nightFog, n).lerp(col.dawnFog, w * 0.55);
     fogPush = Math.max(0, fogPush - dt * 1.4);
@@ -194,7 +196,7 @@ export function create(ctx) {
     const isTitle = ctx.flow === 'title' || !ctx.state?.run;
     env.glowK = (1 - 0.42 * n) * (isTitle ? 1.1 : 1);
     env.shaftK = (1 - 0.9 * n) * (1 + 0.35 * w) * (isTitle ? 1.2 : 1);
-    env.partK = 1 - 0.38 * n;
+    env.partK = 1 - 0.55 * n;   // drifting motes thin out at night: the eyes and the stars own the dark
     // starlight: brighter and denser as the night deepens, fading out into the dawn
     const stars = Number.isFinite(zc.stars) ? zc.stars : 1;
     env.starK = stars * (0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
@@ -207,9 +209,9 @@ export function create(ctx) {
       if ('density' in s.fog) s.fog.density = density;
     }
     // lights
-    hemi.color.copy(zc.ambient).lerp(zc.light, 0.35).lerp(col.a.copy(zc.ambient).multiplyScalar(0.4).lerp(COLD, 0.4), n).lerp(WARM, w * 0.25);
+    hemi.color.copy(zc.ambient).lerp(zc.light, 0.35).lerp(col.a.copy(zc.ambient).multiplyScalar(0.48).lerp(COLD, 0.25), n).lerp(WARM, w * 0.25);
     hemi.groundColor.copy(zc.waterDeep).lerp(zc.ink, 0.4);
-    hemi.intensity = 1.15 * (1 - 0.6 * n) * (1 + 0.15 * w);
+    hemi.intensity = 1.15 * (1 - 0.52 * n) * (1 + 0.15 * w);
     dir.color.copy(zc.light).lerp(WARM, w * 0.55).lerp(COLD, n * 0.3);
     dir.intensity = 1.5 * (1 - 0.72 * n) * (1 + 0.25 * w);
     arena?.applyMood(env);
@@ -222,20 +224,20 @@ export function create(ctx) {
   function sendGrade(force) {
     const g = zone?.grade || {};
     const n = mood.night, w = mood.warm;
-    // night keeps a fifth of the lake's own tint, so the lakes (and Mossmere day vs night) stay
-    // apart by hue at the Gloomtide, not only by brightness
+    // night keeps most of the lake's own tint (only a third goes to the shared night indigo), so the
+    // lakes stay apart by hue at the Gloomtide, not only by brightness
     // dawn warms the highlights (warm split-tone) more than the shadows: shadows that go orange read
     // as mud on slate water, cool shadows under warm light read as a pearl dawn
-    col.a.set(g.tint ?? 0x2a3478).lerp(NIGHT_TINT, n * 0.8).lerp(DAWN_TINT, w * 0.2);
+    col.a.set(g.tint ?? 0x40347e).lerp(NIGHT_TINT, n * 0.35).lerp(DAWN_TINT, w * 0.2);
     const grade = {
-      exposure: (g.exposure ?? 1) * (1 - 0.2 * n + 0.05 * w),
+      exposure: (g.exposure ?? 1) * (1 - 0.14 * n + 0.05 * w),
       bloomStrength: (g.bloomStrength ?? 0.9) * (1 + 0.15 * n + 0.1 * w),
       bloomRadius: g.bloomRadius ?? 0.6,
       bloomThreshold: g.bloomThreshold ?? 0.72,
       tint: col.a.getHex(),
-      tintAmount: (g.tintAmount ?? 0.18) + (0.32 - (g.tintAmount ?? 0.18)) * n,
+      tintAmount: (g.tintAmount ?? 0.18) + (0.28 - (g.tintAmount ?? 0.18)) * n,
       vignette: (g.vignette ?? 0.38) + 0.16 * n,
-      saturation: (g.saturation ?? 0.85) * (1 - 0.2 * n + 0.08 * w),
+      saturation: (g.saturation ?? 0.85) * (1 - 0.1 * n + 0.08 * w),
       grain: (g.grain ?? 0.05) + 0.02 * n,
       // a light warm split-tone: the lantern owns warmth; stars, foam and pale stone stay cool-white
       warmAmount: (g.warmAmount ?? 0.07) + 0.16 * w,
@@ -251,8 +253,10 @@ export function create(ctx) {
   const skyCol = { star: new THREE.Color(), neb: new THREE.Color(), nebV: new THREE.Color() };
   function sendPalette() {
     const n = mood.night;
-    col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.55 * n);
-    col.b.copy(zc.water).lerp(COLD, 0.25 * n).multiplyScalar(1 - 0.5 * n).lerp(DAWN_MIST, mood.warm * 0.06);
+    // night water stays a deep version of the lake's own colour (not one shared blue-black), light
+    // enough that an ink-black gloomling still reads as a silhouette on it
+    col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.42 * n);
+    col.b.copy(zc.water).lerp(COLD, 0.12 * n).multiplyScalar(1 - 0.34 * n).lerp(DAWN_MIST, mood.warm * 0.06);
     try {
       ctx.water?.setPalette?.({ deep: col.a.getHex(), shallow: col.b.getHex(), foam: zc.foam.getHex(), glow: zc.glow.getHex(), fogColor: env.fog.getHex() });
     } catch (e) { /* optional */ }
@@ -266,7 +270,9 @@ export function create(ctx) {
         // and the lakes' water starlight differs less than their skies' (√stars): Glasswater's water does not
         // turn to glitter, the Pallid Deep's still shows a few
         const ws = Math.sqrt(Math.max(0.3, Number.isFinite(zc.stars) ? zc.stars : 1));
-        ctx.water.setSky({ stars: env.starK / ws * (1 - 0.25 * mood.night), density: env.starDen, color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
+        // at night the water's stars thin out (the vault's grow denser): a reflected sky, not a snowfall
+        // the eyes of the swarm have to compete with
+        ctx.water.setSky({ stars: env.starK / ws * (1 - 0.32 * mood.night), density: env.starDen * (1 - 0.38 * mood.night), color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
       }
     } catch (e) { /* optional */ }
   }

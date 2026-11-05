@@ -525,8 +525,10 @@ export function create(ctx) {
     // VFX: an expanding ring of light on the water, a pool flash, sparks from the lantern
     const L = C.lantern;
     fx.timedDecal({ x, z, r0: 0.6, r1: radius, life: 0.55, color: COL.flareRing, p1: 0.07, p2: 0.06, alpha: 0.9 });
-    fx.timedDecal({ x, z, r0: radius * 0.6, r1: radius * 1.15, life: 0.9, color: COL.flareRing, type: DECAL.DASHRING, p1: 0.03, p2: 28, ease: 3, alpha: 0.7 });
-    if (o.mini) fx.timedDecal({ x, z, r0: radius * 0.5, r1: radius * 1.05, life: 0.5, color: COL.flare, type: DECAL.GLOW, p1: 2.2, alpha: 0.12, ease: 3 });
+    fx.timedDecal({ x, z, r0: radius * 0.6, r1: radius * 1.15, life: 0.9, color: COL.flareRing, type: DECAL.DASHRING, p1: 0.03, p2: 28, ease: 3, alpha: 0.45 });
+    // the flare's light: a warm pale-gold bloom on the water around the raft that swells and fades
+    // (never a full-screen flash: a flat white mix greys the whole night frame, DESIGN §19.1)
+    fx.timedDecal({ x, z, r0: radius * 0.5, r1: radius * 1.05, life: o.mini ? 0.5 : 0.9, color: COL.flare, type: DECAL.GLOW, p1: 2.2, alpha: o.mini ? 0.12 : 0.22, ease: 3 });
     const n = o.mini ? 18 : 46;
     for (let i = 0; i < n; i++) {
       const a = (i / n) * TAU + Math.random() * 0.2, sp = radius * (1.1 + Math.random() * 0.6);
@@ -565,8 +567,7 @@ export function create(ctx) {
     flareBoostT = fl.boostTime ?? 3;
     try { (ctx.survival?.grantIframes || ctx.survival?.addIframes)?.call(ctx.survival, fl.iframes ?? 0.3); } catch { /* optional */ }
     const R = S.flareRadius ?? 10;
-    C.flareBurst(C.raft.x, C.raft.z, R, 1, {});
-    if (!ctx.state.meta?.settings?.reducedFlashing) { try { ctx.render?.flash?.(0xf4eef6, 0.1, 0.2); } catch { /* optional */ } }
+    C.flareBurst(C.raft.x, C.raft.z, R, 1, {});   // its light is local (pool boost + glow decal): no full-screen flash
     ctx.bus.emit('flare', { position: flarePos.copy(C.raft), radius: R });
   }
 
@@ -667,10 +668,7 @@ export function create(ctx) {
     if (C.lanternOut) { auraAcc = 0; return; }
     const S = C.stats, L = C.light;
     const R = C.lightR;
-    // the light's edge — the "cinder line" — faintly inked during the night
-    if ((C.phase !== 'calm' || enemies.length) && !(ctx.actors?.lightPool instanceof THREE.Object3D)) {
-      fx.decalsG.add(C.raft.x, C.raft.z, R, R, 0, DECAL.DASHRING, COL.edge.r, COL.edge.g * 0.8, COL.edge.b * 0.5, 0.16, 0.012, Math.round(R * 4), t * 0.05);
-    }
+    // no "cinder line": the light's reach is shown by the light pool alone, never a ring (DESIGN §19.1)
     if (auraAcc < tick) return;
     auraAcc -= tick;
     if (auraAcc > tick) auraAcc = 0;

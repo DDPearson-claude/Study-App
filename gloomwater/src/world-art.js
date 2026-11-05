@@ -45,7 +45,7 @@ export function domeY(L, r) {
  */
 export function buildArena(ctx, L, opts = {}) {
   const zone = L.zone || {};
-  const pal = Object.assign({ fog: 0x262c64, fogDensity: 0.016, water: 0x1e2458, waterDeep: 0x070919, foam: 0xd6d6e4, glow: 0xb2b4ec, accent: 0xd6d6e4, lamp: 0xaeb2f0, candle: 0xed9e3b, ambient: 0x3c4284, ink: 0x06071a, far: 0x7e81b4, light: 0xcfd0f2, nebula: 0xd296ae, stars: 1.0 }, zone.palette || {});
+  const pal = Object.assign({ fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6, glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2, nebula: 0xd296ae, stars: 1.0 }, zone.palette || {});
   // optional `lamp` key: cold light for island lamps, buoys, statue orbs and the rings' lit windows
   // (falls back to `glow`), so lamps never compete with the Wick's lantern or the Cinders
   if (zone.palette && zone.palette.lamp == null) pal.lamp = pal.glow;
@@ -1029,7 +1029,7 @@ export function buildArena(ctx, L, opts = {}) {
     // env: { night 0..1, warm 0..1, fog: Color (final fog colour), glowK, shaftK, partK }
     const n = env.night, w = env.warm;
     farLum.copy(base.far).lerp(base.light, 0.12).multiplyScalar(1.12);
-    farLum.lerp(tmpA.copy(base.far).multiplyScalar(0.24).lerp(base.cold, 0.4), n * 0.92);
+    farLum.lerp(tmpA.copy(base.far).multiplyScalar(0.28).lerp(base.cold, 0.25), n * 0.92);   // the far ruins keep the lake's hue at night
     farLum.lerp(tmpA.copy(farLum).lerp(base.dawnMist, 0.35).lerp(base.warm, 0.22).multiplyScalar(1.22), w * 0.65);
     inkNear.copy(base.ink).lerp(env.fog, 0.1);
     const nR = rings.length;

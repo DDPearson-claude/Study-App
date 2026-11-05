@@ -351,11 +351,11 @@ export const ZONES = [
     unlock: { shells: 0, requires: [] },
     drain: { oil: 1.0, satiety: 1.0 }, gloom: 1.0, valueMult: 1,
     legendary: 'belled_matriarch', warden: 'the_wickeater', gateName: 'The Moss Sluice',
-    // "Starlit moat" (DESIGN §19.3): deep indigo water and sky, lavender mist, pale stone, candle-amber windows
-    palette: { fog: 0x262c64, fogDensity: 0.016, water: 0x1e2458, waterDeep: 0x070919, foam: 0xd6d6e4,
-      glow: 0xb2b4ec, accent: 0xd6d6e4, lamp: 0xaeb2f0, candle: 0xed9e3b, ambient: 0x3c4284, ink: 0x06071a, far: 0x7e81b4, light: 0xcfd0f2,
+    // "Starlit moat" (DESIGN §19.3): violet-dusk water under lavender mist, pale stone, candle-amber windows
+    palette: { fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6,
+      glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2,
       nebula: 0xd296ae, stars: 1.0 },
-    grade: { exposure: 1.04, bloomStrength: 0.9, bloomRadius: 0.6, bloomThreshold: 0.7, tint: 0x2a3478, tintAmount: 0.2, vignette: 0.38, saturation: 1.0, grain: 0.05 },
+    grade: { exposure: 1.04, bloomStrength: 0.9, bloomRadius: 0.6, bloomThreshold: 0.7, tint: 0x40347e, tintAmount: 0.2, vignette: 0.38, saturation: 1.0, grain: 0.05 },
     description: 'The outer moat of the Lamplit Kingdom, drowned to the arches. Moss drinks the old stone and roots hang from the vault like the beards of sleeping giants. The fish here are forgiving. The dark, for now, only watches.',
   },
   {
@@ -424,11 +424,11 @@ export const ZONES = [
     unlock: { shells: 420, requires: [{ type: 'legendary', id: 'drifting_grove', label: 'Land the Drifting Grove' }] },
     drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
     legendary: 'glass_sovereign', warden: 'the_shard_abbot', gateName: 'The Vault Seal',
-    // "Sapphire orrery" (DESIGN §19.5): saturated sapphire-indigo, lavender crystal, the most starlight
-    palette: { fog: 0x1c2470, fogDensity: 0.012, water: 0x161c62, waterDeep: 0x04061f, foam: 0xd6dcfa,
-      glow: 0xa6a2f6, accent: 0xd2baff, lamp: 0xb6baff, candle: 0xe8be77, ambient: 0x2e3c94, ink: 0x03041b, far: 0x6a78d2, light: 0xdcdcff,
+    // "Sapphire orrery" (DESIGN §19.5): saturated cobalt-sapphire water, lilac crystal, the most starlight
+    palette: { fog: 0x172a7c, fogDensity: 0.012, water: 0x10226e, waterDeep: 0x030921, foam: 0xd6defa,
+      glow: 0xa0aaf8, accent: 0xd2baff, lamp: 0xb6c0ff, candle: 0xe8be77, ambient: 0x24409a, ink: 0x02051b, far: 0x5c78d4, light: 0xd8e0ff,
       nebula: 0xcc8ed0, stars: 1.5 },
-    grade: { exposure: 1.06, bloomStrength: 1.15, bloomRadius: 0.55, bloomThreshold: 0.65, tint: 0x2a34a0, tintAmount: 0.2, vignette: 0.35, saturation: 1.0, grain: 0.04 },
+    grade: { exposure: 1.06, bloomStrength: 1.15, bloomRadius: 0.55, bloomThreshold: 0.65, tint: 0x203ca8, tintAmount: 0.2, vignette: 0.35, saturation: 1.0, grain: 0.04 },
     description: 'Here the kingdom poured its light into crystal and shelved it like books. The water is cold and clear as a held breath. Every shard remembers a colour, and none remember why.',
   },
   {
@@ -458,8 +458,8 @@ export const ZONES = [
     drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
     legendary: 'pale_leviathan', warden: 'the_lightless_ferryman', gateName: null,
     // "Candle requiem" (DESIGN §19.6): near-black violet, bone-pale stone, amber candles, few stars
-    palette: { fog: 0x241c3c, fogDensity: 0.022, water: 0x181430, waterDeep: 0x05040a, foam: 0xe6e0d6,
-      glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x3e3660, ink: 0x030206, far: 0xa89ec8, light: 0xece2d2,
+    palette: { fog: 0x2c2448, fogDensity: 0.022, water: 0x1e183c, waterDeep: 0x07060e, foam: 0xe6e0d6,
+      glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x463e6c, ink: 0x030206, far: 0xa89ec8, light: 0xece2d2,
       nebula: 0xa87a98, stars: 0.7 },
     grade: { exposure: 0.97, bloomStrength: 0.95, bloomRadius: 0.8, bloomThreshold: 0.7, tint: 0x3a2c60, tintAmount: 0.18, vignette: 0.5, saturation: 0.85, grain: 0.07 },
     description: 'The deepest water. The kingdom set its dead adrift here with a candle each, and the candles went out long ago. Two veiled giants kneel in the mist, and the ribs of something larger than a cathedral arch overhead. Something below is breathing.',
