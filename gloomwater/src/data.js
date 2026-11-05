@@ -2759,6 +2759,9 @@ export const BALANCE_V3 = {
     letItPass: { favour: 0.15, cap: 0.3, resetAfter: 60, keepsBait: 'refund', sameWater: { place: true, radius: 6 } },
     pips: { fromClass: 'prize', perfect: 3, normal: 2, rodBonusFrom: 3, lowTension: 0.15, legendaries: false },
     leapReveal: { fromClass: 'prize', time: 0.25, timescale: 0.35, rimFlash: true },
+    // the class tells' float animations (s; fishing:tell `dur`): Small's double pop, Trophy's flat slide, Elder's dome (Keeper's
+    // plunge has none; Prize's drag-under is `dragUnder` above). `lead` = how long before the bite the tell may begin (s).
+    tells: { doublePop: 0.36, flatSlide: 0.5, dome: 0.6, lead: 0.6 },
   },
 
   // ---- Landing and measuring: the signature beat (brief §5.8, §6.3, §6.4).
@@ -2839,7 +2842,7 @@ export const BALANCE_V3 = {
       swarmNights: 'even', forecast: 'The Gloom stirs tonight.',
       window: [0.05, 0.50], quietTail: 45,                                 // night k 0.05 → 0.50 (40.5 s); the last 45 s are always quiet
       mult: { spawnRate: 0.55, hpMult: 0.8, maxAlive: 0.6, eliteEvery: 2 }, firstEliteHeat: 3, formationsPerSwarm: 1,
-      wardens: { everySwarmNight: 2, hpMult: 0.75, withdrawAtClose: true }, calmRaids: false,
+      wardens: { everySwarmNight: 2, hpMult: 0.75, withdrawAtClose: true, at: 0.10 }, calmRaids: false,   // at: night k the Warden rises (inside the 0.05–0.50 window)
       threat: { fodder: 'oil', creelsnatch: 'unmarkedOnly', whileHooked: false, slamSnaps: false, embersFrom: 'telegraphed',
         // the hard rule, closed: while fishing.state is reeling or landing no knockback or shove moves the Wick or the raft,
         // zap taps never release the reel, and a Scorched lets the fight finish before the forced lamp-watch anchors
@@ -4001,7 +4004,10 @@ export const TEXT_V3 = {
   quiet: 'The water here has gone quiet.', listless: 'It had grown listless. You let it go.', snuffedWake: 'Murk found your raft drifting.',
   sank: 'Sank with the creel, night {n}', stirs: 'The Gloom stirs tonight.', lastLight: 'The big ones come up at dusk.',
   markForHome: 'Mark for home?', liveWell: 'keeps {n} nights', farWater: 'Far Water', homewardDistance: 'Homeward stone {m} m',
-  watchLamp: 'Nearest watch-lamp {m} m · ≈ {s} s', nearMiss: '{cause} at {pct}%. Your tackle is rated {rating} here.',
+  watchLamp: 'Nearest watch-lamp {m} m · ≈ {s} s',
+  lampWatchStart: 'Lamp-watch. The Gloom keeps away tonight; fish within {m} m of the lamp.',   // survival, at dusk's end in a watch-lamp's pool
+  lampWatchLeave: 'You left the lamp-watch. The Gloom stirs.',                                 // survival, > 10 m out of the pool
+  lampWatchCast: 'On a lamp-watch you fish within {m} m of the lamp.',                          // fishing, a cast beyond the limit is refused nearMiss: '{cause} at {pct}%. Your tackle is rated {rating} here.',
   newBest: 'New best: {cm} cm (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
   stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
   causes: { snap: 'Snapped', thrown: 'Thrown hook', spooled: 'Spooled', fouled: 'Fouled' },
@@ -4189,6 +4195,7 @@ if (V3_ENABLED) {
   }
   { const chron = CHALLENGES.find((c) => c.id === 'complete_chronicle'); if (chron) chron.params = { ...chron.params, n: SPECIES.length }; }
   TIPS.push(...TIPS_V3.filter((t) => (t.phase ?? 1) <= P));
+  { const mt = TIPS.find((t) => t.id === 'merchant'); if (mt) mt.text = `A bell across the water. Old Murk has moored. ${COVE.murkLook.tip}.`; }   // A10: his lamp is candle-warm now, not green
   Object.assign(MERCHANT_LINES, MERCHANT_LINES_V3);
   TEXT.v3 = TEXT_V3; TEXT.premise = TEXT_V3.premise; TEXT.challengeTabs = CHALLENGE_TABS_V3;
   // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)

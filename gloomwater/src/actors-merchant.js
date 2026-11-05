@@ -1,6 +1,12 @@
-// actors-merchant.js — Old Murk: a hunched, mossy toad under a towering pack, a dim green
-// lamp and a bronze bell, riding a lily-barge. Glides in from the fog, idles (breathing,
-// throat sac, blinks, pipe smoke, watches the raft), glides away.
+// actors-merchant.js — Old Murk: a hunched, mossy toad under a towering pack, a dim lamp and
+// a bronze bell, riding a lily-barge. Glides in from the fog, idles (breathing, throat sac,
+// blinks, pipe smoke, watches the raft), glides away.
+//
+// v3 (A10, CONTRACT §13.7 actors; feature-detected by the v3 BALANCE.ceremony block): Murk is off
+// green, his look from COVE.murkLook: skin #5a5444, pale lichen tufts and flecks (#b8b0a0 /
+// #c8c0b0), and the lamp's glow, halo and PointLight candle-warm #ffe2b0 (the v1 / v2 build keeps
+// the old green lamp). A trace of verdigris on the hand bell is the only green he carries
+// (COVE.greenBudget).
 import * as THREE from 'three';
 import { toonMaterial, addOutline, glowSprite, glowMaterial, canvasTexture } from './toon.js';
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, blob, spike, lumpy, smoothNormals, shadowTexture } from './models-kit.js';
@@ -54,7 +60,11 @@ export function createMerchant(ctx) {
 
   // ---------------------------------------------------------------- Old Murk (toad)
   // umber toad with rust-moss and ochre lichen: warm against the cold slate water by temperature, not by light
-  const skin = 0x575047, belly = 0x9c907a, moss = 0x7a5838, ochre = 0xa87e40, lichen = 0xc8bca2;
+  // (v3: COVE.murkLook — a greyer skin under pale lichen, and a candle-warm lamp instead of the green one)
+  const D = ctx.data || {};
+  const LOOK = D.BALANCE?.ceremony && D.COVE?.murkLook ? D.COVE.murkLook : null;
+  const skin = LOOK?.skin ?? 0x575047, belly = 0x9c907a, moss = LOOK?.moss ?? 0x7a5838, ochre = 0xa87e40, lichen = LOOK?.lichen ?? 0xc8bca2;
+  const lampColor = LOOK?.lamp ?? 0xa6d4a0;
   const lichenAt = (x, y, z) => Math.sin(x * 7.3 + 1.1) * Math.sin(y * 8.9 + 0.4) * Math.sin(z * 7.7 + 2.3) > 0.42;
   const murk = new THREE.Group(); murk.position.set(0, 0.22, -0.3); bob.add(murk);
   const skinMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.38, rimPower: 0.6 }));
@@ -154,9 +164,9 @@ export function createMerchant(ctx) {
     ...[0, 1, 2, 3, 4, 5].map((i) => xf(new THREE.BoxGeometry(0.01, 0.22, 0.01), { p: [Math.cos(i / 6 * TAU) * 0.08, -0.26, Math.sin(i / 6 * TAU) * 0.08] })),
   ]), ironMat);
   lampPivot.add(lampIron);
-  const lampGlow = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), M(glowMaterial(0xa6d4a0, 1.8))); lampGlow.position.y = -0.26; lampPivot.add(lampGlow);
-  const lampHalo = glowSprite({ color: 0xa6d4a0, size: 2.0, opacity: 0.35 }); lampHalo.position.y = -0.26; lampPivot.add(lampHalo); mats.push(lampHalo.material);
-  const light = new THREE.PointLight(0xa6d4a0, 0, 11, 1.6); light.position.y = -0.26; light.name = 'merchantLamp'; lampPivot.add(light);
+  const lampGlow = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), M(glowMaterial(lampColor, 1.8))); lampGlow.position.y = -0.26; lampPivot.add(lampGlow);
+  const lampHalo = glowSprite({ color: lampColor, size: 2.0, opacity: 0.35 }); lampHalo.position.y = -0.26; lampPivot.add(lampHalo); mats.push(lampHalo.material);
+  const light = new THREE.PointLight(lampColor, 0, 11, 1.6); light.position.y = -0.26; light.name = 'merchantLamp'; lampPivot.add(light);
   // fish-bone wind chime under the lamp arm
   const fchime = new THREE.Group(); fchime.position.set(0.8, 3.6, 0.42); pack.add(fchime);
   { const bones = []; for (let i = 0; i < 4; i++) { bones.push(xf(new THREE.CylinderGeometry(0.004, 0.004, 0.2, 3), { p: [(i - 1.5) * 0.05, -0.1, 0] })); bones.push(spike([(i - 1.5) * 0.05, -0.32, 0], [0, 1, 0], 0.018, 0.12, 4)); bones.push(xf(new THREE.BoxGeometry(0.05, 0.006, 0.006), { p: [(i - 1.5) * 0.05, -0.27, 0] })); }
@@ -165,8 +175,11 @@ export function createMerchant(ctx) {
   const bellPost = new THREE.Mesh(mergeGeos([xf(new THREE.CylinderGeometry(0.03, 0.04, 1.1, 6), { p: [-1.05, 0.75, 1.0] }), tube(bezierPts([[-1.05, 1.28, 1.0], [-0.95, 1.38, 1.05], [-0.82, 1.35, 1.1]], 5), 0.018, 4)]), M(toonMaterial({ color: 0x2b1e14, rim: 0.3 })));
   outlineSmooth(bellPost, 0.012); bob.add(bellPost);
   const bellPivot = new THREE.Group(); bellPivot.position.set(-0.82, 1.32, 1.1); bob.add(bellPivot);
-  const bellMat = M(toonMaterial({ color: 0xa8803a, rim: 0.6, emissive: 0x2a1a05 }));
-  const bell = new THREE.Mesh(mergeGeos([xf(new THREE.LatheGeometry([[0.0, 0.0], [0.05, -0.01], [0.07, -0.06], [0.085, -0.13], [0.11, -0.17], [0.1, -0.18]].map((p) => new THREE.Vector2(p[0], p[1])), 12), { p: [0, -0.05, 0] }), xf(new THREE.CylinderGeometry(0.004, 0.004, 0.06, 4), { p: [0, -0.02, 0] })]), bellMat);
+  const bellMat = M(toonMaterial({ color: LOOK ? 0xffffff : 0xa8803a, vertexColors: !!LOOK, rim: 0.6, emissive: 0x2a1a05 }));
+  const bellGeo = mergeGeos([xf(new THREE.LatheGeometry([[0.0, 0.0], [0.05, -0.01], [0.07, -0.06], [0.085, -0.13], [0.11, -0.17], [0.1, -0.18]].map((p) => new THREE.Vector2(p[0], p[1])), 12), { p: [0, -0.05, 0] }), xf(new THREE.CylinderGeometry(0.004, 0.004, 0.06, 4), { p: [0, -0.02, 0] })]);
+  // v3: old bronze with a trace of verdigris pooled in the lip's folds (the one green Murk keeps, COVE.greenBudget)
+  if (LOOK) paint(bellGeo, (x, y, z) => (y < -0.15 && Math.sin(Math.atan2(z, x) * 5 + 0.8) > 0.35) || (y > -0.09 && y < -0.07 && Math.sin(Math.atan2(z, x) * 3) > 0.6) ? 0x7d9c8c : 0xa8803a);
+  const bell = new THREE.Mesh(bellGeo, bellMat);
   addOutline(bell, { thickness: 0.01 }); bellPivot.add(bell);
 
   // ---------------------------------------------------------------- shadow + pick proxy
