@@ -171,7 +171,7 @@ float sgRing(float d, float rad, float w, float fw) {
   return exp(-x * x) * sqrt(w / ww);
 }
 float signLife(float kind) {
-  return kind < 1.5 ? 5.2 : kind < 2.5 ? 4.2 : kind < 3.5 ? 4.2 : kind < 4.5 ? 7.5 : kind < 5.5 ? 2.8 : 2.6;
+  return kind < 1.5 ? 5.2 : kind < 2.5 ? 4.2 : kind < 3.5 ? 4.2 : kind < 4.5 ? 7.5 : kind < 5.5 ? 4.6 : 2.6;
 }
 // g: surface slope · foam · sLine: pale ring strokes · sDark: ink · sFlat: glassy slick (chop calmed)
 // sGlow: light under the surface · sDot: bright pins (the bubble a rise leaves, fry dimples, bubbles)
@@ -190,7 +190,7 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
               : kind < 2.5 ? (0.7 + 1.1 * Lc) * 2.6 + 0.8
               : kind < 3.5 ? 1.6 + 0.6 * Lc
               : kind < 4.5 ? (0.8 + 0.5 * Lc) * 3.2 + 1.2
-              : kind < 5.5 ? 1.1 + 0.2 * Lc
+              : kind < 5.5 ? 1.16 + 0.28 * min(L, 2.0)
               : (0.6 + 0.5 * sqrt(Lc)) * 2.8;
   vec2 dv = xz - r.xy;
   float dd = dot(dv, dv);
@@ -225,9 +225,15 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
       float ww = max(w, fw * 0.85);
       float x = (d - rad) / ww;
       float ring = exp(-x * x) * sqrt(w / ww);
-      float rf = (1.0 - k) * (1.0 - k) * smoothstep(0.0, rise ? 0.15 : 0.08, a) * (1.0 - (rise ? 0.28 : 0.3) * fj) * amp;
+      float rf = (1.0 - k) * (1.0 - k) * smoothstep(0.0, rise ? 0.15 : 0.08, a) * (1.0 - (rise ? 0.36 : 0.38) * fj) * amp;
       float nz = wNoise(dv * (rise ? 3.0 : 2.4) + r.z * 5.0 + fj * 3.3);
-      sLine += ring * rf * (rise ? 0.72 + 0.28 * nz : 0.6 + 0.4 * nz);
+      // a ring on real water is never a clean line: it catches the sky in a few long arcs and goes dark
+      // between them (noise read around the circle, so the arcs keep their angles as the ring spreads),
+      // with a darker trough just inside each crest
+      float arcs = 0.22 + 0.78 * smoothstep(0.28, 0.72, wNoise(n * 1.05 + vec2(seed * 17.0 + fj * 5.3, fj * 3.1 + seed * 9.0)));
+      sLine += ring * rf * arcs * (rise ? 0.62 + 0.25 * nz : 0.52 + 0.35 * nz);
+      float xt = (d - rad + ww * 1.7) / ww;
+      sDark += exp(-xt * xt) * sqrt(w / ww) * rf * (0.6 + 0.4 * arcs) * 0.26;
       g += n * (-2.0 * x / ww * ring) * rf * (rise ? 0.022 : 0.024);
       if (!rise && j == 0) foam += ring * smoothstep(0.55, 0.85, nz) * (1.0 - smoothstep(0.3, 1.6, a)) * 0.9 * inten;
     }
@@ -244,13 +250,30 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
       sDark += (1.0 - smoothstep(0.0, r0 * 1.4, d)) * smoothstep(0.4, 0.9, age) * (1.0 - smoothstep(1.0, 3.2, age)) * 0.35 * inten;
     }
   } else if (kind < 2.5) {
-    // BOIL: a big back turns the surface: an oval of dark water where the fish rolled, inside a glassy
+    // BOIL: a big back turns the surface. First the back itself, a long dark hump with a wet glint along
+    // its spine, rolling forward as it sinks (≈ 1.5 s); it leaves an oval of dark water inside a glassy
     // slick that mirrors the stars, and a thick swell rim pushed out, brightest on the side the back
-    // rolled toward, with a fainter ring running ahead; the oval grows with the fish (Prize / Trophy / Elder)
+    // rolled toward, with a fainter ring running ahead. All of it grows with the fish (Prize / Trophy /
+    // Elder): only a size, never a colour or a pattern, so the fish stays unknown until it is landed.
     float ang = seed * 3.14159;
     vec2 u = vec2(cos(ang), sin(ang));
     float A = 0.7 + 1.1 * Lc;
     vec2 e = vec2(dot(dv, u), dot(dv, vec2(-u.y, u.x)) / 0.62) / A;
+    {
+      float roll = smoothstep(0.0, 1.4, age);
+      float dir = seed > 0.5 ? 1.0 : -1.0;
+      vec2 bq = vec2(dot(dv, u) / A - dir * (0.35 * roll - 0.15), dot(dv, vec2(-u.y, u.x)) / A);
+      float wide = 0.12 * (1.0 - 0.35 * roll);
+      float along = exp(-bq.x * bq.x / 0.11);
+      float back = along * exp(-bq.y * bq.y / (wide * wide));
+      float backK = smoothstep(0.0, 0.15, age) * (1.0 - smoothstep(0.55, 1.5, age)) * inten;
+      sDark += back * backK * 0.9;
+      float fwB = fw / A;
+      float sw = max(0.018, fwB * 0.85);
+      float sy = (bq.y + wide * 0.35) / sw;
+      sLine += exp(-sy * sy) * sqrt(0.018 / sw) * along * along * backK * 0.55;
+      g += vec2(-u.y, u.x) * (-2.0 * bq.y / (wide * wide)) * back * backK * 0.012;
+    }
     float ed = length(e);
     float fwE = fw / (A * 0.8);
     float grow = smoothstep(0.0, 0.45, age);
@@ -264,9 +287,11 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     float xr = (ed - rimR) / wwR;
     float rim = exp(-xr * xr) * sqrt(wR / wwR);
     float side = 0.55 + 0.45 * (e.x / max(ed, 1e-3)) * (seed > 0.5 ? 1.0 : -1.0);
-    sLine += rim * fade * (0.45 + 0.5 * side);
+    vec2 en = e / max(ed, 1e-3);
+    float arcs = 0.3 + 0.7 * smoothstep(0.25, 0.7, wNoise(en * 1.2 + seed * 23.0));
+    sLine += rim * fade * (0.35 + 0.45 * side) * arcs;
     float r2 = rimR * (1.0 + age * 0.45);
-    float out2 = sgRing(ed, r2, 0.05, fwE) * fade * (1.0 - k) * 0.5;
+    float out2 = sgRing(ed, r2, 0.05, fwE) * fade * (1.0 - k) * 0.32 * (0.2 + 0.8 * smoothstep(0.3, 0.7, wNoise(en * 1.1 + seed * 31.0 + 4.0)));
     sLine += out2;
     g += n * ((-2.0 * xr / (wwR * A)) * rim * 0.03 + out2 * 0.02) * fade;
   } else if (kind < 3.5) {
@@ -280,7 +305,7 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     if (m > 0.001) {
       vec2 q = xz * 6.5;
       g += (vec2(wNoise(q + vec2(uTime * 5.0, 0.0)), wNoise(q.yx - vec2(0.0, uTime * 5.3) + 7.0)) - 0.5) * 0.3 * m;
-      sDark = max(sDark, m * 0.42);    // renewed patches overlap: the blot never doubles
+      sDark = max(sDark, m * 0.5);     // renewed patches overlap: the blot never doubles
       // flecks: a fine grid of sparks, each flickering on its own fast clock
       vec2 fq = xz * 3.2;
       vec2 fi = floor(fq);
@@ -289,40 +314,44 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
       float fl = pow(max(0.0, sin(uTime * (7.0 + fh * 9.0) + fh * 40.0)), 4.0) * step(0.3, fh);
       float fpin = max(0.045, fwp * 0.9) * 3.2;
       sDot += (1.0 - smoothstep(fpin * 0.35, fpin, length(fract(fq) - fp))) * fl * m * 1.7;
-      // fry dimples: little rings popping where they break the surface
-      vec2 ci = floor(xz * 1.6);
+      // fry dimples: rings popping all over the patch where fry break the surface, quick and many, so the
+      // patch fizzes like a shower on one spot of the lake (each ring opens to ~0.7 m: a few pixels at 25 m)
+      vec2 ci = floor(xz * 1.8);
       float h = wHash(ci + seed * 31.0);
-      float ph = fract(uTime / (0.45 + h * 0.6) + h * 7.0);
-      vec2 cp = (ci + 0.32 + 0.36 * vec2(wHash(ci + 3.7), wHash(ci + 9.1))) / 1.6;
+      float ph = fract(uTime / (0.32 + h * 0.5) + h * 7.0);
+      vec2 cp = (ci + 0.3 + 0.4 * vec2(wHash(ci + 3.7), wHash(ci + 9.1))) / 1.8;
       float dc = length(xz - cp);
-      float act = step(0.3, h) * m;
-      sLine += sgRing(dc, 0.03 + ph * 0.17, 0.02, fw * 0.8) * (1.0 - ph) * (1.0 - ph) * act * 1.6;
+      float act = step(0.25, h) * m;
+      sLine += sgRing(dc, 0.04 + ph * 0.3, 0.025, fw * 0.8) * (1.0 - ph) * (1.0 - ph) * act * 1.9;
     }
   } else if (kind < 5.5) {
     // BUBBLES: a bottom feeder's string of bubbles; each mark is a little cluster surfacing one by one
-    // (a bright pin with a dark meniscus on a faint pale fizz) and popping with a small ring; fishing-fx
-    // lays the marks along the trail, so the clusters read as a dotted line creeping across the water
+    // over ~3 s (a blip ring as each breaks the surface, a bright pin with a dark meniscus while it sits,
+    // a ring as it pops) on a faint pale fizz. fishing-fx lays a mark at the trail's head every ~2 s, so
+    // two or three clusters at once read as a dotted line creeping across the water
     float C = 0.4 + 0.2 * min(L, 2.0);
     float fizz = (1.0 - smoothstep(0.0, C * 1.3, d)) * smoothstep(0.0, 0.3, age) * (1.0 - k);
-    sLine += fizz * 0.12 * inten;
+    sLine += fizz * 0.1 * inten;
     for (int j = 0; j < 6; j++) {
       float fj = float(j);
       float h1 = fract(seed * 13.1 + fj * 0.618);
       float h2 = fract(seed * 7.7 + fj * 0.377 + h1 * 0.5);
-      float a = age - (fj * 0.28 + h1 * 0.2);
-      float bl = 0.75 + h2 * 0.8;
-      if (a < 0.0 || a > bl + 0.4) continue;
+      float a = age - (fj * 0.5 + h1 * 0.35);
+      float bl = 0.7 + h2 * 0.7;
+      if (a < 0.0 || a > bl + 0.5) continue;
       vec2 bp = r.xy + (vec2(h1, h2) - 0.5) * vec2(2.0, 1.6) * C;
       float db = length(xz - bp);
-      float rb = 0.035 + 0.035 * h2;
+      float rb = 0.04 + 0.035 * h2;
       float pin = max(rb, fwp * 0.9);
       if (a < bl) {
-        float on = smoothstep(0.0, 0.1, a) * inten;
-        sDot += (1.0 - smoothstep(pin * 0.4, pin, db)) * on * (0.7 + 0.5 * sqrt(rb / pin));
+        float on = smoothstep(0.0, 0.08, a) * inten;
+        sDot += (1.0 - smoothstep(pin * 0.4, pin, db)) * on * (0.8 + 0.5 * sqrt(rb / pin));
         sDark += sgRing(db, pin * 1.6, pin * 0.5, 0.0) * on * 0.35;
+        float ba = a / 0.35;     // the blip as it breaks the surface
+        if (ba < 1.0) sLine += sgRing(db, rb + ba * 0.22, 0.02, fw * 0.8) * (1.0 - ba) * inten * 1.1;
       } else {
-        float pa = (a - bl) / 0.4;
-        sLine += sgRing(db, rb + pa * 0.32, 0.02, fw * 0.8) * (1.0 - pa) * inten * 1.2;
+        float pa = (a - bl) / 0.5;
+        sLine += sgRing(db, rb + pa * 0.45, 0.025, fw * 0.8) * (1.0 - pa) * inten * 1.5;
       }
     }
   } else {
@@ -333,7 +362,9 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     float gk = clamp(0.35 + 0.45 * L, 0.35, 1.3) * inten;
     float fade = smoothstep(0.0, 0.3, age) * (1.0 - smoothstep(0.3, 1.0, k));
     vec2 dw = dv + g * 0.8;
-    sGlow += exp(-dot(dw, dw) / (gr * gr)) * fade * gk;
+    float dd2 = dot(dw, dw);
+    // a soft halo, and while the mark still rides with the fish a brighter heart: the trail's head
+    sGlow += (exp(-dd2 / (gr * gr)) + exp(-dd2 / (gr * gr * 0.12)) * 0.55 * (1.0 - smoothstep(0.15, 0.4, k))) * fade * gk;
   }
 }
 #endif
@@ -672,7 +703,8 @@ void main() {
   // reads as dark water even under mist strokes and starlight), then pale starlit strokes, glinting pins
   // and the light a night fish leaves under the surface
   col = mix(col, uDeep * 0.22, clamp(sDark, 0.0, 0.75));
-  col += (uFoam * (0.2 + 0.45 * poolLum) + pool * 0.6 + sheen * 0.15) * clamp(sLine, 0.0, 1.8);
+  // strokes take the sky's sheen too, so they hold their contrast on the bright calm water and stay ink-soft at night
+  col += (uFoam * (0.2 + 0.45 * poolLum) + pool * 0.6 + sheen * 0.38) * clamp(sLine, 0.0, 1.8);
   col += mix(uStarCol, uFoam, 0.4) * clamp(sDot, 0.0, 1.5) * 0.9;
   col += mix(uStarCol, uGlow, 0.75) * clamp(sGlow, 0.0, 2.0) * 0.4;
 #ifndef GW_LOW

@@ -17,7 +17,7 @@
 export const SIGN_KINDS = ['rise', 'boil', 'nervous', 'strike', 'bubbles', 'glow'];
 export const SIGN_ID = { rise: 1, boil: 2, nervous: 3, strike: 4, bubbles: 5, glow: 6 };
 /** Seconds one tagged ripple paints the surface, by id (index 0 unused). The shader's signLife() matches. */
-export const SIGN_LIFE = [0, 5.2, 4.2, 4.2, 7.5, 2.8, 2.6];
+export const SIGN_LIFE = [0, 5.2, 4.2, 4.2, 7.5, 4.6, 2.6];
 /** A fish length (m) for a sign that names only a size class (`sign:spawn {sizeClass}`); fishing-fx passes `size` when it knows the fish. */
 export const CLASS_LENGTH = { small: 0.14, keeper: 0.3, prize: 0.6, trophy: 1.1, elder: 2.0, ancient: 2.6, legend: 3.0 };
 /** Default length (m) per kind when neither `size` nor `sizeClass` is given. */

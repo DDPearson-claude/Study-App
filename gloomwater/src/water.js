@@ -318,7 +318,7 @@ export function create(ctx) {
     m.fry = id === SIGN_ID.nervous ? 0.15 : 0; m.seq = ++signSeq;
     signRipHead = (slot + 1) % SIGN_RIP_POOL;
     // a strike throws its own crown of droplets (the slap); one splash call is enough for the whole sign
-    if (id === SIGN_ID.strike && !o.noSplash) splashDrops(x, z, 1.1 + Math.min(L, 3) * 0.45, 26 + Math.round(Math.min(L, 3) * 8));
+    if (id === SIGN_ID.strike && !o.noSplash) slapDrops(x, z, L);
   }
   /**
    * Over the cap, which sign marks keep a slot: every kind's newest mark first, then every kind's second newest,
@@ -790,10 +790,33 @@ export function create(ctx) {
     }
   }
   const glowDrop = new THREE.Color();
-  /** Droplets only (a strike sign's slap): no ripples of its own, the sign mark paints the rings. */
-  function splashDrops(x, z, size, count) {
-    splashCol.copy(U.uFoam.value);
-    emitDrops(x, z, clamp(size, 0.1, 4), Math.round(clamp(count, 1, 160)));
+  /**
+   * A strike's slap (v3 sign): a low, wide crown of spray thrown outward and a few heavy drops, never a column
+   * (a tall plume would read as the cut feeding-spot pillars). No ripples of its own: the sign mark paints the rings.
+   */
+  function slapDrops(x, z, L) {
+    const y0 = api.getHeight(x, z);
+    const Lc = Math.min(Math.max(L, 0.2), 3), sq = Math.sqrt(0.6 + 0.5 * Lc);
+    lightAt(x, z, litCol);
+    splashCol.copy(U.uFoam.value).multiplyScalar(0.36).add(litCol);
+    const gk = glowNow();
+    const n = Math.round(22 + 8 * Lc);
+    for (let i = 0; i < n; i++) {
+      const a = rand() * Math.PI * 2;
+      const heavy = i < 4;
+      const lat = heavy ? (0.3 + rand() * 0.5) * sq : (1.6 + rand() * 1.9) * sq;
+      const up = heavy ? (2.6 + rand() * 1.4) * sq : (1.2 + rand() * 1.8) * sq;
+      const r0 = (0.25 + 0.2 * Lc) * (heavy ? 0.3 : 1);
+      let c = splashCol, b = 0.55 + rand() * 0.6;
+      if (gk > 0.05 && rand() < 0.45 * gk) {
+        c = glowDrop.copy(U.uStarCol.value).lerp(U.uGlow.value, 0.35);
+        if (rand() < 0.2) c.copy(GLOW_GOLD);
+        c.multiplyScalar(0.5 + 0.5 * gk);
+        b = 1.1 + rand() * 0.8;
+      }
+      spawnParticle(x + Math.cos(a) * r0, y0 + 0.04, z + Math.sin(a) * r0, Math.cos(a) * lat, up, Math.sin(a) * lat,
+        (heavy ? 0.07 : 0.035 + rand() * 0.04) * sq, 0.45 + rand() * 0.4, c, b, 0);
+    }
   }
 
   function splash(x, z, opts = {}) {

@@ -89,8 +89,8 @@ ok(uses('v3', /uGlowtide/) && !uses('v3low', /uGlowtide/), 'the Glowtide term is
 ok(uses('v3', /signMark\(r, xz/) && uses('v3low', /signMark\(r, xz/), 'signs paint on every tier of a v3 build');
 ok(SRC.v3.some((l) => /^if \(r\.w >= 64\.0\) \{$/.test(l)) && /if \(r\.w >= 64\.0\) \{[\s\S]{0,200}?signMark\(/.test(WATER_FRAG), 'the ripple loop hands tagged marks (.w ≥ 64) to signMark before the plain path');
 ok(SRC.v3.includes('float wk = floor(m.w * 0.25);') && SRC.v3.includes('m.w -= wk * 4.0;'), 'the wake loop unpacks 4·kind + strength');
-ok(/kind < 1\.5 \? 5\.2 : kind < 2\.5 \? 4\.2 : kind < 3\.5 \? 4\.2 : kind < 4\.5 \? 7\.5 : kind < 5\.5 \? 2\.8 : 2\.6/.test(WATER_FRAG)
-  && JSON.stringify(SIGN_LIFE) === JSON.stringify([0, 5.2, 4.2, 4.2, 7.5, 2.8, 2.6]), 'shader signLife() matches SIGN_LIFE');
+ok(/kind < 1\.5 \? 5\.2 : kind < 2\.5 \? 4\.2 : kind < 3\.5 \? 4\.2 : kind < 4\.5 \? 7\.5 : kind < 5\.5 \? 4\.6 : 2\.6/.test(WATER_FRAG)
+  && JSON.stringify(SIGN_LIFE) === JSON.stringify([0, 5.2, 4.2, 4.2, 7.5, 4.6, 2.6]), 'shader signLife() matches SIGN_LIFE');
 // derivatives only in uniform control flow (undefined inside the divergent ripple / wake loops)
 {
   const main = WATER_FRAG.slice(WATER_FRAG.indexOf('void main()'));
