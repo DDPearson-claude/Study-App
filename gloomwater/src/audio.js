@@ -741,9 +741,9 @@ export function create(ctx) {
     if (cove.pan.pan) setT(cove, 'pan', cove.pan.pan, o.pan, 0.4, 0.01);
     cove.flickT -= dt;
     if (cove.flickT <= 0) { cove.flickT = 0.18 + Math.random() * 0.35; cove.flick = 0.75 + Math.random() * 0.5; }
-    setT(cove.fire, 'g', cove.fire.g.gain, 0.07 * k * hg * (cove.flick || 1), 0.15, 0.01);
+    setT(cove.fire, 'g', cove.fire.g.gain, 0.09 * k * hg * (cove.flick || 1), 0.15, 0.01);
     setT(cove.roar, 'g', cove.roar.g.gain, 0.05 * k * hg * (0.8 + 0.2 * (cove.flick || 1)), 0.3, 0.01);
-    setT(cove.lap, 'g', cove.lap.g.gain, 0.03 * k, 0.8);
+    setT(cove.lap, 'g', cove.lap.g.gain, 0.04 * k, 0.8);
     cove.breathT -= dt;
     if (cove.breathT <= 0) {
       resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.5; scratch.volume = (0.55 + 0.45 * Math.random()) * k;
@@ -783,7 +783,7 @@ export function create(ctx) {
     if (p.kind !== 'murk' || typeof p.text !== 'string' || !p.text) return;
     const o = { pan: 0 };
     const g = murkPan(o);
-    play('murk_grumble', { plan: V3.grumblePlan(p.text, p.key || ''), why: p.key || 'murk', pan: o.pan, volume: 0.5 + 0.5 * g, force: true });
+    play('murk_grumble', { plan: V3.grumblePlan(p.text, p.key || ''), why: p.key || 'murk', pan: o.pan * 0.6, volume: 0.75 + 0.25 * g, force: true });
   }
 
   // ---------------------------------------------------------------- continuous layers

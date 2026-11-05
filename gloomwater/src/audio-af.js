@@ -473,7 +473,7 @@ export const SFX_FE = {
     const lp = v.filter('lowpass', 900, 0.5); lp.connect(out);
     bell(v, lp, t, mtof(50) * p, 0.34, [1, 2.0, 2.76, 4.07], [4.2, 2.4, 1.4, 0.8]);
   } },
-  ember_swell: { gain: 0.7, gap: 3, max: 1, pri: 3, wet: 0.7, dly: 0.2, fn(v, out, t, p) {
+  ember_swell: { gain: 0.55, gap: 3, max: 1, pri: 3, wet: 0.7, dly: 0.2, fn(v, out, t, p) {
     // the great lantern's last ember, far down the channel, pulses once: one low, warm swell
     const rise = 1.2, fall = 1.5, end = t + rise + fall;
     const lp = v.filter('lowpass', 280, 0.7); lp.frequency.setValueAtTime(280, t); lp.frequency.linearRampToValueAtTime(950, t + rise); lp.frequency.linearRampToValueAtTime(300, end);
@@ -506,7 +506,7 @@ export const SFX_FE = {
     c.connect(bp); bp.connect(cg); cg.connect(out);
     v.tone(out, { type: 'triangle', f: mtof(62) * p, t: t + 1.0, a: 0.3, hold: 0.3, d: 0.9, peak: 0.05 });
   } },
-  murk_grumble: { gain: 0.9, gap: 0.3, max: 2, pri: 3, wet: 0.3, pj: 0.02, fn(v, out, t, p, o) {
+  murk_grumble: { gain: 1.25, gap: 0.3, max: 2, pri: 3, wet: 0.3, pj: 0.02, fn(v, out, t, p, o) {
     // Old Murk, from his barge: a short pitched grumble, no words, as many syllables as the line is long (audio-v3 grumblePlan)
     const plan = o.plan && Array.isArray(o.plan.syllables) ? o.plan : { syllables: [{ t: 0, dur: 0.14, f0: 100, glide: 0.9, vowel: 0, gravel: 0.5 }] };
     const VOW = [[420, 820], [620, 1050], [330, 880], [520, 720]];   // o, a, u, uh
