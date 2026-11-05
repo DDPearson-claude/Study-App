@@ -412,11 +412,11 @@ section('S3: satiety → Well-fed (no starvation)');
   eq([env.S.wellFed, env.S.getVitals().wellFed], [false, false], 'satiety 59.9 is not Well-fed');
   r.satiety = 60;
   eq([env.S.wellFed, env.S.getVitals().wellFed], [true, true], 'satiety 60 shows Well-fed');
-  // the stat effects (reelSpeed +0.08, sweetZone +0.01) ride getStats (progression folds them; this fake mirrors it)
+  // D1′: Well-fed's effect is +2 Hold (a run buff progression counts through getCatchBuffs, S7), never a reel stat on getStats
   const st = env.ctx.progression.getStats(r);
-  near(st.reelSpeed - data.STATS.reelSpeed.base, 0.08, 'Well-fed: reelSpeed +0.08');
-  near(st.sweetZone - data.STATS.sweetZone.base, 0.01, 'Well-fed: sweetZone +0.01');
-  eq(data.BALANCE.wellFed.effects, { reelSpeed: 0.08, sweetZone: 0.01 }, 'the data effects survival reports against');
+  near(st.reelSpeed - data.STATS.reelSpeed.base, 0, 'Well-fed: no reel speed (D1′)');
+  near(st.sweetZone - data.STATS.sweetZone.base, 0, 'Well-fed: no sweet band (D1′)');
+  eq(data.BALANCE.wellFed.effects, { hold: 2 }, 'the data effects survival reports against: +2 Hold');
   // progression's isWellFed() wins when it exists
   env.ctx.progression.isWellFed = () => false;
   eq(env.S.wellFed, false, "progression.isWellFed() is the authority when present");

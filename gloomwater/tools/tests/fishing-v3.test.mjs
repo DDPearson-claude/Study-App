@@ -1,13 +1,11 @@
-// Unit tests for the v3 Phase 1 fishing items (DESIGN §25.14.2 F1, F2, F4, F13, F7; CONTRACT §13.7 fishing) on the v3 data at
-// phase 1 (raft build), plus a flag-off sanity pass. Pure logic from src/fishing-reel.js, the in-game reel against
-// tools/sim/reel-v3.mjs (the sim's skilled bot playing src/fishing.js itself), and src/fishing.js on a fake ctx
-// (tools/tests/fishing-env.mjs; seeded through its fishSeed debug hook).
-//   node tools/tests/fishing-v3.test.mjs            (or node tools/check.mjs)
-//   node tools/tests/fishing-v3.test.mjs --k 2000   (bigger sim-parity samples; --verbose prints every passing check)
+// Unit tests for the v3 Phase 1 fishing items (DESIGN §25.14.2 F1, F4, F13, F7; CONTRACT §13.7 fishing) on the v3 data at
+// phase 1 (raft build), plus a flag-off sanity pass. Pure logic from src/fishing-reel.js and src/fishing.js on a fake ctx
+// (tools/tests/fishing-env.mjs; seeded through its fishSeed debug hook). D1′ retired the manual v3 reel's data (size → fight,
+// the reel edits, old tricks, pips, drag presets, the v3 fight stats, tools/sim/reel-v3.mjs), so its sim-parity, old-trick, pip
+// and fight-stat sections went with it; the code they drove is removed from the v3 path by the AF build (F4′, F2′, U2′).
+//   node tools/tests/fishing-v3.test.mjs            (or node tools/check.mjs; --verbose prints every passing check)
 import * as dataV1 from '../../src/data.js';                 // evaluated first: GW_V3 unset → the flag-off build
-import { createReel, scaleDifficultyV3, reelOptsV3, rollZ, capZ, floatFavour, sumFavour, inGiantSpot } from '../../src/fishing-reel.js';
-import * as sim from '../sim/reel-v3.mjs';
-import { gameCell, fishingCell } from './fishing-reel-bot.mjs';
+import { createReel, rollZ, capZ, floatFavour, sumFavour, inGiantSpot } from '../../src/fishing-reel.js';
 
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_WALK = false;
 const D = await import('../../src/data.js?fishing-v3p1');
@@ -17,7 +15,6 @@ delete globalThis.GW_V3; delete globalThis.GW_V3_PHASE; delete globalThis.GW_WAL
 const { makeFishingEnv } = await import('./fishing-env.mjs');
 
 const args = process.argv.slice(2);
-const K = (() => { const i = args.indexOf('--k'); return i >= 0 ? Number(args[i + 1]) : 1000; })();
 let pass = 0, fail = 0;
 const VERBOSE = args.includes('--verbose');
 function ok(cond, msg) { if (cond) { pass++; if (VERBOSE) console.log('  ok:', msg); } else { fail++; console.log('  FAIL:', msg); } }
@@ -73,30 +70,7 @@ section('F13 float favour: species-independent terms + per-term max over the poo
   ok([0.14, 0.15, 0.44, 0.45, 0.79, 0.8, 1.19, 1.2, 1.59, 1.6].map(notch).join('') === '0112233445', 'notches follow the six bands < .15 · .15–.45 · .45–.8 · .8–1.2 · 1.2–1.6 · ≥ 1.6');
 }
 
-// =================================================================== F2: size → fight, reel edits
-section('F2 scaleDifficultyV3 equals the reel sim’s size scaling for every species and class');
-{
-  let worst = 0;
-  for (const s of D.SPECIES) for (const z of Object.values(SZ.simZ)) {
-    const zz = s.rarity === 'legendary' ? SZ.fight.legendZ : z;
-    const g = scaleDifficultyV3(s.difficulty, s.behavior, zz, s.zone, SZ, D.BALANCE.reel), w = sim.scaleDifficulty(s.difficulty, s.behavior, zz, s.zone);
-    for (const k of ['power', 'stamina', 'surgeTime', 'sweet', 'erratic', 'surgeEvery']) worst = Math.max(worst, Math.abs(g[k] - w[k]) / Math.max(1e-9, Math.abs(w[k])));
-  }
-  ok(worst < 1e-12, `largest relative difference ${worst}`);
-  const reed = sp('reedjaw_pike'), d = scaleDifficultyV3(reed.difficulty, reed.behavior, 2.95, 'mossmere', SZ, D.BALANCE.reel);
-  const g = Math.exp(0.2 * 2.95);
-  ok(near(d.power, reed.difficulty.power * g ** (1.6 + 1.2 * 0.3) * 1.08, 1e-9), 'Elder Reedjaw power × 1.08 × g^(1.6 + 1.2·(z − 2.65)) (Mossmere age 1.2)');
-  ok(near(d.stamina, reed.difficulty.stamina * 1.4 * g ** 1.3, 1e-9), 'Elder stamina × 1.4 × g^1.3');
-}
-section('F2 reelOptsV3: pips 3 / 2 (+ the Rod’s bonus) on Prize+, an old trick only for Elders, the Elder fatigue floor 0.8');
-{
-  const o = (z, perfect, extra = {}) => reelOptsV3({ size: SZ, bite: D.BALANCE.bite, stats: { pipBonus: 0, absorb: 0.3, dragAt: 0.8, shock: 0, ...extra }, z, perfect, sizeClass: D.sizeClassOf(z), style: 'thrasher' });
-  ok(o(1.4, true).pips.n === 3 && o(1.4, false).pips.n === 2 && o(0.4, true).pips === null, 'pips: Prize perfect 3, normal 2; none below Prize');
-  ok(o(1.4, true, { pipBonus: 1 }).pips.n === 4, 'pips + the Rod’s pip bonus (+1 at tier 3+)');
-  ok(reelOptsV3({ size: SZ, bite: D.BALANCE.bite, z: 3, legendary: true }).pips === null, 'no pips on legendaries');
-  ok(o(2.95, true).trick?.at === 0.55 && o(2.6, true).trick === null, 'the old trick: Elders only, at 55%');
-  ok(o(2.95, true).fatigue.floor === 0.8 && o(1.4, true).fatigue.floor === 0.6 && o(2.95, true).trick.style === 'bore', 'fatigue floors 0.8 (Elder) / 0.6; a thrasher’s trick is a head-down bore');
-}
+// =================================================================== F2: the reel model's v3 options (src/fishing-reel.js, explicit options)
 section('F2 reel: drag absorbs and slips progress 0.08 per unit absorbed; Spooled; pips thrown at 0');
 {
   const sp0 = { power: 1, surgeEvery: 30, surgeTime: 1, stamina: 10, sweet: 1, erratic: 0 };
@@ -131,35 +105,21 @@ section('F2 reel: drag absorbs and slips progress 0.08 per unit absorbed; Spoole
   ok(lost === 2 && r6.done && r6.result === 'thrown', `two surge dips with 2 pips → thrown (${lost} lost, ${r6.result})`);
   ok(r5.pips === 2 && r5.pipsMax === 2, 'pips read-out');
 }
-section('F2 old trick: every Elder plays exactly one after 55% progress; a Trophy plays none');
-{
-  const reed = sp('reedjaw_pike'), stats = D.tackleStats({ rod: 4, line: 4, reel: 4 });
-  const e = gameCell({ D, sp: reed, z: SZ.simZ.elder, stats, skill: sim.SK.skilled, k: 200, seed: 11 });
-  const reached = e.fights.filter((f) => f.idleAt);   // the trick starts at the first moment the surge scheduler is free past 55%
-  ok(reached.length > 150 && reached.every((f) => f.tricks === 1), `Elder fights that went on past 55%: ${reached.length}, each with exactly one trick`);
-  ok(e.fights.every((f) => f.tricks <= 1) && e.fights.filter((f) => f.landed).every((f) => f.tricks === 1), 'never two; every landed Elder played its trick');
-  ok(e.fights.every((f) => f.trickP == null || f.trickP >= 0.55), 'no trick before 55% progress');
-  ok(e.fights.filter((f) => f.maxP < 0.55).every((f) => f.tricks === 0), 'fights lost before 55% saw none');
-  const t = gameCell({ D, sp: reed, z: SZ.simZ.trophy, stats, skill: sim.SK.skilled, k: 100, seed: 12 });
-  ok(t.fights.every((f) => f.tricks === 0), 'Trophy fights: no old trick');
-}
-section(`F2 sim parity: the sim’s skilled bot playing src/fishing.js (forceBite, a timed hook, onPointerDown / onPointerUp, update) on a forced Elder Reedjaw with tackleStats(T0 / T2 / T4), k ${K}: within ±5 points of tools/sim/reel-v3.mjs`);
-{
-  const reedSim = sim.SPECIES.find((s) => s.id === 'reedjaw_pike'), reed = sp('reedjaw_pike'), z = SZ.simZ.elder;
-  for (const T of [0, 2, 4]) {
-    const stats = D.tackleStats({ rod: T, line: T, reel: T });
-    const env = makeFishingEnv({ data: D, stats, lean: true, raft: [4, 14.8] });
-    const g = fishingCell({ env, sp: reed, z, stats, skill: sim.SK.skilled, k: K, seed: 5 + T });
-    const c = sim.cell(reedSim, z, sim.loadout(T), 'skilled', 4, K);
-    console.log(`  T${T}: fishing.js ${(100 * g.p).toFixed(1)}% (${g.time.toFixed(0)} s) ${JSON.stringify(g.why)} vs sim ${(100 * c.p).toFixed(1)}% (${c.time.toFixed(0)} s)`);
-    ok(Math.abs(g.p - c.p) <= 0.05, `T${T}: fishing.js ${(100 * g.p).toFixed(1)}% vs sim ${(100 * c.p).toFixed(1)}% (gate table ${D.TACKLE.gate.reedjaw_pike[T][2]}%)`);
-    ok(g.fights.every((f) => f.reason !== 'nobite' && f.reason !== 'nohook' && f.reason !== 'timeout'), `T${T}: every fight hooked and ended`);
-    if (T === 4) ok(g.fights.filter((f) => f.landed).every((f) => f.tricks === 1), 'T4: every landed Elder played exactly one old trick (in game)');
-  }
-}
-
 // =================================================================== fishing.js on a fake ctx
 const makeEnv = (opts = {}) => makeFishingEnv({ data: D, ...opts });
+
+section('D1′: the manual v3 reel\'s data is retired: the v3 path still runs (size, class, favour), with no pips and no old trick');
+{
+  ok(!('fight' in SZ) && !('reel' in SZ) && !('pips' in D.BALANCE.bite) && !('shock' in D.STATS), 'BALANCE.size.fight / .reel, bite.pips and the v3 fight stats are gone');
+  const env = makeEnv({ raft: [4, 14.8] });
+  env.ctx.debug.fishHook('reedjaw_pike', { z: 1.4 });
+  const hk = [...env.events].reverse().find((x) => x.e === 'fishing:hook');
+  ok(env.F.state === 'reeling' && env.dbg().v3 === true && env.dbg().z === 1.4 && env.F.view.pips === null && hk.p.pips === null, `a Prize (z ${env.dbg().z}) is hooked on the v3 path with no pips (${env.F.view.pips})`);
+  env.reset();
+  env.ctx.debug.fishHook('reedjaw_pike', { z: 2.95 });
+  const reel = env.ctx.debug.fishReel();
+  ok(env.F.state === 'reeling' && reel.trickDone === true && reel.trick === false, 'an Elder has no old trick pending');
+}
 
 section('F1 in game: z never exceeds 2.64 outside giant water; the stopgap giant spots hold Elders');
 {
@@ -286,34 +246,6 @@ section('F4 let it pass: a lapsed bite refunds the bait and banks +0.15 favour f
   for (let i = 0; i < 80 && legend.F.state === 'bite'; i++) legend.tick(1);
   ok(legend.calls.refund.length === 0, 'a legend bait is never refunded');
 }
-section('F4 hook-hold pips: 3 perfect / 2 normal (+1 with the Rod bonus) on Prize+; a throw at 0');
-{
-  const env = makeEnv({ raft: [30, 30] });
-  env.ctx.debug.fishHook('reedjaw_pike', { z: 1.4 });
-  const hookEv = [...env.events].reverse().find((x) => x.e === 'fishing:hook');
-  ok(env.F.view.pips?.n === 3 && env.F.view.pips.max === 3 && hookEv.p.pips === 3, `perfect hook on a Prize: ${env.F.view.pips?.n} pips`);
-  env.reset();
-  env.ctx.debug.forceBite({ speciesId: 'reedjaw_pike', z: 1.4 });
-  env.tick(20);   // 0.67 s: past the perfect window, inside the Prize's hook window
-  env.F.onPointerDown();
-  ok(env.F.state === 'reeling' && env.F.view.pips?.n === 2, `normal hook: ${env.F.view.pips?.n} pips`);
-  env.reset();
-  env.ctx.debug.fishHook('reedjaw_pike', { z: 0.4 });
-  ok(env.F.view.pips === null, 'a Keeper has no pips');
-  env.reset();
-  const bonus = makeEnv({ raft: [30, 30], stats: { pipBonus: 1 } });
-  bonus.ctx.debug.fishHook('reedjaw_pike', { z: 2.2 });
-  ok(bonus.F.view.pips?.n === 4, `Rod pip bonus +1: ${bonus.F.view.pips?.n}`);
-  const reel = bonus.ctx.debug.fishReel();
-  reel.pips = 1;
-  reel.forceSurge();
-  let guard = 0;
-  while (reel.surgeMode !== 'surge' && guard++ < 200) bonus.tick(1);
-  reel.T = 0.02; reel.vT = -1;
-  bonus.tick(1);
-  const esc = [...bonus.events].reverse().find((x) => x.e === 'fishing:escaped'), big = [...bonus.events].reverse().find((x) => x.e === 'fish:escaped-big');
-  ok(esc?.p.reason === 'thrown' && big?.p.cause === 'thrown' && big.p.sizeClass === 'trophy', `the last pip lost → thrown (${esc?.p.reason}; near-miss ${big?.p.cause} ${big?.p.sizeClass})`);
-}
 section('F7 Night Rise: every night cast carries favour +0.25 in each mode');
 for (const mode of ['still', 'lantern', 'gloomtide']) {
   const env = makeEnv({ mode, phase: 'gloomtide' });
@@ -340,12 +272,10 @@ for (const mode of ['still', 'lantern', 'gloomtide']) {
   for (let i = 0; i < 20; i++) { p.ctx.player.position.x += 0.8; p.tick(1); }   // paddling away does break it
   ok(p.F.state === 'lost', `${mode}: paddling 16 m away still reels the line in (${p.F.state})`);
 }
-section('F1 / F2 in game: fishing:caught carries the size; a forced Elder Reedjaw fights with the scaled difficulty');
+section('F1 in game: fishing:caught carries the size');
 {
   const env = makeEnv({ raft: [4, 14.8] });
   env.ctx.debug.fishHook('reedjaw_pike', { z: 2.95 });
-  const reel = env.ctx.debug.fishReel(), want = scaleDifficultyV3(sp('reedjaw_pike').difficulty, 'thrasher', 2.95, 'mossmere', SZ, D.BALANCE.reel);
-  ok(near(reel.stamina, want.stamina, 1e-9) && near(reel.species.power, want.power, 1e-9) && reel.trickDone === false, `reel stamina ${reel.stamina.toFixed(2)} / power ${reel.species.power.toFixed(3)} as scaled; an old trick pending`);
   env.ctx.debug.instantCatch();
   const c = [...env.events].reverse().find((x) => x.e === 'fishing:caught');
   const L = D.sizeLength(sp('reedjaw_pike'), 2.95);
@@ -416,21 +346,6 @@ section('F13 the float is cleared once the fish is on; the bite tell too');
   ok(before.f && before.t === 'dragUnder' && env.F.state === 'reeling' && env.F.view.favour === null && env.F.view.biteTell === null,
     `bite: favour ${before.f}, tell ${before.t} → hooked: favour ${env.F.view.favour}, tell ${env.F.view.biteTell}`);
   ok(env.dbg().terms.length > 0, 'the rolled favours stay for the catch payload');
-}
-section('F2 stats: with a pre-P1 progression, shock / pipBonus / absorb / dragAt come from data.upgradeTiers(run.upgrades) → tackleStats');
-{
-  let ups = null;
-  for (let a = 0; a <= 3 && !ups; a++) for (let b = 0; b <= 3 && !ups; b++) if (D.upgradeTiers({ rod_ashwood: a, rod_whalebone: b, reel_brass: 3, reel_drag: 3 }).rod === 3) ups = { rod_ashwood: a, rod_whalebone: b, reel_brass: 3, reel_drag: 3 };
-  const tiers = D.upgradeTiers(ups), t = D.tackleStats(tiers);
-  const env = makeEnv({ progression: 'v1', upgrades: ups, stats: { absorb: 0.3, pipBonus: 0, shock: 0, dragAt: 0.8 } });
-  env.ctx.debug.fishHook('reedjaw_pike', { z: 1.4 });
-  const reel = env.ctx.debug.fishReel();
-  ok(env.F.view.pips?.n === 3 + t.pipBonus && t.pipBonus === 1, `rod tier ${tiers.rod} (+${t.pipBonus} pip): ${env.F.view.pips?.n} pips on a perfect Prize hook`);
-  ok(near(reel.gear.shock, t.shock, 1e-9) && near(reel.gear.absorb, t.absorb, 1e-9) && near(reel.gear.dragAt, t.dragAt, 1e-9),
-    `reel tier ${tiers.reel}: shock ${reel.gear.shock}, absorb ${reel.gear.absorb}, dragAt ${reel.gear.dragAt} from tackleStats`);
-  const p1 = makeEnv({ upgrades: ups, stats: { absorb: 0.45, pipBonus: 0, shock: 0.08, dragAt: 0.8 } });
-  p1.ctx.debug.fishHook('reedjaw_pike', { z: 1.4 });
-  ok(p1.F.view.pips?.n === 3 && near(p1.ctx.debug.fishReel().gear.absorb, 0.45, 1e-9), 'a P1 progression’s getStats is used as given');
 }
 section('F7 the hard rule vs the player’s knock check: in Still / Lantern a cancel(\'moved\') with no paddling keeps the waiting line');
 for (const mode of ['still', 'lantern', 'gloomtide']) {

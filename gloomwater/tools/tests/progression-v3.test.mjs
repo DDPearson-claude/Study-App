@@ -188,27 +188,26 @@ section('Pg12: createRun({…, nightMode, outing}); First Outing all still; stat
 {
   const env = makeCtx();
   const { P, ctx } = env;
+  // D1′ retired the manual reel's v3 fight stats (shock, pipBonus, absorb, dragAt): getStats carries none of them in any build
   const s0 = P.getStats();
-  eq([s0.shock, s0.pipBonus, s0.absorb, s0.dragAt], [0, 0, 0.3, 0.8], 'no run: the v3 fight stats at their T0 base');
+  eq([s0.shock, s0.pipBonus, s0.absorb, s0.dragAt], [undefined, undefined, undefined, undefined], 'no run: no v3 fight stats (retired by D1′)');
   const run = startRun(env, {});
-  const t0 = data.tackleStats(data.upgradeTiers({}));
   const s1 = P.getStats();
-  eq([s1.shock, s1.pipBonus, s1.absorb, s1.dragAt], [t0.shock, t0.pipBonus, t0.absorb, t0.dragAt], 'no upgrades: T0 fight stats');
+  eq([s1.shock, s1.pipBonus, s1.absorb, s1.dragAt], [undefined, undefined, undefined, undefined], 'no upgrades: no v3 fight stats');
   run.upgrades = { rod_ashwood: 3, rod_whalebone: 2, reel_brass: 4, reel_drag: 3, line_gut: 2 };
   run.satiety = 0;                                                  // not Well-fed: base stats only
   P.invalidateStats();
   const tiers = data.upgradeTiers(run.upgrades);
   eq(tiers, { rod: 3, line: 1, reel: 4, creel: 0 }, 'effective tiers from owned levels (rod 5/6 → T3, line 2/6 → T1, reel 7/7 → T4)');
   const s2 = P.getStats();
-  eq([s2.shock, s2.pipBonus, s2.absorb, s2.dragAt], [0.22, 1, 0.76, 0.8], 'getStats carries shock / pipBonus / absorb / dragAt from the owned upgrades');
+  eq([s2.shock, s2.pipBonus, s2.absorb, s2.dragAt], [undefined, undefined, undefined, undefined], 'owned upgrades add no v3 fight stats (their Hold is data.upgradeHold)');
   near(s2.castMax, data.STATS.castMax.base + 9 + (data.CHARACTERS[0].effects?.castMax || 0), 'the other stats stay computeStats(UPGRADES) (castMax +3 per Ashwood level)');
-  near(s2.reelSpeed, data.STATS.reelSpeed.base + 0.6 + (data.CHARACTERS[0].effects?.reelSpeed || 0), 'reelSpeed from Brass Spool levels', 1e-9);
-  run.upgrades = { rod_ashwood: 3, rod_whalebone: 1 }; P.invalidateStats();
-  eq(P.getStats().pipBonus, 0, 'rod 4/6 → T2: no pip bonus yet');
+  near(s2.reelSpeed, data.STATS.reelSpeed.base, 'Brass Spool levels add no reel speed in v3 (D1′: a dead reel stat; the reel slot gives Hold)', 1e-9);
+  ok(data.upgradeHold(run.upgrades).reel === 12 && data.upgradeHold(run.upgrades).rod > data.upgradeHold({}).rod, 'their Hold comes from data.upgradeHold (reel 7/7 → 12)');
   eq(ctx.errors, [], 'no errors');
 }
 {
-  // Well-fed (S3 seam): satiety ≥ 60% of max → reelSpeed +0.08, sweetZone +0.01
+  // Well-fed (S3 seam): satiety ≥ 60% of max. D1′: its effect is +2 Hold (a run buff through getCatchBuffs, S7), never a reel stat
   const env = makeCtx();
   const { P } = env;
   const run = startRun(env, {});
@@ -217,8 +216,9 @@ section('Pg12: createRun({…, nightMode, outing}); First Outing all still; stat
   ok(P.isWellFed(), 'full belly → Well-fed');
   run.satiety = 59; env.ctx.time.frame++;
   ok(!P.isWellFed(), 'below 60% → not Well-fed');
-  near(fedReel - P.getStats().reelSpeed, 0.08, 'Well-fed reelSpeed +0.08', 1e-9);
-  near(fedSweet - P.getStats().sweetZone, 0.01, 'Well-fed sweetZone +0.01', 1e-9);
+  near(fedReel - P.getStats().reelSpeed, 0, 'Well-fed adds no reel speed (D1′)', 1e-9);
+  near(fedSweet - P.getStats().sweetZone, 0, 'Well-fed adds no sweet band (D1′)', 1e-9);
+  eq(data.BALANCE.wellFed.effects, { hold: 2 }, 'Well-fed is +2 Hold in data (BALANCE.wellFed.effects; not a STATS key)');
 }
 
 // =====================================================================================
