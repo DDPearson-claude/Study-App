@@ -171,9 +171,9 @@ section('outcome-blind: on one seed a landed and a lost play are identical up to
     const L = chooseLoss(p, { style: 'leaper', leaper: true, causeU: rng(), momentU: rng() });
     const q = applyLoss(p, L);
     n++;
-    const before = (pl) => pl.beats.filter((b) => b.t0 < L.at - 1e-9).map((b) => ({ ...b, t1: Math.min(b.t1, L.at) }));
+    const before = (pl) => pl.beats.filter((b) => b.t0 < L.at - 1e-9);   // bit for bit: the interrupted beat keeps its planned end
     let same1 = same(before(p), before(q)) && same(p.events.filter((e) => e.at < L.at - 1e-9), q.events);
-    for (let t = 0; t < L.at && same1; t += 0.05) { const a = presentAt(p, t), b = presentAt(q, t); if (a.phase !== b.phase || !near(a.k, b.k, 1e-9) || !near(a.line, b.line, 1e-9) || !near(a.bend, b.bend, 1e-9)) same1 = false; }
+    for (let t = 0; t < L.at && same1; t += 0.05) { const a = presentAt(p, t), b = presentAt(q, t); if (a.phase !== b.phase || a.k !== b.k || a.line !== b.line || a.bend !== b.bend || a.beatK !== b.beatK) same1 = false; }
     if (same1 && q.end === Math.round((L.at + L.dur) * 1e4) / 1e4 && q.beats[q.beats.length - 1].phase === 'loss') blind++;
   }
   ok(blind === n, `identical presentation up to the loss, then the loss beat (${blind}/${n})`);

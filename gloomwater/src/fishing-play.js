@@ -294,23 +294,21 @@ export function chooseLoss(plan, { style = 'steady', grade = 'struck', foul = fa
   }
   return out(cause, lerp(lo, hi, momentU), 'beat');
 }
-/** The plan cut at the loss: everything before `loss.at` is untouched; then one loss beat; overlays after it go. */
+/** The plan cut at the loss: everything before `loss.at` is untouched, bit for bit (the beat the loss interrupts keeps its planned
+ *  length, so its start announces nothing; the presentation switches to the loss beat at `at`); overlays after it go. */
 export function applyLoss(plan, loss) {
   const at = loss.at;
-  const beats = [];
-  for (const b of plan.beats) { if (b.t0 >= at - 1e-9) break; beats.push(b.t1 > at ? { ...b, t1: at } : b); }
+  const beats = plan.beats.filter((b) => b.t0 < at - 1e-9);
   beats.push({ phase: 'loss', kind: loss.cause, t0: at, t1: r4(at + loss.dur), strength: 1 });
   const events = plan.events.filter((e) => e.at < at - 1e-9);   // the leap or scare it is lost on started before the loss: it stays
-  const p = { ...plan, beats, events, loss: { ...loss }, end: r4(at + loss.dur) };
-  p.knots = [...plan.knots.filter(([t]) => t < at), [at, kAt(plan, at)], [r4(at + loss.dur), 0]];
-  return p;
+  return { ...plan, beats, events, loss: { ...loss }, end: r4(at + loss.dur), lossKnots: [[at, kAt(plan, at)], [r4(at + loss.dur), 0]] };
 }
 /** An outside end now (Gloomtide's hand slam: 'staggered'): the same as a loss at t, whatever the plan said. */
 export function partPlan(plan, t, cause = 'staggered', dur = 0.6) {
   return applyLoss(plan, { cause, at: r4(Math.min(Math.max(0, t), plan.end)), frac: r4(t / plan.dur), on: 'beat', dur });
 }
 function kAt(plan, t) {
-  const K = plan.knots;
+  const K = plan.loss && plan.lossKnots && t >= plan.loss.at ? plan.lossKnots : plan.knots;
   if (!K?.length) return 0;
   if (t <= K[0][0]) return K[0][1];
   for (let i = 1; i < K.length; i++) if (t <= K[i][0]) { const [t0, v0] = K[i - 1], [t1, v1] = K[i]; return lerp(v0, v1, (t - t0) / Math.max(1e-6, t1 - t0)); }
@@ -320,7 +318,8 @@ function kAt(plan, t) {
 export function presentAt(plan, t, out = {}) {
   const B = plan.beats;
   let i = 0;
-  while (i < B.length - 1 && t >= B[i].t1) i++;
+  if (plan.loss && t >= plan.loss.at) i = B.length - 1;   // the loss beat (the interrupted beat keeps its planned end until then)
+  else while (i < B.length - 1 && t >= B[i].t1) i++;
   const b = B[i] || { phase: 'take', t0: 0, t1: 1, strength: 0 };
   out.beat = i; out.phase = b.phase; out.kind = b.kind ?? null; out.strength = b.strength ?? 0;
   out.beatK = clamp((t - b.t0) / Math.max(1e-6, b.t1 - b.t0), 0, 1);

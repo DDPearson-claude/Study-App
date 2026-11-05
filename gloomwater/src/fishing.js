@@ -1492,8 +1492,8 @@ export function create(ctx) {
     aCall('setReel', pr.phase === 'gain' || pr.phase === 'lift' || pr.phase === 'take' || pr.phase === 'place' ? 0.3 + 0.6 * pr.line : 0.12, clamp(F.lat / 3, -1, 1));
     aCall('setAim', Math.atan2(-(V.fish.x - V.raft.x), -(V.fish.z - V.raft.z)));
     // the tow (Prize and bigger): only the plan moves the anchored raft, along the line during its runs
-    if (plan.tow > 0) {
-      const runs = plan.beats.filter((b) => b.phase === 'run' || b.phase === 'lastStand');
+    if (plan.tow > 0) {   // from the plan as it was built (a loss cuts the plan; the tow before it must not know)
+      const runs = (S.plan0 || plan).beats.filter((b) => b.phase === 'run' || b.phase === 'lastStand');
       const tot = runs.reduce((a, b) => a + (b.t1 - b.t0), 0);
       if (tot > 0) {
         let done = 0;
@@ -3075,12 +3075,13 @@ export function create(ctx) {
     if (state === 'waiting') {
       if (fsp && S.species !== fsp) { S.species = fsp; S.zRolled = false; }
       if (o.z != null && spV3(S.species)) { S.forceZ = o.z; S.zRolled = false; }
-      S.events.length = 0;
-      if (o.wait) { S.waitDur = Math.max((afOn() ? TELL_LEAD_AF : TELL_LEAD) + 0.1, o.wait === true ? 1.5 : num(o.wait, 1.5)); S.stateT = 0; }
+      if (!o.natural) S.events.length = 0;   // natural: keep the cast's own wait and nibbles (tests of the nibble schedule)
+      if (o.natural) { /* the cast's own wait, nibbles and tell play out */ }
+      else if (o.wait) { S.waitDur = Math.max((afOn() ? TELL_LEAD_AF : TELL_LEAD) + 0.1, o.wait === true ? 1.5 : num(o.wait, 1.5)); S.stateT = 0; }
       else bite();
     }
     S.forceSpecies = null; S.forcePlace = null;
-    return o.wait ? state === 'waiting' : state === 'bite';
+    return o.wait || o.natural ? state === 'waiting' : state === 'bite';
   }
   function debugInstantCatch(speciesId, opts = {}) {
     if (!playing()) return false;
