@@ -222,14 +222,17 @@ section('Pg12: createRun({…, nightMode, outing}); First Outing all still; stat
 }
 
 // =====================================================================================
-section('Pg1: makeFish from z — value × 0.66, food / oil × 0.784, class, name');
+section('Pg1: makeFish from z — value × 0.66, food / oil × 0.784, class, name (× the landing normaliser since AF, Pg13)');
 {
   const env = makeCtx();
   const { P } = env;
   startRun(env, {});
   const sp = data.SPECIES_BY_ID.reedjaw_pike;
+  const NORM = data.CATCH_V3.economy.norm.mossmere;
+  const nv = (v) => Math.max(1, Math.round(v * NORM));
   const elder = P.makeFish('reedjaw_pike', 2.8, 'normal');
-  ok(Math.abs(elder.value - 127) <= 1, `an Elder Reedjaw at z 2.8 sells for 127 ± 1 Shells at normal quality (got ${elder.value})`);
+  eq(data.fishValueV3(sp, 2.8, {}), 127, 'the size model prices an Elder Reedjaw at z 2.8 at 127 Shells (before the normaliser)');
+  eq(elder.value, Math.round(127 * 0.78), `Pg13: an Elder Reedjaw at z 2.8 sells for round(127 × 0.78) = 99 (got ${elder.value})`);
   eq(P.fishYield(elder).shells, elder.value, 'and that is what Murk pays (sellMult 1)');
   eq([elder.sizeClass, elder.ancient], ['elder', false], 'z 2.8 is an Elder, not an Ancient');
   ok(typeof elder.name === 'string' && elder.name.split(' ').length === 2, `an Elder gets a name (${elder.name})`);
@@ -237,7 +240,8 @@ section('Pg1: makeFish from z — value × 0.66, food / oil × 0.784, class, nam
   near(elder.weight, Math.round(data.sizeWeight(sp, data.sizeLength(sp, 2.8)) * 100) / 100, 'weight (kg) = k·L³', 1e-9);
   eq([elder.marked, elder.place, elder.favours], [false, null, []], 'P1: not marked, no place, no favours given');
   const fine = P.makeFish('reedjaw_pike', 2.8, 'fine');
-  eq(fine.value, data.fishValueV3(sp, 2.8, { quality: 1.4 }), 'quality multiplies value');
+  eq(fine.value, nv(data.fishValueV3(sp, 2.8, { quality: 1.4 })), 'quality multiplies value (then the normaliser)');
+  eq([elder.food, elder.oil], [nv(Math.round(data.fishYieldV3(sp, 2.8, 'food', { quality: 1 }))), nv(Math.round(data.fishYieldV3(sp, 2.8, 'oil', { quality: 1 })))], 'food and oil × the normaliser too');
   eq(P.makeFish('reedjaw_pike', 0.4).sizeClass, 'keeper', 'z 0.4 → Keeper');
   eq(P.makeFish('reedjaw_pike', -1).sizeClass, 'small', 'z −1 → Small');
   eq(P.makeFish('reedjaw_pike', 1.5).sizeClass, 'prize', 'z 1.5 → Prize');
@@ -247,7 +251,7 @@ section('Pg1: makeFish from z — value × 0.66, food / oil × 0.784, class, nam
   const withFav = P.makeFish('reedjaw_pike', 1.2, 'normal', { favours: [{ family: 'hour', id: 'dusk', value: 0.2 }], place: 'bell_pool' });
   eq([withFav.favours, withFav.place], [[{ family: 'hour', id: 'dusk', value: 0.2 }], 'bell_pool'], 'favours and place carried on the Fish');
   env.ctx.state.run.flags.streak = 7;
-  eq(P.makeFish('reedjaw_pike', 0).value, data.fishValueV3(sp, 0, { streak: 1.5 }), 'perfect-hook streak kept (capped at 5 → × 1.5)');
+  eq(P.makeFish('reedjaw_pike', 0).value, nv(data.fishValueV3(sp, 0, { streak: 1.5 })), 'perfect-hook streak kept (capped at 5 → × 1.5)');
   env.ctx.state.run.flags.streak = 0;
   const leg = P.makeFish('belled_matriarch', 0.3, 'normal');
   const lsp = data.SPECIES_BY_ID.belled_matriarch;
@@ -256,7 +260,8 @@ section('Pg1: makeFish from z — value × 0.66, food / oil × 0.784, class, nam
   ok(P.makeFish('nope', 1).value > 0, 'unknown species tolerated');
 }
 {
-  // a Mossmere common renders ≈ 17 oil on average (the favour mix: BALANCE.size.valueMix; a third in giant water)
+  // a Mossmere common renders ≈ 17 oil on average before AF (the favour mix: BALANCE.size.valueMix; a third in giant water); automatic
+  // fishing lands ≈ 30–60% more fish a day, so each one renders × the landing normaliser (0.78): ≈ 13.3
   const env = makeCtx();
   const { P } = env;
   startRun(env, {});
@@ -276,7 +281,8 @@ section('Pg1: makeFish from z — value × 0.66, food / oil × 0.784, class, nam
     total += res.gained.oil; n++;
   }
   const avg = total / n;
-  ok(avg >= 16.4 && avg <= 17.6, `a Mossmere common renders ≈ 17 oil on average over 6,000 seeded catches (got ${avg.toFixed(2)}; commons ${commons.map((s) => s.id).join(', ')})`);
+  const want = 17 * data.CATCH_V3.economy.norm.mossmere;
+  ok(Math.abs(avg - want) <= 0.6, `a Mossmere common renders ≈ 17 × 0.78 = ${want.toFixed(1)} oil on average over 6,000 seeded catches (got ${avg.toFixed(2)}; commons ${commons.map((s) => s.id).join(', ')})`);
 }
 
 // =====================================================================================
@@ -378,18 +384,21 @@ section('Pg1: measure — once, before the card; journal, records, class firsts,
   ctx.state.meta.runs = 3;
   const run = startRun(env, { nightMode: 'still', startZone: 'mossmere' });
   P.measure(P.makeFish('reedjaw_pike', 1.4));                      // new species + Prize class first
-  const base = Math.round(data.fishXpFor('rare', 0) * 1.4);
-  eq(env.calls.xp.at(-1).n, base + 2 + 2, `Still: fish XP × 1.4 (${base}) + discovery 4`);
+  // automatic fishing (Pg13 / C7): fish XP × the lake's landing normaliser (the Mossmere 0.78); addXp is told it is applied
+  const NORM = data.CATCH_V3.economy.norm.mossmere;
+  const base = Math.round(data.fishXpFor('rare', 0) * 1.4 * NORM);
+  eq(env.calls.xp.at(-1).n, base + 2 + 2, `Still: fish XP × 1.4 × ${NORM} (${base}) + discovery 4`);
   P.measure(P.makeFish('reedjaw_pike', 0.2));
   eq(env.calls.xp.at(-1).n, base, 'no discovery on a repeat Keeper');
   ok(env.calls.xp.at(-1).info?.source === 'fish' && env.calls.xp.at(-1).info?.modeApplied === true, 'addXp is told the mode multiplier is applied');
+  ok(env.calls.xp.at(-1).info?.normApplied === true && env.calls.xp.at(-1).info?.norm === NORM && env.calls.xp.at(-1).info?.lake === 'mossmere', 'and that the landing normaliser is applied (norm 0.78, the Mossmere)');
   for (const id of ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp']) P.measure(P.makeFish(id, 1.5));
   eq(run.flags.discoveryXp.n, 12, 'discovery XP caps at 12 a day');
   const env2 = makeCtx();
   env2.ctx.state.meta.runs = 3;
   startRun(env2, { nightMode: 'gloomtide' });
   env2.P.measure(env2.P.makeFish('reedjaw_pike', 0.2));
-  eq(env2.calls.xp.at(-1).n, data.fishXpFor('rare', 0) + 2, 'Gloomtide: fish XP × 1.0 (+ new species discovery)');
+  eq(env2.calls.xp.at(-1).n, Math.round(data.fishXpFor('rare', 0) * NORM) + 2, 'Gloomtide: fish XP × 1.0 × the normaliser (+ new species discovery)');
 }
 
 // =====================================================================================

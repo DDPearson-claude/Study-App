@@ -113,7 +113,41 @@ export function migrateSave(D, save) {
     save.meta.v3ids = true;
   }
   if (isObj(save.run)) migrateRunIds(save.run, map, D?.RENAMES?.names);
+  // the First Evening's legacy rule: a separate, idempotent step after Pg0 (Pg0 runs only when !meta.v3ids; this one runs only while
+  // meta.firstEvening is undefined, so a P1-era v3 save gets it too)
+  if (isObj(save.meta)) firstEveningLegacy(D, save.meta);
   return save;
+}
+
+// =====================================================================================
+// FE-Pg1 — the First Evening's save flag (DESIGN §25.4.8 "Skip, resume, returning players, replay"; CONTRACT §13.2, §13.12).
+// =====================================================================================
+/** The cove's species (the Landing's one fish, the Quayling): COVE.fishing.species, plus any species whose zone is the cove. */
+export function coveSpecies(D) {
+  const out = new Set(D?.COVE?.fishing?.species || []);
+  for (const s of D?.SPECIES_V3 || D?.SPECIES || []) if (s?.cove || s?.zone === 'cove') out.add(s.id);
+  return out;
+}
+/** A new meta.firstEvening record: {done, step, skipped, legacy} (offerSeen is added when the legacy ribbon is used or dismissed). */
+export const freshFirstEvening = (legacy = false) => (legacy ? { done: true, step: null, skipped: false, legacy: true } : { done: false, step: null, skipped: false, legacy: false });
+/**
+ * The legacy rule (a separate, idempotent step; not part of Pg0): only while meta.firstEvening is undefined, a save that has
+ * played (meta.runs > 0) or holds a journal entry for any non-cove species is a returning player's → {done: true, legacy: true}
+ * (no prologue; the title offers "A new first evening" once); anything else → {done: false, step: null}. A mid-First-Evening save
+ * holds a Quayling entry, which is not legacy. Also called when the First Evening starts. Defensive extension: a record that
+ * was never started ({done: false, step: null}, not skipped, not legacy) on a save that has runs can only come from a build without
+ * the First Evening (an FE build never starts a run before `done`), so it is treated as undefined. Returns true when it wrote.
+ */
+export function firstEveningLegacy(D, meta) {
+  if (!v3On(D) || !isObj(meta)) return false;
+  const fe = meta.firstEvening;
+  const runs = Number(meta.runs) || 0;
+  const neverStarted = isObj(fe) && fe.done === false && fe.step == null && !fe.skipped && !fe.legacy && runs > 0;
+  if (fe !== undefined && !neverStarted) return false;
+  const cove = coveSpecies(D);
+  const nonCove = Object.keys(isObj(meta.journal) ? meta.journal : {}).some((id) => !cove.has(id));
+  meta.firstEvening = freshFirstEvening(runs > 0 || nonCove);
+  return true;
 }
 
 // =====================================================================================

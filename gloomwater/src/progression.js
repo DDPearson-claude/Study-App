@@ -7,15 +7,19 @@
 // and Memories. Pure logic: everything visible goes out through the bus (toast, events)
 // and the contract APIs of world / actors / ui.
 //
-// v3 (DESIGN §25, CONTRACT §13; only when data.V3_ENABLED): migrateSave (Pg0, ids only), createRun with
-// nightMode / outing (Pg12; run 1 is the First Outing, all still), getStats' fight stats from
-// data.upgradeTiers (shock, pipBonus, absorb, dragAt), makeFish(speciesId, z, quality, {favours, place}) and
-// measure(fish) (Pg1: the size model's figures, records, class firsts, instant Memories per
-// MEMORIES_V3.interim, first-release Memories), refundBait, and the interim death screen (no species row,
-// the nights row per night from the tally's values). With the flag off every path below is v1's.
+// v3 (DESIGN §25, CONTRACT §13; only when data.V3_ENABLED): migrateSave (Pg0, ids only, then the First Evening's legacy step),
+// createRun with nightMode / outing (Pg12; run 1 is the First Outing, all still), getStats' `hold` from data.upgradeHold (D1′
+// retired the manual reel's fight stats), makeFish(speciesId, z, quality, {favours, place}) and measure(fish) (Pg1: the size
+// model's figures, records, class firsts, instant Memories per MEMORIES_V3.interim, first-release Memories), refundBait, the
+// interim death screen (no species row, the nights row per night from the tally's values), and automatic fishing
+// (progression-af.js): getLoadout / getCatchBuffs / getCatchMods, the logs (getOdds, getGearLog, compareOdds, the tackle
+// rating in words), legend wounds, the got-away side of fish:escaped, per-run lures (Pg14), Well-fed as +2 Hold (S7), the
+// landing normaliser on value, food, oil and fish XP (CATCH_V3.economy.norm), and the First Evening's save flag (FE-Pg1:
+// meta.firstEvening, the run-less measure of the Quayling, nothing written in a replay). With the flag off every path below is v1's.
 import { uid, clamp } from './core.js';
 import { createChallenges } from './progression-challenges.js';
 import { createMarket } from './progression-market.js';
+import { createAutofish } from './progression-af.js';
 import * as V3H from './progression-v3.js';
 import * as DATA from './data.js';
 
@@ -111,12 +115,13 @@ export function create(ctx) {
   let statsVersion = 0;
   const cache = { run: undefined, frame: -1, version: -1, out: {} };
   function invalidate() { statsVersion++; }
-  const FIGHT_STATS = ['shock', 'pipBonus', 'absorb', 'dragAt'];
-  /** v3 fight stats of a run's owned upgrades: data.tackleStats(data.upgradeTiers(run.upgrades), drag preset). */
-  function fightStatsOf(r) {
+  /** v3 (CONTRACT §13.7 getStats): each slot's Hold for catchChance. P1–P2 runs and The Long Descent: data.upgradeHold(run.upgrades)
+   *  (interpolated: every level counts); no run: T0. D1′ retired the manual reel's fight stats (shock, pipBonus, absorb, dragAt). */
+  function holdOf(r) {
     const d = D();
-    if (typeof d.tackleStats !== 'function' || typeof d.upgradeTiers !== 'function') return null;
-    try { return d.tackleStats(d.upgradeTiers(r?.upgrades || {}), r?.flags?.drag || 'set'); } catch (e) { report('tackleStats', e); return null; }
+    const zero = { rod: 0, line: 0, reel: 0 };
+    if (!r || typeof d.upgradeHold !== 'function') return zero;
+    try { const h = d.upgradeHold(r.upgrades || {}); return { rod: h.rod, line: h.line, reel: h.reel }; } catch (e) { report('upgradeHold', e); return zero; }
   }
   /** Well-fed (BALANCE.wellFed): satiety at or above `at` of the run's max satiety. */
   function wellFedOf(r, st) {
@@ -133,12 +138,6 @@ export function create(ctx) {
       if (!effects || !lvl) return;
       for (const k in effects) { const v = effects[k]; if (typeof v === 'number' && k in out) out[k] += v * lvl; }
     };
-    if (r && V3()) {
-      // Pg12 (P1–P2 runs and The Long Descent): today's computeStats(UPGRADES) plus the fight stats of the effective
-      // tackle tiers of the owned upgrades (CONTRACT §13.7 getStats): shock, pipBonus, absorb, dragAt replace their base.
-      const ts = fightStatsOf(r);
-      for (const k of FIGHT_STATS) if (k in STATS && typeof ts?.[k] === 'number') out[k] = ts[k];
-    }
     if (r) {
       add(character(r.character)?.effects, 1);
       const ups = r.upgrades || {};
@@ -154,8 +153,7 @@ export function create(ctx) {
     const perks = D().JOURNAL_PERKS || {};
     const un = m.unlocks || {};
     for (const z in perks) if (un[`perk:${z}`]) add(perks[z].effects, 1);
-    // S3 seam (v3): Well-fed is a stat bonus, so it lives here; survival owns satiety and reads isWellFed()
-    if (r && V3() && wellFedOf(r, out)) add(BAL('wellFed').effects, 1);
+    // S7 (v3): Well-fed is +2 Hold, a run buff read through getCatchBuffs (CATCH_V3.buffs.wellFed), never a STATS bonus
     for (const k in STATS) {
       const s = STATS[k];
       let v = Math.round(out[k] * 1e6) / 1e6;
@@ -163,6 +161,7 @@ export function create(ctx) {
       if (s.max != null && v > s.max) v = s.max;
       out[k] = v;
     }
+    if (V3()) out.hold = holdOf(r); else if ('hold' in out) delete out.hold;
     return out;
   }
   /** Cached once per frame for the live run (invalidated on every change we make or hear of). */
@@ -211,6 +210,18 @@ export function create(ctx) {
     return [effectText(bonus), ...extra].filter(Boolean).join(' · ');
   }
 
+  // ------------------------------------------------------------------ the First Evening's sandbox and the hub (FE-Pg1)
+  // A replay of the First Evening writes nothing (meta byte-identical afterwards): the director's firstEvening:step events say
+  // so ({replay: true}); hubZone is the cove while the Landing is up and no run is live (run-less fishing, the Quayling's lake).
+  let replayActive = false;
+  let hubZone = null;
+  function feReplay() {
+    if (replayActive) return true;
+    const fe = ctx.firstEvening;
+    if (!fe || fe.isStub) return false;
+    try { return fe.replay === true || fe.isReplay?.() === true; } catch { return false; }
+  }
+
   // ------------------------------------------------------------------ shared internals for helpers
   const S = {
     ctx, real, report, toast, requestSave, invalidate, phaseInfo, isBossNight, nightInZone,
@@ -226,9 +237,21 @@ export function create(ctx) {
     equipBait: (id, o) => equipBait(id, o),
     syncRaftLevel: () => syncRaftLevel(),
     runSlain: () => runSlain(),
+    // automatic fishing and the First Evening (progression-af.js, progression-market.js)
+    isV3: () => V3(),
+    wellFed: (r = run()) => V3() && !!r && wellFedOf(r, getStats(r)),
+    isReplay: () => feReplay(),
+    hubZone: () => hubZone,
+    isCove: (id) => V3H.coveSpecies(D()).has(id),
+    classLabel: (cls, ancient) => classLabel(cls, ancient),
+    equipLure: (id) => af.equipLure(id),
+    createExpedition: undefined,      // P3 sets it (expeditions with persistent fitted tackle)
   };
   const challenges = createChallenges(S);
   const market = createMarket(S);
+  S.priceOfBait = (b) => market.priceOfBait(b);
+  const af = createAutofish(S);
+  S.af = af;
 
   // ------------------------------------------------------------------ currencies
   function addShells(n, source = 'misc') {
@@ -333,6 +356,7 @@ export function create(ctx) {
       r.flags.nightLog = [];
     }
     r.equippedBait = firstGeneralBait(r);
+    if (V3()) { r.lures = {}; r.equipped = r.equippedBait ?? null; }   // Pg14: per-run lures (gone when the run ends); the one item on the line
     const st = computeStats({}, r);
     r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100;
     return r;
@@ -367,8 +391,11 @@ export function create(ctx) {
    * Pg1 (CONTRACT §13.2 Fish, §13.7 makeFish): the Fish of size score z. Fishing calls this at the landing and holds
    * the result; progression writes nothing on it until measure(fish). Length (cm) / weight (kg) / class / value / food
    * / oil come from the data helpers (value × 0.66, food and oil × 0.784; Far Water lands with P3). Elders get a name.
+   * Automatic fishing (Pg13): value, food and oil × the catch lake's landing normaliser (CATCH_V3.economy.norm: shorter plays
+   * land more fish per day); legends keep their authored values (the sold-fish mix never holds a legend). `markedFishId`: the
+   * Marked Fish this is (fishing passes it on a re-hook), so its landing takes it off meta.markedFish.
    */
-  function makeFishV3(speciesId, z, quality = 'normal', { favours = [], place = null } = {}) {
+  function makeFishV3(speciesId, z, quality = 'normal', { favours = [], place = null, markedFishId = null } = {}) {
     const sp = species(speciesId);
     const Qs = D().QUALITY || {};
     const Q = Qs[quality] || Qs.normal || { id: 'normal', valueMult: 1, yieldMult: 1 };
@@ -386,14 +413,26 @@ export function create(ctx) {
       return { ...base, z: 0, sizeClass: 'keeper', ancient: false, length: 0, weight: round2(w), value: Math.max(1, sp?.value ?? 1), food: Math.max(1, sp?.food ?? 1), oil: Math.max(1, sp?.oil ?? 1), favours: [], place, marked: false };
     }
     const fig = V3H.fishFigures(D(), sp, Number(z), { quality: Q, streak: 1 + (st.perStep ?? 0.1) * streak, zone: catchZone });
+    const norm = base.legendary ? 1 : landingNorm(catchZone);
+    if (norm !== 1) for (const k of ['value', 'food', 'oil']) fig[k] = Math.max(1, Math.round(fig[k] * norm));
     const fish = {
       ...base, ...fig,
       favours: Array.isArray(favours) ? favours.map((t) => ({ family: t?.family, id: t?.id, value: Number(t?.value) || 0 })) : [],
       place: typeof place === 'object' && place ? place.id ?? null : place ?? null,
       marked: false,
     };
-    if (fig.sizeClass === 'elder' && !fish.legendary) fish.name = V3H.elderName(D(), sp, fishUid, catchZone);
+    if (markedFishId) {   // a re-hooked Marked Fish keeps the name its got-away note gave it
+      fish.markedFishId = markedFishId;
+      const mf = (Array.isArray(meta()?.markedFish) ? meta().markedFish : []).find((x) => x?.id === markedFishId);
+      if (mf?.name && !fish.legendary) fish.name = mf.name;
+    }
+    if (fig.sizeClass === 'elder' && !fish.legendary && !fish.name) fish.name = V3H.elderName(D(), sp, fishUid, catchZone);
     return fish;
+  }
+  /** The landing normaliser of a lake (CATCH_V3.economy.norm; the cove and unknown lakes 1). */
+  function landingNorm(zoneId) {
+    const n = Number(D().CATCH_V3?.economy?.norm?.[zoneId]);
+    return n > 0 ? n : 1;
   }
   const sellValue = (fish) => Math.max(1, Math.round((fish?.value || 0) * (getStats().sellMult ?? 1)));
   /** What each catch action would yield right now (for the catch card / creel UI). */
@@ -470,6 +509,7 @@ export function create(ctx) {
 
   function fishAction(fishOrUid, action) {
     const r = run();
+    if (!r && V3() && (hubZone || V3H.coveSpecies(D()).has(typeof fishOrUid === 'object' ? fishOrUid?.speciesId : null))) return coveAction(fishOrUid, action);
     if (!r) return { ok: false, msg: 'There is no descent under way.', gained: {} };
     const res = resolveFish(fishOrUid);
     if (!res) return { ok: false, msg: 'That fish is gone.', gained: {} };
@@ -527,6 +567,16 @@ export function create(ctx) {
         return { ok: false, msg: `Unknown action "${action}".`, gained: {} };
     }
   }
+  /** v3, run-less (the Landing; FE-Pg1): the card offers Release only (no creel, no sales); the fish goes back with nothing written. */
+  function coveAction(fishOrUid, action) {
+    const fish = typeof fishOrUid === 'object' && fishOrUid ? fishOrUid : null;
+    const act = action === 'burn' ? 'render' : action;
+    if (act !== 'release') return { ok: false, msg: 'At the Landing every fish goes back. Release it.', gained: {} };
+    if (!fish?.speciesId || gone.has(fish.uid)) return { ok: false, msg: 'That fish is gone.', gained: {} };
+    if (fish.uid) gone.add(fish.uid);
+    ctx.bus.emit('fish:action', { action: 'release', fish, speciesId: fish.speciesId, gained: {}, cove: true });
+    return { ok: true, msg: 'It slips back under the jetty.', gained: {} };
+  }
   /** v3: the first release of a species at Prize / Trophy / Elder banks +1 / +3 / +8 Memories at once (MEMORIES_V3.firstRelease). */
   function firstRelease(fish, sp) {
     const cls = fish?.sizeClass;
@@ -581,14 +631,18 @@ export function create(ctx) {
     if (!r) return { ok: false, msg: 'There is no descent under way.' };
     if (!id || id === 'none') {
       r.equippedBait = null;
+      if (V3()) r.equipped = null;      // Pg14: a bare hook takes a lure off too
       if (!quiet) ctx.bus.emit('bait:change', { baitId: null });
       return { ok: true, msg: 'A bare hook.' };
     }
+    if (V3() && af.isLure(id)) return af.equipLure(id);   // one item on the line: a bait OR a lure (Pg14)
     const b = bait(id);
     if (!b) return { ok: false, msg: 'No such bait.' };
     if ((r.bait?.[id] | 0) <= 0) return { ok: false, msg: `You have no ${b.name}.` };
-    if (b.legend && r.equippedBait && !bait(r.equippedBait)?.legend) r.flags.prevBait = r.equippedBait;
+    if (V3() && b.legend && af.isLure(af.equippedItem(r))) { r.flags.prevItem = af.equippedItem(r); r.flags.prevBait = null; }
+    else if (b.legend && r.equippedBait && !bait(r.equippedBait)?.legend) r.flags.prevBait = r.equippedBait;
     r.equippedBait = id;
+    if (V3()) r.equipped = id;
     ctx.bus.emit('bait:change', { baitId: id });
     return { ok: true, msg: `${b.name} on the hook.` };
   }
@@ -597,8 +651,9 @@ export function create(ctx) {
     const r = run();
     if (!r) return null;
     const owned = (D().BAITS || []).filter((b) => (r.bait?.[b.id] | 0) > 0).map((b) => b.id);
+    if (V3()) for (const L of D().LURES || []) if (af.ownedLure(L.id, r)) owned.push(L.id);   // Pg14: the lures on hand cycle too
     const order = [...owned, null];
-    const i = order.indexOf(r.equippedBait ?? null);
+    const i = order.indexOf(V3() ? af.equippedItem(r) ?? null : r.equippedBait ?? null);
     const next = order[(i + 1) % order.length] ?? null;
     equipBait(next);
     return next;
@@ -622,9 +677,17 @@ export function create(ctx) {
     if ((r.bait?.[id] | 0) > 0) return;
     if (r.bait) delete r.bait[id];
     if (r.equippedBait !== id) return;
+    if (V3() && r.flags.prevItem && af.ownedLure(r.flags.prevItem, r)) {   // Pg14: a legend bait spent → the lure goes back on the line
+      const lureId = r.flags.prevItem;
+      r.flags.prevItem = null;
+      r.equippedBait = null;
+      af.equipLure(lureId);
+      return;
+    }
     const prev = r.flags.prevBait;
     r.equippedBait = prev && (r.bait?.[prev] | 0) > 0 ? prev : firstGeneralBait(r);
     r.flags.prevBait = null;
+    if (V3()) { r.flags.prevItem = null; r.equipped = r.equippedBait ?? null; }
     ctx.bus.emit('bait:change', { baitId: r.equippedBait });
     const b = bait(id);
     if (b && !b.legend) toast(`Out of ${b.name}.${r.equippedBait ? ` ${bait(r.equippedBait)?.name} on the hook.` : ' A bare hook it is.'}`, 'info');
@@ -633,6 +696,7 @@ export function create(ctx) {
   function consumeBait() {
     const r = run();
     if (!r) return null;
+    if (V3()) af.noteCast();   // the item that counts is the one on the line AT THE CAST (CONTRACT §13.7a)
     const id = r.equippedBait;
     if (!id) return null;
     const b = bait(id);
@@ -658,8 +722,9 @@ export function create(ctx) {
     lastSpent.refunded = true;
     r.bait = r.bait || {};
     r.bait[id] = (r.bait[id] | 0) + 1;
-    if (!r.equippedBait || (r.bait[r.equippedBait] | 0) <= 0) {
+    if ((!r.equippedBait || (r.bait[r.equippedBait] | 0) <= 0) && !af.isLure(af.equippedItem(r))) {
       r.equippedBait = id;
+      r.equipped = id;
       ctx.bus.emit('bait:change', { baitId: id });
     }
     return true;
@@ -782,7 +847,9 @@ export function create(ctx) {
     const zi = X.zoneFactor === false ? 0 : zoneIndexOf(sp.zone);
     const c = character(r?.character);
     const quirkMult = c?.quirk?.fishXpMult ?? c?.fishing?.fishXpMult ?? 1;
-    const base = Math.max(1, Math.round((D().fishXpFor?.(sp.rarity, zi) ?? 3) * (getStats().xpMult ?? 1) * quirkMult * (X.fishMult ?? 1)));
+    // automatic fishing: fish XP × the catch lake's landing normaliser (CATCH_V3.economy.norm); combat is told (normApplied)
+    const norm = sp.rarity === 'legendary' ? 1 : landingNorm(r?.zone || sp.zone);
+    const base = Math.max(1, Math.round((D().fishXpFor?.(sp.rarity, zi) ?? 3) * (getStats().xpMult ?? 1) * quirkMult * (X.fishMult ?? 1) * norm));
     const DISC = BAL('xpModes').discovery;
     let disc = 0;
     if (DISC && r?.flags) {
@@ -792,7 +859,7 @@ export function create(ctx) {
       disc = Math.max(0, Math.min(want, (DISC.dailyCap ?? 12) - log.n));
       log.n += disc;
     }
-    return { xp: base + disc, fishXp: base, discoveryXp: disc };
+    return { xp: base + disc, fishXp: base, discoveryXp: disc, norm };
   }
   /**
    * measure(fish) -> {records}: called by fishing at the seal stamp (DESIGN §25.6.8). Does every duty of v1's
@@ -807,6 +874,7 @@ export function create(ctx) {
     if (fish.uid && measured.has(fish.uid)) return measured.get(fish.uid);
     const sp = species(fish.speciesId);
     if (!sp) return { records: [] };
+    if (feReplay()) return measureReplay(fish, sp);
     const r = run();
     const live = !!r && r.active !== false;
     const m = meta();
@@ -903,7 +971,13 @@ export function create(ctx) {
       xpInfo = fishXpV3(r, sp, { isNew, classFirst });
       // the creel (CONTRACT §13.7): a full creel leaves the fish on the card (Keep then offers a swap)
       if (!addToCreel(fish)) { pending.set(fish.uid, { fish, t: 0 }); syncPending(); }
+    } else {
+      // run-less (the Landing): journal and records only; a landed fish still counts for First Light (FIRST_EVENING.firstLight)
+      m.totalFish = (m.totalFish || 0) + 1;
     }
+    // automatic fishing: a landed legend's wounds heal (CATCH_V3.legend); a landed Marked Fish is no longer out there
+    if (sp.rarity === 'legendary') af.clearLegendWounds(sp.id);
+    if (fish.markedFishId) af.removeMarkedFish(fish.markedFishId);
 
     // fish:measured at the stamp, then fish:landed opens the card ---------------------------------------
     const result = { records, fish, isNew, isRecord: !isNew && isPB, sizeClass: cls };
@@ -918,7 +992,7 @@ export function create(ctx) {
       // the card lists the favour terms that applied to this fish (DESIGN §25.6.1; CONTRACT §13.7)
       favours: (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value })), name: fish.name || null,
     });
-    if (live && xpInfo.xp > 0) { try { ctx.combat?.addXp?.(xpInfo.xp, { source: 'fish', speciesId: sp.id, fishXp: xpInfo.fishXp, discoveryXp: xpInfo.discoveryXp, modeApplied: true }); } catch (err) { report('combat.addXp', err); } }
+    if (live && xpInfo.xp > 0) { try { ctx.combat?.addXp?.(xpInfo.xp, { source: 'fish', speciesId: sp.id, fishXp: xpInfo.fishXp, discoveryXp: xpInfo.discoveryXp, modeApplied: true, normApplied: true, norm: xpInfo.norm, lake: r?.zone || sp.zone }); } catch (err) { report('combat.addXp', err); } }
 
     // aftermath: journal milestones, Memories toast, bounties, trials, gate, victory --------------------
     if (isNew) {
@@ -928,11 +1002,16 @@ export function create(ctx) {
       journalMilestones(sp.zone);
     }
     if (memLines.length) toast(memLines.join(' · '), 'good');
-    if (entry.caught === (J.masteryAt ?? 10)) {
+    const firstOnly = !live && D().COVE?.fishing?.memoriesFirstOnly === true && V3H.coveSpecies(D()).has(sp.id);   // the Quayling banks its first catch only
+    if (entry.caught === (J.masteryAt ?? 10) && !firstOnly) {
       addMemories(J.masteryMemories ?? 2, 'mastery');
       toast(`${sp.name}: the Journal page is inked in gold · +${J.masteryMemories ?? 2} Memories`, 'good');
     }
-    if (!live) return result;
+    if (!live) {
+      if (D().FIRST_EVENING?.firstLight !== false) challenges.hooks.fish(fish, sp);   // First Light (a total-scope trial) counts the Quayling
+      requestSave();
+      return result;
+    }
     if (sp.rarity === 'legendary' && market.isPresent()) {
       const l = D().MERCHANT_LINES?.legendary || [];
       if (l.length) toast(`Old Murk: "${l[(Math.random() * l.length) | 0]}"`, 'lore');
@@ -947,6 +1026,21 @@ export function create(ctx) {
       challenges.hooks.victory();
       ctx.bus.emit('victory', { speciesId: sp.id });
     }
+    return result;
+  }
+  /**
+   * FE-Pg1: measure in a replay of the First Evening (a sandbox): the ceremony and the card still run, but nothing is written
+   * (no journal, records, Memories, counters, challenges or save): meta stays byte-identical. fish:measured / fish:landed carry
+   * {replay: true, cove: true} so listeners (main's save, banners) can tell.
+   */
+  function measureReplay(fish, sp) {
+    const cls = fish.sizeClass || D().sizeClassOf?.(fish.z ?? 0) || 'keeper';
+    const result = { records: [], fish, isNew: false, isRecord: false, sizeClass: cls, replay: true };
+    if (fish.uid) measured.set(fish.uid, result);
+    ctx.bus.emit('fish:measured', { speciesId: sp.id, z: fish.z, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, weight: fish.weight,
+      favours: fish.favours || [], records: [], name: fish.name || null, place: fish.place ?? null, fish, cove: true, replay: true });
+    ctx.bus.emit('fish:landed', { fish, isNew: false, isRecord: false, species: sp, firstShells: 0, xp: 0, mastered: false, measured: true, records: [],
+      sizeClass: cls, ancient: !!fish.ancient, length: fish.length, cove: true, replay: true, favours: (fish.favours || []).map((t) => ({ ...t })), name: fish.name || null });
     return result;
   }
   // ------------------------------------------------------------------ v3: pressure (DESIGN §25.7.2; CONTRACT §13.2 run.pressure)
@@ -1166,10 +1260,14 @@ export function create(ctx) {
   function journalV3(sp, e) {
     let reach = null;
     try { reach = sp.size ? Math.round(D().reachOf(sp, run()?.zone || sp.zone) * 10) / 10 : null; } catch { reach = null; }
+    const glimpsed = !!e?.seen && !((e?.caught || 0) > 0);
     return {
       pbLength: e?.pbLength ?? null, pbWeight: e?.pbWeight ?? null, pbZ: e?.pbZ ?? null, bestSetup: e?.bestSetup || [],
       seals: { prize: false, trophy: false, elder: false, ancient: false, ...(e?.seals || {}) }, sealClasses: D().sealsFor?.(sp) || [],
       oldLedger: !!e?.oldLedger, lastLengths: e?.lastLengths || [], released: { ...(e?.released || {}) }, reach,
+      // automatic fishing: a Glimpsed page (lost before it was ever landed: named, odds shown, no naming Memories), the Got away list
+      glimpsed, known: glimpsed || (e?.caught || 0) > 0, gotAway: (e?.gotAway || []).map((g) => ({ ...g })), escape: e?.escape ? { ...e.escape } : null,
+      ...(glimpsed ? { name: sp.name, hint: '' } : {}),
     };
   }
   function getJournalSummary() {
@@ -1306,6 +1404,7 @@ export function create(ctx) {
       Object.assign(summary, {
         outing: r.outing || 'normal', nightMode: r.nightMode || null, classFirsts: (f.classFirsts || []).map((x) => ({ ...x })),
         nights: (f.nightLog || []).map((n) => n.kind), interim: interimRun,
+        gotAway: af.gotAwayLines(r), markedFishCreated: (f.markedFishCreated || []).slice(),
       });
       if (cause === 'snuffed') Object.assign(summary, { topDamage: { source: 'snuffed', count: 1 }, tip: SNUFF_TIP });
     }
@@ -1441,6 +1540,10 @@ export function create(ctx) {
       if (!r.nightMode) r.nightMode = r.outing === 'first' ? 'still' : r.outing === 'descent' ? 'gloomtide' : (continued ? 'gloomtide' : (BAL('nightModes').default || 'lantern'));
       r.tally = r.tally || { dawns: 0, stillNights: 0, swarmNights: 0 };
       if (!Array.isArray(r.flags.nightLog)) r.flags.nightLog = [];
+      // automatic fishing: per-run lures (Pg14) and the one item on the line (a v1 / P1 run has neither field yet)
+      if (!r.lures || typeof r.lures !== 'object' || Array.isArray(r.lures)) r.lures = {};
+      af.syncEquipped(r);
+      hubZone = null;
     }
     if (!continued) r.flags.startBestLevel = meta()?.bestLevel || 0;
     if (continued) restorePending(); else delete r.flags.pendingCatch;
@@ -1627,7 +1730,9 @@ export function create(ctx) {
     challenges.evaluate(['level']);
   }
 
-  function onZoneChange({ zone: zid, prev } = {}) {
+  function onZoneChange({ zone: zid, prev, hub } = {}) {
+    if (V3()) hubZone = hub ? (zid || 'cove') : null;
+    if (hub) return;                       // the Landing (CONTRACT §13.3): no zone discovery, challenge zone hooks, Waystone or gate logic
     const r = run();
     if (!r || !zid) return;
     const m = meta();
@@ -1637,7 +1742,62 @@ export function create(ctx) {
     syncGateVisual(true);
     evaluateGate();
     challenges.hooks.zone(zid, r.character);
-    if (prev === null) market.reset();     // main's run start / continue: the barge re-moors via update()
+    if (prev === null || (V3() && prev === 'cove')) market.reset();     // a run start / continue (after the glide from the cove): the barge re-moors via update()
+  }
+
+  // ------------------------------------------------------------------ FE-Pg1: the First Evening's save flag (CONTRACT §13.12)
+  let afChangedSent = false;
+  /** meta.firstEvening, added lazily (core.defaultMeta untouched): the legacy step when it is still undefined. */
+  function ensureFirstEvening() {
+    const m = meta();
+    if (!m || !V3()) return null;
+    V3H.firstEveningLegacy(D(), m);
+    if (!m.firstEvening || typeof m.firstEvening !== 'object') m.firstEvening = V3H.freshFirstEvening(false);
+    return m.firstEvening;
+  }
+  /** firstEvening:step {id, prev, replay}: the checkpoint (main saves on it); a replay is a sandbox and writes nothing. */
+  function onFirstEveningStep({ id = null, replay = false } = {}) {
+    replayActive = !!replay;
+    if (replay) return;
+    const fe = ensureFirstEvening();
+    if (!fe) return;
+    fe.step = typeof id === 'string' ? id : null;
+    requestSave();
+  }
+  /** firstEvening:done {skipped, replay, losses}: done (main starts the run); the First Evening's tips count as seen. */
+  function onFirstEveningDone({ skipped = false, replay = false } = {}) {
+    const wasReplay = replayActive || !!replay;
+    replayActive = false;
+    if (wasReplay) return;
+    const fe = ensureFirstEvening();
+    if (!fe) return;
+    fe.done = true;
+    fe.step = null;
+    if (skipped) fe.skipped = true;
+    const m = meta();
+    m.seenTips = m.seenTips && typeof m.seenTips === 'object' ? m.seenTips : {};
+    for (const t of D().FIRST_EVENING?.marksSeen || []) m.seenTips[t] = true;
+    requestSave();
+  }
+  /** The First Evening's record for the director and ui: {done, step, skipped, legacy, offerSeen, offer} (offer: the legacy ribbon). */
+  function getFirstEvening() {
+    if (!V3()) return null;
+    const fe = meta()?.firstEvening;
+    if (!fe || typeof fe !== 'object') return null;
+    return { done: !!fe.done, step: fe.step ?? null, skipped: !!fe.skipped, legacy: !!fe.legacy, offerSeen: !!fe.offerSeen, offer: !!fe.legacy && !fe.offerSeen, replay: feReplay() };
+  }
+  /** setFirstEvening({done, step, skipped, offerSeen}) for the director's skip and ui's offer ribbon. Refused inside a replay
+   *  (offerSeen is set by the ribbon's tap BEFORE the replay starts: "it goes away for good on use or Not now"). */
+  function setFirstEvening(patch = {}) {
+    if (!V3() || feReplay() || !patch || typeof patch !== 'object') return false;
+    const fe = ensureFirstEvening();
+    if (!fe) return false;
+    if ('done' in patch) fe.done = !!patch.done;
+    if ('step' in patch) fe.step = typeof patch.step === 'string' ? patch.step : null;
+    if ('skipped' in patch) fe.skipped = !!patch.skipped;
+    if ('offerSeen' in patch) fe.offerSeen = !!patch.offerSeen;
+    requestSave();
+    return true;
   }
 
   /**
@@ -1663,6 +1823,22 @@ export function create(ctx) {
     // a let-it-pass ('passed', v3 F4) is a choice, not a miss: it keeps the perfect-hook streak (DESIGN §25.6.4)
     on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved' && reason !== 'passed') r.flags.streak = 0; });
     on('fishing:escaped', () => { const r = run(); if (r?.stats) r.stats.fishLost = (r.stats.fishLost | 0) + 1; });
+    if (V3()) {
+      // automatic fishing (progression-af.js): the cast's item, Ashwick's first hook tonight, the got-away side of a loss
+      on('fishing:cast', () => af.noteCast({ fromEvent: true }));
+      on('fishing:hook', () => af.noteHook());
+      on('fish:escaped', (e) => af.onEscaped(e));
+      // a returning player's first v3 bite: one line (af_changed; DESIGN §25.4.8 "Returning players")
+      on('fishing:bite', () => {
+        const m = meta();
+        if (feReplay() || !m?.firstEvening?.legacy || m.seenTips?.af_changed || afChangedSent) return;
+        afChangedSent = true;
+        ctx.bus.emit('tip:show', { id: 'af_changed' });
+      });
+      // the First Evening (FE-Pg1): progression owns meta.firstEvening; the director's events drive it; a replay writes nothing
+      on('firstEvening:step', onFirstEveningStep);
+      on('firstEvening:done', onFirstEveningDone);
+    }
     on('enemy:slain', onEnemySlain);
     on('boss:slain', onBossSlain);
     on('player:damage', ({ amount, source }) => {
@@ -1689,6 +1865,8 @@ export function create(ctx) {
     on('run:end', () => { pending.clear(); });
     on('flow:change', ({ flow }) => {
       if (flow === 'title') { market.reset(); pending.clear(); syncCharacter(meta()?.lastCharacter); invalidate(); }
+      // a replay that ended without its firstEvening:done (back at the title, the director idle): the sandbox closes too
+      if (flow === 'title' && replayActive && !ctx.firstEvening?.isActive?.()) replayActive = false;
     });
     registerDebug();
     syncCharacter(meta()?.lastCharacter);
@@ -1723,8 +1901,19 @@ export function create(ctx) {
     if (typeof arg === 'object' && arg) return Number.isFinite(arg.z) ? arg.z : arg.weight > 0 ? V3H.zFromWeight(D(), sp, arg.weight, run()?.zone || sp?.zone) : 0;
     return Number.isFinite(arg) ? arg : 0;
   }
+  /** CONTRACT §13.1 core.debugEnabled() (?debug=1, localStorage gw.debug, GW_DEBUG): hooks that show hidden state register only then. */
+  function debugOn() {
+    try {
+      if (typeof ctx.core?.debugEnabled === 'function') return !!ctx.core.debugEnabled();
+      if (globalThis.GW_DEBUG === true) return true;
+      if (typeof location !== 'undefined' && /[?&]debug=1(&|$)/.test(location.search || '')) return true;
+      return typeof localStorage !== 'undefined' && localStorage.getItem('gw.debug') === '1';
+    } catch { return false; }
+  }
   function registerDebug() {
     const dbg = ctx.debug || (ctx.debug = {});
+    // Marked Fish with their anchors and z (hidden-ish state): only with the debug switch on
+    if (V3() && debugOn()) dbg.marked = () => af.getMarkedFish();
     Object.assign(dbg, {
       addShells(n = 100) { return addShells(n, 'debug'); },
       addMemories(n = 100) { return addMemories(n, 'debug'); },
@@ -1773,6 +1962,22 @@ export function create(ctx) {
         };
       },
       openGate() { return openGate({ forced: true }); },
+      // automatic fishing (CONTRACT §13.11): the log's odds (what the Journal prints; no hidden state) and a legend's wounds
+      odds(speciesId, loadout) {
+        if (!V3()) return null;
+        if (!loadout) return af.getOdds(speciesId);
+        const sp = species(speciesId);
+        return sp ? { speciesId, odds: D().catchOdds(sp.id, loadout, { strike: 'struck', buffs: { relics: af.ownedRelics() }, perRun: af.perRunOf(run()) }) } : null;
+      },
+      wound(speciesId, n = 1) {
+        if (!V3() || species(speciesId)?.rarity !== 'legendary') return 0;
+        af.clearLegendWounds(speciesId);
+        let w = 0;
+        for (let i = 0; i < (n | 0); i++) w = af.addLegendWound(speciesId);
+        return w;
+      },
+      afLoadout() { return V3() ? { loadout: af.getLoadout(), buffs: af.getCatchBuffs(), counters: af.getFishingCounters(), lures: { ...(run()?.lures || {}) }, equipped: af.equippedItem(run()) } : null; },
+      firstEveningMeta() { return V3() ? getFirstEvening() : null; },
       completeChallenge(id) { return challenges.complete(id); },
       unlockAll() { for (const c of D().CHALLENGES || []) challenges.complete(c.id, { silent: true }); return true; },
       summonMerchant() { market.arrive(); return true; },
@@ -1800,6 +2005,29 @@ export function create(ctx) {
     invalidateStats: invalidate,
     // v3 (CONTRACT §13.7; inert with the flag off: migrateSave returns the save, measure falls back to v1, refundBait false)
     migrateSave, measure, refundBait, getPressure,
+    // automatic fishing (progression-af.js; CONTRACT §13.7, §13.7a): what catchChance reads, the logs, wounds, Marked Fish, lures
+    getLoadout: () => (V3() ? af.getLoadout() : null),
+    getCatchBuffs: (cls) => (V3() ? af.getCatchBuffs(cls) : null),
+    getCatchMods: (speciesId) => (V3() ? af.getCatchMods(speciesId) : null),
+    getOdds: (speciesId, opts) => (V3() ? af.getOdds(speciesId, opts) : null),
+    getGearLog: () => (V3() ? af.getGearLog() : null),
+    compareOdds: (speciesId, sizeClass, a, b) => (V3() ? af.compareOdds(speciesId, sizeClass, a, b) : null),
+    pinGear: (speciesId, sizeClass) => (V3() ? af.pinGear(speciesId, sizeClass) : false),
+    getTackleRating: (zoneId, loadout) => (V3() ? af.getTackleRating(zoneId, loadout) : null),
+    getLegendWounds: (speciesId) => (V3() ? af.woundsOf(speciesId) : 0),
+    addLegendWound: (speciesId) => (V3() ? af.addLegendWound(speciesId) : 0),
+    clearLegendWounds: (speciesId) => { if (V3()) af.clearLegendWounds(speciesId); },
+    getMarkedFish: (zoneId) => (V3() ? af.getMarkedFish(zoneId) : []),
+    addMarkedFish: (escape) => (V3() ? af.addMarkedFish(escape) : null),
+    markedFishHooked: (id) => (V3() ? af.markedFishHooked(id) : { marked: false }),
+    nameElder: (speciesId, seed) => (V3() ? af.nameElder(speciesId, seed) : null),
+    getFishingCounters: () => (V3() ? af.getFishingCounters() : null),
+    equipLure: (lureId) => (V3() ? af.equipLure(lureId) : { ok: false, msg: 'No lures in this water.' }),
+    getEquippedLure: () => (V3() ? af.getEquippedLure() : null),
+    getEquippedItem: () => (V3() ? af.equippedItem(run()) : run()?.equippedBait ?? null),
+    buyLure: (lureId) => (V3() ? market.buyLure(lureId) : { ok: false, msg: 'Murk has none of that.' }),
+    // the First Evening (FE-Pg1)
+    getFirstEvening, setFirstEvening,
     isWellFed: () => { const r = run(); return V3() && !!r && wellFedOf(r, getStats()); },
     /** v3 New Descent (U17): whether the next run is the First Outing, and the mode cards to offer (Lantern preselected). */
     getNightModes: () => {
