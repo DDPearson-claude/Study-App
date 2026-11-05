@@ -90,6 +90,10 @@ section('U3: the record banners');
   const small = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 8.36, prevLength: 7.9 }] });
   ok(small[0].text === 'New best: 8.4 cm (was 7.9)', 'under 20 cm the banner keeps a decimal', small[0].text);
   ok(V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 50, prevLength: 40 }, { kind: 'oldLedger' }], max: 1 }).length === 1, 'max lines respected');
+  const pbL = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 156.2, prevLength: 112 }] })[0];
+  ok(pbL.sub === '44 cm past your old mark', 'the PB banner says by how much', pbL);
+  const pb0 = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 60 }] })[0];
+  ok(pb0.text === 'New best: 60 cm' && pb0.sub === sp.name, 'a PB with no earlier mark names the species', pb0);
   ok(V.recordLines(D, { species: sp, records: null }).length === 0, 'no records, no banners');
 }
 
@@ -119,6 +123,15 @@ section('U14: a banked pick waits for a still moment');
   ok(!V.pickMomentOk({ fishingState: 'idle', cinematic: true }), 'the ceremony: no');
   ok(!V.pickMomentOk({ fishingState: 'idle', blocking: true }), 'another modal: no');
   ok(!V.pickMomentOk({ fishingState: 'idle', measuring: true }), 'the measuring overlay: no');
+}
+
+section('U17: the mode vignettes are clean SVG');
+{
+  const I = await import('../../src/ui-icons.js');
+  for (const id of ['first', 'still', 'lantern', 'gloomtide']) {
+    const svg = I.modeVignette(id);
+    ok(/^<svg /.test(svg) && !/MLZ|NaN|undefined|d=""/.test(svg), `${id}: every pen stroke has a path`, svg.match(/MLZ|NaN|undefined/)?.[0]);
+  }
 }
 
 section('U18: the Scorched card');

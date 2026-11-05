@@ -397,7 +397,7 @@ export function modeVignette(id) {
   }
   if (id === 'lantern') {
     return VB(`${star(22, 12, 0.7, 0.5)}${star(128, 8, 0.7, 0.45)}
-      ${BP('M30 62 C34 40 44 22 66 12 C72 9.6 78 10 80 14', { w: 1.9, min: 0.5, peak: 0.3 })}${BP('M80 14 L80 20', { w: 1, min: 0.6 })}
+      ${BP('M30 62 C34 40 44 22 66 12 C72 9.6 78 10 80 14', { w: 1.9, min: 0.5, peak: 0.3 })}${BP('M80 14 C80 16 80 18 80 20', { w: 1, min: 0.6 })}
       ${glow(80, 30, 15, '#ed9e3b', 0.12)}
       <path d="M75.4 22h9.2l-1.4 2.2v9.6l1.4 2.2h-9.2l1.4-2.2v-9.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
       <path d="M80 26.2c1.3 1.6 2.2 2.6 2.2 4a2.2 2.2 0 0 1-4.4 0c0-1.4.9-2.4 2.2-4z" fill="#f2b45a"/>

@@ -97,7 +97,7 @@ export function createMeasure(K) {
     const unit = c.length < num(D().BALANCE?.ceremony?.mmBelow, 20) ? 'mm' : c.length >= 1000 ? 'm' : 'cm';
     const wrap = h('div', `gw-ms gw-cls-${esc(c.cls)}${c.ancient ? ' gw-ancient' : ''}${legend ? ' gw-legend' : ''}${c.f5 ? ' gw-ms-f5' : ''}${!legend && !c.ci.seal ? ' gw-noseal' : ''}`);
     const pct = (cm) => Math.max(0, Math.min(100, (cm / c.ruler.max) * 100));
-    const bands = c.ruler.bands.map((b) => `<rect class="gw-msb gw-msb-${esc(b.cls)}" x="${(pct(b.from) * 10).toFixed(1)}" y="8" width="${((pct(b.to) - pct(b.from)) * 10).toFixed(1)}" height="44"/>`).join('');
+    const bands = c.ruler.bands.map((b) => `<rect class="gw-msb gw-msb-${esc(b.cls)}" x="${(pct(b.from) * 10).toFixed(1)}" y="15" width="${((pct(b.to) - pct(b.from)) * 10).toFixed(1)}" height="30" rx="6"/>`).join('');
     const knots = c.ruler.knots.map((cm, i) => `<i class="gw-ms-knot${c.ruler.marks.some((mk) => Math.abs(mk.cm - cm) < c.ruler.step * 0.34) ? ' gw-atmark' : ''}" data-cm="${cm}" style="left:${pct(cm).toFixed(2)}%;--i:${i}"></i>`).join('');
     const marks = c.ruler.marks.map((mk) => `<span class="gw-ms-mark gw-msm-${esc(mk.cls)}" data-cm="${mk.cm}" style="left:${pct(mk.cm).toFixed(2)}%"><i></i><b>${esc(mk.label)}</b></span>`).join('');
     const best = c.ruler.best ? `<span class="gw-ms-best" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>best</b></span>` : '';
@@ -127,11 +127,15 @@ export function createMeasure(K) {
         <div class="gw-ms-skip">${K.isTouch ? 'tap to skip' : 'click or Space to skip'}</div>
       </div>`;
     body.appendChild(wrap);
+    c.laid = false; c.marksLaid = false; c.lastCount = -1;
     wrap.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); skip(); });
     const q = (s) => wrap.querySelector(s);
     c.els = { wrap, band: q('.gw-ms-band'), count: q('.gw-ms-count b'), clip: q('.gw-ms-cliprect'), bead: q('.gw-ms-bead'), fish: q('.gw-ms-ink .gw-ms-fish'), ghost: q('.gw-ms-fish-ghost'), ink: q('.gw-ms-ink'), fishbox: q('.gw-ms-fishbox'),
       ruler: q('.gw-ms-ruler'), seal: q('.gw-ms-seal'), stamp: q('.gw-ms-stamp'), elder: q('.gw-ms-elder'), recs: q('.gw-ms-recs'), skip: q('.gw-ms-skip'),
       knots: [...wrap.querySelectorAll('.gw-ms-knot[data-cm]')], marks: [...wrap.querySelectorAll('.gw-ms-mark')], unit };
+    // a re-render mid-ceremony picks up where the band was
+    if (c.t > 0) wrap.classList.add('gw-in');
+    if (c.stamped) { c.stamped = false; c.recSig = null; stampNow(c); }
   }
   /** The fish sketch, nose to tail along the cord's first L cm (drawn once the band has a width). */
   function layFish(c) {
@@ -165,6 +169,25 @@ export function createMeasure(K) {
     } catch (e) { K.report('measure fish', e); }
     return true;
   }
+  /** The class words under the cord: where two would touch (a short species' close classes on a phone), the second drops to a
+   *  lower row on a longer tick, so every word stays legible. */
+  function layMarks(c) {
+    const E = c.els;
+    const W = E.ruler.clientWidth;
+    if (!(W > 40)) return;
+    c.marksLaid = true;
+    const ends = [-1e9, -1e9];
+    let two = false;
+    const list = E.marks.map((mk) => ({ mk, x: (num(Number(mk.dataset.cm)) / c.ruler.max) * W, w: mk.querySelector('b')?.offsetWidth || 0 })).sort((a, b) => a.x - b.x);
+    for (const m of list) {
+      const l = m.x - m.w / 2;
+      const row = l >= ends[0] + 8 ? 0 : l >= ends[1] + 8 ? 1 : (ends[0] <= ends[1] ? 0 : 1);
+      ends[row] = m.x + m.w / 2;
+      m.mk.classList.toggle('gw-row1', row === 1);
+      if (row === 1) two = true;
+    }
+    E.wrap.classList.toggle('gw-ms-2rows', two);
+  }
   const fmtCount = (c, cm) => {
     if (c.els.unit === 'mm') return String(Math.round(cm * 10));
     if (c.els.unit === 'm') return (cm / 100).toFixed(2);
@@ -181,6 +204,7 @@ export function createMeasure(K) {
       return;
     }
     if (!c.laid) layFish(c);
+    if (!c.marksLaid) layMarks(c);
     // where the ceremony stands: fishing's live view (F5), or the overlay's own clock
     let st;
     if (c.f5) {

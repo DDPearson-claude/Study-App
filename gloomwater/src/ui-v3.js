@@ -350,7 +350,11 @@ export function recordLines(D, { records = [], isNew = false, species = null, le
     if (r.kind === 'pb') {
       const was = r.prevLength != null ? cmNum(r.prevLength) : null;
       const tpl = T.newBest || 'New best: {cm} cm (was {was})';
-      line = { kind: 'pb', text: was ? fill(tpl, { cm: cmNum(r.length ?? length), was }) : fill(tpl, { cm: cmNum(r.length ?? length) }).replace(/\s*\(was \{was\}\)/, ''), sub: name, tone: 'gold' };
+      const now = num(r.length ?? length);
+      const gain = was ? now - num(r.prevLength) : 0;
+      // the sub-line says by how much (the species is already named under the cord)
+      const sub = gain > 0 ? `${cmNum(gain)} cm past your old mark` : name;
+      line = { kind: 'pb', text: was ? fill(tpl, { cm: cmNum(now), was }) : fill(tpl, { cm: cmNum(now) }).replace(/\s*\(was \{was\}\)/, ''), sub, tone: 'gold' };
     } else if (r.kind === 'classFirst') {
       const cls = classInfo(D, r.sizeClass, !!r.ancient)?.label || cap(r.sizeClass);
       line = { kind: 'classFirst', text: fill(T.classFirst || 'First {class} {species}', { class: cls, species: name }).replace(/\s+$/, ''), sub: r.memories ? `+${r.memories} Memories` : '', tone: r.ancient ? 'gold' : 'seal' };

@@ -484,6 +484,8 @@ export function createHudV3(K, el, R, w) {
     },
     get vis() { return vis; },
     get live() { return live; },
+    /** the Scorched card is up (banners wait behind it rather than print over it) */
+    get cardUp() { return scT0 > 0; },
     reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; tellId = ''; pipMax = 0; pipN = 0; clsShown = ''; snagT = 0; nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); },
     /** the clock's durations from survival (v3 phases: 210 / 20 / 90 / 10 on day 1) */
     durations(day) {

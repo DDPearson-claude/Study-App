@@ -226,14 +226,50 @@ export function createScreens(K) {
   function openNewDescent() {
     const m = meta();
     const chars = characters();
-    const st = { sel: null, zone: 'mossmere', titleChild: true, mode: null };
+    const st = { sel: null, zone: 'mossmere', titleChild: true, mode: null, step: 'wick' };
     st.sel = (chars.find((c) => c.id === m.lastCharacter && c.unlocked) || chars.find((c) => c.unlocked) || chars[0])?.id;
-    // v3 (DESIGN §25.14.2 U17): the night-mode cards; a fresh save sees only the First Outing, from run 2 Lantern is preselected
+    // v3 (DESIGN §25.14.2 U17): the night-mode cards, a second step after the Wick; a fresh save sees only the First Outing,
+    // from run 2 Still / Lantern / Gloomtide with Lantern preselected
     const nightModes = () => (D().V3_ENABLED ? modeCards(D(), safe(() => ctx.progression?.getNightModes?.(), null), { runs: num(meta().runs) }) : null);
     st.mode = nightModes()?.selected ?? null;
+    const descend = (s, mc) => {
+      const zone = s.zone, ch = s.sel, nm = mc && !mc.first && s.mode !== 'first' ? s.mode : undefined;
+      K.closeAll();
+      ctx.game?.startNewRun?.(mc ? { startZone: zone, character: ch, nightMode: nm } : { startZone: zone, character: ch });
+    };
+    /** Step two: the nights, chosen for the whole descent (or the First Outing's one card). */
+    function nightsStep(entry, body, s, mc, c) {
+      if (!mc.cards.some((x) => x.id === s.mode)) s.mode = mc.selected;
+      const zn = K.zoneData(s.zone)?.name || 'the Mossmere';
+      const { content, foot } = panel(entry, body, { title: mc.first ? 'Your First Outing' : 'The Nights',
+        sub: mc.first ? 'The Gloom stays away this time. Fish, and learn the water.' : 'How the nights will go, chosen for the whole descent.', cls: 'gw-p-wide gw-p-descent gw-p-nights' });
+      const sec = h('section', `gw-modes gw-modes--step${mc.first ? ' gw-modes--first' : ''}`);
+      const row = h('div', 'gw-mode-row');
+      row.setAttribute('role', mc.first ? 'group' : 'radiogroup');
+      mc.cards.forEach((card, i) => {
+        const b = h('button', `gw-mode gw-mode--${esc(card.id)}${card.id === s.mode ? ' gw-on' : ''}`);
+        b.type = 'button';
+        b.dataset.mode = card.id;
+        b.setAttribute('role', mc.first ? 'note' : 'radio');
+        if (!mc.first) b.setAttribute('aria-checked', card.id === s.mode ? 'true' : 'false');
+        b.innerHTML = `<span class="gw-mode-vig">${modeVignette(card.id)}</span><span class="gw-mode-name">${ORN.hookL}<b>${esc(card.name)}</b>${ORN.hookR}</span><span class="gw-mode-line">${esc(card.line)}</span>${!mc.first && !K.isTouch ? `<kbd>${i + 1}</kbd>` : ''}`;
+        if (!mc.first) b.addEventListener('click', () => { if (s.mode !== card.id) { s.mode = card.id; sfx('ui_click'); entry.render(); } });
+        row.appendChild(b);
+      });
+      sec.appendChild(row);
+      sec.insertAdjacentHTML('beforeend', `<p class="gw-modes-who">${esc(c?.name || 'The Wick')} \u00b7 setting out from ${esc(zn.replace(/^The /, 'the '))}</p>`);
+      content.appendChild(sec);
+      content.classList.add('gw-scroll');
+      foot.appendChild(btn('Back', { onClick: () => { s.step = 'wick'; sfx('ui_click'); entry.render(); } }));
+      foot.appendChild(btn(`Descend as ${esc(c?.name || 'the Wick')}`, { cls: 'gw-btn--primary', autofocus: true, icon: 'flame', onClick: () => descend(s, mc) }));
+    }
     K.openModal('newdescent', (entry, body) => {
       const s = entry.state;
       const list = characters();
+      const mc = nightModes();
+      const c = list.find((x) => x.id === s.sel) || list[0];
+      if (mc && s.step === 'nights' && c?.unlocked) { nightsStep(entry, body, s, mc, c); return; }
+      s.step = 'wick';
       const { content, foot } = panel(entry, body, { title: 'A New Descent', sub: 'Choose the Wick who goes down, and where the water begins.', cls: 'gw-p-wide gw-p-descent' });
       const grid = h('div', 'gw-chars');
       list.forEach((c, i) => {
@@ -244,7 +280,6 @@ export function createScreens(K) {
         grid.appendChild(b);
       });
       content.appendChild(grid);
-      const c = list.find((x) => x.id === s.sel) || list[0];
       const det = h('div', 'gw-char-detail');
       if (c) {
         if (c.unlocked) {
@@ -294,48 +329,27 @@ export function createScreens(K) {
         ws.appendChild(row);
         content.appendChild(ws);
       }
-      const mc = nightModes();
-      if (mc) {
-        if (!mc.cards.some((x) => x.id === s.mode)) s.mode = mc.selected;
-        const sec = h('section', `gw-modes${mc.first ? ' gw-modes--first' : ''}`);
-        sec.innerHTML = `<div class="gw-group">${mc.first ? 'Your first outing' : 'The nights'}<span>${mc.first ? 'every night still' : 'chosen for the whole descent'}</span></div>`;
-        const row = h('div', 'gw-mode-row');
-        row.setAttribute('role', mc.first ? 'group' : 'radiogroup');
-        mc.cards.forEach((card, i) => {
-          const b = h('button', `gw-mode gw-mode--${esc(card.id)}${card.id === s.mode ? ' gw-on' : ''}`);
-          b.type = 'button';
-          b.dataset.mode = card.id;
-          b.setAttribute('role', mc.first ? 'note' : 'radio');
-          if (!mc.first) b.setAttribute('aria-checked', card.id === s.mode ? 'true' : 'false');
-          b.innerHTML = `<span class="gw-mode-vig">${modeVignette(card.id)}</span><span class="gw-mode-name">${ORN.hookL}<b>${esc(card.name)}</b>${ORN.hookR}</span><span class="gw-mode-line">${esc(card.line)}</span>${!mc.first && !K.isTouch ? `<kbd>${i + 1}</kbd>` : ''}`;
-          if (!mc.first) b.addEventListener('click', () => { if (s.mode !== card.id) { s.mode = card.id; sfx('ui_click'); entry.render(); } });
-          row.appendChild(b);
-        });
-        sec.appendChild(row);
-        content.appendChild(sec);
-      }
       content.classList.add('gw-scroll');
       foot.appendChild(btn('Back', { onClick: () => K.closeModal('newdescent') }));
-      foot.appendChild(btn(c?.unlocked ? `Descend as ${esc(c.name)}` : 'Locked', {
-        cls: 'gw-btn--primary', disabled: !c?.unlocked, autofocus: true, icon: 'flame',
-        onClick: () => {
-          const zone = s.zone, ch = s.sel, nm = mc && !mc.first && s.mode !== 'first' ? s.mode : undefined;
-          K.closeAll();
-          ctx.game?.startNewRun?.(mc ? { startZone: zone, character: ch, nightMode: nm } : { startZone: zone, character: ch });
-        },
-      }));
-    }, { state: st, onKey: (code) => {
-      if (code === 'ArrowLeft' || code === 'ArrowRight') {
-        const list = characters(); const t = K.top(); const s = t.state;
+      if (mc && c?.unlocked) {
+        foot.appendChild(btn(mc.first ? 'Your first outing' : 'Choose the nights', { cls: 'gw-btn--primary', autofocus: true, icon: 'moon', onClick: () => { s.step = 'nights'; sfx('ui_click'); entry.render(); } }));
+      } else {
+        foot.appendChild(btn(c?.unlocked ? `Descend as ${esc(c.name)}` : 'Locked', { cls: 'gw-btn--primary', disabled: !c?.unlocked, autofocus: true, icon: 'flame', onClick: () => descend(s, mc) }));
+      }
+    }, { state: st, onEscape: (entry) => { if (entry.state.step === 'nights') { entry.state.step = 'wick'; entry.render(); } else K.closeModal('newdescent'); }, onKey: (code) => {
+      const t = K.top(); const s = t?.state;
+      if ((code === 'ArrowLeft' || code === 'ArrowRight') && s?.step !== 'nights') {
+        const list = characters();
         const i = list.findIndex((x) => x.id === s.sel);
         s.sel = list[(i + (code === 'ArrowLeft' ? -1 : 1) + list.length) % list.length].id; sfx('ui_hover', { volume: 0.3 }); t.render(); return true;
       }
-      if (code === 'Enter') { const b = K.top()?.el.querySelector('.gw-pf .gw-btn--primary:not([disabled])'); if (b && document.activeElement?.tagName !== 'BUTTON') { b.click(); return true; } }
+      if (code === 'Enter') { const b = t?.el.querySelector('.gw-pf .gw-btn--primary:not([disabled])'); if (b && document.activeElement?.tagName !== 'BUTTON') { b.click(); return true; } }
       const dm = /^(?:Digit|Numpad)([1-3])$/.exec(code);
-      if (dm) { const b = K.top()?.el.querySelectorAll('.gw-mode[role="radio"]')[Number(dm[1]) - 1]; if (b) { b.click(); return true; } }
+      if (dm) { const b = t?.el.querySelectorAll('.gw-mode[role="radio"]')[Number(dm[1]) - 1]; if (b) { b.click(); return true; } }
       return false;
     } });
   }
+
 
   // ================================================================== CATCH CARD
   // Direction C, "Ink-Wash Field Journal" (DESIGN §21.6): a feathered patch of ink instead of a
@@ -1139,6 +1153,7 @@ export function createScreens(K) {
       const { content, foot } = panel(entry, body, { title: 'The Water Waits', sub: r ? `Day ${r.day || 1} · ${esc(z?.name || '')} · Level ${r.level || 1}${ch ? ` · ${esc(ch.name)}` : ''}` : '', cls: 'gw-p-pause', close: false });
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn('Resume', { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
+      const abandon = () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } });
       if (v3Run(D(), r)) {
         // v3 (DESIGN §25.14.2 U18; CONTRACT §13.7 ui): quick links in a lake: Journal, Challenges, Settings, Title (tackle and
         // outfit are fitted only at home), then the way out
@@ -1149,14 +1164,12 @@ export function createScreens(K) {
         link('settings', 'Settings', 'sun', () => openSettings({ pauseChild: true }), 'Sound, picture and fishing');
         link('title', 'Title', 'gate', () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); }, 'Your descent will wait for you');
         menu.appendChild(quick);
-        menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } }) }));
-      }
-      if (!v3Run(D(), r)) menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
-      if (!v3Run(D(), r)) {
+      } else {
+        menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
         menu.appendChild(btn('Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
         menu.appendChild(btn('Return to Title', { cls: 'gw-mbtn', icon: 'gate', title: 'Your descent will wait for you', onClick: () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); } }));
-        menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } }) }));
       }
+      menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: abandon }));
       content.appendChild(menu);
       content.insertAdjacentHTML('beforeend', '<p class="gw-pause-note">Returning to the title keeps this descent waiting.</p>');
       const boons = arr(safe(() => ctx.combat?.getBoons?.(), null));
@@ -1272,7 +1285,7 @@ export function createScreens(K) {
       // a Still run never met the swarm: its nights are what it fished, not what it fought
       const stillRun = !!S.nightMode && S.nightMode === 'still';
       const legends = typeof S.legendaries === 'number' ? S.legendaries : Array.isArray(S.legendaries) ? S.legendaries.length : S.legendaries && typeof S.legendaries === 'object' ? Object.keys(S.legendaries).length : 0;
-      const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}${snuffed ? ' gw-snuffed' : ''}`);
+      const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}${snuffed ? ' gw-snuffed' : ''}${D().V3_ENABLED && S.nightMode ? ' gw-death--v3' : ''}`);
       wrap.innerHTML = `<div class="gw-death-veil"></div><div class="gw-death-inner gw-scroll">
         <div class="gw-death-head"><div class="gw-death-candle">${snuffed ? '<svg class="gw-smoke-thread" viewBox="0 0 40 96" aria-hidden="true"><path pathLength="100" d="M20 94 C13 82 27 74 20 62 C13 50 28 42 21 30 C16 21 24 12 19 3"/><path class="gw-st2" pathLength="100" d="M21 92 C26 80 15 70 22 58 C28 47 17 38 23 26"/></svg>' : ''}<i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
         <div class="gw-death-line">${[`Day ${fmt(S.day || 1)}`, esc(z?.name || ''), `Level ${fmt(S.level || 1)}`, ch ? esc(ch.name) : ''].filter(Boolean).map((x) => `<span>${x}</span>`).join(' · ')}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
@@ -1308,7 +1321,7 @@ export function createScreens(K) {
       const chs = arr(S.challengesCompleted);
       if (chs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Trials completed</div>${chs.map((c) => `<div class="gw-dl-row gw-good">${icon('check')}<span><b>${esc(c?.name || c)}</b>${c?.reward ? `<small>${esc([c.reward.unlock ? K.unlockLabel(c.reward.unlock) : '', c.reward.memories ? `+${c.reward.memories} Memories` : ''].filter(Boolean).join(' · '))}</small>` : ''}</span></div>`).join('')}</div>`);
       const nm = nearMisses(S);
-      const td = snuffed ? { line: 'The lantern guttered out.', tip: S.tip || 'Render a fish before the oil runs dry: Burn (R) works without opening the creel.', icon: 'lantern' } : !victory ? topDamage() : null;
+      const td = snuffed ? { line: 'The lantern guttered out.', tip: S.tip || `Render a fish before the oil runs dry: ${K.isTouch ? 'the Burn button' : 'Burn (R)'} works without opening the creel.`, icon: 'lantern' } : !victory ? topDamage() : null;
       if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon(td.icon || 'eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
       const nav = wrap.querySelector('.gw-death-btns');
       nav.appendChild(btn('Shrine', { icon: 'memory', sub: `${fmt(meta().memories || 0)} Memories`, onClick: () => openShrine() }));

@@ -47,8 +47,11 @@ export default async function (api) {
   });
   await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title', null, { timeout: 240000 });
   await g(() => window.__gw.game.wipeAll());
-  // a page built with the v3 flag preset (globalThis.GW_V3 / GW_V3_PHASE in its head) needs no reload; otherwise ?v3=1
-  if (!(await g(() => window.__gw.data.V3_ENABLED === true && window.__gw.data.V3_PHASE === 1))) {
+  // a page built with the v3 flag preset (globalThis.GW_V3 / GW_V3_PHASE in its head) needs no ?v3=1; it still reloads once
+  // when the web fonts went out before the font route was in place
+  const v3Preset = await g(() => window.__gw.data.V3_ENABLED === true && window.__gw.data.V3_PHASE === 1);
+  const fontsIn = await g(async () => { await document.fonts.ready; return [...document.fonts].some((f) => f.status === 'loaded' && /Marcellus/.test(f.family)); }).catch(() => false);
+  if (!v3Preset || !fontsIn) {
     for (let a = 0; a < 3; a++) {
       try { await page.goto(page.url().split('?')[0] + '?v3=1&v3phase=1', { waitUntil: 'load', timeout: 240000 }); break; } catch (e) { log('reload retry', String(e?.message || e).split('\n')[0]); }
     }
@@ -66,12 +69,22 @@ export default async function (api) {
       const raf = window.requestAnimationFrame.bind(window);
       let held = null;
       window.requestAnimationFrame = (cb) => { if (held) { held.push(cb); return 0; } return raf(cb); };
-      window.__rafHold = (on) => { if (on) { held = held || []; return true; } if (held) { const q = held; held = null; for (const cb of q) raf(cb); } return false; };
+      // while held, the page clock stands still (ui.update measures its own dt from performance.now), so only the pump moves
+      // the UI's time and a shot shows the exact ceremony time asked for
+      const realNow = performance.now.bind(performance);
+      window.__perfOff = 0; window.__frozenAt = null;
+      performance.now = () => (window.__frozenAt ?? realNow()) + window.__perfOff;
+      window.__rafHold = (on) => {
+        if (on) { held = held || []; if (window.__frozenAt == null) window.__frozenAt = realNow(); return true; }
+        if (window.__frozenAt != null) { window.__perfOff -= realNow() - window.__frozenAt; window.__frozenAt = null; }   // no jump on release
+        if (held) { const q = held; held = null; for (const cb of q) raf(cb); }
+        return false;
+      };
     }
     // UI time pump (as tools/ui-shots.mjs): the overlay, banners and held toasts advance on ui.update()'s own clock
     window.__pump = (sec = 1, step = 0.25) => {
-      if (window.__perfOff === undefined) { const realNow = performance.now.bind(performance); window.__perfOff = 0; performance.now = () => realNow() + window.__perfOff; }
-      for (let i = 0; i < Math.round(sec / step); i++) { window.__perfOff += step * 1000; try { c.ui.update(step); } catch { /* keep going */ } }
+      const n = Math.max(1, Math.round(sec / step)), dt = sec / n;
+      for (let i = 0; i < n; i++) { window.__perfOff += dt * 1000; try { c.ui.update(dt); } catch { /* keep going */ } }
     };
   });
   const scale = (x) => g((x) => window.__gw.debug.renderScale?.(x), x).catch(() => {});
@@ -121,6 +134,10 @@ export default async function (api) {
   if (want('descent1')) {
     await g(() => window.__gw.ui.openNewDescent());
     await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'newdescent', null, 60);
+    await wait(600);
+    const p1 = await g(() => document.querySelector('#ui .gw-m-newdescent .gw-pf .gw-btn--primary')?.textContent?.trim() || '');
+    check(/first outing/i.test(p1), 'U17: the Wick step leads on to the First Outing', p1);
+    await g(() => document.querySelector('#ui .gw-m-newdescent .gw-pf .gw-btn--primary')?.click());
     await wait(1200);
     const nd = await g(() => { const e = document.querySelector('#ui .gw-m-newdescent'); return { cards: [...(e?.querySelectorAll('.gw-mode') || [])].map((b) => ({ id: b.dataset.mode, on: b.classList.contains('gw-on'), t: b.textContent.replace(/\s+/g, ' ').trim() })) }; });
     check(nd.cards.length === 1 && nd.cards[0].id === 'first' && nd.cards[0].on && /First Outing/.test(nd.cards[0].t), 'U17: a fresh save sees only the First Outing card', nd);
@@ -155,21 +172,27 @@ export default async function (api) {
       elder: e?.querySelector('.gw-ms-elder')?.textContent || '', d: window.__gw.ui.measureDebug?.() || null, modal: window.__gw.debug.ui?.()?.openModal ?? null };
   });
 
+  /** Pump the overlay's own clock to exactly `t` seconds into the ceremony. */
+  const pumpTo = async (t) => { const t0 = await g(() => window.__gw.ui.measureDebug?.()?.t ?? 0); if (t > t0 + 1e-3) await g(([d]) => window.__pump(d, 0.05), [t - t0]); return g(() => window.__gw.ui.measureDebug?.()?.t ?? null); };
+  const gone = (st) => !st.on || !st.d || st.d.done;
+
   // ---------------------------------------------------------------- U3: the measuring overlay (no F5: the UI runs the plan)
   if (want('measure')) {
     await scale(1);
     for (const [name, sp, z, midT, endT] of [['trophy', 'reedjaw_pike', 2.4, 2.0, 3.0], ['elder', 'reedjaw_pike', 3.3, 3.3, 4.3], ['keeper', 'dusk_minnow', 0.3, 0.7, 1.05], ['prize', 'mossback_perch', 1.5, 1.7, 2.2]]) {
       const d0 = await land(sp, z);
       check(!!d0 && d0.cls === name, `U3 ${name}: the overlay opens at the landing`, d0);
-      await g((t) => window.__pump(t, 0.05), midT);
+      await pumpTo(midT);
       s = await msState();
       check(s.on && !/gw-stamped/.test(s.cls) && Number(s.count.replace(/\D/g, '')) > 0, `U3 ${name}: the cord unrolls and the count ticks (${midT} s)`, s);
       await shot(`10-measure-${name}-cord`, { held: true });
-      await g((t) => window.__pump(t, 0.05), endT - midT);
+      await pumpTo(endT);
       s = await msState();
       check(/gw-stamped/.test(s.cls) && s.stamp.length > 0, `U3 ${name}: the stamp at ${endT} s`, s);
       if (name === 'elder') check(/“.+”/.test(s.elder), 'U3 elder: the Elder is named in pale gold', s.elder);
       await shot(`11-measure-${name}-stamp`, { held: true });
+      const after = await g(() => window.__gw.ui.measureDebug?.() || null);
+      check(after && !after.done && Math.abs(after.t - endT) < 0.02, `U3 ${name}: the frame held at ${endT} s through the shot`, after);
       // the card waits for the overlay, then opens
       const plan = s.d?.plan?.dur || 0;
       check(Math.abs(plan - ({ trophy: 3.5, elder: 5, keeper: 1.2, prize: 2.4 })[name]) < 0.01, `U3 ${name}: plan length matches §25.6.8`, s.d?.plan);
@@ -191,12 +214,12 @@ export default async function (api) {
     await g(() => { const e = document.querySelector('#ui .gw-ms'); const r = e.getBoundingClientRect(); e.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: r.width / 2, clientY: r.height / 3 })); });
     await g(() => window.__pump(0.6, 0.1));
     s = await msState();
-    check(!s.on || s.d?.done, 'U3 skip: a Prize skips at once on a tap', s.d);
+    check(gone(s), 'U3 skip: a Prize skips at once on a tap', s.d);
     await g(() => window.__rafHold(false));
     await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'catch', null, 60);
     await clearModals();
     d = await land('reedjaw_pike', 3.3);
-    await g(() => window.__pump(0.3, 0.05));
+    await pumpTo(0.3);
     await g(() => { const e = document.querySelector('#ui .gw-ms'); e.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 100, clientY: 100 })); });
     s = await msState();
     check(s.on && !s.d?.done, 'U3 skip: an Elder ignores a tap before 0.6 s', s.d);
@@ -204,7 +227,7 @@ export default async function (api) {
     await g(() => { const e = document.querySelector('#ui .gw-ms'); e.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 100, clientY: 100 })); });
     await g(() => window.__pump(0.6, 0.1));
     s = await msState();
-    check(!s.on || s.d?.done, 'U3 skip: an Elder skips after 0.6 s', s.d);
+    check(gone(s), 'U3 skip: an Elder skips after 0.6 s', s.d);
     await g(() => window.__rafHold(false));
     await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'catch', null, 60);
     await clearModals();
@@ -247,7 +270,7 @@ export default async function (api) {
     await drive(5.2);
     await g(() => window.__pump(1, 0.1));
     s = await msState();
-    check(!s.on || s.d?.done, 'U3 F5: the overlay closes on phase "card"', s.d);
+    check(gone(s), 'U3 F5: the overlay closes on phase "card"', s.d);
     await g(() => { const c = window.__gw; c.fishing.view.measure = null; c.cinematic = false; window.__rafHold(false); });
     await scale(0.4);
   }
@@ -276,6 +299,15 @@ export default async function (api) {
     await wait(900);
     s = await g(() => ({ bank: window.__gw.combat.bankedLevels, chosen: document.querySelector('#ui .gw-m-catch .gw-cc-pick')?.className || '', boons: Object.keys(window.__gw.state.run.boons || {}).length }));
     check(s.bank === bank0 - 1, 'U14: choosing on the card spends one banked level', { bank0, s });
+    const chained = await g(() => document.querySelectorAll('#ui .gw-m-catch .gw-cc-boon').length);
+    if (s.bank > 0) {
+      check(chained >= 2, 'U14: the next banked level offers itself on the same card', { bank: s.bank, chained });
+      await shot('21-card-banked-next');
+      await g(() => document.querySelector('#ui .gw-m-catch .gw-cc-boon')?.click());
+      await wait(900);
+    }
+    s = await g(() => ({ bank: window.__gw.combat.bankedLevels, chosen: !!document.querySelector('#ui .gw-m-catch .gw-cc-pick.gw-chosen'), t: document.querySelector('#ui .gw-m-catch .gw-cc-pick')?.textContent?.replace(/\s+/g, ' ').trim() || '' }));
+    check(s.bank === 0 && s.chosen, 'U14: the last pick leaves its name on the card', s);
     await shot('21-card-banked-chosen');
     await g(() => document.querySelector('#ui .gw-m-catch [data-action="keep"]')?.click() || document.querySelector('#ui .gw-m-catch [data-action="release"]')?.click());
     await frames(3);
@@ -318,15 +350,18 @@ export default async function (api) {
   if (want('scorch')) {
     await clearModals();
     await g(() => { const c = window.__gw; c.debug.god?.(false); c.debug.mode('lantern'); c.debug.setDay(2); c.debug.setPhase('gloomtide'); c.debug.setOil(80); });
+    await scale(1);
     await frames(3);
     const r = await g(() => window.__gw.debug.scorch?.());
-    await frames(3);
-    const on = await waitFor(() => document.querySelector('#ui .gw-scorched')?.classList.contains('gw-on'), null, 30, 200);
+    const on = await waitFor(() => document.querySelector('#ui .gw-scorched')?.classList.contains('gw-on'), null, 30, 100);
+    await g(() => window.__rafHold(true));
     s = await g(() => ({ flow: window.__gw.flow, blocking: window.__gw.ui.isBlocking(), t: document.querySelector('#ui .gw-scorched')?.textContent?.replace(/\s+/g, ' ').trim() || '', scorched: !!window.__gw.state.run?.scorched }));
     check(on && s.flow === 'playing' && !s.blocking && /Scorched/.test(s.t) && s.scorched, 'U18: Embers at 0 in Lantern shows the Scorched card and play continues', { r, s });
-    await freeze(true);
-    await shot('31-scorched-card');
-    await freeze(false);
+    await shot('31-scorched-card', { held: true, settle: 1600 });
+    const still = await g(() => document.querySelector('#ui .gw-scorched')?.classList.contains('gw-on'));
+    check(still, 'U18: the Scorched card is on screen in its shot', still);
+    await g(() => window.__rafHold(false));
+    await scale(0.4);
     await g(() => { const c = window.__gw; c.debug.god?.(true); });
   }
 
@@ -345,6 +380,8 @@ export default async function (api) {
     if (await g(() => window.__gw.flow !== 'dead' && window.__gw.flow !== 'title')) { await g(() => window.__gw.game.toTitle?.()); await wait(600); }
     await g(() => window.__gw.ui.openNewDescent());
     await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'newdescent', null, 60);
+    await wait(600);
+    await g(() => document.querySelector('#ui .gw-m-newdescent .gw-pf .gw-btn--primary')?.click());
     await wait(1400);
     const nd = await g(() => { const e = document.querySelector('#ui .gw-m-newdescent'); return [...(e?.querySelectorAll('.gw-mode') || [])].map((b) => ({ id: b.dataset.mode, on: b.classList.contains('gw-on') })); });
     check(nd.length === 3 && nd.map((x) => x.id).join() === 'still,lantern,gloomtide' && nd.find((x) => x.on)?.id === 'lantern', 'U17: the second run offers Still / Lantern / Gloomtide with Lantern selected', nd);

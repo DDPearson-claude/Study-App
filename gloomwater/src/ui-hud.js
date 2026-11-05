@@ -660,6 +660,8 @@ export function createHud(K) {
 
   return {
     setVisible, reset, update, onResize, onFishingState,
+    /** v3: a card of the HUD's own owns the middle of the screen (the Scorched card) */
+    cardUp: () => !!v3.cardUp,
     dirtyBoons() { boonsDirty = true; },
     dirtyStats() { statsDirty = true; },
     onZone(z) {

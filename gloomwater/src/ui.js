@@ -327,7 +327,7 @@ export function create(ctx) {
   }
   function updateBanner(dt) {
     // banners wait behind blocking modals (level-up, catch card, shop, death) instead of bleeding through
-    const blocked = hasBlocking();
+    const blocked = hasBlocking() || !!hud?.cardUp?.();   // v3: also behind the Scorched card
     layers.banner.classList.toggle('gw-hidden', blocked);
     // toasts already up step aside while a banner owns the top of the screen or a blocking modal
     // (catch card, level-up, shop) opens over them; they come back with their time left
