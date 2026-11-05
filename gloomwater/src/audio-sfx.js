@@ -4,6 +4,7 @@
 // fn builds sources into `out` (an envelope/pan chain owned by the voice); t = start time,
 // p = pitch multiplier (already jittered), o = caller options.
 import { mtof, clamp, rnd, envSwell } from './audio-dsp.js';
+import { SFX_AF, SFX_FE } from './audio-af.js';
 
 const PENTA = [0, 2, 4, 7, 9];
 const pent = (i) => PENTA[((i % 5) + 5) % 5] + 12 * Math.floor(i / 5);
@@ -565,8 +566,11 @@ export const SFX_V3 = {
     }
   } },
 };
-export const V3_SFX = Object.keys(SFX_V3);
-Object.assign(SFX, SFX_V3);
+// automatic fishing (Au2) and the First Evening (FE-Au1): audio-af.js
+export const AF_SFX = Object.keys(SFX_AF);
+export const FE_SFX = Object.keys(SFX_FE);
+export const V3_SFX = [...Object.keys(SFX_V3), ...AF_SFX, ...FE_SFX];
+Object.assign(SFX, SFX_V3, SFX_AF, SFX_FE);
 
 export const CONTRACT_SFX = ['ui_click', 'ui_hover', 'ui_open', 'ui_close', 'cast_whoosh', 'bobber_plop', 'nibble', 'bite',
   'hook', 'reel_tick', 'line_strain', 'line_snap', 'splash_small', 'splash_big', 'catch_fanfare', 'new_species', 'coin',

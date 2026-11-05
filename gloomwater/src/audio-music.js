@@ -37,6 +37,12 @@ export const ZONE_MUSIC = {
     texture: 'tolls', ost: 'bass', leadOct: 1, verb: 1.3, toll: 48,
     progs: [[0, 1, 0, 6], [0, 5, 1, 0], [0, 3, 5, 1], [0, 6, 5, 1]],
   },
+  // v3: the Landing (DESIGN §25.4, FE-Au1): home — a warm, sparse hearth-side nocturne (only the `hub` mood plays it)
+  cove: {
+    root: 50, mode: 'dorian', tempo: 62, swing: 0, lead: 'harp', lead2: 'kalimba', pad: 'warm',
+    texture: 'hearth', ost: 'bass', leadOct: 1, verb: 1.05, toll: 50,
+    progs: [[0, 3, 4, 0], [0, 5, 3, 4], [0, 3, 0, 4], [0, 6, 3, 4]],
+  },
 };
 
 const MOOD_PROGS = {
@@ -47,6 +53,7 @@ const MOOD_PROGS = {
   death: [[0, 5, 3, 0], [0, 3, 5, 4]],
   victory: [[5, 3, 0, 4], [0, 4, 5, 3]],
   stillnight: [[0, 5, 3, 4], [0, 3, 5, 0], [0, 6, 3, 4], [0, 5, 2, 0]],
+  hub: [[0, 3, 4, 0], [0, 5, 3, 4], [0, 3, 0, 4], [0, 6, 3, 4]],
 };
 
 // The GLOOMWATER theme (original). Scale degrees in the zone's mode, 16th-note grid, 4 bars.
@@ -324,6 +331,13 @@ function makeInstruments(eng) {
     if (Math.random() < 0.4) v.tone(dest, { type: 'sine', f: f * 1.6, f2: f * 3, glide: 0.03, t: t + rnd(0.09, 0.2), a: 0.001, d: 0.06, peak: vel * 0.08 });
     v.done();
   };
+  // v3: a soft wood pop from the hearth (the cove's texture)
+  I.pop = (dest, t, vel) => {
+    const v = eng.voice('m');
+    v.burst(dest, { t, a: 0.0008, d: 0.03, peak: vel * 0.14, ft: 'bandpass', f: rnd(1400, 2400), q: 1.4 });
+    v.tone(dest, { type: 'sine', f: rnd(150, 210), f2: 90, glide: 0.04, t, a: 0.001, d: 0.06, peak: vel * 0.08 });
+    v.done();
+  };
   I.puff = (dest, t, vel) => {
     const v = eng.voice('m');
     v.burst(dest, { kind: 'pink', t, a: 0.05, d: 0.35, peak: vel * 0.09, ft: 'bandpass', f: rnd(1400, 2600), f2: rnd(600, 1000), q: 1.6 });
@@ -336,7 +350,9 @@ function makeInstruments(eng) {
 export function createMusic(eng, io) {
   const ac = eng.ac;
   const I = makeInstruments(eng);
-  const P = { tension: 0, danger: false, legend: false, intensity: 0.3, enemies: 0, nightK: 0, solo: null };
+  // v3 automatic fishing (Au2): reelLevel (null = the v1 reel; 0.34 / 0.67 / 1 = Prize / Trophy / Elder+), pulse (a Keeper's soft
+  // pulse under the calm bed), heart (an Ancient's heartbeat under the reel). audio.js sets them only during an automatic play.
+  const P = { tension: 0, danger: false, legend: false, intensity: 0.3, enemies: 0, nightK: 0, solo: null, reelLevel: null, pulse: 0, heart: false };
   const layers = [];
   let current = null;
   let errCount = 0;
@@ -402,6 +418,10 @@ export function createMusic(eng, io) {
         if (pos === 0 && bar % 6 === 3) I.toll(L.bus.fx, t, L.zp.toll, 0.35 * amt, rnd(-0.4, 0.4));
         if (Math.random() < 0.012 * amt) I.drip(L.bus.fx, t, rnd(0.4, 0.8) * amt, rnd(700, 1800));
         break;
+      case 'hearth':
+        if (Math.random() < 0.022 * amt) I.pop(L.bus.fx, t + Math.random() * 0.05, rnd(0.5, 1) * amt);
+        if (Math.random() < 0.008 * amt) I.drip(L.bus.fx, t, rnd(0.3, 0.6) * amt, rnd(800, 1600));
+        break;
       default: break;
     }
   }
@@ -438,6 +458,11 @@ export function createMusic(eng, io) {
     L.persist.push(src, bp, g, lfo, lg);
   }
 
+  /** v3 (Au2): a Keeper on the line — a soft pulse under the day's bed (nothing when P.pulse is 0, so v1 never reaches it). */
+  function pulse(L, pos, t) {
+    if (P.pulse > 0 && (pos === 0 || pos === 8)) I.heart(L.bus.perc, t, (pos === 0 ? 0.2 : 0.14) * P.pulse);
+  }
+
   // ---------------------------------------------------------------- moods
   function stepCalm(L, s, t) {
     const bar = s >> 4, pos = s & 15, b8 = bar & 7, zp = L.zp;
@@ -461,6 +486,7 @@ export function createMusic(eng, io) {
     if (b8 === 3 && pos === 4 && L.lastNote !== undefined) lead(L, t, L.lastNote, 0.2, zp.lead2, 1);
     if (b8 === 6 && L.section > 0 && (pos === 0 || pos === 6 || pos === 10)) lead(L, t, L.chord + (pos === 0 ? 4 : pos === 6 ? 2 : 0), 0.26, zp.lead2, 0);
     if (L.section % 4 === 2 && b8 === 7 && pos === 8) lead(L, t, 0, 0.18, 'glass', 1);
+    pulse(L, pos, t);
     texture(L, t, s, 1);
   }
 
@@ -501,6 +527,7 @@ export function createMusic(eng, io) {
     if (b8 >= 2 && b8 < 4) { n = L.slotsA[((b8 - 2) << 4) | pos]; if (n && n.i > 2) n = null; }
     else if (b8 >= 6) { n = L.slotsB[((b8 - 6) << 4) | pos]; if (n && n.i > 1) n = null; }
     if (n) lead(L, t, n.d, 0.4 * n.v, zp.lead2 === 'koto' ? 'koto' : 'harp');
+    pulse(L, pos, t);
     texture(L, t, s, 0.5);
   }
 
@@ -523,6 +550,29 @@ export function createMusic(eng, io) {
     if (n && (n.i & 1) === 0) lead(L, t, pos === 0 ? snap(n.d, L.chord) : n.d, 0.3 * n.v, 'glass', 1);
     if (b8 === 3 && (pos === 0 || pos === 4 || pos === 8)) lead(L, t, L.chord + (pos === 0 ? 0 : pos === 4 ? 4 : 7), 0.2 + pos * 0.006, 'harp', -1);
     if (b8 === 7 && pos === 8 && (L.section & 1) === 1) I.toll(L.bus.fx, t, zp.toll - 12, 0.14, rnd(-0.4, 0.4));
+    pulse(L, pos, t);
+    texture(L, t, s, 0.6);
+  }
+
+  // v3 (FE-Au1): the Landing at home — slow warm pads over a hearth-low bass, a sparse harp figure and a low kalimba answer, the
+  // hearth's pops for texture and a far toll now and then; room left for the fire, the water and Murk
+  function stepHub(L, s, t) {
+    const bar = s >> 4, pos = s & 15, b8 = bar & 7, zp = L.zp;
+    if (pos === 0) {
+      if (b8 === 0) newSection(L);
+      if ((bar & 3) === 0) {
+        const c = L.prog[(b8 >> 2) * 2]; L.chord = c;
+        pad(L, t, c, 4, 0.66, 'warm');
+        I.bassLong(L.bus.bass, t, bassMidi(L, c), 4 * barSec(L) - 0.8, 0.038);
+      } else if ((bar & 3) === 2) L.chord = L.prog[(b8 >> 2) * 2 + 1];
+    }
+    let n = null;
+    if (b8 === 1 || b8 === 2) n = L.slotsA[((b8 - 1) << 4) | pos];
+    else if (b8 === 5 || b8 === 6) n = L.slotsB[((b8 - 5) << 4) | pos];
+    if (n && (n.i & 1) === 0) lead(L, t, pos === 0 ? snap(n.d, L.chord) : n.d, 0.3 * n.v, 'harp', 0);
+    if (b8 === 3 && (pos === 0 || pos === 6)) lead(L, t, L.chord + (pos === 0 ? 4 : 2), 0.18, 'kalimba', -1);
+    if (b8 === 7 && pos === 4 && (L.section & 1) === 1) I.toll(L.bus.fx, t, zp.toll - 12, 0.1, -0.3);
+    pulse(L, pos, t);
     texture(L, t, s, 0.6);
   }
 
@@ -565,9 +615,11 @@ export function createMusic(eng, io) {
       if (n && (n.i & 1) === 0) lead(L, t, n.d, 0.34, zp.lead === 'glass' ? 'glass' : 'harp', -1);
     }
     if (zp.texture === 'tolls' || zp.texture === 'shards') texture(L, t, s, 0.35);
+    pulse(L, pos, t);
   }
 
   function stepReel(L, s, t) {
+    if (P.reelLevel !== null && P.reelLevel !== undefined) { stepReelAF(L, s, t, clamp(P.reelLevel, 0, 1)); return; }
     const bar = s >> 4, pos = s & 15, b8 = bar & 7, T = P.tension;
     if (pos === 0) {
       if (b8 === 0) newSection(L);
@@ -585,6 +637,32 @@ export function createMusic(eng, io) {
     I.shaker(L.bus.perc, t, (pos & 1) ? 0.35 : 0.16);
     if (P.danger && (pos === 0 || pos === 8)) { const h = d2m(L, L.chord, 1); I.tremolo(L.bus.pad, t, [h + 1, h + 13], barSec(L) * 0.4, 0.9, 12); }
     if ((bar & 3) === 3 && pos === 0 && T > 0.55) I.riser(L.bus.fx, t, barSec(L), 0.8);
+  }
+
+  // v3 (Au2): the automatic play's score by class. level 0.34 (Prize) is low and sparse — a quarter-note pulse, half the
+  // ostinato, one drum; 0.67 (Trophy) the full drive; 1 (Elder, Ancient) heavier still, a rising riser every four bars, and for an
+  // Ancient a heartbeat under it (P.heart). The low drone is audio.js's (it swells on the last stand and stops for the still).
+  function stepReelAF(L, s, t, lv) {
+    const bar = s >> 4, pos = s & 15, b8 = bar & 7, T = P.tension;
+    if (pos === 0) {
+      if (b8 === 0) newSection(L);
+      const c = L.prog[bar & 3]; L.chord = c;
+      pad(L, t, c, 1, 0.38 + 0.26 * lv, 'dark');
+    }
+    if (pos === 0 || pos === 8) L.trans = Math.round(clamp(T, 0, 1) * (lv >= 0.9 ? 5 : 3));
+    const full = lv >= 0.9, mid = lv > 0.5;
+    if ((pos & 1) === 0 && (pos % 4 === 0 || (mid && T > 0.45) || full)) {
+      I.bassPluck(L.bus.bass, t, bassMidi(L, L.chord) + (full && (pos === 6 || pos === 14) ? 12 : 0), (pos % 8 === 0 ? 0.85 : 0.55) * (0.6 + 0.4 * lv), 0.25 + 0.5 * T * lv);
+    }
+    if (mid || (pos & 1) === 0) {
+      const dd = REEL_PAT[L.ostIdx & 1][pos];
+      const m = d2m(L, L.chord + dd, 0) + (L.trans || 0);
+      I.tight(L.bus.lead, t, m, ((pos & 3) === 0 ? 0.7 : 0.45) * (0.55 + 0.45 * lv) * (0.75 + 0.35 * T), (pos & 1) ? 0.25 : -0.25);
+    }
+    if (pos === 0 || (mid && pos === 8) || (full && pos === 12)) I.taiko(L.bus.perc, t, (0.24 + 0.22 * T) * (0.6 + 0.4 * lv), full ? 1.0 : 1.15);
+    if (mid) I.shaker(L.bus.perc, t, ((pos & 1) ? 0.3 : 0.12) * lv);
+    if (P.heart && (pos === 0 || pos === 6)) I.heart(L.bus.perc, t, pos === 0 ? 0.62 : 0.45);
+    if (full && (bar & 3) === 3 && pos === 0) I.riser(L.bus.fx, t, barSec(L), 0.7);
   }
 
   function stepBoss(L, s, t) {
@@ -661,12 +739,14 @@ export function createMusic(eng, io) {
     calm: { mode: (zp) => zp.mode, tempo: (L) => L.zp.tempo, swing: true, drone: 0.045, wind: 0.028, step: stepCalm },
     dusk: { mode: (zp) => (zp.mode === 'phrygian' ? 'phrygian' : 'aeolian'), progs: MOOD_PROGS.dusk, tempo: (L) => L.zp.tempo * 0.94, drone: 0.06, wind: 0.04, step: stepDusk },
     gloom: { mode: () => 'phrygian', progs: MOOD_PROGS.gloom, tempo: () => 84 + 18 * P.intensity, drone: 0.065, step: stepGloom },
-    reel: { mode: () => 'aeolian', progs: MOOD_PROGS.reel, tempo: () => 106 + 26 * P.tension, step: stepReel },
+    reel: { mode: () => 'aeolian', progs: MOOD_PROGS.reel, tempo: () => (P.reelLevel !== null && P.reelLevel !== undefined ? 88 + 20 * P.reelLevel + 16 * P.tension : 106 + 26 * P.tension), step: stepReel },
     boss: { mode: () => 'harmonic', progs: MOOD_PROGS.boss, tempo: () => 98, drone: 0.06, step: stepBoss },
     death: { mode: (zp) => (zp.mode === 'phrygian' ? 'phrygian' : 'aeolian'), progs: MOOD_PROGS.death, tempo: () => 50, drone: 0.045, wind: 0.04, step: stepDeath },
     victory: { mode: () => 'ionian', progs: MOOD_PROGS.victory, tempo: () => 66, wind: 0.02, step: stepVictory },
     // v3: a quiet night (only audio's v3 night rule picks it; see audio-v3.js nightMood)
     stillnight: { mode: (zp) => (zp.mode === 'phrygian' ? 'aeolian' : zp.mode), progs: MOOD_PROGS.stillnight, tempo: (L) => L.zp.tempo * 0.78, drone: 0.04, wind: 0.032, step: stepStillnight },
+    // v3: the Landing (flow `hub`; FE-Au1)
+    hub: { mode: (zp) => (zp.mode === 'phrygian' ? 'aeolian' : zp.mode), progs: MOOD_PROGS.hub, tempo: (L) => L.zp.tempo * 0.8, drone: 0.035, wind: 0.022, step: stepHub },
   };
 
   // ---------------------------------------------------------------- layers
