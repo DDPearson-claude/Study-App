@@ -81,7 +81,7 @@ export function createCord(ctx) {
   function build(L, halfW) {
     const r = cordRadius(L);
     st.L = L; st.halfW = halfW; st.r = r;
-    st.sagA = Math.min(0.12, Math.max(0.0025, L * 0.035));
+    st.sagA = Math.min(0.09, Math.max(0.002, L * 0.024));
     const parts = [];
     const depth = (u) => halfW * archJS(u) + 1.25 * r;
     // the strand: a thin tube bent into the arch; aLay = (angle around / 2π, distance along in radii, 1) for the lay

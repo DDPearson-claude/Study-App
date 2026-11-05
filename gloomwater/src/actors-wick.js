@@ -322,9 +322,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       case 'measurePalm': {   // cupped in both hands at the chest, the head bowed over it; a glance up now and then
         const s = clamp(L * 0.3, 0.035, 0.085);
         const look = Math.sin(pt * 1.25) > 0.55 ? 1 : 0;
-        reach(o, 'r', -s, 0.45 + settle * 0.03, 0.35); reach(o, 'l', s, 0.45 + settle * 0.03, 0.35);   // offered up, in front of the collar
+        reach(o, 'r', -s, 0.42 + settle * 0.03, 0.38); reach(o, 'l', s, 0.42 + settle * 0.03, 0.38);   // offered up, out in front of the collar
         o.pitch = 0.1; o.sq = breathe * 0.6 + 0.02; o.y = settle * 0.02;
-        o.hPitch = look ? -0.06 : 0.34; o.hRoll = Math.sin(pt * 0.7) * 0.07; o.hYaw = look ? 0 : Math.sin(pt * 0.5) * 0.08;
+        o.hPitch = look ? -0.06 : 0.22; o.hRoll = Math.sin(pt * 0.7) * 0.07; o.hYaw = look ? 0 : Math.sin(pt * 0.5) * 0.08;
         o.eye = 1.25; o.glow = 1.3; o.flame = 0.18 + settle * 0.2; o.legL = 0.04; o.legR = -0.04;
         break;
       }

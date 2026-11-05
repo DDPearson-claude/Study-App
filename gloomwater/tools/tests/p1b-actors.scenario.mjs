@@ -305,18 +305,20 @@ export default async function (api) {
       check(r.restored, `${id}: setSilhouette(0) gives every part back exactly (the landing reveals it)`);
     }
     check(Math.abs(s.anon.bbox - 1.2) / 1.2 <= 0.03 && s.anon.trueScale, "a nameless shape at an exact length: createFish('minnow', {lengthCm: 120}) is 1.2 m", s.anon);
-    // a frame: a big dark shape and a small one under the starlit water beside the raft, size readable, species not
-    await g(() => {
+    // a frame: a big dark shape and a small one at the surface beside the raft, size readable, species not
+    await g((mobile) => {
       const c = window.__gw, H = window.__pa, p = c.player.position, h = Number(c.player.heading) || 0;
       H.sil = [['reedjaw_pike', { z: 3.0 }, 2.6, 0.4], ['dusk_minnow', { z: 0 }, 2.2, -1.3]].map(([id, size, d, side]) => {
         const fv = H.fish(id, size); fv.setSilhouette(1);
         const yaw = h + side;
-        fv.object3d.position.set(p.x + Math.sin(yaw) * d, -0.16, p.z + Math.cos(yaw) * d); fv.object3d.rotation.y = yaw + 1.9;
+        const wy = c.water?.getHeight?.(p.x + Math.sin(yaw) * d, p.z + Math.cos(yaw) * d) ?? 0;   // at the surface, as fishing holds a hooked fish
+        fv.object3d.position.set(p.x + Math.sin(yaw) * d, wy - 0.01 * fv.length, p.z + Math.cos(yaw) * d); fv.object3d.rotation.y = yaw + 1.9;
         c.render.scene.add(fv.object3d); return fv;
       });
       if (!c.models.__paSilUpd) { const up = c.models.update.bind(c.models); c.models.update = (dt, t) => { up(dt, t); for (const fv of H.sil || []) fv.update(dt, t, { swim: 0.9, struggle: 0.5 }); }; c.models.__paSilUpd = true; }
-      H.cam = { focus: { x: p.x + Math.sin(h) * 1.6, y: 0, z: p.z + Math.cos(h) * 1.6 }, yaw: h + Math.PI + 0.3, elev: 38, dist: 6.5, fov: 44 };
-    });
+      const fx = (H.sil[0].object3d.position.x + H.sil[1].object3d.position.x) / 2, fz = (H.sil[0].object3d.position.z + H.sil[1].object3d.position.z) / 2;
+      H.cam = { focus: { x: fx, y: 0, z: fz }, yaw: Math.atan2(fx - p.x, fz - p.z) + 0.35, elev: 34, dist: mobile ? 7.5 : 5.5, fov: 44 };
+    }, mobile);
     await settleShot('sil-hooked-shapes', 1.0);
     await g(() => { const H = window.__pa; for (const fv of H.sil || []) fv.dispose(); H.sil = []; H.cam = null; });
   }
@@ -340,11 +342,13 @@ export default async function (api) {
   if (want('murk')) {
     step('A10: Old Murk moored');
     await goZone('mossmere');
+    // a calm first (a new day's schedule would send him off again, so the phase changes before he moors)
+    await g(() => { const c = window.__gw; try { if (c.state.run.phase !== 'calm') c.debug.setPhase('calm'); c.state.run.phaseTime = 20; } catch { /* optional */ } window.__pa.clearUi(); window.__pa.settle(0.3); });
     s = await g(() => {
       const c = window.__gw, d = c.data, H = window.__pa;
       const tip = (d.TIPS || []).find((t) => t.id === 'merchant')?.text;
       // a ceremony while he is away borrows his dark lamp light as the candle fill: it must come back exactly as it was
-      c.actors.merchant.leave({ instant: true }); H.settle(0.1);
+      c.actors.merchant.leave({ instant: true }); H.settle(1.0);   // (a fill still fading out from an earlier catch ends first)
       const before = c.actors.merchant.light?.color?.getHexString?.();
       H.catch('dusk_minnow', { z: 0 }); H.settle(0.8);
       const during = c.actors.merchant.light?.color?.getHexString?.();
@@ -365,9 +369,15 @@ export default async function (api) {
       const m = c.actors.merchant.position;
       H.cam = { focus: { x: m.x, y: 1.5, z: m.z }, yaw: Math.atan2(p.x - m.x, p.z - m.z) + 0.55, elev: 14, dist: mobile ? 9 : 6.5, fov: 42 };
     }, mobile);
-    await g(() => { const c = window.__gw; try { if (c.state.run.phase !== 'calm') c.debug.setPhase('calm'); c.state.run.phaseTime = 20; } catch { /* optional */ } window.__pa.clearUi(); });
     await settleShot('murk-moored-calm', 1.5);
     await night();
+    s = await g(() => {   // the night may send him home: moor him again where he was
+      const c = window.__gw, p = c.player.position;
+      c.actors.merchant.arrive({ x: p.x - 4.2, y: 0, z: p.z - 5.5 }, 0.4, { instant: true });
+      window.__pa.settle(0.2);
+      return { visible: !!c.actors.merchant.object3d?.visible, col: c.actors.merchant.light?.color?.getHexString?.() };
+    });
+    check(s.visible && s.col === 'ffe2b0', 'at night his lamp is still #ffe2b0', s);
     await settleShot('murk-moored-night', 1.5);
     await g(() => { window.__pa.cam = null; window.__gw.actors.merchant.leave({ instant: true }); });
   }

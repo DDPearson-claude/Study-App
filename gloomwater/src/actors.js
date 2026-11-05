@@ -741,7 +741,8 @@ export function create(ctx) {
     // the snout: on the body's mid-line for a big fish; on a small one the knots would hide the flank, so its cord runs along
     // the belly edge, between the fish and the palms (touching the belly, sagging only a little)
     const low = ray ? 0 : clamp((0.45 - L) / 0.2, 0, 1);
-    mv.p.set(0, ray ? 0 : THREE.MathUtils.lerp((b.top + b.bottom) * 0.5, b.bottom + cord.radius * 0.6, low), b.noseZ).applyMatrix4(obj.matrixWorld);
+    // (bounds.bottom is the fin tips: the belly line sits about 60% of the way down from the mid-line)
+    mv.p.set(0, ray ? 0 : THREE.MathUtils.lerp((b.top + b.bottom) * 0.5, THREE.MathUtils.lerp((b.top + b.bottom) * 0.5, b.bottom, 0.6), low), b.noseZ).applyMatrix4(obj.matrixWorld);
     mv.s.subVectors(camPos, mv.p);
     const n = ray ? mv.y : mv.x;   // the face of the fish toward which the cord lies (flank, or a ray's disc)
     const cz = mv.c.copy(n).multiplyScalar(n.dot(mv.s) >= 0 ? 1 : -1);
