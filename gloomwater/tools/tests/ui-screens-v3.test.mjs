@@ -75,6 +75,23 @@ section('U3: the knotted cord as a ruler (class bands at the species\' lengths)'
   ok(tiny.step <= 2 && tiny.max >= 8.2 && tiny.max < 30, 'a thumb-sized fish gets a short cord with knots every 2 cm or less', tiny);
 }
 
+section('U3: the class words under the cord never collide');
+{
+  // a phone's Reedjaw: Keeper, Prize, Trophy close together, Elder further on
+  const words = [{ x: 120, w: 50 }, { x: 148, w: 40 }, { x: 176, w: 52 }, { x: 236, w: 42 }];
+  const rows = V.labelRows(words);
+  ok(rows.join() === '0,1,0,0', 'Prize drops under Keeper; Trophy and Elder have room above', rows);
+  ok(V.labelRows([{ x: 120, w: 50 }, { x: 148, w: 40 }, { x: 176, w: 52 }, { x: 214, w: 42 }]).join() === '0,1,0,1', 'a crowded Elder drops too');
+  ok(V.labelRows([{ x: 50, w: 40 }, { x: 200, w: 40 }, { x: 350, w: 40 }]).every((r) => r === 0), 'words with room stay on one row');
+  ok(V.labelRows([{ x: 236, w: 42 }, { x: 120, w: 50 }, { x: 176, w: 52 }, { x: 148, w: 40 }]).join() === '0,0,0,1', 'rows come back in the input order');
+  ok(V.labelRows([]).length === 0 && V.labelRows(null).length === 0, 'no words, no rows');
+  // where two rows are enough, no two words in a row touch
+  const evenly = Array.from({ length: 6 }, (_, i) => ({ x: 40 + i * 30, w: 44 }));
+  const er = V.labelRows(evenly);
+  const touch = [0, 1].some((r) => { const w = evenly.filter((_, i) => er[i] === r); return w.some((x, i) => i > 0 && x.x - x.w / 2 < w[i - 1].x + w[i - 1].w / 2 + 8); });
+  ok(er.join() === '0,1,0,1,0,1' && !touch, 'evenly crowded words alternate and never touch', er);
+}
+
 section('U3: the record banners');
 {
   const sp = D.SPECIES_BY_ID.reedjaw_pike;

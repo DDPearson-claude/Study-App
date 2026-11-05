@@ -176,17 +176,9 @@ export function createMeasure(K) {
     const W = E.ruler.clientWidth;
     if (!(W > 40)) return;
     c.marksLaid = true;
-    const ends = [-1e9, -1e9];
-    let two = false;
-    const list = E.marks.map((mk) => ({ mk, x: (num(Number(mk.dataset.cm)) / c.ruler.max) * W, w: mk.querySelector('b')?.offsetWidth || 0 })).sort((a, b) => a.x - b.x);
-    for (const m of list) {
-      const l = m.x - m.w / 2;
-      const row = l >= ends[0] + 8 ? 0 : l >= ends[1] + 8 ? 1 : (ends[0] <= ends[1] ? 0 : 1);
-      ends[row] = m.x + m.w / 2;
-      m.mk.classList.toggle('gw-row1', row === 1);
-      if (row === 1) two = true;
-    }
-    E.wrap.classList.toggle('gw-ms-2rows', two);
+    const rows = V.labelRows(E.marks.map((mk) => ({ x: (num(Number(mk.dataset.cm)) / c.ruler.max) * W, w: mk.querySelector('b')?.offsetWidth || 0 })));
+    E.marks.forEach((mk, i) => mk.classList.toggle('gw-row1', rows[i] === 1));
+    E.wrap.classList.toggle('gw-ms-2rows', rows.includes(1));
   }
   const fmtCount = (c, cm) => {
     if (c.els.unit === 'mm') return String(Math.round(cm * 10));

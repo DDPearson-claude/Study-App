@@ -296,15 +296,21 @@ export default async function (api) {
     await shot('20-card-banked-pick');
     const bank0 = await g(() => window.__gw.combat.bankedLevels);
     await g(() => document.querySelector('#ui .gw-m-catch .gw-cc-boon')?.click());
-    await wait(900);
+    await waitFor(() => !document.querySelector('#ui .gw-m-catch .gw-cc-pick.gw-choosing'), null, 30, 250);
+    await wait(400);
     s = await g(() => ({ bank: window.__gw.combat.bankedLevels, chosen: document.querySelector('#ui .gw-m-catch .gw-cc-pick')?.className || '', boons: Object.keys(window.__gw.state.run.boons || {}).length }));
     check(s.bank === bank0 - 1, 'U14: choosing on the card spends one banked level', { bank0, s });
     const chained = await g(() => document.querySelectorAll('#ui .gw-m-catch .gw-cc-boon').length);
     if (s.bank > 0) {
       check(chained >= 2, 'U14: the next banked level offers itself on the same card', { bank: s.bank, chained });
       await shot('21-card-banked-next');
-      await g(() => document.querySelector('#ui .gw-m-catch .gw-cc-boon')?.click());
-      await wait(900);
+      // the rest of the bank, one pick at a time (the card settles 0.42 s after a choice; page timers lag on software GL)
+      for (let i = 0; i < 5 && (await g(() => window.__gw.combat.bankedLevels)) > 0; i++) {
+        await g(() => document.querySelector('#ui .gw-m-catch .gw-cc-boon')?.click());
+        await waitFor(() => !document.querySelector('#ui .gw-m-catch .gw-cc-pick.gw-choosing'), null, 30, 250);
+        await wait(300);
+      }
+      await waitFor(() => !!document.querySelector('#ui .gw-m-catch .gw-cc-pick.gw-chosen'), null, 30, 250);
     }
     s = await g(() => ({ bank: window.__gw.combat.bankedLevels, chosen: !!document.querySelector('#ui .gw-m-catch .gw-cc-pick.gw-chosen'), t: document.querySelector('#ui .gw-m-catch .gw-cc-pick')?.textContent?.replace(/\s+/g, ' ').trim() || '' }));
     check(s.bank === 0 && s.chosen, 'U14: the last pick leaves its name on the card', s);
@@ -354,6 +360,8 @@ export default async function (api) {
     await frames(3);
     const r = await g(() => window.__gw.debug.scorch?.());
     const on = await waitFor(() => document.querySelector('#ui .gw-scorched')?.classList.contains('gw-on'), null, 30, 100);
+    // let its ink-in finish on the running page (CSS transitions advance with the page's frames), then hold the frame
+    await waitFor(() => Number(getComputedStyle(document.querySelector('#ui .gw-scorched')).opacity) > 0.98, null, 30, 150);
     await g(() => window.__rafHold(true));
     s = await g(() => ({ flow: window.__gw.flow, blocking: window.__gw.ui.isBlocking(), t: document.querySelector('#ui .gw-scorched')?.textContent?.replace(/\s+/g, ' ').trim() || '', scorched: !!window.__gw.state.run?.scorched }));
     check(on && s.flow === 'playing' && !s.blocking && /Scorched/.test(s.t) && s.scorched, 'U18: Embers at 0 in Lantern shows the Scorched card and play continues', { r, s });

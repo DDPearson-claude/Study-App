@@ -453,6 +453,7 @@ export function createHudV3(K, el, R, w) {
     sc.classList.remove('gw-out');
     restartAnim(sc, 'gw-on');
     scT0 = 8;
+    el.classList.add('gw-sc-up');   // the status line steps back while the card says the same
     // a near-miss card waiting behind it keeps its turn
     if (nmT0 > 0) { nmT0 = 0; nm.classList.remove('gw-on'); }
   }
@@ -460,7 +461,7 @@ export function createHudV3(K, el, R, w) {
   function scorchTick(dt) {
     if (scT0 <= 0) return;
     scT0 -= dt;
-    if (scT0 <= 0) { sc.classList.remove('gw-on'); sc.classList.add('gw-out'); }
+    if (scT0 <= 0) { sc.classList.remove('gw-on'); sc.classList.add('gw-out'); el.classList.remove('gw-sc-up'); }
   }
   function nearMissTick(dt) {
     const f = fishV();
@@ -480,13 +481,13 @@ export function createHudV3(K, el, R, w) {
     frame, markers, fishing, reelHint,
     update(dt) {
       if (live) { if (scT0 <= 0) nearMissTick(dt); scorchTick(dt); }
-      else { if (nmT0 > 0) { nmT0 = 0; nm.classList.remove('gw-on'); } if (scT0 > 0) { scT0 = 0; sc.classList.remove('gw-on'); } }
+      else { if (nmT0 > 0) { nmT0 = 0; nm.classList.remove('gw-on'); } if (scT0 > 0) { scT0 = 0; sc.classList.remove('gw-on'); el.classList.remove('gw-sc-up'); } }
     },
     get vis() { return vis; },
     get live() { return live; },
     /** the Scorched card is up (banners wait behind it rather than print over it) */
     get cardUp() { return scT0 > 0; },
-    reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; tellId = ''; pipMax = 0; pipN = 0; clsShown = ''; snagT = 0; nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); },
+    reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; tellId = ''; pipMax = 0; pipN = 0; clsShown = ''; snagT = 0; nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); el.classList.remove('gw-sc-up'); },
     /** the clock's durations from survival (v3 phases: 210 / 20 / 90 / 10 on day 1) */
     durations(day) {
       if (!live) return null;

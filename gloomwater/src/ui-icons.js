@@ -383,7 +383,11 @@ const VB = (inner, cls = '') => `<svg class="gw-vig-svg ${cls}" viewBox="0 0 160
 const BP = (d, o = {}, extra = '') => `<path d="${brush(d, o)}" fill="currentColor"${extra}/>`;
 const waterLines = (o = 1) => BP('M10 50 C40 49 80 49 112 50', { w: 1.6, min: 0.2 }, o < 1 ? ` fill-opacity="${o}"` : '')
   + BP('M30 55 C60 54.4 96 54.4 140 55.2', { w: 1.3, min: 0.2 }, ` fill-opacity="${0.7 * o}"`) + BP('M54 59.6 C80 59.2 110 59.2 132 59.8', { w: 1, min: 0.15 }, ` fill-opacity="${0.45 * o}"`);
-const crescent = (x, y, r, fill, op = 1) => `<path d="M${x + r * 0.2} ${y - r}A${r} ${r} 0 1 0 ${x + r * 0.2} ${y + r}A${r * 0.78} ${r * 0.78} 0 1 1 ${x + r * 0.2} ${y - r}Z" fill="${fill}" fill-opacity="${op}"/>`;
+/** A crescent: the disc at (x, y) less the same disc moved right by 0.72 r (the arcs meet at the two cusps). */
+const crescent = (x, y, r, fill, op = 1) => {
+  const d = r * 0.72, cx = x + d / 2, hh = Math.sqrt(r * r - (d * d) / 4);
+  return `<path d="M${r2(cx)} ${r2(y - hh)}A${r} ${r} 0 1 0 ${r2(cx)} ${r2(y + hh)}A${r} ${r} 0 0 1 ${r2(cx)} ${r2(y - hh)}Z" fill="${fill}" fill-opacity="${op}"/>`;
+};
 const star = (x, y, r = 0.9, op = 0.8) => `<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor" fill-opacity="${op}"/>`;
 const glow = (x, y, r, color, op) => [1, 0.66, 0.38].map((k, i) => `<circle cx="${x}" cy="${y}" r="${r * k}" fill="${color}" fill-opacity="${op * (0.35 + i * 0.32)}"/>`).join('');
 const eyes = (x, y, s = 1) => `<circle cx="${x - 1.6 * s}" cy="${y}" r="${0.85 * s}" fill="#e7a3bd"/><circle cx="${x + 1.6 * s}" cy="${y}" r="${0.85 * s}" fill="#e7a3bd"/>`;

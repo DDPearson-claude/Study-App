@@ -372,6 +372,23 @@ export function recordLines(D, { records = [], isNew = false, species = null, le
   return out.slice(0, Math.max(0, max));
 }
 
+/**
+ * The measuring cord's class words in at most two rows: each word ({x: centre px, w: width px}, any order) takes the upper row
+ * when it clears the last word there by `gap`, else the lower row, else whichever row ends sooner. Returns the row per word
+ * (0 upper, 1 lower) in the input order.
+ */
+export function labelRows(items, gap = 8) {
+  const ends = [-Infinity, -Infinity];
+  const rows = new Array(arr(items).length).fill(0);
+  arr(items).map((it, i) => ({ i, x: num(it?.x), w: Math.max(0, num(it?.w)) })).sort((a, b) => a.x - b.x).forEach((m) => {
+    const l = m.x - m.w / 2;
+    const row = l >= ends[0] + gap ? 0 : l >= ends[1] + gap ? 1 : (ends[0] <= ends[1] ? 0 : 1);
+    ends[row] = m.x + m.w / 2;
+    rows[m.i] = row;
+  });
+  return rows;
+}
+
 // ------------------------------------------------------------------ New Descent mode cards (U17)
 const MODE_FALLBACK = {
   still: { name: 'Still', line: 'No swarm. Every night is yours to fish.' },
