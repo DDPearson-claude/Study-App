@@ -46,6 +46,7 @@ const MOOD_PROGS = {
   boss: [[0, 5, 4, 0], [0, 3, 4, 4], [0, 1, 4, 0]],
   death: [[0, 5, 3, 0], [0, 3, 5, 4]],
   victory: [[5, 3, 0, 4], [0, 4, 5, 3]],
+  stillnight: [[0, 5, 3, 4], [0, 3, 5, 0], [0, 6, 3, 4], [0, 5, 2, 0]],
 };
 
 // The GLOOMWATER theme (original). Scale degrees in the zone's mode, 16th-note grid, 4 bars.
@@ -503,6 +504,28 @@ export function createMusic(eng, io) {
     texture(L, t, s, 0.5);
   }
 
+  // v3 (DESIGN §25.5, Au1): a Stillnight — a quiet night in any mode — plays this bed instead of the gloom mood. A slow,
+  // sparse nocturne in the lake's colour: long glass pads, single high notes like stars on the water, the Night Rise
+  // figure climbing low in the harp, the lake's own texture and a far toll; no heartbeat, no ostinato, no drums.
+  function stepStillnight(L, s, t) {
+    const bar = s >> 4, pos = s & 15, b8 = bar & 7, zp = L.zp;
+    if (pos === 0) {
+      if (b8 === 0) newSection(L);
+      if ((bar & 3) === 0) {
+        const c = L.prog[(b8 >> 2) * 2]; L.chord = c;
+        pad(L, t, c, 4, 0.62, zp.pad === 'choir' ? 'choir' : 'glass');
+        I.bassLong(L.bus.bass, t, bassMidi(L, c), 4 * barSec(L) - 0.8, 0.035);
+      } else if ((bar & 3) === 2) L.chord = L.prog[(b8 >> 2) * 2 + 1];
+    }
+    let n = null;
+    if (b8 === 1 || b8 === 2) n = L.slotsA[((b8 - 1) << 4) | pos];
+    else if (b8 === 5 || b8 === 6) n = L.slotsB[((b8 - 5) << 4) | pos];
+    if (n && (n.i & 1) === 0) lead(L, t, pos === 0 ? snap(n.d, L.chord) : n.d, 0.3 * n.v, 'glass', 1);
+    if (b8 === 3 && (pos === 0 || pos === 4 || pos === 8)) lead(L, t, L.chord + (pos === 0 ? 0 : pos === 4 ? 4 : 7), 0.2 + pos * 0.006, 'harp', -1);
+    if (b8 === 7 && pos === 8 && (L.section & 1) === 1) I.toll(L.bus.fx, t, zp.toll - 12, 0.14, rnd(-0.4, 0.4));
+    texture(L, t, s, 0.6);
+  }
+
   function ost(L, t, midi, vel, bright) {
     switch (L.zp.ost) {
       case 'marimba': I.marimba(L.bus.bass, t, midi + 12, vel * 0.9, 0); if ((L.step & 7) === 0) I.bassPluck(L.bus.bass, t, midi, vel * 0.5, bright * 0.5); break;
@@ -642,6 +665,8 @@ export function createMusic(eng, io) {
     boss: { mode: () => 'harmonic', progs: MOOD_PROGS.boss, tempo: () => 98, drone: 0.06, step: stepBoss },
     death: { mode: (zp) => (zp.mode === 'phrygian' ? 'phrygian' : 'aeolian'), progs: MOOD_PROGS.death, tempo: () => 50, drone: 0.045, wind: 0.04, step: stepDeath },
     victory: { mode: () => 'ionian', progs: MOOD_PROGS.victory, tempo: () => 66, wind: 0.02, step: stepVictory },
+    // v3: a quiet night (only audio's v3 night rule picks it; see audio-v3.js nightMood)
+    stillnight: { mode: (zp) => (zp.mode === 'phrygian' ? 'aeolian' : zp.mode), progs: MOOD_PROGS.stillnight, tempo: (L) => L.zp.tempo * 0.78, drone: 0.04, wind: 0.032, step: stepStillnight },
   };
 
   // ---------------------------------------------------------------- layers

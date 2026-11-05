@@ -71,9 +71,12 @@ export const SFX = {
     v.tone(out, { type: 'sine', f: 720 * p, f2: 480 * p, glide: 0.04, t, a: 0.001, d: 0.05, peak: 0.4 });
     v.burst(out, { t, a: 0.001, d: 0.03, peak: 0.16, ft: 'bandpass', f: 1300 * p, q: 1.5 });
   } },
-  bite: { gain: 0.95, gap: 0.2, max: 2, pri: 3, wet: 0.3, pj: 0.02, fn(v, out, t, p) {
-    v.tone(out, { type: 'sine', f: 420 * p, f2: 110 * p, glide: 0.13, t, a: 0.002, d: 0.26, peak: 0.7 });
-    v.burst(out, { t, a: 0.003, d: 0.2, peak: 0.42, ft: 'lowpass', f: 1000, q: 0.8 });
+  bite: { gain: 0.95, gap: 0.2, max: 2, pri: 3, wet: 0.3, pj: 0.02, fn(v, out, t, p, o) {
+    // v3 (o.alertOnly): the class's bite tell already voiced the water (bite_doublepop … bite_dome), so only the alert rings
+    if (!o.alertOnly) {
+      v.tone(out, { type: 'sine', f: 420 * p, f2: 110 * p, glide: 0.13, t, a: 0.002, d: 0.26, peak: 0.7 });
+      v.burst(out, { t, a: 0.003, d: 0.2, peak: 0.42, ft: 'lowpass', f: 1000, q: 0.8 });
+    }
     // the alert: bright, unmistakable, rising
     chime(v, out, t + 0.02, mtof(88) * p, 0.3, 0.45);
     chime(v, out, t + 0.07, mtof(95) * p, 0.24, 0.55);
@@ -399,6 +402,171 @@ export const SFX = {
     for (let i = 0; i < 3; i++) v.burst(out, { t: t + 0.03 + i * 0.03, a: 0.001, d: 0.02, peak: 0.15, ft: 'bandpass', f: 2200, q: 3 });
   } },
 };
+
+// v3 (DESIGN §25, Au1; CONTRACT §13.7 audio): the measuring cord, the seals, the class bite tells, the rise rings, the
+// Night Rise motif and the Stillnight bed. Merged into SFX below so play(name) reaches them; only v3 events fire them.
+export const SFX_V3 = {
+  // ------------------------------------------------------------- the measuring ceremony (§25.6.8)
+  cord_tick: { gain: 0.5, gap: 0, max: 48, pri: 3, pj: 0.008, vj: 0.06, fn(v, out, t, p) {
+    // one knot of the measuring cord passing the mark: a dry fibre tick on a small wooden blip (p rises with the count)
+    v.burst(out, { t, a: 0.0005, d: 0.014, peak: 0.5, ft: 'bandpass', f: 2800 * p, q: 3 });
+    v.tone(out, { type: 'triangle', f: 640 * p, t, a: 0.001, d: 0.045, peak: 0.22 });
+    v.tone(out, { type: 'sine', f: 1280 * p, t, a: 0.001, d: 0.02, peak: 0.06 });
+  } },
+  class_chime: { gain: 0.8, gap: 0, max: 6, pri: 3, wet: 0.5, dly: 0.15, pj: 0.005, fn(v, out, t, p, o) {
+    // the count crosses a class threshold: a clear chime (Prize), a warmer fifth (Trophy), a bronze bell (Elder)
+    const cls = o.cls || 'prize';
+    if (cls === 'elder') {
+      bell(v, out, t, mtof(62) * p, 0.34, [1, 2.0, 2.76, 4.07], [3.2, 1.8, 1.1, 0.6]);
+      chime(v, out, t + 0.02, mtof(86) * p, 0.14, 1.8);
+      v.tone(out, { type: 'sine', f: mtof(38) * p, t, a: 0.01, d: 1.6, peak: 0.22 });
+    } else if (cls === 'trophy') {
+      chime(v, out, t, mtof(79) * p, 0.24, 1.6);
+      chime(v, out, t + 0.012, mtof(86) * p, 0.16, 1.4);
+      v.tone(out, { type: 'sine', f: mtof(55) * p, t, a: 0.01, d: 0.9, peak: 0.1 });
+    } else chime(v, out, t, mtof(84) * p, 0.26, 1.3);
+  } },
+  seal_stamp: { gain: 0.95, gap: 0.15, max: 2, pri: 3, wet: 0.35, pj: 0.02, fn(v, out, t, p, o) {
+    const seal = o.seal || null;
+    if (!seal) {
+      // Small / Keeper carry no seal: only the record's ink, a light dab on the card
+      v.burst(out, { kind: 'pink', t, a: 0.002, d: 0.05, peak: 0.3, ft: 'bandpass', f: 1600 * p, q: 1.2 });
+      v.tone(out, { type: 'sine', f: 170 * p, f2: 90 * p, glide: 0.05, t, a: 0.002, d: 0.08, peak: 0.3 });
+      return;
+    }
+    if (seal === 'inkStamp') {
+      // Prize: the bone-white ink stamp of a knotted cord — wood on paper, then the lift
+      v.tone(out, { type: 'sine', f: 150 * p, f2: 62 * p, glide: 0.07, t, a: 0.002, d: 0.16, peak: 0.85 });
+      v.burst(out, { kind: 'pink', t, a: 0.001, d: 0.07, peak: 0.55, ft: 'bandpass', f: 1900 * p, q: 0.9 });
+      v.burst(out, { t, a: 0.0005, d: 0.012, peak: 0.3, ft: 'highpass', f: 4200, q: 0.7 });
+      v.burst(out, { kind: 'pink', t: t + 0.06, a: 0.01, d: 0.12, peak: 0.12, ft: 'bandpass', f: 900 * p, q: 1 });
+    } else {
+      // Trophy: an oxblood wax seal · Elder: black wax with a ribbon — a heavier, wetter press and a low warm tone
+      const elder = seal === 'blackWaxRibbon';
+      v.tone(out, { type: 'sine', f: (elder ? 96 : 120) * p, f2: (elder ? 36 : 48) * p, glide: elder ? 0.22 : 0.14, t, a: 0.004, d: elder ? 0.4 : 0.26, peak: 0.95 });
+      v.burst(out, { kind: 'brown', t, a: 0.006, d: elder ? 0.3 : 0.2, peak: 0.6, ft: 'lowpass', f: 1300 * p, f2: 260, glide: elder ? 0.28 : 0.18, q: 1.6 });
+      v.burst(out, { kind: 'pink', t: t + 0.015, a: 0.004, d: 0.1, peak: 0.25, ft: 'bandpass', f: 700 * p, q: 2.5 });
+      for (const [m, pk] of [[elder ? 45 : 50, 0.07], [elder ? 52 : 57, 0.05]]) {
+        v.tone(out, { type: 'triangle', f: mtof(m) * p, t: t + 0.04, a: 0.08, hold: 0.2, d: elder ? 1.6 : 1.0, peak: pk, ft: 'lowpass', ff: 900 });
+      }
+      if (elder) {
+        const r = v.burst(out, { t: t + 0.12, a: 0.05, d: 0.35, peak: 0.16, ft: 'bandpass', f: 3200, q: 0.8 });   // the ribbon settles
+        const lfo = v.osc('sine', 17, t + 0.12, t + 0.6); const lg = v.gain(900); lfo.connect(lg); lg.connect(r.flt.frequency);
+        bell(v, out, t + 0.1, mtof(50) * p, 0.16, [1, 2.0, 2.76, 4.07], [3.6, 2, 1.2, 0.7]);
+      }
+    }
+    if (o.ancient) {
+      // an Ancient: the seal's gold thread
+      const asc = [86, 89, 93, 96, 101];
+      for (let i = 0; i < asc.length; i++) chime(v, out, t + 0.18 + i * 0.07, mtof(asc[i]) * p, 0.09, 1.4);
+    }
+  } },
+  murk_bell_far: { gain: 0.55, gap: 1.5, max: 1, pri: 2, wet: 0.85, dly: 0.2, pj: 0.01, fn(v, out, t, p) {
+    // Murk's bell rung across the lake (an Old Ledger figure beaten): low, far, softened by the distance
+    const lp = v.filter('lowpass', 1700, 0.5); lp.connect(out);
+    bell(v, lp, t, 720 * p, 0.36);
+    bell(v, lp, t + 0.75, 720 * p * 0.988, 0.26);
+    bell(v, lp, t + 1.5, 720 * p * 1.006, 0.17);
+  } },
+
+  // ------------------------------------------------------------- the class bite tells (§25.6.4), panned to the float
+  bite_doublepop: { gain: 0.55, gap: 0.2, max: 2, pri: 2, wet: 0.2, fn(v, out, t, p) {
+    // Small: a quick double pop
+    for (const [dt, k] of [[0, 1], [0.17, 0.8]]) {
+      v.tone(out, { type: 'sine', f: 1150 * p, f2: 520 * p, glide: 0.03, t: t + dt, a: 0.001, d: 0.05, peak: 0.45 * k });
+      v.burst(out, { t: t + dt, a: 0.001, d: 0.03, peak: 0.14 * k, ft: 'bandpass', f: 2400 * p, q: 1.6 });
+    }
+    droplets(v, out, t + 0.2, 2, 0.15, 0.08, 1800, 3400);
+  } },
+  bite_plunge: { gain: 0.75, gap: 0.2, max: 2, pri: 2, wet: 0.3, fn(v, out, t, p) {
+    // Keeper: the classic plunge — the float dips under with a round bloop
+    v.tone(out, { type: 'sine', f: 480 * p, f2: 120 * p, glide: 0.11, t, a: 0.002, d: 0.22, peak: 0.62 });
+    v.burst(out, { t, a: 0.003, d: 0.16, peak: 0.32, ft: 'lowpass', f: 1100 * p, q: 0.8 });
+    droplets(v, out, t + 0.08, 2, 0.2, 0.08);
+  } },
+  bite_dragunder: { gain: 0.8, gap: 0.3, max: 2, pri: 2, wet: 0.3, fn(v, out, t, p) {
+    // Prize: a slow 0.4 s drag-under — a low gurgle pulled down and away
+    const g = v.burst(out, { kind: 'pink', t, a: 0.08, hold: 0.2, d: 0.25, peak: 0.45, ft: 'bandpass', f: 520 * p, f2: 170 * p, glide: 0.42, q: 2.2 });
+    const lfo = v.osc('sine', 13, t, t + 0.6); const lg = v.gain(90); lfo.connect(lg); lg.connect(g.flt.frequency);
+    v.tone(out, { type: 'sine', f: 210 * p, f2: 82 * p, glide: 0.42, t, a: 0.05, hold: 0.15, d: 0.3, peak: 0.42 });
+    for (let i = 0; i < 4; i++) {
+      const f = rnd(240, 420) * p;
+      v.tone(out, { type: 'sine', f, f2: f * 1.8, glide: 0.04, t: t + 0.05 + i * 0.09 + Math.random() * 0.03, a: 0.002, d: 0.05, peak: 0.12 });
+    }
+  } },
+  bite_flat: { gain: 0.8, gap: 0.3, max: 2, pri: 2, wet: 0.3, fn(v, out, t, p) {
+    // Trophy: the float lies flat (a soft slap on the skin of the water), then slides away
+    v.burst(out, { t, a: 0.002, d: 0.08, peak: 0.42, ft: 'lowpass', f: 950 * p, q: 0.9 });
+    v.tone(out, { type: 'sine', f: 260 * p, f2: 170 * p, glide: 0.06, t, a: 0.002, d: 0.1, peak: 0.32 });
+    v.burst(out, { kind: 'pink', t: t + 0.08, a: 0.18, hold: 0.12, d: 0.25, peak: 0.26, ft: 'bandpass', f: 1500 * p, f2: 800 * p, glide: 0.45, q: 1.6 });
+    v.tone(out, { type: 'sine', f: 140 * p, f2: 95 * p, glide: 0.4, t: t + 0.1, a: 0.1, hold: 0.1, d: 0.3, peak: 0.2 });
+  } },
+  bite_dome: { gain: 0.9, gap: 0.4, max: 1, pri: 3, wet: 0.45, fn(v, out, t, p) {
+    // Elder (and every legend): a dome of water bulges up under the float — a deep swell, then the water rolls off it
+    v.tone(out, { type: 'sine', f: 46 * p, f2: 72 * p, glide: 0.55, t, a: 0.5, d: 0.5, peak: 0.7 });
+    const b = v.burst(out, { kind: 'brown', t, a: 0.5, d: 0.45, peak: 0.6, ft: 'lowpass', f: 180 * p, f2: 520 * p, glide: 0.55, q: 1.2 });
+    b.g.gain.cancelScheduledValues(t); envSwell(b.g.gain, t, 0.6, 0.55, 0.3);
+    v.burst(out, { kind: 'pink', t: t + 0.5, a: 0.02, d: 0.5, peak: 0.4, ft: 'bandpass', f: 700 * p, f2: 320 * p, glide: 0.4, q: 0.8 });
+    droplets(v, out, t + 0.55, 5, 0.5, 0.1, 900, 2400);
+  } },
+
+  // ------------------------------------------------------------- rise rings (§25.6.1), positioned on the ring
+  rise_plip: { gain: 0.5, gap: 0.12, max: 3, pri: 1, wet: 0.3, pj: 0.08, fn(v, out, t, p) {
+    // a small surface feeder takes a fly: a tiny bright plip
+    v.tone(out, { type: 'sine', f: 1250 * p, f2: 2700 * p, glide: 0.025, t, a: 0.001, d: 0.055, peak: 0.42 });
+    v.burst(out, { t, a: 0.001, d: 0.025, peak: 0.1, ft: 'bandpass', f: 3600 * p, q: 2 });
+    droplets(v, out, t + 0.05, 1, 0.08, 0.06, 2200, 3800);
+  } },
+  rise_gulp: { gain: 0.75, gap: 0.2, max: 2, pri: 1, wet: 0.4, pj: 0.06, fn(v, out, t, p) {
+    // a big fish sucks something down: a deep, round gulp (the air pocket collapsing) and a slow ring of water
+    v.tone(out, { type: 'sine', f: 105 * p, f2: 300 * p, glide: 0.06, t, a: 0.004, d: 0.14, peak: 0.6 });
+    v.tone(out, { type: 'sine', f: 70 * p, f2: 48 * p, glide: 0.2, t, a: 0.004, d: 0.26, peak: 0.4 });
+    v.burst(out, { kind: 'brown', t, a: 0.004, d: 0.18, peak: 0.45, ft: 'lowpass', f: 700 * p, f2: 260, glide: 0.15, q: 1.4 });
+    v.burst(out, { kind: 'pink', t: t + 0.09, a: 0.03, d: 0.4, peak: 0.12, ft: 'bandpass', f: 600 * p, q: 0.9 });
+  } },
+
+  // ------------------------------------------------------------- the night (§25.5)
+  night_rise: { gain: 0.8, gap: 3, max: 1, pri: 3, wet: 0.6, dly: 0.25, fn(v, out, t, p, o, eng) {
+    // Night Rise, the big-fish hour: a figure rising from low in the lake's key (o.root), bubbles climbing, a glint above
+    const r = clamp(o.root ?? 50, 40, 60);
+    for (const [s, dt, vel] of [[-12, 0, 0.5], [-5, 0.3, 0.46], [0, 0.6, 0.44], [2, 0.86, 0.4], [7, 1.22, 0.5]]) {
+      const g = v.gain(vel); g.connect(out);
+      v.buffer(eng.ks(r + s, 'harp'), t + dt, 1, g);
+    }
+    for (const m of [r - 12, r - 5]) v.tone(out, { type: 'triangle', f: mtof(m) * p, t, a: 0.9, hold: 0.6, d: 1.8, peak: 0.06, ft: 'lowpass', ff: 700 });
+    v.tone(out, { type: 'sine', f: mtof(r - 24) * p, t, a: 0.6, hold: 0.4, d: 1.6, peak: 0.2 });
+    for (let i = 0; i < 7; i++) {
+      const f = (260 + i * 85) * p * rnd(0.92, 1.08);
+      v.tone(out, { type: 'sine', f, f2: f * 1.7, glide: 0.04, t: t + 0.2 + i * 0.2 + Math.random() * 0.05, a: 0.002, d: 0.06, peak: 0.07 + i * 0.012 });
+    }
+    chime(v, out, t + 1.55, mtof(r + 24) * p, 0.1, 1.8);
+    chime(v, out, t + 1.68, mtof(r + 31) * p, 0.08, 2.0);
+  } },
+  stillnight_bed: { gain: 0.4, gap: 1, max: 2, pri: 0, wet: 0.6, vj: 0.2, fn(v, out, t, p) {
+    // one breath of the Stillnight bed: frogs far across the water, a reed-cricket trill, a slow drip
+    const n = 1 + ((Math.random() * 3) | 0);
+    for (let i = 0; i < n; i++) {
+      const tt = t + i * rnd(0.22, 0.4), f = rnd(170, 250) * p, end = tt + 0.3;
+      const src = v.osc('triangle', f, tt, end);
+      const bp = v.filter('bandpass', f * 2.2, 2);
+      const am = v.gain(0.5);
+      const lfo = v.osc('square', rnd(26, 38), tt, end); const lg = v.gain(0.5); lfo.connect(lg); lg.connect(am.gain);
+      const env = v.gain(0);
+      env.gain.setValueAtTime(0, tt); env.gain.linearRampToValueAtTime(0.18, tt + 0.03); env.gain.setTargetAtTime(0, tt + 0.12, 0.04);
+      src.connect(bp); bp.connect(am); am.connect(env); env.connect(out);
+    }
+    if (Math.random() < 0.6) {
+      const tt = t + rnd(0.1, 0.9), f = rnd(4200, 5600) * p;
+      for (let i = 0; i < 10; i++) v.tone(out, { type: 'sine', f, t: tt + i * 0.045, a: 0.002, d: 0.018, peak: 0.035 });
+    }
+    if (Math.random() < 0.5) {
+      const f = rnd(900, 1700);
+      v.tone(out, { type: 'sine', f, f2: f * 2.2, glide: 0.03, t: t + rnd(0, 1.2), a: 0.001, d: 0.08, peak: 0.12 });
+    }
+  } },
+};
+export const V3_SFX = Object.keys(SFX_V3);
+Object.assign(SFX, SFX_V3);
 
 export const CONTRACT_SFX = ['ui_click', 'ui_hover', 'ui_open', 'ui_close', 'cast_whoosh', 'bobber_plop', 'nibble', 'bite',
   'hook', 'reel_tick', 'line_strain', 'line_snap', 'splash_small', 'splash_big', 'catch_fanfare', 'new_species', 'coin',
