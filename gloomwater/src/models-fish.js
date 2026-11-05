@@ -586,7 +586,7 @@ function eyeGeos(eyes, type, glowCol) {
 }
 
 // ------------------------------------------------------------------ factory
-const WARM_RIM = new THREE.Color(0xffc98e), WARM_FILL = new THREE.Color(0x3a2210);
+const WARM_RIM = new THREE.Color(0xffc98e), WARM_FILL = new THREE.Color(0x2c1a0c);
 const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
 
 export function createFishFactory(ctx) {
@@ -731,7 +731,7 @@ export function createFishFactory(ctx) {
 
     let phase = Math.random() * 10, phase2 = Math.random() * 10, roll = 0, hop = 0, puff = 0, glowK = 1, warmK = 0;
     // the measuring ceremony's "lantern kiss" (setWarm): a warm rim on every lit part, a breath of warm light on a dark skin
-    const rimMats = mats.filter((m) => m.userData?.rim).map((m) => ({ m, col: m.userData.rim.gwRimColor.value.clone(), str: m.userData.rim.gwRimStrength.value }));
+    const rimMats = mats.filter((m) => m.userData?.rim).map((m) => ({ m, col: m.userData.rim.gwRimColor.value.clone(), str: m.userData.rim.gwRimStrength.value, thr: m.userData.rim.gwRimThreshold.value }));
     const warmEm = !E.hasGlow && !P.opts.jelly && !E.skin.emissiveMap;
     const swimFreq = anim.freq;
     const visual = {
@@ -767,7 +767,7 @@ export function createFishFactory(ctx) {
         const w = THREE.MathUtils.clamp(kk, 0, 1);
         if (Math.abs(w - warmK) < 1e-3) return;
         warmK = w;
-        for (const r of rimMats) { r.m.userData.rim.gwRimColor.value.copy(r.col).lerp(WARM_RIM, w); r.m.userData.rim.gwRimStrength.value = r.str + 0.3 * w; }
+        for (const r of rimMats) { const u = r.m.userData.rim; u.gwRimColor.value.copy(r.col).lerp(WARM_RIM, w); u.gwRimStrength.value = r.str + 0.2 * w; u.gwRimThreshold.value = r.thr - 0.04 * w; }
         if (warmEm) { bodyMat.emissive.copy(WARM_FILL).multiplyScalar(w); bodyMat.emissiveIntensity = w > 0 ? 1 : 0; }
       },
       dispose() {
