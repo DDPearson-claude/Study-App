@@ -3826,8 +3826,12 @@ export const FIRST_EVENING = {
   tutorialApi: { accepts: ['nibbleAt', 'biteAt', 'retryBiteAt', 'retryNibbles', 'strikeRing', 'estimate'], rejects: ['outcome', 'sizeClass', 'chance', 'z', 'speciesId'] },
   strikeRing: 'firstExpedition', estimate: { plays: 2, classes: ['small', 'keeper'] },
   odds: { glow: 5, glowUntil: 'logOpened', opens: { section: 'odds', species: 'quayling' } },
-  // the cove is closed (COVE.arena.closure): breakwaters east and west, and a soft wall across the arch span that only a glide passes
-  gate: { post: 'map_table', joinAt: [8, 7], softWall: 'COVE.arena.closure.softWall' },
+  // the cove is closed (COVE.arena.closure): breakwaters east and west, and a soft wall across the arch span that only a glide passes.
+  // The auto-sail (FE-S1) steers straight to each `via` point, then to `joinAt` (a straight line from the west end of the post's reach
+  // would clip the quay); the glide then runs [joinAt, ...COVE.setOutPath.slice(glideFrom)], so it never doubles back past the jetty.
+  // Validated (FE-T1): from every closed-cove raft-water point within the post's 5 m reach the lane stays on raft water and clears the
+  // jetty, Murk's barge and the Waystones by the raft radius + 0.3 m, and so does the join into the glide.
+  gate: { post: 'map_table', via: [[-3, 11.5]], joinAt: [8, 7], glideFrom: 1, softWall: 'COVE.arena.closure.softWall' },
   // Set Out from the post: an input-locked auto-sail to joinAt at raft speed (during Murk's line), then the 3 s glide along COVE.setOutPath
   setOut: { autoSail: 'raftSpeed', glide: 3, skippable: false, lanternTo: 1.0, lanternOver: 0.8, character: 'wick', nightMode: 'still', outing: 'first' },
   // every later P1–P2 run sets out from the Landing too (never a cold start): title → New Descent → the raft at the jetty → the glide

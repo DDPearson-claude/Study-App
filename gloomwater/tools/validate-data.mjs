@@ -1750,7 +1750,27 @@ if (V3) {
       ok(CL.softWall.pts.every(([x, zz], i) => zz === C.archLineZ && within(x, legX[i], 1e-9)) && CL.softWall.passes === 'glide', 'the soft wall spans the arch between its legs, on the arch line');
       const post = C.v0.posts.find((p) => p.id === D.FIRST_EVENING.gate.post); let pd = Infinity;
       for (let k = 0; k < G.n * G.n; k++) if (comp[k]) { const [x, zz] = WL.cellXZ(G, k); pd = Math.min(pd, Math.hypot(x - post.x, zz - post.z)); }
-      ok(pd <= C.v0.range, `the Map Table post is ${pd.toFixed(1)} m from closed-cove raft water (≤ ${C.v0.range})`); }
+      ok(pd <= C.v0.range, `the Map Table post is ${pd.toFixed(1)} m from closed-cove raft water (≤ ${C.v0.range})`);
+      // FE-T1: the Set Out auto-sail (FE-S1) from any closed-cove raft-water point within the post's reach: straight to each
+      // FIRST_EVENING.gate.via point, then to joinAt; then the join into the glide (joinAt → COVE.setOutPath[glideFrom]). Every leg stays
+      // on closed-cove raft water and clears the jetty, Murk's barge (pad 2.3 m) and the Waystones (r 1.1 m) by the raft radius + 0.3 m.
+      const GT = D.FIRST_EVENING.gate, jetty = CA.walk.shapes.find((sh) => sh.id === 'cv_jetty'), need = rr + 0.3;
+      const jettyD = (path) => { const [a, b] = jetty.pts; let m = Infinity; for (let i = 0; i <= 40; i++) { const t = i / 40; m = Math.min(m, pathMin(path, { x: a[0] + (b[0] - a[0]) * t, z: a[1] + (b[1] - a[1]) * t }) - jetty.w / 2); } return m; };
+      const onWater = (path) => path.slice(1).every(([bx, bz], i) => { const [ax, az] = path[i], L = Math.hypot(bx - ax, bz - az); for (let t = 0; t <= L; t += 0.25) { const k = G.idx(ax + (bx - ax) * t / L, az + (bz - az) * t / L); if (k < 0 || !comp[k]) return false; } return true; });
+      const starts = []; for (let k = 0; k < G.n * G.n; k++) if (comp[k]) { const [x, zz] = WL.cellXZ(G, k); if (Math.hypot(x - post.x, zz - post.z) <= C.v0.range) starts.push([x, zz]); }
+      const laneFails = (via, join) => {
+        const bad = [];
+        for (const st of [...starts.map((p0) => [p0, ...via, join]), [join, C.setOutPath[GT.glideFrom]]]) {
+          const j = jettyD(st), b = pathMin(st, barge) - 2.3, w = Math.min(...C.waystones.map((q) => pathMin(st, q) - 1.1));
+          if (!onWater(st) || j < need || b < need || w < need) bad.push(`${JSON.stringify(st[0])}: ${onWater(st) ? '' : 'leaves raft water, '}jetty ${j.toFixed(1)}, barge ${b.toFixed(1)}, stones ${w.toFixed(1)}`);
+        }
+        return bad;
+      };
+      const fails = laneFails(GT.via || [], GT.joinAt);
+      ok(starts.length > 20 && isNum(GT.glideFrom) && C.setOutPath[GT.glideFrom] && fails.length === 0,
+        `FE-T1: the Set Out auto-sail from all ${starts.length} raft-water points within the post's ${C.v0.range} m (via ${JSON.stringify(GT.via)} to joinAt ${JSON.stringify(GT.joinAt)}, then into the glide) stays on raft water and clears the jetty, the barge and the Waystones by ${need.toFixed(1)} m: ${fails.slice(0, 3).join('; ')}`);
+      ok(laneFails([[barge.x, barge.z + 3.5]], GT.joinAt).length > 0 && laneFails([], GT.joinAt).length > 0,
+        'FE-T1 self-test: a lane that clips the barge, and a straight lane that clips the quay, both fail the check'); }
     ok(C.subtitle === 'A Drowned Ferry Cove' && C.mode === 'foot' && C.v0.mode === 'raft' && C.testBuoy.r === 1.2 && C.testBuoy.offDuring === 'firstEvening', 'COVE.subtitle / mode are real fields (not inside a comment); Landing v0 is raft mode; the test buoy has a capture radius and is off during the First Evening');
     ok(D.FIRST_EVENING.ember.z > -40 && D.FIRST_EVENING.ember.z <= -30, 'the ember sits in front of the channel-mouth card, clear of the cliff ring'); }
 
