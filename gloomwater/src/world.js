@@ -44,7 +44,7 @@ export function create(ctx) {
   const col = { fog: new THREE.Color(), nightFog: new THREE.Color(), dawnFog: new THREE.Color(), dawnMist: new THREE.Color(), a: new THREE.Color(), b: new THREE.Color() };
   // night floors (linear luminance): the darkest lakes (the Pallid Deep, Sporewood) are lifted to at
   // least this at the Gloomtide, hue kept, so the raft, the swarm's silhouettes and its eyes still read
-  const NIGHT_FOG_MIN = 0.012, NIGHT_WATER_MIN = 0.012, NIGHT_DEEP_MIN = 0.0018;
+  const NIGHT_FOG_MIN = 0.014, NIGHT_WATER_MIN = 0.014, NIGHT_DEEP_MIN = 0.002;
   const liftLum = (c, min) => { const l = c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722; if (l > 1e-6 && l < min) c.multiplyScalar(min / l); return c; };
   // Starlit moods (DESIGN §19.1): night sinks to ink-indigo with more stars; dawn is a pale gold
   // light over lavender mist with rose-lavender shadows (never orange-brown)
@@ -242,7 +242,8 @@ export function create(ctx) {
       bloomThreshold: g.bloomThreshold ?? 0.72,
       tint: col.a.getHex(),
       tintAmount: (g.tintAmount ?? 0.18) + (0.28 - (g.tintAmount ?? 0.18)) * n,
-      vignette: (g.vignette ?? 0.38) + 0.16 * n,
+      // night deepens the vignette, capped so the darkest lake's frame edges do not close to black
+      vignette: Math.min(Math.max(g.vignette ?? 0.38, 0.58), (g.vignette ?? 0.38) + 0.16 * n),
       saturation: (g.saturation ?? 0.85) * (1 - 0.1 * n + 0.08 * w),
       grain: (g.grain ?? 0.05) + 0.02 * n,
       // a light warm split-tone: the lantern owns warmth; stars, foam and pale stone stay cool-white
