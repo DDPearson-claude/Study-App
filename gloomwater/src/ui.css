@@ -265,6 +265,8 @@
 /* ---------------------------------------------------------------- tabs: words on the dark */
 .gw-tabs { display: flex; gap: 0; margin: 16px 0 4px; overflow-x: auto; scrollbar-width: none; flex: none; position: relative; justify-content: center; }
 .gw-tabs::-webkit-scrollbar { display: none; }
+.gw-tabs.gw-tabs--many { justify-content: safe center; }
+.gw-tabs--many .gw-tab { padding: 0 10px 10px; letter-spacing: .09em; gap: 6px; }
 .gw-tab { pointer-events: auto; position: relative; flex: 0 1 auto; min-height: 52px; padding: 0 20px 10px; background: none; border: none; color: var(--ink-dim); font: 400 17px/1 var(--f-display); text-transform: uppercase; letter-spacing: .18em; display: flex; align-items: center; justify-content: center; gap: 9px; cursor: pointer; transition: color .25s, text-shadow .3s; text-shadow: var(--ink-shadow); white-space: nowrap; }
 .gw-tab .gw-ico { width: 19px; height: 19px; }
 .gw-tab::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 70px; height: 10px; margin-left: -35px; background: currentColor; -webkit-mask: var(--orn-flourish) center / contain no-repeat; mask: var(--orn-flourish) center / contain no-repeat; opacity: 0; clip-path: inset(0 50%); transition: opacity .3s, clip-path .6s var(--ease-ink); }
@@ -762,9 +764,9 @@
    ink-wash language. Nothing here ever shows a species before the reveal, and nothing shows a %. */
 .gw-af .gw-reel { display: none !important; }
 .gw-af .gw-bite .r { display: none; }
-.gw-bite .k { fill: none; stroke: rgba(236, 235, 246, .42); stroke-width: 1.3; opacity: 0; transition: opacity .15s, stroke .12s, stroke-width .12s; }
+.gw-bite .k { fill: none; stroke: rgba(236, 235, 246, .62); stroke-width: 1.6; opacity: 0; transition: opacity .15s, stroke .12s, stroke-width .12s; filter: drop-shadow(0 0 2px rgba(4, 5, 12, .9)) drop-shadow(0 0 6px rgba(160, 150, 240, .35)); }
 .gw-bite.gw-ring .k { opacity: 1; }
-.gw-bite.gw-ring.gw-ring-clean .k { stroke: #fbf5e4; stroke-width: 2.2; filter: drop-shadow(0 0 5px rgba(243, 217, 166, .95)) drop-shadow(0 0 12px rgba(160, 150, 240, .55)); }
+.gw-bite.gw-ring.gw-ring-clean .k { stroke: #fbf5e4; stroke-width: 2.4; filter: drop-shadow(0 0 2px rgba(4, 5, 12, .8)) drop-shadow(0 0 6px rgba(243, 217, 166, .95)) drop-shadow(0 0 14px rgba(160, 150, 240, .6)); }
 .gw-af .gw-bite .t { fill: rgba(var(--veil-rgb), .5); }
 
 /* the strike word and its burst, at the float */
@@ -791,26 +793,30 @@
 .gw-strike-w.gw-tone-dim { font-size: 26px; color: #a9a7d4; text-shadow: 0 0 10px rgba(126, 129, 180, .5), 0 1px 2px rgba(4, 5, 12, .95); }
 
 /* the play: the class estimate stamp and the hurry mark, where the reel line was */
-.gw-fishui > .gw-play { left: 50%; top: auto; bottom: calc(var(--sab) + 214px); transform: translateX(-50%); width: min(440px, 92vw); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; transition: opacity .4s ease; pointer-events: none; }
+.gw-fishui > .gw-play { left: 50%; top: auto; bottom: calc(var(--sab) + max(118px, 30vh - 28px)); transform: translateX(-50%); width: min(440px, 92vw); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; transition: opacity .4s ease; pointer-events: none; }
 .gw-play.gw-on { opacity: 1; }
 .gw-play-est { position: relative; display: none; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 11px 38px 13px 30px; isolation: isolate; text-shadow: 0 1px 2px #000, 0 0 10px #000; }
 .gw-play-est.gw-on { display: flex; }
 .gw-play-est.gw-stamp-in { animation: gwStampIn .5s cubic-bezier(.2, 1.4, .4, 1); }
-.gw-pe-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
-.gw-pe-wash path { fill: rgba(var(--veil-rgb), .74); }
+.gw-pe-wash { display: none; }
+/* a soft pool of night ink under the stamp (no hard edge: the raft and the line stay the picture) */
+.gw-play-est::before { content: ''; position: absolute; inset: -16px -64px -18px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(var(--veil-rgb), .62), rgba(var(--veil-rgb), .3) 58%, transparent 80%); }
 .gw-play-est .gw-seal { width: 38px; height: 38px; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); }
 .gw-pe-k { font: italic 400 17px/1 var(--f-body); color: var(--ink-dim); white-space: nowrap; }
 .gw-play-est b { font: 400 21px/1 var(--f-display); letter-spacing: .28em; margin-right: -.28em; text-transform: uppercase; color: var(--cc, var(--ink)); white-space: nowrap; }
 .gw-play-est.gw-cls-elder b { text-shadow: 0 0 14px rgba(232, 190, 119, .45), 0 1px 2px #000; }
 .gw-play-est.gw-ancient b { color: var(--gold); text-shadow: 0 0 16px rgba(232, 190, 119, .75), 0 1px 2px #000; }
-.gw-play-hurry { display: flex; align-items: center; gap: 8px; font: italic 400 16px/1 var(--f-body); color: var(--ink-dim); text-shadow: 0 1px 2px #000, 0 0 8px #000; opacity: 0; transition: opacity .25s; }
+.gw-play-hurry { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 26px; font: italic 400 17px/1 var(--f-body); color: var(--ink); text-shadow: 0 1px 2px #000, 0 0 8px #000; opacity: 0; transition: opacity .25s; isolation: isolate; }
+.gw-play-hurry::before { content: ''; position: absolute; inset: -8px -30px; z-index: -1; background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(var(--veil-rgb), .55), transparent 78%); }
 .gw-play-hurry.gw-on { opacity: 1; }
-.gw-play-hurry svg { width: 40px; height: 18px; overflow: visible; }
-.gw-play-hurry path { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.gw-play-hurry.gw-on path { animation: gwHurry .7s linear infinite; }
+.gw-play-hurry svg { width: 40px; height: 18px; overflow: visible; filter: drop-shadow(0 0 4px rgba(160, 150, 240, .55)); }
+.gw-play-hurry path { fill: none; stroke: var(--ink-hi); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .3; }
+.gw-play-hurry.gw-on path { animation: gwHurry .9s ease-in-out infinite; }
+.gw-play-hurry.gw-on path:nth-child(2) { animation-delay: .15s; }
+.gw-play-hurry.gw-on path:nth-child(3) { animation-delay: .3s; }
 
 /* the got-away toast (Small, Keeper, Prize): one line of ink, 2.5 s; tap for the odds in your log */
-.gw-away { position: absolute; left: 50%; bottom: calc(var(--sab) + 214px); display: flex; align-items: center; gap: 10px; min-height: 52px; max-width: calc(100vw - 24px); padding: 12px 46px 13px 44px; background: none; border: none; font: italic 400 21px/1.25 var(--f-body); color: var(--ink); text-shadow: 0 1px 2px rgba(4, 5, 12, .9); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, 10px); transition: opacity .5s ease, transform .6s var(--ease-ink), visibility 0s .6s; isolation: isolate; cursor: pointer; }
+.gw-away { position: absolute; left: 50%; top: calc(var(--sat) + max(150px, 33vh)); bottom: auto; display: flex; align-items: center; gap: 10px; min-height: 52px; max-width: calc(100vw - 24px); padding: 12px 46px 13px 44px; background: none; border: none; font: italic 400 21px/1.25 var(--f-body); color: var(--ink); text-shadow: 0 1px 2px rgba(4, 5, 12, .9); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, 10px); transition: opacity .5s ease, transform .6s var(--ease-ink), visibility 0s .6s; isolation: isolate; cursor: pointer; }
 .gw-away.gw-on { opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0); transition: opacity .45s ease, transform .6s var(--ease-ink), visibility 0s; }
 .gw-away-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
 .gw-away-wash path { fill: rgba(var(--veil-rgb), .88); }
@@ -847,6 +853,9 @@
 
 /* the log lock: "Reel in first." */
 .gw-st-journal.gw-locked, .gw-st-creel.gw-locked { opacity: .42; }
+.gw-toast--lock { flex-wrap: nowrap; font-style: italic; color: var(--ink); }
+.gw-toast--lock > span { max-width: none; white-space: nowrap; }
+.gw-toast--lock .gw-toast-ico { color: var(--gold); }
 .gw-qbtn.gw-locked { opacity: .55; }
 .gw-lock-w { display: block; font: italic 400 13.5px/1 var(--f-body); letter-spacing: 0; text-transform: none; color: var(--ink-faint); margin-top: 2px; }
 
@@ -1535,6 +1544,9 @@
 .gw-ms-ledger i { width: 12px; height: 12px; border-radius: 50% 46% 54% 50%; background: radial-gradient(circle at 35% 32%, #3a3446, #0d0b12 72%); box-shadow: 0 0 0 1.5px rgba(236, 235, 246, .5), 0 1px 3px #000; }
 .gw-ms-ledger b { font: 400 11.5px/1 var(--f-display); letter-spacing: .2em; margin: 0 -.2em 26px 0; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; text-shadow: 0 1px 2px #000; }
 .gw-ms-ledger.gw-passed b { color: var(--ink); }
+.gw-ms-pb.gw-under, .gw-ms-ledger.gw-under { flex-direction: column; transform: translate(-50%, calc(100% - 12px)); }
+.gw-ms-pb.gw-under b { margin: 3px 0 0; }
+.gw-ms-ledger.gw-under b { margin: 4px -.2em 0 0; }
 .gw-ms-ledger.gw-passed i { box-shadow: 0 0 0 1.5px rgba(236, 235, 246, .85), 0 0 10px rgba(236, 235, 246, .45); }
 .gw-ms-mark.gw-row1 { bottom: -15px; }
 .gw-ms-mark.gw-row1 i { height: 53px; border-left-style: dotted; }
@@ -1590,6 +1602,25 @@
   .gw-ms-rec { padding: 6px 18px 4px; }
   .gw-ms-rec b, .gw-ms-rec:first-child b { font-size: 21px; letter-spacing: .06em; }
   .gw-ms-rec small { font-size: 15px; }
+}
+/* automatic fishing: the logs on a short landscape screen (960×540): a compact header so the Your odds block has room */
+@media (max-height: 620px) and (min-width: 701px) {
+  .gw-p-af .gw-ph .gw-pdiv { margin-bottom: 0; transform: scale(.8); }
+  .gw-p-af .gw-ph h2 { font-size: 27px; }
+  .gw-p-af .gw-psub { font-size: 16px; margin-top: 0; }
+  .gw-p-af .gw-tabs { margin: 4px 0 0; }
+  .gw-p-af .gw-tab { min-height: 42px; padding-bottom: 6px; font-size: 15.5px; }
+  .gw-p-af .gw-pf { margin-top: 4px; }
+  .gw-p-af .gw-jr-foot { font-size: 15px; gap: 0; }
+  .gw-p-af .gw-jr-art { padding-bottom: 6px; }
+  .gw-p-af .gw-jr-art canvas { max-height: 88px; width: auto !important; }
+  .gw-p-af .gw-jr-detail h3 { font-size: 22px; margin-top: 0; }
+  .gw-p-af .gw-jr-card canvas { max-height: 46px; width: auto !important; }
+  .gw-p-af .gw-jr-card { padding: 4px 6px 10px; }
+  .gw-p-af.gw-p-nights .gw-mode-vig { height: 40px; width: 120px; }
+  .gw-p-af.gw-p-nights .gw-mode { padding-bottom: 8px; }
+  .gw-p-af.gw-p-nights .gw-mode-line { font-size: 15px; line-height: 1.25; }
+  .gw-p-af .gw-rating { margin-top: 6px; font-size: 16px; }
 }
 @media (max-height: 560px) and (min-width: 701px) {
   .gw-ms-band { padding: 16px 64px 26px; bottom: calc(var(--sab) + 6px); width: min(820px, calc(100vw - 40px)); }
@@ -1808,7 +1839,7 @@
   .gw-wf { top: 148px; left: -6px; font-size: 19.5px; }
   .gw-wf .gw-ico { width: 27px; height: 27px; }
   .gw-fav-list { width: min(290px, 88vw); margin-left: calc(min(290px, 88vw) / -2); padding: 16px 26px 20px; }
-  .gw-fishui > .gw-play { bottom: calc(var(--sab) + 190px); }
+  .gw-fishui > .gw-play { bottom: calc(var(--sab) + max(176px, 27vh)); }
   .gw-play-est { padding: 10px 28px 12px 22px; gap: 8px; }
   .gw-play-est .gw-seal { width: 33px; height: 33px; }
   .gw-play-est b { font-size: 18px; letter-spacing: .22em; }
@@ -1816,7 +1847,7 @@
   .gw-strike-w { font-size: 26px; top: 32px; }
   .gw-strike-w.gw-tone-clean { font-size: 30px; }
   .gw-strike-w.gw-tone-dim { font-size: 23px; }
-  .gw-away { bottom: calc(var(--sab) + 188px); white-space: normal; text-align: center; justify-content: center; width: max-content; font-size: 18.5px; padding: 12px 34px 13px 32px; }
+  .gw-away { top: calc(var(--sat) + max(220px, 31vh)); white-space: normal; text-align: center; justify-content: center; width: max-content; font-size: 18.5px; padding: 12px 34px 13px 32px; }
   .gw-away b { font-size: 20px; }
   .gw-gotaway { bottom: auto; top: 31vh; width: calc(100vw - 20px); margin-left: calc(50vw * -1 + 10px); grid-template-columns: 92px minmax(0, 1fr); gap: 2px 12px; padding: 24px 24px 18px 16px; }
   .gw-ga-fish { width: 92px; height: 43px; }
@@ -1967,7 +1998,7 @@
 @keyframes gwStrikeRing { 0% { opacity: 0; transform: scale(.25); } 18% { opacity: 1; } 100% { opacity: 0; transform: scale(2.7); } }
 @keyframes gwGlint { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-10px) scale(.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-50px * var(--d))) scale(1); } }
 @keyframes gwStrikeWord { 0% { opacity: 0; transform: translate(-50%, -6px) scale(.9); } 12% { opacity: 1; transform: translate(-50%, 0) scale(1.05); } 24% { transform: translate(-50%, 0) scale(1); } 68% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, 6px); } }
-@keyframes gwHurry { 0% { stroke-dasharray: 2 60; stroke-dashoffset: 0; opacity: .4; } 50% { opacity: 1; } 100% { stroke-dasharray: 2 60; stroke-dashoffset: -62; opacity: .4; } }
+@keyframes gwHurry { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
 @keyframes gwSlipAway { 0% { transform: translateX(0); opacity: .92; } 100% { transform: translateX(12px); opacity: .5; } }
 @keyframes gwOddsFocus { 0% { box-shadow: 0 0 0 0 rgba(160, 150, 240, 0); } 30% { box-shadow: 0 0 46px 6px rgba(160, 150, 240, .22); } 100% { box-shadow: 0 0 0 0 rgba(160, 150, 240, 0); } }
 @keyframes gwKnotFlare { 0% { transform: scale(1); } 35% { transform: scale(1.7); filter: brightness(1.8); } 100% { transform: scale(1); } }

@@ -116,6 +116,7 @@ ok(!un.withBest && !/%/.test(JSON.stringify(un)), 'unseen: no % anywhere, no bes
 const qu = AF.oddsView(D, { known: 'caught', odds: D.catchOdds('quayling', { rod: 0, line: 0, reel: 0 }, { lake: 'cove' }) }, { speciesName: 'Quayling' });
 eq(qu.cells.map((c) => c.text.replace(/\d+/, 'n')), ['n%', 'n%', '—', '—', '—', '—'], 'the Quayling: "—" from Prize up (a class it never reaches)');
 ok(qu.cells[0].p > 0.85 && qu.cells[0].p < 0.95, 'the Quayling\'s Small sits in the tutorial band (85–95%)', qu.cells[0]);
+eq(AF.oddsView(D, { known: 'caught', odds: D.catchOdds('quayling', {}, { lake: 'cove' }) }, { cove: true }).notes, [D.AUTOFISH.text.log.strike], 'the Landing has no Gloom: no Gloomtide line under its odds');
 const gl = AF.oddsView(D, { known: 'glimpsed', odds: oddsRJ }, { speciesName: 'Reedjaw Pike' });
 ok(!gl.unseen && gl.cells.every((c) => /%$/.test(c.text)), 'a Glimpsed species shows its odds (it counts as known)');
 const mk = AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: 'Old Ninefin', sizeClass: 'trophy', approxLength: 108, p: 0.8123 }] }, { speciesName: 'Reedjaw Pike' });

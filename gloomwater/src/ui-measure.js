@@ -105,8 +105,9 @@ export function createMeasure(K) {
     const knots = c.ruler.knots.map((cm, i) => `<i class="gw-ms-knot${c.ruler.marks.some((mk) => Math.abs(mk.cm - cm) < c.ruler.step * 0.34) ? ' gw-atmark' : ''}" data-cm="${cm}" style="left:${pct(cm).toFixed(2)}%;--i:${i}"></i>`).join('');
     const marks = c.ruler.marks.map((mk) => `<span class="gw-ms-mark gw-msm-${esc(mk.cls)}" data-cm="${mk.cm}" style="left:${pct(mk.cm).toFixed(2)}%"><i></i><b>${esc(mk.label)}</b></span>`).join('');
     // the cord's two knots (AUTOFISH.ceremony.cordMarks): your PB in oxblood, the Old Ledger's old figure in black
-    const best = c.ruler.best ? `<span class="gw-ms-best${c.af ? ' gw-ms-pb' : ''}" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>${c.af ? 'your best' : 'best'}</b></span>` : '';
-    const ledger = c.af && c.ruler.ledger ? `<span class="gw-ms-ledger" style="left:${pct(c.ruler.ledger).toFixed(2)}%"><i></i><b>Old Ledger</b></span>` : '';
+    // a knot under the fish (the fish passes it) writes its word below the cord, so the sketch stays clear
+    const best = c.ruler.best ? `<span class="gw-ms-best${c.af ? ` gw-ms-pb${c.ruler.passesBest ? ' gw-under' : ''}` : ''}" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>${c.af ? 'your best' : 'best'}</b></span>` : '';
+    const ledger = c.af && c.ruler.ledger ? `<span class="gw-ms-ledger${c.ruler.passesLedger ? ' gw-under' : ''}" style="left:${pct(c.ruler.ledger).toFixed(2)}%"><i></i><b>Old Ledger</b></span>` : '';
     const seal = !legend && c.ci.seal ? sealSvg(c.ci.seal, { ancient: c.ci.ancient, cls: 'gw-ms-sealsvg' }) : legend ? sealSvg('blackWaxRibbon', { ancient: true, cls: 'gw-ms-sealsvg' }) : '';
     wrap.innerHTML = `<div class="gw-ms-recs" aria-live="polite"></div>
       <div class="gw-ms-band">

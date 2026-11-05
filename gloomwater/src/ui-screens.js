@@ -90,9 +90,21 @@ export function createScreens(K) {
   const itemName = (id) => (id ? (K.baitData(id)?.name || lureData(id)?.name || D().UPGRADE_BY_ID?.[id]?.name || String(id).replace(/_/g, ' ')) : '');
   const placeNameOf = (id) => (id ? (D().PLACE_BY_ID?.[id]?.name || D().PLACE_V3_BY_ID?.[id]?.name || '') : '');
   /** The fitted (P1–P2: the run's) tackle and the item on the line, as names: "Glassreed · Glass-Gut · Whisper Drag · Glimmer Spoon". */
+  const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI'];
   function loadoutNames(lo) {
     lo = lo || call('getLoadout') || {};
     const r = run();
+    // P1–P2 runs and The Long Descent (per-run UPGRADES, loadout.hold): each slot's best owned upgrade and its level, else the bare kit
+    const slots = D().BALANCE?.upgradeTiers?.slots;
+    if (lo.hold && r?.upgrades && slots) {
+      const out = ['rod', 'line', 'reel'].map((k) => {
+        const id = [...arr(slots[k])].reverse().find((x) => num(r.upgrades[x]) > 0);
+        const u = id ? D().UPGRADE_BY_ID?.[id] : null;
+        return u ? `${u.name} ${ROMAN[num(r.upgrades[id])] || num(r.upgrades[id])}` : (D().TACKLE?.[k]?.[0]?.name || '');
+      });
+      if (lo.item) out.push(itemName(lo.item));
+      return out.filter(Boolean);
+    }
     const tiers = ['rod', 'line', 'reel'].every((k) => Number.isFinite(lo[k])) ? lo : safe(() => D().upgradeTiers?.(r?.upgrades || {}), null) || {};
     const out = ['rod', 'line', 'reel'].map((k) => D().TACKLE?.[k]?.[Math.max(0, Math.min(4, Math.floor(num(tiers[k]))))]?.name || '');
     const item = lo.item ?? null;
@@ -166,7 +178,7 @@ export function createScreens(K) {
     const res = call('getOdds', sp.id);
     if (!res) return '';
     const lo = call('getLoadout');
-    const v = AF.oddsView(D(), res, { speciesName: sp.name, loadout: loadoutNames(lo), itemName: itemName(res.withBest?.item), nightMode: run()?.nightMode || null });
+    const v = AF.oddsView(D(), res, { speciesName: sp.name, loadout: loadoutNames(lo), itemName: itemName(res.withBest?.item), nightMode: run()?.nightMode || null, cove: sp.zone === COVE_ID || !!sp.cove });
     const cellsHtml = (cells, row) => cells.map((c) => `<div class="gw-odds-c gw-cls-${esc(c.cls)}${c.cls === hl ? ' gw-hl' : ''}${c.unseen ? ' gw-unseen' : ''}${c.unreachable ? ' gw-unreach' : ''}"${row ? '' : ` role="listitem" aria-label="${esc(c.label)}: ${esc(c.unseen ? 'not yet known' : c.unreachable ? 'out of reach' : c.text)}"`}><b>${esc(c.text)}</b><small>${esc(c.label)}</small></div>`).join('');
     const withRow = v.withBest ? `<p class="gw-odds-with"><span>${esc(v.withBest.label)}</span> ${v.withBest.cells.map((c) => `${esc(c.label)} <b>${esc(c.text)}</b>`).join(' \u00b7 ')}</p>` : '';
     return `<section class="gw-odds${v.unseen ? ' gw-odds-unseen' : ''}" data-section="odds">
@@ -360,7 +372,7 @@ export function createScreens(K) {
       if (!mc.cards.some((x) => x.id === s.mode)) s.mode = mc.selected;
       const zn = K.zoneData(s.zone)?.name || 'the Mossmere';
       const { content, foot } = panel(entry, body, { title: mc.first ? 'Your First Outing' : 'The Nights',
-        sub: mc.first ? 'The Gloom stays away this time. Fish, and learn the water.' : 'How the nights will go, chosen for the whole descent.', cls: 'gw-p-wide gw-p-descent gw-p-nights' });
+        sub: mc.first ? 'The Gloom stays away this time. Fish, and learn the water.' : 'How the nights will go, chosen for the whole descent.', cls: `gw-p-wide gw-p-descent gw-p-nights${af() ? ' gw-p-af' : ''}` });
       const sec = h('section', `gw-modes gw-modes--step${mc.first ? ' gw-modes--first' : ''}`);
       const row = h('div', 'gw-mode-row');
       row.setAttribute('role', mc.first ? 'group' : 'radiogroup');
@@ -1141,9 +1153,11 @@ export function createScreens(K) {
       const glimpsedOf = (id) => !!J[id] && !!J[id].seen && !(num(J[id].caught) > 0);
       const inTab = (x, zid) => (zid === COVE_ID ? x.zone === COVE_ID || x.cove === true : x.zone === zid);
       const named = allSp.filter((x) => J[x.id]).length;
-      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: 'gw-p-wide gw-p-journal' });
+      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: `gw-p-wide gw-p-journal${af() ? ' gw-p-af' : ''}` });
       const tabList = tabZones.map((z) => { const sps = allSp.filter((x) => inTab(x, z.id)); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: `${n}/${sps.length}` }; });
-      pn.insertBefore(tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; s.hl = null; s.section = null; entry.render(); }), content);
+      const tb = tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; s.hl = null; s.section = null; entry.render(); });
+      if (tabList.length > 4) tb.classList.add('gw-tabs--many');   // the Landing's tab makes five: keep them all in reach
+      pn.insertBefore(tb, content);
       const sps = allSp.filter((x) => inTab(x, s.zone));
       const nZ = sps.filter((x) => J[x.id]).length;
       const perk = D().JOURNAL_PERKS?.[s.zone];
@@ -1204,7 +1218,7 @@ export function createScreens(K) {
       // openLog({section: 'odds'}): bring the block into view (the detail column scrolls on a desktop, the whole page on a phone)
       if (s.section === 'odds') {
         const sec = det.querySelector('.gw-odds');
-        if (sec) { sec.classList.add('gw-odds-focus'); requestAnimationFrame(() => { try { sec.scrollIntoView({ block: K.vw < 700 ? 'start' : 'center' }); } catch { /* ignore */ } }); }
+        if (sec) { sec.classList.add('gw-odds-focus'); requestAnimationFrame(() => { try { sec.scrollIntoView({ block: 'start', inline: 'nearest' }); } catch { /* ignore */ } }); }
       }
     }, { state: { zone: tabZones.some((z) => z.id === (extra.zone || cur)) ? (extra.zone || cur) : 'mossmere', sel: null, hl: null, section: null, titleChild: ctx.flow !== 'playing', ...extra },
       onKey: (code) => { const t = K.top(); return tabKeys(t, tabZones.map((z) => z.id), () => t.state.zone, (v) => { t.state.zone = v; t.state.sel = null; t.state.hl = null; t.state.section = null; })(code); } });
@@ -1238,7 +1252,7 @@ export function createScreens(K) {
       const names = speciesNames();
       const zone = r?.zone || 'mossmere';
       const rate = ratingFor(zone, A);
-      const { content, foot } = panel(entry, body, { title: 'The Gear Log', sub: esc(rate || 'What your tackle holds, fish by fish.'), cls: 'gw-p-wide gw-p-gear' });
+      const { content, foot } = panel(entry, body, { title: 'The Gear Log', sub: esc(rate || 'What your tackle holds, fish by fish.'), cls: 'gw-p-wide gw-p-gear gw-p-af' });
       content.classList.add('gw-scroll');
       if (G.pinned?.speciesId) content.insertAdjacentHTML('beforeend', `<p class="gw-gear-pin">${icon('hook')}<span><small>Pinned</small> ${esc(AF.pinnedLabel(D(), G.pinned, { speciesName: names[G.pinned.speciesId] || '' }))}</span></p>`);
       const kit = loadoutNames(A);

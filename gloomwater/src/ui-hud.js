@@ -569,8 +569,8 @@ export function createHud(K) {
     setAttr(R.burn, 'bnT', 'title', bf ? `${relight ? 'Relight: render' : 'Burn'} ${lineOut ? 'a fish' : K.speciesData(bf.speciesId)?.name || 'a fish'} for +${bOil} oil (R)` : `${relight ? 'Relight' : 'Burn a fish'} (R) — the creel is empty`);
     // the log lock (AUTOFISH.logLock): the Journal (and, with no modal while a line is out, the creel) say "Reel in first."
     const lockWord = D().AUTOFISH?.text?.logLocked || 'Reel in first.';
-    toggle(R.journalBtn, 'lk', 'gw-locked', lineOut);
-    toggle(R.creelBox, 'lk', 'gw-locked', lineOut);
+    toggle(R.journalBtn, 'lkJ', 'gw-locked', lineOut);
+    toggle(R.creelBox, 'lkC', 'gw-locked', lineOut);
     setAttr(R.journalBtn, 'jbT', 'title', lineOut ? lockWord : 'Journal (J)');
     setAttr(R.journalBtn, 'jbA', 'aria-label', lineOut ? `Journal: ${lockWord}` : 'Journal (J)');
     setAttr(R.creelBox, 'cbT', 'title', lineOut ? lockWord : 'Creel (C)');

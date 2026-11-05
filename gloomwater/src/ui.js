@@ -245,7 +245,7 @@ export function create(ctx) {
     if (recentToast.size > 40) for (const [k, t] of recentToast) if (now - t > 5000) recentToast.delete(k);
     while (toasts.length >= 3) dropToast(toasts[0], true);
     const glyph = opts.icon || (kind === 'tip' ? 'quill' : kind === 'good' ? 'star' : kind === 'bad' ? 'eye' : kind === 'lore' ? null : null);
-    const el = h('div', `gw-toast gw-toast--${kind}`, `${glyph ? icon(glyph, { cls: 'gw-toast-ico' }) : ''}<span>${esc(text)}</span>`);
+    const el = h('div', `gw-toast gw-toast--${kind}${opts.cls ? ` ${opts.cls}` : ''}`, `${glyph ? icon(glyph, { cls: 'gw-toast-ico' }) : ''}<span>${esc(text)}</span>`);
     if (opts.title) el.insertAdjacentHTML('afterbegin', `<b class="gw-toast-title">${esc(opts.title)}</b>`);
     layers.toasts.appendChild(el);
     const entry = { el, dead: false, held: false };
@@ -565,7 +565,7 @@ export function create(ctx) {
   /** Refuse a log route while a line is out: "Reel in first." (the toast never waits). Returns true when refused. */
   function refuseLocked(route = '') {
     if (!logLocked()) return false;
-    toast(D().AUTOFISH?.text?.logLocked || 'Reel in first.', 'bad', { icon: 'hook', dur: 1800 });
+    toast(D().AUTOFISH?.text?.logLocked || 'Reel in first.', 'bad', { icon: 'hook', dur: 1800, cls: 'gw-toast--lock' });
     sfx('denied', { volume: 0.5 });
     try { ctx.bus.emit('ui:refused', { route, reason: 'logLock' }); } catch { /* ignore */ }
     return true;

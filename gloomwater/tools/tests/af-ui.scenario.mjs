@@ -108,6 +108,23 @@ export default async function (api) {
     if (ok) { shots.push(p); log('screenshot', p); }
     return ok;
   }
+  /** Full-scale render first, then fn() (emit the moment), let its CSS transitions settle, hold the loop and capture at once: for the
+   *  short-lived on-screen moments (the strike word, the got-away toast and card) whose own clocks would run out on software GL. */
+  async function capture(name, fn, { settle = 650 } = {}) {
+    await scale(1);
+    await frames(2);
+    if (fn) await fn();
+    await wait(settle);
+    await g(() => window.__rafHold(true));
+    await wait(150);
+    const p = resolve(shotsDir, `${name}.png`);
+    let ok = false;
+    for (let a = 0; a < 3 && !ok; a++) { try { await page.screenshot({ path: p, timeout: 240000 }); ok = true; } catch (e) { log('shot retry', name, String(e?.message || e).split('\n')[0]); } }
+    await g(() => window.__rafHold(false));
+    await scale(0.4);
+    if (ok) { shots.push(p); log('screenshot', p); }
+    return ok;
+  }
   /** Freeze every running CSS animation inside a selector at t ms (so a 0.6 s burst can be photographed on software GL). */
   const freezeAnims = (sel, t) => g(([sel, t]) => { for (const el of document.querySelectorAll(sel)) for (const a of el.getAnimations({ subtree: true })) { a.pause(); a.currentTime = Math.min(t, (a.effect?.getTiming?.().duration || t) - 1); } }, [sel, t]);
   const resumeAnims = (sel) => g((sel) => { for (const el of document.querySelectorAll(sel)) for (const a of el.getAnimations({ subtree: true })) a.play(); }, sel);
@@ -140,7 +157,7 @@ export default async function (api) {
     const bite = root.querySelector('.gw-bite');
     const rc = bite ? getComputedStyle(bite).getPropertyValue('--rc').trim() : '';
     const reel = root.querySelector('.gw-reel');
-    return { state: c.fishing.state, hits, rc, reelVisible: !!reel && vis(reel) && getComputedStyle(reel).display !== 'none', controls: /\b(cut the line|cut|reel in|hold to reel|ease)\b/i.test(text), sample: text.replace(/\s+/g, ' ').slice(0, 240) };
+    return { state: c.fishing.state, hits, rc, reelVisible: !!reel && vis(reel) && getComputedStyle(reel).display !== 'none', controls: /\b(cut the line|cut|hold to reel|ease)\b|\breel in(?! first)/i.test(text), sample: text.replace(/\s+/g, ' ').slice(0, 240) };
   });
 
   // ---------------------------------------------------------------- run 1: the First Outing (Still): the strike ring is on by default
@@ -232,17 +249,28 @@ export default async function (api) {
     check(bit && sc.state === 'bite', 'fishing reached its real bite state', sc.state);
     check(!sc.hits.length, 'bite: the DOM / aria scan finds no species name, rarity or %', sc);
     check(sc.rc === '#ffe2a8' && !sc.reelVisible && !sc.controls, 'bite: no rarity tint on the "!", no reel bar, no reel or cut control', sc);
-    const ring = await g(() => ({ on: document.querySelector('#ui .gw-bite')?.classList.contains('gw-ring'), r: document.querySelector('#ui .gw-bite .k')?.getAttribute('r'), dbg: window.__gw.debug.ui().af }));
-    check(ring.on && Number(ring.r) > 12, 'the strike ring closes on the float (on by default on the First Outing)', ring);
+    // a deterministic moment for the shot: 0.15 s into a 0.85 s window, inside its Clean part (the fishing branch publishes
+    // view.strikeWindow {t, dur, clean}; without it the ring reads view.biteWindow and the class's window)
+    await g(() => { window.__gw.fishing.view.strikeWindow = { t: 0.15, dur: 0.85, clean: 0.34 }; });
+    await frames(2);
+    const ring = await g(() => ({ on: document.querySelector('#ui .gw-bite')?.classList.contains('gw-ring'), clean: document.querySelector('#ui .gw-bite')?.classList.contains('gw-ring-clean'), r: document.querySelector('#ui .gw-bite .k')?.getAttribute('r'), dbg: window.__gw.debug.ui().af }));
+    check(ring.on && ring.clean && Number(ring.r) > 40, 'the strike ring closes on the float (on by default on the First Outing), bright in its Clean part', ring);
     await shot('01-bite-ring');
+    await g(() => { window.__gw.fishing.view.strikeWindow = { t: 0.6, dur: 0.85, clean: 0.34 }; });
+    await frames(2);
+    const ring2 = await g(() => ({ clean: document.querySelector('#ui .gw-bite')?.classList.contains('gw-ring-clean'), r: document.querySelector('#ui .gw-bite .k')?.getAttribute('r') }));
+    check(!ring2.clean && Number(ring2.r) < Number(ring.r), 'past the Clean part the ring dims as it closes', ring2);
+    await g(() => { delete window.__gw.fishing.view.strikeWindow; });
     for (const grade of ['clean', 'struck', 'early']) {
-      await g((grade) => window.__gw.bus.emit('fishing:strike', { grade, sizeClass: 'trophy' }), grade);
-      await freezeAnims('#ui .gw-strike', grade === 'clean' ? 210 : 260);
-      const w = await g(() => ({ word: document.querySelector('#ui .gw-strike-w')?.textContent, on: document.querySelector('#ui .gw-strike')?.classList.contains('gw-on'), tone: document.querySelector('#ui .gw-strike-w')?.className }));
+      let w = null;
+      await capture(`02-strike-${grade}`, async () => {
+        await g((grade) => window.__gw.bus.emit('fishing:strike', { grade, sizeClass: 'trophy' }), grade);
+        await freezeAnims('#ui .gw-strike', grade === 'clean' ? 230 : 280);
+        w = await g(() => ({ word: document.querySelector('#ui .gw-strike-w')?.textContent, on: document.querySelector('#ui .gw-strike')?.classList.contains('gw-on'), tone: document.querySelector('#ui .gw-strike-w')?.className }));
+      }, { settle: 150 });
       check(w.on && w.word === { clean: 'Clean', struck: 'Struck', early: 'Early' }[grade], `fishing:strike ${grade}: the word "${w.word}" under the float`, w);
       sc = await scan();
       check(!sc.hits.length && !sc.controls, `strike (${grade}): still no species, rarity or %`, sc);
-      await shot(`02-strike-${grade}`, { keep: true, settle: 200 });
       await resumeAnims('#ui .gw-strike');
     }
     // "Struck" prints for the first 20 strikes only
@@ -319,11 +347,14 @@ export default async function (api) {
       out.refused = window.__heard.filter((h) => h.e === 'ui:refused').map((h) => h.p.route);
       return out;
     });
-    const t1 = await toastText();
+    // the refusal itself, photographed while its toast is up (the J key once more, inside the capture)
+    let t1 = '';
+    await capture('06-lock-refused', async () => { await g(() => window.__gw.ui.handleKey('KeyJ')); t1 = await toastText(); }, { settle: 450 });
     check(routes.locked && !routes.KeyJ.length && !routes.hudJournal.length && routes.openLog === false && !routes.afterOpenLog.length && !routes.murk.length && !routes.gear.length && !routes.creel.length,
       'while a line is out: J, the HUD Journal, openLog (the got-away link and the First Evening glyph route), Murk\'s rows and the gear log all refuse', routes);
     check(/Reel in first\./.test(t1) && routes.journalTitle === 'Reel in first.', 'each refuses with "Reel in first." (the Journal button reads it)', { t1, title: routes.journalTitle });
-    await shot('06-lock-refused', { keep: true });
+    const dim = await g(() => ({ j: document.querySelector('#ui .gw-st-journal')?.classList.contains('gw-locked'), c: document.querySelector('#ui .gw-st-creel')?.classList.contains('gw-locked') }));
+    check(dim.j && dim.c, 'the HUD\'s Journal and creel buttons read as locked', dim);
     // pause → Journal
     await g(() => window.__gw.game.pause?.());
     await waitFor(() => !!document.querySelector('#ui .gw-m-pause'), null, 30, 200);
@@ -357,26 +388,23 @@ export default async function (api) {
     await clearModals();
     await idleFishing();
     await frames(3);
-    await g(() => { const c = window.__gw; c.bus.emit('fishing:escaped', { reason: 'spat', sizeClass: 'small' }); c.bus.emit('fish:escaped', { speciesId: 'dusk_minnow', sizeClass: 'small', z: -1.2, approxLength: 8.6, reason: 'spat', place: null, x: 0, zPos: 0, markedFish: false, grade: 'clean', legendary: false }); });
-    await frames(2);
-    await freezeAnims('#ui .gw-away', 2000);
-    const toast = await g(() => ({ on: document.querySelector('#ui .gw-away')?.classList.contains('gw-on'), t: document.querySelector('#ui .gw-away-t')?.textContent, card: document.querySelector('#ui .gw-gotaway')?.classList.contains('gw-on') }));
+    let toast = null, sc = null;
+    await capture('08-gotaway-toast', async () => {
+      await g(() => { const c = window.__gw; c.bus.emit('fishing:escaped', { reason: 'spat', sizeClass: 'small' }); c.bus.emit('fish:escaped', { speciesId: 'dusk_minnow', sizeClass: 'small', z: -1.2, approxLength: 8.6, reason: 'spat', place: null, x: 0, zPos: 0, markedFish: false, grade: 'clean', legendary: false }); window.__gw.ui.update(0.016); });
+      toast = await g(() => ({ on: document.querySelector('#ui .gw-away')?.classList.contains('gw-on'), t: document.querySelector('#ui .gw-away-t')?.textContent, card: document.querySelector('#ui .gw-gotaway')?.classList.contains('gw-on') }));
+      sc = await scan();
+    }, { settle: 600 });
     check(toast.on && !toast.card && toast.t === 'A Dusk Minnow spat the hook.', 'a Small got away: the one-line toast ("A Dusk Minnow spat the hook.")', toast);
-    let sc = await scan();
     check(!sc.hits.includes('%'), 'the toast carries no %', sc);
-    await shot('08-gotaway-toast', { keep: true });
-    await resumeAnims('#ui .gw-away');
-    await g(() => { const c = window.__gw; c.bus.emit('fishing:escaped', { reason: 'snapped', sizeClass: 'elder' }); c.bus.emit('fish:escaped', { speciesId: 'reedjaw_pike', sizeClass: 'elder', z: 3.05, approxLength: 163, reason: 'snapped', beat: 'lastStand', place: null, x: 2, zPos: 9, markedFish: true, name: 'Old Ninefin', grade: 'struck', legendary: false }); });
-    await frames(2);
-    await wait(900);
-    await freezeAnims('#ui .gw-gotaway', 1400);
-    const card = await g(() => { const q = (s) => document.querySelector(`#ui .gw-gotaway ${s}`)?.textContent?.trim(); return { on: document.querySelector('#ui .gw-gotaway')?.classList.contains('gw-on'), k: q('.gw-ga-k'), title: q('.gw-ga-title'), name: q('.gw-ga-name'), line: q('.gw-ga-line'), still: q('.gw-ga-still'), hint: q('.gw-ga-hint'), link: q('.gw-ga-link') }; });
+    let card = null;
+    await capture('09-gotaway-card', async () => {
+      await g(() => { const c = window.__gw; c.bus.emit('fishing:escaped', { reason: 'snapped', sizeClass: 'elder' }); c.bus.emit('fish:escaped', { speciesId: 'reedjaw_pike', sizeClass: 'elder', z: 3.05, approxLength: 163, reason: 'snapped', beat: 'lastStand', place: null, x: 2, zPos: 9, markedFish: true, name: 'Old Ninefin', grade: 'struck', legendary: false }); window.__gw.ui.update(0.016); });
+      card = await g(() => { const q = (s) => document.querySelector(`#ui .gw-gotaway ${s}`)?.textContent?.trim(); return { on: document.querySelector('#ui .gw-gotaway')?.classList.contains('gw-on'), k: q('.gw-ga-k'), title: q('.gw-ga-title'), name: q('.gw-ga-name'), line: q('.gw-ga-line'), still: q('.gw-ga-still'), hint: q('.gw-ga-hint'), link: q('.gw-ga-link') }; });
+    }, { settle: 1000 });
     check(card.on && card.title === 'Reedjaw Pike' && /Old Ninefin/.test(card.name) && /An Elder, near 1\.6\s?m\. It parted the line on its last run\./.test(card.line) && /in that deep water/.test(card.still) && /Heavier line/.test(card.hint) && /Odds in your log/.test(card.link),
       'an Elder got away: the ink card (name, near-length, cause, still out there, the gear hint, "Odds in your log")', card);
     sc = await scan();
     check(!sc.hits.includes('%'), 'the card carries no %', sc);
-    await shot('09-gotaway-card', { keep: true });
-    await resumeAnims('#ui .gw-gotaway');
     // the link opens that species at that class
     await g(() => document.querySelector('#ui .gw-ga-link')?.click());
     await waitFor(() => window.__gw.debug.ui().openModal === 'journal', null, 30, 200);
@@ -395,7 +423,7 @@ export default async function (api) {
     const jr = await g(() => ({ kit: document.querySelector('#ui .gw-odds-kit')?.textContent, cells: [...document.querySelectorAll('#ui .gw-odds-c')].map((c) => `${c.querySelector('small').textContent} ${c.querySelector('b').textContent}`), withB: document.querySelector('#ui .gw-odds-with')?.textContent?.replace(/\s+/g, ' ').trim(), notes: [...document.querySelectorAll('#ui .gw-odds-note')].map((n) => n.textContent) }));
     const want6 = await g(() => { const c = window.__gw, D = c.data, P = c.progression; const o = P.getOdds('reedjaw_pike'); return ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'].map((k) => `${D.catchDisplay(o.odds[k])}%`); });
     check(jr.cells.map((x) => x.split(' ').pop()).join() === want6.join(), 'Your odds: each class prints progression.getOdds\'s p as data.catchDisplay (floored)', { jr, want6 });
-    check(/With the Ember Roe:/.test(jr.withB || '') && /Ashwood/.test(jr.kit || '') && jr.notes.length === 2, 'the best owned item\'s row ("With the Ember Roe: …"), the loadout line and the fine print', jr);
+    check(/With the Ember Roe:/.test(jr.withB || '') && /Ashwood Rod I/.test(jr.kit || '') && jr.notes.length === 2, 'the best owned item\'s row ("With the Ember Roe: …"), the loadout line and the fine print', jr);
     await shot('11-journal-odds', { settle: 900 });
     // an unseen species: "?" everywhere
     await g(() => { const c = [...document.querySelectorAll('#ui .gw-jr-card')].find((x) => x.classList.contains('gw-unknown') && !x.classList.contains('gw-glimpsed')); c?.click(); });
@@ -431,9 +459,11 @@ export default async function (api) {
     const gr = await g(() => ({ sub: document.querySelector('#ui .gw-m-gear .gw-psub')?.textContent, pin: document.querySelector('#ui .gw-gear-pin')?.textContent?.replace(/\s+/g, ' ').trim(), holds: [...document.querySelectorAll('#ui .gw-item-hold')].map((x) => x.textContent), cmps: [...document.querySelectorAll('#ui .gw-item-cmp')].map((x) => x.textContent) }));
     check(/^Against the Reedjaw Pike: holds /.test(gr.sub || '') && !/%/.test(gr.sub || ''), 'the gear log\'s heading: the tackle rating in words, no %', gr.sub);
     check(/The Reedjaw Pike that threw the hook \(Trophy\)/.test(gr.pin || '') && gr.cmps.some((x) => /^The Reedjaw Pike that threw the hook \(Trophy\): \d+% → \d+% with this\.$/.test(x)), 'the compare is pinned to the last fish that got away', { pin: gr.pin, cmps: gr.cmps.slice(0, 3) });
-    check(gr.holds.some((x) => /counts ×1\.6 against leapers/.test(x)) && gr.holds.some((x) => /Hold against Reedjaw Pike, Weeping Carp/.test(x)) && gr.holds.some((x) => /^\+2 Hold on every fish\.$/.test(x)), 'each item\'s Hold, its ×1.6 styles and the fish it helps', gr.holds.slice(0, 8));
+    check(gr.holds.some((x) => /counts ×1\.6 against leapers/.test(x)) && gr.holds.some((x) => /Hold against Reedjaw Pike(,| and) Weeping Carp/.test(x)) && gr.holds.some((x) => /^\+2 Hold on every fish\.$/.test(x)), 'each item\'s Hold, its ×1.6 styles and the fish it helps', gr.holds.slice(0, 8));
     await shot('15-gear-log', { settle: 900 });
     await clearModals();
+    // Murk's Mossmere baits help the perch, not the pike: pin the last loss to a Mossback Perch so the rows show their compare
+    await g(() => { window.__lastAway = { speciesId: 'mossback_perch', sizeClass: 'keeper', reason: 'spat' }; window.__gw.state.run.equipped = null; try { window.__gw.progression.equipBait?.(null); } catch { /* optional */ } });
     await g(() => window.__gw.ui.openShop());
     await waitFor(() => window.__gw.debug.ui().openModal === 'shop', null, 30, 200);
     await g(() => { const t = [...document.querySelectorAll('#ui .gw-m-shop .gw-tab')].find((b) => /Bait/.test(b.textContent)); t?.click(); });
@@ -456,7 +486,7 @@ export default async function (api) {
     await g(() => { window.__gw.bus.emit('fishing:cast', {}); window.__gw.bus.emit('fishing:strike', { grade: 'clean', sizeClass: 'trophy' }); window.__gw.debug.instantCatch('reedjaw_pike', { z: 2.35 }); });
     await waitFor(() => window.__gw.debug.ui()?.openModal === 'catch', null, 120);
     await wait(2400);
-    const cc = await g(() => ({ stats: document.querySelector('#ui .gw-m-catch .gw-cc-stats')?.textContent?.replace(/\s+/g, ' '), strike: document.querySelector('#ui .gw-m-catch .gw-cc-strike')?.textContent, pct: /%/.test(document.querySelector('#ui .gw-m-catch')?.innerText || '') }));
+    const cc = await g(() => ({ stats: document.querySelector('#ui .gw-m-catch .gw-cc-stats')?.textContent?.replace(/\s+/g, ' '), strike: document.querySelector('#ui .gw-m-catch .gw-cc-strike')?.textContent, pct: /%/.test([...document.querySelectorAll('#ui .gw-m-catch .gw-cc-grid > * > *:not(.gw-cc-pick)')].map((e) => e.innerText).join(' ')) }));   // the banked Boon pick's own stat words (e.g. hook window +6%) are combat's, not odds
     check(cc.strike === 'Clean' && !cc.pct, 'the catch card: one line for the strike grade ("strike Clean"), no %', cc);
     await shot('18-catch-strike', { settle: 300 });
     await g(() => { document.querySelector('#ui .gw-m-catch [data-action="release"]')?.click(); });

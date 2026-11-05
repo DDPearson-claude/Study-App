@@ -177,10 +177,10 @@ export function pct(D, p) {
 /**
  * The Your odds block from progression.getOdds(speciesId) = {known: 'unseen'|'glimpsed'|'caught', odds: {small…ancient: p|null} |
  * {legend: p}, withBest: {item, odds}|null, marked: [{name, sizeClass, approxLength, p}], wounds}. o = {speciesName, loadout: [names],
- * itemName (the name for withBest.item), nightMode}. Returns {title, loadout, cells: [{cls, label, text, p, unseen, unreachable}],
+ * itemName (the name for withBest.item), nightMode, cove (a Landing species: no Gloomtide line)}. Returns {title, loadout, cells: [{cls, label, text, p, unseen, unreachable}],
  * unseen, withBest: {label, cells}|null, marked: [string], wounds: string, notes: [string]}.
  */
-export function oddsView(D, res, { speciesName = '', loadout = [], itemName = '', nightMode = null } = {}) {
+export function oddsView(D, res, { speciesName = '', loadout = [], itemName = '', nightMode = null, cove = false } = {}) {
   const L = T(D).log || {};
   const unseenMark = D?.CATCH_V3?.display?.unseen || '?';
   const known = res?.known || 'unseen';
@@ -206,7 +206,7 @@ export function oddsView(D, res, { speciesName = '', loadout = [], itemName = ''
   const per = num(D?.CATCH_V3?.legend?.woundPerEscape, 6);
   const wounds = w > 0 ? `Wounded ${w === 1 ? 'once' : w === 2 ? 'twice' : `${w} times`}: +${Math.min(num(D?.CATCH_V3?.legend?.woundCap, 18), w * per)}` : '';
   const notes = unseen ? [L.unseen || 'Land or lose one to learn its odds.'] : [L.strike || 'A clean strike adds a little; an early or late one costs a little.'];
-  if (!unseen && !legend) notes.push(L.gloomtide || 'Gloomtide: a hand slam that lands parts the line.');
+  if (!unseen && !legend && !cove) notes.push(L.gloomtide || 'Gloomtide: a hand slam that lands parts the line.');   // no Gloom at the Landing
   return {
     title: `${speciesName ? `${speciesName} — ` : ''}${(L.title || 'Your odds').toLowerCase()}`, heading: L.title || 'Your odds', known,
     loadout: arr(loadout).filter(Boolean).join(' · '), cells, unseen, legend, withBest, marked, wounds, notes, nightMode,

@@ -64,7 +64,7 @@ export function createHudV3(K, el, R, w) {
   R.fishui.appendChild(tell);
   const tellSvg = tell.querySelector('svg'), tellW = tell.querySelector('.gw-tell-w');
   // the play (U2′): the class estimate stamp and the hurry mark, where the reel line used to be; nothing else is on screen
-  const play = h('div', 'gw-play', `<div class="gw-play-est" aria-live="polite"></div><div class="gw-play-hurry" aria-hidden="true"><svg viewBox="0 0 44 20"><path d="M4 3l8 7-8 7M16 3l8 7-8 7M28 3l8 7-8 7"/></svg><span>hurrying</span></div>`);
+  const play = h('div', 'gw-play', `<div class="gw-play-est" aria-live="polite"></div><div class="gw-play-hurry" aria-hidden="true"><svg viewBox="0 0 44 20"><path d="M4 3l8 7-8 7"/><path d="M16 3l8 7-8 7"/><path d="M28 3l8 7-8 7"/></svg><span>hurrying</span></div>`);
   R.fishui.appendChild(play);
   const estEl = play.querySelector('.gw-play-est'), hurryEl = play.querySelector('.gw-play-hurry');
   // the strike word under the float and its ring burst (≤ 0.6 s; Clean adds pale-gold glints)
@@ -73,10 +73,13 @@ export function createHudV3(K, el, R, w) {
   strike.setAttribute('aria-live', 'polite');
   R.fishui.appendChild(strike);
   const strikeW = strike.querySelector('.gw-strike-w');
+  // the word's own animation ends the strike feedback (a timer is only the fallback for a tab that does not animate)
+  strikeW.addEventListener('animationend', () => { strikeT = 0; strike.classList.remove('gw-on'); });
   // the strike ring: a thin ink ring that closes on the float over the window, its Clean part brighter (timing only, never odds)
   const ringNS = 'http://www.w3.org/2000/svg';
   const ringK = document.createElementNS(ringNS, 'circle');
-  ringK.setAttribute('class', 'k'); ringK.setAttribute('cx', '35'); ringK.setAttribute('cy', '35'); ringK.setAttribute('r', '30');
+  // centred on the float itself (the "!" rides 40 px above it), so the ring visibly closes onto the float
+  ringK.setAttribute('class', 'k'); ringK.setAttribute('cx', '35'); ringK.setAttribute('cy', '75'); ringK.setAttribute('r', '30');
   R.bite.querySelector('svg')?.appendChild(ringK);
   // the got-away note (DESIGN §25.6.7): a one-line ink toast (Small–Prize) …
   const away = h('button', 'gw-away', `<svg class="gw-away-wash" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M18 14 C150 4 450 4 584 16 C594 30 592 44 580 52 C440 62 160 62 20 52 C8 42 8 26 18 14 Z"/></svg><span class="gw-away-t"></span><i class="gw-away-go" aria-hidden="true">›</i>`);
@@ -421,7 +424,9 @@ export function createHudV3(K, el, R, w) {
     // the strike ring at the float while the bite is live (settings.strikeRing: always / first expedition / never)
     const S = settings();
     const r = run();
-    ringOn = st === 'bite' && AF.strikeRingOn(S.strikeRing, {
+    // fishing may draw the ring itself on the water (view.strikeRing present: {window, clean} or null): then it is its ring alone
+    const fishingRing = Object.prototype.hasOwnProperty.call(v, 'strikeRing');
+    ringOn = st === 'bite' && !fishingRing && AF.strikeRingOn(S.strikeRing, {
       firstExpedition: r?.outing === 'first' || num(K.meta().expeditions, 0) < 1 && !!r?.expedition,
       firstEvening: !!safe(() => ctx.firstEvening?.isActive?.(), false), tutorial: !!(v.tutorial?.strikeRing ?? v.strikeRing),
     });
@@ -459,9 +464,7 @@ export function createHudV3(K, el, R, w) {
     strikeW.textContent = word ? word.text : '';
     strikeW.className = `gw-strike-w${word ? ` gw-tone-${word.tone}` : ''}`;
     restartAnim(strike, 'gw-on');
-    strikeT = 1.15;
-    const hp = D().AUTOFISH?.strike?.haptic?.[grade];
-    if (K.isTouch && Array.isArray(hp)) safe(() => navigator.vibrate?.(hp), null);
+    strikeT = 3;   // (the phone haptic for the grade, AUTOFISH.strike.haptic, is fishing's: one owner, no double buzz)
   }
 
   // ------------------------------------------------------------------ the got-away note (DESIGN §25.6.7, fish:escaped)
