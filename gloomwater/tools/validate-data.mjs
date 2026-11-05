@@ -1654,9 +1654,9 @@ if (V3) {
     { const IN = AF.play.inputs, AN = AF.play.anchor;
       ok(!('cut' in IN) && IN.endsEarly === false && Object.keys(IN).every((k) => ['pan', 'hurry', 'endsEarly'].includes(k)) && IN.hurry.classes.every((c) => ['small', 'keeper'].includes(c)),
         'AUTOFISH.play.inputs: pan and hurry only; no cut, and no input ends a play early');
-      ok(isObj(AN) && AN.from === 'strike' && JSON.stringify(AN.states) === '["reeling","landing","lost"]' && JSON.stringify(AN.modes) === '["still","lantern","gloomtide"]'
+      ok(isObj(AN) && AN.from === 'strike' && JSON.stringify(AN.states) === '["reeling","landing","lost"]' && JSON.stringify(AN.modes) === '["still","lantern","gloomtide"]' && AN.hub === true
         && AN.moveInput === 'ignored' && AN.buffered === false && AN.combatMoves === false && AN.towOnly === true && AN.gloomtide?.slamPartsLine === true && AN.gloomtide.knockback === false,
-        'AUTOFISH.play.anchor: the raft is anchored from the strike to the card or the note in every mode; only the play\'s tow moves it; Gloomtide\'s slam parts the line');
+        'AUTOFISH.play.anchor: the raft is anchored from the strike to the card or the note in every mode and in the hub; only the play\'s tow moves it; Gloomtide\'s slam parts the line');
       ok(JSON.stringify(AF.loss.external) === '["staggered"]' && D.CATCH_V3.gloomtide.slamPartsLine === true, "the one event that ends a play outside the roll is Gloomtide's hand slam ('staggered')");
       const cutKey = (o, path) => { if (!o || typeof o !== 'object') return []; return Object.entries(o).flatMap(([k, v]) => [...(/^cut(Marks|Hold)?$|^fromCut$/.test(k) ? [`${path}.${k}`] : []), ...cutKey(v, `${path}.${k}`)]); };
       const cuts = [...cutKey(AF, 'AUTOFISH'), ...cutKey(D.BALANCE_V3.markedFish, 'BALANCE_V3.markedFish'), ...cutKey(D.FIRST_EVENING, 'FIRST_EVENING')];
