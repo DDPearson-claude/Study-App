@@ -109,6 +109,19 @@ D.ZONES.forEach((z, i) => {
   ok(isObj(z.drain) && isNum(z.drain.oil) && isNum(z.drain.satiety), `${z.id}.drain`);
   ok(isNum(z.gloom) && isNum(z.valueMult), `${z.id}.gloom / valueMult`);
   for (const k of PALETTE_KEYS) ok(isNum(z.palette?.[k]), `${z.id}.palette.${k} must be a number`);
+  // optional Starlit keys (DESIGN §19.2): lamp / candle / nebula colours, stars brightness
+  for (const k of ['lamp', 'candle', 'nebula']) if (z.palette && k in z.palette) ok(isNum(z.palette[k]) && z.palette[k] >= 0 && z.palette[k] <= 0xffffff, `${z.id}.palette.${k} must be a 0xRRGGBB number`);
+  if (z.palette && 'stars' in z.palette) ok(isNum(z.palette.stars) && z.palette.stars >= 0 && z.palette.stars <= 3, `${z.id}.palette.stars must be 0–3`);
+  // palette rule (DESIGN §19.1): no lake colour in the green/teal band (hue 65–195°) unless it is a near-grey
+  for (const [k, v] of Object.entries(z.palette || {})) {
+    if (k === 'fogDensity' || k === 'stars' || !isNum(v)) continue;
+    const r = ((v >> 16) & 255) / 255, g = ((v >> 8) & 255) / 255, b = (v & 255) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, sat = mx > 0 ? d / mx : 0;
+    if (sat < 0.12 || d === 0) continue;
+    let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+    ok(!(h >= 65 && h < 195), `${z.id}.palette.${k} (#${v.toString(16).padStart(6, '0')}) sits in the green/teal band (hue ${h.toFixed(0)}°)`);
+  }
   if (i > 0) ok(z.unlock.requires.some((r) => r.type === 'legendary' && r.id === D.ZONES[i - 1].legendary), `${z.id} gate must require ${D.ZONES[i - 1].legendary}`);
 });
 

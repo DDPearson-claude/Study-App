@@ -14,9 +14,9 @@ export const GradeShader = {
     uTime: { value: 0 },
     uSaturation: { value: 0.85 },
     uContrast: { value: 1.0 },
-    uTint: { value: new THREE.Color(0x4c5278) },
+    uTint: { value: new THREE.Color(0x40347e) },
     uTintAmount: { value: 0.18 },
-    uWarm: { value: new THREE.Color(0xffc48a) },
+    uWarm: { value: new THREE.Color(0xf4cc96) },
     uWarmAmount: { value: 0.12 },
     uLift: { value: 0.5 },
     uVignette: { value: 0.38 },
@@ -107,8 +107,12 @@ export const GradeShader = {
       float de = smoothstep(0.38, 1.0, r + (gwNoise(uv * 6.0 + uTime * 0.15) - 0.5) * 0.12);
       col = mix(col, uDangerColor * 0.05, clamp(uDanger * de, 0.0, 0.9));
 
-      // full-screen flash (mix, so a black flash is a fade)
-      col = mix(col, uFlashColor, clamp(uFlash, 0.0, 1.0));
+      // full-screen flash (mix, so a black flash is a fade). A light flash mixes in a perceptual
+      // (square-root) space: a linear mix of even 10% white lifts night ink to mid grey and flattens
+      // the whole frame, while this keeps the darks dark and the frame's contrast intact.
+      float fk = clamp(uFlash, 0.0, 1.0);
+      if (gwLum(uFlashColor) > 0.02) col = pow(mix(sqrt(col), sqrt(uFlashColor), fk), vec3(2.0));
+      else col = mix(col, uFlashColor, fk);
 
       #if GW_PAPER
         // faint paper: fine fibres in screen pixels + soft watercolour blotches

@@ -49,6 +49,8 @@ const FALLBACK = {
   stats: { maxHp: 5, maxOil: 100, maxSatiety: 100, oilDrain: 0.14, satietyDrain: 0.1, lightRadius: 8, armor: 0, dawnHeal: 1 },
 };
 const WARM = 0xffb347, HURT = 0xff6a3d, WARD = 0xcfe6ff, MEND = 0xffd9a0, GOLD = 0xffd27a;
+// event rings on the water around the raft are pale gold, never the lantern's orange (DESIGN §19.1 No ring)
+const RING_GOLD = 0xf0d49c;
 const GUTTER = 0xa2c8ff, WAX = 0xe9dfc6;   // darkness ticks gutter pale blue; starvation ticks are wax
 
 const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -302,7 +304,7 @@ export function create(ctx) {
         const p = lanternPos();
         fx.motes(p.x, p.y, p.z, { count: 34, color: WARM, speed: 4.2, spread: 0.45, life: 1.2, size: 0.19, gravity: -4.5, damping: 1.2, shape: 'cough' });
         fx.motes(p.x, p.y, p.z, { count: 10, color: 0xfff0c8, speed: 1.2, spread: 1, life: 0.5, size: 0.3, gravity: 0, damping: 3, shape: 'burst', intensity: 0.8 });
-        fx.ring(p.x, p.z, { radius: 3.2, color: WARM, duration: 0.7, width: 0.15, opacity: 0.9, breakup: 0.7, wash: 0.25 });
+        fx.ring(p.x, p.z, { radius: 3.2, color: RING_GOLD, duration: 0.7, width: 0.15, opacity: 0.9, breakup: 0.7, wash: 0.25 });
         ctx.render?.flash?.(0xffb347, 0.08, 0.35);
       } else {
         s.out = true;
@@ -317,7 +319,7 @@ export function create(ctx) {
       emit('lantern:lit', {});
       const p = lanternPos();
       fx.motes(p.x, p.y, p.z, { count: 16, color: WARM, speed: 2.4, spread: 0.5, life: 0.9, size: 0.15, gravity: -1.5, shape: 'cough' });
-      fx.ring(p.x, p.z, { radius: 3, color: WARM, duration: 0.55, width: 0.12, opacity: 0.7, breakup: 0.4 });
+      fx.ring(p.x, p.z, { radius: 3, color: RING_GOLD, duration: 0.55, width: 0.12, opacity: 0.7, breakup: 0.4 });
     }
   }
 
@@ -349,7 +351,7 @@ export function create(ctx) {
     if (!big && real(c) && 'lightMult' in c) return;
     const col = big ? GOLD : src === 'darkness' ? GUTTER : src === 'starvation' ? WAX : WARM;
     const dim = src === 'darkness' ? 0.6 : 1;
-    fx.ring(p.x, p.z, { radius, color: col, duration: big ? 0.9 : 0.42, width: big ? 0.1 : 0.13, opacity: dim, breakup: 0.55, wash: 0.28 });
+    fx.ring(p.x, p.z, { radius, color: col === WARM ? RING_GOLD : col, duration: big ? 0.9 : 0.42, width: big ? 0.1 : 0.13, opacity: dim, breakup: 0.55, wash: 0.28 });
     fx.ring(p.x, p.z, { radius: radius * 0.82, color: 0xfff1d6, duration: big ? 0.8 : 0.36, width: 0.05, opacity: 0.5 * dim, breakup: 0.8, wash: 0, delay: 0.05 });
     fx.motes(p.x, 0.45, p.z, { count: big ? 34 : 16, color: col, speed: radius * 2.1, life: big ? 0.7 : 0.45, size: 0.14, gravity: -4, damping: 3.2, shape: 'ring', radius: 1.2, intensity: dim });
   }

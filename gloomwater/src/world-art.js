@@ -12,11 +12,25 @@ import { paintRing } from './world-paint.js';
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 // Per-theme material colours (linear arrays built at runtime from hex).
+// Starlit (DESIGN §19): indigo-slate rock, violet-grey lichen, pale stone ruins; Mossmere reeds and
+// lily pads are dun-ochre (autumn), Sporewood caps autumn ochre on violet, the Pallid Deep bone-pale.
 const KIT = {
-  mossmere: { rock: 0x1a1e26, rockHi: 0x2c323e, moss: 0x3a3836, mossHi: 0x67625a, wood: 0x2e241b, woodHi: 0x4a3a2a, stone: 0x404858, iron: 0x121418, bone: 0x9ea2a8, organic: 0x3c3a38 },
-  sporewood: { rock: 0x221824, rockHi: 0x3c2a3e, moss: 0x4a2c4e, mossHi: 0x7a4a72, wood: 0x2a1c22, stone: 0x4a3a4c, iron: 0x140e14, bone: 0xb9a2a6, organic: 0x9a8794, cap: 0x3c2242, capHi: 0x6a3a5c },
-  glasswater: { rock: 0x11152a, rockHi: 0x1f2542, moss: 0x262f58, mossHi: 0x3c4a82, wood: 0x1c1d2c, stone: 0x404a70, iron: 0x0c0e1a, bone: 0x8a96c0, organic: 0x2a3466 },
-  paleabyss: { rock: 0x191815, rockHi: 0x2c2a25, moss: 0x48443a, mossHi: 0x8a8370, wood: 0x231f1a, stone: 0x5a564c, iron: 0x111010, bone: 0xd9d0bb, organic: 0xcfc6ae },
+  mossmere: { rock: 0x181a2e, rockHi: 0x30345a, moss: 0x3a3656, mossHi: 0x6a6690, wood: 0x2e241b, woodHi: 0x4a3a2a, stone: 0x8a8ca8, iron: 0x111222, bone: 0xbcbccc, organic: 0x7a5e30 },
+  sporewood: { rock: 0x221830, rockHi: 0x3c2a4e, moss: 0x4a2c5e, mossHi: 0x7c4c86, wood: 0x2a1c22, stone: 0x5c4c6a, iron: 0x140e18, bone: 0xc4aebe, organic: 0xb6a0b4, cap: 0x5e3c1e, capHi: 0xb8893a },
+  glasswater: { rock: 0x10142e, rockHi: 0x1e2652, moss: 0x262f66, mossHi: 0x3c4a94, wood: 0x1c1d2e, stone: 0x4a5488, iron: 0x0c0e1c, bone: 0x9aa2d2, organic: 0x2a3472 },
+  paleabyss: { rock: 0x18161e, rockHi: 0x2c2a34, moss: 0x46424e, mossHi: 0x8a8494, wood: 0x221e22, stone: 0x7c7684, iron: 0x111014, bone: 0xddd4c4, organic: 0xd2c8b6 },
+};
+
+// Per-lake sky (DESIGN §19.2): nebula 1 low, left of north (the title camera opens looking ~30° west
+// of north), so its glow spills behind the hero landmark's left flank and the far water mirrors it
+// at the left of the sail view (azimuth from north in radians, + = east; elevation; strength);
+// nebula 2 higher on the other side. Glasswater
+// has the most sky, the Pallid Deep the least (one dim ash-rose cloud).
+const SKY = {
+  mossmere: { az1: -0.55, el1: 0.16, w1: 0.95, az2: 0.75, el2: 0.48, w2: 0.4 },
+  sporewood: { az1: -0.3, el1: 0.2, w1: 1.25, az2: 0.7, el2: 0.42, w2: 0.7 },
+  glasswater: { az1: -0.5, el1: 0.2, w1: 0.95, az2: 0.8, el2: 0.52, w2: 0.85 },
+  paleabyss: { az1: -0.45, el1: 0.13, w1: 0.5, az2: 0.9, el2: 0.5, w2: 0.0 },
 };
 
 export function domeY(L, r) {
@@ -31,13 +45,18 @@ export function domeY(L, r) {
  */
 export function buildArena(ctx, L, opts = {}) {
   const zone = L.zone || {};
-  const pal = Object.assign({ fog: 0x262f40, fogDensity: 0.016, water: 0x232b3a, waterDeep: 0x080b12, foam: 0xd6deee, glow: 0xa9b9f0, accent: 0xc4b8ec, lamp: 0xc8d2f0, ambient: 0x46526a, ink: 0x05070a, far: 0x8292b4, light: 0xdae2f4 }, zone.palette || {});
+  const pal = Object.assign({ fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6, glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2, nebula: 0xd296ae, stars: 1.0 }, zone.palette || {});
   // optional `lamp` key: cold light for island lamps, buoys, statue orbs and the rings' lit windows
   // (falls back to `glow`), so lamps never compete with the Wick's lantern or the Cinders
   if (zone.palette && zone.palette.lamp == null) pal.lamp = pal.glow;
+  // optional `candle` key: the warm amber pinpoints on stone (lit ruin windows in the rings, lamp heads,
+  // statue orbs, candles on ruins and landmarks); falls back to `lamp`. Lamps on the water stay cold.
+  if (zone.palette && zone.palette.candle == null) pal.candle = pal.lamp;
   const theme = L.theme;
   const K = {}; for (const [k, v] of Object.entries(KIT[theme] || KIT.mossmere)) K[k] = lin(v);
-  const PL = {}; for (const [k, v] of Object.entries(pal)) if (typeof v === 'number' && k !== 'fogDensity') PL[k] = lin(v);
+  const PL = {}; for (const [k, v] of Object.entries(pal)) if (typeof v === 'number' && k !== 'fogDensity' && k !== 'stars') PL[k] = lin(v);
+  // the accent lights a candle anchor casts lean pale gold: warm on the stone, never a second lantern
+  const candleLight = mixHex(pal.candle, pal.light, 0.18);
   const quality = opts.quality || 'high';
   const low = quality === 'low';
   const rng = makeRng(L.artSeed);
@@ -165,12 +184,33 @@ export function buildArena(ctx, L, opts = {}) {
       prof.push(new THREE.Vector2(Math.max(0.01, r), domeY(L, r)));
     }
     const g = G(new THREE.LatheGeometry(prof, low ? 48 : 72));
-    domeMat = M(domeMaterial());
+    domeMat = M(domeMaterial({ low }));
     const dome = new THREE.Mesh(g, domeMat);
     dome.name = 'vault';
     dome.renderOrder = 50; // drawn after other opaques so early-z skips hidden pixels
     dome.frustumCulled = false;
     group.add(dome);
+  }
+
+  // ==================================================================== STARLIT SKY (DESIGN §19.1)
+  // The nebulae sit low behind the hero landmark (north of the gate, where the camera looks), the
+  // second higher and to the side; the milky-way band rises through the first. The water mirrors the
+  // same sky (world passes `sky` to water.setSky), so its stars and nebula match the vault.
+  const sky = (() => {
+    const ga = -Math.PI / 2;   // north (-Z): the sail camera's fixed view direction
+    const S = SKY[theme] || SKY.mossmere;
+    const dirAt = (az, el) => new THREE.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), Math.cos(el) * Math.sin(az));
+    const d1 = dirAt(ga + S.az1, S.el1), d2 = dirAt(ga + S.az2, S.el2);
+    const up = dirAt(ga + S.az1 + Math.PI * 0.85, 1.05);
+    const bandN = new THREE.Vector3().crossVectors(d1, up).normalize();
+    return { neb1: new THREE.Vector4(d1.x, d1.y, d1.z, S.w1), neb2: new THREE.Vector4(d2.x, d2.y, d2.z, S.w2), band: bandN };
+  })();
+  {
+    const du = domeMat.uniforms;
+    du.uNeb1.value.copy(sky.neb1); du.uNeb2.value.copy(sky.neb2); du.uBandN.value.copy(sky.band);
+    du.uNeb.value.set(pal.nebula ?? 0xd296ae);
+    du.uNebV.value.set(mixHex(pal.far, pal.nebula ?? 0xd296ae, 0.25)).multiplyScalar(0.55);
+    du.uStarCol.value.set(mixHex(pal.light, 0xdcdeff, 0.5));
   }
 
   // ==================================================================== PARALLAX RINGS
@@ -199,6 +239,7 @@ export function buildArena(ctx, L, opts = {}) {
       tex.generateMipmaps = true; tex.anisotropy = 4;
       tex.needsUpdate = true;
       const m = M(ringMaterial(tex, { repeat, offset: rng(), texelY: 1 / H }));
+      m.uniforms.uNeb1.value.copy(sky.neb1); m.uniforms.uNeb2.value.copy(sky.neb2);
       m.uniforms.uMistBot.value = -6; m.uniforms.uMistTop.value = r * (0.2 + 0.08 * t);
       m.uniforms.uMistAmt.value = 0.25 + 0.6 * t;
       m.uniforms.uRimAmt.value = 0.95 - 0.7 * t;
@@ -313,9 +354,9 @@ export function buildArena(ctx, L, opts = {}) {
       const lx = x + Math.cos(-ry) * 0.75, lz = z + Math.sin(-ry) * 0.75, ly = y + h - 0.35;
       kit.org.push(prep(new THREE.ConeGeometry(0.26, 0.22, 6), { matrix: mat(lx, ly + 0.3, lz), color: K.iron }));
       if (light) {
-        kit.glow.push(prep(new THREE.OctahedronGeometry(0.17, 0), { matrix: mat(lx, ly, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.lamp, 2.4) }));
-        halos.add(lx, ly, lz, scaleArr(PL.lamp, 1.3), 2.6);
-        addAnchor(lx, ly, lz, pal.lamp, 3.5, 12);
+        kit.glow.push(prep(new THREE.OctahedronGeometry(0.17, 0), { matrix: mat(lx, ly, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.candle, 2.4) }));
+        halos.add(lx, ly, lz, scaleArr(PL.candle, 1.1), 2.4);
+        addAnchor(lx, ly, lz, candleLight, 3.0, 12);
       }
     },
     reeds(x, z, n = 5, h = 1.6) {
@@ -442,9 +483,9 @@ export function buildArena(ctx, L, opts = {}) {
       }
       // cradled orb of light
       const ox = x + fx * s * 0.9, oz = z + fz * s * 0.9, oy = y0 + s * 1.2;
-      kit.glow.push(prep(new THREE.IcosahedronGeometry(s * 0.2, 1), { matrix: mat(ox, oy, oz), color: scaleArr(PL.lamp, 2.4) }));
-      halos.add(ox, oy, oz, scaleArr(PL.lamp, 0.9), s * 3);
-      addAnchor(ox, oy, oz, pal.lamp, 4, 14);
+      kit.glow.push(prep(new THREE.IcosahedronGeometry(s * 0.2, 1), { matrix: mat(ox, oy, oz), color: scaleArr(PL.candle, 2.4) }));
+      halos.add(ox, oy, oz, scaleArr(PL.candle, 0.8), s * 3);
+      addAnchor(ox, oy, oz, candleLight, 3.6, 14);
     },
     rib(x, z, r, h, rot) {
       const span = h * rng.range(0.35, 0.6);
@@ -481,8 +522,8 @@ export function buildArena(ctx, L, opts = {}) {
       const h = 0.25 * s * rng.range(0.6, 1.4);
       kit.org.push(prep(new THREE.CylinderGeometry(0.06 * s, 0.07 * s, h, 6), { matrix: mat(x, y + h / 2, z), color: K.bone }));
       if (lit) {
-        kit.glow.push(prep(new THREE.ConeGeometry(0.035 * s, 0.12 * s, 5), { matrix: mat(x, y + h + 0.07 * s, z), color: scaleArr(PL.glow, 3) }));
-        halos.add(x, y + h + 0.08 * s, z, scaleArr(PL.glow, 0.5), 0.9 * s);
+        kit.glow.push(prep(new THREE.ConeGeometry(0.035 * s, 0.12 * s, 5), { matrix: mat(x, y + h + 0.07 * s, z), color: scaleArr(PL.candle, 3) }));
+        halos.add(x, y + h + 0.08 * s, z, scaleArr(PL.candle, 0.5), 0.9 * s);
       }
     },
   };
@@ -491,7 +532,14 @@ export function buildArena(ctx, L, opts = {}) {
   for (const o of L.islands) {
     islandRock(o, theme === 'paleabyss' ? 0.6 : 1);
     if (theme === 'mossmere') {
-      if (o.big) { const c1x = o.x + o.r * 0.25, c1z = o.z - o.r * 0.1, c2x = o.x - o.r * 0.3, c2z = o.z + o.r * 0.2; P.column(c1x, c1z, 0.55, 3.2 + rng() * 2, true, surf(o, c1x, c1z)); P.column(c2x, c2z, 0.5, 1.8, true, surf(o, c2x, c2z)); }
+      if (o.big) {
+        const c1x = o.x + o.r * 0.25, c1z = o.z - o.r * 0.1, c2x = o.x - o.r * 0.3, c2z = o.z + o.r * 0.2;
+        P.column(c1x, c1z, 0.55, 3.2 + rng() * 2, true, surf(o, c1x, c1z));
+        const c2y = surf(o, c2x, c2z), c2h = 1.8;
+        P.column(c2x, c2z, 0.5, c2h, true, c2y);
+        // a few candles left burning on the broken drum (warm pinpoints on pale stone)
+        for (let i = 0; i < 3; i++) P.candle(c2x + rng.range(-0.25, 0.25), c2y + c2h * 0.62, c2z + rng.range(-0.25, 0.25), 1.2, true);
+      }
       if (o.big || rng() < 0.55) { const lx = o.x + rng.range(-0.3, 0.3) * o.r, lz = o.z + rng.range(-0.3, 0.3) * o.r; P.lamp(lx, surf(o, lx, lz), lz, rng.range(2.8, 3.8)); }
       const nr = 3 + ((rng() * 4) | 0);
       for (let i = 0; i < nr; i++) { const a = rng() * TAU, d = o.r * rng.range(1.05, 1.35); P.reeds(o.x + Math.cos(a) * d, o.z + Math.sin(a) * d, 4 + ((rng() * 4) | 0), rng.range(1.0, 1.9)); }
@@ -603,12 +651,27 @@ export function buildArena(ctx, L, opts = {}) {
       const [x, z] = at(ga, 16);
       const face = Math.atan2(-x, -z);
       const fx = Math.cos(face), fz = -Math.sin(face);
+      // the facing side of each tower, toward the lake (window slits sit just proud of the wall)
+      const wx = Math.sin(face), wz = Math.cos(face);
       for (const sd of [-1, 1]) {
         const tx = x + fx * sd * 13, tz = z + fz * sd * 13;
         const body = new THREE.CylinderGeometry(4.2, 5.2, 38, 8, 3);
         hero.ink.push(prep(body, { matrix: mat(tx, 15, tz, 0, face, sd * 0.03), color: inkC }));
         hero.ink.push(prep(new THREE.ConeGeometry(5.6, 14 + (sd > 0 ? 0 : 6), 8), { matrix: mat(tx, 34 + 7 + (sd > 0 ? 0 : 3), tz, 0, face, 0), color: inkC }));
-        hero.glow.push(prep(new THREE.BoxGeometry(0.7, 2.2, 0.3), { matrix: mat(tx - Math.sin(face) * -4.3, 22, tz - Math.cos(face) * -4.3, 0, face, 0), color: scaleArr(PL.lamp, 1.6) }));
+        // candle-lit window slits climbing each tower (warm amber pinpoints on the ink, DESIGN §19.3)
+        const wins = [[0, 22, 2.2], [sd * 1.6, 13, 1.6], [-sd * 1.2, 29, 1.4], [sd * 0.4, 6, 1.2]];
+        for (const [off, wy, wh] of wins) {
+          const r0 = 5.2 - (wy / 38) * 1.0 + 0.15;
+          const px = tx + wx * r0 + fx * off, pz = tz + wz * r0 + fz * off;
+          hero.glow.push(prep(new THREE.BoxGeometry(0.7, wh, 0.3), { matrix: mat(px, wy, pz, 0, face, 0), color: scaleArr(PL.candle, 1.8) }));
+          halos.add(px + wx * 0.6, wy, pz + wz * 0.6, scaleArr(PL.candle, 0.55), 4.5);
+        }
+      }
+      // braziers on the broken arch's crown
+      for (const ax of [-9, -2.5, 4]) {
+        const py = 26 + (ax + 13) * 0.55 - Math.abs(ax) * 0.08;
+        const px = x + fx * ax + wx * 0.4, pz = z + fz * ax + wz * 0.4;
+        halos.add(px, Math.min(36.5, py + 2.2), pz, scaleArr(PL.candle, 0.7), 3.6);
       }
       const arch = taperTube([V(-13, 26, 0), V(-8, 33, 0), V(0, 35.5, 0), V(6, 34, 0)], () => 1.6, 6, 16);
       hero.ink.push(prep(arch, { matrix: mat(x, 0, z, 0, face, 0), color: inkC }));
@@ -624,6 +687,8 @@ export function buildArena(ctx, L, opts = {}) {
         hero.ink.push(prep(cap, { matrix: mat(x, h, z, rng.range(-0.1, 0.1), ry, rng.range(-0.1, 0.1)), color: mixArr(inkC, K.cap, 0.4) }));
         const gill = latheGeo([[cr * 0.2, -ch * 0.05], [cr * 0.6, -ch * 0.08], [cr * 0.94, -ch * 0.03]], 18);
         hero.glow.push(prep(gill, { matrix: mat(x, h - 0.15, z, 0, ry, 0), color: scaleArr(i % 2 ? PL.accent : PL.glow, 0.9) }));
+        // gold spore-lights hanging under the cap rim
+        for (let k = 0; k < 3; k++) { const a2 = ry + k * 2.1 + rng.range(-0.3, 0.3), rr = cr * rng.range(0.55, 0.85); halos.add(x + Math.cos(a2) * rr, h - ch * 0.25 - rng.range(0, 2), z + Math.sin(a2) * rr, scaleArr(PL.glow, 0.55), 5); }
       }
     } else if (theme === 'glasswater') {
       for (let i = 0; i < 5; i++) {
@@ -659,6 +724,8 @@ export function buildArena(ctx, L, opts = {}) {
       ext1.y -= 8;
       const spine = taperTube([ext0, ...roots, ext1], (t) => 3.6 * (1 - t * 0.45), 8, 22);
       hero.ink.push(prep(spine, { color: inkC }));
+      // memorial candles still burning at the rib roots (amber pinpoints against bone and ink)
+      for (const rp of roots) for (let k = 0; k < 3; k++) halos.add(rp.x + rng.range(-3, 3), rp.y - 13 + rng.range(-1, 1.5), rp.z + rng.range(-3, 3), scaleArr(PL.candle, 0.6), 3.2);
     }
   }
   mark('props');
@@ -749,7 +816,7 @@ export function buildArena(ctx, L, opts = {}) {
   }
   if (theme === 'mossmere') {
     const pad = new THREE.CylinderGeometry(0.55, 0.55, 0.04, 12, 1, false, 0.3, TAU - 0.6);
-    prep(pad, { colorFn: (x, y, z) => scaleArr(mixArr(K.moss, K.mossHi, 0.15 + 0.35 * vnoise3(x * 3, 0, z * 3)), 0.75) });
+    prep(pad, { colorFn: (x, y, z) => scaleArr(mixArr(K.organic, K.woodHi, 0.2 + 0.5 * vnoise3(x * 3, 0, z * 3)), 0.7) });
     const padMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.18, rimColor: pal.far, steps: 3 }, { fogScale: 0.9 }));
     const flowerG = new THREE.ConeGeometry(0.1, 0.16, 6); flowerG.translate(0.1, 0.1, 0.05);
     prep(flowerG, { color: [1, 1, 1] });
@@ -951,8 +1018,10 @@ export function buildArena(ctx, L, opts = {}) {
   const tmpA = new THREE.Color(), tmpB = new THREE.Color(), tmpC = new THREE.Color();
   const C = (hex) => new THREE.Color(hex);
   const base = {
-    ink: C(pal.ink), fog: C(pal.fog), far: C(pal.far), light: C(pal.light), glow: C(pal.glow), lamp: C(pal.lamp), ambient: C(pal.ambient),
-    cold: C(0x0a1430), warm: C(0xffc49a), mistWarm: C(0xc08a6a),
+    ink: C(pal.ink), fog: C(pal.fog), far: C(pal.far), light: C(pal.light), glow: C(pal.glow), lamp: C(pal.lamp), candle: C(pal.candle), ambient: C(pal.ambient),
+    nebula: C(pal.nebula ?? 0xd296ae),
+    // Starlit moods (DESIGN §19.1): night sinks to ink-indigo, dawn is pale gold over lavender mist
+    cold: C(0x0b0d2e), warm: C(0xf2cfa4), dawnMist: C(0x9a92c8),
   };
   const farLum = new THREE.Color(), inkNear = new THREE.Color(), mistC = new THREE.Color();
 
@@ -960,8 +1029,8 @@ export function buildArena(ctx, L, opts = {}) {
     // env: { night 0..1, warm 0..1, fog: Color (final fog colour), glowK, shaftK, partK }
     const n = env.night, w = env.warm;
     farLum.copy(base.far).lerp(base.light, 0.12).multiplyScalar(1.12);
-    farLum.lerp(tmpA.copy(base.far).multiplyScalar(0.24).lerp(base.cold, 0.4), n * 0.92);
-    farLum.lerp(tmpA.copy(farLum).lerp(base.warm, 0.42).multiplyScalar(1.25), w * 0.65);
+    farLum.lerp(tmpA.copy(base.far).multiplyScalar(0.28).lerp(base.cold, 0.25), n * 0.92);   // the far ruins keep the lake's hue at night
+    farLum.lerp(tmpA.copy(farLum).lerp(base.dawnMist, 0.35).lerp(base.warm, 0.22).multiplyScalar(1.22), w * 0.65);
     inkNear.copy(base.ink).lerp(env.fog, 0.1);
     const nR = rings.length;
     for (let i = 0; i < nR; i++) {
@@ -970,15 +1039,22 @@ export function buildArena(ctx, L, opts = {}) {
       u.uColor.value.copy(inkNear).lerp(farLum, f);
       u.uMist.value.copy(inkNear).lerp(env.fog, 0.5 + 0.5 * t).lerp(farLum, 0.15 + 0.65 * t);
       u.uRim.value.copy(farLum).lerp(base.light, 0.45).multiplyScalar((1.25 - 0.6 * t) * (1 - 0.55 * n));
-      u.uGlow.value.copy(base.lamp).multiplyScalar((1.7 - 0.7 * t) * env.glowK);
+      // lit windows in the far ruins burn candle amber (fainter with distance, dimmer at night)
+      u.uGlow.value.copy(base.candle).multiplyScalar((1.5 - 0.7 * t) * env.glowK);
+      u.uGlowHi.value.copy(base.lamp).multiplyScalar((0.9 - 0.4 * t) * env.glowK);   // hanging ruins: cold lamps
       u.uVault.value.copy(base.ink).lerp(env.fog, 0.3 + 0.25 * t);
+      u.uNeb.value.copy(base.nebula).multiplyScalar((0.08 + 0.3 * t) * env.nebK);
     }
     const du = domeMat.uniforms;
-    du.uHorizon.value.copy(farLum).lerp(env.fog, 0.25);
-    du.uMid.value.copy(env.fog).lerp(base.ink, 0.5);
-    du.uZenith.value.copy(base.ink).lerp(env.fog, 0.12);
-    du.uWorm.value.copy(base.glow).multiplyScalar(1.4 * env.glowK);
-    du.uCrack.value.copy(base.light).lerp(base.warm, w * 0.5).multiplyScalar(1.2 * env.shaftK + 0.15);
+    // night sky: lavender haze at the horizon -> violet dusk -> deep indigo -> night ink overhead
+    du.uHorizon.value.copy(farLum).lerp(env.fog, 0.4);
+    du.uMid.value.copy(env.fog).lerp(base.ink, 0.35);
+    du.uZenith.value.copy(base.ink).lerp(env.fog, 0.18);
+    du.uStars.value = env.starK;
+    du.uStarDen.value = env.starDen;
+    du.uNebK.value = env.nebK;
+    du.uBandCol.value.copy(env.fog).lerp(farLum, 0.5).multiplyScalar(0.35);
+    du.uCrack.value.copy(base.light).lerp(base.warm, w * 0.5).multiplyScalar(0.8 * env.shaftK + 0.1);
     shafts.uniforms.uColor.value.copy(base.light).lerp(base.warm, w * 0.65);
     shafts.uniforms.uIntensity.value = env.shaftK;
     mist.uniforms.uColor.value.copy(env.fog).lerp(farLum, 0.5);
@@ -1053,7 +1129,7 @@ export function buildArena(ctx, L, opts = {}) {
   }
 
   return {
-    group, anchors, update, applyMood, dispose, rings, statics,
+    group, anchors, update, applyMood, dispose, rings, statics, sky,
     crackTop, crackBottom, dockBuoys, halos,
     setGate: (s, instant) => gate.set(s, instant),
     get gateState() { return gate.state; },

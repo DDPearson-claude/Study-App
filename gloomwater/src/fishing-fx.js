@@ -401,7 +401,7 @@ export function createFishingFx(ctx) {
     uSpot: { value: Array.from({ length: MAX_SLOTS }, () => new THREE.Vector4(0, 0, 0, 0)) },
     uSpotB: { value: Array.from({ length: MAX_SLOTS }, () => new THREE.Vector4(0, 2.6, 6, 0)) },
     uTime: time, uScale: scale,
-    uColA: { value: new THREE.Color(0xa9b9f0) }, uColB: { value: new THREE.Color(COL.bone) },
+    uColA: { value: new THREE.Color(0xb2b4ec) }, uColB: { value: new THREE.Color(COL.bone) },
     uColRareA: { value: new THREE.Color(COL.rareA) }, uColRareB: { value: new THREE.Color(COL.rareB) },
     uColLegend: { value: new THREE.Color(COL.legend) }, uColLegendB: { value: new THREE.Color(COL.legendB) },
   };
@@ -577,7 +577,7 @@ export function createFishingFx(ctx) {
   const fx = {
     group,
     MAX_SLOTS,
-    setZoneColor(hex) { try { spotU.uColA.value.set(hex ?? 0xa9b9f0); } catch { /* bad colour */ } },
+    setZoneColor(hex) { try { spotU.uColA.value.set(hex ?? 0xb2b4ec); } catch { /* bad colour */ } },
     setSlot(i, x, z, strength, kind, highlight = 0, radius = 2.6, height = 6) {
       if (i < 0 || i >= MAX_SLOTS) return;
       spotU.uSpot.value[i].set(x, z, Math.max(0, strength), kind);

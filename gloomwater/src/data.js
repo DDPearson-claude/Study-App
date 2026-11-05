@@ -351,9 +351,11 @@ export const ZONES = [
     unlock: { shells: 0, requires: [] },
     drain: { oil: 1.0, satiety: 1.0 }, gloom: 1.0, valueMult: 1,
     legendary: 'belled_matriarch', warden: 'the_wickeater', gateName: 'The Moss Sluice',
-    palette: { fog: 0x262f40, fogDensity: 0.016, water: 0x232b3a, waterDeep: 0x080b12, foam: 0xd6deee,
-      glow: 0xa9b9f0, accent: 0xc4b8ec, lamp: 0xc8d2f0, ambient: 0x46526a, ink: 0x05070a, far: 0x8292b4, light: 0xdae2f4 },
-    grade: { exposure: 1.02, bloomStrength: 0.85, bloomRadius: 0.6, bloomThreshold: 0.72, tint: 0x4c5278, tintAmount: 0.18, vignette: 0.38, saturation: 0.9, grain: 0.05 },
+    // "Starlit moat" (DESIGN §19.3): violet-dusk water under lavender mist, pale stone, candle-amber windows
+    palette: { fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6,
+      glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2,
+      nebula: 0xd296ae, stars: 1.0 },
+    grade: { exposure: 1.04, bloomStrength: 0.9, bloomRadius: 0.6, bloomThreshold: 0.7, tint: 0x40347e, tintAmount: 0.2, vignette: 0.38, saturation: 1.0, grain: 0.05 },
     description: 'The outer moat of the Lamplit Kingdom, drowned to the arches. Moss drinks the old stone and roots hang from the vault like the beards of sleeping giants. The fish here are forgiving. The dark, for now, only watches.',
   },
   {
@@ -386,9 +388,11 @@ export const ZONES = [
     unlock: { shells: 180, requires: [{ type: 'legendary', id: 'belled_matriarch', label: 'Land the Belled Matriarch' }] },
     drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.5,
     legendary: 'drifting_grove', warden: 'the_veiled_gardener', gateName: 'The Mycelium Veil',
-    palette: { fog: 0x2b1b30, fogDensity: 0.019, water: 0x2a1a2e, waterDeep: 0x0d0710, foam: 0xf3d3e0,
-      glow: 0xffb46a, accent: 0xff7fb0, ambient: 0x5b3f63, ink: 0x0b060d, far: 0x80588a, light: 0xffd9c4 },
-    grade: { exposure: 1.02, bloomStrength: 1.05, bloomRadius: 0.75, bloomThreshold: 0.68, tint: 0x6b3a6e, tintAmount: 0.2, vignette: 0.4, saturation: 0.9, grain: 0.05 },
+    // "Ember garden" (DESIGN §19.4): violet-magenta haze, autumn-ochre caps, gold spores, nebula-pink accents
+    palette: { fog: 0x402258, fogDensity: 0.019, water: 0x2c1842, waterDeep: 0x0e0716, foam: 0xeed8e6,
+      glow: 0xe8ac4c, accent: 0xe090bc, lamp: 0xc8aee6, candle: 0xed9e3b, ambient: 0x5c3a7c, ink: 0x0d0614, far: 0x9c74b8, light: 0xf2d8ea,
+      nebula: 0xe48cbc, stars: 0.8 },
+    grade: { exposure: 1.03, bloomStrength: 1.0, bloomRadius: 0.75, bloomThreshold: 0.68, tint: 0x5a2c78, tintAmount: 0.2, vignette: 0.4, saturation: 0.92, grain: 0.05 },
     description: 'Beneath the royal gardens the fungi kept growing long after the gardeners stopped. Towers of cap and gill rise from sweet, warm water, and the air is thick with spores that glow like embers that never learned to burn.',
   },
   {
@@ -420,9 +424,11 @@ export const ZONES = [
     unlock: { shells: 420, requires: [{ type: 'legendary', id: 'drifting_grove', label: 'Land the Drifting Grove' }] },
     drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
     legendary: 'glass_sovereign', warden: 'the_shard_abbot', gateName: 'The Vault Seal',
-    palette: { fog: 0x14173e, fogDensity: 0.012, water: 0x141b46, waterDeep: 0x04051c, foam: 0xc8e2ff,
-      glow: 0x5cbcff, accent: 0xb48cff, ambient: 0x30387e, ink: 0x03040e, far: 0x5460bc, light: 0xd6e2ff },
-    grade: { exposure: 1.05, bloomStrength: 1.15, bloomRadius: 0.55, bloomThreshold: 0.65, tint: 0x2e3494, tintAmount: 0.2, vignette: 0.35, saturation: 1.0, grain: 0.04 },
+    // "Sapphire orrery" (DESIGN §19.5): saturated cobalt-sapphire water, lilac crystal, the most starlight
+    palette: { fog: 0x172a7c, fogDensity: 0.012, water: 0x10226e, waterDeep: 0x030921, foam: 0xd6defa,
+      glow: 0xa0aaf8, accent: 0xd2baff, lamp: 0xb6c0ff, candle: 0xe8be77, ambient: 0x24409a, ink: 0x02051b, far: 0x5c78d4, light: 0xd8e0ff,
+      nebula: 0xcc8ed0, stars: 1.5 },
+    grade: { exposure: 1.06, bloomStrength: 1.15, bloomRadius: 0.55, bloomThreshold: 0.65, tint: 0x203ca8, tintAmount: 0.2, vignette: 0.35, saturation: 1.0, grain: 0.04 },
     description: 'Here the kingdom poured its light into crystal and shelved it like books. The water is cold and clear as a held breath. Every shard remembers a colour, and none remember why.',
   },
   {
@@ -451,9 +457,11 @@ export const ZONES = [
     unlock: { shells: 900, requires: [{ type: 'legendary', id: 'glass_sovereign', label: 'Land the Glass Sovereign' }] },
     drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
     legendary: 'pale_leviathan', warden: 'the_lightless_ferryman', gateName: null,
-    palette: { fog: 0x1c1b18, fogDensity: 0.022, water: 0x14130f, waterDeep: 0x030302, foam: 0xe9e2cf,
-      glow: 0xe8c66a, accent: 0xeae4d3, ambient: 0x3a3833, ink: 0x020202, far: 0xa8a18c, light: 0xf0dca0 },
-    grade: { exposure: 0.95, bloomStrength: 0.9, bloomRadius: 0.8, bloomThreshold: 0.7, tint: 0x5a4e2a, tintAmount: 0.12, vignette: 0.5, saturation: 0.6, grain: 0.07 },
+    // "Candle requiem" (DESIGN §19.6): near-black violet, bone-pale stone, amber candles, few stars
+    palette: { fog: 0x2c2448, fogDensity: 0.022, water: 0x1e183c, waterDeep: 0x07060e, foam: 0xe6e0d6,
+      glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x463e6c, ink: 0x030206, far: 0xa89ec8, light: 0xece2d2,
+      nebula: 0xa87a98, stars: 0.7 },
+    grade: { exposure: 0.97, bloomStrength: 0.95, bloomRadius: 0.8, bloomThreshold: 0.7, tint: 0x3a2c60, tintAmount: 0.18, vignette: 0.5, saturation: 0.85, grain: 0.07 },
     description: 'The deepest water. The kingdom set its dead adrift here with a candle each, and the candles went out long ago. Two veiled giants kneel in the mist, and the ribs of something larger than a cathedral arch overhead. Something below is breathing.',
   },
 ];
