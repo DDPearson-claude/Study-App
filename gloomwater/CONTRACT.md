@@ -1010,11 +1010,13 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 | `swarm:window` | `{state: 'open'\|'close', night, mode}` | combat → ui (Embers arc, Flare), audio, world |
 | `waystone:lit` | `{zone}` | progression → world (growth), ui, audio |
 | `tackle:buy` / `tackle:fit` | `{slot, tier}` · `outfit:buy {item, level}` · `lure:buy {lureId}` | progression → actors (bench models), ui, audio |
-| `levelup:banked` | `{count}` | combat → ui (the next measuring card / the dawn bell) |
+| `levelup:banked` | `{count, level, added}` | combat → ui (the next measuring card / the dawn bell), progression (meta.bestLevel) |
+| `fishing:tell` | `{speciesId, sizeClass, biteTell: 'doublePop'\|'plunge'\|'dragUnder'\|'flatSlide'\|'dome', lead, dur}` — `lead` s before the bite; `dur` the float animation's length (P1) | fishing → ui (U2), audio (the class's bite sound) |
+| `fishing:pip` | `{n, max}` (a hook-hold pip lost; a throw at 0) · `fishing:oldTrick` `{speciesId, kind: 'pull'\|'leap', style}` (an Elder, once, past 55 %) · `fishing:snag` `{state: 'warn'\|'hit', lead?, spike}` (Still / Lantern Grasping Dark) (P1) | fishing → ui, audio, combat (draws the hand on `warn`) |
 | `rumour:new` / `rumour:solved` | `{id, tier}` | progression → ui |
 | `ledger:refresh` / `ledger:complete` | `{slot, req}` | progression → ui |
 
-**Changed payloads (additive):** `zone:change` + `hub`, `from`, `continued`; `fishing:bite` + `{sizeClass, biteTell}`; `fishing:hook` + `{pips}`; `fishing:caught` + `{fish, z, sizeClass, ancient, length, favours}` (`weight` stays kg; **informational only**: fishing already holds the Fish from `progression.makeFish`, and nothing is written on it); `fish:landed` + `{measured: true}` (it follows `fish:measured`); `player:died` cause + `'snuffed'`; `phase:change` + `{nightMode, swarm: bool}` on the night; `run:start` / `run:end` kept as legacy aliases of `expedition:start` / `expedition:end` until every listener migrates. **Tips** may trigger on any v3 event (`event` or `event:<disc>` as §12.3).
+**Changed payloads (additive):** `zone:change` + `hub`, `from`, `continued`; `fishing:bite` + `{sizeClass, biteTell}`; `fishing:hook` + `{pips}`; `fishing:surge` + `{trick}`; `fishing:miss` reason + `'passed'` `{refunded, favour}` (a lapsed bite let pass: refundBait, keeps the streak); `fishing:escaped` reasons + `'thrown'`, `'spooled'`; `fishing:caught` + `{fish, z, sizeClass, ancient, length, favours}` (`weight` stays kg; **informational only**: fishing already holds the Fish from `progression.makeFish`, and nothing is written on it); `fish:landed` + `{measured: true}` (it follows `fish:measured`); `player:died` cause + `'snuffed'`; `phase:change` + `{nightMode, swarm: bool}` on the night; `run:start` / `run:end` kept as legacy aliases of `expedition:start` / `expedition:end` until every listener migrates. **Tips** may trigger on any v3 event (`event` or `event:<disc>` as §12.3).
 
 `ExpeditionSummary = { result, outing, nightMode, zone, startZone, days, nights, fishCaught, pbs: [speciesId], classFirsts: [{speciesId, sizeClass}], places: [placeId], marked: [Fish], creel: [Fish], creelShells, tally: {dawns, stillNights, swarmNights, lakesCrossed, ledger, total, mult}, memories, shellsEarned, markedFishCreated: [id], nearMisses: [string], nextGoal: string, records: [string], challengesCompleted }`.
 
@@ -1132,7 +1134,11 @@ In the hub: returns early (no clock, no drains). Satiety → Well-fed (`BALANCE.
 ```
 nightMode (getter: run.nightMode); swarmTonight (bool); swarmActive (bool: inside the window now, or a Gloomtide calm raid; render's night camera follows it)
 pendingOptions / chooseBoon unchanged; bankedLevels (= run.levelBank); offerBanked() -> BoonOption[]|null   // ui calls it on the measuring card or at the dawn bell
+                                                            //   (it sets pendingOptions; chooseBoon(id) / skip() spend exactly one banked level, synchronously)
+presentation {aura 0..1, embers, flare}; auraShown, embersShown, flareShown   // §25.5.7 by night mode (the day screen carries no combat UI);
+                                                            //   flare() / canFlare() refuse, free, where the mode's table hides the Flare
 ```
+Lantern's Warden rises at `BALANCE.nightModes.lantern.wardens.at` of the swarm window (0.10).
 Director: `difficultyFor()` × `BALANCE.nightModes[mode].mult`, only inside `swarmWindow(mode, night, outing)` (data helper; Lantern k 0.05 → 0.50 on even nights, Gloomtide whole night, Still never, First Outing never); Lantern first elite at Heat ≥ 3, one formation per swarm, Wardens every 2nd swarm night (nights 4, 8) at hp × 0.75 withdrawing when the window closes; calm raids only in Gloomtide; Heat = max(day − 1, arrival offset) + 3 × zone with offsets from `EXPEDITION.deepStarts.heatOffset`; the linger rule in combat modes. Lantern threat model: fodder contact drains oil not Embers, a creelsnatch takes one fish not marked for home and never acts while a fish is hooked, slams never snap, Embers lost only to telegraphed hits; **while `fishing.state ∈ {reeling, landing}` no knockback (`knockPlayer`, slam knock) or Bulwark shove moves the Wick or the raft**, and `combat.onPointerDown` does not release the reel (in Still and Lantern a tap while hooked is ignored by combat); Scorched per §13.4. Gloomtide keeps today's slams and creelsnatch, except that a fish marked for home is never taken (`threat.creelsnatch: 'unmarked'`). XP per mode (`BALANCE.xpModes`, Still fish XP × 1.4 with no zone factor, discovery XP ≤ +12 per day); **level-ups earned while fishing, sailing or walking are banked** (`levelup:banked`), immediate only during a swarm; Angler-tagged offers capped at the Still rate in combat modes; Kindles only in combat modes; deep-start picks and Draft levels non-Angler. Still / Lantern legend fights: the Glass Sovereign without spawns; the Lantern-Swallower's Grasping Dark as two telegraphed snags (hand silhouette 1 s ahead, +0.2 tension). In the hub: returns early.
 
 **player**
@@ -1151,9 +1157,11 @@ Hub mode: foot movement (§24's foot controller: DESIGN §25.14.4 S0 builds it i
 setZone('cove')                                            // builds COVE (never ZONES[0]); getZone() -> COVE in the hub
 getStations() -> [{id, name, position, pill, range}];  getHomeward() -> {position, radius} (the lake's stone: ZONES[].homeward; a r 0.6
                                                             //   lantern-stone with a raft collision circle on raft lakes and a walk BLOCK (h 1.4) on foot lakes)
-getWatchLamps() -> [{id, position, radius, lit}]           // P1: ZONES[].arena.watchLamps (the Mossmere's drawn dock buoy-lamps; raft fallbacks for §24's
-                                                            //   lakes without §24) or §24 lamps with watch: true; radius 6 (BALANCE.nightModes.lampWatch.radius)
-getGiantSpots() -> [{id, kind, x, z, r}]                   // the stopgap's holdsGiants water in a lake whose places are not in the build (arena.giantSpots)
+getWatchLamps() -> [{id, x, z, position, radius, lit, name, dock, kind: 'buoy'|'candle'}]   // P1: ZONES[].arena.watchLamps (the Mossmere's drawn dock
+                                                            //   buoy-lamps; raft fallbacks for §24's lakes without §24) or §24 lamps with watch: true; radius 6
+                                                            //   (BALANCE.nightModes.lampWatch.radius); the same array every call; ids stable (se_buoy, w_buoy);
+                                                            //   a §24 sister-candle reports lit:false until lit, and survival and ui skip entries with lit === false
+getGiantSpots() -> [{id, kind, x, z, r}]                   // the stopgap's holdsGiants water in a lake whose places are not in the build (arena.giantSpots); copies
 getDepth(x, z)                                             // CHANGED (every lake, raft lakes too): inside a place's water clamped to place.water.depth (as §24.4)
 pickFrame(ndc) -> speciesId|null                           // hub, `wall` camera only: raycast against the mount batch and the frame atlas quads
 setGrowth(landing)                                         // visibility / emissive only: frames, wings, sailcloth, stair, lanterns, keepsakes, legends
@@ -1173,8 +1181,13 @@ setPondHole({x, z, r} | null)                              // one vec4 uPondHole
 setClear([{x, z, r, k, paint: {atlas, cell, rect: [x0, z0, w, h]}}] | [])   // uClear[2]; each disc samples its own cell of one painting atlas (256², 2 cells;
                                                             //   128² and radius × 0.7 on low), mapped by its world rect (MOSSMERE_V3.happening.clear)
 setBand({x, z, angle, width, k} | null)                    // P4 the Alignment: one vec4 + vec2 band-mask uniform (not uClear discs)
-setGlowtide(k 0..1)                                        // night sparkle; off on low
-addRipple / addWake (kept)                                 // fishing-fx calls these for signs; water draws no sign of its own (one owner: fishing-fx)
+setGlowtide(k 0..1 | null)                                 // night sparkle; off on low. In a v3 run water eases it from survival.getPhaseInfo() itself (calm 0,
+                                                            //   a dusk glimmer, night 1, the dawn fade; not in The Long Descent); k overrides, null hands it back.
+                                                            //   It exists in every build (a no-op in v1 / v2)
+signKinds: ['rise','boil','nervous','strike','bubbles','glow'] // v3 builds only (undefined in v1 / v2): fishing feature-detects tagged marks with Array.isArray
+addRipple(x, z, strength, {kind, size (m) | length | sizeClass, delay, noSplash}?)   // kept; the tag makes a sign mark (broken arcs, ink troughs; the strike
+addWake(x, z, dirX, dirZ, strength, {kind: 'glow'}?)                               //   throws its own spray crown unless noSplash). Untagged = v1. fishing
+                                                            //   paints the signs (fishing-fx owns sign linework and the pre-rolled fish; water only its marks)
 setCondition({swell, rain})                                // Hush swell × 0.2, Drizzle rings
 ```
 The pond surface (transparent, after the pond fish, no depth write) and the floor disc at y −0.7 are water's (+2 calls).
@@ -1182,13 +1195,18 @@ The pond surface (transparent, after the pond fish, no depth write) and the floo
 **render**
 ```
 modes += 'trophy' | 'cove' | 'gate' | 'wall' | 'hang' | 'pond' | 'setout' | 'vista' (P4)   // every number in BALANCE.cameras, in render's convention
-setTrophyTarget({length, landmark})                                                        // landmark = data.landmarkOf(place) | null
+setTrophyTarget({length (m), landmark, position?, place?})                                // landmark = data.landmarkOf(place) | null; null at the card
 ```
+The trophy subject is `actors.getMeasureFocus()` while a measuring pose is up; after `setTrophyTarget(null)` the framing holds while `ui.isBlocking()` (the catch card) and eases back 0.6 s after. Landscape keeps the distance rule exactly; a phone held upright may step back up to 1.6× it (fov capped at 66°).
 `BALANCE.cameras` presets carry render's full parameter set (`elev, dist, aim, aimY, fov, ahead, stiff`; pitch = atan((dist·sin elev − aimY) / (dist·cos elev + aim)), not elev) and a `portrait {elev, dist, fov}` that replaces v1's widening on foot and in the cove; raft presets keep v1's widening. sail 24° / 15 m / aim 6.5 / aimY 1.4 / fov 52; fish 28° / 13 m; `walk` 34° (§24.5 v3); the reel camera follows line distance and fight state only, never size class; **the night overview blends in only while `combat.swarmActive`** (quiet nights, Stillnights and lamp-watches keep sail / fish with the night grade); `trophy` distance `clamp(1.2 + 1.6·L, 1.6, 16)` m, crane to 50° above 4 m, yaw toward the landmark by at most ±35° from north (on foot the occlusion cone and terrain clamp stay on; no landmark → no yaw change); `gate` only during glides or at its look spot on the jetty root with no line out; `wall` focuses the nearest wing (aimY = its middle frame band); `hang` focuses the frame centre; the title orbits a southern arc of the cove. The leap reveal's slow motion goes through `ctx.game.slowmo(0.25, 0.35)` (main owns `ctx.time.timeScale`).
 
 **models**
 ```
-createFish(speciesOrId, {z} | weightKg) -> FishVisual      // CHANGED: {z} → true length L in metres (sizeLength), no ±22% scaling; the 0.12 m floor drops to 0.04 m
+createFish(speciesOrId, {z, zone?, lengthCm?} | weightKg) -> FishVisual   // CHANGED: {z} → true length L in metres (sizeLength at arg.zone, else the run's),
+                                                            //   no ±22% scaling; the 0.12 m floor drops to 0.04 m; {lengthCm} sizes any model exactly (a bare shape too)
+FishVisual += length (m), trueScale, setSilhouette(k 0..1)   // 1 = the unidentified fish of the bite and the play: a night-ink shape at its true size, no colour,
+                                                            //   pattern, glow or eye of its species; 0 gives every part back (the landing). Nothing but fishing
+                                                            //   toggles a held fish's visibility (never forced visible while fishing holds it)
 buildMountBatch(entries: [{speciesId, z, position, yaw, frame, view}]) -> {near: Object3D[], far: Object3D, dispose()}
                                                             // per wall: one full-detail batch per wing (≤ 12 fish) + one LOD batch (≤ 600 tris per fish) for
                                                             //   everything else; world swaps them by wing distance (no rebuild); ≤ 12 calls, ≤ 80k tris in view;
@@ -1199,6 +1217,12 @@ fish shapes += 'sturgeon'; params += pattern 'marks', barbels, needleSnout; age 
 **actors**
 ```
 setPose(name) += 'measurePalm' | 'measureArms' | 'measureHang' | 'measureAlongside';  showCord(lengthM, k 0..1)
+showCatch(fishVisual | null)                               // the landed fish handed over for the ceremony (fishing calls it; the pose follows its length)
+measurePoseFor(lengthM, {legendary}) -> pose name ; measurePose (getter) ; getCordInfo() -> {k, length, start, end, radius} | null
+getMeasureFocus(out) -> {center, radius, pose, fish?: {center, axis (snout → tail, unit), length}} | null   // the trophy camera's
+                                                            //   subject (render) while a measuring pose is up. An alongside fish lies along the raft's flank,
+                                                            //   or across its near end when the raft's long axis points at the camera (never end-on); in a
+                                                            //   close-up the raft's pole, hanging lantern and pennant step aside when they stand in front of it
 merchant.arrive(position, yaw, {instant}); merchant.freeze(on); raft.freeze(on)   // ≈ 26 → 8 and → 4 calls
 pond: { set(entries), update(dt), pick(ndc) -> uid|null }  // ≤ 6 live (2 on low), looping paths inside the hole; pick only in the `pond` camera
 setDozingWicks(characterIds)                               // one merged static silhouette
@@ -1336,3 +1360,7 @@ TIPS += TIPS_V3; MERCHANT_LINES += MERCHANT_LINES_V3; TEXT.v3 = TEXT_V3; TEXT.ch
 ### 13.11 Debug hooks (v3)
 
 fishing `forceBite({speciesId, z, place})` (extends v1's `forceBite()`), `instantCatch(speciesId?, {z})`, `setFavour(mu | null)`, `sign(kind)`, `preroll(speciesId, z)`; survival `setDay(n)` (Far Water), `snuff()`, `scorch()`, `lampWatch(lampId)`; combat `mode(name)` (test only: switches `run.nightMode`), `swarmNow()`; progression `giveTackle(slot, tier)`, `giveOutfit(item, level)`, `lightWaystone(zone)`, `openGateFor(zone)`, `rollResident(zone, place, z?)`, `addMarkedFish(speciesId, z, place)`, `condition(zone, archetype)`, `todaysRumour(id)`, `migrate(saveJson)`, `homecoming()`; world `growth(flags)`, `giantSpots()`, `cove()`, `v0(on)` (force Landing v0); progression `moonfall()` (fires the next Moonfall now), `planSetOut(plan)`, `phase()` (reads `data.V3_PHASE`); player `walkTo(stationId)`; ui `ui()` += `{hub, screen}`. `window.__gw.debug.v3()` returns `{flow, outing, nightMode, day, farWater, favour, pressure, liveWell, residents}`.
+
+**Built in P1** (the P1 staging merge, additive to the list above): fishing `forceBite({speciesId, z, place, wait})` (`wait`: land and let the tell play), `fishHook(speciesId, {z})`, `fishSeed(n | null)` (seeds the size roll), `fishPressure()`, `fishReel()` (the live reel), `fishing()` += `{z, sizeClass, ancient, length, mu, terms, tell, place, giant, pressureKey, letPass, extShift, hookSafe, nightMode, clean}`; survival `gutter()`, `hush(day)`, `lampWatch(lampId | null)` (S6: starts tonight's watch at that lamp, `null` ends a non-forced one; Lantern only), `survival()` += `{v3, nightMode, oilContext, wellFed, guttering, gutterLeft, scorched, lampWatch, durations}`; combat `combatV3()` (mode, window, difficulty readout), `snag()` (a Grasping Dark snag on the hooked legend); audio `audioLog(n)` → `[{name, at, t, pan, why}]` (`at` the audio time a sound was issued, `t` its scheduled start), `audio()` += `{time, auto, nightMode, cord, loops.bed}`; main `setV3(on, phase)`, `beats()`, `timeScale(x)` (the base time scale `slowmo` restores). Audio's Au1 sounds are `cord_tick`, `class_chime`, `seal_stamp`, `bite_doublepop`, `bite_plunge`, `bite_dragunder`, `bite_flat`, `bite_dome`, `rise_plip`, `rise_gulp`, `night_rise`, `stillnight_bed`, `murk_bell_far` (the Old Ledger bell on `fish:measured`) and the `stillnight` mood (`audio.v3Names`, `audio.v3Moods`); `fishing:oldTrick` and `fishing:snag` reuse `surge_warn` / `line_strain`.
+
+**Built in P1b** (the gw-p1-full staging merge, additive): fishing `sign(kind, {x, z, speciesId, size, ttl, heading})`, `preroll(speciesId, z)`, `fishSigns()`, `ceremony()` → `{active, t, stamped, posed, pose, dur, beats, L, legendary, uid, cinematic}`, `cerRate(k)` (the ceremony clock for screenshots on software GL; keep ≥ 0.25), `fishing()` += `{meshVisible, veiled, silhouette}`; render `camera()` → `{v3, mode, prevMode, cur, tgt, yawDeg, fov, pitchDeg, presetPitchDeg, focus, pos, camToFocus, nightK, swarmActive, aspect, presets, trophy: {on, hold, t, length, dist, crane, yawDeg, landmark, place, radius, subject, camToSubject} | null}`; water `water()` → `{tier, v3, glowtide, glowTarget, glowManual, glowLive, lowDefine, ripN, wakeN, signRipN, signWakeN, signMarks, signWakes, uniforms, maxRip, maxWake, particles}`; world `watchLamps()`, `worldV3()` (v3 only); combat `combatV3()` += `{present, auraShown}`; ui `measureDebug()` (the overlay: `{t, plan, cls, f5, stamped, done, length, max, records, skippable}`).

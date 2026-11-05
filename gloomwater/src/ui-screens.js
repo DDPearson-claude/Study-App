@@ -3,8 +3,9 @@
 // Shrine of Drowned Lanterns, trials (challenges), settings, pause, Descend, death and
 // victory. Built on the modal stack in ui.js. Imported only by ui.js.
 import { loadSave } from './core.js';
-import { wickPortrait, murkPortrait, relicLantern } from './ui-icons.js';
+import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS } from './ui-v3.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -225,11 +226,50 @@ export function createScreens(K) {
   function openNewDescent() {
     const m = meta();
     const chars = characters();
-    const st = { sel: null, zone: 'mossmere', titleChild: true };
+    const st = { sel: null, zone: 'mossmere', titleChild: true, mode: null, step: 'wick' };
     st.sel = (chars.find((c) => c.id === m.lastCharacter && c.unlocked) || chars.find((c) => c.unlocked) || chars[0])?.id;
+    // v3 (DESIGN §25.14.2 U17): the night-mode cards, a second step after the Wick; a fresh save sees only the First Outing,
+    // from run 2 Still / Lantern / Gloomtide with Lantern preselected
+    const nightModes = () => (D().V3_ENABLED ? modeCards(D(), safe(() => ctx.progression?.getNightModes?.(), null), { runs: num(meta().runs) }) : null);
+    st.mode = nightModes()?.selected ?? null;
+    const descend = (s, mc) => {
+      const zone = s.zone, ch = s.sel, nm = mc && !mc.first && s.mode !== 'first' ? s.mode : undefined;
+      K.closeAll();
+      ctx.game?.startNewRun?.(mc ? { startZone: zone, character: ch, nightMode: nm } : { startZone: zone, character: ch });
+    };
+    /** Step two: the nights, chosen for the whole descent (or the First Outing's one card). */
+    function nightsStep(entry, body, s, mc, c) {
+      if (!mc.cards.some((x) => x.id === s.mode)) s.mode = mc.selected;
+      const zn = K.zoneData(s.zone)?.name || 'the Mossmere';
+      const { content, foot } = panel(entry, body, { title: mc.first ? 'Your First Outing' : 'The Nights',
+        sub: mc.first ? 'The Gloom stays away this time. Fish, and learn the water.' : 'How the nights will go, chosen for the whole descent.', cls: 'gw-p-wide gw-p-descent gw-p-nights' });
+      const sec = h('section', `gw-modes gw-modes--step${mc.first ? ' gw-modes--first' : ''}`);
+      const row = h('div', 'gw-mode-row');
+      row.setAttribute('role', mc.first ? 'group' : 'radiogroup');
+      mc.cards.forEach((card, i) => {
+        const b = h('button', `gw-mode gw-mode--${esc(card.id)}${card.id === s.mode ? ' gw-on' : ''}`);
+        b.type = 'button';
+        b.dataset.mode = card.id;
+        b.setAttribute('role', mc.first ? 'note' : 'radio');
+        if (!mc.first) b.setAttribute('aria-checked', card.id === s.mode ? 'true' : 'false');
+        b.innerHTML = `<span class="gw-mode-vig">${modeVignette(card.id)}</span><span class="gw-mode-name">${ORN.hookL}<b>${esc(card.name)}</b>${ORN.hookR}</span><span class="gw-mode-line">${esc(card.line)}</span>${!mc.first && !K.isTouch ? `<kbd>${i + 1}</kbd>` : ''}`;
+        if (!mc.first) b.addEventListener('click', () => { if (s.mode !== card.id) { s.mode = card.id; sfx('ui_click'); entry.render(); } });
+        row.appendChild(b);
+      });
+      sec.appendChild(row);
+      sec.insertAdjacentHTML('beforeend', `<p class="gw-modes-who">${esc(c?.name || 'The Wick')} \u00b7 setting out from ${esc(zn.replace(/^The /, 'the '))}</p>`);
+      content.appendChild(sec);
+      content.classList.add('gw-scroll');
+      foot.appendChild(btn('Back', { onClick: () => { s.step = 'wick'; sfx('ui_click'); entry.render(); } }));
+      foot.appendChild(btn(`Descend as ${esc(c?.name || 'the Wick')}`, { cls: 'gw-btn--primary', autofocus: true, icon: 'flame', onClick: () => descend(s, mc) }));
+    }
     K.openModal('newdescent', (entry, body) => {
       const s = entry.state;
       const list = characters();
+      const mc = nightModes();
+      const c = list.find((x) => x.id === s.sel) || list[0];
+      if (mc && s.step === 'nights' && c?.unlocked) { nightsStep(entry, body, s, mc, c); return; }
+      s.step = 'wick';
       const { content, foot } = panel(entry, body, { title: 'A New Descent', sub: 'Choose the Wick who goes down, and where the water begins.', cls: 'gw-p-wide gw-p-descent' });
       const grid = h('div', 'gw-chars');
       list.forEach((c, i) => {
@@ -240,7 +280,6 @@ export function createScreens(K) {
         grid.appendChild(b);
       });
       content.appendChild(grid);
-      const c = list.find((x) => x.id === s.sel) || list[0];
       const det = h('div', 'gw-char-detail');
       if (c) {
         if (c.unlocked) {
@@ -292,20 +331,25 @@ export function createScreens(K) {
       }
       content.classList.add('gw-scroll');
       foot.appendChild(btn('Back', { onClick: () => K.closeModal('newdescent') }));
-      foot.appendChild(btn(c?.unlocked ? `Descend as ${esc(c.name)}` : 'Locked', {
-        cls: 'gw-btn--primary', disabled: !c?.unlocked, autofocus: true, icon: 'flame',
-        onClick: () => { const zone = s.zone, ch = s.sel; K.closeAll(); ctx.game?.startNewRun?.({ startZone: zone, character: ch }); },
-      }));
-    }, { state: st, onKey: (code) => {
-      if (code === 'ArrowLeft' || code === 'ArrowRight') {
-        const list = characters(); const t = K.top(); const s = t.state;
+      if (mc && c?.unlocked) {
+        foot.appendChild(btn(mc.first ? 'Your first outing' : 'Choose the nights', { cls: 'gw-btn--primary', autofocus: true, icon: 'moon', onClick: () => { s.step = 'nights'; sfx('ui_click'); entry.render(); } }));
+      } else {
+        foot.appendChild(btn(c?.unlocked ? `Descend as ${esc(c.name)}` : 'Locked', { cls: 'gw-btn--primary', disabled: !c?.unlocked, autofocus: true, icon: 'flame', onClick: () => descend(s, mc) }));
+      }
+    }, { state: st, onEscape: (entry) => { if (entry.state.step === 'nights') { entry.state.step = 'wick'; entry.render(); } else K.closeModal('newdescent'); }, onKey: (code) => {
+      const t = K.top(); const s = t?.state;
+      if ((code === 'ArrowLeft' || code === 'ArrowRight') && s?.step !== 'nights') {
+        const list = characters();
         const i = list.findIndex((x) => x.id === s.sel);
         s.sel = list[(i + (code === 'ArrowLeft' ? -1 : 1) + list.length) % list.length].id; sfx('ui_hover', { volume: 0.3 }); t.render(); return true;
       }
-      if (code === 'Enter') { const b = K.top()?.el.querySelector('.gw-pf .gw-btn--primary:not([disabled])'); if (b && document.activeElement?.tagName !== 'BUTTON') { b.click(); return true; } }
+      if (code === 'Enter') { const b = t?.el.querySelector('.gw-pf .gw-btn--primary:not([disabled])'); if (b && document.activeElement?.tagName !== 'BUTTON') { b.click(); return true; } }
+      const dm = /^(?:Digit|Numpad)([1-3])$/.exec(code);
+      if (dm) { const b = t?.el.querySelectorAll('.gw-mode[role="radio"]')[Number(dm[1]) - 1]; if (b) { b.click(); return true; } }
       return false;
     } });
   }
+
 
   // ================================================================== CATCH CARD
   // Direction C, "Ink-Wash Field Journal" (DESIGN §21.6): a feathered patch of ink instead of a
@@ -327,8 +371,38 @@ export function createScreens(K) {
   }
   const PHASE_WHEN = { calm: 'in the calm', dusk: 'at dusk', gloomtide: 'in the Gloomtide', dawn: 'at grey dawn' };
   const firstSentence = (t) => { const m = /^(.+?[.!?])(\s|$)/.exec(String(t || '').trim()); return m ? m[1] : String(t || '').trim(); };
+  // v3 (DESIGN §25.6.8, §25.14.2 U2): the card prints the measured fish — its class as the stamp (and its seal), length in
+  // cm, weight in kg, an Elder's name, and the favours that applied, as the float showed them (notches + plain words)
+  const CLASS_PHRASE = { small: 'only a little one.', keeper: 'a keeper.', prize: 'a prize!', trophy: 'a real trophy!', elder: 'an Elder!' };
+  const isV3Fish = (fish) => !!D().V3_ENABLED && typeof fish?.sizeClass === 'string' && num(fish?.length) > 0;
+  function catchNotesV3(p, sp, fish) {
+    const r = run();
+    const legend = sp.rarity === 'legendary';
+    const ci = classInfo(D(), fish.sizeClass, fish.ancient) || { id: 'keeper', label: 'Keeper', seal: null, rank: 1 };
+    const recs = arr(p.records);
+    const classFirst = !p.isNew && recs.some((x) => x?.kind === 'classFirst' && !x.ancient);
+    const z = K.zoneData(sp.zone) || K.zoneData(r?.zone);
+    const zn = (z?.name || '').replace(/^The /, 'the ');
+    const stamp = legend ? 'Legend' : ci.label;
+    const kicker = legend ? `A legend of ${zn || 'the deep'}` : p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
+      : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`;
+    const len = fmtLength(fish.length, D());
+    const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
+      : p.isRecord ? 'biggest yet!' : ci.id === 'trophy' ? CLASS_PHRASE.trophy : p.isNew ? 'a first!' : CLASS_PHRASE[ci.id] || '';
+    // the bait it took: the cast's own (its favour term names it) before whatever is equipped now
+    const castBait = arr(fish.favours).map((t) => (t?.family === 'tackle' ? K.baitData(t.id) : null)).find(Boolean);
+    const eq = safe(() => ctx.progression?.getEquippedBait?.(), r?.equippedBait ?? null);
+    const bait = castBait || K.baitData(typeof eq === 'object' && eq ? eq.id : eq);
+    const ph = K.phaseInfo()?.phase || r?.phase || 'calm';
+    const night = ph === 'gloomtide' && r?.nightMode && r.nightMode !== 'gloomtide' && !safe(() => ctx.combat?.swarmActive, false) ? 'on a still night' : PHASE_WHEN[ph];
+    const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${night || ''}${r?.day ? `, day ${r.day}` : ''}`;
+    const favours = arr(fish.favours);
+    const mu = favourMu(favours, D());
+    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true };
+  }
   /** The catch as the journal records it: stamp, kicker, note, numbers. */
   function catchNotes(p, sp, fish) {
+    if (isV3Fish(fish)) return catchNotesV3(p, sp, fish);
     const r = run();
     const legend = sp.rarity === 'legendary';
     const size = sizeClass(sp, fish.weight);
@@ -346,6 +420,90 @@ export function createScreens(K) {
     const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${PHASE_WHEN[ph] || ''}${r?.day ? `, day ${r.day}` : ''}`;
     return { stamp, kicker, len, phrase, more, legend, size };
   }
+  // ------------------------------------------------------------------ U14: the banked Boon pick on the card
+  /** Is this pick a banked one the ui presents? (combat.offerBanked; the open offer is current.banked) */
+  const bankedNow = () => Math.max(0, Math.round(num(safe(() => ctx.combat?.bankedLevels, run()?.levelBank), num(run()?.levelBank))));
+  function boonOption(o, r) {
+    const b = K.boonData(o.boonId) || {};
+    const kindle = !!o.kindle || (num(o.level) >= 6 && !!b.kindle);
+    const rarity = kindle ? 'legendary' : (o.rarity || b.rarity || 'common');
+    const isNew = o.isNew ?? !num(r?.boons?.[o.boonId]);
+    return { b, kindle, rarity, name: o.name || (kindle ? b.kindle?.name : b.name) || o.boonId, desc: o.desc || (kindle ? b.kindle?.desc : b.desc) || '',
+      lv: kindle ? 'Kindled' : isNew ? 'New' : `Lv ${num(o.level, 2) - 1} \u2192 ${num(o.level, 2)}`, icon: o.icon || b.icon || 'star' };
+  }
+  function bankedPick(entry, pn, content) {
+    const s = entry.state;
+    const r = run();
+    if (!v3Run(D(), r) || K.isStub(ctx.combat) || typeof ctx.combat?.offerBanked !== 'function') return;
+    if (!s.pick) {
+      if (bankedNow() <= 0) return;
+      s.pick = { chosen: null, total: bankedNow() };
+    }
+    const P = s.pick;
+    const open = safe(() => ctx.combat.pendingOptions, null);
+    let opts = Array.isArray(open) && open.length && open === P.ref ? open : null;
+    if (!opts && !P.chosen && bankedNow() > 0) { opts = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(opts) && opts.length) P.ref = opts; else opts = null; }
+    if (!opts && !P.chosen) return;
+    pn.classList.add('gw-cc-haspick');
+    const left = bankedNow();
+    const wrap = h('div', `gw-cc-pick${P.chosen ? ' gw-chosen' : ''}`);
+    const beads = `<span class="gw-cc-beads" aria-hidden="true">${'<i></i>'.repeat(Math.min(3, Math.max(1, left || 1)))}</span>`;
+    if (P.chosen) {
+      wrap.innerHTML = `<div class="gw-cc-pick-h">${icon(P.chosen.icon)}<span><b>${esc(P.chosen.name)}</b> \u00b7 ${esc(P.chosen.lv === 'New' ? 'yours for the descent' : P.chosen.lv)}</span></div>
+        ${left > 0 ? `<div class="gw-cc-pick-sub">${left} more ${left === 1 ? 'waits' : 'wait'} for the next card or the dawn bell</div>` : '<div class="gw-cc-pick-sub">Your flame remembers.</div>'}`;
+    } else {
+      wrap.innerHTML = `<div class="gw-cc-pick-h">${beads}<span>Your flame grew while you fished</span></div>
+        <div class="gw-cc-pick-sub">Choose a boon${left > 1 ? ` \u00b7 ${left} waiting` : ''}</div><div class="gw-cc-boons"></div>`;
+      const row = wrap.querySelector('.gw-cc-boons');
+      opts.slice(0, 3).forEach((o, i) => {
+        const B = boonOption(o, r);
+        const bt = h('button', `gw-cc-boon r-${B.rarity}${B.kindle ? ' gw-kindle' : ''}`);
+        bt.type = 'button';
+        bt.style.setProperty('--rc', K.rarityCss(B.rarity));
+        bt.title = `${B.name}: ${B.desc}`;
+        bt.innerHTML = `<span class="gw-cc-boon-medal">${icon(B.icon)}</span><span class="gw-cc-boon-t"><b>${esc(B.name)}</b><em>${esc(B.lv)}</em><small>${esc(B.desc)}</small></span>${K.isTouch ? '' : `<kbd>${i + 5}</kbd>`}`;
+        bt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (P.busy) return;
+          P.busy = true;
+          bt.classList.add('gw-picked');
+          wrap.classList.add('gw-choosing');
+          sfx('ui_click');
+          K.markResolved(K.optionsSig(opts), opts);
+          let ok = false;
+          try { ok = ctx.combat.chooseBoon(o.boonId) !== false; } catch (err) { K.report('chooseBoon', err); }
+          K.hud?.dirtyBoons?.();
+          setTimeout(() => {
+            P.busy = false;
+            if (!ok) { entry.render(); return; }
+            P.ref = null;
+            // the next banked level (if any) offers itself on the same card; the last one leaves its name
+            if (bankedNow() > 0) { const nx = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(nx) && nx.length) { P.ref = nx; P.chosen = null; entry.render(); return; } }
+            P.chosen = B;
+            entry.render();
+          }, 420);
+        });
+        row.appendChild(bt);
+      });
+      if (typeof ctx.combat?.skip === 'function') {
+        const sk = h('button', 'gw-link gw-cc-pick-skip', `Skip it <em>+${fmt(num(D().BALANCE?.combat?.skipShells ?? D().BALANCE?.xp?.skipShells, 8) * (1 + K.zoneIndex()))} Shells</em>`);
+        sk.type = 'button';
+        sk.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (P.busy) return;
+          K.markResolved(K.optionsSig(opts), opts);
+          try { ctx.combat.skip(); } catch (err) { K.report('skip', err); }
+          P.ref = null;
+          if (bankedNow() > 0) { const nx = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(nx) && nx.length) { P.ref = nx; entry.render(); return; } }
+          P.chosen = { name: 'Skipped', lv: 'Shells instead', icon: 'shell' };
+          entry.render();
+        });
+        wrap.appendChild(sk);
+      }
+    }
+    // the pick sits under the sketch and its note (one column on a phone: just above the actions)
+    (content.querySelector('.gw-cc-left') || content).appendChild(wrap);
+  }
   function showCatch(p) {
     const fish = p?.fish;
     if (!fish) return;
@@ -360,25 +518,32 @@ export function createScreens(K) {
       const full = !inCreel && arr(r?.creel).length >= cs;
       const N = s.notes || (s.notes = catchNotes(p, sp, fish));
       const phone = K.vw < 700;
-      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}`, close: false });
+      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
       // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
       const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
         : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
       pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${legend ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
-      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd><dt>worth</dt><dd>${fmt(y.sell)} shells</dd></dl>`;
+      // v3: the favours that applied, as the float showed them (notches) and in plain words by family
+      const ticks = (n) => `<svg class="gw-cc-ticks" viewBox="0 0 64 24" aria-hidden="true">${[7, 19, 31, 43, 55].map((x, i) => `<path class="${i < n ? 'gw-lit' : ''}" d="M${x - 3.2} 20.5 C${x - 1.6} 15 ${x + 1.6} 9 ${x + 3.6} 3.5"/>`).join('')}</svg>`;
+      const favRow = N.v3 && !legend ? `<dt>favour</dt><dd class="gw-cc-fav">${ticks(N.notches)}${N.groups.length
+        ? `<span class="gw-cc-favw">${N.groups.map((g) => `<i><b>${esc(g.label)}</b> ${esc(g.words.map((w) => w.text).join(', '))}</i>`).join('')}</span>`
+        : '<span class="gw-cc-favw gw-none"><i>nothing in its favour: open water</i></span>'}</dd>` : '';
+      // v3: the stamp is the class, so a Fine or Shimmering catch says so beside its worth
+      const qWord = N.v3 && fish.quality === 'perfect' ? ', shimmering' : N.v3 && fish.quality === 'fine' ? ', fine' : '';
+      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd><dt>worth</dt><dd>${fmt(y.sell)} shells${qWord}</dd>${favRow}</dl>`;
       const lore = firstSentence(sp.lore) || hintFor(sp);
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
-            <p class="gw-cc-note">${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+            <p class="gw-cc-note">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
             <div class="gw-cc-kicker">${esc(N.kicker)}</div>
             <h2 class="gw-catch-name">${esc(sp.name)}</h2>
-            ${sp.epithet ? `<div class="gw-cc-epithet">${esc(sp.epithet)}</div>` : ''}
-            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span></div>
+            ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet">${esc(sp.epithet)}</div>` : ''}
+            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}</div>
             ${stats}
             <p class="gw-cc-lore">${esc(lore)}</p>
             ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}
@@ -406,6 +571,8 @@ export function createScreens(K) {
         }
         right.appendChild(list);
       }
+      // v3 (DESIGN §25.5.4, §25.14.2 U14): a level-up banked while fishing is chosen here, at a still moment
+      if (N.v3) bankedPick(entry, pn, content);
       const act = (a) => () => { if (s.locked) return; if (doFishAction(fish, a)) { s.locked = true; K.closeModal('catch'); } };
       foot.classList.add('gw-catch-actions');
       right.appendChild(foot);
@@ -418,6 +585,8 @@ export function createScreens(K) {
       onKey: (code) => {
         const map = { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
         if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
+        const bm = /^(?:Digit|Numpad)([5-7])$/.exec(code);
+        if (bm) { const b = K.top()?.el.querySelectorAll('.gw-cc-boon:not([disabled])')[Number(bm[1]) - 5]; if (b) { b.click(); return true; } }
         // the actions read left to right: arrows move the brush stroke along them
         if (code === 'ArrowLeft' || code === 'ArrowRight' || code === 'ArrowUp' || code === 'ArrowDown') {
           const btns = [...(K.top()?.el.querySelectorAll('.gw-catch-actions .gw-btn:not([disabled])') || [])];
@@ -433,7 +602,7 @@ export function createScreens(K) {
   }
 
   // ================================================================== LEVEL-UP PICKER
-  function openLevelUp(options) {
+  function openLevelUp(options, extra = {}) {
     let opts = Array.isArray(options) && options.length ? options : safe(() => ctx.combat?.pendingOptions, null);
     if (!Array.isArray(opts) || !opts.length) return;
     const lu = K.openModal('levelup', (entry, body) => {
@@ -446,9 +615,13 @@ export function createScreens(K) {
       const draft = !!(lp?.draft || s.draft || safe(() => ctx.combat?.levelUpKind, null) === 'draft');
       const gift = !!lp?.gift;
       const remaining = Math.max(0, Math.round(num(lp?.remaining, 0)));
-      const wrap = h('div', 'gw-lu');
-      wrap.innerHTML = `<div class="gw-lu-head"><div class="gw-kicker">${gift ? 'The Warden falls silent' : `Level ${fmt(num(lp?.level, num(r?.level, 1)))}`}${remaining ? ` · ${remaining} more to choose` : ''}</div><h2>${gift ? "A Warden's Gift" : draft ? 'The Kindling Draft' : 'Your Flame Grows'}</h2>
-        <div class="gw-pdiv">${ORN.divider}</div><p>${esc(gift ? 'Choose what it leaves you.' : draft ? (D().TEXT?.kindlingDraft || 'Choose what the Waystone carried.') : 'Choose a boon. It lasts the whole descent.')}</p></div>
+      // v3 (U14): a banked pick says where it waited (the measuring card's moment, or the dawn bell)
+      const banked = v3Run(D(), r) && !gift && !draft ? (s.banked || (lp?.banked ? ((K.phaseInfo()?.phase || r?.phase) === 'dawn' ? 'dawn' : 'card') : null)) : null;
+      s.banked = banked;
+      const kick = gift ? 'The Warden falls silent' : banked === 'dawn' ? 'The dawn bell' : banked ? 'Banked while you fished' : `Level ${fmt(num(lp?.level, num(r?.level, 1)))}`;
+      const wrap = h('div', `gw-lu${banked ? ' gw-lu--banked' : ''}`);
+      wrap.innerHTML = `<div class="gw-lu-head"><div class="gw-kicker">${kick}${remaining ? ` · ${remaining} more to choose` : ''}</div><h2>${gift ? "A Warden's Gift" : draft ? 'The Kindling Draft' : banked ? 'Your Flame Grew' : 'Your Flame Grows'}</h2>
+        <div class="gw-pdiv">${ORN.divider}</div><p>${esc(gift ? 'Choose what it leaves you.' : draft ? (D().TEXT?.kindlingDraft || 'Choose what the Waystone carried.') : banked === 'dawn' ? 'The night is over. Choose what your flame learned in it.' : banked ? 'Choose a boon. It lasts the whole descent.' : 'Choose a boon. It lasts the whole descent.')}</p></div>
         <div class="gw-lu-cards"></div><div class="gw-lu-foot"></div>`;
       body.appendChild(wrap);
       const cards = wrap.querySelector('.gw-lu-cards');
@@ -486,7 +659,7 @@ export function createScreens(K) {
       foot.appendChild(btn(`Reroll <em>${rerollsLeft}</em>`, { key: 'R', icon: 'reroll', disabled: rerollsLeft <= 0 && !draft, onClick: () => reroll(entry) }));
       if (canSkip) foot.appendChild(btn(`Skip <em>+${fmt(num(D().BALANCE?.combat?.skipShells ?? D().BALANCE?.xp?.skipShells, 8) * (1 + K.zoneIndex()))}</em>`, { key: 'S', icon: 'shell', onClick: () => skip(entry) }));
       if (draft) foot.appendChild(btn('Auto-draft', { icon: 'flame', onClick: () => autoDraft(entry) }));
-    }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-levelup', state: { options: opts, ref: opts, locked: false },
+    }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-levelup', state: { options: opts, ref: opts, locked: false, banked: extra.banked || null },
       onKey: (code) => {
         const t = K.top();
         const m = /^(?:Digit|Numpad)([1-4])$/.exec(code);
@@ -524,6 +697,7 @@ export function createScreens(K) {
       try { ctx.combat?.chooseBoon?.(o.boonId); } catch (e) { K.report('chooseBoon', e); }
       K.hud?.dirtyBoons?.();
       K.closeModal('levelup');
+      chainBanked(s);
     }, 300);
   }
   function reroll(entry) {
@@ -545,6 +719,15 @@ export function createScreens(K) {
     K.markResolved(K.optionsSig(s.options), s.ref);
     try { fn.call(ctx.combat); } catch (e) { K.report('skip', e); }
     K.closeModal('levelup');
+    chainBanked(s);
+  }
+  /** v3: the rest of the bank follows at the same still moment (the card's, or the dawn bell's). */
+  function chainBanked(s) {
+    if (!s?.banked || !v3Run(D(), run()) || bankedNow() <= 0 || typeof ctx.combat?.offerBanked !== 'function') return;
+    const f = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing : null;
+    if (!pickMomentOk({ fishingState: f?.state || 'idle', speed: num(ctx.player?.speed), cinematic: !!ctx.cinematic })) return;
+    const nx = safe(() => ctx.combat.offerBanked(), null);
+    if (Array.isArray(nx) && nx.length) K.nextBanked = s.banked;
   }
   function autoDraft(entry) {
     const s = entry?.state;
@@ -863,7 +1046,7 @@ export function createScreens(K) {
   }
 
   // ================================================================== CHALLENGES (Trials)
-  function openChallenges() {
+  function openChallenges(extra = {}) {
     K.openModal('challenges', (entry, body) => {
       const list = challenges();
       const T = D().TEXT || {};
@@ -889,7 +1072,7 @@ export function createScreens(K) {
         content.appendChild(sec);
       }
       foot.appendChild(btn('Close', { onClick: () => K.closeModal('challenges'), autofocus: true }));
-    }, { state: { titleChild: true } });
+    }, { state: { titleChild: true, ...extra } });
   }
 
   // ================================================================== SETTINGS
@@ -948,6 +1131,7 @@ export function createScreens(K) {
       content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, 'Softer flares and hit flashes'));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">Fishing</div>');
       content.appendChild(toggleRow('reelToggle', 'Tap to reel', false, 'Tap once to start reeling, tap again to ease'));
+      if (D().V3_ENABLED) content.appendChild(toggleRow('favourDetails', 'Favour details', false, "Always list what the water favours beside the float, not only on a long press"));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">The Long Dark</div>');
       const rrow = h('div', 'gw-set-row');
       rrow.innerHTML = '<span class="gw-set-label">Forget everything<small>Memories, relics, trials, the Journal. There is no undo.</small></span>';
@@ -969,10 +1153,23 @@ export function createScreens(K) {
       const { content, foot } = panel(entry, body, { title: 'The Water Waits', sub: r ? `Day ${r.day || 1} · ${esc(z?.name || '')} · Level ${r.level || 1}${ch ? ` · ${esc(ch.name)}` : ''}` : '', cls: 'gw-p-pause', close: false });
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn('Resume', { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
-      menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
-      menu.appendChild(btn('Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
-      menu.appendChild(btn('Return to Title', { cls: 'gw-mbtn', icon: 'gate', title: 'Your descent will wait for you', onClick: () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); } }));
-      menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } }) }));
+      const abandon = () => confirm('Abandon this descent?', { sub: 'The run ends here. Memories are still banked.', yes: 'Let the flame go', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.resume?.(), null); safe(() => ctx.game?.endRun?.('abandoned'), null); } });
+      if (v3Run(D(), r)) {
+        // v3 (DESIGN §25.14.2 U18; CONTRACT §13.7 ui): quick links in a lake: Journal, Challenges, Settings, Title (tackle and
+        // outfit are fitted only at home), then the way out
+        const quick = h('div', 'gw-quick');
+        const link = (id, label, ic, fn, title = '') => { const b = btn(label, { cls: 'gw-qbtn', icon: ic, hooks: false, onClick: fn, title }); b.dataset.link = id; b.insertAdjacentHTML('afterbegin', `<span class="gw-qico">${icon(ic)}</span>`); quick.appendChild(b); };
+        link('journal', 'Journal', 'journal', () => openJournal({ pauseChild: true }), 'Every name the water has given you');
+        link('challenges', 'Trials', 'ledger', () => openChallenges({ pauseChild: true }), 'Challenges and their rewards');
+        link('settings', 'Settings', 'sun', () => openSettings({ pauseChild: true }), 'Sound, picture and fishing');
+        link('title', 'Title', 'gate', () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); }, 'Your descent will wait for you');
+        menu.appendChild(quick);
+      } else {
+        menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
+        menu.appendChild(btn('Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
+        menu.appendChild(btn('Return to Title', { cls: 'gw-mbtn', icon: 'gate', title: 'Your descent will wait for you', onClick: () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); } }));
+      }
+      menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: abandon }));
       content.appendChild(menu);
       content.insertAdjacentHTML('beforeend', '<p class="gw-pause-note">Returning to the title keeps this descent waiting.</p>');
       const boons = arr(safe(() => ctx.combat?.getBoons?.(), null));
@@ -1077,15 +1274,20 @@ export function createScreens(K) {
       const T = D().TEXT || {};
       const cause = S.cause || 'gloom';
       const victory = cause === 'victory';
-      const title = victory ? (T.victoryTitle || 'The Light Comes Up') : cause === 'abandoned' ? 'The Flame Let Go' : (T.deathTitle?.[cause] || T.deathTitle?.default || 'Extinguished');
-      if (!entry.state.epitaph) entry.state.epitaph = victory ? (T.victorySubtitle || '') : K.pick(D().EPITAPHS?.[cause]) || K.pick(D().EPITAPHS?.default) || '';
+      // v3 (DESIGN §25.14.2 U18): a snuff (oil) ends the run under its own name
+      const snuffed = cause === 'snuffed';
+      const T3 = D().TEXT_V3 || {};
+      const title = victory ? (T.victoryTitle || 'The Light Comes Up') : cause === 'abandoned' ? 'The Flame Let Go' : snuffed ? (T3.snuffedTitle || S.title || 'Snuffed') : (T.deathTitle?.[cause] || T.deathTitle?.default || 'Extinguished');
+      if (!entry.state.epitaph) entry.state.epitaph = victory ? (T.victorySubtitle || '') : snuffed ? (K.pick(D().TEXT_V3?.snuffedEpitaphs) || K.pick(D().EPITAPHS?.snuffed) || K.pick(SNUFF_EPITAPHS)) : K.pick(D().EPITAPHS?.[cause]) || K.pick(D().EPITAPHS?.default) || '';
       const z = K.zoneData(S.zone);
       const ch = D().CHARACTER_BY_ID?.[S.character];
-      const flav = arr(T.summaryFlavour).find((f) => num(S.day, 1) <= num(f.maxDay, 999));
+      const flav = snuffed ? { text: T3.snuffedWake || D().EXPEDITION?.snuffed?.line || 'Murk found your raft drifting.' } : arr(T.summaryFlavour).find((f) => num(S.day, 1) <= num(f.maxDay, 999));
+      // a Still run never met the swarm: its nights are what it fished, not what it fought
+      const stillRun = !!S.nightMode && S.nightMode === 'still';
       const legends = typeof S.legendaries === 'number' ? S.legendaries : Array.isArray(S.legendaries) ? S.legendaries.length : S.legendaries && typeof S.legendaries === 'object' ? Object.keys(S.legendaries).length : 0;
-      const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}`);
+      const wrap = h('div', `gw-death${victory ? ' gw-victory' : ''}${snuffed ? ' gw-snuffed' : ''}${D().V3_ENABLED && S.nightMode ? ' gw-death--v3' : ''}`);
       wrap.innerHTML = `<div class="gw-death-veil"></div><div class="gw-death-inner gw-scroll">
-        <div class="gw-death-head"><div class="gw-death-candle"><i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
+        <div class="gw-death-head"><div class="gw-death-candle">${snuffed ? '<svg class="gw-smoke-thread" viewBox="0 0 40 96" aria-hidden="true"><path pathLength="100" d="M20 94 C13 82 27 74 20 62 C13 50 28 42 21 30 C16 21 24 12 19 3"/><path class="gw-st2" pathLength="100" d="M21 92 C26 80 15 70 22 58 C28 47 17 38 23 26"/></svg>' : ''}<i></i></div><h1>${esc(title)}</h1><p class="gw-epitaph">${esc(entry.state.epitaph)}</p>
         <div class="gw-death-line">${[`Day ${fmt(S.day || 1)}`, esc(z?.name || ''), `Level ${fmt(S.level || 1)}`, ch ? esc(ch.name) : ''].filter(Boolean).map((x) => `<span>${x}</span>`).join(' · ')}</div>${flav ? `<p class="gw-death-flav">${esc(flav.text)}</p>` : ''}
         <div class="gw-pdiv">${ORN.flourish}</div></div>
         <div class="gw-death-cols">
@@ -1093,7 +1295,7 @@ export function createScreens(K) {
             <div class="gw-mem-total">${'<span>'}${icon('memory')}<b class="gw-mem-n">0</b></span><small>Memories banked · ${fmt(meta().memories || 0)} held</small></div></section>
           <section class="gw-death-side">
             <div class="gw-death-stats">
-              <div><b>${fmt(S.fishCaught || 0)}</b><small>fish landed</small></div><div><b>${fmt(S.enemiesSlain || 0)}</b><small>gloomlings dispersed</small></div>
+              <div><b>${fmt(S.fishCaught || 0)}</b><small>fish landed</small></div>${stillRun ? `<div><b>${fmt(S.nightsSurvived || arr(S.nights).length || 0)}</b><small>still nights fished</small></div>` : `<div><b>${fmt(S.enemiesSlain || 0)}</b><small>gloomlings dispersed</small></div>`}
               <div><b>${fmt(S.shellsEarned || 0)}</b><small>Shells earned</small></div><div><b>${fmt(S.newSpecies || 0)}</b><small>new names</small></div>
               ${legends ? `<div><b>${fmt(legends)}</b><small>legends hauled</small></div>` : ''}</div>
             <div class="gw-death-lists"></div></section>
@@ -1119,8 +1321,8 @@ export function createScreens(K) {
       const chs = arr(S.challengesCompleted);
       if (chs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Trials completed</div>${chs.map((c) => `<div class="gw-dl-row gw-good">${icon('check')}<span><b>${esc(c?.name || c)}</b>${c?.reward ? `<small>${esc([c.reward.unlock ? K.unlockLabel(c.reward.unlock) : '', c.reward.memories ? `+${c.reward.memories} Memories` : ''].filter(Boolean).join(' · '))}</small>` : ''}</span></div>`).join('')}</div>`);
       const nm = nearMisses(S);
-      const td = !victory ? topDamage() : null;
-      if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon('eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
+      const td = snuffed ? { line: 'The lantern guttered out.', tip: S.tip || `Render a fish before the oil runs dry: ${K.isTouch ? 'the Burn button' : 'Burn (R)'} works without opening the creel.`, icon: 'lantern' } : !victory ? topDamage() : null;
+      if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon(td.icon || 'eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
       const nav = wrap.querySelector('.gw-death-btns');
       nav.appendChild(btn('Shrine', { icon: 'memory', sub: `${fmt(meta().memories || 0)} Memories`, onClick: () => openShrine() }));
       nav.appendChild(btn('New Descent', { cls: 'gw-btn--primary', icon: 'flame', autofocus: true, onClick: () => openNewDescent() }));

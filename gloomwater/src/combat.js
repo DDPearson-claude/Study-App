@@ -23,12 +23,41 @@
 //   Reads (optional): progression.addShells / grantHeartwax, survival.grantIframes, player.applyKnock,
 //     actors.getLanternPos / pointAt / lightPool, models.createSwarm(kind, max).setTint, run.flags.flareCharges,
 //     run.flags.bankedLevels (Kindling Draft → consecutive draft level-ups), run.flags.zoneEnteredDay.
+//
+// v3 night modes (DESIGN §25.5, CONTRACT §13.7 combat; feature-detected through BALANCE.nightModes and run.nightMode /
+// run.outing, so a flag-off build and The Long Descent keep every v1 rule). Pure rules live in combat-modes.js.
+//   nightMode / swarmTonight / swarmActive getters; bankedLevels (= run.levelBank) and offerBanked() for the ui;
+//   events swarm:window {state, night, mode, reason?}, levelup:banked {count, level}; listens to player:scorched,
+//   lampwatch:start / lampwatch:end (and polls run.lampWatch / run.scorched, which survival owns), place:discover.
+//   C1  Still spawns nothing; Lantern spawns only on even nights between night k 0.05 and 0.50 at difficultyFor() ×
+//       nightModes.lantern.mult, one formation, no elites below Heat 3, a Warden on every 2nd swarm night at hp × 0.75
+//       that withdraws with the window; Gloomtide is today's night; calm raids only in Gloomtide; the First Outing is
+//       all still; a lamp-watch (or a Scorched night) holds the swarm off, and leaving the pool starts it at the current k.
+//   C3  XP per mode (progression applies it and says so with opts.modeApplied; otherwise combat does), place discovery
+//       XP under the shared daily cap, the Angler-only pool in Still, the Angler cap at the Still rate in combat modes,
+//       no weapons in Lantern before its first swarm night, level-ups outside a swarm banked (never a modal while
+//       moving, with a line out or in the ceremony) and offered on the next measuring card or at the dawn bell.
+//   C4  Still / Lantern legend fights: no swarm spawns while the Lantern-Swallower or the Glass Sovereign is hooked; the
+//       Swallower's Grasping Dark summons become telegraphed snags (a hand rises under the water 1 s ahead, then a +0.2
+//       tension spike through fishing.snag).
+//   C6  Lantern stakes: fodder contact drains oil, Embers only from telegraphed hits; on player:scorched the swarm
+//       withdraws until dawn and no Cinders drop; in Still / Lantern a slam never snaps, no knockback / shove / pull moves
+//       the raft while a fish is hooked, and a tap while hooked is not combat's; a creelsnatch never acts while hooked and
+//       never takes a fish marked for home (every mode).
+//   C2  The day screen carries no combat (DESIGN §25.5.7, combat-modes presentation()): the lantern aura is hidden in calm
+//       and dawn and shows by mode (Still never; Lantern fades in through dusk on swarm nights; Gloomtide from dusk and in
+//       calm raids) as a soft warm wash within the reach with embers lifting off the lit water, never a ring; the Flare
+//       (key and button) works only where the table shows it (Still never; Lantern from dusk on swarm nights; Gloomtide
+//       always) and costs nothing when refused; presentation / auraShown / embersShown / flareShown tell the ui. The
+//       raft-centred rings a flare, a gutter-burst, Gutsfire or a Kindle drew become soft swelling washes in v3.
+//   No persistent lantern-reach ring is drawn in v3 (the user's call; the light pool shows the reach).
 import * as THREE from 'three';
 import { createFx, DECAL, lin } from './combat-fx.js';
 import { createEnemies } from './combat-enemies.js';
 import { createWarden } from './combat-warden.js';
 import { createWeapons } from './combat-weapons.js';
 import { createLevels } from './combat-levels.js';
+import * as M from './combat-modes.js';
 
 const TAU = Math.PI * 2;
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -36,8 +65,16 @@ const COL = {
   zap: lin(0xfff1cf, 3.2), zapGlow: lin(0xffc870, 2.2), flare: lin(0xf6e2bc, 2.6), flareHot: lin(0xfff6e6, 3.4), flareRing: lin(0xf2d6a0, 2.0), flareGlow: lin(0xe8be77, 2.0),   // Starlit: pale gold, not orange (DESIGN §19.1)
   burn: lin(0xffa040, 2.4), burnHot: lin(0xffd080, 3), gutter: lin(0xe8b860, 1.6), edge: lin(0xffb347, 1), grip: lin(0xe8c66a, 1.8), ink: lin(0x040508, 1),
   gold: lin(0xe8c66a, 2.4),
+  // v3 C2: the lantern aura is a soft wash of warm light within the reach and embers lifting off the lit water (never a ring)
+  auraWash: lin(0xf2c27a, 1.0), auraEmber: lin(0xffc46a, 2.0), auraEmberPale: lin(0xf6dca0, 1.8),
 };
-const HOOKED = new Set(['reeling', 'landing']);
+// tiny local PRNG for cosmetic embers: the presentation never consumes Math.random (seeded tests stay stable)
+function cosmeticRng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const HOOKED = M.HOOKED_STATES;   // reeling, landing
+// Lantern's Warden rises this far into the swarm window (window-relative k): its banner then lasts 3 s, leaving it ≈ 33 s
+// of the 40.5 s window before it withdraws (DESIGN §25.5.1 gives the cadence and hp, not the moment). The data's
+// BALANCE.nightModes.lantern.wardens.at owns it; this is the fallback.
+const LANTERN_BOSS_AT = 0.1;
 
 export function create(ctx) {
   const group = new THREE.Group(); group.name = 'combat';
@@ -68,6 +105,42 @@ export function create(ctx) {
 
   const data = () => ctx.data;
   const real = (m) => !!m && !m.isStub;
+
+  // ---------------------------------------------------------------- v3 night modes (combat-modes.js)
+  // C.mode: 'still' | 'lantern' | 'gloomtide', or null for v1 rules (flag off, no run, The Long Descent).
+  C.mode = null; C.modeCfg = null;
+  const NM = {
+    key: '', win: null, open: false, done: false, forced: false, watchWas: false,
+    releaseAtDawn: false, releaseAfterCard: false, lastLanded: null, snagsThisFight: 0,
+  };
+  const BAL = () => C.B || data().BALANCE || {};
+  const lanternBossAt = () => { const a = Number(BAL().nightModes?.lantern?.wardens?.at); return Number.isFinite(a) && a >= 0 ? a : LANTERN_BOSS_AT; };
+  function refreshMode() {
+    const run = C.run || ctx.state.run;
+    C.mode = M.modeOf(run, data().BALANCE);
+    C.modeCfg = M.modeCfg(C.mode, data().BALANCE);
+  }
+  const fishState = () => { try { const f = ctx.fishing; return real(f) && typeof f.state === 'string' ? f.state : null; } catch { return null; } };
+  C.hooked = () => HOOKED.has(fishState());
+  /** The hard rule (Still / Lantern): nothing combat does moves the Wick or the raft while a fish is hooked. */
+  C.holdStill = () => !!C.mode && !M.knockWhileHooked(C.mode, BAL()) && C.hooked();
+  /** Is the player moving (for the level-up modal rule)? Raft speed or a held move input. */
+  function moving() {
+    if (C.raftSpeed > 0.75) return true;
+    const i = ctx.input;
+    if (!i) return false;
+    return Math.hypot((i.move?.x || 0) + (i.joy?.x || 0), (i.move?.y || 0) + (i.joy?.y || 0)) > 0.12;
+  }
+  /** v3: may a pick open as a modal now? (never while moving, with a line out or in the ceremony). v1: always. */
+  C.modalOk = () => !C.mode || M.mayOpenModal({ line: M.lineOut(fishState()), moving: moving(), cinematic: !!ctx.cinematic });
+  /** v3: does a level-up earned now go to the bank (outside a swarm) rather than to an immediate pick? */
+  C.bankLevel = () => !!C.mode && !swarmActiveNow();
+  /** v3: the offer rule for this pick (Angler pool / cap / weapons / Draft), or null (v1: no filter). */
+  C.offerRule = (item) => (C.mode ? M.offerRule({ mode: C.mode, B: BAL(), data: data(), run: C.run, item, day: C.run?.day || C.day || 1 }) : null);
+  /** v3: no Cinders during a lamp-watch or a Scorched night (DESIGN §25.5.1–§25.5.2). */
+  C.noCinders = () => !!C.mode && !!(C.run?.lampWatch || C.run?.scorched);
+  /** May a creelsnatch act now? Never while a fish is hooked in Still / Lantern. */
+  C.creelsnatchMayAct = () => !C.mode || M.creelsnatchWhileHooked(C.mode, BAL()) || !C.hooked();
 
   // ---------------------------------------------------------------- frame state
   const fallbackStats = () => {
@@ -111,8 +184,12 @@ export function create(ctx) {
     diffT -= 1;
     if (!force && diffT > 0 && C.diff) return;
     diffT = 12;
-    const k = C.phase === 'gloomtide' ? C.phaseK : 0.5;
+    const k = C.phase === 'gloomtide' ? (C.mode && NM.win ? M.windowK(NM.win, C.phaseK) : C.phaseK) : 0.5;
     try { C.diff = data().difficultyFor?.(C.day, C.zoneIndex, k, { nightInZone: nightInZone() }) || C.diff; } catch (e) { C.report('difficultyFor', e); }
+    // v3: Lantern multipliers, its elite / formation / Warden rules (Gloomtide and v1 unchanged)
+    if (C.mode && C.diff) {
+      try { C.diff = M.scaleDiff(C.diff, { mode: C.mode, B: BAL(), data: data(), night: C.day, outing: C.run?.outing, zoneWarden: C.zone?.warden || null }); } catch (e) { C.report('scaleDiff', e); }
+    }
     if (!C.diff) C.diff = { spawnRate: 0.75, maxAlive: 30, hpMult: 1, speedMult: 1, damageMult: 1, drainMult: 1, kinds: [{ id: 'gloomling', w: 1 }], eliteEvery: 0, boss: null, elites: [], heat: 0, xpScale: 1 };
   }
   const v3 = new THREE.Vector3();
@@ -205,6 +282,8 @@ export function create(ctx) {
     let inv = false;
     try { inv = ctx.survival?.isInvulnerable?.() === true; } catch { inv = false; }
     const dm = C.diff?.damageMult ?? 1;
+    // Lantern: fodder contact and untelegraphed hits drain oil only; Embers go only to telegraphed hits (C6)
+    if (C.mode && embers > 0 && !M.embersAllowed(C.mode, BAL(), o)) embers = 0;
     let n = embers > 0 ? Math.max(1, Math.floor(embers * dm)) : 0;
     if (o.boss) n = Math.min(C.B?.damage?.bossHitCap ?? 3, n);
     if (inv) { if (oil > 0) C.addOil(-oil * (C.B?.damage?.iframeOilMult ?? 0.5)); return 0; }
@@ -220,12 +299,14 @@ export function create(ctx) {
   };
   C.knockPlayer = (dx, dz, dist) => {
     if (!real(ctx.player) || !ctx.player.position) return;
+    if (C.holdStill()) return;   // the hard rule: no knockback while a fish is hooked (Still / Lantern)
     if (typeof ctx.player.applyKnock === 'function') { try { ctx.player.applyKnock(dx * dist, dz * dist); return; } catch { /* fall back */ } }
     pKnock.x += dx * dist * 6; pKnock.z += dz * dist * 6;
   };
   C.pullPlayer = (dx, dz, speed, dt) => {
     const p = ctx.player?.position;
     if (!real(ctx.player) || !p || grip) return;
+    if (C.holdStill()) return;   // the hard rule: no pull while a fish is hooked (Still / Lantern)
     // the raft controller owns its velocity: ask it to drift toward the maw this frame
     if (typeof ctx.player.pull === 'function') { try { ctx.player.pull(p.x + dx * 10, p.z + dz * 10, speed); return; } catch { /* fall back */ } }
     p.x += dx * speed * dt; p.z += dz * speed * dt;
@@ -234,6 +315,7 @@ export function create(ctx) {
   C.pushPlayerOut = (x, z, r) => {
     const p = ctx.player?.position;
     if (!real(ctx.player) || !p) return;
+    if (C.holdStill()) return;   // the hard rule: a lingering hand does not shove the raft while a fish is hooked
     const rr = r + (C.B?.move?.raftRadius ?? 1.6) * 0.8;
     const dx = p.x - x, dz = p.z - z, d = Math.hypot(dx, dz);
     if (d >= rr || d < 1e-4) return;
@@ -270,6 +352,7 @@ export function create(ctx) {
     }
   }
   C.snapLine = () => {
+    if (C.mode && !M.slamSnaps(C.mode, BAL())) return;   // Still / Lantern: a slam never snaps the line
     try {
       const st = ctx.fishing?.state;
       if ((st === 'bite' || HOOKED.has(st)) && ctx.fishing?.view?.rarity !== 'legendary') ctx.fishing.cancel?.('snap');
@@ -298,7 +381,8 @@ export function create(ctx) {
   function randomStealable() {
     const creel = C.run?.creel;
     if (!Array.isArray(creel) || !creel.length) return null;
-    const ok = creel.filter((f) => f && speciesOf(f.speciesId)?.rarity !== 'legendary');
+    // never a legendary, never a fish marked for home (every mode; v1 creels carry no marked fish)
+    const ok = creel.filter((f) => M.stealable(f, { run: C.run, speciesOf }));
     return ok.length ? ok[(Math.random() * ok.length) | 0] : null;
   }
   C.stealFish = (e) => {
@@ -524,22 +608,30 @@ export function create(ctx) {
     }
     // VFX: an expanding ring of light on the water, a pool flash, sparks from the lantern
     const L = C.lantern;
-    fx.timedDecal({ x, z, r0: 0.6, r1: radius, life: 0.55, color: COL.flareRing, p1: 0.07, p2: 0.06, alpha: 0.9 });
-    fx.timedDecal({ x, z, r0: radius * 0.6, r1: radius * 1.15, life: 0.9, color: COL.flareRing, type: DECAL.DASHRING, p1: 0.03, p2: 28, ease: 3, alpha: 0.45 });
+    if (C.mode) {
+      // v3: no ring around the raft, ever: the flare's light rolls out as a soft swelling wash of pale gold
+      fx.timedDecal({ x, z, r0: radius * 0.2, r1: radius, life: o.mini ? 0.4 : 0.55, color: COL.flareRing, type: DECAL.GLOW, p1: 1.1, alpha: o.mini ? 0.16 : 0.26 });
+    } else {
+      fx.timedDecal({ x, z, r0: 0.6, r1: radius, life: 0.55, color: COL.flareRing, p1: 0.07, p2: 0.06, alpha: 0.9 });
+      fx.timedDecal({ x, z, r0: radius * 0.6, r1: radius * 1.15, life: 0.9, color: COL.flareRing, type: DECAL.DASHRING, p1: 0.03, p2: 28, ease: 3, alpha: 0.45 });
+    }
     // the flare's light: a warm pale-gold bloom on the water around the raft that swells and fades
     // (never a full-screen flash: a flat white mix greys the whole night frame, DESIGN §19.1)
     fx.timedDecal({ x, z, r0: radius * 0.5, r1: radius * 1.05, life: o.mini ? 0.5 : 0.9, color: COL.flareGlow, type: DECAL.GLOW, p1: 2.2, alpha: o.mini ? 0.14 : 0.24, ease: 3 });
     const n = o.mini ? 18 : 46;
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU + Math.random() * 0.2, sp = radius * (1.1 + Math.random() * 0.6);
+      // v3: a wider spread of speeds, so the burst scatters as a spray of light rather than a ring of sparks round the raft
+      const a = (i / n) * TAU + Math.random() * 0.2, sp = radius * (C.mode ? 0.35 + Math.random() * 1.5 : 1.1 + Math.random() * 0.6);
       fx.sparks.emit(L.x, L.y, L.z, Math.cos(a) * sp, 1 + Math.random() * 3, Math.sin(a) * sp, COL.flare.r, COL.flare.g, COL.flare.b, 0.2 + Math.random() * 0.15, 0.55 + Math.random() * 0.3, 1, -0.2, 2.2, -3);
     }
     fx.burst(L.x, L.y, L.z, COL.flare, o.mini ? 6 : 12, 2, 0.25, 0.45, 3, -1);
-    ctx.water?.addRipple?.(x, z, o.mini ? 1.2 : 2.5);
+    ctx.water?.addRipple?.(x, z, C.mode ? (o.mini ? 0.9 : 1.6) : (o.mini ? 1.2 : 2.5));   // v3: a gentler ripple (no lingering ring round the raft)
   };
   function flare() {
     const run = C.run;
     if (!run || ctx.flow !== 'playing' || ctx.paused) return false;
+    // v3 C2: no Flare where the mode's table hides it (Still; Lantern outside a swarm night's dusk and night): the key does nothing
+    if (C.mode && !presentNow().flare) return false;
     const S = C.stats;
     const deny = (msg) => {
       if (ctx.time.t < denyT) return false;
@@ -604,6 +696,7 @@ export function create(ctx) {
   function onPointerDown(ndc) {
     const run = C.run;
     if (!run || ctx.flow !== 'playing' || ctx.paused || !ndc) return false;
+    if (C.mode && !M.tapsWhileHooked(C.mode, BAL()) && C.hooked()) return false;   // the hard rule: the tap stays fishing's
     let e = null;
     try { e = pickEnemy(ndc); } catch (err) { C.report('pick', err); return false; }
     if (!e) return false;
@@ -755,12 +848,100 @@ export function create(ctx) {
     return null;
   }
   function wardenAlive() { return !!bossRef && bossRef.alive; }
-  function resetNight() {
+  function resetNight(windowLen) {
     night.gloomT = 0; night.credit = 0; night.scoutCredit = 0; night.formDone = [false, false]; night.bossState = 'none'; night.bossT = 0;
     night.kills = 0; night.nextDrip = 0; night.hush = 0;
-    const L = C.diff?.gloomtide || data().gloomtideLength?.(C.day) || 90;
+    const L = windowLen > 0 ? windowLen : (C.diff?.gloomtide || data().gloomtideLength?.(C.day) || 90);
     night.eliteNext = (C.diff?.eliteFirstAt ?? 0.25) * L;
   }
+  // ---------------------------------------------------------------- v3: tonight's swarm window (C1)
+  /** Plan tonight once per (run, night): the window from data's swarmWindow, clipped to the quiet tail. */
+  function planNight(force) {
+    const run = C.run;
+    const key = `${run?.id ?? ''}:${C.day}:${C.zoneId}`;
+    if (!force && NM.key === key) return;
+    NM.key = key; NM.open = false; NM.done = false; NM.forced = false;
+    NM.win = C.mode ? M.windowTonight({ mode: C.mode, night: C.day, outing: run?.outing, B: BAL(), data: data(), nightDur: C.phaseDur || 90 }) : null;
+    NM.watchWas = lampWatchHolds();
+  }
+  /** A lamp-watch holds the swarm off tonight (Lantern only; a forced Scorched watch included). */
+  function lampWatchHolds() {
+    const lw = C.run?.lampWatch;
+    if (!lw || !C.mode) return false;
+    const modes = BAL().nightModes?.lampWatch?.modes || ['lantern'];
+    return !!lw.forced || modes.includes(C.mode);
+  }
+  /** The Lantern-Swallower or the Glass Sovereign is hooked in Still / Lantern: no swarm spawns (DESIGN §25.5.6). */
+  function legendQuietNow() {
+    if (C.mode !== 'still' && C.mode !== 'lantern') return false;
+    if (!C.hooked()) return false;
+    let sid = null;
+    try { sid = ctx.fishing?.view?.speciesId || null; } catch { sid = null; }
+    return !!sid && M.legendQuietFor(C.mode, BAL(), sid) != null;
+  }
+  /**
+   * Called by the director at night in v3 runs: returns the window-relative k when the swarm may act this frame, or
+   * null. Opens and closes the window (swarm:window), honours a Scorched night and a lamp-watch, and restarts the window
+   * at the current k when a lamp-watch is left.
+   */
+  function nightGate() {
+    const run = C.run;
+    planNight(false);
+    if (C.mode === 'lantern' && run?.scorched) { if (NM.open) closeWindow('scorched'); return null; }
+    if (lampWatchHolds()) { NM.watchWas = true; if (NM.open) closeWindow('lampwatch'); return null; }
+    if (NM.watchWas) {
+      // the lamp-watch was left (> 10 m): tonight's window starts at the current k (DESIGN §25.5.2)
+      NM.watchWas = false;
+      const base = NM.win || M.windowTonight({ mode: C.mode, night: C.day, outing: run?.outing, B: BAL(), data: data(), nightDur: C.phaseDur || 90 });
+      NM.win = M.restartWindow(base, C.phaseK, C.mode, BAL(), C.phaseDur || 90);
+      NM.done = false;
+    }
+    if (!NM.win || NM.done) return null;
+    const k = C.phaseK;
+    if (k < NM.win.start) return null;
+    if (k >= NM.win.end) { if (NM.open) closeWindow('window'); NM.done = true; return null; }
+    if (!NM.open) openWindow();
+    if (legendQuietNow()) return null;   // the window's clock runs on; nothing spawns while the legend is on the line
+    return M.windowK(NM.win, k);
+  }
+  function openWindow() {
+    const run = C.run;
+    NM.open = true;
+    if (run) { run.flags = run.flags || {}; run.flags.swarmSeen = true; }   // Lantern: weapons join the offers from here
+    const W = Math.max(1, (NM.win.end - NM.win.start) * (C.phaseDur || 90));
+    refreshDiff(true);
+    resetNight(W);
+    ctx.bus.emit('swarm:window', { state: 'open', night: C.day, mode: C.mode });
+  }
+  function closeWindow(reason) {
+    NM.open = false;
+    withdrawSwarm(reason);
+    levels.bankQueued();
+    ctx.bus.emit('swarm:window', { state: 'close', night: C.day, mode: C.mode, reason });
+  }
+  /** The swarm withdraws (window end, Scorched, lamp-watch): no rewards; Wardens sink away; carried fish float free. */
+  function withdrawSwarm(reason) {
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const e = enemies[i];
+      if (!e?.alive) continue;
+      if (e.boss) { warden.withdraw(e); continue; }
+      if (e.carrying) { enemiesSys.floatFish(e.carrying, e.position.x, e.position.z); e.carrying = null; }
+      enemiesSys.kill(e, 'dawn', { drop: false });
+    }
+    grip = null; pKnock.set(0, 0, 0);
+    if (reason === 'scorched') levels.clearCinders();   // a Scorched night earns no Cinders
+    else levels.collectAll();
+  }
+  /** Inside a swarm now (render's night camera follows it): a v3 window, a Gloomtide night or calm raid; v1: the night. */
+  function swarmActiveNow() {
+    if (!C.run) return false;
+    if (!C.mode) return C.phase === 'gloomtide';
+    if (C.phase === 'gloomtide' && NM.open) return true;
+    // a fight in progress: a Gloomtide calm raid or dusk scouts, or any gloomling still up (a withdrawing Warden is not a fight)
+    for (const e of enemies) if (e?.alive && !(e.boss && e.state === 'withdraw')) return true;
+    return false;
+  }
+
   function director(dt) {
     const run = C.run;
     const cb = C.B?.combat || {};
@@ -768,6 +949,7 @@ export function create(ctx) {
     if (!run || !D) return;
     const maxLive = cb.maxLive ?? 150;
     if (C.phase === 'dusk') {
+      if (C.mode && C.mode !== 'gloomtide') return;   // dusk scouts only in Gloomtide (Lantern's swarm keeps to its window)
       const du = cb.dusk || { rateMult: 0.3, maxAlive: 6, kinds: ['gloomling'] };
       let alive = countAlive();
       if (alive >= (du.maxAlive ?? 6)) return;
@@ -785,6 +967,7 @@ export function create(ctx) {
       return;
     }
     if (C.phase === 'calm') {
+      if (C.mode && !C.modeCfg?.calmRaids) return;   // calm raids only in Gloomtide
       // calm straggler: one Creelsnatch raid per calm (deeper lakes or later days), only if the creel holds fish
       const sg = cb.stragglers || {};
       if (night.stragglerK < 0) { const w = sg.window || [0.3, 0.8]; night.stragglerK = w[0] + Math.random() * (w[1] - w[0]); night.stragglerDone = false; }
@@ -796,8 +979,14 @@ export function create(ctx) {
       return;
     }
     if (C.phase !== 'gloomtide') return;
+    let k = C.phaseK;
+    if (C.mode) {
+      // v3: only inside tonight's swarm window, and k runs through the window (Gloomtide: the whole night, k unchanged)
+      const wk = nightGate();
+      if (wk == null) return;
+      k = wk;
+    }
     night.gloomT += dt;
-    const k = C.phaseK;
     const N = cb.night || {};
     const quiet = k >= (N.quietFrom ?? 0.93);
     const fState = ctx.fishing?.state;
@@ -835,7 +1024,7 @@ export function create(ctx) {
       spawnFormation();
     }
     // Warden: banner at bossAt, rises 3 s later
-    if (D.boss && night.bossState === 'none' && k >= (D.bossAt ?? 0.35) && !quiet) {
+    if (D.boss && night.bossState === 'none' && k >= (C.mode === 'lantern' ? Math.min(D.bossAt ?? 0.35, lanternBossAt()) : (D.bossAt ?? 0.35)) && !quiet) {
       const def = data().ENEMY_BY_ID?.[D.boss];
       const blocked = def?.neverDuringLegend && hooked && ctx.fishing?.view?.speciesId === def.neverDuringLegend;
       if (def && !blocked) {
@@ -964,6 +1153,115 @@ export function create(ctx) {
     return f;
   }
 
+  // ---------------------------------------------------------------- v3: legend snags (C4, DESIGN §25.5.6)
+  // In Still and Lantern the Lantern-Swallower's Grasping Dark summons no hands: each scripted summon becomes a snag. A
+  // dark hand rises under the water on the line `lead` s ahead (1 s), then the line takes a +`spike` tension spike
+  // (0.2) through fishing.snag({lead: 0, spike}); the player releases through it as through a surge. Nothing spawns,
+  // nothing is hurt. When fishing runs the snag itself (its own summon rule; it emits fishing:snag warn), combat only
+  // draws the hand for it (`visual`), so the telegraph looks the same whichever module owns the timing.
+  const snags = [];
+  let snagEcho = false;   // fishing:snag events caused by combat's own fishing.snag() call
+  const snagPt = new THREE.Vector3();
+  let snagHand = null;
+  const SNAG_COL = { ink: lin(0x040508, 1), pale: lin(0xe9e2cf, 1.3), paleHot: lin(0xf4efe2, 2.2) };
+  function snagPoint(out) {
+    // on the line, a little past halfway from the raft toward the hooked fish
+    let end = null;
+    try { const b = ctx.fishing?.bobberPos; if (b && Number.isFinite(b.x)) end = b; } catch { end = null; }
+    if (!end) return out.set(C.raft.x + 3, 0, C.raft.z - 3);
+    return out.set(C.raft.x + (end.x - C.raft.x) * 0.6, 0, C.raft.z + (end.z - C.raft.z) * 0.6);
+  }
+  function legendSummon(id, opts) {
+    if (C.mode !== 'still' && C.mode !== 'lantern') return null;           // Gloomtide / v1: the fight is unchanged
+    let sid = null;
+    try { sid = ctx.fishing?.view?.speciesId || null; } catch { sid = null; }
+    const rule = M.legendQuietFor(C.mode, BAL(), sid);
+    if (!rule || typeof rule !== 'object' || !(rule.snags > 0)) return { suppressed: true, enemyId: id, mode: C.mode };   // e.g. the Glass Sovereign: no spawns
+    if (NM.snagsThisFight >= rule.snags) return { suppressed: true, enemyId: id, mode: C.mode };
+    NM.snagsThisFight++;
+    const p = snagPoint(snagPt);
+    const s = { t: 0, lead: rule.lead ?? 1, spike: rule.spike ?? 0.2, x: p.x, z: p.z, hit: false, post: 0.75, seed: Math.random(), speciesId: sid, n: NM.snagsThisFight };
+    snags.push(s);
+    try { ctx.audio?.play?.('warn', { volume: 0.7, pitch: 0.6 }); } catch { /* optional */ }
+    ctx.bus.emit('legend:snag', { phase: 'warn', speciesId: sid, x: s.x, z: s.z, lead: s.lead, spike: s.spike, n: s.n });
+    void opts;
+    return { snag: true, enemyId: id, x: s.x, z: s.z, lead: s.lead, spike: s.spike };
+  }
+  function ensureSnagHand() {
+    if (snagHand !== null) return snagHand;
+    snagHand = false;
+    try {
+      const m = ctx.models;
+      const def = data().ENEMY_BY_ID?.drowned_hand;
+      const cr = real(m) ? m.createCreature?.('hand', { tint: def?.tint ?? 0x07080d, eyeColor: def?.eyeColor ?? 0xecf0f6, scale: 0.8 }) : null;
+      if (cr && !cr.isStub && cr.object3d instanceof THREE.Object3D) { snagHand = cr; cr.object3d.visible = false; group.add(cr.object3d); }
+    } catch (e) { C.report('snag hand', e); snagHand = false; }
+    return snagHand;
+  }
+  function snagHit(s) {
+    s.hit = true;
+    let spiked = false;
+    try {
+      const f = ctx.fishing;
+      if (s.visual) spiked = true;   // fishing owns this snag's spike (it scheduled it with the same lead)
+      else if (real(f) && C.hooked()) {
+        if (typeof f.snag === 'function') { snagEcho = true; try { spiked = f.snag({ lead: 0, spike: s.spike }) !== false; } finally { snagEcho = false; } }
+        else if (typeof f.slam === 'function' && f.view?.rarity === 'legendary') { f.slam(); spiked = true; }   // v1 fishing: a legend slam is a spike
+      }
+    } catch (e) { snagEcho = false; C.report('snag', e); }
+    ctx.water?.splash?.(s.x, s.z, { size: 1.4, count: 18 });
+    fx.ink(s.x, 0.3, s.z, 6, 1.2);
+    fx.timedDecal({ x: s.x, z: s.z, r0: 0.6, r1: 3.4, life: 0.5, color: SNAG_COL.paleHot, p1: 0.08, alpha: 0.85 });
+    C.shake(0.2, 0.3);
+    try { ctx.audio?.play?.('enemy_hit', { volume: 0.8, pitch: 0.55 }); } catch { /* optional */ }
+    if (!s.visual) ctx.bus.emit('legend:snag', { phase: 'hit', speciesId: s.speciesId, x: s.x, z: s.z, spike: s.spike, spiked, n: s.n });
+  }
+  /** fishing ran a snag itself (fishing:snag warn): draw the rising hand on the line for its lead time. */
+  function onFishingSnag(p = {}) {
+    if (snagEcho || p.state !== 'warn' || !C.mode || !C.hooked()) return;
+    const lead = Number.isFinite(p.lead) ? p.lead : 1;
+    if (!(lead > 0.05)) return;
+    const pt = snagPoint(snagPt);
+    let sid = null;
+    try { sid = ctx.fishing?.view?.speciesId || null; } catch { sid = null; }
+    snags.push({ t: 0, lead, spike: Number.isFinite(p.spike) ? p.spike : 0.2, x: pt.x, z: pt.z, hit: false, post: 0.75, seed: Math.random(), speciesId: sid, n: 0, visual: true });
+  }
+  function updateSnags(dt, t) {
+    if (!snags.length) { if (snagHand) snagHand.object3d.visible = false; return; }
+    const hooked = C.hooked();
+    let show = null;
+    for (let i = snags.length - 1; i >= 0; i--) {
+      const s = snags[i];
+      s.t += dt;
+      if (!s.hit && !hooked) { snags.splice(i, 1); continue; }   // the fight ended before the snag: it never comes
+      if (!s.hit && s.t >= s.lead) snagHit(s);
+      if (s.t >= s.lead + s.post) { snags.splice(i, 1); continue; }
+      const R = 2.2;
+      if (!s.hit) {
+        // the telegraph: an ink stain swells on the water where the hand will close on the line, a pale ring tightens
+        const k = Math.min(1, s.t / Math.max(0.05, s.lead)), kk = 1 - Math.pow(1 - k, 2);
+        fx.decalsI.add(s.x, s.z, R, R, s.seed * 6, DECAL.STAIN, SNAG_COL.ink.r, SNAG_COL.ink.g, SNAG_COL.ink.b, 0.85, 0.35 + 0.6 * kk, 0, 0, s.seed * 10);
+        const pulse = 0.55 + 0.45 * Math.sin(t * (10 + k * 16));
+        fx.decalsG.add(s.x, s.z, R * (1.5 - 0.5 * k), R * (1.5 - 0.5 * k), 0, DECAL.RING, SNAG_COL.pale.r, SNAG_COL.pale.g, SNAG_COL.pale.b, (0.25 + 0.5 * k) * pulse, 0.05, 0, 0, 0);
+        if (Math.random() < 0.35) ctx.water?.addRipple?.(s.x + (Math.random() - 0.5) * R, s.z + (Math.random() - 0.5) * R, 0.4);
+        show = { s, k: 0.15 + 0.5 * kk };   // the hand rises under the surface (rise −3.2 m → ≈ −1 m)
+      } else {
+        const u = (s.t - s.lead) / s.post;
+        fx.decalsI.add(s.x, s.z, R, R, s.seed * 6, DECAL.STAIN, SNAG_COL.ink.r, SNAG_COL.ink.g, SNAG_COL.ink.b, 0.8 * (1 - u), 0.95, 0, 0, s.seed * 10);
+        show = { s, k: u < 0.2 ? 0.65 + 1.75 * u : Math.max(0, 1 - (u - 0.2) / 0.8) };   // a snatch at the line, then it sinks
+      }
+    }
+    const hand = show ? ensureSnagHand() : snagHand;
+    if (hand) {
+      hand.object3d.visible = !!show;
+      if (show) {
+        hand.object3d.position.set(show.s.x, 0, show.s.z);
+        hand.object3d.rotation.y = Math.atan2(C.raft.x - show.s.x, C.raft.z - show.s.z);
+        try { hand.update?.(dt, t, { state: 'move', k: Math.min(1, Math.max(0, show.k)) }); } catch (e) { C.report('snag hand', e); }
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- lifecycle
   function clearAll() {
     enemiesSys.clear(); warden.clear(); weapons.clear(); levels.clearCinders(); fx.clear();
@@ -971,8 +1269,11 @@ export function create(ctx) {
     for (const k in dims) dims[k].t = 0;
     bursts.length = 0; bossRef = null; grip = null; pKnock.set(0, 0, 0);
     flareBoostT = 0; gutsT = 0;
+    snags.length = 0; if (snagHand) snagHand.object3d.visible = false;
   }
   function killAll(reason = 'killAll') {
+    // v3 withdrawals (CONTRACT §13.4: survival may call killAll('scorched')): no rewards, Wardens sink away
+    if (reason === 'scorched' || reason === 'window' || reason === 'lampwatch') { withdrawSwarm(reason); return; }
     const dawn = reason === 'dawn';
     for (let i = enemies.length - 1; i >= 0; i--) {
       const e = enemies[i];
@@ -993,6 +1294,9 @@ export function create(ctx) {
     if (!run) return;
     hadRun = true; lastRunId = run.id;
     levels.ensureRunFields(run);
+    refreshMode();
+    NM.key = ''; NM.win = null; NM.open = false; NM.done = false; NM.releaseAtDawn = false; NM.releaseAfterCard = false; NM.lastLanded = null; NM.snagsThisFight = 0;
+    if (C.mode && !(run.levelBank >= 0)) run.levelBank = 0;
     zoneInfo(); refreshStats(true); phaseInfo(); refreshDiff(true); resetNight();
     weapons.sync();
     flareCd = 0; zapCd = 0;
@@ -1014,6 +1318,7 @@ export function create(ctx) {
       C.run = run;
     }
     hitEmits = 0;
+    refreshMode();
     if (!(dt > 0)) { levels.update(0, t); return; }
     numTokens = Math.min(12, numTokens + dt * 14);
     critTokens = Math.min(10, critTokens + dt * 18);
@@ -1044,11 +1349,100 @@ export function create(ctx) {
     try { processBursts(); } catch (e) { C.report('bursts', e); }
     try { warden.updateGlobal(dt, t); } catch (e) { C.report('warden', e); }
     try { aura(dt, t); } catch (e) { C.report('aura', e); }
+    if (C.mode) { try { drawAuraPresence(dt, t); } catch (e) { C.report('aura presence', e); } }
     try { weapons.update(dt, t); } catch (e) { C.report('weapons', e); }
+    if (C.mode) { try { updateV3(dt, t); } catch (e) { C.report('v3', e); } }
     try { levels.update(dt, t); } catch (e) { C.report('levels', e); }
     try { updatePlayerEffects(dt, t); } catch (e) { C.report('player fx', e); }
     try { enemiesSys.render(dt, t); } catch (e) { C.report('enemies.render', e); }
     fx.end(dt, t);
+  }
+
+  // ---------------------------------------------------------------- v3 C2: what combat shows by mode (DESIGN §25.5.7)
+  const present = { aura: 0, embers: true, flare: true };
+  let auraVis = 0, emberAcc = 0, lastHitAt = -1e9;
+  const crng = cosmeticRng(0x51ed270b);
+  /** The §25.5.7 table for this frame (combat-modes presentation()); v1: no aura, Embers and Flare always. */
+  function refreshPresent() {
+    if (!C.mode) { present.aura = 0; present.embers = true; present.flare = true; return present; }
+    const p = M.presentation(C.mode, BAL(), {
+      phase: C.phase, phaseK: C.phaseK, swarmNight: tonightSwarms(), swarmActive: swarmActiveNow(),
+      hitT: (ctx.time?.t ?? 0) - lastHitAt, scorched: !!C.run?.scorched,
+    });
+    present.aura = p.aura; present.embers = p.embers; present.flare = p.flare;
+    return present;
+  }
+  /** The same, read outside combat's update (ui, the Flare key): refresh the run, mode and phase first. */
+  function presentNow() {
+    refreshMode();   // (never adopts a run here: update() does that, with its run:start bookkeeping)
+    if (!C.mode) return refreshPresent();
+    try { phaseInfo(); } catch { /* keep the last phase */ }
+    return refreshPresent();
+  }
+  /**
+   * The lantern aura's presence (v3): a soft warm wash within the reach and a few embers lifting off the lit water while
+   * the mode's table shows the aura; it fades in and out, and it is never a ring (DESIGN §19.1, the user's art rule).
+   */
+  function drawAuraPresence(dt, t) {
+    refreshPresent();
+    const target = C.lanternOut ? 0 : present.aura;
+    auraVis += (target - auraVis) * (1 - Math.exp(-dt * 1.6));
+    if (auraVis < 0.01) { emberAcc = 0; return; }
+    const R = Math.max(1, C.lightR);
+    const c = COL.auraWash, pulse = 0.9 + 0.1 * Math.sin(t * 1.3);
+    fx.decalsG.add(C.raft.x, C.raft.z, R, R, 0, DECAL.GLOW, c.r, c.g, c.b, 0.07 * auraVis * pulse, 1.5);
+    emberAcc = Math.min(4, emberAcc + dt * 6 * auraVis);
+    while (emberAcc >= 1) {
+      emberAcc -= 1;
+      const a = crng() * TAU, d = (0.25 + 0.7 * Math.sqrt(crng())) * R;
+      const e = crng() < 0.55 ? COL.auraEmber : COL.auraEmberPale;
+      fx.sparks.emit(C.raft.x + Math.cos(a) * d, 0.22, C.raft.z + Math.sin(a) * d, (crng() - 0.5) * 0.25, 0.45 + crng() * 0.6, (crng() - 0.5) * 0.25,
+        e.r, e.g, e.b, 0.06 + crng() * 0.05, 1.4 + crng() * 1.2, 0.75 * Math.min(1, auraVis * 1.2), -0.015, 0.5, 0.12);
+    }
+  }
+
+  // ---------------------------------------------------------------- v3 per-frame upkeep
+  const uiBlocking = () => { try { return ctx.ui?.isBlocking?.() === true; } catch { return false; } };
+  function updateV3(dt, t) {
+    if (C.phase === 'gloomtide') planNight(false);
+    // a swarm pick that could not open before the swarm ended waits in the bank (never a modal outside a swarm)
+    if (!swarmActiveNow()) levels.bankQueued();
+    updateSnags(dt, t);
+    // banked picks are offered after the next measuring card and at the dawn bell, at a moment that is safe for a modal
+    // (still, no line out, no ceremony, nothing blocking). A ui that shows them itself (offerBanked on the card) wins.
+    const bank = C.run?.levelBank | 0;
+    if (!(bank > 0)) NM.releaseAfterCard = false;
+    if (NM.releaseAtDawn && C.phase !== 'dawn') NM.releaseAtDawn = false;
+    if (bank > 0 && (NM.releaseAfterCard || NM.releaseAtDawn) && !levels.uiDriven && !levels.pendingOptions && C.modalOk() && !uiBlocking() && ctx.flow === 'playing' && !ctx.paused) {
+      NM.releaseAfterCard = false; NM.releaseAtDawn = false;
+      levels.offerBanked();
+    }
+  }
+  function onFishLanded(p = {}) {
+    const sp = p.species || data().SPECIES_BY_ID?.[p.fish?.speciesId];
+    const zi = sp ? (data().ZONE_BY_ID?.[sp.zone]?.index ?? 0) : 0;
+    NM.lastLanded = { frame: ctx.time?.frame ?? 0, gameT: ctx.time?.gameT ?? 0, xp: p.xp, rarity: sp?.rarity || 'common', zoneIndex: zi };
+    NM.releaseAfterCard = true;   // the card is the next safe place for a banked pick (cleared when the bank is empty)
+  }
+  /** XP from outside the Cinder magnet. v3: fish XP in this run's mode unless progression already applied it. */
+  function addXpV3(n, opts) {
+    if (!(n > 0)) return;
+    if (C.mode && !opts?.modeApplied && opts?.source !== 'discovery') {
+      const L = NM.lastLanded;
+      const same = L && L.xp === n && ((ctx.time?.frame ?? 0) - L.frame <= 1 || Math.abs((ctx.time?.gameT ?? 0) - L.gameT) < 0.05);
+      if (same) n = M.fishXpForMode(n, { mode: C.mode, B: BAL(), data: data(), rarity: L.rarity, zoneIndex: L.zoneIndex });
+      if (L) NM.lastLanded = null;
+    }
+    levels.gainXp(n);
+  }
+  function tonightSwarms() {
+    const run = C.run || ctx.state.run;
+    if (!run) return false;
+    if (!C.mode) return true;
+    if (run.scorched && C.mode === 'lantern') return false;
+    if (lampWatchHolds()) return false;
+    if (C.phase === 'gloomtide' && NM.key) return !!NM.win && !NM.done;
+    return M.swarmTonight(C.mode, run.day || C.day || 1, run.outing, BAL(), data());
   }
 
   // ---------------------------------------------------------------- debug & threat
@@ -1107,6 +1501,40 @@ export function create(ctx) {
     get latchedCount() { return latched.filter(Boolean).length; },
     get stolenFish() { return enemiesSys.floating; },
     getBoss() { return wardenAlive() ? bossRef : null; },
+    // ---- v3 (CONTRACT §13.7 combat)
+    /** The night mode this run plays ('still' | 'lantern' | 'gloomtide'; the First Outing reads 'still'), null in v1. */
+    get nightMode() { refreshMode(); return C.mode; },
+    /** Does the swarm come tonight (the night of the current day) in this run's mode? */
+    get swarmTonight() { refreshMode(); return tonightSwarms(); },
+    /** Inside a swarm now: a Lantern / Gloomtide window or a Gloomtide calm raid (render's night camera follows it). */
+    get swarmActive() { return swarmActiveNow(); },
+    /** Banked level-ups waiting for the measuring card or the dawn bell (= run.levelBank). */
+    get bankedLevels() { return ctx.state.run?.levelBank | 0; },
+    /** C2 (DESIGN §25.5.7): this frame's presentation by mode {aura 0–1, embers, flare}; v1 {aura: 0, embers: true, flare: true}. */
+    get presentation() { const p = presentNow(); return { aura: p.aura, embers: p.embers, flare: p.flare }; },
+    /** The lantern aura's presence now (0–1; the soft wash fades toward the table's value). */
+    get auraShown() { return C.mode ? +auraVis.toFixed(3) : 0; },
+    get embersShown() { return presentNow().embers; },
+    get flareShown() { return presentNow().flare; },
+    /** The ui shows a banked pick (measuring card, dawn bell): the offer to choose from with chooseBoon(), or null. */
+    offerBanked() { if (!C.run) C.run = ctx.state.run; refreshMode(); return C.mode ? levels.offerBanked({ ui: true }) : null; },
+    /** Discovery XP under the daily cap shared with progression ('species' | 'place' | 'classFirst'). Returns the XP given. */
+    /**
+     * The run's Boon procs for one trigger, merged ('night' | 'foot' | 'cast' …): the new Angler boons that are not plain
+     * stats (Night Eyes {glowTrailRangeMult, nightBiteSpeed}, Wanderer's Stride {footOilMult}, Quiet Hands {cleanAt}) for
+     * fishing and survival to read. *Mult keys multiply, numbers add, anything else is the last value.
+     */
+    boonProcs(on) {
+      const out = {};
+      for (const [id, lv] of Object.entries(ctx.state.run?.boons || {})) {
+        const pr = data().BOON_BY_ID?.[id]?.proc;
+        if (!pr || pr.on !== on || !(lv > 0) || !Array.isArray(pr.levels) || !pr.levels.length) continue;
+        const L = pr.levels[Math.min(lv | 0, pr.levels.length) - 1] || {};
+        for (const [k, v] of Object.entries(L)) out[k] = typeof v === 'number' && typeof out[k] === 'number' ? (k.endsWith('Mult') ? out[k] * v : out[k] + v) : v;
+      }
+      return out;
+    },
+    addDiscoveryXp(kind) { if (!C.run) C.run = ctx.state.run; refreshMode(); if (!C.mode) return 0; const xp = M.discoveryXp(kind, C.run, BAL()); if (xp > 0) levels.gainXp(xp); return xp; },
     group,
     get _fx() { return fx; },
     init() {
@@ -1118,19 +1546,53 @@ export function create(ctx) {
         clearAll();
         C.run = ctx.state.run;
         if (!C.run) return;
+        refreshMode(); NM.key = ''; NM.open = false;
         zoneInfo(); phaseInfo(); refreshDiff(true); resetNight(); night.stragglerK = -1;
         void prev;
       });
       bus.on('phase:change', ({ phase, prev } = {}) => {
         if (!ctx.state.run) return;
         C.run = ctx.state.run;
+        refreshMode();
         phaseInfo(); refreshDiff(true);
         if (phase === 'dusk') { levels.newNight(); night.scoutCredit = 0.6; night.duskRate = -1; }
-        if (phase === 'gloomtide') { if (prev !== 'dusk') levels.newNight(); resetNight(); }
-        if (phase === 'dawn') killAll('dawn');
-        if (phase === 'calm') { night.stragglerK = -1; night.stragglerDone = false; }
+        if (phase === 'gloomtide') { if (prev !== 'dusk') levels.newNight(); resetNight(); if (C.mode) planNight(true); }
+        if (phase === 'dawn') {
+          if (C.mode && NM.open) { NM.open = false; ctx.bus.emit('swarm:window', { state: 'close', night: C.day, mode: C.mode, reason: 'dawn' }); }
+          killAll('dawn');
+          if (C.mode) {
+            levels.bankQueued(); NM.releaseAtDawn = true;
+            // Lantern: Murk's bell forecasts the next night's swarm (DESIGN §25.5.1, "The Gloom stirs tonight.")
+            const fc = C.modeCfg?.forecast, r = C.run;
+            if (fc && r && M.swarmTonight(C.mode, (r.day | 0) + 1, r.outing, BAL(), data())) ctx.bus.emit('toast', { text: `Old Murk: "${fc}"`, kind: 'lore' });
+          }
+        }
+        if (phase === 'calm') { night.stragglerK = -1; night.stragglerDone = false; if (C.mode) NM.key = ''; }
+      });
+      // v3 (CONTRACT §13.4 Scorched): the swarm withdraws for the night, no Cinders; survival spends the oil and anchors
+      bus.on('player:scorched', () => {
+        if (!ctx.state.run) return;
+        C.run = ctx.state.run; refreshMode();
+        if (!C.mode) return;
+        if (NM.open) closeWindow('scorched');
+        else { withdrawSwarm('scorched'); levels.bankQueued(); }
+        NM.done = true;
+      });
+      bus.on('lampwatch:start', () => {
+        if (!ctx.state.run) return;
+        C.run = ctx.state.run; refreshMode();
+        if (C.mode && NM.open && lampWatchHolds()) closeWindow('lampwatch');
+      });
+      bus.on('fishing:hook', () => { NM.snagsThisFight = 0; });
+      bus.on('fishing:snag', (p) => { try { onFishingSnag(p || {}); } catch (e) { C.report('fishing:snag', e); } });
+      bus.on('fish:landed', (p) => { if (C.mode) onFishLanded(p || {}); });
+      bus.on('place:discover', ({ first } = {}) => {
+        if (!C.run || !C.mode || first === false) return;
+        const xp = M.discoveryXp('place', C.run, BAL());
+        if (xp > 0) levels.gainXp(xp);
       });
       bus.on('player:damage', ({ amount } = {}) => {
+        if (amount >= 1) lastHitAt = ctx.time?.t ?? 0;   // v3 C2: the Embers arc shows for a few seconds after a hit (Lantern)
         if (!(amount >= 1) || !C.run) return;
         weapons.onHurt();
         // Gutter-burst: a free radial knock on every Ember lost
@@ -1148,7 +1610,8 @@ export function create(ctx) {
           e.stun = Math.max(e.stun, gb.stun ?? 0.5);
         }
         if (tallow && q.burstDamage) C.flareBurst(C.raft.x, C.raft.z, R, 1, { free: true, mini: true, source: 'gutter' });
-        fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 0.8, r1: R, life: 0.45, color: COL.gutter, p1: 0.12, p2: 0.1, alpha: 0.9 });
+        if (C.mode) fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: R * 0.25, r1: R, life: 0.45, color: COL.gutter, type: DECAL.GLOW, p1: 1.4, alpha: 0.32 });   // v3: a wash, not a ring
+        else fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 0.8, r1: R, life: 0.45, color: COL.gutter, p1: 0.12, p2: 0.1, alpha: 0.9 });
         fx.burst(C.raft.x, 1.2, C.raft.z, COL.gutter, 16, R * 1.4, 0.16, 0.4, 1, -2);
       });
       bus.on('fish:action', ({ action } = {}) => {
@@ -1158,7 +1621,8 @@ export function create(ctx) {
         if (lv > 0 && pr?.levels) {
           gutsP = pr.levels[Math.min(lv, pr.levels.length) - 1];
           gutsT = gutsP?.time || 6;
-          fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 1, r1: C.lightR + 2, life: 0.7, color: COL.burnHot, p1: 0.08, p2: 0.12 });
+          if (C.mode) fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 1, r1: C.lightR + 2, life: 0.7, color: COL.burnHot, type: DECAL.GLOW, p1: 1.6, alpha: 0.22, ease: 3 });   // v3: a wash, not a ring
+          else fx.timedDecal({ x: C.raft.x, z: C.raft.z, r0: 1, r1: C.lightR + 2, life: 0.7, color: COL.burnHot, p1: 0.08, p2: 0.12 });
         }
       });
       bus.on('fish:landed', () => {
@@ -1189,14 +1653,54 @@ export function create(ctx) {
         formation: (id) => spawnFormation(id)?.id || null,
         combat: () => ({ enemies: enemies.length, cinders: levels.cinderCount, pending: levels.pendingCount, lightR: C.lightR, lightMult: lightDims * flareBoost, flareCd, weapons: weapons.list.map((w) => `${w.id}:${w.level}`), boss: bossRef?.name || null, night: { ...night } }),
         flareReset: () => { flareCd = 0; return true; },
+        // v3 (CONTRACT §13.11)
+        /** Test only: switch run.nightMode (the run's mode is otherwise locked at creation). */
+        mode: (name) => {
+          const run = ctx.state.run;
+          if (!run || !data().BALANCE?.nightModes?.[name]) return null;
+          run.nightMode = name; if (run.outing === 'first') run.outing = 'normal';
+          C.run = run; refreshMode(); NM.key = ''; NM.open = false; refreshDiff(true);
+          return C.mode;
+        },
+        /** Open tonight's swarm window now (night only; test only): the mode's window length from the current k. */
+        swarmNow: () => {
+          const run = ctx.state.run;
+          if (!run) return null;
+          C.run = run; refreshMode(); phaseInfo();
+          if (!C.mode || C.phase !== 'gloomtide') return null;
+          planNight(false);
+          const w = data().BALANCE?.nightModes?.[C.mode]?.window || data().BALANCE?.nightModes?.lantern?.window || [0.05, 0.5];
+          const len = Math.max(0.05, (w[1] ?? 0.5) - (w[0] ?? 0.05));
+          const k = C.phaseK;
+          NM.win = { k0: k, k1: Math.min(1, k + len), start: k, end: Math.min(1, k + len) };
+          NM.done = false; NM.forced = true; NM.watchWas = false;
+          return { ...NM.win };
+        },
+        /** The combat side of the v3 state at a glance. */
+        combatV3: () => {
+          const run = ctx.state.run;
+          refreshMode();
+          return {
+            mode: C.mode, phase: C.phase, day: C.day, k: +C.phaseK.toFixed(3), window: NM.win ? { ...NM.win } : null, open: NM.open, done: NM.done,
+            swarmTonight: tonightSwarms(), swarmActive: swarmActiveNow(), lampWatch: run?.lampWatch ? { ...run.lampWatch } : null, scorched: run?.scorched ? { ...run.scorched } : null,
+            levelBank: run?.levelBank | 0, pending: levels.pendingCount, queued: levels.queuedCount, banked: !!levels.current?.banked, uiDriven: levels.uiDriven,
+            modalOk: C.modalOk(), hooked: C.hooked(), holdStill: C.holdStill(), snags: snags.map((x) => ({ t: +x.t.toFixed(2), lead: x.lead, hit: x.hit, x: x.x, z: x.z })),
+            snagsThisFight: NM.snagsThisFight, swarmSeen: !!run?.flags?.swarmSeen,
+            present: { ...presentNow() }, auraShown: +auraVis.toFixed(3),
+            diff: C.diff ? { k: C.diff.k, day: C.diff.day, spawnRate: C.diff.spawnRate, maxAlive: C.diff.maxAlive, hpMult: C.diff.hpMult, eliteEvery: C.diff.eliteEvery, boss: C.diff.boss, bossHpMult: C.diff.bossHpMult, formationAt: C.diff.formationAt, heat: C.diff.heat } : null,
+            enemies: enemies.length, boss: bossRef?.enemyId || null, bossHp: bossRef ? Math.round(bossRef.maxHp) : null,
+          };
+        },
+        /** Test only: start a legend snag now (as a Grasping Dark summon would) — needs a hooked legend in Still / Lantern. */
+        snag: () => { refreshMode(); return legendSummon('drowned_hand', { source: 'legendary', debug: true }); },
       });
     },
     update,
     onPointerDown,
     flare,
     flareReady() { return flareCd <= 0 ? 1 : clamp01(1 - flareCd / Math.max(0.01, flareTotal)); },
-    canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
-    addXp(n) { if (!C.run) C.run = ctx.state.run; levels.gainXp(n); },
+    canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; if (C.mode && !presentNow().flare) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
+    addXp(n, opts) { if (!C.run) C.run = ctx.state.run; refreshMode(); if (C.mode) addXpV3(n, opts); else levels.gainXp(n); },
     chooseBoon(boonId) { if (!C.run) C.run = ctx.state.run; return levels.chooseBoon(boonId); },
     reroll() { return levels.reroll(); },
     skip() { return levels.skip(); },
@@ -1204,7 +1708,12 @@ export function create(ctx) {
     getBoons() { if (!C.run) C.run = ctx.state.run; return levels.getBoons(); },
     killAll,
     getThreat,
-    spawnEnemy(id, position, opts = {}) { if (!C.run) return null; return enemiesSys.spawn(id, position?.x ?? C.raft.x, position?.z ?? C.raft.z, opts); },
+    spawnEnemy(id, position, opts = {}) {
+      if (!C.run) return null;
+      // v3 Still / Lantern: a legendary's scripted summon spawns nothing (the Swallower's Grasping Dark becomes a snag)
+      if (opts && (opts.source === 'legendary' || opts.scripted)) { refreshMode(); const r = legendSummon(id, opts); if (r) return r; }
+      return enemiesSys.spawn(id, position?.x ?? C.raft.x, position?.z ?? C.raft.z, opts);
+    },
   };
   return api;
 }

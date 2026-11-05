@@ -11,6 +11,19 @@
 //     | 'surgeEnd' {kind} | 'phase' {index, name, mechanic} | 'enrage' {} | 'dive' {}
 //     | 'snap' {} | 'slack' {} | 'landed' {}
 //   reel.spike(dT)                // external tension spike (hand slam during a legendary)
+//
+// v3 (DESIGN §25.6.5, CONTRACT §13.7), only when `opts.v3` is given (absent → today's model, unchanged):
+//   v3 = { fatigue: {after, perS, floor} | null,      // non-legendaries: power × max(floor, 1 − perS·(t − after)); Elders floor 0.8
+//          ease: {base, perLoad},                     // released: target = −fallBase / (base + perLoad · pw / LS)
+//          trick: {at, warnMult, powerMult, secondAfter, mixed, style} | null,   // every Elder, once, when progress first passes `at`
+//          drag: {slipLoss, spooledSlip},             // T > dragAt and rising: absorb dT × absorb, progress −slipLoss per unit absorbed
+//          absorb, dragAt, shock,                     // live gear (setGear refreshes them): Reel absorb, drag point, Rod shock
+//          pips: {n, low} | null }                    // hook-hold pips (Prize+): one lost per surge dip below `low`; 0 → thrown
+//   extra events: 'oldTrick' {kind, style} · 'pip' {n, max} · results 'thrown' (pips) and 'spooled' (progress 0 after slip > spooledSlip)
+//   extra read-outs: reel.surgeMode 'idle'|'warn'|'surge', reel.trick (inside the old trick), reel.trickDone, reel.slipped,
+//   reel.pips / reel.pipsMax, reel.fatigue
+// Pure v3 helpers (no three.js; fishing.js and tools/tests use them): scaleDifficultyV3, reelOptsV3, rollZ, normCdf, normInv,
+// capZ, inGiantSpot, sumFavour, floatFavour.
 
 const DEF = {
   safeMin: 0.15, safeMax: 0.85, slackLine: 0.08, slackDecay: 2, snapAt: 1.0, snapGrace: 0.12,
@@ -58,11 +71,20 @@ export function createReel(opts = {}) {
   const phi = rng() * Math.PI * 2;
   const str = num(R.strength[behavior], 1);
 
+  // v3 reel edits (null → today's model exactly)
+  const V = opts.v3 && typeof opts.v3 === 'object' ? opts.v3 : null;
+  const trick = V && V.trick && !legendary ? V.trick : null;
+  const fatigueOn = !!(V && V.fatigue && !legendary);
+  const slipLoss = V ? num(V.drag?.slipLoss, 0.08) : 0, spooledSlip = V ? num(V.drag?.spooledSlip, 0.5) : Infinity;
+
   // live gear (fishing refreshes these a few times a second)
   const gear = {
     LS: Math.max(0.2, num(opts.LS, 1)), RS: Math.max(0.05, num(opts.RS, 1)),
     sweetZone: Math.max(0.01, num(opts.sweetZone, 0.16)), slackTime: Math.max(0.2, num(opts.slackTime, 1.6)),
+    absorb: V ? clamp(num(V.absorb, 0.3), 0, 0.95) : 0, dragAt: V ? num(V.dragAt, 0.8) : Infinity, shock: V ? clamp(num(V.shock, 0), 0, 0.9) : 0,
   };
+  const pipsMax = V && V.pips && !legendary ? Math.max(1, Math.round(num(V.pips.n, 2))) : null;
+  const pipLow = V && V.pips ? num(V.pips.low, 0.15) : 0;
 
   const r = {
     T: R.startTension, vT: 0,
@@ -75,10 +97,14 @@ export function createReel(opts = {}) {
     enraged: false, lightMult: 1, pw: sp.power, target: 0,
     qSweet: 0, qHold: 0, qOver: 0, holdingTime: 0,
     gear,
+    // v3 read-outs
+    slipped: 0, pips: pipsMax, pipsMax, trick: false, trickDone: !trick, fatigue: 1,
   };
+  let wasLow = false;
 
   // ---------------------------------------------------------------- surge scheduler
-  const S = { mode: 'idle', timer: 0, next: 0, warnLen: 0.9, pairSecond: false, eclipseFlip: false };
+  const S = { mode: 'idle', timer: 0, next: 0, warnLen: 0.9, pairSecond: false, eclipseFlip: false, trick: false };
+  Object.defineProperty(r, 'surgeMode', { get: () => S.mode, enumerable: true });
   let darterOffset = 0, darterFrom = 0, darterTo = 0, darterT = 1;
   let decoySide = rng() < 0.5 ? -1 : 1;
   let phaseStart = 0;
@@ -105,7 +131,18 @@ export function createReel(opts = {}) {
   }
   S.next = every() * U(R.surgeJitter[0], R.surgeJitter[1]) + R.firstSurgeDelay + (opts.perfect ? R.perfectSurgeDelay : 0);
 
+  function startTrick() {
+    // the old trick (DESIGN §25.6.5): a short-warning surge whose kind must be read (a 50/50 pull / leap when mixed),
+    // power × powerMult through its warning and surge, then a second surge `secondAfter` s after it ends
+    r.trickDone = true; S.trick = true; r.trick = true;
+    S.mode = 'warn'; S.timer = 0; S.warnLen = baseWarn() * num(trick.warnMult, 0.6);
+    r.surgeKind = trick.mixed !== false ? (rng() < 0.5 ? 'leap' : 'pull') : chooseKind();
+    onEvent('oldTrick', { kind: r.surgeKind, style: trick.style || null });
+    onEvent('surgeWarn', { kind: r.surgeKind, warn: S.warnLen, trick: true });
+  }
+
   function stepSurge(dt) {
+    if (S.mode === 'idle' && trick && !r.trickDone && r.P >= num(trick.at, 0.55)) { startTrick(); return; }
     if (S.mode === 'idle') {
       S.next -= dt;
       if (S.next <= 0) {
@@ -121,7 +158,8 @@ export function createReel(opts = {}) {
         r.surgeDur = sp.surgeTime * U(R.surgeLenJitter[0], R.surgeLenJitter[1]);
         r.surgeStrength = r.pw * str;
         r.surge = true; r.surgeWarn = 0;
-        onEvent('surge', { strength: r.surgeStrength, kind: r.surgeKind, duration: r.surgeDur });
+        onEvent('surge', S.trick ? { strength: r.surgeStrength, kind: r.surgeKind, duration: r.surgeDur, trick: true }
+          : { strength: r.surgeStrength, kind: r.surgeKind, duration: r.surgeDur });
       }
     } else if (S.mode === 'surge') {
       S.timer += dt;
@@ -135,7 +173,10 @@ export function createReel(opts = {}) {
           darterFrom = darterOffset; darterTo = sign * mag; darterT = 0;
         }
         if (ph.mechanic === 'decoy' && ph.swapOnSurge !== false) decoySide = -decoySide;
-        if (ph.mechanic === 'doubleSurge' && !S.pairSecond) {
+        if (S.trick) {   // the old trick's second surge: its warning starts secondAfter s after the trick ends
+          S.trick = false; r.trick = false; S.pairSecond = true;
+          S.next = Math.max(0, num(trick.secondAfter, 0.9));
+        } else if (ph.mechanic === 'doubleSurge' && !S.pairSecond) {
           S.pairSecond = true;
           S.next = Math.max(0, num(ph.gap, 0.9) - baseWarn());
         } else if (ph.mechanic === 'eclipse') {
@@ -174,7 +215,15 @@ export function createReel(opts = {}) {
     if (boss && !r.enraged && r.time >= num(boss.enrage, Infinity)) { r.enraged = true; onEvent('enrage', {}); }
     const lastPhase = boss ? r.phaseIndex === phases.length - 1 : true;
     const tireOn = !legendary || (lastPhase && r.P >= num(ph.tireFrom, num(ph.at, 0)));
-    const pw = sp.power * (1 - R.tire * r.P * (tireOn ? 1 : 0)) * (r.enraged ? R.enrage.power : 1);
+    let pw = sp.power * (1 - R.tire * r.P * (tireOn ? 1 : 0)) * (r.enraged ? R.enrage.power : 1);
+    if (V) {
+      if (fatigueOn) {
+        const F = V.fatigue, after = num(F.after, 60);
+        r.fatigue = r.time > after ? Math.max(num(F.floor, 0.6), 1 - num(F.perS, 0.01) * (r.time - after)) : 1;
+        pw *= r.fatigue;
+      }
+      if (S.trick && S.mode !== 'idle') pw *= num(trick.powerMult, 1.3);
+    }
     r.pw = pw;
     stepSurge(dt);
     const surging = r.surge;
@@ -184,15 +233,21 @@ export function createReel(opts = {}) {
     // ---- tension
     let target;
     if (leaping) target = holding ? R.leapHold * pw / LS : R.leapRelease;
-    else if (holding) target = R.riseBase * pw * (surging ? R.surgeHoldMult * Math.sqrt(str) : 1) / LS;
+    else if (holding) target = R.riseBase * pw * (surging ? R.surgeHoldMult * (V ? 1 - gear.shock : 1) * Math.sqrt(str) : 1) / LS;
     else if (surging) target = R.surgeCreep * pw * str / (LS * Math.max(0.1, r.surgeDur));
+    else if (V && V.ease) target = -R.fallBase / (num(V.ease.base, 0.8) + num(V.ease.perLoad, 0.2) * pw / LS);
     else target = -R.fallBase / (0.8 + 0.2 * pw);
     target += sp.erratic * R.jitter * n1(r.time * R.noiseHz);
     if (behavior === 'sinker') target += R.sinkerDrag * pw / LS;
     if (mech === 'drag') target += num(ph.drag, 0.08);
     r.target = target;
     r.vT += (target - r.vT) * (1 - Math.exp(-R.accel * dt));
-    r.T = Math.max(0, r.T + r.vT * dt);
+    let dT = r.vT * dt;
+    if (V && gear.absorb > 0 && r.T > gear.dragAt && dT > 0) {   // drag on every fight: the reel gives line, progress slips
+      const ab = dT * gear.absorb;
+      dT -= ab; r.P -= slipLoss * ab; r.slipped += ab;
+    }
+    r.T = Math.max(0, r.T + dT);
 
     // ---- bands
     const shrink = mech === 'shrink' ? 1 + (num(ph.sweetTo, 0.6) - 1) * clamp((r.P - num(ph.at, 0)) / Math.max(0.01, 1 - num(ph.at, 0)), 0, 1) : 1;
@@ -243,6 +298,18 @@ export function createReel(opts = {}) {
     if (T < R.safeMin) r.P -= R.decaySlack * dt * decayMult;
     else if (decayMult > 1 && T > R.safeMax) r.P -= R.decaySlack * dt * decayMult;
     if (surging && !leaping && !holding) r.P -= R.decaySurge * dt;
+    if (V) {
+      if (pipsMax) {   // hook-hold pips: one lost each time tension dips below `low` during a surge; at 0 the hook is thrown
+        const low = r.T < pipLow && S.mode === 'surge';
+        if (low && !wasLow) {
+          r.pips -= 1;
+          onEvent('pip', { n: r.pips, max: pipsMax });
+          if (r.pips <= 0) { r.pips = 0; finish('thrown'); return; }
+        }
+        wasLow = low;
+      }
+      if (r.P <= 0 && r.slipped > spooledSlip) { r.P = 0; finish('spooled'); return; }   // Spooled: any species
+    }
     if (r.P < 0) r.P = 0;
     if (T > R.dangerLine) r.qOver += dt;
 
@@ -278,6 +345,11 @@ export function createReel(opts = {}) {
     if (Number.isFinite(g.RS)) gear.RS = Math.max(0.05, g.RS);
     if (Number.isFinite(g.sweetZone)) gear.sweetZone = Math.max(0.01, g.sweetZone);
     if (Number.isFinite(g.slackTime)) gear.slackTime = Math.max(0.2, g.slackTime);
+    if (V) {
+      if (Number.isFinite(g.absorb)) gear.absorb = clamp(g.absorb, 0, 0.95);
+      if (Number.isFinite(g.dragAt)) gear.dragAt = g.dragAt;
+      if (Number.isFinite(g.shock)) gear.shock = clamp(g.shock, 0, 0.9);
+    }
   };
   /** Quality score from reel performance (DESIGN §5.8, before spot/bait/relic bonuses). */
   r.qualityScore = function qualityScore(Q = {}) {
@@ -286,4 +358,148 @@ export function createReel(opts = {}) {
   r.stamina = sp.stamina;
   r.species = sp;
   return r;
+}
+
+// ======================================================================================= v3 pure helpers
+// (DESIGN §25.6.5, §25.7.1–§25.7.2; CONTRACT §13.7.) Every number comes from the merged v3 BALANCE blocks the caller passes in
+// (`size` = BALANCE.size, `R` = BALANCE.reel, `bite` = BALANCE.bite), so tools and the game share one implementation.
+
+const CLASS_ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
+/** Index of a size class id on the ladder (small 0 … elder 4; −1 unknown). */
+export const classIndex = (id) => CLASS_ORDER.indexOf(id);
+
+/**
+ * species.difficulty scaled by size before createReel (DESIGN §25.6.5; the same rule as tools/sim/reel-v3.mjs scaleDifficulty):
+ * g = e^(gPerZ·z); power × g^(powerExp (sinkers / sulkers powerExpBy) + age·(z − elderZ)) × elderStep above the Elder cut;
+ * stamina × staminaMult (the reel's global × 1.4) × g (g^elderStaminaExp above the cut); surge time × g^0.5; sweet band × g^−0.5
+ * (floor sweetMin); erratic + 0.08·z; surge interval × g^−0.6 (never below the duty cap). Legends fight at fight.legendZ.
+ */
+export function scaleDifficultyV3(d0, behavior, z, zone, size, R = {}) {
+  const F = size?.fight || {}, RE = size?.reel || {};
+  const R2 = { ...DEF, ...R };
+  const d = { power: 0.6, surgeEvery: 6, surgeTime: 0.7, stamina: 5, sweet: 1, erratic: 0, window: 1, ...(d0 || {}) };
+  const zz = num(z, 0);
+  const g = Math.exp(num(F.gPerZ, 0.2) * zz);
+  const pBase = F.powerExpBy?.[behavior] ?? num(F.powerExp, 1.6);
+  const over = Math.max(0, zz - num(F.elderZ, 2.65));
+  const age = num(F.elderAge?.[zone], 0);
+  const out = { ...d };
+  out.power = d.power * g ** (pBase + age * over) * (over > 0 ? num(F.elderStep, 1.08) : 1);
+  out.stamina = d.stamina * num(RE.staminaMult, 1) * g ** (over > 0 ? num(F.elderStaminaExp, 1.3) : num(F.staminaExp, 1));
+  out.surgeTime = d.surgeTime * g ** num(F.surgeTimeExp, 0.5);
+  out.sweet = Math.max(num(F.sweetMin, 0.4), d.sweet * g ** num(F.sweetExp, -0.5));
+  out.erratic = Math.min(num(F.erraticMax, 0.9), d.erratic + num(F.erraticPerZ, 0.08) * Math.max(0, zz));
+  out.surgeEvery = d.surgeEvery * g ** num(F.surgeEveryExp, -0.6);
+  const warn = behavior === 'darter' ? R2.darterWarn : Math.max(R2.warnMin, R2.warnBase - R2.warnErratic * d.erratic);
+  out.surgeEvery = Math.max(out.surgeEvery, (out.surgeTime + warn) / R2.dutyCap);
+  return out;
+}
+
+/**
+ * The `v3` options for createReel (CONTRACT §13.7): fatigue (Elder floor), easing by load, the old trick (Elders only), drag from the
+ * fitted stats (absorb, dragAt), Rod shock and hook-hold pips (Prize+, not legendaries: perfect 3 / normal 2 + stats.pipBonus).
+ * opts: {size, bite, stats, z, legendary, perfect, style, sizeClass (data.sizeClassOf(z); defaults to the SIZE_CLASSES cuts)}.
+ */
+export function reelOptsV3({ size, bite, stats = {}, z = 0, legendary = false, perfect = false, style = null, sizeClass = null } = {}) {
+  const F = size?.fight || {}, RE = size?.reel || {};
+  const elder = !legendary && num(z, 0) > num(F.elderZ, 2.65);
+  const FT = RE.fatigue || {};
+  const T = RE.oldTrick || null;
+  const P = bite?.pips || null;
+  const cls = sizeClass || sizeClassOfZ(num(z, 0), size);
+  const usePips = !!P && !legendary && P.legendaries !== true && classIndex(cls) >= classIndex(P.fromClass || 'prize');
+  return {
+    fatigue: legendary ? null : { after: num(FT.after, 60), perS: num(FT.perS, 0.01), floor: elder ? num(FT.elderFloor, 0.8) : num(FT.floor, 0.6) },
+    ease: RE.easeByLoad ? { base: num(RE.easeByLoad.base, 0.8), perLoad: num(RE.easeByLoad.perLoad, 0.2) } : null,
+    trick: elder && T ? { at: num(T.at, 0.55), warnMult: num(T.warnMult, 0.6), powerMult: num(T.powerMult, 1.3), secondAfter: num(T.secondAfter, 0.9),
+      mixed: T.mixedRead !== false, style: T.byStyle?.[style] || null } : null,
+    drag: { slipLoss: num(RE.drag?.slipPerAbsorb, 0.08), spooledSlip: num(RE.drag?.spooled?.slip, 0.5) },
+    absorb: num(stats.absorb, 0.3), dragAt: num(stats.dragAt, 0.8), shock: num(stats.shock, 0),
+    pips: usePips ? { n: (perfect ? num(P.perfect, 3) : num(P.normal, 2)) + Math.max(0, Math.round(num(stats.pipBonus, 0))), low: num(P.lowTension, 0.15) } : null,
+  };
+}
+
+/** Size class of z on the SIZE_CLASSES cuts (Small < −0.25 ≤ Keeper < 1.04 ≤ Prize < 1.88 ≤ Trophy < 2.65 ≤ Elder). */
+function sizeClassOfZ(z, size) {
+  const cuts = size?.cuts || [-0.25, 1.04, 1.88, 2.65];
+  for (let i = 0; i < cuts.length; i++) if (z < cuts[i]) return CLASS_ORDER[i];
+  return 'elder';
+}
+
+/** Standard normal CDF (Abramowitz & Stegun 7.1.26, the same erf as data.classOdds). */
+export function normCdf(x) {
+  const t = 1 / (1 + 0.3275911 * Math.abs(x / Math.SQRT2));
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(x * x) / 2);
+  return 0.5 * (1 + (x >= 0 ? y : -y));
+}
+/** Inverse standard normal CDF (Acklam; |rel err| < 1.2e-9). */
+export function normInv(p) {
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  const q0 = clamp(p, 1e-12, 1 - 1e-12), lo = 0.02425;
+  if (q0 < lo) { const q = Math.sqrt(-2 * Math.log(q0)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  if (q0 > 1 - lo) { const q = Math.sqrt(-2 * Math.log(1 - q0)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  const q = q0 - 0.5, r2 = q * q;
+  return (((((a[0] * r2 + a[1]) * r2 + a[2]) * r2 + a[3]) * r2 + a[4]) * r2 + a[5]) * q / (((((b[0] * r2 + b[1]) * r2 + b[2]) * r2 + b[3]) * r2 + b[4]) * r2 + 1);
+}
+
+/**
+ * The size score (DESIGN §25.7.1): z ~ Normal(μ, sd) truncated to [min, min(max, cap)] by inverse-CDF sampling (one rng draw, so a
+ * seeded rng gives a reproducible roll). The cap (a top Trophy outside giant water, a species' or place's maxClass) truncates the
+ * distribution rather than piling fish on the cap, as data.classOdds and the roster sim's value normaliser assume.
+ */
+export function rollZ(mu, rng = Math.random, { min = -2, max = 3.6, sd = 1, cap = Infinity } = {}) {
+  const hi = Math.max(min, Math.min(max, cap));
+  const a = normCdf((min - mu) / sd), b = normCdf((hi - mu) / sd);
+  if (!(b - a > 1e-12)) return mu < min ? min : hi;   // the whole mass sits outside: the nearest bound
+  const z = mu + sd * normInv(a + (b - a) * rng());
+  return clamp(z, min, hi);
+}
+
+/** Inside one stopgap giant water entry (`arena.giantSpots`): a ring {r: [r0, r1]} around (x, z) or a disc {r}. */
+export function inGiantSpot(g, x, z) {
+  if (!g || !Number.isFinite(g.x)) return false;
+  const d = Math.hypot(x - g.x, z - g.z);
+  if (Array.isArray(g.r)) return d >= num(g.r[0], 0) && d <= num(g.r[1], 0);
+  return d <= num(g.r, 0);
+}
+
+/**
+ * The highest z a cast may roll (DESIGN §25.7.1): the species' maxClass; a place's maxClass (fry water); outside giant water a top
+ * Trophy (size.elsewhereMaxZ). A `giantsKept` place lifts the elsewhere clamp and its own maxClass for its kept species only.
+ */
+export function capZ({ species, place = null, giantWater = false, size }) {
+  const CM = size?.classMaxZ || {}, top = num(size?.z?.max, 3.6);
+  let cap = Math.min(top, num(CM[species?.maxClass], num(size?.reachZ, top)));
+  const kept = !!place && (place.kept?.includes?.(species?.id) || (species?.place && species.place === place.id));
+  const keptLift = !!place?.giantsKept && kept;
+  if (place?.maxClass && !keptLift) cap = Math.min(cap, num(CM[place.maxClass], cap));
+  if (!giantWater && !keptLift) cap = Math.min(cap, num(size?.elsewhereMaxZ, 2.64));
+  return cap;
+}
+
+/** μ from favour terms [{family, id, value}]: their sum, capped above at `cap` (BALANCE.favour.cap 1.8). */
+export function sumFavour(terms, cap = 1.8) {
+  let mu = 0;
+  for (const t of terms || []) mu += num(t?.value, 0);
+  return Math.min(cap, mu);
+}
+
+/**
+ * The float's favour (DESIGN §25.6.1, BALANCE.favour.float): the species-independent terms plus each species-specific term taken as
+ * the maximum over the eligible pool (or over `preferred` alone when given: a pinned / today's rumour species that is eligible), so
+ * the float never depends on which species was rolled. speciesTerms: [[{family, id, value}] per eligible species].
+ * Returns {mu, terms} with the terms listed once each.
+ */
+export function floatFavour(baseTerms, speciesTerms, cap = 1.8, preferred = null) {
+  const lists = preferred ? [preferred] : (speciesTerms || []);
+  const best = new Map();
+  for (const list of lists) for (const t of list || []) {
+    const k = `${t.family}:${t.id}`, v = num(t.value, 0);
+    if (!best.has(k) || v > best.get(k).value) best.set(k, { family: t.family, id: t.id, value: v });
+  }
+  const terms = [...(baseTerms || []), ...[...best.values()].filter((t) => t.value !== 0)];
+  return { mu: sumFavour(terms, cap), terms };
 }

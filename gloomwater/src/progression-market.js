@@ -2,6 +2,7 @@
 // tabs (Sell · Gear · Bait · Supplies · Ledger) and the Ledger bounties (§15).
 // Helper of progression.js only (receives the shared internals object `S`).
 import { uid, rand } from './core.js';
+import { heavyTargetKg } from './progression-v3.js';
 
 const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const QUALITY_RANK = { normal: 0, fine: 1, perfect: 2 };
@@ -313,6 +314,7 @@ export function createMarket(S) {
       f.tideChart = { day: r.day, count: g.spots };
       ctx.fishing?.addSpots?.(g.spots, { rare: true, untilDusk: true, source: 'tide_chart' });
     }
+    if (g.chum) ctx.fishing?.armChum?.();   // v3 Murk's Chum (F6): the next cast spawns a 30 s nervous sign at the bobber
     return purchased(`supply:${s.id}`, item);
   }
 
@@ -352,6 +354,7 @@ export function createMarket(S) {
     if (g.hp) bits.push(`+${g.hp} Ember`);
     if (g.flareCharges) bits.push(`${g.flareCharges} free flares`);
     if (g.spots) bits.push(`${g.spots} rich spots`);
+    if (g.chum) bits.push('nervous water on your next cast');
     return bits.join(' · ');
   }
 
@@ -399,14 +402,15 @@ export function createMarket(S) {
         if (!sp) return null;
         const skew = BAL('economy').weightSkew ?? 1.6;
         const tq = Math.pow(p.percentile ?? 0.75, skew);
-        const kg = sp.weight[0] + (sp.weight[1] - sp.weight[0]) * tq;
+        const kgV3 = D().V3_ENABLED === true ? heavyTargetKg(D(), sp, p.percentile ?? 0.75, r.zone) : null;   // v3: by size score
+        const kg = kgV3 ?? sp.weight[0] + (sp.weight[1] - sp.weight[0]) * tq;
         b.target = sp.id; b.kg = kg < 1 ? Math.round(kg * 100) / 100 : Math.round(kg * 10) / 10;
         fill.species = sp.name; fill.kg = b.kg;
         break;
       }
       case 'catchRarity': b.target = p.rarity || 'uncommon'; b.count = pickInt(p.n); fill.n = b.count; break;
       case 'depthCatch': b.target = p.depthMin ?? 0.75; b.count = pickInt(p.n); fill.n = b.count; break;
-      case 'perfectHooks': case 'streak': case 'spotCatch': case 'slayElite':
+      case 'perfectHooks': case 'streak': case 'spotCatch': case 'signCatch': case 'slayElite':
         b.count = pickInt(p.n); fill.n = b.count; break;
       case 'slayNight': {
         const heat = D().heatFor?.(day, zi) ?? (day - 1 + 3 * zi);
@@ -537,6 +541,7 @@ export function createMarket(S) {
         case 'quality': if (kind === 'fish' && (QUALITY_RANK[e.fish?.quality] ?? 0) >= (QUALITY_RANK[b.target] ?? 1)) step(b); break;
         case 'nightFish': if (kind === 'fish' && e.species?.time === 'gloom') step(b); break;
         case 'spotCatch': if (kind === 'fish' && e.inSpot) step(b); break;
+        case 'signCatch': if (kind === 'fish' && (e.inSign ?? e.inSpot)) step(b); break;   // v3: "cast inside a sign on the water"
         case 'legend': if (kind === 'fish' && e.fish?.speciesId === b.target) step(b); break;
         case 'perfectHooks': if (kind === 'hook' && e.perfect) step(b); break;
         case 'streak': if (kind === 'hook') setProgress(b, e.streak || 0); break;

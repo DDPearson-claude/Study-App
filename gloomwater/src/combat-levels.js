@@ -3,6 +3,10 @@
 // fade after cinderLife and all fly home at dawn. Level-ups queue; each pick builds a 1-of-3
 // (4 for The Wick's first pick of a night) weighted offer that respects unlocks, slots, maxLevel,
 // luck, the first-pick / weapon-pity guarantees and Kindles. Helper of combat.js.
+// v3 (combat.js decides through C.bankLevel / C.modalOk / C.offerRule / C.noCinders, all inert in v1): level-ups earned
+// outside a swarm go to run.levelBank (levelup:banked) and are offered later through offerBanked(); a pick never opens
+// as a modal while moving, with a line out or in the ceremony; offers follow the mode's pool (Still: Angler only) and
+// the Angler cap; no Cinders drop during a lamp-watch or a Scorched night.
 import { DECAL, lin } from './combat-fx.js';
 
 const TAU = Math.PI * 2;
@@ -27,6 +31,7 @@ export function createLevels(C) {
 
   function drop(x, z, value, { spread = 0.6, great = false } = {}) {
     if (!(value > 0)) return;
+    if (C.noCinders?.()) return;
     const mr = X().mergeRadius ?? 1.5;
     // merge into a nearby resting cinder to keep counts low
     if (!great) {
@@ -148,6 +153,13 @@ export function createLevels(C) {
   let pendingOptions = null, current = null;
   let curiousUsed = false;
   let pendingHeal = 0;
+  let uiDriven = false;      // v3: the ui presents banked picks itself (it called offerBanked)
+  /** run.flags.pendingPicks: queued + the open pick (a banked pick lives in run.levelBank instead). */
+  function syncPending(run = C.run) { if (run?.flags) run.flags.pendingPicks = queue.length + (pendingOptions && !current?.banked ? 1 : 0); }
+  function emitBanked(added) {
+    const run = C.run;
+    ctx.bus.emit('levelup:banked', { count: run?.levelBank | 0, level: run?.level || 1, added });
+  }
 
   function ensureRunFields(run) {
     if (!run) return;
@@ -165,14 +177,18 @@ export function createLevels(C) {
     ensureRunFields(run);
     run.xp += n;
     let guard = 0;
+    let banked = 0;
     while (run.xp >= run.xpNext && guard++ < 200) {
       run.xp -= run.xpNext;
       run.level++;
       run.xpNext = ctx.data.xpForLevel?.(run.level) ?? Math.round(run.xpNext * 1.2 + 3);
       run.stats.maxLevel = Math.max(run.stats.maxLevel || 1, run.level);
-      queue.push({ type: 'level', level: run.level });
+      // v3: outside a swarm the level-up is banked (offered on the next measuring card or at the dawn bell)
+      if (C.bankLevel?.()) { run.levelBank = (run.levelBank | 0) + 1; banked++; }
+      else queue.push({ type: 'level', level: run.level });
     }
-    run.flags.pendingPicks = queue.length + (pendingOptions ? 1 : 0);
+    syncPending(run);
+    if (banked) emitBanked(banked);
   }
   function levelUp(n = 1) {
     const run = C.run;
@@ -242,7 +258,10 @@ export function createLevels(C) {
     const night = C.phase === 'dusk' || C.phase === 'gloomtide';
     const quirk = characterDef()?.quirk;
     let choices = xp.choices ?? 3;
-    if (item.type === 'level' && quirk?.id === 'curious' && night && !curiousUsed) { choices = quirk.choices || 4; curiousUsed = true; }
+    // the Wick's Curious is a combat half: combat modes only (DESIGN §25.5.5)
+    if (item.type === 'level' && quirk?.id === 'curious' && night && !curiousUsed && C.mode !== 'still') { choices = quirk.choices || 4; curiousUsed = true; }
+    // v3: the mode's pool (Still: Angler only), Lantern's weapons from its first swarm night, the Angler cap, Draft rules
+    const rule = C.offerRule?.(item) || null;
     const rw = xp.rarityWeights || { common: 60, rare: 28, epic: 10, legendary: 2 };
     const ls = xp.luckShift || { common: 0, rare: 0.6, epic: 1.2, legendary: 2 };
     const luck = S.luck || 0;
@@ -255,9 +274,10 @@ export function createLevels(C) {
     for (const b of BOONS) {
       const lvl = boons[b.id] || 0;
       if (!unlocked(b)) continue;
+      if (rule && !(b.kind === 'weapon' && lvl >= (b.maxLevel || 5)) && !rule.allow(b)) continue;
       if (b.kind === 'weapon') {
         if (lvl >= (b.maxLevel || 5)) {
-          if (b.kindle && lvl < 6 && (boons[b.kindle.requires] || 0) > 0) kindles.push({ b, lvl, w: weightOf('legendary') * (xp.kindleWeight ?? 3), kindle: true, weapon: true });
+          if (b.kindle && lvl < 6 && (boons[b.kindle.requires] || 0) > 0 && (!rule || rule.allow(b, { kindle: true }))) kindles.push({ b, lvl, w: weightOf('legendary') * (xp.kindleWeight ?? 3), kindle: true, weapon: true });
           continue;
         }
         if (!lvl && wOwned >= maxW) continue;
@@ -308,6 +328,7 @@ export function createLevels(C) {
   function canOpen() {
     if (!C.run || ctx.flow !== 'playing' || ctx.paused) return false;
     try { if (ctx.ui?.isBlocking?.() === true) return false; } catch { /* ignore */ }
+    if (C.modalOk && !C.modalOk()) return false;   // v3: never while moving, with a line out or in the ceremony
     return true;
   }
   function openNext() {
@@ -315,7 +336,7 @@ export function createLevels(C) {
     const item = queue.shift();
     current = item;
     pendingOptions = buildOffer(item);
-    if (C.run?.flags) C.run.flags.pendingPicks = queue.length + 1;
+    syncPending();
     ctx.bus.emit('levelup', { level: item.type === 'gift' ? C.run.level : item.level, options: pendingOptions, gift: item.type === 'gift', draft: item.type === 'draft', remaining: queue.length });
     if (item.type === 'gift') ctx.bus.emit('toast', { text: "A Warden's Gift. Choose what it leaves you.", kind: 'good' });
   }
@@ -332,6 +353,7 @@ export function createLevels(C) {
     const opt = pendingOptions.find((o) => o.boonId === boonId);
     if (!opt) return false;
     ensureRunFields(run);
+    const wasBanked = !!current?.banked;
     if (opt.fallback) {
       give(opt);
     } else {
@@ -343,14 +365,53 @@ export function createLevels(C) {
       if (opt.isKindle) {
         const kb = ctx.data.TEXT?.kindleBanner || ['{name}', 'The flame remembers'];
         ctx.ui?.banner?.(kb[0].replace('{name}', b.kindle.name), kb[1]);
-        fx.timedDecal({ x: raft.x, z: raft.z, r0: 1, r1: 12, life: 1.2, color: lin(0xe8c66a, 2.4), p1: 0.06, p2: 0.1 });
+        // v3 (C2): no ring around the raft: the Kindle's light swells out as a soft wash
+        if (C.mode) fx.timedDecal({ x: raft.x, z: raft.z, r0: 1.5, r1: 12, life: 1.2, color: lin(0xe8c66a, 2.0), type: DECAL.GLOW, p1: 1.6, alpha: 0.24, ease: 3 });
+        else fx.timedDecal({ x: raft.x, z: raft.z, r0: 1, r1: 12, life: 1.2, color: lin(0xe8c66a, 2.4), p1: 0.06, p2: 0.1 });
       }
       ctx.bus.emit('boon:chosen', { boonId, level: run.boons[boonId], kindle: !!opt.isKindle, kind: b.kind });
     }
     flags(run).firstPickDone = true;
     pendingOptions = null; current = null;
     run.flags.pendingPicks = queue.length;
+    if (wasBanked) consumeBank();
     return true;
+  }
+  function consumeBank() {
+    const run = C.run;
+    if (!run) return;
+    run.levelBank = Math.max(0, (run.levelBank | 0) - 1);
+    emitBanked(-1);
+  }
+  /**
+   * v3: the next banked pick as an offer (the measuring card, the dawn bell). Idempotent while that offer is open; null
+   * when nothing is banked or another pick is open. `ui: true` marks the ui as the one presenting banked picks.
+   */
+  function offerBanked({ ui = false } = {}) {
+    const run = C.run;
+    if (!run) return null;
+    if (ui) uiDriven = true;
+    if (pendingOptions) return current?.banked ? pendingOptions : null;
+    if (!((run.levelBank | 0) > 0)) return null;
+    ensureRunFields(run);
+    const item = { type: 'level', level: run.level, banked: true };
+    current = item;
+    pendingOptions = buildOffer(item);
+    syncPending(run);
+    ctx.bus.emit('levelup', { level: run.level, options: pendingOptions, gift: false, draft: false, banked: true, remaining: queue.length + Math.max(0, (run.levelBank | 0) - 1) });
+    return pendingOptions;
+  }
+  /** v3: queued level picks that never opened (the swarm ended) move to the bank. Gifts and Draft levels stay queued. */
+  function bankQueued() {
+    const run = C.run;
+    if (!run || !queue.length) return 0;
+    let n = 0;
+    for (let i = queue.length - 1; i >= 0; i--) if (queue[i].type === 'level') { queue.splice(i, 1); n++; }
+    if (!n) return 0;
+    run.levelBank = (run.levelBank | 0) + n;
+    syncPending(run);
+    emitBanked(n);
+    return n;
   }
   const flags = (run) => run.flags || (run.flags = {});
   function reroll() {
@@ -367,8 +428,10 @@ export function createLevels(C) {
     const run = C.run;
     if (!run || !pendingOptions) return false;
     if (current?.type !== 'gift') C.giveShells((X().skipShells ?? 8) * (1 + (C.zoneIndex || 0)));
+    const wasBanked = !!current?.banked;
     pendingOptions = null; current = null;
     run.flags.pendingPicks = queue.length;
+    if (wasBanked) consumeBank();
     return true;
   }
   function getBoons() {
@@ -380,7 +443,7 @@ export function createLevels(C) {
     out.sort((a, b) => (a.boon.kind === 'weapon' ? 0 : 1) - (b.boon.kind === 'weapon' ? 0 : 1));
     return out;
   }
-  function queueGift() { queue.unshift({ type: 'gift', level: C.run?.level || 1 }); if (C.run?.flags) C.run.flags.pendingPicks = queue.length + (pendingOptions ? 1 : 0); }
+  function queueGift() { queue.unshift({ type: 'gift', level: C.run?.level || 1 }); syncPending(); }
   function queueDraft(n) {
     const run = C.run;
     if (!run) return;
@@ -395,7 +458,7 @@ export function createLevels(C) {
     run.flags.pendingPicks = queue.length;
   }
   function restorePending(n) { for (let i = 0; i < n; i++) queue.push({ type: 'level', level: C.run?.level || 1 }); }
-  function reset() { queue.length = 0; pendingOptions = null; current = null; curiousUsed = false; pendingHeal = 0; xpAcc = 0; }
+  function reset() { queue.length = 0; pendingOptions = null; current = null; curiousUsed = false; pendingHeal = 0; xpAcc = 0; uiDriven = false; }
 
   function update(dt, t) {
     if (pendingHeal > 0 && C.run) { const h = pendingHeal; pendingHeal = 0; ctx.survival?.heal?.(h); }
@@ -407,7 +470,8 @@ export function createLevels(C) {
     drop, pullCinders, collectAll, clearCinders, oilMote, addXp, levelUp,
     /** XP from outside the cinder magnet (fish cinders): also feeds the aggregated xp:gain event. */
     gainXp(n) { if (n > 0) { addXp(n); xpAcc += n; } }, chooseBoon, reroll, skip, getBoons, queueGift, queueDraft,
-    restorePending, reset, update, ensureRunFields,
+    restorePending, reset, update, ensureRunFields, offerBanked, bankQueued,
+    get uiDriven() { return uiDriven; }, get queuedCount() { return queue.length; },
     get pendingOptions() { return pendingOptions; }, get pendingCount() { return queue.length + (pendingOptions ? 1 : 0); },
     get cinderCount() { return liveCinders; },
     newNight() { curiousUsed = false; },

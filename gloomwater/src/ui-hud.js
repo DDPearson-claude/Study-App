@@ -4,6 +4,8 @@
 // touch joystick, off-screen edge markers and the fishing gauges. Imported only by ui.js.
 import * as THREE from 'three';
 import { drawFish } from './ui-fishart.js';
+import { createHudV3 } from './ui-hud-v3.js';
+import { nightWord } from './ui-v3.js';
 
 const PHASES = ['calm', 'dusk', 'gloomtide', 'dawn'];
 const DEG = Math.PI / 180;
@@ -107,6 +109,7 @@ export function createHud(K) {
     flare: $('.gw-flare'), joyzone: $('.gw-joyzone'), joyBase: $('.gw-joy-base'), joyKnob: $('.gw-joy-knob'), joyHint: $('.gw-joy-hint'),
     markers: $('.gw-markers'), fishui: $('.gw-fishui'), charge: $('.gw-charge'), chargeF: $('.gw-charge .f'), chargeDepth: $('.gw-charge-depth'),
     bite: $('.gw-bite'), biteRing: $('.gw-bite .r'), reel: $('.gw-reel'), reelName: $('.gw-reel-name'), reelMedal: $('.gw-reel-medal .f'),
+    reelMedalBox: $('.gw-reel-medal'), reelMedalSvg: $('.gw-reel-medal svg'),
     gauge: $('.gw-reel-gauge'), safeB: $('.gw-reel-safe'), sweet: $('.gw-reel-sweet'), decoy: $('.gw-reel-decoy'), shards: [...el.querySelectorAll('.gw-reel-shard')],
     danger: $('.gw-reel-danger'), needle: $('.gw-reel-needle'), surge: $('.gw-reel-surge'), surgeGlyph: $('.gw-surge-glyph'), surgeText: $('.gw-surge-text'),
     reelHint: $('.gw-reel-hint'), reelResult: $('.gw-reel-result'),
@@ -122,6 +125,8 @@ export function createHud(K) {
   function toggle(node, key, cls, on) { const k = key + '|' + cls; if (last.get(k) !== on) { last.set(k, on); node.classList.toggle(cls, !!on); } }
   function restartAnim(node, cls) { node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
   const q = (v, s = 200) => Math.round(v * s) / s;
+  // the v3 half (night modes, the float's favour, tells, pips, class, watch-lamps, near-miss): idle unless this is a v3 run
+  const v3 = createHudV3(K, el, R, { setText, setStyle, setVar, toggle, restartAnim });
 
   // ------------------------------------------------------------------ buttons
   const tapGuard = (fn) => (e) => { e.preventDefault(); e.stopPropagation(); try { fn(e); } catch (err) { K.report('hud', err); } e.currentTarget?.blur?.(); };
@@ -185,7 +190,7 @@ export function createHud(K) {
   function buildClock(day) {
     const P = D().BALANCE?.phases || { calm: 120, dusk: 14, gloomtide: 90, dawn: 8 };
     const gl = safe(() => D().gloomtideLength?.(day), P.gloomtide);
-    clockDur = [num(P.calm, 120), num(P.dusk, 14), num(gl, 90), num(P.dawn, 8)];
+    clockDur = v3.durations(day) || [num(P.calm, 120), num(P.dusk, 14), num(gl, 90), num(P.dawn, 8)];
     clockTotal = clockDur.reduce((a, b) => a + b, 0) || 1;
     let f = 0, segs = '', ticks = '';
     for (let i = 0; i < 4; i++) {
@@ -279,7 +284,7 @@ export function createHud(K) {
   }
   const targets = [];
   for (let i = 0; i < MK_N; i++) targets.push({ kind: '', pos: new THREE.Vector3(), dist: 0, on: false });
-  const MK_ICON = { merchant: 'lantern', gate: 'gate', gateSealed: 'gate', spot: 'spot', spotRare: 'spot', legend: 'star', elite: 'eye', boss: 'eye', stolen: 'fish' };
+  const MK_ICON = { merchant: 'lantern', gate: 'gate', gateSealed: 'gate', spot: 'spot', spotRare: 'spot', legend: 'star', elite: 'eye', boss: 'eye', stolen: 'fish', watch: 'watchlamp' };
   let insetTop = 70, insetBottom = 26, insetSide = 24, tlW = 340, tlH = 200, trW = 470, trH = 132;
   function gatherTargets() {
     let n = 0;
@@ -312,6 +317,8 @@ export function createHud(K) {
       const timeOk = sp?.time === 'gloom' ? ph === 'gloomtide' : ph !== 'gloomtide';
       if (sp && eqId && eqId === sp.bait && timeOk && !r.legendaries?.[legId]) add('legend', { x: lp.x, y: 0, z: lp.z });
     }
+    // v3: the nearest watch-lamp while the dusk line shows (S6)
+    v3.markers(add);
     // elites / wardens / thieves
     let ec = 0;
     for (const e of arr(ctx.combat?.enemies)) {
@@ -324,6 +331,7 @@ export function createHud(K) {
   }
   function paintMarkers(n) {
     const W = K.vw, H = K.vh;
+    const reelBand = v3.live && R.reel.classList.contains('gw-on') ? Math.min(W / 2 - 34, 210) : 0;
     const cx = W / 2, cy = H / 2;
     const x0 = insetSide, x1 = W - insetSide, y0 = insetTop, y1 = H - insetBottom;
     for (let i = 0; i < MK_N; i++) {
@@ -344,6 +352,8 @@ export function createHud(K) {
       if (my <= y0 + 1 && mx < tlW) my = Math.max(my, tlH);
       else if (my <= y0 + 1 && mx > W - trW) my = Math.max(my, trH);
       if (my >= H - 200 && (mx > W - 140 || Math.abs(mx - cx) < 130)) my = H - 210;
+      // v3: while the reel line is up, markers near the bottom centre step aside to its ends (never over the hint)
+      if (reelBand && my > H * 0.5 && Math.abs(mx - cx) < reelBand) mx = cx + Math.sign(mx - cx || 1) * reelBand;
       if (mk.kind !== t.kind) {
         mk.kind = t.kind;
         mk.el.className = `gw-mark gw-mk-${t.kind}${mk.on ? ' gw-on' : ''}`;
@@ -374,6 +384,7 @@ export function createHud(K) {
     const f = ctx.fishing;
     const st = f && !f.isStub ? f.state : 'idle';
     const v = (f && !f.isStub && f.view) || {};
+    v3.fishing(dt);
     // charge meter beside the raft
     const charging = st === 'charging';
     toggle(R.charge, 'chg', 'gw-on', charging);
@@ -453,7 +464,7 @@ export function createHud(K) {
     setVar(R.reel, 'rcol', '--rc', K.rarityCss(v.rarity || sp?.rarity || 'common'));
     toggle(R.reel, 'reel', 'gw-legend', (v.rarity || sp?.rarity) === 'legendary');
     const phaseName = typeof v.phaseName === 'string' && v.phaseName ? v.phaseName : '';
-    const hint = phaseName || (typeof v.hint === 'string' && v.hint && !['shallow', 'mid', 'deep'].includes(v.hint) ? v.hint : (num(K.meta().runs, 0) <= 2 && reelCount <= 3 ? 'Hold to reel · release to ease' : ''));
+    const hint = v3.reelHint() || phaseName || (typeof v.hint === 'string' && v.hint && !['shallow', 'mid', 'deep'].includes(v.hint) ? v.hint : (num(K.meta().runs, 0) <= 2 && reelCount <= 3 ? 'Hold to reel · release to ease' : ''));
     const sfMin = typeof v.safeMin === 'number' ? v.safeMin : 0.15, sfMax = typeof v.safeMax === 'number' ? v.safeMax : 0.85;
     setStyle(R.safeB, 'sfL', 'left', (sfMin * 100).toFixed(1) + '%');
     setStyle(R.safeB, 'sfW', 'width', ((sfMax - sfMin) * 100).toFixed(1) + '%');
@@ -470,6 +481,7 @@ export function createHud(K) {
     if (!visible) { joyReset(); for (const m of marks) { m.on = false; m.el.classList.remove('gw-on'); } }
   }
   function reset() {
+    v3.reset();
     prevHp = -1; emberN = -1; boonsDirty = true; boonSig = ''; shellsShown = -1; statsDirty = true; levelShown = -1; reelCount = 0;
     clockDay = -1; last.clear(); R.joyHint.classList.remove('gw-gone');
     lowFlags = { oil: 0, satiety: 0, hp: 0 };
@@ -483,13 +495,16 @@ export function createHud(K) {
     const blocked = K.hasBlocking();
     toggle(el, 'hud', 'gw-blocked', blocked);
     if (blocked && joy.id !== null) joyReset();
+    // v3: what the night mode shows this frame (DESIGN §25.5.7); null on a v1 run
+    const vis = v3.frame(r, dt);
+    v3.update(dt);
 
     // ---- vitals
     const maxHp = Math.max(1, Math.round(stat('maxHp')));
     const hp = Math.max(0, Math.min(maxHp, Math.round(num(r.hp))));
     if (maxHp !== emberN) buildEmbers(maxHp);
     if (hp !== emberHp) { paintEmbers(hp, prevHp >= 0 ? prevHp : -1); emberHp = hp; prevHp = hp; }
-    toggle(R.vigLow, 'vl', 'gw-on', hp <= 1);
+    toggle(R.vigLow, 'vl', 'gw-on', vis ? vis.lowHpVig : hp <= 1);
     const maxOil = Math.max(1, stat('maxOil'));
     const oil = Math.max(0, num(r.oil));
     const of = Math.max(0, Math.min(1, oil / maxOil));
@@ -532,8 +547,9 @@ export function createHud(K) {
       R.burn.classList.toggle('gw-has-fish', !!bf);
       if (bf) { try { drawFish(R.burnFish, K.speciesData(bf.speciesId), { w: 44, h: 24, pad: 0.04 }); } catch { /* optional */ } }
     }
-    setText(R.burnLabel, 'bnL', bf ? `+${bOil}` : 'Burn');
-    setAttr(R.burn, 'bnT', 'title', bf ? `Burn ${K.speciesData(bf.speciesId)?.name || 'a fish'} for +${bOil} oil (R)` : 'Burn a fish (R) — the creel is empty');
+    const relight = !!vis?.relight;
+    setText(R.burnLabel, 'bnL', relight ? 'Relight' : bf ? `+${bOil}` : 'Burn');
+    setAttr(R.burn, 'bnT', 'title', bf ? `${relight ? 'Relight: render' : 'Burn'} ${K.speciesData(bf.speciesId)?.name || 'a fish'} for +${bOil} oil (R)` : `${relight ? 'Relight' : 'Burn a fish'} (R) — the creel is empty`);
 
     // ---- interact pill
     const it = safe(() => ctx.player?.interactable, null);
@@ -599,12 +615,16 @@ export function createHud(K) {
     const bx = xAt(f).toFixed(1);
     setAttr(R.bead, 'bx', 'cx', bx);
     setAttr(R.beadGlow, 'gx', 'cx', bx);
-    setText(R.phaseW, 'phw', ` · ${PHASE_WORD[phase] || phase}`);
+    // v3: a quiet night is a Stillnight (DESIGN §25.5.1); the phase stays gloomtide in code
+    const nightW = vis ? nightWord(D(), { swarm: phase === 'gloomtide' ? vis.swarmWord : vis.swarmNight || vis.mode === 'gloomtide' }) : 'Gloomtide';
+    setText(R.phaseW, 'phw', ` · ${phase === 'gloomtide' && vis ? nightW : PHASE_WORD[phase] || phase}`);
     if (phase !== phaseShown) { phaseShown = phase; R.clock.dataset.phase = phase; el.dataset.phase = phase; }
+    const still = !!vis && nightW !== 'Gloomtide';
+    if (last.get('night') !== still) { last.set('night', still); if (still) R.clock.dataset.night = 'still'; else delete R.clock.dataset.night; }
     const remain = pdur - ptime;
     let ptxt;
-    if (phase === 'calm') ptxt = `Gloomtide in ${mmss(remain + clockDur[1])}`;
-    else if (phase === 'dusk') ptxt = `Gloomtide in ${mmss(remain)}`;
+    if (phase === 'calm') ptxt = `${nightW} in ${mmss(remain + clockDur[1])}`;
+    else if (phase === 'dusk') ptxt = `${nightW} in ${mmss(remain)}`;
     else if (phase === 'gloomtide') ptxt = `Dawn in ${mmss(remain)}`;
     else ptxt = 'The dark lets go';
     setText(R.phase, 'ptxt', ptxt);
@@ -640,6 +660,8 @@ export function createHud(K) {
 
   return {
     setVisible, reset, update, onResize, onFishingState,
+    /** v3: a card of the HUD's own owns the middle of the screen (the Scorched card) */
+    cardUp: () => !!v3.cardUp,
     dirtyBoons() { boonsDirty = true; },
     dirtyStats() { statsDirty = true; },
     onZone(z) {
@@ -660,6 +682,7 @@ export function createHud(K) {
       }
       for (const k in vars) { el.style.setProperty(k, vars[k]); K.root.style.setProperty(k, vars[k]); }
       setText(R.zone, 'zone', z?.name || '');
+      if (v3.live) clockDay = -1;   // v3: a new lake's first calm carries the Arrival Hush (survival's durations)
     },
     onPhase(phase) { if (phase) el.dataset.phase = phase; },
     onDamage() { restartAnim(R.vigDmg, 'gw-hit'); restartAnim(R.cluster, 'gw-shake'); if (K.isTouch) safe(() => navigator.vibrate?.(30), null); },

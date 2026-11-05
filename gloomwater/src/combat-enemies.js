@@ -451,7 +451,8 @@ export function createEnemies(C) {
         const c = tel.circle || [3, 6];
         e.n = c[0] + Math.random() * (c[1] - c[0]);
       }
-      if (e.state === 'circle' && e.stateT >= e.n && e.spawnT <= 0) {
+      // v3 Still / Lantern: a creelsnatch never acts while a fish is hooked (it keeps circling)
+      if (e.state === 'circle' && e.stateT >= e.n && e.spawnT <= 0 && C.creelsnatchMayAct?.() !== false) {
         e.state = e.c ? 'feint' : 'surface'; e.stateT = 0;
         ctx.audio?.play?.('surge_warn', { volume: 0.55, pitch: 1.35 });
       }
@@ -490,7 +491,7 @@ export function createEnemies(C) {
       e.yaw = Math.atan2(-e.dirX, -e.dirZ);
       if (!e.n && distRaft(e) < contactRange(e) + 0.5 && e.y > 0.4) {
         e.n = 1;
-        if (C.canHurtPlayer()) {
+        if (C.canHurtPlayer() && C.creelsnatchMayAct?.() !== false) {
           C.damagePlayer(e.damage, e.enemyId, 0, {});
           if (e.def.steals) { const fish = C.stealFish?.(e); if (fish) e.carrying = fish; }
           ctx.water?.splash?.(raft.x, raft.z, { size: 1.2, count: 16 });
@@ -686,7 +687,7 @@ export function createEnemies(C) {
     C.shake(0.42, 0.45);
     if (d <= R + 0.6 && C.canHurtPlayer()) {
       const dx = raft.x - p.x, dz = raft.z - p.z, dd = Math.hypot(dx, dz) || 1;
-      const lost = C.damagePlayer(e.damage, e.enemyId, e.oilDrain * (C.diff?.drainMult ?? 1), { elite: true });
+      const lost = C.damagePlayer(e.damage, e.enemyId, e.oilDrain * (C.diff?.drainMult ?? 1), { elite: true, telegraphed: true });   // the stain is its telegraph
       C.knockPlayer(dd > 0.3 ? dx / dd : 1, dd > 0.3 ? dz / dd : 0, e.def.knock ?? 4);
       if (e.def.snapsLine && lost > 0) C.snapLine?.();   // a warded / i-framed slam keeps the line
       const m = e.mods;

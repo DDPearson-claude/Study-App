@@ -222,7 +222,7 @@ export function createWarden(C) {
           if (d < R && C.canHurtPlayer()) C.pullPlayer(dx / d, dz / d, a.pull ?? 3.5, dt);
           if (!c.hit && d < maw && C.canHurtPlayer()) {
             c.hit = true;
-            C.damagePlayer(cap(a.mawDamage ?? 2), e.enemyId, a.mawOil ?? 25, { boss: true });
+            C.damagePlayer(cap(a.mawDamage ?? 2), e.enemyId, a.mawOil ?? 25, { boss: true, telegraphed: true });
             C.knockPlayer(-dx / d, -dz / d, 5);
           }
           if (c.t >= (a.duration ?? 2)) w.cast = null;
@@ -267,7 +267,7 @@ export function createWarden(C) {
           const d = Math.hypot(raft.x - e.position.x, raft.z - e.position.z);
           if (!c.hit && d < e.radius + 1.4 && C.canHurtPlayer()) {
             c.hit = true;
-            C.damagePlayer(cap(a.damage ?? 2), e.enemyId, 0, { boss: true });
+            C.damagePlayer(cap(a.damage ?? 2), e.enemyId, 0, { boss: true, telegraphed: true });
             const px = -c.dz, pz = c.dx, side = (raft.x - e.position.x) * px + (raft.z - e.position.z) * pz >= 0 ? 1 : -1;
             C.knockPlayer(px * side, pz * side, 5);
           }
@@ -303,7 +303,7 @@ export function createWarden(C) {
             const dx = raft.x - ex, dz = raft.z - ez, d = Math.hypot(dx, dz) || 1;
             const ang = Math.acos(THREE.MathUtils.clamp((dx * c.dx + dz * c.dz) / d, -1, 1));
             if (d <= len + 1 && ang <= half + 0.08 && C.canHurtPlayer()) {
-              C.damagePlayer(cap(a.damage ?? 2), e.enemyId, 0, { boss: true });
+              C.damagePlayer(cap(a.damage ?? 2), e.enemyId, 0, { boss: true, telegraphed: true });
               C.knockPlayer(dx / d, dz / d, 3);
             }
             ctx.water?.splash?.(ex + c.dx * len * 0.6, ez + c.dz * len * 0.6, { size: 2, count: 20 });
@@ -384,7 +384,7 @@ export function createWarden(C) {
           const ang = Math.atan2(dz, dx);
           if (angDiff(ang, r.g1) >= r.gw * 0.85 && angDiff(ang, r.g2) >= r.gw * 0.85) {
             r.hit = true;
-            C.damagePlayer(r.dmg, r.src, 0, { boss: true });
+            C.damagePlayer(r.dmg, r.src, 0, { boss: true, telegraphed: true });
             fx.burst(raft.x, 0.8, raft.z, COL.glass, 16, 4, 0.16, 0.5);
           }
         }
