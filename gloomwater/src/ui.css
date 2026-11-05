@@ -658,8 +658,12 @@
 .gw-wf.gw-fed .gw-wf-t { opacity: 1; }
 .gw-burn.gw-relight .gw-burn-label { color: var(--amber); letter-spacing: .2em; }
 .gw-burn.gw-relight:not(.gw-disabled) { animation: gwAppear .8s var(--ease-ink), gwRelight 1.8s ease-in-out .8s infinite; }
-.gw-level-bank { position: absolute; right: -16px; top: -8px; z-index: 2; min-width: 22px; font: 400 14px/18px var(--f-display); letter-spacing: .04em; text-align: center; font-style: normal; color: var(--gold); text-shadow: 0 0 8px rgba(232, 190, 119, .8), 0 1px 2px #000; opacity: 0; transition: opacity .4s; }
+.gw-level-bank { position: absolute; inset: -5px; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .4s; }
 .gw-level-bank.gw-on { opacity: 1; animation: gwBreath 2.4s ease-in-out infinite; }
+.gw-level-bank b { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: radial-gradient(circle, #fff3d6 0, var(--gold) 45%, rgba(232, 190, 119, .2) 100%); box-shadow: 0 0 6px rgba(232, 190, 119, .9); }
+.gw-level-bank b:nth-child(1) { left: 85%; top: 15%; }
+.gw-level-bank b:nth-child(2) { left: 97%; top: 37%; }
+.gw-level-bank b:nth-child(3) { left: 66%; top: 2%; }
 /* the forecast (Lantern) and the status line under the day */
 .gw-clock-fore { display: none; font: italic 400 16.5px/1.25 var(--f-body); color: #c3c2ea; text-shadow: 0 1px 2px #000, 0 0 10px rgba(4, 5, 12, .9); margin-top: 3px; white-space: nowrap; }
 .gw-clock-fore.gw-on { display: block; animation: gwFadeUp .8s var(--ease-ink); }

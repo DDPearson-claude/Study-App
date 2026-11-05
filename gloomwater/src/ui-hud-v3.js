@@ -84,6 +84,9 @@ export function createHudV3(K, el, R, w) {
   let favN = -1, favQuiet = null, favSig = '', favOpen = false, favHover = false, favPress = null, favPinned = false;
   let tellId = '', pipMax = 0, pipN = 0, clsShown = '', snagT = 0, snagLead = 1, trickT = 0, nmT0 = 0, nmQ = [];
   let watchTarget = null;
+  const memo = new Map();
+  const last = (k) => memo.get(k);
+  const lastSet = (k, v) => memo.set(k, v);
   const seen = (k) => !!K.meta().seenTips?.[k];
   const markSeen = (k) => { const m = K.meta(); m.seenTips = m.seenTips || {}; m.seenTips[k] = true; };
 
@@ -175,8 +178,10 @@ export function createHudV3(K, el, R, w) {
     if (wf.title !== wtitle) wf.title = wtitle;
     // banked level-ups wait for the card or the dawn bell: a small count on the level ring
     const nb = Math.max(0, Math.round(num(safe(() => cb?.bankedLevels, r.levelBank), num(r.levelBank))));
-    setText(bank, 'bank', nb ? `+${nb}` : '');
-    if (nb && bank.title !== 'Level-ups waiting: they come with the next catch card or the dawn bell') bank.title = 'Level-ups waiting: they come with the next catch card or the dawn bell';
+    // one gold bead per waiting level-up on the ring's upper arc (up to three)
+    if (last('bankN') !== nb) { lastSet('bankN', nb); bank.innerHTML = '<b></b>'.repeat(Math.min(3, nb)); }
+    const lt = nb ? `Your flame's level · ${nb} level-up${nb > 1 ? 's' : ''} waiting for the next catch card or the dawn bell` : "Your flame's level";
+    if (R.level.title !== lt) R.level.title = lt;
     toggle(bank, 'bank', 'gw-on', nb > 0);
     paintForecast(r, phase, mode, swarmNight);
     paintStatus(r, pi, phase, mode, swarmNight, S);
@@ -313,7 +318,7 @@ export function createHudV3(K, el, R, w) {
       const placeName = v.place ? (D().PLACE_BY_ID?.[v.place]?.name || '') : '';
       const groups = V.favourGroups(F.terms, D(), { placeName });
       favList.innerHTML = groups.length
-        ? groups.map((g) => `<p class="gw-fam-${g.family}"><b>${esc(g.label)}</b> ${g.words.map((x) => `<span${x.neg ? ' class="gw-neg"' : ''}>${esc(x.text)}</span>`).join(', ')}</p>`).join('')
+        ? groups.map((g) => `<p class="gw-fam-${g.family}"><b>${esc(g.label)}</b><span>${g.words.map((x) => `<span${x.neg ? ' class="gw-neg"' : ''}>${esc(x.text)}</span>`).join(', ')}</span></p>`).join('')
         : '<p class="gw-fav-none">Nothing in your favour here. Try dusk, a place, or the right bait.</p>';
     }
     paintFavOpen();

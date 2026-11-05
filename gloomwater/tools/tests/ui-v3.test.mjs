@@ -112,7 +112,7 @@ eq(V.tackleRating(D, 'nowhere', {}), null, 'an unknown lake has no rating');
 const nm = V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'trophy', length: 108, progress: 0.84, cause: 'snap' }, { rating: r0 });
 eq(nm.title, 'Reedjaw Pike · Trophy · ~108 cm', 'title');
 eq(nm.line, 'Snapped at 84%.', 'cause and % landed');
-eq(nm.rating, 'Your tackle is rated Trophy here (Elders 0%).', 'rating');
+eq(nm.rating.replace(/\u00a0/g, ' '), 'Your tackle is rated Trophy here (Elders 0%).', 'rating (DESIGN\'s words; a no-break space keeps "Elders 0%" together)');
 eq(nm.tip, 'Let go on the hiss.', 'tip (TEXT_V3.tips.snap)');
 const nm2 = V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'elder', ancient: true, length: 160, progress: 0.4, cause: 'thrown' }, { round: (L, e) => L * (1 + e) });
 eq(nm2.title, 'Reedjaw Pike · Ancient · ~173 cm', 'an estimate within ±8% (here +8%)');

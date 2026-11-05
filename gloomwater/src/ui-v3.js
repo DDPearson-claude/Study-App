@@ -232,7 +232,7 @@ export function nearMiss(D, p = {}, o = {}) {
   let rating = '';
   if (r) {
     rating = `Your tackle is rated ${r.label} here`;
-    if (r.nextLabel && r.nextPct !== null && r.nextPct !== undefined) rating += ` (${r.nextLabel}s ${Math.round(r.nextPct)}%)`;
+    if (r.nextLabel && r.nextPct !== null && r.nextPct !== undefined) rating += ` (${r.nextLabel}s\u00a0${Math.round(r.nextPct)}%)`;
     rating += '.';
   }
   const parts = [sp?.name || cap(String(p.speciesId || 'A fish').replace(/_/g, ' ')), ci?.label, estTxt].filter(Boolean);

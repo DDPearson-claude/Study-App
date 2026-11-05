@@ -331,6 +331,7 @@ export function createHud(K) {
   }
   function paintMarkers(n) {
     const W = K.vw, H = K.vh;
+    const reelBand = v3.live && R.reel.classList.contains('gw-on') ? Math.min(W / 2 - 34, 210) : 0;
     const cx = W / 2, cy = H / 2;
     const x0 = insetSide, x1 = W - insetSide, y0 = insetTop, y1 = H - insetBottom;
     for (let i = 0; i < MK_N; i++) {
@@ -351,6 +352,8 @@ export function createHud(K) {
       if (my <= y0 + 1 && mx < tlW) my = Math.max(my, tlH);
       else if (my <= y0 + 1 && mx > W - trW) my = Math.max(my, trH);
       if (my >= H - 200 && (mx > W - 140 || Math.abs(mx - cx) < 130)) my = H - 210;
+      // v3: while the reel line is up, markers near the bottom centre step aside to its ends (never over the hint)
+      if (reelBand && my > H * 0.5 && Math.abs(mx - cx) < reelBand) mx = cx + Math.sign(mx - cx || 1) * reelBand;
       if (mk.kind !== t.kind) {
         mk.kind = t.kind;
         mk.el.className = `gw-mark gw-mk-${t.kind}${mk.on ? ' gw-on' : ''}`;
