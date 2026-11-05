@@ -44,12 +44,39 @@
 //   fishing:escaped reasons + 'thrown' (pips) / 'spooled'; fish:escaped-big (Prize+).  API: isHooked(), lineBroken(), snag(opts),
 //   rollSize(species, mu, {place, maxClass, giant}), favourAt(point, species?).  Debug: forceBite({speciesId, z, place, wait}),
 //   instantCatch(id, {z}), fishHook(id, {z}), setFavour(mu|null), fishSeed(n|null), fishPressure(), fishReel().
+//
+// v3 Phase 1, the visual half (DESIGN §25.14.2 F3, F5, F6; CONTRACT §13.7):
+//   F3  true scale: the hooked fish is createFish(species, {z}) at scale 1 for the whole fight (no 1.45× boost) and splash,
+//       wake, shadow and distances use its honest length with no 0.12 m floor and no 6 m cap (an 8.5 m legend splashes as
+//       8.5 m). The leap reveal: the first breach of a Prize+ fish slows time (ctx.game.slowmo 0.25 s at 0.35, once per
+//       fight), rim-flashes it, sets view.sizeClass / ancient / estimate and emits fishing:reveal {sizeClass, ancient,
+//       length, lengthM, estimate: {lo, hi}, position, heading} for render's leap camera and ui's class estimate.
+//   the species stays unknown until it is landed (the user's rule for v3): while it is in the water a non-legend hooked fish
+//       is a dark shape at its true length (the model is hidden; fishing-fx's shadow), view.speciesId / rarity stay null and
+//       no splash takes its colour; it shows itself as it leaves the water in the landing. Signs draw every fish with one ink
+//       and one body (no species tint or shape). Legends (named by their pool and bait) show as they are.
+//   F5  the catch hand-off: at the landing fishing calls progression.makeFish and holds the Fish → fishing:caught {fish, …}
+//       (informational) → startCeremony(fish): ctx.cinematic (main freezes survival and combat; fishing freezes its signs)
+//       scoop → pose (actors.setPose measurePalm / Arms / Hang / Alongside, showCatch) → cord (actors.showCord(L, k)) →
+//       the stamp calls progression.measure(fish) (fish:measured, then fish:landed: once per fish) → banners → card.
+//       view.measure {phase, length (final cm), count, k, cordDur, sizeClass, seal, pose, dur, beats, …}. Per-class timings
+//       from SIZE_CLASSES[].ceremony on BALANCE.ceremony.beats (1.2 s for every class during a swarm window); a tap skips
+//       (an Elder or a legend after 0.6 s). render.setTrophyTarget({length, landmark, position}) frames it.
+//   F6  signs replace feeding spots (fishing-signs.js rules; fishing-fx draws them from its per-fish instance buffer; water
+//       gets tagged ripples / wakes): 2–4 alive in calm within castMax + 15 m, each cast rule gives its effect, a rise /
+//       boil / glow carries a pre-rolled fish; sign:spawn / sign:rise / sign:show / sign:end; armChum(); the quality
+//       bonus is "cast inside a live sign"; Night Eyes' glowTrailRangeMult widens how far glow trails show. API: signs
+//       (spots is its alias), preroll({species, z, pos, path}) / dropPreroll(h), armChum(), startCeremony(fish),
+//       skipCeremony(). Debug: sign(kind, {x, z}), preroll(speciesId, z), fishSigns(), ceremony(), cerRate(k).
+//   pressure: progression owns the count (fishing:caught.pressureKey → run.pressure, saved); fishing reads getPressure.
 import * as THREE from 'three';
 import { clamp, lerp, damp, smoothstep, TAU } from './core.js';
 import { createReel, scaleDifficultyV3, reelOptsV3, rollZ, capZ, inGiantSpot, floatFavour, sumFavour, classIndex } from './fishing-reel.js';
 import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
+import { KIND_ID, PREROLLED, aliveRange, maxAlive, pickKind, signTtl, createSign, stepSign, bestRule, kindRules } from './fishing-signs.js';
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
+const MEASURE_POSE = { palm: 'measurePalm', arms: 'measureArms', hang: 'measureHang', alongside: 'measureAlongside' };
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
 const SPOT_SLOTS = MAX_SLOTS - 2;    // feeding spots use slots 0..7
 const FALLBACK_DIFF = { power: 0.6, surgeEvery: 6.5, surgeTime: 0.7, stamina: 5, sweet: 1.3, erratic: 0.05, window: 1.1 };
@@ -75,6 +102,7 @@ export function create(ctx) {
     safeMin: 0.15, safeMax: 0.85, depth: 0,
     // v3 (CONTRACT §13.7; null / false in v1 builds)
     favour: null, sizeClass: null, ancient: false, pips: null, biteTell: null, slip: 0, place: null, drag: null, lure: null, measure: null, cove: false,
+    estimate: null,   // v3 extra: the class estimate's length band after the leap reveal {lo, hi} (cm, ±8%)
   };
 
   // ---------------------------------------------------------------- internal state
@@ -90,6 +118,8 @@ export function create(ctx) {
     waitDur: 5, events: [], evIdx: 0, dipT: 0, dipKind: '', species: null, weight: 1,
     // bite
     window: 1, wounded: 0,
+    veiled: false,   // v3: the hooked fish is a dark shape until it is landed (no species, model hidden)
+    cerRate: 1,      // debug.cerRate: the ceremony's clock rate (screenshots on slow software GL)
     // reel
     reel: null, holding: false, perfect: false, hookDist: 8, fishLen: 0.5, moveHold: 0, bannerT: -1,
     summons: [], gearT: 0, strainPose: false, quality: 'normal', qScore: 0,
@@ -106,6 +136,10 @@ export function create(ctx) {
     tell: null, tellStart: 0, tellPops: 0, tellDir: new THREE.Vector3(1, 0, 0), hookTried: false, revealed: false,
     letPass: null, pressure: {}, floatT: 0, favourOverride: null, forceZ: null, forceSpecies: null, forcePlace: null,
     extShift: new THREE.Vector3(), lastRaft: new THREE.Vector3(), lastRaftOk: false, snags: [],
+    // v3 visual half: signs (F6), the ceremony (F5), the leap reveal (F3)
+    signs: [], signTimers: [], signDesired: 3, signRng: null, prerolls: new Map(), chumArmed: false, signHit: null,
+    prerollSp: null, prerollZ: null, prerollSign: null, prerollTook: false, handles: [], handleSeq: 0,
+    cer: null, rimT: 0,
   };
   const V = {
     raft: new THREE.Vector3(), aimDir: new THREE.Vector3(0, 0, -1), aimPoint: new THREE.Vector3(), target: new THREE.Vector3(),
@@ -330,14 +364,17 @@ export function create(ctx) {
     if (!place) for (const g of giantSpots()) if (inGiantSpot(g, x, z)) { gs = g; break; }
     return { place, giantSpot: gs, giant: place ? placeHoldsGiants(place) : !!gs, pressureKey: place?.id || gs?.id || null };
   }
-  /** Pressure at a place (or stopgap giant water): −0.12 per catch there today, floor −0.6 (progression's getPressure when it has one). */
+  /** Pressure at a place (or stopgap giant water): −0.12 per catch there today, floor −0.6. Progression owns the count (it
+   *  keeps run.pressure from fishing:caught.pressureKey and saves it, so a reload keeps "gone quiet"); fishing's own count
+   *  is only the fallback for a progression without getPressure. */
   function pressureFavour(key) {
     if (!key) return 0;
     const F = BAL('favour').pressure || {};
-    const local = Math.max(num(F.floor, -0.6), num(F.perCatch, -0.12) * (S.pressure[key] || 0));
-    let pv = 0;
-    try { const v = prog()?.getPressure?.(key); if (Number.isFinite(v)) pv = v; } catch { /* optional */ }
-    return Math.min(local, pv, 0);
+    const p = prog();
+    if (p && typeof p.getPressure === 'function') {
+      try { const v = p.getPressure(key); if (Number.isFinite(v)) return Math.min(0, v); } catch (e) { report(e); }
+    }
+    return Math.min(0, Math.max(num(F.floor, -0.6), num(F.perCatch, -0.12) * (S.pressure[key] || 0)));
   }
   function condition() {
     try {
@@ -418,9 +455,9 @@ export function create(ctx) {
     return out.filter((t) => t.value);
   }
   /** Cast context for the favour formula at the bobber (refreshed: the hour, the condition and the rumour can change). */
-  function castInfo(x, z, depth) {
+  function castInfo(x, z, depth, baitId = S.castBait, clean = !!S.clean) {
     const w = waterInfo(x, z);
-    return { x, z, depth, ...w, baitId: S.castBait, clean: !!S.clean, lure: equippedLure(), sign: null, letPass: 0,
+    return { x, z, depth, ...w, baitId, clean, lure: equippedLure(), sign: null, letPass: 0,
       phase: phaseNow(), condition: condition(), rumour: todaysRumour() };
   }
   function refreshInfo(info) { info.phase = phaseNow(); info.condition = condition(); info.rumour = todaysRumour(); return info; }
@@ -450,16 +487,18 @@ export function create(ctx) {
     if (!info) info = castInfo(V.bob.x, V.bob.z, S.depth);
     refreshInfo(info);
     let z;
+    // a sign's pre-rolled fish (F6) bites at the size its rings showed: the roll happened when the sign appeared
+    const pre = S.prerollSp === sp && S.prerollZ != null ? S.prerollZ : null;
     if (sp.rarity === 'legendary') {
       z = S.forceZ != null ? S.forceZ : rollZ(0, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1) });
       S.mu = 0; S.favourTerms = [];
     } else {
       const f = favourAt(info, sp);
       const cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ });
-      z = S.forceZ != null ? S.forceZ : rollZ(f.mu, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
+      z = S.forceZ != null ? S.forceZ : pre != null ? pre : rollZ(f.mu, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
       S.mu = f.mu; S.favourTerms = f.terms.filter((t) => t.value);
     }
-    S.forceZ = null;
+    S.forceZ = null; S.prerollZ = null;
     S.z = Math.round(z * 1e4) / 1e4; S.zRolled = true;
     S.sizeClass = D().sizeClassOf(S.z);
     S.ancient = S.sizeClass === 'elder' && !!D().isAncient?.(S.z);
@@ -500,14 +539,17 @@ export function create(ctx) {
     view.phaseName = ''; view.legendary = false; view.enraged = false; view.tell = null; view.anchoring = false;
     view.holding = false; view.lightMult = 1; view.snapAt = 1; view.inSpot = false;
     view.favour = null; view.sizeClass = null; view.ancient = false; view.pips = null; view.biteTell = null; view.slip = 0; view.place = null;
+    view.estimate = null;
     S.cast = null; S.tell = null;
   }
 
   /** Silent reset (death, zone change, run end, title). No miss/escape events. */
   function hardReset(clearCatch = true) {
+    if (S.cer) abortCeremony();
     disposeHooked(false);
     if (S.flee) { disposeFv(S.flee.fv); S.flee = null; }
-    if (clearCatch) releaseCatch();
+    if (clearCatch) { releaseCatch(); view.measure = null; }
+    S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
     S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     api.bobberPos = null;
     resetView();
@@ -531,6 +573,7 @@ export function create(ctx) {
   // ---------------------------------------------------------------- pointer
   function onPointerDown() {
     if (!playing()) return;
+    if (S.cer) { skipCeremony(); return; }   // v3: a tap skips the measuring ceremony (an Elder's after 0.6 s)
     const tm = !!ctx.state?.meta?.settings?.reelToggle;
     switch (state) {
       case 'idle':
@@ -672,28 +715,46 @@ export function create(ctx) {
     call(() => ctx.water?.splash?.(x, z, { size: 0.45, count: 10 }));
     call(() => ctx.water?.addRipple?.(x, z, 0.9));
     fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.15, r1: 1.3, duration: 0.8, alpha: 0.7 });
-    emit('fishing:land', { position: V.bob.clone() });
+    S.spot = null; S.rareSpot = false;
+    if (signsOn()) {
+      // v3 (F6): which sign's cast rule this landing meets (Murk's Chum makes its own nervous sign here first)
+      S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
+      if (S.chumArmed) { S.chumArmed = false; const c = spawnChum(x, z); if (c) S.signHit = { sign: c, rule: { kind: 'nervous', id: c.id, inSign: true, predators: num(kindRules('nervous', BAL('signs')).predators, 3), favour: num(kindRules('nervous', BAL('signs')).favour, 0.3) } }; }
+      if (!S.signHit) S.signHit = bestRule(S.signs, x, z, S.clock, BAL('signs'));
+      const hit = S.signHit;
+      if (hit?.rule?.spook) {   // straight into the bait ball: the fry scatter and the sign is gone
+        hit.sign.ttl = Math.min(hit.sign.ttl, 0.9);
+        fx.burst(x, 0.12, z, { color: 0xdcd8f6, color2: 0xe8c98a, count: 16, spread: 2.6, up: 1.8, gravity: 7, size: 0.04, life: 0.6, radius: 0.6 });
+        call(() => ctx.ui?.floatText?.(V.bob.clone().setY(0.6), 'The fry scatter', 'info'));
+      } else if (hit) {
+        fx.pulse(x, z, { color: hit.rule.preroll ? 0xf0d79a : 0xd6d0f6, r0: 0.3, r1: 2.6, duration: 1.2, alpha: 0.9, width: 0.1 });
+      }
+      emit('fishing:land', { position: V.bob.clone(), sign: hit && !hit.rule.spook ? hit.rule.kind : null, inSign: !!hit?.rule?.inSign });
+    } else emit('fishing:land', { position: V.bob.clone() });
     S.depth = depthAt(x, z);
     view.depth = S.depth;
     // spot?
-    S.spot = null; S.rareSpot = false;
     const sr = num(BAL('spots').radius, 2.6);
     let best = Infinity;
-    for (const s of api.spots) {
-      const dd = Math.hypot(s.position.x - x, s.position.z - z);
-      if (dd <= Math.max(sr, s.radius || sr) && dd < best && s.strength > 0.15) { best = dd; S.spot = s; }
+    if (!signsOn()) {
+      for (const s of api.spots) {
+        const dd = Math.hypot(s.position.x - x, s.position.z - z);
+        if (dd <= Math.max(sr, s.radius || sr) && dd < best && s.strength > 0.15) { best = dd; S.spot = s; }
+      }
     }
     if (S.spot) {
       S.rareSpot = !!S.spot.rare;
       fx.pulse(x, z, { color: S.rareSpot ? 0xffd98a : 0xd0c8f4, r0: 0.3, r1: 2.8, duration: 1.2, alpha: 1, width: 0.12 });   // lilac-moon: apart from motes and enemy eyes
     }
-    view.inSpot = !!S.spot;
+    view.inSpot = signsOn() ? !!S.signHit?.rule?.inSign : !!S.spot;
     if (S.clean) {
       call(() => ctx.ui?.floatText?.(V.bob.clone().setY(0.6), 'Clean Cast', 'clean'));
       fx.burst(x, 0.15, z, { color: 0xffe2a8, color2: 0xe9e2cf, count: 14, spread: 1.6, up: 2.2, gravity: 4, size: 0.07, life: 0.9 });
     }
     if (v3on()) {
       S.cast = castInfo(x, z, S.depth);
+      const sh = S.signHit?.rule;
+      if (sh && !sh.spook) S.cast.sign = { kind: sh.kind, id: sh.id };   // nervous / strike / bubbles add their favour
       const LP = BAL('bite').letItPass || {};
       if (S.letPass && S.clock - S.letPass.at > num(LP.resetAfter, 60)) S.letPass = null;
       if (S.letPass && (Math.hypot(S.letPass.x - x, S.letPass.z - z) <= num(LP.sameWater?.radius, 6)
@@ -715,7 +776,7 @@ export function create(ctx) {
     if (!pool.length) pool = all.length ? all : (D().SPECIES || []).filter((s) => s.rarity !== 'legendary');
     return pool;
   }
-  function rollSpecies(depth, rb, baitId) {
+  function rollSpecies(depth, rb, baitId, famMult = null, rng = Math.random) {
     const phase = phaseNow();
     const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
     const attract = baitById(baitId)?.bonus?.attract || [];
@@ -728,9 +789,10 @@ export function create(ctx) {
       else if (s.rarity === 'rare') v *= 1 + 4 * rb;
       if (attract.includes(s.id)) v *= 2.5;
       if (s.bait && s.bait === baitId) v *= 1.5;
+      if (famMult && s.family && famMult[s.family]) v *= famMult[s.family];   // v3 signs: predators × 3, bottom feeders × 2
       total += v; return v;
     });
-    let r = Math.random() * total;
+    let r = rng() * total;
     for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
     return pool[pool.length - 1];
   }
@@ -755,13 +817,20 @@ export function create(ctx) {
     if (lg && baitId && baitId === lg.baitId && timeOk(lg.species, phase) && S.clock >= S.legendDimUntil
       && Math.hypot(V.bob.x - lg.x, V.bob.z - lg.z) <= lg.r) S.legendCast = true;
     let sp;
+    const rule = signsOn() ? S.signHit?.rule : null;   // v3 (F6): the sign this cast landed in
     if (S.forceSpecies) { sp = S.forceSpecies; S.forceSpecies = null; S.legendCast = sp.rarity === 'legendary'; }   // debug forceBite({speciesId})
     else if (S.legendCast) sp = lg.species;
     else {
       const rb = num(st.rarityBonus, 0) + baitBonus(baitId, 'rarityBonus')
         + (S.spot ? (S.rareSpot ? num(SP.rareRarity, 0.25) : num(SP.rarity, 0.1)) : 0)
         + (S.clean ? num(C.cleanRarity, 0.05) : 0) + (isPity ? num(Bt.pity?.rarity, 0.1) : 0);
-      sp = rollSpecies(S.depth, rb, baitId);
+      const fam = rule && !rule.spook && (rule.predators || rule.bottom) ? { predator: rule.predators || 1, bottom: rule.bottom || 1 } : null;
+      sp = signsOn() ? rollSpecies(S.depth, rb, baitId, fam, rnd) : rollSpecies(S.depth, rb, baitId);   // v3: seeded with the fight (debug fishSeed)
+      // a rise / boil / glow carries a pre-rolled fish: it takes the bait (always / 60% / 70%) when the bait suits it
+      const pre = rule?.preroll && S.signHit?.sign ? S.prerolls.get(S.signHit.sign.id) : null;
+      if (pre && (!pre.sp.bait || pre.sp.bait === baitId) && timeOk(pre.sp, phase) && rnd() < num(rule.preroll.chance, 1)) {
+        sp = pre.sp; S.prerollSp = pre.sp; S.prerollZ = pre.z; S.prerollSign = S.signHit.sign; S.prerollTook = true;
+      }
     }
     S.species = sp;
     S.zRolled = false; S.z = null; S.sizeClass = null; S.ancient = false; S.tell = null; S.hookTried = false; S.revealed = false;
@@ -770,11 +839,12 @@ export function create(ctx) {
     // wait
     const biteSpeed = Math.max(0.1, num(st.biteSpeed, 1) + baitBonus(baitId, 'biteSpeed')
       + (gloom ? num(procs('night')?.nightBiteSpeed, 0) : 0));   // v3 Night Eyes: night bite speed +10%
-    let W = (num(Bt.waitBase, 3) + expRand(num(Bt.waitMean, 5.5)))
+    let W = (num(Bt.waitBase, 3) + expRand(num(Bt.waitMean, 5.5)))   // unseeded: the seeded draws stay the reel's (sim parity)
       / (biteSpeed * (S.spot ? 1 / num(SP.waitMult, 0.55) : 1) * (gloom ? num(Bt.gloomMult, 1.15) : 1))
       * (S.clean ? num(C.cleanBiteMult, 0.85) : 1) * (isPity ? num(Bt.pity?.waitMult, 0.7) : 1);
     W = clamp(W, num(Bt.waitMin, 2), num(Bt.waitMax, 25));
     if (S.legendCast) W *= num(SP.legend?.waitMult, 0.7);
+    if (rule?.waitMult && !S.legendCast) W = Math.max(TELL_LEAD + 0.5, W * rule.waitMult);   // a rise: wait × 0.5
     S.waitDur = W;
     // nibbles, feints, tells
     let n;
@@ -837,6 +907,8 @@ export function create(ctx) {
     fx.pulse(x, z, { color: 0xff8a5a, r0: 0.2, r1: 1.2, duration: 0.45, width: 0.07, alpha: 1 });
     fx.pulse(x, z, { color: 0xffc27a, r0: 0.4, r1: 2.0, duration: 0.8, width: 0.05, alpha: 0.6 });
     view.tell = null;
+    // v3 (F6): a sign's pre-rolled fish has taken the bait: its sign is spent
+    if (S.prerollSign && S.prerollSp === sp) { endSign(S.prerollSign, 0.8); S.prerollSign = null; }
     setState('bite');
     emit('fishing:bite', v3 ? { speciesId: sp.id, sizeClass: S.sizeClass, biteTell: S.tell } : { speciesId: sp.id });
   }
@@ -927,7 +999,10 @@ export function create(ctx) {
     S.hookDist = Math.max(2.5, Math.hypot(V.bob.x - raftPos().x, V.bob.z - raftPos().z));
     V.lineDir.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
     if (V.lineDir.lengthSq() < 1e-4) V.lineDir.set(0, 0, -1); else V.lineDir.normalize();
-    view.speciesId = sp.id; view.rarity = sp.rarity; view.legendary = legendary;
+    // v3: what is on the line stays unknown until it is landed (DESIGN §25.6: size may show, the species never); a legend's
+    // pool and bait already name it
+    S.veiled = v3on() && !legendary;
+    view.speciesId = S.veiled ? null : sp.id; view.rarity = S.veiled ? null : sp.rarity; view.legendary = legendary;
     // the fish appears at the bobber
     spawnHooked(sp);
     const x = V.bob.x, z = V.bob.z;
@@ -1001,10 +1076,29 @@ export function create(ctx) {
     }
   }
 
+  /**
+   * The leap reveal (F3; DESIGN §25.6.5, §25.7.5): the first breach of a Prize+ fish shows what is on the line. Once per
+   * fight: time slows (ctx.game.slowmo 0.25 s at 0.35; main restores it), the fish's rim flashes pale gold, view.sizeClass /
+   * ancient / estimate are set and fishing:reveal carries what render's leap camera and ui's class estimate need.
+   */
+  function leapReveal() {
+    const LR = BAL('bite').leapReveal || {};
+    if (!S.zRolled || S.revealed || S.species?.rarity === 'legendary' || classIndex(S.sizeClass) < classIndex(LR.fromClass || 'prize')) return false;
+    S.revealed = true;
+    view.sizeClass = S.sizeClass; view.ancient = S.ancient;
+    const est = num(BAL('ceremony').nearMiss?.estimate, num(BAL('records').escapeEstimate, 0.08));
+    const cm = Math.round(S.lengthCm * 10) / 10;
+    view.estimate = { lo: Math.round(cm * (1 - est)), hi: Math.round(cm * (1 + est)) };
+    call(() => ctx.game?.slowmo?.(num(LR.time, 0.25), num(LR.timescale, 0.35)));
+    fx.revealFlash(V.fish.x, Math.max(0.3, V.fish.y), V.fish.z, S.fishLen, F.yaw);
+    if (F.fv && LR.rimFlash !== false) { call(() => F.fv.setGlow?.(2.2)); S.rimT = 0.35; }
+    emit('fishing:reveal', { sizeClass: S.sizeClass, ancient: !!S.ancient, length: cm, lengthM: S.fishLen,
+      estimate: { ...view.estimate }, position: { x: V.fish.x, y: V.fish.y, z: V.fish.z }, heading: F.yaw, time: num(LR.time, 0.25), timescale: num(LR.timescale, 0.35) });
+    return true;
+  }
   function onSurgeVisual(kind, duration) {
     const x = V.fish.x, z = V.fish.z, L = S.fishLen;
     if (kind === 'leap') {
-      if (S.zRolled && !S.revealed && S.species?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.revealed = true; view.sizeClass = S.sizeClass; view.ancient = S.ancient; }
       F.leap = true; F.leapT = 0; F.leapCount = 0;
       F.leapDur = clamp(Math.min(duration, 0.7 + L * 0.25), 0.5, 1.6);
       F.leapH = clamp(0.7 + L * 0.55, 0.8, 3.2);
@@ -1019,28 +1113,42 @@ export function create(ctx) {
     call(() => ctx.water?.splash?.(x, z, { size: 0.6 + L * 0.6, count: 18 }));
     if (S.species?.id === 'drifting_grove') {
       fx.burst(x, 0.4, z, { color: 0xffb46a, color2: 0xff8fc0, count: 26, spread: 2.2, up: 2.4, gravity: -0.4, drag: 1.6, size: 0.1, life: 2.2, radius: 0.8 });
-    } else if (S.species?.model?.glow) {
+    } else if (S.species?.model?.glow && !S.veiled) {
       fx.burst(x, 0.3, z, { color: S.species.model.glow, count: 10, spread: 1.4, up: 2.6, gravity: 5, size: 0.06, life: 0.7 });
     }
   }
 
   // ---------------------------------------------------------------- hooked fish visual
   function disposeFv(fv) { if (!fv) return; try { fv.dispose?.(); } catch { /* ignore */ } try { fv.object3d?.parent?.remove(fv.object3d); } catch { /* ignore */ } }
+  /** v3: the honest length (m) of the size-scored fish on the line (data.sizeLength), or null for a v1 fish. */
+  function honestLength(sp = S.species) {
+    if (!spV3(sp) || !S.zRolled || !(S.lengthCm > 0)) return null;
+    return S.lengthCm / 100;
+  }
   function spawnHooked(sp) {
     disposeHooked(false);
     let fv = null;
-    try { fv = ctx.models?.createFish?.(sp.id, S.weight); } catch (e) { report(e); }
+    const trueL = honestLength(sp);
+    // v3 (F3): createFish(species, {z}) is the true length in metres (models A1); the mesh keeps scale 1 all fight long
+    try { fv = ctx.models?.createFish?.(sp.id, trueL != null ? { z: S.z, zone: zoneData()?.id || run()?.zone || null } : S.weight); } catch (e) { report(e); }
     F.lat = 0; F.latV = 0; F.dash = 0; F.leap = false; F.splashT = 0; F.wakeT = 0; F.rippleT = 0; F.landing = false;
     F.dist = S.hookDist; F.y = -0.1; F.roll = 0; F.yaw = Math.atan2(V.lineDir.x, V.lineDir.z);
     if (fv && !fv.isStub && fv.object3d) {
       F.fv = fv;
-      // small fish read better a little larger mid-fight (actors resets scale on showCatch)
-      const L0 = clamp(num(fv.length, 0.5), 0.12, 6);
-      const boost = clamp(1.6 - L0 * 0.3, 1, 1.45);
-      fv.object3d.scale.setScalar(boost);
-      S.fishLen = L0 * boost;
+      if (trueL != null) {
+        // no boost and no clamps: splash, wake, shadow and distances use the fish's honest length
+        fv.object3d.scale.setScalar(1);
+        S.fishLen = trueL;
+      } else {
+        // small fish read better a little larger mid-fight (actors resets scale on showCatch)
+        const L0 = clamp(num(fv.length, 0.5), 0.12, 6);
+        const boost = clamp(1.6 - L0 * 0.3, 1, 1.45);
+        fv.object3d.scale.setScalar(boost);
+        S.fishLen = L0 * boost;
+      }
+      if (S.veiled) fv.object3d.visible = false;   // v3: only its dark shape shows in the water (the shadow), never the species
       fishHolder.add(fv.object3d);
-    } else { F.fv = null; S.fishLen = 0.5; }
+    } else { F.fv = null; S.fishLen = trueL ?? 0.5; }
     V.fish.copy(V.bob);
   }
   function disposeHooked(flee) {
@@ -1091,6 +1199,7 @@ export function create(ctx) {
       } else {
         y = wy + 4 * F.leapH * u * (1 - u) - 0.05 * L;
         pitch = (1 - 2 * u) * 0.9;
+        if (u >= 0.3 && F.leapCount === 0 && !S.revealed) { V.fish.set(px, y, pz); leapReveal(); }   // v3: the reveal near the apex
       }
     } else if (surging) {
       y = wy + Math.abs(Math.sin(F.phase * 9)) * 0.06 * Math.max(1, L);
@@ -1123,7 +1232,9 @@ export function create(ctx) {
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);
     const wig = Math.sin(F.phase * (surging ? 16 : 7 + warn * 6)) * (surging ? 1 : 0.45 + warn * 0.4);
-    fx.setShadow(true, px, pz, Math.max(0.5, L * 1.3), F.yaw, F.leap ? 0.16 : 0.42, wig, F.leap ? 0.05 : 0.25 + warn * 0.45);
+    // v3: a dark shape at its true length (the shadow quad's body spans ≈ 1.2 × len), a faint pale rim where it breaks the skin
+    if (S.veiled) fx.setShadow(true, px, pz, Math.max(0.04, L * 0.9), F.yaw, F.leap ? 0.1 : 0.74 + warn * 0.12, wig, F.leap ? 0.02 : 0.22 + warn * 0.3);
+    else fx.setShadow(true, px, pz, Math.max(spV3(sp) ? 0.05 : 0.5, L * 1.3), F.yaw, F.leap ? 0.16 : 0.42, wig, F.leap ? 0.05 : 0.25 + warn * 0.45);   // v3: no floor (true scale)
   }
 
   function updateFlee(dt, t) {
@@ -1148,6 +1259,8 @@ export function create(ctx) {
     let q = S.reel ? S.reel.qualityScore(QB) : 0;
     if (!S.reel && S.perfect) q += num(QB.perfectHookBonus, 0.15);
     q += S.spot ? (S.rareSpot ? num(SP.rareQuality, 0.15) : num(SP.quality, 0.08)) : 0;
+    // v3 (F6): the spot bonus is "cast inside a live sign" (a sign's own pre-rolled fish on the line counts as the rare read)
+    if (signsOn() && S.signHit?.rule?.inSign) q += S.prerollTook ? num(SP.rareQuality, 0.15) : num(SP.quality, 0.08);
     q += baitBonus(S.castBait, 'shimmer') + relicShimmer();
     const Q = D().QUALITY || {};
     const tP = num(Q.perfect?.threshold, 0.78), tF = num(Q.fine?.threshold, 0.45);
@@ -1168,6 +1281,12 @@ export function create(ctx) {
     call(() => ctx.water?.splash?.(V.fish.x, V.fish.z, { size: 0.5 + S.fishLen * 0.4, count: 12 }));
   }
 
+  /** v3: the landed fish shows itself (model, HUD name and rarity) as it leaves the water. */
+  function unveil() {
+    S.veiled = false;
+    if (F.fv?.object3d) F.fv.object3d.visible = true;
+    view.speciesId = S.species?.id || null; view.rarity = S.species?.rarity || null;
+  }
   function updateLanding(dt, t) {
     const dur = num(BAL('reel').landingTime, 1.2);
     const k = clamp(S.stateT / dur, 0, 1);
@@ -1182,6 +1301,7 @@ export function create(ctx) {
     const lx = lerp(F.landFrom.x, tx, e), lz = lerp(F.landFrom.z, tz, e);
     const wy = waterH(lx, lz);
     V.fish.set(lx, lerp(wy - 0.02 * L, Math.max(0.6, tipY - L * 0.6), lift) + Math.abs(Math.sin(S.stateT * 10)) * 0.06 * (1 - lift), lz);
+    if (S.veiled && lift > 0) unveil();   // v3: out of the water, landed: now it is seen
     if (F.fv) {
       const o = F.fv.object3d;
       o.position.copy(V.fish);
@@ -1198,9 +1318,260 @@ export function create(ctx) {
     if (k >= 1) caught();
   }
 
+  // ---------------------------------------------------------------- v3: the catch hand-off and the measuring ceremony (F5)
+  /** The v3 hand-off needs a size-scored fish and a progression with makeFish + measure (CONTRACT §13.7). */
+  function handoffOk(sp) {
+    if (!spV3(sp) || !S.zRolled) return false;
+    const p = prog();
+    return !!p && typeof p.makeFish === 'function' && typeof p.measure === 'function';
+  }
+  const classInfo = (cls) => classOf(cls) || {};
+  /** The ceremony's length and beats for a fish (DESIGN §25.6.8): SIZE_CLASSES[].ceremony (Small / Keeper 1.2 s, Prize 2.4,
+   *  Trophy 3.5, Elder and every legend 5) on BALANCE.ceremony.beats' 3.6 s reference; 1.2 s for every class in a swarm window. */
+  function ceremonyPlan(fish, legendary) {
+    const C = BAL('ceremony');
+    const B = C.beats || {};
+    const ref = num(B.banners?.[1], 3.6);
+    let short = false;
+    try { short = isReal(ctx.combat) && ctx.combat.swarmActive === true; } catch { short = false; }
+    const base = legendary ? num(classInfo('elder').ceremony, 5) : num(classInfo(fish.sizeClass).ceremony, 1.2);
+    const dur = short ? num(C.cinematic?.duringSwarm, 1.2) : base;
+    const k = dur / ref;
+    const beats = { scoop: num(B.scoop?.[1], 0.6) * k, pose: num(B.pose?.[1], 1.4) * k, cord: num(B.cord?.[1], 2.8) * k, banners: dur };
+    const cordStart = num(B.cord?.[0], 1.4) * k;
+    return { dur, beats, cordStart, cordDur: beats.cord - cordStart, short };
+  }
+  /** The measuring pose by length (the Wick is 0.85 m): palm < 0.25 m, arms < 0.85, hang < 2, alongside above and for legends. */
+  function poseFor(lengthM, legendary) {
+    if (legendary) return 'alongside';
+    for (const p of BAL('ceremony').poses || []) if (lengthM < num(p.below, Infinity)) return p.id;
+    return 'alongside';
+  }
+  const sealFor = (fish, legendary) => (legendary ? 'legend' : classInfo(fish.sizeClass).seal || null);
+  function placeById(id) {
+    if (!id) return null;
+    if (S.cast?.place?.id === id) return S.cast.place;
+    return (zoneData()?.arena?.places || []).find((p) => p.id === id) || D().PLACE_V3_BY_ID?.[id] || null;
+  }
+
+  /** At the landing (v3): progression.makeFish → fishing:caught {fish, …} (informational) → the ceremony (or, instant, the stamp now). */
+  function caughtV3(opts = {}) {
+    const sp = opts.species || S.species;
+    const quality = opts.quality || S.quality || 'normal';
+    const phase = phaseNow();
+    const legendary = sp.rarity === 'legendary';
+    const favours = S.favourTerms.map((t) => ({ ...t }));
+    const placeId = S.cast?.place?.id || null;
+    let fish = null;
+    try { fish = prog().makeFish(sp.id, S.z, quality, { favours, place: placeId }); } catch (e) { report(e); }
+    if (!fish || typeof fish !== 'object' || fish.isStub || !fish.speciesId) { caught({ ...opts, legacy: true }); return; }
+    const key = S.cast?.pressureKey || null;
+    if (key && !legendary) S.pressure[key] = (S.pressure[key] || 0) + 1;   // fallback count (progression keeps and saves the real one)
+    const fv = F.fv; F.fv = null;
+    fx.setShadow(false);
+    if (fv && quality === 'perfect') call(() => fv.setGlow?.(1.6));
+    const hit = S.signHit?.rule && !S.signHit.rule.spook ? S.signHit : null;
+    if (hit && S.signs.includes(hit.sign) && hit.sign.ttl > 8) { hit.sign.ttl = 8; hit.sign.depleted = true; }   // a catch thins its sign
+    const pos = V.fish.clone();
+    call(() => ctx.water?.splash?.(pos.x, pos.z, { size: 0.8 + S.fishLen * 0.5, count: 18 }));
+    if (quality === 'perfect') fx.burst(pos.x, pos.y + 0.2, pos.z, { color: 0xffe2a8, color2: 0xffffff, count: 24, spread: 1.8, up: 2.2, gravity: 2, size: 0.07, life: 1.3, radius: 0.3 });
+    const perfect = !!S.perfect, took = !!S.prerollTook;
+    S.reel = null; S.holding = false;
+    api.bobberPos = null;
+    resetView();
+    aLine(false); aBob(false); aCall('setReel', 0, 0);
+    if (opts.instant) setState('idle');
+    emit('fishing:caught', {
+      speciesId: sp.id, weight: fish.weight, quality, legendary, final: !!sp.final, perfect, inSpot: !!hit, rareSpot: !!hit && took,
+      depth: S.depth, night: phase === 'gloomtide', zone: zoneData()?.id || run()?.zone || null,
+      fish, z: fish.z, sizeClass: fish.sizeClass, ancient: !!fish.ancient, length: fish.length, favours: Array.isArray(fish.favours) ? fish.favours : favours,
+      place: placeId, pressureKey: key, mu: round2(S.mu), inSign: !!hit, sign: hit ? hit.rule.kind : null,
+    });
+    if (legendary) {
+      const r = run();
+      if (r?.flags?.wounded?.[sp.id]) delete r.flags.wounded[sp.id];
+      if (sp.final) {
+        call(() => ctx.combat?.killAll?.('dawn'));
+        if (phaseNow() === 'gloomtide') {
+          if (isReal(ctx.survival) && typeof ctx.survival.setPhase === 'function') call(() => ctx.survival.setPhase('dawn'));
+          else call(() => ctx.debug?.setPhase?.('dawn'));
+        }
+      }
+    }
+    S.spot = null; S.rareSpot = false; S.perfect = false; S.signHit = null; S.prerollTook = false;
+    if (opts.instant) {
+      // no ceremony (a debug catch): the stamp at once, the fish held up as v1 did
+      if (fv) { S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; call(() => ctx.actors?.showCatch?.(fv)); }
+      try { prog().measure(fish); } catch (e) { report(e); }
+      return;
+    }
+    startCeremony(fish, { fv, position: pos, legendary });
+  }
+
+  /**
+   * startCeremony(fish) -> Promise (CONTRACT §13.7): sets ctx.cinematic and plays scoop → pose → cord → stamp (progression.measure:
+   * fish:measured, then fish:landed) → banners → card; resolves with measure's result when the card's turn comes.
+   */
+  function startCeremony(fish, o = {}) {
+    if (!fish || typeof fish !== 'object' || !fish.speciesId) return Promise.resolve(null);
+    if (S.cer) finishCeremony();
+    const sp = speciesById(fish.speciesId);
+    const legendary = o.legendary ?? sp?.rarity === 'legendary';
+    const Lm = Math.max(0.02, num(fish.length, 30) / 100);
+    const plan = ceremonyPlan(fish, legendary);
+    let fv = o.fv || null;
+    if (!fv) {   // an outside caller with only the Fish: its model at true scale
+      try { fv = ctx.models?.createFish?.(fish.speciesId, { z: fish.z, lengthCm: fish.length, zone: zoneData()?.id || run()?.zone || null }); } catch (e) { report(e); fv = null; }
+      if (fv && (fv.isStub || !fv.object3d)) fv = null;
+      if (fv) fishHolder.add(fv.object3d);
+    }
+    const from = new THREE.Vector3();
+    if (o.position) from.copy(o.position);
+    else if (fv) from.copy(fv.object3d.position);
+    else { const r0 = raftPos(); from.set(r0.x + V.lineDir.x * (1.3 + Lm * 0.35), 0.6, r0.z + V.lineDir.z * (1.3 + Lm * 0.35)); }
+    let resolve = null;
+    const promise = new Promise((r) => { resolve = r; });
+    const cls = legendary ? 'elder' : fish.sizeClass;
+    S.cer = { fish, legendary, Lm, plan, pose: poseFor(Lm, legendary), fv, t: 0, stamped: false, posed: false, result: null, resolve, from,
+      sheetT: 0, skipAfter: num(BAL('ceremony').skipAfter, 0.6), elderish: legendary || cls === 'elder', yaw: Math.atan2(-V.lineDir.x, -V.lineDir.z) };
+    view.measure = { phase: 'scoop', speciesId: fish.speciesId, length: fish.length, count: 0, k: 0, cordDur: round2(plan.cordDur), sizeClass: fish.sizeClass,
+      ancient: !!fish.ancient, legendary, seal: null, pose: S.cer.pose, dur: plan.dur, beats: { ...plan.beats, cordStart: plan.cordStart }, t: 0,
+      short: plan.short, skippable: !S.cer.elderish, name: null, records: null, uid: fish.uid ?? null };
+    ctx.cinematic = true;
+    if (state !== 'landing') setState('landing');
+    api.bobberPos = null;
+    // the trophy camera (render R2) frames fish and Wick against the place's landmark (no yaw without a place)
+    const pl = placeById(fish.place);
+    const landmark = pl ? (D().landmarkOf?.(pl) ?? null) : null;
+    call(() => ctx.render?.setTrophyTarget?.({ length: Lm, landmark, position: { x: from.x, y: from.y, z: from.z }, place: fish.place ?? null }));
+    // the scoop: a splash and a ring at true scale (no clamps)
+    call(() => ctx.water?.splash?.(from.x, from.z, { size: 0.6 + Lm * 0.6, count: Math.round(16 + 6 * Math.min(Lm, 6)) }));
+    call(() => ctx.water?.addRipple?.(from.x, from.z, 0.6 + Lm * 0.5));
+    if (Lm > 1.4) fx.pulse(from.x, from.z, { color: 0xd8d6ee, r0: 0.4, r1: 1 + Lm, duration: 1.2, width: 0.1, alpha: 0.75 });
+    call(() => ctx.ui?.showMeasure?.(view.measure));
+    return promise;
+  }
+  /** Where the fish goes during the scoop: up to the rod tip (palm / arms / hang), or alongside the raft at the water line. */
+  function holdPoint(c, out) {
+    const raft = raftPos();
+    if (c.pose === 'alongside') {
+      const sx = -V.lineDir.z, sz = V.lineDir.x;
+      return out.set(raft.x + sx * (1.5 + Math.min(c.Lm, 9) * 0.06), waterH(raft.x + sx * 1.5, raft.z + sz * 1.5) + 0.02, raft.z + sz * (1.5 + Math.min(c.Lm, 9) * 0.06));
+    }
+    let tip = null;
+    try { tip = ctx.actors?.getRodTip?.(); } catch { tip = null; }
+    if (tip && Number.isFinite(tip.x)) return out.set(tip.x, Math.max(0.5, tip.y - c.Lm * 0.55), tip.z);
+    return out.set(raft.x + V.lineDir.x * 0.9, 1.2, raft.z + V.lineDir.z * 0.9);
+  }
+  function beginPose(c) {
+    if (c.posed) return;
+    c.posed = true;
+    if (view.measure) view.measure.phase = 'pose';
+    // actors A2: the measuring pose by length (feature-detected by its cord prop); without it the v1 catch hold
+    const a2 = typeof ctx.actors?.showCord === 'function';
+    call(() => ctx.actors?.setPose?.(a2 ? MEASURE_POSE[c.pose] : 'catch'));
+    if (c.fv) {
+      c.fv.object3d.scale.setScalar(1);
+      S.catchFv = c.fv; S.catchT = 0; S.catchSeenBlock = false;
+      call(() => ctx.actors?.showCatch?.(c.fv));
+    }
+  }
+  function stampCeremony(c) {
+    if (c.stamped) return;
+    c.stamped = true;
+    let res = null;
+    try { res = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); }
+    c.result = res;
+    const m = view.measure;
+    if (m) {
+      m.k = 1; m.count = c.fish.length; m.phase = 'banners';
+      m.records = Array.isArray(res?.records) ? res.records : [];
+      m.seal = sealFor(c.fish, c.legendary); m.name = c.fish.name || null;
+    }
+    call(() => ctx.actors?.showCord?.(c.Lm, 1));
+    let p = null;
+    try { p = ctx.actors?.getHeadPos?.(V.tmp2); } catch { p = null; }
+    const at = p && Number.isFinite(p.x) ? p : (c.fv ? c.fv.object3d.getWorldPosition(V.tmp2) : raftPos());
+    fx.stampFlash(at.x, Math.max(0.4, (at.y || 1) - 0.25), at.z, sealFor(c.fish, c.legendary), !!c.fish.ancient);
+  }
+  /** The card's turn: the stamp if it has not happened (a skip), ctx.cinematic off, the camera and the cord released. */
+  function finishCeremony() {
+    const c = S.cer;
+    if (!c) return;
+    if (!c.posed) beginPose(c);
+    if (!c.stamped) stampCeremony(c);
+    S.cer = null;
+    if (view.measure) view.measure.phase = 'card';
+    ctx.cinematic = false;
+    call(() => ctx.render?.setTrophyTarget?.(null));
+    call(() => ctx.actors?.showCord?.(0, 0));
+    S.catchT = 0; S.catchSeenBlock = false;
+    if (state === 'landing') setState('idle');
+    try { c.resolve?.(c.result); } catch { /* ignore */ }
+  }
+  /** A reset mid-ceremony (run over, a debug reset): a fish already landed is still measured while the run lives (once). */
+  function abortCeremony() {
+    const c = S.cer;
+    if (!c) return;
+    S.cer = null;
+    if (!c.stamped && playing()) {
+      c.stamped = true;
+      try { c.result = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); }
+    }
+    ctx.cinematic = false;
+    call(() => ctx.render?.setTrophyTarget?.(null));
+    call(() => ctx.actors?.showCord?.(0, 0));
+    if (!c.posed && c.fv) disposeFv(c.fv);
+    try { c.resolve?.(c.result); } catch { /* ignore */ }
+  }
+  /** A tap (or ui) skips the ceremony to the card: Small to Trophy at once, an Elder or a legend after 0.6 s. */
+  function skipCeremony() {
+    const c = S.cer;
+    if (!c) return false;
+    if (c.elderish && !c.stamped && c.t < c.skipAfter) return false;
+    finishCeremony();
+    return true;
+  }
+  function updateCeremony(realDt, t) {
+    const c = S.cer;
+    if (!c || ctx.paused) return;
+    c.t += realDt;
+    const P = c.plan, B = P.beats, m = view.measure;
+    if (m && !m.skippable && c.t >= c.skipAfter) m.skippable = true;
+    if (!c.posed) {
+      // the scoop: the fish comes up out of the water, a sheet of water pouring off it
+      const k = clamp(c.t / Math.max(0.05, B.scoop), 0, 1), e = k * k * (3 - 2 * k);
+      const fv = c.fv;
+      holdPoint(c, V.tmp);
+      const x = lerp(c.from.x, V.tmp.x, e), y = lerp(c.from.y, V.tmp.y, e), z = lerp(c.from.z, V.tmp.z, e);
+      if (fv && fv.object3d.parent === fishHolder) {
+        fv.object3d.position.set(x, y, z);
+        const hang = c.pose === 'alongside' ? 0 : -1.2 * e;
+        fv.object3d.rotation.set(hang, c.yaw + (c.pose === 'alongside' ? Math.PI / 2 : 0), Math.sin(c.t * 14) * 0.25 * (1 - e), 'YXZ');
+        fishUpd(fv, realDt, t, 0.6, 1.5 - e * 0.8, 0);
+      }
+      c.sheetT -= realDt;
+      if (c.sheetT <= 0) { c.sheetT = 0.05; fx.scoopSheet(x, y, z, c.Lm, c.yaw, 1.1 - 0.6 * k); }
+      if (c.t >= B.scoop) beginPose(c);
+    }
+    if (c.posed && !c.stamped) {
+      if (c.t >= P.cordStart) {
+        // the knotted cord unrolls: the count eases up to the final length and the seal stamps on the last knot
+        const k = clamp((c.t - P.cordStart) / Math.max(0.05, P.cordDur), 0, 1);
+        if (m) { m.phase = 'cord'; m.k = round2(k); m.count = Math.round(c.fish.length * (1 - (1 - k) * (1 - k)) * 10) / 10; }
+        call(() => ctx.actors?.showCord?.(c.Lm, k));
+        if (k >= 1) stampCeremony(c);
+      } else if (m) m.phase = 'pose';
+    }
+    if (m) m.t = round2(c.t);
+    if (c.stamped && c.t >= P.dur) finishCeremony();
+  }
+
   function caught(opts = {}) {
     const sp = opts.species || S.species;
     if (!sp) { hardReset(); return; }
+    if (S.veiled) unveil();
+    if (!opts.legacy && handoffOk(sp)) { caughtV3(opts); return; }   // v3 (F5): makeFish now, the ceremony measures at the stamp
     const weight = num(opts.weight, S.weight);
     const quality = opts.quality || S.quality || 'normal';
     const phase = phaseNow();
@@ -1279,6 +1650,7 @@ export function create(ctx) {
 
   // ---------------------------------------------------------------- cancel / slam
   function cancel(reason = 'moved') {
+    if (S.cer && (reason === 'snap' || reason === 'moved')) return;   // v3: the fish is landed; the ceremony is not a fight
     if (reason === 'snap' && hookSafe()) return;   // Still / Lantern: a slam never snaps the line (DESIGN §25.5.3)
     // Still / Lantern: a "the raft was dragged away from the bobber" cancel with no paddling behind it is combat displacement
     // (a knock, a shove, a pull); fishing's own lineBroken() discounts it, so the line stays out (CONTRACT §13.7 the hard rule)
@@ -1342,6 +1714,7 @@ export function create(ctx) {
     const fv = S.catchFv;
     if (!fv) return;
     S.catchFv = null;
+    if (view.measure && view.measure.phase === 'card') view.measure = null;   // v3: the card's turn is over
     // only clear the hold-up if actors is still showing OUR fish (someone else may have replaced it)
     const par = fv.object3d?.parent;
     if (par && par !== fishHolder) call(() => ctx.actors?.showCatch?.(null));
@@ -1351,6 +1724,7 @@ export function create(ctx) {
     const fv = S.catchFv;
     if (!fv) return;
     S.catchT += realDt;
+    if (S.cer) S.catchT = 0;   // v3: the ceremony holds the fish; the card's turn starts the clock
     const blocking = (() => { try { return ctx.ui?.isBlocking?.() === true; } catch { return false; } })();
     if (blocking) S.catchSeenBlock = true;
     // the catch card closing (or no card at all) ends the display
@@ -1467,7 +1841,9 @@ export function create(ctx) {
 
   function drawSpots() {
     const hiX = state === 'charging' ? V.target.x : NaN, hiZ = state === 'charging' ? V.target.z : NaN;
-    for (const s of api.spots) {
+    const sm = signsOn();
+    if (sm) drawSigns();   // v3: the signs replace the spot slots (api.spots is the signs' alias there)
+    for (const s of sm ? [] : api.spots) {
       const hi = Number.isFinite(hiX) && Math.hypot(s.position.x - hiX, s.position.z - hiZ) <= s.radius ? 1 : 0;
       fx.setSlot(s.slot, s.position.x, s.position.z, s.strength, s.rare ? 1 : 0, hi, s.radius, s.rare ? 7 : 6);
     }
@@ -1484,10 +1860,267 @@ export function create(ctx) {
     }
     S.legendK = damp(S.legendK, active ? 1 : 0, 1.5, Math.max(ctx.time?.dt || 0.016, 0.001));
     fx.setLegendPool(true, lg.x, lg.z, lg.r, S.legendK, dim ? 0.35 : 1);
-    if (S.legendK > 0.01) fx.setSlot(LEGEND_SLOT, lg.x, lg.z, S.legendK, 2, 0, lg.r * 0.8, 13);
+    if (S.legendK > 0.01 && !sm) fx.setSlot(LEGEND_SLOT, lg.x, lg.z, S.legendK, 2, 0, lg.r * 0.8, 13);   // v3: no column, a low glimmer
     else fx.clearSlot(LEGEND_SLOT);
     legendPoolInfo.position.set(lg.x, 0, lg.z); legendPoolInfo.radius = lg.r; legendPoolInfo.active = active; legendPoolInfo.dim = dim;
     api.legendPool = legendPoolInfo;
+  }
+
+  // ---------------------------------------------------------------- v3 signs (F6): reading the water
+  const signsOn = () => v3on();
+  const srnd = () => (S.signRng || Math.random)();
+  const SU = (a, b) => a + (b - a) * srnd();   // the signs' clocks: seeded with them (debug fishSeed)
+  /** castMax + 15 m around the Wick (DESIGN §25.6.1). */
+  const signRange = () => stat('castMax', 16) + 15;
+  /** Night Eyes: glow trails show (and appear) 50% farther (combat.boonProcs('night').glowTrailRangeMult). */
+  const glowRangeMult = () => Math.max(1, num(procs('night')?.glowTrailRangeMult, 1));
+  /** Water paints the sign marks itself from the tagged ripples (Wa2); without it fishing-fx's linework carries the whole sign. */
+  const waterPaintsSigns = () => isReal(ctx.water) && (Array.isArray(ctx.water.signKinds) || typeof ctx.water.setGlowtide === 'function');
+  /**
+   * A pre-rolled fish for a sign at (x, z): a species the water there holds for the bait on the hook (surface feeders for a rise,
+   * night fish for a glow trail, one that can be a Prize+ for a boil) and its size score from the favour there (capped by the
+   * water: Elders only where giants live). {sp, z, sizeClass, ancient, lengthCm, lengthM} or null.
+   */
+  function prerollAt(kind, x, z, opts = {}) {
+    const SZ = BAL('size');
+    if (!SZ.z) return null;
+    const depth = depthAt(x, z), phase = phaseNow(), baitId = equippedBaitId();
+    let pool = opts.species ? [opts.species] : speciesPool(depth, baitId, phase).filter((q) => q.size);
+    if (!pool.length) return null;
+    if (!opts.species) {
+      const pref = kind === 'rise' ? pool.filter((q) => num(q.depth?.[0], 0) <= 0.35)
+        : kind === 'glow' ? pool.filter((q) => q.time === 'gloom' || q.model?.glow != null) : pool;
+      if (pref.length) pool = pref;
+    }
+    const info = castInfo(x, z, depth, baitId, false);
+    const minZ = kind === 'boil' ? num(SZ.classMaxZ?.keeper, 1.039) + 0.002 : num(SZ.z.min, -2);
+    const capOf = (q) => capZ({ species: q, place: info.place, giantWater: info.giant, size: SZ });
+    if (kind === 'boil') pool = pool.filter((q) => capOf(q) > minZ);
+    if (!pool.length) return null;
+    let sp = pool[0];
+    if (pool.length > 1 && !opts.species) {
+      const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
+      let tot = 0; const w = pool.map((q) => { const v = num(W[q.rarity], 10); tot += v; return v; });
+      let r = srnd() * tot;
+      for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) { sp = pool[i]; break; } }
+    }
+    const f = favourAt(info, sp);
+    let zz = opts.z != null ? opts.z : rollZ(f.mu, srnd, { min: minZ, max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap: capOf(sp) });
+    zz = Math.round(zz * 1e4) / 1e4;
+    const cls = D().sizeClassOf(zz);
+    const zone = zoneData()?.id || run()?.zone || null;
+    const lengthCm = D().sizeLength(sp, zz, zone);
+    return { sp, z: zz, sizeClass: cls, ancient: cls === 'elder' && !!D().isAncient?.(zz), lengthCm, lengthM: lengthCm / 100 };
+  }
+  /** Each sign's public face (CONTRACT §13.7 signs): {id, kind, position, ttl, radius, strength, rare, prerolled?: {sizeClass, length}}.
+   *  The species stays hidden until the bite (the float never reveals it either). */
+  function spawnSign(kind = null, o = {}) {
+    if (!isReal(ctx.world) && !o.at) return null;
+    const SB = BAL('signs');
+    if (S.signs.length >= maxAlive(SB) && !o.force) return null;
+    const phase = phaseNow();
+    kind = kind || pickKind(phase, srnd, S.signs.map((s) => s.kind));
+    if (!kind) return null;
+    const raft = raftPos();
+    const range = (kind === 'glow' ? signRange() * glowRangeMult() : signRange()) - 2;
+    let pos = null;
+    if (o.at && Number.isFinite(o.at.x)) pos = { x: o.at.x, z: o.at.z };
+    for (let tries = 0; tries < 8 && !pos; tries++) {
+      let p = null;
+      try { p = ctx.world.randomWaterPoint?.({ from: raft, minDist: 6, maxDist: range, depthMin: num(BAL('spots').depthMin, 0.2), clearance: 3 }); } catch (e) { report(e); }
+      if (!p || p.isStub || !Number.isFinite(p.x)) continue;
+      const clash = S.signs.some((s) => Math.hypot(s.position.x - p.x, s.position.z - p.z) < 7);
+      const lg = legendInfo();
+      const nearLegend = lg && Math.hypot(lg.x - p.x, lg.z - p.z) < lg.r + 3;
+      if (!clash && !nearLegend) pos = { x: p.x, z: p.z };
+      else if (tries === 7) pos = { x: p.x, z: p.z };
+    }
+    if (!pos) return null;
+    let pre = null;
+    if (PREROLLED.has(kind)) {
+      pre = o.preroll || prerollAt(kind, pos.x, pos.z, o);
+      if (!pre) { if (o.kindOnly) return null; return kind === 'rise' ? null : spawnSign('rise', { ...o, at: pos }); }   // no fish for it here: a rise instead
+    }
+    const ttl = o.ttl ?? signTtl(kind, srnd, BAL('spots'), SB, { chum: !!o.chum });
+    const s = createSign(kind, pos.x, pos.z, S.clock, { rng: srnd, B: SB, ttl, chum: !!o.chum, heading: o.heading });
+    if (pre) { S.prerolls.set(s.id, pre); s.prerolled = { sizeClass: pre.sizeClass, length: Math.round(pre.lengthCm * 10) / 10 }; }
+    S.signs.push(s);
+    emit('sign:spawn', pre ? { id: s.id, kind, x: pos.x, z: pos.z, sizeClass: pre.sizeClass } : { id: s.id, kind, x: pos.x, z: pos.z });
+    return s;
+  }
+  /** Murk's Chum: a 30 s nervous sign around the bobber (the oldest ordinary sign makes room when six are alive). */
+  function spawnChum(x, z) {
+    if (S.signs.length >= maxAlive(BAL('signs'))) {
+      const old = S.signs.filter((s) => !s.chum).sort((a, b) => b.age - a.age)[0];
+      if (old) endSign(old, 0);
+    }
+    return spawnSign('nervous', { at: { x, z }, chum: true, force: true });
+  }
+  /** End a sign: its fish took the bait, it spooked, it faded or sailed out of reach (now, or after a short fade). */
+  function endSign(s, fade = 0) {
+    if (!s) return;
+    if (fade > 0) { s.ttl = Math.min(s.ttl, fade); s.nextAt = Infinity; return; }
+    const i = S.signs.indexOf(s);
+    if (i < 0) return;
+    S.signs.splice(i, 1);
+    S.prerolls.delete(s.id);
+    emit('sign:end', { id: s.id, kind: s.kind, x: s.position.x, z: s.position.z });
+    if (!s.chum) S.signTimers.push(SU(num(BAL('spots').respawn?.[0], 8), num(BAL('spots').respawn?.[1], 16)));
+  }
+  function clearSigns() {
+    for (const s of S.signs) emit('sign:end', { id: s.id, kind: s.kind, x: s.position.x, z: s.position.z });
+    S.signs.length = 0; S.signTimers.length = 0; S.prerolls.clear();
+    fx.beginSigns(); fx.endSigns();
+  }
+  function pickSignDesired() { const r = aliveRange(phaseNow(), BAL('signs'), BAL('spots')); S.signDesired = Math.round(SU(num(r[0], 2), num(r[1], 4))); }
+  function seedSigns() {
+    clearSigns();
+    pickSignDesired();
+    for (let i = 0; i < S.signDesired; i++) { const s = spawnSign(); if (s) s.age = -i * 0.5; }
+  }
+  /** Signs that count toward the phase's range: not chum, not fading out, within reach of the Wick. */
+  const liveSigns = () => { let n = 0; for (const s of S.signs) if (!s.chum && s.ttl > 4 && !s.far) n++; return n; };
+  /** A sign shows (DESIGN §25.6.1): the tagged ripple / wake for water, a few droplets, and sign:rise / sign:show. */
+  function onSignShow(s, sh) {
+    const pre = S.prerolls.get(s.id);
+    const L = pre ? pre.lengthM : s.kind === 'nervous' ? 0.6 : s.kind === 'bubbles' ? 0.4 : 0.9;
+    const painted = waterPaintsSigns();
+    const k = clamp(s.strength, 0.3, 1);
+    const ripple = (x, z, plain, opts) => call(() => (painted ? ctx.water?.addRipple?.(x, z, k, { kind: s.kind, size: L, ...(opts || {}) }) : ctx.water?.addRipple?.(x, z, plain)));
+    switch (sh.type) {
+      case 'rise':
+        ripple(sh.x, sh.z, 0.3 + 0.45 * Math.min(L, 2));
+        fx.burst(sh.x, 0.06, sh.z, { color: 0xdcd8f6, color2: 0xe8c98a, count: Math.round(3 + 4 * Math.min(L, 2)), spread: 0.5 + 0.4 * Math.min(L, 2), up: 1 + Math.min(L, 2), gravity: 7, size: 0.035 + 0.02 * Math.min(L, 2), life: 0.5, radius: 0.08 });
+        emit('sign:rise', { id: s.id, kind: 'rise', x: sh.x, z: sh.z, sizeClass: pre?.sizeClass ?? null });
+        break;
+      case 'boil':
+        ripple(sh.x, sh.z, 0.8 + 0.5 * Math.min(L, 3));
+        emit('sign:show', { id: s.id, kind: 'boil', x: sh.x, z: sh.z, sizeClass: pre?.sizeClass ?? null });
+        break;
+      case 'strike':
+        ripple(sh.x, sh.z, 1.4);
+        if (!painted) call(() => ctx.water?.splash?.(sh.x, sh.z, { size: 1.1 + 0.4 * Math.min(L, 3), count: 26 }));
+        fx.burst(sh.x, 0.15, sh.z, { color: 0xe9e4f6, color2: 0xf0d79a, count: 14, spread: 2.2, up: 3.2, gravity: 8, size: 0.06, life: 0.8, radius: 0.25 });
+        emit('sign:show', { id: s.id, kind: 'strike', x: sh.x, z: sh.z });
+        break;
+      case 'fry':
+        if (painted) ripple(sh.x, sh.z, 0);
+        else for (let i = 0; i < 3; i++) { const a = srnd() * TAU, r = s.radius * Math.sqrt(srnd()) * 0.8; call(() => ctx.water?.addRipple?.(sh.x + Math.cos(a) * r, sh.z + Math.sin(a) * r, 0.18)); }
+        break;
+      case 'bubble':
+        ripple(sh.x, sh.z, 0.15);
+        break;
+      case 'glow': {
+        const br = clamp(0.3 + 0.55 * L, 0.35, 1.2);
+        call(() => (painted ? ctx.water?.addWake?.(sh.x, sh.z, Math.sin(sh.heading), Math.cos(sh.heading), 0.35 + 0.4 * br * k, { kind: 'glow' })
+          : ctx.water?.addWake?.(sh.x, sh.z, Math.sin(sh.heading), Math.cos(sh.heading), 0.25 * br * k)));
+        if (painted) ripple(sh.x, sh.z, 0);
+        break;
+      }
+      default: break;
+    }
+  }
+  function updateSigns(dt) {
+    const phase = phaseNow();
+    if (phase !== S.lastPhase) {
+      const prev = S.lastPhase;
+      S.lastPhase = phase;
+      if (prev) {
+        pickSignDesired();
+        // dawn ends the glow trails; night thins the day's signs to make room for them
+        for (const s of S.signs) {
+          if (s.kind === 'glow' && phase !== 'gloomtide') endSign(s, 3);
+          else if (phase === 'gloomtide' && !s.chum && s.kind !== 'glow' && s.ttl > 8 && srnd() < 0.5) endSign(s, 6);
+        }
+      }
+    }
+    const raft = raftPos(), base = signRange();
+    const reachOf = (s) => (s.kind === 'glow' ? base * glowRangeMult() : base);
+    for (let i = S.signs.length - 1; i >= 0; i--) {
+      const s = S.signs[i];
+      // sailed away from it: it fades out quickly and a new one comes up within reach
+      if (!s.chum && s.ttl > 1.2 && Math.hypot(s.position.x - raft.x, s.position.z - raft.z) > reachOf(s) + 1) { s.ttl = 1.2; s.far = true; }
+      const shows = stepSign(s, dt, S.clock, srnd, BAL('signs'));
+      for (const sh of shows) onSignShow(s, sh);
+      if (s.ttl <= 0) endSign(s, 0);
+    }
+    const r = aliveRange(phase, BAL('signs'), BAL('spots'));
+    const lo = num(r[0], 2), hi = Math.max(lo, num(r[1], 4));
+    const total = () => { let n = 0; for (const s of S.signs) if (!s.chum) n++; return n; };
+    // never fewer than the phase's minimum within reach: a fading sign out of reach gives up its place at once
+    if (liveSigns() < lo) {
+      if (total() >= hi) {
+        const out = S.signs.filter((s) => !s.chum && (s.far || s.ttl <= 4)).sort((a, b) => a.ttl - b.ttl)[0];
+        if (out) endSign(out, 0);
+      }
+      if (total() < hi) spawnSign();
+    }
+    // then up to today's desired count on the respawn clock (fading signs count until they are gone: never more than the range)
+    for (let i = S.signTimers.length - 1; i >= 0; i--) {
+      S.signTimers[i] -= dt;
+      if (S.signTimers[i] <= 0) { S.signTimers.splice(i, 1); if (liveSigns() < S.signDesired && total() < hi) spawnSign(); }
+    }
+    if (liveSigns() + S.signTimers.length < S.signDesired) S.signTimers.push(SU(num(BAL('spots').respawn?.[0], 8), num(BAL('spots').respawn?.[1], 16)) * 0.5);
+  }
+  /** fishing-fx's per-fish instance buffer: every sign (with its pre-rolled fish), then the free pre-rolled fish (preroll()). */
+  const SIGN_DEF_L = { nervous: 0.8, bubbles: 0.4, strike: 0.9, rise: 0.3, boil: 0.9, glow: 0.6 };
+  const SIGN_TINT = 0xb7b0e8, SIGN_ASPECT = 0.17;
+  const PUSH = { x: 0, z: 0, heading: 0, kind: 1, length: 0.3, strength: 0, seed: 0, age: 0, since: 99, radius: 2.4, toNext: 99, tint: 0xb7b0e8, aspect: 0.17 };
+  function drawSigns() {
+    fx.beginSigns();
+    const raft = raftPos(), base = signRange();
+    for (const s of S.signs) {
+      const pre = S.prerolls.get(s.id);
+      const since = S.clock - s.lastAt;
+      const atLast = s.kind === 'boil' || s.kind === 'strike' || (s.kind === 'rise' && since < 3.6);
+      PUSH.x = atLast ? s.lastX : s.position.x; PUSH.z = atLast ? s.lastZ : s.position.z;
+      PUSH.heading = s.heading; PUSH.kind = KIND_ID[s.kind] || 1;
+      PUSH.length = pre ? pre.lengthM : SIGN_DEF_L[s.kind] ?? 0.5;
+      let k = s.strength;
+      if (s.kind === 'glow') {   // a night fish's light is seen only so far (Night Eyes: 50% farther)
+        const d = Math.hypot(PUSH.x - raft.x, PUSH.z - raft.z), vis = base * glowRangeMult();
+        k *= clamp(1 - (d - vis) / 6, 0, 1);
+      }
+      PUSH.strength = k; PUSH.seed = s.seed; PUSH.age = s.age; PUSH.since = since; PUSH.radius = s.radius;
+      PUSH.toNext = Number.isFinite(s.nextAt) ? s.nextAt - S.clock : 99;
+      PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;   // one ink and one body for every fish: a sign shows size, never the species
+      fx.pushSign(PUSH);
+    }
+    for (const h of S.handles) {   // free pre-rolled fish (residents, sight places, Moonfall …): a slow silhouette on its path
+      PUSH.x = h.pos.x; PUSH.z = h.pos.z; PUSH.heading = h.heading; PUSH.kind = 2; PUSH.length = h.lengthM; PUSH.strength = h.k;
+      PUSH.seed = h.seed; PUSH.age = h.age; PUSH.since = 0.2; PUSH.radius = 2; PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
+      fx.pushSign(PUSH);
+    }
+    fx.endSigns();
+  }
+  /** preroll({species, z, pos, path}) -> handle (CONTRACT §13.7): one pre-rolled fish drawn at true size from the instance buffer. */
+  function preroll(o = {}) {
+    const sp = typeof o.species === 'string' ? speciesById(o.species) : o.species;
+    if (!sp?.size || !o.pos || !Number.isFinite(o.pos.x)) return null;
+    const pre = prerollAt('boil', o.pos.x, o.pos.z, { species: sp, z: o.z });
+    if (!pre) return null;
+    const h = { id: ++S.handleSeq, sp, z: pre.z, sizeClass: pre.sizeClass, lengthM: pre.lengthM,
+      pos: { x: o.pos.x, z: o.pos.z }, path: Array.isArray(o.path) ? o.path : null, heading: srnd() * TAU, age: 0, k: 0, seed: srnd(), seg: 0 };
+    S.handles.push(h);
+    if (S.handles.length > 4) S.handles.shift();
+    return { id: h.id, speciesId: sp.id, z: h.z, sizeClass: h.sizeClass, length: Math.round(pre.lengthCm * 10) / 10 };
+  }
+  function dropPreroll(handle) {
+    const id = handle && typeof handle === 'object' ? handle.id : handle;
+    const i = S.handles.findIndex((h) => h.id === id);
+    if (i >= 0) S.handles.splice(i, 1);
+    return i >= 0;
+  }
+  function updateHandles(dt) {
+    for (const h of S.handles) {
+      h.age += dt; h.k = Math.min(1, h.age / 1.2);
+      if (h.path && h.path.length > 1) {   // follow the path's waypoints at a slow swim
+        const tgt = h.path[(h.seg + 1) % h.path.length];
+        const dx = tgt.x - h.pos.x, dz = tgt.z - h.pos.z, d = Math.hypot(dx, dz);
+        if (d < 0.3) h.seg = (h.seg + 1) % h.path.length;
+        else { h.heading = Math.atan2(dx, dz); const v = Math.min(d, 0.6 * dt); h.pos.x += dx / d * v; h.pos.z += dz / d * v; }
+      } else { h.heading += dt * 0.35; h.pos.x += Math.sin(h.heading) * 0.25 * dt; h.pos.z += Math.cos(h.heading) * 0.25 * dt; }
+    }
   }
 
   // ---------------------------------------------------------------- per-state updates
@@ -1743,6 +2376,7 @@ export function create(ctx) {
    *  short wait and the class's bite tell play out instead of jumping to the bite. */
   function debugForceBite(opts = {}) {
     if (!playing()) return false;
+    if (S.cer) finishCeremony();   // v3: a forced bite skips a measuring ceremony to its card
     if (state === 'reeling' || state === 'landing') return false;
     const o = opts && typeof opts === 'object' ? opts : {};
     const fsp = o.speciesId ? speciesById(o.speciesId) : null;
@@ -1779,6 +2413,7 @@ export function create(ctx) {
   }
   function debugInstantCatch(speciesId, opts = {}) {
     if (!playing()) return false;
+    if (S.cer) finishCeremony();
     let sp = speciesById(speciesId);
     if (!sp) sp = S.species && BUSY.has(state) && state !== 'charging' ? S.species : null;
     if (!sp) sp = rollSpecies(depthAt(raftPos().x, raftPos().z - 8), stat('rarityBonus', 0), equippedBaitId()) || (D().SPECIES || [])[0];
@@ -1801,7 +2436,8 @@ export function create(ctx) {
       if (!F.fv) { V.lineDir.copy(V.aimDir); V.bob.copy(raftPos()).addScaledVector(V.aimDir, 3); spawnHooked(sp); }
     }
     V.fish.copy(V.raft).addScaledVector(V.lineDir, 1.6);
-    caught({ species: sp, weight, quality });
+    // v3: a debug catch measures at once unless {ceremony: true} asks for the whole measuring beat
+    caught({ species: sp, weight, quality, instant: !(opts && typeof opts === 'object' && opts.ceremony) });
     return true;
   }
   function debugHook(speciesId, opts = {}) {
@@ -1824,6 +2460,7 @@ export function create(ctx) {
     view,
     bobberPos: null,
     spots: [],
+    signs: S.signs,   // v3 (CONTRACT §13.7): the live signs [{id, kind, position, ttl, radius, strength, rare, prerolled?}]; spots is its alias in v3
     legendPool: null,
     get lightMult() { return state === 'reeling' && S.reel ? S.reel.lightMult : 1; },
     onPointerDown() { try { onPointerDown(); } catch (e) { report(e); } },
@@ -1859,16 +2496,27 @@ export function create(ctx) {
       } catch (e) { report(e); return null; }
     },
 
+    // v3 visual half (CONTRACT §13.7): signs, the pre-rolled fish primitive, Murk's Chum, the measuring ceremony
+    preroll(o) { try { return preroll(o || {}); } catch (e) { report(e); return null; } },
+    dropPreroll(h) { try { return dropPreroll(h); } catch (e) { report(e); return false; } },
+    /** Murk's Chum (progression on purchase): the next cast spawns a 30 s nervous sign at the bobber. */
+    armChum() { if (!signsOn()) return false; S.chumArmed = true; return true; },
+    get chumArmed() { return S.chumArmed; },
+    startCeremony(fish) { try { return startCeremony(fish, {}); } catch (e) { report(e); return Promise.resolve(null); } },
+    skipCeremony() { try { return skipCeremony(); } catch (e) { report(e); return false; } },
+    get inCeremony() { return !!S.cer; },
+
     init() {
+      if (signsOn()) api.spots = api.signs = S.signs;
       if (ctx.render?.scene && !ctx.render.isStub) ctx.render.scene.add(fx.group);
       const bus = ctx.bus;
       if (bus) {
-        bus.on('zone:change', () => { hardReset(); clearSpots(); S.lastPhase = ''; S.legendDimUntil = -1; S.zonePending = 0.35; });
-        bus.on('run:start', () => { hardReset(); clearSpots(); S.lastPhase = ''; S.legendDimUntil = -1; S.legendToastDay = -1; S.zonePending = 0.35; S.pressure = {}; S.letPass = null; });
+        bus.on('zone:change', () => { hardReset(); clearSpots(); clearSigns(); S.handles.length = 0; S.lastPhase = ''; S.legendDimUntil = -1; S.zonePending = 0.35; });
+        bus.on('run:start', () => { hardReset(); clearSpots(); clearSigns(); S.handles.length = 0; S.chumArmed = false; S.lastPhase = ''; S.legendDimUntil = -1; S.legendToastDay = -1; S.zonePending = 0.35; S.pressure = {}; S.letPass = null; });
         bus.on('phase:change', ({ phase } = {}) => { if (phase === 'dawn') S.pressure = {}; });   // v3: pressure resets at dawn
-        bus.on('run:end', () => { hardReset(); clearSpots(); });
+        bus.on('run:end', () => { hardReset(); clearSpots(); clearSigns(); });
         bus.on('player:died', () => hardReset());
-        bus.on('flow:change', ({ flow } = {}) => { if (flow !== 'playing') { hardReset(); if (flow === 'title') clearSpots(); } });
+        bus.on('flow:change', ({ flow } = {}) => { if (flow !== 'playing') { hardReset(); if (flow === 'title') { clearSpots(); clearSigns(); } } });
         // the Tide Chart's spots arrive through fishing.addSpots(), which progression calls on purchase
         bus.on('player:damage', ({ source } = {}) => { if (typeof source === 'string' && /hand|grasp|slam/i.test(source)) slam(); });
         bus.on('fish:action', () => { if (S.catchFv) S.catchT = Math.max(S.catchT, 90 - 0.6); });
@@ -1884,10 +2532,38 @@ export function create(ctx) {
         fishHook: (id, opts) => { try { return debugHook(id, opts); } catch (e) { report(e); return false; } },
         // v3 (CONTRACT §13.11)
         setFavour: (mu = null) => { S.favourOverride = Number.isFinite(mu) ? mu : null; if (S.cast) refreshFloat(); return S.favourOverride; },
-        fishSeed: (seed = null) => { S.rng = Number.isFinite(seed) ? mulberry32(seed | 0) : null; return !!S.rng; },
+        cerRate: (k = 1) => { S.cerRate = Number.isFinite(k) && k > 0 ? k : 1; return S.cerRate; },
+        fishSeed: (seed = null) => { S.rng = Number.isFinite(seed) ? mulberry32(seed | 0) : null; S.signRng = Number.isFinite(seed) ? mulberry32((seed ^ 0x5bd1e995) | 0) : null; return !!S.rng; },
         fishPressure: () => ({ ...S.pressure }),
         fishReel: () => S.reel,   // the live reel (tests drive pips / drag through it)
         fishSurge: () => { if (S.reel) { S.reel.forceSurge(); return true; } return false; },
+        // v3 (CONTRACT §13.11): sign(kind, {x, z, speciesId, z: size, ttl}) spawns a sign (at a point, or a random one in range);
+        // preroll(speciesId, z) shows a pre-rolled fish 8 m ahead; fishSigns() lists them (with their hidden fish); ceremony()
+        sign: (kind = null, o = {}) => {
+          try {
+            if (!signsOn()) return null;
+            const oo = o && typeof o === 'object' ? o : {};
+            const at = Number.isFinite(oo.x) ? { x: oo.x, z: oo.z } : null;
+            const sp = oo.speciesId ? speciesById(oo.speciesId) : null;
+            const s = spawnSign(kind, { at, force: true, kindOnly: !!kind, species: sp || undefined, z: oo.size ?? oo.sizeZ, ttl: oo.ttl, heading: oo.heading });
+            return s ? { id: s.id, kind: s.kind, x: s.position.x, z: s.position.z, prerolled: s.prerolled || null } : null;
+          } catch (e) { report(e); return null; }
+        },
+        preroll: (speciesId, z = null) => {
+          const r0 = raftPos();
+          const cy = num(call(() => ctx.render?.getYaw?.()), 0);
+          return api.preroll({ species: speciesId, z, pos: { x: r0.x - Math.sin(cy) * 8, z: r0.z - Math.cos(cy) * 8 } });
+        },
+        fishSigns: () => S.signs.map((s) => {
+          const pre = S.prerolls.get(s.id);
+          return { id: s.id, kind: s.kind, x: s.position.x, z: s.position.z, lastX: s.lastX, lastZ: s.lastZ, head: { ...s.head }, heading: s.heading,
+            ttl: s.ttl, age: s.age, strength: s.strength, radius: s.radius, chum: s.chum, since: S.clock - s.lastAt, toNext: s.nextAt - S.clock, shows: s.shows,
+            preroll: pre ? { speciesId: pre.sp.id, z: pre.z, sizeClass: pre.sizeClass, length: Math.round(pre.lengthCm * 10) / 10 } : null };
+        }),
+        fishClock: () => S.clock,
+        ceremony: () => (S.cer ? { active: true, t: S.cer.t, stamped: S.cer.stamped, posed: S.cer.posed, pose: S.cer.pose, dur: S.cer.plan.dur, beats: { ...S.cer.plan.beats },
+          cordStart: S.cer.plan.cordStart, short: S.cer.plan.short, L: S.cer.Lm, legendary: S.cer.legendary, uid: S.cer.fish.uid ?? null, cinematic: !!ctx.cinematic }
+          : { active: false, cinematic: !!ctx.cinematic, measure: view.measure ? { ...view.measure } : null }),
         fishSpot: (rare = false) => { try { const s = spawnSpot({ rare }); return s ? { x: s.position.x, z: s.position.z } : null; } catch (e) { report(e); return null; } },
         fishing: () => ({ state, species: S.species?.id || null, weight: S.weight, depth: S.depth, wait: S.waitDur, events: S.events.map((e) => e.type), spot: !!S.spot, legend: S.legendCast,
           reel: S.reel ? { T: S.reel.T, P: S.reel.P, phase: S.reel.phaseName, surge: S.reel.surge, kind: S.reel.surgeKind, pips: S.reel.pips, slipped: S.reel.slipped, trick: S.reel.trick, trickDone: S.reel.trickDone, mode: S.reel.surgeMode, stamina: S.reel.stamina, power: S.reel.species?.power } : null,
@@ -1895,7 +2571,12 @@ export function create(ctx) {
           // v3
           z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: S.lengthCm ? Math.round(S.lengthCm * 10) / 10 : null, mu: S.mu, terms: S.favourTerms, tell: S.tell,
           place: S.cast?.place?.id || null, giant: !!S.cast?.giant, pressureKey: S.cast?.pressureKey || null, letPass: S.letPass ? { ...S.letPass } : null,
-          extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean }),
+          extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean,
+          // v3 visual half
+          fishLen: S.fishLen, meshScale: F.fv?.object3d?.scale?.x ?? null, fvLength: F.fv?.length ?? null, revealed: !!S.revealed,
+          meshVisible: F.fv?.object3d ? F.fv.object3d.visible !== false : null, veiled: !!S.veiled,
+          sign: S.signHit ? { kind: S.signHit.rule.kind, id: S.signHit.rule.id, inSign: !!S.signHit.rule.inSign, spook: !!S.signHit.rule.spook } : null,
+          prerollTook: !!S.prerollTook, chum: S.chumArmed, signs: S.signs.length, ceremony: !!S.cer }),
       });
     },
 
@@ -1914,6 +2595,10 @@ export function create(ctx) {
         S.clock += dt;
         S.stateT += dt;
       }
+      // v3: the measuring ceremony runs in real time (main freezes survival and combat; a card or the pause stops nothing here
+      // but the pause itself), and the leap reveal's rim flash fades back after 0.35 s
+      if (S.cer) { try { updateCeremony(realDt * S.cerRate, t); } catch (e) { report(e); abortCeremony(); } }
+      if (S.rimT > 0) { S.rimT -= realDt; if (S.rimT <= 0) call(() => F.fv?.setGlow?.(1)); }
       raftPos();
       // raft motion with no paddling (knockback, shoves, pulls) since the cast: lineBroken() ignores it in Still / Lantern
       if (S.lastRaftOk && (state === 'casting' || state === 'waiting' || state === 'bite') && !moveInput()) {
@@ -1930,12 +2615,17 @@ export function create(ctx) {
         if (S.zonePending <= 0) {
           S.zonePending = 0;
           try { fx.setZoneColor(zoneData()?.palette?.glow ?? 0xb2b4ec); } catch { /* optional */ }
-          seedSpots();
+          if (signsOn()) {
+            api.spots = api.signs = S.signs;   // v3: signs replace the feeding spots (spots stays as their alias)
+            fx.setSignMode(true, waterPaintsSigns() ? 0.6 : 1);
+            seedSigns();
+          } else seedSpots();
           S.lastPhase = phaseNow();
         }
       }
       if (dt > 0) {
-        try { updateSpots(dt); } catch (e) { report(e); }
+        // v3: the signs (their timers freeze during the measuring ceremony, a cinematic state)
+        try { if (signsOn()) { if (!ctx.cinematic) { updateSigns(dt); updateHandles(dt); } } else updateSpots(dt); } catch (e) { report(e); }
         try {
           switch (state) {
             case 'charging': updateCharging(dt); break;
@@ -1943,7 +2633,7 @@ export function create(ctx) {
             case 'waiting': updateWaiting(dt); break;
             case 'bite': updateBite(dt); break;
             case 'reeling': updateReeling(dt, t); break;
-            case 'landing': updateLanding(dt, t); break;
+            case 'landing': if (!S.cer) updateLanding(dt, t); break;
             case 'lost': updateLost(dt); break;
             default: break;
           }
@@ -1956,7 +2646,7 @@ export function create(ctx) {
       drawSpotsSafe();
     },
   };
-  function drawSpotsSafe() { try { if (playing() || ctx.flow === 'dead') drawSpots(); else { fx.clearSlots(); fx.setLegendPool(false); } } catch (e) { report(e); } }
+  function drawSpotsSafe() { try { if (playing() || ctx.flow === 'dead') drawSpots(); else { fx.clearSlots(); fx.setLegendPool(false); fx.beginSigns(); fx.endSigns(); } } catch (e) { report(e); } }
   S.zonePending = 0;
   return api;
 }

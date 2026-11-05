@@ -915,6 +915,8 @@ export function create(ctx) {
     ctx.bus.emit('fish:landed', {
       fish, isNew, isRecord: !isNew && isPB, species: sp, firstShells, xp: xpInfo.xp, mastered: entry.caught === (J.masteryAt ?? 10),
       measured: true, records, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, cove: !live,
+      // the card lists the favour terms that applied to this fish (DESIGN §25.6.1; CONTRACT §13.7)
+      favours: (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value })), name: fish.name || null,
     });
     if (live && xpInfo.xp > 0) { try { ctx.combat?.addXp?.(xpInfo.xp, { source: 'fish', speciesId: sp.id, fishXp: xpInfo.fishXp, discoveryXp: xpInfo.discoveryXp, modeApplied: true }); } catch (err) { report('combat.addXp', err); } }
 
@@ -947,10 +949,30 @@ export function create(ctx) {
     }
     return result;
   }
+  // ------------------------------------------------------------------ v3: pressure (DESIGN §25.7.2; CONTRACT §13.2 run.pressure)
+  /** A catch at a place (or stopgap giant water) leans on it: run.pressure[key] counts today's catches there (saved with the run;
+   *  reset at dawn). Legends do not count. fishing reads it back through getPressure. */
+  function notePressure(e = {}) {
+    const r = run();
+    const key = typeof e.pressureKey === 'string' && e.pressureKey ? e.pressureKey : null;
+    if (!r || r.active === false || !key || e.legendary) return;
+    r.pressure = r.pressure && typeof r.pressure === 'object' ? r.pressure : {};
+    r.pressure[key] = (r.pressure[key] | 0) + 1;
+  }
+  /** getPressure(placeId) -> favour (≤ 0): −0.12 per catch there today, floor −0.6 (BALANCE.favour.pressure). */
+  function getPressure(key) {
+    const r = run();
+    if (!V3() || !r || !key) return 0;
+    const n = (r.pressure && r.pressure[key]) | 0;
+    if (!n) return 0;
+    const P = BAL('favour').pressure || {};
+    return Math.round(Math.max(P.floor ?? -0.6, (P.perCatch ?? -0.12) * n) * 100) / 100;
+  }
   /** fishing:caught. v1: landFish. v3: informational when it carries the Fish (fishing measures at the stamp);
    *  a fishing build that still rolls weights (no Fish on the event) is measured here from the weight's size score. */
   function onCaught(e = {}) {
     if (!V3()) return landFish(e);
+    notePressure(e);
     if (e.fish && typeof e.fish === 'object') return null;
     const r = run();
     if (!r || r.active === false) return null;
@@ -1443,7 +1465,9 @@ export function create(ctx) {
         f.nightSeen = { day: r.day || 1, zi: zoneIndexOf(r.zone), opened: false, watch: false, scorched: false,
           planned: typeof sw === 'boolean' ? sw : !!D().swarmTonight?.(r.nightMode, r.day || 1, r.outing) };
       }
-    } else if (phase === 'dawn' && f.nightActive) {
+    }
+    if (phase === 'dawn' && V3() && r.pressure && Object.keys(r.pressure).length) r.pressure = {};   // v3: pressure resets at dawn
+    if (phase === 'dawn' && f.nightActive) {
       f.nightActive = false;
       f.nights = (f.nights | 0) + 1;
       if (V3() && r.nightMode) logNight(r);
@@ -1630,7 +1654,11 @@ export function create(ctx) {
     if (V3() && meta()) migrateSave({ meta: meta(), run: null });
     const on = (evt, fn) => ctx.bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { report(`on(${evt})`, e); } });
     on('fishing:caught', onCaught);
-    on('fishing:land', ({ position }) => { lastCast = castInfoAt(position); });
+    on('fishing:land', ({ position, inSign, sign }) => {
+      lastCast = castInfoAt(position);
+      // v3 (F6): fishing knows which sign's cast rule the landing met (timing included); its verdict wins over the radius test
+      if (V3() && typeof inSign === 'boolean') lastCast = { ...lastCast, inSign, inSpot: inSign || !!lastCast.inSpot, sign: sign ?? null };
+    });
     on('fishing:hook', onHook);
     // a let-it-pass ('passed', v3 F4) is a choice, not a miss: it keeps the perfect-hook streak (DESIGN §25.6.4)
     on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved' && reason !== 'passed') r.flags.streak = 0; });
@@ -1771,7 +1799,7 @@ export function create(ctx) {
     getBountyLog: () => run()?.flags?.bountyLog || [], getRecords: () => ({ ...(meta()?.unlocks?.records || {}) }),
     invalidateStats: invalidate,
     // v3 (CONTRACT §13.7; inert with the flag off: migrateSave returns the save, measure falls back to v1, refundBait false)
-    migrateSave, measure, refundBait,
+    migrateSave, measure, refundBait, getPressure,
     isWellFed: () => { const r = run(); return V3() && !!r && wellFedOf(r, getStats()); },
     /** v3 New Descent (U17): whether the next run is the First Outing, and the mode cards to offer (Lantern preselected). */
     getNightModes: () => {
