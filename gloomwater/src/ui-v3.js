@@ -13,8 +13,8 @@
 //   TELLS / tellInfo(id)              the five bite tells: the pictogram key, the words and the class they belong to
 //   classInfo(D, id, ancient)         {id, label, seal, rank}
 //   fmtLength(cm, D)                  "84 mm" below 20 cm, "112 cm", "8.50 m" from 10 m
-//   tackleRating(D, zone, tiers)      {cls, label, next, nextLabel, nextPct} from BALANCE.tackleRating (or TACKLE.rating)
-//   nearMiss(D, p, o)                 the near-miss card's lines for a fish:escaped-big payload
+//   (the tackle rating and the near-miss card went with D1′: the rating is progression.getTackleRating in words and the got-away
+//    note replaces the near-miss card; both are ui-af.js now)
 //   nearestLamp(lamps, x, z, speed)   {lamp, dist, secs} of the nearest watch-lamp
 //   watchLineText(D, info)            "Nearest watch-lamp 34 m · ≈ 7 s" (TEXT_V3.watchLamp)
 
@@ -189,62 +189,6 @@ export function fmtLength(cm, D = null) {
   return `${Math.round(cm)} cm`;
 }
 
-// ------------------------------------------------------------------ tackle rating and the near-miss card
-/** The fitted set's rating in a lake: the largest class a skilled angler lands ≥ 50% against the lake's reference species, and
- *  the next class's land %. tiers = {rod, line, reel} (P1–P2: data.upgradeTiers(run.upgrades)). */
-export function tackleRating(D, zone, tiers = {}) {
-  const R = D?.BALANCE?.tackleRating;
-  const classes = arr(R?.classes).length ? R.classes : CLASS_ORDER;
-  const t = (k) => Math.max(0, Math.min(4, Math.floor(num(tiers?.[k]))));
-  const L = R?.lakes?.[zone];
-  let ci = -1, next = null;
-  if (L && typeof L.cls === 'string') {
-    const i = t('rod') * 25 + t('line') * 5 + t('reel');
-    const ch = L.cls[i];
-    ci = ch === undefined ? -1 : Number(ch);
-    next = num(arr(L.next)[i], null);
-  } else {
-    // the matched-set fallback (TACKLE.rating[lake][tier] = [cls, next %] | 'cls' | {cls, next})
-    const tier = Math.min(t('rod'), t('line'), t('reel'));
-    const m = D?.TACKLE?.rating?.[zone]?.[tier];
-    const id = Array.isArray(m) ? m[0] : typeof m === 'string' ? m : m?.cls;
-    ci = classes.indexOf(id);
-    next = Array.isArray(m) ? num(m[1], null) : typeof m === 'object' && m ? num(m.next, null) : null;
-  }
-  if (!(ci >= 0)) return null;
-  const cls = classes[ci], nxt = classes[ci + 1] || null;
-  return { cls, label: classInfo(D, cls)?.label || cap(cls), next: nxt, nextLabel: nxt ? classInfo(D, nxt)?.label || cap(nxt) : null, nextPct: next };
-}
-
-const CAUSE_WORD = { snap: 'Snapped', thrown: 'Thrown hook', spooled: 'Spooled', fouled: 'Fouled', slack: 'Slipped the slack' };
-const CAUSE_TIP = { slack: 'Keep a little tension, always.' };
-/**
- * The near-miss card for fish:escaped-big {speciesId, z, sizeClass, length, progress, cause} (DESIGN §25.6.7):
- * silhouette, estimated class and length (±8%), % landed, cause, the tackle rating here and one tip.
- * Returns {species, title, cls, est, line, rating, tip}. o = {rating (tackleRating result), round (fn for ±8%)}.
- */
-export function nearMiss(D, p = {}, o = {}) {
-  const sp = D?.SPECIES_BY_ID?.[p.speciesId] || arr(D?.SPECIES).find((s) => s?.id === p.speciesId) || null;
-  const ci = classInfo(D, p.sizeClass, p.ancient);
-  const est = num(D?.BALANCE?.ceremony?.nearMiss?.estimate, 0.08);
-  const L = num(p.length);
-  const jitter = typeof o.round === 'function' ? o.round(L, est) : L;
-  const estTxt = L > 0 ? `~${fmtLength(jitter, D)}` : '';
-  const pct = Math.round(Math.max(0, Math.min(1, num(p.progress))) * 100);
-  const T3 = D?.TEXT_V3 || {};
-  const cause = T3.causes?.[p.cause] || CAUSE_WORD[p.cause] || 'Lost';
-  const tip = T3.tips?.[p.cause] || CAUSE_TIP[p.cause] || '';
-  const r = o.rating || null;
-  let rating = '';
-  if (r) {
-    rating = `Your tackle is rated ${r.label} here`;
-    if (r.nextLabel && r.nextPct !== null && r.nextPct !== undefined) rating += ` (${r.nextLabel}s\u00a0${Math.round(r.nextPct)}%)`;
-    rating += '.';
-  }
-  const parts = [sp?.name || cap(String(p.speciesId || 'A fish').replace(/_/g, ' ')), ci?.label, estTxt].filter(Boolean);
-  return { species: sp, title: parts.join(' · '), cls: ci, est: estTxt, line: `${cause} at ${pct}%.`, rating, tip, pct, cause: p.cause || null };
-}
-
 // ------------------------------------------------------------------ watch-lamps (S6)
 export function nearestLamp(lamps, x, z, speed = 6) {
   let best = null, bd = Infinity;
@@ -274,19 +218,21 @@ export function watchLineText(D, info) {
  * variant during an active swarm window. An Elder (and a legend) is skippable only after skipAfter (0.6 s); every other class
  * at once. Returns {dur, scoop, cordStart, cordEnd, cordDur, skipAfter, elderish, short}.
  */
-export function measurePlan(D, { sizeClass = 'keeper', legendary = false, short = false } = {}) {
+export function measurePlan(D, { sizeClass = 'keeper', legendary = false, short = false, pbPass = false } = {}) {
   const C = D?.BALANCE?.ceremony || {};
   const B = C.beats || {};
   const ref = num(arr(B.banners)[1], 3.6) || 3.6;
   const sc = (id) => arr(D?.SIZE_CLASSES).find((c) => c?.id === id);
   const FALL = { small: 1.2, keeper: 1.2, prize: 2.4, trophy: 3.5, elder: 5 };
-  const base = legendary ? num(sc('elder')?.ceremony, 5) : num(sc(sizeClass)?.ceremony, FALL[sizeClass] ?? 1.2);
+  let base = legendary ? num(sc('elder')?.ceremony, 5) : num(sc(sizeClass)?.ceremony, FALL[sizeClass] ?? 1.2);
+  // automatic fishing (AUTOFISH.ceremony.pbStretch): a Small or Keeper ceremony that passes your PB knot stretches to 2.4 s
+  if (pbPass && !legendary && (sizeClass === 'small' || sizeClass === 'keeper') && D?.V3_ENABLED && D?.AUTOFISH?.ceremony) base = Math.max(base, num(D.AUTOFISH.ceremony.pbStretch, 2.4));
   const dur = short ? num(C.cinematic?.duringSwarm, 1.2) : base;
   const k = dur / ref;
   const elderish = !!legendary || sizeClass === 'elder';
   const cordStart = num(arr(B.cord)[0], 1.4) * k, cordEnd = num(arr(B.cord)[1], 2.8) * k;
   return { dur, scoop: num(arr(B.scoop)[1], 0.6) * k, cordStart, cordEnd, cordDur: Math.max(0.05, cordEnd - cordStart),
-    skipAfter: elderish ? num(C.skipAfter, 0.6) : 0, elderish, short: !!short };
+    skipAfter: elderish ? num(C.skipAfter, 0.6) : 0, elderish, short: !!short, pbPass: !!pbPass && dur > num(sc(sizeClass)?.ceremony, FALL[sizeClass] ?? 1.2) };
 }
 /** Where the ceremony stands at t s: {phase: 'scoop'|'pose'|'cord'|'banners'|'card', k (cord 0–1), count (cm), stamped}.
  *  The count eases out onto the final knot (count = L · (1 − (1 − k)²)), as fishing's and audio's cords do. */
@@ -308,14 +254,22 @@ export function measureSkippable(plan, t) { return !!plan && num(t) >= num(plan.
 const NICE_STEPS = [0.5, 1, 2, 2.5, 5, 10, 20, 25, 50, 100, 200, 250, 500];
 /**
  * The knotted cord as a ruler for one species (lengths in cm): from 0 to the species' "said to reach" (or past the fish when
- * it is longer), a knot every `step`, the class bands at the lengths SIZE_CLASSES' zMax gives, and the PB mark. Returns
- * {max, step, knots: [cm], bands: [{cls, label, from, to}], marks: [{cls, label, cm}], best}. A legend has no bands.
+ * it is longer), a knot every `step`, the class bands at the lengths SIZE_CLASSES' zMax gives, and the two knots automatic
+ * fishing adds (AUTOFISH.ceremony.cordMarks): your PB (oxblood) and the Old Ledger (black). Returns {max, step, knots: [cm],
+ * bands: [{cls, label, from, to}], marks: [{cls, label, cm}], best, passesBest, ledger, passesLedger}. A legend has no bands and
+ * no Old Ledger.
  */
 export function cordRuler(D, sp, length, { zone = null, best = null } = {}) {
   const L = Math.max(0.1, num(length, 1));
   let reach = NaN;
   try { reach = typeof D?.reachOf === 'function' && sp?.size ? D.reachOf(sp, zone) : NaN; } catch { reach = NaN; }
-  const max0 = Math.max(Number.isFinite(reach) && reach > 0 ? reach : L * 1.4, L * 1.06, num(best) * 1.04);
+  // the Old Ledger's figure (DESIGN §25.6.8: Murk's "since before the Fall" mark, BALANCE.records.oldLedgerZ, mid-Trophy for every species)
+  let ledger = null;
+  const lz = D?.BALANCE?.records?.oldLedgerZ;
+  if (lz !== undefined && lz !== null && sp?.size && sp.rarity !== 'legendary' && typeof D?.sizeLength === 'function') {
+    try { const v = D.sizeLength(sp, lz, zone); ledger = Number.isFinite(v) && v > 0 ? Math.round(v * 10) / 10 : null; } catch { ledger = null; }
+  }
+  const max0 = Math.max(Number.isFinite(reach) && reach > 0 ? reach : L * 1.4, L * 1.06, num(best) * 1.04, num(ledger) * 1.04);
   const step = NICE_STEPS.find((s) => max0 / s <= 16) || 1000;
   const max = Math.ceil(max0 / step) * step;
   const knots = [];
@@ -335,7 +289,8 @@ export function cordRuler(D, sp, length, { zone = null, best = null } = {}) {
     }
   }
   const b = num(best, 0);
-  return { max, step, knots, bands, marks, best: b > 0 && Math.abs(b - L) > 0.05 ? Math.round(b * 10) / 10 : null };
+  // the PB knot (a fish that only equals it is neither marked twice nor a pass) and the Old Ledger's knot
+  return { max, step, knots, bands, marks, best: b > 0 && Math.abs(b - L) > 0.05 ? Math.round(b * 10) / 10 : null, passesBest: b > 0 && L > b + 0.05, ledger, passesLedger: ledger !== null && L >= ledger };
 }
 
 /** A length for a banner line: "112", "8.4" under 20 cm (the template carries the unit). */

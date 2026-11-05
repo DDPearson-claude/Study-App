@@ -6,6 +6,7 @@ import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
 import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS } from './ui-v3.js';
+import * as AF from './ui-af.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -75,6 +76,123 @@ export function createScreens(K) {
   const shellTag = (n) => `<span class="gw-price">${icon('shell')}${fmt(n)}</span>`;
   const memTag = (n) => `<span class="gw-price gw-price--mem">${icon('memory')}${fmt(n)}</span>`;
   const bar = (k, cls = '') => `<span class="gw-bar ${cls}"><i style="width:${(Math.max(0, Math.min(1, k)) * 100).toFixed(1)}%"></i></span>`;
+
+  // ------------------------------------------------------------------ automatic fishing: the logs (U19) — the only place a % is shown
+  // The numbers come from progression (getOdds, getGearLog, compareOdds, getTackleRating: CONTRACT §13.7; one formula, one owner);
+  // ui only words and lays them out (data.catchDisplay rounds down). Every route into a log refuses while a line is out (K.refuseLocked).
+  const af = () => AF.afOn(D());
+  const prog = () => (ctx.progression && !K.isStub(ctx.progression) ? ctx.progression : null);
+  const call = (name, ...a) => { const P = prog(); return typeof P?.[name] === 'function' ? safe(() => P[name](...a), null) : null; };
+  const COVE_ID = 'cove';
+  const zoneName = (id) => (id === COVE_ID ? (D().COVE?.name || 'The Landing') : K.zoneData(id)?.name || '');
+  const coveSpecies = () => arr(D().SPECIES).filter((x) => x.zone === COVE_ID || x.cove === true);
+  const lureData = (id) => arr(D().LURES).find((l) => l?.id === id) || null;
+  const itemName = (id) => (id ? (K.baitData(id)?.name || lureData(id)?.name || D().UPGRADE_BY_ID?.[id]?.name || String(id).replace(/_/g, ' ')) : '');
+  const placeNameOf = (id) => (id ? (D().PLACE_BY_ID?.[id]?.name || D().PLACE_V3_BY_ID?.[id]?.name || '') : '');
+  /** The fitted (P1–P2: the run's) tackle and the item on the line, as names: "Glassreed · Glass-Gut · Whisper Drag · Glimmer Spoon". */
+  function loadoutNames(lo) {
+    lo = lo || call('getLoadout') || {};
+    const r = run();
+    const tiers = ['rod', 'line', 'reel'].every((k) => Number.isFinite(lo[k])) ? lo : safe(() => D().upgradeTiers?.(r?.upgrades || {}), null) || {};
+    const out = ['rod', 'line', 'reel'].map((k) => D().TACKLE?.[k]?.[Math.max(0, Math.min(4, Math.floor(num(tiers[k]))))]?.name || '');
+    const item = lo.item ?? null;
+    if (item) out.push(itemName(item));
+    return out.filter(Boolean);
+  }
+  /** Species ids the player has met (landed or lost), for the gear log's "N species you have met". */
+  const metIds = () => Object.entries(meta().journal || {}).filter(([, e]) => e && (num(e.caught) > 0 || e.seen)).map(([id]) => id);
+  const speciesNames = () => Object.fromEntries(arr(D().SPECIES).map((x) => [x.id, x.name]));
+  /** The gear log (progression.getGearLog: [entries] + pinned, or {entries, pinned}); without it, the Hold of what the run holds. */
+  function gearLog() {
+    const g = call('getGearLog');
+    if (g) return Array.isArray(g) ? { entries: g, pinned: g.pinned || null } : { entries: arr(g.entries || g.items), pinned: g.pinned || null };
+    // fallback (no progression gear log yet): Hold only, from data (never a chance)
+    const r = run();
+    const C = D().CATCH_V3 || {};
+    const met = new Set(metIds());
+    const entries = [];
+    const up = r?.upgrades || {};
+    const holdNow = safe(() => D().upgradeHold?.(up), null);
+    for (const [slot, ids] of Object.entries(D().BALANCE?.upgradeTiers?.slots || {})) {
+      if (slot === 'creel') continue;
+      for (const id of ids) {
+        const u = D().UPGRADE_BY_ID?.[id];
+        if (!u) continue;
+        const lv = num(up[id]);
+        const next = lv < num(u.maxLevel, 1) ? safe(() => D().upgradeHold?.({ ...up, [id]: lv + 1 }), null) : null;
+        entries.push({ id, kind: slot, name: u.name, hold: next && holdNow ? Math.max(0, next[slot] - holdNow[slot]) : 0, owned: lv, level: lv, max: num(u.maxLevel, 1) });
+      }
+    }
+    for (const [id, it] of Object.entries(C.items || {})) {
+      if (it.kind === 'upgrade') continue;
+      const targets = it.all ? 'all' : it.species ? { species: it.species } : it.family ? { family: it.family, met: arr(safe(() => D().catchItemTargets?.(id), [])).filter((x) => met.has(x)).length }
+        : it.night ? { night: true, met: arr(safe(() => D().catchItemTargets?.(id), [])).filter((x) => met.has(x)).length } : arr(safe(() => D().catchItemTargets?.(id), [])).filter((x) => met.has(x));
+      entries.push({ id, kind: it.kind, name: itemName(id), hold: it.hold, targets });
+    }
+    return { entries, pinned: null };
+  }
+  /** The loadout with this gear-log entry on it (an entry may carry its own `loadout`); null when it cannot be told. */
+  function loadoutWith(e, A) {
+    if (e?.loadout && typeof e.loadout === 'object') return e.loadout;
+    if (!A) return null;
+    if (e.kind === 'bait' || e.kind === 'lure') return { ...A, item: e.id };
+    if ((e.kind === 'rod' || e.kind === 'line' || e.kind === 'reel') && Number.isFinite(e.tier) && !A.hold) return { ...A, [e.kind]: e.tier };
+    return null;
+  }
+  /** One gear-log row's lines: the Hold line and, with a pinned fish, the compare ("… 16% → 24% with this"). */
+  function gearLines(e, G, A, names) {
+    if (!e) return { hold: '', compare: '' };
+    const hold = AF.gearLine(D(), e, { names });
+    let compare = '';
+    const pin = G?.pinned;
+    if (pin?.speciesId && e.compare && typeof e.compare === 'object') {
+      // progression computed the row's compare itself (getGearLog: {a, b} at the log's reference)
+      if (e.compare.a != null && e.compare.b != null && Math.abs(e.compare.b - e.compare.a) > 1e-6) compare = AF.compareLine(D(), pin, e.compare.a, e.compare.b, { speciesName: K.speciesData(pin.speciesId)?.name || '' });
+    } else if (pin?.speciesId && pin.sizeClass && typeof prog()?.compareOdds === 'function') {
+      const B = loadoutWith(e, A);
+      const res = B ? call('compareOdds', pin.speciesId, pin.sizeClass, A, B) : null;
+      if (res && res.a != null && res.b != null && Math.abs(res.b - res.a) > 1e-6) compare = AF.compareLine(D(), pin, res.a, res.b, { speciesName: K.speciesData(pin.speciesId)?.name || '' });
+    }
+    return { hold, compare };
+  }
+  /** The tackle rating against a lake's reference species, in words (progression.getTackleRating; never a %). */
+  function ratingFor(zone, lo) {
+    const rt = call('getTackleRating', zone, lo) || call('getTackle')?.rating?.[zone] || null;
+    return rt ? AF.ratingLine(D(), rt, { speciesName: K.speciesData(rt.reference)?.name || '' }) : '';
+  }
+  /** The Journal's Your odds block for one species (DESIGN §25.6.11). hl = a size class to light (the got-away link). */
+  function oddsBlock(sp, hl = null) {
+    if (!af() || !sp) return '';
+    const res = call('getOdds', sp.id);
+    if (!res) return '';
+    const lo = call('getLoadout');
+    const v = AF.oddsView(D(), res, { speciesName: sp.name, loadout: loadoutNames(lo), itemName: itemName(res.withBest?.item), nightMode: run()?.nightMode || null });
+    const cellsHtml = (cells, row) => cells.map((c) => `<div class="gw-odds-c gw-cls-${esc(c.cls)}${c.cls === hl ? ' gw-hl' : ''}${c.unseen ? ' gw-unseen' : ''}${c.unreachable ? ' gw-unreach' : ''}"${row ? '' : ` role="listitem" aria-label="${esc(c.label)}: ${esc(c.unseen ? 'not yet known' : c.unreachable ? 'out of reach' : c.text)}"`}><b>${esc(c.text)}</b><small>${esc(c.label)}</small></div>`).join('');
+    const withRow = v.withBest ? `<p class="gw-odds-with"><span>${esc(v.withBest.label)}</span> ${v.withBest.cells.map((c) => `${esc(c.label)} <b>${esc(c.text)}</b>`).join(' \u00b7 ')}</p>` : '';
+    return `<section class="gw-odds${v.unseen ? ' gw-odds-unseen' : ''}" data-section="odds">
+      <div class="gw-group gw-odds-h">${esc(v.heading)}</div>
+      ${v.loadout && !v.unseen ? `<div class="gw-odds-kit">${esc(v.loadout)}</div>` : ''}
+      <div class="gw-odds-row${v.legend ? ' gw-odds-legend' : ''}" role="list">${cellsHtml(v.cells, false)}</div>
+      ${withRow}
+      ${v.wounds ? `<p class="gw-odds-wounds">${esc(v.wounds)}</p>` : ''}
+      ${v.marked.map((m) => `<p class="gw-odds-marked">${icon('hook')}<span>${esc(m)}</span></p>`).join('')}
+      ${v.notes.map((n) => `<p class="gw-odds-note">${esc(n)}</p>`).join('')}
+    </section>`;
+  }
+  /** The Got away list (last 5) and the one that got away (journal fields progression writes on fish:escaped). */
+  function gotAwayBlock(rec) {
+    const list = arr(rec?.gotAway).slice(-5).reverse();
+    if (!list.length) return '';
+    const row = (g) => {
+      const parts = [`<b>${esc(AF.classLabel(D(), g.sizeClass, g.ancient))}</b>`, esc(AF.nearLength(D(), g.length))];
+      const ph = AF.placePhrase(placeNameOf(g.place));
+      if (ph) parts.push(esc(ph)); else if (g.zone && zoneName(g.zone)) parts.push(`in ${esc(zoneName(g.zone).replace(/^The /, 'the '))}`);
+      if (g.day) parts.push(`day ${esc(g.day)}`);
+      const why = D().AUTOFISH?.text?.toastCause?.[g.reason];
+      return `<li>${parts.join(', ')}${why ? ` <em>\u00b7 ${esc(why)}</em>` : ''}</li>`;
+    };
+    return `<section class="gw-gotlist"><div class="gw-group">Got away</div><ul>${list.map(row).join('')}</ul></section>`;
+  }
 
   function confirm(text, { yes = 'Yes', no = 'No', danger = false, onYes, sub = '' } = {}) {
     K.openModal('confirm', (entry, body) => {
@@ -258,6 +376,9 @@ export function createScreens(K) {
       });
       sec.appendChild(row);
       sec.insertAdjacentHTML('beforeend', `<p class="gw-modes-who">${esc(c?.name || 'The Wick')} \u00b7 setting out from ${esc(zn.replace(/^The /, 'the '))}</p>`);
+      // automatic fishing (DESIGN §25.6.6): the tackle you set out with, rated in words against the lake's reference species
+      const rt = af() ? ratingFor(s.zone) : '';
+      if (rt) sec.insertAdjacentHTML('beforeend', `<p class="gw-rating">${icon('rod')}<span>${esc(rt)}</span></p>`);
       content.appendChild(sec);
       content.classList.add('gw-scroll');
       foot.appendChild(btn('Back', { onClick: () => { s.step = 'wick'; sfx('ui_click'); entry.render(); } }));
@@ -381,7 +502,7 @@ export function createScreens(K) {
     const ci = classInfo(D(), fish.sizeClass, fish.ancient) || { id: 'keeper', label: 'Keeper', seal: null, rank: 1 };
     const recs = arr(p.records);
     const classFirst = !p.isNew && recs.some((x) => x?.kind === 'classFirst' && !x.ancient);
-    const z = K.zoneData(sp.zone) || K.zoneData(r?.zone);
+    const z = K.zoneData(sp.zone) || K.zoneData(r?.zone) || (af() && (sp.zone === COVE_ID || sp.cove) ? { name: zoneName(COVE_ID) } : null);
     const zn = (z?.name || '').replace(/^The /, 'the ');
     const stamp = legend ? 'Legend' : ci.label;
     const kicker = legend ? `A legend of ${zn || 'the deep'}` : p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
@@ -504,10 +625,19 @@ export function createScreens(K) {
     // the pick sits under the sketch and its note (one column on a phone: just above the actions)
     (content.querySelector('.gw-cc-left') || content).appendChild(wrap);
   }
+  // automatic fishing: the strike that hooked this fish (fishing:strike), for the card's one line "Strike: Clean"
+  let lastStrike = null;
+  try {
+    ctx.bus.on('fishing:strike', (p) => { if (af() && p && p.grade) lastStrike = p.grade; });
+    ctx.bus.on('fishing:cast', () => { lastStrike = null; });
+  } catch { /* bus optional */ }
   function showCatch(p) {
     const fish = p?.fish;
     if (!fish) return;
     const sp = p.species || K.speciesData(fish.speciesId) || { id: fish.speciesId, name: fish.speciesId, rarity: 'common' };
+    // the Landing (DESIGN §25.4.8, CONTRACT §13.3): a cove catch has no run; the card offers Release only and no worth (sales refused)
+    const cove = af() && (p.cove === true || fish.cove === true || sp.cove === true || sp.zone === COVE_ID || !run());
+    const grade = af() ? (p.grade || fish.grade || lastStrike || null) : null;
     K.openModal('catch', (entry, body) => {
       const r = run();
       const s = entry.state;
@@ -531,7 +661,11 @@ export function createScreens(K) {
         : '<span class="gw-cc-favw gw-none"><i>nothing in its favour: open water</i></span>'}</dd>` : '';
       // v3: the stamp is the class, so a Fine or Shimmering catch says so beside its worth
       const qWord = N.v3 && fish.quality === 'perfect' ? ', shimmering' : N.v3 && fish.quality === 'fine' ? ', fine' : '';
-      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd><dt>worth</dt><dd>${fmt(y.sell)} shells${qWord}</dd>${favRow}</dl>`;
+      // automatic fishing: one line for the strike grade (never a %: the odds live in the log)
+      const sw = grade ? (D().AUTOFISH?.text?.strike?.[grade] || cap(grade)) : '';
+      const strikeRow = sw ? `<dt>strike</dt><dd class="gw-cc-strike gw-strike-${esc(grade)}">${esc(sw)}</dd>` : '';
+      const worthRow = cove ? (qWord ? `<dt>quality</dt><dd>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt>worth</dt><dd>${fmt(y.sell)} shells${qWord}</dd>`;
+      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
       const lore = firstSentence(sp.lore) || hintFor(sp);
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
@@ -577,13 +711,25 @@ export function createScreens(K) {
       foot.classList.add('gw-catch-actions');
       right.appendChild(foot);
       const A = { hooks: false, brush: true };
+      if (cove) {
+        // Release only: the card's close is fish:action {action: 'release'} (the First Evening's step listens; progression writes the
+        // run-less journal at the stamp, so nothing here goes through fishAction, which needs a run)
+        foot.appendChild(btn('Release', { ...A, key: '1', action: 'release', cls: 'gw-cc-act gw-btn--primary', autofocus: true, title: 'Let it go back into the cove', onClick: () => {
+          if (s.locked) return;
+          s.locked = true;
+          try { ctx.bus.emit('fish:action', { action: 'release', speciesId: fish.speciesId, fish, cove: true }); } catch (e) { K.report('cove release', e); }
+          K.toast('It slips back under the quay.', 'lore', { dur: 2400 });
+          K.closeModal('catch');
+        } }));
+        return;
+      }
       foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
       foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
-      if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: '+2% rare-fish luck until tomorrow', onClick: act('release') }));
+      if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: af() ? 'A little luck with rarer fish until tomorrow' : '+2% rare-fish luck until tomorrow', onClick: act('release') }));
     }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-catch',
       onKey: (code) => {
-        const map = { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
+        const map = cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
         if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
         const bm = /^(?:Digit|Numpad)([5-7])$/.exec(code);
         if (bm) { const b = K.top()?.el.querySelectorAll('.gw-cc-boon:not([disabled])')[Number(bm[1]) - 5]; if (b) { b.click(); return true; } }
@@ -747,7 +893,10 @@ export function createScreens(K) {
     const tab = String(it?.tab || '').toLowerCase();
     if (tab === 'sell' || c === 'sell' || tab === 'ledger' || c === 'ledger' || it?.kind === 'sell' || it?.kind === 'sellAll' || it?.kind === 'bounty') return null;
     if (tab === 'gear' || tab === 'bait' || tab === 'supplies') return { tab, bare, data: tab === 'gear' ? d.UPGRADE_BY_ID?.[bare] : tab === 'bait' ? d.BAIT_BY_ID?.[bare] : d.SUPPLY_BY_ID?.[bare] };
+    if (d.V3_ENABLED && d.AUTOFISH && (tab === 'lure' || tab === 'lures')) return { tab: 'lures', bare, data: arr(d.LURES).find((l) => l.id === bare) || null };
     if (d.UPGRADE_BY_ID?.[bare] || ['rod', 'line', 'reel', 'lantern', 'creel', 'raft', 'lure', 'gear', 'upgrade', 'upgrades'].includes(c)) return { tab: 'gear', bare, data: d.UPGRADE_BY_ID?.[bare] };
+    // automatic fishing (Pg14): Murk's per-run lures (AUTOFISH.runLures) get their own tab
+    if (d.V3_ENABLED && d.AUTOFISH && (tab === 'lure' || tab === 'lures' || c === 'runlure' || (c === 'lure' && arr(d.LURES).some((l) => l.id === bare)))) return { tab: 'lures', bare, data: arr(d.LURES).find((l) => l.id === bare) || null };
     if (d.BAIT_BY_ID?.[bare] || c === 'bait' || c === 'baits') return { tab: 'bait', bare, data: d.BAIT_BY_ID?.[bare] };
     if (d.SUPPLY_BY_ID?.[bare] || ['supply', 'supplies', 'consumable'].includes(c)) return { tab: 'supplies', bare, data: d.SUPPLY_BY_ID?.[bare] };
     return { tab: 'gear', bare, data: null };
@@ -770,12 +919,14 @@ export function createScreens(K) {
   function openShop() {
     const r = run();
     if (!r) return;
+    // automatic fishing: Murk's bait and lure rows are the gear log (and the ledger an entry to it): not while a line is out
+    if (K.refuseLocked?.('murkRows')) return false;
     const st = { tab: arr(r.creel).length ? 'sell' : 'gear', line: '', lineT: 0 };
     const oilLow = num(r.oil) / Math.max(1, stat('maxOil')) < 0.25;
     const pi = K.phaseInfo();
     st.line = K.pick(D().MERCHANT_LINES?.[oilLow ? 'lowOil' : pi?.phase === 'calm' && num(pi?.k) > 0.85 ? 'warn' : 'arrive']) || '';
     const entry = K.openModal('shop', (entry, body) => renderShop(entry, body), { state: st, cls: 'gw-m-shop',
-      onKey: (code) => tabKeys(entry, ['sell', 'gear', 'bait', 'supplies', 'ledger'], () => entry.state.tab, (v) => { entry.state.tab = v; })(code) });
+      onKey: (code) => tabKeys(entry, entry.state.tabIds || ['sell', 'gear', 'bait', 'supplies', 'ledger'], () => entry.state.tab, (v) => { entry.state.tab = v; })(code) });
     entry.tick = (dt) => {
       entry.state.lineT += dt;
       if (entry.state.lineT > 11) murkSay(entry, 'browse');
@@ -791,7 +942,7 @@ export function createScreens(K) {
     head.innerHTML = `<div class="gw-murk-wrap">${murkPortrait()}</div><div class="gw-shop-say"><div class="gw-kicker">Old Murk's Barge</div><div class="gw-murk-line gw-in">“${esc(s.line || '…')}”</div></div><div class="gw-purse">${icon('shell')}<b>${fmt(shells)}</b><small>Shells</small></div>`;
     pn.insertBefore(head, content);
     const items = arr(safe(() => ctx.progression?.shop?.getItems?.(), []));
-    const by = { gear: [], bait: [], supplies: [] };
+    const by = { gear: [], bait: [], supplies: [], lures: [] };
     const sellPrice = new Map();
     for (const it of items) {
       if (it?.fish?.uid && typeof it.price === 'number') sellPrice.set(it.fish.uid, it.price);
@@ -803,10 +954,24 @@ export function createScreens(K) {
       { id: 'sell', label: 'Sell', icon: 'shell', badge: arr(r.creel).length || '' },
       { id: 'gear', label: 'Gear', icon: 'rod' },
       { id: 'bait', label: 'Bait', icon: 'worm' },
+      ...(by.lures.length ? [{ id: 'lures', label: 'Lures', icon: 'hook' }] : []),
       { id: 'supplies', label: 'Supplies', icon: 'oil' },
       { id: 'ledger', label: 'Ledger', icon: 'ledger', badge: bounties.filter((b) => !b.done && !b.complete).length || '' },
     ];
+    s.tabIds = T.map((t) => t.id);
+    if (!s.tabIds.includes(s.tab)) s.tab = 'gear';
     pn.insertBefore(tabs(T, s.tab, (id) => { s.tab = id; entry.render(); }), content);
+    // automatic fishing: the Gear, Bait and Lure rows are the gear log (DESIGN §25.6.11): each item's Hold, its ×1.6 styles, the fish
+    // it helps, and the compare pinned to the last fish that got away; the Gear tab says the tackle rating in words
+    const AFL = af() && ['gear', 'bait', 'lures'].includes(s.tab) ? { G: gearLog(), A: call('getLoadout'), names: speciesNames() } : null;
+    if (AFL) {
+      const byId = new Map(arr(AFL.G.entries).map((e) => [e.id, e]));
+      AFL.find = (it, c) => byId.get(c.bare) || byId.get(it.id) || null;
+      const top = [];
+      if (s.tab === 'gear') { const rt = ratingFor(r.zone, AFL.A); if (rt) top.push(`<p class="gw-shop-rate">${esc(rt)}</p>`); }
+      if (AFL.G.pinned?.speciesId) top.push(`<p class="gw-gear-pin">${icon('hook')}<span><small>Pinned</small> ${esc(AF.pinnedLabel(D(), AFL.G.pinned, { speciesName: AFL.names[AFL.G.pinned.speciesId] || '' }))}</span></p>`);
+      if (top.length) content.insertAdjacentHTML('beforeend', `<div class="gw-shop-log">${top.join('')}</div>`);
+    }
     content.classList.add('gw-scroll', 'gw-shop-list');
     const buy = (it) => {
       const res = safe(() => ctx.progression?.shop?.buy?.(it.id), null);
@@ -829,10 +994,16 @@ export function createScreens(K) {
         else { const parts = K.effectLines(d.bonus); const req = arr(D().SPECIES).filter((x) => x.bait === d.id && x.rarity !== 'legendary').map((x) => x.name); if (req.length) parts.push(`Needed for ${req.join(', ')}`); fx = parts.join(' · '); }
         if (d.count && d.count > 1) fx = `${d.count} per bundle${fx ? ' · ' + fx : ''}`;
       } else if (c.tab === 'supplies') fx = giveText(d.give);
+      else if (c.tab === 'lures') fx = d.desc || '';
+      // automatic fishing: the gear log's lines for this row (Hold, styles, targets, the pinned compare); the v1 effect line goes
+      const ge = AFL ? AFL.find(it, c) : null;
+      const GL = ge ? gearLines(ge, AFL.G, AFL.A, AFL.names) : null;
+      if (GL && c.tab === 'gear') fx = '';
       const maxed = it.maxed === true || (c.tab === 'gear' && max > 0 && lv >= max);
-      row.innerHTML = `<span class="gw-item-ico${d.legend ? ' gw-legend' : ''}">${icon(d.icon || (c.tab === 'bait' ? 'worm' : c.tab === 'supplies' ? 'oil' : 'rod'))}</span>
+      row.innerHTML = `<span class="gw-item-ico${d.legend ? ' gw-legend' : ''}">${icon(d.icon || (c.tab === 'bait' ? 'worm' : c.tab === 'supplies' ? 'oil' : c.tab === 'lures' ? 'hook' : 'rod'))}</span>
         <div class="gw-item-text"><div class="gw-item-name">${esc(it.name || d.name || it.id)}${max > 1 ? pips(lv, max) : ''}${c.tab === 'bait' && num(run()?.bait?.[d.id || c.bare]) ? `<span class="gw-own">own ${num(run()?.bait?.[d.id || c.bare])}</span>` : ''}</div>
         <div class="gw-item-desc">${esc(it.desc || d.desc || '')}</div>${fx ? `<div class="gw-item-fx">${esc(fx)}</div>` : ''}
+        ${GL?.hold ? `<div class="gw-item-hold">${esc(GL.hold)}</div>` : ''}${GL?.compare ? `<div class="gw-item-cmp">${esc(GL.compare)}</div>` : ''}
         ${it.canBuy === false && it.reason && !maxed ? `<div class="gw-item-why">${esc(it.reason)}</div>` : ''}</div>`;
       const b = btn(maxed ? 'Owned' : shellTag(num(it.price)), { cls: 'gw-buy', disabled: maxed || it.canBuy === false, title: it.reason || '', onClick: () => buy(it), sound: false });
       row.appendChild(b);
@@ -890,6 +1061,7 @@ export function createScreens(K) {
   // ================================================================== CREEL
   function openCreel(extra = {}) {
     if (!run()) return;
+    if (K.refuseLocked?.('creel')) return false;
     K.openModal('creel', (entry, body) => {
       const r = run();
       if (!r) return;
@@ -932,6 +1104,16 @@ export function createScreens(K) {
       };
       row.appendChild(chip(null, 'Bare hook', null, 'hook', false));
       for (const b of owned) row.appendChild(chip(b.id, b.name, num(r.bait[b.id]), b.icon || 'worm', b.legend));
+      // automatic fishing (Pg14): the run's lures (P1–P2, bought from Murk at 40%) are equipped the same way: a bait OR a lure
+      if (af() && typeof prog()?.equipLure === 'function') {
+        for (const id of Object.keys(r.lures || {}).filter((k) => r.lures[k])) {
+          const l = lureData(id);
+          const b = h('button', `gw-baitchip gw-lurechip${(r.equipped ?? eqId ?? null) === id ? ' gw-on' : ''}`, `${icon('hook')}<span>${esc(l?.name || itemName(id))}</span>`);
+          b.type = 'button';
+          b.addEventListener('click', () => { const res = call('equipLure', id); if (res && res.ok === false && res.msg) K.toast(res.msg, 'bad'); sfx('ui_click'); K.hud?.dirtyStats?.(); entry.render(); });
+          row.appendChild(b);
+        }
+      }
       bait.appendChild(row);
       content.appendChild(bait);
       foot.appendChild(btn('Close', { onClick: () => K.closeModal('creel'), autofocus: true }));
@@ -939,35 +1121,44 @@ export function createScreens(K) {
   }
 
   // ================================================================== JOURNAL
+  // v3 automatic fishing (U19): each species page carries the Your odds block (progression.getOdds: floored %, owned relics in,
+  // "?" unseen, "—" out of reach, the best owned item's row), a lost-before-landed species gets a Glimpsed page (name, ink
+  // silhouette, the got-away line), every page keeps its Got away list, and the Landing's Quayling has its own tab. The Journal is
+  // refused while a line is out (every route: J, the HUD, pause, the got-away link, the First Evening's glyph, openLog).
   function openJournal(extra = {}) {
+    if (K.refuseLocked?.(extra.from || 'journal')) return false;
     const zones = arr(D().ZONES);
-    const cur = run()?.zone || 'mossmere';
+    const cove = af() ? coveSpecies() : [];
+    const tabZones = cove.length ? [...zones, { id: COVE_ID, name: D().COVE?.name || 'The Landing' }] : zones;
+    const cur = run()?.zone || (ctx.flow === 'hub' && cove.length ? COVE_ID : 'mossmere');
     K.openModal('journal', (entry, body) => {
       const s = entry.state;
       const m = meta();
       const J = m.journal || {};
       const T = D().TEXT || {};
       const allSp = arr(D().SPECIES);
+      const caughtOf = (id) => !!J[id] && (num(J[id].caught) > 0 || !(J[id].seen && !num(J[id].caught)));
+      const glimpsedOf = (id) => !!J[id] && !!J[id].seen && !(num(J[id].caught) > 0);
+      const inTab = (x, zid) => (zid === COVE_ID ? x.zone === COVE_ID || x.cove === true : x.zone === zid);
       const named = allSp.filter((x) => J[x.id]).length;
       const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: 'gw-p-wide gw-p-journal' });
-      const tabList = zones.map((z) => { const sps = allSp.filter((x) => x.zone === z.id); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: `${n}/${sps.length}` }; });
-      pn.insertBefore(tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; entry.render(); }), content);
-      const z = K.zoneData(s.zone);
-      const sps = allSp.filter((x) => x.zone === s.zone);
+      const tabList = tabZones.map((z) => { const sps = allSp.filter((x) => inTab(x, z.id)); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: `${n}/${sps.length}` }; });
+      pn.insertBefore(tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; s.hl = null; s.section = null; entry.render(); }), content);
+      const sps = allSp.filter((x) => inTab(x, s.zone));
       const nZ = sps.filter((x) => J[x.id]).length;
       const perk = D().JOURNAL_PERKS?.[s.zone];
       const wrap = h('div', 'gw-jr');
       const grid = h('div', 'gw-jr-grid gw-scroll');
       if (!s.sel || !sps.some((x) => x.id === s.sel)) s.sel = (sps.find((x) => J[x.id]) || sps[0])?.id;
       for (const sp of sps) {
-        const known = !!J[sp.id];
+        const known = caughtOf(sp.id), glimpsed = glimpsedOf(sp.id);
         const mastery = known && num(J[sp.id].caught) >= num(D().BALANCE?.journal?.masteryAt, 10);
-        const c = h('button', `gw-jr-card r-${sp.rarity}${known ? '' : ' gw-unknown'}${sp.id === s.sel ? ' gw-on' : ''}${mastery ? ' gw-gold' : ''}`);
+        const c = h('button', `gw-jr-card r-${sp.rarity}${known ? '' : ' gw-unknown'}${glimpsed ? ' gw-glimpsed' : ''}${sp.id === s.sel ? ' gw-on' : ''}${mastery ? ' gw-gold' : ''}`);
         c.type = 'button';
         c.style.setProperty('--rc', K.rarityCss(sp.rarity));
         c.appendChild(fishCanvas(sp, 116, 62, { silhouette: !known }));
-        c.insertAdjacentHTML('beforeend', `<span class="gw-jr-name">${known ? esc(sp.name) : '· · ·'}</span><span class="gw-jr-rar">${esc(RARITY_LABEL[sp.rarity] || '')}</span>`);
-        c.addEventListener('click', () => { s.sel = sp.id; sfx('ui_click'); entry.render(); });
+        c.insertAdjacentHTML('beforeend', `<span class="gw-jr-name">${known || glimpsed ? esc(sp.name) : '· · ·'}</span><span class="gw-jr-rar">${glimpsed ? 'Glimpsed' : esc(RARITY_LABEL[sp.rarity] || '')}</span>`);
+        c.addEventListener('click', () => { s.sel = sp.id; s.hl = null; s.section = null; sfx('ui_click'); entry.render(); });
         grid.appendChild(c);
       }
       wrap.appendChild(grid);
@@ -975,28 +1166,103 @@ export function createScreens(K) {
       const det = h('div', 'gw-jr-detail');
       if (sp) {
         const rec = J[sp.id];
-        const known = !!rec;
-        const art = h('div', 'gw-jr-art');
+        const known = caughtOf(sp.id), glimpsed = glimpsedOf(sp.id);
+        const art = h('div', `gw-jr-art${glimpsed ? ' gw-jr-art-ink' : ''}`);
         art.style.setProperty('--rc', K.rarityCss(sp.rarity));
         art.appendChild(fishCanvas(sp, K.vw < 700 ? 240 : 300, K.vw < 700 ? 120 : 150, { silhouette: !known }));
         det.appendChild(art);
         if (known) {
+          const pb = num(rec.pbLength);
           det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3>${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
             <div class="gw-kicker" style="--rc:${K.rarityCss(sp.rarity)}">${esc(RARITY_LABEL[sp.rarity] || '')}</div>
             <p class="gw-lore">${esc(sp.lore || '')}</p>
-            <dl class="gw-facts"><div><dt>Biggest</dt><dd>${rec.biggest ? fmtKg(rec.biggest) : '—'}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
+            <dl class="gw-facts"><div><dt>Biggest</dt><dd>${pb > 0 ? esc(fmtLength(pb, D())) : rec.biggest ? fmtKg(rec.biggest) : '—'}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
             <div><dt>First</dt><dd>${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}</dd></div><div><dt>Weight</dt><dd>${arr(sp.weight).length ? `${sp.weight[0]}–${sp.weight[1]} kg` : '—'}</dd></div></dl>
             <p class="gw-jr-where">${icon('map_pin')}${esc(hintFor(sp, true))}</p>`);
+        } else if (glimpsed) {
+          const last = arr(rec.gotAway).slice(-1)[0] || rec.escape || null;
+          const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}, ${AF.nearLength(D(), last.length)}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
+          det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3><div class="gw-kicker gw-glimpse-k">Glimpsed</div>
+            <p class="gw-lore">${esc(line)}</p><p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`);
         } else {
           det.insertAdjacentHTML('beforeend', `<h3 class="gw-dim">Unnamed</h3><p class="gw-lore">${esc(T.journalUnknown || '')}</p><p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`);
+        }
+        const ob = oddsBlock(sp, s.hl);
+        if (ob) det.insertAdjacentHTML('beforeend', ob);
+        if (af()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec));
+        if (ob && ctx.flow === 'playing') {
+          const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
+          gl.type = 'button';
+          gl.addEventListener('click', () => { sfx('ui_click'); openTackle({ pauseChild: !!s.pauseChild }); });
+          det.appendChild(gl);
         }
       }
       wrap.appendChild(det);
       content.appendChild(wrap);
-      foot.insertAdjacentHTML('beforeend', `<div class="gw-jr-foot"><span>${esc(z?.name || '')}: ${nZ} / ${sps.length} named</span>${perk ? `<span class="${nZ >= sps.length ? 'gw-earned' : ''}">${icon(nZ >= sps.length ? 'check' : 'lock')} ${esc(perk.label)} — ${esc(perk.desc)}</span>` : ''}</div>`);
+      foot.insertAdjacentHTML('beforeend', `<div class="gw-jr-foot"><span>${esc(zoneName(s.zone))}: ${nZ} / ${sps.length} named</span>${perk ? `<span class="${nZ >= sps.length ? 'gw-earned' : ''}">${icon(nZ >= sps.length ? 'check' : 'lock')} ${esc(perk.label)} — ${esc(perk.desc)}</span>` : ''}</div>`);
       foot.appendChild(btn('Close', { onClick: () => K.closeModal('journal'), autofocus: true }));
-    }, { state: { zone: zones.some((z) => z.id === cur) ? cur : 'mossmere', sel: null, titleChild: ctx.flow !== 'playing', ...extra },
-      onKey: (code) => { const t = K.top(); return tabKeys(t, zones.map((z) => z.id), () => t.state.zone, (v) => { t.state.zone = v; t.state.sel = null; })(code); } });
+      // openLog({section: 'odds'}): bring the block into view (the detail column scrolls on a desktop, the whole page on a phone)
+      if (s.section === 'odds') {
+        const sec = det.querySelector('.gw-odds');
+        if (sec) { sec.classList.add('gw-odds-focus'); requestAnimationFrame(() => { try { sec.scrollIntoView({ block: K.vw < 700 ? 'start' : 'center' }); } catch { /* ignore */ } }); }
+      }
+    }, { state: { zone: tabZones.some((z) => z.id === (extra.zone || cur)) ? (extra.zone || cur) : 'mossmere', sel: null, hl: null, section: null, titleChild: ctx.flow !== 'playing', ...extra },
+      onKey: (code) => { const t = K.top(); return tabKeys(t, tabZones.map((z) => z.id), () => t.state.zone, (v) => { t.state.zone = v; t.state.sel = null; t.state.hl = null; t.state.section = null; })(code); } });
+    return true;
+  }
+  /** CONTRACT §13.7 ui openLog({speciesId, section: 'odds'|'field'|…, sizeClass?}): the Journal at that species' page (its lake's
+   *  tab; the Landing's Quayling on the Landing tab), the odds block in view with the class lit. Refused while a line is out. */
+  function openLog(o = {}) {
+    if (K.refuseLocked?.(o.from || 'openLog')) return false;
+    const sp = K.speciesData(o.speciesId);
+    const zone = sp ? (sp.zone === COVE_ID || sp.cove ? COVE_ID : sp.zone || (arr(sp.zones)[0]) || null) : null;
+    const st = { sel: sp?.id || null, section: o.section || 'odds', hl: o.sizeClass || null };
+    if (zone) st.zone = zone;
+    const open = K.entry?.('journal');
+    if (open) { Object.assign(open.state, st); open.render(); return true; }
+    if (K.has('pause')) st.pauseChild = true;
+    return openJournal(st) !== false;
+  }
+
+  // ================================================================== THE GEAR LOG (automatic fishing, U19)
+  // The Gear Bench's Tackle screen in P3; in P1–P2 a read-only page of the run's tackle, baits and lures: each item's Hold, the
+  // styles its slot counts ×1.6 against, the fish it helps, and the compare pinned to the last fish that got away. Words and % only
+  // from progression (getGearLog / compareOdds); refused while a line is out.
+  function openTackle(extra = {}) {
+    if (!af()) return false;
+    if (K.refuseLocked?.('gearBench')) return false;
+    K.openModal('gear', (entry, body) => {
+      const r = run();
+      const G = gearLog();
+      const A = call('getLoadout');
+      const names = speciesNames();
+      const zone = r?.zone || 'mossmere';
+      const rate = ratingFor(zone, A);
+      const { content, foot } = panel(entry, body, { title: 'The Gear Log', sub: esc(rate || 'What your tackle holds, fish by fish.'), cls: 'gw-p-wide gw-p-gear' });
+      content.classList.add('gw-scroll');
+      if (G.pinned?.speciesId) content.insertAdjacentHTML('beforeend', `<p class="gw-gear-pin">${icon('hook')}<span><small>Pinned</small> ${esc(AF.pinnedLabel(D(), G.pinned, { speciesName: names[G.pinned.speciesId] || '' }))}</span></p>`);
+      const kit = loadoutNames(A);
+      if (kit.length) content.insertAdjacentHTML('beforeend', `<p class="gw-gear-kit">${esc(kit.join(' \u00b7 '))}</p>`);
+      const groups = [['Tackle', ['rod', 'line', 'reel']], ['Bait', ['bait']], ['Lures', ['lure']]];
+      const equipped = A?.item ?? safe(() => { const e = prog()?.getEquippedBait?.(); return typeof e === 'object' && e ? e.id : e; }, null);
+      for (const [label, kinds] of groups) {
+        const list = arr(G.entries).filter((e) => kinds.includes(e.kind));
+        if (!list.length) continue;
+        content.insertAdjacentHTML('beforeend', `<div class="gw-group">${esc(label)}</div>`);
+        for (const e of list) {
+          const L = gearLines(e, G, A, names);
+          const ic = e.kind === 'bait' ? (K.baitData(e.id)?.icon || 'worm') : e.kind === 'lure' ? 'hook' : e.kind === 'reel' ? 'reel' : e.kind === 'line' ? 'line' : 'rod';
+          const own = e.id === equipped ? '<span class="gw-own">on the line</span>' : num(e.owned) > 0 && e.max ? pips(num(e.owned), num(e.max)) : e.owned === true ? '<span class="gw-own">owned</span>' : '';
+          const row = h('div', `gw-item gw-gear-row${e.id === equipped ? ' gw-equipped' : ''}`);
+          row.innerHTML = `<span class="gw-item-ico">${icon(ic)}</span><div class="gw-item-text"><div class="gw-item-name">${esc(e.name || itemName(e.id))}${own}</div>
+            <div class="gw-item-hold">${esc(L.hold)}</div>${L.compare ? `<div class="gw-item-cmp">${esc(L.compare)}</div>` : ''}</div>`;
+          content.appendChild(row);
+        }
+      }
+      if (!arr(G.entries).length) content.innerHTML = '<p class="gw-empty">Nothing on the bench yet.</p>';
+      foot.appendChild(btn('Close', { onClick: () => K.closeModal('gear'), autofocus: true }));
+    }, { state: { titleChild: ctx.flow !== 'playing', ...extra } });
+    return true;
   }
 
   // ================================================================== SHRINE
@@ -1130,7 +1396,23 @@ export function createScreens(K) {
       content.appendChild(toggleRow('damageNumbers', 'Damage numbers', true));
       content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, 'Softer flares and hit flashes'));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">Fishing</div>');
-      content.appendChild(toggleRow('reelToggle', 'Tap to reel', false, 'Tap once to start reeling, tap again to ease'));
+      if (af()) {
+        // automatic fishing (DESIGN §25.6.4–5): the strike ring (timing only, never odds) and the hurry hold; there is no reel button
+        const rrow2 = h('div', 'gw-set-row');
+        rrow2.innerHTML = '<span class="gw-set-label">Strike ring<small>A thin ring that closes on the float while a bite is live</small></span>';
+        const seg2 = h('div', 'gw-seg');
+        const ringOpts = arr(D().AUTOFISH?.strike?.ring?.options).length ? D().AUTOFISH.strike.ring.options : ['always', 'firstExpedition', 'never'];
+        const cur = ringOpts.includes(S.strikeRing) ? S.strikeRing : (D().AUTOFISH?.strike?.ring?.default || 'firstExpedition');
+        for (const o of ringOpts) {
+          const b = h('button', `gw-seg-b${cur === o ? ' gw-on' : ''}`, o === 'firstExpedition' ? 'First outing' : cap(o));
+          b.type = 'button';
+          b.addEventListener('click', () => { S.strikeRing = o; sfx('ui_click'); apply(); entry.render(); });
+          seg2.appendChild(b);
+        }
+        rrow2.appendChild(seg2);
+        content.appendChild(rrow2);
+        content.appendChild(toggleRow('hurry', 'Hold to hurry', true, 'From your second outing, hold anywhere to hurry a small fish in. It never changes the outcome'));
+      } else content.appendChild(toggleRow('reelToggle', 'Tap to reel', false, 'Tap once to start reeling, tap again to ease'));
       if (D().V3_ENABLED) content.appendChild(toggleRow('favourDetails', 'Favour details', false, "Always list what the water favours beside the float, not only on a long press"));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">The Long Dark</div>');
       const rrow = h('div', 'gw-set-row');
@@ -1159,13 +1441,15 @@ export function createScreens(K) {
         // outfit are fitted only at home), then the way out
         const quick = h('div', 'gw-quick');
         const link = (id, label, ic, fn, title = '') => { const b = btn(label, { cls: 'gw-qbtn', icon: ic, hooks: false, onClick: fn, title }); b.dataset.link = id; b.insertAdjacentHTML('afterbegin', `<span class="gw-qico">${icon(ic)}</span>`); quick.appendChild(b); };
-        link('journal', 'Journal', 'journal', () => openJournal({ pauseChild: true }), 'Every name the water has given you');
+        const locked = !!K.logLocked?.();
+        link('journal', 'Journal', 'journal', () => openJournal({ pauseChild: true, from: 'pauseJournal' }), locked ? (D().AUTOFISH?.text?.logLocked || 'Reel in first.') : 'Every name the water has given you');
+        if (locked) { const jb = quick.querySelector('[data-link="journal"]'); jb?.classList.add('gw-locked'); jb?.setAttribute('aria-label', `Journal: ${D().AUTOFISH?.text?.logLocked || 'Reel in first.'}`); jb?.insertAdjacentHTML('beforeend', `<small class="gw-lock-w">${esc(D().AUTOFISH?.text?.logLocked || 'Reel in first.')}</small>`); }
         link('challenges', 'Trials', 'ledger', () => openChallenges({ pauseChild: true }), 'Challenges and their rewards');
         link('settings', 'Settings', 'sun', () => openSettings({ pauseChild: true }), 'Sound, picture and fishing');
         link('title', 'Title', 'gate', () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); }, 'Your descent will wait for you');
         menu.appendChild(quick);
       } else {
-        menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true }) }));
+        menu.appendChild(btn('Journal', { cls: 'gw-mbtn', icon: 'journal', onClick: () => openJournal({ pauseChild: true, from: 'pauseJournal' }) }));
         menu.appendChild(btn('Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
         menu.appendChild(btn('Return to Title', { cls: 'gw-mbtn', icon: 'gate', title: 'Your descent will wait for you', onClick: () => { K.closeAll(); safe(() => ctx.game?.toTitle?.(), null); } }));
       }
@@ -1246,7 +1530,7 @@ export function createScreens(K) {
     else { const nm = e?.name || { wisp: 'Gloomling', mite: 'Inkmite', moth: 'Moth', eel: 'Eel', hand: 'Drowned Hand', warden: 'Warden', gloom: 'Gloomling' }[best] || 'The Gloom'; line = `${nm}${/s$/.test(nm) ? '' : 's'} reached you ${n} time${n > 1 ? 's' : ''}.`; }
     return { line, tip };
   }
-  function nearMisses(summary) {
+  function soCloseLines(summary) {
     const out = [];
     const r = run();
     const m = meta();
@@ -1320,7 +1604,10 @@ export function createScreens(K) {
       if (recs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">${esc(T.newRecord || 'New record!')}</div>${recs.map((x) => `<div class="gw-dl-row">${icon('star')}<span>${esc(x)}</span></div>`).join('')}</div>`);
       const chs = arr(S.challengesCompleted);
       if (chs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Trials completed</div>${chs.map((c) => `<div class="gw-dl-row gw-good">${icon('check')}<span><b>${esc(c?.name || c)}</b>${c?.reward ? `<small>${esc([c.reward.unlock ? K.unlockLabel(c.reward.unlock) : '', c.reward.memories ? `+${c.reward.memories} Memories` : ''].filter(Boolean).join(' · '))}</small>` : ''}</span></div>`).join('')}</div>`);
-      const nm = nearMisses(S);
+      // automatic fishing (DESIGN §25.6.7): the summary lists the fish that got away ("A Trophy Reedjaw, near 1.1 m, threw the hook…")
+      const away = af() ? arr(S.gotAway).filter((x) => typeof x === 'string' && x).slice(0, 4) : [];
+      if (away.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Got away</div>${away.map((x) => `<div class="gw-dl-row">${icon('hook')}<span>${esc(x)}</span></div>`).join('')}</div>`);
+      const nm = soCloseLines(S);
       const td = snuffed ? { line: 'The lantern guttered out.', tip: S.tip || `Render a fish before the oil runs dry: ${K.isTouch ? 'the Burn button' : 'Burn (R)'} works without opening the creel.`, icon: 'lantern' } : !victory ? topDamage() : null;
       if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon(td.icon || 'eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
       const nav = wrap.querySelector('.gw-death-btns');
@@ -1351,6 +1638,6 @@ export function createScreens(K) {
 
   return {
     showTitle, openNewDescent, showCatch, openLevelUp, openShop, openCreel, openJournal, openShrine,
-    openChallenges, openSettings, openPause, openDescend, showDeath, showVictory, confirm, refreshIfOpen,
+    openChallenges, openSettings, openPause, openDescend, showDeath, showVictory, confirm, refreshIfOpen, openLog, openTackle,
   };
 }

@@ -1,13 +1,15 @@
 // Unit tests for the v3 in-play HUD's pure helpers (src/ui-v3.js; DESIGN §25.5.7, §25.6.1, §25.6.4, §25.6.7, §25.5.2):
 //   the §25.5.7 table (no combat UI on the day screen, by night mode), the Stillnight word, the float's favour bands and its
-//   plain-word list by family, the five bite tells, class labels and seals, lengths (mm under 20 cm), the tackle rating from
-//   BALANCE.tackleRating, the near-miss card's lines (DESIGN's own example) and the watch-lamp line.
+//   plain-word list by family, the five bite tells, class labels and seals, lengths (mm under 20 cm), the tackle rating in words
+//   (automatic fishing: catchRating via progression, never a %), the got-away note that replaced the near-miss card (DESIGN
+//   §25.6.7's own example) and the watch-lamp line.
 //   node tools/tests/ui-v3.test.mjs   (or node tools/check.mjs)
 import * as dataV1 from '../../src/data.js';                 // evaluated first: GW_V3 unset → the flag-off build
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_WALK = false;
 const D = await import('../../src/data.js?ui-v3');
 delete globalThis.GW_V3; delete globalThis.GW_V3_PHASE; delete globalThis.GW_WALK;
 const V = await import('../../src/ui-v3.js');
+const AF = await import('../../src/ui-af.js');
 
 let pass = 0, fail = 0;
 function ok(cond, msg, extra) { if (cond) pass++; else { fail++; console.log('  FAIL:', msg, extra !== undefined ? JSON.stringify(extra) : ''); } }
@@ -101,23 +103,19 @@ eq(V.fmtLength(850, D), '850 cm', 'the Lantern-Swallower in cm');
 eq(V.fmtLength(1210, D), '12.10 m', 'past 10 m, metres');
 eq(V.fmtLength(0, D), '—', 'unknown');
 
-section('tackle rating and the near-miss card (DESIGN §25.6.7)');
-const r0 = V.tackleRating(D, 'mossmere', { rod: 0, line: 0, reel: 0 });
-eq(r0 && { cls: r0.cls, next: r0.next, pct: r0.nextPct }, { cls: 'trophy', next: 'elder', pct: 0 }, 'Mossmere T0: Trophy (Elder 0%)');
-const r4 = V.tackleRating(D, 'mossmere', { rod: 4, line: 4, reel: 4 });
-eq(r4?.cls, 'elder', 'Mossmere T4: Elder');
-const rFb = V.tackleRating({ TACKLE: D.TACKLE, SIZE_CLASSES: D.SIZE_CLASSES }, 'mossmere', { rod: 2, line: 2, reel: 2 });
-eq(rFb && [rFb.cls, rFb.nextPct], ['trophy', 15], 'matched-set fallback (TACKLE.rating) without the generated table');
-eq(V.tackleRating(D, 'nowhere', {}), null, 'an unknown lake has no rating');
-const nm = V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'trophy', length: 108, progress: 0.84, cause: 'snap' }, { rating: r0 });
-eq(nm.title, 'Reedjaw Pike · Trophy · ~108 cm', 'title');
-eq(nm.line, 'Snapped at 84%.', 'cause and % landed');
-eq(nm.rating.replace(/\u00a0/g, ' '), 'Your tackle is rated Trophy here (Elders 0%).', 'rating (DESIGN\'s words; a no-break space keeps "Elders 0%" together)');
-eq(nm.tip, 'Let go on the hiss.', 'tip (TEXT_V3.tips.snap)');
-const nm2 = V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'elder', ancient: true, length: 160, progress: 0.4, cause: 'thrown' }, { round: (L, e) => L * (1 + e) });
-eq(nm2.title, 'Reedjaw Pike · Ancient · ~173 cm', 'an estimate within ±8% (here +8%)');
-eq([nm2.line, nm2.rating, nm2.tip], ['Thrown hook at 40%.', '', 'Keep the line tight through a leap.'], 'thrown hook, no rating');
-eq(V.nearMiss(D, { speciesId: 'reedjaw_pike', sizeClass: 'prize', length: 70, progress: 0.2, cause: 'slack' }).line, 'Slipped the slack at 20%.', 'slack (no TEXT_V3 cause)');
+section('the tackle rating in words and the got-away note (automatic fishing: DESIGN §25.6.6, §25.6.7)');
+// D1′ retired BALANCE.tackleRating / TACKLE.rating and the near-miss card's % copy: the rating is data.catchRating (through
+// progression.getTackleRating) printed in words, and the note after a loss names the fish and a rough size, never the odds
+ok(typeof V.tackleRating !== 'function' && typeof V.nearMiss !== 'function', 'ui-v3 no longer carries the retired rating table or the near-miss card');
+const rt0 = D.catchRating('mossmere', { rod: 0, line: 0, reel: 0 }, {});
+eq(AF.ratingLine(D, rt0, { speciesName: 'Reedjaw Pike' }), 'Against the Reedjaw Pike: holds Keepers. Prizes are a long shot.', 'Mossmere T0, words only (DESIGN\'s example)');
+const rt4 = D.catchRating('mossmere', { rod: 4, line: 4, reel: 4 }, {});
+ok(!/%|\d/.test(AF.ratingLine(D, rt4, { speciesName: 'Reedjaw Pike' })), 'Mossmere T4: no number and no % in the rating', AF.ratingLine(D, rt4, { speciesName: 'Reedjaw Pike' }));
+const ga = AF.gotAwayNote(D, { speciesId: 'reedjaw_pike', sizeClass: 'elder', approxLength: 160, reason: 'snapped', beat: 'lastStand', markedFish: true, name: 'Old Ninefin', grade: 'struck' }, { speciesName: 'Reedjaw Pike', placeName: 'Under the Span' });
+eq([ga.mode, ga.kicker, ga.title, ga.name], ['card', 'THE ONE THAT GOT AWAY', 'Reedjaw Pike', 'Old Ninefin'], 'an Elder escape is the card, with its name');
+eq([ga.size, ga.cause, ga.still, ga.hint], ['An Elder, near 1.6\u00a0m.', 'It parted the line on its last run.', "It's still out there, under the Span.", 'Heavier line holds the long runs.'], 'the card\'s lines, word for word (DESIGN §25.6.7)');
+ok(!/%/.test(JSON.stringify(ga)), 'no % anywhere in the note', ga);
+eq(AF.gotAwayNote(D, { speciesId: 'dusk_minnow', sizeClass: 'small', approxLength: 13, reason: 'spat' }, { speciesName: 'Dusk Minnow' }).toast, 'A Dusk Minnow spat the hook.', 'a Small escape is a one-line toast (DESIGN\'s example)');
 
 section('watch-lamps (S6)');
 const lamps = D.ZONE_BY_ID.mossmere.arena.watchLamps;

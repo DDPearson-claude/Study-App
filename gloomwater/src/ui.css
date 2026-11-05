@@ -754,54 +754,107 @@
 .gw-seal-rib { fill: #8c4f73; stroke: rgba(246, 220, 232, .7); stroke-width: .9; }
 .gw-seal-gold { stroke: var(--gold); filter: drop-shadow(0 0 3px rgba(232, 190, 119, .8)); }
 
-/* reel: the class after the breach, the hook-hold pips, the snag, an Elder's old trick */
-.gw-reel-class { display: none; align-items: center; justify-content: center; gap: 9px; margin: -4px 0 6px; min-height: 32px; text-shadow: 0 1px 2px #000, 0 0 10px #000; }
-.gw-reel-class.gw-on { display: flex; }
-.gw-reel-class.gw-stamp-in { animation: gwStampIn .5s cubic-bezier(.2, 1.4, .4, 1); }
-.gw-reel-class .gw-seal { width: 36px; height: 36px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); }
-.gw-rc-k { font: italic 400 16px/1 var(--f-body); color: var(--ink-dim); }
-.gw-reel-class b { font: 400 19px/1 var(--f-display); letter-spacing: .26em; margin-right: -.26em; text-transform: uppercase; color: var(--cc, var(--ink)); }
-.gw-reel-class.gw-cls-elder b { text-shadow: 0 0 14px rgba(232, 190, 119, .45), 0 1px 2px #000; }
-.gw-reel-class.gw-ancient b { color: var(--gold); text-shadow: 0 0 16px rgba(232, 190, 119, .75), 0 1px 2px #000; }
-.gw-v3 .gw-reel-medal { width: 46px; height: 46px; }
-.gw-v3 .gw-reel-fishico { left: 12px; top: 12px; }
-.gw-reel-hook { position: absolute; left: 12px; top: 11px; width: 22px; height: 22px; opacity: 0; color: var(--ink); transition: opacity .3s; }
-.gw-reel-hook .gw-ico { width: 22px; height: 22px; }
-.gw-has-pips .gw-reel-fishico { opacity: 0; }
-.gw-has-pips .gw-reel-hook { opacity: 1; }
-.gw-reel-medal.gw-pip-hit { animation: gwJolt .4s ease-out; }
-.gw-pip { transform-box: fill-box; transform-origin: center; fill: rgba(var(--veil-rgb), .95); stroke: rgba(174, 172, 208, .55); stroke-width: 1.3; transition: fill .2s; }
-.gw-pip.gw-lit { fill: var(--gold); stroke: #fff2d6; filter: drop-shadow(0 0 3px rgba(232, 190, 119, .95)); }
-.gw-pip.gw-last { fill: #f2a284; stroke: #ffe0d4; animation: gwPulse .7s ease-in-out infinite; }
-.gw-pip.gw-lost { animation: gwPipLost .7s ease-out; }
-.gw-reel-snag { position: absolute; left: 50%; top: 50%; width: 36px; height: 36px; margin: 2px 0 0 -18px; color: #efb8d0; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px rgba(210, 150, 174, .9)) drop-shadow(0 1px 1px #000); }
-.gw-reel-snag .gw-ico { width: 36px; height: 36px; stroke-width: 2.1; }
-.gw-reel-snag.gw-on { opacity: 1; }
-.gw-reel-snag.gw-rise { animation: gwHandRise var(--lead, 1s) ease-out forwards; }
-.gw-snag-warn .gw-reel-gauge::before { background: #e3a9c2; opacity: 1; box-shadow: 0 0 10px rgba(210, 150, 174, .85); animation: gwPulse .35s ease-in-out infinite; }
-.gw-snag-warn .gw-reel-hint { color: #f3cadb; margin-top: 30px; }
-.gw-snag-warn .gw-reel-surge { opacity: 1; color: #efb8d0; text-shadow: 0 0 10px rgba(210, 150, 174, .8), 0 1px 2px #000; animation: gwPulse .45s ease-in-out infinite; }
-.gw-reel.gw-snag-hit .gw-reel-gauge { animation: gwJolt .35s ease-out; }
-.gw-reel-trick { position: absolute; left: 0; right: 0; bottom: -28px; font: italic 400 18px/1.2 var(--f-body); color: var(--gold); text-shadow: 0 1px 2px #000, 0 0 12px rgba(232, 190, 119, .45); opacity: 0; pointer-events: none; }
-.gw-reel-trick.gw-on { animation: gwTrick 2.4s ease-out forwards; }
+/* ================================================================ automatic fishing (U2′, DESIGN §25.6.4–§25.6.7)
+   No reel bar, pips or Ease glyph: during a play the rod and the line are the HUD. At the strike, one word under the float and
+   a ring burst (Clean: a bright bone-white ring and pale-gold glints). While the bite is live, the strike ring (a setting) closes
+   on the float, brighter during its Clean part. During the play only the class estimate, pressed like a stamp, and the hurry
+   mark. After a loss and its quiet beat: a one-line ink toast (Small–Prize) or the ink card (Trophy+), in the catch card's
+   ink-wash language. Nothing here ever shows a species before the reveal, and nothing shows a %. */
+.gw-af .gw-reel { display: none !important; }
+.gw-af .gw-bite .r { display: none; }
+.gw-bite .k { fill: none; stroke: rgba(236, 235, 246, .42); stroke-width: 1.3; opacity: 0; transition: opacity .15s, stroke .12s, stroke-width .12s; }
+.gw-bite.gw-ring .k { opacity: 1; }
+.gw-bite.gw-ring.gw-ring-clean .k { stroke: #fbf5e4; stroke-width: 2.2; filter: drop-shadow(0 0 5px rgba(243, 217, 166, .95)) drop-shadow(0 0 12px rgba(160, 150, 240, .55)); }
+.gw-af .gw-bite .t { fill: rgba(var(--veil-rgb), .5); }
 
-/* the near-miss card: a feathered ink patch, never a modal; tap to let it go */
-.gw-nearmiss { position: absolute; left: 50%; bottom: calc(var(--sab) + 206px); width: min(560px, 94vw); min-height: 150px; margin-left: calc(min(560px, 94vw) / -2); padding: 26px 40px 24px 30px; display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: center; gap: 4px 20px; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(12px); transition: opacity .6s ease, transform .7s var(--ease-ink), visibility 0s .7s; }
-.gw-nearmiss.gw-on { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .6s ease, transform .7s var(--ease-ink), visibility 0s; cursor: pointer; }
-.gw-nm-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
-.gw-nm-wash path { fill: rgba(var(--veil-rgb), .9); }
-.gw-nm-fish { width: 150px; height: 70px; opacity: .85; filter: drop-shadow(0 0 10px rgba(160, 150, 240, .25)); }
-.gw-nm-k { font: 400 13px/1.2 var(--f-display); letter-spacing: .26em; text-transform: uppercase; color: var(--ink-dim); }
-.gw-nm-title { margin-top: 4px; font: 400 23px/1.15 var(--f-fell); color: var(--ink); }
-.gw-nearmiss[data-cls="trophy"] .gw-nm-title { color: #f6d3cb; }
-.gw-nearmiss[data-cls="elder"] .gw-nm-title { color: #f3dfb6; }
-.gw-nm-est { margin-top: 3px; font: 400 15px/1.2 var(--f-display); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-dim); }
-.gw-nm-est b { font-weight: 400; color: var(--cc, var(--ink)); }
-.gw-nm-len { font: italic 400 17px/1 var(--f-body); letter-spacing: 0; text-transform: none; color: var(--ink); }
-.gw-nm-line { margin-top: 5px; font: 400 18px/1.25 var(--f-body); color: var(--ink); }
-.gw-nm-rate { font: italic 400 16px/1.3 var(--f-body); color: var(--ink-dim); }
-.gw-nm-rate:empty, .gw-nm-tip:empty { display: none; }
-.gw-nm-tip { margin-top: 4px; font: 400 20px/1.25 var(--f-hand); color: var(--gold); }
+/* the strike word and its burst, at the float */
+.gw-strike { width: 0; height: 0; opacity: 0; pointer-events: none; }
+.gw-strike.gw-on { opacity: 1; }
+.gw-strike-burst { position: absolute; left: -50px; top: -50px; width: 100px; height: 100px; }
+.gw-strike-burst svg { width: 100%; height: 100%; overflow: visible; }
+.gw-sb-r, .gw-sb-r2 { fill: none; stroke: #f1eee6; stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.gw-sb-r2 { stroke-width: 1.2; stroke: rgba(236, 235, 246, .7); }
+.gw-strike.gw-on .gw-sb-r { animation: gwStrikeRing .6s cubic-bezier(.15, .8, .3, 1) forwards; }
+.gw-strike.gw-on .gw-sb-r2 { animation: gwStrikeRing .6s .08s cubic-bezier(.15, .8, .3, 1) forwards; }
+.gw-strike[data-grade="clean"] .gw-sb-r { stroke: #fffaf0; stroke-width: 2.8; filter: drop-shadow(0 0 6px rgba(243, 217, 166, .95)) drop-shadow(0 0 16px rgba(160, 150, 240, .7)); }
+.gw-strike[data-grade="early"] .gw-sb-r, .gw-strike[data-grade="late"] .gw-sb-r { stroke: rgba(174, 172, 208, .7); stroke-width: 1.5; }
+.gw-strike[data-grade="early"] .gw-sb-r2, .gw-strike[data-grade="late"] .gw-sb-r2 { display: none; }
+.gw-strike[data-grade="early"] .gw-strike-burst { translate: -10px 0; }
+.gw-strike.gw-on[data-grade="late"] .gw-sb-r { animation-duration: .9s; }
+.gw-sb-glints { position: absolute; left: 50%; top: 50%; width: 0; height: 0; display: none; }
+.gw-strike[data-grade="clean"] .gw-sb-glints { display: block; }
+.gw-sb-glints i { position: absolute; left: -2px; top: -2px; width: 4px; height: 4px; border-radius: 50%; background: #f8e2b2; box-shadow: 0 0 6px rgba(243, 217, 166, .95); opacity: 0; transform: rotate(var(--a)) translateY(-12px); }
+.gw-strike.gw-on .gw-sb-glints i { animation: gwGlint .6s cubic-bezier(.12, .7, .3, 1) forwards; }
+.gw-strike-w { position: absolute; left: 0; top: 36px; transform: translateX(-50%); white-space: nowrap; font: 400 30px/1 var(--f-display); letter-spacing: .3em; margin-right: -.3em; color: var(--ink); text-shadow: 0 0 14px rgba(160, 150, 240, .55), 0 1px 2px rgba(4, 5, 12, .95), 0 0 6px rgba(4, 5, 12, .9); opacity: 0; }
+.gw-strike.gw-on .gw-strike-w { animation: gwStrikeWord 1.15s ease-out forwards; }
+.gw-strike-w.gw-tone-clean { font-size: 34px; color: #f6f3ff; text-shadow: 0 0 18px rgba(160, 150, 240, .95), 0 0 34px rgba(160, 150, 240, .5), 0 1px 2px rgba(4, 5, 12, .95); }
+.gw-strike-w.gw-tone-dim { font-size: 26px; color: #a9a7d4; text-shadow: 0 0 10px rgba(126, 129, 180, .5), 0 1px 2px rgba(4, 5, 12, .95); }
+
+/* the play: the class estimate stamp and the hurry mark, where the reel line was */
+.gw-fishui > .gw-play { left: 50%; top: auto; bottom: calc(var(--sab) + 214px); transform: translateX(-50%); width: min(440px, 92vw); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; transition: opacity .4s ease; pointer-events: none; }
+.gw-play.gw-on { opacity: 1; }
+.gw-play-est { position: relative; display: none; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 11px 38px 13px 30px; isolation: isolate; text-shadow: 0 1px 2px #000, 0 0 10px #000; }
+.gw-play-est.gw-on { display: flex; }
+.gw-play-est.gw-stamp-in { animation: gwStampIn .5s cubic-bezier(.2, 1.4, .4, 1); }
+.gw-pe-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
+.gw-pe-wash path { fill: rgba(var(--veil-rgb), .74); }
+.gw-play-est .gw-seal { width: 38px; height: 38px; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); }
+.gw-pe-k { font: italic 400 17px/1 var(--f-body); color: var(--ink-dim); white-space: nowrap; }
+.gw-play-est b { font: 400 21px/1 var(--f-display); letter-spacing: .28em; margin-right: -.28em; text-transform: uppercase; color: var(--cc, var(--ink)); white-space: nowrap; }
+.gw-play-est.gw-cls-elder b { text-shadow: 0 0 14px rgba(232, 190, 119, .45), 0 1px 2px #000; }
+.gw-play-est.gw-ancient b { color: var(--gold); text-shadow: 0 0 16px rgba(232, 190, 119, .75), 0 1px 2px #000; }
+.gw-play-hurry { display: flex; align-items: center; gap: 8px; font: italic 400 16px/1 var(--f-body); color: var(--ink-dim); text-shadow: 0 1px 2px #000, 0 0 8px #000; opacity: 0; transition: opacity .25s; }
+.gw-play-hurry.gw-on { opacity: 1; }
+.gw-play-hurry svg { width: 40px; height: 18px; overflow: visible; }
+.gw-play-hurry path { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.gw-play-hurry.gw-on path { animation: gwHurry .7s linear infinite; }
+
+/* the got-away toast (Small, Keeper, Prize): one line of ink, 2.5 s; tap for the odds in your log */
+.gw-away { position: absolute; left: 50%; bottom: calc(var(--sab) + 214px); display: flex; align-items: center; gap: 10px; min-height: 52px; max-width: calc(100vw - 24px); padding: 12px 46px 13px 44px; background: none; border: none; font: italic 400 21px/1.25 var(--f-body); color: var(--ink); text-shadow: 0 1px 2px rgba(4, 5, 12, .9); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, 10px); transition: opacity .5s ease, transform .6s var(--ease-ink), visibility 0s .6s; isolation: isolate; cursor: pointer; }
+.gw-away.gw-on { opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0); transition: opacity .45s ease, transform .6s var(--ease-ink), visibility 0s; }
+.gw-away-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
+.gw-away-wash path { fill: rgba(var(--veil-rgb), .88); }
+.gw-away b { font: 400 23px/1 var(--f-fell); font-style: normal; color: #f3eee2; }
+.gw-away[data-cls="prize"] b { color: #f6ead0; }
+.gw-away-go { font-style: normal; font-size: 24px; line-height: 1; color: var(--ink-faint); margin-left: 4px; transition: color .25s, transform .25s; }
+.gw-away:hover .gw-away-go, .gw-away:focus-visible .gw-away-go { color: var(--ink-hi); transform: translateX(3px); }
+.gw-away:focus-visible { outline: none; }
+
+/* the got-away card (Trophy and bigger): the one that got away, slipping off into the dark */
+.gw-gotaway { position: absolute; left: 50%; bottom: calc(var(--sab) + 200px); width: min(600px, 94vw); min-height: 168px; margin-left: calc(min(600px, 94vw) / -2); padding: 30px 46px 22px 30px; display: grid; grid-template-columns: 168px minmax(0, 1fr); align-items: center; gap: 4px 22px; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(12px); transition: opacity .7s ease, transform .8s var(--ease-ink), visibility 0s .8s; isolation: isolate; color: #ece8f4; }
+.gw-gotaway.gw-on { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .7s ease, transform .8s var(--ease-ink), visibility 0s; cursor: pointer; }
+.gw-ga-wash { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
+.gw-ga-wash path { fill: rgba(var(--veil-rgb), .92); }
+.gw-ga-art { position: relative; align-self: center; }
+.gw-ga-art::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: -8px; height: 18px; background: var(--ink-dim); -webkit-mask: var(--orn-ripple) center / contain no-repeat; mask: var(--orn-ripple) center / contain no-repeat; opacity: .3; }
+.gw-ga-fish { display: block; width: 168px; height: 79px; opacity: .9; -webkit-mask-image: linear-gradient(90deg, transparent 2%, rgba(0, 0, 0, .55) 30%, #000 58%); mask-image: linear-gradient(90deg, transparent 2%, rgba(0, 0, 0, .55) 30%, #000 58%); filter: drop-shadow(0 0 8px rgba(160, 150, 240, .25)); }
+.gw-gotaway.gw-on .gw-ga-fish { animation: gwSlipAway 7.5s cubic-bezier(.4, 0, .7, 1) forwards; }
+.gw-ga-k { font: 400 13px/1.2 var(--f-display); letter-spacing: .3em; text-transform: uppercase; color: var(--ink-dim); }
+.gw-ga-title { margin-top: 6px; font: 400 27px/1.08 var(--f-fell); color: #f3eee2; }
+.gw-gotaway[data-cls="trophy"] .gw-ga-title { color: #f6d6cc; }
+.gw-gotaway[data-cls="elder"] .gw-ga-title, .gw-gotaway[data-cls="legend"] .gw-ga-title { color: #f3dfb6; }
+.gw-ga-name { font: italic 400 18px/1.2 var(--f-body); color: var(--gold); margin-top: 1px; }
+.gw-ga-name:empty { display: none; }
+.gw-ga-txt p { margin: 0; }
+.gw-ga-line { margin-top: 7px !important; font: 400 18px/1.32 var(--f-body); color: var(--ink); }
+.gw-ga-still { margin-top: 3px !important; font: italic 400 17px/1.3 var(--f-body); color: #c9c2ee; }
+.gw-ga-hint { margin-top: 6px !important; font: 400 20px/1.2 var(--f-hand); color: var(--gold); }
+.gw-ga-still:empty, .gw-ga-hint:empty { display: none; }
+.gw-ga-link { display: block; margin: 4px 0 -8px auto; min-height: 40px; font: 400 14px/1 var(--f-display); font-style: normal; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-dim); text-decoration: none; }
+.gw-ga-link i { font-style: normal; font-size: 19px; letter-spacing: 0; margin-left: 4px; display: inline-block; transition: transform .25s; }
+.gw-ga-link:hover, .gw-ga-link:focus-visible { color: var(--ink-hi); }
+.gw-ga-link:hover i { transform: translateX(3px); }
+
+/* the log lock: "Reel in first." */
+.gw-st-journal.gw-locked, .gw-st-creel.gw-locked { opacity: .42; }
+.gw-qbtn.gw-locked { opacity: .55; }
+.gw-lock-w { display: block; font: italic 400 13.5px/1 var(--f-body); letter-spacing: 0; text-transform: none; color: var(--ink-faint); margin-top: 2px; }
+
+/* the Landing: run-less, the strike word, ring, estimate and got-away note still show (FE draws the hub HUD itself) */
+.gw-hud.gw-hubfish { opacity: 1; }
+.gw-hud.gw-hubfish > :not(.gw-fishui):not(.gw-away):not(.gw-gotaway) { visibility: hidden; }
+.gw-hud.gw-hubfish .gw-away.gw-on, .gw-hud.gw-hubfish .gw-away.gw-on *, .gw-hud.gw-hubfish .gw-gotaway.gw-on, .gw-hud.gw-hubfish .gw-gotaway.gw-on * { pointer-events: auto !important; }
+
 /* the Scorched card (U18): Lantern, Embers at 0 — the swarm withdraws, the run goes on; three spent Embers and a thread of smoke */
 .gw-scorched { position: absolute; left: 50%; top: calc(var(--sat) + 19vh); width: min(560px, 94vw); min-height: 170px; margin-left: calc(min(560px, 94vw) / -2); padding: 26px 44px 26px 30px;
   display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 4px 22px; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-10px);
@@ -985,6 +1038,9 @@
 .gw-cc-v3 .gw-cc-stamp { display: flex; align-items: center; gap: 16px; }
 .gw-cc-seal { width: 48px; height: 48px; flex: none; transform: rotate(11deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .85)); animation: gwSealIn .55s .9s cubic-bezier(.2, 1.4, .4, 1) backwards; }
 .gw-cc-elder { font: 400 27px/1.15 var(--f-hand); font-style: normal; color: var(--gold); text-shadow: 0 0 12px rgba(232, 190, 119, .25); margin-top: 0; }
+.gw-cc-stats dd.gw-cc-strike { color: #dcd9f2; }
+.gw-cc-stats dd.gw-strike-clean { color: #f3f0ff; text-shadow: 0 0 12px rgba(160, 150, 240, .65); }
+.gw-cc-stats dd.gw-strike-early, .gw-cc-stats dd.gw-strike-late { color: #a9a7d4; }
 .gw-cc-stats dd.gw-cc-fav { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; white-space: normal; font: inherit; padding-top: 2px; }
 .gw-cc-ticks { display: block; width: 58px; height: 22px; overflow: visible; }
 .gw-cc-ticks path { fill: none; stroke: rgba(236, 232, 244, .24); stroke-width: 3.2; stroke-linecap: round; }
@@ -1161,6 +1217,58 @@
 .gw-jr-foot .gw-ico { width: 17px; height: 17px; }
 .gw-jr-foot .gw-earned { color: var(--gold); }
 .gw-p-journal .gw-pf { justify-content: space-between; flex-wrap: nowrap; }
+/* automatic fishing (U19): the Journal's Your odds block — the only place, with the gear log, where a % is ever shown. A row of
+   six class cells (the number in Alegreya, the class in spaced capitals, each in its class tint), the best item you own on the
+   next line, the fine print in dim italics. "?" for a species you have neither landed nor lost; "—" for a class it never reaches. */
+.gw-odds { position: relative; margin: 18px 0 4px; padding: 2px 0 6px; border-radius: 30px; }
+.gw-odds.gw-odds-focus { animation: gwOddsFocus 1.8s ease-out .15s; }
+.gw-odds-h { margin: 6px 0 2px; }
+.gw-odds-kit { font: italic 400 15.5px/1.3 var(--f-body); color: var(--ink-faint); margin: 0 auto 8px; max-width: 40ch; }
+.gw-odds-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px 2px; margin: 4px 0 2px; }
+.gw-odds-row.gw-odds-legend { grid-template-columns: minmax(0, 1fr); }
+.gw-odds-c { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 9px 0 10px; }
+.gw-odds-c b { font: 500 24px/1 var(--f-body); font-variant-numeric: lining-nums tabular-nums; color: var(--cc, var(--ink)); text-shadow: 0 0 10px rgba(4, 5, 12, .8); }
+.gw-odds-c small { font: 400 11.5px/1 var(--f-display); letter-spacing: .14em; margin-right: -.14em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
+.gw-odds-c.gw-unseen b, .gw-odds-c.gw-unreach b { color: var(--ink-faint); font-weight: 400; }
+.gw-odds-c.gw-unreach small { opacity: .6; }
+.gw-odds-c.gw-hl::before { content: ''; position: absolute; inset: 0 4%; border-radius: 50%; background: radial-gradient(ellipse, rgba(160, 150, 240, .26), transparent 70%); pointer-events: none; }
+.gw-odds-c.gw-hl::after { content: ''; position: absolute; left: 50%; bottom: -1px; width: 46px; height: 8px; margin-left: -23px; background: var(--ink); -webkit-mask: var(--orn-flourish) center / contain no-repeat; mask: var(--orn-flourish) center / contain no-repeat; opacity: .8; }
+.gw-odds-c.gw-hl small { color: var(--ink-hi); }
+.gw-odds-legend .gw-odds-c b { font-size: 34px; color: var(--gold); }
+.gw-odds-with { margin: 8px auto 0; max-width: 46ch; font: italic 400 16.5px/1.45 var(--f-body); color: var(--ink-dim); }
+.gw-odds-with span { color: var(--ink); }
+.gw-odds-with b { font-style: normal; font-weight: 500; color: var(--gold); font-variant-numeric: lining-nums; }
+.gw-odds-wounds { margin: 8px 0 0; font: 400 19px/1.2 var(--f-hand); color: #f0b2a6; }
+.gw-odds-marked { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0 0; font: italic 400 16.5px/1.3 var(--f-body); color: var(--gold); }
+.gw-odds-marked .gw-ico { width: 17px; height: 17px; flex: none; }
+.gw-odds-note { margin: 6px auto 0; max-width: 42ch; font: italic 400 14.5px/1.38 var(--f-body); color: var(--ink-faint); }
+.gw-odds-unseen .gw-odds-note { font-size: 16px; color: var(--ink-dim); }
+.gw-odds-gear { margin: 4px auto 0; display: block; font-size: 16px; }
+.gw-odds-gear i { font-style: normal; margin-left: 4px; }
+.gw-gotlist { margin-top: 6px; }
+.gw-gotlist ul { list-style: none; margin: 0 auto; padding: 0; max-width: 44ch; text-align: left; }
+.gw-gotlist li { position: relative; padding: 3px 0 3px 18px; font: 400 15.5px/1.35 var(--f-body); color: var(--ink); }
+.gw-gotlist li::before { content: ''; position: absolute; left: 2px; top: .72em; width: 8px; height: 1.5px; background: var(--ink-line); }
+.gw-gotlist li b { font-weight: 400; color: var(--ink-hi); }
+.gw-gotlist li em { color: var(--ink-faint); }
+.gw-glimpsed .gw-jr-name { color: var(--ink); letter-spacing: .08em; }
+.gw-glimpsed .gw-jr-rar { color: #c9c2ee; }
+.gw-jr-art-ink canvas { filter: drop-shadow(0 0 12px rgba(160, 150, 240, .3)); opacity: .9; }
+.gw-glimpse-k { color: #c9c2ee; }
+/* the gear log (the Gear Bench's Tackle screen; in P1–P2 Murk's Gear, Bait and Lure rows and the read-only Gear Log page) */
+.gw-p-gear .gw-pc { text-align: left; }
+.gw-item-hold { margin-top: 3px; font: 400 15.5px/1.35 var(--f-body); color: var(--chip-pos); }
+.gw-item-cmp { margin-top: 2px; font: italic 400 16px/1.35 var(--f-body); color: var(--gold); }
+.gw-gear-pin { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px auto 4px; font: italic 400 17px/1.3 var(--f-body); color: var(--ink); text-align: center; }
+.gw-gear-pin .gw-ico { width: 18px; height: 18px; color: var(--gold); flex: none; }
+.gw-gear-pin small { font: 400 12px/1 var(--f-display); font-style: normal; letter-spacing: .26em; text-transform: uppercase; color: var(--ink-dim); margin-right: 8px; }
+.gw-gear-kit { margin: 2px 0 0; text-align: center; font: italic 400 15.5px/1.3 var(--f-body); color: var(--ink-faint); }
+.gw-gear-row.gw-equipped .gw-item-name { color: var(--ink-hi); }
+.gw-shop-log { margin: 0 0 6px; }
+.gw-shop-rate, .gw-rating { margin: 6px auto 0; max-width: 48ch; text-align: center; font: italic 400 17px/1.35 var(--f-body); color: var(--ink); }
+.gw-rating { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; color: var(--ink-dim); }
+.gw-rating .gw-ico { width: 18px; height: 18px; flex: none; color: var(--ink-faint); }
+.gw-lurechip .gw-ico { color: var(--gold); }
 
 /* ================================================================ SHRINE */
 .gw-p-shrine .gw-pc { display: flex; flex-direction: column; min-height: 0; }
@@ -1417,6 +1525,17 @@
 .gw-ms-best { position: absolute; bottom: 62px; display: flex; flex-direction: column-reverse; align-items: center; transform: translateX(-50%); }
 .gw-ms-best i { width: 0; height: 22px; border-left: 1.5px dashed rgba(232, 190, 119, .75); }
 .gw-ms-best b { font: 400 17px/1 var(--f-hand); color: rgba(232, 190, 119, .9); margin-bottom: 2px; }
+/* automatic fishing: the cord's two knots — your PB in oxblood, the Old Ledger's figure in black (AUTOFISH.ceremony.cordMarks) */
+.gw-ms-best.gw-ms-pb { bottom: 56px; }
+.gw-ms-pb i { width: 12px; height: 12px; border: none; border-radius: 46% 54% 50% 50%; background: radial-gradient(circle at 35% 32%, #d0685a, #7e2a25 72%); box-shadow: 0 0 0 1.5px rgba(240, 178, 166, .45), 0 1px 3px #000; transition: box-shadow .3s; }
+.gw-ms-pb b { font: 400 18px/1 var(--f-hand); color: #f0b2a6; margin-bottom: 5px; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+.gw-ms-pb.gw-passed i { animation: gwKnotFlare .8s cubic-bezier(.2, 1.6, .4, 1); box-shadow: 0 0 0 1.5px rgba(240, 178, 166, .7), 0 0 14px rgba(224, 90, 72, .9); }
+.gw-ms-pb.gw-passed b { color: #ffd2c8; text-shadow: 0 0 12px rgba(224, 90, 72, .7), 0 1px 2px #000; }
+.gw-ms-ledger { position: absolute; bottom: 56px; display: flex; flex-direction: column-reverse; align-items: center; transform: translateX(-50%); pointer-events: none; }
+.gw-ms-ledger i { width: 12px; height: 12px; border-radius: 50% 46% 54% 50%; background: radial-gradient(circle at 35% 32%, #3a3446, #0d0b12 72%); box-shadow: 0 0 0 1.5px rgba(236, 235, 246, .5), 0 1px 3px #000; }
+.gw-ms-ledger b { font: 400 11.5px/1 var(--f-display); letter-spacing: .2em; margin: 0 -.2em 26px 0; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; text-shadow: 0 1px 2px #000; }
+.gw-ms-ledger.gw-passed b { color: var(--ink); }
+.gw-ms-ledger.gw-passed i { box-shadow: 0 0 0 1.5px rgba(236, 235, 246, .85), 0 0 10px rgba(236, 235, 246, .45); }
 .gw-ms-mark.gw-row1 { bottom: -15px; }
 .gw-ms-mark.gw-row1 i { height: 53px; border-left-style: dotted; }
 .gw-ms-2rows .gw-ms-ruler { margin-bottom: 15px; }
@@ -1689,18 +1808,25 @@
   .gw-wf { top: 148px; left: -6px; font-size: 19.5px; }
   .gw-wf .gw-ico { width: 27px; height: 27px; }
   .gw-fav-list { width: min(290px, 88vw); margin-left: calc(min(290px, 88vw) / -2); padding: 16px 26px 20px; }
-  .gw-reel-class .gw-seal { width: 32px; height: 32px; }
-  .gw-v3 .gw-reel-medal { width: 50px; height: 50px; }
-  .gw-v3 .gw-reel-fishico, .gw-reel-hook { left: 14px; top: 13px; }
-  .gw-reel-class b { font-size: 17px; letter-spacing: .2em; }
-  .gw-rc-k { font-size: 15px; }
-  .gw-nearmiss { bottom: auto; top: 33vh; width: calc(100vw - 20px); margin-left: calc(50vw * -1 + 10px); grid-template-columns: 96px minmax(0, 1fr); gap: 2px 12px; padding: 22px 24px 20px 18px; }
-  .gw-nm-fish { width: 96px; height: 45px; }
-  .gw-nm-title { font-size: 20px; }
-  .gw-nm-line { font-size: 17px; }
-  .gw-nm-rate { font-size: 15.5px; }
-  .gw-nm-tip { font-size: 18px; }
-  .gw-nm-k { font-size: 12.5px; letter-spacing: .2em; }
+  .gw-fishui > .gw-play { bottom: calc(var(--sab) + 190px); }
+  .gw-play-est { padding: 10px 28px 12px 22px; gap: 8px; }
+  .gw-play-est .gw-seal { width: 33px; height: 33px; }
+  .gw-play-est b { font-size: 18px; letter-spacing: .22em; }
+  .gw-pe-k { font-size: 15.5px; }
+  .gw-strike-w { font-size: 26px; top: 32px; }
+  .gw-strike-w.gw-tone-clean { font-size: 30px; }
+  .gw-strike-w.gw-tone-dim { font-size: 23px; }
+  .gw-away { bottom: calc(var(--sab) + 188px); white-space: normal; text-align: center; justify-content: center; width: max-content; font-size: 18.5px; padding: 12px 34px 13px 32px; }
+  .gw-away b { font-size: 20px; }
+  .gw-gotaway { bottom: auto; top: 31vh; width: calc(100vw - 20px); margin-left: calc(50vw * -1 + 10px); grid-template-columns: 92px minmax(0, 1fr); gap: 2px 12px; padding: 24px 24px 18px 16px; }
+  .gw-ga-fish { width: 92px; height: 43px; }
+  .gw-ga-title { font-size: 22px; }
+  .gw-ga-name { font-size: 16.5px; }
+  .gw-ga-line { font-size: 16.5px; }
+  .gw-ga-still { font-size: 15.5px; }
+  .gw-ga-hint { font-size: 18px; }
+  .gw-ga-k { font-size: 12px; letter-spacing: .22em; }
+  .gw-ga-link { font-size: 13px; letter-spacing: .16em; }
   .gw-scorched { top: calc(var(--sat) + 24vh); width: calc(100vw - 20px); margin-left: calc(50vw * -1 + 10px); grid-template-columns: 64px minmax(0, 1fr); gap: 2px 12px; padding: 22px 24px 22px 16px; }
   .gw-sc-glyph { width: 64px; height: 56px; }
   .gw-sc-title { font-size: 27px; letter-spacing: .18em; }
@@ -1829,3 +1955,19 @@
 @keyframes gwSmokeRise { to { stroke-dashoffset: 0; } }
 @keyframes gwSmokeSway { 0%, 100% { transform: translateX(0) skewX(0deg); } 50% { transform: translateX(2px) skewX(-4deg); } }
 @keyframes gwScorchDie { 0% { fill: #f08a3a; stroke: #ffd08a; filter: drop-shadow(0 0 10px rgba(240, 138, 58, .9)); } 100% { fill: #2a1a1c; stroke: #c4594c; } }
+@media (max-width: 700px) {
+  .gw-odds-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 4px; }
+  .gw-odds-c { padding: 7px 0 8px; }
+  .gw-odds-c b { font-size: 23px; }
+  .gw-odds-c small { font-size: 11.5px; }
+  .gw-odds-with { font-size: 16px; }
+  .gw-ms-pb b { font-size: 16px; }
+  .gw-ms-ledger b { font-size: 10px; letter-spacing: .14em; }
+}
+@keyframes gwStrikeRing { 0% { opacity: 0; transform: scale(.25); } 18% { opacity: 1; } 100% { opacity: 0; transform: scale(2.7); } }
+@keyframes gwGlint { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-10px) scale(.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-50px * var(--d))) scale(1); } }
+@keyframes gwStrikeWord { 0% { opacity: 0; transform: translate(-50%, -6px) scale(.9); } 12% { opacity: 1; transform: translate(-50%, 0) scale(1.05); } 24% { transform: translate(-50%, 0) scale(1); } 68% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, 6px); } }
+@keyframes gwHurry { 0% { stroke-dasharray: 2 60; stroke-dashoffset: 0; opacity: .4; } 50% { opacity: 1; } 100% { stroke-dasharray: 2 60; stroke-dashoffset: -62; opacity: .4; } }
+@keyframes gwSlipAway { 0% { transform: translateX(0); opacity: .92; } 100% { transform: translateX(12px); opacity: .5; } }
+@keyframes gwOddsFocus { 0% { box-shadow: 0 0 0 0 rgba(160, 150, 240, 0); } 30% { box-shadow: 0 0 46px 6px rgba(160, 150, 240, .22); } 100% { box-shadow: 0 0 0 0 rgba(160, 150, 240, 0); } }
+@keyframes gwKnotFlare { 0% { transform: scale(1); } 35% { transform: scale(1.7); filter: brightness(1.8); } 100% { transform: scale(1); } }

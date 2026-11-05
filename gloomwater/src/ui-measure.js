@@ -15,6 +15,9 @@
 //      (ui-v3 measurePlan: Small / Keeper 1.2 s, Prize 2.4, Trophy 3.5, Elder 5; 1.2 s in a swarm window) as a blocking
 //      modal, so survival and combat hold still as the ceremony would hold them, and the card waits until it ends.
 // Either way the card (ui-screens showCatch) opens only when the overlay is done (holding()).
+// Automatic fishing (U2′, AUTOFISH.ceremony): the cord carries two knots, your PB (oxblood) and the Old Ledger (black); passing your
+// PB knot plays a sting, and a Small / Keeper ceremony that passes it stretches to 2.4 s (the overlay's own plan; fishing's F5 plan
+// is fishing's).
 import { sealSvg } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
 import * as V from './ui-v3.js';
@@ -76,9 +79,10 @@ export function createMeasure(K) {
     const zone = run()?.zone || sp.zone || null;
     const cls = o.legendary ? 'legend' : o.sizeClass;
     const ci = o.legendary ? { id: 'legend', label: 'Legend', seal: 'blackWaxRibbon', ancient: true } : (V.classInfo(D(), o.sizeClass, o.ancient) || { id: o.sizeClass, label: o.sizeClass, seal: null });
-    const plan = V.measurePlan(D(), { sizeClass: o.sizeClass, legendary: o.legendary, short: o.short });
     const ruler = V.cordRuler(D(), sp, o.length, { zone, best: o.best });
-    cur = { ...o, sp, zone, cls, ci, plan, ruler, t: 0, laid: false, stamped: false, done: false, closing: 0, lit: new Set(), recsShown: false, recsDirty: false, entry: null, els: null, lastCount: -1 };
+    const af = !!D().AUTOFISH && !!D().V3_ENABLED;
+    const plan = V.measurePlan(D(), { sizeClass: o.sizeClass, legendary: o.legendary, short: o.short, pbPass: af && ruler.passesBest });
+    cur = { ...o, sp, zone, cls, ci, plan, ruler, af, t: 0, laid: false, stamped: false, done: false, closing: 0, lit: new Set(), recsShown: false, recsDirty: false, entry: null, els: null, lastCount: -1, stung: false };
     cur.entry = K.openModal('measure', (entry, body) => build(entry, body), {
       screen: true, blocking: !o.f5, dismissable: false, focus: false, quiet: true, cls: 'gw-m-measure',
       onEscape: () => skip(), onKey: (code) => { if (code === 'Space' || code === 'Enter' || code === 'NumpadEnter' || code === 'Escape') { skip(); return true; } return false; },
@@ -100,7 +104,9 @@ export function createMeasure(K) {
     const bands = c.ruler.bands.map((b) => `<rect class="gw-msb gw-msb-${esc(b.cls)}" x="${(pct(b.from) * 10).toFixed(1)}" y="15" width="${((pct(b.to) - pct(b.from)) * 10).toFixed(1)}" height="30" rx="6"/>`).join('');
     const knots = c.ruler.knots.map((cm, i) => `<i class="gw-ms-knot${c.ruler.marks.some((mk) => Math.abs(mk.cm - cm) < c.ruler.step * 0.34) ? ' gw-atmark' : ''}" data-cm="${cm}" style="left:${pct(cm).toFixed(2)}%;--i:${i}"></i>`).join('');
     const marks = c.ruler.marks.map((mk) => `<span class="gw-ms-mark gw-msm-${esc(mk.cls)}" data-cm="${mk.cm}" style="left:${pct(mk.cm).toFixed(2)}%"><i></i><b>${esc(mk.label)}</b></span>`).join('');
-    const best = c.ruler.best ? `<span class="gw-ms-best" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>best</b></span>` : '';
+    // the cord's two knots (AUTOFISH.ceremony.cordMarks): your PB in oxblood, the Old Ledger's old figure in black
+    const best = c.ruler.best ? `<span class="gw-ms-best${c.af ? ' gw-ms-pb' : ''}" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>${c.af ? 'your best' : 'best'}</b></span>` : '';
+    const ledger = c.af && c.ruler.ledger ? `<span class="gw-ms-ledger" style="left:${pct(c.ruler.ledger).toFixed(2)}%"><i></i><b>Old Ledger</b></span>` : '';
     const seal = !legend && c.ci.seal ? sealSvg(c.ci.seal, { ancient: c.ci.ancient, cls: 'gw-ms-sealsvg' }) : legend ? sealSvg('blackWaxRibbon', { ancient: true, cls: 'gw-ms-sealsvg' }) : '';
     wrap.innerHTML = `<div class="gw-ms-recs" aria-live="polite"></div>
       <div class="gw-ms-band">
@@ -120,7 +126,7 @@ export function createMeasure(K) {
             <g clip-path="url(#gw-ms-clip)"><path class="gw-ms-rope gw-ms-rope-a" d="M0 30 H1000" vector-effect="non-scaling-stroke"/><path class="gw-ms-rope gw-ms-rope-b" d="M0 30 H1000" vector-effect="non-scaling-stroke"/></g>
           </svg>
           <i class="gw-ms-knot gw-ms-knot0" style="left:0%"></i>${knots}
-          <div class="gw-ms-marks">${marks}${best}</div>
+          <div class="gw-ms-marks">${marks}${best}${ledger}</div>
           <i class="gw-ms-bead"></i>
           <div class="gw-ms-seal">${seal}</div>
         </div>
@@ -132,7 +138,7 @@ export function createMeasure(K) {
     const q = (s) => wrap.querySelector(s);
     c.els = { wrap, band: q('.gw-ms-band'), count: q('.gw-ms-count b'), clip: q('.gw-ms-cliprect'), bead: q('.gw-ms-bead'), fish: q('.gw-ms-ink .gw-ms-fish'), ghost: q('.gw-ms-fish-ghost'), ink: q('.gw-ms-ink'), fishbox: q('.gw-ms-fishbox'),
       ruler: q('.gw-ms-ruler'), seal: q('.gw-ms-seal'), stamp: q('.gw-ms-stamp'), elder: q('.gw-ms-elder'), recs: q('.gw-ms-recs'), skip: q('.gw-ms-skip'),
-      knots: [...wrap.querySelectorAll('.gw-ms-knot[data-cm]')], marks: [...wrap.querySelectorAll('.gw-ms-mark')], unit };
+      knots: [...wrap.querySelectorAll('.gw-ms-knot[data-cm]')], marks: [...wrap.querySelectorAll('.gw-ms-mark')], pb: q('.gw-ms-pb'), ledger: q('.gw-ms-ledger'), unit };
     // a re-render mid-ceremony picks up where the band was
     if (c.t > 0) wrap.classList.add('gw-in');
     if (c.stamped) { c.stamped = false; c.recSig = null; stampNow(c); }
@@ -237,14 +243,25 @@ export function createMeasure(K) {
         if (c.lit.has(mk) || num(Number(mk.dataset.cm)) > count + 1e-6) continue;
         c.lit.add(mk); mk.classList.add('gw-hit');
       }
+      // passing your PB knot: the knot flares and a sting plays (once); the Old Ledger's knot only darkens as it is passed
+      if (c.af && E.pb && c.ruler.passesBest && !c.stung && count > c.ruler.best + 1e-6) { c.stung = true; E.pb.classList.add('gw-passed'); pbSting(); }
+      if (c.af && E.ledger && count >= c.ruler.ledger - 1e-6) E.ledger.classList.add('gw-passed');
     }
     if (st.stamped) stampNow(c);
     if (c.recsDirty && c.stamped) paintRecords(c);
+  }
+  /** The PB sting (audio's pb_sting when it has one; otherwise a high class chime). */
+  function pbSting() {
+    const a = ctx.audio && !ctx.audio.isStub ? ctx.audio : null;
+    if (!a) return;
+    if (!safe(() => a.play?.('pb_sting', { force: true }), false)) safe(() => a.play?.('class_chime', { pitch: 1.5, cls: 'trophy', force: true }), false);
   }
   function stampNow(c) {
     if (!c.els || c.stamped) return;
     c.stamped = true;
     const E = c.els;
+    if (c.af && E.pb && c.ruler.passesBest) { E.pb.classList.add('gw-passed'); if (!c.stung) { c.stung = true; pbSting(); } }
+    if (c.af && E.ledger && c.ruler.passesLedger) E.ledger.classList.add('gw-passed');
     E.count.textContent = fmtCount(c, c.length);
     E.clip.setAttribute('width', ((Math.min(1, c.length / c.ruler.max)) * 1000).toFixed(1));
     E.ink.style.clipPath = 'inset(-30% -2% -30% -2%)';
@@ -297,6 +314,7 @@ export function createMeasure(K) {
     holding: () => !!(cur && !cur.done) || (!!D().V3_ENABLED && !!ctx.cinematic && !!liveMeasure() && liveMeasure().phase !== 'card'),
     active: () => !!(cur && !cur.done),
     reset() { if (cur) { finish(true); } cur = null; },
-    debug: () => (cur ? { t: Math.round(cur.t * 100) / 100, plan: cur.plan, cls: cur.cls, f5: cur.f5, stamped: cur.stamped, done: cur.done, length: cur.length, max: cur.ruler.max, records: arr(cur.records).map((r) => r?.kind), skippable: !!cur.skippable } : null),
+    debug: () => (cur ? { t: Math.round(cur.t * 100) / 100, plan: cur.plan, cls: cur.cls, f5: cur.f5, stamped: cur.stamped, done: cur.done, length: cur.length, max: cur.ruler.max, records: arr(cur.records).map((r) => r?.kind), skippable: !!cur.skippable,
+      knots: cur.af ? { pb: cur.ruler.best, ledger: cur.ruler.ledger, passesBest: cur.ruler.passesBest, stung: cur.stung } : null } : null),
   };
 }
