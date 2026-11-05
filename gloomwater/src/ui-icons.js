@@ -99,6 +99,13 @@ export const ICONS = {
   sun: C(12, 12, 4) + P('M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4', ' stroke-opacity=".7"'),
   wave: P('M3 10c2.4 0 2.4-2 4.8-2s2.4 2 4.8 2 2.4-2 4.8-2 2.4 2 3.6 2M3 15c2.4 0 2.4-2 4.8-2s2.4 2 4.8 2 2.4-2 4.8-2 2.4 2 3.6 2', ''),
   hand: P('M7 21v-6.5L5 11a1.4 1.4 0 0 1 2.4-1.4L9 12V5a1.4 1.4 0 0 1 2.8 0v5.5V3.8a1.4 1.4 0 0 1 2.8 0v6.7V5.4a1.4 1.4 0 0 1 2.8 0V15c0 3-1.6 6-4.6 6z'),
+  // ---------------------------------------------------------------- v3 HUD (DESIGN §25.5.7, §25.5.2)
+  // Well-fed: a warm bowl with two curls of steam (replaces the satiety bar)
+  wellfed: P('M3.8 12.6h16.4c-.4 4.2-3.8 7-8.2 7s-7.8-2.8-8.2-7z') + P('M9 19.2 8.2 21h7.6L15 19.2', ' stroke-opacity=".7"')
+    + P('M9.6 9.6c-1.1-1.2.9-2.2-.1-3.6M14.4 9.6c-1.1-1.2.9-2.2-.1-3.6', ' stroke-opacity=".8"') + P('M7.2 15.2c1.3 1.2 2.9 1.8 4.8 1.8', ' stroke-opacity=".45"'),
+  // a dock buoy-lamp on the water (the watch-lamp)
+  watchlamp: P('M8.6 15.4h6.8l-1.1 3.6H9.7z') + P('M12 15.4v-5') + P('M10 6.4h4v4h-4z') + P('M9.4 6.4 12 4.2l2.6 2.2')
+    + C(12, 8.5, 0.95, F) + P('M3 20.6c2 .8 4 .8 6 0M15 20.6c2 .8 4 .8 6 0', ' stroke-opacity=".55"'),
 };
 const ALIASES = { food_loaf: 'food', gear: 'rod', bait: 'worm', supplies: 'oil', sell: 'shell', heartmoss: 'heart', default: 'star' };
 
@@ -266,6 +273,26 @@ export function ornamentCss() {
   return `\n.gw-ui{${Object.entries(v).map(([k, u]) => `--orn-${k}:${u};`).join('')}}\n`;
 }
 
+
+// ---------------------------------------------------------------- class seals (DESIGN §25.6.8)
+// Prize = a bone-white ink stamp of a knotted cord · Trophy = an oxblood wax seal · Elder = a black wax seal with a ribbon
+// (Ancient: a gold thread round it). Drawn on a 40×40 grid; the knot is the same cord loop on all three.
+const KNOT = 'M12.5 21.5c3.2-.2 5.2-2.6 5.2-5.1s-1.8-4-3.8-4-3.6 1.6-3.2 3.7c.5 2.9 4.4 5 9.3 5.4 4.4.3 8.2-1.3 8.6-4.1.3-2.1-1.4-3.7-3.4-3.6-2.3.1-3.6 2.4-2.9 4.8.9 3.3 4.4 5 7.2 5.6';
+const WAX = 'M20 4.6c3.3-.6 5.3 1.4 7.6 2.2 2.4.8 5.3.7 6.4 3.3 1 2.4-.6 4.7-.2 7.2.4 2.6 2.3 4.6 1.4 7.2-1 2.7-3.9 3.2-5.6 5.2-1.7 2-2.3 4.9-5 5.9-2.6.9-4.8-1.2-7.4-1.4-2.7-.2-5.4 1.4-7.7.1-2.3-1.4-2.1-4.3-3.4-6.5-1.3-2.2-3.9-3.6-3.9-6.4 0-2.7 2.6-4 3.6-6.3 1-2.4.5-5.4 2.6-6.9 2.2-1.6 5-.2 7.6-.8z';
+export function sealSvg(seal, { ancient = false, cls = '' } = {}) {
+  const box = (inner) => `<svg class="gw-seal ${cls}" viewBox="0 0 40 40" aria-hidden="true" focusable="false">${inner}</svg>`;
+  if (seal === 'inkStamp') {
+    return box(`<g class="gw-seal-ink" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" filter="url(#gw-stamp)">
+      <circle cx="20" cy="20" r="16.4" stroke-width="2.4"/><circle cx="20" cy="20" r="13.2" stroke-width="1" stroke-dasharray="1.6 2.2"/>
+      <path d="${KNOT}" stroke-width="2" transform="translate(0 2)"/></g>`);
+  }
+  const ribbon = seal === 'blackWaxRibbon'
+    ? '<path class="gw-seal-rib" d="M14 28 9.5 38.5l3.6-1.4 2 3.2L19 30M26 28l4.5 10.5-3.6-1.4-2 3.2L21 30"/>' : '';
+  const thread = ancient ? '<circle class="gw-seal-gold" cx="20" cy="20" r="18.2" fill="none" stroke-width="1.3" stroke-dasharray="3.2 1.4"/>' : '';
+  const wax = seal === 'oxbloodWax' ? 'gw-seal-ox' : 'gw-seal-black';
+  return box(`${ribbon}<path class="gw-seal-wax ${wax}" d="${WAX}"/><circle class="gw-seal-rim" cx="20" cy="20" r="11.6" fill="none" stroke-width="1.2"/>
+    <path class="gw-seal-knot" d="${KNOT}" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 2)"/>${thread}`);
+}
 
 // ---------------------------------------------------------------- portraits
 const hex = (n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));

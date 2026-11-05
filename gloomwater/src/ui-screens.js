@@ -3,8 +3,9 @@
 // Shrine of Drowned Lanterns, trials (challenges), settings, pause, Descend, death and
 // victory. Built on the modal stack in ui.js. Imported only by ui.js.
 import { loadSave } from './core.js';
-import { wickPortrait, murkPortrait, relicLantern } from './ui-icons.js';
+import { wickPortrait, murkPortrait, relicLantern, sealSvg } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor } from './ui-v3.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -327,8 +328,36 @@ export function createScreens(K) {
   }
   const PHASE_WHEN = { calm: 'in the calm', dusk: 'at dusk', gloomtide: 'in the Gloomtide', dawn: 'at grey dawn' };
   const firstSentence = (t) => { const m = /^(.+?[.!?])(\s|$)/.exec(String(t || '').trim()); return m ? m[1] : String(t || '').trim(); };
+  // v3 (DESIGN §25.6.8, §25.14.2 U2): the card prints the measured fish — its class as the stamp (and its seal), length in
+  // cm, weight in kg, an Elder's name, and the favours that applied, as the float showed them (notches + plain words)
+  const CLASS_PHRASE = { small: 'only a little one.', keeper: 'a keeper.', prize: 'a prize!', trophy: 'a real trophy!', elder: 'an Elder!' };
+  const isV3Fish = (fish) => !!D().V3_ENABLED && typeof fish?.sizeClass === 'string' && num(fish?.length) > 0;
+  function catchNotesV3(p, sp, fish) {
+    const r = run();
+    const legend = sp.rarity === 'legendary';
+    const ci = classInfo(D(), fish.sizeClass, fish.ancient) || { id: 'keeper', label: 'Keeper', seal: null, rank: 1 };
+    const recs = arr(p.records);
+    const classFirst = !p.isNew && recs.some((x) => x?.kind === 'classFirst' && !x.ancient);
+    const z = K.zoneData(sp.zone) || K.zoneData(r?.zone);
+    const zn = (z?.name || '').replace(/^The /, 'the ');
+    const stamp = legend ? 'Legend' : ci.label;
+    const kicker = legend ? `A legend of ${zn || 'the deep'}` : p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
+      : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`;
+    const len = fmtLength(fish.length, D());
+    const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
+      : p.isRecord ? 'biggest yet!' : ci.id === 'trophy' ? CLASS_PHRASE.trophy : p.isNew ? 'a first!' : CLASS_PHRASE[ci.id] || '';
+    const eq = safe(() => ctx.progression?.getEquippedBait?.(), r?.equippedBait ?? null);
+    const bait = K.baitData(typeof eq === 'object' && eq ? eq.id : eq);
+    const ph = K.phaseInfo()?.phase || r?.phase || 'calm';
+    const night = ph === 'gloomtide' && r?.nightMode && r.nightMode !== 'gloomtide' && !safe(() => ctx.combat?.swarmActive, false) ? 'on a still night' : PHASE_WHEN[ph];
+    const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${night || ''}${r?.day ? `, day ${r.day}` : ''}`;
+    const favours = arr(fish.favours);
+    const mu = favourMu(favours, D());
+    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true };
+  }
   /** The catch as the journal records it: stamp, kicker, note, numbers. */
   function catchNotes(p, sp, fish) {
+    if (isV3Fish(fish)) return catchNotesV3(p, sp, fish);
     const r = run();
     const legend = sp.rarity === 'legendary';
     const size = sizeClass(sp, fish.weight);
@@ -360,25 +389,32 @@ export function createScreens(K) {
       const full = !inCreel && arr(r?.creel).length >= cs;
       const N = s.notes || (s.notes = catchNotes(p, sp, fish));
       const phone = K.vw < 700;
-      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}`, close: false });
+      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
       // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
       const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
         : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
       pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${legend ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
-      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd><dt>worth</dt><dd>${fmt(y.sell)} shells</dd></dl>`;
+      // v3: the favours that applied, as the float showed them (notches) and in plain words by family
+      const ticks = (n) => `<svg class="gw-cc-ticks" viewBox="0 0 64 24" aria-hidden="true">${[7, 19, 31, 43, 55].map((x, i) => `<path class="${i < n ? 'gw-lit' : ''}" d="M${x - 3.2} 20.5 C${x - 1.6} 15 ${x + 1.6} 9 ${x + 3.6} 3.5"/>`).join('')}</svg>`;
+      const favRow = N.v3 && !legend ? `<dt>favour</dt><dd class="gw-cc-fav">${ticks(N.notches)}${N.groups.length
+        ? `<span class="gw-cc-favw">${N.groups.map((g) => `<i><b>${esc(g.label)}</b> ${esc(g.words.map((w) => w.text).join(', '))}</i>`).join('')}</span>`
+        : '<span class="gw-cc-favw gw-none"><i>nothing in its favour: open water</i></span>'}</dd>` : '';
+      // v3: the stamp is the class, so a Fine or Shimmering catch says so beside its worth
+      const qWord = N.v3 && fish.quality === 'perfect' ? ', shimmering' : N.v3 && fish.quality === 'fine' ? ', fine' : '';
+      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd><dt>worth</dt><dd>${fmt(y.sell)} shells${qWord}</dd>${favRow}</dl>`;
       const lore = firstSentence(sp.lore) || hintFor(sp);
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
-            <p class="gw-cc-note">${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+            <p class="gw-cc-note">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
             <div class="gw-cc-kicker">${esc(N.kicker)}</div>
             <h2 class="gw-catch-name">${esc(sp.name)}</h2>
-            ${sp.epithet ? `<div class="gw-cc-epithet">${esc(sp.epithet)}</div>` : ''}
-            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span></div>
+            ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet">${esc(sp.epithet)}</div>` : ''}
+            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}</div>
             ${stats}
             <p class="gw-cc-lore">${esc(lore)}</p>
             ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}
@@ -948,6 +984,7 @@ export function createScreens(K) {
       content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, 'Softer flares and hit flashes'));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">Fishing</div>');
       content.appendChild(toggleRow('reelToggle', 'Tap to reel', false, 'Tap once to start reeling, tap again to ease'));
+      if (D().V3_ENABLED) content.appendChild(toggleRow('favourDetails', 'Favour details', false, "Always list what the water favours beside the float, not only on a long press"));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">The Long Dark</div>');
       const rrow = h('div', 'gw-set-row');
       rrow.innerHTML = '<span class="gw-set-label">Forget everything<small>Memories, relics, trials, the Journal. There is no undo.</small></span>';

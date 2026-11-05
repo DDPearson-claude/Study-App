@@ -7,6 +7,7 @@ import css from './ui.css';
 import { icon, ORN, ornamentCss, spriteSvg } from './ui-icons.js';
 import { createHud } from './ui-hud.js';
 import { createScreens } from './ui-screens.js';
+import { v3Run, nightWord } from './ui-v3.js';
 
 export function create(ctx) {
   // ------------------------------------------------------------------ root & style
@@ -570,6 +571,20 @@ export function create(ctx) {
     return Array.isArray(p) && p.length ? p : null;
   }
 
+  // ------------------------------------------------------------------ v3 phase banners
+  /** v3 runs: a quiet night is a Stillnight (DESIGN §25.5.1); dusk says what the night holds. [title, subtitle, kind] */
+  function v3PhaseBanner(p) {
+    const T = D().TEXT?.phaseBanner || {}, T3 = D().TEXT_V3 || {};
+    const r = run();
+    const swarm = typeof p.swarm === 'boolean' ? p.swarm : !!safe(() => ctx.combat?.swarmTonight, r?.nightMode === 'gloomtide');
+    if (p.phase === 'dusk') return [T.dusk?.[0] || 'The Light Thins', swarm ? (T3.stirs || 'The Gloom stirs tonight.').replace(/\.$/, '') : (T3.lastLight || 'The big ones come up at dusk.').replace(/\.$/, ''), 'phase'];
+    if (p.phase === 'gloomtide') {
+      if (swarm) return [T.gloomtide?.[0] || 'The Gloomtide Rises', T.gloomtide?.[1] || 'Guard your flame', 'gloom'];
+      return [nightWord(D(), { swarm: false }), 'Night Rise. The big ones come up', 'phase'];
+    }
+    return T[p.phase] || null;
+  }
+
   // ------------------------------------------------------------------ bus wiring
   function on(evt, fn) { try { ctx.bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { report(`on(${evt})`, e); } }); } catch (e) { report('bus', e); } }
 
@@ -600,9 +615,10 @@ export function create(ctx) {
         if (line) setTimeout(() => { if (ctx.flow === 'playing') toast(line, 'lore'); }, prev ? 4400 : 5200);
       }
     });
-    on('phase:change', ({ phase, day }) => {
-      const pb = D().TEXT?.phaseBanner?.[phase];
-      if (pb) banner(fill(pb[0], { day: day ?? run()?.day ?? 1 }), fill(pb[1] || '', { day }), { kind: phase === 'gloomtide' ? 'gloom' : phase === 'dawn' ? 'dawn' : 'phase' });
+    on('phase:change', (p) => {
+      const { phase, day } = p;
+      const pb = v3Run(D(), run()) ? v3PhaseBanner(p) : D().TEXT?.phaseBanner?.[phase];
+      if (pb) banner(fill(pb[0], { day: day ?? run()?.day ?? 1 }), fill(pb[1] || '', { day }), { kind: pb[2] || (phase === 'gloomtide' ? 'gloom' : phase === 'dawn' ? 'dawn' : 'phase') });
       if (phase === 'dusk' && has('shop')) closeModal('shop');
       hud.onPhase(phase);
     });
@@ -638,7 +654,23 @@ export function create(ctx) {
       hud.pulse('level');
       if (!pendingOptions() && arr(p?.options).length) levelQ.push(p.options);
     });
-    on('toast', ({ text, kind }) => toast(text, kind || 'info'));
+    on('toast', ({ text, kind }) => {
+      // v3: the lamp-watch's start is said by its banner and the HUD's status line (survival's toast would repeat it)
+      if (v3Run(D(), run()) && /^Lamp-watch\. /.test(String(text || ''))) return;
+      toast(text, kind || 'info');
+    });
+    // v3 night modes (DESIGN §25.5): the swarm window and the lamp-watch are moments, not just HUD state
+    on('swarm:window', ({ state, mode, reason }) => {
+      if (!v3Run(D(), run()) || mode !== 'lantern') return;
+      if (state === 'open') banner('The Gloom Stirs', 'Guard your light. It passes before the night is out.', { kind: 'gloom', dur: 2.6 });
+      else if (reason === 'window') toast('The swarm withdraws. The rest of the night is yours.', 'lore');
+    });
+    on('lampwatch:start', ({ forced }) => {
+      if (!v3Run(D(), run())) return;
+      if (forced) return;   // the Scorched card (and the HUD line) say it
+      banner('Lamp-watch', 'The Gloom keeps away tonight. Fish near the lamp.', { kind: 'dawn', dur: 3 });
+    });
+    on('levelup:banked', () => hud.pulse('level'));
     on('player:damage', ({ amount, source }) => {
       hud.onDamage(num(amount, 1));
       const key = typeof source === 'object' && source ? (source.enemyId || source.kind || source.id || 'gloom') : String(source ?? 'gloom');
