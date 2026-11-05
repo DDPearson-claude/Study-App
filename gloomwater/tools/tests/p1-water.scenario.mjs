@@ -34,18 +34,42 @@ export default async function (api) {
   const waitFor = async (fn, arg, maxFrames = 120) => { for (let i = 0; i < maxFrames; i++) { if (await g(fn, arg)) return true; await frames(1); } return false; };
   // the WebGL frame straight from the canvas right after the game renders it (fast and reliable on a loaded
   // software-GL machine, where page.screenshot times out), then the full page with the HUD when it can
-  const grab = async (name) => {
+  // crop: [x0, y0, x1, y1] in canvas pixels → also writes `${name}-crop.png`, that box scaled to ~760 px wide
+  const grab = async (name, crop = null) => {
     try {
-      const b64 = await g(() => new Promise((res) => requestAnimationFrame(() => res(window.__gw.render.renderer.domElement.toDataURL('image/png').split(',')[1]))));
+      const out = await g((crop) => new Promise((res) => requestAnimationFrame(() => {
+        const el = window.__gw.render.renderer.domElement;
+        const full = el.toDataURL('image/png').split(',')[1];
+        let cut = null;
+        if (crop) {
+          const x0 = Math.max(0, Math.floor(crop[0])), y0 = Math.max(0, Math.floor(crop[1]));
+          const w = Math.min(el.width, Math.ceil(crop[2])) - x0, h = Math.min(el.height, Math.ceil(crop[3])) - y0;
+          if (w > 8 && h > 8) {
+            const sc = Math.min(4, 760 / w);
+            const c = document.createElement('canvas'); c.width = Math.round(w * sc); c.height = Math.round(h * sc);
+            const cx = c.getContext('2d'); cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+            cx.drawImage(el, x0, y0, w, h, 0, 0, c.width, c.height);
+            cut = c.toDataURL('image/png').split(',')[1];
+          }
+        }
+        res({ full, cut });
+      })), crop);
       const { writeFileSync, mkdirSync } = await import('node:fs');
       const { resolve } = await import('node:path');
       const dir = resolve(process.cwd(), String(api.args?.shots || 'tools/out/shots'));
       mkdirSync(dir, { recursive: true });
-      writeFileSync(resolve(dir, `${name}.png`), Buffer.from(b64, 'base64'));
-      log('grab', resolve(dir, `${name}.png`));
+      writeFileSync(resolve(dir, `${name}.png`), Buffer.from(out.full, 'base64'));
+      if (out.cut) writeFileSync(resolve(dir, `${name}-crop.png`), Buffer.from(out.cut, 'base64'));
+      log('grab', resolve(dir, `${name}.png`), out.cut ? '(+crop)' : '');
     } catch (e) { log('grab failed', name, String(e?.message || e).slice(0, 80)); }
   };
-  const safeShot = async (name) => { if (noShots) return; await full(); await where(name); await grab(name); if (api.args?.pageshots) { try { await shot(`${name}-page`); } catch { /* logged by playtest */ } } };
+  const safeShot = async (name, cropAround = 'signs') => {
+    if (noShots) return;
+    await full();
+    const box = cropAround === 'signs' ? await where(name) : cropAround === 'raft' ? await raftBox() : null;
+    await grab(name, box);
+    if (api.args?.pageshots) { try { await shot(`${name}-page`); } catch { /* logged by playtest */ } }
+  };
   const noErrors = async () => { const e = await g(() => window.__gw.errors.slice()); check(e.length === 0, 'ctx.errors stays empty', e); };
   const clearModals = async () => {
     for (let i = 0; i < 10; i++) {
@@ -59,14 +83,23 @@ export default async function (api) {
   let layoutRef = null;
   // where each sign sits in the grab (canvas pixels, y down), to tell them apart in the picture
   const where = async (name) => {
-    if (!layoutRef) return;
+    if (!layoutRef) return null;
     const at = await g((L) => {
       const c = window.__gw, T = c.THREE, cam = c.render.camera, el = c.render.renderer.domElement, v = new T.Vector3(), out = {};
       for (const [k, p] of Object.entries(L)) { v.set(p.x, 0, p.z).project(cam); out[k] = [Math.round((v.x * 0.5 + 0.5) * el.width), Math.round((0.5 - v.y * 0.5) * el.height)]; }
-      return out;
+      return { out, W: el.width, H: el.height };
     }, layoutRef);
-    log('where', name, JSON.stringify(at));
+    log('where', name, JSON.stringify(at.out));
+    const xs = Object.values(at.out).map((p) => p[0]), ys = Object.values(at.out).map((p) => p[1]);
+    const m = Math.round(at.W * 0.08);
+    return [Math.min(...xs) - m, Math.min(...ys) - m, Math.max(...xs) + m, Math.max(...ys) + m];
   };
+  // the raft and the water just behind it, in canvas pixels
+  const raftBox = () => g(() => {
+    const c = window.__gw, T = c.THREE, cam = c.render.camera, el = c.render.renderer.domElement, p = c.player.position, v = new T.Vector3();
+    const pts = [[-7, -7], [7, -7], [-7, 9], [7, 9]].map(([dx, dz]) => { v.set(p.x + dx, 0, p.z + dz).project(cam); return [(v.x * 0.5 + 0.5) * el.width, (0.5 - v.y * 0.5) * el.height]; });
+    return [Math.min(...pts.map((q) => q[0])), Math.min(...pts.map((q) => q[1])), Math.max(...pts.map((q) => q[0])), Math.max(...pts.map((q) => q[1]))];
+  });
   // in-page helpers: an off-screen render of the scene from the game camera (no post) to diff two states
   const installDiff = () => g(() => {
     const c = window.__gw, T = c.THREE, r = c.render.renderer;
@@ -166,20 +199,22 @@ export default async function (api) {
       for (const [k, s] of Object.entries(S.signs)) {
         if (t < s.next) continue;
         s.n++;
+        // the cadences of fishing-signs.js (F6), except that a rise, a boil and a strike repeat sooner (4–9 s, 8–13 s,
+        // once) so every screenshot holds all of them; the bubble head creeps 0.32 m/s, a glow trail swims 0.7 m/s
         if (k === 'rise') { c.water.addRipple(s.x, s.z, 1, { kind: 'rise', size: s.size }); s.next = t + 3.4; }
         else if (k === 'boil') { c.water.addRipple(s.x, s.z, 1, { kind: 'boil', size: s.size }); s.next = t + 4.4; }
-        else if (k === 'nervous') { c.water.addRipple(s.x, s.z, 1, { kind: 'nervous', size: s.size }); s.next = t + 3.0; }
+        else if (k === 'nervous') { c.water.addRipple(s.x, s.z, 1, { kind: 'nervous', size: s.size }); s.next = t + 2.0; }
         else if (k === 'strike') { c.water.addRipple(s.x, s.z, 1, { kind: 'strike', size: s.size }); s.next = t + 7.6; }
         else if (k === 'bubbles') {
-          const d = (s.n % 8) * 0.55;
+          const d = ((s.n * 1.8 * 0.32) % 3.2);
           c.water.addRipple(s.x + s.dir[0] * d, s.z + s.dir[1] * d, 1, { kind: 'bubbles', size: s.size });
-          s.next = t + 0.7;
+          s.next = t + 1.8;
         } else if (k === 'glow') {
-          const d = (s.n % 14) * 0.5;
+          const d = (s.n % 24) * 0.3;
           const x = s.x + s.dir[0] * d, z = s.z + s.dir[1] * d;
+          c.water.addWake(x, z, s.dir[0], s.dir[1], 0.35 + 0.4 * Math.min(1.2, 0.3 + 0.55 * s.size), { kind: 'glow' });
           c.water.addRipple(x, z, 1, { kind: 'glow', size: s.size });
-          c.water.addWake(x, z, s.dir[0], s.dir[1], 0.5, { kind: 'glow' });
-          s.next = t + 0.36;
+          s.next = t + 0.42;
         }
       }
       requestAnimationFrame(tick);
@@ -205,7 +240,7 @@ export default async function (api) {
   }), [sec, warp]);
   // every mark on the water ages out at once: the water's clock (ctx.time.t) jumps 10 s (game logic runs on gameDt)
   const expire = async () => { await g(() => { window.__gw.time.t += 10; }); await frames(2); };
-  const full = async () => { await g(() => window.__gw.debug.renderScale?.(1)); await frames(2); };
+  const full = async () => { await g(() => window.__gw.debug.renderScale?.(1)); await frames(1); };
 
   // ------------------------------------------------------------------ Wa2: the six signs
   if (want('signs')) {
@@ -290,20 +325,27 @@ export default async function (api) {
       U.uGlowtide.value = 0; const A = wd.read();
       U.uGlowtide.value = 1; const B = wd.read();
       U.uGlowtide.value = k0;
-      // the trail behind the raft (wake marks), not around it
-      let n = 0, sum = 0, marks = 0;
+      // the trail behind the raft (wake marks), not around it: changed pixels inside the union of the marks' boxes
+      const mask = new Uint8Array(wd.Wd * wd.Hd);
+      let marks = 0;
       const wk = U.uWake.value;
       for (let i = 0; i < U.uWakeN.value; i++) {
         const x = wk[i * 4], z = wk[i * 4 + 1];
         if (Math.hypot(x - p.x, z - p.z) < 2.5) continue;
         marks++;
-        const r = wd.diff(A, B, 3, wd.box(x, z, 14));
-        n += r.n; sum += r.sum;
+        const [x0, y0, x1, y1] = wd.box(x, z, 14);
+        for (let y = Math.max(0, y0 | 0); y < Math.min(wd.Hd, y1 | 0); y++) for (let xx = Math.max(0, x0 | 0); xx < Math.min(wd.Wd, x1 | 0); xx++) mask[y * wd.Wd + xx] = 1;
+      }
+      let n = 0, sum = 0;
+      for (let i = 0; i < mask.length; i++) {
+        if (!mask[i]) continue;
+        const d = Math.max(Math.abs(A[i * 4] - B[i * 4]), Math.abs(A[i * 4 + 1] - B[i * 4 + 1]), Math.abs(A[i * 4 + 2] - B[i * 4 + 2]));
+        if (d > 3) { n++; sum += d; }
       }
       return { marks, n, sum, total: wd.diff(A, B, 3).n, wakeN: U.uWakeN.value };
     });
     check(wakeTest.marks >= 2 && wakeTest.n >= 20, 'high: the raft\'s wake sparkles at night (uGlowtide 1 vs 0 on the trail)', wakeTest);
-    await safeShot('glow-wake');
+    await safeShot('glow-wake', 'raft');
     const callsOn = await frameCalls();
     await g(() => window.__gw.water.setGlowtide(0));
     await frames(40);
@@ -312,10 +354,44 @@ export default async function (api) {
     await g(() => window.__gw.water.setGlowtide(null));
     await page.keyboard.up('KeyW');
     await runFor(1.5);
+    // the rule of the lantern's reach (DESIGN §19.1): nothing glows in a ring around the raft. Paddle strokes and bumps
+    // ring the water at the hull; the Glowtide leaves those dark and lights the same ring 7 m out.
+    step('Wa1: no ring of light at the hull');
+    await g(() => { const c = window.__gw; c.player.teleport(new c.THREE.Vector3(0, 0, 40), 0); c.player.velocity?.set?.(0, 0, 0); });
+    await expire();
+    const hullTest = await g(() => {
+      const c = window.__gw, U = c.water.material.uniforms, wd = window.__wd, p = c.player.position, F = c.render.getYaw();
+      const rx = Math.cos(F), rz = -Math.sin(F), fx = -Math.sin(F), fz = -Math.cos(F);
+      const t = c.time.t;
+      c.time.t -= 0.45;   // rings born 0.45 s ago: grown to ~1 m, the age a paddle ring has as the next stroke lands
+      c.water.addRipple(p.x + rx * 1.25, p.z + rz * 1.25, 0.55); c.water.addRipple(p.x - rx * 1.25, p.z - rz * 1.25, 0.55);
+      c.water.addRipple(p.x, p.z, 0.35);
+      const far = { x: p.x + fx * 7, z: p.z + fz * 7 };
+      c.water.addRipple(far.x, far.z, 0.55);
+      c.time.t = t;
+      c.water.update(0); U.uTime.value = c.time.t % 3600;
+      const boxAt = (x, z, r) => { const q = [[-r, -r], [r, -r], [-r, r], [r, r]].map(([a, b]) => wd.project(x + a, z + b)); return [Math.min(...q.map((v) => v[0])), Math.min(...q.map((v) => v[1])), Math.max(...q.map((v) => v[0])), Math.max(...q.map((v) => v[1]))]; };
+      const k0 = U.uGlowtide.value;
+      U.uGlowtide.value = 0; const A = wd.read();
+      U.uGlowtide.value = 1; const B = wd.read();
+      U.uGlowtide.value = k0;
+      return { hull: wd.diff(A, B, 3, boxAt(p.x, p.z, 2.8)), far: wd.diff(A, B, 3, boxAt(far.x, far.z, 2.2)), ripN: U.uRipN.value };
+    });
+    check(hullTest.far.n >= 20 && hullTest.hull.n <= 4, 'the Glowtide never lights the rings born at the hull (it lights the same ring 7 m out)', hullTest);
     // a hooked fish thrashing
     step('Wa1: a hooked fish at night');
-    const hooked = await g(() => { const c = window.__gw; c.player.velocity?.set?.(0, 0, 0); return c.debug.fishHook('reedjaw', { z: 1.6 }) || c.debug.fishHook(); });
-    check(!!hooked, 'a fish is hooked', hooked);
+    await g(() => { const c = window.__gw; c.player.teleport(new c.THREE.Vector3(0, 0, 40), 0); c.player.velocity?.set?.(0, 0, 0); c.debug.setOil?.(100); });
+    await frames(3);
+    const hookTry = () => g(() => {
+      const c = window.__gw;
+      c.player.velocity?.set?.(0, 0, 0);
+      const ids = ['reedjaw_pike', ...(c.data.SPECIES || []).filter((s) => s.rarity !== 'legendary').map((s) => s.id)];
+      for (const id of ids.slice(0, 6)) { if (c.debug.fishHook(id, { z: 1.6 })) return { ok: true, id }; }
+      return { ok: false, state: c.fishing.state, flow: c.flow, fishing: c.debug.fishing?.(), surv: { oil: c.state.run?.oil, gut: c.survival.getPhaseInfo().guttering } };
+    });
+    let hooked = await hookTry();
+    if (!hooked.ok) { log('hook retry', JSON.stringify(hooked).slice(0, 400)); await frames(6); hooked = await hookTry(); }
+    check(hooked.ok, 'a fish is hooked', hooked.ok ? hooked.id : hooked);
     await runFor(1.8);
     const fishTest = await g(() => {
       const c = window.__gw, U = c.water.material.uniforms, wd = window.__wd;
@@ -328,9 +404,9 @@ export default async function (api) {
       return { state: c.fishing.state, fish: fp ? { x: +fp.x.toFixed(1), z: +fp.z.toFixed(1) } : null, near: fp ? wd.diff(A, B, 3, wd.box(fp.x, fp.z, 40)) : null, total: wd.diff(A, B, 3).n };
     });
     check(fishTest.state === 'reeling' && fishTest.near && fishTest.near.n >= 20, 'high: the hooked fish\'s thrash sparkles', fishTest);
-    await safeShot('glow-fish');
+    await safeShot('glow-fish', 'raft');
     await runFor(1.2);
-    await safeShot('glow-fish-b');
+    await safeShot('glow-fish-b', 'raft');
     // low: the term is compiled out
     step('Wa1: low tier');
     await g(() => window.__gw.render.setQuality('low'));
@@ -346,7 +422,7 @@ export default async function (api) {
     });
     check(s.tier === 'low' && s.lowDefine && s.glowLive === 0, 'low: GW_LOW defined, the Glowtide reads 0', { tier: s.tier, low: s.lowDefine, live: s.glowLive });
     check(lowTest.n === 0 && (lowTest.wakeN + lowTest.ripN) > 0, 'low: rendering with uGlowtide 1 and 0 is identical (the term is absent)', lowTest);
-    await safeShot('glow-low');
+    await safeShot('glow-low', 'raft');
     await g(() => { const c = window.__gw; c.render.setQuality('high'); try { c.fishing.cancel?.('test'); } catch { /* optional */ } });
     await noErrors();
   }

@@ -81,7 +81,9 @@ uniform vec2 uWaveB[4];
 uniform float uStars, uStarDen, uNebK;   // starlight (water.setSky)
 uniform vec3 uStarCol, uNeb, uNebV, uBandN;
 uniform vec4 uNeb1, uNeb2;
+#ifdef GW_V3
 uniform float uGlowtide;      // v3 night sparkle 0..1 (water.setGlowtide; the term is compiled out on low)
+#endif
 varying vec3 vWorld;
 varying vec3 vGradH;
 #ifdef GW_LOW
@@ -262,7 +264,7 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     float xr = (ed - rimR) / wwR;
     float rim = exp(-xr * xr) * sqrt(wR / wwR);
     float side = 0.55 + 0.45 * (e.x / max(ed, 1e-3)) * (seed > 0.5 ? 1.0 : -1.0);
-    sLine += rim * fade * (0.6 + 0.6 * side);
+    sLine += rim * fade * (0.45 + 0.5 * side);
     float r2 = rimR * (1.0 + age * 0.45);
     float out2 = sgRing(ed, r2, 0.05, fwE) * fade * (1.0 - k) * 0.5;
     sLine += out2;
@@ -278,15 +280,15 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     if (m > 0.001) {
       vec2 q = xz * 6.5;
       g += (vec2(wNoise(q + vec2(uTime * 5.0, 0.0)), wNoise(q.yx - vec2(0.0, uTime * 5.3) + 7.0)) - 0.5) * 0.3 * m;
-      sDark += m * 0.3;
+      sDark = max(sDark, m * 0.42);    // renewed patches overlap: the blot never doubles
       // flecks: a fine grid of sparks, each flickering on its own fast clock
       vec2 fq = xz * 3.2;
       vec2 fi = floor(fq);
       float fh = wHash(fi + seed * 17.0);
       vec2 fp = vec2(wHash(fi + 5.3), wHash(fi + 1.9)) * 0.6 + 0.2;
-      float fl = pow(max(0.0, sin(uTime * (7.0 + fh * 9.0) + fh * 40.0)), 6.0) * step(0.45, fh);
+      float fl = pow(max(0.0, sin(uTime * (7.0 + fh * 9.0) + fh * 40.0)), 4.0) * step(0.3, fh);
       float fpin = max(0.045, fwp * 0.9) * 3.2;
-      sDot += (1.0 - smoothstep(fpin * 0.35, fpin, length(fract(fq) - fp))) * fl * m * 1.2;
+      sDot += (1.0 - smoothstep(fpin * 0.35, fpin, length(fract(fq) - fp))) * fl * m * 1.7;
       // fry dimples: little rings popping where they break the surface
       vec2 ci = floor(xz * 1.6);
       float h = wHash(ci + seed * 31.0);
@@ -325,10 +327,11 @@ void signMark(vec4 r, vec2 xz, vec2 dX, vec2 dY, inout vec2 g, inout float foam,
     }
   } else {
     // GLOW TRAIL (night): a night fish's light seen through the moving surface, brighter for a bigger
-    // fish; fishing-fx draws the fish, the water carries the glow it leaves behind
+    // fish; fishing-fx draws the fish, the water carries the glow it leaves behind. The newest mark rides
+    // with the fish (water.js moves it), so it holds full strength a while before it falls behind and fades.
     float gr = 0.6 + 0.5 * sqrt(Lc);
     float gk = clamp(0.35 + 0.45 * L, 0.35, 1.3) * inten;
-    float fade = smoothstep(0.0, 0.3, age) * pow(1.0 - k, 1.6);
+    float fade = smoothstep(0.0, 0.3, age) * (1.0 - smoothstep(0.3, 1.0, k));
     vec2 dw = dv + g * 0.8;
     sGlow += exp(-dot(dw, dw) / (gr * gr)) * fade * gk;
   }
@@ -349,19 +352,28 @@ void main() {
     float ph = a.z * (a.x * xz.x + a.y * xz.y) + uWaveB[i].x * uWaveT + uWaveB[i].y;
     g += a.w * a.z * cos(ph) * a.xy;
   }
-#ifndef GW_LOW
-  vec2 gChop = chopGrad(xz, uTime) * (0.25 + 0.75 * near);
-#else
-  vec2 gChop = chopGrad(xz, uTime) * near * 0.7;
+#ifdef GW_V3
+  vec2 gChop = g;
 #endif
-  g += gChop;
+#ifndef GW_LOW
+  g += chopGrad(xz, uTime) * (0.25 + 0.75 * near);
+#else
+  g += chopGrad(xz, uTime) * near * 0.7;
+#endif
+#ifdef GW_V3
+  gChop = g - gChop;    // the wind chop alone: a boil's or strike's slick calms it
+#endif
 
   float foam = 0.0;
   float lines = 0.0;
   float shallow = 0.0;
-  // v3 sign accumulators (signMark) and the metres-per-pixel footprint they widen their strokes by
+#ifdef GW_V3
+  // v3 sign accumulators (signMark) and the metres-per-pixel footprint they widen their strokes by (taken
+  // here, in uniform control flow: derivatives are undefined inside the divergent loops below)
   float sLine = 0.0, sDark = 0.0, sFlat = 0.0, sGlow = 0.0, sDot = 0.0;
   vec2 pxX = dFdx(xz), pxY = dFdy(xz);
+  float linesG = 0.0;   // the rings the Glowtide may light: every ripple but the ones born at the hull
+#endif
 
   // ---- shore (arena rim) and the lake's depth field (shallows read lighter: read the lake)
   float dShore = uArenaR - length(xz);
@@ -450,6 +462,12 @@ void main() {
     float s = min(r.w, 2.5);
     float brk = 0.65 + 0.35 * wNoise(dv * 3.0 + r.z * 7.0);
     lines += (ring1 + ring2) * fade * min(s, 1.4) * brk;
+#ifdef GW_V3
+    // paddle strokes, bumps and the anchor's plop are born at the hull: lit, they would ring the raft in light
+    // (DESIGN §19.1: never a ring around the raft), so they stay unlit until the raft has left them behind
+    float hullK = uRaft.z > 0.0 ? smoothstep(uRaft.z + 0.25, uRaft.z + 1.4, length(r.xy - uRaft.xy)) : 1.0;
+    linesG += (ring1 + ring2) * fade * min(s, 1.4) * brk * hullK;
+#endif
     g += (dv / max(d, 1e-3)) * (-2.0 * x1 / w * ring1) * fade * s * 0.035;
     // splash heart: a brief foam disc at the centre of strong ripples
     foam += (1.0 - smoothstep(0.0, 0.25 + 0.35 * s, d)) * max(0.0, 1.0 - age * 2.5) * clamp(s - 0.6, 0.0, 1.0);
@@ -457,15 +475,19 @@ void main() {
 
   // ---- wakes (pooled trail marks)
   float wake = 0.0;
+#ifdef GW_V3
   float wGlow = 0.0;    // v3: a glow-tagged wake (kind 6) is light, not foam
+#endif
   if (uWakeN > 0) {
     vec2 bd = xz - uWakeB.xy;
     if (dot(bd, bd) < uWakeB.z * uWakeB.z) {
       for (int i = 0; i < MAX_WAKE; i++) {
         if (i >= uWakeN) break;
         vec4 m = uWake[i];
+#ifdef GW_V3
         float wk = floor(m.w * 0.25);          // v3 sign wakes: .w = 4·kind + strength (water-signs.js)
-        float ws = m.w - wk * 4.0;
+        m.w -= wk * 4.0;
+#endif
         float age = uTime - m.z;
         vec2 dv = xz - m.xy;
         float spread = 0.8 + age * 1.05;
@@ -478,7 +500,7 @@ void main() {
         if (la < 0.02) continue;
         float across = dot(dv, vec2(-dir.y, dir.x));
         float k = age / WAKE_LIFE;
-        float fade = (1.0 - k) * exp(-age * 0.55) * ws;
+        float fade = (1.0 - k) * exp(-age * 0.55) * m.w;
         float side = sign(across);
         float xa = (abs(across) - spread) / aw;
         float arm = exp(-xa * xa);
@@ -487,16 +509,21 @@ void main() {
         float armBrk = mix(1.0, 0.12 + 0.88 * smoothstep(0.35, 0.6, hr), smoothstep(0.2, 1.1, age));
         float core = exp(-across * across / (0.08 + age * 0.35)) * exp(-age * 2.2);
         float brk = smoothstep(0.2, 0.75, wNoise(vec2(along * 2.1 + m.z * 9.0, across * 2.8 - age)));
-        float wv = (arm * armBrk * 0.6 + core * (0.35 + 0.75 * brk)) * la * fade;
-        if (wk > 5.5) wGlow += wv; else wake += wv;
+#ifdef GW_V3
+        // a glow trail's wake is light under the surface: no foam, no slope
+        if (wk > 5.5) { wGlow += (arm * armBrk * 0.6 + core * (0.35 + 0.75 * brk)) * la * fade; continue; }
+#endif
+        wake += (arm * armBrk * 0.6 + core * (0.35 + 0.75 * brk)) * la * fade;
         g += vec2(-dir.y, dir.x) * sign(across) * (-2.0 * xa / aw * arm) * la * fade * 0.012;
       }
     }
   }
   foam += wake * 0.85;
+#ifdef GW_V3
   sGlow += wGlow * 0.7;
   // a boil's or strike's slick calms the wind chop: glassy water that mirrors the stars
   g -= gChop * min(sFlat, 1.0) * 0.9;
+#endif
 
   vec3 N = normalize(vec3(-g.x, 1.0, -g.y));
   vec3 V = normalize(cameraPosition - P);
@@ -527,7 +554,9 @@ void main() {
   // swell crests catch the mist: thin pale ink strokes on the faces turned to the eye
   float crest = smoothstep(0.62, 0.88, wNoise(xz * vec2(0.35, 0.9) + vGradH.z * 6.0 + uTime * 0.05));
   col += sheen * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.26 * near * (1.0 - refl);
+#ifdef GW_V3
   col += sheen * min(sFlat, 1.0) * 0.07;     // a slick takes a faint silver sheen
+#endif
 
   // ---- lights: warm pools and dashed vertical streaks
   vec3 pool = vec3(0.0);
@@ -638,6 +667,7 @@ void main() {
   col = mix(col, foamCol, fa * 0.85);
   col += (uFoam * (0.09 + 0.4 * poolLum) + pool * 0.6) * clamp(lines, 0.0, 1.6);
 
+#ifdef GW_V3
   // ---- v3 signs: ink where a fish turned, rose or struck (over everything the surface shows, so it
   // reads as dark water even under mist strokes and starlight), then pale starlit strokes, glinting pins
   // and the light a night fish leaves under the surface
@@ -645,13 +675,12 @@ void main() {
   col += (uFoam * (0.2 + 0.45 * poolLum) + pool * 0.6 + sheen * 0.15) * clamp(sLine, 0.0, 1.8);
   col += mix(uStarCol, uFoam, 0.4) * clamp(sDot, 0.0, 1.5) * 0.9;
   col += mix(uStarCol, uGlow, 0.75) * clamp(sGlow, 0.0, 2.0) * 0.4;
-
-#if defined(GW_V3) && !defined(GW_LOW)
+#ifndef GW_LOW
   // ---- Glowtide (v3, DESIGN §25.8.3): at night whatever stirs the water sparkles: the raft's wake, a
   // hooked fish's thrash, the bobber's rings, every sign. Pale starlight and the lake's glow, a few pale
   // gold, never a ring of its own: it only lives where ripples and wakes already are. Off on low.
   if (uGlowtide > 0.001) {
-    float gE = clamp(lines * 0.7 + wake * 1.3 + sLine * 0.6 + sGlow * 0.3 + sDot * 0.3, 0.0, 1.6) * uGlowtide;
+    float gE = clamp(linesG * 0.7 + wake * 1.3 + sLine * 0.6 + sGlow * 0.3 + sDot * 0.3, 0.0, 1.6) * uGlowtide;
     if (gE > 0.002) {
       vec2 gq = xz * 3.6;
       vec2 gci = floor(gq);
@@ -667,6 +696,7 @@ void main() {
       col += mix(gcol, vec3(0.95, 0.8, 0.52), step(0.86, gh)) * glint * 2.2 * gE;
     }
   }
+#endif
 #endif
 
   gl_FragColor = vec4(max(col, 0.0), 1.0);
