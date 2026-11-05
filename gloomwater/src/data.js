@@ -2917,7 +2917,7 @@ export const BALANCE_V3 = {
     reroll: { onLanding: 'nextSetOut', afterInLakeDays: 3 },
     stamp: 'Resident', checks: { elderShare: 0.124, ancientShare: 0.011, meanZ: 2.27 },
   },
-  markedFish: { fromClass: { openWater: 'elder', place: 'trophy' }, max: 6, perLake: 2, hold: 6, holdOnce: true, replacesResident: true, glint: 'showsOnly', fromCut: false,
+  markedFish: { fromClass: { openWater: 'elder', place: 'trophy' }, max: 6, perLake: 2, hold: 6, holdOnce: true, replacesResident: true, glint: 'showsOnly',
     anchorP1: 'escapePoint', anchorR: 8, showsPerCalm: 2, show: 'boilWithGlint', anchorP2: 'nearestPlace', nearestPlaceR: 25 },   // P1 (no places): it stays within 8 m of where it was lost; P2 moves it to the nearest place   // automatic fishing: +6 Hold on its re-hook, once (CATCH_V3.markedFish); the glint shows before the cast, never in a play
 
   // ---- Place rules v3 (brief §7.0): two new rule types and five fields; pressure; Astir in the Mossmere.
@@ -3731,14 +3731,20 @@ export const AUTOFISH = {
     scare: { small: [0, 0], keeper: [0, 1], prize: [1, 1], trophy: [1, 2], elder: [1, 2], ancient: [2, 2] },
     // a place's own beat replaces one gain beat when the fish is hooked there (P2: the Mossmere's places; §24's with §24)
     placeBeats: { under_the_span: 'grind', lily_maze: 'lilies', gatehouse_door: 'chains', chain_garden: 'chains', ferry_market: 'glassClear', mirror_nave: 'glassClear' },
-    inputs: {                     // none changes the odds
-      pan: 20,
-      hurry: { classes: ['small', 'keeper'], mult: 2.5, fromRun: 2 },   // from expedition 2 (P1–P2: meta.runs ≥ 2)
-      // the only forfeit: press and hold the Cut glyph by the rod (desktop: hold X) for 1.2 s, a ring fills; never in the first 1.0 s
-      // of a play or during the First Evening. Still / Lantern: movement nudges the Wick within a 2 m leash of its play position (the
-      // tow moves the leash) and never cuts. Gloomtide: movement held 1.2 s cuts too (same ring, cancelled on release).
-      cut: { gesture: 'holdGlyph', key: 'KeyX', sec: 1.2, notBefore: 1.0, firstEvening: false, move: { still: 'leash', lantern: 'leash', leashM: 2, gloomtide: 1.2 } },
+    // fully automatic after the strike (the user's decision 3, DESIGN §25.0.2c: "Strike, then automatic", no cut): nothing the player
+    // does during a play changes the odds or ends it early. There is no cut (no glyph, no key, no 'cut' loss cause) and no leash.
+    inputs: {
+      pan: 20,                    // drag orbits the camera ±20° in yaw and springs back
+      hurry: { classes: ['small', 'keeper'], mult: 2.5, fromRun: 2 },   // from expedition 2 (P1–P2: meta.runs ≥ 2); speeds the play, never ends it
+      endsEarly: false,           // no input ends a play; the one outside event is Gloomtide's hand slam (CATCH_V3.gloomtide)
     },
+    // the anchor (replaces the 2 m leash): from the strike until the card or the got-away note (fishing.state reeling / landing / lost)
+    // the raft (or the planted Wick on foot) is anchored in EVERY night mode: movement input is ignored and not buffered, nothing in
+    // combat moves it (no knockback, slam knock or shove), and only the play's own tow (play[class].tow, planned from class and z) moves
+    // it. Gloomtide: the same anchor, so a telegraphed hand slam is answered with fire, not feet (aura, weapons, zaps, Flare work as
+    // usual; hits cost Embers, without knockback), and a slam that lands parts a non-legendary line ('staggered').
+    anchor: { from: 'strike', until: ['card', 'gotAwayNote'], states: ['reeling', 'landing', 'lost'], modes: ['still', 'lantern', 'gloomtide'],
+      moveInput: 'ignored', buffered: false, combatMoves: false, towOnly: true, gloomtide: { slamPartsLine: true, taps: 'zap', knockback: false } },
   },
   // legends: identity is known (legend pool + legend bait), so their real model shows and their plays are authored set pieces
   legendPlays: {
@@ -3806,10 +3812,10 @@ export const AUTOFISH = {
     onLeap: { leaper: 0.6, other: 0.35 },   // a lost play with a leap in the loss window throws the hook on the leap with this chance
     onScare: 0.4,                            // a lost play with a scare in the loss window loses on the scare (thrown or spat) with this chance
     mistimedSpat: 2, chainFouled: 0.5,       // Early / Late strikes double the spat weight; at a foul place half of losses are fouled
-    external: ['staggered', 'cut'],          // Gloomtide hand slam (CATCH_V3.gloomtide); the player cuts the line (play.inputs.cut); a cut never makes a Marked Fish
+    external: ['staggered'],                 // the one event that ends a play outside the roll: Gloomtide's hand slam (CATCH_V3.gloomtide); no player input ends a play
     // the draw order at the strike is fixed and unconditional, so a land and a loss on the same seed share a plan: [planSeed, u, causeU, momentU]
     draws: ['planSeed', 'u', 'causeU', 'momentU'],
-    hint: { snapped: 'line', thrown: 'rod', spooled: 'reel', spat: 'strike', fouled: 'place', staggered: null, cut: null },
+    hint: { snapped: 'line', thrown: 'rod', spooled: 'reel', spat: 'strike', fouled: 'place', staggered: null },
   },
   // ---- what a hooked fish looks like until the reveal: one generic night-ink proxy for every species. Its length is presentLength(lake,
   // z): a stylised ladder by size class (× the lake, stretched a little by z inside the class), never the species' true length, which
@@ -3826,7 +3832,7 @@ export const AUTOFISH = {
   letPass: { classes: ['prize', 'trophy', 'elder', 'ancient'], lingers: 45, radius: 6, rebite: 0.5, keeps: ['speciesId', 'z'], once: true, refund: true, favour: 0.15 },
   // ---- the got-away note (the user's answer 4): after the fish is gone, never during the play, never a %
   gotAway: { estimate: 0.08, word: 'near', round: [[20, 1], [100, 5], [Infinity, 10]], toast: ['small', 'keeper', 'prize'], toastSec: 2.5, cardSec: 7.5,
-    markedFrom: { openWater: 'elder', place: 'trophy' }, cutMarks: false, journalLast: 5, glimpsed: true, oddsLink: 'whenIdle', pinsGearCompare: true },
+    markedFrom: { openWater: 'elder', place: 'trophy' }, journalLast: 5, glimpsed: true, oddsLink: 'whenIdle', pinsGearCompare: true },
   // ---- the Set Out card's tackle rating, in words only (computed from catchChance against the lake's reference species)
   rating: { holdsAt: 0.5, words: [[0.4, 'a coin flip'], [0.15, 'a long shot'], [0.05, 'rarely held'], [0, 'beyond this tackle']] },
   logLock: true,                  // the log (Journal, gear log) cannot be opened from the cast until the line is back (the card or the got-away note shows)
@@ -3844,14 +3850,14 @@ export const AUTOFISH = {
     strike: { clean: 'Clean', struck: 'Struck', early: 'Early', late: 'Late' }, strikeLine: 'Strike: {grade}',
     estimate: 'by the look of it: {class}',
     kicker: 'THE ONE THAT GOT AWAY', size: '{a} {class}, near {len}.', stillOut: "It's still out there, {place}.", stillOutWater: "It's still out there, in that deep water.",
-    oddsLink: 'Odds in your log', cut: 'Cut', cutHold: 'Hold to cut the line',
+    oddsLink: 'Odds in your log',
     toast: '{a} {species} {cause}.',
     cause: {
       snapped: 'It parted the line.', snappedLong: 'It parted the line on its last run.', thrown: 'It threw the hook.',
       thrownLeap: 'It threw the hook mid-leap.', spat: 'It spat the hook at the raft.', spooled: 'It took every turn of line on the reel.',
-      fouled: 'It wrapped the line on the chains.', staggered: 'The line parted when you staggered.', cut: 'You cut it loose.',
+      fouled: 'It wrapped the line on the chains.', staggered: 'The line parted when you staggered.',
     },
-    toastCause: { snapped: 'parted the line', thrown: 'threw the hook', spat: 'spat the hook', spooled: 'stripped the reel', fouled: 'fouled the line', staggered: 'parted the line', cut: 'was cut loose' },
+    toastCause: { snapped: 'parted the line', thrown: 'threw the hook', spat: 'spat the hook', spooled: 'stripped the reel', fouled: 'fouled the line', staggered: 'parted the line' },
     hint: { line: 'Heavier line holds the long runs.', rod: 'A stiffer rod sets the hook deeper.', reel: 'A bigger reel carries more line.',
       strike: 'A clean strike holds better.', place: 'Here, the chains take their share.' },
     rating: 'Against the {species}: holds {held}s. {next}s are {word}.', ratingNone: 'Against the {species}: even Smalls are {word}.',

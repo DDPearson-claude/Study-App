@@ -1707,10 +1707,19 @@ if (V3) {
       ok(D.presentLength.length === 2, 'presentLength(lake, z) takes no species: length before the reveal can never name one');
       ok(LAKES.every((l) => D.presentLength(l, D.BALANCE_V3.size.ancient) > 2.6), "an Ancient's pass is longer than the raft (2.6 m) in every lake"); }
     ok(AF.letPass.classes.every((c) => CLS.includes(c)) && AF.letPass.lingers > 0 && AF.letPass.rebite > 0 && AF.letPass.rebite < 1 && AF.letPass.once, 'AUTOFISH.letPass: a passed Prize+ fish lingers once');
-    ok(AF.play.inputs.cut.gesture === 'holdGlyph' && AF.play.inputs.cut.sec >= 1 && AF.play.inputs.cut.notBefore >= 1 && AF.play.inputs.cut.firstEvening === false && AF.play.inputs.cut.move.still === 'leash' && AF.play.inputs.cut.move.lantern === 'leash',
-      'the cut is a deliberate 1.2 s hold on its glyph (never a resting thumb); Still / Lantern movement never cuts');
+    // no cut (the user's decision 3, DESIGN §25.0.2c): fully automatic after the strike; the anchor replaces the leash in every mode
+    { const IN = AF.play.inputs, AN = AF.play.anchor;
+      ok(!('cut' in IN) && IN.endsEarly === false && Object.keys(IN).every((k) => ['pan', 'hurry', 'endsEarly'].includes(k)) && IN.hurry.classes.every((c) => ['small', 'keeper'].includes(c)),
+        'AUTOFISH.play.inputs: pan and hurry only; no cut, and no input ends a play early');
+      ok(isObj(AN) && AN.from === 'strike' && JSON.stringify(AN.states) === '["reeling","landing","lost"]' && JSON.stringify(AN.modes) === '["still","lantern","gloomtide"]'
+        && AN.moveInput === 'ignored' && AN.buffered === false && AN.combatMoves === false && AN.towOnly === true && AN.gloomtide?.slamPartsLine === true && AN.gloomtide.knockback === false,
+        'AUTOFISH.play.anchor: the raft is anchored from the strike to the card or the note in every mode; only the play\'s tow moves it; Gloomtide\'s slam parts the line');
+      ok(JSON.stringify(AF.loss.external) === '["staggered"]' && D.CATCH_V3.gloomtide.slamPartsLine === true, "the one event that ends a play outside the roll is Gloomtide's hand slam ('staggered')");
+      const cutKey = (o, path) => { if (!o || typeof o !== 'object') return []; return Object.entries(o).flatMap(([k, v]) => [...(/^cut(Marks|Hold)?$|^fromCut$/.test(k) ? [`${path}.${k}`] : []), ...cutKey(v, `${path}.${k}`)]); };
+      const cuts = [...cutKey(AF, 'AUTOFISH'), ...cutKey(D.BALANCE_V3.markedFish, 'BALANCE_V3.markedFish'), ...cutKey(D.FIRST_EVENING, 'FIRST_EVENING')];
+      ok(cuts.length === 0, `no cut anywhere in automatic fishing's data (the user's decision 3): ${cuts.join(', ')}`); }
     ok(CLS.every((c) => Array.isArray(AF.play.scare[c]) && AF.play.scare[c][0] <= AF.play.scare[c][1]) && AF.loss.onScare > 0 && AF.loss.onScare < 1 && JSON.stringify(AF.loss.draws) === '["planSeed","u","causeU","momentU"]', 'AUTOFISH: scares by class, losses on a scare, the unconditional draw order');
-    ok(AF.gotAway.toast.includes('prize') && AF.gotAway.markedFrom.openWater === 'elder' && AF.gotAway.cutMarks === false && D.BALANCE_V3.markedFish.fromCut === false && D.V3_BLOCK_PHASE.markedFish === 1, 'got-away: Prize losses toast, open-water Marked Fish from Elder up (places from Trophy), never from a cut; the light Marked Fish ships at phase 1');
+    ok(AF.gotAway.toast.includes('prize') && AF.gotAway.markedFrom.openWater === 'elder' && AF.gotAway.markedFrom.place === 'trophy' && D.V3_BLOCK_PHASE.markedFish === 1, 'got-away: Prize losses toast, open-water Marked Fish from Elder up (places from Trophy); the light Marked Fish ships at phase 1');
     ok(D.TACKLE.lostLureFrac === 0 && AF.runLures.priceMult === 0.4 && AF.runLures.phases.join() === '1,2', 'a snapped line never loses a lure; P1–P2 runs sell lures at 40%');
     ok(AF.gotAway.estimate === D.BALANCE_V3.ceremony.nearMiss?.estimate || AF.gotAway.estimate === 0.08, 'the got-away length estimate is ±8% (§25.7.4)');
     // every player-facing string of automatic fishing and the First Evening: one line (≤ 90), no %, no exclamation mark
