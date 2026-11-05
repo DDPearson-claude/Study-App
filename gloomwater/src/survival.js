@@ -26,6 +26,24 @@
 //   gloomlings on it) plus player:burst {position, radius, push, stun, damage}; survival draws the
 //   ring only if combat does not (no lightMult).
 // run.stats.damageSources {source: Embers} is kept for the death screen's "top damage source".
+//
+// v3 (DESIGN §25.3.2–§25.3.3, §25.5, §25.10.1; CONTRACT §13.4, §13.7 survival). Detected from the data, never from the
+// flag (CONTRACT §13.0): a run is a "v3 run" when BALANCE.oil.context exists (the BALANCE_V3 blocks merged) and
+// run.outing !== 'descent' (The Long Descent keeps everything above). In a v3 run:
+//   S1 the clock: EXPEDITION.phases (calm = calmByMode[lake mode], 180 / 185; dusk 20; night 90, Gloomtide 90 + 6/day ≤ 120;
+//      dawn 10) + the 30 s Arrival Hush on day 1 and on the first calm after a gate (run.surv.hushDay).
+//   S2 oil/s = stats.oilDrain × zone.drain.oil × BALANCE.oil.context[raft|foot|lamp][phase] (× the Far Water night factor
+//      when that block is in the build; × the foot-oil multipliers on foot); 0 oil → Last Flicker (+12, once a day) →
+//      25 s guttering (light 2.5 m; fishing reads `guttering` to refuse casts) → Snuffed (player:died {cause:'snuffed'},
+//      after progression.tryRevive). No darkness ticks. Embers at 0 snuff only where nightModes[mode].snuffBy has
+//      'embers' (Gloomtide); Lantern → Scorched (§13.4: player:scorched, −30 oil, a forced lamp-watch anchored where the
+//      Wick stands or where a fight in progress ends, Embers mend at dawn); Still → the Embers stay out until dawn.
+//   S3 satiety drains × BALANCE.wellFed.drainMult; never starves; ≥ wellFed.at of max is Well-fed (progression folds the
+//      stat effects into getStats; survival reports `wellFed` and adds the +1 dawn mend in combat modes).
+// v3 API extras: guttering, gutterLeft, oilContext, wellFed, lampWatch, scorched, nightMode, spendOil(n, reason, opts),
+//   scorch(), getPhaseDurations(day) (the HUD clock's segments), getPhaseInfo() += {hush, guttering, gutterLeft,
+//   swarm, nightMode}; events += player:scorched {night, x, z}, lampwatch:start / lampwatch:end {lampId, zone, forced};
+//   phase:change += {nightMode, swarm} on v3 runs.
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
 import { createSurvivalFx } from './survival-fx.js';
@@ -48,8 +66,16 @@ const FALLBACK = {
   revive: { oil: 40, iframes: 2 },
   stats: { maxHp: 5, maxOil: 100, maxSatiety: 100, oilDrain: 0.14, satietyDrain: 0.1, lightRadius: 8, armor: 0, dawnHeal: 1 },
 };
+// v3 fallbacks (used only when a v3 block is present but a key is missing; the numbers are DESIGN §25.3.2 / §25.3.3)
+const V3_FALLBACK = {
+  phases: { calm: 180, dusk: 20, gloomtide: 90, dawn: 10 },
+  oilCtx: { calm: 0.35, dusk: 0.5, gloomtide: 1.0, dawn: 0.35 },
+  lastFlicker: 12, gutterTime: 25, gutterLight: 2.5, arrivalHush: 30, scorchOil: 30, watchR: 10, boardRange: 3, raftRadius: 1.6,
+};
+const HOOKED = new Set(['reeling', 'landing']);
 const WARM = 0xffb347, HURT = 0xff6a3d, WARD = 0xcfe6ff, MEND = 0xffd9a0, GOLD = 0xffd27a;
 const GUTTER = 0xa2c8ff, WAX = 0xe9dfc6;   // darkness ticks gutter pale blue; starvation ticks are wax
+const SCORCH = 0xff8a3d;
 
 const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const real = (m) => !!m && !m.isStub;
@@ -73,7 +99,7 @@ export function create(ctx) {
   const T = {
     iframes: 0, flareBoost: 0, gutsT: 0, gutsBonus: 0,
     god: false, dead: false, light: 8, snapLight: true, starving: false,
-    oilRate: 0, satRate: 0, runRef: null, flickerClock: 0,
+    oilRate: 0, satRate: 0, runRef: null, flickerClock: 0, oilCtx: 'raft',
   };
   const lightMods = [];   // [{id, mult, ttl}]
 
@@ -143,8 +169,154 @@ export function create(ctx) {
     return diffCache;
   }
 
+  // ---------------------------------------------------------------- v3 run rules (CONTRACT §13.0: feature-detected, by run)
+  /** The BALANCE_V3 blocks are merged (only the v3 build has BALANCE.oil.context). */
+  const v3Data = () => { const o = B().oil; return !!(o && typeof o === 'object' && o.context && typeof o.context === 'object'); };
+  /** Expedition rules apply to this run: v3 data and not The Long Descent (which keeps every v1 / v2 rule). */
+  const v3Run = (run) => !!run && run.outing !== 'descent' && v3Data();
+  /** The night mode this run plays. The First Outing is all still; a run without a mode played v1's nights (Gloomtide). */
+  function modeOf(run) {
+    if (run?.outing === 'first') return 'still';
+    return typeof run?.nightMode === 'string' && run.nightMode ? run.nightMode : 'gloomtide';
+  }
+  const modeCfg = (run) => B().nightModes?.[modeOf(run)] || null;
+  function snuffBy(run) {
+    const m = modeCfg(run)?.snuffBy || B().oil?.snuffs?.[modeOf(run)];
+    return Array.isArray(m) ? m : ['oil', 'embers'];
+  }
+  /** Embers at 0 end the run (v1, The Long Descent, and v3 Gloomtide); in Still and Lantern only oil can snuff. */
+  const embersSnuff = (run) => !v3Run(run) || snuffBy(run).includes('embers');
+  const combatMode = (run) => modeOf(run) !== 'still';
+  const oilCfg = () => B().oil || {};
+  const gutterTime = () => Math.max(0.5, num(oilCfg().gutter?.time, num(D().EXPEDITION?.snuffed?.gutter, V3_FALLBACK.gutterTime)));
+  /** The lake's walking mode: §24 sets zone.mode in walking builds; otherwise the lake's designed mode (ZONE_V2), so
+   *  Glasswater and the Pallid Deep keep their 185 s calm (DESIGN §25.3.2, §25.13) in raft builds too. */
+  function zoneMode(run) {
+    const z = zoneData(run);
+    if (!z) return 'raft';
+    return (typeof z.mode === 'string' && z.mode) || D().ZONE_V2?.[z.id]?.mode || 'raft';
+  }
+  /** Arrival Hush seconds on the calm of `day` (day 1 of a run and the first calm after a gate: run.surv.hushDay). */
+  function hushFor(run, day) {
+    const s = run?.surv;
+    if (!s || !(num(s.hushDay, 0) > 0) || s.hushDay !== day) return 0;
+    return Math.max(0, num(D().EXPEDITION?.arrivalHush, V3_FALLBACK.arrivalHush));
+  }
+  function v3PhaseDuration(phase, day, run) {
+    const E = D().EXPEDITION || {};
+    const P = E.phases || V3_FALLBACK.phases;
+    if (phase === 'calm') {
+      const base = num(E.calmByMode?.[zoneMode(run)], num(P.calm, V3_FALLBACK.phases.calm));
+      return Math.max(0.5, base + hushFor(run, day));
+    }
+    if (phase === 'gloomtide') {
+      const base = num(P.gloomtide, V3_FALLBACK.phases.gloomtide);
+      const G = B().nightModes?.gloomtide;
+      if (modeOf(run) === 'gloomtide') {
+        // Gloomtide: 90 + 6 per day, max 120 (DESIGN §25.3.2); Still and Lantern nights stay 90 s
+        return Math.max(1, Math.min(num(G?.max, 120), base + num(G?.growth, 6) * (Math.max(1, day) - 1)));
+      }
+      return Math.max(1, base);
+    }
+    return Math.max(0.5, num(P[phase], V3_FALLBACK.phases[phase] || 10));
+  }
+
+  // where the Wick burns its oil (BALANCE.oil.context): the raft (sailing or moored), on foot, or in a lamp's light
+  function playerMode() {
+    const p = ctx.player;
+    if (!real(p)) return 'raft';
+    let m = null;
+    try { m = typeof p.getMode === 'function' ? p.getMode() : p.mode; } catch { m = null; }
+    return m === 'foot' ? 'foot' : 'raft';
+  }
+  function inLitLamp(x, z) {
+    const w = ctx.world;
+    if (!real(w) || typeof w.getLamps !== 'function') return false;
+    let lamps = null;
+    try { lamps = w.getLamps(); } catch { lamps = null; }
+    if (!Array.isArray(lamps)) return false;
+    const pr = real(ctx.progression) ? ctx.progression : null;
+    const R0 = num(B().lamps?.radius, 6);
+    for (const l of lamps) {
+      if (!l) continue;
+      let lit = l.lit === true || l.state === 'lit';
+      if (!lit && pr && typeof pr.isLampLit === 'function') { try { lit = pr.isLampLit(l.id) === true; } catch { lit = false; } }
+      if (!lit) continue;
+      const lx = num(l.position?.x, num(l.x, NaN)), lz = num(l.position?.z, num(l.z, NaN));
+      if (!Number.isFinite(lx) || !Number.isFinite(lz)) continue;
+      const r = num(l.radius, R0);
+      if ((x - lx) ** 2 + (z - lz) ** 2 <= r * r) return true;
+    }
+    return false;
+  }
+  function atMooredRaft(x, z) {
+    const raft = real(ctx.player) ? ctx.player.raft : null;
+    if (!raft || raft.moored !== true) return false;
+    const rx = num(raft.position?.x, NaN), rz = num(raft.position?.z, NaN);
+    if (!Number.isFinite(rx) || !Number.isFinite(rz)) return false;
+    const reach = num(B().walk?.board?.range, V3_FALLBACK.boardRange) + num(B().move?.raftRadius, V3_FALLBACK.raftRadius);
+    return (x - rx) ** 2 + (z - rz) ** 2 <= reach * reach;
+  }
+  function oilContext() {
+    if (playerMode() !== 'foot') return 'raft';
+    const p = playerPos();
+    return inLitLamp(p.x, p.z) || atMooredRaft(p.x, p.z) ? 'lamp' : 'foot';
+  }
+  /** Far Water's night oil factor (P3 data; 1 while the block is not in the build). Progression owns the day state. */
+  function nightBurn(run) {
+    if (!B().farWater) return 1;
+    const p = ctx.progression;
+    if (real(p) && typeof p.getFarWater === 'function') {
+      try { const f = num(p.getFarWater()?.nightBurnMult, NaN); if (f > 0) return f; } catch { /* fall through */ }
+    }
+    try { const f = num(D().farWaterFor?.(run.day | 0 || 1)?.nightBurn, NaN); if (f > 0) return f; } catch { /* fall through */ }
+    return 1;
+  }
+  /** On foot: the Wick's fishing half (Tallow's Slow Melt) and Wanderer's Stride (DESIGN §25.5.4–§25.5.5). */
+  function footOilMult(run) {
+    let m = num(character(run)?.fishing?.footOilMult, 1);
+    const lvl = num(run?.boons?.wanderers_stride, 0);
+    if (lvl > 0) {
+      const levels = (D().BOON_BY_ID?.wanderers_stride || (D().BOONS || []).find((b) => b.id === 'wanderers_stride'))?.proc?.levels;
+      const L = Array.isArray(levels) && levels.length ? levels[Math.min(levels.length, lvl) - 1] : null;
+      m *= num(L?.footOilMult, 1);
+    }
+    return Math.max(0, m);
+  }
+  /** v3 oil/s in `phase` (default: the run's phase) from `context`. */
+  function v3OilRate(run, s, context, phase = run.phase) {
+    const C = oilCfg().context || {};
+    const row = C[context] || C.raft || V3_FALLBACK.oilCtx;
+    let r = num(s.oilDrain, 0.17) * num(zoneData(run)?.drain?.oil, 1) * num(row[phase], V3_FALLBACK.oilCtx[phase] ?? 1);
+    if (phase === 'gloomtide') r *= nightBurn(run);
+    if (context === 'foot') r *= footOilMult(run);
+    return Math.max(0, r);
+  }
+  /** Well-fed (BALANCE.wellFed): satiety at or above `at` of max. Progression's isWellFed() wins when it exists. */
+  function wellFedOf(run, s = stats()) {
+    if (!v3Run(run)) return false;
+    const p = ctx.progression;
+    if (real(p) && typeof p.isWellFed === 'function') {
+      try { const v = p.isWellFed(); if (typeof v === 'boolean') return v; } catch { /* fall through */ }
+    }
+    const at = num(B().wellFed?.at, 0.6);
+    return num(run.satiety, 0) >= at * maxSat(s) - 1e-9;
+  }
+  /** Does the swarm come tonight (the night of run.day)? Data's swarmTonight, minus a Scorched or a lamp-watch. */
+  function swarmTonight(run) {
+    if (!v3Run(run)) return null;
+    let sw = false;
+    try { sw = D().swarmTonight?.(modeOf(run), Math.max(1, run.day | 0), run.outing || 'normal') === true; } catch { sw = false; }
+    return sw && !run.scorched && !run.lampWatch;
+  }
+  function fishHooked() {
+    const f = ctx.fishing;
+    return real(f) && HOOKED.has(f.state);
+  }
+
   // ---------------------------------------------------------------- phase clock
-  function phaseDuration(phase, day) {
+  function phaseDuration(phase, day, run = ctx.state.run) {
+    if (v3Run(run)) return v3PhaseDuration(phase, day, run);
     const P = B().phases || FALLBACK.phases;
     if (phase === 'gloomtide') {
       const f = D().gloomtideLength;
@@ -159,14 +331,35 @@ export function create(ctx) {
     const run = ctx.state.run;
     const phase = run && ORDER.includes(run.phase) ? run.phase : 'calm';
     const day = Math.max(1, (run?.day | 0) || 1);
-    const duration = phaseDuration(phase, day);
+    const duration = phaseDuration(phase, day, run);
     const time = clamp(num(run?.phaseTime, 0), 0, duration);
-    return {
+    const info = {
       phase, day, time, duration, k: duration > 0 ? clamp(time / duration) : 0,
       isNight: phase === 'gloomtide', nextPhase: nextOf(phase),
       // extras
       remaining: Math.max(0, duration - time), isDark: phase === 'dusk' || phase === 'gloomtide',
     };
+    if (v3Run(run)) {
+      // CONTRACT §13.7: + hush (s of Arrival Hush in this calm), guttering, swarm (tonight's swarm in the run's mode)
+      const s = run.surv;
+      info.hush = phase === 'calm' ? hushFor(run, day) : 0;
+      info.guttering = !!s?.out;
+      info.gutterLeft = s?.out ? Math.max(0, gutterTime() - num(s.gutterT, 0)) : 0;
+      info.swarm = swarmTonight(run);
+      info.nightMode = modeOf(run);
+    }
+    return info;
+  }
+
+  /** The four phase lengths of `day` (the HUD clock's segments; calm includes that day's Arrival Hush). */
+  function getPhaseDurations(day) {
+    const run = ctx.state.run;
+    const d = Math.max(1, (Number.isFinite(day) ? day | 0 : run?.day | 0) || 1);
+    const out = {};
+    for (const p of ORDER) out[p] = phaseDuration(p, d, run);
+    out.total = out.calm + out.dusk + out.gloomtide + out.dawn;
+    out.hush = v3Run(run) ? hushFor(run, d) : 0;
+    return out;
   }
 
   // ---------------------------------------------------------------- per-run owned bookkeeping (saved with the run)
@@ -239,8 +432,19 @@ export function create(ctx) {
         run.stats.nightsSurvived = (run.stats.nightsSurvived | 0) + 1;
         if (!s.nightHurt) run.stats.nightsNoDamage = (run.stats.nightsNoDamage | 0) + 1;
       }
-      dawnMend(run);
+      if (v3Run(run)) v3Dawn(run);
+      else dawnMend(run);
     }
+  }
+
+  /** phase:change payload (+ nightMode always and swarm on the night in v3 runs, CONTRACT §13.5). */
+  function phasePayload(phase, prev, run) {
+    const p = { phase, prev, day: run.day };
+    if (v3Run(run)) {
+      p.nightMode = modeOf(run);
+      if (phase === 'gloomtide') p.swarm = swarmTonight(run);
+    }
+    return p;
   }
 
   function advancePhase(run) {
@@ -250,7 +454,7 @@ export function create(ctx) {
     run.phase = next;
     enterPhase(next, prev, run);
     if (next === 'calm') emit('day:start', { day: run.day });
-    emit('phase:change', { phase: next, prev, day: run.day });
+    emit('phase:change', phasePayload(next, prev, run));
   }
 
   function setPhase(name, run = ctx.state.run) {
@@ -260,18 +464,48 @@ export function create(ctx) {
     run.phase = name;
     run.phaseTime = 0;
     enterPhase(name, prev, run);
-    emit('phase:change', { phase: name, prev, day: run.day });
+    emit('phase:change', phasePayload(name, prev, run));
     return name;
   }
 
   function duskForecast(run) {
     const s = stats();
     const z = zoneData(run);
-    const L = phaseDuration('gloomtide', run.day);
-    const op = (B().drain?.oilPhase || FALLBACK.oilPhase).gloomtide ?? 1.8;
+    const L = phaseDuration('gloomtide', run.day, run);
     const pad = num(B().drain?.duskForecastPad, 10);
+    if (v3Run(run)) {
+      const need = v3OilRate(run, s, oilContext(), 'gloomtide') * L + pad;
+      if (run.oil < need) toast("Your lantern won't last the night.", 'bad');
+      return;
+    }
+    const op = (B().drain?.oilPhase || FALLBACK.oilPhase).gloomtide ?? 1.8;
     const need = num(s.oilDrain, 0.14) * op * num(z?.drain?.oil, 1) * diff(run).drainMult * L + pad;
     if (run.oil < need) toast("Your lantern won't last the Gloomtide.", 'bad');
+  }
+
+  /**
+   * v3 dawn: a Scorched (or Still's Embers-out) night ends: the forced lamp-watch closes and the Embers mend in full.
+   * Otherwise the usual mend: stats.dawnHeal, +BALANCE.wellFed.dawnMendCombat when Well-fed in a combat mode.
+   */
+  function v3Dawn(run) {
+    const w = sv(run);
+    const s = freshStats();
+    endLampWatch(run);
+    if (run.scorched || w.embersOut) {
+      run.scorched = null;
+      w.embersOut = false;
+      const gained = heal(maxHp(s), 'dawn');
+      if (gained > 0 && combatMode(run)) toast('Dawn. Your Embers mend.', 'good');
+      return;
+    }
+    const W = B().wellFed || {};
+    const fed = wellFedOf(run, s);
+    const amount = Math.max(0, Math.floor(num(s.dawnHeal, 1))) + (fed && combatMode(run) ? Math.max(0, num(W.dawnMendCombat, 1)) : 0);
+    const gained = amount > 0 ? heal(amount, 'dawn') : 0;
+    if (gained > 0) {
+      const e = gained === 1 ? 'Ember' : 'Embers';
+      toast(fed && combatMode(run) ? `Well-fed. Dawn mends ${gained} ${e}.` : `Dawn mends ${gained} ${e}.`, 'good');
+    }
   }
 
   function dawnMend(run) {
@@ -291,11 +525,13 @@ export function create(ctx) {
   // ---------------------------------------------------------------- lantern (oil 0 → Last Flicker → out)
   function checkLantern(run) {
     const s = sv(run);
+    const v3 = v3Run(run);
     if (run.oil <= 1e-4 && !s.out) {
       run.oil = 0;
       if (s.flickerDay !== run.day) {
         s.flickerDay = run.day;
-        const add = num(cfgDamage().darkness?.lastFlickerOil, 12);
+        const add = v3 ? num(oilCfg().lastFlicker?.oil, num(D().EXPEDITION?.snuffed?.lastFlicker, V3_FALLBACK.lastFlicker))
+          : num(cfgDamage().darkness?.lastFlickerOil, 12);
         run.oil = Math.min(maxOil(), add);
         toast('The brazier coughs. One last flicker of oil.', 'info');
         emit('lantern:flicker', { oil: add });
@@ -307,13 +543,15 @@ export function create(ctx) {
       } else {
         s.out = true;
         s.darkT = 0;
+        if (v3) s.gutterT = 0;   // v3: 25 s of guttering, then Snuffed (DESIGN §25.3.2)
         emit('lantern:out', {});
-        if (!real(ctx.ui)) toast('Darkness. Burn a fish to relight your lantern.', 'bad');   // ui owns this message (tip, then toast)
+        if (!real(ctx.ui)) toast(v3 ? 'Guttering. Render a fish to relight your lantern.' : 'Darkness. Burn a fish to relight your lantern.', 'bad');   // ui owns this message (tip, then toast)
         vibrate(40);
       }
     } else if (s.out && run.oil > 0) {
       s.out = false;
       s.darkT = 0;
+      if (v3) s.gutterT = 0;
       emit('lantern:lit', {});
       const p = lanternPos();
       fx.motes(p.x, p.y, p.z, { count: 16, color: WARM, speed: 2.4, spread: 0.5, life: 0.9, size: 0.15, gravity: -1.5, shape: 'cough' });
@@ -329,6 +567,84 @@ export function create(ctx) {
     run.oil = Math.max(0, run.oil - n);
     checkLantern(run);
     return before - run.oil;
+  }
+
+  /**
+   * Spend oil on purpose (v2 "Share flame" and relights; the Scorched penalty). Refused (false, nothing spent) when the
+   * lantern holds less than n, unless opts.force (then it spends what there is; the lantern may gutter).
+   */
+  function spendOil(n, reason = 'spend', opts = null) {
+    const run = ctx.state.run;
+    n = Math.max(0, num(Number(n), 0));
+    if (!run || run.active === false || T.dead) return false;
+    if (n <= 0) return true;
+    if (T.god) return true;
+    if (run.oil + 1e-6 < n && !opts?.force) return false;
+    drainOil(n, reason);
+    return true;
+  }
+
+  // ---------------------------------------------------------------- v3: Snuffed, Scorched, the forced lamp-watch
+  /** Oil has run out for good (guttering ran its 25 s): Snuffed, unless the Second Wick relights (progression.tryRevive). */
+  function snuff(run) {
+    if (T.dead || !run) return;
+    const w = sv(run);
+    run.stats.snuffed = (run.stats.snuffed | 0) + 1;
+    w.gutterT = 0;
+    die('snuffed', run);
+  }
+
+  function endLampWatch(run) {
+    const lw = run.lampWatch;
+    if (!lw) return;
+    run.lampWatch = null;
+    emit('lampwatch:end', { lampId: lw.lampId ?? null, zone: run.zone, forced: !!lw.forced });
+  }
+  /** Anchor tonight's forced (Scorched) lamp-watch at x, z: fishing allowed, no Cinders, no swarm until dawn. */
+  function anchorWatch(run, x, z) {
+    if (!run.scorched) return;
+    run.scorched.x = x; run.scorched.z = z;
+    delete run.scorched.pending;
+    run.lampWatch = { lampId: null, x, z, forced: true, radius: watchRadius(run) };
+    emit('lampwatch:start', { lampId: null, zone: run.zone, forced: true });
+    fx.ring(x, z, { radius: watchRadius(run), color: SCORCH, duration: 1.1, width: 0.06, opacity: 0.55, breakup: 0.6, wash: 0.18 });
+  }
+  const watchRadius = (run) => Math.max(1, num(modeCfg(run)?.scorched?.lampWatchR, num(B().nightModes?.lampWatch?.fishWithin, V3_FALLBACK.watchR)));
+
+  /**
+   * Lantern, Embers at 0 (CONTRACT §13.4 Scorched): player:scorched instead of player:died (combat withdraws the swarm),
+   * the lantern loses 30 oil at once, and a forced lamp-watch holds the Wick until dawn, anchored where it stands, or,
+   * when a fish is hooked, where the fight ends (landed or lost): the fight is never cut short.
+   */
+  function scorch(run = ctx.state.run) {
+    if (!v3Run(run) || T.dead || run.scorched) return false;
+    const p = playerPos(new THREE.Vector3());
+    const night = Math.max(1, run.day | 0);
+    const hooked = fishHooked();
+    run.hp = 0;
+    sv(run).embersOut = true;
+    run.scorched = hooked ? { night, x: p.x, z: p.z, pending: true } : { night, x: p.x, z: p.z };
+    run.stats.scorched = (run.stats.scorched | 0) + 1;
+    emit('player:scorched', { night, x: p.x, z: p.z });
+    const cost = Math.abs(num(modeCfg(run)?.scorched?.oil, -V3_FALLBACK.scorchOil));
+    if (cost > 0) spendOil(cost, 'scorched', { force: true });
+    if (T.dead || ctx.state.run !== run) return true;
+    if (!hooked) anchorWatch(run, p.x, p.z);
+    ctx.render?.flash?.(0x5a1606, 0.22, 0.6);
+    const h = headPos();
+    fx.motes(h.x, h.y, h.z, { count: 26, color: SCORCH, speed: 3.2, spread: 0.6, life: 1.0, size: 0.14, gravity: -3, damping: 1.6, shape: 'burst', intensity: 0.8 });
+    if (!real(ctx.ui)) toast('Scorched. The Gloom withdraws, but your light is thin until dawn.', 'bad');   // ui owns the Scorched card
+    return true;
+  }
+
+  /** v3: Embers reached 0. Gloomtide (and v1 / The Long Descent) snuffs; Lantern is Scorched; Still keeps the run going. */
+  function embersZero(run, src) {
+    if (embersSnuff(run)) { die(causeFor(src), run); return; }
+    run.hp = 0;
+    const w = sv(run);
+    if (w.embersOut) return;
+    if (modeCfg(run)?.embersZero === 'scorched' && !run.scorched) { scorch(run); return; }
+    w.embersOut = true;   // Still (no swarm to withdraw, no stakes), or a second fall the same Scorched night: mend at dawn
   }
 
   // ---------------------------------------------------------------- damage
@@ -374,6 +690,8 @@ export function create(ctx) {
     if (T.god) return 0;
     const Dm = cfgDamage();
     if (n <= 0) { if (oil) drainOil(oil, src); return 0; }
+    // v3 Still / Lantern with the Embers already out (Scorched, until dawn): nothing more to lose but the oil
+    if (run.surv?.embersOut && v3Run(run)) { if (oil) drainOil(oil, src); return 0; }
     if (!env && T.iframes > 0 && !opts?.ignoreIframes) {
       if (oil) drainOil(oil * num(Dm.iframeOilMult, 0.5), src);
       return 0;
@@ -404,7 +722,11 @@ export function create(ctx) {
     emit('player:damage', { amount: embers, source: src });
     hurtFeedback(embers, src);
     if (oil) drainOil(oil, src);
-    if (run.hp <= 0) { die(causeFor(src), run); return embers; }
+    if (run.hp <= 0) {
+      if (v3Run(run)) embersZero(run, src);   // Gloomtide snuffs; Lantern is Scorched; Still holds until dawn
+      else die(causeFor(src), run);
+      return embers;
+    }
     gutterBurst(run, false, src);
     lowEdges(run, s);
     return embers;
@@ -424,7 +746,7 @@ export function create(ctx) {
 
   function revive(run) {
     const R = cfgRevive();
-    run.hp = 1;
+    run.hp = Math.max(1, num(run.hp, 0));   // an Embers death revives at 1; a snuff (v3) keeps the Embers it had
     run.oil = Math.max(run.oil, Math.min(maxOil(), num(R.oil, 40)));
     checkLantern(run);
     T.iframes = Math.max(T.iframes, num(R.iframes, 2));
@@ -453,7 +775,7 @@ export function create(ctx) {
     if (T.dead) return;
     if (tryRevive(run)) { revive(run); return; }
     T.dead = true;
-    run.hp = 0;
+    if (cause !== 'snuffed') run.hp = 0;   // Snuffed (v3) is the oil, not the Embers
     ctx.actors?.setPose?.('die');
     emit('player:died', { cause });
   }
@@ -468,6 +790,7 @@ export function create(ctx) {
     run.hp = Math.min(maxHp(s), run.hp + n);
     const gained = run.hp - before;
     if (gained > 0) {
+      if (run.surv?.embersOut && v3Run(run)) run.surv.embersOut = false;   // the Embers are back (a Scorched night stays Scorched)
       emit('player:heal', { amount: gained, source });
       const h = headPos();
       fx.motes(h.x, h.y - 1.0, h.z, { count: 10 + 7 * gained, color: MEND, speed: 1.7, spread: 0.5, life: 1.5, size: 0.17, gravity: 0.5, damping: 0.9, shape: 'rise', radius: 1.4 });
@@ -505,7 +828,9 @@ export function create(ctx) {
     const of = run.oil / maxOil(s), sf = run.satiety / maxSat(s);
     if (w.lowOil && of <= num(L.oil, 0.25)) { w.lowOil = false; emit('resource:low', { resource: 'oil' }); }
     else if (!w.lowOil && of > num(L.oilRearm, 0.35)) w.lowOil = true;
-    if (w.lowSat && sf <= num(L.satiety, 0.2)) { w.lowSat = false; emit('resource:low', { resource: 'satiety' }); }
+    if (v3Run(run) && B().wellFed?.starvation === false) {
+      // v3: hunger never hurts, so there is nothing to warn about (the satiety bar becomes the Well-fed glyph)
+    } else if (w.lowSat && sf <= num(L.satiety, 0.2)) { w.lowSat = false; emit('resource:low', { resource: 'satiety' }); }
     else if (!w.lowSat && sf > num(L.satietyRearm, 0.3)) w.lowSat = true;
     const hpLine = num(L.hp, 2);
     if (w.lowHp && run.hp <= hpLine && run.hp > 0) { w.lowHp = false; emit('resource:low', { resource: 'hp' }); }
@@ -534,7 +859,7 @@ export function create(ctx) {
     const L = cfgLight();
     const w = run ? sv(run) : null;
     if (!run) return num(s.lightRadius, 8);
-    if (w.out || run.oil <= 0) return num(L.emberGlow, 2.5);
+    if (w.out || run.oil <= 0) return v3Run(run) ? num(oilCfg().gutter?.light, num(L.emberGlow, V3_FALLBACK.gutterLight)) : num(L.emberGlow, 2.5);
     const of = clamp(run.oil / maxOil(s));
     const fr = num(L.floorRadius, 0.55);
     const radius = num(s.lightRadius, 8) * (fr + (1 - fr) * of);
@@ -595,15 +920,17 @@ export function create(ctx) {
 
     // clock
     run.phaseTime += dt;
-    let dur = phaseDuration(run.phase, run.day);
+    let dur = phaseDuration(run.phase, run.day, run);
     if (holdsGloomtide(run)) run.phaseTime = Math.min(run.phaseTime, Math.max(0, dur - 0.05));
     let guard = 0;
     while (run.phaseTime >= dur && guard++ < 8) {
       run.phaseTime -= dur;
       advancePhase(run);
       if (T.dead || ctx.state.run !== run) return;
-      dur = phaseDuration(run.phase, run.day);
+      dur = phaseDuration(run.phase, run.day, run);
     }
+
+    if (v3Run(run)) { simulateV3(dt, run, s, w); return; }
 
     // drains: oil/s = oilDrain × oilPhase × zone × drainMult ; satiety/s = satietyDrain × zone × drainMult
     const z = zoneData(run);
@@ -641,6 +968,38 @@ export function create(ctx) {
         if (T.dead) return;
       }
     } else { T.starving = false; w.starveT = 0; }
+
+    lowEdges(run, s);
+  }
+
+  /**
+   * v3 drains and the lantern (after the clock): oil from the context table (no Heat factor), satiety × wellFed.drainMult
+   * (no starvation, ever), guttering → Snuffed, and a Scorched anchor that waits for the fight in progress to end.
+   */
+  function simulateV3(dt, run, s, w) {
+    const z = zoneData(run);
+    T.oilCtx = oilContext();
+    T.oilRate = v3OilRate(run, s, T.oilCtx);
+    T.satRate = Math.max(0, num(s.satietyDrain, 0.1) * num(z?.drain?.satiety, 1) * num(B().wellFed?.drainMult, 1));
+    if (!T.god) {
+      if (!w.out) run.oil = Math.max(0, run.oil - T.oilRate * dt);
+      run.satiety = Math.max(0, run.satiety - T.satRate * dt);
+    }
+    run.hp = Math.min(run.hp, maxHp(s));
+    run.oil = Math.min(run.oil, maxOil(s));
+    run.satiety = Math.min(run.satiety, maxSat(s));
+    checkLantern(run);
+    T.starving = false;
+    w.starveT = 0; w.darkT = 0;
+
+    // guttering: 25 s (light 2.5 m, no casting) to relight by rendering a fish, then Snuffed
+    if (w.out && !T.god) {
+      w.gutterT = num(w.gutterT, 0) + dt;
+      if (w.gutterT >= gutterTime()) { snuff(run); if (T.dead || ctx.state.run !== run) return; }
+    } else if (!w.out) w.gutterT = 0;
+
+    // Scorched while a fish was hooked: the forced lamp-watch anchors where the Wick stands when the fight ends
+    if (run.scorched?.pending && !fishHooked()) { const p = playerPos(); anchorWatch(run, p.x, p.z); }
 
     lowEdges(run, s);
   }
@@ -697,6 +1056,21 @@ export function create(ctx) {
       const owned = num(ctx.state.meta?.relics?.second_wick, 0) > 0;
       return { available: owned && !(r?.surv?.secondWickUsed) };
     },
+    // ---- v3 (CONTRACT §13.7 survival); all false / null outside a v3 run
+    /** 0 oil after today's Last Flicker: the lantern gutters (light 2.5 m, no casting) until a render relights it or it snuffs. */
+    get guttering() { const r = ctx.state.run; return v3Run(r) && !!r.surv?.out; },
+    /** Seconds of guttering left before Snuffed (0 when not guttering). */
+    get gutterLeft() { const r = ctx.state.run; return v3Run(r) && r.surv?.out ? Math.max(0, gutterTime() - num(r.surv.gutterT, 0)) : 0; },
+    /** Where the oil burns: 'raft' | 'foot' | 'lamp' (BALANCE.oil.context). */
+    get oilContext() { return v3Run(ctx.state.run) ? oilContext() : 'raft'; },
+    /** Well-fed (satiety ≥ BALANCE.wellFed.at of max): the HUD glyph; progression folds its stat effects into getStats. */
+    get wellFed() { const r = ctx.state.run; return v3Run(r) && wellFedOf(r); },
+    /** Tonight's lamp-watch ({lampId, forced, x, z, radius}) or null. A Scorched night's watch is forced and anchored. */
+    get lampWatch() { const r = ctx.state.run; return v3Run(r) && r.lampWatch ? { ...r.lampWatch } : null; },
+    /** {night, x, z, pending?} while a Lantern night is Scorched (until dawn), else null. */
+    get scorched() { const r = ctx.state.run; return v3Run(r) && r.scorched ? { ...r.scorched } : null; },
+    /** The run's night mode ('still' | 'lantern' | 'gloomtide'; the First Outing is still), or null outside a v3 run. */
+    get nightMode() { const r = ctx.state.run; return v3Run(r) ? modeOf(r) : null; },
     fx,
 
     init() {
@@ -713,11 +1087,25 @@ export function create(ctx) {
         if (!continued) {
           w.flickerDay = 0; w.nightHurt = false; w.nightEmbers = 0; w.starveT = 0; w.darkT = 0;
           w.lowOil = w.lowSat = w.lowHp = true; w.secondWickUsed = false;
+          if (v3Run(run)) {
+            // the Arrival Hush lands on day 1's calm (DESIGN §25.3.2); the survival half of the run state starts clean
+            w.hushDay = run.phase === 'calm' ? Math.max(1, run.day | 0) : Math.max(1, run.day | 0) + 1;
+            w.gutterT = 0; w.embersOut = false;
+            run.scorched = null; run.lampWatch = null;
+          }
         }
         w.out = run.oil <= 0 && w.flickerDay === run.day;
-        T.starving = run.satiety <= 0;
+        T.starving = v3Run(run) ? false : run.satiety <= 0;
       });
-      bus.on('zone:change', () => { diffKey = ''; statsCache = null; });
+      bus.on('zone:change', (e = {}) => {
+        diffKey = ''; statsCache = null;
+        // v3: a gate passage (calm or dawn) gives the new lake's first calm the Arrival Hush (CONTRACT §13.4)
+        const run = ctx.state.run;
+        if (!e || !e.prev || e.continued || e.hub || !e.zone || e.zone === e.prev || e.prev === 'cove') return;
+        if (!v3Run(run) || !playing(run)) return;
+        const day = Math.max(1, run.day | 0);
+        sv(run).hushDay = run.phase === 'calm' ? day : day + 1;
+      });
       bus.on('flare', () => {
         const F = cfgFlare();
         T.flareBoost = num(F.boostTime, 3);
@@ -759,11 +1147,52 @@ export function create(ctx) {
         setDay(n) { const r = ctx.state.run; if (!r) return null; r.day = Math.max(1, num(n, 1) | 0); diffKey = ''; return r.day; },
         survival() {
           const r = ctx.state.run;
-          return {
+          const out = {
             phase: getPhaseInfo(), god: T.god, iframes: T.iframes, light: T.light, oilRate: T.oilRate, satRate: T.satRate,
             starving: T.starving, dead: T.dead, mods: lightMods.map((l) => ({ ...l })), surv: r?.surv ? { ...r.surv } : null,
             hp: r?.hp, oil: r?.oil, satiety: r?.satiety,
           };
+          if (v3Run(r)) {
+            Object.assign(out, {
+              v3: true, nightMode: modeOf(r), oilContext: T.oilCtx, wellFed: wellFedOf(r), guttering: !!r.surv?.out,
+              gutterLeft: api.gutterLeft, scorched: r.scorched ? { ...r.scorched } : null, lampWatch: r.lampWatch ? { ...r.lampWatch } : null,
+              durations: getPhaseDurations(r.day),
+            });
+          }
+          return out;
+        },
+        // v3 (CONTRACT §13.11)
+        /** Snuff now: oil 0 with today's Last Flicker spent, and the guttering run out (progression.tryRevive still applies). */
+        snuff() {
+          const r = ctx.state.run;
+          if (!r || !v3Run(r) || T.dead) return false;
+          const w = sv(r);
+          r.oil = 0; w.flickerDay = r.day; checkLantern(r);
+          w.gutterT = gutterTime();
+          snuff(r);
+          return !T.dead ? 'revived' : true;
+        },
+        /** Start guttering now (oil 0, today's Last Flicker spent): `gutterLeft` counts down to Snuffed. */
+        gutter() {
+          const r = ctx.state.run;
+          if (!r || !v3Run(r) || T.dead) return false;
+          const w = sv(r);
+          r.oil = 0; w.flickerDay = r.day; checkLantern(r);
+          return api.gutterLeft;
+        },
+        /** Embers to 0 in the run's mode (Lantern → Scorched; Still → out until dawn; Gloomtide → the Embers death). */
+        scorch() {
+          const r = ctx.state.run;
+          if (!r || !v3Run(r) || T.dead) return false;
+          embersZero(r, 'debug');
+          return { scorched: r.scorched ? { ...r.scorched } : null, lampWatch: r.lampWatch ? { ...r.lampWatch } : null, dead: T.dead };
+        },
+        /** Re-arm the Arrival Hush for the calm of `day` (default: today) in the current lake. */
+        hush(day) {
+          const r = ctx.state.run;
+          if (!r || !v3Run(r)) return null;
+          sv(r).hushDay = Math.max(1, num(day, r.day) | 0);
+          return getPhaseInfo();
         },
       });
     },
@@ -780,18 +1209,23 @@ export function create(ctx) {
       }
       if (run) {
         validate(run);
-        if (playing(run) && dt > 0 && !T.dead) simulate(dt, run);
+        // the measuring ceremony is cinematic (CONTRACT §13.1): main gives survival dt 0; never tick the clock or drains under it
+        if (playing(run) && dt > 0 && !T.dead && ctx.cinematic !== true) simulate(dt, run);
       } else T.runRef = null;
       pushVisuals(rdt, ctx.state.run);
       fx.update(rdt, real(ctx.player) ? ctx.player.position : null);
     },
 
     getPhaseInfo,
+    getPhaseDurations,
     damage,
     heal,
     addOil,
     addSatiety,
     drainOil,
+    spendOil,
+    /** CONTRACT §13.4 Scorched (Lantern, Embers at 0). Called internally; exposed for combat / tools. */
+    scorch() { return scorch(ctx.state.run); },
     isInvulnerable() {
       const run = ctx.state.run;
       return T.god || T.iframes > 0 || T.dead || !playing(run);
@@ -810,6 +1244,7 @@ export function create(ctx) {
         hp: run?.hp ?? maxHp(s), maxHp: maxHp(s), oil: run?.oil ?? maxOil(s), maxOil: maxOil(s),
         satiety: run?.satiety ?? maxSat(s), maxSatiety: maxSat(s), oilRate: T.oilRate, satietyRate: T.satRate,
         lanternOut: !!run?.surv?.out, starving: T.starving, lightRadius: T.light, iframes: T.iframes,
+        ...(v3Run(run) ? { wellFed: wellFedOf(run, s), guttering: !!run.surv?.out, gutterLeft: api.gutterLeft, oilContext: T.oilCtx } : {}),
       };
     },
     dispose() { fx.dispose(); },
