@@ -585,7 +585,7 @@ export function create(ctx) {
       if (!charge) { charge = makeOscLoop('triangle', 220, 'lowpass', 900, 0.7, N.sfxDry); charge.lg.gain.value = 3; }
       setT(charge, 'g', charge.g.gain, 0.025 + 0.03 * c, 0.03);
       setT(charge, 'o', charge.o.frequency, 170 + 420 * c, 0.025, 0.003);
-      const cleanAt = num(ctx.data?.BALANCE?.cast?.cleanAt, 0.92);
+      const cleanAt = num(fv.cleanAt, num(ctx.data?.BALANCE?.cast?.cleanAt, 0.92));   // v3: fishing's view (Quiet Hands)
       const clean = c >= cleanAt;
       if (clean && !wasClean) play('charge_ping');
       wasClean = clean;
@@ -754,6 +754,13 @@ export function create(ctx) {
       tellTick();
     });
     on('fishing:state', (p) => { if (tell && p.state !== 'waiting' && p.state !== 'bite') dropTell(); });
+    // an Elder's old trick (fishing:surge {trick} already plays the splash and strain) gets a low warning swell
+    on('fishing:oldTrick', () => { resetScratch(); scratch.pan = bobberPan(); scratch.pitch = 0.72; scratch.volume = 0.9; play('surge_warn', scratch); });
+    // a legend snag (Still / Lantern Grasping Dark): the 1 s telegraph, then the strain of the +0.2 spike
+    on('fishing:snag', (p) => {
+      resetScratch(); scratch.pan = bobberPan();
+      if (p.state === 'warn') { scratch.pitch = 0.6; play('surge_warn', scratch); } else { scratch.volume = 0.9; play('line_strain', scratch); }
+    });
     on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); });
     on('sign:rise', (p) => riseSound(p));
     on('sign:end', (p) => { if (p.id !== undefined) signHeard.delete(p.id); });

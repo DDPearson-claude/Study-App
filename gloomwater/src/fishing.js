@@ -275,6 +275,31 @@ export function create(ctx) {
     if (!NM) return false;
     return m === 'still' || NM.threat?.slamSnaps === false;
   }
+  /** v3: the run's Angler Boon procs for one trigger (combat.boonProcs, CONTRACT §13.7): Night Eyes ('night':
+   *  nightBiteSpeed), Quiet Hands ('cast': cleanAt). null without v3 data or without the combat API. */
+  function procs(on) {
+    if (!v3on()) return null;
+    const c = ctx.combat;
+    if (!isReal(c) || typeof c.boonProcs !== 'function') return null;
+    try { const p = c.boonProcs(on); return p && typeof p === 'object' ? p : null; } catch (e) { report(e); return null; }
+  }
+  /** The Clean Cast threshold: BALANCE.cast.cleanAt, widened by Quiet Hands (0.92 → 0.88) in v3. */
+  function cleanAt(C = BAL('cast')) {
+    const base = num(C.cleanAt, 0.92);
+    const q = num(procs('cast')?.cleanAt, NaN);
+    return Number.isFinite(q) ? Math.min(base, q) : base;
+  }
+  /** v3 lamp-watch (DESIGN §25.5.2): during a lamp-watch at a watch-lamp the bobber must land within fishWithin (10 m) of
+   *  it. A forced (Scorched) watch has no lamp and no cast limit (the raft is leashed instead). null when no limit applies. */
+  function lampWatchLimit() {
+    if (!v3on()) return null;
+    const sv = ctx.survival;
+    if (!isReal(sv)) return null;
+    let lw = null;
+    try { lw = sv.lampWatch; } catch { lw = null; }
+    if (!lw || lw.forced || !Number.isFinite(lw.x) || !Number.isFinite(lw.z)) return null;
+    return { x: lw.x, z: lw.z, r: num(BAL('nightModes').lampWatch?.fishWithin, 10) };
+  }
   function moveInput() {
     const i = ctx.input;
     return i ? Math.hypot((i.move?.x || 0) + (i.joy?.x || 0), (i.move?.y || 0) + (i.joy?.y || 0)) > 0.15 : false;
@@ -599,6 +624,12 @@ export function create(ctx) {
       setState('idle');
       return;
     }
+    const lw = lampWatchLimit();
+    if (lw && Math.hypot(V.target.x - lw.x, V.target.z - lw.z) > lw.r) {
+      emit('toast', { text: `On a lamp-watch you fish within ${Math.round(lw.r)} m of the lamp.`, kind: 'info' });
+      setState('idle');
+      return;
+    }
     beginCast(d, S.charge);
   }
 
@@ -606,7 +637,7 @@ export function create(ctx) {
     const C = BAL('cast');
     S.castDist = dist;
     S.extShift.set(0, 0, 0);   // raft displacement no paddling caused, since this cast (lineBroken in Still / Lantern)
-    S.clean = power >= num(C.cleanAt, 0.92);
+    S.clean = power >= cleanAt(C);
     // bait: one general charge per cast; legend baits are spent by progression on hook
     const eq = equippedBaitId();
     let consumed = null;
@@ -737,7 +768,8 @@ export function create(ctx) {
     if (spV3(sp)) S.weight = 1;   // v3: the size score is rolled when the bite begins (rollSize), not here
     else S.weight = sp ? rollWeight(sp, baitId) : 1;
     // wait
-    const biteSpeed = Math.max(0.1, num(st.biteSpeed, 1) + baitBonus(baitId, 'biteSpeed'));
+    const biteSpeed = Math.max(0.1, num(st.biteSpeed, 1) + baitBonus(baitId, 'biteSpeed')
+      + (gloom ? num(procs('night')?.nightBiteSpeed, 0) : 0));   // v3 Night Eyes: night bite speed +10%
     let W = (num(Bt.waitBase, 3) + expRand(num(Bt.waitMean, 5.5)))
       / (biteSpeed * (S.spot ? 1 / num(SP.waitMult, 0.55) : 1) * (gloom ? num(Bt.gloomMult, 1.15) : 1))
       * (S.clean ? num(C.cleanBiteMult, 0.85) : 1) * (isPity ? num(Bt.pity?.waitMult, 0.7) : 1);
@@ -821,7 +853,7 @@ export function create(ctx) {
     if (V.tmp.lengthSq() > 1e-4) V.tmp.normalize(); else V.tmp.set(0, 0, -1);
     S.tellDir.set(-V.tmp.z, 0, V.tmp.x).multiplyScalar(Math.random() < 0.5 ? -1 : 1);   // a sideways slide for the flat tell
     view.biteTell = S.tell;
-    emit('fishing:tell', { speciesId: sp?.id || null, sizeClass: S.sizeClass, biteTell: S.tell, lead: Math.max(0, S.waitDur - S.stateT) });
+    emit('fishing:tell', { speciesId: sp?.id || null, sizeClass: S.sizeClass, biteTell: S.tell, lead: Math.max(0, S.waitDur - S.stateT), dur });
   }
   /** The tell's bobber pose at its progress k (0 → 1): {dip (m below the surface), slide (m), state}. */
   function tellPose(k) {
@@ -1484,7 +1516,9 @@ export function create(ctx) {
     aCall('setCharge', S.charge);
     // visuals
     const raft = raftPos();
-    const clean = S.charge >= num(C.cleanAt, 0.92) ? 1 : 0;
+    const cAt = cleanAt(C);
+    if (v3on()) view.cleanAt = cAt;
+    const clean = S.charge >= cAt ? 1 : 0;
     const key = view.anchoring ? 'anchoring' : S.blocked ? 'blocked' : S.band;
     const size = (1.05 + 0.045 * S.castDist) / 0.74;
     fx.setReticle(true, V.target.x, V.target.z, size, key, clean, view.anchoring ? 0.55 : 1, S.clock * 0.6);
@@ -1861,7 +1895,7 @@ export function create(ctx) {
           // v3
           z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: S.lengthCm ? Math.round(S.lengthCm * 10) / 10 : null, mu: S.mu, terms: S.favourTerms, tell: S.tell,
           place: S.cast?.place?.id || null, giant: !!S.cast?.giant, pressureKey: S.cast?.pressureKey || null, letPass: S.letPass ? { ...S.letPass } : null,
-          extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on() }),
+          extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean }),
       });
     },
 

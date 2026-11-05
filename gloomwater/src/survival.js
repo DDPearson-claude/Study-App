@@ -426,7 +426,7 @@ export function create(ctx) {
   function enterPhase(phase, prev, run) {
     const s = sv(run);
     if (phase === 'dusk') duskForecast(run);
-    else if (phase === 'gloomtide') { s.nightHurt = false; s.nightEmbers = 0; }
+    else if (phase === 'gloomtide') { s.nightHurt = false; s.nightEmbers = 0; if (prev === 'dusk' && v3Run(run)) detectLampWatch(run); }
     else if (phase === 'dawn') {
       if (prev === 'gloomtide') {
         run.stats.nightsSurvived = (run.stats.nightsSurvived | 0) + 1;
@@ -610,6 +610,65 @@ export function create(ctx) {
     fx.ring(x, z, { radius: watchRadius(run), color: SCORCH, duration: 1.1, width: 0.06, opacity: 0.55, breakup: 0.6, wash: 0.18 });
   }
   const watchRadius = (run) => Math.max(1, num(modeCfg(run)?.scorched?.lampWatchR, num(B().nightModes?.lampWatch?.fishWithin, V3_FALLBACK.watchR)));
+
+  // ---------------------------------------------------------------- v3 S6: the lamp-watch at a watch-lamp (DESIGN §25.5.2)
+  const lampWatchCfg = () => B().nightModes?.lampWatch || null;
+  /** Lamp-watch applies in this run's mode (BALANCE.nightModes.lampWatch.modes: Lantern only; Gloomtide ignores it). */
+  function watchModeOn(run) {
+    const LW = lampWatchCfg();
+    if (!LW || !v3Run(run)) return false;
+    return (Array.isArray(LW.modes) ? LW.modes : ['lantern']).includes(modeOf(run));
+  }
+  /** The lake's watch-lamps: world.getWatchLamps() (W1) when the world has it; else the data's arena.watchLamps (the
+   *  Mossmere's buoy-lamps, RAFT_FALLBACK_V3's) plus §24 sister-candles flagged `watch` while they are lit. */
+  function watchLamps(run) {
+    const w = ctx.world;
+    if (real(w) && typeof w.getWatchLamps === 'function') {
+      try { const l = w.getWatchLamps(); if (Array.isArray(l)) return l; } catch { /* fall through */ }
+    }
+    const a = zoneData(run)?.arena || {};
+    const out = Array.isArray(a.watchLamps) ? a.watchLamps.slice() : [];
+    const pr = real(ctx.progression) ? ctx.progression : null;
+    for (const l of Array.isArray(a.lamps) ? a.lamps : []) {
+      if (!l?.watch) continue;
+      let lit = l.lit === true;
+      if (!lit && pr && typeof pr.isLampLit === 'function') { try { lit = pr.isLampLit(l.id) === true; } catch { lit = false; } }
+      if (lit) out.push(l);
+    }
+    return out;
+  }
+  const lampX = (l) => num(l?.position?.x, num(l?.x, NaN));
+  const lampZ = (l) => num(l?.position?.z, num(l?.z, NaN));
+  /** At the moment dusk ends: inside a watch-lamp's pool (r 6) on a night the swarm would come → tonight's lamp-watch. */
+  function detectLampWatch(run) {
+    if (!watchModeOn(run) || run.lampWatch || run.scorched || T.dead) return;
+    if (!swarmTonight(run)) return;   // a quiet night needs no watch (and keeps its free casting)
+    const p = playerPos();
+    const R0 = num(lampWatchCfg()?.radius, 6);
+    for (const l of watchLamps(run)) {
+      const x = lampX(l), z = lampZ(l);
+      if (!Number.isFinite(x) || !Number.isFinite(z)) continue;
+      const r = Math.max(0.5, num(l.radius, R0));
+      if ((p.x - x) ** 2 + (p.z - z) ** 2 > r * r) continue;
+      run.lampWatch = { lampId: l.id ?? null, x, z, forced: false, radius: r };
+      run.stats.lampWatches = (run.stats.lampWatches | 0) + 1;
+      emit('lampwatch:start', { lampId: l.id ?? null, zone: run.zone, forced: false });
+      fx.ring(x, z, { radius: r, color: GOLD, duration: 1.2, width: 0.05, opacity: 0.5, breakup: 0.5, wash: 0.12 });
+      toast(`Lamp-watch. The Gloom keeps away tonight; fish within ${Math.round(num(lampWatchCfg()?.fishWithin, 10))} m of the lamp.`, 'good');
+      return;
+    }
+  }
+  /** Leaving the pool by more than leaveCancels (10 m) during the night ends a (non-forced) watch: the swarm window starts
+   *  at the current k (combat polls run.lampWatch). A forced Scorched watch is anchored and cannot be left. */
+  function checkLampWatchLeave(run) {
+    const lw = run.lampWatch;
+    if (!lw || lw.forced || run.phase !== 'gloomtide') return;
+    const p = playerPos();
+    const lim = num(lw.radius, num(lampWatchCfg()?.radius, 6)) + num(lampWatchCfg()?.leaveCancels, 10);
+    if ((p.x - lw.x) ** 2 + (p.z - lw.z) ** 2 <= lim * lim) return;
+    endLampWatch(run);
+    toast('You left the lamp-watch. The Gloom stirs.', 'bad');
+  }
 
   /**
    * Lantern, Embers at 0 (CONTRACT §13.4 Scorched): player:scorched instead of player:died (combat withdraws the swarm),
@@ -1000,6 +1059,8 @@ export function create(ctx) {
 
     // Scorched while a fish was hooked: the forced lamp-watch anchors where the Wick stands when the fight ends
     if (run.scorched?.pending && !fishHooked()) { const p = playerPos(); anchorWatch(run, p.x, p.z); }
+    // S6: sailing more than 10 m out of a watch-lamp's pool ends tonight's watch
+    if (run.lampWatch && !run.lampWatch.forced) checkLampWatchLeave(run);
 
     lowEdges(run, s);
   }
@@ -1186,6 +1247,22 @@ export function create(ctx) {
           if (!r || !v3Run(r) || T.dead) return false;
           embersZero(r, 'debug');
           return { scorched: r.scorched ? { ...r.scorched } : null, lampWatch: r.lampWatch ? { ...r.lampWatch } : null, dead: T.dead };
+        },
+        /** S6 (CONTRACT §13.11): start tonight's lamp-watch at a watch-lamp now (`lampId`, default the nearest), or end a
+         *  non-forced one with `null`. Lantern only, like the real one; returns the watch or null. */
+        lampWatch(lampId) {
+          const r = ctx.state.run;
+          if (!r || !watchModeOn(r) || T.dead) return null;
+          if (lampId === null) { if (r.lampWatch && !r.lampWatch.forced) endLampWatch(r); return null; }
+          if (r.lampWatch || r.scorched) return { ...r.lampWatch };
+          const p = playerPos();
+          const lamps = watchLamps(r).filter((l) => Number.isFinite(lampX(l)) && Number.isFinite(lampZ(l)) && (lampId === undefined || l.id === lampId));
+          lamps.sort((a, b) => ((lampX(a) - p.x) ** 2 + (lampZ(a) - p.z) ** 2) - ((lampX(b) - p.x) ** 2 + (lampZ(b) - p.z) ** 2));
+          const l = lamps[0];
+          if (!l) return null;
+          r.lampWatch = { lampId: l.id ?? null, x: lampX(l), z: lampZ(l), forced: false, radius: Math.max(0.5, num(l.radius, num(lampWatchCfg()?.radius, 6))) };
+          emit('lampwatch:start', { lampId: l.id ?? null, zone: r.zone, forced: false });
+          return { ...r.lampWatch };
         },
         /** Re-arm the Arrival Hush for the calm of `day` (default: today) in the current lake. */
         hush(day) {

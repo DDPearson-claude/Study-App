@@ -279,7 +279,13 @@ export function create(ctx) {
     else if (sp > aSpeed + 0.05 && (inputActive || !busy)) setAnchored(false);
 
     // ---- a knock that drags the raft far from a waiting bobber reels the line in
-    if (fstate === 'waiting') {
+    // fishing.lineBroken() is the one owner of that rule (v3: in Still / Lantern it discounts raft movement combat caused,
+    // CONTRACT §13.7 the hard rule); the distance check below stays for a fishing module without it
+    if (fstate === 'waiting' && typeof ctx.fishing?.lineBroken === 'function') {
+      let broken = false;
+      try { broken = ctx.fishing.lineBroken() === true; } catch { broken = false; }
+      if (broken) cancelFishing('moved');
+    } else if (fstate === 'waiting') {
       const b = ctx.fishing?.bobberPos;
       if (b && Number.isFinite(b.x)) {
         const reach = num(ctx.fishing?.view?.castDist, 0) || num(s.castMax, 16);

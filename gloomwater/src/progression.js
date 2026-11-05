@@ -1632,7 +1632,8 @@ export function create(ctx) {
     on('fishing:caught', onCaught);
     on('fishing:land', ({ position }) => { lastCast = castInfoAt(position); });
     on('fishing:hook', onHook);
-    on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved') r.flags.streak = 0; });
+    // a let-it-pass ('passed', v3 F4) is a choice, not a miss: it keeps the perfect-hook streak (DESIGN §25.6.4)
+    on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved' && reason !== 'passed') r.flags.streak = 0; });
     on('fishing:escaped', () => { const r = run(); if (r?.stats) r.stats.fishLost = (r.stats.fishLost | 0) + 1; });
     on('enemy:slain', onEnemySlain);
     on('boss:slain', onBossSlain);
@@ -1646,6 +1647,8 @@ export function create(ctx) {
     });
     on('flare', () => { const r = run(); if (r && (r.flags.nightActive || phaseInfo().phase === 'gloomtide')) r.flags.nightFlares = (r.flags.nightFlares | 0) + 1; });
     on('levelup', onLevelUp);
+    // v3 C3: a level-up banked outside a swarm emits 'levelup' only when its pick is offered; the level counts now
+    on('levelup:banked', ({ level }) => { if (level > 0) onLevelUp({ level }); });
     on('boon:chosen', onBoonChosen);
     on('phase:change', onPhaseChange);
     on('day:start', onDayStart);
