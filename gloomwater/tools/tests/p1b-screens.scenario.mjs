@@ -47,8 +47,11 @@ export default async function (api) {
   });
   await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title', null, { timeout: 240000 });
   await g(() => window.__gw.game.wipeAll());
-  for (let a = 0; a < 3; a++) {
-    try { await page.goto(page.url().split('?')[0] + '?v3=1&v3phase=1', { waitUntil: 'load', timeout: 240000 }); break; } catch (e) { log('reload retry', String(e?.message || e).split('\n')[0]); }
+  // a page built with the v3 flag preset (globalThis.GW_V3 / GW_V3_PHASE in its head) needs no reload; otherwise ?v3=1
+  if (!(await g(() => window.__gw.data.V3_ENABLED === true && window.__gw.data.V3_PHASE === 1))) {
+    for (let a = 0; a < 3; a++) {
+      try { await page.goto(page.url().split('?')[0] + '?v3=1&v3phase=1', { waitUntil: 'load', timeout: 240000 }); break; } catch (e) { log('reload retry', String(e?.message || e).split('\n')[0]); }
+    }
   }
   await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title' && !document.getElementById('loader'), null, { timeout: 240000, polling: 500 });
   const fonts = await g(async () => { await document.fonts.ready; return [...new Set([...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')))]; }).catch(() => []);
