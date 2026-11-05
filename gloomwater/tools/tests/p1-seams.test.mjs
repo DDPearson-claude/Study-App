@@ -192,19 +192,20 @@ section('Quiet Hands (combat.boonProcs(\'cast\').cleanAt 0.88) widens the Clean 
   const v0 = waitWith(dataV1, {}, 'gloomtide'), v1 = waitWith(dataV1, NE, 'gloomtide');
   ok(Math.abs(v0 - v1) < 1e-9, 'flag off: procs are never read');
 }
-section('fishing:tell carries dur (the float animation\'s length) for audio');
+section('fishing:tell carries dur (the float animation\'s length, ending in the shared 0.25 s last dip: AF F4′) for audio');
 {
   const env = makeFishingEnv({ data, raft: [4, 14.8] });
-  const want = { doublePop: 0.36, plunge: 0, dragUnder: data.BALANCE.bite.dragUnder ?? 0.4, flatSlide: 0.5, dome: 0.6 };
+  const dip = data.AUTOFISH.strike.lastDip;
+  const want = { doublePop: 0.36 + dip, plunge: 0 + dip, dragUnder: (data.BALANCE.bite.dragUnder ?? 0.4) + dip, flatSlide: 0.5 + dip, dome: 0.6 + dip };
   const seen = {};
   for (const z of [-1.2, 0.2, 1.4, 2.2, 2.9]) {
     env.reset(); env.tick(30);
     env.ctx.debug.forceBite({ speciesId: 'reedjaw_pike', z, wait: 3 });
     env.tick(100);
     const t = [...env.events].reverse().find((x) => x.e === 'fishing:tell')?.p;
-    if (t) seen[t.biteTell] = t.dur;
+    if (t && t.lastDip === dip) seen[t.biteTell] = t.dur;
   }
-  ok(Object.keys(seen).length >= 4 && Object.entries(seen).every(([k, v]) => Math.abs(v - want[k]) < 1e-9), `tell durations ${JSON.stringify(seen)}`);
+  ok(Object.keys(seen).length >= 4 && Object.entries(seen).every(([k, v]) => Math.abs(v - want[k]) < 1e-9), `tell durations ${JSON.stringify(seen)} (each with lastDip ${dip})`);
 }
 
 // ------------------------------------------------------------------ progression: the streak on a pass; banked level-ups

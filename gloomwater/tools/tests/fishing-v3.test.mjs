@@ -1,11 +1,11 @@
 // Unit tests for the v3 Phase 1 fishing items (DESIGN §25.14.2 F1, F4, F13, F7; CONTRACT §13.7 fishing) on the v3 data at
 // phase 1 (raft build), plus a flag-off sanity pass. Pure logic from src/fishing-reel.js and src/fishing.js on a fake ctx
-// (tools/tests/fishing-env.mjs; seeded through its fishSeed debug hook). D1′ retired the manual v3 reel's data (size → fight,
-// the reel edits, old tricks, pips, drag presets, the v3 fight stats, tools/sim/reel-v3.mjs), so its sim-parity, old-trick, pip
-// and fight-stat sections went with it; the code they drove is removed from the v3 path by the AF build (F4′, F2′, U2′).
+// (tools/tests/fishing-env.mjs; seeded through its fishSeed debug hook). D1′ retired the manual v3 reel's data and the AF build
+// (F4′, F2′) removed its code from the v3 path: a hook there starts the automatic play (tools/tests/fishing-af.test.mjs has its
+// acceptance tests); the hard rule and the legend's staged beats are checked here on that play.
 //   node tools/tests/fishing-v3.test.mjs            (or node tools/check.mjs; --verbose prints every passing check)
 import * as dataV1 from '../../src/data.js';                 // evaluated first: GW_V3 unset → the flag-off build
-import { createReel, rollZ, capZ, floatFavour, sumFavour, inGiantSpot } from '../../src/fishing-reel.js';
+import { rollZ, capZ, floatFavour, sumFavour, inGiantSpot } from '../../src/fishing-reel.js';
 
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_WALK = false;
 const D = await import('../../src/data.js?fishing-v3p1');
@@ -70,55 +70,21 @@ section('F13 float favour: species-independent terms + per-term max over the poo
   ok([0.14, 0.15, 0.44, 0.45, 0.79, 0.8, 1.19, 1.2, 1.59, 1.6].map(notch).join('') === '0112233445', 'notches follow the six bands < .15 · .15–.45 · .45–.8 · .8–1.2 · 1.2–1.6 · ≥ 1.6');
 }
 
-// =================================================================== F2: the reel model's v3 options (src/fishing-reel.js, explicit options)
-section('F2 reel: drag absorbs and slips progress 0.08 per unit absorbed; Spooled; pips thrown at 0');
-{
-  const sp0 = { power: 1, surgeEvery: 30, surgeTime: 1, stamina: 10, sweet: 1, erratic: 0 };
-  const mk = (extra = {}) => createReel({ R: D.BALANCE.reel, sp: sp0, behavior: 'steady', LS: 1, RS: 1, rng: mul(3),
-    v3: { ease: { base: 0.8, perLoad: 0.2 }, drag: { slipLoss: 0.08, spooledSlip: 0.5 }, absorb: 0.45, dragAt: 0.8, shock: 0, fatigue: { after: 60, perS: 0.01, floor: 0.6 }, pips: null, ...extra } });
-  const r = mk();
-  r.T = 0.9; r.vT = 0.6; r.P = 0.5;   // above the drag point, rising, out of the safe band (no reel gain)
-  const T0 = r.T, P0 = r.P;
-  r.step(1 / 30, true);
-  const dP = r.P - P0, ab = r.slipped;
-  ok(ab > 0 && near(dP, -0.08 * ab, 1e-12), `held above the drag point: ΔP ${dP.toExponential(3)} = −0.08 × absorbed ${ab.toExponential(3)}`);
-  const raw = (r.T - T0) / (1 - 0.45);
-  ok(near(ab, raw * 0.45, 1e-12), 'absorbed = dT × absorb (0.45, Reel T1)');
-  const r2 = mk(); r2.T = 0.6; r2.vT = 0.6; r2.step(1 / 30, true);
-  ok(r2.slipped === 0, 'no slip below the drag point');
-  const r3 = mk(); r3.T = 0.95; r3.vT = -0.5; r3.step(1 / 30, false);
-  ok(r3.slipped === 0, 'no slip while tension falls');
-  const r4 = mk(); r4.slipped = 0.6; r4.P = 0.0005; r4.T = 0.1; r4.vT = -0.5; r4.step(1 / 30, false);
-  ok(r4.done && r4.result === 'spooled', `progress 0 after slip > 0.5 → Spooled (${r4.result})`);
-  const r5 = mk({ pips: { n: 2, low: 0.15 } });
-  let lost = 0; const events = [];
-  const r6 = createReel({ R: D.BALANCE.reel, sp: sp0, behavior: 'steady', LS: 1, RS: 1, rng: mul(4), onEvent: (t, p) => { events.push(t); if (t === 'pip') lost++; },
-    v3: { ease: { base: 0.8, perLoad: 0.2 }, drag: { slipLoss: 0.08, spooledSlip: 0.5 }, absorb: 0.3, dragAt: 0.8, shock: 0, fatigue: null, pips: { n: 2, low: 0.15 } } });
-  for (let round = 0; round < 2 && !r6.done; round++) {
-    r6.forceSurge();
-    let guard = 0;
-    while (r6.surgeMode !== 'surge' && guard++ < 200) r6.step(1 / 30, false);
-    r6.T = 0.3; r6.step(1 / 30, false);          // in the surge, above the line
-    r6.T = 0.05; r6.vT = -0.5; r6.step(1 / 30, false);   // dips below 0.15: a pip
-    guard = 0; while (r6.surgeMode === 'surge' && !r6.done && guard++ < 200) { r6.T = 0.3; r6.vT = 0; r6.step(1 / 30, false); }
-  }
-  ok(lost === 2 && r6.done && r6.result === 'thrown', `two surge dips with 2 pips → thrown (${lost} lost, ${r6.result})`);
-  ok(r5.pips === 2 && r5.pipsMax === 2, 'pips read-out');
-}
 // =================================================================== fishing.js on a fake ctx
 const makeEnv = (opts = {}) => makeFishingEnv({ data: D, ...opts });
 
-section('D1′: the manual v3 reel\'s data is retired: the v3 path still runs (size, class, favour), with no pips and no old trick');
+section('D1′ + F2′: the manual v3 reel is gone; a hook on the v3 path starts the automatic play (size, class, favour kept)');
 {
   ok(!('fight' in SZ) && !('reel' in SZ) && !('pips' in D.BALANCE.bite) && !('shock' in D.STATS), 'BALANCE.size.fight / .reel, bite.pips and the v3 fight stats are gone');
   const env = makeEnv({ raft: [4, 14.8] });
   env.ctx.debug.fishHook('reedjaw_pike', { z: 1.4 });
   const hk = [...env.events].reverse().find((x) => x.e === 'fishing:hook');
-  ok(env.F.state === 'reeling' && env.dbg().v3 === true && env.dbg().z === 1.4 && env.F.view.pips === null && hk.p.pips === null, `a Prize (z ${env.dbg().z}) is hooked on the v3 path with no pips (${env.F.view.pips})`);
+  ok(env.F.state === 'reeling' && env.dbg().v3 === true && env.dbg().z === 1.4 && env.F.view.pips === null && !('pips' in hk.p) && env.ctx.debug.fishReel() === null && !!env.ctx.debug.fishPlan(),
+    `a Prize (z ${env.dbg().z}) is on the automatic play: a plan, no reel, no pips (${env.F.view.pips})`);
   env.reset();
   env.ctx.debug.fishHook('reedjaw_pike', { z: 2.95 });
-  const reel = env.ctx.debug.fishReel();
-  ok(env.F.state === 'reeling' && reel.trickDone === true && reel.trick === false, 'an Elder has no old trick pending');
+  const plan = env.ctx.debug.fishPlan();
+  ok(env.F.state === 'reeling' && plan.sizeClass === 'elder' && plan.lastStands.length === 1, 'an Elder\'s old trick is the class-generic last stand of its plan');
 }
 
 section('F1 in game: z never exceeds 2.64 outside giant water; the stopgap giant spots hold Elders');
@@ -192,7 +158,10 @@ section('F4 bite tells per class (readable with sound off) and the bite payload'
     const minY = Math.min(...ys), maxY = Math.max(...ys), moved = Math.max(...xs) - Math.min(...xs);
     if (tell === 'doublePop') ok(last.filter((b) => b.state === 'nibble').length >= 2 && minY < -0.05, 'Small: two quick pops under');
     if (tell === 'dragUnder') ok(minY < -0.15 && moved > 0.1, `Prize: a slow drag under (y ${minY.toFixed(2)}, ${moved.toFixed(2)} m)`);
-    if (tell === 'flatSlide') ok(minY >= -0.05 && moved > 0.3, `Trophy: lies flat and slides (${moved.toFixed(2)} m)`);
+    const flat = last.filter((b) => b.state === 'floating').map((b) => b.y);
+    if (tell === 'flatSlide') ok(Math.min(...flat) >= -0.05 && moved > 0.3, `Trophy: lies flat and slides (${moved.toFixed(2)} m), then the last dip`);
+    const tail = last.slice(-6);   // AF (F4′): every tell ends with the same 0.25 s last dip before the "!"
+    ok(tail.length === 6 && tail.every((b) => b.state === 'nibble') && Math.min(...tail.map((b) => b.y)) < -0.08, `${tell}: ends with the shared last dip (${tail.map((b) => b.y.toFixed(2)).join(' ')})`);
     if (tell === 'dome') ok(maxY > 0.1, `Elder: the water domes up (y ${maxY.toFixed(2)})`);
     if (tell === 'plunge') ok(maxY <= 0.001 && moved < 0.01, 'Keeper: the classic plunge, no pre-tell');
     env.reset();
@@ -253,15 +222,16 @@ for (const mode of ['still', 'lantern', 'gloomtide']) {
   const fl = (env.F.view.favour?.terms || []).find((t) => t.id === 'nightRise'), roll = env.dbg().terms.find((t) => t.id === 'nightRise');
   ok(fl?.value === 0.25 && roll?.value === 0.25, `${mode}: float and roll carry Night Rise +0.25`);
 }
-section('F7 the hard rule: in Still and Lantern slams never snap and combat displacement never breaks the line; Gloomtide unchanged');
+section('F7 the hard rule: in Still and Lantern slams never part a line and combat displacement never breaks it; Gloomtide: a slam parts it (staggered)');
 for (const mode of ['still', 'lantern', 'gloomtide']) {
   const env = makeEnv({ mode, phase: 'gloomtide' });
   env.ctx.debug.fishHook('reedjaw_pike', { z: 1.0 });
   const mark = env.events.length;
   env.F.slam(); env.tick(12); env.F.cancel('snap'); env.tick(1);
   const safe = mode !== 'gloomtide';
-  const snapped = env.events.slice(mark).some((x) => x.e === 'fishing:escaped' && x.p.reason === 'snap');
-  ok(safe ? env.F.state === 'reeling' && !snapped : snapped, `${mode}: a slam during a fight → ${snapped ? 'snapped' : env.F.state}`);
+  const parted = env.events.slice(mark).filter((x) => x.e === 'fishing:escaped');
+  ok(safe ? env.F.state === 'reeling' && !parted.length : parted.length === 1 && parted[0].p.reason === 'staggered' && env.F.state === 'lost',
+    `${mode}: a slam during a play → ${parted.length ? `parted (${parted.map((x) => x.p.reason).join()})` : env.F.state}`);
   const w = makeEnv({ mode, phase: 'gloomtide' });
   w.ctx.debug.forceBite({ speciesId: 'mossback_perch', wait: 3 });
   for (let i = 0; i < 20; i++) { w.ctx.player.position.x += 0.8; w.tick(1); }   // a 16 m shove with no paddling
@@ -371,23 +341,22 @@ section('F7 the First Outing is all still (slams never snap); The Long Descent k
   desc.F.slam(); desc.tick(2);
   ok(desc.F.state === 'lost', `The Long Descent: a slam → ${desc.F.state}`);
 }
-section('F7 legend quiet: in Still / Lantern the Lantern-Swallower’s Grasping Dark is two telegraphed snags (1 s, +0.2 tension), no hands; Gloomtide spawns its hands');
+section('F7 legend quiet: in Still / Lantern the Lantern-Swallower’s Grasping Dark is two staged beats of its play (no hands, no tension); Gloomtide spawns its hands');
 for (const mode of ['still', 'lantern', 'gloomtide']) {
   const env = makeEnv({ mode, phase: 'gloomtide', zoneId: 'paleabyss', raft: [0, -30] });
-  const spawned = [], snags = [], spikes = [];
+  const spawned = [], beats = [];
   env.ctx.combat = { spawnEnemy: (id) => { spawned.push(id); return { id }; } };
-  env.ctx.bus.on('fishing:snag', (p) => snags.push({ ...p, t: env.ctx.debug.fishReel()?.time ?? null }));
+  env.ctx.bus.on('fishing:reel', (p) => { if (p.kind === 'graspingDark') beats.push(p); });
+  env.ctx.debug.fishOutcome('land');
   env.ctx.debug.fishHook('lantern_swallower');
-  const reel = env.ctx.debug.fishReel();
-  const spike0 = reel.spike; reel.spike = (d) => { spikes.push(d); return spike0(d); };
-  reel.P = Math.max(reel.P, 0.26);   // into Grasping Dark (at 0.25)
-  for (let i = 0; i < 30 * 8 && env.F.state === 'reeling'; i++) { if (reel.T > 0.55) env.F.onPointerUp(); else env.F.onPointerDown(); env.tick(1); }
-  if (mode !== 'gloomtide') {
-    const w = snags.filter((x) => x.state === 'warn'), h = snags.filter((x) => x.state === 'hit');
-    ok(spawned.length === 0 && w.length === 2 && h.length === 2 && spikes.length === 2 && spikes.every((d) => near(d, 0.2, 1e-9)), `${mode}: ${w.length} warnings, ${h.length} snags (+${spikes.join(', +')}), ${spawned.length} hands`);
-    ok(near(h[0].t - w[0].t, 1, 0.05) && near(h[1].t - w[1].t, 1, 0.05), `${mode}: each snag lands 1 s after its warning (${(h[0].t - w[0].t).toFixed(2)} s, ${(h[1].t - w[1].t).toFixed(2)} s)`);
-  } else ok(spawned.length === 2 && snags.length === 0, `gloomtide: ${spawned.length} hands (${spawned.join(', ')}), no snags`);
-  ok(env.F.state === 'reeling', `${mode}: the legend fight goes on (${env.F.state})`);
+  const plan = env.ctx.debug.fishPlan();
+  const at2 = plan.beats.filter((b) => b.kind === 'graspingDark')[1].t1;
+  for (let i = 0; i < Math.ceil(at2 * 30) + 5 && env.F.state === 'reeling'; i++) { env.F.slam(); env.tick(1); }
+  ok(beats.length === 2 && beats.every((b) => b.legendary === true && b.speciesId === 'lantern_swallower' && b.phase === 'surge') && !env.events.some((x) => x.e === 'fishing:snag'),
+    `${mode}: two staged Grasping Dark beats on the legend grammar, no fishing:snag (${beats.length})`);
+  if (mode !== 'gloomtide') ok(spawned.length === 0, `${mode}: no hands (${spawned.length})`);
+  else ok(spawned.length === 2, `gloomtide: ${spawned.length} hands (${spawned.join(', ')})`);
+  ok(env.F.state === 'reeling', `${mode}: the legend's play goes on through slams (${env.F.state})`);
 }
 {
   const env = makeEnv({ mode: 'lantern' });

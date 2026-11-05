@@ -236,6 +236,13 @@ function progressKnots(plan) {
   return out.map(([t, v]) => [r4(t), r4(v)]);
 }
 
+/** The strike's draws, always all four and in this order (AUTOFISH.loss.draws): [planSeed, u, causeU, momentU]. The outcome is
+ *  u < p; the cause and the moment are drawn even when the fish lands, so a land and a loss on one seed share one plan. */
+export function drawStrike(rng) {
+  const planSeed = (Math.floor(rng() * 4294967296) >>> 0) || 1;
+  const u = rng(), causeU = rng(), momentU = rng();
+  return { planSeed, u, causeU, momentU };
+}
 /** The loss's cause weights for a style and class (AUTOFISH.loss.byStyle / byClass, a mistimed strike's spat), normalised. */
 export function lossWeights(style, cls, grade = 'struck', A = AUTOFISH) {
   const L = A.loss;
@@ -251,11 +258,12 @@ export function lossWeights(style, cls, grade = 'struck', A = AUTOFISH) {
 }
 const pickW = (w, u) => { let acc = 0; const ks = Object.keys(w); for (const k of ks) { acc += w[k]; if (u < acc - 1e-12) return k; } return ks[ks.length - 1]; };
 /** Where a lost play is lost (pure; see the header). Returns {cause, at (s), frac, on: 'leap'|'scare'|'beat', dur (the loss beat, s)}. */
-export function chooseLoss(plan, { style = 'steady', grade = 'struck', foul = false, leaper = false, causeU = 0.5, momentU = 0.5, A = AUTOFISH } = {}) {
+export function chooseLoss(plan, { style = 'steady', grade = 'struck', foul = false, leaper = false, causeU = 0.5, momentU = 0.5, cause: forced = null, A = AUTOFISH } = {}) {
   const L = A.loss, dur = plan.dur, minAt = (L.minAt ?? 0.5) * dur, cls = plan.sizeClass;
   const s1 = subU(causeU, 1), s2 = subU(causeU, 2), s3 = subU(causeU, 3), m2 = subU(momentU, 2), m3 = subU(momentU, 3);
   const lossDur = r4(lerp(A.play.beat.loss[0], A.play.beat.loss[1], m3));
   const out = (cause, at, on) => ({ cause, at: r4(Math.max(minAt, at)), frac: r4(Math.max(minAt, at) / dur), on, dur: lossDur });
+  if (forced && L.at[forced]) { const [a, b] = L.at[forced]; return out(forced, lerp(Math.max(a, L.minAt ?? 0.5), b, momentU) * dur, 'beat'); }   // debug fishOutcome('lose', reason)
   if (foul && s1 < (L.chainFouled ?? 0.5)) { const [a, b] = L.at.fouled; return out('fouled', lerp(a, b, momentU) * dur, 'beat'); }
   // a leap in the second half: the hook is thrown on the leap (its apex)
   const thrownWin = L.at.thrown;

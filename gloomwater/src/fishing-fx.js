@@ -14,6 +14,12 @@
 // water (setSigns / setSignMode); water only gets the tagged ripples and wakes fishing asks for. The spot meshes stay
 // for the flag-off build and are hidden in sign mode. The legend pool's golden column becomes a low gold glimmer.
 // Also: the scoop's water sheet, the measuring stamp flash and the leap reveal's rim flash (bursts and pulses).
+//
+// Automatic fishing (DESIGN §25.6.10; CONTRACT §13.7a): the hooked fish is one generic NIGHT-INK PROXY until the reveal, the same
+// shape for every species (a plain fusiform body, a forked tail, one soft dorsal hump, length : depth 4.2 : 1, unlit ink #04050a
+// with a thin rim in the key light's colour), drawn at the length fishing gives it (data.presentLength: the class length, never
+// the species' own). setProxy() places it (leaps, glimpses, the skitter, the lift); the shadow decal carries it under the water.
+// Built on first use, so the flag-off build never has it (+1 call while visible).
 import * as THREE from 'three';
 
 export const MAX_SLOTS = 10;          // spot slots (8 feeding spots + legend column + spare)
@@ -320,6 +326,57 @@ void main() {
   gl_FragColor = vec4(mix(uInk, uRim, clamp(rim * 1.4, 0.0, 1.0)), alpha);
   #include <colorspace_fragment>
 }`;
+
+// the night-ink proxy: unlit ink, a thin fresnel rim in the key light's colour (no species colour, pattern, glow or eye)
+const PROXY_VS = /* glsl */`
+varying vec3 vN; varying vec3 vV;
+void main() {
+  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vN = normalize(mat3(modelMatrix) * normal);
+  vV = normalize(cameraPosition - wp.xyz);
+  gl_Position = projectionMatrix * viewMatrix * wp;
+}`;
+const PROXY_FS = /* glsl */`
+uniform vec3 uInk; uniform vec3 uRim; uniform float uAlpha; uniform float uRimK;
+varying vec3 vN; varying vec3 vV;
+void main() {
+  float f = 1.0 - abs(dot(normalize(vN), normalize(vV)));
+  float rim = smoothstep(0.62, 0.98, f) * uRimK;
+  gl_FragColor = vec4(mix(uInk, uRim, rim), uAlpha);
+  #include <colorspace_fragment>
+}`;
+/** The proxy's geometry, length 1 along +z (the head), depth 1 / 4.2: a lathe body flattened sideways, a forked tail, a dorsal hump. */
+function proxyGeometry() {
+  const L = 1, R = 0.5 / 4.2, pts = [];
+  for (let i = 0; i <= 16; i++) {   // the profile from the tail (y −0.5) to the snout (y 0.5): deepest a little ahead of the middle
+    const y = -0.5 + i / 16, u = (y + 0.5) / L;
+    const r = R * Math.pow(Math.sin(Math.PI * Math.pow(u, 0.82)), 0.85) * (u < 0.12 ? 0.55 + 3.75 * u : 1);
+    pts.push(new THREE.Vector2(Math.max(0.004, r), y));
+  }
+  const body = new THREE.LatheGeometry(pts, 14).toNonIndexed();
+  body.rotateX(Math.PI / 2);          // the lathe's +y axis → +z (head forward)
+  body.scale(0.72, 1, 1);             // a fish is narrower than it is deep
+  const tri = (a, b, c) => [...a, ...b, ...c];
+  const fins = [
+    // the forked tail: two lobes in the vertical plane behind the body
+    ...tri([0, 0.004, -0.44], [0, 0.16, -0.62], [0, 0.02, -0.52]), ...tri([0, -0.004, -0.44], [0, -0.15, -0.6], [0, -0.02, -0.52]),
+    ...tri([0, 0.004, -0.44], [0, 0.02, -0.52], [0, -0.02, -0.52]),
+    // one soft dorsal hump
+    ...tri([0, R * 0.9, 0.12], [0, R * 1.75, -0.02], [0, R * 0.85, -0.16]),
+  ];
+  const finGeo = new THREE.BufferGeometry();
+  finGeo.setAttribute('position', new THREE.Float32BufferAttribute(fins, 3));
+  finGeo.computeVertexNormals();
+  const a = body.getAttribute('position').array, an = body.getAttribute('normal').array, b = finGeo.getAttribute('position').array, bn = finGeo.getAttribute('normal').array;
+  const pos = new Float32Array(a.length + b.length), nor = new Float32Array(a.length + b.length);
+  pos.set(a); pos.set(b, a.length); nor.set(an); nor.set(bn, an.length);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  g.computeBoundingSphere();
+  body.dispose(); finGeo.dispose();
+  return g;
+}
 
 const POOL_FS = /* glsl */`
 uniform vec3 uInk; uniform vec3 uRing; uniform vec3 uGold; uniform float uR; uniform float uHalf; uniform float uActive; uniform float uDim; uniform float uTime; uniform float uAlpha;
@@ -818,6 +875,19 @@ export function createFishingFx(ctx) {
   const shadow = flatQuad(shMat, 2); shadow.name = 'fish-shadow';
   group.add(shadow); disposables.push(shadow.geometry, shMat);
 
+  // ---------------------------------------------------------------- the night-ink proxy (automatic fishing; built on first use)
+  let proxy = null;
+  const proxyU = { uInk: { value: new THREE.Color(0x04050a) }, uRim: { value: new THREE.Color(0xc9cde6) }, uAlpha: { value: 1 }, uRimK: { value: 0.85 } };
+  function buildProxy() {
+    if (proxy) return proxy;
+    const geo = proxyGeometry();
+    const mat = new THREE.ShaderMaterial({ uniforms: proxyU, vertexShader: PROXY_VS, fragmentShader: PROXY_FS, side: THREE.DoubleSide, transparent: true });
+    proxy = new THREE.Mesh(geo, mat);
+    proxy.name = 'fish-proxy'; proxy.renderOrder = 4; proxy.frustumCulled = false; proxy.visible = false;
+    group.add(proxy); disposables.push(geo, mat);
+    return proxy;
+  }
+
   // ---------------------------------------------------------------- v3 signs (built on first use: the flag-off build never has it)
   let signs = null;   // {mesh, geo, A, B, C, D, n}
   const signU = { uSurf: { value: 1 }, uTime: time };
@@ -960,7 +1030,27 @@ export function createFishingFx(ctx) {
 
     hideTransient() {
       reticle.visible = label.visible = range.visible = arc.visible = shadow.visible = false;
+      if (proxy) proxy.visible = false;
     },
+
+    /** The night-ink proxy (automatic fishing): at (x, y, z), heading `yaw` (head toward +z rotated by yaw), `pitch` nose-up,
+     *  `roll`, `length` m (fishing passes data.presentLength: the class length), `alpha` (the reveal's ink lifting), `rimK`
+     *  (the key light's rim; brighter when it is backlit against spray). */
+    setProxy(visible, x = 0, y = 0, z = 0, yaw = 0, pitch = 0, roll = 0, length = 0.5, alpha = 1, rimK = 0.85) {
+      if (!visible) { if (proxy) proxy.visible = false; return; }
+      const m = buildProxy();
+      m.visible = true;
+      m.position.set(x, y, z);
+      m.rotation.set(-pitch, yaw, roll, 'YXZ');
+      m.scale.setScalar(Math.max(0.02, length));
+      proxyU.uAlpha.value = Math.max(0, Math.min(1, alpha));
+      proxyU.uRimK.value = rimK;
+      m.material.depthWrite = alpha > 0.98;
+    },
+    /** The proxy's rim colour: the scene's key light (render may call it; the default is the starlit moon-silver). */
+    setProxyRim(hex) { try { proxyU.uRim.value.set(hex); } catch { /* ignore */ } },
+    get proxyVisible() { return !!proxy?.visible; },
+    get proxyState() { return proxy ? { visible: proxy.visible, length: proxy.scale.x, x: proxy.position.x, y: proxy.position.y, z: proxy.position.z, alpha: proxyU.uAlpha.value } : null; },
 
     // ---------------------------------------------------------------- v3 signs
     /** Sign mode (v3): hide the feeding-spot meshes, show the sign instances. surf: the surface linework's weight
