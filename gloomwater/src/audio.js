@@ -169,7 +169,7 @@ export function create(ctx) {
     sfxWet.connect(sfxWetVol); sfxWetVol.connect(conv);
     sfxDly.connect(sfxDlyVol); sfxDlyVol.connect(delay);
 
-    N = { master, comp, analyser, conv, delay, muffle, musicDry, musicWet, musicDly, musicVol, musicWetVol, musicDlyVol, sfxDry, sfxWet, sfxDly, sfxVol, sfxWetVol, sfxDlyVol };
+    N = { master, comp, analyser, conv, delay, muffle, musicDry, musicWet, musicDly, musicVol, musicWetVol, musicDlyVol, sfxDry, sfxWet, sfxDly, sfxVol, sfxWetVol, sfxDlyVol, verbReturn, dReturn };
     music = createMusic(eng, { dry: musicDry, wet: musicWet, dly: musicDly, onError: (e) => report('music', e) });
     rmsBuf = new Float32Array(analyser.fftSize);
     return true;
@@ -635,12 +635,18 @@ export function create(ctx) {
     try { g.cancelScheduledValues(now); g.setTargetAtTime(0, now, 0.03); g.setTargetAtTime((af.music?.drone || 0) * 0.06, until, 0.9); } catch { /* ignore */ }
     l._g = 0;
   }
-  /** The score holds its breath through the still (busGains applies it now) and returns at its end on the audio clock. */
+  /** The score holds its breath through the still (busGains applies it now) and returns at its end on the audio clock; the
+   *  cavern's tail and echoes and the water under the raft hush with it, so the silence is a silence. */
   function afScoreGate(until) {
     if (!N) return;
     busGains();
+    const now = ac.currentTime;
     const back = curve(set.music) * MUSIC_LEVEL * AF_MUSIC;
-    try { for (const g of [N.musicVol.gain, N.musicWetVol.gain, N.musicDlyVol.gain]) g.setTargetAtTime(back, until, 0.5); } catch { /* ignore */ }
+    try {
+      for (const g of [N.musicVol.gain, N.musicWetVol.gain, N.musicDlyVol.gain]) g.setTargetAtTime(back, until, 0.5);
+      for (const [g, v] of [[N.verbReturn.gain, 0.85], [N.dReturn.gain, 0.5]]) { g.cancelScheduledValues(now); g.setTargetAtTime(v * 0.08, now, 0.08); g.setTargetAtTime(v, until, 0.35); }
+      if (water && !water.dead) { const wg = water.g.gain; wg.cancelScheduledValues(now); wg.setTargetAtTime(0.004, now, 0.1); water._g = 0.004; }
+    } catch { /* ignore */ }
   }
   function makeHum(f) {
     const l = makeOscLoop('triangle', f, 'bandpass', f * 2, 4, N.sfxDry);
@@ -853,7 +859,7 @@ export function create(ctx) {
       water.lfo.connect(water.lg); water.lg.connect(water.flt.frequency); water.lfo.start();
     }
     if (water) {
-      const tgt = (flow === 'playing' || flow === 'title' || flow === 'hub') ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0;
+      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub') ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
       setT(water, 'g', water.g.gain, tgt, 0.4);
       setT(water, 'f', water.flt.frequency, 560 + 600 * Math.min(1, spFrac), 0.3, 0.01);
     }
