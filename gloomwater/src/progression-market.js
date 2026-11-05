@@ -1,5 +1,7 @@
 // progression-market.js — Old Murk (DESIGN §13): his mooring schedule, the five shop
 // tabs (Sell · Gear · Bait · Supplies · Ledger) and the Ledger bounties (§15).
+// v3 automatic fishing (Pg14, DESIGN §25.6.3): in P1–P2 runs a sixth tab, Lures: every lure (the giants' lures included) per run
+// at 40% of its price once its lake is lit (AUTOFISH.runLures), kept in run.lures until the run ends.
 // Helper of progression.js only (receives the shared internals object `S`).
 import { uid, rand } from './core.js';
 import { heavyTargetKg } from './progression-v3.js';
@@ -186,6 +188,8 @@ export function createMarket(S) {
       desc: b.desc + (legend ? ` Draws ${legend.name}.` : ''), price, level: owned, maxLevel: 0,
       canBuy: !reason, reason, count: b.count ?? 1, owned, legend: !!b.legend, baitId: b.id,
       effectText: S.baitBonusText(b),
+      // v3 automatic fishing: the bait's Hold and whom it helps (the gear log's line at Murk's bait rows; never a %)
+      ...(S.isV3?.() && D().CATCH_V3?.items?.[b.id] ? { hold: D().CATCH_V3.items[b.id].hold ?? 0, targets: S.af?.targetsOf?.(b.id) ?? [], holdText: S.af?.holdText?.(b.id) || '' } : {}),
     };
   }
   function supplyItem(s, r) {
@@ -205,6 +209,20 @@ export function createMarket(S) {
       id: `supply:${s.id}`, kind: 'supply', category: 'supplies', tab: 'supplies', icon: s.icon, name: s.name,
       desc: s.desc, price, level: bought, maxLevel: limit, canBuy: !reason, reason, give: s.give, supplyId: s.id,
       effectText: giveText(s.give),
+    };
+  }
+  /** Pg14: a per-run lure row (tab 'lure'): its 40% price, its Hold and whom it helps (the gear log's line; never a %). */
+  function lureItem(x, r) {
+    const L = x.lure;
+    const hold = D().CATCH_V3?.items?.[L.id]?.hold ?? 0;
+    let reason = closedReason();
+    if (!reason && x.owned) reason = 'Yours for this descent';
+    if (!reason && !afford(x.price)) reason = poorReason(x.price);
+    return {
+      id: `lure:${L.id}`, kind: 'lure', category: 'lure', tab: 'lure', icon: 'lure', name: L.name,
+      desc: L.desc || '', price: x.price, level: x.owned ? 1 : 0, maxLevel: 1, owned: x.owned, canBuy: !reason, reason, lureId: L.id,
+      hold, targets: S.af?.targetsOf?.(L.id) ?? [], giants: Array.isArray(L.species), equipped: S.af?.equippedItem?.(r) === L.id,
+      depth: L.depth || null, holdText: S.af?.holdText?.(L.id) || `+${hold} Hold`, effectText: S.af?.holdText?.(L.id) || `+${hold} Hold`,
     };
   }
   function ledgerItem(b) {
@@ -231,6 +249,7 @@ export function createMarket(S) {
       items.push(baitItem(b, r));
     }
     for (const s of D().SUPPLIES || []) if ((s.zoneMin ?? 0) <= zi) items.push(supplyItem(s, r));
+    if (S.af?.runLuresOn?.(r)) for (const x of S.af.runLures(r)) items.push(lureItem(x, r));
     for (const b of getBounties()) items.push(ledgerItem(b));
     return items;
   }
@@ -245,11 +264,13 @@ export function createMarket(S) {
     if (prefix === 'gear') return buyUpgrade(id);
     if (prefix === 'bait') return buyBait(id);
     if (prefix === 'supply') return buySupply(id);
+    if (prefix === 'lure') return buyLure(id);
     if (prefix === 'bounty') return { ok: false, msg: 'Bounties pay out the moment they are done.' };
     // bare ids
     if (S.upgrade(raw)) return buyUpgrade(raw);
     if (S.bait(raw)) return buyBait(raw);
     if (S.supply(raw)) return buySupply(raw);
+    if (S.af?.isLure?.(raw) && S.af.runLuresOn(r)) return buyLure(raw);
     if (r.creel?.some((f) => f.uid === raw)) return sellFish(raw);
     return { ok: false, msg: 'Murk squints. "Never heard of it."' };
   }
@@ -288,7 +309,8 @@ export function createMarket(S) {
     S.spendShells(item.price, 'bait');
     r.bait = r.bait || {};
     r.bait[b.id] = (r.bait[b.id] | 0) + (b.count ?? 1);
-    if (!r.equippedBait || (r.bait[r.equippedBait] | 0) <= 0) S.equipBait(b.legend ? r.equippedBait : b.id, { quiet: true });
+    const lureOn = S.isV3?.() && S.af?.isLure?.(S.af.equippedItem(r));   // Pg14: a bought bait never knocks a lure off the line
+    if (!lureOn && (!r.equippedBait || (r.bait[r.equippedBait] | 0) <= 0)) S.equipBait(b.legend ? r.equippedBait : b.id, { quiet: true });
     if (b.legend) S.toast(`${b.name}: equip it and cast into the still water of the legend pool.`, 'info');
     return purchased(`bait:${b.id}`, item, { count: r.bait[b.id] });
   }
@@ -316,6 +338,23 @@ export function createMarket(S) {
     }
     if (g.chum) ctx.fishing?.armChum?.();   // v3 Murk's Chum (F6): the next cast spawns a 30 s nervous sign at the bobber
     return purchased(`supply:${s.id}`, item);
+  }
+
+  /** Pg14: a lure for this run (P1–P2), at 40% once its lake is lit; it goes on the line unless another lure already is. */
+  function buyLure(id) {
+    const r = run();
+    if (!r) return denied('There is no descent under way.');
+    const L = S.af?.lure?.(id);
+    if (!L || !S.af.runLuresOn(r)) return denied('Murk has none of that.');
+    if (!canTrade()) return denied('Old Murk is not here.');
+    const x = S.af.runLures(r).find((q) => q.lure.id === L.id);
+    if (!x || (!x.lit && !x.owned)) return denied('Murk keeps that for deeper water.');
+    const item = lureItem(x, r);
+    if (x.owned) return denied('Yours for this descent already.');
+    if (!item.canBuy) return denied(item.reason.startsWith('Need') ? (line('poor') || item.reason) : item.reason);
+    S.spendShells(item.price, 'lure');
+    S.af.grantRunLure(L.id);
+    return purchased(`lure:${L.id}`, { ...item, owned: true, level: 1 });
   }
 
   function sellFish(fishUid) {
@@ -565,6 +604,6 @@ export function createMarket(S) {
     update, arrive, leave, reset, followDescent, isPresent, canShop, canTrade,
     shop: { getItems, buy },
     noteSale, offerBounties, expireBounties, dropZoneBounties, bountyEvent, getBounties, completeBounty,
-    priceOfBait,
+    priceOfBait, buyLure,
   };
 }

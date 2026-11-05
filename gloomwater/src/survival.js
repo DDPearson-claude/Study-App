@@ -38,8 +38,11 @@
 //      after progression.tryRevive). No darkness ticks. Embers at 0 snuff only where nightModes[mode].snuffBy has
 //      'embers' (Gloomtide); Lantern → Scorched (§13.4: player:scorched, −30 oil, a forced lamp-watch anchored where the
 //      Wick stands or where a fight in progress ends, Embers mend at dawn); Still → the Embers stay out until dawn.
-//   S3 satiety drains × BALANCE.wellFed.drainMult; never starves; ≥ wellFed.at of max is Well-fed (progression folds the
-//      stat effects into getStats; survival reports `wellFed` and adds the +1 dawn mend in combat modes).
+//   S3 satiety drains × BALANCE.wellFed.drainMult; never starves; ≥ wellFed.at of max is Well-fed (survival reports `wellFed`
+//      and adds the +1 dawn mend in combat modes).
+//   S7 (automatic fishing) Well-fed is +2 Hold (BALANCE.wellFed.effects {hold: 2}, CATCH_V3.buffs.wellFed), a run buff that
+//      catchChance reads through progression.getCatchBuffs().wellFed, counted under the run-buff cap (≤ 4; ≤ 6 with relics);
+//      it is never a reel stat (no reelSpeed / sweetZone on the v3 path), so survival folds nothing into the stats.
 // v3 API extras: guttering, gutterLeft, oilContext, wellFed, lampWatch, scorched, nightMode, spendOil(n, reason, opts),
 //   scorch(), getPhaseDurations(day) (the HUD clock's segments), getPhaseInfo() += {hush, guttering, gutterLeft,
 //   swarm, nightMode}; events += player:scorched {night, x, z}, lampwatch:start / lampwatch:end {lampId, zone, forced};
@@ -1133,7 +1136,7 @@ export function create(ctx) {
     get gutterLeft() { const r = ctx.state.run; return v3Run(r) && r.surv?.out ? Math.max(0, gutterTime() - num(r.surv.gutterT, 0)) : 0; },
     /** Where the oil burns: 'raft' | 'foot' | 'lamp' (BALANCE.oil.context). */
     get oilContext() { return v3Run(ctx.state.run) ? oilContext() : 'raft'; },
-    /** Well-fed (satiety ≥ BALANCE.wellFed.at of max): the HUD glyph; progression folds its stat effects into getStats. */
+    /** Well-fed (satiety ≥ BALANCE.wellFed.at of max): the HUD glyph; its +2 Hold reaches catchChance through progression.getCatchBuffs (S7). */
     get wellFed() { const r = ctx.state.run; return v3Run(r) && wellFedOf(r); },
     /** Tonight's lamp-watch ({lampId, forced, x, z, radius}) or null. A Scorched night's watch is forced and anchored. */
     get lampWatch() { const r = ctx.state.run; return v3Run(r) && r.lampWatch ? { ...r.lampWatch } : null; },
