@@ -18,6 +18,9 @@
 export default async function (api) {
   const { page, frames, evalGame: g, log, shot } = api;
   const failures = [];
+  // --only=c1,c6,c3,c4 runs a subset (the two runs it needs are always set up)
+  const only = api.args?.only ? String(api.args.only).toLowerCase().split(',') : null;
+  const want = (x) => !only || only.includes(x);
   let stepName = 'boot';
   const t0 = Date.now();
   const step = (s) => { stepName = s; log(`---- ${s}  (+${((Date.now() - t0) / 1000).toFixed(0)} s)`); };
@@ -92,11 +95,13 @@ export default async function (api) {
   s = await g(() => { const c = window.__gw; c.game.startNewRun({ nightMode: 'lantern' }); c.ui.closeAll?.(); c.debug.timeScale?.(4); const r = c.state.run; return { outing: r.outing, mode: r.nightMode, combat: c.combat.nightMode }; });
   check(s.outing === 'first' && s.combat === 'still', 'run 1 is the First Outing and combat plays it still', s);
   let m0 = await mark();
-  await night(2);
-  await runUntilK(0.6, 400);
-  await safeShot('v3-still-night');
-  check((await since(m0, 'enemy:spawn')).length === 0, 'night 2 of the First Outing spawns nothing');
-  check((await since(m0, 'swarm:window')).length === 0, 'no swarm window');
+  if (want('c1')) {
+    await night(2);
+    await runUntilK(0.6, 400);
+    await safeShot('v3-still-night');
+    check((await since(m0, 'enemy:spawn')).length === 0, 'night 2 of the First Outing spawns nothing');
+    check((await since(m0, 'swarm:window')).length === 0, 'no swarm window');
+  }
 
   // ------------------------------------------------------------------ C1: Lantern
   step('C1 Lantern, run 2');
@@ -108,6 +113,7 @@ export default async function (api) {
     return { outing: r.outing, mode: r.nightMode, combat: c.combat.nightMode, runs: c.state.meta.runs, flow: c.flow };
   });
   check(s.outing === 'normal' && s.mode === 'lantern' && s.combat === 'lantern', 'run 2 plays Lantern', s);
+  if (want('c1')) {
   m0 = await mark();
   await night(1);
   await runUntilK(0.6, 400);
@@ -179,7 +185,10 @@ export default async function (api) {
   s = await g(() => { const b = window.__gw.combat.getBoss?.(); return { boss: b ? b.state : null, alive: window.__gw.combat.enemies.filter((e) => e.alive && !(e.boss && e.state === 'withdraw')).length }; });
   check(s.boss === null || s.boss === 'withdraw', 'the Warden withdraws when the window closes', s);
 
+  }
+
   // ------------------------------------------------------------------ C6: the hard rule
+  if (want('c6')) {
   step('C6 a hand slam while reeling (Lantern)');
   await night(2); await atK(0.12); await frames(3);
   const slam = async () => g(async () => {
@@ -255,7 +264,10 @@ export default async function (api) {
   s = await g(() => ({ scorched: window.__gw.state.run.scorched, hp: window.__gw.state.run.hp, flow: window.__gw.flow }));
   check(!s.scorched && s.hp > 0 && s.flow === 'playing', 'at dawn the Embers mend and the Scorched night ends', s);
 
+  }
+
   // ------------------------------------------------------------------ C3: banked level-ups
+  if (want('c3')) {
   step('C3 banked level-ups');
   await pickOpen();
   await g(() => { const c = window.__gw; c.ui.closeAll?.(); c.debug.setDay(3); c.debug.setPhase('calm'); c.debug.timeScale?.(1); c.debug.setOil(100); });
@@ -329,7 +341,10 @@ export default async function (api) {
   });
   check(s.all && s.n > 0, 'every Still offer is an Angler-pool Boon', s);
 
+  }
+
   // ------------------------------------------------------------------ C4: Grasping Dark as snags
+  if (want('c4')) {
   step('C4 a Grasping Dark snag on the Lantern-Swallower (Lantern)');
   await night(2); await atK(0.15); await frames(3); await pickOpen();
   s = await g(() => {
@@ -342,15 +357,29 @@ export default async function (api) {
   m0 = await mark();
   const r1 = await g(() => window.__gw.debug.snag());
   check(r1?.snag === true, 'Grasping Dark → a snag, not a hand', r1);
-  for (let i = 0; i < 6; i++) await frames(1);
-  await safeShot('v3-snag-telegraph');
-  await waitFor(() => (window.__cr || []).some((x) => x.e === 'legend:snag' && x.p?.phase === 'hit'), null, 120);
+  // keep the Swallower on the line through the snag: a tiny bot holds below mid tension and lets go above it
+  const keepOn = () => g(() => {
+    const c = window.__gw, f = c.fishing, T = f.view?.tension ?? 0;
+    if (f.state === 'reeling') { if (T < 0.5) f.onPointerDown?.(); else f.onPointerUp?.(); }
+    return { st: f.state, T: +T.toFixed(2), hit: (window.__cr || []).some((x) => x.e === 'legend:snag' && x.p?.phase === 'hit') };
+  });
+  const trace = [];
+  for (let i = 0; i < 160; i++) {
+    const k = await keepOn();
+    if (i % 10 === 0 || k.hit) trace.push(k);
+    if (i === 6) await safeShot('v3-snag-telegraph');
+    if (k.hit || k.st !== 'reeling') break;
+    await frames(1);
+  }
+  await g(() => window.__gw.fishing.onPointerUp?.());
+  log('snag trace', JSON.stringify(trace));
   const sn = await since(m0, 'legend:snag');
   const fsn = await since(m0, 'fishing:snag');
   check(sn.length >= 2 && sn[0].p.phase === 'warn' && sn[1].p.phase === 'hit' && sn[1].p.spiked === true, 'the snag warns, then spikes the line', sn.map((x) => x.p));
   check(fsn.some((x) => Math.abs((x.p?.spike ?? 0) - 0.2) < 1e-6), 'fishing took a +0.2 spike', fsn.map((x) => x.p));
   check((await since(m0, 'enemy:spawn')).length === 0, 'nothing spawned (no hand, no swarm while the legend is on)');
   await g(() => { const c = window.__gw; c.fishing.cancel?.('debug'); });
+  }
 
   // ------------------------------------------------------------------ the end
   step('errors');
