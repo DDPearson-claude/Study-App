@@ -56,6 +56,7 @@ export function create(ctx) {
   const lightHolder = new THREE.Group(); lightHolder.name = 'actorLights'; group.add(lightHolder);
   lightHolder.add(merchantR.light); // keep the merchant light always in the scene graph (stable light count)
   const lanternLight = raft.light;
+  const LFLAME_I = raft.lflame.outerMat.uniforms.uI.value;
   const catchHolder = new THREE.Group(); catchHolder.name = 'catchHolder'; group.add(catchHolder);
   const cord = createCord(ctx); group.add(cord.group);
 
@@ -71,7 +72,7 @@ export function create(ctx) {
     // v3 measuring: explicit pose (setPose), the ceremony's pose (fishing.view.measure), the held v3 fish's own pose, the
     // alongside side, the fish's hand-over blend, and the cord (explicit showCord wins and sticks; else the view drives it)
     meas: { pose: null, cerPose: null, auto: null, active: null, t: 0, side: 1, vphase: null, vphaseT: 0, idleT: 0,
-      blend: 1, from: null, rippleT: 0, fill: { k: 0, saved: null }, cord: { explicit: false, L: 0, k: 0, kShow: 0, show: false, autoL: 0, autoK: 0, autoShow: false } },
+      blend: 1, from: null, rippleT: 0, fill: { k: 0, saved: null }, expo: 0, cord: { explicit: false, L: 0, k: 0, kShow: 0, show: false, autoL: 0, autoK: 0, autoShow: false } },
   };
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tip = new THREE.Vector3(), end = new THREE.Vector3(), camPos = new THREE.Vector3();
   const localVel = new THREE.Vector3();
@@ -276,7 +277,10 @@ export function create(ctx) {
       mv.hasSnout = false;
       const mp = resolveMeasure(dt);
       env.measurePose = mp;
-      if (mp) { const dh = camPos.distanceTo(wick.group.getWorldPosition(tmp2)); env.closeK = clamp((7 - dh) / 4.5, 0, 1); } else env.closeK = 0;
+      if (mp) { const dh = camPos.distanceTo(wick.group.getWorldPosition(tmp2)); env.closeK = clamp((8.5 - dh) / 5, 0, 1); } else env.closeK = 0;
+      { // the close-up's exposure (eased): the lantern right over the Wick comes down while the camera is near
+        const M = st.meas; M.expo = damp(M.expo, env.closeK, 6, dt); if (Math.abs(M.expo - env.closeK) < 1e-3) M.expo = env.closeK;
+      }
       if (mp) wick.setMeasure({ lenB: measureLength() / Math.max(0.1, wick.group.scale.x), side: st.meas.side, faceYaw: mp === 'measureAlongside' ? st.meas.side * Math.PI / 2 : null });
       { // an alongside fish: the Wick kneels at the deck's edge on its side, then walks home
         const hx = mp === 'measureAlongside' ? st.meas.side * 0.6 : WICK_HOME.x, hz = mp === 'measureAlongside' ? 0.3 : WICK_HOME.z;
@@ -352,7 +356,8 @@ export function create(ctx) {
       if (st.snapT > 0) { st.snapT -= dt; }
 
       // ---------------------------------------------------------- lantern, light, pool
-      if (mp) st.boost = Math.max(st.boost, 0.16);   // the lantern leans in on the ceremony: a warm key on the fish
+      const xk = st.meas.expo;   // 0 outside a measuring close-up: everything below is then exactly the v1 lantern
+      if (mp) st.boost = Math.max(st.boost, 0.16 * (1 - xk));   // the lantern leans in on the ceremony (seen from afar)
       st.lanternCur = damp(st.lanternCur, st.lantern, 3, dt);
       st.radiusCur = damp(st.radiusCur, st.radius, 3, dt);
       st.boost = Math.max(0, st.boost - dt * 1.1);
@@ -360,13 +365,16 @@ export function create(ctx) {
       const flick = 1 + Math.sin(t * 7.1) * 0.035 + Math.sin(t * 12.7 + 1.3) * 0.025 + Math.sin(t * 23.3) * 0.015
         + low * (Math.sin(t * 17) * 0.12 + (Math.sin(t * 3.1) > 0.92 ? -0.35 : 0));
       const lit = st.lantern > 0.001 && !st.out;
-      const glow = lit ? (0.22 + 0.78 * lv) * flick * (1 + st.boost * 1.6) : 0;
-      lanternLight.intensity = 9.5 * glow;
+      const glow = lit ? (0.22 + 0.78 * lv) * flick * (1 + st.boost * 1.6 * (1 - 0.7 * xk)) : 0;
+      // in a close-up the lantern hangs half a metre over the pale wax head: it comes down so the Wick reads, warm, not white
+      lanternLight.intensity = 9.5 * glow * (1 - 0.5 * xk);
       lanternLight.distance = Math.max(7, st.radiusCur * 2.1 + 3);
-      raft.glassMat.opacity = (0.1 + 0.38 * Math.min(1.5, glow)) * (mp ? 0.75 : 1);
-      // a measuring close-up: the hanging lantern's halo would bloom over the subject, so it dims with the camera's nearness
-      const lck = mp ? clamp((6 - camPos.distanceTo(raft.lantern.getWorldPosition(tmp2))) / 4, 0, 1) : 0;
-      raft.halo.material.opacity = 0.26 * Math.min(1.6, glow) * (1 - 0.6 * lck);
+      // a measuring close-up: the hanging lantern's glass, halo and flame would bloom over the subject, so they dim with the
+      // camera's nearness to the lantern
+      const lck = mp ? clamp((6 - camPos.distanceTo(raft.lantern.getWorldPosition(tmp2))) / 4, 0, 1) * Math.max(xk, 0.5) : 0;
+      raft.glassMat.opacity = (0.1 + 0.38 * Math.min(1.5, glow)) * (mp ? 0.75 : 1) * (1 - 0.45 * lck);
+      raft.halo.material.opacity = 0.26 * Math.min(1.6, glow) * (1 - 0.85 * lck);
+      raft.lflame.outerMat.uniforms.uI.value = LFLAME_I * (1 - 0.45 * lck);
       raft.halo.scale.setScalar(2.2 * (0.6 + 0.4 * Math.min(1.5, glow)) * (1 + st.boost * 0.8));
       raft.lflame.group.visible = lit;
       raft.lflame.group.scale.setScalar(0.45 + 0.55 * lv * (1 + st.boost * 0.5));
@@ -717,7 +725,7 @@ export function create(ctx) {
     // the trophy camera's subject: the fish and the Wick
     wick.flame.group.getWorldPosition(mv.s);
     // (weighted toward the fish: a palm-sized catch is the subject, the Wick's face its frame)
-    const wf = mp === 'measurePalm' ? 0.68 : mp === 'measureArms' ? 0.6 : mp === 'measureHang' ? 0.55 : 0.62;
+    const wf = mp === 'measurePalm' ? 0.75 : mp === 'measureArms' ? 0.6 : mp === 'measureHang' ? 0.55 : 0.62;
     mv.focus.copy(mv.s).lerp(obj.position, wf);
     mv.focusR = obj.position.distanceTo(mv.s) * Math.max(wf, 1 - wf) + Math.max(L * 0.5, 0.35);
   }
@@ -730,16 +738,16 @@ export function create(ctx) {
     mv.y.setFromMatrixColumn(obj.matrixWorld, 1).normalize();
     mv.z.setFromMatrixColumn(obj.matrixWorld, 2).normalize();
     const ray = fv.shape === 'ray';
-    // the snout: on the body's mid-line for a big fish; a small one would vanish behind the knots, so its cord runs along the
-    // belly edge, between the fish and the palms
-    const low = ray ? 0 : clamp((0.95 - L) / 0.4, 0, 1);
-    mv.p.set(0, ray ? 0 : THREE.MathUtils.lerp((b.top + b.bottom) * 0.5, b.bottom - cord.radius * 2.4, low), b.noseZ).applyMatrix4(obj.matrixWorld);
+    // the snout: on the body's mid-line for a big fish; on a small one the knots would hide the flank, so its cord runs along
+    // the belly edge, between the fish and the palms (touching the belly, sagging only a little)
+    const low = ray ? 0 : clamp((0.45 - L) / 0.2, 0, 1);
+    mv.p.set(0, ray ? 0 : THREE.MathUtils.lerp((b.top + b.bottom) * 0.5, b.bottom + cord.radius * 0.6, low), b.noseZ).applyMatrix4(obj.matrixWorld);
     mv.s.subVectors(camPos, mv.p);
     const n = ray ? mv.y : mv.x;   // the face of the fish toward which the cord lies (flank, or a ray's disc)
     const cz = mv.c.copy(n).multiplyScalar(n.dot(mv.s) >= 0 ? 1 : -1);
     const cx = mv.a.copy(mv.z).negate();
     const cy = mv.hR.crossVectors(cz, cx).normalize();
-    cord.place(mv.p, cx, cy, cz);
+    cord.place(mv.p, cx, cy, cz, 1 - 0.75 * low);
   }
   function updateCord(dt, mp) {
     const C = st.meas.cord, fv = st.catchFish;

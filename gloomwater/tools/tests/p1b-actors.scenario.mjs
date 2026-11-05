@@ -13,6 +13,8 @@
 //   to the tail tip; close-ups from the trophy framing (clamp(1.2 + 1.6L, 1.6, 16) m, craned to 50° above 4 m).
 // auto: the ceremony driven only by fishing.view.measure (scoop → pose → cord → banners → card → null) and setPose / showCord.
 // hue (A3): Mossmere and Glasswater catch close-ups ≤ 2% green-teal chroma (tools/hue-report.mjs on the frames named hue-*).
+// sil (v3 auto-fishing): FishVisual.setSilhouette hides every species colour / pattern / glow / eye while the size reads, and
+//   gives it all back at the landing; createFish('minnow', {lengthCm}) is a nameless shape at an exact length.
 // murk (A10): Old Murk moored next to the raft (hue report on murk-moored); his lamp light is #ffe2b0; the tip reads "Sail to
 //   his lantern".
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -267,6 +269,58 @@ export default async function (api) {
     await g(() => { window.__pa.cam = null; });
   }
 
+  // ------------------------------------------------------------------ v3 auto-fishing: the unidentified fish (models setSilhouette)
+  if (want('sil')) {
+    step('silhouette: the hooked fish shows its size, never its species');
+    await goZone('mossmere');
+    await night();
+    s = await g(() => {
+      const c = window.__gw, H = window.__pa, T = c.THREE, out = {};
+      const mats = (fv) => { const a = []; fv.object3d.traverse((o) => { if (o.isMesh) a.push(o); }); return a; };
+      const lum = (col) => 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b;
+      for (const [id, z] of [['reedjaw_pike', 1.5], ['gloam_eel', 1.0], ['candlefin_koi', 0.5]]) {
+        const fv = H.fish(id, { z });
+        const before = mats(fv).map((m) => m.material.color?.getHexString?.() + ':' + m.visible);
+        fv.setSilhouette(1);
+        const lit = mats(fv).filter((m) => m.visible && m.material.isMeshToonMaterial);
+        const glowShown = mats(fv).filter((m) => m.visible && (m.name === 'glow' || (m.material.isMeshBasicMaterial && m.material.toneMapped === false)));
+        const sprites = []; fv.object3d.traverse((o) => { if (o.isSprite && o.visible && o.material.opacity > 0.001) sprites.push(o); });
+        out[id] = { L: +fv.length.toFixed(3), maxLum: +Math.max(...lit.map((m) => lum(m.material.color))).toFixed(3),
+          emissive: +Math.max(...lit.map((m) => m.material.emissiveIntensity * lum(m.material.emissive))).toFixed(3), glowShown: glowShown.length, sprites: sprites.length };
+        fv.setSilhouette(0);
+        out[id].restored = JSON.stringify(mats(fv).map((m) => m.material.color?.getHexString?.() + ':' + m.visible)) === JSON.stringify(before);
+        fv.dispose();
+      }
+      // a nameless shape at an exact length (nothing of any species): createFish('minnow', {lengthCm})
+      const anon = c.models.createFish('minnow', { lengthCm: 120 });
+      const o = anon.object3d; o.position.set(0, -50, 0); c.render.scene.add(o); o.updateMatrixWorld(true);
+      const b = new T.Box3(); o.traverse((m) => { if (m.isMesh && (m.name === 'body' || m.name === 'fins')) { m.geometry.computeBoundingBox(); b.union(m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld)); } });
+      out.anon = { L: anon.length, bbox: +(b.max.z - b.min.z).toFixed(3), species: anon.speciesId, trueScale: anon.trueScale };
+      anon.dispose();
+      return out;
+    });
+    for (const id of ['reedjaw_pike', 'gloam_eel', 'candlefin_koi']) {
+      const r = s[id];
+      check(r.maxLum < 0.03 && r.emissive < 0.003 && r.glowShown === 0 && r.sprites === 0, `${id}: the silhouette shows no colour, pattern, glow or eye of its species`, r);
+      check(r.restored, `${id}: setSilhouette(0) gives every part back exactly (the landing reveals it)`);
+    }
+    check(Math.abs(s.anon.bbox - 1.2) / 1.2 <= 0.03 && s.anon.trueScale, "a nameless shape at an exact length: createFish('minnow', {lengthCm: 120}) is 1.2 m", s.anon);
+    // a frame: a big dark shape and a small one under the starlit water beside the raft, size readable, species not
+    await g(() => {
+      const c = window.__gw, H = window.__pa, p = c.player.position, h = Number(c.player.heading) || 0;
+      H.sil = [['reedjaw_pike', { z: 3.0 }, 2.6, 0.4], ['dusk_minnow', { z: 0 }, 2.2, -1.3]].map(([id, size, d, side]) => {
+        const fv = H.fish(id, size); fv.setSilhouette(1);
+        const yaw = h + side;
+        fv.object3d.position.set(p.x + Math.sin(yaw) * d, -0.16, p.z + Math.cos(yaw) * d); fv.object3d.rotation.y = yaw + 1.9;
+        c.render.scene.add(fv.object3d); return fv;
+      });
+      if (!c.models.__paSilUpd) { const up = c.models.update.bind(c.models); c.models.update = (dt, t) => { up(dt, t); for (const fv of H.sil || []) fv.update(dt, t, { swim: 0.9, struggle: 0.5 }); }; c.models.__paSilUpd = true; }
+      H.cam = { focus: { x: p.x + Math.sin(h) * 1.6, y: 0, z: p.z + Math.cos(h) * 1.6 }, yaw: h + Math.PI + 0.3, elev: 38, dist: 6.5, fov: 44 };
+    });
+    await settleShot('sil-hooked-shapes', 1.0);
+    await g(() => { const H = window.__pa; for (const fv of H.sil || []) fv.dispose(); H.sil = []; H.cam = null; });
+  }
+
   // ------------------------------------------------------------------ A3: catch close-ups for the hue report
   if (want('hue')) {
     for (const [zone, id, size, L] of [['mossmere', 'reedjaw_pike', { z: 2.0 }, 1.07], ['mossmere', 'gloam_eel', { z: 1.2 }, 0.89], ['glasswater', 'shardspine_eel', { z: 1.6 }, 1.13], ['glasswater', 'prism_minnow', { z: 0.6 }, 0.25]]) {
@@ -287,14 +341,22 @@ export default async function (api) {
     step('A10: Old Murk moored');
     await goZone('mossmere');
     s = await g(() => {
-      const c = window.__gw, d = c.data;
+      const c = window.__gw, d = c.data, H = window.__pa;
       const tip = (d.TIPS || []).find((t) => t.id === 'merchant')?.text;
+      // a ceremony while he is away borrows his dark lamp light as the candle fill: it must come back exactly as it was
+      c.actors.merchant.leave({ instant: true }); H.settle(0.1);
+      const before = c.actors.merchant.light?.color?.getHexString?.();
+      H.catch('dusk_minnow', { z: 0 }); H.settle(0.8);
+      const during = c.actors.merchant.light?.color?.getHexString?.();
+      H.release(); H.settle(1.2);
+      const after = c.actors.merchant.light?.color?.getHexString?.();
       const p = c.player.position;
       c.actors.merchant.arrive({ x: p.x - 4.2, y: 0, z: p.z - 5.5 }, 0.4, { instant: true });
       window.__pa.settle(0.2);
       const col = c.actors.merchant.light?.color?.getHexString?.();
-      return { tip, col, look: d.COVE?.murkLook };
+      return { tip, col, look: d.COVE?.murkLook, fill: { before, during, after } };
     });
+    check(s.fill.before === 'ffe2b0' && s.fill.during !== s.fill.before && s.fill.after === s.fill.before, 'the ceremony borrows his lamp light as a candle fill and gives it back unchanged', s.fill);
     check(/Sail to his lantern\.$/.test(s.tip || ''), 'the merchant tip reads "Sail to his lantern"', s.tip);
     check(s.col === 'ffe2b0', "Murk's lamp PointLight is #ffe2b0", s.col);
     await g((mobile) => {
@@ -303,6 +365,7 @@ export default async function (api) {
       const m = c.actors.merchant.position;
       H.cam = { focus: { x: m.x, y: 1.5, z: m.z }, yaw: Math.atan2(p.x - m.x, p.z - m.z) + 0.55, elev: 14, dist: mobile ? 9 : 6.5, fov: 42 };
     }, mobile);
+    await g(() => { const c = window.__gw; try { if (c.state.run.phase !== 'calm') c.debug.setPhase('calm'); c.state.run.phaseTime = 20; } catch { /* optional */ } window.__pa.clearUi(); });
     await settleShot('murk-moored-calm', 1.5);
     await night();
     await settleShot('murk-moored-night', 1.5);

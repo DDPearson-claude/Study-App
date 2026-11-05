@@ -9,7 +9,7 @@ import {
   TAU, deformToon, deformGlow, deformOutline, outlineMesh, xf, paint, mergeGeos, tube, bezierPts,
   curve1, spike, blob, hexColor,
 } from './models-kit.js';
-import { trueLengthM } from './models-size.js';
+import { trueLengthM, MIN_LENGTH_M } from './models-size.js';
 
 // ------------------------------------------------------------------ bend shader
 const FISH_PARS = /* glsl */`
@@ -587,6 +587,9 @@ function eyeGeos(eyes, type, glowCol) {
 
 // ------------------------------------------------------------------ factory
 const WARM_RIM = new THREE.Color(0xffc98e), WARM_FILL = new THREE.Color(0x2c1a0c);
+// setSilhouette: the unidentified fish of the bite and the fight (v3 auto-fishing): a dark shape at its true size, nothing of
+// its species (colours, pattern, glows, eyes) showing until it is landed
+const SIL_INK = new THREE.Color(0x0c0b14), SIL_RIM = new THREE.Color(0x6e7396);
 const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
 
 export function createFishFactory(ctx) {
@@ -634,6 +637,8 @@ export function createFishFactory(ctx) {
     const E = build(sp);
     const M = E.M, P = E.parts;
     let L = trueLength(sp, weightKg);
+    // an exact {lengthCm} sizes any model truly (e.g. a nameless shape, createFish('minnow', {lengthCm}), for a silhouette)
+    if (L === null && weightKg && typeof weightKg === 'object' && Number(weightKg.lengthCm) > 0) L = Math.max(MIN_LENGTH_M, weightKg.lengthCm / 100);
     const trueScale = L !== null;
     if (L === null) {   // v1 / v2: the weight picks a length within the model's ±22% band (0.12 m floor)
       const range = Array.isArray(sp?.weight) ? sp.weight : [weightKg, weightKg];
@@ -710,9 +715,9 @@ export function createFishFactory(ctx) {
       bm.add(outlineMesh(E.bones, outline));
     }
     // eyes
-    let eyeGlowMat = null;
+    let eyeGlowMat = null, eyeMat = null;
     if (E.eyes.basic) {
-      const em = new THREE.MeshBasicMaterial({ vertexColors: true, fog: true }); mats.push(em);
+      const em = new THREE.MeshBasicMaterial({ vertexColors: true, fog: true }); mats.push(em); eyeMat = em;
       scaler.add(new THREE.Mesh(E.eyes.basic, em));
     }
     if (E.eyes.glow) {
@@ -729,10 +734,30 @@ export function createFishFactory(ctx) {
     }
     const spriteBase = sprites.map((s) => s.material.opacity);
 
-    let phase = Math.random() * 10, phase2 = Math.random() * 10, roll = 0, hop = 0, puff = 0, glowK = 1, warmK = 0;
+    let phase = Math.random() * 10, phase2 = Math.random() * 10, roll = 0, hop = 0, puff = 0, glowK = 1, warmK = 0, silK = 0;
     // the measuring ceremony's "lantern kiss" (setWarm): a warm rim on every lit part, a breath of warm light on a dark skin
     const rimMats = mats.filter((m) => m.userData?.rim).map((m) => ({ m, col: m.userData.rim.gwRimColor.value.clone(), str: m.userData.rim.gwRimStrength.value, thr: m.userData.rim.gwRimThreshold.value }));
     const warmEm = !E.hasGlow && !P.opts.jelly && !E.skin.emissiveMap;
+    // the silhouette's lit colours (body / fins / extras / plain eyes) as built, so setSilhouette(0) gives them back exactly
+    const silMats = mats.filter((m) => m.isMeshToonMaterial || m === eyeMat).map((m) => ({ m, col: m.color.clone(), emI: m === bodyMat ? null : m.emissiveIntensity }));
+    const glowMeshes = [];
+    scaler.traverse((o) => { if (o.isMesh && (o.material === glowMat || o.material === eyeGlowMat || o.material === boneMat)) glowMeshes.push(o); });
+    function applyGlow() {
+      const g = glowK * (1 - silK);
+      bodyMat.emissiveIntensity = warmEm ? (warmK > 0 ? 1 - silK : 0) : (P.opts.jelly ? 0.55 : glowBase) * g;
+      if (glowMat) glowMat.color.set(E.glowCol).multiplyScalar(2.6 * g);
+      if (eyeGlowMat) eyeGlowMat.color.set(E.glowCol).multiplyScalar(2.8 * Math.max(0.3, glowK));
+      if (boneMat) boneMat.color.set(hexColor(M.glow, 0xeae4d3)).multiplyScalar(1.05 * Math.max(0.5, glowK));
+      sprites.forEach((sp2, i) => { sp2.material.opacity = spriteBase[i] * Math.min(1.5, glowK) * (1 - silK); sp2.visible = silK < 0.999; });
+      for (const gm of glowMeshes) gm.visible = silK < 0.5;
+    }
+    function applyRim() {
+      for (const r of rimMats) {
+        const u = r.m.userData.rim;
+        u.gwRimColor.value.copy(r.col).lerp(WARM_RIM, warmK).lerp(SIL_RIM, silK);
+        u.gwRimStrength.value = (r.str + 0.2 * warmK) * (1 - 0.7 * silK); u.gwRimThreshold.value = r.thr - 0.04 * warmK;
+      }
+    }
     const swimFreq = anim.freq;
     const visual = {
       object3d, length: L, speciesId: sp?.id || null, shape: E.shape, trueScale, legendary: sp?.rarity === 'legendary',
@@ -756,6 +781,7 @@ export function createFishFactory(ctx) {
       },
       setGlow(kk = 1) {
         glowK = Math.max(0, kk);
+        if (silK > 0 || warmEm) { applyGlow(); return; }
         bodyMat.emissiveIntensity = (P.opts.jelly ? 0.55 : glowBase) * glowK;
         if (glowMat) glowMat.color.set(E.glowCol).multiplyScalar(2.6 * glowK);
         if (eyeGlowMat) eyeGlowMat.color.set(E.glowCol).multiplyScalar(2.8 * Math.max(0.3, glowK));
@@ -767,9 +793,19 @@ export function createFishFactory(ctx) {
         const w = THREE.MathUtils.clamp(kk, 0, 1);
         if (Math.abs(w - warmK) < 1e-3) return;
         warmK = w;
-        for (const r of rimMats) { const u = r.m.userData.rim; u.gwRimColor.value.copy(r.col).lerp(WARM_RIM, w); u.gwRimStrength.value = r.str + 0.2 * w; u.gwRimThreshold.value = r.thr - 0.04 * w; }
-        if (warmEm) { bodyMat.emissive.copy(WARM_FILL).multiplyScalar(w); bodyMat.emissiveIntensity = w > 0 ? 1 : 0; }
+        applyRim();
+        if (warmEm) { bodyMat.emissive.copy(WARM_FILL).multiplyScalar(w); applyGlow(); }
       },
+      /** 0 → 1: the unidentified fish (v3 auto-fishing, the bite and the fight): a dark ink silhouette at its true size, no
+       *  colour, pattern, glow or eye of its species showing; 0 gives every part back exactly (the landing reveals it). */
+      setSilhouette(kk = 1) {
+        const v = THREE.MathUtils.clamp(Number(kk) || 0, 0, 1);
+        if (v === silK) return;
+        silK = v;
+        for (const e of silMats) { e.m.color.copy(e.col).lerp(SIL_INK, v); if (e.emI !== null && e.emI !== undefined) e.m.emissiveIntensity = e.emI * (1 - v); }   // glowing fins too
+        applyRim(); applyGlow();
+      },
+      get silhouette() { return silK; },
       dispose() {
         object3d.parent?.remove(object3d);
         for (const m of mats) m.dispose();

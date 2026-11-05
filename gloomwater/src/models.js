@@ -125,7 +125,10 @@ export function create(ctx) {
       }
     },
     /** A FishVisual. v3 species (with `size`): `{z}` (or `{lengthCm}`, or a v3 weight) → the true length in metres
-     *  (L50 · e^(σz + tail·max(0, z − 1.04)²), floor 0.04 m, no ±22% scaling; CONTRACT §13.7). v1 / v2: weightKg as before. */
+     *  (L50 · e^(σz + tail·max(0, z − 1.04)²), floor 0.04 m, no ±22% scaling; CONTRACT §13.7). v1 / v2: weightKg as before.
+     *  `{lengthCm}` sizes any model exactly, a bare shape too (createFish('minnow', {lengthCm}): a nameless fish).
+     *  FishVisual.setSilhouette(k 0..1): the unidentified fish of the bite and the fight (v3 auto-fishing): an ink shape at
+     *  its true size, no species colour, pattern, glow or eye; setSilhouette(0) reveals it exactly (the landing). */
     createFish(speciesOrId, weightKg = 1) { return fish.createFish(speciesOrId, weightKg); },
     createCreature(kind = 'wisp', opts = {}) { return creatures.createCreature(kind, opts); },
     createSwarm(kind = 'wisp', max = 100, opts = {}) { return swarmF.createSwarm(kind, max, opts); },

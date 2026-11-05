@@ -83,6 +83,22 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const cloakMat = M(deformToon({ color: 0xffffff, vertexColors: true, rim: 0.42, rimPower: 0.58 }, cloakSpec));
   const cloakOutline = M(deformOutline({ thickness: 0.02 }, cloakSpec));
   const eyeMat = M(new THREE.MeshBasicMaterial({ color: new THREE.Color(DEFAULT_LOOK.eyes).multiplyScalar(3), toneMapped: false, fog: true }));
+  // measuring close-ups (the trophy camera 1.6–5 m away, the lantern hanging right over the Wick): the pale wax under the
+  // lantern would read as one white blot, so the Wick's own exposure comes down with the camera's nearness: the wax and the
+  // cloth darken toward their lit tones, and the pale toon rims turn lantern-warm and soft (k = how far each one comes down)
+  const EXPO = [{ m: headMat, k: 0.52 }, { m: rigidMat, k: 0.45 }, { m: hatMat, k: 0.25 }, { m: cloakMat, k: 0.25 }]
+    .map((e) => ({ ...e, rim: e.m.userData.rim, col: e.m.userData.rim.gwRimColor.value.clone(), str: e.m.userData.rim.gwRimStrength.value }));
+  const RIM_WARM = new THREE.Color(0xffb878);
+  let expo = 0;
+  function applyExposure(k) {
+    if (k === expo) return;
+    expo = k;
+    for (const e of EXPO) {
+      e.m.color.setScalar(1 - e.k * k);
+      e.rim.gwRimColor.value.copy(e.col).lerp(RIM_WARM, k);
+      e.rim.gwRimStrength.value = e.str * (1 - 0.6 * k);
+    }
+  }
 
   // ---------------------------------------------------------------- legs (leg + wax foot per bone)
   const legs = [];
@@ -306,7 +322,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       case 'measurePalm': {   // cupped in both hands at the chest, the head bowed over it; a glance up now and then
         const s = clamp(L * 0.3, 0.035, 0.085);
         const look = Math.sin(pt * 1.25) > 0.55 ? 1 : 0;
-        reach(o, 'r', -s, 0.4 + settle * 0.03, 0.3); reach(o, 'l', s, 0.4 + settle * 0.03, 0.3);
+        reach(o, 'r', -s, 0.45 + settle * 0.03, 0.35); reach(o, 'l', s, 0.45 + settle * 0.03, 0.35);   // offered up, in front of the collar
         o.pitch = 0.1; o.sq = breathe * 0.6 + 0.02; o.y = settle * 0.02;
         o.hPitch = look ? -0.06 : 0.34; o.hRoll = Math.sin(pt * 0.7) * 0.07; o.hYaw = look ? 0 : Math.sin(pt * 0.5) * 0.08;
         o.eye = 1.25; o.glow = 1.3; o.flame = 0.18 + settle * 0.2; o.legL = 0.04; o.legR = -0.04;
@@ -540,9 +556,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     const open = clamp(cur.eye, 0.05, 1.6) * (blink > 0 ? 0.12 : 1);
     eyes.scale.set((1 + (cur.eye > 1 ? (cur.eye - 1) * 0.3 : 0)) * eyeShape[0], open * eyeShape[1], 1);
     eyes.position.y = 0.14 + cur.eyeLift;
-    // a measuring close-up (the trophy camera 1.6–5 m away) would bloom the head flame and eyes into a white blot: damp them
-    const ck = MEASURE.has(base) ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
-    eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3 * clamp(cur.glow, 0, 3) * (0.35 + 0.65 * Math.max(0.15, vitality)) * (1 - 0.6 * ck));
+    // a measuring close-up (the trophy camera 1.6–5 m away) would bloom the head flame and eyes into a white blot: damp them,
+    // and bring the Wick's own exposure down (eased, so the cut to the trophy camera never pops)
+    const ckT = MEASURE.has(base) ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
+    let ck = damp(expo, ckT, 6, dt);
+    if (Math.abs(ck - ckT) < 1e-3) ck = ckT;
+    applyExposure(ck);
+    eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3 * clamp(cur.glow, 0, 3) * (0.35 + 0.65 * Math.max(0.15, vitality)) * (1 - 0.72 * ck));
     // props
     const prop = action === 'eat' || action === 'die' ? 'none' : base === 'paddle' ? 'oar' : base === 'catch' ? (catchBig ? 'rod' : 'none')
       : MEASURE.has(base) ? (base === 'measureHang' ? 'rod' : 'none') : 'rod';
@@ -561,10 +581,10 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     flame.outerMat.uniforms.uT.value = t; flame.innerMat.uniforms.uT.value = t * 1.13;
     const wild = (1 - flameK) * 0.9 + Math.max(0, cur.flame) * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
     flame.outerMat.uniforms.uWild.value = wild; flame.innerMat.uniforms.uWild.value = wild;
-    flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + Math.max(0, cur.flame) * 0.8) * (1 - 0.55 * ck);
-    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.5 * ck);
-    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6) * (1 - 0.75 * ck);
-    flame.halo.scale.setScalar(0.75 * (1 + Math.max(0, cur.flame) * 0.5) * (1 - 0.4 * ck));
+    flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + Math.max(0, cur.flame) * 0.8) * (1 - 0.7 * ck);
+    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck);
+    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6) * (1 - 0.88 * ck);
+    flame.halo.scale.setScalar(0.75 * (1 + Math.max(0, cur.flame) * 0.5) * (1 - 0.5 * ck));
     // lean flame against motion
     const lx = clamp(-(env.localVel?.x || 0) * 0.018 - cur.roll * 0.15, -0.3, 0.3), lz = clamp(-(env.localVel?.z || 0) * 0.018 + cur.pitch * 0.1, -0.3, 0.3);
     flame.outerMat.uniforms.uLean.value.set(lx, lz); flame.innerMat.uniforms.uLean.value.set(lx * 0.7, lz * 0.7);
