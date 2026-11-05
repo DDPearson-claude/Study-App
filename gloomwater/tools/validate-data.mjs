@@ -439,8 +439,10 @@ if (WALK) {
     'player:mode': ['ashore', 'board', 'spawn'], 'lamp:snuffed': ['slam', 'moths', 'eclipse', 'legend'],
   };
   if (V3) Object.assign(EV, { 'hub:enter': null, 'fish:measured': null, 'farwater:dawn': null, 'resident:show': null, 'expedition:start': null, 'expedition:end': null });
-  // v3 directed tips (D1′): `tip:show {id}` is emitted by the module that knows the moment (fishing, progression, the First Evening)
+  // v3 directed tips (D1′): `tip:show {id}` is emitted by the module that knows the moment (fishing, progression, the First Evening);
+  // the First Evening's tips (FE-D1) are shown by its director as `firstEvening:line {kind: 'tip', key}`
   if (V3) EV['tip:show'] = D.TIPS_V3.filter((t) => t.trigger.startsWith('tip:show:')).map((t) => t.id);
+  if (V3) EV['firstEvening:line'] = D.TIPS_V3.filter((t) => t.directed === 'firstEvening').map((t) => t.id);
   if (V3) EV['interact:change'] = [...EV['interact:change'], 'jetty', 'station', 'homeward'];
   for (const t of D.TIPS) {
     const parts = t.trigger.split(':'), ev = parts.slice(0, 2).join(':'), disc = parts[2];
@@ -854,10 +856,11 @@ if (V3) {
   ok(S.filter((s) => s.cove).map((s) => s.id).join() === 'quayling', 'the Landing has one species, the Quayling');
   ok(S.filter((s) => s.place).length === 15 && S.filter((s) => s.rarity !== 'legendary' && s.time === 'gloom').length === 10, 'totals: 15 place-kept, 10 night-only');
   ok(S.filter((s) => s.rarity === 'common').length === 14 && S.filter((s) => s.rarity === 'uncommon').length === 9 && S.filter((s) => s.rarity === 'rare').length === 26 && S.filter((s) => s.rarity === 'legendary').length === 4, 'totals: 14 C · 9 U · 26 R · 4 L');
-  // phasing: 32 → 36 (P2) → 44 (+ §24's 8) → 47 (P3) → 53 (P4)
+  // phasing: 33 (32 lake species + the cove's Quayling, FE-D1) → 37 (P2) → 45 (+ §24's 8) → 47 (P3) → 53 (P4)
   const ph = (p, walk = false) => S.filter((s) => s.phase <= p && (walk || s.src !== 'walk')).length;
-  const p44 = S.filter((s) => s.phase <= 2 || s.src === 'walk').length;
-  ok(ph(1) === 32 && ph(2) === 36 && p44 === 44 && ph(3, true) === 47 && ph(4, true) === 53, `phasing 32/36/44/47/53 (got ${ph(1)}/${ph(2)}/${p44}/${ph(3, true)}/${ph(4, true)})`);
+  const p45 = S.filter((s) => s.phase <= 2 || s.src === 'walk').length;
+  ok(ph(1) === 33 && ph(2) === 37 && p45 === 45 && ph(3, true) === 47 && ph(4, true) === 53, `phasing 33/37/45/47/53 (got ${ph(1)}/${ph(2)}/${p45}/${ph(3, true)}/${ph(4, true)})`);
+  ok(byId.quayling.phase === 1 && byId.quayling.zone === 'cove' && !byId.quayling.zones, 'FE-D1: the Quayling is a phase-1, cove-only species (the First Evening ships at phase 1)');
   ok(S.filter((s) => s.src === 'walk').length === 8 && S.filter((s) => s.src === 'walk').every((s) => s.phase === 3), '§24\'s 8 place-kept fish arrive with the §24 lake builds');
   // existing species keep their reel core (the sims' numbers depend on it)
   const v1ids = new Set([...V1.SPECIES, ...V1.WALK_SPECIES].map((s) => s.id));
@@ -1406,12 +1409,16 @@ if (V3) {
       PH[`${walk ? 'w' : 'r'}${p}`] = await import(`../src/data.js?v3p${p}${walk ? 'w' : 'r'}`);
     }
     [globalThis.GW_WALK, globalThis.GW_V3, globalThis.GW_V3_PHASE] = f0; }
-  const EXPECT = { species: { r: [32, 36, 39, 41], w: [40, 44, 47, 53] }, challenges: { r: [30, 30, 38, 38], w: [40, 40, 48, 48] }, mossPlaces: [0, 8, 8, 9] };
+  const EXPECT = { species: { r: [33, 37, 39, 41], w: [41, 45, 47, 53] }, challenges: { r: [30, 30, 38, 38], w: [40, 40, 48, 48] }, mossPlaces: [0, 8, 8, 9] };
   for (const [key, R] of Object.entries(PH)) {
     const walk = key[0] === 'w', p = +key[1], tag = `v3 P${p}${walk ? ' + §24' : ' (raft)'}`;
     ok(R.V3_PHASE === p && R.WALK_ENABLED === walk, `${tag}: evaluated with the intended flags`);
     ok(R.SPECIES.length === EXPECT.species[key[0]][p - 1], `${tag}: ${R.SPECIES.length} species (expected ${EXPECT.species[key[0]][p - 1]})`);
     ok(R.SPECIES.every((s) => (s.src === 'walk' ? walk : s.phase <= p)), `${tag}: every species belongs to this phase (or arrives with §24)`);
+    ok(!!R.SPECIES_BY_ID.quayling && R.ZONES.every((z) => !R.SPECIES.some((s) => s.cove && (s.zone === z.id || (s.zones || []).includes(z.id)))) && JSON.stringify(R.COVE.fishing.species) === '["quayling"]',
+      `${tag}: the Quayling is in the build and in no lake's pool (cove-only)`);
+    ok(R.TEXT.v3?.firstEvening === R.FIRST_EVENING.text && Object.keys(R.FIRST_EVENING.tips).every((id) => R.TIPS.some((t) => t.id === id) === (id !== 'fe_walk' || p >= 3)),
+      `${tag}: FE-D1: the First Evening's lines are TEXT_V3.firstEvening and its tips are in TIPS (fe_walk from P3)`);
     ok(R.CHALLENGES.length === EXPECT.challenges[key[0]][p - 1] && (p >= 3) === !!R.CHALLENGE_BY_ID.first_prize, `${tag}: challenges ${R.CHALLENGES.length} (v1 / §24 sets until P3, the 48 from P3)`);
     ok((p >= 3) === !R.RELIC_BY_ID.old_debt && (p >= 3) === !!R.RELIC_BY_ID.measuring_cord, `${tag}: relic cuts, shelves and costs only from P3 (the refund lands with Pg3)`);
     ok(Object.keys(R.BALANCE_V3).every((k) => ((R.V3_BLOCK_PHASE[k] ?? 1) <= p) === (k in R.BALANCE)), `${tag}: BALANCE_V3 blocks join BALANCE by V3_BLOCK_PHASE`);

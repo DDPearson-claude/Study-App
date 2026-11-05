@@ -3139,7 +3139,7 @@ export const SPECIES_V3 = [
   {
     id: 'quayling', name: 'Quayling', zone: 'cove', cove: true, rarity: 'common', tier: 1, value: 0, noSale: true, food: 4, oil: 4,
     time: 'any', depth: [0, 1], bait: null, behavior: 'darter', difficulty: diff(1, 'darter'), maxClass: 'keeper',
-    size: sz(14, 0.10, 'minnow'), family: 'insect', prefers: 'drip', phase: 3, src: 'v3',
+    size: sz(14, 0.10, 'minnow'), family: 'insect', prefers: 'drip', phase: 1, src: 'v3',   // FE-D1: phase 1 (the First Evening), cove-only
     model: { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x9a5a40, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.3, curiousEye: true },
     hint: 'Off the Landing\'s jetty. Old Murk will not buy it.',
     lore: 'A quayside minnow with rust-flecked fins and one curious eye. It lives in Murk\'s front yard and has opinions about him.' },
@@ -3800,8 +3800,9 @@ export const AUTOFISH = {
 };
 
 // The First Evening: the opening and its tutorial at the Landing (DESIGN §25.4.8; the user's request of 2026-11-05). Always
-// exported; read only by the FE build (src/first-evening.js and its seams). Nothing here is merged into TIPS, TEXT or SPECIES
-// until that build lands (it moves the Quayling to phase 1 as a cove-only species).
+// exported; read by the FE build (src/first-evening.js and its seams). FE-D1 (done): the Quayling is a phase-1 species (cove-only:
+// in no lake's pool), the lines are TEXT_V3.firstEvening and the tips are directed TIPS_V3 entries (shown by the director as
+// `firstEvening:line {kind: 'tip', key}`, never by a bus trigger in a lake).
 export const FIRST_EVENING = {
   phase: 1, after: 'AF', shipsWith: 'AF',   // one release gate: no user-facing build carries AF without FE (else fallback F0)
   budget: { reference: 54.5, skipFraming: 45.5, targetMax: 75, slowReaderMax: 90, toCard: 50, toLake: 60 },   // s from Begin (validated)
@@ -4327,6 +4328,7 @@ export const TEXT_V3 = {
   watchLamp: 'Nearest watch-lamp {m} m · ≈ {s} s',
   newBest: 'New best: {cm} cm (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
   stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
+  firstEvening: FIRST_EVENING.text,   // FE-D1: the opening's lore lines, Murk's lines, the ribbon and the Skip / Replay words (one source)
   // (D1′: the near-miss card's line, its cause names and its tension tips are retired; the got-away note's words are AUTOFISH.text)
 };
 export const TIPS_V3 = [
@@ -4345,6 +4347,10 @@ export const TIPS_V3 = [
   { id: 'af_letpass', phase: 1, trigger: 'tip:show:af_letpass', text: "Let a big one go, change your lure, cast back. It's still there." },
   { id: 'af_strikeReminder', phase: 1, trigger: 'tip:show:af_strikeReminder', text: 'Tap when it goes under.' },
   { id: 'af_hurry', phase: 1, trigger: 'tip:show:af_hurry', text: 'Hold to hurry a small fish in. It changes nothing but the wait.' },
+  // the First Evening's tips (FE-D1), one source (FIRST_EVENING.tips): the director shows each as `firstEvening:line {kind: 'tip', key}`
+  // in its own step (allowsTip), and ui marks it seen; `touch` is the phone wording. fe_walk waits for P3 (on foot).
+  ...Object.entries(FIRST_EVENING.tips).map(([id, t]) => ({ id, phase: id === 'fe_walk' ? 3 : 1, trigger: `firstEvening:line:${id}`, directed: 'firstEvening',
+    text: typeof t === 'string' ? t : t.desktop, ...(typeof t === 'string' ? {} : { touch: t.touch }) })),
 ];
 export const MERCHANT_LINES_V3 = {
   frontYard: ["Lives in my front yard. I don't buy those. The real water's through the gate."],
@@ -4615,10 +4621,10 @@ export function leapCountsFor(sizeClass) { return AUTOFISH.leap.count[sizeClass]
 
 // ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps. Gated by V3_PHASE so each
 // phase's build carries exactly its data (DESIGN §25.14.1 "which data lands when"; validate-data runs a pass per phase):
-//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), the 32 P1 species (+ §24's 8 kept fish with §24), the renames
+//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), the 32 P1 lake species and the cove's Quayling (+ §24's 8 kept fish with §24), the renames
 //       (Pg0 migrates the ids), Murk's Chum, Angler Boons and tags, the Wicks' fishing halves, P1 tips, text, the Mossmere's rust
 //       accent and buoy watch-lamps, §24 place sync and watch lamps (when §24 is in), raft fallbacks (stopgap giants, watch lamps)
-//   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 36
+//   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 37
 //   P3  + farWater / liveWell, RELICS_V3 (cuts, shelves, costs), CHALLENGES_V3, Homeward stones, the welcome purse, species → 47
 //   P4  + the Moon Cistern and the six P4 species (→ 53)
 if (V3_ENABLED) {
