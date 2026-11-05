@@ -124,6 +124,8 @@ export function create(ctx) {
         smoke.update(dt, cam, r); embers.update(dt, cam, r);
       }
     },
+    /** A FishVisual. v3 species (with `size`): `{z}` (or `{lengthCm}`, or a v3 weight) → the true length in metres
+     *  (L50 · e^(σz + tail·max(0, z − 1.04)²), floor 0.04 m, no ±22% scaling; CONTRACT §13.7). v1 / v2: weightKg as before. */
     createFish(speciesOrId, weightKg = 1) { return fish.createFish(speciesOrId, weightKg); },
     createCreature(kind = 'wisp', opts = {}) { return creatures.createCreature(kind, opts); },
     createSwarm(kind = 'wisp', max = 100, opts = {}) { return swarmF.createSwarm(kind, max, opts); },
