@@ -693,31 +693,34 @@ function flatQuad(material, renderOrder = 3) {
 const additive = (o) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, ...o });
 
 // the landing's glory (v3): a camera-facing soft radial bloom with slow light rays behind the revealed fish. A billboard, so it is
-// never a ring on the water and never round the raft: its falloff is gaussian all the way out (no edge, no band).
+// never a ring on the water and never round the raft. The quad is 1.4× the glory's size so every term reaches zero, with zero
+// slope, well inside it: the lavender halo is a gaussian on the quad's radius times (1 − q²)², so no disc edge ever shows round
+// a fish held at the Wick's hands (art rule: never a ring around the raft or the player). s: the glory's own radius (1 = size).
 const GLORY_VS = /* glsl */`
 uniform vec3 uC; uniform float uSize;
 varying vec2 vUv;
 void main() {
   vUv = position.xy;
   vec4 mv = viewMatrix * vec4(uC, 1.0);
-  mv.xy += position.xy * uSize;
+  mv.xy += position.xy * uSize * 1.4;
   gl_Position = projectionMatrix * mv;
 }`;
 const GLORY_FS = /* glsl */`
 uniform float uA, uT, uRays; uniform vec3 uGold, uLav, uPink;
 varying vec2 vUv;
 void main() {
-  float r = length(vUv);
-  if (r > 1.0) discard;
-  float core = exp(-r * r * 14.0);
-  float bloom = exp(-r * r * 4.2);
-  float halo = exp(-r * r * 1.7);
+  float q = length(vUv);
+  if (q > 1.0) discard;
+  float s = q * 1.4;
+  float core = exp(-s * s * 14.0);
+  float bloom = exp(-s * s * 4.2);
+  float halo = exp(-q * q * 4.0);
   float a = atan(vUv.y, vUv.x);
   float ry = pow(max(0.0, sin(a * 6.0 + uT * 0.32)), 9.0) * (0.65 + 0.35 * sin(a * 2.0 - uT * 0.5))
            + 0.7 * pow(max(0.0, sin(a * 9.0 - uT * 0.21 + 1.7)), 16.0);
-  ry *= smoothstep(0.02, 0.16, r) * exp(-r * r * 2.2) * uRays;
+  ry *= smoothstep(0.02, 0.16, s) * exp(-s * s * 2.2) * uRays;
   vec3 col = uGold * (core * 0.62 + bloom * 0.3 + ry * 0.5) + mix(uLav, uPink, 0.25 + 0.25 * sin(a + uT * 0.4)) * halo * 0.3;
-  float fade = 1.0 - smoothstep(0.75, 1.0, r);
+  float fade = 1.0 - q * q; fade *= fade;
   gl_FragColor = vec4(col * uA * fade, 1.0);
 }`;
 

@@ -3775,8 +3775,12 @@ export const AUTOFISH = {
     keeper:  { wipe: 0.42, slowmo: [0.12, 0.5],  drops: 14, glory: 0.65, embers: 6,  bloom: 0.07, kick: -1.8, push: 0.18, shake: 0.07, flame: 0.45, glow: 1.8, haptic: [14], stampHaptic: [10] },
     prize:   { wipe: 0.55, slowmo: [0.3, 0.35],  drops: 22, glory: 0.85, embers: 12, bloom: 0.1,  kick: -2.8, push: 0.28, shake: 0.12, flame: 0.7,  glow: 2.2, haptic: [18, 40, 22], stampHaptic: [16] },
     trophy:  { wipe: 0.7,  slowmo: [0.42, 0.28], drops: 30, glory: 1.05, embers: 18, bloom: 0.14, kick: -3.8, push: 0.33, shake: 0.17, flame: 0.9,  glow: 2.6, haptic: [22, 40, 30], stampHaptic: [24] },
-    elder:   { wipe: 0.9,  slowmo: [0.6, 0.22],  drops: 40, glory: 1.3,  embers: 26, bloom: 0.18, kick: -4.8, push: 0.38, shake: 0.24, flame: 1.15, glow: 3.0, haptic: [30, 50, 40, 50, 60], stampHaptic: [30, 40, 30] },
-    ancient: { wipe: 1.0,  slowmo: [0.7, 0.2],   drops: 44, glory: 1.45, embers: 30, bloom: 0.21, kick: -5.4, push: 0.42, shake: 0.28, flame: 1.3,  glow: 3.2, haptic: [30, 50, 40, 50, 80], stampHaptic: [30, 40, 40] },
+    elder:   { wipe: 0.9,  slowmo: [0.6, 0.22],  drops: 40, glory: 1.3,  embers: 26, bloom: 0.18, kick: -4.8, push: 0.38, shake: 0.24, flame: 1.15, glow: 3.0, haptic: [30, 50, 40, 50, 60], stampHaptic: [30, 40, 30],
+      pull: -0.3, gloryHold: 1.0, gloryBright: 0.15 },
+    ancient: { wipe: 1.0,  slowmo: [0.7, 0.2],   drops: 44, glory: 1.45, embers: 30, bloom: 0.21, kick: -5.4, push: 0.42, shake: 0.28, flame: 1.3,  glow: 3.2, haptic: [30, 50, 40, 50, 80], stampHaptic: [30, 40, 40],
+      pull: -0.36, gloryHold: 1.3, gloryBright: 0.2 },
+    // the climax fires at the ceremony's pose, once the trophy camera frames the held fish; an Elder or an Ancient adds a step a
+    // Trophy does not get: the camera draws back (pull, a negative push) to take in a glory held longer (gloryHold s) and brighter
     special: { glory: 0.3, embers: 10, bloom: 0.06, flame: 0.2, glory2: 0.35 },   // glory2: the second bloom at the stamp for a record
     colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
   },

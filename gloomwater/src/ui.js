@@ -209,7 +209,7 @@ export function create(ctx) {
     }, 160);
   }
   const heldToasts = [];
-  /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it (≤ 5 s). */
+  /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it to end (≤ 15 s). */
   const bannerBusy = () => !!(bannerEl && !bannerEl.classList.contains('gw-out')) || bannerQ.length > 0;
   /** The landing (the reveal and the measuring ceremony) is the catch's moment: flavour toasts wait until the card. */
   function landingBusy() {
@@ -224,7 +224,9 @@ export function create(ctx) {
       if (!force && toasts.some((t) => !t.dead)) break;
       const q = heldToasts[0];
       if (q.slot && now - q.at > 10000) { heldToasts.shift(); continue; }   // a flavour line that waited too long is stale
-      const ready = force || (q.modal ? !hasBlocking() && !landingBusy() : (!bannerBusy() || now - q.at > 5000) && (q.kind === 'bad' || !landingBusy()));
+      // a flavour line waits for the banner to end (its clock runs on game time, so a slow frame keeps it up longer); only a
+      // banner stuck past 15 s lets it through
+      const ready = force || (q.modal ? !hasBlocking() && !landingBusy() : (!bannerBusy() || now - q.at > 15000) && (q.kind === 'bad' || !landingBusy()));
       if (!ready) break;
       heldToasts.shift();
       if (q.modal && now - q.at > 30000) continue;   // stale news from behind a long modal

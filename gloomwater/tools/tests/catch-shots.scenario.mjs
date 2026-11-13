@@ -1,6 +1,7 @@
 // The landing's payoff, captured (the user's ask of 2026-11-13: "I want it to feel more like a win when you catch one"): for a
 // Small, a Prize, a Trophy, an Elder and a new-species record, a sequence of frames through the landing on the v3 phase-1 build:
-// a-reveal (the ink flooding off the fish), b-climax (the glory and the flare), c-cord (the count running), d-stamp, e-card.
+// a-reveal (the ink flooding off the fish beside the raft), b-climax (the glory and the flare at the pose), c-cord (the count running),
+// d-stamp, e-card.
 // The game's clocks are slowed at each beat (debug.timeScale for the reveal, debug.cerRate for the ceremony) so a slow software-GL
 // frame lands where it should; the art is the game's own at full speed.
 //
@@ -150,8 +151,8 @@ export default async function (api) {
     await g(() => window.__gw.debug.cerRate(0.22));
     await g(() => window.__gw.debug.timeScale(1));
     await waitFor(() => !!window.__gw.debug.ceremony?.()?.active, null, 60, 60);
-    if (want.includes('climax')) {
-      await waitFor(() => (window.__gw.debug.ceremony?.()?.t ?? 0) >= 0.32, null, 60, 80);
+    if (want.includes('climax')) {   // the climax fires at the pose, once the trophy camera has framed the held fish
+      await waitFor(() => { const c = window.__gw.debug.ceremony?.(); return !c?.active || (!c.climaxPending && c.t >= (c.climaxAt ?? 0) + 0.35); }, null, 90, 80);
       await shot(`${name}-b-climax`);
     }
     if (want.includes('cord')) {

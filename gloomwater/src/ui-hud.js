@@ -28,6 +28,7 @@ export function createHud(K) {
           <circle class="gw-clock-glow" r="6.5" cy="9"/><circle class="gw-clock-bead" r="2.8" cy="9"/>
         </svg>
         <div class="gw-clock-phase"></div>
+        <div class="gw-clock-tip" aria-live="polite"></div>
       </div>
       <div class="gw-tl2">
         <div class="gw-level" title="Your flame's level"><span class="gw-level-n">1</span></div>
@@ -134,6 +135,18 @@ export function createHud(K) {
   el.querySelector('[data-act="creel"]').addEventListener('click', tapGuard(() => { K.sfx('ui_click'); K.screens.openCreel(); }));
   el.querySelector('[data-act="journal"]').addEventListener('click', tapGuard(() => { K.sfx('ui_click'); K.screens.openJournal(); }));
   el.querySelector('[data-act="pause"]').addEventListener('click', tapGuard(() => { K.sfx('ui_click'); safe(() => ctx.game?.pause?.(), null); if (!ctx.game?.pause) K.screens.openPause(); }));
+  // the lake, the hour and the forecast live in the clock's title (hover); a tap (a phone has no hover) writes them under it in a
+  // small ink note for 2.5 s
+  let clockTipT = 0;
+  R.clock.addEventListener('click', tapGuard(() => {
+    const tip = R.clock.querySelector('.gw-clock-tip');
+    const txt = R.clock.getAttribute('title') || '';
+    if (!tip || !txt) return;
+    tip.textContent = txt;
+    tip.classList.add('gw-on');
+    clearTimeout(clockTipT);
+    clockTipT = setTimeout(() => tip.classList.remove('gw-on'), 2500);
+  }));
   R.bait.addEventListener('click', tapGuard(() => K.baitCycle()));
   R.pill.addEventListener('click', tapGuard(() => { K.sfx('ui_click'); safe(() => ctx.player?.interact?.(), null); }));
   R.burn.addEventListener('pointerdown', tapGuard(() => K.burnFish()));
@@ -292,6 +305,14 @@ export function createHud(K) {
     const pp = ctx.player?.position;
     if (!pp) return 0;
     const add = (kind, pos) => { if (n >= MK_N || !pos) return; const t = targets[n++]; t.kind = kind; t.pos.set(num(pos.x), num(pos.y, 0) + 0.5, num(pos.z)); t.dist = Math.hypot(t.pos.x - pp.x, t.pos.z - pp.z); };
+    // while a fish is on (the bite, the play, the landing) the edges stay clear for the float and the bite mark: only the
+    // watch-lamp (and a boss) keep a marker
+    const fst = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : 'idle';
+    if (fst === 'bite' || fst === 'reeling' || fst === 'landing') {
+      v3.markers(add);
+      for (const e of arr(ctx.combat?.enemies)) if (e?.boss && e.position) { add('boss', e.position); break; }
+      return n;
+    }
     const m = ctx.actors?.merchant;
     if (m && m.present === true && m.position) add('merchant', m.position);
     const r = run();

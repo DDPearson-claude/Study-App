@@ -106,7 +106,12 @@ export function createMeasure(K) {
     const marks = c.ruler.marks.map((mk) => `<span class="gw-ms-mark gw-msm-${esc(mk.cls)}" data-cm="${mk.cm}" style="left:${pct(mk.cm).toFixed(2)}%"><i></i><b>${esc(mk.label)}</b></span>`).join('');
     // the cord's two knots (AUTOFISH.ceremony.cordMarks): your PB in oxblood, the Old Ledger's old figure in black
     // a knot under the fish (the fish passes it) writes its word below the cord, so the sketch stays clear
-    const best = c.ruler.best ? `<span class="gw-ms-best${c.af ? ` gw-ms-pb${c.ruler.passesBest ? ' gw-under' : ''}` : ''}" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>${c.af ? 'your best' : 'best'}</b></span>` : '';
+    // two knots on the same side of the cord within 15% of the track would print over each other ("your bOLD LEDGER"): the best keeps its oxblood knot and
+    // drops its word (the PB sting and the "New best" banner say it), the Old Ledger keeps its word
+    // (a phone's cord is a third as wide, so the words need a larger share of it)
+    const nearPct = (() => { try { return matchMedia('(max-width: 700px)').matches; } catch { return false; } })() ? 26 : 15;
+    const near = c.af && c.ruler.best && c.ruler.ledger && !!c.ruler.passesBest === !!c.ruler.passesLedger && Math.abs(pct(c.ruler.best) - pct(c.ruler.ledger)) < nearPct;
+    const best = c.ruler.best ? `<span class="gw-ms-best${c.af ? ` gw-ms-pb${c.ruler.passesBest ? ' gw-under' : ''}` : ''}${near ? ' gw-noword' : ''}" style="left:${pct(c.ruler.best).toFixed(2)}%" title="${c.af ? 'your best' : 'best'}"><i></i><b>${c.af ? 'your best' : 'best'}</b></span>` : '';
     const ledger = c.af && c.ruler.ledger ? `<span class="gw-ms-ledger${c.ruler.passesLedger ? ' gw-under' : ''}" style="left:${pct(c.ruler.ledger).toFixed(2)}%"><i></i><b>Old Ledger</b></span>` : '';
     const seal = !legend && c.ci.seal ? sealSvg(c.ci.seal, { ancient: c.ci.ancient, cls: 'gw-ms-sealsvg' }) : legend ? sealSvg('blackWaxRibbon', { ancient: true, cls: 'gw-ms-sealsvg' }) : '';
     // declutter: "tap to skip" for the first three ceremonies only (a tap still skips after that)
@@ -140,7 +145,7 @@ export function createMeasure(K) {
         <div class="gw-ms-skip">${skipHint ? (K.isTouch ? 'tap to skip' : 'click or Space to skip') : ''}</div>
       </div>`;
     body.appendChild(wrap);
-    c.laid = false; c.marksLaid = false; c.lastCount = -1;
+    c.laid = false; c.marksLaid = false; c.lastCount = -1; c.curMark = null;
     wrap.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); skip(); });
     const q = (s) => wrap.querySelector(s);
     c.els = { wrap, band: q('.gw-ms-band'), count: q('.gw-ms-count b'), clip: q('.gw-ms-cliprect'), bead: q('.gw-ms-bead'), fish: q('.gw-ms-ink .gw-ms-fish'), ghost: q('.gw-ms-fish-ghost'), ink: q('.gw-ms-ink'), fishbox: q('.gw-ms-fishbox'),
@@ -250,12 +255,22 @@ export function createMeasure(K) {
         if (c.lit.has(mk) || num(Number(mk.dataset.cm)) > count + 1e-6) continue;
         c.lit.add(mk); mk.classList.add('gw-hit');
       }
+      markCurrent(c, count);
       // passing your PB knot: the knot flares and a sting plays (once); the Old Ledger's knot only darkens as it is passed
       if (c.af && E.pb && c.ruler.passesBest && !c.stung && count > c.ruler.best + 1e-6) { c.stung = true; E.pb.classList.add('gw-passed'); pbSting(); }
       if (c.af && E.ledger && count >= c.ruler.ledger - 1e-6) E.ledger.classList.add('gw-passed');
     }
     if (st.stamped) stampNow(c);
     if (c.recsDirty && c.stamped) paintRecords(c);
+  }
+  /** Only the class word the count is in (the last mark it has reached) is written under the cord; the rest are bare ticks. */
+  function markCurrent(c, count) {
+    let curMk = null;
+    for (const mk of c.els.marks) if (num(Number(mk.dataset.cm)) <= count + 1e-6) curMk = mk;
+    if (curMk === c.curMark) return;
+    c.curMark?.classList.remove('gw-cur');
+    curMk?.classList.add('gw-cur');
+    c.curMark = curMk;
   }
   /** The PB sting (audio's pb_sting when it has one; otherwise a high class chime). */
   function pbSting() {
@@ -274,8 +289,12 @@ export function createMeasure(K) {
     E.ink.style.clipPath = 'inset(-30% -2% -30% -2%)';
     for (const kn of E.knots) if (num(Number(kn.dataset.cm)) <= c.length) kn.classList.add('gw-on');
     for (const mk of E.marks) if (num(Number(mk.dataset.cm)) <= c.length) mk.classList.add('gw-hit');
+    markCurrent(c, c.length);
     E.bead.style.left = `${((Math.min(1, c.length / c.ruler.max)) * 100).toFixed(2)}%`;
     E.seal.style.left = E.bead.style.left;
+    // the seal is pressed on the last knot: a knot word right under it gives way (its knot stays)
+    const sp = Math.min(1, c.length / c.ruler.max) * 100;
+    for (const [el, cm] of [[E.pb, c.ruler.best], [E.ledger, c.ruler.ledger]]) if (el && cm && Math.abs((cm / c.ruler.max) * 100 - sp) < 7) el.classList.add('gw-noword');
     if (c.name) { E.elder.textContent = `“${c.name}”`; }
     E.wrap.classList.add('gw-stamped');
     c.recsDirty = true;

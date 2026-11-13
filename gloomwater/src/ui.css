@@ -2105,3 +2105,42 @@
   .gw-cc-pick-open span, .gw-cc-pick-open em { white-space: nowrap; }
   .gw-cc-pick-open em { font-size: 15.5px; }
 }
+
+/* ================================================================ the fix pass after the review (declutter + the catch as a win)
+   the measuring cord: only the class word the count is in; a knot word gives way where it would print over another or the seal */
+.gw-ms-mark b { opacity: 0; transition: opacity .3s, color .3s, text-shadow .3s; }
+.gw-ms-mark.gw-cur b { opacity: 1; }
+.gw-ms-best.gw-noword b, .gw-ms-ledger.gw-noword b { display: none; }
+/* the clock's words on a tap (a phone has no hover): a small ink note under it for 2.5 s */
+.gw-clock-tip { position: absolute; left: -8px; top: 100%; margin-top: 6px; max-width: min(320px, 80vw); padding: 7px 14px 8px; font: italic 400 16px/1.3 var(--f-body); color: var(--ink);
+  text-shadow: 0 1px 2px #000; background: radial-gradient(ellipse 60% 70% at 40% 50%, rgba(9, 9, 22, .9), rgba(9, 9, 22, .62) 62%, transparent 100%);
+  opacity: 0; transform: translateY(-4px); transition: opacity .3s ease, transform .4s var(--ease-ink); pointer-events: none; white-space: normal; z-index: 2; }
+.gw-clock-tip.gw-on { opacity: 1; transform: none; }
+.gw-clock { cursor: pointer; pointer-events: auto; }
+/* a lore line over a pale skyline: a darker ink pool and a stronger shadow behind it */
+.gw-toast--lore { text-shadow: 0 1px 2px #000, 0 0 10px #000, 0 0 22px rgba(4, 5, 12, .95);
+  background: radial-gradient(ellipse 56% 58% at 50% 50%, rgba(9, 9, 22, .88), rgba(9, 9, 22, .62) 58%, transparent 100%); }
+.gw-toast--lore .gw-toast-title { text-shadow: 0 1px 2px #000, 0 0 12px #000; }
+/* the catch card: the win grows with the class (a Trophy a pale-gold glow round the ink, an Elder or a legend a gilded edge too) */
+.gw-cc-v3.gw-cls-trophy { --win: 1.15; } .gw-cc-v3.gw-cls-elder, .gw-cc-v3.gw-legend { --win: 1.5; }
+.gw-cc-v3.gw-cls-trophy .gw-cc-wash { filter: drop-shadow(0 0 10px rgba(243, 220, 164, .28)) drop-shadow(0 0 26px rgba(243, 220, 164, .14)); }
+.gw-cc-v3.gw-cls-elder .gw-cc-wash, .gw-cc-v3.gw-legend .gw-cc-wash { filter: drop-shadow(0 0 12px rgba(243, 220, 164, .42)) drop-shadow(0 0 34px rgba(240, 184, 216, .2)); }
+.gw-cc-v3.gw-cls-trophy .gw-cc-stamp::before, .gw-cc-v3.gw-cls-elder .gw-cc-stamp::before, .gw-cc-v3.gw-legend .gw-cc-stamp::before {
+  left: -70px; right: -90px; top: -52px; bottom: -52px;
+  background: radial-gradient(ellipse 50% 50% at 46% 52%, rgba(243, 220, 164, .46), rgba(240, 184, 216, .15) 48%, transparent 72%); }
+.gw-cc-v3 .gw-cc-stamp::before { animation-name: gwWinBloom2; }
+@keyframes gwWinBloom2 { 0% { opacity: 0; transform: scale(.55); } 28% { opacity: calc(var(--win) + var(--win2, 0)); transform: scale(1.08); } 100% { opacity: calc(var(--win) * .62 + var(--win2, 0)); transform: scale(1); } }
+.gw-cc-v3 .gw-cc-lore { -webkit-line-clamp: 3 !important; }
+@media (max-width: 700px) {
+  /* a phone: the card rises from the foot of the screen (where the measuring band sat) and the held fish and its glory keep the
+     open top of the frame (render raises the trophy shot while the card is up) */
+  .gw-m-catch { align-items: flex-end; }
+  .gw-cc-v3.gw-p-catch.gw-cc { padding: 30px 26px 22px; }
+  .gw-cc-v3 .gw-cc-measure { display: none; }
+  .gw-cc-v3 .gw-fish-ink { max-height: 72px; width: auto !important; }
+  .gw-cc-v3 .gw-cc-art { margin-top: 0; }
+  .gw-cc-v3 .gw-catch-name { font-size: 34px; }
+  .gw-cc-v3 .gw-cc-stamp { margin: 4px 0 4px 2px; }
+  .gw-cc-v3 .gw-catch-actions { margin-top: 4px; }
+  .gw-cc-v3 .gw-cc-lore { -webkit-line-clamp: 2 !important; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+}

@@ -1338,15 +1338,23 @@ export function create(ctx) {
     if (length !== undefined) p.length = Math.round(length * 1000) / 1000;
     return withLegend(p);
   }
+  /** The play's last stretch with the fish beside the raft: a ring there would spread round the raft under the landing's
+   *  close-up (art rule: never a ring around the raft), so the water keeps its spray and drops but no ripple. */
+  function ringOk(x, z) {
+    const p = S.plan;
+    if (!p || !(S.playT >= p.end * 0.85)) return true;
+    const r = raftPos();
+    return Math.hypot(x - r.x, z - r.z) >= 2.5;
+  }
   function onBeat(b) {
     emit('fishing:reel', reelPayload(b.phase, b.kind, b.t0, b.t1 - b.t0, b.strength));
     call(() => ctx.actors?.setEffort?.(shownClass(), b.phase));
     const strain = b.phase === 'lastStand' || b.phase === 'surge' || (b.phase === 'run' && b.kind === 'long');
     if (strain !== S.strainPose) { S.strainPose = strain; call(() => ctx.actors?.setPose?.(strain ? 'strain' : 'reel')); }
     const x = V.fish.x, z = V.fish.z, L = S.fishLen;
-    if (b.phase === 'surge') { call(() => ctx.water?.splash?.(x, z, { size: 0.35 + L * 0.45, count: 12 })); F.dash = (S.beatI % 2 ? -1 : 1) * (0.8 + L * 0.5); }
+    if (b.phase === 'surge') { call(() => ctx.water?.splash?.(x, z, { size: 0.35 + L * 0.45, count: 12, ring: ringOk(x, z) })); F.dash = (S.beatI % 2 ? -1 : 1) * (0.8 + L * 0.5); }
     else if (b.phase === 'run') F.dash = (S.beatI % 2 ? 1 : -1) * (1.4 + L * 0.7) * (b.kind === 'long' ? 1.5 : 1);
-    else if (b.phase === 'lastStand') { F.dash = (S.beatI % 2 ? -1 : 1) * (2 + L * 0.6); call(() => ctx.water?.splash?.(x, z, { size: 0.6 + L * 0.5, count: 18 })); }
+    else if (b.phase === 'lastStand') { F.dash = (S.beatI % 2 ? -1 : 1) * (2 + L * 0.6); call(() => ctx.water?.splash?.(x, z, { size: 0.6 + L * 0.5, count: 18, ring: ringOk(x, z) })); }
     else if (b.phase === 'still') F.dash = 0;
     if (isLegend()) {
       if (b.kind === 'toll') {   // the Matriarch's toll: a bell beneath the raft (legends are named: exempt)
@@ -1366,17 +1374,17 @@ export function create(ctx) {
     const x = V.fish.x, z = V.fish.z;
     if (e.phase === 'glimpse') {
       if (e.first && (classIndex(S.sizeClass) >= classIndex('prize') || e.kind === 'skitter')) stampEstimate();
-      call(() => ctx.water?.addRipple?.(x, z, 0.4 + 0.35 * Math.min(L, 3)));
+      if (ringOk(x, z)) call(() => ctx.water?.addRipple?.(x, z, 0.4 + 0.35 * Math.min(L, 3)));
     } else if (e.phase === 'leap') {
-      call(() => ctx.water?.splash?.(x, z, { size: 0.5 + L * 0.6, count: Math.round(14 + 4 * Math.min(L, 3)) }));
+      call(() => ctx.water?.splash?.(x, z, { size: 0.5 + L * 0.6, count: Math.round(14 + 4 * Math.min(L, 3)), ring: ringOk(x, z) }));
       fx.burst(x, 0.2, z, { color: 0xeae4d3, color2: 0xffb347, count: Math.round(8 + 4 * Math.min(L, 3)), spread: 1 + L * 0.4, up: 2.4, gravity: 6, size: 0.05, life: 0.6 });
       const SM = AF().leap?.slowmo || {};
       if (e.first && !S.slowmoDone && classIndex(S.sizeClass) >= classIndex(SM.fromClass || 'prize') && !isLegend()) {
         S.slowmoDone = true; call(() => ctx.game?.slowmo?.(num(SM.seconds, 0.25), num(SM.scale, 0.35)));
       }
     } else if (e.phase === 'scare') {
-      if (e.kind === 'shake') call(() => ctx.water?.splash?.(x, z, { size: 0.4 + L * 0.4, count: 10 }));
-      call(() => ctx.water?.addRipple?.(x, z, 0.5 + 0.2 * Math.min(L, 3)));
+      if (e.kind === 'shake') call(() => ctx.water?.splash?.(x, z, { size: 0.4 + L * 0.4, count: 10, ring: ringOk(x, z) }));
+      if (ringOk(x, z)) call(() => ctx.water?.addRipple?.(x, z, 0.5 + 0.2 * Math.min(L, 3)));
     }
   }
   /** One frame of the play: the plan's beats and overlays up to the play clock (hurry speeds the clock, never the outcome). */
@@ -1480,7 +1488,7 @@ export function create(ctx) {
     F.wakeT -= dt;
     if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
     F.rippleT -= dt;
-    if (!lp && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
+    if (!lp && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
     // the line, the rod, the reel and the Wick
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);
@@ -1615,12 +1623,22 @@ export function create(ctx) {
       if (fv && (fv.isStub || !fv.object3d)) fv = null;
       if (fv) { call(() => fv.setSilhouette?.(1)); fishHolder.add(fv.object3d); F.fv = fv; }
     }
-    S.reveal = { t: 0, dur: num(AF().revealWipe, 0.35), from: V.fish.clone(), Lp: S.fishLen, Lt: trueL, fv, lf: null, glintT: 0 };
+    // where the fish comes up: on the camera's side of the raft, broadside to it (a forward cast would put the fish straight
+    // behind the Wick's head and flame, and the reveal would run where nobody can see it). R: the camera's right on the water,
+    // C: the raft toward the camera; the fish swings to the side its line runs on, half a metre toward us, nose to the raft.
+    const camYaw = num(call(() => ctx.render?.getYaw?.()), Math.atan2(-V.lineDir.x, -V.lineDir.z) + Math.PI);
+    const Rx = Math.cos(camYaw), Rz = -Math.sin(camYaw), Cx = Math.sin(camYaw), Cz = Math.cos(camYaw);
+    const side = Math.sign(V.lineDir.x * Rx + V.lineDir.z * Rz) || 1;
+    const off = 0.9 + 0.35 * Math.min(trueL, 3);
+    const yaw0 = Math.atan2(-V.lineDir.x, -V.lineDir.z);
+    S.reveal = { t: 0, dur: num(AF().revealWipe, 0.35), from: V.fish.clone(), Lp: S.fishLen, Lt: trueL, fv, lf: null, glintT: 0,
+      ox: Rx * side * off + Cx * 0.5, oz: Rz * side * off + Cz * 0.5, yaw0, yaw1: camYaw - side * Math.PI / 2, yaw: yaw0, special: false, quality: S.quality };
     F.landing = true; F.landFrom.copy(V.fish);
     S.holding = false; S.hurry = false;
     fx.setShadow(false);
     setState('landing');
-    call(() => ctx.water?.splash?.(V.fish.x, V.fish.z, { size: 0.5 + S.fishLen * 0.4, count: 12 }));
+    // no ring: the fish is beside the raft, and a ring here would spread round it under the close-up (art rule)
+    call(() => ctx.water?.splash?.(V.fish.x, V.fish.z, { size: 0.5 + S.fishLen * 0.4, count: 12, ring: false }));
     // the landing's payoff (AUTOFISH.landing), by class: the line taut, time slows as it breaks the surface, light-catching
     // droplets, the camera pushing in. Class and the class length only until the wipe has run (nothing species-specific here).
     const LF = landFx(landClass());
@@ -1657,21 +1675,25 @@ export function create(ctx) {
    *  flaring, a bloom and a push-in, a haptic. A new species or a legend gets more. */
   function landingClimax(r) {
     const LF = r.lf;
-    if (!LF) return;
-    const sp = S.species;
-    const special = isLegend() || newSpecies(sp);
+    if (!LF || r.fired) return;
+    r.fired = true;
+    const special = !!r.special;
     const SPx = AF().landing?.special || {};
     const L = Math.max(0.05, num(r.Lt, S.fishLen));
     const glory = num(LF.glory) + (special ? num(SPx.glory) : 0);
+    const at = r.fv?.object3d?.parent ? r.fv.object3d.getWorldPosition(V.tmp) : V.fish;
     if (glory > 0) {   // a backlight bigger than the Wick and its fish, set behind them (the trophy camera frames both)
-      fx.glory(V.fish.x, V.fish.y, V.fish.z, { size: Math.max(0.8 + 0.35 * glory, (0.5 + Math.min(L, 6) * 0.8) * glory), strength: 0.36 + 0.2 * glory, rise: 0.45, hold: 0.3 + 0.9 * glory,
-        fade: 0.9 + glory, follow: r.fv?.object3d || null, back: 0.6 + Math.min(L, 6) * 0.25, embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
+      // an Elder or an Ancient holds it longer and brighter (the step a Trophy does not get, with the camera's pull-back below)
+      fx.glory(at.x, at.y, at.z, { size: Math.max(0.8 + 0.35 * glory, (0.5 + Math.min(L, 6) * 0.8) * glory), strength: 0.36 + 0.2 * glory + num(LF.gloryBright, 0), rise: 0.45,
+        hold: 0.3 + 0.9 * glory + num(LF.gloryHold, 0), fade: 0.9 + glory, follow: r.fv?.object3d || null, back: 0.6 + Math.min(L, 6) * 0.25,
+        embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
     }
     call(() => ctx.render?.pulse?.({ bloom: num(LF.bloom) + (special ? num(SPx.bloom) : 0) }));
     call(() => ctx.render?.kick?.(num(LF.kick, -1)));
+    if (num(LF.pull, 0) < 0) call(() => ctx.render?.push?.(num(LF.pull, 0), 1.4, 0.9, 1.6));   // the camera draws back to take in the whole glory
     call(() => ctx.actors?.flareFlame?.(num(LF.flame) + (special ? num(SPx.flame) : 0)));
     if (r.fv && num(LF.glow, 1) > 1) {   // its glow ignites, and the whole fish holds the light for a moment (so it never reads as a cut-out)
-      S.glowIgnite = { fv: r.fv, amp: num(LF.glow, 1.5) - 1, t: 0, base: S.quality === 'perfect' ? 1.6 : 1, light: Math.min(0.32, 0.12 + 0.06 * num(LF.glory)) };
+      S.glowIgnite = { fv: r.fv, amp: num(LF.glow, 1.5) - 1, t: 0, base: r.quality === 'perfect' ? 1.6 : 1, light: Math.min(0.32, 0.12 + 0.06 * num(LF.glory)) };
       call(() => r.fv.setGlow?.(num(LF.glow, 1.5)));
       call(() => r.fv.setRevealLight?.(S.glowIgnite.light));
     }
@@ -1693,15 +1715,19 @@ export function create(ctx) {
     r.t += dt;
     const k = clamp(r.t / Math.max(0.05, r.dur), 0, 1), e = k * k * (3 - 2 * k);
     const raft = raftPos();
-    const nearD = 1.3 + r.Lt * 0.35;
-    const tx = raft.x + V.lineDir.x * nearD, tz = raft.z + V.lineDir.z * nearD;
+    const tx = raft.x + r.ox, tz = raft.z + r.oz;
     const wy = waterH(tx, tz);
-    V.fish.set(lerp(r.from.x, tx, e * 0.6), lerp(wy - 0.05, wy + 0.25 + 0.2 * Math.min(r.Lt, 2), e), lerp(r.from.z, tz, e * 0.6));
+    // it swings in to the camera's side over the first 60% of the wipe (so the band runs where it can be seen), rising all the way
+    const kp = clamp(k / 0.6, 0, 1), ep = kp * kp * (3 - 2 * kp);
+    V.fish.set(lerp(r.from.x, tx, ep), lerp(wy - 0.05, wy + 0.35 + 0.25 * Math.min(r.Lt, 2), e), lerp(r.from.z, tz, ep));
     const L = lerp(r.Lp, r.Lt, e);
+    // it turns broadside as it comes up (the band runs nose to tail across the screen)
+    let dy = (r.yaw1 - r.yaw0) % TAU; if (dy > Math.PI) dy -= TAU; else if (dy < -Math.PI) dy += TAU;
+    r.yaw = r.yaw0 + dy * ep;
     if (r.fv) {
       const o = r.fv.object3d;
       o.visible = true; o.position.copy(V.fish);
-      o.rotation.set(-0.3 * e, Math.atan2(-V.lineDir.x, -V.lineDir.z), Math.sin(r.t * 12) * 0.25, 'YXZ');
+      o.rotation.set(-0.3 * e, r.yaw, Math.sin(r.t * 12) * 0.25 * (1 - 0.6 * e), 'YXZ');
       o.scale.setScalar(Math.max(0.05, L / Math.max(0.02, r.Lt)));
       // the reveal: the night ink floods off nose to tail behind a band of pale light (the model's sweep), the colours under it
       // given back early so the band uncovers them; without the sweep, the v1 even lift
@@ -1720,16 +1746,26 @@ export function create(ctx) {
       }
       fishUpd(r.fv, dt, S.clock, 1, 1.4);
       fx.setProxy(false);
-    } else fx.setProxy(true, V.fish.x, V.fish.y, V.fish.z, Math.atan2(-V.lineDir.x, -V.lineDir.z), 0.3 * e, 0, L, 1 - 0.7 * k, 0.9);
+    } else fx.setProxy(true, V.fish.x, V.fish.y, V.fish.z, r.yaw, 0.3 * e, 0, L, 1 - 0.7 * k, 0.9);
     S.sheetT = (S.sheetT ?? 0) - dt;
-    if (S.sheetT <= 0) { S.sheetT = 0.06; fx.scoopSheet(V.fish.x, V.fish.y, V.fish.z, L, Math.atan2(-V.lineDir.x, -V.lineDir.z), 1 - 0.5 * k); }
-    V.mouth.copy(V.fish).setY(V.fish.y + 0.05);
+    if (S.sheetT <= 0) { S.sheetT = 0.06; fx.scoopSheet(V.fish.x, V.fish.y, V.fish.z, L, r.yaw, 1 - 0.5 * k); }
+    // the line to its mouth (the nose, raised a little by its pitch)
+    const nose = L * 0.45;
+    V.mouth.set(V.fish.x + Math.sin(r.yaw) * nose, V.fish.y + 0.05 + Math.sin(0.3 * e) * nose, V.fish.z + Math.cos(r.yaw) * nose);
     aLine(true, V.mouth, r.lf ? lerp(1, 0.35, e) : 0.35, 0); aBob(false);   // taut as it clears the water, easing as it comes in
     if (k >= 1) {
       S.reveal = null; fx.setProxy(false);
       if (r.fv) { r.fv.object3d.scale.setScalar(1); call(() => r.fv.setSilhouette?.(0)); call(() => r.fv.setReveal?.(1, 0)); }
-      landingClimax(r);
+      // the wipe has run: the band, its glints and the class chime (audio, on fishing:caught) are this beat's. The climax (the
+      // glory, the flare, the bloom, the kick, the haptic) waits for the ceremony's pose, once the trophy camera has framed
+      // the fish; without a ceremony (a debug catch, the v1 hand-off) it plays now.
+      r.special = isLegend() || newSpecies(S.species);
+      r.quality = S.quality;
+      S.cerYaw = r.yaw;
       caught();
+      S.cerYaw = null;
+      if (S.cer && !S.cer.climax) S.cer.climax = r;
+      else landingClimax(r);
     }
   }
   /** The First Evening's seam (CONTRACT §13.7a, §13.12): waits and presentation only; any outcome, class, chance, z or species throws. */
@@ -2099,7 +2135,7 @@ export function create(ctx) {
     const hit = S.signHit?.rule && !S.signHit.rule.spook ? S.signHit : null;
     if (hit && S.signs.includes(hit.sign) && hit.sign.ttl > 8) { hit.sign.ttl = 8; hit.sign.depleted = true; }   // a catch thins its sign
     const pos = V.fish.clone();
-    call(() => ctx.water?.splash?.(pos.x, pos.z, { size: 0.8 + S.fishLen * 0.5, count: 18 }));
+    call(() => ctx.water?.splash?.(pos.x, pos.z, { size: 0.8 + S.fishLen * 0.5, count: 18, ring: false }));   // beside the raft: no ring (art rule)
     if (quality === 'perfect') fx.burst(pos.x, pos.y + 0.2, pos.z, { color: 0xffe2a8, color2: 0xffffff, count: 24, spread: 1.8, up: 2.2, gravity: 2, size: 0.07, life: 1.3, radius: 0.3 });
     const perfect = !!S.perfect, took = !!S.prerollTook;
     S.reel = null; S.holding = false;
@@ -2159,7 +2195,10 @@ export function create(ctx) {
     const promise = new Promise((r) => { resolve = r; });
     const cls = legendary ? 'elder' : fish.sizeClass;
     S.cer = { fish, legendary, Lm, plan, pose: poseFor(Lm, legendary), fv, t: 0, stamped: false, posed: false, result: null, resolve, from, isNew: newSpecies(sp),
-      sheetT: 0, skipAfter: num(BAL('ceremony').skipAfter, 0.6), elderish: legendary || cls === 'elder', yaw: Math.atan2(-V.lineDir.x, -V.lineDir.z) };
+      sheetT: 0, skipAfter: num(BAL('ceremony').skipAfter, 0.6), elderish: legendary || cls === 'elder', yaw: Number.isFinite(S.cerYaw) ? S.cerYaw : Math.atan2(-V.lineDir.x, -V.lineDir.z),
+      // the landing's climax (landingClimax) fires once the trophy camera has framed the held fish: at the pose, after the
+      // camera's move in has mostly settled (≈1.1 s; a Small / Keeper at its cord's start)
+      climax: null, climaxAt: Math.min(plan.cordStart + 0.25 * plan.cordDur, Math.max(plan.beats.scoop + 0.25, Math.min(1.1, plan.cordStart))) };
     view.measure = { phase: 'scoop', speciesId: fish.speciesId, length: fish.length, count: 0, k: 0, cordDur: round2(plan.cordDur), sizeClass: fish.sizeClass,
       ancient: !!fish.ancient, legendary, seal: null, pose: S.cer.pose, dur: plan.dur, beats: { ...plan.beats, cordStart: plan.cordStart }, t: 0,
       short: plan.short, skippable: !S.cer.elderish, name: null, records: null, uid: fish.uid ?? null };
@@ -2172,7 +2211,7 @@ export function create(ctx) {
     call(() => ctx.render?.setTrophyTarget?.({ length: Lm, landmark, position: { x: from.x, y: from.y, z: from.z }, place: fish.place ?? null }));
     // the scoop: a splash at true scale (no clamps). No ripple and no pulse ring: beside the raft either would grow round
     // the raft under the trophy camera (art rule: never a ring around the raft); spray carries a big fish's weight instead
-    call(() => ctx.water?.splash?.(from.x, from.z, { size: 0.6 + Lm * 0.6, count: Math.round(16 + 6 * Math.min(Lm, 6)) }));
+    call(() => ctx.water?.splash?.(from.x, from.z, { size: 0.6 + Lm * 0.6, count: Math.round(16 + 6 * Math.min(Lm, 6)), ring: false }));
     if (Lm > 1.4) fx.burst(from.x, 0.3, from.z, { color: 0xd9dcea, count: Math.round(10 + 3 * Math.min(Lm, 6)), spread: 1.2 + Lm * 0.2, up: 2.4, gravity: 6, size: 0.06, life: 0.7, radius: Math.min(2, Lm * 0.25) });
     call(() => ctx.ui?.showMeasure?.(view.measure));
     return promise;
@@ -2245,6 +2284,7 @@ export function create(ctx) {
     if (!c) return;
     if (!c.posed) beginPose(c);
     if (!c.stamped) stampCeremony(c);
+    if (c.climax) { const r = c.climax; c.climax = null; landingClimax(r); }   // a skip still gets the win, behind the card
     S.cer = null;
     if (view.measure) view.measure.phase = 'card';
     ctx.cinematic = false;
@@ -2292,7 +2332,17 @@ export function create(ctx) {
       if (fv && fv.object3d.parent === fishHolder) {
         fv.object3d.position.set(x, y, z);
         const hang = c.pose === 'alongside' ? 0 : -1.2 * e;
-        fv.object3d.rotation.set(hang, c.yaw + (c.pose === 'alongside' ? Math.PI / 2 : 0), Math.sin(c.t * 14) * 0.25 * (1 - e), 'YXZ');
+        // a held fish turns its flank to the camera as it comes up (never end-on), as actors will hold it
+        let yw = c.yaw + (c.pose === 'alongside' ? Math.PI / 2 : 0);
+        if (c.pose !== 'alongside') {
+          const cy = num(call(() => ctx.render?.getYaw?.()), NaN);
+          if (Number.isFinite(cy)) {
+            const wrap = (a) => { a %= TAU; return a > Math.PI ? a - TAU : a < -Math.PI ? a + TAU : a; };
+            const d1 = wrap(cy - Math.PI / 2 - c.yaw), d2 = wrap(cy + Math.PI / 2 - c.yaw);
+            yw = c.yaw + (Math.abs(d1) <= Math.abs(d2) ? d1 : d2) * e;
+          }
+        }
+        fv.object3d.rotation.set(hang, yw, Math.sin(c.t * 14) * 0.25 * (1 - e), 'YXZ');
         fishUpd(fv, realDt, t, 0.6, 1.5 - e * 0.8, 0);
       }
       c.sheetT -= realDt;
@@ -2308,6 +2358,7 @@ export function create(ctx) {
         if (k >= 1) stampCeremony(c);
       } else if (m) m.phase = 'pose';
     }
+    if (c.climax && c.posed && c.t >= c.climaxAt) { const r = c.climax; c.climax = null; landingClimax(r); }
     if (m) m.t = round2(c.t);
     if (c.stamped && c.t >= P.dur) finishCeremony();
   }
@@ -3348,7 +3399,7 @@ export function create(ctx) {
         }),
         fishClock: () => S.clock,
         ceremony: () => (S.cer ? { active: true, t: S.cer.t, stamped: S.cer.stamped, posed: S.cer.posed, pose: S.cer.pose, dur: S.cer.plan.dur, beats: { ...S.cer.plan.beats },
-          cordStart: S.cer.plan.cordStart, short: S.cer.plan.short, L: S.cer.Lm, legendary: S.cer.legendary, uid: S.cer.fish.uid ?? null, cinematic: !!ctx.cinematic }
+          cordStart: S.cer.plan.cordStart, climaxAt: S.cer.climaxAt, climaxPending: !!S.cer.climax, short: S.cer.plan.short, L: S.cer.Lm, legendary: S.cer.legendary, uid: S.cer.fish.uid ?? null, cinematic: !!ctx.cinematic }
           : { active: false, cinematic: !!ctx.cinematic, measure: view.measure ? { ...view.measure } : null }),
         fishSpot: (rare = false) => { try { const s = spawnSpot({ rare }); return s ? { x: s.position.x, z: s.position.z } : null; } catch (e) { report(e); return null; } },
         fishing: () => ({ state, species: S.species?.id || null, weight: S.weight, depth: S.depth, wait: S.waitDur, events: S.events.map((e) => e.type), spot: !!S.spot, legend: S.legendCast,

@@ -5,7 +5,7 @@
 import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
-import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS } from './ui-v3.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines } from './ui-v3.js';
 import * as AF from './ui-af.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -517,8 +517,15 @@ export function createScreens(K) {
     const z = K.zoneData(sp.zone) || K.zoneData(r?.zone) || (af() && (sp.zone === COVE_ID || sp.cove) ? { name: zoneName(COVE_ID) } : null);
     const zn = (z?.name || '').replace(/^The /, 'the ');
     const stamp = legend ? 'Legend' : ci.label;
-    const kicker = legend ? `A legend of ${zn || 'the deep'}` : p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
-      : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`;
+    // the kicker names the same record the measuring banner did (its best line), in a few words: the hero length says the rest
+    const best = recordLines(D(), { records: recs, isNew: !!p.isNew, species: sp, length: fish.length, max: 1 })[0] || null;
+    const REC_KICK = { oldLedger: 'Old Ledger beaten', pb: 'A new personal best', isNew: 'A new name for the journal', elderLog: 'Written in the Elder Log',
+      place: 'A new record for this place', resident: 'A resident giant, landed' };
+    const recKick = !best ? null : best.kind === 'classFirst'
+      ? `Your first ${(classInfo(D(), recs.find((x) => x?.kind === 'classFirst')?.sizeClass, !!recs.find((x) => x?.kind === 'classFirst')?.ancient) || ci).label}`
+      : REC_KICK[best.kind] || best.text;
+    const kicker = legend ? `A legend of ${zn || 'the deep'}` : recKick || (p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
+      : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`);
     const len = fmtLength(fish.length, D());
     const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
       : p.isRecord ? 'biggest yet!' : ci.id === 'trophy' ? CLASS_PHRASE.trophy : p.isNew ? 'a first!' : CLASS_PHRASE[ci.id] || '';
@@ -531,8 +538,10 @@ export function createScreens(K) {
     const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${night || ''}${r?.day ? `, day ${r.day}` : ''}`;
     const favours = arr(fish.favours);
     const mu = favourMu(favours, D());
-    const special = legend || !!p.isNew || !!p.isRecord || classFirst || !!fish.name || !!ci.ancient;
-    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true, special };
+    const special = legend || !!p.isNew || !!p.isRecord || classFirst || !!fish.name || !!ci.ancient || !!best;
+    // the lore and the epithet up front only for a new name, a legend or an Ancient; a record keeps its kicker and the hero
+    const loreUp = legend || !!p.isNew || !!ci.ancient;
+    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true, special, loreUp };
   }
   /** The catch as the journal records it: stamp, kicker, note, numbers. */
   function catchNotes(p, sp, fish) {
@@ -674,7 +683,9 @@ export function createScreens(K) {
       // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
       const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
         : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
-      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${legend ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
+      // a legend, an Elder and an Ancient wear a gilded edge on the ink (a Trophy a pale-gold glow round it: ui.css)
+      const gild = legend || (N.v3 && N.cls.id === 'elder');
+      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${gild ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
       // v3: the favours that applied, as the float showed them (notches) and in plain words by family
       const ticks = (n) => `<svg class="gw-cc-ticks" viewBox="0 0 64 24" aria-hidden="true">${[7, 19, 31, 43, 55].map((x, i) => `<path class="${i < n ? 'gw-lit' : ''}" d="M${x - 3.2} 20.5 C${x - 1.6} 15 ${x + 1.6} 9 ${x + 3.6} 3.5"/>`).join('')}</svg>`;
       const X = ' class="gw-cc-xtra"';
@@ -692,19 +703,23 @@ export function createScreens(K) {
       // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
       // card; an ordinary catch shows name, class, length, weight and the actions, the rest one tap away ("more")
       const sx = N.special ? '' : ' gw-cc-xtra';
+      // v3: the hero length and the kicker carry the record, so the handwritten note (length, phrase, bait and hour) folds behind
+      // "more"; the lore and the epithet are up front only for a new name, a legend or an Ancient
+      const nx = N.v3 ? ' gw-cc-xtra' : sx;
+      const lx = N.v3 ? (N.loreUp ? '' : ' gw-cc-xtra') : sx;
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
-            <p class="gw-cc-note${sx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+            <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
             <div class="gw-cc-kicker${sx}">${esc(N.kicker)}</div>
             <h2 class="gw-catch-name">${esc(sp.name)}</h2>
-            ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet${sx}">${esc(sp.epithet)}</div>` : ''}
+            ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet${lx}">${esc(sp.epithet)}</div>` : ''}
             <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}${N.v3 ? `<b class="gw-cc-hero">${esc(N.len)}</b>` : ''}</div>
             ${stats}
-            <p class="gw-cc-lore${sx}">${esc(lore)}</p>
+            <p class="gw-cc-lore${lx}">${esc(lore)}</p>
             <button type="button" class="gw-link gw-cc-more" data-more aria-expanded="${s.more ? 'true' : 'false'}">${s.more ? 'less' : 'more'}</button>
             ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}
           </div>
