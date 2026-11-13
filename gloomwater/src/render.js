@@ -1058,6 +1058,16 @@ export function create(ctx) {
     // >>> INTRO LANE A: cut-scene camera
     setIntroCamera,
     getIntroCamera() { return introCam; },
+    /**
+     * Compile an object's programs exactly as the frame will use them (inside the HDR target, with the scene's lights and
+     * fog), without drawing it: the cut scene warms its set under the title, so its first frame compiles nothing.
+     */
+    warmPrograms(obj) {
+      if (!obj || !composer || typeof renderer.compile !== 'function') return false;
+      const prev = renderer.getRenderTarget();
+      try { renderer.setRenderTarget(composer.renderTarget1); renderer.compile(obj, camera, scene); } finally { renderer.setRenderTarget(prev); }
+      return true;
+    },
     // <<< INTRO LANE A
     getCameraMode() { return mode; },
     /** Jump the rig straight to its current target (cuts, tests). */

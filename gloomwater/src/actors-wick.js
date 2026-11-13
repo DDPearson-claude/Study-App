@@ -242,6 +242,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let vitality = 1, flameK = 1, flameOut = false, blinkT = 2, blink = 0, paddlePhase = 0, crankPhase = 0, facing = 0;
   let look = { ...DEFAULT_LOOK }, buildS = BUILDS.wick, flameBaseY = 0.355, flameBaseX = 0;
   let flareK = 0;   // the landing's flare of the head flame (flareFlame), decaying
+  let introKindle = null;   // INTRO LANE A: the opening cut scene's multiplier on the head flame (0 … 1), or null
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
@@ -588,6 +589,16 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck);
     flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + fl * 0.6) * (1 - 0.88 * ck);
     flame.halo.scale.setScalar(0.75 * (1 + fl * 0.5) * (1 - 0.5 * ck));
+    // >>> INTRO LANE A: the opening cut scene's kindling (docs/v3/intro/SPEC.md §4 #13; null = the game's own flame)
+    if (introKindle !== null) {
+      const kk = introKindle;
+      flame.group.visible = flame.group.visible && kk > 0.01;
+      flame.group.scale.multiplyScalar(0.25 + 0.75 * kk);
+      flame.outerMat.uniforms.uI.value *= kk; flame.innerMat.uniforms.uI.value *= kk;
+      flame.halo.material.opacity *= kk;
+      eyeMat.color.multiplyScalar(0.06 + 0.94 * kk);
+    }
+    // <<< INTRO LANE A
     // lean flame against motion
     const lx = clamp(-(env.localVel?.x || 0) * 0.018 - cur.roll * 0.15, -0.3, 0.3), lz = clamp(-(env.localVel?.z || 0) * 0.018 + cur.pitch * 0.1, -0.3, 0.3);
     flame.outerMat.uniforms.uLean.value.set(lx, lz); flame.innerMat.uniforms.uLean.value.set(lx * 0.7, lz * 0.7);
@@ -653,6 +664,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       if (Number.isFinite(emberFrac)) lastEmber = emberFrac + 1e-3;
       if (v !== vitality) { vitality = v; applyFlameColor(); }
     },
+    setIntroKindle(k) { introKindle = Number.isFinite(k) ? Math.min(1, Math.max(0, k)) : null; },   // INTRO LANE A
     ringBell(s = 1) { bellV += 6 * s; },
     setHolding(on, big = false) { holding = !!on; catchBig = !!big; },
     /** Measuring: the held fish's length in body units, the alongside side and facing (raft-local yaw). */
