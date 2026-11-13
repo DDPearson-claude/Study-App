@@ -35,7 +35,7 @@ near(DIR.beatAt(I, 6.6).k, 0.5, 1e-9, 'beatAt().k runs 0 → 1 through the beat'
 eq(DIR.lineAt(I, 0.5), null, 'no line before the first one');
 eq(DIR.lineAt(I, 2).i, 0, 'line 0 at 2 s');
 eq(DIR.lineAt(I, 10), null, 'the beat "below" is wordless');
-eq(DIR.lineAt(I, 16).text, 'You are one of them.', 'the last line');
+eq(DIR.lineAt(I, 16.8).text, 'You are one of them.', 'the last line (as the play camera settles)');
 eq(DIR.lineAt(I, 17.8), null, 'no words when control begins');
 ok(DIR.lineAt(I, I.lines[0].at + 0.2).k < 1 && DIR.lineAt(I, I.lines[0].at + 1).k === 1, 'a line fades in over INTRO.lineFade');
 { let lines = 0, prev = null; for (let t = 0; t <= 18; t += 0.01) { const l = DIR.lineAt(I, t); const i = l ? l.i : null; if (i !== prev && i !== null) lines++; prev = i; } eq(lines, I.text.length, 'every line shows exactly once, one at a time'); }

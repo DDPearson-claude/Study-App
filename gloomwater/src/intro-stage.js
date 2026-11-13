@@ -451,9 +451,14 @@ export function createIntroStage(ctx) {
       if (k > 0.001 && st.anchors) {
         const h = set ? set.hang : resolvePoint(S.lantern.at, st.anchors);
         waterLight.x = h[0]; waterLight.y = Math.max(0.6, sc.lantern.y); waterLight.z = h[2];
-        waterLight.color = S.colors.glass; waterLight.intensity = S.lantern.water.intensity * k; waterLight.radius = S.lantern.water.radius;
+        // (where the lake is a mirror the reflection carries the gold: the pool has its own, lower level there, INTRO's intensityMirror)
+        let mirror = false;
+        try { mirror = real(ctx.water) && ctx.water.reflection?.on === true; } catch { mirror = false; }
+        const level = mirror ? (S.lantern.water.intensityMirror ?? S.lantern.water.intensity) : S.lantern.water.intensity;
+        waterLight.color = S.colors.glass; waterLight.intensity = level * k; waterLight.radius = S.lantern.water.radius;
         waterLight.streak = ctx.render?.quality === 'low' ? (S.lantern.water.streakLow ?? S.lantern.water.streak) : S.lantern.water.streak;
-        W.setIntroWaterLight(waterLight); st.lit = true;
+        if (waterLight.intensity > 0.001) { W.setIntroWaterLight(waterLight); st.lit = true; }
+        else if (st.lit) { W.setIntroWaterLight(null); st.lit = false; }
       } else if (st.lit) { W.setIntroWaterLight(null); st.lit = false; }
     }
   }

@@ -236,7 +236,14 @@ for (const [tier, mirror] of [['high', true], ['medium', true], ['low', false]])
 }
 
 section('stage: the hooks it drives');
-{ const g = game(), st = STG.createIntroStage(g.ctx); st.enter({});
+// where the lake is a mirror the reflection carries the gold: the pool is at INTRO's intensityMirror there (0: never set)
+{ const g = game({ mirror: true }), st = STG.createIntroStage(g.ctx); st.enter({});
+  for (const t of [2, 5, 7.5, 7.95, 8.4]) st.setTime(t, {});
+  const want = S.lantern.water.intensityMirror ?? S.lantern.water.intensity;
+  if (want <= 0.001) ok(g.calls.light.every((l) => l === null), 'mirror tiers: the lantern lays no pool on the water (its reflection is the gold)');
+  else ok(g.calls.light.some((l) => l && l.intensity > 0 && l.intensity <= want * 2.3), 'mirror tiers: the pool at its own, lower level');
+  st.dispose(); }
+{ const g = game({ mirror: false }), st = STG.createIntroStage(g.ctx); st.enter({});   // (no mirror: the pool and the gold path are the lantern's reflection)
   st.setTime(0.2, {}); eq([g.calls.kindle.length, g.calls.light.length, g.calls.mood.length], [0, 0, 0], 'before the swap: no hook is touched');
   st.setTime(2, {}); eq(g.calls.kindle.at(-1), { wick: 0, lantern: 0 }, 'from the swap: the raft\'s fire is out'); eq(g.calls.mood, [true], '… and the world wears the run\'s opening mood');
   const L = g.calls.light.at(-1); ok(L && L.x === hang[0] && L.z === hang[2] && Math.abs(L.y - hang[1]) < 1e-9 && L.intensity > S.lantern.water.intensity * 0.9 && L.radius === S.lantern.water.radius && L.streak === S.lantern.water.streak, 'the lantern\'s light on the water, at the lantern');

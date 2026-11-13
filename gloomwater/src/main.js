@@ -353,6 +353,8 @@ function introUnderInk() {
 }
 function startIntro({ replay = false, reduced } = {}) {
   if (!ctx.intro || !INTRO || FE_ON || ctx.flow !== 'title' || ctx.intro.isActive() || introFlow.on) return false;
+  // the title is closed for the game, but its picture stays for the opening ink to close over (ui-intro.js takeTitle): no fade of its own
+  try { introView()?.takeTitle?.(); } catch (e) { report('intro.takeTitle', e); }
   try { ctx.ui.closeAll?.(); } catch (e) { report('ui.closeAll', e); }
   resetBeats();
   ctx.state.run = null;

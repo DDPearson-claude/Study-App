@@ -12,10 +12,12 @@
 //                  and copied into a 2D layer that fades out over INTRO.stillFade; if the copy fails, ink dips (stillDipAt)
 //   the curtain    curtain({in, out, onFull}): ink closes, `onFull` runs under one painted frame of full ink, ink opens (a
 //                  replay putting the title's lake back, SPEC §7.4)
+//   the title      takeTitle(): at the press the title's screen is closed for the game but its picture stays, inert, until the
+//                  opening ink has closed over it (the picture only darkens from the press; nothing brightens first)
 // While the film plays `#ui` carries `.gw-intro-on`: the HUD, toasts, tips, banners and any modal are hidden and take no press.
 //
 // API (createIntroView(K), K = the ui kit): update(dt) · sync() (draw the director's moment now: seeks) · curtain(o) ·
-// poke() · isOn() · debug() -> {on, line, lineK, veil, skip, still, band, portrait, snapshots, closing}
+// takeTitle() · poke() · isOn() · debug() -> {on, line, lineK, veil, skip, still, band, portrait, snapshots, closing}
 import { lineAt, veilAt, skipWordAt, cutDipAt, stillDipAt } from './intro.js';
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
@@ -47,7 +49,29 @@ export function createIntroView(K) {
 
   let el = null, veilEl = null, lineEl = null, textEl = null, liveEl = null, skipEl = null, stillEl = null;
   const V = { on: false, line: null, lineK: 0, veil: 0, skip: 0, pokeUntil: 0, still: null, snapshots: true, snapCount: 0,
-    closing: null, curtain: null, band: null, w: 0, hgt: 0 };
+    closing: null, curtain: null, band: null, w: 0, hgt: 0, title: null, titleInked: false };
+
+  // ---------------------------------------------------------------- the title under the opening ink
+  /**
+   * The press. The title's screen is closed for the game (its stack entry, its events, its click) but its picture stays exactly
+   * as it was, inert: the opening ink closes over the name and the two words, and they are taken away under the full ink. So the
+   * picture only ever darkens from the press (a screen that faded by itself took its own dark veil with it and the lake
+   * brightened for a moment before the ink arrived). Returns false when no title is up.
+   */
+  function takeTitle() {
+    dropTitle();
+    const e = K.entry?.('title');
+    if (!e || !e.el) return false;
+    try { globalThis.document?.activeElement?.blur?.(); } catch { /* ignore */ }   // (a held Enter or Space must not press Begin again)
+    V.title = e.el; V.titleInked = false;
+    K.closeModal('title', { hold: true });
+    return true;
+  }
+  function dropTitle() {
+    const el = V.title;
+    V.title = null; V.titleInked = false;
+    if (el) { try { el.remove(); } catch { /* ignore */ } }
+  }
 
   function build() {
     if (el) return;
@@ -86,13 +110,17 @@ export function createIntroView(K) {
     node.style.visibility = v > 0.001 ? 'visible' : 'hidden';
   }
   function teardown() {
+    dropTitle();
     V.on = false; V.closing = null; V.curtain = null; V.still = null; V.line = null;
     root.classList.remove('gw-intro-on');
     if (el) { el.remove(); el = veilEl = lineEl = textEl = liveEl = skipEl = stillEl = null; }
     V.lineK = V.veil = V.skip = 0;
   }
   function start() {
+    const title = V.title, inked = V.titleInked;
+    V.title = null;            // (the title taken at this press outlives the teardown of whatever was left of an earlier film)
     teardown();
+    V.title = title; V.titleInked = inked;
     build();
     V.on = true; V.snapshots = true; V.snapCount = 0; V.pokeUntil = 0;
     root.classList.add('gw-intro-on');
@@ -149,6 +177,11 @@ export function createIntroView(K) {
       veil = Math.max(veil, c.veil * k); skipK = c.skip * k; lineK = 0;
     }
     if (V.curtain) veil = Math.max(veil, V.curtain.k);
+    // the title's picture, kept from the press: gone one drawn frame after the ink is full (or as soon as the film is not there)
+    if (V.title) {
+      if (V.titleInked || !s) dropTitle();
+      else if (veil >= 0.999) V.titleInked = true;
+    }
     setOpacity(veilEl, veil, 'veil');
     setOpacity(lineEl, lineK, 'lineK');
     setOpacity(skipEl, skipK, 'skip');
@@ -197,6 +230,7 @@ export function createIntroView(K) {
   });
   on('intro:skip', () => { V.still = null; draw(); });
   on('intro:done', (p) => {
+    dropTitle();
     if (!V.on) return;
     V.line = null; V.still = null;
     if (liveEl) liveEl.textContent = '';
@@ -231,8 +265,9 @@ export function createIntroView(K) {
       } catch (e) { report('curtain', e); return false; }
     },
     poke,
+    takeTitle,
     isOn: () => V.on,
-    debug: () => ({ on: V.on, line: V.line, lineK: V.lineK, veil: V.veil, skip: V.skip, still: !!V.still, snapshots: V.snapshots, snapCount: V.snapCount,
+    debug: () => ({ on: V.on, line: V.line, lineK: V.lineK, veil: V.veil, skip: V.skip, still: !!V.still, snapshots: V.snapshots, snapCount: V.snapCount, title: !!V.title,
       closing: !!V.closing, curtain: V.curtain ? V.curtain.phase : null, band: V.band ? { ...V.band } : null, el: !!el }),
   };
 }

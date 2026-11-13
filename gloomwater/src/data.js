@@ -3956,8 +3956,9 @@ export const INTRO = {
         { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.72, 2.6, 5.4], look: ['S', -0.2, 3.4, -30], fov: 52 } },
         { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.8, 2.7, 5.7], look: ['S', -0.2, 3.4, -30], fov: 52 } },
       ] },
-      // the crane home: the weight of the stage's pose goes 1 → 0 into render's own settled `sail` rig, then 0.6 s at rest
-      { id: 'home', from: 14.6, to: 18, rig: 'sail', blend: [14.6, 17.4], ease: 'inOutSine' },
+      // the crane home: the weight of the stage's pose goes 1 → 0 into render's own settled `sail` rig, then 1 s at rest
+      // (at rest from 17.0: the raft has risen clear of the words band by 16.2, where the last line comes in under it)
+      { id: 'home', from: 14.6, to: 18, rig: 'sail', blend: [14.6, 17.0], ease: 'inOutSine' },
     ],
   },
   set: {
@@ -3965,7 +3966,11 @@ export const INTRO = {
     // rock), 44 m in front of the gate on the play axis, on three chains that run up out of frame. `at` is its middle; `height`
     // its cage, foot to cap
     lantern: { at: ['G', 0, 14.2, 44], height: 7.6, radius: 2.9, glow: 2.6, halo: { size: 30, opacity: 0.55 }, chains: 3, chainTop: 48,
-      water: { intensity: 14, radius: 27, streak: 2, streakLow: 0.75 } },   // its pool and gold path on the water, on every tier (world.setIntroWaterLight); the pool stops short of the far shore (28 m), which it lit as a hard yellow line; on the low tier (no mirror) the streak IS the reflection, a little calmer so it stays gold
+      // its pool and gold path on the water (world.setIntroWaterLight). On the low tier (no mirror) the streak IS the lantern's
+      // reflection, a little calmer so it stays gold. Where the lake is a mirror (medium, high) the reflection itself carries the
+      // gold and the pool is off (`intensityMirror` 0): seen from 2 m up, 60 m away, a pool is one flat mustard band along the far
+      // shore, and any fainter it turns olive over the violet water
+      water: { intensity: 14, intensityMirror: 0, radius: 27, streak: 2, streakLow: 0.75 } },
     // "then": three columns of nine slits on each tower; the lake's own eight candle slits and three braziers are "now" and stay lit
     windows: { perTower: 27, cols: 3, rows: 9, y0: 4, dy: 3.4, size: [0.8, 1.8], glow: 2.0 },
     // the chain parts (the lantern lurches `lurch` rad), the drop starts, the foot meets the water (the middle is then `restY`
@@ -3982,7 +3987,7 @@ export const INTRO = {
       flank: { length: 22, girth: 5.2, enter: 9.4, eye: 10.2, cover: 10.4, leave: 11.8, out: 12.2, portraitAngle: 28, frame: [1.15, 0.5], rise: [0.13, 0.12] } },
     wick: { spark: 12.5, flame: [[12.5, 0], [12.6, 0.25], [12.8, 0.9], [13.05, 0.3], [13.4, 1]], lantern: [13.5, 14.2], lift: [12.6, 13.8] },
     colors: { glass: 0xed9e3b, halo: 0xed9e3b, window: 0xed9e3b, iron: 0x0a0818, ring: 0xf0d49c, ember: 0xe8862e, emberDeep: 0xb8501e,
-      flank: 0xd6d6e4, flankShade: 0x433e74, glint: 0xe8be77, ink: 0x0a0c19, inkTop: 0x251e5c, spark: 0xffd9a0 },   // (inkTop leans to the lake's violet: #1D245D read as a blue beside it)
+      flank: 0xd6d6e4, flankShade: 0x433e74, glint: 0xe8be77, ink: 0x0a0c19, inkTop: 0x3e2568, spark: 0xffd9a0 },   // (inkTop is the lake's violet-dusk as the frame's grade leaves it: under the Mossmere's grade #251E5C came out a pure blue, hue 240; this one lands at hue 252, between the lake's water and its sky)
     budget: { calls: 30, triangles: 10000, textures: 2, lights: 0, shadowMaps: 0, prebuildMs: 60 },   // the set's own cost in any frame, every pass (the hard ceiling is 60 / 40,000)
   },
   // <<< INTRO LANE A
@@ -3991,13 +3996,13 @@ export const INTRO = {
   lines: [                          // i → text[i]; `at` the fade-in starts, `out` the line is gone; none in `below`
     { i: 0, at: 1.2,  out: 4.5 },
     { i: 1, at: 4.8,  out: 8.1 },
-    { i: 2, at: 12.9, out: 15.4 },
-    { i: 3, at: 15.7, out: 17.5 },
+    { i: 2, at: 12.7, out: 15.1 },     // with the catching flame; gone before the crane has carried the raft under the words
+    { i: 3, at: 16.05, out: 17.6 },    // as the play camera settles: the raft has just risen clear of the band, the line sits under it
   ],
   lineFade: 0.4,
   skip: { guard: 0.5, showAt: 0.6, target: 44, keys: ['Escape', 'Enter', 'NumpadEnter', 'Space'], word: 'Skip',
     wordFade: 0.3,                  // the Skip word comes in over 0.3 s from showAt (there by 0.9 s)
-    wordOut: 0.5,                   // … and goes over the film's last 0.5 s, with the camera at rest (the keys skip to the very end)
+    wordOut: 0.4,                   // … and goes over the film's last 0.4 s, after the last line, with the camera at rest (the keys skip to the very end)
     poke: 2,                        // a press anywhere else only brightens the Skip word for this long
     veilIn: 0.25, veilOut: 0.35,    // beats lit / fall / below: ink closes, the stage jumps to its end state, ink opens on the play frame
     finish: 0.5, finishFrom: 'wick',   // beats wick / home: no veil; the remaining timeline plays out in `finish` s

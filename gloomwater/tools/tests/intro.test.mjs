@@ -83,7 +83,7 @@ eq(DIR.lineAt(I, L - 0.4), null, 'no words in the last 0.4 s');
 eq([DIR.skipModeAt(I, 0.6), DIR.skipModeAt(I, 6), DIR.skipModeAt(I, 10), DIR.skipModeAt(I, 12.39), DIR.skipModeAt(I, 12.4), DIR.skipModeAt(I, 17.9)], ['veil', 'veil', 'veil', 'veil', 'finish', 'finish'], 'skipModeAt: the ink in lit / fall / below, the fast finish from wick on');
 eq([DIR.skipWordAt(I, 0.3), DIR.skipWordAt(I, K.showAt)], [0, 0], 'the Skip word is not shown before INTRO.skip.showAt');
 eq(DIR.skipWordAt(I, 1.0), 1, 'the Skip word is fully shown within 1 s of the first frame');
-eq([DIR.skipWordAt(I, L - K.wordOut), DIR.skipWordAt(I, L)], [1, 0], 'the Skip word goes with the film\'s last moments (the camera is at rest by then)');
+near(DIR.skipWordAt(I, L - K.wordOut), 1, 1e-9, 'the Skip word goes with the film\'s last moments (the camera is at rest by then)'); eq(DIR.skipWordAt(I, L), 0, '… and is gone at the end');
 near(DIR.skipWordAt(I, L - K.wordOut / 2), 0.5, 1e-9, '… fading on the film\'s clock');
 ok(L - K.wordOut >= I.cameras.takes.at(-1).blend[1] && L - K.wordOut >= I.lines.at(-1).out, '… only once the camera has settled and the last line has gone');
 ok(DIR.skipAllowed(I, L - 0.01), '… and the keys still skip to the very end');

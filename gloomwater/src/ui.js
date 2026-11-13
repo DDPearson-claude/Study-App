@@ -163,16 +163,21 @@ export function create(ctx) {
     if (D().V3_ENABLED) { try { ctx.bus.emit('ui:screen', { id, open: true, section: opts.state?.section ?? null, speciesId: opts.state?.sel ?? null }); } catch { /* ignore */ } }
     return entry;
   }
-  function closeModal(id, { silent = false, instant = false } = {}) {
+  function closeModal(id, { silent = false, instant = false, hold = false } = {}) {
     const i = stack.findIndex((m) => m.id === id);
     if (i < 0) return false;
     const [entry] = stack.splice(i, 1);
     markCovered();
     try { entry.onClose?.(entry); } catch (e) { report('onClose', e); }
     const el = entry.el;
-    el.classList.remove('gw-in');
-    el.classList.add('gw-out');
-    if (instant) el.remove(); else setTimeout(() => el.remove(), 260);
+    // INTRO LANE B: `hold` closes the screen for the game (the stack, the events) but leaves its picture standing, inert, for the
+    // caller to remove (the opening cut scene's ink closes over the title's words: they never fade by themselves)
+    if (hold) { el.dataset.held = '1'; el.style.pointerEvents = 'none'; el.setAttribute('aria-hidden', 'true'); }
+    else {
+      el.classList.remove('gw-in');
+      el.classList.add('gw-out');
+      if (instant) el.remove(); else setTimeout(() => el.remove(), 260);
+    }
     if (!silent && !entry.quiet) { try { ctx.bus.emit('ui:modal', { open: false, id }); } catch { /* ignore */ } }
     if (D().V3_ENABLED) { try { ctx.bus.emit('ui:screen', { id, open: false }); } catch { /* ignore */ } }
     const t = top();
