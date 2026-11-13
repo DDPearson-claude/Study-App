@@ -276,9 +276,11 @@ export function toonMaterial(opts = {}) {
 /**
  * Mark what a group gives the Clear Night light: its toon meshes receive (and by default cast) the key light's
  * shadow, and everything but outlines joins the lake's reflection (REFLECT_LAYER). Opt out per object with
- * userData.noReflect / userData.noCast; outlines never cast or reflect.
+ * userData.noReflect / userData.noCast; outlines never cast or reflect. minReflect (m): meshes and sprites smaller
+ * than this (bounding radius × their own scale) stay out of the mirror — the reflection's draw calls go to what can
+ * be seen in it.
  */
-export function setupSurface(root, { cast = true, receive = true, reflect = true } = {}) {
+export function setupSurface(root, { cast = true, receive = true, reflect = true, minReflect = 0 } = {}) {
   if (!root) return root;
   root.traverse((o) => {
     if (o.userData?.isOutline || o.name === 'outline' || (typeof o.name === 'string' && o.name.endsWith(':outline'))) return;
@@ -288,7 +290,15 @@ export function setupSurface(root, { cast = true, receive = true, reflect = true
       o.receiveShadow = receive;
       o.castShadow = cast && !m.transparent && !o.userData.noCast;
     }
-    if (reflect && !o.userData.noReflect && (o.isMesh || o.isSprite || o.isPoints || o.isLine)) o.layers.enable(REFLECT_LAYER);
+    if (reflect && !o.userData.noReflect && (o.isMesh || o.isSprite || o.isPoints || o.isLine)) {
+      if (minReflect > 0) {
+        let r = Infinity;
+        if (o.isSprite) r = Math.max(o.scale.x, o.scale.y) * 0.5;
+        else if (o.geometry) { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); r = (o.geometry.boundingSphere?.radius ?? Infinity) * Math.max(o.scale.x, o.scale.y, o.scale.z); }
+        if (r < minReflect) return;
+      }
+      o.layers.enable(REFLECT_LAYER);
+    }
   });
   return root;
 }

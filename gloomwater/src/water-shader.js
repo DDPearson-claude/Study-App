@@ -626,7 +626,7 @@ void main() {
   float wsh = 1.0;
 #endif
   // (a breath of the air's colour keeps the deepest water off black; the dawn lays its pale mist on the lake)
-  vec3 body = mix(base * (0.92 + 0.08 * uMood.x), uSky * 0.72, 0.05 + 0.17 * uMood.x + 0.3 * uMood.y) * mix(0.72, 1.0, wsh);
+  vec3 body = mix(base, uSky * 0.72, 0.07 + 0.15 * uMood.x + 0.3 * uMood.y) * mix(0.72, 1.0, wsh);
 #ifdef USE_FOG
   #ifdef FOG_EXP2
   float fogF = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
@@ -722,7 +722,11 @@ void main() {
     vec3 lcol = lc.rgb;
     float warmth = clamp((lcol.r - lcol.b) / max(lcol.r, 1e-4) * 1.6 - 0.6, 0.0, 1.0);
     lcol *= mix(vec3(1.0), vec3(0.9, 1.14, 0.7), warmth);
+#ifdef GW_REFL
+    pool += lcol * pk * diff * 0.5;     // (a little more than the analytic water's: the lens no longer veils the pool in bloom)
+#else
     pool += lcol * pk * diff * 0.42;
+#endif
 
 #ifdef GW_REFL
     // the light's own glitter on the ripples (its true image is in the mirror): warm sparks strung from under the

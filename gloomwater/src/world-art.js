@@ -173,7 +173,7 @@ export function buildArena(ctx, L, opts = {}) {
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     g.setIndex(idx);
     g.computeVertexNormals();
-    const cliffMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.5, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', wet: 0.7, gloss: 0.08, shine: 48, floor: 1.3 }, { fogScale: 0.62, fogMax: 0.82 }));
+    const cliffMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.5, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', wet: 0.7, gloss: 0.08, shine: 48, floor: 1.7 }, { fogScale: 0.62, fogMax: 0.82 }));
     const cliffs = new THREE.Mesh(g, cliffMat);
     cliffs.name = 'cliffs';
     setupSurface(cliffs);
@@ -779,7 +779,7 @@ export function buildArena(ctx, L, opts = {}) {
   addStatic(kit.org, orgMat, olOrg, 'organics');
   addStatic(kit.fine, orgMat, null, 'fine', false);   // reeds and coral twigs: too fine to cast
   addStatic(kit.glow, glowMat, null, 'glows');
-  const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', detailAmount: 0.8, gloss: 0.05, floor: 1.3 }, { fogScale: 0.5, fogMax: 0.72 }));
+  const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', detailAmount: 0.8, gloss: 0.05, floor: 1.7 }, { fogScale: 0.5, fogMax: 0.72 }));
   addStatic(hero.ink, heroMat, null, 'landmarks');
   addStatic(hero.glow, glowMat, null, 'landmarkGlows');
 

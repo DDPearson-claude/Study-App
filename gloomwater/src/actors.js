@@ -59,8 +59,9 @@ export function create(ctx) {
   const lanternLight = raft.light;
   // Clear Night: the raft, the Wick and Murk's barge take the key light's shadow (and cast it: on the deck, on each
   // other, on the water) and are mirrored in the lake; outlines, blob shadows, the line and the float are not
-  setupSurface(raft.yawGroup);
-  setupSurface(merchantR.object3d);
+  // (the mirror takes only their larger parts: a chime bone or a toe is not worth a draw call in a reflection)
+  setupSurface(raft.yawGroup, { minReflect: 0.15 });
+  setupSurface(merchantR.object3d, { minReflect: 0.4 });
   merchantR.light.layers.enable(REFLECT_LAYER);
   const LFLAME_I = raft.lflame.outerMat.uniforms.uI.value;
   const catchHolder = new THREE.Group(); catchHolder.name = 'catchHolder'; group.add(catchHolder);
