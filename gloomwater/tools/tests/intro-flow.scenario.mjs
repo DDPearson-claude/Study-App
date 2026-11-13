@@ -77,8 +77,10 @@ export default async function (api) {
         return c.intro.state;
       };
       T.runOut = (dt = 1 / 30, max = 4000) => { let n = 0; while (c.intro.isActive() && n++ < max) T.step(1, dt, false); return n; };
-      for (const e of ['intro:start', 'intro:beat', 'intro:line', 'intro:skip', 'intro:done', 'flow:change', 'zone:change', 'run:start', 'ui:modal', 'toast'])
-        c.bus.on(e, (p) => T.ev.push({ e, p: JSON.parse(JSON.stringify(p || {})), sim: T.sim, wall: performance.now(), film: c.intro?.isActive() ? c.intro.state.t : null }));
+      // every emit, in the order it is CALLED (a listener added here would come after main's hand-off, which emits inside its own)
+      const WATCH = new Set(['intro:start', 'intro:beat', 'intro:line', 'intro:skip', 'intro:done', 'flow:change', 'zone:change', 'run:start', 'ui:modal', 'toast']);
+      const emit = c.bus.emit.bind(c.bus);
+      c.bus.emit = (e, p) => { if (WATCH.has(e)) T.ev.push({ e, p: JSON.parse(JSON.stringify(p || {})), sim: T.sim, wall: performance.now(), film: c.intro?.isActive() ? c.intro.state.t : null }); return emit(e, p); };
       T.clear = () => { T.ev.length = 0; };
       T.names = () => T.ev.map((x) => x.e);
     }, { quality });
