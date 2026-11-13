@@ -1066,8 +1066,11 @@
 .gw-cc-seal { width: 48px; height: 48px; flex: none; transform: rotate(11deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .85)); animation: gwSealIn .55s .9s cubic-bezier(.2, 1.4, .4, 1) backwards; }
 /* the show's card (docs/v3/show/SPEC.md §2.10): it unfolds from where the fish is held; the length counts up, then the stamp
    presses (a hit of the card, never of the camera); your best and the Old Ledger are two knots on the ruler line, this fish a bead */
-.gw-cc-v3.gw-p-catch.gw-cc-unfold { transform-origin: calc(50% + var(--ox, 0px)) calc(50% + var(--oy, 0px)); animation: gwCardUnfold var(--unfold, .32s) cubic-bezier(.2, .85, .3, 1) backwards; }
+.gw-cc-v3.gw-p-catch.gw-cc-unfold { transform-origin: calc(50% + var(--ox, 0px)) calc(50% + var(--oy, 0px)); animation: gwCardUnfold var(--unfold, .32s) cubic-bezier(.3, .6, .3, 1) backwards; }
 .gw-cc-unfold .gw-pc { animation: gwCcFade .26s .16s ease-out backwards; }
+/* (the ink must be seen while it is still small: the modal itself comes up at once and only its scrim fades in) */
+.gw-modal.gw-m-catch:not(.gw-out):has(.gw-cc-unfold) { transition-duration: .08s; }
+.gw-modal.gw-m-catch:has(.gw-cc-unfold) .gw-scrim { animation: gwCcFade .5s ease-out backwards; }
 .gw-cc-v3.gw-p-catch.gw-cc-again, .gw-cc-again .gw-pc, .gw-cc-again .gw-cc-hero, .gw-cc-again .gw-cc-stamp > span, .gw-cc-again .gw-cc-seal, .gw-cc-again .gw-fish-ink { animation: none !important; }
 .gw-cc-again .gw-fish-ink { clip-path: none; }
 .gw-cc-live .gw-cc-hero { animation: gwCcFade .18s .14s ease-out backwards; }
@@ -1089,7 +1092,7 @@
 .gw-cc-knot--pb.gw-on { box-shadow: 0 0 0 1.5px rgba(236, 232, 244, .9), 0 0 10px rgba(224, 90, 72, .7); }
 .gw-cc-knot--ledger.gw-on { box-shadow: 0 0 0 1.5px rgba(243, 220, 164, .95), 0 0 10px rgba(243, 220, 164, .45); }
 .gw-cc-bead { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--gold); box-shadow: 0 0 8px rgba(232, 190, 119, .7); }
-@keyframes gwCardUnfold { 0% { opacity: 0; transform: scale(.06); } 45% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes gwCardUnfold { 0% { opacity: 0; transform: scale(.05); } 20% { opacity: 1; } 100% { opacity: 1; transform: none; } }
 @keyframes gwCcFade { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes gwHeroSet { 0% { transform: rotate(-3deg) scale(1.16); } 100% { transform: rotate(-3deg) scale(1); } }
 @keyframes gwCardHit { 0% { translate: 0 0; } 22% { translate: -2px 3px; } 55% { translate: 1px -1px; } 100% { translate: 0 0; } }
