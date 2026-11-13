@@ -162,7 +162,7 @@ export function makeAudioHarness({ create, data, run = null, flow = 'playing', s
       left -= dt;
       ac.advance(dt);
       ctx.time.dt = dt; ctx.time.t += dt; ctx.time.frame++;
-      ctx.time.gameDt = ctx.flow === 'playing' && !ctx.paused ? dt : 0;
+      ctx.time.gameDt = (ctx.flow === 'playing' || ctx.flow === 'hub') && !ctx.paused ? dt : 0;   // v3: the hub's world is live too
       ctx.time.gameT += ctx.time.gameDt;
       audio.update(dt);
     }
