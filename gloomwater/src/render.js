@@ -442,7 +442,7 @@ export function create(ctx) {
     row: null, by: '', tgt: { x: 0, y: 1, z: 0, dist: 3, elev: 10, yaw: 0, fov: 44 },
     sx: { x: 0, v: 0 }, sy: { x: 0, v: 0 }, sz: { x: 0, v: 0 }, sd: { x: 3, v: 0 }, se: { x: 10, v: 0 }, sw: { x: 0, v: 0 }, sf: { x: 44, v: 0 },
     pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 44, pts: [], focus: null, fishC: new THREE.Vector3(), hasFish: false,
-    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false,
+    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false, fitOk: false,
   };
   const showAnchorTmp = new THREE.Vector3(), rigPos = new THREE.Vector3();
   const showPt = [];
@@ -836,7 +836,8 @@ export function create(ctx) {
       // and lets the head and the fish sway a little inside it, as a boat's passengers do; the margins are that room)
       S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
       const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
-      if (!S.still || !S.init || cardLift) { if (fitShow(v) && S.hold) S.frozenCard = true; }
+      if (!S.still || !S.init || cardLift) { if (fitShow(v)) { S.fitOk = true; if (S.hold) S.frozenCard = true; } }
+      if (!S.fitOk) { S.w = 0; return; }   // (nothing to frame yet: the play's camera stays)
     } else {
       if (S.outT < 0) {
         // back to play over `out` s; a long way back (a phone's play camera stands 20 m off) takes a little longer, so the lens
@@ -847,7 +848,7 @@ export function create(ctx) {
       S.outT += dt;
       const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);
       S.w = S.w0 * (1 - showEase(k));
-      if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; return; }
+      if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; S.fitOk = false; return; }
     }
     // the fitted target through its springs (a new target, the hand-over from the reveal's fit to the pose's, never jumps)
     const T = S.tgt;
@@ -1046,7 +1047,7 @@ export function create(ctx) {
     S.L = L; S.swarm = !!t.swarm;
     if (fresh) {
       S.lastT = -1;
-      if (!(S.w > 0)) { S.p = 0; S.init = false; }   // (a show starting behind the last one's card keeps the lens where it is)
+      if (!(S.w > 0)) { S.p = 0; S.init = false; S.fitOk = false; }   // (a show starting behind the last one's card keeps the lens where it is)
       else S.p = Math.min(S.p, 0.999);
     }
     const lm = t.landmark;
