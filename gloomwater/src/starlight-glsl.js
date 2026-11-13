@@ -40,11 +40,12 @@ vec3 slLayer(vec3 d, float scale, float den, float px, float seed, float t, vec3
   float r0 = 0.0005 + 0.0013 * hb * hb;
   float r = max(r0, px * 0.75);
   float s = exp(-dd2 / (r * r)) * (r0 * r0) / (r * r);
-  float tw = 0.62 + 0.38 * sin(t * (0.7 + 2.8 * fract(h * 57.3)) + h * 91.0);
+  float tw = 0.78 + 0.22 * sin(t * (0.7 + 2.8 * fract(h * 57.3)) + h * 91.0);   // a slight twinkle (Clear Night)
   float hc = fract(h * 23.9);
   vec3 c = mix(tint, vec3(1.0, 0.86, 0.62), step(0.84, hc));   // a few pale-gold stars
   c = mix(c, vec3(1.0, 0.74, 0.86), step(0.94, hc));          // fewer pink ones
-  return c * (s * tw * (0.22 + 1.7 * hb * hb * hb));
+  // Clear Night: fewer faint stars, the bright ones kept (a clear sky is a few sharp points on a dark vault, not a dust)
+  return c * (s * tw * (0.14 + 2.0 * hb * hb * hb * hb));
 }
 float slBand(vec3 d, vec3 bandN) { float x = dot(d, bandN) / 0.2; return exp(-x * x); }
 vec3 slStars(vec3 d, float px, float t, float den, vec3 tint, float band) {

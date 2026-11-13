@@ -6,6 +6,25 @@ import * as THREE from 'three';
 import { toonMaterial } from './toon.js';
 import { STARLIGHT_GLSL } from './starlight-glsl.js';
 
+// ------------------------------------------------------------------ the air ("Clear Night", DESIGN §19.1)
+// world-art.js gives every air effect its own amount (the shore mist ring, the mist sheets, the light shafts and their pools,
+// the motes, the far rings' bottom haze). These shared uniforms scale those amounts inside this file's shaders, so world.js
+// thins or thickens the air each frame from the phase mood (clear by day and night, a real mist only at dawn) and the art
+// file's numbers stay as they are. One {value} per effect, shared by every material that effect builds.
+export const AIR = {
+  mist: { value: 0.3 },       // shore mist ring               × (0.30 + 0.55·warm)
+  sheets: { value: 0.25 },    // low mist sheets               × (0.25 − 0.10·night + 0.55·warm)
+  shafts: { value: 0.45 },    // light shafts                  thin moonbeams
+  pools: { value: 0.6 },      // the shafts' pools on the water
+  ringHaze: { value: 0.5 },   // the far rings' bottom haze and vault tint
+};
+// build-time thinning (counts are fixed when an arena is built)
+const AIR_BUILD = {
+  moteCount: 0.6,             // × the motes each lake asks for
+  bigMoteSize: 0.4, bigMoteOpacity: 0.5,   // motes this large (m) and larger are half as opaque: no soft blobs in the lens
+  sheetEvery: 2,              // every second mist sheet is built (12 → 6, 6 → 3 on low)
+};
+
 const NOISE_GLSL = /* glsl */`
 float gwH(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float gwN(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f * f * (3.0 - 2.0 * f);
@@ -67,7 +86,7 @@ export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } =
       uGlow: { value: new THREE.Color() }, uGlowHi: { value: new THREE.Color() }, uGlowAmt: { value: 1 }, uMist: { value: new THREE.Color() },
       uMistBot: { value: -4 }, uMistTop: { value: 20 }, uMistAmt: { value: 0.5 }, uTopDark: { value: 0.75 },
       uVault: { value: new THREE.Color() }, uVaultLo: { value: 30 }, uVaultHi: { value: 90 }, uVaultAmt: { value: 0.5 },
-      uTime: { value: 0 }, uOpacity: { value: 1 },
+      uTime: { value: 0 }, uOpacity: { value: 1 }, uAir: AIR.ringHaze,
       // the nebula glow bleeding into the haze in front of the far rings (Starlit, DESIGN §19.1)
       uNeb: { value: new THREE.Color(0x000000) }, uNeb1: { value: new THREE.Vector4(0, 0.2, -1, 0) }, uNeb2: { value: new THREE.Vector4(0, 0.4, -1, 0) },
     },
@@ -76,7 +95,7 @@ export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } =
       void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vY = wp.y; vDirW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }`,
     fragmentShader: /* glsl */`
       uniform sampler2D uMap; uniform float uRepeat, uOffset, uTexelY, uRimAmt, uGlowAmt, uMistBot, uMistTop, uMistAmt, uTopDark, uTime, uOpacity;
-      uniform float uVaultLo, uVaultHi, uVaultAmt;
+      uniform float uVaultLo, uVaultHi, uVaultAmt, uAir;
       uniform vec3 uColor, uRim, uGlow, uGlowHi, uMist, uVault, uNeb; uniform vec4 uNeb1, uNeb2;
       varying vec2 vUv; varying float vY; varying vec3 vDirW;
       void main(){
@@ -88,8 +107,8 @@ export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } =
         float nb = texture2D(uMap, uv + vec2(0.0, uTexelY * mix(2.5, -2.5, topness))).r;
         float rim = clamp(s.r - nb, 0.0, 1.0);
         vec3 col = uColor * mix(1.0, uTopDark, smoothstep(0.5, 0.95, vUv.y));
-        col = mix(col, uVault, smoothstep(uVaultLo, uVaultHi, vY) * uVaultAmt);
-        float m = (1.0 - smoothstep(uMistBot, uMistTop, vY)) * uMistAmt;
+        col = mix(col, uVault, smoothstep(uVaultLo, uVaultHi, vY) * uVaultAmt * uAir);
+        float m = (1.0 - smoothstep(uMistBot, uMistTop, vY)) * uMistAmt * uAir;
         col = mix(col, uMist, m);
         vec3 dw = normalize(vDirW);
         float nm = pow(max(dot(dw, uNeb1.xyz), 0.0), 9.0) * uNeb1.w + pow(max(dot(dw, uNeb2.xyz), 0.0), 16.0) * uNeb2.w;
@@ -176,7 +195,9 @@ export function domeMaterial({ low = false } = {}) {
  * cfg: count, box[x,y,z], yMin, size, vel[x,y,z], sway, twinkle, colorA, colorB, additive, opacity, flake
  */
 export function createParticles(cfg, rng) {
-  const n = cfg.count | 0;
+  // Clear Night: fewer motes, the big soft ones half as opaque, none inside the lens (the near fade below)
+  const n = Math.max(1, Math.round((cfg.count | 0) * AIR_BUILD.moteCount));
+  const big = (cfg.size ?? 0.15) >= AIR_BUILD.bigMoteSize ? AIR_BUILD.bigMoteOpacity : 1;
   const pos = new Float32Array(n * 3), rnd = new Float32Array(n);
   for (let i = 0; i < n; i++) { pos[i * 3] = rng(); pos[i * 3 + 1] = rng(); pos[i * 3 + 2] = rng(); rnd[i] = rng(); }
   const geo = new THREE.BufferGeometry();
@@ -187,7 +208,7 @@ export function createParticles(cfg, rng) {
     uTime: { value: 0 }, uVel: { value: new THREE.Vector3(...(cfg.vel || [0, 0, 0])) }, uSway: { value: cfg.sway ?? 0.6 },
     uSize: { value: cfg.size ?? 0.15 }, uViewH: { value: 720 }, uTwinkle: { value: cfg.twinkle ?? 1.5 },
     uColorA: { value: new THREE.Color(cfg.colorA ?? 0xffffff) }, uColorB: { value: new THREE.Color(cfg.colorB ?? 0xffffff) },
-    uBright: { value: 1 }, uFogD: { value: 0.02 }, uOpacity: { value: cfg.opacity ?? 1 }, uFlake: { value: cfg.flake ? 1 : 0 },
+    uBright: { value: 1 }, uFogD: { value: 0.02 }, uOpacity: { value: (cfg.opacity ?? 1) * big }, uFlake: { value: cfg.flake ? 1 : 0 },
   };
   const mat = new THREE.ShaderMaterial({
     uniforms,
@@ -210,10 +231,11 @@ export function createParticles(cfg, rng) {
         float z = max(0.1, -mv.z);
         float fog = exp(-uFogD * uFogD * z * z * 0.6);
         float tw = mix(1.0, 0.35 + 0.65 * abs(sin(uTime * uTwinkle * (0.6 + aRand) + aRand * 90.0)), step(0.01, uTwinkle));
-        vA = edge * fog * tw * smoothstep(0.6, 2.5, z);
+        vA = edge * fog * tw * smoothstep(1.5, 5.0, z);
         vMix = fract(aRand * 7.31);
         vRot = aRand * 6.28 + uTime * (aRand - 0.5) * 2.0 * uFlake;
-        gl_PointSize = min(64.0, uSize * (0.55 + aRand) * projectionMatrix[1][1] * uViewH * 0.5 / z);
+        // Clear Night: a mote is a small sharp point; near the lens it stops growing (no soft discs drifting over the frame)
+        gl_PointSize = min(uViewH * 0.013, uSize * (0.5 + 0.85 * aRand) * projectionMatrix[1][1] * uViewH * 0.5 / z);
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */`
@@ -229,7 +251,7 @@ export function createParticles(cfg, rng) {
           a = smoothstep(0.5, 0.3, length(r));
         } else {
           float d = length(c);
-          a = pow(smoothstep(0.5, 0.0, d), 1.6) + smoothstep(0.12, 0.0, d) * 0.6;
+          a = pow(smoothstep(0.5, 0.0, d), 2.6) + smoothstep(0.17, 0.04, d) * 0.7;   // a tight core, a short skirt
         }
         a *= vA;
         if (a < 0.004) discard;
@@ -330,7 +352,7 @@ export function createShafts(list) {
   geo.setAttribute('aPhase', new THREE.InstancedBufferAttribute(ph, 1));
   geo.setAttribute('aPower', new THREE.InstancedBufferAttribute(pw, 1));
   geo.instanceCount = n;
-  const uniforms = { uTime: { value: 0 }, uColor: { value: new THREE.Color() }, uIntensity: { value: 1 } };
+  const uniforms = { uTime: { value: 0 }, uColor: { value: new THREE.Color() }, uIntensity: { value: 1 }, uAir: AIR.shafts };
   const mat = new THREE.ShaderMaterial({
     uniforms,
     vertexShader: /* glsl */`
@@ -352,7 +374,7 @@ export function createShafts(list) {
         gl_Position = projectionMatrix * viewMatrix * vec4(p, 1.0);
       }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uColor; uniform float uIntensity, uTime;
+      uniform vec3 uColor; uniform float uIntensity, uTime, uAir;
       varying vec2 vUv; varying float vFade; varying float vPow;
       void main(){
         float x = abs(vUv.x * 2.0 - 1.0);
@@ -360,7 +382,7 @@ export function createShafts(list) {
         float vert = smoothstep(0.0, 0.22, vUv.y) * (0.6 + 0.4 * smoothstep(0.98, 0.7, vUv.y));
         float streak = 0.62 + 0.38 * sin(vUv.x * 21.0 + uTime * 0.35 + vUv.y * 4.0) * sin(vUv.x * 8.0 - uTime * 0.23 + 1.3);
         float dust = 0.85 + 0.15 * sin(vUv.y * 90.0 - uTime * 1.3 + vUv.x * 12.0);
-        float a = edge * vert * streak * dust * vFade * vPow * uIntensity * 0.32;
+        float a = edge * vert * streak * dust * vFade * vPow * uIntensity * uAir * 0.32;
         gl_FragColor = vec4(uColor, a);
       }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false, toneMapped: false,
@@ -380,7 +402,7 @@ export function createShafts(list) {
   pgeo.setAttribute('aPhase', new THREE.InstancedBufferAttribute(ph, 1));
   pgeo.instanceCount = n;
   const pmat = new THREE.ShaderMaterial({
-    uniforms,
+    uniforms: { ...uniforms, uAir: AIR.pools },   // the same {value} holders as the shafts, with the pools' own air factor
     vertexShader: /* glsl */`
       attribute vec4 aC; attribute float aPhase; uniform float uTime;
       varying vec2 vUv; varying float vPh;
@@ -391,13 +413,13 @@ export function createShafts(list) {
         gl_Position = projectionMatrix * viewMatrix * vec4(p, 1.0);
       }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uColor; uniform float uIntensity, uTime;
+      uniform vec3 uColor; uniform float uIntensity, uTime, uAir;
       varying vec2 vUv; varying float vPh;
       void main(){
         float d = length(vUv - 0.5) * 2.0;
         float a = pow(max(0.0, 1.0 - d), 2.2);
         float ring = 0.75 + 0.25 * sin(d * 18.0 - uTime * 1.2 + vPh);
-        gl_FragColor = vec4(uColor, a * ring * uIntensity * 0.32);
+        gl_FragColor = vec4(uColor, a * ring * uIntensity * uAir * 0.32);
       }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, toneMapped: false,
   });
@@ -411,17 +433,17 @@ export function createShafts(list) {
 // ------------------------------------------------------------------ shore mist ring
 export function mistMaterial() {
   return new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color() }, uAmt: { value: 0.5 }, uTime: { value: 0 }, uRep: { value: 24 } },
+    uniforms: { uColor: { value: new THREE.Color() }, uAmt: { value: 0.5 }, uTime: { value: 0 }, uRep: { value: 24 }, uAir: AIR.mist },
     vertexShader: /* glsl */`
       varying vec2 vUv; varying float vDist;
       void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vDist = distance(wp.xyz, cameraPosition); gl_Position = projectionMatrix * viewMatrix * wp; }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uColor; uniform float uAmt, uTime, uRep;
+      uniform vec3 uColor; uniform float uAmt, uTime, uRep, uAir;
       varying vec2 vUv; varying float vDist;
       ${NOISE_GLSL}
       void main(){
         float n = gwN(vec3(vUv.x * uRep * 6.0 + uTime * 0.05, vUv.y * 2.5 - uTime * 0.03, 0.0)) * 0.65 + gwN(vec3(vUv.x * uRep * 17.0 - uTime * 0.08, vUv.y * 5.0, 3.0)) * 0.35;
-        float a = pow(1.0 - vUv.y, 2.2) * (0.35 + 0.9 * n) * uAmt * smoothstep(6.0, 22.0, vDist);
+        float a = pow(1.0 - vUv.y, 2.2) * (0.35 + 0.9 * n) * uAmt * uAir * smoothstep(6.0, 22.0, vDist);
         gl_FragColor = vec4(uColor, clamp(a, 0.0, 1.0));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -574,6 +596,7 @@ export function createShoreRings(list) {
 
 // ------------------------------------------------------------------ low mist sheets drifting over the water
 export function createMistSheets(list) {
+  list = list.filter((_, i) => i % AIR_BUILD.sheetEvery === 0);   // Clear Night: half the sheets, and none near the lens
   const pb = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
   const geo = new THREE.InstancedBufferGeometry();
   geo.index = pb.index;
@@ -585,7 +608,7 @@ export function createMistSheets(list) {
   geo.setAttribute('aP', new THREE.InstancedBufferAttribute(b, 2));
   geo.instanceCount = n;
   pb.dispose();
-  const uniforms = { uTime: { value: 0 }, uColor: { value: new THREE.Color() }, uAmt: { value: 1 } };
+  const uniforms = { uTime: { value: 0 }, uColor: { value: new THREE.Color() }, uAmt: { value: 1 }, uAir: AIR.sheets };
   const mat = new THREE.ShaderMaterial({
     uniforms,
     vertexShader: /* glsl */`
@@ -599,14 +622,14 @@ export function createMistSheets(list) {
         gl_Position = projectionMatrix * viewMatrix * vec4(p, 1.0);
       }`,
     fragmentShader: /* glsl */`
-      uniform float uTime, uAmt; uniform vec3 uColor;
+      uniform float uTime, uAmt, uAir; uniform vec3 uColor;
       varying vec2 vUv; varying float vDist; varying float vPh;
       ${NOISE_GLSL}
       void main(){
         vec2 q = vUv - 0.5;
         float r = length(q) * 2.0;
         float n = gwN(vec3(vUv * 3.0 + vec2(uTime * 0.02, vPh), uTime * 0.03)) * 0.6 + gwN(vec3(vUv * 7.0 - vec2(0.0, uTime * 0.03), vPh + 4.0)) * 0.4;
-        float a = smoothstep(1.0, 0.25, r) * smoothstep(0.35, 0.8, n) * uAmt * smoothstep(4.0, 14.0, vDist);
+        float a = smoothstep(1.0, 0.25, r) * smoothstep(0.35, 0.8, n) * uAmt * uAir * smoothstep(10.0, 26.0, vDist);
         if (a < 0.003) discard;
         gl_FragColor = vec4(uColor, a * 0.2);
         #include <tonemapping_fragment>

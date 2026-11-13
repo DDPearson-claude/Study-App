@@ -267,9 +267,10 @@ auto-selected each frame and smoothly blended, all following `ctx.player.positio
 framing raft + `ctx.fishing.bobberPos`), `reel` (tighter, dramatic), `night`
 (higher/wider during gloomtide so the swarm is readable), `shop` (toward merchant),
 `death` (slow rising crane). Portrait screens widen FOV/pull back. Subtle sway.
-Post: RenderPass → UnrealBloomPass → grade pass (vignette, film grain, split-tone,
-edge chromatic fringe, faint paper texture) → OutputPass. Low quality: pixelRatio ≤1,
-cheaper bloom. Auto quality: mobile→low/medium; drop a tier if fps < 40 sustained.
+Post: RenderPass → UnrealBloomPass (emitters only, a tight halo) → grade pass (clamped
+sharpen, split-tone, tinted ink floor, contrast, light vignette, dither grain; a chromatic
+fringe only on hits; as the last pass it also tone-maps with ACES and encodes to sRGB:
+there is no OutputPass). Low quality: pixelRatio ≤1, cheaper bloom. Auto quality: mobile→low/medium; drop a tier if fps < 40 sustained.
 
 ### water (`water.js`)
 ```

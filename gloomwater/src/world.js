@@ -7,14 +7,24 @@ import * as THREE from 'three';
 import { clamp, damp, smoothstep, TAU } from './core.js';
 import { buildLayout, depthAt, isOpenWaterL } from './world-layout.js';
 import { buildArena } from './world-art.js';
+import { AIR } from './world-fx.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
 
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
   id: 'mossmere', index: 0, name: 'The Mossmere', arena: { radius: 60, islands: 6, pillars: 10, seed: 1307 },
-  palette: { fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6, glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2, nebula: 0xd296ae, stars: 1.0 },
+  palette: { fog: 0x3a3070, fogDensity: 0.0055, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6, glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2, nebula: 0xd296ae, stars: 1.0 },
   grade: { tint: 0x40347e },
 };
+// "Clear Night" air (DESIGN §19.1): the scene fog is only a thin lavender aerial tint at far range (data.js fogDensity), the
+// night barely thickens it, and mist is a dawn event. NIGHT / DAWN are the fog density's phase terms; the AIR_* rows scale
+// what world-art.js sets for each effect (world-fx.js AIR) as base + night·n + warm·w.
+const FOG_NIGHT = 0.15, FOG_DAWN = 0.3;  // dawn is the one misty hour: the far shore pales (100 m: 26 % → 40 %), the play area stays clear
+const AIR_MIST = [0.30, 0, 0.75];       // shore mist ring: thin by day and night, a real band at dawn
+const AIR_SHEETS = [0.25, -0.10, 0.65]; // low mist sheets: wisps at distance, thinner still at night
+const AIR_SHAFTS = 0.45, AIR_POOLS = 0.6, AIR_RING_HAZE = 0.5;   // thin moonbeams; half the far rings' bottom haze
+const NEBULA_K = 0.62;                  // a subtler nebula: the stars are the sharp thing in the vault
+const STAR_DENSITY = 0.72;              // fewer stars, each a crisp point (the brightness law is in starlight-glsl.js)
 
 /** The First Evening's cove (DESIGN §25.14.2b FE-W1): main switches the slice on only when this is true. Not built yet. */
 export const SUPPORTS_COVE = false;
@@ -40,7 +50,7 @@ export function create(ctx) {
   // v3 (W1, CONTRACT §13.7 world): the lake's watch-lamps and stopgap giant water (pure data, cached per lake) and the v3
   // visuals (watch-lamp pools, the legend pool's low glimmer); all empty / null with the flag off
   let watchLamps = [], giantSpots = [], v3vis = null;
-  const v3Info = { night: 0, fogDensity: 0.016, lamps: [], moored: [], legendK: 0 };
+  const v3Info = { night: 0, fogDensity: 0.0055, lamps: [], moored: [], legendK: 0 };
   const bounds = { radius: 60 };
   const obstacles = [];                 // stable array (refilled in place)
   const gateInfo = { position: new THREE.Vector3(), radius: 4.5 };
@@ -48,7 +58,7 @@ export function create(ctx) {
   let fogPush = 0, gradeTimer = 0, paletteTimer = 0, pickTimer = 0;
   const lastGrade = {};
   const mood = { night: 0.18, warm: 0.1 };
-  const env = { night: 0, warm: 0, fog: new THREE.Color(), fogDensity: 0.016, glowK: 1, shaftK: 1, partK: 1, starK: 1, starDen: 1, nebK: 1 };
+  const env = { night: 0, warm: 0, fog: new THREE.Color(), fogDensity: 0.0055, glowK: 1, shaftK: 1, partK: 1, starK: 1, starDen: 1, nebK: 1 };
   const col = { fog: new THREE.Color(), nightFog: new THREE.Color(), dawnFog: new THREE.Color(), dawnMist: new THREE.Color(), a: new THREE.Color(), b: new THREE.Color() };
   // night floors (linear luminance): the darkest lakes (the Pallid Deep, Sporewood) are lifted to at
   // least this at the Gloomtide, hue kept, so the raft, the swarm's silhouettes and its eyes still read
@@ -114,7 +124,7 @@ export function create(ctx) {
     const p = Object.assign({}, FALLBACK_ZONE.palette, z.palette || {});
     for (const k of ['fog', 'far', 'light', 'glow', 'ambient', 'ink', 'water', 'waterDeep', 'foam', 'accent']) zc[k] = new THREE.Color(p[k]);
     zc.lamp = new THREE.Color((z.palette ? z.palette.lamp : p.lamp) ?? p.glow);   // optional cold lamp colour (island lamps, buoys, statue orbs, lit windows)
-    zc.fogDensity = p.fogDensity || 0.016;
+    zc.fogDensity = p.fogDensity || 0.0055;
     zc.stars = Number.isFinite(p.stars) ? p.stars : 1;
     zc.nebula = new THREE.Color(p.nebula ?? 0xd296ae);
     zc.candle = new THREE.Color(p.candle ?? p.lamp ?? p.glow);
@@ -227,8 +237,12 @@ export function create(ctx) {
     col.dawnFog.copy(zc.fog).lerp(col.dawnMist, 0.22).lerp(WARM, 0.06).multiplyScalar(1.1);
     col.fog.copy(zc.fog).lerp(col.nightFog, n).lerp(col.dawnFog, w * 0.55);
     fogPush = Math.max(0, fogPush - dt * 1.4);
-    const density = zc.fogDensity * (1 + 0.5 * n - 0.1 * w) * (1 + fogPush);
+    const density = zc.fogDensity * (1 + FOG_NIGHT * n + FOG_DAWN * w) * (1 + fogPush);
     env.night = n; env.warm = w; env.fog.copy(col.fog); env.fogDensity = density;
+    // the air: clear by day and night, a low mist only at dawn (world-fx.js AIR scales the art file's own amounts)
+    AIR.mist.value = Math.max(0, AIR_MIST[0] + AIR_MIST[1] * n + AIR_MIST[2] * w);
+    AIR.sheets.value = Math.max(0, AIR_SHEETS[0] + AIR_SHEETS[1] * n + AIR_SHEETS[2] * w);
+    AIR.shafts.value = AIR_SHAFTS; AIR.pools.value = AIR_POOLS; AIR.ringHaze.value = AIR_RING_HAZE;
     const isTitle = ctx.flow === 'title' || !ctx.state?.run;
     env.glowK = (1 - 0.42 * n) * (isTitle ? 1.1 : 1);
     env.shaftK = (1 - 0.9 * n) * (1 + 0.35 * w) * (isTitle ? 1.2 : 1);
@@ -236,8 +250,8 @@ export function create(ctx) {
     // starlight: brighter and denser as the night deepens, fading out into the dawn
     const stars = Number.isFinite(zc.stars) ? zc.stars : 1;
     env.starK = stars * (0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
-    env.starDen = (0.65 + 0.35 * stars) * (1 + 0.28 * n) * (1 - 0.3 * w);
-    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w);
+    env.starDen = (0.65 + 0.35 * stars) * (1 + 0.28 * n) * (1 - 0.3 * w) * STAR_DENSITY;
+    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w) * NEBULA_K;
     const s = scene();
     if (s) {
       if (!s.fog) s.fog = new THREE.FogExp2(col.fog.getHex(), density);
@@ -265,17 +279,19 @@ export function create(ctx) {
     // dawn warms the highlights (warm split-tone) more than the shadows: shadows that go orange read
     // as mud on slate water, cool shadows under warm light read as a pearl dawn
     col.a.set(g.tint ?? 0x40347e).lerp(NIGHT_TINT, n * 0.35).lerp(DAWN_TINT, w * 0.2);
+    // Clear Night (DESIGN §19.1 "The lens"): the night no longer adds bloom (only emitters bloom, at any hour), darkens the
+    // exposure and the saturation a little less, and barely deepens the vignette or the grain
     const grade = {
-      exposure: (g.exposure ?? 1) * (1 - 0.14 * n + 0.05 * w),
-      bloomStrength: (g.bloomStrength ?? 0.9) * (1 + 0.15 * n + 0.1 * w),
-      bloomRadius: g.bloomRadius ?? 0.6,
-      bloomThreshold: g.bloomThreshold ?? 0.72,
+      exposure: (g.exposure ?? 1) * (1 - 0.11 * n + 0.1 * w),
+      bloomStrength: (g.bloomStrength ?? 0.42) * (1 + 0.05 * w),
+      bloomRadius: g.bloomRadius ?? 0.30,
+      bloomThreshold: g.bloomThreshold ?? 0.92,
       tint: col.a.getHex(),
       tintAmount: (g.tintAmount ?? 0.18) + (0.28 - (g.tintAmount ?? 0.18)) * n,
-      // night deepens the vignette, capped so the darkest lake's frame edges do not close to black
-      vignette: Math.min(Math.max(g.vignette ?? 0.38, 0.58), (g.vignette ?? 0.38) + 0.16 * n),
-      saturation: (g.saturation ?? 0.85) * (1 - 0.1 * n + 0.08 * w),
-      grain: (g.grain ?? 0.05) + 0.02 * n,
+      // night deepens the vignette a little, capped so the darkest lake's frame edges stay open
+      vignette: Math.min(Math.max(g.vignette ?? 0.24, 0.40), (g.vignette ?? 0.24) + 0.08 * n),
+      saturation: (g.saturation ?? 0.9) * (1 - 0.06 * n + 0.08 * w),
+      grain: (g.grain ?? 0.012) + 0.004 * n,
       // a light warm split-tone: the lantern owns warmth; stars, foam and pale stone stay cool-white
       warmAmount: (g.warmAmount ?? 0.07) + 0.16 * w,
       warm: col.b.copy(GRADE_WARM).lerp(GRADE_WARM_DAWN, w).getHex(),
