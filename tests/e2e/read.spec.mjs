@@ -331,5 +331,49 @@ await test('guide.mjs keeps an HTML-drawn step as still HTML, sized, and keeps a
   assert(Buffer.byteLength(JSON.stringify(g)) < 250 * 1024, 'under the db limit');
 });
 
+// guide.mjs on a plain steps body whose picks name their answers in each of the ways the built
+// lessons do (13 Nov): `want` an index into `opts` (linear systems 4-5, quadratics 2), `ok` an index
+// (complex numbers 2-8), options drawn as stacked fractions (fractions 4, 7, 8), a number that is
+// itself an option, and an order. Each answer is the option's words, never its index; a fraction
+// keeps its bar; an order is said in words but not asked as a pick. --answers brings the same
+// answers into an older guide without redrawing it, and keeps the guide's fuller question.
+await test('guide.mjs reads a pick named by its place, and a fraction with its bar', async () => {
+  const { mkdtempSync, writeFileSync: wf, copyFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'mu-guide-picks-'));
+  copyFileSync(join(ROOT, 'tests', 'fixtures', 'picks-body.html'), join(dir, 'i1.body.final.html'));
+  const KIT = join(ROOT, 'tests', 'out', 'read-kit.html');
+  const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '32,33,53', '--out', KIT], { encoding: 'utf8' });
+  assert(b.status === 0, b.stderr);
+  const run = (...more) => {
+    const r = spawnSync(process.execPath, [join(ROOT, 'tools', 'course', 'guide.mjs'), '--dir', dir, '--idea', 'i1', '--app', KIT, ...more], { encoding: 'utf8' });
+    assert(r.status === 0, (r.stderr + r.stdout).split('\n').filter((l) => /Error|error|at /.test(l)).slice(0, 6).join(' | '));
+    return JSON.parse(readFileSync(join(dir, 'i1.guide.json'), 'utf8'));
+  };
+  const asked = (g) => g.pages.filter((p) => p.kind === 'example').map((p) => ({ name: p.name, answer: p.answer, input: p.input, options: p.options }));
+  const WANT = [
+    { name: 'By its place', answer: 'd = £2.50, p = £1.50', input: 'pick', options: ['d = £2, p = £2.50', 'd = £2.50, p = £1.50', 'd = £1.50, p = £2.50'] },
+    { name: 'By ok', answer: '3 − j2', input: 'pick', options: ['3 + j2', '2 − j3', '3 − j2'] },
+    { name: 'Stacked', answer: 'Equal', input: 'pick', options: ['10/16', '5/8', 'Equal'] },
+    { name: 'Mixed', answer: '5 1/3', input: 'pick', options: ['6', '5 1/3', '3 3/8'] },
+    { name: 'A number', answer: '2', input: 'pick', options: ['1', '2', '3'] },
+    { name: 'In order', answer: '5/8, 2/3, 3/4', input: undefined, options: undefined },
+  ];
+  const g = run();
+  eq(JSON.parse(JSON.stringify(asked(g))), JSON.parse(JSON.stringify(WANT)), 'each answer in words, among its options');
+  // A still never shows the step's own question again, fractions and all.
+  assert(!g.pages.some((p) => p.html && /Which is bigger/.test(p.html)), 'the question is the page\'s text, not in its still');
+  // An older guide, as the published ones were: index answers, no options, a fuller question.
+  const old = JSON.parse(JSON.stringify(g));
+  old.v = 2; delete old.stillW; delete old.style;
+  old.pages.forEach((p, k) => { delete p.input; delete p.options; p.answer = k === 0 ? '1' : k === 1 ? '' : p.answer; p.svg = '<svg viewBox="0 0 1 1"></svg>'; delete p.html; delete p.h; });
+  old.pages[1].task = 'Look at the arrow. ' + old.pages[1].task;
+  wf(join(dir, 'i1.guide.json'), JSON.stringify(old));
+  const merged = run('--answers');
+  eq(JSON.parse(JSON.stringify(asked(merged))), JSON.parse(JSON.stringify(WANT)), '--answers: the same answers');
+  eq(merged.pages.map((p) => [p.task, p.svg]), old.pages.map((p) => [p.task, p.svg]), '--answers: tasks and pictures as they were');
+  eq(merged.v, 2, 'its version kept');
+});
+
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));
 process.exit(results.every((r) => r.ok) ? 0 : 1);

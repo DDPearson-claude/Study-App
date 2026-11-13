@@ -30,7 +30,8 @@
 // reading it through, when its own words ask him to do something) takes that as its text.
 //   node tools/course/guide.mjs --dir build/maths/fractions [--idea i3] [--app tests/out/kit-d4.html] [--answers]
 // Writes <dir>/<iid>.guide.json for each idea with a body.final.html (or just --idea). --answers adds
-// version 2's answers to the guides already there and changes nothing else (mergeAnswers).
+// version 2's answers (each example's answer and how it is asked) to the guides already there and
+// changes nothing else (mergeAnswers).
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { openApp } from '../harness/page.mjs';
@@ -276,14 +277,15 @@ const CAPTURE = `(([texts, show, sceneEmpty, o]) => {
   // a choice's options, and anything that reads as a control. A lesson's own drawn pieces (cards
   // placed in lanes) stay: they are the picture.
   document.querySelectorAll('button').forEach((b) => {
-    const t = norm(b.textContent);
-    if (CTRL.test(t) || options.includes(t) || (show && b.classList.contains('k-btn'))) hide(b);
+    const t = norm(b.textContent), said = window.__gSaid ? norm(window.__gSaid(b)) : t;
+    if (CTRL.test(t) || options.includes(t) || options.includes(said) || (show && b.classList.contains('k-btn'))) hide(b);
   });
   // The step's own words are the guide page's text; a step counter is the read-through's own.
   [...document.body.querySelectorAll('*')].forEach((el) => {
     if (!seen(el) || el.closest('svg')) return;
     const t = norm(el.textContent);
-    if (t && (own.includes(t) || /^(step|lesson|screen) \\d+ of \\d+\\b/.test(t))) hide(el);
+    // (Its words as they read, too: a stacked fraction is 5/8 in the step's text, "58" in textContent.)
+    if (t && (own.includes(t) || /^(step|lesson|screen) \\d+ of \\d+\\b/.test(t) || (window.__gSaid && own.includes(norm(window.__gSaid(el)))))) hide(el);
   });
   // Words only for the quiz: an instruction ("Drag a card…", "Tap a row to read why."), a verdict
   // ("Right.", "That's it:", "Still there."). Edited in place (restored after), so the copy below
@@ -379,10 +381,36 @@ const CAPTURE = `(([texts, show, sceneEmpty, o]) => {
   document.querySelectorAll('button').forEach((b) => {
     if (!seen(b) || b.closest('svg') || !b.classList.contains('k-btn')) return;
     const row = [...b.parentElement.querySelectorAll(':scope > button.k-btn')].filter(seen);
-    if (row.length >= 2 && row[0] === b && !row.some((x) => x.getAttribute('aria-pressed') === 'true')) open.push(row.map((x) => x.textContent.trim()).join(' | '));
+    if (row.length >= 2 && row[0] === b && !row.some((x) => x.getAttribute('aria-pressed') === 'true')) open.push(row.map((x) => (window.__gSaid ? window.__gSaid(x) : x.textContent).replace(/\s+/g, ' ').trim()).join(' | '));
   });
   return { need, empty, rect, html, alt, words, open };
 })`;
+// Runs in the lesson frame, once a lesson is mounted: window.__gSaid(el), an element's words as they
+// read on screen. Its text, except that a fraction drawn stacked (two short pieces of maths, one
+// above the other, with no "/" between them: the fractions lessons build 5/8 from two spans) reads
+// "5/8", set off by a space from a whole number or word beside it ("5 1/3", "1/2 inch"). Read by
+// textContent alone the bar was lost, and 5/8 read "58" (13 Nov). Anything else reads as textContent.
+const SAID = `(() => {
+  const MATH = /^[\\w.,()+\\-−×·²³√π ]{1,12}$/;
+  const piece = (el) => { const t = el.textContent.trim(); return MATH.test(t) && !/[A-Za-z]{3,}/.test(t); };
+  const stacked = (a, b) => {
+    const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    return ra.height > 0 && rb.height > 0 && rb.top >= ra.top + ra.height / 2 && rb.left < ra.right && rb.right > ra.left;
+  };
+  const read = (el) => {
+    let out = '';
+    el.childNodes.forEach((c) => {
+      if (c.nodeType === 3) { out += c.textContent; return; }
+      if (c.nodeType !== 1) return;
+      const kids = [...c.children].filter((k) => k.textContent.trim());
+      const loose = [...c.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+      if (kids.length === 2 && !loose && !c.textContent.includes('/') && kids.every(piece) && stacked(kids[0], kids[1])) out += '\\u0001' + kids[0].textContent.trim() + '/' + kids[1].textContent.trim() + '\\u0002';
+      else out += read(c);
+    });
+    return out;
+  };
+  window.__gSaid = (el) => read(el).replace(/\\u0002\\u0001/g, ' ').replace(/([0-9A-Za-z])\\u0001/g, '$1 ').replace(/\\u0002([0-9A-Za-z])/g, ' $1').replace(/[\\u0001\\u0002]/g, '');
+})()`;
 // A step finished as the lesson shows it at its end: every "Show…" button pressed until none is left.
 const FINISH = `(async () => {
   for (let k = 0; k < 24; k++) {
@@ -393,23 +421,34 @@ const FINISH = `(async () => {
   }
 })()`;
 
-// --answers: an existing guide (version 1) gets only how each example is asked (input, options,
-// unit) and each written page its question's id, as version 2; nothing else in it changes, so a
-// course's guides can be brought up to date without drawing their pictures again.
+// --answers: an existing guide gets only each example's answer and how it is asked (input, options,
+// unit), and each written page its question's id, as version 2 (or the version it has); nothing
+// else in it changes, so a course's guides can be brought up to date without drawing their
+// pictures again.
 const onlyAnswers = process.argv.includes('--answers');
 function mergeAnswers(iid, found) {
   const file = join(dir, iid + '.guide.json');
   if (!existsSync(file)) { console.error(iid, 'no guide to add answers to:', file); process.exitCode = 1; return; }
   const text = readFileSync(file, 'utf8'), guide = JSON.parse(text);
   const have = guide.pages.filter((p) => p && p.kind === 'example'), now = found.filter((p) => p.kind === 'example');
-  if (have.length !== now.length || have.some((p, k) => (p.name || '') !== (now[k].name || '') || p.task !== now[k].task)) {
-    console.error(iid, 'the guide\'s worked examples are not the lesson\'s any more: run guide.mjs without --answers'); process.exitCode = 1; return;
+  // The same examples: as many, named the same, in the same order, each asking the same question.
+  // A question the guide words more fully counts as the same (its task, which this never changes,
+  // kept a sentence such as "Work out `10 ÷ (3 + j4)`." that clean() now takes for a quiz
+  // instruction: complex numbers 2, 3, 4, 6 and 8, 13 Nov).
+  const flat = (x) => String(x || '').replace(/\s+/g, ' ').trim();
+  const same = (p, q) => (p.name || '') === (q.name || '') && (p.task === q.task || (!!flat(q.task) && flat(p.task).includes(flat(q.task))));
+  if (have.length !== now.length || have.some((p, k) => !same(p, now[k]))) {
+    const k = have.length !== now.length ? -1 : have.findIndex((p, j) => !same(p, now[j]));
+    console.error(iid, 'the guide\'s worked examples are not the lesson\'s any more: run guide.mjs without --answers' + (k < 0 ? ' (' + have.length + ' examples, the lesson has ' + now.length + ')' : ' (' + (have[k].name || 'example ' + (k + 1)) + ': "' + have[k].task + '" is now "' + now[k].task + '")')); process.exitCode = 1; return;
   }
   have.forEach((p, k) => {
+    // Its answer too, when the lesson now gives one (an option's index read as its words: 13 Nov);
+    // an answer is never blanked.
+    if (now[k].answer) p.answer = now[k].answer;
     for (const key of ['input', 'options', 'unit', 'written']) delete p[key];
     for (const key of ['input', 'options', 'unit', 'written']) if (now[k][key] != null) p[key] = now[k][key];
   });
-  guide.v = 2;
+  guide.v = Math.max(2, Number(guide.v) || 1);
   const out = JSON.stringify(guide) + '\n';
   if (Buffer.byteLength(out) > 250 * 1024) { console.error(iid, 'guide over 250 KB with its answers'); process.exitCode = 1; return; }
   writeFileSync(file, out);
@@ -436,11 +475,20 @@ for (const iid of ideas) {
     await Promise.race([window.__g.ready, new Promise((r) => setTimeout(r, 8000))]);
   }, [body, { ...ctx, stillW: STILL_W }]);
   const frame = () => app.page.frames().find((f) => f !== app.page.mainFrame());
-  // A puzzle names its answer either as `want` (the right option's words) or as `opts`, a list of
-  // option keys in button order with 'right' marking the answer (the calculus lessons' way, where
-  // the words are worked out at render time).
-  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', part: d.part || '', why: d.why || '', want: d.want, name: d.name || '', rightIndex: Array.isArray(d.opts) ? d.opts.indexOf('right') : -1, kind: d.kind || '', written: d.written || '', read: typeof d.read === 'string' ? d.read : '',
-    still: d.still === false ? false : typeof d.still === 'function' ? 'fn' : d.still && typeof d.still === 'object' ? d.still : null })));
+  await frame().evaluate(SAID);
+  // A puzzle names its answer as `want` (the right option's words, or the order a set of cards goes
+  // in), or by the right option's place in button order: `opts`, a list of option keys with 'right'
+  // marking the answer (the calculus lessons' way, where the words are worked out at render time),
+  // `ok`, the right option's index (complex numbers), or a `want` that is a number indexing `opts`
+  // and is none of them itself (linear systems 4-5, quadratics 2: their options are pairs or
+  // equations drawn from `opts`). The index's button's words are then the answer.
+  const steps = await frame().evaluate(() => STEPS.map((d) => {
+    const opts = Array.isArray(d.opts) ? d.opts : null;
+    const wantAt = opts && Number.isInteger(d.want) && d.want >= 0 && d.want < opts.length && !opts.some((o) => String(o) === String(d.want));
+    const rightIndex = opts && opts.indexOf('right') >= 0 ? opts.indexOf('right') : Number.isInteger(d.ok) && d.ok >= 0 ? d.ok : wantAt ? d.want : -1;
+    return { show: !!d.show, text: d.text || '', task: d.task || d.ask || '', part: d.part || '', why: d.why || '', want: wantAt ? undefined : d.want, opts: opts && opts.every((o) => typeof o === 'string' || typeof o === 'number') ? opts : null, name: d.name || '', rightIndex, kind: d.kind || '', written: d.written || '', read: typeof d.read === 'string' ? d.read : '',
+      still: d.still === false ? false : typeof d.still === 'function' ? 'fn' : d.still && typeof d.still === 'object' ? d.still : null };
+  }));
   // Kept as an image when the step shows more than its scene (see CAPTURE).
   let scenarioSeen = false;
   async function capture(d, show, sceneEmpty, options) {
@@ -492,19 +540,30 @@ for (const iid of ideas) {
       continue;
     }
     let answer = typeof d.want === 'string' || typeof d.want === 'number' ? String(d.want) : '';
+    // An order to put cards in (`want` a list, fractions 4's "Three in order"): the order is the
+    // answer, in words; it is not asked again as a puzzle, and no button says it.
+    // A list of numbers is a list of the options' places when the options are not those numbers.
+    const order = Array.isArray(d.want) && d.want.length > 1;
+    if (order) {
+      const o = d.opts || [], at = o.length && d.want.every((x) => Number.isInteger(x) && x >= 0 && x < o.length && !o.some((y) => String(y) === String(x)));
+      const said = d.want.map((x) => (at ? o[x] : x));
+      answer = said.every((x) => typeof x === 'string' || typeof x === 'number') ? said.map(String).join(', ') : '';
+    }
     let snap = null, asked = null;
-    if (answer || d.rightIndex >= 0) {
+    if (!order && (answer || d.rightIndex >= 0)) {
       // Press the button that says the answer (or the right one by position), then Check, and keep
       // the solved picture; the button's words become the example's answer.
       const f = frame();
       const got = await f.evaluate(([ans, idx]) => {
         const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
+        // A button's words as they read (a stacked fraction as 5/8: SAID).
+        const words = (b) => (window.__gSaid ? window.__gSaid(b) : b.textContent);
         const CTRL = /^(Check|Why\?|Back|Continue|Play again|Start again|Done|Finish|Show me|Replay|Play|Pause|Next)$/;
         const all = [...document.querySelectorAll('button')].filter((b) => b.offsetParent !== null);
-        let btn = ans ? all.find((b) => norm(b.textContent) === norm(ans) || norm(b.getAttribute('aria-label') || '') === norm(ans)) : null;
+        let btn = ans ? all.find((b) => norm(words(b)) === norm(ans) || norm(b.getAttribute('aria-label') || '') === norm(ans)) : null;
         const picks = [...document.querySelectorAll('#picks button')].filter((b) => b.offsetParent !== null);
         if (!btn && idx >= 0) {
-          const pool = picks.length ? picks : all.filter((b) => !CTRL.test(norm(b.textContent)));
+          const pool = picks.length ? picks : all.filter((b) => !CTRL.test(norm(words(b))));
           btn = pool[idx] || null;
         }
         // A typed answer (K.answer): the answer typed into its field, then Check.
@@ -522,12 +581,12 @@ for (const iid of ideas) {
         if (!btn) return null;
         // The options he chose from: the lesson's pick buttons (#picks), else the pressed button's
         // row, in screen order, without the lesson's own controls.
-        const row = picks.length && picks.includes(btn) ? picks : [...btn.parentElement.querySelectorAll('button')].filter((b) => b.offsetParent !== null && !CTRL.test(norm(b.textContent)));
-        const options = row.map((b) => norm(b.textContent)).filter(Boolean);
+        const row = picks.length && picks.includes(btn) ? picks : [...btn.parentElement.querySelectorAll('button')].filter((b) => b.offsetParent !== null && !CTRL.test(norm(words(b))));
+        const options = row.map((b) => norm(words(b))).filter(Boolean);
         btn.click();
         const check = all.find((b) => norm(b.textContent) === 'Check');
         if (check) check.click();
-        return { text: norm(btn.textContent), input: 'pick', options };
+        return { text: norm(words(btn)), input: 'pick', options };
       }, [answer, d.rightIndex]);
       const pressed = got && got.text;
       // How the lesson asks it, so the app can ask it again as a puzzle (version 2): typed into a
@@ -543,7 +602,7 @@ for (const iid of ideas) {
         // whose state is not global, or whose S is something else, such as a drawing helper): its own
         // check stands, and its picture is kept.
         const right = await f.evaluate((k) => { try { return typeof S !== 'object' || !S ? null : !!(S[k] && (S[k].res === 'right' || S[k].got === 'right')); } catch (e) { return null; } }, i);
-        if (right === false) asked = null;
+        if (right === false) { asked = null; console.warn('  ' + d.name + ': the lesson did not mark "' + pressed + '" right'); }
         if (right !== false && !onlyAnswers) snap = await f.evaluate(SNAP);
       }
     }
