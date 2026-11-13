@@ -2173,7 +2173,8 @@ export function create(ctx) {
   }
   function syncShowView(c) {
     const v = c.view;
-    v.phase = c.phase; v.t = round2(c.t); v.poseT = round2(c.poseT); v.hurried = c.hurried; v.protected = c.protected; v.pose = c.pose;
+    // (t and poseT are exact, not rounded: render times the lens's arrival from them frame by frame)
+    v.phase = c.phase; v.t = c.t; v.poseT = c.poseT; v.hurried = c.hurried; v.protected = c.protected; v.pose = c.pose;
   }
 
   /** At the landing (v3): progression.makeFish → fishing:caught {fish, …} (informational) → the show (or, instant, the stamp now). */
