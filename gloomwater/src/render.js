@@ -442,7 +442,7 @@ export function create(ctx) {
     row: null, by: '', tgt: { x: 0, y: 1, z: 0, dist: 3, elev: 10, yaw: 0, fov: 44 },
     sx: { x: 0, v: 0 }, sy: { x: 0, v: 0 }, sz: { x: 0, v: 0 }, sd: { x: 3, v: 0 }, se: { x: 10, v: 0 }, sw: { x: 0, v: 0 }, sf: { x: 44, v: 0 },
     pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 44, pts: [], focus: null, fishC: new THREE.Vector3(), hasFish: false,
-    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false, latched: false, tSpeed: 0,
+    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false,
   };
   const showAnchorTmp = new THREE.Vector3(), rigPos = new THREE.Vector3();
   const showPt = [];
@@ -819,10 +819,9 @@ export function create(ctx) {
     }
     if (active) {
       S.outT = -1;
-      let dts = dt;
       if (S.on && v && v.phase !== 'card') {
         const tNow = Number(v.t) || 0;
-        dts = S.lastT >= 0 ? Math.max(0, tNow - S.lastT) : 0;   // the show's own clock (a pause or a debug rate holds the lens too)
+        const dts = S.lastT >= 0 ? Math.max(0, tNow - S.lastT) : 0;   // the show's own clock (a pause or a debug rate holds the lens too)
         S.lastT = tNow;
         const rem = showArrival(v, ctx.data?.AUTOFISH?.show?.hurry?.liftRate ?? 2.5);
         S.p = rem > 1e-4 ? S.p + (1 - S.p) * Math.min(1, dts / (rem + dts)) : 1;
@@ -833,21 +832,11 @@ export function create(ctx) {
       // spring has brought the lens to rest when the still begins
       const shown = v && v.phase === 'hold' ? (Number(v.poseT) || 0) - (Number(v.dur?.lift) || 0) : 0;
       const freezeAt = Math.max(Number(SHOWC.settleAfter) || 0.12, (Number(v?.dur?.hold) || 0.5) - (Number(SHOWC.settleBefore) || 0.4));
-      // …but only a target that has come to rest is frozen: a layout still on the move (a fish swinging on the rod) is followed
-      // into the pause rather than left to drift out of the frame; behind the card the framing always holds
-      const due = !!v && (v.phase === 'pause' || (v.phase === 'hold' && shown > freezeAt));
-      if (v && v.phase === 'card') S.latched = true;
-      else if (due && S.tSpeed < (Number(SHOWC.rest) || 0.05)) S.latched = true;
-      S.still = S.latched;
+      // (the raft rocks on the swell, so the layout is never quite at rest in the world: the frozen framing rides the Wick's feet
+      // and lets the head and the fish sway a little inside it, as a boat's passengers do; the margins are that room)
+      S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
       const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
-      if (!S.still || !S.init || cardLift) {
-        const px = S.tgt.x, py = S.tgt.y, pz = S.tgt.z, pd = S.tgt.dist, had = S.init;
-        if (fitShow(v)) {
-          if (S.hold) S.frozenCard = true;
-          // how fast the fitted target itself is moving (m/s against the anchor, smoothed): its rest is what lets it be frozen
-          if (had && dts > 1e-4 && !cardLift) { const sp = Math.hypot(S.tgt.x - px, S.tgt.y - py, S.tgt.z - pz, S.tgt.dist - pd) / dts; S.tSpeed += (sp - S.tSpeed) * (1 - Math.exp(-dts * 10)); }
-        }
-      }
+      if (!S.still || !S.init || cardLift) { if (fitShow(v) && S.hold) S.frozenCard = true; }
     } else {
       if (S.outT < 0) {
         // back to play over `out` s; a long way back (a phone's play camera stands 20 m off) takes a little longer, so the lens
@@ -858,7 +847,7 @@ export function create(ctx) {
       S.outT += dt;
       const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);
       S.w = S.w0 * (1 - showEase(k));
-      if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; S.latched = false; S.tSpeed = 0; return; }
+      if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; return; }
     }
     // the fitted target through its springs (a new target, the hand-over from the reveal's fit to the pose's, never jumps)
     const T = S.tgt;
@@ -1054,7 +1043,6 @@ export function create(ctx) {
     S.on = true; S.hold = false; S.frozenCard = false; S.outT = -1;
     S.cls = typeof t.cls === 'string' ? t.cls : 'keeper';
     S.pose = typeof t.pose === 'string' ? t.pose : null;
-    S.latched = false; S.still = false; S.tSpeed = 1;   // (a new target: it must come to rest before it is frozen)
     S.L = L; S.swarm = !!t.swarm;
     if (fresh) {
       S.lastT = -1;
@@ -1189,7 +1177,7 @@ export function create(ctx) {
             show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {
               on: showCam.on, hold: showCam.hold, w: r1(showCam.w), p: r1(showCam.p), cls: showCam.cls, pose: showCam.pose, length: showCam.L, by: showCam.by,
               row: showCam.row ? { id: showCam.row.id, elev: r1(showCam.row.elev), fov: r1(showCam.row.fov), margin: showCam.row.margin, headroom: showCam.row.headroom, footroom: showCam.row.footroom,
-                rake: showCam.row.rake, craned: r1(showCam.row.craned), keep: showCam.row.keep.slice() } : null, still: !!showCam.still, tSpeed: r1(showCam.tSpeed),
+                rake: showCam.row.rake, craned: r1(showCam.row.craned), keep: showCam.row.keep.slice() } : null, still: !!showCam.still,
               anchor: { x: r1(showCam.anchor.x), y: r1(showCam.anchor.y), z: r1(showCam.anchor.z) }, tgt: { x: r1(showCam.tgt.x), y: r1(showCam.tgt.y), z: r1(showCam.tgt.z), dist: r1(showCam.tgt.dist), elev: r1(showCam.tgt.elev), yawDeg: r1(showCam.tgt.yaw / DEG), fov: r1(showCam.tgt.fov) },
               dist: r1(showCam.sd.x), points: showCam.pts.length, focus: !!showCam.focus,
             } : null,

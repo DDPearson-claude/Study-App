@@ -218,7 +218,7 @@ export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.
     elev = lerp(elev, num(R.craneElev, 40), craned);
   }
   const M = cam.margin || SHOW_CAMERA_DEFAULT.margin;
-  return { id, elev, fov, margin: lerp(num(M.landscape, 0.08), num(M.portrait, 0.06), up), headroom: num(cam.headroom, 0), footroom: num(cam.footroom, 0), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], rake, craned, upright: up };
+  return { id, elev, fov, margin: lerp(num(M.landscape, 0.08), num(M.portrait, 0.06), up), headroom: num(R.headroom, num(cam.headroom, 0)), footroom: num(R.footroom, num(cam.footroom, 0)), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], rake, craned, upright: up };
 }
 /** The view's axes for render's convention (yaw 0 looks north, −Z, from the south; elev degrees above the subject): right, up, forward. */
 export function showAxes(yaw, elevDeg) {
