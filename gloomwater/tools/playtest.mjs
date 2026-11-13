@@ -36,6 +36,9 @@ const context = await browser.newContext({
   viewport: { width, height }, deviceScaleFactor: 1,
   hasTouch: !!args.mobile, isMobile: !!args.mobile,
 });
+// v3 debug builds (CONTRACT §13.1, §13.11): hidden-state hooks register only when GW_DEBUG is set before the page's scripts
+// run; scenarios get them unless --release (a release build: no species, roll, plan or pre-roll on window.__gw)
+if (!args.release) await context.addInitScript(() => { globalThis.GW_DEBUG = true; });
 const page = await context.newPage();
 const consoleErrors = [];
 const pageErrors = [];
@@ -81,7 +84,7 @@ const log = (...a) => console.log('[scenario]', ...a);
 const api = { page, shot, wait, frames, evalGame, hold, click, log, width, height, args };
 
 const t0 = Date.now();
-await page.goto(pathToFileURL(htmlPath).href);
+await page.goto(pathToFileURL(htmlPath).href, { timeout: Number(args.gotoTimeout || 240000) });   // a loaded software-GL box needs more than 30 s
 await wait(Number(args.wait || 4000));
 // --lean[=0.45]: render below CSS resolution (debug.renderScale) for fast, logic-only runs
 if (args.lean) {

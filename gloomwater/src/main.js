@@ -6,8 +6,10 @@ import * as THREE from 'three';
 import {
   createBus, loadSave, normalizeSave, writeSave, wipeSave, defaultMeta, clamp,
   createSlowmo, v3RunOptions, setV3Flag, V3_FLAGS,
+  debugEnabled, HIDDEN_DEBUG_HOOKS, firstEveningLegacy,
 } from './core.js';
 import * as data from './data.js';
+import { create as createFirstEvening } from './first-evening.js';
 
 import * as renderMod from './render.js';
 import * as waterMod from './water.js';
@@ -37,6 +39,11 @@ const CINEMATIC_FROZEN = new Set(['survival', 'combat']);
 const CINEMATIC_MAX = Math.max(20, ...(Array.isArray(data.SIZE_CLASSES) ? data.SIZE_CLASSES : []).map((c) => (Number(c.ceremony) || 0) * 3 + 5));
 // v3 is on for this page load (data reads the flag; main reads it for the run options, the save migration and saving).
 const V3 = data.V3_ENABLED === true;
+// The First Evening slice (DESIGN §25.4.8, §25.14.2b; CONTRACT §13.1, §13.12): with v3 on and the cove's data in the build, boot
+// builds the cove under the title, Begin on a fresh save plays the First Evening, every new run sets out from the Landing through
+// the 3 s glide, and a snuff cuts to the hearth for 3 s before the summary. With v3 off none of it exists.
+const FE_ON = V3 && !!data.COVE && !!data.FIRST_EVENING;
+const FE = FE_ON ? data.FIRST_EVENING : null;
 const UPDATE_ORDER = ['player', 'fishing', 'survival', 'combat', 'progression', 'actors', 'models', 'world', 'water', 'audio', 'ui', 'render'];
 
 // ------------------------------------------------------------------ stub
@@ -75,6 +82,9 @@ if (pureMigrate) {
   try { bootSave = pureMigrate(saveEnvelope) || saveEnvelope; migratedAtBoot = true; } catch (e) { bootErrors.push(['migrateSave', e]); }
 }
 const saved = normalizeSave(bootSave);
+// the First Evening's legacy step (CONTRACT §13.2; progression owns it, main applies the same idempotent rule as a fallback):
+// only while meta.firstEvening is undefined — a v1 / v2 / P1-era save with runs or a lake fish → {done: true, legacy: true}
+if (FE_ON) { try { firstEveningLegacy(saved.meta, data.COVE.fishing?.species); } catch (e) { bootErrors.push(['firstEveningLegacy', e]); } }
 // Touch mode comes from the input device only. Viewport size drives layout breakpoints in CSS,
 // never the control scheme (a short laptop window is still a mouse + keyboard).
 const isMobile = (() => {
@@ -101,6 +111,16 @@ const ctx = {
 };
 let savedRun = saved.run; // run waiting to be continued
 window.__gw = ctx;
+// v3 hub state (main owns it): the zone the world shows, the departure in progress, a replay's sandbox, the hearth cut
+const hub = {
+  zone: null,              // the last zone:change's zone ('cove' while the Landing is built)
+  departing: null,         // {opts} while the every-run glide runs
+  sandbox: null,           // the meta snapshot (JSON) while a replay of the First Evening runs: no save writes anything
+  hearth: null,            // {t, summary} while a snuff shows the hearth (FIRST_EVENING.snuffed.hearth s)
+  glides: 'real',          // debug builds: 'skip' makes every later run's glide pass at once (tests); release builds are always real
+};
+const DEBUG = V3 && debugEnabled();
+if (DEBUG) hub.glides = 'skip';
 
 function report(where, err) {
   console.error(`[gloomwater] ${where}:`, err);
@@ -135,6 +155,9 @@ const game = {
    * mode or the default (Lantern).
    */
   startNewRun(opts = {}) {
+    // v3 (DESIGN §25.4.8): every new run sets out from the Landing: the raft at the jetty, the 3 s glide under the arch, then the
+    // run. A fresh save's first new game is the First Evening (a release build never lets New Descent skip it).
+    if (FE_ON && !opts.__arch) return departFromLanding(opts);
     const startZone = opts.startZone || 'mossmere';
     const character = opts.character || ctx.state.meta.lastCharacter || null;
     const mode = V3 ? v3RunOptions(ctx.state.meta, opts, data.BALANCE?.nightModes) : null;
@@ -148,11 +171,44 @@ const game = {
     savedRun = null;
     ctx.state.meta.runs = (ctx.state.meta.runs || 0) + 1;
     ctx.paused = false;
+    hub.departing = null;
     setFlow('playing');
-    ctx.bus.emit('zone:change', { zone: run.zone, prev: null });
+    // v3: the run leaves the cove (CONTRACT §13.3: prev 'cove'; progression resets the market, audio plays `setout`)
+    ctx.bus.emit('zone:change', { zone: run.zone, prev: FE_ON ? 'cove' : null });
     ctx.bus.emit('run:start', { continued: false });
     game.save();
   },
+  /** v3 (CONTRACT §13.1, §13.12): the title's Begin. A fresh save plays the First Evening (resuming a quit one); otherwise false. */
+  begin() {
+    if (!FE_ON || !ctx.firstEvening) return false;
+    const fe = feState();
+    if (fe.done) return false;
+    savedRun = null;
+    enterHub('boot');
+    if (fe.step) ctx.firstEvening.resume(); else ctx.firstEvening.start();
+    return true;
+  },
+  /** v3: Settings → Replay the first evening, or the legacy ribbon ({fromRibbon: true}): the slice in a sandbox that writes nothing. */
+  replayFirstEvening({ fromRibbon = false } = {}) {
+    if (!FE_ON || !ctx.firstEvening || ctx.firstEvening.isActive()) return false;
+    const fe = feState();
+    if (fromRibbon) { fe.offerSeen = true; game.save(); }   // the ribbon goes away for good on use (saved before the sandbox)
+    hub.sandbox = JSON.stringify(ctx.state.meta);
+    enterHub('title');
+    ctx.firstEvening.start({ replay: true });
+    return true;
+  },
+  /** v3: the legacy ribbon's "Not now" (the offer goes away for good). */
+  dismissFirstEveningOffer() { if (!FE_ON) return false; feState().offerSeen = true; game.save(); return true; },
+  /** v3: the First Evening's offer ribbon shows on a legacy save's title until used or dismissed. */
+  firstEveningOffer() { if (!FE_ON) return false; const fe = feState(); return !!fe.legacy && !fe.offerSeen; },
+  /** CONTRACT §13.1 Map Table confirm (the First Outing card in the FE slice). */
+  planSetOut(plan = {}) {
+    if (!FE_ON) return { ok: false, msg: '' };
+    if (ctx.firstEvening?.isActive?.() && ctx.firstEvening.step === 'plan') { ctx.firstEvening.onPlan(plan); return { ok: true, msg: '' }; }
+    return { ok: false, msg: 'The Map Table opens with the Landing.' };
+  },
+  cancelSetOut() { if (FE_ON && ctx.firstEvening?.step === 'plan') ctx.firstEvening.onCardClosed(); },
   continueRun() {
     if (!savedRun) return game.startNewRun();
     resetBeats();
@@ -162,6 +218,14 @@ const game = {
     savedRun = null;
     ctx.paused = false;
     setFlow('playing');
+    if (FE_ON) {
+      // CONTRACT §13.4 Continue: the title orbited the cove, so prev is 'cove' and `continued` marks the Continue
+      ctx.bus.emit('zone:change', { zone: ctx.state.run.zone, prev: hub.zone || 'cove', continued: true });
+      ctx.bus.emit('run:start', { continued: true });
+      const pos = ctx.state.run.pos ?? ctx.state.run.flags?.pos;
+      if (pos) { try { ctx.player.restore?.(pos); } catch (e) { report('player.restore', e); } }
+      return;
+    }
     ctx.bus.emit('zone:change', { zone: ctx.state.run.zone, prev: null });
     ctx.bus.emit('run:start', { continued: true });
   },
@@ -178,6 +242,7 @@ const game = {
     setFlow('dead');
     ctx.bus.emit('run:end', { summary });
     game.save();
+    if (FE_ON && cause !== 'victory' && cause !== 'abandoned') { hearthCut(summary); return; }
     ctx.ui.showDeath?.(summary);
   },
   victory() {
@@ -191,11 +256,15 @@ const game = {
   },
   toTitle() {
     if (ctx.flow === 'playing' && ctx.state.run?.active) { savedRun = ctx.state.run; }
+    if (FE_ON) { stopFirstEvening(); hub.departing = null; hub.hearth = null; }
     game.save();
     resetBeats();
+    const prevZone = hub.zone;
     ctx.state.run = null;
     ctx.paused = false;
     setFlow('title');
+    // CONTRACT §13.1: from an expedition, the cove is rebuilt under the title (the run stays in the save)
+    if (FE_ON && prevZone !== 'cove') ctx.bus.emit('zone:change', { zone: 'cove', hub: true, prev: prevZone, from: 'title' });
     ctx.ui.showTitle?.();
   },
   pause() { if (ctx.flow === 'playing' && !ctx.paused) { ctx.paused = true; ctx.ui.openPause?.(); } },
@@ -208,6 +277,7 @@ const game = {
    */
   slowmo(seconds = LEAP.time ?? 0.25, scale = LEAP.timescale ?? 0.35) { return slowmo.start(seconds, scale); },
   save() {
+    if (hub.sandbox !== null) return;   // a replay of the First Evening writes nothing (DESIGN §25.4.8)
     const live = ctx.state.run && ctx.state.run.active ? ctx.state.run : null;
     // v3 (CONTRACT §13.6): the player writes run.pos into the run before every save
     if (V3 && live && ctx.flow === 'playing') { try { ctx.player.writeSave?.(live); } catch (e) { report('player.writeSave', e); } }
@@ -216,15 +286,104 @@ const game = {
   },
   wipeAll() {
     resetBeats();
+    if (FE_ON) { stopFirstEvening(); hub.sandbox = null; hub.departing = null; hub.hearth = null; }
     wipeSave();
     ctx.state.meta = defaultMeta();
+    if (FE_ON) firstEveningLegacy(ctx.state.meta, data.COVE.fishing?.species);
     ctx.state.run = null;
     savedRun = null;
     setFlow('title');
+    if (FE_ON && hub.zone !== 'cove') ctx.bus.emit('zone:change', { zone: 'cove', hub: true, prev: hub.zone, from: 'title' });
     ctx.ui.showTitle?.();
   },
 };
 ctx.game = game;
+
+// ------------------------------------------------------------------ v3: the Landing (CONTRACT §13.1, §13.3, §13.12)
+/** meta.firstEvening (progression owns it; created lazily, never by defaultMeta). */
+function feState() {
+  const m = ctx.state.meta;
+  if (!m.firstEvening || typeof m.firstEvening !== 'object') firstEveningLegacy(m, data.COVE?.fishing?.species);
+  return m.firstEvening;
+}
+/** The world shows the cove (built under the title at boot; rebuilt after a run). */
+function ensureCove(from) {
+  if (hub.zone === 'cove') return;
+  ctx.bus.emit('zone:change', { zone: 'cove', hub: true, prev: hub.zone, from });
+}
+/** Flow `hub` (the Landing): survival and combat idle, no 30 s autosave; `hub:enter {from}` (CONTRACT §13.1). */
+function enterHub(from) {
+  resetBeats();
+  ctx.state.run = null;
+  ctx.paused = false;
+  try { ctx.ui.closeAll?.(); } catch (e) { report('ui.closeAll', e); }
+  setFlow('hub');
+  ensureCove(from === 'boot' ? 'title' : from);
+  ctx.bus.emit('hub:enter', { from });
+  game.save();
+}
+function stopFirstEvening() {
+  const fe = ctx.firstEvening;
+  if (!fe?.isActive?.()) return;
+  try { fe.stop?.(); } catch (e) { report('firstEvening.stop', e); }
+  if (hub.sandbox !== null) restoreSandbox();
+}
+function restoreSandbox() {
+  const snap = hub.sandbox;
+  hub.sandbox = null;
+  if (snap === null) return;
+  const m = ctx.state.meta, fresh = JSON.parse(snap);
+  for (const k of Object.keys(m)) delete m[k];
+  Object.assign(m, fresh);
+}
+/**
+ * Every later run (FIRST_EVENING.everyRun; CONTRACT §13.1): New Descent → the cove with the raft at its mooring → the 3 s glide under
+ * the arch (tap to skip after the first) with one rotating Murk line → at the arch line the run starts. `run:start` never fires
+ * without the glide. A release build sends a fresh save's first new game to the First Evening instead.
+ */
+function departFromLanding(opts = {}) {
+  const fe = feState();
+  if (!fe.done && !DEBUG && ctx.firstEvening) { game.begin(); return; }
+  if (hub.departing) return;
+  resetBeats();
+  savedRun = null;
+  ctx.state.run = null;
+  ctx.paused = false;
+  try { ctx.ui.closeAll?.(); } catch (e) { report('ui.closeAll', e); }
+  hub.departing = { opts: { ...opts } };
+  setFlow('hub');
+  ensureCove('title');
+  const E = FE.everyRun || {};
+  const lines = Array.isArray(E.murk) ? E.murk : [];
+  const runs = Math.max(0, Number(ctx.state.meta.runs) || 0);
+  const key = lines.length ? lines[runs % lines.length] : null;
+  const text = key ? FE.text?.[key] || '' : '';
+  if (text) ctx.bus.emit('firstEvening:line', { kind: 'murk', key, text, hold: Number(FE.lines?.murkHold ?? 2.4) + Number(FE.lines?.murkPerChar ?? 0.05) * text.length, everyRun: true });
+  const skippable = E.skippableAfterFirst !== false && (runs > 0 || !!fe.done);
+  const arch = () => { if (!hub.departing) return; const o = hub.departing.opts; game.startNewRun({ ...o, __arch: true }); };
+  let started = false;
+  try { started = !!ctx.player.setOutFromMooring?.({ onLine: arch, skippable }); } catch (e) { report('player.setOutFromMooring', e); }
+  if (!started) { arch(); return; }   // no player glide in this build: the run starts at once (never without the cove)
+  if (hub.glides === 'skip') { try { ctx.player.skipGlide?.(); } catch (e) { report('player.skipGlide', e); } if (hub.departing) arch(); }
+}
+/** A snuff cuts to the hearth for 3 s (FIRST_EVENING.snuffed) before the Snuffed summary. */
+function hearthCut(summary) {
+  const S = FE.snuffed || {};
+  hub.hearth = { t: Number(S.hearth) || 3, summary };
+  ctx.bus.emit('zone:change', { zone: 'cove', hub: true, prev: hub.zone, from: 'snuffed' });
+  const text = FE.text?.[S.line || 'snuffedLine'] || '';
+  ctx.bus.emit('firstEvening:line', { kind: 'lore', key: S.line || 'snuffedLine', text, hold: hub.hearth.t, snuffed: true });
+  ctx.bus.emit('firstEvening:beat', { id: 'hearth', dur: hub.hearth.t, step: null });
+}
+function tickHearth(dt) {
+  if (!hub.hearth) return;
+  hub.hearth.t -= dt;
+  if (hub.hearth.t > 0) return;
+  const summary = hub.hearth.summary;
+  hub.hearth = null;
+  ctx.bus.emit('firstEvening:line', { kind: 'lore', key: null, text: '' });
+  if (ctx.flow === 'dead') ctx.ui.showDeath?.(summary);
+}
 
 function setFlow(flow) {
   const prev = ctx.flow;
@@ -264,16 +423,51 @@ if (V3 && !migratedAtBoot && !ctx.progression.isStub && typeof ctx.progression.m
     savedRun = s.run;
   } catch (e) { report('migrateSave', e); }
 }
+// v3: the First Evening director (CONTRACT §13.12), created when the build carries it
+if (FE_ON) {
+  try { ctx.firstEvening = createFirstEvening(ctx); } catch (e) { report('create(firstEvening)', e); ctx.firstEvening = null; }
+}
 for (const [name] of MODULES) {
   try { ctx[name].init?.(); } catch (e) { report(`init(${name})`, e); ctx[name] = makeStub(name); }
 }
+if (ctx.firstEvening) { try { ctx.firstEvening.init(); } catch (e) { report('init(firstEvening)', e); ctx.firstEvening = null; } }
 
 // bus wiring owned by main
+ctx.bus.on('zone:change', ({ zone } = {}) => { if (zone) hub.zone = zone; });
 ctx.bus.on('player:died', ({ cause }) => game.endRun(cause));
+if (FE_ON) {
+  // the First Evening (CONTRACT §13.12): main saves meta.firstEvening.step at each checkpoint (not in a replay) and, at the arch
+  // crossing, starts the First Outing (P1–P2: startNewRun({character: 'wick', nightMode: 'still'}); run 1 is the First Outing)
+  ctx.bus.on('firstEvening:step', ({ id, replay, skipped } = {}) => {
+    if (replay || hub.sandbox !== null) return;
+    const fe = feState();
+    fe.step = id || null;
+    if (skipped) fe.skipped = true;
+    game.save();
+  });
+  ctx.bus.on('firstEvening:done', ({ replay } = {}) => {
+    if (replay) {
+      restoreSandbox();   // meta is the snapshot again, byte for byte (nothing was saved during the replay)
+      ctx.state.run = null;
+      setFlow('title');
+      ctx.ui.showTitle?.();
+      return;
+    }
+    const fe = feState();
+    fe.done = true; fe.step = null;
+    const S = FE.setOut || {};
+    // after every listener has seen firstEvening:done (CONTRACT §13.12 order: done → zone:change → run:start)
+    queueMicrotask(() => {
+      if (ctx.flow !== 'hub' || ctx.state.run) return;
+      game.startNewRun({ character: S.character || 'wick', nightMode: S.nightMode || 'still', __arch: true });
+    });
+  });
+}
 ctx.bus.on('victory', () => game.victory());
 ['phase:change', 'fish:landed', 'shop:buy', 'relic:buy', 'zone:change'].forEach((e) => ctx.bus.on(e, () => {
   if (ctx.flow === 'playing' || e === 'relic:buy') game.save();
 }));
+// v3 hub saves (CONTRACT §13.6): on hub:enter (main saves in enterHub) and on visibilitychange / pagehide (below)
 // v3: progression emits fish:measured at the seal stamp with the records already written; saving here means a reload
 // right after the stamp keeps the PB and the class first (CONTRACT §13.5, §13.6). The cove (hub) saves on it too.
 ctx.bus.on('fish:measured', () => { if (ctx.flow === 'playing' || ctx.flow === 'hub') game.save(); });
@@ -294,7 +488,19 @@ function setPointer(e) {
   toNdc(e, input.ndc);
 }
 function gameAcceptsInput() {
-  return ctx.flow === 'playing' && !ctx.paused && !safe(() => ctx.ui.isBlocking?.(), false);
+  const live = ctx.flow === 'playing' || (FE_ON && ctx.flow === 'hub');
+  return live && !ctx.paused && !safe(() => ctx.ui.isBlocking?.(), false);
+}
+/** v3 (CONTRACT §13.1): while fishing.state is 'bite' the pointer and Space / Enter go to the strike first, in every flow and mode. */
+const biting = () => V3 && safe(() => ctx.fishing.state, null) === 'bite';
+/** v3: the strike tap. `kind` = 'touch' | 'mouse' | 'key' (AUTOFISH.strike.latencyComp). */
+function strikeTap(kind) {
+  input.kind = kind;
+  const f = ctx.fishing;
+  if (typeof f.strike === 'function') return safe(() => f.strike(kind), null);
+  safe(() => f.onPointerDown?.({ input: kind }), null);   // fishing grades the tap after its input's latency (AUTOFISH.strike.latencyComp)
+  if (kind === 'key') safe(() => f.onPointerUp?.(), null);
+  return true;
 }
 function safe(fn, fallback) { try { const v = fn(); return v && v.isStub ? fallback : v; } catch (e) { report('input', e); return fallback; } }
 
@@ -308,6 +514,19 @@ let primaryId = null;
 const tapNdc = new THREE.Vector2();
 function pressAction(e) {
   if (!gameAcceptsInput()) return;
+  if (V3) {
+    const kind = e.pointerType === 'touch' || e.pointerType === 'pen' ? 'touch' : 'mouse';
+    input.kind = kind;
+    // the strike takes input priority during the bite (before zaps, Murk's barge and Flare)
+    if (biting() && !ctx.cinematic) {
+      if (fishPointerId !== null && e.pointerId !== fishPointerId) return;
+      fishPointerId = e.pointerId;
+      setPointer(e);
+      strikeTap(kind);
+      return;
+    }
+    if (FE_ON && ctx.flow === 'hub') { hubPress(e); return; }
+  }
   const ndc = toNdc(e, tapNdc);
   // during the measuring ceremony combat and trade are frozen: the press goes to fishing only (it owns the ceremony's skip)
   const cine = ctx.cinematic;
@@ -319,7 +538,22 @@ function pressAction(e) {
   if (fishPointerId !== null && e.pointerId !== fishPointerId) return; // a second finger never re-enters fishing
   fishPointerId = e.pointerId;
   setPointer(e);
-  safe(() => ctx.fishing.onPointerDown?.(), null);
+  if (V3) safe(() => ctx.fishing.onPointerDown?.({ input: input.kind }), null);
+  else safe(() => ctx.fishing.onPointerDown?.(), null);
+}
+/** The Landing (CONTRACT §13.1 pointer routing in the hub): the First Evening's taps, a skippable glide, then cove fishing. No zap. */
+function hubPress(e) {
+  const fe = ctx.firstEvening;
+  if (fe?.isActive?.()) {
+    if (fe.step === 'framing' || fe.step === 'wake') { fe.hurry(); return; }
+    if (fe.locksInput()) return;
+  }
+  if (safe(() => ctx.player.glideState, null)) { safe(() => ctx.player.skipGlide?.(), null); return; }
+  if (hub.departing) return;
+  if (fishPointerId !== null && e.pointerId !== fishPointerId) return;
+  fishPointerId = e.pointerId;
+  setPointer(e);
+  safe(() => ctx.fishing.onPointerDown?.({ input: input.kind }), null);
 }
 function releaseFishing() {
   if (fishPointerId === null) return;
@@ -369,6 +603,7 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);
   if (safe(() => ctx.ui.handleKey?.(e.code), false) === true) { e.preventDefault(); return; }
+  if (FE_ON && ctx.flow === 'hub') { if (MOVE_KEYS.has(e.code)) e.preventDefault(); if (hubKey(e)) { e.preventDefault(); return; } }
   // Space is the flare key: while a run is on screen (incl. a level-up / catch card that just
   // popped up, or the fresh death screen) it must never fall through and click a focused button.
   if (e.code === 'Space' && (ctx.flow === 'playing' || ctx.flow === 'dead')) e.preventDefault();
@@ -378,10 +613,24 @@ window.addEventListener('keydown', (e) => {
   }
   if (MOVE_KEYS.has(e.code)) e.preventDefault();
   if (!gameAcceptsInput()) return;
+  // v3: Space / Enter strike during the bite (F stays Flare); outside it Space flares as before
+  if (V3 && (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') && biting() && !ctx.cinematic) { strikeTap('key'); e.preventDefault(); return; }
   const cine = ctx.cinematic; // the ceremony freezes combat (no Flare) and the world's interactions
   if (e.code === 'Space' || e.code === 'KeyF') { if (!cine) safe(() => ctx.combat.flare?.(), null); e.preventDefault(); }
   else if (e.code === 'KeyE') { if (!cine) safe(() => ctx.player.interact?.(), null); e.preventDefault(); }
 });
+/** Keys in the hub: Esc / Enter skip the framing; Space / Enter / Esc skip a skippable glide; E uses a post; no Flare, no pause. */
+function hubKey(e) {
+  if (safe(() => ctx.ui.isBlocking?.(), false) || ctx.paused) return false;
+  const fe = ctx.firstEvening, code = e.code;
+  const enter = code === 'Enter' || code === 'NumpadEnter';
+  if (fe?.isActive?.() && fe.step === 'framing' && (code === 'Escape' || enter)) { fe.skipWord(); return true; }
+  if (fe?.isActive?.() && fe.step === 'wake' && (code === 'Escape' || enter || code === 'Space')) { fe.hurry(); return true; }
+  if (biting() && (code === 'Space' || enter)) { strikeTap('key'); return true; }
+  if (safe(() => ctx.player.glideState, null) && (code === 'Space' || enter || code === 'Escape')) { safe(() => ctx.player.skipGlide?.(), null); return true; }
+  if (code === 'KeyE') { if (!fe?.locksInput?.()) safe(() => ctx.player.interact?.(), null); return true; }
+  return code === 'Space' || code === 'Escape' || code === 'KeyP' || code === 'KeyF';
+}
 window.addEventListener('keyup', (e) => {
   input.keys.delete(e.code);
   if (e.code === 'Space' && (ctx.flow === 'playing' || ctx.flow === 'dead')) e.preventDefault();
@@ -449,7 +698,29 @@ Object.assign(ctx.debug, {
   setV3(on = true, phase) { return { stored: setV3Flag(on, phase), now: { enabled: data.V3_ENABLED === true, phase: data.V3_PHASE }, note: 'reload to apply' }; },
   /** Main's beat state: the ceremony flag (and how long it has been held) and the slow-motion beat. */
   beats: () => ({ cinematic: ctx.cinematic, cinematicFor, cinematicMax: CINEMATIC_MAX, slowmo: slowmo.state, timeScale: ctx.time.timeScale }),
+  /** M2: is this a debug build (?debug=1, localStorage gw.debug, GW_DEBUG)? Hidden-state hooks exist only then (v3). */
+  debugEnabled: () => (V3 ? DEBUG : debugEnabled()),
 });
+if (FE_ON) Object.assign(ctx.debug, {
+  /** CONTRACT §13.11: firstEvening(step | 'reset' | 'done') — jump to a step, clear meta.firstEvening, or mark it done. No arg: the readout. */
+  firstEvening(step) {
+    const fe = ctx.firstEvening;
+    if (step === undefined) return fe ? { ...fe.state, meta: ctx.state.meta.firstEvening ? { ...ctx.state.meta.firstEvening } : null, hub: { zone: hub.zone, departing: !!hub.departing, sandbox: hub.sandbox !== null, hearth: hub.hearth ? +hub.hearth.t.toFixed(2) : null, glides: hub.glides } } : null;
+    if (!fe) return false;
+    if (step === 'reset' || step === 'done') return fe.debugJump(step);
+    if (ctx.flow !== 'hub') enterHub('title');
+    return fe.debugJump(step);
+  },
+  firstEveningLosses: (n) => ctx.firstEvening?.setLosses(n) ?? null,
+  /** CONTRACT §13.11: a fresh save (wipe + reload-equivalent state: meta.firstEvening {done: false}). */
+  freshSave() { game.wipeAll(); return ctx.state.meta.firstEvening ? { ...ctx.state.meta.firstEvening } : null; },
+  /** Debug builds: 'skip' passes every later run's glide at once (the default for tests), 'real' plays it. */
+  glides(mode) { if (mode === 'skip' || mode === 'real') hub.glides = mode; return hub.glides; },
+  hub: () => ({ flow: ctx.flow, zone: hub.zone, departing: !!hub.departing, sandbox: hub.sandbox !== null, hearth: hub.hearth ? +hub.hearth.t.toFixed(2) : null, glides: hub.glides }),
+});
+// M2 (CONTRACT §13.1, §13.11): a release build (v3, debug off) exposes no species, roll, plan or pre-roll on window.__gw
+if (V3 && !DEBUG) { for (const k of HIDDEN_DEBUG_HOOKS) delete ctx.debug[k]; }
+
 
 // ------------------------------------------------------------------ loop
 let last = performance.now();
@@ -464,7 +735,9 @@ function frame(now) {
   time.frame++;
   updateMoveInput();
   const blocking = safe(() => ctx.ui.isBlocking?.(), false) === true;
-  const running = ctx.flow === 'playing' && !ctx.paused && !blocking;
+  // v3: the hub (the Landing) runs too; survival and combat idle there (CONTRACT §13.1)
+  const inHub = FE_ON && ctx.flow === 'hub';
+  const running = (ctx.flow === 'playing' || inHub) && !ctx.paused && !blocking;
   if (running) slowmo.tick(realDt);
   time.gameDt = running ? realDt * time.timeScale : 0;
   if (cinematic) {
@@ -486,12 +759,17 @@ function frame(now) {
     if (!m || m.isStub || !m.update) continue;
     try {
       // the cinematic flag is read live: fishing (updated first) can start the ceremony this very frame
-      m.update(GAMEPLAY.has(name) ? (cinematic && CINEMATIC_FROZEN.has(name) ? 0 : time.gameDt) : time.dt, time.t);
+      m.update(GAMEPLAY.has(name) ? ((cinematic || inHub) && CINEMATIC_FROZEN.has(name) ? 0 : time.gameDt) : time.dt, time.t);
     } catch (e) {
       const n = (errorCounts.get(name) || 0) + 1;
       errorCounts.set(name, n);
       if (n <= 3 || n % 300 === 0) report(`update(${name}) [x${n}]`, e);
     }
+  }
+  if (FE_ON) {
+    // the First Evening's clock (lines, beats) runs on the hub's game time (stopped by a pause or a blocking card); the hearth cut
+    if (ctx.firstEvening) { try { ctx.firstEvening.update(inHub ? time.gameDt : 0); } catch (e) { const n = (errorCounts.get('firstEvening') || 0) + 1; errorCounts.set('firstEvening', n); if (n <= 3) report('update(firstEvening)', e); } }
+    if (hub.hearth && ctx.flow === 'dead') tickHearth(realDt);
   }
   try { if (!ctx.render.isStub) ctx.render.render?.(); } catch (e) {
     const n = (errorCounts.get('render()') || 0) + 1;
@@ -505,6 +783,8 @@ function frame(now) {
 // ------------------------------------------------------------------ start
 onResize();
 setFlow('title');
+// v3 (CONTRACT §13.1 Boot): the world builds the cove so the title orbits it
+if (FE_ON) { try { ctx.bus.emit('zone:change', { zone: 'cove', hub: true, prev: null, from: 'boot' }); } catch (e) { report('boot cove', e); } }
 try { ctx.ui.showTitle?.(); } catch (e) { report('showTitle', e); }
 const loader = document.getElementById('loader');
 if (loader) { loader.classList.add('done'); setTimeout(() => loader.remove(), 1200); }

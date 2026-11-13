@@ -12,6 +12,44 @@
 
 /** Fishing states with a fish on the line (CONTRACT §13.7: the hard rule applies while state ∈ {reeling, landing}). */
 export const HOOKED_STATES = new Set(['reeling', 'landing']);
+/**
+ * The anchor (automatic fishing, every v3 night mode; CONTRACT §13.7a, DESIGN §25.0.2c): from the strike until the card or the
+ * got-away note — fishing.state reeling, landing or lost — nothing in combat moves the Wick or the raft (AUTOFISH.play.anchor).
+ */
+export const ANCHOR_STATES = new Set(['reeling', 'landing', 'lost']);
+export function anchorStates(data) {
+  const a = data?.AUTOFISH?.play?.anchor;
+  return Array.isArray(a?.states) ? new Set(a.states) : ANCHOR_STATES;
+}
+/** Is the anchor holding? Only on the v3 path (V3_ENABLED); v1 keeps its knockback. `fishing.isAnchored()` wins when present. */
+export function anchored(state, data, fishing = null) {
+  if (data?.V3_ENABLED !== true) return false;
+  if (fishing && typeof fishing.isAnchored === 'function') { try { const a = fishing.isAnchored(); if (typeof a === 'boolean') return a; } catch { /* fall through */ } }
+  return typeof state === 'string' && anchorStates(data).has(state);
+}
+/**
+ * Does a hand slam that lands now part the line (`fishing.partLine('staggered')`)? Automatic fishing: only during a play
+ * (state 'reeling'), never a legend, and only where slams snap (Gloomtide and The Long Descent; never Still or Lantern).
+ */
+export function slamParts({ mode, B, state, legendary }) {
+  return state === 'reeling' && !legendary && slamSnaps(mode, B);
+}
+/** CATCH_V3.economy.norm for a lake (1 where the build has no automatic-fishing economy). */
+export function econNorm(data, lake) {
+  const N = data?.V3_ENABLED === true ? data?.CATCH_V3?.economy?.norm : null;
+  const v = N ? N[lake] : undefined;
+  return typeof v === 'number' && v > 0 ? v : 1;
+}
+/**
+ * Fish XP with the automatic-fishing economy (CATCH_V3.economy, fishXpOwner 'combat.fishXpForMode'): of `n`, the fish part
+ * (`fishXp`, default all of it) is multiplied by the lake's norm; discovery XP is untouched. At least 1 when n ≥ 1.
+ */
+export function fishXpNormed(n, { fishXp = n, norm = 1 } = {}) {
+  if (!(n > 0) || norm === 1) return n;
+  const f = Math.max(0, Math.min(n, Number(fishXp) || 0));
+  return Math.max(1, n - f + Math.round(f * norm));
+}
+
 /** Fishing states with no line in the water (anything else counts as "a line out" for level-up modals). */
 export const LINE_FREE_STATES = new Set(['idle', 'lost']);
 
@@ -236,15 +274,17 @@ export function mayOpenModal({ line = false, moving = false, cinematic = false }
  * Fish XP in this mode when progression did not apply it (`opts.modeApplied`): Still × 1.4 with no zone factor.
  * `n` is v1's fishXpFor(rarity, zoneIndex) × multipliers; the zone factor is divided back out exactly.
  */
-export function fishXpForMode(n, { mode, B, data, rarity = 'common', zoneIndex = 0 } = {}) {
+export function fishXpForMode(n, { mode, B, data, rarity = 'common', zoneIndex = 0, lake = null } = {}) {
   const X = modeCfg(mode, B)?.xp;
-  if (!X || !(n > 0)) return n;
+  const norm = lake ? econNorm(data, lake) : 1;   // automatic fishing: × CATCH_V3.economy.norm[lake] (combat owns fish XP)
+  if (!(n > 0)) return n;
+  if (!X) return norm === 1 ? n : Math.max(1, Math.round(n * norm));
   let v = n * num(X.fishMult, 1);
   if (X.zoneFactor === false && zoneIndex > 0 && typeof data?.fishXpFor === 'function') {
     const withZone = data.fishXpFor(rarity, zoneIndex), flat = data.fishXpFor(rarity, 0);
     if (withZone > 0 && flat > 0) v *= flat / withZone;
   }
-  return Math.max(1, Math.round(v));
+  return Math.max(1, Math.round(v * norm));
 }
 /**
  * Discovery XP with the daily cap (xpModes.discovery: species 2, place 4, classFirst 2, ≤ 12 a day). Shares progression's

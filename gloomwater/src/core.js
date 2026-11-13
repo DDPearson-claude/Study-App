@@ -168,6 +168,68 @@ export function setV3Flag(on, phase) {
 /** How this page load resolved the switch (read by main's debug hooks). */
 export const V3_FLAGS = applyV3Flags();
 
+// ---------------------------------------------------------------- debug switch (CONTRACT §13.1, §13.11; DESIGN §25.14.2a M2)
+// Hooks that return hidden state (species, z, the roll, the play plan, pre-rolls) register only when debugEnabled() is true:
+// `?debug=1` in the page URL, the localStorage key `gw.debug === '1'`, or `globalThis.GW_DEBUG === true` (the scenario runner
+// sets it before the page's scripts run). A release build exposes no species, roll, plan or pre-roll on window.__gw.
+export const DEBUG_KEY = 'gw.debug';
+/** Pure: {preset: GW_DEBUG, search: location.search, stored: the raw localStorage string} → bool. `?debug=0` turns it off. */
+export function resolveDebug({ preset, search = '', stored = null } = {}) {
+  let q = null;
+  try { q = new URLSearchParams(search || ''); } catch { q = null; }
+  if (q && q.has('debug')) {
+    const v = parseFlagOn(q.get('debug'));
+    if (v !== null) return v;
+  }
+  if (preset === true) return true;
+  return stored === '1' || stored === 1 || stored === true;
+}
+/** Is the debug build on for this page? Read live (a tool may set GW_DEBUG before main creates the hooks). */
+export function debugEnabled(g = globalThis) {
+  let search = '', stored = null;
+  if (typeof g.document !== 'undefined') {
+    try { search = g.location?.search || ''; } catch { search = ''; }
+    try { stored = g.localStorage?.getItem(DEBUG_KEY) ?? null; } catch { stored = null; }
+  }
+  return resolveDebug({ preset: g.GW_DEBUG, search, stored });
+}
+/**
+ * The debug hooks that return hidden state (CONTRACT §13.11): main removes them from ctx.debug after every module's init when
+ * debugEnabled() is false, whatever module registered them (belt and braces for the hidden-information rule).
+ */
+export const HIDDEN_DEBUG_HOOKS = Object.freeze([
+  'fishChance', 'fishPlan', 'fishOutcome', 'fishSeed', 'fishStrike', 'fishLinger', 'preroll', 'fishing', 'fishSigns', 'fishReel',
+  'fishHook', 'forceBite', 'instantCatch', 'sign', 'odds', 'marked', 'wound', 'rollResident', 'addMarkedFish',
+]);
+
+// ---------------------------------------------------------------- the world is live (CONTRACT §13.1)
+/** `flow === 'playing' || flow === 'hub'`: the one helper player, fishing, render, actors, ui-hud and audio use. */
+export const inWorld = (ctx) => !!ctx && (ctx.flow === 'playing' || ctx.flow === 'hub');
+
+// ---------------------------------------------------------------- the First Evening's legacy step (CONTRACT §13.2, §13.12)
+/**
+ * The separate, idempotent step that runs only while `meta.firstEvening === undefined` (progression owns it; main applies the
+ * same rule at boot as a fallback, so a returning player never meets the tutorial): `meta.runs > 0` or a journal entry for any
+ * non-cove species → `{done: true, legacy: true}`; anything else → `{done: false, step: null}`. Returns true when it wrote.
+ * `coveSpecies` = COVE.fishing.species (the Quayling). Never called with v3 off.
+ */
+export function firstEveningLegacy(meta, coveSpecies = ['quayling']) {
+  if (!meta || typeof meta !== 'object' || meta.firstEvening !== undefined) return false;
+  const cove = new Set(Array.isArray(coveSpecies) ? coveSpecies : []);
+  const journal = meta.journal && typeof meta.journal === 'object' ? meta.journal : {};
+  const lake = Object.keys(journal).some((id) => !cove.has(id) && journal[id] && (journal[id].caught > 0 || journal[id].seen || journal[id].firstDay !== undefined || Object.keys(journal[id]).length > 0));
+  const legacy = (Number(meta.runs) || 0) > 0 || lake;
+  meta.firstEvening = legacy ? { done: true, step: null, skipped: false, legacy: true } : { done: false, step: null, skipped: false, legacy: false };
+  return true;
+}
+/** Where a quit First Evening resumes (FIRST_EVENING.resume): before the catch → 'cast', after it → 'gate', none → null. */
+export function firstEveningResumeStep(step, steps, resume = { beforeCatch: 'cast', afterCatch: 'gate' }) {
+  if (!step || !Array.isArray(steps)) return null;
+  const i = steps.indexOf(step), m = steps.indexOf('measure');
+  if (i < 0) return null;
+  return i < m ? resume.beforeCatch || 'cast' : resume.afterCatch || 'gate';
+}
+
 // ---------------------------------------------------------------- time scale (ctx.game.slowmo, CONTRACT §13.1)
 /**
  * main owns `time.timeScale`. A slow-motion beat (the leap reveal: 0.25 s at 0.35) scales the base time scale for `seconds`

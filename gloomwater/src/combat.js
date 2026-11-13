@@ -122,8 +122,13 @@ export function create(ctx) {
   }
   const fishState = () => { try { const f = ctx.fishing; return real(f) && typeof f.state === 'string' ? f.state : null; } catch { return null; } };
   C.hooked = () => HOOKED.has(fishState());
-  /** The hard rule (Still / Lantern): nothing combat does moves the Wick or the raft while a fish is hooked. */
-  C.holdStill = () => !!C.mode && !M.knockWhileHooked(C.mode, BAL()) && C.hooked();
+  /**
+   * The hard rule (Still / Lantern) and, with automatic fishing, the anchor in EVERY v3 mode (Gloomtide and The Long Descent
+   * too; C7): nothing combat does moves the Wick or the raft from the strike until the card or the note. v1 keeps its knockback.
+   */
+  C.holdStill = () => M.anchored(fishState(), data(), real(ctx.fishing) ? ctx.fishing : null) || (!!C.mode && !M.knockWhileHooked(C.mode, BAL()) && C.hooked());
+  /** Automatic fishing is in this build (fishing exposes partLine / setTutorial): the legend snags are staged beats. */
+  C.autoFishing = () => { const f = ctx.fishing; return data()?.V3_ENABLED === true && real(f) && (typeof f.partLine === 'function' || typeof f.setTutorial === 'function'); };
   /** Is the player moving (for the level-up modal rule)? Raft speed or a held move input. */
   function moving() {
     if (C.raftSpeed > 0.75) return true;
@@ -353,6 +358,15 @@ export function create(ctx) {
   }
   C.snapLine = () => {
     if (C.mode && !M.slamSnaps(C.mode, BAL())) return;   // Still / Lantern: a slam never snaps the line
+    if (C.autoFishing()) {
+      // automatic fishing (C7, CONTRACT §13.7a): a hand slam that lands during a play parts a non-legendary line ('staggered'),
+      // the one outside event that ends a play; outside a play (the bite included) it touches nothing
+      try {
+        const f = ctx.fishing, v = f.view || {};
+        if (M.slamParts({ mode: C.mode, B: BAL(), state: f.state, legendary: v.legendary === true || v.rarity === 'legendary' })) f.partLine('staggered');
+      } catch (e) { C.report('partLine', e); }
+      return;
+    }
     try {
       const st = ctx.fishing?.state;
       if ((st === 'bite' || HOOKED.has(st)) && ctx.fishing?.view?.rarity !== 'legendary') ctx.fishing.cancel?.('snap');
@@ -696,6 +710,7 @@ export function create(ctx) {
   function onPointerDown(ndc) {
     const run = C.run;
     if (!run || ctx.flow !== 'playing' || ctx.paused || !ndc) return false;
+    if (data()?.V3_ENABLED === true && fishState() === 'bite') return false;   // C7: during the bite the tap is the strike (main routes it)
     if (C.mode && !M.tapsWhileHooked(C.mode, BAL()) && C.hooked()) return false;   // the hard rule: the tap stays fishing's
     let e = null;
     try { e = pickEnemy(ndc); } catch (err) { C.report('pick', err); return false; }
@@ -1173,6 +1188,9 @@ export function create(ctx) {
   }
   function legendSummon(id, opts) {
     if (C.mode !== 'still' && C.mode !== 'lantern') return null;           // Gloomtide / v1: the fight is unchanged
+    // automatic fishing (C7): the Grasping Dark snags are staged beats of the legend's authored play (fishing:reel), drawn by
+    // onStagedSnag; nothing here touches the line or the odds, and no swarm spawns while the legend is on
+    if (C.autoFishing()) return { suppressed: true, staged: true, enemyId: id, mode: C.mode };
     let sid = null;
     try { sid = ctx.fishing?.view?.speciesId || null; } catch { sid = null; }
     const rule = M.legendQuietFor(C.mode, BAL(), sid);
@@ -1215,6 +1233,19 @@ export function create(ctx) {
     C.shake(0.2, 0.3);
     try { ctx.audio?.play?.('enemy_hit', { volume: 0.8, pitch: 0.55 }); } catch { /* optional */ }
     if (!s.visual) ctx.bus.emit('legend:snag', { phase: 'hit', speciesId: s.speciesId, x: s.x, z: s.z, spike: s.spike, spiked, n: s.n });
+  }
+  /**
+   * Automatic fishing: a legend play's staged Grasping Dark beat (`fishing:reel {phase | kind: 'graspingDark', legendary: true}`):
+   * the hand rises under the line 1 s ahead and snatches at it. Visual only (no tension, no input, no change to the odds).
+   */
+  function onStagedSnag(p = {}) {
+    if (!C.autoFishing() || !p.legendary) return;
+    if (p.phase !== 'graspingDark' && p.kind !== 'graspingDark') return;
+    if (snags.some((x) => !x.hit)) return;
+    const lead = Math.min(1.5, Math.max(0.3, Number.isFinite(p.lead) ? p.lead : Number.isFinite(p.dur) ? p.dur * 0.5 : 1));
+    const pt = snagPoint(snagPt);
+    snags.push({ t: 0, lead, spike: 0, x: pt.x, z: pt.z, hit: false, post: 0.75, seed: Math.random(), speciesId: p.speciesId || null, n: snags.length + 1, visual: true, staged: true });
+    ctx.bus.emit('legend:snag', { phase: 'warn', speciesId: p.speciesId || null, x: pt.x, z: pt.z, lead, spike: 0, staged: true });
   }
   /** fishing ran a snag itself (fishing:snag warn): draw the rising hand on the line for its lead time. */
   function onFishingSnag(p = {}) {
@@ -1425,13 +1456,24 @@ export function create(ctx) {
     NM.releaseAfterCard = true;   // the card is the next safe place for a banked pick (cleared when the bank is empty)
   }
   /** XP from outside the Cinder magnet. v3: fish XP in this run's mode unless progression already applied it. */
+  /** The lake a fish's XP is normalised by (CATCH_V3.economy.norm): the one it was hooked in, else its home lake. */
+  function fishLake(opts) {
+    const N = data()?.CATCH_V3?.economy?.norm || {};
+    const z = C.run?.zone || ctx.state.run?.zone;
+    if (z && N[z] !== undefined) return z;
+    const sp = opts?.speciesId ? data().SPECIES_BY_ID?.[opts.speciesId] : null;
+    return sp?.zone || sp?.zones?.[0] || z || null;
+  }
   function addXpV3(n, opts) {
     if (!(n > 0)) return;
     if (C.mode && !opts?.modeApplied && opts?.source !== 'discovery') {
       const L = NM.lastLanded;
       const same = L && L.xp === n && ((ctx.time?.frame ?? 0) - L.frame <= 1 || Math.abs((ctx.time?.gameT ?? 0) - L.gameT) < 0.05);
-      if (same) n = M.fishXpForMode(n, { mode: C.mode, B: BAL(), data: data(), rarity: L.rarity, zoneIndex: L.zoneIndex });
+      if (same) n = M.fishXpForMode(n, { mode: C.mode, B: BAL(), data: data(), rarity: L.rarity, zoneIndex: L.zoneIndex, lake: fishLake(opts) });
       if (L) NM.lastLanded = null;
+    } else if (opts?.source === 'fish' && !opts?.normApplied) {
+      // progression applied the night mode; the economy normaliser is combat's (CATCH_V3.economy.fishXpOwner)
+      n = M.fishXpNormed(n, { fishXp: opts.fishXp ?? n, norm: M.econNorm(data(), fishLake(opts)) });
     }
     levels.gainXp(n);
   }
@@ -1585,6 +1627,7 @@ export function create(ctx) {
       });
       bus.on('fishing:hook', () => { NM.snagsThisFight = 0; });
       bus.on('fishing:snag', (p) => { try { onFishingSnag(p || {}); } catch (e) { C.report('fishing:snag', e); } });
+      bus.on('fishing:reel', (p) => { try { onStagedSnag(p || {}); } catch (e) { C.report('fishing:reel', e); } });
       bus.on('fish:landed', (p) => { if (C.mode) onFishLanded(p || {}); });
       bus.on('place:discover', ({ first } = {}) => {
         if (!C.run || !C.mode || first === false) return;
@@ -1700,7 +1743,12 @@ export function create(ctx) {
     flare,
     flareReady() { return flareCd <= 0 ? 1 : clamp01(1 - flareCd / Math.max(0.01, flareTotal)); },
     canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; if (C.mode && !presentNow().flare) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
-    addXp(n, opts) { if (!C.run) C.run = ctx.state.run; refreshMode(); if (C.mode) addXpV3(n, opts); else levels.gainXp(n); },
+    addXp(n, opts) {
+      if (!C.run) C.run = ctx.state.run; refreshMode();
+      if (C.mode) addXpV3(n, opts);
+      else if (data()?.V3_ENABLED === true && opts?.source === 'fish' && !opts?.normApplied) levels.gainXp(M.fishXpNormed(n, { fishXp: opts.fishXp ?? n, norm: M.econNorm(data(), fishLake(opts)) }));
+      else levels.gainXp(n);
+    },
     chooseBoon(boonId) { if (!C.run) C.run = ctx.state.run; return levels.chooseBoon(boonId); },
     reroll() { return levels.reroll(); },
     skip() { return levels.skip(); },
