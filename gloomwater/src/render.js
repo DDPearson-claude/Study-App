@@ -827,10 +827,12 @@ export function create(ctx) {
         S.p = rem > 1e-4 ? S.p + (1 - S.p) * Math.min(1, dts / (rem + dts)) : 1;
       } else S.p = 1;
       S.w = showEase(S.p);
-      // the target: live through the reveal and the lift (actors names the settled layout from the lift's first frame), then
-      // frozen a moment after the present: the hold's flaps and bob play inside the frame, and the pause is still
+      // the target: live through the reveal, the lift and most of the hold (actors names the settled layout from the lift's first
+      // frame; a layout that is still finding its place is followed), then frozen settleBefore s before the pause, so the stiffer
+      // spring has brought the lens to rest when the still begins
       const shown = v && v.phase === 'hold' ? (Number(v.poseT) || 0) - (Number(v.dur?.lift) || 0) : 0;
-      S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > (Number(SHOWC.settleAfter) || 0.12)));
+      const freezeAt = Math.max(Number(SHOWC.settleAfter) || 0.12, (Number(v?.dur?.hold) || 0.5) - (Number(SHOWC.settleBefore) || 0.25));
+      S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
       const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
       if (!S.still || !S.init || cardLift) { if (fitShow(v) && S.hold) S.frozenCard = true; }
     } else {

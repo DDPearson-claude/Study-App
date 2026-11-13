@@ -1747,8 +1747,8 @@ if (V3) {
       { const Cm = SH.camera, G = AF.landing.show, minHold = Math.min(...SC.map((c) => SH.beats[c].hold), SH.swarm.hold);
         ok(Cm.headroom >= 0 && Cm.footroom >= 0 && Cm.margin.landscape + Math.max(Cm.headroom, Cm.footroom) <= 0.2 && Cm.flameTip >= 0 && Cm.flameTip <= 1.5 && Cm.finRoom >= 1 && Cm.finRoom <= 2,
           'AUTOFISH.show.camera: room over the flame and under the hands inside a fifth of the frame; the fish\'s box a little wider than its named points');
-        ok(Cm.follow > 0 && Cm.followStill >= Cm.follow && Cm.settleAfter >= 0 && Cm.settleAfter < minHold && Cm.followStill * (minHold - Cm.settleAfter) >= 1,
-          'AUTOFISH.show.camera: the fitted target is frozen inside the shortest hold and carried stiffly enough to be still by the pause');
+        ok(Cm.follow > 0 && Cm.followStill >= Cm.follow && Cm.settleAfter >= 0 && Cm.settleAfter < minHold && Cm.settleBefore > 0 && Cm.followStill * Cm.settleBefore >= 4,
+          'AUTOFISH.show.camera: the fitted target is frozen before the pause and carried stiffly enough to be at rest when it begins');
         ok(Cm.outPerM >= 0 && Cm.outPerM <= 0.1 && Cm.out <= 1.2, 'AUTOFISH.show.camera: the way back to play is about a second (a little longer from far off)');
         ok(Cm.presentKick > 0 && Cm.presentKick <= 1 && Cm.presentBloom > 0 && Cm.presentBloom <= 1 && Cm.breath >= 0 && Cm.breath <= 0.5 && Math.abs(AF.landing.ancient.pull) * Cm.breath <= Cm.margin.landscape,
           'AUTOFISH.show.camera: at the present the kick and the bloom are no bigger than the landing\'s, and an Elder\'s breath out stays inside the margin');
