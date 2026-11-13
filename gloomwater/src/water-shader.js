@@ -91,12 +91,12 @@ uniform vec4 uNeb1, uNeb2;
 #ifdef GW_V3
 uniform float uGlowtide;      // v3 night sparkle 0..1 (water.setGlowtide; the term is compiled out on low)
 #endif
+uniform vec2 uMood;           // the night 0..1 and the dawn's warmth 0..1 (world's mood)
 #ifdef GW_REFL
 uniform sampler2D uReflTex;   // the scene mirrored about the water plane (water.renderReflection)
 uniform mat4 uReflMat;        // world → that target's uv (projective)
 uniform vec3 uKeyDir;         // toward the key light (world)
 uniform vec3 uKeyCol;         // its colour × intensity
-uniform vec2 uMood;           // the night 0..1 and the dawn's warmth 0..1 (world's mood)
 #ifdef GW_SHADOW
 uniform sampler2D uShadowTex; // the key light's shadow map (packed depth)
 uniform mat4 uShadowMat;
@@ -164,6 +164,19 @@ vec2 chopGrad(vec2 p, float t) {
   g += chopTerm(CH3, q, t, 0.006);
   return g;
 }
+#ifdef GW_REFL
+// the fine wind ripples that break the mirror up close: four trains of short wavelets (0.55–1 m) crossing each other, their
+// phase warped so no train repeats. A slope field with crests, so the mirror image breaks into strokes that lie along the
+// wavelets and the glints sit on their faces (value-noise cells here read as scales, not as water). ≈ ±1 (rms).
+vec2 fineGrad(vec2 p, float t) {
+  vec2 q = p + (vec2(wNoise(p * 0.33 + t * 0.06), wNoise(p * 0.33 + 5.2 - t * 0.05)) - 0.5) * 1.7;
+  vec2 g = cos(dot(q, vec2(5.9, 2.3)) + t * 2.6) * vec2(0.93, 0.36);
+  g += cos(dot(q, vec2(-3.1, 6.8)) - t * 3.1) * vec2(-0.41, 0.91) * 0.8;
+  g += cos(dot(q, vec2(8.3, -4.6)) + t * 3.9) * vec2(0.87, -0.48) * 0.6;
+  g += cos(dot(q, vec2(1.7, 11.2)) - t * 4.6) * vec2(0.15, 0.99) * 0.45;
+  return g;
+}
+#endif
 #ifndef GW_LOW
 float caustic(vec2 p, float t) {
   vec2 i = p;
@@ -418,6 +431,9 @@ void main() {
 #ifdef GW_V3
   vec2 gChop = g;
 #endif
+#ifdef GW_REFL
+  vec2 gSwell = g;
+#endif
 #ifndef GW_LOW
   g += chopGrad(xz, uTime) * (0.25 + 0.75 * near);
 #else
@@ -613,6 +629,10 @@ void main() {
   vec3 base = mix(uDeep, uShallow, shallow * 0.7);
   float blot = wNoise(xz * 0.045 + vec2(uTime * 0.004, 0.0)) * 0.6 + wNoise(xz * 0.13 - uTime * 0.01) * 0.4;
   base *= 0.8 + 0.4 * blot;
+  // Clear Night: by day the water's own colour is a fifth fuller than the palette's ink (on every tier): with no haze
+  // lying on it the open lake otherwise reads as a dark sheet, most of all on a tall phone frame; by night it is the
+  // lake's floor colour and nothing more
+  base *= 1.2 - 0.2 * uMood.x;
   vec2 vd = normalize(xz - cameraPosition.xz + vec2(1e-4));
   vec2 vp = vec2(-vd.y, vd.x);
 #ifdef GW_REFL
@@ -625,8 +645,20 @@ void main() {
 #else
   float wsh = 1.0;
 #endif
-  // (a breath of the air's colour keeps the deepest water off black; the dawn lays its pale mist on the lake)
-  vec3 body = mix(base, uSky * 0.72, 0.07 + 0.15 * uMood.x + 0.3 * uMood.y) * mix(0.72, 1.0, wsh);
+  // the fine ripples (faded out where a pixel can no longer resolve them: far water stays a clean mirror; a sign's slick
+  // calms them as it calms the chop)
+  float fineK = clamp(1.5 - (fwidth(xz.x) + fwidth(xz.y)) * 11.0, 0.0, 1.0);
+  vec2 gFine = fineGrad(xz, uTime) * (0.085 * fineK);
+#ifdef GW_V3
+  gFine *= 1.0 - 0.9 * min(sFlat, 1.0);
+#endif
+  // (a breath of the air's colour keeps the deepest water off black; the dawn lays a little of its pale mist on the lake)
+  vec3 body = mix(base, uSky * 0.72, 0.07 + 0.04 * uMood.x + 0.2 * uMood.y);
+  // light on the water itself: the faces of the chop and the fine ripples that lean toward the key light are a little
+  // lighter, the faces that lean away a little deeper — the near lake has form, not a flat fill (the long swell takes
+  // only a little of it: its straight fronts would lay stripes across the lake)
+  float lean = -dot(g - gSwell * 0.7 + gFine * 0.6, uKeyDir.xz);
+  body *= (1.0 + clamp(lean * 3.4, -0.2, 0.34) * (0.35 + 0.65 * wsh)) * mix(0.72, 1.0, wsh);
 #ifdef USE_FOG
   #ifdef FOG_EXP2
   float fogF = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
@@ -640,37 +672,39 @@ void main() {
   vec2 ruv = rc.xy / max(rc.w, 1e-4);
   // the ripple slope across / along the view nudges the lookup, taller than wide (reflections smear down the water);
   // a second tap rides the fine ripples, so near water breaks its mirror image into strokes and far water stays a mirror
-  vec2 fq = xz * 3.1;
-  float fineK = clamp(1.5 - (fwidth(xz.x) + fwidth(xz.y)) * 11.0, 0.0, 1.0);
-  vec2 gFine = (vec2(wNoise(fq + vec2(uTime * 0.6, -uTime * 0.45)), wNoise(fq.yx + vec2(17.3 - uTime * 0.5, uTime * 0.7))) - 0.5) * (0.3 * fineK);
   vec2 nv = vec2(dot(N.xz, vp), dot(N.xz, vd));
   vec2 nf = nv - vec2(dot(gFine, vp), dot(gFine, vd)) * 0.5;
-  float rk = 0.062 * clamp(20.0 / camD, 0.25, 2.2);
+  float rk = 0.05 * clamp(20.0 / camD, 0.25, 2.2);
   vec3 rcol = texture2D(uReflTex, clamp(ruv + nv * vec2(1.0, -2.2) * rk, 0.002, 0.998)).rgb;
   rcol = mix(rcol, texture2D(uReflTex, clamp(ruv + nf * vec2(1.3, -3.0) * rk, 0.002, 0.998)).rgb, 0.5);
   rcol = min(rcol, vec3(1.1));          // a glow's mirror image is a glow, not a hot sheet on the water
   float reflK = F * (1.0 - 0.8 * clamp(foam, 0.0, 1.0));
 #ifdef GW_V3
   // where a fish turned, rose or struck the water is stirred and stops mirroring: a sign is a dark break in the mirror
-  reflK *= 1.0 - 0.8 * clamp(sDark, 0.0, 1.0);
+  // (and so do its rings and its slick: on the bright mirrored vault a pale stroke needs dark water under it to read)
+  reflK *= (1.0 - 0.9 * clamp(sDark, 0.0, 1.0)) * (1.0 - 0.85 * clamp(sFlat + sLine * 0.6, 0.0, 1.0));
 #endif
   // (at night the mirror is held back a little and the body carries the lake's floor colour: the near water stays the
   // tone it was, light enough under a dark canopy and never a bright sheet under a bright vault)
-  vec3 col = mix(body, rcol * (0.86 - 0.2 * uMood.x), reflK) * mix(0.93, 1.0, wsh);
-  // glitter: the fine ripples' own normal, and a sparse drifting mask of the facets that happen to face the eye, so a
-  // highlight is always a scatter of small sparks strung toward its light, never a sheet, a blob or a ring
+  vec3 rimg = rcol * (0.86 - 0.2 * uMood.x);
+  // ... and what the mirror leaves dark at night — the far shore's own shadow, a cliff under no star — takes the lake's
+  // floor colour back: the water under a mirrored cliff is never darker than the open water beside it (the night floors,
+  // world.js: clearer, not darker). A floor like the stone's (toon.js gwFloor): it fills only what was left dark.
+  float bodyL = dot(body, vec3(0.2126, 0.7152, 0.0722));
+  rimg += body * (uMood.x * (1.0 - smoothstep(0.0, 3.0 * bodyL + 1e-5, dot(rimg, vec3(0.2126, 0.7152, 0.0722)))));
+  vec3 col = mix(body, rimg, reflK) * mix(0.93, 1.0, wsh);
+  // glitter: the fine ripples' own normal, and sparse drifting patches of water where the facets happen to face the eye,
+  // so a highlight is always a scatter of short strokes on the wavelets' faces strung toward its light, never a sheet, a
+  // blob or a ring
   vec3 Ng = normalize(vec3(N.x - gFine.x * 1.5, N.y, N.z - gFine.y * 1.5));
-  float spark = smoothstep(0.6, 0.78, wNoise(xz * 5.3 + vec2(uTime * 1.1, -uTime * 0.8)) * (0.55 + 0.9 * wNoise(xz * 1.3 - vec2(uTime * 0.2, 0.0) + 9.0))) * fineK;
-  // (up close a facet is finer than that: a second, finer mask where the pixels can resolve it, so a close-up shows sparks, not flakes)
-  float fine2 = clamp(1.5 - (fwidth(xz.x) + fwidth(xz.y)) * 45.0, 0.0, 1.0);
-  spark *= mix(1.0, smoothstep(0.5, 0.72, wNoise(xz * 17.0 + vec2(-uTime * 1.7, uTime * 1.3))) * 1.5, fine2);
+  float spark = smoothstep(0.3, 0.6, wNoise(xz * 1.7 + vec2(uTime * 0.45, -uTime * 0.3)) * (0.6 + 0.8 * wNoise(xz * 0.6 - vec2(uTime * 0.12, 0.0) + 9.0))) * fineK;
   // swell crests catch the key light: thin pale strokes on the faces turned to the eye (never in cast shadow)
   float crest = smoothstep(0.62, 0.88, wNoise(xz * vec2(0.35, 0.9) + vGradH.z * 6.0 + uTime * 0.05));
   col += sheen * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.22 * near * wsh;
   // the key light's glitter: the ripples that mirror it into the eye, cut hard, gone in cast shadow and under foam
   {
-    float sk = pow(max(dot(reflect(-uKeyDir, Ng), V), 0.0), 40.0);
-    col += uKeyCol * (smoothstep(0.25, 0.8, sk) * spark * wsh * (1.0 - clamp(foam, 0.0, 1.0)) * (0.3 - 0.1 * uMood.x));
+    float sk = pow(max(dot(reflect(-uKeyDir, Ng), V), 0.0), 110.0);
+    col += uKeyCol * (smoothstep(0.3, 0.75, sk) * spark * wsh * (1.0 - clamp(foam, 0.0, 1.0)) * (0.3 - 0.1 * uMood.x));
   }
 #else
   // banded fresnel toward the mist (the low tier's analytic water)
@@ -693,7 +727,11 @@ void main() {
   col += sheen * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.26 * near * (1.0 - refl);
 #endif
 #ifdef GW_V3
+#ifdef GW_REFL
+  col += sheen * min(sFlat, 1.0) * 0.2;      // a slick takes a silver sheen (more of it on the mirror: it has the mirrored shore to stand out from)
+#else
   col += sheen * min(sFlat, 1.0) * 0.07;     // a slick takes a faint silver sheen
+#endif
 #endif
 
   // ---- lights: warm pools and dashed vertical streaks
@@ -732,8 +770,8 @@ void main() {
     // the light's own glitter on the ripples (its true image is in the mirror): warm sparks strung from under the
     // light toward the eye, only within its reach
     {
-      float sl = pow(max(dot(reflect(-L, Ng), V), 0.0), 36.0);
-      streak += lcol * (floor(lc.w) * 0.01) * smoothstep(0.3, 0.8, sl) * spark * (1.0 - smoothstep(R * 0.45, R * 1.0, d)) * 1.3;
+      float sl = pow(max(dot(reflect(-L, Ng), V), 0.0), 90.0);
+      streak += lcol * (floor(lc.w) * 0.01) * smoothstep(0.3, 0.75, sl) * spark * (1.0 - smoothstep(R * 0.45, R * 1.0, d)) * 1.3;
     }
 #else
     // streak: the mirror point sits between the light's foot and the eye
@@ -834,7 +872,12 @@ void main() {
   // and the light a night fish leaves under the surface
   col = mix(col, uDeep * 0.22, clamp(sDark, 0.0, 0.75));
   // strokes take the sky's sheen too, so they hold their contrast on the bright calm water and stay ink-soft at night
+#ifdef GW_REFL
+  // (on the mirror a sign's strokes compete with the mirrored shore and its lit windows: they carry more light)
+  col += (uFoam * (0.2 + 0.45 * poolLum) + pool * 0.6 + sheen * 0.38) * clamp(sLine, 0.0, 1.8) * 2.8;
+#else
   col += (uFoam * (0.2 + 0.45 * poolLum) + pool * 0.6 + sheen * 0.38) * clamp(sLine, 0.0, 1.8) * (STROKE * 1.15);
+#endif
   col += mix(uStarCol, uFoam, 0.4) * clamp(sDot, 0.0, 1.5) * 0.9;
   col += mix(uStarCol, uGlow, 0.75) * clamp(sGlow, 0.0, 2.0) * 0.4;
 #ifndef GW_LOW

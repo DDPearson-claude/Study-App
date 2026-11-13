@@ -24,7 +24,7 @@ export const GradeShader = {
     uTintAmount: { value: 0.18 },
     uWarm: { value: new THREE.Color(0xf4cc96) },
     uWarmAmount: { value: 0.12 },
-    uLift: { value: 0.3 },
+    uLift: { value: 0.22 },
     uVignette: { value: 0.24 },
     uFringe: { value: 0 },
     uPaper: { value: 0 },

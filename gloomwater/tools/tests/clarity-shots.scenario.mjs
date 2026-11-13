@@ -45,7 +45,8 @@
 //
 // KNOBS (audit only; they change nothing in the build): fog (× scene fog density), waterFog:0 (the water's own scene-fog mix
 // off), waterSky (× the mist colour the water's fresnel mirrors), waterStars / domeStars (× the mirrored / the vault's stars),
-// waterDeep (shallow water colour → deep, 0..1), hemi / key (× the ambient hemisphere / the directional light), albedo (× the
+// waterDeep (shallow water colour → deep, 0..1), hemi / key (× the ambient hemisphere / the directional light), shadow (× the
+// key light's cast-shadow strength; 0 shows the frame without the shadow map's shadows), albedo (× the
 // reflectance of the world's vertex-coloured stone / wood kit), mist:0 (shore mist ring + mist sheets), motes, shafts:0,
 // halos:0, ringMist (× the parallax rings' mist / vault tint), bloom (× strength), bloomRadius, bloomThreshold, bloomKnee, lift, saturation, contrast, fringe, paper, grain, vignette,
 // tintAmount, tone ('none'|'aces'|'agx'|'neutral'), exposure (×), outline:0, tier ('low'|'medium': the render side of that
@@ -303,6 +304,7 @@ export default async function (api) {
       if (K.albedo !== undefined) each((o) => { const m = o.material; if (o.isMesh && m?.isMeshToonMaterial && m.vertexColors && m.userData?.fog && !m.userData.__alb) { m.userData.__alb = 1; const old = m.color.clone(); m.color.multiplyScalar(K.albedo); undo.push(() => { m.color.copy(old); delete m.userData.__alb; }); } });
       if (K.hemi !== undefined) each((o) => { if (o.isHemisphereLight) set(o, 'intensity', o.intensity * K.hemi); });
       if (K.key !== undefined) each((o) => { if (o.isDirectionalLight) set(o, 'intensity', o.intensity * K.key); });
+      if (K.shadow !== undefined) each((o) => { if (o.isDirectionalLight && o.shadow) set(o.shadow, 'intensity', o.shadow.intensity * K.shadow); });
       if (K.mist !== undefined) each((o) => { if (o.name === 'shoreMist' || isMat(o, (m) => m.uniforms?.uAmt && o.geometry?.attributes?.aP)) set(o, 'visible', K.mist > 0); });
       if (K.motes !== undefined) each((o) => { const u = o.material?.uniforms; if (o.isPoints && u?.uBox) { if (K.motes <= 0) set(o, 'visible', false); else set(u.uOpacity, 'value', u.uOpacity.value * K.motes); } });
       if (K.shafts !== undefined) each((o) => { const u = o.material?.uniforms; if (u?.uIntensity && (o.geometry?.attributes?.aTop || o.geometry?.attributes?.aC)) set(o, 'visible', K.shafts > 0); });

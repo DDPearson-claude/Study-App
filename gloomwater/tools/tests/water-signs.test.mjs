@@ -72,7 +72,8 @@ const BUILDS = {
 };
 const uniformsOf = (lines) => lines.flatMap((l) => { const m = l.match(/^uniform\s+(\w+)\s+([^;]+);/); return m ? m[2].split(',').map((n) => n.trim()) : []; });
 const BASE = ['uTime', 'uDeep', 'uShallow', 'uFoam', 'uGlow', 'uSky', 'uArenaR', 'uRip', 'uRipN', 'uWake', 'uWakeD', 'uWakeN', 'uWakeB', 'uObs', 'uObsN', 'uLP', 'uLC', 'uLN', 'uRaft',
-  'uDepthTex', 'uDepthScale', 'uDepthOn', 'uWaveT', 'uWaveA', 'uWaveB', 'uStars', 'uStarDen', 'uNebK', 'uStarCol', 'uNeb', 'uNebV', 'uBandN', 'uNeb1', 'uNeb2'];
+  'uDepthTex', 'uDepthScale', 'uDepthOn', 'uWaveT', 'uWaveA', 'uWaveB', 'uStars', 'uStarDen', 'uNebK', 'uStarCol', 'uNeb', 'uNebV', 'uBandN', 'uNeb1', 'uNeb2',
+  'uMood'];   // (Clear Night: the water's own colour follows the world's mood on every tier, the analytic low path included)
 const ARRAYS = ['uLC[MAX_L]', 'uLP[MAX_L]', 'uObs[MAX_OBS]', 'uRip[MAX_RIP]', 'uWake[MAX_WAKE]', 'uWakeD[MAX_WAKE]', 'uWaveA[4]', 'uWaveB[4]'];
 const SRC = Object.fromEntries(Object.entries(BUILDS).map(([k, d]) => [k, pp(WATER_FRAG, d)]));
 const sorted = (a) => JSON.stringify([...a].sort());

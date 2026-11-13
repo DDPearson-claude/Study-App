@@ -452,3 +452,35 @@ A lane's commit, and the merged build, pass when all of this holds:
    ring, no green, no identifiable hooked fish, no shimmer.
 6. DESIGN §19 updated where its numbers moved (§19.1 Mist / Layered depth / Phase response, §19.2 table); CONTRACT only if an
    API changed (`water.renderReflection` is new).
+
+## 13. The merged build (stager's record)
+
+`gw-clarity` = lane A (`gw-clarity-air`) + lane B (`gw-clarity-surf`), then harmonised by eye against the user's words over
+three rounds of the clarity set. What the combination needed, beyond both lanes' own numbers:
+
+| what the merge showed | change |
+|---|---|
+| two floors stacked (lane A's ink floor in the grade under lane B's violet floor on every surface): lifted blacks | `lift` 0.3 → **0.22**; the toon floor at night (0.18 + 0.66n) → **(0.18 + 0.56n)** |
+| the near water's mirror broke into value-noise cells ("scales"), the glitter into flakes | the fine ripples are four warped wavelet trains (`fineGrad`); the base lookup nudge 0.062 → **0.05**; glints are tight lobes (110 / 90) on the wavelets' normals inside sparse patches: short strokes strung toward the light |
+| the near lake a flat dark fill on a phone frame | the water body takes the key light on the faces of its chop and ripples (±20–34 %), and is ×1.2 fuller by day |
+| the far water under a mirrored cliff near black at night (c07 median 0.78×) | the mirror image takes the lake's night floor back where it is dark |
+| fish signs lost against the mirrored shore (c14: two of four) | a sign's ink, rings and slick stop the mirror; strokes ×2.8, slick sheen ×0.2 |
+| the dawn a veil (black point 18) | dawn hemisphere warms 25 % → **10 %**, its boost 15 % → 5 %; water's dawn mist 0.3w → 0.2w; grade contrast +0.09·w |
+| straight swell fronts striping the lake under the new water shading | the lean shading takes 30 % of the swell |
+
+The low tier shares what costs nothing: the fuller day water (`base` × 1.2 by day) and the mood uniform (`uMood`) are on
+every tier.
+
+The screen-space pass (§5.6) is left out (lane A measured it: not clean in the close-up, invisible at the sail camera).
+
+Cost of the merged build against `9bc3e35` (`tools/tests/clarity-perf.scenario.mjs`, which now keeps the shadow map's beat;
+the Mossmere from the spawn, calm / Gloomtide; CPU ms per frame in software GL, the same machine, base and merged run in turn):
+
+| tier | draw calls 960×540 | triangles | passes | frame time 960×540 | frame time 390×844 |
+|---|---|---|---|---|---|
+| low | 112 / 108 → 107 / 103 | 84 k → 84 k | scene → bloom (3 mips) → grade; no `OutputPass`, no shadow map, no mirror | 1.01× / 0.97× (three interleaved pairs, spread ± 6 %) | 0.95× / 0.92× |
+| medium | 110 / 109 → 186 / 172 (147 / 146 between shadow refreshes) | 125 k → 207 k / 199 k | shadow map 1024² every second frame → mirror (⅓ res, 38 calls, 44 k triangles) → scene → bloom → grade | 1.08× / 1.11× | 1.05× / 0.83× |
+| high | 110 / 109 → 186 / 172 | 154 k → 236 k / 227 k | shadow map 2048² every frame → mirror (½ res, 38 calls, 44 k triangles) → scene → bloom → grade | 1.02× / 1.04× | 1.09× / 1.09× |
+Gate on the merged build: see the commit and `tools/out/clarity/after/metrics.json` (misses, with the reason: `stops` — the
+baseline's night blacks were 0–2, under this gate's own floor of 2; `darkCh` — the true mirror lays the bright vault on the
+lake; the per-frame median on the two phone frames whose baseline median was fog and bloom).
