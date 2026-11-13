@@ -270,6 +270,8 @@ export function create(ctx) {
         /** The S5 / S6 numbers of the pose as it stands (clearances, hand gaps, overshoot, flaps, drips, the raft's dip). */
         ctx.debug.showPoseInfo = () => showCtl.info();
         ctx.debug.showFocus = () => { const f = showCtl.focus(); return f ? JSON.parse(JSON.stringify(f)) : null; };
+        /** The posed fish's box, bent as its body is (world points): what to project when measuring it on screen. */
+        ctx.debug.showPoseHull = () => showCtl.hull();
       }
     },
 

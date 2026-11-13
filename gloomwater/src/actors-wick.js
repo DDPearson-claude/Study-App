@@ -134,10 +134,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const arms = {};
   for (const [key, side] of [['r', -1], ['l', 1]]) {
     const sh = new THREE.Group(); sh.position.set(side * 0.19, 0.43, 0.03); body.add(sh);
-    const g = build([tag(xf(new THREE.CapsuleGeometry(0.045, 0.1, 4, 8), { p: [0, -0.08, 0] }), PAL.CLOAK), tag(xf(new THREE.SphereGeometry(0.046, 10, 8), { p: [0, -0.17, 0] }), PAL.WAX)]);
+    // (the sleeve and the wax hand are two meshes: a sleeve stretches with the arm, and so does the hand, as it always has, except
+    // in a show pose, where the hand that holds the fish stays round: update() sets fist.scale.y)
+    const g = build([tag(xf(new THREE.CapsuleGeometry(0.045, 0.1, 4, 8), { p: [0, -0.08, 0] }), PAL.CLOAK)]);
     const sleeve = outlineOf(new THREE.Mesh(g, rigidMat)); sh.add(sleeve);
     const hand = new THREE.Group(); hand.position.set(0, -0.17, 0); sh.add(hand);
-    arms[key] = { sh, hand, sleeve, side };
+    const fist = outlineOf(new THREE.Mesh(build([tag(new THREE.SphereGeometry(0.046, 10, 8), PAL.WAX)]), rigidMat)); hand.add(fist);
+    arms[key] = { sh, hand, sleeve, fist, side };
   }
 
   // ---------------------------------------------------------------- head: wax + drips + shadowed face + wick string
@@ -254,7 +257,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let sh = null;
   const lock = { r: { k: 0, pos: new THREE.Vector3(), max: 2.4 }, l: { k: 0, pos: new THREE.Vector3(), max: 2.4 } };
   const rodDrive = { k: 0, butt: new THREE.Vector3(), dir: new THREE.Vector3(0, 1, 0), scale: 0, stow: 0, driven: false };
-  const ikPose = {};
+  const ikPose = {}, roundK = { r: 0, l: 0 };
   const flameCol = new THREE.Color(DEFAULT_LOOK.flame), baseFlameCol = new THREE.Color(DEFAULT_LOOK.flame);
   const tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), tmpM = new THREE.Matrix4();
 
@@ -400,7 +403,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     o.eyeLift = 0.012 * ps;
     switch (name) {
       case 'showPinch': {   // one hand out to the lens (the fisherman's trick), the rod planted like a staff in the other
-        o.twist = -sd * (0.1 + 0.22 * ps); o.pitch = 0.04 + 0.1 * ps + 0.3 * over - 0.07 * dip; o.roll = sd * 0.03 * ps;
+        // (it leans back as the arm goes out: the hand gets as far in front of the face as an arm can)
+        o.twist = -sd * (0.1 + 0.26 * ps); o.pitch = 0.05 * take * (1 - ps) - 0.07 * ps + 0.3 * over - 0.05 * dip; o.roll = sd * 0.03 * ps;
         armTo(o, near, 0.9 + 0.6 * ps, 0.1, 1 + 0.9 * ps); armTo(o, far, 0.55, 0.55, 1.1);
         o.legL = 0.1 * ps; o.legR = -0.08 * ps; o.hRoll = -sd * (0.08 + (S.tiny ? 0.12 : 0)) * ps;
         break;
@@ -633,6 +637,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     arms.r.sh.rotation.set(-cur.rRaise, 0, -cur.rOut, 'XYZ'); arms.r.sh.scale.set(1, cur.rStretch, 1);
     arms.l.sh.rotation.set(-cur.lRaise, 0, cur.lOut, 'XYZ'); arms.l.sh.scale.set(1, cur.lStretch, 1);
     arms.r.hand.scale.set(1, 1 / cur.rStretch, 1); arms.l.hand.scale.set(1, 1 / cur.lStretch, 1);
+    // the wax hands stretch with their sleeves (as ever), but a hand locked onto the show's fish or rod stays round
+    roundK.r = damp(roundK.r, lock.r.k > 0.02 ? 1 : 0, 14, dt); roundK.l = damp(roundK.l, lock.l.k > 0.02 ? 1 : 0, 14, dt);
+    arms.r.fist.scale.y = cur.rStretch + (1 - cur.rStretch) * roundK.r; arms.l.fist.scale.y = cur.lStretch + (1 - cur.lStretch) * roundK.l;
     legs[0].rotation.x = cur.legL; legs[1].rotation.x = cur.legR;
     // rod orientation: absolute pitch from vertical toward +Z, compensating the arm
     rodMount.rotation.set(cur.rod + cur.rRaise, cur.rodYaw, cur.rOut, 'XYZ');
@@ -641,6 +648,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     // eyes: blink + expression
     blinkT -= dt;
     if (blinkT <= 0) { blink = 0.13; blinkT = 2.2 + Math.random() * 3.5; }
+    if (sh && SHOW.has(base) && (sh.p ?? 0) > 0.3 && (sh.calm ?? 0) < 0.5) { blink = 0; blinkT = Math.max(blinkT, 0.5); }   // (no blink on the present: eyes on us)
     blink = Math.max(0, blink - dt);
     const open = clamp(cur.eye, 0.05, 1.6) * (blink > 0 ? 0.12 : 1);
     eyes.scale.set((1 + (cur.eye > 1 ? (cur.eye - 1) * 0.3 : 0)) * eyeShape[0], open * eyeShape[1], 1);

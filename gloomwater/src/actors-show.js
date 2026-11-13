@@ -174,6 +174,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     z.normalize().applyQuaternion(deckQi); z.y = 0; z.normalize();
     const L = S || hold;
     if (!L) return;
+    if (cam && cam.isCamera && Number.isFinite(cam.aspect)) L.tall = cam.aspect < 1;
     if (snap || !L.hasLens) { L.zS.copy(z); L.hasLens = true; } else { L.zS.lerp(z, 1 - Math.exp(-4 * dt)); L.zS.y = 0; L.zS.normalize(); }
     L.xS.set(L.zS.z, 0, -L.zS.x);
   }
@@ -306,9 +307,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const reach = pinch ? (tiny ? L.grip.reachTiny : L.grip.reach) : L.grip.reach;
     const ext = K.nose === 'up' ? (b.noseZ - cLocal.z) : Math.max(0.01, b.top - cy);   // how far it stands above its middle
     let x, y;
-    if (pinch) { x = tiny ? sd * (G.head.radius * 0.95 + 0.02) : sd * Math.abs(along(L, sh, L.xS)) * 0.62; y = tiny ? G.head.center.y - 0.04 : sh.y; }
-    else { x = 0; y = chest - 0.07; }
-    y = Math.min(y, G.eyes.y - 0.05 - ext);   // the face must show above it
+    if (pinch) {   // the arm straight out to the lens from its shoulder (the furthest it reaches: the fisherman's trick); on an
+      // upright screen it comes in under the chin, so the face and the fish stack in the narrow frame
+      x = sd * Math.abs(along(L, sh, L.xS)) * (L.tall ? 0.3 : 0.95); y = Math.min(sh.y + (tiny ? 0.05 : 0.01), G.eyes.y - 0.12 - ext);
+    } else { x = 0; y = Math.min(chest - 0.01, G.eyes.y - 0.06 - ext); }   // the face must show above it
     const c = T.d.copy(L.spot).addScaledVector(L.xS, x).addScaledVector(L.zS, faceZ + reach); c.y = y;
     Y.pos.copy(cLocal).applyQuaternion(Y.quat).negate().add(c);
     // the grips (fish-local): under the belly, or on a ray's wing edges
@@ -576,7 +578,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
       fv, obj: fv?.object3d || null, L, b, shape: fv?.shape || 'minnow', id, name: SHOW_NAMES[id], cls, ci, weight: ci / 5, row, LS,
       grip: { ...(GRIP0[id] || {}), ...(a.grip?.[id] || {}) }, F: { ...FACING0, ...(a.facing || {}) },
       beats: { lift: 0.5, hold: 0.5, pause: 0.7, ...(o.beats && typeof o.beats === 'object' ? o.beats : {}) }, special: !!o.special,
-      t: 0, driven: false, frame: 0, side: 1, tiny: false, crouch: 0, wide: 1, hugTwist: 0,
+      t: 0, driven: false, frame: 0, side: 1, tiny: false, tall: false, crouch: 0, wide: 1, hugTwist: 0,
       zS: V().set(0, 0, 1), xS: V().set(1, 0, 0), hasLens: false, spot: V().copy(home), spotWant: V().copy(home), lensYaw: 0, lensElev: 0.15, faceYaw: 0, faceLive: 0,
       camEst: V(), mid: V(), hasMid: false, aimRest: { yaw: 0, elev: 0.15 }, aimLive: { yaw: 0, elev: 0.15 },
       from: { pos: V(), quat: new THREE.Quaternion() }, dipDir: V().set(0, 0, 1), bendHold: null, bendNow: null, lockKeys: [],
@@ -917,13 +919,31 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     // (a hung fish: the frame need not climb the whole rod. It keeps the line's top, a little above the snout)
     const tipKeep = tip ? (L.id === 'hang' ? tip.clone().setY(Math.min(tip.y, snout.y + clamp(0.3 * L.L, 0.25, 0.5))) : tip) : null;
     if (tipKeep && L.id === 'hang') { tipKeep.x = snout.x + (tip.x - snout.x) * 0.5; tipKeep.z = snout.z + (tip.z - snout.z) * 0.5; }
-    const keep = { fish: [snout, tail, back, belly], head: headPts, flame: [flame], hands: L.id === 'pinch' ? [hands[L.side > 0 ? 1 : 0]] : hands, feet: [feet], rodTip: tipKeep ? [tipKeep] : [] };
-    const all = [...keep.fish, ...keep.head, ...keep.flame, ...(L.id === 'hang' || L.id === 'hug' || L.id === 'alongside' ? keep.feet : [])];
+    const fishPts = [snout, tail, back, belly];
+    if (L.id === 'pinch') fishPts.push(hands[L.side > 0 ? 1 : 0].clone().addScaledVector(UP, -handR() * 1.2));   // (and the palm it lies on)
+    const keep = { fish: fishPts, head: headPts, flame: [flame, P(G.flameTop)], hands: L.id === 'pinch' ? [hands[L.side > 0 ? 1 : 0]] : hands, feet: [feet], rodTip: tipKeep ? [tipKeep] : [] };
+    const all = [...keep.fish, ...keep.head, flame, ...(L.id === 'hang' || L.id === 'hug' || L.id === 'alongside' ? keep.feet : [])];
     const box = new THREE.Box3().setFromPoints(all);
     box.getCenter(center);
     let r = 0; for (const p of all) r = Math.max(r, p.distanceTo(center));
     return { pose: L.name, id: L.id, t: L.t, lift: clamp(L.t / Math.max(0.05, L.beats.lift), 0, 1), side: L.side,
       fish: { center: fc, axis, up, length: L.L, depth: b.top - b.bottom }, head: { center: hc, radius: hr, flame }, feet, hands, rodTip: tip, keep, center, radius: r };
+  }
+
+  /** The fish as it is posed now: its bounds' box cut into slices along its length, each bent as the body is (world space).
+   *  A geometry bounding box knows nothing of setBend's posture; this does. */
+  function hull() {
+    const L = S;
+    if (!L || !L.obj) return [];
+    const b = L.b, out = [];
+    L.obj.updateMatrixWorld(true);
+    for (let i = 0; i <= 12; i++) {
+      const z = b.noseZ + (b.tailZ - b.noseZ) * i / 12;
+      for (const [x, y] of [[b.halfW, b.top], [-b.halfW, b.top], [b.halfW, b.bottom], [-b.halfW, b.bottom]]) {
+        const v = new THREE.Vector3(x, y, z); L.fv.bendPoint?.(v); out.push(v.applyMatrix4(L.obj.matrixWorld));
+      }
+    }
+    return out;
   }
 
   // ---------------------------------------------------------------- numbers for the viewer (S5, S6)
@@ -1000,6 +1020,6 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     abort() { if (S) finish(false); dropGone(); hold = null; wick.setShow(null); dip.x = 0; dip.v = 0; },
     /** A bare show pose with no fish (setPose('showBoth'): the pose viewer). */
     holdPose(name) { const id = SHOW_IDS[name]; if (!id) { hold = null; return; } if (S) return; hold = newLayout(null, id, 'keeper'); hold.side = id === 'alongside' ? -1 : 1; },
-    focus, info,
+    focus, info, hull,
   };
 }
