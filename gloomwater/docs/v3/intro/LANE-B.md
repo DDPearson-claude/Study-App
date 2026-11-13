@@ -33,8 +33,7 @@ was not rebuilt. `DESIGN.md`, `CONTRACT.md`, `SPEC.md`, the validator, the seam 
    goes 76 → 77 programs, 106 → 108 geometries, 31 → 32 textures between 2.9 s and 5.0 s of the `gate` take, with the stub stage
    owning none: something of the arena the title's orbit never drew is first drawn by the push-in. Lane A's `prebuild()` should
    warm the scene from the film's own camera poses (`renderer.compile(scene, camera)` at the `gate` and `shoulder` keys), not
-   only its set. The hand-off itself compiles one more (77 → 78 was not seen; 76 → 77 at the hand-off when the film was skipped
-   before 3 s): that is the run's own start, as on any new run.
+   only its set. The hand-off itself added none (77 before it and after it).
 7. **`water.js` `ambience()` runs only in flow `playing` / `title`**, so the lake's own random rings stop during the film (flow
    `intro`). If lane A wants them in the `lit` beat it is a one-word change in lane A's file.
 8. **Docs to fold in** (CONTRACT §13.13, DESIGN §25.4.9, SPEC §7): the API in section 1 below, the `mode` field on `intro:done`,
@@ -138,14 +137,14 @@ calls the game's own frame callback on a synthetic clock (30 frames of film a se
 
 | | result |
 |---|---|
-| **A1** | unit: 144 / 60 / 30 / 20 / 10 fps all 18.0 s ± one frame; a 30 s frame moves the film 0.1 s; 2 fps ends by the valve at 25 s in the end state; hidden: clock, valve and stage stand still. Browser: 18.017 s of film between `intro:start` and `intro:done` (desktop and phone). Real clock with drawing off: the frames' time clamped to 0.1 s adds up to 17.92 s; on `performance.now()` 28.1 s on this machine, of which 7.0 s were seven frames of up to 3 s that the clamp gave up (so ± 0.5 s needs a machine that holds 10 fps: not verifiable here) |
-| **A2** | the Skip word 64 × 44 px at 12 px from the top and right edges on 960 × 540 and 390 × 844, opacity 1 at 1.0 s, 0 inside the guard; a skip at 0.3 s ignored by call and by Enter / Space / Esc; taken at 0.6 s by the word, at 6.6 s by Esc, 10.2 s by Enter, 13.4 s by Space, 17.2 s by the word; `intro:skip` → `intro:done` ≤ 0.267 s (veil) / ≤ 0.517 s (finish) at 60 fps; unit: 101 skip moments across every beat, each one `intro:done`, each in the full play's end state; the end state compared item by item in the browser |
+| **A1** | unit: 144 / 60 / 30 / 20 / 10 fps all 18.0 s ± one frame; a 30 s frame moves the film 0.1 s; 2 fps ends by the valve at 25 s in the end state; hidden: clock, valve and stage stand still. Browser: 18.017 s of film between `intro:start` and `intro:done` (desktop and phone; one 1/30 s frame over). Real clock with drawing off: the frames' time, each clamped to 0.1 s, adds up to 17.92–18.02 s in every run; on `performance.now()` that took 22–37 s on this machine (load average 16–20 on 4 cores, single frames of 2–12 s), all of the excess being what the clamp gave up on those frames. So "18 s ± 0.5 on `performance.now()` at 10 fps or better" follows from the clamp but could not be shown here |
+| **A2** | the Skip word at least 44 × 44 px (64 × 44), 12 px from the top and right edges on 960 × 540 and 390 × 844, opacity 1 at 1.0 s, 0 inside the guard; a skip at 0.3 s ignored by call and by Enter / Space / Esc, and a held Enter (key repeat) from Begin never skips; taken at 0.6 s by a press on the word, at 6.6 s by Esc, 10.2 s by Enter, 13.4 s by Space, 17.2 s by the word; `intro:skip` → `intro:done` within 0.25 s + a frame (veil; 0.6 s with the opening ink) and 0.5 s + a frame (finish), asserted at 60 fps; unit: 101 skip moments across every beat, each one `intro:done`, each in the full play's end state, and 30 / 10 / 5 / 3 fps still end within a few frames; the end state compared item by item with a full play's in the browser |
 | **A3** | fresh + opt-in: Begin, Settings; one press → `intro:start` in the same task, no modal; afterwards Continue / New Descent and the Prologue word; a second new run plays nothing; the Prologue word plays it and leaves `JSON.stringify(meta)` and the stored string identical (full, skipped at 3 s, skipped at 13.5 s); a replay from a Sporewood title swaps to the Mossmere under ink and back; with no opt-in under `GW_DEBUG` the title is today's |
 | **A4** | at every line and in `below`: flow `intro`, `ctx.cinematic`, `state.run` null, `time.gameT` unchanged, no HUD / toast / banner / modal; W held, E F P C J R Tab and a press on the picture change nothing (raft, fishing state, clock) and only brighten the Skip word |
 | **A5** | 4 lines ≤ 47 characters; 19 px desktop / 18 px phone Alegreya italic; one row each at both sizes; boxes inside the band; no border, outline or box-shadow; contrast against the pixels behind the box, glyphs hidden: 13.5–15.6 : 1 on the frames, 10.2–11.0 : 1 over a flat candle-amber frame, 8.6–9.5 : 1 over flat pale gold (desktop; phone 13.8–16.0 / 10.8 / 9.3) |
 | **A7** | unit, on the fake WebAudio: every mark once and in order, ≤ 12 voices (peak well under), the title layers ramp to 0 within 0.3 s, no mood under the cue, a skip ramps the bus to 0 in 0.25 s from its level and stops sources after it, locked = nothing, suspended = nothing queued, a replay hands back to `title`. Browser: rms > 0 with the cue, < 0.0005 with the master at 0, < 0.001 with the music slider at 0, the marks in order in `audioLog`, the bus level read back at 0 0.33 s after a skip, `calm` after the hand-off, no sting. Offline: −6.2 dBFS |
 | **A8** | forced reduced: five stage times after the swap (the stills) then the end state, one camera pose per beat, the same lines at the same times, 18.0 s, 4 snapshots, the layer at opacity > 0.8 on the first frame of the new beat and gone within 0.6 s of wall clock, Esc skips into the same end state |
-| **A9** (B's part) | the press: 3–6 ms of script; the hand-off (`startNewRun`): 10–12 ms; memory back to its baseline after a replay and after replays skipped both ways (the stub stage owns nothing: lane A's disposal is lane A's test) |
+| **A9** (B's part) | the press: 3–6 ms of script (no build, no world rebuild); the hand-off (`startNewRun`): 10–12 ms; `renderer.info.memory` back to its baseline after a replay and after replays skipped both ways (the stub stage owns nothing: lane A's disposal is lane A's test). Frame times on a throttled low tier were not measured (software GL here) |
 | **A10** | a stage that throws after 0.2 / 3 / 9 / 14 s: one `intro:done {error: true}`, the same end state, `seen: true`, the raft sails; resize 960 × 540 ↔ 390 × 844 in every beat: no error, the band follows; `pagehide` mid-film writes nothing and a reload at 9 s finds the stored save byte-identical and the film pending again |
 | **A11** | see section 6 |
 
@@ -181,11 +180,19 @@ the picture's foot sinks into ink across the whole width instead (a 46 px feathe
 Nothing from §11's lane B rungs: the snapshot cross-fade works (the copy needs one extra `render.render()` in the task that
 copies), Journal / Shrine / Trials are left off the fresh title, the groan and the chord's bend are in.
 
-## 6. Regression
+## 6. Regression (the last run of each, on the branch's last source commit)
 
-See the final commit's message and the summary handed back with it for the last run of each: `node tools/check.mjs`,
-`node tools/validate-data.mjs` (three passes, the flag-off fingerprint untouched), `tools/scenario-run.mjs` on a flag-off dev
-build, `tools/tests/run-v3.scenario.mjs` on the v3 build, `tools/tests/intro-flow.scenario.mjs` desktop and `--mobile`.
+| what | result |
+|---|---|
+| `node tools/check.mjs` | all checks passed (validate-data, 28 test files incl. `intro-seam` 114 and `intro` 402 assertions, the esbuild bundle) |
+| `node tools/validate-data.mjs` (default, `--walk`, `--v3`) | OK in all three passes (22,693 / 26,253 / 92,003 checks); `tools/tests/v1-exports.json` untouched (never refreshed) |
+| flag-off dev build, `tools/scenario-run.mjs` through `tools/playtest.mjs`, 960 x 540 | "ALL INVARIANTS HOLD"; 0 page, 0 console, 0 ctx errors |
+| the same build with v3 on, `tools/tests/run-v3.scenario.mjs` | "ALL INVARIANTS HOLD"; 0 / 0 / 0 (under `GW_DEBUG` with no opt-in the title is today's and the film never starts) |
+| `tools/tests/intro-flow.scenario.mjs`, 960 x 540 | every part (title, full, after, replay, skips, reduced, calm, hidden, error, resize, audio, real, reload, lake): 0 failures; 0 / 0 / 0 |
+| `tools/tests/intro-flow.scenario.mjs --mobile`, 390 x 844 touch | every part passes. (The last complete phone run reported one failure, from a check added while it ran that was itself wrong: it crossed the change of beat with drawing off, so the copied layer was empty. Corrected, the `reduced` part was re-run on both sizes: 0 failures, the layer holds the outgoing picture.) |
+| `node tools/audio-render.mjs --set=intro` | the cue's bus peaks at -6.2 dBFS; a skip at 3 / 7.95 / 16 s: no residue after 0.3 s, no click |
+
+Not run: the minified flag-off build (`index.html` is the merge agent's to rebuild), any real phone, any real GPU.
 
 ## 7. Captures
 

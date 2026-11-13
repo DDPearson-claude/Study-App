@@ -377,7 +377,7 @@ export default async function (api) {
     s = await state();
     fullEnd = checkEnd(s, 'a full play');
     check(s.intro?.skipped === false, 'meta.intro = {seen: true, skipped: false}', s.intro);
-    log(`shader programs: ${before.programs} at the press, ${s.programs} after the hand-off (the run's own start, as any new run)`);
+    log(`shader programs: ${before.programs} at the press, ${s.programs} after the hand-off`);
     await settle(700);
     s = await state();
     check(s.hud === true, 'the HUD is back when control begins');
@@ -562,17 +562,26 @@ export default async function (api) {
     await shoot('reduced-still-lit');
     const fade = await g(async () => {
       const T = window.__if, c = window.__gw, still = () => { const el = document.querySelector('.gw-intro-still'); const cs = getComputedStyle(el); return cs.visibility === 'hidden' ? 0 : Number(cs.opacity); };
-      T.runTo(5.02); const t0 = performance.now(); const first = still(); const seen = [];
+      // across the change of beat with the canvas being drawn (the view copies what the renderer draws in that same task)
+      T.runTo(4.985, 1 / 120); let guard = 0; while (c.intro.state.t < 5.02 && guard++ < 20) T.step(1, 1 / 120, true);
+      const t0 = performance.now(); const first = still(); const seen = [];
+      // what the layer holds: the copied picture (opaque pixels that are not all one flat colour), not an empty canvas
+      const el = document.querySelector('.gw-intro-still'); let copied = null;
+      try { const d = el.getContext('2d').getImageData(0, 0, el.width, el.height).data; let a = 0, lo = 255, hi = 0, n = 0; for (let i = 0; i < d.length; i += 4 * 97) { a += d[i + 3]; const l = (d[i] + d[i + 1] + d[i + 2]) / 3; if (l < lo) lo = l; if (l > hi) hi = l; n++; } copied = { alpha: a / n, lo, hi, w: el.width, h: el.height }; } catch (e) { copied = { error: String(e) }; }
       // the film is held here so only the wall clock moves the fade
       c.intro.seek(c.intro.state.t);
       for (let i = 0; i < 40; i++) { await new Promise((r) => setTimeout(r, 40)); T.step(1, 1 / 600, i === 3); seen.push([+((performance.now() - t0) / 1000).toFixed(2), +still().toFixed(2)]); if (still() === 0) break; }
       c.intro.resume();
-      return { first, seen, fade: c.data.INTRO.stillFade, snapshots: c.debug.intro().view?.snapshots };
+      return { first, seen, copied, fade: c.data.INTRO.stillFade, snapshots: c.debug.intro().view?.snapshots };
     });
     if (fade.snapshots) {
+      check(fade.copied && fade.copied.alpha > 250 && fade.copied.hi - fade.copied.lo > 30, 'the layer holds the outgoing picture (opaque, not one flat colour)', fade.copied);
       const goneAt = fade.seen.find((x) => x[1] === 0)?.[0] ?? null;
       check(fade.first > 0.8, 'at the change of beat the outgoing still covers the new one', fade);
-      check(goneAt !== null && goneAt <= 0.6 + 0.12, `the cross-fade layer is gone within 0.6 s (${goneAt} s here, frames 40 ms apart)`, fade.seen);
+      // the fade is on the wall clock: every sample sits on 1 - elapsed / INTRO.stillFade (this machine can stall for seconds
+      // between two samples, so the samples are checked against the line rather than counted)
+      check(fade.fade <= 0.6 && fade.seen.length >= 1 && fade.seen.every(([x, o]) => Math.abs(o - Math.max(0, 1 - x / fade.fade)) <= 0.3), `the cross-fade layer fades out over ${fade.fade} s of wall clock (at most 0.6)`, fade.seen);
+      check(goneAt !== null, `the cross-fade layer is gone (first seen gone at ${goneAt} s; samples ${fade.seen.length})`, fade.seen);
       check(fade.seen.every((x, i) => i === 0 || x[1] <= fade.seen[i - 1][1] + 1e-6), 'the layer only fades out', fade.seen);
     }
     await shoot('reduced-crossfade');
