@@ -36,7 +36,11 @@ const GAMEPLAY = new Set(['player', 'fishing', 'survival', 'combat', 'progressio
 const CINEMATIC_FROZEN = new Set(['survival', 'combat']);
 // Safety valve: the longest ceremony is an Elder's 5 s (SIZE_CLASSES), the card follows at once. A flag held this long
 // (running time) is a bug in its owner; main reports it and lets the clock run again rather than freezing the night forever.
-const CINEMATIC_MAX = Math.max(20, ...(Array.isArray(data.SIZE_CLASSES) ? data.SIZE_CLASSES : []).map((c) => (Number(c.ceremony) || 0) * 3 + 5));
+// With the show (AUTOFISH.show, v3): fishing's own valve opens the card show.valve s after the fish breaks the surface, whatever
+// state the show is in; main's is the second line, 4 s behind it.
+const SHOW_VALVE = data.V3_ENABLED === true ? Number(data.AUTOFISH?.show?.valve) : NaN;
+const CINEMATIC_MAX = SHOW_VALVE > 0 ? SHOW_VALVE + 4
+  : Math.max(20, ...(Array.isArray(data.SIZE_CLASSES) ? data.SIZE_CLASSES : []).map((c) => (Number(c.ceremony) || 0) * 3 + 5));
 // v3 is on for this page load (data reads the flag; main reads it for the run options, the save migration and saving).
 const V3 = data.V3_ENABLED === true;
 // The First Evening slice (DESIGN §25.4.8, §25.14.2b; CONTRACT §13.1, §13.12): with v3 on and the cove's data in the build, boot
@@ -531,8 +535,9 @@ function pressAction(e) {
     if (FE_ON && ctx.flow === 'hub') { hubPress(e); return; }
   }
   const ndc = toNdc(e, tapNdc);
-  // during the measuring ceremony combat and trade are frozen: the press goes to fishing only (it owns the ceremony's skip)
-  const cine = ctx.cinematic;
+  // during the show (from the fish breaking the surface to its card: the reveal, then the frozen world of ctx.cinematic) combat
+  // and trade take no press: it goes to fishing only, which owns the show's hurry
+  const cine = ctx.cinematic || (V3 && safe(() => ctx.fishing.inShow, false) === true);
   if (!cine && safe(() => ctx.combat.onPointerDown?.(ndc), false) === true) return;
   if (!cine && safe(() => ctx.actors.pickMerchant?.(ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
     ctx.ui.openShop?.();
@@ -618,6 +623,9 @@ window.addEventListener('keydown', (e) => {
   if (!gameAcceptsInput()) return;
   // v3: Space / Enter strike during the bite (F stays Flare); outside it Space flares as before
   if (V3 && (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') && biting() && !ctx.cinematic) { strikeTap('key'); e.preventDefault(); return; }
+  // v3, the show (the fish has broken the surface; the Wick presents it): Space / Enter hurry it to its card, as a tap does
+  // (fishing owns the rule: the reveal is never cut, a first-ever species or a personal best keeps its 0.8 s). No Flare under it.
+  if (V3 && (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') && safe(() => ctx.fishing.inShow, false) === true) { if (!e.repeat) safe(() => ctx.fishing.hurryShow?.(), null); e.preventDefault(); return; }
   const cine = ctx.cinematic; // the ceremony freezes combat (no Flare) and the world's interactions
   if (e.code === 'Space' || e.code === 'KeyF') { if (!cine) safe(() => ctx.combat.flare?.(), null); e.preventDefault(); }
   else if (e.code === 'KeyE') { if (!cine) safe(() => ctx.player.interact?.(), null); e.preventDefault(); }

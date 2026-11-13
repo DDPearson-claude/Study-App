@@ -492,7 +492,7 @@ section('the species stays unknown until the reveal: no name, no rarity, no mode
 }
 
 // =====================================================================================================================
-section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, the ceremony, measure at the stamp (once)');
+section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, the show, measure at the present (once)');
 {
   const env = makeEnv({ seed: 101 });
   // a listener registered AFTER progression: it hears fishing:caught before fish:measured (the P1 caveat, fixed)
@@ -500,31 +500,31 @@ section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, 
   env.ctx.bus.on('fishing:caught', () => order.push('caught'));
   env.ctx.bus.on('fish:measured', () => order.push('measured'));
   env.ctx.bus.on('fish:landed', () => order.push('landed'));
-  const times = {};
-  for (const [cls, sp, z, want] of [['keeper', 'mossback_perch', 0.4, 1.2], ['prize', 'mossback_perch', 1.5, 2.4], ['trophy', 'reedjaw_pike', 2.2, 3.5], ['elder', 'reedjaw_pike', 2.95, 5.0], ['small', 'dusk_minnow', -1, 1.2]]) {
+  for (const [cls, sp, z] of [['keeper', 'mossback_perch', 0.4], ['prize', 'mossback_perch', 1.5], ['trophy', 'reedjaw_pike', 2.2], ['elder', 'reedjaw_pike', 2.95], ['small', 'dusk_minnow', -1]]) {
     order.length = 0;
     const n0 = env.count('fish:measured');
+    const P = data.showPlan(cls), want = P.show;   // a debug show has no reveal: lift + hold + pause
     env.ctx.debug.fishHook(sp, { z });
-    env.ctx.debug.instantCatch(null, { ceremony: true });
+    env.ctx.debug.instantCatch(null, { show: true });
     const caught = env.last('fishing:caught');
     ok(caught?.fish?.uid && caught.fish.z === z && caught.sizeClass === cls, `${cls}: fishing:caught carries the Fish from progression.makeFish (uid ${caught?.fish?.uid})`);
-    ok(env.ctx.cinematic === true && env.count('fish:measured') === n0, `${cls}: the ceremony is a cinematic state; nothing measured yet`);
-    const m0 = env.F.view.measure;
-    ok(m0?.phase === 'scoop' && m0.length === caught.fish.length && near(m0.cordDur, want * 1.4 / 3.6, 0.011), `${cls}: view.measure {phase scoop, length ${m0?.length} cm (final), cordDur ${m0?.cordDur}}`);
+    ok(env.ctx.cinematic === true && env.count('fish:measured') === n0, `${cls}: the show is a cinematic state; nothing measured yet`);
+    const v0 = env.F.view.show;
+    ok(env.F.view.measure === null && v0?.phase === 'lift' && v0.length === caught.fish.length && v0.cls === cls && near(v0.dur.lift, P.lift, 1e-9) && near(v0.dur.pause, P.pause, 1e-9),
+      `${cls}: view.show {phase lift, length ${v0?.length} cm, the class's beats}; view.measure stays null`);
     const phases = [];
     let tStamp = null, tEnd = null;
     const t0 = env.ctx.time.t;
-    for (let i = 0; i < 400 && env.F.inCeremony; i++) {
+    for (let i = 0; i < 400 && env.F.inShow; i++) {
       env.tick(1);
-      const m = env.F.view.measure;
+      const m = env.F.view.show;
       if (m && phases[phases.length - 1] !== m.phase) phases.push(m.phase);
       if (tStamp == null && env.count('fish:measured') > n0) tStamp = env.ctx.time.t - t0;
     }
     tEnd = env.ctx.time.t - t0;
-    times[cls] = tEnd;
-    ok(near(tEnd, want, 0.05), `${cls}: the ceremony lasts ${tEnd.toFixed(2)} s (§25.6.8: ${want} s)`);
-    ok(tStamp != null && near(tStamp, want * 2.8 / 3.6, 0.05), `${cls}: the seal stamps at ${tStamp?.toFixed(2)} s (the cord's end, ${(want * 2.8 / 3.6).toFixed(2)} s)`);
-    ok(JSON.stringify(phases) === JSON.stringify(['scoop', 'pose', 'cord', 'banners', 'card']), `${cls}: scoop → pose → cord → banners → card (${phases.join(' → ')})`);
+    ok(near(tEnd, want, 0.05), `${cls}: the show lasts ${tEnd.toFixed(2)} s after the reveal (AUTOFISH.show: ${want} s)`);
+    ok(tStamp != null && near(tStamp, P.lift, 0.05), `${cls}: the records are written at the present (${tStamp?.toFixed(2)} s; the lift's end, ${P.lift} s)`);
+    ok(JSON.stringify(phases) === JSON.stringify(['lift', 'hold', 'pause', 'card']), `${cls}: lift → hold → pause → card (${phases.join(' → ')})`);
     ok(env.count('fish:measured') === n0 + 1, `${cls}: fish:measured exactly once`);
     ok(JSON.stringify(order) === JSON.stringify(['caught', 'measured', 'landed']), `${cls}: fishing:caught → fish:measured → fish:landed (${order.join(' → ')})`);
     ok(env.ctx.cinematic === false && env.F.state === 'idle', `${cls}: the card's turn ends the cinematic state`);
@@ -532,18 +532,19 @@ section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, 
     ok(fl?.measured === true && Array.isArray(fl.favours) && fl.fish?.uid === caught.fish.uid, `${cls}: fish:landed {measured: true, favours} opens the card`);
     env.reset();
   }
-  // the measuring pose by length (the Wick is 0.85 m) and the cord spanning the fish
-  const poseFor = (L) => (L < 0.25 ? 'measurePalm' : L < 0.85 ? 'measureArms' : L < 2 ? 'measureHang' : 'measureAlongside');
+  // actors without the show seam (this fake has setPose + showCatch only): the nearest measuring pose stands in for the
+  // show's pose (data.showPoseFor by true length, class and shape), and the knotted cord is never unrolled (it is cut)
+  const STANDIN = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' };
   for (const [sp, z] of [['dusk_minnow', -1.2], ['mossback_perch', 0.4], ['reedjaw_pike', 2.95], ['lantern_swallower', 0]]) {
     env.calls.pose.length = 0; env.calls.cord.length = 0;
     env.ctx.debug.fishHook(sp, { z });
-    env.ctx.debug.instantCatch(null, { ceremony: true });
-    const L = env.last('fishing:caught').fish.length / 100;
-    for (let i = 0; i < 400 && env.F.inCeremony; i++) env.tick(1);
-    const ks = env.calls.cord.filter((c) => c[1] > 0).map((c) => c[1]);
-    ok(env.calls.pose.includes(poseFor(L)), `${sp} at ${(L * 100).toFixed(0)} cm: actors.setPose('${poseFor(L)}')`);
-    ok(ks.length > 5 && ks.every((k, i) => i === 0 || k >= ks[i - 1]) && ks.at(-1) === 1 && env.calls.cord.every((c) => c[0] === L || c[0] === 0) && env.calls.cord.at(-1)[1] === 0,
-      `${sp}: showCord(${L.toFixed(2)} m, k) unrolls 0 → 1, then is put away`);
+    env.ctx.debug.instantCatch(null, { show: true });
+    const f = env.last('fishing:caught').fish, L = f.length / 100;
+    const id = data.showPoseFor(L, { sizeClass: f.sizeClass, ancient: f.ancient, legend: data.SPECIES_BY_ID[sp].rarity === 'legendary', shape: data.SPECIES_BY_ID[sp].model?.shape });
+    ok(env.F.view.show?.pose === id && env.last('fishing:show')?.pose === id, `${sp} at ${(L * 100).toFixed(0)} cm: the show's pose is '${id}'`);
+    for (let i = 0; i < 400 && env.F.inShow; i++) env.tick(1);
+    ok(env.calls.pose.includes(STANDIN[id]), `${sp}: actors.setPose('${STANDIN[id]}') stands in`);
+    ok(env.calls.cord.length === 0, `${sp}: the knotted cord is cut from the show (no showCord call)`);
     env.reset();
   }
   // without actors' A2 (no showCord): the v1 catch hold
@@ -555,51 +556,53 @@ section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, 
 }
 
 // =====================================================================================================================
-section('F5 skippable: a tap skips to the card (an Elder only after 0.6 s); a swarm window plays every class short; a reset still measures once');
+section('F5 hurry: a tap hurries the show to its card; a swarm window plays every class short; a reset still measures once');
 {
   const env = makeEnv({ seed: 111 });
   env.ctx.debug.fishHook('mossback_perch', { z: 0.4 });
-  env.ctx.debug.instantCatch(null, { ceremony: true });
+  env.ctx.debug.instantCatch(null, { show: true });
   env.tick(3);
   env.ctx.fishing.onPointerDown();
-  ok(!env.F.inCeremony && env.ctx.cinematic === false && env.count('fish:measured') === 1 && env.F.view.measure?.phase === 'card', 'a Keeper: a tap at 0.1 s skips (stamped once, the card next)');
+  ok(env.F.inShow && env.F.view.show.hurried === true && env.count('fish:measured') === 0, 'a Keeper: a tap at 0.1 s hurries (the lift is not cut dead)');
+  let t = 0.1;
+  for (let i = 0; i < 200 && env.F.inShow; i++) { env.tick(1); t += DT; }
+  ok(!env.F.inShow && env.ctx.cinematic === false && env.count('fish:measured') === 1 && env.F.view.show?.phase === 'card' && env.F.view.measure === null && t < data.showPlan('keeper').show - 0.3,
+    `a Keeper hurried: the card after ${t.toFixed(2)} s (measured once)`);
   env.reset();
   env.ctx.debug.fishHook('reedjaw_pike', { z: 2.95 });
   env.ctx.debug.instantCatch(null, { ceremony: true });
   env.tick(9);
-  env.ctx.fishing.onPointerDown();
-  ok(env.F.inCeremony && env.count('fish:measured') === 1, 'an Elder: a tap at 0.3 s does nothing');
-  env.tick(10);
-  env.ctx.fishing.onPointerDown();
-  ok(!env.F.inCeremony && env.count('fish:measured') === 2 && env.ctx.cinematic === false, 'an Elder: a tap at 0.63 s skips');
+  ok(env.F.skipCeremony() === true && env.F.inCeremony, 'an Elder: skipCeremony (the old name) hurries; the show is still up');
+  for (let i = 0; i < 200 && env.F.inShow; i++) env.tick(1);
+  ok(!env.F.inCeremony && env.count('fish:measured') === 2 && env.ctx.cinematic === false, 'an Elder hurried: its card, measured once');
   env.reset();
   const sw = makeEnv({ seed: 112, swarm: true });
   sw.ctx.debug.fishHook('reedjaw_pike', { z: 2.95 });
-  sw.ctx.debug.instantCatch(null, { ceremony: true });
-  let t = 0;
-  for (let i = 0; i < 400 && sw.F.inCeremony; i++) { sw.tick(1); t += DT; }
-  ok(near(t, 1.2, 0.05) && sw.count('fish:measured') === 1, `in a swarm window an Elder plays the 1.2 s variant (${t.toFixed(2)} s)`);
+  sw.ctx.debug.instantCatch(null, { show: true });
+  t = 0;
+  for (let i = 0; i < 400 && sw.F.inShow; i++) { sw.tick(1); t += DT; }
+  ok(near(t, data.BALANCE.ceremony.cinematic.duringSwarm, 0.05) && sw.count('fish:measured') === 1, `in a swarm window an Elder plays the 1.2 s row after its reveal (${t.toFixed(2)} s)`);
   const ab = makeEnv({ seed: 113 });
   ab.ctx.debug.fishHook('mossback_perch', { z: 1.4 });
-  ab.ctx.debug.instantCatch(null, { ceremony: true });
+  ab.ctx.debug.instantCatch(null, { show: true });
   ab.tick(5);
   ab.F.cancel('reset');
-  ok(ab.count('fish:measured') === 1 && ab.ctx.cinematic === false && !ab.F.inCeremony, 'a reset mid-ceremony still measures the landed fish (once) and clears the cinematic state');
+  ok(ab.count('fish:measured') === 1 && ab.ctx.cinematic === false && !ab.F.inShow && ab.F.view.show === null, 'a reset mid-show still measures the landed fish (once) and clears the cinematic state');
   ab.F.cancel('snap');
   ok(ab.count('fishing:escaped') === 0, 'nothing escapes a landed fish');
   // twenty catches: fish:measured once per landed fish
   const many = makeEnv({ seed: 114 });
   for (let i = 0; i < 20; i++) {
     many.ctx.debug.fishHook(i % 2 ? 'mossback_perch' : 'dusk_minnow', { z: (i % 5) * 0.5 - 0.8 });
-    many.ctx.debug.instantCatch(null, { ceremony: i % 3 !== 0 });
-    for (let k = 0; k < 200 && many.F.inCeremony; k++) { if (k === 7 && i % 4 === 1) many.ctx.fishing.onPointerDown(); many.tick(1); }
+    many.ctx.debug.instantCatch(null, { show: i % 3 !== 0 });
+    for (let k = 0; k < 200 && many.F.inShow; k++) { if (k === 7 && i % 4 === 1) many.ctx.fishing.onPointerDown(); many.tick(1); }
   }
   const caughtFish = many.events.filter((x) => x.e === 'fishing:caught' && x.p.fish).length;
   ok(caughtFish === 20 && many.count('fish:measured') === 20 && many.count('fish:landed') === 20, `20 landed fish → 20 fish:measured, 20 fish:landed (${many.count('fish:measured')})`);
   ok(many.ctx.state.run.creel.length + 0 >= 1, 'the fish went to the creel (progression.measure)');
-  // the trophy camera
+  // a render without the show camera (this fake has setTrophyTarget only): the trophy shot stands in
   const tr = many.calls.trophy.filter((x) => x);
-  ok(tr.length > 5 && tr.every((x) => x.length > 0 && 'landmark' in x) && many.calls.trophy.at(-1) === null, 'render.setTrophyTarget({length, landmark, position}) for each ceremony, then null');
+  ok(tr.length > 5 && tr.every((x) => x.length > 0 && 'landmark' in x) && many.calls.trophy.at(-1) === null, 'render.setTrophyTarget({length, landmark, position}) for each show, then null');
 }
 
 // =====================================================================================================================
@@ -646,7 +649,7 @@ section('pressure: progression owns the count (run.pressure by fishing:caught.pr
 }
 
 // =====================================================================================================================
-section('the landing payoff (AUTOFISH.landing): class only until the wipe has run; bigger is grander; the push-in at the reveal, the climax at the pose');
+section('the landing payoff (AUTOFISH.landing): class only until the wipe has run; bigger is grander; the push-in at the reveal, the climax at the present');
 {
   const env = makeEnv({ seed: 77 });
   const flares = [], kicks = [];
@@ -662,11 +665,11 @@ section('the landing payoff (AUTOFISH.landing): class only until the wipe has ru
   for (let i = 0; i < 90 && !env.F.inCeremony; i++) env.tick(1);
   const c0 = env.ctx.debug.ceremony();
   ok(env.F.inCeremony && flares.length === 0 && c0.climaxPending && kicks.length === 1,
-    `the wipe has run: the flare, the glory and the full kick wait for the trophy camera to frame the held fish (flares ${flares}, kicks ${kicks.length})`);
-  ok(c0.climaxAt > c0.beats.scoop && c0.climaxAt <= c0.cordStart + 1e-9 && c0.climaxAt <= 1.1 + 1e-9, `the climax is set at the pose, after the camera's move in (${c0.climaxAt} s; scoop ${c0.beats.scoop}, cord ${c0.cordStart})`);
+    `the wipe has run: the flare, the glory and the full kick wait for the present (flares ${flares}, kicks ${kicks.length})`);
+  ok(near(c0.climaxAt, data.showPlan('trophy').lift, 1e-9) && near(c0.climaxAt, c0.beats.lift, 1e-9), `the climax is set at the present, the end of the lift (${c0.climaxAt} s)`);
   let tAt = null;
   for (let i = 0; i < 400 && env.F.inCeremony && flares.length === 0; i++) { env.tick(1); if (flares.length) tAt = env.ctx.debug.ceremony().t; }
-  ok(flares.length === 1 && flares[0] >= T.trophy.flame && tAt != null && tAt >= c0.climaxAt - 1e-9 && env.ctx.debug.ceremony().posed, `the Wick's flame flares once, at the pose (${flares} at ${tAt} s)`);
+  ok(flares.length === 1 && flares[0] >= T.trophy.flame && tAt != null && tAt >= c0.climaxAt - 1e-9 && env.ctx.debug.ceremony().posed, `the Wick's flame flares once, at the present (${flares} at ${tAt} s)`);
   const gl = env.ctx.debug.fishReveal().glory;
   ok(!!gl && gl.size > 0, `the glory opens with the flare (${JSON.stringify(gl)})`);
   ok(kicks.length >= 2 && kicks.every((k) => k < 0), `the camera pushes in (fov kicks ${kicks.map((k) => k.toFixed(2))})`);

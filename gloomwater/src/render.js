@@ -10,7 +10,10 @@
 // tail and a lamp-watch keep the sail / fish framings). setTrophyTarget({length, landmark, position}) starts the `trophy`
 // shot (distance clamp(1.2 + 1.6·L, 1.6, 16) m around actors' measuring focus, the crane to 50° above 4 m, the yaw toward
 // the landmark by at most ±35° from north, none without one); setTrophyTarget(null) holds it while the catch card is up
-// and then eases back. fishing:reveal (the leap reveal) plays a short push-in on the breach and goes through
+// and then eases back. THE SHOW CAMERA (docs/v3/show/SPEC.md §2.6; CONTRACT §13.7b): setShowTarget({cls, pose?, length, …}) from
+// the fish breaking the surface; the lens FITS the points actors.getShowFocus() names (render-camera.js showFit) and is blended
+// over the play's rig by one eased weight that arrives when the fish is presented, holds behind the card and eases back when it
+// closes; no cut, no pop, no extra pass. fishing:reveal (the leap reveal) plays a short push-in on the breach and goes through
 // ctx.game.slowmo (0.25 s at 0.35; main owns ctx.time.timeScale). With the flag off the rig is v1's, number for number.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -22,6 +25,7 @@ import { GradeShader } from './render-grade.js';
 import { setToonTier } from './toon.js';   // CLARITY LANE B: tier settings
 import {
   v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
+  SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showArrival,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
 } from './render-camera.js';
 
@@ -327,6 +331,7 @@ export function create(ctx) {
     death: 0, danger: 0, dark: 0,
     attention: null, attentionT: 0, attentionDur: 0, attentionW: 0,
     push: 0, pushT: 0, pushIn: 0.35, pushHold: 0, pushOut: 0.8,   // a dolly push-in on the current framing (the landing)
+    kickDue: 0,                                                    // a fov kick still to be fed in (the show camera eases it)
   };
   const flashTmp = new THREE.Color();
 
@@ -370,7 +375,11 @@ export function create(ctx) {
     fx.fringePulse = Math.min(3, fx.fringePulse + fringe);
     fx.vigPulse = Math.min(0.6, fx.vigPulse + vignette);
   }
-  function kick(fovDelta = -3) { fx.fovKick = clamp(fx.fovKick + fovDelta, -12, 12); }
+  function kick(fovDelta = -3) {
+    // while the show camera is in, a kick is fed in over a few frames (never a jump of the lens: SPEC S5)
+    if (showCam.w > 0.02) { fx.kickDue = clamp(fx.kickDue + fovDelta, -8, 8); return; }
+    fx.fovKick = clamp(fx.fovKick + fovDelta, -12, 12);
+  }
   /** A dolly push-in on whatever the camera frames now (v3 landing): the distance comes in by `amount` (0..0.6) over `rise` s, holds
    *  `hold` s and eases back over `release` s. Reduced motion halves it. */
   function push(amount = 0.25, hold = 0.5, rise = 0.35, release = 0.8) {
@@ -421,6 +430,23 @@ export function create(ctx) {
   };
   const subjTmp = new THREE.Vector3();
   let trophyK = 0;   // eased 0..1 weight of the trophy grade
+  // the show camera (v3; docs/v3/show/SPEC.md §2.6, AUTOFISH.show.camera): from the fish breaking the surface the lens comes in
+  // on the Wick and its fish and is there when the fish is presented. One rig with the play's: the fitted pose is blended over
+  // the play's own (weight w, eased 0 → 1 by the present, 1 behind the card, back to 0 over `out` s when the card closes), so
+  // there is no cut, no pop in or out, and no second pass.
+  const SHOWC = V3 ? (ctx.data?.AUTOFISH?.show?.camera || SHOW_CAMERA_DEFAULT) : null;
+  const SHOW_HOLD_MAX = 120;
+  const showCam = {
+    on: false, hold: false, holdT: 0, w: 0, w0: 0, p: 0, outT: -1, init: false, frozen: false, lastT: -1,
+    cls: 'keeper', pose: null, L: 0.5, swarm: false, yaw0: 0, landmark: null, place: null, hasSpot: false, spot: new THREE.Vector3(),
+    row: null, by: '', tgt: { x: 0, y: 1, z: 0, dist: 3, elev: 10, yaw: 0, fov: 44 },
+    sx: { x: 0, v: 0 }, sy: { x: 0, v: 0 }, sz: { x: 0, v: 0 }, sd: { x: 3, v: 0 }, se: { x: 10, v: 0 }, sw: { x: 0, v: 0 }, sf: { x: 44, v: 0 },
+    pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 44, pts: [], focus: null, fishC: new THREE.Vector3(), hasFish: false,
+    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false, fitOk: false,
+  };
+  const showAnchorTmp = new THREE.Vector3(), rigPos = new THREE.Vector3();
+  const showPt = [];
+  const showPoint = (i) => (showPt[i] || (showPt[i] = new THREE.Vector3()));
   let lastStatsAt = -10, maxHp = 5;
   let qualityCheckAt = 0;
 
@@ -683,9 +709,169 @@ export function create(ctx) {
   const springPrm = { x: 0, v: 0 };
   const TROPHY_IN = 3.2, TROPHY_OUT = 2.4, TROPHY_OUT_T = 3;
 
+  /** The show's view from fishing (null outside a show and its card). */
+  function showView() {
+    if (!isReal(ctx.fishing)) return null;
+    const v = ctx.fishing.view?.show;
+    return v && typeof v === 'object' && typeof v.phase === 'string' ? v : null;
+  }
+  /** The points the show camera keeps in frame this frame, into showCam.pts (and the fish's centre for the depth). */
+  function gatherShowPoints(row) {
+    const S = showCam, pts = S.pts;
+    pts.length = 0; S.hasFish = false;
+    let f = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getShowFocus === 'function') { try { f = ctx.actors.getShowFocus(); } catch { f = null; } }
+    if (f && !f.isStub && f.keep) {
+      for (const q of showKeep(f, row.keep)) pts.push(q);
+      // the flame is kept by its core; its tip stands a little higher (the frame leaves it room: it is half the Wick's face)
+      const fl = f.head?.flame, hr = Number(f.head?.radius) || 0;
+      if (fl && Number.isFinite(fl.x) && hr > 0 && row.keep.includes('flame')) pts.push(showPoint(40).set(fl.x, fl.y + hr * (Number(SHOWC.flameTip) || 0.9), fl.z));
+      const c = f.fish?.center;
+      if (c && Number.isFinite(c.x)) {
+        S.fishC.set(c.x, c.y, c.z); S.hasFish = true;
+        // the fish's whole box, fins and all (its four named points are the tips of a diamond; the box's corners a little out)
+        const ax = f.fish.axis, up = f.fish.up, L = Number(f.fish.length) || 0, dp = (Number(f.fish.depth) || L * 0.25) * 0.5 * (Number(SHOWC.finRoom) || 1.2);
+        if (ax && up && L > 0 && row.keep.includes('fish')) {
+          let n = 41;
+          for (const sa of [-0.5, 0.5]) for (const su of [-1, 1]) pts.push(showPoint(n++).set(c.x + ax.x * L * sa + up.x * dp * su, c.y + ax.y * L * sa + up.y * dp * su, c.z + ax.z * L * sa + up.z * dp * su));
+        }
+      }
+      S.focus = f;
+      if (pts.length >= 3) return true;
+      pts.length = 0;
+    }
+    S.focus = null;
+    if (!S.hasSpot) return false;
+    // the reveal (actors has not got the fish yet): the fish where the wipe will leave it, broadside to the lens at its class
+    // length, with the Wick's wax head and flame
+    const L = Math.max(0.05, S.L), cy = Math.cos(S.yaw0), sy = Math.sin(S.yaw0);
+    let n = 0;
+    pts.push(showPoint(n++).set(S.spot.x + cy * L * 0.5, S.spot.y, S.spot.z - sy * L * 0.5));
+    pts.push(showPoint(n++).set(S.spot.x - cy * L * 0.5, S.spot.y, S.spot.z + sy * L * 0.5));
+    pts.push(showPoint(n++).set(S.spot.x, S.spot.y + L * 0.14, S.spot.z));
+    pts.push(showPoint(n++).set(S.spot.x, S.spot.y - L * 0.14, S.spot.z));
+    S.fishC.copy(S.spot); S.hasFish = true;
+    let head = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getHeadPos === 'function') { try { head = ctx.actors.getHeadPos(subjTmp); } catch { head = null; } }
+    if (head && Number.isFinite(head.x)) {
+      // (getHeadPos is the flame's root on top of the wax head)
+      pts.push(showPoint(n++).set(head.x, head.y + 0.22, head.z));
+      pts.push(showPoint(n++).set(head.x - cy * 0.22, head.y - 0.2, head.z + sy * 0.22));
+      pts.push(showPoint(n++).set(head.x + cy * 0.22, head.y - 0.2, head.z - sy * 0.22));
+      pts.push(showPoint(n++).set(head.x, head.y - 0.42, head.z));
+    } else { const p = playerPos(); if (p) pts.push(showPoint(n++).set(p.x, 1.1, p.z)); }
+    return pts.length >= 3;
+  }
+  /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
+  function fitShow(v) {
+    const S = showCam, a = W / H;
+    const row = showRow(SHOWC, S.pose, { length: S.L, aspect: a, tinyBelow: ctx.data?.AUTOFISH?.show?.grip?.pinch?.tinyBelow ?? 0.15 });
+    S.row = row;
+    if (!gatherShowPoints(row)) return false;
+    let yw = S.yaw0;
+    if (row.rake > 0 && S.focus?.fish?.axis) yw = showRakeYaw(S.yaw0, S.focus.fish.axis, row.rake);
+    // behind the card on a phone held upright the subject rides in the open top of the frame (the card rises from the foot)
+    const BC = SHOWC.behindCard || {};
+    const shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: row.margin + row.footroom,
+      minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
+    if (!fit) return false;
+    const T = S.tgt;
+    // (the look point is kept as an offset from the raft's anchor: the lens rides the swell with the Wick, so the picture is steady)
+    T.x = fit.look.x - S.anchor.x; T.y = fit.look.y - S.anchor.y; T.z = fit.look.z - S.anchor.z; T.dist = fit.dist; T.elev = row.elev; T.yaw = yw; T.fov = row.fov;
+    S.by = fit.by;
+    return true;
+  }
+  /**
+   * The show camera's frame: its weight (eased so the lens has arrived when the fish is presented, whatever the class, a hurry
+   * or a swarm window; 1 behind the card; back to 0 over `out` s), its fitted target (frozen from the pause on: the still is
+   * still), the target's springs, and the pose it would have alone (showCam.pos / look / fov).
+   */
+  function updateShowCam(dt) {
+    const S = showCam;
+    if (!SHOWC || (!S.on && !S.hold && !(S.w > 0))) return;
+    const v = showView();
+    const live = ctx.flow === 'playing' || ctx.flow === 'hub';
+    if (!live) { S.on = false; S.hold = false; }
+    if (S.hold) {
+      S.holdT += dt;
+      // the card's turn ends when fishing lets its view go (the card closed): the lens eases back to play
+      if (!v || v.phase !== 'card' || S.holdT > SHOW_HOLD_MAX) S.hold = false;
+    }
+    const active = S.on || S.hold;
+    // the anchor: where the Wick stands on the raft this frame (actors' show focus names its feet; else the Wick's own root). The
+    // fitted look point is an offset from it, so the raft's bob on the swell carries the lens with the subject; a jump of the
+    // anchor (the reveal's root → the pose's settled spot, the pose's end) re-bases the springs instead of moving the lens
+    {
+      let a = null;
+      if (isReal(ctx.actors)) {
+        try { a = (S.on || S.hold) && typeof ctx.actors.getShowFocus === 'function' ? (ctx.actors.getShowFocus()?.feet || null) : null; } catch { a = null; }
+        if (!a || !Number.isFinite(a.x)) { try { a = typeof ctx.actors.getWickPos === 'function' ? ctx.actors.getWickPos(showAnchorTmp) : null; } catch { a = null; } }
+      }
+      if (!a || !Number.isFinite(a.x)) { const p = playerPos(); a = p ? showAnchorTmp.set(p.x, 0, p.z) : null; }
+      if (a) {
+        if (S.hasAnchor && S.init) {
+          const dx = a.x - S.anchor.x, dy = a.y - S.anchor.y, dz = a.z - S.anchor.z;
+          if (dx * dx + dy * dy + dz * dz > 0.2 * 0.2) { S.sx.x -= dx; S.sy.x -= dy; S.sz.x -= dz; S.tgt.x -= dx; S.tgt.y -= dy; S.tgt.z -= dz; }
+        }
+        S.anchor.set(a.x, a.y, a.z); S.hasAnchor = true;
+      }
+    }
+    if (active) {
+      S.outT = -1;
+      if (S.on && v && v.phase !== 'card') {
+        const tNow = Number(v.t) || 0;
+        const dts = S.lastT >= 0 ? Math.max(0, tNow - S.lastT) : 0;   // the show's own clock (a pause or a debug rate holds the lens too)
+        S.lastT = tNow;
+        const rem = showArrival(v, ctx.data?.AUTOFISH?.show?.hurry?.liftRate ?? 2.5);
+        S.p = rem > 1e-4 ? S.p + (1 - S.p) * Math.min(1, dts / (rem + dts)) : 1;
+      } else S.p = 1;
+      S.w = showEase(S.p);
+      // the target: live through the reveal, the lift and most of the hold (actors names the settled layout from the lift's first
+      // frame; a layout that is still finding its place is followed), then frozen settleBefore s before the pause, so the stiffer
+      // spring has brought the lens to rest when the still begins
+      const shown = v && v.phase === 'hold' ? (Number(v.poseT) || 0) - (Number(v.dur?.lift) || 0) : 0;
+      const freezeAt = Math.max(Number(SHOWC.settleAfter) || 0.12, (Number(v?.dur?.hold) || 0.5) - (Number(SHOWC.settleBefore) || 0.4));
+      // (the raft rocks on the swell, so the layout is never quite at rest in the world: the frozen framing rides the Wick's feet
+      // and lets the head and the fish sway a little inside it, as a boat's passengers do; the margins are that room)
+      S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
+      const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
+      if (!S.still || !S.init || cardLift) { if (fitShow(v)) { S.fitOk = true; if (S.hold) S.frozenCard = true; } }
+      if (!S.fitOk) { S.w = 0; return; }   // (nothing to frame yet: the play's camera stays)
+    } else {
+      if (S.outT < 0) {
+        // back to play over `out` s; a long way back (a phone's play camera stands 20 m off) takes a little longer, so the lens
+        // never travels faster going out than it came in
+        S.outT = 0; S.w0 = S.w;
+        S.outDur = Math.max(Number(SHOWC.out) || 0.9, S.pos.distanceTo(rigPos) * (Number(SHOWC.outPerM) || 0));
+      }
+      S.outT += dt;
+      const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);
+      S.w = S.w0 * (1 - showEase(k));
+      if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; S.fitOk = false; return; }
+    }
+    // the fitted target through its springs (a new target, the hand-over from the reveal's fit to the pose's, never jumps)
+    const T = S.tgt;
+    if (!S.init) {
+      S.sx.x = T.x; S.sy.x = T.y; S.sz.x = T.z; S.sd.x = T.dist; S.se.x = T.elev; S.sw.x = T.yaw; S.sf.x = T.fov;
+      S.sx.v = S.sy.v = S.sz.v = S.sd.v = S.se.v = S.sw.v = S.sf.v = 0;
+      S.init = true;
+    } else if (dt > 0) {
+      const om = S.still ? (Number(SHOWC.followStill) || 22) : (Number(SHOWC.follow) || 10);
+      springStep(S.sx, T.x, om, dt); springStep(S.sy, T.y, om, dt); springStep(S.sz, T.z, om, dt);
+      springStep(S.sd, T.dist, om, dt); springStep(S.se, T.elev, om, dt); springStep(S.sf, T.fov, om, dt);
+      springStep(S.sw, S.sw.x + wrapAngle(T.yaw - S.sw.x), om, dt);
+    }
+    const e = clamp(S.se.x, 2, 80) * DEG, yw = S.sw.x, d = Math.max(0.3, S.sd.x * (1 - pushK()));
+    S.look.set(S.anchor.x + S.sx.x, S.anchor.y + S.sy.x, S.anchor.z + S.sz.x);
+    S.pos.set(S.look.x + Math.sin(yw) * Math.cos(e) * d, S.look.y + Math.sin(e) * d, S.look.z + Math.cos(yw) * Math.cos(e) * d);
+    S.fov = S.sf.x;
+  }
+
   function updateCamera(dt) {
     computeNightK(dt);
     updateTrophy(dt);
+    updateShowCam(dt);
     const next = pickMode();
     if (next !== mode) {
       prevMode = mode; mode = next; modeT = 0;
@@ -756,6 +942,20 @@ export function create(ctx) {
     // the floor: v1's 1.2 m; the trophy close-up may sit lower (a palm-sized catch is filmed from chest height)
     const floorY = mode === 'trophy' ? 0.5 : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? lerp(0.5, 1.2, smoothstep(0, TROPHY_OUT_T, modeT)) : 1.2;
     if (camPos.y < floorY) camPos.y = floorY;
+    rigPos.copy(camPos);   // (where the play's rig alone would put the lens: the show's way back is measured against it)
+    // the show camera over the play's rig: one eased weight for the lens's place, where it looks and its fov
+    const sw = showCam.w;
+    if (sw > 0) {
+      const S = showCam;
+      // a close-up breathes a little too (a share of its distance, far under the still's limit)
+      const br = S.sd.x * 0.004 * (reducedMotion ? 0.2 : 1);
+      tmpV.copy(S.pos); tmpV.x += Math.sin(time * 0.37) * br; tmpV.y += Math.sin(time * 0.53 + 1.3) * br * 0.8;
+      const wS = isReal(ctx.water) && ctx.water.getHeight ? Number(ctx.water.getHeight(tmpV.x, tmpV.z)) || 0 : 0;
+      const fl = wS + (Number(SHOWC.floor) || 0.45);
+      if (tmpV.y < fl) tmpV.y = fl;
+      camPos.lerp(tmpV, sw);
+      lookTarget.lerp(S.look, sw);
+    }
 
     camera.position.copy(camPos);
     camera.up.set(0, 1, 0);
@@ -777,8 +977,13 @@ export function create(ctx) {
     }
 
     // fov with kick + slight breathing
+    if (fx.kickDue) {   // a kick asked for under the show camera comes in at 27°/s (under a degree a frame at 30 fps)
+      const step = clamp(fx.kickDue, -27 * dt, 27 * dt);
+      fx.kickDue -= step; fx.fovKick = clamp(fx.fovKick + step, -12, 12);
+      if (Math.abs(fx.kickDue) < 1e-3 || !(showCam.w > 0)) fx.kickDue = 0;
+    }
     fx.fovKick = damp(fx.fovKick, 0, 5, dt);
-    const fov = clamp(cur.fov + fx.fovKick, 20, 95);
+    const fov = clamp(lerp(cur.fov, showCam.fov, showCam.w) + fx.fovKick, 20, 95);
     if (Math.abs(camera.fov - fov) > 1e-3 || camera.aspect !== W / H) {
       camera.fov = fov;
       camera.aspect = W / H;
@@ -816,6 +1021,45 @@ export function create(ctx) {
     trophy.yaw = trophyYaw(p || trophy.from, trophy.landmark, TROPHY.yawMax ?? 35);
     updateTrophySubject();
     return true;
+  }
+
+  /**
+   * setShowTarget({cls, pose?, length, swarm?, landmark?, position?, place?} | null, {abort}?) (CONTRACT §13.7b render). Fishing
+   * calls it at T0 (the fish breaks the surface: `position` = where the wipe will leave it, `length` = its class length), again
+   * at fishing:caught with the pose and the true length (from then on the lens fits actors.getShowFocus()), and with null at the
+   * card's turn: the framing holds behind the card and eases back to play when it closes ({abort: true}: at once).
+   * Returns {yaw} (the yaw the lens will hold: the play's, swung toward a place's landmark), false with the flag off.
+   */
+  function setShowTarget(t, opts) {
+    const S = showCam;
+    if (!SHOWC) return false;
+    if (!t || typeof t !== 'object') {
+      if (S.on) { S.on = false; S.hold = !(opts && opts.abort); S.holdT = 0; S.frozenCard = false; }
+      else if (opts && opts.abort) S.hold = false;
+      return false;
+    }
+    const L = Number(t.length);
+    if (!(L > 0) || !Number.isFinite(L)) return false;
+    const fresh = !S.on;
+    S.on = true; S.hold = false; S.frozenCard = false; S.outT = -1;
+    S.cls = typeof t.cls === 'string' ? t.cls : 'keeper';
+    S.pose = typeof t.pose === 'string' ? t.pose : null;
+    S.L = L; S.swarm = !!t.swarm;
+    if (fresh) {
+      S.lastT = -1;
+      if (!(S.w > 0)) { S.p = 0; S.init = false; S.fitOk = false; }   // (a show starting behind the last one's card keeps the lens where it is)
+      else S.p = Math.min(S.p, 0.999);
+    }
+    const lm = t.landmark;
+    if (lm !== undefined || fresh) {
+      S.landmark = lm && Number.isFinite(Number(lm.x)) && Number.isFinite(Number(lm.z)) ? { x: Number(lm.x), y: Number(lm.y) || 0, z: Number(lm.z) } : null;
+      S.place = t.place ?? null;
+      // the yaw is chosen once, from the Wick, so the frame does not wander: the play's yaw, a place's landmark behind the catch
+      S.yaw0 = trophyYaw(playerPos() || S.spot, S.landmark, TROPHY.yawMax ?? 35);
+    }
+    const pos = t.position;
+    if (pos && Number.isFinite(Number(pos.x)) && Number.isFinite(Number(pos.z))) { S.spot.set(Number(pos.x), Number(pos.y) || 0.4, Number(pos.z)); S.hasSpot = true; }
+    return { yaw: S.yaw0 };
   }
 
   /**
@@ -865,7 +1109,7 @@ export function create(ctx) {
     const fk = fx.flashT < 1 ? fx.flashPeak * Math.pow(1 - fx.flashT, 2) : 0;
 
     const reel = mode === 'reel' ? 1 : 0;
-    trophyK = damp(trophyK, mode === 'trophy' ? 1 : 0, 2.4, dt);
+    trophyK = damp(trophyK, mode === 'trophy' || showCam.w > 0.5 ? 1 : 0, 2.4, dt);
     const heart = reducedFlashing() ? 0.6 : 0.5 + 0.5 * Math.sin(time * TAU * 1.1) * Math.sin(time * TAU * 1.1);
     renderer.toneMappingExposure = BASE_EXPOSURE * Math.max(0.05, gCur.exposure) * (1 - fx.death * 0.18) * (1 - fx.dark * 0.12);
     bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + BLOOM_PULSE_GAIN * fx.bloomPulse));
@@ -930,6 +1174,14 @@ export function create(ctx) {
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
             nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H),
             presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
+            // the show camera (SPEC §2.6): its weight, the fitted target and what set its distance
+            show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {
+              on: showCam.on, hold: showCam.hold, w: r1(showCam.w), p: r1(showCam.p), cls: showCam.cls, pose: showCam.pose, length: showCam.L, by: showCam.by,
+              row: showCam.row ? { id: showCam.row.id, elev: r1(showCam.row.elev), fov: r1(showCam.row.fov), margin: showCam.row.margin, headroom: showCam.row.headroom, footroom: showCam.row.footroom,
+                rake: showCam.row.rake, craned: r1(showCam.row.craned), keep: showCam.row.keep.slice() } : null, still: !!showCam.still,
+              anchor: { x: r1(showCam.anchor.x), y: r1(showCam.anchor.y), z: r1(showCam.anchor.z) }, tgt: { x: r1(showCam.tgt.x), y: r1(showCam.tgt.y), z: r1(showCam.tgt.z), dist: r1(showCam.tgt.dist), elev: r1(showCam.tgt.elev), yawDeg: r1(showCam.tgt.yaw / DEG), fov: r1(showCam.tgt.fov) },
+              dist: r1(showCam.sd.x), points: showCam.pts.length, focus: !!showCam.focus,
+            } : null,
             trophy: trophy.on || trophy.hold ? {
               on: trophy.on, hold: trophy.hold, t: r1(trophy.t), length: trophy.L, dist: r1(trophy.dist), crane: trophy.crane,
               yawDeg: r1(trophy.yaw / DEG), landmark: trophy.landmark, place: trophy.place, radius: r1(trophy.r),
@@ -980,7 +1232,7 @@ export function create(ctx) {
           leapBeat(b ? { x: b.x, z: b.z } : null, (Number(length) || 100) / 100, S.seconds ?? 0.25, S.scale ?? 0.35);
         });
         // run over mid-ceremony: no trophy framing outlives its run
-        on('run:end', () => { trophy.on = false; trophy.hold = false; });
+        on('run:end', () => { trophy.on = false; trophy.hold = false; showCam.on = false; showCam.hold = false; });
       }
       on('fishing:escaped', ({ reason }) => { if (reason === 'snap') { shake(0.22, 0.3); pulse({ fringe: 1 }); } });
       on('flare', () => { kick(4); pulse({ bloom: 0.4 }); shake(0.18, 0.3); });   // a softer pulse: the flare must not wash the frame
@@ -1033,7 +1285,7 @@ export function create(ctx) {
       return out;
     },
     shake, flash, pulse, kick, attention, push,
-    setTrophyTarget,
+    setTrophyTarget, setShowTarget,
     getCameraMode() { return mode; },
     /** Jump the rig straight to its current target (cuts, tests). */
     snapCamera() {
@@ -1048,6 +1300,7 @@ export function create(ctx) {
       fX.v = fY.v = fZ.v = 0;
       yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
       focusInit = true;
+      if (showCam.on || showCam.hold) { showCam.p = 1; showCam.init = false; }   // the show camera too: at its fitted target, fully in
       updateCamera(0);
     },
     getYaw() { return yaw; },

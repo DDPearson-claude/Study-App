@@ -3782,6 +3782,11 @@ export const AUTOFISH = {
     // the climax fires at the ceremony's pose, once the trophy camera frames the held fish; an Elder or an Ancient adds a step a
     // Trophy does not get: the camera draws back (pull, a negative push) to take in a glory held longer (gloryHold s) and brighter
     special: { glory: 0.3, embers: 10, bloom: 0.06, flame: 0.2, glory2: 0.35 },   // glory2: the second bloom at the stamp for a record
+    // the show (AUTOFISH.show): the climax fires at the present, on the picture actors names (the sphere round the Wick and its fish,
+    // radius R). The glory is sized to it (R × (size + perGlory × glory)) and set R × back behind it, a touch softer than the
+    // trophy shot's (the lens is close); it holds for holdShare of the show's hold, then fades through the rest of the hold and
+    // fadePause of the pause: by the card it is gone, and the pause adds nothing
+    show: { size: 1, perGlory: 0.25, strength: 0.26, perGloryStrength: 0.12, rise: 0.3, holdShare: 0.45, fadePause: 0.8, back: 0.9 },
     colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
   },
   // ---- the show (the user's request of 2026-11-13: "When a fish is caught, it should be an animation of our character holding the fish
@@ -3880,24 +3885,39 @@ export const AUTOFISH = {
     // with a place): the Wick turns, the camera does not orbit. Portrait uses fovPortrait; an alongside fish longer than rakeAbove m on
     // a portrait screen is filmed along its length from the head end (`rake` degrees off broadside) so it is never cropped.
     camera: {
+      // (as built: render blends the fitted pose over the play's rig with one eased weight timed from fishing.view.show, so the lens
+      // has arrived EXACTLY when the fish is presented, whatever the class, a hurry or a swarm window; `settle` / `settleSwarm` are the
+      // spring a chase would need, kept as the validator's floor)
       from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 }, settleSwarm: 8,
       margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45,
+      // the frame keeps a little more room at its foot (the hands under the fish) and the flame's tip is kept as well as its core
+      // (flameTip × the head's radius above the core); follow = the spring ω (1/s) that carries the fitted target (the hand-over
+      // from the reveal's fit to the pose's never jumps); at the present the landing's kick and bloom are scaled (presentKick,
+      // presentBloom: the lens is already close) and an Elder's pull-back is a breath (`breath` × landing.pull)
+      // finRoom widens the fish's box past its named points (fins, a flapping tail); the fitted target is live through the reveal,
+      // the lift and (for the longer holds) into the hold, and frozen settleBefore s before the pause (never sooner than settleAfter s after the present):
+      // followStill carries what is left, and the still is still. The frozen framing rides the Wick's feet on the swell; the raft's
+      // rocking sways the head and the fish a little inside it (the margins are that room)
+      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52 },
         both:      { elev: 10, fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'] },
         hug:       { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
-        hang:      { elev: 8,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'] },
+        hang:      { elev: 8,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'], headroom: 0.03 },   // (a fish hung 2 m up sways with the raft's rocking: a little more room over it)
         alongside: { elev: 16, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet'], craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55 },
       },
       still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
       behindCard: { hold: true, portraitUp: 0.24 },   // while the card is up the framing holds (a phone lifts the subject into the open top)
       out: 0.9,                                       // s to ease back to the play camera once the card has closed
+      outPerM: 0.058,                                 // (…or this many s per metre of the way back when that is longer: a phone's play camera stands 20 m off)
     },
     // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
     // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
     // which presses after it (the cord's ticks and the seal's stamp sound here); your best and the Old Ledger are two knots on the
     // card's ruler (marks, no words); the record is the card's kicker (as now). No banner, no overlay, no toast before the card.
-    card: { opensFrom: 'fish', unfold: 0.32, count: 0.5, stampAt: 0.55, knots: ['pb', 'ledger'], phone: 'foot' },
+    // (countFrom: the count starts this long after the card begins to open, once its ink has unfolded enough to read; stampAt is
+    // measured from there)
+    card: { opensFrom: 'fish', unfold: 0.32, countFrom: 0.2, count: 0.5, stampAt: 0.55, knots: ['pb', 'ledger'], phone: 'foot' },
     // sounds (all original, synthesised): the swell and the class chime stay on fishing:landing / fishing:caught; `lift` a wet haul
     // by class as the fish swings in; `present` the flourish on the present (with the record chime for a record or a new species);
     // `flap` a wet slap on each twitch; `drip`; the cord's ticks and the seal's stamp move to the card's count
