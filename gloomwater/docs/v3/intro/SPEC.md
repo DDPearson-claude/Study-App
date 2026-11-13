@@ -112,10 +112,10 @@ dimmed. "Mirror" = the object carries `toon.REFLECT_LAYER` so the lake's planar 
 | 5 | their halos | reused: `world-fx.createHalos(64)`, one point each second window | — | 1 + 1 | points |
 | 6 | **the lake's memory** | new: a twin of #4 on `REFLECT_LAYER` **only** (`layers.set`), lit 1.2 s longer than its row and rising 5 m in world space (so its mirror image sinks). Medium / high only. First piece to cut (§11) | — | 0 + 1 | 648 |
 | 7 | the contact | new: one additive pale-gold ring (r 2 → 30 m in 1.6 s, opacity to 0) and the halo's flash, both functions of t; plus, only when `opts.live`, `water.splash(x, z, {size: 4, color: 0xf0d49c})` once | at the lantern's foot | 2 + 0 | ≈ 70 |
-| 8 | **the ink card** | new: one quad parented to `ctx.render.camera`, sized from fov and aspect every frame, `depthTest: false`, `fog: false`, transparent pass, `renderOrder` 900; a vertical gradient `ink` → `inkTop` (vertex colours); opacity 1 from 8.2, 1 → 0 over 12.6–13.8, opening from the Wick's flame (a radial term in the fragment alpha; a plain fade is the fallback) | layer 0 only | 1 | 2 |
-| 9 | motes | new: 60 `Points` in camera space, drifting up as a function of t | in front of #8 (`renderOrder` 901) | 1 | points |
+| 8 | **the ink card** | new: one quad parented to `ctx.render.camera`, sized from fov and aspect every frame, `fog: false`, in the transparent pass at `renderOrder` 900 (after everything of the world's), `depthFunc: AlwaysDepth` with `depthWrite` on: it covers the world **and resets the depth under it**, so the pieces in front of it sort among themselves and the world cannot cut into them. A vertical gradient `ink` → `inkTop` (vertex colours); opacity 1 from 8.2, 1 → 0 over 12.6–13.8, opening from the Wick's flame (a radial term in the fragment alpha; a plain fade is the fallback) | layer 0 only | 1 | 2 |
+| 9 | motes | new: 60 `Points` in camera space, drifting up as a function of t | in front of #8 (`transparent`, `renderOrder` 901) | 1 | points |
 | 10 | **the ember** | reused: two `glowSprite`s (a core and a soft halo), `ember` → `emberDeep`, `depthTest: false`, `renderOrder` 903 (it shows *through* the flank, dimmed 0.45, while covered) | camera space, from `set.below.ember` | 2 | 4 |
-| 11 | **the pale flank** | new (`intro-models.js`): one lathed body 22 m × 5.2 m from a profile table (flat-shaded `toonMaterial`, `flank`, rim toward the key), one fin-and-ridge mesh, one eye (an ink disc with a pale-gold glint); rigid; it only translates, and never shows nose and tail in one frame | camera space, `renderOrder` 902, between the card and the ember | 3 | ≈ 2,400 |
+| 11 | **the pale flank** | new (`intro-models.js`): one lathed body 22 m × 5.2 m from a profile table (flat-shaded `toonMaterial`, `flank`, rim toward the key), one fin-and-ridge mesh, one eye (an ink disc with a pale-gold glint); rigid; it only translates, and never shows nose and tail in one frame | camera space, nearer than the card, materials flagged `transparent` (opacity 1) so they draw after it at `renderOrder` 902 with the depth test on | 3 | ≈ 2,400 |
 | 12 | the spark | reused: one `glowSprite` at `actors.getHeadPos()`, 12.5–12.7 | world space | 1 | 2 |
 | 13 | **the Wick's kindling** | new hook, lane A: `actors.setIntroKindle({wick, lantern} \| null)`: straight multipliers (0–1) on the head flame (scale, intensity, halo, eye glow) and on the raft lantern (light intensity, glass, halo, flame, the pool's `uK`), applied after the existing easing. 0 / 0 from the swap; `wick` from `set.wick.flame`; `lantern` 0 → 1 over 13.5–14.2; `null` on exit | actors.js, actors-wick.js | 0 | 0 |
 
@@ -133,8 +133,9 @@ dimmed. "Mirror" = the object carries `toon.REFLECT_LAYER` so the lake's planar 
   ever more, slice it. `enter()` builds synchronously whatever is missing (the opening ink covers it).
 - **Disposal.** `dispose()` removes the group and frees every geometry, material and texture the stage created;
   `renderer.info.memory.geometries` and `.textures` return to their values before `prebuild()`.
-- **Never:** a ring, disc or halo around the raft or the Wick (the lantern's pool is the game's own feathered pool; the contact
-  ring is 80 m from the raft); green or teal (`INTRO.set.colors` is hue-checked); an edit to the live arena.
+- **Never:** a new ring, disc or halo around the raft or the Wick (the raft keeps only what the game already draws: its own
+  feathered pool; the contact ring is 80 m away, at the lantern's foot); green or teal (`INTRO.set.colors` is hue-checked); an
+  edit to the live arena.
 
 ## 5. Cameras (lane A)
 
