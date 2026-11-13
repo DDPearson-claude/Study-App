@@ -121,6 +121,7 @@ const gl = AF.oddsView(D, { known: 'glimpsed', odds: oddsRJ }, { speciesName: 'R
 ok(!gl.unseen && gl.cells.every((c) => /%$/.test(c.text)), 'a Glimpsed species shows its odds (it counts as known)');
 const mk = AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: 'Old Ninefin', sizeClass: 'trophy', approxLength: 108, p: 0.8123 }] }, { speciesName: 'Reedjaw Pike' });
 eq(mk.marked, [`Old Ninefin, Trophy, near 1.1${NB}m: 81%`], 'a Marked Fish\'s own line');
+eq(AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: null, sizeClass: 'elder', approxLength: null, p: 0.2 }] }, { speciesName: 'Reedjaw Pike' }).marked, ['Reedjaw Pike, Elder: 20%'], 'a Marked Fish with no name or kept estimate');
 const lg = AF.oddsView(D, { known: 'caught', odds: D.catchOdds('belled_matriarch', lo, {}), wounds: 2 }, { speciesName: 'The Belled Matriarch' });
 ok(lg.legend && lg.cells.length === 1 && lg.cells[0].cls === 'legend' && /%$/.test(lg.cells[0].text), 'a legend: one attempt %');
 eq(lg.wounds, 'Wounded twice: +12', 'its wounds ("Wounded twice: +12")');

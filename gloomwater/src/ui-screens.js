@@ -1158,6 +1158,8 @@ export function createScreens(K) {
       const tb = tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; s.hl = null; s.section = null; entry.render(); });
       if (tabList.length > 4) tb.classList.add('gw-tabs--many');   // the Landing's tab makes five: keep them all in reach
       pn.insertBefore(tb, content);
+      // a scrolling tab strip (a phone) brings the open tab into view (openLog may land on the Landing's tab at the far end)
+      if (tabList.length > 4) requestAnimationFrame(() => { const on = tb.querySelector('.gw-tab.gw-on'); if (on && tb.scrollWidth > tb.clientWidth) tb.scrollLeft = Math.max(0, on.offsetLeft - (tb.clientWidth - on.offsetWidth) / 2); });
       const sps = allSp.filter((x) => inTab(x, s.zone));
       const nZ = sps.filter((x) => J[x.id]).length;
       const perk = D().JOURNAL_PERKS?.[s.zone];
