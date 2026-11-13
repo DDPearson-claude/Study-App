@@ -3834,7 +3834,8 @@ export const AUTOFISH = {
     // grip, by pose. reach = how far in front of the Wick's face plane the fish's centre is held, toward the lens (the fisherman's
     // trick: a fish under tinyBelow m is lifted beside the face and comes right up to the lens); spread = each hand's distance from
     // the fish's middle as a share of its length, the pair clamped to spreadClamp m apart; tilt = a hugged fish's lean from the deck
-    // (deg); gap = the most a hanging fish stands off the Wick's body (m), lean = the planted rod's lean from upright (deg); rod =
+    // (deg); gap = the most a hanging fish stands off the Wick's body (m), lean = the planted rod's lean from upright (deg), its tail
+    // tailClear m off the deck, resting on it for a fish longer than restsAbove m; rod =
     // where the rod is ('planted' upright in the right hand, 'stowed' on the bow rest, 'raised' with the fish on its tip); touch =
     // where the standing Wick's hand rests on an alongside fish, chinOnDeck = the share of its length resting on the deck's edge
     // NOTHING is ever held above the Wick's head: its flame is there.
@@ -3842,7 +3843,7 @@ export const AUTOFISH = {
       pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'shoulder', heightTiny: 'cheek', rod: 'planted' },
       both:      { hands: 2, reach: 0.24, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
       hug:       { hands: 2, reach: 0.15, tilt: 70, tail: 'deck', side: 'lens', rod: 'stowed' },
-      hang:      { hands: 2, tail: 'deck', tailClear: 0.04, gap: 0.25, lean: [20, 35], side: 'lens', rod: 'raised' },
+      hang:      { hands: 2, tail: 'clear', tailClear: 0.04, restsAbove: 1.9, gap: 0.25, lean: [20, 35], side: 'lens', rod: 'raised' },
       alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0.12, flankUp: 30, acrossWhen: 0.7, rod: 'planted' },
     },
     // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
@@ -3871,7 +3872,7 @@ export const AUTOFISH = {
     // with a place): the Wick turns, the camera does not orbit. Portrait uses fovPortrait; an alongside fish longer than rakeAbove m on
     // a portrait screen is filmed along its length from the head end (`rake` degrees off broadside) so it is never cropped.
     camera: {
-      from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 },
+      from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 }, settleSwarm: 8,
       margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52 },

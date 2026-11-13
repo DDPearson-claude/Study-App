@@ -18,8 +18,8 @@ keep their meaning. v3 only; the flag-off game is untouched.
 ## 1. Diagnosis: what a player sees today
 
 Before set: `tools/out/show/before/` (desktop 960 × 540: small, keeper, prize, trophy, elder, ancient, legend, eel, tiny, ray,
-night; phone 390 × 844: small, elder), one strip per catch from the fish breaking the surface (T0) to the card, shot by the
-game's clock on a 30 fps stepper; contact sheet **`tools/out/show/before.jpg`**; larger single strips in
+night, leviathan; phone 390 × 844: small, elder), one strip per catch from the fish breaking the surface (T0) to the card,
+shot by the game's clock on a 30 fps stepper; contact sheet **`tools/out/show/before.jpg`**; larger single strips in
 `tools/out/show/before/strips/`; every frame's numbers in `before/<set>/notes.json`. Re-shoot:
 `tools/tests/show-audit.scenario.mjs` + `tools/show-sheet.mjs` (their headers carry the commands). `tools/out/` is not tracked.
 
@@ -49,6 +49,7 @@ game's clock on a 30 fps stepper; contact sheet **`tools/out/show/before.jpg`**;
 | tiny · Quayling 11.5 cm | palm: cupped at the chest, head bowed | the lens | **6 – 28 px long, ≤ 10 px tall: a dot** | band 100 % from 1.03 s; card 100 % | 2.2 m at the card |
 | ray · Velvet Ray 73 cm | arms | the lens | 12 – 18 %: a disc at the Wick's hip | band 29 – 54 %; card 100 % | 3.1 m at the card |
 | night · Candlefin Koi 50 cm | arms | the lens | as the keeper; the flame and the lantern are the only bright things | band; card | – |
+| leviathan · Lantern-Swallower 8.67 m (forced into the Mossmere for its framing) | alongside | the lens, kneeling | 21 – 28 % wide × 6 – 8 % tall, whole | card 100 % | 15 – 20 m, craned: **the Wick is 4 – 19 px tall** |
 
 On the phone (390 × 844) the band and the card sit at the foot, so the top of the frame stays open: the Small's last frame before
 the card is the nearest thing today to the request (the Wick facing us, 191 – 227 px tall, a perch across its collar), but the
@@ -59,7 +60,8 @@ Words on screen: 3 – 4 from the HUD through the reveal (plus its glyphs: 13 vi
 the overlay (27 – 41 elements): the name, a ticking count, class words, "old ledger", "your best", a banner ("New best: 33 cm
 (was 20)", "First Elder Reedjaw Pike"), "click or Space to skip". The HUD dims to 30 %; it does not go.
 
-Draw calls through today's sequence (phone, medium): 123 – 173 per frame, 173 at the ceremony's peak (S8's baseline).
+Draw calls through today's sequence (medium quality): phone 123 – 173 per frame, 173 at the ceremony's peak; desktop 154 – 185
+(the Lantern-Swallower's strip). These are S8's baseline; `gl` in the notes.
 
 ### 1.3 Why it does not read as "our character holding the fish and showing it to us"
 
@@ -119,7 +121,7 @@ Real seconds (`AUTOFISH.show.beats`, `data.showPlan(cls)`; a legend plays the an
   once if that floor has passed. No hint is printed; today's "Elder after 0.6 s" rule is gone (the protected floor replaces it).
 - **Swarm window.** While `combat.swarmActive` every class plays `show.swarm` after its reveal: lift 0.4, hold 0.2, pause 0.6
   = 1.2 s, exactly today's `BALANCE.ceremony.cinematic.duringSwarm`, so the arena is never hidden for longer than it is today
-  and the pause keeps its floor. The pose is the class's own; the camera uses ω 6.
+  and the pause keeps its floor. The pose is the class's own; the camera uses ω 8 (`camera.settleSwarm`).
 - **Frozen world.** `ctx.cinematic` is set at `fishing:caught` (the end of the reveal) and cleared when the card's turn comes,
   exactly the window the ceremony froze (survival and combat get dt 0; fishing freezes its signs). The reveal runs on the
   game's clock as it does today.
@@ -192,9 +194,9 @@ The five pictures (lens-left / lens-right are the viewer's):
    and back, legs braced wide, a tremor (the `strain` pose's), the raft dips to that side. The tail's last tenth lies bent on
    the planks.
 4. **showHang.** The rod's butt is planted on the deck by the Wick's far foot, both hands on it at chest height, the rod
-   leaning 20 – 35° toward the fish and bowing under it; the fish hangs head-up from the tip on a short line, its tail brushing
-   the deck (resting on it when the fish is longer than the tip is high), **within 0.25 m of the Wick's body** (today's hang
-   leaves it a rod's length away in the air). A settling pendulum, turning ≤ 10° either side of square. Reuses `measureHang`
+   leaning 20 – 35° toward the fish and bowing under it; the fish hangs head-up from the tip on a short line, its tail just
+   clear of the deck (resting on it when the fish is longer than the tip is high, ≈ 1.9 m), **within 0.25 m of the Wick's
+   body** (today's hang leaves it a rod's length away in the air). A settling pendulum, turning ≤ 10° either side of square. Reuses `measureHang`
    (the fish off the rod tip, the bend, the pendulum), re-aimed: rod steep and planted, fish close, Wick to the lens.
 5. **showAlongside.** The fish lies on its side in the water along the raft's lens-side flank, flank tipped ≥ 30° up toward
    the lens, pitched nose-up so that its chin rests on the deck's edge beside the Wick (≈ the first 12 % of it over the planks)
@@ -216,7 +218,7 @@ The five pictures (lens-left / lens-right are the viewer's):
 
 ### 2.4 The five bodies
 
-`CHARACTERS[].look`: the Wick 1.0 · Taper 1.1 × [0.86, 1.12, 0.86] under a 0.9 m stovepipe of wax (its flame sits ≈ 1.8 m up) ·
+`CHARACTERS[].look`: the Wick 1.0 · Taper 1.1 × [0.86, 1.12, 0.86] under a stovepipe of wax (its flame sits ≈ 1.8 m above the deck) ·
 Stub 0.8 × [1.04, 0.94, 1.04] (0.78 m, a flame bigger than its body) · Tallow 1.15 × [1.12, 0.88, 1.12] (0.44 m across) ·
 Ashwick 1.0 × [0.97, 1.03, 0.97]. The pose thresholds stay in metres for every body (the fish does not change size); the
 grips are placed from the body's own shoulders and reach (the arms scale with the build), the hug's and the hang's stand-off
@@ -381,7 +383,7 @@ Measured on the 30 fps stepper by `tools/tests/show-audit.scenario.mjs` (the sta
 | hang | height ≥ 45 % | height ≥ 38 % |
 | alongside | width ≥ 55 % | width ≥ 70 %, or raked: its diagonal ≥ 45 % of the frame's |
 
-- the Wick reads: feet-to-flame ≥ 30 % of the frame's height (alongside: ≥ 14 %);
+- the Wick reads: feet-to-flame ≥ 30 % of the frame's height (alongside: ≥ 14 %; beside the Lantern-Swallower: ≥ 9 %);
 - in the Mossmere, Sporewood, Glasswater and the Pallid Deep, at calm and at gloomtide (a Still night): the stage looks at one
   catch per lake and phase in the after sheet; the fish and the face are never blown to white or sunk in black.
 
@@ -406,7 +408,7 @@ the five bodies × the five poses (lane A's viewer, 25 frames); raft headings 0�
   (a resting tail lies within 3 cm of it); the fish and the hands ≥ 5 cm clear of the lantern post; the rod outside the fish's
   box except the hang's line; each holding hand within 3 cm of the fish's surface from the take on.
 - Continuity on the stepper from T0 until 1.5 s after the card closes: the lens moves ≤ 0.9 m per frame and its per-frame
-  step changes by ≤ 0.35 m; the fov ≤ 1.5° per frame; the fish's centre ≤ 0.45 m per frame; no Wick joint value jumps by more
+  step changes by ≤ 0.45 m; the fov ≤ 1.5° per frame; the fish's centre ≤ 0.45 m per frame; no Wick joint value jumps by more
   than 0.35 per frame; the rod never changes hands inside one frame (it is set down or taken up).
 
 **S6 Weight and life.** Lane A's viewer reports, per class: the present overshoots by `life.overshoot` ± 40 % of the lift's
@@ -427,9 +429,9 @@ against data's 0.78 / 0.72 / 0.64 / 0.56, inside its ± 0.03); `tools/scenario-r
 unchanged (the v1 fishing trace test, the fingerprint).
 
 **S8 Cost.** No new render pass or target. Draw calls at the pause ≤ the same catch's ceremony peak today + 4 (`gl.calls` in
-the notes; the cord's mesh goes). After ten catches and their cards: live geometries, textures and programs equal to their
-count after the first (± 0), `fishing.view.show` and `actors.showPose` null, `ctx.cinematic` false, no timer or animation
-frame left by the card.
+the notes: today 173 on the phone, 185 on the desktop at medium; the cord's mesh goes). After ten catches and their cards:
+live geometries, textures and programs equal to their count after the first (± 0), `fishing.view.show` and `actors.showPose`
+null, `ctx.cinematic` false, no timer or animation frame left by the card.
 
 ## 5. Scope-cut ladder (cut from the top; each cut keeps S1 – S3 and S7)
 
