@@ -3965,7 +3965,7 @@ export const INTRO = {
     // rock), 44 m in front of the gate on the play axis, on three chains that run up out of frame. `at` is its middle; `height`
     // its cage, foot to cap
     lantern: { at: ['G', 0, 14.2, 44], height: 7.6, radius: 2.9, glow: 2.6, halo: { size: 30, opacity: 0.55 }, chains: 3, chainTop: 48,
-      water: { intensity: 14, radius: 27, streak: 2, streakLow: 1.4 } },   // its pool and gold path on the water, on every tier (world.setIntroWaterLight); the pool stops short of the far shore (28 m), which it lit as a hard yellow line; on the low tier (no mirror) the streak IS the reflection, a little calmer so it stays gold
+      water: { intensity: 14, radius: 27, streak: 2, streakLow: 0.75 } },   // its pool and gold path on the water, on every tier (world.setIntroWaterLight); the pool stops short of the far shore (28 m), which it lit as a hard yellow line; on the low tier (no mirror) the streak IS the reflection, a little calmer so it stays gold
     // "then": three columns of nine slits on each tower; the lake's own eight candle slits and three braziers are "now" and stay lit
     windows: { perTower: 27, cols: 3, rows: 9, y0: 4, dy: 3.4, size: [0.8, 1.8], glow: 2.0 },
     // the chain parts (the lantern lurches `lurch` rad), the drop starts, the foot meets the water (the middle is then `restY`

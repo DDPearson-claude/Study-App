@@ -255,6 +255,26 @@ section('stage: the hooks it drives');
   eq(parts(g).length, 0, '… and takes the set out of the scene');
   st.dispose(); }
 
+section('stage: a replay from another lake\'s title');
+{ const g = game(), st = STG.createIntroStage(g.ctx);
+  // prebuilt under a title that shows another lake (its landmark stands elsewhere) …
+  const moss = g.ctx.world.getHeroAnchor;
+  g.ctx.world.getHeroAnchor = () => ({ x: 40, z: -60, face: 0.5, theme: 'sporewood' });
+  while (!st.prebuild()) { /* slices */ }
+  st.enter({ replay: true }); st.setTime(0.2, {});
+  // … and under the opening's full ink main swaps the Mossmere in: at the swap the stage stands on the lake that is there now
+  g.ctx.world.getHeroAnchor = moss;
+  st.setTime(1, {});
+  const lan = g.scene.getObjectByName('intro:lantern');
+  eq([lan.position.x, lan.position.z], [hang[0], hang[2]], 'the set is rebuilt on the Mossmere\'s anchors at the swap');
+  eq(g.calls.cams.at(-1).pos, STG.resolvePoint(STG.introCamera(I, 1, LAND).pos, A), '… and the camera flies from them');
+  eq(parts(g).length, 2, 'one set in the scene, not two'); ok(g.scene.getObjectByName('intro:windows').visible, 'the windows are on its towers');
+  st.dispose();
+  // a lake with no Sunken Gate: the film still runs, without windows floating in the air
+  g.ctx.world.getHeroAnchor = () => ({ x: 0, z: -77.63, face: 0, theme: 'glasswater' });
+  st.enter({}); st.setTime(3, {}); ok(g.scene.getObjectByName('intro:lantern').visible && !g.scene.getObjectByName('intro:windows').visible, 'no towers, no windows');
+  st.dispose(); }
+
 section('stage: disposal');
 { const g = game(), st = STG.createIntroStage(g.ctx); st.enter({}); st.setTime(7, {}); st.setTime(10.5, {});
   const geos = new Set(), mats = new Set(), freed = { g: 0, m: 0 };

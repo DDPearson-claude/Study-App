@@ -141,6 +141,9 @@ function glide(keys, t) {
   return (2 * u3 - 3 * u2 + 1) * keys[i][1] + (u3 - 2 * u2 + u) * h * slope(i) + (-2 * u3 + 3 * u2) * keys[i + 1][1] + (u3 - u2) * h * slope(i + 1);
 }
 
+const BELLY = [0, 0, 0];
+const GUTTER = [[0, 1], [0.22, 0.4], [0.42, 1.05], [0.64, 0.3], [1, 0]];   // a candle going out: its light over the gutter (0 … 1)
+const GLIDE = [[0, 0], [0, 0], [0, 0], [0, 0]];                              // (scratch keys for the flank's path: nothing is allocated per frame)
 /**
  * One window of the kingdom at t: {k (its light, 0 … ≈1.2), heat (0 amber … 1 dying ember), mk (its reflection's light: the lake
  * remembers it a beat longer), rise (m: how far the mirror-only twin has risen, so its image sinks)}. The dark comes down the
@@ -153,7 +156,7 @@ export function introWindow(INTRO, t, row, seed = 0.5, out = {}) {
   const u = (t - start) / Dk.gutter;
   const own = (0.8 + 0.4 * ((seed * 7.13) % 1)) * (1 + 0.06 * Math.sin(t * (2.1 + seed * 3.3) + seed * 40));   // no two windows burn alike
   // a candle guttering: it dips, flares once, and goes
-  const g = u <= 0 ? 1 : u >= 1 ? 0 : keyed([[0, 1], [0.22, 0.4], [0.42, 1.05], [0.64, 0.3], [1, 0]], u);
+  const g = u <= 0 ? 1 : u >= 1 ? 0 : keyed(GUTTER, u);
   out.k = own * g;
   out.heat = smooth(0.2, 1, u);
   const end = start + M.linger, fade = M.fade ?? 0.5;
@@ -231,7 +234,7 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   // ---- the pale flank: a straight glide across the picture (on a diagonal in portrait), faster once it has the ember
   const fl = out.flank || (out.flank = {}), FK = B.flank;
   const ang = pw * (FK.portraitAngle * Math.PI) / 180, ca = Math.cos(ang), sa = Math.sin(ang);
-  const girth = lerp(FK.frame?.[0] ?? 0.74, FK.frame?.[1] ?? 0.4, pw);        // its girth in picture heights
+  const girth = lerp(FK.frame?.[0] ?? 1.15, FK.frame?.[1] ?? 0.5, pw);        // its girth in picture heights
   const unit = girth / FK.girth, len = FK.length * unit;                       // picture heights per metre; its length in picture heights
   const half = (aspect / 2) * Math.abs(ca) + 0.5 * Math.abs(sa);               // the picture's half-extent along its path
   const ex0 = (B.ember.to[0] - 0.5) * aspect, ey0 = 0.5 - B.ember.to[1];       // where the ember waits
@@ -240,10 +243,11 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   // its nose along the path: a steady glide in, to the ember by `cover`; the belly (and the ember in it) out of frame by `leave`;
   // then it keeps going, half again as fast, while the dark takes it (it is never seen to its tail)
   const nLeave = half + 0.12 + bs * len, vOut = ((nLeave - (eA - 0.02)) / (FK.leave - FK.cover)) * 1.5;
-  const nose = glide([[FK.enter, -half - 0.04], [FK.cover, eA - 0.02], [FK.leave, nLeave], [FK.out, nLeave + vOut * (FK.out - FK.leave)]], t);
+  GLIDE[0][0] = FK.enter; GLIDE[0][1] = -half - 0.04; GLIDE[1][0] = FK.cover; GLIDE[1][1] = eA - 0.02; GLIDE[2][0] = FK.leave; GLIDE[2][1] = nLeave; GLIDE[3][0] = FK.out; GLIDE[3][1] = nLeave + vOut * (FK.out - FK.leave);
+  const nose = glide(GLIDE, t);
   fl.vis = on && t >= FK.enter && t < FK.out;
   fl.angle = ang; fl.unit = unit; fl.nose = nose;
-  const rise = lerp(FK.rise?.[0] ?? 0.16, FK.rise?.[1] ?? 0.14, pw);           // its middle line passes this far (in girths) above the ember: the ember meets the mouth
+  const rise = lerp(FK.rise?.[0] ?? 0.13, FK.rise?.[1] ?? 0.12, pw);           // its middle line passes this far (in girths) above the ember: the ember meets the mouth
   const mid = nose - len / 2, across = eB + rise * girth, away = 0.3 * smooth(FK.cover, FK.out, t);
   fl.x = mid * ca - across * sa; fl.y = mid * sa + across * ca; fl.z = -away;
   fl.alpha = 1 - smooth(FK.leave + 0.1, FK.out, t);
@@ -257,7 +261,7 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   let a = ax * ca + ay * sa, b = -ax * sa + ay * ca;
   const drawn = smooth(FK.cover - 0.3, FK.cover, t); a -= 0.035 * drawn * drawn;   // the last moment: it is drawn toward the mouth
   const covered = smooth(FK.cover - 0.02, FK.cover + 0.12, t);
-  const pb = flankPoint(bs, bv, FK), bellyA = nose - bs * len, bellyB = across + pb[1] * unit;
+  const pb = flankPoint(bs, bv, FK, BELLY), bellyA = nose - bs * len, bellyB = across + pb[1] * unit;
   if (t >= FK.cover) { a = Math.max(a, bellyA); b = lerp(b, bellyB, smooth(FK.cover, FK.cover + 0.7, t)); }
   em.x = a * ca - b * sa; em.y = a * sa + b * ca;
   em.size = lerp(B.ember.size[0], B.ember.size[1], e) * (1 + 0.07 * Math.sin(t * 9.1) * Math.sin(t * 5.7 + 1));
@@ -287,7 +291,7 @@ const CARD_DIST = 60;       // m: the depth the ink card resets the picture to (
 
 export function createIntroStage(ctx) {
   const I = () => ctx.data?.INTRO || null;
-  const st = { built: false, live: false, t: -1, take: null, w: 0, anchors: null, replay: false, reduced: false, mood: false, step: 0, buildMs: 0, kindled: false, lit: false };
+  const st = { built: false, live: false, t: -1, take: null, w: 0, anchors: null, anchored: false, replay: false, reduced: false, mood: false, step: 0, buildMs: 0, kindled: false, lit: false };
   const pose = { pos: [0, 0, 0], look: [0, 0, 0], fov: 46, w: 1 };
   const real = (m) => !!m && !m.isStub;
   /** A real three.js scene and a DOM to make textures in: without them (a unit test's fake game) the stage flies the camera only. */
@@ -334,7 +338,7 @@ export function createIntroStage(ctx) {
 
     const parts = [lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick];
     set = {
-      group, below, hangG, hang, lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick, tier,
+      group, below, hangG, hang, lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick, tier, anchors, gate: anchors.G.theme === 'mossmere' || !anchors.G.theme,
       geometries: parts.flatMap((p) => p.geometries), materials: parts.flatMap((p) => p.materials),
       warm: [lantern.group, hangG, windows.mesh, windows.halos.points, ...(windows.memory ? [windows.memory] : []), ring.mesh, card.mesh, below],
       colors: {
@@ -365,17 +369,49 @@ export function createIntroStage(ctx) {
     return st.built;
   }
 
-  function enter({ replay = false, reduced = false } = {}) {
-    if (st.live) return;
+  function attach() {
+    if (!set) return;
+    set.group.visible = false; set.below.visible = false;
+    ctx.render.scene.add(set.group);
+    ctx.render.camera.add(set.below);
+  }
+  function freeSet() {
+    if (!set) return;
+    const m = set; set = null;
+    try {
+      m.group.parent?.remove(m.group); m.below.parent?.remove(m.below);
+      for (const o of [m.windows.mesh, m.windows.memory]) o?.dispose?.();   // (an InstancedMesh frees its instance buffers itself)
+      for (const g of m.geometries) g.dispose();
+      for (const mat of m.materials) mat.dispose();                          // (the sprites' shared glow texture stays: the raft holds it)
+    } catch { /* never throws */ }
+  }
+  function buildAll() {
     let guard = 64;
     while (!prebuild() && guard-- > 0) { /* build at once whatever the idle slices left (the opening ink covers it) */ }
-    st.live = true; st.replay = !!replay; st.reduced = !!reduced; st.t = -1;
+  }
+
+  function enter({ replay = false, reduced = false } = {}) {
+    if (st.live) return;
+    buildAll();
+    st.live = true; st.replay = !!replay; st.reduced = !!reduced; st.t = -1; st.anchored = false;
     st.anchors = st.anchors || introAnchors(ctx);
-    if (set) {
-      set.group.visible = false; set.below.visible = false;
-      ctx.render.scene.add(set.group);
-      ctx.render.camera.add(set.below);
-    }
+    attach();
+  }
+
+  /**
+   * At the swap (the opening ink is full) the lake on screen is the film's for certain: a replay from a title that shows another
+   * lake has swapped the Mossmere in by now. If the set was built on other anchors (under that other title), it is built again here.
+   */
+  function anchor() {
+    st.anchored = true;
+    const a = introAnchors(ctx);
+    if (!a) return;
+    const b = set ? set.anchors : st.anchors;
+    const same = !!b && Math.abs(a.G.x - b.G.x) < 1e-3 && Math.abs(a.G.z - b.G.z) < 1e-3 && Math.abs(a.S.x - b.S.x) < 1e-3 && Math.abs(a.S.z - b.S.z) < 1e-3 && a.G.theme === b.G.theme;
+    st.anchors = a;
+    if (same || !set) return;
+    freeSet(); st.built = false; st.step = 0;
+    buildAll(); attach();
   }
 
   /** From the swap on (the opening ink is full) the world wears the first run's opening mood: the last shot is lit as the run is. */
@@ -458,8 +494,9 @@ export function createIntroStage(ctx) {
 
     // the kingdom's windows, their halos and their memory in the lake
     const Wn = m.windows;
-    Wn.mesh.visible = sc.windows; Wn.halos.points.visible = sc.windows; if (Wn.memory) Wn.memory.visible = sc.windows;
-    if (sc.windows) {
+    const lit = sc.windows && m.gate;   // (the towers they sit on are the Mossmere's)
+    Wn.mesh.visible = lit; Wn.halos.points.visible = lit; if (Wn.memory) Wn.memory.visible = lit;
+    if (lit) {
       const glow = S.windows.glow, lay = Wn.layout, amber = m.colors.window, dying = m.colors.dying, hc = Wn.haloColor;
       for (let i = 0; i < lay.length; i++) {
         const Li = lay[i], w = introWindow(INTRO, t, Li.row, Li.seed, win);
@@ -546,6 +583,7 @@ export function createIntroStage(ctx) {
   function setTime(t, opts = {}) {
     if (!st.live || !I()) return;
     t = Math.max(0, Math.min(Number(t) || 0, I().length));
+    if (!st.anchored && t >= (I().swapAt ?? 0)) anchor();
     setMood(t >= (I().swapAt ?? 0));
     const c = setCamera(t);
     // a seek shows the settled picture: the rig under the film's pose is put at rest too (the last take blends into it)
@@ -568,15 +606,8 @@ export function createIntroStage(ctx) {
 
   function dispose() {
     exit();
-    if (set) {
-      const m = set; set = null;
-      try {
-        for (const o of [m.windows.mesh, m.windows.memory]) o?.dispose?.();   // (an InstancedMesh frees its instance buffers itself)
-        for (const g of m.geometries) g.dispose();
-        for (const mat of m.materials) mat.dispose();                          // (the sprites' shared glow texture stays: the raft holds it)
-      } catch { /* never throws */ }
-    }
-    st.built = false; st.step = 0; st.buildMs = 0;
+    freeSet();
+    st.built = false; st.step = 0; st.buildMs = 0; st.anchors = null;
   }
 
   /** The set's own cost in the frame at st.t: every object that is drawn, in the main pass and (where it is mirrored) the lake's. */
