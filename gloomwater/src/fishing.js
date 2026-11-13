@@ -1435,8 +1435,15 @@ export function create(ctx) {
       y = wy + 4 * H * u * (1 - u) - (lp.kind === 'breach' ? 0.35 * L : 0.05 * L);
       pitch = (1 - 2 * u) * (lp.kind === 'breach' ? 0.55 : 0.95);
       roll = lp.kind === 'breach' ? Math.sin(u * Math.PI) * 0.9 : 0;
-      show = y > wy - 0.2 * L; rimK = 1.1;
-      if (!F.leap) F.leap = true;
+      show = y > wy - 0.2 * L; rimK = 1.35;
+      if (!F.leap) { F.leap = true; F.sprayT = 0; }
+      // the backlit cut-out sheds water as it clears the surface: bone-white and lantern-amber droplets off its tail
+      F.sprayT = (F.sprayT ?? 0) - dt;
+      if (u > 0.08 && u < 0.85 && F.sprayT <= 0 && y > wy) {
+        F.sprayT = 0.05;
+        const tx = px - Math.sin(F.yaw) * L * 0.42, tz = pz - Math.cos(F.yaw) * L * 0.42;
+        fx.burst(tx, y - 0.05 * L, tz, { color: 0xeae4d3, color2: 0xffb347, count: 2 + Math.round(Math.min(3, L * 1.5)), spread: 0.25 + 0.15 * L, up: 0.2, gravity: 7, size: 0.035 + 0.015 * Math.min(L, 3), life: 0.55, radius: 0.06 + 0.05 * L });
+      }
     } else {
       if (F.leap) { F.leap = false; call(() => ctx.water?.splash?.(px, pz, { size: 0.55 + L * 0.6, count: 16 })); fx.burst(px, 0.15, pz, { color: 0xeae4d3, color2: 0xffb347, count: 10, spread: 1 + L * 0.3, up: 1.8, gravity: 7, size: 0.05, life: 0.5 }); }
       if (g && g.kind !== 'pass') {   // a glimpse: the proxy rolls at the surface, a tail slaps, a swirl near the raft, the Small's skitter
