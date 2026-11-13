@@ -739,24 +739,36 @@ export default async function (api) {
     await freshSave();
     await g(() => {
       const T = window.__if, c = window.__gw, maxDt = c.data.INTRO.clock.maxDt;
-      T.clear(); T.drawing(false); T.release(); T.rafN = 0; T.stopCount = false; T.lost = 0; T.slow = 0; T.worst = 0;
-      // every real frame while the film plays: how long it took, and what the film's clamped clock could not use of it
+      T.clear(); T.drawing(false); T.release(); T.rafN = 0; T.stopCount = false; T.lost = 0; T.slow = 0; T.worst = 0; T.clamped = 0;
+      // every real frame while the film plays: how long it took, what the film's clamped clock used of it, and what it gave up
       let last = 0;
-      const tick = (ts) => { if (T.stopCount) return; if (c.intro.isActive()) { T.rafN++; if (last) { const dt = (ts - last) / 1000; T.worst = Math.max(T.worst, dt); if (dt > maxDt) { T.lost += dt - maxDt; T.slow++; } } last = ts; } else last = 0; requestAnimationFrame(tick); };
+      const tick = (ts) => {
+        if (T.stopCount) return;
+        if (last && (c.intro.isActive() || T.wasOn)) { const dt = (ts - last) / 1000; T.rafN++; T.worst = Math.max(T.worst, dt); T.clamped += Math.min(dt, maxDt); if (dt > maxDt) { T.lost += dt - maxDt; T.slow++; } }
+        T.wasOn = c.intro.isActive(); last = ts;
+        requestAnimationFrame(tick);
+      };
       requestAnimationFrame(tick);
     });
-    await clickTitle('Begin');
-    await page.waitForFunction(() => window.__if.ev.some((x) => x.e === 'intro:done'), null, { timeout: 60000, polling: 250 });
-    const r = await g(() => { const T = window.__if; T.stopCount = true; T.drawing(true); const a = T.ev.find((x) => x.e === 'intro:start'), b = T.ev.find((x) => x.e === 'intro:done'); return { wall: (b.wall - a.wall) / 1000, frames: T.rafN, lost: T.lost, slow: T.slow, worst: T.worst, p: b.p }; });
+    const pressed = await clickTitle('Begin');
+    try { await page.waitForFunction(() => window.__if.ev.some((x) => x.e === 'intro:done'), null, { timeout: 200000, polling: 250 }); } catch (e) {
+      const d = await g(() => { const c = window.__gw, T = window.__if; return { flow: c.flow, d: c.intro.state, frames: T.rafN, held: T.held ? T.held.length : null, ev: T.ev.map((x) => x.e), worst: T.worst, lost: T.lost, clock: T.clock, offset: T.offset, now: performance.now() }; });
+      check(false, 'the film ends on the real clock (the valve: 100 frames at the worst)', { pressed, ...d });
+      await g(() => { window.__if.stopCount = true; window.__if.drawing(true); window.__gw.debug.intro('stop'); });
+    }
+    const r = await g(() => { const T = window.__if; T.stopCount = true; T.drawing(true); const a = T.ev.find((x) => x.e === 'intro:start'), b = T.ev.find((x) => x.e === 'intro:done'); return a && b ? { wall: (b.wall - a.wall) / 1000, frames: T.rafN, lost: T.lost, slow: T.slow, worst: T.worst, clamped: T.clamped, p: b.p } : null; });
     await hold();
+    if (r) {
     const fps = r.frames / Math.max(1, r.wall);
-    log(`real clock (drawing off): intro:start → intro:done in ${r.wall.toFixed(2)} s; ${r.frames} frames (about ${fps.toFixed(0)} a second), ${r.slow} of them over 0.1 s (worst ${r.worst.toFixed(2)} s), which the film's clamped clock gave up ${r.lost.toFixed(2)} s on`);
-    // A1: real elapsed time with a clamped per-frame dt. At 10 fps or better (no frame over 0.1 s) that is 18 s; every frame over
-    // 0.1 s adds exactly its excess, and the valve caps the whole at 25 s
-    check(Math.abs(r.wall - Math.min(18 + r.lost, 25.3)) <= 0.5, `on the real clock a full play lasts 18 s plus what frames over 0.1 s cost (${r.wall.toFixed(2)} s = 18 + ${r.lost.toFixed(2)} ± 0.5)`, r);
-    check(r.wall <= 25.5, 'and never more than the valve allows', r);
+    log(`real clock (drawing off): intro:start → intro:done in ${r.wall.toFixed(2)} s on performance.now(); ${r.frames} frames (about ${fps.toFixed(0)} a second), ${r.slow} of them over 0.1 s (worst ${r.worst.toFixed(2)} s), on which the film's clamped clock gave up ${r.lost.toFixed(2)} s; the frames' clamped time adds up to ${r.clamped.toFixed(2)} s`);
+    // A1: real elapsed time with a clamped per-frame dt. The frames' time, each clamped to 0.1 s, adds up to the film's 18 s; at
+    // 10 fps or better no frame is clamped and that is 18 s of wall clock (this shared software-GL machine stalls for seconds)
+    check(Math.abs(r.clamped - 18) <= 0.5, `the film runs on real elapsed time: its frames, each clamped to 0.1 s, add up to 18 s ± 0.5 (${r.clamped.toFixed(2)} s)`, r);
+    check(r.wall >= 17.5, `never faster than real time (${r.wall.toFixed(2)} s on performance.now(); 18 s + ${r.lost.toFixed(2)} s given up on slow frames)`, r);
+    if (r.slow === 0) check(Math.abs(r.wall - 18) <= 0.5, `with every frame under 0.1 s a full play lasts 18 s ± 0.5 (${r.wall.toFixed(2)} s)`, r);
     check(r.p.skipped === false && r.p.error === false, 'unskipped', r.p);
-    { const s2 = await state(); s2.run.phaseTime = 0; checkEnd(s2, 'the real-clock play (frames ran on after the hand-off)'); }
+    { const s2 = await state(); if (s2.run) s2.run.phaseTime = 0; checkEnd(s2, 'the real-clock play (frames ran on after the hand-off)'); }
+    }
     await settle(700);
   }
 

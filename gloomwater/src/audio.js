@@ -1452,8 +1452,8 @@ export function create(ctx) {
       // test tooling: drive audio's own listeners with an event, without the rest of the game hearing it
       ctx.debug.audioEvent = (evt, payload = {}) => { const hs = handlers[evt] || []; for (const h of hs) h(payload); return hs.length; };
       ctx.debug.audioLog = (n = 60) => log.slice(-Math.max(1, Math.min(LOG_MAX, num(n, 60) | 0))).map((e) => ({ ...e }));
-      // >>> INTRO LANE B: debug (the cue as audio has it: tests read the bus level and what was played)
-      ctx.debug.audioIntro = () => ({
+      // >>> INTRO LANE B: debug (the cue as audio has it: tests read the bus level and what was played; v3 builds only)
+      if (ctx.data?.V3_ENABLED === true && ctx.data?.INTRO) ctx.debug.audioIntro = () => ({
         active: !!intro.cue && !intro.cue.dead, hold: intro.hold, skipped: intro.skipped, t: intro.t, water: intro.water, releasing: intro.releaseAt > 0,
         level: intro.cue ? intro.cue.level.gain.value : null, lowpass: intro.cue ? intro.cue.lowpass.frequency.value : null,
         voices: intro.cue ? intro.cue.voices() : 0, fired: intro.cue ? intro.cue.fired.slice() : [], layers: music ? music.layers.filter((l) => !l.stopAt).length : 0,
