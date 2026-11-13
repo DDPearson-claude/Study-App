@@ -2,7 +2,7 @@
 
 *164 fish, 8 curiosities, 16 waters. Data: `docs/loop/roster.json`. Checked by `node tools/sim/roster-check.mjs` (exit 1 on any broken rule). Design only: nothing in `src/` changed.*
 
-> **SPEC v5 (`docs/loop/SPEC.md`) places this roster in play.** The twelve new waters are lake maps in the catalogue, not later sheets; the six fourth giants live at fifth places there (the Puffball Vent, the Well of Ledgers, the Overhang, the Turning Tide, the Monsoon Cut, the Drowned Spire); every price is the spec's, which re-prices three built lakes. Where this file says "later sheet" for those, the spec wins.
+> **SPEC v6 (`docs/loop/SPEC.md`) places this roster in play.** The twelve new waters are lake maps in the catalogue, not later sheets; a lake map opens its water's open, day and old water; the six fourth giants live at fifth places (the Puffball Vent, the Well of Ledgers, the Overhang, the Turning Tide, the Monsoon Cut, the Drowned Spire); eleven fish bite at another kind of place in play (SPEC §5.2, so every map names a fish of its own); every price is the spec's. Where this file says "later sheet" for those, or gives another place for those eleven, the spec wins. The design notes here (`inspiredBy`, `giantOf`) never ship (SPEC §13, slice 1b).
 
 Every kind of fish landed in the researched list (`docs/loop/research/`, 255 catch records, about 162 kinds) is the ancestor of exactly one fish of ours.
 Our fish are original creatures of the Lamplit Kingdom: a new name, a silhouette that keeps what makes the real fish unmistakable, and the Starlit palette.
