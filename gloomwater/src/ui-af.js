@@ -201,7 +201,12 @@ export function oddsView(D, res, { speciesName = '', loadout = [], itemName = ''
     const label = fill(L.with || 'With the {item}:', { item: itemName || String(res.withBest.item).replace(/_/g, ' ') }).replace(/^With the The /, 'With the ');
     withBest = { label, item: res.withBest.item, cells: show.map((c) => cell(c, res.withBest.odds, false)) };
   }
-  const marked = unseen ? [] : arr(res?.marked).map((m) => `${fill(L.marked || '{name}, {class}, near {len}', { name: m.name || speciesName, class: classLabel(D, m.sizeClass, m.ancient), len: nearLength(D, m.approxLength).replace(/^near\s/, '') })}: ${pct(D, m.p)}`);
+  const marked = unseen ? [] : arr(res?.marked).map((m) => {
+    const len = nearLength(D, m.approxLength).replace(/^near\s/, '');
+    const vars = { name: m.name || speciesName, class: classLabel(D, m.sizeClass, m.ancient), len };
+    const head = len ? fill(L.marked || '{name}, {class}, near {len}', vars) : `${vars.name}, ${vars.class}`;   // no estimate kept: no "near"
+    return `${head}: ${pct(D, m.p)}`;
+  });
   const w = Math.max(0, Math.round(num(res?.wounds)));
   const per = num(D?.CATCH_V3?.legend?.woundPerEscape, 6);
   const wounds = w > 0 ? `Wounded ${w === 1 ? 'once' : w === 2 ? 'twice' : `${w} times`}: +${Math.min(num(D?.CATCH_V3?.legend?.woundCap, 18), w * per)}` : '';
