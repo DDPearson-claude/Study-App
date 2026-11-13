@@ -143,7 +143,7 @@
 
   // Every number the words show, worked out from the rules.
   const N = {
-    p1450: fx(pullAt(1450), 0), w2900: fx(radOf(2900), 1), p2900: fx(pullAt(2900), 0), p2x: fx(2 * pullAt(1450), 0),
+    p1450: fx(pullAt(1450), 0), q1450: fx(pullAt(1450), 1), w2900: fx(radOf(2900), 1), p2900: fx(pullAt(2900), 0), p2x: fx(2 * pullAt(1450), 0),
     wn: fx(WN, 0), fn: fx(WN / TAU, 1), crit: fx(NCRIT, 0), off: nf(1000 * MR / M, 2),
     s300: fx(shakeMm(300, ZOPEN), 3), s1450: fx(shakeMm(1450, ZOPEN), 2), s2400: fx(shakeMm(2400, ZOPEN), 2),
     pk05: nf(1000 * MR / M / (2 * ZOPEN), 2), q41: fx(balF(90), 2),
@@ -178,15 +178,15 @@
     { show: true, rig: 'pull', name: 'The heavy spot\'s pull', text: T2, still: { rpm: 1450 },
       read: readAs(T2, `At 1450 rev/min the pull is ${N.p1450} N.`) },
     { kind: 'pick', pic: 'pullQ', name: 'Twice the speed',
-      task: `At 1450 rev/min the heavy spot pulls with ${N.p1450} N. What does it pull with at 2900 rev/min?`,
-      opts: [nw(N.p2900), nw(N.p2x), nw(N.p1450)], order: [1, 0, 2], want: nw(N.p2900),
-      pv: { [nw(N.p2900)]: pullAt(2900), [nw(N.p2x)]: 2 * pullAt(1450), [nw(N.p1450)]: pullAt(1450) },
+      task: `At 1450 rev/min the heavy spot pulls with ${N.q1450} N. What does it pull with at 2900 rev/min?`,
+      opts: [nw(N.p2900), nw(N.p2x), nw(N.q1450)], order: [1, 0, 2], want: nw(N.p2900),
+      pv: { [nw(N.p2900)]: pullAt(2900), [nw(N.p2x)]: 2 * pullAt(1450), [nw(N.q1450)]: pullAt(1450) },
       hints: { [nw(N.p2x)]: 'Not quite. That doubles the pull with the speed. But the speed counts twice.',
-        [nw(N.p1450)]: 'Not quite. The faster the spot goes round, the harder the shaft must pull it.' },
+        [nw(N.q1450)]: 'Not quite. The faster the spot goes round, the harder the shaft must pull it.' },
       why: `2900 rev/min is twice 1450. At double the speed, the spot moves twice as fast and swings its direction round twice as quickly. So the pull is four times as big. At ${N.w2900} rad/s it is 0.02 × 0.15 × ${N.w2900}² = ${N.p2900} N.`,
       qw: [],
       ow: { [nw(N.p2900)]: ['2900 is twice 1450', 'Speed counts twice: 2 × 2 = 4', `0.02 × 0.15 × ${N.w2900}² = ${N.p2900} N`],
-        [nw(N.p2x)]: [`2 × ${N.p1450} = ${N.p2x}: speed counted only once`], [nw(N.p1450)]: [`${N.p1450} N: as if speed made no difference`] } },
+        [nw(N.p2x)]: [`2 × ${N.q1450} is about ${N.p2x}: speed counted only once`], [nw(N.q1450)]: [`${N.q1450} N: as if speed made no difference`] } },
     { show: true, rig: 'sweep', name: 'The critical speed', text: T4, still: { rpm: 2400 } },
     { kind: 'pick', pic: 'pumpQ', name: 'Where it peaks',
       task: 'A pump set\'s mounts swing on their own at 20 Hz. The pump runs up to 2900 rev/min. At what speed does it shake hardest on the way up?',
@@ -715,14 +715,14 @@
       discQ(86, '1450 rev/min'); discQ(254, '2900 rev/min');
       const L1 = Math.max(pullAt(1450) * QS, 10);
       arrow(86, 96, 86 + L1 * Math.sin(ang), 96 - L1 * Math.cos(ang), 'nv', 8);
-      text(86, 156, N.p1450 + ' N', 'sm n', 'middle');
+      text(86, 156, N.q1450 + ' N', 'sm n', 'middle');
       if (!shown(a)) text(254, 156, '? N', 'sm m', 'middle');
       else part(a.v(0.1), 0, () => {
         const L = Math.max(d.pv[a.pick] * QS, 10);
         arrow(254, 96, 254 + L * Math.sin(ang), 96 - L * Math.cos(ang), a.right ? 'nv' : 'wr', 8);
         text(254, 156, a.pick, a.right ? 'sm n' : 'sm w', 'middle');
       });
-      return { h: working(166, d, st, a), said: 'Two discs with the same heavy spot: one at 1450 revolutions a minute pulling with ' + N.p1450 + ' newtons, and one at 2900, whose pull is asked.' };
+      return { h: working(166, d, st, a), said: 'Two discs with the same heavy spot: one at 1450 revolutions a minute pulling with ' + N.q1450 + ' newtons, and one at 2900, whose pull is asked.' };
     },
     pumpQ(d, st) {
       const a = ansOf(st), sx = (n) => 30 + n * 290 / 3000, ay = 118;
@@ -962,10 +962,10 @@
   K.check('A rigid rotor can be balanced at the two end planes: a weight at each end, opposite each spot, leaves no pull at either end, while without them the pulls cancel in total but rock the shaft', () =>
     [0, 0.4, 1, 2, 3, 4.5].every((t) => { const w = endPulls(t, true), o = endPulls(t, false); return Math.abs(w.L) < 1e-12 && Math.abs(w.R) < 1e-12 && Math.abs(o.L + o.R) < 1e-12; }) &&
     Math.abs(endPulls(0, false).L - endPulls(0, false).R) > 1);
-  K.check('Every puzzle answer is worked from its rule: 2 Hz, 277 N, 1200 rev/min, 0.3 mm, 20 g, 197 N and 1910 rev/min, with the wrong picks 138, 2900, 20, 0, 0.6, 30, 45, 18,000, 5, 3820 and 477', () => {
+  K.check('Every puzzle answer is worked from its rule: 2 Hz, 277 N from 69.2 N, 1200 rev/min, 0.3 mm, 20 g, 197 N and 1910 rev/min, with the wrong picks 138, 2900, 20, 0, 0.6, 30, 45, 18,000, 5, 3820 and 477', () => {
     const w = (n) => STEPS[iOf('pic', n)].want;
     return w('springQ') === '2 Hz' && w('pullQ') === '277 N' && w('pumpQ') === '1200 rev/min' && w('dampQ') === '0.3 mm' && w('massQ') === '20 g' && w('radQ') === '197 N' && w('stiffQ') === '1910 rev/min' &&
-      N.p2x === '138' && N.q9x === '45' && N.q12r === '18,000' && N.q12s === '5' && N.q13x === '3820' && N.q13h === '477' && N.q12w === '314.2' && N.w2900 === '303.7' && N.q13w === '200';
+      N.q1450 === '69.2' && N.p2x === '138' && N.q9x === '45' && N.q12r === '18,000' && N.q12s === '5' && N.q13x === '3820' && N.q13h === '477' && N.q12w === '314.2' && N.w2900 === '303.7' && N.q13w === '200';
   });
   K.check('Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check', () =>
     DO.every((i) => {

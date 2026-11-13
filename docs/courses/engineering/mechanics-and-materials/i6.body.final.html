@@ -176,7 +176,7 @@
       q4: nf(I4, 2), q4d: nf(2 * I2, 2), q4r: nf(2 * M * 0.4, 2), q4each: nf(M * 0.4 * 0.4, 2),
       q6: fx(runUpOf(0.5, 40), 1), q6x: fx(W_RUN / (40 * 0.5), 1), q6r: fx(N_RUN / alphaOf(40, 0.5), 1), q6a: nf(alphaOf(40, 0.5), 2), q6xa: nf(40 * 0.5, 2),
       q8w: fx(radOf(960), 1), q8: fx(powerOf(40, radOf(960)) / 1000, 2), q8W: nf(powerOf(40, radOf(960)), 0), q8x: fx(40 * 960 / 1000, 1), q8xW: nf(40 * 960, 0), q8s: nf(40 * 960 / 60, 0),
-      q10e: fx(energyOf(2, radOf(725)) / 1000, 2), q10: fx(energyOf(2, radOf(1450)) / 1000, 1), q10x: fx(2 * energyOf(2, radOf(725)) / 1000, 1),
+      q10e: fx(energyOf(2, radOf(725)) / 1000, 3), q10: fx(energyOf(2, radOf(1450)) / 1000, 1), q10x: fx(2 * energyOf(2, radOf(725)) / 1000, 1),
       q12p: fx(pumpT(1125), 1), q12n: fx(PEAK - pumpT(1125), 1), q12e: fx(pumpT(1500), 1),
       q13I: nf(I13, 2), q13a: fx(alphaOf(30, I13), 1), q13w: fx(radOf(600), 1), q13: fx(runUpOf(I13, 30, radOf(600)), 1),
       q13r: fx(600 / alphaOf(30, I13), 1), q13xI: nf(2 * 10 * 0.3, 2), q13xa: nf(30 / (2 * 10 * 0.3), 2), q13x: fx(radOf(600) / alphaOf(30, 2 * 10 * 0.3), 1),
@@ -819,7 +819,7 @@
         path('lbad', 'M' + P(g.X0, bot) + 'L' + P(x14, y)); circ('dotbad', x14, y, 4.5); text(x14 - 8, y - 6, N.q10x + ' kJ', 'w sm', 'end');
       });
       if (a.wrong && a.pick === N.q10e + ' kJ') part(a.v(0.1), 0, () => { path('lbad', 'M' + P(x7, y7) + 'H' + r2(x14)); circ('dotbad', x14, y7, 4.5); text(x14 - 8, y7 + 16, N.q10e + ' kJ', 'w sm', 'end'); });
-      return { h: working(bot + 40, d, st, a), said: 'A graph of the rig\'s stored energy against speed, drawn up to 5.76 kilojoules at 725 revolutions a minute.' };
+      return { h: working(bot + 40, d, st, a), said: 'A graph of the rig\'s stored energy against speed, drawn up to 5.764 kilojoules at 725 revolutions a minute.' };
     },
     meetQ(d, st) {
       const a = ansOf(st), top = 40, bot = 156, g = axes({ top, bot, ax: 1500, ymax: 300, yt: [100, 200, 300], xticks: [0, 500, 1000, 1500], xu: ' rev/min', title: 'Torque (N m)' });
@@ -1059,7 +1059,7 @@
   K.check('A steady net torque draws a straight speed line, the same rise every second, and the energy at half speed is a quarter of the energy at full speed', () => {
     const u = runOf(2, 50, false);
     return near(u.w(2) - u.w(1), 25, 1e-9) && near(u.w(5) - u.w(4), 25, 1e-9) &&
-      near(K.at({ step: I_EN, spd: 725 }).energy * 4, K.at({ step: I_EN, spd: 1450 }).energy, 1e-9) && N.q10e === '5.76' && N.q10 === '23.1';
+      near(K.at({ step: I_EN, spd: 725 }).energy * 4, K.at({ step: I_EN, spd: 1450 }).energy, 1e-9) && N.q10e === '5.764' && N.q10 === '23.1';
   });
   K.check('The motor sketch gives 130 N m at rest, peaks at 276 N m at 1125 rev/min and falls to 0 at 1500 rev/min; the pump takes 72.4 N m at 1450 rev/min, and they meet near 1450 rev/min', () =>
     Math.round(motorT(0)) === 130 && near(motorT(1125), 276, 1e-9) && motorT(1124) < 276 && motorT(1126) < 276 && motorT(1500) === 0 &&

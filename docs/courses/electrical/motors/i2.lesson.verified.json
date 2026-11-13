@@ -166,6 +166,11 @@
         "kind": "computed"
       },
       {
+        "label": "Star-delta starting torque, fraction of DOL",
+        "value": "1/3",
+        "kind": "computed"
+      },
+      {
         "label": "Star-delta starting current, about %",
         "value": 30,
         "kind": "constant",
@@ -263,7 +268,7 @@
   "summary": {
     "title": "The DOL starter",
     "for": "Starting a cage motor straight on the full supply. Start pulls the contactor in. The latching contact keeps its coil fed. Anything that opens the coil circuit drops it out until Start is pressed again.",
-    "rule": "Start (3) N/O, with the latching contact (7) across it.\nStop (8) N/C and the overload's contact (10) in series with the coil (4).\nExtra Stops go in series, extra Starts in parallel with Start.\nCoil voltage must match its wiring: 230 V phase to neutral, 400 V across two lines.\n\nDOL start: usually 6 to 8 × full-load current, sometimes over 10.\nOverload set to full-load current: holds at 1.05 ×, trips slowly at 1.2 × on its trip curve.\nStar-delta: about a third of the current, about a quarter of the torque.\n\nRuns only while Start is held: check 7. Will not start: check the overload first.",
+    "rule": "Start (3) N/O, with the latching contact (7) across it.\nStop (8) N/C and the overload's contact (10) in series with the coil (4).\nExtra Stops go in series, extra Starts in parallel with Start.\nCoil voltage must match its wiring: 230 V phase to neutral, 400 V across two lines.\n\nDOL start: usually 6 to 8 × full-load current, sometimes over 10.\nOverload set to full-load current: holds at 1.05 ×, trips slowly at 1.2 × on its trip curve.\nStar-delta: a third of the current and a third of the torque. In practice, about 30% of the current and 25% of the torque.\n\nRuns only while Start is held: check 7. Will not start: check the overload first.",
     "traps": [
       {
         "text": "The coil pulls and holds the main contacts. The latching contact only keeps the coil fed once Start springs back.",

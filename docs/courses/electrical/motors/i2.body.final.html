@@ -191,7 +191,8 @@
   ];
   const SD = [
     blk('p', 'Start in star, run in delta. In star each winding gets 400 ÷ √3 = ' + SDN.vs + ' V, so √3 less current.'),
-    blk('p', 'Each line also carries one winding\'s current, not √3 times it. So star draws 1 ÷ 3 of the DOL current and about a quarter of the torque.'),
+    blk('p', 'Each line also carries one winding\'s current, not √3 times it. So star draws 1 ÷ 3 of the DOL current.'),
+    blk('p', 'Torque goes with the voltage squared: (1 ÷ √3)² = 1 ÷ 3. So it gives 1 ÷ 3 of the DOL torque too. In practice it is about 30% of the current and 25% of the torque.'),
     blk('p', 'It needs three contactors, a timer and a delta-run motor. Start it light. It peaks again at the switch.'),
     blk('p', 'Its overload sits on the main contactor, set to 0.58 × ' + IFL + ' = ' + SDN.ol + ' A.'),
   ];
@@ -203,7 +204,7 @@
     blk('row', 'Short circuit: Fuses or a breaker clear it, not the overload.'),
   ];
   const CF = [
-    blk('row', 'Chatters or buzzes: Look for low coil voltage, a loose connection or dirty magnet faces. As it pulls in, it should see 0.85 to 1.1 times its rating. Measure that live, then isolate again before you touch anything.'),
+    blk('row', 'Chatters or buzzes: Look for low coil voltage, a loose connection or dirty magnet faces. As it pulls in, it should see 0.85 to 1.1 times its rating. Measure that live, then isolate again before you touch anything. Test live only where it cannot be done dead, with fused, shrouded probes, keeping clear of live parts.'),
     blk('row', 'Wrong coil: Match its marked voltage to its wiring. A 230 V coil across two lines gets 400 ÷ 230 = ' + COIL.hi + ' times its rating and can burn out. A 400 V coil from phase to neutral gets 230 ÷ 400 = ' + COIL.lo + ' times. It may not pull in, and can overheat.'),
   ];
   const words = (list) => list.map((b) => b.s).join('\n\n');
@@ -653,7 +654,7 @@
     return K.near(fillTime(120), 20, 1e-9) && whole(fillTime(150)) === '6' && Math.abs(a.t - fillTime(150)) < 0.05 && Math.abs(b.t - 20) < 0.05 &&
       !b.s.cIn && Math.abs(c - COOL_S) < 0.05 && !s3.tripped && s3.heat === 0 && s3.cIn;
   });
-  K.check('Star-delta on 400 V: 400 ÷ √3 = 231 V a winding and a third of the DOL line current, so 138 to 185 A DOL becomes 46 to 62 A; its overload is set to 0.58 × 23.08 = 13.4 A', () =>
+  K.check('Star-delta on 400 V: 400 ÷ √3 = 231 V a winding gives a third of the DOL line current and, as torque goes with the voltage squared, a third of the DOL torque; so 138 to 185 A DOL becomes 46 to 62 A; its overload is set to 0.58 × 23.08 = 13.4 A', () =>
     SDN.ol === '13.4' && SDN.vs === '231' && SDN.d6 === '138' && SDN.d8 === '185' && SDN.s6 === '46' && SDN.s8 === '62' && K.near(Math.pow(1 / Math.sqrt(3), 2), 1 / 3, 1e-12));
   K.check('A 230 V coil across two lines gets 1.74 times its rating, and a 400 V coil from phase to neutral 0.575 times', () => COIL.hi === '1.74' && COIL.lo === '0.575');
   K.check('Started direct on line, a motor usually draws 6 to 8 times rated current: the example surge of 7 times sits inside that range', () => SURGE >= 6 && SURGE <= 8,

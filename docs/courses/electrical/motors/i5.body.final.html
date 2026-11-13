@@ -224,7 +224,7 @@
     blk('row', 'Permanent split capacitor: One capacitor, always in, and no switch. Low starting torque and low starting current.'),
   ];
   const FAULTS = [
-    blk('safe', 'Safety first: Isolate, lock off and prove dead. Then discharge the capacitor through a resistor: about 20 kΩ, 5 W, for five seconds. Then confirm it with a meter.'),
+    blk('safe', 'Safety first: Isolate, lock off and prove dead. Then discharge the capacitor through a resistor of about 20 kΩ, 5 W. Hold it on for five time constants, each R × C. For 250 µF that is 20,000 Ω × 0.00025 F = 5 s each, so 25 s. Then confirm it with a meter.'),
     blk('row', 'Capacitor open or weak: Poor starting torque. It may hum and not start. That usually trips the overload.'),
     blk('row', 'Capacitor shorted: The winding may burn out.'),
     blk('row', 'Look and measure: Bulging, leaking, cracked or scorched means it has failed. Measure its µF against the value and tolerance marked on it.'),
