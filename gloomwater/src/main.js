@@ -10,6 +10,9 @@ import {
 } from './core.js';
 import * as data from './data.js';
 import { create as createFirstEvening } from './first-evening.js';
+// >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
+import { create as createIntro } from './intro.js';
+// <<< INTRO LANE B
 
 import * as renderMod from './render.js';
 import * as waterMod from './water.js';
@@ -302,6 +305,12 @@ const game = {
 };
 ctx.game = game;
 
+// >>> INTRO LANE B: flow (the opening cut scene: trigger, flow 'intro', the hand-off, the replay; SPEC §7)
+// Lane B builds here: game.introPending() / game.beginIntro() / game.replayIntro(), flow 'intro' with ctx.cinematic held, the
+// `intro:done` hand-off (meta.intro.seen, then startNewRun({character, nightMode, __intro: true}) whose zone:change carries
+// {intro: true}), and the replay's return to the title. The seam commit wires only the director, its clock and the debug hook.
+// <<< INTRO LANE B
+
 // ------------------------------------------------------------------ v3: the Landing (CONTRACT §13.1, §13.3, §13.12)
 /** meta.firstEvening (progression owns it; created lazily, never by defaultMeta). */
 function feState() {
@@ -434,6 +443,12 @@ for (const [name] of MODULES) {
   try { ctx[name].init?.(); } catch (e) { report(`init(${name})`, e); ctx[name] = makeStub(name); }
 }
 if (ctx.firstEvening) { try { ctx.firstEvening.init(); } catch (e) { report('init(firstEvening)', e); ctx.firstEvening = null; } }
+// >>> INTRO LANE B: create (v3 only; null with the flag off)
+ctx.intro = null;
+if (V3 && data.INTRO) {
+  try { ctx.intro = createIntro(ctx, { debug: DEBUG, hasSavedRun: () => game.hasSavedRun() }); ctx.intro.init(); } catch (e) { report('create(intro)', e); ctx.intro = null; }
+}
+// <<< INTRO LANE B
 
 // bus wiring owned by main
 ctx.bus.on('zone:change', ({ zone } = {}) => { if (zone) hub.zone = zone; });
@@ -721,6 +736,31 @@ if (FE_ON) Object.assign(ctx.debug, {
   glides(mode) { if (mode === 'skip' || mode === 'real') hub.glides = mode; return hub.glides; },
   hub: () => ({ flow: ctx.flow, zone: hub.zone, departing: !!hub.departing, sandbox: hub.sandbox !== null, hearth: hub.hearth ? +hub.hearth.t.toFixed(2) : null, glides: hub.glides }),
 });
+// >>> INTRO LANE B: debug (CONTRACT §13.13: one hook, registered only in a debug build; 'intro' is in core.HIDDEN_DEBUG_HOOKS)
+if (V3 && DEBUG && ctx.intro) {
+  /**
+   * intro()                      → the readout {phase, t, beat, line, replay, reduced, skipped, hold, optIn, pending, stage}
+   * intro('play', {replay, reduced}) · intro('seek', t) · intro('resume') · intro('skip') · intro('stop')
+   * intro('auto', bool)          → opt this page in to (or out of) auto-play on a fresh save's Begin
+   * intro('prewarm')             → build the set now (as the fresh-save title does in idle time)
+   */
+  ctx.debug.intro = (cmd, arg) => {
+    const d = ctx.intro;
+    const readout = () => ({ ...d.state, pending: d.pending(), flow: ctx.flow, seen: !!ctx.state.meta.intro?.seen, stage: peek(() => d.stage?.stats?.()) });
+    switch (cmd) {
+      case undefined: return readout();
+      case 'play': d.start({ replay: true, ...(arg && typeof arg === 'object' ? arg : {}) }); return readout();   // (lane B: route through the real flow)
+      case 'seek': d.seek(Number(arg) || 0); return readout();
+      case 'resume': d.resume(); return readout();
+      case 'skip': d.skip(); return readout();
+      case 'stop': d.stop(); return readout();
+      case 'auto': d.setOptIn(arg !== false); return readout();
+      case 'prewarm': d.prewarm(); return readout();
+      default: return null;
+    }
+  };
+}
+// <<< INTRO LANE B
 // M2 (CONTRACT §13.1, §13.11): a release build (v3, debug off) exposes no species, roll, plan or pre-roll on window.__gw
 if (V3 && !DEBUG) { for (const k of HIDDEN_DEBUG_HOOKS) delete ctx.debug[k]; }
 
@@ -730,7 +770,8 @@ let last = performance.now();
 const errorCounts = new Map();
 function frame(now) {
   requestAnimationFrame(frame);
-  const realDt = clamp((now - last) / 1000, 0, 0.05);
+  const rawDt = Math.max(0, (now - last) / 1000);   // (INTRO LANE B: the cut scene clamps its own dt, INTRO.clock)
+  const realDt = clamp(rawDt, 0, 0.05);
   last = now;
   const time = ctx.time;
   time.dt = realDt;
@@ -757,6 +798,9 @@ function frame(now) {
     if (autosaveTimer > 30) { autosaveTimer = 0; game.save(); }
   }
 
+  // >>> INTRO LANE B: frame (the film's clock runs on real elapsed time, before the modules, so they all see this frame's moment)
+  if (ctx.intro) { try { ctx.intro.update(rawDt); } catch (e) { const n = (errorCounts.get('intro') || 0) + 1; errorCounts.set('intro', n); if (n <= 3) report('update(intro)', e); } }
+  // <<< INTRO LANE B
   for (const name of UPDATE_ORDER) {
     const m = ctx[name];
     if (!m || m.isStub || !m.update) continue;

@@ -256,10 +256,27 @@ export function create(ctx) {
     const dur = ctx.data?.BALANCE?.phases?.[run.phase] || 60;
     return { phase: run.phase || 'calm', day: run.day || 1, k: clamp((run.phaseTime || 0) / dur) };
   }
+  // >>> INTRO LANE A: stage hooks (the opening cut scene, docs/v3/intro/SPEC.md §6; inert until the stage calls them)
+  // setIntroMood(true): the world wears the first run's opening mood (day 1, calm, k 0) whatever the flow, so the film's last
+  // shot is lit exactly as the run that follows it. setIntroWaterLight({x, y, z, color, intensity, radius, streak} | null): one
+  // more light for the water (the great lantern's pool and gold path, on every tier). getHeroAnchor(): where the lake's hero
+  // landmark stands (the Mossmere: the Sunken Gate), as world-art places it.
+  let introMood = false, introLight = null;
+  const INTRO_MOOD = { night: 0, warm: 0.35 };
+  function getHeroAnchor() {
+    if (!layout) return null;
+    const ga = Math.hypot(layout.gate.x, layout.gate.z) < layout.R * 0.2 ? -Math.PI / 2 : Math.atan2(layout.gate.z, layout.gate.x);
+    const r = layout.shoreR(ga) + 16;
+    const x = Math.cos(ga) * r, z = Math.sin(ga) * r;
+    return { x, z, face: Math.atan2(-x, -z), theme: layout.theme, zone: zone?.id ?? null };
+  }
+  // <<< INTRO LANE A
+
   function moodTargets(out) {
     let n = 0, w = 0;
     const run = ctx.state?.run;
-    if (ctx.flow === 'title' || ctx.flow === 'boot' || !run) { n = 0.16; w = 0.14; }
+    if (introMood) { n = INTRO_MOOD.night; w = INTRO_MOOD.warm; }   // INTRO LANE A
+    else if (ctx.flow === 'title' || ctx.flow === 'boot' || !run) { n = 0.16; w = 0.14; }
     else {
       const pi = phaseInfo();
       const k = clamp(Number(pi?.k) || 0);
@@ -299,7 +316,7 @@ export function create(ctx) {
     AIR.mist.value = Math.max(0, AIR_MIST[0] + AIR_MIST[1] * n + AIR_MIST[2] * w);
     AIR.sheets.value = Math.max(0, AIR_SHEETS[0] + AIR_SHEETS[1] * n + AIR_SHEETS[2] * w);
     AIR.shafts.value = AIR_SHAFTS; AIR.pools.value = AIR_POOLS; AIR.ringHaze.value = AIR_RING_HAZE;
-    const isTitle = ctx.flow === 'title' || !ctx.state?.run;
+    const isTitle = (ctx.flow === 'title' || !ctx.state?.run) && !introMood;   // (INTRO LANE A: the cut scene wears the run's mood)
     env.glowK = (1 - 0.42 * n) * (isTitle ? 1.1 : 1);
     env.shaftK = (1 - 0.9 * n) * (1 + 0.35 * w) * (isTitle ? 1.2 : 1);
     env.partK = 1 - 0.55 * n;   // drifting motes thin out at night: the eyes and the stars own the dark
@@ -431,6 +448,15 @@ export function create(ctx) {
       s.radius = Number.isFinite(lr) && lr > 0 ? lr : undefined; s.ring = 0;
       waterLights.push(s);
     }
+    // >>> INTRO LANE A: stage hooks (the great lantern's light on the water)
+    if (introLight && introLight.intensity > 0.001) {
+      const s = wl[i++];
+      s.position.set(introLight.x, introLight.y, introLight.z);
+      s.color.set(introLight.color ?? 0xed9e3b); s.intensity = introLight.intensity; s.distance = introLight.radius;
+      s.radius = introLight.radius; s.streak = introLight.streak ?? 1;
+      waterLights.push(s);
+    }
+    // <<< INTRO LANE A
     const m = ctx.actors?.merchant;
     if (m && !ctx.actors.isStub && m.present === true && m.position && typeof m.position.x === 'number') {
       const s = wl[i++];
@@ -672,6 +698,14 @@ export function create(ctx) {
     getDocks: () => (layout?.docks || []).map((d) => ({ position: new THREE.Vector3(d.x, 0, d.z), yaw: d.yaw })),
     getMood: () => mood,
     getLightShafts: () => (layout?.cracks || []).map((c) => ({ x: c.x, z: c.z })),
+    // >>> INTRO LANE A: stage hooks
+    getHeroAnchor,
+    setIntroMood(on) { introMood = !!on; },
+    setIntroWaterLight(l) {
+      introLight = l && Number.isFinite(l.x) && Number.isFinite(l.z) && Number.isFinite(l.intensity)
+        ? { x: l.x, y: Number.isFinite(l.y) ? l.y : 2, z: l.z, color: l.color, intensity: l.intensity, radius: Number.isFinite(l.radius) ? l.radius : 20, streak: l.streak } : null;
+    },
+    // <<< INTRO LANE A
     debugInfo: () => ({ zone: zone?.id, radius: bounds.radius, obstacles: obstacles.length, gate: gateState, mood: { ...mood }, arena: arena?.stats?.() }),
   };
 }

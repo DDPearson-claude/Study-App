@@ -333,6 +333,9 @@ export function createScreens(K) {
         const z = K.zoneData(saved?.zone);
         add('Continue', '', () => { K.closeAll(); ctx.game?.continueRun?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main', sub: saved ? `Day ${saved.day || 1} · ${esc(z?.name || '')}` : '' });
       }
+      // >>> INTRO LANE B: title (SPEC section 7.1): while ctx.game.introPending() the primary word is "Begin" and plays the opening
+      // cut scene (no New Descent panel, no premise paragraph); otherwise a quiet "Prologue" word in the lower line replays it
+      // <<< INTRO LANE B
       add('New Descent', hasRun ? 'Begins a new descent and abandons the waiting one' : '', () => openNewDescent(), { autofocus: !hasRun, cls: hasRun ? 'gw-tbtn' : 'gw-tbtn gw-tbtn--main' });
       add('Journal', `${named} / ${total} named`, () => openJournal());
       add('Shrine', `${fmt(m.memories || 0)} Memories`, () => openShrine());

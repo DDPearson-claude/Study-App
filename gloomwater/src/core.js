@@ -200,6 +200,7 @@ export function debugEnabled(g = globalThis) {
 export const HIDDEN_DEBUG_HOOKS = Object.freeze([
   'fishChance', 'fishPlan', 'fishOutcome', 'fishSeed', 'fishStrike', 'fishLinger', 'preroll', 'fishing', 'fishSigns', 'fishReel',
   'fishHook', 'forceBite', 'instantCatch', 'sign', 'odds', 'marked', 'wound', 'rollResident', 'addMarkedFish',
+  'intro',   // the opening cut scene's hook (CONTRACT §13.13): play / seek / skip / state / the auto-play opt-in
 ]);
 
 // ---------------------------------------------------------------- the world is live (CONTRACT §13.1)
