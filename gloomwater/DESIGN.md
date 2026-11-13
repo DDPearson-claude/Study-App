@@ -8,7 +8,7 @@
 
 > **Precedence (v3).** §25 is the binding v3 spec and **overrides §1–§24 and the appendices wherever they conflict**. §25.12 says, section by section, what is kept, modified, replaced or cut; §25.13 lists the edits made inside §24. Inside The Long Descent (the prestige mode, §25.3.7) §1–§24's run rules still apply. v3 vocabulary: §25.0.4.
 
-> **Precedence (v4, the Full Hold, 2026-11-13).** The user has redirected the game: catch big and rare fish, keep them in a small hold, sell them for clams, buy gear, raft, home, bait, lures and maps; the creature attacks are parked; there is no way to fail. **§26 and `docs/loop/SPEC.md` are binding for that direction and override §1–§25 and the appendices wherever they conflict, while `LOOP_ENABLED`.** §26.3 says what is replaced. With the flag off, §25 stands as written.
+> **Precedence (v5, the Full Hold, 2026-11-13).** The user has redirected the game: catch big and rare fish, keep them in a small hold, sell them for clams, buy gear, raft, home, bait, lures and maps; the creature attacks are parked; there is no way to fail. **§26 and `docs/loop/SPEC.md` are binding for that direction and override §1–§25 and the appendices wherever they conflict, while `LOOP_ENABLED`.** §26.3 says what is replaced. With the flag off, §25 stands as written.
 
 **Contents**
 
@@ -39,7 +39,7 @@
 | 23 | Implementation notes (§23.1 who reads what, incl. §24–§25) | modified |
 | 24 | Exploration on foot (v2, behind `WALK_ENABLED`) | kept, edited in place (§25.13) |
 | 25 | **Fishing & discovery first (v3)**: decision log, expeditions, the Landing and the First Evening (§25.4.8), night modes, automatic fishing (§25.6), size, places, progression, economy, supersession, phase plan | **binding**, except where §26 replaces it |
-| 26 | **The Full Hold (v4)**: the hold, clams, maps as the only discovery, the evening, quiet water; the swarm and survival parked; pointer to `docs/loop/SPEC.md` | **binding** (it overrides §25 where they conflict) |
+| 26 | **The Full Hold (v5)**: the hold, clams, maps as the only discovery across 16 waters, the evening, quiet water, the rare giants; the swarm and survival parked; the roster (§26.4); pointer to `docs/loop/SPEC.md` | **binding** (it overrides §25 where they conflict) |
 | A | Balance simulation | modified (T1, T3, T5) |
 | B | The foot profile | kept |
 
@@ -2134,6 +2134,7 @@ No new dynamic lights (≤ 4); walk grid + derived fields ≈ 2.5 MB per lake; f
 | 9 | "Some fish species would jump out the water so keep that for certain fish" | leaps kept per species (38 species, how often and where in the play), shown as a backlit silhouette; several species leap in every water so a leap never pins one (§25.6.5) |
 | 10 | "Make sure the game starts with a very short tutorial and in a place thay makes sense for this game to start in based on our lore. I do the want it to be that you're just in the game somewhere and you just start off your own back." | **the First Evening** (§25.4.8): a new game opens at the Landing, where the last Wicks came ashore, with the player's Wick waking among cold candles by the hearth; a ≈ 50 s tutorial teaches cast, wait, strike and the automatic play on a Quayling off the jetty, then the First Outing and the glide out under the sea-gate; built right after automatic fishing (§25.14.2b), never a cold start in a lake |
 | 11 | "Who are we and what is the gameplay loop? I basically want to try and catch big and rare fish, the fish we keep i want to sell for clams and we use the clams to upgrade our gear, raft, homebase, bait, lures, buy maps of new locations to fish, which is the only way of discovering a new place is to buy the map." · "for now park the creature attacks." · "I just want to catch fish so we're limited buy storage for caught fish in our boat starting at 3 catch slots." · "there's no way to fail, but once your boat is full you can't catch anymore fish and you might not catch a big one at all as its chance" (2026-11-13) | **the Full Hold** (§26, `docs/loop/SPEC.md`): trips of one evening from home; a hold of 3 slots (to 8), every keep final; Murk buys the hold for clams (Shells renamed); clams buy tackle, raft, home, bait, lures and maps; a map is the only way a lake or a place becomes known; the swarm, survival, the meta and tolls are parked behind flags; no fail state. It replaces §25.1–§25.5 and §25.8–§25.11 and keeps §25.6–§25.7 (automatic fishing, size) almost whole (§26.3) |
+| 12 | "Use all of these fish as inspiration for our game's fish" · "The main episode based fish he catches should be the rare giants" · "Yes to all five loop rules" (2026-11-13) | **the roster** (§26.4, `docs/loop/ROSTER.md`) and **the Full Hold v5** (§26, `docs/loop/SPEC.md`): 164 original fish across 16 waters, every one on a map; the 49 rare giants (one per place, one legend per crown) are the dearest and hardest fish of their waters, and each place map promises its giant; v4's five loop rules are decisions |
 
 #### 25.0.2 The brief's open questions, answered by the user (all = the recommended defaults)
 
@@ -4186,54 +4187,57 @@ Morphs (all 56) · geometry-moving weather (Highwater, The Low Breath, the Belfr
 
 ---
 
-## 26. The Full Hold (v4): catch, keep, sell, upgrade
+## 26. The Full Hold (v5): catch, keep, sell, upgrade
 
-*Binding since 2026-11-13 (the user's redirect, row 11 of §25.0.1). This section is the summary; **the binding spec is `docs/loop/SPEC.md`** (every number, the map catalogue, every word on screen, what is parked, the build plan). Its numbers are proven by `tools/sim/clams.mjs` (47 checks; `node tools/sim/clams.mjs`). Nothing here is built yet: slice 1 of the build plan moves the tables into `src/data.js` behind `LOOP_ENABLED`.*
+*Binding since 2026-11-13 (the user's redirect, row 11 of §25.0.1; the roster and its rare giants, row 12). This section is the summary; **the binding spec is `docs/loop/SPEC.md`** (v5: every number, the map catalogue of 16 waters, every word on screen, what is parked, the build plan). Its numbers are proven by `tools/sim/clams.mjs` (74 checks; `node tools/sim/clams.mjs`), which reads its fish from `docs/loop/roster.json`. Nothing here is built yet: slice 1 of the build plan moves the tables into `src/data.js` behind `LOOP_ENABLED`.*
 
 ### 26.1 The loop
 
-You are the Wick. Home is the Landing, where Old Murk keeps his barge. **Pick a water you own a map for. Sail out for the evening. Catch fish; keep one or let it go. When the hold is full, go home. Murk pays clams. Clams buy a bigger hold, better tackle, lures, bait, a better raft, a better home, and the next map.**
+You are the Wick. Home is the Landing, where Old Murk keeps his barge. **Pick a water you own a map for. Sail out for the evening. Catch fish; keep one or let it go. When the hold is full, go home. Murk pays clams. Clams buy a bigger hold, better tackle, lures, bait, a better raft, a better home, and the next map, and every map promises a rare giant.**
 
 | scale | length | loop |
 |---|---|---|
 | a cast | 10–40 s | cast → the tell shows the size → strike or let it pass → the automatic play (§25.6) → the reveal → the Wick holds the fish up → **Keep** (the card shows the clams) or **Let go** |
 | a trip (an evening) | 2–5 min | the Chart → **Sail** → late day, dusk, night → the hold fills → **Home** (you may go at any time; nothing sends you) |
 | a visit home | 20–60 s | the tally (Murk buys the whole hold) → the shelf → the Chart |
-| the long game | ≈ 19 h to buy everything | 4 lakes, 16 places, tackle T4, hold 8, the raft and the home built up, 4 legends, about 25 Elders; then the Journal's seals and records |
+| an era (one water) | 2.5–4 h | the lake map → its day and old water → its giants' lure → its other places → the crown of the water before |
+| the long game | ≈ 49 h to buy everything | 16 waters, 70 places, tackle T6, hold 8, the raft and the home built up, 16 legends; about 90 giants landed on the way; then the Journal's seals and the 49 giants' prints |
 
 ### 26.2 The rules
 
 | rule | value | why |
 |---|---|---|
 | **The hold** | 3 slots at the start; 4–8 for 30 · 120 · 450 · 2,000 · 10,000 clams. A full hold refuses the cast. Only the tally empties it. | the user: storage is the limit, starting at 3 |
-| **Kept stays kept** | no swapping, no throwing back later; Let go is free and pays nothing; the record and the ink print are written at the measure either way | "once your boat is full you can't catch anymore fish"; the hold's one decision must be final |
-| **The water goes quiet** (the anti-grind rule) | good bites per evening: open water 4 (+1 per Quiet Hull level), day water 2, old water 4, night water 3, a crown 2. **Every bite spends one**: struck or passed, landed or lost, kept or let go. Then favour −0.15 per bite (to −1.2) and slower bites. Only home brings the water back. | without it, "let everything go until giants bite" brings 2.9–3.9× the clams per trip; with it no patient strategy reaches the natural one per minute (best 90%; the Trophy-only grind 4–17%) |
-| **Every trip is an evening** | late day for 40 s of water time, dusk 20 s (+0.2 favour), then night (+0.25) until you turn for home | night stays the big-fish hour with no clock to watch; slots filled in daylight cannot hold what comes up after dark |
+| **Kept stays kept** | no swapping, no throwing back later; Let go is free and pays nothing; the record and the ink print are written at the measure either way | "once your boat is full you can't catch anymore fish" (the user confirmed it) |
+| **The water goes quiet** (the anti-grind rule) | good bites per evening: open water 4 (+1 per Quiet Hull level), day water 2, old water 4, night water 3, a crown 2. **Every bite spends one.** Then favour −0.15 per bite (to −1.2) and slower bites. Only home brings the water back. | without it "let everything go until the giants bite" brings 3.1–3.9× the clams per trip; with it no patient strategy reaches the natural one per minute (best 90%; the giant hunt 4–18%) |
+| **Every trip is an evening** | late day 40 s of water time, dusk 20 s (+0.2 favour), then night (+0.25) until you turn for home; a fish's hour runs into the next phase | night stays the big-fish hour with no clock to watch |
+| **The rare giants** | the roster's 49 (33 epic, one per place; 16 legendary, one per crown). An epic giant bites only at its own place, as 6% of the bites in its hour and 2.5% outside it (×1.5 with its water's giants' lure); never Small; may be an Elder there; +10 Fight over a rare; rarity ×12 in value | "the main episode based fish … should be the rare giants": the top of the value ladder, the hardest to land, never certain (a giant comes home on 2–15% of trips at its place on arrival tackle) |
 | **No way to fail** | no health, hunger, oil drain, death or timer; nothing takes a kept fish or a clam | the user |
-| **Value** | `clams = species.value × clamp(e^(0.9·z), 0.4, 30)`, Trophy × 1.25, Elder × 1.6: a Trophy is worth six Keepers of its kind, an Elder sixteen | "big and rare fish" |
-| **Maps are the only discovery** | 3 lake maps (800 · 6,000 · 18,000; the Mossmere is yours) and 16 place maps (60 to 28,000), four per lake: day water, old water (the only water with Elders), night water, crown (the legend's pool). An unowned lake is a sealed sheet on Murk's shelf; an unowned place is standing mist. Clams are the only key: no tolls, no proof catches, no legend gates. | the user: "the only way of discovering a new place is to buy the map" |
-| **What clams buy** | tackle T1–T4 per slot (50 · 300 · 1,200 · 7,500), 9 permanent lures, bait in tins of 10 (fitted beside the lure), the raft (hold, Oars, Quiet Hull, Lantern), the home (Murk's Order Board, the Bait Bed, the Long Wall's wings of ink prints, lights, looks), legend bait, maps | the user's list |
-| **Pacing** (an average player) | 64 clams a trip at 10 min, 146 at 1 h, 509 at 5 h, 2,409 at 20 h; the first purchase after trip 1; the lake maps at 1.4 h, 5.0 h and 10.1 h; everything bought at 18.5 h; no purchase more than 70 min away; 54% of first trips bring home no Prize or bigger | SPEC §4.9 |
+| **Value** | `clams = value tier[water] × rarity (1 · 2.4 · 5.5 · 12) × body (√(L50 / 45 cm), 0.6–1.6) × clamp(e^(0.9·z), 0.4, 30)`, Trophy × 1.25, Elder × 1.6; each water's tier is tuned so it pays 1.2× the water before it on the same tackle | "big and rare fish", in the roster's rarities and sizes |
+| **Maps are the only discovery** | 16 waters: the four built lakes, then Rushlight Fen, the Thin Water, Lampmoss Slough, Pyrefall Gorge, the Thunder Stair, the Inkwood, the Siltway, the Salt Gate, Lanternroot Lagoon, the Waxen Reef, the Last Light, the Rime Sound. 15 lake maps (800 to 103,000; the Mossmere is yours) and 70 place maps (60 to 133,900): four per water (day water, old water, night water, crown) and a fifth in six waters. An unowned water is a sealed sheet on Murk's shelf; an unowned place is standing mist with its giant's back in it. A map card names its giant. Clams are the only key. | the user: "the only way of discovering a new place is to buy the map"; every roster fish lives on at least one map |
+| **What clams buy** | tackle T1–T6 per slot (50 · 300 · 1,200 · 6,000 · 24,000 · 60,000; T5 and T6 are new), 5 family lures and 16 giants' lures, bait in tins of 10 priced per water, the raft (hold, Oars, Quiet Hull, Lantern), the home (Murk's Order Board, the Bait Bed, the Long Wall's four wings of ink prints, lights, looks), legend bait, maps | the user's list |
+| **Pacing** (an average player) | 62 clams a trip at 10 min, 211 at 1 h, 784 at 5 h, 2,658 at 20 h, 10,179 at 40 h; the first purchase after trip 1; the lake maps at 1.3 h, 4.3 h, 9.7 h, then the new waters from 14.6 h; everything bought at 49.3 h; no purchase more than 57 min away; the first giant home at about hour 1.8; 52% of first trips bring home no Prize or bigger | SPEC §4.9 |
 
 ### 26.3 Precedence: what this replaces
 
 | section | under the Full Hold |
 |---|---|
-| §25.0 decision log | kept; row 11 added |
+| §25.0 decision log | kept; rows 11 and 12 added |
 | §25.1 pillars · §25.2 loops | **replaced** (SPEC §1–§2) |
 | §25.3 expeditions, Waystones as gates, tolls, Far Water, the Live Well, Snuffed, Homecoming, The Long Descent | **replaced** by trips and the tally; the rest **parked** |
 | §25.4 the Landing | kept as home's look, reached in stages (the Jetty screen, then the cove in raft mode); its growth table **replaced** (SPEC §6); §25.4.8 the First Evening kept, three lines changed |
 | §25.5 night modes | **parked**: every night is still |
-| §25.6 automatic fishing | **kept whole**, except: a lure and a bait together, no favour for a pass, parked buffs are 0, tackle by clams without proof catches, the card is Keep / Let go |
-| §25.7 size | kept; the value rule (§25.7.3) **replaced**; food and oil parked; Elders only in old water; records kept and joined by the ink print |
+| §25.6 automatic fishing | **kept whole**, except: a lure and a bait together, no favour for a pass, parked buffs are 0, tackle by clams without proof catches and with T5–T6, the card is Keep / Let go, the giants' Fight |
+| §25.7 size | kept; the value rule (§25.7.3) **replaced**; food and oil parked; Elders in old water and as giants at their own place; records kept and joined by the ink print |
 | §25.8 world and locations | **replaced** by the map catalogue (SPEC §5): no discovery by exploring; the Mossmere places' geometry and the place names reused |
 | §25.9 progression · §25.10 economy · §25.11 retention | **replaced** (SPEC §4) |
-| §25.14 phase plan | **replaced** from here on by SPEC §13 (six slices); P1, automatic fishing and the First Evening's logic, as built, are the base |
+| §25.14 phase plan | **replaced** from here on by SPEC §13 (nine slices); P1, automatic fishing and the First Evening's logic, as built, are the base |
+| §26.4 and `docs/loop/ROSTER.md` | **binding for the fish**; SPEC is binding for where they bite in play, what they pay and what the maps cost |
 | §1–§24, Appendix A | as §25.12 says; everything about combat, survival and the meta is **parked** |
 
-**Parked** (switched off behind `data.PARKED`, kept in the code and in saves; SPEC §9): the swarm, weapons, levels and Boons, health and damage, hunger, oil as life, night modes, death, Far Water, the Live Well, The Long Descent, Memories, relics and the Shrine, challenges, tolls and gates, Murk on the water, the per-run shop, quality and streak multipliers, walking.
+**Parked** (switched off behind `data.PARKED`, kept in the code and in saves; SPEC §9): the swarm, weapons, levels and Boons, health and damage, hunger, oil as life, night modes, death, Far Water, the Live Well, The Long Descent, Memories, relics and the Shrine, challenges, tolls and gates, Murk on the water, the per-run shop, quality and streak multipliers, a bait's attract, walking.
 
-**The build plan** (SPEC §13): 1. *Three slots*: the Mossmere's open water, hold 3, Keep / Let go, the tally, the shelf with the hold, tackle T1–T2 and the Sporewood map · 2. *The mist lifts*: the Mossmere's four places, mist, the Chart, Elders in old water, the Matriarch · 3. *Bait, lures and the raft*, Murk's orders · 4. *Home*: the Landing in raft mode, the First Evening, home upgrades, ink prints · 5. *Deeper water*: the other twelve places, T3–T4, three legends · 6. *The long tail*: the other Wicks, place twists, the later sheets.
+**The build plan** (SPEC §13): 1. *Three slots*: the Mossmere's open water, hold 3, Keep / Let go, the tally, the shelf with the hold, tackle T1–T2 and the Sporewood map · 2. *The mist lifts*: the Mossmere's four places, mist, the Chart, the first two giants and the Matriarch (plans: lamprey, sturgeon, trout) · 3. *Bait, lures and the raft*, Murk's orders (plans: catfish, bream, disc, tuna) · 4. *Home*: the Landing in raft mode, the First Evening, home upgrades, ink prints (plans: snakehead, gar) · 5. *The old kingdom, complete*: the built lakes' other 14 places, T3–T4, three legends · 6. *The fresh waters*: waters 5–8, T5 (plan: dogtooth) · 7. *The great rivers*: waters 9–12, T6 (plans: shark, sawfish) · 8. *The sea*: waters 13–16 (plans: jack, billfish, cod, flatfish) · 9. *The long tail*: the other Wicks, place twists, the later sheets.
 
 ### 26.4 The roster: every researched fish, one fish of ours
 
@@ -4243,8 +4247,8 @@ You are the Wick. Home is the Landing, where Old Murk keeps his barge. **Pick a 
 |---|---|
 | one fish per kind | every kind of fish landed in the research (`docs/loop/research/`) is the ancestor of exactly one original fish: **164 fish**, plus **8 curiosities** (the turtles, the caiman, the salamander, the crab, the jelly, the squid; a snake that is only seen; a spear-billed fish that is only ever lost) |
 | rare giants | the descendant of each episode's main fish that was landed: **49 giants**, 16 legendary (one per water, its crown) and 33 epic; the sareng, never landed, is Pyrefall Gorge's one that got away. Only giants are epic or legendary; nothing else is a giant |
-| waters | **16**: the four built lakes first (their places and prices as SPEC §5.2), then twelve later sheets: Rushlight Fen, the Thin Water, Lampmoss Slough, Pyrefall Gorge, the Thunder Stair, the Inkwood, the Siltway, the Salt Gate, Lanternroot Lagoon, the Waxen Reef, the Last Light, the Rime Sound |
-| where giants live | one named place each, in old water, night water or the crown; one giant per place; a fourth giant in a water lives on a later sheet. A giant may reach Elder at its own place (the `giantsKept` rule), so SPEC §5.1 rule 3 holds for every other fish |
+| waters | **16**: the four built lakes first, then twelve new waters, each a lake map with its places (SPEC v5 §5.2 sets the catalogue and every price): Rushlight Fen, the Thin Water, Lampmoss Slough, Pyrefall Gorge, the Thunder Stair, the Inkwood, the Siltway, the Salt Gate, Lanternroot Lagoon, the Waxen Reef, the Last Light, the Rime Sound |
+| where giants live | one named place each, in old water, night water or the crown; one giant per place; a fourth giant in a water lives at a fifth place (SPEC v5 §5.2). A giant may reach Elder at its own place (the `giantsKept` rule), so SPEC §5.1 rule 3 holds for every other fish |
 | sizes | the record is the real animal's (or the giant of its kind's, beside the 85 cm Wick) and is the "said to reach" of the §25.7.1 model; σ 0.10 / 0.12 / 0.14 / 0.16 from common to epic; legends authored, each first landing ≥ 1.4 × anything else in its water |
 | body plans | 15 new fish plans (catfish, disc, dogtooth, bream, shark, sawfish, gar, trout, snakehead, lamprey, jack, tuna, billfish, cod, flatfish) and 3 for curiosities; the named `sturgeon` is built with them |
 | built species | 21 re-founded (id, name and set pieces kept; the Glass Sovereign becomes a sturgeon, Old Portcullis moves to Lampmoss Slough, Harpstring and Shardspine become epic giants); 32 kept as they are; none retired |
