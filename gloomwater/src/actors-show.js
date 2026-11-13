@@ -677,7 +677,17 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     wick.setShow(null);
     try { L.fv.setWet?.(0); } catch { /* visual */ }
     if (L.obj) L.obj.visible = true;
-    gone = { L, t: 0, action: gesture ? action : null, cls: L.cls, k: { ...L.k }, obj: L.obj, fv: L.fv, from: { pos: L.obj.position.clone(), quat: L.obj.quaternion.clone() }, done: !gesture };
+    gone = { L, t: 0, action: gesture ? action : null, cls: L.cls, k: { ...L.k }, obj: L.obj, fv: L.fv, from: { pos: L.obj.position.clone(), quat: L.obj.quaternion.clone() }, done: !gesture, out: V(), far: 0.5 };
+    {   // the way back over the side: out from the raft (a giant), else off to its own side of the picture, never at the lens; far enough to clear the planks
+      const P = L.now.pos, o = gone.out;
+      if (L.id === 'alongside') { o.copy(L.zS); gone.far = 0.5; }
+      else {
+        const sd = L.id === 'both' ? 1 : L.side || 1;
+        o.copy(L.xS).multiplyScalar(sd).addScaledVector(L.zS, 0.2).normalize();
+        const tx = Math.abs(o.x) > 1e-4 ? ((o.x > 0 ? DECK_RECT.x1 : DECK_RECT.x0) - P.x) / o.x : Infinity, tz = Math.abs(o.z) > 1e-4 ? ((o.z > 0 ? DECK_RECT.z1 : DECK_RECT.z0) - P.z) / o.z : Infinity;
+        gone.far = Math.max(0, Math.min(tx, tz)) + 0.3 + 0.4 * L.L;
+      }
+    }
     if (!gesture || action === 'eat' || action === 'render') { letGo(gone); }
   }
   function letGo(g) {   // the fish leaves the scene at once (fishing disposes the model)
@@ -936,10 +946,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
           obj.scale.setScalar(Math.max(0.05, 1 - e * Math.min(0.95, 1 - 0.2 / Math.max(0.2, L.L))));
           T.q.setFromAxisAngle(T.b.set(1, 0, 0), e * 2.2); obj.quaternion.copy(g.from.quat).multiply(T.q);
         } else {   // back over the side: a low toss for a small one, a slide for a big one; a small splash, no ring
-          const outW = T.a.copy(L.zS).applyQuaternion(deckQ), far = L.id === 'alongside' ? 0.5 : 1.1 + 0.2 * L.L;
+          const outW = T.a.copy(g.out).applyQuaternion(deckQ), far = g.far;
           obj.position.copy(g.from.pos).addScaledVector(outW, far * e);
           const wy = (ctx.water?.getHeight?.(obj.position.x, obj.position.z) ?? 0) - L.L * 0.2;
-          obj.position.y = g.from.pos.y + (wy - g.from.pos.y) * e * e + (L.id === 'pinch' || L.id === 'both' ? Math.sin(Math.PI * e) * 0.25 : 0);
+          obj.position.y = g.from.pos.y + (wy - g.from.pos.y) * e * e * e + (L.id === 'alongside' ? 0 : Math.sin(Math.PI * e) * (0.2 + 0.12 * Math.min(2, L.L)));   // (a heave: it clears the edge before it drops)
           T.q.setFromAxisAngle(T.b.set(1, 0, 0), e * 1.2); obj.quaternion.copy(g.from.quat).multiply(T.q);
           if (e >= 1 && !g.splashed) { g.splashed = true; try { ctx.water?.splash?.(obj.position.x, obj.position.z, { size: 0.3 + 0.2 * Math.min(3, L.L), count: 8, ring: false }); } catch { /* visual */ } }
         }

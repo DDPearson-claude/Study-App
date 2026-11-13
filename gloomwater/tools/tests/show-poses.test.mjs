@@ -229,7 +229,7 @@ for (const [pose, sp, z, action] of [[...FIVE[0], 'keep'], [...FIVE[1], 'release
   const r = env.show({ speciesId: sp, z });
   env.showCamera({});
   const total = r.beats.lift + r.beats.hold + r.beats.pause, end = Math.round(total * 30);
-  const worst = { joint: 0, name: '', at: 0, fish: 0, fishAt: 0, rod: 0, walk: 0 };
+  const worst = { joint: 0, name: '', at: 0, fish: 0, fishAt: 0, rod: 0, walk: 0, sleeve: 0 };
   let J = env.ctx.debug.wickJoints(), fp = null, wp = null;
   const THREE = env.THREE, fo = holder().children[0], c = new THREE.Vector3(), w = new THREE.Vector3();
   for (let i = 0; i < end + 45; i++) {
@@ -239,7 +239,8 @@ for (const [pose, sp, z, action] of [[...FIVE[0], 'keep'], [...FIVE[1], 'release
     const N = env.ctx.debug.wickJoints();
     for (const k of Object.keys(N)) {
       if (k === 'rodDrive' || k === 'rodStow') { worst.rod = Math.max(worst.rod, Math.abs(N[k] - J[k])); continue; }
-      const d = k === 'facing' ? Math.abs(Math.atan2(Math.sin(N[k] - J[k]), Math.cos(N[k] - J[k]))) : Math.abs(N[k] - J[k]);
+      let d = k === 'facing' ? Math.abs(Math.atan2(Math.sin(N[k] - J[k]), Math.cos(N[k] - J[k]))) : Math.abs(N[k] - J[k]);
+      if (k === 'rStretch' || k === 'lStretch') { worst.sleeve = Math.max(worst.sleeve, d); continue; }   // (a sleeve's length, × the arm: a scale, not an angle)
       if (d > worst.joint) { worst.joint = d; worst.name = k; worst.at = i / 30; }
     }
     J = N;
@@ -247,10 +248,34 @@ for (const [pose, sp, z, action] of [[...FIVE[0], 'keep'], [...FIVE[1], 'release
     w.copy(env.actors.wick.position); if (wp) worst.walk = Math.max(worst.walk, Math.hypot(w.x - wp.x, w.z - wp.z)); wp = (wp || new THREE.Vector3()).copy(w);
   }
   ok(worst.joint <= 0.35, `${pose} ${sp}: no joint jumps more than 0.35 a frame (${worst.name} ${worst.joint.toFixed(3)} at ${worst.at.toFixed(2)} s)`);
+  ok(worst.sleeve <= 0.8, `${pose} ${sp}: no sleeve changes its length by more than 0.8 of the arm (17 cm) a frame (${worst.sleeve.toFixed(3)})`);
   ok(worst.fish <= 0.45, `${pose} ${sp}: the fish moves ≤ 0.45 m a frame (${worst.fish.toFixed(3)} at ${worst.fishAt.toFixed(2)} s)`);
   ok(worst.rod <= 0.5, `${pose} ${sp}: the rod is set down or taken up over frames, never inside one (${worst.rod.toFixed(2)})`);
   ok(worst.walk <= 0.12, `${pose} ${sp}: the Wick steps, it does not dash (${worst.walk.toFixed(3)} m a frame)`);
   env.run(0.8);
+}
+
+section('the way out: back over the side, clear of the planks, never at the lens');
+for (const heading of [0, 90, 200]) for (const [pose, sp, z] of FIVE) {
+  env.actors.setCharacter('wick'); env.ctx.player.heading = heading * Math.PI / 180;
+  env.camera({ dist: 9.3, elev: 38 }); env.run(0.4);
+  const r = env.show({ speciesId: sp, z }); env.showCamera({});
+  env.run(r.beats.lift + r.beats.hold + 0.4); env.showCamera({});
+  const THREE = env.THREE, fo = holder().children[0], c = new THREE.Vector3(), d = new THREE.Vector3(), lens = env.cam.position.clone();
+  fo.getWorldPosition(c); const held = c.distanceTo(lens);
+  env.ctx.debug.showPoseEnd({ action: 'release' });
+  let near = 99, low = 99, frames = 0, over = true;
+  for (let i = 0; i < 30 && fo.parent === holder(); i++) {
+    env.step(); if (fo.parent !== holder()) break; frames++;
+    fo.getWorldPosition(c); near = Math.min(near, c.distanceTo(lens));
+    d.copy(c); env.actors.raft.worldToLocal(d);
+    over = Math.abs(d.x) < 0.97 && Math.abs(d.z) < 1.28;
+    if (over && pose !== 'alongside') low = Math.min(low, d.y);
+  }
+  ok(frames / 30 <= 0.6, `raft ${heading}° ${pose}: released, it is gone within 0.6 s (${(frames / 30).toFixed(2)})`);
+  ok(near >= held - 0.25, `raft ${heading}° ${pose}: it does not come at the lens (${near.toFixed(2)} m, held at ${held.toFixed(2)})`);
+  ok(!over && low >= 0.3, `raft ${heading}° ${pose}: it clears the planks before it drops (lowest over them ${low === 99 ? '-' : low.toFixed(2)} m)`);
+  env.run(0.9);
 }
 
 section('the seam: the clock is fishing\'s, a hurry, endings, nothing left behind');

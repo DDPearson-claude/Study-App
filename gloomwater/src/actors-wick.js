@@ -252,7 +252,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
-  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], JOINT_RATE = 9.6;
+  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], STRETCH_KEYS = new Set(['rStretch', 'lStretch']), JOINT_RATE = 9.6, STRETCH_CAP = 2.4;
   let showCool = 0;
   // the show: the spec actors-show.js keeps current every frame (null outside a show), the hands' IK locks (world targets), and the
   // rod as a prop (planted by its butt at a world point, or set down on the bow rest)
@@ -615,7 +615,12 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     const capped = showCool > 0, cap = JOINT_RATE * Math.min(dt, 0.05);
     if (capped) for (const k of KEYS) last[k] = cur[k];
     for (const k of KEYS) cur[k] = damp(cur[k], tgt[k], lam, dt);
-    if (capped) for (const k of KEYS) cur[k] = last[k] + clamp(cur[k] - last[k], -cap, cap);
+    if (capped) {
+      // (a sleeve let go of the fish springs back before the arm swings away: its length is not an angle, and its cap is the same hand speed)
+      if (lock.r.k <= 0.001 && last.rStretch > tgt.rStretch + 0.15) cur.rStretch = damp(last.rStretch, tgt.rStretch, 30, dt);
+      if (lock.l.k <= 0.001 && last.lStretch > tgt.lStretch + 0.15) cur.lStretch = damp(last.lStretch, tgt.lStretch, 30, dt);
+      for (const k of KEYS) { const c = STRETCH_KEYS.has(k) ? cap * STRETCH_CAP : cap; cur[k] = last[k] + clamp(cur[k] - last[k], -c, c); }
+    }
 
     // facing: aim / catch-to-camera / forward
     let face = 0;
@@ -644,7 +649,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       body.updateWorldMatrix(true, false);
       if (lock.r.k > 0.001) ikLock('r');
       if (lock.l.k > 0.001) ikLock('l');
-      if (capped) for (const k of ARM_KEYS) cur[k] = last[k] + clamp(cur[k] - last[k], -cap, cap);   // (the reach to the fish too: quick, never a jump)
+      if (capped) for (const k of ARM_KEYS) { const c = STRETCH_KEYS.has(k) ? cap * STRETCH_CAP : cap; cur[k] = last[k] + clamp(cur[k] - last[k], -c, c); }   // (the reach to the fish too: quick, never a jump)
     }
     arms.r.sh.rotation.set(-cur.rRaise, 0, -cur.rOut, 'XYZ'); arms.r.sh.scale.set(1, cur.rStretch, 1);
     arms.l.sh.rotation.set(-cur.lRaise, 0, cur.lOut, 'XYZ'); arms.l.sh.scale.set(1, cur.lStretch, 1);
