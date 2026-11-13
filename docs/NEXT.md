@@ -1,7 +1,9 @@
 # Next version: what is left
 
-Release 45 (published 13 Nov 2026) is the live app: the Library home, the puzzle box hidden
-(U.flags.puzzleBox, since 25 Oct), and the quick wins from the audit of 13 Nov
+Release 46 (published 13 Nov 2026, build 2026-11-13-497b580) is the live app: the Library home, the
+puzzle box hidden (U.flags.puzzleBox, since 25 Oct), the read-through fixes of release 46 (a part's
+tag kept in one piece, a unit not said twice, long answers inside their border), and the quick wins
+of release 45 from the audit of 13 Nov
 (docs/review/audit-2026-11-13.md, which lists what is still open: a steps lesson resuming at its
 step, a list of courses in progress, the laptop layouts, whether spaced review stays off, and the
 content decisions). The notes below this line are older; where they say "not yet published",
