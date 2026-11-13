@@ -46,7 +46,10 @@ export default async function (api) {
   async function load(query, { fresh = false } = {}) {
     // (a fresh save: the page being left asks for a save on pagehide, so it is told not to before the store is cleared)
     if (fresh) await g(() => { try { if (window.__gw?.game) window.__gw.game.save = () => {}; localStorage.clear(); } catch { /* ignore */ } });
-    await page.goto(`${base}?v3=1&v3phase=1${query || ''}`, { waitUntil: 'load', timeout: 300000 });
+    // (a navigation is now and then aborted on this loaded machine: once more, after a breath)
+    for (let attempt = 0; ; attempt++) {
+      try { await page.goto(`${base}?v3=1&v3phase=1${query || ''}`, { waitUntil: 'load', timeout: 300000 }); break; } catch (e) { if (attempt >= 2) throw e; log('goto failed, again:', String(e?.message || e).split('\n')[0]); await wait(1500); }
+    }
     await page.waitForFunction(() => window.__gw && window.__gw.flow === 'title' && !document.getElementById('loader'), null, { timeout: 300000, polling: 250 });
     await g(({ quality }) => {
       const c = window.__gw;
@@ -602,7 +605,18 @@ export default async function (api) {
   if (want('hidden')) {
     step('hidden');
     await freshSave();
-    await begin();
+    if (phone) await begin();
+    else {
+      // Begin by the keyboard: the word has the focus, Enter presses it, and that same Enter (held, repeating) never skips
+      await g(() => { window.__if.clear(); window.__if.sim = 0; });
+      await page.keyboard.down('Enter');
+      const k = await g(() => ({ started: window.__if.ev.some((x) => x.e === 'intro:start'), flow: window.__gw.flow }));
+      check(k.started && k.flow === 'intro', 'Enter on the focused Begin starts the film', k);
+      await g(() => window.__if.runTo(0.8));
+      await g(() => { for (let i = 0; i < 4; i++) window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', key: 'Enter', repeat: true, bubbles: true, cancelable: true })); });
+      await page.keyboard.up('Enter');
+      check(await g(() => window.__gw.intro.isActive() && window.__gw.intro.state.skip === null), 'a held Enter (key repeat) does not skip the film it started');
+    }
     await g(() => window.__if.runTo(3));
     const r = await g(() => {
       const c = window.__gw, T = window.__if, t0 = c.intro.state.t, w0 = c.intro.state.wall;

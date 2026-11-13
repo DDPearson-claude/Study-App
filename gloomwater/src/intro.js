@@ -30,8 +30,14 @@
 //   intro:skip  {t, mode: 'veil' | 'finish'}
 //   intro:done  {skipped, replay, t, error, mode}   exactly once per start; main hands over (or returns to the title after a replay)
 //
-// When the stage goes live (stage.enter): at the press if it was prebuilt under the title (the press then costs nothing); otherwise
-// under the opening's full ink (INTRO.veil), one frame after the ink has been painted full, so a build or a lake swap never shows.
+// When the stage goes live (stage.enter): at the press if it was prebuilt under the title and nothing waits to be done under the
+// ink; otherwise under the opening's full ink (INTRO.veil), one frame after the ink has been painted full, so a build, a lake
+// swap or a change of grade never shows. (Main always passes `underInk`, so in the game the stage always goes live under the ink.)
+//
+// What the stage is told each frame: stage.setTime(t, {live | seek, reduced, calm}). `live` on a played frame, `seek` when the
+// moment was jumped to (a debug seek, a skip's jump to the end, the valve). `reduced`: t is the beat's still (INTRO.stills) and the
+// film's last call is setTime(INTRO.length). `calm`: reduced flashing (the stage softens the contact flash; the view makes the cut
+// an ink dip). The stage is disposed before `intro:done` is emitted.
 //
 // A skip (SPEC §7.3). Beats lit / fall / below (`veil`): the film runs on while the view's ink closes (state.skip.k 0 → 1 over
 // INTRO.skip.veilIn); one painted frame of full ink later the film jumps to its end and `intro:done {skipped}` hands over; the view

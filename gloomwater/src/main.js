@@ -324,7 +324,7 @@ ctx.game = game;
 // (SPEC §7.5, INTRO.cove): written down, not built. Until that is built the film stays off with the cove on.
 const INTRO = V3 ? data.INTRO || null : null;
 const INTRO_LAKE = 'mossmere';   // the First Outing's lake (startNewRun's default start zone)
-const introFlow = { on: false, replay: false, back: null, idle: 0, prewarm: false };
+const introFlow = { on: false, replay: false, back: null, idle: 0, prewarm: false, inked: false };
 /** The film's DOM side (src/ui-intro.js), when the ui module is real. */
 function introView() { const u = ctx.ui; return u && !u.isStub && u.intro && typeof u.intro.curtain === 'function' ? u.intro : null; }
 const worldZoneId = () => safe(() => ctx.world.getZone?.()?.id, null);
@@ -349,6 +349,7 @@ function introUnderInk() {
   const lakeGrade = INTRO?.handoff?.grade === 'ease' ? null : (data.ZONES || []).find((z) => z.id === INTRO_LAKE)?.grade || null;
   if (introFlow.replay) introFlow.back = { zone: zoneWas && zoneWas !== INTRO_LAKE ? zoneWas : null, grade: lakeGrade ? gradeWas : null };
   showLake(INTRO_LAKE, lakeGrade);
+  introFlow.inked = !!lakeGrade;
 }
 function startIntro({ replay = false, reduced } = {}) {
   if (!ctx.intro || !INTRO || FE_ON || ctx.flow !== 'title' || ctx.intro.isActive() || introFlow.on) return false;
@@ -356,7 +357,7 @@ function startIntro({ replay = false, reduced } = {}) {
   resetBeats();
   ctx.state.run = null;
   ctx.paused = false;
-  Object.assign(introFlow, { on: true, replay: !!replay, back: null, idle: 0 });
+  Object.assign(introFlow, { on: true, replay: !!replay, back: null, idle: 0, inked: false });
   setFlow('intro');
   ctx.cinematic = true;
   let ok = false;
@@ -400,13 +401,14 @@ function onIntroDone(p = {}) {
     leaveIntro({ eased: !inked });
     return;
   }
-  const H = INTRO?.handoff || {};
-  Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0 });
+  const H = INTRO?.handoff || {}, graded = introFlow.inked;
+  Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0, inked: false });
   try {
     markIntroSeen(ctx.state.meta, !!p.skipped);
     game.startNewRun({ character: H.character || 'wick', nightMode: H.nightMode || 'still', __intro: true });
-    // (INTRO.handoff.grade 'ease': the film kept the title's grade; the lake's eases in as control begins)
-    if (H.grade === 'ease') { const g = (data.ZONES || []).find((z) => z.id === ctx.state.run?.zone)?.grade; if (g) ctx.render.setGrade?.(g); }
+    // the lake's grade, if the film did not already wear it (INTRO.handoff.grade 'ease', or a film that broke before the ink):
+    // render ignores this zone:change, so it eases in here as control begins
+    if (!graded) { const g = (data.ZONES || []).find((z) => z.id === ctx.state.run?.zone)?.grade; if (g && !ctx.render.isStub) ctx.render.setGrade?.(g); }
   } catch (e) {
     report('intro hand-off', e);
     if (ctx.flow === 'intro') { ctx.cinematic = false; setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e2) { report('showTitle', e2); } }
@@ -904,7 +906,7 @@ if (V3 && DEBUG && ctx.intro) {
       // 'seek' holds the film at t (a replay, started through the flow if idle) and draws its words at once
       case 'seek': if (!d.isActive()) game.replayIntro({}); d.seek(Number(arg) || 0); introView()?.sync(); return readout();
       case 'resume': d.resume(); return readout();
-      case 'skip': game.skipIntro(); return readout();
+      case 'skip': if (!game.skipIntro()) d.skip(); return readout();
       case 'stop': stopIntro({ title: true }); introView()?.update(0); return readout();
       case 'auto': d.setOptIn(arg !== false); return readout();
       case 'prewarm': d.prewarm(); return readout();
