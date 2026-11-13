@@ -131,7 +131,8 @@ const kindsIn = (U, n0, n1) => { const r = U.uRip.value, out = []; for (let i = 
   w.addWake(14, -18, 1, 0, 0.5, { kind: 'glow' });
   w.update(0.016);
   const d = ctx.debug.water();
-  ok(JSON.stringify(Object.keys(U).sort()) === JSON.stringify(keys0) && keys0.length === 39, 'signs add no uniform (v3: 39 = base 38 + uGlowtide)', keys0.length);
+  // (Clear Night added 8 to the base list: uReflTex, uReflMat, uKeyDir, uKeyCol, uMood, uShadowTex, uShadowMat, uShadowP)
+  ok(JSON.stringify(Object.keys(U).sort()) === JSON.stringify(keys0) && keys0.length === 47, 'signs add no uniform (v3: 47 = base 46 + uGlowtide)', keys0.length);
   ok(Array.isArray(w.signKinds) && w.signKinds.length === 6, 'water.signKinds lists the six kinds in a v3 build (fishing-fx feature-detects it)');
   ok(d.signRipN === 6 && SIGN_KINDS.every((k) => d.signMarks[k] === 1), 'six tagged ripples, one per kind', d.signMarks);
   ok(sorted(kindsIn(U, 0, 6)) === sorted([1, 2, 3, 4, 5, 6]), 'tagged ripples packed first', kindsIn(U, 0, 6));
@@ -208,7 +209,7 @@ const kindsIn = (U, n0, n1) => { const r = U.uRip.value, out = []; for (let i = 
   const ctx = fakeCtx({ v3: false });
   const w = createWater(ctx); w.init();
   const U = w.material.uniforms;
-  ok(Object.keys(U).length === 38 && !('uGlowtide' in U), 'v1 build: the base 38 uniforms (no uGlowtide)', Object.keys(U).length);
+  ok(Object.keys(U).length === 46 && !('uGlowtide' in U), 'v1 build: the base 46 uniforms (no uGlowtide)', Object.keys(U).length);
   ok(!('GW_V3' in w.material.defines) && w.signKinds === undefined, 'v1 build: no GW_V3 define, no signKinds');
   w.addRipple(3, 3, 0.8, { kind: 'boil', size: 1.2 });
   w.addWake(4, 4, 1, 0, 0.6, { kind: 'glow' });

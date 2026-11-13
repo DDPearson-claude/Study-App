@@ -6,10 +6,15 @@
 // ({kind, size}) that rides the same ripple / wake arrays (water-signs.js packs it; no new uniform), and
 // setGlowtide(k) drives the night sparkle (uGlowtide, compiled out on low; water eases it from the night
 // phase by itself in a v3 build until someone sets it).
+// Clear Night (docs/v3/clarity/SPEC.md §8.2): renderReflection(renderer, scene, camera, tier) — render calls it once a
+// frame before the main render — draws the scene mirrored about the water plane (only what carries toon.REFLECT_LAYER)
+// into a reduced half-float target that the shader looks up (GW_REFL); setKeyLight(light) hands over the key light,
+// whose direction drives the glitter and whose shadow map the water samples (GW_SHADOW). Low keeps the analytic water.
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
 import { WATER_VERT, WATER_FRAG, SPLASH_VERT, SPLASH_FRAG } from './water-shader.js';
 import { SIGN_KINDS, SIGN_ID, SIGN_CAP, signId, signLength, signLife, encodeSignRipple, encodeSignWake, glowtideFor } from './water-signs.js';
+import { REFLECT_LAYER } from './toon.js';
 
 const MAX_RIP = 32;
 const MAX_WAKE = 32;
@@ -100,6 +105,14 @@ export function create(ctx) {
     // v3 night sparkle (setGlowtide; DESIGN §25.8.3): the one uniform the v3 water adds in P1 (CONTRACT §13.9)
     ...(V3W ? { uGlowtide: { value: 0 } } : {}),
   }]);
+  // Clear Night: the planar reflection, the key light and its shadow map (added after merge(): the matrices are shared
+  // by reference with the virtual camera's and the light's own)
+  const reflMat = new THREE.Matrix4();
+  Object.assign(uniforms, {
+    uReflTex: { value: null }, uReflMat: { value: reflMat },
+    uKeyDir: { value: new THREE.Vector3(-0.71, 0.59, -0.38).normalize() }, uKeyCol: { value: new THREE.Color(0, 0, 0) }, uMood: { value: new THREE.Vector2(0, 0) },
+    uShadowTex: { value: null }, uShadowMat: { value: new THREE.Matrix4() }, uShadowP: { value: new THREE.Vector2(1 / 2048, 1) },
+  });
   // merge() clones values — re-point the typed arrays so writes land in the live uniforms
   uniforms.uWaveA.value = waveA; uniforms.uWaveB.value = waveB;
   uniforms.uRip.value = rip; uniforms.uWake.value = wakeU; uniforms.uWakeD.value = wakeD; uniforms.uObs.value = obsU;
@@ -144,8 +157,111 @@ export function create(ctx) {
     const d = material.defines;
     const want = low ? { MAX_RIP: 20, MAX_WAKE: 24, MAX_OBS: 32, MAX_L: 4 } : { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L };
     Object.assign(d, want);
-    if (low) d.GW_LOW = 1; else delete d.GW_LOW;
+    if (low) { d.GW_LOW = 1; delete d.GW_REFL; delete d.GW_SHADOW; } else delete d.GW_LOW;
     material.needsUpdate = true;
+  }
+
+  // ---------------------------------------------------------------- Clear Night: the true mirror
+  // The lake is a flat plane, so the scene drawn from a camera mirrored about it IS what a ray tracer would return
+  // for a mirror. The virtual camera sees only REFLECT_LAYER (sky vault, rings, cliffs, islands, ruins, the raft and
+  // the Wick, lamps and glows; never outlines, motes, mist, the line, the float, a hooked fish or the water itself),
+  // with an oblique near plane at the water so nothing under the surface leaks in.
+  const refl = {
+    rt: null, w: 0, h: 0, on: false, shadowOn: false, lightScan: 0, key: null,
+    cam: new THREE.PerspectiveCamera(), plane: new THREE.Plane(), clip: new THREE.Vector4(), q: new THREE.Vector4(),
+    camPos: new THREE.Vector3(), look: new THREE.Vector3(), up: new THREE.Vector3(), rot: new THREE.Matrix4(), size: new THREE.Vector2(),
+    calls: 0, triangles: 0,
+  };
+  refl.cam.layers.set(REFLECT_LAYER);
+  refl.cam.matrixAutoUpdate = true;
+  function setDefine(name, on) {
+    const d = material.defines;
+    if (on ? d[name] === 1 : d[name] === undefined) return;
+    if (on) d[name] = 1; else delete d[name];
+    material.needsUpdate = true;
+  }
+  /** The key light (world's moon / vault DirectionalLight): its direction and colour drive the glitter, its shadow map shades the water. */
+  function setKeyLight(light) { refl.key = light && light.isDirectionalLight ? light : null; }
+  function updateKey(renderer) {
+    const k = refl.key;
+    if (!k) { U.uKeyCol.value.setRGB(0, 0, 0); return false; }
+    U.uKeyDir.value.copy(k.position).sub(k.target.position).normalize();
+    U.uKeyCol.value.copy(k.color).multiplyScalar(k.intensity);
+    const sh = k.shadow;
+    const ok = k.castShadow && renderer.shadowMap.enabled && !!sh?.map?.texture;
+    if (ok) {
+      U.uShadowTex.value = sh.map.texture;
+      U.uShadowMat.value = sh.matrix;
+      U.uShadowP.value.set(1 / sh.mapSize.x, sh.intensity ?? 1);
+    }
+    return ok;
+  }
+  /**
+   * renderReflection(renderer, scene, camera, tier) — once a frame, before the main render (render.js calls it).
+   * tier.reflect = the target's share of the drawing buffer (0 or the low tier: no reflection, the analytic water).
+   */
+  function renderReflection(renderer, scene, camera, tb) {
+    const scale = tier === 'low' ? 0 : Number(tb?.reflect) || 0;
+    if (!(scale > 0) || !renderer || !scene || !camera?.isPerspectiveCamera) {
+      setDefine('GW_REFL', false); setDefine('GW_SHADOW', false);
+      if (refl.rt) { refl.rt.dispose(); refl.rt = null; refl.w = refl.h = 0; U.uReflTex.value = null; }
+      return;
+    }
+    renderer.getDrawingBufferSize(refl.size);
+    const w = Math.max(16, Math.round(refl.size.x * scale)), h = Math.max(16, Math.round(refl.size.y * scale));
+    if (!refl.rt) {
+      refl.rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, samples: 0, depthBuffer: true, stencilBuffer: false });
+      refl.rt.texture.name = 'gw.reflection';
+      refl.rt.texture.minFilter = refl.rt.texture.magFilter = THREE.LinearFilter;
+      refl.rt.texture.generateMipmaps = false;
+      U.uReflTex.value = refl.rt.texture;
+    } else if (refl.w !== w || refl.h !== h) refl.rt.setSize(w, h);
+    refl.w = w; refl.h = h;
+    // every light joins the mirror's layer, so the mirrored scene is lit by the same lights (and compiled into the same programs)
+    if (--refl.lightScan <= 0) { refl.lightScan = 45; scene.traverse((o) => { if (o.isLight) o.layers.enable(REFLECT_LAYER); }); }
+
+    // the virtual camera: the eye mirrored about y = 0 (three's Reflector, for a fixed horizontal plane at the origin)
+    camera.updateMatrixWorld();
+    const v = refl.cam;
+    refl.camPos.setFromMatrixPosition(camera.matrixWorld);
+    refl.rot.extractRotation(camera.matrixWorld);
+    refl.look.set(0, 0, -1).applyMatrix4(refl.rot).add(refl.camPos);
+    v.position.set(refl.camPos.x, -refl.camPos.y, refl.camPos.z);
+    refl.up.set(0, 1, 0).applyMatrix4(refl.rot); refl.up.y = -refl.up.y;
+    v.up.copy(refl.up);
+    v.lookAt(refl.look.x, -refl.look.y, refl.look.z);
+    v.near = camera.near; v.far = camera.far;
+    v.updateMatrixWorld();
+    v.matrixWorldInverse.copy(v.matrixWorld).invert();
+    v.projectionMatrix.copy(camera.projectionMatrix);
+    v.projectionMatrixInverse.copy(camera.projectionMatrixInverse);
+    reflMat.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1).multiply(v.projectionMatrix).multiply(v.matrixWorldInverse);
+    // oblique near plane at the water (Lengyel): the mirrored scene is cut exactly at the surface
+    refl.plane.set(refl.up.set(0, 1, 0), 0.02).applyMatrix4(v.matrixWorldInverse);
+    const c = refl.clip.set(refl.plane.normal.x, refl.plane.normal.y, refl.plane.normal.z, refl.plane.constant);
+    const pe = v.projectionMatrix.elements, q = refl.q;
+    q.x = (Math.sign(c.x) + pe[8]) / pe[0];
+    q.y = (Math.sign(c.y) + pe[9]) / pe[5];
+    q.z = -1;
+    q.w = (1 + pe[10]) / pe[14];
+    c.multiplyScalar(2 / c.dot(q));
+    pe[2] = c.x; pe[6] = c.y; pe[10] = c.z + 1; pe[14] = c.w;
+
+    const hasShadow = updateKey(renderer);
+    // the shadow map is refreshed in the main pass (whose camera sees every caster), never from here
+    const ksh = refl.key?.shadow || null, due = ksh ? ksh.needsUpdate : false;
+    if (ksh) ksh.needsUpdate = false;
+    const prevRT = renderer.getRenderTarget(), prevXr = renderer.xr.enabled, c0 = renderer.info.render.calls, t0 = renderer.info.render.triangles;
+    renderer.xr.enabled = false;
+    renderer.setRenderTarget(refl.rt);
+    renderer.clear();
+    renderer.render(scene, v);
+    renderer.setRenderTarget(prevRT);
+    renderer.xr.enabled = prevXr;
+    if (ksh) ksh.needsUpdate = due;
+    refl.calls = renderer.info.render.calls - c0; refl.triangles = renderer.info.render.triangles - t0;
+    setDefine('GW_REFL', true);
+    setDefine('GW_SHADOW', hasShadow);
   }
 
   // ---------------------------------------------------------------- starlit sky (extra API)
@@ -984,6 +1100,12 @@ export function create(ctx) {
       U.uStars.value += (skyTgt2.stars - U.uStars.value) * a;
       U.uStarDen.value += (skyTgt2.den - U.uStarDen.value) * a;
       U.uNebK.value += (skyTgt2.nebK - U.uNebK.value) * a;
+      { // Clear Night: the water's body follows the world's mood (the night, the dawn's mist)
+        let n = 0, w = 0; try { const m = ctx.world?.getMood?.(); n = Number(m?.night) || 0; w = Number(m?.warm) || 0; } catch { n = 0; w = 0; }
+        const k = Math.max(a, 0.2);
+        U.uMood.value.x += (clamp(n, 0, 1) - U.uMood.value.x) * k;
+        U.uMood.value.y += (clamp(w, 0, 1) - U.uMood.value.y) * k;
+      }
       stepGlowtide(dt);
 
       // player-relative bits
@@ -1056,6 +1178,10 @@ export function create(ctx) {
     setPalette,
     setLights,
     setSky,
+    renderReflection,
+    setKeyLight,
+    /** Clear Night (extra; tests, perf): what the mirror cost last frame and whether it is on. */
+    get reflection() { return { on: material.defines.GW_REFL === 1, shadow: material.defines.GW_SHADOW === 1, width: refl.w, height: refl.h, calls: refl.calls, triangles: refl.triangles }; },
     setGlowtide,
     /** v3: the sign kinds addRipple / addWake paint when tagged ({kind}); fishing-fx feature-detects on it (absent in a v1 / v2 build). */
     signKinds: V3W ? SIGN_KINDS.slice() : undefined,

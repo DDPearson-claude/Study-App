@@ -8,6 +8,7 @@ import { clamp, damp, smoothstep, TAU } from './core.js';
 import { buildLayout, depthAt, isOpenWaterL } from './world-layout.js';
 import { buildArena } from './world-art.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
+import { setToonFloor } from './toon.js';   // CLARITY LANE B: key light
 
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
@@ -23,12 +24,70 @@ export function create(ctx) {
   const group = new THREE.Group();
   group.name = 'world';
 
-  // lights: hemisphere + directional "crack light" + two accent point lights (always present
-  // so the light count — and therefore shader programs — never changes)
-  const hemi = new THREE.HemisphereLight(0x8a8cc4, 0x0a0b1a, 1.4);
-  const dir = new THREE.DirectionalLight(0xcfd0f2, 2.0);
-  dir.position.set(-10, 80, -20);
+  // >>> CLARITY LANE B: key light
+  // lights: a violet hemisphere + the KEY (the moon / vault glow: a fixed three-quarter back light per lake, the one
+  // shadow caster, DESIGN §19 / docs/v3/clarity/SPEC.md §7) + two accent point lights (always present so the light
+  // count — and therefore shader programs — never changes)
+  const hemi = new THREE.HemisphereLight(0x8a8cc4, 0x0a0b1a, 0.72);
+  const dir = new THREE.DirectionalLight(0xcfd0f2, 2.1);
+  dir.name = 'keyLight';
+  dir.position.set(-71, 59, -38);
+  hemi.layers.enable(1); dir.layers.enable(1);   // (toon.REFLECT_LAYER: the lake's reflection is lit like the scene)
+  dir.shadow.autoUpdate = false;                 // refreshed on our own beat (every frame on high, every second on medium)
+  dir.shadow.bias = -0.00022; dir.shadow.normalBias = 0.045; dir.shadow.intensity = 0.85;
   group.add(hemi, dir, dir.target);
+  const KEY = {
+    lav: new THREE.Color(0xc4b8ff), toLight: new THREE.Vector3(-0.71, 0.59, -0.38).normalize(),
+    x: new THREE.Vector3(), y: new THREE.Vector3(), c: new THREE.Vector3(), up: new THREE.Vector3(0, 1, 0),
+    size: 0, half: 0, beat: 0, DIST: 150, floor: new THREE.Color(),
+  };
+  /**
+   * The hemisphere and the key light for mood (n night 0..1, w dawn warmth 0..1): colour, intensity, the key's fixed
+   * direction (the arena's keyDir) and its shadow box, a square of the tier's half-size around the focus pushed 12 m
+   * up-screen and snapped to whole shadow texels (no crawl as the raft moves). The night floors hold: the key never
+   * under 0.9, the ambient never under 0.42.
+   */
+  function applyKeyLight(n, w, zc, focus) {
+    // (the night ambient keeps more of the lake's violet than it did: with clear air it is the only fill there is)
+    hemi.color.copy(zc.ambient).lerp(zc.light, 0.2).lerp(col.a.copy(zc.ambient).multiplyScalar(0.72).lerp(COLD, 0.15), n).lerp(WARM, w * 0.25);
+    hemi.groundColor.copy(zc.waterDeep).lerp(zc.ink, 0.4);
+    hemi.intensity = 0.72 * (1 - 0.38 * n) * (1 + 0.15 * w);
+    // the vault's glow, the floor under every toon surface's shadow: the lake's own air colour (so it carries the
+    // night floors), a fifth of it by day (deep shadows, a full range) and most of it at night, where the fog itself
+    // used to be the floor; the dawn's bright mist takes it down again. A shadow is violet, never black (toon.js
+    // gwFloor: it fills only what the lights left dark).
+    setToonFloor(KEY.floor.copy(env.fog).multiplyScalar((0.18 + 0.66 * n) * (1 - 0.8 * w)));
+    dir.color.copy(zc.light).lerp(KEY.lav, 0.25).lerp(WARM, w * 0.55).lerp(COLD, n * 0.3);
+    dir.intensity = 2.1 * (1 - 0.55 * n) * (1 + 0.15 * w);
+    if (arena?.keyDir) KEY.toLight.copy(arena.keyDir);
+    const L = KEY.toLight;
+    const tb = ctx.render && !ctx.render.isStub ? ctx.render.clarity : null;
+    const size = tb?.shadow | 0, half = tb?.shadowBox || 40;
+    const on = size > 0 && ctx.render?.renderer?.shadowMap?.enabled === true;
+    if (dir.castShadow !== on) dir.castShadow = on;
+    const c = KEY.c.set(focus?.x || 0, 0, focus?.z || 0);
+    if (on) {
+      const sh = dir.shadow, cam = sh.camera;
+      if (KEY.size !== size || KEY.half !== half) {
+        KEY.size = size; KEY.half = half;
+        if (sh.mapSize.x !== size) { sh.mapSize.set(size, size); sh.map?.dispose(); sh.map = null; }
+        cam.left = -half; cam.right = half; cam.top = half; cam.bottom = -half; cam.near = 30; cam.far = 2 * KEY.DIST - 30;
+        cam.updateProjectionMatrix();
+        sh.needsUpdate = true;
+      }
+      const yaw = Number(ctx.render.getYaw?.()) || 0;
+      c.x -= Math.sin(yaw) * 12; c.z -= Math.cos(yaw) * 12;
+      // the shadow camera's own axes (it looks down −L with +Y up): snap the box centre to whole texels along them
+      KEY.x.crossVectors(KEY.up, L).normalize(); KEY.y.crossVectors(L, KEY.x);
+      const texel = (2 * half) / size, sx = c.dot(KEY.x), sy = c.dot(KEY.y);
+      c.addScaledVector(KEY.x, Math.round(sx / texel) * texel - sx).addScaledVector(KEY.y, Math.round(sy / texel) * texel - sy);
+      if (++KEY.beat % Math.max(1, tb.shadowEvery | 0) === 0) sh.needsUpdate = true;
+    }
+    dir.target.position.copy(c);
+    dir.position.copy(c).addScaledVector(L, KEY.DIST);
+    try { ctx.water?.setKeyLight?.(dir); } catch (e) { /* optional */ }
+  }
+  // <<< CLARITY LANE B
   const accents = [0, 1].map(() => {
     const l = new THREE.PointLight(0xffffff, 0, 14, 1.6);
     l.position.set(0, -50, 0);
@@ -149,9 +208,6 @@ export function create(ctx) {
         }
       }
       arena.setGate(gateState, true);
-      // the directional light follows the main ceiling crack
-      dir.position.copy(arena.crackTop);
-      dir.target.position.copy(arena.crackBottom);
       for (const a of accents) { a.anchor = a.target = null; a.k = 0; a.light.intensity = 0; }
       pickTimer = 0; gradeTimer = 0; paletteTimer = 0;
     } catch (e) {
@@ -245,11 +301,7 @@ export function create(ctx) {
       if ('density' in s.fog) s.fog.density = density;
     }
     // lights
-    hemi.color.copy(zc.ambient).lerp(zc.light, 0.35).lerp(col.a.copy(zc.ambient).multiplyScalar(0.48).lerp(COLD, 0.25), n).lerp(WARM, w * 0.25);
-    hemi.groundColor.copy(zc.waterDeep).lerp(zc.ink, 0.4);
-    hemi.intensity = 1.15 * (1 - 0.52 * n) * (1 + 0.15 * w);
-    dir.color.copy(zc.light).lerp(WARM, w * 0.55).lerp(COLD, n * 0.3);
-    dir.intensity = 1.5 * (1 - 0.72 * n) * (1 + 0.25 * w);
+    applyKeyLight(n, w, zc, focusPos());   // CLARITY LANE B: key light
     arena?.applyMood(env);
     // grade (throttled; render eases between targets)
     gradeTimer -= dt; paletteTimer -= dt;

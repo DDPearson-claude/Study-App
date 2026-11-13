@@ -2,7 +2,7 @@
 // helpers): procedural geometry builders, a tiny geometry merger, deformable toon /
 // basic / ink-outline materials with hurt-flash + dissolve FX, and value noise GLSL.
 import * as THREE from 'three';
-import { toonMaterial, INK } from './toon.js';
+import { toonMaterial, INK, evenOutlineShader } from './toon.js';
 
 export const TAU = Math.PI * 2;
 
@@ -59,6 +59,7 @@ vec3 gwP = vec3(position); vec3 gwN = vec3(normal); gwDeform(gwP, gwN);
 transformed = gwP${kind === 'outline' ? ' + normalize(gwN) * uGwThick' : ''}; vGwLocal = position; ${inst ? 'vGwFx = aFx;' : ''}`);
     }
     shader.vertexShader = vs;
+    if (kind === 'outline') evenOutlineShader(shader);   // Clear Night: even ink lines (toon.js)
     if (fx === 'reveal' && kind !== 'outline') {
       // the landing's reveal (v3): the night ink floods off the fish nose to tail with a band of pale light ahead of it.
       // uGwRev = (front 0 nose → 1 tail, on 0..1, band width, band strength); uGwRevZ = the geometry's nose and tail z;
@@ -102,7 +103,7 @@ outgoingLight += uGwEdge * gwEdgeK * 2.5;
     }
   };
   const base = mat.customProgramCacheKey?.() || '';
-  const key = `gw|${kind}|${spec.key || 'nodeform'}|${fx}`;
+  const key = `gw|${kind}${kind === 'outline' ? 'Even' : ''}|${spec.key || 'nodeform'}|${fx}`;
   mat.customProgramCacheKey = () => base + key;
   return mat;
 }

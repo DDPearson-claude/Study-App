@@ -259,7 +259,16 @@ projectToScreen(vec3) -> {x, y, visible}; raycast(ndc, objects, recursive=true)
 groundPoint(ndc, y=0) -> Vector3|null     // pointer ray ∩ horizontal plane (fishing aim)
 getCameraMode(); getYaw() -> camera yaw (for screen-relative movement)
 render()
+clarity -> {shadow, shadowEvery, shadowBox, reflect}   // Clear Night tier settings (DESIGN §19.8): the key light's
+  // shadow-map size (0 = none), its refresh beat and box half-size, the lake's reflection scale (0 = analytic water)
 ```
+`toon.js` (Clear Night, DESIGN §19.8): `toonMaterial` also takes `detail` ('stone' | 'wood'), `detailAmount`,
+`gloss`, `shine`, `wet`, `grain`, `plank`, `floor`; `setupSurface(root, {cast, receive, reflect})` marks a
+group's toon meshes as shadow receivers / casters and puts everything but outlines on `REFLECT_LAYER`
+(opt out with `userData.noReflect` / `noCast`); `setToonFloor(color)` (world) and `setToonTier(name)`
+(render) drive the shared vault glow and the per-tier detail; `evenOutline(mat)` evens an inverted-hull
+outline. A module that builds its own scenery opts in with `setupSurface`; what it leaves unmarked
+neither casts nor is mirrored (the line, the float, fish, enemies).
 Owns `scene.fog` (FogExp2) + clear colour (world sets colour/density). Camera modes,
 auto-selected each frame and smoothly blended, all following `ctx.player.position`:
 `title` (slow cinematic orbit of the raft), `sail` (default: elevated 3/4 chase,
@@ -288,6 +297,12 @@ Vector3 normal of the milky-way great circle; the water mirrors those stars and 
 points, nudged a pixel or two and broken up by the ripples; world thins them at night, faded under light pools, behind mirrored silhouettes and in
 foam). Brightness eases; directions snap. The shore foam follows `world.getShoreRadius(angle)` when
 world provides it.
+Clear Night (DESIGN §19.8) adds `renderReflection(renderer, scene, camera, tier)`: render calls it once a
+frame before the main render; on medium / high (`tier.reflect` > 0) water draws the scene mirrored about
+y = 0 into its own reduced target (only objects on `toon.REFLECT_LAYER`) and its shader looks that up
+(`GW_REFL`); on low it does nothing and the analytic water stays. `setKeyLight(light)` hands over the
+key DirectionalLight (world calls it): its direction and colour drive the glitter and its shadow map
+shades the water (`GW_SHADOW`). `reflection` (getter, extra) → `{on, shadow, width, height, calls, triangles}`.
 Water must cover the whole arena (follow the camera/player or be large); getHeight
 must match the shader's displacement. Stylised: ink-dark water, banded fresnel toward
 fog colour, painterly streak reflections of lights, caustic shimmer, ≥24 ripple rings,
@@ -314,8 +329,9 @@ Layout comes from `zone.arena` (islands/pillars arrays, gate, spawn, docks, deep
 depthShare; DESIGN §4.3–4.6); procedural placement only fills fields that are missing.
 `getMerchantDock(day)`: day 1 → `docks[0]`, then `(seed + 2·day) % n`, never yesterday's dock.
 Listens to `zone:change`. Reads `ctx.survival.getPhaseInfo()` each frame to darken/cool
-for dusk/gloomtide and warm at dawn; owns hemisphere + directional crack-light + ≤2
-accent point lights; drives `scene.fog`, `render.setGrade` (incl. the warm split-tone colour),
+for dusk/gloomtide and warm at dawn; owns hemisphere + the directional key light (the moon /
+vault glow: a fixed direction per lake, the one shadow caster, its shadow box following the raft;
+DESIGN §19.8) + ≤2 accent point lights; drives `scene.fog`, `render.setGrade` (incl. the warm split-tone colour),
 `water.setPalette`, `water.setSky` (the vault's stars and nebulae, DESIGN §19.1 Starlight) and
 `water.setLights` (merge `ctx.actors.lanternLight`, the merchant lamp, its own glows).
 Art: islands/pillars/wrecks/roots/fungi/crystals per zone (toon + ink outlines,

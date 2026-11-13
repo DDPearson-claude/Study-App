@@ -179,8 +179,16 @@ export default async function (api) {
     const C = (window.__cl = { cam: null, knobUndo: null });
     const raf = window.requestAnimationFrame.bind(window);
     let held = null;
-    window.requestAnimationFrame = (cb) => { if (held) { held.push(cb); return 0; } return raf(cb); };
-    C.hold = (on) => { if (on) { held = held || []; return true; } if (held) { const q = held; held = null; for (const cb of q) raf(cb); } return false; };
+    // (a frame the browser has already scheduled is taken back when the hold starts: left pending, it could fire between a
+    // frame's what-if knobs and its render, and world / render would put the fog and the grade back before the shot)
+    const caf = window.cancelAnimationFrame.bind(window), pending = new Map();
+    const live = (cb) => { const id = raf((t) => { pending.delete(id); cb(t); }); pending.set(id, cb); return id; };
+    window.requestAnimationFrame = (cb) => { if (held) { held.push(cb); return 0; } return live(cb); };
+    C.hold = (on) => {
+      if (on) { held = held || []; for (const [id, cb] of pending) { caf(id); held.push(cb); } pending.clear(); return true; }
+      if (held) { const q = held; held = null; for (const cb of q) live(cb); }
+      return false;
+    };
     // a seeded Math.random (mulberry32): ambient ripples, spots and sparks draw the same numbers for the same frame
     const realRandom = Math.random;
     let seed = 0;
@@ -300,7 +308,7 @@ export default async function (api) {
       if (K.shafts !== undefined) each((o) => { const u = o.material?.uniforms; if (u?.uIntensity && (o.geometry?.attributes?.aTop || o.geometry?.attributes?.aC)) set(o, 'visible', K.shafts > 0); });
       if (K.halos !== undefined) each((o) => { if (o.isPoints && o.geometry?.attributes?.aPhase && o.material?.uniforms?.uBright) set(o, 'visible', K.halos > 0); });
       if (K.ringMist !== undefined) each((o) => { const u = o.material?.uniforms; if (u?.uMistAmt && u?.uVaultAmt) { set(u.uMistAmt, 'value', u.uMistAmt.value * K.ringMist); set(u.uVaultAmt, 'value', u.uVaultAmt.value * K.ringMist); } });
-      if (K.outline === 0) each((o) => { const key = o.material?.customProgramCacheKey?.(); if (o.userData?.isOutline || key === 'gwWorldOutline' || key === 'gwOutline') set(o, 'visible', false); });
+      if (K.outline === 0) each((o) => { const key = o.material?.customProgramCacheKey?.(); if (o.userData?.isOutline || /^gw(World)?Outline/.test(key || '')) set(o, 'visible', false); });
       if (K.bloom !== undefined) { if (K.bloom <= 0) set(bp, 'enabled', false); else set(bp, 'strength', bp.strength * K.bloom); }
       if (K.bloomRadius !== undefined) set(bp, 'radius', K.bloomRadius);
       if (K.bloomThreshold !== undefined) set(bp, 'threshold', K.bloomThreshold);

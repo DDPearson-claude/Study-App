@@ -28,6 +28,7 @@ import { createMerchant } from './actors-merchant.js';
 import { makeLightPool, makeLine, makeBobber } from './actors-fx.js';
 import { createCord } from './actors-measure.js';
 import { MEASURE_POSES, measurePoseFor, cordEase, cordDurationFor } from './models-size.js';
+import { setupSurface, REFLECT_LAYER } from './toon.js';
 
 const damp = THREE.MathUtils.damp;
 const clamp = THREE.MathUtils.clamp;
@@ -56,6 +57,11 @@ export function create(ctx) {
   const lightHolder = new THREE.Group(); lightHolder.name = 'actorLights'; group.add(lightHolder);
   lightHolder.add(merchantR.light); // keep the merchant light always in the scene graph (stable light count)
   const lanternLight = raft.light;
+  // Clear Night: the raft, the Wick and Murk's barge take the key light's shadow (and cast it: on the deck, on each
+  // other, on the water) and are mirrored in the lake; outlines, blob shadows, the line and the float are not
+  setupSurface(raft.yawGroup);
+  setupSurface(merchantR.object3d);
+  merchantR.light.layers.enable(REFLECT_LAYER);
   const LFLAME_I = raft.lflame.outerMat.uniforms.uI.value;
   const catchHolder = new THREE.Group(); catchHolder.name = 'catchHolder'; group.add(catchHolder);
   const cord = createCord(ctx); group.add(cord.group);
@@ -373,7 +379,8 @@ export function create(ctx) {
       const lit = st.lantern > 0.001 && !st.out;
       const glow = lit ? (0.22 + 0.78 * lv) * flick * (1 + st.boost * 1.6 * (1 - 0.7 * xk)) : 0;
       // in a close-up the lantern hangs half a metre over the pale wax head: it comes down so the Wick reads, warm, not white
-      lanternLight.intensity = 9.5 * glow * (1 - 0.5 * xk);
+      // 11.9 at inverse-square falloff lights the deck 1.5 m under the lantern as 9.5 at decay 1.45 did; farther out it falls off as light does
+      lanternLight.intensity = 11.9 * glow * (1 - 0.5 * xk);
       lanternLight.distance = Math.max(7, st.radiusCur * 2.1 + 3);
       // a measuring close-up: the hanging lantern's glass, halo and flame would bloom over the subject, so they dim with the
       // camera's nearness to the lantern
