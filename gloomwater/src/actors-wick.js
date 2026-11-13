@@ -612,7 +612,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     const lam = fast ? 30 : action ? 16 : SHOW.has(base) ? 14 : 11;
     // a show (and the 1.5 s after it) never pops: no joint moves faster than JOINT_RATE (SPEC S5: ≤ 0.35 a frame at 30 fps)
     showCool = SHOW.has(base) ? 1.5 : Math.max(0, showCool - dt);
-    const capped = showCool > 0, cap = JOINT_RATE * Math.min(dt, 1 / 30);
+    const capped = showCool > 0, cap = JOINT_RATE * Math.min(dt, 0.05);
     if (capped) for (const k of KEYS) last[k] = cur[k];
     for (const k of KEYS) cur[k] = damp(cur[k], tgt[k], lam, dt);
     if (capped) for (const k of KEYS) cur[k] = last[k] + clamp(cur[k] - last[k], -cap, cap);

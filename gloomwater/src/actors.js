@@ -366,10 +366,12 @@ export function create(ctx) {
         const spot = showCtl.spot;   // (the show stands it where the pose needs it: at the edge behind an alongside fish's brow)
         const hx = spot ? spot.x : mp === 'measureAlongside' ? st.meas.side * (across ? 0.3 : 0.6) : WICK_HOME.x, hz = spot ? spot.z : mp === 'measureAlongside' ? (across ? st.meas.end * 0.95 : 0.3) : WICK_HOME.z;
         const walk = spot ? 6 : 4.5;
-        const wx = damp(wick.group.position.x, hx, walk, dt) - wick.group.position.x, wz = damp(wick.group.position.z, hz, walk, dt) - wick.group.position.z;
-        const stride = spot || st.showWalk > 0 ? Math.min(1, 2.6 * dt / Math.max(1e-6, Math.hypot(wx, wz))) : 1;   // a show's steps are steps, not a dash
+        const P = wick.group.position, nx = damp(P.x, hx, walk, dt), nz = damp(P.z, hz, walk, dt);
+        if (spot || st.showWalk > 0) {   // a show's steps are steps, not a dash (and for 1.5 s after it: the walk home)
+          const stride = Math.min(1, 2.6 * dt / Math.max(1e-6, Math.hypot(nx - P.x, nz - P.z)));
+          P.x += (nx - P.x) * stride; P.z += (nz - P.z) * stride;
+        } else { P.x = nx; P.z = nz; }
         st.showWalk = spot ? 1.5 : Math.max(0, (st.showWalk || 0) - dt);
-        wick.group.position.x += wx * stride; wick.group.position.z += wz * stride;
       }
       wick.update(dt, t, env);
 
