@@ -45,21 +45,31 @@
 //
 // v3 Phase 1, the visual half (DESIGN §25.14.2 F3, F5, F6; CONTRACT §13.7):
 //   F3  (P1b's true scale in the fight and the leap reveal: superseded by automatic fishing below. Before the reveal the hooked
-//       fish is the night-ink proxy at its class length (data.presentLength); true scale starts at the reveal and the ceremony,
+//       fish is the night-ink proxy at its class length (data.presentLength); true scale starts at the reveal and the show,
 //       with no 0.12 m floor and no 6 m splash cap. fishing:reveal is dropped: the reveal is fishing:caught.)
-//   F5  the catch hand-off: at the landing fishing calls progression.makeFish and holds the Fish → fishing:caught {fish, …}
-//       (informational) → startCeremony(fish): ctx.cinematic (main freezes survival and combat; fishing freezes its signs)
-//       scoop → pose (actors.setPose measurePalm / Arms / Hang / Alongside, showCatch) → cord (actors.showCord(L, k)) →
-//       the stamp calls progression.measure(fish) (fish:measured, then fish:landed: once per fish) → banners → card.
-//       view.measure {phase, length (final cm), count, k, cordDur, sizeClass, seal, pose, dur, beats, …}. Per-class timings
-//       from SIZE_CLASSES[].ceremony on BALANCE.ceremony.beats (1.2 s for every class during a swarm window); a tap skips
-//       (an Elder or a legend after 0.6 s). render.setTrophyTarget({length, landmark, position}) frames it.
+//   F5  the catch hand-off and THE SHOW (docs/v3/show/SPEC.md; DESIGN §25.6.8; CONTRACT §13.7b; AUTOFISH.show). It replaced the
+//       measuring ceremony (its scoop, cord, stamp beat and overlay). From the fish breaking the surface (T0) to the card:
+//         reveal  (T0, startRevealAF: view.show {phase: 'reveal', cls}, render.setShowTarget, the frame goes clean; the wipe
+//                 runs on the game's clock under its slow-motion beat and is never cut)
+//         lift    (fishing:caught: progression.makeFish → fishing:caught {fish, …} → ctx.cinematic → actors.showFish(fv, {cls,
+//                 pose, beats, …}) → fishing:show {phase: 'lift', …}; every frame actors.setShowTime(poseT))
+//         hold    (the present, poseT ≥ lift: progression.measure(fish) → fish:measured, then fish:landed, once per fish; the
+//                 landing's climax on actors' show focus; fishing:show {phase: 'hold', isNew, records})
+//         pause   (poseT ≥ lift + hold: fishing:show {phase: 'pause'}; nothing new fires)
+//         card    (ctx.cinematic off, render.setShowTarget(null), fishing:show {phase: 'card', origin}; ui opens the card)
+//       Per-class beats from data.showPlan(cls, {swarm}) (the swarm row during a swarm window); the pose id from
+//       data.showPoseFor. A tap hurries (hurryShow: the lift × hurry.liftRate, the card once the fish has been presented for
+//       hurry.hold s, hurry.protectedHold for a first-ever species or a personal best); the valve (show.valve s of the real
+//       clock from T0) opens the card whatever state the show is in. The card's close (fish:action) → actors.endShow({action}),
+//       the model disposed 0.6 s later. view.measure stays null on this path. API: startShow(fish, opts) / hurryShow() /
+//       inShow (startCeremony / skipCeremony / inCeremony are their aliases). Debug: show(), showRate(k) (cerRate),
+//       showSwarm(on), ceremony() (the old shape), instantCatch(id, {z, show: true}) (a show with no reveal).
 //   F6  signs replace feeding spots (fishing-signs.js rules; fishing-fx draws them from its per-fish instance buffer; water
 //       gets tagged ripples / wakes): 2–4 alive in calm within castMax + 15 m, each cast rule gives its effect, a rise /
 //       boil / glow carries a pre-rolled fish; sign:spawn / sign:rise / sign:show / sign:end; armChum(); the quality
 //       bonus is "cast inside a live sign"; Night Eyes' glowTrailRangeMult widens how far glow trails show. API: signs
-//       (spots is its alias), preroll({species, z, pos, path}) / dropPreroll(h), armChum(), startCeremony(fish),
-//       skipCeremony(). Debug: sign(kind, {x, z}), preroll(speciesId, z), fishSigns(), ceremony(), cerRate(k).
+//       (spots is its alias), preroll({species, z, pos, path}) / dropPreroll(h), armChum(). Debug: sign(kind, {x, z}),
+//       preroll(speciesId, z), fishSigns().
 //   pressure: progression owns the count (fishing:caught.pressureKey → run.pressure, saved); fishing reads getPressure.
 //
 // Automatic fishing (DESIGN §25.6, §25.14.2a F4′, F2′, F17; CONTRACT §13.7a), on the v3 path in every v3 build and phase (the
@@ -81,7 +91,7 @@
 //       pan (drag ±20°) and hurry (hold, Small / Keeper, from the 2nd run) are the only inputs; nothing ends a play but the plan
 //       and partLine('staggered') (Gloomtide's slam); the raft is anchored (isAnchored(); only the plan's tow moves it, through
 //       player.tow). The landing: the reveal (models.createFish first called here, the ink wipe 0.35 s from the class length to the
-//       true length) → makeFish → fishing:caught → the ceremony. The loss: fishing:escaped {reason, sizeClass}, the 0.6 s quiet
+//       true length) → makeFish → fishing:caught → the show (F5). The loss: fishing:escaped {reason, sizeClass}, the 0.6 s quiet
 //       beat, then fish:escaped {speciesId, …} (the got-away note). Nothing is saved mid-play; a reload re-randomises.
 //   F17 hidden information: no species id, name, rarity or true length on any event or on view from the cast to fishing:caught /
 //       fish:escaped (legends carry {legendary: true, speciesId}); everything length-scaled before the reveal uses
@@ -98,7 +108,6 @@ import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
 import { KIND_ID, PREROLLED, aliveRange, maxAlive, pickKind, signTtl, createSign, stepSign, bestRule, kindRules } from './fishing-signs.js';
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
-const MEASURE_POSE = { palm: 'measurePalm', arms: 'measureArms', hang: 'measureHang', alongside: 'measureAlongside' };
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
 const SPOT_SLOTS = MAX_SLOTS - 2;    // feeding spots use slots 0..7
 const FALLBACK_DIFF = { power: 0.6, surgeEvery: 6.5, surgeTime: 0.7, stamina: 5, sweet: 1.3, erratic: 0.05, window: 1.1 };
@@ -126,6 +135,7 @@ export function create(ctx) {
     safeMin: 0.15, safeMax: 0.85, depth: 0,
     // v3 (CONTRACT §13.7; null / false in v1 builds)
     favour: null, sizeClass: null, ancient: false, pips: null, biteTell: null, slip: 0, place: null, drag: null, lure: null, measure: null, cove: false,
+    show: null,       // the show (CONTRACT §13.7b): {phase: 'reveal'|'lift'|'hold'|'pause'|'card', cls, pose, t, poseT, dur, hurried, protected, swarm, …}; view.measure stays null
     estimate: null,   // v3: the class estimate {sizeClass, length (cm, the class length)} once stamped (first Prize+ glimpse, the Small skitter)
     // automatic fishing (CONTRACT §13.7a): the strike grade and the play's presentation (class, z and the fitted tackle only)
     strike: null, play: null, strikeRing: null,
@@ -145,7 +155,7 @@ export function create(ctx) {
     // bite
     window: 1, wounded: 0,
     veiled: false,   // v3: the hooked fish is a dark shape until it is landed (no species, model hidden)
-    cerRate: 1,      // debug.cerRate: the ceremony's clock rate (screenshots on slow software GL)
+    showRate: 1,     // debug.showRate (cerRate is its alias): the show's clock rate (screenshots on slow software GL; the valve stays on the real clock)
     // reel
     reel: null, holding: false, perfect: false, hookDist: 8, fishLen: 0.5, moveHold: 0, bannerT: -1,
     summons: [], gearT: 0, strainPose: false, quality: 'normal', qScore: 0,
@@ -165,7 +175,7 @@ export function create(ctx) {
     // v3 visual half: signs (F6), the ceremony (F5), the leap reveal (F3)
     signs: [], signTimers: [], signDesired: 3, signRng: null, prerolls: new Map(), chumArmed: false, signHit: null,
     prerollSp: null, prerollZ: null, prerollSign: null, prerollTook: false, handles: [], handleSeq: 0,
-    cer: null, rimT: 0,
+    show: null, exitT: 0, exitAction: null, rimT: 0,   // the show (AUTOFISH.show): its record from T0 to the card; the exit gesture after the card
     // automatic fishing (F4′, F2′): the loadout on the line at the cast, the strike, the roll (memory only: never on the view, an
     // event or the save), the plan and its playback, the reveal, the loss
     castLoadout: null, castItem: null, grade: null, p: null, draws: null, outcome: null, plan: null, plan0: null, loss: null,
@@ -575,10 +585,10 @@ export function create(ctx) {
 
   /** Silent reset (death, zone change, run end, title). No miss/escape events. */
   function hardReset(clearCatch = true) {
-    if (S.cer) abortCeremony();
+    if (S.show) abortShow();
     disposeHooked(false);
     if (S.flee) { disposeFv(S.flee.fv); S.flee = null; }
-    if (clearCatch) { releaseCatch(); view.measure = null; }
+    if (clearCatch) { releaseCatch(); view.measure = null; view.show = null; }
     S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
     S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     S.plan = null; S.plan0 = null; S.loss = null; S.reveal = null; S.lostInfo = null; S.p = null; S.draws = null; S.outcome = null; S.hurry = false; S.panFrom = null;
@@ -608,7 +618,7 @@ export function create(ctx) {
   // ---------------------------------------------------------------- pointer
   function onPointerDown(e) {
     if (!playing()) return;
-    if (S.cer) { skipCeremony(); return; }   // v3: a tap skips the measuring ceremony (an Elder's after 0.6 s)
+    if (S.show) { hurryShow(); return; }   // v3: a tap hurries the show to its card (the reveal is never cut; AUTOFISH.show.hurry)
     if (afOn()) { const r = onPointerDownAF(e); if (r !== undefined) return r; }
     const tm = !!ctx.state?.meta?.settings?.reelToggle;
     switch (state) {
@@ -1626,7 +1636,10 @@ export function create(ctx) {
     // where the fish comes up: on the camera's side of the raft, broadside to it (a forward cast would put the fish straight
     // behind the Wick's head and flame, and the reveal would run where nobody can see it). R: the camera's right on the water,
     // C: the raft toward the camera; the fish swings to the side its line runs on, half a metre toward us, nose to the raft.
-    const camYaw = num(call(() => ctx.render?.getYaw?.()), Math.atan2(-V.lineDir.x, -V.lineDir.z) + Math.PI);
+    // T0 of the show (AUTOFISH.show): its record, the clean frame and the show camera start here; the camera answers with the yaw
+    // it will settle at (the play's, plus a place's landmark swing), so the fish comes up broadside to the lens it will have
+    const show = showOn() ? beginShow({ sizeClass: S.sizeClass, ancient: !!S.ancient, legendary: isLegend(), reveal: true }) : null;
+    const camYaw = num(show?.yaw, num(call(() => ctx.render?.getYaw?.()), Math.atan2(-V.lineDir.x, -V.lineDir.z) + Math.PI));
     const Rx = Math.cos(camYaw), Rz = -Math.sin(camYaw), Cx = Math.sin(camYaw), Cz = Math.cos(camYaw);
     const side = Math.sign(V.lineDir.x * Rx + V.lineDir.z * Rz) || 1;
     const off = 0.9 + 0.35 * Math.min(trueL, 3);
@@ -1648,12 +1661,20 @@ export function create(ctx) {
       const sm = Array.isArray(LF.slowmo) ? LF.slowmo : [0, 1];
       if (num(sm[0]) > 0) call(() => ctx.game?.slowmo?.(num(sm[0]), num(sm[1], 0.5)));
       fx.droplets(V.fish.x, V.fish.y + 0.08, V.fish.z, S.fishLen, num(LF.drops, 12));
-      call(() => ctx.render?.kick?.(num(LF.kick, -1) * 0.5));
       call(() => ctx.render?.pulse?.({ bloom: num(LF.bloom) * 0.35 }));
-      // the camera leans to the fish and pushes in on the framing it has (the ceremony's trophy shot takes over at the reveal)
-      call(() => ctx.render?.attention?.({ x: V.fish.x, z: V.fish.z }, 0.8 + S.reveal.dur * 2, 0.5));
-      if (num(LF.push) > 0) call(() => ctx.render?.push?.(num(LF.push), S.reveal.dur, Math.min(0.3, S.reveal.dur * 0.5), 0.9));   // game seconds
+      if (!show?.cam) {
+        // no show camera (a render without setShowTarget): the camera leans to the fish and pushes in on the framing it has
+        call(() => ctx.render?.kick?.(num(LF.kick, -1) * 0.5));
+        call(() => ctx.render?.attention?.({ x: V.fish.x, z: V.fish.z }, 0.8 + S.reveal.dur * 2, 0.5));
+        if (num(LF.push) > 0) call(() => ctx.render?.push?.(num(LF.push), S.reveal.dur, Math.min(0.3, S.reveal.dur * 0.5), 0.9));   // game seconds
+      }   // (with the show camera the kick and the push are its own approach: one move in, from T0, no double zoom)
       emit('fishing:landing', { sizeClass: S.sizeClass || null, ancient: !!S.ancient, legend: isLegend(), dur: round2(S.reveal.dur) });
+    }
+    // the show camera frames where the fish will lie when the wipe ends: beside the raft, broadside, at its class length
+    if (show?.cam) {
+      const raft = raftPos(), r = S.reveal, ex = raft.x + r.ox, ez = raft.z + r.oz;
+      call(() => ctx.render.setShowTarget({ cls: show.cls, length: Math.max(0.05, S.fishLen), swarm: show.swarm, landmark: show.landmark, place: show.place,
+        position: { x: ex, y: waterH(ex, ez) + 0.35 + 0.25 * Math.min(S.fishLen, 2), z: ez } }));
     }
   }
   // ---------------------------------------------------------------- the landing's payoff (AUTOFISH.landing)
@@ -1682,15 +1703,28 @@ export function create(ctx) {
     const L = Math.max(0.05, num(r.Lt, S.fishLen));
     const glory = num(LF.glory) + (special ? num(SPx.glory) : 0);
     const at = r.fv?.object3d?.parent ? r.fv.object3d.getWorldPosition(V.tmp) : V.fish;
-    if (glory > 0) {   // a backlight bigger than the Wick and its fish, set behind them (the trophy camera frames both)
+    const sf = r.focus || null;   // the show: the glory opens behind the Wick AND its fish (actors' focus), sized to the picture
+    if (glory > 0 && sf) {
+      // a backlight a little bigger than the picture, set behind it: the Wick and the fish stand against it, the sky keeps its
+      // corners. It holds through the hold and is fading in the pause (r.hold / r.pause: the show's beats); an Elder's is brighter
+      const G = SHOW().glory || {};
+      const R = Math.max(0.3, num(sf.radius, 0.6));
+      fx.glory(sf.center.x, sf.center.y, sf.center.z, { size: R * (num(G.size, 1.15) + num(G.perGlory, 0.3) * glory), strength: num(G.strength, 0.3) + num(G.perGloryStrength, 0.14) * glory + num(LF.gloryBright, 0),
+        rise: num(G.rise, 0.3), hold: Math.max(0.2, num(r.hold, 0.6) * num(G.holdShare, 0.85)), fade: Math.max(0.5, num(r.pause, 0.7) * num(G.fadeShare, 1.6)), follow: null,
+        back: Math.max(0.35, R * num(G.back, 0.9)), embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
+    } else if (glory > 0) {   // a backlight bigger than the Wick and its fish, set behind them (the trophy camera frames both)
       // an Elder or an Ancient holds it longer and brighter (the step a Trophy does not get, with the camera's pull-back below)
       fx.glory(at.x, at.y, at.z, { size: Math.max(0.8 + 0.35 * glory, (0.5 + Math.min(L, 6) * 0.8) * glory), strength: 0.36 + 0.2 * glory + num(LF.gloryBright, 0), rise: 0.45,
         hold: 0.3 + 0.9 * glory + num(LF.gloryHold, 0), fade: 0.9 + glory, follow: r.fv?.object3d || null, back: 0.6 + Math.min(L, 6) * 0.25,
         embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
     }
-    call(() => ctx.render?.pulse?.({ bloom: num(LF.bloom) + (special ? num(SPx.bloom) : 0) }));
-    call(() => ctx.render?.kick?.(num(LF.kick, -1)));
-    if (num(LF.pull, 0) < 0) call(() => ctx.render?.push?.(num(LF.pull, 0), 1.4, 0.9, 1.6));   // the camera draws back to take in the whole glory
+    call(() => ctx.render?.pulse?.({ bloom: (num(LF.bloom) + (special ? num(SPx.bloom) : 0)) * (sf ? num(SHOW().camera?.presentBloom, 1) : 1) }));
+    // the show camera has arrived by the present: a small kick, eased by render (never a jump), and an Elder's breath out
+    call(() => ctx.render?.kick?.(num(LF.kick, -1) * (sf ? num(SHOW().camera?.presentKick, 0.5) : 1)));
+    if (num(LF.pull, 0) < 0) {
+      if (sf) call(() => ctx.render?.push?.(num(LF.pull, 0) * num(SHOW().camera?.breath, 0.2), num(r.hold, 1.6) + num(r.pause, 0.9) + 2, Math.max(0.3, num(r.hold, 1.6) * 0.5), 1.2));
+      else call(() => ctx.render?.push?.(num(LF.pull, 0), 1.4, 0.9, 1.6));   // the camera draws back to take in the whole glory
+    }
     call(() => ctx.actors?.flareFlame?.(num(LF.flame) + (special ? num(SPx.flame) : 0)));
     if (r.fv && num(LF.glow, 1) > 1) {   // its glow ignites, and the whole fish holds the light for a moment (so it never reads as a cut-out)
       S.glowIgnite = { fv: r.fv, amp: num(LF.glow, 1.5) - 1, t: 0, base: r.quality === 'perfect' ? 1.6 : 1, light: Math.min(0.32, 0.12 + 0.06 * num(LF.glory)) };
@@ -1753,20 +1787,22 @@ export function create(ctx) {
     const nose = L * 0.45;
     V.mouth.set(V.fish.x + Math.sin(r.yaw) * nose, V.fish.y + 0.05 + Math.sin(0.3 * e) * nose, V.fish.z + Math.cos(r.yaw) * nose);
     aLine(true, V.mouth, r.lf ? lerp(1, 0.35, e) : 0.35, 0); aBob(false);   // taut as it clears the water, easing as it comes in
-    if (k >= 1) {
-      S.reveal = null; fx.setProxy(false);
-      if (r.fv) { r.fv.object3d.scale.setScalar(1); call(() => r.fv.setSilhouette?.(0)); call(() => r.fv.setReveal?.(1, 0)); }
-      // the wipe has run: the band, its glints and the class chime (audio, on fishing:caught) are this beat's. The climax (the
-      // glory, the flare, the bloom, the kick, the haptic) waits for the ceremony's pose, once the trophy camera has framed
-      // the fish; without a ceremony (a debug catch, the v1 hand-off) it plays now.
-      r.special = isLegend() || newSpecies(S.species);
-      r.quality = S.quality;
-      S.cerYaw = r.yaw;
-      caught();
-      S.cerYaw = null;
-      if (S.cer && !S.cer.climax) S.cer.climax = r;
-      else landingClimax(r);
-    }
+    if (k >= 1) finishReveal(r);
+  }
+  /** The wipe has run: the species is known, fishing:caught fires, and the show's lift begins. */
+  function finishReveal(r) {
+    S.reveal = null; fx.setProxy(false);
+    if (r.fv) { r.fv.object3d.scale.setScalar(1); call(() => r.fv.setSilhouette?.(0)); call(() => r.fv.setReveal?.(1, 0)); }
+    // the wipe has run: the band, its glints and the class chime (audio, on fishing:caught) are this beat's. The climax (the
+    // glory, the flare, the bloom, the kick, the haptic) crowns the show: it fires at the present, when the Wick thrusts the
+    // fish at the lens and the camera has arrived; without a show (a debug catch, the v1 hand-off) it plays now.
+    r.special = isLegend() || newSpecies(S.species);
+    r.quality = S.quality;
+    S.revealDone = r;
+    caught();
+    S.revealDone = null;
+    if (S.show && S.show.phase !== 'reveal') { if (!S.show.climax) S.show.climax = r; }
+    else { if (S.show) abortShow(); landingClimax(r); }
   }
   /** The First Evening's seam (CONTRACT §13.7a, §13.12): waits and presentation only; any outcome, class, chance, z or species throws. */
   function setTutorial(opts) {
@@ -2080,43 +2116,67 @@ export function create(ctx) {
     if (k >= 1) caught();
   }
 
-  // ---------------------------------------------------------------- v3: the catch hand-off and the measuring ceremony (F5)
+  // ---------------------------------------------------------------- v3: the catch hand-off and the show (F5; AUTOFISH.show)
   /** The v3 hand-off needs a size-scored fish and a progression with makeFish + measure (CONTRACT §13.7). */
   function handoffOk(sp) {
     if (!spV3(sp) || !S.zRolled) return false;
     const p = prog();
     return !!p && typeof p.makeFish === 'function' && typeof p.measure === 'function';
   }
-  const classInfo = (cls) => classOf(cls) || {};
-  /** The ceremony's length and beats for a fish (DESIGN §25.6.8): SIZE_CLASSES[].ceremony (Small / Keeper 1.2 s, Prize 2.4,
-   *  Trophy 3.5, Elder and every legend 5) on BALANCE.ceremony.beats' 3.6 s reference; 1.2 s for every class in a swarm window. */
-  function ceremonyPlan(fish, legendary) {
-    const C = BAL('ceremony');
-    const B = C.beats || {};
-    const ref = num(B.banners?.[1], 3.6);
-    let short = false;
-    try { short = isReal(ctx.combat) && ctx.combat.swarmActive === true; } catch { short = false; }
-    const base = legendary ? num(classInfo('elder').ceremony, 5) : num(classInfo(fish.sizeClass).ceremony, 1.2);
-    const dur = short ? num(C.cinematic?.duringSwarm, 1.2) : base;
-    const k = dur / ref;
-    const beats = { scoop: num(B.scoop?.[1], 0.6) * k, pose: num(B.pose?.[1], 1.4) * k, cord: num(B.cord?.[1], 2.8) * k, banners: dur };
-    const cordStart = num(B.cord?.[0], 1.4) * k;
-    return { dur, beats, cordStart, cordDur: beats.cord - cordStart, short };
-  }
-  /** The measuring pose by length (the Wick is 0.85 m): palm < 0.25 m, arms < 0.85, hang < 2, alongside above and for legends. */
-  function poseFor(lengthM, legendary) {
-    if (legendary) return 'alongside';
-    for (const p of BAL('ceremony').poses || []) if (lengthM < num(p.below, Infinity)) return p.id;
-    return 'alongside';
-  }
-  const sealFor = (fish, legendary) => (legendary ? 'legend' : classInfo(fish.sizeClass).seal || null);
   function placeById(id) {
     if (!id) return null;
     if (S.cast?.place?.id === id) return S.cast.place;
     return (zoneData()?.arena?.places || []).find((p) => p.id === id) || D().PLACE_V3_BY_ID?.[id] || null;
   }
+  // ---- the show (docs/v3/show/SPEC.md §2, §6; DESIGN §25.6.8; CONTRACT §13.7b): reveal → lift → hold → pause → card.
+  // Fishing starts and stops everything and keeps the clock; actors moves the Wick and the fish (showFish / setShowTime / endShow);
+  // render fits the camera (setShowTarget); ui keeps the frame clean until the card and opens it from the fish.
+  const SHOW = () => AF().show || {};
+  const SHOW_STANDIN = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' };   // actors without showFish
+  const showOn = () => afOn() && !!AF().show && typeof D().showPlan === 'function';
+  const round3 = (v) => Math.round(v * 1000) / 1000;
+  function swarmNow() { try { return S.forceSwarm != null ? !!S.forceSwarm : isReal(ctx.combat) && ctx.combat.swarmActive === true; } catch { return false; } }
+  /**
+   * T0: the fish breaks the surface (startRevealAF; a show started without a reveal begins at its lift). The show's record, the
+   * view (class only until fishing:caught: no species, no length, F17) and the valve's clock start here. Returns the record with
+   * {cam: the show camera is driving, yaw: the yaw it will settle at}.
+   */
+  function beginShow({ sizeClass = null, ancient = false, legendary = false, reveal = true } = {}) {
+    const d = D();
+    const cls = typeof d.showClassOf === 'function' ? d.showClassOf({ sizeClass: sizeClass || 'keeper', ancient: !!ancient, legend: !!legendary }) : (legendary || ancient ? 'ancient' : sizeClass || 'keeper');
+    const swarm = swarmNow();
+    const P = d.showPlan(cls, { swarm });
+    const dur = { reveal: reveal ? P.reveal : 0, lift: P.lift, hold: P.hold, pause: P.pause };
+    dur.total = round3(dur.reveal + dur.lift + dur.hold + dur.pause);
+    let resolve = null;
+    const promise = new Promise((r) => { resolve = r; });
+    const H = SHOW().hurry || {};
+    const pl = S.cast?.place || null;
+    const c = { phase: reveal ? 'reveal' : 'lift', cls, swarm, dur, legendary: !!legendary, sizeClass: legendary ? null : sizeClass || null, ancient: !!ancient,
+      real: 0, t: 0, poseT: 0, hurried: false, protected: false, floor: Math.min(dur.hold + dur.pause, num(H.hold, 0.3)), liftRate: Math.max(1, num(H.liftRate, 2.5)),
+      valve: num(SHOW().valve, 8), fish: null, fv: null, Lm: 0, pose: null, lifted: false, measured: false, result: null, climax: null, isNew: false, special: false, sheetT: 0,
+      place: pl?.id ?? null, landmark: pl ? (call(() => d.landmarkOf?.(pl)) ?? null) : null, cam: false, yaw: null, resolve, promise, view: null };
+    c.view = { phase: c.phase, cls, pose: null, t: 0, poseT: 0, dur: { ...dur }, hurried: false, protected: false, swarm, sizeClass: c.sizeClass, ancient: c.ancient, legendary: c.legendary,
+      speciesId: null, length: null, uid: null };
+    S.show = c;
+    view.show = c.view; view.measure = null;
+    S.exitT = 0; S.exitAction = null;
+    // the show camera takes over at T0 (render fits the reveal's fish and the Wick's head, then actors' show focus): its first
+    // call here only asks for the yaw it will hold, so the reveal can lay the fish broadside to it; startRevealAF sends the spot
+    const R = ctx.render;
+    if (isReal(R) && typeof R.setShowTarget === 'function') {
+      const got = call(() => R.setShowTarget({ cls, length: Math.max(0.05, num(S.fishLen, 0.5)), swarm, landmark: c.landmark, place: c.place }));
+      c.cam = got !== false && got != null;
+      if (got && Number.isFinite(got.yaw)) c.yaw = got.yaw;
+    }
+    return c;
+  }
+  function syncShowView(c) {
+    const v = c.view;
+    v.phase = c.phase; v.t = round2(c.t); v.poseT = round2(c.poseT); v.hurried = c.hurried; v.protected = c.protected; v.pose = c.pose;
+  }
 
-  /** At the landing (v3): progression.makeFish → fishing:caught {fish, …} (informational) → the ceremony (or, instant, the stamp now). */
+  /** At the landing (v3): progression.makeFish → fishing:caught {fish, …} (informational) → the show (or, instant, the stamp now). */
   function caughtV3(opts = {}) {
     const sp = opts.species || S.species;
     const quality = opts.quality || S.quality || 'normal';
@@ -2161,206 +2221,222 @@ export function create(ctx) {
       }
     }
     S.spot = null; S.rareSpot = false; S.perfect = false; S.signHit = null; S.prerollTook = false;
-    if (opts.instant) {
-      // no ceremony (a debug catch): the stamp at once, the fish held up as v1 did
-      if (fv) { S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; call(() => ctx.actors?.showCatch?.(fv)); }
+    if (opts.instant || !showOn()) {
+      // no show (a debug catch): the records at once, the fish held up as v1 did
+      if (S.show) abortShow();
+      if (fv) { S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; S.exitT = 0; call(() => ctx.actors?.showCatch?.(fv)); }
       try { prog().measure(fish); } catch (e) { report(e); }
       return;
     }
-    startCeremony(fish, { fv, position: pos, legendary });
+    startShow(fish, { fv, position: pos, legendary });
   }
 
   /**
-   * startCeremony(fish) -> Promise (CONTRACT §13.7): sets ctx.cinematic and plays scoop → pose → cord → stamp (progression.measure:
-   * fish:measured, then fish:landed) → banners → card; resolves with measure's result when the card's turn comes.
+   * startShow(fish, {fv, position, legendary}) -> Promise (CONTRACT §13.7b; startCeremony is its alias): the reveal is over
+   * (fishing:caught has fired), the lift begins. Sets ctx.cinematic, hands the fish to actors (showFish) and the picture to
+   * render (setShowTarget), emits fishing:show {phase: 'lift', …}; the records are written at the present (progression.measure:
+   * fish:measured, then fish:landed); resolves with measure's result when the card's turn comes.
    */
-  function startCeremony(fish, o = {}) {
-    if (!fish || typeof fish !== 'object' || !fish.speciesId) return Promise.resolve(null);
-    if (S.cer) finishCeremony();
+  function startShow(fish, o = {}) {
+    if (!fish || typeof fish !== 'object' || !fish.speciesId || !showOn()) return Promise.resolve(null);
+    if (S.show && S.show.phase !== 'reveal') finishShow();   // an outside caller mid-show: the running one goes to its card
     const sp = speciesById(fish.speciesId);
     const legendary = o.legendary ?? sp?.rarity === 'legendary';
+    // a show with no reveal before it (an outside caller, a debug catch): it begins at its lift
+    const c = S.show || beginShow({ sizeClass: fish.sizeClass, ancient: !!fish.ancient, legendary, reveal: false });
     const Lm = Math.max(0.02, num(fish.length, 30) / 100);
-    const plan = ceremonyPlan(fish, legendary);
     let fv = o.fv || null;
     if (!fv) {   // an outside caller with only the Fish: its model at true scale
       try { fv = ctx.models?.createFish?.(fish.speciesId, { z: fish.z, lengthCm: fish.length, zone: zoneData()?.id || run()?.zone || null }); } catch (e) { report(e); fv = null; }
       if (fv && (fv.isStub || !fv.object3d)) fv = null;
-      if (fv) fishHolder.add(fv.object3d);
+      if (fv) {
+        fishHolder.add(fv.object3d);
+        const r0 = raftPos();
+        if (o.position) fv.object3d.position.copy(o.position);
+        else fv.object3d.position.set(r0.x + V.lineDir.x * (1.3 + Lm * 0.35), 0.6, r0.z + V.lineDir.z * (1.3 + Lm * 0.35));
+      }
     }
-    const from = new THREE.Vector3();
-    if (o.position) from.copy(o.position);
-    else if (fv) from.copy(fv.object3d.position);
-    else { const r0 = raftPos(); from.set(r0.x + V.lineDir.x * (1.3 + Lm * 0.35), 0.6, r0.z + V.lineDir.z * (1.3 + Lm * 0.35)); }
-    let resolve = null;
-    const promise = new Promise((r) => { resolve = r; });
-    const cls = legendary ? 'elder' : fish.sizeClass;
-    S.cer = { fish, legendary, Lm, plan, pose: poseFor(Lm, legendary), fv, t: 0, stamped: false, posed: false, result: null, resolve, from, isNew: newSpecies(sp),
-      sheetT: 0, skipAfter: num(BAL('ceremony').skipAfter, 0.6), elderish: legendary || cls === 'elder', yaw: Number.isFinite(S.cerYaw) ? S.cerYaw : Math.atan2(-V.lineDir.x, -V.lineDir.z),
-      // the landing's climax (landingClimax) fires once the trophy camera has framed the held fish: at the pose, after the
-      // camera's move in has mostly settled (≈1.1 s; a Small / Keeper at its cord's start)
-      climax: null, climaxAt: Math.min(plan.cordStart + 0.25 * plan.cordDur, Math.max(plan.beats.scoop + 0.25, Math.min(1.1, plan.cordStart))) };
-    view.measure = { phase: 'scoop', speciesId: fish.speciesId, length: fish.length, count: 0, k: 0, cordDur: round2(plan.cordDur), sizeClass: fish.sizeClass,
-      ancient: !!fish.ancient, legendary, seal: null, pose: S.cer.pose, dur: plan.dur, beats: { ...plan.beats, cordStart: plan.cordStart }, t: 0,
-      short: plan.short, skippable: !S.cer.elderish, name: null, records: null, uid: fish.uid ?? null };
+    const d = D();
+    c.fish = fish; c.fv = fv; c.Lm = Lm; c.legendary = !!legendary;
+    c.sizeClass = legendary ? null : fish.sizeClass || c.sizeClass; c.ancient = !!fish.ancient;
+    c.isNew = newSpecies(sp); c.special = !!legendary || c.isNew;
+    c.pose = d.showPoseFor?.(Lm, { sizeClass: fish.sizeClass, ancient: !!fish.ancient, legend: !!legendary, shape: sp?.model?.shape ?? fv?.shape ?? null }) || 'both';
+    c.phase = 'lift'; c.lifted = true; c.poseT = 0;
     ctx.cinematic = true;
     if (state !== 'landing') setState('landing');
     api.bobberPos = null;
-    // the trophy camera (render R2) frames fish and Wick against the place's landmark (no yaw without a place)
+    aLine(false);
+    // the Wick takes the fish from where the reveal left it (world space, true size) and owns it until endShow
+    const A = ctx.actors, beats = { lift: c.dur.lift, hold: c.dur.hold, pause: c.dur.pause };
+    if (S.catchFv && S.catchFv !== fv) releaseCatch();   // (a catch still held up from before: its model goes first)
+    if (fv) {
+      fv.object3d.scale.setScalar(1);
+      S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; S.exitT = 0; S.exitAction = null;
+      let got = null;
+      if (typeof A?.showFish === 'function') got = call(() => A.showFish(fv, { cls: c.cls, pose: c.pose, sizeClass: fish.sizeClass, ancient: !!fish.ancient, legend: !!legendary, beats, special: c.special })) || null;
+      if (got && typeof got === 'object' && !got.isStub) { if (typeof got.id === 'string') c.pose = got.id; c.actors = true; }
+      else {   // actors without the show: the nearest measuring pose stands in (the v1 catch hold without those)
+        call(() => A?.setPose?.(typeof A?.showCord === 'function' ? SHOW_STANDIN[c.pose] : 'catch'));
+        call(() => A?.showCatch?.(fv));
+      }
+    } else call(() => A?.setPose?.(typeof A?.showCord === 'function' ? SHOW_STANDIN[c.pose] : 'catch'));
+    const v = c.view;
+    v.sizeClass = fish.sizeClass || null; v.ancient = !!fish.ancient; v.legendary = !!legendary; v.speciesId = fish.speciesId; v.length = fish.length; v.uid = fish.uid ?? null;
+    syncShowView(c);
+    // the camera now fits actors' show focus for this pose (the place's landmark behind it when the catch has a place)
     const pl = placeById(fish.place);
-    const landmark = pl ? (D().landmarkOf?.(pl) ?? null) : null;
-    call(() => ctx.render?.setTrophyTarget?.({ length: Lm, landmark, position: { x: from.x, y: from.y, z: from.z }, place: fish.place ?? null }));
-    // the scoop: a splash at true scale (no clamps). No ripple and no pulse ring: beside the raft either would grow round
-    // the raft under the trophy camera (art rule: never a ring around the raft); spray carries a big fish's weight instead
-    call(() => ctx.water?.splash?.(from.x, from.z, { size: 0.6 + Lm * 0.6, count: Math.round(16 + 6 * Math.min(Lm, 6)), ring: false }));
+    if (pl) { c.place = pl.id ?? fish.place; c.landmark = call(() => d.landmarkOf?.(pl)) ?? c.landmark; }
+    const R = ctx.render;
+    if (isReal(R) && typeof R.setShowTarget === 'function') call(() => R.setShowTarget({ cls: c.cls, pose: c.pose, length: Lm, swarm: c.swarm, landmark: c.landmark, place: c.place ?? fish.place ?? null }));
+    else call(() => R?.setTrophyTarget?.({ length: Lm, landmark: c.landmark, position: o.position ? { x: o.position.x, y: o.position.y, z: o.position.z } : null, place: fish.place ?? null }));
+    // the haul: spray carries a big fish's weight. No ripple and no pulse ring: beside the raft either would grow round the raft
+    // under the close-up (art rule: never a ring around the raft)
+    const from = fv ? fv.object3d.getWorldPosition(V.tmp) : (o.position || raftPos());
+    if (!S.revealDone) call(() => ctx.water?.splash?.(from.x, from.z, { size: 0.6 + Lm * 0.6, count: Math.round(16 + 6 * Math.min(Lm, 6)), ring: false }));
     if (Lm > 1.4) fx.burst(from.x, 0.3, from.z, { color: 0xd9dcea, count: Math.round(10 + 3 * Math.min(Lm, 6)), spread: 1.2 + Lm * 0.2, up: 2.4, gravity: 6, size: 0.06, life: 0.7, radius: Math.min(2, Lm * 0.25) });
-    call(() => ctx.ui?.showMeasure?.(view.measure));
-    return promise;
+    emit('fishing:show', { phase: 'lift', cls: c.cls, pose: c.pose, dur: beats, sizeClass: fish.sizeClass || null, ancient: !!fish.ancient, legendary: !!legendary,
+      speciesId: fish.speciesId, length: fish.length, swarm: c.swarm, hurried: c.hurried, uid: fish.uid ?? null });
+    return c.promise;
   }
-  /** Where the fish goes during the scoop: up to the rod tip (palm / arms / hang), or alongside the raft at the water line. */
-  function holdPoint(c, out) {
-    const raft = raftPos();
-    if (c.pose === 'alongside') {
-      const sx = -V.lineDir.z, sz = V.lineDir.x;
-      return out.set(raft.x + sx * (1.5 + Math.min(c.Lm, 9) * 0.06), waterH(raft.x + sx * 1.5, raft.z + sz * 1.5) + 0.02, raft.z + sz * (1.5 + Math.min(c.Lm, 9) * 0.06));
-    }
-    let tip = null;
-    try { tip = ctx.actors?.getRodTip?.(); } catch { tip = null; }
-    if (tip && Number.isFinite(tip.x)) return out.set(tip.x, Math.max(0.5, tip.y - c.Lm * 0.55), tip.z);
-    return out.set(raft.x + V.lineDir.x * 0.9, 1.2, raft.z + V.lineDir.z * 0.9);
+  /** Project a world point to CSS pixels (the card unfolds from the held fish); null without a camera. */
+  function screenPoint(p) {
+    try {
+      const cam = ctx.render?.camera;
+      if (!cam || !cam.isCamera || !p) return null;
+      const w = typeof innerWidth === 'number' ? innerWidth : 0, h = typeof innerHeight === 'number' ? innerHeight : 0;
+      if (!(w > 0 && h > 0)) return null;
+      V.tmp2.set(p.x, p.y, p.z).project(cam);
+      if (!(V.tmp2.z < 1) || !Number.isFinite(V.tmp2.x)) return null;
+      return { x: Math.round(clamp((V.tmp2.x * 0.5 + 0.5) * w, 0, w)), y: Math.round(clamp((1 - (V.tmp2.y * 0.5 + 0.5)) * h, 0, h)) };
+    } catch { return null; }
   }
-  function beginPose(c) {
-    if (c.posed) return;
-    c.posed = true;
-    if (view.measure) view.measure.phase = 'pose';
-    // actors A2: the measuring pose by length (feature-detected by its cord prop); without it the v1 catch hold
-    const a2 = typeof ctx.actors?.showCord === 'function';
-    call(() => ctx.actors?.setPose?.(a2 ? MEASURE_POSE[c.pose] : 'catch'));
-    if (c.fv) {
-      c.fv.object3d.scale.setScalar(1);
-      S.catchFv = c.fv; S.catchT = 0; S.catchSeenBlock = false;
-      call(() => ctx.actors?.showCatch?.(c.fv));
-    }
+  /** Where the picture is: actors' show focus (the fish's centre, the sphere round fish and Wick), else the held model. */
+  function showFocus(c) {
+    let f = null;
+    try { f = ctx.actors?.getShowFocus?.() || null; } catch { f = null; }
+    if (f && !f.isStub && f.center && Number.isFinite(f.center.x)) return { center: f.center, radius: num(f.radius, c.Lm * 0.6), fish: f.fish?.center && Number.isFinite(f.fish.center.x) ? f.fish.center : f.center };
+    try { f = ctx.actors?.getMeasureFocus?.() || null; } catch { f = null; }
+    if (f && !f.isStub && f.center && Number.isFinite(f.center.x)) return { center: f.center, radius: num(f.radius, c.Lm * 0.6), fish: f.fish?.center || f.center };
+    const o = c.fv?.object3d;
+    if (o?.parent) { const p = o.getWorldPosition(new THREE.Vector3()); return { center: p, radius: Math.max(0.4, c.Lm * 0.6), fish: p }; }
+    return null;
   }
-  function stampCeremony(c) {
-    if (c.stamped) return;
-    c.stamped = true;
+  /**
+   * The present: the Wick thrusts the fish at the lens (the end of the lift). The records are written here, once
+   * (progression.measure: fish:measured, then fish:landed; main saves), so a hurried show knows whether the catch is a first-ever
+   * species or a personal best (its hold cannot drop under hurry.protectedHold); then the landing's climax, the show's crown.
+   */
+  function presentShow(c) {
+    if (c.measured) return;
+    c.measured = true;
     let res = null;
     try { res = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); }
     c.result = res;
-    const m = view.measure;
-    if (m) {
-      m.k = 1; m.count = c.fish.length; m.phase = 'banners';
-      m.records = Array.isArray(res?.records) ? res.records : [];
-      m.seal = sealFor(c.fish, c.legendary); m.name = c.fish.name || null;
-    }
-    call(() => ctx.actors?.showCord?.(c.Lm, 1));
-    let p = null;
-    try { p = ctx.actors?.getHeadPos?.(V.tmp2); } catch { p = null; }
-    const at = p && Number.isFinite(p.x) ? p : (c.fv ? c.fv.object3d.getWorldPosition(V.tmp2) : raftPos());
-    fx.stampFlash(at.x, Math.max(0.4, (at.y || 1) - 0.25), at.z, sealFor(c.fish, c.legendary), !!c.fish.ancient);
-    // the stamp lands (AUTOFISH.landing): a small camera hit and a haptic by class; a record (a personal best, a class first, the
-    // Old Ledger) or a new species blooms the glory again
-    const LF = landFx(c.legendary || c.fish.ancient ? 'ancient' : c.fish.sizeClass);
-    if (LF) {
-      call(() => ctx.render?.shake?.(num(LF.shake), 0.28));
-      call(() => ctx.render?.kick?.(num(LF.kick, -1) * 0.3));
-      haptic(LF.stampHaptic);
-      const SPx = AF().landing?.special || {};
-      const recs = Array.isArray(res?.records) ? res.records : [];
-      if (recs.length || c.isNew) {
-        const L = Math.max(0.1, c.Lm);
-        if (!fx.gloryPulse(num(SPx.glory2, 0.4), 0.9, num(SPx.embers, 8))) {
-          const g = c.fv ? c.fv.object3d.getWorldPosition(V.tmp) : at;
-          fx.glory(g.x, g.y, g.z, { size: Math.max(1.1, (0.5 + Math.min(L, 6) * 0.8) * 0.9), strength: 0.7, hold: 0.9, fade: 1.2, follow: c.fv?.object3d || null, back: 0.6 + Math.min(L, 6) * 0.25, embers: num(SPx.embers, 8) });
-        }
-        call(() => ctx.render?.pulse?.({ bloom: num(SPx.bloom, 0.25) }));
-        call(() => ctx.actors?.flareFlame?.(num(SPx.flame, 0.3) + 0.3));
-      }
-    }
+    const recs = Array.isArray(res?.records) ? res.records : [];
+    const isNew = typeof res?.isNew === 'boolean' ? res.isNew : c.isNew;
+    const H = SHOW().hurry || {}, keys = Array.isArray(H.protected) ? H.protected : ['isNew', 'pb'];
+    c.protected = (keys.includes('isNew') && !!isNew) || recs.some((r) => r && keys.includes(r.kind));
+    c.floor = Math.min(c.dur.hold + c.dur.pause, c.protected ? num(H.protectedHold, 0.8) : num(H.hold, 0.3));
+    c.phase = 'hold';
+    // the climax (AUTOFISH.landing): the glory behind the Wick and its fish, the flame's flare, the bloom, a small kick, the
+    // haptic; a new species, a legend or a record adds landing.special
+    const r = c.climax || { lf: landFx(c.legendary || c.ancient ? 'ancient' : c.sizeClass || 'keeper'), fv: c.fv, Lt: c.Lm, special: c.special, quality: c.fish.quality || 'normal', fired: false };
+    c.climax = null;
+    r.special = !!r.special || c.special || !!isNew || recs.length > 0;
+    r.focus = showFocus(c); r.hold = c.dur.hold; r.pause = c.dur.pause;
+    if (!r.fv) r.fv = c.fv;
+    landingClimax(r);
+    syncShowView(c);
+    emit('fishing:show', { phase: 'hold', cls: c.cls, pose: c.pose, isNew: !!isNew, records: recs, protected: c.protected, special: r.special, uid: c.fish.uid ?? null });
   }
-  /** The card's turn: the stamp if it has not happened (a skip), ctx.cinematic off, the camera and the cord released. */
-  function finishCeremony() {
-    const c = S.cer;
+  /** The card's turn: the records if they were not written (a hurry, the valve), ctx.cinematic off, the camera's target released
+   *  (the framing holds behind the card), fishing:show {phase: 'card', origin} for ui. */
+  function finishShow() {
+    const c = S.show;
     if (!c) return;
-    if (!c.posed) beginPose(c);
-    if (!c.stamped) stampCeremony(c);
-    if (c.climax) { const r = c.climax; c.climax = null; landingClimax(r); }   // a skip still gets the win, behind the card
-    S.cer = null;
-    if (view.measure) view.measure.phase = 'card';
+    if (c.phase === 'reveal') {
+      // the valve inside a stuck reveal: the species still shows and fishing:caught still fires, then straight to the card
+      const r = S.reveal;
+      if (r) { try { finishReveal(r); } catch (e) { report(e); } }
+      if (S.show !== c || c.phase === 'reveal') { if (S.show === c) abortShow(); return; }
+    }
+    if (!c.fish) { abortShow(); return; }
+    if (!c.measured) presentShow(c);
+    if (c.phase === 'hold') { c.phase = 'pause'; syncShowView(c); emit('fishing:show', { phase: 'pause', cls: c.cls, uid: c.fish.uid ?? null }); }
+    const f = showFocus(c);
+    const origin = f ? screenPoint(f.fish) : null;
+    S.show = null;
+    c.phase = 'card'; syncShowView(c);
     ctx.cinematic = false;
-    call(() => ctx.render?.setTrophyTarget?.(null));
-    call(() => ctx.actors?.showCord?.(0, 0));
+    const R = ctx.render;
+    if (isReal(R) && typeof R.setShowTarget === 'function') call(() => R.setShowTarget(null));
+    else call(() => R?.setTrophyTarget?.(null));
     S.catchT = 0; S.catchSeenBlock = false;
     if (state === 'landing') setState('idle');
+    emit('fishing:show', { phase: 'card', cls: c.cls, pose: c.pose, origin, hurried: c.hurried, t: round2(c.t), uid: c.fish.uid ?? null });
     try { c.resolve?.(c.result); } catch { /* ignore */ }
   }
-  /** A reset mid-ceremony (run over, a debug reset): a fish already landed is still measured while the run lives (once). */
-  function abortCeremony() {
-    const c = S.cer;
+  /** A reset mid-show (run over, a zone change, a debug reset): a fish already landed is still measured while the run lives
+   *  (once); ctx.cinematic clears; the camera and the Wick are released; no card. */
+  function abortShow() {
+    const c = S.show;
     if (!c) return;
-    S.cer = null;
-    if (!c.stamped && playing()) {
-      c.stamped = true;
+    S.show = null;
+    if (c.fish && !c.measured && playing()) {
+      c.measured = true;
       try { c.result = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); }
     }
-    ctx.cinematic = false;
-    call(() => ctx.render?.setTrophyTarget?.(null));
-    call(() => ctx.actors?.showCord?.(0, 0));
-    if (!c.posed && c.fv) disposeFv(c.fv);
+    if (c.lifted) ctx.cinematic = false;
+    if (view.show === c.view) view.show = null;
+    const R = ctx.render;
+    if (isReal(R) && typeof R.setShowTarget === 'function') call(() => R.setShowTarget(null, { abort: true }));
+    else if (c.lifted) call(() => R?.setTrophyTarget?.(null));
+    if (c.actors) call(() => ctx.actors?.endShow?.({}));
     try { c.resolve?.(c.result); } catch { /* ignore */ }
   }
-  /** A tap (or ui) skips the ceremony to the card: Small to Trophy at once, an Elder or a legend after 0.6 s. */
-  function skipCeremony() {
-    const c = S.cer;
-    if (!c) return false;
-    if (c.elderish && !c.stamped && c.t < c.skipAfter) return false;
-    finishCeremony();
+  /**
+   * A tap (pointer, Space, Enter; ui) hurries the show to its card (AUTOFISH.show.hurry): the reveal is never cut, the rest of
+   * the lift runs × liftRate, and the card opens once the fish has been presented for hurry.hold s (hurry.protectedHold for a
+   * first-ever species or a personal best). Past that floor, in the hold or the pause, the card opens at once. skipCeremony is
+   * its alias. Returns true while a show is up.
+   */
+  function hurryShow() {
+    const c = S.show;
+    if (!c || ctx.paused) return false;
+    if (!c.hurried) { c.hurried = true; syncShowView(c); }
+    if ((c.phase === 'hold' || c.phase === 'pause') && c.poseT - c.dur.lift >= c.floor - 1e-6) finishShow();
     return true;
   }
-  function updateCeremony(realDt, t) {
-    const c = S.cer;
+  function updateShow(realDt, t) {
+    const c = S.show;
     if (!c || ctx.paused) return;
-    c.t += realDt;
-    const P = c.plan, B = P.beats, m = view.measure;
-    if (m && !m.skippable && c.t >= c.skipAfter) m.skippable = true;
-    if (!c.posed) {
-      // the scoop: the fish comes up out of the water, a sheet of water pouring off it
-      const k = clamp(c.t / Math.max(0.05, B.scoop), 0, 1), e = k * k * (3 - 2 * k);
+    c.real += realDt;                       // the valve's clock is the real one, whatever the debug rate
+    const dt = realDt * S.showRate;
+    c.t += dt;
+    if (c.phase !== 'reveal') {
+      c.poseT += dt * (c.hurried && c.phase === 'lift' ? c.liftRate : 1);
+      call(() => ctx.actors?.setShowTime?.(c.poseT));
       const fv = c.fv;
-      holdPoint(c, V.tmp);
-      const x = lerp(c.from.x, V.tmp.x, e), y = lerp(c.from.y, V.tmp.y, e), z = lerp(c.from.z, V.tmp.z, e);
-      if (fv && fv.object3d.parent === fishHolder) {
-        fv.object3d.position.set(x, y, z);
-        const hang = c.pose === 'alongside' ? 0 : -1.2 * e;
-        // a held fish turns its flank to the camera as it comes up (never end-on), as actors will hold it
-        let yw = c.yaw + (c.pose === 'alongside' ? Math.PI / 2 : 0);
-        if (c.pose !== 'alongside') {
-          const cy = num(call(() => ctx.render?.getYaw?.()), NaN);
-          if (Number.isFinite(cy)) {
-            const wrap = (a) => { a %= TAU; return a > Math.PI ? a - TAU : a < -Math.PI ? a + TAU : a; };
-            const d1 = wrap(cy - Math.PI / 2 - c.yaw), d2 = wrap(cy + Math.PI / 2 - c.yaw);
-            yw = c.yaw + (Math.abs(d1) <= Math.abs(d2) ? d1 : d2) * e;
-          }
-        }
-        fv.object3d.rotation.set(hang, yw, Math.sin(c.t * 14) * 0.25 * (1 - e), 'YXZ');
-        fishUpd(fv, realDt, t, 0.6, 1.5 - e * 0.8, 0);
+      if (c.phase === 'lift') {
+        // the haul: a sheet of water pours off the fish as it swings in (actors moves it; fishing only wets it)
+        c.sheetT -= dt;
+        const k = clamp(c.poseT / Math.max(0.05, c.dur.lift), 0, 1);
+        if (fv?.object3d?.parent && c.sheetT <= 0 && k < 0.7) { c.sheetT = 0.05; const p = fv.object3d.getWorldPosition(V.tmp); fx.scoopSheet(p.x, p.y, p.z, c.Lm, 0, 1.1 - 0.9 * k); }
+        // a model still on fishing's own holder (no actors took it): it rises to a plain hold beside the Wick
+        if (fv && fv.object3d.parent === fishHolder) fishUpd(fv, realDt, t, 0.6, 1.5 - k * 0.8, 0);
+        if (c.poseT >= c.dur.lift - 1e-6) presentShow(c);
       }
-      c.sheetT -= realDt;
-      if (c.sheetT <= 0) { c.sheetT = 0.05; fx.scoopSheet(x, y, z, c.Lm, c.yaw, 1.1 - 0.6 * k); }
-      if (c.t >= B.scoop) beginPose(c);
+      const shown = c.poseT - c.dur.lift;   // how long the fish has been presented
+      if (S.show === c && c.phase === 'hold') {
+        if (c.hurried) { if (shown >= c.floor - 1e-6) { finishShow(); return; } }
+        else if (shown >= c.dur.hold - 1e-6) { c.phase = 'pause'; emit('fishing:show', { phase: 'pause', cls: c.cls, uid: c.fish?.uid ?? null }); }
+      }
+      if (S.show === c && c.phase === 'pause' && (c.hurried ? shown >= c.floor - 1e-6 : shown >= c.dur.hold + c.dur.pause - 1e-6)) { finishShow(); return; }
     }
-    if (c.posed && !c.stamped) {
-      if (c.t >= P.cordStart) {
-        // the knotted cord unrolls: the count eases up to the final length and the seal stamps on the last knot
-        const k = clamp((c.t - P.cordStart) / Math.max(0.05, P.cordDur), 0, 1);
-        if (m) { m.phase = 'cord'; m.k = round2(k); m.count = Math.round(c.fish.length * (1 - (1 - k) * (1 - k)) * 10) / 10; }
-        call(() => ctx.actors?.showCord?.(c.Lm, k));
-        if (k >= 1) stampCeremony(c);
-      } else if (m) m.phase = 'pose';
-    }
-    if (c.climax && c.posed && c.t >= c.climaxAt) { const r = c.climax; c.climax = null; landingClimax(r); }
-    if (m) m.t = round2(c.t);
-    if (c.stamped && c.t >= P.dur) finishCeremony();
+    if (S.show !== c) return;
+    // the safety valve: the card opens whatever state the show is in (the records written first if they were not)
+    if (c.real >= c.valve) { finishShow(); return; }
+    syncShowView(c);
   }
 
   function caught(opts = {}) {
@@ -2441,7 +2517,7 @@ export function create(ctx) {
 
   // ---------------------------------------------------------------- cancel / slam
   function cancel(reason = 'moved') {
-    if (S.cer && (reason === 'snap' || reason === 'moved')) return;   // v3: the fish is landed; the ceremony is not a fight
+    if (S.show && S.show.phase !== 'reveal' && (reason === 'snap' || reason === 'moved')) return;   // v3: the fish is landed; the show is not a fight
     if (afOn() && (reason === 'moved' || reason === 'snap')) {
       // automatic fishing: no cut and the raft is anchored, so nothing the player does ends a play (DESIGN §25.0.2c); a combat slam
       // that lands during a play parts a non-legendary line in Gloomtide only (partLine('staggered'))
@@ -2522,25 +2598,52 @@ export function create(ctx) {
   }
 
   // ---------------------------------------------------------------- catch display
+  const EXIT_T = 0.6;   // s the exit gesture has (actors.endShow) before the model goes
   function releaseCatch() {
     const fv = S.catchFv;
+    S.exitT = 0; S.exitAction = null;
+    if (view.measure && view.measure.phase === 'card') view.measure = null;
+    if (view.show && view.show.phase === 'card') view.show = null;   // v3: the card's turn is over
     if (!fv) return;
     S.catchFv = null;
-    if (view.measure && view.measure.phase === 'card') view.measure = null;   // v3: the card's turn is over
     // only clear the hold-up if actors is still showing OUR fish (someone else may have replaced it)
     const par = fv.object3d?.parent;
     if (par && par !== fishHolder) call(() => ctx.actors?.showCatch?.(null));
     disposeFv(fv);
   }
-  function updateCatch(realDt, t) {
+  /** The card closed (fish:action names what it chose): the fish leaves the hands (actors.endShow: the creel, the toss, the meal;
+   *  ≤ 0.6 s), the HUD and the play camera come back at once, and the model is disposed when the gesture has run. */
+  function endCatch(action = null) {
+    if (S.show) return;                                   // the show still holds the fish (the card has not had its turn)
+    if (view.show && view.show.phase === 'card') view.show = null;
     const fv = S.catchFv;
     if (!fv) return;
+    if (S.exitT > 0) { if (action && !S.exitAction) S.exitAction = action; return; }
+    const A = ctx.actors;
+    if (showOn() && isReal(A) && typeof A.endShow === 'function' && fv.object3d?.parent && fv.object3d.parent !== fishHolder) {
+      S.exitAction = action; S.exitT = EXIT_T;
+      call(() => A.endShow({ action: action || undefined }));
+    } else releaseCatch();
+  }
+  function updateCatch(realDt, t) {
+    const fv = S.catchFv;
+    if (!fv) {
+      // a card with no model behind it (a stub model): the card's turn still ends when it closes
+      if (view.show && view.show.phase === 'card' && !S.show) {
+        S.catchT += realDt;
+        const blocking = (() => { try { return ctx.ui?.isBlocking?.() === true; } catch { return false; } })();
+        if (blocking) S.catchSeenBlock = true;
+        if ((S.catchSeenBlock && !blocking && S.catchT > 0.4) || (!S.catchSeenBlock && S.catchT > 3.2) || S.catchT > 90) view.show = null;
+      }
+      return;
+    }
+    if (S.exitT > 0) { S.exitT -= realDt; if (S.exitT <= 0) releaseCatch(); return; }
     S.catchT += realDt;
-    if (S.cer) S.catchT = 0;   // v3: the ceremony holds the fish; the card's turn starts the clock
+    if (S.show) S.catchT = 0;   // v3: the show holds the fish; the card's turn starts the clock
     const blocking = (() => { try { return ctx.ui?.isBlocking?.() === true; } catch { return false; } })();
     if (blocking) S.catchSeenBlock = true;
     // the catch card closing (or no card at all) ends the display
-    if ((S.catchSeenBlock && !blocking && S.catchT > 0.4) || (!S.catchSeenBlock && S.catchT > 3.2) || S.catchT > 90) { releaseCatch(); return; }
+    if ((S.catchSeenBlock && !blocking && S.catchT > 0.4) || (!S.catchSeenBlock && S.catchT > 3.2) || S.catchT > 90) { endCatch(S.exitAction); return; }
     // actors took it (showCatch reparents) — otherwise hang it from the rod tip ourselves
     if (fv.object3d?.parent === fishHolder) {
       let tip = null;
@@ -3204,7 +3307,7 @@ export function create(ctx) {
    *  short wait and the class's bite tell play out instead of jumping to the bite. */
   function debugForceBite(opts = {}) {
     if (!playing()) return false;
-    if (S.cer) finishCeremony();   // v3: a forced bite skips a measuring ceremony to its card
+    if (S.show) finishShow();   // v3: a forced bite hurries a show straight to its card
     if (state === 'reeling' || state === 'landing') return false;
     const o = opts && typeof opts === 'object' ? opts : {};
     const fsp = o.speciesId ? speciesById(o.speciesId) : null;
@@ -3242,7 +3345,7 @@ export function create(ctx) {
   }
   function debugInstantCatch(speciesId, opts = {}) {
     if (!playing()) return false;
-    if (S.cer) finishCeremony();
+    if (S.show) finishShow();
     let sp = speciesById(speciesId);
     if (!sp) sp = S.species && BUSY.has(state) && state !== 'charging' ? S.species : null;
     if (!sp) sp = rollSpecies(depthAt(raftPos().x, raftPos().z - 8), stat('rarityBonus', 0), equippedBaitId()) || (D().SPECIES || [])[0];
@@ -3265,8 +3368,9 @@ export function create(ctx) {
       if (!F.fv) { V.lineDir.copy(V.aimDir); V.bob.copy(raftPos()).addScaledVector(V.aimDir, 3); spawnHooked(sp); }
     }
     V.fish.copy(V.raft).addScaledVector(V.lineDir, 1.6);
-    // v3: a debug catch measures at once unless {ceremony: true} asks for the whole measuring beat
-    caught({ species: sp, weight, quality, instant: !(opts && typeof opts === 'object' && opts.ceremony) });
+    // v3: a debug catch measures at once unless {show: true} (or the older {ceremony: true}) asks for the show: the lift, the
+    // present, the hold and the pause (no reveal: that is the play's last beat, forced with fishOutcome('land') + fishPlayTo)
+    caught({ species: sp, weight, quality, instant: !(opts && typeof opts === 'object' && (opts.show || opts.ceremony)) });
     return true;
   }
   function debugHook(speciesId, opts = {}) {
@@ -3339,9 +3443,13 @@ export function create(ctx) {
     /** Murk's Chum (progression on purchase): the next cast spawns a 30 s nervous sign at the bobber. */
     armChum() { if (!signsOn()) return false; S.chumArmed = true; return true; },
     get chumArmed() { return S.chumArmed; },
-    startCeremony(fish) { try { return startCeremony(fish, {}); } catch (e) { report(e); return Promise.resolve(null); } },
-    skipCeremony() { try { return skipCeremony(); } catch (e) { report(e); return false; } },
-    get inCeremony() { return !!S.cer; },
+    // the show (CONTRACT §13.7b); the ceremony's names stay as aliases
+    startShow(fish, opts) { try { return startShow(fish, opts && typeof opts === 'object' ? opts : {}); } catch (e) { report(e); return Promise.resolve(null); } },
+    hurryShow() { try { return hurryShow(); } catch (e) { report(e); return false; } },
+    get inShow() { return !!S.show; },
+    startCeremony(fish, opts) { return api.startShow(fish, opts); },
+    skipCeremony() { return api.hurryShow(); },
+    get inCeremony() { return !!S.show && S.show.phase !== 'reveal'; },
 
     init() {
       if (signsOn()) api.spots = api.signs = S.signs;
@@ -3356,8 +3464,9 @@ export function create(ctx) {
         bus.on('flow:change', ({ flow } = {}) => { if (flow !== 'playing') { hardReset(); if (flow === 'title') { clearSpots(); clearSigns(); } } });
         // the Tide Chart's spots arrive through fishing.addSpots(), which progression calls on purchase
         bus.on('player:damage', ({ source } = {}) => { if (typeof source === 'string' && /hand|grasp|slam/i.test(source)) slam(); });
-        bus.on('fish:action', () => { if (S.catchFv) S.catchT = Math.max(S.catchT, 90 - 0.6); });
-        bus.on('ui:modal', ({ open } = {}) => { if (open === false && S.catchFv && S.catchT > 0.3) releaseCatch(); });
+        // the card's close: the action it chose names the exit gesture (actors.endShow), then the model goes
+        bus.on('fish:action', ({ action } = {}) => { if (S.catchFv && !S.show) { S.exitAction = S.exitAction || action || null; if (!showOn()) S.catchT = Math.max(S.catchT, 90 - 0.6); } });
+        bus.on('ui:modal', ({ open } = {}) => { if (open === false && !S.show && S.catchT > 0.3 && (S.catchFv || view.show)) endCatch(S.exitAction); });
       }
       try {
         const z = zoneData();
@@ -3369,7 +3478,20 @@ export function create(ctx) {
         fishHook: (id, opts) => { try { return debugHook(id, opts); } catch (e) { report(e); return false; } },
         // v3 (CONTRACT §13.11)
         setFavour: (mu = null) => { S.favourOverride = Number.isFinite(mu) ? mu : null; if (S.cast) refreshFloat(); return S.favourOverride; },
-        cerRate: (k = 1) => { S.cerRate = Number.isFinite(k) && k > 0 ? k : 1; return S.cerRate; },
+        // the show's clock rate (the phases; the valve stays on the real clock): showRate(0.02) is a stuck show. cerRate is its alias
+        showRate: (k = 1) => { S.showRate = Number.isFinite(k) && k > 0 ? k : 1; return S.showRate; },
+        cerRate: (k = 1) => ctx.debug.showRate(k),
+        // the show's state (null when none is up and no card holds its view): phases, clocks, the plan, the flags
+        show: () => {
+          const c = S.show, v = view.show;
+          if (!c && !v) return null;
+          return { active: !!c, phase: c ? c.phase : v.phase, cls: (c || v).cls, pose: (c || v).pose, t: c ? c.t : v.t, real: c ? c.real : null, poseT: c ? c.poseT : v.poseT,
+            dur: { ...(c || v).dur }, hurried: !!(c || v).hurried, protected: !!(c || v).protected, swarm: !!(c || v).swarm, floor: c ? c.floor : null, measured: c ? c.measured : true,
+            climaxPending: !!c?.climax, valve: c ? c.valve : null, rate: S.showRate, cam: !!c?.cam, actors: !!c?.actors, L: c ? c.Lm : null, uid: v?.uid ?? null, cinematic: !!ctx.cinematic,
+            exit: S.exitT > 0 ? { t: S.exitT, action: S.exitAction } : null };
+        },
+        // force the swarm-window row for the next shows (true / false; null = follow combat.swarmActive)
+        showSwarm: (on = null) => { S.forceSwarm = on == null ? null : !!on; return S.forceSwarm; },
         fishSeed: (seed = null) => { S.rng = Number.isFinite(seed) ? mulberry32(seed | 0) : null; S.signRng = Number.isFinite(seed) ? mulberry32((seed ^ 0x5bd1e995) | 0) : null; return !!S.rng; },
         fishPressure: () => ({ ...S.pressure }),
         fishReel: () => S.reel,   // the live v1 reel (null on the automatic-fishing path)
@@ -3398,9 +3520,13 @@ export function create(ctx) {
             preroll: pre ? { speciesId: pre.sp.id, z: pre.z, sizeClass: pre.sizeClass, length: Math.round(pre.lengthCm * 10) / 10 } : null };
         }),
         fishClock: () => S.clock,
-        ceremony: () => (S.cer ? { active: true, t: S.cer.t, stamped: S.cer.stamped, posed: S.cer.posed, pose: S.cer.pose, dur: S.cer.plan.dur, beats: { ...S.cer.plan.beats },
-          cordStart: S.cer.plan.cordStart, climaxAt: S.cer.climaxAt, climaxPending: !!S.cer.climax, short: S.cer.plan.short, L: S.cer.Lm, legendary: S.cer.legendary, uid: S.cer.fish.uid ?? null, cinematic: !!ctx.cinematic }
-          : { active: false, cinematic: !!ctx.cinematic, measure: view.measure ? { ...view.measure } : null }),
+        // (the old name: answers for the show past its reveal, so the scenarios written for the measuring ceremony still read it)
+        ceremony: () => {
+          const c = S.show && S.show.phase !== 'reveal' ? S.show : null;
+          return c ? { active: true, t: c.poseT, stamped: c.measured, posed: true, pose: c.pose, dur: round3(c.dur.lift + c.dur.hold + c.dur.pause), beats: { lift: c.dur.lift, hold: c.dur.hold, pause: c.dur.pause },
+            climaxAt: c.dur.lift, climaxPending: !!c.climax, short: c.swarm, L: c.Lm, legendary: c.legendary, uid: c.fish?.uid ?? null, cinematic: !!ctx.cinematic }
+            : { active: false, cinematic: !!ctx.cinematic, measure: null, show: view.show ? { ...view.show } : null };
+        },
         fishSpot: (rare = false) => { try { const s = spawnSpot({ rare }); return s ? { x: s.position.x, z: s.position.z } : null; } catch (e) { report(e); return null; } },
         fishing: () => ({ state, species: S.species?.id || null, weight: S.weight, depth: S.depth, wait: S.waitDur, events: S.events.map((e) => e.type), spot: !!S.spot, legend: S.legendCast,
           reel: S.reel ? { T: S.reel.T, P: S.reel.P, phase: S.reel.phaseName, surge: S.reel.surge, kind: S.reel.surgeKind, mode: S.reel.surgeMode, stamina: S.reel.stamina, power: S.reel.species?.power } : null,
@@ -3413,7 +3539,7 @@ export function create(ctx) {
           fishLen: S.fishLen, meshScale: F.fv?.object3d?.scale?.x ?? null, fvLength: F.fv?.length ?? null, revealed: !!S.revealed,
           meshVisible: F.fv?.object3d ? F.fv.object3d.visible !== false : null, veiled: !!S.veiled, silhouette: F.fv ? (F.fv.silhouette ?? null) : null, leap: !!F.leap,
           sign: S.signHit ? { kind: S.signHit.rule.kind, id: S.signHit.rule.id, inSign: !!S.signHit.rule.inSign, spook: !!S.signHit.rule.spook } : null,
-          prerollTook: !!S.prerollTook, chum: S.chumArmed, signs: S.signs.length, ceremony: !!S.cer,
+          prerollTook: !!S.prerollTook, chum: S.chumArmed, signs: S.signs.length, ceremony: !!S.show && S.show.phase !== 'reveal', show: S.show ? S.show.phase : null,
           // automatic fishing (hidden state: debug builds only)
           af: afOn(), grade: S.grade, p: S.p, outcome: S.outcome, playT: S.playT, playCls: S.playCls, plan: !!S.plan, loss: S.loss ? { ...S.loss } : null,
           castItem: S.castItem, castLoadout: S.castLoadout ? JSON.parse(JSON.stringify(S.castLoadout)) : null, window: S.window, cleanPart: S.cleanPart,
@@ -3447,7 +3573,7 @@ export function create(ctx) {
 
     update(dt, t) {
       const realDt = ctx.time?.dt || 0;
-      fx.update(realDt * (S.cer ? S.cerRate : 1), t);   // (cerRate is 1 but for debug screenshots: the glory keeps the ceremony's clock)
+      fx.update(realDt * (S.show ? S.showRate : 1), t);   // (showRate is 1 but for debug screenshots: the glory keeps the show's clock)
       updateCatch(realDt, t);
       if (!playing()) {
         if (state !== 'idle' || api.bobberPos) hardReset(false);
@@ -3460,10 +3586,10 @@ export function create(ctx) {
         S.clock += dt;
         S.stateT += dt;
       }
-      // v3: the measuring ceremony runs in real time (main freezes survival and combat; a card or the pause stops nothing here
+      // v3: the show runs in real time (main freezes survival and combat from fishing:caught to the card; nothing stops its clock
       // but the pause itself), and the leap reveal's rim flash fades back after 0.35 s
-      if (S.cer) { try { updateCeremony(realDt * S.cerRate, t); } catch (e) { report(e); abortCeremony(); } }
-      if (S.glowIgnite) updateGlowIgnite(realDt * (S.cer ? S.cerRate : 1));
+      if (S.show) { try { updateShow(realDt, t); } catch (e) { report(e); abortShow(); } }
+      if (S.glowIgnite) updateGlowIgnite(realDt * (S.show ? S.showRate : 1));
       if (S.rimT > 0) { S.rimT -= realDt; if (S.rimT <= 0) call(() => F.fv?.setGlow?.(1)); }
       raftPos();
       // raft motion with no paddling (knockback, shoves, pulls) since the cast: lineBroken() ignores it in Still / Lantern
@@ -3499,7 +3625,7 @@ export function create(ctx) {
             case 'waiting': updateWaiting(dt); break;
             case 'bite': updateBite(dt); break;
             case 'reeling': if (afOn() && S.plan) stepPlay(dt, t); else updateReeling(dt, t); break;
-            case 'landing': if (!S.cer) { if (S.reveal) updateRevealAF(dt); else updateLanding(dt, t); } break;
+            case 'landing': if (!S.show || S.show.phase === 'reveal') { if (S.reveal) updateRevealAF(dt); else if (!S.show) updateLanding(dt, t); } break;
             case 'lost': if (S.lostInfo) updateLostAF(dt); else updateLost(dt); break;
             default: break;
           }
