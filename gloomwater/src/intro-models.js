@@ -301,7 +301,7 @@ export const FLANK_PROFILE = [
   [0.0, 0.0, 0.02], [0.004, 0.14, 0.02], [0.014, 0.3, 0.015], [0.04, 0.52, 0.0], [0.085, 0.72, -0.03], [0.15, 0.88, -0.06], [0.24, 0.98, -0.08], [0.34, 1.0, -0.08],
   [0.46, 0.95, -0.06], [0.58, 0.82, -0.03], [0.7, 0.62, 0.0], [0.8, 0.42, 0.03], [0.89, 0.25, 0.05], [0.96, 0.15, 0.06], [1.0, 0.12, 0.06],
 ];
-export const FLANK_MARKS = { eye: [0.058, 0.36], belly: [0.26, -0.5], thick: 0.56 };   // [s, height in half-heights of that station]; thick: its depth / its height
+export const FLANK_MARKS = { eye: [0.06, 0.2], belly: [0.26, -0.5], thick: 0.56 };   // [s, height in half-heights of that station]; thick: its depth / its height
 const profR = curve1(FLANK_PROFILE.map((p) => [p[0], p[1]])), profC = curve1(FLANK_PROFILE.map((p) => [p[0], p[2]]));
 /** The profile at s: [half-height, middle-line], a smooth curve through the table (so the outline never shows its keys). */
 function profileAt(s) {
@@ -337,12 +337,12 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
   }
   for (let i = 0; i < stations; i++) for (let j = 0; j < around; j++) {
     const a = i * around + j, b = i * around + ((j + 1) % around), c2 = a + around, d = b + around;
-    idx.push(a, c2, b, b, c2, d);
+    idx.push(a, b, c2, b, d, c2);   // (outward faces wound to the front: the body is drawn single-sided, so a fade never blends its far side through)
   }
   // the snout closes on a point; the tail is two long lobes from the wrist
   const tail = [], tailN = [];
   { const w = flankPoint(1, 0, D, []), x1 = w[0] - length * 0.13;
-    const tri = (p0, p1, p2) => { tail.push(...p0, ...p1, ...p2); tailN.push(0, 0, 1, 0, 0, 1, 0, 0, 1); };
+    const tri = (p0, p1, p2) => { tail.push(...p0, ...p1, ...p2, ...p0, ...p2, ...p1); for (let i = 0; i < 6; i++) tailN.push(0, 0, 1); };   // (both windings: the lobes are flat)
     tri([w[0] + 0.5, w[1] + 0.3, 0], [w[0] + 0.5, w[1] - 0.05, 0], [x1, w[1] + hg * 1.05, 0]);
     tri([w[0] + 0.5, w[1] + 0.05, 0], [w[0] + 0.5, w[1] - 0.3, 0], [x1 + length * 0.02, w[1] - hg * 0.85, 0]); }
   const shell = new THREE.BufferGeometry();
@@ -359,7 +359,7 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
     uPale: { value: new THREE.Color(colors.flank ?? 0xd6d6e4) }, uShade: { value: new THREE.Color(colors.flankShade ?? 0x433e74) },
     uInk: { value: new THREE.Color(colors.ink ?? 0x0a0c19) }, uEmberCol: { value: new THREE.Color(colors.ember ?? 0xe8862e) },
     uEmber: { value: new THREE.Vector4(0, 0, 0, 0) }, uAlpha: { value: 1 }, uLight: { value: new THREE.Vector3(-0.18, 0.9, 0.4).normalize() },
-    uMurk: { value: new THREE.Vector2(0.34, 0.1) },   // x: where along the body (from the nose, as a fraction) the dark starts to close, y: how fast across the depth
+    uMurk: { value: new THREE.Vector2(0.2, 0.1) },   // x: where along the body (from the nose, as a fraction) the dark starts to close, y: how fast across the depth
     uHalf: { value: new THREE.Vector2(length / 2, hg) },
   };
   const mat = new THREE.ShaderMaterial({
@@ -391,10 +391,12 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
           float mouth = ( 1.0 - smoothstep( 0.01, 0.026, abs( v + 3.1 * s + 6.0 * s * s - 0.03 ) ) ) * ( 1.0 - smoothstep( 0.045, 0.085, s ) );
           float gx = s - ( 0.108 + 0.11 * ( v + 0.08 ) * ( v + 0.08 ) );
           float gill = ( 1.0 - smoothstep( 0.001, 0.0026, abs( gx ) ) ) * smoothstep( -0.55, -0.3, v ) * ( 1.0 - smoothstep( 0.12, 0.34, v ) );
-          col = mix( col, uShade * 0.12, 0.7 * max( mouth, gill ) );
+          // … and the long line down its side, from the gill toward the tail
+          float side = ( 1.0 - smoothstep( 0.005, 0.014, abs( v - ( 0.05 - 0.22 * s ) ) ) ) * smoothstep( 0.118, 0.15, s );
+          col = mix( col, uShade * 0.12, max( 0.7 * max( mouth, gill ), 0.4 * side ) );
         }
         // the dark closes over the far end of it and over what leans away from the lens
-        float murk = smoothstep( uMurk.x, 0.92, s ) * 0.97 + clamp( - vLocal.z * uMurk.y, 0.0, 0.5 );
+        float murk = smoothstep( uMurk.x, 0.72, s ) * 0.97 + clamp( - vLocal.z * uMurk.y, 0.0, 0.5 );
         col = mix( col, uInk, clamp( murk, 0.0, 0.97 ) );
         // the ember, inside: its glow comes through the belly
         vec3 e = vLocal - uEmber.xyz; e.z *= 0.25;
@@ -402,9 +404,8 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
         col += uEmberCol * ( ( g * 0.5 + g * g * g * 0.7 ) * uEmber.w );
         gl_FragColor = vec4( col, uAlpha );
       }`,
-    transparent: true, depthTest: true, depthWrite: true, side: THREE.DoubleSide, fog: false, toneMapped: false,
+    transparent: true, depthTest: true, depthWrite: true, side: THREE.FrontSide, fog: false, toneMapped: false,
   });
-  mat.forceSinglePass = true;   // (opaque in all but name: it writes depth, so one draw is right)
   const body = new THREE.Mesh(bodyGeo, mat);
   body.name = 'intro:flank'; body.renderOrder = 902; body.frustumCulled = false;
 

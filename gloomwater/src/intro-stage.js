@@ -412,7 +412,8 @@ export function createIntroStage(ctx) {
       if (k > 0.001 && st.anchors) {
         const h = set ? set.hang : resolvePoint(S.lantern.at, st.anchors);
         waterLight.x = h[0]; waterLight.y = Math.max(0.6, sc.lantern.y); waterLight.z = h[2];
-        waterLight.color = S.colors.glass; waterLight.intensity = S.lantern.water.intensity * k; waterLight.radius = S.lantern.water.radius; waterLight.streak = S.lantern.water.streak;
+        waterLight.color = S.colors.glass; waterLight.intensity = S.lantern.water.intensity * k; waterLight.radius = S.lantern.water.radius;
+        waterLight.streak = ctx.render?.quality === 'low' ? (S.lantern.water.streakLow ?? S.lantern.water.streak) : S.lantern.water.streak;
         W.setIntroWaterLight(waterLight); st.lit = true;
       } else if (st.lit) { W.setIntroWaterLight(null); st.lit = false; }
     }
@@ -498,7 +499,7 @@ export function createIntroStage(ctx) {
         }
       }
       const far = Math.hypot(Math.max(fx, 1 - fx) * aspect, Math.max(fy, 1 - fy));
-      const feather = 0.1 + 0.55 * cd.open;
+      const feather = 0.16 + 0.7 * cd.open;
       CU.uOpen.value.set(fx, fy, cd.open * (far + feather), feather);
     }
     const B = m.below, dark = cd.vis && (sc.motes > 0.001 || sc.ember.vis || sc.flank.vis);
