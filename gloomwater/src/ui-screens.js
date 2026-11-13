@@ -743,7 +743,7 @@ export function createScreens(K) {
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
-            <div class="gw-cc-rule"><svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>${ruleKnots}</div>
+            ${live ? '<div class="gw-cc-rule">' : ''}<svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>${live ? `${ruleKnots}</div>` : ''}
             <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">

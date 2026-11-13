@@ -10,7 +10,10 @@
 // tail and a lamp-watch keep the sail / fish framings). setTrophyTarget({length, landmark, position}) starts the `trophy`
 // shot (distance clamp(1.2 + 1.6·L, 1.6, 16) m around actors' measuring focus, the crane to 50° above 4 m, the yaw toward
 // the landmark by at most ±35° from north, none without one); setTrophyTarget(null) holds it while the catch card is up
-// and then eases back. fishing:reveal (the leap reveal) plays a short push-in on the breach and goes through
+// and then eases back. THE SHOW CAMERA (docs/v3/show/SPEC.md §2.6; CONTRACT §13.7b): setShowTarget({cls, pose?, length, …}) from
+// the fish breaking the surface; the lens FITS the points actors.getShowFocus() names (render-camera.js showFit) and is blended
+// over the play's rig by one eased weight that arrives when the fish is presented, holds behind the card and eases back when it
+// closes; no cut, no pop, no extra pass. fishing:reveal (the leap reveal) plays a short push-in on the breach and goes through
 // ctx.game.slowmo (0.25 s at 0.35; main owns ctx.time.timeScale). With the flag off the rig is v1's, number for number.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -1286,6 +1289,7 @@ export function create(ctx) {
       fX.v = fY.v = fZ.v = 0;
       yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
       focusInit = true;
+      if (showCam.on || showCam.hold) { showCam.p = 1; showCam.init = false; }   // the show camera too: at its fitted target, fully in
       updateCamera(0);
     },
     getYaw() { return yaw; },

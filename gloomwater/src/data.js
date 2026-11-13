@@ -3782,6 +3782,11 @@ export const AUTOFISH = {
     // the climax fires at the ceremony's pose, once the trophy camera frames the held fish; an Elder or an Ancient adds a step a
     // Trophy does not get: the camera draws back (pull, a negative push) to take in a glory held longer (gloryHold s) and brighter
     special: { glory: 0.3, embers: 10, bloom: 0.06, flame: 0.2, glory2: 0.35 },   // glory2: the second bloom at the stamp for a record
+    // the show (AUTOFISH.show): the climax fires at the present, on the picture actors names (the sphere round the Wick and its fish,
+    // radius R). The glory is sized to it (R × (size + perGlory × glory)) and set R × back behind it, a touch softer than the
+    // trophy shot's (the lens is close); it holds for holdShare of the show's hold, then fades through the rest of the hold and
+    // fadePause of the pause: by the card it is gone, and the pause adds nothing
+    show: { size: 1, perGlory: 0.25, strength: 0.26, perGloryStrength: 0.12, rise: 0.3, holdShare: 0.45, fadePause: 0.8, back: 0.9 },
     colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
   },
   // ---- the show (the user's request of 2026-11-13: "When a fish is caught, it should be an animation of our character holding the fish

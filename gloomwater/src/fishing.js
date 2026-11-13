@@ -1707,10 +1707,10 @@ export function create(ctx) {
     if (glory > 0 && sf) {
       // a backlight a little bigger than the picture, set behind it: the Wick and the fish stand against it, the sky keeps its
       // corners. It holds through the hold and is fading in the pause (r.hold / r.pause: the show's beats); an Elder's is brighter
-      const G = SHOW().glory || {};
-      const R = Math.max(0.3, num(sf.radius, 0.6));
-      fx.glory(sf.center.x, sf.center.y, sf.center.z, { size: R * (num(G.size, 1.15) + num(G.perGlory, 0.3) * glory), strength: num(G.strength, 0.3) + num(G.perGloryStrength, 0.14) * glory + num(LF.gloryBright, 0),
-        rise: num(G.rise, 0.3), hold: Math.max(0.2, num(r.hold, 0.6) * num(G.holdShare, 0.85)), fade: Math.max(0.5, num(r.pause, 0.7) * num(G.fadeShare, 1.6)), follow: null,
+      const G = AF().landing?.show || {};
+      const R = Math.max(0.3, num(sf.radius, 0.6)), hs = clamp(num(G.holdShare, 0.45), 0, 1);
+      fx.glory(sf.center.x, sf.center.y, sf.center.z, { size: R * (num(G.size, 1) + num(G.perGlory, 0.25) * glory), strength: num(G.strength, 0.26) + num(G.perGloryStrength, 0.12) * glory + num(LF.gloryBright, 0),
+        rise: num(G.rise, 0.3), hold: Math.max(0.15, num(r.hold, 0.6) * hs), fade: Math.max(0.4, num(r.hold, 0.6) * (1 - hs) + num(r.pause, 0.7) * num(G.fadePause, 0.8)), follow: null,
         back: Math.max(0.35, R * num(G.back, 0.9)), embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
     } else if (glory > 0) {   // a backlight bigger than the Wick and its fish, set behind them (the trophy camera frames both)
       // an Elder or an Ancient holds it longer and brighter (the step a Trophy does not get, with the camera's pull-back below)

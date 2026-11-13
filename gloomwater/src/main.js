@@ -535,8 +535,9 @@ function pressAction(e) {
     if (FE_ON && ctx.flow === 'hub') { hubPress(e); return; }
   }
   const ndc = toNdc(e, tapNdc);
-  // during the measuring ceremony combat and trade are frozen: the press goes to fishing only (it owns the ceremony's skip)
-  const cine = ctx.cinematic;
+  // during the show (from the fish breaking the surface to its card: the reveal, then the frozen world of ctx.cinematic) combat
+  // and trade take no press: it goes to fishing only, which owns the show's hurry
+  const cine = ctx.cinematic || (V3 && safe(() => ctx.fishing.inShow, false) === true);
   if (!cine && safe(() => ctx.combat.onPointerDown?.(ndc), false) === true) return;
   if (!cine && safe(() => ctx.actors.pickMerchant?.(ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
     ctx.ui.openShop?.();

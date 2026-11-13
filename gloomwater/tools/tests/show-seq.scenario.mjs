@@ -344,7 +344,7 @@ export default async function (api) {
     if (strip) await shoot('out');
     await g((ms) => window.__show.run(45, ms, null), STEP_MS);
     if (strip) await shoot('play');
-    rec.after = await g(() => { const c = window.__gw; return { showView: c.fishing.view.show ?? null, cine: !!c.cinematic, state: c.fishing.state, camW: c.debug.camera?.()?.show?.w ?? 0, camShow: !!c.debug.camera?.()?.show, pose: c.actors.showPose ?? null, exit: c.debug.show?.()?.exit ?? null, hud: +getComputedStyle(document.querySelector('#ui .gw-hud')).opacity }; });
+    rec.after = await g(() => { const c = window.__gw; return { showView: c.fishing.view.show ?? null, cine: !!c.cinematic, state: c.fishing.state, camW: c.debug.camera?.()?.show?.w ?? 0, camShow: !!c.debug.camera?.()?.show, pose: c.actors.showPose ?? null, exit: c.debug.show?.()?.exit ?? null, hud: document.querySelector('#ui .gw-hud').classList.contains('gw-showhide') ? 0 : 1 }; });
     const trace = await g(() => window.__show.trace);
     await finish(name, rec);
     const lg = rec.log;
@@ -497,7 +497,7 @@ export default async function (api) {
       await g(() => window.__gw.fishing.cancel('reset'));
       await g((ms) => window.__show.run(40, ms, null), STEP_MS);
       const st = await g(() => { const c = window.__gw; return { show: c.fishing.view.show ?? null, cine: !!c.cinematic, inShow: !!c.fishing.inShow, state: c.fishing.state, modal: c.debug.ui?.()?.openModal ?? null, camW: c.debug.camera?.()?.show?.w ?? 0,
-        measured: window.__show.log.filter((e) => e.ev === 'fish:measured').length, hud: +getComputedStyle(document.querySelector('#ui .gw-hud')).opacity }; });
+        measured: window.__show.log.filter((e) => e.ev === 'fish:measured').length, hud: document.querySelector('#ui .gw-hud').classList.contains('gw-showhide') ? 0 : 1 }; });
       check(st.show === null && !st.cine && !st.inShow && st.state === 'idle' && st.measured === n0 && n0 === 1 && st.camW < 0.4 && st.hud > 0.5, 'abort: a reset in the hold: no view, the world unfrozen, measured once, the lens easing out, the HUD back', st);
       await finish('abort', { step0: info.step0 });
       await clearModals();
