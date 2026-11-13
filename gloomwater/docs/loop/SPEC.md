@@ -16,6 +16,9 @@
 | 2 | "for now park the creature attacks." | The swarm and everything that only serves it or makes failure possible is switched off behind one table of flags and kept in the code (§9). |
 | 3 | "I just want to catch fish so we're limited buy storage for caught fish in our boat starting at 3 catch slots." | The hold: 3 slots at the start, 8 at the most (§3.1, §4.2). No food, no oil to manage. |
 | 4 | "there's no way to fail, but once your boat is full you can't catch anymore fish and you might not catch a big one at all as its chance" | No fail state anywhere (§3.5). A full hold refuses the cast (§3.1). A big fish is a chance each evening, never a promise: 54% of first trips bring home no Prize or bigger (§4.9). |
+| 5 | "Use all of these fish as inspiration for our game's fish" (on the researched list of every fish landed on a television fishing series; `docs/loop/research/`) | Every fish on the list is the ancestor of one original fish of ours (`docs/loop/ROSTER.md`, `docs/loop/roster.json`, checked by `tools/sim/roster-check.mjs`). The series and its presenter are never named in the game. |
+| 6 | "The main episode based fish he catches should be the rare giants" | The descendant of each episode's main fish is a rare giant: the scarcest, largest and hardest fish of its water, and what its map promises. Everything else he caught fills the common, uncommon and rare tiers. |
+| 7 | "Yes to all five loop rules" (13 November 2026, answering the five questions of §16) | All five defaults are now the user's decisions, not open questions: a kept fish is final; the water goes quiet; every trip is an evening; a map's card names one fish; raft only for now. |
 
 **Decided by the lead (and why).**
 
@@ -816,6 +819,9 @@ The four other Wicks (§10.1) · the Old Ledger's double and its chalked names �
 ---
 
 ## 16. Questions only the user can answer (each with the default this spec builds)
+
+> **Answered by the user on 13 November 2026: "Yes to all five loop rules".** Every default below is confirmed and binding. They are decisions now; do not ask them again. New questions, if any arise, go in a new list.
+
 
 1. **Is a kept fish final?** Once a fish is in the hold, is it there until Murk buys it, with no throwing one back to make room for a better one? **Default: yes.**
 2. **May the water go quiet?** Each water gives a handful of good bites an evening, and every bite counts, even one you let pass or let go; after that it is mostly small fish until you have been home. It is what stops "let everything go until giants bite" from being the best way to play. **Default: yes.**
