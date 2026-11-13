@@ -82,6 +82,11 @@ export function create(ctx) {
       blend: 1, from: null, rippleT: 0, fill: { k: 0, saved: null }, expo: 0, cord: { explicit: false, L: 0, k: 0, kShow: 0, show: false, autoL: 0, autoK: 0, autoShow: false } },
   };
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tip = new THREE.Vector3(), end = new THREE.Vector3(), camPos = new THREE.Vector3();
+  // THE SHOW SEAM (docs/v3/show/SPEC.md §6): the pose the show holds, its pose time and its beats (null outside a show)
+  let show = null;
+  const SHOW_STUB = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' };
+  const showPts = { head: new THREE.Vector3(), flame: new THREE.Vector3(), feet: new THREE.Vector3(), hR: new THREE.Vector3(), hL: new THREE.Vector3(), tip: new THREE.Vector3(), s: new THREE.Vector3(),
+    fc: new THREE.Vector3(), ax: new THREE.Vector3(), up: new THREE.Vector3() };
   const localVel = new THREE.Vector3();
   const mv = { hR: new THREE.Vector3(), hL: new THREE.Vector3(), a: new THREE.Vector3(), x: new THREE.Vector3(), y: new THREE.Vector3(), z: new THREE.Vector3(),
     c: new THREE.Vector3(), p: new THREE.Vector3(), q: new THREE.Quaternion(), q2: new THREE.Quaternion(), m: new THREE.Matrix4(), s: new THREE.Vector3(),
@@ -142,6 +147,7 @@ export function create(ctx) {
     const M = st.meas;
     M.pose = null; M.cerPose = null; M.auto = null; M.active = null; M.from = null; M.blend = 1; M.idleT = 0;
     M.cord.explicit = false; M.cord.show = false; M.cord.autoShow = false; M.cord.L = 0;
+    show = null;
   }
   function clearEat() {
     if (st.eatFish) { try { st.eatFish.dispose(); } catch { /* ignore */ } st.eatFish = null; }
@@ -282,6 +288,7 @@ export function create(ctx) {
       if (st.celebratePending && !st.catchFish && wick.pose !== 'eat') { st.celebratePending = false; wick.setPose('celebrate'); }
       // v3 measuring: which pose (explicit > the ceremony view > the held fish's own), where the Wick stands
       mv.hasSnout = false;
+      if (show) { if (!show.driven) show.t += dt; show.driven = false; }   // the show's pose time: fishing drives it (setShowTime), else it runs on dt
       const mp = resolveMeasure(dt);
       env.measurePose = mp;
       // v3 landing (the reveal and the scoop, before a measuring pose): the camera is already coming in, so the close-up's exposure
@@ -506,6 +513,74 @@ export function create(ctx) {
     get cordK() { return cord.visible ? cord.k : 0; },
     /** v3 landing: the Wick's head flame flares as it lifts the fish (k 0..1.5, by class; fishing's landing payoff). */
     flareFlame(k = 0.6) { wick.flareFlame?.(k); },
+    // ---------------------------------------------------------------- THE SHOW SEAM (docs/v3/show/SPEC.md §6; CONTRACT §13.7b)
+    // STUBS. Lane A ("the Wick and the fish") replaces every body below with the real show: the five poses showPinch / showBoth /
+    // showHug / showHang / showAlongside, the swing-in, the present and its overshoot, the life in the grip, the settled focus.
+    // Until then each show pose stands in as a measuring pose, so lane B (the sequence, the camera, the card, the sound) can build
+    // and shoot against the final names. The names, arguments and return shapes are the contract; the motion is not.
+    /**
+     * The show begins (fishing calls it at fishing:caught, the end of the reveal): the Wick takes the fish from where fishing left
+     * it, turns to the lens and presents it. opts: {cls ('small'…'ancient', data.showClassOf), pose? (id; default data.showPoseFor),
+     * sizeClass, ancient, legend, beats: {lift, hold, pause} (s of pose time, data.showPlan), special (a new species or a legend)}.
+     * Pose time 0 is the start of the lift. Returns {pose: 'showPinch'…, id: 'pinch'…, hands: 1|2, side: ±1} (null without a fish).
+     * fishing still owns the FishVisual (it disposes it after endShow / showCatch(null)).
+     */
+    showFish(fishVisual, opts = {}) {
+      if (!fishVisual || !fishVisual.object3d) { api.endShow(); return null; }
+      const o = opts && typeof opts === 'object' ? opts : {}, d = D();
+      const id = o.pose || d.showPoseFor?.(fishVisual.length, { sizeClass: o.sizeClass, ancient: !!o.ancient, legend: !!(o.legend ?? fishVisual.legendary), shape: fishVisual.shape }) || 'both';
+      const beats = { lift: 0.5, hold: 0.5, pause: 0.7, ...(o.beats && typeof o.beats === 'object' ? o.beats : {}) };
+      const next = { id, pose: d.AUTOFISH?.show?.poseNames?.[id] || `show${id[0].toUpperCase()}${id.slice(1)}`, t: 0, driven: false, cls: o.cls || 'keeper', beats, special: !!o.special };
+      api.setPose(SHOW_STUB[id] || 'measureArms');   // (stub: the measuring pose that is nearest)
+      api.showCatch(fishVisual);
+      show = next;
+      return { pose: show.pose, id, hands: id === 'pinch' || id === 'alongside' ? 1 : 2, side: st.meas.side };
+    },
+    /** The show's pose time (s since showFish; fishing calls it every frame of the show, faster when the player hurries). Never runs back. */
+    setShowTime(t) { if (show && Number.isFinite(t)) { show.t = Math.max(show.t, t); show.driven = true; } },
+    /** 'showPinch' | 'showBoth' | 'showHug' | 'showHang' | 'showAlongside' while a show is up, else null. */
+    get showPose() { return show ? show.pose : null; },
+    /**
+     * What the show camera must keep in frame, in world space: null outside a show, else
+     *   {pose, id, t, lift (0..1), fish: {center, axis (tail → snout, unit), up, length, depth}, head: {center, radius, flame (the flame's
+     *    core)}, feet, hands: [right, left], rodTip (null when the rod is stowed), keep: {fish: [snout, tail, back, belly], head: [4 points
+     *    round the wax head], flame: [core], hands, feet: [feet], rodTip: [tip]}, center, radius (the sphere round all of keep)}.
+     * The real one returns the SETTLED layout from the lift's first frame (where everything will be at the present), so the camera
+     * eases to a still target; this stub returns where things are now.
+     */
+    getShowFocus(out = new THREE.Vector3()) {
+      if (!show) return null;
+      const fv = st.catchFish, obj = fv?.object3d, P = showPts;
+      wick.head.updateWorldMatrix(true, false);
+      const ws = wick.head.getWorldScale(P.s).y;
+      P.head.set(0, 0.16, 0).applyMatrix4(wick.head.matrixWorld);
+      wick.flame.group.getWorldPosition(P.flame); P.flame.y += 0.12 * ws;
+      wick.group.getWorldPosition(P.feet);
+      wick.getHandPos('r', P.hR); wick.getHandPos('l', P.hL);
+      const rodUp = wick.rod.visible;
+      if (rodUp) wick.getRodTip(P.tip);
+      const hr = 0.21 * ws, L = fv?.length || 0.5;
+      const b = fv?.bounds || { noseZ: L * 0.5, tailZ: -L * 0.5, halfW: L * 0.07, top: L * 0.1, bottom: -L * 0.1 };
+      const fishPts = [];
+      if (obj && obj.parent) {
+        obj.updateWorldMatrix(true, false);
+        P.ax.set(0, 0, 1).transformDirection(obj.matrixWorld); P.up.set(0, 1, 0).transformDirection(obj.matrixWorld);
+        P.fc.set(0, (b.top + b.bottom) / 2, (b.noseZ + b.tailZ) / 2).applyMatrix4(obj.matrixWorld);
+        for (const [y, z] of [[0, b.noseZ], [0, b.tailZ], [b.top, (b.noseZ + b.tailZ) / 2], [b.bottom, (b.noseZ + b.tailZ) / 2]]) fishPts.push(new THREE.Vector3(0, y, z).applyMatrix4(obj.matrixWorld));
+      } else { P.fc.copy(P.hR).add(P.hL).multiplyScalar(0.5); P.ax.set(1, 0, 0); P.up.set(0, 1, 0); fishPts.push(P.fc.clone()); }
+      const headPts = [[hr, 0, 0], [-hr, 0, 0], [0, hr, 0], [0, -hr, 0]].map(([x, y, z]) => new THREE.Vector3(x, y, z).add(P.head));
+      const keep = { fish: fishPts, head: headPts, flame: [P.flame.clone()], hands: [P.hR.clone(), P.hL.clone()], feet: [P.feet.clone()], rodTip: rodUp ? [P.tip.clone()] : [] };
+      const all = Object.values(keep).flat();
+      out.set(0, 0, 0); for (const p of all) out.add(p); out.multiplyScalar(1 / Math.max(1, all.length));
+      let r = 0; for (const p of all) r = Math.max(r, p.distanceTo(out));
+      return { pose: show.pose, id: show.id, t: show.t, lift: clamp(show.t / Math.max(0.05, show.beats.lift), 0, 1),
+        fish: { center: P.fc.clone(), axis: P.ax.clone(), up: P.up.clone(), length: L, depth: (b.top - b.bottom) },
+        head: { center: P.head.clone(), radius: hr, flame: P.flame.clone() }, feet: P.feet.clone(), hands: [P.hR.clone(), P.hL.clone()], rodTip: rodUp ? P.tip.clone() : null,
+        keep, center: out, radius: r };
+    },
+    /** The show is over (the card closed with `action`: 'keep' | 'eat' | 'render' | 'release', or the run ended): the fish leaves the
+     *  hands and the Wick returns to play. showCatch(null) means the same. (Stub: at once, as today.) */
+    endShow(_opts = {}) { show = null; if (st.catchFish) releaseCatch(); else endMeasure(); },
     setCharge(k) { wick.setCharge(k); },
     setReel(k, lateral = 0) { wick.setReel(k, lateral); },
     setAim(worldYaw) { wick.setAim(worldYaw); },

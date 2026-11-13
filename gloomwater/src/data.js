@@ -3784,6 +3784,113 @@ export const AUTOFISH = {
     special: { glory: 0.3, embers: 10, bloom: 0.06, flame: 0.2, glory2: 0.35 },   // glory2: the second bloom at the stamp for a record
     colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
   },
+  // ---- the show (the user's request of 2026-11-13: "When a fish is caught, it should be an animation of our character holding the fish
+  // and showing it to us. Then after a pause the fish card opens up."). It replaces the measuring ceremony's poses, cord and overlay
+  // (docs/v3/show/SPEC.md, DESIGN §25.6.8, CONTRACT §13.7b): after the reveal the Wick turns to the lens and presents the fish like an
+  // angler's photograph, flank to the camera, its face and flame in the frame; a still pause; then the card. Nothing is written on the
+  // screen from the fish leaving the water until the card. Events, saves and the frozen world keep their meaning (fishing:caught →
+  // fish:measured → fish:landed, once per fish; ctx.cinematic from fishing:caught until the card).
+  // Three owners (SPEC §6): THE SEAM (frozen: both lanes read it, only the stage changes it) · LANE A (the Wick and the fish: actors
+  // retunes) · LANE B (the sequence, the camera, the card and the sound: fishing / render / ui / audio retune).
+  show: {
+    // ================= THE SEAM =================
+    // phases of fishing.view.show.phase. 'reveal' is AUTOFISH.landing's wipe (T0 = the fish breaks the surface: fishing:landing);
+    // 'lift' the swing-in, the turn to the lens and the present (it ends on the present: the fish thrust at the lens);
+    // 'hold' the fish alive in the grip with the glory at its height; 'pause' the still; 'card' the catch card is up.
+    phases: ['reveal', 'lift', 'hold', 'pause', 'card'],
+    // real seconds AFTER the reveal, by class (a legend plays the ancient row). T0 → card = the reveal's real length (landing[class].wipe
+    // under its slow-motion beat: data.showPlan) + lift + hold + pause; validated against `about` (± tolerance) and `max`.
+    beats: {
+      small:   { lift: 0.45, hold: 0.5,  pause: 0.7 },   // 0.35 + 1.65 = 2.0
+      keeper:  { lift: 0.5,  hold: 0.42, pause: 0.7 },   // 0.48 + 1.62 = 2.1
+      prize:   { lift: 0.6,  hold: 0.85, pause: 0.8 },   // 0.75 + 2.25 = 3.0
+      trophy:  { lift: 0.8,  hold: 0.9,  pause: 0.8 },   // 1.0  + 2.5  = 3.5
+      elder:   { lift: 1.1,  hold: 1.6,  pause: 0.9 },   // 1.37 + 3.6  = 4.97
+      ancient: { lift: 1.2,  hold: 1.6,  pause: 0.9 },   // 1.56 + 3.7  = 5.26
+    },
+    about: { small: 2.0, keeper: 2.0, prize: 3.0, trophy: 3.5, elder: 5.0, ancient: 5.0 }, tolerance: 0.3,   // s from T0 to the card
+    max: { small: 2.5, keeper: 2.5, prize: 3.5, trophy: 4.0, elder: 6.0, ancient: 6.0 },
+    minPause: 0.6,                                    // the still is never shorter (a tap may still hurry past it: `hurry`)
+    // during an active swarm window every class plays these (their sum = BALANCE.ceremony.cinematic.duringSwarm, today's 1.2 s rule:
+    // the arena is never hidden for longer than it is today)
+    swarm: { lift: 0.4, hold: 0.2, pause: 0.6 },
+    // a tap (pointer, Space, Enter) from T0 on hurries the show to the card: the reveal is never cut (the species shows, fishing:caught
+    // fires); the rest of the lift runs × liftRate; then the card opens once the fish has been presented for `hold` s, or for
+    // `protectedHold` s when the catch is a first-ever species or a personal best (progression.measure's records, known at the present)
+    hurry: { from: 'T0', cutsReveal: false, liftRate: 2.5, hold: 0.3, protectedHold: 0.8, protected: ['isNew', 'pb'] },
+    valve: 8,                                         // s of the real clock from T0: fishing opens the card whatever state the show is in
+    // what fires at the present (the end of the lift): progression.measure (fish:measured, then fish:landed; main saves) and the
+    // landing's climax (AUTOFISH.landing: the glory, the flame's flare, the bloom, the kick, the haptic). ctx.cinematic: fishing:caught → card
+    at: { measure: 'present', climax: 'present', cinematicFrom: 'caught', cinematicTo: 'card' },
+    // the pose by the fish's TRUE length (m), then by class and shape (data.showPoseFor). The Wick is ≈ 1.03 m to the top of its head on
+    // the raft (0.85 × 1.22): one hand held out to the lens · both hands pushed forward · hugged and heaved, tail on the deck · hung
+    // head-up from the rod · laid alongside the raft with the Wick standing over it
+    poses: [{ id: 'pinch', below: 0.40 }, { id: 'both', below: 0.90 }, { id: 'hug', below: 1.50 }, { id: 'hang', below: 2.20 }, { id: 'alongside', below: Infinity }],
+    // a Trophy or bigger is never a one-hand pinch; an Elder or an Ancient cannot be lifted, and a long thin fish cannot be hugged
+    // upright (it drapes), so both hang from the rod instead of the hug; every legend lies alongside
+    poseRules: { noPinchFrom: 'trophy', noHugFrom: 'elder', thin: ['eel'], legend: 'alongside' },
+    poseNames: { pinch: 'showPinch', both: 'showBoth', hug: 'showHug', hang: 'showHang', alongside: 'showAlongside' },   // actors.setPose names
+    // ================= LANE A: the Wick and the fish (actors retunes; world metres, seconds) =================
+    // grip, by pose. reach = how far in front of the Wick's face plane the fish's centre is held, toward the lens (the fisherman's
+    // trick: a fish under tinyBelow m comes right up to the lens); spread = hand spacing as a share of the fish's length [min, max m];
+    // tilt = a hugged fish's lean from the deck (deg); rod = where the rod is ('planted' upright in the right hand, 'stowed' on the
+    // bow rest, 'raised' with the fish on its tip); touch = where the standing Wick's hand rests on an alongside fish
+    grip: {
+      pinch:     { hands: 1, reach: 0.42, reachTiny: 0.6, tinyBelow: 0.15, height: 'shoulder', rod: 'planted' },
+      both:      { hands: 2, reach: 0.36, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
+      hug:       { hands: 2, reach: 0.2, tilt: 70, tail: 'deck', side: 'lens', rod: 'stowed' },
+      hang:      { hands: 2, tail: 'deck', tailClear: 0.04, side: 'lens', rod: 'raised' },
+      alongside: { hands: 1, stand: true, touch: 'brow', flankUp: 30, acrossWhen: 0.7, rod: 'planted' },
+    },
+    // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
+    // three-quarter: the body faceOff degrees toward the fish, the head to the lens); the fish's flank within flankWithin of square-on
+    facing: { faceWithin: 12, threeQuarter: { hang: 30, alongside: 35 }, flankWithin: 15, turnRate: 9 },
+    // weight and life, by class: overshoot = the present's travel past the hold point (share of the lift's travel, settling in settle s);
+    // twitch = [peak struggle 0..1, s between flaps] through the hold; pauseStill = the struggle's ceiling during the pause (a still, not
+    // a freeze: breath and flame only); drips = drops falling off the fish through the hold; strain = the Wick's lean, braced legs and
+    // tremor (0..1); dip = how far the raft's deck edge sinks toward the fish as its weight comes aboard (m); flame = the head flame's
+    // pride through the hold (the pose's `flame`, under flareFlame's burst at the present); bob = the proud little bounce (m)
+    life: {
+      small:   { overshoot: 0.18, twitch: [0.9, 0.45],  drips: 3,  strain: 0,    dip: 0,     flame: 0.25, bob: 0.02 },
+      keeper:  { overshoot: 0.15, twitch: [0.8, 0.5],   drips: 5,  strain: 0,    dip: 0.01,  flame: 0.35, bob: 0.02 },
+      prize:   { overshoot: 0.12, twitch: [0.7, 0.7],   drips: 8,  strain: 0.2,  dip: 0.02,  flame: 0.5,  bob: 0.015 },
+      trophy:  { overshoot: 0.08, twitch: [0.55, 0.9],  drips: 12, strain: 0.65, dip: 0.045, flame: 0.65, bob: 0.01 },
+      elder:   { overshoot: 0.05, twitch: [0.4, 1.2],   drips: 16, strain: 0.85, dip: 0.06,  flame: 0.9,  bob: 0.008 },
+      ancient: { overshoot: 0.05, twitch: [0.35, 1.4],  drips: 18, strain: 1,    dip: 0.07,  flame: 1.0,  bob: 0.008 },
+      settle: 0.28, pauseStill: 0.12, swingIn: 0.4, takeAt: 0.62,      // shares of the lift: the fish swings in on the line, the hands take it, then the present
+    },
+    // ================= LANE B: the sequence, the camera, the card and the sound (fishing / render / ui / audio retune) =================
+    // the show camera is one rig with the play's (no cut): it takes over at T0 and eases with spring ω `settle` (1/s) so that it has
+    // arrived (< 5 % of its travel left) by the present. It FITS the points actors.getShowFocus() returns (`keep`: the fish's box, the
+    // Wick's head and flame, its feet or the rod tip where listed) inside the frame's safe area (`margin`, each edge) at the pose's fov
+    // and elevation, and never comes nearer than minLens to any of them. The yaw is the play's (BALANCE.cameras.trophy's landmark swing
+    // with a place): the Wick turns, the camera does not orbit. Portrait uses fovPortrait; an alongside fish longer than rakeAbove m on
+    // a portrait screen is filmed along its length from the head end (`rake` degrees off broadside) so it is never cropped.
+    camera: {
+      from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 },
+      margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45,
+      pose: {
+        pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52 },
+        both:      { elev: 10, fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'] },
+        hug:       { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
+        hang:      { elev: 8,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'] },
+        alongside: { elev: 16, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet'], craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55 },
+      },
+      still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
+      behindCard: { hold: true, portraitUp: 0.24 },   // while the card is up the framing holds (a phone lifts the subject into the open top)
+      out: 0.9,                                       // s to ease back to the play camera once the card has closed
+    },
+    // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
+    // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
+    // which presses after it (the cord's ticks and the seal's stamp sound here); your best and the Old Ledger are two knots on the
+    // card's ruler (marks, no words); the record is the card's kicker (as now). No banner, no overlay, no toast before the card.
+    card: { opensFrom: 'fish', unfold: 0.32, count: 0.5, stampAt: 0.55, knots: ['pb', 'ledger'], phone: 'foot' },
+    // sounds (all original, synthesised): the swell and the class chime stay on fishing:landing / fishing:caught; `lift` a wet haul
+    // by class as the fish swings in; `present` the flourish on the present (with the record chime for a record or a new species);
+    // `flap` a wet slap on each twitch; `drip`; the cord's ticks and the seal's stamp move to the card's count
+    sound: { lift: 'show_lift', present: 'show_present', flap: 'show_flap', drip: 'show_drip', count: 'cord_tick', stamp: 'seal_stamp', record: 'record_chime' },
+    hud: 'hiddenFromT0',                              // the HUD, toasts, tips and banners stay off the picture from T0 until the card
+  },
   // ---- let it pass: a passed Prize+ bite lingers, so passing on a size hint is a real bet (change the bait or lure, cast back)
   letPass: { classes: ['prize', 'trophy', 'elder', 'ancient'], lingers: 45, radius: 6, rebite: 0.5, keeps: ['speciesId', 'z'], once: true, refund: true, favour: 0.15 },
   // ---- the got-away note (the user's answer 4): after the fish is gone, never during the play, never a %
@@ -3824,10 +3931,13 @@ export const AUTOFISH = {
     logLocked: 'Reel in first.',
     // (D1′: the automatic-fishing tips moved into TIPS_V3 as directed tips: af_changed, af_letpass, af_strikeReminder, af_hurry)
   },
-  // ---- the time model of one cast (s) and an average player (tools/sim/catch-v3.mjs; the pacing and balance sims)
-  time: { cast: 1.8, wait: 7.5, strike: 0.6, lostNote: 1.6, card: 2.0, ceremony: { small: 1.2, keeper: 1.2, prize: 2.4, trophy: 3.5, elder: 5, ancient: 5 } },
-  // hurry: the share of Small and Keeper plays hurried (× 2.5) from the 2nd run with the ceremony tapped to tapTo s
-  player: { strike: { clean: 0.35, struck: 0.5, early: 0.075, late: 0.075 }, letPass: 0.08, fishSecPerDay: 144, hurry: 0.5, tapTo: 0.5 },
+  // ---- the time model of one cast (s) and an average player (tools/sim/catch-v3.mjs; the pacing and balance sims).
+  // `ceremony` is the landing as the player sits through it: from the fish breaking the surface to the card (the reveal + the show,
+  // AUTOFISH.show; = data.showPlan(class).total, validated). It was the measuring ceremony alone (1.2 / 1.2 / 2.4 / 3.5 / 5 / 5).
+  time: { cast: 1.8, wait: 7.5, strike: 0.6, lostNote: 1.6, card: 2.0, ceremony: { small: 2.0, keeper: 2.1, prize: 3.0, trophy: 3.5, elder: 4.97, ancient: 5.26 } },
+  // hurry: the share of Small and Keeper plays hurried (× 2.5) from the 2nd run with the show tapped through to tapTo s (the reveal,
+  // the lift at show.hurry.liftRate, show.hurry.hold; validated against data.showPlan(class, {hurried: true}))
+  player: { strike: { clean: 0.35, struck: 0.5, early: 0.075, late: 0.075 }, letPass: 0.08, fishSecPerDay: 144, hurry: 0.5, tapTo: 0.9 },
 };
 
 // The First Evening: the opening and its tutorial at the Landing (DESIGN §25.4.8; the user's request of 2026-11-05). Always
@@ -4681,6 +4791,48 @@ export function presentLength(lake, z) {
 }
 /** The leap distribution of a play by size class (shared by every leaping species): [[count, p], …]; Small never leaps. */
 export function leapCountsFor(sizeClass) { return AUTOFISH.leap.count[sizeClass] || []; }
+
+// ---- the show (AUTOFISH.show; docs/v3/show/SPEC.md). Pure helpers both lanes call, so the pose and the clock are decided in one place.
+export const SHOW_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+/** The show's row for a landed fish: its size class, 'ancient' for an Ancient and for every legend (as AUTOFISH.landing's rows). */
+export function showClassOf({ sizeClass = 'keeper', ancient = false, legend = false } = {}) {
+  return legend || ancient ? 'ancient' : (SHOW_CLASSES.includes(sizeClass) ? sizeClass : 'keeper');
+}
+/** The reveal's real length (s) for a show class: AUTOFISH.landing[class].wipe seconds of game time under its slow-motion beat
+ *  ([real seconds, time scale]; the beat runs on the real clock, the wipe on the game's). */
+export function showRevealSeconds(cls) {
+  const L = AUTOFISH.landing[cls] || AUTOFISH.landing.keeper, [sec, scale] = L.slowmo || [0, 1];
+  const slowGame = sec * scale;
+  return L.wipe <= slowGame ? L.wipe / scale : sec + (L.wipe - slowGame);
+}
+/**
+ * The show's clock for a class: {cls, reveal, lift, hold, pause, show (lift + hold + pause), total (T0 → card)} in real seconds.
+ * {swarm: true} (an active swarm window) plays AUTOFISH.show.swarm for every class; {hurried: true} is a tap at T0 (the reveal
+ * whole, the lift at hurry.liftRate, then hurry.hold, or hurry.protectedHold with {protected: true}: a first-ever species or a personal best).
+ */
+export function showPlan(cls, { swarm = false, hurried = false, protected: prot = false } = {}) {
+  const S = AUTOFISH.show, c = SHOW_CLASSES.includes(cls) ? cls : 'keeper';
+  const B = swarm ? S.swarm : S.beats[c], reveal = showRevealSeconds(c);
+  let lift = B.lift, hold = B.hold, pause = B.pause;
+  if (hurried) { lift = B.lift / S.hurry.liftRate; hold = Math.min(B.hold + B.pause, prot ? S.hurry.protectedHold : S.hurry.hold); pause = 0; }
+  const r = (x) => Math.round(x * 1000) / 1000;
+  return { cls: c, reveal: r(reveal), lift: r(lift), hold: r(hold), pause: r(pause), show: r(lift + hold + pause), total: r(reveal + lift + hold + pause) };
+}
+/**
+ * The show's pose for a landed fish: 'pinch' | 'both' | 'hug' | 'hang' | 'alongside' (AUTOFISH.show.poses by TRUE length in metres,
+ * then poseRules): a Trophy or bigger is never a one-hand pinch; an Elder, an Ancient or a long thin fish (an eel) that would be
+ * hugged hangs from the rod instead; every legend lies alongside. `shape` is the species' model shape (FISH_SHAPES).
+ */
+export function showPoseFor(lengthM, { sizeClass = 'keeper', ancient = false, legend = false, shape = null } = {}) {
+  const S = AUTOFISH.show, R = S.poseRules;
+  if (legend) return R.legend;
+  const L = Number(lengthM);
+  let pose = (S.poses.find((p) => L < p.below) || S.poses[S.poses.length - 1]).id;
+  const rank = ancient ? SHOW_CLASSES.indexOf('ancient') : Math.max(0, SHOW_CLASSES.indexOf(sizeClass));
+  if (pose === 'pinch' && rank >= SHOW_CLASSES.indexOf(R.noPinchFrom)) pose = 'both';
+  if (pose === 'hug' && (rank >= SHOW_CLASSES.indexOf(R.noHugFrom) || R.thin.includes(shape))) pose = 'hang';
+  return pose;
+}
 
 // ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps. Gated by V3_PHASE so each
 // phase's build carries exactly its data (DESIGN §25.14.1 "which data lands when"; validate-data runs a pass per phase):
