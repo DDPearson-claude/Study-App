@@ -335,6 +335,25 @@ export function createScreens(K) {
       }
       // >>> INTRO LANE B: title (SPEC section 7.1): while ctx.game.introPending() the primary word is "Begin" and plays the opening
       // cut scene (no New Descent panel, no premise paragraph); otherwise a quiet "Prologue" word in the lower line replays it
+      const introGame = typeof ctx.game?.introPending === 'function' ? ctx.game : null;
+      if (introGame && safe(() => introGame.introPending(), false) === true) {
+        // a fresh save: one Wick, one lake, one night card, so nothing to choose. Begin goes straight into the film and the film
+        // ends in the first run. The film says the premise; the empty Journal, Shrine and Trials wait for a returning player
+        wrap.classList.add('gw-title--fresh');
+        wrap.querySelector('.gw-title-premise')?.remove();
+        add(D().INTRO?.trigger?.button || 'Begin', '', () => { ctx.game?.beginIntro?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main' });
+        add('Settings', 'Sound and picture', () => openSettings({ titleChild: true }));
+        safe(() => introGame.prewarmIntro?.(), null);   // the set builds in idle time under the title, so the press costs nothing
+        return;
+      }
+      if (introGame && safe(() => introGame.introReplayOffered?.(), false) === true) {
+        const R = D().INTRO?.trigger?.replay || {};
+        const rb = h('button', 'gw-title-replay', `<span>${esc(R.word || 'Prologue')}</span>`);
+        rb.type = 'button';
+        rb.title = R.hint || 'Watch the opening again';
+        rb.addEventListener('click', (e) => { e.stopPropagation(); sfx('ui_click'); ctx.game?.replayIntro?.(); });
+        wrap.querySelector('.gw-title-lower')?.appendChild(rb);
+      }
       // <<< INTRO LANE B
       add('New Descent', hasRun ? 'Begins a new descent and abandons the waiting one' : '', () => openNewDescent(), { autofocus: !hasRun, cls: hasRun ? 'gw-tbtn' : 'gw-tbtn gw-tbtn--main' });
       add('Journal', `${named} / ${total} named`, () => openJournal());

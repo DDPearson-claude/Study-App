@@ -4027,7 +4027,9 @@ export const INTRO = {
   trigger: { fresh: 'meta.runs === 0 && !meta.intro.seen', button: 'Begin', bypasses: 'newdescent', debugOptIn: ['GW_INTRO', '?intro=1', "debug.intro('auto', true)"],
     prewarm: { after: 0.5, tries: 8 },   // the fresh title asks the stage to build in idle time, this long after it opens
     replay: { word: 'Prologue', hint: 'Watch the opening again', where: 'title', writes: false, veil: 0.3 } },   // (`veil`: a replay on another lake puts it back under this much ink)
-  handoff: { character: 'wick', nightMode: 'still', at: 'intro:done', event: { intro: true } },   // game.startNewRun({character, nightMode, __intro: true})
+  // game.startNewRun({character, nightMode, __intro: true}). `grade`: 'ink' = the lake's own grade goes on under the opening ink (the film
+  // is graded as the run is, nothing shifts at the hand-off); 'ease' = the film keeps the title's grade and the lake's eases in as control begins
+  handoff: { character: 'wick', nightMode: 'still', at: 'intro:done', event: { intro: true }, grade: 'ink' },
   // when the cove ships (world.SUPPORTS_COVE): the same film dressed at the sea-gate, handing to the First Evening's wake at the hearth;
   // its lines replace FIRST_EVENING.text.lore (the Lantern Line's three) and the `framing` step is not played. Not built.
   cove: { endsIn: 'firstEvening:wake', wickAt: 'FIRST_EVENING.wake.candle', replaces: 'FIRST_EVENING.text.lore', skipsStep: 'framing',
