@@ -40,6 +40,24 @@
 //   card:stamp {seal, records}    → seal_stamp (ink stamp / oxblood wax / black wax and ribbon; an Ancient's gold thread) as
 //                                   the card's stamp presses; Murk's far bell for an Old Ledger record
 //   fish:measured                 → (silent: the records are written; the card sounds them)
+//   phase:change gloomtide (v3 run) → night_rise (the Night Rise motif) in every mode; Gloomtide keeps gloom_rise first.
+//   swarm:window open / close     → gloom_rise when a Lantern swarm comes; night_rise again when its window closes.
+//   a Stillnight (any quiet night: Still, Lantern's quiet nights and tail, a lamp-watch) plays the `stillnight` mood
+//                                   and the Stillnight bed (night air + stillnight_bed breaths) instead of the gloom mood.
+//
+// v3 automatic fishing (DESIGN §25.6, §25.14.2a Au2; audio-v3.js beatSounds, audio-af.js voices). The play's sound comes only
+// from the payloads (class, `ancient`, class length, mean fitted tier, beat), never a species:
+//   fishing:strike {grade}        → strike_clean / _struck / _early / _late, weighted by the class; the play begins
+//                                   (fishing:hook with a grade then rings nothing more)
+//   fishing:reel {phase, …}       → take: reel_take · gain / lift: reel_ratchet (fast and light → slow and heavy) · run:
+//                                   line_hiss (the drag rising; a Trophy+ tows the raft) · hold: line_hold (one low note) ·
+//                                   surge: surge_splash + strain_whine (one semitone lower per mean tier) · glimpse: fish_roll
+//                                   / fish_skitter / fish_pass · leap: leap_slap · scare: scare_splash, the line's hum stops for
+//                                   its slack moment · lastStand: reel_scream + the strain + the drone swelling · still: silence
+//                                   (hum, drone and score), then still_crash · place (P2): line_grind / foul_clank
+//   the line's hum (a loop, by class length) under the whole play; the Elder / Ancient drone on the music bus
+//   music by class (AUTOFISH.play[class].music): Small the day's bed · Keeper + a soft pulse · Prize / Trophy / Elder `reel`
+//                                   low / mid / full · Ancient + the heartbeat · a legend the boss mood; a Small never starts `reel`
 //   fishing:escaped {reason}      → loss_snap (snapped; staggered with the hit first) / loss_thrown / loss_spat / loss_spooled /
 //                                   loss_fouled; the score drops for the quiet beat; fish:escaped (the note) → gotaway (Trophy+)
 //   fishing:caught                → the species' voice, if it has one (the reveal: never before)
