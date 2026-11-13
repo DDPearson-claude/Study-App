@@ -444,7 +444,7 @@ export function create(ctx) {
     pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 44, pts: [], focus: null, fishC: new THREE.Vector3(), hasFish: false,
     anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false,
   };
-  const showAnchorTmp = new THREE.Vector3();
+  const showAnchorTmp = new THREE.Vector3(), rigPos = new THREE.Vector3();
   const showPt = [];
   const showPoint = (i) => (showPt[i] || (showPt[i] = new THREE.Vector3()));
   let lastStatsAt = -10, maxHp = 5;
@@ -834,9 +834,14 @@ export function create(ctx) {
       const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
       if (!S.still || !S.init || cardLift) { if (fitShow(v) && S.hold) S.frozenCard = true; }
     } else {
-      if (S.outT < 0) { S.outT = 0; S.w0 = S.w; }
+      if (S.outT < 0) {
+        // back to play over `out` s; a long way back (a phone's play camera stands 20 m off) takes a little longer, so the lens
+        // never travels faster going out than it came in
+        S.outT = 0; S.w0 = S.w;
+        S.outDur = Math.max(Number(SHOWC.out) || 0.9, S.pos.distanceTo(rigPos) * (Number(SHOWC.outPerM) || 0));
+      }
       S.outT += dt;
-      const k = clamp(S.outT / Math.max(0.1, Number(SHOWC.out) || 0.9), 0, 1);
+      const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);
       S.w = S.w0 * (1 - showEase(k));
       if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; return; }
     }
@@ -932,6 +937,7 @@ export function create(ctx) {
     // the floor: v1's 1.2 m; the trophy close-up may sit lower (a palm-sized catch is filmed from chest height)
     const floorY = mode === 'trophy' ? 0.5 : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? lerp(0.5, 1.2, smoothstep(0, TROPHY_OUT_T, modeT)) : 1.2;
     if (camPos.y < floorY) camPos.y = floorY;
+    rigPos.copy(camPos);   // (where the play's rig alone would put the lens: the show's way back is measured against it)
     // the show camera over the play's rig: one eased weight for the lens's place, where it looks and its fov
     const sw = showCam.w;
     if (sw > 0) {
@@ -966,8 +972,8 @@ export function create(ctx) {
     }
 
     // fov with kick + slight breathing
-    if (fx.kickDue) {   // a kick asked for under the show camera comes in at 36°/s
-      const step = clamp(fx.kickDue, -36 * dt, 36 * dt);
+    if (fx.kickDue) {   // a kick asked for under the show camera comes in at 27°/s (under a degree a frame at 30 fps)
+      const step = clamp(fx.kickDue, -27 * dt, 27 * dt);
       fx.kickDue -= step; fx.fovKick = clamp(fx.fovKick + step, -12, 12);
       if (Math.abs(fx.kickDue) < 1e-3 || !(showCam.w > 0)) fx.kickDue = 0;
     }

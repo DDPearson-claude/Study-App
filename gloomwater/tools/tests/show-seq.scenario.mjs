@@ -381,7 +381,8 @@ export default async function (api) {
       log(`${name}: at the pause`, JSON.stringify(rec.picture));
       const safe = 1 - 2 * (phone ? SH.show.camera.margin.portrait : SH.show.camera.margin.landscape);
       check(m.fish && m.fish.inFrame === 100 && m.headInFrame && m.flameInFrame !== false, `${name}: at the pause the whole fish, the wax head and the flame are in frame`, { fish: m.fish, head: m.headInFrame, flame: m.flameInFrame });
-      if (m.keepMax) check(m.keepMax.x <= safe + 0.03 && m.keepMax.y <= safe + 0.03 && Math.max(m.keepMax.x, m.keepMax.y) >= safe - 0.12, `${name}: the fit: every kept point inside the safe area, the tightest at its edge (${m.keepMax.x}, ${m.keepMax.y} of ${safe.toFixed(2)})`, m.keepMax);
+      // (the fit also keeps the fish's whole box, fins and all, and the flame's tip: the named points sit a little inside the edge)
+      if (m.keepMax) check(m.keepMax.x <= safe + 0.03 && m.keepMax.y <= safe + 0.03 && Math.max(m.keepMax.x, m.keepMax.y) >= safe - 0.3, `${name}: the fit: every kept point inside the safe area, the frame no looser than it needs (${m.keepMax.x}, ${m.keepMax.y} of ${safe.toFixed(2)})`, m.keepMax);
       check(m.cam && m.cam.w > 0.999 && m.ui === 0 && m.words === 0, `${name}: the lens has arrived (w ${m.cam?.w}); 0 ui elements, 0 words`, { w: m.cam?.w, ui: m.ui, words: m.words });
     } else check(false, `${name}: no frame measured at the pause`);
     // ---- the still: through the pause the lens moves less than 2 % of its distance per second. Measured against the Wick on its

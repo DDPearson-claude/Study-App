@@ -3896,6 +3896,7 @@ export const AUTOFISH = {
       still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
       behindCard: { hold: true, portraitUp: 0.24 },   // while the card is up the framing holds (a phone lifts the subject into the open top)
       out: 0.9,                                       // s to ease back to the play camera once the card has closed
+      outPerM: 0.058,                                 // (…or this many s per metre of the way back when that is longer: a phone's play camera stands 20 m off)
     },
     // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
     // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
