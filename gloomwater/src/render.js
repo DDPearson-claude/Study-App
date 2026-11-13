@@ -86,7 +86,7 @@ const GRADE_COL = ['tint', 'warm'];
 // resting fringe, no paper, grain as a dither), a light vignette and a gentle contrast curve. The zone's violet tint stays.
 const GRADE_DEFAULT = {
   exposure: 1.0, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tintAmount: 0.18,
-  vignette: 0.24, saturation: 0.9, grain: 0.012, contrast: 1.08, fringe: 0, paper: 0, warmAmount: 0.14, lift: 0.3,
+  vignette: 0.24, saturation: 0.9, grain: 0.012, contrast: 1.08, fringe: 0, paper: 0, warmAmount: 0.14, lift: 0.22,
   tint: 0x40347e, warm: 0xf4cc96,
 };
 // bloom mip weights at radius 0 (→ the mirrored set at radius 1): the small mips carry it, so a halo hugs its emitter

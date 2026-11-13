@@ -59,14 +59,14 @@ export function create(ctx) {
    */
   function applyKeyLight(n, w, zc, focus) {
     // (the night ambient keeps more of the lake's violet than it did: with clear air it is the only fill there is)
-    hemi.color.copy(zc.ambient).lerp(zc.light, 0.2).lerp(col.a.copy(zc.ambient).multiplyScalar(0.72).lerp(COLD, 0.15), n).lerp(WARM, w * 0.25);
+    hemi.color.copy(zc.ambient).lerp(zc.light, 0.2).lerp(col.a.copy(zc.ambient).multiplyScalar(0.72).lerp(COLD, 0.15), n).lerp(WARM, w * 0.1);
     hemi.groundColor.copy(zc.waterDeep).lerp(zc.ink, 0.4);
-    hemi.intensity = 0.72 * (1 - 0.38 * n) * (1 + 0.15 * w);
+    hemi.intensity = 0.72 * (1 - 0.38 * n) * (1 + 0.05 * w);
     // the vault's glow, the floor under every toon surface's shadow: the lake's own air colour (so it carries the
     // night floors), a fifth of it by day (deep shadows, a full range) and most of it at night, where the fog itself
     // used to be the floor; the dawn's bright mist takes it down again. A shadow is violet, never black (toon.js
     // gwFloor: it fills only what the lights left dark).
-    setToonFloor(KEY.floor.copy(env.fog).multiplyScalar((0.18 + 0.66 * n) * (1 - 0.8 * w)));
+    setToonFloor(KEY.floor.copy(env.fog).multiplyScalar((0.18 + 0.56 * n) * (1 - 0.8 * w)));
     dir.color.copy(zc.light).lerp(KEY.lav, 0.25).lerp(WARM, w * 0.55).lerp(COLD, n * 0.3);
     dir.intensity = 2.1 * (1 - 0.55 * n) * (1 + 0.15 * w);
     if (arena?.keyDir) KEY.toLight.copy(arena.keyDir);
@@ -343,6 +343,8 @@ export function create(ctx) {
       // night deepens the vignette a little, capped so the darkest lake's frame edges stay open
       vignette: Math.min(Math.max(g.vignette ?? 0.24, 0.40), (g.vignette ?? 0.24) + 0.08 * n),
       saturation: (g.saturation ?? 0.9) * (1 - 0.06 * n + 0.08 * w),
+      // the dawn is the one soft hour: a little more contrast holds its darks down, so the pale light is not a veil
+      contrast: (g.contrast ?? 1.08) + 0.09 * w,
       grain: (g.grain ?? 0.012) + 0.004 * n,
       // a light warm split-tone: the lantern owns warmth; stars, foam and pale stone stay cool-white
       warmAmount: (g.warmAmount ?? 0.07) + 0.16 * w,

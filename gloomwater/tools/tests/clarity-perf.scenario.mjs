@@ -8,9 +8,10 @@
 //   node tools/playtest.mjs --html=tools/out/clarity/dev.html --shots=tools/out/clarity/perf --script=tools/tests/clarity-perf.scenario.mjs --mobile
 //   options: --frames=8 (frames per measurement), --tiers=low,medium,high, --flagoff
 //
-// Per tier and phase (the Mossmere from the spawn, calm and the Gloomtide, the v3 phase-1 game on a Still night): draw calls,
-// triangles, points, the pass list, the HDR target, cpuMs (CPU milliseconds per frame, GPU + renderer process), wallMs (the
-// fastest frame on the wall clock). Written to <shots>/perf-cpu.json (perf-cpu-phone.json with --mobile).
+// Per tier and phase (the Mossmere from the spawn, calm and the Gloomtide, the v3 phase-1 game on a Still night): draw calls and
+// triangles of the costliest frame (all passes: the shadow map on its own beat, the lake's mirror, the scene, the post chain),
+// callsMin, the mirror's own share, points, the pass list, the HDR target, cpuMs (CPU milliseconds per frame, GPU + renderer
+// process, averaged over the frames), wallMs (the fastest frame on the wall clock). Written to <shots>/perf-cpu.json (perf-cpu-phone.json with --mobile).
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -102,11 +103,24 @@ export default async function (api) {
         const c0 = await cpu();
         const r = await g((N) => {
           const c = window.__gw, R = c.render, rr = R.renderer, gl = rr.getContext(), px1 = new Uint8Array(4), t = [];
+          // the key light's shadow map is refreshed on the world's beat (world.update asks for it: every frame on high, every
+          // second frame on medium); these frames are rendered without world.update, so the scenario keeps that beat itself —
+          // without it the shadow pass would be missing from the cost
+          let key = null; R.scene.traverse((o) => { if (o.isDirectionalLight && o.castShadow && o.shadow) key = o; });
+          const every = Math.max(1, (R.clarity && R.clarity.shadowEvery) | 0);
+          let calls = 0, triangles = 0, callsMin = Infinity;
           // (a 1-pixel read-back makes the GL thread finish the frame, so the time is the frame's and not the command queue's)
-          for (let i = 0; i < N; i++) { const a = performance.now(); R.render(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px1); t.push(performance.now() - a); }
-          const i = rr.info, rt = R.composer.renderTarget1;
+          for (let i = 0; i < N; i++) {
+            if (key) key.shadow.needsUpdate = i % every === 0;
+            const a = performance.now(); R.render(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px1); t.push(performance.now() - a);
+            if (rr.info.render.calls > calls) { calls = rr.info.render.calls; triangles = rr.info.render.triangles; }
+            callsMin = Math.min(callsMin, rr.info.render.calls);
+          }
+          const i = rr.info, rt = R.composer.renderTarget1, mirror = c.water && c.water.reflection;
           return {
-            calls: i.render.calls, triangles: i.render.triangles, points: i.render.points, programs: i.programs?.length ?? null,
+            // calls / triangles: the costliest frame of the run (on medium: a frame with the shadow refresh); callsMin: the cheapest
+            calls, triangles, callsMin, shadowEvery: key ? every : 0, mirror: mirror && mirror.on ? { calls: mirror.calls, triangles: mirror.triangles, size: [mirror.width, mirror.height] } : null,
+            points: i.render.points, programs: i.programs?.length ?? null,
             passes: R.composer.passes.filter((p) => p.enabled !== false).map((p) => p.constructor.name.replace(/^_/, '')),
             hdrTarget: [Math.floor(rt.width), Math.floor(rt.height), rt.samples], pixelRatio: +rr.getPixelRatio().toFixed(3),
             shadowMaps: rr.shadowMap.enabled ? 1 : 0, wallMs: Math.round(Math.min(...t)),
