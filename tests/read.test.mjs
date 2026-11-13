@@ -82,6 +82,9 @@ test('U.readThrough.answerOf and choicesOf: an answer with its unit, and a choic
   assert.equal(R.answerOf({ answer: '23.08 A', unit: 'A' }), '23.08 A', 'not twice');
   assert.equal(R.answerOf({ answer: '1.5 mm²', unit: 'mm²' }), '1.5 mm²');
   assert.equal(R.answerOf({ answer: '3 circuits' }), '3 circuits');
+  assert.equal(R.answerOf({ answer: '1 load', unit: 'loads' }), '1 load', 'one of them: the unit is not said twice');
+  assert.equal(R.answerOf({ answer: '2 loads', unit: 'loads' }), '2 loads');
+  assert.equal(R.answerOf({ answer: '4', unit: 'loads' }), '4 loads');
   assert.equal(R.answerOf({ answer: '' }), '');
   assert.deepEqual(plain(R.choicesOf({ input: 'pick', options: ['12.03 A', '14.15 A'], answer: '14.15 A' })), ['12.03 A', '14.15 A']);
   assert.deepEqual(plain(R.choicesOf({ input: 'pick', options: ['12.03 A', '14.15 A'], answer: '9 A' })), [], 'the answer must be among them');
@@ -114,4 +117,11 @@ test('the published Design and verification guides read as plain sense', () => {
     const scen = g.pages.filter((p) => p.html && /\bk-scen\b/.test(p.html)).length;
     assert.ok(scen <= 1, iid + ': the scenario once, not on every Section A page (' + scen + ')');
   }
+});
+
+test('U.tags: a part\'s tag never splits after its hyphen; other hyphens are left alone', () => {
+  const U = load(['00-core.js']);
+  assert.equal(U.tags('Close bus-tie -Q4 now'), 'Close bus-tie -⁠Q4 now');
+  assert.equal(U.tags('-K11 pulls in (-M1 runs)'), '-⁠K11 pulls in (-⁠M1 runs)');
+  assert.equal(U.tags('30 - 0.04q, a well-known rule, x = -3'), '30 - 0.04q, a well-known rule, x = -3');
 });

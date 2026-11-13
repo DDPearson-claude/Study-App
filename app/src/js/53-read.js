@@ -43,7 +43,9 @@
   function answerOf(p) {
     var a = isObj(p) ? str(p.answer).trim() : '', u = isObj(p) ? str(p.unit).trim() : '';
     if (!a || !u) return a;
-    return a.slice(-u.length) === u ? a : a + ' ' + u;
+    // The answer may already carry its unit, or the unit's singular ('1 load' with the unit 'loads').
+    var one = /s$/.test(u) ? u.slice(0, -1) : '';
+    return a.slice(-u.length) === u || (one && a.slice(-one.length - 1) === ' ' + one) ? a : a + ' ' + u;
   }
   // A choice example's options, in screen order, when the answer is one of them; else none.
   function choicesOf(p) {
@@ -211,10 +213,10 @@
             words('p', 'rd-ex-q', pg.task),
             opts.length ? U.h('ul', { class: 'rd-ex-opts', 'aria-label': 'The choices' }, opts.map(function (o) {
               var right = U.spaces(o) === U.spaces(pg.answer);
-              return U.h('li', { class: right ? 'is-right' : null }, right ? U.h('span', { class: 'rd-ex-tick', 'aria-hidden': 'true' }, U.icon('tick')) : null, U.h('span', null, o), right ? U.h('span', { class: 'visually-hidden' }, ' (the answer)') : null);
+              return U.h('li', { class: right ? 'is-right' : null }, right ? U.h('span', { class: 'rd-ex-tick', 'aria-hidden': 'true' }, U.icon('tick')) : null, U.h('span', null, U.tags(o)), right ? U.h('span', { class: 'visually-hidden' }, ' (the answer)') : null);
             })) : null,
             picture(pg),
-            ans ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, ans)) : null,
+            ans ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, U.tags(ans))) : null,
             str(pg.why) ? words('p', 'rd-ex-why', pg.why) : null));
         }
       });

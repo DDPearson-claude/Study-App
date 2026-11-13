@@ -1360,7 +1360,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .rd-ex-a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 1.0625rem; }
 .rd-ex-k { font: 500 .75rem/1 var(--mono); text-transform: uppercase; color: var(--muted); }
 .rd-ex-opts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.rd-ex-opts li { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: .9375rem; }
+.rd-ex-opts li { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 16px; border: 1px solid var(--line); color: var(--muted); font-size: .9375rem; }
 .rd-ex-opts li.is-right { border: 2px solid var(--ink); color: var(--ink); font-weight: 700; }
 .rd-ex-tick { display: inline-flex; width: 1em; height: 1em; }
 .rd-ex-tick svg { width: 100%; height: 100%; }
@@ -3000,7 +3000,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-11-13-63a92b3";
+U.BUILD = "2026-11-13-4ace389";
 // ---------- switches ----------
 // U.flags.puzzleBox: the puzzle box (60-today.js): Today's box, review sessions (#/review), the
 // Library's and a course page's puzzle rows, the finish screen's puzzle line, the daily review
@@ -3106,13 +3106,16 @@ U.rich = function (text, opts) {
   });
   return frag;
 };
+// A part's tag on a drawing ("-Q4", "-K11") must not split after its hyphen at a line's end: a word
+// joiner (no width, nothing to see) after the hyphen keeps the tag in one piece.
+U.tags = function (s) { return String(s == null ? '' : s).replace(/(^|[\s(])-(?=[A-Z]{1,3}\d)/g, '$1-\u2060'); };
 U.inline = function (el, text, opts) {
   opts = opts || {};
   var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])|(?<![A-Za-z_])_([A-Za-z][A-Za-z0-9]{0,20})_(?![A-Za-z0-9_])/g;
   var last = 0, m;
   text = String(text || '');
   while ((m = re.exec(text))) {
-    if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+    if (m.index > last) el.appendChild(document.createTextNode(U.tags(text.slice(last, m.index))));
     if (m[1]) el.appendChild(U.h('mark', { class: 'term' }, m[1]));
     else if (m[2]) {
       var n = Number(m[2]);
@@ -3127,7 +3130,7 @@ U.inline = function (el, text, opts) {
     else if (m[8]) el.appendChild(U.h('em', null, m[8]));
     last = re.lastIndex;
   }
-  if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
+  if (last < text.length) el.appendChild(document.createTextNode(U.tags(text.slice(last))));
   return el;
 };
 // A plain line (a summary, say) with its subscripts drawn: markers are dropped, nothing else is formatted.
@@ -14854,7 +14857,9 @@ U.interactive = (function () {
   function answerOf(p) {
     var a = isObj(p) ? str(p.answer).trim() : '', u = isObj(p) ? str(p.unit).trim() : '';
     if (!a || !u) return a;
-    return a.slice(-u.length) === u ? a : a + ' ' + u;
+    // The answer may already carry its unit, or the unit's singular ('1 load' with the unit 'loads').
+    var one = /s$/.test(u) ? u.slice(0, -1) : '';
+    return a.slice(-u.length) === u || (one && a.slice(-one.length - 1) === ' ' + one) ? a : a + ' ' + u;
   }
   // A choice example's options, in screen order, when the answer is one of them; else none.
   function choicesOf(p) {
@@ -15022,10 +15027,10 @@ U.interactive = (function () {
             words('p', 'rd-ex-q', pg.task),
             opts.length ? U.h('ul', { class: 'rd-ex-opts', 'aria-label': 'The choices' }, opts.map(function (o) {
               var right = U.spaces(o) === U.spaces(pg.answer);
-              return U.h('li', { class: right ? 'is-right' : null }, right ? U.h('span', { class: 'rd-ex-tick', 'aria-hidden': 'true' }, U.icon('tick')) : null, U.h('span', null, o), right ? U.h('span', { class: 'visually-hidden' }, ' (the answer)') : null);
+              return U.h('li', { class: right ? 'is-right' : null }, right ? U.h('span', { class: 'rd-ex-tick', 'aria-hidden': 'true' }, U.icon('tick')) : null, U.h('span', null, U.tags(o)), right ? U.h('span', { class: 'visually-hidden' }, ' (the answer)') : null);
             })) : null,
             picture(pg),
-            ans ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, ans)) : null,
+            ans ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, U.tags(ans))) : null,
             str(pg.why) ? words('p', 'rd-ex-why', pg.why) : null));
         }
       });

@@ -106,13 +106,16 @@ U.rich = function (text, opts) {
   });
   return frag;
 };
+// A part's tag on a drawing ("-Q4", "-K11") must not split after its hyphen at a line's end: a word
+// joiner (no width, nothing to see) after the hyphen keeps the tag in one piece.
+U.tags = function (s) { return String(s == null ? '' : s).replace(/(^|[\s(])-(?=[A-Z]{1,3}\d)/g, '$1-\u2060'); };
 U.inline = function (el, text, opts) {
   opts = opts || {};
   var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])|(?<![A-Za-z_])_([A-Za-z][A-Za-z0-9]{0,20})_(?![A-Za-z0-9_])/g;
   var last = 0, m;
   text = String(text || '');
   while ((m = re.exec(text))) {
-    if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+    if (m.index > last) el.appendChild(document.createTextNode(U.tags(text.slice(last, m.index))));
     if (m[1]) el.appendChild(U.h('mark', { class: 'term' }, m[1]));
     else if (m[2]) {
       var n = Number(m[2]);
@@ -127,7 +130,7 @@ U.inline = function (el, text, opts) {
     else if (m[8]) el.appendChild(U.h('em', null, m[8]));
     last = re.lastIndex;
   }
-  if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
+  if (last < text.length) el.appendChild(document.createTextNode(U.tags(text.slice(last))));
   return el;
 };
 // A plain line (a summary, say) with its subscripts drawn: markers are dropped, nothing else is formatted.
