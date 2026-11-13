@@ -434,13 +434,28 @@ Object.assign(game, {
     const P = INTRO?.trigger?.prewarm || {};
     let tries = Math.max(1, Number(P.tries) || 8);
     const idle = (fn) => (typeof requestIdleCallback === 'function' ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 80));
-    const go = () => {
+    // the stage builds ONE slice per prewarm() call (the models, then one warm-up per part: 9 or 10 in all). An idle period takes as
+    // many slices as it has time for; a busy one (a timeout) takes one. Whatever is left when Begin is pressed is built under the ink
+    const steps = () => safe(() => ctx.intro.stage?.stats?.().steps?.[0], 0) || 0;
+    const go = (deadline) => {
       if (ctx.flow !== 'title' || !ctx.intro || ctx.intro.isActive()) return;
       let ok = false;
-      try { ok = ctx.intro.prewarm() === true; } catch (e) { report('intro.prewarm', e); return; }
-      if (!ok && --tries > 0) idle(go);
+      for (;;) {
+        const before = steps();
+        try { ok = ctx.intro.prewarm() === true; } catch (e) { report('intro.prewarm', e); return; }
+        if (ok || --tries <= 0) break;
+        // (no step taken: the world cannot say its anchors yet. Ask again on a later slice rather than spin)
+        if (steps() === before || !(deadline && typeof deadline.timeRemaining === 'function' && deadline.timeRemaining() > 6)) break;
+      }
+      if (!ok && tries > 0) idle(go);
     };
-    setTimeout(() => idle(go), Math.max(0, Number(P.after) || 0.5) * 1000);
+    setTimeout(() => {
+      // the game makes its smoke and ember pools (two point clouds, one program) at the first puff, which is the Wick's first wax
+      // drip a few seconds into any title: have them exist now (one unseen mote under the lake), so that program is compiled
+      // under the title and never under the film
+      try { if (ctx.flow === 'title' && !ctx.models.isStub && !ctx.player.isStub) ctx.models.emitSmoke?.({ x: ctx.player.position.x, y: -40, z: ctx.player.position.z }, { alpha: 0, lifeT: 0.05, size: 0.01, jitter: 0 }); } catch (e) { report('intro.prewarm pools', e); }
+      idle(go);
+    }, Math.max(0, Number(P.after) || 0.5) * 1000);
     return true;
   },
   /** The title's Begin on a fresh save: the film, then the First Outing, with no other click. */

@@ -341,6 +341,7 @@ export function createScreens(K) {
         // ends in the first run. The film says the premise; the empty Journal, Shrine and Trials wait for a returning player
         wrap.classList.add('gw-title--fresh');
         wrap.querySelector('.gw-title-premise')?.remove();
+        wrap.querySelector('.gw-title-meta')?.remove();   // (nothing to count yet: the fresh title is the name, the tagline and two words)
         add(D().INTRO?.trigger?.button || 'Begin', '', () => { ctx.game?.beginIntro?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main' });
         add('Settings', 'Sound and picture', () => openSettings({ titleChild: true }));
         safe(() => introGame.prewarmIntro?.(), null);   // the set builds in idle time under the title, so the press costs nothing

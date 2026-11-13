@@ -22,10 +22,11 @@
 //                           until it returns true; enter() does at once whatever is left.
 //   ready -> bool
 //   enter({replay, reduced}) the set goes live: its group joins ctx.render.scene (all hidden until INTRO.swapAt). Idempotent.
-//   setTime(t, {live, seek, reduced})   everything at timeline time t. Before INTRO.swapAt the stage shows nothing and leaves the
+//   setTime(t, {live, seek, reduced, calm})   everything at timeline time t. Before INTRO.swapAt the stage shows nothing and leaves the
 //                           title camera, the world's mood and the raft's light alone (the opening ink has not closed yet); from
 //                           the swap on the world wears the first run's opening mood (world.setIntroMood) and the raft's light is
-//                           the film's (actors.setIntroKindle). `reduced` softens the contact flash and turns the cut into a dip.
+//                           the film's (actors.setIntroKindle). `reduced` (reduced motion) or `calm` (reduced flashing) softens the
+//                           contact flash and turns the cut into a dip.
 //   exit()                  gives everything back: the camera (render.setIntroCamera(null)), the world's mood, the water light, the
 //                           Wick's and the lantern's own light; takes the set out of the scene. Idempotent; never throws.
 //   dispose()               exit() + frees every geometry and material this module created.
@@ -591,7 +592,8 @@ export function createIntroStage(ctx) {
     // a seek shows the settled picture: the rig under the film's pose is put at rest too (the last take blends into it)
     if (opts.seek) { try { ctx.render?.snapCamera?.(); } catch { /* optional */ } }
     const aspect = ctx.render?.camera?.aspect > 0 ? ctx.render.camera.aspect : 16 / 9;
-    const sc = introScore(I(), t, { aspect, reduced: opts.reduced === true || st.reduced }, score);
+    // (`calm`: reduced flashing alone, from the director: the same softer flash and the cut as a dip, with the film still moving)
+    const sc = introScore(I(), t, { aspect, reduced: opts.reduced === true || opts.calm === true || st.reduced }, score);
     applyHooks(sc);
     if (set) applySet(sc, t, st.t, c, opts);
     st.t = t;

@@ -1143,7 +1143,7 @@ export function create(ctx) {
       packRipples(t);
       packWakes(t);
       packLights(realT);
-      if (ctx.flow === 'playing' || ctx.flow === 'title') ambience(dt, px, pz);
+      if (ctx.flow === 'playing' || ctx.flow === 'title' || ctx.flow === 'intro') ambience(dt, px, pz);   // (INTRO LANE A: the lake stays alive under the opening cut scene, so nothing starts up at its hand-off)
       stepSignFx(dt, t);
       updateParticles(dt);
 
@@ -1189,6 +1189,10 @@ export function create(ctx) {
     get glowtide() { return glowNow(); },
     /** Optional override of the foam circles (default: world.getObstacles()). null = back to world. */
     setObstacles(list) { manualObstacles = Array.isArray(list) ? list : null; obstaclesDirty = true; },
+    // >>> INTRO LANE A: the opening cut scene's replay swaps the lake with no zone:change (docs/v3/intro/SPEC.md §7.4): main asks for
+    // the depth map (shore foam, shallows) to be baked again for the lake now on screen, and once more for a world that builds lazily
+    rebakeDepth() { startDepthBake(0); depthJob.again = 1.5; },
+    // <<< INTRO LANE A
     /** Drip from the cavern roof at (x, z) (extra): a falling droplet that rings on impact. */
     drip(x, z, height = 8) { spawnParticle(Number(x) || 0, Number(height) || 8, Number(z) || 0, 0, -3, 0, 0.05, 4, U.uFoam.value, 0.9, 1); },
   };
