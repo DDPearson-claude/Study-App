@@ -221,6 +221,38 @@ for (const yaw of [60, 150, 240, 330]) for (const [pose, sp, z] of [FIVE[0], FIV
   finish('keep');
 }
 
+section('no pop: from the reel to 1.5 s after the way out, nothing jumps (S5)');
+for (const [pose, sp, z, action] of [[...FIVE[0], 'keep'], [...FIVE[1], 'release'], [...FIVE[2], 'keep'], [...FIVE[3], 'release'], [...FIVE[4], 'release'], ['alongside', 'lantern_swallower', 1.0, 'release'], ['pinch', 'quayling', -2, 'keep']]) {
+  env.actors.setCharacter('wick'); env.ctx.player.heading = 0;
+  env.camera({ dist: 9.3, elev: 38 }); env.run(0.4);
+  env.ctx.fishing.state = 'landing'; env.run(0.3);   // the Wick as the catch finds it: turned to its line, the rod in its hands
+  const r = env.show({ speciesId: sp, z });
+  env.showCamera({});
+  const total = r.beats.lift + r.beats.hold + r.beats.pause, end = Math.round(total * 30);
+  const worst = { joint: 0, name: '', at: 0, fish: 0, fishAt: 0, rod: 0, walk: 0 };
+  let J = env.ctx.debug.wickJoints(), fp = null, wp = null;
+  const THREE = env.THREE, fo = holder().children[0], c = new THREE.Vector3(), w = new THREE.Vector3();
+  for (let i = 0; i < end + 45; i++) {
+    if (i === end) env.ctx.debug.showPoseEnd({ action });
+    if (i === end + 2) env.ctx.fishing.state = 'idle';
+    env.step(); env.showCamera({});
+    const N = env.ctx.debug.wickJoints();
+    for (const k of Object.keys(N)) {
+      if (k === 'rodDrive' || k === 'rodStow') { worst.rod = Math.max(worst.rod, Math.abs(N[k] - J[k])); continue; }
+      const d = k === 'facing' ? Math.abs(Math.atan2(Math.sin(N[k] - J[k]), Math.cos(N[k] - J[k]))) : Math.abs(N[k] - J[k]);
+      if (d > worst.joint) { worst.joint = d; worst.name = k; worst.at = i / 30; }
+    }
+    J = N;
+    if (i < end && fo.parent) { fo.getWorldPosition(c); if (fp) { const d = c.distanceTo(fp); if (d > worst.fish) { worst.fish = d; worst.fishAt = i / 30; } } fp = (fp || new THREE.Vector3()).copy(c); }
+    w.copy(env.actors.wick.position); if (wp) worst.walk = Math.max(worst.walk, Math.hypot(w.x - wp.x, w.z - wp.z)); wp = (wp || new THREE.Vector3()).copy(w);
+  }
+  ok(worst.joint <= 0.35, `${pose} ${sp}: no joint jumps more than 0.35 a frame (${worst.name} ${worst.joint.toFixed(3)} at ${worst.at.toFixed(2)} s)`);
+  ok(worst.fish <= 0.45, `${pose} ${sp}: the fish moves ≤ 0.45 m a frame (${worst.fish.toFixed(3)} at ${worst.fishAt.toFixed(2)} s)`);
+  ok(worst.rod <= 0.5, `${pose} ${sp}: the rod is set down or taken up over frames, never inside one (${worst.rod.toFixed(2)})`);
+  ok(worst.walk <= 0.12, `${pose} ${sp}: the Wick steps, it does not dash (${worst.walk.toFixed(3)} m a frame)`);
+  env.run(0.8);
+}
+
 section('the seam: the clock is fishing\'s, a hurry, endings, nothing left behind');
 {
   env.ctx.player.heading = 0; env.camera({ dist: 9.3, elev: 38 }); env.run(0.3);

@@ -252,6 +252,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
+  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], JOINT_RATE = 9.6;
+  let showCool = 0;
   // the show: the spec actors-show.js keeps current every frame (null outside a show), the hands' IK locks (world targets), and the
   // rod as a prop (planted by its butt at a world point, or set down on the bow rest)
   let sh = null;
@@ -608,7 +610,12 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (action) poseAction(action, tgt, actionT, t);
     const fast = action === 'cast' || action === 'hookset' || action === 'zap' || action === 'hurt';
     const lam = fast ? 30 : action ? 16 : SHOW.has(base) ? 14 : 11;
+    // a show (and the 1.5 s after it) never pops: no joint moves faster than JOINT_RATE (SPEC S5: ≤ 0.35 a frame at 30 fps)
+    showCool = SHOW.has(base) ? 1.5 : Math.max(0, showCool - dt);
+    const capped = showCool > 0, cap = JOINT_RATE * Math.min(dt, 1 / 30);
+    if (capped) for (const k of KEYS) last[k] = cur[k];
     for (const k of KEYS) cur[k] = damp(cur[k], tgt[k], lam, dt);
+    if (capped) for (const k of KEYS) cur[k] = last[k] + clamp(cur[k] - last[k], -cap, cap);
 
     // facing: aim / catch-to-camera / forward
     let face = 0;
@@ -622,7 +629,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     else if (Number.isFinite(env.targetYaw) && base !== 'paddle' && base !== 'catch') face = wrapPi(env.targetYaw - env.heading);
     else if (aimYaw !== null && base !== 'paddle' && base !== 'idle') face = wrapPi(aimYaw - env.heading);
     else if (aimYaw !== null && base === 'idle' && env.fishingBusy) face = wrapPi(aimYaw - env.heading);
-    facing += wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt));
+    { const turn = wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt)); facing += capped ? clamp(turn, -cap, cap) : turn; }
     group.rotation.y = facing;
 
     // apply rig
@@ -637,6 +644,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       body.updateWorldMatrix(true, false);
       if (lock.r.k > 0.001) ikLock('r');
       if (lock.l.k > 0.001) ikLock('l');
+      if (capped) for (const k of ARM_KEYS) cur[k] = last[k] + clamp(cur[k] - last[k], -cap, cap);   // (the reach to the fish too: quick, never a jump)
     }
     arms.r.sh.rotation.set(-cur.rRaise, 0, -cur.rOut, 'XYZ'); arms.r.sh.scale.set(1, cur.rStretch, 1);
     arms.l.sh.rotation.set(-cur.lRaise, 0, cur.lOut, 'XYZ'); arms.l.sh.scale.set(1, cur.lStretch, 1);
@@ -886,6 +894,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     get facing() { return facing; },
     get build() { return buildS; },
     get rodStowK() { return rodDrive.stow; },
+    /** The rig's joint values this frame (a copy; tests watch them for jumps), and where the rod is. */
+    getJoints(out = {}) { for (const k of KEYS) out[k] = cur[k]; out.facing = facing; out.rodDrive = rodDrive.k; out.rodStow = rodDrive.stow; return out; },
     /** The seal stamps (fish:measured): a satisfied bob, a flare of the head flame and a few sparks. */
     stamp() { meas.stamp = 1; if (!dead) sparks(6); },
     /** The landing (v3): the head flame flares up (k 0..1.5) and throws a few sparks, then settles over a second or two. */

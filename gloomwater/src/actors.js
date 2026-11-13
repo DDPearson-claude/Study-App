@@ -273,6 +273,8 @@ export function create(ctx) {
         ctx.debug.showPoseEnd = (o = {}) => { api.endShow(o); const fv = showDbg.fv; showDbg.fv = null; if (fv) showDbg.old.push({ fv, at: st.t + 0.7 }); return true; };
         /** The S5 / S6 numbers of the pose as it stands (clearances, hand gaps, overshoot, flaps, drips, the raft's dip). */
         ctx.debug.showPoseInfo = () => showCtl.info();
+        /** The Wick's joint values this frame (continuity checks: S5). */
+        ctx.debug.wickJoints = () => wick.getJoints({});
         ctx.debug.showFocus = () => { const f = showCtl.focus(); return f ? JSON.parse(JSON.stringify(f)) : null; };
         /** The posed fish's box, bent as its body is (world points): what to project when measuring it on screen. */
         ctx.debug.showPoseHull = () => showCtl.hull();
@@ -364,7 +366,10 @@ export function create(ctx) {
         const spot = showCtl.spot;   // (the show stands it where the pose needs it: at the edge behind an alongside fish's brow)
         const hx = spot ? spot.x : mp === 'measureAlongside' ? st.meas.side * (across ? 0.3 : 0.6) : WICK_HOME.x, hz = spot ? spot.z : mp === 'measureAlongside' ? (across ? st.meas.end * 0.95 : 0.3) : WICK_HOME.z;
         const walk = spot ? 6 : 4.5;
-        wick.group.position.x = damp(wick.group.position.x, hx, walk, dt); wick.group.position.z = damp(wick.group.position.z, hz, walk, dt);
+        const wx = damp(wick.group.position.x, hx, walk, dt) - wick.group.position.x, wz = damp(wick.group.position.z, hz, walk, dt) - wick.group.position.z;
+        const stride = spot || st.showWalk > 0 ? Math.min(1, 2.6 * dt / Math.max(1e-6, Math.hypot(wx, wz))) : 1;   // a show's steps are steps, not a dash
+        st.showWalk = spot ? 1.5 : Math.max(0, (st.showWalk || 0) - dt);
+        wick.group.position.x += wx * stride; wick.group.position.z += wz * stride;
       }
       wick.update(dt, t, env);
 
