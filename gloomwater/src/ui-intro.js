@@ -119,17 +119,17 @@ export function createIntroView(K) {
       return false;
     }
   }
-  function drawStill() {
+  function drawStill(t) {
     if (!stillEl) return;
     if (!V.still) { if (stillEl.style.visibility !== 'hidden') { stillEl.style.opacity = '0'; stillEl.style.visibility = 'hidden'; } return; }
-    const k = 1 - (now() - V.still.t0) / V.still.fade;
+    const k = 1 - (t - V.still.t0) / V.still.fade;
     if (k <= 0) { V.still = null; stillEl.style.opacity = '0'; stillEl.style.visibility = 'hidden'; return; }
     stillEl.style.opacity = String(Math.round(k * 1000) / 1000);
   }
 
   // ---------------------------------------------------------------- one frame
-  /** Draw the director's moment: the veil, the line, the Skip word. */
-  function draw() {
+  /** Draw the director's moment: the veil, the line, the Skip word. `t`: the wall clock of this update (one reading a frame). */
+  function draw(t = now()) {
     if (!el) return;
     const D = I(), d = dir(), s = d && d.isActive() ? d.state : null;
     layout();
@@ -143,7 +143,6 @@ export function createIntroView(K) {
       } else V.line = null;
       skipK = s.skip ? 0 : skipWordAt(D, s.t);
     }
-    const t = now();
     if (V.closing) {
       // the film is over: what is left of it (a skip's ink, the Skip word) fades on the wall clock, from the frame after the hand-off
       const c = V.closing, k = c.t0 === null ? 1 : clamp01(1 - (t - c.t0) / c.dur);
@@ -154,7 +153,7 @@ export function createIntroView(K) {
     setOpacity(lineEl, lineK, 'lineK');
     setOpacity(skipEl, skipK, 'skip');
     skipEl.classList.toggle('gw-poked', t < V.pokeUntil);
-    drawStill();
+    drawStill(t);
   }
 
   function update(dt) {
@@ -178,7 +177,7 @@ export function createIntroView(K) {
       // the director was stopped with no event (back to the title, a wipe): nothing of the film stays on screen
       teardown(); return;
     }
-    draw();
+    draw(t);
   }
 
   // ---------------------------------------------------------------- bus
