@@ -132,10 +132,15 @@ export function skipModeAt(INTRO, t) {
   return b && from >= 0 && b.i >= from ? 'finish' : 'veil';
 }
 
-/** The Skip word's opacity at t: nothing before INTRO.skip.showAt, in over `fade` s (shown within 1 s of the first frame). Pure. */
+/**
+ * The Skip word's opacity at t: nothing before INTRO.skip.showAt, in over `wordFade` s (shown within 1 s of the first frame), and
+ * out over the film's last `wordOut` s, while the camera is at rest (the keys still skip to the end). Pure.
+ */
 export function skipWordAt(INTRO, t) {
   const K = INTRO?.skip || {};
-  return clamp((t - num(K.showAt, 0.6)) / Math.max(1e-3, num(K.wordFade, 0.3)), 0, 1);
+  const up = (t - num(K.showAt, 0.6)) / Math.max(1e-3, num(K.wordFade, 0.3));
+  const down = num(K.wordOut, 0) > 0 ? (num(INTRO?.length, 18) - t) / K.wordOut : 1;
+  return clamp(Math.min(up, down), 0, 1);
 }
 
 /** Is a skip honoured at t? Not inside the guard (the stray second tap of Begin). Pure. */

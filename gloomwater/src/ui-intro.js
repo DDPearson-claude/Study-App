@@ -145,8 +145,9 @@ export function createIntroView(K) {
     }
     const t = now();
     if (V.closing) {
-      const c = V.closing, k = clamp01(1 - (t - c.t0) / c.dur);
-      veil = Math.max(veil, c.veil * k); skipK = 0; lineK = 0;
+      // the film is over: what is left of it (a skip's ink, the Skip word) fades on the wall clock, from the frame after the hand-off
+      const c = V.closing, k = c.t0 === null ? 1 : clamp01(1 - (t - c.t0) / c.dur);
+      veil = Math.max(veil, c.veil * k); skipK = c.skip * k; lineK = 0;
     }
     if (V.curtain) veil = Math.max(veil, V.curtain.k);
     setOpacity(veilEl, veil, 'veil');
@@ -170,7 +171,9 @@ export function createIntroView(K) {
         } else { c.k = clamp01(c.k + step / c.in); if (c.k >= 1) c.painted = true; }
       } else { c.k = clamp01(c.k - step / c.out); if (c.k <= 0) { teardown(); return; } }
     } else if (V.closing) {
-      if (t - V.closing.t0 >= V.closing.dur) { teardown(); return; }
+      // (the frame of the hand-off itself is drawn as the film left it: full ink after a veil skip)
+      if (V.closing.t0 === null) V.closing.t0 = t;
+      else if (t - V.closing.t0 >= V.closing.dur) { teardown(); return; }
     } else if (V.on && !(d && d.isActive())) {
       // the director was stopped with no event (back to the title, a wipe): nothing of the film stays on screen
       teardown(); return;
@@ -203,7 +206,7 @@ export function createIntroView(K) {
     const D = I(), veilSkip = !!p.skipped && p.mode === 'veil';
     // the film is over: the game's own UI comes back now (under the opening ink after a veil skip)
     root.classList.remove('gw-intro-on');
-    V.closing = { t0: now(), dur: veilSkip ? Number(D?.skip?.veilOut) || 0.35 : 0.25, veil: veilSkip ? 1 : V.veil };
+    V.closing = { t0: null, dur: veilSkip ? Number(D?.skip?.veilOut) || 0.35 : 0.25, veil: veilSkip ? 1 : V.veil, skip: veilSkip || p.skipped ? 0 : V.skip };
     draw();
   });
   // a press anywhere but the Skip word only brightens it for a moment (SPEC §7.2)

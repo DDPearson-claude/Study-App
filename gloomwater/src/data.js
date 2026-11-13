@@ -3988,6 +3988,7 @@ export const INTRO = {
   lineFade: 0.4,
   skip: { guard: 0.5, showAt: 0.6, target: 44, keys: ['Escape', 'Enter', 'NumpadEnter', 'Space'], word: 'Skip',
     wordFade: 0.3,                  // the Skip word comes in over 0.3 s from showAt (there by 0.9 s)
+    wordOut: 0.5,                   // … and goes over the film's last 0.5 s, with the camera at rest (the keys skip to the very end)
     poke: 2,                        // a press anywhere else only brightens the Skip word for this long
     veilIn: 0.25, veilOut: 0.35,    // beats lit / fall / below: ink closes, the stage jumps to its end state, ink opens on the play frame
     finish: 0.5, finishFrom: 'wick',   // beats wick / home: no veil; the remaining timeline plays out in `finish` s
