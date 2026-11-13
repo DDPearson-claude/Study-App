@@ -109,6 +109,12 @@ export function createMeasure(K) {
     const best = c.ruler.best ? `<span class="gw-ms-best${c.af ? ` gw-ms-pb${c.ruler.passesBest ? ' gw-under' : ''}` : ''}" style="left:${pct(c.ruler.best).toFixed(2)}%"><i></i><b>${c.af ? 'your best' : 'best'}</b></span>` : '';
     const ledger = c.af && c.ruler.ledger ? `<span class="gw-ms-ledger${c.ruler.passesLedger ? ' gw-under' : ''}" style="left:${pct(c.ruler.ledger).toFixed(2)}%"><i></i><b>Old Ledger</b></span>` : '';
     const seal = !legend && c.ci.seal ? sealSvg(c.ci.seal, { ancient: c.ci.ancient, cls: 'gw-ms-sealsvg' }) : legend ? sealSvg('blackWaxRibbon', { ancient: true, cls: 'gw-ms-sealsvg' }) : '';
+    // declutter: "tap to skip" for the first three ceremonies only (a tap still skips after that)
+    const mt = K.meta?.() || {};
+    mt.seenTips = mt.seenTips || {};
+    const skipN = Number(mt.seenTips.ui_msskip) || 0;
+    const skipHint = skipN < 3;
+    if (skipHint) mt.seenTips.ui_msskip = skipN + 1;
     wrap.innerHTML = `<div class="gw-ms-recs" aria-live="polite"></div>
       <div class="gw-ms-band">
         <svg class="gw-ms-wash" viewBox="0 0 ${phone ? '380 340' : '1000 290'}" preserveAspectRatio="none" aria-hidden="true">${legend ? `<path class="gw-ms-gild" filter="url(#gw-ink-edge)" d="${phone ? WASH_PHONE : WASH_D}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${phone ? WASH_PHONE : WASH_D}"/></svg>
@@ -131,7 +137,7 @@ export function createMeasure(K) {
           <i class="gw-ms-bead"></i>
           <div class="gw-ms-seal">${seal}</div>
         </div>
-        <div class="gw-ms-skip">${K.isTouch ? 'tap to skip' : 'click or Space to skip'}</div>
+        <div class="gw-ms-skip">${skipHint ? (K.isTouch ? 'tap to skip' : 'click or Space to skip') : ''}</div>
       </div>`;
     body.appendChild(wrap);
     c.laid = false; c.marksLaid = false; c.lastCount = -1;

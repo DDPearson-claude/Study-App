@@ -2002,3 +2002,78 @@
 @keyframes gwSlipAway { 0% { transform: translateX(0); opacity: .92; } 100% { transform: translateX(12px); opacity: .5; } }
 @keyframes gwOddsFocus { 0% { box-shadow: 0 0 0 0 rgba(160, 150, 240, 0); } 30% { box-shadow: 0 0 46px 6px rgba(160, 150, 240, .22); } 100% { box-shadow: 0 0 0 0 rgba(160, 150, 240, 0); } }
 @keyframes gwKnotFlare { 0% { transform: scale(1); } 35% { transform: scale(1.7); filter: brightness(1.8); } 100% { transform: scale(1); } }
+
+/* ==================================================================== Declutter (polish pass; DESIGN §21.6 "the world is the star")
+   The play screen carries a few glanceable marks (the day mark and its line, the creel, the lantern), not sentences. Words come on
+   hover / long-press, on change (banners, the purse peeking out) or on the first descent (key glyphs: .gw-ui.gw-hints). */
+.gw-top::before { height: 118px; background: linear-gradient(180deg, rgba(var(--veil-rgb), .42), rgba(var(--veil-rgb), .12) 58%, transparent); }
+/* the clock: a small day numeral over the day line (the line and its bead are the timer); the lake, the hour and the forecast are
+   its hover title; the forecast also tints the night stretch (pink: the Gloom stirs; pale violet: a Stillnight) */
+.gw-clock { pointer-events: auto; cursor: default; }
+.gw-clock-day { font-size: calc(var(--t-hud-day) * .7); letter-spacing: .26em; color: var(--ink-dim); }
+.gw-clock-zone, .gw-clock-phase, .gw-clock-fore, .gw-clock-fore.gw-on { display: none; }
+.gw-clock-svg { width: 168px; height: 14px; margin-top: 4px; }
+.gw-clock[data-fore="stirs"] .gw-clock-segs .gw-seg-gloomtide { stroke: #e7a9c4; opacity: .9; filter: drop-shadow(0 0 3px rgba(210, 150, 174, .85)); }
+.gw-clock[data-fore="still"] .gw-clock-segs .gw-seg-gloomtide { stroke: #b4b6f0; opacity: .75; }
+/* the flame's level and boons sit out the calm and grey dawn (unless a level-up is banked and waiting) */
+.gw-hud[data-phase="calm"] .gw-tl2:not(:has(.gw-level-bank.gw-on)), .gw-hud[data-phase="dawn"] .gw-tl2:not(:has(.gw-level-bank.gw-on)) { display: none; }
+/* calm states of the status line (the nearest watch-lamp, a lamp-watch) are a glyph; warnings keep their words */
+.gw-status { pointer-events: auto; }
+.gw-st-lamp .gw-status-t, .gw-st-watch .gw-status-t { display: none; }
+/* the purse peeks out when it changes (and on hover); the Journal is its book; the bait is its glyph and count */
+.gw-st-shells:not(.gw-peek) { display: none; }
+.gw-tr:hover .gw-st-shells { display: inline-flex; }
+.gw-st-shells.gw-peek { animation: gwFadeUp .5s var(--ease-ink); }
+.gw-st-journal .gw-journal-n { display: none; }
+.gw-st-bait .gw-bait-name { display: none; }
+.gw-st-bait:hover .gw-bait-name, .gw-st-bait:focus-visible .gw-bait-name { display: inline; }
+/* the lantern: the arc is the gauge; its number shows only when low; Well-fed is the bowl glyph alone */
+.gw-oil-n, .gw-sat-n { opacity: 0; transition: opacity .5s; }
+.gw-cluster.gw-oil-low .gw-oil-n, .gw-cluster.gw-warn-oil .gw-oil-n, .gw-cluster.gw-sat-low .gw-sat-n, .gw-cluster.gw-warn-satiety .gw-sat-n { opacity: 1; }
+.gw-wf .gw-wf-t, .gw-wf.gw-fed .gw-wf-t { display: none; }
+.gw-wf { pointer-events: auto; }
+/* edge markers: the glyph and its arrow; only the watch-lamp keeps its distance (the dusk run to the light) */
+.gw-mark:not(.gw-mk-watch) .gw-mark-d { display: none; }
+/* actions: the glyphs say Flare and Burn; Relight keeps its word; key hints only on the first descent or on hover */
+.gw-flare-label { display: none; }
+.gw-burn:not(.gw-relight) .gw-burn-label { display: none; }
+.gw-ui:not(.gw-hints) .gw-hud kbd { display: none; }
+.gw-ui:not(.gw-hints) .gw-flare:hover kbd, .gw-ui:not(.gw-hints) .gw-burn:hover kbd, .gw-ui:not(.gw-hints) .gw-pill:hover kbd { display: inline; }
+/* nothing happening: the HUD settles back (hover or any change brings it up) */
+.gw-hud .gw-top, .gw-hud .gw-cluster { transition: opacity 1.4s ease; }
+.gw-hud.gw-idle .gw-top { opacity: .5; }
+.gw-hud.gw-idle .gw-cluster { opacity: .66; }
+.gw-hud.gw-idle .gw-top:hover { opacity: 1; transition-duration: .25s; }
+/* fishing: the favour is its notches (words on long-press / hover); the tell is its pictogram (words only while it still names a
+   class); the play's estimate is the seal and the class; the hurry mark is its chevrons */
+.gw-favour:not(.gw-open) .gw-fav-say { display: none; }
+.gw-favour::before { top: -4px; height: 40px; }
+.gw-tell-w > span:only-child { display: none; }
+.gw-play-est .gw-pe-k { display: none; }
+.gw-play-hurry span { display: none; }
+.gw-ga-hint { display: none; }
+/* the measuring ceremony: the name, the count, the cord (no "Measured in …" kicker; the skip hint only for the first three) */
+.gw-ms:not(.gw-legend) .gw-ms-k { display: none; }
+.gw-ms-skip:empty { display: none; }
+/* the catch card: name, class, length, weight and the actions; the rest one tap away ("more") unless the catch is special */
+.gw-cc:not(.gw-cc-open) .gw-cc-xtra { display: none !important; }
+.gw-cc-more { justify-self: start; align-self: start; margin: 2px 0 6px; padding: 4px 0; font: italic 400 16px/1 var(--f-body); color: var(--ink-faint); letter-spacing: .02em; }
+.gw-cc-more::after { content: ' \203A'; font-style: normal; }
+.gw-cc.gw-cc-open .gw-cc-more::after { content: ' \2039'; }
+.gw-ui:not(.gw-hints) .gw-cc .gw-cc-act kbd, .gw-ui:not(.gw-hints) .gw-cc-boon kbd { display: none; }
+.gw-cc-pick--shut { padding-top: 10px; }
+.gw-cc-pick-open { display: inline-flex; align-items: center; gap: 10px; padding: 6px 2px; border: none; background: none; cursor: pointer; color: var(--gold); font: 400 15px/1.2 var(--f-display); letter-spacing: .18em; text-transform: uppercase; text-shadow: 0 0 12px rgba(232, 190, 119, .25); pointer-events: auto; }
+.gw-cc-pick-open em { font: italic 400 16px/1 var(--f-body); letter-spacing: .02em; text-transform: none; color: var(--ink-dim); transition: color .2s; }
+.gw-cc-pick-open:hover em, .gw-cc-pick-open:focus-visible em { color: var(--ink-hi); }
+/* screens keep their content, not their repeated explanations */
+.gw-purse small { display: none; }
+.gw-death:not(.gw-snuffed) .gw-death-flav { display: none; }
+.gw-mem-total small { display: none; }
+.gw-ui:not(.gw-hints) .gw-dl-row.gw-bad small { display: none; }
+.gw-card-tags { display: none; }
+@media (max-width: 700px) {
+  .gw-cc-more { order: 9; margin: 0 0 2px; }
+  .gw-cc-pick-open { gap: 6px 10px; font-size: 14px; letter-spacing: .12em; }
+  .gw-cc-pick-open span, .gw-cc-pick-open em { white-space: nowrap; }
+  .gw-cc-pick-open em { font-size: 15.5px; }
+}

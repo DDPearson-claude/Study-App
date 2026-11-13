@@ -228,6 +228,10 @@ export function createHudV3(K, el, R, w) {
     setText(fore, 'fore', t);
     toggle(fore, 'fore', 'gw-on', !!t);
     toggle(fore, 'fore', 'gw-stirs', cls === 'gw-stirs');
+    // declutter: the forecast is a tint on the day line's night stretch (pink: the Gloom stirs; pale: a Stillnight); its words
+    // ride the clock's hover title
+    const fk = cls === 'gw-stirs' ? 'stirs' : cls === 'gw-still' ? 'still' : '';
+    if (last('foreK') !== fk) { lastSet('foreK', fk); if (fk) R.clock.dataset.fore = fk; else delete R.clock.dataset.fore; }
   }
 
   // ------------------------------------------------------------------ the status line (S2 guttering, S6, Scorched)
@@ -252,6 +256,8 @@ export function createHudV3(K, el, R, w) {
       statusIco.innerHTML = ico ? icon(ico) : '';
     }
     setText(statusT, 'stT', text || '');
+    // declutter: the calm states (the nearest lamp, a lamp-watch) are a glyph; their words on hover / long-press
+    if (status.title !== (text || '')) status.title = text || '';
   }
   function paintStatus(r, pi, phase, mode, swarmNight, S) {
     watchTarget = null;
