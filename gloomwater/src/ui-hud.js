@@ -28,6 +28,7 @@ export function createHud(K) {
           <circle class="gw-clock-glow" r="6.5" cy="9"/><circle class="gw-clock-bead" r="2.8" cy="9"/>
         </svg>
         <div class="gw-clock-phase"></div>
+        <div class="gw-clock-tip" aria-live="polite"></div>
       </div>
       <div class="gw-tl2">
         <div class="gw-level" title="Your flame's level"><span class="gw-level-n">1</span></div>
@@ -134,6 +135,18 @@ export function createHud(K) {
   el.querySelector('[data-act="creel"]').addEventListener('click', tapGuard(() => { K.sfx('ui_click'); K.screens.openCreel(); }));
   el.querySelector('[data-act="journal"]').addEventListener('click', tapGuard(() => { K.sfx('ui_click'); K.screens.openJournal(); }));
   el.querySelector('[data-act="pause"]').addEventListener('click', tapGuard(() => { K.sfx('ui_click'); safe(() => ctx.game?.pause?.(), null); if (!ctx.game?.pause) K.screens.openPause(); }));
+  // the lake, the hour and the forecast live in the clock's title (hover); a tap (a phone has no hover) writes them under it in a
+  // small ink note for 2.5 s
+  let clockTipT = 0;
+  R.clock.addEventListener('click', tapGuard(() => {
+    const tip = R.clock.querySelector('.gw-clock-tip');
+    const txt = R.clock.getAttribute('title') || '';
+    if (!tip || !txt) return;
+    tip.textContent = txt;
+    tip.classList.add('gw-on');
+    clearTimeout(clockTipT);
+    clockTipT = setTimeout(() => tip.classList.remove('gw-on'), 2500);
+  }));
   R.bait.addEventListener('click', tapGuard(() => K.baitCycle()));
   R.pill.addEventListener('click', tapGuard(() => { K.sfx('ui_click'); safe(() => ctx.player?.interact?.(), null); }));
   R.burn.addEventListener('pointerdown', tapGuard(() => K.burnFish()));
@@ -292,6 +305,14 @@ export function createHud(K) {
     const pp = ctx.player?.position;
     if (!pp) return 0;
     const add = (kind, pos) => { if (n >= MK_N || !pos) return; const t = targets[n++]; t.kind = kind; t.pos.set(num(pos.x), num(pos.y, 0) + 0.5, num(pos.z)); t.dist = Math.hypot(t.pos.x - pp.x, t.pos.z - pp.z); };
+    // while a fish is on (the bite, the play, the landing) the edges stay clear for the float and the bite mark: only the
+    // watch-lamp (and a boss) keep a marker
+    const fst = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : 'idle';
+    if (fst === 'bite' || fst === 'reeling' || fst === 'landing') {
+      v3.markers(add);
+      for (const e of arr(ctx.combat?.enemies)) if (e?.boss && e.position) { add('boss', e.position); break; }
+      return n;
+    }
     const m = ctx.actors?.merchant;
     if (m && m.present === true && m.position) add('merchant', m.position);
     const r = run();
@@ -485,6 +506,9 @@ export function createHud(K) {
 
   // ------------------------------------------------------------------ state
   let visible = false, shellsShown = -1, shellsTarget = 0, popT = 0, statsDirty = true, statsTimer = 0;
+  // declutter (polish): the HUD dims after a few quiet seconds in the calm; the purse peeks out only when it changes
+  let quietT = 0, peekT = 0;
+  const wake = () => { quietT = 0; };
   let prevHp = -1, xpShown = 0, levelShown = -1, phaseShown = '', lowFlags = { oil: 0, satiety: 0, hp: 0 };
 
   function setVisible(v) {
@@ -494,7 +518,7 @@ export function createHud(K) {
   }
   function reset() {
     v3.reset();
-    prevHp = -1; emberN = -1; boonsDirty = true; boonSig = ''; shellsShown = -1; statsDirty = true; levelShown = -1; reelCount = 0;
+    prevHp = -1; emberN = -1; boonsDirty = true; boonSig = ''; shellsShown = -1; statsDirty = true; levelShown = -1; reelCount = 0; quietT = 0; peekT = 0;
     clockDay = -1; last.clear(); R.joyHint.classList.remove('gw-gone');
     lowFlags = { oil: 0, satiety: 0, hp: 0 };
   }
@@ -600,6 +624,7 @@ export function createHud(K) {
     }
     setText(R.shells, 'shells', K.fmt(shellsShown));
     if (popT > 0) { popT -= dt; if (popT <= 0) R.shellsPop.classList.remove('gw-on'); }
+    if (peekT > 0) { peekT -= dt; if (peekT <= 0) R.shellsBox.classList.remove('gw-peek'); }
 
     // ---- slower stats (creel, bait, streak) & boons
     statsTimer -= dt;
@@ -652,6 +677,14 @@ export function createHud(K) {
     else if (phase === 'gloomtide') ptxt = `Dawn in ${mmss(remain)}`;
     else ptxt = 'The dark lets go';
     setText(R.phase, 'ptxt', ptxt);
+    // declutter: the lake, the hour and the forecast are words on hover / long-press only; the day line is the timer
+    const foreT = R.clock.querySelector('.gw-clock-fore')?.textContent || '';
+    setAttr(R.clock, 'clkT', 'title', [`${R.zone.textContent}${R.phaseW.textContent}`, ptxt, foreT].filter(Boolean).join(' \u2014 '));
+    // nothing happening (the calm or grey dawn, no line out beyond the float, nothing low or hurt): the HUD settles back
+    const fst = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : 'idle';
+    const busy = (phase !== 'calm' && phase !== 'dawn') || (fst !== 'idle' && fst !== 'waiting') || of <= 0.25 || hp <= 1 || !!label || dark;
+    quietT = busy ? 0 : quietT + dt;
+    toggle(el, 'idle', 'gw-idle', quietT > 6);
 
     // ---- markers & fishing
     gatherTargetsAndPaint();
@@ -691,7 +724,7 @@ export function createHud(K) {
     noteUp: () => !!v3.noteUp,
     afDebug: () => v3.debug(),
     dirtyBoons() { boonsDirty = true; },
-    dirtyStats() { statsDirty = true; },
+    dirtyStats() { statsDirty = true; wake(); },
     onZone(z) {
       const p = z?.palette || {};
       // zone tokens (DESIGN §21.1); the fallbacks are the Mossmere "Moonlit slate" values
@@ -713,15 +746,17 @@ export function createHud(K) {
       if (v3.live) clockDay = -1;   // v3: a new lake's first calm carries the Arrival Hush (survival's durations)
     },
     onPhase(phase) { if (phase) el.dataset.phase = phase; },
-    onDamage() { restartAnim(R.vigDmg, 'gw-hit'); restartAnim(R.cluster, 'gw-shake'); if (K.isTouch) safe(() => navigator.vibrate?.(30), null); },
+    onDamage() { wake(); restartAnim(R.vigDmg, 'gw-hit'); restartAnim(R.cluster, 'gw-shake'); if (K.isTouch) safe(() => navigator.vibrate?.(30), null); },
     onHeal() { restartAnim(R.vigHeal, 'gw-hit'); },
-    onLow(res) { if (!res) return; R.cluster.classList.add('gw-warn-' + res); lowFlags[res] = 2.6; },
+    onLow(res) { if (!res) return; wake(); R.cluster.classList.add('gw-warn-' + res); lowFlags[res] = 2.6; },
     onLantern() { /* state is read every frame */ },
     onShells(delta) {
       statsDirty = true;
       if (delta > 0) { R.shellsPop.textContent = `+${Math.round(delta)}`; restartAnim(R.shellsPop, 'gw-on'); popT = 1.4; restartAnim(R.shellsBox, 'gw-bump'); }
+      if (delta) { R.shellsBox.classList.add('gw-peek'); peekT = 3.5; wake(); }
     },
     pulse(kind) {
+      wake();
       if (kind === 'level') restartAnim(R.level, 'gw-pulse');
       else if (kind === 'xp') restartAnim(R.xpSpark, 'gw-pulse');
       else if (kind === 'burn') restartAnim(R.burn, 'gw-fired');

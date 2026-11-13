@@ -828,6 +828,7 @@ export function create(ctx) {
       try { opts.color.isColor ? splashCol.copy(opts.color) : splashCol.set(opts.color); } catch { splashCol.copy(U.uFoam.value); }
     } else splashCol.copy(U.uFoam.value);
     emitDrops(x, z, size, count);
+    if (opts.ring === false) return;   // beside the raft under a close-up: drops only (art rule: never a ring around the raft)
     addRipple(x, z, size);
     if (size > 0.6) addRipple(x, z, size * 0.6, 0.18);
     if (size > 1.6) addRipple(x, z, size * 0.4, 0.42);
@@ -866,6 +867,7 @@ export function create(ctx) {
   }
 
   // ---------------------------------------------------------------- ambience: drips & rising fish
+  let hush = 0;   // v3: the landing's ripple hush near the raft (see update)
   let nextDrip = 2, nextPlip = 3.5;
   function ambience(dt, px, pz) {
     if (!isReal(ctx.render)) return;
@@ -1000,6 +1002,13 @@ export function create(ctx) {
         }
       } else {
         U.uRaft.value.set(px, pz, 0, 0);
+      }
+      if (V3W) { // the landing's close-up (the reveal and the measuring ceremony): plain rings near the raft hush quickly and
+        // return slowly; carried as a negative uRaft.w (the raft is at rest while a fish lands), so it costs no uniform
+        const fs = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : null;
+        const want = ctx.cinematic || fs === 'landing' ? 1 : 0;
+        hush += (want - hush) * (1 - Math.exp(-(want > hush ? 6 : 0.8) * dt));
+        if (hush > 0.002) U.uRaft.value.w = -Math.min(1, hush);
       }
 
       if (obstaclesDirty || realT > obstacleCheckAt) {

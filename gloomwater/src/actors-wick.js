@@ -241,6 +241,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let charge = 0, reelK = 0, reelLat = 0, aimYaw = null, aimHold = 0, pointYaw = null;
   let vitality = 1, flameK = 1, flameOut = false, blinkT = 2, blink = 0, paddlePhase = 0, crankPhase = 0, facing = 0;
   let look = { ...DEFAULT_LOOK }, buildS = BUILDS.wick, flameBaseY = 0.355, flameBaseX = 0;
+  let flareK = 0;   // the landing's flare of the head flame (flareFlame), decaying
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
@@ -558,7 +559,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     eyes.position.y = 0.14 + cur.eyeLift;
     // a measuring close-up (the trophy camera 1.6–5 m away) would bloom the head flame and eyes into a white blot: damp them,
     // and bring the Wick's own exposure down (eased, so the cut to the trophy camera never pops)
-    const ckT = MEASURE.has(base) ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
+    const ckT = MEASURE.has(base) || env.landingClose === true ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
     let ck = damp(expo, ckT, 6, dt);
     if (Math.abs(ck - ckT) < 1e-3) ck = ckT;
     applyExposure(ck);
@@ -575,16 +576,18 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (out && !flameOut) { flameOut = true; ctx.models?.puff?.(flame.group.getWorldPosition(tmpV), { color: flameCol.getHex(), count: 8, size: 0.5 }); }
     if (!out) flameOut = false;
     flame.group.visible = !out;
-    const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + cur.flame) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK));
+    flareK = Math.max(0, flareK - dt * 0.8);
+    const fl = Math.max(0, cur.flame) + (dead ? 0 : flareK) * 0.5;
+    const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + cur.flame + (dead ? 0 : flareK) * 0.28) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK) + flareK * Math.sin(t * 17.1) * 0.05);
     const lowH = vitality < 0.5 ? 0.78 + 0.44 * vitality : 1;
     flame.group.scale.set(fs * flameShape[0], fs * flameShape[1] * lowH, fs * flameShape[0]);
     flame.outerMat.uniforms.uT.value = t; flame.innerMat.uniforms.uT.value = t * 1.13;
-    const wild = (1 - flameK) * 0.9 + Math.max(0, cur.flame) * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
+    const wild = (1 - flameK) * 0.9 + fl * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
     flame.outerMat.uniforms.uWild.value = wild; flame.innerMat.uniforms.uWild.value = wild;
-    flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + Math.max(0, cur.flame) * 0.8) * (1 - 0.7 * ck);
+    flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + fl * 0.8) * (1 - 0.7 * ck);
     flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck);
-    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6) * (1 - 0.88 * ck);
-    flame.halo.scale.setScalar(0.75 * (1 + Math.max(0, cur.flame) * 0.5) * (1 - 0.5 * ck));
+    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + fl * 0.6) * (1 - 0.88 * ck);
+    flame.halo.scale.setScalar(0.75 * (1 + fl * 0.5) * (1 - 0.5 * ck));
     // lean flame against motion
     const lx = clamp(-(env.localVel?.x || 0) * 0.018 - cur.roll * 0.15, -0.3, 0.3), lz = clamp(-(env.localVel?.z || 0) * 0.018 + cur.pitch * 0.1, -0.3, 0.3);
     flame.outerMat.uniforms.uLean.value.set(lx, lz); flame.innerMat.uniforms.uLean.value.set(lx * 0.7, lz * 0.7);
@@ -660,6 +663,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     },
     /** The seal stamps (fish:measured): a satisfied bob, a flare of the head flame and a few sparks. */
     stamp() { meas.stamp = 1; if (!dead) sparks(6); },
+    /** The landing (v3): the head flame flares up (k 0..1.5) and throws a few sparks, then settles over a second or two. */
+    flareFlame(k = 0.6) {
+      const v = Math.max(0, Math.min(1.6, Number(k) || 0));
+      if (dead || v <= 0) return;
+      flareK = Math.max(flareK, v);
+      sparks(Math.round(3 + 6 * Math.min(1, v)));
+    },
     /** World position of a hand ('r' | 'l'). */
     getHandPos(side = 'r', out = new THREE.Vector3()) { const h = (side === 'l' ? arms.l : arms.r).hand; h.updateWorldMatrix(true, false); return h.getWorldPosition(out); },
     get basePose() { return base; },

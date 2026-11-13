@@ -5,7 +5,7 @@
 import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
-import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS } from './ui-v3.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines } from './ui-v3.js';
 import * as AF from './ui-af.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -517,8 +517,15 @@ export function createScreens(K) {
     const z = K.zoneData(sp.zone) || K.zoneData(r?.zone) || (af() && (sp.zone === COVE_ID || sp.cove) ? { name: zoneName(COVE_ID) } : null);
     const zn = (z?.name || '').replace(/^The /, 'the ');
     const stamp = legend ? 'Legend' : ci.label;
-    const kicker = legend ? `A legend of ${zn || 'the deep'}` : p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
-      : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`;
+    // the kicker names the same record the measuring banner did (its best line), in a few words: the hero length says the rest
+    const best = recordLines(D(), { records: recs, isNew: !!p.isNew, species: sp, length: fish.length, max: 1 })[0] || null;
+    const REC_KICK = { oldLedger: 'Old Ledger beaten', pb: 'A new personal best', isNew: 'A new name for the journal', elderLog: 'Written in the Elder Log',
+      place: 'A new record for this place', resident: 'A resident giant, landed' };
+    const recKick = !best ? null : best.kind === 'classFirst'
+      ? `Your first ${(classInfo(D(), recs.find((x) => x?.kind === 'classFirst')?.sizeClass, !!recs.find((x) => x?.kind === 'classFirst')?.ancient) || ci).label}`
+      : REC_KICK[best.kind] || best.text;
+    const kicker = legend ? `A legend of ${zn || 'the deep'}` : recKick || (p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
+      : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`);
     const len = fmtLength(fish.length, D());
     const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
       : p.isRecord ? 'biggest yet!' : ci.id === 'trophy' ? CLASS_PHRASE.trophy : p.isNew ? 'a first!' : CLASS_PHRASE[ci.id] || '';
@@ -531,7 +538,10 @@ export function createScreens(K) {
     const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${night || ''}${r?.day ? `, day ${r.day}` : ''}`;
     const favours = arr(fish.favours);
     const mu = favourMu(favours, D());
-    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true };
+    const special = legend || !!p.isNew || !!p.isRecord || classFirst || !!fish.name || !!ci.ancient || !!best;
+    // the lore and the epithet up front only for a new name, a legend or an Ancient; a record keeps its kicker and the hero
+    const loreUp = legend || !!p.isNew || !!ci.ancient;
+    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true, special, loreUp };
   }
   /** The catch as the journal records it: stamp, kicker, note, numbers. */
   function catchNotes(p, sp, fish) {
@@ -551,7 +561,7 @@ export function createScreens(K) {
     const bait = K.baitData(typeof eq === 'object' && eq ? eq.id : eq);
     const ph = K.phaseInfo()?.phase || r?.phase || 'calm';
     const more = `took ${bait ? `the ${bait.name.toLowerCase()}` : 'a bare hook'} ${PHASE_WHEN[ph] || ''}${r?.day ? `, day ${r.day}` : ''}`;
-    return { stamp, kicker, len, phrase, more, legend, size };
+    return { stamp, kicker, len, phrase, more, legend, size, special: legend || !!p.isNew || !!p.isRecord };
   }
   // ------------------------------------------------------------------ U14: the banked Boon pick on the card
   /** Is this pick a banked one the ui presents? (combat.offerBanked; the open offer is current.banked) */
@@ -575,8 +585,11 @@ export function createScreens(K) {
     const P = s.pick;
     const open = safe(() => ctx.combat.pendingOptions, null);
     let opts = Array.isArray(open) && open.length && open === P.ref ? open : null;
-    if (!opts && !P.chosen && bankedNow() > 0) { opts = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(opts) && opts.length) P.ref = opts; else opts = null; }
-    if (!opts && !P.chosen) return;
+    // declutter: the pick waits shut (one line) and is offered only once opened, so an unopened pick stays banked for the next
+    // card or the dawn bell instead of opening a picker after the card
+    const shut = !P.open && !P.chosen && (!!opts || bankedNow() > 0);
+    if (!opts && !P.chosen && bankedNow() > 0 && P.open) { opts = safe(() => ctx.combat.offerBanked(), null); if (Array.isArray(opts) && opts.length) P.ref = opts; else opts = null; }
+    if (!opts && !P.chosen && !shut) return;
     pn.classList.add('gw-cc-haspick');
     const left = bankedNow();
     const wrap = h('div', `gw-cc-pick${P.chosen ? ' gw-chosen' : ''}`);
@@ -584,6 +597,11 @@ export function createScreens(K) {
     if (P.chosen) {
       wrap.innerHTML = `<div class="gw-cc-pick-h">${icon(P.chosen.icon)}<span><b>${esc(P.chosen.name)}</b> \u00b7 ${esc(P.chosen.lv === 'New' ? 'yours for the descent' : P.chosen.lv)}</span></div>
         ${left > 0 ? `<div class="gw-cc-pick-sub">${left} more ${left === 1 ? 'waits' : 'wait'} for the next card or the dawn bell</div>` : '<div class="gw-cc-pick-sub">Your flame remembers.</div>'}`;
+    } else if (shut) {
+      // declutter: the pick waits as one line under the sketch (the catch is the moment); a tap, or 5–7, opens it
+      wrap.classList.add('gw-cc-pick--shut');
+      wrap.innerHTML = `<button type="button" class="gw-cc-pick-open">${beads}<span>Your flame grew</span><em>Choose a boon \u203a</em></button>`;
+      wrap.querySelector('.gw-cc-pick-open').addEventListener('click', (e) => { e.stopPropagation(); sfx('ui_click'); P.open = true; entry.render(); });
     } else {
       wrap.innerHTML = `<div class="gw-cc-pick-h">${beads}<span>Your flame grew while you fished</span></div>
         <div class="gw-cc-pick-sub">Choose a boon${left > 1 ? ` \u00b7 ${left} waiting` : ''}</div><div class="gw-cc-boons"></div>`;
@@ -665,33 +683,44 @@ export function createScreens(K) {
       // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
       const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
         : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
-      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${legend ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
+      // a legend, an Elder and an Ancient wear a gilded edge on the ink (a Trophy a pale-gold glow round it: ui.css)
+      const gild = legend || (N.v3 && N.cls.id === 'elder');
+      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${gild ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
       // v3: the favours that applied, as the float showed them (notches) and in plain words by family
       const ticks = (n) => `<svg class="gw-cc-ticks" viewBox="0 0 64 24" aria-hidden="true">${[7, 19, 31, 43, 55].map((x, i) => `<path class="${i < n ? 'gw-lit' : ''}" d="M${x - 3.2} 20.5 C${x - 1.6} 15 ${x + 1.6} 9 ${x + 3.6} 3.5"/>`).join('')}</svg>`;
-      const favRow = N.v3 && !legend ? `<dt>favour</dt><dd class="gw-cc-fav">${ticks(N.notches)}${N.groups.length
+      const X = ' class="gw-cc-xtra"';
+      const favRow = N.v3 && !legend ? `<dt${X}>favour</dt><dd class="gw-cc-fav gw-cc-xtra">${ticks(N.notches)}${N.groups.length
         ? `<span class="gw-cc-favw">${N.groups.map((g) => `<i><b>${esc(g.label)}</b> ${esc(g.words.map((w) => w.text).join(', '))}</i>`).join('')}</span>`
         : '<span class="gw-cc-favw gw-none"><i>nothing in its favour: open water</i></span>'}</dd>` : '';
       // v3: the stamp is the class, so a Fine or Shimmering catch says so beside its worth
       const qWord = N.v3 && fish.quality === 'perfect' ? ', shimmering' : N.v3 && fish.quality === 'fine' ? ', fine' : '';
       // automatic fishing: one line for the strike grade (never a %: the odds live in the log)
       const sw = grade ? (D().AUTOFISH?.text?.strike?.[grade] || cap(grade)) : '';
-      const strikeRow = sw ? `<dt>strike</dt><dd class="gw-cc-strike gw-strike-${esc(grade)}">${esc(sw)}</dd>` : '';
-      const worthRow = cove ? (qWord ? `<dt>quality</dt><dd>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt>worth</dt><dd>${fmt(y.sell)} shells${qWord}</dd>`;
-      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
+      const strikeRow = sw ? `<dt${X}>strike</dt><dd class="gw-cc-strike gw-strike-${esc(grade)} gw-cc-xtra">${esc(sw)}</dd>` : '';
+      const worthRow = cove ? (qWord ? `<dt${X}>quality</dt><dd${X}>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt${X}>worth</dt><dd${X}>${fmt(y.sell)} shells${qWord}</dd>`;
+      const stats = `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
       const lore = firstSentence(sp.lore) || hintFor(sp);
+      // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
+      // card; an ordinary catch shows name, class, length, weight and the actions, the rest one tap away ("more")
+      const sx = N.special ? '' : ' gw-cc-xtra';
+      // v3: the hero length and the kicker carry the record, so the handwritten note (length, phrase, bait and hour) folds behind
+      // "more"; the lore and the epithet are up front only for a new name, a legend or an Ancient
+      const nx = N.v3 ? ' gw-cc-xtra' : sx;
+      const lx = N.v3 ? (N.loreUp ? '' : ' gw-cc-xtra') : sx;
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
-            <p class="gw-cc-note">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+            <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
-            <div class="gw-cc-kicker">${esc(N.kicker)}</div>
+            <div class="gw-cc-kicker${sx}">${esc(N.kicker)}</div>
             <h2 class="gw-catch-name">${esc(sp.name)}</h2>
-            ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet">${esc(sp.epithet)}</div>` : ''}
-            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}</div>
+            ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet${lx}">${esc(sp.epithet)}</div>` : ''}
+            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}${N.v3 ? `<b class="gw-cc-hero">${esc(N.len)}</b>` : ''}</div>
             ${stats}
-            <p class="gw-cc-lore">${esc(lore)}</p>
+            <p class="gw-cc-lore${lx}">${esc(lore)}</p>
+            <button type="button" class="gw-link gw-cc-more" data-more aria-expanded="${s.more ? 'true' : 'false'}">${s.more ? 'less' : 'more'}</button>
             ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}
           </div>
         </div>`;
@@ -701,6 +730,13 @@ export function createScreens(K) {
       try { drawFishInk(c, sp, { w: aw, h: ah, pad: 0.05, color: legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { K.report('fishart', e); }
       art.appendChild(c);
       content.querySelector('[data-room]')?.addEventListener('click', () => { s.room = !s.room; sfx('ui_click'); entry.render(); });
+      pn.classList.toggle('gw-cc-open', !!s.more);
+      content.querySelector('[data-more]')?.addEventListener('click', (e) => {
+        e.stopPropagation(); s.more = !s.more; sfx('ui_click');
+        pn.classList.toggle('gw-cc-open', s.more);
+        e.currentTarget.textContent = s.more ? 'less' : 'more';
+        e.currentTarget.setAttribute('aria-expanded', s.more ? 'true' : 'false');
+      });
       const right = content.querySelector('.gw-cc-right');
       if (full && s.room) {
         pn.classList.add('gw-cc-rooming');
@@ -739,12 +775,36 @@ export function createScreens(K) {
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
       foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
       if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: af() ? 'A little luck with rarer fish until tomorrow' : '+2% rare-fish luck until tomorrow', onClick: act('release') }));
+      // v3: what it is worth to you counts up as the card lands, with soft coin ticks (once per card)
+      if (N.v3 && !s.counted) {
+        s.counted = true;
+        const ems = [...foot.querySelectorAll('.gw-cc-act em')];
+        const to = ems.map((e) => { const m = /\+(\d+)/.exec(e.textContent.replace(/[^\d+]/g, '')); return m ? Number(m[1]) : null; });
+        if (ems.length && to.every((v) => v != null && v > 0) && typeof requestAnimationFrame === 'function') {
+          ems.forEach((e) => { e.textContent = '+0'; });
+          const t0 = performance.now() + 820, dur = 560;
+          let last = -1;
+          const step = () => {
+            if (!pn.isConnected) return;
+            const k = Math.min(1, Math.max(0, (performance.now() - t0) / dur)), e2 = 1 - (1 - k) * (1 - k);
+            ems.forEach((e, i) => { e.textContent = `+${fmt(Math.round(to[i] * e2))}`; });
+            const tick = k > 0 ? Math.min(5, Math.floor(e2 * 6)) : -1;
+            if (tick > last) { last = tick; sfx('coin', { volume: 0.16 + 0.04 * tick, pitch: 0.92 + 0.05 * tick }); }
+            if (k < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }
+      }
     }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-catch',
       onKey: (code) => {
         const map = cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
         if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
         const bm = /^(?:Digit|Numpad)([5-7])$/.exec(code);
-        if (bm) { const b = K.top()?.el.querySelectorAll('.gw-cc-boon:not([disabled])')[Number(bm[1]) - 5]; if (b) { b.click(); return true; } }
+        if (bm) {
+          const shut = K.top()?.el.querySelector('.gw-cc-pick--shut .gw-cc-pick-open');
+          if (shut) { shut.click(); return true; }
+          const b = K.top()?.el.querySelectorAll('.gw-cc-boon:not([disabled])')[Number(bm[1]) - 5]; if (b) { b.click(); return true; }
+        }
         // the actions read left to right: arrows move the brush stroke along them
         if (code === 'ArrowLeft' || code === 'ArrowRight' || code === 'ArrowUp' || code === 'ArrowDown') {
           const btns = [...(K.top()?.el.querySelectorAll('.gw-catch-actions .gw-btn:not([disabled])') || [])];
@@ -1471,7 +1531,7 @@ export function createScreens(K) {
       }
       menu.appendChild(btn('Abandon Descent', { cls: 'gw-mbtn gw-btn--danger', icon: 'close', onClick: abandon }));
       content.appendChild(menu);
-      content.insertAdjacentHTML('beforeend', '<p class="gw-pause-note">Returning to the title keeps this descent waiting.</p>');
+      // (declutter: the title keeps the descent waiting; Continue on the title says so, so the pause needs no note)
       const boons = arr(safe(() => ctx.combat?.getBoons?.(), null));
       const list = boons.length ? boons.map((g) => ({ b: g.boon || K.boonData(g.boonId || g.id), level: num(g.level, 1) })).filter((x) => x.b)
         : Object.entries(r?.boons || {}).map(([id, l]) => ({ b: K.boonData(id), level: num(l, 1) })).filter((x) => x.b);
@@ -1611,7 +1671,7 @@ export function createScreens(K) {
         if (!entry.state.counted) K.tween(row.querySelector('b'), 0, num(b.value), 0.7, 0.5 + i * 0.22, (v) => '+' + fmt(v));
         else row.querySelector('b').textContent = '+' + fmt(b.value);
       });
-      if (!bd.length) rows.innerHTML = '<p class="gw-empty">The water barely noticed. Next time, go deeper.</p>';
+      // (declutter: with nothing banked the rows stay empty; the total says 0)
       const totalEl = wrap.querySelector('.gw-mem-n');
       if (!entry.state.counted) K.tween(totalEl, 0, num(S.memories), 1.4, 0.5 + bd.length * 0.22, fmt); else totalEl.textContent = fmt(S.memories);
       entry.state.counted = true;
@@ -1623,7 +1683,7 @@ export function createScreens(K) {
       // automatic fishing (DESIGN §25.6.7): the summary lists the fish that got away ("A Trophy Reedjaw, near 1.1 m, threw the hook…")
       const away = af() ? arr(S.gotAway).filter((x) => typeof x === 'string' && x).slice(0, 4) : [];
       if (away.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Got away</div>${away.map((x) => `<div class="gw-dl-row">${icon('hook')}<span>${esc(x)}</span></div>`).join('')}</div>`);
-      const nm = soCloseLines(S);
+      const nm = soCloseLines(S).slice(0, 2);   // declutter: the two nearest "so close" lines
       const td = snuffed ? { line: 'The lantern guttered out.', tip: S.tip || `Render a fish before the oil runs dry: ${K.isTouch ? 'the Burn button' : 'Burn (R)'} works without opening the creel.`, icon: 'lantern' } : !victory ? topDamage() : null;
       if (nm.length || td) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">So close</div>${nm.map((x) => `<div class="gw-dl-row">${icon('quill')}<span>${esc(x)}</span></div>`).join('')}${td ? `<div class="gw-dl-row gw-bad">${icon(td.icon || 'eye')}<span>${esc(td.line)}<small>${esc(td.tip)}</small></span></div>` : ''}</div>`);
       const nav = wrap.querySelector('.gw-death-btns');

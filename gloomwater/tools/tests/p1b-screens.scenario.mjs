@@ -291,6 +291,11 @@ export default async function (api) {
     await g(() => window.__rafHold(false));
     await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'catch', null, 90);
     await wait(2400);
+    // the pick waits shut as one line (declutter): it is offered only once opened (a tap, or 5–7)
+    const shut = await g(() => { const e = document.querySelector('#ui .gw-m-catch'); return { shut: !!e?.querySelector('.gw-cc-pick--shut .gw-cc-pick-open'), opts: e?.querySelectorAll('.gw-cc-boon').length || 0, po: !!window.__gw.combat.pendingOptions }; });
+    check(shut.shut && shut.opts === 0 && !shut.po, 'U14: the banked pick waits shut on the card (one line, nothing offered yet)', shut);
+    await g(() => document.querySelector('#ui .gw-m-catch .gw-cc-pick-open')?.click());
+    await wait(300);
     s = await g(() => { const e = document.querySelector('#ui .gw-m-catch'); return { pick: !!e?.querySelector('.gw-cc-pick'), opts: e?.querySelectorAll('.gw-cc-boon').length || 0, head: e?.querySelector('.gw-cc-pick-h')?.textContent || '' }; });
     check(s.pick && s.opts >= 2, 'U14: the next card carries the banked pick', s);
     await shot('20-card-banked-pick');

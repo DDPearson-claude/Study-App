@@ -277,7 +277,11 @@ export function create(ctx) {
       mv.hasSnout = false;
       const mp = resolveMeasure(dt);
       env.measurePose = mp;
-      if (mp) { const dh = camPos.distanceTo(wick.group.getWorldPosition(tmp2)); env.closeK = clamp((8.5 - dh) / 5, 0, 1); } else env.closeK = 0;
+      // v3 landing (the reveal and the scoop, before a measuring pose): the camera is already coming in, so the close-up's exposure
+      // applies too (the flame and the lantern never blow out over the reveal)
+      const landingCam = !mp && (ctx.cinematic === true || (D().V3_ENABLED === true && !!D().AUTOFISH && ctx.fishing?.state === 'landing'));
+      env.landingClose = landingCam;
+      if (mp || landingCam) { const dh = camPos.distanceTo(wick.group.getWorldPosition(tmp2)); env.closeK = clamp((8.5 - dh) / 5, 0, 1); } else env.closeK = 0;
       { // the close-up's exposure (eased): the lantern right over the Wick comes down while the camera is near
         const M = st.meas; M.expo = damp(M.expo, env.closeK, 6, dt); if (Math.abs(M.expo - env.closeK) < 1e-3) M.expo = env.closeK;
       }
@@ -492,6 +496,8 @@ export function create(ctx) {
       return { k: cord.k, length: cord.length, start: cord.pointAt(0, new THREE.Vector3()), end: cord.pointAt(1, new THREE.Vector3()), radius: cord.radius };
     },
     get cordK() { return cord.visible ? cord.k : 0; },
+    /** v3 landing: the Wick's head flame flares as it lifts the fish (k 0..1.5, by class; fishing's landing payoff). */
+    flareFlame(k = 0.6) { wick.flareFlame?.(k); },
     setCharge(k) { wick.setCharge(k); },
     setReel(k, lateral = 0) { wick.setReel(k, lateral); },
     setAim(worldYaw) { wick.setAim(worldYaw); },

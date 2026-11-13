@@ -692,6 +692,38 @@ function flatQuad(material, renderOrder = 3) {
 }
 const additive = (o) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, ...o });
 
+// the landing's glory (v3): a camera-facing soft radial bloom with slow light rays behind the revealed fish. A billboard, so it is
+// never a ring on the water and never round the raft. The quad is 1.4× the glory's size so every term reaches zero, with zero
+// slope, well inside it: the lavender halo is a gaussian on the quad's radius times (1 − q²)², so no disc edge ever shows round
+// a fish held at the Wick's hands (art rule: never a ring around the raft or the player). s: the glory's own radius (1 = size).
+const GLORY_VS = /* glsl */`
+uniform vec3 uC; uniform float uSize;
+varying vec2 vUv;
+void main() {
+  vUv = position.xy;
+  vec4 mv = viewMatrix * vec4(uC, 1.0);
+  mv.xy += position.xy * uSize * 1.4;
+  gl_Position = projectionMatrix * mv;
+}`;
+const GLORY_FS = /* glsl */`
+uniform float uA, uT, uRays; uniform vec3 uGold, uLav, uPink;
+varying vec2 vUv;
+void main() {
+  float q = length(vUv);
+  if (q > 1.0) discard;
+  float s = q * 1.4;
+  float core = exp(-s * s * 14.0);
+  float bloom = exp(-s * s * 4.2);
+  float halo = exp(-q * q * 4.0);
+  float a = atan(vUv.y, vUv.x);
+  float ry = pow(max(0.0, sin(a * 6.0 + uT * 0.32)), 9.0) * (0.65 + 0.35 * sin(a * 2.0 - uT * 0.5))
+           + 0.7 * pow(max(0.0, sin(a * 9.0 - uT * 0.21 + 1.7)), 16.0);
+  ry *= smoothstep(0.02, 0.16, s) * exp(-s * s * 2.2) * uRays;
+  vec3 col = uGold * (core * 0.62 + bloom * 0.3 + ry * 0.5) + mix(uLav, uPink, 0.25 + 0.25 * sin(a + uT * 0.4)) * halo * 0.3;
+  float fade = 1.0 - q * q; fade *= fade;
+  gl_FragColor = vec4(col * uA * fade, 1.0);
+}`;
+
 // ------------------------------------------------------------------ factory
 export function createFishingFx(ctx) {
   const group = new THREE.Group();
@@ -888,6 +920,36 @@ export function createFishingFx(ctx) {
     return proxy;
   }
 
+  // ---------------------------------------------------------------- the landing's glory (built on first use: +1 call while it shows)
+  let gloryMesh = null;
+  const gloryU = { uC: { value: new THREE.Vector3() }, uSize: { value: 1 }, uA: { value: 0 }, uT: time, uRays: { value: 1 },
+    uGold: { value: new THREE.Color(0xf3dca4) }, uLav: { value: new THREE.Color(0xc9b8f0) }, uPink: { value: new THREE.Color(0xf0b8d8) } };
+  const gl0 = { on: false, t: 0, rise: 0.14, hold: 0.4, fade: 1, size: 1, a: 1, follow: null, back: 0.4, x: 0, y: 0, z: 0, embersT: 0, embers: 0 };
+  const gloryTmp = new THREE.Vector3(), gloryCam = new THREE.Vector3();
+  function buildGlory() {
+    if (gloryMesh) return gloryMesh;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]), 3));
+    geo.setIndex([0, 1, 2, 0, 2, 3]);
+    const mat = additive({ uniforms: gloryU, vertexShader: GLORY_VS, fragmentShader: GLORY_FS, depthTest: true });
+    gloryMesh = new THREE.Mesh(geo, mat);
+    gloryMesh.name = 'landing-glory'; gloryMesh.renderOrder = 5; gloryMesh.frustumCulled = false; gloryMesh.visible = false;
+    group.add(gloryMesh); disposables.push(geo, mat);
+    return gloryMesh;
+  }
+  function placeGlory() {
+    const g = gl0;
+    if (g.follow && g.follow.parent) { g.follow.getWorldPosition(gloryTmp); g.x = gloryTmp.x; g.y = gloryTmp.y; g.z = gloryTmp.z; }
+    const cam = ctx.render?.camera;
+    gloryTmp.set(g.x, g.y, g.z);
+    if (cam?.isCamera) {   // a little behind the subject, away from the camera, so the fish and the Wick stand in front of the light
+      gloryCam.copy(gloryTmp).sub(cam.position);
+      const d = gloryCam.length();
+      if (d > 1e-3) gloryTmp.addScaledVector(gloryCam, Math.min(g.back, d * 0.4) / d);
+    }
+    gloryU.uC.value.copy(gloryTmp);
+  }
+
   // ---------------------------------------------------------------- v3 signs (built on first use: the flag-off build never has it)
   let signs = null;   // {mesh, geo, A, B, C, D, n}
   const signU = { uSurf: { value: 1 }, uTime: time };
@@ -1030,6 +1092,7 @@ export function createFishingFx(ctx) {
 
     hideTransient() {
       reticle.visible = label.visible = range.visible = arc.visible = shadow.visible = false;
+      if (gloryMesh) { gloryMesh.visible = false; gl0.on = false; }
       if (proxy) proxy.visible = false;
     },
 
@@ -1110,8 +1173,63 @@ export function createFishingFx(ctx) {
       }
     },
 
+    /** The landing's glory (v3): a soft radial bloom with slow rays behind the revealed fish at (x, y, z) or following `follow`
+     *  (an Object3D), `size` m radius, `strength` 0..1.5, held `hold` s then fading over `fade` s; `embers` rising motes over its
+     *  life in pale gold and lavender. A camera-facing glow: never a ring on the water or round the raft. */
+    glory(x, y, z, { size = 1, strength = 1, hold = 0.5, fade = 1.2, rise = 0.14, follow = null, back = 0.4, embers = 0, rays = 1 } = {}) {
+      if (!(size > 0) || !(strength > 0)) return false;
+      buildGlory();
+      const g = gl0;
+      g.on = true; g.t = 0; g.rise = Math.max(0.02, rise); g.hold = Math.max(0, hold); g.fade = Math.max(0.1, fade);
+      g.size = size; g.a = Math.min(1.6, strength); g.follow = follow || null; g.back = back; g.x = x; g.y = y; g.z = z;
+      g.embers = Math.max(0, Math.round(embers)); g.embersT = 0;
+      gloryU.uRays.value = rays;
+      placeGlory();
+      gloryMesh.visible = true;
+      return true;
+    },
+    /** A second bloom on the glory still showing (a record at the stamp): it swells again and holds a little longer. */
+    gloryPulse(strength = 0.6, hold = 0.6, embers = 0) {
+      const g = gl0;
+      if (!g.on) return false;
+      g.a = Math.min(1.3, Math.max(g.a * (1 - Math.min(1, Math.max(0, g.t - g.rise - g.hold) / g.fade)), 0) + strength);
+      g.t = g.rise; g.hold = Math.max(g.hold - 0, hold); g.embers += Math.round(embers);
+      return true;
+    },
+    get gloryState() { return gl0.on ? { t: gl0.t, size: gl0.size, a: gloryU.uA.value } : null; },
+    /** Light-catching droplets off a fish of length L clearing the water at (x, y, z): pale stone, lavender and candle amber. */
+    droplets(x, y, z, L, n = 12) {
+      const k = Math.max(1, Math.round(n / 3));
+      fx.burst(x, y, z, { color: 0xece6d6, color2: 0xc9b8f0, count: k * 2, spread: 0.7 + L * 0.5, up: 2.4 + L * 0.6, gravity: 8, size: 0.04 + 0.015 * Math.min(L, 3), life: 0.8, drag: 0.8, radius: 0.1 + L * 0.3 });
+      fx.burst(x, y + 0.05, z, { color: 0xffc27a, color2: 0xf3dca4, count: Math.max(1, n - k * 2), spread: 0.5 + L * 0.4, up: 1.9 + L * 0.5, gravity: 7, size: 0.035 + 0.012 * Math.min(L, 3), life: 0.75, drag: 0.8, radius: 0.08 + L * 0.25 });
+    },
+
     update(dt, t) {
       time.value = t;
+      // the landing's glory: rise, hold, fade; embers rise off it while it shows
+      if (gl0.on) {
+        const g = gl0;
+        g.t += dt;
+        const end = g.rise + g.hold + g.fade;
+        if (g.t >= end) { g.on = false; if (gloryMesh) gloryMesh.visible = false; gloryU.uA.value = 0; }
+        else {
+          const env = g.t < g.rise ? g.t / g.rise : g.t < g.rise + g.hold ? 1 : 1 - (g.t - g.rise - g.hold) / g.fade;
+          const e = env * env * (3 - 2 * env);
+          gloryU.uA.value = g.a * e;
+          gloryU.uSize.value = g.size * (0.82 + 0.18 * Math.min(1, g.t / (g.rise + 0.4)));
+          placeGlory();
+          if (g.embers > 0) {
+            g.embersT -= dt;
+            if (g.embersT <= 0) {
+              g.embersT = 0.07;
+              const n = Math.min(g.embers, 2);
+              g.embers -= n;
+              const c = gloryU.uC.value, r = g.size * 0.55;
+              fx.burst(c.x + (Math.random() - 0.5) * r, c.y - r * 0.25, c.z + (Math.random() - 0.5) * r, { color: 0xf3dca4, color2: Math.random() < 0.3 ? 0xf0b8d8 : 0xc9b8f0, count: n, spread: 0.25, up: 0.5, gravity: -0.7, drag: 0.6, size: 0.03 + 0.012 * g.size, life: 1.5, radius: r * 0.4 });
+            }
+          }
+        }
+      }
       // point-size scale from the drawing buffer height and the camera fov
       const cam = ctx.render?.camera, canvas = ctx.render?.renderer?.domElement || ctx.render?.canvas;
       if (cam?.isPerspectiveCamera && canvas) {

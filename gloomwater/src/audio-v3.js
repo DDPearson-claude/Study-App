@@ -158,6 +158,31 @@ export function sealOf(sizeClass, data, { legendary = false } = {}) {
 /** The gold thread on the seal: an Ancient (an Elder with z ≥ 3.2) or a legend. */
 export function goldThread({ ancient = false, legendary = false } = {}) { return !!ancient || !!legendary; }
 
+// ------------------------------------------------------------------ the landing's payoff (AUTOFISH.landing; the user's 2026-11-13 ask)
+/**
+ * The swell into the reveal and the resolved chime at it, by class only (the swell starts while the species is still hidden; the
+ * chime plays on fishing:caught, the reveal). Bigger is lower, longer and fuller: a Small rings two bright notes and is done; an
+ * Elder or an Ancient (or a legend) rises the longest into a full chord over a bronze bell. `special` (a new species or a legend)
+ * adds a high shimmer.
+ *   landingVoicing(cls, {special}) -> {root (midi), notes (semitones above root), gap (s between notes), swell (s), bell, sub, shimmer}
+ */
+const LANDING_V = {
+  small:   { root: 79, notes: [0, 7], gap: 0.07, swell: 0.4, bell: false, sub: false, shimmer: 0 },
+  keeper:  { root: 74, notes: [0, 4, 7, 12], gap: 0.06, swell: 0.5, bell: false, sub: false, shimmer: 0 },
+  prize:   { root: 69, notes: [0, 4, 7, 12, 16], gap: 0.065, swell: 0.75, bell: false, sub: true, shimmer: 3 },
+  trophy:  { root: 65, notes: [0, 7, 12, 16, 19, 24], gap: 0.07, swell: 0.95, bell: true, sub: true, shimmer: 4 },
+  elder:   { root: 60, notes: [0, 7, 12, 16, 19, 24, 28], gap: 0.075, swell: 1.2, bell: true, sub: true, shimmer: 5 },
+  ancient: { root: 57, notes: [0, 7, 12, 16, 19, 24, 28, 31], gap: 0.08, swell: 1.35, bell: true, sub: true, shimmer: 6 },
+};
+export function landingClass({ sizeClass = null, ancient = false, legend = false } = {}) {
+  if (legend || ancient) return 'ancient';
+  return LANDING_V[sizeClass] ? sizeClass : 'keeper';
+}
+export function landingVoicing(cls, { special = false } = {}) {
+  const v = LANDING_V[cls] || LANDING_V.keeper;
+  return { ...v, notes: v.notes.slice(), shimmer: v.shimmer + (special ? 4 : 0) };
+}
+
 // =================================================================== automatic fishing (DESIGN §25.6, §25.14.2a Au2; CONTRACT §13.7a)
 // The play's sounds come ONLY from what fishing:strike / fishing:reel / fishing:escaped carry: the size class (and `ancient`),
 // the class length (`length`, else the lake's class ladder: never a species' own length), the mean fitted tier and the beat

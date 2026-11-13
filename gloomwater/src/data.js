@@ -3757,6 +3757,33 @@ export const AUTOFISH = {
     lakeMult: { cove: 0.55, mossmere: 1, sporewood: 1.1, glasswater: 1.2, paleabyss: 1.35 }, zStretch: 0.12, wake: 'plain' },
   revealWipe: 0.35,               // at the scoop (plan fraction 1.0, after the latest spat) the ink lifts off in a brush wipe, the proxy eases to true length and
                                   // the real model appears (createFish is first called here); fishing:caught fires when the wipe ends
+  // ---- the landing's payoff (the user's request of 2026-11-13: "I want it to feel more like a win when you catch one"). Class only
+  // until the reveal (nothing here knows a species); bigger is grander, a Small stays quick. Per class:
+  //   wipe        the reveal's length (s of game time; the ink floods into the fish's true colours nose to tail, a band of light ahead)
+  //   slowmo      [s, scale] as the fish breaks the surface (ctx.game.slowmo; 0 s = none)
+  //   drops       light-catching droplets off the fish as it clears the water
+  //   glory       the soft radial bloom + slow light rays behind the revealed fish (× its length; 0 = none). A camera-facing glow,
+  //               never a ring on the water and never round the raft
+  //   embers      pale-gold and lavender motes rising from the glory
+  //   bloom       render.pulse bloom at the reveal; kick: fov push-in (deg, negative = in); shake: a small camera hit at the stamp
+  //   push        the camera's dolly push-in on its framing through the reveal (share of the distance; render.push)
+  //   flame       the Wick's head flame flaring as it lifts the fish (0..1.5); glow: the fish's own glow igniting (× its glow)
+  //   haptic      navigator.vibrate patterns (ms) at the reveal and at the stamp (phones; guarded, off with reduced motion)
+  // special: a new species or a legend at the reveal, a personal best / class first / Old Ledger at the stamp: added on top.
+  landing: {
+    small:   { wipe: 0.35, slowmo: [0, 1],       drops: 10, glory: 0.5,  embers: 4,  bloom: 0.05, kick: -1.2, push: 0.12, shake: 0.05, flame: 0.35, glow: 1.6, haptic: [12], stampHaptic: [8] },
+    keeper:  { wipe: 0.42, slowmo: [0.12, 0.5],  drops: 14, glory: 0.65, embers: 6,  bloom: 0.07, kick: -1.8, push: 0.18, shake: 0.07, flame: 0.45, glow: 1.8, haptic: [14], stampHaptic: [10] },
+    prize:   { wipe: 0.55, slowmo: [0.3, 0.35],  drops: 22, glory: 0.85, embers: 12, bloom: 0.1,  kick: -2.8, push: 0.28, shake: 0.12, flame: 0.7,  glow: 2.2, haptic: [18, 40, 22], stampHaptic: [16] },
+    trophy:  { wipe: 0.7,  slowmo: [0.42, 0.28], drops: 30, glory: 1.05, embers: 18, bloom: 0.14, kick: -3.8, push: 0.33, shake: 0.17, flame: 0.9,  glow: 2.6, haptic: [22, 40, 30], stampHaptic: [24] },
+    elder:   { wipe: 0.9,  slowmo: [0.6, 0.22],  drops: 40, glory: 1.3,  embers: 26, bloom: 0.18, kick: -4.8, push: 0.38, shake: 0.24, flame: 1.15, glow: 3.0, haptic: [30, 50, 40, 50, 60], stampHaptic: [30, 40, 30],
+      pull: -0.3, gloryHold: 1.0, gloryBright: 0.15 },
+    ancient: { wipe: 1.0,  slowmo: [0.7, 0.2],   drops: 44, glory: 1.45, embers: 30, bloom: 0.21, kick: -5.4, push: 0.42, shake: 0.28, flame: 1.3,  glow: 3.2, haptic: [30, 50, 40, 50, 80], stampHaptic: [30, 40, 40],
+      pull: -0.36, gloryHold: 1.3, gloryBright: 0.2 },
+    // the climax fires at the ceremony's pose, once the trophy camera frames the held fish; an Elder or an Ancient adds a step a
+    // Trophy does not get: the camera draws back (pull, a negative push) to take in a glory held longer (gloryHold s) and brighter
+    special: { glory: 0.3, embers: 10, bloom: 0.06, flame: 0.2, glory2: 0.35 },   // glory2: the second bloom at the stamp for a record
+    colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
+  },
   // ---- let it pass: a passed Prize+ bite lingers, so passing on a size hint is a real bet (change the bait or lure, cast back)
   letPass: { classes: ['prize', 'trophy', 'elder', 'ancient'], lingers: 45, radius: 6, rebite: 0.5, keeps: ['speciesId', 'z'], once: true, refund: true, favour: 0.15 },
   // ---- the got-away note (the user's answer 4): after the fish is gone, never during the play, never a %

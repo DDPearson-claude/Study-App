@@ -209,14 +209,24 @@ export function create(ctx) {
     }, 160);
   }
   const heldToasts = [];
-  /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it (≤ 5 s). */
+  /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it to end (≤ 15 s). */
   const bannerBusy = () => !!(bannerEl && !bannerEl.classList.contains('gw-out')) || bannerQ.length > 0;
+  /** The landing (the reveal and the measuring ceremony) is the catch's moment: flavour toasts wait until the card. */
+  function landingBusy() {
+    if (measure?.active?.()) return true;
+    try { return afOn(D()) && (ctx.fishing?.state === 'landing' || ctx.cinematic === true); } catch { return false; }
+  }
   function flushHeldToasts(force = false) {
     if (!heldToasts.length) return;
     const now = performance.now();
     while (heldToasts.length) {
+      // one toast at a time (declutter): the queue waits for the slot
+      if (!force && toasts.some((t) => !t.dead)) break;
       const q = heldToasts[0];
-      const ready = force || (q.modal ? !hasBlocking() && !measure?.active() : (!bannerBusy() || now - q.at > 5000));
+      if (q.slot && now - q.at > 10000) { heldToasts.shift(); continue; }   // a flavour line that waited too long is stale
+      // a flavour line waits for the banner to end (its clock runs on game time, so a slow frame keeps it up longer); only a
+      // banner stuck past 15 s lets it through
+      const ready = force || (q.modal ? !hasBlocking() && !landingBusy() : (!bannerBusy() || now - q.at > 15000) && (q.kind === 'bad' || !landingBusy()));
       if (!ready) break;
       heldToasts.shift();
       if (q.modal && now - q.at > 30000) continue;   // stale news from behind a long modal
@@ -225,12 +235,14 @@ export function create(ctx) {
     }
   }
   const HOLD_BEHIND_MODAL = new Set(['info', 'lore', 'tip']);
+  const TOAST_RANK = { bad: 3, good: 2, info: 1, tip: 1, lore: 0 };
   function toast(text, kind = 'info', opts = {}) {
     if (!text) return;
     if (ctx.flow === 'dead' && kind !== 'good') return;   // the death summary says it all
     if (!opts.now && ctx.flow === 'playing') {
       // flavour waits behind blocking modals (shop, catch card, level-up) and banners; warnings never wait
-      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && !!measure?.active());
+      // the landing (the reveal and the measuring) is the catch's moment: flavour waits until the card
+      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && landingBusy());
       if (modal || (kind !== 'bad' && !hasBlocking() && bannerBusy())) {
         if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now(), modal });
         return;
@@ -243,15 +255,25 @@ export function create(ctx) {
     recentTexts.push({ t: now, text: String(text).toLowerCase() + ' ' + String(opts.title || '').toLowerCase() });
     if (recentTexts.length > 12) recentTexts.shift();
     if (recentToast.size > 40) for (const [k, t] of recentToast) if (now - t > 5000) recentToast.delete(k);
-    while (toasts.length >= 3) dropToast(toasts[0], true);
+    // one toast at a time (declutter): a warning replaces anything; a flavour line waits for the slot instead of stacking
+    const cur = toasts.filter((t) => !t.dead).pop();
+    if (cur && !opts.replace) {
+      const rk = TOAST_RANK[kind] ?? 1, ck = TOAST_RANK[cur.kind] ?? 1;
+      if (rk < ck || (rk === ck && kind !== 'bad' && now - cur.at < 1500)) {
+        if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 4) heldToasts.push({ text, kind, opts, at: now, modal: false, slot: true });
+        recentToast.delete(key);
+        return;
+      }
+    }
+    while (toasts.length) dropToast(toasts[0], true);
     const glyph = opts.icon || (kind === 'tip' ? 'quill' : kind === 'good' ? 'star' : kind === 'bad' ? 'eye' : kind === 'lore' ? null : null);
     const el = h('div', `gw-toast gw-toast--${kind}${opts.cls ? ` ${opts.cls}` : ''}`, `${glyph ? icon(glyph, { cls: 'gw-toast-ico' }) : ''}<span>${esc(text)}</span>`);
     if (opts.title) el.insertAdjacentHTML('afterbegin', `<b class="gw-toast-title">${esc(opts.title)}</b>`);
     layers.toasts.appendChild(el);
-    const entry = { el, dead: false, held: false };
+    const entry = { el, dead: false, held: false, kind, at: now };
     toasts.push(entry);
     requestAnimationFrame(() => el.classList.add('gw-in'));
-    const dur = opts.dur || (kind === 'lore' ? 5600 : kind === 'tip' ? 6500 : kind === 'bad' ? 3800 : 3400);
+    const dur = opts.dur || (kind === 'lore' ? 4400 : kind === 'tip' ? 5600 : kind === 'bad' ? 3400 : 2800);
     entry.deadline = now + dur;
     entry.timer = setTimeout(() => dropToast(entry), dur);
   }
@@ -377,6 +399,8 @@ export function create(ctx) {
   }
   function updateTips() {
     if (!tipQ.length || ctx.flow !== 'playing' || hasBlocking() || has('pause') || bannerBusy()) return;
+    // automatic fishing: never over the bite, the strike, the play or the ceremony (the moment is the world's)
+    if (afOn(D()) && (['bite', 'reeling', 'landing'].includes(ctx.fishing?.state) || ctx.cinematic || measure?.active?.())) return;
     const now = performance.now() / 1000;
     if (now - lastTipAt < 6) return;
     while (tipQ.length && now - tipQ[0].at > 40) tipQ.shift();
@@ -642,6 +666,7 @@ export function create(ctx) {
   // ------------------------------------------------------------------ bus wiring
   function on(evt, fn) { try { ctx.bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { report(`on(${evt})`, e); } }); } catch (e) { report('bus', e); } }
 
+  let murkGreeted = false;
   function wire() {
     for (const evt of tipEvents) on(evt, (p) => onTipEvent(evt, p));
     on('flow:change', ({ flow }) => {
@@ -653,9 +678,9 @@ export function create(ctx) {
       if (!continued) zonesSeen = new Set();
       dmgSources.clear();
       catchQ.length = 0; levelQ.length = 0; resolvedSig = ''; resolvedRef = null;
-      dawnBell = false; stillT = 0; K.nextBanked = null;
+      dawnBell = false; stillT = 0; K.nextBanked = null; if (!continued) murkGreeted = false;
       hud.reset();
-      if (continued) toast('The descent continues.', 'lore');
+      // (declutter: no "The descent continues." toast; the area banner says where you are)
     });
     on('run:end', () => { measure.reset(); closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; for (const t of [...toasts]) dropToast(t, true); hud.setVisible(false); });
     on('zone:change', ({ zone, prev }) => {
@@ -664,8 +689,10 @@ export function create(ctx) {
       if (!z) return;
       banner(z.name, z.subtitle || '', { kind: 'area' });
       hud.onZone(z);
-      if (!zonesSeen.has(z.id)) {
+      // the lake's lore line: once per lake ever (declutter), not once per descent
+      if (!zonesSeen.has(z.id) && !tipSeen(`zone_${z.id}`)) {
         zonesSeen.add(z.id);
+        { const m = meta(); m.seenTips = m.seenTips || {}; m.seenTips[`zone_${z.id}`] = true; }
         const line = D().TEXT?.zoneEnter?.[z.id];
         if (line) setTimeout(() => { if (ctx.flow === 'playing') toast(line, 'lore'); }, prev ? 4400 : 5200);
       }
@@ -737,8 +764,9 @@ export function create(ctx) {
     on('resource:low', ({ resource }) => {
       hud.onLow(resource);
       const tipId = { oil: 'low_oil', satiety: 'low_food', hp: 'low_hp' }[resource];
-      if (tipId && tipSeen(tipId)) {
-        const msg = { oil: 'Your lantern gutters. Oil is low.', satiety: 'Your wax runs thin. Eat something.', hp: 'Two Embers left.' }[resource];
+      // declutter: low oil and wax are said by the gauge (it reddens, shakes and shows its number); only the Embers still toast
+      if (tipId && tipSeen(tipId) && resource === 'hp') {
+        const msg = { hp: 'Two Embers left.' }[resource];
         if (msg) toast(msg, 'bad', { icon: resource === 'oil' ? 'oil' : resource === 'hp' ? 'ember' : 'food' });
       }
     });
@@ -768,18 +796,19 @@ export function create(ctx) {
       softToast(`Bounty honoured${s ? `: +${s} Shells` : ''}`, 'good', { icon: 'ledger' }, 'bount');
       screens.refreshIfOpen?.('shop');
     });
-    on('bounty:new', ({ bounty }) => { if (bounty?.text && !has('shop')) softToast(`Murk's ledger: ${bounty.text}`, 'info', { icon: 'ledger' }, String(bounty.text).slice(0, 18)); screens.refreshIfOpen?.('shop'); });
+    // declutter: a new bounty is the Ledger tab's badge (and progression's one line for the day), not a toast per bounty
+    on('bounty:new', () => { screens.refreshIfOpen?.('shop'); });
     on('enemy:steal', () => { hud.dirtyStats(); hud.pulse('steal'); });
     on('bait:change', () => hud.dirtyStats());
     on('enemy:hit', onEnemyHit);
     on('merchant:arrive', () => {
       const line = pick(D().MERCHANT_LINES?.arrive);
-      if (line && tipSeen('merchant')) softToast(`“${line}”`, 'lore', { title: 'Old Murk' }, 'murk');
+      // declutter: Murk's hello once a descent (after that the barge and its marker say he is here)
+      if (line && tipSeen('merchant') && !murkGreeted) { murkGreeted = true; softToast(`“${line}”`, 'lore', { title: 'Old Murk' }, 'murk'); }
     });
     on('merchant:leave', () => {
       if (has('shop')) closeModal('shop');
-      const line = pick(D().MERCHANT_LINES?.farewell);
-      if (line && ctx.flow === 'playing') softToast(`“${line}”`, 'lore', { title: 'Old Murk' }, 'murk');
+      // (declutter: Murk's farewell is the barge leaving; no toast)
     });
     on('fish:action', ({ action }) => { hud.dirtyStats(); hud.pulse(action); screens.refreshIfOpen?.('creel'); });
     on('shop:buy', () => hud.dirtyStats());
@@ -864,6 +893,8 @@ export function create(ctx) {
         layers.toasts.classList.toggle('gw-dead', ctx.flow === 'dead');
         const S = settings();
         root.classList.toggle('gw-calm-fx', S.reducedFlashing === true);
+        // key hints (E / R / Space, the card's 1–4): the first descent only; after that they show on hover
+        root.classList.toggle('gw-hints', num(meta().runs, 0) <= 1);
         root.classList.toggle('gw-no-dmg', S.damageNumbers === false);
         hud.update(dt);
         for (const m of stack) { m.t += dt; m.tick?.(dt); }

@@ -101,7 +101,7 @@ export function create(ctx) {
   let lastProgress = 0, wasDanger = false, wasSurgeWarn = false, wasClean = false, statsT = 99, statsCache = null, fishIdle = 0;
   let strain = null, charge = null, aura = null, water = null;
   const scratch = { volume: 1, pitch: 1, pan: 0, delay: 0, crit: false, big: false, elite: false, perfect: false, dying: false, force: false, rarity: undefined, power: undefined, anchored: undefined, resource: undefined,
-    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined };
+    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined };
   let inPointer = false, zapFrame = -1;
   let rmsBuf = null;
   let override = null;          // debug: force score params, e.g. {intensity: 0.8, tension: 0.6}
@@ -295,6 +295,7 @@ export function create(ctx) {
     s.volume = 1; s.pitch = 1; s.pan = 0; s.delay = 0; s.crit = false; s.big = false; s.elite = false; s.perfect = false;
     s.dying = false; s.force = false; s.rarity = undefined; s.power = undefined; s.anchored = undefined; s.resource = undefined;
     s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined; s.at = undefined;
+    s.dur = undefined; s.voicing = undefined;
     return s;
   }
   function phaseInfo() {
@@ -606,9 +607,36 @@ export function create(ctx) {
     af.active = false;
     moodTimer = 0.5;
   }
+  /** fishing:landing — the swell rises into the reveal (class only: the species is still hidden). Its length follows the wipe and
+   *  the slow-motion beat (AUTOFISH.landing); the chime that resolves it plays on fishing:caught. */
+  let land = null;
+  function landSwell(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    const cls = V3.landingClass(p);
+    const V = V3.landingVoicing(cls);
+    const LF = ctx.data?.AUTOFISH?.landing?.[cls] || null;
+    const wipe = num(p.dur, num(LF?.wipe, 0.4));
+    const sm = Array.isArray(LF?.slowmo) ? LF.slowmo : [0, 1];
+    const ss = num(sm[0], 0), sc = clamp(num(sm[1], 1), 0.05, 1);
+    const real = ss > 0 ? (wipe <= ss * sc ? wipe / sc : ss + (wipe - ss * sc)) : wipe;
+    resetScratch(); scratch.dur = Math.max(0.3, real + 0.05); scratch.root = V.root; scratch.force = true; scratch.why = cls;
+    land = { cls, at: ac.currentTime, swell: playV('land_swell', scratch) };
+  }
+  /** The reveal resolves: the class chime (a new species or a legend adds a shimmer); the swell lets go. */
+  function landChime(p) {
+    const l = land;
+    land = null;
+    if (!l || ac.currentTime - l.at > 6) return;
+    if (l.swell) silence(l.swell, false);
+    let special = p.legendary === true;
+    try { special = special || !(num(ctx.state?.meta?.journal?.[p.speciesId]?.caught) > 0); } catch { /* ignore */ }
+    resetScratch(); scratch.voicing = V3.landingVoicing(l.cls, { special }); scratch.force = true; scratch.why = l.cls + (special ? '+' : '');
+    play('land_chime', scratch);
+  }
   /** fishing:caught — the reveal: the species' voice, if it has one (never before); the play's hum and drone end. */
   function afCaught(p) {
     if (ctx.data?.V3_ENABLED !== true) return;
+    landChime(p);
     const voice = V3.speciesVoice(p.speciesId);
     if (voice) play(voice, { why: p.speciesId, pan: bobberPan(), delay: 0.05, force: true });
     if (!af.cls) return;
@@ -1116,6 +1144,7 @@ export function create(ctx) {
     });
     // ---- v3 automatic fishing (Au2): the strike, the play's beats (no species on any of them before the reveal)
     on('fishing:strike', (p) => afStrike(p));
+    on('fishing:landing', (p) => landSwell(p));
     on('fishing:reel', (p) => afBeat(p));
     on('fish:escaped', (p) => {
       // the got-away note (after the quiet beat): the card (Trophy and bigger) gets two low ink notes
@@ -1157,6 +1186,8 @@ export function create(ctx) {
       stampAt = ac.currentTime + delay;
       catchInfo = null;
       if (Array.isArray(p.records) && p.records.some((r) => r && r.kind === 'oldLedger')) { resetScratch(); scratch.delay = delay + 0.9; play('murk_bell_far', scratch); }
+      // a personal best or a class first: a brighter figure just after the seal (the landing's record chime)
+      if (Array.isArray(p.records) && p.records.some((r) => r && (r.kind === 'pb' || r.kind === 'classFirst'))) { resetScratch(); scratch.delay = delay + 0.28; scratch.force = true; play('record_chime', scratch); }
     });
     on('swarm:window', (p) => {
       syncNight();

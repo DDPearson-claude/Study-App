@@ -277,6 +277,7 @@ export function create(ctx) {
     bloomPulse: 0, fringePulse: 0, vigPulse: 0, fovKick: 0,
     death: 0, danger: 0, dark: 0,
     attention: null, attentionT: 0, attentionDur: 0, attentionW: 0,
+    push: 0, pushT: 0, pushIn: 0.35, pushHold: 0, pushOut: 0.8,   // a dolly push-in on the current framing (the landing)
   };
   const flashTmp = new THREE.Color();
 
@@ -321,6 +322,21 @@ export function create(ctx) {
     fx.vigPulse = Math.min(0.6, fx.vigPulse + vignette);
   }
   function kick(fovDelta = -3) { fx.fovKick = clamp(fx.fovKick + fovDelta, -12, 12); }
+  /** A dolly push-in on whatever the camera frames now (v3 landing): the distance comes in by `amount` (0..0.6) over `rise` s, holds
+   *  `hold` s and eases back over `release` s. Reduced motion halves it. */
+  function push(amount = 0.25, hold = 0.5, rise = 0.35, release = 0.8) {
+    const a = clamp(Number(amount) || 0, -0.4, 0.6) * (reducedMotion ? 0.5 : 1);   // a negative amount draws the camera back
+    if (a === 0) return false;
+    fx.push = a; fx.pushT = 0; fx.pushIn = Math.max(0.05, rise); fx.pushHold = Math.max(0, hold); fx.pushOut = Math.max(0.1, release);
+    return true;
+  }
+  function pushK() {
+    if (!fx.push) return 0;
+    const t = fx.pushT, a = fx.pushIn, h = fx.pushHold, r = fx.pushOut;
+    if (t >= a + h + r) { fx.push = 0; return 0; }
+    const e = t < a ? smoothstep(0, a, t) : t < a + h ? 1 : 1 - smoothstep(a + h, a + h + r, t);
+    return fx.push * e;
+  }
   /** Bias the camera focus toward a world point for a while (boss entrances, gates…). */
   function attention(position, duration = 2, weight = 0.4) {
     if (!position) { fx.attention = null; return; }
@@ -352,6 +368,7 @@ export function create(ctx) {
   const trophy = {
     on: false, hold: false, t: 0, holdT: 0, L: 0.5, dist: TROPHY.min ?? 1.6, crane: false, yaw: 0, r: 0.6,
     landmark: null, place: null, from: new THREE.Vector3(), subject: new THREE.Vector3(), measured: false,
+    lastFocus: new THREE.Vector3(), lastR: 0,   // actors' last measuring focus: the card's hold keeps the held fish framed
   };
   const subjTmp = new THREE.Vector3();
   let trophyK = 0;   // eased 0..1 weight of the trophy grade
@@ -409,8 +426,12 @@ export function create(ctx) {
     if (c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z)) {
       trophy.subject.set(c.x, c.y, c.z);
       trophy.r = Math.max(0.35, Number(mf.radius) || trophy.L * 0.5);
+      if (trophy.on) { trophy.lastFocus.copy(trophy.subject); trophy.lastR = trophy.r; }
       return;
     }
+    // the card's hold: the ceremony is over but the Wick still holds its fish, so the shot keeps the fish and its glory
+    // (the card covers the foot of a phone's frame; the head alone would leave the fish under it)
+    if (trophy.hold && trophy.lastR > 0) { trophy.subject.copy(trophy.lastFocus); trophy.r = trophy.lastR; return; }
     // fallback: the head (flame) of the Wick, or a point 0.9 m over the deck, toward the landing spot by pose
     let head = null;
     if (isReal(ctx.actors) && typeof ctx.actors.getHeadPos === 'function') {
@@ -530,7 +551,9 @@ export function create(ctx) {
     tgt.aim = T.aim ?? 0;
     tgt.ahead = 0;
     tgt.stiff = T.stiff ?? 2.4;
-    const up = trophyUp(trophy.L, T);
+    // a phone held upright: the catch card rises from the foot of the screen, so while it is up the held fish and its glory
+    // ride in the open top of the frame
+    const up = trophyUp(trophy.L, T) + (trophy.hold && W / H < 0.8 ? 0.24 : 0);
     const fit = trophyFit(T.fov ?? 44, trophy.r, trophy.dist, W / H, { across: trophyAcross(trophy.L), up });
     tgt.dist = fit.dist;   // the rule's distance (a phone held upright may step back, as raft presets do)
     tgt.fov = fit.fov;
@@ -664,12 +687,14 @@ export function create(ctx) {
     }
     yaw = wrapAngle(yaw);
 
-    // spherical placement around the focus
+    // spherical placement around the focus (a landing's push-in brings the distance in for a beat)
+    if (fx.push) fx.pushT += dt * clamp(Number(ctx.time?.timeScale ?? 1) || 0, 0, 1);   // on the game's clock: a slow-motion beat slows it too
+    const dist = cur.dist * (1 - pushK());
     const elev = clamp(cur.elev, 3, 85) * DEG;
     const sy = Math.sin(yaw), cy = Math.cos(yaw);
     const ce = Math.cos(elev), se = Math.sin(elev);
     fwd.set(-sy, 0, -cy);
-    camPos.set(fX.x + sy * ce * cur.dist, fY.x + se * cur.dist, fZ.x + cy * ce * cur.dist);
+    camPos.set(fX.x + sy * ce * dist, fY.x + se * dist, fZ.x + cy * ce * dist);
     lookTarget.set(fX.x + fwd.x * cur.aim, fY.x + cur.aimY, fZ.x + fwd.z * cur.aim);
 
     // subtle hand-held sway + a hint of the swell (a close-up breathes less; the held subject already rides the swell)
@@ -726,7 +751,7 @@ export function create(ctx) {
     }
     const L = Number(t.length);
     if (!(L > 0) || !Number.isFinite(L)) return false;
-    trophy.on = true; trophy.hold = false; trophy.t = 0; trophy.holdT = 0;
+    trophy.on = true; trophy.hold = false; trophy.t = 0; trophy.holdT = 0; trophy.lastR = 0;
     trophy.L = L;
     trophy.dist = trophyDistance(L, TROPHY);
     trophy.crane = trophyCranes(L, TROPHY);
@@ -954,7 +979,7 @@ export function create(ctx) {
       for (const k of GRADE_COL) out[k] = cTgt[k].getHex();
       return out;
     },
-    shake, flash, pulse, kick, attention,
+    shake, flash, pulse, kick, attention, push,
     setTrophyTarget,
     getCameraMode() { return mode; },
     /** Jump the rig straight to its current target (cuts, tests). */

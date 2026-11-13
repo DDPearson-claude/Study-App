@@ -59,7 +59,25 @@ vec3 gwP = vec3(position); vec3 gwN = vec3(normal); gwDeform(gwP, gwN);
 transformed = gwP${kind === 'outline' ? ' + normalize(gwN) * uGwThick' : ''}; vGwLocal = position; ${inst ? 'vGwFx = aFx;' : ''}`);
     }
     shader.vertexShader = vs;
-    if (fx !== 'none') {
+    if (fx === 'reveal' && kind !== 'outline') {
+      // the landing's reveal (v3): the night ink floods off the fish nose to tail with a band of pale light ahead of it.
+      // uGwRev = (front 0 nose → 1 tail, on 0..1, band width, band strength); uGwRevZ = the geometry's nose and tail z;
+      // uGwRevFlood = the light the revealed fish holds for a moment after (fading). Off (on = 0, flood = 0) it changes nothing.
+      let fs = shader.fragmentShader;
+      fs = fs.replace('#include <common>', `#include <common>
+varying vec3 vGwLocal;
+uniform vec4 uGwRev; uniform vec2 uGwRevZ; uniform vec3 uGwRevInk; uniform vec3 uGwRevCol; uniform float uGwRevFlood;`);
+      fs = fs.replace('#include <opaque_fragment>', `outgoingLight += uGwRevCol * uGwRevFlood;
+if (uGwRev.y > 0.001) {
+  float gwS = (uGwRevZ.x - vGwLocal.z) / max(1e-3, uGwRevZ.x - uGwRevZ.y);
+  float gwD = gwS - uGwRev.x;
+  float gwAhead = smoothstep(-0.5 * uGwRev.z, 0.5 * uGwRev.z, gwD);
+  outgoingLight = mix(outgoingLight, uGwRevInk, gwAhead * uGwRev.y);
+  outgoingLight += uGwRevCol * exp(-gwD * gwD / max(1e-4, uGwRev.z * uGwRev.z)) * uGwRev.w * uGwRev.y;
+}
+#include <opaque_fragment>`);
+      shader.fragmentShader = fs;
+    } else if (fx !== 'none') {
       let fs = shader.fragmentShader;
       fs = fs.replace('#include <common>', `#include <common>
 ${NOISE_GLSL}

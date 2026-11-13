@@ -462,5 +462,15 @@ function v1Script(createFn, seed) {
   }
 }
 
+section('the landing payoff: the swell and the chime by class only (bigger is lower, longer and fuller); a new species adds a shimmer');
+{
+  const C = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+  const v = C.map((c) => V3.landingVoicing(c));
+  ok(v.every((x, i) => i === 0 || (x.root < v[i - 1].root && x.swell > v[i - 1].swell && x.notes.length >= v[i - 1].notes.length)), 'each class rises lower and longer into a fuller chord');
+  ok(!v[0].bell && !v[1].bell && v[3].bell && v[4].bell, 'the bronze bell from Trophy up');
+  ok(V3.landingVoicing('keeper', { special: true }).shimmer > V3.landingVoicing('keeper').shimmer, 'a new species shimmers');
+  ok(V3.landingClass({ sizeClass: 'elder', ancient: true }) === 'ancient' && V3.landingClass({ legend: true }) === 'ancient' && V3.landingClass({ sizeClass: 'prize' }) === 'prize' && V3.landingClass({}) === 'keeper', 'landingClass: an Ancient or a legend plays the top row');
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -17,7 +17,7 @@
 //   04-hud-calm         HUD while sailing in the calm (day 2, 5 boons, 3 fish in the creel, bait,
 //                       perfect streak 2, one Ember out)
 //   05-banner           area-title banner (the lake name on arrival)
-//   06-toasts           a stack of three toasts (titled trial toast, lore line, warning)
+//   06-toasts           the toast slot (three raised; one shows at a time since the declutter pass)
 //   07-hud-reel         HUD while reeling (tension gauge, sweet band, needle, progress ring)
 //   08-catch-common     catch card of a common fish already in the Journal (no ribbons)
 //   09-catch-legendary  catch card of a legendary caught for the first time (NEW, lore, gilded)
@@ -110,7 +110,7 @@ const DESC = {
   '03-trials': 'Trials list from the title',
   '04-hud-calm': 'HUD sailing in the calm',
   '05-banner': 'area-title banner',
-  '06-toasts': 'three stacked toasts',
+  '06-toasts': 'the toast slot (one at a time)',
   '07-hud-reel': 'HUD while reeling',
   '08-catch-common': 'catch card, common, known species',
   '09-catch-legendary': 'catch card, legendary, first catch (NEW)',

@@ -71,7 +71,7 @@ uniform int uObsN;
 uniform vec4 uLP[MAX_L];      // light pos xyz, pool radius
 uniform vec4 uLC[MAX_L];      // light colour * strength, streak gain
 uniform int uLN;
-uniform vec4 uRaft;           // x, z, radius, speed
+uniform vec4 uRaft;           // x, z, radius, speed (v3: a negative w is the landing's hush, 0..1, the raft at rest)
 uniform sampler2D uDepthTex;  // world.getDepth baked over the arena (0 shallow .. 1 deep)
 uniform float uDepthScale;    // 1 / (2 · half-extent)
 uniform float uDepthOn;
@@ -110,9 +110,6 @@ float wNoise(vec2 p) {
 float softBands(float x, float n) {
   float y = x * n; float i = floor(y); float f = y - i;
   return (i + smoothstep(0.3, 0.7, f)) / n;
-}
-float toon3(float x) {
-  return smoothstep(0.02, 0.08, x) * 0.1 + smoothstep(0.14, 0.24, x) * 0.3 + smoothstep(0.42, 0.55, x) * 0.6;
 }
 // short wind-chop wavelets with analytic gradient (direction.xy, k, omega)
 const vec4 CH0 = vec4(0.894, 0.447, 1.85, 1.35);
@@ -458,7 +455,7 @@ void main() {
     if (d < 2.5) {
       float n = wNoise(xz * 2.2 + uTime * 0.6);
       foam += (1.0 - smoothstep(-0.2, 0.35 + n * 0.4, d)) * (0.35 + 0.25 * n) * smoothstep(-1.2, -0.2, d);
-      foam += (1.0 - smoothstep(0.0, 1.6, d)) * smoothstep(0.55, 0.75, n) * 0.25 * (0.4 + uRaft.w);
+      foam += (1.0 - smoothstep(0.0, 1.6, d)) * smoothstep(0.55, 0.75, n) * 0.25 * (0.4 + max(uRaft.w, 0.0));
     }
   }
 
@@ -485,6 +482,11 @@ void main() {
     float d = sqrt(dd);
     float k = age / life;
     float fade = (1.0 - k) * (1.0 - k) * smoothstep(0.0, 0.08, age);
+#ifdef GW_V3
+    // the landing's close-up (a cinematic): a plain ring near the raft fades out, so none sweeps round the Wick and its fish
+    // (art rule: never a ring around the raft or the player); far water keeps its rings
+    if (uRaft.w < 0.0) fade *= 1.0 + uRaft.w * (1.0 - smoothstep(5.0, 10.0, length(xz - uRaft.xy)));
+#endif
     float w = 0.06 + age * 0.08;
     float x1 = (d - rad) / w;
     float ring1 = exp(-x1 * x1);
@@ -561,6 +563,12 @@ void main() {
   float ndv = clamp(dot(N, V), 0.0, 1.0);
   float fres = pow(1.0 - ndv, 4.0);
   float fb = softBands(fres, 4.0);
+#ifdef GW_V3
+  // the landing's close-up puts the camera beside the Wick, and the banded fresnel's steps (circles round the camera's foot)
+  // then ring the Wick and its fish; the landing's hush (a negative uRaft.w) smooths them away (art rule: never a ring
+  // around the raft or the player)
+  fb = mix(fb, fres, clamp(-uRaft.w, 0.0, 1.0));
+#endif
 
   // ---- base: ink-dark, shallows lifted, painterly blotches, banded fresnel to the mist
   vec3 base = mix(uDeep, uShallow, shallow * 0.7);
@@ -605,8 +613,9 @@ void main() {
     att *= sqrt(att);
     float cut = 1.0 - smoothstep(R * 0.45, R, d);
     float pk = att * cut + cut * 0.035;
-    pk = mix(pk, toon3(pk), 0.45);
-    // no reach ring: a light's pool simply fades out where its reach ends (DESIGN §19.1)
+    // no reach ring and no band: a light's pool fades smoothly out to where its reach ends (DESIGN §19.1). The old cel
+    // banding (a 3-step toon on the pool) drew concentric rings round the raft's lights, which the landing's close-up and
+    // the Wick's flare turned into a ring round the player (art rule: never a ring around the raft or the player)
     vec3 L = normalize(lp.xyz - P);
     float diff = 0.3 + 0.7 * max(dot(N, L), 0.0);
     // warm lights lean gold on the water: amber laid over cold blue water otherwise drifts to
