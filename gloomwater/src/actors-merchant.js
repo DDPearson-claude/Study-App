@@ -184,9 +184,9 @@ export function createMerchant(ctx) {
 
   // ---------------------------------------------------------------- shadow + pick proxy
   const shMat = M(new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, opacity: 0.45, depthWrite: false, fog: true }));
-  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 5.4), shMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.03; object3d.add(shadow);
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 5.4), shMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.03; shadow.userData.noReflect = true; object3d.add(shadow);
   const proxy = new THREE.Mesh(xf(new THREE.CylinderGeometry(2.4, 2.4, 4.4, 10), { p: [0, 2.0, 0] }), new THREE.MeshBasicMaterial({ visible: false }));
-  proxy.name = 'merchantPick'; object3d.add(proxy); mats.push(proxy.material);
+  proxy.name = 'merchantPick'; proxy.userData.noReflect = true; object3d.add(proxy); mats.push(proxy.material);
 
   // ---------------------------------------------------------------- behaviour
   const position = new THREE.Vector3();          // mooring spot (truth for gameplay)

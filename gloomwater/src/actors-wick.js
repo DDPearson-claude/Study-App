@@ -232,7 +232,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const shadowMat = M(new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, opacity: 0.55, depthWrite: false, fog: true }));
   shadowMat.polygonOffset = true; shadowMat.polygonOffsetFactor = -1; shadowMat.polygonOffsetUnits = -1;
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.7), shadowMat);
-  shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.006; shadow.renderOrder = 1;
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.006; shadow.renderOrder = 1; shadow.userData.noReflect = true;
   group.add(shadow);
 
   // ---------------------------------------------------------------- state

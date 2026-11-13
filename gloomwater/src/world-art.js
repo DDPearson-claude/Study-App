@@ -3,7 +3,7 @@
 // repeats are instanced; atmosphere (rings, vault, shafts, mist, particles, halos)
 // lives in shaders. Everything created here is tracked in a bin and disposed on swap.
 import * as THREE from 'three';
-import { glowMaterial, INK } from './toon.js';
+import { glowMaterial, INK, setupSurface, evenOutline, REFLECT_LAYER } from './toon.js';
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, rockGeo, taperTube, latheGeo, crystalGeo, wobble, lin, mixArr, scaleArr, fbm3, vnoise3, makeRingNoise, ringNoise } from './world-geo.js';
 import { inkToon, outlineMat, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
@@ -20,6 +20,20 @@ const KIT = {
   glasswater: { rock: 0x10142e, rockHi: 0x1e2652, moss: 0x262f66, mossHi: 0x3c4a94, wood: 0x1c1d2e, stone: 0x4a5488, iron: 0x0c0e1c, bone: 0x9aa2d2, organic: 0x2a3472 },
   paleabyss: { rock: 0x18161e, rockHi: 0x2c2a34, moss: 0x46424e, mossHi: 0x8a8494, wood: 0x221e22, stone: 0x7c7684, iron: 0x111014, bone: 0xddd4c4, organic: 0xd2c8b6 },
 };
+
+// Clear Night (docs/v3/clarity/SPEC.md §8.1): the kit's reflectance, so the key light can register on it. The hues
+// above are kept; each is scaled in linear RGB when the kit is built (ink-dark stone only ever showed the fog).
+const ALBEDO = { rock: 2.6, rockHi: 2.0, moss: 1.6, mossHi: 1.3, wood: 1.4, woodHi: 1.4 };
+// The key light of each lake (the moon / vault glow): azimuth from north (+ = east) and elevation, in degrees. A
+// three-quarter back light from the upper left behind the scene: rims on the left and the top, shadows falling
+// toward the camera and to the right, the glitter path up-left. world.js lights the lake from arena.keyDir.
+const KEY_LIGHT = { mossmere: [-68, 36], sporewood: [-56, 42], glasswater: [-76, 30], paleabyss: [-48, 50] };
+/** Unit vector toward a lake's key light. */
+export function keyLightDir(theme, out = new THREE.Vector3()) {
+  const [az, el] = KEY_LIGHT[theme] || KEY_LIGHT.mossmere;
+  const a = az * Math.PI / 180, e = el * Math.PI / 180;
+  return out.set(Math.sin(a) * Math.cos(e), Math.sin(e), -Math.cos(a) * Math.cos(e));
+}
 
 // Per-lake sky (DESIGN §19.2): nebula 1 low, left of north (the title camera opens looking ~30° west
 // of north), so its glow spills behind the hero landmark's left flank and the far water mirrors it
@@ -53,7 +67,8 @@ export function buildArena(ctx, L, opts = {}) {
   // statue orbs, candles on ruins and landmarks); falls back to `lamp`. Lamps on the water stay cold.
   if (zone.palette && zone.palette.candle == null) pal.candle = pal.lamp;
   const theme = L.theme;
-  const K = {}; for (const [k, v] of Object.entries(KIT[theme] || KIT.mossmere)) K[k] = lin(v);
+  const K = {}; for (const [k, v] of Object.entries(KIT[theme] || KIT.mossmere)) K[k] = scaleArr(lin(v), ALBEDO[k] || 1);
+  const keyDir = keyLightDir(theme);
   const PL = {}; for (const [k, v] of Object.entries(pal)) if (typeof v === 'number' && k !== 'fogDensity' && k !== 'stars') PL[k] = lin(v);
   // the accent lights a candle anchor casts lean pale gold: warm on the stone, never a second lantern
   const candleLight = mixHex(pal.candle, pal.light, 0.18);
@@ -87,11 +102,16 @@ export function buildArena(ctx, L, opts = {}) {
 
   // ---------------------------------------------------------- shared materials
   const rimC = mixHex(pal.far, pal.light, 0.45);
-  const rockMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: rimC, rimPower: 0.56, steps: 3 }, { fogScale: 0.9, fogMax: 1 }));
-  const orgMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3 }, { fogScale: 0.9, fogMax: 1 }));
+  // (floor: the material's share of the vault's glow under its shadows — the far layers, cliffs and landmarks, take a
+  // little more of it than the islands: depth by tone, where the fog used to do it)
+  // stone carries strata, cracks and lichen and is wet (darker, glinting) for 0.6 m above the water; timber, bone and
+  // stalks carry a grain running up them (toon.js surface shading; the detail is compiled out on low)
+  const rockMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'stone', wet: 0.6, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
+  const orgMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'wood', detailAmount: 0.7, grain: [0, 1, 0], wet: 0.5, gloss: 0.1, shine: 56, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
   const glowMat = M(new THREE.MeshBasicMaterial({ vertexColors: true, fog: true, toneMapped: false }));
-  const olRock = M(outlineMat(0.11, INK));
-  const olOrg = M(outlineMat(0.06, INK));
+  // ink lines: a little lighter than before and evened on screen (toon.evenOutline), so near rocks are not ringed heavy
+  const olRock = M(evenOutline(outlineMat(0.09, INK)));
+  const olOrg = M(evenOutline(outlineMat(0.05, INK)));
 
   const kit = { rock: [], org: [], glow: [], fine: [] };
   const colorRock = (mossAmt = 1, wet = true) => (x, y, z, nx, ny, nz) => {
@@ -153,9 +173,10 @@ export function buildArena(ctx, L, opts = {}) {
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     g.setIndex(idx);
     g.computeVertexNormals();
-    const cliffMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.5, rimColor: pal.far, rimPower: 0.5, steps: 3 }, { fogScale: 0.62, fogMax: 0.82 }));
+    const cliffMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.5, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', wet: 0.7, gloss: 0.08, shine: 48, floor: 1.7 }, { fogScale: 0.62, fogMax: 0.82 }));
     const cliffs = new THREE.Mesh(g, cliffMat);
     cliffs.name = 'cliffs';
+    setupSurface(cliffs);
     group.add(cliffs);
     // boulders along the base + spires on the crest (merged into the rock mesh)
     const nB = Math.round(R * (low ? 0.6 : 0.95));
@@ -174,7 +195,7 @@ export function buildArena(ctx, L, opts = {}) {
 
   mark('cliffs');
   // ==================================================================== VAULT DOME
-  let domeMat;
+  let domeMat, starK = 1;
   {
     const prof = [];
     const n = 40;
@@ -189,6 +210,12 @@ export function buildArena(ctx, L, opts = {}) {
     dome.name = 'vault';
     dome.renderOrder = 50; // drawn after other opaques so early-z skips hidden pixels
     dome.frustumCulled = false;
+    dome.layers.enable(REFLECT_LAYER);   // the lake mirrors the vault
+    // in the lake's smaller reflection target a star covers more of the picture and is drawn dimmer for it (the dome
+    // keeps a star's energy, not its brightness): give the mirrored vault that brightness back, so stars show in the water
+    dome.onBeforeRender = (renderer, scene, camera) => {
+      domeMat.uniforms.uStars.value = starK * (camera.layers.mask === (1 << REFLECT_LAYER) ? 1.8 : 1);
+    };
     group.add(dome);
   }
 
@@ -251,6 +278,7 @@ export function buildArena(ctx, L, opts = {}) {
       mesh.name = 'ring' + i;
       mesh.renderOrder = -20 + (nR - 1 - i);
       mesh.frustumCulled = false;
+      mesh.layers.enable(REFLECT_LAYER);
       group.add(mesh);
       rings.push({ mesh, mat: m, t });
     }
@@ -282,16 +310,19 @@ export function buildArena(ctx, L, opts = {}) {
     im.instanceMatrix.needsUpdate = true;
     im.frustumCulled = false;
     im.name = 'stalactites';
+    im.layers.enable(REFLECT_LAYER);
     group.add(im);
   }
 
   // ==================================================================== LIGHT SHAFTS
+  const keyAz = new THREE.Vector3(keyDir.x, 0, keyDir.z).normalize();
   const shaftList = L.cracks.map((c) => {
     const r0 = Math.hypot(c.x, c.z);
     const topY = domeY(L, r0) - 3;
     return {
       bottom: V(c.x, 0, c.z),
-      top: V(c.x + L.lightDir.x * c.lean * topY, topY, c.z + L.lightDir.z * c.lean * topY),
+      // the beams lean toward the key light (the same azimuth the shadows fall from), a little more than they did
+      top: V(c.x + keyAz.x * Math.max(c.lean, 0.3) * topY, topY, c.z + keyAz.z * Math.max(c.lean, 0.3) * topY),
       wTop: c.width * 0.45, wBottom: c.width * 1.5, phase: c.phase, power: c.power,
     };
   });
@@ -645,7 +676,8 @@ export function buildArena(ctx, L, opts = {}) {
     // landmarks rise behind the Descent Gate (north, i.e. up-screen, for a gate at the lake centre)
     const ga = Math.hypot(L.gate.x, L.gate.z) < L.R * 0.2 ? -Math.PI / 2 : Math.atan2(L.gate.z, L.gate.x);
     const at = (a, extra) => { const r = L.shoreR(a) + extra; return [Math.cos(a) * r, Math.sin(a) * r]; };
-    const inkC = mixArr(PL.ink, K.rock, 0.6);
+    // (Clear Night: the landmarks are stone the key light can model, lit faces a step over their shadow sides, not flat ink)
+    const inkC = mixArr(PL.ink, mixArr(K.rock, K.rockHi, 0.45), 0.68);
     if (theme === 'mossmere') {
       // the Sunken Gate: twin towers and a broken arch
       const [x, z] = at(ga, 16);
@@ -731,22 +763,23 @@ export function buildArena(ctx, L, opts = {}) {
   mark('props');
   // ---------------- merge statics
   const statics = [];
-  const addStatic = (list, material, outline, name) => {
+  const addStatic = (list, material, outline, name, cast = true) => {
     const g = merge(list);
     if (!g) return null;
     G(g);
     const mesh = new THREE.Mesh(g, material);
     mesh.name = name;
     if (outline) { const o = new THREE.Mesh(g, outline); o.name = name + ':outline'; o.renderOrder = -1; mesh.add(o); }
+    setupSurface(mesh, { cast });   // the key light's shadow and the lake's reflection (outlines take neither)
     group.add(mesh);
     statics.push(mesh);
     return mesh;
   };
   addStatic(kit.rock, rockMat, olRock, 'rocks');
   addStatic(kit.org, orgMat, olOrg, 'organics');
-  addStatic(kit.fine, orgMat, null, 'fine');
+  addStatic(kit.fine, orgMat, null, 'fine', false);   // reeds and coral twigs: too fine to cast
   addStatic(kit.glow, glowMat, null, 'glows');
-  const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3 }, { fogScale: 0.5, fogMax: 0.72 }));
+  const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', detailAmount: 0.8, gloss: 0.05, floor: 1.7 }, { fogScale: 0.5, fogMax: 0.72 }));
   addStatic(hero.ink, heroMat, null, 'landmarks');
   addStatic(hero.glow, glowMat, null, 'landmarkGlows');
 
@@ -755,9 +788,12 @@ export function buildArena(ctx, L, opts = {}) {
   const floaters = [];  // {mesh, i, x, z, y, ry, s, bob, hover, spin, halo, dx, dz, ph}
   const floatMeshes = [];
   const m4 = new THREE.Matrix4(), q4 = new THREE.Quaternion(), e4 = new THREE.Euler(), s4 = new THREE.Vector3(), p4 = new THREE.Vector3();
-  const makeFloatType = (geo, material, max, name) => {
+  const makeFloatType = (geo, material, max, name, sf = {}) => {
     const im = new THREE.InstancedMesh(G(geo), material, max);
     im.count = 0; im.frustumCulled = false; im.name = name;
+    // buoys and what stands up out of the water are mirrored and shadowed; what lies flat on it (pads, caps) only
+    // takes the shadow
+    setupSurface(im, { cast: sf.cast !== false, reflect: sf.reflect !== false });
     group.add(im); floatMeshes.push(im);
     return im;
   };
@@ -831,8 +867,8 @@ export function buildArena(ctx, L, opts = {}) {
     prep(flowerG, { color: [1, 1, 1] });
     const flowerMat = M(glowMaterial(pal.accent, 2.4));
     const nP = low ? 40 : 75;
-    const padT = makeFloatType(pad, padMat, nP, 'lilypads');
-    const flT = makeFloatType(flowerG, flowerMat, 18, 'lilyflowers');
+    const padT = makeFloatType(pad, padMat, nP, 'lilypads', { cast: false, reflect: false });
+    const flT = makeFloatType(flowerG, flowerMat, 18, 'lilyflowers', { reflect: false });
     // lily pads cluster in shallows around islands and the shore
     let placed = 0;
     for (let tries = 0; tries < 800 && placed < nP; tries++) {
@@ -849,7 +885,7 @@ export function buildArena(ctx, L, opts = {}) {
     prep(capG, { colorFn: (x, y) => (y < 0.01 ? scaleArr(PL.glow, 1.6) : mixArr(K.cap, K.capHi, y * 4)) });
     const capMat = M(new THREE.MeshBasicMaterial({ vertexColors: true, fog: true, toneMapped: false }));
     const n = low ? 22 : 40;
-    const capT = makeFloatType(capG, capMat, n, 'floatcaps');
+    const capT = makeFloatType(capG, capMat, n, 'floatcaps', { reflect: false });
     for (const p of clusterPts(n, 5, 8, 2, (x, z) => clearOf(x, z, 1))) addFloater([capT], p.x, p.z, { s: rng.range(0.7, 1.6), bob: 0.5, drift: rng.range(0.6, 1.8), halo: rng() < 0.5 ? scaleArr(rng() < 0.5 ? PL.glow : PL.accent, 0.35) : null, haloSize: 1.1, haloY: 0.05 });
   } else if (theme === 'glasswater') {
     const shG = crystalGeo(0.16, 0.9, 6, 0.35); shG.translate(0, -0.45, 0);
@@ -866,7 +902,7 @@ export function buildArena(ctx, L, opts = {}) {
     prep(flG, { color: [1, 1, 1] });
     const flMat = M(glowMaterial(pal.glow, 3));
     const n = low ? 45 : 80;
-    const cT = makeFloatType(candG, candMat, n, 'candles');
+    const cT = makeFloatType(candG, candMat, n, 'candles', { cast: false, reflect: false });
     const fT = makeFloatType(flG, flMat, n, 'candleflames');
     for (const p of clusterPts(n, 6, 9, 1.4, (x, z) => clearOf(x, z, 0.8))) {
       const lit = rng() < 0.42;
@@ -923,6 +959,7 @@ export function buildArena(ctx, L, opts = {}) {
     const spiral = createSpiral(low ? 70 : 140, rad, rng);
     G(spiral.geo); M(spiral.mat);
     spiral.uniforms.uColor.value.set(pal.glow); spiral.uniforms.uFoam.value.set(pal.foam);
+    setupSurface(stoneMesh); glyphMesh.layers.enable(REFLECT_LAYER); column.layers.enable(REFLECT_LAYER);
     gg.add(stoneMesh, glyphMesh, disc, column, spiral.points);
     group.add(gg);
     const haloI = halos.add(L.gate.x, 1.2, L.gate.z, [0, 0, 0], rad * 4.5);
@@ -1040,7 +1077,7 @@ export function buildArena(ctx, L, opts = {}) {
     farLum.copy(base.far).lerp(base.light, 0.12).multiplyScalar(1.12);
     farLum.lerp(tmpA.copy(base.far).multiplyScalar(0.28).lerp(base.cold, 0.25), n * 0.92);   // the far ruins keep the lake's hue at night
     farLum.lerp(tmpA.copy(farLum).lerp(base.dawnMist, 0.35).lerp(base.warm, 0.22).multiplyScalar(1.22), w * 0.65);
-    inkNear.copy(base.ink).lerp(env.fog, 0.1);
+    inkNear.copy(base.ink).lerp(env.fog, 0.14);   // (Clear Night: the nearest ring's ink keeps a breath of the air, never black)
     const nR = rings.length;
     for (let i = 0; i < nR; i++) {
       const r = rings[i], t = r.t, u = r.mat.uniforms;
@@ -1059,7 +1096,7 @@ export function buildArena(ctx, L, opts = {}) {
     du.uHorizon.value.copy(farLum).lerp(env.fog, 0.4);
     du.uMid.value.copy(env.fog).lerp(base.ink, 0.35);
     du.uZenith.value.copy(base.ink).lerp(env.fog, 0.18);
-    du.uStars.value = env.starK;
+    starK = env.starK; du.uStars.value = starK;
     du.uStarDen.value = env.starDen;
     du.uNebK.value = env.nebK;
     du.uBandCol.value.copy(env.fog).lerp(farLum, 0.5).multiplyScalar(0.35);
@@ -1072,6 +1109,9 @@ export function buildArena(ctx, L, opts = {}) {
     sheets.uniforms.uColor.value.copy(env.fog).lerp(farLum, 0.22 - 0.12 * n);
     sheets.uniforms.uAmt.value = 0.55 + 0.5 * n;
     halos.uniforms.uBright.value = env.glowK;
+    // the world's ink lines keep a breath of the lake's air (violet ink, never a black hole in clear air; the tube props —
+    // stalks, ribs, lamp arms — draw as their ink hull, so this is also their body colour)
+    olRock.color.set(INK).lerp(env.fog, 0.1 + 0.2 * n); olOrg.color.copy(olRock.color);
     for (const p of particles) p.uniforms.uBright.value = env.partK;
     // ink outlines pick up a hint of fog at distance automatically (fog:true)
   }
@@ -1126,6 +1166,12 @@ export function buildArena(ctx, L, opts = {}) {
   }
   const _v2 = new THREE.Vector2();
 
+  // halos are sized in pixels of whatever they are drawn into: the frame, or the lake's smaller reflection target
+  halos.points.layers.enable(REFLECT_LAYER);
+  halos.points.onBeforeRender = (renderer) => {
+    const rt = renderer.getRenderTarget();
+    halos.uniforms.uViewH.value = rt ? rt.height : viewH;
+  };
   group.add(halos.points);
 
   function dispose() {
@@ -1138,7 +1184,7 @@ export function buildArena(ctx, L, opts = {}) {
   }
 
   return {
-    group, anchors, update, applyMood, dispose, rings, statics, sky,
+    group, anchors, update, applyMood, dispose, rings, statics, sky, keyDir,
     crackTop, crackBottom, dockBuoys, halos,
     setGate: (s, instant) => gate.set(s, instant),
     get gateState() { return gate.state; },

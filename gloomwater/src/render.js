@@ -19,6 +19,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { clamp, damp, lerp, smoothstep, easeInOutSine } from './core.js';
 import { GradeShader } from './render-grade.js';
+import { setToonTier } from './toon.js';   // CLARITY LANE B: tier settings
 import {
   v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
@@ -38,6 +39,16 @@ const TIERS = {
   medium: { pr: 1.75, samples: 2, bloomScale: 0.5,  bloomMips: 5, fringe: 1, sharpen: 0.30, maxPx: 2.1e6 },
   high:   { pr: 2.0,  samples: 4, bloomScale: 0.75, bloomMips: 5, fringe: 1, sharpen: 0.30, maxPx: 3.7e6 },
 };
+// >>> CLARITY LANE B: tier settings
+// shadow = the key light's shadow-map size (0 = none), shadowEvery = refresh every n-th frame, shadowBox = half-size (m)
+// of its box round the raft, reflect = the lake's planar-reflection target as a share of the drawing buffer (0 = the
+// analytic water). Low pays for none of it (docs/v3/clarity/SPEC.md §10).
+const TIERS_B = {
+  low:    { shadow: 0,    shadowEvery: 1, shadowBox: 0,  reflect: 0 },
+  medium: { shadow: 1024, shadowEvery: 2, shadowBox: 34, reflect: 1 / 3 },
+  high:   { shadow: 2048, shadowEvery: 1, shadowBox: 42, reflect: 0.5 },
+};
+// <<< CLARITY LANE B
 const TIER_ORDER = ['low', 'medium', 'high'];
 
 // Camera presets. elev = camera elevation above the focus (deg), dist = focus→camera (m),
@@ -119,6 +130,25 @@ export function create(ctx) {
   renderer.info.autoReset = false;       // count every pass of the frame (reset in render())
   const canvas = renderer.domElement;
   canvas.setAttribute('tabindex', '-1');
+  // >>> CLARITY LANE B: shadow map
+  // One shadow map, the key light's (world.js applyKeyLight owns the light, its box and its refresh beat). On high the
+  // toon materials read it through three's soft filter, on medium through their own 4-tap one (toon.js), so the
+  // renderer's type is Basic there; low has no shadow map at all.
+  renderer.shadowMap.enabled = false;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  let tierB = TIERS_B.high;
+  function applyTierB(name) {
+    tierB = TIERS_B[name] || TIERS_B.medium;
+    const on = tierB.shadow > 0, type = name === 'high' ? THREE.PCFSoftShadowMap : THREE.BasicShadowMap;
+    if (renderer.shadowMap.enabled !== on || renderer.shadowMap.type !== type) {
+      renderer.shadowMap.enabled = on;
+      renderer.shadowMap.type = type;
+      // lit materials compile the shadow lookup in or out: have them rebuilt on their next draw
+      scene?.traverse?.((o) => { const m = o.material; if (m && m.isMeshToonMaterial) m.needsUpdate = true; });
+    }
+    setToonTier(name);
+  }
+  // <<< CLARITY LANE B
 
   const z0 = ctx.data?.ZONES?.[0]?.palette;
   const scene = new THREE.Scene();
@@ -213,6 +243,7 @@ export function create(ctx) {
     bloomPass.nMips = clamp(t.bloomMips | 0, 1, bloomPass.bloomTintColors.length);
     bloomPass.bloomTintColors.forEach((c, i) => c.setScalar(i < bloomPass.nMips ? 1 : 0));
     buildComposer(ctx.isMobile ? 0 : t.samples);
+    applyTierB(name);   // CLARITY LANE B: tier settings
     const m = gradePass.material;
     const sharpenOn = t.sharpen > 0 ? 1 : 0;
     gu.uSharpen.value = t.sharpen;
@@ -986,6 +1017,9 @@ export function create(ctx) {
     render() {
       sampleFps(performance.now());
       renderer.info.reset();
+      // >>> CLARITY LANE B: planar-reflection hook (the lake mirrored into water's own target, before the main render)
+      ctx.water?.renderReflection?.(renderer, scene, camera, tierB);
+      // <<< CLARITY LANE B
       composer.render(ctx.time?.dt || 0.016);
     },
 
@@ -1050,6 +1084,7 @@ export function create(ctx) {
     },
   };
   Object.defineProperty(api, 'composer', { get: () => composer });
+  Object.defineProperty(api, 'clarity', { get: () => tierB });   // CLARITY LANE B: tier settings (world's key light and water read them)
   Object.defineProperty(api, 'bloomPass', { get: () => bloomPass });
   return api;
 }

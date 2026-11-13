@@ -24,9 +24,13 @@ export function createRaft(ctx) {
   const deck = new THREE.Group(); tilt.add(deck);
   let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
 
-  const woodMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.14, rimPower: 0.78 }));
+  // Clear Night: the timbers carry a grain along the planks, darker plank joints and a wet waterline; iron glints
+  // (the timbers also reflect about twice the light they did: at 3 % the lantern could not register on the deck)
+  const WOOD = 2.0;
+  const lit = (hex, k = WOOD) => new THREE.Color(hex).multiplyScalar(k);
+  const woodMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.14, rimPower: 0.78, detail: 'wood', detailAmount: 1.5, grain: [0, 0, 1], plank: 0.328, wet: 0.16, gloss: 0.2, shine: 10 }));
   const darkWood = M(toonMaterial({ color: 0x2b1e14, rim: 0.32 }));
-  const ironMat = M(toonMaterial({ color: 0x2e3034, rim: 0.5 }));
+  const ironMat = M(toonMaterial({ color: 0x2e3034, rim: 0.5, gloss: 0.5, shine: 90 }));
   const ropeMat = M(toonMaterial({ color: 0x8c7552, rim: 0.3 }));
 
   // ---------------------------------------------------------------- hull: planks + floats + lashings
@@ -37,12 +41,12 @@ export function createRaft(ctx) {
     const p = g.attributes.position;
     for (let k = 0; k < p.count; k++) { const z = p.getZ(k); if (Math.abs(z) > len / 2 - 0.01) p.setX(k, p.getX(k) + (rnd() - 0.5) * 0.04); p.setY(k, p.getY(k) + Math.sin(z * 2 + i) * 0.006); }
     xf(g, { p: [x + (rnd() - 0.5) * 0.02, DECK_Y - 0.045, (rnd() - 0.5) * 0.16], r: [0, (rnd() - 0.5) * 0.04, 0] });
-    planks.push(paint(g, woods[i]));
+    planks.push(paint(g, lit(woods[i])));
   }
   const staticParts = [...planks], ropeParts = []; // merged into two meshes below (few draw calls)
   const logs = [];
-  for (const z of [-0.85, 0.85]) logs.push(paint(xf(new THREE.CylinderGeometry(0.1, 0.1, 2.25, 10), { r: [0, 0, Math.PI / 2], p: [0, 0.09, z] }), 0x241911));
-  logs.push(paint(xf(new THREE.CylinderGeometry(0.08, 0.08, 2.5, 8), { r: [Math.PI / 2, 0, 0], p: [0, 0.07, 0] }), 0x241911));
+  for (const z of [-0.85, 0.85]) logs.push(paint(xf(new THREE.CylinderGeometry(0.1, 0.1, 2.25, 10), { r: [0, 0, Math.PI / 2], p: [0, 0.09, z] }), lit(0x241911, 1.6)));
+  logs.push(paint(xf(new THREE.CylinderGeometry(0.08, 0.08, 2.5, 8), { r: [Math.PI / 2, 0, 0], p: [0, 0.07, 0] }), lit(0x241911, 1.6)));
   staticParts.push(...logs);
   const lash = ropeParts;
   for (const z of [-0.85, 0.85]) for (let i = 0; i < 6; i++) {
@@ -57,7 +61,7 @@ export function createRaft(ctx) {
   // v3: the pole is its own mesh so the measuring close-up can step it aside when it stands in front of the catch
   // (v1 / v2 keep it merged into the hull exactly as before)
   const poleOwn = !!ctx.data?.V3_ENABLED;
-  if (!poleOwn) staticParts.push(paint(poleG, 0x2b1e14));
+  if (!poleOwn) staticParts.push(paint(poleG, lit(0x2b1e14, 1.6)));
   const wraps = poleOwn ? [] : ropeParts;   // v3: the pole's rope wraps go with the pole (they step aside with it)
   for (const y of [0.55, 0.62, 2.35, 2.42]) wraps.push(xf(new THREE.TorusGeometry(0.052, 0.012, 4, 10), { p: [-0.86 + (y > 2 ? 0.18 : 0), y, -1.04 + (y > 2 ? 0.15 : 0)], r: [Math.PI / 2, 0, 0] }));
 
@@ -79,7 +83,8 @@ export function createRaft(ctx) {
   const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.24, 12, 1, true), glassMat); glass.position.y = -0.46; glass.renderOrder = 4; lantern.add(glass);
   const lflame = makeFlame({ color: 0xffa64a, size: 0.75, glow: 0.5 }); lflame.group.position.y = -0.56; lantern.add(lflame.group); mats.push(...lflame.mats);
   const halo = glowSprite({ color: 0xffa64a, size: 2.2, opacity: 0.26, falloff: 3.2 }); halo.position.y = -0.46; halo.renderOrder = 3; lantern.add(halo); mats.push(halo.material);
-  const light = new THREE.PointLight(0xffb05a, 9, 18, 1.45); light.position.y = -0.46; light.name = 'lanternLight'; lantern.add(light);
+  // the one warm light: inverse-square falloff (decay 2), its intensity set by actors so the deck 1.5 m under it is lit as it was
+  const light = new THREE.PointLight(0xffb05a, 11.9, 18, 2); light.position.y = -0.46; light.name = 'lanternLight'; lantern.add(light);
 
   // ---------------------------------------------------------------- brazier
   const brazier = new THREE.Group(); brazier.position.set(-0.64, DECK_Y, 0.84); deck.add(brazier);
@@ -126,7 +131,7 @@ export function createRaft(ctx) {
   outlineSmooth(hull, 0.02); deck.add(hull);
   let pole = null;
   if (poleOwn) {
-    pole = new THREE.Mesh(paint(poleG, 0x2b1e14), woodMat); pole.name = 'raftPole'; outlineSmooth(pole, 0.02); deck.add(pole);
+    pole = new THREE.Mesh(paint(poleG, lit(0x2b1e14, 1.6)), woodMat); pole.name = 'raftPole'; outlineSmooth(pole, 0.02); deck.add(pole);
     pole.add(new THREE.Mesh(mergeGeos(wraps), ropeMat));
   }
   deck.add(new THREE.Mesh(mergeGeos(ropeParts), ropeMat));
@@ -207,7 +212,7 @@ export function createRaft(ctx) {
   // ---------------------------------------------------------------- soft contact shadow on the water (not tilted)
   const shMat = M(new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, opacity: 0.5, depthWrite: false, fog: true }));
   const waterShadow = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.9), shMat);
-  waterShadow.rotation.x = -Math.PI / 2; waterShadow.renderOrder = 0; yawGroup.add(waterShadow);
+  waterShadow.rotation.x = -Math.PI / 2; waterShadow.renderOrder = 0; waterShadow.userData.noReflect = true; yawGroup.add(waterShadow);
 
   // ---------------------------------------------------------------- state
   let level = 0;
