@@ -3874,6 +3874,13 @@ export const AUTOFISH = {
     camera: {
       from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 }, settleSwarm: 8,
       margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45,
+      // the frame keeps a little more room at its foot (the hands under the fish) and the flame's tip is kept as well as its core
+      // (flameTip × the head's radius above the core); follow = the spring ω (1/s) that carries the fitted target (the hand-over
+      // from the reveal's fit to the pose's never jumps); at the present the landing's kick and bloom are scaled (presentKick,
+      // presentBloom: the lens is already close) and an Elder's pull-back is a breath (`breath` × landing.pull)
+      // finRoom widens the fish's box past its named points (fins, a flapping tail); the fitted target is live through the reveal
+      // and the lift and frozen settleAfter s after the present (then followStill carries what is left before the pause)
+      headroom: 0, footroom: 0.03, flameTip: 0.5, finRoom: 1.1, follow: 10, followStill: 18, settleAfter: 0.12, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52 },
         both:      { elev: 10, fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'] },

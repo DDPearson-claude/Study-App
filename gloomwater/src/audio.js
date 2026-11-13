@@ -29,29 +29,17 @@
 //                                   then rings only the alert. A bite with a biteTell but no tell event voices it at once.
 //   sign:spawn {kind:'rise', sizeClass, x, z} (and a per-ring sign:rise, deduped by id) → rise_plip (Small, Keeper) or
 //                                   rise_gulp (Prize+), placed on the ring.
-//   fishing.view.measure.phase 'cord' → the knotted cord: knot ticks (cord_tick, rising an octave) and a class_chime as
-//                                   the count passes each Prize / Trophy / Elder threshold of that species.
-//   fish:measured                 → seal_stamp (ink stamp / oxblood wax / black wax and ribbon; an Ancient's gold thread)
-//                                   at the stamp, silencing any knot still due; Murk's far bell for an Old Ledger record.
-//                                   Without a ceremony on screen the cord runs compressed first, then the stamp.
-//   phase:change gloomtide (v3 run) → night_rise (the Night Rise motif) in every mode; Gloomtide keeps gloom_rise first.
-//   swarm:window open / close     → gloom_rise when a Lantern swarm comes; night_rise again when its window closes.
-//   a Stillnight (any quiet night: Still, Lantern's quiet nights and tail, a lamp-watch) plays the `stillnight` mood
-//                                   and the Stillnight bed (night air + stillnight_bed breaths) instead of the gloom mood.
-//
-// v3 automatic fishing (DESIGN §25.6, §25.14.2a Au2; audio-v3.js beatSounds, audio-af.js voices). The play's sound comes only
-// from the payloads (class, `ancient`, class length, mean fitted tier, beat), never a species:
-//   fishing:strike {grade}        → strike_clean / _struck / _early / _late, weighted by the class; the play begins
-//                                   (fishing:hook with a grade then rings nothing more)
-//   fishing:reel {phase, …}       → take: reel_take · gain / lift: reel_ratchet (fast and light → slow and heavy) · run:
-//                                   line_hiss (the drag rising; a Trophy+ tows the raft) · hold: line_hold (one low note) ·
-//                                   surge: surge_splash + strain_whine (one semitone lower per mean tier) · glimpse: fish_roll
-//                                   / fish_skitter / fish_pass · leap: leap_slap · scare: scare_splash, the line's hum stops for
-//                                   its slack moment · lastStand: reel_scream + the strain + the drone swelling · still: silence
-//                                   (hum, drone and score), then still_crash · place (P2): line_grind / foul_clank
-//   the line's hum (a loop, by class length) under the whole play; the Elder / Ancient drone on the music bus
-//   music by class (AUTOFISH.play[class].music): Small the day's bed · Keeper + a soft pulse · Prize / Trophy / Elder `reel`
-//                                   low / mid / full · Ancient + the heartbeat · a legend the boss mood; a Small never starts `reel`
+//   the show (docs/v3/show/SPEC.md §2.8; the measuring ceremony's sounds re-timed):
+//   fishing:show {phase:'lift'}   → show_lift (a wet haul by class; from Trophy a creak of rope and deck)
+//   fishing:show {phase:'hold'}   → show_present (the present's flourish, by class; the catch's fanfare) and, for a personal
+//                                   best or a class first, record_chime just behind it
+//   fishing:show {phase:'pause'}  → nothing new: the score sits back for the still (the hush)
+//   show:beat {kind:'flap'|'drip'} → show_flap (a wet slap, by weight) / show_drip (actors emits them)
+//   card:count {length, dur}      → the knotted cord's ticks (cord_tick, rising an octave) and a class_chime as the count
+//                                   passes each Prize / Trophy / Elder threshold of that species, under the card's count
+//   card:stamp {seal, records}    → seal_stamp (ink stamp / oxblood wax / black wax and ribbon; an Ancient's gold thread) as
+//                                   the card's stamp presses; Murk's far bell for an Old Ledger record
+//   fish:measured                 → (silent: the records are written; the card sounds them)
 //   fishing:escaped {reason}      → loss_snap (snapped; staggered with the hit first) / loss_thrown / loss_spat / loss_spooled /
 //                                   loss_fouled; the score drops for the quiet beat; fish:escaped (the note) → gotaway (Trophy+)
 //   fishing:caught                → the species' voice, if it has one (the reveal: never before)
@@ -101,7 +89,7 @@ export function create(ctx) {
   let lastProgress = 0, wasDanger = false, wasSurgeWarn = false, wasClean = false, statsT = 99, statsCache = null, fishIdle = 0;
   let strain = null, charge = null, aura = null, water = null;
   const scratch = { volume: 1, pitch: 1, pan: 0, delay: 0, crit: false, big: false, elite: false, perfect: false, dying: false, force: false, rarity: undefined, power: undefined, anchored: undefined, resource: undefined,
-    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined };
+    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined, k: undefined, creak: undefined };
   let inPointer = false, zapFrame = -1;
   let rmsBuf = null;
   let override = null;          // debug: force score params, e.g. {intensity: 0.8, tension: 0.6}
@@ -295,7 +283,7 @@ export function create(ctx) {
     s.volume = 1; s.pitch = 1; s.pan = 0; s.delay = 0; s.crit = false; s.big = false; s.elite = false; s.perfect = false;
     s.dying = false; s.force = false; s.rarity = undefined; s.power = undefined; s.anchored = undefined; s.resource = undefined;
     s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined; s.at = undefined;
-    s.dur = undefined; s.voicing = undefined;
+    s.dur = undefined; s.voicing = undefined; s.k = undefined; s.creak = undefined;
     return s;
   }
   function phaseInfo() {
@@ -632,6 +620,42 @@ export function create(ctx) {
     try { special = special || !(num(ctx.state?.meta?.journal?.[p.speciesId]?.caught) > 0); } catch { /* ignore */ }
     resetScratch(); scratch.voicing = V3.landingVoicing(l.cls, { special }); scratch.force = true; scratch.why = l.cls + (special ? '+' : '');
     play('land_chime', scratch);
+  }
+  // ---- the show (SPEC §2.8): the lift, the present, each flap and drip, the hush of the pause. By class only.
+  let recordRung = null;        // the uid whose record figure rang at the present (so the card's stamp does not ring it again)
+  const showLive = () => { const v = fishView()?.show; return ctx.data?.V3_ENABLED === true && !!v && typeof v === 'object' && v.phase !== 'card'; };
+  function showSound(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    const cls = V3.showClass(p);
+    if (p.phase === 'lift') {
+      const L = V3.showLiftParams(cls, num(p.dur?.lift, 0.5) / (p.hurried ? num(ctx.data?.AUTOFISH?.show?.hurry?.liftRate, 2.5) : 1));
+      resetScratch(); scratch.k = L.k; scratch.dur = L.dur; scratch.creak = L.creak; scratch.force = true; scratch.why = cls;
+      play('show_lift', scratch);
+    } else if (p.phase === 'hold') {
+      // the present: the flourish (a new species, a legend or a record shimmers), and a record's own figure just behind it
+      const recs = Array.isArray(p.records) ? p.records : [];
+      resetScratch(); scratch.voicing = V3.showPresentVoicing(cls, { special: p.special === true || p.isNew === true }); scratch.force = true; scratch.why = cls + (p.isNew ? '+' : '');
+      play('show_present', scratch);
+      if (!p.isNew && recs.some((r) => r === 'pb' || r === 'classFirst' || r?.kind === 'pb' || r?.kind === 'classFirst')) {
+        resetScratch(); scratch.delay = 0.32; scratch.force = true; play('record_chime', scratch);
+        recordRung = p.uid ?? null;
+      }
+    } else if (p.phase === 'pause') {
+      const v = fishView()?.show;
+      const [amt, secs] = V3.showHush(num(v?.dur?.pause, 0.7));
+      duck(amt, secs);   // the hush: the score sits back for the still; nothing new sounds
+    }
+  }
+  function showBeat(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    const cls = V3.showClass(p);
+    if (p.kind === 'flap') {
+      const F = V3.showFlapParams(cls, num(p.strength, 0.6));
+      resetScratch(); scratch.pitch = F.pitch; scratch.volume = F.volume; scratch.k = F.k; scratch.why = cls;
+      play('show_flap', scratch);
+    } else if (p.kind === 'drip') {
+      resetScratch(); scratch.volume = 0.5 + 0.5 * clamp(num(p.strength, 0.5)); play('show_drip', scratch);
+    }
   }
   /** fishing:caught — the reveal: the species' voice, if it has one (never before); the play's hum and drone end. */
   function afCaught(p) {
@@ -1096,11 +1120,37 @@ export function create(ctx) {
       else { scratch.volume = 0.8; play('splash_small', scratch); scratch.volume = 0.5; scratch.pitch = 0.8; play('denied', scratch); }
     });
     on('fish:landed', (p) => {
-      // v3 (measured: true): the card opens at the stamp, so the fanfare waits for the seal to land first
-      const after = p.measured === true ? Math.max(0, stampAt - ac.currentTime) + 0.3 : 0;
-      resetScratch(); scratch.rarity = p.species?.rarity || 'common'; scratch.delay = after;
-      play('catch_fanfare', scratch);
-      if (p.isNew) { resetScratch(); scratch.delay = after + 0.65; play('new_species', scratch); }
+      // the show (SPEC §2.8): the records are written at the present, and the present's flourish (show_present, on
+      // fishing:show {hold}) is the catch's fanfare: nothing waits for a stamp any more. Without a show (v1, a debug catch
+      // measured at once) the fanfare plays here as it always did
+      const shown = showLive();
+      if (!shown) { resetScratch(); scratch.rarity = p.species?.rarity || 'common'; play('catch_fanfare', scratch); }
+      if (p.isNew) { resetScratch(); scratch.delay = shown ? 0.5 : 0.65; play('new_species', scratch); }
+    });
+    // ---- the show (docs/v3/show/SPEC.md §2.8; inert until fishing emits fishing:show)
+    on('fishing:show', (p) => showSound(p));
+    on('show:beat', (p) => showBeat(p));
+    // the card: the cord's ticks rise under the length as it counts up; the seal lands when the stamp presses
+    on('card:count', (p) => {
+      if (ctx.data?.V3_ENABLED !== true || !(num(p.length) > 0)) return;
+      startCord({ speciesId: p.speciesId ?? null, sizeClass: p.sizeClass, length: num(p.length), zone: ctx.state?.run?.zone ?? null, key: p.uid ?? `${p.speciesId}:${p.length}` }, clamp(num(p.dur, 0.5), 0.2, 2));
+      if (cord) cord.compact = true;
+    });
+    on('card:stamp', (p) => {
+      if (ctx.data?.V3_ENABLED !== true) return;
+      const legendary = p.legendary === true || ctx.data?.SPECIES_BY_ID?.[p.speciesId]?.rarity === 'legendary';
+      const seal = V3.sealOf(p.sizeClass, ctx.data, { legendary });
+      if (cord && ac.currentTime < cord.end) cancelCord();   // any knot still due is silenced: the stamp lands now
+      resetScratch(); scratch.seal = seal; scratch.ancient = V3.goldThread({ ancient: p.ancient, legendary }); scratch.force = true;
+      if (!seal) scratch.why = p.sizeClass || null;
+      play('seal_stamp', scratch);
+      if (seal === 'blackWaxRibbon') duck(0.6, 0.9);
+      stampAt = ac.currentTime;
+      const recs = Array.isArray(p.records) ? p.records : [];
+      if (recs.some((r) => r && r.kind === 'oldLedger')) { resetScratch(); scratch.delay = 0.9; play('murk_bell_far', scratch); }
+      // a personal best or a class first that no show has rung yet (a catch measured at once): the record's figure after the seal
+      if (recordRung !== (p.uid ?? null) && recs.some((r) => r && (r.kind === 'pb' || r.kind === 'classFirst'))) { resetScratch(); scratch.delay = 0.28; scratch.force = true; play('record_chime', scratch); }
+      recordRung = null;
     });
     on('fish:action', (p) => {
       const a = p.action;
@@ -1165,29 +1215,11 @@ export function create(ctx) {
     on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); });
     on('sign:rise', (p) => riseSound(p));
     on('sign:end', (p) => { if (p.id !== undefined) signHeard.delete(p.id); });
-    on('fish:measured', (p) => {
-      const legendary = ctx.data?.SPECIES_BY_ID?.[p.speciesId]?.rarity === 'legendary';
-      const seal = V3.sealOf(p.sizeClass, ctx.data, { legendary });
-      let delay = 0;
-      if (cord && !cord.compact && ac.currentTime <= cord.end + 1.5) cancelCord();   // the ceremony's cord: the stamp lands now, any knot still due is silenced
-      else {
-        // no ceremony on screen (fishing measured at once): the cord runs compressed, then the stamp
-        const key = p.fish?.uid ?? `${p.speciesId}:${p.length}`;
-        const plan = num(p.length) > 0 ? startCord({ speciesId: p.speciesId, sizeClass: p.sizeClass, length: num(p.length), zone: catchInfo?.zone ?? ctx.state?.run?.zone ?? null, key },
-          V3.compactCordDuration(p.sizeClass)) : null;
-        if (cord) cord.compact = true;
-        delay = plan && cord ? Math.max(0, cord.end + 0.04 - ac.currentTime) : 0;
-      }
-      resetScratch(); scratch.seal = seal; scratch.ancient = V3.goldThread({ ancient: p.ancient, legendary }); scratch.force = true;
-      if (delay > 0) scratch.at = ac.currentTime + delay; else scratch.delay = 0;
-      if (!seal) scratch.why = p.sizeClass || null;
-      play('seal_stamp', scratch);
-      if (seal === 'blackWaxRibbon') duck(0.6, 0.9 + delay);
-      stampAt = ac.currentTime + delay;
+    on('fish:measured', () => {
+      // the records are written (the show's present, or at once without a show): the cord's ticks and the seal's stamp no longer
+      // sound here: they are the card's (card:count, card:stamp). A cord left from an older measuring falls silent
+      if (cord && !cord.compact) cancelCord();
       catchInfo = null;
-      if (Array.isArray(p.records) && p.records.some((r) => r && r.kind === 'oldLedger')) { resetScratch(); scratch.delay = delay + 0.9; play('murk_bell_far', scratch); }
-      // a personal best or a class first: a brighter figure just after the seal (the landing's record chime)
-      if (Array.isArray(p.records) && p.records.some((r) => r && (r.kind === 'pb' || r.kind === 'classFirst'))) { resetScratch(); scratch.delay = delay + 0.28; scratch.force = true; play('record_chime', scratch); }
     });
     on('swarm:window', (p) => {
       syncNight();

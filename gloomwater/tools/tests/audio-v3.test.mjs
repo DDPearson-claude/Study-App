@@ -5,8 +5,8 @@
 //  2. audio.js on the phase-1 v3 data (GW_V3, GW_V3_PHASE 1), driven through the CONTRACT §13 events, checks the Au1
 //     acceptance "each sound fires on its event; a Stillnight plays the bed, not the gloom mood" with debug.audioLog():
 //     class bite tells on fishing:tell (timed to the float on the game clock) / fishing:bite; rise plip vs gulp on
-//     sign:spawn; cord ticks and class chimes on the ceremony's cord beat (fishing.view.measure); the seal on
-//     fish:measured; the Night Rise motif on the night's phase:change and Lantern's swarm:window close; the Stillnight
+//     sign:spawn; the show's lift and present; cord ticks and class chimes under the card's count (card:count); the seal on
+//     card:stamp; the Night Rise motif on the night's phase:change and Lantern's swarm:window close; the Stillnight
 //     score + bed on quiet nights, the gloom mood on swarm nights and in Gloomtide.
 //  3. Flag-off parity: the same v1 event script, seeded, through this audio and through the pre-v3 audio (the files at
 //     AUDIO_BASE_REF, default 76c4329, read with git into tools/out/audio-base/) builds a bit-identical WebAudio trace.
@@ -196,78 +196,127 @@ section('audio.js v3: rise rings (sign:spawn kind rise → plip / gulp, placed o
   h.done();
 }
 
-section('audio.js v3: the measuring ceremony (cord ticks, class chimes, the seal)');
-function ceremony(h, { speciesId, z, uid, stopAt = null }) {
+section('audio.js v3: the show (the lift, the present, the hush) and the card (cord ticks, class chimes, the seal)');
+// The measuring ceremony's sounds, re-timed (docs/v3/show/SPEC.md §2.8): fish:measured is silent; the present's flourish is the
+// catch's fanfare; the cord's ticks run under the card's count (card:count) and the seal lands when its stamp presses (card:stamp).
+function show(h, { speciesId, z, uid, records = [{ kind: 'pb' }, { kind: 'oldLedger' }], stampAfter = null, isNew = false }) {
   const { ctx, bus } = h;
   const sp = data3.SPECIES_BY_ID[speciesId];
-  const sizeClass = data3.sizeClassOf(z), length = Math.round(data3.sizeLength(sp, z) * 10) / 10;
-  bus.emit('fishing:caught', { speciesId, weight: 1, quality: 'normal', z, sizeClass, ancient: data3.isAncient(z), length, fish: { uid }, zone: 'mossmere' });
+  const legendary = sp.rarity === 'legendary';
+  const sizeClass = data3.sizeClassOf(z), ancient = data3.isAncient(z), length = Math.round(data3.sizeLength(sp, z) * 10) / 10;
+  const cls = data3.showClassOf({ sizeClass, ancient, legend: legendary }), P = data3.showPlan(cls);
   const n0 = h.log().length;
-  for (const phase of ['scoop', 'pose']) { ctx.fishing.view.measure = { phase, length: 0, sizeClass: null, seal: null }; h.step(0.4); }
-  ctx.fishing.view.measure = { phase: 'cord', length: 0, sizeClass, seal: null };
-  h.step(0.05);
-  const cordStart = h.ac.currentTime;
+  ctx.fishing.view.show = { phase: 'reveal', cls, dur: { reveal: P.reveal, lift: P.lift, hold: P.hold, pause: P.pause }, t: 0, poseT: 0 };
+  bus.emit('fishing:caught', { speciesId, weight: 1, quality: 'normal', z, sizeClass, ancient, length, fish: { uid }, zone: 'mossmere' });
+  ctx.fishing.view.show.phase = 'lift';
+  const liftAt = h.ac.currentTime;
+  bus.emit('fishing:show', { phase: 'lift', cls, pose: 'both', dur: { lift: P.lift, hold: P.hold, pause: P.pause }, sizeClass, ancient, legendary, speciesId, length, uid });
+  h.step(P.lift);
+  const presentAt = h.ac.currentTime;
+  bus.emit('fish:measured', { speciesId, z, sizeClass, ancient, length, weight: 1, favours: [], records, fish: { uid }, cove: false });
+  bus.emit('fish:landed', { fish: { uid }, isNew, species: sp, measured: true, sizeClass, length });
+  ctx.fishing.view.show.phase = 'hold';
+  bus.emit('fishing:show', { phase: 'hold', cls, isNew, records, uid });
+  h.step(P.hold);
+  ctx.fishing.view.show.phase = 'pause';
+  const pauseAt = h.ac.currentTime, duck0 = ctx.debug.audio().duck ?? null;
+  bus.emit('fishing:show', { phase: 'pause', cls, uid });
+  const beforeCard = h.log().slice(n0);
+  h.step(P.pause);
+  ctx.fishing.view.show.phase = 'card';
+  bus.emit('fishing:show', { phase: 'card', cls, origin: { x: 100, y: 100 }, uid });
+  h.step(0.2);
+  const countAt = h.ac.currentTime, dur = data3.AUTOFISH.show.card.count;
+  bus.emit('card:count', { speciesId, sizeClass, ancient, legendary, length, uid, dur });
   const dbg = ctx.debug.audio();
-  const dur = V3.cordDuration(data3, sizeClass);
-  h.step(stopAt === null ? dur : stopAt);
-  ctx.fishing.view.measure = { phase: 'banners', length, sizeClass, seal: V3.sealOf(sizeClass, data3) };
+  h.step(stampAfter === null ? Math.max(dur, data3.AUTOFISH.show.card.stampAt) : stampAfter);
   const stampNow = h.ac.currentTime, traceAt = h.ac.trace.length;
-  bus.emit('fish:measured', { speciesId, z, sizeClass, ancient: data3.isAncient(z), length, weight: 1, favours: [], records: [{ kind: 'pb' }, { kind: 'oldLedger' }], fish: { uid }, cove: false });
-  bus.emit('fish:landed', { fish: { uid }, isNew: false, species: sp, measured: true, sizeClass, length });
+  bus.emit('card:stamp', { speciesId, sizeClass, ancient, legendary, length, uid, records, isNew });
   const log = h.log().slice(n0);
   const cancels = h.ac.trace.slice(traceAt).filter((s) => /\.gain\.cancel\(/.test(s)).length;
   h.step(1.5);
-  ctx.fishing.view.measure = null; h.step(0.1);
-  return { log, dbg, cordStart, stampNow, dur, length, sizeClass, cancels };
+  ctx.fishing.view.show = null; h.step(0.1);
+  return { log, beforeCard, dbg, liftAt, presentAt, pauseAt, countAt, stampNow, dur, length, sizeClass, cls, cancels, P, duck0 };
 }
 {
   const h = makeAudioHarness({ create, data: data3, run: v3run() });
-  const r = ceremony(h, { speciesId: 'reedjaw_pike', z: 2.3, uid: 'f1' });
-  const ticks = r.log.filter((e) => e.name === 'cord_tick'), chimes = r.log.filter((e) => e.name === 'class_chime');
+  const r = show(h, { speciesId: 'reedjaw_pike', z: 2.3, uid: 'f1' });
   eq(r.sizeClass, 'trophy', 'z 2.3 is a Trophy');
-  ok(r.dbg.cord && r.dbg.cord.ticks === ticks.length && ticks.length >= 6, `the cord beat schedules its knots (${ticks.length})`);
-  ok(ticks.every((e) => e.at >= r.cordStart - 0.06 && e.at <= r.cordStart + 0.001), 'the knots are issued when the cord beat starts');
-  near(ticks.at(-1).t - ticks[0].at, r.dur, 'the last knot lands at the end of the cord beat', 0.02);
+  // the show: the lift, the present's flourish (the fanfare), a record's figure; nothing of the cord or the seal before the card
+  const lift = r.log.find((e) => e.name === 'show_lift'), pres = r.log.find((e) => e.name === 'show_present');
+  ok(lift && lift.why === 'trophy' && Math.abs(lift.t - r.liftAt) < 0.03, 'fishing:show {lift} plays the haul (show_lift, by class)');
+  ok(pres && pres.why === 'trophy' && Math.abs(pres.t - r.presentAt) < 0.03, 'fishing:show {hold} plays the present\'s flourish (show_present) at the present');
+  const rc = r.log.filter((e) => e.name === 'record_chime');
+  ok(rc.length === 1 && rc[0].t > pres.t + 0.2 && rc[0].t < r.pauseAt, 'a personal best rings its figure just behind the flourish, once');
+  ok(!r.log.some((e) => e.name === 'catch_fanfare'), 'the flourish is the fanfare: no second one on fish:landed');
+  ok(!r.beforeCard.some((e) => ['cord_tick', 'class_chime', 'seal_stamp', 'murk_bell_far'].includes(e.name)), 'fish:measured is silent: no cord, no seal before the card');
+  ok(!r.log.some((e) => e.t > r.pauseAt + 0.001 && e.t < r.countAt - 0.001 && e.at > r.pauseAt + 0.001), 'the pause adds no sound');
+  // the card: the cord's ticks under the count, the chimes at the thresholds, the seal on the stamp's press
+  const ticks = r.log.filter((e) => e.name === 'cord_tick'), chimes = r.log.filter((e) => e.name === 'class_chime');
+  ok(r.dbg.cord && r.dbg.cord.ticks === ticks.length && ticks.length >= 6, `card:count schedules the cord's knots (${ticks.length})`);
+  ok(ticks.every((e) => e.at >= r.countAt - 0.06 && e.at <= r.countAt + 0.001), 'the knots are issued when the count starts');
+  near(ticks.at(-1).t - ticks[0].at, r.dur, 'the last knot lands as the count ends', 0.02);
   ok(ticks.every((e, i) => i === 0 || e.t > ticks[i - 1].t), 'knots tick up in order');
   eq(chimes.map((e) => e.why), ['prize', 'trophy'], 'a chime as the count crosses Prize, then Trophy');
   const plan = V3.cordPlan({ length: r.length, dur: r.dur, chimes: ['prize', 'trophy'], thresholds: V3.cordThresholds(data3, reedjaw, 'mossmere') });
   for (let i = 0; i < chimes.length; i++) near(chimes[i].t - ticks[0].t + plan.ticks[0].t, plan.chimes[i].t, `${chimes[i].why} chime at its threshold`, 0.01);
   const stamp = r.log.filter((e) => e.name === 'seal_stamp');
-  eq(stamp.map((e) => e.why), ['oxbloodWax'], 'fish:measured stamps the oxblood wax seal');
-  near(stamp[0].t, r.stampNow, 'the stamp lands on fish:measured', 0.01);
+  eq(stamp.map((e) => e.why), ['oxbloodWax'], 'card:stamp presses the oxblood wax seal');
+  near(stamp[0].t, r.stampNow, 'the seal lands as the card\'s stamp presses', 0.01);
   const bell = r.log.find((e) => e.name === 'murk_bell_far');
   ok(bell && bell.t > stamp[0].t + 0.8, 'an Old Ledger record rings Murk\'s far bell after the stamp');
-  const fan = r.log.find((e) => e.name === 'catch_fanfare');
-  ok(fan && fan.t >= stamp[0].t + 0.29, 'the card fanfare waits for the seal');
-  // an Elder skipped mid-cord: the stamp lands at once and the knots still due fall silent
-  const s = ceremony(h, { speciesId: 'reedjaw_pike', z: 3.3, uid: 'f2', stopAt: 0.3 });
+  eq(r.log.filter((e) => e.name === 'record_chime').length, 1, 'the record\'s figure is not rung again at the stamp');
+  // an Elder whose stamp presses mid-count (a card closed early): the knots still due fall silent
+  const s = show(h, { speciesId: 'reedjaw_pike', z: 3.3, uid: 'f2', stampAfter: 0.15 });
   eq(s.log.filter((e) => e.name === 'class_chime').map((e) => e.why), ['prize', 'trophy', 'elder'], 'an Elder rings all three chimes');
   const due = s.log.filter((e) => (e.name === 'cord_tick' || e.name === 'class_chime') && e.t > s.stampNow + 0.001).length;
-  ok(due > 0 && s.cancels >= due, `a skipped ceremony silences the ${due} knots / chimes still due (${s.cancels} silenced)`);
+  ok(due > 0 && s.cancels >= due, `an early stamp silences the ${due} knots / chimes still due (${s.cancels} silenced)`);
   eq(s.log.filter((e) => e.name === 'seal_stamp').map((e) => e.why), ['blackWaxRibbon'], 'an Elder (Ancient) gets the black wax seal');
-  // a Small fish: the cord ticks with no chime, no seal (only the ink dab)
-  const k = ceremony(h, { speciesId: 'dusk_minnow', z: -0.9, uid: 'f3' });
+  eq(s.log.find((e) => e.name === 'show_present')?.why, 'ancient', 'an Ancient plays the top row\'s flourish');
+  // a Small fish, a first-ever species: the flourish shimmers, the new-species sound follows; no chime, no seal (only the ink dab)
+  const k = show(h, { speciesId: 'dusk_minnow', z: -0.9, uid: 'f3', records: [], isNew: true });
+  eq(k.log.find((e) => e.name === 'show_present')?.why, 'small+', 'a first-ever species: the flourish with its shimmer');
+  ok(k.log.some((e) => e.name === 'new_species') && !k.log.some((e) => e.name === 'record_chime'), 'a new species plays its own sound, not the record\'s figure');
   eq(k.log.filter((e) => e.name === 'class_chime').length, 0, 'a Small rings no chime');
   ok(k.log.filter((e) => e.name === 'cord_tick').length >= 6, 'a Small still ticks its cord');
   eq(k.log.filter((e) => e.name === 'seal_stamp').map((e) => e.why), ['small'], 'a Small gets the plain ink dab, no seal');
+  // the flaps and drips actors names
+  const n1 = h.log().length;
+  h.bus.emit('show:beat', { kind: 'flap', strength: 0.9, cls: 'small' }); h.step(0.2);
+  h.bus.emit('show:beat', { kind: 'flap', strength: 0.4, cls: 'elder' }); h.step(0.2);
+  h.bus.emit('show:beat', { kind: 'drip', strength: 0.5, cls: 'small' }); h.step(0.2);
+  h.bus.emit('show:beat', { kind: 'settle', strength: 0.5, cls: 'small' });
+  const beats = h.log().slice(n1);
+  eq(beats.map((e) => e.name), ['show_flap', 'show_flap', 'show_drip'], 'show:beat: a wet slap per flap, a drip per drip, nothing else');
+  ok(V3.showFlapParams('small', 0.9).pitch > V3.showFlapParams('elder', 0.9).pitch && V3.showFlapParams('small', 0.9).volume > V3.showFlapParams('small', 0.3).volume, 'a heavier fish slaps lower; a stronger flap louder');
   h.done();
 }
 {
-  // no ceremony on screen (P1 fishing measures at once): fish:measured plays the cord compressed, then the stamp
+  // no show on screen (a catch measured at once): the fanfare plays on fish:landed as it always did, fish:measured is silent, and
+  // the card's stamp rings the record's figure
   const h = makeAudioHarness({ create, data: data3, run: v3run() });
-  const n0 = h.log().length, now = h.ac.currentTime;
+  const n0 = h.log().length;
   const L = Math.round(data3.sizeLength(reedjaw, 1.5) * 10) / 10;
-  h.bus.emit('fish:measured', { speciesId: 'reedjaw_pike', z: 1.5, sizeClass: 'prize', ancient: false, length: L, records: [], fish: { uid: 'g1' }, cove: false });
-  const log = h.log().slice(n0);
+  h.bus.emit('fish:measured', { speciesId: 'reedjaw_pike', z: 1.5, sizeClass: 'prize', ancient: false, length: L, records: [{ kind: 'pb' }], fish: { uid: 'g1' }, cove: false });
+  h.bus.emit('fish:landed', { fish: { uid: 'g1' }, isNew: false, species: reedjaw, measured: true, sizeClass: 'prize', length: L });
+  let log = h.log().slice(n0);
+  ok(log.some((e) => e.name === 'catch_fanfare') && !log.some((e) => e.name === 'cord_tick' || e.name === 'seal_stamp'), 'no show: the fanfare at once; fish:measured plays no cord and no seal');
+  h.bus.emit('card:count', { speciesId: 'reedjaw_pike', sizeClass: 'prize', length: L, uid: 'g1', dur: 0.5 });
+  h.step(0.55);
+  const now = h.ac.currentTime;
+  h.bus.emit('card:stamp', { speciesId: 'reedjaw_pike', sizeClass: 'prize', length: L, uid: 'g1', records: [{ kind: 'pb' }] });
+  log = h.log().slice(n0);
   const ticks = log.filter((e) => e.name === 'cord_tick'), stamp = log.find((e) => e.name === 'seal_stamp');
-  ok(ticks.length >= 4, `fallback: the cord still ticks (${ticks.length})`);
-  eq(log.filter((e) => e.name === 'class_chime').map((e) => e.why), ['prize'], 'fallback: the Prize chime');
-  ok(stamp && stamp.why === 'inkStamp' && stamp.t >= ticks.at(-1).t, 'fallback: the ink stamp lands after the last knot');
-  near(stamp.t - now, V3.compactCordDuration('prize') + 0.045, 'fallback: the stamp waits for the compact cord', 0.01);
+  ok(ticks.length >= 4, `the card's count ticks the cord (${ticks.length})`);
+  eq(log.filter((e) => e.name === 'class_chime').map((e) => e.why), ['prize'], 'the Prize chime');
+  ok(stamp && stamp.why === 'inkStamp' && stamp.t >= ticks.at(-1).t && Math.abs(stamp.t - now) < 0.02, 'the ink stamp lands on card:stamp, after the last knot');
+  ok(log.some((e) => e.name === 'record_chime' && e.t > stamp.t + 0.2), 'no show rang the record: the stamp does');
   // a legend: no chimes, the black wax with the gold thread
   const n1 = h.log().length;
   h.step(2);
-  h.bus.emit('fish:measured', { speciesId: 'belled_matriarch', z: 0, sizeClass: 'keeper', ancient: false, length: 300, records: [], fish: { uid: 'g2' } });
+  h.bus.emit('card:count', { speciesId: 'belled_matriarch', sizeClass: 'keeper', legendary: true, length: 300, uid: 'g2', dur: 0.5 });
+  h.step(0.6);
+  h.bus.emit('card:stamp', { speciesId: 'belled_matriarch', sizeClass: 'keeper', legendary: true, length: 300, uid: 'g2', records: [] });
   const lg = h.log().slice(n1);
   eq(lg.filter((e) => e.name === 'class_chime').length, 0, 'a legend rings no class chime');
   eq(lg.filter((e) => e.name === 'seal_stamp').map((e) => e.why), ['blackWaxRibbon'], 'a legend takes the black wax');

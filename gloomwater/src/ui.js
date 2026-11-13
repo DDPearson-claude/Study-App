@@ -195,7 +195,8 @@ export function create(ctx) {
   }
 
   // ------------------------------------------------------------------ toasts
-  let measure = null;   // the measuring overlay (created with the screens below)
+  let measure = null;   // the show's hold on the screen (ui-measure.js; created with the screens below)
+  let showHid = false;
   const toasts = [];
   const recentToast = new Map();
   const recentTexts = [];
@@ -211,11 +212,13 @@ export function create(ctx) {
   const heldToasts = [];
   /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it to end (≤ 15 s). */
   const bannerBusy = () => !!(bannerEl && !bannerEl.classList.contains('gw-out')) || bannerQ.length > 0;
-  /** The landing (the reveal and the measuring ceremony) is the catch's moment: flavour toasts wait until the card. */
+  /** The landing (the reveal and the show) is the catch's moment: flavour toasts wait until the card. */
   function landingBusy() {
     if (measure?.active?.()) return true;
     try { return afOn(D()) && (ctx.fishing?.state === 'landing' || ctx.cinematic === true); } catch { return false; }
   }
+  /** The show holds the screen (T0 → the card; SPEC §2.9): NOTHING is written over the picture, warnings included; they queue. */
+  const showBusy = () => !!measure?.holding?.();
   function flushHeldToasts(force = false) {
     if (!heldToasts.length) return;
     const now = performance.now();
@@ -226,7 +229,7 @@ export function create(ctx) {
       if (q.slot && now - q.at > 10000) { heldToasts.shift(); continue; }   // a flavour line that waited too long is stale
       // a flavour line waits for the banner to end (its clock runs on game time, so a slow frame keeps it up longer); only a
       // banner stuck past 15 s lets it through
-      const ready = force || (q.modal ? !hasBlocking() && !landingBusy() : (!bannerBusy() || now - q.at > 15000) && (q.kind === 'bad' || !landingBusy()));
+      const ready = force || (!showBusy() && (q.modal ? !hasBlocking() && !landingBusy() : (!bannerBusy() || now - q.at > 15000) && (q.kind === 'bad' || !landingBusy())));
       if (!ready) break;
       heldToasts.shift();
       if (q.modal && now - q.at > 30000) continue;   // stale news from behind a long modal
@@ -242,7 +245,7 @@ export function create(ctx) {
     if (!opts.now && ctx.flow === 'playing') {
       // flavour waits behind blocking modals (shop, catch card, level-up) and banners; warnings never wait
       // the landing (the reveal and the measuring) is the catch's moment: flavour waits until the card
-      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && landingBusy());
+      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && landingBusy()) || showBusy();
       if (modal || (kind !== 'bad' && !hasBlocking() && bannerBusy())) {
         if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now(), modal });
         return;
@@ -353,12 +356,13 @@ export function create(ctx) {
   }
   function updateBanner(dt) {
     // banners wait behind blocking modals (level-up, catch card, shop, death) instead of bleeding through
-    const blocked = hasBlocking() || !!hud?.cardUp?.();   // v3: also behind the Scorched card
+    const showing = showBusy();   // the show: no banner over the picture (it waits, its clock held, as behind a modal)
+    const blocked = hasBlocking() || !!hud?.cardUp?.() || showing;   // v3: also behind the Scorched card
     layers.banner.classList.toggle('gw-hidden', blocked);
     // toasts already up step aside while a banner owns the top of the screen or a blocking modal
     // (catch card, level-up, shop) opens over them; they come back with their time left
-    const showing = !blocked && !!bannerEl && !bannerEl.classList.contains('gw-out');
-    const reason = showing ? 'banner' : blocked && ctx.flow === 'playing' ? 'modal' : '';
+    const bannerUp = !blocked && !!bannerEl && !bannerEl.classList.contains('gw-out');
+    const reason = showing ? 'show' : bannerUp ? 'banner' : blocked && ctx.flow === 'playing' ? 'modal' : '';
     if (reason !== toastsYield) {
       // re-evaluate on every change of reason, so a toast raised under a modal still steps aside
       // for the banner that follows it
@@ -401,6 +405,7 @@ export function create(ctx) {
     if (!tipQ.length || ctx.flow !== 'playing' || hasBlocking() || has('pause') || bannerBusy()) return;
     // automatic fishing: never over the bite, the strike, the play or the ceremony (the moment is the world's)
     if (afOn(D()) && (['bite', 'reeling', 'landing'].includes(ctx.fishing?.state) || ctx.cinematic || measure?.active?.())) return;
+    if (showBusy()) return;
     const now = performance.now() / 1000;
     if (now - lastTipAt < 6) return;
     while (tipQ.length && now - tipQ[0].at > 40) tipQ.shift();
@@ -889,6 +894,9 @@ export function create(ctx) {
           }
           updateDawnBell(dt);
         }
+        // the show (T0 → the card): the HUD, world-space text, banners and toasts leave the picture; a tap anywhere reaches the game
+        const showing = showBusy();
+        if (showing !== showHid) { showHid = showing; for (const k of ['world', 'hud', 'fx', 'banner', 'toasts']) layers[k].classList.toggle('gw-showhide', showing); }
         layers.toasts.classList.toggle('gw-low', hasBlocking() && ctx.flow === 'playing');
         layers.toasts.classList.toggle('gw-dead', ctx.flow === 'dead');
         const S = settings();

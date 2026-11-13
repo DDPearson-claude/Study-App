@@ -5,7 +5,7 @@
 import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
-import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines } from './ui-v3.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler } from './ui-v3.js';
 import * as AF from './ui-af.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -661,6 +661,8 @@ export function createScreens(K) {
     ctx.bus.on('fishing:strike', (p) => { if (af() && p && p.grade) lastStrike = p.grade; });
     ctx.bus.on('fishing:cast', () => { lastStrike = null; });
   } catch { /* bus optional */ }
+  /** The show's card (AUTOFISH.show.card): the count, the stamp press and the knots moved here from the measuring overlay. */
+  const showCard = () => af() && !!D().AUTOFISH?.show?.card;
   function showCatch(p) {
     const fish = p?.fish;
     if (!fish) return;
@@ -680,6 +682,21 @@ export function createScreens(K) {
       const phone = K.vw < 700;
       const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
+      // the show: the card unfolds from where the fish is held (its centre on screen, from fishing:show {card}); a phone's card
+      // still rises from the foot, and a re-render (more, make room, a boon picked) never replays the entrance
+      if (N.v3 && showCard()) {
+        pn.classList.add('gw-cc-live');
+        if (s.shown) pn.classList.add('gw-cc-again', 'gw-cc-pressed', 'gw-cc-counted');
+        else {
+          const o = !phone ? K.measure?.takeOrigin?.(fish.uid ?? null) : (K.measure?.takeOrigin?.(fish.uid ?? null), null);
+          if (o) {
+            pn.classList.add('gw-cc-unfold');
+            pn.style.setProperty('--ox', `${Math.round(o.x - K.vw / 2)}px`);
+            pn.style.setProperty('--oy', `${Math.round(o.y - K.vh / 2)}px`);
+          }
+          pn.style.setProperty('--unfold', `${num(D().AUTOFISH?.show?.card?.unfold, 0.32)}s`);
+        }
+      }
       // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
       const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
         : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
@@ -700,6 +717,22 @@ export function createScreens(K) {
       const worthRow = cove ? (qWord ? `<dt${X}>quality</dt><dd${X}>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt${X}>worth</dt><dd${X}>${fmt(y.sell)} shells${qWord}</dd>`;
       const stats = `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
       const lore = firstSentence(sp.lore) || hintFor(sp);
+      // the show (SPEC §2.9, §2.10): what the measuring overlay said lives on the card. Its ruler line is the species' cord: this
+      // fish's bead slides out along it as the length counts up; your best and the Old Ledger are two knots on it (marks, no
+      // words: oxblood and black), lit when the count passes them
+      const live = N.v3 && showCard();
+      let ruleKnots = '', rule = null;
+      if (live) {
+        const pbRec = arr(p.records).find((x) => x?.kind === 'pb');
+        const jb = num(K.meta().journal?.[sp.id]?.pbLength, 0);
+        const best = pbRec && pbRec.prevLength != null ? num(pbRec.prevLength) : (p.isNew ? null : (jb > 0 && Math.abs(jb - fish.length) > 0.05 ? jb : null));
+        rule = s.rule || (s.rule = cordRuler(D(), sp, fish.length, { zone: r?.zone || sp.zone || null, best }));
+        const at = (cm) => (2 + 96 * Math.max(0, Math.min(1, cm / rule.max))).toFixed(2);
+        const want = arr(D().AUTOFISH?.show?.card?.knots);
+        ruleKnots = `${rule.ledger && want.includes('ledger') ? `<i class="gw-cc-knot gw-cc-knot--ledger${rule.passesLedger ? ' gw-pass' : ''}" data-cm="${rule.ledger}" style="left:${at(rule.ledger)}%"></i>` : ''}`
+          + `${rule.best && want.includes('pb') ? `<i class="gw-cc-knot gw-cc-knot--pb${rule.passesBest ? ' gw-pass' : ''}" data-cm="${rule.best}" style="left:${at(rule.best)}%"></i>` : ''}`
+          + `<i class="gw-cc-bead" style="left:${at(s.shown ? fish.length : 0)}%" data-to="${at(fish.length)}"></i>`;
+      }
       // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
       // card; an ordinary catch shows name, class, length, weight and the actions, the rest one tap away ("more")
       const sx = N.special ? '' : ' gw-cc-xtra';
@@ -710,7 +743,7 @@ export function createScreens(K) {
       content.innerHTML = `<div class="gw-cc-grid">
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
-            <svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>
+            <div class="gw-cc-rule"><svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>${ruleKnots}</div>
             <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
@@ -775,6 +808,39 @@ export function createScreens(K) {
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
       foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
       if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: af() ? 'A little luck with rarer fish until tomorrow' : '+2% rare-fish luck until tomorrow', onClick: act('release') }));
+      // the show: the length counts up beside the class stamp (the cord's ticks under it), the stamp presses after it (the
+      // seal's sound, a small hit of the card: never of the camera), the knots light as the count passes them (once per card)
+      if (live && !s.shown) {
+        s.shown = true;
+        const CD = D().AUTOFISH?.show?.card || {};
+        const from = num(CD.countFrom, 0.2) * 1000, dur = Math.max(60, num(CD.count, 0.5) * 1000), stampAt = from + Math.max(num(CD.stampAt, 0.55) * 1000, dur);
+        const hero = content.querySelector('.gw-cc-hero'), bead = content.querySelector('.gw-cc-bead');
+        const knots = [...content.querySelectorAll('.gw-cc-knot')];
+        const L = num(fish.length);
+        const emit = (e, x) => { try { ctx.bus.emit(e, { speciesId: fish.speciesId, sizeClass: fish.sizeClass, ancient: !!fish.ancient, legendary: legend, length: L, uid: fish.uid ?? null, ...x }); } catch (err) { K.report(e, err); } };
+        if (hero && L > 0 && typeof requestAnimationFrame === 'function') {
+          const t0 = performance.now();
+          let started = false, pressed = false;
+          // the count keeps the final figure's unit all the way up (a 33 cm perch never reads in mm on its way there)
+          const unit = / mm$/.test(N.len) ? 'mm' : / m$/.test(N.len) ? 'm' : 'cm';
+          const say = (cm) => (unit === 'mm' ? `${Math.round(cm * 10)} mm` : unit === 'm' ? `${(cm / 100).toFixed(2)} m` : `${Math.round(cm)} cm`);
+          hero.textContent = say(0);
+          const step = () => {
+            if (!pn.isConnected) return;
+            const t = performance.now() - t0;
+            if (!started && t >= from) { started = true; emit('card:count', { dur: dur / 1000 }); }
+            const k = Math.min(1, Math.max(0, (t - from) / dur)), e2 = 1 - (1 - k) * (1 - k) * (1 - k);
+            const cm = L * e2;
+            hero.textContent = k >= 1 ? N.len : say(cm);
+            if (bead && rule) bead.style.left = `${(2 + 96 * Math.max(0, Math.min(1, cm / rule.max))).toFixed(2)}%`;
+            for (const kn of knots) if (!kn.classList.contains('gw-on') && num(Number(kn.dataset.cm)) <= cm + 1e-6) kn.classList.add('gw-on');
+            if (k >= 1 && !pn.classList.contains('gw-cc-counted')) pn.classList.add('gw-cc-counted');
+            if (!pressed && t >= stampAt) { pressed = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); }
+            if (!pressed || k < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        } else { pn.classList.add('gw-cc-counted', 'gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); }
+      }
       // v3: what it is worth to you counts up as the card lands, with soft coin ticks (once per card)
       if (N.v3 && !s.counted) {
         s.counted = true;
@@ -782,7 +848,7 @@ export function createScreens(K) {
         const to = ems.map((e) => { const m = /\+(\d+)/.exec(e.textContent.replace(/[^\d+]/g, '')); return m ? Number(m[1]) : null; });
         if (ems.length && to.every((v) => v != null && v > 0) && typeof requestAnimationFrame === 'function') {
           ems.forEach((e) => { e.textContent = '+0'; });
-          const t0 = performance.now() + 820, dur = 560;
+          const t0 = performance.now() + (live ? 1100 : 820), dur = 560;
           let last = -1;
           const step = () => {
             if (!pn.isConnected) return;

@@ -130,6 +130,9 @@
 .gw-hud:not(.gw-live) * { pointer-events: none !important; }
 .gw-fx { inset: 0; z-index: 3; }
 .gw-banner-layer { left: 0; right: 0; top: 24%; z-index: 4; display: flex; justify-content: center; }
+/* the show (docs/v3/show/SPEC.md §2.9): from the fish breaking the surface until the catch card nothing is written over the picture */
+.gw-showhide { opacity: 0 !important; transition: opacity .14s ease-out !important; }
+.gw-showhide, .gw-showhide * { pointer-events: none !important; }
 .gw-modal-layer { inset: 0; z-index: 5; }
 .gw-toasts { z-index: 6; }
 /* an arrival banner never draws over the title screen */
@@ -1061,6 +1064,35 @@
   background: radial-gradient(ellipse 50% 50% at 46% 52%, rgba(243, 220, 164, .3), rgba(201, 184, 240, .12) 48%, transparent 72%);
   opacity: 0; animation: gwWinBloom calc(1.1s + .9s * var(--win)) .55s ease-out forwards; }
 .gw-cc-seal { width: 48px; height: 48px; flex: none; transform: rotate(11deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .85)); animation: gwSealIn .55s .9s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+/* the show's card (docs/v3/show/SPEC.md §2.10): it unfolds from where the fish is held; the length counts up, then the stamp
+   presses (a hit of the card, never of the camera); your best and the Old Ledger are two knots on the ruler line, this fish a bead */
+.gw-cc-v3.gw-p-catch.gw-cc-unfold { transform-origin: calc(50% + var(--ox, 0px)) calc(50% + var(--oy, 0px)); animation: gwCardUnfold var(--unfold, .32s) cubic-bezier(.2, .85, .3, 1) backwards; }
+.gw-cc-unfold .gw-pc { animation: gwCcFade .26s .16s ease-out backwards; }
+.gw-cc-v3.gw-p-catch.gw-cc-again, .gw-cc-again .gw-pc, .gw-cc-again .gw-cc-hero, .gw-cc-again .gw-cc-stamp > span, .gw-cc-again .gw-cc-seal, .gw-cc-again .gw-fish-ink { animation: none !important; }
+.gw-cc-again .gw-fish-ink { clip-path: none; }
+.gw-cc-live .gw-cc-hero { animation: gwCcFade .18s .14s ease-out backwards; }
+.gw-cc-live.gw-cc-counted .gw-cc-hero { animation: gwHeroSet .34s cubic-bezier(.2, 1.35, .4, 1); }
+.gw-cc-live .gw-cc-stamp > span, .gw-cc-live .gw-cc-seal { animation: none; opacity: 0; }
+.gw-cc-live.gw-cc-pressed .gw-cc-stamp > span { opacity: .94; animation: gwStamp .34s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+.gw-cc-live.gw-cc-pressed .gw-cc-seal { opacity: 1; animation: gwSealIn .5s .1s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+.gw-cc-live .gw-cc-stamp::before { animation: none; opacity: 0; }
+.gw-cc-live.gw-cc-pressed .gw-cc-stamp::before { animation: gwWinBloom2 calc(1.1s + .9s * var(--win)) ease-out forwards; }
+.gw-cc-live.gw-cc-pressed:not(.gw-cc-again) .gw-cc-grid { animation: gwCardHit .26s ease-out; }
+/* behind the show's card the Wick is close and bright: the ink is a little denser so the card reads over it */
+.gw-cc-live .gw-cc-wash path:not(.gw-cc-gild) { fill: rgba(9, 9, 22, .95); }
+.gw-cc-rule { position: relative; }
+.gw-cc-knot, .gw-cc-bead { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; pointer-events: none; }
+.gw-cc-knot { opacity: .55; transform: scale(.7); transition: opacity .25s ease, transform .3s cubic-bezier(.2, 1.5, .4, 1), box-shadow .3s ease; }
+.gw-cc-knot--pb { background: #8e2f2a; box-shadow: 0 0 0 1.5px rgba(236, 232, 244, .7); }
+.gw-cc-knot--ledger { background: #0a0a14; box-shadow: 0 0 0 1.5px rgba(236, 232, 244, .78); }
+.gw-cc-knot.gw-on { opacity: 1; transform: scale(1); }
+.gw-cc-knot--pb.gw-on { box-shadow: 0 0 0 1.5px rgba(236, 232, 244, .9), 0 0 10px rgba(224, 90, 72, .7); }
+.gw-cc-knot--ledger.gw-on { box-shadow: 0 0 0 1.5px rgba(243, 220, 164, .95), 0 0 10px rgba(243, 220, 164, .45); }
+.gw-cc-bead { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--gold); box-shadow: 0 0 8px rgba(232, 190, 119, .7); }
+@keyframes gwCardUnfold { 0% { opacity: 0; transform: scale(.06); } 45% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes gwCcFade { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes gwHeroSet { 0% { transform: rotate(-3deg) scale(1.16); } 100% { transform: rotate(-3deg) scale(1); } }
+@keyframes gwCardHit { 0% { translate: 0 0; } 22% { translate: -2px 3px; } 55% { translate: 1px -1px; } 100% { translate: 0 0; } }
 .gw-cc-elder { font: 400 27px/1.15 var(--f-hand); font-style: normal; color: var(--gold); text-shadow: 0 0 12px rgba(232, 190, 119, .25); margin-top: 0; }
 .gw-cc-stats dd.gw-cc-strike { color: #dcd9f2; }
 .gw-cc-stats dd.gw-strike-clean { color: #f3f0ff; text-shadow: 0 0 12px rgba(160, 150, 240, .65); }

@@ -175,7 +175,7 @@ export function create(ctx) {
     // v3 visual half: signs (F6), the ceremony (F5), the leap reveal (F3)
     signs: [], signTimers: [], signDesired: 3, signRng: null, prerolls: new Map(), chumArmed: false, signHit: null,
     prerollSp: null, prerollZ: null, prerollSign: null, prerollTook: false, handles: [], handleSeq: 0,
-    show: null, exitT: 0, exitAction: null, rimT: 0,   // the show (AUTOFISH.show): its record from T0 to the card; the exit gesture after the card
+    show: null, exitT: 0, exitAction: null, catchShown: false, forceSwarm: null, rimT: 0,   // the show (AUTOFISH.show): its record from T0 to the card; the exit gesture after the card
     // automatic fishing (F4′, F2′): the loadout on the line at the cast, the strike, the roll (memory only: never on the view, an
     // event or the save), the plan and its playback, the reveal, the loss
     castLoadout: null, castItem: null, grade: null, p: null, draws: null, outcome: null, plan: null, plan0: null, loss: null,
@@ -2271,10 +2271,10 @@ export function create(ctx) {
     if (S.catchFv && S.catchFv !== fv) releaseCatch();   // (a catch still held up from before: its model goes first)
     if (fv) {
       fv.object3d.scale.setScalar(1);
-      S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; S.exitT = 0; S.exitAction = null;
+      S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; S.exitT = 0; S.exitAction = null; S.catchShown = false;
       let got = null;
       if (typeof A?.showFish === 'function') got = call(() => A.showFish(fv, { cls: c.cls, pose: c.pose, sizeClass: fish.sizeClass, ancient: !!fish.ancient, legend: !!legendary, beats, special: c.special })) || null;
-      if (got && typeof got === 'object' && !got.isStub) { if (typeof got.id === 'string') c.pose = got.id; c.actors = true; }
+      if (got && typeof got === 'object' && !got.isStub) { if (typeof got.id === 'string') c.pose = got.id; c.actors = true; S.catchShown = true; }
       else {   // actors without the show: the nearest measuring pose stands in (the v1 catch hold without those)
         call(() => A?.setPose?.(typeof A?.showCord === 'function' ? SHOW_STANDIN[c.pose] : 'catch'));
         call(() => A?.showCatch?.(fv));
@@ -2601,7 +2601,7 @@ export function create(ctx) {
   const EXIT_T = 0.6;   // s the exit gesture has (actors.endShow) before the model goes
   function releaseCatch() {
     const fv = S.catchFv;
-    S.exitT = 0; S.exitAction = null;
+    S.exitT = 0; S.exitAction = null; S.catchShown = false;
     if (view.measure && view.measure.phase === 'card') view.measure = null;
     if (view.show && view.show.phase === 'card') view.show = null;   // v3: the card's turn is over
     if (!fv) return;
@@ -2620,7 +2620,7 @@ export function create(ctx) {
     if (!fv) return;
     if (S.exitT > 0) { if (action && !S.exitAction) S.exitAction = action; return; }
     const A = ctx.actors;
-    if (showOn() && isReal(A) && typeof A.endShow === 'function' && fv.object3d?.parent && fv.object3d.parent !== fishHolder) {
+    if (showOn() && S.catchShown && isReal(A) && typeof A.endShow === 'function') {   // (actors took this fish through showFish: it gets its exit)
       S.exitAction = action; S.exitT = EXIT_T;
       call(() => A.endShow({ action: action || undefined }));
     } else releaseCatch();
