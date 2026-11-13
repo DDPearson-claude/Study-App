@@ -3987,6 +3987,8 @@ export const INTRO = {
   ],
   lineFade: 0.4,
   skip: { guard: 0.5, showAt: 0.6, target: 44, keys: ['Escape', 'Enter', 'NumpadEnter', 'Space'], word: 'Skip',
+    wordFade: 0.3,                  // the Skip word comes in over 0.3 s from showAt (there by 0.9 s)
+    poke: 2,                        // a press anywhere else only brightens the Skip word for this long
     veilIn: 0.25, veilOut: 0.35,    // beats lit / fall / below: ink closes, the stage jumps to its end state, ink opens on the play frame
     finish: 0.5, finishFrom: 'wick',   // beats wick / home: no veil; the remaining timeline plays out in `finish` s
     soundFade: 0.25 },
@@ -3995,29 +3997,36 @@ export const INTRO = {
     { beat: 'lit', t: 3.6 }, { beat: 'fall', t: 7.2 }, { beat: 'below', t: 10.5 }, { beat: 'wick', t: 14.2 }, { beat: 'home', t: 17.9 },
   ],
   stillFade: 0.5,
-  // one cue in D Dorian (the Mossmere's key), 58 BPM at the end; sections start when the director crosses their mark (`intro:beat`
-  // and these times), so a paused timeline pauses the score. midi numbers; gains in dB below full scale on the cue's own bus
+  // reduced flashing (and reduced motion): the one hard cut becomes an ink dip of `cutDip` s centred on it; under reduced motion
+  // the cross-fade into `below` lasts `cutDip` too (SPEC section 3)
+  calm: { cutDip: 0.3 },
+  // one cue in D Dorian (the Mossmere's key), 58 BPM at the end; sections start when the director's clock crosses their mark
+  // (src/intro.js soundEvents), so a paused timeline pauses the score. midi numbers; gains in dB below full scale on the cue's own
+  // bus (src/audio-intro.js; tools/audio-render.mjs --set=intro renders it offline and measures the peak)
   sound: {
     titleFade: 0.3, skipFade: 0.25, bus: 'music', peakDb: -6, voices: 12,
+    wet: 0.5,                       // the cue's send to the cavern reverb
+    endRing: 3.2,                   // the last harp note rings this long after `intro:done` before the cue's nodes are released
     marks: [
-      { id: 'drone',   t: 0.0,  to: 8.2,  what: 'bowed drone', notes: [38, 45], db: -18, swell: 1.2 },
-      { id: 'bell',    t: 1.0,  what: 'one great bell', notes: [50], db: -14, decay: 6 },
-      { id: 'glass',   t: 1.4,  to: 5.9,  what: 'glass chord', notes: [62, 69, 76], db: -20, attack: 0.4 },
+      { id: 'drone',   t: 0.0,  to: 8.2,  what: 'bowed drone', notes: [38, 45], db: -18, swell: 1.2, cents: 6, lowpass: 420 },
+      { id: 'bell',    t: 1.0,  what: 'one great bell', notes: [50], db: -14, decay: 6, partials: [1, 2.0, 2.4, 3.0, 4.5] },
+      { id: 'glass',   t: 1.4,  to: 5.9,  what: 'glass chord', notes: [62, 69, 76], db: -20, attack: 0.4, partials: [1, 2.76, 5.4] },
       { id: 'ping',    t: 5.6,  what: 'the chain parts', hz: [2200, 1600], db: -16, dur: 0.08 },
       { id: 'fallBend', t: 5.9, to: 7.9, what: 'the top voice falls a fifth, the drone a semitone', bend: { from: [76, 38], to: [69, 37] } },
-      { id: 'impact',  t: 7.9,  what: 'sub thump and a low bell; a 300 Hz lowpass closes in 0.15 s', notes: [33], hz: [80, 40], db: -12, lowpass: 300 },
+      { id: 'impact',  t: 7.9,  what: 'sub thump and a low bell; a 300 Hz lowpass closes in 0.15 s', notes: [33], hz: [80, 40], db: -12, lowpass: 300, over: 0.15 },
       { id: 'deep',    t: 8.2,  to: 12.4, what: 'sub drone under the lowpass', notes: [26, 33], db: -20 },
-      { id: 'ember',   t: 9.0,  what: 'ember_swell (audio-af.js)', sfx: 'ember_swell' },
+      { id: 'ember',   t: 9.0,  what: 'ember_swell (audio-af.js)', sfx: 'ember_swell', volume: 0.8 },
       { id: 'groan',   t: 9.6,  what: 'one slow, patient groan', hz: [70, 52], dur: 2.5, db: -18 },
-      { id: 'spark',   t: 12.5, what: 'a tiny tick; the lowpass opens to 6 kHz over 0.8 s', lowpass: 6000, over: 0.8 },
-      { id: 'flame',   t: 12.8, what: 'flame_catch (audio-af.js)', sfx: 'flame_catch' },
-      { id: 'harp',    t: 14.6, what: 'solo harp: the first four notes of the Mossmere motif', notes: [62, 65, 69, 67], beat: 1.034, db: -12 },
+      { id: 'spark',   t: 12.5, what: 'a tiny tick; the lowpass opens to 6 kHz over 0.8 s', lowpass: 6000, over: 0.8, db: -22 },
+      { id: 'flame',   t: 12.8, what: 'flame_catch (audio-af.js)', sfx: 'flame_catch', volume: 0.8 },
+      { id: 'harp',    t: 14.6, what: 'solo harp: the first four notes of the Mossmere motif', notes: [62, 65, 69, 67], beat: 1.034, db: -12, decay: 1.2 },
     ],
     into: 'calm',                   // the last harp note rings into the lake's calm bed (same key, same tempo)
   },
   // the trigger (A3): once, on a fresh save's first new game, straight from the title's primary button
   trigger: { fresh: 'meta.runs === 0 && !meta.intro.seen', button: 'Begin', bypasses: 'newdescent', debugOptIn: ['GW_INTRO', '?intro=1', "debug.intro('auto', true)"],
-    replay: { word: 'Prologue', where: 'title', writes: false } },
+    prewarm: { after: 0.5, tries: 8 },   // the fresh title asks the stage to build in idle time, this long after it opens
+    replay: { word: 'Prologue', hint: 'Watch the opening again', where: 'title', writes: false, veil: 0.3 } },   // (`veil`: a replay on another lake puts it back under this much ink)
   handoff: { character: 'wick', nightMode: 'still', at: 'intro:done', event: { intro: true } },   // game.startNewRun({character, nightMode, __intro: true})
   // when the cove ships (world.SUPPORTS_COVE): the same film dressed at the sea-gate, handing to the First Evening's wake at the hearth;
   // its lines replace FIRST_EVENING.text.lore (the Lantern Line's three) and the `framing` step is not played. Not built.
