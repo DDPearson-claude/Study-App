@@ -906,7 +906,7 @@ ctx.game += {
 - **Every run sets out from the Landing** (P1–P2, AF + FE; DESIGN §25.4.8): New Descent → `zone:change {zone: 'cove', hub: true, from: 'title'}` with the raft at `COVE.arena.moorings[0].slot` → the 3 s glide along `COVE.setOutPath` (tap to skip after the first) with one rotating Murk line (`FIRST_EVENING.everyRun`) → at the arch line `startNewRun(...)`. A Snuff cuts to the hearth for 3 s (`FIRST_EVENING.snuffed`) before the Snuffed summary. `run:start` never fires without the glide.
 - **Input priority during the bite** (every flow and mode): while `ctx.fishing.state === 'bite'`, `pressAction` routes the pointer and Space / Enter to `fishing` first (before `combat.onPointerDown`, `actors.pickMerchant` and Flare); F stays Flare.
 - **Debug:** `core.debugEnabled()` is true for `?debug=1`, the localStorage key `gw.debug === '1'` or `globalThis.GW_DEBUG === true` (the scenario runner sets it). Hooks that return hidden state (§13.11) register only when it is on; `window.__gw` may stay, but a release build exposes no species, roll, plan or pre-roll on it.
-- **The measuring ceremony is a cinematic state** (`ctx.cinematic = true` from `fishing.startCeremony` until the card opens). While it is set, main gives **survival and combat dt 0** (no phase clock, drains, enemies, director or swarm window progress) and fishing freezes its bite timers; actors, render, ui and audio get real dt. During an active swarm window every class plays the short 1.2 s variant (`BALANCE.ceremony.cinematic.duringSwarm`). The catch card that follows is today's blocking modal.
+- **The show is a cinematic state** (§13.7b; it replaced the measuring ceremony): `ctx.cinematic = true` from `fishing:caught` (the end of the reveal, where `fishing.startShow` runs; `startCeremony` is its alias) until the card's turn. While it is set, main gives **survival and combat dt 0** (no phase clock, drains, enemies, director or swarm window progress) and fishing freezes its bite timers; actors, render, ui and audio get real dt. During an active swarm window every class plays the short variant after its reveal (`AUTOFISH.show.swarm`: 1.2 s in all, = `BALANCE.ceremony.cinematic.duringSwarm`). The catch card that follows is today's blocking modal. Main's valve releases a flag held past `AUTOFISH.show.valve` + 4 s; fishing's own valve opens the card at `AUTOFISH.show.valve` s from the fish breaking the surface. Space / Enter during the show go to `fishing.hurryShow()`.
 - **Boot:** `core.loadSave()` returns the raw envelope `{version, meta, run}` (`schema` is never filled in from `defaultMeta()`), then `progression.migrateSave(save)` (§13.2) → flow `title` → `zone:change {zone: 'cove', hub: true, prev: null, from: 'boot'}` (world builds the cove so the title orbits it) → `ui.showTitle()`. The boot overlay offers **Begin** (no saved expedition) or **Continue** (a saved expedition), plus Settings. Begin → flow `hub` → `hub:enter {from: 'boot'}`; on a save without `meta.firstEvening.done` Begin starts **the First Evening** instead (§13.12; in P1–P2 FE builds its arch crossing starts today's run). Continue → §13.4 Continue.
 - **`toTitle()`** from the hub: save, flow `title`, overlay (no zone change); Begin then emits `hub:enter {from: 'title'}`. From an expedition: save the run (with `run.pos`), set `state.run = null` in memory (the run stays in the save), `zone:change {zone: 'cove', hub: true, prev, from: 'title'}`, flow `title`, overlay with Continue.
 - **Pointer routing in the hub:** (during a bite, the strike first, as above) pointerdown → `ui` station glyph (tap-to-walk, `player.walkTo(stationId)`) → `world.pickFrame(ndc)` (only in the `wall` camera: opens `ui.openMount(speciesId)`) → `actors.pond.pick(ndc)` (only in the `pond` camera: `ui.openPond(uid)`; a tap on the pond never reaches fishing) → `actors.pickMerchant(ndc)` (Trade) → `fishing.onPointerDown()` (jetty cast and the test buoy, only while the Wick stands on the jetty or the raft). No zap in the hub (`combat.onPointerDown` is not called). Keyboard: `E` → `player.interact()` / `interactHold` as §12.5.
@@ -1025,7 +1025,7 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 | `expedition:start` | `{zone, nightMode, character, outing: 'first'\|'normal'\|'descent'}` | main → progression, ui, audio, challenges |
 | `expedition:end` | `{result: 'home'\|'snuffed', summary: ExpeditionSummary}` | main → progression, ui, audio, challenges |
 | `hub:enter` | `{from: 'boot'\|'home'\|'snuffed'\|'title', summary?}` | main → ui (Homecoming / Snuffed / nothing), audio, actors, player |
-| `fish:measured` | `{speciesId, z, sizeClass, ancient, length, weight, favours, records: [{kind:'pb'\|'classFirst'\|'place'\|'oldLedger'\|'elderLog'\|'bestSetup'\|'resident', …}], name?, place, fish, cove: bool}` — fired **at the seal stamp** by `progression.measure(fish)`; records are already written and saved; `fish:landed {measured: true}` follows at once and opens the card | progression (fishing calls `measure` at the stamp) → ui (banners), audio (bell), challenges, world (Tally Post), main (save) |
+| `fish:measured` | `{speciesId, z, sizeClass, ancient, length, weight, favours, records: [{kind:'pb'\|'classFirst'\|'place'\|'oldLedger'\|'elderLog'\|'bestSetup'\|'resident', …}], name?, place, fish, cove: bool}` — fired **at the present of the show** (§13.7b; it was the seal stamp) by `progression.measure(fish)`; records are already written and saved; `fish:landed {measured: true}` follows at once and queues the card, which opens when the show's pause ends | progression (fishing calls `measure` at the stamp) → ui (banners), audio (bell), challenges, world (Tally Post), main (save) |
 | `fish:marked` | `{uid, speciesId, nights}` (marked for home) / `fish:released-listless` `{uid, speciesId}` (the Live Well clock ran out) | progression → ui |
 | `fish:escaped` | `{speciesId, sizeClass, z, approxLength, reason: 'snapped'\|'thrown'\|'spat'\|'spooled'\|'fouled'\|'staggered', place, x, zPos, markedFish: bool, name?, grade, legendary}` — **after** the loss and its 0.6 s quiet beat, every class (§13.7a); drives the got-away note (toast Small–Prize, card Trophy+). `markedFish` is true for an open-water Elder+ or, from P2, a Trophy+ at a place. Replaces `fish:escaped-big` (retired; its listeners filter on `sizeClass`) | fishing → ui (toast / card; the gear log pins it), progression (Marked Fish, Glimpsed page, Got away list, Elder name, legend wounds), challenges, audio |
 | `tip:show` | `{id}` — a **directed tip** (D1′): the module that knows the moment emits it and ui shows the `TIPS` entry whose trigger is `tip:show:<id>`, once per save (`meta.seenTips`). `af_changed` (progression or the First Evening: a legacy save's first v3 bite), `af_letpass` (fishing: the first Prize+ tell), `af_hurry` (fishing: the first Small / Keeper play from the 2nd run), `af_strikeReminder` (the First Evening: the first lake bite after a fumbled tutorial strike) | fishing, progression, first-evening → ui |
@@ -1047,6 +1047,8 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 | `fishing:strike` | `{grade: 'clean'\|'struck'\|'early'\|'late', sizeClass}` (AF; legends add `{legendary: true, speciesId}`) | fishing → ui (the strike word and ring burst), audio, actors, first-evening |
 | `fishing:reel` | `{phase: 'take'\|'gain'\|'run'\|'hold'\|'surge'\|'glimpse'\|'leap'\|'scare'\|'place'\|'lastStand'\|'still'\|'lift'\|'loss', kind?: 'skitter'\|'grind'\|'lilies'\|'chains'\|'glassClear', sizeClass, t, dur, strength, tier, length?}` — the automatic play's beats (AF; class, z, the mean fitted `tier` and the place only, never species; `length` = `data.presentLength(lake, z)`, never the true length; legends add `{legendary: true, speciesId}`) | fishing → render (camera shake, leap slow-motion via `game.slowmo`), actors (the Wick's effort, rod bend, tow), audio (ratchet, hiss, hum, splash, music), ui (the class estimate on the first Prize+ glimpse or the Small skitter) |
 | `fishing:landing` | `{sizeClass, ancient, legend, dur}` — the landing's payoff begins (polish, 2026-11-13): the play has run and the reveal's wipe starts (`dur` s of game time, `AUTOFISH.landing[class].wipe`). Class only: no species, name, rarity or length (the species is known at `fishing:caught`, when the wipe ends) | fishing → audio (the swell; its chime resolves on `fishing:caught`) |
+| `fishing:show` | `{phase: 'lift' \| 'hold' \| 'pause' \| 'card', cls, pose, …}` — the show's beats (§13.7b), each once per fish, in order: `lift` at `fishing:caught` `{cls, pose, dur: {lift, hold, pause}, sizeClass, ancient, legendary, speciesId, length}`; `hold` at the present, right after `fish:measured` and `fish:landed` `{isNew, records}`; `pause`; `card` `{origin: {x, y}}` (CSS px of the held fish's centre: the card unfolds from it) | fishing → ui (the clean frame, the card's turn and origin), audio (the haul, the flourish), first-evening |
+| `show:beat` | `{kind: 'take' \| 'present' \| 'flap' \| 'settle' \| 'drip', strength 0..1, cls}` — the Wick's and the fish's own beats inside the show, for sound | actors → audio |
 | `ui:screen` | `{id: 'journal'\|'gear'\|'shop'\|…, open: bool}` (AF + FE) — a screen opened or closed | ui → first-evening (the odds step), tips |
 | `fish:action` | `{action: 'keep'\|'eat'\|'render'\|'release'\|'mark', speciesId}` (kept from v1; FE uses card close = `release` in the cove) | ui → progression, first-evening |
 | `journal:seen` | `{speciesId}` — a lost species not yet named gets its Glimpsed page | progression → ui |
@@ -1144,7 +1146,7 @@ getRelics() -> [{...relic, shelf: 'fishing'|'gloom', level, found?}];  buyRelic(
 getLanding() -> {growth flags, frames: [{speciesId, frame, state: 'unknown'|'named'|'mounted', seal}], pond, waystones, legends}
 tryRevive()  // CHANGED: Second Wick once per expedition, every mode
 ```
-**The catch hand-off:** fishing calls `makeFish(…)` when the fish is landed and holds the returned Fish → `fishing:caught {fish, …}` (informational; progression writes nothing on it) → `fishing.startCeremony(fish)` → at the stamp fishing calls `progression.measure(fish)` → `fish:measured` → `fish:landed {measured: true}` → ui opens the card (Keep / Eat / Render / Mark for home in expeditions; Release only in the cove) → main saves on `fish:measured`. Owns the expedition tally, Far Water day state, the Live Well clock (decrements at each dawn, releases with `fish:released-listless`), residents (re-roll on the next Set Out after a landing, or after 3 in-lake days), Marked Fish, pressure (−0.12 per catch, floor −0.6, reset at dawn), rumours and today's rumour (seeded by the real date), conditions (seeded by expedition, day and lake), Murk's in-lake days (1, 2, 3, then odd days), the oil price and the crossing tally rule. Banks discoveries instantly (Memories) and the tally on return.
+**The catch hand-off:** fishing calls `makeFish(…)` when the fish is landed and holds the returned Fish → `fishing:caught {fish, …}` (informational; progression writes nothing on it) → `fishing.startShow(fish)` (the show, §13.7b) → at the present fishing calls `progression.measure(fish)` → `fish:measured` → `fish:landed {measured: true}` → the pause → ui opens the card (Keep / Eat / Render / Mark for home in expeditions; Release only in the cove) → main saves on `fish:measured`. Owns the expedition tally, Far Water day state, the Live Well clock (decrements at each dawn, releases with `fish:released-listless`), residents (re-roll on the next Set Out after a landing, or after 3 in-lake days), Marked Fish, pressure (−0.12 per catch, floor −0.6, reset at dawn), rumours and today's rumour (seeded by the real date), conditions (seeded by expedition, day and lake), Murk's in-lake days (1, 2, 3, then odd days), the oil price and the crossing tally rule. Banks discoveries instantly (Memories) and the tally on return.
 
 **fishing**
 ```
@@ -1155,7 +1157,9 @@ view += { favour: {mu, notches, terms: [{family, id, value}], quiet: bool},     
           strike: null|'clean'|'struck'|'early'|'late',
           play: {t, dur, phase, k /*presentation progress 0–1*/, line /*presentation tension 0–1*/, bend, glimpse: bool, leap: bool}|null,   // AF; class and z only
           biteTell: null|'doublePop'|'plunge'|'dragUnder'|'flatSlide'|'dome',
-          measure: {phase: 'scoop'|'pose'|'cord'|'banners'|'card', length, sizeClass, seal}|null,
+          measure: null,                                                       // the measuring overlay is retired (§13.7b): always null on the v3 path
+          show: {phase: 'reveal'|'lift'|'hold'|'pause'|'card', cls, pose, t, poseT, dur, hurried, protected, swarm, sizeClass, ancient,
+                 legendary, speciesId /* from 'lift' */, length /* cm, from 'lift' */, uid}|null,   // §13.7b: T0 → the card's close
           lure: lureId|null, place, cove: bool }                               // no odds field exists on the view, ever; `drag` is cut
 rollSize(species, mu, {place, maxClass}) -> z               // z ~ N(mu, 1) truncated [−2, 3.6], clamped by maxZFor / giant water
 favourAt(point, species?) -> {mu, terms}                    // the one formula (BALANCE.favour). With a species: its full μ (the roll). Without: the
@@ -1177,7 +1181,8 @@ planPlay(sizeClass, z, seed, {leapChance, tiers, place, legendId}) -> Plan   // 
 partLine(reason: 'staggered')                               // combat only (Gloomtide hand slam that lands, non-legendary): the one call that ends a play
                                                             //   outside the roll; no player input ends a play (no cut: DESIGN §25.0.2c)
 setTutorial(opts|null)                                      // §13.7a / §13.12: waits and presentation only; throws on outcome / class / chance / z / species
-startCeremony(fish) -> Promise                              // sets ctx.cinematic; the reveal → scoop → pose → cord → stamp (calls progression.measure) → banners → card
+startShow(fish, opts) -> Promise                            // §13.7b: sets ctx.cinematic; lift → the present (calls progression.measure) → hold → pause → card
+hurryShow() -> bool ; inShow (getter)                       // a tap's hurry (§13.7b). startCeremony / skipCeremony / inCeremony stay as aliases
 cove mode: species = COVE.fishing.species; testBuoy cast → COVE.testBuoy.practice (the practice float: a bite every ≈ 3 s with the strike grade
                                                             //   shown, a sample play of any class on request; no fish, no rewards, no odds)
 ```
@@ -1265,7 +1270,9 @@ The pond surface (transparent, after the pond fish, no depth write) and the floo
 ```
 modes += 'trophy' | 'cove' | 'gate' | 'wall' | 'hang' | 'pond' | 'setout' | 'prologue' (FE, §13.12) | 'vista' (P4)   // every number in BALANCE.cameras / FIRST_EVENING.shot, in render's convention
 setTrophyTarget({length (m), landmark, position?, place?})                                // landmark = data.landmarkOf(place) | null; null at the card
+setShowTarget({cls, pose?, length (m), landmark?, position?, place?} | null)              // §13.7b: the show camera, from T0; null at the card (the framing holds behind it)
 ```
+The show camera (§13.7b) fits the named points of `actors.getShowFocus()` inside the frame at the pose's fov and elevation (`AUTOFISH.show.camera`), on the play's yaw (with the trophy's landmark swing), from the first frame of the reveal; `setTrophyTarget` and the trophy rule below stay as its fallback.
 The trophy subject is `actors.getMeasureFocus()` while a measuring pose is up; after `setTrophyTarget(null)` the framing holds while `ui.isBlocking()` (the catch card) and eases back 0.6 s after. Landscape keeps the distance rule exactly; a phone held upright may step back up to 1.6× it (fov capped at 66°).
 `BALANCE.cameras` presets carry render's full parameter set (`elev, dist, aim, aimY, fov, ahead, stiff`; pitch = atan((dist·sin elev − aimY) / (dist·cos elev + aim)), not elev) and a `portrait {elev, dist, fov}` that replaces v1's widening on foot and in the cove; raft presets keep v1's widening. sail 24° / 15 m / aim 6.5 / aimY 1.4 / fov 52; fish 28° / 13 m; `walk` 34° (§24.5 v3); the reel camera follows line distance and fight state only, never size class; **the night overview blends in only while `combat.swarmActive`** (quiet nights, Stillnights and lamp-watches keep sail / fish with the night grade); `trophy` distance `clamp(1.2 + 1.6·L, 1.6, 16)` m, crane to 50° above 4 m, yaw toward the landmark by at most ±35° from north (on foot the occlusion cone and terrain clamp stay on; no landmark → no yaw change); `gate` only during glides or at its look spot on the jetty root with no line out; `wall` focuses the nearest wing (aimY = its middle frame band); `hang` focuses the frame centre; the title orbits a southern arc of the cove. The leap reveal's slow motion goes through `ctx.game.slowmo(0.25, 0.35)` (main owns `ctx.time.timeScale`).
 
@@ -1286,6 +1293,10 @@ fish shapes += 'sturgeon'; params += pattern 'marks', barbels, needleSnout; age 
 **actors**
 ```
 setPose(name) += 'measurePalm' | 'measureArms' | 'measureHang' | 'measureAlongside';  showCord(lengthM, k 0..1)
+setPose(name) += 'showPinch' | 'showBoth' | 'showHug' | 'showHang' | 'showAlongside'      // the show's poses (§13.7b; AUTOFISH.show.poseNames)
+showFish(fishVisual, {cls, pose?, sizeClass, ancient, legend, beats: {lift, hold, pause}, special}) -> {pose, id, hands, side} | null
+setShowTime(t) ; getShowFocus(out?) -> {pose, id, t, lift, fish, head, feet, hands, rodTip, keep, center, radius} | null
+endShow({action?}) ; showPose (getter)                      // §13.7b has the shapes; showCatch(null) still means endShow()
 showCatch(fishVisual | null)                               // the landed fish handed over for the ceremony (fishing calls it; the pose follows its length)
 measurePoseFor(lengthM, {legendary}) -> pose name ; measurePose (getter) ; getCordInfo() -> {k, length, start, end, radius} | null
 getMeasureFocus(out) -> {center, radius, pose, fish?: {center, axis (snout → tail, unit), length}} | null   // the trophy camera's
@@ -1309,7 +1320,9 @@ showSetOut() / openTackle() (the gear log: progression.getGearLog) / showHomecom
 openLog({speciesId, section: 'odds'|'field'|…}) (the Journal's Your odds block from progression.getOdds; refused while a line is out: AUTOFISH.logLock)
 automatic fishing (AF): no reel bar; the strike word under the float and the strike ring (meta.settings.strikeRing); the class estimate on the first Prize+ glimpse;
   the card's "Strike: …" line; the Set Out rating in words; a "%" only inside the Journal and the gear log; nothing names the hooked species before the reveal
-showMeasure(view.measure) (overlay, during ctx.cinematic) ; catch card += favours, banked Boon pick; Mark for home (nights) from P3 (in P1–P2 nothing is marked:
+(showMeasure, the measuring overlay, is retired by the show, §13.7b: nothing is drawn over the picture from the fish breaking the surface to the card;
+  the HUD is hidden and toasts, tips and banners are held while fishing.view.show is up; the card opens when view.show.phase is 'card', unfolding from
+  fishing:show's origin, its length counting up, its stamp pressing, your best and the Old Ledger as two knots on its ruler) ; catch card += favours, banked Boon pick; Mark for home (nights) from P3 (in P1–P2 nothing is marked:
   every creel fish is "not marked" and the legendary trophy slot stays theft-proof)
 P1–P2: New Descent mode cards (run 1: the First Outing card only; from run 2 Still / Lantern / Gloomtide with Lantern preselected); the death screen titled Snuffed;
   the Scorched card (Lantern, Embers at 0)
@@ -1337,7 +1350,7 @@ mods    = { lake?, strike?: 'clean'|'struck'|'early'|'late' (default 'struck'), 
 p = max(CATCH_V3.floor, CATCH_V3.cap[class] · σ(CATCH_V3.scale · (Hold − Fight)))      // every cap < 1: p < 1 always (validated)
 ```
 
-**Phases** (`fishing.state` names kept): `idle → charging → casting → waiting → bite → reeling (the play) → landing (the reveal and the ceremony) | lost (the quiet beat, then the note) → idle`.
+**Phases** (`fishing.state` names kept): `idle → charging → casting → waiting → bite → reeling (the play) → landing (the reveal and the show, §13.7b) | lost (the quiet beat, then the note) → idle`.
 
 | phase | fishing does | emits (v3 payloads; **no species field anywhere in this column**; legends add `{legendary: true, speciesId}`) |
 |---|---|---|
@@ -1366,6 +1379,44 @@ p = max(CATCH_V3.floor, CATCH_V3.cap[class] · σ(CATCH_V3.scale · (Hold − Fi
 **The logs** (the only place a % is shown): progression's `getOdds` / `getGearLog` (§13.7) feed the Journal and the gear log; ui prints `data.catchDisplay(p)` (rounded down; owned relics in). ui must not open the Journal or the gear log while `fishing.state ∈ {charging, casting, waiting, bite, reeling, landing}` or in `lost` before the note shows (`AUTOFISH.logLock`; every route in `AUTOFISH.logLockRoutes`: J, pause → Journal, the ledger entry, the Gear Bench, Murk's lure and bait rows, the First Evening's log glyph, the got-away link; the button reads "Reel in first."), and no view highlights the hooked species. The Set Out card and the Gear Bench show `catchRating` in words only.
 
 **The tutorial seam** (the First Evening, §13.12): `fishing.setTutorial(opts | null)` accepts only `{nibbleAt, biteAt, retryBiteAt, retryNibbles, strikeRing, estimate}` (waits and presentation) and **throws** on any outcome, class, chance, z or species field (`FIRST_EVENING.tutorialApi`).
+
+### 13.7b The show: the Wick presents its catch (binding; DESIGN §25.6.8, `docs/v3/show/SPEC.md`)
+
+The user (2026-11-13): "When a fish is caught, it should be an animation of our character holding the fish and showing it to us. Then after a pause the fish card opens up." The show replaces the measuring ceremony's poses, cord and overlay on the automatic-fishing path. Every number is in `AUTOFISH.show`; `data.showPlan(cls, {swarm, hurried, protected})`, `data.showPoseFor(lengthM, {sizeClass, ancient, legend, shape})`, `data.showClassOf(fish)` and `data.showRevealSeconds(cls)` are the one place the clock and the pose are decided.
+
+**Phases** (`fishing.view.show.phase`; T0 = `fishing.state` becomes `landing`): `reveal` (T0 → `fishing:caught`; `AUTOFISH.landing`'s wipe, on the game's clock) → `lift` (the swing-in, the turn to the lens, the present) → `hold` → `pause` (≥ `show.minPause` 0.6 s) → `card`. T0 → card: 2.0 / 2.1 / 3.0 / 3.5 / 4.97 / 5.26 s (small … ancient; a legend plays the ancient row); in a swarm window the reveal + 1.2 s.
+
+**Order, once per fish:** `fishing:landing` → `fishing:caught` → `fishing:show {lift}` → `fish:measured` → `fish:landed {measured: true}` → `fishing:show {hold}` → `fishing:show {pause}` → `fishing:show {card}` → the card (`ui:modal`). `progression.measure` is called at **the present** (pose time = the lift's length), never later than the valve; main saves on `fish:measured`. `ctx.cinematic`: `fishing:caught` → the card's turn. A reset, a run's end or a zone change mid-show measures the fish if it was not (once), clears `ctx.cinematic`, releases the camera and the Wick, and opens no card.
+
+**Hurry:** a tap (pointer, Space, Enter) from T0 on: the reveal is never cut; the rest of the lift runs × `hurry.liftRate`; the card opens once the fish has been presented for `hurry.hold` s, or `hurry.protectedHold` s (0.8) when `fish:landed.isNew` or a `pb` record came back from `measure`. **Valve:** `show.valve` s of the real clock from T0.
+
+**The clean frame:** from T0 until the card nothing of the UI is drawn over the picture (no overlay, HUD, toast, tip, banner or hint); `ui.showMeasure` is not called and `view.measure` is null.
+
+**actors** (the Wick and the fish):
+```
+showFish(fishVisual, {cls, pose?, sizeClass, ancient, legend, beats: {lift, hold, pause}, special}) -> {pose, id, hands: 1|2, side: ±1} | null
+    // once, at fishing:caught. cls = data.showClassOf; pose id defaults to data.showPoseFor(fishVisual.length, …); beats = data.showPlan's
+    // (the swarm row in a window). Pose time 0 = the start of the lift. Actors takes the fish from where fishing left it (world space,
+    // true size) and owns its transform until endShow; fishing owns and disposes the FishVisual.
+setShowTime(t)       // pose time (s since showFish), every frame of the show from fishing (faster when hurried); never runs back; a frame
+                     // without a call advances by actors' own dt
+getShowFocus(out?) -> null | {pose, id, t, lift /*0..1*/, fish: {center, axis /*tail → snout*/, up, length, depth}, head: {center, radius, flame /*its core*/},
+                              feet, hands: [right, left], rodTip | null,
+                              keep: {fish: [snout, tail, back, belly], head: [4], flame: [1], hands: [..], feet: [1], rodTip: [1] | []},
+                              center, radius}
+    // world space (THREE.Vector3). From the lift's first frame it is the SETTLED layout (where each point will be at the present), steady
+    // to 6 cm through lift, hold and pause, so the camera eases to a still target. getMeasureFocus() returns its center / radius meanwhile.
+endShow({action?: 'keep'|'eat'|'render'|'release'})     // the fish leaves the hands (≤ 0.6 s), the Wick returns to play; showCatch(null) = endShow()
+showPose (getter) -> 'showPinch' | 'showBoth' | 'showHug' | 'showHang' | 'showAlongside' | null
+emits show:beat {kind, strength, cls}
+```
+The Wick faces the lens from `env.camYaw` (the world yaw from the Wick to `ctx.render.camera`, computed by actors each frame; null without a camera) and reads `env.show {pose, t, lift, hold, pause, cls, life, lenB, depthB, shape, special, side}`; both are internal to actors. The fish shows its flank to the lens (a ray its back) at true size; nothing is held above the Wick's head.
+
+**fishing** (the sequence): `view.show` (above), `startShow` / `hurryShow` / `inShow`, the events above; at T0 `render.setShowTarget({cls, length})`; at `fishing:caught` `ctx.cinematic = true`, `actors.showFish`, `setLine(false)`; every frame `actors.setShowTime(poseT)`; at the present `progression.measure`, then the landing's climax (`fishing-fx` glory on the show focus, `render.pulse` / `kick`, `actors.flareFlame`, the haptic); at the card `ctx.cinematic = false`, `render.setShowTarget(null)`; on `fish:action` (or the card's close) `actors.endShow({action})`, the model disposed 0.6 s later, `view.show = null`. Without `actors.showFish` it falls back to `setPose` + `showCatch` + `getMeasureFocus`.
+
+**render** (the camera): `setShowTarget` (above). One rig with the play's (no cut, no new pass): spring ω `show.camera.settle[cls]` so that it has arrived by the present; it fits the `keep` names of `show.camera.pose[pose]` inside the safe area (`margin`), never nearer than `minLens`; `fovPortrait` upright, with the rake for an alongside fish over `rakeAbove` m; still (< `still` of its distance per second) in the pause; holds behind the card; eases out over `out` s when the card closes.
+
+**Debug** (only when `core.debugEnabled()`): `ctx.debug.show()` → the show's state, `ctx.debug.showRate(k)` (its clock; `cerRate` is its alias; `ceremony()` keeps answering for older scenarios), `ctx.debug.showPose({speciesId, z, lengthCm?, cls?, pose?, character?, heading?, t})` and `ctx.debug.showPoseInfo()` (actors: the pose viewer).
 
 ### 13.8 Data schema (v3) and the data-exports table
 
@@ -1422,7 +1473,8 @@ TIPS += TIPS_V3; MERCHANT_LINES += MERCHANT_LINES_V3; TEXT.v3 = TEXT_V3; TEXT.ch
 | `BALANCE.favour` | cap 1.8, notches, families and every term | §5.1, §6.1 | P1 | fishing, ui, tools | in data |
 | `BALANCE.signs` | six sign kinds and their rules | §5.1 | P1 | fishing, water | in data |
 | `BALANCE.bite` (v3 keys) | dragUnder, holdMult, letItPass, leapReveal (D1′ retired `pips`) | §5.4 | P1 | fishing, ui | in data as `BALANCE_V3.bite`: **must be merged into v1 `BALANCE.bite`** (v1 keys kept), not assigned over it |
-| `BALANCE.ceremony` | beats, poses, wick height, trophy camera, mm below 20 cm (the near-miss card's config is retired: `AUTOFISH.gotAway`) | §5.8 | P1 | fishing, actors, render, ui | in data |
+| `BALANCE.ceremony` | beats, poses, wick height, trophy camera, mm below 20 cm (the near-miss card's config is retired: `AUTOFISH.gotAway`). Since the show (§13.7b) only legacy paths read its beats and poses; `cinematic.duringSwarm`, `wickHeight` and `mmBelow` stay live | §5.8 | P1 | fishing, actors, render, ui | in data |
+| `AUTOFISH.show` · `showPlan` · `showPoseFor` · `showClassOf` · `showRevealSeconds` · `SHOW_CLASSES` | the show (§13.7b): phases, per-class beats, `about` / `max`, the swarm row, the hurry, the valve, the pose ladder by length with its class and shape rules, grips, facing, life, the camera, the card, the sounds; the pure helpers both lanes call | the user, 2026-11-13 | P1 | fishing, actors, render, ui, audio, tools | in data |
 | `BALANCE.records` | Old Ledger z 2.3 (+5), seals 143 + 4 (the Lampwarden caps at Trophy: no Elder seal), escape estimate, Tally Posts, Elder Log fields | §6.3 | P1 / P2 | progression, ui, world | in data |
 | `BALANCE.oil` | the context table (raft / foot / lamp × phase), Last Flicker, gutter, snuffBy, checks | §3.4 | P1 | survival | in data |
 | `BALANCE.wellFed` | drain × 0.5, at 0.6, effects `{hold: 2}` (a run buff through `getCatchBuffs`; not a STATS key), dawn mend in combat, no starvation | §9.1 | P1 | survival, ui | in data |

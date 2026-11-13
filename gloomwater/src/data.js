@@ -3832,22 +3832,26 @@ export const AUTOFISH = {
     poseNames: { pinch: 'showPinch', both: 'showBoth', hug: 'showHug', hang: 'showHang', alongside: 'showAlongside' },   // actors.setPose names
     // ================= LANE A: the Wick and the fish (actors retunes; world metres, seconds) =================
     // grip, by pose. reach = how far in front of the Wick's face plane the fish's centre is held, toward the lens (the fisherman's
-    // trick: a fish under tinyBelow m comes right up to the lens); spread = hand spacing as a share of the fish's length [min, max m];
-    // tilt = a hugged fish's lean from the deck (deg); rod = where the rod is ('planted' upright in the right hand, 'stowed' on the
-    // bow rest, 'raised' with the fish on its tip); touch = where the standing Wick's hand rests on an alongside fish
+    // trick: a fish under tinyBelow m is lifted beside the face and comes right up to the lens); spread = each hand's distance from
+    // the fish's middle as a share of its length, the pair clamped to spreadClamp m apart; tilt = a hugged fish's lean from the deck
+    // (deg); gap = the most a hanging fish stands off the Wick's body (m), lean = the planted rod's lean from upright (deg); rod =
+    // where the rod is ('planted' upright in the right hand, 'stowed' on the bow rest, 'raised' with the fish on its tip); touch =
+    // where the standing Wick's hand rests on an alongside fish, chinOnDeck = the share of its length resting on the deck's edge
+    // NOTHING is ever held above the Wick's head: its flame is there.
     grip: {
-      pinch:     { hands: 1, reach: 0.42, reachTiny: 0.6, tinyBelow: 0.15, height: 'shoulder', rod: 'planted' },
-      both:      { hands: 2, reach: 0.36, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
-      hug:       { hands: 2, reach: 0.2, tilt: 70, tail: 'deck', side: 'lens', rod: 'stowed' },
-      hang:      { hands: 2, tail: 'deck', tailClear: 0.04, side: 'lens', rod: 'raised' },
-      alongside: { hands: 1, stand: true, touch: 'brow', flankUp: 30, acrossWhen: 0.7, rod: 'planted' },
+      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'shoulder', heightTiny: 'cheek', rod: 'planted' },
+      both:      { hands: 2, reach: 0.24, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
+      hug:       { hands: 2, reach: 0.15, tilt: 70, tail: 'deck', side: 'lens', rod: 'stowed' },
+      hang:      { hands: 2, tail: 'deck', tailClear: 0.04, gap: 0.25, lean: [20, 35], side: 'lens', rod: 'raised' },
+      alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0.12, flankUp: 30, acrossWhen: 0.7, rod: 'planted' },
     },
     // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
     // three-quarter: the body faceOff degrees toward the fish, the head to the lens); the fish's flank within flankWithin of square-on
     facing: { faceWithin: 12, threeQuarter: { hang: 30, alongside: 35 }, flankWithin: 15, turnRate: 9 },
     // weight and life, by class: overshoot = the present's travel past the hold point (share of the lift's travel, settling in settle s);
-    // twitch = [peak struggle 0..1, s between flaps] through the hold; pauseStill = the struggle's ceiling during the pause (a still, not
-    // a freeze: breath and flame only); drips = drops falling off the fish through the hold; strain = the Wick's lean, braced legs and
+    // twitch = [peak struggle 0..1, s between flaps] through the hold, the first flap firstFlap s after the present (so every class
+    // flaps at least once before its pause); pauseStill = the struggle's ceiling during the pause (a still, not a freeze: breath and
+    // flame only); drips = drops falling off the fish through the hold; strain = the Wick's lean, braced legs and
     // tremor (0..1); dip = how far the raft's deck edge sinks toward the fish as its weight comes aboard (m); flame = the head flame's
     // pride through the hold (the pose's `flame`, under flareFlame's burst at the present); bob = the proud little bounce (m)
     life: {
@@ -3856,8 +3860,8 @@ export const AUTOFISH = {
       prize:   { overshoot: 0.12, twitch: [0.7, 0.7],   drips: 8,  strain: 0.2,  dip: 0.02,  flame: 0.5,  bob: 0.015 },
       trophy:  { overshoot: 0.08, twitch: [0.55, 0.9],  drips: 12, strain: 0.65, dip: 0.045, flame: 0.65, bob: 0.01 },
       elder:   { overshoot: 0.05, twitch: [0.4, 1.2],   drips: 16, strain: 0.85, dip: 0.06,  flame: 0.9,  bob: 0.008 },
-      ancient: { overshoot: 0.05, twitch: [0.35, 1.4],  drips: 18, strain: 1,    dip: 0.07,  flame: 1.0,  bob: 0.008 },
-      settle: 0.28, pauseStill: 0.12, swingIn: 0.4, takeAt: 0.62,      // shares of the lift: the fish swings in on the line, the hands take it, then the present
+      ancient: { overshoot: 0.05, twitch: [0.35, 1.3],  drips: 18, strain: 1,    dip: 0.07,  flame: 1.0,  bob: 0.008 },
+      settle: 0.28, firstFlap: 0.2, pauseStill: 0.12, swingIn: 0.4, takeAt: 0.62,      // shares of the lift: the fish swings in on the line, the hands take it, then the present
     },
     // ================= LANE B: the sequence, the camera, the card and the sound (fishing / render / ui / audio retune) =================
     // the show camera is one rig with the play's (no cut): it takes over at T0 and eases with spring ω `settle` (1/s) so that it has

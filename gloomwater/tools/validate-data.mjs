@@ -1701,6 +1701,7 @@ if (V3) {
         const Lf = SH.life[c];
         ok(isObj(Lf) && Lf.overshoot > 0 && Lf.overshoot <= 0.25 && Array.isArray(Lf.twitch) && Lf.twitch[0] > SH.life.pauseStill && Lf.twitch[1] > 0 && Lf.drips > 0 && Lf.strain >= 0 && Lf.strain <= 1 && Lf.dip >= 0 && Lf.dip <= 0.1 && Lf.flame > 0,
           `AUTOFISH.show.life.${c}: an overshoot, a twitch livelier than the pause's still, drips, strain 0–1, a dip of at most 0.1 m, a proud flame`);
+        ok(SH.life.firstFlap > 0 && SH.life.firstFlap < B.hold && (CLS.indexOf(c) < 4 || SH.life.firstFlap + Lf.twitch[1] < B.hold), `AUTOFISH.show.life: ${c} flaps in its hold (twice for an Elder or bigger)`);
         if (i) { const Pv = SH.life[SC[i - 1]]; ok(Lf.overshoot <= Pv.overshoot && Lf.strain >= Pv.strain && Lf.dip >= Pv.dip && Lf.flame >= Pv.flame && Lf.drips >= Pv.drips && Lf.twitch[1] >= Pv.twitch[1], `AUTOFISH.show.life: ${c} is heavier than ${SC[i - 1]} (less overshoot, more strain, dip, flame and drips, slower flaps)`); }
         // the camera has arrived by the present: a critically damped spring has (1 + x)·e^−x < 5 % of its travel left at x = ω·t ≥ 4.75
         ok(SH.camera.settle[c] * (P.reveal + B.lift) >= 4.75, `AUTOFISH.show.camera.settle.${c}: ω ${SH.camera.settle[c]} × ${(P.reveal + B.lift).toFixed(2)} s must reach 4.75 (the lens has arrived when the fish is presented)`);
@@ -1732,7 +1733,7 @@ if (V3) {
         }
         ok(seen.size === POSES.length && n > 250, `the roster uses every show pose (${[...seen].join(', ')}; ${n} species × class cells)`); }
       // the grips, the facing and the camera
-      ok(SH.grip.pinch.hands === 1 && SH.grip.pinch.reachTiny > SH.grip.pinch.reach && SH.grip.pinch.reach >= 0.3 && SH.grip.pinch.tinyBelow < SH.poses[0].below && SH.grip.both.hands === 2 && SH.grip.both.reach >= 0.25 && SH.grip.hug.tail === 'deck' && SH.grip.hug.tilt > 45 && SH.grip.hug.tilt < 90
+      ok(SH.grip.pinch.hands === 1 && SH.grip.pinch.reachTiny > SH.grip.pinch.reach && SH.grip.pinch.reach >= 0.2 && SH.grip.pinch.tinyBelow < SH.poses[0].below && SH.grip.both.hands === 2 && SH.grip.both.reach >= 0.15 && SH.grip.hug.tail === 'deck' && SH.grip.hug.tilt > 45 && SH.grip.hug.tilt < 90
         && SH.grip.hang.rod === 'raised' && SH.grip.alongside.stand === true && SH.grip.alongside.flankUp >= 30, 'AUTOFISH.show.grip: one hand held out to the lens (a tiny fish further) · both hands forward · hugged, tail on the deck · hung from the raised rod · standing beside an alongside fish');
       ok(SH.facing.faceWithin > 0 && SH.facing.faceWithin <= 20 && SH.facing.flankWithin > 0 && SH.facing.flankWithin <= 20 && Object.values(SH.facing.threeQuarter).every((a) => a > 0 && a <= 40), 'AUTOFISH.show.facing: the Wick to the lens, the flank square to it');
       for (const p of POSES) { const Cp = SH.camera.pose[p]; ok(Cp.elev >= 0 && Cp.elev <= 30 && Cp.fov >= 36 && Cp.fov <= 56 && Cp.fovPortrait >= Cp.fov && Cp.fovPortrait <= 70 && ['fish', 'head', 'flame'].every((k) => Cp.keep.includes(k)), `AUTOFISH.show.camera.pose.${p}: a near-level lens, a fov of 36–56° (to 70° upright), the fish, the head and the flame always kept in frame`); }

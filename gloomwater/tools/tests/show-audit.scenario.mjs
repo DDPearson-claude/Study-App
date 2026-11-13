@@ -41,6 +41,7 @@ export const CASES = [
   ['tiny', 'quayling', -2, { fallback: ['dusk_minnow', -2] }],
   ['ray', 'velvet_ray', 0.6, {}],
   ['night', 'candlefin_koi', 0.6, { phase: 'gloomtide' }],
+  ['leviathan', 'lantern_swallower', 1.0, {}],   // the longest fish in the game (8.6 m): not in the Mossmere's water, forced here for the framing
 ];
 const STEP_MS = 1000 / 30;
 
@@ -148,6 +149,20 @@ function install() {
       out.bandRect = band && { y: Math.round(band.y), h: Math.round(band.h) };
     } else out.fish = null;
     const w = words(); out.words = w.n; out.text = w.text;
+    // everything the UI draws over the picture: visible leaf elements of #ui (text, glyphs, canvases, gauges), dimmed ones included
+    let ui = 0;
+    for (const e of document.querySelectorAll('#ui *')) {
+      if (e.children.length && !/^(svg|canvas|button)$/i.test(e.tagName)) continue;
+      if (e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
+      const r = e.getBoundingClientRect();
+      if (r.width * r.height < 16 || r.bottom <= 0 || r.right <= 0 || r.top >= H || r.left >= W) continue;
+      let op = 1, shown = true;
+      for (let n = e; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === 'none' || cs.visibility === 'hidden') { shown = false; break; } op *= +cs.opacity; }
+      if (shown && op >= 0.05 && (e.textContent.trim() || /^(svg|canvas|img|i|b)$/i.test(e.tagName))) ui++;
+    }
+    out.uiVisible = ui;
+    // cost: draw calls and triangles of the last frame, live geometries / textures / programs (S8: nothing leaks, a handful of calls)
+    try { const I = c.render.renderer.info; out.gl = { calls: I.render.calls, tris: I.render.triangles, geo: I.memory.geometries, tex: I.memory.textures, prog: I.programs?.length ?? null }; } catch { out.gl = null; }
     return out;
   };
   return true;
@@ -184,7 +199,7 @@ export default async function (api) {
     try { c.debug.firstEvening?.('done'); } catch { /* optional */ }
     m.seenTips = m.seenTips || {}; for (const t of c.data.TIPS || []) m.seenTips[t.id] = true;
     m.journal = m.journal || {};
-    for (const id of ['mossback_perch', 'weeping_carp', 'reedjaw_pike', 'belled_matriarch', 'quayling', 'dusk_minnow', 'velvet_ray', 'candlefin_koi']) m.journal[id] = { caught: 4, biggest: 0.6, pbLength: 20 };
+    for (const id of ['mossback_perch', 'weeping_carp', 'reedjaw_pike', 'belled_matriarch', 'quayling', 'dusk_minnow', 'velvet_ray', 'candlefin_koi', 'lantern_swallower']) m.journal[id] = { caught: 4, biggest: 0.6, pbLength: 20 };
     m.journal.reedjaw_pike.pbLength = 80;
     c.game.save?.();
   });
@@ -245,7 +260,7 @@ export default async function (api) {
     if (!bit) { failures.push(`${name}: no bite for ${sp}`); continue; }
     await g(() => window.__gw.debug.fishStrike('clean'));
     await waitFor(() => window.__gw.fishing.state === 'reeling', null, 30);
-    const info = await g(() => { const c = window.__gw, f = c.debug.fishing(), p = c.debug.fishPlay?.(); return { species: f.species, sizeClass: f.sizeClass, ancient: f.ancient, length: f.length, playEnd: p?.end ?? null }; });
+    const info = await g(() => { const c = window.__gw, f = c.debug.fishing(), p = c.debug.fishPlay?.(); return { species: f.species, sizeClass: f.sizeClass, ancient: f.ancient, length: f.length, playEnd: p?.end ?? null, legendary: c.data.SPECIES_BY_ID[f.species]?.rarity === 'legendary' }; });
     if (info.species !== sp) log(`${name}: hooked ${info.species}, wanted ${sp}`);
     // jump the play to its last half second, then take the clock: every frame from here is exactly 1/30 s
     await g((end) => window.__gw.debug.fishPlayTo(end ? Math.max(0.5, 1 - 0.5 / end) : 0.95), info.playEnd);
@@ -261,7 +276,7 @@ export default async function (api) {
       const cer = c.debug.ceremony?.();
       const sc = c.data.SIZE_CLASSES.find((x) => x.id === c.debug.fishing().sizeClass);
       return { reveal, ceremony: c.debug.fishing().species && c.data.SPECIES_BY_ID[c.debug.fishing().species]?.rarity === 'legendary' ? 5 : (sc?.ceremony ?? 1.2), cer: cer?.active ? cer.dur : null };
-    }, info.ancient || name === 'legend' ? 'ancient' : info.sizeClass);
+    }, info.ancient || info.legendary ? 'ancient' : info.sizeClass);
     const total = pred.reveal + pred.ceremony;
     const rec = { case: name, species: sp, z, sizeClass: info.sizeClass, ancient: !!info.ancient, lengthCm: info.length, predicted: { reveal: +pred.reveal.toFixed(2), ceremony: pred.ceremony, total: +total.toFixed(2) }, frames: [] };
     const shoot = async (label) => {
@@ -270,7 +285,7 @@ export default async function (api) {
       let ok = false;
       for (let a = 0; a < 3 && !ok; a++) { try { await page.screenshot({ path: resolve(shotsDir, file), timeout: 240000 }); ok = true; } catch (e) { log('shot retry', file, String(e?.message || e).split('\n')[0]); } }
       rec.frames.push({ file, t: +(((m.step ?? 0) - step0) * STEP_MS / 1000).toFixed(2), ...m });
-      log('shot', file, JSON.stringify({ t: rec.frames.at(-1).t, phase: m.phase, pose: m.pose, off: m.wickOffLens, fish: m.fish && `${m.fish.wPct}x${m.fish.hPct}% in ${m.fish.inFrame}%`, cover: m.cover, words: m.words }));
+      log('shot', file, JSON.stringify({ t: rec.frames.at(-1).t, phase: m.phase, pose: m.pose, off: m.wickOffLens, fish: m.fish && `${m.fish.wPct}x${m.fish.hPct}% in ${m.fish.inFrame}%`, cover: m.cover, words: m.words, ui: m.uiVisible }));
     };
     // frames before the card: evenly spaced over the predicted length (the first just after the fish breaks the surface)
     let carded = false, tCard = null;
