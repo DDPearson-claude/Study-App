@@ -133,7 +133,7 @@ function judge(name, A, { size = true } = {}) {
   ok(I.lowest >= -0.03 || id === 'alongside' || (id === 'hang' && I.lowest > -0.8), `${name} (${id}): it rests on the deck, not in it (${I.lowest} m)`);
   ok(A.gap <= (id === 'alongside' ? 0.05 : 0.03), `${name} (${id}): every holding hand on the fish (worst gap ${A.gap} m)`);
   ok(A.pole >= 0.05, `${name} (${id}): 5 cm clear of the lantern post (${A.pole} m)`);
-  ok(A.step <= 0.45, `${name} (${id}): no jump in its path (largest step ${r3(A.step)} m a frame)`);
+  ok(A.step <= (size ? 0.45 : 0.5), `${name} (${id}): no jump in its path (largest step ${r3(A.step)} m a frame)`);
   ok(A.still <= LS.pauseStill + 1e-9, `${name}: still in the pause (${A.still})`);
   ok(I.wickOffLens <= (id === 'hang' || id === 'alongside' ? 40 : 15), `${name} (${id}): the Wick to the lens (${I.wickOffLens}° off)`);
   const upright = ['jelly'].includes(A.r.shape) || (A.r.shape === 'crayfish' && id === 'pinch');

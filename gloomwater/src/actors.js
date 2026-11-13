@@ -824,7 +824,8 @@ export function create(ctx) {
       const along = w.dot(dir);
       if (along <= 0.2 || along > dSub * 0.9) continue;
       const perp = Math.sqrt(Math.max(0, w.lengthSq() - along * along));
-      if (perp < mv.focusR * (along / dSub) * 1.05 + 0.08) { block = true; break; }   // inside the subject's cone at that depth
+      // inside the subject's cone at that depth (the show's close frame is wider than its subject: a post at its edge is a bar across it)
+      if (perp < mv.focusR * (along / dSub) * (showCtl.active ? 1.8 : 1.05) + 0.08) { block = true; break; }
     }
     if (block !== poleSeen.hidden) { for (const o of pp.items) o.visible = !block; poleSeen.hidden = block; }
   }

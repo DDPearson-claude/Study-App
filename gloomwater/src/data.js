@@ -3831,20 +3831,27 @@ export const AUTOFISH = {
     poseRules: { noPinchFrom: 'trophy', noHugFrom: 'elder', thin: ['eel'], legend: 'alongside' },
     poseNames: { pinch: 'showPinch', both: 'showBoth', hug: 'showHug', hang: 'showHang', alongside: 'showAlongside' },   // actors.setPose names
     // ================= LANE A: the Wick and the fish (actors retunes; world metres, seconds) =================
-    // grip, by pose. reach = how far in front of the Wick's face plane the fish's centre is held, toward the lens (the fisherman's
-    // trick: a fish under tinyBelow m is lifted beside the face and comes right up to the lens); spread = each hand's distance from
-    // the fish's middle as a share of its length, the pair clamped to spreadClamp m apart; tilt = a hugged fish's lean from the deck
-    // (deg); gap = the most a hanging fish stands off the Wick's body (m), lean = the planted rod's lean from upright (deg), its tail
-    // tailClear m off the deck, resting on it for a fish longer than restsAbove m; rod =
-    // where the rod is ('planted' upright in the right hand, 'stowed' on the bow rest, 'raised' with the fish on its tip); touch =
-    // where the standing Wick's hand rests on an alongside fish, chinOnDeck = the share of its length resting on the deck's edge
-    // NOTHING is ever held above the Wick's head: its flame is there.
+    // grip, by pose (src/actors-show.js lays each one out on a ghost of the rig, then locks the hands on by IK). reach = how far in
+    // front of the Wick's face plane the fish's middle is held, toward the lens (the fisherman's trick: a fish under tinyBelow m
+    // comes right up to it); the arm decides how much of it there is (a sleeve stretches to 2.6 × its length, no further). On a wide
+    // screen a pinched fish is held up beside the cheek, on an upright one under the chin, so the lens can close in on the two.
+    // spread = each hand's distance from the fish's middle as a share of its length, the pair clamped to spreadClamp m apart.
+    // hug: tilt = its lean from the deck (deg) over the near shoulder, stood on its tail (the last tenth bent flat on the planks),
+    // heaved up through `heave` degrees by the present. hang: gap = the most it stands off the Wick's body (m), lean = the planted
+    // rod's lean from upright (deg, as the geometry falls: the butt before the near foot, the tip over the fish), its tail
+    // tailClear m off the planks, lying out along them when the fish is longer than the tip is high; one hand keeps the rod, the
+    // other rests on the fish. alongside: the fish lies in the water against the deck's lens-ward edge (within squareWithin degrees
+    // of square to the lens: along it, nosed in up to noseIn; otherwise against the lens-left edge of the lens-most corner, turned
+    // up to `turn` degrees), nothing of it over the planks (chinOnDeck 0: its chin is lifted TO the edge, in the neck), its flank
+    // tipped flankUp up to the lens; the Wick stands inset m in from the edge with a hand on its brow. rod = where the rod is:
+    // 'planted' upright by its butt in the other hand, 'stowed' (set down on the bow rest during the lift), 'raised' with the fish
+    // on its tip. NOTHING is ever held above the Wick's head: its flame is there.
     grip: {
       pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', rod: 'planted' },
       both:      { hands: 2, reach: 0.30, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
-      hug:       { hands: 2, reach: 0.15, tilt: 70, tail: 'deck', side: 'lens', rod: 'stowed' },
-      hang:      { hands: 2, tail: 'clear', tailClear: 0.04, restsAbove: 1.9, gap: 0.25, lean: [20, 35], side: 'lens', rod: 'raised' },
-      alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0.12, flankUp: 30, acrossWhen: 0.7, rod: 'planted' },
+      hug:       { hands: 2, tilt: 70, heave: 18, tail: 'deck', side: 'whereItCameUp', rod: 'stowed' },
+      hang:      { hands: 2, tail: 'clear', tailClear: 0.04, gap: 0.12, lean: [3, 30], side: 'whereItCameUp', rod: 'raised' },
+      alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0, inset: 0.24, flankUp: 30, squareWithin: 12, noseIn: 18, turn: 16, rod: 'planted' },
     },
     // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
     // three-quarter: the body faceOff degrees toward the fish, the head to the lens); the fish's flank within flankWithin of square-on

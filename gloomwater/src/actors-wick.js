@@ -399,7 +399,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     o.y = (S.bob || 0) - 0.02 * dip - 0.012 * flap + Math.abs(j) * 0.1;
     o.flame = (L.flame ?? 0.3) * (0.2 + 0.8 * ps) + 0.6 * over + 0.15 * sp + Math.abs(j) * 2;
     o.glow = 1.3 + 0.3 * sp;
-    o.eye = (S.wide || 0) > 0.01 ? 0.5 + 0.9 * S.wide : 0.5 - 0.12 * Math.min(1, strain * 1.3) * live;
+    o.eye = (S.wide || 0) > 0.01 ? 0.5 + 0.9 * S.wide : 0.5 - (0.1 * ps + 0.1 * Math.min(1, strain * 1.3)) * live;   // the happy squint, tightest at the present
     o.eyeLift = 0.012 * ps;
     switch (name) {
       case 'showPinch': {   // one hand out to the lens (the fisherman's trick), the rod planted like a staff in the other
