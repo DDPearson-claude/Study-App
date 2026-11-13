@@ -1,9 +1,11 @@
 // render-grade.js — the "Clear Night" colour grade (render author; DESIGN §19.1 "The lens").
-// Operates on the linear HDR buffer after bloom and before OutputPass (which applies
-// ACES tone mapping + sRGB). Order: chromatic fringe (hits and danger only: 0 at rest) →
+// Operates on the linear HDR buffer after bloom and is the chain's last pass: it draws to the
+// screen, so its two closing includes apply the renderer's tone mapping (ACES at the frame's
+// exposure) and the sRGB encode (no separate OutputPass: one full-screen pass and one HDR
+// target write fewer on every tier). Order: chromatic fringe (hits and danger only: 0 at rest) →
 // clamped sharpen → saturation → split-tone (shadows → zone tint, highlights → warm) →
 // tinted ink floor (a toe) → contrast around the scene's middle → vignette → danger edge →
-// full-screen flash → dither grain.
+// full-screen flash → dither grain → tone mapping → sRGB.
 // The lens is clean at rest: no fringe, no paper (GW_PAPER stays for the audit tools, compiled
 // out on every tier), grain only as a dither against banding in the night sky.
 import * as THREE from 'three';
@@ -153,5 +155,8 @@ export const GradeShader = {
       col += n * uGrain * 0.0035;
 
       gl_FragColor = vec4(max(col, 0.0), 1.0);
+      // the last pass (see the header): active only when this draws to the screen
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
     }`,
 };

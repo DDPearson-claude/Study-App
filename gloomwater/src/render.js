@@ -1,6 +1,6 @@
 // render.js — GLOOMWATER renderer, camera rig and post-processing (render author).
 // CONTRACT §7 render. Owns: WebGLRenderer, scene, camera, scene.fog (FogExp2) + clear
-// colour, the post chain RenderPass → UnrealBloomPass → grade → OutputPass, the camera
+// colour, the post chain RenderPass → UnrealBloomPass → grade (which tone-maps and encodes), the camera
 // rig (title / sail / fish / reel / night / shop / death, and with v3 on the trophy shot), screen shake, flashes and
 // quality tiers.
 //
@@ -17,7 +17,6 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { clamp, damp, lerp, smoothstep, easeInOutSine } from './core.js';
 import { GradeShader } from './render-grade.js';
 import {
@@ -83,6 +82,10 @@ const GRADE_DEFAULT = {
 const BLOOM_FACTORS = [1.0, 0.7, 0.4, 0.2, 0.08];
 const BLOOM_KNEE = 0.10;      // a harder knee: rim light and pale stone under the threshold stay out of the bloom
 const FRINGE_PULSE = 0.4;     // chromatic fringe per unit of pulse({fringe}) (hits, a snapped line, the lantern going out)
+// The resting lens got lighter, the game's states must not: an event's bloom pulse rides the smaller resting strength with
+// this gain (about the old absolute pulse, and only emitters feed it now), and the lantern-out and death vignettes close
+// the frame about as far as they did over the old, heavier resting vignette.
+const BLOOM_PULSE_GAIN = 1.8, VIGNETTE_DARK = 0.32, VIGNETTE_DEATH = 0.34;
 
 const isReal = (m) => !!m && !m.isStub;
 const wrapAngle = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
@@ -146,8 +149,7 @@ export function create(ctx) {
     hp.needsUpdate = true;
   }
   const gradePass = new ShaderPass(GradeShader);
-  const gu = gradePass.uniforms;
-  const outputPass = new OutputPass();
+  const gu = gradePass.uniforms;   // (the last pass: it draws to the screen and applies ACES + sRGB itself)
   let composer = null;
   let composerSamples = -1;
 
@@ -167,7 +169,6 @@ export function create(ctx) {
     composer.addPass(renderPass);
     composer.addPass(bloomPass);
     composer.addPass(gradePass);
-    composer.addPass(outputPass);
     composerSamples = samples;
   }
 
@@ -836,7 +837,7 @@ export function create(ctx) {
     trophyK = damp(trophyK, mode === 'trophy' ? 1 : 0, 2.4, dt);
     const heart = reducedFlashing() ? 0.6 : 0.5 + 0.5 * Math.sin(time * TAU * 1.1) * Math.sin(time * TAU * 1.1);
     renderer.toneMappingExposure = BASE_EXPOSURE * Math.max(0.05, gCur.exposure) * (1 - fx.death * 0.18) * (1 - fx.dark * 0.12);
-    bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + fx.bloomPulse));
+    bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + BLOOM_PULSE_GAIN * fx.bloomPulse));
     bloomPass.radius = clamp(gCur.bloomRadius, 0, 1.5);
     bloomPass.threshold = Math.max(0, gCur.bloomThreshold);
 
@@ -849,7 +850,7 @@ export function create(ctx) {
     gu.uWarm.value.copy(cCur.warm);
     gu.uWarmAmount.value = clamp(gCur.warmAmount, 0, 1);
     gu.uLift.value = Math.max(0, gCur.lift);
-    gu.uVignette.value = clamp(gCur.vignette + reel * 0.08 + trophyK * 0.07 + fx.vigPulse + fx.death * 0.25 + fx.dark * 0.22 + fx.danger * 0.06 * heart, 0, 1);
+    gu.uVignette.value = clamp(gCur.vignette + reel * 0.08 + trophyK * 0.07 + fx.vigPulse + fx.death * VIGNETTE_DEATH + fx.dark * VIGNETTE_DARK + fx.danger * 0.06 * heart, 0, 1);
     // the lens is clean at rest (fringe 0): only a hit's pulse and the low-Ember danger fringe it
     gu.uFringe.value = Math.max(0, gCur.fringe + FRINGE_PULSE * fx.fringePulse + fx.danger * 0.3);
     gu.uPaper.value = Math.max(0, gCur.paper);
