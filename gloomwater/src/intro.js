@@ -119,9 +119,11 @@ export function replayOffered({ v3 = false, intro = null, meta = null, pending =
 /** One step of the film's clock, pure: {t, wall} + a real frame time → the next {t, wall, over}. `rate` > 1 plays a skip's fast finish. */
 export function stepClock(clock, realDt, INTRO, rate = 1) {
   const C = INTRO?.clock || {}, dt = clamp(num(realDt, 0), 0, num(C.maxDt, 0.1));
-  const t = Math.min(num(INTRO?.length, 18), clock.t + dt * Math.max(0, rate));
+  const len = num(INTRO?.length, 18);
+  let t = Math.min(len, clock.t + dt * Math.max(0, rate));
+  if (t >= len - 1e-9) t = len;   // (the end is the end exactly, whatever the frames summed to)
   const wall = clock.wall + clamp(num(realDt, 0), 0, num(C.valveDt, 0.25));
-  return { t, wall, over: t >= num(INTRO?.length, 18) - 1e-9 || wall >= num(C.valve, 25) };
+  return { t, wall, over: t >= len || wall >= num(C.valve, 25) };
 }
 
 /** Which kind of skip a press at t is: the ink veil in the first beats, the fast finish from INTRO.skip.finishFrom on. Pure. */
@@ -137,7 +139,7 @@ export function skipWordAt(INTRO, t) {
 }
 
 /** Is a skip honoured at t? Not inside the guard (the stray second tap of Begin). Pure. */
-export function skipAllowed(INTRO, t) { return t >= num(INTRO?.skip?.guard, 0.5); }
+export function skipAllowed(INTRO, t) { return t >= num(INTRO?.skip?.guard, 0.5) - 1e-6; }
 
 /**
  * Reduced flashing (and reduced motion without a snapshot): the hard cut becomes an ink dip, INTRO.calm.cutDip s in all, centred on
@@ -229,7 +231,9 @@ export function create(ctx, opts = {}) {
     if (b && b.id !== S.beat) { const prev = S.beat; S.beat = b.id; emit('intro:beat', { id: b.id, i: b.i, prev, t }); }
     const st = getStage();
     if (st && !S.failed) {
-      try { st.setTime(S.reduced ? stillAt(D, t) : t, { ...flags, reduced: S.reduced, calm: S.calm }); } catch (err) { S.failed = true; report('stage.setTime', err); }
+      // reduced motion: the beat's still; the film's last moment is always the end state itself (a skip and a full play meet there)
+      const shown = S.reduced && t < D.length ? stillAt(D, t) : t;
+      try { st.setTime(shown, { ...flags, reduced: S.reduced, calm: S.calm }); } catch (err) { S.failed = true; report('stage.setTime', err); }
     }
     const l = S.skip ? null : lineAt(D, t), li = l ? l.i : null;
     if (li !== S.line) { S.line = li; emit('intro:line', l ? { i: l.i, text: l.text, at: l.at, out: l.out } : { i: null }); }
