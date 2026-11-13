@@ -406,13 +406,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
         break;
       }
       case 'showBoth': {   // both hands under it, pushed forward at chest height; the body leans back a little as counterweight
-        o.pitch = -0.03 - 0.11 * w * ps + 0.1 * dip + 0.25 * over; o.twist = 0;
+        o.pitch = -0.09 * dip + (0.05 - 0.13 * w) * ps + 0.25 * over; o.twist = 0;
         armTo(o, 'r', 1.0 + 0.45 * ps, 0.08, 1 + 0.8 * ps); armTo(o, 'l', 1.0 + 0.45 * ps, 0.08, 1 + 0.8 * ps);
         o.legL = -0.08 - 0.12 * w; o.legR = 0.1 + 0.12 * w; o.hRoll = Math.sin((still ? 0 : t) * 0.6) * 0.03 * live;
         break;
       }
       case 'showHug': {   // stood on its tail, heaved against the shoulder: leaning away and back, legs braced, a tremor
-        o.roll = sd * (0.07 + 0.09 * strain) + j; o.pitch = -0.07 - 0.09 * strain + j * 0.3 + 0.2 * over; o.twist = sd * 0.2 * (0.4 + 0.6 * take);
+        o.roll = sd * (0.07 + 0.09 * strain) + j; o.pitch = -0.07 - 0.09 * strain + j * 0.3 + 0.2 * over; o.twist = sd * (0.2 + (S.hugTwist || 0)) * (0.4 + 0.6 * take);
         armTo(o, near, 1.2, 0.5, 1.3); armTo(o, far, 1.35, -0.3, 1.7);
         o.legL = -0.28 * (0.5 + 0.5 * take); o.legR = 0.3 * (0.5 + 0.5 * take); o.hRoll = -sd * (0.08 + 0.08 * ps);
         break;
@@ -796,9 +796,16 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     return moved;
   }
   // rod bend toward the line / gravity, and tip position
-  function bendRod(lineEnd, tension) {
+  function bendRod(lineEnd, tension, exact = null) {
     rod.updateWorldMatrix(true, false);
     const bend = rodU.uBend.value;
+    if (exact) {   // the show's planted rod: its bow is the show's own (already eased), so the tip is where the layout says
+      bend.set(exact.x, exact.z);
+      const u = 0.86, L = ROD_L;
+      rodBell.position.set(bend.x * L * u * u + 0.012, L * u - 0.5 * (bend.x * bend.x + bend.y * bend.y) * L * u * u * u, bend.y * L * u * u);
+      rodBell.rotation.set(bellSwing * 0.6, 0, bellSwing);
+      return;
+    }
     let bx = 0, bz = 0;
     // gravity droop
     tmpQ.copy(rod.getWorldQuaternion(tmpQ)).invert();

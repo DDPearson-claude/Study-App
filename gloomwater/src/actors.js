@@ -21,12 +21,21 @@
 // over by showCatch (FishVisual.trueScale) takes its measuring pose by length on its own. The fish is held at its TRUE size
 // (it lives in world space, not under the Wick's 1.22 scale). fish:measured (the seal stamp) gives a satisfied bob and a flare.
 // Extras: measurePoseFor(lengthM, {legendary}), getMeasureFocus(out) → {center, radius, pose} | null (for the trophy camera).
+//
+// THE SHOW (docs/v3/show/SPEC.md; CONTRACT §13.7b): after the reveal the Wick turns to the lens and presents its catch: one hand
+// held out (pinch), both hands pushed forward (both), hugged upright on its tail (hug), hung from the planted rod (hang), or laid
+// along the raft with a hand on its brow (alongside), by the fish's true length. fishing starts it with showFish(fv, {...}) at
+// fishing:caught, times it with setShowTime(t), frames it with getShowFocus() and ends it with endShow({action}); the motion
+// itself is actors-show.js (the layout, the fish's path, the life) and actors-wick.js (the poses, the hands' IK, the rod as a
+// prop). The measuring poses and the knotted cord stay for their own callers (setPose, showCord); the show uses neither.
 import * as THREE from 'three';
 import { createRaft, DECK_Y } from './actors-raft.js';
 import { createWick, ONE_SHOT } from './actors-wick.js';
 import { createMerchant } from './actors-merchant.js';
 import { makeLightPool, makeLine, makeBobber } from './actors-fx.js';
 import { createCord } from './actors-measure.js';
+import { createShow, SHOW_IDS } from './actors-show.js';
+import { debugEnabled } from './core.js';
 import { MEASURE_POSES, measurePoseFor, cordEase, cordDurationFor } from './models-size.js';
 import { setupSurface, REFLECT_LAYER } from './toon.js';
 
@@ -82,11 +91,10 @@ export function create(ctx) {
       blend: 1, from: null, rippleT: 0, fill: { k: 0, saved: null }, expo: 0, cord: { explicit: false, L: 0, k: 0, kShow: 0, show: false, autoL: 0, autoK: 0, autoShow: false } },
   };
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tip = new THREE.Vector3(), end = new THREE.Vector3(), camPos = new THREE.Vector3();
-  // THE SHOW SEAM (docs/v3/show/SPEC.md §6): the pose the show holds, its pose time and its beats (null outside a show)
-  let show = null;
-  const SHOW_STUB = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' };
-  const showPts = { head: new THREE.Vector3(), flame: new THREE.Vector3(), feet: new THREE.Vector3(), hR: new THREE.Vector3(), hL: new THREE.Vector3(), tip: new THREE.Vector3(), s: new THREE.Vector3(),
-    fc: new THREE.Vector3(), ax: new THREE.Vector3(), up: new THREE.Vector3() };
+  // THE SHOW (docs/v3/show/SPEC.md §6): the controller that lays the pose out, moves the fish and locks the hands on it
+  const showCtl = createShow({ ctx, raft, wick, holder: catchHolder, deckY: DECK_Y, home: WICK_HOME });
+  const showDbg = { held: null, fv: null };
+  const showFocusTmp = new THREE.Vector3();
   const localVel = new THREE.Vector3();
   const mv = { hR: new THREE.Vector3(), hL: new THREE.Vector3(), a: new THREE.Vector3(), x: new THREE.Vector3(), y: new THREE.Vector3(), z: new THREE.Vector3(),
     c: new THREE.Vector3(), p: new THREE.Vector3(), q: new THREE.Quaternion(), q2: new THREE.Quaternion(), m: new THREE.Matrix4(), s: new THREE.Vector3(),
@@ -126,6 +134,7 @@ export function create(ctx) {
   }
   function releaseCatch(keepMeasure = false) {
     const f = st.catchFish;
+    if (showCtl.active) showCtl.end();   // (no gesture: whoever took the fish away shows what happens to it)
     try { f?.setWarm?.(0); } catch { /* visual */ }
     st.catchFish = null;
     wick.setHolding(false);
@@ -147,14 +156,13 @@ export function create(ctx) {
     const M = st.meas;
     M.pose = null; M.cerPose = null; M.auto = null; M.active = null; M.from = null; M.blend = 1; M.idleT = 0;
     M.cord.explicit = false; M.cord.show = false; M.cord.autoShow = false; M.cord.L = 0;
-    show = null;
   }
   function clearEat() {
     if (st.eatFish) { try { st.eatFish.dispose(); } catch { /* ignore */ } st.eatFish = null; }
   }
   function resetTransient() {
     st.line.visible = false; st.bob.visible = false; line.mesh.visible = false; bobber.group.visible = false; bobRing.visible = false;
-    releaseCatch(); clearEat(); endMeasure();
+    releaseCatch(); clearEat(); endMeasure(); showCtl.abort(); showDbg.held = null;
     wick.group.position.copy(WICK_HOME);
     wick.setAim(null); wick.setPose(null); wick.setCharge(0); wick.setReel(0, 0);
     st.celebratePending = false;
@@ -227,6 +235,42 @@ export function create(ctx) {
       bus.on('shop:buy', () => autoRaftLevel());
       bus.on('merchant:arrive', () => merchantR.ringBell(1));
       applyCharacter(characterById(ctx.state?.meta?.lastCharacter));
+      // the pose viewer (tools/tests/show-poses.scenario.mjs; SPEC §6.2): only in a debug build
+      let dbg = false;
+      try { dbg = !!ctx.debug && debugEnabled() === true; } catch { dbg = false; }
+      if (dbg) {
+        /** Build a fish and show it: {speciesId, z | lengthCm, cls?, pose?, character?, heading?, t? (hold this pose time; omit to let it run), beats?, special?, from? {x, y, z}} */
+        ctx.debug.showPose = (o = {}) => {
+          const d = D();
+          if (showDbg.fv) { api.endShow(); showCtl.abort(); try { showDbg.fv.dispose(); } catch { /* ignore */ } showDbg.fv = null; }
+          if (o.character) api.setCharacter(o.character);
+          if (Number.isFinite(o.heading) && ctx.player && 'heading' in ctx.player) ctx.player.heading = o.heading;
+          const sp = d.SPECIES_BY_ID?.[o.speciesId] || (d.SPECIES_V3 || []).find((x) => x.id === o.speciesId) || o.speciesId;
+          const z = Number.isFinite(o.z) ? o.z : 0.4;
+          const fv = ctx.models.createFish(sp, Number(o.lengthCm) > 0 ? { lengthCm: o.lengthCm, z } : { z });
+          const legend = !!fv.legendary, ancient = !legend && (o.ancient ?? d.isAncient?.(z) ?? false), sizeClass = o.sizeClass || d.sizeClassOf?.(z) || 'keeper';
+          const cls = o.cls || d.showClassOf?.({ sizeClass, ancient, legend }) || 'keeper';
+          const plan = d.showPlan?.(cls, { swarm: !!o.swarm }) || { lift: 0.5, hold: 0.5, pause: 0.7 };
+          // where fishing leaves it (startRevealAF): on the camera's side of the raft, 0.9 – 1.95 m to the lens-right and half a
+          // metre toward us, at the surface, broadside, its nose to the raft
+          const camP = ctx.render?.camera ? ctx.render.camera.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(0, 9, 13);
+          const rp = raft.yawGroup.position, dir = camP.clone().sub(rp); dir.y = 0; if (dir.lengthSq() < 1e-6) dir.set(0, 0, 1); dir.normalize();
+          const right = new THREE.Vector3(dir.z, 0, -dir.x), side = o.fromSide === -1 ? -1 : 1;
+          const at = o.from ? new THREE.Vector3(o.from.x, o.from.y ?? 0.05, o.from.z) : rp.clone().addScaledVector(right, side * (0.9 + 0.35 * Math.min(fv.length, 3))).addScaledVector(dir, 0.5).setY(0.05);
+          group.add(fv.object3d); fv.object3d.position.copy(at);
+          fv.object3d.rotation.set(0, Math.atan2(-right.x * side, -right.z * side), 0); fv.object3d.updateMatrixWorld(true);
+          const res = api.showFish(fv, { cls, pose: o.pose, sizeClass, ancient, legend, beats: o.beats || { lift: plan.lift, hold: plan.hold, pause: plan.pause }, special: !!o.special });
+          showDbg.fv = fv; showDbg.held = Number.isFinite(o.t) ? Math.max(0, o.t) : null;
+          return { ...res, cls, sizeClass, ancient, legend, length: fv.length, shape: fv.shape, beats: { lift: plan.lift, hold: plan.hold, pause: plan.pause } };
+        };
+        /** Hold another pose time (never earlier than the show has reached), or null to let it run. */
+        ctx.debug.showPoseTime = (t) => { showDbg.held = Number.isFinite(t) ? Math.max(0, t) : null; return showCtl.t; };
+        /** End the viewer's show: {action} as endShow; the viewer's fish is disposed 0.7 s later (as fishing would). */
+        ctx.debug.showPoseEnd = (o = {}) => { api.endShow(o); const fv = showDbg.fv; showDbg.fv = null; if (fv) setTimeout(() => { try { fv.dispose(); } catch { /* ignore */ } }, 700); return true; };
+        /** The S5 / S6 numbers of the pose as it stands (clearances, hand gaps, overshoot, flaps, drips, the raft's dip). */
+        ctx.debug.showPoseInfo = () => showCtl.info();
+        ctx.debug.showFocus = () => { const f = showCtl.focus(); return f ? JSON.parse(JSON.stringify(f)) : null; };
+      }
     },
 
     update(dt = 0.016, t = 0) {
@@ -234,6 +278,8 @@ export function create(ctx) {
       st.t += dt; t = st.t;
       const cam = ctx.render?.camera;
       if (cam) cam.getWorldPosition(camPos); else camPos.set(0, 9, 13);
+      if (showDbg.held !== null) showCtl.setTime(showDbg.held);   // (the pose viewer holds a pose time)
+      showCtl.tick(dt);                                           // the show's pose time: fishing drives it (setShowTime), else it runs on dt
       // ---------------------------------------------------------- raft placement on the water
       let px = 0, pz = 0, heading = 0, vx = 0, vz = 0;
       if (playerOk()) {
@@ -261,8 +307,10 @@ export function create(ctx) {
       const rollT = clamp(Math.atan2(hL - hR, 1.9) + st.turn * speed * 0.012, -0.25, 0.25);
       st.pitch = damp(st.pitch, pitchT, 5, dt); st.roll = damp(st.roll, rollT, 5, dt);
       st.y = damp(st.y, avg, 8, dt);
-      raft.tilt.rotation.set(st.pitch, 0, st.roll);
-      raft.tilt.position.y = st.y - 0.02 - Math.min(0.03, speed * 0.004);
+      // (the show: the deck's edge on the fish's side sinks as its weight comes aboard, and rides back on the raft's spring)
+      const sd = showCtl.dip, dipA = sd.x > 1e-4 || sd.x < -1e-4 ? sd.x : 0;
+      raft.tilt.rotation.set(st.pitch + dipA * sd.dirZ, 0, st.roll - dipA * sd.dirX);
+      raft.tilt.position.y = st.y - 0.02 - Math.min(0.03, speed * 0.004) - Math.max(0, dipA) * 0.25;
       raft.waterShadow.position.y = st.y + 0.035;
       raft.swing(dt, st.accLocal.x, st.accLocal.z, st.pitch, st.roll);
 
@@ -288,22 +336,28 @@ export function create(ctx) {
       if (st.celebratePending && !st.catchFish && wick.pose !== 'eat') { st.celebratePending = false; wick.setPose('celebrate'); }
       // v3 measuring: which pose (explicit > the ceremony view > the held fish's own), where the Wick stands
       mv.hasSnout = false;
-      if (show) { if (!show.driven) show.t += dt; show.driven = false; }   // the show's pose time: fishing drives it (setShowTime), else it runs on dt
-      const mp = resolveMeasure(dt);
+      const mp = showCtl.active ? null : resolveMeasure(dt);
       env.measurePose = mp;
+      // the show: lay the pose out, put the fish on its path, lock the hands (before the Wick is posed: the fish leads)
+      showCtl.step(dt, t, cam, camPos);
+      const sp = showCtl.pose;   // 'showPinch' … while a show (or a bare show pose) is up
+      env.showPose = sp; env.show = showCtl.spec;
+      const closeUp = mp || sp;
       // v3 landing (the reveal and the scoop, before a measuring pose): the camera is already coming in, so the close-up's exposure
       // applies too (the flame and the lantern never blow out over the reveal)
-      const landingCam = !mp && (ctx.cinematic === true || (D().V3_ENABLED === true && !!D().AUTOFISH && ctx.fishing?.state === 'landing'));
+      const landingCam = !closeUp && (ctx.cinematic === true || (D().V3_ENABLED === true && !!D().AUTOFISH && ctx.fishing?.state === 'landing'));
       env.landingClose = landingCam;
-      if (mp || landingCam) { const dh = camPos.distanceTo(wick.group.getWorldPosition(tmp2)); env.closeK = clamp((8.5 - dh) / 5, 0, 1); } else env.closeK = 0;
+      if (closeUp || landingCam) { const dh = camPos.distanceTo(wick.group.getWorldPosition(tmp2)); env.closeK = clamp((8.5 - dh) / 5, 0, 1); } else env.closeK = 0;
       { // the close-up's exposure (eased): the lantern right over the Wick comes down while the camera is near
         const M = st.meas; M.expo = damp(M.expo, env.closeK, 6, dt); if (Math.abs(M.expo - env.closeK) < 1e-3) M.expo = env.closeK;
       }
       const across = mp === 'measureAlongside' && st.meas.across;
       if (mp) wick.setMeasure({ lenB: measureLength() / Math.max(0.1, wick.group.scale.x), side: st.meas.side, faceYaw: mp === 'measureAlongside' ? (across ? (st.meas.end > 0 ? 0 : Math.PI) : st.meas.side * Math.PI / 2) : null });
       { // an alongside fish: the Wick kneels at the deck's edge on its side (or at the near end, over a fish laid across), then walks home
-        const hx = mp === 'measureAlongside' ? st.meas.side * (across ? 0.3 : 0.6) : WICK_HOME.x, hz = mp === 'measureAlongside' ? (across ? st.meas.end * 0.95 : 0.3) : WICK_HOME.z;
-        wick.group.position.x = damp(wick.group.position.x, hx, 4.5, dt); wick.group.position.z = damp(wick.group.position.z, hz, 4.5, dt);
+        const spot = showCtl.spot;   // (the show stands it where the pose needs it: at the edge behind an alongside fish's brow)
+        const hx = spot ? spot.x : mp === 'measureAlongside' ? st.meas.side * (across ? 0.3 : 0.6) : WICK_HOME.x, hz = spot ? spot.z : mp === 'measureAlongside' ? (across ? st.meas.end * 0.95 : 0.3) : WICK_HOME.z;
+        const walk = spot ? 6 : 4.5;
+        wick.group.position.x = damp(wick.group.position.x, hx, walk, dt); wick.group.position.z = damp(wick.group.position.z, hz, walk, dt);
       }
       wick.update(dt, t, env);
 
@@ -311,7 +365,8 @@ export function create(ctx) {
       const fv = st.catchFish;
       if (fv) {
         const obj = fv.object3d;
-        if (!obj || (obj.parent !== wick.holdAnchor && obj.parent !== catchHolder)) { st.catchFish = null; wick.setHolding(false); }
+        if (showCtl.active && showCtl.fish === fv) { /* the show has it (placed in showCtl.step) */ }
+        else if (!obj || (obj.parent !== wick.holdAnchor && obj.parent !== catchHolder)) { st.catchFish = null; wick.setHolding(false); }
         else if (mp) {
           if (obj.parent !== catchHolder) beginHandOver(obj);   // a measuring pose arrived for a fish held the v1 way
           placeMeasured(fv, mp, dt, t);
@@ -330,8 +385,12 @@ export function create(ctx) {
           try { fv.update?.(dt, t, { swim: 0.35, struggle: 0.25 + Math.max(0, Math.sin(t * 1.7)) * 0.35 }); } catch { /* visual */ }
         }
       }
-      stepPoleAside(mp);
-      if (mp && wick.stowed?.visible) {   // a close-up from the bow: the stowed rod would stand in front of the subject like a post
+      if (showCtl.active) {   // the close-up's subject, for the pole and the stowed rod stepping aside: the fish and the Wick's head
+        const fo = showCtl.fish?.object3d; wick.flame.group.getWorldPosition(mv.s);
+        if (fo) { mv.focus.copy(mv.s).lerp(fo.position, 0.6); mv.focusR = fo.position.distanceTo(mv.s) * 0.6 + Math.max((showCtl.fish.length || 0.5) * 0.5, 0.35); }
+      } else if (!mp) mv.focusR = 0;
+      stepPoleAside(closeUp, showCtl.active ? showCtl.t : st.meas.t);
+      if (closeUp && wick.stowed?.visible) {   // a close-up from the bow: the stowed rod would stand in front of the subject like a post
         const dSub = camPos.distanceTo(mv.focusR > 0 ? mv.focus : wick.group.getWorldPosition(tmp));
         wick.stowed.updateWorldMatrix(true, false);
         let near = Infinity;
@@ -365,7 +424,8 @@ export function create(ctx) {
       }
       let lineT = L.tension, lineS = L.slack;
       if (!lineEnd && mp === 'measureHang' && mv.hasSnout) { lineEnd = mv.snout; lineT = clamp(0.35 + measureLength() * 0.12, 0.35, 0.7); lineS = 0; }   // the fish's weight on the tip
-      wick.bendRod(lineEnd, lineT);
+      if (!lineEnd && showCtl.line.on) { lineEnd = showCtl.line.end; lineT = showCtl.line.tension; lineS = showCtl.line.slack; }   // the show: the swing in, the hang
+      wick.bendRod(lineEnd, lineT, showCtl.bow.on ? showCtl.bow : null);
       if (lineEnd) {
         wick.getRodTip(tip);
         line.shape(tip, lineEnd, lineS, lineT, t, hasWater() ? H : null);
@@ -377,7 +437,7 @@ export function create(ctx) {
 
       // ---------------------------------------------------------- lantern, light, pool
       const xk = st.meas.expo;   // 0 outside a measuring close-up: everything below is then exactly the v1 lantern
-      if (mp) st.boost = Math.max(st.boost, 0.16 * (1 - xk));   // the lantern leans in on the ceremony (seen from afar)
+      if (closeUp) st.boost = Math.max(st.boost, 0.16 * (1 - xk));   // the lantern leans in on the ceremony (seen from afar)
       st.lanternCur = damp(st.lanternCur, st.lantern, 3, dt);
       st.radiusCur = damp(st.radiusCur, st.radius, 3, dt);
       st.boost = Math.max(0, st.boost - dt * 1.1);
@@ -392,8 +452,8 @@ export function create(ctx) {
       lanternLight.distance = Math.max(7, st.radiusCur * 2.1 + 3);
       // a measuring close-up: the hanging lantern's glass, halo and flame would bloom over the subject, so they dim with the
       // camera's nearness to the lantern
-      const lck = mp ? clamp((6 - camPos.distanceTo(raft.lantern.getWorldPosition(tmp2))) / 4, 0, 1) * Math.max(xk, 0.5) : 0;
-      raft.glassMat.opacity = (0.1 + 0.38 * Math.min(1.5, glow)) * (mp ? 0.75 : 1) * (1 - 0.45 * lck);
+      const lck = closeUp ? clamp((6 - camPos.distanceTo(raft.lantern.getWorldPosition(tmp2))) / 4, 0, 1) * Math.max(xk, 0.5) : 0;
+      raft.glassMat.opacity = (0.1 + 0.38 * Math.min(1.5, glow)) * (closeUp ? 0.75 : 1) * (1 - 0.45 * lck);
       raft.halo.material.opacity = 0.26 * Math.min(1.6, glow) * (1 - 0.85 * lck);
       raft.lflame.outerMat.uniforms.uI.value = LFLAME_I * (1 - 0.45 * lck);
       raft.halo.scale.setScalar(2.2 * (0.6 + 0.4 * Math.min(1.5, glow)) * (1 + st.boost * 0.8));
@@ -439,7 +499,7 @@ export function create(ctx) {
       merchantR.update(dt, hasWater() ? H : null);
       // the ceremony's candle fill: a soft warm light on the held fish's flank. No new light (the light count stays stable):
       // while Murk is away his lamp's PointLight (always in the scene, dark) is borrowed, then given back as it was
-      const FL = st.meas.fill, borrow = !!mp && merchantR.mode === 'hidden';
+      const FL = st.meas.fill, borrow = !!closeUp && merchantR.mode === 'hidden';
       FL.k = damp(FL.k, borrow ? 1 : 0, borrow ? 5 : 8, dt);
       if (FL.k > 0.01 && merchantR.mode === 'hidden') {
         const ml = merchantR.light;
@@ -473,6 +533,8 @@ export function create(ctx) {
       if (typeof state === 'string') B.state = state;
     },
     setPose(name) {
+      if (SHOW_IDS[name]) { showCtl.holdPose(name); return; }   // a bare show pose (the pose viewer); showFish is the show itself
+      if (!name || ONE_SHOT[name] === undefined) showCtl.holdPose(null);
       if (MEASURE.has(name)) { st.meas.pose = name; st.meas.idleT = 0; return; }   // v3 measuring poses (held until another base pose)
       if (name === 'die') releaseCatch();
       if (!name || ONE_SHOT[name] === undefined) st.meas.pose = null;
@@ -489,6 +551,10 @@ export function create(ctx) {
     measurePoseFor(lengthM, opts = {}) { return measurePoseFor(lengthM, { poses: D().BALANCE?.ceremony?.poses, ...opts }); },
     /** While a measuring pose is up: the sphere around the fish and the Wick (for the trophy camera), else null. */
     getMeasureFocus(out = new THREE.Vector3()) {
+      if (showCtl.active) {   // a show pose is up: the show's own (settled) focus, in the measuring focus's shape
+        const f = showCtl.focus(out);
+        return f ? { center: f.center, radius: f.radius, pose: f.pose, fish: { center: f.fish.center, axis: f.fish.axis.clone().negate(), length: f.fish.length } } : null;
+      }
       if (!st.meas.active || !(mv.focusR > 0)) return null;
       const r = { center: out.copy(mv.focus), radius: mv.focusR, pose: st.meas.active };
       // the held fish's own frame (render may frame a long legend along its length): centre, snout → tail axis, length
@@ -514,73 +580,52 @@ export function create(ctx) {
     /** v3 landing: the Wick's head flame flares as it lifts the fish (k 0..1.5, by class; fishing's landing payoff). */
     flareFlame(k = 0.6) { wick.flareFlame?.(k); },
     // ---------------------------------------------------------------- THE SHOW SEAM (docs/v3/show/SPEC.md §6; CONTRACT §13.7b)
-    // STUBS. Lane A ("the Wick and the fish") replaces every body below with the real show: the five poses showPinch / showBoth /
-    // showHug / showHang / showAlongside, the swing-in, the present and its overshoot, the life in the grip, the settled focus.
-    // Until then each show pose stands in as a measuring pose, so lane B (the sequence, the camera, the card, the sound) can build
-    // and shoot against the final names. The names, arguments and return shapes are the contract; the motion is not.
     /**
      * The show begins (fishing calls it at fishing:caught, the end of the reveal): the Wick takes the fish from where fishing left
      * it, turns to the lens and presents it. opts: {cls ('small'…'ancient', data.showClassOf), pose? (id; default data.showPoseFor),
      * sizeClass, ancient, legend, beats: {lift, hold, pause} (s of pose time, data.showPlan), special (a new species or a legend)}.
      * Pose time 0 is the start of the lift. Returns {pose: 'showPinch'…, id: 'pinch'…, hands: 1|2, side: ±1} (null without a fish).
-     * fishing still owns the FishVisual (it disposes it after endShow / showCatch(null)).
+     * Actors owns the fish's transform until endShow; fishing still owns the FishVisual (it disposes it after endShow /
+     * showCatch(null)).
      */
     showFish(fishVisual, opts = {}) {
       if (!fishVisual || !fishVisual.object3d) { api.endShow(); return null; }
-      const o = opts && typeof opts === 'object' ? opts : {}, d = D();
-      const id = o.pose || d.showPoseFor?.(fishVisual.length, { sizeClass: o.sizeClass, ancient: !!o.ancient, legend: !!(o.legend ?? fishVisual.legendary), shape: fishVisual.shape }) || 'both';
-      const beats = { lift: 0.5, hold: 0.5, pause: 0.7, ...(o.beats && typeof o.beats === 'object' ? o.beats : {}) };
-      const next = { id, pose: d.AUTOFISH?.show?.poseNames?.[id] || `show${id[0].toUpperCase()}${id.slice(1)}`, t: 0, driven: false, cls: o.cls || 'keeper', beats, special: !!o.special };
-      api.setPose(SHOW_STUB[id] || 'measureArms');   // (stub: the measuring pose that is nearest)
-      api.showCatch(fishVisual);
-      show = next;
-      return { pose: show.pose, id, hands: id === 'pinch' || id === 'alongside' ? 1 : 2, side: st.meas.side };
+      const o = opts && typeof opts === 'object' ? opts : {};
+      if (st.catchFish && st.catchFish !== fishVisual) releaseCatch();
+      else if (showCtl.active) showCtl.end();
+      endMeasure();
+      const cam = ctx.render?.camera;
+      if (cam) cam.getWorldPosition(camPos);
+      raft.deck.updateWorldMatrix(true, false);
+      const res = showCtl.begin(fishVisual, o, cam, camPos);
+      st.catchFish = fishVisual; st.catchBig = false;
+      wick.setHolding(false);
+      return res;
     },
     /** The show's pose time (s since showFish; fishing calls it every frame of the show, faster when the player hurries). Never runs back. */
-    setShowTime(t) { if (show && Number.isFinite(t)) { show.t = Math.max(show.t, t); show.driven = true; } },
+    setShowTime(t) { showCtl.setTime(t); },
     /** 'showPinch' | 'showBoth' | 'showHug' | 'showHang' | 'showAlongside' while a show is up, else null. */
-    get showPose() { return show ? show.pose : null; },
+    get showPose() { return showCtl.active ? showCtl.pose : null; },
     /**
      * What the show camera must keep in frame, in world space: null outside a show, else
      *   {pose, id, t, lift (0..1), fish: {center, axis (tail → snout, unit), up, length, depth}, head: {center, radius, flame (the flame's
      *    core)}, feet, hands: [right, left], rodTip (null when the rod is stowed), keep: {fish: [snout, tail, back, belly], head: [4 points
-     *    round the wax head], flame: [core], hands, feet: [feet], rodTip: [tip]}, center, radius (the sphere round all of keep)}.
-     * The real one returns the SETTLED layout from the lift's first frame (where everything will be at the present), so the camera
-     * eases to a still target; this stub returns where things are now.
+     *    round the wax head], flame: [core], hands, feet: [feet], rodTip: [tip] | []}, center, radius (the sphere round the fish, the head
+     *    and the flame; the feet too where the pose's camera keeps them)}.
+     * It is the SETTLED layout from the lift's first frame (where everything will be at the present: laid out on a ghost of the rig),
+     * so the camera eases to a still target. Square to the lens: the show frame follows the camera's own heading, not its position.
+     * A hung fish: keep.rodTip is the top of its line (a little above the snout), not the towering tip; rodTip is the tip itself.
      */
-    getShowFocus(out = new THREE.Vector3()) {
-      if (!show) return null;
-      const fv = st.catchFish, obj = fv?.object3d, P = showPts;
-      wick.head.updateWorldMatrix(true, false);
-      const ws = wick.head.getWorldScale(P.s).y;
-      P.head.set(0, 0.16, 0).applyMatrix4(wick.head.matrixWorld);
-      wick.flame.group.getWorldPosition(P.flame); P.flame.y += 0.12 * ws;
-      wick.group.getWorldPosition(P.feet);
-      wick.getHandPos('r', P.hR); wick.getHandPos('l', P.hL);
-      const rodUp = wick.rod.visible;
-      if (rodUp) wick.getRodTip(P.tip);
-      const hr = 0.21 * ws, L = fv?.length || 0.5;
-      const b = fv?.bounds || { noseZ: L * 0.5, tailZ: -L * 0.5, halfW: L * 0.07, top: L * 0.1, bottom: -L * 0.1 };
-      const fishPts = [];
-      if (obj && obj.parent) {
-        obj.updateWorldMatrix(true, false);
-        P.ax.set(0, 0, 1).transformDirection(obj.matrixWorld); P.up.set(0, 1, 0).transformDirection(obj.matrixWorld);
-        P.fc.set(0, (b.top + b.bottom) / 2, (b.noseZ + b.tailZ) / 2).applyMatrix4(obj.matrixWorld);
-        for (const [y, z] of [[0, b.noseZ], [0, b.tailZ], [b.top, (b.noseZ + b.tailZ) / 2], [b.bottom, (b.noseZ + b.tailZ) / 2]]) fishPts.push(new THREE.Vector3(0, y, z).applyMatrix4(obj.matrixWorld));
-      } else { P.fc.copy(P.hR).add(P.hL).multiplyScalar(0.5); P.ax.set(1, 0, 0); P.up.set(0, 1, 0); fishPts.push(P.fc.clone()); }
-      const headPts = [[hr, 0, 0], [-hr, 0, 0], [0, hr, 0], [0, -hr, 0]].map(([x, y, z]) => new THREE.Vector3(x, y, z).add(P.head));
-      const keep = { fish: fishPts, head: headPts, flame: [P.flame.clone()], hands: [P.hR.clone(), P.hL.clone()], feet: [P.feet.clone()], rodTip: rodUp ? [P.tip.clone()] : [] };
-      const all = Object.values(keep).flat();
-      out.set(0, 0, 0); for (const p of all) out.add(p); out.multiplyScalar(1 / Math.max(1, all.length));
-      let r = 0; for (const p of all) r = Math.max(r, p.distanceTo(out));
-      return { pose: show.pose, id: show.id, t: show.t, lift: clamp(show.t / Math.max(0.05, show.beats.lift), 0, 1),
-        fish: { center: P.fc.clone(), axis: P.ax.clone(), up: P.up.clone(), length: L, depth: (b.top - b.bottom) },
-        head: { center: P.head.clone(), radius: hr, flame: P.flame.clone() }, feet: P.feet.clone(), hands: [P.hR.clone(), P.hL.clone()], rodTip: rodUp ? P.tip.clone() : null,
-        keep, center: out, radius: r };
-    },
+    getShowFocus(out = new THREE.Vector3()) { return showCtl.focus(out); },
     /** The show is over (the card closed with `action`: 'keep' | 'eat' | 'render' | 'release', or the run ended): the fish leaves the
-     *  hands and the Wick returns to play. showCatch(null) means the same. (Stub: at once, as today.) */
-    endShow(_opts = {}) { show = null; if (st.catchFish) releaseCatch(); else endMeasure(); },
+     *  hands (keep: into the creel; release: back over the side; ≤ 0.6 s) and the Wick returns to play, its rod back in its hand.
+     *  showCatch(null) means the same, at once. */
+    endShow(opts = {}) {
+      const action = opts && typeof opts === 'object' ? opts.action : undefined;
+      if (showCtl.active) { showCtl.end(action); st.catchFish = null; wick.setHolding(false); endMeasure(); }
+      else if (st.catchFish) releaseCatch(); else endMeasure();
+      showDbg.held = null;
+    },
     setCharge(k) { wick.setCharge(k); },
     setReel(k, lateral = 0) { wick.setReel(k, lateral); },
     setAim(worldYaw) { wick.setAim(worldYaw); },
@@ -641,6 +686,7 @@ export function create(ctx) {
     getHeadPos(out = new THREE.Vector3()) { return wick.flame.group.getWorldPosition(out); },
     getWickPos(out = new THREE.Vector3()) { return wick.group.getWorldPosition(out); },
     dispose() {
+      showCtl.abort();
       ctx.render?.scene?.remove?.(group);
       cord.dispose();
       for (const m of [...raft.mats, ...wick.mats, ...merchantR.mats, ...bobber.mats]) m?.dispose?.();
@@ -752,7 +798,8 @@ export function create(ctx) {
    *  Decided once per pose (no flicker as the trophy camera settles), restored the moment the pose ends. */
   const poleSeen = { pose: null, hidden: false, a: new THREE.Vector3(), d: new THREE.Vector3() };
   const focusFish = { center: new THREE.Vector3(), axis: new THREE.Vector3(), length: 0 };
-  function stepPoleAside(mp) {
+  const poseSeenHeld = (mp, poseT) => poleSeen.pose === mp && poseT > 0.6;
+  function stepPoleAside(mp, poseT = st.meas.t) {
     const pp = raft.poleParts;
     if (!pp) return;
     if (!mp || !(mv.focusR > 0)) {
@@ -760,7 +807,7 @@ export function create(ctx) {
       poleSeen.hidden = false; poleSeen.pose = null;
       return;
     }
-    if (poleSeen.pose === mp && st.meas.t > 0.6) return;   // settle for the first 0.6 s of the pose, then hold the decision
+    if (poseSeenHeld(mp, poseT)) return;   // settle for the first 0.6 s of the pose, then hold the decision
     poleSeen.pose = mp;
     const dir = poleSeen.d.subVectors(mv.focus, camPos), dSub = dir.length();
     if (dSub < 1e-3) return;
