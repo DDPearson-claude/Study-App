@@ -96,9 +96,9 @@ function fakeGame() {
   for (const k of ['prebuild', 'enter', 'setTime', 'exit', 'dispose', 'stats']) ok(typeof st[k] === 'function', `stage.${k}()`);
   ok('ready' in st, 'stage.ready');
   st.setTime(3); eq(g.cams.length, 0, 'setTime before enter() does nothing');
-  st.enter({}); st.enter({}); eq(g.calls.mood, [true], 'enter() is idempotent and puts the world in the opening mood');
-  st.setTime(0.2); eq(g.cams.at(-1), null, 'before the swap the stage leaves the title camera alone');
-  st.setTime(3); const a = JSON.stringify(g.cams.at(-1)); st.setTime(16); st.setTime(9); st.setTime(3);
+  st.enter({}); st.enter({}); eq(g.calls.mood, [], 'enter() is idempotent and changes nothing you can see');
+  st.setTime(0.2); eq(g.cams.at(-1), null, 'before the swap the stage leaves the title camera alone'); eq(g.calls.mood, [], '… and the world\'s mood');
+  st.setTime(3); eq(g.calls.mood, [true], 'from the swap on the world wears the first run\'s opening mood'); const a = JSON.stringify(g.cams.at(-1)); st.setTime(16); st.setTime(9); st.setTime(3);
   eq(JSON.stringify(g.cams.at(-1)), a, 'setTime(t) is a pure function of t (same pose after other moments)');
   st.setTime(18); eq(g.cams.at(-1).w, 0, 'at the end the rig alone has the camera');
   st.setTime(99); eq(st.stats().t, 18, 'setTime clamps to the film');
@@ -144,7 +144,9 @@ function play({ stage, hidden = false, meta = { runs: 0 }, debug = false } = {})
   eq(p.dir.state.line, 0, '… with the same lines'); p.dir.stop(); }
 { // A10: a stage that throws ends the film cleanly, once
   const bad = { prebuild() { return true; }, enter() {}, setTime(t) { if (t > 2) throw new Error('boom'); }, exit() {}, dispose() {}, stats: () => ({}) };
+  const quiet = console.error; console.error = () => {};   // (the director reports the planted exception: keep the test's output clean)
   const p = play({ stage: bad }); p.dir.start({}); p.run(3);
+  console.error = quiet;
   const done = p.ev.filter(([e]) => e === 'intro:done'); ok(done.length === 1 && done[0][1].error === true && !p.dir.isActive(), 'an exception in the stage ends the film with intro:done {error: true}');
   ok(p.ctx.errors.length >= 1, '… and is reported'); }
 delete globalThis.document;

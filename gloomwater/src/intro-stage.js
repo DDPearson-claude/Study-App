@@ -16,10 +16,10 @@
 //   prebuild() -> bool      build geometry and materials and warm their programs; idempotent; may be called in idle slices under
 //                           the title (returns true once everything is ready). Adds nothing visible.
 //   ready -> bool
-//   enter({replay, reduced}) the set goes live: its group joins ctx.render.scene, world.setIntroMood(true). Builds at once whatever
-//                           prebuild left. Idempotent.
+//   enter({replay, reduced}) the set goes live: its group joins ctx.render.scene. Builds at once whatever prebuild left. Idempotent.
 //   setTime(t, {live, seek, reduced})   everything at timeline time t. Before INTRO.swapAt the stage shows nothing and leaves the
-//                           title camera alone (the opening ink has not closed yet).
+//                           title camera and the world's mood alone (the opening ink has not closed yet); from the swap on the
+//                           world wears the first run's opening mood (world.setIntroMood).
 //   exit()                  gives everything back: the camera (render.setIntroCamera(null)), the world's mood, the water light, the
 //                           Wick's and the lantern's own light; hides the set. Idempotent; never throws.
 //   dispose()               exit() + frees every geometry, material and texture this module created.
@@ -106,7 +106,7 @@ export function resolvePoint(v, anchors) {
 
 export function createIntroStage(ctx) {
   const I = () => ctx.data?.INTRO || null;
-  const st = { built: false, live: false, t: -1, take: null, w: 0, anchors: null, replay: false, reduced: false };
+  const st = { built: false, live: false, t: -1, take: null, w: 0, anchors: null, replay: false, reduced: false, mood: false };
   const pose = { pos: [0, 0, 0], look: [0, 0, 0], fov: 46, w: 1 };
   const real = (m) => !!m && !m.isStub;
 
@@ -121,7 +121,13 @@ export function createIntroStage(ctx) {
     prebuild();
     st.live = true; st.replay = !!replay; st.reduced = !!reduced; st.t = -1;
     st.anchors = introAnchors(ctx);
-    try { if (real(ctx.world)) ctx.world.setIntroMood?.(true); } catch { /* optional */ }
+  }
+
+  /** From the swap on (the opening ink is full) the world wears the first run's opening mood: the last shot is lit as the run is. */
+  function setMood(on) {
+    if (on === st.mood) return;
+    st.mood = on;
+    try { if (real(ctx.world)) ctx.world.setIntroMood?.(on); } catch { /* optional */ }
   }
 
   function setCamera(t) {
@@ -140,6 +146,7 @@ export function createIntroStage(ctx) {
     if (!st.live || !I()) return;
     t = Math.max(0, Math.min(Number(t) || 0, I().length));
     st.t = t;
+    setMood(t >= (I().swapAt ?? 0));
     setCamera(t);
     // a seek shows the settled picture: the rig under the film's pose is put at rest too (the last take blends into it)
     if (opts.seek) { try { ctx.render?.snapCamera?.(); } catch { /* optional */ } }
@@ -149,6 +156,7 @@ export function createIntroStage(ctx) {
 
   function exit() {
     try { if (real(ctx.render)) ctx.render.setIntroCamera?.(null); } catch { /* never throws */ }
+    st.mood = false;
     try { if (real(ctx.world)) { ctx.world.setIntroMood?.(false); ctx.world.setIntroWaterLight?.(null); } } catch { /* never throws */ }
     try { if (real(ctx.actors)) ctx.actors.setIntroKindle?.(null); } catch { /* never throws */ }
     st.live = false; st.take = null; st.w = 0;

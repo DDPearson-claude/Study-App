@@ -936,6 +936,7 @@ state.meta.markedFish  = [ { id, speciesId, z, zone, place, x, z0, expedition, r
                          // in that lake replaced); re-hooked once at +6 Hold (CATCH_V3.markedFish)
 state.meta.legendWounds = { speciesId: n }                         // escapes since the last landing: +6 Hold per escape on the next attempt, ≤ +18 (CATCH_V3.legend); The Long Descent uses run.legendWounds
 state.meta.firstEvening = { done, step, skipped, legacy, offerSeen? }   // §13.12 (offerSeen: the legacy save's "A new first evening" ribbon was used or dismissed)
+state.meta.intro = { seen, skipped }                                      // §13.13: the opening cut scene has played (or was skipped); main writes it at intro:done; a replay writes nothing
 state.meta.elderLog    = [ { name, speciesId, length, weight, z, ancient, place, zone, expedition, day, character, lost?: string } ]
 state.meta.places[id] += { tally: { speciesId, length, weight } | null }               // the Tally Post record (v2 field extended)
 state.meta.ledger      = { slots: [LedgerReq, LedgerReq, LedgerReq], refreshedOnDay, lastRealDate }
@@ -1461,6 +1462,7 @@ TIPS += TIPS_V3; MERCHANT_LINES += MERCHANT_LINES_V3; TEXT.v3 = TEXT_V3; TEXT.ch
 | `CATCH_V3` | the catch model (DESIGN §25.6.5): `scale`, `floor`, `cap` per class (all < 1), `wick`, Fight terms (`lake`, `rarity`, `style`, `headline`, `kept`, `fouled` / `fouledSpecies`, `class`, `elderStep`, `elderRarity`), `emphasis` per style (×1.6 / ×0.7 / ×0.7), `strike` (clean / struck / early / late), `items` (every bait and lure: Hold and whom it helps: `attract`, `all`, `night`, `family` or `species`; `lure_glimmer` an upgrade term), `buffs` (cap +6, `relicCap` 3, `runCap` 4), `markedFish`, `legend` (Fight, `fightRun` for per-run gear, style, wounds and `woundScope`, growth), `gloomtide`, `economy.norm` (fish XP: combat), `display` (owned relics in the log), `targets` (incl. `relicHoldByTier`, `levelGain`, `perRunSwallower`, `noviceCleanSmall`, `deepHeadlineT4Item`) | 2026-11-05 | AF (`V3_PHASE` 1) | fishing (the roll), progression (the logs, the rating), ui, tools | in data |
 | `AUTOFISH` | automatic fishing's presentation and rules: `strike` (class windows, Clean part ≥ 0.3 s, grace, `lastDip`, `latencyComp`, `priority`, the reaction model, ring, haptics), `play` (per class: durations, runs, surges, glimpses, last stands, tow, bend, shake, music; `tackle`, `scare`, `placeBeats`; `inputs` {pan, hurry, endsEarly: false}: no cut; `anchor` {states, modes, hub, moveInput 'ignored', combatMoves false, towOnly, gloomtide}), `legendPlays`, `leap` (class `count` table, one `when` window, the proxy silhouette) / `leaps` (per species: one chance) / `leapRule` (by class) / `biteRule` (with `accepted`) / `signRule`, `loss` (windows ≥ 0.5, causes by style and class, `onLeap`, `onScare`, the draw order, hints), `proxy` (the class-length ladder, `lakeMult`, `zStretch`), `revealWipe`, `letPass`, `gotAway` (toasts to Prize, `markedFrom`), `rating` (words), `logLock` / `logLockRoutes`, `ceremony` (cord knots), `runLures`, `quality`, `text`, `time`, `player` (incl. `hurry`) | 2026-11-05 | AF | fishing, fishing-fx, actors, render, audio, ui, tools | in data |
 | `FIRST_EVENING` | the opening and tutorial (DESIGN §25.4.8): `shipsWith: 'AF'`, steps and their times (`stepSec`, `stepAnim`, `stepMurk`: each step fits its Murk line), budget (card ≤ 50 s, lake ≤ 60 s), the Lantern Line's shots, line timings, the ember (z −34), the wake, the wait tip on the settled float, bite timings, the tutorial API (accepts / rejects), strike ring and estimate, odds (glow until opened), gate (the cove's closure), Set Out (auto-sail + glide), `everyRun` (the glide and Murk lines for every later run), `snuffed` (the hearth), resume, skip, legacy (the idempotent step and the offer ribbon), replay (writes nothing), tips marked seen, First Light, every string | 2026-11-05 | FE (`V3_PHASE` 1) | first-evening, ui, render, actors, player, fishing, progression, audio, tools | in data |
+| `INTRO` | the opening cut scene (DESIGN §25.4.9, §13.13; `docs/v3/intro/SPEC.md`): `length` 18 (validated 15–20), `beats` (contiguous), `text` (≤ 4 lines of ≤ 60 characters), `words.band`, `veil`, `swapAt`, `cut` (the frozen block); `cameras` (takes of keys in [anchor, east, up, south] metres, `portrait` values, the last take's blend into render's sail rig) and `set` (the lantern, the windows, the fall, the dark below, the Wick's kindling, colours, the budget) for lane A; `lines` (timings), `skip`, `clock`, `stills`, `sound`, `trigger`, `handoff`, `cove` for lane B. Always exported, read only by the v3 build | 2026-11-13 | the opening cut scene (`V3_PHASE` 1) | intro, intro-stage, ui-intro, main, render, world, actors, audio, tools | in data |
 | helpers `catchChance`, `catchParts`, `catchOdds`, `catchItemHold`, `catchItemTargets`, `catchBuffHold`, `catchBestItem`, `catchRating`, `catchDisplay`, `catchClassAllowed`, `catchHomeLake`, `tackleHoldAt`, `upgradeHold`, `upgradeTierFrac`, `presentLength`, `leapCountsFor` | **the one land-chance formula** (pure): `catchChance(speciesId, sizeClass, loadout, mods) -> p|null` (§13.7a); its terms; the Journal row; an item's Hold and target list; the buff context (sub-caps); the best item for a species; the tackle rating in words; the logs' rounding (down); a fractional tier's Hold; P1–P2 / Long Descent Hold from owned levels; **`presentLength(lake, z)`: the length shown before the reveal (no species input)**; the class leap distribution | 2026-11-05 | AF | fishing, progression, ui, tools | in data |
 | helpers `placeAtV3`, `landmarkOf`, `sealsFor`, `tackleStats`, `upgradeTiers` | **the one place-membership helper** for v3 (`placeAtV3(zone, x, z)`: the zone's `arena.places`, then §24's; v2's `placeAt` stays for v2 code); the trophy camera's target; the seals a species can earn; a fitted loadout's stats (castMax, hookWindow, creel, Live Well and `hold` per slot for catchChance); P1–P2 / Long Descent effective tiers from `UPGRADES` levels (the rating's words; Hold from `upgradeHold`) | §5.6, §6.3, §7 | P1–P3 | fishing, progression, render, ui, tools | in data |
 | `FOUND_RELICS` | Reed Pole `reed_pole`, Seedlight Glass `seedlight_glass`, Tuning Fork `tuning_fork`, Deep Line `deep_line` (where found, what they open) | §7.7 | P4 | progression, world, fishing, ui | in data |
@@ -1538,3 +1540,66 @@ Steps advance on bus events only (`fishing:cast`, the float settled, `fishing:bi
 - **audio:** the cove bed, the ember swell, the flame catching, Murk's grumble per line, the `setout` sting (never `descend`) on every glide into a lake (`zone:change {prev: 'cove'}`).
 
 **Testing:** browser scenario `first-evening` in `tools/scenario-run.mjs` (desktop and 390 px portrait; the reference, skip, three-loss, resume, returning, offer-ribbon, replay, later-run and snuff paths) checks the event order `firstEvening:step` framing → … → setout → `firstEvening:done` → `zone:change {zone: 'mossmere', prev: 'cove'}` → `run:start`, **no `run:start` without the glide in any run**, Murk moored on day 1 after the glide, `setout` and no `descend` in the audio log, the time budget (`FIRST_EVENING.budget`: card ≤ 50 s, lake ≤ 60 s), one line at a time and none in the strike window but `fe_strike`, no "%" outside the log, a byte-identical meta after a replay, and that 2,000 seeded tutorial strikes per class land at the log's figure ± 2 points (Small 91.9%, Keeper 90.5%).
+
+### 13.13 The opening cut scene: the lane seam, state, events and hooks (DESIGN §25.4.9)
+
+"One Warm Light": 18 s, skippable, once on a fresh save's first new game, ending inside the first run. The binding build document is `docs/v3/intro/SPEC.md` (storyboard, set list, cameras, rules, acceptance, the scope-cut ladder); this section is the API. Data: `INTRO` (always exported, inert until `V3_ENABLED`; three marked blocks: `shared` frozen, `LANE A`, `LANE B`). With `V3_ENABLED` off `ctx.intro` is null and nothing here runs. Two lanes build it at the same time: **lane A "set and picture"** (everything drawn in 3D) and **lane B "director and flow"** (time, words, sound, input, the title and the hand-off).
+
+**State** (main writes it at the hand-off; added lazily, `core.defaultMeta()` untouched; never read with the flag off):
+```js
+state.meta.intro = { seen: bool, skipped: bool }     // set at intro:done of a non-replay; a replay writes nothing
+ctx.flow = 'intro'                                   // new flow value while the film plays: no run, gameDt 0, ctx.cinematic held true
+```
+
+**The stage** (`src/intro-stage.js`, lane A; a pure function of timeline time):
+```
+createIntroStage(ctx) -> {
+  prebuild() -> bool                     // build + warm programs, nothing visible; idempotent; under the title in idle time
+  ready -> bool
+  enter({replay, reduced}) -> void       // the set goes live (builds at once whatever prebuild left); idempotent
+  setTime(t, {live, seek, reduced})      // EVERYTHING it draws, and the camera, at timeline time t (0 … INTRO.length); before INTRO.swapAt: nothing
+  exit() -> void                         // gives back the camera, the mood, the water light, the Wick's kindling; idempotent; never throws
+  dispose() -> void                      // exit() + frees every geometry, material and texture it created
+  stats() -> {built, live, t, take, w, anchors, calls, triangles, geometries, textures}
+}
+introCamera(INTRO, t, aspect) -> null | {take, pos: [anchor, x, y, z], look: [...], fov, w, rig}    // pure; anchors 'S' (the spawn) and 'G' (the Sunken Gate)
+```
+The stage never reads a clock, listens for input, touches the DOM, plays a sound, writes state or emits on the bus; it creates no light, no shadow map and no render target. Its own cost: ≤ 30 draw calls and ≤ 10,000 triangles in any frame, all passes (`INTRO.set.budget`).
+
+**The director** (`src/intro.js`, lane B; `ctx.intro`, created by main when `data.V3_ENABLED && data.INTRO`):
+```
+pending() -> bool                        // would the title's primary button play it now? v3, a fresh save (meta.runs === 0, !meta.intro.seen), no run waiting,
+                                         //   and in a debug build only after an opt-in (GW_INTRO === true, ?intro=1, debug.intro('auto', true))
+prewarm() -> void                        // the fresh-save title is up: stage.prebuild() in idle time
+start({replay = false, reduced}) -> bool // from t = 0 (a replay writes nothing to the save)
+skip() -> bool                           // honoured after INTRO.skip.guard (0.5 s)
+update(realDt) -> void                   // main, once a frame, BEFORE the module loop; real elapsed time clamped to INTRO.clock.maxDt, paused while hidden, a 25 s valve
+seek(t) -> state                         // debug / tests: hold the clock at t and show exactly that moment
+stop() -> void                           // hard abort, no event (toTitle, wipeAll)
+isActive() -> bool;  state -> {phase: 'idle'|'playing', t, wall, beat, line, replay, reduced, skipped, hold, optIn, failed}
+```
+Pure helpers (exported, tested): `beatAt`, `lineAt`, `veilAt`, `stillAt`, `stepClock`, `introPending`, `introOptIn`.
+
+**Events** (the director emits; lane B's view, audio and main listen; the stage listens to none):
+
+| event | payload | notes |
+|---|---|---|
+| `intro:start` | `{replay, reduced}` | the view shows; audio fades the title music in ≤ 0.3 s and starts the cue |
+| `intro:beat` | `{id, i, prev, t}` | `lit` → `fall` → `below` → `wick` → `home`; the cue's sections are scheduled on the marks |
+| `intro:line` | `{i, text, at, out}` \| `{i: null}` | one line at a time; the view fades it by the film's clock (`lineAt(t).k`) and announces it once |
+| `intro:skip` | `{t, mode: 'veil' \| 'finish'}` | `veil` in lit / fall / below (ink 0.25 s, jump to the end, ink off 0.35 s); `finish` in wick / home (the rest plays out in 0.5 s) |
+| `intro:done` | `{skipped, replay, t, error}` | exactly once per `start`; main hands over |
+
+**Order at the hand-off** (not a replay; today, `world.SUPPORTS_COVE` false): `intro:done` → main sets `meta.intro = {seen: true, skipped}` and calls `game.startNewRun({character: 'wick', nightMode: 'still', __intro: true})` → `flow:change {flow: 'playing', prev: 'intro'}` → `zone:change {zone: 'mossmere', prev: null, intro: true}` → `run:start {continued: false}` → the save. `zone:change {intro: true}` means "this lake is already on screen": render applies no zone defaults and no black fade, the world's `setZone` returns early (same zone), audio plays no sting. A replay ends with `flow:change {flow: 'title'}` and `ui.showTitle()`; no `zone:change`, no save. An error inside the film ends through the same `intro:done` with `{error: true}` and the same hand-off. **When the cove ships** the same `intro:done` starts the First Evening at step `wake` (its `framing` step is not played and `INTRO.text` replaces `FIRST_EVENING.text.lore`).
+
+**Hooks in other modules** (additive, inside `// >>> INTRO LANE A|B` … `// <<<` blocks; inert unless the film calls them):
+- **render** (lane A): `setIntroCamera({pos: [x, y, z], look: [x, y, z], fov, w} | null)`: the pose is laid over the rig's own with weight `w` (1 = the pose exactly, no sway or roll; 0 = the rig) and **the rig is held in `sail`** while a pose is set, whatever the flow, so the film's last move settles into the play camera and nothing changes when the run starts. `getIntroCamera()`.
+- **world** (lane A): `getHeroAnchor() -> {x, z, face, theme, zone}` (the lake's hero landmark as world-art places it: the Mossmere's Sunken Gate); `setIntroMood(on)` (the first run's opening mood: night 0, warm 0.35, no title multipliers); `setIntroWaterLight({x, y, z, color, intensity, radius, streak} | null)` (one more entry in the water's light list: the great lantern's pool and gold path, on every tier).
+- **actors** (lane A): `setIntroKindle({wick: 0–1, lantern: 0–1} | null)`: straight multipliers on the Wick's head flame and on the raft lantern (light, glass, halo, flame, pool), after the existing easing; `null` = the game's own.
+- **main** (lane B): `game.introPending()`, `game.beginIntro()`, `game.replayIntro()`; flow `intro` (the rule that clears `ctx.cinematic` outside `playing` / `hub` gains `intro`; the 20 s cinematic valve does not apply); `startNewRun({__intro: true})`; `ctx.intro.update(rawDt)` before the module loop.
+- **ui** (lane B): `src/ui-intro.js`: the words (inside `INTRO.words.band`, ≥ 16 px, no box), the Skip word (≥ 44 px, safe-area aware), the ink veil, the reduced-motion cross-fade layer; the title's *Begin* while `pending()` and the quiet *Prologue* word otherwise.
+- **audio** (lane B): the cue (`INTRO.sound`: D Dorian, on the music bus, ≤ 0.3 s fades, silent when locked); `audioLog` records `intro_cue` and its marks.
+
+**Debug hook** (registered by main only when `core.debugEnabled()`; `'intro'` is in `core.HIDDEN_DEBUG_HOOKS`): `debug.intro()` → the readout `{phase, t, wall, beat, line, replay, reduced, skipped, hold, optIn, pending, flow, seen, stage}`; `debug.intro('play', {replay, reduced})`, `('seek', t)`, `('resume')`, `('skip')`, `('stop')`, `('auto', bool)`, `('prewarm')`. Under `GW_DEBUG` (the test harness) the film never plays by itself unless a scenario opts in, so every existing v3 scenario is unaffected.
+
+**Testing:** `tools/tests/intro-seam.test.mjs` (the seam: `INTRO`'s frozen block, both APIs, the events, purity, the trigger rule, the lane markers; neither lane edits it), `tools/tests/intro.test.mjs` (lane B's director), `tools/tests/intro-stage.test.mjs` (lane A's stage), all run by `tools/check.mjs`; browser scenarios through `tools/playtest.mjs`: `tools/tests/intro-shots.scenario.mjs` (lane A: a seek-driven frame strip on every tier, desktop and 390 × 844; the set's budget) and `tools/tests/intro-flow.scenario.mjs` (lane B: Begin → the film → play, every skip path, the replay, reduced motion, the end state). The data rules (length 15–20 s, contiguous beats, ≤ 4 lines of ≤ 60 characters, the skip and clock limits, the set's ceilings) are in `tools/validate-data.mjs` and run in all three passes.
