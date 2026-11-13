@@ -150,7 +150,7 @@
     'At 5 m the loop is 6.95 + 5 = 11.95 mΩ. So 12.6 ÷ 0.01195 = 1054 A flows, still above the device\'s 1 kA.';
   const W5 = 'The same rule works for a real 480 V string. The cells\' resistance and the links between them set the most a battery can drive. This string\'s loop adds up to 0.160 + 0.028 Ω. ' +
     'So the rule predicts 480 ÷ 0.188 = 2553 A, about 2550 A. A real test on that string measured 2530 A. ' +
-    'A shorted battery can give 100 to 1000 times its normal discharge current. Here the big string drives 2553 A.';
+    'A shorted battery can give 100 to 1000 times its normal discharge current. Above 120 V DC, a battery can shock as well as burn. Here the big string drives 2553 A.';
   const W7 = 'Let the charge fall from 100% to 60%, and the fault current barely moves. A cell\'s rested voltage falls only a little as its charge goes. The milliohms stay milliohms. ' +
     'In tests on real batteries, the current stayed above 90% of its full-charge value at about 60% charge. So a part-discharged battery can still give nearly its full fault. ' +
     'In this sketch, the block still drives 1668 A at 60% charge.';
@@ -185,7 +185,7 @@
       opts: [O2_BIG, O2_LOW, O2_AH], want: O2_BIG, right: 'That\'s it: 12.6 V across a few milliohms is well over a thousand amps.',
       hint: 'Not quite. Think about what holds the current back.',
       hints: { [O2_LOW]: 'Not quite. Your body\'s resistance is high, so 12 V drives little current through you. A spanner\'s resistance is tiny.', [O2_AH]: 'Not quite. Ampere-hours say how long a battery lasts, not how hard it can push.' },
-      why: 'The spanner joins the terminals with almost no resistance. So the block\'s own 6.95 mΩ is nearly all that holds the current back. 12.6 ÷ 0.00695 is about 1800 A. A low voltage only means a small current through a high resistance, like your body. That current makes the spanner very hot very quickly. It can explode in a shower of molten metal, which burns and can light hydrogen.' },
+      why: 'The spanner joins the terminals with almost no resistance. So the block\'s own 6.95 mΩ is nearly all that holds the current back. 12.6 ÷ 0.00695 is about 1800 A. A low voltage only means a small current through a high resistance, like your body. That current makes the spanner very hot very quickly. It can explode in a shower of molten metal, which burns and can light hydrogen. A long string is different. Some large batteries are above 120 V DC, and that is a real shock danger.' },
     { show: true, name: 'Down the cable', pic: 'fault', ctl: ['d'], enter: { d: 0 }, end: { d: 5 }, still: { d: 5 }, dur: 4.0,
       play: (t) => { X.d = 5 * ez((t - 0.6) / 3.0); },
       text: W3 + ' Drag the fault, or its slider, to try it.', read: W3 },
@@ -225,7 +225,7 @@
       opts: [O10_MAIN, O10_ONE, O10_OFF], want: O10_OFF, right: 'That\'s it: switch off all circuits before connecting or disconnecting, and rest no metal on a battery.',
       hint: 'Not quite. Think about what a switch can and cannot make dead.',
       hints: { [O10_MAIN]: 'Not quite. A switch stops current in the circuits, but the cells keep their voltage.', [O10_ONE]: 'Not quite. Your spanner can bridge more than one cell. Even one cell can drive over a thousand amps through metal.' },
-      why: 'Switching off the circuits stops the charger\'s and the loads\' currents. It does not make the cells dead. Their exposed metal is always live. So keep tools off the top, where a spanner could bridge two terminals. Use insulated tools, and work on one connection at a time.' },
+      why: 'Switching off the circuits stops the charger\'s and the loads\' currents. It does not make the cells dead. Their exposed metal is always live. So keep tools off the top, where a spanner could bridge two terminals. Use insulated tools with one working end, and work on one connection at a time. Above 120 V DC, also insulate or shroud live parts, post warning notices and control access.' },
     { show: true, name: 'Other chemistries', pic: 'chem', enter: { cf: 0 }, end: { cf: 3 }, dur: 3.0,
       play: (t) => { X.cf = 3 * K.clamp((t - 0.3) / 2.1, 0, 1); },
       text: W11, read: W11 },

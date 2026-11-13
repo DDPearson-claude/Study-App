@@ -193,15 +193,15 @@
       why: 'Straight after a charge, the voltage sits high for hours. That is surface charge. One way to picture it is fresh acid still at the plates, waiting to spread. So ' + fV(voltsOf(100, 1 / 6, false)) + ' says little yet. Rest the cell for at least four hours, or give it a brief discharge. Then read it.' },
     { show: true, name: 'The level', ctl: 'level', enter: { soc: 100 }, end: { level: 'low' }, still: { level: 'low' }, dur: 2.0,
       play: (t) => { X.level = t >= 0.6 ? 'low' : 'right'; },
-      text: 'The level matters too. Water evaporates, but the acid stays behind. So a low cell holds stronger acid, and its float reads high. An overfilled cell reads low. Here the level has fallen below its mark. The full cell\'s float now reads ' + LOWSG + ', above its full mark. Top up with distilled water, never acid, because only water has gone. Let it mix before you read again. Choose a level to try it.',
-      read: 'The level matters too. Water evaporates, but the acid stays behind. So a low cell holds stronger acid, and its float reads high. An overfilled cell reads low. Here the level has fallen below its mark. The full cell\'s float now reads ' + LOWSG + ', above its full mark. Top up with distilled water, never acid, because only water has gone. Let it mix before you read again.' },
+      text: 'The level matters too. Charging splits water into gas, not acid. So a low cell holds stronger acid, and its float reads high. An overfilled cell reads low. Here the level has fallen below its mark. The full cell\'s float now reads ' + LOWSG + ', above its full mark. Top up with distilled water, never acid, because only water has gone. Let it mix before you read again. Choose a level to try it.',
+      read: 'The level matters too. Charging splits water into gas, not acid. So a low cell holds stronger acid, and its float reads high. An overfilled cell reads low. Here the level has fallen below its mark. The full cell\'s float now reads ' + LOWSG + ', above its full mark. Top up with distilled water, never acid, because only water has gone. Let it mix before you read again.' },
     { name: 'Topping up', enter: { soc: 100, level: 'low' }, end: { level: 'right' }, run: { dur: 1.6, go: () => { X.level = 'right'; } },
-      task: 'A cell\'s level has fallen by evaporation. What should you top it up with?',
+      task: 'A cell\'s level has fallen with charging. What should you top it up with?',
       opts: ['Distilled water', 'Acid, to keep it strong', 'Nothing, read it as it is'], want: 'Distilled water',
-      hint: 'Not quite. Only water evaporated. The acid is all still there.',
-      hints: { 'Acid, to keep it strong': 'Not quite. Only water evaporated. The acid is all still there.',
+      hint: 'Not quite. Only water went. The acid is all still there.',
+      hints: { 'Acid, to keep it strong': 'Not quite. Only water went. The acid is all still there.',
         'Nothing, read it as it is': 'Not quite. A low level reads high. So top up, let it mix, then read.' },
-      why: 'Only water evaporates. The acid stays, so the liquid left is too strong and reads high. Distilled water brings it back to strength. Let it mix, and the float reads ' + f3(SG_FULL) + ' again.' },
+      why: 'Only water goes. The acid stays, so the liquid left is too strong and reads high. Distilled water brings it back to strength. Let it mix, and the float reads ' + f3(SG_FULL) + ' again.' },
     { show: true, name: 'Layers', ctl: 'strat', enter: { soc: 90 }, end: { strat: true }, still: { strat: true }, dur: 2.4,
       play: (t) => { X.strat = t >= 0.6; },
       text: 'Acid can also settle into layers, with strong acid at the bottom. That is *stratification*. The lower parts of the plates then stand in strong acid, which lifts their voltage. So the voltmeter reads high, and the cell looks more charged than it is. This cell is at 90%, yet its voltmeter reads ' + fV(voltsOf(90, MAKER_H, true)) + '. The hydrometer gives no single reading, because that depends on where its sample comes from. The mixed check fails, so the light says not yet. Flip the switch to compare.',
@@ -593,7 +593,7 @@
         : 'After ' + fH(h) + ' on open circuit the fresh acid has spread, so the voltmeter shows its rested value.';
     }
     if (d.ctl === 'level') {
-      return X.level === 'low' ? 'Water has evaporated, so the same acid sits in less water. It is stronger, and the float reads ' + LVL_PTS + ' points high.'
+      return X.level === 'low' ? 'Water has gone, so the same acid sits in less water. It is stronger, and the float reads ' + LVL_PTS + ' points high.'
         : X.level === 'high' ? 'The cell is overfilled, so the acid is diluted, and the float reads ' + LVL_PTS + ' points low.'
         : 'The level is at its mark, so the float reads true.';
     }
