@@ -436,6 +436,10 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       }
       default: break;
     }
+    // the rod: whipped up as the fish swings in on the line (then it is planted, or set down: actors-show drives it as a prop)
+    const sw = clamp(S.swing ?? 1, 0, 1);
+    o.rod = 0.8 - 0.75 * sw;
+    if (sw < 1) o.rRaise += 0.55 * Math.sin(Math.PI * sw);
     // the head: to the lens whatever the body does (it may stand three-quarter), a glance at the fish and back at us
     const g = clamp(S.glance || 0, 0, 1);
     const tw = still ? o.twist : twistNow, pt = still ? o.pitch : pitchNow;

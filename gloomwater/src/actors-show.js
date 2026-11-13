@@ -34,7 +34,7 @@ const LIFE0 = {
 };
 const GRIP0 = {
   pinch: { hands: 1, reach: 0.3, reachTiny: 0.42, tinyBelow: 0.15, rod: 'planted' },
-  both: { hands: 2, reach: 0.24, spread: 0.31, spreadClamp: [0.13, 0.44], rod: 'stowed' },
+  both: { hands: 2, reach: 0.3, spread: 0.31, spreadClamp: [0.13, 0.44], rod: 'stowed' },
   hug: { hands: 2, reach: 0.15, tilt: 70, rod: 'stowed' },
   hang: { hands: 2, tailClear: 0.04, restsAbove: 1.9, gap: 0.25, lean: [6, 16], rod: 'raised' },
   alongside: { hands: 1, stand: true, chinOnDeck: 0.12, flankUp: 30, acrossWhen: 0.7, rod: 'planted' },
@@ -131,7 +131,7 @@ const EDGE_ZONES = { '+x': [-0.35, 0.55], '-x': [-0.5, 0.4], '+z': [-0.25, 0.4],
 const EDGE_ZONES_UP = { ...EDGE_ZONES, '-x': [-0.22, -0.12] };
 const WATER_Y = 0.02;                     // the lake's surface in deck space (the deck floats that much low)
 
-export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
+export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip = null }) {
   const deck = raft.deck;
   const D = () => ctx.data || {};
   const A = () => D().AUTOFISH?.show || {};
@@ -175,7 +175,8 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const L = S || hold;
     if (!L) return;
     if (cam && cam.isCamera && Number.isFinite(cam.aspect)) L.tall = cam.aspect < 1;
-    if (snap || !L.hasLens) { L.zS.copy(z); L.hasLens = true; } else { L.zS.lerp(z, 1 - Math.exp(-4 * dt)); L.zS.y = 0; L.zS.normalize(); }
+    if (snap || !L.hasLens) { L.zS.copy(z); L.hasLens = true; }
+    else if (L.id !== 'alongside') { L.zS.lerp(z, 1 - Math.exp(-4 * dt)); L.zS.y = 0; L.zS.normalize(); }   // (a fish laid alongside keeps its lie: the lens may crane and rake over it)
     L.xS.set(L.zS.z, 0, -L.zS.x);
   }
 
@@ -183,8 +184,11 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
   function kitFor(fv, id) {
     const shape = fv.shape, L = fv.length;
     const K = { face: 'flank', nose: 'side', tilt: 9, noseUp: 4, noseIn: 6, f0: 0.44, bend: null, round: false, wings: false };
-    if (shape === 'ray') { K.face = 'back'; K.wings = true; K.nose = id === 'pinch' ? 'side' : 'up'; K.tilt = id === 'pinch' ? 58 : 10; K.bend = id === 'pinch' ? null : { tail: [0.56, 0.2, -0.7] }; }
-    else if (shape === 'crayfish') { K.face = 'back'; K.nose = id === 'pinch' ? 'up' : 'side'; K.tilt = id === 'pinch' ? 16 : 48; K.noseUp = 0; K.f0 = 0.5; }
+    // a ray shows its back: flat on the palm tipped to us, or held up by its lower wing like a painting (its disc to the lens, its
+    // snout to the right of the frame as every held fish's); stood or hung, it is head-up
+    if (shape === 'ray') { K.face = 'back'; K.wings = true; K.nose = id === 'pinch' || id === 'both' ? 'side' : 'up'; K.tilt = id === 'pinch' ? 58 : 12; K.f0 = 0.27; K.noseUp = id === 'both' ? 8 : 4; }
+    // a crayfish is held from below by its carapace, back to us, claws up and out
+    else if (shape === 'crayfish') { K.face = 'back'; K.nose = id === 'pinch' ? 'diag' : 'side'; K.tilt = id === 'pinch' ? 16 : 48; K.noseUp = 0; K.f0 = 0.5; }
     else if (shape === 'jelly') { K.face = 'back'; K.nose = 'up'; K.tilt = 0; K.round = true; K.f0 = 0.3; }
     else if (shape === 'puffer') { K.round = true; K.f0 = 0.42; K.noseUp = 6; }
     else if (shape === 'eel') {
@@ -227,7 +231,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
   }
   /** The body as the hands take the fish (bent to it, not yet leaning back): the take point must clear this one too. */
   function probeTake(L) {
-    const sp = restSpec(L); sp.p = 0; sp.dip = 1; sp.take = 1;
+    const sp = restSpec(L); sp.p = 0; sp.dip = 1; sp.take = 1; sp.glance = 1; sp.fishYawLocal = L.lensYaw; sp.fishElev = -0.55;
     const g = wick.probeShow(sp, { x: L.spot.x, y: L.spot.y, z: L.spot.z, faceYaw: L.faceYaw }, L.Gt0 || {});
     L.Gt0 = g;
     L.Gt = L.Gt || { vol: { a: V(), b: V(), head: V(), r: 0, headR: 0 } };
@@ -259,7 +263,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const aim = (c, o) => { const dx = c.x - L.spot.x, dz = c.z - L.spot.z, far = Math.hypot(dx, dz); o.yaw = far > 0.25 ? Math.atan2(dx, dz) : Math.atan2(L.zS.x, L.zS.z); o.elev = clamp(Math.atan2(c.y - head.y, Math.max(0.3, far)), -0.3, 0.7); };
     aim(est, L.aimRest);
     // the live lens: the real camera once it has come within reach of its resting place, the estimate before
-    const k = smooth01(1.25 - camD.distanceTo(est) / Math.max(0.5, d));
+    const k = Math.max(smooth01(1.25 - camD.distanceTo(est) / Math.max(0.5, d)), smooth01(2.2 - camD.distanceTo(mid) / Math.max(0.5, d)));
     aim(T.c.copy(est).lerp(camD, k), L.aimLive);
     const off = (L.F.threeQuarter?.[L.id] || 0) * DEG;
     L.lensYaw = L.aimRest.yaw; L.lensElev = L.aimRest.elev;
@@ -296,21 +300,25 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const lensN = T.a.copy(L.zS).multiplyScalar(Math.cos(K.tilt * DEG)).addScaledVector(UP, Math.sin(K.tilt * DEG));
     const nose = T.b;
     if (K.nose === 'up') nose.copy(UP).addScaledVector(L.xS, 0.12 * sd).addScaledVector(L.zS, -Math.sin(K.tilt * DEG) * 0.9);
+    else if (K.nose === 'diag') nose.copy(UP).addScaledVector(L.xS, 1.0).addScaledVector(L.zS, -Math.sin(K.tilt * DEG) * 0.6);
     else nose.copy(L.xS).addScaledVector(L.zS, Math.tan(K.noseIn * DEG)).addScaledVector(UP, Math.tan(K.noseUp * DEG));
     frameQuat(Y.quat, nose, lensN, K.face);
     // the take: the same turn, the flank tipped up a little more (it lies in the hands before it is shown)
     frameQuat(Y.takeQuat, T.c.copy(nose).addScaledVector(UP, -0.1).addScaledVector(L.zS, -0.08), T.d.copy(lensN).addScaledVector(UP, 0.35), K.face);
     // where its middle is held
     const midZ = (b.noseZ + b.tailZ) / 2, cy = (b.top + b.bottom) / 2;
-    const cLocal = T.c.set(0, K.nose === 'up' ? 0 : cy, K.nose === 'up' ? (fv.section ? fv.section(K.f0, sec).z : midZ) : midZ);
+    const upright = K.nose === 'up' || K.nose === 'diag';
+    const cLocal = T.c.set(0, upright || K.wings ? 0 : cy, upright ? (fv.section ? fv.section(K.f0, sec).z : midZ) : K.wings ? midZ + ((fv.section ? fv.section(K.f0, sec).z : midZ) - midZ) * 0.6 : midZ);
     const sh = sd > 0 ? G.shL : G.shR, chest = (G.shL.y + G.shR.y) / 2;
-    const reach = pinch ? (tiny ? L.grip.reachTiny : L.grip.reach) : L.grip.reach;
-    const ext = K.nose === 'up' ? (b.noseZ - cLocal.z) : Math.max(0.01, b.top - cy);   // how far it stands above its middle
+    const little = pinch ? 0 : clamp((0.62 - L.L) / 0.3, 0, 1);   // a small fish in both hands is held out as far as a pinch (and a little higher)
+    const reach = pinch ? (tiny ? L.grip.reachTiny : L.grip.reach) : L.grip.reach + little * 0.1;
+    const ext = upright ? (b.noseZ - cLocal.z) * (K.nose === 'diag' ? 0.75 : 1) : K.wings && !pinch ? b.halfW : Math.max(0.01, b.top - cy);   // how far it stands above its middle
     let x, y;
-    if (pinch) {   // the arm straight out to the lens from its shoulder (the furthest it reaches: the fisherman's trick); on an
-      // upright screen it comes in under the chin, so the face and the fish stack in the narrow frame
-      x = sd * Math.abs(along(L, sh, L.xS)) * (L.tall ? 0.3 : 0.95); y = Math.min(sh.y + (tiny ? 0.05 : 0.01), G.eyes.y - 0.12 - ext);
-    } else { x = 0; y = Math.min(chest - 0.01, G.eyes.y - 0.06 - ext); }   // the face must show above it
+    if (pinch && !L.tall) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
+      x = sd * (G.head.radius * 0.94 + (tiny ? 0.03 : upright ? 0.06 : 0.32 * L.L)); y = G.head.center.y - (tiny ? 0.03 : 0.08) - (upright ? ext * 0.5 : 0);
+    } else if (pinch) {       // an upright frame: under the chin, the face above it, the two stacked in the narrow picture
+      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + (tiny ? 0.07 : 0.02), G.eyes.y - 0.12 - ext);
+    } else { x = 0; y = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext); }   // the face must show above it
     const c = T.d.copy(L.spot).addScaledVector(L.xS, x).addScaledVector(L.zS, faceZ + reach); c.y = y;
     Y.pos.copy(cLocal).applyQuaternion(Y.quat).negate().add(c);
     // the grips (fish-local): under the belly, or on a ray's wing edges
@@ -323,12 +331,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
       L.lockKeys = [key];
     } else {
       const lo = (L.grip.spreadClamp?.[0] ?? 0.13) / 2, hi = (L.grip.spreadClamp?.[1] ?? 0.44) / 2;
-      if (K.wings) {   // a ray, like a painting: a hand on each wing's edge
-        let fw = 0.3, w = 0; for (let f = 0.12; f <= 0.6; f += 0.04) { const s = fv.section(f, sec); if (s.halfW > w) { w = s.halfW; fw = f; } }
-        const hw = Math.min(w - rh * 0.35, hi * 1.25);
-        const sx = T.X.set(1, 0, 0).applyQuaternion(Y.quat).dot(L.xS) >= 0 ? 1 : -1;   // which of its sides is lens-right
-        fv.section(fw, sec);
-        Y.gripL.set(sx * hw, -rh * 0.25, sec.z); Y.gripR.set(-sx * hw, -rh * 0.25, sec.z);
+      if (K.wings) {   // a ray, like a painting: both hands under its lower wing, the disc to the lens
+        const dn = T.X.set(1, 0, 0).applyQuaternion(Y.quat).y < 0 ? 1 : -1;   // which of its wings hangs down
+        const h = clamp(0.2 * L.L, lo, hi * 0.8);
+        skin(fv, clamp(K.f0 - h / L.L, 0.06, 0.4), dn, -0.25, rh * 0.6, Y.gripL); skin(fv, clamp(K.f0 + h / L.L, 0.14, 0.47), dn, -0.25, rh * 0.6, Y.gripR);
       } else if (fv.shape === 'jelly') { fv.section(0.4, sec); const w = Math.min(sec.halfW * 0.6, hi); Y.gripL.set(-w, 0, sec.z - rh * 0.6); Y.gripR.set(w, 0, sec.z - rh * 0.6); }
       else {
         const h = clamp((L.grip.spread ?? 0.31) * L.L, lo, hi) * (K.round ? 0.6 : 1);
@@ -423,7 +429,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     settleHand(L, 'r', Y.gripR); settleHand(L, 'l', Y.gripL);
     // the heave: it comes aboard leaning out and low, and is hauled up against the shoulder about its tail
     Y.pivot.copy(hinL).add(Y.pos);
-    T.q.setFromAxisAngle(L.zS, -sd * 24 * DEG * (K.wings ? 0.5 : 1));
+    T.q.setFromAxisAngle(L.zS, -sd * 18 * DEG * (K.wings ? 0.5 : 1));
     Y.takeQuat.copy(T.q).multiply(Y.quat);
     Y.takePos.copy(Y.pos).sub(Y.pivot).applyQuaternion(T.q).add(Y.pivot).addScaledVector(L.xS, sd * 0.05);
     Y.travel = T.e.set(0, 0, (b.noseZ + b.tailZ) / 2).applyQuaternion(Y.quat).add(Y.pos).distanceTo(T.f.set(0, 0, (b.noseZ + b.tailZ) / 2).applyQuaternion(Y.takeQuat).add(Y.takePos));
@@ -494,7 +500,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
 
   function solveAlongside(L) {   // laid along the raft in the water, its chin against the deck's edge, the Wick standing over it
     const Y = L.Y, fv = L.fv, K = L.kit, b = L.b, rh = handR(), flat = K.wings;
-    if (!L.sup) L.sup = raftSupport(DECK_RECT, L.zS, L.xS, { within: 30, turn: 20, zones: (raft.level || 0) >= 1 ? EDGE_ZONES_UP : EDGE_ZONES });   // (latched: it never swaps edges as the lens settles)
+    if (!L.sup) L.sup = raftSupport(DECK_RECT, L.zS, L.xS, { within: 12, turn: 16, zones: (raft.level || 0) >= 1 ? EDGE_ZONES_UP : EDGE_ZONES });   // (latched: it never swaps edges as the lens settles)
     const U = L.sup;
     const phi = Math.max((L.grip.flankUp ?? 30) * DEG, 0.52);
     const e = T.a.set(U.ex, 0, U.ez), n = T.b.set(U.nx, 0, U.nz);
@@ -506,7 +512,11 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     for (let f = 0.15; f <= 0.75; f += 0.05) { const r = ext(fv.section(f, sec)); if (r > rho) { rho = r; fw = f; } }
     const headF = 0.09, rhoH = ext(fv.section(headF, sec)), thickH = hgt(sec), thick = hgt(fv.section(fw, sec2));
     // along an edge: nosed in a little, so the head meets the planks while the belly clears them
-    if (U.aligned) { const psi = clamp(Math.atan2(rho - rhoH, (fw - headF) * L.L), 0, 18 * DEG); e.multiplyScalar(Math.cos(psi)).addScaledVector(n, -Math.sin(psi)).normalize(); }
+    if (U.aligned) {
+      const offSq = Math.acos(clamp(e.x * L.xS.x + e.z * L.xS.z, -1, 1)), toward = (e.x * L.zS.x + e.z * L.zS.z) > 0 ? -1 : 1;   // (nosing in turns it toward or away from square)
+      const psi = clamp(Math.atan2(rho - rhoH, (fw - headF) * L.L), 0, Math.max(0, (flat ? 12 : 18) * DEG - toward * offSq));
+      e.multiplyScalar(Math.cos(psi)).addScaledVector(n, -Math.sin(psi)).normalize();
+    }
     // its frame: the flank that faces us tipped up, its back toward the raft; a flat fish lies back up
     const hN = T.c.copy(L.zS).addScaledVector(e, -L.zS.dot(e)); if (hN.lengthSq() < 1e-6) hN.copy(n); hN.normalize();
     if (flat) frameQuat(Y.quat, e, T.d.copy(UP).multiplyScalar(Math.cos(tipF)).addScaledVector(hN, Math.sin(tipF)), 'back');
@@ -527,21 +537,31 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     Y.pos.sub(hl.applyQuaternion(Y.quat));
     const midW = T.d.set(0, 0, fv.section(fw, sec2).z).applyQuaternion(Y.quat).add(Y.pos);
     if (midW.y < WATER_Y + thick * 0.08) Y.pos.y += WATER_Y + thick * 0.08 - midW.y;
+    // nothing of it over the planks: out along the edge's normal until its skin is clear of the deck
+    for (let it = 0; it < 60; it++) {
+      let inside = 0;
+      for (let f = 0; f <= 0.5; f += 0.04) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const p = skin(fv, f, dx, dy, 0, T.e).applyQuaternion(Y.quat).add(Y.pos);
+        if (p.y > WATER_Y) inside = Math.max(inside, Math.min(p.x - DECK_RECT.x0, DECK_RECT.x1 - p.x, p.z - DECK_RECT.z0, DECK_RECT.z1 - p.z) + 0.015);
+      }
+      if (inside <= 0) break;
+      Y.pos.addScaledVector(n, Math.min(0.05, inside + 0.005));
+    }
     // the Wick: standing on the planks behind its brow, three-quarter toward the body, the rod planted in the far hand
     L.spotWant.set(clamp(U.px - n.x * 0.24, DECK_RECT.x0 + 0.24, DECK_RECT.x1 - 0.24), deckY, clamp(U.pz - n.z * 0.24, DECK_RECT.z0 + 0.24, DECK_RECT.z1 - 0.24));
     L.spot.copy(L.spotWant);
     faceLens(L);
-    pushClear(L, probe(L), Y.pos, Y.quat, n, 0, 0.5, 0.01);
     const nearK = L.side > 0 ? 'l' : 'r', farK = L.side > 0 ? 'r' : 'l';
     const gN = nearK === 'l' ? Y.gripL : Y.gripR;
-    const upL = T.g.copy(UP).applyQuaternion(T.q2.copy(Y.quat).invert()).clone(), inL = T.h.copy(n).negate().applyQuaternion(T.q2).clone();
-    for (let pass = 0; pass < 2; pass++) {
+    const upL = T.g.copy(UP).applyQuaternion(T.q2.copy(Y.quat).invert()).clone(), inL = T.h.copy(n).negate().applyQuaternion(T.q2).clone(), nOut = n.clone();
+    for (let pass = 0; pass < 3; pass++) {
       const G = probe(L), shNear = L.side > 0 ? G.shL : G.shR;
+      if (pass !== 1) pushClear(L, G, Y.pos, Y.quat, nOut, 0, 0.5, 0.01, 0.002);   // (again once it has crouched: the cloak leans out over the edge)
       // the hand: on the nearest of its brow and snout the arm can reach
       let best = null;
       for (const f of [0.1, 0.06, 0.14, 0.03, 0.2, 0.26]) for (const k of [1, 0.75, 0.5, 0.25, 0]) {
         const g = skin(fv, f, upL.x * k + inL.x * (1 - k), upL.y * k + inL.y * (1 - k), rh * 0.55, T.c);
-        const w = T.e.copy(g).applyQuaternion(Y.quat).add(Y.pos), m = wick.ghostReach(nearK, T.d.copy(w), REACH) + (1 - k) * 0.01 + Math.abs(f - 0.1) * 0.02;
+        const w = T.e.copy(g).applyQuaternion(Y.quat).add(Y.pos), m = wick.ghostReach(nearK, T.d.copy(w), REACH + 0.3) + (1 - k) * 0.01 + Math.abs(f - 0.1) * 0.02;
         if (best === null || m < best - 1e-4) { best = m; gN.copy(g); }
       }
       settleHand(L, nearK, gN);
@@ -552,7 +572,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     L.lockKeys = ['r', 'l'];
     // it comes in along the raft: a slide up to the edge, its head not yet lifted
     Y.takeQuat.copy(Y.quat);
-    Y.takePos.copy(Y.pos).addScaledVector(e, -Math.min(0.6, 0.18 * L.L)).addScaledVector(n, 0.12); Y.takePos.y -= rise * 0.5;
+    Y.takePos.copy(Y.pos).addScaledVector(e, -Math.min(0.25, 0.08 * L.L)).addScaledVector(n, 0.3 + 0.05 * Math.min(L.L, 9)); Y.takePos.y -= rise * 0.5;
     Y.travel = Y.takePos.distanceTo(Y.pos);
     L.dipDir.copy(n);
   }
@@ -669,8 +689,9 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
       return;
     }
     if (id === 'alongside') {
-      const g = clamp(c.u / 0.9, 0, 1), kp = clamp(p, 0, 1.2);
-      ep.copy(Y.takePos).lerp(Y.pos, kp); eq.copy(Y.takeQuat).slerp(Y.quat, clamp(kp, 0, 1));
+      const g = clamp(c.u / 0.9, 0, 1), kp = clamp(p, 0, 1);
+      ep.copy(Y.takePos).lerp(Y.pos, kp); eq.copy(Y.takeQuat).slerp(Y.quat, kp);
+      ep.y += Math.max(0, p - 1) * 0.5;   // (the present's overshoot is a lift of the head, never a shove into the planks)
       ep.y += Math.sin(L.t * 1.1) * 0.012 * Math.min(2, 1 + L.L * 0.2) * (1 - 0.5 * c.calm);
       T.q.setFromAxisAngle(T.a.set(0, 0, 1).applyQuaternion(eq), 0.03 * c.flap * Math.sin(L.t * 17));
       eq.premultiply(T.q);
@@ -681,7 +702,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const kp = clamp(p, 0, 1.4), over = p - Math.min(p, 1);
     if (id === 'hug') {
       eq.copy(Y.takeQuat).slerp(Y.quat, clamp(kp, 0, 1));
-      if (over > 0) { T.q.setFromAxisAngle(L.zS, L.side * over * 24 * DEG); eq.premultiply(T.q); }
+      if (over > 0) { T.q.setFromAxisAngle(L.zS, L.side * over * 18 * DEG); eq.premultiply(T.q); }
       // about its tail on the planks: the hinge stays put
       T.q.copy(eq).multiply(T.q2.copy(Y.quat).invert());
       ep.copy(Y.pos).sub(Y.pivot).applyQuaternion(T.q).add(Y.pivot).addScaledVector(L.xS, L.side * 0.05 * (1 - clamp(kp, 0, 1)));
@@ -767,7 +788,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const tau = c.tau;
     // the proud bob after the settle; a new species or a legend bobs again, bigger, eyes wide for a beat
     const bobAt = (x, w) => (x > 0 && x < w ? Math.sin(Math.PI * x / w) : 0);
-    const bobM = (L.row.bob || 0) * bobAt(tau - 0.1, 0.3) + (L.special ? (L.row.bob || 0.01) * 1.9 * bobAt(tau - 0.45, 0.34) : 0);
+    const bobM = (L.row.bob || 0) * bobAt(tau - 0.3, 0.3) + (L.special ? (L.row.bob || 0.01) * 1.9 * bobAt(tau - 0.62, 0.34) : 0);
     sp.bobM = bobM * (1 - c.calm);
     // a glance: at the fish as it comes in, to us at the present, back at the fish once in a long hold, at us through the pause
     let glance = 1 - smooth01((c.u - 0.55) / 0.4);
@@ -776,7 +797,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const mid = T.a.set(0, 0, (L.b.noseZ + L.b.tailZ) / 2).applyQuaternion(L.now.quat).add(L.now.pos);
     Object.assign(sp, { pose: L.name, side: L.side, p: c.p, take: c.take, swing: c.swing, calm: c.calm, flap: c.flap, dip: c.dip, bob: sp.bobM / s, weight: L.weight, life: L.row, glance: glance * (1 - c.calm),
       hugTwist: L.hugTwist,
-      special: L.special ? bobAt(tau - 0.45, 0.5) : 0, wide: L.special ? bobAt(tau - 0.3, 0.55) : (L.tiny ? bobAt(tau - 0.02, 0.35) * 0.6 : 0), tiny: L.tiny, crouch: L.crouch,
+      special: L.special ? bobAt(tau - 0.6, 0.5) : 0, wide: L.special ? bobAt(tau - 0.1, 0.7) : (L.tiny ? bobAt(tau - 0.02, 0.35) * 0.6 : 0), tiny: L.tiny, crouch: L.crouch,
       faceYaw: L.faceLive, turnRate: L.F.turnRate, lensYawLocal: L.aimLive.yaw, lensElev: L.aimLive.elev,
       fishYawLocal: Math.atan2(mid.x - L.spot.x, mid.z - L.spot.z), fishElev: clamp(Math.atan2(mid.y - (L.spot.y + 0.8 * s / 1.22), Math.max(0.2, Math.hypot(mid.x - L.spot.x, mid.z - L.spot.z))), -0.6, 0.6),
       t: L.t, lift: L.beats.lift, hold: L.beats.hold, pause: L.beats.pause, cls: L.cls, lenB: L.L / s, depthB: (L.b.top - L.b.bottom) / s, shape: L.shape });
@@ -804,13 +825,17 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const grip = (key) => T.b.copy(key === 'r' ? Y.gripR : Y.gripL).applyMatrix4(obj.matrixWorld);
     const onRod = (h) => toWorld(T.b.copy(R.butt).addScaledVector(L.rodDirNow, h / Math.max(0.3, L.rodDirNow.y)));
     if (L.id === 'pinch') { K[near] = c.take; wick.setHandLock(near, grip(near), K[near], REACH); K[far] = K.rod; wick.setHandLock(far, onRod(0.4), K[far], REACH); }
-    else if (L.id === 'both' || L.id === 'hug') { K.r = c.take; K.l = c.take; wick.setHandLock('r', grip('r'), K.r, REACH); wick.setHandLock('l', grip('l'), K.l, REACH); }
+    else if (L.id === 'both') { K.r = c.take; K.l = c.take; wick.setHandLock('r', grip('r'), K.r, REACH); wick.setHandLock('l', grip('l'), K.l, REACH); }
+    else if (L.id === 'hug') {   // the near arm takes it; the far one comes round as it is hauled up against the shoulder
+      K[near] = c.take; K[far] = c.take * smooth01((c.p - 0.2) / 0.6);
+      wick.setHandLock(near, grip(near), K[near], REACH); wick.setHandLock(far, grip(far), K[far], REACH);
+    }
     else if (L.id === 'hang') {
       K[far] = K.rod; wick.setHandLock(far, onRod(0.42), K[far], REACH);
       K.nearToFish = smooth01((c.u - ta) / 0.3); K[near] = Math.max(K.rod, K.nearToFish);
       const a1 = T.c.copy(onRod(0.6)), a2 = grip(near);
       wick.setHandLock(near, a1.lerp(a2, K.nearToFish), K[near], REACH);
-    } else { K[far] = K.rod; wick.setHandLock(far, onRod(0.4), K[far], REACH); K[near] = smooth01((c.u - 0.55) / 0.4); wick.setHandLock(near, grip(near), K[near], REACH); }
+    } else { K[far] = K.rod; wick.setHandLock(far, onRod(0.4), K[far], REACH); K[near] = smooth01((c.u - 0.55) / 0.4); wick.setHandLock(near, grip(near), K[near], REACH + 0.3); }
     if (R.mode === 'stowed') wick.setRodDrive({ stow: K.stow });
     else {
       wick.setRodDrive({ butt: toWorld(T.c.copy(R.butt)), dir: T.d.copy(L.rodDirNow).applyQuaternion(deckQ), k: K.rod, scale: R.scale, stow: 0 });
@@ -896,7 +921,12 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
   function focus(center = new THREE.Vector3()) {
     const L = S;
     if (!L) return null;
-    deck.updateWorldMatrix(true, false);
+    const rest = (L.row.dip || 0) * (L.id === 'alongside' ? 0.35 : 1) * 0.34;
+    if (setDip) { setDip(rest, L.dipDir.x, L.dipDir.z); }
+    deck.updateWorldMatrix(true, false); deck.getWorldQuaternion(deckQ);
+    try { return focusNow(L, center); } finally { if (setDip) { setDip(dip.x, dip.dirX, dip.dirZ); deck.updateWorldMatrix(true, false); deck.getWorldQuaternion(deckQ); } }
+  }
+  function focusNow(L, center) {
     const Y = L.Y, fv = L.fv, b = L.b, G = L.G || probe(L);
     const P = (v) => v.clone().applyMatrix4(deck.matrixWorld);
     const fl = (x, y, z) => { const v = new THREE.Vector3(x, y, z); fv.bendPoint?.(v); return P(v.applyQuaternion(Y.quat).add(Y.pos)); };
@@ -920,8 +950,13 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
     const tipKeep = tip ? (L.id === 'hang' ? tip.clone().setY(Math.min(tip.y, snout.y + clamp(0.3 * L.L, 0.25, 0.5))) : tip) : null;
     if (tipKeep && L.id === 'hang') { tipKeep.x = snout.x + (tip.x - snout.x) * 0.5; tipKeep.z = snout.z + (tip.z - snout.z) * 0.5; }
     const fishPts = [snout, tail, back, belly];
+    // (and its outermost points as it is posed: a fin, a bent tail, a wing: left, right, top, bottom and nearest the lens)
+    { const H = hull(true), ax = [camR, camR.clone().negate(), UP, UP.clone().negate(), new THREE.Vector3(L.zS.x, 0, L.zS.z).applyQuaternion(deckQ)];
+      for (const a of ax) { let best = null, bd = -Infinity; for (const p of H) { const d = p.dot(a); if (d > bd) { bd = d; best = p; } } if (best && !fishPts.includes(best)) fishPts.push(best); } }
     if (L.id === 'pinch') fishPts.push(hands[L.side > 0 ? 1 : 0].clone().addScaledVector(UP, -handR() * 1.2));   // (and the palm it lies on)
-    const keep = { fish: fishPts, head: headPts, flame: [flame, P(G.flameTop)], hands: L.id === 'pinch' ? [hands[L.side > 0 ? 1 : 0]] : hands, feet: [feet], rodTip: tipKeep ? [tipKeep] : [] };
+    // the flame: its core; and, where the lens stands back, most of the way up it (a close-up may let the tip touch the frame)
+    const flameUp = L.id === 'pinch' ? null : flame.clone().lerp(P(G.flameTop), L.id === 'both' ? 0.5 : 0.85);
+    const keep = { fish: fishPts, head: headPts, flame: flameUp ? [flame, flameUp] : [flame], hands: L.id === 'pinch' ? [hands[L.side > 0 ? 1 : 0]] : hands, feet: [feet], rodTip: tipKeep ? [tipKeep] : [] };
     const all = [...keep.fish, ...keep.head, flame, ...(L.id === 'hang' || L.id === 'hug' || L.id === 'alongside' ? keep.feet : [])];
     const box = new THREE.Box3().setFromPoints(all);
     box.getCenter(center);
@@ -932,16 +967,20 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home }) {
 
   /** The fish as it is posed now: its bounds' box cut into slices along its length, each bent as the body is (world space).
    *  A geometry bounding box knows nothing of setBend's posture; this does. */
-  function hull() {
+  const hullM = new THREE.Matrix4(), hullQ = new THREE.Quaternion(), ONE = new THREE.Vector3(1, 1, 1);
+  function hull(settled = false) {
     const L = S;
     if (!L || !L.obj) return [];
-    const b = L.b, out = [];
-    L.obj.updateMatrixWorld(true);
-    for (let i = 0; i <= 12; i++) {
-      const z = b.noseZ + (b.tailZ - b.noseZ) * i / 12;
-      for (const [x, y] of [[b.halfW, b.top], [-b.halfW, b.top], [b.halfW, b.bottom], [-b.halfW, b.bottom]]) {
-        const v = new THREE.Vector3(x, y, z); L.fv.bendPoint?.(v); out.push(v.applyMatrix4(L.obj.matrixWorld));
-      }
+    const b = L.b, out = [], fins = !L.kit.wings && L.shape !== 'jelly' && L.shape !== 'crayfish';
+    L.obj.updateMatrixWorld(true); deck.updateWorldMatrix(true, false);
+    const M = settled ? hullM.compose(L.Y.pos, hullQ.copy(L.Y.quat), ONE).premultiply(deck.matrixWorld) : L.obj.matrixWorld;
+    const wy = L.id === 'alongside' ? T.a.set(0, WATER_Y, 0).applyMatrix4(deck.matrixWorld).y : -Infinity;
+    for (let i = 0; i <= 16; i++) {
+      const f = i / 16, q = L.fv.section ? L.fv.section(f, sec) : { z: b.noseZ + (b.tailZ - b.noseZ) * f, halfW: b.halfW, top: b.top, bottom: b.bottom };
+      // the body's own section, and (fins stand in its mid-plane) the bounds' full height on the mid-line
+      const pts = [[q.halfW, (q.top + q.bottom) / 2], [-q.halfW, (q.top + q.bottom) / 2], [0, q.top], [0, q.bottom]];
+      if (fins && f > 0.12) pts.push([0, b.top * (f > 0.9 ? 1 : 0.92)], [0, b.bottom * (f > 0.9 ? 1 : 0.92)]);
+      for (const [x, y] of pts) { const v = new THREE.Vector3(x, y, q.z); L.fv.bendPoint?.(v); v.applyMatrix4(M); if (v.y < wy) v.y = wy; out.push(v); }
     }
     return out;
   }

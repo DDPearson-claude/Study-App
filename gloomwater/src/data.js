@@ -3840,8 +3840,8 @@ export const AUTOFISH = {
     // where the standing Wick's hand rests on an alongside fish, chinOnDeck = the share of its length resting on the deck's edge
     // NOTHING is ever held above the Wick's head: its flame is there.
     grip: {
-      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'shoulder', heightTiny: 'cheek', rod: 'planted' },
-      both:      { hands: 2, reach: 0.24, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
+      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', rod: 'planted' },
+      both:      { hands: 2, reach: 0.30, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
       hug:       { hands: 2, reach: 0.15, tilt: 70, tail: 'deck', side: 'lens', rod: 'stowed' },
       hang:      { hands: 2, tail: 'clear', tailClear: 0.04, restsAbove: 1.9, gap: 0.25, lean: [20, 35], side: 'lens', rod: 'raised' },
       alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0.12, flankUp: 30, acrossWhen: 0.7, rod: 'planted' },

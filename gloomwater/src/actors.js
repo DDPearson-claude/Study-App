@@ -92,7 +92,10 @@ export function create(ctx) {
   };
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tip = new THREE.Vector3(), end = new THREE.Vector3(), camPos = new THREE.Vector3();
   // THE SHOW (docs/v3/show/SPEC.md §6): the controller that lays the pose out, moves the fish and locks the hands on it
-  const showCtl = createShow({ ctx, raft, wick, holder: catchHolder, deckY: DECK_Y, home: WICK_HOME });
+  // (setDip: the raft's tilt for a given dip of its edge toward (dx, dz): the show's weight on the deck, and its focus at rest)
+  const tiltNow = { y: 0 };
+  const setDip = (d, dx, dz) => { raft.tilt.rotation.set(st.pitch + d * dz, 0, st.roll - d * dx); raft.tilt.position.y = tiltNow.y - Math.max(0, d) * 0.25; };
+  const showCtl = createShow({ ctx, raft, wick, holder: catchHolder, deckY: DECK_Y, home: WICK_HOME, setDip });
   const showDbg = { held: null, fv: null };
   const showFocusTmp = new THREE.Vector3();
   const localVel = new THREE.Vector3();
@@ -311,8 +314,8 @@ export function create(ctx) {
       st.y = damp(st.y, avg, 8, dt);
       // (the show: the deck's edge on the fish's side sinks as its weight comes aboard, and rides back on the raft's spring)
       const sd = showCtl.dip, dipA = sd.x > 1e-4 || sd.x < -1e-4 ? sd.x : 0;
-      raft.tilt.rotation.set(st.pitch + dipA * sd.dirZ, 0, st.roll - dipA * sd.dirX);
-      raft.tilt.position.y = st.y - 0.02 - Math.min(0.03, speed * 0.004) - Math.max(0, dipA) * 0.25;
+      tiltNow.y = st.y - 0.02 - Math.min(0.03, speed * 0.004);
+      setDip(dipA, sd.dirX, sd.dirZ);
       raft.waterShadow.position.y = st.y + 0.035;
       raft.swing(dt, st.accLocal.x, st.accLocal.z, st.pitch, st.roll);
 
