@@ -3942,17 +3942,19 @@ export const INTRO = {
   cameras: {
     portraitBelow: 0.9,             // viewport aspect under which the `portrait` values apply (blended from 1.1 down to 0.9)
     takes: [
-      // the gate take: low over the water on the play axis, 12 m north of the raft (the raft is behind the lens), one slow push-in
+      // the gate take: low over the water on the play axis, 12 m north of the raft (the raft is behind the lens), one slow push-in.
+      // Tilted 3 degrees down so the lantern's mirror image (its cap and all) stays above the words band the whole push
       { id: 'gate', from: 0.45, to: 8.2, keys: [
-        { t: 0.45, pos: ['S', 0, 2.2, -12],   look: ['G', 0, -1.7, 0], fov: 46, portrait: { look: ['G', 0, 4, 0], fov: 62 } },
-        { t: 5.0,  pos: ['S', 0, 2.1, -19],   look: ['G', 0, -1.7, 0], fov: 46, portrait: { look: ['G', 0, 4, 0], fov: 62 } },
-        { t: 5.9,  pos: ['S', 0, 2.1, -20.5], look: ['G', 0, -2.2, 0], fov: 46, portrait: { look: ['G', 0, 3, 0], fov: 62 } },
-        { t: 8.2,  pos: ['S', 0, 2.0, -23],   look: ['G', 0, -3.2, 0], fov: 36, portrait: { look: ['G', 0, 0, 0], fov: 50 } },
+        { t: 0.45, pos: ['S', 0, 2.2, -12],   look: ['G', 0, -3.6, 0], fov: 46, portrait: { look: ['G', 0, 4, 0], fov: 62 } },
+        { t: 5.0,  pos: ['S', 0, 2.0, -18],   look: ['G', 0, -3.6, 0], fov: 46, portrait: { look: ['G', 0, 4, 0], fov: 62 } },
+        { t: 5.9,  pos: ['S', 0, 1.9, -19.2], look: ['G', 0, -3.8, 0], fov: 46, portrait: { look: ['G', 0, 3, 0], fov: 62 } },
+        { t: 8.2,  pos: ['S', 0, 1.8, -21.5], look: ['G', 0, -2.6, 0], fov: 36, portrait: { look: ['G', 0, 0, 0], fov: 50 } },
       ] },
       // the shoulder take (under the ink card until the Wick's spark): behind and right of the Wick, the dark gate beyond
+      // (portrait: nearly straight behind it, so the Wick stands whole in the lower-left third of a frame only 2.4 m wide there)
       { id: 'shoulder', from: 8.2, to: 14.6, keys: [
-        { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 1.5, 2.6, 5.4], look: ['S', -0.2, 3.4, -30], fov: 52 } },
-        { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 1.6, 2.7, 5.7], look: ['S', -0.2, 3.4, -30], fov: 52 } },
+        { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.72, 2.6, 5.4], look: ['S', -0.2, 3.4, -30], fov: 52 } },
+        { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.8, 2.7, 5.7], look: ['S', -0.2, 3.4, -30], fov: 52 } },
       ] },
       // the crane home: the weight of the stage's pose goes 1 → 0 into render's own settled `sail` rig, then 0.6 s at rest
       { id: 'home', from: 14.6, to: 18, rig: 'sail', blend: [14.6, 17.4], ease: 'inOutSine' },
@@ -3960,20 +3962,27 @@ export const INTRO = {
   },
   set: {
     // the great lantern hangs over the LAKE (the gate stands behind the cliff ring: anything falling there would vanish behind
-    // rock), 44 m in front of the gate on the play axis, on three chains that run up out of frame
-    lantern: { at: ['G', 0, 17, 44], height: 6.5, radius: 2.4, glow: 2.6, halo: { size: 26, opacity: 0.55 }, chains: 3, chainTop: 70,
-      water: { intensity: 14, radius: 40, streak: 2 } },   // its pool and gold path on the water, on every tier (world.setIntroWaterLight)
+    // rock), 44 m in front of the gate on the play axis, on three chains that run up out of frame. `at` is its middle; `height`
+    // its cage, foot to cap
+    lantern: { at: ['G', 0, 14.2, 44], height: 7.6, radius: 2.9, glow: 2.6, halo: { size: 30, opacity: 0.55 }, chains: 3, chainTop: 48,
+      water: { intensity: 14, radius: 27, streak: 2, streakLow: 0.75 } },   // its pool and gold path on the water, on every tier (world.setIntroWaterLight); the pool stops short of the far shore (28 m), which it lit as a hard yellow line; on the low tier (no mirror) the streak IS the reflection, a little calmer so it stays gold
     // "then": three columns of nine slits on each tower; the lake's own eight candle slits and three braziers are "now" and stay lit
     windows: { perTower: 27, cols: 3, rows: 9, y0: 4, dy: 3.4, size: [0.8, 1.8], glow: 2.0 },
-    fall: { part: 5.6, drop: 5.9, contact: 7.9, tilt: 0.22, restY: 3.2 },   // the chain parts, the drop starts, the base meets the water
-    dark: { follows: 'lantern', gutter: 0.35 },                             // a row of windows goes out as the lantern's base passes it
-    memory: { linger: 1.2, rise: 5, tiers: ['medium', 'high'] },            // mirror-only twins: the reflections stay lit a beat and sink
+    // the chain parts (the lantern lurches `lurch` rad), the drop starts, the foot meets the water (the middle is then `restY`
+    // over it) and it goes under at `sink` m/s
+    fall: { part: 5.6, drop: 5.9, contact: 7.9, tilt: 0.22, restY: 4.0, lurch: 0.06, sink: 5 },
+    // the dark comes down the towers with the lantern: the top row starts to gutter at `from` of the fall, the lowest at `to`
+    // (every window is out by the contact); no two windows of a row go at once (`jitter` s)
+    dark: { follows: 'lantern', gutter: 0.35, from: 0.02, to: 0.6, jitter: 0.1 },
+    memory: { linger: 1.2, rise: 5, fade: 0.5, tiers: ['medium', 'high'] },   // mirror-only twins: the reflections stay lit a beat and sink
     contact: { flash: 0.3, ring: { r: [2, 30], life: 1.6 }, splash: 4 },
+    // picture fractions from the top-left; the flank's `frame` is its girth in picture heights (landscape, portrait): more than
+    // the picture holds, so it is a wall with one eye and one belly line; `rise`: how far above the ember its middle line passes (girths)
     below: { ember: { from: [0.5, 0.12], to: [0.5, 0.46], size: [0.14, 0.03], sinkUntil: 10.0 }, motes: 60,
-      flank: { length: 22, girth: 5.2, enter: 9.4, eye: 10.2, cover: 10.4, leave: 11.8, out: 12.2, portraitAngle: 28 } },
+      flank: { length: 22, girth: 5.2, enter: 9.4, eye: 10.2, cover: 10.4, leave: 11.8, out: 12.2, portraitAngle: 28, frame: [1.15, 0.5], rise: [0.13, 0.12] } },
     wick: { spark: 12.5, flame: [[12.5, 0], [12.6, 0.25], [12.8, 0.9], [13.05, 0.3], [13.4, 1]], lantern: [13.5, 14.2], lift: [12.6, 13.8] },
     colors: { glass: 0xed9e3b, halo: 0xed9e3b, window: 0xed9e3b, iron: 0x0a0818, ring: 0xf0d49c, ember: 0xe8862e, emberDeep: 0xb8501e,
-      flank: 0xd6d6e4, flankShade: 0x433e74, glint: 0xe8be77, ink: 0x0a0c19, inkTop: 0x1d245d, spark: 0xffd9a0 },
+      flank: 0xd6d6e4, flankShade: 0x433e74, glint: 0xe8be77, ink: 0x0a0c19, inkTop: 0x251e5c, spark: 0xffd9a0 },   // (inkTop leans to the lake's violet: #1D245D read as a blue beside it)
     budget: { calls: 30, triangles: 10000, textures: 2, lights: 0, shadowMaps: 0, prebuildMs: 60 },   // the set's own cost in any frame, every pass (the hard ceiling is 60 / 40,000)
   },
   // <<< INTRO LANE A
