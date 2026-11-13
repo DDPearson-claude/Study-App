@@ -211,6 +211,11 @@ export function create(ctx) {
   const heldToasts = [];
   /** A banner owns the upper screen for a few seconds: non-warning toasts wait for it (≤ 5 s). */
   const bannerBusy = () => !!(bannerEl && !bannerEl.classList.contains('gw-out')) || bannerQ.length > 0;
+  /** The landing (the reveal and the measuring ceremony) is the catch's moment: flavour toasts wait until the card. */
+  function landingBusy() {
+    if (measure?.active?.()) return true;
+    try { return afOn(D()) && (ctx.fishing?.state === 'landing' || ctx.cinematic === true); } catch { return false; }
+  }
   function flushHeldToasts(force = false) {
     if (!heldToasts.length) return;
     const now = performance.now();
@@ -219,7 +224,7 @@ export function create(ctx) {
       if (!force && toasts.some((t) => !t.dead)) break;
       const q = heldToasts[0];
       if (q.slot && now - q.at > 10000) { heldToasts.shift(); continue; }   // a flavour line that waited too long is stale
-      const ready = force || (q.modal ? !hasBlocking() && !measure?.active() : (!bannerBusy() || now - q.at > 5000));
+      const ready = force || (q.modal ? !hasBlocking() && !landingBusy() : (!bannerBusy() || now - q.at > 5000) && (q.kind === 'bad' || !landingBusy()));
       if (!ready) break;
       heldToasts.shift();
       if (q.modal && now - q.at > 30000) continue;   // stale news from behind a long modal
@@ -234,7 +239,8 @@ export function create(ctx) {
     if (ctx.flow === 'dead' && kind !== 'good') return;   // the death summary says it all
     if (!opts.now && ctx.flow === 'playing') {
       // flavour waits behind blocking modals (shop, catch card, level-up) and banners; warnings never wait
-      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && !!measure?.active());
+      // the landing (the reveal and the measuring) is the catch's moment: flavour waits until the card
+      const modal = (hasBlocking() && HOLD_BEHIND_MODAL.has(kind)) || (kind !== 'bad' && landingBusy());
       if (modal || (kind !== 'bad' && !hasBlocking() && bannerBusy())) {
         if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now(), modal });
         return;

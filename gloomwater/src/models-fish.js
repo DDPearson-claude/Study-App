@@ -651,8 +651,11 @@ export function createFishFactory(ctx) {
       uT: { value: 0 }, uT2: { value: 0 }, uSwim: { value: 1 }, uStruggle: { value: 0 }, uFlop: { value: 0 },
       uAmp: { value: anim.amp }, uWaveK: { value: anim.waveK }, uRay: { value: anim.ray || 0 }, uPuff: { value: 0 }, uPulse: { value: P.opts.jelly ? 0.12 : 0 },
       uAxis: { value: new THREE.Vector2(...(anim.axis || [1, 0])) },
+      // the landing's reveal sweep (models-kit fx 'reveal'; off until setReveal)
+      uGwRev: { value: new THREE.Vector4(0, 0, 0.22, 1.4) }, uGwRevZ: { value: new THREE.Vector2(E.ext.maxZ, E.ext.minZ) },
+      uGwRevInk: { value: SIL_INK.clone() }, uGwRevCol: { value: new THREE.Color(0xf3dca4) }, uGwRevFlood: { value: 0 },
     };
-    const spec = { key: 'fish', uniforms: U, pars: FISH_PARS, fx: 'none' };
+    const spec = { key: 'fish', uniforms: U, pars: FISH_PARS, fx: 'reveal' };
     const object3d = new THREE.Group(); object3d.name = 'fish:' + (sp?.id || E.shape);
     const pivot = new THREE.Group(); object3d.add(pivot);
     const scaler = new THREE.Group(); pivot.add(scaler);
@@ -806,6 +809,16 @@ export function createFishFactory(ctx) {
         applyRim(); applyGlow();
       },
       get silhouette() { return silK; },
+      /** The light a just-revealed fish holds for a moment (0 = none): a pale-gold lift over the whole body (the landing). */
+      setRevealLight(k = 0) { U.uGwRevFlood.value = Math.max(0, Math.min(1, Number(k) || 0)); },
+      /** The landing's reveal (v3): k 0 → 1 floods the true colours along the body nose to tail behind a band of light (the part
+       *  not yet reached stays night ink); on 0 turns it off. colour: the band's light (default pale gold). */
+      setReveal(kk = 0, on = 1, colour = null) {
+        const r = U.uGwRev.value;
+        if (on <= 0 && kk >= 1) U.uGwRevFlood.value = 0;
+        r.x = THREE.MathUtils.clamp(Number(kk) || 0, -0.3, 1.3) * 1.3 - 0.15; r.y = THREE.MathUtils.clamp(Number(on) || 0, 0, 1);
+        if (colour != null) { try { U.uGwRevCol.value.set(colour); } catch { /* ignore */ } }
+      },
       dispose() {
         object3d.parent?.remove(object3d);
         for (const m of mats) m.dispose();

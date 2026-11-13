@@ -8,6 +8,7 @@ import { SFX_AF, SFX_FE } from './audio-af.js';
 
 const PENTA = [0, 2, 4, 7, 9];
 const pent = (i) => PENTA[((i % 5) + 5) % 5] + 12 * Math.floor(i / 5);
+const num0 = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 
 function chime(v, out, t, f, peak, d = 1.2) {
   v.tone(out, { type: 'sine', f, t, a: 0.004, d, peak });
@@ -407,6 +408,41 @@ export const SFX = {
 // v3 (DESIGN §25, Au1; CONTRACT §13.7 audio): the measuring cord, the seals, the class bite tells, the rise rings, the
 // Night Rise motif and the Stillnight bed. Merged into SFX below so play(name) reaches them; only v3 events fire them.
 export const SFX_V3 = {
+  // ------------------------------------------------------------- the landing's payoff (AUTOFISH.landing)
+  land_swell: { gain: 0.7, gap: 0.2, max: 1, pri: 3, wet: 0.5, dly: 0.12, pj: 0.01, fn(v, out, t, p, o) {
+    // the rise into the reveal: an airy swell of filtered noise climbing, under a soft fifth gliding up a tone (o.dur s, o.root)
+    const d = clamp(num0(o.dur, 0.6), 0.25, 2);
+    const r = num0(o.root, 69);
+    const b = v.burst(out, { kind: 'pink', t, a: d * 0.9, d: 0.25, peak: 0.16, ft: 'bandpass', f: 500 * p, f2: 3600 * p, glide: d, q: 1.1 });
+    b.g.gain.cancelScheduledValues(t); envSwell(b.g.gain, t, 0.16, d, 0.18);
+    for (const [m, pk] of [[r - 12, 0.12], [r - 5, 0.08], [r, 0.06]]) {
+      const f = mtof(m - 2) * p;
+      v.tone(out, { type: 'sine', f, f2: f * 1.1225, glide: d, t, a: d * 0.85, hold: 0.05, d: 0.2, peak: pk });
+    }
+  } },
+  land_chime: { gain: 0.9, gap: 0.25, max: 1, pri: 3, wet: 0.55, dly: 0.22, pj: 0.004, fn(v, out, t, p, o, eng) {
+    // the reveal resolves: a bright arpeggio on the root (harp), a clear chime on top, by class a bronze bell and a low warmth;
+    // a new species or a legend adds a high shimmer falling like light off the water
+    const V = o.voicing || { root: 74, notes: [0, 4, 7, 12], gap: 0.06, bell: false, sub: false, shimmer: 0 };
+    const r = V.root;
+    V.notes.forEach((n, i) => {
+      const g = v.gain(0.4 - Math.min(0.2, i * 0.025)); g.connect(out);
+      v.buffer(eng.ks(r + n, 'harp'), t + i * V.gap, p, g);
+    });
+    const top = t + V.notes.length * V.gap;
+    chime(v, out, top, mtof(r + 24) * p, 0.2, 1.6);
+    chime(v, out, top + 0.012, mtof(r + 31) * p, 0.11, 1.3);
+    if (V.bell) bell(v, out, t, mtof(r - 12) * p, 0.26, [1, 2.0, 2.76, 4.07], [2.6, 1.5, 0.9, 0.5]);
+    if (V.sub) v.tone(out, { type: 'sine', f: mtof(r - 24) * p, t, a: 0.02, hold: 0.2, d: 1.4, peak: 0.2 });
+    for (let i = 0; i < (V.shimmer || 0); i++) chime(v, out, top + 0.08 + i * 0.07, mtof(r + 36 - pent(i) - (i > 4 ? 12 : 0)) * p, 0.06, 0.9);
+  }, duck: [0.35, 0.9] },
+  record_chime: { gain: 0.75, gap: 0.4, max: 1, pri: 3, wet: 0.55, dly: 0.25, pj: 0.004, fn(v, out, t, p, o) {
+    // a record at the stamp (a personal best, a class first): a rising three-note figure over a held fifth, brighter than the seal
+    const r = num0(o.root, 76);
+    [0, 7, 12, 19].forEach((n, i) => chime(v, out, t + i * 0.11, mtof(r + n) * p, 0.16 - i * 0.015, 1.5));
+    v.tone(out, { type: 'triangle', f: mtof(r - 12) * p, t, a: 0.08, hold: 0.4, d: 1.2, peak: 0.07 });
+    v.tone(out, { type: 'triangle', f: mtof(r - 5) * p, t, a: 0.08, hold: 0.4, d: 1.2, peak: 0.05 });
+  } },
   // ------------------------------------------------------------- the measuring ceremony (§25.6.8)
   cord_tick: { gain: 0.5, gap: 0, max: 48, pri: 3, pj: 0.008, vj: 0.06, fn(v, out, t, p) {
     // one knot of the measuring cord passing the mark: a dry fibre tick on a small wooden blip (p rises with the count)

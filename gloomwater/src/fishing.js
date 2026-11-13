@@ -582,6 +582,8 @@ export function create(ctx) {
     S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
     S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     S.plan = null; S.plan0 = null; S.loss = null; S.reveal = null; S.lostInfo = null; S.p = null; S.draws = null; S.outcome = null; S.hurry = false; S.panFrom = null;
+    if (S.glowIgnite) { try { S.glowIgnite.fv.setRevealLight?.(0); } catch { /* disposed */ } }
+    S.glowIgnite = null;
     if (S.panYaw) { S.panYaw = 0; call(() => ctx.render?.setPan?.(0)); }
     api.bobberPos = null;
     resetView();
@@ -1613,12 +1615,78 @@ export function create(ctx) {
       if (fv && (fv.isStub || !fv.object3d)) fv = null;
       if (fv) { call(() => fv.setSilhouette?.(1)); fishHolder.add(fv.object3d); F.fv = fv; }
     }
-    S.reveal = { t: 0, dur: num(AF().revealWipe, 0.35), from: V.fish.clone(), Lp: S.fishLen, Lt: trueL, fv };
+    S.reveal = { t: 0, dur: num(AF().revealWipe, 0.35), from: V.fish.clone(), Lp: S.fishLen, Lt: trueL, fv, lf: null, glintT: 0 };
     F.landing = true; F.landFrom.copy(V.fish);
     S.holding = false; S.hurry = false;
     fx.setShadow(false);
     setState('landing');
     call(() => ctx.water?.splash?.(V.fish.x, V.fish.z, { size: 0.5 + S.fishLen * 0.4, count: 12 }));
+    // the landing's payoff (AUTOFISH.landing), by class: the line taut, time slows as it breaks the surface, light-catching
+    // droplets, the camera pushing in. Class and the class length only until the wipe has run (nothing species-specific here).
+    const LF = landFx(landClass());
+    if (LF) {
+      S.reveal.lf = LF;
+      S.reveal.dur = Math.max(0.2, num(LF.wipe, S.reveal.dur));
+      const sm = Array.isArray(LF.slowmo) ? LF.slowmo : [0, 1];
+      if (num(sm[0]) > 0) call(() => ctx.game?.slowmo?.(num(sm[0]), num(sm[1], 0.5)));
+      fx.droplets(V.fish.x, V.fish.y + 0.08, V.fish.z, S.fishLen, num(LF.drops, 12));
+      call(() => ctx.render?.kick?.(num(LF.kick, -1) * 0.5));
+      call(() => ctx.render?.pulse?.({ bloom: num(LF.bloom) * 0.35 }));
+      // the camera leans to the fish and pushes in on the framing it has (the ceremony's trophy shot takes over at the reveal)
+      call(() => ctx.render?.attention?.({ x: V.fish.x, z: V.fish.z }, 0.8 + S.reveal.dur * 2, 0.5));
+      if (num(LF.push) > 0) call(() => ctx.render?.push?.(num(LF.push), S.reveal.dur, Math.min(0.3, S.reveal.dur * 0.5), 0.9));   // game seconds
+      emit('fishing:landing', { sizeClass: S.sizeClass || null, ancient: !!S.ancient, legend: isLegend(), dur: round2(S.reveal.dur) });
+    }
+  }
+  // ---------------------------------------------------------------- the landing's payoff (AUTOFISH.landing)
+  /** The payoff class: the size class, an Ancient (or any legend) on the top row. */
+  function landClass() { return isLegend() || S.ancient ? 'ancient' : (S.sizeClass || 'keeper'); }
+  function landFx(cls) { const T = AF().landing; return T && typeof T === 'object' ? (T[cls] || T.keeper || null) : null; }
+  /** A small haptic on phones (navigator.vibrate; guarded, never with reduced motion or the setting off). */
+  function haptic(pattern) {
+    if (!Array.isArray(pattern) || !pattern.length) return;
+    try {
+      if (ctx.state?.meta?.settings?.haptics === false || ctx.state?.meta?.settings?.screenShake === false) return;
+      if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
+      const nv = globalThis.navigator;
+      if (nv && typeof nv.vibrate === 'function') nv.vibrate(pattern);
+    } catch { /* ignore */ }
+  }
+  const newSpecies = (sp) => { try { return !!sp && !(num(ctx.state?.meta?.journal?.[sp.id]?.caught) > 0); } catch { return false; } };
+  /** The reveal's climax (the wipe has run, the species is known): the glory behind the fish, its glow igniting, the Wick's flame
+   *  flaring, a bloom and a push-in, a haptic. A new species or a legend gets more. */
+  function landingClimax(r) {
+    const LF = r.lf;
+    if (!LF) return;
+    const sp = S.species;
+    const special = isLegend() || newSpecies(sp);
+    const SPx = AF().landing?.special || {};
+    const L = Math.max(0.05, num(r.Lt, S.fishLen));
+    const glory = num(LF.glory) + (special ? num(SPx.glory) : 0);
+    if (glory > 0) {   // a backlight bigger than the Wick and its fish, set behind them (the trophy camera frames both)
+      fx.glory(V.fish.x, V.fish.y, V.fish.z, { size: Math.max(0.8 + 0.35 * glory, (0.5 + Math.min(L, 6) * 0.8) * glory), strength: 0.36 + 0.2 * glory, rise: 0.45, hold: 0.3 + 0.9 * glory,
+        fade: 0.9 + glory, follow: r.fv?.object3d || null, back: 0.6 + Math.min(L, 6) * 0.25, embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
+    }
+    call(() => ctx.render?.pulse?.({ bloom: num(LF.bloom) + (special ? num(SPx.bloom) : 0) }));
+    call(() => ctx.render?.kick?.(num(LF.kick, -1)));
+    call(() => ctx.actors?.flareFlame?.(num(LF.flame) + (special ? num(SPx.flame) : 0)));
+    if (r.fv && num(LF.glow, 1) > 1) {   // its glow ignites, and the whole fish holds the light for a moment (so it never reads as a cut-out)
+      S.glowIgnite = { fv: r.fv, amp: num(LF.glow, 1.5) - 1, t: 0, base: S.quality === 'perfect' ? 1.6 : 1, light: Math.min(0.32, 0.12 + 0.06 * num(LF.glory)) };
+      call(() => r.fv.setGlow?.(num(LF.glow, 1.5)));
+      call(() => r.fv.setRevealLight?.(S.glowIgnite.light));
+    }
+    haptic(LF.haptic);
+  }
+  function updateGlowIgnite(dt) {
+    const g = S.glowIgnite;
+    if (!g) return;
+    g.t += dt;
+    const done = g.t > 2.6;
+    try {
+      g.fv.setGlow?.(done ? g.base : g.base + g.amp * Math.exp(-g.t * 1.8));
+      g.fv.setRevealLight?.(done ? 0 : g.light * (g.t < 0.5 ? 1 : Math.exp(-(g.t - 0.5) * 1.6)));
+    } catch { /* disposed */ }
+    if (done) S.glowIgnite = null;
   }
   function updateRevealAF(dt) {
     const r = S.reveal;
@@ -1635,17 +1703,32 @@ export function create(ctx) {
       o.visible = true; o.position.copy(V.fish);
       o.rotation.set(-0.3 * e, Math.atan2(-V.lineDir.x, -V.lineDir.z), Math.sin(r.t * 12) * 0.25, 'YXZ');
       o.scale.setScalar(Math.max(0.05, L / Math.max(0.02, r.Lt)));
-      call(() => r.fv.setSilhouette?.(1 - k));
+      // the reveal: the night ink floods off nose to tail behind a band of pale light (the model's sweep), the colours under it
+      // given back early so the band uncovers them; without the sweep, the v1 even lift
+      const sweep = typeof r.fv.setReveal === 'function' && !!r.lf && !isLegend();
+      call(() => r.fv.setSilhouette?.(sweep ? 1 - clamp(k / 0.3, 0, 1) : 1 - k));
+      if (sweep) {
+        call(() => r.fv.setReveal(k, 1));
+        r.glintT -= dt;
+        const b = r.fv.bounds;
+        if (r.glintT <= 0 && k > 0.05 && k < 0.98 && b) {   // glints off the band as it runs down the body
+          r.glintT = 0.045;
+          V.tmp2.set(0, 0, lerp(b.noseZ, b.tailZ, clamp(k * 1.3 - 0.15, 0, 1)));
+          o.localToWorld(V.tmp2);
+          fx.burst(V.tmp2.x, V.tmp2.y, V.tmp2.z, { color: 0xfff1cf, color2: 0xf3dca4, count: 2, spread: 0.45 + 0.1 * Math.min(r.Lt, 4), up: 0.6, gravity: 1.2, size: 0.035 + 0.02 * Math.min(r.Lt, 3), life: 0.5, radius: 0.04 + (b.halfW || 0.05) });
+        }
+      }
       fishUpd(r.fv, dt, S.clock, 1, 1.4);
       fx.setProxy(false);
     } else fx.setProxy(true, V.fish.x, V.fish.y, V.fish.z, Math.atan2(-V.lineDir.x, -V.lineDir.z), 0.3 * e, 0, L, 1 - 0.7 * k, 0.9);
     S.sheetT = (S.sheetT ?? 0) - dt;
     if (S.sheetT <= 0) { S.sheetT = 0.06; fx.scoopSheet(V.fish.x, V.fish.y, V.fish.z, L, Math.atan2(-V.lineDir.x, -V.lineDir.z), 1 - 0.5 * k); }
     V.mouth.copy(V.fish).setY(V.fish.y + 0.05);
-    aLine(true, V.mouth, 0.35, 0); aBob(false);
+    aLine(true, V.mouth, r.lf ? lerp(1, 0.35, e) : 0.35, 0); aBob(false);   // taut as it clears the water, easing as it comes in
     if (k >= 1) {
       S.reveal = null; fx.setProxy(false);
-      if (r.fv) { r.fv.object3d.scale.setScalar(1); call(() => r.fv.setSilhouette?.(0)); }
+      if (r.fv) { r.fv.object3d.scale.setScalar(1); call(() => r.fv.setSilhouette?.(0)); call(() => r.fv.setReveal?.(1, 0)); }
+      landingClimax(r);
       caught();
     }
   }
@@ -2075,7 +2158,7 @@ export function create(ctx) {
     let resolve = null;
     const promise = new Promise((r) => { resolve = r; });
     const cls = legendary ? 'elder' : fish.sizeClass;
-    S.cer = { fish, legendary, Lm, plan, pose: poseFor(Lm, legendary), fv, t: 0, stamped: false, posed: false, result: null, resolve, from,
+    S.cer = { fish, legendary, Lm, plan, pose: poseFor(Lm, legendary), fv, t: 0, stamped: false, posed: false, result: null, resolve, from, isNew: newSpecies(sp),
       sheetT: 0, skipAfter: num(BAL('ceremony').skipAfter, 0.6), elderish: legendary || cls === 'elder', yaw: Math.atan2(-V.lineDir.x, -V.lineDir.z) };
     view.measure = { phase: 'scoop', speciesId: fish.speciesId, length: fish.length, count: 0, k: 0, cordDur: round2(plan.cordDur), sizeClass: fish.sizeClass,
       ancient: !!fish.ancient, legendary, seal: null, pose: S.cer.pose, dur: plan.dur, beats: { ...plan.beats, cordStart: plan.cordStart }, t: 0,
@@ -2136,6 +2219,25 @@ export function create(ctx) {
     try { p = ctx.actors?.getHeadPos?.(V.tmp2); } catch { p = null; }
     const at = p && Number.isFinite(p.x) ? p : (c.fv ? c.fv.object3d.getWorldPosition(V.tmp2) : raftPos());
     fx.stampFlash(at.x, Math.max(0.4, (at.y || 1) - 0.25), at.z, sealFor(c.fish, c.legendary), !!c.fish.ancient);
+    // the stamp lands (AUTOFISH.landing): a small camera hit and a haptic by class; a record (a personal best, a class first, the
+    // Old Ledger) or a new species blooms the glory again
+    const LF = landFx(c.legendary || c.fish.ancient ? 'ancient' : c.fish.sizeClass);
+    if (LF) {
+      call(() => ctx.render?.shake?.(num(LF.shake), 0.28));
+      call(() => ctx.render?.kick?.(num(LF.kick, -1) * 0.3));
+      haptic(LF.stampHaptic);
+      const SPx = AF().landing?.special || {};
+      const recs = Array.isArray(res?.records) ? res.records : [];
+      if (recs.length || c.isNew) {
+        const L = Math.max(0.1, c.Lm);
+        if (!fx.gloryPulse(num(SPx.glory2, 0.4), 0.9, num(SPx.embers, 8))) {
+          const g = c.fv ? c.fv.object3d.getWorldPosition(V.tmp) : at;
+          fx.glory(g.x, g.y, g.z, { size: Math.max(1.1, (0.5 + Math.min(L, 6) * 0.8) * 0.9), strength: 0.7, hold: 0.9, fade: 1.2, follow: c.fv?.object3d || null, back: 0.6 + Math.min(L, 6) * 0.25, embers: num(SPx.embers, 8) });
+        }
+        call(() => ctx.render?.pulse?.({ bloom: num(SPx.bloom, 0.25) }));
+        call(() => ctx.actors?.flareFlame?.(num(SPx.flame, 0.3) + 0.3));
+      }
+    }
   }
   /** The card's turn: the stamp if it has not happened (a skip), ctx.cinematic off, the camera and the cord released. */
   function finishCeremony() {
@@ -3283,6 +3385,9 @@ export function create(ctx) {
           },
           fishPlan: () => (S.plan ? JSON.parse(JSON.stringify(S.plan)) : null),
           fishChance: () => S.p,
+          /** screenshots on slow software GL: jump the automatic play to a fraction of its length (the rest plays as usual) */
+          fishPlayTo: (frac = 0.9) => { if (!S.plan || state !== 'reeling') return false; S.playT = Math.max(S.playT, S.plan.end * clamp(Number(frac) || 0, 0, 0.995)); return round2(S.playT); },
+          fishReveal: () => (S.reveal ? { t: round2(S.reveal.t), dur: S.reveal.dur, k: round2(Math.min(1, S.reveal.t / Math.max(0.05, S.reveal.dur))), glory: fx.gloryState } : { glory: fx.gloryState }),
           fishPlay: () => (S.plan ? { t: S.playT, cls: S.playCls, outcome: S.outcome, p: S.p, draws: S.draws ? { ...S.draws } : null, end: S.plan.end, dur: S.plan.dur, loss: S.loss ? { ...S.loss } : null, grade: S.grade } : null),
           fishLinger: () => null,   // F16 (a passed Prize+ bite lingers) is not in this build
         });
@@ -3291,7 +3396,7 @@ export function create(ctx) {
 
     update(dt, t) {
       const realDt = ctx.time?.dt || 0;
-      fx.update(realDt, t);
+      fx.update(realDt * (S.cer ? S.cerRate : 1), t);   // (cerRate is 1 but for debug screenshots: the glory keeps the ceremony's clock)
       updateCatch(realDt, t);
       if (!playing()) {
         if (state !== 'idle' || api.bobberPos) hardReset(false);
@@ -3307,6 +3412,7 @@ export function create(ctx) {
       // v3: the measuring ceremony runs in real time (main freezes survival and combat; a card or the pause stops nothing here
       // but the pause itself), and the leap reveal's rim flash fades back after 0.35 s
       if (S.cer) { try { updateCeremony(realDt * S.cerRate, t); } catch (e) { report(e); abortCeremony(); } }
+      if (S.glowIgnite) updateGlowIgnite(realDt * (S.cer ? S.cerRate : 1));
       if (S.rimT > 0) { S.rimT -= realDt; if (S.rimT <= 0) call(() => F.fv?.setGlow?.(1)); }
       raftPos();
       // raft motion with no paddling (knockback, shoves, pulls) since the cast: lineBroken() ignores it in Still / Lantern

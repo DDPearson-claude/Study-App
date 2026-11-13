@@ -277,6 +277,7 @@ export function create(ctx) {
     bloomPulse: 0, fringePulse: 0, vigPulse: 0, fovKick: 0,
     death: 0, danger: 0, dark: 0,
     attention: null, attentionT: 0, attentionDur: 0, attentionW: 0,
+    push: 0, pushT: 0, pushIn: 0.35, pushHold: 0, pushOut: 0.8,   // a dolly push-in on the current framing (the landing)
   };
   const flashTmp = new THREE.Color();
 
@@ -321,6 +322,21 @@ export function create(ctx) {
     fx.vigPulse = Math.min(0.6, fx.vigPulse + vignette);
   }
   function kick(fovDelta = -3) { fx.fovKick = clamp(fx.fovKick + fovDelta, -12, 12); }
+  /** A dolly push-in on whatever the camera frames now (v3 landing): the distance comes in by `amount` (0..0.6) over `rise` s, holds
+   *  `hold` s and eases back over `release` s. Reduced motion halves it. */
+  function push(amount = 0.25, hold = 0.5, rise = 0.35, release = 0.8) {
+    const a = clamp(Number(amount) || 0, 0, 0.6) * (reducedMotion ? 0.5 : 1);
+    if (a <= 0) return false;
+    fx.push = a; fx.pushT = 0; fx.pushIn = Math.max(0.05, rise); fx.pushHold = Math.max(0, hold); fx.pushOut = Math.max(0.1, release);
+    return true;
+  }
+  function pushK() {
+    if (!(fx.push > 0)) return 0;
+    const t = fx.pushT, a = fx.pushIn, h = fx.pushHold, r = fx.pushOut;
+    if (t >= a + h + r) { fx.push = 0; return 0; }
+    const e = t < a ? smoothstep(0, a, t) : t < a + h ? 1 : 1 - smoothstep(a + h, a + h + r, t);
+    return fx.push * e;
+  }
   /** Bias the camera focus toward a world point for a while (boss entrances, gates…). */
   function attention(position, duration = 2, weight = 0.4) {
     if (!position) { fx.attention = null; return; }
@@ -664,12 +680,14 @@ export function create(ctx) {
     }
     yaw = wrapAngle(yaw);
 
-    // spherical placement around the focus
+    // spherical placement around the focus (a landing's push-in brings the distance in for a beat)
+    if (fx.push > 0) fx.pushT += dt * clamp(Number(ctx.time?.timeScale ?? 1) || 0, 0, 1);   // on the game's clock: a slow-motion beat slows it too
+    const dist = cur.dist * (1 - pushK());
     const elev = clamp(cur.elev, 3, 85) * DEG;
     const sy = Math.sin(yaw), cy = Math.cos(yaw);
     const ce = Math.cos(elev), se = Math.sin(elev);
     fwd.set(-sy, 0, -cy);
-    camPos.set(fX.x + sy * ce * cur.dist, fY.x + se * cur.dist, fZ.x + cy * ce * cur.dist);
+    camPos.set(fX.x + sy * ce * dist, fY.x + se * dist, fZ.x + cy * ce * dist);
     lookTarget.set(fX.x + fwd.x * cur.aim, fY.x + cur.aimY, fZ.x + fwd.z * cur.aim);
 
     // subtle hand-held sway + a hint of the swell (a close-up breathes less; the held subject already rides the swell)
@@ -954,7 +972,7 @@ export function create(ctx) {
       for (const k of GRADE_COL) out[k] = cTgt[k].getHex();
       return out;
     },
-    shake, flash, pulse, kick, attention,
+    shake, flash, pulse, kick, attention, push,
     setTrophyTarget,
     getCameraMode() { return mode; },
     /** Jump the rig straight to its current target (cuts, tests). */

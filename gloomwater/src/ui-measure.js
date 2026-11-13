@@ -284,11 +284,12 @@ export function createMeasure(K) {
   function paintRecords(c) {
     c.recsDirty = false;
     if (c.name && c.els.elder.textContent !== `“${c.name}”`) c.els.elder.textContent = `“${c.name}”`;
-    const lines = V.recordLines(D(), { records: c.records, isNew: c.isNew, species: c.sp, length: c.length, max: K.vw < 700 ? 2 : 3 });
+    // the landing's payoff: one short ink banner (the best of the records), no sub-line; the card keeps the rest
+    const lines = V.recordLines(D(), { records: c.records, isNew: c.isNew, species: c.sp, length: c.length, max: 1 });
     const sig = lines.map((l) => l.kind + l.text).join('|');
     if (sig === c.recSig) return;
     c.recSig = sig;
-    c.els.recs.innerHTML = lines.map((l, i) => `<div class="gw-ms-rec gw-tone-${esc(l.tone)}" style="--i:${i}"><b>${esc(l.text)}</b>${l.sub ? `<small>${esc(l.sub)}</small>` : ''}<svg class="gw-ms-rec-u" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" filter="url(#gw-brush)" d="M3 9 C30 4 70 4 97 8"/></svg></div>`).join('');
+    c.els.recs.innerHTML = lines.map((l, i) => `<div class="gw-ms-rec gw-tone-${esc(l.tone)}" style="--i:${i}"><b>${esc(l.text)}</b><svg class="gw-ms-rec-u" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" filter="url(#gw-brush)" d="M3 9 C30 4 70 4 97 8"/></svg></div>`).join('');
   }
 
   // ------------------------------------------------------------------ skip / finish

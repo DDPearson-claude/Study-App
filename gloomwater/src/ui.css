@@ -1044,7 +1044,22 @@
 .gw-room-name small { display: block; font: 400 17px/1.2 var(--f-hand); color: var(--ink-dim); }
 .gw-cc .gw-room .gw-cc-act { font-size: 19px; padding: 4px 6px 8px; }
 /* v3: the class as the stamp with its seal beside it, an Elder's name, and the favours that applied */
-.gw-cc-v3 .gw-cc-stamp { display: flex; align-items: center; gap: 16px; }
+.gw-cc-v3 .gw-cc-stamp { display: flex; align-items: center; gap: 16px; position: relative; }
+/* the landing's payoff on the card: the stamp and the number are the hero (the length row of the list moves up beside the stamp),
+   a soft gold bloom behind them by class (--win), the card rising in */
+.gw-cc-v3 { --win: .6; }
+.gw-cc-v3.gw-cls-small { --win: .42; } .gw-cc-v3.gw-cls-keeper { --win: .55; } .gw-cc-v3.gw-cls-prize { --win: .75; }
+.gw-cc-v3.gw-cls-trophy { --win: .95; } .gw-cc-v3.gw-cls-elder, .gw-cc-v3.gw-legend { --win: 1.15; }
+.gw-cc-v3.gw-new, .gw-cc-v3.gw-record { --win2: .25; }
+.gw-cc-v3.gw-p-catch { animation: gwCardRise .6s var(--ease-ink) backwards; }
+.gw-cc-v3 .gw-cc-stats .gw-cc-lenk, .gw-cc-v3 .gw-cc-stats .gw-cc-len { display: none; }
+.gw-cc-v3 .gw-cc-stamp { transform: none; }
+.gw-cc-v3 .gw-cc-stamp > span { transform: rotate(-7deg); }
+.gw-cc-hero { font: 400 50px/.9 var(--f-hand); color: var(--gold); white-space: nowrap; transform: rotate(-3deg); margin: 4px 0 0 4px; font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 calc(10px + 16px * var(--win)) rgba(232, 190, 119, calc(.22 + .3 * var(--win))), 0 1px 2px rgba(0, 0, 0, .8); animation: gwHeroIn .7s .78s cubic-bezier(.2, 1.35, .4, 1) backwards; }
+.gw-cc-v3 .gw-cc-stamp::before { content: ''; position: absolute; left: -40px; right: -60px; top: -34px; bottom: -34px; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 50% 50% at 46% 52%, rgba(243, 220, 164, .3), rgba(201, 184, 240, .12) 48%, transparent 72%);
+  opacity: 0; animation: gwWinBloom calc(1.1s + .9s * var(--win)) .55s ease-out forwards; }
 .gw-cc-seal { width: 48px; height: 48px; flex: none; transform: rotate(11deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .85)); animation: gwSealIn .55s .9s cubic-bezier(.2, 1.4, .4, 1) backwards; }
 .gw-cc-elder { font: 400 27px/1.15 var(--f-hand); font-style: normal; color: var(--gold); text-shadow: 0 0 12px rgba(232, 190, 119, .25); margin-top: 0; }
 .gw-cc-stats dd.gw-cc-strike { color: #dcd9f2; }
@@ -1488,12 +1503,19 @@
 .gw-ms-elder { font: 400 25px/1.1 var(--f-hand); color: var(--gold); text-shadow: 0 0 12px rgba(232, 190, 119, .3); clip-path: inset(-20% 100% -30% 0); }
 .gw-ms-elder:empty { display: none; }
 .gw-ms.gw-stamped .gw-ms-elder { animation: gwInkIn 1s .3s var(--ease-ink) forwards; }
-.gw-ms-res { display: flex; align-items: center; gap: 18px; flex: none; }
+.gw-ms-res { display: flex; align-items: center; gap: 18px; flex: none; position: relative; }
+/* the landing's payoff on the measure: at the stamp a gold bloom swells behind the count and the stamp, by class (--win) */
+.gw-ms { --win: .6; }
+.gw-ms.gw-cls-small { --win: .42; } .gw-ms.gw-cls-keeper { --win: .55; } .gw-ms.gw-cls-prize { --win: .75; }
+.gw-ms.gw-cls-trophy { --win: .95; } .gw-ms.gw-cls-elder, .gw-ms.gw-cls-legend { --win: 1.15; }
+.gw-ms-res::before { content: ''; position: absolute; left: -50px; right: -40px; top: -46px; bottom: -40px; z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse 50% 50% at 55% 50%, rgba(243, 220, 164, .32), rgba(201, 184, 240, .13) 46%, transparent 72%); }
+.gw-ms.gw-stamped .gw-ms-res::before { animation: gwWinBloom calc(.8s + .7s * var(--win)) ease-out forwards; }
 .gw-ms-count { font: 400 48px/.9 var(--f-hand); color: var(--gold); text-shadow: 0 0 16px rgba(232, 190, 119, .28); white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; opacity: .3; transition: opacity .4s; }
 .gw-ms.gw-cording .gw-ms-count { opacity: 1; }
 .gw-ms-count b { font-weight: 400; display: inline-block; min-width: 2.2ch; }
 .gw-ms-count small { font-size: .5em; margin-left: 6px; color: rgba(232, 190, 119, .8); }
-.gw-ms.gw-stamped .gw-ms-count b { animation: gwCountSet .5s ease; }
+.gw-ms.gw-stamped .gw-ms-count b { animation: gwCountWin calc(.45s + .2s * var(--win)) ease; }
 .gw-ms-stamp { opacity: 0; transform: rotate(-7deg); transform-origin: 50% 50%; order: -1; }
 .gw-ms-stamp span { display: inline-block; font: 400 24px/1 var(--f-fell); letter-spacing: .2em; text-transform: uppercase; padding: 5px 10px 4px 15px; color: #e05a48; border: 3px solid #e05a48; border-radius: 4px; mix-blend-mode: screen; filter: url(#gw-stamp); }
 .gw-ms.gw-stamped .gw-ms-stamp { opacity: .95; animation: gwStamp .42s cubic-bezier(.2, 1.4, .4, 1) backwards; }
@@ -1743,6 +1765,7 @@
   .gw-cc-note-more { display: none; }
   .gw-cc-stamp { order: 7; align-self: flex-start; margin: 8px 0 8px 2px; }
   .gw-cc-stamp span { font-size: 20px; padding: 4px 10px 3px 14px; border-width: 2.5px; }
+  .gw-cc-hero { font-size: 40px; }
   .gw-cc-stats { order: 8; }
   .gw-cc-stats dt { font-size: 18px; }
   .gw-cc-stats dd { font-size: 22px; }
@@ -1882,6 +1905,7 @@
   .gw-cc-v3 .gw-cc-stamp { margin: 6px 0 4px 4px; }
   .gw-cc-v3 .gw-cc-epithet + .gw-cc-stamp { margin-top: 13px; }   /* the tilted stamp's high corner clears an epithet's descenders */
   .gw-cc-v3 .gw-cc-stamp span { font-size: 23px; }
+  .gw-cc-hero { font-size: 42px; }
   .gw-cc-v3 .gw-cc-seal { width: 42px; height: 42px; }
   .gw-cc-v3 .gw-cc-stats dt { font-size: 19px; line-height: 1.24; }
   .gw-cc-v3 .gw-cc-stats dd { font-size: 23px; line-height: 1.24; }
@@ -1977,6 +2001,10 @@
 @keyframes gwPipLost { 0% { fill: #ff8a70; transform: scale(1.8); } 100% { transform: scale(1); } }
 @keyframes gwHandRise { from { transform: translateY(20px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-2px); opacity: 1; } }
 @keyframes gwTrick { 0% { opacity: 0; transform: translateY(6px); } 15% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes gwCardRise { 0% { opacity: 0; translate: 0 26px; } 100% { opacity: 1; translate: 0 0; } }
+@keyframes gwHeroIn { 0% { opacity: 0; transform: rotate(-3deg) scale(1.6); filter: blur(3px); } 55% { opacity: 1; transform: rotate(-3deg) scale(.94); filter: none; } 100% { transform: rotate(-3deg) scale(1); } }
+@keyframes gwWinBloom { 0% { opacity: 0; transform: scale(.55); } 28% { opacity: calc(var(--win) + var(--win2, 0)); transform: scale(1.08); } 100% { opacity: calc(var(--win) * .5 + var(--win2, 0)); transform: scale(1); } }
+@keyframes gwCountWin { 0% { transform: scale(1); } 30% { transform: scale(calc(1.06 + .1 * var(--win))); text-shadow: 0 0 calc(14px + 18px * var(--win)) rgba(243, 220, 164, .8); } 100% { transform: scale(1); } }
 @keyframes gwCountSet { 0% { transform: scale(1); } 35% { transform: scale(1.12); text-shadow: 0 0 22px rgba(232, 190, 119, .7); } 100% { transform: scale(1); } }
 @keyframes gwMarkHit { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
 @keyframes gwSealSlam { 0% { opacity: 0; transform: scale(2.6) rotate(-24deg); } 55% { opacity: 1; transform: scale(.88) rotate(4deg); } 78% { transform: scale(1.06) rotate(-1deg); } 100% { opacity: 1; transform: none; } }

@@ -687,7 +687,7 @@ export function createScreens(K) {
       const sw = grade ? (D().AUTOFISH?.text?.strike?.[grade] || cap(grade)) : '';
       const strikeRow = sw ? `<dt${X}>strike</dt><dd class="gw-cc-strike gw-strike-${esc(grade)} gw-cc-xtra">${esc(sw)}</dd>` : '';
       const worthRow = cove ? (qWord ? `<dt${X}>quality</dt><dd${X}>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt${X}>worth</dt><dd${X}>${fmt(y.sell)} shells${qWord}</dd>`;
-      const stats = `<dl class="gw-cc-stats"><dt>length</dt><dd>${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
+      const stats = `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
       const lore = firstSentence(sp.lore) || hintFor(sp);
       // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
       // card; an ordinary catch shows name, class, length, weight and the actions, the rest one tap away ("more")
@@ -702,7 +702,7 @@ export function createScreens(K) {
             <div class="gw-cc-kicker${sx}">${esc(N.kicker)}</div>
             <h2 class="gw-catch-name">${esc(sp.name)}</h2>
             ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet${sx}">${esc(sp.epithet)}</div>` : ''}
-            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}</div>
+            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}${N.v3 ? `<b class="gw-cc-hero">${esc(N.len)}</b>` : ''}</div>
             ${stats}
             <p class="gw-cc-lore${sx}">${esc(lore)}</p>
             <button type="button" class="gw-link gw-cc-more" data-more aria-expanded="${s.more ? 'true' : 'false'}">${s.more ? 'less' : 'more'}</button>
@@ -760,6 +760,26 @@ export function createScreens(K) {
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
       foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
       if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: af() ? 'A little luck with rarer fish until tomorrow' : '+2% rare-fish luck until tomorrow', onClick: act('release') }));
+      // v3: what it is worth to you counts up as the card lands, with soft coin ticks (once per card)
+      if (N.v3 && !s.counted) {
+        s.counted = true;
+        const ems = [...foot.querySelectorAll('.gw-cc-act em')];
+        const to = ems.map((e) => { const m = /\+(\d+)/.exec(e.textContent.replace(/[^\d+]/g, '')); return m ? Number(m[1]) : null; });
+        if (ems.length && to.every((v) => v != null && v > 0) && typeof requestAnimationFrame === 'function') {
+          ems.forEach((e) => { e.textContent = '+0'; });
+          const t0 = performance.now() + 820, dur = 560;
+          let last = -1;
+          const step = () => {
+            if (!pn.isConnected) return;
+            const k = Math.min(1, Math.max(0, (performance.now() - t0) / dur)), e2 = 1 - (1 - k) * (1 - k);
+            ems.forEach((e, i) => { e.textContent = `+${fmt(Math.round(to[i] * e2))}`; });
+            const tick = k > 0 ? Math.min(5, Math.floor(e2 * 6)) : -1;
+            if (tick > last) { last = tick; sfx('coin', { volume: 0.16 + 0.04 * tick, pitch: 0.92 + 0.05 * tick }); }
+            if (k < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }
+      }
     }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-catch',
       onKey: (code) => {
         const map = cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };

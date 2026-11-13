@@ -450,14 +450,16 @@ section('AF leaps (F2′): the first Prize+ leap slows time once (0.25 s at 0.35
     if (stampedAt === null && env.F.view.sizeClass) stampedAt = env.ctx.debug.fishPlay()?.t ?? null;
     if (env.F.view.play?.leap) sawLeap = true;
   }
-  ok(env.calls.slowmo.length === 1 && env.calls.slowmo[0][0] === 0.25 && env.calls.slowmo[0][1] === 0.35, `ctx.game.slowmo(0.25, 0.35) once on the first leap (${JSON.stringify(env.calls.slowmo)}; ${plan.leapCount} leaps)`);
+  // the landing has its own slow beat as the fish breaks the surface (AUTOFISH.landing[class].slowmo; none when 0 s), after the play
+  const landBeat = (cls) => { const sm = data.AUTOFISH.landing?.[cls]?.slowmo; return Array.isArray(sm) && sm[0] > 0 ? [sm] : []; };
+  ok(JSON.stringify(env.calls.slowmo) === JSON.stringify([[0.25, 0.35], ...landBeat('prize')]), `ctx.game.slowmo(0.25, 0.35) once on the first leap, then only the landing's own beat (${JSON.stringify(env.calls.slowmo)}; ${plan.leapCount} leaps)`);
   ok(sawLeap && env.count('fishing:reveal') === 0, 'leaps play as the proxy; fishing:reveal is dropped (the reveal is fishing:caught)');
   ok(stampedAt !== null && g0 && Math.abs(stampedAt - g0.at) < 0.1, `view.sizeClass stamps at the first glimpse (${stampedAt?.toFixed(2)} s; plan ${g0?.at})`);
   for (let i = 0; i < 300 && env.F.state !== 'idle'; i++) { env.F.skipCeremony(); env.tick(1); }
   env.reset();
   env.ctx.debug.fishHook('gloam_eel', { z: 0.2 });   // a Keeper
   for (let i = 0; i < 30 * 8 && env.F.state === 'reeling'; i++) env.tick(1);
-  ok(env.calls.slowmo.length === 1, 'a Keeper\'s skip slows nothing');
+  ok(JSON.stringify(env.calls.slowmo) === JSON.stringify([[0.25, 0.35], ...landBeat('prize'), ...landBeat('keeper')]), `a Keeper's skip slows nothing (only its landing beat: ${JSON.stringify(env.calls.slowmo)})`);
   data.AUTOFISH.leaps.gloam_eel = keep;
   env.ctx.debug.fishOutcome(null);
   for (let i = 0; i < 300 && env.F.state !== 'idle'; i++) { env.F.skipCeremony(); env.tick(1); }
@@ -644,6 +646,29 @@ section('pressure: progression owns the count (run.pressure by fishing:caught.pr
 }
 
 // =====================================================================================================================
+section('the landing payoff (AUTOFISH.landing): class only until the wipe has run; bigger is grander; the flare and push-in at the reveal');
+{
+  const env = makeEnv({ seed: 77 });
+  const flares = [], kicks = [];
+  env.ctx.actors.flareFlame = (k) => flares.push(k);
+  env.ctx.render.kick = (d) => kicks.push(d);
+  env.ctx.debug.fishOutcome('land');
+  env.ctx.debug.fishHook('reedjaw_pike', { z: 2.4 });   // a Trophy
+  for (let i = 0; i < 30 * 60 && env.F.state === 'reeling'; i++) env.tick(1);
+  const T = data.AUTOFISH.landing;
+  const L = env.last('fishing:landing');
+  ok(!!L && L.sizeClass === 'trophy' && !Object.keys(L).some((k) => /species|name|rarity|length|weight/i.test(k)) && Math.abs(L.dur - T.trophy.wipe) < 1e-9, `fishing:landing {sizeClass, dur} carries nothing of the species (${JSON.stringify(L)})`);
+  ok(flares.length === 0, 'no flare before the wipe has run');
+  for (let i = 0; i < 90 && !env.F.inCeremony; i++) env.tick(1);
+  ok(env.F.inCeremony && flares.length === 1 && flares[0] >= T.trophy.flame, `the Wick's flame flares once at the reveal (${flares})`);
+  ok(kicks.length >= 2 && kicks.every((k) => k < 0), `the camera pushes in (fov kicks ${kicks.map((k) => k.toFixed(2))})`);
+  const C = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+  ok(C.every((c, i) => i === 0 || ['wipe', 'glory', 'drops', 'embers', 'flame', 'shake'].every((k) => T[c][k] >= T[C[i - 1]][k]) && T[c].slowmo[0] >= T[C[i - 1]].slowmo[0]), 'bigger is grander: wipe, glory, droplets, embers, flame, shake and slow-motion never shrink with the class');
+  ok(T.small.wipe <= 0.4 && T.small.slowmo[0] === 0, 'a Small stays quick: no slow-motion and the short wipe');
+  for (let i = 0; i < 300 && env.F.state !== 'idle'; i++) { env.F.skipCeremony(); env.tick(1); }
+  env.ctx.debug.fishOutcome(null);
+}
+
 section('flag off: feeding spots, the v1 boost, no ceremony, no signs, v1 payloads');
 {
   const env = makeEnv({ D: dataV1, seed: 141 });
