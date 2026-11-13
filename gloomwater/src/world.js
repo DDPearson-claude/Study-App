@@ -16,6 +16,9 @@ const FALLBACK_ZONE = {
   grade: { tint: 0x40347e },
 };
 
+/** The First Evening's cove (DESIGN §25.14.2b FE-W1): main switches the slice on only when this is true. Not built yet. */
+export const SUPPORTS_COVE = false;
+
 export function create(ctx) {
   const group = new THREE.Group();
   group.name = 'world';

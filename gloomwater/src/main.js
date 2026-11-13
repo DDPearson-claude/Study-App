@@ -42,7 +42,10 @@ const V3 = data.V3_ENABLED === true;
 // The First Evening slice (DESIGN §25.4.8, §25.14.2b; CONTRACT §13.1, §13.12): with v3 on and the cove's data in the build, boot
 // builds the cove under the title, Begin on a fresh save plays the First Evening, every new run sets out from the Landing through
 // the 3 s glide, and a snuff cuts to the hearth for 3 s before the summary. With v3 off none of it exists.
-const FE_ON = V3 && !!data.COVE && !!data.FIRST_EVENING;
+// Feature detection (CONTRACT §13.0: structure switches by feature detection, not a second flag): the slice runs only once the
+// world module can build the cove (`export const SUPPORTS_COVE = true` from the FE-W1 world work). Until then a v3 build keeps
+// today's flow — New Descent straight into the lake, the death screen at once — so a half-built opening never ships.
+const FE_ON = V3 && !!data.COVE && !!data.FIRST_EVENING && worldMod.SUPPORTS_COVE === true;
 const FE = FE_ON ? data.FIRST_EVENING : null;
 const UPDATE_ORDER = ['player', 'fishing', 'survival', 'combat', 'progression', 'actors', 'models', 'world', 'water', 'audio', 'ui', 'render'];
 
