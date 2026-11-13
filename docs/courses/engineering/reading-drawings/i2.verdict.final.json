@@ -1,0 +1,149 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A one-line diagram outlines the connections from the power sources (generators, shore power, battery banks) through the switchboard and busbars to the loads: here two generator sets, a shore supply and a battery feed the board, and each of the 7 loads has a path to a source",
+        "ok": true,
+        "source": "https://www.dco.uscg.mil/Portals/9/MSC/PRG/PRG.E2-07.2021.10.13.Electrical%20One-Line%20Diagram.pdf"
+      },
+      {
+        "label": "A one line starts at the top with the incoming power and its disconnecting device, then works its way down: the sets and the shore supply sit above their breakers, the breakers above the busbars, and every load lower still",
+        "ok": true,
+        "source": "https://eecoonline.com/inspire/how-to-read-a-single-line-diagram"
+      },
+      {
+        "label": "Counted by hand: the drawing shows 4 sources (3 at the top, 2 sets, 5 counting -T1 and -U1); opening -Q12 takes off 2 loads (slips 0, 1 and 4), leaving 5 of 7; -Q2 tripping takes off 1 (slips 3, 4 and 2), leaving 6; the typed fields ask exactly these",
+        "ok": true
+      },
+      {
+        "label": "Power passes on down through -T1 and -U1, never back up: with -Q22 open, battery -G3 keeps the DC board live while the charger's input stays dead; with -Q12 open the 115 V board is dead and section A stays live",
+        "ok": true
+      },
+      {
+        "label": "Closing -Q4 as drawn would join -G1 and -G2, so the synchronise card comes up and -Q4 stays open; with -Q2 open it closes and -G1 feeds section B; -Q23 cannot close while -Q13 is closed; -Q5 and -Q22 close freely",
+        "ok": true
+      },
+      {
+        "label": "On shore supply with both sets stopped, -Q4 closes without synchronising and the shore supply then feeds section A, so -M1 is fed through the bus-tie",
+        "ok": true
+      },
+      {
+        "label": "Isolating -M3: -Q13 alone leaves -Q23 free to close from -G2; -Q13 and -Q23 isolate it with no other load taken off; -Q1 and -Q2 leave the shore supply a way in through -Q3 and take off 4 other loads",
+        "ok": true
+      },
+      {
+        "label": "Isolating -A3: -Q22 alone leaves it live from battery -G3; -Q22 and -Q5 isolate it but take off -E3; -F4 alone isolates it and keeps -E3 lit",
+        "ok": true
+      },
+      {
+        "label": "Before an answer nothing gives it away: every puzzle opens on its own board with nothing locked and no card, and both typed screens' readouts show ?",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.5 s of its screen opening, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [
+      "loadsLive",
+      "takenOff"
+    ],
+    "outputs": [
+      "loadsLive",
+      "takenOff"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "The power map",
+          "Count the sources",
+          "Live and dead",
+          "One breaker opens",
+          "Where the voltage changes",
+          "The charger's breaker",
+          "The bus-tie",
+          "Through the tie",
+          "Two ways in",
+          "Lock it off",
+          "A set trips",
+          "The alarm panel"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "Board",
+      "Isolate",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "srcs",
+        "answer": 4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "q12",
+        "answer": 2,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "trip",
+        "answer": 1,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

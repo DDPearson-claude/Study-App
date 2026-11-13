@@ -1,0 +1,267 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Reading drawings and schematics
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Valves in fluid power" — A valve that steers oil or air is drawn as one box per position, and only the box against the ports shows where it flows. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Tracing a hydraulic circuit, then a pneumatic one — For each valve position, trace the supply to one side of a cylinder, and the other side out to the tank or, in air, the exhaust.
+- i7 Piping and system diagrams — On a piping diagram, flow runs only along open paths from a running pump, so you can find which valves to shut to isolate a part.
+- i8 Engineering drawings — An engineering drawing shows one object in several square-on views, laid out by a fixed rule, so you can rebuild its shape in your head.
+- i9 Reading one you have never seen — Read a diagram you have never seen in four steps: legend, sources, the state it is drawn in, then one path at a time.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Directional Valve Symbols | e4training — https://www.e4training.com/hyd_princip/symbol_directional1.php
+    "The '4 way' means it has 4 pipe connections, generally Pressure, Return, Port A and Port B. The 'two position' means that it has two switched positions i.e. it can sit in the A or B position."
+[R2] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) — https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy
+    "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+[R3] Pneumatics, Basic Level (Textbook), Festo Didactic TP101 — https://repositori.mypolycc.edu.my/bitstream/123456789/5320/1/Pneumatics%20basic%20level%20by%20Festo%20Didactic%20%28z-lib.org%29.pdf
+    "In this position, the supply pressure is connected to the piston side of the cylinder, while the piston rod side is exhausted. The pressure on the piston side advances the piston rod."
+[R4] Hydraulics Basic Principles - Bosch — https://dc-mkt-prod.cloud.bosch.tech/xrm/media/global/training_1/digital_media/reference_books/knowledge-in-detail-hydraulics-basic-principles.pdf
+    "Graphic symbols of hydraulics do not provide information about the design structure of the components."
+[R5] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) — https://www.online-pdh.com/file.php/221/CFD_SG.pdf
+    "The difference between them is that the point of the arrow touches the circle in a pump and the tail of the arrow touches the circle in a motor."
+[R6] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) — https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy
+    "Symbols may be rotated or reversed without altering their meaning except in cases of lines to reservoirs and vented manifolds"
+[R7] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) — https://www.online-pdh.com/file.php/221/CFD_SG.pdf
+    "Schematics are designed to supply the functional information of the system. They do not accurately represent the relative location of the components."
+Notes (claims, and the sources that support them):
+- A 4-way valve has four pipe connections, generally pressure, return, port A and port B; a two-position valve can sit in either of two switched positions. [R1]
+- A valve is drawn in its de-actuated state, and the diagram can also show it operated, with the flow it then gives. [R2][R3]
+- Hydraulic graphical symbols give no information about how a component is built. [R4]  (from an idea this one builds on)
+- A pump and a motor symbol differ only in where the arrow touches the circle: the point for a pump, the tail for a motor. [R5]  (from an idea this one builds on)
+- Fluid power symbols may be rotated or reversed without changing their meaning, except for lines to reservoirs and vented manifolds. [R6]  (from an idea this one builds on)
+- A schematic gives the functional information of a system and does not accurately show where its components are. [R7]  (whole topic)
+- Each symbol on a fluid power diagram is drawn to show the normal or neutral condition of its component, unless several diagrams show other phases. [R2]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Valves in fluid power",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the rod move only when a different box slides against the fixed ports, when you drag the row of boxes or tap -Y1 or -Y2.",
+  "title": "The sliding valve",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Some screens show an idea and the rest ask you to try it. The main picture is a valve that steers oil to a cylinder. The valve is a row of three square boxes. Below the row sit two fixed ports, P from the pump and T to the tank. Above it sit two more, A and B, joined to the cylinder. The ports stay put while the row slides left and right under them. Each box draws what the valve's moving part joins in one position. Inside each box, arrows show which ports it joins, and a short bar across a port's end means that port is blocked. The left box has two straight arrows, P up to A and B down to T. The right box has two crossed arrows, P to B and A to T. The middle box is set by a centre picker with three choices: Closed, with all four ports blocked; P to T, with a line joining P and T and bars on A and B; Float, with P blocked and A, B and T joined. At the left end of the row is solenoid -Y1 and a spring. At the right end is solenoid -Y2 and a spring. The cylinder stands upright above the valve, its rod pointing up with a load on top. A goes to the piston side, at the bottom, and B to the rod side, at the top. The rod comes out upward and goes back in downward. Below the valve, a pump draws oil from the tank and feeds P. A relief valve on the pump's line opens to the tank when the pressure beats its spring. The rule. Only the box in line with the ports joins them, and each solenoid brings in the box beside it. A line carrying flow is drawn bold with arrows, and an idle line is pale. Tap -Y1 and it is energised: it pushes the row over until the left box sits against the ports. P then joins A, so oil fills the piston side, B joins T, so the rod side empties, and the rod comes out. Tap -Y2 and the right box comes in instead, P to B and A to T, so the rod goes back in. Tap a solenoid again to switch it off. You can also drag the row by hand. Let go, with both solenoids off, and the springs push the row back until the middle box sits against the ports. A line under the pump says what it is doing: feeding the cylinder, unloading to the tank, or on load, with its oil going over the relief valve. Once the rod reaches the end of its travel, the pump's oil goes over the relief valve, though the solenoid is still on. With the middle box in place, the centre picker decides. Closed blocks every port, so the rod holds and the pump's oil goes over the relief valve. P to T sends the pump's oil back to the tank at low pressure, and the rod holds. Float blocks P and joins A and B to T, so the load pushes the rod back in steadily and the pump's oil goes over the relief valve. A Leaks switch, Off or On, sets what kind of valve you are looking at. Off is the ideal valve the symbol stands for, and a held rod stays exactly where it stopped. On is a real spool, which leaks a little between its ports, so a held rod creeps slowly back in under its load. A small mark shows where the rod stopped, so you can see the creep. Below the main picture is a row of six cards, each a smaller symbol with its name and one line on what it does. A 3/2 valve: two boxes and three ports, with P blocked and A open to T at rest, and P to A when operated. A 5/2 air valve: two boxes and five ports, numbered 1 for the supply, 2 and 4 for the working lines and 3 and 5 for the exhausts. A relief valve: one box whose arrow sits off the line, held shut by a spring, opening to the tank when the pressure beats the spring. A reducing valve: one box whose arrow runs along the line, open at rest, closing as the pressure after it reaches its spring's setting. A check valve: a ball against a seat, letting flow one way only. A flow control: two curves pinching the line, with a slanted arrow because it can be adjusted, setting how fast the oil flows. Tap a card to open it. It opens with both solenoids off, the Closed centre, Leaks Off and the rod half out. At phone width the solenoid buttons, the centre picker and the Leaks switch wrap onto two rows with no word split, and the cards sit two to a row. Every label is at least 12 px and stays readable at 360 px. Screen by screen. Screen 1, show, One box per position: the valve as it opens. Words: \"A valve that steers oil is drawn as a row of boxes, one for each position it can take. Only the box in line with the ports joins them, and each solenoid brings in the box beside it. Four ports and three boxes make this a 4/3 valve.\" The three boxes light in turn, then the four port letters, then the label 4/3 appears beside the valve. Read: the three boxes in a row, the four ports P, T, A and B against the middle one, labelled 4/3. Still: the end of the sweep. Screen 2, do, typed, Count the positions: a lone valve of two boxes, with four ports, P, T, A and B, on the right-hand box and a spring at the right end. \"How many positions does this valve have?\" A typed answer: 2, a whole number. Slips: 4, \"That is the ports, the lines on the box. Count the boxes for the positions.\"; 1, \"That is the box in use now. The valve can take any of its boxes.\" Hint: \"Each box is one position. Count the boxes.\" Why: two boxes make two positions. With four ports, its label is 4/2. After Check, each box rings in turn. Screen 3, show, Slide the boxes: the valve as it opens. Words: \"The ports never move. Shifting the valve slides the row until another box sits against them. Energise -Y1 and the box beside it comes in, so P joins A, B joins T, and the rod comes out.\" Then \"Tap -Y1.\" Read: -Y1 energised, the left box against the ports, oil running from P to A and from B to T, and the rod coming out. Still: -Y1 on. Screen 4, do, Which box?: the valve as it opens, with -Y2 marked as energised and the row not yet moved. \"-Y2 is energised. Where does the oil from P go now?\" Choices: To A; To B (right); Straight to T. Hint on To A: \"That is the left box, which -Y1 brings in. -Y2 brings in the box beside it.\" Hint on Straight to T: \"That would need the middle box. Energising -Y2 slides the right box in.\" Why: -Y2 pushes the row over until the right box sits against the ports. Its crossed arrows join P to B and A to T, so the rod goes back in. After Check, the row slides and the rod goes back in. Screen 5, show, Springs bring it back: the valve as it opens. Words: \"A zigzag at each end is a spring. With both solenoids off, the springs push the middle box back against the ports, and the drawing shows it there. A notched bar called a detent would instead hold the valve in whatever box you leave it.\" Then \"Drag the row to one side and let go.\" Read: the row pushed back by the springs, the middle box against the ports, and both solenoids off. Still: the row back at the middle after a drag. Screen 6, do, Let go of the lever: two lever valves side by side, each of three boxes. One has a spring at each end. The other has a detent, a notched bar, instead. \"You push both levers to the left box and let go. Which valve stays in the left box?\" Choices: The one with zigzags at its ends; The one with the notched bar (right); Both of them. Hint on The one with zigzags at its ends: \"A zigzag is a spring. It pushes the valve back to its middle box once you let go.\" Hint on Both of them: \"Only one of them has springs. Look at what each has at its ends.\" Why: the springs push the first valve back to its middle box. The detent holds the second wherever it was left, so it stays in the left box until someone moves the lever. After Check, the sprung valve slides back and the other stays. Screen 7, show, The middle box: the valve as it opens. Words: \"The middle box decides what happens at rest. Closed blocks all four ports, so the rod holds and the pump's oil goes over the relief valve. P to T sends the pump's oil back to the tank at low pressure instead, and Float lets the load move the rod.\" Then \"Pick each centre.\" Read: the P to T centre in place, the rod holding and the pump unloading to the tank. Still: the centre on P to T. Screen 8, do, Read the centre: a lone middle box with no label: a line from P straight to T, and a short bar across the ends of A and B. \"Both solenoids are off and the pump runs. What do the cylinder and the pump do?\" Choices: The rod holds, and the pump unloads to the tank (right); The rod holds, and the pump's oil goes over the relief valve; The rod floats, and the pump unloads to the tank. Hint on the relief valve: \"Look at P. Its line runs straight to T, so the oil has an easy way back.\" Hint on The rod floats: \"A and B each end in a bar, so they are blocked. Blocked lines hold the rod.\" Why: the line joins P to T, so the pump's oil returns to the tank at low pressure. The bars block A and B, so the oil in the cylinder has nowhere to go and the rod holds. After Check, the centre picker moves to P to T. Screen 9, show, Held is not sealed: the valve as it opens, with a mark where the rod stopped. Words: \"A closed box is drawn sealed, but a real spool leaks a little between its ports. So a cylinder holding a load creeps slowly. The symbol shows the ideal valve, not its leaks.\" Then \"Switch Leaks on and watch the rod.\" Read: the Closed centre with the load on the rod, and the rod crept a little back in, below the mark where it stopped. Still: Leaks on, after a while. Screen 10, do, Will it hold?: a ram holding a load up, its valve on a Closed centre with both solenoids off. \"The load must stay up all night. Does the closed centre make sure of that?\" Choices: Yes, the box blocks every port; No, the spool leaks, so the load can creep down (right); Yes, as long as the pump keeps running. Hint on Yes, the box blocks every port: \"The box is drawn sealed. A real spool leaks a little.\" Hint on the pump: \"With a closed centre the pump's oil cannot reach A or B. It does not hold the ram up.\" Why: the closed box blocks the ports on paper. In the real valve, oil leaks slowly past the spool, so the ram can creep down. A load that must not move needs a valve that seats tightly, such as a check valve, and a mechanical prop before anyone works under it. After Check, Leaks switches on and the rod creeps below its mark. Screen 11, show, The other valves: the row of cards. Words: \"Other valves use the same boxes and marks. A 3/2 has three ports and two positions, and a 5/2 for air has five ports. A relief valve opens to the tank when pressure beats its spring, and a check valve lets flow one way only.\" Then \"Tap each card.\" Read: six cards, each a symbol with its name and its job: 3/2, 5/2 with its ports numbered, relief, reducing, check and flow control. Still: all six cards open. Screen 12, do, mixed, Slide the 3/2: the 3/2 card, drawn larger, with solenoid -Y1 at its left end marked as energised, a spring at its right end, and the row not yet moved. At rest its right box blocks P and joins A to T. Its left box joins P to A. \"-Y1 is energised. Where does the supply at P go?\" Choices: To A (right); To T; Nowhere, it stays blocked. Hint on To T: \"At rest A goes to T. Slide the other box in and read its arrow.\" Hint on Nowhere: \"That is the box at rest. Energising -Y1 brings in the box beside it.\" Why: -Y1 brings in the box beside it, whose arrow joins P to A. Switch it off and the spring brings back the box that blocks P and empties A to T. After Check, the row slides. Screen 13, do, mixed, typed, Count the ports: a 5/2 air valve with no numbers, at rest: one line at the bottom middle, one line either side of it, and two lines on top. \"How many ports does this valve have?\" A typed answer: 5, a whole number. Slips: 2, \"That is the positions, the boxes. Ports are the lines on the box in use.\"; 3, \"Count the two lines on top as well. They go to the cylinder.\"; 4, \"Count both outer lines at the bottom. This valve has an exhaust each side of the supply.\" Hint: \"Count every line on the box in use, top and bottom.\" Why: one supply, two working lines and two exhausts make five ports. With two boxes, it is a 5/2 valve. After Check, the ports are numbered 1 to 5.",
+  "ignores": "The creep is drawn much faster than a real one, so you can see it in a few seconds. The row snaps from box to box, while a real spool passes through in-between states on the way, which some drawings show with small extra boxes. The cylinder has no friction, and its load never changes. Real sheets carry many more centre conditions than these three, and pilot-operated valves add small pilot lines. Some valves can sit anywhere between their boxes, as a proportional valve does, and they are drawn with extra marks. This lesson does not show how each valve is built or how it is set.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Ports on the main valve",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Positions on the main valve",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Centres on the centre picker",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cards in the row",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "3/2 valve: ports",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "3/2 valve: positions",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "5/2 valve: ports",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "5/2 valve: positions",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Air valve port number for the supply",
+    "value": 1,
+    "kind": "constant"
+   },
+   {
+    "label": "Air valve port numbers for the working lines, first",
+    "value": 2,
+    "kind": "constant"
+   },
+   {
+    "label": "Air valve port numbers for the working lines, second",
+    "value": 4,
+    "kind": "constant"
+   },
+   {
+    "label": "Air valve port numbers for the exhausts, first",
+    "value": 3,
+    "kind": "constant"
+   },
+   {
+    "label": "Air valve port numbers for the exhausts, second",
+    "value": 5,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 2: ports on the valve",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2: positions, one per box",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip, the ports counted",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip, the box in use only",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6: lever valves side by side",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13: ports, 1 + 2 + 2",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, the boxes counted",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, the bottom lines only",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, one exhaust missed",
+    "value": 4,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A valve that steers oil or air is drawn as a row of boxes, one box for each position it can take. The pipes meet the row at one box only. That box shows where the flow goes now, and the others show where it would go in their positions.\n\nPicture the row of boxes as the valve's moving part. Inside, that part is usually a spool, a rod with grooves cut round it, sliding in the valve's body. The ports are fixed to the body and never move. Slide the spool and its grooves join different ports, and each box draws what they join in one position. So shifting the valve slides the row until another box sits against the ports, and only that box joins them. An arrow in a box joins two ports, and a short bar across a port's end blocks it. On a 4/3 valve the 4 counts the ports and the 3 the positions. The four ports are P from the pump, T the return to the tank, and A and B to the cylinder.[^1] An actuator brings in the box beside it. Energise solenoid -Y1, drawn at the left end, and the left box comes in. Its arrows join P to A and B to T. Pressure reaches the piston side while the rod side empties, so the rod comes out.[^2] Energise -Y2 at the right end, and the right box's crossed arrows join P to B and A to T, so the rod goes back in. A valve like this, which sends the flow one way or the other, is a [[directional control valve]].\n\nSomething must bring the valve back. A zigzag at each end is a spring. With both solenoids off, the springs push the middle box back against the ports. So the sheet shows the valve there, in its normal or neutral position.[^3] That is its drawn state, with nothing operating it. A notched bar called a detent would instead hold the valve in whatever box it was left. The middle box sets what the plant does at rest, and that choice is the valve's [[centre condition]]. A closed centre blocks all four ports, so the cylinder holds. A fixed pump's oil then has nowhere to go but over the [[relief valve]], which opens to the tank when the pressure beats its spring. A P to T centre joins the pump to the tank and blocks A and B, so the pump unloads at low pressure while the cylinder holds. A float centre blocks P and joins A, B and T, so a load can push the rod along.\n\nThe symbol is an ideal. A closed box is drawn sealed, but a real spool leaks a little between its ports, so a cylinder holding a load can creep slowly. Other valves use the same boxes and marks. A 3/2 valve has three ports and two positions, and a check valve, a ball against a seat, lets flow pass one way only. **Read a valve by sliding the box its actuator brings in against the fixed ports: only that box joins them, and its arrows show where the oil or air goes.**"
+ },
+ "analogy": {
+  "text": "You know this from an intermediate switch on a stair lighting circuit. It has four terminals and two positions. In one, the links run straight through, and in the other they cross over. The terminals never move. The switch only changes which links sit between them. A 4/2 valve's two boxes are those same two positions, straight arrows and crossed arrows.",
+  "breaks": "An intermediate switch stays wherever you leave it, like a detent, and has no springs or middle position. An open contact also truly breaks the circuit, while a closed spool still leaks a little. And current goes round a loop, while oil goes one way, from the pump to the tank."
+ },
+ "practice": {
+  "text": "- A centred valve does not prove a load is safe. A closed centre still leaks, so a raised load can creep down. Lower it or prop it mechanically, then isolate and vent by the plant's procedure before you work on it.\n- Count the boxes. That is the number of positions.\n- Count the lines on the box in use. That is the number of ports. Ports then positions make the label, such as 4/3.\n- Name the ports: P from the pump, T the return to the tank, A and B to the cylinder. Air valves are often numbered instead: 1 the supply, 2 and 4 the working lines, 3 and 5 the exhausts.\n- Read each end. A solenoid tag such as -Y1, a lever, a pilot line, a spring or a detent says what moves the valve and what brings it back.\n- Read the box against the ports. That is the drawn state, with nothing operating the valve.\n- For each actuator, slide its box against the ports and follow each arrow from port to port.\n\n**Rule of thumb:** the box beside a solenoid or lever is the box it brings in. Springs bring back the box at rest, which on a three-box valve is the middle one.\n\n**Worked example:** a valve has three boxes, with -Y1 and a spring at the left end and -Y2 and a spring at the right. Four ports meet its middle box, which joins P to T and blocks A and B. Four ports and three boxes make it a 4/3 valve. At rest the springs centre it, so the pump unloads to the tank and the cylinder holds, though it may creep. Energise -Y1 and the left box comes in. P joins A and B joins T, so oil fills the piston side and the rod comes out. Energise -Y2 and the right box's crossed arrows join P to B and A to T, so the rod goes back in.\n\n**Common mistakes**\n- Reading the ports as positions, so a 4/2 becomes a 2/4.\n- Reading the box already against the ports after a solenoid is energised, instead of sliding the box beside it in.\n- Taking a detent for a spring, and expecting the valve to come back by itself.\n- Trusting a closed centre to hold a load for ever.\n- Forgetting the relief valve. With a closed centre and a fixed pump, the oil still has to go somewhere."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Directional Valve Symbols | e4training",
+   "url": "https://www.e4training.com/hyd_princip/symbol_directional1.php",
+   "quote": "The '4 way' means it has 4 pipe connections, generally Pressure, Return, Port A and Port B. The 'two position' means that it has two switched positions i.e. it can sit in the A or B position."
+  },
+  {
+   "n": 2,
+   "title": "Pneumatics, Basic Level (Textbook), Festo Didactic TP101",
+   "url": "https://repositori.mypolycc.edu.my/bitstream/123456789/5320/1/Pneumatics%20basic%20level%20by%20Festo%20Didactic%20%28z-lib.org%29.pdf",
+   "quote": "In this position, the supply pressure is connected to the piston side of the cylinder, while the piston rod side is exhausted. The pressure on the piston side advances the piston rod."
+  },
+  {
+   "n": 3,
+   "title": "Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12)",
+   "url": "https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy",
+   "quote": "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

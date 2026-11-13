@@ -1,0 +1,398 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Reading drawings and schematics
+Idea: Tracing a hydraulic circuit, then a pneumatic one (For each valve position, trace the supply to one side of a cylinder, and the other side out to the tank or, in air, the exhaust.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the ram move as oil lights up from the pump into one side of the cylinder and from the other side to the tank, when you tap -Y1 or -Y2.
+Title (the app shows it above the frame, so do not repeat it): The press
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens. Some show an idea. The rest ask you to try it. The main picture is a press, drawn as a hydraulic circuit. At the bottom, motor -M1 drives a pump. The pump draws oil from the tank through a filter and feeds the valve's P port. A relief valve sits on the pump's line. It opens to the tank when the pressure beats its spring. A gauge beside it reads the pump's pressure. It has no numbers, only a mark at the relief valve's setting. Above is a 4/3 valve, drawn as a row of three boxes. Its fixed ports are P and T below, and A and B above. The left box joins P to A and B to T. The right box's crossed arrows join P to B and A to T. The middle box joins P to T and blocks A and B. Solenoid -Y1 and a spring sit at the left end. Solenoid -Y2 and a spring sit at the right. At the top the cylinder stands upright. Its rod points down to the ram. The work sits on a bed below. A goes to the piston side, at the top. B goes to the rod side, at the bottom. On the line from B, a flow control and a check valve sit side by side. Both join the same two points. The check valve lets oil pass only into the rod side. Each part has its name beside it. The rule. Each solenoid brings in the box beside it. That box sets two paths, one into the cylinder and one out. A line carrying flow is bold with arrows. An idle line is pale. With -Y1 on, oil runs from P to A into the piston side. Oil from the rod side runs through the flow control and B to T, to the tank. The ram comes down. The flow control lets the rod side's oil out slowly. So a fixed pump's spare oil goes over the relief valve, drawn as a thinner bold line. When the ram meets the work, it stops. All the pump's oil then goes over the relief valve, and the needle sits on the relief mark. With -Y2 on, oil runs from P to B through the check valve into the rod side. Oil from the piston side runs through A to T, to the tank. The ram goes back up. At the top no more oil can get in. So the pump's oil goes over the relief valve. Tapping a solenoid switches it on and the other off. Tapping it again switches it off. With both off, the springs bring the middle box back. P to T is lit, the ram holds and the needle sits near zero. A Stop button stops the pump and switches both solenoids off. The gauge reads zero. A cylinder line whose oil still holds a load is then drawn red. Its label says "still under pressure". If the ram was pressing the work, that is the line from A. The middle box shut it in. If the ram hangs above the work, it is the line from B. Its oil holds up the ram's weight. Tap Stop again to restart. A caption under the pump says what it is doing: feeding the cylinder, unloading to the tank, going over the relief valve, or stopped. Below the press is the air card. It does the same job in air. A compressor and its receiver feed a service unit. The service unit cleans the air and sets its pressure. Then comes a 5/2 valve, with solenoid -Y3 at one end and a spring at the other. Its two working lines go to a double-acting cylinder. Each exhaust port ends in an exhaust mark, with a small arrow into the room. At rest the spring holds the box that feeds the rod side and exhausts the piston side. So the rod stays in. Tap -Y3 and the supply fills the piston side. The rod side's air leaves through an exhaust port, and the rod comes out. Tap it again and the spring brings the rod back in. Beside it is a squeeze test. It has two small cylinders with their ports shut, one of air and one of oil. Each has a load on its rod. A load slider sets the pressure each load makes. It runs from 6 to 12 bar absolute, in steps of 1. At 6 the air fills 300 cm³. The air keeps pressure times volume the same. So a readout shows its volume as 1800 divided by the pressure, in cm³. At 12 the air fills 150 cm³, and its rod has gone in. The oil's rod does not visibly move. The lesson opens with the motor running and both solenoids off. The ram is held near the top, -Y3 is off and the slider is at 6. At phone width the solenoid buttons and Stop wrap onto two rows, with no word split. The air card sits below the press. Every label is at least 12 px and readable at 360 px. Screen by screen. Screen 1, do, typed, Still there?: a small cylinder with its ports shut, air inside and a load on its rod. "Air shut in a cylinder fills 300 cm³ at 6 bar absolute. A heavier load raises its pressure to 9 bar absolute, at the same temperature. What volume does the air fill now?" A typed answer: 200, in cm³, a whole number. Slips: 450, "That is the pressures upside down. More pressure squeezes the air smaller."; 300, "Air squeezes. Its volume falls as its pressure rises." Hint: "Pressure times volume stays the same." Why: pressure times volume stays at 6 × 300, which makes 1800. So the volume is 1800 ÷ 9, which is 200 cm³. The heavier load pushes the rod in. A right answer says "Still there." After Check, the press appears. Screen 2, show, The job first: the press as it opens. Words: "This is a press. Its ram comes down onto the work, squeezes it and goes back up. Read the job first. Then name the parts. Then trace one valve position at a time." The parts light in turn, each with its name. Read: the press at rest, with every part named. Still: the end of the sweep. Screen 3, do, As drawn: the press as it opens. "The motor runs and no solenoid is energised. What does the ram do?" Choices: It holds, and the pump's oil goes back to the tank (right); It comes down onto the work; It holds, and the pump's oil goes over the relief valve. Hint on It comes down: "No solenoid is on, so the springs hold the middle box against the ports. Read that box." Hint on the relief valve: "Look at P in the middle box. Its line runs straight to T." Why: the sheet draws the valve at rest, with its middle box against the ports. That box joins P to T and blocks A and B. So the pump's oil goes back to the tank at low pressure, and the ram holds. After Check, the line from P to T lights. Screen 4, show, Two paths: the press as it opens. Words: "Energise -Y1 and the left box joins P to A and B to T. Oil from the pump fills the piston side. The rod side's oil runs back to the tank. The ram moves only if both paths are open, so follow both." Then "Tap -Y1." Read: -Y1 is on. Oil runs from P to A into the piston side. The rod side's oil runs through the flow control and B to T, to the tank. The ram comes down. Still: the ram half way down. Screen 5, do, The other side: -Y1 marked as on, the ram coming down, only the path into the piston side lit. "Tap the parts the rod side's oil passes on its way to the tank, in order." The answer: the flow control, then the valve, then the tank. Hint on the check valve: "The check valve lets oil pass only into the rod side. Going out, the oil must take the flow control." Hint on the pump: "The pump only feeds. Oil leaving the cylinder goes back to the tank." Hint otherwise: "Start at the rod side and follow its line down to B." Why: the check valve is shut this way, so the rod side's oil leaves through the flow control. The left box joins B to T, so the oil runs back to the tank. Without that path the ram could barely move. After Check, the path lights. Screen 6, show, On the work: -Y1 on, the ram half way down. Words: "The flow control sets the ram's speed. It lets the rod side's oil out slowly. The pump's spare oil goes over the relief valve. When the ram stops on the work, all the pump's oil goes that way. So the relief valve's setting decides how hard the ram presses." Then "Watch the ram meet the work." Read: the ram has stopped on the work. The pump's oil runs over the relief valve to the tank, and the needle sits on the relief mark. Still: the ram on the work. Screen 7, do, What sets the squeeze?: the ram on the work, -Y1 still on. "The ram is pressing the work and -Y1 is still on. Which part decides how hard it presses?" Choices: The relief valve (right); The flow control; The check valve. Hint on The flow control: "That sets the speed. The ram has stopped, so no oil passes it now." Hint on The check valve: "That lets oil into the rod side only. It is shut while the ram comes down." Why: the ram cannot move, so the pressure rises until the relief valve opens. Its setting is the highest the pressure can reach. So it decides how hard the ram presses. After Check, the relief valve rings. Screen 8, show, Back up: the ram on the work, both solenoids off. Words: "Energise -Y2 and the crossed box joins P to B and A to T. Oil reaches the rod side through the check valve. The piston side drains to the tank, and the ram goes back up. Switch -Y2 off and the middle box blocks A and B. The ram holds." Then "Tap -Y2, then tap it again." Read: -Y2 is on. Oil runs from P to B through the check valve into the rod side, and from A to T to the tank. The ram goes up. With both solenoids off, it then holds part way. Still: the ram held part way up. Screen 9, do, Into the rod side: -Y2 marked as on, the row not yet moved, no path lit. "-Y2 is on. Which way does most of the oil reach the rod side?" Choices: Through the check valve (right); Through the flow control; It cannot, the check valve blocks it. Hint on Through the flow control: "The check valve beside it opens this way, so most of the oil takes the easy path." Hint on It cannot: "A check valve lets flow one way. Read which way its ball lifts off the seat." Why: going into the rod side, the oil lifts the check valve's ball off its seat. So most of it passes the flow control by. The ram goes up quickly, and comes down at the flow control's speed. After Check, the row slides and the path lights. Screen 10, show, The same job in air: the air card. Words: "The same job in air uses a 5/2 valve. Energise -Y3 and the supply fills the piston side. The rod side's air leaves through an exhaust port, into the room. Air also squeezes. So a cylinder holding a load on shut-in air gives as the load grows." Then "Tap -Y3, then drag the load slider." Read: -Y3 is on. The supply runs into the piston side, the rod side's air leaves through an exhaust port, and the rod is out. In the squeeze test beside it, at 12 bar absolute, the air fills 150 cm³ and its rod is pushed in. The oil's rod has not moved. Still: -Y3 on, the slider at 12. Screen 11, do, Where does the air go?: the air card, -Y3 marked as on, only the supply path lit. "Where does the air from the rod side go?" Choices: Out of an exhaust port, into the room (right); Back along a line to the receiver; Back to the compressor. Hint on the receiver: "No line runs back to the receiver. Look for the exhaust marks on the valve." Hint on the compressor: "A compressor draws in fresh air from the room. Used air is not sent back to it." Why: the box -Y3 brings in joins the rod side to an exhaust port. So the used air leaves into the room. Oil is kept and used again, so the press sends it back to the tank. After Check, the exhaust path lights. Screen 12, show, Pressure stays: -Y1 on, the ram on the work. Words: "Stopping the pump does not empty the circuit. Here the valve centred while the ram was pressing the work. That shut its oil in. The oil still holds the ram on the work, so its line is drawn red. The pump's gauge reads zero all the same." Then "Tap Stop." Read: the pump has stopped, both solenoids are off and the gauge reads zero. The line from A is red, labelled still under pressure. The ram is still on the work. Still: the pump stopped. Screen 13, do, mixed, Safe to open?: the press as screen 12 left it. "You must change the hose to the piston side. The motor is stopped and the pump's gauge reads zero. Is the hose safe to open?" Choices: No, oil shut in by the centred valve can still be under pressure (right); Yes, the gauge reads zero; Yes, both solenoids are off. Hint on the gauge: "That gauge reads the pump's line only. The middle box blocks A, so the hose is cut off from it." Hint on the solenoids: "With both off, the middle box blocks A and B. That shuts oil in rather than letting it out." Why: the middle box blocks A. So the oil between A and the cylinder is shut in, and it still holds the ram on the work. Release that pressure and prove that part at zero before you open the hose. After Check, the red line pulses. Screen 14, do, mixed, Top of the stroke: the press running, -Y2 marked as on, the ram right at the top. "-Y2 is still on and the ram has reached the top. Where does the pump's oil go now?" Choices: Over the relief valve to the tank (right); Into the rod side through the check valve; Through the middle box, from P to T. Hint on Into the rod side: "The ram can rise no further, so no more oil can get in." Hint on the middle box: "-Y2 is still on, so the crossed box is against the ports, not the middle one." Why: at the end of its travel, no more oil can enter the rod side. The pressure climbs until the relief valve opens. Then the pump's oil goes over it to the tank. Switch -Y2 off and the P to T centre unloads the pump. After Check, the relief path lights.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): Time is sped up. Every line is drawn with no pressure drop along it. The pump's oil is drawn splitting in fixed shares between the cylinder and the relief valve. In a real fixed pump, that split shifts as the load changes. The squeeze test shuts the air in. This 5/2 valve cannot do that, because neither of its boxes blocks both cylinder lines. Real oil squeezes a very little, so even trapped oil gives slightly. Shut-in pressure is drawn as staying. In a real circuit it falls slowly as oil leaks past the spool, sometimes over hours. The gauge has no scale. This lesson does not show how big the parts must be or how fast the ram goes. The ram's speed depends on the pump's flow and the cylinder's size.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 14 (the stepper): 0 (control)
+- Ports on the press's valve: 4 (assumed)
+- Positions on the press's valve: 3 (assumed)
+- 5/2 air valve: ports: 5 (assumed)
+- 5/2 air valve: positions: 2 (assumed)
+- Screen 1: air volume at the start, in cm³: 300 (assumed)
+- Screen 1: pressure at the start, bar absolute: 6 (assumed)
+- Screen 1: pressure after, bar absolute: 9 (assumed)
+- Screen 1: pressure times volume, 6 × 300: 1800 (computed)
+- Screen 1: volume after, 1800 ÷ 9, in cm³: 200 (computed)
+- Screen 1 slip, pressures upside down, in cm³: 450 (computed)
+- Screen 1 slip, no squeeze, in cm³: 300 (computed)
+- Squeeze test slider, bar absolute (opens at 6): 6 (control)
+- Squeeze test slider top, bar absolute: 12 (assumed)
+- Squeeze test slider step, bar: 1 (assumed)
+- Squeeze test: air volume at 6 bar absolute, in cm³: 300 (assumed)
+- Squeeze test: air volume at 12, 1800 ÷ 12, in cm³: 150 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+To read a fluid power circuit, take one valve position at a time and trace two paths. One runs from the supply to one side of the cylinder. The other runs from the cylinder's other side back to the tank. In air, it runs out through an exhaust instead. The side that is fed and the side that is emptied tell you which way the cylinder moves.
+
+Start with the job, then the parts. This press brings a ram down onto the work, squeezes it and lifts it again. A motor drives a pump. The pump draws oil from the tank through a filter. A relief valve and a gauge sit on the pump's line. A 4/3 valve with solenoids -Y1 and -Y2 steers the oil to the cylinder. The solenoids are coils. So the control schematic draws what energises them, and you find them there by the same tags. On the line to the rod side, a flow control sits beside a check valve.
+
+Next read the drawn state. The sheet shows each part in its normal, or neutral, condition, unless a set of sheets shows other phases. Here the springs hold the valve's middle box against the ports. That box joins P to T and blocks A and B. So the pump's oil goes back to the tank at low pressure, and the ram holds.
+
+Now energise -Y1. The left box joins P to A, so the pump's oil fills the piston side. It also joins B to T. While one side is fed, the other is lined up to drain back to the tank. That second path matters as much as the first. Oil barely squ…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) (https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy): "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+[2] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) (https://www.online-pdh.com/file.php/221/CFD_SG.pdf): "The cylinder is designed to receive fluid in either the upper or lower chambers. The system is designed so that when pressure is applied to the top chamber, the bottom chamber is aligned to drain back to the reservoir."
+[3] Pneumatics, Basic Level (Textbook), Festo Didactic TP101 (https://repositori.mypolycc.edu.my/bitstream/123456789/5320/1/Pneumatics%20basic%20level%20by%20Festo%20Didactic%20%28z-lib.org%29.pdf): "In this position, the supply pressure is connected to the piston side of the cylinder, while the piston rod side is exhausted. The pressure on the piston side advances the piston rod."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

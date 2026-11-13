@@ -1,0 +1,153 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each solenoid brings in the box beside it, and with both off the springs bring the middle box back",
+        "ok": true
+      },
+      {
+        "label": "The left box joins P to A and B to T, so the rod comes out; the right box joins P to B and A to T, so it goes back in",
+        "ok": true
+      },
+      {
+        "label": "With the supply connected to the piston side and the rod side exhausted, the pressure on the piston side advances the rod",
+        "ok": true
+      },
+      {
+        "label": "Closed holds the rod and sends the oil over the relief valve; P to T holds it and unloads the pump; Float blocks P and lets the load push the rod in",
+        "ok": true
+      },
+      {
+        "label": "With -Y1 on, the rod is coming out within a second; at the end of its travel the oil goes over the relief valve with -Y1 still on",
+        "ok": true
+      },
+      {
+        "label": "Leaks off, a held rod stays exactly where it stopped; Leaks on, it creeps back in below its mark, and in time all the way",
+        "ok": true
+      },
+      {
+        "label": "A 4-way, two-position valve has 4 pipe connections, pressure, return, A and B, and two switched positions: the screen 2 valve has ports P, T, A and B on two boxes",
+        "ok": true,
+        "source": "https://www.e4training.com/hyd_princip/symbol_directional1.php"
+      },
+      {
+        "label": "Each symbol is drawn in its normal or neutral condition: at rest the main valve shows its middle box against the ports, and the 3/2 and the screen 2 valve the box beside their spring",
+        "ok": true,
+        "source": "https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy"
+      },
+      {
+        "label": "Worked by hand: the screen 2 valve has 2 positions (slips 4 and 1), and the 5/2 has 1 + 2 + 2 = 5 ports (slips 2, 3 and 4); the typed fields ask exactly these",
+        "ok": true
+      },
+      {
+        "label": "Before an answer nothing gives it away: puzzles open with no switches, rings or numbers; on screen 4 the row has not moved and its lines are idle, and on screen 10 Leaks is off",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.5 s, and every answer's motion within 3 s, except the creep on screen 10, which runs until the rod is fully in",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "One box per position",
+          "Count the positions",
+          "Slide the boxes",
+          "Which box?",
+          "Springs bring it back",
+          "Let go of the lever",
+          "The middle box",
+          "Read the centre",
+          "Held is not sealed",
+          "Will it hold?",
+          "The other valves",
+          "Slide the 3/2",
+          "Count the ports",
+          "Read the label"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "-Y1",
+      "-Y2",
+      "Off",
+      "On",
+      "Closed",
+      "P to T",
+      "Float",
+      "3/2 valve",
+      "5/2 valve",
+      "Relief valve",
+      "Reducing valve",
+      "Check valve",
+      "Flow control",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "pos",
+        "answer": 2,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "ports",
+        "answer": 5,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

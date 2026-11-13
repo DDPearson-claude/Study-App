@@ -1,0 +1,211 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Reading drawings and schematics
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "How any diagram talks" — Any system diagram maps what is joined to what, not where parts sit, so you read it by following connections, never by layout. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Single-line diagrams: from each source to each load — Trace a single-line diagram, a board's power map, from each source to each load, seeing what every breaker feeds and which loads have two feeds.
+- i3 Control schematics: coils, contacts and cross-references — A control schematic draws each contact apart from the coil that moves it; the cross-reference under each coil finds its contacts, wherever they are drawn.
+- i4 Fluid power symbols — Hydraulic and air symbols are built from simple marks that each mean one thing, so you can read one you have never met.
+- i5 Valves in fluid power — A valve that steers oil or air is drawn as one box per position, and only the box against the ports shows where it flows.
+- i6 Tracing a hydraulic circuit, then a pneumatic one — For each valve position, trace the supply to one side of a cylinder, and the other side out to the tank or, in air, the exhaust.
+- i7 Piping and system diagrams — On a piping diagram, flow runs only along open paths from a running pump, so you can find which valves to shut to isolate a part.
+- i8 Engineering drawings — An engineering drawing shows one object in several square-on views, laid out by a fixed rule, so you can rebuild its shape in your head.
+- i9 Reading one you have never seen — Read a diagram you have never seen in four steps: legend, sources, the state it is drawn in, then one path at a time.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Circuit symbols - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/znm6nk7
+    "It doesn't show what the circuit actually looks like, or how long all the connections are."
+[R2] Students’ Creation and Interpretation of Circuit Diagrams — https://ejrsme.icrsme.com/article/download/7775/5542
+    "Students must also realize that lines that simply cross (as in the center of the diagram on the left) do not indicate an electrical connection unless they are marked with a small circle."
+[R3] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) — https://www.online-pdh.com/file.php/221/CFD_SG.pdf
+    "Schematics are designed to supply the functional information of the system. They do not accurately represent the relative location of the components."
+[R4] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) — https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy
+    "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+Notes (claims, and the sources that support them):
+- A circuit diagram does not show what a circuit actually looks like, or how long its connections are. [R1]
+- Lines that simply cross do not show an electrical connection unless they are marked with a small circle. [R2]
+- A schematic supplies the functional information of a system, not the relative location of its components. [R3]
+- A schematic gives the functional information of a system and does not accurately show where its components are. [R3]  (whole topic)
+- Each symbol on a fluid power diagram is drawn to show the normal or neutral condition of its component, unless several diagrams show other phases. [R4]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "How any diagram talks",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the same parts lighting from each line, because only the joints carry meaning, when you drag the pump set's parts round the room or its symbols round the sheet.",
+  "title": "Drag it anywhere",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "partsJoined",
+    "label": "Parts the lit line joins",
+    "unit": "",
+    "decimals": 0
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Some screens show an idea and the rest ask you to try it. The main picture is a small pump set drawn twice. Above, at phone width, is the room: each part drawn as it looks, where it sits, with its tag. There is a supply box, isolator -Q1 on a wall, starter -K1, supply lamp -H1, motor -M1 coupled to pump -P1, and a pipe from the pump through hand valve -V1 up to tank -T1. Below is the diagram: the same parts as symbols, joined by lines. On a wide screen the two sit side by side. Cables are thin solid lines, the pipe is a thicker line, and the shaft from motor to pump is dashed. You can drag any part round the room, and any symbol round the diagram. A dragged symbol keeps its lines, which stretch and bend to follow it. Tap any line and it lights in bold ink, with every part it joins, and the readout counts those parts. A line joins the parts at its ends, and other lines where it meets them at a dot. The light stops at each part. Where two lines cross with no dot, the light stays on the line you tapped. Tap a tag in the room and its symbol lights on the diagram, and the other way round. A state card shows two parts as drawn, then with the plant running: the starter's main contact, and -V2, a spring-return solenoid valve from a small compressed air sheet. Choices stack one to a row at phone width. Screen by screen. Screen 1, do, Which is joined differently: three diagrams of the pump set, A, B and C. A and B are laid out alike. C has its parts scattered across the sheet, with the same joints as A. In B, lamp -H1 is fed from the starter's output, not from the isolator's. \"Which drawing is joined differently from the other two?\" Choices: A; B (right); C. Hint on C: \"Layout means nothing. Follow each lamp's line back to where it starts.\" Hint on A: \"Compare where each lamp's line starts.\" Why: A and C join every part the same way, so they are one diagram drawn twice. B looks like A, but its lamp lights only when the starter closes. After Check, each drawing's lamp line lights. Screen 2, show, Two drawings: the room and the diagram. Words: \"Above is the pump set as it sits in the room, and below is its diagram. The diagram does not show where parts sit or how long the cables run. It shows only what is joined to what.\" Then \"Drag a part round the room.\" Read: the motor has moved across the room, and the diagram is exactly the same. Still: the motor dragged to the far side of the room. Screen 3, do, Side by side: in the room, lamp -H1 is fixed to the frame of motor -M1. \"Is the lamp fed from the motor's cable?\" Choices: Yes, it sits on the motor; No, it is fed from the isolator's line (right). Hint on Yes: \"Where a part sits tells you nothing. Find the lamp's line on the diagram.\" Why: the lamp's line leaves through a dot on the line from -Q1. So the lamp is lit whenever -Q1 is closed, whether the motor runs or not. After Check, the lamp's line lights. Screen 4, show, Crossings and dots: the diagram, where the lamp's line crosses the motor's cable. Words: \"On a flat sheet some lines must cross, so a crossing needs a rule. Lines that cross with no dot are not joined. A dot marks a real joint.\" Then \"Tap the motor's cable.\" Read: the motor's cable lights with the starter and the motor, and the lamp's line, crossing it with no dot, stays dark. An Add a dot button puts a dot on the crossing, and the lamp lights with them; pressed again it takes the dot away. Still: the motor's cable lit, with no dot. Screen 5, do, typed, Count the parts: the diagram, with the line leaving -Q1 marked. \"How many parts does the line leaving -Q1 reach, besides -Q1?\" A typed answer: 2, a whole number. Slips: 3, \"That counts the motor. Its cable crosses the lamp's line with no dot, so it is not joined.\"; 1, \"The line splits at a dot. Follow both branches.\" Hint: \"Follow the line from -Q1. Stop at each part, and look for dots.\" Why: the line runs to a dot, where it splits to starter -K1 and lamp -H1. It crosses the motor's cable with no dot. So it reaches 2 parts. The readout shows ? until the answer is checked, and the line lights after. Screen 6, show, Drag the symbols: the diagram alone. Words: \"Drag a symbol anywhere and its lines stretch to follow. Every joint stays the same, so the meaning stays the same. Parts drawn in a row are in series only if one path runs through each in turn.\" Read: the starter's symbol sits at the far side of the sheet with its lines stretched, and the line leaving -Q1 still lights the same 2 parts. Still: the starter dragged to the far side. Screen 7, do, In a row: a small card with three heaters, -E1, -E2 and -E3, drawn in one row along the top. -E1 is fed from the supply. Its far end meets a dot that joins the left ends of -E2 and -E3. Their right ends join at a second dot that runs back to the supply. \"How are the three heaters joined?\" Choices: All three in series; -E1 in series with -E2 and -E3 in parallel (right); All three in parallel. Hint on All three in series: \"A row on the page is not a path. Follow the dots at each end of -E2 and -E3.\" Hint on All three in parallel: \"Follow the supply. Does it reach -E2 without passing through -E1?\" Why: every path from the supply passes through -E1 first. Then it splits at the dot, through -E2 or through -E3, and joins again. After Check, the card slides the heaters into the usual series and parallel shape, with the same joints. Screen 8, show, Tags: the room and the diagram. Words: \"Each part carries the same name on the plant and on the diagram, its tag. The tag, not the place, tells you which symbol is which part.\" Then \"Tap a tag in the room.\" Read: tag -K1 in the room is lit, and so is the starter's symbol on the diagram, though they sit in different places on each. Still: -K1 tapped. Screen 9, do, The link: the diagram with a short link wire drawn beside -Q1, from the supply's line straight to the starter's input. No such wire is in view in the room. \"You open -Q1. By the diagram, is starter -K1 still joined to the supply?\" Choices: No, -Q1 is open; Yes, through the link (right). Hint on No: \"A wire that seems to do nothing still joins. Follow the link.\" Why: the link joins the supply's line to the starter's line, round -Q1. Opening -Q1 leaves that path whole. A wire out of sight in the room still joins if the drawing shows it, so the plant must be checked. After Check, the supply's line lights through the link to the starter. Screen 10, show, The drawn state: the state card, with a switch, As drawn or Plant running. Words: \"A diagram draws every part in one fixed state. A contactor's contact is drawn with its coil off, and an air or oil valve in its normal or neutral position. So the drawing can differ from the plant as it runs.\" Then \"Switch to Plant running.\" Read: as drawn, the starter's main contact is open and valve -V2 is shut, where its spring holds it. With the plant running, the contact is closed and -V2 is open. Still: Plant running. Screen 11, do, Drawn closed: the pump is running. A contact of starter -K1, marked normally closed, is drawn closed. \"What is that contact doing now?\" Choices: Closed, as drawn; Open (right). Hint on Closed: \"The drawing shows it with the coil off. Running, the coil is on.\" Why: a normally closed contact is drawn closed, with its coil off. The pump runs, so the coil of -K1 is on and that contact is open. After Check, the state card shows it open. Screen 12, do, mixed, Where to start: the small compressed air sheet, its parts drawn as labelled boxes. Compressor -C1 sits at the bottom of the sheet. Its line runs up through regulator -R1 and valve -V2 to cylinder -A1 at the top left. \"Which part does the air reach first?\" Choices: Cylinder -A1, top left; Valve -V2; Regulator -R1 (right). Hint on -A1: \"That is the top of the sheet, not the source. Start at the compressor.\" Hint on -V2: \"Follow the line up from the compressor, one part at a time.\" Why: the air starts at the compressor. Its line meets -R1 first, then -V2, then -A1. A sheet can run any way, so find the source first. Screen 13, do, mixed, typed, A new layout: the pump set redrawn with its parts in new places. Run lamp -H2 and hours counter -P2 are added, each joined through a dot to the starter's output line. Lamp -H1's line crosses the starter's output line with no dot. \"How many parts does the starter's output line reach, besides -K1?\" A typed answer: 3, a whole number. Slips: 4, \"That counts -H1. Its line crosses with no dot, so it is not joined.\"; 2, \"One branch leaves through a dot. Follow every branch.\"; 1, \"The motor is one. Follow the dots to the others.\" Hint: \"Ignore where the parts sit. Follow the line and its dots.\" Why: the line runs to motor -M1, and through dots to -H2 and -P2. Lamp -H1's line only crosses it. So it reaches 3 parts. The readout shows ? until the answer is checked.",
+  "ignores": "Each line here stands for one connection, and the plant has very few parts. A real motor supply has several conductors, and a real set of drawings runs to many sheets. The light marks one line and the parts it touches, not current: current also flows on through closed contacts and switches. Drawings differ in how they mark joints. A line that ends on another in a T is joined there, and many drawings leave the dot off a T. Some older drawings draw a small hump where two lines cross without joining. The room is a sketch, not to scale.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Diagrams of the pump set compared, in screen 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5: parts the line leaving -Q1 reaches, besides -Q1",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, motor counted through the crossing",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, one branch only",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Heaters drawn in a row, in screen 7",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13: parts the starter's output line reaches, besides -K1",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, -H1 counted through the crossing",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, one branch missed",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, the motor only",
+    "value": 1,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A system diagram is a map of what is joined to what. It is not a picture of the plant, so you read it by following its lines, not by where things sit. Take a small pump set: a supply, an isolator, a starter, a motor and the pump it drives, with a pipe to a tank. In the room, the isolator might be on a wall and the motor across the room. On the diagram they might sit side by side. A circuit diagram does not show what the circuit looks like, or how long its connections are.[^1] A diagram is drawn to show how the system works. It does not show where the parts really are.[^2] So parts go wherever their lines are easy to follow. Some diagrams are laid out roughly like the plant, but nothing on the sheet promises it.\n\nSo the meaning lives in three things: the symbols, the lines, and where the lines meet. A line joins the parts at its ends. It joins another line where they meet at a dot, or where one ends on the other in a T. Drag a symbol across the sheet and its lines stretch to follow. Every joint stays the same, so the meaning is unchanged. Two parts drawn side by side are not joined unless a line runs between them. Parts drawn in a row are in series only if one path runs through each in turn. On a flat sheet some lines must cross to reach their parts, so a crossing needs a rule. On a circuit diagram, lines that simply cross are not joined, unless the crossing carries a small dot.[^3] That dot is a [[junction]]. On the pump set's diagram, the line leaving the isolator splits at a junction to the starter and the supply lamp. The lamp's branch crosses the motor's cable with no dot. So that line reaches 2 parts, and the motor is not one of them. In the room the lamp may sit on the motor's frame, yet it stays lit when the motor stops. Each part also carries one name on the plant and on the drawing, its [[tag]], such as -K1 for the starter. The tag, not the place, tells you which symbol is which part.\n\nA running plant changes state all the time, so a diagram picks one state and keeps to it. That is its [[drawn state]], and each kind of sheet has its own. Textbooks add that a relay or contactor contact is drawn as it sits with its coil off. So a normally closed contact is drawn closed, even while its coil is on and it is open. A fluid power symbol is drawn in its normal or neutral condition, unless extra diagrams show other stages.[^4] Textbooks add that a piping diagram usually shows each valve in its normal position, the one for the system's usual flow. So the starter's main contact is drawn open, though it is closed whenever the pump runs. You read the joints off the drawing, then work out the state each part is in now.\n\nA feed you lock off is found the same way, by following lines, not by which breaker looks nearest the pump. **A diagram shows what is joined to what, not where parts sit, so you read it by following its lines and junctions.**[^2]"
+ },
+ "analogy": {
+  "text": "You know this from your own drawings. A circuit diagram of a ring final shows its sockets on one loop from one protective device, however the cable winds round the rooms. Move a socket across the floor plan and the circuit diagram does not change, because the joints are the same.",
+  "breaks": "Your circuit diagrams sit beside a layout drawing that shows where things are. Many system diagrams have no layout partner, so you find each part on the plant by its tag. And a system diagram may carry cables, pipes and shafts on one sheet, each drawn its own way."
+ },
+ "practice": {
+  "text": "- Never take a drawing's word that a part is dead. Isolate and prove dead at the point of work, as you always do.\n- Find the sources first: a supply, a pump, a compressor. Start every trace there, wherever it sits on the sheet.\n- Follow one line at a time. Stop at each part, and look for every junction.\n- At every crossing, look for a dot. On a circuit diagram, no dot means no joint.\n- Ignore how close two parts look. Ask only whether a line joins them.\n- Find each part on the plant by its tag, not by where it sits on the sheet.\n- Learn the drawn state of the sheet in front of you. Contacts are drawn with their coils off. Fluid power valves are drawn in their normal or neutral position, and piping valves usually in their normal position. Then work out what each part is doing now.\n- Check the plant against the drawing. Each isolation point on the plant should carry the tag the drawing gives it.\n\n**Rule of thumb:** if you could slide a symbol across the sheet without breaking a line, its place means nothing.\n\n**Worked example:** the pump set's diagram. Start at the supply. Its line runs to isolator -Q1. The line leaving -Q1 meets a junction and splits. One branch goes to starter -K1, the other to supply lamp -H1. The lamp's branch crosses the motor's cable with no dot, so the motor is not on it. So the line leaving -Q1 reaches 2 parts. The starter's output line runs on to motor -M1.\n\n**Common mistakes**\n- Reading the layout: taking two parts drawn side by side as joined.\n- Taking parts drawn in a row as in series.\n- Joining two lines that only cross.\n- Skipping a short link because it seems to do nothing. It still joins.\n- Taking the drawn state for the state now. A normally closed contact is drawn closed even while it is open.\n- Starting at the top left of the sheet. Start at the source."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Circuit symbols - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/znm6nk7",
+   "quote": "It doesn't show what the circuit actually looks like, or how long all the connections are."
+  },
+  {
+   "n": 2,
+   "title": "Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93)",
+   "url": "https://www.online-pdh.com/file.php/221/CFD_SG.pdf",
+   "quote": "Schematics are designed to supply the functional information of the system. They do not accurately represent the relative location of the components."
+  },
+  {
+   "n": 3,
+   "title": "Students’ Creation and Interpretation of Circuit Diagrams",
+   "url": "https://ejrsme.icrsme.com/article/download/7775/5542",
+   "quote": "Students must also realize that lines that simply cross (as in the center of the diagram on the left) do not indicate an electrical connection unless they are marked with a small circle."
+  },
+  {
+   "n": 4,
+   "title": "Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12)",
+   "url": "https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy",
+   "quote": "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

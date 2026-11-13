@@ -1,0 +1,925 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 60rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done, .card, .lost { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + *, .side > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  /* The sheet and the puzzle: stacked on a phone, side by side when there is room. */
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 14px 24px; align-items: start; }
+  .pane, .side { margin: 0; min-width: 0; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 26rem; margin-inline: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  .asdrawn { margin: 6px auto 0; max-width: 26rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 8rem; min-height: 44px; }
+  .tools .k-btn { flex: 0 1 auto; min-height: 44px; padding-inline: 16px; }
+  .tools .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .modes { margin: 0 auto 10px; max-width: 26rem; }
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn .opt { text-align: center; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .card { line-height: 1.6; }
+  .card strong { display: block; }
+  .lost { font-weight: 700; color: var(--k-warn); }
+  .lost.none { font-weight: 400; color: var(--k-muted); }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  .nw { white-space: nowrap; }
+  #stepbox.enter, #done.enter, .card.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing .card.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, .card.enter { animation: none; } }
+
+  /* The sheet. A dead line is pale; a live one is bold ink. */
+  svg .ln { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  svg .ln.bus { stroke-width: 4; }
+  svg .ln.board { stroke-width: 3; }
+  svg .lv { fill: none; stroke: var(--k-ink); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+  svg .lv.bus { stroke-width: 8; }
+  svg .lv.board { stroke-width: 6; }
+  svg .sym { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  svg .sk.thick { stroke-width: 3.2; }
+  svg .bl { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  svg .bl.on { stroke: var(--k-ink); stroke-width: 3.4; }
+  svg .fk { fill: var(--k-ink); }
+  svg .lamp { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; }
+  svg .lamp.on { fill: var(--k-ink); stroke: var(--k-ink); }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 4 3; }
+  svg .ring.ink { stroke: var(--k-ink); stroke-width: 2.4; stroke-dasharray: none; }
+  svg .halo { fill: none; stroke: var(--k-accent); stroke-opacity: .32; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+  svg .hlbg { fill: var(--k-fill2); }
+  svg .link { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  svg .lock { fill: var(--k-accent2); }
+  svg .shackle { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  svg .hit { fill: transparent; cursor: pointer; }
+  svg .t13 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  svg .t15b { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  svg .tg { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .tm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  svg .tm12 { font: 600 12px var(--k-font); fill: var(--k-accent); }
+  svg .kt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+</style>
+
+<p class="lead">A single-line diagram of a small switchboard, with example voltages: a 440 V main board, a 115 V board and a 24 V DC board.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <figure class="pane">
+        <div class="row tools modes" id="modes"></div>
+        <svg class="pic" id="scene" viewBox="0 0 340 478" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+        <p class="small muted asdrawn" id="asdrawn"></p>
+      </figure>
+      <div class="side">
+        <div class="k-readouts" id="outs"></div>
+        <p class="say" id="say"></p>
+        <div class="warn-note card" id="card" hidden></div>
+        <div class="card" id="result" hidden></div>
+        <p class="lost" id="lost" hidden></p>
+        <div class="row tools" id="tools"></div>
+        <div class="picks" id="picks"></div>
+        <div id="ansbox"></div>
+        <div class="row acts" id="acts"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="note why" id="why" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">An example board with far fewer parts than a real one. A bold line is joined to a live source.</p>
+
+<script>
+  // ---------- the board: lines (nodes), the devices that join them, sources and loads ----------
+  const BUS_Y = 120, OPEN = 0.46;
+  // Each node is one electrical line: its polylines, and its place in the reading order (rank).
+  const NODES = {
+    g1: { rank: 0, p: [[[56, 48], [56, 70]]] },
+    g2: { rank: 0, p: [[[226, 48], [226, 70]]] },
+    sh: { rank: 0, p: [[[300, 46], [300, 70]]] },
+    bat: { rank: 0, p: [[[196, 354], [196, 378]]] },
+    busA: { rank: 1, bus: [[12, 120], [156, 120]], p: [[[56, 98], [56, 120]], [[26, 120], [26, 144]], [[84, 120], [84, 144]], [[130, 120], [130, 182]]] },
+    busB: { rank: 1, bus: [[184, 120], [330, 120]], p: [[[226, 98], [226, 120]], [[300, 98], [300, 120]], [[210, 120], [210, 182]], [[262, 120], [262, 144]], [[314, 120], [314, 182]]] },
+    f11: { rank: 2, p: [[[26, 172], [26, 238]]] },
+    f12: { rank: 2, p: [[[84, 172], [84, 226]]] },
+    m3: { rank: 2, p: [[[130, 210], [130, 252], [156, 252]], [[210, 210], [210, 252], [184, 252]]] },
+    f21: { rank: 2, p: [[[262, 172], [262, 238]]] },
+    f22: { rank: 2, p: [[[314, 210], [314, 230]]] },
+    lv: { rank: 3, bar: [[14, 310], [142, 310]], p: [[[84, 260], [84, 310]], [[40, 310], [40, 326]], [[110, 310], [110, 326]]] },
+    dc: { rank: 3, bar: [[186, 310], [330, 310]], p: [[[314, 258], [314, 310]], [[196, 310], [196, 326]], [[252, 310], [252, 326]], [[302, 310], [302, 326]]] },
+    e1f: { rank: 4, p: [[[40, 354], [40, 380]]] },
+    m4f: { rank: 4, p: [[[110, 354], [110, 378]]] },
+    e3f: { rank: 4, p: [[[252, 354], [252, 380]]] },
+    a3f: { rank: 4, p: [[[302, 354], [302, 380]]] },
+  };
+  // Breakers and the isolator. a: the fixed contact's line; b: the line on the moving blade's side.
+  // tag: which side the tag sits (the blade swings the other way); inter: its interlocked partner.
+  const DEV = {
+    Q1: { x: 56, y: 84, a: 'g1', b: 'busA', tag: 'R' },
+    Q2: { x: 226, y: 84, a: 'g2', b: 'busB', tag: 'L' },
+    Q3: { x: 300, y: 84, a: 'sh', b: 'busB', tag: 'L' },
+    Q4: { x: 170, y: 120, a: 'busB', b: 'busA', h: true },
+    Q11: { x: 26, y: 158, a: 'busA', b: 'f11', tag: 'R' },
+    Q12: { x: 84, y: 158, a: 'busA', b: 'f12', tag: 'R' },
+    Q13: { x: 130, y: 196, a: 'busA', b: 'm3', tag: 'L', inter: 'Q23' },
+    Q21: { x: 262, y: 158, a: 'busB', b: 'f21', tag: 'R' },
+    Q22: { x: 314, y: 196, a: 'busB', b: 'f22', tag: 'L' },
+    Q23: { x: 210, y: 196, a: 'busB', b: 'm3', tag: 'R', inter: 'Q13' },
+    F1: { x: 40, y: 340, a: 'lv', b: 'e1f', tag: 'R' },
+    F2: { x: 110, y: 340, a: 'lv', b: 'm4f', tag: 'R' },
+    Q5: { x: 196, y: 340, a: 'dc', b: 'bat', tag: 'R', iso: true, dc: true },
+    F3: { x: 252, y: 340, a: 'dc', b: 'e3f', tag: 'R', dc: true },
+    F4: { x: 302, y: 340, a: 'dc', b: 'a3f', tag: 'R', dc: true },
+  };
+  const DORDER = Object.keys(DEV);
+  // Power passes on through these, downward only.
+  const CONV = { T1: { from: 'f12', to: 'lv' }, U1: { from: 'f22', to: 'dc' } };
+  const SRC = { G1: { node: 'g1', x: 56, y: 32, kind: 'gen' }, G2: { node: 'g2', x: 226, y: 32, kind: 'gen' }, SH: { node: 'sh', x: 300, y: 32, kind: 'shore' }, G3: { node: 'bat', x: 196, y: 387, kind: 'bat' } };
+  const SORDER = ['G1', 'G2', 'SH', 'G3'];
+  const INCOMER = { G1: 'Q1', G2: 'Q2', SH: 'Q3' };
+  const LOAD = {
+    M1: { node: 'f11', x: 26, y: 252, kind: 'motor', lamp: [48, 238] },
+    E1: { node: 'e1f', x: 40, y: 392, kind: 'light', lamp: [62, 381] },
+    M4: { node: 'm4f', x: 110, y: 392, kind: 'motor', lamp: [134, 380] },
+    M3: { node: 'm3', x: 170, y: 252, kind: 'motor', lamp: [192, 236] },
+    M2: { node: 'f21', x: 262, y: 252, kind: 'motor', lamp: [284, 238] },
+    E3: { node: 'e3f', x: 252, y: 392, kind: 'light', lamp: [274, 381] },
+    A3: { node: 'a3f', x: 302, y: 392, kind: 'alarm', lamp: [326, 381] },
+  };
+  const LORDER = ['M1', 'E1', 'M4', 'M3', 'M2', 'E3', 'A3'];
+  const NAME = { G1: '-G1', G2: '-G2', SH: 'the shore supply', G3: 'battery -G3', M1: 'pump -M1', E1: 'lighting -E1', M4: 'fan -M4', M3: 'pump -M3', M2: 'pump -M2', E3: 'emergency lighting -E3', A3: 'alarm panel -A3' };
+  const PLACE = { busA: 'section A', busB: 'section B', lv: 'the 115 V board', dc: 'the DC board' };
+  const tagOf = (k) => '-' + k;
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const listOf = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]);
+
+  // ---------- the rule: a line is live when closed devices join it to a live source ----------
+  const DRAWN = { Q3: false, Q4: false, Q23: false };
+  function board(over) {
+    const dev = {};
+    DORDER.forEach((k) => { dev[k] = DRAWN[k] !== false; });
+    const b = { dev, run: { G1: true, G2: true } };
+    if (over) { Object.assign(b.dev, over.dev || {}); Object.assign(b.run, over.run || {}); }
+    return b;
+  }
+  const clone = (b) => ({ dev: Object.assign({}, b.dev), run: Object.assign({}, b.run) });
+  const srcLive = (b, s) => SRC[s].kind !== 'gen' || !!b.run[s];
+  // [the next line, the device or converter passed]; all: every device, open or not.
+  function edgesOut(b, n, all) {
+    const out = [];
+    DORDER.forEach((k) => { const D = DEV[k]; if (!all && !b.dev[k]) return; if (D.a === n) out.push([D.b, k]); else if (D.b === n) out.push([D.a, k]); });
+    Object.keys(CONV).forEach((c) => { if (CONV[c].from === n) out.push([CONV[c].to, c]); });
+    return out;
+  }
+  function reach(b, start) {
+    const seen = new Set([start]), todo = [start];
+    while (todo.length) edgesOut(b, todo.pop()).forEach((e) => { if (!seen.has(e[0])) { seen.add(e[0]); todo.push(e[0]); } });
+    return seen;
+  }
+  // Each line -> the live sources that feed it.
+  function liveMap(b) {
+    const m = {};
+    Object.keys(NODES).forEach((n) => { m[n] = []; });
+    SORDER.forEach((s) => { if (srcLive(b, s)) reach(b, SRC[s].node).forEach((n) => m[n].push(s)); });
+    return m;
+  }
+  const liveLoads = (b) => { const m = liveMap(b); return LORDER.filter((l) => m[LOAD[l].node].length > 0); };
+  const lostBy = (over) => { const now = new Set(liveLoads(board(over))); return liveLoads(board()).filter((l) => !now.has(l)).length; };
+  // Trying to close a device: a padlock, the interlock, or two live AC parts from different sources stop it.
+  function attempt(b, k, locks) {
+    const D = DEV[k];
+    if (locks && locks[k]) return { ok: false, card: { kind: 'locked', dev: k } };
+    if (D.inter && b.dev[D.inter]) return { ok: false, card: { kind: 'inter', dev: k, other: D.inter } };
+    if (!D.dc) {
+      const m = liveMap(b), A = m[D.a], B = m[D.b];
+      if (A.length && B.length && (A.some((s) => B.indexOf(s) < 0) || B.some((s) => A.indexOf(s) < 0))) return { ok: false, card: { kind: 'sync', dev: k, srcs: [B[0], A[0]] } };
+    }
+    return { ok: true };
+  }
+  // A live load: the first source that reaches it, and the path it takes.
+  function livePath(b, load) {
+    const t = LOAD[load].node, found = [];
+    let best = null;
+    SORDER.forEach((s) => {
+      if (!srcLive(b, s)) return;
+      const start = SRC[s].node, prev = {}, q = [start];
+      prev[start] = null;
+      while (q.length) { const n = q.shift(); edgesOut(b, n).forEach((e) => { if (!(e[0] in prev)) { prev[e[0]] = { from: n, via: e[1] }; q.push(e[0]); } }); }
+      if (!(t in prev)) return;
+      found.push(s);
+      if (best) return;
+      const items = [];
+      let at = t;
+      while (prev[at]) { const pv = prev[at]; if (at !== t && PLACE[at]) items.unshift(PLACE[at]); items.unshift(tagOf(pv.via)); at = pv.from; }
+      best = { src: s, items };
+    });
+    return best ? Object.assign(best, { also: found.filter((s) => s !== best.src) }) : null;
+  }
+  // A dead load: the way in that needs the fewest devices to close, from any source, running or not.
+  function wayIn(b, locks, load) {
+    const cost = {}, prev = {};
+    SORDER.forEach((s) => { const n = SRC[s].node, c = srcLive(b, s) ? 0 : 1; if (cost[n] == null || c < cost[n]) { cost[n] = c; prev[n] = { src: s }; } });
+    for (let pass = 0; pass < 40; pass++) {
+      let ch = false;
+      Object.keys(cost).forEach((n) => edgesOut(b, n, true).forEach((e) => {
+        const o = e[0], via = e[1];
+        if (locks && locks[via]) return;
+        const c = cost[n] + (DEV[via] && !b.dev[via] ? 1 : 0) + 0.001;
+        if (cost[o] == null || c < cost[o] - 1e-9) { cost[o] = c; prev[o] = { from: n, via }; ch = true; }
+      }));
+      if (!ch) break;
+    }
+    const t = LOAD[load].node;
+    if (cost[t] == null) return null;
+    const opens = [];
+    let at = t;
+    while (!prev[at].src) { const v = prev[at].via; if (DEV[v] && !b.dev[v]) opens.unshift(v); at = prev[at].from; }
+    return { opens, src: prev[at].src, stopped: !srcLive(b, prev[at].src) };
+  }
+  function isoResult(b, locks, load) {
+    if (liveMap(b)[LOAD[load].node].length) return { kind: 'live', path: livePath(b, load) };
+    const w = wayIn(b, locks, load);
+    return w ? { kind: 'dead', way: w } : { kind: 'iso' };
+  }
+  function resultWords(r, load) {
+    const who = cap(NAME[load]), tg = tagOf(load);
+    if (r.kind === 'live') {
+      const p = r.path;
+      return [who + ' is live.', cap(NAME[p.src]) + ' feeds it through ' + listOf(p.items) + '.' + (p.also.length ? ' ' + cap(listOf(p.also.map((s) => NAME[s]))) + (p.also.length > 1 ? ' feed' : ' feeds') + ' it too.' : '')];
+    }
+    if (r.kind === 'iso') return [who + ' is isolated.', 'Every path from every source stops at a padlock.'];
+    const w = r.way, os = listOf(w.opens.map(tagOf)), many = w.opens.length > 1, src = NAME[w.src];
+    let body;
+    if (w.opens.length && !w.stopped) body = os + (many ? ' are' : ' is') + ' open but not locked. If ' + (many ? 'they close' : 'it closes') + ', ' + src + ' feeds ' + tg + '.';
+    else if (!w.opens.length) body = cap(src) + ' is stopped, but it could start. Then it feeds ' + tg + '.';
+    else body = os + (many ? ' are' : ' is') + ' open but not locked, and ' + src + ' could start. Then ' + src + ' feeds ' + tg + '.';
+    return [who + ' has no supply, but it is not isolated.', body];
+  }
+  function cardWords(c) {
+    if (c.kind === 'sync') return ['Synchronise first.', 'Closing ' + tagOf(c.dev) + ' would join ' + NAME[c.srcs[0]] + ' and ' + NAME[c.srcs[1]] + ' before they are matched. ' + tagOf(c.dev) + ' stays open.'];
+    if (c.kind === 'inter') return ['Interlocked.', tagOf(c.dev) + ' and ' + tagOf(c.other) + ' cannot both be closed. Open ' + tagOf(c.other) + ' first.'];
+    return ['Locked off.', tagOf(c.dev) + ' has a padlock on it, so it stays open.'];
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const MOVE = (at, devs) => ({ at, devs });
+  const TOP = SORDER.filter((s) => SRC[s].y < BUS_Y).length;
+  const STEPS = [
+    { name: 'Still there?', kind: 'pick', mark: 'Q4', fx: 1.0, after: 'sync',
+      task: '-G1 feeds section A and -G2 feeds section B. Can you close bus-tie -Q4 now?',
+      opts: ['Yes, both sections are at 440 V', 'Not until -G2 is synchronised with -G1'], want: 'Not until -G2 is synchronised with -G1',
+      hint: 'Matching voltage is not enough. Frequency and phase must match too.',
+      rightFb: 'Still there. -Q4 stays open until the sets match.',
+      why: 'Closing -Q4 would join two running sets. Unless their voltage, frequency and phase match, a large current flows the moment it closes. So they are synchronised first.' },
+    { name: 'The power map', show: true, sweep: true, dur: 4.3, ends: 4.2,
+      text: "A *single-line diagram* maps a board's power, from each source through the busbars to each load. Read it in that order, sources first. The thick lines are the busbars. On the AC side, each line stands for all three phases of its cable. On the DC side, it stands for a pair of wires.",
+      read: "A *single-line diagram* maps a board's power, from each source through the busbars to each load. Read it in that order, sources first. The thick lines are the busbars. On the AC side, each line stands for all three phases of its cable. On the DC side, it stands for a pair of wires. An amber glow traces each line in that order, sources first." },
+    { name: 'Count the sources', kind: 'typed', field: 'srcs', unit: 'sources', fx: 1.6, after: 'rings',
+      task: 'How many sources does this drawing show?',
+      answer: SORDER.length,
+      slips: [{ value: TOP, hint: 'A source is anything that pushes power in. Look at the bottom of the sheet too.' },
+        { value: SORDER.filter((s) => SRC[s].kind === 'gen').length, hint: 'Count the shore supply and the battery too. A source counts even with its breaker open.' },
+        { value: TOP + Object.keys(CONV).length, hint: '-T1 and -U1 only pass power on from the main board. They are not sources.' }],
+      hint: 'Look for generator sets, the shore supply and any battery, anywhere on the sheet.',
+      why: 'Two generator sets and the shore supply sit at the top. Battery -G3 sits down on the DC board. -T1 and -U1 pass power on. So the drawing shows 4 sources.' },
+    { name: 'Live and dead', show: true, moves: [MOVE(0.8, { Q1: false })], dur: 2.0, ends: 1.8,
+      text: 'Live lines are bold and dead lines pale. A breaker feeds everything below it, through every transformer and charger on the way. Watch -Q1, the breaker of -G1, open. Tap it to close it again.',
+      read: 'Live lines are bold and dead lines pale. A breaker feeds everything below it, through every transformer and charger on the way. With -Q1 open, section A and everything below it are pale. Section B stays bold from -G2.' },
+    { name: 'One breaker opens', kind: 'typed', field: 'q12', unit: 'loads', mark: 'Q12', fx: 1.2, open: { Q12: false },
+      task: 'Breaker -Q12 opens. How many loads lose supply?',
+      answer: lostBy({ dev: { Q12: false } }),
+      slips: [{ value: LORDER.filter((l) => LOAD[l].node === 'f12').length, hint: '-T1 is not a load. Follow its line on to the board it feeds.' },
+        { value: lostBy({ dev: { Q12: false } }) - 1, hint: 'The 115 V board feeds two loads. Count both.' },
+        { value: lostBy({ dev: { Q1: false } }), hint: 'Only what hangs below -Q12 goes. The rest of section A stays live.' }],
+      hint: "Follow -Q12's line down through -T1 to each breaker below it.",
+      why: '-Q12 feeds transformer -T1. -T1 feeds the 115 V board. That board feeds lighting -E1 and fan -M4. So 2 loads lose supply, and the rest of section A stays live.' },
+    { name: 'Where the voltage changes', show: true, volts: true, dur: 3.0, ends: 2.9,
+      text: 'A transformer marks where the voltage changes. Here -T1 steps 440 V down to 115 V. Charger -U1 turns 440 V AC into 24 V DC. Battery -G3 sits on the same DC board. On this sheet, a cross marks a breaker and a bar an isolator. Two circles are a transformer, and a box with ~ and = is a charger. The battery is drawn as long and short plates.' },
+    { name: "The charger's breaker", kind: 'pick', mark: 'Q22', fx: 1.2, open: { Q22: false },
+      task: 'Breaker -Q22 opens. Is the 24 V DC board still live?',
+      opts: ['No, its only feed is open', 'Yes, from battery -G3'], want: 'Yes, from battery -G3',
+      hint: 'Find every source on that board, not only the feed from above.',
+      why: 'Opening -Q22 takes the charger off, so the main board no longer feeds the DC board. Battery -G3 is a source in its own right, joined through -Q5. So -E3 and -A3 stay lit, running on the battery.' },
+    { name: 'The bus-tie', show: true, moves: [MOVE(0.8, { Q2: false }), MOVE(2.2, { Q4: true })], dur: 3.4, ends: 3.1,
+      text: '*Bus-tie* -Q4 joins the two sections. It is marked N.O., for normally open. So each section runs on its own set. Close it and one set can feed both. Watch -Q2 open and -Q4 close. With -Q2 open, section B is dead, so -Q4 can close without synchronising. Tap either one to try it yourself.',
+      read: '*Bus-tie* -Q4 joins the two sections. It is marked N.O., for normally open. So each section runs on its own set. Close it and one set can feed both. -Q2 is open and -Q4 is closed. -Q2 opened first. That left section B dead, so -Q4 could close without synchronising. Section B is bold again, fed from -G1 through the tie.' },
+    { name: 'Through the tie', kind: 'pick', base: { dev: { Q1: false, Q2: false, Q3: true }, run: { G1: false, G2: false } }, fx: 1.2, open: { Q4: true },
+      task: 'Both sets have stopped, and -Q1 and -Q2 are open. Shore breaker -Q3 is closed, so the shore supply feeds section B. You close bus-tie -Q4. What feeds pump -M1 now?',
+      opts: ['Nothing, section A is dead', 'The shore supply, through the bus-tie', '-G2, through the bus-tie'], want: 'The shore supply, through the bus-tie',
+      hint: 'You have closed -Q4. Follow the line through it.',
+      hints: { 'Nothing, section A is dead': 'You have closed -Q4. Follow the line through it.', '-G2, through the bus-tie': '-G2 has stopped and -Q2 is open. Find the source that is still live.' },
+      why: '-M1 hangs from section A. With -Q4 closed, section A joins section B, and the shore supply feeds both. A normally open breaker carries nothing across until it closes. Once closed, it carries power like any other.' },
+    { name: 'Two ways in', show: true, halo: true, moves: [MOVE(1.2, { Q13: false }), MOVE(2.6, { Q23: true })], dur: 3.8, ends: 3.5,
+      text: 'Pump -M3 is fed two ways. -Q13 feeds it from section A. -Q23, marked N.O., feeds it from section B. An interlock lets only one of them close at a time. Watch -Q13 open and -Q23 close. Tap either one to try it yourself.',
+      read: 'Pump -M3 is fed two ways. -Q13 feeds it from section A. -Q23, marked N.O., feeds it from section B. An interlock lets only one of them close at a time. -Q13 is open and -Q23 is closed. -M3 is bold again, fed from section B.' },
+    { name: 'Lock it off', kind: 'pick', iso: true, load: 'M3', fx: 1.1,
+      task: 'You must work on pump -M3 and keep every other load running. Each device you lock off gets a padlock. What do you lock off?',
+      opts: ['-Q13, its normal feed', '-Q13 and -Q23', "-Q1 and -Q2, both sets' breakers"], want: '-Q13 and -Q23',
+      locks: { '-Q13, its normal feed': ['Q13'], '-Q13 and -Q23': ['Q13', 'Q23'], "-Q1 and -Q2, both sets' breakers": ['Q1', 'Q2'] },
+      hint: 'Opening -Q13 is what frees -Q23 to close. Lock off every way in.',
+      hints: { '-Q13, its normal feed': 'Opening -Q13 is what frees -Q23 to close. Lock off every way in.', "-Q1 and -Q2, both sets' breakers": 'That takes off both sections. Shore breaker -Q3 could still close onto section B.' },
+      why: '-M3 has two ways in. Opening -Q13 frees -Q23 to close, so both get a lock. Then every path from every source stops at a padlock. Nothing else loses supply. The drawing tells you what to lock off. Prove it dead at the pump before you start.' },
+    { name: 'A set trips', kind: 'typed', field: 'trip', unit: 'loads', fx: 1.2, open: { Q2: false },
+      task: 'Breaker -Q2 trips open. -Q3 and -Q4 stay open. How many loads lose supply?',
+      answer: lostBy({ dev: { Q2: false } }),
+      slips: [{ value: lostBy({ dev: { Q2: false, Q5: false } }), hint: 'Battery -G3 keeps the DC board live, so -E3 and -A3 stay lit.' },
+        { value: lostBy({ dev: { Q2: false, Q5: false, Q13: false } }), hint: 'Battery -G3 keeps the DC board live. -M3 runs on -Q13 from section A.' },
+        { value: lostBy({ dev: { Q2: false, Q13: false } }), hint: '-M3 runs on -Q13 from section A. Its feed from section B is normally open.' }],
+      hint: 'Trace each load on section B back to a running source. Check the DC board and -M3.',
+      why: 'Section B goes dead, so pump -M2 stops. The charger stops too, but battery -G3 keeps -E3 and -A3 lit. -M3 runs from section A, and -Q23 is open. So 1 load loses supply.' },
+    { name: 'The alarm panel', kind: 'pick', iso: true, load: 'A3', fx: 1.1,
+      task: 'You must work on alarm panel -A3 and keep emergency lighting -E3 lit. What do you lock off?',
+      opts: ["-Q22, the charger's breaker", '-Q22 and battery isolator -Q5', '-F4, its own breaker'], want: '-F4, its own breaker',
+      locks: { "-Q22, the charger's breaker": ['Q22'], '-Q22 and battery isolator -Q5': ['Q22', 'Q5'], '-F4, its own breaker': ['F4'] },
+      hint: 'Battery -G3 still feeds the DC board. Look nearer -A3.',
+      hints: { "-Q22, the charger's breaker": 'Battery -G3 still feeds the DC board. Look nearer -A3.', '-Q22 and battery isolator -Q5': '-A3 is isolated, but -E3 goes dark too. Find the device nearest -A3.' },
+      why: '-A3 has one way in from its board, through -F4. Lock off -F4, and every path to -A3 stops there, from the charger and from the battery. -E3 stays lit.' },
+  ];
+  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = d.answer + ' ' + (d.answer === 1 ? d.unit.replace(/s$/, '') : d.unit); });
+  const I = { still: 0, map: 1, srcs: 2, live: 3, q12: 4, volts: 5, q22: 6, tie: 7, thru: 8, two: 9, lock: 10, trip: 11, alarm: 12 };
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FINISH = 'A load has supply while any path of closed breakers joins it to a source. So isolating it means finding every way in and locking each one off. The drawing tells you what to lock off. Prove it dead where you work before you start.';
+  const USCG = 'https://www.dco.uscg.mil/Portals/9/MSC/PRG/PRG.E2-07.2021.10.13.Electrical%20One-Line%20Diagram.pdf';
+  const EECO = 'https://eecoonline.com/inspire/how-to-read-a-single-line-diagram';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { b: board(), locks: {}, mode: 'board', load: null, pick: null, res: null, why: false, tries: 0, shown: false, fbText: '', card: null, anim: null, touched: false, checked: false }; }
+  function fresh(i) {
+    const d = STEPS[i], st = blank();
+    st.b = board(d.base);
+    if (d.show && d.moves) { st.anim = { from: clone(st.b), moves: d.moves }; d.moves.forEach((mv) => Object.assign(st.b.dev, mv.devs)); }
+    if (d.iso) { st.mode = 'iso'; st.load = d.load; }
+    return st;
+  }
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  const arr = (t0) => K.arrive(T, t0, K.SOFT);
+  const prog = (t0, dur) => (T === Infinity ? 1 : K.clamp((T - t0) / dur, 0, 1));
+  const SWEEP_SRC = { g1: 0.3, g2: 0.8, sh: 1.3, bat: 1.8 }, SWEEP_RANK = [0, 2.3, 2.8, 3.2, 3.6];
+  const sweepAt = (n) => (NODES[n].rank === 0 ? SWEEP_SRC[n] : SWEEP_RANK[NODES[n].rank]);
+  const diffDev = (a, b) => { const o = {}; DORDER.forEach((k) => { if (a.dev[k] !== b.dev[k]) o[k] = b.dev[k]; }); return o; };
+
+  // What the sheet shows now: each line's boldness, each blade's opening, and the step's marks.
+  function look(i) {
+    const d = STEPS[i], st = S[i], moving = T !== Infinity, demo = !!d.show && !st.touched && moving, right = st.res === 'right';
+    const L = { open: {}, node: {}, ring: {}, ringInk: {}, hl: [1, 1, 1], batRing: 1, halo: 1, lockA: 1, newLocks: [], cardA: 1, hold: false, resA: 1, sweep: {} };
+    const m = liveMap(st.b);
+    DORDER.forEach((k) => { L.open[k] = st.b.dev[k] ? 0 : 1; });
+    Object.keys(NODES).forEach((n) => { L.node[n] = m[n].length ? 1 : 0; });
+    const a = st.anim;
+    if (a && moving) {
+      const seq = [clone(a.from)];
+      a.moves.forEach((mv) => { const nx = clone(seq[seq.length - 1]); Object.assign(nx.dev, mv.devs); seq.push(nx); });
+      const lm = seq.map(liveMap);
+      Object.keys(NODES).forEach((n) => {
+        let v = lm[0][n].length ? 1 : 0;
+        a.moves.forEach((mv, k) => { const p = K.ease(prog(mv.at + 0.25, 0.6)); if (p > 0) v = K.lerp(lm[k][n].length ? 1 : 0, lm[k + 1][n].length ? 1 : 0, p); });
+        L.node[n] = v;
+      });
+      DORDER.forEach((k) => {
+        let v = seq[0].dev[k] ? 0 : 1;
+        a.moves.forEach((mv, j) => { if (k in mv.devs) { const p = K.ease(prog(mv.at, 0.45)); if (p > 0) v = K.lerp(seq[j].dev[k] ? 0 : 1, seq[j + 1].dev[k] ? 0 : 1, p); } });
+        L.open[k] = v;
+      });
+      if (a.newLocks) { L.newLocks = a.newLocks; L.lockA = arr(0.3); }
+      if (a.hold) { L.hold = T < a.hold; L.resA = K.arrive(T, a.hold - 0.35, 0.35); }
+    }
+    // The sweep leaves the board as it is and traces the reading order in an amber glow.
+    if (d.sweep) Object.keys(NODES).forEach((n) => { L.sweep[n] = demo ? arr(sweepAt(n)) : 1; });
+    if (i === I.srcs && right) SORDER.forEach((s, k) => { L.ringInk[s] = moving ? arr(0.2 + 0.3 * k) : 1; });
+    if (d.volts) { L.hl = [0, 1, 2].map((k) => (demo ? arr(0.4 + 0.6 * k) : 1)); L.batRing = demo ? arr(2.2) : 1; }
+    if (d.halo) L.halo = demo ? arr(0.3) : 1;
+    if (i === I.still && right && !st.touched) L.cardA = moving ? arr(0.3) : 1;
+    return L;
+  }
+  const loadsText = (i) => (STEPS[i].unit === 'loads' && S[i].res !== 'right' ? '?' : K.fmt(liveLoads(S[i].b).length, { decimals: 0 }) + ' of ' + LORDER.length);
+  function takenOffList(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.iso || st.mode !== 'iso' || !st.load) return [];
+    const before = new Set(liveLoads(board(d.base))), now = new Set(liveLoads(st.b));
+    return LORDER.filter((l) => l !== st.load && before.has(l) && !now.has(l));
+  }
+
+  // ---------- drawing helpers (K.svg, never innerHTML) ----------
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, pts, cls) => add(g, 'polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') });
+  const text = (g, x, y, s, cls, anchor) => g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  let meterSvg = null;
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    if (meterSvg) {
+      const t = meterSvg.appendChild(K.svg('text', { class: cls, x: 0, y: -40 }, s));
+      try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+      meterSvg.removeChild(t);
+    }
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.8;
+  }
+  function hlBehind(g, x, y, s, anchor, a) {
+    const w = tw(s, 'tg') + 8, x0 = anchor === 'start' ? x - 4 : anchor === 'end' ? x - w + 4 : x - w / 2;
+    K.fade(rect(g, x0, y - 13, w, 18, 'hlbg', 4), a, 0);
+  }
+  function xmark(g, x, y) { line(g, x - 3.5, y - 3.5, x + 3.5, y + 3.5, 'sk'); line(g, x - 3.5, y + 3.5, x + 3.5, y - 3.5, 'sk'); }
+  function padlock(g, x, y, a) {
+    const p = add(g, 'g');
+    path(p, 'M' + (x - 4) + ' ' + (y - 3) + ' V' + (y - 6) + ' A4 4 0 0 1 ' + (x + 4) + ' ' + (y - 6) + ' V' + (y - 3), 'shackle');
+    rect(p, x - 6.5, y - 3, 13, 10, 'lock', 2);
+    K.fade(p, a, 3);
+    return p;
+  }
+  // A breaker or isolator: the blade turns about its pivot, from closed (0) to open (1).
+  function drawDev(gp, gl, k, open, alpha) {
+    const D = DEV[k], th = open * OPEN;
+    if (D.h) {
+      const px = D.x - 14, y = D.y, ex = px + 28 * Math.cos(th), ey = y - 28 * Math.sin(th);
+      line(gp, px, y, ex, ey, 'bl'); K.fade(line(gl, px, y, ex, ey, 'bl on'), alpha, 0);
+      xmark(gp, D.x + 14, y); circle(gp, px, y, 2.4, 'fk');
+      return;
+    }
+    const x = D.x, fy = D.y - 14, py = D.y + 14, s = D.tag === 'L' ? 1 : -1;
+    const ex = x + s * 28 * Math.sin(th), ey = py - 28 * Math.cos(th);
+    line(gp, x, py, ex, ey, 'bl'); K.fade(line(gl, x, py, ex, ey, 'bl on'), alpha, 0);
+    if (D.iso) line(gp, x - 5, fy, x + 5, fy, 'sk'); else xmark(gp, x, fy);
+    circle(gp, x, py, 2.4, 'fk');
+  }
+  function drawSource(g, s) {
+    const P = SRC[s], x = P.x, y = P.y;
+    if (P.kind === 'gen') { circle(g, x, y, 16, 'sym'); text(g, x, y + 5.5, 'G', 't15b'); }
+    else if (P.kind === 'shore') { rect(g, x - 22, y - 14, 44, 28, 'sym', 3); text(g, x, y + 4.5, 'Shore', 't13'); }
+    else [[-9, 10, ''], [-3, 5, ' thick'], [3, 10, ''], [9, 5, ' thick']].forEach((c) => line(g, x - c[1], y + c[0], x + c[1], y + c[0], 'sk' + c[2]));
+  }
+  function drawLoad(g, l) {
+    const P = LOAD[l], x = P.x, y = P.y;
+    if (P.kind === 'motor') { circle(g, x, y, 14, 'sym'); text(g, x, y + 5, 'M', 't15b'); }
+    else if (P.kind === 'light') { circle(g, x, y, 12, 'sym'); line(g, x - 8.5, y - 8.5, x + 8.5, y + 8.5, 'sk'); line(g, x - 8.5, y + 8.5, x + 8.5, y - 8.5, 'sk'); }
+    else { rect(g, x - 12, y - 12, 24, 24, 'sym', 2); path(g, 'M' + (x - 7) + ' ' + (y + 4) + ' A7 7 0 0 1 ' + (x + 7) + ' ' + (y + 4) + ' Z', 'sk'); line(g, x, y + 4, x, y + 8, 'sk'); }
+  }
+  function drawConv(g) {
+    circle(g, 84, 236, 10, 'sk'); circle(g, 84, 250, 10, 'sk');
+    rect(g, 300, 230, 28, 28, 'sym', 2); line(g, 300, 258, 328, 230, 'sk');
+    path(g, 'M303 241 q2.5 -4 5 0 t5 0', 'sk');
+    line(g, 316, 249, 324, 249, 'sk'); line(g, 316, 253, 324, 253, 'sk');
+  }
+  function ringSrc(g, s, a, ink) {
+    const P = SRC[s], cls = 'ring' + (ink ? ' ink' : '');
+    const e = P.kind === 'gen' ? circle(g, P.x, P.y, 20, cls) : P.kind === 'shore' ? rect(g, P.x - 26, P.y - 18, 52, 36, cls, 6) : circle(g, P.x, P.y, 15, cls);
+    K.fade(e, a, 0);
+  }
+  function markDev(g, k, a) {
+    const D = DEV[k], w = tw(tagOf(k), 'tg');
+    let e;
+    if (D.h) e = rect(g, D.x - 20, D.y - 33, 40, 62, 'ring', 8);
+    else { const x0 = D.tag === 'R' ? D.x - 16 : D.x - 8 - w - 3, x1 = D.tag === 'R' ? D.x + 8 + w + 3 : D.x + 16; e = rect(g, x0, D.y - 19, x1 - x0, 37, 'ring', 8); }
+    K.fade(e, a, 0);
+  }
+  const KEYTXT = { live: 'Live', dead: 'Dead', on: 'Has supply', off: 'No supply', lock: 'Locked off' };
+  function drawKey(g, iso, y0) {
+    const items = iso ? ['live', 'dead', 'on', 'off', 'lock'] : ['live', 'dead', 'on', 'off'];
+    let x = 12, row = 0;
+    items.forEach((k) => {
+      const sw = k === 'live' || k === 'dead' ? 24 : 14, w = sw + 6 + tw(KEYTXT[k], 'kt');
+      if (x > 12 && x + w > 334) { row++; x = 12; }
+      const y = y0 + 20 * row;
+      if (k === 'live') poly(g, [[x, y], [x + 24, y]], 'lv');
+      else if (k === 'dead') poly(g, [[x, y], [x + 24, y]], 'ln');
+      else if (k === 'on') circle(g, x + 6, y, 5, 'lamp on');
+      else if (k === 'off') circle(g, x + 6, y, 5, 'lamp');
+      else padlock(g, x + 7, y - 1, 1);
+      text(g, x + sw + 6, y + 4.5, KEYTXT[k], 'kt', 'start');
+      x += w + 16;
+    });
+    return y0 + 20 * row + 12;
+  }
+
+  // ---------- the whole sheet ----------
+  const el = (id) => document.getElementById(id);
+  const sceneSvg = el('scene'), art = el('art');
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i], lk = look(i), g = art;
+    meterSvg = sceneSvg;
+    g.textContent = '';
+    const G = {};
+    ['hl', 'halo', 'pale', 'live', 'link', 'sym', 'lamp', 'text', 'mark', 'lock', 'key', 'hit'].forEach((n) => { G[n] = add(g, 'g'); });
+    // highlights behind: the chosen load, the board voltages
+    if (d.iso && st.mode === 'iso' && st.load) { const P = LOAD[st.load]; rect(G.hl, P.x - 20, P.y - 20, 40, 58, 'hlbg', 8); }
+    if (d.volts) { hlBehind(G.hl, 12, 109, '440 V', 'start', lk.hl[0]); hlBehind(G.hl, 96, 300, '115 V', 'start', lk.hl[1]); hlBehind(G.hl, 190, 300, '24 V DC', 'start', lk.hl[2]); }
+    if (d.sweep) Object.keys(NODES).forEach((n) => {
+      if (!(lk.sweep[n] > 0.001)) return;
+      const N = NODES[n], hg = add(G.halo, 'g');
+      if (N.bus) poly(hg, N.bus, 'halo'); if (N.bar) poly(hg, N.bar, 'halo'); N.p.forEach((pp) => poly(hg, pp, 'halo'));
+      K.fade(hg, lk.sweep[n], 0);
+    });
+    if (d.halo) { const hg = add(G.halo, 'g'); poly(hg, [[130, 123], [130, 252], [156, 252]], 'halo'); poly(hg, [[210, 123], [210, 252], [184, 252]], 'halo'); K.fade(hg, lk.halo, 0); }
+    // lines: pale underneath, bold ink over them as far as each is live
+    Object.keys(NODES).forEach((n) => {
+      const N = NODES[n], lay = (layer, cls) => { if (N.bus) poly(layer, N.bus, cls + ' bus'); if (N.bar) poly(layer, N.bar, cls + ' board'); N.p.forEach((p) => poly(layer, p, cls)); };
+      lay(G.pale, 'ln');
+      if (lk.node[n] > 0.001) { const lg = add(G.live, 'g'); lay(lg, 'lv'); K.fade(lg, lk.node[n], 0); }
+    });
+    line(G.link, 132, 196, 208, 196, 'link');
+    // symbols
+    SORDER.forEach((s) => drawSource(G.sym, s));
+    drawConv(G.sym);
+    LORDER.forEach((l) => drawLoad(G.sym, l));
+    DORDER.forEach((k) => drawDev(G.sym, G.sym, k, lk.open[k], lk.node[DEV[k].b]));
+    LORDER.forEach((l) => { const p = LOAD[l].lamp; circle(G.lamp, p[0], p[1], 5, 'lamp'); K.fade(circle(G.lamp, p[0], p[1], 5, 'lamp on'), lk.node[LOAD[l].node], 0); });
+    // words on the sheet
+    const T1 = G.text;
+    text(T1, 80, 29, '-G1', 'tg', 'start'); text(T1, 80, 45, st.b.run.G1 ? 'Running' : 'Stopped', 'tm', 'start');
+    text(T1, 202, 29, '-G2', 'tg', 'end'); text(T1, 202, 45, st.b.run.G2 ? 'Running' : 'Stopped', 'tm', 'end');
+    text(T1, 177, 391.5, '-G3', 'tg', 'end');
+    text(T1, 12, 109, '440 V', 'tg', 'start'); text(T1, 103, 109, 'Section A', 't13'); text(T1, 263, 109, 'Section B', 't13');
+    text(T1, 96, 300, '115 V', 'tg', 'start'); text(T1, 190, 300, '24 V DC', 'tg', 'start');
+    text(T1, 100, 247.5, '-T1', 'tg', 'start'); text(T1, 296, 226, '-U1', 'tg', 'end');
+    DORDER.forEach((k) => {
+      const D = DEV[k];
+      if (D.h) text(T1, D.x, D.y - 21, tagOf(k), 'tg');
+      else if (D.tag === 'R') text(T1, D.x + 8, D.y + 4.5, tagOf(k), 'tg', 'start');
+      else text(T1, D.x - 8, D.y + 4.5, tagOf(k), 'tg', 'end');
+    });
+    text(T1, 170, 145, 'N.O.', 'tm'); text(T1, 218, 214.5, 'N.O.', 'tm', 'start');
+    text(T1, 170, 218, 'Interlocked', 'tm12');
+    LORDER.forEach((l) => text(T1, LOAD[l].x, LOAD[l].y + 30, tagOf(l), 'tg'));
+    // marks: rings round sources, the breaker a puzzle asks about, the voltage step's battery
+    SORDER.forEach((s) => { if (lk.ring[s] > 0) ringSrc(G.mark, s, lk.ring[s], false); if (lk.ringInk[s] > 0) ringSrc(G.mark, s, lk.ringInk[s], true); });
+    if (d.volts && lk.batRing > 0) ringSrc(G.mark, 'G3', lk.batRing, false);
+    if (d.mark && st.res !== 'right') markDev(G.mark, d.mark, 1);
+    if (i === I.still && st.res === 'right' && !st.touched) markDev(G.mark, 'Q4', lk.cardA);
+    // padlocks
+    DORDER.forEach((k) => {
+      if (!st.locks[k]) return;
+      const D = DEV[k], a = lk.newLocks.indexOf(k) >= 0 ? lk.lockA : 1;
+      if (D.h) padlock(G.lock, D.x, D.y + 6, a); else padlock(G.lock, D.x, D.y + 1, a);
+    });
+    const H = drawKey(G.key, !!d.iso, 446);
+    sceneSvg.setAttribute('viewBox', '0 0 340 ' + H);
+    // touch areas
+    if (tapsOn(i)) {
+      DORDER.forEach((k) => { rect(G.hit, DEV[k].x - 20, DEV[k].y - 20, 40, 40, 'hit').dataset.dev = k; });
+      if (d.iso && st.mode === 'iso') LORDER.forEach((l) => { rect(G.hit, LOAD[l].x - 20, LOAD[l].y - 20, 40, 44, 'hit').dataset.load = l; });
+    }
+    sceneSvg.setAttribute('aria-label', sheetAlt(i));
+    // a demonstration's words and readouts fade in as its motion settles; a result fades in after its locks
+    const wordsA = !!d.show && !st.touched && T !== Infinity ? K.arrive(T, d.dur - 0.45, 0.4) : 1;
+    K.fade(el('say'), wordsA, 3); K.fade(el('outs'), wordsA, 3);
+    K.fade(el('result'), lk.resA, 3); K.fade(el('lost'), lk.resA, 3);
+    K.fade(el('card'), lk.cardA, 4);
+  }
+
+  // ---------- words: the .say line and the sheet's text alternative ----------
+  function boardSay(b) {
+    const m = liveMap(b), dead = LORDER.filter((l) => !m[LOAD[l].node].length);
+    const s = !dead.length ? 'Every load has supply.' : dead.length === LORDER.length ? 'No load has supply.'
+      : listOf(dead.map(tagOf)) + (dead.length > 1 ? ' have' : ' has') + ' no supply. Every other load does.';
+    const notes = [];
+    if (b.dev.Q4 && m.busA.length && m.busA.join() === m.busB.join()) notes.push(m.busA[0] === 'G1' ? 'Section B is fed from -G1 through bus-tie -Q4.' : 'Section A is fed from ' + NAME[m.busA[0]] + ' through bus-tie -Q4.');
+    else if (b.dev.Q3 && m.busB.indexOf('SH') >= 0) notes.push('The shore supply feeds section B.');
+    if (b.dev.Q23 && m.m3.length) notes.push('-M3 runs from section B through -Q23.');
+    if (m.dc.length && !m.f22.length) notes.push('The DC board runs on battery -G3.');
+    return [s].concat(notes.slice(0, 2)).join(' ');
+  }
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.show && st.res !== 'right') return '';
+    if (d.iso && st.mode === 'iso' && st.load) {
+      const ls = DORDER.filter((k) => st.locks[k]);
+      return cap(NAME[st.load]) + ' is chosen. ' + (ls.length ? 'Locked off: ' + listOf(ls.map(tagOf)) + '.' : 'Nothing is locked off.');
+    }
+    return boardSay(st.b);
+  }
+  function sheetAlt(i) {
+    const st = S[i], b = st.b, m = liveMap(b);
+    const open = DORDER.filter((k) => !b.dev[k]), locks = DORDER.filter((k) => st.locks[k]), dead = LORDER.filter((l) => !m[LOAD[l].node].length);
+    let s = 'A single-line diagram. -G1, -G2 and the shore supply sit at the top, over the 440 V board in sections A and B. Below are the 115 V board and the 24 V DC board with battery -G3.';
+    s += ' Open: ' + (open.length ? listOf(open.map(tagOf)) : 'none') + '.';
+    if (!b.run.G1) s += ' -G1 is stopped.';
+    if (!b.run.G2) s += ' -G2 is stopped.';
+    if (locks.length) s += ' Locked off: ' + listOf(locks.map(tagOf)) + '.';
+    s += dead.length ? ' No supply: ' + listOf(dead.map(tagOf)) + '.' : ' Every load has supply.';
+    return s;
+  }
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at0 = 0, mm;
+    s = String(s || '');
+    while ((mm = re.exec(s))) {
+      if (mm.index > at0) plain(node, s.slice(at0, mm.index));
+      node.appendChild(K.el('span', { class: 'term' }, mm[1]));
+      at0 = mm.index + mm[0].length;
+    }
+    if (at0 < s.length) plain(node, s.slice(at0));
+  }
+  // A tag such as -Q13 never splits at its hyphen.
+  function plain(node, t) { t.split(/(-[A-Z]\d+)/).forEach((p, k) => { if (p) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, p) : document.createTextNode(p)); }); }
+  function fillCard(box, words, key) {
+    box.textContent = '';
+    write(box.appendChild(K.el('strong')), words[0]);
+    write(box.appendChild(K.el('span')), words[1]);
+    if (box.dataset.key !== key) { box.dataset.key = key; if (!REDUCE) { box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter'); } }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()), 0, STEPS.length - 1);
+  K.readout({ id: 'loadsLive', label: 'Loads with supply', decimals: 0, fmt: () => loadsText(at()), into: '#outs' });
+  const offRo = K.readout({ id: 'takenOff', label: 'Other loads taken off', decimals: 0, fmt: () => K.fmt(takenOffList(at()).length, { decimals: 0 }), into: '#outs' });
+  write(el('asdrawn'), 'As drawn: -G1 and -G2 running. -Q3, -Q4 and -Q23 open. Everything else closed. A single-line diagram does not show how the board is being run. A note like this one does.');
+
+  const tapsOn = (i) => !!STEPS[i].show || S[i].res === 'right';
+  function setMode(m) { const i = at(); if (finished || !STEPS[i].iso) return; S[i].mode = m; S[i].card = null; }
+  const boardBtn = K.button({ label: 'Board', secondary: true, into: '#modes', press: () => setMode('board') });
+  const isoBtn = K.button({ label: 'Isolate', secondary: true, into: '#modes', press: () => setMode('iso') });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The motion after a right answer: the breaker the puzzle names opens or closes on the sheet.
+  function afterRight(i) {
+    const d = STEPS[i], st = S[i];
+    st.anim = null;
+    if (d.open) { const before = clone(st.b); Object.assign(st.b.dev, d.open); st.anim = { from: before, moves: [MOVE(0.2, Object.assign({}, d.open))] }; }
+    if (d.after === 'sync') st.card = attempt(st.b, 'Q4').card;
+    play(d.fx);
+  }
+  // Isolate mode on a puzzle: lock off what was chosen, from the step's own board.
+  function lockFor(i, list) {
+    const d = STEPS[i], st = S[i], before = clone(st.b);
+    st.b = board(d.base); st.locks = {}; st.mode = 'iso'; st.load = d.load; st.checked = true; st.card = null;
+    list.forEach((k) => { st.b.dev[k] = false; st.locks[k] = true; });
+    st.anim = { from: before, moves: [MOVE(0.2, diffDev(before, st.b))], newLocks: list.slice(), hold: 0.8 };
+  }
+  // The typed answers: Check grades what is typed; two wrong tries show the working.
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = "That's it."; afterRight(i); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shown = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); afterRight(i); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    const ok = st.pick === d.want;
+    if (d.iso) { lockFor(i, d.locks[st.pick]); st.res = ok ? 'right' : 'wrong'; play(d.fx); return; }
+    if (ok) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at();
+    if (finished || STEPS[i].show) return;
+    S[i].why = !S[i].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show) return;
+    S[i] = fresh(i);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  STEPS.forEach((d, i) => { if (d.show) d.still = () => { S[i] = fresh(i); S[i].touched = true; S[i].anim = null; anim.pause(); T = Infinity; K.refresh(); }; });
+
+  // One animation plays each demonstration, the motion after an answer and each tap; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (T >= motionEnd) { T = Infinity; paint(); return false; }
+    paint();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  // Dan takes over: any motion snaps to its end, and his tap starts from there.
+  function takeOver(i) {
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    S[i].touched = true;
+  }
+
+  // ---------- tapping breakers, isolators and loads ----------
+  function tapDev(i, k) {
+    const st = S[i], before = clone(st.b);
+    let fresh1 = null;
+    st.card = null;
+    if (st.mode === 'iso' && STEPS[i].iso) {
+      if (st.locks[k]) delete st.locks[k];
+      else { st.locks[k] = true; st.b.dev[k] = false; fresh1 = [k]; }
+    } else if (st.b.dev[k]) st.b.dev[k] = false;
+    else { const r = attempt(st.b, k, st.locks); if (r.ok) st.b.dev[k] = true; else st.card = r.card; }
+    const devs = diffDev(before, st.b);
+    if (Object.keys(devs).length || fresh1) { st.anim = { from: before, moves: [MOVE(0, devs)], newLocks: fresh1 }; play(0.9); }
+  }
+  sceneSvg.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest ? e.target.closest('[data-dev],[data-load]') : null;
+    if (!t || finished) return;
+    const i = at(), st = S[i];
+    if (!tapsOn(i)) return;
+    takeOver(i);
+    if (t.dataset.load) { if (st.mode !== 'iso') return; st.load = t.dataset.load; st.card = null; }
+    else tapDev(i, t.dataset.dev);
+    K.reveal();
+    K.refresh();
+  });
+
+  // ---------- the page ----------
+  K.model((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1);
+    return { loadsLive: liveLoads(S[i].b).length, takenOff: takenOffList(i).length };
+  });
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = fresh(i); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+
+    el('modes').hidden = !d.iso || !st.checked;
+    boardBtn.el.setAttribute('aria-pressed', st.mode === 'board' ? 'true' : 'false');
+    isoBtn.el.setAttribute('aria-pressed', st.mode === 'iso' ? 'true' : 'false');
+    offRo.el.hidden = !d.iso;
+    const say = sayFor(i);
+    el('say').hidden = !say;
+    write(el('say'), say);
+
+    const card = el('card');
+    card.hidden = !st.card;
+    if (st.card) fillCard(card, cardWords(st.card), JSON.stringify(st.card) + i);
+    else card.dataset.key = '';
+    const res = el('result'), lost = el('lost'), showRes = !!d.iso && st.mode === 'iso' && !!st.load && st.checked;
+    res.hidden = lost.hidden = !showRes;
+    if (showRes) {
+      const r = isoResult(st.b, st.locks, st.load), off = takenOffList(i);
+      res.className = 'card ' + (r.kind === 'iso' ? 'panel' : 'warn-note') + (res.classList.contains('enter') ? ' enter' : '');
+      fillCard(res, resultWords(r, st.load), r.kind + st.load + DORDER.filter((k) => st.locks[k]).join());
+      lost.className = 'lost' + (off.length ? '' : ' none');
+      write(lost, off.length ? 'Also taken off: ' + listOf(off.map(tagOf)) + '.' : 'Every other load keeps its supply.');
+    } else res.dataset.key = '';
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('tools').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      write(b.el.appendChild(K.el('span', { class: 'opt' })), opts[k]);   // one flex item, so the words wrap as one line of text
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    let f = '';
+    if (!d.show) f = d.kind === 'typed' ? st.fbText : right ? (d.rightFb || "That's it.") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Tap one of the answers.' : '';
+    fb.className = 'fb' + (right && !st.shown ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const lockTest = (load, list) => {
+    const b = board(), locks = {};
+    list.forEach((k) => { b.dev[k] = false; locks[k] = true; });
+    const before = new Set(liveLoads(board())), now = new Set(liveLoads(b));
+    return { r: isoResult(b, locks, load), off: LORDER.filter((l) => l !== load && before.has(l) && !now.has(l)) };
+  };
+  K.check('A one-line diagram outlines the connections from the power sources (generators, shore power, battery banks) through the switchboard and busbars to the loads: here two generator sets, a shore supply and a battery feed the board, and each of the 7 loads has a path to a source', () => {
+    const all = { dev: {} };
+    DORDER.forEach((k) => { all.dev[k] = true; });
+    return SORDER.map((s) => SRC[s].kind).join() === 'gen,gen,shore,bat' && LORDER.length === 7 && liveLoads(board(all)).length === 7;
+  }, { source: USCG });
+  K.check('A one line starts at the top with the incoming power and its disconnecting device, then works its way down: the sets and the shore supply sit above their breakers, the breakers above the busbars, and every load lower still', () =>
+    Object.keys(INCOMER).every((s) => SRC[s].y < DEV[INCOMER[s]].y && DEV[INCOMER[s]].y < BUS_Y && DEV[INCOMER[s]].a === SRC[s].node) && LORDER.every((l) => LOAD[l].y > BUS_Y), { source: EECO });
+  K.check('Counted by hand: the drawing shows 4 sources (3 at the top, 2 sets, 5 counting -T1 and -U1); opening -Q12 takes off 2 loads (slips 0, 1 and 4), leaving 5 of 7; -Q2 tripping takes off 1 (slips 3, 4 and 2), leaving 6; the typed fields ask exactly these', () => {
+    const a = STEPS[I.srcs], b = STEPS[I.q12], c = STEPS[I.trip];
+    return a.answer === 4 && a.slips.map((x) => x.value).join() === '3,2,5' && b.answer === 2 && b.slips.map((x) => x.value).join() === '0,1,4' &&
+      liveLoads(board({ dev: { Q12: false } })).length === 5 && c.answer === 1 && c.slips.map((x) => x.value).join() === '3,4,2' &&
+      liveLoads(board({ dev: { Q2: false } })).length === 6 && ANS[I.srcs].spec.answer === 4 && ANS[I.q12].spec.answer === 2 && ANS[I.trip].spec.answer === 1 &&
+      a.want === '4 sources' && b.want === '2 loads' && c.want === '1 load';
+  });
+  K.check('Power passes on down through -T1 and -U1, never back up: with -Q22 open, battery -G3 keeps the DC board live while the charger\'s input stays dead; with -Q12 open the 115 V board is dead and section A stays live', () => {
+    const a = liveMap(board({ dev: { Q22: false } })), c = liveMap(board({ dev: { Q12: false } }));
+    return a.dc.join() === 'G3' && a.f22.length === 0 && c.lv.length === 0 && c.busA.join() === 'G1';
+  });
+  K.check('Closing -Q4 as drawn would join -G1 and -G2, so the synchronise card comes up and -Q4 stays open; with -Q2 open it closes and -G1 feeds section B; -Q23 cannot close while -Q13 is closed; -Q5 and -Q22 close freely', () => {
+    const r = attempt(board(), 'Q4'), b2 = board({ dev: { Q2: false } }), r2 = attempt(b2, 'Q4');
+    b2.dev.Q4 = true;
+    const r3 = attempt(board(), 'Q23'), r4 = attempt(board({ dev: { Q5: false } }), 'Q5'), r5 = attempt(board({ dev: { Q22: false } }), 'Q22');
+    return !r.ok && r.card.kind === 'sync' && r.card.srcs.slice().sort().join() === 'G1,G2' && r2.ok && liveMap(b2).busB.join() === 'G1' &&
+      !r3.ok && r3.card.kind === 'inter' && r4.ok && r5.ok;
+  });
+  K.check('On shore supply with both sets stopped, -Q4 closes without synchronising and the shore supply then feeds section A, so -M1 is fed through the bus-tie', () => {
+    const d = STEPS[I.thru], b = board(d.base), was = liveMap(b).f11.length, ok = attempt(b, 'Q4').ok;
+    b.dev.Q4 = true;
+    return was === 0 && ok && liveMap(b).f11.join() === 'SH' && liveMap(b).busB.join() === 'SH' && d.want === 'The shore supply, through the bus-tie';
+  });
+  K.check('Isolating -M3: -Q13 alone leaves -Q23 free to close from -G2; -Q13 and -Q23 isolate it with no other load taken off; -Q1 and -Q2 leave the shore supply a way in through -Q3 and take off 4 other loads', () => {
+    const a = lockTest('M3', ['Q13']), b = lockTest('M3', ['Q13', 'Q23']), c = lockTest('M3', ['Q1', 'Q2']), d = STEPS[I.lock];
+    return a.r.kind === 'dead' && a.r.way.opens.join() === 'Q23' && a.r.way.src === 'G2' && a.off.length === 0 &&
+      b.r.kind === 'iso' && b.off.length === 0 && c.r.kind === 'dead' && c.r.way.src === 'SH' && c.r.way.opens.join() === 'Q3,Q23' &&
+      c.off.join() === 'M1,E1,M4,M2' && d.locks[d.want].join() === 'Q13,Q23';
+  });
+  K.check('Isolating -A3: -Q22 alone leaves it live from battery -G3; -Q22 and -Q5 isolate it but take off -E3; -F4 alone isolates it and keeps -E3 lit', () => {
+    const a = lockTest('A3', ['Q22']), b = lockTest('A3', ['Q22', 'Q5']), c = lockTest('A3', ['F4']), d = STEPS[I.alarm];
+    return a.r.kind === 'live' && a.r.path.src === 'G3' && a.r.path.items.join() === '-Q5,the DC board,-F4' && a.off.length === 0 &&
+      b.r.kind === 'iso' && b.off.join() === 'E3' && c.r.kind === 'iso' && c.off.length === 0 && d.locks[d.want].join() === 'F4';
+  });
+  K.check('Before an answer nothing gives it away: every puzzle opens on its own board with nothing locked and no card, and both typed screens\' readouts show ?', () => {
+    const keep = S;
+    try {
+      S = STEPS.map((d, i) => fresh(i));
+      return DO.every((i) => { const st = S[i], b0 = board(STEPS[i].base); return !st.card && !Object.keys(st.locks).length && !st.checked && DORDER.every((k) => st.b.dev[k] === b0.dev[k]); }) &&
+        loadsText(I.q12) === '?' && loadsText(I.trip) === '?';
+    } finally { S = keep; }
+  });
+  K.check('Every demonstration settles within 4.5 s of its screen opening, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d) => (d.show ? d.dur > 0 && d.dur <= 4.5 && d.ends <= d.dur && (d.moves || []).every((mv) => mv.at + 0.85 <= d.ends) : d.fx > 0 && d.fx <= 2.5)));
+
+  K.ready();
+</script>

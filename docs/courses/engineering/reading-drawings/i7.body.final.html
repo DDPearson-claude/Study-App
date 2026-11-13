@@ -1,0 +1,1099 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 60rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + *, .side > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 14px 24px; align-items: start; }
+  .pane, .side, .plantfig { margin: 0; min-width: 0; }
+  .pane > * + * { margin-top: 12px; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 26rem; margin-inline: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  .plantfig .k-label { display: block; text-align: center; margin: 0 0 6px; }
+  /* The tabs and switches: two groups that wrap, so they take two rows on a phone. */
+  .ctl { display: flex; flex-wrap: wrap; gap: 10px 12px; max-width: 30rem; margin-inline: auto; }
+  .sw { flex: 1 1 10rem; min-width: 0; }
+  .sw .k-label { display: block; margin: 0 0 4px; }
+  .sw .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sw .k-btn { flex: 1 1 5rem; min-height: 44px; white-space: nowrap; padding-inline: 8px; }
+  .sw .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row .k-btn { min-height: 44px; }
+  .nav .k-btn, .acts .k-btn, .done .k-btn { flex: 1 1 8rem; }
+  .tools .k-btn { flex: 0 1 auto; padding-inline: 16px; }
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn .opt { text-align: center; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, .ctl.enter, .plantfig.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing .ctl.enter, html.k-testing .plantfig.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, .ctl.enter, .plantfig.enter { animation: none; } }
+
+  /* The drawings. */
+  svg .hit { fill: var(--k-bg); fill-opacity: 0; stroke: none; pointer-events: none; }
+  svg.tappable .hit { pointer-events: all; cursor: pointer; }
+  svg .hit:focus { outline: none; }
+  svg .hit:focus-visible { stroke: var(--k-accent2); stroke-width: 2.5; }
+  svg .pipe { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .untr { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-dasharray: 0.5 4.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .fl { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  svg .flh { fill: var(--k-accent2); }
+  svg .red { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  svg .sig { fill: none; stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  svg .mesh { fill: none; stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 2 2; }
+  svg .vo { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .vs { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .gh { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 3 2; stroke-linejoin: round; }
+  svg .sym { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .symf { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .wheel { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  svg .mc { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  svg .tri { fill: var(--k-ink); }
+  svg .dot { fill: var(--k-ink); }
+  svg .water { fill: var(--k-fill1); }
+  svg .fuel { fill: var(--k-fill3); }
+  svg .halo { fill: var(--k-fill2); }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2.4; }
+  svg .plate { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1; }
+  svg .ppipe { fill: none; stroke: var(--k-muted); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  svg .ax { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }
+  svg .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  svg .pdot { fill: var(--k-accent2); }
+  svg .tag { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  svg .pt { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  svg .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  svg .lab13 { font: 400 14px var(--k-font); fill: var(--k-ink); }
+  svg .mt { font: 400 14px var(--k-font); fill: var(--k-muted); }
+  svg .kt { font: 400 14px var(--k-font); fill: var(--k-muted); }
+  svg .stl { font: 600 14px var(--k-font); fill: var(--k-warn); }
+</style>
+
+<p class="lead">A pump's curve, then a cooling water loop drawn as a piping diagram, a sketch of the plant as built, and a fuel transfer sheet.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <figure class="pane">
+        <svg class="pic" id="scene" viewBox="0 0 340 590" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+        <div class="ctl" id="ctl"></div>
+      </figure>
+      <div class="side">
+        <p class="say" id="say"></p>
+        <figure class="plantfig" id="plantfig" hidden>
+          <figcaption class="k-label">The plant, as built</figcaption>
+          <svg class="pic" id="plant" viewBox="0 0 340 346" width="100%" role="img" aria-label="A sketch of the same loop as built, with its valves and their tag plates"><g id="part"></g><g id="phits"></g></svg>
+        </figure>
+        <div class="row tools" id="tools"></div>
+        <div class="picks" id="picks"></div>
+        <div id="ansbox"></div>
+        <div class="row acts" id="acts"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="note why" id="why" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A typical cooling loop and fuel transfer system in common symbols, not a real plant.</p>
+
+<script>
+  // ---------- the rule: water flows only along a path open all the way through a running pump ----------
+  const SRC_DOE = 'https://www.online-pdh.com/file.php/221/CFD_SG.pdf';
+  const SRC_HSE = 'https://files.engineering.com/files/a01e329a-ec1b-42f7-a8fb-7a3bb8ea235c/hsg253_safe_isolation.pdf';
+  const H0 = 30, KQ = 0.04, Q0 = Math.sqrt(200);                  // the pump curve, head = 30 − 0.04q²; valve open, it settled at q² = 200
+  const head = (q) => H0 - KQ * q * q;
+  const TVSET = ['to cooler', 'some each way', 'full bypass'];
+  const NUM = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'];
+  const EXT = { valve: 8, nrv: 7, pump: 14, hx: 14, strainer: 9, tv: 9, equip: 40, j: 0, tank: 0 };   // how far each part runs along its pipe
+  const UP = [0, -1], DOWN = [0, 1], RIGHT = [1, 0];
+  const U_SHUT = true;                                            // the plant's untagged valve, on the header tank's line, is shut
+
+  // Each sheet: its parts and the pipes between them. A part's sides: a is where water comes in by
+  // design, b where it leaves (a pump's suction and outlet); TV1 has i (in), c (to the cooler), p (to the bypass).
+  const COOL = {
+    H: 590,
+    items: {
+      V1: { k: 'valve', x: 130, y: 497, o: 'v' }, P1: { k: 'pump', x: 130, y: 462, d: UP }, NR1: { k: 'nrv', x: 130, y: 428, d: UP }, V2: { k: 'valve', x: 130, y: 398, o: 'v' },
+      V3: { k: 'valve', x: 220, y: 497, o: 'v' }, P2: { k: 'pump', x: 220, y: 462, d: UP }, NR2: { k: 'nrv', x: 220, y: 428, d: UP }, V4: { k: 'valve', x: 220, y: 398, o: 'v' },
+      TV1: { k: 'tv', x: 300, y: 330 }, V7: { k: 'valve', x: 300, y: 292, o: 'v' }, HX1: { k: 'hx', x: 300, y: 252 }, V8: { k: 'valve', x: 300, y: 212, o: 'v' },
+      EQ: { k: 'equip', x: 150, y: 124 }, HT1: { k: 'tank', x: 72, y: 62 }, V5: { k: 'valve', x: 40, y: 230, o: 'v' }, S1: { k: 'strainer', x: 40, y: 310 },
+      sh: { k: 'j', x: 130, y: 520, dot: 1 }, dh: { k: 'j', x: 220, y: 376, dot: 1 }, M: { k: 'j', x: 300, y: 186, dot: 1 }, T: { k: 'j', x: 72, y: 124, dot: 1 },
+    },
+    pipes: [
+      ['sS', 'S1.b', 'sh', [[40, 310], [40, 520], [130, 520]]],
+      ['s1', 'sh', 'V1.a', [[130, 520], [130, 497]]],
+      ['a1', 'V1.b', 'P1.a', [[130, 497], [130, 462]]],
+      ['b1', 'P1.b', 'NR1.a', [[130, 462], [130, 428]]],
+      ['c1', 'NR1.b', 'V2.a', [[130, 428], [130, 398]]],
+      ['d1', 'V2.b', 'dh', [[130, 398], [130, 376], [220, 376]]],
+      ['s2', 'sh', 'V3.a', [[130, 520], [220, 520], [220, 497]]],
+      ['a2', 'V3.b', 'P2.a', [[220, 497], [220, 462]]],
+      ['b2', 'P2.b', 'NR2.a', [[220, 462], [220, 428]]],
+      ['c2', 'NR2.b', 'V4.a', [[220, 428], [220, 398]]],
+      ['d2', 'V4.b', 'dh', [[220, 398], [220, 376]]],
+      ['up', 'dh', 'TV1.i', [[220, 376], [300, 376], [300, 330]]],
+      ['k7', 'TV1.c', 'V7.a', [[300, 330], [300, 292]]],
+      ['hx', 'V7.b', 'HX1.a', [[300, 292], [300, 252]]],
+      ['k8', 'HX1.b', 'V8.a', [[300, 252], [300, 212]]],
+      ['m8', 'V8.b', 'M', [[300, 212], [300, 186]]],
+      ['by', 'TV1.p', 'M', [[300, 330], [228, 330], [228, 186], [300, 186]]],
+      ['top', 'M', 'EQ.a', [[300, 186], [300, 124], [150, 124]]],
+      ['ret', 'EQ.b', 'T', [[150, 124], [72, 124]]],
+      ['ht', 'T', 'HT1', [[72, 124], [72, 62]]],
+      ['v5', 'T', 'V5.a', [[72, 124], [40, 124], [40, 230]]],
+      ['s5', 'V5.b', 'S1.a', [[40, 230], [40, 310]]],
+    ],
+  };
+  const FUEL = {
+    H: 366,
+    items: {
+      T1: { k: 'tank', x: 60, y: 64 }, F1: { k: 'valve', x: 60, y: 96, o: 'v' }, T2: { k: 'tank', x: 250, y: 64 }, F2: { k: 'valve', x: 250, y: 96, o: 'v' },
+      X1: { k: 'valve', x: 160, y: 140, o: 'h' }, J: { k: 'j', x: 60, y: 140, dot: 1 }, S2: { k: 'strainer', x: 60, y: 186 }, P3: { k: 'pump', x: 60, y: 236, d: DOWN },
+      NR3: { k: 'nrv', x: 130, y: 290, d: RIGHT }, F3: { k: 'valve', x: 190, y: 290, o: 'h' }, DT: { k: 'tank', x: 240, y: 290 },
+    },
+    pipes: [
+      ['t1', 'T1', 'F1.a', [[60, 64], [60, 96]]],
+      ['f1', 'F1.b', 'J', [[60, 96], [60, 140]]],
+      ['t2', 'T2', 'F2.a', [[250, 64], [250, 96]]],
+      ['f2', 'F2.b', 'X1.a', [[250, 96], [250, 140], [160, 140]]],
+      ['x1', 'X1.b', 'J', [[160, 140], [60, 140]]],
+      ['js', 'J', 'S2.a', [[60, 140], [60, 186]]],
+      ['sp', 'S2.b', 'P3.a', [[60, 186], [60, 236]]],
+      ['pn', 'P3.b', 'NR3.a', [[60, 236], [60, 290], [130, 290]]],
+      ['nf', 'NR3.b', 'F3.a', [[130, 290], [190, 290]]],
+      ['fd', 'F3.b', 'DT', [[190, 290], [240, 290]]],
+    ],
+  };
+  // The middle of the longest piece of a pipe that is clear of the parts at its ends: where its arrow goes.
+  function arrowAt(S, e) {
+    const P = e.pts.map((q) => q.slice()), n = P.length;
+    const trim = (A, B, d) => { const L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1, f = Math.min(d, L) / L; return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f]; };
+    P[0] = trim(P[0], P[1], EXT[S.items[e.a.n].k]);
+    P[n - 1] = trim(P[n - 1], P[n - 2], EXT[S.items[e.b.n].k]);
+    let best = 0, bl = -1;
+    for (let k = 0; k < n - 1; k++) { const L = Math.hypot(P[k + 1][0] - P[k][0], P[k + 1][1] - P[k][1]); if (L > bl) { bl = L; best = k; } }
+    const A = P[best], B = P[best + 1], L = bl || 1;
+    return { x: (A[0] + B[0]) / 2, y: (A[1] + B[1]) / 2, ux: (B[0] - A[0]) / L, uy: (B[1] - A[1]) / L };
+  }
+  function build(S) {
+    S.E = {}; S.att = {};
+    Object.keys(S.items).forEach((n) => { S.att[n] = []; });
+    const ref = (r) => { const p = r.split('.'); return { n: p[0], s: p[1] || 'j' }; };
+    S.pipes = S.pipes.map((q) => {
+      const e = { id: q[0], a: ref(q[1]), b: ref(q[2]), pts: q[3] };
+      S.E[e.id] = e;
+      S.att[e.a.n].push({ e: e.id, side: e.a.s, end: 'a' });
+      S.att[e.b.n].push({ e: e.id, side: e.b.s, end: 'b' });
+      return e;
+    });
+    S.pipes.forEach((e) => { e.arw = arrowAt(S, e); });
+    return S;
+  }
+  build(COOL); build(FUEL);
+  const SH = { cool: COOL, fuel: FUEL };
+  const PICK = { cool: ['P1', 'P2', 'S1', 'HX1'], fuel: ['S2', 'P3'] };
+  const P2B = ['s2', 'a2', 'b2', 'c2', 'd2'];                    // P2's branch, from the suction header to the discharge header
+
+  function newM() {
+    return {
+      sheet: 'cool', iso: 0, part: null, plant: 0, quiet: 0, hide: null, ghost: 0,
+      cool: { v: { V1: 1, V2: 1, V3: 1, V4: 1, V5: 1, V7: 1, V8: 1 }, run: { P1: 1, P2: 0 }, tv: 0 },
+      fuel: { v: { F1: 1, F2: 1, F3: 1, X1: 0 }, run: { P3: 1 }, tv: 0, lock: 0 },
+    };
+  }
+  // Can water go into part n by side sIn and out by side sOut?
+  function pass(S, c, n, sIn, sOut) {
+    const it = S.items[n];
+    if (it.k === 'j') return true;
+    if (it.k === 'tank' || sIn === sOut) return false;
+    if (it.k === 'valve') return !!c.v[n];
+    if (it.k === 'nrv') return (!!c.noNR && !!c.noNR[n]) || (sIn === 'a' && sOut === 'b');
+    if (it.k === 'pump') return !c.run[n] || (sIn === 'a' && sOut === 'b');   // a stopped pump passes water through its casing
+    if (it.k === 'tv') { const p = [sIn, sOut].sort().join(''); return p === 'ci' ? c.tv <= 1 : p === 'ip' ? c.tv >= 1 : false; }
+    return true;
+  }
+  // Every path that visits no part twice, from part `from` (leaving by `side`) until goal(part, side in).
+  function walk(S, c, from, side, goal, found) {
+    const seen = {}, path = [];
+    seen[from] = true;
+    const go = (n, sIn, eIn) => {
+      if (goal(n, sIn)) { found(path.slice()); return; }
+      if (seen[n]) return;
+      seen[n] = true;
+      S.att[n].forEach((at) => { if (at.e !== eIn && pass(S, c, n, sIn, at.side)) step(at); });
+      seen[n] = false;
+    };
+    const step = (at) => {
+      const e = S.E[at.e], fwd = at.end === 'a', far = fwd ? e.b : e.a;
+      path.push([e.id, fwd ? 1 : -1]);
+      go(far.n, far.s, e.id);
+      path.pop();
+    };
+    S.att[from].forEach((at) => { if (!side || at.side === side) step(at); });
+  }
+  // Which pipes carry flow, which way, how far along from the pump, and what each pump is doing.
+  function flowOf(m) {
+    const S = SH[m.sheet], c = m[m.sheet], lit = {}, depth = {}, pumps = {}, src = [];
+    const add = (p) => p.forEach((q, k) => { lit[q[0]] = q[1]; depth[q[0]] = Math.min(depth[q[0]] == null ? 99 : depth[q[0]], k); });
+    if (m.sheet === 'cool') {
+      ['P1', 'P2'].forEach((p) => {
+        if (!c.run[p]) { pumps[p] = 'stopped'; return; }
+        let any = false;
+        walk(S, c, p, 'b', (n, s) => n === p && s === 'a', (path) => { any = true; add(path); });
+        pumps[p] = any ? 'push' : 'dead';
+      });
+    } else if (!c.run.P3) pumps.P3 = 'stopped';
+    else {
+      ['T1', 'T2'].forEach((t) => { let any = false; walk(S, c, t, null, (n) => n === 'DT', (path) => { any = true; add(path); }); if (any) src.push(t); });
+      pumps.P3 = src.length ? 'push' : 'dead';
+    }
+    return { lit, depth, pumps, src };
+  }
+  // Isolate mode: from the part, every pipe out to the first hand valve on it (non-return valves and
+  // pumps count as open). A pipe shows red while that valve is open.
+  function isoOf(m) {
+    const S = SH[m.sheet], c = m[m.sheet], part = m.part, prev = {}, seen = {}, q = [part], doors = [];
+    seen[part] = true;
+    while (q.length) {
+      const n = q.shift();
+      S.att[n].forEach((at) => {
+        const e = S.E[at.e], far = at.end === 'a' ? e.b : e.a;
+        if (seen[far.n]) return;
+        seen[far.n] = true; prev[far.n] = [e.id, n];
+        const k = S.items[far.n].k;
+        if (k === 'valve' || k === 'tv' || k === 'tank') doors.push(far.n); else q.push(far.n);
+      });
+    }
+    const red = {}, open = [];
+    let viaNR = false;
+    doors.forEach((d) => {
+      if (S.items[d].k === 'valve' && !c.v[d]) return;
+      open.push(d);
+      for (let n = d; n !== part; n = prev[n][1]) { red[prev[n][0]] = 1; if (S.items[n].k === 'nrv') viaNR = true; }
+    });
+    return { red, open, doors, viaNR };
+  }
+
+  // ---------- each screen's state, advanced by one animation ----------
+  const twv = (q, t) => (q.dur <= 0 || t >= q.t0 + q.dur ? q.to : t <= q.t0 ? q.from : K.lerp(q.from, q.to, K.ease((t - q.t0) / q.dur)));
+  const approach = (v, g, s) => (v < g ? Math.min(g, v + s) : Math.max(g, v - s));
+  const mk = (o) => Object.assign({ t: 0, ev: [], until: 0, lights: [], rings: {}, L: {}, q: null, m: null, F: null, R: null, ghostAt: null }, o);
+  function light(st, k, t0, hold) { st.lights.push({ k, t0, hold }); st.until = Math.max(st.until, t0 + hold + 0.35); }
+  const lightA = (st, k) => st.lights.reduce((a, L) => (L.k === k ? Math.max(a, K.arrive(st.t, L.t0, 0.25) * (1 - K.arrive(st.t, L.t0 + L.hold, 0.3))) : a), 0);
+  function ring(st, id, delay) { st.rings[id] = st.t + delay; st.until = Math.max(st.until, st.t + delay + 0.45); }
+  // Work out the flow and the red pipes again; newly lit pipes light in turn, outward from the pump.
+  function relight(st, instant) {
+    const m = st.m;
+    if (!m) return;
+    const S = SH[m.sheet], F = flowOf(m), R = m.iso && m.part && !m.noRed ? isoOf(m) : null;
+    st.F = F; st.R = R;
+    S.pipes.forEach((e) => {
+      const key = m.sheet + e.id, L = st.L[key] || (st.L[key] = { f: 0, fg: 0, fs: 0, dir: 1, r: 0, rg: 0 });
+      const on = F.lit[e.id] && !m.quiet && !(m.hide && m.hide.indexOf(e.id) >= 0) ? 1 : 0;
+      if (on) L.dir = F.lit[e.id];
+      if (on !== L.fg) { L.fg = on; L.fs = on && !instant ? st.t + 0.05 + 0.06 * F.depth[e.id] : st.t; }
+      L.rg = R && R.red[e.id] ? 1 : 0;
+      if (instant) { L.f = L.fg; L.r = L.rg; }
+    });
+  }
+  const moving = (st) => Object.keys(st.L).some((k) => st.L[k].f !== st.L[k].fg || st.L[k].r !== st.L[k].rg);
+  const busy = (st) => st.ev.length > 0 || st.t < st.until || moving(st) || (!!st.q && st.q.from !== st.q.to && st.t < st.q.t0 + st.q.dur);
+  function advance(st, dt) {
+    st.t += dt;
+    while (st.ev.length && st.ev[0][0] <= st.t) { const e = st.ev.shift(); e[1](st, e[0]); }
+    Object.keys(st.L).forEach((k) => { const L = st.L[k]; if (st.t >= L.fs) L.f = approach(L.f, L.fg, dt / 0.25); L.r = approach(L.r, L.rg, dt / 0.25); });
+  }
+  function settle(st) { let g = 0; while (busy(st) && g++ < 4000) advance(st, 0.05); }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const HALO = {
+    eq: [[104, 106, 92, 36]], hx: [[234, 234, 86, 38]], pumps: [[52, 444, 96, 36], [202, 444, 92, 36]],
+    suct: [[96, 486, 46, 22], [208, 486, 46, 22]], nr: [[88, 418, 54, 22], [208, 418, 56, 22]], disch: [[96, 388, 46, 22], [208, 388, 46, 22]],
+    tv: [[194, 318, 136, 50], [176, 222, 48, 18]], ti: [[310, 141, 28, 28]], ht: [[44, 24, 136, 42]], v5s1: [[28, 220, 44, 22], [26, 298, 88, 36]],
+  };
+  const JOB = ['eq', 'hx', 'pumps', 'suct', 'nr', 'disch', 'tv', 'ti', 'ht', 'v5s1'];
+  const STEPS = [
+    { id: 'valve', name: 'Valve shut', kind: 'typed', view: 'curve', field: 'head0', unit: 'm', answer: 30,
+      task: "This pump's head is 30 − 0.04q² metres, where q is its flow in L/s. With its discharge valve open, it settled at 22 m. Shut that valve fully while it runs. What head does it give now?",
+      slips: [{ value: 22, hint: 'That is where it settled with the valve open. With the valve shut, no water flows.' }, { value: 0, hint: 'No water flows, but the pump still pushes. Its head is highest with the outlet shut.' }],
+      hint: 'With the valve shut, the flow q is zero.', want: '30 m', right: 'Full head, no flow.',
+      why: 'No water can pass, so q is 0. And 30 − 0.04 × 0² is 30 m. The pump spins and pushes, but nothing flows. No path is open.',
+      after: (st) => { st.q = { from: Q0, to: 0, t0: st.t + 0.2, dur: 1.2 }; st.until = Math.max(st.until, st.t + 1.95); } },
+    { id: 'job', name: 'The job first', show: true, noTap: true, init: (m) => { m.quiet = 1; },
+      text: 'This is a cooling water loop. Either of two pumps can push fresh water through a cooler and the equipment it cools, and back. Read the job first. Then name the parts. Then read the state they are drawn in.',
+      read: 'This is a cooling water loop. Either of two pumps can push fresh water through a cooler and the equipment it cools, and back. Read the job first. Then name the parts. Then read the state they are drawn in. Here the loop is at rest, with every part named by its tag.',
+      demo: (st) => JOB.forEach((k, j) => light(st, k, 0.3 + 0.32 * j, 0.4)) },
+    { id: 'drawn', name: 'As drawn', kind: 'pick', init: (m) => { m.quiet = 1; },
+      task: 'Every valve is drawn open. The labels under the pumps show the plant now. P1 is running and P2 is stopped. What is P2 doing?',
+      opts: ['Running, sharing the load', 'Standing by, ready to start', 'Isolated for work'], want: 'Standing by, ready to start',
+      hint: "P2's label says stopped. Only P1 is running.",
+      hints: { 'Running, sharing the load': "P2's label says stopped. Only P1 is running.", 'Isolated for work': 'Its suction and discharge valves are drawn open, so it is not cut off.' },
+      why: 'The sheet draws each valve in its normal position, unless a note says otherwise. Both of P2\'s valves are open. So it can start at once if P1 stops. That is a standby pump.',
+      after: (st) => { st.m.quiet = 0; relight(st, false); ring(st, 'P2', 0.2); } },
+    { id: 'path', name: 'One open path', show: true, mark: 'V7',
+      text: "In a pumped loop like this, water flows only where a path is open *all the way through a running pump*. Here it runs from P1 through the cooler and the equipment, and back to P1's suction. Shut one valve on that path and nothing flows at all. Tap V7 to shut it, then tap it again.",
+      read: "In a pumped loop like this, water flows only where a path is open all the way through a running pump. Here it runs from P1 through the cooler and the equipment, and back to P1's suction. Shut one valve on that path and nothing flows at all. P1 is running. Water is lit from P1 through NR1, V2, TV1, V7, the cooler, V8, the equipment, V5 and the strainer, and back to P1. With V7 shut, nothing is lit, and P1 runs against a shut valve." },
+    { id: 'back', name: 'Back through P2?', kind: 'pick', init: (m) => { m.hide = P2B.slice(); },
+      task: 'P1 runs. P2 is stopped, with both its valves open. Does water run back through P2 to the suction?',
+      opts: ['Yes, back through P2', 'No, its non-return valve stops it', 'No, because P2 is stopped'], want: 'No, its non-return valve stops it',
+      hint: "Look at NR2's arrow. Which way does it let water pass?",
+      hints: { 'Yes, back through P2': "Look at NR2's arrow. Which way does it let water pass?", 'No, because P2 is stopped': 'A stopped pump does not push, but water can pass through its casing. What else is on its branch?' },
+      why: "Water leaving P1 reaches the top of P2's branch at NR2. P1's discharge is at a higher pressure than the suction. So water would run back through P2 if it could. NR2 passes water only away from P2, so the branch stays still. Without it, some of P1's water would run back through P2 and miss the cooler.",
+      after: (st) => { st.m.hide = null; relight(st, false); ring(st, 'NR2', 0.2); } },
+    { id: 'tv', name: 'Through or round', show: true, mark: 'TV1',
+      text: 'TV1 is a *three-way valve*. It sends the water through the cooler, round it through the bypass, or some each way. A temperature sensor sets it along the dashed line. That line carries a signal, not water. Tap TV1.',
+      read: "TV1 is a three-way valve. It sends the water through the cooler, round it through the bypass, or some each way. A temperature sensor sets it along the dashed line. That line carries a signal, not water. TV1 is at full bypass. The water is lit through the bypass, round the cooler, and the cooler's line is pale.",
+      stillSet: (m) => { m.cool.tv = 2; } },
+    { id: 'fail', name: 'If the air fails', kind: 'pick', init: (m) => { m.cool.tv = 1; m.quiet = 1; },
+      task: 'TV1 is set some each way. Its diaphragm is worked by air. If the air supply fails, where does TV1 go?',
+      opts: ['To full bypass', 'You cannot tell from the drawing', 'Through the cooler'], want: 'Through the cooler',
+      hint: 'Read the note under the loop.',
+      hints: { 'To full bypass': 'Nothing in the symbol says which way air moves TV1. Read the note under the loop.', 'You cannot tell from the drawing': 'The symbol alone cannot tell you. But read the note under the loop.' },
+      why: 'A diaphragm symbol does not say whether air opens or shuts a valve. So the symbol alone cannot tell you where TV1 goes when its air fails. Note 1 can. It says TV1 is drawn in its fail position, and it is drawn through the cooler. A three-way valve is sometimes drawn where it fails to, not where it normally sits. So read the notes before you trust its drawn position.',
+      after: (st) => { st.m.cool.tv = 0; st.m.quiet = 0; relight(st, false); ring(st, 'TV1', 0.2); } },
+    { id: 'cut', name: 'Cut off on every side', show: true, sw: true, init: (m) => { m.iso = 1; },
+      text: 'To work on a part, *cut it off on every side*. Shut a valve on every pipe that reaches it. Then drain it and prove it at zero. In isolate mode, a pipe still open to the part shows red. Tap P2 to pick it.',
+      read: 'To work on a part, cut it off on every side. Shut a valve on every pipe that reaches it. Then drain it and prove it at zero. In isolate mode, a pipe still open to the part shows red. Isolate is on and P2 is picked. Its suction pipe is red to V3. Its discharge pipe is red through NR2 to V4.',
+      stillSet: (m) => { m.part = 'P2'; } },
+    { id: 'iso', name: 'Isolate P2', kind: 'taps', sw: true, init: (m) => { m.iso = 1; m.part = 'P2'; m.noRed = 1; }, shut: ['V3', 'V4'], want: 'V3 and V4',
+      task: "P2's casing must be opened while P1 keeps running. Tap the valves you would shut, then Check.",
+      read: "P2's casing must be opened while P1 keeps running. Which valves would you shut?",
+      hint: 'Follow every pipe from P2 to its first valve.',
+      why: "P2 has two pipes: its suction through V3, and its discharge through NR2 to V4. Shut and lock both valves, and lock off P2's starter. Then drain the casing and prove it at zero. P1 keeps the loop running throughout." },
+    { id: 'plant', name: 'Drawing against plant', show: true, sw: true,
+      text: 'A drawing is only as good as its match with the plant. Before you trust it for an isolation, check every valve on the plant against it. Tap Plant.',
+      read: 'A drawing is only as good as its match with the plant. Before you trust it for an isolation, check every valve on the plant against it. The plant sketch sits beside the drawing. It is the same loop, with its pipes where they really run.',
+      stillSet: (m) => { m.plant = 1; } },
+    { id: 'extra', name: 'One too many', kind: 'plantpick', sw: true, init: (m) => { m.plant = 1; }, ans: 'U', want: "The valve with no tag, on the header tank's line",
+      task: 'The plant has one valve the drawing does not show. Tap it.',
+      read: 'The plant has one valve the drawing does not show. Which one is it?',
+      hint: 'That one is on the drawing. Look for a valve with no tag.',
+      why: "It sits on the header tank's line, and it is shut. It cuts the loop off from its header tank. The drawing gives no sign of it. As the water warms, it expands. With nowhere to go, the loop's pressure climbs.",
+      after: (st) => { st.m.ghost = 1; st.ghostAt = st.t + 0.2; st.until = Math.max(st.until, st.t + 0.75); } },
+    { id: 'fuel', name: 'A second path', show: true, sw: true, init: (m) => { m.sheet = 'fuel'; },
+      text: "This sheet moves fuel from two storage tanks to a day tank. X1 is a *cross-connection*, drawn shut. It joins tank 2's line to the pump's suction. Open it, and P3 can draw from tank 2 as well. Tap X1.",
+      read: "This sheet moves fuel from two storage tanks to a day tank. X1 is a cross-connection, drawn shut. It joins tank 2's line to the pump's suction. Open it, and P3 can draw from tank 2 as well. X1 is open and P3 is running. Fuel is lit from both tanks through S2, P3, NR3 and F3 into the day tank.",
+      stillSet: (m) => { m.fuel.v.X1 = 1; } },
+    { id: 'which', name: 'Which tank?', kind: 'pick', sw: true, init: (m) => { m.sheet = 'fuel'; m.fuel.v.F1 = 0; m.fuel.v.X1 = 1; m.quiet = 1; },
+      task: 'P3 runs. F1 is shut, and F2 and X1 are open. Where does P3 draw from?',
+      opts: ['Tank 1 only', 'Both tanks', 'Tank 2 only'], want: 'Tank 2 only',
+      hint: 'F1 is shut. Follow the line from tank 2 through X1.',
+      hints: { 'Tank 1 only': 'F1 is shut. Follow the line from tank 2 through X1.', 'Both tanks': "F1 is shut, so tank 1's line stops there." },
+      why: "F1 shuts tank 1's line at the tank. Tank 2's fuel runs through F2 and the open X1 into the suction. Then it runs on through S2 and P3 to the day tank.",
+      after: (st) => { st.m.quiet = 0; relight(st, false); } },
+    { id: 'clean', name: 'Clean the strainer', kind: 'typed', sw: true, init: (m) => { m.sheet = 'fuel'; m.fuel.v.X1 = 1; m.fuel.run.P3 = 0; m.fuel.lock = 1; },
+      field: 'nshut', unit: '', answer: 3,
+      task: 'X1 is open, and P3 is stopped and locked off. You must open S2 to clean it. What is the smallest number of valves you must shut?',
+      slips: [{ value: 1, hint: 'That cuts off one side only. S2 has pipes on both sides.' }, { value: 2, hint: "Count every pipe that reaches S2. X1 joins tank 2's line to it. And a non-return valve is not an isolation." }, { value: 4, hint: "Shutting X1 already cuts off tank 2's line. F2 adds nothing." }],
+      hint: 'Count every pipe that reaches S2, on both sides.', want: '3',
+      why: "Two lines reach S2 from before it. Tank 1's comes through F1, and tank 2's through X1. After S2, the line runs through the stopped P3 and NR3 to F3, with the day tank beyond. Shut F1, X1 and F3.",
+      after: (st) => { ['F1', 'X1', 'F3'].forEach((k, j) => ring(st, k, 0.2 + 0.15 * j)); } },
+    { id: 'gate', name: 'Gate or globe?', kind: 'pick', sw: true, init: (m) => { m.sheet = 'fuel'; },
+      task: 'F1 and F3 are drawn with the same valve symbol. On the plant, F1 is a gate valve and F3 a globe valve. Where would the drawing tell you that?',
+      opts: ['In the valve symbol itself', "In each valve's tag or the sheet's notes and legend", 'Nowhere, so you must guess'], want: "In each valve's tag or the sheet's notes and legend",
+      hint: 'Gate and globe valves are often drawn the same. F1 and F3 look alike here.',
+      hints: { 'In the valve symbol itself': 'Gate and globe valves are often drawn the same. F1 and F3 look alike here.', 'Nowhere, so you must guess': 'Never guess what a valve is. Other parts of the drawing can say.' },
+      why: "Gate and globe valves are often drawn with the same symbol, so the symbol cannot tell them apart. The valve's tag or the sheet's notes and legend may say which it is. If nothing on the sheet says, check the valve on the plant.",
+      after: (st) => { ['F1', 'F3'].forEach((k, j) => ring(st, k, 0.2 + 0.15 * j)); } },
+  ];
+  const I = {};
+  STEPS.forEach((d, i) => { I[d.id] = i; });
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FINISH = 'On a pumped system, a pump drives flow only along a path that is open all the way through it. To work on a part safely, shut a valve on every pipe that reaches it.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  function fresh(i) {
+    const d = STEPS[i], st = mk({ res: null, pick: null, why: false, tries: 0, shown: false, fbText: '', touched: false });
+    if (d.view === 'curve') st.q = { from: Q0, to: Q0, t0: 0, dur: 0 };
+    else { st.m = newM(); if (d.init) d.init(st.m); relight(st, !d.show); }
+    if (d.show && d.demo) d.demo(st);
+    return st;
+  }
+  STEPS.forEach((d, i) => {
+    d.dur = 0;
+    if (!d.show) return;
+    const st = fresh(i);
+    let t = 0;
+    while (busy(st) && t < 20) { advance(st, 0.05); t += 0.05; }
+    d.dur = Math.round((t + 0.3) * 10) / 10;
+  });
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false, ctlAt = -1, plantAt = -1;
+  const swOnFor = (d, st) => !!d.sw && !!st.m && (!!d.show || st.res === 'right');
+  function tapOk(d, st, where) {
+    if (finished || !st.m) return false;
+    if (where === 'plant') return d.kind === 'plantpick' && st.res !== 'right' && st.m.sheet === 'cool' && !!st.m.plant;
+    if (d.noTap) return false;
+    return !!d.show || st.res === 'right' || d.kind === 'taps';
+  }
+
+  // ---------- drawing helpers (K.svg, never innerHTML) ----------
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r3(r) });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, a, cls) => add(g, 'polygon', { class: cls, points: a.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') });
+  const op = (e, a) => { if (a < 0.999) e.setAttribute('opacity', r3(Math.max(0, a))); return e; };
+  const text = (g, x, y, s, cls, anchor) => g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  const dstr = (P) => 'M' + P.map((q) => r3(q[0]) + ' ' + r3(q[1])).join('L');
+  function bowtie(g, x, y, o, cls) {
+    if (o === 'h') { poly(g, [[x - 8, y - 7], [x - 8, y + 7], [x, y]], cls); poly(g, [[x + 8, y - 7], [x + 8, y + 7], [x, y]], cls); }
+    else { poly(g, [[x - 7, y - 8], [x + 7, y - 8], [x, y]], cls); poly(g, [[x - 7, y + 8], [x + 7, y + 8], [x, y]], cls); }
+  }
+  // A non-return valve: an arrow-shaped body pointing the one way it passes, against a seat.
+  function nrvSym(g, x, y, d) {
+    const dx = d[0], dy = d[1], px = -dy, py = dx, bx = x - dx * 6, by = y - dy * 6, tx = x + dx * 5, ty = y + dy * 5;
+    poly(g, [[bx + px * 7, by + py * 7], [bx - px * 7, by - py * 7], [tx, ty]], 'vo');
+    line(g, tx + px * 7, ty + py * 7, tx - px * 7, ty - py * 7, 'sym');
+  }
+  function pumpSym(g, x, y, d) {
+    const dx = d[0], dy = d[1];
+    circle(g, x, y, 14, 'mc');
+    poly(g, [[x + dx * 14, y + dy * 14], [x + dx * 7 - dy * 4.5, y + dy * 7 + dx * 4.5], [x + dx * 7 + dy * 4.5, y + dy * 7 - dx * 4.5]], 'tri');
+  }
+  // TV1: in from below, out up to the cooler or left to the bypass; a shut way is filled in. Its actuator sits to the right.
+  function tvSym(g, x, y, set) {
+    poly(g, [[x - 7, y + 9], [x + 7, y + 9], [x, y]], 'vo');
+    poly(g, [[x - 7, y - 9], [x + 7, y - 9], [x, y]], set === 2 ? 'vs' : 'vo');
+    poly(g, [[x - 9, y - 7], [x - 9, y + 7], [x, y]], set === 0 ? 'vs' : 'vo');
+    line(g, x + 2, y, x + 16, y, 'sym');
+    path(g, 'M' + (x + 16) + ' ' + (y - 9) + 'A9 9 0 0 1 ' + (x + 16) + ' ' + (y + 9) + 'Z', 'symf');
+  }
+  function strainerSym(g, x, y) {
+    poly(g, [[x, y - 9], [x + 9, y], [x, y + 9], [x - 9, y]], 'symf');
+    line(g, x - 9, y, x + 9, y, 'mesh');
+  }
+  function arrow(g, w, dir, a) {
+    const ux = w.ux * dir, uy = w.uy * dir, h = 9, s = 5;
+    op(poly(g, [[w.x + ux * h / 2, w.y + uy * h / 2], [w.x - ux * h / 2 - uy * s, w.y - uy * h / 2 + ux * s], [w.x - ux * h / 2 + uy * s, w.y - uy * h / 2 - ux * s]], 'flh'), a);
+  }
+  function legend(g, x0, y0, flowWord, signal, extra) {
+    bowtie(g, x0 + 8, y0, 'h', 'vo'); text(g, x0 + 20, y0 + 4.5, 'open', 'kt', 'start');
+    bowtie(g, x0 + 66, y0, 'h', 'vs'); text(g, x0 + 78, y0 + 4.5, 'shut', 'kt', 'start');
+    let y = y0 + 16;
+    line(g, x0, y, x0 + 24, y, 'pipe'); nrvSym(g, x0 + 12, y, RIGHT); text(g, x0 + 30, y + 4.5, 'Non-return valve', 'kt', 'start');
+    y += 16; path(g, 'M' + x0 + ' ' + y + 'H' + (x0 + 18), 'fl'); poly(g, [[x0 + 26, y], [x0 + 17, y - 5], [x0 + 17, y + 5]], 'flh'); text(g, x0 + 30, y + 4.5, flowWord, 'kt', 'start');
+    y += 16; line(g, x0, y, x0 + 24, y, 'pipe'); text(g, x0 + 30, y + 4.5, 'No flow', 'kt', 'start');
+    if (signal) { y += 16; line(g, x0, y, x0 + 24, y, 'sig'); text(g, x0 + 30, y + 4.5, 'Signal', 'kt', 'start'); }
+    if (extra) { y += 16; line(g, x0, y, x0 + 24, y, extra); text(g, x0 + 30, y + 4.5, extra === 'red' ? 'Open to the part' : 'Not traced yet', 'kt', 'start'); }
+  }
+  // The pipes: pale, then the flow (bold, with arrows) and the red pipes of isolate mode over them.
+  function pipes(g, st, S) {
+    const m = st.m, hide = m.hide || [], Ls = S.pipes.map((e) => st.L[m.sheet + e.id] || { f: 0, r: 0, dir: 1 });
+    S.pipes.forEach((e) => path(g, dstr(e.pts), hide.indexOf(e.id) >= 0 ? 'untr' : 'pipe'));
+    S.pipes.forEach((e, k) => { if (Ls[k].f > 0.001) op(path(g, dstr(e.pts), 'fl'), Ls[k].f); });
+    S.pipes.forEach((e, k) => { if (Ls[k].r > 0.001) op(path(g, dstr(e.pts), 'red'), Ls[k].r); });
+    S.pipes.forEach((e, k) => { if (Ls[k].f > 0.001 && Ls[k].r < 0.5) arrow(g, e.arw, Ls[k].dir, Ls[k].f); });
+  }
+  function parts(g, S, c) {
+    Object.keys(S.items).forEach((n) => {
+      const it = S.items[n];
+      if (it.k === 'valve') bowtie(g, it.x, it.y, it.o, c.v[n] ? 'vo' : 'vs');
+      else if (it.k === 'nrv') nrvSym(g, it.x, it.y, it.d);
+      else if (it.k === 'pump') pumpSym(g, it.x, it.y, it.d);
+      else if (it.k === 'tv') tvSym(g, it.x, it.y, c.tv);
+      else if (it.k === 'hx') { circle(g, it.x, it.y, 14, 'mc'); path(g, 'M' + (it.x - 10) + ' ' + (it.y + 5) + 'L' + (it.x - 5) + ' ' + (it.y - 5) + 'L' + it.x + ' ' + (it.y + 5) + 'L' + (it.x + 5) + ' ' + (it.y - 5) + 'L' + (it.x + 10) + ' ' + (it.y + 5), 'sym'); }
+      else if (it.k === 'strainer') strainerSym(g, it.x, it.y);
+      else if (it.k === 'j' && it.dot) circle(g, it.x, it.y, 2.6, 'dot');
+    });
+  }
+  // A ring round a part and its tag, for an answer or the part picked in isolate mode.
+  const RINGBOX = {
+    P1: [44, 444, 104, 36], V7: [264, 280, 50, 24], TV1: [254, 313, 80, 36], P2: [200, 444, 102, 36], NR2: [207, 417, 60, 22], S1: [26, 298, 88, 36], HX1: [234, 234, 86, 38],
+    S2: [46, 174, 90, 36], P3: [40, 218, 114, 36], F1: [48, 84, 48, 24], X1: [146, 114, 28, 38], F3: [176, 264, 28, 38],
+  };
+  function rings(g, st) {
+    const m = st.m;
+    Object.keys(st.rings).forEach((k) => {
+      const a = K.arrive(st.t, st.rings[k], 0.4), b = RINGBOX[k];
+      if (a > 0.001 && b && SH[m.sheet].items[k]) op(rect(g, b[0], b[1], b[2], b[3], 'ring', 8), a);
+    });
+    if (m.iso && m.part && RINGBOX[m.part] && !st.rings[m.part]) { const b = RINGBOX[m.part]; rect(g, b[0], b[1], b[2], b[3], 'ring', 8); }
+  }
+
+  // ---------- what the sheet says: the running pump, and in isolate mode the part ----------
+  function pumpLines(st) {
+    const m = st.m, F = st.F, c = m[m.sheet];
+    if (m.sheet === 'fuel') return [F.pumps.P3 === 'push' ? 'P3 is pushing fuel to the day tank.' : F.pumps.P3 === 'dead' ? 'P3 is running against a shut valve.' : c.lock ? 'P3 is stopped and locked off.' : 'P3 is stopped.'];
+    const run = ['P1', 'P2'].filter((p) => c.run[p]), w = (p) => (F.pumps[p] === 'push' ? 'pushing water round.' : 'running against a shut valve.');
+    if (!run.length) return ['Both pumps are stopped.'];
+    if (run.length === 2 && F.pumps.P1 === F.pumps.P2) return ['P1 and P2 are ' + w('P1')];
+    return run.map((p) => p + ' is ' + w(p));
+  }
+  function statusLines(st, d) {
+    const m = st.m;
+    if (m.quiet) return [];
+    const pl = pumpLines(st);
+    if (!m.iso) return pl;
+    if (!m.part) return ['Isolate is on, with no part picked.', pl[0]];
+    if (d.kind === 'taps' && st.res !== 'right') return [m.part + ' is picked for isolation.', pl[0]];
+    const n = st.R.open.length, pump = SH[m.sheet].items[m.part].k === 'pump';
+    if (n) return [m.part + ': ' + NUM[n].toLowerCase() + (n === 1 ? ' pipe' : ' pipes') + ' still open to it.', pl[0]];
+    return [m.part + ' is cut off on every side.', pump ? 'Lock off its starter.' : pl[0]];
+  }
+  function shutList(c) { const s = Object.keys(c.v).filter((k) => !c.v[k]); return s.length ? 'Shut: ' + s.join(', ') + '. ' : 'Every valve is open. '; }
+
+  // ---------- the cooling loop ----------
+  const TAGS = [
+    ['V1', 118, 501.5, 'end'], ['NR1', 118, 432.5, 'end'], ['V2', 118, 402.5, 'end'], ['P1', 107, 459, 'end'],
+    ['V3', 232, 501.5, 'start'], ['NR2', 232, 432.5, 'start'], ['V4', 232, 402.5, 'start'], ['P2', 241, 459, 'start'],
+    ['V8', 288, 216.5, 'end'], ['HX1', 280, 250, 'end'], ['V7', 288, 296.5, 'end'], ['TV1', 288, 348, 'end'],
+    ['V5', 52, 234.5, 'start'], ['S1', 54, 314.5, 'start'], ['HT1', 100, 44, 'start'],
+  ];
+  const el = (id) => document.getElementById(id);
+  const sceneSvg = el('scene'), art = el('art'), plantSvg = el('plant'), partG = el('part');
+
+  function drawCool(g, st, d) {
+    const m = st.m, c = m.cool;
+    Object.keys(HALO).forEach((k) => { const a = lightA(st, k); if (a > 0.001) HALO[k].forEach((h) => op(rect(g, h[0], h[1], h[2], h[3], 'halo', 4), a)); });
+    legend(g, 186, 12, 'Water flowing', true, m.iso ? 'red' : m.hide ? 'untr' : null);
+    pipes(g, st, COOL);
+    // the temperature instrument on its stub, and its signal line to TV1's actuator
+    line(g, 300, 155, 313, 155, 'sym'); circle(g, 324, 155, 11, 'symf');
+    path(g, 'M324 166V326', 'sig');
+    // the header tank and the equipment
+    rect(g, 50, 30, 44, 32, 'symf'); rect(g, 52, 46, 40, 14, 'water');
+    parts(g, COOL, c);
+    rect(g, 110, 110, 80, 28, 'symf', 3); text(g, 150, 128.5, 'Equipment', 'lab');
+    TAGS.forEach((q) => text(g, q[1], q[2], q[0], 'tag', q[3]));
+    text(g, 280, 264, 'cooler', 'mt', 'end'); text(g, 54, 328, 'strainer', 'mt', 'start'); text(g, 100, 58, 'header tank', 'mt', 'start');
+    text(g, 220, 234, 'bypass', 'mt', 'end'); text(g, 288, 362, TVSET[c.tv], 'mt', 'end');
+    text(g, 107, 473, c.run.P1 ? 'running' : 'stopped', 'mt', 'end'); text(g, 241, 473, c.run.P2 ? 'running' : 'stopped', 'mt', 'start');
+    // the valve the drawing lacks, once found on the plant
+    if (m.ghost) {
+      const a = st.ghostAt == null ? 1 : K.arrive(st.t, st.ghostAt, 0.5);
+      if (a > 0.001) { const gg = add(g, 'g', {}); bowtie(gg, 72, 93, 'v', 'gh'); text(gg, 84, 97, 'missing', 'stl', 'start'); op(gg, a); }
+    }
+    text(g, 170, 546, 'Note 1: TV1 is drawn in its fail position.', 'lab13');
+    // a soft ring on the part a demonstration asks him to tap, until he taps it
+    if (d.mark && !st.touched && RINGBOX[d.mark]) { const b = RINGBOX[d.mark]; op(rect(g, b[0], b[1], b[2], b[3], 'ring', 8), 0.55); }
+    rings(g, st);
+    const L = statusLines(st, d);
+    L.forEach((s, k) => text(g, 170, COOL.H - 26 + 16 * k, s, 'lab13'));
+    return 'A cooling water loop drawn as a piping diagram: two pumps in parallel, each with a suction valve, a non-return valve and a discharge valve, then the three-way valve TV1, the cooler HX1 and its bypass, the equipment, the header tank HT1, V5 and the strainer S1, with a temperature sensor whose signal line runs to TV1. Note 1 says TV1 is drawn in its fail position. ' +
+      'P1 is ' + (c.run.P1 ? 'running' : 'stopped') + ' and P2 ' + (c.run.P2 ? 'running' : 'stopped') + '. TV1 is set ' + TVSET[c.tv] + '. ' + shutList(c) + (m.quiet ? 'No flow is shown yet.' : L.join(' '));
+  }
+
+  // ---------- the fuel transfer sheet ----------
+  const FTAGS = [['F1', 74, 100.5, 'start'], ['F2', 264, 100.5, 'start'], ['X1', 160, 128, 'middle'], ['S2', 76, 190.5, 'start'], ['P3', 80, 233, 'start'], ['NR3', 130, 278, 'middle'], ['F3', 190, 278, 'middle']];
+  function drawFuel(g, st, d) {
+    const m = st.m, c = m.fuel;
+    legend(g, 160, 172, 'Fuel flowing', false, m.iso ? 'red' : null);
+    pipes(g, st, FUEL);
+    [[24, 'Tank 1'], [214, 'Tank 2']].forEach((q) => { rect(g, q[0], 20, 72, 44, 'symf', 3); rect(g, q[0] + 2, 50, 68, 12, 'fuel'); text(g, q[0] + 36, 42, q[1], 'lab'); });
+    rect(g, 240, 262, 76, 56, 'symf', 3); rect(g, 242, 302, 72, 14, 'fuel'); text(g, 278, 289, 'Day tank', 'lab');
+    parts(g, FUEL, c);
+    FTAGS.forEach((q) => text(g, q[1], q[2], q[0], 'tag', q[3]));
+    text(g, 76, 204, 'strainer', 'mt', 'start'); text(g, 80, 247, c.lock && !c.run.P3 ? 'locked off' : c.run.P3 ? 'running' : 'stopped', 'mt', 'start');
+    rings(g, st);
+    const L = statusLines(st, d);
+    L.forEach((s, k) => text(g, 170, FUEL.H - 24 + 16 * k, s, 'lab13'));
+    return 'A fuel transfer sheet: storage tank 1 through F1, and storage tank 2 through F2 and the cross-connection X1, to the strainer S2, the pump P3, NR3 and F3, into the day tank. ' +
+      'P3 is ' + (c.run.P3 ? 'running' : 'stopped') + '. ' + shutList(c) + (m.quiet ? 'No flow is shown yet.' : L.join(' '));
+  }
+
+  // ---------- the plant as built: the same loop, its pipes where they really run, a tag plate on each valve ----------
+  const PL = {
+    V1: [110, 292, -1], V2: [110, 206, -1], NR1: [110, 232, -1], V3: [200, 292, 1], V4: [200, 206, 1], NR2: [200, 232, 1],
+    TV1: [290, 148, 0], V7: [290, 122, 1], V8: [290, 64, 1], V5: [45, 140, 1], U: [45, 70, 0],
+  };
+  const PPIPES = [
+    [[230, 25], [150, 25], [150, 100], [45, 100]],
+    [[45, 40], [45, 100]],
+    [[45, 100], [45, 312], [200, 312]],
+    [[110, 312], [110, 184]], [[200, 312], [200, 184]],
+    [[110, 184], [290, 184], [290, 148]],
+    [[290, 148], [290, 40]],
+    [[290, 148], [240, 148], [240, 50], [290, 50]],
+  ];
+  function plate(g, cx, cy, s) { const w = 10 + 9 * s.length; rect(g, cx - w / 2, cy - 8, w, 16, 'plate', 2); text(g, cx, cy + 4.2, s, 'pt'); }
+  function drawPlant(g, st) {
+    const c = st.m.cool;
+    PPIPES.forEach((P) => path(g, dstr(P), 'ppipe'));
+    rect(g, 20, 10, 50, 30, 'symf', 2); rect(g, 22, 24, 46, 14, 'water'); text(g, 78, 29.5, 'HT1', 'tag', 'start');
+    rect(g, 230, 10, 90, 30, 'symf', 3); text(g, 275, 29.5, 'Equipment', 'lab');
+    rect(g, 281, 78, 18, 30, 'symf', 7); text(g, 274, 97, 'HX1', 'tag', 'end');
+    strainerSym(g, 45, 192); text(g, 62, 196.5, 'S1', 'tag', 'start');
+    [[110, 'P1', -1], [200, 'P2', 1]].forEach((q) => {
+      const x = q[0];
+      line(g, x + 12, 262, x + 16, 262, 'sym'); rect(g, x + 16, 253, 26, 18, 'symf', 2); circle(g, x, 262, 12, 'mc');
+      text(g, q[2] < 0 ? x - 16 : x + 48, 266.5, q[1], 'tag', q[2] < 0 ? 'end' : 'start');
+    });
+    Object.keys(PL).forEach((id) => {
+      const x = PL[id][0], y = PL[id][1], side = PL[id][2];
+      if (id === 'TV1') { tvSym(g, x, y, c.tv); plate(g, 262, 166, 'TV1'); return; }
+      if (id === 'NR1' || id === 'NR2') nrvSym(g, x, y, UP);
+      else {
+        const ws = side ? -side : -1;                                 // the handwheel sits opposite the tag plate
+        line(g, x + ws * 7, y, x + ws * 13, y, 'sym'); line(g, x + ws * 13, y - 6, x + ws * 13, y + 6, 'wheel');
+        bowtie(g, x, y, 'v', id === 'U' ? (U_SHUT ? 'vs' : 'vo') : c.v[id] ? 'vo' : 'vs');
+      }
+      if (side) { const w = 10 + 9 * id.length; line(g, x + side * 8, y, x + side * 13.5, y, 'sym'); plate(g, x + side * (13.5 + w / 2), y, id); }
+    });
+    bowtie(g, 16, 334, 'h', 'vo'); text(g, 28, 338.5, 'open', 'kt', 'start');
+    bowtie(g, 80, 334, 'h', 'vs'); text(g, 92, 338.5, 'shut', 'kt', 'start');
+    rect(g, 146, 326, 24, 16, 'plate', 2); text(g, 178, 338.5, 'tag plate', 'kt', 'start');
+    if (st.pick && PL[st.pick]) circle(g, PL[st.pick][0], PL[st.pick][1], 13, 'ring');
+  }
+
+  // ---------- screen 1: the pump's curve ----------
+  const CX = (q) => 56 + q * 9.4, CY = (h) => 190 - h * 5;
+  const CURVE = K.linspace(0, 27.3, 56).map((q) => [CX(q), CY(head(q))]);
+  function drawCurve(g, st) {
+    const t = st.t, q = twv(st.q, st.t), mv = st.q.to !== st.q.from;
+    path(g, 'M56 190H316', 'ax'); poly(g, [[324, 190], [315, 185], [315, 195]], 'tri');
+    path(g, 'M56 190V30', 'ax'); poly(g, [[56, 22], [51, 31], [61, 31]], 'tri');
+    text(g, 8, 14, 'Head (m)', 'lab', 'start'); text(g, 322, 212, 'Flow q (L/s)', 'lab', 'end');
+    path(g, dstr(CURVE), 'curve'); text(g, 250, 96, 'pump curve', 'mt', 'start');
+    const x = CX(q), y = CY(head(q));
+    if (x > 57) { line(g, 56, y, x, y, 'guide'); line(g, x, y, x, 190, 'guide'); }
+    circle(g, x, y, 5, 'pdot');
+    const aOpen = mv ? 1 - K.arrive(t, st.q.t0, 0.3) : 1, aShut = mv ? K.arrive(t, st.q.t0 + st.q.dur, 0.4) : 0;
+    if (aOpen > 0.001) { op(text(g, 48, CY(head(Q0)) + 4.5, K.fmt(head(Q0), { decimals: 0 }) + ' m', 'lab', 'end'), aOpen); op(text(g, CX(Q0) + 8, CY(head(Q0)) - 10, 'valve open', 'mt', 'start'), aOpen); }
+    if (aShut > 0.001) { op(text(g, 48, CY(head(0)) + 4.5, K.fmt(head(0), { decimals: 0 }) + ' m', 'lab', 'end'), aShut); op(text(g, 68, 33, 'valve shut, no flow', 'mt', 'start'), aShut); }
+    const done = mv && t >= st.q.t0 + st.q.dur;
+    return "A pump's curve: its head falls as its flow rises. " + (done ? 'With the valve shut, it sits at no flow and ' + K.fmt(head(0)) + ' m of head.' : 'With its discharge valve open, it settled at ' + K.fmt(head(Q0), { decimals: 0 }) + ' m.');
+  }
+
+  // ---------- words ----------
+  function coolSay(st, i) {
+    const c = st.m.cool, F = st.F, run = ['P1', 'P2'].filter((p) => c.run[p]);
+    if (!run.length) return 'Both pumps are stopped, so nothing pushes the water. Nothing flows.';
+    const push = run.filter((p) => F.pumps[p] === 'push'), dead = run.filter((p) => F.pumps[p] === 'dead');
+    if (!push.length) return (run.length === 2 ? 'P1 and P2 are' : run[0] + ' is') + ' running, but a shut valve breaks every path round. So nothing flows.';
+    const who = push.length === 2 ? 'P1 and P2' : push[0];
+    const way = c.tv === 0 ? ' through the cooler and the equipment, and back to the suction.'
+      : c.tv === 1 ? ' through the cooler and the bypass, some each way. It meets again before the equipment and comes back to the suction.'
+        : ' round the cooler through the bypass. It reaches the equipment uncooled and comes back to the suction.';
+    let s = 'A path is open all the way round, so water flows from ' + who + way;
+    if (dead.length) s += ' ' + dead[0] + ' runs against a shut valve, so none of its water moves.';
+    else if (push.length === 1) {
+      const o = push[0] === 'P1' ? 'P2' : 'P1', V = o === 'P1' ? ['V1', 'V2'] : ['V3', 'V4'];
+      if (i >= I.back && !c.run[o] && c.v[V[0]] && c.v[V[1]]) s += ' ' + (o === 'P1' ? 'NR1' : 'NR2') + ' stops water running back through ' + o + '.';
+    }
+    return s;
+  }
+  function fuelSay(st) {
+    const c = st.m.fuel, F = st.F;
+    if (!c.run.P3) return 'P3 is stopped' + (c.lock ? ' and locked off' : '') + ', so nothing pushes the fuel. Nothing flows.';
+    if (F.pumps.P3 !== 'push') return 'P3 is running, but no open path runs from a storage tank to the day tank. So nothing flows.';
+    const on = 'Fuel flows through S2, P3, NR3 and F3 into the day tank.';
+    if (F.src.length === 2) return 'X1 is open, so P3 draws from both tanks. ' + on;
+    if (F.src[0] === 'T2') return 'F1 is shut, so P3 draws from tank 2 only, through F2 and X1. ' + on;
+    return 'P3 draws from tank 1 through F1. ' + on + (!c.v.X1 ? " X1 is shut, so tank 2's line stays still." : !c.v.F2 ? " F2 is shut, so tank 2's line stays still." : '');
+  }
+  function isoSay(st) {
+    const m = st.m, P = m.part;
+    if (!P) return m.sheet === 'cool' ? 'Pick a pump, the strainer or the cooler, and every pipe still open to it shows red.' : 'Pick the pump or the strainer, and every pipe still open to it shows red.';
+    const n = st.R.open.length, pump = SH[m.sheet].items[P].k === 'pump';
+    if (!n) return 'Every pipe that reaches ' + P + ' is shut at a valve, so ' + P + ' is cut off on every side. ' + (pump ? 'Lock off its starter, then drain it and prove it at zero.' : 'Drain it and prove it at zero before you open it.');
+    let s = (n === 1 ? 'One pipe is' : NUM[n] + ' pipes are') + ' still open to ' + P + ', shown red. ' + (n === 1 ? 'It runs' : 'Each runs') + ' as far as the first valve on it.';
+    if (st.R.viaNR) s += ' A non-return valve does not count, because it can let ' + (m.sheet === 'cool' ? 'water' : 'fuel') + ' back past its seat.';
+    return s;
+  }
+  function plantSay(st) {
+    if (st.m.ghost) return "The valve on the header tank's line has no tag plate, and it is shut. The drawing does not show it, so the sheet now marks it as missing.";
+    return 'The plant sketch shows the same loop as built. Each tag plate should match a valve on the drawing.';
+  }
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.show && st.res !== 'right') return '';
+    if (d.view === 'curve') return 'With the valve shut, no water passes, so q is 0. The pump gives its full head of ' + K.fmt(head(0)) + ' m, but nothing flows.';
+    const m = st.m;
+    if (d.id === 'job') return 'Each part is named by its tag. HX1 is the cooler and HT1 the header tank. The small circle is the temperature sensor that sets TV1.';
+    if (m.quiet) return '';
+    if (m.iso) return isoSay(st);
+    if (m.sheet === 'cool' && m.plant) return plantSay(st);
+    return m.sheet === 'cool' ? coolSay(st, i) : fuelSay(st);
+  }
+  function tapsHint(st) {
+    const c = st.m.cool, shut = Object.keys(c.v).filter((k) => !c.v[k]);
+    if (shut.some((k) => k !== 'V3' && k !== 'V4')) return "That valve is not on P2's branch. Shut only what reaches P2, so P1 keeps cooling.";
+    if (shut.join() === 'V4') return 'The suction pipe is still red. It reaches the loop through V3.';
+    if (shut.join() === 'V3') return 'The red runs through NR2 to V4. A non-return valve can let water back past its seat, and it cannot be locked shut.';
+    return STEPS[I.iso].hint;
+  }
+  // Text with amber key terms (built with K.el, never innerHTML).
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at0 = 0, mm;
+    s = String(s || '');
+    while ((mm = re.exec(s))) {
+      if (mm.index > at0) node.appendChild(document.createTextNode(s.slice(at0, mm.index)));
+      node.appendChild(K.el('span', { class: 'term' }, mm[1]));
+      at0 = mm.index + mm[0].length;
+    }
+    if (at0 < s.length) node.appendChild(document.createTextNode(s.slice(at0)));
+  }
+  let lastSay = null;
+  function setSay(s) { if (s === lastSay) return; lastSay = s; el('say').hidden = !s; write(el('say'), s); }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()), 0, STEPS.length - 1);
+  // Dan takes over: what a demonstration still had to do happens at once, and its highlights end.
+  function takeOver(st) {
+    while (st.ev.length) { const e = st.ev.shift(); e[1](st, st.t); }
+    st.lights = []; st.touched = true; st.until = st.t;
+  }
+  // Tapping the drawing: a valve opens or shuts, TV1 steps its setting, a pump starts or stops; in
+  // isolate mode a pump, a strainer or the cooler is picked instead.
+  function tap(id) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!tapOk(d, st, 'draw')) return;
+    const m = st.m, it = SH[m.sheet].items[id], c = m[m.sheet];
+    if (!it) return;
+    if (d.kind === 'taps' && st.res !== 'right' && it.k !== 'valve') return;   // the puzzle asks for valves only
+    takeOver(st);
+    if (it.k === 'valve') c.v[id] = c.v[id] ? 0 : 1;
+    else if (it.k === 'tv') c.tv = (c.tv + 1) % 3;
+    else if (m.iso && PICK[m.sheet].indexOf(id) >= 0) m.part = m.part === id ? null : id;
+    else if (it.k === 'pump') { c.run[id] = c.run[id] ? 0 : 1; if (c.run[id]) c.lock = 0; }
+    else return;
+    m.noRed = 0;
+    if (d.kind === 'taps' && st.res !== 'right') st.res = null;
+    relight(st, false);
+    K.reveal();
+    K.refresh();
+  }
+  function plantTap(id) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!tapOk(d, st, 'plant')) return;
+    takeOver(st);
+    st.pick = id; st.res = null;
+    K.reveal();
+    K.refresh();
+  }
+  const HITS = {
+    cool: [['V1', 30], ['V2', 30], ['V3', 30], ['V4', 30], ['V5', 30], ['V7', 30], ['V8', 30], ['TV1', 34], ['P1', 36], ['P2', 36], ['S1', 30], ['HX1', 32]],
+    fuel: [['F1', 30], ['F2', 30], ['F3', 30], ['X1', 30], ['P3', 36], ['S2', 30]],
+  };
+  function hitRect(g, cx, cy, w, label, fn) {
+    const r = K.svg('rect', { class: 'hit', x: r3(cx - w / 2), y: r3(cy - w / 2), width: w, height: w, rx: 6, tabindex: '0', role: 'button', 'aria-label': label });
+    r.addEventListener('click', fn);
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } });
+    g.appendChild(r);
+  }
+  let hitView = null;
+  function buildHits(view) {
+    hitView = view;
+    const g = el('hits');
+    g.textContent = '';
+    (HITS[view] || []).forEach((h) => { const it = SH[view].items[h[0]]; hitRect(g, it.x + (h[0] === 'TV1' ? 6 : 0), it.y, h[1], h[0], () => tap(h[0])); });
+  }
+  Object.keys(PL).forEach((id) => hitRect(el('phits'), PL[id][0], PL[id][1], 26, id === 'U' ? "Valve on the header tank's line" : id, () => plantTap(id)));
+
+  const SW = {}, B = {};
+  function group(k, label) {
+    const box = el('ctl').appendChild(K.el('div', { class: 'sw' }));
+    box.appendChild(K.el('span', { class: 'k-label' }, label));
+    SW[k] = box;
+    return box.appendChild(K.el('div', { class: 'row' }));
+  }
+  function flip(fn) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || !swOnFor(d, st)) return;
+    takeOver(st);
+    fn(st.m);
+    relight(st, false);
+    K.reveal();
+  }
+  let gr = group('sheet', 'Sheet');
+  B.cool = K.button({ label: 'Cooling', secondary: true, into: gr, press: () => flip((m) => { if (m.sheet !== 'cool') { m.sheet = 'cool'; m.part = null; } }) });
+  B.fuel = K.button({ label: 'Fuel', secondary: true, into: gr, press: () => flip((m) => { if (m.sheet !== 'fuel') { m.sheet = 'fuel'; m.part = null; m.plant = 0; } }) });
+  gr = group('mode', 'Switches');
+  B.iso = K.button({ label: 'Isolate', secondary: true, into: gr, press: () => flip((m) => { m.iso = m.iso ? 0 : 1; if (!m.iso) m.part = null; }) });
+  B.plant = K.button({ label: 'Plant', secondary: true, into: gr, press: () => flip((m) => { if (m.sheet === 'cool') m.plant = m.plant ? 0 : 1; }) });
+  const pr = (b, v) => b.el.setAttribute('aria-pressed', v ? 'true' : 'false');
+  function paintCtl(m) { pr(B.cool, m.sheet === 'cool'); pr(B.fuel, m.sheet === 'fuel'); pr(B.iso, m.iso); pr(B.plant, m.plant); B.plant.el.hidden = m.sheet !== 'cool'; }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  function afterRight(i) { const d = STEPS[i]; if (d.after) d.after(S[i]); }
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = d.right || "That's it."; afterRight(i); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shown = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); afterRight(i); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (d.kind === 'taps') {
+      const c = st.m.cool, shut = Object.keys(c.v).filter((k) => !c.v[k]).sort().join();
+      st.m.noRed = 0; relight(st, false);
+      if (shut === d.shut.join()) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+      return;
+    }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    const ok = d.kind === 'plantpick' ? st.pick === d.ans : st.pick === d.want;
+    if (ok) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at();
+    if (finished || STEPS[i].show || whyBtn.el.hidden) return;
+    S[i].why = !S[i].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show || !d.demo) return;
+    S[i] = fresh(i);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // A demonstration's still is its finished picture, in the state its sentence ends on; a puzzle's
+  // still is its answered picture, with the motion after the answer settled.
+  STEPS.forEach((d, i) => {
+    if (d.show) d.still = () => { S[i] = fresh(i); settle(S[i]); if (d.stillSet) { d.stillSet(S[i].m); relight(S[i], true); } settle(S[i]); anim.pause(); K.refresh(); };
+    else d.still = () => {
+      const st = S[i];
+      if (st.res !== 'right') {
+        if (d.kind === 'pick') st.pick = d.want;
+        if (d.kind === 'plantpick') st.pick = d.ans;
+        if (d.kind === 'taps') { d.shut.forEach((k) => { st.m.cool.v[k] = 0; }); st.m.noRed = 0; relight(st, true); }
+        if (d.kind === 'typed') { ANS[i].reveal(); st.fbText = d.right || "That's it."; }
+        st.res = 'right'; afterRight(i);
+      }
+      settle(st); anim.pause(); K.refresh();
+    };
+  });
+
+  // One animation plays each demonstration, the flow lighting along its path, and the motion after an
+  // answer; with reduced motion (and while the self-test looks) everything settles at once.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const st = S[at()];
+    advance(st, Math.min(dt, 0.1));
+    paint();
+    return busy(st);
+  } });
+  function play() {
+    const st = S[at()];
+    if (REDUCE || testing()) { settle(st); anim.pause(); paint(); return; }
+    if (!anim.playing()) anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+
+  // ---------- the page ----------
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i];
+    const view = d.view === 'curve' ? 'curve' : st.m.sheet;
+    if (view !== hitView) buildHits(view);
+    art.textContent = '';
+    let H = 222, alt;
+    if (view === 'curve') alt = drawCurve(art, st);
+    else if (view === 'cool') { H = COOL.H; alt = drawCool(art, st, d); }
+    else { H = FUEL.H; alt = drawFuel(art, st, d); }
+    sceneSvg.setAttribute('viewBox', '0 0 340 ' + H);
+    sceneSvg.setAttribute('aria-label', alt);
+    sceneSvg.classList.toggle('tappable', tapOk(d, st, 'draw'));
+    // the plant sketch, beside the drawing when Plant is on
+    const pf = el('plantfig'), showP = !!st.m && st.m.sheet === 'cool' && !!st.m.plant;
+    if (showP && pf.hidden && plantAt === i) enter('plantfig');
+    pf.hidden = !showP; plantAt = i;
+    if (showP) { partG.textContent = ''; drawPlant(partG, st); plantSvg.classList.toggle('tappable', tapOk(d, st, 'plant')); }
+    if (st.m) paintCtl(st.m);
+    setSay(sayFor(i));
+    // a demonstration's words fade in as its motion settles
+    K.fade(el('say'), d.show && d.dur > 0.6 && !st.touched ? K.arrive(st.t, d.dur - 0.45, 0.4) : 1, 3);
+  }
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); lastSay = null;
+      if (d.show) S[i] = fresh(i); else if (busy(S[i])) settle(S[i]);
+      if (!busy(S[i])) anim.pause();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+
+    // a puzzle's tabs and switches take no room until he has answered, then grow in
+    const on = swOnFor(d, st), ctl = el('ctl'), grow = on && ctl.hidden && ctlAt === i;
+    ctl.hidden = !on; ctlAt = i;
+    if (grow) enter('ctl');
+
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('tools').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      write(b.el.appendChild(K.el('span', { class: 'opt' })), opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    let f = '';
+    if (!d.show) {
+      if (d.kind === 'typed') f = st.fbText;
+      else if (right) f = "That's it.";
+      else if (st.res === 'wrong') f = d.kind === 'taps' ? tapsHint(st) : d.kind === 'plantpick' ? d.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty') f = d.kind === 'plantpick' ? 'Tap one of the valves on the plant sketch.' : 'Tap one of the answers.';
+    }
+    fb.className = 'fb' + (right && !st.shown ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    // a typed puzzle's Why? states the figure, so it shows only once he has answered
+    whyBtn.el.hidden = d.kind === 'typed' && st.res !== 'right' && st.res !== 'wrong';
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+    if (busy(st)) play();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const lineup = (o) => { const m = newM(); if (o) o(m); return m; };
+  const LOOP = ['b1', 'c1', 'd1', 'up', 'k7', 'hx', 'k8', 'm8', 'top', 'ret', 'v5', 's5', 'sS', 's1', 'a1'];
+  K.check('Unless otherwise stated, valves are drawn in their normal position, the primary flowpath: the cooling sheet opens with every valve open, one pump running, the other stopped, and the water lit through the cooler', () => {
+    const m = newM(), c = m.cool, F = flowOf(m);
+    return Object.keys(c.v).every((k) => c.v[k] === 1) && c.run.P1 === 1 && c.run.P2 === 0 && c.tv === 0 && F.pumps.P1 === 'push' && !!F.lit.k7 && !!F.lit.hx && !!F.lit.k8 && !F.lit.by;
+  }, { source: SRC_DOE });
+  K.check("Isolation points on the plant must match the line diagram: the plant sketch has exactly one valve the drawing lacks, on the header tank's line, and it is drawn shut", () => {
+    const extra = Object.keys(PL).filter((k) => !COOL.items[k]), hl = PPIPES[1];
+    return extra.length === 1 && extra[0] === 'U' && PL.U[0] === hl[0][0] && PL.U[0] === hl[1][0] && PL.U[1] > hl[0][1] && PL.U[1] < hl[1][1] && U_SHUT === true;
+  }, { source: SRC_HSE });
+  K.check('With P1 running and every valve open, water lights all the way round through the cooler; shut V7 and nothing is lit, and P1 runs against a shut valve', () => {
+    const a = flowOf(newM()), b = flowOf(lineup((m) => { m.cool.v.V7 = 0; }));
+    return LOOP.every((k) => a.lit[k] === 1) && Object.keys(a.lit).length === LOOP.length && !Object.keys(b.lit).length && b.pumps.P1 === 'dead';
+  });
+  K.check("NR2 stops water running back through the stopped P2: its branch stays dark, but with NR2 taken out, P1's water would run back through P2", () => {
+    const a = flowOf(newM()), b = flowOf(lineup((m) => { m.cool.noNR = { NR2: 1 }; }));
+    return P2B.every((k) => !a.lit[k]) && P2B.every((k) => b.lit[k] === -1);
+  });
+  K.check('TV1 always leaves an outlet open: at full bypass the water still goes round, through the bypass and not the cooler; some each way lights both', () => {
+    const b = flowOf(lineup((m) => { m.cool.tv = 2; })), s = flowOf(lineup((m) => { m.cool.tv = 1; }));
+    return b.pumps.P1 === 'push' && !!b.lit.by && !b.lit.k7 && !b.lit.hx && !!s.lit.by && !!s.lit.k7;
+  });
+  K.check("Whatever the lineup, no lit pipe ends at a shut valve, no water passes a non-return valve backwards, nothing flows with both pumps stopped, and the header tank's line never lights", () => {
+    const names = ['V1', 'V2', 'V3', 'V4', 'V5', 'V7', 'V8'];
+    for (let b = 0; b < 128; b++) for (let r = 0; r < 4; r++) for (let tv = 0; tv < 3; tv++) {
+      const m = newM();
+      names.forEach((n, k) => { m.cool.v[n] = (b >> k) & 1; });
+      m.cool.run = { P1: r & 1, P2: (r >> 1) & 1 }; m.cool.tv = tv;
+      const F = flowOf(m);
+      if (F.lit.ht || (!r && Object.keys(F.lit).length)) return false;
+      if (F.lit.b1 === -1 || F.lit.c1 === -1 || F.lit.b2 === -1 || F.lit.c2 === -1) return false;
+      for (const id in F.lit) { const e = COOL.E[id]; if ([e.a, e.b].some((q) => COOL.items[q.n].k === 'valve' && !m.cool.v[q.n])) return false; }
+    }
+    return true;
+  });
+  K.check('Isolating P2 takes V3 and V4: with both shut no red is left; V3 alone leaves its discharge red through NR2 to V4, and V4 alone leaves its suction red to V3', () => {
+    const iso = (sh) => isoOf(lineup((m) => { m.iso = 1; m.part = 'P2'; sh.forEach((k) => { m.cool.v[k] = 0; }); }));
+    const a = iso([]), b = iso(['V3']), c = iso(['V4']), d = iso(['V3', 'V4']);
+    return a.open.sort().join() === 'V3,V4' && b.open.join() === 'V4' && !!b.red.b2 && !!b.red.c2 && b.viaNR && c.open.join() === 'V3' && !!c.red.a2 && !c.red.b2 &&
+      !d.open.length && !Object.keys(d.red).length && STEPS[I.iso].shut.join() === 'V3,V4';
+  });
+  K.check('On the fuel sheet, with F1 shut and F2 and X1 open, P3 draws from tank 2 only; with X1 shut, from tank 1 only; with P3 stopped, nothing moves', () => {
+    const f = (o) => flowOf(lineup((m) => { m.sheet = 'fuel'; o(m.fuel); }));
+    const a = f((c) => { c.v.F1 = 0; c.v.X1 = 1; }), b = f(() => {}), z = f((c) => { c.v.X1 = 1; c.run.P3 = 0; });
+    return a.src.join() === 'T2' && !a.lit.t1 && !a.lit.f1 && !!a.lit.x1 && b.src.join() === 'T1' && !b.lit.x1 && !b.lit.f2 && !!b.lit.fd && !Object.keys(z.lit).length && z.pumps.P3 === 'stopped';
+  });
+  K.check('To open S2 with X1 open takes three valves, F1, X1 and F3; shutting X1 already cuts off tank 2, so F2 adds nothing; the field asks exactly this', () => {
+    const iso = (sh) => isoOf(lineup((m) => { m.sheet = 'fuel'; m.iso = 1; m.part = 'S2'; m.fuel.v.X1 = 1; sh.forEach((k) => { m.fuel.v[k] = 0; }); }));
+    const a = iso([]), b = iso(['F1', 'X1', 'F3']), c = iso(['F1', 'F2', 'F3']), d = STEPS[I.clean];
+    return a.open.sort().join() === 'F1,F3,X1' && !b.open.length && c.open.join() === 'X1' && d.answer === 3 && d.slips.map((x) => x.value).join() === '1,2,4' && ANS[I.clean].spec.answer === 3 && d.want === '3';
+  });
+  K.check('Worked by hand: with the valve open, 30 − 0.04 × 200 = 22 m; shut, q = 0 and the head is 30 m; the slips are the open-valve head and no head at all', () => {
+    const d = STEPS[I.valve];
+    return K.near(head(Q0), 22, 1e-9) && head(0) === 30 && d.answer === 30 && d.slips.map((x) => x.value).join() === '22,0' && ANS[I.valve].spec.answer === 30 && d.want === '30 m';
+  });
+  K.check("Before an answer nothing gives it away: screens 3, 7 and 13 show no flow, screen 5 leaves P2's branch untraced, screen 9 shows no red and names no cut-off, screen 11 shows no ghost, screen 14 no red and no rings, and the say line names NR2 only from screen 5 on", () => {
+    const dark = (i) => { const st = fresh(i); return !!st.m.quiet && Object.keys(st.L).every((k) => st.L[k].f === 0) && !statusLines(st, STEPS[i]).length; };
+    const ok = DO.every((i) => { const st = fresh(i); return !swOnFor(STEPS[i], st) && !Object.keys(st.rings).length; });
+    const b = fresh(I.back), s9 = fresh(I.iso), s11 = fresh(I.extra), s14 = fresh(I.clean), q = fresh(I.valve).q;
+    const l9 = statusLines(s9, STEPS[I.iso]).join(' ');
+    const nr = (i) => { const st = fresh(i); st.m.quiet = 0; relight(st, true); return coolSay(st, i).indexOf('NR2') >= 0; };
+    return ok && dark(I.drawn) && dark(I.fail) && dark(I.which) && !Object.keys(s9.L).some((k) => s9.L[k].r > 0) && !s9.R && !nr(I.drawn) && !nr(I.path) && nr(I.back) && P2B.every((k) => b.L['cool' + k].f === 0) && b.L.coolup.f === 1 &&
+      l9.indexOf('cut off') < 0 && l9.indexOf('still open') < 0 && !s11.m.ghost && !s14.m.iso && !Object.keys(s14.L).some((k) => s14.L[k].r > 0) && q.from === Q0 && q.to === Q0;
+  });
+  K.check('3-way valves are sometimes drawn in the position they fail to: the sheet carries Note 1 for TV1, its drawn setting is through the cooler, and the air-fails puzzle answers through the cooler', () => {
+    const m = newM(), d = STEPS[I.fail];
+    return m.cool.tv === 0 && TVSET[0] === 'to cooler' && d.want === 'Through the cooler' && d.opts.indexOf(d.want) >= 0;
+  }, { source: SRC_DOE });
+  K.check("Every demonstration settles within 4.5 s, and every answer's motion within 3 s", () =>
+    STEPS.every((d, i) => {
+      if (d.show) return d.dur <= 4.5;
+      const st = fresh(i);
+      st.res = 'right';
+      if (d.after) d.after(st);
+      let t = 0;
+      while (busy(st) && t < 30) { advance(st, 0.05); t += 0.05; }
+      return t <= 3;
+    }));
+
+  K.ready();
+</script>

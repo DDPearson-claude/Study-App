@@ -1,0 +1,20 @@
+{
+  "title": "Reading drawings and schematics",
+  "hook": "You lock off the breaker that feeds a pump on its single-line diagram, yet the pump's starter is still live. The drawing is right. What did you miss on it?",
+  "oneBreath": "Every system diagram, electrical, hydraulic, air or pipework, is a map of what is joined to what, not a picture of the plant. Find the sources, find the state it is drawn in, then trace one path at a time, and the four kinds become one skill with four sets of symbols. An engineering drawing is the odd one out: it shows one object's shape, seen square-on from several sides and set out by a fixed rule.",
+  "ideas": [
+    { "id": "i1", "title": "How any diagram talks", "oneLine": "Any system diagram maps what is joined to what, not where parts sit, so you read it by following connections, never by layout.", "deps": [], "kind": "concept" },
+    { "id": "i2", "title": "Single-line diagrams: from each source to each load", "oneLine": "Trace a single-line diagram, a board's power map, from each source to each load, seeing what every breaker feeds and which loads have two feeds.", "deps": ["i1"], "kind": "skill" },
+    { "id": "i3", "title": "Control schematics: coils, contacts and cross-references", "oneLine": "A control schematic draws each contact apart from the coil that moves it; the cross-reference under each coil finds its contacts, wherever they are drawn.", "deps": ["i1"], "kind": "mechanism" },
+    { "id": "i4", "title": "Fluid power symbols", "oneLine": "Hydraulic and air symbols are built from simple marks that each mean one thing, so you can read one you have never met.", "deps": ["i1"], "kind": "structure" },
+    { "id": "i5", "title": "Valves in fluid power", "oneLine": "A valve that steers oil or air is drawn as one box per position, and only the box against the ports shows where it flows.", "deps": ["i4"], "kind": "mechanism" },
+    { "id": "i6", "title": "Tracing a hydraulic circuit, then a pneumatic one", "oneLine": "For each valve position, trace the supply to one side of a cylinder, and the other side out to the tank or, in air, the exhaust.", "deps": ["i3", "i5"], "kind": "skill" },
+    { "id": "i7", "title": "Piping and system diagrams", "oneLine": "On a piping diagram, flow runs only along open paths from a running pump, so you can find which valves to shut to isolate a part.", "deps": ["i1", "i5"], "kind": "skill" },
+    { "id": "i8", "title": "Engineering drawings", "oneLine": "An engineering drawing shows one object in several square-on views, laid out by a fixed rule, so you can rebuild its shape in your head.", "deps": ["i1"], "kind": "skill" },
+    { "id": "i9", "title": "Reading one you have never seen", "oneLine": "Read a diagram you have never seen in four steps: legend, sources, the state it is drawn in, then one path at a time.", "deps": ["i2", "i3", "i6", "i7", "i8"], "kind": "skill" }
+  ],
+  "calibration": [
+    { "id": "c1", "iid": "i1", "q": "On a circuit drawing, two wires cross in the middle of the page with no dot where they meet. Are they joined?", "options": ["Yes, wires that touch on paper are joined", "No, they just pass over each other", "It depends where they sit in the real panel"], "answer": 1, "why": "On circuit drawings a crossing with no dot is two wires passing over each other, and a dot is drawn where wires join. Lines touching on paper is not a join, and where the wires sit in the panel does not change what the drawing joins." },
+    { "id": "c2", "iid": "i3", "q": "Two pumps are wired so only one runs at once. A switch in pump B's circuit opens whenever A runs. On the drawing, is it shown open or closed?", "options": ["Open, because A runs most of the time", "Either, whichever way the drawer chose", "Closed, as it sits with everything switched off"], "answer": 2, "why": "Control drawings show every switch as it sits with nothing switched on, so this one is drawn closed, even though it is open whenever A runs. A drawing that followed what usually happens would need redrawing each time the plant changed." }
+  ]
+}

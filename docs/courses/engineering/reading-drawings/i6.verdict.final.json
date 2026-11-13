@@ -1,0 +1,159 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each symbol is drawn in its normal or neutral condition: the press opens with both solenoids off, the middle box against the ports, P to T unloading the pump and the ram held near the top",
+        "ok": true,
+        "source": "https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy"
+      },
+      {
+        "label": "When pressure is applied to the top chamber, the bottom chamber is aligned to drain back to the reservoir: with -Y1 the left box feeds A at the top and lines B at the bottom up to T",
+        "ok": true
+      },
+      {
+        "label": "With the supply connected to the piston side and the rod side exhausted, the pressure on the piston side advances the rod: -Y3 feeds the piston side, exhausts the rod side and the rod comes out",
+        "ok": true
+      },
+      {
+        "label": "With -Y1 the ram comes down, stops on the work and all the pump's oil then goes over the relief valve; with -Y2 it goes back up, and at the top the oil goes over the relief valve",
+        "ok": true
+      },
+      {
+        "label": "Stopped with the ram on the work, the line from A stays under pressure; stopped with the ram above it, the line from B; either way the gauge reads zero",
+        "ok": true
+      },
+      {
+        "label": "Pressure times volume stays the same: 6 × 300 = 1800, so 9 bar absolute gives 200 cm³ and 12 gives 150 cm³; each step up in pressure squeezes the air smaller",
+        "ok": true
+      },
+      {
+        "label": "Worked by hand: 1800 ÷ 9 = 200 cm³; the slips are the pressures upside down, 300 × 9 ÷ 6 = 450, and no squeeze at all, 300; the field asks exactly this",
+        "ok": true
+      },
+      {
+        "label": "Going down, the rod side's oil leaves through the flow control, then the valve, then the tank; going up it passes the check valve, which lets oil only into the rod side",
+        "ok": true
+      },
+      {
+        "label": "Before an answer nothing gives it away: puzzles open with no switches, rings or pulse; screens 3, 7, 9 and 14 show no flow, screen 5 lights only the path into the piston side, screen 11 only the supply, screen 13 draws no red line, and screen 1 only 300 cm³ at 6 bar",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.5 s, and every answer's motion within 3 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "bar"
+    ],
+    "readouts": [
+      "vol"
+    ],
+    "outputs": [
+      "vol"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "The job first",
+          "As drawn",
+          "Two paths",
+          "The other side",
+          "On the work",
+          "What sets the squeeze?",
+          "Back up",
+          "Into the rod side",
+          "The same job in air",
+          "Where does the air go?",
+          "Pressure stays",
+          "Safe to open?",
+          "Top of the stroke"
+        ],
+        "value": 0
+      },
+      {
+        "id": "bar",
+        "kind": "control",
+        "label": "Load",
+        "min": 6,
+        "max": 12,
+        "step": 1,
+        "log": false,
+        "value": 6,
+        "shown": false,
+        "snap": [
+          9,
+          12
+        ]
+      }
+    ],
+    "actions": [
+      "-Y1",
+      "-Y2",
+      "Stop",
+      "-Y3",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check valve",
+      "Flow control",
+      "Pump",
+      "4/3 valve",
+      "Tank",
+      "Check",
+      "Start over",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "vol9",
+        "answer": 200,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

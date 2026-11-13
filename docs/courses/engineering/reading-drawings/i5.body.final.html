@@ -1,0 +1,943 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 60rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + *, .side > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 14px 24px; align-items: start; }
+  .pane, .side { margin: 0; min-width: 0; }
+  .pane > * + * { margin-top: 12px; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 26rem; margin-inline: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  /* The switches: each group a row of buttons, free to wrap; the centre picker takes a whole row. */
+  .ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 10px 12px; max-width: 30rem; margin-inline: auto; transition: opacity .45s ease-out; }
+  .ctl.wait { visibility: hidden; opacity: 0; transition: none; }
+  html.k-testing .ctl { transition: none; }
+  @media (prefers-reduced-motion: reduce) { .ctl { transition: none; } }
+  .sw { min-width: 0; }
+  .sw.wide { grid-column: 1 / -1; }
+  .sw .k-label { display: block; margin: 0 0 4px; }
+  .sw .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sw .k-btn { flex: 1 1 3.5rem; min-height: 44px; white-space: nowrap; padding-inline: 8px; }
+  .sw .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  /* The six cards: two to a row on a phone. */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(9rem, 40%), 1fr)); gap: 8px; max-width: 32rem; margin-inline: auto; }
+  .cards .k-btn.card { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 4px; padding: 8px; white-space: normal; text-align: left; min-height: 44px; height: auto; }
+  .cards .k-btn.card[aria-expanded="true"] { border-color: var(--k-accent2); }
+  .card svg { display: block; width: 100%; height: auto; }
+  .cname { display: block; font-weight: 700; color: var(--k-ink); overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .cbody { display: block; min-height: 5.6em; font-size: .85rem; line-height: 1.35; font-weight: 400; }
+  .ctap { display: block; color: var(--k-muted); }
+  .cline { display: block; color: var(--k-ink); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row .k-btn { min-height: 44px; }
+  .nav .k-btn, .acts .k-btn, .done .k-btn { flex: 1 1 8rem; }
+  .tools .k-btn { flex: 0 1 auto; padding-inline: 16px; }
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn .opt { text-align: center; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+
+  /* The drawings. */
+  svg .vbox { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sym { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .symf { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .symh { fill: var(--k-ink); }
+  svg .fl { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  svg .flh { fill: var(--k-accent2); }
+  svg .idle { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .pilot { fill: none; stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  svg .sol { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sol.on { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  svg .soldi { stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .soldi.on { stroke: var(--k-on-accent2); }
+  svg .oil { fill: var(--k-fill1); }
+  svg .barrel { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  svg .piston { fill: var(--k-ink); }
+  svg .rod { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .load { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .mc { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  svg .tri { fill: var(--k-ink); }
+  svg .tank { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }
+  svg .dot { fill: var(--k-ink); }
+  svg .dotf { fill: var(--k-accent2); }
+  svg .halo { fill: var(--k-fill2); }
+  svg .haloL { fill: none; stroke: var(--k-fill2); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2.4; }
+  svg .markl { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  svg .knob { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .hit { fill: transparent; }
+  svg .hit.drag { cursor: grab; touch-action: none; }
+  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .lab13 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  svg .port { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  svg .tl { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  svg .tn { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  svg .kt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  svg .cn { font: 700 12px var(--k-font); fill: var(--k-ink); }
+</style>
+
+<p class="lead">A valve steering oil from a pump to a cylinder, drawn as a row of boxes that slides against fixed ports.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <figure class="pane">
+        <div id="scenebox"><svg class="pic" id="scene" viewBox="0 0 340 394" width="100%" role="img" aria-label=""><g id="art"></g></svg></div>
+        <div class="cards" id="cards"></div>
+        <div class="ctl" id="ctl"></div>
+      </figure>
+      <div class="side">
+        <p class="say" id="say"></p>
+        <div class="row tools" id="tools"></div>
+        <div class="picks" id="picks"></div>
+        <div id="ansbox"></div>
+        <div class="row acts" id="acts"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="note why" id="why" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each box is one position the valve can take.</p>
+
+<script>
+  // ---------- the rule: only the box in line with the fixed ports joins them ----------
+  const BW = 44, BH = 40, VX = 104, VY = 206, MID = VY + BH / 2, AX = 159, BX = 181;
+  const PIN = 166, TRAV = 56, ROD = 78;        // the cylinder: piston height fully in, its travel, the rod's length
+  const V = 0.4, VF = 0.3, CREEP = 0.05;        // travel per second: under power, floating under the load, creeping
+  const HM = 394, HC = 152;
+  const CTR = ['Closed', 'P to T', 'Float'], CK = ['closed', 'ptt', 'float'];
+  const PISTON = 'A', RODSIDE = 'B';
+  // What each box joins: P to A and B to T; P to B and A to T; nothing; P to T; A and B to T.
+  const JOINS = { par: ['PA', 'BT'], cross: ['PB', 'AT'], closed: [], ptt: ['PT'], float: ['AT', 'BT'] };
+  const TWO = { ports: ['P', 'T', 'A', 'B'], boxes: ['par', 'cross'], rest: 1, spring: 1 };
+  const V32 = { ports: ['P', 'T', 'A'], boxes: ['op32', 'rest32'], rest: 1, spring: 1 };
+  const P52 = { supply: [1], work: [2, 4], exh: [3, 5] };
+  const inLine = (s) => Math.round(s) || 0;      // +1 the left box, 0 the middle, -1 the right
+  const target = (m) => (m.hand != null ? m.hand : m.y1 ? 1 : m.y2 ? -1 : 0);
+  // What the box in line does to the rod (+1 out, -1 in, 0 held) and to the pump's oil.
+  function regime(box, ctr, x, leaks) {
+    if (box === 1) return x < 1 ? { rod: 1, pump: 'feed' } : { rod: 0, pump: 'relief' };
+    if (box === -1) return x > 0 ? { rod: -1, pump: 'feed' } : { rod: 0, pump: 'relief' };
+    if (ctr === 2) return { rod: x > 0 ? -1 : 0, pump: 'relief', float: true };
+    return { rod: 0, pump: ctr === 1 ? 'unload' : 'relief', held: true, creep: !!leaks && x > 0 };
+  }
+  function flowTags(box, ctr, r) {
+    if (box === 1) return r.rod ? ['PA', 'BT'] : [];
+    if (box === -1) return r.rod ? ['PB', 'AT'] : [];
+    if (ctr === 1) return ['PT'];
+    if (ctr === 2) return r.rod ? ['AT', 'BT'] : [];
+    return [];
+  }
+  const PUMP = { feed: 'The pump is feeding the cylinder.', unload: 'The pump is unloading to the tank.', relief: "The pump's oil goes over the relief valve." };
+  const E4 = 'https://www.e4training.com/hyd_princip/symbol_directional1.php';
+  const NAVY = 'https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy';
+
+  // ---------- the valve's own state, advanced by one animation ----------
+  const twv = (q, t) => (q.dur <= 0 || t >= q.t0 + q.dur ? q.to : t <= q.t0 ? q.from : K.lerp(q.from, q.to, K.ease((t - q.t0) / q.dur)));
+  const curS = (m, t) => twv(m.row, t);
+  function retarget(m, t) {
+    const g = target(m);
+    if (g === m.row.to) return;
+    const c = curS(m, t);
+    m.row = { from: c, to: g, t0: t, dur: 0.25 + 0.25 * Math.abs(g - c) };
+  }
+  function setCtr(m, k, t) { if (m.ctr === k) return; m.cOld = m.ctr; m.ctr = k; m.cAt = t; }
+  const regNow = (m, t) => regime(inLine(curS(m, t)), m.ctr, m.x, m.leaks);
+  // Screen 4 before its answer: the lines stay idle until the row has moved, so the picture gives nothing away.
+  const quiet = (m, t) => !!m.quiet && (m.frozen || inLine(curS(m, t)) === 0);
+  function newMain(o) {
+    const m = Object.assign({ y1: 0, y2: 0, ctr: 0, leaks: 0, hand: null, x: 0.5, mark: 0.5, held: true, row: { from: 0, to: 0, t0: 0, dur: 0 }, ra: 0, cOld: 0, cAt: -9, frozen: false }, o);
+    m.cOld = m.ctr;
+    const r = regime(0, m.ctr, m.x, m.leaks);
+    m.ra = r.pump === 'relief' && !m.quiet ? 1 : 0; m.held = !!r.held;
+    return m;
+  }
+  function simMain(m, t, dt) {
+    if (m.frozen) return;
+    const r = regNow(m, t);
+    if (r.rod) m.x = K.clamp(m.x + r.rod * (r.float ? VF : V) * dt, 0, 1);
+    else if (r.creep) m.x = Math.max(0, m.x - CREEP * dt);
+    const held = !!r.held;
+    if (held && !m.held) m.mark = m.x;       // the mark: where the rod came to rest
+    m.held = held;
+    const rt = !quiet(m, t) && regNow(m, t).pump === 'relief' ? 1 : 0;
+    if (m.ra < rt) m.ra = Math.min(rt, m.ra + dt / 0.3); else if (m.ra > rt) m.ra = Math.max(rt, m.ra - dt / 0.3);
+  }
+  function mainSteady(m, t) {
+    if (m.frozen) return true;
+    const r = regNow(m, t);
+    return t >= m.row.t0 + m.row.dur && !r.rod && !r.creep && m.ra === (!quiet(m, t) && r.pump === 'relief' ? 1 : 0) && t >= m.cAt + 0.35;
+  }
+  function sched(st, t, fn) { st.ev.push([t, fn]); st.ev.sort((a, b) => a[0] - b[0]); }
+  function light(st, k, t0, hold) { st.lights.push({ k, t0, hold }); st.until = Math.max(st.until, t0 + hold + 0.35); }
+  const lightA = (st, k) => st.lights.reduce((a, L) => (L.k === k ? Math.max(a, K.arrive(st.t, L.t0, 0.25) * (1 - K.arrive(st.t, L.t0 + L.hold, 0.3))) : a), 0);
+  const busy = (st) => st.ev.length > 0 || st.t < st.until || (!!st.m && !mainSteady(st.m, st.t));
+  function advance(st, dt) {
+    st.t += dt;
+    while (st.ev.length && st.ev[0][0] <= st.t) { const e = st.ev.shift(); e[1](st, e[0]); }
+    if (st.m) simMain(st.m, st.t, dt);
+  }
+  function settle(st) { let g = 0; while (busy(st) && g++ < 4000) advance(st, 0.05); }
+  function trackV(q, t, dur) {
+    let v = q[0][1];
+    for (let j = 1; j < q.length; j++) { if (t <= q[j][0]) break; v = K.lerp(q[j - 1][1], q[j][1], K.ease(K.clamp((t - q[j][0]) / dur, 0, 1))); }
+    return v;
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const CARDS = [
+    { k: 'v32', name: '3/2 valve', does: 'Three ports, two positions. At rest P is blocked and A empties to T.' },
+    { k: 'v52', name: '5/2 valve', does: 'For air. 1 is the supply, 2 and 4 the working lines, 3 and 5 the exhausts.' },
+    { k: 'relief', name: 'Relief valve', does: 'Opens to the tank when the pressure beats its spring.' },
+    { k: 'reduce', name: 'Reducing valve', does: 'Open at rest. It closes as the pressure after it reaches its setting.' },
+    { k: 'check', name: 'Check valve', does: 'A ball against a seat. Flow passes one way only.' },
+    { k: 'flow', name: 'Flow control', does: 'Pinches the line to set how fast the oil flows. The arrow means it can be adjusted.' },
+  ];
+  const STEPS = [
+    { id: 'boxes', name: 'One box per position', show: true, view: 'main', sw: ['sol'],
+      text: 'A valve that steers oil is drawn as a row of boxes. Each box is one position it can take. Only the box in line with the ports joins them. Each solenoid brings in the box beside it. Four ports and three boxes make this a *4/3 valve*.',
+      read: 'A valve that steers oil is drawn as a row of boxes. Each box is one position it can take. Only the box in line with the ports joins them. Each solenoid brings in the box beside it. Four ports and three boxes make this a *4/3 valve*. Here three boxes sit in a row, with the four ports P, T, A and B against the middle one, labelled 4/3.',
+      demo: (st) => { [0.3, 0.9, 1.5].forEach((t0, k) => light(st, 'b' + k, t0, 0.4)); ['P', 'T', 'A', 'B'].forEach((p, k) => light(st, p, 2.1 + 0.3 * k, 0.35)); st.lab43 = 3.4; st.until = Math.max(st.until, 3.95); } },
+    { id: 'npos', name: 'Count the positions', kind: 'typed', view: 'two', field: 'pos', unit: 'positions',
+      task: 'How many positions does this valve have?',
+      answer: 2,
+      slips: [{ value: 4, hint: 'That is the ports, which are the lines on the box. Count the boxes for the positions.' },
+        { value: 1, hint: 'That is the box in use now. The valve can take any of its boxes.' }],
+      hint: 'Each box is one position. Count the boxes.',
+      want: '2 positions',
+      why: 'Two boxes make two positions. With four ports, its label is 4/2. An intermediate switch works the same way. Its links run straight through in one position and cross over in the other.',
+      after: (st) => { st.rings = [[0, st.t + 0.2], [1, st.t + 0.7]]; st.lab42 = st.t + 1.2; st.until = Math.max(st.until, st.t + 1.75); } },
+    { id: 'slide', name: 'Slide the boxes', show: true, view: 'main', sw: ['sol'],
+      text: 'Inside the valve, a grooved shaft called the *spool* slides in a fixed body. The row of boxes stands for it. The ports never move. Shifting the valve slides the row until another box sits against them. Energise -Y1 and the box beside it comes in. P joins A, B joins T, and the rod comes out. Tap -Y1.',
+      read: 'Inside the valve, a grooved shaft called the *spool* slides in a fixed body. The row of boxes stands for it. The ports never move. Shifting the valve slides the row until another box sits against them. Energise -Y1 and the box beside it comes in. P joins A, B joins T, and the rod comes out. Here -Y1 is energised and the left box sits against the ports. Oil runs from P to A and from B to T, and the rod is coming out.',
+      stillSet: (st) => { const m = st.m; m.y1 = 1; m.row = { from: 1, to: 1, t0: 0, dur: 0 }; m.x = 0.78; m.ra = 0; m.held = false; m.frozen = true; } },
+    { id: 'which', name: 'Which box?', kind: 'pick', view: 'main', sw: ['sol'], init: { y2: 1, frozen: true, quiet: true },
+      task: '-Y2 is energised. Where does the oil from P go now?',
+      opts: ['To A', 'To B', 'Straight to T'], want: 'To B',
+      hint: 'That is the left box, which -Y1 brings in. -Y2 brings in the box beside it.',
+      hints: { 'To A': 'That is the left box, which -Y1 brings in. -Y2 brings in the box beside it.', 'Straight to T': 'That would need the middle box. Energising -Y2 slides the right box in.' },
+      why: '-Y2 pushes the row over until the right box sits against the ports. Its crossed arrows join P to B and A to T, so the rod goes back in.',
+      after: (st) => sched(st, st.t + 0.2, (s, t) => { s.m.frozen = false; retarget(s.m, t); }) },
+    { id: 'springs', name: 'Springs bring it back', show: true, view: 'main', sw: ['sol'],
+      text: 'A zigzag at each end is a *spring*. With both solenoids off, the springs push the middle box back against the ports. So the sheet draws the valve with its middle box against the ports. A notched bar is a *detent*. It would hold the valve in whatever box you leave it. Drag the row to one side and let go.',
+      read: 'A zigzag at each end is a *spring*. With both solenoids off, the springs push the middle box back against the ports. So the sheet draws the valve with its middle box against the ports. A notched bar is a *detent*. It would hold the valve in whatever box you leave it. Here the springs have pushed the row back, so the middle box sits against the ports with both solenoids off.',
+      demo: (st) => { sched(st, 0.4, (s, t) => { s.m.hand = 1; retarget(s.m, t); }); sched(st, 1.4, (s, t) => { s.m.hand = null; retarget(s.m, t); }); light(st, 'spr', 1.4, 0.6); } },
+    { id: 'detent', name: 'Let go of the lever', kind: 'pick', view: 'levers',
+      task: 'You push both levers to the left box and let go. Which valve stays in the left box?',
+      opts: ['The one with zigzags at its ends', 'The one with the notched bar', 'Both of them'], want: 'The one with the notched bar',
+      hint: 'Only one of them has springs. Look at what each has at its ends.',
+      hints: { 'The one with zigzags at its ends': 'A zigzag is a spring. It pushes the valve back to its middle box once you let go.', 'Both of them': 'Only one of them has springs. Look at what each has at its ends.' },
+      why: 'The springs push the first valve back to its middle box. The detent holds the second wherever it was left. It stays in the left box until someone moves the lever.',
+      after: (st) => { const t = st.t; st.lv1 = [[-1, 0], [t + 0.2, 1], [t + 1.3, 0]]; st.lv2 = [[-1, 0], [t + 0.2, 1]]; light(st, 'spr', t + 1.3, 0.5); st.until = Math.max(st.until, t + 1.9); } },
+    { id: 'centre', name: 'The middle box', show: true, view: 'main', sw: ['sol', 'ctr'],
+      text: "The middle box decides what happens at rest. Closed blocks all four ports, so the rod holds. With a fixed pump, its oil then goes over the relief valve. Closed keeps full pressure at P, ready for other valves. P to T sends the oil back to the tank at low pressure. That spares the pump from pushing against the relief valve. Float lets the load move the rod. Pick each centre.",
+      read: "The middle box decides what happens at rest. Closed blocks all four ports, so the rod holds. With a fixed pump, its oil then goes over the relief valve. Closed keeps full pressure at P, ready for other valves. P to T sends the oil back to the tank at low pressure. That spares the pump from pushing against the relief valve. Float lets the load move the rod. Here the P to T centre is in place. The rod holds, and the pump unloads to the tank.",
+      demo: (st) => { sched(st, 0.8, (s, t) => setCtr(s.m, 1, t)); } },
+    { id: 'readc', name: 'Read the centre', kind: 'pick', view: 'lonec', sw: ['ctr'],
+      task: 'Both solenoids are off and the pump runs. What do the cylinder and the pump do?',
+      opts: ['The rod holds, and the pump unloads to the tank', "The rod holds, and the pump's oil goes over the relief valve", 'The rod floats, and the pump unloads to the tank'],
+      want: 'The rod holds, and the pump unloads to the tank',
+      hint: 'Look at P. Its line runs straight to T, so the oil has an easy way back.',
+      hints: { "The rod holds, and the pump's oil goes over the relief valve": 'Look at P. Its line runs straight to T, so the oil has an easy way back.', 'The rod floats, and the pump unloads to the tank': 'A and B each end in a bar, so they are blocked. Blocked lines hold the rod.' },
+      why: "The line joins P to T, so the pump's oil returns to the tank at low pressure. The bars block A and B. The oil in the cylinder has nowhere to go, so the rod holds.",
+      after: (st) => { const m = st.m; m.ctr = 1; m.cOld = 1; m.ra = 0; st.swap = st.t + 0.1; st.until = Math.max(st.until, st.swap + 0.75); } },
+    { id: 'creep', name: 'Held is not sealed', show: true, view: 'main', sw: ['sol', 'ctr', 'leaks'], mark: true,
+      text: 'A closed box is drawn sealed. A real spool leaks a little between its ports. So a cylinder holding a load can creep. The symbol shows the ideal valve, not its leaks. Here the creep is sped up. Switch Leaks on and watch the rod.',
+      read: 'A closed box is drawn sealed. A real spool leaks a little between its ports. So a cylinder holding a load can creep. The symbol shows the ideal valve, not its leaks. Here the creep is sped up. Here the Closed centre holds the load, and the rod has crept a little back in, below the mark where it stopped.',
+      stillSet: (st) => { const m = st.m; m.leaks = 1; m.x = 0.38; m.mark = 0.5; m.frozen = true; } },
+    { id: 'hold', name: 'Will it hold?', kind: 'pick', view: 'main', sw: ['sol', 'ctr', 'leaks'], mark: true,
+      task: 'The load must stay up all night. Does the closed centre make sure of that?',
+      opts: ['Yes, the box blocks every port', 'No, the spool leaks, so the load can creep down', 'Yes, as long as the pump keeps running'],
+      want: 'No, the spool leaks, so the load can creep down',
+      hint: 'The box is drawn sealed. A real spool leaks a little.',
+      hints: { 'Yes, the box blocks every port': 'The box is drawn sealed. A real spool leaks a little.', 'Yes, as long as the pump keeps running': 'The box blocks P from A and B, so the pump is not what holds the load up.' },
+      why: 'The closed box blocks the ports on paper. In the real valve, oil leaks slowly past the spool, so the load can creep down. A load that must not move needs a valve that seats tightly, such as a check valve. It also needs a mechanical prop before anyone works under it.',
+      after: (st) => sched(st, st.t + 0.3, (s) => { s.m.leaks = 1; }) },
+    { id: 'cards', name: 'The other valves', show: true, view: 'cards',
+      text: 'Other valves use the same boxes and marks. A 3/2 has three ports and two positions. A 5/2 for air has five ports. A relief valve opens to the tank when pressure beats its spring. A check valve lets flow one way only. Tap each card.',
+      read: 'Other valves use the same boxes and marks. A 3/2 has three ports and two positions. A 5/2 for air has five ports. A relief valve opens to the tank when pressure beats its spring. A check valve lets flow one way only. Here six cards are open, each a symbol with its name and its job: 3/2, 5/2 with its ports numbered, relief, reducing, check and flow control.',
+      demo: (st) => { sched(st, 0.6, (s, t) => { s.open.v32 = t; s.until = Math.max(s.until, t + 0.45); }); },
+      stillSet: (st) => { CARDS.forEach((c) => { st.open[c.k] = -9; }); } },
+    { id: 's32', name: 'Slide the 3/2', kind: 'pick', view: 'v32',
+      task: '-Y1 is energised. Where does the supply at P go?',
+      opts: ['To A', 'To T', 'Nowhere, it stays blocked'], want: 'To A',
+      hint: 'That is the box at rest. Energising -Y1 brings in the box beside it.',
+      hints: { 'To T': 'At rest A goes to T. Slide the other box in and read its arrow.', 'Nowhere, it stays blocked': 'That is the box at rest. Energising -Y1 brings in the box beside it.' },
+      why: '-Y1 brings in the box beside it, whose arrow joins P to A. Switch it off and the spring brings back the box that blocks P and empties A to T.',
+      after: (st) => { st.s32 = [[-1, 0], [st.t + 0.2, 1]]; st.until = Math.max(st.until, st.t + 0.75); } },
+    { id: 'n52', name: 'Count the ports', kind: 'typed', view: 'v52', field: 'ports', unit: 'ports',
+      task: 'How many ports does this valve have?',
+      answer: P52.supply.length + P52.work.length + P52.exh.length,
+      slips: [{ value: 2, hint: 'That is the positions, which are the boxes. Ports are the lines on the box in use.' },
+        { value: 3, hint: 'Count the two lines on top as well. They go to the cylinder.' },
+        { value: 4, hint: 'Count both outer lines at the bottom. This valve has an exhaust each side of the supply.' }],
+      hint: 'Count every line on the box in use, top and bottom.',
+      want: '5 ports',
+      why: 'One supply, two working lines and two exhausts make five ports. With two boxes, it is a 5/2 valve.',
+      after: (st) => { st.nums = [0, 1, 2, 3, 4].map((k) => st.t + 0.2 + 0.35 * k); st.until = Math.max(st.until, st.t + 2.05); } },
+    { id: 'label', name: 'Read the label', kind: 'pick', view: 'two',
+      task: 'Which label fits this valve?',
+      opts: ['4/2', '2/4'], want: '4/2',
+      hint: 'That puts the positions first. The label gives the ports first, then the positions.',
+      hints: { '2/4': 'That puts the positions first. The label gives the ports first, then the positions.' },
+      why: 'It has four ports, P, T, A and B, and two boxes. The label gives the ports first, then the positions, so it is a 4/2 valve.',
+      after: (st) => { st.lab42 = st.t + 0.2; st.until = Math.max(st.until, st.t + 0.75); } },
+  ];
+  const I = {};
+  STEPS.forEach((d, i) => { I[d.id] = i; });
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FINISH = 'A valve is drawn as one box per position. The box against the ports shows where the flow goes now. Slide the row in your head to read the others.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  function fresh(i) {
+    const d = STEPS[i];
+    const st = { t: 0, ev: [], until: 0, lights: [], rings: [], nums: [], open: {}, lab43: null, lab42: null, swap: null,
+      lv1: [[-1, 0]], lv2: [[-1, 0]], s32: [[-1, 0]], m: null, res: null, pick: null, why: false, tries: 0, shown: false, fbText: '', touched: false };
+    if (d.view === 'main' || d.view === 'lonec') st.m = newMain(d.init || {});
+    if (d.show && d.demo) d.demo(st);
+    return st;
+  }
+  STEPS.forEach((d, i) => {
+    d.dur = 0;
+    if (!d.show || !d.demo) return;
+    const st = fresh(i);
+    let t = 0;
+    while (busy(st) && t < 20) { advance(st, 0.05); t += 0.05; }
+    d.dur = Math.round((t + 0.3) * 10) / 10;
+  });
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false;
+  const viewOf = (d, st) => (d.view === 'lonec' ? (st.swap != null ? 'swap' : 'lonec') : d.view);
+  const swOnFor = (d, st) => !!d.sw && (!!d.show || st.res === 'right');
+
+  // ---------- drawing helpers (K.svg, never innerHTML) ----------
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r3(r) });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, a, cls) => add(g, 'polygon', { class: cls, points: a.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') });
+  const op = (e, a) => { if (a < 0.999) e.setAttribute('opacity', r3(Math.max(0, a))); return e; };
+  const text = (g, x, y, s, cls, anchor) => g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  const dstr = (P) => 'M' + P.map((q) => r3(q[0]) + ' ' + r3(q[1])).join('L');
+  // A line through points, with a filled head at its end when head > 0.
+  function pline(g, pts, cls, head, hcls) {
+    const P = pts.map((q) => q.slice());
+    if (head) {
+      const n = P.length, a = P[n - 2], b = pts[n - 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, w = head * 0.55;
+      P[n - 1] = [b[0] - ux * head * 0.8, b[1] - uy * head * 0.8];
+      path(g, dstr(P), cls);
+      poly(g, [b, [b[0] - ux * head - uy * w, b[1] - uy * head + ux * w], [b[0] - ux * head + uy * w, b[1] - uy * head - ux * w]], hcls);
+      return;
+    }
+    path(g, dstr(P), cls);
+  }
+  // A pipe on the sheet: bold with an arrow along the flow (dir +1 or -1), pale when idle.
+  function extLine(g, pts, dir) {
+    path(g, dstr(pts), dir ? 'fl' : 'idle');
+    if (!dir) return;
+    let bi = 0, bl = -1;
+    for (let j = 0; j < pts.length - 1; j++) { const l = Math.hypot(pts[j + 1][0] - pts[j][0], pts[j + 1][1] - pts[j][1]); if (l > bl) { bl = l; bi = j; } }
+    const a = pts[bi], b = pts[bi + 1], ux = (b[0] - a[0]) / bl * dir, uy = (b[1] - a[1]) / bl * dir, cx = (a[0] + b[0]) / 2, cy = (a[1] + b[1]) / 2, h = 9, w = 5;
+    poly(g, [[cx + ux * h / 2, cy + uy * h / 2], [cx - ux * h / 2 - uy * w, cy - uy * h / 2 + ux * w], [cx - ux * h / 2 + uy * w, cy - uy * h / 2 - ux * w]], 'flh');
+  }
+  function spring(g, x0, x1, y, amp, cls) {
+    const n = 6, pts = [[x0, y]];
+    for (let j = 1; j < n; j++) pts.push([K.lerp(x0, x1, j / n), y + (j % 2 ? -amp : amp)]);
+    pts.push([x1, y]);
+    return path(g, dstr(pts), cls || 'sym');
+  }
+  function solenoid(g, x, y, on, w, h) {
+    rect(g, x, y - h / 2, w, h, on ? 'sol on' : 'sol');
+    line(g, x + 3, y + h / 2 - 3, x + w - 3, y - h / 2 + 3, on ? 'soldi on' : 'soldi');
+  }
+  // What each box draws: arrows join two ports, a short bar blocks one. a, b are the quarter points.
+  function boxParts(kind, w, h) {
+    const a = w / 4, b = 3 * w / 4, c = w / 2, k = h / 40, sl = 10 * k, j = 3 * k;
+    const stub = (x, top, tag) => ({ pts: top ? [[x, 0], [x, sl]] : [[x, h], [x, h - sl]], bar: true, tag });
+    if (kind === 'par') return [{ pts: [[a, h - j], [a, j]], arrow: true, tag: 'PA' }, { pts: [[b, j], [b, h - j]], arrow: true, tag: 'BT' }];
+    if (kind === 'cross') return [{ pts: [[a, h - j], [b, j]], arrow: true, tag: 'PB' }, { pts: [[a, j], [b, h - j]], arrow: true, tag: 'AT' }];
+    if (kind === 'closed') return [stub(a, 1, 'A'), stub(b, 1, 'B'), stub(a, 0, 'P'), stub(b, 0, 'T')];
+    if (kind === 'ptt') return [stub(a, 1, 'A'), stub(b, 1, 'B'), { pts: [[a, h], [a, h - 14 * k], [b, h - 14 * k], [b, h]], tag: 'PT' }];
+    if (kind === 'float') return [stub(a, 0, 'P'), { pts: [[a, 0], [a, 16 * k], [b, 16 * k]], tag: 'AT', dot: [b, 16 * k] }, { pts: [[b, 0], [b, h]], tag: 'BT' }];
+    if (kind === 'op32') return [{ pts: [[a, h - j], [a, j]], arrow: true, tag: 'PA' }, stub(b, 0, 'T')];
+    if (kind === 'rest32') return [{ pts: [[a, j], [b, h - j]], arrow: true, tag: 'AT' }, stub(a, 0, 'P')];
+    if (kind === 'rest52') return [{ pts: [[c, h - j], [b, j]], arrow: true, tag: '12' }, { pts: [[a, j], [a, h - j]], arrow: true, tag: '45' }, stub(b, 0, '3')];
+    if (kind === 'op52') return [{ pts: [[c, h - j], [a, j]], arrow: true, tag: '14' }, { pts: [[b, j], [b, h - j]], arrow: true, tag: '23' }, stub(a, 0, '5')];
+    return [];
+  }
+  function boxInner(g, x0, y0, w, h, kind, flows) {
+    const k = h / 40;
+    boxParts(kind, w, h).forEach((p) => {
+      const on = flows.indexOf(p.tag) >= 0, P = p.pts.map((q) => [x0 + q[0], y0 + q[1]]);
+      pline(g, P, on ? 'fl' : 'sym', p.arrow ? 6.5 * Math.max(0.75, k) : 0, on ? 'flh' : 'symh');
+      if (p.bar) { const e = P[P.length - 1], hw = 6 * k; line(g, e[0] - hw, e[1], e[0] + hw, e[1], 'sym'); }
+      if (p.dot) circle(g, x0 + p.dot[0], y0 + p.dot[1], 2.4, on ? 'dotf' : 'dot');
+    });
+  }
+  function drawBox(g, x0, y0, w, h, kind, flows) { rect(g, x0, y0, w, h, 'vbox'); boxInner(g, x0, y0, w, h, kind, flows); }
+
+  // ---------- the main picture: the 4/3 valve, the cylinder, the pump and the relief valve ----------
+  const el = (id) => document.getElementById(id);
+  const sceneSvg = el('scene'), art = el('art');
+  const mainLive = (d, st) => !finished && !!st.m && (!!d.show || st.res === 'right') && (d.view === 'main' || (d.view === 'lonec' && st.swap != null));
+  function drawMid(g, x0, m, t, flows) {
+    const a = K.clamp((t - m.cAt) / 0.35, 0, 1), fading = a < 1 && m.cOld !== m.ctr;
+    rect(g, x0, VY, BW, BH, 'vbox');
+    if (fading) boxInner(op(add(g, 'g'), 1 - a), x0, VY, BW, BH, CK[m.cOld], []);
+    boxInner(op(add(g, 'g'), fading ? a : 1), x0, VY, BW, BH, CK[m.ctr], flows);
+  }
+  function drawMain(g0, st, d, alpha) {
+    const m = st.m, t = st.t, g = op(add(g0, 'g'), alpha);
+    const s = curS(m, t), dx = s * BW, box = inLine(s), r = regime(box, m.ctr, m.x, m.leaks), idle = quiet(m, t), fl = idle ? [] : flowTags(box, m.ctr, r);
+    // the key
+    pline(g, [[8, 16], [38, 16]], 'fl', 8, 'flh'); text(g, 44, 20.5, 'Oil flowing', 'kt', 'start');
+    line(g, 8, 36, 38, 36, 'idle'); text(g, 44, 40.5, 'No flow', 'kt', 'start');
+    // the cylinder, its rod and the load on top
+    const py = PIN - m.x * TRAV, top = py - ROD;
+    rect(g, 146, 98, 48, py - 3 - 98, 'oil'); rect(g, 146, py + 3, 48, 174 - py - 3, 'oil');
+    rect(g, 166, top, 8, py - top, 'rod');
+    rect(g, 146, py - 3, 48, 6, 'piston');
+    rect(g, 144, 96, 52, 80, 'barrel');
+    rect(g, 138, top - 24, 64, 24, 'load', 3); text(g, 170, top - 7.5, 'Load', 'tn');
+    text(g, 138, 109, 'rod side', 'kt', 'end'); text(g, 138, 172, 'piston side', 'kt', 'end');
+    if (d.mark && r.held) { const my = PIN - m.mark * TRAV - ROD; line(g, 206, my, 226, my, 'markl'); text(g, 230, my + 4.5, 'stopped here', 'kt', 'start'); }
+    // the pipes: A to the piston side, B to the rod side, P from the pump, T to the tank
+    const aDir = idle ? 0 : r.rod > 0 ? 1 : r.rod < 0 ? -1 : 0, thru = !idle && (r.pump === 'feed' || r.pump === 'unload'), rel = !idle && r.pump === 'relief';
+    extLine(g, [[AX, VY], [AX, 176]], aDir);
+    extLine(g, [[BX, VY], [BX, 182], [214, 182], [214, 104], [196, 104]], -aDir);
+    extLine(g, [[AX, 288], [AX, VY + BH]], thru ? 1 : 0);
+    extLine(g, [[AX, 312], [AX, 288]], 1);
+    extLine(g, [[AX, 358], [AX, 340]], 1);
+    extLine(g, [[AX, 288], [80, 288], [80, 296]], rel ? 1 : 0);
+    extLine(g, [[80, 320], [80, 358]], rel ? 1 : 0);
+    extLine(g, [[BX, VY + BH], [BX, 288], [236, 288], [236, 358]], thru || (r.float && r.rod) ? 1 : 0);
+    circle(g, AX, 288, 3, 'dotf');
+    // the relief valve: its arrow sits off the line until the pressure beats the spring
+    path(g, 'M80 292H60V308H68', 'pilot');
+    rect(g, 68, 296, 24, 24, 'vbox');
+    const rx = 80 + K.lerp(-6, 0, K.ease(K.clamp(idle ? 0 : m.ra, 0, 1)));
+    pline(g, [[rx, 299], [rx, 317]], rel ? 'fl' : 'sym', 6, rel ? 'flh' : 'symh');
+    spring(g, 92, 110, 308, 5);
+    text(g, 54, 305, 'Relief', 'lab', 'end'); text(g, 54, 320, 'valve', 'lab', 'end');
+    // the pump and the tank
+    circle(g, AX, 326, 14, 'mc'); poly(g, [[AX, 312], [AX - 3.9, 318.2], [AX + 3.9, 318.2]], 'tri');
+    text(g, 180, 331, 'Pump', 'lab', 'start');
+    path(g, 'M44 348V366H250V348', 'tank'); text(g, 120, 361, 'Tank', 'lab', 'middle');
+    if (!idle) text(g, 170, 386, PUMP[r.pump], 'lab13', 'middle');
+    // the row of boxes, which slides; the ports stay put
+    for (let k = 0; k < 3; k++) { const a = lightA(st, 'b' + k); if (a > 0.001) op(rect(g, VX + k * BW + dx - 3, VY - 3, BW + 6, BH + 6, 'halo', 3), a); }
+    const sa = lightA(st, 'spr');
+    if (sa > 0.001) { op(spring(g, VX + dx, VX - 18 + dx, MID, 6, 'haloL'), sa); op(spring(g, VX + 3 * BW + dx, VX + 3 * BW + 18 + dx, MID, 6, 'haloL'), sa); }
+    const kIn = 1 - box;
+    drawBox(g, VX + dx, VY, BW, BH, 'par', kIn === 0 ? fl : []);
+    drawMid(g, VX + BW + dx, m, t, kIn === 1 ? fl : []);
+    drawBox(g, VX + 2 * BW + dx, VY, BW, BH, 'cross', kIn === 2 ? fl : []);
+    spring(g, VX + dx, VX - 18 + dx, MID, 6);
+    spring(g, VX + 3 * BW + dx, VX + 3 * BW + 18 + dx, MID, 6);
+    solenoid(g, VX - 38 + dx, MID, !!m.y1, 20, 22);
+    solenoid(g, VX + 3 * BW + 18 + dx, MID, !!m.y2, 20, 22);
+    text(g, VX - 28 + dx, 276, m.y1 ? '-Y1 on' : '-Y1', 'lab', 'middle');
+    text(g, VX + 3 * BW + 28 + dx, 276, m.y2 ? '-Y2 on' : '-Y2', 'lab', 'middle');
+    [['A', 150, 200, 'end'], ['B', 190, 200, 'start'], ['P', 150, 258, 'end'], ['T', 190, 258, 'start']].forEach((p) => {
+      const a = lightA(st, p[0]);
+      if (a > 0.001) op(circle(g, p[3] === 'end' ? p[1] - 5 : p[1] + 5, p[2] - 5, 10, 'halo'), a);
+      text(g, p[1], p[2], p[0], 'port', p[3]);
+    });
+    const la = st.lab43 == null ? 1 : K.arrive(t, st.lab43, 0.5);
+    if (la > 0.001) op(text(g, 128, 196, '4/3 valve', 'tl', 'end'), la);
+    if (mainLive(d, st)) rect(g, VX - 42 + dx, VY - 6, 3 * BW + 84, BH + 12, 'hit drag').dataset.row = '1';
+    const rodS = r.rod > 0 ? 'The rod is coming out.' : r.rod < 0 ? 'The rod is going back in.' : m.x >= 1 ? 'The rod is fully out.' : m.x <= 0 ? 'The rod is fully in.' : r.creep ? 'The rod is held, but creeps back in.' : 'The rod holds.';
+    return 'A 4/3 valve steering oil to an upright cylinder with a load on its rod. The ' + ['right', 'middle', 'left'][box + 1] + ' box is against the ports' +
+      (box === 0 ? ', set to the ' + CTR[m.ctr] + ' centre. ' : '. ') + (m.y1 ? '-Y1 is on. ' : m.y2 ? '-Y2 is on. ' : 'Both solenoids are off. ') + (idle ? 'The row has not moved yet.' : rodS + ' ' + PUMP[r.pump]);
+  }
+
+  // ---------- the other pictures ----------
+  function drawTwo(g, st) {
+    const W = 56, H = 48, y = 54, xL = 104, xR = 160, mid = y + H / 2, t = st.t;
+    drawBox(g, xL, y, W, H, TWO.boxes[0], []); drawBox(g, xR, y, W, H, TWO.boxes[1], []);
+    solenoid(g, 80, mid, false, 24, 24); text(g, 76, mid + 5, '-Y1', 'lab', 'end');
+    spring(g, 216, 240, mid, 7);
+    [[174, 'A'], [202, 'B']].forEach((p) => { line(g, p[0], y, p[0], y - 16, 'sym'); text(g, p[0], y - 22, p[1], 'port', 'middle'); });
+    [[174, 'P'], [202, 'T']].forEach((p) => { line(g, p[0], y + H, p[0], y + H + 16, 'sym'); text(g, p[0], y + H + 32, p[1], 'port', 'middle'); });
+    st.rings.forEach((rg) => { const a = K.arrive(t, rg[1], 0.4); if (a > 0.001) op(rect(g, (rg[0] ? xR : xL) - 5, y - 5, W + 10, H + 10, 'ring', 6), a); });
+    const la = st.lab42 == null ? 0 : K.arrive(t, st.lab42, 0.5);
+    if (la > 0.001) op(text(g, 104, 134, '4/2 valve', 'tl', 'middle'), la);
+    return 'A valve of two boxes. The right-hand box sits against four ports, P, T, A and B. A spring sits at the right end, and solenoid -Y1 at the left.' + (la > 0.5 ? ' It is labelled 4/2.' : '');
+  }
+  function drawLoneC(g0, a) {
+    const g = op(add(g0, 'g'), a);
+    drawBox(g, 130, 44, 80, 64, 'ptt', []);
+    [[150, 'A'], [190, 'B']].forEach((p) => { line(g, p[0], 44, p[0], 26, 'sym'); text(g, p[0], 20, p[1], 'port', 'middle'); });
+    [[150, 'P'], [190, 'T']].forEach((p) => { line(g, p[0], 108, p[0], 126, 'sym'); text(g, p[0], 142, p[1], 'port', 'middle'); });
+    return 'A lone middle box with four ports. A line joins P straight to T. A short bar crosses the end of A, and another the end of B.';
+  }
+  function lever(g, x, y) { line(g, x, y, x - 8, y, 'sym'); line(g, x - 8, y, x - 17, y - 15, 'sym'); circle(g, x - 18.5, y - 17.5, 3, 'knob'); }
+  function detent(g, x, y) {
+    line(g, x, y, x + 6, y, 'sym');
+    const pts = [[x + 6, y - 3]];
+    [0, 1, 2].forEach((j) => { const c = x + 14 + 10 * j; pts.push([c - 4, y - 3], [c, y + 2], [c + 4, y - 3]); });
+    pts.push([x + 42, y - 3], [x + 42, y + 6], [x + 6, y + 6]);
+    path(g, dstr(pts) + 'Z', 'symf');
+    poly(g, [[x + 24, y + 1], [x + 20, y - 8], [x + 28, y - 8]], 'symh');
+    line(g, x + 24, y - 8, x + 24, y - 15, 'sym');
+  }
+  function drawLevers(g, st) {
+    const t = st.t, W = 40, H = 34, sp = lightA(st, 'spr'), a = trackV(st.lv1, t, 0.5), b = trackV(st.lv2, t, 0.5);
+    [[a, 28, 1], [b, 108, 0]].forEach((v) => {
+      const dx = v[0] * W, x0 = 110 + dx, y = v[1], mid = y + H / 2;
+      [160, 180].forEach((px) => { line(g, px, y - 9, px, y, 'sym'); line(g, px, y + H, px, y + H + 9, 'sym'); });
+      if (v[2] && sp > 0.001) { op(spring(g, x0, x0 - 16, mid, 6, 'haloL'), sp); op(spring(g, x0 + 3 * W, x0 + 3 * W + 16, mid, 6, 'haloL'), sp); }
+      ['par', 'closed', 'cross'].forEach((k, j) => drawBox(g, x0 + j * W, y, W, H, k, []));
+      if (v[2]) { spring(g, x0, x0 - 16, mid, 6); lever(g, x0 - 16, mid); spring(g, x0 + 3 * W, x0 + 3 * W + 16, mid, 6); }
+      else { lever(g, x0, mid); detent(g, x0 + 3 * W, mid); }
+    });
+    const where = (v) => (Math.round(v) ? 'left' : 'middle');
+    return 'Two lever valves, one above the other, each of three boxes. The first has a zigzag at each end. The second has a notched bar at its end. ' +
+      (st.res === 'right' ? 'The first sits in its ' + where(a) + ' box, and the second in its ' + where(b) + ' box.' : 'Both sit in their middle box.');
+  }
+  function drawV32(g, st) {
+    const t = st.t, s = trackV(st.s32, t, 0.5), W = 56, H = 48, y = 50, X0 = 150, dx = s * W, xL = X0 - W + dx, xR = X0 + dx, mid = y + H / 2;
+    const inL = Math.round(s) === 1, on = inL && st.res === 'right';
+    drawBox(g, xL, y, W, H, V32.boxes[0], on ? ['PA'] : []); drawBox(g, xR, y, W, H, V32.boxes[1], []);
+    solenoid(g, xL - 24, mid, true, 24, 24); text(g, xL - 28, mid + 5, '-Y1 on', 'lab', 'end');
+    spring(g, xR + W, xR + W + 22, mid, 7);
+    if (on) { extLine(g, [[164, y], [164, y - 18]], 1); extLine(g, [[164, y + H + 18], [164, y + H]], 1); }
+    else { line(g, 164, y, 164, y - 18, 'sym'); line(g, 164, y + H, 164, y + H + 18, 'sym'); }
+    line(g, 192, y + H, 192, y + H + 18, 'sym');
+    text(g, 164, 26, 'A', 'port', 'middle'); text(g, 164, 132, 'P', 'port', 'middle'); text(g, 192, 132, 'T', 'port', 'middle');
+    return 'A 3/2 valve of two boxes. Solenoid -Y1 at the left end is marked energised, and a spring sits at the right. The ' + (inL ? 'left' : 'right') + ' box is against the ports P, T and A.';
+  }
+  function drawV52(g, st) {
+    const W = 60, H = 48, y = 50, mid = y + H / 2, t = st.t;
+    drawBox(g, 90, y, W, H, 'op52', []); drawBox(g, 150, y, W, H, 'rest52', []);
+    solenoid(g, 66, mid, false, 24, 24); spring(g, 210, 234, mid, 7);
+    const P = [[165, 1, '4'], [195, 1, '2'], [165, 0, '5'], [180, 0, '1'], [195, 0, '3']];
+    let shown = 0;
+    P.forEach((p) => {
+      if (p[1]) line(g, p[0], y, p[0], y - 24, 'sym'); else line(g, p[0], y + H, p[0], y + H + 24, 'sym');
+      const a = st.nums.length ? K.arrive(t, st.nums[+p[2] - 1], 0.4) : 0;
+      if (a > 0.001) { op(text(g, p[0], p[1] ? y - 30 : y + H + 40, p[2], 'port', 'middle'), a); if (a > 0.5) shown++; }
+    });
+    return 'A 5/2 air valve of two boxes, at rest. One line leaves the bottom middle, with one line either side of it, and two lines leave the top.' +
+      (shown === 5 ? ' The ports are numbered: 1 is the supply, 2 and 4 the working lines, 3 and 5 the exhausts.' : '');
+  }
+  const CARD_ART = {
+    v32: (g) => {
+      drawBox(g, 32, 22, 28, 24, 'op32', []); drawBox(g, 60, 22, 28, 24, 'rest32', []); solenoid(g, 18, 34, false, 14, 16); spring(g, 88, 102, 34, 5);
+      line(g, 67, 22, 67, 13, 'sym'); line(g, 67, 46, 67, 54, 'sym'); line(g, 81, 46, 81, 54, 'sym');
+      text(g, 67, 11, 'A', 'cn', 'middle'); text(g, 67, 66, 'P', 'cn', 'middle'); text(g, 81, 66, 'T', 'cn', 'middle');
+    },
+    v52: (g) => {
+      drawBox(g, 20, 22, 40, 24, 'op52', []); drawBox(g, 60, 22, 40, 24, 'rest52', []); solenoid(g, 6, 34, false, 14, 16); spring(g, 100, 114, 34, 5);
+      [[70, 1, '4'], [90, 1, '2'], [70, 0, '5'], [80, 0, '1'], [90, 0, '3']].forEach((p) => {
+        if (p[1]) { line(g, p[0], 22, p[0], 13, 'sym'); text(g, p[0], 11, p[2], 'cn', 'middle'); } else { line(g, p[0], 46, p[0], 54, 'sym'); text(g, p[0], 66, p[2], 'cn', 'middle'); }
+      });
+    },
+    relief: (g) => { path(g, 'M18 8H60V16', 'sym'); rect(g, 49, 16, 22, 22, 'vbox'); pline(g, [[55, 19], [55, 35]], 'sym', 5, 'symh'); spring(g, 71, 87, 27, 4); path(g, 'M36 8V27H49', 'pilot'); line(g, 60, 38, 60, 56, 'sym'); path(g, 'M48 50V62H72V50', 'tank'); },
+    reduce: (g) => { line(g, 60, 66, 60, 40, 'sym'); rect(g, 49, 18, 22, 22, 'vbox'); pline(g, [[60, 37], [60, 21]], 'sym', 5, 'symh'); spring(g, 71, 87, 29, 4); line(g, 60, 18, 60, 2, 'sym'); path(g, 'M60 8H38V29H49', 'pilot'); },
+    check: (g) => { line(g, 8, 34, 52, 34, 'sym'); path(g, 'M66 24L52 34L66 44', 'sym'); circle(g, 64, 34, 7.5, 'symf'); line(g, 71.5, 34, 112, 34, 'sym'); },
+    flow: (g) => { line(g, 8, 34, 112, 34, 'sym'); path(g, 'M44 16Q60 48 76 16', 'sym'); path(g, 'M44 52Q60 20 76 52', 'sym'); pline(g, [[38, 58], [84, 10]], 'sym', 7, 'symh'); },
+  };
+
+  // ---------- words ----------
+  function sayMain(st, d) {
+    const m = st.m, box = inLine(curS(m, st.t)), r = regime(box, m.ctr, m.x, m.leaks);
+    if (quiet(m, st.t)) return '';
+    if (box === 1) return r.rod ? 'The left box is against the ports. P joins A, so oil fills the piston side. B joins T, so the rod side empties and the rod comes out.'
+      : 'The rod is fully out. The oil has nowhere left to go, so it goes over the relief valve' + (m.y1 ? ', even though -Y1 is still on.' : '.');
+    if (box === -1) return r.rod ? 'The right box is against the ports. Its crossed arrows join P to B and A to T, so the rod goes back in.'
+      : 'The rod is fully in. The oil has nowhere left to go, so it goes over the relief valve' + (m.y2 ? ', even though -Y2 is still on.' : '.');
+    if (m.ctr === 2) return r.rod ? 'Float blocks P and joins A and B to T. Nothing holds the oil in, so the load pushes the rod back in.'
+      : "The load has pushed the rod all the way in. P is blocked, so the pump's oil goes over the relief valve.";
+    let s;
+    if (d.id === 'springs' && !m.y1 && !m.y2 && m.hand == null) s = "With both solenoids off, the springs push the middle box back against the ports. The rod holds, and the pump's oil goes over the relief valve.";
+    else if (m.ctr === 1) s = "The middle box joins P to T, so the pump's oil runs back to the tank at low pressure. A and B are blocked, so the rod holds.";
+    else s = "The middle box is against the ports. Closed blocks all four, so the rod holds. With a fixed pump, its oil goes over the relief valve.";
+    if (m.leaks) {
+      if (m.x <= 0) s += ' The leaks have let the rod creep all the way back in.';
+      else s += ' The spool leaks a little, so the rod can creep back in under its load. Here the creep is sped up.' + (d.mark && m.mark - m.x > 0.02 ? ' It is now below the mark where it stopped.' : '');
+    }
+    return s;
+  }
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i], v = viewOf(d, st);
+    if (!d.show && st.res !== 'right') return '';
+    if (v === 'main' || v === 'swap') return sayMain(st, d);
+    if (v === 'two') return 'Two boxes make two positions. With four ports on its box, it is a 4/2 valve.';
+    if (v === 'levers') return 'The springs push the first valve back to its middle box. The detent holds the second in its left box.';
+    if (v === 'v32') return '-Y1 brings in the box beside it. Its arrow joins P to A, so the supply reaches A.';
+    if (v === 'v52') return 'Port 1 is the supply. Ports 2 and 4 are the working lines. Ports 3 and 5 are the exhausts.';
+    if (v === 'cards') {
+      const n = CARDS.filter((c) => st.open[c.k] != null).length;
+      return n === CARDS.length ? 'All ' + n + ' cards are open. Each is a symbol with its name and its job.' : n === 1 ? '1 of the ' + CARDS.length + ' cards is open.' : n + ' of the ' + CARDS.length + ' cards are open.';
+    }
+    return '';
+  }
+  // Text with amber key terms (built with K.el, never innerHTML).
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at0 = 0, mm;
+    s = String(s || '');
+    while ((mm = re.exec(s))) {
+      if (mm.index > at0) node.appendChild(document.createTextNode(s.slice(at0, mm.index)));
+      node.appendChild(K.el('span', { class: 'term' }, mm[1]));
+      at0 = mm.index + mm[0].length;
+    }
+    if (at0 < s.length) node.appendChild(document.createTextNode(s.slice(at0)));
+  }
+  let lastSay = null;
+  function setSay(s) { if (s === lastSay) return; lastSay = s; el('say').hidden = !s; write(el('say'), s); }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()), 0, STEPS.length - 1);
+  // Dan takes over: what a demonstration still had to do happens at once, and its highlights end.
+  function takeOver(st) {
+    while (st.ev.length) { const e = st.ev.shift(); e[1](st, st.t); }
+    st.lights = []; st.lab43 = null; st.touched = true;
+    if (st.swap != null) st.swap = Math.min(st.swap, st.t - 0.8);
+    st.until = st.t;
+  }
+  function act(group, fn) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!mainLive(d, st) || d.sw.indexOf(group) < 0) return;
+    takeOver(st);
+    fn(st.m, st.t);
+    retarget(st.m, st.t);
+    K.reveal();
+    K.refresh();
+  }
+  const SW = {}, B = {};
+  function group(k, label, wide) {
+    const box = el('ctl').appendChild(K.el('div', { class: 'sw' + (wide ? ' wide' : '') }));
+    box.appendChild(K.el('span', { class: 'k-label' }, label));
+    SW[k] = box;
+    return box.appendChild(K.el('div', { class: 'row' }));
+  }
+  let gr = group('sol', 'Solenoids');
+  B.y1 = K.button({ label: '-Y1', secondary: true, into: gr, press: () => act('sol', (m) => { m.y1 = m.y1 ? 0 : 1; if (m.y1) m.y2 = 0; }) });
+  B.y2 = K.button({ label: '-Y2', secondary: true, into: gr, press: () => act('sol', (m) => { m.y2 = m.y2 ? 0 : 1; if (m.y2) m.y1 = 0; }) });
+  gr = group('leaks', 'Leaks');
+  B.loff = K.button({ label: 'Off', secondary: true, into: gr, press: () => act('leaks', (m) => { m.leaks = 0; }) });
+  B.lon = K.button({ label: 'On', secondary: true, into: gr, press: () => act('leaks', (m) => { m.leaks = 1; }) });
+  gr = group('ctr', 'Centre', true);
+  B.ctr = CTR.map((c, k) => K.button({ label: c, secondary: true, into: gr, press: () => act('ctr', (m, t) => setCtr(m, k, t)) }));
+  const pr = (b, v) => b.el.setAttribute('aria-pressed', v ? 'true' : 'false');
+  function paintCtl(m) { pr(B.y1, m.y1); pr(B.y2, m.y2); B.ctr.forEach((b, k) => pr(b, m.ctr === k)); pr(B.loff, !m.leaks); pr(B.lon, m.leaks); }
+
+  // The six cards: tap one to open it.
+  const CEL = CARDS.map((c) => {
+    const b = K.button({ label: c.name, secondary: true, into: '#cards', press: () => {
+      const i = at(), st = S[i];
+      if (finished || STEPS[i].view !== 'cards') return;
+      takeOver(st);
+      if (st.open[c.k] == null) { st.open[c.k] = st.t; st.until = Math.max(st.until, st.t + 0.45); }
+      K.reveal(); K.refresh();
+    } });
+    b.el.classList.add('card');
+    b.el.textContent = '';
+    const sv = K.svg('svg', { viewBox: '0 0 120 68', 'aria-hidden': 'true' });
+    CARD_ART[c.k](sv);
+    const tap = K.el('span', { class: 'ctap' }, 'Tap to open'), ln = K.el('span', { class: 'cline' }, c.does);
+    b.el.append(sv, K.el('span', { class: 'cname' }, c.name), K.el('span', { class: 'cbody' }, tap, ln));
+    return { c, b, tap, ln };
+  });
+  function paintCards(st) {
+    CEL.forEach((q) => {
+      const t0 = st.open[q.c.k];
+      q.b.el.setAttribute('aria-expanded', t0 == null ? 'false' : 'true');
+      q.tap.hidden = t0 != null; q.ln.hidden = t0 == null;
+      if (t0 != null) K.fade(q.ln, K.arrive(st.t, t0, 0.4), 3);
+    });
+  }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The motion after a right answer: what the puzzle names happens on the picture.
+  function afterRight(i) { const d = STEPS[i]; if (d.after) d.after(S[i]); }
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = "That's it."; afterRight(i); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shown = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); afterRight(i); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    if (st.pick === d.want) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at();
+    if (finished || STEPS[i].show || whyBtn.el.hidden) return;
+    S[i].why = !S[i].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show || !d.demo) return;
+    S[i] = fresh(i);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // A demonstration's still is its finished picture, in the state its sentence ends on.
+  STEPS.forEach((d, i) => { if (d.show) d.still = () => { S[i] = fresh(i); settle(S[i]); if (d.stillSet) d.stillSet(S[i]); anim.pause(); K.refresh(); }; });
+
+  // One animation plays each demonstration, the motion after an answer and each move; with reduced
+  // motion (and while the self-test looks) everything settles at once.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const st = S[at()];
+    advance(st, Math.min(dt, 0.1));
+    paint();
+    return busy(st);
+  } });
+  function play() {
+    const st = S[at()];
+    if (REDUCE || testing()) { settle(st); anim.pause(); paint(); return; }
+    if (!anim.playing()) anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+
+  // ---------- dragging the row (it snaps from box to box) ----------
+  function svgPt(e) {
+    const mx = sceneSvg.getScreenCTM();
+    if (!mx) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(mx.inverse());
+    return [K.clamp(q.x, 0, 340), q.y];
+  }
+  let drag = null;
+  sceneSvg.addEventListener('pointerdown', (e) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    const tg = e.target && e.target.closest ? e.target.closest('[data-row]') : null;
+    if (!tg || !mainLive(d, st)) return;
+    const q = svgPt(e);
+    if (!q) return;
+    takeOver(st);
+    const s0 = inLine(curS(st.m, st.t));
+    drag = { id: e.pointerId, x0: q[0], s0 };
+    st.m.hand = s0; retarget(st.m, st.t);
+    try { sceneSvg.setPointerCapture(e.pointerId); } catch (er) { /* the drag still follows while the pointer stays on the picture */ }
+    e.preventDefault();
+    K.reveal(); K.refresh();
+  });
+  sceneSvg.addEventListener('pointermove', (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const st = S[at()], q = svgPt(e);
+    if (!q || !st.m) return;
+    const h = K.clamp(Math.round(drag.s0 + (q[0] - drag.x0) / BW), -1, 1);
+    if (h !== st.m.hand) { st.m.hand = h; retarget(st.m, st.t); K.refresh(); }
+  });
+  function letGo(e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    drag = null;
+    const st = S[at()];
+    if (!st.m) return;
+    st.m.hand = null; retarget(st.m, st.t); K.refresh();
+  }
+  sceneSvg.addEventListener('pointerup', letGo);
+  sceneSvg.addEventListener('pointercancel', letGo);
+
+  // ---------- the page ----------
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i], v = viewOf(d, st);
+    art.textContent = '';
+    let H = 150, alt = '';
+    if (v === 'main') { H = HM; alt = drawMain(art, st, d, 1); }
+    else if (v === 'swap') {
+      const out = 1 - K.arrive(st.t, st.swap, 0.3), inn = K.arrive(st.t, st.swap + 0.3, 0.45);
+      H = K.lerp(HC, HM, K.ease(K.clamp((st.t - st.swap) / 0.6, 0, 1)));
+      if (out > 0.001) alt = drawLoneC(art, out);
+      if (inn > 0.001) alt = drawMain(art, st, d, inn);
+    } else if (v === 'lonec') { H = HC; alt = drawLoneC(art, 1); }
+    else if (v === 'two') { H = 146; alt = drawTwo(art, st); }
+    else if (v === 'levers') { H = 166; alt = drawLevers(art, st); }
+    else if (v === 'v32') { H = 146; alt = drawV32(art, st); }
+    else if (v === 'v52') { H = 148; alt = drawV52(art, st); }
+    else if (v === 'cards') paintCards(st);
+    sceneSvg.setAttribute('viewBox', '0 0 340 ' + r3(H));
+    sceneSvg.setAttribute('aria-label', alt);
+    if (st.m) paintCtl(st.m);
+    setSay(sayFor(i));
+    // a demonstration's words fade in as its motion settles
+    K.fade(el('say'), d.show && d.demo && !st.touched ? K.arrive(st.t, d.dur - 0.45, 0.4) : 1, 3);
+  }
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); lastSay = null;
+      if (d.show) S[i] = fresh(i); else if (busy(S[i])) settle(S[i]);
+      if (!busy(S[i])) anim.pause();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+
+    const on = swOnFor(d, st), keep = !on && !!d.sw && !d.show;
+    el('ctl').hidden = !on && !keep;
+    el('ctl').classList.toggle('wait', keep);
+    Object.keys(SW).forEach((k) => { SW[k].hidden = !(on || keep) || d.sw.indexOf(k) < 0; });
+    el('cards').hidden = d.view !== 'cards';
+    el('scenebox').hidden = d.view === 'cards';
+
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('tools').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      write(b.el.appendChild(K.el('span', { class: 'opt' })), opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    let f = '';
+    if (!d.show) f = d.kind === 'typed' ? st.fbText : right ? "That's it." : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Tap one of the answers.' : '';
+    fb.className = 'fb' + (right && !st.shown ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    // a typed puzzle's Why? states the figure, so it shows only once he has answered
+    whyBtn.el.hidden = d.kind === 'typed' && st.res !== 'right' && st.res !== 'wrong';
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+    if (busy(st)) play();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const runFor = (st, secs) => { for (let t = 0; t < secs - 1e-9; t += 0.05) advance(st, 0.05); return st; };
+  K.check('Each solenoid brings in the box beside it, and with both off the springs bring the middle box back', () => {
+    const st = settleOf(fresh(I.springs));
+    return target({ y1: 1, y2: 0, hand: null }) === 1 && target({ y1: 0, y2: 1, hand: null }) === -1 && target({ y1: 0, y2: 0, hand: null }) === 0 &&
+      inLine(curS(st.m, st.t)) === 0 && st.m.hand === null;
+  });
+  function settleOf(st) { settle(st); return st; }
+  K.check('The left box joins P to A and B to T, so the rod comes out; the right box joins P to B and A to T, so it goes back in', () =>
+    JOINS.par.join() === 'PA,BT' && JOINS.cross.join() === 'PB,AT' && regime(1, 0, 0.5, 0).rod === 1 && regime(-1, 0, 0.5, 0).rod === -1 &&
+    flowTags(1, 0, regime(1, 0, 0.5, 0)).join() === 'PA,BT' && flowTags(-1, 0, regime(-1, 0, 0.5, 0)).join() === 'PB,AT');
+  K.check('With the supply connected to the piston side and the rod side exhausted, the pressure on the piston side advances the rod', () =>
+    PISTON === 'A' && RODSIDE === 'B' && JOINS.par.indexOf('P' + PISTON) >= 0 && JOINS.par.indexOf(RODSIDE + 'T') >= 0 && regime(1, 0, 0.3, 0).rod === 1 && regime(1, 0, 0.3, 0).pump === 'feed');
+  K.check('Closed holds the rod and sends the oil over the relief valve; P to T holds it and unloads the pump; Float blocks P and lets the load push the rod in', () => {
+    const c = regime(0, 0, 0.5, 0), p = regime(0, 1, 0.5, 0), f = regime(0, 2, 0.5, 0);
+    return c.rod === 0 && c.pump === 'relief' && p.rod === 0 && p.pump === 'unload' && f.rod === -1 && f.pump === 'relief' && JOINS.float.join() === 'AT,BT';
+  });
+  K.check('With -Y1 on, the rod is coming out within a second; at the end of its travel the oil goes over the relief valve with -Y1 still on', () => {
+    const st = fresh(I.slide);
+    st.m.y1 = 1; retarget(st.m, 0);
+    runFor(st, 1);
+    const early = st.m.x > 0.5 && inLine(curS(st.m, st.t)) === 1;
+    settle(st);
+    return early && st.m.x === 1 && st.m.y1 === 1 && regNow(st.m, st.t).pump === 'relief';
+  });
+  K.check('Leaks off, a held rod stays exactly where it stopped; Leaks on, it creeps back in below its mark, and in time all the way', () => {
+    const a = fresh(I.creep), b = fresh(I.creep), c = fresh(I.creep);
+    b.m.leaks = 1; c.m.leaks = 1;
+    runFor(a, 3); runFor(b, 3); settle(c);
+    return a.m.x === 0.5 && a.m.mark === 0.5 && b.m.mark === 0.5 && b.m.x < b.m.mark - 0.1 && c.m.x === 0;
+  });
+  K.check('A 4-way, two-position valve has 4 pipe connections, pressure, return, A and B, and two switched positions: the screen 2 valve has ports P, T, A and B on two boxes', () =>
+    TWO.ports.length === 4 && TWO.ports.join() === 'P,T,A,B' && TWO.boxes.length === 2 && STEPS[I.npos].answer === TWO.boxes.length, { source: E4 });
+  K.check('Each symbol is drawn in its normal or neutral condition: at rest the main valve shows its middle box against the ports, and the 3/2 and the screen 2 valve the box beside their spring', () => {
+    const st = settleOf(fresh(I.boxes));
+    return inLine(curS(st.m, st.t)) === 0 && V32.rest === V32.spring && TWO.rest === TWO.spring && trackV(fresh(I.s32).s32, 9, 0.5) === 0;
+  }, { source: NAVY });
+  K.check('Worked by hand: the screen 2 valve has 2 positions (slips 4 and 1), and the 5/2 has 1 + 2 + 2 = 5 ports (slips 2, 3 and 4); the typed fields ask exactly these', () => {
+    const a = STEPS[I.npos], b = STEPS[I.n52], sl = (d) => d.slips.map((x) => x.value).join();
+    return a.answer === 2 && sl(a) === '4,1' && b.answer === 5 && sl(b) === '2,3,4' && P52.supply.concat(P52.work, P52.exh).sort().join() === '1,2,3,4,5' &&
+      ANS[I.npos].spec.answer === 2 && ANS[I.n52].spec.answer === 5 && a.want === '2 positions' && b.want === '5 ports';
+  });
+  K.check('Before an answer nothing gives it away: puzzles open with no switches, rings or numbers; on screen 4 the row has not moved and its lines are idle, and on screen 10 Leaks is off', () => {
+    const w = fresh(I.which);
+    return DO.every((i) => { const d = STEPS[i], st = fresh(i); return !swOnFor(d, st) && !st.rings.length && !st.nums.length && st.swap == null && st.lab42 == null && trackV(st.s32, 9, 0.5) === 0 && trackV(st.lv1, 9, 0.5) === 0; }) &&
+      w.m.y2 === 1 && w.m.frozen && inLine(curS(settleOf(w).m, w.t)) === 0 && fresh(I.hold).m.leaks === 0 && quiet(fresh(I.which).m, 0) && !quiet(fresh(I.slide).m, 0);
+  });
+  K.check("Every demonstration settles within 4.5 s, and every answer's motion within 3 s, except the creep on screen 10, which runs until the rod is fully in", () =>
+    STEPS.every((d, i) => {
+      if (d.show) return !d.demo || d.dur <= 4.5;
+      const st = fresh(i);
+      st.res = 'right';
+      if (d.after) d.after(st);
+      let t = 0;
+      while (busy(st) && t < 30) { advance(st, 0.05); t += 0.05; }
+      return d.id === 'hold' ? st.m.x === 0 : t <= 3;
+    }));
+
+  K.ready();
+</script>

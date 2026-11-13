@@ -1,0 +1,430 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Reading drawings and schematics
+Idea: Control schematics: coils, contacts and cross-references (A control schematic draws each contact apart from the coil that moves it; the cross-reference under each coil finds its contacts, wherever they are drawn.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is a contact, paths away from its coil, change state the moment that coil pulls in while its faint drawn copy stays put, when you press Start or Tank low.
+Title (the app shows it above the frame, so do not repeat it): The pump starter sheet, live
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in thirteen small screens. Some screens show an idea and the rest ask you to try it. The main picture is the control schematic of two pump starters on one sheet, drawn the IEC way. Duty pump -M1 runs on contactor -Q1, and standby pump -M2 on contactor -Q2. This sheet holds only the control circuit. The pumps and the contactors' main contacts are on the power sheet, which is not drawn. The control supply runs along the top as a line marked L, and the return along the bottom, marked N. Between them stand eight current paths, numbered 1 to 8 along the top. Path 1: level switch -B1, then the coil of level relay -K1. On this sheet -B1 is drawn open, and a tank filled above its low mark holds it closed. Path 2: Stop button -S0, normally closed, then Start 1 -S1, normally open, then a normally open contact of -K1, a normally closed contact of -Q2, the normally closed contact of overload -F1, and the coil of -Q1. Path 3: a normally open contact of -Q1, its latching contact, joined across -S1. Path 4: fed from just below -S0, Start 2 -S2, normally open, then a normally open contact of -K1, a normally closed contact of -Q1, the normally closed contact of overload -F2, and the coil of -Q2. Path 5: a normally open contact of -Q2, its latching contact, joined across -S2. Path 6: a normally open contact of -Q1 and lamp -P1, Duty running. Path 7: a normally open contact of -Q2 and lamp -P2, Standby running. Path 8: a normally closed contact of -K1 and lamp -P3, Tank low. Each coil is a rectangle with its tag beside it. Every contact carries the tag of the device that moves it. Under each coil is a small cross-reference table with two columns. The left column lists the paths of its normally open contacts, and the right one those of its normally closed ones. Under -K1 it reads 2, 4 and then 8. Under -Q1 it reads 3, 6 and then 4. Under -Q2 it reads 5, 7 and then 2. Every contact is drawn twice. A faint copy shows its drawn state, with every coil de-energised and no button pressed. Over it, in bold ink, the contact shows its present state. An energised coil is drawn bold with a soft glow. A lit lamp glows. Five buttons sit above the sheet: Start 1, Start 2, Stop, Trip -F1 and Tank low. At phone width they wrap onto two rows, with no word split. Start 1, Start 2 and Stop act while pressed and spring back. Trip -F1 opens -F1's contact until it is tapped again, as a reset. Tank low opens -B1 until it is tapped again, as the tank refilling. The rule. A coil is energised while an unbroken run of closed contacts joins it to both L and N. A normally open contact is closed while its coil is energised, and a normally closed one is open while its coil is energised. Otherwise each sits as drawn. The circuit is solved again after every press, so a latching contact holds its coil in after Start springs back. Tap any contact of -K1, -Q1 or -Q2, and its coil lights with a ring. A thin line joins the contact to the coil, and the coil's table marks the contact's path. Tap a button, -B1 or an overload contact instead, and a small card says what moves it: a hand, the tank's level, or heat from the pump's current on the power sheet. The readout Contacts not as drawn counts every contact whose present state differs from its drawn state. Buttons and switches count too. The readout Pumps running counts the energised contactors. It opens with the tank full, so -B1 is closed and -K1 is in. Both pumps are stopped. Contacts not as drawn reads 4, and Pumps running reads 0. A Sheet switch above the buttons picks IEC or US ladder. US ladder redraws the same circuit as eight horizontal rungs between two upright rails, numbered down the left. There each coil is a circle at the right end of its rung, tagged CR1 for -K1, M1 for -Q1 and M2 for -Q2. A contact is two short parallel lines, with a slash across a normally closed one, tagged with its coil's name. The overload contacts are tagged OL1 and OL2, and each lamp is a small circle with short rays. The rung numbers of each coil's contacts are written beside it, with normally closed ones marked NC. At phone width the paths are drawn tall, about 40 px apart. The coil tables sit in a row under the coils. Every tag is at least 12 px and stays readable at 360 px. Each contact is a tap target about 40 px across. Screen by screen. Screen 1, do, Still there?: the sheet as it opens. "You press Start on a DOL starter and let go. What keeps the contactor in?" Choices: The Start button stays down; A contact of the contactor itself, across Start (right); The overload's contact. Hint on The Start button stays down: "Start springs back the moment you let go. Something else carries the coil's current." Hint on The overload's contact: "The overload's contact is closed whether the contactor is in or not. Look across Start." Why: pulling in closes the contactor's own latching contact. It is wired across Start, so it keeps the coil fed after Start springs back. A right answer says "Still there." After Check, -Q1's contact in path 3 is ringed. Screen 2, show, Coils and contacts apart: the sheet as it opens. Words: "A control schematic draws a circuit as numbered current paths, from the supply at the top to the return at the bottom. Each coil sits in one path. Its contacts sit wherever they do their work. Each one carries the coil's tag." The path numbers light 1 to 8 in turn, then coil -Q1 glows with its three contacts, in paths 3, 4 and 6. Read: coil -Q1 in path 2 is picked out together with its three contacts, in paths 3, 4 and 6. Still: the end of the sweep. Screen 3, do, typed, Find the coil: the sheet as it opens, with the -Q2 contact in path 2 marked. "The contact marked in path 2 is tagged -Q2. In which path is the coil that moves it?" A typed answer: 4, a whole number. Slips: 2, "That is where the contact sits. Its coil is drawn in another path."; 1, "-K1's coil looks the same, but its tag is different. Find the coil tagged -Q2."; 5, "Path 5 holds another -Q2 contact. Find the coil itself, a rectangle." Hint: "Look along the bottom of the sheet for the coil tagged -Q2." Why: a contact belongs to the coil whose tag it carries. Coil -Q2 sits in path 4, so the contact in path 2 opens whenever -Q2 pulls in. After Check, the contact is tapped for him: coil -Q2 lights and a line joins them. Screen 4, show, The cross-reference: the sheet as it opens. Words: "Under each coil on this sheet sits its cross-reference. It lists the paths where that coil's contacts sit. Normally open ones are on the left, and normally closed ones on the right." Then "Tap any contact to find its coil." Read: tapping -K1's contact in path 8 lights coil -K1 in path 1. Its table reads 2, 4 and then 8, and marks path 8. Still: -K1's contact in path 8 tapped. Screen 5, do, typed, One coil pulls in: the sheet as it opens. "Contactor -Q1 pulls in. How many contacts on this sheet change state?" A typed answer: 3, a whole number. Slips: 2, "The contact in path 4 is normally closed. It changes too, from closed to open."; 1, "Count every path in -Q1's table, in both columns." Hint: "Read the cross-reference under coil -Q1. Every contact it lists changes when the coil pulls in." Why: the table lists all three of -Q1's contacts on this sheet. All at once, paths 3 and 6 close and path 4 opens. After Check, Start 1 is pressed for him: -Q1 pulls in and its three contacts redraw. Screen 6, show, Drawn at rest: the sheet as it opens. Words: "Each contact on this sheet is drawn at rest, with every coil de-energised and no button pressed. Here each contact shows in bold what it is doing now. A faint copy under it shows how it is drawn. The tank is full, so -K1 is in. Its contacts already differ from the drawing." -B1 and -K1's three contacts are ringed in turn. Contacts not as drawn reads 4. Screen 7, do, Drawn closed: the sheet as it opens, with -K1's contact in path 8 marked. "-K1's contact in path 8 is drawn closed. With the tank full, is it closed now?" Choices: Yes, it is drawn closed; No, it is open (right). Hint on Yes: "The drawing shows it at rest. Is its coil at rest?" Why: the full tank holds -B1 closed, so coil -K1 is energised. A normally closed contact is open while its coil is in. So path 8 is open and the Tank low lamp is dark. After Check, path 8's contact is ringed, bold and open over its faint closed copy. Screen 8, show, Series and parallel: the sheet as it opens. Words: "Contacts one after another in a path are in series. Any one opening drops the coil out, unless another path bridges it. The latching contact in path 3 is in parallel with Start 1. It holds -Q1 in after Start springs back." Then "Press Start 1, then Trip -F1." Read: Start 1 has pulled -Q1 in, and its latching contact has held it there. Then -F1 has opened and -Q1 has dropped out. Its three contacts are back as drawn. Still: Start 1 pressed, then -F1 tripped. Screen 9, do, Start the standby: -M1 running and the tank full. "Pump -M1 runs. You press Start 2. What happens?" Choices: -M2 starts as well; Nothing happens (right); -M1 stops and -M2 starts. Hint on -M2 starts as well: "Follow path 4 from Start 2 down to coil -Q2. Is every contact closed?" Hint on -M1 stops and -M2 starts: "Start 2 sits in path 4 only. Nothing in path 2 moves when you press it." Why: -Q1 is in, so its normally closed contact in path 4 is open. Path 4 cannot reach coil -Q2, whatever Start 2 does. That is the interlock, read off the sheet. After Check, Start 2 is pressed and nothing changes. Screen 10, show, The US ladder: the sheet as it opens. Words: "A US ladder draws the same circuit sideways, as rungs between two rails. Each coil is a circle, here CR1, M1 and M2. Each contact carries its coil's tag." Then "Switch the sheet to US ladder." Read: the same circuit is drawn as eight rungs. Coils CR1, M1 and M2 are circles at the right, and each contact is tagged with its coil. Still: the Sheet switch on US ladder. Screen 11, do, The circle on rung 2: the US ladder, as it opens. "On the US ladder, what is the circle tagged M1 at the end of rung 2?" Choices: The duty pump's motor; The Duty running lamp; The coil of contactor -Q1 (right). Hint on The duty pump's motor: "A control sheet shows what switches the motor. The motor is on the power sheet." Hint on The Duty running lamp: "A lamp has short rays, and it sits on rung 6." Why: in the US form, a coil is drawn as a circle. M1 is the coil of -Q1, the starter for the duty pump. Its contacts on rungs 3, 4 and 6 carry the tag M1. Screen 12, do, mixed, A trip: the IEC sheet, -M1 running and the tank full. "-F1 trips while -M1 runs. Which pump can you start now?" Choices: Neither; Only -M1; Only -M2 (right); Both. Hint on Neither: "-Q1 has dropped out, so its contact in path 4 has closed again." Hint on Only -M1: "-F1's contact is in -Q1's own path, and it stays open until it is reset." Hint on Both: "-M2 can start now. Can path 2 reach coil -Q1 with -F1 open?" Why: -F1 opening breaks path 2, so -Q1 drops out. Its normally closed contact in path 4 closes again. Now path 4 waits only for Start 2. -M1 cannot restart until -F1 is reset. After Check, -F1 trips, Start 2 is pressed for him and -M2 runs. Screen 13, do, mixed, typed, Not as drawn: the IEC sheet, -M1 running and the tank full. "Pump -M1 runs with the tank full. How many contacts on the sheet are not in their drawn state?" A typed answer: 7, a whole number. Slips: 6, "-B1 counts too. It is drawn open, and the full tank holds it closed."; 4, "-Q1 is in, and all three of its contacts have changed."; 3, "Two coils are in, -K1 and -Q1. Count both tables, and -B1."; 8, "Stop -S0 is drawn closed, and it is closed now. It changes only while pressed." Hint: "Count -B1, then every contact in the table of each coil that is in." Why: -B1 is closed, though drawn open. -K1 and -Q1 are both in, and each has three contacts on this sheet. So 1 + 3 + 3 makes 7 contacts not as drawn. Contacts not as drawn shows ? until the answer is checked, then 7.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The sheet has far fewer parts than a real starter panel, and only the control circuit is drawn. A contact here changes the instant its coil pulls in or drops out, with no bounce or delay. The overload trips from a button, not from heat, and the level switch opens from a button, not a float. Drawing -B1 open is this example's choice. The cross-reference table is one simple layout. Real sheets set it out in several ways. They often point to contacts on other sheets by sheet and path. The tags are names on this sheet only. Their letters also carry meanings in the standards, which are left out here.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "notAsDrawn": Contacts not as drawn, decimals: 0
+- id "pumpsRunning": Pumps running, decimals: 0
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Current paths on the sheet: 8 (assumed)
+- Pumps on the sheet: 2 (assumed)
+- Opening state: contacts not as drawn: 4 (computed)
+- Opening state: pumps running: 0 (computed)
+- Screen 3: path holding coil -Q2: 4 (computed)
+- Screen 3 slip, the contact's own path: 2 (computed)
+- Screen 3 slip, coil -K1's path: 1 (computed)
+- Screen 3 slip, the other -Q2 contact's path: 5 (computed)
+- Screen 5: contacts that change when -Q1 pulls in: 3 (computed)
+- Screen 5 slip, normally open contacts only: 2 (computed)
+- Screen 5 slip, one contact only: 1 (computed)
+- Screen 13: contacts not as drawn with -M1 running: 7 (computed)
+- Screen 13 slip, -B1 missed: 6 (computed)
+- Screen 13 slip, -Q1's contacts missed: 4 (computed)
+- Screen 13 slip, one coil's contacts only: 3 (computed)
+- Screen 13 slip, Stop counted: 8 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A control schematic draws each coil in one place. It draws each of the coil's contacts where that contact does its work. A contact belongs to the coil whose tag it carries, however far apart the two are drawn. So you find a contact's coil by its tag, and a coil's contacts by the coil's cross-reference.
+
+The sheet draws the circuit as current paths. Each one is a line from the control supply at the top to the return at the bottom. The paths are numbered along the top. A coil is energised while an unbroken run of closed contacts joins it to both lines. Each coil usually sits in its own path, and each contact is drawn in the path it switches. That way each path reads top to bottom as one circuit, with most of what can stop its coil in it. Check the line that feeds it too. Stop -S0 in path 2 also feeds path 4. On the example sheet, coil -Q1 sits in path 2. Its latching contact is in path 3, and its run lamp's contact in path 6. A contact that blocks the standby pump sits in path 4. A coil's contacts can even sit on another sheet. You match them by tag and by the cross-reference, never by how alike two coils look. On this sheet the cross-reference is a short table of paths under each coil. It lists normally open contacts first, then normally closed. Under -Q1 it reads 3 and 6, then 4. When -Q1 pulls in, all three change over. Paths 3 and 6 close, and path 4 opens. A US ladder draws…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Electrical Symbols Chart: ANSI vs IEC Industrial Control Symbols (https://viox.com/electrical-symbols-chart): "The coil and its contacts may appear on different pages or in different ladder-diagram rungs. Match them using the reference designation and cross-reference information. Do not assume two similarly shaped coils belong to the same device."
+[2] Electrical Symbols: US (ANSI/IEEE) vs IEC Chart (https://electrician.wiki/reference/electrical-symbols): "A normally closed contact is drawn closed even if, in normal running, its coil is energized and the contact is open."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: mechanism). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,1155 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 48rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  /* The room and the diagram: stacked on a phone, side by side when there is room for both. */
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr)); gap: 14px 20px; align-items: start; }
+  .pane { margin: 0; min-width: 0; }
+  .pane > .k-label { margin: 0 0 6px; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 24rem; margin-inline: auto; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 8rem; min-height: 44px; }
+  .tools .k-btn { flex: 0 1 auto; min-height: 44px; padding-inline: 16px; }
+  .tools .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  /* Choices stack one to a row, each label whole. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  .nw { white-space: nowrap; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+
+  /* Drawing styles. Lines are muted until lit; a lit line is bold ink. */
+  svg .wall { fill: var(--k-sunk); }
+  svg .floor { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  svg .bd { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }
+  svg .sk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  svg .sk.bl { stroke-width: 2.6; }
+  svg .fk { fill: var(--k-ink); }
+  svg .rp { fill: none; stroke: var(--k-muted); stroke-width: 6; stroke-linejoin: round; }
+  svg .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1; }
+  svg .pill.on { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2; }
+  svg .hlring { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; }
+  svg .ln { fill: none; stroke: var(--k-muted); stroke-linejoin: round; }
+  svg .ln.cable { stroke-width: 1.6; }
+  svg .ln.pipe { stroke-width: 4.5; }
+  svg .ln.shaft { stroke-width: 2; stroke-dasharray: 6 4; }
+  svg .ln.lit { stroke: var(--k-ink); }
+  svg .ln.lit.cable { stroke-width: 3.6; }
+  svg .ln.lit.pipe { stroke-width: 7; }
+  svg .ln.lit.shaft { stroke-width: 3.6; }
+  svg .ln.mark { stroke: var(--k-accent); stroke-width: 3; }
+  svg .sym { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .litbg { fill: var(--k-fill1); }
+  svg .hlbg { fill: var(--k-fill2); }
+  svg .dotc { fill: var(--k-ink); }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 4 3; }
+  svg .fa { fill: var(--k-accent); }
+  svg .sep { stroke: var(--k-line); stroke-width: 1; }
+  svg .badge { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.5; }
+  svg .hit { fill: none; stroke: transparent; stroke-width: 18; pointer-events: stroke; cursor: pointer; }
+  svg .grab { fill: transparent; cursor: grab; touch-action: none; }
+  svg .t13 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  svg .t13b { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .t15b { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  svg .tg { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .tm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  svg .kt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  svg .lt { font: 700 16px var(--k-font); fill: var(--k-ink); }
+</style>
+
+<p class="lead">A small pump set, drawn as it sits in a room and as its diagram.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="pair" id="pair">
+      <figure class="pane" id="paneRoom"><p class="k-label">In the room</p><svg class="pic" id="room" viewBox="0 0 340 196" width="100%" role="img" aria-label=""><g id="roomArt"></g></svg></figure>
+      <figure class="pane" id="paneSheet"><p class="k-label">On the diagram</p><svg class="pic" id="scene" viewBox="0 0 340 282" width="100%" role="img" aria-label=""><g id="sceneArt"></g></svg></figure>
+    </div>
+    <div id="cardbox"><svg class="pic" id="card" viewBox="0 0 340 384" width="100%" role="img" aria-label=""><g id="cardArt"></g></svg></div>
+    <div class="k-readouts" id="outs"></div>
+    <p class="say" id="say"></p>
+    <div class="row tools" id="tools"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ansbox"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The room is a sketch, not to scale. Each line on the diagram stands for one connection.</p>
+
+<script>
+  // ---------- symbols: where each one meets its lines (pins: [dx, dy, the way a line leaves]) ----------
+  const KINDS = {
+    supply: { pins: { o: [26, 0, 'r'] }, box: [30, 18], tag: null },
+    switch: { pins: { i: [-20, 0, 'l'], o: [20, 0, 'r'] }, box: [24, 16], tag: [0, 26, 'middle'] },
+    starter: { pins: { i: [-22, 0, 'l'], o: [22, 0, 'r'] }, box: [26, 19], tag: [0, -22, 'middle'] },
+    lamp: { pins: { t: [0, -12, 'u'], b: [0, 12, 'd'], r: [12, 0, 'r'], l: [-12, 0, 'l'] }, box: [16, 16], tag: [18, 5, 'start'] },
+    motor: { pins: { t: [0, -17, 'u'], s: [17, 0, 'r'], l: [-17, 0, 'l'], r: [17, 0, 'r'] }, box: [21, 21], tag: [0, 34, 'middle'] },
+    pump: { pins: { s: [-15, 0, 'l'], p: [15, 0, 'r'] }, box: [19, 19], tag: [0, 32, 'middle'] },
+    valve: { pins: { a: [-12, 0, 'l'], b: [12, 0, 'r'] }, box: [16, 18], tag: [0, 28, 'middle'] },
+    tank: { pins: { p: [0, 20, 'd'] }, box: [24, 24], tag: [0, -28, 'middle'] },
+    counter: { pins: { t: [0, -13, 'u'] }, box: [17, 17], tag: [18, 5, 'start'] },
+  };
+  const NAME = { SUP: 'the supply', Q1: 'isolator -Q1', K1: 'starter -K1', H1: 'lamp -H1', M1: 'motor -M1', P1: 'pump -P1', V1: 'valve -V1', T1: 'tank -T1', H2: 'run lamp -H2', P2: 'hours counter -P2' };
+  const SHORT = { SUP: 'the supply', Q1: 'the isolator', K1: 'the starter', H1: 'the lamp', M1: 'the motor', P1: 'the pump', V1: 'the valve', T1: 'the tank', H2: 'the run lamp', P2: 'the hours counter' };
+  const TAGOF = (id) => (id === 'SUP' ? 'Supply' : '-' + id);
+
+  // ---------- the sheets: parts, junction dots and lines (a: where a line starts, b: where it ends) ----------
+  // An end is 'part.pin', or a dot ('J1', or 'J1:r' with the way the line leaves it). start: the part
+  // the line leaves, which the readout does not count. net: the line's name; cross: how the .say
+  // names it where it crosses a lit line with no dot.
+  const MAIN = {
+    parts: {
+      SUP: { kind: 'supply', x: 36, y: 50 }, Q1: { kind: 'switch', x: 108, y: 50 }, K1: { kind: 'starter', x: 215, y: 50 },
+      H1: { kind: 'lamp', x: 160, y: 150 }, M1: { kind: 'motor', x: 50, y: 190 }, P1: { kind: 'pump', x: 120, y: 190 },
+      V1: { kind: 'valve', x: 190, y: 190 }, T1: { kind: 'tank', x: 232, y: 160 },
+    },
+    dots: { J1: [160, 50] },
+    segs: [
+      { id: 'c1', a: 'SUP.o', b: 'Q1.i', start: 'SUP', net: 'The supply\'s line' },
+      { id: 'c2', a: 'Q1.o', b: 'J1', start: 'Q1', net: 'The line leaving -Q1' },
+      { id: 'c3', a: 'J1:r', b: 'K1.i', start: 'Q1' },
+      { id: 'c4', a: 'J1:d', b: 'H1.t', start: 'Q1', cross: ['The lamp\'s line', 'the lamp'] },
+      { id: 'c5', a: 'K1.o', b: 'M1.t', via: [[256, 108], [50, 108]], start: 'K1', net: 'The motor\'s cable', cross: ['The motor\'s cable', 'the motor'] },
+      { id: 'c6', a: 'M1.s', b: 'P1.s', kind: 'shaft', start: 'M1', net: 'The shaft' },
+      { id: 'c7', a: 'P1.p', b: 'V1.a', kind: 'pipe', start: 'P1', net: 'The pipe from the pump' },
+      { id: 'c8', a: 'V1.b', b: 'T1.p', kind: 'pipe', start: 'V1', net: 'The pipe to the tank' },
+    ],
+    keyY: 250, key: ['cable', 'pipe', 'shaft', 'dot', 'lit'],
+    markAt: { text: [144, 30, 'middle'], tri: [[139, 36], [149, 36], [144, 44]] },
+  };
+  // The same sheet with a short link from the supply's line to the starter's line, round -Q1.
+  const LINK = {
+    parts: MAIN.parts,
+    dots: { J1: [160, 50], L1: [76, 50], L2: [178, 50] },
+    segs: [
+      { id: 'c1a', a: 'SUP.o', b: 'L1', start: 'SUP', net: 'The supply\'s line' },
+      { id: 'c1b', a: 'L1', b: 'Q1.i', start: 'SUP' },
+      { id: 'lk', a: 'L1:u', b: 'L2', via: [[76, 22], [178, 22]], start: 'SUP', label: [127, 16, 'Link'] },
+      MAIN.segs[1],
+      { id: 'c3a', a: 'J1:r', b: 'L2', start: 'Q1' },
+      { id: 'c3b', a: 'L2', b: 'K1.i', start: 'Q1' },
+      MAIN.segs[3], MAIN.segs[4], MAIN.segs[5], MAIN.segs[6], MAIN.segs[7],
+    ],
+    keyY: 250, key: MAIN.key,
+  };
+  // The pump set redrawn, with run lamp -H2 and hours counter -P2 on the starter's output line.
+  const NEW = {
+    parts: {
+      SUP: { kind: 'supply', x: 36, y: 48 }, Q1: { kind: 'switch', x: 108, y: 48 }, K1: { kind: 'starter', x: 262, y: 104 },
+      H1: { kind: 'lamp', x: 162, y: 244 }, H2: { kind: 'lamp', x: 100, y: 130 }, P2: { kind: 'counter', x: 250, y: 216 },
+      M1: { kind: 'motor', x: 44, y: 204 }, P1: { kind: 'pump', x: 114, y: 204 },
+    },
+    dots: { J1: [162, 48], D1: [100, 172], D2: [250, 172] },
+    segs: [
+      { id: 'c1', a: 'SUP.o', b: 'Q1.i', start: 'SUP', net: 'The supply\'s line' },
+      { id: 'c2', a: 'Q1.o', b: 'J1', start: 'Q1', net: 'The line leaving -Q1' },
+      { id: 'c3', a: 'J1:r', b: 'K1.i', start: 'Q1' },
+      { id: 'c4', a: 'J1:d', b: 'H1.t', start: 'Q1', cross: ['Lamp -H1\'s line', '-H1'] },
+      { id: 'o1', a: 'K1.o', b: 'D2', via: [[314, 104], [314, 172]], start: 'K1', net: 'The starter\'s output line' },
+      { id: 'o2', a: 'D2:l', b: 'D1', start: 'K1' },
+      { id: 'o3', a: 'D1:l', b: 'M1.t', start: 'K1' },
+      { id: 'o4', a: 'D1:u', b: 'H2.b', start: 'K1' },
+      { id: 'o5', a: 'D2:d', b: 'P2.t', start: 'K1' },
+      { id: 'c6', a: 'M1.s', b: 'P1.s', kind: 'shaft', start: 'M1', net: 'The shaft' },
+    ],
+    keyY: 276, key: ['cable', 'shaft', 'dot', 'lit'],
+    markAt: { text: [304, 142, 'end'], tri: [[306, 132], [306, 142], [312, 137]] },
+  };
+  // Screen 1's three small drawings. A and B are laid out alike; C scatters A's parts.
+  const PA = {
+    parts: { SUP: { kind: 'supply', x: 52, y: 44 }, Q1: { kind: 'switch', x: 118, y: 44, tag: [0, -20, 'middle'] }, K1: { kind: 'starter', x: 222, y: 44 },
+      M1: { kind: 'motor', x: 296, y: 44, tag: [0, -24, 'middle'] }, H1: { kind: 'lamp', x: 166, y: 88 } },
+    dots: { J1: [166, 44] },
+    segs: [{ id: 'a1', a: 'SUP.o', b: 'Q1.i', start: 'SUP' }, { id: 'a2', a: 'Q1.o', b: 'J1', start: 'Q1' }, { id: 'a3', a: 'J1:r', b: 'K1.i', start: 'Q1' },
+      { id: 'a4', a: 'J1:d', b: 'H1.t', start: 'Q1' }, { id: 'a5', a: 'K1.o', b: 'M1.l', start: 'K1' }],
+  };
+  const PB = {
+    parts: PA.parts,
+    dots: { J2: [258, 44] },
+    segs: [{ id: 'b1', a: 'SUP.o', b: 'Q1.i', start: 'SUP' }, { id: 'b2', a: 'Q1.o', b: 'K1.i', start: 'Q1' }, { id: 'b3', a: 'K1.o', b: 'J2', start: 'K1' },
+      { id: 'b4', a: 'J2:r', b: 'M1.l', start: 'K1' }, { id: 'b5', a: 'J2:d', b: 'H1.t', start: 'K1' }],
+  };
+  const PC = {
+    parts: { H1: { kind: 'lamp', x: 66, y: 44, tag: [0, -20, 'middle'] }, Q1: { kind: 'switch', x: 216, y: 44, flip: true, tag: [0, -20, 'middle'] },
+      SUP: { kind: 'supply', x: 292, y: 44, flip: true }, K1: { kind: 'starter', x: 118, y: 88, flip: true, tag: [48, 5, 'start'] },
+      M1: { kind: 'motor', x: 40, y: 88, tag: [0, 34, 'middle'] } },
+    dots: { J1: [156, 44] },
+    segs: [{ id: 'x1', a: 'SUP.o', b: 'Q1.i', start: 'SUP' }, { id: 'x2', a: 'Q1.o', b: 'J1', start: 'Q1' }, { id: 'x3', a: 'J1:d', b: 'K1.i', start: 'Q1' },
+      { id: 'x4', a: 'J1:l', b: 'H1.r', start: 'Q1' }, { id: 'x5', a: 'K1.o', b: 'M1.r', start: 'K1' }],
+  };
+  const PANELS = [{ sh: PA, y0: 6, letter: 'A', lamp: 'a4' }, { sh: PB, y0: 118, letter: 'B', lamp: 'b5' }, { sh: PC, y0: 230, letter: 'C', lamp: 'x4' }];
+  const SHEETS = { MAIN, LINK, NEW };
+
+  // ---------- lines: each one runs square from pin to pin, through its fixed bends ----------
+  const DV = { l: [-1, 0], r: [1, 0], u: [0, -1], d: [0, 1] };
+  const STUB = 10;
+  function route(A, B, via) {
+    const pts = [[A.x, A.y]];
+    let cur = [A.x, A.y], dir = A.d ? DV[A.d] : null;
+    if (dir) { cur = [A.x + STUB * dir[0], A.y + STUB * dir[1]]; pts.push(cur); }
+    const bd = B.d ? DV[B.d] : null, fin = bd ? [B.x + STUB * bd[0], B.y + STUB * bd[1]] : [B.x, B.y];
+    const tg = (via || []).concat([fin]);
+    tg.forEach((t, k) => {
+      const last = k === tg.length - 1, dx = Math.sign(t[0] - cur[0]), dy = Math.sign(t[1] - cur[1]);
+      if (dx && dy) {
+        // keep going the way the line already runs if the next point lies ahead, else turn now
+        let h = dir && dir[0] ? dx === dir[0] : dir && dir[1] ? dy !== dir[1] : true;
+        if (last && bd) { const leg = h ? [0, dy] : [dx, 0]; if (leg[0] === bd[0] && leg[1] === bd[1]) h = !h; }
+        pts.push(h ? [t[0], cur[1]] : [cur[0], t[1]]);
+        dir = h ? [0, dy] : [dx, 0];
+      } else if (dx || dy) {
+        if (last && bd && dx === bd[0] && dy === bd[1] && Math.abs(t[0] - cur[0]) + Math.abs(t[1] - cur[1]) > 24) {   // it would arrive through the part: step round it
+          const side = bd[0] ? [0, 1] : [1, 0];
+          pts.push([cur[0] + side[0] * 22, cur[1] + side[1] * 22], [t[0] + side[0] * 22, t[1] + side[1] * 22]);
+        }
+        dir = [dx, dy];
+      }
+      pts.push(t); cur = t;
+    });
+    pts.push([B.x, B.y]);
+    return tidy(pts);
+  }
+  // Drop repeated points and any bend that lies on a straight run (a run that doubles back is cut short).
+  function tidy(p) {
+    const q = [];
+    p.forEach((a) => { const b = q[q.length - 1]; if (!b || Math.abs(a[0] - b[0]) > 0.01 || Math.abs(a[1] - b[1]) > 0.01) q.push(a); });
+    let k = 1;
+    while (k < q.length - 1) {
+      const a = q[k - 1], b = q[k], c = q[k + 1];
+      if (Math.abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) < 0.01) { q.splice(k, 1); if (k > 1) k--; } else k++;
+    }
+    return q;
+  }
+  // Where every part, pin and line sits, with any parts moved to `pos`.
+  function layout(sh, pos) {
+    const P = {};
+    Object.keys(sh.parts).forEach((id) => {
+      const p = sh.parts[id], at = (pos && pos[id]) || [p.x, p.y];
+      P[id] = { id, kind: p.kind, x: at[0], y: at[1], flip: !!p.flip, tag: p.tag };
+    });
+    const end = (s) => {
+      const m = /^(\w+)\.(\w+)$/.exec(s);
+      if (m) {
+        const p = P[m[1]], k = KINDS[p.kind].pins[m[2]];
+        let d = k[2];
+        if (p.flip && (d === 'l' || d === 'r')) d = d === 'l' ? 'r' : 'l';
+        return { x: p.x + (p.flip ? -1 : 1) * k[0], y: p.y + k[1], d };
+      }
+      const n = s.split(':'), q = sh.dots[n[0]];
+      return { x: q[0], y: q[1], d: n[1] || null };
+    };
+    const R = {};
+    sh.segs.forEach((s) => { const A = end(s.a), B = end(s.b); R[s.id] = { A, B, pts: route(A, B, s.via) }; });
+    return { P, D: sh.dots, R };
+  }
+  // Crossings: two lines meeting inside both runs, not at an end or a dot.
+  function meet(p1, p2, p3, p4) {
+    const d = (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p2[1] - p1[1]) * (p4[0] - p3[0]);
+    if (Math.abs(d) < 1e-9) return null;
+    const t = ((p3[0] - p1[0]) * (p4[1] - p3[1]) - (p3[1] - p1[1]) * (p4[0] - p3[0])) / d;
+    const u = ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p3[1] - p1[1]) * (p2[0] - p1[0])) / d;
+    if (t <= 1e-6 || t >= 1 - 1e-6 || u <= 1e-6 || u >= 1 - 1e-6) return null;
+    return [p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1])];
+  }
+  function crossings(L, sh) {
+    const out = [];
+    sh.segs.forEach((a, m) => sh.segs.slice(m + 1).forEach((b) => {
+      const pa = L.R[a.id].pts, pb = L.R[b.id].pts;
+      for (let i = 0; i < pa.length - 1; i++) for (let j = 0; j < pb.length - 1; j++) {
+        const x = meet(pa[i], pa[i + 1], pb[j], pb[j + 1]);
+        if (x) out.push({ a: a.id, b: b.id, x });
+      }
+    }));
+    return out;
+  }
+
+  // ---------- what is joined to what (the meaning, which no layout changes) ----------
+  function seg(sh, id) { if (!sh.by) { sh.by = {}; sh.segs.forEach((s) => { sh.by[s.id] = s; }); } return sh.by[id]; }
+  const nodeName = (e) => e.split(':')[0];
+  const partOfNode = (n) => (n.indexOf('.') > 0 ? n.split('.')[0] : null);
+  // The lines joined to one: they share a dot or a pin. The light stops at each part, whose two pins differ.
+  function comp(sh, id, joins) {
+    const seen = new Set([id]), todo = [id];
+    while (todo.length) {
+      const s = seg(sh, todo.pop()), ns = [nodeName(s.a), nodeName(s.b)];
+      sh.segs.forEach((t) => {
+        if (seen.has(t.id)) return;
+        const shared = ns.indexOf(nodeName(t.a)) >= 0 || ns.indexOf(nodeName(t.b)) >= 0;
+        const joined = (joins || []).some((j) => (j[0] === s.id && j[1] === t.id) || (j[1] === s.id && j[0] === t.id));
+        if (shared || joined) { seen.add(t.id); todo.push(t.id); }
+      });
+    }
+    return seen;
+  }
+  function partsOf(sh, ids) {
+    const ps = new Set();
+    ids.forEach((id) => { const s = seg(sh, id); [s.a, s.b].forEach((e) => { const p = partOfNode(nodeName(e)); if (p) ps.add(p); }); });
+    return ps;
+  }
+  // The parts a lit line reaches, besides the part it leaves.
+  function reached(sh, id, joins) { const ps = partsOf(sh, comp(sh, id, joins)); ps.delete(seg(sh, id).start); return ps; }
+  // A slip: also counting the far part of each line that only crosses it.
+  function crossCount(sh, id) {
+    const c = comp(sh, id), r = reached(sh, id), extra = new Set();
+    crossings(layout(sh), sh).forEach((x) => {
+      const other = c.has(x.a) && !c.has(x.b) ? x.b : c.has(x.b) && !c.has(x.a) ? x.a : null;
+      if (other) partsOf(sh, [other]).forEach((p) => { if (!r.has(p) && p !== seg(sh, id).start) extra.add(p); });
+    });
+    return r.size + extra.size;
+  }
+  // A slip: following only the first branch at every dot, which ends at one part.
+  function onePath(sh, id) {
+    let s = seg(sh, id), from = nodeName(s.a), count = 0;
+    const used = new Set();
+    for (let n = 0; n < 20; n++) {
+      used.add(s.id);
+      const far = nodeName(s.a) === from ? nodeName(s.b) : nodeName(s.a);
+      if (partOfNode(far)) { count++; break; }
+      const next = sh.segs.find((t) => !used.has(t.id) && (nodeName(t.a) === far || nodeName(t.b) === far));
+      if (!next) break;
+      from = far; s = next;
+    }
+    return count;
+  }
+  // How a drawing joins its parts, ignoring where they sit: each set of joined pins.
+  function sigOf(sh) {
+    const seen = new Set(), groups = [];
+    sh.segs.forEach((s) => {
+      if (seen.has(s.id)) return;
+      const c = comp(sh, s.id), ns = new Set();
+      c.forEach((id) => { seen.add(id); const t = seg(sh, id); [t.a, t.b].forEach((e) => { const n = nodeName(e), p = partOfNode(n); if (p) { const pin = n.split('.')[1]; ns.add(p + (pin === 'i' || pin === 'o' ? '.' + pin : '')); } }); });
+      groups.push(Array.from(ns).sort().join('+'));
+    });
+    return groups.sort().join(' | ');
+  }
+  const XPT = crossings(layout(MAIN), MAIN)[0].x;   // where the lamp's line crosses the motor's cable
+  const FARK = [300, 220];                          // the starter dragged to the far side of the sheet
+  function pathK1(p) { const d = p * 255; return d <= 85 ? [215 + d, 50] : [300, 50 + (d - 85)]; }
+
+  // ---------- the heaters card: drawn in a row, then in the usual shape, with the same joints ----------
+  const HSEG = [
+    { a: 'S.t', b: 'E1.l', r: [[34, 76], [34, 40], [80, 40]], l: [[34, 76], [34, 52], [80, 52]] },
+    { a: 'E1.r', b: 'D1', r: [[120, 40], [145, 40]], l: [[120, 52], [150, 52]] },
+    { a: 'D1', b: 'E2.l', r: [[145, 40], [145, 40], [170, 40]], l: [[150, 52], [150, 28], [190, 28]] },
+    { a: 'D1', b: 'E3.l', r: [[145, 40], [145, 72], [235, 72], [235, 40], [250, 40]], l: [[150, 52], [150, 80], [165, 80], [178, 80], [190, 80]] },
+    { a: 'E2.r', b: 'D2', r: [[210, 40], [222, 40], [222, 18], [315, 18], [315, 40]], l: [[230, 28], [250, 28], [270, 28], [270, 40], [270, 52]] },
+    { a: 'E3.r', b: 'D2', r: [[290, 40], [315, 40], [315, 40]], l: [[230, 80], [270, 80], [270, 52]] },
+    { a: 'D2', b: 'S.b', r: [[315, 40], [315, 40], [315, 124], [34, 124], [34, 104]], l: [[270, 52], [300, 52], [300, 124], [34, 124], [34, 104]] },
+  ];
+  const HPOS = { r: { E1: [100, 40], E2: [190, 40], E3: [270, 40], D1: [145, 40], D2: [315, 40] }, l: { E1: [100, 52], E2: [210, 28], E3: [210, 80], D1: [150, 52], D2: [270, 52] } };
+  const HTAG = { r: { E1: [100, 63], E2: [190, 63], E3: [270, 63] }, l: { E1: [100, 75], E2: [210, 15], E3: [210, 103] } };
+  const HEATG = { segs: HSEG.map((s, k) => ({ id: 'h' + k, a: s.a, b: s.b })) };
+  function hpin(node, k) {
+    if (node === 'S.t') return [34, 76];
+    if (node === 'S.b') return [34, 104];
+    const m = /^(E\d)\.(l|r)$/.exec(node);
+    if (m) { const c = HPOS[k][m[1]]; return [c[0] + (m[2] === 'l' ? -20 : 20), c[1]]; }
+    return HPOS[k][node];
+  }
+
+  // ---------- the air sheet, as labelled boxes ----------
+  const AIRBOX = { A1: [74, 31, 'Cylinder -A1'], V2: [240, 92, 'Valve -V2'], R1: [240, 152, 'Regulator -R1'], C1: [240, 212, 'Compressor -C1'] };
+  const AIRLN = [[[240, 197], [240, 167]], [[240, 137], [240, 107]], [[240, 77], [240, 31], [134, 31]]];
+  const AIRG = { segs: [{ id: 'g1', a: 'C1.t', b: 'R1.b' }, { id: 'g2', a: 'R1.t', b: 'V2.b' }, { id: 'g3', a: 'V2.t', b: 'A1.r' }] };
+  function airOrder() {
+    const out = [], used = new Set();
+    let at = 'C1';
+    for (let n = 0; n < 5; n++) {
+      const s = AIRG.segs.find((x) => !used.has(x.id) && (partOfNode(x.a) === at || partOfNode(x.b) === at));
+      if (!s) break;
+      used.add(s.id);
+      at = partOfNode(s.a) === at ? partOfNode(s.b) : partOfNode(s.a);
+      out.push(at);
+    }
+    return out;
+  }
+
+  // ---------- drawn state: contacts with the coil off, a valve where its spring holds it ----------
+  const contactClosed = (type, coilOn) => (type === 'NO' ? coilOn : !coilOn);
+  const valveOpen = (solenoidOn) => solenoidOn;
+  const stateWords = (r) => [contactClosed('NO', r >= 0.5) ? 'Closed' : 'Open', valveOpen(r >= 0.5) ? 'Open' : 'Shut'];
+
+  // ---------- the room: each part where it sits ----------
+  const ROOM_HOME = { SUP: [34, 74], Q1: [92, 62], K1: [144, 60], H1: [212, 50], SKID: [176, 158], V1: [246, 112], T1: [300, 52] };
+  const FAR = [88, 158];                      // the motor and pump moved across the room
+  const LAMP_ON = [-26, -22];                 // screen 3: the lamp fixed to the motor's frame
+  const BOUNDS = { SUP: [30, 310, 40, 142], Q1: [18, 322, 20, 140], K1: [20, 290, 26, 150], H1: [16, 322, 14, 150], SKID: [74, 272, 40, 158], V1: [20, 320, 26, 150], T1: [30, 310, 28, 120] };
+  function roomPipe(R) {
+    const sk = R.SKID, v = R.V1, t = R.T1;
+    return [route({ x: sk[0] + 14, y: sk[1] - 24, d: 'u' }, { x: v[0] - 10, y: v[1], d: 'l' }), route({ x: v[0] + 10, y: v[1], d: 'r' }, { x: t[0] - 22, y: t[1] + 10, d: 'l' })];
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A SHOW step's init is the state its demonstration ends in (and its still); dur and ends are its
+  // timetable in seconds. A puzzle's after is the line lit once it is answered; fx how long that takes.
+  const STEPS = [
+    { name: 'Which is joined differently', kind: 'pick', pic: 'abc', fx: 1.6,
+      task: 'Here are three diagrams of the pump set. Which drawing is joined differently from the other two?',
+      opts: ['A', 'B', 'C'], want: 'B',
+      hint: 'Compare where each lamp\'s line starts.',
+      hints: { A: 'Compare where each lamp\'s line starts.', C: 'Layout means nothing. Follow each lamp\'s line back to where it starts.' },
+      why: 'A and C join every part the same way, so they are one diagram drawn twice. B looks like A, but its lamp lights only when the starter closes.' },
+    { name: 'Two drawings', show: true, pic: 'both', sheet: 'MAIN', sheetDrag: true, dur: 3.2, ends: 2.8,
+      text: 'Above is the pump set as it sits in the room. Below is its diagram. The diagram does not show where parts sit or how far the pipe runs. It shows only what is joined to what. Drag a part round the room.',
+      textWide: 'On the left is the pump set as it sits in the room. On the right is its diagram. The diagram does not show where parts sit or how far the pipe runs. It shows only what is joined to what. Drag a part round the room.',
+      read: 'Above is the pump set as it sits in the room. Below is its diagram. The diagram does not show where parts sit or how far the pipe runs. It shows only what is joined to what. The motor has moved across the room, and the diagram is exactly the same.',
+      init: () => ({ room: { SKID: FAR.slice() } }) },
+    { name: 'Side by side', kind: 'pick', pic: 'both', sheet: 'MAIN', lampOnMotor: true, after: 'c4', fx: 0.8,
+      task: 'In the room, lamp -H1 is fixed to the frame of motor -M1. Is the lamp fed from the motor\'s cable?',
+      opts: ['Yes, it sits on the motor', 'No, it is fed from the isolator\'s line'], want: 'No, it is fed from the isolator\'s line',
+      hint: 'Where a part sits tells you nothing. Find the lamp\'s line on the diagram.',
+      why: 'The lamp\'s line leaves through a dot on the line from -Q1. So the lamp is lit whenever -Q1 is closed, whether the motor runs or not.' },
+    { name: 'Crossings and dots', show: true, pic: 'sheet', sheet: 'MAIN', dur: 3.0, ends: 1.8,
+      text: 'On most diagrams, lines that cross with no dot are not joined. A dot marks a real joint, called a *junction*. The legend says how a sheet marks its joints. Tap the motor\'s cable.',
+      read: 'On most diagrams, lines that cross with no dot are not joined. A dot marks a real joint, called a *junction*. The legend says how a sheet marks its joints. The motor\'s cable lights with the starter and the motor. The lamp\'s line crosses it with no dot, so it stays dark.',
+      init: () => ({ lit: 'c5', lastAct: 'lit' }) },
+    { name: 'Count the parts', kind: 'typed', pic: 'sheet', sheet: 'MAIN', mark: 'c2', after: 'c2', fx: 0.8, field: 'q1line',
+      task: 'How many parts does the line leaving -Q1 reach, besides -Q1?',
+      answer: reached(MAIN, 'c2').size, unit: 'parts',
+      slips: [{ value: crossCount(MAIN, 'c2'), hint: 'That counts the motor. Its cable crosses the lamp\'s line with no dot, so it is not joined.' },
+        { value: onePath(MAIN, 'c2'), hint: 'The line splits at a dot. Follow both branches.' }],
+      hint: 'Follow the line from -Q1. Stop at each part, and look for dots.',
+      why: 'The line runs to a dot, where it splits to starter -K1 and lamp -H1. It crosses the motor\'s cable with no dot. So it reaches 2 parts.' },
+    { name: 'Drag the symbols', show: true, pic: 'sheet', sheet: 'MAIN', sheetDrag: true, dur: 3.8, ends: 3.4,
+      text: 'Drag a symbol anywhere and its lines stretch to follow. Every joint stays the same, so the meaning stays the same.',
+      read: 'The starter\'s symbol sits at the far side of the sheet with its lines stretched. The line leaving -Q1 still lights the same 2 parts. Every joint stays the same, so the meaning stays the same.',
+      init: () => ({ lit: 'c2', lastAct: 'lit', pos: { K1: FARK.slice() } }) },
+    { name: 'In a row', kind: 'pick', pic: 'heat', fx: 2.0,
+      task: 'Three heaters are drawn in one row along the top. How are the three heaters joined?',
+      opts: ['All three in series', '-E1 in series with -E2 and -E3 in parallel', 'All three in parallel'], want: '-E1 in series with -E2 and -E3 in parallel',
+      hint: 'Follow the supply, one dot at a time.',
+      hints: { 'All three in series': 'A row on the page is not a path. Follow the dots at each end of -E2 and -E3.', 'All three in parallel': 'Follow the supply. Does it reach -E2 without passing through -E1?' },
+      why: 'Every path from the supply passes through -E1 first. Then it splits at the dot, through -E2 or through -E3, and joins again. Parts drawn in a row are in series only if one path runs through each in turn.' },
+    { name: 'Tags', show: true, pic: 'both', sheet: 'MAIN', sheetDrag: true, dur: 3.0, ends: 2.0,
+      text: 'Each part should carry the same name on the plant and on the diagram, its *tag*. The tag, not the place, tells you which symbol is which part. Tap a tag in the room.',
+      read: 'Each part should carry the same name on the plant and on the diagram, its *tag*. The tag, not the place, tells you which symbol is which part. Tag -K1 in the room is lit, and so is the starter\'s symbol on the diagram. They sit in different places on each.',
+      init: () => ({ tag: 'K1', lastAct: 'tag' }) },
+    { name: 'The link', kind: 'pick', pic: 'both', sheet: 'LINK', after: 'c1a', fx: 0.8,
+      task: 'The diagram shows a short link beside -Q1. You open -Q1. By the diagram, is starter -K1 still joined to the supply?',
+      opts: ['No, -Q1 is open', 'Yes, through the link'], want: 'Yes, through the link',
+      hint: 'A wire that seems to do nothing still joins. Follow the link.',
+      why: 'The link joins the supply\'s line to the starter\'s line, round -Q1. Opening -Q1 leaves that path whole, so -K1 is not dead. Prove it dead at the starter.' },
+    { name: 'The drawn state', show: true, pic: 'state', dur: 3.0, ends: 2.4,
+      text: 'A diagram usually draws each part in one fixed state, with coils off and valves in their normal or neutral position. Good design makes that off state the safest one. So the drawing can differ from the plant as it runs. Switch to Plant running.',
+      read: 'A diagram usually draws each part in one fixed state, with coils off and valves in their normal or neutral position. Good design makes that off state the safest one. So the drawing can differ from the plant as it runs. As drawn, the starter\'s main contact is open. Valve -V2 is shut, where its spring holds it. With the plant running, the contact is closed and -V2 is open.',
+      init: () => ({ run: true }) },
+    { name: 'Drawn closed', kind: 'pick', pic: 'nc', fx: 1.5,
+      task: 'The pump is running. A contact of starter -K1, marked normally closed, is drawn closed. What is that contact doing now?',
+      opts: ['Closed, as drawn', 'Open'], want: 'Open',
+      hint: 'The drawing shows it with the coil off. Running, the coil is on.',
+      why: 'A normally closed contact is drawn closed, with its coil off. The pump runs, so the coil of -K1 is on and that contact is open.' },
+    { name: 'Where to start', kind: 'pick', pic: 'air', fx: 2.3,
+      task: 'Here is a small compressed air sheet. Which part does the air reach first?',
+      opts: ['Cylinder -A1, top left', 'Valve -V2', 'Regulator -R1'], want: 'Regulator -R1',
+      hint: 'Start at the compressor.',
+      hints: { 'Cylinder -A1, top left': 'That is the top of the sheet, not the source. Start at the compressor.', 'Valve -V2': 'Follow the line up from the compressor, one part at a time.' },
+      why: 'The air starts at the compressor. Its line meets -R1 first, then -V2, then -A1. A sheet can run any way, so find the source first.' },
+    { name: 'A new layout', kind: 'typed', pic: 'sheet', sheet: 'NEW', mark: 'o1', after: 'o1', fx: 0.8, field: 'k1line',
+      task: 'The pump set is redrawn with its parts in new places. Run lamp -H2 and hours counter -P2 are added. How many parts does the starter\'s output line reach, besides -K1?',
+      answer: reached(NEW, 'o1').size, unit: 'parts',
+      slips: [{ value: crossCount(NEW, 'o1'), hint: 'That counts -H1. Its line crosses with no dot, so it is not joined.' },
+        { value: reached(NEW, 'o1').size - 1, hint: 'One branch leaves through a dot. Follow every branch.' },
+        { value: onePath(NEW, 'o1'), hint: 'The motor is one. Follow the dots to the others.' }],
+      hint: 'Ignore where the parts sit. Follow the line and its dots.',
+      why: 'The line runs to motor -M1, and through dots to -H2 and -P2. Lamp -H1\'s line only crosses it. So it reaches 3 parts.' },
+  ];
+  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = d.answer + ' parts'; });
+  const I = { abc: 0, two: 1, side: 2, cross: 3, count: 4, drag: 5, row: 6, tags: 7, link: 8, drawn: 9, nc: 10, air: 11, fresh: 12 };
+  const FINISH = 'A diagram shows what is joined to what, not where parts sit. So you read it by following its lines and *junctions*.';
+  const SRC = { ejr: 'https://ejrsme.icrsme.com/article/download/7775/5542', navy: 'https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy' };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false, tries: 0, shown: false, fbText: '', lit: null, dot: false, pos: {}, room: {}, tag: null, lastAct: null, run: false, runFrom: 0, touched: false }; }
+  function fresh(i) { const st = blank(), d = STEPS[i]; if (d.init) Object.assign(st, d.init()); return st; }
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  const arr = (t0) => K.arrive(T, t0, K.SOFT);
+  const prog = (t0, dur) => (T === Infinity ? 1 : K.clamp((T - t0) / dur, 0, 1));
+  const lerp2 = (a, b, p) => [K.lerp(a[0], b[0], p), K.lerp(a[1], b[1], p)];
+  const joinsOf = (i, st) => (i === I.cross && st.dot ? [['c4', 'c5']] : null);
+
+  // What a step draws now: its state, with a demonstration or an answer's motion part-way through.
+  function look(i, st) {
+    st = st || S[i];
+    const d = STEPS[i], right = st.res === 'right', demo = !!d.show && !st.touched && T !== Infinity;
+    const L = { room: Object.assign({}, ROOM_HOME, st.room), pos: Object.assign({}, st.pos), lit: st.lit, litA: 1, dot: !!st.dot, tag: st.tag, tagA: [1, 1], ring: 0,
+      run: st.run ? 1 : 0, slide: 0, open: 0, nowA: 0, seq: [0, 0, 0, 0], panel: [0, 0, 0] };
+    if (!d.show && right && d.after && st.lit === d.after) L.litA = arr(0.1);
+    if (i === I.abc && right) L.panel = [arr(0.1), arr(0.5), arr(0.9)];
+    if (i === I.two && demo) L.room.SKID = lerp2(ROOM_HOME.SKID, FAR, K.ease(prog(0.6, 2.2)));
+    if (i === I.cross) { L.ring = demo ? arr(0.4) : 1; if (demo) L.litA = arr(1.2); }
+    if (i === I.drag && demo) { L.litA = arr(0.4); L.pos.K1 = pathK1(K.ease(prog(1.0, 2.4))); }
+    if (i === I.row && right) L.slide = K.ease(prog(0.2, 1.8));
+    if (i === I.tags && demo) L.tagA = [arr(0.6), arr(1.4)];
+    if (i === I.drawn) L.run = demo ? K.ease(prog(1.0, 1.4)) : st.touched && T !== Infinity ? K.lerp(st.runFrom, st.run ? 1 : 0, K.ease(prog(0, 0.8))) : (st.run ? 1 : 0);
+    if (i === I.nc && right) { L.open = K.ease(prog(0.2, 0.9)); L.nowA = arr(0.9); }
+    if (i === I.air && right) L.seq = [arr(0.2), arr(0.7), arr(1.2), arr(1.7)];
+    return L;
+  }
+  // The readout: the parts the lit line reaches, besides the part it leaves.
+  function countAt(i, st) {
+    st = st || S[i];
+    const d = STEPS[i];
+    if (!d.sheet || !st.lit) return 0;
+    return reached(SHEETS[d.sheet], st.lit, joinsOf(i, st)).size;
+  }
+  function readoutTextFor(i, st) {
+    st = st || S[i];
+    const d = STEPS[i];
+    if (d.kind === 'typed' && st.res !== 'right') return '?';
+    if (!d.sheet || !st.lit) return '–';
+    return K.fmt(countAt(i, st), { decimals: 0 });
+  }
+
+  // ---------- drawing helpers (built with K.svg, never innerHTML) ----------
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, pts, cls) => add(g, 'polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') });
+  const text = (g, x, y, s, cls, anchor) => g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  const bowtie = (x, y, w, h) => 'M' + (x - w) + ' ' + (y - h) + ' L' + (x + w) + ' ' + (y + h) + ' L' + (x + w) + ' ' + (y - h) + ' L' + (x - w) + ' ' + (y + h) + ' Z';
+  let meterSvg = null;
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    if (meterSvg) {
+      const t = meterSvg.appendChild(K.svg('text', { class: cls, x: 0, y: -40 }, s));
+      try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+      meterSvg.removeChild(t);
+    }
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * (cls === 'lt' ? 9.5 : 7.6);
+  }
+  function hlText(g, x, y, s, anchor) {
+    const w = tw(s, 'tg') + 8, x0 = anchor === 'start' ? x - 4 : anchor === 'end' ? x - w + 4 : x - w / 2;
+    rect(g, x0, y - 13, w, 18, 'hlbg', 4);
+  }
+  const KEYTXT = { cable: 'Cable', pipe: 'Pipe', shaft: 'Shaft', dot: 'Junction', lit: 'Lit', air: 'Air line' };
+  function keyRows(items) {
+    const rows = [[]];
+    let x = 12;
+    items.forEach((k) => { const w = 30 + tw(KEYTXT[k], 'kt'); if (x > 12 && x + w > 334) { rows.push([]); x = 12; } rows[rows.length - 1].push([k, x]); x += w + 16; });
+    return rows;
+  }
+  function drawKey(g, rows, y) {
+    rows.forEach((r, n) => r.forEach((it) => {
+      const k = it[0], x = it[1], yy = y + 20 * n;
+      if (k === 'dot') circle(g, x + 12, yy, 4, 'dotc');
+      else poly(g, [[x, yy], [x + 24, yy]], 'ln ' + (k === 'lit' ? 'lit cable' : k === 'air' ? 'pipe' : k));
+      text(g, x + 30, yy + 4.5, KEYTXT[k], 'kt', 'start');
+    }));
+  }
+
+  // One symbol, as drawn on the sheet.
+  function drawSym(g, P) {
+    const x = P.x, y = P.y, f = P.flip ? -1 : 1;
+    switch (P.kind) {
+      case 'supply': rect(g, x - 26, y - 14, 52, 28, 'sym', 3); text(g, x, y + 4.5, 'Supply', 't13'); break;
+      case 'switch':
+        line(g, x - 20 * f, y, x - 10 * f, y, 'sk'); line(g, x - 10 * f, y, x + 9 * f, y - 11, 'sk'); line(g, x + 10 * f, y, x + 20 * f, y, 'sk');
+        circle(g, x - 10 * f, y, 2.2, 'fk'); circle(g, x + 10 * f, y, 2.2, 'fk'); break;
+      case 'starter':
+        rect(g, x - 22, y - 15, 44, 30, 'sym', 3);
+        line(g, x - 22 * f, y, x - 8 * f, y, 'sk'); line(g, x - 8 * f, y, x + 7 * f, y - 8, 'sk'); line(g, x + 8 * f, y, x + 22 * f, y, 'sk'); break;
+      case 'lamp': circle(g, x, y, 12, 'sym'); line(g, x - 8.5, y - 8.5, x + 8.5, y + 8.5, 'sk'); line(g, x - 8.5, y + 8.5, x + 8.5, y - 8.5, 'sk'); break;
+      case 'motor': circle(g, x, y, 17, 'sym'); text(g, x, y + 5.5, 'M', 't15b'); break;
+      case 'pump': circle(g, x, y, 15, 'sym'); path(g, 'M' + (x + 15 * f) + ' ' + y + ' L' + (x - 3 * f) + ' ' + (y - 9) + ' L' + (x - 3 * f) + ' ' + (y + 9) + ' Z', 'fk'); break;
+      case 'valve': path(g, bowtie(x, y, 12, 8), 'sym'); line(g, x, y, x, y - 13, 'sk'); line(g, x - 7, y - 13, x + 7, y - 13, 'sk'); break;
+      case 'tank': path(g, 'M' + (x - 20) + ' ' + (y - 20) + ' V' + (y + 20) + ' H' + (x + 20) + ' V' + (y - 20), 'sym'); break;
+      case 'counter': circle(g, x, y, 13, 'sym'); text(g, x, y + 5, 'h', 't15b'); break;
+    }
+  }
+  // A whole sheet: lit backings, lines, the lit line in bold ink, symbols, dots, tags, touch areas.
+  function drawSheet(g, sh, o) {
+    o = o || {};
+    const L = layout(sh, o.pos), litSet = o.lit ? comp(sh, o.lit, o.joins) : null, litParts = litSet ? partsOf(sh, litSet) : new Set();
+    const gBack = add(g, 'g'), gHl = add(g, 'g'), gLines = add(g, 'g'), gMark = add(g, 'g'), gLit = add(g, 'g'), gSym = add(g, 'g'), gDots = add(g, 'g'), gText = add(g, 'g'), gHit = add(g, 'g');
+    sh.segs.forEach((s) => {
+      const p = L.R[s.id].pts, k = s.kind || 'cable';
+      poly(gLines, p, 'ln ' + k);
+      if (litSet && litSet.has(s.id)) poly(gLit, p, 'ln lit ' + k);
+      if (o.mark === s.id) poly(gMark, p, 'ln mark');
+      if (s.label) text(gText, s.label[0], s.label[1], s.label[2], 'tm');
+      if (o.hits) poly(gHit, p, 'hit').dataset.seg = s.id;
+    });
+    Object.keys(L.P).forEach((id) => {
+      const P = L.P[id], kd = KINDS[P.kind], bx = kd.box, tg = P.tag || kd.tag;
+      if (litParts.has(id)) rect(gBack, P.x - bx[0], P.y - bx[1], 2 * bx[0], 2 * bx[1], 'litbg', 7);
+      if (o.tag === id) rect(gHl, P.x - bx[0] - 3, P.y - bx[1] - 3, 2 * bx[0] + 6, 2 * bx[1] + 6, 'hlbg', 9);
+      drawSym(gSym, P);
+      if (tg) { if (o.tag === id) hlText(gHl, P.x + tg[0], P.y + tg[1], TAGOF(id), tg[2]); text(gText, P.x + tg[0], P.y + tg[1], TAGOF(id), 'tg', tg[2]); }
+      if (o.hits) { const hw = Math.max(bx[0], 22), hh = Math.max(bx[1], 22); rect(gHit, P.x - hw, P.y - hh, 2 * hw, 2 * hh, 'grab').dataset.sym = id; }
+    });
+    Object.keys(L.D).forEach((id) => circle(gDots, L.D[id][0], L.D[id][1], 4, 'dotc'));
+    if (o.extra) circle(gDots, o.extra[0], o.extra[1], 4, 'dotc');
+    const la = o.litA == null ? 1 : o.litA;
+    K.fade(gBack, la); K.fade(gLit, la); K.fade(gHl, o.tagA == null ? 1 : o.tagA);
+    return L;
+  }
+  // The main diagram for a step; returns the drawing's height.
+  function drawMain(g, i, lk) {
+    const d = STEPS[i], st = S[i], sh = SHEETS[d.sheet], right = st.res === 'right', marked = !d.show && !right && d.mark;
+    drawSheet(g, sh, { pos: lk.pos, lit: lk.lit, litA: lk.litA, joins: joinsOf(i, st), tag: lk.tag, tagA: lk.tagA[1], mark: marked ? d.mark : null, hits: true, extra: lk.dot ? XPT : null });
+    if (marked) {
+      const m = sh.markAt;
+      text(g, m.text[0], m.text[1], 'This line', 'tm', m.text[2]);
+      path(g, 'M' + m.tri.map((p) => p[0] + ' ' + p[1]).join(' L') + ' Z', 'fa');
+    }
+    if (i === I.cross && lk.ring > 0) {
+      const rg = add(g, 'g');
+      circle(rg, XPT[0], XPT[1], 10, 'ring');
+      text(rg, XPT[0] - 12, XPT[1] + 20, lk.dot ? 'Joined' : 'No dot', 'tm', 'end');
+      K.fade(rg, lk.ring);
+    }
+    const rows = keyRows(sh.key);
+    drawKey(g, rows, sh.keyY);
+    return sh.keyY + 20 * (rows.length - 1) + 12;
+  }
+
+  // ---------- the room ----------
+  function roomSupply(g, c) { const x = c[0], y = c[1]; rect(g, x - 26, y - 36, 52, 72, 'bd', 3); text(g, x, y + 4.5, 'Supply', 't13'); line(g, x + 19, y + 14, x + 19, y + 26, 'sk'); }
+  function roomIso(g, c) { const x = c[0], y = c[1]; rect(g, x - 13, y - 16, 26, 32, 'bd', 3); circle(g, x, y, 7, 'sk'); line(g, x - 6, y + 6, x + 6, y - 6, 'sk'); }
+  function roomStarter(g, c) { const x = c[0], y = c[1]; rect(g, x - 17, y - 22, 34, 44, 'bd', 3); circle(g, x, y - 9, 5, 'sk'); circle(g, x, y + 9, 5, 'sk'); }
+  function roomLamp(g, c) { const x = c[0], y = c[1]; path(g, 'M' + (x - 8) + ' ' + (y + 4) + ' A8 8 0 0 1 ' + (x + 8) + ' ' + (y + 4) + ' Z', 'bd'); rect(g, x - 9, y + 4, 18, 5, 'bd', 1); }
+  function roomSkid(g, c) {
+    const x = c[0], y = c[1];
+    rect(g, x - 70, y + 14, 130, 6, 'bd', 1);
+    rect(g, x - 66, y - 14, 52, 28, 'bd', 4);
+    for (let k = 0; k < 4; k++) line(g, x - 55 + 10 * k, y - 9, x - 55 + 10 * k, y + 9, 'sk');
+    rect(g, x - 14, y - 5, 10, 10, 'bd', 1);
+    rect(g, x + 9, y - 24, 10, 12, 'bd', 1);
+    circle(g, x + 14, y, 15, 'bd'); circle(g, x + 14, y, 4, 'sk');
+  }
+  function roomValve(g, c) { const x = c[0], y = c[1]; path(g, bowtie(x, y, 10, 7), 'bd'); line(g, x, y, x, y - 12, 'sk'); circle(g, x, y - 18, 6, 'sk'); line(g, x - 6, y - 18, x + 6, y - 18, 'sk'); }
+  function roomTank(g, c) { const x = c[0], y = c[1]; rect(g, x - 22, y - 24, 44, 48, 'bd', 3); rect(g, x - 28, y + 24, 56, 4, 'bd', 1); line(g, x - 20, y + 28, x - 12, y + 40, 'sk'); line(g, x + 20, y + 28, x + 12, y + 40, 'sk'); }
+  function pillAt(g, x, y, s, on, a) {
+    const w = tw(s, 'tg') + 12;
+    rect(g, x - w / 2, y - 10, w, 20, 'pill', 6);
+    if (on) K.fade(rect(g, x - w / 2, y - 10, w, 20, 'pill on', 6), a);
+    text(g, x, y + 4.5, s, 'tg');
+  }
+  function drawRoom(g, i, lk) {
+    const d = STEPS[i], R = lk.room, on = !!d.lampOnMotor;
+    const H1 = on ? [R.SKID[0] + LAMP_ON[0], R.SKID[1] + LAMP_ON[1]] : R.H1;
+    rect(g, 0, 0, 340, 178, 'wall'); rect(g, 0, 178, 340, 18, 'floor');
+    roomPipe(R).forEach((p) => poly(g, p, 'rp'));
+    roomSupply(g, R.SUP); roomTank(g, R.T1); roomIso(g, R.Q1); roomStarter(g, R.K1); roomValve(g, R.V1); roomSkid(g, R.SKID); roomLamp(g, H1);
+    const tags = [['Q1', R.Q1, [0, 31]], ['K1', R.K1, [33, 0]], ['H1', H1, on ? [0, -18] : [0, 22]], ['M1', R.SKID, on ? [-58, -26] : [-40, -26]],
+      ['P1', R.SKID, [46, 0]], ['V1', R.V1, [0, 19]], ['T1', R.T1, [0, -4]]];
+    tags.forEach((t) => pillAt(g, t[1][0] + t[2][0], t[1][1] + t[2][1], '-' + t[0], lk.tag === t[0], lk.tagA[0]));
+    if (lk.tag === 'SUP') K.fade(rect(g, R.SUP[0] - 29, R.SUP[1] - 39, 58, 78, 'hlring', 6), lk.tagA[0]);
+    const hit = (u, p, x, y, w, h) => { const r = rect(g, x, y, w, h, 'grab'); r.dataset.u = u; r.dataset.p = p; };
+    hit('SUP', 'SUP', R.SUP[0] - 26, R.SUP[1] - 36, 52, 72);
+    hit('T1', 'T1', R.T1[0] - 28, R.T1[1] - 26, 56, 58);
+    hit('Q1', 'Q1', R.Q1[0] - 22, R.Q1[1] - 22, 44, 44);
+    hit('K1', 'K1', R.K1[0] - 22, R.K1[1] - 24, 44, 48);
+    hit('V1', 'V1', R.V1[0] - 22, R.V1[1] - 26, 44, 40);
+    hit('SKID', 'M1', R.SKID[0] - 70, R.SKID[1] - 20, 58, 40);
+    hit('SKID', 'P1', R.SKID[0] - 12, R.SKID[1] - 26, 44, 46);
+    hit(on ? 'SKID' : 'H1', 'H1', H1[0] - 22, H1[1] - 22, 44, 44);
+    tags.forEach((t) => hit(t[0] === 'M1' || t[0] === 'P1' || (on && t[0] === 'H1') ? 'SKID' : t[0], t[0], t[1][0] + t[2][0] - 20, t[1][1] + t[2][1] - 16, 40, 32));
+  }
+
+  // ---------- the cards ----------
+  function drawABC(g, i, lk) {
+    PANELS.forEach((P, k) => {
+      if (k) line(g, 8, P.y0 - 6, 332, P.y0 - 6, 'sep');
+      const pg = add(g, 'g', { transform: 'translate(0 ' + P.y0 + ')' });
+      text(pg, 14, 24, P.letter, 'lt', 'start');
+      drawSheet(pg, P.sh, { lit: lk.panel[k] > 0 ? P.lamp : null, litA: lk.panel[k] });
+    });
+    const rows = keyRows(['cable', 'dot', 'lit']);
+    drawKey(g, rows, 370);
+    return 370 + 20 * (rows.length - 1) + 12;
+  }
+  function drawHeat(g, i, lk) {
+    const p = lk.slide, at = (a, b) => lerp2(a, b, p);
+    HSEG.forEach((s) => poly(g, s.r.map((q, k) => at(q, s.l[k])), 'ln cable'));
+    rect(g, 8, 76, 52, 28, 'sym', 3); text(g, 34, 94.5, 'Supply', 't13');
+    ['E1', 'E2', 'E3'].forEach((id) => {
+      const c = at(HPOS.r[id], HPOS.l[id]), t = at(HTAG.r[id], HTAG.l[id]);
+      rect(g, c[0] - 20, c[1] - 8, 40, 16, 'sym', 2);
+      text(g, t[0], t[1], '-' + id, 'tg');
+    });
+    ['D1', 'D2'].forEach((id) => { const c = at(HPOS.r[id], HPOS.l[id]); circle(g, c[0], c[1], 4, 'dotc'); });
+    const rows = keyRows(['cable', 'dot']);
+    drawKey(g, rows, 144);
+    return 144 + 20 * (rows.length - 1) + 12;
+  }
+  // A starter contact: the blade turns about its pivot, from open to closed.
+  function blade(g, px, y, th, len) { line(g, px, y, px + len * Math.cos(th), y + len * Math.sin(th), 'sk bl'); }
+  function drawState(g, i, lk) {
+    const r = lk.run, w = stateWords(r);
+    text(g, 16, 24, '-K1 main contact', 't13b', 'start');
+    const y = 52;
+    line(g, 40, y, 80, y, 'sk'); circle(g, 80, y, 2.4, 'fk'); line(g, 120, y, 160, y, 'sk'); circle(g, 120, y, 2.4, 'fk');
+    blade(g, 80, y, K.lerp(-0.36, 0, r), 40);
+    text(g, 190, y + 5, w[0], 't15b', 'start');
+    text(g, 16, 90, '-V2, spring-return solenoid valve', 't13b', 'start');
+    const vy = 124, s = 30 * r, xL = 65 + s, xR = 95 + s;
+    rect(g, xL, vy - 15, 30, 30, 'sym'); rect(g, xR, vy - 15, 30, 30, 'sym');
+    // left square: open, air passes from the bottom port to the top
+    line(g, xL + 15, vy + 13, xL + 15, vy - 5, 'sk'); path(g, 'M' + (xL + 15) + ' ' + (vy - 13) + ' L' + (xL + 11) + ' ' + (vy - 5) + ' L' + (xL + 19) + ' ' + (vy - 5) + ' Z', 'fk');
+    // right square: shut, each port blocked
+    line(g, xR + 15, vy + 15, xR + 15, vy + 7, 'sk'); line(g, xR + 9, vy + 7, xR + 21, vy + 7, 'sk');
+    line(g, xR + 15, vy - 15, xR + 15, vy - 7, 'sk'); line(g, xR + 9, vy - 7, xR + 21, vy - 7, 'sk');
+    // the ports stay where the valve is piped
+    line(g, 110, vy - 15, 110, vy - 26, 'sk'); line(g, 110, vy + 15, 110, vy + 26, 'sk');
+    // the solenoid pushes from the left; the spring returns it from the right
+    rect(g, xL - 15, vy - 10, 15, 20, 'sym'); line(g, xL - 15, vy + 10, xL, vy - 10, 'sk');
+    const x0 = xR + 30, x1 = 166, pts = [[x0, vy]];
+    for (let k = 1; k < 12; k++) pts.push([x0 + (x1 - x0) * k / 12, vy + (k % 2 ? -6 : 6)]);
+    pts.push([x1, vy]);
+    poly(g, pts, 'sk'); line(g, x1, vy - 12, x1, vy + 12, 'sk');
+    text(g, 190, vy + 5, w[1], 't15b', 'start');
+    return 160;
+  }
+  const ncNow = (i, lk) => (S[i].res === 'right' && lk.nowA > 0 ? 'Now: open' : 'Now: ?');
+  function drawNC(g, i, lk) {
+    text(g, 16, 24, '-K1 contact, normally closed', 't13b', 'start');
+    const y = 60;
+    line(g, 40, y, 80, y, 'sk'); circle(g, 80, y, 2.4, 'fk');
+    line(g, 160, y, 118, y, 'sk'); line(g, 118, y, 118, y - 14, 'sk');
+    blade(g, 80, y, K.lerp(-0.3, 0.26, lk.open), 42);
+    text(g, 176, 50, 'As drawn: closed', 't13', 'start');
+    const now = text(g, 176, 76, ncNow(i, lk), 't15b', 'start');
+    if (S[i].res === 'right' && lk.nowA > 0) K.fade(now, lk.nowA);
+    text(g, 16, 106, 'The pump is running.', 't13', 'start');
+    return 118;
+  }
+  function drawAir(g, i, lk) {
+    const sq = lk.seq, order = ['C1', 'R1', 'V2', 'A1'], back = add(g, 'g');
+    AIRLN.forEach((p) => poly(g, p, 'ln pipe'));
+    AIRLN.forEach((p, k) => { if (sq[k + 1] > 0) K.fade(poly(g, p, 'ln lit pipe'), sq[k + 1]); });
+    order.forEach((id, k) => {
+      const b = AIRBOX[id];
+      if (sq[k] > 0) K.fade(rect(back, b[0] - 64, b[1] - 19, 128, 38, 'litbg', 8), sq[k]);
+      rect(g, b[0] - 60, b[1] - 15, 120, 30, 'sym', 3);
+      text(g, b[0], b[1] + 4.5, b[2], 't13');
+    });
+    [[166, 152], [166, 92], [74, 64]].forEach((c, k) => {
+      if (sq[k + 1] <= 0) return;
+      const bg = add(g, 'g');
+      circle(bg, c[0], c[1], 11, 'badge'); text(bg, c[0], c[1] + 4.5, String(k + 1), 'tm');
+      K.fade(bg, sq[k + 1]);
+    });
+    const rows = keyRows(['air', 'lit']);
+    drawKey(g, rows, 246);
+    return 246 + 20 * (rows.length - 1) + 12;
+  }
+  const CARD = { abc: drawABC, heat: drawHeat, state: drawState, nc: drawNC, air: drawAir };
+
+  // ---------- words: the .say line and the pictures' text alternatives ----------
+  const listOf = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]);
+  function litSay(i) {
+    const d = STEPS[i], st = S[i], sh = SHEETS[d.sheet], id = st.lit, joins = joinsOf(i, st), s = seg(sh, id), base = comp(sh, id);
+    const named = sh.segs.find((x) => base.has(x.id) && x.net && x.start === s.start), name = named ? named.net : 'This line';
+    const order = Object.keys(sh.parts), r = Array.from(reached(sh, id, joins)).sort((a, b) => order.indexOf(a) - order.indexOf(b)).map((p) => NAME[p]);
+    if (joins) return name + ' is lit. The dot joins it to the lamp\'s line, so it reaches ' + listOf(r) + '.';
+    let out = name + ' is lit. It reaches ' + (r.length ? listOf(r) : 'no other part') + '.';
+    if (base.has('lk')) out += ' The link carries it round -Q1.';
+    const lit = comp(sh, id), xs = crossings(layout(sh, look(i).pos), sh);
+    const other = xs.map((x) => (lit.has(x.a) && !lit.has(x.b) ? x.b : lit.has(x.b) && !lit.has(x.a) ? x.a : null)).filter(Boolean).map((x) => seg(sh, x)).find((t) => t.cross);
+    if (other) out += ' ' + other.cross[0] + ' crosses it with no dot, so ' + other.cross[1] + ' stays dark.';
+    return out;
+  }
+  const tagSay = (p) => (p === 'SUP' ? 'The supply is marked in the room and on the diagram.' : 'Tag ' + TAGOF(p) + ' is lit in the room and on the diagram. It names ' + SHORT[p] + ' in both.');
+  const stateSay = (run) => (run ? 'With the plant running, the starter\'s main contact is closed and -V2 is open.' : 'As drawn, the starter\'s main contact is open. Valve -V2 is shut, where its spring holds it.');
+  const movedAny = (room) => Object.keys(room).some((u) => ROOM_HOME[u] && Math.hypot(room[u][0] - ROOM_HOME[u][0], room[u][1] - ROOM_HOME[u][1]) > 2);
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    if (d.pic === 'state') return stateSay(st.run);
+    if (i === I.side) return '';   // its Why explains; a lit count here would give screen 5 away
+    if (!d.sheet || (!d.show && !right)) return '';
+    if (st.lastAct === 'tag' && st.tag) return tagSay(st.tag);
+    if (st.lit) return litSay(i);
+    if (st.tag) return tagSay(st.tag);
+    if (i === I.two) return movedAny(st.room) ? 'The parts sit in new places in the room. Every line on the diagram still joins the same parts.' : 'Every part sits where it was fitted. However the parts move, the diagram stays the same.';
+    if (i === I.tags) return 'Each tag names one part, in the room and on the diagram.';
+    if (i === I.cross) return 'Lines that cross with no dot are not joined.';
+    return 'Every joint stays the same, wherever the symbols sit.';
+  }
+  function roomAlt(i, lk) {
+    const on = !!STEPS[i].lampOnMotor;
+    return 'In the room: the supply cabinet, isolator -Q1 and starter -K1 on the wall, lamp -H1 ' + (on ? 'fixed to the motor\'s frame' : 'on the wall') +
+      ', motor -M1 coupled to pump -P1 on the floor, and a pipe through hand valve -V1 to tank -T1 on a shelf.' + (lk.tag ? ' ' + TAGOF(lk.tag) + ' is marked.' : '');
+  }
+  function sheetAlt(i, lk) {
+    const d = STEPS[i], sh = SHEETS[d.sheet];
+    let s = 'The diagram: each part as a symbol with its tag, joined by lines.';
+    if (lk.lit) {
+      const c = comp(sh, lk.lit, joinsOf(i, S[i])), base = comp(sh, lk.lit), st0 = seg(sh, lk.lit).start;
+      const named = sh.segs.find((x) => base.has(x.id) && x.net && x.start === st0);
+      s += ' Lit: ' + (named ? named.net.toLowerCase() : 'a line') + ', with ' + listOf(Array.from(partsOf(sh, c)).map((p) => NAME[p])) + '.';
+    }
+    if (lk.tag) s += ' ' + TAGOF(lk.tag) + ' is marked.';
+    return s;
+  }
+  const CARDALT = {
+    abc: (i, lk) => 'Three diagrams of the pump set, A, B and C, one above the other.' + (lk.panel[2] > 0 ? ' Each lamp\'s line is lit.' : ''),
+    heat: (i, lk) => (lk.slide >= 1 ? 'The heaters in the usual shape: -E1, then -E2 and -E3 side by side between two dots, joined back to the supply.' : 'Three heaters, -E1, -E2 and -E3, drawn in one row, joined by lines and two dots to a supply.'),
+    state: (i, lk) => { const w = stateWords(lk.run); return 'The starter\'s main contact is ' + w[0].toLowerCase() + ', and valve -V2 is ' + w[1].toLowerCase() + '.'; },
+    nc: (i, lk) => 'A normally closed contact of starter -K1, drawn closed. ' + ncNow(i, lk) + '.',
+    air: () => 'A compressed air sheet with four labelled boxes on one air line: cylinder -A1 at the top left, and valve -V2, regulator -R1 and compressor -C1 down the right side.',
+  };
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    s = String(s || '');
+    while ((m = re.exec(s))) {
+      if (m.index > at) plain(node, s.slice(at, m.index));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) plain(node, s.slice(at));
+  }
+  // A tag such as -H2 never splits at its hyphen.
+  function plain(node, t) { t.split(/(-[A-Z]\d+)/).forEach((p, k) => { if (p) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, p) : document.createTextNode(p)); }); }
+  const el = (id) => document.getElementById(id);
+  const roomSvg = el('room'), sceneSvg = el('scene'), cardSvg = el('card'), roomArt = el('roomArt'), sceneArt = el('sceneArt'), cardArt = el('cardArt');
+  const paneRoom = el('paneRoom'), paneSheet = el('paneSheet');
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  K.readout({ id: 'partsJoined', label: 'Parts it reaches', hint: 'Not counting the part it leaves', decimals: 0, fmt: () => readoutTextFor(at()), into: '#outs' });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The typed answers: Check grades what is typed; two wrong tries show the working.
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = 'That\'s it.'; st.lit = d.after; st.lastAct = 'lit'; play(d.fx); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shown = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); st.lit = d.after; st.lastAct = 'lit'; play(d.fx); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    if (st.pick === d.want) { st.res = 'right'; if (d.after) { st.lit = d.after; st.lastAct = 'lit'; } play(d.fx); } else st.res = 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at();
+    if (finished || STEPS[i].show) return;
+    S[i].why = !S[i].why;
+  } });
+  const dotBtn = K.button({ label: 'Add a dot', secondary: true, into: '#tools', press: () => {
+    const i = at();
+    if (finished || i !== I.cross) return;
+    touch(i);
+    const st = S[i];
+    st.dot = !st.dot; if (!st.lit) st.lit = 'c5'; st.lastAct = 'lit';
+    K.reveal();
+  } });
+  function setRun(on) {
+    const i = at();
+    if (finished || i !== I.drawn) return;
+    const now = look(i).run;
+    touch(i);
+    S[i].runFrom = now; S[i].run = on;
+    K.reveal();
+    play(0.9);
+  }
+  const drawnBtn = K.button({ label: 'As drawn', secondary: true, into: '#tools', press: () => setRun(false) });
+  const runBtn = K.button({ label: 'Plant running', secondary: true, into: '#tools', press: () => setRun(true) });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show) return;
+    S[i] = fresh(i);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  STEPS.forEach((d, i) => { if (d.show) d.still = () => { S[i] = fresh(i); S[i].touched = true; anim.pause(); T = Infinity; K.refresh(); }; });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  // Dan takes over: a demonstration stops where it is, and his moves start from there.
+  function touch(i) {
+    const st = S[i];
+    if (STEPS[i].show && !st.touched) { const lk = look(i); st.room = lk.room; st.pos = lk.pos; }
+    st.touched = true;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+  }
+
+  // ---------- dragging parts and symbols, tapping lines and tags ----------
+  const tapsOn = (i) => !!STEPS[i].sheet && (!!STEPS[i].show || S[i].res === 'right');
+  const tagsOn = (i, which) => STEPS[i].pic === 'both' && (which === 'room' || !!STEPS[i].show || S[i].res === 'right');
+  let grab = null;
+  function svgPt(svg, e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  function bind(svg, which) {
+    svg.addEventListener('pointerdown', (e) => {
+      if (finished) return;
+      const t = e.target && e.target.closest ? e.target.closest('[data-u],[data-sym],[data-seg]') : null;
+      if (!t) return;
+      const i = at(), d = STEPS[i], pt = svgPt(svg, e);
+      if (!pt) return;
+      const g = { which, pid: e.pointerId, i, start: pt, moved: false };
+      if (t.dataset.seg) { if (!tapsOn(i)) return; g.seg = t.dataset.seg; }
+      else if (which === 'room') { g.unit = t.dataset.u; g.part = t.dataset.p; g.drag = d.pic === 'both'; }
+      else { g.sym = t.dataset.sym; g.drag = !!d.sheetDrag; }
+      grab = g;
+      if (g.drag) { try { svg.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the picture */ } e.preventDefault(); }
+    });
+    svg.addEventListener('pointermove', (e) => {
+      const g = grab;
+      if (!g || g.pid !== e.pointerId || g.which !== which || !g.drag || at() !== g.i) return;
+      const pt = svgPt(svg, e);
+      if (!pt) return;
+      const dx = pt[0] - g.start[0], dy = pt[1] - g.start[1];
+      if (!g.moved) {
+        if (Math.hypot(dx, dy) < 6) return;
+        g.moved = true; touch(g.i); K.reveal();
+        const lk = look(g.i), sh = SHEETS[STEPS[g.i].sheet];
+        g.from = which === 'room' ? lk.room[g.unit].slice() : (lk.pos[g.sym] || [sh.parts[g.sym].x, sh.parts[g.sym].y]).slice();
+      }
+      const st = S[g.i];
+      if (which === 'room') { const b = BOUNDS[g.unit]; st.room[g.unit] = [K.clamp(g.from[0] + dx, b[0], b[1]), K.clamp(g.from[1] + dy, b[2], b[3])]; }
+      else { const sh = SHEETS[STEPS[g.i].sheet]; st.pos[g.sym] = [K.clamp(g.from[0] + dx, 26, 314), K.clamp(g.from[1] + dy, 26, sh.keyY - 30)]; }
+      paint();
+    });
+    svg.addEventListener('pointerup', (e) => {
+      const g = grab;
+      if (!g || g.pid !== e.pointerId || g.which !== which) return;
+      grab = null;
+      if (at() !== g.i || finished) return;
+      if (g.moved) { K.refresh(); return; }
+      const st = S[g.i];
+      if (g.seg) { touch(g.i); st.lit = g.seg; st.lastAct = 'lit'; }
+      else {
+        const p = which === 'room' ? g.part : g.sym;
+        if (!tagsOn(g.i, which)) return;
+        touch(g.i); st.tag = st.tag === p ? null : p; st.lastAct = 'tag';
+      }
+      K.reveal(); K.refresh();
+    });
+    svg.addEventListener('pointercancel', (e) => { if (grab && grab.pid === e.pointerId) { const moved = grab.moved; grab = null; if (moved) K.refresh(); } });
+  }
+  bind(roomSvg, 'room');
+  bind(sceneSvg, 'sheet');
+
+  // ---------- painting ----------
+  function setPanes(d) {
+    const both = d.pic === 'both', sheet = both || d.pic === 'sheet';
+    paneRoom.hidden = !both; paneSheet.hidden = !sheet; el('pair').hidden = !sheet; el('cardbox').hidden = sheet;
+  }
+  const sideBySide = () => !paneRoom.hidden && !paneSheet.hidden && Math.abs(paneRoom.offsetTop - paneSheet.offsetTop) < 4 && paneSheet.offsetLeft > paneRoom.offsetLeft + 10;
+  function paint() {
+    const i = at(), d = STEPS[i], lk = look(i);
+    setPanes(d);
+    // A demonstration's words, readout and pressed button wait until its motion settles.
+    const settling = !!d.show && !S[i].touched && T !== Infinity && T < d.ends, running = !settling && S[i].run;
+    el('say').style.visibility = el('outs').style.visibility = settling ? 'hidden' : '';
+    drawnBtn.el.setAttribute('aria-pressed', running ? 'false' : 'true');
+    runBtn.el.setAttribute('aria-pressed', running ? 'true' : 'false');
+    if (!paneRoom.hidden) { meterSvg = roomSvg; roomArt.textContent = ''; drawRoom(roomArt, i, lk); roomSvg.setAttribute('aria-label', roomAlt(i, lk)); }
+    if (!paneSheet.hidden) { meterSvg = sceneSvg; sceneArt.textContent = ''; const H = drawMain(sceneArt, i, lk); sceneSvg.setAttribute('viewBox', '0 0 340 ' + H); sceneSvg.setAttribute('aria-label', sheetAlt(i, lk)); }
+    if (!el('cardbox').hidden && CARD[d.pic]) { meterSvg = cardSvg; cardArt.textContent = ''; const H = CARD[d.pic](cardArt, i, lk); cardSvg.setAttribute('viewBox', '0 0 340 ' + H); cardSvg.setAttribute('aria-label', CARDALT[d.pic](i, lk)); }
+  }
+  window.addEventListener('resize', () => K.refresh());
+
+  K.model((p) => ({ partsJoined: countAt(Math.round(p.step)) }));
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; grab = null; enter('stepbox');
+      if (d.show) { S[i] = fresh(i); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    setPanes(d);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? (d.textWide && sideBySide() ? d.textWide : d.text) : d.task);
+    el('outs').hidden = !d.sheet || i === I.two || i === I.side || i === I.tags;
+    const say = sayFor(i);
+    el('say').hidden = !say;
+    write(el('say'), say);
+
+    dotBtn.el.hidden = i !== I.cross;
+    dotBtn.setLabel(st.dot ? 'Take the dot away' : 'Add a dot');
+    drawnBtn.el.hidden = runBtn.el.hidden = i !== I.drawn;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('tools').hidden = [dotBtn, drawnBtn, runBtn, replayBtn].every((b) => b.el.hidden);
+
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    let f = '';
+    if (!d.show) f = d.kind === 'typed' ? st.fbText : right ? 'That\'s it.' : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Tap one of the answers.' : '';
+    fb.className = 'fb' + (right && !st.shown ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near2 = (a, b) => Math.abs(a[0] - b[0]) < 1e-6 && Math.abs(a[1] - b[1]) < 1e-6;
+  const square = (p) => p.every((q, k) => k === 0 || Math.abs(q[0] - p[k - 1][0]) < 1e-6 || Math.abs(q[1] - p[k - 1][1]) < 1e-6);
+  const lenOf = (p) => p.reduce((s, q, k) => (k ? s + Math.hypot(q[0] - p[k - 1][0], q[1] - p[k - 1][1]) : 0), 0);
+  const nodesOf = (g, set) => Array.from(new Set(Array.from(set).reduce((a, id) => { const s = seg(g, id); return a.concat([nodeName(s.a), nodeName(s.b)]); }, []))).sort().join();
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+
+  K.check('Lines that simply cross do not join unless the crossing is marked: the lamp\'s line crosses the motor\'s cable with no dot, so the line leaving -Q1 reaches the starter and the lamp but not the motor, and a dot there joins them', () => {
+    const xs = crossings(layout(MAIN), MAIN), r = reached(MAIN, 'c2'), rd = reached(MAIN, 'c2', [['c4', 'c5']]);
+    return xs.length === 1 && [xs[0].a, xs[0].b].sort().join() === 'c4,c5' && r.size === 2 && r.has('K1') && r.has('H1') && !r.has('M1') && rd.has('M1') && rd.size === 3;
+  }, { source: SRC.ejr });
+  K.check('A circuit diagram does not show how long its connections are: dragged to the far side, the starter keeps every line, each stretched square between the same two ends, and the line leaving -Q1 still reaches the same parts', () => {
+    const a = layout(MAIN), b = layout(MAIN, { K1: FARK });
+    const held = (L) => MAIN.segs.every((s) => { const R = L.R[s.id], p = R.pts; return near2(p[0], [R.A.x, R.A.y]) && near2(p[p.length - 1], [R.B.x, R.B.y]) && square(p); });
+    return held(a) && held(b) && lenOf(b.R.c3.pts) > lenOf(a.R.c3.pts) + 50 && lenOf(b.R.c5.pts) > lenOf(a.R.c5.pts) && Array.from(reached(MAIN, 'c2')).sort().join() === 'H1,K1';
+  });
+  K.check('A schematic gives how the system works, not where its parts sit: moving the motor and pump across the room moves its pipe in the room, and leaves the diagram drawn exactly the same', () => {
+    const lk = look(I.two), draw = (room) => { const g = K.svg('g'); drawMain(g, I.two, Object.assign({}, lk, { room, litA: 1, tagA: [1, 1] })); return g.innerHTML; };
+    const home = Object.assign({}, ROOM_HOME), moved = Object.assign({}, ROOM_HOME, { SKID: FAR });
+    const a = draw(home), b = draw(moved);
+    return a.length > 0 && a === b && JSON.stringify(roomPipe(home)) !== JSON.stringify(roomPipe(moved));
+  });
+  K.check('Each symbol is drawn in its normal or neutral condition: valve -V2 is drawn shut, where its spring holds it, and opens only with its solenoid on; contacts are drawn with the coil off, so the main contact is drawn open and a normally closed one closed', () =>
+    valveOpen(false) === false && valveOpen(true) === true && contactClosed('NO', false) === false && contactClosed('NO', true) === true &&
+    contactClosed('NC', false) === true && contactClosed('NC', true) === false && stateWords(0).join() === 'Open,Shut' && stateWords(1).join() === 'Closed,Open', { source: SRC.navy });
+  K.check('Counted by hand: the line leaving -Q1 reaches 2 parts (3 counting the motor through the crossing, 1 down one branch); the starter\'s output line in the new layout reaches 3 (4 counting -H1, 2 missing a branch, 1 the motor alone); the typed fields ask exactly these', () => {
+    const s5 = STEPS[I.count], s13 = STEPS[I.fresh];
+    return reached(MAIN, 'c2').size === 2 && crossCount(MAIN, 'c2') === 3 && onePath(MAIN, 'c2') === 1 &&
+      Array.from(reached(NEW, 'o1')).sort().join() === 'H2,M1,P2' && crossCount(NEW, 'o1') === 4 && onePath(NEW, 'o1') === 1 &&
+      s5.answer === 2 && s5.slips.map((x) => x.value).join() === '3,1' && s13.answer === 3 && s13.slips.map((x) => x.value).join() === '4,2,1' &&
+      ANS[I.count].spec.answer === 2 && ANS[I.fresh].spec.answer === 3 && s5.want === '2 parts' && s13.want === '3 parts';
+  });
+  K.check('Drawings A and C join every part the same way, so they are one diagram drawn twice, though C moves every part; B is laid out like A but feeds its lamp from the starter\'s output', () => {
+    const movedParts = (p, q) => Object.keys(p.parts).filter((id) => Math.hypot(p.parts[id].x - q.parts[id].x, p.parts[id].y - q.parts[id].y) > 20).length;
+    return sigOf(PA) === sigOf(PC) && sigOf(PA) !== sigOf(PB) && reached(PB, 'b5').has('M1') && !reached(PA, 'a4').has('M1') && movedParts(PA, PC) === 5 && movedParts(PA, PB) === 0;
+  });
+  K.check('The heaters drawn in a row: every path from the supply passes through -E1 first, then splits through -E2 or -E3 and joins again, and the usual shape keeps every joint', () =>
+    nodesOf(HEATG, comp(HEATG, 'h0')) === 'E1.l,S.t' && nodesOf(HEATG, comp(HEATG, 'h1')) === 'D1,E1.r,E2.l,E3.l' && nodesOf(HEATG, comp(HEATG, 'h6')) === 'D2,E2.r,E3.r,S.b' &&
+    HSEG.every((s) => s.r.length === s.l.length && ['r', 'l'].every((k) => near2(s[k][0], hpin(s.a, k)) && near2(s[k][s[k].length - 1], hpin(s.b, k)))));
+  K.check('On the air sheet the air reaches -R1 first, then -V2, then -A1, though -A1 sits at the top left of the sheet', () =>
+    airOrder().join() === 'R1,V2,A1' && AIRBOX.A1[1] < AIRBOX.V2[1] && AIRBOX.A1[0] < AIRBOX.C1[0] && STEPS[I.air].want === 'Regulator -R1');
+  K.check('The link joins the supply\'s line to the starter\'s line round -Q1: with -Q1 open the drawing still joins the supply to -K1, and without the link it would not', () => {
+    const noLink = { parts: LINK.parts, dots: LINK.dots, segs: LINK.segs.filter((s) => s.id !== 'lk') };
+    return reached(LINK, 'c1a').has('K1') && !reached(noLink, 'c1a').has('K1');
+  });
+  K.check('Before an answer nothing gives it away: no puzzle has a line lit or a motion played, both typed screens\' readouts show ?, and the contact\'s state now is not shown', () => {
+    const keep = S;
+    try {
+      S = STEPS.map((d, i) => fresh(i));
+      return DO.every((i) => { const lk = look(i); return !lk.lit && lk.slide === 0 && lk.open === 0 && lk.panel.every((a) => a === 0) && lk.seq.every((a) => a === 0); }) &&
+        readoutTextFor(I.count) === '?' && readoutTextFor(I.fresh) === '?' && ncNow(I.nc, look(I.nc)) === 'Now: ?';
+    } finally { S = keep; }
+  });
+  K.check('Every demonstration settles within 4.5 s of its screen opening, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d) => (d.show ? d.dur > 0 && d.dur <= 4.5 && d.ends <= d.dur : d.fx > 0 && d.fx <= 2.5)));
+
+  K.ready();
+</script>

@@ -1,0 +1,975 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 60rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done, .card { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + *, .side > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  /* The sheet and the puzzle: stacked on a phone, side by side when there is room. */
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 14px 24px; align-items: start; }
+  .pane, .side { margin: 0; min-width: 0; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 26rem; margin-inline: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row .k-btn { min-height: 44px; }
+  .ctl { display: grid; gap: 8px; margin: 0 auto 12px; max-width: 26rem; }
+  .ctl .k-btn { flex: 1 1 5.5rem; white-space: nowrap; padding-inline: 10px; }
+  .sheetsw { align-items: center; }
+  .sheetsw .k-label { margin: 0 4px 0 0; flex: 0 0 auto; }
+  .ctl .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .nav .k-btn, .acts .k-btn, .done .k-btn { flex: 1 1 8rem; }
+  .tools .k-btn { flex: 0 1 auto; padding-inline: 16px; }
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn .opt { text-align: center; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .card { line-height: 1.6; }
+  .card strong { display: block; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  .nw { white-space: nowrap; }
+  #stepbox.enter, #done.enter, .card.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing .card.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, .card.enter { animation: none; } }
+
+  /* The sheet. A line joined to L is bold ink; every other line is pale. */
+  svg .ln { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .lv { fill: none; stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  svg .ln.rail { stroke-width: 2.6; }
+  svg .lv.rail { stroke-width: 4.6; }
+  svg .bl { fill: none; stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }
+  svg .bd { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 2.5; stroke-linecap: round; }
+  svg .sk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  svg .sk2 { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
+  svg .act { fill: none; stroke: var(--k-ink); stroke-width: 1.3; stroke-dasharray: 2.5 2; }
+  svg .sym { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sym.on { fill: var(--k-fill1); stroke-width: 2.8; }
+  svg .lampc { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .glow { fill: none; stroke: var(--k-accent2); stroke-opacity: .25; stroke-width: 6; }
+  svg .lit { fill: var(--k-fill2); }
+  svg .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .dot { fill: var(--k-muted); }
+  svg .dot.on { fill: var(--k-ink); }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2.2; }
+  svg .ring.mark { stroke-dasharray: 4 3; stroke-width: 2; }
+  svg .link { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  svg .hlbg { fill: var(--k-fill2); }
+  svg .box, svg .tl { fill: none; stroke: var(--k-line); stroke-width: 1.2; }
+  svg .hit { fill: transparent; cursor: pointer; }
+  svg .tg { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .t13 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  svg .tn { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .th { font: 600 12px var(--k-font); fill: var(--k-accent); }
+  svg .ci { font: 700 12px var(--k-font); fill: var(--k-ink); }
+  svg .kt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+</style>
+
+<p class="lead">The control circuit of two example pump starters, duty and standby, drawn on one sheet in eight numbered current paths. Duty pump -M1 runs on contactor -Q1, and standby pump -M2 on -Q2. The pumps are on the power sheet.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <figure class="pane">
+        <div class="ctl" id="ctl">
+          <div class="row sheetsw" id="modes"><span class="k-label">Sheet</span></div>
+          <div class="row" id="push"></div>
+          <div class="row" id="faults"></div>
+        </div>
+        <svg class="pic" id="scene" viewBox="0 0 340 418" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+      </figure>
+      <div class="side">
+        <div class="k-readouts" id="outs"></div>
+        <p class="say" id="say"></p>
+        <div class="panel card" id="card" hidden></div>
+        <div class="row tools" id="tools"></div>
+        <div class="picks" id="picks"></div>
+        <div id="ansbox"></div>
+        <div class="row acts" id="acts"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="note why" id="why" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">An example sheet, far simpler than a real starter panel. A bold line is joined to the supply, L.</p>
+
+<script>
+  // ---------- the sheet: eight current paths between L (top) and N (bottom) ----------
+  const PX = [0, 40, 81, 122, 163, 204, 245, 286, 327];   // each path's x, numbered from 1
+  const UY = [0, 44, 84, 118, 160, 194, 236, 276, 316];   // the US ladder: each rung's y
+  const LY = 34, NY = 322, CY = 292, UCX = 236;
+  // Every contact: its path and height, whether it is normally closed, the two lines it joins (a, b),
+  // what moves it (a coil, or act: a hand, the tank's level, heat), and its place on the US ladder.
+  const CT = {
+    B1: { p: 1, y: 150, nc: false, a: 'L', b: 'b1', act: 'float', tag: '-B1', us: 'Level', ux: 60, ut: 'sw' },
+    S0: { p: 2, y: 62, nc: true, a: 'L', b: 'a', act: 'push', tag: '-S0', us: 'Stop', ux: 46, ut: 'pb' },
+    S1: { p: 2, y: 108, nc: false, a: 'a', b: 'b', act: 'push', tag: '-S1', us: 'Start 1', ux: 92, ut: 'pb' },
+    Q1a: { p: 3, y: 130, nc: false, a: 'a', b: 'b', coil: 'Q1', ux: 92 },
+    S2: { p: 4, y: 108, nc: false, a: 'a', b: 'f', act: 'push', tag: '-S2', us: 'Start 2', ux: 92, ut: 'pb' },
+    Q2a: { p: 5, y: 130, nc: false, a: 'a', b: 'f', coil: 'Q2', ux: 92 },
+    K1a: { p: 2, y: 176, nc: false, a: 'b', b: 'c', coil: 'K1', ux: 146 },
+    Q2b: { p: 2, y: 214, nc: true, a: 'c', b: 'd', coil: 'Q2', ux: 176 },
+    F1: { p: 2, y: 252, nc: true, a: 'd', b: 'e', act: 'heat', tag: '-F1', us: 'OL1', ux: 206 },
+    K1b: { p: 4, y: 176, nc: false, a: 'f', b: 'g', coil: 'K1', ux: 146 },
+    Q1b: { p: 4, y: 214, nc: true, a: 'g', b: 'h', coil: 'Q1', ux: 176 },
+    F2: { p: 4, y: 252, nc: true, a: 'h', b: 'i', act: 'heat', tag: '-F2', us: 'OL2', ux: 206 },
+    Q1c: { p: 6, y: 62, nc: false, a: 'L', b: 'p6', coil: 'Q1', ux: 60 },
+    Q2c: { p: 7, y: 100, nc: false, a: 'L', b: 'p7', coil: 'Q2', ux: 60 },
+    K1c: { p: 8, y: 62, nc: true, a: 'L', b: 'p8', coil: 'K1', ux: 60 },
+  };
+  const CK = Object.keys(CT);
+  const CO = { K1: { p: 1, node: 'b1', us: 'CR1', tb: 28 }, Q1: { p: 2, node: 'e', us: 'M1', tb: 81 }, Q2: { p: 4, node: 'i', us: 'M2', tb: 163 } };
+  const COK = Object.keys(CO);
+  const LP = { P1: { p: 6, node: 'p6', name: 'Duty running' }, P2: { p: 7, node: 'p7', name: 'Standby running' }, P3: { p: 8, node: 'p8', name: 'Tank low' } };
+  const LPK = Object.keys(LP);
+  // The lines: each electrical node's wires on the IEC sheet (WI) and on the US ladder (WU), with their junction dots.
+  const X = PX, R = UY;
+  const WI = {
+    L: [[[20, LY], [338, LY]], [[X[1], LY], [X[1], 139]], [[X[2], LY], [X[2], 51]], [[X[6], LY], [X[6], 51]], [[X[7], LY], [X[7], 89]], [[X[8], LY], [X[8], 51]]],
+    b1: [[[X[1], 161], [X[1], CY - 7]]],
+    a: [[[X[2], 73], [X[2], 97]], [[X[2], 88], [X[5], 88]], [[X[3], 88], [X[3], 119]], [[X[4], 88], [X[4], 97]], [[X[5], 88], [X[5], 119]]],
+    b: [[[X[2], 119], [X[2], 165]], [[X[3], 141], [X[3], 150], [X[2], 150]]],
+    c: [[[X[2], 187], [X[2], 203]]], d: [[[X[2], 225], [X[2], 241]]], e: [[[X[2], 263], [X[2], CY - 7]]],
+    f: [[[X[4], 119], [X[4], 165]], [[X[5], 141], [X[5], 150], [X[4], 150]]],
+    g: [[[X[4], 187], [X[4], 203]]], h: [[[X[4], 225], [X[4], 241]]], i: [[[X[4], 263], [X[4], CY - 7]]],
+    p6: [[[X[6], 73], [X[6], CY - 9]]], p7: [[[X[7], 111], [X[7], CY - 9]]], p8: [[[X[8], 73], [X[8], CY - 9]]],
+    N: [[[20, NY], [338, NY]], [[X[1], CY + 7], [X[1], NY]], [[X[2], CY + 7], [X[2], NY]], [[X[4], CY + 7], [X[4], NY]], [[X[6], CY + 9], [X[6], NY]], [[X[7], CY + 9], [X[7], NY]], [[X[8], CY + 9], [X[8], NY]]],
+  };
+  const DI = { L: [[X[1], LY], [X[2], LY], [X[6], LY], [X[7], LY], [X[8], LY]], a: [[X[2], 88], [X[3], 88], [X[4], 88]], b: [[X[2], 150]], f: [[X[4], 150]], N: [[X[1], NY], [X[2], NY], [X[4], NY], [X[6], NY], [X[7], NY], [X[8], NY]] };
+  const WU = {
+    L: [[[22, 26], [22, 330]], [[22, R[1]], [49.5, R[1]]], [[22, R[2]], [35.5, R[2]]], [[22, R[6]], [55, R[6]]], [[22, R[7]], [55, R[7]]], [[22, R[8]], [55, R[8]]]],
+    b1: [[[70.5, R[1]], [223, R[1]]]],
+    a: [[[56.5, R[2]], [81.5, R[2]]], [[68, R[2]], [68, R[5]], [87, R[5]]], [[68, R[3]], [87, R[3]]], [[68, R[4]], [81.5, R[4]]]],
+    b: [[[102.5, R[2]], [141, R[2]]], [[97, R[3]], [116, R[3]], [116, R[2]]]],
+    c: [[[151, R[2]], [171, R[2]]]], d: [[[181, R[2]], [201, R[2]]]], e: [[[211, R[2]], [223, R[2]]]],
+    f: [[[102.5, R[4]], [141, R[4]]], [[97, R[5]], [116, R[5]], [116, R[4]]]],
+    g: [[[151, R[4]], [171, R[4]]]], h: [[[181, R[4]], [201, R[4]]]], i: [[[211, R[4]], [223, R[4]]]],
+    p6: [[[65, R[6]], [228, R[6]]]], p7: [[[65, R[7]], [228, R[7]]]], p8: [[[65, R[8]], [228, R[8]]]],
+    N: [[[262, 26], [262, 330]], [[249, R[1]], [262, R[1]]], [[249, R[2]], [262, R[2]]], [[249, R[4]], [262, R[4]]], [[244, R[6]], [262, R[6]]], [[244, R[7]], [262, R[7]]], [[244, R[8]], [262, R[8]]]],
+  };
+  const DU = { L: [[22, R[1]], [22, R[2]], [22, R[6]], [22, R[7]], [22, R[8]]], a: [[68, R[2]], [68, R[3]], [68, R[4]]], b: [[116, R[2]]], f: [[116, R[4]]], N: [[262, R[1]], [262, R[2]], [262, R[4]], [262, R[6]], [262, R[7]], [262, R[8]]] };
+
+  // ---------- the rule: a coil is in while closed contacts join it to L ----------
+  const cl = (s) => JSON.parse(JSON.stringify(s));
+  function closed(s, k) {
+    const c = CT[k];
+    if (c.coil) return c.nc ? !s.co[c.coil] : !!s.co[c.coil];
+    if (c.act === 'float') return !s.low;
+    if (c.act === 'heat') return !s.trip[k];
+    return c.nc ? s.held !== k : s.held === k;
+  }
+  function reach(s) {
+    const seen = new Set(['L']), todo = ['L'];
+    while (todo.length) {
+      const n = todo.pop();
+      CK.forEach((k) => {
+        const c = CT[k], o = c.a === n ? c.b : c.b === n ? c.a : null;
+        if (o && !seen.has(o) && closed(s, k)) { seen.add(o); todo.push(o); }
+      });
+    }
+    return seen;
+  }
+  const coilsOf = (s) => { const r = reach(s), o = {}; COK.forEach((k) => { o[k] = r.has(CO[k].node); }); return o; };
+  // One change, then each round of coils pulling in or dropping out, until nothing moves.
+  function settle(s, fn) {
+    let cur = cl(s);
+    fn(cur);
+    const out = [cl(cur)];
+    for (let n = 0; n < 8; n++) {
+      const co = coilsOf(cur);
+      if (COK.every((k) => co[k] === cur.co[k])) break;
+      cur = cl(cur); cur.co = co; out.push(cl(cur));
+    }
+    return out;
+  }
+  const PRESS = (k) => [{ fn: (s) => { s.held = k; }, gap: 0.3 }, { fn: (s) => { s.held = null; } }];
+  const TRIP = (k, at) => ({ at, fn: (s) => { s.trip[k] = !s.trip[k]; } });
+  const LOWER = { fn: (s) => { s.low = !s.low; } };
+  // A list of actions as timed states, each round 0.35 s after the one before.
+  function timeline(s0, t0, acts) {
+    const seq = [{ t: -1, s: cl(s0) }];
+    let t = t0, cur = s0;
+    acts.forEach((a) => {
+      if (a.at != null) t = Math.max(t, a.at);
+      settle(cur, a.fn).forEach((s) => { seq.push({ t, s }); t += 0.35; cur = s; });
+      t += a.gap || 0;
+    });
+    return seq;
+  }
+  const lastOf = (q) => q[q.length - 1].s;
+  const afterAll = (s, acts) => lastOf(timeline(s, 0, acts));
+  const REST = { co: { K1: false, Q1: false, Q2: false }, held: null, trip: { F1: false, F2: false }, low: false };
+  const OPEN0 = afterAll(REST, [{ fn: () => {} }]);          // the tank full, so -K1 is in
+  const RUN1 = afterAll(OPEN0, PRESS('S1'));                  // the duty pump running
+  const differs = (s, k) => closed(s, k) !== CT[k].nc;        // NC contacts are drawn closed, NO ones open
+  const notAsDrawn = (s) => CK.filter((k) => differs(s, k)).length;
+  const pumps = (s) => (s.co.Q1 ? 1 : 0) + (s.co.Q2 ? 1 : 0);
+  function xref(coil) {
+    const of = (nc) => CK.filter((k) => CT[k].coil === coil && CT[k].nc === nc).map((k) => CT[k].p).sort((x, y) => x - y);
+    return { no: of(false), nc: of(true) };
+  }
+  const allPaths = (coil) => { const x = xref(coil); return x.no.concat(x.nc).sort((a, b) => a - b); };
+  // How many contacts change when one coil pulls in, with nothing else moving.
+  function flips(coil) { const a = cl(OPEN0), b = cl(OPEN0); a.co[coil] = false; b.co[coil] = true; return CK.filter((k) => closed(a, k) !== closed(b, k)).length; }
+  const listOf = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]);
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  function nm(k, sh) {
+    const us = sh === 'us';
+    if (CO[k]) return us ? CO[k].us : '-' + k;
+    const c = CT[k];
+    if (c.coil) return nm(c.coil, sh);
+    if (us) return k === 'B1' ? 'the level switch' : c.us;
+    return c.tag;
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const mk = (kind, k, t) => ({ kind, k, t });
+  const STEPS = [
+    { name: 'Still there?', kind: 'pick',
+      task: 'You press Start on a DOL starter and let go. What keeps the contactor in?',
+      opts: ['The Start button stays down', 'A contact of the contactor itself, across Start', "The overload's contact"],
+      want: 'A contact of the contactor itself, across Start',
+      hint: "Start springs back the moment you let go. Something else carries the coil's current.",
+      hints: { 'The Start button stays down': "Start springs back the moment you let go. Something else carries the coil's current.",
+        "The overload's contact": "The overload's contact is closed whether the contactor is in or not. Look across Start." },
+      rightFb: "Right, you still have it. On this sheet it is -Q1's contact in path 3.",
+      why: "Pulling in closes the contactor's own latching contact. It is wired across Start, so it keeps the coil fed after Start springs back.",
+      after: (st) => { st.marks = [mk('ct', 'Q1a', 0.1)]; } },
+    { name: 'Coils and contacts apart', show: true, sweep: true,
+      text: "A control schematic draws a circuit as numbered *current paths*, from the supply at the top to the return at the bottom. Each coil sits in one path. Its contacts sit wherever they do their work. Each one carries the coil's tag.",
+      read: "A control schematic draws a circuit as numbered *current paths*, from the supply at the top to the return at the bottom. Each coil sits in one path. Its contacts sit wherever they do their work. Each one carries the coil's tag. Coil -Q1 in path 2 is picked out together with its three contacts, in paths 3, 4 and 6.",
+      say: () => 'Coil -Q1 sits in path ' + CO.Q1.p + '. Its three contacts sit in paths ' + listOf(allPaths('Q1')) + ', and each one is tagged -Q1.',
+      demo: (st) => { st.marks = [mk('coil', 'Q1', 2.5), mk('ct', 'Q1a', 2.8), mk('ct', 'Q1b', 3.1), mk('ct', 'Q1c', 3.4)]; } },
+    { name: 'Find the coil', kind: 'typed', field: 'coilpath', unit: '', label: 'Path', mark: 'Q2b',
+      task: 'The contact marked in path 2 is tagged -Q2. In which path is the coil that moves it?',
+      answer: CO.Q2.p,
+      slips: [{ value: CT.Q2b.p, hint: 'That is where the contact sits. Its coil is drawn in another path.' },
+        { value: CO.K1.p, hint: "-K1's coil looks the same, but its tag is different. Find the coil tagged -Q2." },
+        { value: CT.Q2a.p, hint: 'Path 5 holds another -Q2 contact. Find the coil itself, a rectangle.' }],
+      hint: 'Look along the bottom of the sheet for the coil tagged -Q2.',
+      want: 'Path ' + CO.Q2.p,
+      why: 'A contact belongs to the coil whose tag it carries. Coil -Q2 sits in path 4, so the contact in path 2 opens whenever -Q2 pulls in.',
+      after: (st) => { st.sel = 'Q2b'; st.selT = 0.1; st.selSc = 1; } },
+    { name: 'The cross-reference', show: true,
+      text: "Under each coil on this sheet sits its *cross-reference*. It lists the paths where that coil's contacts sit. Normally open ones are on the left, and normally closed ones on the right. Tap any contact to find its coil.",
+      read: "Under each coil on this sheet sits its *cross-reference*. It lists the paths where that coil's contacts sit. Normally open ones are on the left, and normally closed ones on the right. Tapping -K1's contact in path 8 lights coil -K1 in path 1. Its table reads 2, 4 and then 8, and marks path 8.",
+      demo: (st) => { st.sel = 'K1c'; st.selT = 0.4; st.selSc = 1.6; } },
+    { name: 'One coil pulls in', kind: 'typed', field: 'pulls', unit: 'contacts',
+      task: 'Contactor -Q1 pulls in. How many contacts on this sheet change state?',
+      answer: flips('Q1'),
+      slips: [{ value: xref('Q1').no.length, hint: 'The contact in path 4 is normally closed. It changes too, from closed to open.' },
+        { value: 1, hint: "Count every path in -Q1's table, in both columns." },
+        { value: flips('Q1') + 1, hint: 'Start 1 springs back. Count only the contacts -Q1 moves.' }],   // Start 1 counted too
+      hint: 'Read the cross-reference under coil -Q1. Every contact it lists changes when the coil pulls in.',
+      want: flips('Q1') + ' contacts',
+      why: "The table lists all three of -Q1's contacts on this sheet. All at once, paths 3 and 6 close and path 4 opens.",
+      after: (st) => { st.seq = timeline(st.s, 0.2, PRESS('S1')); st.s = lastOf(st.seq); } },
+    { name: 'Drawn at rest', show: true,
+      text: 'Each contact on this sheet is drawn at rest, with every coil de-energised and no button pressed. Here each contact shows in bold what it is doing now. A faint copy under it shows how it is drawn. The tank is full, so -K1 is in. Its contacts already differ from the drawing.',
+      say: () => 'The tank is full, so -B1 is closed and coil -K1 is in. -B1 and the three contacts of -K1 are not as drawn.',
+      demo: (st) => { st.marks = [mk('ct', 'B1', 0.4), mk('ct', 'K1a', 1.0), mk('ct', 'K1b', 1.6), mk('ct', 'K1c', 2.2)]; } },
+    { name: 'Drawn closed', kind: 'pick', mark: 'K1c', asDrawn: true,
+      task: "-K1's contact in path 8 is drawn closed. With the tank full, is it closed now?",
+      opts: ['Yes, it is drawn closed', 'No, it is open'], want: 'No, it is open',
+      hint: 'The drawing shows it at rest. Is its coil at rest?',
+      why: 'The full tank holds -B1 closed, so coil -K1 is energised. A normally closed contact is open while its coil is in. So path 8 is open and the Tank low lamp is dark.',
+      after: (st) => { st.live = 1; st.liveT = 0.1; st.marks = [mk('ct', 'K1c', 0.7)]; } },
+    { name: 'Series and parallel', show: true,
+      text: 'Contacts one after another in a path are in series. Any one opening drops the coil out, unless another path bridges it. The latching contact in path 3 is in parallel with Start 1. It holds -Q1 in after Start springs back. Press Start 1, then Trip -F1.',
+      read: 'Contacts one after another in a path are in series. Any one opening drops the coil out, unless another path bridges it. The latching contact in path 3 is in parallel with Start 1. It holds -Q1 in after Start springs back. Start 1 has pulled -Q1 in, and its latching contact has held it there. Then -F1 has opened and -Q1 has dropped out. Its three contacts are back as drawn.',
+      demo: (st) => { st.seq = timeline(st.s, 0.4, PRESS('S1').concat([TRIP('F1', 2.4)])); st.s = lastOf(st.seq); } },
+    { name: 'Start the standby', kind: 'pick', base: RUN1,
+      task: 'Pump -M1 runs. You press Start 2. What happens?',
+      opts: ['-M2 starts as well', 'Nothing happens', '-M1 stops and -M2 starts'], want: 'Nothing happens',
+      hint: 'Follow path 4 from Start 2 down to coil -Q2. Is every contact closed?',
+      hints: { '-M2 starts as well': 'Follow path 4 from Start 2 down to coil -Q2. Is every contact closed?', '-M1 stops and -M2 starts': 'Start 2 sits in path 4 only. Nothing in path 2 moves when you press it.' },
+      why: '-Q1 is in, so its normally closed contact in path 4 is open. Path 4 cannot reach coil -Q2, whatever Start 2 does. That is the interlock, read off the sheet.',
+      after: (st) => { st.seq = timeline(st.s, 0.2, PRESS('S2')); st.s = lastOf(st.seq); st.marks = [mk('ct', 'Q1b', 0.5)]; } },
+    { name: 'The US ladder', show: true,
+      text: "A US ladder draws the same circuit sideways, as rungs between two rails. Each coil is a circle, here CR1, M1 and M2. Each contact carries its coil's tag. Switch the sheet to US ladder.",
+      read: "A US ladder draws the same circuit sideways, as rungs between two rails. Each coil is a circle, here CR1, M1 and M2. Each contact carries its coil's tag. The same circuit is drawn as eight rungs. Coils CR1, M1 and M2 are circles at the right, and each contact is tagged with its coil.",
+      say: () => 'CR1 is coil -K1, M1 is -Q1 and M2 is -Q2. The numbers beside each coil list the rungs of its contacts.',
+      demo: (st) => { st.sheet = 'us'; st.sheetT = 0.5; st.marks = [mk('coil', 'K1', 1.6), mk('coil', 'Q1', 2.0), mk('coil', 'Q2', 2.4)]; } },
+    { name: 'The circle on rung 2', kind: 'pick', sheet: 'us',
+      task: 'On the US ladder, what is the circle tagged M1 at the end of rung 2?',
+      opts: ["The duty pump's motor", 'The Duty running lamp', 'The coil of contactor -Q1'], want: 'The coil of contactor -Q1',
+      hint: 'A control sheet shows what switches the motor. The motor is on the power sheet.',
+      hints: { "The duty pump's motor": 'A control sheet shows what switches the motor. The motor is on the power sheet.', 'The Duty running lamp': 'A lamp has short rays, and it sits on rung 6.' },
+      why: 'In the US form, a coil is drawn as a circle. M1 is the coil of -Q1, the starter for the duty pump. Its contacts on rungs 3, 4 and 6 carry the tag M1. On the IEC sheet, -M1 is the motor itself.',
+      after: (st) => { st.marks = [mk('coil', 'Q1', 0.1), mk('ct', 'Q1a', 0.4), mk('ct', 'Q1b', 0.7), mk('ct', 'Q1c', 1.0)]; } },
+    { name: 'A trip', kind: 'pick', base: RUN1,
+      task: '-F1 trips while -M1 runs. Which pump can you start now?',
+      opts: ['Neither', 'Only -M1', 'Only -M2', 'Both'], want: 'Only -M2',
+      hint: '-Q1 has dropped out, so its contact in path 4 has closed again.',
+      hints: { Neither: '-Q1 has dropped out, so its contact in path 4 has closed again.', 'Only -M1': "-F1's contact is in -Q1's own path, and it stays open until it is reset.", Both: '-M2 can start now. Can path 2 reach coil -Q1 with -F1 open?' },
+      why: '-F1 opening breaks path 2, so -Q1 drops out. Its normally closed contact in path 4 closes again. Now path 4 waits only for Start 2. -M1 cannot restart until -F1 is reset.',
+      after: (st) => { st.seq = timeline(st.s, 0.2, [Object.assign(TRIP('F1'), { gap: 0.4 })].concat(PRESS('S2'))); st.s = lastOf(st.seq); } },
+    { name: 'Not as drawn', kind: 'typed', field: 'notdrawn', unit: 'contacts', base: RUN1, asDrawn: true,
+      task: 'Pump -M1 runs with the tank full. How many contacts on the sheet are not in their drawn state?',
+      answer: notAsDrawn(RUN1),
+      slips: [{ value: CK.filter((k) => k !== 'B1' && differs(RUN1, k)).length, hint: '-B1 counts too. It is drawn open, and the full tank holds it closed.' },
+        { value: notAsDrawn(OPEN0), hint: '-Q1 is in, and all three of its contacts have changed.' },
+        { value: allPaths('Q1').length, hint: 'Two coils are in, -K1 and -Q1. Count both tables, and -B1.' },
+        { value: notAsDrawn(RUN1) + 1, hint: 'Stop -S0 is drawn closed, and it is closed now. It changes only while pressed.' }],
+      hint: 'Count -B1, then every contact in the table of each coil that is in.',
+      want: notAsDrawn(RUN1) + ' contacts',
+      why: '-B1 is closed, though drawn open. -K1 and -Q1 are both in, and each has three contacts on this sheet. So 1 + 3 + 3 makes 7 contacts not as drawn.',
+      after: (st) => { st.live = 1; st.liveT = 0.1; } },
+  ];
+  const I = { still: 0, apart: 1, coil: 2, xref: 3, pull: 4, rest: 5, closed: 6, series: 7, standby: 8, us: 9, circle: 10, trip: 11, nad: 12 };
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FINISH = "A contact belongs to the coil whose tag it carries, however far apart the two are drawn. So you find a contact's coil by its tag, and a coil's contacts by the coil's cross-reference.";
+  const VIOX = 'https://viox.com/electrical-symbols-chart';
+  const WIKI = 'https://electrician.wiki/reference/electrical-symbols';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function fresh(i) {
+    const d = STEPS[i];
+    const st = { s: cl(d.base || OPEN0), sheet: d.sheet || 'iec', seq: null, marks: [], sel: null, selT: null, selSc: 1, card: null,
+      live: d.asDrawn ? 0 : 1, liveT: null, sheetT: null, res: null, pick: null, why: false, tries: 0, shown: false, fbText: '', touched: false };
+    if (d.show && d.demo) d.demo(st);
+    return st;
+  }
+  // When the step's motion has settled, from what it holds.
+  function animEnd(st) {
+    let e = 0;
+    if (st.seq) e = Math.max(e, st.seq[st.seq.length - 1].t + 0.35);
+    st.marks.forEach((m) => { e = Math.max(e, m.t + 0.6); });
+    if (st.sel && st.selT != null) e = Math.max(e, st.selT + 1.5 * st.selSc);
+    if (st.liveT != null) e = Math.max(e, st.liveT + 0.7);
+    if (st.sheetT != null) e = Math.max(e, st.sheetT + 0.9);
+    return e + 0.1;
+  }
+  STEPS.forEach((d, i) => { if (d.show) d.dur = Math.round((animEnd(fresh(i)) + 0.3) * 10) / 10; });
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  const arrT = (t0, dur) => (T === Infinity ? 1 : K.arrive(T, t0, dur));
+  const prog = (t0, dur) => (T === Infinity ? 1 : K.clamp((T - t0) / dur, 0, 1));
+  // Contacts not as drawn shows from screen 6 (Drawn at rest); the two drawn-state puzzles keep it as ? until answered.
+  const nadText = (i) => (STEPS[i].asDrawn && S[i].res !== 'right' ? '?' : K.fmt(notAsDrawn(S[i].s), { decimals: 0 }));
+
+  // What the sheet shows now: each contact's closing (0 open, 1 closed), each line's boldness, each coil's glow.
+  function view(i) {
+    const st = S[i], liveA = st.live ? (st.liveT == null ? 1 : arrT(st.liveT, 0.6)) : 0;
+    const q = st.seq && T !== Infinity ? st.seq : null, rs = q ? q.map((e) => reach(e.s)) : null, r = reach(st.s);
+    const V = (f) => {
+      if (!q) return f(st.s, r) ? 1 : 0;
+      let v = f(q[0].s, rs[0]) ? 1 : 0;
+      for (let k = 1; k < q.length; k++) {
+        const p = K.ease(prog(q[k].t, 0.3));
+        if (p <= 0) break;
+        v = K.lerp(f(q[k - 1].s, rs[k - 1]) ? 1 : 0, f(q[k].s, rs[k]) ? 1 : 0, p);
+      }
+      return v;
+    };
+    const o = { liveA, cv: {}, nv: {}, co: {} };
+    CK.forEach((k) => { o.cv[k] = K.lerp(CT[k].nc ? 1 : 0, V((s) => closed(s, k)), liveA); });
+    Object.keys(WI).forEach((n) => { o.nv[n] = V((s, rr) => rr.has(n)) * liveA; });
+    COK.forEach((k) => { o.co[k] = V((s) => s.co[k]) * liveA; });
+    return o;
+  }
+
+  // ---------- drawing helpers (K.svg, never innerHTML) ----------
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, pts, cls) => add(g, 'polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') });
+  // Every label drawn on the current sheet is kept as a box (TB), so the line from a tapped contact
+  // to its coil can stop short of each one.
+  let TB = null;
+  const FS = { th: 12, ci: 12 };
+  function text(g, x, y, s, cls, anchor) {
+    const str = String(s), t = g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, str));
+    if (TB) {
+      const fs = FS[cls] || 13, w = tw(str, cls), a = anchor || 'middle', x0 = a === 'start' ? x : a === 'end' ? x - w : x - w / 2;
+      TB.push([x0 - 3, y - fs * 0.8 - 2, x0 + w + 3, y + fs * 0.25 + 2]);
+    }
+    return t;
+  }
+  const layers = (g, names) => { const o = {}; names.forEach((n) => { o[n] = add(g, 'g'); }); return o; };
+  let meterSvg = null;
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    if (meterSvg) {
+      const t = meterSvg.appendChild(K.svg('text', { class: cls, x: 0, y: -40 }, s));
+      try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+      meterSvg.removeChild(t);
+    }
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.8;
+  }
+  function keyRow(g, items, y) {
+    let x = 8;
+    items.forEach((it) => {
+      const w = it.w + 6 + tw(it.t, 'kt');
+      if (x > 8 && x + w > 334) { x = 8; y += 22; }
+      it.icon(g, x, y);
+      text(g, x + it.w + 6, y + 4.5, it.t, 'kt', 'start');
+      x += w + 16;
+    });
+    return y;
+  }
+  function wires(G, W, D, v) {
+    Object.keys(W).forEach((n) => {
+      const rail = n === 'L' || n === 'N';
+      W[n].forEach((pp, j) => poly(G.pale, pp, 'ln' + (rail && !j ? ' rail' : '')));
+      (D[n] || []).forEach((q) => circle(G.pale, q[0], q[1], 2.6, 'dot'));
+      const a = v.nv[n];
+      if (a > 0.001) {
+        const lg = add(G.live, 'g');
+        W[n].forEach((pp, j) => poly(lg, pp, 'lv' + (rail && !j ? ' rail' : '')));
+        (D[n] || []).forEach((q) => circle(lg, q[0], q[1], 3.4, 'dot on'));
+        K.fade(lg, a, 0);
+      }
+    });
+  }
+  // Rings, and the line from a tapped contact to its coil, on either sheet.
+  const GEO = {
+    iec: {
+      ct: (k) => [PX[CT[k].p], CT[k].y], coil: (k) => [PX[CO[k].p], CY],
+      ringCt: (g, k, cls) => rect(g, PX[CT[k].p] - 13, CT[k].y - 15, 26, 30, cls, 9),
+      ringCoil: (g, k, cls) => rect(g, PX[CO[k].p] - 14, CY - 11, 28, 22, cls, 8),
+    },
+    us: {
+      ct: (k) => [CT[k].ux, UY[CT[k].p]], coil: (k) => [UCX, UY[CO[k].p]],
+      ringCt: (g, k, cls) => rect(g, CT[k].ux - 14, UY[CT[k].p] - 11, 28, 22, cls, 8),
+      ringCoil: (g, k, cls) => circle(g, UCX, UY[CO[k].p], 18, cls),
+    },
+  };
+  function decor(G, i, sh) {
+    const d = STEPS[i], st = S[i], geo = GEO[sh];
+    if (d.mark && st.res !== 'right') geo.ringCt(G.mark, d.mark, 'ring mark');
+    st.marks.forEach((m) => { const a = arrT(m.t, 0.5); if (a > 0.001) K.fade(m.kind === 'ct' ? geo.ringCt(G.mark, m.k, 'ring') : geo.ringCoil(G.mark, m.k, 'ring'), a, 0); });
+    if (!st.sel) return null;
+    const c = CT[st.sel], sc = st.selSc, t0 = st.selT == null ? -9 : st.selT;
+    const a1 = arrT(t0, 0.4 * sc), lp = K.ease(prog(t0 + 0.3 * sc, 0.5 * sc)), a2 = arrT(t0 + 0.8 * sc, 0.4 * sc), a3 = arrT(t0 + 1.1 * sc, 0.4 * sc);
+    K.fade(geo.ringCt(G.mark, st.sel, 'ring'), a1, 0);
+    const P0 = geo.ct(st.sel), P1 = geo.coil(c.coil), dx = P1[0] - P0[0], dy = P1[1] - P0[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const s0 = [P0[0] + ux * 17, P0[1] + uy * 17], e0 = [P1[0] - ux * 19, P1[1] - uy * 19];
+    K.fade(geo.ringCoil(G.mark, c.coil, 'ring'), a2, 0);
+    return { coil: c.coil, p: c.p, a: a3, link: { s0, e0, lp } };
+  }
+  // Where a straight line from p to q passes through box b, as a range of t from 0 to 1, or null.
+  function clipT(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1], P = [-dx, dx, -dy, dy], Q = [p[0] - b[0], b[2] - p[0], p[1] - b[1], b[3] - p[1]];
+    for (let k = 0; k < 4; k++) {
+      if (P[k] === 0) { if (Q[k] < 0) return null; continue; }
+      const r = Q[k] / P[k];
+      if (P[k] < 0) { if (r > t1) return null; if (r > t0) t0 = r; } else { if (r < t0) return null; if (r < t1) t1 = r; }
+    }
+    return t1 > t0 ? [t0, t1] : null;
+  }
+  // The line from a tapped contact to its coil, drawn last, with a gap wherever it would cross a label.
+  function drawLink(g, tm) {
+    if (!tm || !tm.link || tm.link.lp <= 0.001) return;
+    const L = tm.link, p = L.s0, q = [K.lerp(L.s0[0], L.e0[0], L.lp), K.lerp(L.s0[1], L.e0[1], L.lp)], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    const seg = (a, b) => { if ((b - a) * len > 3) line(g, K.lerp(p[0], q[0], a), K.lerp(p[1], q[1], a), K.lerp(p[0], q[0], b), K.lerp(p[1], q[1], b), 'link'); };
+    let t = 0;
+    (TB || []).map((b) => clipT(p, q, b)).filter(Boolean).sort((x, y) => x[0] - y[0]).forEach((c) => { if (c[0] > t) seg(t, c[0]); t = Math.max(t, c[1]); });
+    if (t < 1) seg(t, 1);
+  }
+
+  // ---------- the IEC sheet ----------
+  function ctIEC(G, k, v) {
+    const c = CT[k], x = PX[c.p], y = c.y;
+    const tip = (q) => (c.nc ? [K.lerp(x + 9, x - 8, q), K.lerp(y - 9, y - 11, q)] : [K.lerp(x + 9, x, q), K.lerp(y - 9, y - 11, q)]);
+    if (c.nc) line(G.sym, x, y - 11, x - 8, y - 11, 'sk');
+    if (v.liveA > 0.001) { const f = tip(c.nc ? 1 : 0); K.fade(line(G.sym, x, y + 11, f[0], f[1], 'bd'), v.liveA, 0); }
+    const t = tip(v.cv[k]);
+    line(G.sym, x, y + 11, t[0], t[1], 'bl');
+    if (c.act) {
+      const mx = (x + t[0]) / 2 + 1;
+      if (c.act === 'push') { line(G.sym, mx, y, x + 15, y, 'act'); path(G.sym, 'M' + (x + 15) + ' ' + (y - 5) + 'V' + (y + 5) + 'M' + (x + 15) + ' ' + (y - 5) + 'h3M' + (x + 15) + ' ' + (y + 5) + 'h3', 'sk'); }
+      else if (c.act === 'float') { line(G.sym, mx, y, x + 13, y, 'act'); circle(G.sym, x + 17, y, 4, 'sk'); }
+      else { line(G.sym, mx, y, x + 12, y, 'act'); path(G.sym, 'M' + (x + 12) + ' ' + y + 'h3v-4h5v8h5v-4', 'sk'); }
+    }
+    text(G.text, x - 15, y + 4.5, c.tag || '-' + c.coil, 'tg', 'end');
+  }
+  function table(G, k, tm) {
+    const cx = CO[k].tb, y0 = 332, xr = xref(k);
+    rect(G.sym, cx - 22, y0, 44, 52, 'box', 2);
+    line(G.sym, cx, y0, cx, y0 + 52, 'tl'); line(G.sym, cx - 22, y0 + 17, cx + 22, y0 + 17, 'tl');
+    text(G.text, cx - 11, y0 + 13, 'NO', 'th'); text(G.text, cx + 11, y0 + 13, 'NC', 'th');
+    [xr.no, xr.nc].forEach((list, col) => list.forEach((p, row) => {
+      const tx = cx + (col ? 11 : -11), ty = y0 + 32 + 16 * row;
+      if (tm && tm.p === p && tm.a > 0.001) K.fade(rect(G.hl, tx - 9, ty - 12, 18, 16, 'hlbg', 3), tm.a, 0);
+      text(G.text, tx, ty, p, 'tn');
+    }));
+  }
+  function drawIEC(g, i, v) {
+    const d = STEPS[i], G = layers(g, ['hl', 'glow', 'pale', 'live', 'sym', 'text', 'mark', 'key']);
+    TB = [];
+    const tm = decor(G, i, 'iec');
+    for (let p = 1; p <= 8; p++) {
+      const x = PX[p];
+      if (d.sweep && T !== Infinity) {
+        const t0 = 0.2 + 0.26 * (p - 1), a = K.arrive(T, t0, 0.25) * (1 - K.arrive(T, t0 + 0.45, 0.3));
+        if (a > 0.001) K.fade(rect(G.hl, x - 10, 5, 20, 20, 'hlbg', 4), a, 0);
+      }
+      rect(G.sym, x - 10, 5, 20, 20, 'box', 4);
+      text(G.text, x, 19.5, p, 'tn');
+    }
+    text(G.text, 9, LY + 4.5, 'L', 'tg'); text(G.text, 9, NY + 4.5, 'N', 'tg');
+    wires(G, WI, DI, v);
+    CK.forEach((k) => ctIEC(G, k, v));
+    COK.forEach((k) => {
+      const x = PX[CO[k].p], on = v.co[k];
+      if (on > 0.001) K.fade(rect(G.glow, x - 13, CY - 8.5, 26, 17, 'glow', 5), on, 0);
+      rect(G.sym, x - 12, CY - 7, 24, 14, 'sym');
+      if (on > 0.001) K.fade(rect(G.sym, x - 12, CY - 7, 24, 14, 'sym on'), on, 0);
+      if (k === 'K1') text(G.text, x - 17, CY + 4.5, '-' + k, 'tg', 'end'); else text(G.text, x + 18, CY + 4.5, '-' + k, 'tg', 'start');
+      table(G, k, tm && tm.coil === k ? tm : null);
+    });
+    LPK.forEach((k, j) => {
+      const x = PX[LP[k].p], lit = v.nv[LP[k].node], e = 6.4;
+      if (lit > 0.001) K.fade(circle(G.glow, x, CY, 13, 'lit'), lit, 0);
+      circle(G.sym, x, CY, 9, 'lampc'); line(G.sym, x - e, CY - e, x + e, CY + e, 'sk'); line(G.sym, x - e, CY + e, x + e, CY - e, 'sk');
+      text(G.text, x - 4, CY - 15, '-' + k, 'tg', 'end');
+      text(G.text, 200, 350 + 18 * j, '-' + k, 'tg', 'start'); text(G.text, 226, 350 + 18 * j, LP[k].name, 't13', 'start');
+    });
+    const ky = 406;
+    if (v.liveA > 0.001) {
+      const g1 = add(G.key, 'g');
+      keyRow(g1, [
+        { w: 10, t: 'Now', icon: (gg, x, y) => line(gg, x + 1, y + 7, x + 9, y - 7, 'bl') },
+        { w: 10, t: 'As drawn', icon: (gg, x, y) => line(gg, x + 1, y + 7, x + 9, y - 7, 'bd') },
+        { w: 22, t: 'Joined to L', icon: (gg, x, y) => poly(gg, [[x, y], [x + 22, y]], 'lv') },
+      ], ky);
+      K.fade(g1, v.liveA, 0);
+    }
+    if (v.liveA < 0.999) { const g2 = add(G.key, 'g'); text(g2, 8, ky + 4.5, 'As drawn: every coil off and no button pressed.', 'kt', 'start'); K.fade(g2, 1 - v.liveA, 0); }
+    drawLink(G.mark, tm);
+    TB = null;
+  }
+
+  // ---------- the US ladder ----------
+  function ctUS(G, k, v) {
+    const c = CT[k], x = c.ux, y = UY[c.p], q = v.cv[k], drawn = c.nc ? 1 : 0;
+    if (c.ut === 'pb') {
+      circle(G.sym, x - 8, y, 2.5, 'term'); circle(G.sym, x + 8, y, 2.5, 'term');
+      const by = (z) => (c.nc ? K.lerp(y + 7, y + 2.5, z) : K.lerp(y - 7, y - 2.5, z));
+      if (v.liveA > 0.001) K.fade(line(G.sym, x - 11, by(drawn), x + 11, by(drawn), 'bd'), v.liveA, 0);
+      const b = by(q);
+      line(G.sym, x - 11, b, x + 11, b, 'bl'); line(G.sym, x, b, x, y - 13, 'sk');
+      text(G.text, x, y - 17, c.us, 'tg');
+    } else if (c.ut === 'sw') {
+      circle(G.sym, x - 8, y, 2.5, 'term'); circle(G.sym, x + 8, y, 2.5, 'term');
+      const tip = (z) => [K.lerp(x + 7, x + 8, z), K.lerp(y - 9, y - 2.5, z)];
+      if (v.liveA > 0.001) { const f = tip(drawn); K.fade(line(G.sym, x - 8, y, f[0], f[1], 'bd'), v.liveA, 0); }
+      const t = tip(q); line(G.sym, x - 8, y, t[0], t[1], 'bl');
+      text(G.text, x, y - 14, c.us, 'tg');
+    } else {
+      line(G.sym, x - 5, y - 8, x - 5, y + 8, 'sk2'); line(G.sym, x + 5, y - 8, x + 5, y + 8, 'sk2');
+      if (c.nc) line(G.sym, x - 8, y + 8, x + 8, y - 8, 'sk');
+      if (c.nc && v.liveA > 0.001) K.fade(line(G.sym, x - 5, y, x + 5, y, 'bd'), v.liveA, 0);
+      if (q > 0.001) K.fade(line(G.sym, x - 5, y, x + 5, y, 'bl'), q, 0);
+      text(G.text, x, y - 14, c.coil ? CO[c.coil].us : c.us, 'tg');
+    }
+  }
+  const plates = (g, x, y) => { line(g, x + 1, y - 7, x + 1, y + 7, 'sk2'); line(g, x + 11, y - 7, x + 11, y + 7, 'sk2'); };
+  function drawUS(g, i, v) {
+    const G = layers(g, ['hl', 'glow', 'pale', 'live', 'sym', 'text', 'mark', 'key']);
+    TB = [];
+    const tm = decor(G, i, 'us');
+    text(G.text, 22, 18, 'L', 'tg'); text(G.text, 262, 18, 'N', 'tg');
+    for (let p = 1; p <= 8; p++) text(G.text, 10, UY[p] + 4.5, p, 'tn');
+    wires(G, WU, DU, v);
+    CK.forEach((k) => ctUS(G, k, v));
+    COK.forEach((k) => {
+      const y = UY[CO[k].p], on = v.co[k];
+      if (on > 0.001) K.fade(circle(G.glow, UCX, y, 15, 'glow'), on, 0);
+      circle(G.sym, UCX, y, 13, 'sym');
+      if (on > 0.001) K.fade(circle(G.sym, UCX, y, 13, 'sym on'), on, 0);
+      text(G.text, UCX, y + 4.3, CO[k].us, 'ci');
+      // the rungs of its contacts, written beside it, normally closed ones marked NC
+      const xr = xref(k), items = xr.no.map((p) => ({ p })).concat(xr.nc.map((p) => ({ p, nc: true })));
+      let x = 268;
+      items.forEach((it, j) => {
+        const s = String(it.p), w = tw(s, 'tn'), last = j === items.length - 1;
+        if (tm && tm.coil === k && tm.p === it.p && tm.a > 0.001) K.fade(rect(G.hl, x - 3, y - 8, w + 6, 17, 'hlbg', 3), tm.a, 0);
+        text(G.text, x, y + 4.5, s + (last || it.nc ? '' : ','), 'tn', 'start');
+        x += w + (last || it.nc ? 3 : tw(',', 'tn') + 5);
+        if (it.nc) { text(G.text, x, y + 4.5, 'NC' + (last ? '' : ','), 'th', 'start'); x += tw('NC,', 'th') + 5; }
+      });
+    });
+    LPK.forEach((k) => {
+      const y = UY[LP[k].p], lit = v.nv[LP[k].node];
+      if (lit > 0.001) K.fade(circle(G.glow, UCX, y, 13, 'lit'), lit, 0);
+      circle(G.sym, UCX, y, 8, 'lampc');
+      [45, 90, 135, 225, 270, 315].forEach((deg) => { const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); line(G.sym, UCX + 10 * c, y + 10 * s, UCX + 13.5 * c, y + 13.5 * s, 'sk'); });
+      text(G.text, 146, y - 8, LP[k].name, 't13');
+    });
+    keyRow(G.key, [
+      { w: 12, t: 'Normally open', icon: (gg, x, y) => plates(gg, x, y) },
+      { w: 12, t: 'Normally closed', icon: (gg, x, y) => { plates(gg, x, y); line(gg, x - 2, y + 7, x + 14, y - 7, 'sk'); } },
+    ], 354);
+    keyRow(G.key, [
+      { w: 12, t: 'Closed now', icon: (gg, x, y) => { plates(gg, x, y); line(gg, x + 1, y, x + 11, y, 'bl'); } },
+      { w: 12, t: 'Drawn closed', icon: (gg, x, y) => { plates(gg, x, y); line(gg, x + 1, y, x + 11, y, 'bd'); } },
+      { w: 22, t: 'Joined to L', icon: (gg, x, y) => poly(gg, [[x, y], [x + 22, y]], 'lv') },
+    ], 380);
+    drawLink(G.mark, tm);
+    TB = null;
+  }
+
+  // ---------- the whole picture ----------
+  const el = (id) => document.getElementById(id);
+  const sceneSvg = el('scene'), art = el('art');
+  const tapsOn = (i) => !!STEPS[i].show || S[i].res === 'right';
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i], g = art;
+    meterSvg = sceneSvg;
+    g.textContent = '';
+    const v = view(i);
+    // a sheet change: the old sheet fades out first, then the new one fades in, so the two never overlap
+    const p = st.sheetT == null ? 1 : prog(st.sheetT, 0.8);
+    const outA = 1 - K.ease(p / 0.45), inA = K.ease((p - 0.55) / 0.45);
+    const usA = st.sheet === 'us' ? inA : outA, iecA = st.sheet === 'us' ? outA : inA;
+    if (iecA > 0.001) { const gi = add(g, 'g'); drawIEC(gi, i, v); K.fade(gi, iecA, 0); }
+    if (usA > 0.001) { const gu = add(g, 'g'); drawUS(gu, i, v); K.fade(gu, usA, 0); }
+    if (tapsOn(i)) {
+      const hg = add(g, 'g'), us = st.sheet === 'us';
+      CK.forEach((k) => { const c = CT[k], h = us ? rect(hg, c.ux - 14, UY[c.p] - 17, 28, 34, 'hit') : rect(hg, PX[c.p] - 20, c.y - 20, 40, 40, 'hit'); h.dataset.ct = k; });
+    }
+    sceneSvg.setAttribute('aria-label', sheetAlt(i));
+    // a demonstration's words and readouts fade in as its motion settles
+    const wordsA = d.show && !st.touched && T !== Infinity ? K.arrive(T, d.dur - 0.45, 0.4) : 1;
+    K.fade(el('say'), wordsA, 3); K.fade(el('outs'), wordsA, 3);
+  }
+
+  // ---------- words ----------
+  function circuitSay(s, sh) {
+    const n = (k) => nm(k, sh), P = sh === 'us' ? 'rung ' : 'path ', out = [];
+    if (s.low) out.push('The tank is low, so ' + n('B1') + ' is open and ' + n('K1') + ' is out. Neither pump can run, and the Tank low lamp is lit.');
+    else if (s.co.Q1) out.push('The duty pump runs. ' + n('Q1') + ' is in, held by its own contact in ' + P + CT.Q1a.p + '. Its contact in ' + P + CT.Q1b.p + ' keeps ' + n('Q2') + ' out.');
+    else if (s.co.Q2) out.push('The standby pump runs. ' + n('Q2') + ' is in, held by its own contact in ' + P + CT.Q2a.p + '. Its contact in ' + P + CT.Q2b.p + ' keeps ' + n('Q1') + ' out.');
+    else out.push('The tank is full, so ' + n('B1') + ' is closed and ' + n('K1') + ' is in. Both pumps are stopped.');
+    ['F1', 'F2'].forEach((k) => { if (s.trip[k]) out.push(cap(n(k)) + ' has tripped open, so ' + n(k === 'F1' ? 'Q1' : 'Q2') + ' cannot pull in until it is reset.'); });
+    return out.join(' ');
+  }
+  function selSay(k, sh) {
+    const c = CT[k], n = nm(c.coil, sh), us = sh === 'us';
+    return 'This contact is tagged ' + n + ', so coil ' + n + ' in ' + (us ? 'rung ' : 'path ') + CO[c.coil].p + ' moves it. ' +
+      (us ? 'The numbers beside ' + n + ' list rung ' + c.p + (c.nc ? ', marked NC.' : '.') : 'Its table lists path ' + c.p + ' in the normally ' + (c.nc ? 'closed' : 'open') + ' column.');
+  }
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.show && st.res !== 'right') return '';
+    if (d.say && !st.touched) return d.say();
+    if (st.sel) return selSay(st.sel, st.sheet);
+    return circuitSay(st.s, st.sheet);
+  }
+  function cardWords(k, sh) {
+    const us = sh === 'us', c = CT[k];
+    if (c.act === 'push') return ['Moved by a hand.', (us ? c.us : c.us + ' ' + c.tag) + ' is a push button. It is drawn ' + (c.nc ? 'closed, and a press opens it' : 'open, and a press closes it') + ' until you let go.'];
+    if (c.act === 'float') return ["Moved by the tank's level.", (us ? 'The level switch' : 'Level switch -B1') + ' is drawn open. A tank filled above its low mark holds it closed.'];
+    return ['Moved by heat.', (us ? c.us : c.tag) + ' is the ' + (k === 'F1' ? 'duty' : 'standby') + " pump's overload. Heat from the pump's current opens it. That current flows on the power sheet, which is not drawn here."];
+  }
+  function sheetAlt(i) {
+    const st = S[i], s = st.s, us = st.sheet === 'us';
+    let a = us ? 'The pump starter control circuit as a US ladder: eight rungs between two rails, with coils CR1, M1 and M2 drawn as circles.'
+      : 'The control schematic of two pump starters, drawn the IEC way in eight current paths between L at the top and N at the bottom.';
+    if (!st.live) return a + ' Every contact is shown as drawn, with every coil off.';
+    const on = COK.filter((k) => s.co[k]).map((k) => nm(k, st.sheet)), r = reach(s), lit = LPK.filter((k) => r.has(LP[k].node)).map((k) => LP[k].name);
+    a += on.length ? ' Coils in: ' + listOf(on) + '.' : ' No coil is in.';
+    if (lit.length) a += ' Lamps lit: ' + listOf(lit) + '.';
+    if (s.trip.F1) a += ' ' + nm('F1', st.sheet) + ' has tripped.';
+    if (s.low) a += ' The tank is low.';
+    return a;
+  }
+  // Text with amber key terms (built with K.el, never innerHTML).
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at0 = 0, mm;
+    s = String(s || '');
+    while ((mm = re.exec(s))) {
+      if (mm.index > at0) plain(node, s.slice(at0, mm.index));
+      node.appendChild(K.el('span', { class: 'term' }, mm[1]));
+      at0 = mm.index + mm[0].length;
+    }
+    if (at0 < s.length) plain(node, s.slice(at0));
+  }
+  // A tag such as -Q1 never splits at its hyphen.
+  function plain(node, t) { t.split(/(-[A-Z]\d+)/).forEach((p, k) => { if (p) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, p) : document.createTextNode(p)); }); }
+  function fillCard(box, words, key) {
+    box.textContent = '';
+    write(box.appendChild(K.el('strong')), words[0]);
+    write(box.appendChild(K.el('span')), words[1]);
+    if (box.dataset.key !== key) { box.dataset.key = key; if (!REDUCE) { box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter'); } }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()), 0, STEPS.length - 1);
+  const nadOut = K.readout({ id: 'notAsDrawn', label: 'Contacts not as drawn', decimals: 0, fmt: () => nadText(at()), into: '#outs' });
+  K.readout({ id: 'pumpsRunning', label: 'Pumps running', decimals: 0, fmt: () => K.fmt(pumps(S[at()].s), { decimals: 0 }), into: '#outs' });
+
+  // Dan takes over: any motion snaps to its end, and his move starts from there.
+  function takeOver(i) {
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    const st = S[i];
+    st.touched = true; st.seq = null; st.liveT = null; st.sheetT = null; st.selT = null;
+    st.marks.forEach((m) => { m.t = -9; });
+  }
+  function setSheet(sh) {
+    const i = at(), st = S[i];
+    if (finished || !STEPS[i].show || st.sheet === sh) return;
+    takeOver(i);
+    st.sheet = sh; st.sheetT = 0; st.card = null;
+    play(animEnd(st));
+    K.reveal();
+  }
+  function act(list) {
+    const i = at(), st = S[i];
+    if (finished || !STEPS[i].show) return;
+    takeOver(i);
+    st.marks = []; st.card = null;
+    st.seq = timeline(st.s, 0, list); st.s = lastOf(st.seq);
+    play(animEnd(st));
+    K.reveal();
+  }
+  const sheetBtns = {
+    iec: K.button({ label: 'IEC', secondary: true, into: '#modes', press: () => setSheet('iec') }),
+    us: K.button({ label: 'US ladder', secondary: true, into: '#modes', press: () => setSheet('us') }),
+  };
+  K.button({ label: 'Start 1', secondary: true, into: '#push', press: () => act(PRESS('S1')) });
+  K.button({ label: 'Start 2', secondary: true, into: '#push', press: () => act(PRESS('S2')) });
+  K.button({ label: 'Stop', secondary: true, into: '#push', press: () => act(PRESS('S0')) });
+  const tripBtn = K.button({ label: 'Trip -F1', secondary: true, into: '#faults', press: () => act([TRIP('F1')]) });
+  const lowBtn = K.button({ label: 'Tank low', secondary: true, into: '#faults', press: () => act([LOWER]) });
+
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The motion after a right answer: what the puzzle names happens on the sheet.
+  function afterRight(i) {
+    const d = STEPS[i], st = S[i];
+    st.seq = null; st.marks = [];
+    if (d.after) d.after(st);
+    play(animEnd(st));
+  }
+  // The typed answers: Check grades what is typed; two wrong tries show the working.
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, label: d.label, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = "That's it."; afterRight(i); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shown = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); afterRight(i); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    if (st.pick === d.want) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at();
+    if (finished || STEPS[i].show) return;
+    S[i].why = !S[i].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show) return;
+    S[i] = fresh(i);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // A demonstration's still is its finished picture.
+  STEPS.forEach((d, i) => { if (d.show) d.still = () => { S[i] = fresh(i); anim.pause(); T = Infinity; K.refresh(); }; });
+
+  // One animation plays each demonstration, the motion after an answer and each move; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (T >= motionEnd) { T = Infinity; paint(); return false; }
+    paint();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+
+  // ---------- tapping contacts ----------
+  sceneSvg.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest ? e.target.closest('[data-ct]') : null;
+    if (!t || finished) return;
+    const i = at(), st = S[i], k = t.dataset.ct;
+    if (!tapsOn(i) || !CT[k]) return;
+    takeOver(i);
+    st.marks = []; st.card = null;
+    if (CT[k].coil) { st.sel = k; st.selT = 0; st.selSc = 1; play(animEnd(st)); }
+    else { st.sel = null; st.card = k; }
+    K.reveal();
+    K.refresh();
+  });
+
+  // ---------- the page ----------
+  K.model((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), s = S[i].s;
+    return { notAsDrawn: notAsDrawn(s), pumpsRunning: pumps(s) };
+  });
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = fresh(i); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+
+    el('ctl').hidden = !d.show;
+    nadOut.el.hidden = i < I.rest;
+    sheetBtns.iec.el.setAttribute('aria-pressed', st.sheet === 'iec' ? 'true' : 'false');
+    sheetBtns.us.el.setAttribute('aria-pressed', st.sheet === 'us' ? 'true' : 'false');
+    tripBtn.el.setAttribute('aria-pressed', st.s.trip.F1 ? 'true' : 'false');
+    lowBtn.el.setAttribute('aria-pressed', st.s.low ? 'true' : 'false');
+    const say = sayFor(i);
+    el('say').hidden = !say;
+    write(el('say'), say);
+    const card = el('card');
+    card.hidden = !st.card;
+    if (st.card) fillCard(card, cardWords(st.card, st.sheet), st.card + st.sheet + i);
+    else card.dataset.key = '';
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('tools').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      write(b.el.appendChild(K.el('span', { class: 'opt' })), opts[k]);   // one flex item, so the words wrap as one line of text
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    let f = '';
+    if (!d.show) f = d.kind === 'typed' ? st.fbText : right ? (d.rightFb || "That's it.") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Tap one of the answers.' : '';
+    fb.className = 'fb' + (right && !st.shown ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const tableText = (k) => { const x = xref(k); return x.no.join(',') + '|' + x.nc.join(','); };
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  K.check('Opening with the tank full: -B1 is closed, so -K1 is in and both pumps are stopped. -B1 and the three contacts of -K1 are not as drawn, which makes 4, and 0 pumps run', () => {
+    const o = K.at({ step: 0 });
+    return OPEN0.co.K1 && !OPEN0.co.Q1 && !OPEN0.co.Q2 && o.notAsDrawn === 4 && o.pumpsRunning === 0 && ['B1', 'K1a', 'K1b', 'K1c'].every((k) => differs(OPEN0, k));
+  });
+  K.check("Each coil's table lists the paths of its contacts, normally open on the left: -K1 2, 4 then 8; -Q1 3, 6 then 4; -Q2 5, 7 then 2", () =>
+    tableText('K1') === '2,4|8' && tableText('Q1') === '3,6|4' && tableText('Q2') === '5,7|2');
+  K.check('Start 1 pressed and let go: -Q1 stays in through its latching contact in path 3. Stop drops it out. With -F1 tripped, or the tank low, Start 1 cannot pull it in, and the tank going low stops a running pump', () => {
+    const tripped = afterAll(OPEN0, [TRIP('F1')]), low = afterAll(OPEN0, [LOWER]);
+    return RUN1.co.Q1 && closed(RUN1, 'Q1a') && RUN1.held === null && !afterAll(RUN1, PRESS('S0')).co.Q1 && !afterAll(tripped, PRESS('S1')).co.Q1 &&
+      !low.co.K1 && !afterAll(low, PRESS('S1')).co.Q1 && !afterAll(RUN1, [LOWER]).co.Q1;
+  });
+  K.check('The interlock: with -Q1 in, Start 2 changes nothing. Once -F1 trips, -Q1 drops out and Start 2 starts the standby pump. With -Q2 in, Start 1 changes nothing', () => {
+    const run2 = afterAll(OPEN0, PRESS('S2')), b = afterAll(RUN1, [TRIP('F1')].concat(PRESS('S2')));
+    return same(afterAll(RUN1, PRESS('S2')), RUN1) && !b.co.Q1 && b.co.Q2 && run2.co.Q2 && !run2.co.Q1 && same(afterAll(run2, PRESS('S1')), run2);
+  });
+  K.check('Worked by hand: the -Q2 contact in path 2 has its coil in path 4 (slips 2, 1 and 5); -Q1 pulling in changes 3 contacts (slips 2, 1 and 4); with the duty pump running, 7 contacts are not as drawn (slips 6, 4, 3 and 8); the typed fields ask exactly these', () => {
+    const a = STEPS[I.coil], b = STEPS[I.pull], c = STEPS[I.nad], sl = (d) => d.slips.map((x) => x.value).join();
+    return a.answer === 4 && sl(a) === '2,1,5' && b.answer === 3 && sl(b) === '2,1,4' && c.answer === 7 && sl(c) === '6,4,3,8' &&
+      ANS[I.coil].spec.answer === 4 && ANS[I.pull].spec.answer === 3 && ANS[I.nad].spec.answer === 7 &&
+      a.want === 'Path 4' && b.want === '3 contacts' && c.want === '7 contacts';
+  });
+  K.check("A normally closed contact is drawn closed even if its coil is energised and the contact is open: -K1's contact in path 8 is drawn closed, and with the tank full it is open", () =>
+    CT.K1c.nc && OPEN0.co.K1 && !closed(OPEN0, 'K1c') && !differs(afterAll(OPEN0, [LOWER]), 'K1c'), { source: WIKI });
+  K.check("A coil and its contacts may sit in different rungs, matched by reference designation and cross-reference: every contact of -K1, -Q1 and -Q2 sits in another path from its coil, and its path is in that coil's table", () =>
+    CK.filter((k) => CT[k].coil).every((k) => { const c = CT[k], x = xref(c.coil); return c.p !== CO[c.coil].p && (c.nc ? x.nc : x.no).indexOf(c.p) >= 0; }), { source: VIOX });
+  K.check('Before an answer nothing gives it away: each puzzle opens with nothing picked out but its marked contact, Contacts not as drawn is hidden before screen 6, and the two drawn-state puzzles show every contact as drawn with that readout as ?', () => {
+    const keep = S;
+    try {
+      S = STEPS.map((d, i) => fresh(i));
+      return DO.every((i) => { const st = S[i]; return !st.sel && !st.marks.length && !st.card && !st.seq && (!STEPS[i].asDrawn || nadText(i) === '?') && st.live === (STEPS[i].asDrawn ? 0 : 1); }) && I.rest === 5 && STEPS[I.rest].name === 'Drawn at rest';
+    } finally { S = keep; }
+  });
+  K.check("Every demonstration settles within 4.5 s of its screen opening, and every answer's motion within 3 s", () =>
+    STEPS.every((d, i) => { const st = fresh(i); if (d.show) return d.dur <= 4.5 && animEnd(st) <= d.dur; d.after(st); return animEnd(st) <= 3; }));
+
+  K.ready();
+</script>

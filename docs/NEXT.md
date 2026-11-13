@@ -7,6 +7,17 @@ step, a list of courses in progress, the laptop layouts, whether spaced review s
 content decisions). The notes below this line are older; where they say "not yet published",
 it has been.
 
+Reading drawings and schematics (Engineering science shelf, nine lessons, live 13 Nov 2026,
+docs/courses/engineering/reading-drawings) has two points left open in lesson 7, both waiting on web
+access, which was down when the course was finished. One: the lesson draws one valve symbol for
+every valve and teaches that the tag or legend says which kind it is; the separate symbols for gate,
+globe, ball and butterfly valves are not drawn anywhere in the course, though the scope asked for
+them. Add a screen of them once a public source for each symbol is held. Two: the piping symbols
+(non-return valve, strainer, heat exchanger, three-way valve with its actuator, instrument circle)
+are common forms drawn from memory and are not yet checked against two makers' public symbol sheets
+(i7.build.log.md lists them). The projection symbol in lesson 8 was redrawn on 13 Nov with the
+cone's narrow end on the left, as sheets print it; ISO 5456-2 itself is not held.
+
 Version 8 (published 6 Oct 2026, commit 1a777ee) shipped: the course dossier (field-journal
 Library, chapters bound as ideas finish, kept on delete, save a copy), the fact-check step
 (verify-lesson), quiz mode on target checks, the "Try this" lede, the run-2 panel's prompt

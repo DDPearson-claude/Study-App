@@ -1,0 +1,82 @@
+{
+  "scores": {
+    "lands": 5,
+    "why": 4,
+    "cause": 5,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 3 after Check, giving away screen 5's typed answer",
+      "what": "Screen 3 lights the lamp's line after Check, and that light spreads through the dot to the whole line leaving -Q1. The readout then shows 2, and the say line reads \"The line leaving -Q1 is lit. It reaches starter -K1 and lamp -H1. The motor's cable crosses it with no dot, so the motor stays dark.\" That is screen 5's typed answer and its motor slip, given two screens before he is asked. Screen 5 then tests memory, not reading. Fix: after Check on screen 3, hide the readout and the say line (its Why already explains), or ask screen 5 about a line screen 3 never lights."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 13 task text at 360 px; every tag in sentences and choices",
+      "what": "At 360 px the task text breaks the tag \"-H2\" after its hyphen (\"Run lamp -\" / \"H2\"), so the tag splits across two lines and reads as a dash. Tags also sit in choices on screens 7, 9 and 12 and could split the same way. Fix: write tags with a non-breaking hyphen (U+2011) or wrap each tag in a nowrap span inside write()."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 10 (the drawn state), and screen 11's Why",
+      "what": "The drawn state is given as a rule with no reason. The brief promised the why: the system is designed to be in its safest mode with the solenoid de-energised (notes 4). Add one plain sentence on screen 10 saying why the off state is the one drawn."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4 text",
+      "what": "\"Lines that cross with no dot are not joined. A dot marks a real joint.\" reads as true of every sheet. No screen says that a T joins with or without a dot, or that some older sheets mark joints another way. Those caveats sit only in ignores and practice, and a steps lesson shows neither. Fix: open with \"On most diagrams\" and add \"The legend says how a sheet marks its joints.\" That also covers the legend point the brief promised for this lesson."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 8 and 10 text",
+      "what": "Two \"should\" statements read as facts on these screens. Screen 8 says \"Each part carries the same name on the plant and on the diagram\", but the plant's labels should match the drawing (practice says to check them). Screen 10 says \"A diagram draws every part in one fixed state\", but the source allows extra diagrams that show other stages. Fix: write \"should carry\" on screen 8 and \"usually\" on screen 10."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9 Why",
+      "what": "The Why ends on two muddled sentences: \"A wire out of sight in the room still joins if the drawing shows it. So the plant must be checked.\" The room draws no cables at all, so \"out of sight\" points at nothing. Fix: end on the plain point. Opening -Q1 does not make -K1 dead, so prove it dead at the starter."
+    },
+    {
+      "severity": "polish",
+      "where": "Demonstrations on screens 2, 4, 8 and 10 (film steps 1, 3, 7 and 9)",
+      "what": "The say line states the end result from 0 s, before the picture gets there. On screen 4 the readout shows 1 before the cable lights at 1.2 s. On screen 10 the say line reads \"With the plant running...\" and Plant running is already pressed while the card still shows Open and Shut, up to 2.4 s. Fix: show the say line and readout, and press the button, only once each motion settles."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6 text, last sentence",
+      "what": "\"Parts drawn in a row are in series only if one path runs through each in turn\" is a second idea, and nothing on screen 6 sits in a row to show it. Drop it there. Screen 7 teaches it by doing, and its Why can carry the sentence."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2, the room",
+      "what": "The text says the diagram does not show \"how long the cables run\", but the room draws only the pipe and no cables. So there is no cable length to compare when he drags a part. Fix: draw the cables faintly in the room, or make the sentence about the pipe."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4 and the finish line",
+      "what": "The finish puts *junctions* in amber as the key term, but no screen names the dot a junction; only the key's label does. Add \"That dot is a junction.\" on screen 4."
+    },
+    {
+      "severity": "polish",
+      "where": "Readout on screens 2 and 8",
+      "what": "On these screens the readout shows \"Parts it reaches –\" with no use, and nothing tells him he can tap a line there. Fix: hide the readout on screens 2 and 8."
+    },
+    {
+      "severity": "polish",
+      "where": "Explain, paragraph 3 (dossier and Library)",
+      "what": "\"So the starter's main contact is drawn open\" comes straight after the piping-valve sentences, which it does not follow from. Move it to just after \"A relay or contactor contact is drawn as it sits with its coil off.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Explain footnotes",
+      "what": "There are five footnote markers. [^1] and [^2] sit on general statements, and [^2] repeats on the closing bold summary. Keep [^3] (the crossing rule) and [^4] (normal or neutral condition), the rules he might look up, and drop the rest."
+    },
+    {
+      "severity": "polish",
+      "where": "Lesson as a whole against brief row 1",
+      "what": "Three things the brief promised for lesson 1 are missing. One is the title block in outline. Another is which standard draws which kind (IEC 60617, ISO 1219-1, ISO 10628-2, ISO 128). The third is the P&ID normal or standby state. Record in the build log which later lesson now carries each (8 for the title block), so nothing falls through."
+    }
+  ]
+}

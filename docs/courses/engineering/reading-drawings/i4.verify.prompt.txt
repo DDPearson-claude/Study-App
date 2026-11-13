@@ -1,0 +1,253 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Reading drawings and schematics
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "Fluid power symbols" — Hydraulic and air symbols are built from simple marks that each mean one thing, so you can read one you have never met. [structure]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 Valves in fluid power — A valve that steers oil or air is drawn as one box per position, and only the box against the ports shows where it flows.
+- i6 Tracing a hydraulic circuit, then a pneumatic one — For each valve position, trace the supply to one side of a cylinder, and the other side out to the tank or, in air, the exhaust.
+- i7 Piping and system diagrams — On a piping diagram, flow runs only along open paths from a running pump, so you can find which valves to shut to isolate a part.
+- i8 Engineering drawings — An engineering drawing shows one object in several square-on views, laid out by a fixed rule, so you can rebuild its shape in your head.
+- i9 Reading one you have never seen — Read a diagram you have never seen in four steps: legend, sources, the state it is drawn in, then one path at a time.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Hydraulics Basic Principles - Bosch — https://dc-mkt-prod.cloud.bosch.tech/xrm/media/global/training_1/digital_media/reference_books/knowledge-in-detail-hydraulics-basic-principles.pdf
+    "Graphic symbols of hydraulics do not provide information about the design structure of the components."
+[R2] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) — https://www.online-pdh.com/file.php/221/CFD_SG.pdf
+    "The difference between them is that the point of the arrow touches the circle in a pump and the tail of the arrow touches the circle in a motor."
+[R3] Circuit symbols - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/znm6nk7
+    "It doesn't show what the circuit actually looks like, or how long all the connections are."
+[R4] Students’ Creation and Interpretation of Circuit Diagrams — https://ejrsme.icrsme.com/article/download/7775/5542
+    "Students must also realize that lines that simply cross (as in the center of the diagram on the left) do not indicate an electrical connection unless they are marked with a small circle."
+[R5] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) — https://www.online-pdh.com/file.php/221/CFD_SG.pdf
+    "Schematics are designed to supply the functional information of the system. They do not accurately represent the relative location of the components."
+[R6] Fail-safe Design | Ladder Logic | Electronics Textbook — https://www.allaboutcircuits.com/textbook/digital/chpt-6/fail-safe-design
+    "We already know that an open failure in the wiring or solenoid coil is more likely than a short or any other type of failure, so we should design this system to be in its safest mode with the solenoid de-energized."
+[R7] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) — https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy
+    "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+Notes (claims, and the sources that support them):
+- Hydraulic graphical symbols give no information about how a component is built. [R1]
+- A pump and a motor symbol differ only in where the arrow touches the circle: the point for a pump, the tail for a motor. [R2]
+- A circuit diagram does not show what a circuit actually looks like, or how long its connections are. [R3]  (from an idea this one builds on)
+- Lines that simply cross do not show an electrical connection unless they are marked with a small circle. [R4]  (from an idea this one builds on)
+- A schematic supplies the functional information of a system, not the relative location of its components. [R5]  (from an idea this one builds on)
+- An open failure in the wiring or a solenoid coil is the likeliest fault, so a system should be designed to be in its safest mode with the solenoid de-energised. [R6]  (from an idea this one builds on)
+- A schematic gives the functional information of a system and does not accurately show where its components are. [R5]  (whole topic)
+- Each symbol on a fluid power diagram is drawn to show the normal or neutral condition of its component, unless several diagrams show other phases. [R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "Fluid power symbols",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the part's name change, pump to motor, oil to air, fixed to variable, when you flip, empty or add one mark on the circle.",
+  "title": "The symbol kit",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Some screens show an idea and the rest ask you to try it. The main picture is a kit of fluid power marks, drawn to the international standard. A tray along the top holds the marks, each with a small label saying what it means. A circle is a machine that turns. A solid triangle is oil, pointing the way it flows. An empty triangle is air, pointing the same way. A slanted arrow means the part can be adjusted. A zigzag is a spring. A diamond is a part that treats the fluid. A square is one position of a valve. A long box with a piston and its rod is a cylinder. A solid line is a working line, carrying the main flow. A dashed line is a pilot line or a drain. A circle with the letter M is an electric motor. Below the tray is the build area: a circle with a working line in at the bottom and out at the top. Three switches sit above it: Triangle, Out or In; Fill, Solid or Empty; Arrow, Off or On. The triangle sits inside the circle, against the line it points along. Pointing out, its point touches the circle. Pointing in, its flat side does. The rule. Out means the fluid leaves the circle, so something drives the part and it is a pump, or for air a compressor. In means the fluid enters and turns it, so it is a motor. Solid means oil, and empty means air. The arrow, drawn across the circle, makes the part adjustable, so a pump's volume per turn can be changed. The part's name is written under it in words, and it changes the moment a switch changes. The three switches give one of eight names, from Hydraulic pump, fixed, to Air motor, variable. A Turn button rotates the built symbol a quarter-turn on each tap, and the name stays the same. A Cutaway switch, Gear or Piston, shows a sketch beside the symbol. Gear shows a gear pump: two meshing gears in a casing, carrying oil round the outside in the spaces between their teeth. Piston shows a piston pump: a ring of pistons in a turning barrel, pressing against a fixed tilted plate. The symbol under the sketch does not change. Lower down is a shelf of six finished symbols. A tank is an open-topped box. A double-acting cylinder is a long box with a piston and its rod. A filter is a diamond with a dashed line across it. A cooler is a diamond with a line across it and two arrowheads pointing out. An accumulator is an upright capsule. A pressure gauge is a circle with a pointer arrow across it. Beside them are six cards saying what each part does: holds the oil; pushes and pulls with its rod; cleans the oil; takes heat out of the oil; stores oil under pressure; shows the pressure. Drag a symbol onto its card: a right match sticks and names it, a wrong one slides back. It opens with the triangle out, solid, and no arrow, named Hydraulic pump, fixed. At phone width the switches and buttons wrap onto two rows, with no word split, the tray wraps onto two rows, and the shelf sits above its cards. Every label is at least 12 px and stays readable at 360 px. Screen by screen. Screen 1, do, typed, Still there?: a hydraulic jack, drawn as a small piston and a big one joined by oil. \"A jack's small piston has an area of 10 cm², and its big piston 200 cm². You push the small one down with 100 N. What load can the big one hold up?\" A typed answer: 2000, in N, a whole number. Slips: 5, \"That is the areas upside down. The big piston feels the bigger force.\"; 100, \"The pressure is the same on both pistons. The force is pressure times area, so the big one gets more.\"; 20, \"That is the areas' ratio. Multiply your push by it.\" Hint: \"Find the oil's pressure from the small piston, then use it on the big one.\" Why: 100 N on 10 cm² makes 10 N on every square centimetre. The oil carries that pressure to all 200 cm² of the big piston, so it holds up 2000 N. A right answer says \"Still there.\" After Check, the jack fades and the kit appears. Screen 2, show, Built from marks: the kit as it opens. Words: \"A fluid power symbol is built from a few marks, and each one means one thing. A circle is a machine that turns, and a solid triangle is oil, pointing the way it flows. Oil flowing out of the circle makes it a pump.\" The tray's marks light in turn, then the circle and the outward solid triangle join in the build area, named Hydraulic pump, fixed. Read: a circle and a solid triangle pointing out of it, named Hydraulic pump, fixed. Still: the end of the sweep. Screen 3, do, Flip it: the kit with the triangle pointing in. \"The triangle now points into the circle. What is the part?\" Choices: Hydraulic pump; Hydraulic motor (right); Air motor. Hint on Hydraulic pump: \"The triangle shows the way the oil goes. Here it flows into the circle.\" Hint on Air motor: \"The triangle is solid, so this part runs on oil.\" Why: oil flowing in turns the circle, so the part is a motor. In a pump the triangle's point touches the circle, and in a motor its flat side does. After Check, the Triangle switch flips Out and back In, and the name follows. Screen 4, show, Empty means air: the kit as it opens. Words: \"An empty triangle means air instead of oil. Pointing out, it makes a compressor, and pointing in, an air motor.\" Then \"Tap Fill to empty the triangle.\" Read: the Fill switch on Empty, and the empty triangle pointing out, named Air compressor, fixed. Still: Fill on Empty. Screen 5, do, typed, Count the air: a tray of five symbols, in a row that wraps at phone width: a hydraulic pump, an air motor, a hydraulic motor, an air compressor and a variable hydraulic pump. \"How many of these five parts run on air?\" A typed answer: 2, a whole number. Slips: 3, \"Pointing out means a pump. Oil or air is in the fill, so count the empty triangles.\"; 1, \"The air motor counts too. Its empty triangle points in.\" Hint: \"Only an empty triangle means air. Count those.\" Why: the air motor and the compressor have empty triangles. The other three have solid ones, so they run on oil. After Check, the two air parts are ringed. Screen 6, show, The adjusting arrow: the kit as it opens. Words: \"A slanted arrow across a part means it can be adjusted. Across a pump, it means the volume each turn delivers can be changed.\" Then \"Tap Arrow.\" Read: the Arrow switch on, the arrow across the circle, named Hydraulic pump, variable. Still: Arrow on. Screen 7, do, Build one: the kit as it opens. \"Which marks make an air motor you can adjust?\" Choices: Circle, empty triangle in, slanted arrow (right); Circle, solid triangle in, slanted arrow; Circle, empty triangle out, slanted arrow. Hint on the solid triangle: \"A solid triangle means oil. Air is drawn empty.\" Hint on the triangle out: \"Pointing out makes a compressor. A motor's triangle points in.\" Why: air is the empty triangle, a motor's triangle points in, and the arrow makes it adjustable. After Check, the kit is set to it, named Air motor, variable. Screen 8, show, Same symbol, any build: the kit as it opens, with the cutaway beside it. Words: \"The symbol says what a part does, not how it is built. A gear pump and a piston pump are nothing alike inside. If each delivers a fixed volume each turn, both take this one symbol.\" Then \"Switch the cutaway between Gear and Piston.\" Read: a gear pump's cutaway and a piston pump's, side by side, both above the same hydraulic pump symbol. Still: both cutaways shown. Screen 9, do, What it tells you: a lone hydraulic pump symbol, its outlet line drawn upward. \"What does this symbol tell you about the real pump?\" Choices: It is a gear pump; It pumps oil, a fixed volume each turn (right); Its outlet is on its top. Hint on It is a gear pump: \"A gear pump and a piston pump take the same symbol.\" Hint on Its outlet is on its top: \"A symbol shows what is joined, not where the ports sit on the part.\" Why: the solid triangle pointing out makes it a hydraulic pump, and no arrow means fixed. How it is built, and where its ports are, come from the part or its data sheet. After Check, the cutaway switches through both pumps under the one symbol. Screen 10, show, The rest of the kit: the shelf of finished symbols. Words: \"Other parts use the same marks. A diamond treats the fluid, and a dashed line across it makes a filter. A box with a piston and rod is a cylinder, and an open-topped box is the tank.\" Then \"Drag each symbol onto what it does.\" Read: the six finished symbols each matched to its card: tank, cylinder, filter, cooler, accumulator and pressure gauge. Still: all six matched. Screen 11, do, Turned on its side: two filters on one sheet, one upright and one turned on its side. \"These two symbols sit on one sheet. What are they?\" Choices: Two filters (right); A filter and a cooler; Two different parts, as they face different ways. Hint on A filter and a cooler: \"A cooler's diamond has arrowheads pointing out. Both of these have a dashed line across.\" Hint on Two different parts: \"Turning a symbol does not change what it is. Look at the marks inside.\" Why: both are diamonds with a dashed line across, so both are filters. Most symbols mean the same however they are turned on the sheet. After Check, Turn rotates the second to match the first. Screen 12, do, mixed, Read the power unit: a small power unit: a tank, a filter, an electric motor joined by a shaft to a circle with a solid triangle pointing out and a slanted arrow across it, and a pressure gauge. \"What is the circle the electric motor drives?\" Choices: A fixed hydraulic pump; A variable hydraulic pump (right); A variable air compressor; A variable hydraulic motor. Hint on A fixed hydraulic pump: \"Look across the circle. The slanted arrow means it can be adjusted.\" Hint on A variable air compressor: \"The triangle is solid, so it pumps oil.\" Hint on A variable hydraulic motor: \"The triangle points out. Oil leaves this circle.\" Why: solid means oil, out means it pumps, and the arrow makes it adjustable. So the electric motor drives a variable hydraulic pump. After Check, each mark of the pump lights in turn. Screen 13, do, mixed, typed, Count the pumps: one sheet with five circles: an electric motor, a fixed hydraulic pump drawn upright, a variable hydraulic pump turned on its side, a hydraulic motor and a pressure gauge. \"How many of the circles on this sheet are pumps?\" A typed answer: 2, a whole number. Slips: 1, \"The pump turned on its side still counts. Turning a symbol does not change it.\"; 3, \"One of your three is not a pump. The circle with M moves no oil, and a motor's triangle points in.\"; 4, \"Only a circle with a triangle pointing out is a pump. A gauge has a pointer, not a triangle.\"; 5, \"The circle with M is an electric motor, and the gauge has no triangle at all.\" Hint: \"Count only the circles with a triangle pointing out.\" Why: the upright pump and the pump on its side have triangles pointing out. The hydraulic motor's points in, and the electric motor and the gauge have none. So 2 are pumps. After Check, the two pumps are ringed.",
+  "ignores": "The kit holds only a few of the marks in use. Real symbols add more, such as a curved arrow for a shaft's turning direction, two triangles for a part that runs both ways, and a dashed box round parts built as one unit. The cutaways are simple sketches, not to scale, and a real piston pump has more parts. The switches give each name in two words, fixed or variable, and real data sheets say much more. Makers and older standards draw a few symbols a little differently, so a sheet's own legend wins where it differs.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Names the three switches give, 2 × 2 × 2",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Finished symbols on the shelf",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: small piston's area, in cm²",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: big piston's area, in cm²",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: push on the small piston, in N",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: oil pressure, 100 ÷ 10, in N per cm²",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1: load held up, 10 × 200, in N",
+    "value": 2000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slip, areas upside down, 100 × 10 ÷ 200, in N",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slip, the push itself, in N",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slip, the areas' ratio, 200 ÷ 10",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5: symbols on the tray",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5: parts that run on air",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, triangles pointing out",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, the compressor only",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: circles on the sheet",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13: pumps on the sheet",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, the turned pump missed",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, one circle wrongly counted",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, every circle with a mark inside",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, every circle",
+    "value": 5,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A fluid power symbol is built from a few simple marks, and each mark means one thing. So you read a symbol mark by mark, and you can name a part you have never seen drawn. Hydraulic and air diagrams share the same marks, so one skill reads both.\n\nStart with the circle. On its own it is a machine that turns, such as a pump or a motor. A triangle inside it, against one of its lines, is an arrowhead for the flow. A solid triangle means oil, and an empty one means air. If the triangle points out along a line, the fluid leaves the circle there. Something drives the shaft and pushes the fluid out, so the part is a pump. If it points in, the fluid enters and turns the shaft, so the part is a motor. In a pump the point of the triangle touches the circle, and in a motor the tail does.[^1] An air pump is called a compressor, so an empty triangle pointing out is a compressor. A slanted arrow across the circle means the part can be adjusted. On a pump, it means the volume of fluid each turn delivers can be changed. That volume is the pump's [[displacement]]. So three marks on the circle, each drawn one of two ways, name eight different machines.\n\nThe lines and other shapes work the same way. A solid line is a [[working line]], carrying the main flow. A dashed line is a [[pilot line]] or a drain. A pilot line carries a small flow that signals or moves another part, and a drain carries leakage back to the tank. A zigzag is a spring. A diamond is a part that treats the fluid, and a dashed line across it makes a filter. A long box with a piston and its rod is a cylinder. A square is one position of a valve.\n\nA symbol shows what a part does, not how it is built.[^2] You trace a circuit by what each part does to the flow, so the build would only crowd the sheet. A gear pump and a piston pump are nothing alike inside. If each delivers a fixed volume each turn, both take the same symbol. Nor does a symbol show where the ports sit on the real part, or which way up it is fitted. Most symbols mean the same however they are turned on the sheet. So the nameplate or data sheet tells you how a part is built, and the symbol tells you its job. **Each mark in a fluid power symbol means one thing, so you can read a symbol you have never met, mark by mark, as what the part does.**"
+ },
+ "analogy": {
+  "text": "You already read electrical symbols this way. A resistor with a slanted arrow across it is a variable resistor. A diode with two small arrows pointing away from it is an LED, giving out light. Each added mark changes one thing about the part. Fluid power symbols work the same, and the slanted arrow even means the same, adjustable.",
+  "breaks": "The same shape can mean different things on the two kinds of sheet. On a circuit diagram a circle with a cross is a lamp. On a fluid power sheet a circle with a triangle is a pump or a motor. So check which kind of sheet you hold before you read its marks."
+ },
+ "practice": {
+  "text": "- A symbol never tells you whether a line holds pressure now. An accumulator can hold oil under pressure with the pump stopped. Isolate, vent and prove the pressure gone by the plant's procedure before you open anything.\n- Check the sheet's legend first. Where it differs from what you expect, the legend wins.\n- Find the main shape. A circle turns, a diamond treats the fluid, a long box is a cylinder, and a square is a valve position.\n- Read the marks one at a time. Solid triangle or empty, pointing out or in, arrow or none, spring or none.\n- Put the meanings together into a name, such as variable hydraulic pump.\n- For how the part is built, read its nameplate or data sheet, not the symbol.\n- Find it on the plant by its tag, never by its look or where it sits.\n\n**Rule of thumb:** triangle out, a pump. Triangle in, a motor. Empty, air. Arrow across, adjustable.\n\n**Worked example:** a power unit shows a circle with M, joined by a shaft to a second circle. The second circle has a solid triangle pointing out and a slanted arrow across it. The circle with M is an electric motor. The second circle is a machine that turns. Its solid triangle means oil, and pointing out means the oil leaves it, so it is a pump. The arrow means it can be adjusted. So an electric motor drives a variable hydraulic pump. The symbol does not say whether it is a piston pump or another kind. The nameplate does.\n\n**Common mistakes**\n- Reading the triangle's direction backwards, and taking a pump for a motor.\n- Taking an empty triangle for oil. Empty means air.\n- Missing the slanted arrow, and reading a variable pump as fixed.\n- Reading the symbol as the part's shape, or as where its ports sit.\n- Taking a symbol turned on its side for a different part.\n- Taking the circle with M, the electric motor, for a pump."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93)",
+   "url": "https://www.online-pdh.com/file.php/221/CFD_SG.pdf",
+   "quote": "The difference between them is that the point of the arrow touches the circle in a pump and the tail of the arrow touches the circle in a motor."
+  },
+  {
+   "n": 2,
+   "title": "Hydraulics Basic Principles - Bosch",
+   "url": "https://dc-mkt-prod.cloud.bosch.tech/xrm/media/global/training_1/digital_media/reference_books/knowledge-in-detail-hydraulics-basic-principles.pdf",
+   "quote": "Graphic symbols of hydraulics do not provide information about the design structure of the components."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,36 @@
+{
+  "draft": "i2.lesson.draft1.txt",
+  "validator": "draft 1 passed with no hard problems, no soft problems and no warnings. The faults below are the critic's.",
+  "keep": [
+    "The idea is named in two plain sentences up front: a single-line diagram is a board's power map, read from each source down to each load, asking which closed paths join each load to a source.",
+    "Thirteen screens: the recall opener (1, synchronise before the bus-tie closes, 'Still there.'), then SHOW 2, 4, 6, 8, 10 alternating with DO 3, 5, 7, 9, 11, ending with two mixed puzzles (12, 13).",
+    "Each lesson 2 misconception in the brief has a DO screen and its own hint: the breaker the drawing names isolated and the second feed missed (11), the normally open bus-tie forgotten (9), the battery missed as a source (3, 7, 12), a transformer taken as the end of the line (5), a whole section opened to kill one load (11, 13).",
+    "The three count puzzles (3, 5, 12) are typed whole numbers, each wrong count a slip with the hint that names its mistake. The others choose between named sources or devices, or answer yes or no, so they stay as options.",
+    "Isolate mode carries the isolating question: the load dead, every way in locked, and every other load taken off listed in red. Screen 13's wrong choices show both failures on the board: -A3 still live from the battery, or -E3 in red.",
+    "The interlock between -Q13 and -Q23 and the synchronise card keep the board honest: it never lets him parallel two live sets or two feeds.",
+    "The analogy is from his trade: the dual supply warning on a house with solar panels."
+  ],
+  "fix": [
+    "False absolute, and a safety fault: 'A normally open part does nothing until it closes' (explain, screen 9 Why) reads as if the open breaker were dead. Its supply side stays live. Say it carries nothing to the far side until it closes, though its supply side stays live.",
+    "False absolute: 'Each line stands for all three phases of its cable' (screen 2) is false on the DC board's lines. Narrow it to the AC side, and in explain to a three-phase system.",
+    "Unsourced general claim: 'A bus-tie ... is often kept normally open' and 'Some breakers are drawn open because they are open in normal running' have no source among this idea's. Say it of the example board: this drawing marks -Q4 and -Q23 N.O. because they stay open in normal running.",
+    "Causal step skipped: explain never says why a bus-tie between two live sections cannot just close. Add one sentence: with both sections live from different sets, the sets are synchronised before the tie closes.",
+    "Causal step skipped: explain names the alternate feed but not the interlock, so 'opening -Q13 frees -Q23' in practice arrives without its reason. Say in explain that an interlock lets only one close, so opening the normal feed is exactly what lets the alternate close.",
+    "Words of time: 'a running source' does not fit the battery or the shore supply. Say 'a live source'.",
+    "Promise: 'Then nothing that must keep running goes dead with it' is a promise the method cannot always keep. Say that the loads that must keep running stay on, as far as the board allows.",
+    "Unreadable labels risk: nineteen tagged devices on a 340 px sheet. Say how it fits: drawn tall, three feeders under each section, the two small boards beneath, tags at least 12 px and each device a tap target about 40 px.",
+    "Screen 12's question says '-G2 trips and -Q2 opens', two events for one. Say 'Breaker -Q2 trips open'.",
+    "The analogy chains two clauses on a colon and says the panels are a source without the why. Split it, and say they make power whenever light falls on them, so the main switch alone does not make every part dead.",
+    "The brief's one line on insulated systems is missing: a closed tie joins two insulated sections into one system. Add it to practice, as one bullet.",
+    "The brief's DO on one line as one wire was dropped: it tests recall of Dan's own trade (three-phase), one of the seven faults. The rule is stated on screen 2, in explain and as a common mistake, and screen 3 spends that DO on counting the sources, the first step of the reading order. Kept as a deliberate change."
+  ],
+  "shape": {
+    "named up front": "yes",
+    "rule in words": "yes: a load has supply while an unbroken path of closed breakers joins it to a live source",
+    "worked example with real numbers": "yes: -Q12 opens, both loads on the 115 V board lose supply; practice works pump -M3's isolation",
+    "misconception shown failing": "yes: -Q13 alone locked leaves -Q23 free to close (screen 11, practice)",
+    "analogy from his trade, with where it breaks": "yes: the dual supply warning",
+    "put it into practice": "yes: safe way first, steps, a rule of thumb, a worked example, common mistakes",
+    "recap he could say back": "yes: the bold closing sentence"
+  }
+}

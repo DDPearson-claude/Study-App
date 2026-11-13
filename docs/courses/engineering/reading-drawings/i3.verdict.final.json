@@ -1,0 +1,159 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Opening with the tank full: -B1 is closed, so -K1 is in and both pumps are stopped. -B1 and the three contacts of -K1 are not as drawn, which makes 4, and 0 pumps run",
+        "ok": true
+      },
+      {
+        "label": "Each coil's table lists the paths of its contacts, normally open on the left: -K1 2, 4 then 8; -Q1 3, 6 then 4; -Q2 5, 7 then 2",
+        "ok": true
+      },
+      {
+        "label": "Start 1 pressed and let go: -Q1 stays in through its latching contact in path 3. Stop drops it out. With -F1 tripped, or the tank low, Start 1 cannot pull it in, and the tank going low stops a running pump",
+        "ok": true
+      },
+      {
+        "label": "The interlock: with -Q1 in, Start 2 changes nothing. Once -F1 trips, -Q1 drops out and Start 2 starts the standby pump. With -Q2 in, Start 1 changes nothing",
+        "ok": true
+      },
+      {
+        "label": "Worked by hand: the -Q2 contact in path 2 has its coil in path 4 (slips 2, 1 and 5); -Q1 pulling in changes 3 contacts (slips 2, 1 and 4); with the duty pump running, 7 contacts are not as drawn (slips 6, 4, 3 and 8); the typed fields ask exactly these",
+        "ok": true
+      },
+      {
+        "label": "A normally closed contact is drawn closed even if its coil is energised and the contact is open: -K1's contact in path 8 is drawn closed, and with the tank full it is open",
+        "ok": true,
+        "source": "https://electrician.wiki/reference/electrical-symbols"
+      },
+      {
+        "label": "A coil and its contacts may sit in different rungs, matched by reference designation and cross-reference: every contact of -K1, -Q1 and -Q2 sits in another path from its coil, and its path is in that coil's table",
+        "ok": true,
+        "source": "https://viox.com/electrical-symbols-chart"
+      },
+      {
+        "label": "Before an answer nothing gives it away: each puzzle opens with nothing picked out but its marked contact, Contacts not as drawn is hidden before screen 6, and the two drawn-state puzzles show every contact as drawn with that readout as ?",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.5 s of its screen opening, and every answer's motion within 3 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [
+      "notAsDrawn",
+      "pumpsRunning"
+    ],
+    "outputs": [
+      "notAsDrawn",
+      "pumpsRunning"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "Coils and contacts apart",
+          "Find the coil",
+          "The cross-reference",
+          "One coil pulls in",
+          "Drawn at rest",
+          "Drawn closed",
+          "Series and parallel",
+          "Start the standby",
+          "The US ladder",
+          "The circle on rung 2",
+          "A trip",
+          "Not as drawn"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "IEC",
+      "US ladder",
+      "Start 1",
+      "Start 2",
+      "Stop",
+      "Trip -F1",
+      "Tank low",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "coilpath",
+        "answer": 4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "pulls",
+        "answer": 3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "notdrawn",
+        "answer": 7,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"NO\" and \"NC\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 46 more settings) [at 340 px wide]",
+      "SVG labels \"NO\" and \"NC\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 50 more settings) [at 340 px wide]",
+      "SVG labels \"NO\" and \"NC\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 34 more settings) [at 720 px wide]",
+      "SVG labels \"NO\" and \"NC\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 36 more settings) [at 720 px wide]",
+      "SVG labels \"-P3\" and \"Tank low\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 34 more settings) [at 1040 px wide]",
+      "SVG labels \"8\" and \"NC\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 10, and 1 more setting) [at 1040 px wide]",
+      "SVG labels \"4\" and \"NC\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 10, and 1 more setting) [at 1040 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

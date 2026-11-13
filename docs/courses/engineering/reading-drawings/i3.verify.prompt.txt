@@ -1,0 +1,247 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Reading drawings and schematics
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "Control schematics: coils, contacts and cross-references" — A control schematic draws each contact apart from the coil that moves it; the cross-reference under each coil finds its contacts, wherever they are drawn. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 Fluid power symbols — Hydraulic and air symbols are built from simple marks that each mean one thing, so you can read one you have never met.
+- i5 Valves in fluid power — A valve that steers oil or air is drawn as one box per position, and only the box against the ports shows where it flows.
+- i6 Tracing a hydraulic circuit, then a pneumatic one — For each valve position, trace the supply to one side of a cylinder, and the other side out to the tank or, in air, the exhaust.
+- i7 Piping and system diagrams — On a piping diagram, flow runs only along open paths from a running pump, so you can find which valves to shut to isolate a part.
+- i8 Engineering drawings — An engineering drawing shows one object in several square-on views, laid out by a fixed rule, so you can rebuild its shape in your head.
+- i9 Reading one you have never seen — Read a diagram you have never seen in four steps: legend, sources, the state it is drawn in, then one path at a time.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Electrical Symbols Chart: ANSI vs IEC Industrial Control Symbols — https://viox.com/electrical-symbols-chart
+    "The coil and its contacts may appear on different pages or in different ladder-diagram rungs. Match them using the reference designation and cross-reference information. Do not assume two similarly shaped coils belong to the same device."
+[R2] Electrical Symbols: US (ANSI/IEEE) vs IEC Chart — https://electrician.wiki/reference/electrical-symbols
+    "A normally closed contact is drawn closed even if, in normal running, its coil is energized and the contact is open."
+[R3] Circuit symbols - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/znm6nk7
+    "It doesn't show what the circuit actually looks like, or how long all the connections are."
+[R4] Students’ Creation and Interpretation of Circuit Diagrams — https://ejrsme.icrsme.com/article/download/7775/5542
+    "Students must also realize that lines that simply cross (as in the center of the diagram on the left) do not indicate an electrical connection unless they are marked with a small circle."
+[R5] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) — https://www.online-pdh.com/file.php/221/CFD_SG.pdf
+    "Schematics are designed to supply the functional information of the system. They do not accurately represent the relative location of the components."
+[R6] Fail-safe Design | Ladder Logic | Electronics Textbook — https://www.allaboutcircuits.com/textbook/digital/chpt-6/fail-safe-design
+    "We already know that an open failure in the wiring or solenoid coil is more likely than a short or any other type of failure, so we should design this system to be in its safest mode with the solenoid de-energized."
+[R7] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) — https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy
+    "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+Notes (claims, and the sources that support them):
+- A coil and its contacts may appear on different pages or rungs, so they are matched by reference designation and cross-reference information. [R1]
+- A normally closed contact is drawn closed even when, in normal running, its coil is energised and the contact is open. [R2]
+- A circuit diagram does not show what a circuit actually looks like, or how long its connections are. [R3]  (from an idea this one builds on)
+- Lines that simply cross do not show an electrical connection unless they are marked with a small circle. [R4]  (from an idea this one builds on)
+- A schematic supplies the functional information of a system, not the relative location of its components. [R5]  (from an idea this one builds on)
+- An open failure in the wiring or a solenoid coil is the likeliest fault, so a system should be designed to be in its safest mode with the solenoid de-energised. [R6]  (from an idea this one builds on)
+- A schematic gives the functional information of a system and does not accurately show where its components are. [R5]  (whole topic)
+- Each symbol on a fluid power diagram is drawn to show the normal or neutral condition of its component, unless several diagrams show other phases. [R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "Control schematics: coils, contacts and cross-references",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is a contact paths away from its coil change state the moment that coil pulls in, while its faint drawn copy stays put, when you press Start or Tank low.",
+  "title": "The pump starter sheet, live",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "notAsDrawn",
+    "label": "Contacts not as drawn",
+    "unit": "",
+    "decimals": 0
+   },
+   {
+    "id": "pumpsRunning",
+    "label": "Pumps running",
+    "unit": "",
+    "decimals": 0
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Some screens show an idea and the rest ask you to try it. The main picture is the control schematic of two pump starters on one sheet, drawn the IEC way. Duty pump -M1 runs on contactor -Q1, and standby pump -M2 on contactor -Q2. This sheet holds only the control circuit. The pumps and the contactors' main contacts are on the power sheet, which is not drawn. The control supply runs along the top as a line marked L, and the return along the bottom, marked N. Between them stand eight current paths, numbered 1 to 8 along the top. Path 1: level switch -B1, then the coil of level relay -K1. On this sheet -B1 is drawn open, and a tank filled above its low mark holds it closed. Path 2: Stop button -S0, normally closed, then Start 1 -S1, normally open, then a normally open contact of -K1, a normally closed contact of -Q2, the normally closed contact of overload -F1, and the coil of -Q1. Path 3: a normally open contact of -Q1, its latching contact, joined across -S1. Path 4: fed from just below -S0, Start 2 -S2, normally open, then a normally open contact of -K1, a normally closed contact of -Q1, the normally closed contact of overload -F2, and the coil of -Q2. Path 5: a normally open contact of -Q2, its latching contact, joined across -S2. Path 6: a normally open contact of -Q1 and lamp -P1, Duty running. Path 7: a normally open contact of -Q2 and lamp -P2, Standby running. Path 8: a normally closed contact of -K1 and lamp -P3, Tank low. Each coil is a rectangle with its tag beside it, and every contact carries the tag of the device that moves it. Under each coil is a small cross-reference table with two columns: the paths of its normally open contacts on the left, and of its normally closed ones on the right. Under -K1 it reads 2, 4 and then 8. Under -Q1 it reads 3, 6 and then 4. Under -Q2 it reads 5, 7 and then 2. Every contact is drawn twice. A faint copy shows its drawn state, with every coil de-energised and no button pressed. Over it, in bold ink, the contact shows its present state. An energised coil is drawn bold with a soft glow, and a lit lamp glows. Five buttons sit above the sheet: Start 1, Start 2, Stop, Trip -F1 and Tank low. At phone width they wrap onto two rows, with no word split. Start 1, Start 2 and Stop act while pressed and spring back. Trip -F1 opens -F1's contact until it is tapped again, as a reset. Tank low opens -B1 until it is tapped again, as the tank refilling. The rule. A coil is energised while an unbroken run of closed contacts joins it to both L and N. A normally open contact is closed while its coil is energised, and a normally closed one is open while its coil is energised. Otherwise each sits as drawn. The circuit is solved again after every press, so a latching contact holds its coil in after Start springs back. Tap any contact of -K1, -Q1 or -Q2: its coil lights with a ring, a thin line joins the contact to the coil, and the coil's table marks the contact's path. Tap a button, -B1 or an overload contact instead, and a small card says what moves it: a hand, the tank's level, or heat from the pump's current on the power sheet. The readout Contacts not as drawn counts the contacts, buttons and switches included, whose present state differs from their drawn state. The readout Pumps running counts the energised contactors. It opens with the tank full, so -B1 is closed and -K1 is in, and both pumps are stopped. Contacts not as drawn reads 4, and Pumps running reads 0. A Sheet switch above the buttons, IEC or US ladder, redraws the same circuit as eight horizontal rungs between two upright rails, numbered down the left. There each coil is a circle at the right end of its rung, tagged CR1 for -K1, M1 for -Q1 and M2 for -Q2. A contact is two short parallel lines, with a slash across a normally closed one, tagged with its coil's name. The overload contacts are tagged OL1 and OL2, and each lamp is a small circle with short rays. The rung numbers of each coil's contacts are written beside it, with normally closed ones marked NC. At phone width the paths are drawn tall, about 40 px apart, and the coil tables sit in a row under the coils. Every tag is at least 12 px and stays readable at 360 px, and each contact is a tap target about 40 px across. Screen by screen. Screen 1, do, Still there?: the sheet as it opens. \"You press Start on a DOL starter and let go. What keeps the contactor in?\" Choices: The Start button stays down; A contact of the contactor itself, across Start (right); The overload's contact. Hint on The Start button stays down: \"Start springs back the moment you let go. Something else carries the coil's current.\" Hint on The overload's contact: \"The overload's contact is closed whether the contactor is in or not. Look across Start.\" Why: pulling in closes the contactor's own latching contact. It is wired across Start, so it keeps the coil fed after Start springs back. A right answer says \"Still there.\" After Check, -Q1's contact in path 3 is ringed. Screen 2, show, Coils and contacts apart: the sheet as it opens. Words: \"A control schematic draws a circuit as numbered current paths, from the supply at the top to the return at the bottom. Each coil sits in one path. Its contacts sit wherever they do their work, each carrying the coil's tag.\" The path numbers light 1 to 8 in turn, then coil -Q1 glows with its three contacts, in paths 3, 4 and 6. Read: coil -Q1 in path 2 and its three contacts, in paths 3, 4 and 6, are picked out together. Still: the end of the sweep. Screen 3, do, typed, Find the coil: the sheet as it opens, with the -Q2 contact in path 2 marked. \"The contact marked in path 2 is tagged -Q2. In which path is the coil that moves it?\" A typed answer: 4, a whole number. Slips: 2, \"That is where the contact sits. Its coil is drawn in another path.\"; 1, \"-K1's coil looks the same, but its tag is different. Find the coil tagged -Q2.\"; 5, \"Path 5 holds another -Q2 contact. Find the coil itself, a rectangle.\" Hint: \"Look along the bottom of the sheet for the coil tagged -Q2.\" Why: a contact belongs to the coil whose tag it carries. Coil -Q2 sits in path 4, so the contact in path 2 opens whenever -Q2 pulls in. After Check, the contact is tapped for him: coil -Q2 lights and a line joins them. Screen 4, show, The cross-reference: the sheet as it opens. Words: \"Under each coil on this sheet, its cross-reference lists the paths where its contacts sit. Normally open ones are on the left and normally closed ones on the right.\" Then \"Tap any contact to find its coil.\" Read: tapping -K1's contact in path 8 lights coil -K1 in path 1. Its table reads 2, 4 and then 8, and marks path 8. Still: -K1's contact in path 8 tapped. Screen 5, do, typed, One coil pulls in: the sheet as it opens. \"Contactor -Q1 pulls in. How many contacts on this sheet change state?\" A typed answer: 3, a whole number. Slips: 2, \"The contact in path 4 is normally closed. It changes too, from closed to open.\"; 1, \"Count every path in -Q1's table, in both columns.\" Hint: \"Read the cross-reference under coil -Q1. Every contact it lists changes when the coil pulls in.\" Why: the table lists all three of -Q1's contacts on this sheet. Paths 3 and 6 close and path 4 opens, all at once. After Check, Start 1 is pressed for him: -Q1 pulls in and its three contacts redraw. Screen 6, show, Drawn at rest: the sheet as it opens. Words: \"Each contact on this sheet is drawn at rest, with every coil de-energised and no button pressed. In bold, each contact here shows what it is doing now, over a faint copy of how it is drawn. With the tank full, -K1 is in, so its contacts already differ from the drawing.\" -B1 and -K1's three contacts are ringed in turn. Contacts not as drawn reads 4. Screen 7, do, Drawn closed: the sheet as it opens, with -K1's contact in path 8 marked. \"-K1's contact in path 8 is drawn closed. With the tank full, is it closed now?\" Choices: Yes, it is drawn closed; No, it is open (right). Hint on Yes: \"The drawing shows it at rest. Is its coil at rest?\" Why: the full tank holds -B1 closed, so coil -K1 is energised. A normally closed contact is open while its coil is in. So path 8 is open and the Tank low lamp is dark. After Check, path 8's contact is ringed, bold and open over its faint closed copy. Screen 8, show, Series and parallel: the sheet as it opens. Words: \"Contacts one after another in a path are in series, so any one opening drops the coil out. The latching contact in path 3 is in parallel with Start 1, so it holds -Q1 in after Start springs back.\" Then \"Press Start 1, then Trip -F1.\" Read: Start 1 has pulled -Q1 in and its latching contact has held it, then -F1 has opened and -Q1 has dropped out, with its three contacts back as drawn. Still: Start 1 pressed, then -F1 tripped. Screen 9, do, Start the standby: -M1 running and the tank full. \"Pump -M1 runs. You press Start 2. What happens?\" Choices: -M2 starts as well; Nothing happens (right); -M1 stops and -M2 starts. Hint on -M2 starts as well: \"Follow path 4 from Start 2 down to coil -Q2. Is every contact closed?\" Hint on -M1 stops and -M2 starts: \"Start 2 sits in path 4 only. Nothing in path 2 moves when you press it.\" Why: -Q1 is in, so its normally closed contact in path 4 is open. Path 4 cannot reach coil -Q2, whatever Start 2 does. That is the interlock, read off the sheet. After Check, Start 2 is pressed and nothing changes. Screen 10, show, The US ladder: the sheet as it opens. Words: \"A US ladder draws the same circuit sideways, as rungs between two rails. Each coil is a circle, here CR1, M1 and M2, and each contact carries its coil's tag.\" Then \"Switch the sheet to US ladder.\" Read: the same circuit as eight rungs, with coils CR1, M1 and M2 as circles at the right and each contact tagged with its coil. Still: the Sheet switch on US ladder. Screen 11, do, The circle on rung 2: the US ladder, as it opens. \"On the US ladder, what is the circle tagged M1 at the end of rung 2?\" Choices: The duty pump's motor; The Duty running lamp; The coil of contactor -Q1 (right). Hint on The duty pump's motor: \"A control sheet shows what switches the motor. The motor is on the power sheet.\" Hint on The Duty running lamp: \"A lamp has short rays, and it sits on rung 6.\" Why: in the US form, a coil is drawn as a circle. M1 is the coil of -Q1, the starter for the duty pump. Its contacts on rungs 3, 4 and 6 carry the tag M1. Screen 12, do, mixed, A trip: the IEC sheet, -M1 running and the tank full. \"-F1 trips while -M1 runs. Which pump can you start now?\" Choices: Neither; Only -M1; Only -M2 (right); Both. Hint on Neither: \"-Q1 has dropped out, so its contact in path 4 has closed again.\" Hint on Only -M1: \"-F1's contact is in -Q1's own path, and it stays open until it is reset.\" Hint on Both: \"-M2 can start now. Can path 2 reach coil -Q1 with -F1 open?\" Why: -F1 opening breaks path 2, so -Q1 drops out. Its normally closed contact in path 4 closes again, so path 4 now waits only for Start 2. -M1 cannot restart until -F1 is reset. After Check, -F1 trips, Start 2 is pressed for him and -M2 runs. Screen 13, do, mixed, typed, Not as drawn: the IEC sheet, -M1 running and the tank full. \"Pump -M1 runs with the tank full. How many contacts on the sheet are not in their drawn state?\" A typed answer: 7, a whole number. Slips: 6, \"-B1 counts too. It is drawn open, and the full tank holds it closed.\"; 4, \"-Q1 is in, and all three of its contacts have changed.\"; 3, \"Two coils are in, -K1 and -Q1. Count both tables, and -B1.\"; 8, \"Stop -S0 is drawn closed, and it is closed now. It changes only while pressed.\" Hint: \"Count -B1, then every contact in the table of each coil that is in.\" Why: -B1 is closed, though drawn open. -K1 and -Q1 are both in, and each has three contacts on this sheet. So 1 + 3 + 3 makes 7 contacts not as drawn. Contacts not as drawn shows ? until the answer is checked, then 7.",
+  "ignores": "The sheet has far fewer parts than a real starter panel, and only the control circuit is drawn. A contact here changes the instant its coil pulls in or drops out, with no bounce or delay. The overload trips from a button, not from heat, and the level switch opens from a button, not a float. -B1 is drawn open as this example's choice. The cross-reference table is one simple layout. Real sheets set it out in several ways, and often point to contacts on other sheets by sheet and path. The tags are names on this sheet only. Their letters have meanings in the standards that this lesson does not teach.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Current paths on the sheet",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pumps on the sheet",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Opening state: contacts not as drawn",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Opening state: pumps running",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3: path holding coil -Q2",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip, the contact's own path",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip, coil -K1's path",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip, the other -Q2 contact's path",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5: contacts that change when -Q1 pulls in",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, normally open contacts only",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, one contact only",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: contacts not as drawn with -M1 running",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, -B1 missed",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, -Q1's contacts missed",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, one coil's contacts only",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip, Stop counted",
+    "value": 8,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A control schematic draws each coil in one place, and each of its contacts where that contact does its work. A contact belongs to the coil whose tag it carries, however far apart the two are drawn. So you find a contact's coil by its tag, and a coil's contacts by the coil's [[cross-reference]].\n\nThe sheet draws the circuit as [[current path]]s, each a line from the control supply at the top to the return at the bottom. The paths are numbered along the top. A coil is energised while an unbroken run of closed contacts joins it to both lines. Each coil usually sits in its own path, and each contact is drawn in the path it switches. That way each path reads top to bottom as one circuit, with everything that can stop its coil in it. On the example sheet, coil -Q1 sits in path 2. Its latching contact is in path 3, its run lamp's contact in path 6, and a contact that blocks the standby pump in path 4. A coil's contacts can even sit on another sheet. You match them by tag and by the cross-reference, never by how alike two coils look.[^1] On this sheet the cross-reference is a short table of paths under each coil, normally open contacts first, then normally closed. Under -Q1 it reads 3 and 6, then 4. When -Q1 pulls in, all three change at once. Paths 3 and 6 close, and path 4 opens. A US ladder draws the same circuit sideways, in rungs, with each coil a circle and each contact carrying its coil's tag.\n\nUnless the sheet says otherwise, each contact is drawn in its drawn state, with its coil de-energised and no button pressed. So a normally closed contact is drawn closed even while its coil is energised and the contact is open.[^2] On the example sheet, a full tank holds level switch -B1 closed, so relay -K1 is in. Its normally closed contact in path 8 is drawn closed, but it is open, and the Tank low lamp is dark. To know what a contact is doing now, find its coil and ask whether that coil is in. Then each path reads as series and parallel, like any circuit you know.\n\n**A contact belongs to the coil whose tag it carries, wherever it is drawn, and it is drawn at rest, so its coil tells you what it is doing now.**"
+ },
+ "analogy": {
+  "text": "You know this from a lighting contactor in a distribution board, switched by a time switch or a photocell. Its coil is wired from the control side, and its main contacts switch circuits that may run to the far end of the building. You find which circuits it switches by its label and the circuit chart, never by where the lights are. A control schematic works the same way. Each contact belongs to the coil whose tag it carries.",
+  "breaks": "In a board, the coil and its contacts sit in one box you can see. On a schematic they can be paths or sheets apart, and only the tag and the cross-reference join them. And the schematic shows every contact at rest, not as the time switch has it now."
+ },
+ "practice": {
+  "text": "- Isolate, lock off and prove dead as you always do. A schematic shows how a circuit works, never that it is dead.\n- Find where the sheet's supply lines come from. A control circuit can be fed from somewhere other than the motor's own feed.\n- For a contact you are puzzling over, read its tag, then find the coil with that tag. Never go by the nearest coil, or one that looks the same.\n- For a coil, read its cross-reference. Visit every path it lists, in both columns.\n- Remember each contact is drawn at rest, unless the sheet says otherwise. For each one, ask whether its coil is in now. If it is, the contact has changed over.\n- Then read each path as series and parallel. Contacts in series must all be closed for the coil to pull in. A contact across a button holds the coil in.\n- In the panel, check that each device carries the tag the sheet gives it.\n\n**Rule of thumb:** a contact does what its own coil tells it, not what its neighbours on the sheet do.\n\n**Worked example:** why won't standby pump -M2 start while -M1 runs? Coil -Q2 sits in path 4, so every contact in path 4 must be closed for it to pull in. Path 4 holds a normally closed contact tagged -Q1. Coil -Q1 is in, because -M1 runs, so that contact is open. That is the interlock doing its job. Stop -M1, and -Q2 can pull in.\n\n**Common mistakes**\n- Looking for a coil's contacts next to it. They sit wherever they do their work.\n- Matching a contact to the nearest coil, or to one that looks the same, instead of by its tag.\n- Reading the drawing as the plant's present state. It shows the contacts at rest.\n- Forgetting the normally closed contacts. When a coil pulls in, they open.\n- Taking a US coil, a circle, for the motor or a lamp."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Electrical Symbols Chart: ANSI vs IEC Industrial Control Symbols",
+   "url": "https://viox.com/electrical-symbols-chart",
+   "quote": "The coil and its contacts may appear on different pages or in different ladder-diagram rungs. Match them using the reference designation and cross-reference information. Do not assume two similarly shaped coils belong to the same device."
+  },
+  {
+   "n": 2,
+   "title": "Electrical Symbols: US (ANSI/IEEE) vs IEC Chart",
+   "url": "https://electrician.wiki/reference/electrical-symbols",
+   "quote": "A normally closed contact is drawn closed even if, in normal running, its coil is energized and the contact is open."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

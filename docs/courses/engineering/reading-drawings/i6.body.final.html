@@ -1,0 +1,953 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 60rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + *, .side > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 14px 24px; align-items: start; }
+  .pane, .side { margin: 0; min-width: 0; }
+  .pane > * + * { margin-top: 12px; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 26rem; margin-inline: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  /* The switches: groups that wrap, so the solenoids and Stop take two rows on a phone. */
+  .ctl { display: flex; flex-wrap: wrap; gap: 10px 12px; max-width: 30rem; margin-inline: auto; transition: opacity .45s ease-out; }
+  .ctl.enter { animation: screen-in .35s ease-out both; }
+  html.k-testing .ctl { transition: none; animation: none; }
+  @media (prefers-reduced-motion: reduce) { .ctl { transition: none; animation: none; } }
+  .sw { flex: 1 1 8rem; min-width: 0; }
+  .sw.two { flex: 2 1 14rem; }
+  .sw.wide { flex: 1 1 100%; }
+  .sw .k-label { display: block; margin: 0 0 4px; }
+  .sw .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sw .k-btn { flex: 1 1 3.5rem; min-height: 44px; white-space: nowrap; padding-inline: 8px; }
+  .sw .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"], .order .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #airouts { max-width: 30rem; margin-inline: auto; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row .k-btn { min-height: 44px; }
+  .nav .k-btn, .acts .k-btn, .done .k-btn { flex: 1 1 8rem; }
+  .tools .k-btn { flex: 0 1 auto; padding-inline: 16px; }
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn .opt { text-align: center; }
+  .order { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; }
+  .order .k-btn { min-height: 48px; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+
+  /* The drawings. */
+  svg .vbox { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sym { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .symf { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .symh { fill: var(--k-ink); }
+  svg .fl { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  svg .flt { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: butt; stroke-linejoin: round; }
+  svg .flh { fill: var(--k-accent2); }
+  svg .idle { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
+  svg .idleh { fill: var(--k-muted); }
+  svg .stored { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  svg .pulseL { fill: none; stroke: var(--k-warn); stroke-opacity: .3; stroke-width: 11; stroke-linecap: round; stroke-linejoin: round; }
+  svg .pilot { fill: none; stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  svg .sol { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sol.on { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  svg .soldi { stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .soldi.on { stroke: var(--k-on-accent2); }
+  svg .oil { fill: var(--k-fill1); }
+  svg .airf { fill: var(--k-fill3); }
+  svg .barrel { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  svg .piston { fill: var(--k-ink); }
+  svg .rod { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .load { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .work { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .bed { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .mc { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  svg .tri { fill: var(--k-ink); }
+  svg .tank { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }
+  svg .dot { fill: var(--k-ink); }
+  svg .halo { fill: var(--k-fill2); }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2.4; }
+  svg .markl { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  svg .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  svg .gmark { stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }
+  svg .gnd { stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; }
+  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .lab13 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  svg .port { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  svg .tl { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  svg .tn { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .kt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  svg .cn { font: 700 12px var(--k-font); fill: var(--k-ink); }
+  svg .stl { font: 600 12px var(--k-font); fill: var(--k-warn); }
+</style>
+
+<p class="lead">A press drawn as a hydraulic circuit, then the same job in air, and a squeeze test of shut-in air and oil.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <figure class="pane">
+        <div id="scenebox"><svg class="pic" id="scene" viewBox="0 0 340 494" width="100%" role="img" aria-label=""><g id="art"></g></svg></div>
+        <div class="ctl" id="ctl"></div>
+        <div class="k-readouts" id="airouts"></div>
+      </figure>
+      <div class="side">
+        <p class="say" id="say"></p>
+        <div class="row tools" id="tools"></div>
+        <div class="picks" id="picks"></div>
+        <div class="order" id="order"></div>
+        <div id="ansbox"></div>
+        <div class="row acts" id="acts"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="note why" id="why" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A typical press circuit in standard symbols, not a real machine.</p>
+
+<script>
+  // ---------- the rule: each solenoid brings in the box beside it; trace one path in and one path out ----------
+  const BW = 44, BH = 38, VX = 90, VY = 262, MID = VY + BH / 2;   // the 4/3 valve's boxes; A and B, P and T sit at x 145 and 167
+  const TRAV = 50, ROD = 90, XW = 0.8, X0 = 0.1;                  // piston travel, rod length; the ram meets the work at 0.8 of its travel
+  const VDN = 0.25, VUP = 0.6, VA = 0.8;                          // travel per second: down past the flow control, up past the check valve, the air rod
+  const AW = 56, HM = 494, HA = 476, HQ = 196;
+  const PV = 6 * 300;                                             // pressure times volume for the shut-in air: 6 bar absolute times 300 cm³
+  const PORT_TOP = 'A';                                           // A feeds the piston side, at the top of the upright cylinder
+  const JOINS = { par: ['PA', 'BT'], cross: ['PB', 'AT'], ptt: ['PT'] };
+  const NAVY = 'https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy';
+  const PUMP = { feed: 'The pump is feeding the cylinder.', unload: 'The pump is unloading to the tank.', relief: "The pump's oil is going over the relief valve.", stopped: 'The pump is stopped.' };
+  const ORD = ['Check valve', 'Flow control', 'Pump', '4/3 valve', 'Tank'];
+
+  const twv = (q, t) => (q.dur <= 0 || t >= q.t0 + q.dur ? q.to : t <= q.t0 ? q.from : K.lerp(q.from, q.to, K.ease((t - q.t0) / q.dur)));
+  const inLine = (s) => Math.round(s) || 0;                       // +1 the left box, 0 the middle, -1 the crossed box
+  const target = (m) => (m.y1 ? 1 : m.y2 ? -1 : 0);
+  const curS = (m, t) => twv(m.row, t), curA = (a, t) => twv(a.row, t);
+  const approach = (v, g, s) => (v < g ? Math.min(g, v + s) : Math.max(g, v - s));
+  // What the box in line does to the ram (+1 down, -1 up, 0 held) and to the pump's oil.
+  function regime(box, x, run) {
+    if (!run) return { ram: 0, pump: 'stopped' };
+    if (box === 1) return x < XW - 1e-9 ? { ram: 1, pump: 'feed', split: true } : { ram: 0, pump: 'relief' };
+    if (box === -1) return x > 1e-9 ? { ram: -1, pump: 'feed' } : { ram: 0, pump: 'relief' };
+    return { ram: 0, pump: 'unload' };
+  }
+  // The gauge, as a share of the way to its relief mark.
+  const gaugeT = (r) => (r.pump === 'stopped' ? 0 : r.pump === 'unload' ? 0.05 : r.pump === 'relief' || r.split ? 1 : 0.4);
+  const regNow = (m, t) => regime(inLine(curS(m, t)), m.x, m.run);
+  // Which lines carry flow, and which way. `only` keeps a puzzle's picture from giving its answer away.
+  function flowMap(m, t) {
+    const box = inLine(curS(m, t)), r = regime(box, m.x, m.run), F = {};
+    const put = (k, dir, cls) => { if (!m.only || m.only.indexOf(k) >= 0) F[k] = { dir, cls: cls || 'fl' }; };
+    if (r.pump !== 'stopped') { put('suc', 1); put('out', 1); }
+    if (r.pump === 'feed' || r.pump === 'unload') { put('pv', 1); put('T', 1); }
+    if (r.pump === 'relief') put('rel', 1);
+    if (r.split) put('rel', 1, 'flt');
+    if (r.ram > 0) { put('A', 1); put('B2', -1); put('FC', -1); put('B1', -1); put('PA', 1); put('BT', 1); }
+    if (r.ram < 0) { put('A', -1); put('B1', 1); put('CV', 1); put('B2', 1); put('PB', 1); put('AT', 1); }
+    if (r.pump === 'unload') put('PT', 1);
+    return { F, r, box };
+  }
+  // Stopped, the line whose oil still holds the ram: A if it was pressing the work, else B.
+  const storedLine = (m) => (m.run ? null : m.x >= XW - 1e-6 ? 'A' : 'B');
+  function airMap(a, t) {
+    const box = inLine(curA(a, t)), rod = box === 1 ? (a.xa < 1 ? 1 : 0) : (a.xa > 0 ? -1 : 0), F = {};
+    const put = (k, dir) => { if (!a.only || a.only.indexOf(k) >= 0) F[k] = { dir, cls: 'fl' }; };
+    if (rod > 0) { put('sup', 1); put('14', 1); put('L4', 1); put('L2', -1); put('23', 1); put('E3', 1); }
+    if (rod < 0) { put('sup', 1); put('12', 1); put('L2', 1); put('L4', -1); put('45', 1); put('E5', 1); }
+    return { F, box, rod };
+  }
+
+  // ---------- the states, advanced by one animation ----------
+  function initMain(m, o) {
+    const s0 = o.row != null ? o.row : target(m);
+    m.row = { from: s0, to: s0, t0: 0, dur: 0 };
+    const r = regime(inLine(s0), m.x, m.run);
+    m.ra = !m.only && (r.pump === 'relief' || r.split) ? 1 : 0;
+    m.gv = m.only ? 0 : gaugeT(r);
+    return m;
+  }
+  const newMain = (o) => initMain(Object.assign({ y1: 0, y2: 0, run: 1, x: X0, frozen: false, only: null, stopAt: -9, nudge: false, hideRed: 0 }, o), o);
+  function setMain(m, o) { Object.assign(m, { y1: 0, y2: 0, run: 1, only: null, nudge: false, hideRed: 0 }, o); initMain(m, o); m.frozen = true; }
+  function retarget(m, t) {
+    const g = target(m);
+    if (g === m.row.to) return;
+    const c = curS(m, t);
+    m.row = { from: c, to: g, t0: t, dur: 0.25 + 0.25 * Math.abs(g - c) };
+  }
+  function stopNow(m, t) { m.run = 0; m.y1 = 0; m.y2 = 0; m.stopAt = t; m.nudge = false; }
+  function simMain(m, t, dt) {
+    if (m.frozen) return;
+    const r = regNow(m, t);
+    // land exactly on the work or the top, so the ram stops there rather than a hair short of it
+    if (r.ram > 0) { m.x = Math.min(XW, m.x + VDN * dt); if (XW - m.x < 1e-6) m.x = XW; }
+    else if (r.ram < 0) { m.x = Math.max(0, m.x - VUP * dt); if (m.x < 1e-6) m.x = 0; }
+    const r2 = regNow(m, t), rt = !m.only && (r2.pump === 'relief' || r2.split) ? 1 : 0;
+    m.ra = approach(m.ra, rt, dt / 0.3);
+    m.gv = approach(m.gv, gaugeT(r2), dt / 0.6);
+  }
+  function mainSteady(m, t) {
+    if (m.frozen) return true;
+    const r = regNow(m, t), rt = !m.only && (r.pump === 'relief' || r.split) ? 1 : 0;
+    return t >= m.row.t0 + m.row.dur && !r.ram && m.ra === rt && m.gv === gaugeT(r) && (!!m.run || t >= m.stopAt + 0.7);
+  }
+  function newAir(o) {
+    const a = Object.assign({ y3: 0, xa: 0, frozen: false, only: null }, o), s0 = a.y3 ? 1 : 0;
+    a.row = { from: s0, to: s0, t0: 0, dur: 0 };
+    return a;
+  }
+  function retargetA(a, t) {
+    const g = a.y3 ? 1 : 0;
+    if (g === a.row.to) return;
+    const c = curA(a, t);
+    a.row = { from: c, to: g, t0: t, dur: 0.25 + 0.25 * Math.abs(g - c) };
+  }
+  function simAir(a, t, dt) {
+    if (a.frozen) return;
+    const f = airMap(a, t);
+    if (f.rod > 0) a.xa = Math.min(1, a.xa + VA * dt); else if (f.rod < 0) a.xa = Math.max(0, a.xa - VA * dt);
+  }
+  const airSteady = (a, t) => a.frozen || (t >= a.row.t0 + a.row.dur && !airMap(a, t).rod);
+  function sched(st, t, fn) { st.ev.push([t, fn]); st.ev.sort((a, b) => a[0] - b[0]); }
+  function light(st, k, t0, hold) { st.lights.push({ k, t0, hold }); st.until = Math.max(st.until, t0 + hold + 0.35); }
+  const lightA = (st, k) => st.lights.reduce((a, L) => (L.k === k ? Math.max(a, K.arrive(st.t, L.t0, 0.25) * (1 - K.arrive(st.t, L.t0 + L.hold, 0.3))) : a), 0);
+  const pulseA = (st) => (st.pulse == null || st.t < st.pulse || st.t > st.pulse + 1.8 ? 0 : 0.5 * (1 - Math.cos(2 * Math.PI * (st.t - st.pulse) / 0.9)));
+  const busy = (st) => st.ev.length > 0 || st.t < st.until || (!!st.m && !mainSteady(st.m, st.t)) || (!!st.a && !airSteady(st.a, st.t));
+  function advance(st, dt) {
+    st.t += dt;
+    while (st.ev.length && st.ev[0][0] <= st.t) { const e = st.ev.shift(); e[1](st, e[0]); }
+    if (st.m) simMain(st.m, st.t, dt);
+    if (st.a) simAir(st.a, st.t, dt);
+  }
+  function settle(st) { let g = 0; while (busy(st) && g++ < 4000) advance(st, 0.05); }
+  const mk = (o) => Object.assign({ t: 0, ev: [], until: 0, lights: [], rings: {}, pulse: null, taps: [], tapAt: {}, m: null, a: null, q: null }, o);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const STEPS = [
+    { id: 'still', name: 'Still there?', kind: 'typed', view: 'sq1', field: 'vol9', unit: 'cm³', answer: 200,
+      task: 'Air shut in a cylinder fills 300 cm³ at 6 bar absolute. A heavier load raises its pressure to 9 bar absolute, at the same temperature. What volume does the air fill now?',
+      slips: [{ value: 450, hint: 'That is the pressures upside down. More pressure squeezes the air smaller.' }, { value: 300, hint: 'Air squeezes. Its volume falls as its pressure rises.' }],
+      hint: 'Pressure times volume stays the same.', want: '200 cm³', right: 'Still there.',
+      why: 'Pressure times volume stays at 6 × 300, which makes 1800. So the volume is 1800 ÷ 9, which is 200 cm³. The heavier load pushes the rod in.',
+      after: (st) => { st.q = { from: 6, to: 9, t0: st.t + 0.2, dur: 0.8 }; st.until = Math.max(st.until, st.t + 1.5); } },
+    { id: 'job', name: 'The job first', show: true, view: 'main', init: { only: [] },
+      text: 'This is a press. Its ram comes down onto the work, squeezes it and goes back up. Read the job first. Then name the parts. Then trace one valve position at a time.',
+      read: 'This is a press. Its ram comes down onto the work, squeezes it and goes back up. Read the job first. Then name the parts. Then trace one valve position at a time. Here the press is at rest, with every part named.',
+      demo: (st) => ['job', 'pump', 'tank', 'relief', 'gauge', 'valve', 'pair', 'cyl'].forEach((k, j) => light(st, k, 0.3 + 0.42 * j, 0.4)) },
+    { id: 'drawn', name: 'As drawn', kind: 'pick', view: 'main', sw: ['sol', 'stop'], init: { only: [], frozen: true },
+      task: 'The motor runs and no solenoid is energised. What does the ram do?',
+      opts: ['It comes down onto the work', "It holds, and the pump's oil goes back to the tank", "It holds, and the pump's oil goes over the relief valve"],
+      want: "It holds, and the pump's oil goes back to the tank",
+      hint: 'No solenoid is on, so the springs hold the middle box against the ports. Read that box.',
+      hints: { 'It comes down onto the work': 'No solenoid is on, so the springs hold the middle box against the ports. Read that box.', "It holds, and the pump's oil goes over the relief valve": 'Look at P in the middle box. Its line runs straight to T.' },
+      why: "The sheet draws the valve at rest, with its middle box against the ports. That box joins P to T and blocks A and B. So the pump's oil goes back to the tank at low pressure, and the ram holds.",
+      after: (st) => { st.m.only = null; st.m.frozen = false; } },
+    { id: 'paths', name: 'Two paths', show: true, view: 'main', sw: ['sol', 'stop'],
+      text: "Energise -Y1 and the left box joins P to A and B to T. Oil from the pump fills the piston side. The rod side's oil runs back to the tank. The ram moves only if both paths are open, so follow both. Tap -Y1.",
+      read: "Energise -Y1 and the left box joins P to A and B to T. Oil from the pump fills the piston side. The rod side's oil runs back to the tank. The ram moves only if both paths are open, so follow both. Here -Y1 is on. Oil runs from P to A into the piston side. The rod side's oil runs through the flow control and B to T, to the tank. The ram comes down.",
+      stillSet: (st) => setMain(st.m, { y1: 1, row: 1, x: 0.45 }) },
+    { id: 'other', name: 'The other side', kind: 'order', view: 'main', sw: ['sol', 'stop'], init: { y1: 1, x: 0.45, frozen: true, only: ['suc', 'out', 'pv', 'A', 'PA'] },
+      task: "Tap the parts the rod side's oil passes on its way to the tank, in order.",
+      read: "Which parts does the rod side's oil pass on its way to the tank, in order?",
+      opts: ORD, want: ['Flow control', '4/3 valve', 'Tank'],
+      hintOn: { 'Check valve': 'The check valve lets oil pass only into the rod side. Going out, the oil must take the flow control.', Pump: 'The pump only feeds. Oil leaving the cylinder goes back to the tank.' },
+      hint: 'Start at the rod side and follow its line down to B.',
+      why: "The check valve is shut this way, so the rod side's oil leaves through the flow control. The left box joins B to T, so the oil runs back to the tank. Without that path the ram could barely move.",
+      after: (st) => { st.m.only = null; st.m.frozen = false; } },
+    { id: 'work', name: 'On the work', show: true, view: 'main', sw: ['sol', 'stop'], init: { y1: 1, x: 0.45 },
+      text: "The flow control lets the rod side's oil out slowly, so it sets the ram's speed. This pump pushes out the same amount every turn. The slowed cylinder takes less, so the pressure rises until the relief valve opens. The spare oil goes over it. So the relief valve's setting decides how hard the ram presses. Watch the ram meet the work.",
+      read: "The flow control lets the rod side's oil out slowly, so it sets the ram's speed. This pump pushes out the same amount every turn. The slowed cylinder takes less, so the pressure rises until the relief valve opens. The spare oil goes over it. So the relief valve's setting decides how hard the ram presses. Here the ram has stopped on the work. All the pump's oil now runs over the relief valve to the tank, and the needle sits on the relief mark.",
+      demo: (st) => { light(st, 'fc', 0.2, 1.0); light(st, 'relief', 1.6, 0.9); light(st, 'gauge', 1.9, 0.7); } },
+    { id: 'squeeze', name: 'What sets the squeeze?', kind: 'pick', view: 'main', sw: ['sol', 'stop'], init: { y1: 1, x: XW, frozen: true, only: [] },
+      task: 'The ram is pressing the work and -Y1 is still on. Which part decides how hard it presses?',
+      opts: ['The flow control', 'The relief valve', 'The check valve'], want: 'The relief valve',
+      hint: 'That sets the speed. The ram has stopped, so no oil passes it now.',
+      hints: { 'The flow control': 'That sets the speed. The ram has stopped, so no oil passes it now.', 'The check valve': 'That lets oil into the rod side only. It is shut while the ram comes down.' },
+      why: 'The ram cannot move, so the pressure rises until the relief valve opens. Its setting is the highest the pressure can reach. So it decides how hard the ram presses.',
+      after: (st) => { st.m.only = null; st.m.frozen = false; st.rings.relief = st.t + 0.2; st.until = Math.max(st.until, st.t + 0.65); } },
+    { id: 'up', name: 'Back up', show: true, view: 'main', sw: ['sol', 'stop'], init: { x: XW },
+      text: 'Energise -Y2 and the crossed box joins P to B and A to T. Oil reaches the rod side through the check valve. The piston side drains to the tank, and the ram goes back up. Tap -Y2, then tap it again.',
+      read: 'Energise -Y2 and the crossed box joins P to B and A to T. Oil reaches the rod side through the check valve. The piston side drains to the tank, and the ram goes back up. Here both solenoids are off, and the ram holds part way up. Before that, -Y2 was on. Oil ran from P to B through the check valve into the rod side, and from A to T to the tank. Then -Y2 went off, and the middle box blocked A and B.',
+      stillSet: (st) => setMain(st.m, { row: 0, x: 0.4 }) },
+    { id: 'rodin', name: 'Into the rod side', kind: 'pick', view: 'main', sw: ['sol', 'stop'], init: { y2: 1, row: -1, x: XW, frozen: true, only: [] },
+      task: '-Y2 is on. Which way does most of the oil reach the rod side?',
+      opts: ['Through the flow control', 'Through the check valve', 'It cannot, the check valve blocks it'], want: 'Through the check valve',
+      hint: 'The check valve beside it opens this way, so most of the oil takes the easy path.',
+      hints: { 'Through the flow control': 'The check valve beside it opens this way, so most of the oil takes the easy path.', 'It cannot, the check valve blocks it': 'A check valve lets flow one way. Read which way its ball lifts off the seat.' },
+      why: "Going into the rod side, the oil lifts the check valve's ball off its seat. So most of it passes the flow control by. The ram goes up quickly, and comes down at the flow control's speed.",
+      after: (st) => sched(st, st.t + 0.2, (s, t) => { s.m.only = null; s.m.frozen = false; retarget(s.m, t); }) },
+    { id: 'air', name: 'The same job in air', show: true, view: 'air', sw: ['y3', 'load'],
+      text: "The same job in air uses a 5/2 valve. Energise -Y3 and the supply fills the piston side. The rod side's air leaves through an *exhaust port*, into the room. Air also squeezes. So a cylinder holding a load on shut-in air gives as the load grows. Tap -Y3, then drag the load slider.",
+      read: "The same job in air uses a 5/2 valve. Energise -Y3 and the supply fills the piston side. The rod side's air leaves through an exhaust port, into the room. Air also squeezes. So a cylinder holding a load on shut-in air gives as the load grows. Here -Y3 is on. The supply runs into the piston side, the rod side's air leaves through an exhaust port, and the rod is out. In the squeeze test below it, at 12 bar absolute, the air fills 150 cm³ and its rod is pushed in. The oil's rod has not moved.",
+      stillSet: (st) => { Object.assign(st.a, { y3: 1, row: { from: 1, to: 1, t0: 0, dur: 0 }, xa: 0.9, frozen: true, only: null }); barCtl.set(12); } },
+    { id: 'air2', name: 'Where does the air go?', kind: 'pick', view: 'air', sw: ['y3', 'load'], init: { y3: 1, xa: 0.3, frozen: true, only: ['sup', '14', 'L4'] },
+      task: 'Where does the air from the rod side go?',
+      opts: ['Back along a line to the receiver', 'Out of an exhaust port, into the room', 'Back to the compressor'], want: 'Out of an exhaust port, into the room',
+      hint: 'No line runs back to the receiver. Look for the exhaust marks on the valve.',
+      hints: { 'Back along a line to the receiver': 'No line runs back to the receiver. Look for the exhaust marks on the valve.', 'Back to the compressor': 'A compressor draws in fresh air from the room. Used air is not sent back to it.' },
+      why: 'The box -Y3 brings in joins the rod side to an exhaust port. So the used air leaves into the room. Oil is kept and used again, so the press sends it back to the tank.',
+      after: (st) => { st.a.only = null; st.a.frozen = false; } },
+    { id: 'stays', name: 'Pressure stays', show: true, view: 'main', sw: ['sol', 'stop'], init: { y1: 1, x: XW },
+      text: "Stop stops the pump and switches both solenoids off. The springs centre the valve while the ram still presses the work. That shuts its oil in. The oil still holds the ram down, so its line turns red. Pressure shut in like this is *stored energy*. Tap Stop.",
+      read: "Stop stops the pump and switches both solenoids off. The springs centre the valve while the ram still presses the work. That shuts its oil in. The oil still holds the ram down, so its line turns red. Pressure shut in like this is stored energy. Now the pump has stopped, both solenoids are off and the gauge reads zero. The line from A is red, labelled still under pressure. The ram is still on the work.",
+      stillSet: (st) => setMain(st.m, { run: 0, row: 0, x: XW, stopAt: -9 }) },
+    { id: 'safe', name: 'Safe to open?', kind: 'pick', view: 'main', sw: ['sol', 'stop'], init: { run: 0, x: XW, hideRed: 1 },
+      task: "You must change the hose to the piston side. The motor is stopped and the pump's gauge reads zero. Is the hose safe to open?",
+      opts: ['Yes, the gauge reads zero', 'No, oil shut in by the centred valve can still be under pressure', 'Yes, both solenoids are off'],
+      want: 'No, oil shut in by the centred valve can still be under pressure',
+      hint: "That gauge reads the pump's line only. The middle box blocks A, so the hose is cut off from it.",
+      hints: { 'Yes, the gauge reads zero': "That gauge reads the pump's line only. The middle box blocks A, so the hose is cut off from it.", 'Yes, both solenoids are off': 'With both off, the middle box blocks A and B. That shuts oil in rather than letting it out.' },
+      why: 'The middle box blocks A. So the oil between A and the cylinder is shut in, and it still holds the ram on the work. Release that pressure and prove that part at zero before you open the hose.',
+      after: (st) => { st.m.hideRed = 0; st.m.stopAt = st.t; st.pulse = st.t + 0.2; st.until = Math.max(st.until, st.t + 2.05); } },
+    { id: 'top', name: 'Top of the stroke', kind: 'pick', view: 'main', sw: ['sol', 'stop'], init: { y2: 1, x: 0, frozen: true, only: [] },
+      task: "-Y2 is still on and the ram has reached the top. Where does the pump's oil go now?",
+      opts: ['Into the rod side through the check valve', 'Over the relief valve to the tank', 'Through the middle box, from P to T'], want: 'Over the relief valve to the tank',
+      hint: 'The ram can rise no further, so no more oil can get in.',
+      hints: { 'Into the rod side through the check valve': 'The ram can rise no further, so no more oil can get in.', 'Through the middle box, from P to T': '-Y2 is still on, so the crossed box is against the ports, not the middle one.' },
+      why: "At the end of its travel, no more oil can enter the rod side. The pressure climbs until the relief valve opens. Then the pump's oil goes over it to the tank. Switch -Y2 off and the P to T centre unloads the pump.",
+      after: (st) => { st.m.only = null; st.m.frozen = false; } },
+  ];
+  const I = {};
+  STEPS.forEach((d, i) => { I[d.id] = i; });
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FINISH = "To read a fluid power circuit, take one valve position at a time and trace two paths. One runs from the supply into one side of the cylinder. The other runs from the other side back to the tank, or in air out through an exhaust.";
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  function fresh(i) {
+    const d = STEPS[i], st = mk({ res: null, pick: null, why: false, tries: 0, shown: false, fbText: '', touched: false });
+    if (d.view === 'main') st.m = newMain(d.init || {});
+    if (d.view === 'air') st.a = newAir(d.init || {});
+    if (d.view === 'sq1') st.q = { from: 6, to: 6, t0: 0, dur: 0 };
+    if (d.show && d.demo) d.demo(st);
+    return st;
+  }
+  STEPS.forEach((d, i) => {
+    d.dur = 0;
+    if (!d.show || !d.demo) return;
+    const st = fresh(i);
+    let t = 0;
+    while (busy(st) && t < 20) { advance(st, 0.05); t += 0.05; }
+    d.dur = Math.round((t + 0.3) * 10) / 10;
+  });
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false, ctlAt = -1;
+  const swOnFor = (d, st) => !!d.sw && (!!d.show || st.res === 'right');
+
+  // ---------- drawing helpers (K.svg, never innerHTML) ----------
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r3(r) });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, a, cls) => add(g, 'polygon', { class: cls, points: a.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') });
+  const op = (e, a) => { if (a < 0.999) e.setAttribute('opacity', r3(Math.max(0, a))); return e; };
+  const text = (g, x, y, s, cls, anchor) => g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  const dstr = (P) => 'M' + P.map((q) => r3(q[0]) + ' ' + r3(q[1])).join('L');
+  function pline(g, pts, cls, head, hcls) {
+    const P = pts.map((q) => q.slice());
+    if (head) {
+      const n = P.length, a = P[n - 2], b = pts[n - 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, w = head * 0.55;
+      P[n - 1] = [b[0] - ux * head * 0.8, b[1] - uy * head * 0.8];
+      path(g, dstr(P), cls);
+      poly(g, [b, [b[0] - ux * head - uy * w, b[1] - uy * head + ux * w], [b[0] - ux * head + uy * w, b[1] - uy * head - ux * w]], hcls);
+      return;
+    }
+    path(g, dstr(P), cls);
+  }
+  // A pipe on the sheet: bold with an arrow along the flow on segment `seg`, thinner for spare oil, pale when idle.
+  function extLine(g, pts, f, seg) {
+    const cls = f ? f.cls : 'idle';
+    path(g, dstr(pts), cls);
+    if (!f || !f.dir || seg < 0) return;
+    const a = pts[seg], b = pts[seg + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    const ux = (b[0] - a[0]) / L * f.dir, uy = (b[1] - a[1]) / L * f.dir, cx = (a[0] + b[0]) / 2, cy = (a[1] + b[1]) / 2, h = cls === 'flt' ? 7 : 9, w = cls === 'flt' ? 4 : 5;
+    poly(g, [[cx + ux * h / 2, cy + uy * h / 2], [cx - ux * h / 2 - uy * w, cy - uy * h / 2 + ux * w], [cx - ux * h / 2 + uy * w, cy - uy * h / 2 - ux * w]], 'flh');
+  }
+  function spring(g, x0, x1, y, amp, cls) {
+    const n = 6, pts = [[x0, y]];
+    for (let j = 1; j < n; j++) pts.push([K.lerp(x0, x1, j / n), y + (j % 2 ? -amp : amp)]);
+    pts.push([x1, y]);
+    return path(g, dstr(pts), cls || 'sym');
+  }
+  function solenoid(g, x, y, on, w, h) {
+    rect(g, x, y - h / 2, w, h, on ? 'sol on' : 'sol');
+    line(g, x + 3, y + h / 2 - 3, x + w - 3, y - h / 2 + 3, on ? 'soldi on' : 'soldi');
+  }
+  // What each box draws: arrows join two ports, a short bar blocks one. a, b are the quarter points.
+  function boxParts(kind, w, h) {
+    const a = w / 4, b = 3 * w / 4, c = w / 2, k = h / 40, sl = 10 * k, j = 3 * k;
+    const stub = (x, top, tag) => ({ pts: top ? [[x, 0], [x, sl]] : [[x, h], [x, h - sl]], bar: true, tag });
+    if (kind === 'par') return [{ pts: [[a, h - j], [a, j]], arrow: true, tag: 'PA' }, { pts: [[b, j], [b, h - j]], arrow: true, tag: 'BT' }];
+    if (kind === 'cross') return [{ pts: [[a, h - j], [b, j]], arrow: true, tag: 'PB' }, { pts: [[a, j], [b, h - j]], arrow: true, tag: 'AT' }];
+    if (kind === 'ptt') return [stub(a, 1, 'A'), stub(b, 1, 'B'), { pts: [[a, h], [a, h - 14 * k], [b, h - 14 * k], [b, h]], tag: 'PT' }];
+    if (kind === 'rest52') return [{ pts: [[c, h - j], [b, j]], arrow: true, tag: '12' }, { pts: [[a, j], [a, h - j]], arrow: true, tag: '45' }, stub(b, 0, '3')];
+    if (kind === 'op52') return [{ pts: [[c, h - j], [a, j]], arrow: true, tag: '14' }, { pts: [[b, j], [b, h - j]], arrow: true, tag: '23' }, stub(a, 0, '5')];
+    return [];
+  }
+  function drawBox(g, x0, y0, w, h, kind, flows) {
+    rect(g, x0, y0, w, h, 'vbox');
+    const k = h / 40;
+    boxParts(kind, w, h).forEach((p) => {
+      const on = flows.indexOf(p.tag) >= 0, P = p.pts.map((q) => [x0 + q[0], y0 + q[1]]);
+      pline(g, P, on ? 'fl' : 'sym', p.arrow ? 6.5 * Math.max(0.75, k) : 0, on ? 'flh' : 'symh');
+      if (p.bar) { const e = P[P.length - 1], hw = 6 * k; line(g, e[0] - hw, e[1], e[0] + hw, e[1], 'sym'); }
+    });
+  }
+
+  // ---------- the press ----------
+  const SEG = {
+    suc: [[[145, 456], [145, 442]], [[145, 426], [145, 420]]],
+    out: [[[145, 392], [145, 368]]],
+    pv: [[[145, 368], [145, 300]]],
+    rel: [[[145, 368], [70, 368], [70, 376]], [[70, 400], [70, 456]]],
+    A: [[[145, 262], [145, 246], [24, 246], [24, 78], [262, 78]]],
+    B1: [[[167, 262], [167, 226]]],
+    CV: [[[167, 226], [167, 214]], [[167, 194.5], [167, 170]]],
+    FC: [[[167, 226], [120, 226], [120, 170], [167, 170]]],
+    B2: [[[167, 170], [167, 142], [262, 142]]],
+    T: [[[167, 300], [167, 338], [250, 338], [250, 456]]],
+  };
+  // Which piece of each pipe carries its arrow, and on which segment.
+  const ARW = { suc: [0, 0], out: [0, 0], pv: [0, 0], rel: [1, 0], A: [0, 3], B1: [0, 0], CV: [1, 0], FC: [0, 0], B2: [0, 0], T: [0, 2] };
+  const HALO = {
+    job: () => [255, 172, 66, 86], pump: () => [86, 388, 116, 36], tank: () => [30, 424, 280, 46], relief: () => [46, 370, 58, 36],
+    gauge: () => [92, 334, 32, 32], valve: (dx) => [VX - 42 + dx, VY - 4, 3 * BW + 84, BH + 8], pair: () => [100, 178, 84, 46],
+    fc: () => [100, 178, 38, 46], cyl: () => [256, 64, 60, 92],
+  };
+  const RING = { 'Flow control': () => [102, 180, 36, 44], 'Check valve': () => [153, 190, 28, 28], '4/3 valve': (dx) => [VX + dx - 3, VY - 3, 3 * BW + 6, BH + 6], Tank: () => [32, 443, 276, 25] };
+  const el = (id) => document.getElementById(id);
+  const sceneSvg = el('scene'), art = el('art');
+
+  function drawMain(g, st, d) {
+    const m = st.m, t = st.t, s = curS(m, t), dx = s * BW, fm = flowMap(m, t), F = fm.F, r = fm.r, box = fm.box;
+    const part = !!m.only, quiet = part && !m.only.length;
+    // the key
+    pline(g, [[8, 14], [38, 14]], 'fl', 8, 'flh'); text(g, 44, 18.5, 'Oil flowing', 'kt', 'start');
+    pline(g, [[8, 32], [38, 32]], 'flt', 6, 'flh'); text(g, 44, 36.5, 'Spare oil', 'kt', 'start');
+    line(g, 8, 50, 38, 50, 'idle'); text(g, 44, 54.5, 'No flow', 'kt', 'start');
+    // highlights behind the parts as they are named
+    Object.keys(HALO).forEach((k) => { const a = lightA(st, k); if (a > 0.001) { const h = HALO[k](dx); op(rect(g, h[0], h[1], h[2], h[3], 'halo', 4), a); } });
+    // the pipes; a line whose oil still holds the ram is drawn red once the pump stops
+    const red = m.hideRed ? null : storedLine(m), redA = red ? K.arrive(t, m.stopAt + 0.25, 0.4) : 0, redSegs = red === 'A' ? ['A'] : red === 'B' ? ['B1', 'CV', 'FC', 'B2'] : [];
+    const pa = pulseA(st);
+    if (pa > 0.001) redSegs.forEach((k) => SEG[k].forEach((pts) => op(path(g, dstr(pts), 'pulseL'), pa)));
+    Object.keys(SEG).forEach((k) => {
+      SEG[k].forEach((pts, j) => extLine(g, pts, F[k], j === ARW[k][0] ? ARW[k][1] : -1));
+      if (redA > 0.001 && redSegs.indexOf(k) >= 0) SEG[k].forEach((pts) => op(path(g, dstr(pts), 'stored'), redA));
+    });
+    line(g, 121, 350, 145, 350, 'idle');
+    [[167, 226], [167, 170], [145, 350], [145, 368]].forEach((q) => circle(g, q[0], q[1], 2.6, 'dot'));
+    if (redA > 0.001) {
+      const L = red === 'A' ? [34, 98] : [176, 160];
+      op(text(g, L[0], L[1], 'still under', 'stl', 'start'), redA); op(text(g, L[0], L[1] + 14, 'pressure', 'stl', 'start'), redA);
+    }
+    // the check valve and the flow control, side by side on the line from B
+    path(g, 'M157 200L167 214L177 200', 'sym'); circle(g, 167, 202, 7.5, 'symf');
+    path(g, 'M110 187Q126 201 110 215', 'sym'); path(g, 'M130 187Q114 201 130 215', 'sym'); pline(g, [[106, 219], [134, 183]], 'sym', 6, 'symh');
+    text(g, 100, 198, 'Flow', 'lab', 'end'); text(g, 100, 212, 'control', 'lab', 'end');
+    text(g, 184, 198, 'Check', 'lab', 'start'); text(g, 184, 212, 'valve', 'lab', 'start');
+    // the job: the bed, the work and the ram on the cylinder's rod
+    const py = 84 + m.x * TRAV, re = py + ROD;
+    rect(g, 258, 248, 58, 6, 'bed'); rect(g, 266, 230, 40, 18, 'work'); text(g, 286, 243.5, 'Work', 'cn');
+    rect(g, 264, 72, 44, py - 3 - 72, 'oil'); rect(g, 264, py + 3, 44, 148 - py - 3, 'oil');
+    rect(g, 282, py, 8, re - py, 'rod'); rect(g, 264, py - 3, 44, 6, 'piston'); rect(g, 262, 70, 48, 80, 'barrel');
+    rect(g, 256, re, 60, 16, 'load', 2); text(g, 286, re + 12, 'Ram', 'cn');
+    text(g, 286, 60, 'Cylinder', 'lab'); text(g, 256, 72, 'piston side', 'kt', 'end'); text(g, 256, 136, 'rod side', 'kt', 'end');
+    // the 4/3 valve: the row of boxes slides, the ports stay put
+    const bf = ['PA', 'BT', 'PB', 'AT', 'PT'].filter((k) => F[k]), kIn = 1 - box;
+    drawBox(g, VX + dx, VY, BW, BH, 'par', kIn === 0 ? bf : []);
+    drawBox(g, VX + BW + dx, VY, BW, BH, 'ptt', kIn === 1 ? bf : []);
+    drawBox(g, VX + 2 * BW + dx, VY, BW, BH, 'cross', kIn === 2 ? bf : []);
+    spring(g, VX + dx, VX - 18 + dx, MID, 6); spring(g, VX + 3 * BW + dx, VX + 3 * BW + 18 + dx, MID, 6);
+    solenoid(g, VX - 38 + dx, MID, !!m.y1, 20, 22); solenoid(g, VX + 3 * BW + 18 + dx, MID, !!m.y2, 20, 22);
+    text(g, VX - 28 + dx, 330, m.y1 ? '-Y1 on' : '-Y1', 'lab'); text(g, VX + 3 * BW + 28 + dx, 330, m.y2 ? '-Y2 on' : '-Y2', 'lab');
+    [['A', 140, 257, 'end'], ['B', 176, 257, 'start'], ['P', 140, 315, 'end'], ['T', 176, 315, 'start']].forEach((q) => text(g, q[1], q[2], q[0], 'port', q[3]));
+    text(g, 232, 316, '4/3 valve', 'tl', 'start');
+    // the relief valve: its arrow sits out of line until the pressure beats its spring
+    path(g, 'M70 372H50V388H58', 'pilot');
+    rect(g, 58, 376, 24, 24, 'vbox');
+    const rx = 70 + K.lerp(6, 0, K.ease(K.clamp(m.ra, 0, 1))), ro = F.rel;
+    pline(g, [[rx, 379], [rx, 397]], ro ? 'fl' : 'sym', 6, ro ? 'flh' : 'symh');
+    spring(g, 82, 100, 388, 5);
+    text(g, 44, 384, 'Relief', 'lab', 'end'); text(g, 44, 398, 'valve', 'lab', 'end');
+    // the gauge: no numbers, only a mark at the relief valve's setting
+    circle(g, 108, 350, 13, 'mc');
+    const ang = (f) => (135 + 165 * f) * Math.PI / 180, am = ang(1);
+    line(g, 108 + 8.5 * Math.cos(am), 350 + 8.5 * Math.sin(am), 108 + 13 * Math.cos(am), 350 + 13 * Math.sin(am), 'gmark');
+    if (!part || d.id === 'job') { const an = ang(K.clamp(part ? 0.05 : m.gv, 0, 1)); line(g, 108, 350, 108 + 10 * Math.cos(an), 350 + 10 * Math.sin(an), 'gnd'); }
+    circle(g, 108, 350, 2, 'dot');
+    text(g, 90, 354, 'Gauge', 'lab', 'end');
+    // the pump and its motor, the filter and the tank
+    circle(g, 145, 406, 14, 'mc'); poly(g, [[145, 392], [141.1, 398.2], [148.9, 398.2]], 'tri');
+    line(g, 159, 404, 170, 404, 'sym'); line(g, 159, 408, 170, 408, 'sym');
+    circle(g, 182, 406, 12, 'mc'); text(g, 182, 410.5, 'M', 'tn');
+    text(g, 124, 410, 'Pump', 'lab', 'end'); text(g, 198, 404, 'Motor', 'lab', 'start'); text(g, 198, 418, '-M1', 'lab', 'start');
+    poly(g, [[145, 426], [153, 434], [145, 442], [137, 434]], 'symf'); line(g, 137, 434, 153, 434, 'pilot');
+    text(g, 134, 438, 'Filter', 'lab', 'end');
+    path(g, 'M36 446V464H304V446', 'tank'); text(g, 282, 460, 'Tank', 'lab');
+    if (!quiet) text(g, 170, 486, PUMP[r.pump], 'lab13');
+    // rings: the relief valve once named, and the parts tapped in order
+    if (st.rings.relief != null) { const a = K.arrive(t, st.rings.relief, 0.4); if (a > 0.001) op(rect(g, 47, 370, 58, 36, 'ring', 6), a); }
+    if (d.kind === 'order') st.taps.forEach((k) => {
+      const a = K.arrive(t, st.tapAt[k], 0.25);
+      if (a < 0.001) return;
+      if (k === 'Pump') op(circle(g, 145, 406, 18, 'ring'), a);
+      else { const R = RING[k](dx); op(rect(g, R[0], R[1], R[2], R[3], 'ring', 6), a); }
+    });
+    const ramS = r.ram > 0 ? 'The ram is coming down.' : r.ram < 0 ? 'The ram is going up.' : m.x >= XW - 1e-6 ? 'The ram is on the work.' : m.x <= 1e-6 ? 'The ram is at the top.' : 'The ram holds.';
+    return 'A press drawn as a hydraulic circuit: pump, relief valve, gauge, 4/3 valve, flow control and check valve, and an upright cylinder whose ram presses the work. ' +
+      (m.y1 ? '-Y1 is on. ' : m.y2 ? '-Y2 is on. ' : 'Both solenoids are off. ') + (quiet ? 'No flow is shown yet.' : ramS + ' ' + PUMP[r.pump] + (red ? ' The line from ' + red + ' is still under pressure.' : ''));
+  }
+
+  // ---------- the air card: a 5/2 valve and a cylinder, and the squeeze test ----------
+  const ASEG = {
+    sup: [[[44, 232], [60, 232]], [[100, 232], [114, 232]], [[150, 232], [178, 232], [178, 164]]],
+    L4: [[[164, 124], [164, 104], [126, 104], [126, 76]]],
+    L2: [[[192, 124], [192, 104], [212, 104], [212, 76]]],
+  };
+  const AARW = { sup: [2, 1], L4: [0, 1], L2: [0, 1] };
+  const bar = () => K.params().bar;
+  function drawAir(g, st) {
+    const a = st.a, t = st.t, sa = curA(a, t), dx = sa * AW, fm = airMap(a, t), F = fm.F;
+    pline(g, [[8, 14], [38, 14]], 'fl', 8, 'flh'); text(g, 44, 18.5, 'Air flowing', 'kt', 'start');
+    line(g, 8, 32, 38, 32, 'idle'); text(g, 44, 36.5, 'No flow', 'kt', 'start');
+    Object.keys(ASEG).forEach((k) => ASEG[k].forEach((pts, j) => extLine(g, pts, F[k], j === AARW[k][0] ? AARW[k][1] : -1)));
+    // the cylinder
+    const px = 132 + a.xa * 60, re = px + 104;
+    rect(g, 122, 46, px - 3 - 122, 28, 'airf'); rect(g, px + 3, 46, 218 - px - 3, 28, 'airf');
+    rect(g, px, 57, re - px, 6, 'rod'); rect(g, px - 3, 46, 6, 28, 'piston'); rect(g, 120, 44, 100, 32, 'barrel'); rect(g, re, 50, 5, 20, 'piston');
+    text(g, 114, 64, 'Cylinder', 'lab', 'end'); text(g, 134, 93, 'piston side', 'kt', 'start'); text(g, 220, 93, 'rod side', 'kt', 'start');
+    // the 5/2 valve: the row slides, the ports stay put
+    const bfl = ['14', '23', '12', '45'].filter((k) => F[k]);
+    drawBox(g, 94 + dx, 124, AW, 40, 'op52', fm.box === 1 ? bfl : []);
+    drawBox(g, 150 + dx, 124, AW, 40, 'rest52', fm.box === 0 ? bfl : []);
+    solenoid(g, 70 + dx, 144, !!a.y3, 24, 24); spring(g, 206 + dx, 230 + dx, 144, 7);
+    text(g, 66 + dx, 149, a.y3 ? '-Y3 on' : '-Y3', 'lab', 'end');
+    text(g, 240, 116, '5/2 valve', 'tl', 'start');
+    // each exhaust port ends in an exhaust mark, with a small arrow into the room
+    [[164, 'E5'], [192, 'E3']].forEach((e) => {
+      line(g, e[0], 164, e[0], 174, 'sym'); poly(g, [[e[0] - 6, 174], [e[0] + 6, 174], [e[0], 183]], 'symf');
+      pline(g, [[e[0], 186], [e[0], 200]], F[e[1]] ? 'fl' : 'idle', 7, F[e[1]] ? 'flh' : 'idleh');
+    });
+    text(g, 154, 192, 'exhaust', 'kt', 'end'); text(g, 202, 192, 'exhaust', 'kt', 'start');
+    // the supply: compressor, receiver, service unit
+    circle(g, 30, 232, 14, 'mc'); poly(g, [[43, 232], [36, 227], [36, 237]], 'symf');
+    rect(g, 60, 222, 40, 20, 'symf', 10);
+    rect(g, 114, 218, 36, 28, 'symf'); poly(g, [[124, 226], [130, 232], [124, 238], [118, 232]], 'sym'); pline(g, [[133, 242], [146, 222]], 'sym', 5, 'symh');
+    text(g, 6, 210, 'Compressor', 'lab', 'start'); text(g, 80, 262, 'Receiver', 'lab'); text(g, 132, 210, 'Service unit', 'lab');
+    // the squeeze test: the same load pressure on shut-in air and on shut-in oil
+    text(g, 8, 298, 'Squeeze test', 'tl', 'start');
+    const pb = bar(), hcA = 72 * (PV / pb) / 300;
+    [[95, hcA, 'airf', 'Air'], [235, 72, 'oil', 'Oil']].forEach((c) => {
+      const cx = c[0], hc = c[1], top = 448 - hc, pt = top - 6, rend = pt - 48;
+      rect(g, cx - 23, top, 46, hc, c[2]); rect(g, cx - 3, rend, 6, pt - rend, 'rod'); rect(g, cx - 23, pt, 46, 6, 'piston'); rect(g, cx - 25, 360, 50, 90, 'barrel');
+      rect(g, cx - 30, rend - 20, 60, 20, 'load', 3); text(g, cx, rend - 6, 'Load', 'cn');
+      text(g, cx, top + hc / 2 + 4.5, c[3], 'cn');
+      line(g, cx, 450, cx, 460, 'sym'); line(g, cx - 6, 460, cx + 6, 460, 'sym'); text(g, cx + 10, 464, 'port shut', 'kt', 'start');
+    });
+    line(g, 122, 370, 140, 370, 'markl'); text(g, 144, 374.5, 'at the', 'kt', 'start'); text(g, 144, 388.5, 'start', 'kt', 'start');
+    const rodS = fm.rod > 0 ? 'The rod is coming out.' : fm.rod < 0 ? 'The rod is going in.' : a.xa >= 1 ? 'The rod is out.' : 'The rod is in.';
+    return 'A 5/2 air valve feeding a double-acting cylinder, with a compressor, receiver and service unit. ' + (a.y3 ? '-Y3 is on. ' : '-Y3 is off. ') + rodS +
+      ' Below, a squeeze test: shut-in air and shut-in oil under the same load.' + (pb > 6 ? " The air's rod has gone in; the oil's has not moved." : '');
+  }
+
+  // ---------- screen 1: a small cylinder of shut-in air ----------
+  function drawSq1(g, st) {
+    const q = st.q, t = st.t, p = twv(q, t), hc = 72 * (PV / p) / 300, top = 168 - hc, pt = top - 6, rend = pt - 50;
+    const moving = q.to !== q.from, f = moving ? K.ease(K.clamp((t - q.t0) / q.dur, 0, 1)) : 0, lh = K.lerp(20, 28, f);
+    rect(g, 142, top, 56, hc, 'airf'); rect(g, 167, rend, 6, pt - rend, 'rod'); rect(g, 142, pt, 56, 6, 'piston'); rect(g, 140, 80, 60, 90, 'barrel');
+    rect(g, 135, rend - lh, 70, lh, 'load', 3); text(g, 170, rend - lh / 2 + 4.5, 'Load', 'cn');
+    text(g, 170, top + hc / 2 + 4.5, 'Air', 'cn');
+    line(g, 170, 170, 170, 182, 'sym'); line(g, 163, 182, 177, 182, 'sym'); text(g, 184, 186, 'port shut', 'kt', 'start');
+    path(g, 'M206 ' + r3(top) + 'H212V168H206', 'brk');
+    const lab = (pp, a) => {
+      if (a < 0.001) return;
+      op(text(g, 218, top + hc / 2 + 4.5, K.fmt(PV / pp, { decimals: 0 }) + ' cm³', 'lab', 'start'), a);
+      op(text(g, 132, 128, K.fmt(pp) + ' bar absolute', 'lab', 'end'), a);
+    };
+    if (!moving) lab(q.from, 1);
+    else { lab(q.from, 1 - K.arrive(t, q.t0, 0.3)); lab(q.to, K.arrive(t, q.t0 + q.dur, 0.4)); }
+    const now = moving && t >= q.t0 + q.dur ? q.to : q.from;
+    return 'A small cylinder with its port shut, air inside and a load on its rod, at ' + K.fmt(now) + ' bar absolute. The air fills ' + K.fmt(PV / now, { decimals: 0 }) + ' cm³.';
+  }
+
+  // ---------- words ----------
+  function sayMain(st, d) {
+    const m = st.m, box = inLine(curS(m, st.t)), r = regime(box, m.x, m.run);
+    if (d.id === 'job') return 'Each part has its name beside it. The ram and the work are the job. The rest of the circuit is there to move the ram.';
+    if (m.only && !m.only.length) return '';
+    if (!m.run) {
+      const pre = m.nudge ? 'Tap Start to restart the pump first. ' : '';
+      if (box !== 0) return pre + 'The pump has stopped, and the springs are bringing the middle box back.';
+      return pre + (m.x >= XW - 1e-6
+        ? 'The pump is stopped and its gauge reads zero. The middle box shut in the oil from A, and that oil still holds the ram on the work. So the line from A is still under pressure.'
+        : "The pump is stopped and its gauge reads zero. The oil in the line from B still holds up the ram's weight. So that line is still under pressure.");
+    }
+    if (box === 1) return r.ram ? "-Y1 is on, so oil fills the piston side and the rod side's oil runs out through the flow control. The ram comes down slowly, and the spare oil goes over the relief valve."
+      : "The ram is pressing the work, so no more oil can get in. All the pump's oil goes over the relief valve, and the needle sits on the relief mark.";
+    if (box === -1) return r.ram ? "-Y2 is on, so the crossed box joins P to B and A to T. Oil lifts the check valve's ball and fills the rod side, and the piston side drains to the tank. So the ram goes up."
+      : "The ram is right at the top, so no more oil can get in. The pump's oil goes over the relief valve, even though -Y2 is still on.";
+    const where = m.x >= XW - 1e-6 ? 'on the work' : m.x <= 1e-6 ? 'at the top' : m.x < 0.2 ? 'near the top' : 'part way';
+    return "Both solenoids are off, so the springs hold the middle box against the ports. P runs straight to T, so the pump's oil goes back to the tank at low pressure. A and B are blocked, so the ram holds " + where + '.';
+  }
+  function sayAir(st) {
+    const a = st.a, f = airMap(a, st.t), p = bar();
+    let s;
+    if (f.rod > 0) s = "-Y3 is on, so the supply fills the piston side. The rod side's air leaves through an exhaust port, into the room, and the rod comes out.";
+    else if (f.rod < 0) s = "The spring has brought its box back. The supply fills the rod side, the piston side's air leaves through an exhaust port, and the rod goes in.";
+    else if (f.box === 1) s = '-Y3 is on and the rod is fully out. The supply holds it there.';
+    else s = '-Y3 is off, so the spring holds the box that feeds the rod side. The piston side is open to an exhaust port, so the rod stays in.';
+    return s + (p <= 6 ? '' : ' In the squeeze test, the air gives and the oil does not.');
+  }
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.show && st.res !== 'right') return '';
+    if (d.view === 'main') return sayMain(st, d);
+    if (d.view === 'air') return sayAir(st);
+    return 'The heavier load raises the pressure to ' + K.fmt(st.q.to) + ' bar absolute. Pressure times volume stays at ' + String(PV) + ', so the air squeezes to ' + K.fmt(PV / st.q.to, { decimals: 0 }) + ' cm³.';
+  }
+  // Text with amber key terms (built with K.el, never innerHTML).
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at0 = 0, mm;
+    s = String(s || '');
+    while ((mm = re.exec(s))) {
+      if (mm.index > at0) node.appendChild(document.createTextNode(s.slice(at0, mm.index)));
+      node.appendChild(K.el('span', { class: 'term' }, mm[1]));
+      at0 = mm.index + mm[0].length;
+    }
+    if (at0 < s.length) node.appendChild(document.createTextNode(s.slice(at0)));
+  }
+  let lastSay = null;
+  function setSay(s) { if (s === lastSay) return; lastSay = s; el('say').hidden = !s; write(el('say'), s); }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()), 0, STEPS.length - 1);
+  // Dan takes over: what a demonstration still had to do happens at once, and its highlights end.
+  function takeOver(st) {
+    while (st.ev.length) { const e = st.ev.shift(); e[1](st, st.t); }
+    st.lights = []; st.touched = true; st.until = st.t;
+  }
+  function act(group, fn) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || !swOnFor(d, st) || d.sw.indexOf(group) < 0) return;
+    const tg = group === 'y3' ? st.a : st.m;
+    if (!tg) return;
+    takeOver(st);
+    fn(tg, st.t);
+    if (group === 'y3') retargetA(tg, st.t); else retarget(tg, st.t);
+    K.reveal();
+    K.refresh();
+  }
+  const SW = {}, B = {};
+  function group(k, label, cls) {
+    const box = el('ctl').appendChild(K.el('div', { class: 'sw' + (cls ? ' ' + cls : '') }));
+    if (label) box.appendChild(K.el('span', { class: 'k-label' }, label));
+    SW[k] = box;
+    return box.appendChild(K.el('div', { class: 'row' }));
+  }
+  let gr = group('sol', 'Solenoids', 'two');
+  const solTap = (m, on) => { if (!m.run) { m.nudge = true; return; } m.nudge = false; on(m); };
+  B.y1 = K.button({ label: '-Y1', secondary: true, into: gr, press: () => act('sol', (m) => solTap(m, (q) => { q.y1 = q.y1 ? 0 : 1; if (q.y1) q.y2 = 0; })) });
+  B.y2 = K.button({ label: '-Y2', secondary: true, into: gr, press: () => act('sol', (m) => solTap(m, (q) => { q.y2 = q.y2 ? 0 : 1; if (q.y2) q.y1 = 0; })) });
+  gr = group('stop', 'Pump');
+  B.stop = K.button({ label: 'Stop', secondary: true, into: gr, press: () => act('stop', (m, t) => { if (m.run) stopNow(m, t); else { m.run = 1; m.stopAt = -9; m.nudge = false; } }) });
+  gr = group('y3', 'Solenoid');
+  B.y3 = K.button({ label: '-Y3', secondary: true, into: gr, press: () => act('y3', (a) => { a.y3 = a.y3 ? 0 : 1; }) });
+  gr = group('load', '', 'wide');
+  const barCtl = K.control({ id: 'bar', label: 'Load', min: 6, max: 12, step: 1, value: 6, snap: [9, 12], fmt: (v) => K.fmt(v) + ' bar absolute', into: gr });
+  K.readout({ id: 'vol', label: 'The air fills', unit: 'cm³', decimals: 0, into: '#airouts' });
+  const pr = (b, v) => b.el.setAttribute('aria-pressed', v ? 'true' : 'false');
+  function paintCtl(m) { pr(B.y1, m.y1); pr(B.y2, m.y2); pr(B.stop, 0); const s = m.run ? 'Stop' : 'Start'; if (B.stop.el.textContent !== s) B.stop.setLabel(s); }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The order puzzle: tap the parts in the order the oil passes them.
+  const ordBtns = ORD.map((nm) => K.button({ label: nm, secondary: true, into: '#order', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'order' || st.res === 'right') return;
+    if (st.res === 'wrong' || st.res === 'empty' || st.res === 'full') { if (st.res !== 'empty') { st.taps = []; st.tapAt = {}; } st.res = null; }
+    if (st.taps.indexOf(nm) >= 0) return;
+    if (st.taps.length >= d.want.length) { st.res = 'full'; return; }
+    st.taps.push(nm); st.tapAt[nm] = st.t; st.until = Math.max(st.until, st.t + 0.3);
+    play();
+  } }));
+  function orderHint(d, st) { const k = st.taps.find((x) => d.hintOn[x]); return k ? d.hintOn[k] : d.hint; }
+  function afterRight(i) { const d = STEPS[i]; if (d.after) d.after(S[i]); }
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = d.right || "That's it."; afterRight(i); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shown = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); afterRight(i); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (d.kind === 'order') {
+      if (st.taps.length < d.want.length) { st.res = 'empty'; return; }
+      if (st.taps.join() === d.want.join()) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+      return;
+    }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    if (st.pick === d.want) { st.res = 'right'; afterRight(i); } else st.res = 'wrong';
+  } });
+  const clearBtn = K.button({ label: 'Start over', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'order' || st.res === 'right') return;
+    st.taps = []; st.tapAt = {}; st.res = null;
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at();
+    if (finished || STEPS[i].show || whyBtn.el.hidden) return;
+    S[i].why = !S[i].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show || !d.demo) return;
+    S[i] = fresh(i);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // A demonstration's still is its finished picture, in the state its sentence ends on; a puzzle's
+  // still is its answered picture, with the motion after the answer settled.
+  STEPS.forEach((d, i) => {
+    if (d.show) d.still = () => { S[i] = fresh(i); settle(S[i]); if (d.stillSet) d.stillSet(S[i]); anim.pause(); K.refresh(); };
+    else d.still = () => {
+      const st = S[i];
+      if (st.res !== 'right') {
+        if (d.kind === 'order') st.taps = d.want.slice();
+        if (d.kind === 'pick') st.pick = d.want;
+        if (d.kind === 'typed') { ANS[i].reveal(); st.fbText = d.right || "That's it."; }
+        st.res = 'right'; afterRight(i);
+      }
+      settle(st); anim.pause(); K.refresh();
+    };
+  });
+
+  // One animation plays each demonstration, the motion after an answer and each move; with reduced
+  // motion (and while the self-test looks) everything settles at once.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const st = S[at()];
+    advance(st, Math.min(dt, 0.1));
+    paint();
+    return busy(st);
+  } });
+  function play() {
+    const st = S[at()];
+    if (REDUCE || testing()) { settle(st); anim.pause(); paint(); return; }
+    if (!anim.playing()) anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+
+  // ---------- the page ----------
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i];
+    art.textContent = '';
+    let H = HM, alt = '';
+    if (d.view === 'main') alt = drawMain(art, st, d);
+    else if (d.view === 'air') { H = HA; alt = drawAir(art, st); }
+    else { H = HQ; alt = drawSq1(art, st); }
+    sceneSvg.setAttribute('viewBox', '0 0 340 ' + H);
+    sceneSvg.setAttribute('aria-label', alt);
+    if (st.m) paintCtl(st.m);
+    if (st.a) pr(B.y3, st.a.y3);
+    setSay(sayFor(i));
+    // a demonstration's words fade in as its motion settles
+    K.fade(el('say'), d.show && d.demo && !st.touched ? K.arrive(st.t, d.dur - 0.45, 0.4) : 1, 3);
+  }
+  write(el('finish'), FINISH);
+  K.model((p) => ({ vol: PV / p.bar }));
+  K.update((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); lastSay = null;
+      if (d.show) S[i] = fresh(i); else if (busy(S[i])) settle(S[i]);
+      if (!busy(S[i])) anim.pause();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+
+    // a puzzle's switches take no room until he has answered, then grow in
+    const on = swOnFor(d, st), ctl = el('ctl'), grow = on && ctl.hidden && ctlAt === i;
+    ctl.hidden = !on; ctlAt = i;
+    if (grow) enter('ctl');
+    Object.keys(SW).forEach((k) => { SW[k].hidden = !on || d.sw.indexOf(k) < 0; });
+    el('airouts').hidden = d.view !== 'air';
+
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('tools').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      write(b.el.appendChild(K.el('span', { class: 'opt' })), opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('order').hidden = d.kind !== 'order';
+    ordBtns.forEach((b, k) => {
+      const n = d.kind === 'order' ? st.taps.indexOf(ORD[k]) : -1;
+      b.setLabel(n >= 0 ? (n + 1) + '. ' + ORD[k] : ORD[k]);
+      b.el.setAttribute('aria-pressed', n >= 0 ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    clearBtn.el.hidden = d.kind !== 'order' || right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    let f = '';
+    if (!d.show) {
+      if (d.kind === 'typed') f = st.fbText;
+      else if (right) f = "That's it.";
+      else if (st.res === 'wrong') f = d.kind === 'order' ? orderHint(d, st) : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty') f = d.kind === 'order' ? 'Tap three parts in order, then Check.' : 'Tap one of the answers.';
+      else if (st.res === 'full') f = 'Three parts are chosen. Check them, or start over.';
+    }
+    fb.className = 'fb' + (right && !st.shown ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    // a typed puzzle's Why? states the figure, so it shows only once he has answered
+    whyBtn.el.hidden = d.kind === 'typed' && st.res !== 'right' && st.res !== 'wrong';
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+    if (busy(st)) play();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const drawsRed = (st) => { const g = K.svg('g', {}); drawMain(g, st, STEPS[I.safe]); return !!g.querySelector('.stored, .stl'); };
+  const runFor = (st, secs) => { for (let t = 0; t < secs - 1e-9; t += 0.05) advance(st, 0.05); return st; };
+  const settleOf = (st) => { settle(st); return st; };
+  K.check('Each symbol is drawn in its normal or neutral condition: the press opens with both solenoids off, the middle box against the ports, P to T unloading the pump and the ram held near the top', () => {
+    const st = settleOf(fresh(I.paths)), m = st.m, f = flowMap(m, st.t);
+    return !m.y1 && !m.y2 && m.run === 1 && inLine(curS(m, st.t)) === 0 && f.r.pump === 'unload' && !!f.F.PT && !f.F.A && m.x === X0 && m.gv === 0.05;
+  }, { source: NAVY });
+  K.check('When pressure is applied to the top chamber, the bottom chamber is aligned to drain back to the reservoir: with -Y1 the left box feeds A at the top and lines B at the bottom up to T', () => {
+    const f = flowMap(newMain({ y1: 1, x: 0.4 }), 0).F;
+    return PORT_TOP === 'A' && JOINS.par.join() === 'PA,BT' && f.A.dir === 1 && f.B2.dir === -1 && f.FC.dir === -1 && f.B1.dir === -1 && !!f.T && !!f.BT && !f.CV;
+  });
+  K.check('With the supply connected to the piston side and the rod side exhausted, the pressure on the piston side advances the rod: -Y3 feeds the piston side, exhausts the rod side and the rod comes out', () => {
+    const st = mk({ a: newAir({ y3: 1 }) }), f = airMap(st.a, 0).F;
+    settle(st);
+    return f.L4.dir === 1 && f.L2.dir === -1 && !!f['14'] && !!f['23'] && !!f.E3 && !f.E5 && st.a.xa === 1;
+  });
+  K.check("With -Y1 the ram comes down, stops on the work and all the pump's oil then goes over the relief valve; with -Y2 it goes back up, and at the top the oil goes over the relief valve", () => {
+    const a = mk({ m: newMain({ y1: 1 }) });
+    runFor(a, 1);
+    const moving = a.m.x > X0 && a.m.x < XW && regNow(a.m, a.t).split === true;
+    settle(a);
+    const onWork = a.m.x === XW && regNow(a.m, a.t).pump === 'relief' && a.m.gv === 1 && a.m.ra === 1;
+    const b = mk({ m: newMain({ y2: 1, x: XW }) });
+    runFor(b, 0.6);
+    const up = b.m.x < XW;
+    settle(b);
+    return moving && onWork && up && b.m.x === 0 && regNow(b.m, b.t).pump === 'relief';
+  });
+  K.check('Stopped with the ram on the work, the line from A stays under pressure; stopped with the ram above it, the line from B; either way the gauge reads zero', () => {
+    const a = mk({ m: newMain({ y1: 1, x: XW }) }), b = mk({ m: newMain({ y1: 1, x: 0.5 }) });
+    stopNow(a.m, 0); retarget(a.m, 0); settle(a);
+    stopNow(b.m, 0); retarget(b.m, 0); settle(b);
+    return storedLine(a.m) === 'A' && storedLine(b.m) === 'B' && a.m.gv === 0 && b.m.gv === 0 && b.m.x === 0.5 && inLine(curS(a.m, a.t)) === 0 && !Object.keys(flowMap(a.m, a.t).F).length;
+  });
+  K.check('Pressure times volume stays the same: 6 × 300 = 1800, so 9 bar absolute gives 200 cm³ and 12 gives 150 cm³; each step up in pressure squeezes the air smaller', () => {
+    for (let b = 6; b < 12; b++) if (!(K.at({ bar: b + 1 }).vol < K.at({ bar: b }).vol)) return false;
+    return PV === 1800 && K.near(K.at({ bar: 6 }).vol, 300, 1e-9) && K.near(K.at({ bar: 9 }).vol, 200, 1e-9) && K.near(K.at({ bar: 12 }).vol, 150, 1e-9);
+  });
+  K.check('Worked by hand: 1800 ÷ 9 = 200 cm³; the slips are the pressures upside down, 300 × 9 ÷ 6 = 450, and no squeeze at all, 300; the field asks exactly this', () => {
+    const d = STEPS[I.still];
+    return d.answer === 200 && K.near(PV / 9, 200, 1e-9) && K.near(300 * 9 / 6, 450, 1e-9) && d.slips.map((x) => x.value).join() === '450,300' && ANS[I.still].spec.answer === 200 && d.want === '200 cm³';
+  });
+  K.check("Going down, the rod side's oil leaves through the flow control, then the valve, then the tank; going up it passes the check valve, which lets oil only into the rod side", () => {
+    const dn = flowMap(newMain({ y1: 1, x: 0.4 }), 0).F, up = flowMap(newMain({ y2: 1, x: 0.4 }), 0).F;
+    return !!dn.FC && dn.FC.dir === -1 && !dn.CV && !!dn.BT && !!dn.T && !!up.CV && up.CV.dir === 1 && !up.FC && STEPS[I.other].want.join() === 'Flow control,4/3 valve,Tank';
+  });
+  K.check('Before an answer nothing gives it away: puzzles open with no switches, rings or pulse; screens 3, 7, 9 and 14 show no flow, screen 5 lights only the path into the piston side, screen 11 only the supply, screen 13 draws no red line, and screen 1 only 300 cm³ at 6 bar', () => {
+    const ok = DO.every((i) => { const st = fresh(i); return !swOnFor(STEPS[i], st) && !Object.keys(st.rings).length && st.pulse == null && !st.taps.length; });
+    const none = (i) => !Object.keys(flowMap(fresh(i).m, 0).F).length;
+    const f5 = flowMap(fresh(I.other).m, 0).F, f11 = airMap(fresh(I.air2).a, 0).F, q = fresh(I.still).q;
+    const sf = fresh(I.safe);
+    return ok && none(I.drawn) && none(I.squeeze) && none(I.rodin) && none(I.top) && !!sf.m.hideRed && !drawsRed(sf) && !f5.FC && !f5.B2 && !f5.T && !f5.rel && !!f5.A && !f11.E3 && !f11.L2 && !!f11.L4 && q.from === 6 && q.to === 6;
+  });
+  K.check("Every demonstration settles within 4.5 s, and every answer's motion within 3 s", () =>
+    STEPS.every((d, i) => {
+      if (d.show) return !d.demo || d.dur <= 4.5;
+      const st = fresh(i);
+      st.res = 'right';
+      if (d.after) d.after(st);
+      let t = 0;
+      while (busy(st) && t < 30) { advance(st, 0.05); t += 0.05; }
+      return t <= 3;
+    }));
+
+  K.ready();
+</script>

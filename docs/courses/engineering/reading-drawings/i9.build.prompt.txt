@@ -1,0 +1,398 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Reading drawings and schematics
+Idea: Reading one you have never seen (Read a diagram you have never seen in four steps: legend, sources, the state it is drawn in, then one path at a time.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is a load you called wrong, ringed in red and traced to the source or path you skipped, when you change one part and play it.
+Title (the app shows it above the frame, so do not repeat it): What if one part changes?
+The rule (the app shows it just above the frame, under "What you're looking at"): Fourteen small screens follow. Some show an idea. The rest ask you to try it. The main picture shows one sheet at a time, from a picker of five. Four are new: a compressed air system, a second switchboard, a hoist's control schematic and a drawing of an angle bracket. The fifth is the first switchboard, with sections A and B. Along the top sit four tabs: Legend, Sources, State and Trace. Legend lights the key and the notes. Sources rings every place supply can come in. State lights the notes on how it is drawn. Trace lights one path at a time. Tap a load, and its path back to a source lights. A What if button sits beside the tabs. With it on, tap a part to change it. A valve shuts, a breaker trips, a contact opens, or a compressor or generator stops. Mark each load Stops or Runs, then tap Play. The sheet plays the change slowly. Every load you marked wrong is ringed in red. On a puzzle screen, your choice takes the place of the marks. After Check, the sheet plays it and rings in red what the answer missed. Sheet 1, the compressed air system. Compressors C1 and C2 sit at the bottom left. Each is a circle with a hollow triangle at its outlet, driven by its own motor. After each comes a non-return valve, NR1 and NR2. Its arrow shows the one way it passes. Then comes a hand valve, V1 and V2. The two lines join and run up into the air receiver R1, on the right. It is a tall tank with rounded ends. R1's gauge has no numbers, only a working mark and a low mark. Drain valve V8, marked N.C., sits at R1's foot. From R1, V3 leads to the header, a line across the top. Off the header, V4 feeds the tools, V5 the valve actuators and V6 the hose point. A bypass with V7, marked N.C., runs from the joined compressor line straight to the header, round R1 and V3. The legend says every valve is drawn alike. N.C. means normally closed, shut as drawn. Note 1 says V7 is opened only while R1 is out of service. The rule. A user has air while an open path joins it to a running compressor. So does an open path to R1, while R1's needle is above its low mark. Air passes a non-return valve only its arrow's way. A line carrying air is bold, with arrows. An empty one is pale. With both compressors stopped, R1's needle falls while any user is open. Sheet 2, the second switchboard, drawn with its supplies at the bottom. A feeder from the main board comes in through incoming breaker -Q6 to section 1, on the left. Generator -G4 comes in through its breaker -Q7 to section 2, on the right. Bus-tie -Q8 joins the two sections. Above, section 1 feeds fan -M5 through -Q31 and lighting -E5 through -Q32. Section 2 feeds pump -M6 through -Q41 and heater -E6 through -Q42. The caption says it is drawn as run. -G4 is stopped, -Q7 open and everything else closed. Each load's lamp is lit when it has supply. The rule. A line is live when an unbroken path of closed breakers joins it to a live source. The feeder is always live. -G4 stays stopped. Sheet 3, the hoist's control schematic, drawn the IEC way. A small picture of the hoist and its hook sits beside it. Supply L runs along the top, and return N along the bottom. Stop button -S10 and overload contact -F11, both normally closed, sit on the shared line at the top. Below them stand three current paths. Path 1: Up button -S11, normally open, top limit switch -B11, normally closed, a normally closed contact of -K12, then the coil of Up contactor -K11. Path 2: Down button -S12, bottom limit switch -B12, a normally closed contact of -K11, then the coil of Down contactor -K12. Path 3: normally open contacts of -K11 and -K12 side by side, then brake coil -Y11. With -Y11 energised, the brake lifts. With it dead, the brake's spring holds the hook. Under each coil is its cross-reference. Under -K11, 3 marks its normally open contact and 2 its normally closed one. Under -K12, 3 and then 1. The motor and main contacts are on the power sheet, not drawn. With no latching contacts, the hoist moves only while a button is held. Each contact is drawn faint at rest, with its present state in bold over it. In What if, tapping -B11 or -B12 opens it, as the hook would at the end of its travel. The rule. A coil pulls in while an unbroken path of closed contacts joins it from L to N. Each contact follows the coil whose tag it carries. The hook rises while -K11 is in and falls while -K12 is in. Otherwise the brake holds it. Sheet 4, a first-angle drawing of an angle bracket. It has a flat base, and an upright along its back edge with a hole through it. The front view is in the middle. The view from above is below it, and the view from the left end is on its right. Only two sizes are written, in millimetres. The overall height, 60, runs from the base's underside to the top of the upright. The base is 10 thick. The title block gives the drawing number, issue B, the scale 1 : 2 and the first-angle symbol. Here Legend lights the title block and the symbol. Sources lights the front view, where you start. State lights the issue letter, and Trace the hole through the upright in each view in turn. Sheet 5, the first switchboard, as before. -G1 is on section A, and -G2 and the shore supply on section B. Bus-tie -Q4, N.O., sits between them. Pump -M3 is fed from section A through -Q13, and from section B through -Q23, N.O. An interlock, a dashed link, lets only one of them close at a time. Battery -G3 joins only the DC board, through -Q5. At phone width, each sheet is drawn tall to fit 340 px. The tabs and What if wrap onto two rows, with no word split. The sheet picker is a named stepper. Tags are at least 12 px, and each part is a tap target about 40 px across. Screen 1, do, What still runs?: the air sheet, both compressors running, every user lit. "Both compressors stop. Do the tools still get air?" Choices: Yes, for a while, from the receiver (right); No, they stop at once; Yes, for as long as you like. Hint on No: "Look at R1. What is in it when the compressors stop?" Hint on as long as you like: "R1 holds only so much." Why: R1 is a tank of air under pressure. With both compressors stopped, it still feeds the header. Its pressure falls as the users take air, then they stop. So R1 counts as a source until it runs down. After Check, the compressors stop. The users stay lit until R1's needle reaches the low mark. Screen 2, show, Four steps: the air sheet, at rest. Words: "Read a sheet you have never seen in four steps. Find the legend, then every source. Then find the state it is drawn in. Last, trace one path at a time." Then "Tap each tab in turn." Read: Legend lights the key. Sources rings C1, C2 and R1. State lights Note 1 and the N.C. marks. Trace lights the path from C1 through R1 and V3 to the tools. Still: Trace on. Screen 3, do, Read its legend: the air sheet, V7 picked out, the legend dim. "Every valve on this sheet is drawn hollow. Is V7 open or shut as drawn?" Choices: Shut (right); Open; The sheet cannot tell you. Hint on Open: "On some sheets, hollow means open. Read this sheet's legend." Hint on cannot tell: "Look at the mark beside V7. Then find it in the legend." Why: this legend draws every valve alike. N.C. beside a valve means normally closed, shut as drawn. V7 carries N.C. Another sheet may fill in a shut valve instead. So read each sheet's own legend. Screen 4, show, Sources first: the second switchboard. Words: "This board's supplies come in at the bottom. Its loads sit at the top. Read it from the top left, and you start at a load. So find the sources first, wherever they are drawn." Then "Tap Sources." Read: two sources are ringed, the feeder from the main board through -Q6, and generator -G4 through -Q7. Still: Sources on. Screen 5, do, typed, Count the sources: the second switchboard, Sources off. "How many sources can feed this board?" A typed answer: 2, a whole number. Slips: 1, "The cable from the main board counts. To this board, it is where power comes in."; 3, "Bus-tie -Q8 joins the two sections. It carries power across, but it makes none." Hint: "A source is anywhere power can come in. Look along the bottom of the sheet." Why: power can come in two ways, the feeder through -Q6 and generator -G4 through -Q7. Each counts as a source, whether or not it is running now. Screen 6, show, The state it is drawn in: the second switchboard, its caption lit. Words: "Each part is drawn in one state, usually at rest or in its normal position. A caption may say how the plant is run. Here -G4 is stopped, so section 2 is fed from section 1 through bus-tie -Q8." Then "Tap State." Read: the caption is lit. Section 2 is bold through -Q8, and -G4's line is pale. Still: State on. Screen 7, do, What if -Q8 trips?: the second switchboard as run. "Bus-tie -Q8 trips open. What stops?" Choices: Pump -M6 and heater -E6 (right); Nothing, because -G4 feeds section 2; All four loads. Hint on Nothing: "Read the caption. Is -G4 running?" Hint on All four: "Trace fan -M5 back to a source. Does its path pass -Q8?" Why: -G4 is stopped and -Q7 is open. So section 2 has no live source of its own. Its only path to the feeder ran through -Q8. Section 1 still joins the feeder through -Q6. So fan -M5 and lighting -E5 still run. After Check, section 2 goes pale. Screen 8, show, One path at a time: the hoist sheet, the hook mid-travel. Words: "On a control sheet, trace one path at a time, from the supply line to a coil. Then find each contact by its tag, wherever it is drawn. One part can act on several paths." Then "Hold Up." Read: path 1 is bold from L through -S10, -F11, -S11, -B11 and -K12's contact to coil -K11. -K11's contact in path 2 opens. Its contact in path 3 closes. So -Y11 lifts the brake, and the hook rises. Still: Up held. Screen 9, do, What if the top limit opens?: the hoist, the hook at the top, -B11 open. "The hook has reached the top, so -B11 is open. You hold Up, then Down. What happens?" Choices: Up does nothing, and Down still works (right); Neither button works; Up still works. Hint on Neither: "Trace path 2 to coil -K12. Does -B11 sit on it?" Hint on Up still works: "-B11 sits in path 1, the path to coil -K11." Why: -B11 sits only in path 1. Once open, it breaks the path to -K11. So Up does nothing. Path 2 does not pass it, so -K12 still pulls in. -K12's contact in path 3 feeds -Y11. So the brake lifts for the way down. Screen 10, show, The odd one out: the bracket drawing. Words: "An engineering drawing has no sources, and nothing flows through it. So read its title block and issue first, then its projection symbol. Then follow one feature at a time across the views." Then "Tap Trace." Read: the title block gives issue B, the scale 1 : 2 and the first-angle symbol. The hole through the upright lights in each view in turn: a circle in the front view, dashed lines in the other two. Still: Trace on. Screen 11, do, typed, Read the sizes: the bracket drawing, its two sizes lit. "The overall height is 60, and the base is 10 thick. How high does the upright stand above the base's top face?" A typed answer: 50, in mm, a whole number. Slips: 60, "That is the overall height, from the base's underside to the top."; 70, "That adds the base on. The overall height already includes it." Hint: "Does the overall height include the base?" Why: the overall height includes the base. So the upright stands 60 − 10 = 50 mm above the base's top face. Screen 12, do, mixed, Isolate the receiver: the air sheet as drawn. "You must open receiver R1 for an inspection. Which valves do you shut?" Choices: V1, V2 and V3, with V7 kept shut (right); V3 only; V1 and V2 only. Hint on V3 only: "That cuts the header side. Trace back from R1 towards the compressors." Hint on V1 and V2 only: "That cuts the compressors off. Trace on from R1 to the header." Why: air comes into R1 from the compressors, through V1 and V2, and leaves for the header through V3. Shut all three, and every path to R1 stops at a shut valve. V7 would join R1's inlet line to the header. So check it stays shut. R1 still holds air under pressure. Vent it through V8 before you open it. Screen 13, do, mixed, The starter still live: the first switchboard, as its caption gives it. "You lock off -Q13 to work on pump -M3's starter. The drawing is right, yet the starter is still live. What did you miss?" Choices: -Q23, its second feed, from section B (right); Bus-tie -Q4, between the sections; Battery -G3, on the DC board. Hint on -Q4: "-Q4 joins the sections. Which breakers join -M3 to a section?" Hint on -G3: "The battery joins only the DC board, through -Q5." Why: -M3 hangs from section A through -Q13, and from section B through -Q23. With -Q13 open, the interlock lets -Q23 close. The sources step looks for every way in, not just the usual one. Lock off both, then prove it dead at the starter. Screen 14, do, mixed, Sheet and plant: the air sheet beside a sketch of the plant as fitted, each part where it sits, with its tag. Two things differ. In the plant, R1 stands left of the compressors. The sheet draws it on the right. And a short pipe with an untagged valve runs from the top of R1 straight to the hose point, round V3 and the header. "You plan to cut off the header and its users by shutting V3. Which difference matters?" Choices: The untagged pipe from R1 to the hose point (right); R1 standing left of the compressors; Neither, so V3 is enough. Hint on R1 standing left: "Where a part sits means nothing on a diagram. What is joined to what?" Hint on Neither: "Trace every pipe from R1 in the plant sketch. Does each one pass V3?" Why: where a part sits does not change what it is joined to. The extra pipe does. It is a way in that the sheet does not show. So shutting V3 leaves the hose point live. Check every isolation point on the plant against the sheet. Then report the difference, so the sheet is put right.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): These sheets are made up for practice. Real ones carry far more parts. They often run across several sheets, joined by cross-references. Every line is simply live or dead, with no pressures, voltages or flows. R1's needle falls far faster than a real receiver's would, so you can watch it. A shut valve and an open breaker cut off perfectly here. A non-return valve never lets any by. Real valves can let a little through, and a sheet can miss a way in. That is why you still prove dead, or vent, at the point of work. Breakers trip only when you tap them. Protection settings are not shown, nor how a fault chooses which breaker trips. The plant sketch is a drawing, not a photograph. Nothing here shows how any real ship's or submarine's systems are laid out or drawn.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 14 (the stepper): 0 (control)
+- Steps in the reading method: 4 (assumed)
+- Sheets in the picker: 5 (assumed)
+- Compressors on the air sheet: 2 (assumed)
+- Users on the air sheet's header: 3 (assumed)
+- Loads on the second switchboard: 4 (assumed)
+- Current paths on the hoist sheet: 3 (assumed)
+- Screen 5: sources that can feed the second board: 2 (computed)
+- Screen 5 slip, the feeder left out: 1 (computed)
+- Screen 5 slip, the bus-tie counted: 3 (computed)
+- Bracket height overall, in mm: 60 (assumed)
+- Bracket base thickness, in mm: 10 (assumed)
+- Screen 11: upright above the base, 60 − 10, in mm: 50 (computed)
+- Screen 11 slip, base added on, 60 + 10, in mm: 70 (computed)
+- Scale, drawn size to part size, 1 : 2 (drawn): 1 (assumed)
+- Scale, drawn size to part size, 1 : 2 (part): 2 (assumed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+You can read a sheet you have never seen in four steps. Find the legend, then every source, then the state it is drawn in. Then trace one path at a time. After that, you can ask what one change does. What stops, and what still runs?
+
+Start with the legend and the notes, because conventions change from sheet to sheet. One sheet fills in a shut valve. Another draws every valve alike. It marks the shut ones N.C., for normally closed. The notes and legend can also say what a symbol alone cannot.
+
+Next, find every source, wherever it is drawn. A single-line diagram usually starts at the top, with the incoming supply. A sheet you have never seen may not. If you read it from the top left, you may start at a load. Then you may never see a second way in. A source is anywhere supply can come in. On a board, that may be a generator, a feeder from another board or a battery. On a piping or air sheet, it may be a pump or a compressor. A store counts too. An air receiver is a tank of compressed air. It still feeds the line after both compressors stop, until its pressure falls too low.
+
+Then find the state it is drawn in. Each symbol usually shows its part in one state, normal or at rest, unless the sheet says otherwise. A caption may also say how the plant is run. It may say which generator is stopped, for example. A generator drawn on the sheet feeds nothing while it is stopped. A line dra…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Engineering Symbology, Prints, and Drawings, Module 2: Engineering Fluid Diagrams and Prints (DOE-HDBK-1016/1-93) (https://www.online-pdh.com/file.php/221/CFD_SG.pdf): "globe and gate valves will often be depicted by the same valve symbol. In such cases, information concerning the valve type may be conveyed by the component identification number or by the notes and legend section of the drawing"
+[2] How to Read a Single Line Diagram | EECO (https://eecoonline.com/inspire/how-to-read-a-single-line-diagram): "A one line typically starts at the top of the page and works its way down. It will start with the utility or other means of incoming power and its disconnecting device."
+[3] Basic Diagrams and Systems | Engineering Library (US Navy NAVEDTRA 14105A, Fluid Power, chapter 12) (https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy): "Each symbol is drawn to show the normal or neutral condition of each component unless multiple circuit diagrams are furnished showing various phases of circuit operation"
+[4] The safe isolation of plant and equipment (HSG253) (https://files.engineering.com/files/a01e329a-ec1b-42f7-a8fb-7a3bb8ea235c/hsg253_safe_isolation.pdf): "Are all isolation points identified on the plant and do they match the line diagram and isolation certificate?"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

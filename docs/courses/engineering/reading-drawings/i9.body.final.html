@@ -1,0 +1,1541 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 60rem; }
+  .lead, .caption, .task, .say, .fb, .why, .done { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + *, .side > * + *, .pane > * + * { margin-top: 12px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-weight: 400; line-height: 1.6; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 14px 24px; align-items: start; }
+  .pane, .side { margin: 0; min-width: 0; }
+  svg.pic { display: block; width: 100%; height: auto; max-width: 26rem; margin-inline: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 8rem; min-height: 44px; }
+  .tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); gap: 8px; max-width: 26rem; margin-inline: auto; }
+  .tabs .k-btn { min-height: 44px; padding-inline: 8px; white-space: nowrap; }
+  .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .picker { display: flex; align-items: center; gap: 8px; max-width: 26rem; margin-inline: auto; }
+  .picker .k-btn { flex: 0 0 auto; min-width: 48px; min-height: 44px; padding-inline: 10px; }
+  .picker .nm { flex: 1 1 auto; min-width: 0; text-align: center; line-height: 1.3; }
+  .picker .nm b, .picker .nm small { display: block; }
+  .picker .nm small { font-weight: 400; white-space: nowrap; color: var(--k-muted); }
+  .notes { max-width: 26rem; margin-inline: auto; line-height: 1.5; padding: 4px 8px; border-radius: 6px; }
+  .notes.lit { background: var(--k-hl); }
+  .notes { transition: background-color .3s ease; }
+  html.k-testing .notes { transition: none; }
+  @media (prefers-reduced-motion: reduce) { .notes { transition: none; } }
+  .marks { display: flex; flex-direction: column; gap: 8px; }
+  .mrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .mrow .nm { flex: 1 1 7rem; min-width: 0; font-weight: 600; }
+  .mrow .k-btn { flex: 0 0 6rem; min-height: 44px; }
+  .mrow.bad .nm { color: var(--k-warn); }
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  .nw { white-space: nowrap; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+
+  /* The sheets. A dead line is pale; a live one is bold ink. */
+  svg text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+  svg text.nh { stroke: none; }
+  svg .ln { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  svg .ln.bus { stroke-width: 4; }
+  svg .ln.board { stroke-width: 3; }
+  svg .lv { fill: none; stroke: var(--k-ink); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+  svg .lv.bus { stroke-width: 8; }
+  svg .lv.board { stroke-width: 6; }
+  svg .sym { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .sk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  svg .sk.thick { stroke-width: 3.2; }
+  svg .faint { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linecap: round; }
+  svg .dash { stroke-dasharray: 4 3; }
+  svg .hid { fill: none; stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 5 3; }
+  svg .bl { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  svg .bl.on { stroke: var(--k-ink); stroke-width: 3.4; }
+  svg .fk { fill: var(--k-ink); }
+  svg .lamp { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; }
+  svg .lamp.on { fill: var(--k-ink); stroke: var(--k-ink); }
+  svg .ubox { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  svg .ufill { fill: var(--k-fill1); stroke: none; }
+  svg .coil { fill: var(--k-ink); stroke: none; }
+  svg .ring { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 4 3; }
+  svg .ring.ink { stroke: var(--k-ink); stroke-width: 2.4; stroke-dasharray: none; }
+  svg .ring.bad { stroke: var(--k-warn); stroke-width: 2.6; stroke-dasharray: none; }
+  svg .halo { fill: none; stroke: var(--k-accent); stroke-opacity: .32; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+  svg .halo.bad { stroke: var(--k-warn); stroke-opacity: .28; }
+  svg .hlbg { fill: var(--k-fill2); }
+  svg .proj { fill: none; stroke: var(--k-accent); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  svg .link { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  svg .lock { fill: var(--k-accent2); }
+  svg .shackle { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  svg .hit { fill: transparent; stroke: none; cursor: pointer; }
+  svg .t13 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  svg .t15b { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  svg .tg { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .tm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  svg .tm12 { font: 600 12px var(--k-font); fill: var(--k-accent); }
+  svg .kt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  svg .tbad { font: 700 13px var(--k-font); fill: var(--k-warn); }
+</style>
+
+<p class="lead">Five practice sheets: an air system, two switchboards, a hoist's control schematic and a bracket drawing.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <figure class="pane">
+        <div class="picker" id="picker"><span class="nm" id="shname"><b id="shtitle"></b><small id="shcount"></small></span></div>
+        <div class="tabs" id="tabs"></div>
+        <svg class="pic" id="scene" viewBox="0 0 340 500" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+        <p class="small notes" id="notes"></p>
+        <div id="plantbox" hidden>
+          <p class="k-label">The plant as fitted</p>
+          <svg class="pic" id="plant" viewBox="0 0 340 262" width="100%" role="img" aria-label=""><g id="part"></g></svg>
+        </div>
+      </figure>
+      <div class="side">
+        <p class="say" id="say"></p>
+        <div class="row" id="tools"></div>
+        <div class="marks" id="marks"></div>
+        <div class="picks" id="picks"></div>
+        <div id="ansbox"></div>
+        <div class="row" id="acts"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="note why" id="why" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Made-up practice sheets, far simpler than real ones. A bold line is joined to a live source.</p>
+
+<script>
+  // ---------- small helpers ----------
+  const el = (id) => document.getElementById(id);
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const listOf = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]);
+  const cp = (s) => JSON.parse(JSON.stringify(s));
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const add = (g, tag, attrs) => g.appendChild(K.svg(tag, attrs || {}));
+  const rect = (g, x, y, w, h, cls, rx) => add(g, 'rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 });
+  const line = (g, x1, y1, x2, y2, cls) => add(g, 'line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+  const circle = (g, cx, cy, r, cls) => add(g, 'circle', { class: cls, cx: r3(cx), cy: r3(cy), r });
+  const path = (g, d, cls) => add(g, 'path', { class: cls, d });
+  const poly = (g, pts, cls) => add(g, 'polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') });
+  const text = (g, x, y, s, cls, anchor) => g.appendChild(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  const fade = (e, a) => { K.fade(e, a, 0); return e; };
+  let meter = null;
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    if (meter) { const t = meter.appendChild(K.svg('text', { class: cls, x: 0, y: -40 }, s)); try { w = t.getComputedTextLength(); } catch (e) { w = 0; } meter.removeChild(t); }
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.8;
+  }
+  function hlText(g, x, y, s, cls, anchor, a) {
+    const w = tw(s, cls) + 8, x0 = anchor === 'start' ? x - 4 : anchor === 'end' ? x - w + 4 : x - w / 2;
+    return fade(rect(g, x0, y - 13, w, 18, 'hlbg', 4), a);
+  }
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the flow rule, for the air sheet and both switchboards ----------
+  // A part passes (on = true: a valve open, a breaker closed) or not. A line has supply while an
+  // unbroken path of passing parts joins it to a live source. A non-return valve (one) passes a to b only.
+  // The receiver is a store: a source while its needle is above the low mark.
+  const LOW = 0.4;
+  function reachFrom(S, st, start) {
+    const seen = new Set([start]), todo = [start];
+    while (todo.length) {
+      const n = todo.pop();
+      Object.keys(S.devs).forEach((k) => {
+        const D = S.devs[k];
+        if (!st.dev[k]) return;
+        let o = null;
+        if (D.a === n) o = D.b; else if (D.b === n && !D.one) o = D.a;
+        if (o && !seen.has(o)) { seen.add(o); todo.push(o); }
+      });
+    }
+    return seen;
+  }
+  function srcOn(S, st, s) { const P = S.srcs[s]; return P.store ? st.lev > LOW + 1e-9 : P.always ? true : !!st.run[s]; }
+  function liveNodes(S, st) {
+    const out = new Set();
+    S.sorder.forEach((s) => { if (srcOn(S, st, s)) reachFrom(S, st, S.srcs[s].node).forEach((n) => out.add(n)); });
+    return out;
+  }
+  // The end of a change: a receiver joined to a running compressor fills; one feeding an open user
+  // (or its open drain) runs down until it can feed nothing.
+  function settle(S, st) {
+    const e = cp(st);
+    if (!S.store) return e;
+    const R = S.srcs[S.store].node, fromC = new Set();
+    S.sorder.forEach((s) => { if (!S.srcs[s].store && srcOn(S, e, s)) reachFrom(S, e, S.srcs[s].node).forEach((n) => fromC.add(n)); });
+    if (fromC.has(R)) { e.lev = 1; return e; }
+    const r = reachFrom(S, e, R), vent = !!S.sink && r.has(S.sink);
+    const draws = vent || S.lorder.some((l) => r.has(S.loads[l].node));
+    if (vent) e.lev = 0; else if (draws && e.lev > LOW) e.lev = LOW;
+    return e;
+  }
+  const liveLoads = (S, st) => { const L = liveNodes(S, st); return S.lorder.filter((l) => L.has(S.loads[l].node)); };
+  // A path from a live source to a load: the lines and parts it passes, in order from the source.
+  function pathTo(S, st, load) {
+    const t = S.loads[load].node;
+    for (const s of S.sorder) {
+      if (!srcOn(S, st, s)) continue;
+      const start = S.srcs[s].node, prev = {}, q = [start];
+      prev[start] = null;
+      while (q.length) {
+        const n = q.shift();
+        Object.keys(S.devs).forEach((k) => {
+          const D = S.devs[k];
+          if (!st.dev[k]) return;
+          let o = null;
+          if (D.a === n) o = D.b; else if (D.b === n && !D.one) o = D.a;
+          if (o && !(o in prev)) { prev[o] = { from: n, via: k }; q.push(o); }
+        });
+      }
+      if (!(t in prev)) continue;
+      const nodes = [t], devs = [];
+      let at = t;
+      while (prev[at]) { devs.unshift(prev[at].via); at = prev[at].from; nodes.unshift(at); }
+      return { src: s, nodes, devs };
+    }
+    return null;
+  }
+  // A change played slowly: parts move, then lines follow; a receiver's needle falls (or rises) before
+  // what it alone fed goes pale. delay: a part that moves later than the rest.
+  function flowPlan(S, A, B, delay) {
+    const B0 = cp(B); B0.lev = A.lev;
+    const E = settle(S, B0), L0 = liveNodes(S, A), Lm = liveNodes(S, B0), Le = liveNodes(S, E);
+    const dly = delay || {}, last = Math.max(0, ...Object.values(dly));
+    const moved = Object.keys(S.devs).some((k) => !!A.dev[k] !== !!B.dev[k]) || Object.keys(S.srcs).some((s) => !!A.run[s] !== !!B.run[s]);
+    const t1 = (moved ? 0.8 : 0.1) + last, dl = Math.abs(E.lev - A.lev), tl = dl > 1e-6 ? K.clamp(dl * 2, 0.8, 1.6) : 0;
+    const t2 = t1 + 0.6, t3 = t2 + tl, end = tl ? t3 + 0.7 : t1 + 0.7;
+    return { S, A, B, E, L0, Lm, Le, dly, t1, t2, t3, tl, end, rings: end + 0.1, dur: end + 0.7 };
+  }
+  const progT = (T, t0, d) => (T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1));
+  function flowLook(p, T) {
+    const S = p.S, v = { dev: {}, node: {}, run: {}, lev: p.E.lev, st: T === Infinity ? p.E : p.B };
+    Object.keys(S.devs).forEach((k) => { const a = p.A.dev[k] ? 0 : 1, b = p.B.dev[k] ? 0 : 1, d = p.dly[k] || 0; v.dev[k] = K.lerp(a, b, K.ease(progT(T, 0.2 + d, 0.5))); });
+    Object.keys(S.srcs).forEach((s) => { v.run[s] = progT(T, 0.45, 0.01) >= 1 ? p.B.run[s] : p.A.run[s]; });
+    Object.keys(S.nodes).forEach((n) => {
+      const a = p.L0.has(n) ? 1 : 0, m = p.Lm.has(n) ? 1 : 0, e = p.Le.has(n) ? 1 : 0;
+      let x = K.lerp(a, m, K.ease(progT(T, p.t1, 0.6)));
+      if (m !== e) x = K.lerp(m, e, K.ease(progT(T, p.tl ? p.t3 : p.t1, 0.6)));
+      v.node[n] = x;
+    });
+    if (p.tl) v.lev = K.lerp(p.A.lev, p.E.lev, K.ease(progT(T, p.t2, p.tl)));
+    return v;
+  }
+  function stillLook(S, shown, cur) {
+    const L = liveNodes(S, shown), v = { dev: {}, node: {}, run: {}, lev: shown.lev, st: shown };
+    Object.keys(S.devs).forEach((k) => { v.dev[k] = cur.dev[k] ? 0 : 1; });
+    Object.keys(S.srcs).forEach((s) => { v.run[s] = cur.run[s]; });
+    Object.keys(S.nodes).forEach((n) => { v.node[n] = L.has(n) ? 1 : 0; });
+    return v;
+  }
+
+  // ---------- sheet 1: the compressed air system ----------
+  const AIR = {
+    id: 'air', title: 'Compressed air', h: 504, air: true, store: 'R1', sink: 'drn',
+    nodes: {
+      a1: { p: [[[77, 388], [104, 388]]] }, b1: { p: [[[120, 388], [151, 388]]] },
+      a2: { p: [[[77, 460], [104, 460]]] }, b2: { p: [[[120, 460], [151, 460]]] },
+      rcv: { p: [[[165, 388], [200, 388]], [[165, 460], [200, 460], [200, 300], [268, 300]], [[200, 300], [200, 198]], [[296, 180], [296, 150]], [[296, 320], [296, 340]]] },
+      hdr: { p: [[[296, 134], [296, 104], [50, 104], [50, 84]], [[160, 104], [160, 84]], [[270, 104], [270, 84]], [[200, 182], [200, 104]]] },
+      u4: { p: [[[50, 68], [50, 48]]] }, u5: { p: [[[160, 68], [160, 48]]] }, u6: { p: [[[270, 68], [270, 48]]] },
+      drn: { p: [[[296, 356], [296, 380]]] },
+    },
+    devs: {
+      NR1: { a: 'a1', b: 'b1', one: true, x: 112, y: 388, k: 'nrv', tag: [112, 374] },
+      V1: { a: 'b1', b: 'rcv', x: 158, y: 388, k: 'vh', tag: [158, 374] },
+      NR2: { a: 'a2', b: 'b2', one: true, x: 112, y: 460, k: 'nrv', tag: [112, 446] },
+      V2: { a: 'b2', b: 'rcv', x: 158, y: 460, k: 'vh', tag: [158, 446] },
+      V3: { a: 'rcv', b: 'hdr', x: 296, y: 142, k: 'vv', tag: [308, 146.5, 'start'] },
+      V7: { a: 'rcv', b: 'hdr', x: 200, y: 190, k: 'vv', tag: [210, 188.5, 'start'], nc: [210, 204, 'start'] },
+      V8: { a: 'rcv', b: 'drn', x: 296, y: 348, k: 'vv', tag: [308, 352.5, 'start'], nc: [308, 368, 'start'] },
+      V4: { a: 'hdr', b: 'u4', x: 50, y: 76, k: 'vv', tag: [38, 80.5, 'end'] },
+      V5: { a: 'hdr', b: 'u5', x: 160, y: 76, k: 'vv', tag: [148, 80.5, 'end'] },
+      V6: { a: 'hdr', b: 'u6', x: 270, y: 76, k: 'vv', tag: [258, 80.5, 'end'] },
+    },
+    srcs: {
+      C1: { node: 'a1', k: 'comp', x: 62, y: 388, tag: [62, 366], st: [62, 419] },
+      C2: { node: 'a2', k: 'comp', x: 62, y: 460, tag: [62, 439], st: [62, 491] },
+      R1: { node: 'rcv', k: 'store', store: true, x: 296, y: 250 },
+    },
+    sorder: ['C1', 'C2', 'R1'],
+    loads: {
+      T: { node: 'u4', k: 'user', x: 50, y: 20, w: 68, h: 28, label: 'Tools', nm: 'the tools', pl: true },
+      A: { node: 'u5', k: 'user', x: 160, y: 20, w: 84, h: 28, label: 'Actuators', nm: 'the valve actuators', pl: true },
+      H: { node: 'u6', k: 'user', x: 270, y: 20, w: 84, h: 28, label: 'Hose point', nm: 'the hose point' },
+    },
+    lorder: ['T', 'A', 'H'],
+    arrows: [['a1', 90, 388, 'r'], ['b1', 136, 388, 'r'], ['a2', 90, 460, 'r'], ['b2', 136, 460, 'r'], ['u4', 50, 58, 'u'], ['u5', 160, 58, 'u'], ['u6', 270, 58, 'u'], ['drn', 296, 372, 'd']],
+    base: { dev: { NR1: true, V1: true, NR2: true, V2: true, V3: true, V7: false, V8: false, V4: true, V5: true, V6: true }, run: { C1: true, C2: true }, lev: 1 },
+    notes: 'Note 1. V7 is opened only while V3 is out of service.',
+  };
+  // The plant as fitted (screen 14): the same parts where they sit, and one pipe the sheet lacks.
+  const PLANT = {
+    id: 'plant', title: 'The plant as fitted', h: 262, air: true, store: 'R1', sink: 'drn',
+    nodes: {
+      a1: { p: [[[140, 196], [140, 186]]] }, b1: { p: [[[140, 170], [140, 163]]] },
+      a2: { p: [[[240, 196], [240, 186]]] }, b2: { p: [[[240, 170], [240, 163]]] },
+      rcv: { p: [[[140, 147], [140, 140], [70, 140]], [[240, 147], [240, 140], [140, 140]], [[100, 140], [100, 115]], [[46, 110], [46, 100]], [[46, 220], [46, 228]], [[34, 114], [34, 58]]] },
+      hdr: { p: [[[46, 84], [46, 76], [291, 76], [291, 67]], [[123, 76], [123, 67]], [[201, 76], [201, 67]], [[100, 99], [100, 76]]] },
+      u4: { p: [[[123, 51], [123, 44]]] }, u5: { p: [[[201, 51], [201, 44]]] },
+      u6: { p: [[[291, 51], [291, 44]], [[34, 42], [34, 8], [318, 8], [318, 20]]] },
+      drn: { p: [[[46, 244], [46, 256]]] },
+    },
+    devs: {
+      NR1: { a: 'a1', b: 'b1', one: true, x: 140, y: 178, k: 'nrvv', tag: [150, 182.5, 'start'] },
+      V1: { a: 'b1', b: 'rcv', x: 140, y: 155, k: 'vv', tag: [150, 159.5, 'start'] },
+      NR2: { a: 'a2', b: 'b2', one: true, x: 240, y: 178, k: 'nrvv', tag: [250, 182.5, 'start'] },
+      V2: { a: 'b2', b: 'rcv', x: 240, y: 155, k: 'vv', tag: [250, 159.5, 'start'] },
+      V3: { a: 'rcv', b: 'hdr', x: 46, y: 92, k: 'vv', tag: [58, 96.5, 'start'] },
+      V7: { a: 'rcv', b: 'hdr', x: 100, y: 107, k: 'vv', tag: [110, 111.5, 'start'] },
+      V8: { a: 'rcv', b: 'drn', x: 46, y: 236, k: 'vv', tag: [56, 240.5, 'start'] },
+      V4: { a: 'hdr', b: 'u4', x: 123, y: 59, k: 'vv', tag: [113, 63.5, 'end'] },
+      V5: { a: 'hdr', b: 'u5', x: 201, y: 59, k: 'vv', tag: [191, 63.5, 'end'] },
+      V6: { a: 'hdr', b: 'u6', x: 291, y: 59, k: 'vv', tag: [281, 63.5, 'end'] },
+      X: { a: 'rcv', b: 'u6', x: 34, y: 50, k: 'vv' },
+    },
+    srcs: {
+      C1: { node: 'a1', k: 'comp', x: 140, y: 210, tag: [140, 242], up: true },
+      C2: { node: 'a2', k: 'comp', x: 240, y: 210, tag: [240, 242], up: true },
+      R1: { node: 'rcv', k: 'tank', store: true, x: 46, y: 165 },
+    },
+    sorder: ['C1', 'C2', 'R1'],
+    loads: {
+      T: { node: 'u4', k: 'user', x: 123, y: 20, w: 54, h: 24, label: 'Tools', nm: 'the tools', pl: true },
+      A: { node: 'u5', k: 'user', x: 201, y: 20, w: 70, h: 24, label: 'Actuators', nm: 'the valve actuators', pl: true },
+      H: { node: 'u6', k: 'user', x: 291, y: 20, w: 78, h: 24, label: 'Hose point', nm: 'the hose point' },
+    },
+    lorder: ['T', 'A', 'H'],
+    arrows: [],
+    base: { dev: { NR1: true, V1: true, NR2: true, V2: true, V3: true, V7: false, V8: false, V4: true, V5: true, V6: true, X: true }, run: { C1: true, C2: true }, lev: 1 },
+  };
+
+  // ---------- sheet 2: the second switchboard, drawn with its supplies at the bottom ----------
+  const SB2 = {
+    id: 'sb2', title: 'Second switchboard', h: 380,
+    nodes: {
+      m5f: { p: [[[50, 62], [50, 92]]] }, e5f: { p: [[[120, 60], [120, 92]]] }, m6f: { p: [[[220, 62], [220, 92]]] }, e6f: { p: [[[290, 57], [290, 92]]] },
+      s1: { bus: [[16, 168], [156, 168]], p: [[[50, 120], [50, 168]], [[120, 120], [120, 168]], [[60, 168], [60, 198]]] },
+      s2: { bus: [[184, 168], [324, 168]], p: [[[220, 120], [220, 168]], [[290, 120], [290, 168]], [[260, 168], [260, 198]]] },
+      fd: { p: [[[60, 226], [60, 292]]] }, g4: { p: [[[260, 226], [260, 262]]] },
+    },
+    devs: {
+      Q31: { a: 'm5f', b: 's1', x: 50, y: 106, k: 'brk', tag: [58, 110.5, 'start'] },
+      Q32: { a: 'e5f', b: 's1', x: 120, y: 106, k: 'brk', tag: [128, 110.5, 'start'] },
+      Q41: { a: 'm6f', b: 's2', x: 220, y: 106, k: 'brk', tag: [228, 110.5, 'start'] },
+      Q42: { a: 'e6f', b: 's2', x: 290, y: 106, k: 'brk', tag: [298, 110.5, 'start'] },
+      Q8: { a: 's2', b: 's1', x: 170, y: 168, k: 'brkh', tag: [170, 147] },
+      Q6: { a: 's1', b: 'fd', x: 60, y: 212, k: 'brk', tag: [68, 216.5, 'start'] },
+      Q7: { a: 's2', b: 'g4', x: 260, y: 212, k: 'brk', tag: [268, 216.5, 'start'] },
+    },
+    srcs: {
+      FD: { node: 'fd', k: 'feed', always: true, x: 60, y: 270 },
+      G4: { node: 'g4', k: 'gen', x: 260, y: 278, tag: [282, 274, 'start'], st: [282, 290, 'start'], fixed: true },
+    },
+    sorder: ['FD', 'G4'],
+    loads: {
+      M5: { node: 'm5f', k: 'motor', x: 50, y: 48, lamp: [72, 34], tag: [50, 22], label: 'Fan -M5', nm: 'fan -M5' },
+      E5: { node: 'e5f', k: 'light', x: 120, y: 48, lamp: [142, 34], tag: [120, 22], label: 'Lighting -E5', nm: 'lighting -E5' },
+      M6: { node: 'm6f', k: 'motor', x: 220, y: 48, lamp: [242, 34], tag: [220, 22], label: 'Pump -M6', nm: 'pump -M6' },
+      E6: { node: 'e6f', k: 'heater', x: 290, y: 48, lamp: [314, 34], tag: [290, 22], label: 'Heater -E6', nm: 'heater -E6' },
+    },
+    lorder: ['M5', 'E5', 'M6', 'E6'],
+    labels: [[85, 158, 'Section 1', 't13'], [255, 158, 'Section 2', 't13'], [60, 312, 'Feeder from', 't13'], [60, 328, 'the main board', 't13']],
+    key: 344,
+    base: { dev: { Q31: true, Q32: true, Q41: true, Q42: true, Q8: true, Q6: true, Q7: false }, run: { G4: false }, lev: 1 },
+    notes: 'Drawn as run: -G4 stopped, -Q7 open, everything else closed.',
+  };
+
+  // ---------- sheet 5: the first switchboard, as in the earlier lesson ----------
+  const SB1 = {
+    id: 'sb1', title: 'First switchboard', h: 470,
+    nodes: {
+      g1: { p: [[[56, 48], [56, 70]]] }, g2: { p: [[[226, 48], [226, 70]]] }, sh: { p: [[[300, 46], [300, 70]]] }, bat: { p: [[[196, 354], [196, 378]]] },
+      busA: { bus: [[12, 120], [156, 120]], p: [[[56, 98], [56, 120]], [[26, 120], [26, 144]], [[84, 120], [84, 144]], [[130, 120], [130, 182]]] },
+      busB: { bus: [[184, 120], [330, 120]], p: [[[226, 98], [226, 120]], [[300, 98], [300, 120]], [[210, 120], [210, 182]], [[262, 120], [262, 144]], [[314, 120], [314, 182]]] },
+      f11: { p: [[[26, 172], [26, 238]]] }, f12: { p: [[[84, 172], [84, 226]]] },
+      m3: { p: [[[130, 210], [130, 252], [156, 252]], [[210, 210], [210, 252], [184, 252]]] },
+      f21: { p: [[[262, 172], [262, 238]]] }, f22: { p: [[[314, 210], [314, 230]]] },
+      lv: { bar: [[14, 310], [142, 310]], p: [[[84, 260], [84, 310]], [[40, 310], [40, 326]], [[110, 310], [110, 326]]] },
+      dc: { bar: [[186, 310], [330, 310]], p: [[[314, 258], [314, 310]], [[196, 310], [196, 326]], [[252, 310], [252, 326]], [[302, 310], [302, 326]]] },
+      e1f: { p: [[[40, 354], [40, 380]]] }, m4f: { p: [[[110, 354], [110, 378]]] }, e3f: { p: [[[252, 354], [252, 380]]] }, a3f: { p: [[[302, 354], [302, 380]]] },
+    },
+    devs: {
+      Q1: { a: 'g1', b: 'busA', x: 56, y: 84, k: 'brk', side: 'R' }, Q2: { a: 'g2', b: 'busB', x: 226, y: 84, k: 'brk', side: 'L' },
+      Q3: { a: 'sh', b: 'busB', x: 300, y: 84, k: 'brk', side: 'L' }, Q4: { a: 'busB', b: 'busA', x: 170, y: 120, k: 'brkh' },
+      Q11: { a: 'busA', b: 'f11', x: 26, y: 158, k: 'brk', side: 'R' }, Q12: { a: 'busA', b: 'f12', x: 84, y: 158, k: 'brk', side: 'R' },
+      Q13: { a: 'busA', b: 'm3', x: 130, y: 196, k: 'brk', side: 'L', inter: 'Q23' }, Q21: { a: 'busB', b: 'f21', x: 262, y: 158, k: 'brk', side: 'R' },
+      Q22: { a: 'busB', b: 'f22', x: 314, y: 196, k: 'brk', side: 'L' }, Q23: { a: 'busB', b: 'm3', x: 210, y: 196, k: 'brk', side: 'R', inter: 'Q13' },
+      F1: { a: 'lv', b: 'e1f', x: 40, y: 340, k: 'brk', side: 'R' }, F2: { a: 'lv', b: 'm4f', x: 110, y: 340, k: 'brk', side: 'R' },
+      Q5: { a: 'dc', b: 'bat', x: 196, y: 340, k: 'brk', side: 'R', iso: true }, F3: { a: 'dc', b: 'e3f', x: 252, y: 340, k: 'brk', side: 'R' },
+      F4: { a: 'dc', b: 'a3f', x: 302, y: 340, k: 'brk', side: 'R' },
+      T1: { a: 'f12', b: 'lv', one: true, k: 'conv' }, U1: { a: 'f22', b: 'dc', one: true, k: 'conv' },
+    },
+    srcs: {
+      G1: { node: 'g1', k: 'gen', x: 56, y: 32, tag: [80, 29, 'start'], st: [80, 45, 'start'] },
+      G2: { node: 'g2', k: 'gen', x: 226, y: 32, tag: [202, 29, 'end'], st: [202, 45, 'end'] },
+      SH: { node: 'sh', k: 'shore', always: true, x: 300, y: 32 },
+      G3: { node: 'bat', k: 'bat', always: true, x: 196, y: 387, tag: [177, 391.5, 'end'] },
+    },
+    sorder: ['G1', 'G2', 'SH', 'G3'],
+    loads: {
+      M1: { node: 'f11', k: 'motor', x: 26, y: 252, lamp: [48, 238], label: 'Pump -M1', nm: 'pump -M1' },
+      E1: { node: 'e1f', k: 'light', x: 40, y: 392, lamp: [62, 381], label: 'Lighting -E1', nm: 'lighting -E1' },
+      M4: { node: 'm4f', k: 'motor', x: 110, y: 392, lamp: [134, 380], label: 'Fan -M4', nm: 'fan -M4' },
+      M3: { node: 'm3', k: 'motor', x: 170, y: 252, lamp: [192, 236], label: 'Pump -M3', nm: 'pump -M3' },
+      M2: { node: 'f21', k: 'motor', x: 262, y: 252, lamp: [284, 238], label: 'Pump -M2', nm: 'pump -M2' },
+      E3: { node: 'e3f', k: 'light', x: 252, y: 392, lamp: [274, 381], label: 'Emergency light -E3', nm: 'emergency lighting -E3' },
+      A3: { node: 'a3f', k: 'alarm', x: 302, y: 392, lamp: [326, 381], label: 'Alarm panel -A3', nm: 'alarm panel -A3' },
+    },
+    lorder: ['M1', 'E1', 'M4', 'M3', 'M2', 'E3', 'A3'],
+    labels: [[4, 109, '440 V', 'tg', 'start'], [103, 109, 'Section A', 't13'], [263, 109, 'Section B', 't13'], [96, 300, '115 V', 'tg', 'start'], [190, 300, '24 V DC', 'tg', 'start'],
+      [100, 247.5, '-T1', 'tg', 'start'], [296, 226, '-U1', 'tg', 'end'], [170, 145, 'N.O.', 'tm'], [218, 214.5, 'N.O.', 'tm', 'start'], [170, 218, 'Interlocked', 'tm12']],
+    no: [[170, 145], [218, 214.5, 'start']],
+    key: 440,
+    base: { dev: { Q1: true, Q2: true, Q3: false, Q4: false, Q11: true, Q12: true, Q13: true, Q21: true, Q22: true, Q23: false, F1: true, F2: true, Q5: true, F3: true, F4: true, T1: true, U1: true }, run: { G1: true, G2: true }, lev: 1 },
+    notes: 'As drawn: -G1 and -G2 running. -Q3, -Q4 and -Q23 open. Everything else closed.',
+  };
+  Object.keys(SB1.devs).forEach((k) => { const D = SB1.devs[k]; if (D.k === 'brk') D.tag = D.side === 'R' ? [D.x + 8, D.y + 4.5, 'start'] : [D.x - 8, D.y + 4.5, 'end']; if (D.k === 'brkh') D.tag = [D.x, D.y - 21]; });
+  SB1.loads.M1.tag = [26, 282]; ['E1', 'M4', 'M3', 'M2', 'E3', 'A3'].forEach((l) => { const P = SB1.loads[l]; P.tag = [P.x, P.y + 30]; });
+  // Closing a breaker: the interlock, or two live AC parts fed from different sources, stop it.
+  SB1.refuse = function (st, k) {
+    const D = SB1.devs[k];
+    if (D.inter && st.dev[D.inter]) return '-' + k + ' cannot close while -' + D.inter + ' is closed. The interlock stops it.';
+    const fed = (n) => SB1.sorder.filter((s) => srcOn(SB1, st, s) && reachFrom(SB1, st, SB1.srcs[s].node).has(n));
+    const A = fed(D.a), B = fed(D.b);
+    if (A.length && B.length && (A.some((s) => B.indexOf(s) < 0) || B.some((s) => A.indexOf(s) < 0))) return '-' + k + ' stays open. Closing it would join two live supplies before they are matched.';
+    return null;
+  };
+  const NAMES = { C1: 'C1', C2: 'C2', R1: 'R1', FD: 'the feeder from the main board', G4: '-G4', G1: '-G1', G2: '-G2', SH: 'the shore supply', G3: 'battery -G3' };
+  const devName = (S, k) => (S.air ? k : '-' + k);
+
+  // ---------- sheet 3: the hoist's control schematic ----------
+  // A coil pulls in while closed contacts join it from L to N; each contact follows the coil whose
+  // tag it carries. The hook rises while -K11 is in and falls while -K12 is in; otherwise the brake holds.
+  const RATE = 0.22;
+  const HBASE = { S10: true, F11: true, B11: true, B12: true, pos: 0.5, held: null };
+  function coils(h) {
+    const top = h.S10 && h.F11, b11 = h.B11 && h.pos < 1 - 1e-9, b12 = h.B12 && h.pos > 1e-9;
+    let k11 = top && h.held === 'up' && b11, k12 = top && h.held === 'down' && b12;
+    if (k11 && k12) k12 = false;
+    return { top, b11, b12, k11, k12, y11: top && (k11 || k12), s11: h.held === 'up', s12: h.held === 'down' };
+  }
+  // A run of holds from a start, worked forward in small even steps so every frame is the same.
+  function hoistAt(h0, holds, T) {
+    const h = cp(h0), end = holds.length ? holds[holds.length - 1].t1 : 0, tt = Math.min(T, end + 0.5), dt = 1 / 60;
+    const res = { up: false, down: false, rose: 0, fell: 0 };
+    for (let t = 0; t < tt - 1e-9; t += dt) {
+      const hd = holds.find((x) => t >= x.t0 && t < x.t1);
+      h.held = hd ? hd.b : null;
+      const c = coils(h), step = Math.min(dt, tt - t);
+      if (c.k11) { res.up = true; const p = Math.min(1, h.pos + RATE * step); res.rose += p - h.pos; h.pos = p; }
+      if (c.k12) { res.down = true; const p = Math.max(0, h.pos - RATE * step); res.fell += h.pos - p; h.pos = p; }
+    }
+    const hd = holds.find((x) => tt >= x.t0 && tt < x.t1);
+    h.held = hd ? hd.b : null;
+    return { h, res };
+  }
+  const HOLDS2 = [{ b: 'up', t0: 0.3, t1: 1.9 }, { b: 'down', t0: 2.3, t1: 3.9 }];
+  const HOIST = { id: 'hoist', title: 'Hoist control', h: 478, hoist: true, lorder: ['UP', 'DN'], loads: { UP: { label: 'Hook up', nm: 'hook up' }, DN: { label: 'Hook down', nm: 'hook down' } },
+    notes: 'Each contact is drawn faint at rest, with its present state bold over it. The motor and main contacts are on the power sheet.' };
+  // ---------- sheet 4: a first-angle drawing of an angle bracket ----------
+  const BRK = { id: 'brk', title: 'Angle bracket', h: 420, brk: true, lorder: [], loads: {}, notes: '' };
+  const SHEETS = [AIR, SB2, HOIST, BRK, SB1];
+  const SI = { air: 0, sb2: 1, hoist: 2, brk: 3, sb1: 4 };
+  const HMM = 60, TMM = 10;   // the bracket's two written sizes, in mm
+
+  // The air sheet's lines are split at each tee, so a traced path lights only the pipes it uses.
+  AIR.nodes = {
+    a1: AIR.nodes.a1, b1: AIR.nodes.b1, a2: AIR.nodes.a2, b2: AIR.nodes.b2,
+    j1: { p: [[[165, 388], [200, 388]]] }, j2: { p: [[[165, 460], [200, 460], [200, 388]]] }, jv: { p: [[[200, 388], [200, 300]]] },
+    inl: { p: [[[200, 300], [268, 300]]] }, byl: { p: [[[200, 300], [200, 198]]] }, rcv: { p: [[[296, 180], [296, 150]], [[296, 320], [296, 340]]] },
+    hv3: { p: [[[296, 134], [296, 104], [270, 104]]] }, h6: { p: [[[270, 104], [270, 84]]] }, hm: { p: [[[270, 104], [200, 104]]] },
+    h7: { p: [[[200, 182], [200, 104]]] }, hl: { p: [[[200, 104], [160, 104]]] }, h5: { p: [[[160, 104], [160, 84]]] }, h4: { p: [[[160, 104], [50, 104], [50, 84]]] },
+    u4: AIR.nodes.u4, u5: AIR.nodes.u5, u6: AIR.nodes.u6, drn: AIR.nodes.drn,
+  };
+  Object.assign(AIR.devs.V1, { b: 'j1' }); Object.assign(AIR.devs.V2, { b: 'j2' }); Object.assign(AIR.devs.V3, { b: 'hv3' });
+  Object.assign(AIR.devs.V7, { a: 'byl', b: 'h7' }); Object.assign(AIR.devs.V4, { a: 'h4' }); Object.assign(AIR.devs.V5, { a: 'h5' }); Object.assign(AIR.devs.V6, { a: 'h6' });
+  [['j1', 'jv'], ['j2', 'jv'], ['jv', 'inl'], ['jv', 'byl'], ['inl', 'rcv'], ['hv3', 'h6'], ['hv3', 'hm'], ['hm', 'h7'], ['hm', 'hl'], ['hl', 'h5'], ['hl', 'h4']].forEach((j, i) => {
+    AIR.devs['w' + i] = { a: j[0], b: j[1], k: 'w' }; AIR.base.dev['w' + i] = true;
+  });
+  [AIR, PLANT, SB2, SB1].forEach((S) => { S.flow = true; Object.keys(S.devs).forEach((k) => { if (S.devs[k].k === 'conv') S.base.dev[k] = true; }); });
+  const realDevs = (S, list) => list.filter((k) => S.devs[k].k !== 'w' && S.devs[k].k !== 'conv');
+  const tappableDev = (S, k) => { const D = S.devs[k]; return !!S.flow && S.id !== 'plant' && D.k !== 'w' && D.k !== 'conv' && !D.one; };
+  const tappableSrc = (S, s) => { const P = S.srcs[s]; return !!S.flow && S.id !== 'plant' && (P.k === 'comp' || (P.k === 'gen' && !P.fixed)); };
+
+  // ---------- drawing a flow sheet ----------
+  const OPEN = 0.46, NEEDLE = (lev) => (-160 + 112.5 * K.clamp(lev, 0, 1)) * Math.PI / 180;
+  function xmark(g, x, y) { line(g, x - 3.5, y - 3.5, x + 3.5, y + 3.5, 'sk'); line(g, x - 3.5, y + 3.5, x + 3.5, y - 3.5, 'sk'); }
+  function padlock(g, x, y, a) {
+    const p = add(g, 'g');
+    path(p, 'M' + (x - 4) + ' ' + (y - 3) + ' V' + (y - 6) + ' A4 4 0 0 1 ' + (x + 4) + ' ' + (y - 6) + ' V' + (y - 3), 'shackle');
+    rect(p, x - 6.5, y - 3, 13, 10, 'lock', 2);
+    K.fade(p, a, 3);
+  }
+  function valve(g, x, y, vert) {
+    if (vert) { path(g, `M${x - 7} ${y - 8} L${x + 7} ${y - 8} L${x} ${y} Z M${x - 7} ${y + 8} L${x + 7} ${y + 8} L${x} ${y} Z`, 'sym'); return; }
+    path(g, `M${x - 8} ${y - 7} L${x - 8} ${y + 7} L${x} ${y} Z M${x + 8} ${y - 7} L${x + 8} ${y + 7} L${x} ${y} Z`, 'sym');
+  }
+  function nrv(g, x, y, up) {
+    if (up) { path(g, `M${x - 7} ${y + 8} L${x + 7} ${y + 8} L${x} ${y - 6} Z`, 'sym'); line(g, x - 7, y - 8, x + 7, y - 8, 'sk'); return; }
+    path(g, `M${x - 8} ${y - 7} L${x - 8} ${y + 7} L${x + 6} ${y} Z`, 'sym'); line(g, x + 8, y - 7, x + 8, y + 7, 'sk');
+  }
+  function drawDev(gp, S, k, open, alive) {
+    const D = S.devs[k];
+    if (D.k === 'vv' || D.k === 'vh') return valve(gp, D.x, D.y, D.k === 'vv');
+    if (D.k === 'nrv' || D.k === 'nrvv') return nrv(gp, D.x, D.y, D.k === 'nrvv');
+    if (D.k !== 'brk' && D.k !== 'brkh') return;
+    const th = open * OPEN;
+    if (D.k === 'brkh') {
+      const px = D.x - 14, y = D.y, ex = px + 28 * Math.cos(th), ey = y - 28 * Math.sin(th);
+      line(gp, px, y, ex, ey, 'bl'); fade(line(gp, px, y, ex, ey, 'bl on'), alive);
+      xmark(gp, D.x + 14, y); circle(gp, px, y, 2.4, 'fk');
+      return;
+    }
+    const x = D.x, fy = D.y - 14, py = D.y + 14, s = D.tag[2] === 'end' ? 1 : -1;
+    const ex = x + s * 28 * Math.sin(th), ey = py - 28 * Math.cos(th);
+    line(gp, x, py, ex, ey, 'bl'); fade(line(gp, x, py, ex, ey, 'bl on'), alive);
+    if (D.iso) line(gp, x - 5, fy, x + 5, fy, 'sk'); else xmark(gp, x, fy);
+    circle(gp, x, py, 2.4, 'fk');
+  }
+  function drawSrc(g, T, S, s, v) {
+    const P = S.srcs[s], x = P.x, y = P.y;
+    if (P.k === 'comp') {
+      const mx = P.up ? x + 30 : x - 38, my = y;
+      line(g, P.up ? x + 15 : mx + 11, y, P.up ? mx - 9 : x - 15, y, 'sk');
+      circle(g, mx, my, P.up ? 9 : 11, 'sym'); text(T, mx, my + 4.5, 'M', 'tg');
+      circle(g, x, y, P.up ? 14 : 15, 'sym');
+      if (P.up) path(g, `M${x - 9} ${y + 7} L${x + 9} ${y + 7} L${x} ${y - 13} Z`, 'sk');
+      else path(g, `M${x - 8} ${y - 10} L${x - 8} ${y + 10} L${x + 14} ${y} Z`, 'sk');
+      text(T, P.tag[0], P.tag[1], s, 'tg');
+      if (P.st) text(T, P.st[0], P.st[1], v.run[s] ? 'Running' : 'Stopped', 'tm');
+    } else if (P.k === 'store') {
+      rect(g, 268, 180, 56, 140, 'sym', 28);
+      circle(g, 296, 240, 16, 'sym');
+      [NEEDLE(1), NEEDLE(LOW)].forEach((a) => line(g, 296 + 12 * Math.sin(a), 240 - 12 * Math.cos(a), 296 + 19 * Math.sin(a), 240 - 19 * Math.cos(a), 'sk thick'));
+      line(g, 266, 223, 281, 227, 'sk'); line(g, 266, 257, 278, 248.5, 'sk');
+      text(T, 264, 228, 'Working', 'tm12', 'end'); text(T, 264, 263, 'Low', 'tm12', 'end');
+      const a = NEEDLE(v.lev);
+      line(g, 296, 240, 296 + 13 * Math.sin(a), 240 - 13 * Math.cos(a), 'sk thick'); circle(g, 296, 240, 2.6, 'fk');
+      text(T, 296, 292, 'R1', 'tg');
+    } else if (P.k === 'tank') {
+      rect(g, 22, 110, 48, 110, 'sym', 24); text(T, 46, 176, 'R1', 'tg');
+    } else if (P.k === 'gen') {
+      circle(g, x, y, 16, 'sym'); text(T, x, y + 5.5, 'G', 't15b');
+      text(T, P.tag[0], P.tag[1], '-' + s, 'tg', P.tag[2]);
+      text(T, P.st[0], P.st[1], v.run[s] ? 'Running' : 'Stopped', 'tm', P.st[2]);
+    } else if (P.k === 'shore') { rect(g, x - 22, y - 14, 44, 28, 'sym', 3); text(T, x, y + 4.5, 'Shore', 't13'); }
+    else if (P.k === 'bat') { [[-9, 10, ''], [-3, 5, ' thick'], [3, 10, ''], [9, 5, ' thick']].forEach((c) => line(g, x - c[1], y + c[0], x + c[1], y + c[0], 'sk' + c[2])); text(T, P.tag[0], P.tag[1], '-G3', 'tg', P.tag[2]); }
+    else if (P.k === 'feed') path(g, `M${x - 6} ${y + 2} L${x + 6} ${y + 2} L${x} ${y - 10} Z`, 'fk');
+  }
+  function drawLoad(g, gl, T, S, l, alive) {
+    const P = S.loads[l], x = P.x, y = P.y;
+    if (P.k === 'user') {
+      rect(g, x - P.w / 2, y, P.w, P.h, 'ubox', 4);
+      fade(rect(gl, x - P.w / 2 + 1, y + 1, P.w - 2, P.h - 2, 'ufill', 3), alive);
+      text(T, x, y + P.h / 2 + 4.5, P.label, 't13 nh');
+      return;
+    }
+    if (P.k === 'motor') { circle(g, x, y, 14, 'sym'); text(T, x, y + 5, 'M', 't15b'); }
+    else if (P.k === 'light') { circle(g, x, y, 12, 'sym'); line(g, x - 8.5, y - 8.5, x + 8.5, y + 8.5, 'sk'); line(g, x - 8.5, y + 8.5, x + 8.5, y - 8.5, 'sk'); }
+    else if (P.k === 'heater') { rect(g, x - 13, y - 9, 26, 18, 'sym', 2); poly(g, [[x - 9, y], [x - 6, y - 5], [x - 2, y + 5], [x + 2, y - 5], [x + 6, y + 5], [x + 9, y]], 'sk'); }
+    else { rect(g, x - 12, y - 12, 24, 24, 'sym', 2); path(g, `M${x - 7} ${y + 4} A7 7 0 0 1 ${x + 7} ${y + 4} Z`, 'sk'); line(g, x, y + 4, x, y + 8, 'sk'); }
+    circle(gl, P.lamp[0], P.lamp[1], 5, 'lamp'); fade(circle(gl, P.lamp[0], P.lamp[1], 5, 'lamp on'), alive);
+    text(T, P.tag[0], P.tag[1], '-' + l, 'tg');
+  }
+  function drawConv(g, T) {
+    circle(g, 84, 236, 10, 'sk'); circle(g, 84, 250, 10, 'sk');
+    rect(g, 300, 230, 28, 28, 'sym', 2); line(g, 300, 258, 328, 230, 'sk');
+    path(g, 'M303 241 q2.5 -4 5 0 t5 0', 'sk'); line(g, 316, 249, 324, 249, 'sk'); line(g, 316, 253, 324, 253, 'sk');
+  }
+  function ringDev(g, S, k, cls, a) {
+    const D = S.devs[k];
+    if (D.k === 'brkh') return fade(rect(g, D.x - 20, D.y - 33, 40, 62, cls, 8), a);
+    if (D.k === 'brk') { const w = tw('-' + k, 'tg'), R = D.tag[2] === 'start', x0 = R ? D.x - 16 : D.x - 8 - w - 3, x1 = R ? D.x + 8 + w + 3 : D.x + 16; return fade(rect(g, x0, D.y - 19, x1 - x0, 37, cls, 8), a); }
+    return fade(rect(g, D.x - 13, D.y - 13, 26, 26, cls, 6), a);
+  }
+  function ringSrc(g, S, s, cls, a) {
+    const P = S.srcs[s];
+    if (P.k === 'comp' || P.k === 'gen') return fade(circle(g, P.x, P.y, 21, cls), a);
+    if (P.k === 'store') return fade(rect(g, 262, 174, 68, 152, cls, 32), a);
+    if (P.k === 'tank') return fade(rect(g, 16, 104, 60, 122, cls, 28), a);
+    if (P.k === 'shore') return fade(rect(g, P.x - 26, P.y - 18, 52, 36, cls, 6), a);
+    if (P.k === 'feed') return fade(rect(g, 36, 246, 48, 50, cls, 8), a);
+    return fade(circle(g, P.x, P.y, 15, cls), a);
+  }
+  function ringLoad(g, S, l, cls, a) {
+    const P = S.loads[l];
+    if (P.k === 'user') return fade(rect(g, P.x - P.w / 2 - 5, P.y - 5, P.w + 10, P.h + 10, cls, 7), a);
+    return fade(circle(g, P.x, P.y, 20, cls), a);
+  }
+  const KEYTXT = { live: 'Live', dead: 'Dead', on: 'Has supply', off: 'No supply', lock: 'Locked off' };
+  function drawKey(g, y0, withLock) {
+    let x = 12, row = 0;
+    (withLock ? ['live', 'dead', 'on', 'off', 'lock'] : ['live', 'dead', 'on', 'off']).forEach((k) => {
+      const sw = k === 'live' || k === 'dead' ? 24 : 14, w = sw + 6 + tw(KEYTXT[k], 'kt');
+      if (x > 12 && x + w > 334) { row++; x = 12; }
+      const y = y0 + 20 * row;
+      if (k === 'live') poly(g, [[x, y], [x + 24, y]], 'lv'); else if (k === 'dead') poly(g, [[x, y], [x + 24, y]], 'ln');
+      else if (k === 'on') circle(g, x + 6, y, 5, 'lamp on'); else if (k === 'off') circle(g, x + 6, y, 5, 'lamp'); else padlock(g, x + 7, y - 1, 1);
+      text(g, x + sw + 6, y + 4.5, KEYTXT[k], 'kt', 'start');
+      x += w + 16;
+    });
+    return [8, y0 - 13, 324, 20 * row + 26];
+  }
+  function airLegend(g) {
+    rect(g, 10, 124, 174, 168, 'faint', 6);
+    text(g, 20, 144, 'LEGEND', 'tm12', 'start');
+    valve(g, 28, 162, false); text(g, 46, 166.5, 'Valve', 'kt', 'start');
+    text(g, 18, 190.5, 'N.C.', 'tm', 'start'); text(g, 54, 190.5, 'Normally closed,', 'kt', 'start'); text(g, 54, 206.5, 'shut as drawn', 'kt', 'start');
+    nrv(g, 28, 230, false); text(g, 46, 234.5, 'Non-return valve', 'kt', 'start');
+    poly(g, [[16, 254], [38, 254]], 'lv'); text(g, 46, 258.5, 'Has air', 'kt', 'start');
+    poly(g, [[16, 278], [38, 278]], 'ln'); text(g, 46, 282.5, 'No air', 'kt', 'start');
+    return [6, 120, 182, 176];
+  }
+  const arrowD = (x, y, d) => (d === 'r' ? `M${x - 4} ${y - 5} L${x + 5} ${y} L${x - 4} ${y + 5} Z` : d === 'u' ? `M${x - 5} ${y + 4} L${x} ${y - 5} L${x + 5} ${y + 4} Z` : `M${x - 5} ${y - 4} L${x} ${y + 5} L${x + 5} ${y - 4} Z`);
+  function lay(gp, N, cls) { if (N.bus) poly(gp, N.bus, cls + ' bus'); if (N.bar) poly(gp, N.bar, cls + ' board'); N.p.forEach((pp) => poly(gp, pp, cls)); }
+  // o: tab, tabA, srcA (per source), trace (a path) and traceA, bad / ink {loads, devs, srcs, nodes}, mark, changed,
+  // locks and lockA, taps (touch areas on). Returns the box of the legend and the sheet's height.
+  function drawFlow(g, S, v, o) {
+    const G = {};
+    ['hl', 'halo', 'pale', 'live', 'arw', 'link', 'sym', 'lamp', 'text', 'mark', 'lock', 'key', 'hit'].forEach((n) => { G[n] = add(g, 'g'); });
+    const nodeA = (n) => v.node[n] || 0;
+    if (o.trace) o.trace.nodes.forEach((n, k) => { const hg = add(G.halo, 'g'); lay(hg, S.nodes[n], 'halo'); fade(hg, o.traceSeq ? o.traceSeq(k) : o.traceA); });
+    ['bad'].forEach(() => { if (o.bad && o.bad.nodes && o.bad.nodes.length) { const hg = add(G.halo, 'g'); o.bad.nodes.forEach((n) => lay(hg, S.nodes[n], 'halo bad')); fade(hg, o.badA); } });
+    if (o.badPipe) { const hg = add(G.halo, 'g'); o.badPipe.forEach((pp) => poly(hg, pp, 'halo' + (o.badPipeInk ? '' : ' bad'))); fade(hg, o.badA); }
+    Object.keys(S.nodes).forEach((n) => {
+      const N = S.nodes[n];
+      lay(G.pale, N, 'ln');
+      if (nodeA(n) > 0.001) { const lg = add(G.live, 'g'); lay(lg, N, 'lv'); fade(lg, nodeA(n)); }
+    });
+    (S.arrows || []).forEach((a) => { if (nodeA(a[0]) > 0.001) fade(path(G.arw, arrowD(a[1], a[2], a[3]), 'fk'), nodeA(a[0])); });
+    if (S.id === 'sb1') { line(G.link, 132, 196, 208, 196, 'link'); drawConv(G.sym, G.text); }
+    S.sorder.forEach((s) => drawSrc(G.sym, G.text, S, s, v));
+    S.lorder.forEach((l) => drawLoad(G.sym, G.lamp, G.text, S, l, nodeA(S.loads[l].node)));
+    Object.keys(S.devs).forEach((k) => {
+      const D = S.devs[k];
+      if (D.k === 'w' || D.k === 'conv') return;
+      drawDev(G.sym, S, k, v.dev[k] || 0, nodeA(D.b));
+      if (D.tag) text(G.text, D.tag[0], D.tag[1], devName(S, k), 'tg', D.tag[2]);
+      if (D.nc) text(G.text, D.nc[0], D.nc[1], 'N.C.', 'tm', D.nc[2]);
+    });
+    (S.labels || []).forEach((L) => text(G.text, L[0], L[1], L[2], L[3], L[4]));
+    // the legend or key, and the four tabs' marks
+    const kb = S.air && S.id === 'air' ? airLegend(G.key) : S.key ? drawKey(G.key, S.key, !!o.locks && Object.keys(o.locks).length > 0) : null;
+    if (o.tab === 'legend' && kb) fade(rect(G.mark, kb[0], kb[1], kb[2], kb[3], 'ring ink', 8), o.tabA);
+    if (o.tab === 'sources') S.sorder.forEach((s, i) => ringSrc(G.mark, S, s, 'ring', o.srcA ? o.srcA[i] : o.tabA));
+    if (o.tab === 'state') {
+      Object.keys(S.devs).forEach((k) => { const D = S.devs[k]; if (D.nc) fade(rect(G.mark, D.nc[0] - 4, D.nc[1] - 14, tw('N.C.', 'tm') + 8, 19, 'ring', 5), o.tabA); });
+      (S.no || []).forEach((p) => { const w = tw('N.O.', 'tm') + 8, x0 = p[2] === 'start' ? p[0] - 4 : p[0] - w / 2; fade(rect(G.mark, x0, p[1] - 14, w, 19, 'ring', 5), o.tabA); });
+    }
+    (o.changed || []).forEach((id) => { if (S.devs[id]) ringDev(G.mark, S, id, 'ring', 1); else if (S.srcs[id]) ringSrc(G.mark, S, id, 'ring', 1); });
+    if (o.mark) { if (S.devs[o.mark]) ringDev(G.mark, S, o.mark, 'ring', 1); else if (S.srcs[o.mark]) ringSrc(G.mark, S, o.mark, 'ring', 1); }
+    [['ink', 'ring ink', o.inkA], ['bad', 'ring bad', o.badA]].forEach((r) => {
+      const set = o[r[0]];
+      if (!set) return;
+      (set.loads || []).forEach((l) => ringLoad(G.mark, S, l, r[1], r[2]));
+      (set.devs || []).forEach((k) => ringDev(G.mark, S, k, r[1], r[2]));
+      (set.srcs || []).forEach((s) => ringSrc(G.mark, S, s, r[1], r[2]));
+    });
+    Object.keys(o.locks || {}).forEach((k) => { const D = S.devs[k]; padlock(G.lock, D.x, D.y + (D.k === 'brkh' ? 6 : 1), (o.lockNew || []).indexOf(k) >= 0 ? o.lockA : 1); });
+    if (o.taps) {
+      Object.keys(S.devs).forEach((k) => { if (tappableDev(S, k)) rect(G.hit, S.devs[k].x - 20, S.devs[k].y - 20, 40, 40, 'hit').dataset.dev = k; });
+      S.sorder.forEach((s) => { if (tappableSrc(S, s) || (S.srcs[s].fixed && S.id !== 'plant')) rect(G.hit, S.srcs[s].x - 20, S.srcs[s].y - 20, 40, 40, 'hit').dataset.src = s; });
+      S.lorder.forEach((l) => { const P = S.loads[l]; const e = P.k === 'user' ? rect(G.hit, P.x - P.w / 2, P.y - 6, P.w, P.h + 12, 'hit') : rect(G.hit, P.x - 20, P.y - 20, 40, 40, 'hit'); e.dataset.load = l; });
+    }
+    return S.h;
+  }
+
+  AIR.labels = [[110, 97, 'Header', 'kt'], [296, 397, 'Drain', 'kt']];
+
+  // ---------- drawing the hoist sheet ----------
+  const HX = { 1: 60, 2: 134 }, HY = { S10: 54, F11: 92, S11: 152, B11: 196, K12c: 240, S12: 152, B12: 196, K11c: 240 };
+  const CON = {
+    S10: { x: 24, y: 54, nc: true, act: 'push' }, F11: { x: 24, y: 92, nc: true, act: 'ovl' },
+    S11: { x: 60, y: 152, act: 'push' }, B11: { x: 60, y: 196, nc: true, act: 'limit' }, K12c: { x: 60, y: 240, nc: true, tag: 'K12' },
+    S12: { x: 134, y: 152, act: 'push' }, B12: { x: 134, y: 196, nc: true, act: 'limit' }, K11c: { x: 134, y: 240, nc: true, tag: 'K11' },
+    K11o: { x: 190, y: 152, tag: 'K11', at: [202, 156.5, 'start'] }, K12o: { x: 238, y: 200, tag: 'K12', at: [232, 204.5, 'end'] },
+  };
+  const COIL = { K11: { x: 60 }, K12: { x: 134 }, Y11: { x: 214 } };
+  const HPATH = {
+    1: [[[24, 22], [24, 124], [60, 124], [60, 284]]],
+    2: [[[24, 22], [24, 124], [134, 124], [134, 284]]],
+    3: [[[24, 22], [24, 124], [238, 124], [238, 228], [190, 228], [190, 124]], [[214, 228], [214, 284]]],
+  };
+  const hookY = (pos) => 96 + (1 - K.clamp(pos, 0, 1)) * 168;
+  function contactClosed(id, h, c) {
+    return { S10: h.S10, F11: h.F11, S11: c.s11, B11: c.b11, K12c: !c.k12, S12: c.s12, B12: c.b12, K11c: !c.k11, K11o: c.k11, K12o: c.k12 }[id];
+  }
+  function blade(g, x, y, nc, closed, cls) {
+    if (closed) line(g, x, y + 10, nc ? x + 7 : x, y - 10, cls); else line(g, x, y + 10, x - 8, y - 9, cls);
+  }
+  function drawContact(g, T, id, h, c) {
+    const C = CON[id], x = C.x, y = C.y, now = contactClosed(id, h, c);
+    blade(g, x, y, C.nc, !!C.nc, 'faint');
+    if (C.nc) line(g, x, y - 10, x + 7, y - 10, 'sk');
+    blade(g, x, y, C.nc, now, 'sk thick');
+    if (C.act) {
+      line(g, x - 14, y, x - 4, y, 'sk dash');
+      if (C.act === 'push') line(g, x - 14, y - 5, x - 14, y + 5, 'sk');
+      else if (C.act === 'limit') circle(g, x - 17, y, 3, 'sym');
+      else rect(g, x - 20, y - 4, 7, 8, 'sym', 1);
+    }
+    const at = C.at || [x + 12, y + 4.5, 'start'];
+    text(T, at[0], at[1], '-' + (C.tag || id), 'tg', at[2]);
+  }
+  function hoistSegs(h, c) {
+    const s = [];
+    const P = (pts, on) => s.push([pts, on]);
+    P([[20, 22], [238, 22]], true); P([[24, 22], [24, 44]], true); P([[24, 64], [24, 82]], h.S10);
+    P([[24, 102], [24, 124], [238, 124]], c.top); P([[60, 124], [60, 142]], c.top); P([[134, 124], [134, 142]], c.top); P([[190, 124], [190, 142]], c.top); P([[238, 124], [238, 190]], c.top);
+    P([[60, 162], [60, 186]], c.top && c.s11); P([[60, 206], [60, 230]], c.top && c.s11 && c.b11); P([[60, 250], [60, 277]], c.k11);
+    P([[134, 162], [134, 186]], c.top && c.s12); P([[134, 206], [134, 230]], c.top && c.s12 && c.b12); P([[134, 250], [134, 277]], c.k12);
+    P([[190, 162], [190, 228]], c.k11); P([[238, 210], [238, 228]], c.k12); P([[190, 228], [238, 228]], c.y11); P([[214, 228], [214, 277]], c.y11);
+    [60, 134, 214].forEach((x) => P([[x, 291], [x, 320]], false));
+    P([[20, 320], [238, 320]], false);
+    return s;
+  }
+  function tinyContact(g, x, y, nc) {
+    line(g, x, y - 8, x, y - 5, 'sk'); line(g, x, y + 5, x, y + 8, 'sk');
+    if (nc) { line(g, x, y - 5, x + 4, y - 5, 'sk'); line(g, x, y + 5, x + 4, y - 6, 'sk'); } else line(g, x, y + 5, x - 5, y - 5, 'sk');
+  }
+  // o: tab, tabA, trace (path number), traceA, bad / ink {coils, cons, paths}, badA, inkA, mark, changed, taps
+  function drawHoist(g, h, o) {
+    const c = coils(h), G = {};
+    ['hl', 'halo', 'pale', 'live', 'sym', 'text', 'mark', 'key', 'hit'].forEach((n) => { G[n] = add(g, 'g'); });
+    if (o.trace) { const hg = add(G.halo, 'g'); HPATH[o.trace].forEach((pp) => poly(hg, pp, 'halo')); fade(hg, o.traceA); }
+    if (o.bad && o.bad.paths) o.bad.paths.forEach((n) => { const hg = add(G.halo, 'g'); HPATH[n].forEach((pp) => poly(hg, pp, 'halo bad')); fade(hg, o.badA); });
+    hoistSegs(h, c).forEach((sg) => { poly(G.pale, sg[0], 'ln'); if (sg[1]) poly(G.live, sg[0], 'lv'); });
+    const T = G.text;
+    text(T, 11, 26.5, 'L', 'tg'); text(T, 11, 324.5, 'N', 'tg');
+    [['1', 60], ['2', 134], ['3', 214]].forEach((p) => text(T, p[1], 116, p[0], 'tm'));
+    Object.keys(CON).forEach((id) => drawContact(G.sym, T, id, h, c));
+    const on = { K11: c.k11, K12: c.k12, Y11: c.y11 };
+    Object.keys(COIL).forEach((k) => { const x = COIL[k].x; rect(G.sym, x - 12, 277, 24, 14, 'sym', 1); if (on[k]) rect(G.sym, x - 10, 279, 20, 10, 'coil', 1); text(T, x + 16, 288.5, '-' + k, 'tg', 'start'); });
+    // cross-references under each contactor's coil: the paths that hold its open and closed contacts
+    [[60, '3', '2'], [134, '3', '1']].forEach((t) => {
+      line(G.sym, t[0], 332, t[0], 384, 'faint'); line(G.sym, t[0] - 22, 356, t[0] + 22, 356, 'faint');
+      tinyContact(G.sym, t[0] - 11, 344, false); tinyContact(G.sym, t[0] + 9, 344, true);
+      text(T, t[0] - 11, 375, t[1], 'tg'); text(T, t[0] + 11, 375, t[2], 'tg');
+    });
+    // the hoist and its hook
+    const hy = hookY(h.pos), lifted = c.y11;
+    line(G.sym, 264, 26, 338, 26, 'sk thick');
+    rect(G.sym, 280, 28, 44, 28, 'sym', 3); circle(G.sym, 296, 42, 8, 'sym');
+    rect(G.sym, 305 + (lifted ? 5 : 0), 36, 5, 12, 'fk', 1);
+    text(T, 301, 15, lifted ? 'Brake off' : 'Brake on', 'tm12');
+    line(G.sym, 296, 50, 296, hy - 10, 'sk');
+    rect(G.sym, 289, hy - 10, 14, 10, 'sym', 2);
+    path(G.sym, `M296 ${r3(hy)} v7 a6 6 0 1 1 -6 6`, 'sk thick');
+    [[96, '-B11', h.B11 && h.pos < 1 - 1e-9], [264, '-B12', h.B12 && h.pos > 1e-9]].forEach((b) => {
+      line(G.sym, 307, b[0], b[2] ? 315 : 312, b[2] ? b[0] - 6 : b[0] - 9, 'sk'); circle(G.sym, b[2] ? 315 : 312, b[2] ? b[0] - 6 : b[0] - 9, 3, 'sym');
+      text(T, 286, b[0] + 4, b[1], 'tg', 'end');
+    });
+    // the legend
+    const K0 = G.key;
+    rect(K0, 8, 394, 324, 80, 'faint', 6);
+    tinyContact(K0, 24, 412, false); text(K0, 36, 416.5, 'Normally open', 'kt', 'start');
+    tinyContact(K0, 174, 412, true); text(K0, 188, 416.5, 'Normally closed', 'kt', 'start');
+    rect(K0, 14, 435, 20, 12, 'sym', 1); text(K0, 42, 445.5, 'Coil', 'kt', 'start');
+    line(K0, 120, 450, 112, 432, 'faint'); line(K0, 128, 450, 128, 432, 'sk thick'); text(K0, 140, 445.5, 'Faint at rest, bold now', 'kt', 'start');
+    poly(K0, [[14, 464], [38, 464]], 'lv'); text(K0, 44, 468.5, 'Live', 'kt', 'start');
+    poly(K0, [[100, 464], [124, 464]], 'ln'); text(K0, 130, 468.5, 'Dead', 'kt', 'start');
+    if (o.tab === 'legend') { fade(rect(G.mark, 6, 392, 328, 84, 'ring ink', 8), o.tabA); fade(rect(G.mark, 30, 328, 134, 60, 'ring ink', 8), o.tabA); }
+    if (o.tab === 'sources') fade(rect(G.mark, 3, 12, 242, 20, 'ring', 9), o.tabA);
+    if (o.tab === 'state') fade(rect(G.mark, 106, 426, 222, 28, 'ring', 6), o.tabA);
+    const ringCon = (id, cls, a) => { const C = CON[id]; fade(rect(G.mark, C.x - 22, C.y - 15, 32, 30, cls, 6), a); };
+    const ringCoil = (k, cls, a) => fade(rect(G.mark, COIL[k].x - 17, 271, 34, 26, cls, 6), a);
+    (o.changed || []).forEach((id) => ringCon(id, 'ring', 1));
+    if (o.mark) ringCon(o.mark, 'ring', 1);
+    [['ink', 'ring ink', o.inkA], ['bad', 'ring bad', o.badA]].forEach((r) => {
+      const set = o[r[0]];
+      if (!set) return;
+      (set.cons || []).forEach((id) => ringCon(id, r[1], r[2]));
+      (set.coils || []).forEach((k) => ringCoil(k, r[1], r[2]));
+    });
+    if (o.taps) {
+      ['S10', 'F11', 'B11', 'B12', 'S11', 'S12'].forEach((id) => { rect(G.hit, CON[id].x - 20, CON[id].y - 20, 40, 40, 'hit').dataset.con = id; });
+      Object.keys(COIL).forEach((k) => { rect(G.hit, COIL[k].x - 20, 264, 40, 40, 'hit').dataset.coil = k; });
+    }
+    return HOIST.h;
+  }
+
+  // ---------- drawing the bracket ----------
+  // o: tab, tabA, hole [front, above, left, projection lines], sizes (lit), fifty (the worked size), its alpha
+  function drawBrk(g, o) {
+    const G = {};
+    ['hl', 'halo', 'sym', 'dim', 'text', 'mark'].forEach((n) => { G[n] = add(g, 'g'); });
+    const T = G.text, hole = o.hole || [0, 0, 0, 0];
+    if (o.tab === 'sources') fade(rect(G.hl, 54, 104, 124, 96, 'hlbg', 6), o.tabA);
+    // front view, view from above (below it) and view from the left end (on its right): first angle
+    rect(G.sym, 60, 110, 112, 84, 'sym'); line(G.sym, 60, 180, 172, 180, 'sk'); circle(G.sym, 116, 138, 14, 'sk');
+    rect(G.sym, 60, 230, 112, 70, 'sym'); line(G.sym, 60, 244, 172, 244, 'sk');
+    line(G.sym, 102, 230, 102, 244, 'hid'); line(G.sym, 130, 230, 130, 244, 'hid');
+    path(G.sym, 'M192 110 H206 V180 H262 V194 H192 Z', 'sym');
+    line(G.sym, 192, 124, 206, 124, 'hid'); line(G.sym, 192, 152, 206, 152, 'hid');
+    fade(circle(G.halo, 116, 138, 14, 'halo'), hole[0]);
+    const hp = add(G.halo, 'g'); poly(hp, [[102, 230], [102, 244]], 'halo'); poly(hp, [[130, 230], [130, 244]], 'halo'); fade(hp, hole[1]);
+    const he = add(G.halo, 'g'); poly(he, [[192, 124], [206, 124]], 'halo'); poly(he, [[192, 152], [206, 152]], 'halo'); fade(he, hole[2]);
+    const pj = add(G.halo, 'g');
+    [[102, 152, 102, 226], [130, 152, 130, 226], [176, 124, 190, 124], [176, 152, 190, 152]].forEach((l) => line(pj, l[0], l[1], l[2], l[3], 'proj'));
+    fade(pj, hole[3]);
+    text(T, 116, 213, 'Front view', 'tm12'); text(T, 116, 317, 'View from above', 'tm12'); text(T, 227, 213, 'View from the left', 'tm12');
+    // the two written sizes, and the worked one once found
+    const arrow = (x, y, up) => path(G.dim, up ? `M${x - 3.5} ${y + 7} L${x} ${y} L${x + 3.5} ${y + 7} Z` : `M${x - 3.5} ${y - 7} L${x} ${y} L${x + 3.5} ${y - 7} Z`, 'fk');
+    line(G.dim, 56, 110, 30, 110, 'faint'); line(G.dim, 56, 194, 30, 194, 'faint'); line(G.dim, 36, 111, 36, 193, 'sk'); arrow(36, 110, true); arrow(36, 194, false);
+    line(G.dim, 266, 180, 294, 180, 'faint'); line(G.dim, 266, 194, 294, 194, 'faint');
+    line(G.dim, 288, 166, 288, 180, 'sk'); arrow(288, 180, false); line(G.dim, 288, 208, 288, 194, 'sk'); arrow(288, 194, true);
+    if (o.sizes) { hlText(G.hl, 30, 160, String(HMM), 'tg', 'end', o.sizesA); hlText(G.hl, 296, 192, String(TMM), 'tg', 'start', o.sizesA); }
+    text(T, 30, 160, String(HMM), 'tg', 'end'); text(T, 296, 192, String(TMM), 'tg', 'start');
+    if (o.fifty > 0.001) {
+      const f = add(G.dim, 'g');
+      line(f, 210, 110, 294, 110, 'faint'); line(f, 288, 111, 288, 179, 'sk');
+      path(f, 'M284.5 117 L288 110 L291.5 117 Z', 'fk'); path(f, 'M284.5 173 L288 180 L291.5 173 Z', 'fk');
+      text(f, 296, 149.5, String(HMM - TMM), 'tg', 'start');
+      fade(f, o.fifty);
+    }
+    // the title block
+    rect(G.sym, 20, 326, 300, 52, 'faint'); line(G.sym, 20, 352, 320, 352, 'faint'); line(G.sym, 190, 326, 190, 378, 'faint'); line(G.sym, 100, 352, 100, 378, 'faint');
+    if (o.tab === 'legend') [[30, 344, 'Angle bracket', 'start'], [200, 344, 'No. BKT-01', 'start'], [110, 370, 'Scale 1 : 2', 'start'], [246, 369.5, 'First angle', 'start']].forEach((t) => hlText(G.hl, t[0], t[1], t[2], 'tg', t[3], o.tabA));
+    if (o.tab === 'legend') fade(rect(G.mark, 194, 354, 46, 22, 'ring ink', 5), o.tabA);
+    if (o.tab === 'state') hlText(G.hl, 30, 370, 'Issue B', 'tg', 'start', o.tabA);
+    text(T, 30, 344, 'Angle bracket', 'tg', 'start'); text(T, 200, 344, 'No. BKT-01', 't13', 'start');
+    text(T, 30, 370, 'Issue B', 't13', 'start'); text(T, 110, 370, 'Scale 1 : 2', 't13', 'start');
+    path(G.sym, 'M198 361 L218 356 L218 374 L198 369 Z', 'sk'); circle(G.sym, 230, 365, 8, 'sk'); circle(G.sym, 230, 365, 4, 'sk');
+    text(T, 246, 369.5, 'First angle', 't13', 'start');
+    return BRK.h;
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const STEPS = [
+    { name: 'What still runs?', sheet: 'air', kind: 'pick', fx: 'air0',
+      task: 'Both compressors stop. Do the tools still get air?',
+      opts: ['Yes, for a while, from the receiver', 'No, they stop at once', 'Yes, for as long as you like'], want: 'Yes, for a while, from the receiver',
+      hint: 'Look at R1. What is in it when the compressors stop?',
+      hints: { 'No, they stop at once': 'Look at R1. What is in it when the compressors stop?', 'Yes, for as long as you like': 'R1 holds only so much.' },
+      why: 'R1 is a tank of air under pressure. With both compressors stopped, it still feeds the header. Its pressure falls as the users take air. Then the users stop. So R1 counts as a source until it runs down.' },
+    { name: 'Four steps', show: true, sheet: 'air', tab: 'trace', demo: 'four', dur: 4.4,
+      text: 'Read a sheet you have never seen in four steps. Find the legend, then every source. Then find the state it is drawn in. Last, trace one path at a time. Tap each tab in turn.',
+      read: 'Read a sheet you have never seen in four steps. Find the legend, then every source. Then find the state it is drawn in. Last, trace one path at a time. Legend lights the key. Sources rings C1, C2 and R1. State lights Note 1 and the N.C. marks. Trace lights the path from C1 through R1 and V3 to the tools.' },
+    { name: 'Read its legend', sheet: 'air', kind: 'pick', mark: 'V7', fx: 'legend',
+      task: 'Every valve on this sheet is drawn hollow. Is V7 open or shut as drawn?',
+      opts: ['Shut', 'Open', 'The sheet cannot tell you'], want: 'Shut',
+      hint: 'Look at the mark beside V7. Then find it in the legend.',
+      hints: { Open: "On some sheets, hollow means open. Read this sheet's legend.", 'The sheet cannot tell you': 'Look at the mark beside V7. Then find it in the legend.' },
+      why: "This legend draws every valve alike. N.C. beside a valve means normally closed, shut as drawn. V7 carries N.C. Another sheet may fill in a shut valve instead. So read each sheet's own legend." },
+    { name: 'Sources first', show: true, sheet: 'sb2', tab: 'sources', demo: 'srcs', dur: 2.4,
+      text: "This board's supplies come in at the bottom. Its loads sit at the top. Read it from the top left, and you start at a load. So find the sources first, wherever they are drawn. Tap Sources. Then turn on What if, change one part, and mark each load before you play it.",
+      read: "This board's supplies come in at the bottom. Its loads sit at the top. Read it from the top left, and you start at a load. So find the sources first, wherever they are drawn. Two sources are ringed, the feeder from the main board through -Q6, and generator -G4 through -Q7. With What if on, you change one part and mark each load Runs or Stops. Play then rings in red any mark that was wrong." },
+    { name: 'Count the sources', sheet: 'sb2', kind: 'typed', field: 'srcs', unit: 'sources', answer: SB2.sorder.length, fx: 'count',
+      task: 'How many sources can feed this board?',
+      slips: [{ value: SB2.sorder.length - 1, hint: 'The cable from the main board counts. To this board, it is where power comes in.' },
+        { value: SB2.sorder.length + 1, hint: 'Bus-tie -Q8 joins the two sections. It carries power across, but it makes none.' }],
+      hint: 'A source is anywhere power can come in. Look along the bottom of the sheet.',
+      why: 'Power can come in two ways, the feeder through -Q6 and generator -G4 through -Q7. Each counts as a source, whether or not it is running now.' },
+    { name: 'The state it is drawn in', show: true, sheet: 'sb2', tab: 'state', glow: 'M6', demo: 'state', dur: 3.0,
+      text: 'Each part is drawn in one state, usually at rest or in its normal position. A caption may say how the plant is run. Here -G4 is stopped, so section 2 is fed from section 1 through bus-tie -Q8. Tap State.',
+      read: "Each part is drawn in one state, usually at rest or in its normal position. A caption may say how the plant is run. Here -G4 is stopped, so section 2 is fed from section 1 through bus-tie -Q8. The caption is lit. Section 2 is bold through -Q8, and -G4's line is pale." },
+    { name: 'What if -Q8 trips?', sheet: 'sb2', kind: 'pick', mark: 'Q8', fx: 'q8',
+      task: 'Bus-tie -Q8 trips open. What stops?',
+      opts: ['Pump -M6 and heater -E6', 'Nothing, because -G4 feeds section 2', 'All four loads'], want: 'Pump -M6 and heater -E6',
+      hint: 'Trace each load back to a live source.',
+      hints: { 'Nothing, because -G4 feeds section 2': 'Read the caption. Is -G4 running?', 'All four loads': 'Trace fan -M5 back to a source. Does its path pass -Q8?' },
+      miss: { 'Nothing, because -G4 feeds section 2': { loads: ['M6', 'E6'] }, 'All four loads': { loads: ['M5', 'E5'] } },
+      why: '-G4 is stopped and -Q7 is open. So section 2 has no live source of its own. Its only path to the feeder ran through -Q8. Section 1 still joins the feeder through -Q6. So fan -M5 and lighting -E5 still run.' },
+    { name: 'One path at a time', show: true, sheet: 'hoist', tab: null, demo: 'hold', dur: 3.0,
+      text: 'On a control sheet, trace one path at a time, from the supply line to a coil. Then find each contact by its tag, wherever it is drawn. One part can act on several paths. Hold Up.',
+      read: "On a control sheet, trace one path at a time, from the supply line to a coil. Then find each contact by its tag, wherever it is drawn. One part can act on several paths. Path 1 is bold from L through -S10, -F11, -S11, -B11 and -K12's contact to coil -K11. -K11's contact in path 2 opens. Its contact in path 3 closes. So -Y11 lifts the brake, and the hook rises." },
+    { name: 'What if the top limit opens?', sheet: 'hoist', kind: 'pick', base: { pos: 1 }, mark: 'B11', fx: 'top',
+      task: 'The hook has reached the top, so -B11 is open. You hold Up, then Down. What happens?',
+      opts: ['Up does nothing, and Down still works', 'Neither button works', 'Up still works'], want: 'Up does nothing, and Down still works',
+      hint: 'Trace each path to its coil.',
+      hints: { 'Neither button works': 'Trace path 2 to coil -K12. Does -B11 sit on it?', 'Up still works': '-B11 sits in path 1, the path to coil -K11.' },
+      miss: { 'Neither button works': { coils: ['K12'], paths: [2] }, 'Up still works': { cons: ['B11'] } },
+      why: "-B11 sits only in path 1. Once open, it breaks the path to -K11. So Up does nothing. Path 2 does not pass it, so -K12 still pulls in. -K12's contact in path 3 feeds -Y11. So the brake lifts for the way down." },
+    { name: 'The odd one out', show: true, sheet: 'brk', tab: 'trace', demo: 'brk', dur: 4.2,
+      text: 'An engineering drawing has no sources, and nothing flows through it. So read its title block and issue first, then its projection symbol. Then follow one feature at a time across the views. Tap Trace.',
+      read: 'An engineering drawing has no sources, and nothing flows through it. So read its title block and issue first, then its projection symbol. Then follow one feature at a time across the views. The title block gives issue B, the scale 1 : 2 and the first-angle symbol. The hole through the upright lights in each view in turn: a circle in the front view, dashed lines in the other two.' },
+    { name: 'Read the sizes', sheet: 'brk', kind: 'typed', field: 'upr', unit: 'mm', answer: HMM - TMM, sizes: true, fx: 'fifty',
+      task: "The overall height is 60, and the base is 10 thick. How high does the upright stand above the base's top face?",
+      slips: [{ value: HMM, hint: "That is the overall height, from the base's underside to the top." }, { value: HMM + TMM, hint: 'That adds the base on. The overall height already includes it.' }],
+      hint: 'Does the overall height include the base?',
+      why: "The overall height includes the base. So the upright stands 60 − 10 = 50 mm above the base's top face." },
+    { name: 'Isolate the receiver', sheet: 'air', kind: 'pick', mark: 'R1', fx: 'iso',
+      task: 'You must open receiver R1 for an inspection. Which valves do you shut?',
+      opts: ['V1, V2 and V3, with V7 kept shut', 'V3 only', 'V1 and V2 only'], want: 'V1, V2 and V3, with V7 kept shut',
+      shut: { 'V1, V2 and V3, with V7 kept shut': ['V1', 'V2', 'V3'], 'V3 only': ['V3'], 'V1 and V2 only': ['V1', 'V2'] },
+      hint: 'Trace every path into and out of R1.',
+      hints: { 'V3 only': 'That cuts the header side. Trace back from R1 towards the compressors.', 'V1 and V2 only': 'That cuts the compressors off. Trace on from R1 to the header.' },
+      miss: { 'V3 only': { devs: ['V1', 'V2'] }, 'V1 and V2 only': { devs: ['V3'] } },
+      why: "Air comes into R1 from the compressors, through V1 and V2, and leaves for the header through V3. Shut all three, and every path to R1 stops at a shut valve. V7 would join R1's inlet line to the header. So check it stays shut. R1 still holds air under pressure. Vent it through V8 before you open it." },
+    { name: 'Every way in', sheet: 'sb1', kind: 'pick', mark: 'Q13', fx: 'm3',
+      task: "You must work on pump -M3's starter, so you lock off -Q13. What else must you lock off before you start?",
+      opts: ['-Q23, from section B', 'Bus-tie -Q4, between the sections', 'Battery -G3, on the DC board'], want: '-Q23, from section B',
+      hint: 'Find every way in to -M3.',
+      hints: { 'Bus-tie -Q4, between the sections': '-Q4 joins the sections. Which breakers join -M3 to a section?', 'Battery -G3, on the DC board': 'The battery joins only the DC board, through -Q5.' },
+      why: '-M3 hangs from section A through -Q13, and from section B through -Q23. -Q23 is open as drawn. But once -Q13 is open, the interlock lets someone at the board close -Q23 to keep the pump running. So find every way in, not just the usual one. Lock off both, then prove it dead at the starter.' },
+    { name: 'Report it', sheet: 'hoist', kind: 'pick', fx: 'report',
+      task: 'A colleague has never seen this sheet. Which report gives them its key features?',
+      opts: ['Each direction needs its limit switch closed and the other contactor out. Either contactor lifts the brake.', 'Each button drives the hook its own way. The limit switches stop it at each end.', 'Each button feeds its own coil. The brake holds the hook while it moves.'],
+      want: 'Each direction needs its limit switch closed and the other contactor out. Either contactor lifts the brake.',
+      hint: 'A good report says what each path needs, and what each coil does.',
+      hints: { 'Each button drives the hook its own way. The limit switches stop it at each end.': "True, but it leaves out what stops both contactors pulling in. Find -K12's contact in path 1.", 'Each button feeds its own coil. The brake holds the hook while it moves.': 'Trace path 3. When does -Y11 lift the brake?' },
+      miss: { 'Each button drives the hook its own way. The limit switches stop it at each end.': { cons: ['K12c', 'K11c'] }, 'Each button feeds its own coil. The brake holds the hook while it moves.': { coils: ['Y11'], paths: [3] } },
+      why: 'A good report says what each path needs and what each coil does. Up needs -B11 closed and -K12 out. Down needs -B12 closed and -K11 out. So the two contactors never pull in together. Either one lifts the brake through path 3. So the hook moves only while a button is held.' },
+    { name: 'Sheet and plant', sheet: 'air', kind: 'pick', plant: true, mark: 'V3', fx: 'plant',
+      task: 'You plan to cut off the header and its users by shutting V3. Compare the plant with the sheet. Is V3 enough?',
+      opts: ['No, the plant has a way round V3', 'No, because R1 sits somewhere else', 'Yes, V3 is enough'], want: 'No, the plant has a way round V3',
+      hint: 'Compare what is joined to what.',
+      hints: { 'No, because R1 sits somewhere else': 'Where a part sits means nothing on a diagram. What is joined to what?', 'Yes, V3 is enough': 'Trace every pipe from R1 in the plant sketch. Does each one pass V3?' },
+      why: 'Where a part sits does not change what it is joined to. What matters is the untagged pipe from R1 to the hose point. It is a way in that the sheet does not show. With V3 shut, R1 still feeds the hose point, and back through V6 the whole header. Check every isolation point on the plant against the sheet. Then report the difference, so the sheet is put right.' },
+  ];
+  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = d.answer + ' ' + d.unit; });
+  const I = { still: 0, four: 1, legend: 2, srcs: 3, count: 4, state: 5, q8: 6, path: 7, top: 8, odd: 9, size: 10, iso: 11, m3: 12, report: 13, plant: 14 };
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FINISH = 'Read any sheet in four steps: legend, sources, state, then one path at a time. Then check it against the plant.';
+  const SRC = {
+    doe: 'https://www.online-pdh.com/file.php/221/CFD_SG.pdf', eeco: 'https://eecoonline.com/inspire/how-to-read-a-single-line-diagram',
+    navy: 'https://engineeringlibrary.org/reference/hydraulics-basic-diagrams-and-systems-navy', hse: 'https://files.engineering.com/files/a01e329a-ec1b-42f7-a8fb-7a3bb8ea235c/hsg253_safe_isolation.pdf',
+  };
+  const PIPE = [PLANT.nodes.rcv.p[5], PLANT.nodes.u6.p[1]];
+
+  // ---------- each step's state ----------
+  function fresh(i) {
+    const d = STEPS[i];
+    return { sh: SI[d.sheet], tab: d.show ? d.tab : null, what: false, trace: null, W: {}, P: null, pick: null, res: null, tries: 0, why: false, shownAns: false, fbText: '', anim: null, touched: false, note: '', lit: null };
+  }
+  function flowBase(Sh, over) {
+    const b = cp(Sh.base);
+    if (over) { Object.assign(b.dev, over.dev || {}); Object.assign(b.run, over.run || {}); }
+    return settle(Sh, b);
+  }
+  function world(st, id, i) {
+    if (st.W[id]) return st.W[id];
+    const Sh = SHEETS[SI[id]], d = STEPS[i], over = d.sheet === id ? d.base : null;
+    let w = { marks: {}, graded: null, rings: null, ringAt: null, locks: {}, lockNew: [] };
+    if (Sh.flow) { const b = flowBase(Sh, over); w.cur = cp(b); w.shown = cp(b); }
+    else if (Sh.hoist) { w.h = Object.assign(cp(HBASE), over || {}); w.lastRun = null; }
+    st.W[id] = w;
+    return w;
+  }
+  function plantWorld(st) { if (!st.P) { const b = flowBase(PLANT); st.P = { cur: cp(b), shown: cp(b), rings: null }; } return st.P; }
+  let S = STEPS.map((d, i) => fresh(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  const arr = (t0) => K.arrive(T, t0, K.SOFT);
+
+  // A change played on a flow sheet: the state jumps to its end, and the animation walks there.
+  function flowGo(i, id, change, delay, rings) {
+    const st = S[i], Sh = SHEETS[SI[id]], w = world(st, id, i);
+    const B = cp(w.cur);
+    Object.assign(B.dev, change.dev || {}); Object.assign(B.run, change.run || {});
+    const p = flowPlan(Sh, w.shown, B, delay);
+    w.cur = cp(B); w.cur.lev = p.E.lev; w.shown = cp(p.E);
+    w.rings = rings || null; w.ringAt = p.rings;
+    if (rings && rings.bad && rings.bad.loads && !rings.bad.nodes) rings.bad.nodes = badNodes(Sh, p, rings.bad.loads);
+    st.anim = { kind: 'flow', sheet: id, p };
+    return p;
+  }
+  function badNodes(Sh, p, loads) {
+    const out = new Set();
+    loads.forEach((l) => { const pt = p.Le.has(Sh.loads[l].node) ? pathTo(Sh, p.E, l) : pathTo(Sh, p.A, l); if (pt) pt.nodes.forEach((n) => out.add(n)); });
+    return [...out];
+  }
+  function hoistGo(i, holds, rings) {
+    const st = S[i], w = world(st, 'hoist', i), h0 = cp(w.h);
+    h0.held = null;
+    const f = hoistAt(h0, holds, Infinity);
+    w.h = f.h; w.lastRun = { res: f.res, holds, h0 };
+    w.rings = rings || null; w.ringAt = holds[holds.length - 1].t1 + 0.1;
+    st.anim = { kind: 'hoist', h0, holds };
+    return f;
+  }
+  // What each puzzle plays after Check: the change it asks about, and in red what a wrong answer missed.
+  function playFx(i, choice, ok) {
+    const d = STEPS[i], st = S[i], miss = !ok && d.miss ? d.miss[choice] : null;
+    st.W = {}; st.P = null; st.anim = null; st.lit = null;
+    if (d.fx === 'air0') return play(flowGo(i, 'air', { run: { C1: false, C2: false } }, null, ok ? { ink: { srcs: ['R1'] } } : { bad: { srcs: ['R1'] } }).dur);
+    if (d.fx === 'legend') { st.lit = ok ? 'ink' : 'bad'; if (ok) st.tab = 'legend'; st.anim = { kind: 'lit' }; return play(1.2); }
+    if (d.fx === 'count') { st.lit = 'ink'; st.tab = 'sources'; st.anim = { kind: 'lit' }; return play(1.6); }
+    if (d.fx === 'fifty') { st.lit = 'ink'; st.anim = { kind: 'lit' }; return play(1.2); }
+    if (d.fx === 'q8') return play(flowGo(i, 'sb2', { dev: { Q8: false } }, null, ok ? { ink: { devs: ['Q8'] } } : { bad: cp(miss) }).dur);
+    if (d.fx === 'top') { hoistGo(i, HOLDS2, ok ? null : { bad: cp(miss) }); return play(HOLDS2[1].t1 + 0.6); }
+    if (d.fx === 'iso') {
+      const ch = { dev: {} };
+      d.shut[choice].forEach((k) => { ch.dev[k] = false; });
+      if (ok) ch.dev.V8 = true;
+      return play(flowGo(i, 'air', ch, ok ? { V8: 0.6 } : null, ok ? { ink: { devs: d.shut[choice] } } : { bad: cp(miss) }).dur);
+    }
+    if (d.fx === 'm3') {
+      const w = world(st, 'sb1', i);
+      w.locks = ok ? { Q13: true, Q23: true } : { Q13: true }; w.lockNew = Object.keys(w.locks);
+      const p = flowGo(i, 'sb1', { dev: { Q13: false } }, null, ok ? { ink: { devs: ['Q23'] } } : { bad: { devs: ['Q23'] } });
+      if (!ok) { const b = cp(p.E); b.dev.Q23 = true; w.rings.bad.nodes = pathTo(SB1, b, 'M3').nodes; }
+      return play(p.dur);
+    }
+    if (d.fx === 'report') { hoistGo(i, HOLDS2, ok ? null : { bad: cp(miss) }); return play(HOLDS2[1].t1 + 0.6); }
+    if (d.fx === 'plant') {
+      const p = flowGo(i, 'air', { dev: { V3: false } }, null, null), P = plantWorld(st), B = cp(P.cur);
+      B.dev.V3 = false;
+      const q = flowPlan(PLANT, P.shown, B);
+      P.cur = cp(B); P.cur.lev = q.E.lev; P.shown = cp(q.E); P.plan = q;
+      P.rings = ok ? { ink: { loads: ['T', 'A', 'H'] }, pipeInk: true } : { bad: { loads: ['T', 'A', 'H'] } };
+      return play(Math.max(p.dur, q.dur));
+    }
+  }
+
+  // ---------- what the tabs light now (a demonstration walks through them) ----------
+  function tabLook(i) {
+    const d = STEPS[i], st = S[i], a = st.anim, Sh = SHEETS[st.sh];
+    const out = { tab: st.tab, tabA: 1, srcA: null, hole: st.tab === 'trace' ? [1, 1, 1, 1] : [0, 0, 0, 0], glowA: () => 1 };
+    if (T === Infinity || !a) return out;
+    if (a.kind === 'tab' || a.kind === 'lit') {
+      out.tabA = arr(0.1);
+      if (out.tab === 'sources' && Sh.sorder) out.srcA = Sh.sorder.map((s, k) => arr(0.1 + 0.35 * k));
+      if (out.tab === 'trace') out.hole = [0.2, 0.8, 1.4, 2.0].map(arr);
+    } else if (a.kind === 'demo') {
+      if (d.demo === 'four') {
+        const seq = [[0.3, 'legend'], [1.3, 'sources'], [2.3, 'state'], [3.3, 'trace']];
+        let k = -1;
+        seq.forEach((s, j) => { if (T >= s[0]) k = j; });
+        out.tab = k < 0 ? null : seq[k][1]; out.tabA = k < 0 ? 0 : arr(seq[k][0]);
+        if (out.tab === 'sources') out.srcA = [0, 1, 2].map((j) => arr(1.35 + 0.25 * j));
+      } else if (d.demo === 'srcs') { out.tabA = arr(0.3); out.srcA = [arr(0.5), arr(1.1)]; }
+      else if (d.demo === 'state') { out.tabA = arr(0.3); out.glowA = (k) => arr(0.9 + 0.3 * k); }
+      else if (d.demo === 'brk') { out.tab = T < 1.3 ? 'legend' : 'trace'; out.tabA = T < 1.3 ? arr(0.3) : 1; out.hole = [1.5, 2.1, 2.7, 3.3].map(arr); }
+    }
+    return out;
+  }
+  const toolsOn = (i) => !!STEPS[i].show || S[i].res === 'right';
+  function changedIds(Sh, w) {
+    const b = Sh.base, out = [];
+    Object.keys(Sh.devs).forEach((k) => { if (tappableDev(Sh, k) && !!w.cur.dev[k] !== !!b.dev[k]) out.push(k); });
+    Sh.sorder.forEach((s) => { if (tappableSrc(Sh, s) && !!w.cur.run[s] !== !!b.run[s]) out.push(s); });
+    return out;
+  }
+  const hoistChanged = (w) => ['S10', 'F11', 'B11', 'B12'].filter((k) => !w.h[k]);
+
+  // ---------- the whole picture ----------
+  const sceneSvg = el('scene'), art = el('art'), plantSvg = el('plant'), part = el('part');
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i], Sh = SHEETS[st.sh], id = Sh.id, w = world(st, id, i), a = st.anim, moving = T !== Infinity && !!a;
+    meter = sceneSvg; art.textContent = '';
+    const tl = tabLook(i), tools = toolsOn(i), own = st.sh === SI[d.sheet], ringA = moving && w.ringAt != null ? arr(w.ringAt) : 1;
+    const R = w.rings || {};
+    let H;
+    if (Sh.flow) {
+      const v = a && a.kind === 'flow' && a.sheet === id && moving ? flowLook(a.p, T) : stillLook(Sh, w.shown, w.cur);
+      const o = { tab: tl.tab, tabA: tl.tabA, srcA: tl.srcA, taps: tools, changed: st.what ? changedIds(Sh, w) : [], locks: w.locks, lockNew: w.lockNew,
+        lockA: moving && a.kind === 'flow' ? arr(0.6) : 1, bad: R.bad, ink: R.ink, badA: ringA, inkA: ringA };
+      if (!tools && d.mark && own) o.mark = d.mark;
+      if (own && st.lit && i === I.legend) { o[st.lit] = { devs: ['V7'] }; o[st.lit === 'ink' ? 'inkA' : 'badA'] = moving ? arr(0.3) : 1; }
+      const glow = d.glow && own && tl.tab === 'state';
+      if (tl.tab === 'trace' || glow) {
+        const ld = glow ? d.glow : st.trace || Sh.lorder[0];
+        o.trace = pathTo(Sh, v.st, ld); o.traceA = tl.tabA;
+        if (glow) o.traceSeq = tl.glowA;
+      }
+      H = drawFlow(art, Sh, v, o);
+    } else if (Sh.hoist) {
+      const hh = a && a.kind === 'hoist' && moving ? hoistAt(a.h0, a.holds, T).h : w.h;
+      const o = { tab: tl.tab, tabA: tl.tabA, trace: tl.tab === 'trace' ? st.trace || 1 : null, traceA: tl.tabA, taps: tools, changed: st.what ? hoistChanged(w) : [],
+        bad: R.bad, ink: R.ink, badA: ringA, inkA: ringA };
+      if (!tools && d.mark && own) o.mark = d.mark;
+      H = drawHoist(art, hh, o);
+    } else {
+      const sz = i === I.size && own;
+      H = drawBrk(art, { tab: tl.tab, tabA: tl.tabA, hole: tl.hole, sizes: sz, sizesA: 1, fifty: sz && st.res === 'right' ? (moving && a.kind === 'lit' ? arr(0.3) : 1) : 0 });
+    }
+    sceneSvg.setAttribute('viewBox', '0 0 340 ' + H);
+    sceneSvg.setAttribute('aria-label', altFor(i));
+    tabBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', TABS[k] === tl.tab ? 'true' : 'false'));
+    whatBtn.el.setAttribute('aria-pressed', st.what ? 'true' : 'false');
+    const nt = el('notes');
+    nt.className = 'small notes' + ((tl.tab === 'legend' || tl.tab === 'state') && Sh.notes ? ' lit' : '');
+    // the plant beside the sheet, on the last screen
+    part.textContent = '';
+    if (d.plant && own) {
+      meter = plantSvg;
+      const P = plantWorld(st), pv = moving && P.plan ? flowLook(P.plan, T) : stillLook(PLANT, P.shown, P.cur), PR = P.rings || {}, pa = moving ? arr(P.plan ? P.plan.rings : 0) : 1;
+      drawFlow(part, PLANT, pv, { bad: PR.bad, ink: PR.ink, badA: pa, inkA: pa, badPipe: PR.bad || PR.pipeInk ? PIPE : null, badPipeInk: !!PR.pipeInk });
+      plantSvg.setAttribute('aria-label', plantAlt(st));
+      meter = sceneSvg;
+    }
+    const sayA = moving && d.show && a.kind === 'demo' ? arr(motionEnd - 0.5) : moving && (a.kind === 'flow' || a.kind === 'hoist') ? arr(motionEnd - 0.5) : 1;
+    K.fade(el('say'), sayA, 3);
+  }
+
+  // ---------- words: the .say line and the text alternatives ----------
+  function items(Sh, pt) {
+    const out = [];
+    pt.devs.forEach((k, j) => { if (Sh.devs[k].k !== 'w' && Sh.devs[k].k !== 'conv') out.push(devName(Sh, k)); if (Sh.air && pt.nodes[j + 1] === 'rcv' && pt.src !== 'R1') out.push('R1'); });
+    return out;
+  }
+  function pathWords(Sh, st, l) {
+    const pt = pathTo(Sh, st, l), nm = Sh.loads[l].nm;
+    if (!pt) return cap(nm) + (Sh.loads[l].pl ? ' have' : ' has') + ' no path to a live source.';
+    return cap(nm) + (Sh.loads[l].pl ? ' get ' : ' gets ') + (Sh.air ? 'air' : 'supply') + ' from ' + NAMES[pt.src] + (items(Sh, pt).length ? ' through ' + listOf(items(Sh, pt)) : '') + '.';
+  }
+  function wrongWords(Sh, p, l) {
+    const nm = Sh.loads[l].nm, node = Sh.loads[l].node, pl = !!Sh.loads[l].pl;
+    if (p.Le.has(node)) return cap(nm) + ' still ' + (pl ? 'have' : 'has') + (Sh.air ? ' air' : ' supply') + '. ' + pathWords(Sh, p.E, l);
+    if (p.Lm.has(node)) return cap(nm) + " ran on R1 until R1's needle reached the low mark. Then " + (pl ? 'they' : 'it') + ' stopped.';
+    const pa = pathTo(Sh, p.A, l);
+    if (!pa) return cap(nm) + ' had no ' + (Sh.air ? 'air' : 'supply') + ' to start with.';
+    if (!srcOn(Sh, p.B, pa.src)) return cap(nm) + (pl ? ' stop. They were fed from ' : ' stops. It was fed from ') + NAMES[pa.src] + ', now stopped.';
+    const k = realDevs(Sh, pa.devs).find((x) => !p.B.dev[x]);
+    return cap(nm) + (pl ? ' stop.' : ' stops.') + (k ? (pl ? ' Their path from ' : ' Its path from ') + NAMES[pa.src] + ' ran through ' + devName(Sh, k) + ', now ' + (Sh.air ? 'shut' : 'open') + '.' : '');
+  }
+  function changeWords(Sh, w) {
+    return changedIds(Sh, w).map((k) => (Sh.devs[k] ? devName(Sh, k) + (w.cur.dev[k] ? (Sh.air ? ' open' : ' closed') : Sh.air ? ' shut' : ' open') : NAMES[k] + (w.cur.run[k] ? ' running' : ' stopped')));
+  }
+  const TABW = {
+    air: { legend: 'The legend draws every valve alike. N.C. marks the ones shut as drawn.', sources: 'C1, C2 and R1 are ringed. Each can feed the header.', state: 'V7 and V8 are marked N.C., so both are shut as drawn. Note 1 says when V7 is opened.' },
+    sb2: { legend: 'The key draws a live line bold and a dead one pale. A lit lamp means the load has supply.', sources: 'Two sources are ringed, the feeder from the main board through -Q6, and -G4 through -Q7.', state: 'The caption says -G4 is stopped and -Q7 is open. So section 2 is fed from section 1 through bus-tie -Q8.' },
+    sb1: { legend: 'The key draws a live line bold and a dead one pale. A lit lamp means the load has supply.', sources: '-G1, -G2, the shore supply and battery -G3 are ringed.', state: 'The N.O. marks show -Q4 and -Q23 open as drawn. The note under the sheet says how the board is run.' },
+    hoist: { legend: 'The legend names each symbol. The tables under -K11 and -K12 give the path that holds each of their contacts.', sources: 'Supply L runs along the top. Every path starts there and returns to N.', state: 'Each contact is drawn at rest, faint. Its present state is drawn bold over it.' },
+    brk: { legend: 'The title block gives issue B, the scale 1 : 2 and the first-angle symbol.', sources: 'Start at the front view. The others are read from it.', state: 'The issue letter says which version of the drawing this is.', trace: 'The hole shows as a circle in the front view, and as dashed lines in the other two.' },
+  };
+  const HTRACE = {
+    1: "Path 1 runs from L through -S10, -F11, -S11, -B11 and -K12's contact to coil -K11.",
+    2: "Path 2 runs from L through -S10, -F11, -S12, -B12 and -K11's contact to coil -K12.",
+    3: 'Path 3 runs from L through -S10, -F11 and a contact of -K11 or -K12 to brake coil -Y11.',
+  };
+  function flowDesc(Sh, w, tab) {
+    const live = new Set(liveLoads(Sh, w.shown)), dead = Sh.lorder.filter((l) => !live.has(l)), s = [];
+    if (!dead.length) s.push(Sh.air ? 'Every user has air.' : 'Every load has supply.');
+    else if (dead.length === Sh.lorder.length) s.push(Sh.air ? 'No user has air.' : 'No load has supply.');
+    else s.push(cap(listOf(dead.map((l) => Sh.loads[l].nm))) + (dead.length > 1 || Sh.loads[dead[0]].pl ? ' have no ' : ' has no ') + (Sh.air ? 'air' : 'supply') + '. ' + (Sh.air ? 'The other users have air.' : 'Every other load has supply.'));
+    const b = w.shown;
+    if (Sh.air) {
+      if (!b.run.C1 && !b.run.C2) s.push('Both compressors are stopped.');
+      if (b.lev <= 1e-6) s.push('R1 is vented, so its needle is at the bottom.');
+      else if (b.lev <= LOW + 1e-9) s.push("R1's needle is at the low mark.");
+      else if (!['C1', 'C2'].some((c) => b.run[c] && reachFrom(Sh, b, Sh.srcs[c].node).has('rcv')) && !(Sh.id === 'air' ? ['hv3', 'h7'] : ['hdr', 'u6']).some((n) => reachFrom(Sh, b, 'rcv').has(n))) s.push('R1 is cut off from both compressors and the header. It still holds air.');
+    } else if (Sh.id === 'sb2') {
+      const L = liveNodes(SB2, b);
+      if (L.has('s2') && b.dev.Q8 && !b.run.G4 && tab !== 'state') s.push('Section 2 is fed from section 1 through bus-tie -Q8.');
+    } else {
+      if (b.dev.Q23 && liveNodes(SB1, b).has('m3')) s.push('-M3 runs from section B through -Q23.');
+      if (b.dev.Q4) s.push('Bus-tie -Q4 is closed, so one supply feeds both sections.');
+    }
+    return s.join(' ');
+  }
+  function flowSay(Sh, w, st) {
+    if (st.what) {
+      if (!w.graded) { const ch = changeWords(Sh, w); return (ch.length ? cap(listOf(ch)) + '. ' : 'Nothing is changed yet. ') + 'Mark each one Runs or Stops, then tap Play.'; }
+      if (w.graded.total) return K.fmt(w.graded.right, { decimals: 0 }) + ' of ' + K.fmt(w.graded.total, { decimals: 0 }) + ' marks are right. ' + w.graded.words;
+      return flowDesc(Sh, w);
+    }
+    if (st.tab === 'trace') return pathWords(Sh, w.shown, st.trace || Sh.lorder[0]);
+    const tw0 = st.tab && TABW[Sh.id][st.tab];
+    return (tw0 ? tw0 + ' ' : '') + flowDesc(Sh, w, st.tab);
+  }
+  function runWords(run) {
+    const r = run.res, h0 = run.h0, top = h0.S10 && h0.F11, out = [], bs = run.holds.map((x) => x.b);
+    if (bs.indexOf('up') >= 0) out.push(r.up ? 'Up raised the hook.' : 'Up did nothing, because ' + (!top ? '-S10 or -F11 is open.' : !h0.B11 || h0.pos >= 1 ? '-B11 was open in path 1.' : 'no path reached -K11.'));
+    if (bs.indexOf('down') >= 0) out.push(r.down ? 'Down lowered the hook' + (h0.pos >= 1 && h0.B11 ? ', and -B11 closed again as it left the top.' : '.') : 'Down did nothing, because ' + (!top ? '-S10 or -F11 is open.' : !h0.B12 || h0.pos <= 0 ? '-B12 was open in path 2.' : 'no path reached -K12.'));
+    return out.join(' ');
+  }
+  function hoistSay(st, w) {
+    const h = w.h, c = coils(h);
+    if (st.what && !w.graded) { const ch = hoistChanged(w).map((k) => '-' + k + ' open'); return (ch.length ? cap(listOf(ch)) + '. ' : 'Nothing is changed yet. ') + 'Mark each one Runs or Stops, then tap Play.'; }
+    if (st.what && w.graded && w.graded.total) return K.fmt(w.graded.right, { decimals: 0 }) + ' of ' + K.fmt(w.graded.total, { decimals: 0 }) + ' marks are right. ' + runWords(w.lastRun);
+    if (st.tab === 'trace') return HTRACE[st.trace || 1];
+    if (st.tab) return TABW.hoist[st.tab];
+    if (h.held === 'up') return c.k11 ? "Up is held. Coil -K11 is in, so its contact in path 2 opens and its contact in path 3 closes. -Y11 lifts the brake, and the hook rises." : 'Up is held, but no path reaches -K11. The brake holds the hook.';
+    if (w.lastRun) return runWords(w.lastRun) + ' Now no button is held, so the brake holds the hook.';
+    const s = [];
+    if (h.pos >= 1) s.push('The hook is at the top, so -B11 is open.');
+    if (h.pos <= 0) s.push('The hook is at the bottom, so -B12 is open.');
+    if (!c.top) s.push('-S10 or -F11 is open, so no path reaches a coil.');
+    s.push('No button is held, so no coil is in and the brake holds the hook.');
+    return s.join(' ');
+  }
+  function sayFor(i) {
+    const d = STEPS[i], st = S[i];
+    if (!toolsOn(i)) return '';
+    if (st.note) return st.note;
+    const Sh = SHEETS[st.sh], w = world(st, Sh.id, i);
+    if (Sh.brk) return st.tab ? TABW.brk[st.tab] : 'The front view sits in the middle. The view from above is below it, and the view from the left is on its right.';
+    if (Sh.hoist) return hoistSay(st, w);
+    if (d.plant && st.sh === SI.air && st.P && !st.what && !st.tab) return 'With V3 shut, the sheet shows every user without air. In the plant, the untagged pipe still feeds the hose point from R1. Back through V6, it feeds the rest of the header too.';
+    return flowSay(Sh, w, st);
+  }
+  function altFor(i) {
+    const st = S[i], Sh = SHEETS[st.sh], w = world(st, Sh.id, i);
+    if (Sh.brk) return 'A first-angle drawing of an angle bracket: a front view, the view from above below it, the view from the left on its right, and a title block.';
+    if (Sh.hoist) return "The hoist's control schematic, three paths between supply L and return N, beside the hoist. The hook is " + (w.h.pos >= 1 ? 'at the top' : w.h.pos <= 0 ? 'at the bottom' : 'part way up') + '.';
+    const names = { air: 'The compressed air sheet: compressors C1 and C2, receiver R1, and the header feeding three users.', sb2: 'The second switchboard, with its feeder and -G4 at the bottom and four loads at the top.', sb1: 'The first switchboard: -G1 on section A, -G2 and the shore supply on section B, and the 115 V and DC boards below.' };
+    return names[Sh.id] + ' ' + flowDesc(Sh, w);
+  }
+  function plantAlt(st) {
+    const P = plantWorld(st);
+    return 'A sketch of the plant as fitted. R1 stands left of the compressors, and an untagged pipe runs from the top of R1 to the hose point. ' + flowDesc(PLANT, P);
+  }
+
+  // ---------- text with tags that never split (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(-[A-Z]\d+)/).forEach((p, k) => { if (p) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, p) : document.createTextNode(p)); });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()), 0, STEPS.length - 1);
+  function takeOver(i) { if (anim.playing()) anim.pause(); T = Infinity; S[i].touched = true; }
+  const shName = el('shname');
+  function moveSheet(dx) {
+    const i = at(), st = S[i];
+    if (finished || !toolsOn(i)) return;
+    takeOver(i);
+    st.sh = (st.sh + dx + SHEETS.length) % SHEETS.length;
+    st.tab = null; st.trace = null; st.what = false; st.note = ''; st.anim = null;
+    K.reveal();
+  }
+  const prevSh = K.button({ label: '‹', secondary: true, into: '#picker', press: () => moveSheet(-1) });
+  const nextSh = K.button({ label: '›', secondary: true, into: '#picker', press: () => moveSheet(1) });
+  el('picker').insertBefore(prevSh.el, shName);
+  prevSh.el.setAttribute('aria-label', 'Previous sheet'); nextSh.el.setAttribute('aria-label', 'Next sheet');
+
+  const TABS = ['legend', 'sources', 'state', 'trace'];
+  function pressTab(t) {
+    const i = at(), st = S[i], Sh = SHEETS[st.sh];
+    if (finished || !toolsOn(i)) return;
+    takeOver(i);
+    st.note = '';
+    st.tab = st.tab === t ? null : t;
+    if (st.tab === 'trace' && st.trace == null) st.trace = Sh.hoist ? 1 : Sh.lorder[0] || null;
+    st.anim = { kind: 'tab' };
+    play(Sh.brk && st.tab === 'trace' ? 2.6 : 0.9);
+    K.reveal();
+  }
+  const tabBtns = TABS.map((t) => K.button({ label: cap(t), secondary: true, into: '#tabs', press: () => pressTab(t) }));
+  const whatBtn = K.button({ label: 'What if', secondary: true, into: '#tabs', press: () => {
+    const i = at(), st = S[i], Sh = SHEETS[st.sh];
+    if (finished || !toolsOn(i) || Sh.brk) return;
+    takeOver(i);
+    st.what = !st.what; st.note = ''; st.anim = null;
+    delete st.W[Sh.id];
+    K.reveal();
+  } });
+
+  function hold(b) {
+    const i = at(), st = S[i];
+    if (finished || !toolsOn(i) || !SHEETS[st.sh].hoist) return;
+    takeOver(i);
+    st.note = '';
+    const w = world(st, 'hoist', i);
+    w.graded = null;
+    hoistGo(i, [{ b, t0: 0.2, t1: 2.0 }]);
+    play(2.5);
+    K.reveal();
+  }
+  const upBtn = K.button({ label: 'Hold Up', secondary: true, into: '#tools', press: () => hold('up') });
+  const dnBtn = K.button({ label: 'Hold Down', secondary: true, into: '#tools', press: () => hold('down') });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.show) return;
+    S[i] = fresh(i);
+    startDemo(i);
+  } });
+
+  // What if: mark each load, then play the change and see which marks were wrong.
+  function mark(k, v) {
+    const i = at(), st = S[i], Sh = SHEETS[st.sh];
+    if (finished || !toolsOn(i) || !st.what || k >= Sh.lorder.length) return;
+    const w = world(st, Sh.id, i), l = Sh.lorder[k];
+    if (w.marks[l] === v) delete w.marks[l]; else w.marks[l] = v;
+    w.graded = null; w.rings = null; st.note = '';
+  }
+  const ROWS = [0, 1, 2, 3, 4, 5, 6].map((k) => {
+    const row = el('marks').appendChild(K.el('div', { class: 'mrow' }));
+    const nm = row.appendChild(K.el('span', { class: 'nm' }));
+    return { row, nm, r: K.button({ label: 'Runs', secondary: true, into: row, press: () => mark(k, 'runs') }), s: K.button({ label: 'Stops', secondary: true, into: row, press: () => mark(k, 'stops') }) };
+  });
+  const playBtn = K.button({ label: 'Play', into: '#marks', press: () => {
+    const i = at(), st = S[i], Sh = SHEETS[st.sh];
+    if (finished || !toolsOn(i) || !st.what || Sh.brk) return;
+    takeOver(i);
+    st.note = '';
+    const w = world(st, Sh.id, i), marked = Sh.lorder.filter((l) => w.marks[l]);
+    if (Sh.hoist) {
+      const f = hoistGo(i, HOLDS2, null), did = { UP: f.res.up, DN: f.res.down };
+      const wrong = marked.filter((l) => (w.marks[l] === 'runs') !== did[l]);
+      w.graded = { total: marked.length, right: marked.length - wrong.length, wrong };
+      if (wrong.length) w.rings = { bad: { coils: wrong.map((l) => (l === 'UP' ? 'K11' : 'K12')), paths: wrong.map((l) => (l === 'UP' ? 1 : 2)) } };
+      play(HOLDS2[1].t1 + 0.6);
+    } else {
+      const p = flowGo(i, Sh.id, {}, null, null);
+      const wrong = marked.filter((l) => (w.marks[l] === 'runs') !== p.Le.has(Sh.loads[l].node));
+      w.graded = { total: marked.length, right: marked.length - wrong.length, wrong, words: wrong.length ? wrongWords(Sh, p, wrong[0]) : 'Every mark is right. ' + flowDesc(Sh, w) };
+      if (wrong.length) w.rings = { bad: { loads: wrong, nodes: badNodes(Sh, p, wrong) } };
+      play(p.dur);
+    }
+    K.reveal();
+  } });
+
+  // Tapping the sheet: a load traces its path; with What if on, a part changes.
+  sceneSvg.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest ? e.target.closest('[data-dev],[data-src],[data-load],[data-con],[data-coil]') : null;
+    if (!t || finished) return;
+    const i = at(), st = S[i], Sh = SHEETS[st.sh];
+    if (!toolsOn(i)) return;
+    const c = t.dataset.con;
+    if (c === 'S11' || c === 'S12') { hold(c === 'S11' ? 'up' : 'down'); K.refresh(); return; }
+    takeOver(i);
+    st.note = '';
+    const w = world(st, Sh.id, i);
+    if (t.dataset.load || t.dataset.coil) {
+      st.trace = t.dataset.load || { K11: 1, K12: 2, Y11: 3 }[t.dataset.coil]; st.tab = 'trace'; st.anim = { kind: 'tab' }; play(0.9);
+    } else if (!st.what) st.note = 'Turn on What if to change a part.';
+    else if (c) { w.h[c] = !w.h[c]; w.graded = null; w.rings = null; }
+    else if (t.dataset.dev) {
+      const k = t.dataset.dev, why = !w.cur.dev[k] && Sh.refuse ? Sh.refuse(w.cur, k) : null;
+      if (why) st.note = why; else { w.cur.dev[k] = !w.cur.dev[k]; w.graded = null; w.rings = null; }
+    } else if (t.dataset.src) {
+      const s = t.dataset.src;
+      if (Sh.srcs[s].fixed) st.note = devName(Sh, s) + ' stays stopped here, as the caption says. It still counts as a source, because it can be started.';
+      else { w.cur.run[s] = !w.cur.run[s]; w.graded = null; w.rings = null; }
+    }
+    K.reveal();
+    K.refresh();
+  });
+
+  // The puzzles: a choice, or a typed figure; Check plays it.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k];
+    st.res = null; st.fbText = '';
+  } }));
+  const ANS = {}, BOX = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    BOX[i] = el('ansbox').appendChild(K.el('div', { class: 'ans' }));
+    ANS[i] = K.answer({ id: d.field, unit: d.unit, answer: d.answer, decimals: 0, slips: d.slips, into: BOX[i], onCheck: (r) => {
+      const st = S[i];
+      if (st.res === 'right') return;
+      if (r.state === 'right') { st.res = 'right'; st.fbText = "That's it."; playFx(i, null, true); }
+      else if (r.state === 'wrong') {
+        st.tries += 1;
+        if (st.tries >= 2) { st.res = 'right'; st.shownAns = true; st.why = true; st.fbText = (r.hint ? r.hint + ' ' : '') + 'Here is the working.'; ANS[i].reveal(); playFx(i, null, true); }
+        else { st.res = 'wrong'; st.fbText = r.hint || d.hint; }
+      } else { st.res = null; st.fbText = ''; }
+      K.refresh();
+    } });
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'typed') { ANS[i].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    const ok = st.pick === d.want;
+    st.res = ok ? 'right' : 'wrong';
+    if (!ok) st.tries += 1;
+    st.fbText = ok ? "That's it." : (d.hints && d.hints[st.pick]) || d.hint;
+    playFx(i, st.pick, ok);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => { const i = at(); if (finished || STEPS[i].show) return; S[i].why = !S[i].why; } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (finished) { finished = false; return; } stepper.set(Math.max(0, at() - 1), true); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => fresh(i));
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each puzzle's answer and each change; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (T >= motionEnd) { T = Infinity; paint(); return false; }
+    paint();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    if (d.demo === 'hold') hoistGo(i, [{ b: 'up', t0: 0.4, t1: 2.4 }]);
+    else S[i].anim = { kind: 'demo' };
+    play(d.dur);
+  }
+  function enter(id) { if (REDUCE) return; const box = el(id); box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter'); }
+  STEPS.forEach((d, i) => {
+    if (!d.show) return;
+    d.still = () => {
+      S[i] = fresh(i); S[i].touched = true;
+      if (d.demo === 'hold') world(S[i], 'hoist', i).h = Object.assign(cp(HBASE), { pos: 0.75, held: 'up' });
+      anim.pause(); T = Infinity; K.refresh();
+    };
+  });
+
+  // ---------- the page ----------
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = fresh(i); startDemo(i); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right', tools = toolsOn(i), Sh = SHEETS[st.sh], w = world(st, Sh.id, i);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('picker').hidden = !tools;
+    el('shtitle').textContent = Sh.title;
+    el('shcount').textContent = 'Sheet ' + (st.sh + 1) + ' of ' + SHEETS.length;
+    el('tabs').hidden = !tools;
+    whatBtn.el.hidden = !!Sh.brk;
+    el('notes').textContent = Sh.notes || '';
+    el('notes').hidden = !Sh.notes;
+    el('plantbox').hidden = !(d.plant && st.sh === SI.air);
+    const say = sayFor(i);
+    el('say').hidden = !say;
+    write(el('say'), say);
+    upBtn.el.hidden = dnBtn.el.hidden = !(tools && Sh.hoist);
+    replayBtn.el.hidden = !d.show || REDUCE || st.sh !== SI[d.sheet];
+    el('tools').hidden = upBtn.el.hidden && replayBtn.el.hidden;
+    const showMarks = tools && st.what && Sh.lorder.length > 0;
+    el('marks').hidden = !showMarks;
+    ROWS.forEach((r, k) => {
+      const l = Sh.lorder[k];
+      r.row.hidden = !showMarks || k >= Sh.lorder.length;
+      if (r.row.hidden) return;
+      write(r.nm, Sh.loads[l].label);
+      r.r.el.setAttribute('aria-pressed', w.marks[l] === 'runs' ? 'true' : 'false');
+      r.s.el.setAttribute('aria-pressed', w.marks[l] === 'stops' ? 'true' : 'false');
+      r.row.className = 'mrow' + (w.graded && w.graded.wrong.indexOf(l) >= 0 ? ' bad' : '');
+    });
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      write(b.el.appendChild(K.el('span', { class: 'opt' })), opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    Object.keys(BOX).forEach((k) => { BOX[k].hidden = +k !== i; });
+    el('ansbox').hidden = d.kind !== 'typed';
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    const f = d.show ? '' : st.res === 'empty' ? 'Tap one of the answers.' : st.res ? st.fbText : '';
+    fb.className = 'fb' + (right && !st.shownAns ? ' right' : '');
+    write(fb, f);
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const airWith = (dev, run) => { const b = cp(AIR.base); Object.assign(b.dev, dev || {}); Object.assign(b.run, run || {}); return b; };
+  K.check('Valves can share one symbol, with the notes and legend telling what the symbol alone cannot: every valve on the air sheet is drawn alike, and only V7 and V8, marked N.C., are shut as drawn', () => {
+    const vs = Object.keys(AIR.devs).filter((k) => AIR.devs[k].k === 'vv' || AIR.devs[k].k === 'vh'), nc = vs.filter((k) => AIR.devs[k].nc);
+    return vs.length === 8 && nc.join() === 'V7,V8' && vs.every((k) => !!AIR.base.dev[k] === !AIR.devs[k].nc);
+  }, { source: SRC.doe });
+  K.check('A one line typically starts at the top with the incoming power and its disconnecting device: the first switchboard does, while the second has both supplies below its busbars and its loads above them', () =>
+    ['G1', 'G2', 'SH'].every((s) => SB1.srcs[s].y < SB1.devs[{ G1: 'Q1', G2: 'Q2', SH: 'Q3' }[s]].y && SB1.devs[{ G1: 'Q1', G2: 'Q2', SH: 'Q3' }[s]].y < 120) && SB1.lorder.every((l) => SB1.loads[l].y > 120) &&
+    SB2.sorder.every((s) => SB2.srcs[s].y > 168) && SB2.lorder.every((l) => SB2.loads[l].y < 168), { source: SRC.eeco });
+  K.check('Each symbol is drawn in its normal condition: at rest every normally closed contact on the hoist sheet is closed, every normally open one is open, and no coil is in', () => {
+    const c = coils(HBASE);
+    return !c.k11 && !c.k12 && !c.y11 && Object.keys(CON).every((id) => contactClosed(id, HBASE, c) === !!CON[id].nc);
+  }, { source: SRC.navy });
+  K.check('Isolation points on the plant should match the line diagram: the plant has one valve the sheet does not show, so with V3 shut the plant\'s users keep air through it, the hose point and, back through V6, the rest of the header, while the sheet shows every user without air', () => {
+    const p = flowBase(PLANT, { dev: { V3: false } }), s = flowBase(AIR, { dev: { V3: false } });
+    return !AIR.devs.X && !!PLANT.devs.X && liveLoads(PLANT, p).join() === 'T,A,H' && pathTo(PLANT, p, 'H').devs.indexOf('X') >= 0 && liveLoads(AIR, s).length === 0 && liveLoads(AIR, flowBase(AIR)).length === 3;
+  }, { source: SRC.hse });
+  K.check('Both compressors stopped: every user keeps air from R1 until its needle falls to the low mark, then all three stop; with V3 shut instead, all three stop at once and R1 stays full', () => {
+    const p = flowPlan(AIR, flowBase(AIR), airWith(null, { C1: false, C2: false })), q = flowPlan(AIR, flowBase(AIR), airWith({ V3: false }));
+    return ['u4', 'u5', 'u6'].every((n) => p.Lm.has(n) && !p.Le.has(n) && !q.Lm.has(n)) && p.E.lev === LOW && p.tl > 0 && q.E.lev === 1 && !p.Le.has('a1');
+  });
+  K.check('Second board: 2 sources (slips 1 and 3); as run, section 2 is fed through -Q8; with -Q8 open, -M6 and -E6 stop and -M5 and -E5 run', () => {
+    const b = flowBase(SB2), t = flowBase(SB2, { dev: { Q8: false } }), d = STEPS[I.count];
+    return d.answer === 2 && d.slips.map((x) => x.value).join() === '1,3' && liveLoads(SB2, b).length === 4 && pathTo(SB2, b, 'M6').devs.indexOf('Q8') >= 0 &&
+      liveLoads(SB2, t).join() === 'M5,E5';
+  });
+  K.check('Hoist: from mid-travel Up raises the hook; at the top Up does nothing and Down still lowers it; with -S10 open neither works', () => {
+    const top = hoistAt(Object.assign(cp(HBASE), { pos: 1 }), HOLDS2, Infinity).res, mid = hoistAt(cp(HBASE), [{ b: 'up', t0: 0, t1: 1 }], Infinity);
+    const stop = hoistAt(Object.assign(cp(HBASE), { S10: false }), HOLDS2, Infinity).res;
+    return !top.up && top.down && mid.res.up && K.near(mid.h.pos, 0.5 + RATE, 0.02) && !stop.up && !stop.down;
+  });
+  K.check('Isolating R1: V1, V2 and V3 cut it off from both compressors and the header; V3 alone leaves the compressors feeding it; V1 and V2 alone leave it feeding the header; opening V7 would join its inlet line to the header', () => {
+    const cut = (list, more) => { const b = airWith(); list.forEach((k) => { b.dev[k] = false; }); Object.assign(b.dev, more || {}); const r = reachFrom(AIR, b, 'rcv'); return { c: reachFrom(AIR, b, 'a1').has('rcv') || reachFrom(AIR, b, 'a2').has('rcv'), h: r.has('hv3') || r.has('h7') }; };
+    const a = cut(['V1', 'V2', 'V3']), b = cut(['V3']), c = cut(['V1', 'V2']), e = cut(['V1', 'V2', 'V3'], { V7: true });
+    return !a.c && !a.h && b.c && !b.h && !c.c && c.h && e.h && STEPS[I.iso].shut[STEPS[I.iso].want].join() === 'V1,V2,V3';
+  });
+  K.check('First board: -Q23 cannot close while -Q13 is closed; with -Q13 open and -Q23 closed, -M3 is still fed, from -G2 through section B', () => {
+    const b = cp(SB1.base), refused = !!SB1.refuse(b, 'Q23');
+    b.dev.Q13 = false;
+    const free = !SB1.refuse(b, 'Q23');
+    b.dev.Q23 = true;
+    const pt = pathTo(SB1, b, 'M3');
+    return refused && free && pt && pt.src === 'G2' && pt.devs.join() === 'Q2,Q23';
+  });
+  K.check('The upright stands 60 − 10 = 50 mm above the base (slips 60 and 70), and the typed fields ask exactly these', () => {
+    const d = STEPS[I.size];
+    return d.answer === 50 && d.slips.map((x) => x.value).join() === '60,70' && d.want === '50 mm' && STEPS[I.count].want === '2 sources' && ANS[I.size].spec.answer === 50 && ANS[I.count].spec.answer === 2;
+  });
+  K.check('Before an answer nothing gives it away: every puzzle opens on its own sheet as drawn, with no tabs, rings, marks or locks', () =>
+    DO.every((i) => {
+      const st = fresh(i), d = STEPS[i], w = world(st, d.sheet, i), Sh = SHEETS[SI[d.sheet]];
+      const same = Sh.flow ? JSON.stringify(w.shown) === JSON.stringify(flowBase(Sh, d.base)) : Sh.hoist ? JSON.stringify(w.h) === JSON.stringify(Object.assign(cp(HBASE), d.base || {})) : true;
+      return same && !st.tab && !st.what && !w.rings && !Object.keys(w.locks).length && !Object.keys(w.marks).length && st.res === null;
+    }));
+  K.check('Every demonstration settles within 4.5 s, and every answer plays out within 5 s', () => {
+    const plays = [flowPlan(AIR, flowBase(AIR), airWith(null, { C1: false, C2: false })), flowPlan(AIR, flowBase(AIR), airWith({ V1: false, V2: false, V3: false, V8: true }), { V8: 0.6 }),
+      flowPlan(SB1, flowBase(SB1), Object.assign(cp(SB1.base), { dev: Object.assign(cp(SB1.base.dev), { Q13: false }) }))];
+    return STEPS.every((d) => !d.show || (d.dur > 0 && d.dur <= 4.5)) && plays.every((p) => p.dur <= 5.05) && HOLDS2[1].t1 + 0.6 <= 5;
+  });
+
+  K.ready();
+</script>

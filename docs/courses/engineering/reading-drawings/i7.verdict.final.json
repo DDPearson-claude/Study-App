@@ -1,0 +1,154 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Unless otherwise stated, valves are drawn in their normal position, the primary flowpath: the cooling sheet opens with every valve open, one pump running, the other stopped, and the water lit through the cooler",
+        "ok": true,
+        "source": "https://www.online-pdh.com/file.php/221/CFD_SG.pdf"
+      },
+      {
+        "label": "Isolation points on the plant must match the line diagram: the plant sketch has exactly one valve the drawing lacks, on the header tank's line, and it is drawn shut",
+        "ok": true,
+        "source": "https://files.engineering.com/files/a01e329a-ec1b-42f7-a8fb-7a3bb8ea235c/hsg253_safe_isolation.pdf"
+      },
+      {
+        "label": "With P1 running and every valve open, water lights all the way round through the cooler; shut V7 and nothing is lit, and P1 runs against a shut valve",
+        "ok": true
+      },
+      {
+        "label": "NR2 stops water running back through the stopped P2: its branch stays dark, but with NR2 taken out, P1's water would run back through P2",
+        "ok": true
+      },
+      {
+        "label": "TV1 always leaves an outlet open: at full bypass the water still goes round, through the bypass and not the cooler; some each way lights both",
+        "ok": true
+      },
+      {
+        "label": "Whatever the lineup, no lit pipe ends at a shut valve, no water passes a non-return valve backwards, nothing flows with both pumps stopped, and the header tank's line never lights",
+        "ok": true
+      },
+      {
+        "label": "Isolating P2 takes V3 and V4: with both shut no red is left; V3 alone leaves its discharge red through NR2 to V4, and V4 alone leaves its suction red to V3",
+        "ok": true
+      },
+      {
+        "label": "On the fuel sheet, with F1 shut and F2 and X1 open, P3 draws from tank 2 only; with X1 shut, from tank 1 only; with P3 stopped, nothing moves",
+        "ok": true
+      },
+      {
+        "label": "To open S2 with X1 open takes three valves, F1, X1 and F3; shutting X1 already cuts off tank 2, so F2 adds nothing; the field asks exactly this",
+        "ok": true
+      },
+      {
+        "label": "Worked by hand: with the valve open, 30 − 0.04 × 200 = 22 m; shut, q = 0 and the head is 30 m; the slips are the open-valve head and no head at all",
+        "ok": true
+      },
+      {
+        "label": "Before an answer nothing gives it away: screens 3, 7 and 13 show no flow, screen 5 leaves P2's branch untraced, screen 9 shows no red and names no cut-off, screen 11 shows no ghost, screen 14 no red and no rings, and the say line names NR2 only from screen 5 on",
+        "ok": true
+      },
+      {
+        "label": "3-way valves are sometimes drawn in the position they fail to: the sheet carries Note 1 for TV1, its drawn setting is through the cooler, and the air-fails puzzle answers through the cooler",
+        "ok": true,
+        "source": "https://www.online-pdh.com/file.php/221/CFD_SG.pdf"
+      },
+      {
+        "label": "Every demonstration settles within 4.5 s, and every answer's motion within 3 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "Valve shut",
+          "The job first",
+          "As drawn",
+          "One open path",
+          "Back through P2?",
+          "Through or round",
+          "If the air fails",
+          "Cut off on every side",
+          "Isolate P2",
+          "Drawing against plant",
+          "One too many",
+          "A second path",
+          "Which tank?",
+          "Clean the strainer",
+          "Gate or globe?"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "Cooling",
+      "Fuel",
+      "Isolate",
+      "Plant",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "head0",
+        "answer": 30,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "nshut",
+        "answer": 3,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}
