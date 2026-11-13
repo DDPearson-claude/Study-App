@@ -23,7 +23,66 @@ game's clock on a 30 fps stepper; contact sheet **`tools/out/show/before.jpg`**;
 `tools/out/show/before/strips/`; every frame's numbers in `before/<set>/notes.json`. Re-shoot:
 `tools/tests/show-audit.scenario.mjs` + `tools/show-sheet.mjs` (their headers carry the commands). `tools/out/` is not tracked.
 
-@@DIAGNOSIS@@
+### 1.1 What the sequence is, and how long each part takes (seconds from T0, measured)
+
+| part | what happens | Small | Keeper | Prize | Trophy | Elder | Ancient, legend |
+|---|---|---|---|---|---|---|---|
+| reveal | the fish comes up beside the raft, the ink floods off it; the play's HUD still up | 0 – 0.36 | 0 – 0.50 | 0 – 0.73 | 0 – 1.00 | 0 – 1.37 | 0 – 1.57 |
+| scoop | `ctx.cinematic`; the fish flies to the rod tip; **the ink band slides in over the lower 45 % of the frame**; the trophy camera starts to ease in | – 0.57 | – 0.73 | – 1.17 | – 1.60 | – 2.20 | – 2.43 |
+| pose | the measuring pose; the fish comes to the hands (or stays on the rod) | – 0.83 | – 1.00 | – 1.70 | – 2.37 | – 3.33 | – 3.53 |
+| cord | the glory opens; the count ticks in the band | – 1.27 | – 1.43 | – 2.60 | – 3.70 | – 5.23 | – 5.43 |
+| banners | the stamp (`fish:measured`, `fish:landed`), a record banner across the top | – 1.57 | – 1.73 | – 3.17 | – 4.50 | – 6.37 | – 6.60 |
+| **card** | opens at once; there is no pause | **1.60** | **1.77** | **3.20** | **4.53** | **6.40** | **6.63** |
+
+### 1.2 What each strip shows (desktop; from `notes.json`)
+
+| catch | pose today | where the Wick faces | the fish on screen while it is in the pose | what covers it | the lens |
+|---|---|---|---|---|---|
+| small · Mossback Perch 33 cm | arms: across the chest | the lens (within 3°) | 27 – 60 px long (3 – 6 % of the frame's width), pale against the collar | the band: 27 % of its box at 1.2 s, 84 – 100 % from 1.37 s; then the card, 100 % | 9.3 m at T0, 5.8 m at the pose, still 2.4 m when the card opens |
+| keeper · Weeping Carp 61 cm | arms | the lens | 4 – 12 %; 16 % (152 px) at its best, a frame before the card | band 30 – 42 %; card 86 – 100 % | 2.9 m at the card |
+| prize · Reedjaw Pike 89 cm | hang: off the rod tip | **57 – 60° away from the lens**, in profile, looking up at the fish | 9 – 12 % wide × 37 – 62 % tall, a rod's length from the Wick: the best-seen fish of the set | the banner crosses its head (13 – 26 %); the band hides the Wick from the chest down; card 45 % | 3.5 m, the fov opening to 72° |
+| trophy · Reedjaw Pike 112 cm | hang | 57 – 60° away | 8 – 13 % × 38 – 78 % | band 3 – 11 %; card 58 – 61 % | 3.7 – 4 m |
+| elder · Reedjaw Pike 138 cm | hang | 59° away | 5 – 7 % wide, **hanging in front of the lantern post and its pennant**: one upright object | band 8 – 24 %; card 67 – 85 % | pulls back to 5.4 m: the Wick is 71 – 89 px tall (13 – 16 % of the frame) |
+| ancient · Reedjaw Pike 166 cm | hang | 59° away | 6 – 9 % wide, on the post again; the Wick bleached by the glory | band 16 – 23 %; card 100 % | 6.2 m; the Wick 69 – 88 px |
+| legend · Belled Matriarch 2.65 m | alongside: the Wick kneels at the edge | the lens, but bowed over the fish | 21 – 29 % wide: reads as a fish beside a raft | the band under it; card 100 % | 5.7 – 7.5 m: the Wick 44 – 61 px (8 – 11 %) |
+| eel · Gloam Eel 90 cm | hang | 56 – 58° away | 6 % × 34 – 60 %: a stiff bar | banner 10 % | 3.7 m |
+| tiny · Quayling 11.5 cm | palm: cupped at the chest, head bowed | the lens | **6 – 28 px long, ≤ 10 px tall: a dot** | band 100 % from 1.03 s; card 100 % | 2.2 m at the card |
+| ray · Velvet Ray 73 cm | arms | the lens | 12 – 18 %: a disc at the Wick's hip | band 29 – 54 %; card 100 % | 3.1 m at the card |
+| night · Candlefin Koi 50 cm | arms | the lens | as the keeper; the flame and the lantern are the only bright things | band; card | – |
+
+On the phone (390 × 844) the band and the card sit at the foot, so the top of the frame stays open: the Small's last frame before
+the card is the nearest thing today to the request (the Wick facing us, 191 – 227 px tall, a perch across its collar), but the
+perch is 69 – 84 px (18 – 21 % of the width, 4 – 5 % of the height) with a banner over the Wick's lantern and the band under its
+feet; the Elder is a raft with a fish on its lantern post, the lens 6 – 7.6 m away.
+
+Words on screen: 3 – 4 from the HUD through the reveal (plus its glyphs: 13 visible UI elements on the phone), then 9 – 26 from
+the overlay (27 – 41 elements): the name, a ticking count, class words, "old ledger", "your best", a banner ("New best: 33 cm
+(was 20)", "First Elder Reedjaw Pike"), "click or Space to skip". The HUD dims to 30 %; it does not go.
+
+Draw calls through today's sequence (phone, medium): 123 – 173 per frame, 173 at the ceremony's peak (S8's baseline).
+
+### 1.3 Why it does not read as "our character holding the fish and showing it to us"
+
+1. **The lens is late and far.** It starts in only at the ceremony, on a slow spring: 2.4 – 2.9 m out when a Small or Keeper's
+   card opens. The close-up exists, behind the card.
+2. **The picture is covered.** The band takes the lower 45 % of a landscape frame, exactly where the hands and the fish are,
+   from the first frame of the ceremony; a banner crosses the top; then the card covers the lot.
+3. **The fish is small, or it is somewhere else.** A held fish sits against the cloak at chest height and never comes toward
+   us: 3 – 16 % of the frame's width. A hung fish (from 0.85 m: every Prize pike) hangs a rod's length away and above, so the
+   frame is a fish and, apart from it, a small figure in profile **looking at its fish, not showing it to us**. An Elder hangs
+   on the lantern post.
+4. **The moment is about measuring.** The fish that reads is the 2D ink sketch in the band, and the action is a number ticking.
+   The real fish is never the subject.
+5. **There is no pause**, and for the big fish it is long without ever being clear: 6.4 – 6.6 s for an Elder or an Ancient.
+6. **A tiny fish is invisible.**
+
+What already works, and stays: the reveal (today's best view of the fish: broadside beside the raft, 23 – 39 % of the frame's
+width for an Elder); the Wick already turns with the fish to the camera's side (within 5° of the lens as the reveal ends); the
+glory and the chimes; true scale; the card itself.
+
+Two things in the legend's strip are artefacts of the audit jumping her 30 – 60 s play to its last half second: the hook's name
+banner and the Matriarch's toll, both still up. The toll, though, is `fx.pulse` at the raft's own position with a 7 m radius
+(`fishing.js`, `b.kind === 'toll'`): in normal play it is a ring round the raft. Outside this job; flagged for the lead.
 
 ## 2. The show
 
@@ -204,6 +263,12 @@ Because the fish is held toward the lens it is nearer than the face and so looks
 own arithmetic. During the reveal (before `showFish`) it fits the reveal's fish and the Wick's head and flame with the `both`
 row. From the lift on, actors returns the **settled** layout (where everything will be at the present), so the camera eases
 to a still target and is at rest (< 2 % of its distance per second) through the pause.
+
+The fit, so both lanes mean the same thing (a pure function in `render-camera.js`, unit-tested): with the view's right, up
+and forward axes from the yaw and the elevation, each kept point p has x = p·right, y = p·up, z = p·forward. Look at the
+middle of the points' x and y extents, at the depth zc of the fish's centre; a point is inside when |x − cx| ≤ (d + z − zc) ·
+tan(fovH / 2) · (1 − 2·margin) and the same for y with fovV; take the smallest d that holds for every point, then no less than
+0.35 m + the nearest point's (zc − z); re-centre cx, cy on the projected extents and repeat once.
 
 | pose | elev | fov 16:9 | fov upright | kept in frame | what it comes to (the Wick, default body) |
 |---|---|---|---|---|---|
