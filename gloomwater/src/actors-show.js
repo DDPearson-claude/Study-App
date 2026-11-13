@@ -314,10 +314,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     const reach = pinch ? (tiny ? L.grip.reachTiny : L.grip.reach) : L.grip.reach + little * 0.1;
     const ext = upright ? (b.noseZ - cLocal.z) * (K.nose === 'diag' ? 0.75 : 1) : K.wings && !pinch ? b.halfW : Math.max(0.01, b.top - cy);   // how far it stands above its middle
     let x, y;
-    if (pinch && !L.tall) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
+    if (pinch && !L.tall && !tiny) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
       x = sd * (G.head.radius * 0.94 + (tiny ? 0.03 : upright ? 0.06 : 0.32 * L.L)); y = G.head.center.y - (tiny ? 0.03 : 0.08) - (upright ? ext * 0.5 : 0);
-    } else if (pinch) {       // an upright frame: under the chin, the face above it, the two stacked in the narrow picture
-      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + (tiny ? 0.07 : 0.02), G.eyes.y - 0.12 - ext);
+    } else if (pinch) {       // an upright frame (and any tiny fish: before the dark cloak, where a sliver of silver reads): under the chin, the face above it
+      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + (tiny ? (L.tall ? 0.07 : 0.24) : 0.02), G.eyes.y - (tiny && !L.tall ? 0.06 : 0.12) - ext);
     } else { x = 0; y = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext); }   // the face must show above it
     const c = T.d.copy(L.spot).addScaledVector(L.xS, x).addScaledVector(L.zS, faceZ + reach); c.y = y;
     Y.pos.copy(cLocal).applyQuaternion(Y.quat).negate().add(c);
@@ -789,8 +789,9 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
   /** A fish too long to lift is hauled round to the raft's side under the surface (the lake is opaque: it sinks where it rose,
    *  and comes up again against the deck's edge), so nothing of it ever sweeps through the raft. g 0 → 1. */
   function underTo(L, g, toPos, toQuat) {
-    const N = L.now, F = L.from, deep = Math.max(L.b.halfW, (L.b.top - L.b.bottom) / 2) * 2 + 0.25;
-    const down = smooth01(g / 0.26), up = smooth01((g - 0.6) / 0.4), k = smooth01((g - 0.12) / 0.6);
+    // (just under: its back cuts the surface on the way, and it is out of sight for well under half the lift)
+    const N = L.now, F = L.from, deep = Math.max(L.b.halfW, (L.b.top - L.b.bottom) / 2) * 1.15 + 0.08;
+    const down = smooth01(g / 0.22), up = smooth01((g - 0.42) / 0.5), k = smooth01((g - 0.06) / 0.66);
     N.pos.copy(F.pos).lerp(toPos, k); N.quat.copy(F.quat).slerp(toQuat, k);
     N.pos.y = F.pos.y + (toPos.y - F.pos.y) * k - deep * down * (1 - up);
     L.under = down > 0.98 && up < 0.02;

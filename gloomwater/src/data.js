@@ -3835,6 +3835,7 @@ export const AUTOFISH = {
     // front of the Wick's face plane the fish's middle is held, toward the lens (the fisherman's trick: a fish under tinyBelow m
     // comes right up to it); the arm decides how much of it there is (a sleeve stretches to 2.6 × its length, no further). On a wide
     // screen a pinched fish is held up beside the cheek, on an upright one under the chin, so the lens can close in on the two.
+    // A fish under `tinyBelow` is held under the face on any screen (heightTiny): before the dark cloak a sliver of silver reads.
     // spread = each hand's distance from the fish's middle as a share of its length, the pair clamped to spreadClamp m apart.
     // hug: tilt = its lean from the deck (deg) over the near shoulder, stood on its tail (the last tenth bent flat on the planks),
     // heaved up through `heave` degrees by the present. hang: gap = the most it stands off the Wick's body (m), lean = the planted
@@ -3847,7 +3848,7 @@ export const AUTOFISH = {
     // 'planted' upright by its butt in the other hand, 'stowed' (set down on the bow rest during the lift), 'raised' with the fish
     // on its tip. NOTHING is ever held above the Wick's head: its flame is there.
     grip: {
-      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', rod: 'planted' },
+      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', heightTiny: 'chin', rod: 'planted' },
       both:      { hands: 2, reach: 0.30, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
       hug:       { hands: 2, tilt: 70, heave: 18, tail: 'deck', side: 'whereItCameUp', rod: 'stowed' },
       hang:      { hands: 2, tail: 'clear', tailClear: 0.04, gap: 0.12, lean: [3, 30], side: 'whereItCameUp', rod: 'raised' },
