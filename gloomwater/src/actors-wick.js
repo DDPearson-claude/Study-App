@@ -389,7 +389,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     const S = sh || REST_SHOW, L = S.life || {}, sd = S.side === -1 ? -1 : 1;
     const near = sd > 0 ? 'l' : 'r', far = sd > 0 ? 'r' : 'l';   // the arm on the fish's side, and the other
     const ps = clamp(S.p ?? 1, 0, 1), over = (S.p ?? 1) - ps;
-    const calm = clamp(S.calm || 0, 0, 1), live = 1 - 0.8 * calm, take = clamp(S.take ?? 1, 0, 1);
+    const calm = clamp(S.calm || 0, 0, 1), live = 1 - calm, take = clamp(S.take ?? 1, 0, 1);   // (the pause is a still: breath and flame only)
     const breathe = still ? 0 : Math.sin(t * 1.7) * 0.022;
     const w = clamp(S.weight || 0, 0, 1), flap = still ? 0 : (S.flap || 0), dip = S.dip || 0, sp = S.special || 0;
     const strain = (L.strain || 0) * (0.3 + 0.7 * ps) * take;

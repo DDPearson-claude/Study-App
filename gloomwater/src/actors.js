@@ -96,7 +96,7 @@ export function create(ctx) {
   const tiltNow = { y: 0 };
   const setDip = (d, dx, dz) => { raft.tilt.rotation.set(st.pitch + d * dz, 0, st.roll - d * dx); raft.tilt.position.y = tiltNow.y - Math.max(0, d) * 0.25; };
   const showCtl = createShow({ ctx, raft, wick, holder: catchHolder, deckY: DECK_Y, home: WICK_HOME, setDip });
-  const showDbg = { held: null, fv: null };
+  const showDbg = { held: null, fv: null, old: [] };
   const showFocusTmp = new THREE.Vector3();
   const localVel = new THREE.Vector3();
   const mv = { hR: new THREE.Vector3(), hL: new THREE.Vector3(), a: new THREE.Vector3(), x: new THREE.Vector3(), y: new THREE.Vector3(), z: new THREE.Vector3(),
@@ -246,6 +246,7 @@ export function create(ctx) {
         ctx.debug.showPose = (o = {}) => {
           const d = D();
           if (showDbg.fv) { api.endShow(); showCtl.abort(); try { showDbg.fv.dispose(); } catch { /* ignore */ } showDbg.fv = null; }
+          for (const o2 of showDbg.old.splice(0)) { try { o2.fv.dispose(); } catch { /* ignore */ } }
           if (o.character) api.setCharacter(o.character);
           if (Number.isFinite(o.heading) && ctx.player && 'heading' in ctx.player) ctx.player.heading = o.heading;
           const sp = d.SPECIES_BY_ID?.[o.speciesId] || (d.SPECIES_V3 || []).find((x) => x.id === o.speciesId) || o.speciesId;
@@ -269,7 +270,7 @@ export function create(ctx) {
         /** Hold another pose time (never earlier than the show has reached), or null to let it run. */
         ctx.debug.showPoseTime = (t) => { showDbg.held = Number.isFinite(t) ? Math.max(0, t) : null; return showCtl.t; };
         /** End the viewer's show: {action} as endShow; the viewer's fish is disposed 0.7 s later (as fishing would). */
-        ctx.debug.showPoseEnd = (o = {}) => { api.endShow(o); const fv = showDbg.fv; showDbg.fv = null; if (fv) setTimeout(() => { try { fv.dispose(); } catch { /* ignore */ } }, 700); return true; };
+        ctx.debug.showPoseEnd = (o = {}) => { api.endShow(o); const fv = showDbg.fv; showDbg.fv = null; if (fv) showDbg.old.push({ fv, at: st.t + 0.7 }); return true; };
         /** The S5 / S6 numbers of the pose as it stands (clearances, hand gaps, overshoot, flaps, drips, the raft's dip). */
         ctx.debug.showPoseInfo = () => showCtl.info();
         ctx.debug.showFocus = () => { const f = showCtl.focus(); return f ? JSON.parse(JSON.stringify(f)) : null; };
@@ -284,6 +285,7 @@ export function create(ctx) {
       const cam = ctx.render?.camera;
       if (cam) cam.getWorldPosition(camPos); else camPos.set(0, 9, 13);
       if (showDbg.held !== null) showCtl.setTime(showDbg.held);   // (the pose viewer holds a pose time)
+      while (showDbg.old.length && st.t >= showDbg.old[0].at) { try { showDbg.old.shift().fv.dispose(); } catch { /* ignore */ } }   // (and disposes its fish as fishing would, 0.7 s after the end)
       showCtl.tick(dt);                                           // the show's pose time: fishing drives it (setShowTime), else it runs on dt
       // ---------------------------------------------------------- raft placement on the water
       let px = 0, pz = 0, heading = 0, vx = 0, vz = 0;

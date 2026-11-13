@@ -147,7 +147,7 @@ function install() {
 
 export default async function (api) {
   const { page, wait, evalGame: g, log, args } = api;
-  page.setDefaultTimeout(300000);
+  page.setDefaultTimeout(900000);
   const failures = [];
   const mode = String(args.mode || 'grid');
   const only = args.only ? String(args.only).toLowerCase().split(',') : null;
@@ -160,7 +160,7 @@ export default async function (api) {
   await page.waitForFunction(() => window.__gw && (window.__gw.flow === 'title' || window.__gw.flow === 'hub'), null, { timeout: 300000 });
   await g(() => window.__gw.game.wipeAll());
   await page.goto(page.url().split('?')[0] + '?v3=1&v3phase=1', { waitUntil: 'load', timeout: 300000 });
-  await page.waitForFunction(() => window.__gw && (window.__gw.flow === 'title' || window.__gw.flow === 'hub') && !document.getElementById('loader'), null, { timeout: 300000, polling: 500 });
+  await page.waitForFunction(() => window.__gw && (window.__gw.flow === 'title' || window.__gw.flow === 'hub') && !document.getElementById('loader'), null, { timeout: 900000, polling: 500 });
   await g(() => {
     const c = window.__gw, m = c.state.meta;
     m.runs = 3; m.deaths = 3; m.bestDay = 3;
@@ -234,6 +234,16 @@ export default async function (api) {
       const I = m.info || {};
       log('shot', file, JSON.stringify({ t: I.t, phase: I.phase, fish: m.fish && `${m.fish.wPct}x${m.fish.hPct}% in ${m.fish.inFrame}%`, wick: m.wick?.hPct, lens: m.lens, inBody: I.inBody, under: I.underDeck, gap: I.handGap, off: I.wickOffLens, endOn: I.endOn }));
     }
+    if (plan.exit) {   // the way out: endShow({action}) and four more frames, 0.13 s apart (the gesture, the hands, the rod, the lens)
+      await g((action) => { window.__gw.debug.showPoseEnd({ action }); }, plan.exit);
+      for (let i = 1; i <= 4; i++) {
+        await step(3); await scale(1); await step(1, false); at += 4;
+        const file = `${key}-exit${i}.jpg`;
+        try { const url = await g(() => window.__poses.grab(0.9)); writeFileSync(join(shotsDir, file), Buffer.from(url.split(',')[1], 'base64')); } catch (e) { log('grab failed', file, String(e?.message || e).split('\n')[0]); }
+        rec.frames.push({ file, label: `exit${i}`, t: +(at / 30).toFixed(3), info: { phase: `${plan.exit} +${(i * 4 / 30).toFixed(2)} s` } });
+        await scale(0.4);
+      }
+    }
     notes[key] = rec;
     writeFileSync(notesPath, JSON.stringify(notes, null, 1));
     return rec;
@@ -265,7 +275,7 @@ export default async function (api) {
       if (!want(name)) continue;
       const plan = await g((cls) => window.__gw.data.showPlan(cls), name === 'legend' ? 'ancient' : name === 'tiny' ? 'small' : name === 'keeper-ray' ? 'keeper' : name);
       const total = plan.lift + plan.hold + plan.pause, n = Math.max(8, Math.min(20, Number(args.frames) || (portrait ? 12 : 16)));
-      const rec = await runCase(`strip ${name}`, sp, z, {}, { every: Math.max(1 / 30, Math.round(total / (n - 1) * 30) / 30) });
+      const rec = await runCase(`strip ${name}`, sp, z, {}, { every: Math.max(1 / 30, Math.round(total / (n - 1) * 30) / 30), exit: args.exit === 'none' ? null : String(args.exit || (name === 'small' || name === 'tiny' ? 'keep' : 'release')) });
       if (rec) sheet(`strip-${name}.jpg`, rec.frames.map((f) => ({ file: f.file, label: `t ${f.t.toFixed(2)} ${f.info?.phase || ''}  p ${f.info?.p ?? ''}\\nstr ${f.info?.struggle ?? ''}  dip ${f.info?.dip ?? ''}` })), portrait ? 6 : 4, `${rec.case}: ${sp} ${rec.id} ${Math.round(rec.length * 100)} cm`);
     }
   } else if (mode === 'bodies') {

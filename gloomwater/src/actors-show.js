@@ -321,11 +321,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     } else { x = 0; y = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext); }   // the face must show above it
     const c = T.d.copy(L.spot).addScaledVector(L.xS, x).addScaledVector(L.zS, faceZ + reach); c.y = y;
     Y.pos.copy(cLocal).applyQuaternion(Y.quat).negate().add(c);
-    // the grips (fish-local): under the belly, or on a ray's wing edges
-    const hx = K.wings || K.face === 'back' ? 1 : 0;
+    // the grips (fish-local): under the belly, or under a ray's lower wing
     if (pinch) {
       const key = sd > 0 ? 'l' : 'r', g = key === 'l' ? Y.gripL : Y.gripR;
-      if (K.nose === 'up' && fv.shape === 'crayfish') skin(fv, 0.8, 0, -1, rh * 0.5, g);          // held from below by the carapace
+      if (fv.shape === 'crayfish') skin(fv, 0.72, 0, -1, rh * 0.6, g);                             // held from below by the carapace, behind its claws
       else if (K.round && fv.shape === 'jelly') { fv.section(0.42, sec); g.set(0, 0, sec.z - rh * 0.7); }   // the bell sits on the palm
       else skin(fv, K.f0, 0, -1, rh * 0.72, g);
       L.lockKeys = [key];
@@ -339,8 +338,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       else {
         const h = clamp((L.grip.spread ?? 0.31) * L.L, lo, hi) * (K.round ? 0.6 : 1);
         const fl = clamp(K.f0 - h / L.L, 0.07, 0.9), fr = clamp(K.f0 + h / L.L, 0.1, 0.93);
-        skin(fv, K.nose === 'up' ? fr : fl, hx ? 0 : 0, -1, rh * 0.72, Y.gripL); skin(fv, K.nose === 'up' ? fl : fr, 0, -1, rh * 0.72, Y.gripR);
-        if (K.nose === 'up') { const t = Y.gripL.x; Y.gripL.x = -0.5 * rh; Y.gripR.x = 0.5 * rh + t * 0; }
+        skin(fv, fl, 0, -1, rh * 0.72, Y.gripL); skin(fv, fr, 0, -1, rh * 0.72, Y.gripR);   // (the snout is to lens-right: the left hand's side)
       }
       L.lockKeys = ['r', 'l'];
     }
@@ -709,8 +707,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       T.q.setFromAxisAngle(L.zS, sw); T.q2.setFromAxisAngle(UP, tw);
       eq.copy(T.q).multiply(T.q2).multiply(Y.quat);
       // (a fish longer than the tip is high rests its tail: it cannot drop below the planks, so the line slackens instead)
-      const drop = Y.line + (Y.tip.y - tip.y) * 0;
-      ep.copy(Y.hangLocal).applyQuaternion(eq).negate().add(tip).addScaledVector(UP, -drop);
+      ep.copy(Y.hangLocal).applyQuaternion(eq).negate().add(tip).addScaledVector(UP, -Y.line);
       if (Y.rested) ep.y = Math.max(ep.y, Y.pos.y - 0.002);
       if (a < 1) { blendIn(L, a, ep, eq); } else { N.pos.copy(ep); N.quat.copy(eq); }
       return;
