@@ -366,6 +366,83 @@ for (const c of D.CHARACTERS) for (const [k, v] of Object.entries(c.look || {}))
 for (const z of D.ZONES) for (const [k, v] of Object.entries(z.palette || {})) if (k !== 'fogDensity') palCheck(`zone ${z.id}.palette.${k}`, v);
 for (const [k, v] of Object.entries(D.RARITY_COLORS || {})) palCheck(`RARITY_COLORS.${k}`, v);
 
+// ---------------------------------------------------------------------------- the opening cut scene (INTRO; docs/v3/intro/SPEC.md)
+// Checked in every pass: INTRO is always exported and identical in every build (inert until V3_ENABLED). The acceptance numbers
+// A1 (length), A2 (skip), A5 (words) and A9 (the set's ceilings) are data rules here, so no lane can retune past them.
+{
+  const I = D.INTRO;
+  if (ok(isObj(I), 'INTRO: the opening cut scene table exists in every build')) {
+    const L = I.length, B = I.beats, eps = 1e-9;
+    ok(isNum(L) && L >= 15 && L <= 20, `INTRO.length ${L} s must be within 15–20 s (A1)`);
+    ok(Array.isArray(B) && B.length >= 3 && B[0].t0 === 0 && Math.abs(B.at(-1).t1 - L) < eps && B.every((b, i) => isStr(b.id) && b.t1 - b.t0 >= 1 && (i === 0 || Math.abs(b.t0 - B[i - 1].t1) < eps))
+      && new Set(B.map((b) => b.id)).size === B.length, 'INTRO.beats: unique, contiguous from 0 to INTRO.length, each at least 1 s');
+    const beat = (id) => B.find((b) => b.id === id), inBeat = (t, id) => { const b = beat(id); return !!b && t >= b.t0 - eps && t <= b.t1 + eps; };
+    // words (A5): at most 4 lines of at most 60 characters, one at a time, readable, none in the wordless beat
+    const T = I.text, W = I.words, LN = I.lines;
+    ok(Array.isArray(T) && T.length >= 1 && T.length <= 4 && T.every((t) => isStr(t) && t.length <= 60 && t.length <= W.maxChars && !t.includes('%') && !t.includes('!') && !t.includes('\n')),
+      'INTRO.text: at most 4 lines, each at most 60 characters, no % and no exclamation mark');
+    ok(isObj(I.cove?.text) && Object.entries(I.cove.text).every(([i, t]) => Number(i) < T.length && isStr(t) && t.length <= 60), 'INTRO.cove.text: replacement lines for the cove, each at most 60 characters');
+    ok(W.minSize >= 16 && W.size.phone >= W.minSize && W.size.desktop >= W.minSize && W.maxLines <= 2 && W.maxChars === 60
+      && ['landscape', 'portrait'].every((k) => Array.isArray(W.band[k]) && W.band[k][0] > 0.5 && W.band[k][0] < W.band[k][1] && W.band[k][1] <= 0.98),
+      'INTRO.words: at least 16 px, at most two rows, one band in the lower half per orientation');
+    ok(Array.isArray(LN) && LN.length === T.length && LN.every((l, i) => l.i === i && isNum(l.at) && isNum(l.out)), 'INTRO.lines: one timed entry per text line, in order');
+    for (const [k, l] of (LN || []).entries()) {
+      const dur = l.out - l.at, cps = T[l.i].length / Math.max(0.01, dur - I.lineFade);
+      ok(l.at >= 0.5 && dur >= 1.5 && l.out <= L - 0.4, `INTRO.lines[${k}]: on screen at least 1.5 s, gone at least 0.4 s before the end`);
+      ok(cps <= 17.5, `INTRO.lines[${k}]: ${cps.toFixed(1)} characters a second is too fast to read (at most 17.5 after the fade-in)`);
+      ok(k === 0 || l.at >= LN[k - 1].out + 0.2, `INTRO.lines[${k}]: one line at a time (starts at least 0.2 s after the last one is gone)`);
+      ok(!(l.at < beat('below').t1 && l.out > beat('below').t0), `INTRO.lines[${k}]: the beat "below" is wordless`);
+    }
+    ok(I.lineFade > 0 && I.lineFade <= 0.5, 'INTRO.lineFade: at most 0.5 s');
+    // the opening ink dip and the stage's swap under it
+    ok(Array.isArray(I.veil) && I.veil[0][0] === 0 && I.veil[0][1] === 0 && I.veil.at(-1)[1] === 0 && I.veil.every(([t, k], i) => k >= 0 && k <= 1 && (i === 0 || t > I.veil[i - 1][0])) && I.veil.at(-1)[0] <= 2,
+      'INTRO.veil: an ink dip that starts and ends clear within the first 2 s');
+    { const full = I.veil.filter(([, k]) => k === 1).map(([t]) => t);
+      ok(full.length >= 2 && I.swapAt >= full[0] && I.swapAt <= full.at(-1), 'INTRO.swapAt: the stage takes the picture only while the ink is full'); }
+    ok(I.cut.kind === 'hard' && Math.abs(I.cut.at - beat('below').t0) < eps && I.cut.reduced === 'dip', 'INTRO.cut: one hard cut, at the start of "below"; a dip under reduced motion');
+    // skip (A2) and the clock (A1)
+    const K = I.skip, C = I.clock;
+    ok(K.guard === 0.5 && K.showAt >= K.guard && K.showAt <= 1 && K.target >= 44 && ['Escape', 'Enter', 'Space'].every((c) => K.keys.includes(c)) && isStr(K.word),
+      'INTRO.skip: a 0.5 s guard, the Skip word shown within 1 s on a target of at least 44 px, Esc / Enter / Space');
+    ok(K.veilIn > 0 && K.veilOut > 0 && K.veilIn + K.veilOut <= 0.6 + eps && K.finish > 0 && K.finish <= 0.6 && K.soundFade > 0 && K.soundFade <= 0.3 && !!beat(K.finishFrom),
+      'INTRO.skip: a skip fades out in at most 0.6 s, the sound in at most 0.3 s');
+    ok(C.maxDt > 0 && C.maxDt <= 0.1 && C.valve === 25 && C.valve > L && C.valveDt >= C.maxDt, 'INTRO.clock: a clamped per-frame dt and a 25 s safety valve');
+    // reduced motion (A8): one still per beat, inside its beat
+    ok(Array.isArray(I.stills) && I.stills.length === B.length && I.stills.every((s, i) => s.beat === B[i].id && s.t > B[i].t0 && s.t < B[i].t1 + eps) && I.stillFade > 0 && I.stillFade <= 0.6,
+      'INTRO.stills: one still per beat, taken inside that beat; cross-fades of at most 0.6 s');
+    // cameras: takes cover swapAt → length; the last one hands over to the play rig and comes to rest
+    const TK = I.cameras?.takes || [];
+    ok(TK.length >= 2 && Math.abs(TK[0].from - I.swapAt) < eps && Math.abs(TK.at(-1).to - L) < eps && TK.every((t, i) => isStr(t.id) && t.to > t.from && (i === 0 || Math.abs(t.from - TK[i - 1].to) < eps)),
+      'INTRO.cameras.takes: contiguous from INTRO.swapAt to INTRO.length');
+    for (const t of TK) {
+      if (t.rig) { ok(t === TK.at(-1) && t.rig === 'sail' && Array.isArray(t.blend) && Math.abs(t.blend[0] - t.from) < eps && t.blend[1] > t.blend[0] && t.blend[1] <= L - 0.4, `INTRO.cameras take ${t.id}: the last take blends into render's sail rig and rests at least 0.4 s before the end`); continue; }
+      const isV = (v) => Array.isArray(v) && v.length === 4 && (v[0] === 'S' || v[0] === 'G') && v.slice(1).every(isNum);
+      ok(Array.isArray(t.keys) && t.keys.length >= 2 && Math.abs(t.keys[0].t - t.from) < eps && Math.abs(t.keys.at(-1).t - t.to) < eps && t.keys.every((k, i) => (i === 0 || k.t > t.keys[i - 1].t) && isV(k.pos) && isV(k.look) && k.fov >= 20 && k.fov <= 80
+        && k.pos[2] >= 1.2 && (!k.portrait || ((!k.portrait.pos || isV(k.portrait.pos)) && (!k.portrait.look || isV(k.portrait.look)) && (k.portrait.fov === undefined || (k.portrait.fov >= 20 && k.portrait.fov <= 85))))),
+        `INTRO.cameras take ${t.id}: keys from its start to its end, [anchor, x, y, z] poses at least 1.2 m over the water, fov 20–80`);
+    }
+    ok(I.cameras.portraitBelow > 0.5 && I.cameras.portraitBelow < 1.1, 'INTRO.cameras.portraitBelow: an aspect between 0.5 and 1.1');
+    // the set: its marks sit inside their beats; its own cost stays far under the ceilings (A9)
+    const S = I.set, F = S.fall, BW = S.below, WK = S.wick;
+    ok(F.part < F.drop && F.drop < F.contact && inBeat(F.part, 'fall') && inBeat(F.contact, 'fall') && F.contact + S.contact.flash <= beat('fall').t1 + eps, 'INTRO.set.fall: part < drop < contact, the flash over before the cut');
+    ok(S.lantern.at[0] === 'G' && S.lantern.at[3] >= 25 && S.lantern.at[2] - S.lantern.height / 2 > 6 && S.lantern.chainTop > S.lantern.at[2], 'INTRO.set.lantern: hung over the lake (at least 25 m in front of the gate, clear of the cliff ring), on chains that run up');
+    ok(inBeat(BW.flank.enter, 'below') && BW.flank.enter < BW.flank.eye && BW.flank.eye < BW.flank.cover && BW.flank.cover < BW.flank.leave && BW.flank.leave < BW.flank.out && inBeat(BW.flank.out, 'below') && BW.ember.sinkUntil < BW.flank.cover,
+      'INTRO.set.below: the ember sinks, then the flank enters, covers it, leaves, and the ember is out before the beat ends');
+    ok(inBeat(WK.spark, 'wick') && WK.flame.every(([t, k], i) => inBeat(t, 'wick') && k >= 0 && k <= 1 && (i === 0 || t > WK.flame[i - 1][0])) && WK.flame[0][1] === 0 && WK.flame.at(-1)[1] === 1
+      && inBeat(WK.lantern[0], 'wick') && inBeat(WK.lantern[1], 'wick') && WK.lift[0] >= WK.spark && inBeat(WK.lift[1], 'wick'), 'INTRO.set.wick: the spark, the flame from 0 to 1, the lantern and the lifting ink all inside the beat');
+    ok(S.budget.calls <= 60 && S.budget.triangles <= 40000 && S.budget.lights === 0 && S.budget.shadowMaps === 0 && S.budget.textures <= 4, 'INTRO.set.budget: at most 60 draw calls and 40,000 triangles, no light and no shadow map of its own (A9)');
+    for (const [k, v] of Object.entries(S.colors || {})) palCheck(`INTRO.set.colors.${k}`, v);
+    // sound (A7): marks in order inside the film; fades within the limits; existing sounds named where reused
+    const SD = I.sound;
+    ok(SD.titleFade <= 0.3 && SD.skipFade <= 0.3 && SD.skipFade === K.soundFade && SD.peakDb <= -3 && SD.marks.every((m, i) => isStr(m.id) && m.t >= 0 && m.t < L && (m.to === undefined || (m.to > m.t && m.to <= L)) && (i === 0 || m.t >= SD.marks[i - 1].t))
+      && new Set(SD.marks.map((m) => m.id)).size === SD.marks.length, 'INTRO.sound: marks in time order inside the film; the title fades in at most 0.3 s, a skip in at most 0.3 s');
+    // the trigger and the hand-off (A3)
+    ok(I.trigger.replay.writes === false && I.trigger.debugOptIn.length >= 1 && D.CHARACTERS.some((c) => c.id === I.handoff.character) && I.handoff.nightMode === 'still' && I.handoff.at === 'intro:done' && I.handoff.event.intro === true,
+      'INTRO.trigger / handoff: a replay writes nothing; the film hands to the First Outing (the Wick, still nights) at intro:done');
+    ok(I.cove.replaces === 'FIRST_EVENING.text.lore' && I.cove.skipsStep === 'framing' && D.FIRST_EVENING.steps.includes(I.cove.skipsStep), "INTRO.cove: with the cove, the film's lines replace the Lantern Line and the framing step is not played");
+  }
+}
+
 // ---------------------------------------------------------------------------- originality scan (display strings)
 const BANNED = /\b(hollow ?knight|hallownest|geo|soul|charms?|vessels?|grubs?|husks?|lumafly|dreamers?|mourner|greenpath|archives|masks?|shades?)\b/i;
 const seen = new Set();
@@ -377,7 +454,7 @@ const scan = (v, path) => {
 };
 const V3_TEXT_EXPORTS = ['SPECIES_V3', 'FOUND_RELICS', 'AGE_MARKS', 'VISTAS', 'REMNANTS', 'MOSSMERE_V3', 'PLACES_V3', 'WALK_SYNC_V3', 'CONDITIONS', 'RUMOURS', 'TODAYS_RUMOUR', 'TACKLE', 'OUTFIT', 'LURES', 'EXPEDITION', 'LONG_DESCENT',
   'RELICS_V3', 'BOONS_V3', 'CHARACTERS_V3', 'CHALLENGES_V3', 'COSMETICS_V3', 'LEDGER', 'COVE', 'TEXT_V3', 'TIPS_V3', 'MERCHANT_LINES_V3', 'ELDER_NAMES',
-  'CATCH_V3', 'AUTOFISH', 'FIRST_EVENING'];
+  'CATCH_V3', 'AUTOFISH', 'FIRST_EVENING', 'INTRO'];
 for (const k of ['ZONES', 'SPECIES', 'BAITS', 'UPGRADES', 'SUPPLIES', 'RELICS', 'ENEMIES', 'BOONS', 'CHARACTERS', 'CHALLENGES', 'BOUNTIES', 'TIPS', 'MERCHANT_LINES', 'EPITAPHS', 'TEXT', 'FORMATIONS', ...(WALK ? ['ARENA_V2', 'WALK_FORMATIONS', 'WALK_BOUNTIES'] : []), ...(V3 ? V3_TEXT_EXPORTS : [])]) scan(D[k], k);
 checks++;
 
@@ -810,7 +887,7 @@ if (V3) {
     'LURES', 'COMBAT_KIT', 'EXPEDITION', 'LONG_DESCENT', 'ECONOMY_V3', 'MEMORIES_V3', 'RELICS_V3', 'ANGLER_POOL', 'BOONS_V3', 'CHARACTERS_V3', 'GLOOM_TAB', 'CHALLENGES_V3',
     'CHALLENGE_TABS_V3', 'COSMETICS_V3', 'LEDGER', 'COVE', 'RENAMES', 'TEXT_V3', 'TIPS_V3', 'MERCHANT_LINES_V3', 'FOUND_RELICS', 'AGE_MARKS', 'VISTAS', 'REMNANTS',
     'sizeL50', 'sizeLength', 'sizeWeight', 'sizeClassOf', 'isAncient', 'maxZFor', 'reachOf', 'favourNotches', 'classOdds', 'fishValueV3', 'fishYieldV3', 'farWaterFor',
-    'swarmTonight', 'swarmWindow', 'tallyFor', 'frameFor', 'CATCH_V3', 'AUTOFISH', 'FIRST_EVENING', 'catchChance', 'catchParts', 'catchOdds', 'catchItemHold',
+    'swarmTonight', 'swarmWindow', 'tallyFor', 'frameFor', 'CATCH_V3', 'AUTOFISH', 'FIRST_EVENING', 'INTRO', 'catchChance', 'catchParts', 'catchOdds', 'catchItemHold',
     'catchItemTargets', 'catchBuffHold', 'catchBestItem', 'catchRating', 'catchDisplay', 'catchClassAllowed', 'catchHomeLake'];
   for (const k of V3_EXPORTS) ok(k in D && k in V1, `v3 export ${k} must exist in every build (inert when V3 is off)`);
   const MERGED = ['bite'];   // v3 keys merged into an existing v1 block (CONTRACT §13.8); every other BALANCE_V3 key is a new block
