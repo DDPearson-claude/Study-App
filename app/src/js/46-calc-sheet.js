@@ -109,7 +109,7 @@
     el.res = h('p', { class: 'calc-res', id: 'calc-res' });
     el.expr = h('input', { class: 'calc-expr', type: 'text', inputmode: 'none', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
       maxlength: String(C.MAX_LEN), 'aria-label': 'Sum', 'aria-describedby': 'calc-res', enterkeyhint: 'done',
-      on: { input: onInput, keydown: onExprKey, select: keepCaret, click: keepCaret, keyup: keepCaret } });
+      on: { input: onInput, keydown: onExprKey, select: keepCaret, click: intoSum, keyup: keepCaret } });
     el.keys = h('div', { class: 'calc-keys', role: 'group', 'aria-label': 'Keys' }, KEYS.map(function (k) {
       var b = h('button', { class: 'calc-key is-' + k.kind, type: 'button', dataset: { key: k.id }, on: { click: function () { press(k); } } });
       k.btn = b;
@@ -137,6 +137,13 @@
     if (e.target.closest && e.target.closest('button')) e.preventDefault();
   }
   function keepCaret() { if (document.activeElement === el.expr) S.caret = el.expr.selectionEnd == null ? S.expr.length : el.expr.selectionEnd; }
+
+  // A tap into a finished sum is him going back to change it, as an arrow key is (onExprKey):
+  // the next key goes in at the caret and no longer starts a new sum (audit, 13 Nov).
+  function intoSum() {
+    if (S.done) { S.done = false; S.value = null; drawResult(); }
+    keepCaret();
+  }
 
   // ---------- drawing ----------
   function labelKeys() {

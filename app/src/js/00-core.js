@@ -15,6 +15,14 @@ if (typeof U.flags.puzzleBox !== 'boolean') {
   U.flags.puzzleBox = false;
   try { U.flags.puzzleBox = localStorage.getItem('mu.puzzleBox') === '1'; } catch (e) { /* storage blocked, or no DOM (node evals): off */ }
 }
+// U.flags.shuffle: a lesson's answer buttons are shown in a fresh order each time the lesson opens
+// (32-sandbox.js passes a seed to the kit, which reorders the buttons in #picks: kit.js). On unless
+// this device's localStorage 'mu.shuffle' is '0' (the test harness, so pictures and guides taken by
+// the tools keep the authored order) or something set U.flags.shuffle before this file ran.
+if (typeof U.flags.shuffle !== 'boolean') {
+  U.flags.shuffle = true;
+  try { U.flags.shuffle = localStorage.getItem('mu.shuffle') !== '0'; } catch (e) { /* storage blocked, or no DOM (node evals): on */ }
+}
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -241,6 +249,9 @@ U.when = function (iso) {
   if (days < 7) return days + ' days ago';
   return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: days > 300 ? 'numeric' : undefined });
 };
+// Two strings that differ only in their spaces (a non-breaking or thin space for a plain one, as
+// "10 A" is written in an answer and typed in its options) are the same text.
+U.spaces = function (s) { return String(s == null ? '' : s).replace(/[\u00A0\u2007\u2009\u202F]/g, ' ').replace(/\s+/g, ' ').trim(); };
 U.sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 U.shuffle = function (arr, seed) {
   var a = arr.slice(), s = seed == null ? Math.random() * 1e9 : seed;

@@ -91,6 +91,7 @@
   // tid), read from the topic docs the home already watches.
   var lookText = '';            // the field's words, kept while he browses the results and comes back
   var lessonLive = {};          // tid/iid -> true (ready to browse) | false (coming soon), for the visit
+  var lessonRead = {};          // tid/iid -> the read in flight or done, shared by every draw of the results
   function wordsOf(q) { return String(q || '').toLowerCase().split(/\s+/).filter(Boolean); }
   function hasAll(text, ws) { text = String(text || '').toLowerCase(); return ws.every(function (w) { return text.indexOf(w) >= 0; }); }
   // -> {lessons: [{t, idea, k, course, inTitle}], courses: [{t, course, blurb}]}
@@ -134,8 +135,13 @@
       meta.className = live ? 'shelf-ready' : 'shelf-meta';
       if (!live) row.setAttribute('href', '#/t/' + enc(h.t.id));
     }
+    // One read per lesson per page load, however fast he types: the read in flight is shared
+    // (audit, 13 Nov: 132 reads for twelve lessons while "power factor" was typed on a slow line).
     if (key in lessonLive) say(lessonLive[key]);
-    else if (check) U.store.lesson.get(h.t.id, h.idea.id).then(function (d) { lessonLive[key] = U.store.lesson.state(d) === 'ready'; say(lessonLive[key]); }, function () { /* says nothing more */ });
+    else if (check) {
+      if (!lessonRead[key]) lessonRead[key] = U.store.lesson.get(h.t.id, h.idea.id).then(function (d) { lessonLive[key] = U.store.lesson.state(d) === 'ready'; return lessonLive[key]; });
+      lessonRead[key].then(say, function () { delete lessonRead[key]; /* says nothing more */ });
+    }
     return U.h('li', null, row);
   }
   function courseHit(h) {
@@ -153,7 +159,7 @@
   U.routes.add('#/', function (params, ctx) {
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
     // Look up: the one search in the app.
-    var look = U.h('input', { class: 'input ask-input lib-look-input', id: 'lib-look', type: 'search', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'search', maxlength: '80', placeholder: 'Look up a lesson: power factor, cosine rule…' });
+    var look = U.h('input', { class: 'input ask-input lib-look-input', id: 'lib-look', type: 'search', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'search', maxlength: '80', placeholder: 'Look up a lesson' });
     var clear = U.h('button', { class: 'lib-look-clear', type: 'button', 'aria-label': 'Clear the look-up', hidden: true }, U.icon('close'));
     var lookBox = U.h('div', { class: 'lib-look', role: 'search' },
       U.h('label', { class: 'visually-hidden', for: 'lib-look' }, 'Look up a lesson'),
@@ -275,7 +281,7 @@
       var ready = list.filter(function (s) { return SH.allCourses(s).some(SH.built); }), later = list.filter(function (s) { return ready.indexOf(s) < 0; });
       U.clear(shelvesBox); U.clear(laterBox);
       if (!list.length && U.rt.savedLate()) { shelvesBox.appendChild(V.savedLate('your shelves')); return; }
-      if (!list.length) { shelvesBox.appendChild(U.h('p', { class: 'muted' }, 'No shelves yet. Courses arrive here as they are built.')); return; }
+      if (!list.length) { shelvesBox.appendChild(U.h('p', { class: 'muted' }, 'Nothing to show here yet.')); return; }
       ready.forEach(function (s) { shelvesBox.appendChild(SH.card('#/shelf/' + enc(s.__id), SH.str(s.title), SH.str(s.blurb), shelfMeta(s))); });
       if (!later.length) return;
       // Nothing built anywhere yet: the planned shelves are all there is, so they show.

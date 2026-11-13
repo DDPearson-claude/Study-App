@@ -3531,7 +3531,44 @@
     post({ type: 'height', px: h });
   }
   function heightSoon() { if (!hTimer) hTimer = setTimeout(sendHeight, 30); }
+  // ---------- answers in a fresh order ----------
+  // Every lesson draws its answer buttons into #picks in the order they were written, and the
+  // right one was too often first. When the host passes K_SHUFFLE (a seed, new on each mount), the
+  // buttons are shown in a seeded order of their own for each question: the CSS `order` of each
+  // button, so the page's own code (which reads the buttons by index) is untouched. The order
+  // holds while a question's answers stay the same, and changes with the question. Answers that
+  // point at each other ("None of the above") are left as written.
+  var SHUFFLE = +window.K_SHUFFLE || 0;
+  try { delete window.K_SHUFFLE; } catch (e) { window.K_SHUFFLE = undefined; }
+  var POINTS_AT_OTHERS = /\b(all|none|both|neither|either|any) of the (above|below|others?)\b|\bthe (above|other (two|three|answers|options))\b/i;
+  function pickOrder(labels) {
+    var key = labels.join('\u0001') + '|' + SHUFFLE, h = 2166136261, i, idx = labels.map(function (_, k) { return k; });
+    for (i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619); }
+    function rnd() { h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+    for (i = idx.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), s = idx[i]; idx[i] = idx[j]; idx[j] = s; }
+    return idx;
+  }
+  function shufflePicks() {
+    var box = document.getElementById('picks');
+    if (!SHUFFLE || !box || !window.MutationObserver) return;
+    var last = null;
+    function apply() {
+      var kids = Array.prototype.slice.call(box.children), shown = kids.filter(function (c) { return !c.hidden; });
+      var labels = shown.map(function (c) { return (c.textContent || '').trim(); });
+      var key = labels.join('\u0001');
+      if (key === last) return;
+      last = key;
+      var plain = shown.length >= 2 && shown.length <= 6 && shown.every(function (c) { return c.classList.contains('k-btn'); }) &&
+        !labels.some(function (t) { return !t || POINTS_AT_OTHERS.test(t); });
+      var order = plain ? pickOrder(labels) : null;
+      kids.forEach(function (c) { c.style.order = ''; });
+      if (order) order.forEach(function (from, to) { shown[from].style.order = String(to + 1); });
+    }
+    new MutationObserver(apply).observe(box, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['hidden'] });
+    apply();
+  }
   function boot() {
+    shufflePicks();
     var lastWidth = document.documentElement.clientWidth;
     if (window.ResizeObserver) {
       var ro = new ResizeObserver(function () {

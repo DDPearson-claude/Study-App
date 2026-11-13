@@ -230,7 +230,7 @@
     function goneView() {
       U.setTitle('Topic not found');
       return U.h('div', { class: 'tp-state' }, V.back('#/', 'Your library'),
-        V.empty({ h1: true, title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Your library' } }));
+        V.empty({ h1: true, title: 'This course could not be found', text: 'It may not have loaded. Go back to your library and open it again.', action: { href: '#/', label: 'Your library' } }));
     }
     function errorView() {
       var retrying = !!(failure && failure.retrying);
@@ -370,7 +370,7 @@
       var ways = ideas.map(function (i, k) { return [guided(i.id, k, s, next), V.readThrough(progress, i.id)]; });
       var mine = ui.box ? ui.box.courses.filter(function (c) { return c.tid === tid; })[0] : null;
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next, ui.back), function () { return head(s, next); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, s.done > 0, V.way(progress), next, ui.back), function () { return head(s, next); }, 'top'],
         topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs, checked), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
@@ -435,7 +435,16 @@
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
             topic.hook && !topic.oneBreath ? U.h('p', { class: 'tp-overview-note' }, topic.overviewChecked ? 'Checked against the course\'s sources when it was built.' : 'Claude\'s overview from what it already knows, not checked against sources.') : null,
-            note)));
+            note, goOn(s, next))));
+    }
+    // Straight to the lesson he is on, from the top of the page (audit, 13 Nov: on a phone its
+    // button on the path was four to five screens down). The way he last chose; the path's own
+    // buttons stay as they are. Not while that lesson is coming soon, and not on a finished course.
+    function goOn(s, next) {
+      if (!topic.readyMade || !s.current || s.allDone || next === 'soon' || next === 'preparing') return null;
+      var n = s.index + 1, begun = s.started || s.done > 0;
+      return U.h('p', { class: 'tp-goon' }, U.h('a', { class: 'btn tp-goon-btn', href: V.lessonHref(tid, s.current.id, null, guided(s.current.id, s.index, s, next) ? V.way(progress) : 'quiz'), 'data-key': 'go-on' },
+        (begun ? 'Continue: lesson ' : 'Start lesson ') + n, U.icon('arrow')));
     }
     // The folder a ready-made course sits in, from its shelf (one read): back goes there, by name.
     function wantBack() {
@@ -764,7 +773,11 @@
         }).filter(function (g) { return g.sources.length; });
         schedule();
       });
-      loadChecked();
+      // A ready-made course carries its count on the topic doc (assemble.mjs: topic.checked), so
+      // the page does not read every lesson doc to say one sentence (audit, 13 Nov: 1.8 MB an open).
+      var tc = topic.checked;
+      if (tc && typeof tc === 'object' && tc.ready >= 0 && tc.checked >= 0) lib.checked = { ready: +tc.ready || 0, checked: +tc.checked || 0 };
+      else if (!topic.readyMade) loadChecked();
     }
     // How many whole lessons were checked against their sources (doc.verified.status 'done',
     // with sources), so the Library claims a check only as far as it is true.

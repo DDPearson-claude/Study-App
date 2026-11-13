@@ -923,7 +923,8 @@
     return f;
   }
   // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
-  // the last decimal the answer shows (the course's rounding); an "About" answer also within 1%.
+  // the last decimal the answer shows (the course's rounding) and within 5% of it (so a one-figure
+  // answer is not right half a unit away); an "About" answer also within 1%.
   // A whole-number answer of 100 or more is also right within 0.1% (the same figure worked from
   // unrounded numbers, which the lesson itself accepted: 4596 for 4593 A). A wrong figure that is
   // right in another prefix (0.575 for 575 mA) says so: {prefix: true}.
@@ -933,7 +934,10 @@
     var r = readTyped(text, f.unit);
     if (r.empty) return { state: 'empty' };
     if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
-    var tol = 0.5 * Math.pow(10, -f.decimals);
+    // Half a unit in the last place, but never more than 5% of the answer: 2.5 is not "3 A", and
+    // 0.55 is not "0.5" (13 Nov). An answer of 0 keeps a tenth of the half unit.
+    var half = 0.5 * Math.pow(10, -f.decimals);
+    var tol = Math.min(half, Math.max(0.05 * Math.abs(f.value), 0.1 * half));
     if (!f.decimals && Math.abs(f.value) >= 100) tol = Math.max(tol, 0.001 * Math.abs(f.value));
     if (f.about) tol = Math.max(tol, 0.01 * Math.abs(f.value));
     var near = function (x) { return Math.abs(x - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)); };
@@ -958,7 +962,7 @@
     return src ? h('div', { class: 'qc-pic' }, label('Worked through'), h('div', { class: 'rd-well' }, h('img', { class: 'rd-pic', src: src, alt: String(pg.alt || ''), decoding: 'async' }))) : null;
   }
   function puzzle(c) {
-    var s = c.spec, options = Array.isArray(s.options) ? s.options.map(String) : [], at = options.indexOf(String(s.answer));
+    var s = c.spec, options = Array.isArray(s.options) ? s.options.map(String) : [], at = options.map(U.spaces).indexOf(U.spaces(s.answer));
     c.extra = function () { return solvedPicture(c); };
     if (s.input === 'pick' && options.length >= 2 && at >= 0) {
       c.spec = { q: s.q, options: options, answer: at, why: s.why };

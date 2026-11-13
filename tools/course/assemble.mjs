@@ -222,6 +222,9 @@ if (cmd === 'docs') {
     // which reads no guide of a course without it). A newer version gives lessons already
     // finished their puzzles again (unchanged ones keep their schedule).
     guideV: guideVs.length && Math.min(...guideVs) >= 2 ? Math.min(...guideVs) : undefined,
+    // How many of its lessons are whole, and how many of those were checked against their
+    // sources, so the course page says so without reading every lesson doc (71-topic.js loadLibrary).
+    checked: { ready: summary.length, checked: summary.filter((x) => x.verified === 'done' && x.sources > 0).length },
     research: research
       ? { status: 'done', at: now, sources: allSources.length, dropped: 0, error: null, reason: null, tries: 0 }
       : { status: 'failed', at: now, sources: 0, error: null, reason: 'none_confirmed', tries: 1 },

@@ -210,6 +210,18 @@ test('typed answers are graded to the course\'s rounding: half a unit in the las
   assert.equal(U.cards.gradeTyped('48 turns', { answer: '48 turns', loose: true }).state, 'right');
   assert.equal(U.cards.figureOf('48 turns'), null, 'not a figure where the lesson picked it');
   assert.equal(g('1.25 pu', '1.25 per unit'), 'right', 'pu for per unit');
+  // Audit, 13 Nov: a one-figure answer is not right half a unit away (never more than 5% out).
+  assert.equal(g('2.5', '3 A'), 'wrong');
+  assert.equal(g('3.5', '3 A'), 'wrong');
+  assert.equal(g('3.1', '3 A'), 'right', 'still right when it rounds to the answer and is within 5%');
+  assert.equal(g('0.5', '1 kW'), 'wrong');
+  assert.equal(g('-0.5', '0 V'), 'wrong');
+  assert.equal(g('0.04', '0 V'), 'right');
+  assert.equal(g('0', '0 V'), 'right');
+  assert.equal(g('0.55', '0.5'), 'wrong');
+  assert.equal(g('0.52', '0.5'), 'right');
+  assert.equal(g('12.4', '12 V'), 'right', 'a two-figure whole number keeps its half unit');
+  assert.equal(g('12.6', '12 V'), 'wrong');
   assert.equal(g('5 \u2126', '5 Ω'), 'right', 'the Ohm sign');
   assert.equal(g('40 percent', '40%'), 'right');
   assert.equal(g('28.87 V', '28.87 A'), 'unreadable', 'another unit is not accepted as the answer');

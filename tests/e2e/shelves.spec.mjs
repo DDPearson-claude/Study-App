@@ -70,7 +70,7 @@ let app = await open({ ...MADE, 'shelves/maths': SHELF, 'shelves/science': LATER
 const { page } = app;
 await page.waitForSelector('.lib-home .shelf-card');
 // The look-up field, then the rows, then the shelves.
-ok(await page.getAttribute('#lib-look', 'placeholder') === 'Look up a lesson: power factor, cosine rule…', 'the look-up field, with its placeholder');
+ok(await page.getAttribute('#lib-look', 'placeholder') === 'Look up a lesson', 'the look-up field, with its placeholder');
 ok((await page.locator('label[for="lib-look"]').textContent()) === 'Look up a lesson', 'and its name');
 await page.waitForSelector('.lib-open');
 ok((await page.locator('.lib-open').count()) === 1, 'one left-open row');
@@ -210,7 +210,7 @@ ok(app.errors.length === 0, 'no page errors ' + app.errors.join(' | '));
 await app.close();
 
 app = await open({ ...base });
-await app.page.waitForFunction(() => /No shelves yet/.test((document.querySelector('.lib-shelves') || {}).textContent || ''));
+await app.page.waitForFunction(() => /Nothing to show here yet/.test((document.querySelector('.lib-shelves') || {}).textContent || ''));
 ok(true, 'no shelves: the Library says so');
 await app.page.waitForTimeout(800);
 ok((await app.page.locator('.lib-open, .lib-box').count()) === 0, 'nothing left open and nothing in the box: no rows, no filler');

@@ -435,7 +435,11 @@
     if (!task || !answer || !U.cards || typeof U.cards.figureOf !== 'function') return null;
     if (NEEDS_PICTURE.test(task)) return null;
     var options = Array.isArray(p.options) ? p.options.map(function (o) { return str(o).trim(); }).filter(Boolean) : [];
-    var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && options.indexOf(answer) >= 0;
+    // The answer as its option spells it (audit, 13 Nov: 25 examples had a non-breaking space in
+    // the answer and a plain one in the options, so they could never be asked).
+    var same = options.map(U.spaces).indexOf(U.spaces(answer));
+    if (same >= 0) answer = options[same];
+    var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && same >= 0;
     // Asked typed in the lesson: any word unit is its unit (loose). Picked in the lesson: typed only
     // when the options do not test the unit itself (the same number in another prefix) and the task
     // does not ask which one.

@@ -48,7 +48,7 @@
   // A choice example's options, in screen order, when the answer is one of them; else none.
   function choicesOf(p) {
     var o = isObj(p) && p.input === 'pick' && Array.isArray(p.options) ? p.options.map(str).filter(Boolean) : [];
-    return o.length >= 2 && o.indexOf(str(p.answer)) >= 0 ? o : [];
+    return o.length >= 2 && o.map(U.spaces).indexOf(U.spaces(p.answer)) >= 0 ? o : [];
   }
   function usable(g) { var p = parts(g); return p.pages.length > 0 || !!p.summary; }
 
@@ -210,7 +210,7 @@
             U.h('p', { class: 'eyebrow rd-ex-l' }, pg.written ? 'Written question' : 'Worked example'),
             words('p', 'rd-ex-q', pg.task),
             opts.length ? U.h('ul', { class: 'rd-ex-opts', 'aria-label': 'The choices' }, opts.map(function (o) {
-              var right = o === str(pg.answer);
+              var right = U.spaces(o) === U.spaces(pg.answer);
               return U.h('li', { class: right ? 'is-right' : null }, right ? U.h('span', { class: 'rd-ex-tick', 'aria-hidden': 'true' }, U.icon('tick')) : null, U.h('span', null, o), right ? U.h('span', { class: 'visually-hidden' }, ' (the answer)') : null);
             })) : null,
             picture(pg),
@@ -282,7 +282,7 @@
             // Read through too (a lesson without a guide opens as it is, from its read-through).
             U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) + '/read' }, 'Next lesson', U.icon('arrow')),
             U.h('a', { class: 'btn secondary', href: topicHref }, 'Back to the course')))
-          : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last lesson in ' + (st.topic.title || 'this course')),
+          : U.h('div', { class: 'lsn-next' }, U.h('h3', null, (st.index >= (st.topic.ideas || []).length - 1 ? 'That was the last lesson in ' : 'Every lesson is done in ') + (st.topic.title || 'this course')),
             U.h('a', { class: 'btn lsn-main', href: topicHref }, 'Back to the course')),
         U.h('p', { class: 'rd-end-alt' }, quizLink('Quiz me through it')),
         U.problems ? U.h('p', { class: 'rd-end-alt' }, U.h('a', { class: 'linkish', href: U.problems.href(tid, iid) }, 'Work the problems on paper')) : null);

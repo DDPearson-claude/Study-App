@@ -155,7 +155,7 @@ U.sandbox = (function () {
       '<meta name="viewport" content="width=device-width, initial-scale=1">' +
       '<style>' + U.KIT_CSS + '</style>' +
       '<script>window.K_THEME=' + inlineJson(o.theme || theme()) + ';window.K_BODY_LINE=@@LINE@@;window.K_TOKEN=' + inlineJson(String(o.token || '')) +
-        ';window.K_QUIZ=' + inlineJson(o.quiz ? String(o.quiz) : null) +
+        ';window.K_QUIZ=' + inlineJson(o.quiz ? String(o.quiz) : null) + ';window.K_SHUFFLE=' + (o.shuffle > 0 ? Math.floor(o.shuffle) : 0) +
         ';window.K_CASE=' + inlineJson(isObj(o.kase) ? o.kase : null) + ';window.K_LESSON=' + inlineJson(lessonData(o.lesson)) + ';</' + 'script>' +
       '<script>' + U.KIT_JS + '</' + 'script></head><body>\n';
     // Error line numbers are reported relative to the body (the kit counts from this line).
@@ -419,7 +419,9 @@ U.sandbox = (function () {
     try {
       var t0 = themeOf();
       lastTheme = JSON.stringify(t0);
-      frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0, token: token, quiz: quiz, kase: o.kase, lesson: o.lesson }));
+      // A fresh order for the answer buttons on each mount (U.flags.shuffle, 00-core.js).
+      var seed = U.flags && U.flags.shuffle && o.shuffle !== false ? 1 + Math.floor(Math.random() * 2147483646) : 0;
+      frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0, token: token, quiz: quiz, kase: o.kase, lesson: o.lesson, shuffle: seed }));
     } catch (e) {
       shown = false;
       wrap.dataset.state = 'failed';

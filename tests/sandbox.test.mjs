@@ -84,7 +84,7 @@ test('merge() takes ids, inputs and checks from the widths whose page ran', () =
 test('srcdoc() puts the frame\'s token beside the theme, as inline-safe JSON', () => {
   const U = boot({ rootPx: 16, fs: '1.125rem' });
   const doc = U.sandbox.srcdoc('<p>x</p>', { token: 'abc</script>' });
-  assert.match(doc, /window\.K_TOKEN="abc\\u003c\/script>";window\.K_QUIZ=null;window\.K_CASE=null;window\.K_LESSON=null;<\/script><script>/);
+  assert.match(doc, /window\.K_TOKEN="abc\\u003c\/script>";window\.K_QUIZ=null;window\.K_SHUFFLE=0;window\.K_CASE=null;window\.K_LESSON=null;<\/script><script>/);
   assert.ok(doc.indexOf('K_TOKEN') < doc.indexOf('<p>x</p>'));
   assert.match(U.sandbox.srcdoc('<p>x</p>'), /window\.K_TOKEN="";/);
 });
@@ -164,7 +164,10 @@ const BODY = '<p class="say">x</p><script>K.ready();</script>';
 
 test('srcdoc() carries the quiz output (or null) beside the token, as inline-safe JSON', () => {
   const U = boot({ rootPx: 16, fs: '1.125rem' });
-  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', quiz: 'T</script>' }), /window\.K_TOKEN="t";window\.K_QUIZ="T\\u003c\/script>";window\.K_CASE=null;/);
+  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', quiz: 'T</script>' }), /window\.K_TOKEN="t";window\.K_QUIZ="T\\u003c\/script>";window\.K_SHUFFLE=0;window\.K_CASE=null;/);
+  // The answer buttons' order: a whole number seed, and nothing else gets in.
+  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', shuffle: 1234.7 }), /window\.K_SHUFFLE=1234;/);
+  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', shuffle: '</script>' }), /window\.K_SHUFFLE=0;/);
   assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't' }), /window\.K_QUIZ=null;/);
 });
 

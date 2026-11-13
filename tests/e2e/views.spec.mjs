@@ -323,7 +323,7 @@ await test('topic: delete asks first, then removes everything', async () => {
 await test('topic: missing topic', async () => {
   const app = await open({ hash: '#/t/nope' });
   await app.page.waitForSelector('.v-empty');
-  eq(await text(app, '#view h1'), 'This topic is not here any more', 'gone state, as the screen\'s heading');
+  eq(await text(app, '#view h1'), 'This course could not be found', 'gone state, as the screen\'s heading');
   await app.page.waitForFunction(() => document.activeElement && document.activeElement.matches('#view h1'), null, { timeout: 3000 });
   eq(await app.page.title(), 'Topic not found · My University', 'the title says so');
 });
@@ -558,7 +558,7 @@ await test('boot: slow saved work is waited for, said plainly, and shown when it
   await app.page.clock.runFor(1000);
   await app.page.waitForFunction(() => U.boot.ready === true);
   await app.page.waitForSelector('.lib-home .shelf-card');
-  assert(!/No shelves yet/.test(await text(app, '.lib-home')), 'never an empty Library');
+  assert(!/Nothing to show here yet/.test(await text(app, '.lib-home')), 'never an empty Library');
   eq(await notice(app), null, 'no notice');
 
   // db answers at 35 s: the app opens at 30 s, says plainly that the saved work is not in yet,
@@ -616,7 +616,7 @@ await test('boot: saved work that answers null (a host that did not answer) is a
   await app.page.waitForFunction(() => U.boot.ready === true);
   await app.page.waitForSelector('.lib-home .shelf-card');
   eq(await app.page.evaluate(() => window.__asked()), 2, 'asked again');
-  assert(!/No shelves yet/.test(await text(app, '.lib-home')), 'never an empty Library');
+  assert(!/Nothing to show here yet/.test(await text(app, '.lib-home')), 'never an empty Library');
   eq(await notice(app), null, 'no notice');
 
   // Null at every ask for 30 s: the app opens saying the saved work is still loading (not "open
@@ -626,11 +626,11 @@ await test('boot: saved work that answers null (a host that did not answer) is a
   await app.page.clock.runFor(30500);
   await app.page.waitForFunction(() => U.boot.ready === true);
   assert(/Your saved work has not loaded yet/.test(await notice(app)), 'plain notice: ' + await notice(app));
-  assert(!/No shelves yet/.test(await text(app, '.lib-home')), 'not an empty Library');
+  assert(!/Nothing to show here yet/.test(await text(app, '.lib-home')), 'not an empty Library');
   assert((await text(app, '.lib-shelves')).includes('Your saved work is still loading'), 'says the shelves are still loading');
   await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForSelector('.v-saved-late');
-  assert(!(await text(app, '#view')).includes('not here any more'), 'a topic is not called deleted');
+  assert(!(await text(app, '#view')).includes('could not be found'), 'a topic is not called missing');
   await app.page.evaluate(() => U.go('#/map'));
   await app.page.waitForSelector('.v-saved-late');
   eq(await count(app, '.v-empty'), 0, 'nor is the map called empty');
@@ -763,7 +763,7 @@ await test('regressions: a dead subscription shows an error with Try again, neve
   await app.page.evaluate(() => U.go('#/map'));
   await app.page.evaluate(() => U.go('#/'));
   await app.page.waitForSelector('.lib-shelves .v-load-error');
-  assert(!/No shelves yet/.test(await text(app, '.lib-shelves .shelf-grid')), 'never "no shelves"');
+  assert(!/Nothing to show here yet/.test(await text(app, '.lib-shelves .shelf-grid')), 'never "no shelves"');
   assert(/Reconnecting/.test(await text(app, '.lib-shelves .shelf-grid')), 'says it is reconnecting first');
   // A dead bridge: parked after the quick tries, so it still says "Reconnecting…" (it loads by itself).
   await app.page.waitForTimeout(4500);
@@ -772,7 +772,7 @@ await test('regressions: a dead subscription shows an error with Try again, neve
   await app.page.evaluate(() => { window.__listCode = 'revoked'; U.go('#/'); });
   await app.page.waitForFunction(() => /could not be loaded/.test(document.querySelector('.lib-shelves').textContent), null, { timeout: 8000 });
   eq(await count(app, '.lib-shelves .btn >> text=Try again'), 1, 'then Try again');
-  assert(!/No shelves yet/.test(await text(app, '.lib-shelves .shelf-grid')), 'never "no shelves"');
+  assert(!/Nothing to show here yet/.test(await text(app, '.lib-shelves .shelf-grid')), 'never "no shelves"');
   await shot(app, 'regress-home-dead-subscription-360-light');
   await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForSelector('.tp .v-load-error');

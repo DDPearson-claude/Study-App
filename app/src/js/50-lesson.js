@@ -423,6 +423,7 @@
     // "Read it through instead": for a ready-made steps lesson (built, so it has a guide; its guide
     // is read only when the read-through opens, which falls back to this lesson without one).
     function offerReading() {
+      root.classList.toggle('is-steps', !!stepsLesson());   // a phone then keeps the header short (50-lesson.css)
       if (!st.topic || !st.topic.readyMade || !U.readThrough || !stepsLesson()) return;
       Promise.resolve().then(function () {
         // Its read-through found no guide in this page load (it opened this lesson instead).
@@ -627,6 +628,12 @@
       for (var k = st.index + 1; k < ideas.length; k++) if (open(ideas[k])) return ideas[k];
       for (var j = 0; j < st.index; j++) if (open(ideas[j])) return ideas[j];
       return null;
+    }
+    // The finish screen's line when nothing is left to do: only the lesson that ends the course is
+    // "the last" (audit, 13 Nov: lesson 1 of a finished course said it was the last lesson).
+    function lastLine() {
+      var ideas = (st.topic && st.topic.ideas) || [], t = (st.topic && st.topic.title) || 'this topic', n = noun().toLowerCase();
+      return st.index >= ideas.length - 1 ? 'That was the last ' + n + ' in ' + t : 'Every ' + n + ' in ' + t + ' is done';
     }
 
     // ---- Learn it again ----
@@ -907,7 +914,7 @@
         b.setAttribute('aria-label', stepName(list[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? (reading() ? noun() + ' read' : noun() + ' learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
+      stepLabel.textContent = all ? (stepsLesson() ? noun() + ' complete' : reading() ? noun() + ' read' : noun() + ' learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
       bar.classList.toggle('is-all', all);
       paintOne();
     }
@@ -1701,7 +1708,7 @@
       var boxShown = !!U.flags.puzzleBox;
       var sec = read
         // A read lesson: "Lesson complete", then on to the next lesson or start this one again.
-        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': noun() + ' read' },
+        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': noun() + (stepsLesson() ? ' complete' : ' read') },
           U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
           heading('Lesson complete'),
           // A steps lesson was done, not read: no "just for reading" line under its heading; once
@@ -1715,7 +1722,7 @@
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
                 btn('Start again', again, 'secondary')))
-            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last ' + noun().toLowerCase() + ' in ' + (st.topic.title || 'this topic')),
+            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, lastLine()),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord()),
                 btn('Start again', again, 'secondary'))),
           nx ? U.h('p', { class: 'lsn-again' }, U.h('a', { class: 'linkish', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord())) : null,
@@ -1736,7 +1743,7 @@
               nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
                 U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord())))
-            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last ' + noun().toLowerCase() + ' in ' + (st.topic.title || 'this topic')),
+            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, lastLine()),
               U.h('p', { class: 'muted' }, boxShown ? 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.' : 'Every idea here is learned.'),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord()))),
           U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', again)));
