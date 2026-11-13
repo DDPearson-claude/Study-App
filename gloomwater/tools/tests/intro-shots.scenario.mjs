@@ -182,7 +182,9 @@ export default async function (api) {
       + (c.lantern ? ` | lantern ${pc(c.lantern.top)}–${pc(c.lantern.foot)} % mirror ${pc(c.lantern.mTop)}–${pc(c.lantern.mFoot)} % water ${pc(c.water)} %` : '') + (c.ember ? ` | ember ${pc(c.ember[0])}, ${pc(c.ember[1])} %` : '') + (beat.id === 'wick' || beat.id === 'home' ? ` | flame ${pc(c.flame[0])}, ${pc(c.flame[1])} %` : ''));
 
     // ---- checks
-    if (Math.abs(r.t - t) > 1e-3) failures.push(`t ${t}: the stage is at ${r.t}`);
+    // (through the director under reduced motion the stage holds the beat's still, INTRO.stills, from the swap on)
+    const want = via === 'director' && args.reduced && t >= build.swapAt ? (build.stills.find((x) => x.beat === beat.id)?.t ?? t) : t;
+    if (Math.abs(r.t - want) > 1e-3) failures.push(`t ${t}: the stage is at ${r.t}, not ${want}`);
     if (r.errors) failures.push(`t ${t}: ctx.errors is not empty`);
     const B = build.budget;
     if (B && (r.stage.calls > B.calls || r.stage.triangles > B.triangles)) failures.push(`t ${t}: the set costs ${r.stage.calls} calls / ${r.stage.triangles} triangles (budget ${B.calls} / ${B.triangles})`);
