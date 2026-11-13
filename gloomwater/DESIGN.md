@@ -4235,6 +4235,21 @@ You are the Wick. Home is the Landing, where Old Murk keeps his barge. **Pick a 
 
 **The build plan** (SPEC §13): 1. *Three slots*: the Mossmere's open water, hold 3, Keep / Let go, the tally, the shelf with the hold, tackle T1–T2 and the Sporewood map · 2. *The mist lifts*: the Mossmere's four places, mist, the Chart, Elders in old water, the Matriarch · 3. *Bait, lures and the raft*, Murk's orders · 4. *Home*: the Landing in raft mode, the First Evening, home upgrades, ink prints · 5. *Deeper water*: the other twelve places, T3–T4, three legends · 6. *The long tail*: the other Wicks, place twists, the later sheets.
 
+### 26.4 The roster: every researched fish, one fish of ours
+
+*Binding since 2026-11-13 (the user: "Use all of these fish as inspiration for our game's fish"; "The main episode based fish he catches should be the rare giants"). Readable roster: `docs/loop/ROSTER.md`; data: `docs/loop/roster.json`; check: `node tools/sim/roster-check.mjs` (exit 1 on any broken rule). Design only: nothing in `src/` is changed by it.*
+
+| rule | value |
+|---|---|
+| one fish per kind | every kind of fish landed in the research (`docs/loop/research/`) is the ancestor of exactly one original fish: **164 fish**, plus **8 curiosities** (the turtles, the caiman, the salamander, the crab, the jelly, the squid; a snake that is only seen; a spear-billed fish that is only ever lost) |
+| rare giants | the descendant of each episode's main fish that was landed: **49 giants**, 16 legendary (one per water, its crown) and 33 epic; the sareng, never landed, is Pyrefall Gorge's one that got away. Only giants are epic or legendary; nothing else is a giant |
+| waters | **16**: the four built lakes first (their places and prices as SPEC §5.2), then twelve later sheets: Rushlight Fen, the Thin Water, Lampmoss Slough, Pyrefall Gorge, the Thunder Stair, the Inkwood, the Siltway, the Salt Gate, Lanternroot Lagoon, the Waxen Reef, the Last Light, the Rime Sound |
+| where giants live | one named place each, in old water, night water or the crown; one giant per place; a fourth giant in a water lives on a later sheet. A giant may reach Elder at its own place (the `giantsKept` rule), so SPEC §5.1 rule 3 holds for every other fish |
+| sizes | the record is the real animal's (or the giant of its kind's, beside the 85 cm Wick) and is the "said to reach" of the §25.7.1 model; σ 0.10 / 0.12 / 0.14 / 0.16 from common to epic; legends authored, each first landing ≥ 1.4 × anything else in its water |
+| body plans | 15 new fish plans (catfish, disc, dogtooth, bream, shark, sawfish, gar, trout, snakehead, lamprey, jack, tuna, billfish, cod, flatfish) and 3 for curiosities; the named `sturgeon` is built with them |
+| built species | 21 re-founded (id, name and set pieces kept; the Glass Sovereign becomes a sturgeon, Old Portcullis moves to Lampmoss Slough, Harpstring and Shardspine become epic giants); 32 kept as they are; none retired |
+| never named | the real animal is a design note (`inspiredBy`) only; the game and the roster files never name the series or its presenter |
+
 ---
 
 ## Appendix A. Balance simulation (audit pass)
