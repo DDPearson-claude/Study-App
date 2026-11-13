@@ -831,7 +831,7 @@ export function create(ctx) {
       // frame; a layout that is still finding its place is followed), then frozen settleBefore s before the pause, so the stiffer
       // spring has brought the lens to rest when the still begins
       const shown = v && v.phase === 'hold' ? (Number(v.poseT) || 0) - (Number(v.dur?.lift) || 0) : 0;
-      const freezeAt = Math.max(Number(SHOWC.settleAfter) || 0.12, (Number(v?.dur?.hold) || 0.5) - (Number(SHOWC.settleBefore) || 0.25));
+      const freezeAt = Math.max(Number(SHOWC.settleAfter) || 0.12, (Number(v?.dur?.hold) || 0.5) - (Number(SHOWC.settleBefore) || 0.4));
       S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
       const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
       if (!S.still || !S.init || cardLift) { if (fitShow(v) && S.hold) S.frozenCard = true; }
@@ -854,7 +854,7 @@ export function create(ctx) {
       S.sx.v = S.sy.v = S.sz.v = S.sd.v = S.se.v = S.sw.v = S.sf.v = 0;
       S.init = true;
     } else if (dt > 0) {
-      const om = S.still ? (Number(SHOWC.followStill) || 18) : (Number(SHOWC.follow) || 10);
+      const om = S.still ? (Number(SHOWC.followStill) || 22) : (Number(SHOWC.follow) || 10);
       springStep(S.sx, T.x, om, dt); springStep(S.sy, T.y, om, dt); springStep(S.sz, T.z, om, dt);
       springStep(S.sd, T.dist, om, dt); springStep(S.se, T.elev, om, dt); springStep(S.sf, T.fov, om, dt);
       springStep(S.sw, S.sw.x + wrapAngle(T.yaw - S.sw.x), om, dt);
