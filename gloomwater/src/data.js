@@ -3888,8 +3888,9 @@ export const AUTOFISH = {
       // presentBloom: the lens is already close) and an Elder's pull-back is a breath (`breath` × landing.pull)
       // finRoom widens the fish's box past its named points (fins, a flapping tail); the fitted target is live through the reveal,
       // the lift and (for the longer holds) into the hold, and frozen settleBefore s before the pause (never sooner than settleAfter s after the present):
-      // followStill carries what is left, and the still is still
-      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
+      // followStill carries what is left, and the still is still. Only a target at rest is frozen (moving under `rest` m/s against the
+      // Wick): a layout still on the move is followed into the pause rather than left to drift out of the frame
+      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, settleAfter: 0.12, settleBefore: 0.4, rest: 0.05, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52 },
         both:      { elev: 10, fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'] },
