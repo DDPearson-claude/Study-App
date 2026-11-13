@@ -1742,7 +1742,18 @@ if (V3) {
         && SH.camera.pose.alongside.rakeAbove > SH.poses.at(-2).below && SH.camera.pose.alongside.rake > 0 && SH.camera.pose.alongside.rake <= 65 && SH.camera.pose.alongside.craneElev > SH.camera.pose.alongside.elev,
         'AUTOFISH.show.camera: takes over at T0, safe margins, never nearer than the near plane allows, still in the pause; a long alongside fish is craned over and, upright, raked');
       ok(SH.card.opensFrom === 'fish' && SH.card.unfold > 0 && SH.card.unfold <= 0.5 && SH.card.knots.every((k) => AF.ceremony.cordMarks.includes(k)) && SH.card.stampAt >= SH.card.count, 'AUTOFISH.show.card: unfolds from the held fish; the count, then the stamp; your best and the Old Ledger as knots');
-      ok(Object.values(SH.sound).every((v) => typeof v === 'string' && v.length) && SH.hud === 'hiddenFromT0', 'AUTOFISH.show: named sounds; nothing over the picture from T0'); }
+      ok(Object.values(SH.sound).every((v) => typeof v === 'string' && v.length) && SH.hud === 'hiddenFromT0', 'AUTOFISH.show: named sounds; nothing over the picture from T0');
+      // lane B's own numbers (the fit's room, the target's springs, the present's kick, the card's count, the glory on the picture)
+      { const Cm = SH.camera, G = AF.landing.show, minHold = Math.min(...SC.map((c) => SH.beats[c].hold), SH.swarm.hold);
+        ok(Cm.headroom >= 0 && Cm.footroom >= 0 && Cm.margin.landscape + Math.max(Cm.headroom, Cm.footroom) <= 0.2 && Cm.flameTip >= 0 && Cm.flameTip <= 1.5 && Cm.finRoom >= 1 && Cm.finRoom <= 2,
+          'AUTOFISH.show.camera: room over the flame and under the hands inside a fifth of the frame; the fish\'s box a little wider than its named points');
+        ok(Cm.follow > 0 && Cm.followStill >= Cm.follow && Cm.settleAfter >= 0 && Cm.settleAfter < minHold && Cm.followStill * (minHold - Cm.settleAfter) >= 1,
+          'AUTOFISH.show.camera: the fitted target is frozen inside the shortest hold and carried stiffly enough to be still by the pause');
+        ok(Cm.presentKick > 0 && Cm.presentKick <= 1 && Cm.presentBloom > 0 && Cm.presentBloom <= 1 && Cm.breath >= 0 && Cm.breath <= 0.5 && Math.abs(AF.landing.ancient.pull) * Cm.breath <= Cm.margin.landscape,
+          'AUTOFISH.show.camera: at the present the kick and the bloom are no bigger than the landing\'s, and an Elder\'s breath out stays inside the margin');
+        ok(SH.card.countFrom >= 0 && SH.card.countFrom + Math.max(SH.card.stampAt, SH.card.count) <= AF.time.card * 0.6, 'AUTOFISH.show.card: the count and the stamp are over well inside the card\'s 2 s of the time model');
+        ok(isObj(G) && G.size > 0.5 && G.size <= 2 && G.perGlory >= 0 && G.strength > 0 && G.strength + G.perGloryStrength * AF.landing.ancient.glory + AF.landing.ancient.gloryBright <= 1 && G.rise > 0 && G.rise < Math.min(...SC.map((c) => SH.beats[c].hold))
+          && G.holdShare >= 0 && G.holdShare <= 1 && G.fadePause > 0 && G.fadePause <= 1 && G.back > 0, 'AUTOFISH.landing.show: the glory sized to the picture, never over full strength, risen inside the shortest hold and gone by the card'); } }
     // every player-facing string of automatic fishing and the First Evening: one line (≤ 90), no %, no exclamation mark
     const strs = []; const walkS = (v, path) => { if (typeof v === 'string') strs.push([v, path]); else if (v && typeof v === 'object') for (const [k, c] of Object.entries(v)) walkS(c, `${path}.${k}`); };
     walkS(AF.text, 'AUTOFISH.text'); walkS(FE.text, 'FIRST_EVENING.text'); walkS(FE.tips, 'FIRST_EVENING.tips');

@@ -3901,7 +3901,9 @@ export const AUTOFISH = {
     // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
     // which presses after it (the cord's ticks and the seal's stamp sound here); your best and the Old Ledger are two knots on the
     // card's ruler (marks, no words); the record is the card's kicker (as now). No banner, no overlay, no toast before the card.
-    card: { opensFrom: 'fish', unfold: 0.32, count: 0.5, stampAt: 0.55, knots: ['pb', 'ledger'], phone: 'foot' },
+    // (countFrom: the count starts this long after the card begins to open, once its ink has unfolded enough to read; stampAt is
+    // measured from there)
+    card: { opensFrom: 'fish', unfold: 0.32, countFrom: 0.2, count: 0.5, stampAt: 0.55, knots: ['pb', 'ledger'], phone: 'foot' },
     // sounds (all original, synthesised): the swell and the class chime stay on fishing:landing / fishing:caught; `lift` a wet haul
     // by class as the fish swings in; `present` the flourish on the present (with the record chime for a record or a new species);
     // `flap` a wet slap on each twitch; `drip`; the cord's ticks and the seal's stamp move to the card's count
