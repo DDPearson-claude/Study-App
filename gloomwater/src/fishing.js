@@ -3467,7 +3467,8 @@ export function create(ctx) {
         bus.on('player:damage', ({ source } = {}) => { if (typeof source === 'string' && /hand|grasp|slam/i.test(source)) slam(); });
         // the card's close: the action it chose names the exit gesture (actors.endShow), then the model goes
         bus.on('fish:action', ({ action } = {}) => { if (S.catchFv && !S.show) { S.exitAction = S.exitAction || action || null; if (!showOn()) S.catchT = Math.max(S.catchT, 90 - 0.6); } });
-        bus.on('ui:modal', ({ open } = {}) => { if (open === false && !S.show && S.catchT > 0.3 && (S.catchFv || view.show)) endCatch(S.exitAction); });
+        // (with the show, only the catch card's own close ends the catch: the pause menu closing over it does not)
+        bus.on('ui:modal', ({ open, id } = {}) => { if (open === false && !S.show && S.catchT > 0.3 && (S.catchFv || view.show) && !(showOn() && id && id !== 'catch')) endCatch(S.exitAction); });
       }
       try {
         const z = zoneData();

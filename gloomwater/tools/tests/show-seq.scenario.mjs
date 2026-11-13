@@ -11,6 +11,7 @@
 //   node tools/playtest.mjs --html=tools/out/show/dev.html --shots=tools/out/show/seq/phone --script=tools/tests/show-seq.scenario.mjs --mobile
 //   --only=small,elder,hurry,protected,pausetap,swarm,valve,abort,leak   a subset
 //   --strip                 shoot a strip of each full catch (the camera coming in, the pause, the card opening, the card, back to play)
+//   --unfold                with --strip: three more frames of the card unfolding from the fish (its animations held at 70 / 150 / 240 ms)
 //   --cases=small:mossback_perch:-0.7,trophy:reedjaw_pike:2.4   extra full catches (name:species:z), each measured like `small`
 //   --heading=1.2           turn the raft (rad) before casting · --character=taper
 import { createHash } from 'node:crypto';
@@ -328,6 +329,14 @@ export default async function (api) {
     if (!check(carded, `${name}: the card opens`)) { await finish(name, rec); return; }
     rec.tCard = sec((await g(() => window.__show.step)) - info.step0);
     if (strip) {
+      // the unfold itself (the card's entrance runs on the wall clock): its animations held at three moments
+      if (args.unfold) {
+        for (const ms of [70, 150, 240]) {
+          await g((ms) => { for (const a of document.getAnimations()) { const t = a.effect?.target; if (t?.closest?.('.gw-m-catch')) { a.pause(); a.currentTime = ms; } } }, ms);
+          await wait(60); await shoot(`unfold-${ms}`);
+        }
+        await g(() => { for (const a of document.getAnimations()) if (a.playState === 'paused') a.play(); });
+      }
       await g((ms) => window.__show.run(3, ms, null), STEP_MS); await wait(160); await shoot('card-opening');
       await g((ms) => window.__show.run(6, ms, null), STEP_MS); await wait(260); await shoot('card-count');
       await g((ms) => window.__show.run(24, ms, null), STEP_MS); await wait(1500); await shoot('card');
