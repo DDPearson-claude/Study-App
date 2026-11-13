@@ -365,6 +365,8 @@ export function createIntroStage(ctx) {
     if (st.built) return true;
     if (!I()) return false;
     if (!canBuild()) { st.built = true; return true; }
+    // (a world that cannot say yet where its raft and its landmark stand: not an error, ask again on the next slice)
+    if (st.step === 0 && !(st.anchors || (st.anchors = introAnchors(ctx)))) return false;
     if (buildStep()) st.built = true;
     return st.built;
   }
@@ -406,11 +408,11 @@ export function createIntroStage(ctx) {
     st.anchored = true;
     const a = introAnchors(ctx);
     if (!a) return;
-    const b = set ? set.anchors : st.anchors;
-    const same = !!b && Math.abs(a.G.x - b.G.x) < 1e-3 && Math.abs(a.G.z - b.G.z) < 1e-3 && Math.abs(a.S.x - b.S.x) < 1e-3 && Math.abs(a.S.z - b.S.z) < 1e-3 && a.G.theme === b.G.theme;
+    const b = set ? set.anchors : null;
     st.anchors = a;
-    if (same || !set) return;
-    freeSet(); st.built = false; st.step = 0;
+    if (b && Math.abs(a.G.x - b.G.x) < 1e-3 && Math.abs(a.G.z - b.G.z) < 1e-3 && Math.abs(a.S.x - b.S.x) < 1e-3 && Math.abs(a.S.z - b.S.z) < 1e-3 && a.G.theme === b.G.theme) return;
+    if (!set && !canBuild()) return;
+    freeSet(); st.built = false; st.step = 0;   // built on another lake's anchors, or not built yet (the world could not say): now
     buildAll(); attach();
   }
 

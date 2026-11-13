@@ -270,6 +270,14 @@ section('stage: a replay from another lake\'s title');
   eq(g.calls.cams.at(-1).pos, STG.resolvePoint(STG.introCamera(I, 1, LAND).pos, A), '… and the camera flies from them');
   eq(parts(g).length, 2, 'one set in the scene, not two'); ok(g.scene.getObjectByName('intro:windows').visible, 'the windows are on its towers');
   st.dispose();
+  // a world that cannot say yet where things stand (no lake built): prebuild() waits without an error, and the set is built
+  // the moment the film needs it
+  g.ctx.world.getHeroAnchor = () => null;
+  ok(st.prebuild() === false && st.prebuild() === false && !st.ready, 'no anchors yet: prebuild() waits, and does not throw');
+  st.enter({}); eq(parts(g).length, 0, '… the film can still be entered (camera only)');
+  g.ctx.world.getHeroAnchor = moss;
+  st.setTime(2, {}); ok(parts(g).length === 2 && g.scene.getObjectByName('intro:lantern').visible, '… and the set is built at the swap once the world can say');
+  st.dispose();
   // a lake with no Sunken Gate: the film still runs, without windows floating in the air
   g.ctx.world.getHeroAnchor = () => ({ x: 0, z: -77.63, face: 0, theme: 'glasswater' });
   st.enter({}); st.setTime(3, {}); ok(g.scene.getObjectByName('intro:lantern').visible && !g.scene.getObjectByName('intro:windows').visible, 'no towers, no windows');

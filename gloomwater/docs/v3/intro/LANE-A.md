@@ -80,9 +80,14 @@ frame, by drawing each frame with and without it):
 
 | | peak calls | peak triangles | prebuild (software GL) | programs: before → warmed → end of film | memory after dispose |
 |---|---|---|---|---|---|
-| desktop high (mirror ½) | 17 at 5.68 s | 4,880 at 10 s | 9 slices, 54 ms in all, longest 22 ms | 77 → 85 → 85 | = baseline, twice |
-| desktop low (no mirror) | 9 at 5.68 s | 4,880 at 10 s | 8 slices, 23 ms, longest 15 ms | 96 → 107 → 107 | = baseline, twice |
-| phone medium (mirror ⅓) | 17 at 5.68 s | 4,880 at 10 s | 9 slices, 9–30 ms, longest 6–17 ms | 77 → 85 → 85 | = baseline, twice |
+| desktop high (mirror ½) | 17 at 5.68 s | 4,880 at 10 s | 9 slices, 41–54 ms in all, longest 17–33 ms | 77 → 85 → 85 | = baseline, twice |
+| desktop low (no mirror) | 9 at 5.68 s | 4,880 at 10 s | 8 slices, 8–23 ms, longest 5–15 ms | 96 → 107 → 107 | = baseline, twice |
+| phone medium (mirror ⅓) | 17 at 5.68 s | 4,880 at 10 s | 9 slices, 12–28 ms, longest 9–11 ms | 77 → 85 → 85 | = baseline, twice |
+| phone high | 17 at 5.68 s | 4,880 at 10 s | 9 slices, 38 ms, longest 23 ms | 98 → 109 → 109 | = baseline, twice |
+| phone low | 9 at 5.68 s | 4,880 at 10 s | 8 slices, 17–22 ms, longest 8–14 ms | 96 → 107 → 107 | = baseline, twice |
+
+(The prebuild times are this machine's software GL under load, two or three runs each: an upper bound. The whole frame around
+the set is 123–178 calls / 206–227 k triangles on desktop high and 66–110 / 82–100 k on low: the title's own.)
 
 Budget 30 calls / 10,000 triangles (ceiling 60 / 40,000). No light, no shadow caster, no render target, **no texture of its own**
 (the sprites share `toon.glowTexture(128, 2.2)`; the toon ramp is the game's). Nothing is compiled once the film runs. The
@@ -101,7 +106,7 @@ build, 47 frames, dispose → the baseline exactly; build, two frames, dispose �
 | `lantern.at` y | 17 | **14.2** | at 17 the mirror image's foot (the cap and its knob) fell at 86–90 % in landscape: inside the words band. Computed first, then confirmed on `strip/i-03.60`, `i-05.00` (82.0 %, 83.0 %) |
 | `lantern.height` / `radius` / `halo.size` | 6.5 / 2.4 / 26 | **7.6 / 2.9 / 30** | at 5 % of the frame's width it was a prop; it is the film's subject (`r0/i-03.60` vs `r1/i-02.40`) |
 | `lantern.chainTop` | 70 | **48** | nothing above 42 m is ever in frame (phone, fov 62); 660 fewer triangles of links |
-| `lantern.water.radius`, `+ streakLow` | 40, — | **27, 0.75** | at 40 the pool reached the far shore (28 m) and lit it as one hard yellow line across the frame (`strip-phone` first pass); on low the streak is the lantern's only reflection and at 2 it went cream in the words band |
+| `lantern.water.radius`, `+ streakLow` | 40, — | **27, 0.75** | at 40 the pool reached the far shore (28 m) and lit it as one hard yellow line across the frame (`strip-phone` first pass); on low the streak is the lantern's only reflection: at 2 (and at 1.4) it was a river of cream that filled the lower half of a phone and outshone the lantern (`strip-phone-low` first pass); at 0.75 it is a gold path (`r5plow`) |
 | gate take, look y | −1.7, −1.7, −2.2, −3.2 | **−3.6, −3.6, −3.8, −2.6** | 3° down keeps the mirror image over the band through the push; the last key comes back up because the narrowing lens (46 → 36) was pushing the waterline to 44 % (rule 46–56 %) |
 | gate take, pos | y 2.2 → 2.0, z −12 → −23 | **y 2.2 → 1.8, z −12 → −21.5** | a little lower and a shorter push: the mirror is more nearly the lantern's twin, and the image stays in frame. The first key is pinned by the seam test |
 | shoulder take, portrait pos x | 1.5 → 1.6 | **0.72 → 0.8** | at 1.5 the Wick stood half out of the frame's left edge (the frame is 2.4 m wide there; probe `07`); now whole, flame at 30 %, 75 % |
@@ -133,6 +138,10 @@ shoulder take, the home take, the budget.
 - **The kindle also takes the brazier** (#13): its coals and flame were a second warm thing in the dark frame before the spark.
 - **The ink hesitates.** While the flame gutters (13.05 s) the opening holds a moment before it runs out to the corners.
 - Not done (optional in §6): skipping `water.renderReflection` under the opaque card. The dark beat is already the cheapest.
+- **The stage re-anchors at the swap.** A replay from a title that shows another lake (SPEC §7.4) enters the stage before main
+  has swapped the Mossmere in. At the first `setTime` past `INTRO.swapAt` (the ink is full) the stage reads the world's anchors
+  again and, if the set was built on others, builds it again on the spot (tested). So lane B only has to finish the swap by
+  0.45 s of film time, or hold the clock under the ink until it has. On a lake with no Sunken Gate the windows are not shown.
 
 ## Purity
 
@@ -144,24 +153,32 @@ head), the live splash.
 
 ## Tests
 
-- `node tools/tests/intro-stage.test.mjs` (in `check.mjs`): 151 assertions: the score beat by beat, §5's rules (a)–(f) by
+- `node tools/tests/intro-stage.test.mjs` (in `check.mjs`): 159 assertions: the score beat by beat, §5's rules (a)–(f) by
   projection in 16:9 and 390 × 844, the window layout, the stage on a real three.js scene with a fake game (slices, purity,
-  the budget on three tiers, no light, no own texture, the hooks, the live splash, disposal, a second life).
+  the budget on three tiers, no light, no own texture, the hooks, the live splash, a replay from another lake, a world not ready yet, disposal, a
+  second life).
 - `tools/tests/intro-shots.scenario.mjs`: the strip (47 moments: every second, each beat's start, middle and end, the stills,
   the marks) and, measured in the browser: cost against `renderer.info`, lights and shadow maps unchanged, the prebuild's
   slices, programs, memory, purity, and §5 (a)–(d) by projection through the camera as rendered. It drives the stage itself
-  (`ctx.intro.stage`); `--via=director` seeks through `debug.intro` instead, for the merge; `--ui` leaves the DOM on.
+  (`ctx.intro.stage`); `--via=director` seeks through `debug.intro` instead, for the merge; `--reduced` shoots the softer
+  flash and the dip; `--ui` leaves the DOM on. All four strips (desktop high and low, phone medium and low): 0 failures.
+- Regression on this branch's dev build: `tools/scenario-run.mjs` flag-off and `tools/tests/run-v3.scenario.mjs` both print
+  ALL INVARIANTS HOLD with 0 page, console and ctx errors; `validate-data` passes its three modes; `check.mjs` is green.
+  A rotation and a square window during every beat (960 × 540 ↔ 390 × 844 ↔ 700 × 700): no error, the subjects in frame.
+- Not run here (the merge's): the minified flag-off build, and anything that needs lane B (the press, the hand-off, the words
+  over the picture, the contrast of A5).
 
 ## Captures
 
 `tools/out/intro/` (untracked): `strip/` desktop 960 × 540 high · `strip-low/` desktop low · `strip-phone/` 390 × 844 medium ·
 `strip-phone-low/` phone low; each with `strip.json` (per frame: the whole frame's calls and triangles, the set's, the
-projections) and `sheet-*.jpg` contact sheets. Earlier rounds, for the record of what was changed and why: `r0` … `r4`.
+projections) and `sheet-*.jpg` contact sheets; `strip-phone-high/` too. Earlier rounds, for the record of what was changed and why: `r0` … `r5`.
+`tools/hue-report.mjs` over the four strips (188 frames): green + teal 0.0 % in every frame (`hue.csv`).
 
-Five look-and-fix rounds: `r0` first light (kept: the lantern, the windows, the contact frame); `r1` a bigger, more amber
+Six look-and-fix rounds: `r0` first light (kept: the lantern, the windows, the contact frame); `r1` a bigger, more amber
 lantern, staggered windows, stubs that hang true, the flank re-lit; `r2` the flank's light the right way up, the card to
 violet; `r3` the smooth dark flank and its seams, the leak hunt; `r4` single-sided flank (a fade was blending its far side
-through in stripes), the phone's shoulder take, the water light short of the shore, the low tier's streak.
+through in stripes), the phone's shoulder take, the water light short of the shore; `r5` the low tier's gold path, the reduced variant, the director's path.
 
 ## What is still weakest
 
