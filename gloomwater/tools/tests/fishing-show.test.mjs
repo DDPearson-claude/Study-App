@@ -346,7 +346,7 @@ section('a legend plays the Ancient\'s row and lies alongside; twenty shows in a
 }
 
 // =====================================================================================================================
-section('without the seam: actors with no showFish get the measuring stand-ins; a render with no setShowTarget gets the trophy shot');
+section('without the seam: actors with no showFish get the plain catch hold; a render with no setShowTarget gets the trophy shot');
 {
   const env = makeEnv({ seed: 71, known: ALL, seam: false, cam: false });
   const i0 = env.events.length;
@@ -354,9 +354,8 @@ section('without the seam: actors with no showFish get the measuring stand-ins; 
   const total = play(env, t0);
   ok(near(total, data.showPlan('keeper').total, 0.08) && JSON.stringify(orderFrom(env, i0)) === JSON.stringify(ORDER), `the show still runs its clock and its events (${total.toFixed(2)} s)`);
   const fish = env.last('fishing:caught').fish;
-  const standIn = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' }[data.showPoseFor(fish.length / 100, { sizeClass: fish.sizeClass })];
-  ok(env.calls.pose.includes(standIn) && env.calls.showCatch.includes(true) && env.calls.target.some((t) => t && t.trophy) && env.calls.target.at(-1) === null && env.calls.attention >= 1,
-    `setPose(${standIn}) + showCatch; setTrophyTarget, then null; the reveal keeps its own push-in`);
+  ok(!!fish && env.calls.pose.includes('catch') && !env.calls.pose.some((p) => /^measure/.test(p)) && env.calls.showCatch.includes(true) && env.calls.target.some((t) => t && t.trophy) && env.calls.target.at(-1) === null && env.calls.attention >= 1,
+    `setPose('catch') + showCatch (no measuring pose stands in); setTrophyTarget, then null; the reveal keeps its own push-in`);
 }
 
 // =====================================================================================================================

@@ -2132,7 +2132,6 @@ export function create(ctx) {
   // Fishing starts and stops everything and keeps the clock; actors moves the Wick and the fish (showFish / setShowTime / endShow);
   // render fits the camera (setShowTarget); ui keeps the frame clean until the card and opens it from the fish.
   const SHOW = () => AF().show || {};
-  const SHOW_STANDIN = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' };   // actors without showFish
   const showOn = () => afOn() && !!AF().show && typeof D().showPlan === 'function';
   const round3 = (v) => Math.round(v * 1000) / 1000;
   function swarmNow() { try { return S.forceSwarm != null ? !!S.forceSwarm : isReal(ctx.combat) && ctx.combat.swarmActive === true; } catch { return false; } }
@@ -2276,11 +2275,11 @@ export function create(ctx) {
       let got = null;
       if (typeof A?.showFish === 'function') got = call(() => A.showFish(fv, { cls: c.cls, pose: c.pose, sizeClass: fish.sizeClass, ancient: !!fish.ancient, legend: !!legendary, beats, special: c.special })) || null;
       if (got && typeof got === 'object' && !got.isStub) { if (typeof got.id === 'string') c.pose = got.id; c.actors = true; S.catchShown = true; }
-      else {   // actors without the show: the nearest measuring pose stands in (the v1 catch hold without those)
-        call(() => A?.setPose?.(typeof A?.showCord === 'function' ? SHOW_STANDIN[c.pose] : 'catch'));
+      else {   // actors without the show seam (a fake, an older build): the plain catch hold; the clock and the events run the same
+        call(() => A?.setPose?.('catch'));
         call(() => A?.showCatch?.(fv));
       }
-    } else call(() => A?.setPose?.(typeof A?.showCord === 'function' ? SHOW_STANDIN[c.pose] : 'catch'));
+    } else call(() => A?.setPose?.('catch'));
     const v = c.view;
     v.sizeClass = fish.sizeClass || null; v.ancient = !!fish.ancient; v.legendary = !!legendary; v.speciesId = fish.speciesId; v.length = fish.length; v.uid = fish.uid ?? null;
     syncShowView(c);

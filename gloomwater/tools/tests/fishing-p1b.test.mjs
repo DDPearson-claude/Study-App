@@ -532,9 +532,9 @@ section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, 
     ok(fl?.measured === true && Array.isArray(fl.favours) && fl.fish?.uid === caught.fish.uid, `${cls}: fish:landed {measured: true, favours} opens the card`);
     env.reset();
   }
-  // actors without the show seam (this fake has setPose + showCatch only): the nearest measuring pose stands in for the
-  // show's pose (data.showPoseFor by true length, class and shape), and the knotted cord is never unrolled (it is cut)
-  const STANDIN = { pinch: 'measurePalm', both: 'measureArms', hug: 'measureHang', hang: 'measureHang', alongside: 'measureAlongside' };
+  // actors without the show seam (this fake has setPose + showCatch only): the show's pose is still named
+  // (data.showPoseFor by true length, class and shape), the Wick gets the plain catch hold (no measuring pose stands in),
+  // and the knotted cord is never unrolled (it is cut)
   for (const [sp, z] of [['dusk_minnow', -1.2], ['mossback_perch', 0.4], ['reedjaw_pike', 2.95], ['lantern_swallower', 0]]) {
     env.calls.pose.length = 0; env.calls.cord.length = 0;
     env.ctx.debug.fishHook(sp, { z });
@@ -543,7 +543,7 @@ section('F5 the catch hand-off: makeFish at the landing, fishing:caught {fish}, 
     const id = data.showPoseFor(L, { sizeClass: f.sizeClass, ancient: f.ancient, legend: data.SPECIES_BY_ID[sp].rarity === 'legendary', shape: data.SPECIES_BY_ID[sp].model?.shape });
     ok(env.F.view.show?.pose === id && env.last('fishing:show')?.pose === id, `${sp} at ${(L * 100).toFixed(0)} cm: the show's pose is '${id}'`);
     for (let i = 0; i < 400 && env.F.inShow; i++) env.tick(1);
-    ok(env.calls.pose.includes(STANDIN[id]), `${sp}: actors.setPose('${STANDIN[id]}') stands in`);
+    ok(env.calls.pose.includes('catch') && !env.calls.pose.some((p) => /^measure/.test(p)), `${sp}: actors.setPose('catch') (no measuring stand-in)`);
     ok(env.calls.cord.length === 0, `${sp}: the knotted cord is cut from the show (no showCord call)`);
     env.reset();
   }

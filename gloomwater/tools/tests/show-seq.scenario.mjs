@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const FONT_CACHE = resolve(here, '..', 'out', '.font-cache');
 const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-function fetchCached(url) {
+export function fetchCached(url) {
   const p = resolve(FONT_CACHE, createHash('sha1').update(url).digest('hex'));
   if (existsSync(p)) return readFileSync(p);
   try {
@@ -31,10 +31,10 @@ function fetchCached(url) {
     mkdirSync(FONT_CACHE, { recursive: true }); writeFileSync(p, buf); return buf;
   } catch { return null; }
 }
-const STEP_MS = 1000 / 30;
+export const STEP_MS = 1000 / 30;
 
 /** In the page: the stepper, the per-frame trace and the frame metrics. */
-function install() {
+export function install() {
   const c = window.__gw;
   const raf = window.requestAnimationFrame.bind(window);
   const S = { on: false, q: [], now: null, step: 0, log: [], trace: [], tracing: false, taps: [] };

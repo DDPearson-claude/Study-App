@@ -1,169 +1,90 @@
-// The catch as a frame strip (docs/v3/show/SPEC.md): for every size class, a legend, an eel, a flat fish and the smallest fish in
-// the build, the whole sequence from the fish leaving the water (T0: fishing.state becomes 'landing') to the catch card being
-// open, sampled BY THE GAME'S CLOCK on a deterministic 30 fps stepper (requestAnimationFrame is taken over for the sequence and
-// every frame is given exactly 1/30 s, so a slow software-GL machine shoots the same frames a fast one does). Beside each PNG,
-// notes.json records what the frame holds: where the Wick faces relative to the lens, the fish's box on screen (how big, how much
-// of it a UI element covers), the camera, the ceremony's phase, the words on screen, and the timeline of the events.
+// The show, staged (docs/v3/show/SPEC.md §4; the stage's proof): any catch as a frame strip from the fish breaking the surface
+// (T0: fishing.state becomes 'landing') through the lift, the hold and the pause to the card and back to play, shot BY THE
+// GAME'S CLOCK on a deterministic stepper (requestAnimationFrame is taken over; every frame is exactly 1/30 s of the game's real
+// clock, so a slow software-GL machine shoots the same frames a fast one does). Beside each PNG, notes.json records what the frame
+// holds (S1: where the Wick faces, the fish's box on screen from its posed hull, the head and flame in frame; S2: the ui over the
+// picture; S3: the clock per phase from the bus; S5: every ripple and splash near the raft, the lens's continuity; S8: draw calls).
+// The measuring ceremony's audit (the "before" set under tools/out/show/before/) was shot by this file's first version.
 //
 //   node build.mjs --dev --out=tools/out/show/dev.html
-//   node tools/playtest.mjs --html=tools/out/show/dev.html --shots=tools/out/show/before/desktop --script=tools/tests/show-audit.scenario.mjs --width=960 --height=540
-//   node tools/playtest.mjs --html=tools/out/show/dev.html --shots=tools/out/show/before/phone --script=tools/tests/show-audit.scenario.mjs --mobile --only=small,elder
-//   (--only=small,elder a subset · --frames=10 frames before the card · --heading=1.2 turns the raft (rad) before the cast)
-//   node tools/show-sheet.mjs tools/out/show/before tools/out/show/before.jpg     (the contact sheet)
-import { createHash } from 'node:crypto';
+//   node tools/playtest.mjs --html=tools/out/show/dev.html --shots=tools/out/show/after/desktop --script=tools/tests/show-audit.scenario.mjs --width=960 --height=540
+//   node tools/playtest.mjs --html=tools/out/show/dev.html --shots=tools/out/show/after/phone --script=tools/tests/show-audit.scenario.mjs --mobile --only=small,elder
+//   --only=small,elder          a subset of the cases
+//   --cases=name:species:z[:key=value;key=value]   more cases. Keys: phase (calm | dusk | gloomtide), zone (mossmere | sporewood |
+//                               glasswater | paleabyss), body (wick | taper | stub | tallow | ashwick), heading (rad), lead (s of the
+//                               play left before the landing; default 0.5), action (keep | release | eat | render)
+//   --frames=sheet|strip        sheet (default): the five frames of the proof sheet (water, lift, show, pause, card) and the way
+//                               out; strip: twelve
+//   --quality=high              the render tier (default high)
+//   --video=<dir>               instead: each case from the strike to the card closing, one PNG per 1/12 s of game time into <dir>
+//                               (tools/show-sheet.mjs --video turns them into an mp4)
+//   node tools/show-sheet.mjs --after=tools/out/show/after --before=tools/out/show/before --out=tools/out/show/sheet.jpg
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+import { install, fetchCached, STEP_MS } from './show-seq.scenario.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const FONT_CACHE = resolve(here, '..', 'out', '.font-cache');
-const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-function fetchCached(url) {
-  const p = resolve(FONT_CACHE, createHash('sha1').update(url).digest('hex'));
-  if (existsSync(p)) return readFileSync(p);
-  try {
-    const buf = execFileSync('curl', ['-sSfL', '-m', '40', '-A', UA, url], { maxBuffer: 1 << 26, stdio: ['ignore', 'pipe', 'ignore'] });
-    mkdirSync(FONT_CACHE, { recursive: true }); writeFileSync(p, buf); return buf;
-  } catch { return null; }
-}
-
-// name, species, z, {phase, mode}: the nine the audit asks for, a flat fish, and a night catch
+// name, species, z, options: the proof sheet's rows, then the extremes the stage looks at
 export const CASES = [
   ['small', 'mossback_perch', -0.7, {}],
   ['keeper', 'weeping_carp', 0.5, {}],
   ['prize', 'reedjaw_pike', 1.5, {}],
   ['trophy', 'reedjaw_pike', 2.4, {}],
   ['elder', 'reedjaw_pike', 3.0, {}],
-  ['ancient', 'reedjaw_pike', 3.45, {}],
   ['legend', 'belled_matriarch', 1.0, {}],
   ['eel', 'gloam_eel', 1.6, {}],
-  ['tiny', 'quayling', -2, { fallback: ['dusk_minnow', -2] }],
-  ['ray', 'velvet_ray', 0.6, {}],
-  ['night', 'candlefin_koi', 0.6, { phase: 'gloomtide' }],
-  ['leviathan', 'lantern_swallower', 1.0, {}],   // the longest fish in the game (8.6 m): not in the Mossmere's water, forced here for the framing
 ];
-const STEP_MS = 1000 / 30;
+const EXTRA = {
+  ancient: ['reedjaw_pike', 3.45, {}],
+  tiny: ['quayling', -2, {}],
+  minnow: ['dusk_minnow', -2, {}],
+  ray: ['velvet_ray', 0.6, {}],
+  night: ['candlefin_koi', 0.6, { phase: 'gloomtide' }],
+  leviathan: ['lantern_swallower', 1.0, {}],
+};
 
-/** In the page: the stepper, the event log and the frame metrics. */
-function install() {
-  const c = window.__gw;
-  const raf = window.requestAnimationFrame.bind(window);
-  const S = { on: false, q: [], now: null, step: 0, log: [], last: {} };
-  window.__show = S;
-  window.requestAnimationFrame = (cb) => { if (S.on) { S.q.push(cb); return 0; } return raf(cb); };
-  const sample = () => {
-    const m = c.fishing?.view?.measure, cur = { state: c.fishing?.state, phase: m?.phase ?? null, cinematic: !!c.cinematic, modal: c.debug.ui?.()?.openModal ?? null,
-      glory: !!c.debug.fishReveal?.()?.glory, pose: c.actors?.measurePose ?? null, slowmo: !!c.debug.beats?.()?.slowmo?.active };
-    for (const k of Object.keys(cur)) if (cur[k] !== S.last[k]) { S.log.push({ step: S.step, what: k, to: cur[k] }); S.last[k] = cur[k]; }
+/** In the page, on top of show-seq's stepper: the ripple log, the posed fish's box, the lake and the body. */
+function installStage() {
+  const c = window.__gw, S = window.__show;
+  // every ripple and splash the water is asked for, with its distance from the raft (S5: never a ring round the raft)
+  S.rip = [];
+  const W = c.water;
+  const wrap = (name) => {
+    const orig = W[name];
+    if (typeof orig !== 'function' || orig.__wrapped) return;
+    const f = function (x, z, a, b) {
+      try {
+        const p = c.player?.position || { x: 0, z: 0 };
+        const ring = name === 'addRipple' ? !(b && typeof b === 'object' && b.kind) : !(a && a.ring === false);
+        S.rip.push({ step: S.step, fn: name, d: +Math.hypot(x - p.x, z - p.z).toFixed(2), s: +(name === 'addRipple' ? Number(a) || 1 : Number(a?.size) || 1).toFixed(2), ring, state: c.fishing?.state, phase: c.fishing?.view?.show?.phase ?? null });
+      } catch { /* a log only */ }
+      return orig.apply(this, arguments);
+    };
+    f.__wrapped = true;
+    try { W[name] = f; } catch { /* frozen: no log */ }
   };
-  for (const ev of ['fishing:landing', 'fishing:caught', 'fish:measured', 'fish:landed', 'fishing:reveal'])
-    c.bus.on(ev, (p) => S.log.push({ step: S.step, ev, sizeClass: p?.sizeClass ?? p?.fish?.sizeClass ?? null, length: p?.length ?? p?.fish?.length ?? null }));
-  S.begin = () => { S.on = true; S.now = null; };
-  /** One frame of exactly `ms` of the game's real clock, run inside a real animation frame (so it is composited). */
-  S.frame = (ms) => new Promise((res) => raf(() => {
-    const q = S.q; S.q = [];
-    S.now = (S.now ?? performance.now()) + ms;
-    for (const cb of q) { try { cb(S.now); } catch (e) { (c.errors || []).push(String(e)); } }
-    S.step++; sample(); res(S.step);
-  }));
-  /** Step until `until()` is true or `max` frames have run. */
-  S.run = async (max, ms, stopOn) => {
-    for (let i = 0; i < max; i++) {
-      await S.frame(ms);
-      if (stopOn === 'landing' && c.fishing.state === 'landing') return { step: S.step, hit: true };
-      if (stopOn === 'card' && c.debug.ui?.()?.openModal === 'catch') return { step: S.step, hit: true };
-    }
-    return { step: S.step, hit: false };
+  wrap('addRipple'); wrap('splash');
+  /** The fish as it is posed (actors' hull: bent, fins and all), boxed on screen. */
+  S.hullBox = () => {
+    let pts = null;
+    try { pts = c.debug.showPoseHull?.(); } catch { pts = null; }
+    if (!pts || !pts.length) return null;
+    const cam = c.render.camera, Wd = innerWidth, H = innerHeight;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity, n = 0;
+    for (const p of pts) { const q = p.clone().project(cam); if (!(q.z < 1)) continue; const x = (q.x * 0.5 + 0.5) * Wd, y = (1 - (q.y * 0.5 + 0.5)) * H; x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); n++; }
+    if (!n) return null;
+    const w = x1 - x0, h = y1 - y0, on = Math.max(0, Math.min(Wd, x1) - Math.max(0, x0)) * Math.max(0, Math.min(H, y1) - Math.max(0, y0));
+    return { x: Math.round(x0), y: Math.round(y0), w: Math.round(w), h: Math.round(h), wPct: +(100 * w / Wd).toFixed(1), hPct: +(100 * h / H).toFixed(1), diagPct: +(100 * Math.hypot(w, h) / Math.hypot(Wd, H)).toFixed(1),
+      inFrame: Math.round(100 * on / Math.max(1, w * h)), clear: +(100 * Math.min(x0 / Wd, y0 / H, (Wd - x1) / Wd, (H - y1) / H)).toFixed(1) };
   };
-  S.end = () => { S.on = false; const q = S.q; S.q = []; S.now = null; for (const cb of q) raf(cb); };
-  S.reset = () => { S.step = 0; S.log = []; S.last = {}; };
-
-  // ---- what the frame holds
-  const words = () => {
-    const root = document.getElementById('ui');
-    const vis = (e) => { for (let n = e; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05) return false; } const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; };
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    let n = 0; const text = [];
-    while (w.nextNode()) {
-      const t = w.currentNode, s = t.nodeValue.replace(/\s+/g, ' ').trim();
-      if (!s || !vis(t.parentElement)) continue;
-      n += s.split(' ').filter((x) => /[\p{L}\p{N}]/u.test(x)).length; text.push(s);
-    }
-    return { n, text: text.join(' / ').slice(0, 300) };
-  };
-  const rectOf = (sel) => { const e = document.querySelector(sel); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05) return null; const r = e.getBoundingClientRect(); return r.width > 2 && r.height > 2 ? { x: r.left, y: r.top, w: r.width, h: r.height } : null; };
-  const overlap = (a, b) => { if (!a || !b) return 0; const w = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y); return w > 0 && h > 0 ? (w * h) / Math.max(1, a.w * a.h) : 0; };
-  S.metrics = () => {
-    const cam = c.render.camera, scene = c.render.scene, W = innerWidth, H = innerHeight;
-    scene.updateMatrixWorld(true); cam.updateMatrixWorld(true);
-    const head = c.actors.getHeadPos(), V3 = head.constructor;
-    const px = (v) => { const p = v.clone().project(cam); return { x: (p.x * 0.5 + 0.5) * W, y: (1 - (p.y * 0.5 + 0.5)) * H, z: p.z }; };
-    const r1 = (x) => Math.round(x * 10) / 10;
-    const out = { step: S.step, state: c.fishing.state, phase: c.fishing.view?.measure?.phase ?? null, pose: c.actors.measurePose ?? null, modal: c.debug.ui?.()?.openModal ?? null, cinematic: !!c.cinematic };
-    // the Wick: where its face points relative to the lens (0° = straight at the camera), its head on screen
-    const wick = scene.getObjectByName('wick'), wp = c.actors.getWickPos(), cp = cam.getWorldPosition(new V3());
-    if (wick) {
-      const f = new V3(0, 0, 1).transformDirection(wick.matrixWorld), d = cp.clone().sub(wp);
-      let a = (Math.atan2(f.x, f.z) - Math.atan2(d.x, d.z)) * 180 / Math.PI; a = ((a + 540) % 360) - 180;
-      out.wickOffLens = Math.round(a);
-      const hp = px(head), fp = px(wp);
-      out.head = { x: Math.round(hp.x), y: Math.round(hp.y) };
-      out.wickPx = Math.round(Math.abs(fp.y - hp.y));
-      out.headInFrame = hp.z < 1 && hp.x > 0 && hp.x < W && hp.y > 0 && hp.y < H;
-      out.camDist = r1(cp.distanceTo(head));
-    }
-    out.fov = r1(cam.fov);
-    // the fish: its box on screen (every visible mesh under the three places a caught fish can hang)
-    let box = null, fishDist = null, noseTail = null;
-    for (const name of ['catchHolder', 'holdAnchor', 'fishing-fish']) {
-      const holder = scene.getObjectByName(name);
-      if (!holder || box) continue;
-      holder.traverse((o) => {
-        if (!o.isMesh || !o.geometry) return;
-        for (let n = o; n && n !== scene; n = n.parent) if (n.visible === false) return;
-        if (o.userData?.noReflect === true && /outline/i.test(o.name || '')) return;
-        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
-        const b = o.geometry.boundingBox; if (!b || !Number.isFinite(b.min.x)) return;
-        for (let i = 0; i < 8; i++) {
-          const v = new V3(i & 1 ? b.max.x : b.min.x, i & 2 ? b.max.y : b.min.y, i & 4 ? b.max.z : b.min.z).applyMatrix4(o.matrixWorld);
-          const p = px(v); if (p.z >= 1) continue;
-          box = box || { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
-          box.x0 = Math.min(box.x0, p.x); box.y0 = Math.min(box.y0, p.y); box.x1 = Math.max(box.x1, p.x); box.y1 = Math.max(box.y1, p.y);
-        }
-        if (fishDist === null) {
-          fishDist = r1(cp.distanceTo(o.getWorldPosition(new V3())));
-          // how side-on the fish is: 0° = its flank square to the lens, 90° = end-on (local +z is the snout)
-          const ax = new V3(0, 0, 1).transformDirection(o.matrixWorld), view = o.getWorldPosition(new V3()).sub(cp).normalize();
-          noseTail = Math.round(90 - Math.acos(Math.min(1, Math.abs(ax.dot(view)))) * 180 / Math.PI);
-        }
-      });
-    }
-    if (box) {
-      const fr = { x: box.x0, y: box.y0, w: box.x1 - box.x0, h: box.y1 - box.y0 };
-      const on = { x: Math.max(0, fr.x), y: Math.max(0, fr.y), w: Math.min(W, fr.x + fr.w) - Math.max(0, fr.x), h: Math.min(H, fr.y + fr.h) - Math.max(0, fr.y) };
-      out.fish = { x: Math.round(fr.x), y: Math.round(fr.y), w: Math.round(fr.w), h: Math.round(fr.h), wPct: Math.round(100 * fr.w / W), hPct: Math.round(100 * fr.h / H),
-        inFrame: Math.round(100 * Math.max(0, on.w) * Math.max(0, on.h) / Math.max(1, fr.w * fr.h)), dist: fishDist, endOn: noseTail };
-      const band = rectOf('#ui .gw-ms .gw-ms-band'), recs = rectOf('#ui .gw-ms .gw-ms-recs'), card = rectOf('#ui .gw-m-catch .gw-cc-grid') || rectOf('#ui .gw-m-catch .gw-modal-body') || null;
-      out.cover = { band: Math.round(100 * overlap(fr, band)), banner: Math.round(100 * overlap(fr, recs)), card: Math.round(100 * overlap(fr, card)) };
-      out.bandRect = band && { y: Math.round(band.y), h: Math.round(band.h) };
-    } else out.fish = null;
-    const w = words(); out.words = w.n; out.text = w.text;
-    // everything the UI draws over the picture: visible leaf elements of #ui (text, glyphs, canvases, gauges), dimmed ones included
-    let ui = 0;
-    for (const e of document.querySelectorAll('#ui *')) {
-      if (e.children.length && !/^(svg|canvas|button)$/i.test(e.tagName)) continue;
-      if (e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
-      const r = e.getBoundingClientRect();
-      if (r.width * r.height < 16 || r.bottom <= 0 || r.right <= 0 || r.top >= H || r.left >= W) continue;
-      let op = 1, shown = true;
-      for (let n = e; n && n !== document.body; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === 'none' || cs.visibility === 'hidden') { shown = false; break; } op *= +cs.opacity; }
-      if (shown && op >= 0.05 && (e.textContent.trim() || /^(svg|canvas|img|i|b)$/i.test(e.tagName))) ui++;
-    }
-    out.uiVisible = ui;
-    // cost: draw calls and triangles of the last frame, live geometries / textures / programs (S8: nothing leaks, a handful of calls)
-    try { const I = c.render.renderer.info; out.gl = { calls: I.render.calls, tris: I.render.triangles, geo: I.memory.geometries, tex: I.memory.textures, prog: I.programs?.length ?? null }; } catch { out.gl = null; }
-    return out;
+  S.goZone = (zone) => {
+    const r = c.state.run;
+    try { c.debug.unlockZone?.(zone); } catch { /* optional */ }
+    if (!(r.zonesUnlocked || []).includes(zone)) r.zonesUnlocked = [...(r.zonesUnlocked || []), zone];
+    try { c.combat.killAll?.('debug'); } catch { /* optional */ }
+    try { c.fishing.cancel?.('debug'); } catch { /* optional */ }
+    if (r.zone !== zone) { r.zone = zone; r.gateOpen = false; c.bus.emit('zone:change', { zone, prev: null }); }
+    try { const sp = c.world.getSpawn?.(); if (sp?.position) c.player.teleport?.(sp.position, sp.yaw || 0); } catch { /* optional */ }
+    return r.zone;
   };
   return true;
 }
@@ -171,13 +92,27 @@ function install() {
 export default async function (api) {
   const { page, wait, evalGame: g, log, args } = api;
   page.setDefaultTimeout(300000);
-  const failures = [];
+  const failures = [], notesOut = [];
+  const note = (msg) => { notesOut.push(msg); log('NOTE', msg); };
+  const check = (cond, msg, extra) => { if (cond) { log('ok  ', msg); return true; } failures.push(`${msg}${extra !== undefined ? ` :: ${JSON.stringify(extra)}` : ''}`); log('FAIL', msg, extra !== undefined ? JSON.stringify(extra) : ''); return false; };
   const only = args?.only ? String(args.only).toLowerCase().split(',') : null;
-  const nFrames = Math.max(4, Math.min(16, Number(args?.frames) || 9));
-  const shotsDir = resolve(process.cwd(), String(args.shots || 'tools/out/show/before/desktop'));
+  const mode = String(args.frames || 'sheet');
+  const videoDir = args.video ? resolve(process.cwd(), String(args.video)) : null;
+  const shotsDir = resolve(process.cwd(), String(args.shots || 'tools/out/show/after/desktop'));
   mkdirSync(shotsDir, { recursive: true });
+  if (videoDir) mkdirSync(videoDir, { recursive: true });
   const notesPath = resolve(shotsDir, 'notes.json');
-  const notes = existsSync(notesPath) && only ? JSON.parse(readFileSync(notesPath, 'utf8')) : {};
+  const notes = existsSync(notesPath) ? JSON.parse(readFileSync(notesPath, 'utf8')) : {};
+  const phone = api.width < 700;
+  const quality = String(args.quality || 'high');
+
+  const parseOpts = (s) => Object.fromEntries(String(s || '').split(';').filter(Boolean).map((kv) => { const [k, v] = kv.split('='); return [k, /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v]; }));
+  let cases = CASES.map(([n, s, z, o]) => [n, s, z, { ...o }]);
+  for (const c of String(args.cases || '').split(',').filter(Boolean)) { const [n, s, z, o] = c.split(':'); cases.push([n, s, Number(z), parseOpts(o)]); }
+  if (only) {
+    for (const n of only) if (!cases.some((c) => c[0] === n) && EXTRA[n]) cases.push([n, ...EXTRA[n]]);
+    cases = only.map((n) => cases.find((c) => c[0] === n)).filter(Boolean);
+  }
 
   await page.route(/fonts\.(googleapis|gstatic)\.com/, async (route) => {
     const url = route.request().url();
@@ -191,7 +126,7 @@ export default async function (api) {
   await page.goto(page.url().split('?')[0] + '?v3=1&v3phase=1', { waitUntil: 'load', timeout: 300000 });
   await page.waitForFunction(() => window.__gw && (window.__gw.flow === 'title' || window.__gw.flow === 'hub') && !document.getElementById('loader'), null, { timeout: 300000, polling: 500 });
   await g(async () => { await document.fonts.ready; });
-  // a returning player with every audited species already in the Journal but the eel (one new-species landing in the set)
+  // a returning player: every species here already in the Journal at a best no test fish beats (an ordinary catch, an ordinary card)
   await g(() => {
     const c = window.__gw, m = c.state.meta;
     m.runs = 3; m.deaths = 3; m.bestDay = 3;
@@ -199,14 +134,14 @@ export default async function (api) {
     try { c.debug.firstEvening?.('done'); } catch { /* optional */ }
     m.seenTips = m.seenTips || {}; for (const t of c.data.TIPS || []) m.seenTips[t.id] = true;
     m.journal = m.journal || {};
-    for (const id of ['mossback_perch', 'weeping_carp', 'reedjaw_pike', 'belled_matriarch', 'quayling', 'dusk_minnow', 'velvet_ray', 'candlefin_koi', 'lantern_swallower']) m.journal[id] = { caught: 4, biggest: 0.6, pbLength: 20 };
-    m.journal.reedjaw_pike.pbLength = 80;
+    for (const sp of c.data.SPECIES || []) m.journal[sp.id] = { caught: 4, biggest: 99, pbLength: 2000, seals: { prize: true, trophy: true, elder: true } };
     c.game.save?.();
   });
   if (await g(() => window.__gw.flow !== 'title')) { await g(() => window.__gw.game.toTitle?.() ?? window.__gw.game.quitToTitle?.()); await wait(1500); }
   await page.mouse.move(2, 200);
-  await g(() => { try { window.__gw.render.setQuality?.('medium'); } catch { /* optional */ } });
+  await g((q) => { const c = window.__gw; try { if (c.state.meta.settings) c.state.meta.settings.quality = q; c.render.setQuality?.(q); } catch { /* optional */ } }, quality);
   await g(install);
+  await g(installStage);
   const scale = (x) => g((x) => window.__gw.debug.renderScale?.(x), x).catch(() => {});
   const frameNo = () => g(() => window.__gw.time.frame);
   const frames = async (n, timeoutS = 180) => { const f0 = await frameNo(), t0 = Date.now(); while (Date.now() - t0 < timeoutS * 1000) { if ((await frameNo()) >= f0 + n) return true; await wait(100); } return false; };
@@ -219,10 +154,11 @@ export default async function (api) {
       await frames(2);
     }
   };
-  const pin = () => g(() => { const c = window.__gw; c.debug.god?.(true); c.debug.setOil(72); c.debug.setSatiety(80); });
-  await scale(0.5);
+  const pin = () => g(() => { const c = window.__gw; c.debug.god?.(true); c.debug.setOil(72); c.debug.setSatiety(80); if (c.state.run) c.state.run.xpNext = 1e9; });
+  const LOW = 0.34;
+  await scale(LOW);
   await clearModals();
-  await g((ch) => window.__gw.game.startNewRun({ character: ch, nightMode: 'still' }), String(args.character || 'wick'));
+  await g(() => window.__gw.game.startNewRun({ character: 'wick', nightMode: 'still' }));
   await waitFor(() => window.__gw.flow === 'playing', null, 180);
   await frames(4);
   await clearModals();
@@ -230,18 +166,25 @@ export default async function (api) {
   await pin();
   await g(() => window.__gw.debug.setPhase('calm'));
   await frames(3);
-  if (args.heading != null) { await g((h) => { const p = window.__gw.player; if (p && 'heading' in p) p.heading = h; try { window.__gw.debug.setHeading?.(h); } catch { /* optional */ } }, Number(args.heading)); await frames(3); }
+  const SH = await g(() => { const A = window.__gw.data.AUTOFISH; return { show: A.show, plan: Object.fromEntries(window.__gw.data.SHOW_CLASSES.map((c) => [c, window.__gw.data.showPlan(c)])) }; });
+  const sec = (steps) => +((steps * STEP_MS) / 1000).toFixed(3);
+  let cur = { zone: 'mossmere', body: 'wick', heading: null };
 
-  for (const [name, sp0, z0, o] of CASES) {
-    if (only && !only.includes(name)) continue;
-    let sp = sp0, z = z0;
+  /** The lake, the hour, the body and the raft's heading for a case. */
+  async function stage(o) {
     await clearModals();
-    await g(() => { const c = window.__gw; try { c.fishing.cancel?.('debug'); } catch { /* optional */ } try { c.fishing.reset?.(); } catch { /* optional */ } c.debug.timeScale(1); c.debug.cerRate?.(1); });
+    await g(() => { const c = window.__gw; try { c.fishing.cancel?.('debug'); } catch { /* optional */ } c.debug.timeScale(1); c.debug.showRate?.(1); c.debug.showSwarm?.(null); });
+    const zone = o.zone || 'mossmere', body = o.body || 'wick';
+    if (zone !== cur.zone) { await g((z) => window.__show.goZone(z), zone); cur.zone = zone; await frames(20); await clearModals(); }
+    if (body !== cur.body) { await g((b) => window.__gw.actors.setCharacter(b), body); cur.body = body; await frames(4); }
     await pin();
     await g((ph) => window.__gw.debug.setPhase(ph), o.phase || 'calm');
-    await frames(o.phase ? 12 : 2);
+    await frames(o.phase && o.phase !== 'calm' ? 14 : 3);
+    if (o.heading != null) { await g((h) => { const p = window.__gw.player; try { p.teleport?.(p.position, h); } catch { /* optional */ } if (p && 'heading' in p) p.heading = h; }, Number(o.heading)); await frames(4); }
     await clearModals();
-    // a real cast up the screen (the common case), the bite forced, struck clean, the outcome forced to land
+  }
+  /** Cast, force the bite; returns at fishing.state 'bite'. */
+  async function toBite(name, sp, z) {
     const W = api.width, H = api.height;
     await page.mouse.move(W / 2, H * 0.42);
     await page.mouse.down();
@@ -251,80 +194,161 @@ export default async function (api) {
     await page.mouse.move(2, H * 0.5);
     await waitFor(() => window.__gw.fishing.state === 'waiting', null, 90, 150);
     await frames(3);
-    let bit = false;
-    for (const [s, zz] of [[sp, z], ...(o.fallback ? [o.fallback] : [])]) {
-      await g(([s, zz]) => { const c = window.__gw; c.debug.fishOutcome('land'); c.debug.forceBite({ speciesId: s, z: zz, wait: 0.2 }); }, [s, zz]);
-      bit = await waitFor(() => window.__gw.fishing.state === 'bite', null, 30, 60);
-      if (bit) { sp = s; z = zz; break; }
-    }
-    if (!bit) { failures.push(`${name}: no bite for ${sp}`); continue; }
+    await g(([s, zz]) => { const c = window.__gw; c.debug.fishOutcome('land'); c.debug.forceBite({ speciesId: s, z: zz, wait: 0.2 }); }, [sp, z]);
+    if (!(await waitFor(() => window.__gw.fishing.state === 'bite', null, 30, 60))) { failures.push(`${name}: no bite for ${sp}`); return false; }
+    return true;
+  }
+  const playInfo = () => g(() => { const c = window.__gw, f = c.debug.fishing(), p = c.debug.fishPlay?.(); return { species: f.species, sizeClass: f.sizeClass, ancient: f.ancient, length: f.length, playEnd: p?.end ?? null, playT: p?.t ?? null, legendary: c.data.SPECIES_BY_ID[f.species]?.rarity === 'legendary' }; });
+  const metrics = () => g(() => {
+    const c = window.__gw, m = window.__show.metrics(); m.hull = window.__show.hullBox();
+    try { m.info = c.debug.showPoseInfo?.() ?? null; } catch { m.info = null; }
+    // every point actors names, where it lands in the frame (−1..1): what set the fit, what touches an edge
+    try { const f = c.actors.getShowFocus?.(), cam = c.render.camera; m.keepPts = f?.keep ? Object.entries(f.keep).flatMap(([k, grp]) => grp.map((p) => { const q = p.clone().project(cam); return { k, x: +q.x.toFixed(2), y: +q.y.toFixed(2) }; })) : null; } catch { m.keepPts = null; }
+    return m;
+  }).catch((e) => ({ error: String(e) }));
+  const closeCard = (action) => g((a) => { const q = (x) => document.querySelector(`#ui .gw-m-catch [data-action="${x}"]`); const b = (a && q(a)) || q('release') || q('keep'); if (b) { b.click(); return b.getAttribute('data-action'); } return null; }, action || null);
+  const shotPng = async (path) => { for (let a = 0; a < 3; a++) { try { await page.screenshot({ path, timeout: 240000 }); return true; } catch (e) { log('shot retry', path, String(e?.message || e).split('\n')[0]); } } return false; };
+
+  // ================================================================ one catch, shot and measured
+  async function shootCase([name, sp, z, o]) {
+    await stage(o);
+    if (!(await toBite(name, sp, z))) return;
     await g(() => window.__gw.debug.fishStrike('clean'));
     await waitFor(() => window.__gw.fishing.state === 'reeling', null, 30);
-    const info = await g(() => { const c = window.__gw, f = c.debug.fishing(), p = c.debug.fishPlay?.(); return { species: f.species, sizeClass: f.sizeClass, ancient: f.ancient, length: f.length, playEnd: p?.end ?? null, legendary: c.data.SPECIES_BY_ID[f.species]?.rarity === 'legendary' }; });
-    if (info.species !== sp) log(`${name}: hooked ${info.species}, wanted ${sp}`);
-    // jump the play to its last half second, then take the clock: every frame from here is exactly 1/30 s
-    await g((end) => window.__gw.debug.fishPlayTo(end ? Math.max(0.5, 1 - 0.5 / end) : 0.95), info.playEnd);
-    await g(() => { window.__show.reset(); window.__show.begin(); });
-    const t0r = await g((ms) => window.__show.run(300, ms, 'landing'), STEP_MS);
-    if (!t0r.hit) { failures.push(`${name}: the play never reached the landing`); await g(() => window.__show.end()); continue; }
-    const step0 = t0r.step;
-    // the length of today's sequence, predicted from the data (the reveal on the game's clock under the slow-motion beat, then the
-    // ceremony), to space the frames; the card is watched for, not predicted
-    const pred = await g((cls) => {
-      const c = window.__gw, A = c.data.AUTOFISH, L = A.landing[cls] || A.landing.keeper, sm = L.slowmo || [0, 1];
-      const wipe = L.wipe, slowGame = sm[0] * sm[1], reveal = wipe <= slowGame ? wipe / sm[1] : sm[0] + (wipe - slowGame);
-      const cer = c.debug.ceremony?.();
-      const sc = c.data.SIZE_CLASSES.find((x) => x.id === c.debug.fishing().sizeClass);
-      return { reveal, ceremony: c.debug.fishing().species && c.data.SPECIES_BY_ID[c.debug.fishing().species]?.rarity === 'legendary' ? 5 : (sc?.ceremony ?? 1.2), cer: cer?.active ? cer.dur : null };
-    }, info.ancient || info.legendary ? 'ancient' : info.sizeClass);
-    const total = pred.reveal + pred.ceremony;
-    const rec = { case: name, species: sp, z, sizeClass: info.sizeClass, ancient: !!info.ancient, lengthCm: info.length, predicted: { reveal: +pred.reveal.toFixed(2), ceremony: pred.ceremony, total: +total.toFixed(2) }, frames: [] };
+    const info = await playInfo();
+    info.cls = info.legendary || info.ancient ? 'ancient' : info.sizeClass;
+    const lead = Number.isFinite(o.lead) ? o.lead : 0.5;
+    await g(([end, lead]) => window.__gw.debug.fishPlayTo(end ? Math.max(0, 1 - lead / end) : 0.95), [info.playEnd, lead]);
+    await g(() => { const S = window.__show; S.reset(); S.rip.length = 0; S.uiEvery = 2; S.begin(); });
+    const t0r = await g((ms) => window.__show.run(Math.round(60000 / ms), ms, 'landing'), STEP_MS);
+    if (!t0r.hit) { failures.push(`${name}: the play never reached the landing`); await g(() => window.__show.end()); return; }
+    await g(() => { window.__show.tracing = true; });
+    const P = SH.plan[info.cls];
+    const rec = { case: name, species: sp, z, cls: info.cls, sizeClass: info.sizeClass, ancient: !!info.ancient, legendary: !!info.legendary, lengthCm: info.length, plan: P, opts: o, step0: t0r.step, frames: [] };
     const shoot = async (label) => {
-      const m = await g(() => window.__show.metrics()).catch((e) => ({ error: String(e) }));
-      const file = `${name}-${String(rec.frames.length + 1).padStart(2, '0')}-${label}.png`;
-      let ok = false;
-      for (let a = 0; a < 3 && !ok; a++) { try { await page.screenshot({ path: resolve(shotsDir, file), timeout: 240000 }); ok = true; } catch (e) { log('shot retry', file, String(e?.message || e).split('\n')[0]); } }
-      rec.frames.push({ file, t: +(((m.step ?? 0) - step0) * STEP_MS / 1000).toFixed(2), ...m });
-      log('shot', file, JSON.stringify({ t: rec.frames.at(-1).t, phase: m.phase, pose: m.pose, off: m.wickOffLens, fish: m.fish && `${m.fish.wPct}x${m.fish.hPct}% in ${m.fish.inFrame}%`, cover: m.cover, words: m.words, ui: m.uiVisible }));
-    };
-    // frames before the card: evenly spaced over the predicted length (the first just after the fish breaks the surface)
-    let carded = false, tCard = null;
-    for (let i = 0; i < nFrames && !carded; i++) {
-      const tWant = total * (0.03 + 0.95 * i / (nFrames - 1));
-      const at = step0 + Math.max(1, Math.round(tWant * 1000 / STEP_MS));
-      const cur = await g(() => window.__show.step);
-      if (at - 1 > cur) { const r = await g(([n, ms]) => window.__show.run(n, ms, 'card'), [at - 1 - cur, STEP_MS]); if (r.hit) { carded = true; tCard = r.step; break; } }
       await scale(1);
-      const r = await g((ms) => window.__show.run(1, ms, 'card'), STEP_MS);
+      await g((ms) => window.__show.run(1, ms, null), STEP_MS);   // (one frame at full size, so the shot is sharp)
       await wait(120);
-      await shoot(`t${String(Math.round(((r.step - step0) * STEP_MS) / 10)).padStart(3, '0')}`);
-      await scale(0.5);
-      if (r.hit) { carded = true; tCard = r.step; }
+      const m = await metrics();
+      const file = `${name}-${String(rec.frames.length + 1).padStart(2, '0')}-${label}.png`;
+      await shotPng(resolve(shotsDir, file));
+      rec.frames.push({ file, label, t: sec((m.step ?? 0) - rec.step0), ...m });
+      log('shot', file, JSON.stringify({ t: rec.frames.at(-1).t, phase: m.phase, off: m.wickOffLens, hull: m.hull && `${m.hull.wPct}x${m.hull.hPct}% clear ${m.hull.clear}%`, wick: `${m.wickPct}%`, ui: m.ui, words: m.words, dist: m.camDist }));
+      await scale(LOW);
+      return m;
+    };
+    const stepTo = async (tWant, stopOn = 'card') => {
+      const at = await g(() => window.__show.step);
+      const n = rec.step0 + Math.round(tWant * 1000 / STEP_MS) - at - 1;
+      return n > 0 ? g(([n, ms, s]) => window.__show.run(n, ms, s), [n, STEP_MS, stopOn]) : { hit: false };
+    };
+    const tP = P.reveal + P.lift, marks = mode === 'strip'
+      ? [['water', 0.06], ['water2', P.reveal * 0.6], ['lift', P.reveal + P.lift * 0.3], ['lift2', P.reveal + P.lift * 0.7], ['present', tP + 0.04], ['show', tP + P.hold * 0.55], ['pause', tP + P.hold + 0.12], ['pause2', P.total - 0.1]]
+      : [['water', Math.min(P.reveal * 0.6, P.reveal - 0.1)], ['lift', P.reveal + P.lift * 0.6], ['show', tP + Math.min(0.3, P.hold * 0.5)], ['pause', P.total - 0.15]];
+    let carded = false;
+    for (const [label, t] of marks) { const r = await stepTo(t); if (r.hit) { carded = true; break; } await shoot(label); }
+    if (!carded) carded = (await g((ms) => window.__show.run(400, ms, 'card'), STEP_MS)).hit;
+    if (!check(carded, `${name}: the card opens`)) { await g(() => { window.__show.tracing = false; window.__show.end(); }); return; }
+    if (mode === 'strip') { await g((ms) => window.__show.run(3, ms, null), STEP_MS); await wait(160); await shoot('card-opening'); }
+    await g((ms) => window.__show.run(30, ms, null), STEP_MS); await wait(1500); await shoot('card');
+    rec.cardWords = await g(() => { const e = document.querySelector('#ui .gw-m-catch'); if (!e) return null; let n = 0; const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT);
+      while (w.nextNode()) { const t = w.currentNode, s = t.nodeValue.replace(/\s+/g, ' ').trim(); if (!s) continue; let vis = true; for (let p = t.parentElement; p && p !== e; p = p.parentElement) { const cs = getComputedStyle(p); if (cs.display === 'none' || cs.visibility === 'hidden') { vis = false; break; } } if (vis) n += s.split(' ').filter((x) => /[\p{L}\p{N}]/u.test(x)).length; }
+      return n; });
+    const stepClose = await g(() => window.__show.step);
+    rec.action = await closeCard(o.action);
+    await g((ms) => window.__show.run(5, ms, null), STEP_MS); await shoot('out');
+    if (mode === 'strip') { await g((ms) => window.__show.run(8, ms, null), STEP_MS); await shoot('out2'); }
+    await g((ms) => window.__show.run(40, ms, null), STEP_MS); await shoot('play');
+    const trace = await g(() => window.__show.trace);
+    rec.log = (await g(() => window.__show.log)).map((e) => ({ ...e, t: sec(e.step - rec.step0) }));
+    rec.rip = (await g(() => window.__show.rip)).map((e) => ({ ...e, t: sec(e.step - rec.step0) }));
+    rec.after = await g(() => { const c = window.__gw; return { showView: c.fishing.view.show ?? null, cine: !!c.cinematic, state: c.fishing.state, camW: c.debug.camera?.()?.show?.w ?? 0, pose: c.actors.showPose ?? null }; });
+    await g(() => { window.__show.tracing = false; window.__show.end(); });
+    await g(() => { const c = window.__gw; c.debug.showRate?.(1); c.debug.fishOutcome(null); });
+    // ---- the clock (S3), from the bus
+    const at = (key) => { const e = rec.log.find((x) => (x.ev === 'fishing:show' ? `${x.ev}:${x.phase}` : x.ev) === key); return e ? e.t : null; };
+    const tCaught = at('fishing:caught'), tHold = at('fishing:show:hold'), tPause = at('fishing:show:pause'), tCard = at('fishing:show:card');
+    rec.clock = { reveal: tCaught, lift: +(tHold - tCaught).toFixed(3), hold: +(tPause - tHold).toFixed(3), pause: +(tCard - tPause).toFixed(3), total: tCard };
+    rec.tCard = tCard;
+    check(Math.abs(tCard - P.total) <= 0.15 && tCard <= SH.show.max[info.cls] + 1e-6, `${name}: T0 → card ${tCard} s (plan ${P.total} ± 0.15, never over ${SH.show.max[info.cls]})`, rec.clock);
+    check(rec.clock.pause >= SH.show.minPause - 0.035, `${name}: a still pause of ${rec.clock.pause} s before the card`);
+    const order = rec.log.filter((e) => ['fishing:landing', 'fishing:caught', 'fishing:show', 'fish:measured', 'fish:landed'].includes(e.ev)).map((e) => (e.ev === 'fishing:show' ? `show:${e.phase}` : e.ev.replace('fishing:', '')));
+    check(order.join(' ') === 'landing caught show:lift fish:measured fish:landed show:hold show:pause show:card', `${name}: the events in order, once each`, order);
+    // ---- the clean frame (S2)
+    const cardStep = trace.find((r) => r.modal === 'catch')?.step ?? Infinity;
+    const dirty = trace.filter((r) => r.ui != null && sec(r.step - rec.step0) >= 0.25 && r.step < cardStep && (r.ui > 0 || r.words > 0));
+    check(dirty.length === 0, `${name}: nothing of the ui over the picture from T0 + 0.25 s until the card`, dirty.slice(0, 3).map((r) => ({ t: sec(r.step - rec.step0), ui: r.ui, words: r.words })));
+    // ---- the picture at the pause (S1)
+    const m = rec.frames.find((f) => f.label === (mode === 'strip' ? 'pause2' : 'pause'));
+    if (m) {
+      const h = m.hull || m.fish, id = m.pose;
+      const row = { pinch: phone ? ['w', m.info?.length < 0.2 ? 18 : 30] : ['w', m.info?.length < 0.2 ? 9 : 14], both: ['w', phone ? 55 : 28], hug: ['h', phone ? 38 : 45], hang: ['h', phone ? 38 : 45], alongside: ['w', phone ? 70 : 55] }[id] || ['w', 10];
+      const share = h ? (row[0] === 'w' ? h.wPct : h.hPct) : 0;
+      rec.picture = { pose: id, wickOffLens: m.wickOffLens, endOn: m.info?.endOn ?? m.fish?.endOn ?? null, hull: m.hull, box: m.fish, wickPct: m.wickPct, head: m.headInFrame, flame: m.flameInFrame, camDist: m.camDist, fov: m.fov, gl: m.gl, want: `${row[0]} ≥ ${row[1]} %`, share };
+      log(`${name}: at the pause`, JSON.stringify(rec.picture));
+      check(!!h && h.inFrame === 100 && m.headInFrame && m.flameInFrame !== false, `${name}: at the pause the whole fish, the wax head and the flame are in frame`, { hull: m.hull, head: m.headInFrame, flame: m.flameInFrame });
+      if (!(share >= row[1]) && !(id === 'alongside' && phone && h?.diagPct >= 45)) note(`${name}: the fish is ${share} % of the frame's ${row[0] === 'w' ? 'width' : 'height'} at the pause (S1's row for ${id}: ≥ ${row[1]} %)`);
+      const offLim = id === 'hang' || id === 'alongside' ? 40 : 15;
+      check(Math.abs(m.wickOffLens) <= offLim, `${name}: the Wick faces the lens (${m.wickOffLens}° off, limit ${offLim}°)`);
+      check(m.ui === 0 && m.words === 0, `${name}: 0 ui elements, 0 words at the pause`, { ui: m.ui, words: m.words });
     }
-    if (!carded) { const r = await g((ms) => window.__show.run(240, ms, 'card'), STEP_MS); if (r.hit) { carded = true; tCard = r.step; } }
-    if (!carded) failures.push(`${name}: no catch card within 8 s of the predicted end`);
-    else {
-      // the card: just open (its own entrance runs on the wall clock), then settled
-      await scale(1);
-      await g((ms) => window.__show.run(4, ms, null), STEP_MS);
-      await wait(250);
-      await shoot('card-opening');
-      await g((ms) => window.__show.run(30, ms, null), STEP_MS);
-      await wait(1500);
-      await shoot('card');
-      await scale(0.5);
-    }
-    rec.tCard = tCard != null ? +(((tCard - step0) * STEP_MS) / 1000).toFixed(2) : null;
-    rec.timeline = (await g(() => window.__show.log)).map((e) => ({ ...e, t: +(((e.step - step0) * STEP_MS) / 1000).toFixed(2) })).filter((e) => e.t >= -0.2);
-    await g(() => window.__show.end());
-    notes[name] = rec;
-    writeFileSync(notesPath, JSON.stringify(notes, null, 1));
-    log(`${name}: ${sp} ${info.sizeClass} ${info.length} cm · T0 → card ${rec.tCard} s (predicted ${rec.predicted.total})`);
-    await g(() => { document.querySelector('#ui .gw-m-catch [data-action="release"]')?.click() || document.querySelector('#ui .gw-m-catch [data-action="keep"]')?.click(); });
-    await clearModals();
-    await wait(600);
+    // ---- no ring round the raft (S5): no plain ripple asked for within 3.2 m of the raft from T0 − 1.2 s until play resumes
+    const rings = rec.rip.filter((e) => e.ring && e.d < 3.2 && e.t >= -1.2);
+    rec.rings = rings;
+    check(rings.length === 0, `${name}: no ripple ring asked for within 3.2 m of the raft from 1.2 s before T0 to the way out`, rings.slice(0, 6));
+    // ---- no pop (S5): the lens from T0 until 1.5 s after the card closes
+    let dMax = 0, ddMax = 0, fMax = 0, prev = null, prevD = null;
+    for (const r of trace) { if (prev) { const d = Math.hypot(r.x - prev.x, r.y - prev.y, r.z - prev.z); if (prevD != null) ddMax = Math.max(ddMax, Math.abs(d - prevD)); dMax = Math.max(dMax, d); fMax = Math.max(fMax, Math.abs(r.fov - prev.fov)); prevD = d; } prev = r; }
+    rec.continuity = { move: +dMax.toFixed(3), jerk: +ddMax.toFixed(3), fov: +fMax.toFixed(2), frames: trace.length, closedAt: sec(stepClose - rec.step0) };
+    check(dMax <= 0.9 && ddMax <= 0.45 && fMax <= 1.5, `${name}: no pop in or out (lens ≤ ${dMax.toFixed(2)} m/frame, step change ≤ ${ddMax.toFixed(2)} m, fov ≤ ${fMax.toFixed(2)}°/frame)`, rec.continuity);
+    check(rec.after.showView === null && !rec.after.cine && rec.after.state === 'idle' && rec.after.pose === null, `${name}: after the card the show is over (view null, the world unfrozen, the Wick released)`, rec.after);
+    log(`${name}: ${sp} ${info.cls} ${info.length} cm · ${rec.picture?.pose} · T0 → card ${tCard} s · ${rec.cardWords} words on the card`);
+    notes[name] = rec; writeFileSync(notesPath, JSON.stringify(notes, null, 1));
     await clearModals();
   }
-  await g(() => { const c = window.__gw; c.debug.fishOutcome(null); c.debug.timeScale(1); c.debug.cerRate?.(1); });
+
+  // ================================================================ a catch as a film: from the strike to the card closing
+  async function filmCase([name, sp, z, o], n0) {
+    await stage(o);
+    if (!(await toBite(name, sp, z))) return n0;
+    const STEP = 1000 / 36, EVERY = 3;   // 36 steps a second of the game's real clock, one frame kept in three: 12 a second
+    let n = n0;
+    const keep = async () => { await wait(60); await shotPng(resolve(videoDir, `f${String(n++).padStart(5, '0')}.png`)); };
+    await scale(1);
+    await g(() => { const S = window.__show; S.reset(); S.begin(); });
+    const run = async (steps, stopOn = null) => {
+      let hit = false;
+      for (let i = 0; i < steps && !hit; i += EVERY) { hit = (await g(([k, ms, s]) => window.__show.run(k, ms, s), [EVERY, STEP, stopOn])).hit; await keep(); }
+      return hit;
+    };
+    await run(9);   // the float going under
+    await g(() => window.__gw.debug.fishStrike('clean'));
+    await run(36, null);
+    const info = await playInfo();
+    // the play runs as it is for up to `play` s of it; a longer one is cut to its last seconds (the film is the show's proof)
+    const left = Number.isFinite(o.play) ? o.play : 6;
+    if (info.playEnd && info.playEnd - (info.playT || 0) > left) await g(([end, l]) => window.__gw.debug.fishPlayTo(Math.max(0, 1 - l / end)), [info.playEnd, left]);
+    if (!(await run(36 * 70, 'landing'))) { failures.push(`${name}: the play never reached the landing`); await g(() => window.__show.end()); return n; }
+    const s0 = await g(() => window.__show.step);
+    await run(36 * 12, 'card');
+    const s1 = await g(() => window.__show.step);
+    // the card: its unfold runs on the wall clock, so each kept frame waits its twelfth of a second
+    for (let i = 0; i < 30; i++) { await g(([k, ms]) => window.__show.run(k, ms, null), [EVERY, STEP]); await wait(70); await keep(); }
+    await closeCard(o.action);
+    await run(36 * 2.2);
+    await g(() => { window.__show.end(); const c = window.__gw; c.debug.fishOutcome(null); });
+    await scale(LOW);
+    log(`${name}: filmed ${n - n0} frames; T0 → card ${((s1 - s0) * STEP / 1000).toFixed(2)} s`);
+    notes[`film-${name}`] = { case: name, species: sp, cls: info.legendary || info.ancient ? 'ancient' : info.sizeClass, lengthCm: info.length, frames: [n0, n - 1], tCard: +((s1 - s0) * STEP / 1000).toFixed(2), playCutTo: left };
+    writeFileSync(notesPath, JSON.stringify(notes, null, 1));
+    await clearModals();
+    return n;
+  }
+
+  if (videoDir) { let n = 0; for (const c of cases) n = await filmCase(c, n); }
+  else for (const c of cases) await shootCase(c);
+  await g(() => { const c = window.__gw; c.debug.fishOutcome(null); c.debug.timeScale(1); c.debug.showRate?.(1); });
+  log(`show-audit (${phone ? 'phone' : 'desktop'}, ${quality}): ${failures.length ? `${failures.length} FAILED` : 'all checks passed'}${notesOut.length ? `; ${notesOut.length} notes` : ''}`);
+  for (const n of notesOut) log('note', n);
   return { failures };
 }
