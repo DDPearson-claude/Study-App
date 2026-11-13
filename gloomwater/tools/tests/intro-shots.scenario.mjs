@@ -70,18 +70,23 @@ export default async function (api) {
     if (!ui) { const s = document.createElement('style'); s.textContent = '#ui { opacity: 0 !important; }'; document.head.appendChild(s); }
     T.render = () => { c.render.render(); return c.render.renderer.domElement.toDataURL('image/png'); };
     T.mem = () => { const i = c.render.renderer.info; return { geometries: i.memory.geometries, textures: i.memory.textures, programs: i.programs ? i.programs.length : -1 }; };
+    T.programs = () => (c.render.renderer.info.programs || []).map((p) => `${p.name}#${p.id}`);
     T.lights = () => { let n = 0; c.render.scene.traverse((o) => { if (o.isLight) n++; }); return { lights: n, shadows: c.render.renderer.shadowMap.enabled }; };
     T.parts = () => [c.render.scene.getObjectByName('intro:set'), c.render.camera.getObjectByName('intro:below')].filter(Boolean);
     // the set's whole state, as a string: every transform, visibility, colour and opacity the stage owns
     T.digest = () => {
       const out = [], r = (x) => Math.round(x * 1e4) / 1e4;
-      for (const root of T.parts()) root.traverse((o) => {
-        const m = o.material, row = [o.name, o.visible ? 1 : 0, ...o.position.toArray().map(r), ...o.quaternion.toArray().map(r), ...o.scale.toArray().map(r)];
+      const visit = (o, shown) => {
+        shown = shown && o.visible;
+        if (!shown) { out.push(`${o.name},hidden`); return; }   // (a hidden thing may keep the pose it was last shown in: it is not part of the picture)
+        const m = o.material, row = [o.name, ...o.position.toArray().map(r), ...o.quaternion.toArray().map(r), ...o.scale.toArray().map(r)];
         if (o.matrixAutoUpdate === false) row.push(...o.matrix.elements.map(r));
-        if (m) { if (m.color) row.push(...m.color.toArray().map(r)); if (m.opacity !== undefined) row.push(r(m.opacity)); if (m.uniforms) for (const k of Object.keys(m.uniforms)) { const v = m.uniforms[k].value; row.push(typeof v === 'number' ? r(v) : v && v.toArray ? v.toArray().map(r).join('/') : ''); } }
+        if (m) { if (m.color) row.push(...m.color.toArray().map(r)); if (m.opacity !== undefined) row.push(r(m.opacity)); if (m.uniforms) for (const k of Object.keys(m.uniforms)) { const v = m.uniforms[k].value; if (k === 'uFogD' || k === 'uViewH') continue; row.push(typeof v === 'number' ? r(v) : v && v.toArray ? v.toArray().map(r).join('/') : ''); } }
         if (o.isInstancedMesh) { let h = 0; const a = o.instanceColor.array, b = o.instanceMatrix.array; for (let i = 0; i < a.length; i++) h = (h * 31 + Math.round(a[i] * 1e3)) | 0; for (let i = 0; i < b.length; i++) h = (h * 31 + Math.round(b[i] * 1e3)) | 0; row.push(h); }
         out.push(row.join(','));
-      });
+        for (const ch of o.children) visit(ch, shown);
+      };
+      for (const root of T.parts()) visit(root, true);
       return out.join('|');
     };
     const I = c.data.INTRO;
@@ -109,13 +114,22 @@ export default async function (api) {
   await wait(300);
   const pre = await g(() => {
     const c = window.__gw, T = window.__is, st = c.intro.stage;
+    // the game builds its smoke and ember pools at the first puff (the Wick's first wax drip, some seconds into any title):
+    // have that happen now, so the baseline is the game's steady state and not a title three seconds old
+    try { const p = c.player.position; c.models.puff?.(new c.THREE.Vector3(p.x, 1.2, p.z), { count: 2, size: 0.2 }); } catch { /* optional */ }
     T.pump(0.3); T.render();
+    const cold = T.mem();
+    // a dry pass first: the film's cameras with nothing of the set drawn, so everything of the WORLD they are the first to see
+    // (and upload) is in the baseline, and what is counted afterwards is the set's alone
+    st.enter({ replay: true });
+    for (const t of [0.6, 4.5, 8.0, 9, 13, 14.5, 16, 17.9]) { st.setTime(t, { seek: true }); T.pump(0.1); T.parts().forEach((p) => { p.visible = false; }); T.render(); }
+    st.dispose(); T.pump(0.3); T.render();
     const base = T.mem(), lights = T.lights(), slices = [];
     let guard = 40, done = false;
     while (!done && guard-- > 0) { const t0 = performance.now(); done = st.prebuild(); slices.push(+(performance.now() - t0).toFixed(1)); }
-    return { base, lights, slices, done, after: T.mem(), stats: st.stats() };
+    return { cold, base, lights, slices, done, after: T.mem(), stats: st.stats(), programs: T.programs() };
   });
-  log(`prebuild: ${pre.slices.length} slices ${JSON.stringify(pre.slices)} ms (sum ${pre.slices.reduce((a, b) => a + b, 0).toFixed(1)}, longest ${Math.max(...pre.slices)}); memory before ${JSON.stringify(pre.base)}, programs after warm-up ${pre.after.programs}`);
+  log(`prebuild: ${pre.slices.length} slices ${JSON.stringify(pre.slices)} ms (sum ${pre.slices.reduce((a, b) => a + b, 0).toFixed(1)}, longest ${Math.max(...pre.slices)}); memory at the cold title ${JSON.stringify(pre.cold)}, after a dry pass of the film's cameras (the baseline) ${JSON.stringify(pre.base)}, programs after the warm-up ${pre.after.programs}`);
   if (!pre.done) failures.push('prebuild() never reported ready');
 
   // ------------------------------------------------------------------ the strip
@@ -130,11 +144,12 @@ export default async function (api) {
       const info = c.render.renderer.info, cam = c.render.camera, s = st.stats();
       const out = { url, t: s.t, stage: s, calls: info.render.calls, triangles: info.render.triangles, mode: c.render.getCameraMode?.(),
         cam: [cam.position.x, cam.position.y, cam.position.z].map((x) => +x.toFixed(2)), fov: +cam.fov.toFixed(1), errors: c.errors.length, mem: T.mem(), light: T.lights(), mirror: c.water.reflection.on };
-      // the set's real cost: the same frame without it
+      // the set's real cost: the same frame again, with and without it (the first render of a tick may also redraw the shadow map)
       if (verify) {
+        c.render.render(); const withSet = [info.render.calls, info.render.triangles];
         const parts = T.parts(), vis = parts.map((p) => p.visible);
         parts.forEach((p) => { p.visible = false; }); c.render.render();
-        out.real = { calls: out.calls - info.render.calls, triangles: out.triangles - info.render.triangles };
+        out.real = { calls: withSet[0] - info.render.calls, triangles: withSet[1] - info.render.triangles };
         parts.forEach((p, i) => { p.visible = vis[i]; });
       }
       // where the subjects fall in the picture (fractions from the top-left), by projection through the camera as rendered
@@ -189,7 +204,7 @@ export default async function (api) {
     }
   }
   const last = rows.at(-1);
-  if (last && warmPrograms >= 0 && last.mem.programs > warmPrograms) failures.push(`A9: the film compiled ${last.mem.programs - warmPrograms} program(s) after the warm-up (${warmPrograms} → ${last.mem.programs})`);
+
 
   // ------------------------------------------------------------------ purity, the end state, disposal (twice: a replay builds again)
   const tail = await g(({ via }) => {
@@ -211,7 +226,7 @@ export default async function (api) {
     out.during2 = T.mem();
     st.dispose(); T.pump(0.2); T.render();
     out.afterDispose2 = T.mem(); out.lights = T.lights();
-    out.errors = c.errors.slice();
+    out.errors = c.errors.slice(); out.programs = T.programs();
     T.release();
     return out;
   }, { via });
@@ -223,6 +238,8 @@ export default async function (api) {
   if (tail.camAfter !== null || tail.partsAfter !== 0 || tail.statsAfter.built) failures.push('dispose() must give the camera back, leave nothing in the scene and report not built');
   if (tail.lights.lights !== pre.lights.lights || tail.lights.shadows !== pre.lights.shadows) failures.push('the film left a light or a shadow-map setting behind');
   for (const e of tail.errors) failures.push('ctx.errors: ' + e);
+  { const late = tail.programs.filter((p) => !pre.programs.includes(p));
+    if (last && warmPrograms >= 0 && last.mem.programs > warmPrograms) failures.push(`A9: the film compiled ${last.mem.programs - warmPrograms} program(s) after the warm-up (${warmPrograms} → ${last.mem.programs}): ${late.join(', ')}`); }
   const worst = rows.reduce((a, r) => (r.stage.calls > a.stage.calls ? r : a), rows[0]), worstT = rows.reduce((a, r) => (r.stage.triangles > a.stage.triangles ? r : a), rows[0]);
   log(`cost: the set's peak is ${worst.stage.calls} calls (t ${worst.t}) and ${worstT.stage.triangles} triangles (t ${worstT.t}); budget ${build.budget.calls} / ${build.budget.triangles}; mirror ${rows.some((r) => r.mirror) ? 'on' : 'off'}`);
   log(`purity: ${tail.pure.map(([t, s]) => `${t}:${s ? 'same' : 'DIFFERENT'}`).join(' ')}`);

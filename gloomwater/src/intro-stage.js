@@ -221,12 +221,12 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   const liftU = clamp01((t - W.lift[0]) / (W.lift[1] - W.lift[0]));
   card.opacity = t < cut ? (reduced ? smooth(cut - 0.3, cut, t) : 0) : 1 - smooth(W.lift[1] - 0.3, W.lift[1], t);
   card.vis = on && card.opacity > 0.001 && t < W.lift[1];
-  card.open = t < W.lift[0] ? 0 : 0.07 * wickK * (1 - liftU) + liftU * liftU * (3 - 2 * liftU);   // 0 … 1 of the way to the far corner
+  card.open = t < W.lift[0] ? 0 : Math.min(1, 0.07 * wickK * (1 - liftU) + liftU * liftU * (3 - 2 * liftU));   // 0 … 1 of the way to the far corner
   card.surface = 1 - smooth(cut + 0.6, B.ember.sinkUntil + 0.6, t) * 0.75;                           // the lit water overhead falls away as we sink
   const dark = t >= cut && t < W.lift[0] + 0.2;
 
   // ---- motes: there from the cut, gone before the spark
-  out.motes = dark ? 0.6 * smooth(cut, cut + 0.5, t) * (1 - smooth(B.flank.out - 0.25, B.flank.out + 0.15, t)) : 0;
+  out.motes = dark ? 0.8 * smooth(cut, cut + 0.5, t) * (1 - smooth(B.flank.out - 0.25, B.flank.out + 0.15, t)) : 0;
 
   // ---- the pale flank: a straight glide across the picture (on a diagonal in portrait), faster once it has the ember
   const fl = out.flank || (out.flank = {}), FK = B.flank;
@@ -287,7 +287,7 @@ const CARD_DIST = 60;       // m: the depth the ink card resets the picture to (
 
 export function createIntroStage(ctx) {
   const I = () => ctx.data?.INTRO || null;
-  const st = { built: false, live: false, t: -1, prevT: -1, take: null, w: 0, anchors: null, replay: false, reduced: false, mood: false, step: 0, buildMs: 0, kindled: false, lit: false };
+  const st = { built: false, live: false, t: -1, take: null, w: 0, anchors: null, replay: false, reduced: false, mood: false, step: 0, buildMs: 0, kindled: false, lit: false };
   const pose = { pos: [0, 0, 0], look: [0, 0, 0], fov: 46, w: 1 };
   const real = (m) => !!m && !m.isStub;
   /** A real three.js scene and a DOM to make textures in: without them (a unit test's fake game) the stage flies the camera only. */
@@ -369,7 +369,7 @@ export function createIntroStage(ctx) {
     if (st.live) return;
     let guard = 64;
     while (!prebuild() && guard-- > 0) { /* build at once whatever the idle slices left (the opening ink covers it) */ }
-    st.live = true; st.replay = !!replay; st.reduced = !!reduced; st.t = -1; st.prevT = -1;
+    st.live = true; st.replay = !!replay; st.reduced = !!reduced; st.t = -1;
     st.anchors = st.anchors || introAnchors(ctx);
     if (set) {
       set.group.visible = false; set.below.visible = false;
@@ -419,7 +419,7 @@ export function createIntroStage(ctx) {
   }
 
   // ---------------------------------------------------------------- the score laid on the models
-  function applySet(sc, t, c, opts) {
+  function applySet(sc, t, prev, c, opts) {
     const INTRO = I(), S = INTRO.set, R = ctx.render, cam = R.camera, aspect = cam.aspect > 0 ? cam.aspect : 16 / 9;
     const m = set, shown = sc.on && !sc.end;
     m.group.visible = shown;
@@ -537,7 +537,7 @@ export function createIntroStage(ctx) {
     }
 
     // live garnish: the lake's own splash where the lantern goes in (never on a seek; nothing depends on it)
-    if (opts.live && !opts.seek && st.prevT >= 0 && st.prevT < S.fall.contact && t >= S.fall.contact && t - st.prevT < 0.5) {
+    if (opts.live && !opts.seek && prev >= 0 && prev < S.fall.contact && t >= S.fall.contact && t - prev < 0.5) {
       try { if (real(ctx.water)) ctx.water.splash?.(m.hang[0], m.hang[2], { size: S.contact.splash, color: S.colors.ring }); } catch { /* garnish */ }
     }
   }
@@ -552,8 +552,8 @@ export function createIntroStage(ctx) {
     const aspect = ctx.render?.camera?.aspect > 0 ? ctx.render.camera.aspect : 16 / 9;
     const sc = introScore(I(), t, { aspect, reduced: opts.reduced === true || st.reduced }, score);
     applyHooks(sc);
-    if (set) applySet(sc, t, c, opts);
-    st.prevT = st.t; st.t = t;
+    if (set) applySet(sc, t, st.t, c, opts);
+    st.t = t;
   }
 
   function exit() {

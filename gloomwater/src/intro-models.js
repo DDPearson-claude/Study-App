@@ -8,7 +8,7 @@
 // toon.glowTexture(128, 2.2), which the raft already holds).
 import * as THREE from 'three';
 import { toonMaterial, glowSprite, REFLECT_LAYER } from './toon.js';
-import { mergeGeos, paint, tube, TAU } from './models-kit.js';
+import { mergeGeos, paint, tube, curve1, TAU } from './models-kit.js';
 import { createHalos } from './world-fx.js';
 
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -98,7 +98,7 @@ export function buildLantern({ height = 6.5, radius = 2.4, colors = {}, glow = 2
   paint(under, (x, y, z) => { const k = 0.42 * (1 - (Math.hypot(x, z) - rHead) / (R * S.eave - rHead)) + 0.06; return new THREE.Color(gc[0] * k, gc[1] * k, gc[2] * k); });
   const glowGeo = mergeGeos([glassGeo, under].map((g) => { g.deleteAttribute('uv'); return g; }));
   glassGeo.dispose(); under.dispose();
-  const glassMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(glow, glow, glow), vertexColors: true, side: THREE.DoubleSide, fog: true, toneMapped: false });
+  const glassMat = new THREE.MeshBasicMaterial({ name: 'intro:glass', color: new THREE.Color(glow, glow, glow), vertexColors: true, side: THREE.DoubleSide, fog: true, toneMapped: false });
   const glass = new THREE.Mesh(glowGeo, glassMat);
   glass.name = 'intro:lantern-glass';
 
@@ -184,6 +184,7 @@ export function buildRing(color = 0xf0d49c) {
   geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   geo.setIndex(idx);
   const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: true, toneMapped: false });
+  mat.forceSinglePass = true;   // (additive: one draw, not three's back-then-front pair)
   mat.polygonOffset = true; mat.polygonOffsetFactor = -2; mat.polygonOffsetUnits = -2;
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = 'intro:contact-ring'; mesh.renderOrder = 2; mesh.frustumCulled = false;
@@ -225,8 +226,6 @@ export function buildInkCard(colors = {}) {
         // the surface, far above: a soft lighter reach of water at the head of the picture, where the lantern went under
         vec2 s = ( vUv - vec2( 0.5, 1.15 ) ) * vec2( uAspect * 0.5, 1.0 );
         col += uInkTop * ( 0.3 * uSurface * exp( - dot( s, s ) * 3.6 ) );
-        // a grain finer than the eye, so the long dark gradient never bands
-        col += ( fract( sin( dot( gl_FragCoord.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453 ) - 0.5 ) * 0.0035;
         vec2 d = ( vUv - uOpen.xy ) * vec2( uAspect, 1.0 );
         float a = uOpacity * smoothstep( uOpen.z - uOpen.w, uOpen.z, length( d ) );
         if ( a < 0.002 ) discard;
@@ -264,7 +263,7 @@ export function buildMotes(count = 60, color = 0xb8b0ea) {
         float x = position.x * 0.5 * uAspect * 1.15 + sin( uT * ( 0.3 + aSeed.y * 0.5 ) + aSeed.z * 6.2832 ) * 0.012;
         vec4 mv = modelViewMatrix * vec4( x * 1.1, y * 1.1, ( 0.5 - depth ) * 0.7, 1.0 );
         vA = ( 0.35 + 0.65 * ( 1.0 - depth ) ) * ( 0.6 + 0.4 * sin( uT * ( 0.7 + aSeed.z ) + aSeed.x * 6.2832 ) ) * smoothstep( 0.5, 0.36, abs( y ) );
-        gl_PointSize = max( 1.5, uViewH * ( 0.0035 + 0.0065 * ( 1.0 - depth ) * ( 0.4 + aSeed.y ) ) );
+        gl_PointSize = max( 1.5, uViewH * ( 0.004 + 0.009 * ( 1.0 - depth ) * ( 0.4 + aSeed.y ) ) );
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */`
@@ -303,12 +302,11 @@ export const FLANK_PROFILE = [
   [0.46, 0.95, -0.06], [0.58, 0.82, -0.03], [0.7, 0.62, 0.0], [0.8, 0.42, 0.03], [0.89, 0.25, 0.05], [0.96, 0.15, 0.06], [1.0, 0.12, 0.06],
 ];
 export const FLANK_MARKS = { eye: [0.058, 0.36], belly: [0.26, -0.5], thick: 0.56 };   // [s, height in half-heights of that station]; thick: its depth / its height
+const profR = curve1(FLANK_PROFILE.map((p) => [p[0], p[1]])), profC = curve1(FLANK_PROFILE.map((p) => [p[0], p[2]]));
+/** The profile at s: [half-height, middle-line], a smooth curve through the table (so the outline never shows its keys). */
 function profileAt(s) {
-  const P = FLANK_PROFILE;
-  let i = 0;
-  while (i < P.length - 2 && s > P[i + 1][0]) i++;
-  const a = P[i], b = P[i + 1], u = Math.min(1, Math.max(0, (s - a[0]) / (b[0] - a[0]))), k = u * u * (3 - 2 * u);
-  return [lerp(a[1], b[1], k), lerp(a[2], b[2], k)];
+  const u = Math.min(1, Math.max(0, s));
+  return [Math.max(0, profR(u)), profC(u)];
 }
 /** A point of the flank's surface in its own metres: s along (0 nose … 1 tail root), v in half-heights of that station (the side toward the lens). */
 export function flankPoint(s, v, { length = 22, girth = 5.2 } = {}, out = [0, 0, 0]) {
@@ -326,9 +324,9 @@ export function flankPoint(s, v, { length = 22, girth = 5.2 } = {}, out = [0, 0,
  */
 export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
   const hg = girth / 2, D = { length, girth };
-  const stations = 44, around = 28, pos = [], nor = [], idx = [];
+  const stations = 60, around = 40, pos = [], nor = [], idx = [];
   for (let i = 0; i <= stations; i++) {
-    const s = (i / stations) ** 1.25;                                // more stations toward the head
+    const s = (i / stations) ** 1.7;                                 // most of the stations in the head and shoulder: that is what fills the frame
     const [r, c] = profileAt(s);
     for (let j = 0; j < around; j++) {
       const a = (j / around) * TAU, ry = Math.max(0.02, r) * hg, rz = ry * FLANK_MARKS.thick;
@@ -380,19 +378,20 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
       void main() {
         vec3 n = normalize( vN );
         float ndl = dot( n, uLight ) * 0.5 + 0.5;
-        // flat bands with narrow soft edges (the game's toon ramp): belly, lower flank, flank, back
-        vec3 col = uShade * 0.34;
-        col = mix( col, mix( uShade, uPale, 0.38 ) * 0.42, smoothstep( 0.3, 0.335, ndl ) );
-        col = mix( col, uPale * 0.42, smoothstep( 0.52, 0.55, ndl ) );
-        col = mix( col, uPale * 0.6, smoothstep( 0.8, 0.83, ndl ) );
+        // flat bands with narrow soft edges (the game's toon ramp): belly, lower flank, flank, back. Pale stone seen through
+        // dark water: the back is a moonlit grey-lavender, never white, and the belly goes to violet dusk
+        vec3 col = uShade * 0.26;
+        col = mix( col, mix( uShade, uPale, 0.3 ) * 0.2, smoothstep( 0.3, 0.335, ndl ) );
+        col = mix( col, mix( uShade, uPale, 0.66 ) * 0.2, smoothstep( 0.52, 0.55, ndl ) );
+        col = mix( col, mix( uShade, uPale, 0.9 ) * 0.29, smoothstep( 0.8, 0.83, ndl ) );
         float s = ( uHalf.x - vLocal.x ) / ( 2.0 * uHalf.x );     // 0 at the nose … 1 at the root of the tail
         float v = vLocal.y / uHalf.y;                               // height, in half-girths
         if ( vLocal.z > 0.0 ) {
-          // the mouth: one seam from the snout, back and down; the gill: one long crescent behind the eye
-          float mouth = ( 1.0 - smoothstep( 0.012, 0.03, abs( v + 3.1 * s + 6.0 * s * s - 0.03 ) ) ) * ( 1.0 - smoothstep( 0.07, 0.085, s ) );
-          float gx = s - ( 0.112 + 0.05 * ( v + 0.12 ) * ( v + 0.12 ) );
-          float gill = ( 1.0 - smoothstep( 0.0012, 0.0032, abs( gx ) ) ) * smoothstep( -0.7, -0.45, v ) * ( 1.0 - smoothstep( 0.3, 0.52, v ) );
-          col = mix( col, uShade * 0.2, 0.75 * max( mouth, gill ) );
+          // the mouth: one seam from the snout, back and down, thinning out; the gill: one short crescent behind the eye
+          float mouth = ( 1.0 - smoothstep( 0.01, 0.026, abs( v + 3.1 * s + 6.0 * s * s - 0.03 ) ) ) * ( 1.0 - smoothstep( 0.045, 0.085, s ) );
+          float gx = s - ( 0.108 + 0.11 * ( v + 0.08 ) * ( v + 0.08 ) );
+          float gill = ( 1.0 - smoothstep( 0.001, 0.0026, abs( gx ) ) ) * smoothstep( -0.55, -0.3, v ) * ( 1.0 - smoothstep( 0.12, 0.34, v ) );
+          col = mix( col, uShade * 0.12, 0.7 * max( mouth, gill ) );
         }
         // the dark closes over the far end of it and over what leans away from the lens
         float murk = smoothstep( uMurk.x, 0.92, s ) * 0.97 + clamp( - vLocal.z * uMurk.y, 0.0, 0.5 );
@@ -405,6 +404,7 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
       }`,
     transparent: true, depthTest: true, depthWrite: true, side: THREE.DoubleSide, fog: false, toneMapped: false,
   });
+  mat.forceSinglePass = true;   // (opaque in all but name: it writes depth, so one draw is right)
   const body = new THREE.Mesh(bodyGeo, mat);
   body.name = 'intro:flank'; body.renderOrder = 902; body.frustumCulled = false;
 
@@ -413,7 +413,7 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
   const p = flankPoint(es, ev, D, []), pu = flankPoint(es, ev + 0.08, D, []), ps = flankPoint(es + 0.01, ev, D, []);
   const tu = new THREE.Vector3(pu[0] - p[0], pu[1] - p[1], pu[2] - p[2]), ts = new THREE.Vector3(ps[0] - p[0], ps[1] - p[1], ps[2] - p[2]);
   const nrm = new THREE.Vector3().crossVectors(tu, ts).normalize(); if (nrm.z < 0) nrm.negate();
-  const er = girth * 0.048;
+  const er = girth * 0.042;
   const disc = new THREE.CircleGeometry(er, 20), lid = new THREE.RingGeometry(er, er * 1.14, 20), glint = new THREE.CircleGeometry(er * 0.2, 10).translate(-er * 0.32, er * 0.36, 0.012);
   const ink = linear(colors.ink ?? 0x0a0c19, 0.4), pale = linear(colors.flankShade ?? 0x433e74, 0.3), gold = linear(colors.glint ?? 0xe8be77, 1.7);
   paint(disc, () => new THREE.Color(...ink)); paint(lid, () => new THREE.Color(...pale)); paint(glint, () => new THREE.Color(...gold));

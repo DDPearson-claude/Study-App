@@ -3948,12 +3948,13 @@ export const INTRO = {
         { t: 0.45, pos: ['S', 0, 2.2, -12],   look: ['G', 0, -3.6, 0], fov: 46, portrait: { look: ['G', 0, 4, 0], fov: 62 } },
         { t: 5.0,  pos: ['S', 0, 2.0, -18],   look: ['G', 0, -3.6, 0], fov: 46, portrait: { look: ['G', 0, 4, 0], fov: 62 } },
         { t: 5.9,  pos: ['S', 0, 1.9, -19.2], look: ['G', 0, -3.8, 0], fov: 46, portrait: { look: ['G', 0, 3, 0], fov: 62 } },
-        { t: 8.2,  pos: ['S', 0, 1.8, -21.5], look: ['G', 0, -4.2, 0], fov: 36, portrait: { look: ['G', 0, 0, 0], fov: 50 } },
+        { t: 8.2,  pos: ['S', 0, 1.8, -21.5], look: ['G', 0, -2.6, 0], fov: 36, portrait: { look: ['G', 0, 0, 0], fov: 50 } },
       ] },
       // the shoulder take (under the ink card until the Wick's spark): behind and right of the Wick, the dark gate beyond
+      // (portrait: nearly straight behind it, so the Wick stands whole in the lower-left third of a frame only 2.4 m wide there)
       { id: 'shoulder', from: 8.2, to: 14.6, keys: [
-        { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 1.5, 2.6, 5.4], look: ['S', -0.2, 3.4, -30], fov: 52 } },
-        { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 1.6, 2.7, 5.7], look: ['S', -0.2, 3.4, -30], fov: 52 } },
+        { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.72, 2.6, 5.4], look: ['S', -0.2, 3.4, -30], fov: 52 } },
+        { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.8, 2.7, 5.7], look: ['S', -0.2, 3.4, -30], fov: 52 } },
       ] },
       // the crane home: the weight of the stage's pose goes 1 → 0 into render's own settled `sail` rig, then 0.6 s at rest
       { id: 'home', from: 14.6, to: 18, rig: 'sail', blend: [14.6, 17.4], ease: 'inOutSine' },
