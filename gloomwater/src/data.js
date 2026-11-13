@@ -3877,6 +3877,9 @@ export const AUTOFISH = {
     // with a place): the Wick turns, the camera does not orbit. Portrait uses fovPortrait; an alongside fish longer than rakeAbove m on
     // a portrait screen is filmed along its length from the head end (`rake` degrees off broadside) so it is never cropped.
     camera: {
+      // (as built: render blends the fitted pose over the play's rig with one eased weight timed from fishing.view.show, so the lens
+      // has arrived EXACTLY when the fish is presented, whatever the class, a hurry or a swarm window; `settle` / `settleSwarm` are the
+      // spring a chase would need, kept as the validator's floor)
       from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 }, settleSwarm: 8,
       margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45,
       // the frame keeps a little more room at its foot (the hands under the fish) and the flame's tip is kept as well as its core
