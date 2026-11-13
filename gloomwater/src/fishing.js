@@ -318,7 +318,7 @@ export function create(ctx) {
    *  §13.1, §13.11); with v3 off every hook stays as v1 had it. Until core carries debugEnabled: ?debug=1, gw.debug, GW_DEBUG. */
   function debugOn() {
     if (!v3on()) return true;
-    try { if (typeof core.debugEnabled === 'function') return core.debugEnabled(ctx) === true; } catch { /* fall through */ }
+    try { if (typeof core.debugEnabled === 'function') return core.debugEnabled() === true; /* core reads globalThis: GW_DEBUG, ?debug=1, storage */ } catch { /* fall through */ }
     try { if (globalThis.GW_DEBUG === true) return true; } catch { /* ignore */ }
     try { if (/[?&]debug=1\b/.test(globalThis.location?.search || '')) return true; } catch { /* ignore */ }
     try { if (globalThis.localStorage?.getItem?.('gw.debug') === '1') return true; } catch { /* ignore */ }
