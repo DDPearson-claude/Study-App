@@ -352,10 +352,10 @@ export const ZONES = [
     drain: { oil: 1.0, satiety: 1.0 }, gloom: 1.0, valueMult: 1,
     legendary: 'belled_matriarch', warden: 'the_wickeater', gateName: 'The Moss Sluice',
     // "Starlit moat" (DESIGN §19.3): violet-dusk water under lavender mist, pale stone, candle-amber windows
-    palette: { fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6,
+    palette: { fog: 0x3a3070, fogDensity: 0.0055, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6,
       glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2,
       nebula: 0xd296ae, stars: 1.0 },
-    grade: { exposure: 1.04, bloomStrength: 0.9, bloomRadius: 0.6, bloomThreshold: 0.7, tint: 0x40347e, tintAmount: 0.2, vignette: 0.38, saturation: 1.0, grain: 0.05 },
+    grade: { exposure: 1.04, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tint: 0x40347e, tintAmount: 0.2, vignette: 0.24, saturation: 1.04, grain: 0.012 },
     description: 'The outer moat of the Lamplit Kingdom, drowned to the arches. Moss drinks the old stone and roots hang from the vault like the beards of sleeping giants. The fish here are forgiving. The dark, for now, only watches.',
   },
   {
@@ -389,10 +389,10 @@ export const ZONES = [
     drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.5,
     legendary: 'drifting_grove', warden: 'the_veiled_gardener', gateName: 'The Mycelium Veil',
     // "Ember garden" (DESIGN §19.4): violet-magenta haze, autumn-ochre caps, gold spores, nebula-pink accents
-    palette: { fog: 0x402258, fogDensity: 0.019, water: 0x2c1842, waterDeep: 0x0e0716, foam: 0xeed8e6,
+    palette: { fog: 0x402258, fogDensity: 0.0065, water: 0x2c1842, waterDeep: 0x0e0716, foam: 0xeed8e6,
       glow: 0xe8ac4c, accent: 0xe090bc, lamp: 0xc8aee6, candle: 0xed9e3b, ambient: 0x5c3a7c, ink: 0x0d0614, far: 0x9c74b8, light: 0xf2d8ea,
       nebula: 0xe48cbc, stars: 0.8 },
-    grade: { exposure: 1.03, bloomStrength: 1.0, bloomRadius: 0.75, bloomThreshold: 0.68, tint: 0x5a2c78, tintAmount: 0.2, vignette: 0.4, saturation: 0.92, grain: 0.05 },
+    grade: { exposure: 1.03, bloomStrength: 0.48, bloomRadius: 0.34, bloomThreshold: 0.90, tint: 0x5a2c78, tintAmount: 0.2, vignette: 0.26, saturation: 0.96, grain: 0.012 },
     description: 'Beneath the royal gardens the fungi kept growing long after the gardeners stopped. Towers of cap and gill rise from sweet, warm water, and the air is thick with spores that glow like embers that never learned to burn.',
   },
   {
@@ -425,10 +425,10 @@ export const ZONES = [
     drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
     legendary: 'glass_sovereign', warden: 'the_shard_abbot', gateName: 'The Vault Seal',
     // "Sapphire orrery" (DESIGN §19.5): saturated cobalt-sapphire water, lilac crystal, the most starlight
-    palette: { fog: 0x172a7c, fogDensity: 0.012, water: 0x10226e, waterDeep: 0x030921, foam: 0xd6defa,
+    palette: { fog: 0x172a7c, fogDensity: 0.0042, water: 0x10226e, waterDeep: 0x030921, foam: 0xd6defa,
       glow: 0xa0aaf8, accent: 0xd2baff, lamp: 0xb6c0ff, candle: 0xe8be77, ambient: 0x24409a, ink: 0x02051b, far: 0x5c78d4, light: 0xd8e0ff,
       nebula: 0xcc8ed0, stars: 1.5 },
-    grade: { exposure: 1.06, bloomStrength: 1.15, bloomRadius: 0.55, bloomThreshold: 0.65, tint: 0x203ca8, tintAmount: 0.2, vignette: 0.35, saturation: 1.0, grain: 0.04 },
+    grade: { exposure: 1.06, bloomStrength: 0.52, bloomRadius: 0.28, bloomThreshold: 0.90, tint: 0x203ca8, tintAmount: 0.2, vignette: 0.22, saturation: 1.02, grain: 0.010 },
     description: 'Here the kingdom poured its light into crystal and shelved it like books. The water is cold and clear as a held breath. Every shard remembers a colour, and none remember why.',
   },
   {
@@ -458,10 +458,10 @@ export const ZONES = [
     drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
     legendary: 'pale_leviathan', warden: 'the_lightless_ferryman', gateName: null,
     // "Candle requiem" (DESIGN §19.6): near-black violet, bone-pale stone, amber candles, few stars
-    palette: { fog: 0x2c2448, fogDensity: 0.022, water: 0x1e183c, waterDeep: 0x07060e, foam: 0xe6e0d6,
+    palette: { fog: 0x2c2448, fogDensity: 0.0072, water: 0x1e183c, waterDeep: 0x07060e, foam: 0xe6e0d6,
       glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x463e6c, ink: 0x030206, far: 0xa89ec8, light: 0xece2d2,
       nebula: 0xa87a98, stars: 0.7 },
-    grade: { exposure: 0.97, bloomStrength: 0.95, bloomRadius: 0.8, bloomThreshold: 0.7, tint: 0x3a2c60, tintAmount: 0.18, vignette: 0.5, saturation: 0.85, grain: 0.07 },
+    grade: { exposure: 0.97, bloomStrength: 0.45, bloomRadius: 0.36, bloomThreshold: 0.92, tint: 0x3a2c60, tintAmount: 0.18, vignette: 0.32, saturation: 0.90, grain: 0.016 },
     description: 'The deepest water. The kingdom set its dead adrift here with a candle each, and the candles went out long ago. Two veiled giants kneel in the mist, and the ribs of something larger than a cathedral arch overhead. Something below is breathing.',
   },
 ];
@@ -4283,9 +4283,9 @@ export const COVE = {
     { on: 'swallowerLanded', shows: 'a warm shaft opens through the ceiling; every lamp burns gold; the title card changes' },
   ],
   visibleChanges: 150,
-  palette: { fog: 0x1d2230, fogDensity: 0.014, water: 0x1a1f2c, waterDeep: 0x06080d, foam: 0xd8dce6, glow: 0xffb347, accent: 0x8a3a3a,
+  palette: { fog: 0x1d2230, fogDensity: 0.005, water: 0x1a1f2c, waterDeep: 0x06080d, foam: 0xd8dce6, glow: 0xffb347, accent: 0x8a3a3a,
     ambient: 0x404659, ink: 0x04050a, far: 0x6d7894, light: 0xe2d6c4, lamp: 0xffd8a0 },
-  grade: { exposure: 1.0, bloomStrength: 0.9, bloomRadius: 0.6, bloomThreshold: 0.7, tint: 0x3a3048, tintAmount: 0.14, vignette: 0.42, saturation: 0.82, grain: 0.05 },
+  grade: { exposure: 1.0, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tint: 0x3a3048, tintAmount: 0.14, vignette: 0.27, saturation: 0.86, grain: 0.012 },
   greenBudget: { what: 'verdigris on Murk\'s hand bell', maxChroma: 0.02, shotIncludes: 'murk' },
   murkLook: { skin: 0x5a5444, moss: 0xb8b0a0, lichen: 0xc8c0b0, lamp: 0xffe2b0, tip: 'Sail to his lantern' },   // A10 (actors-merchant)
   lights: { max: 4, list: ['wick', 'murk', 'hearth', 'waystone'], streaks: 6 },

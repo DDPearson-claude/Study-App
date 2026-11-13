@@ -30,12 +30,14 @@ const TAU = Math.PI * 2;
 /** ACES darkens the toe; this keeps a zone's authored palette near its hex values at exposure 1. */
 const BASE_EXPOSURE = 1.32;
 
-// pr = max pixel ratio, samples = MSAA on the HDR target, bloomScale = bloom buffer scale,
-// maxPx = cap on drawing-buffer pixels (keeps retina laptops sane).
+// pr = max pixel ratio, samples = MSAA on the HDR target, bloomScale = bloom buffer scale, bloomMips = bloom mips in use,
+// fringe = the hit / danger chromatic fringe is compiled in (it is 0 at rest on every tier), sharpen = the grade's clamped
+// sharpen (0 compiles it out), maxPx = cap on drawing-buffer pixels (1080p is native on medium, 1440p on high).
+// "Clear Night" (DESIGN §19.1): more pixels, a small tight bloom, no paper on any tier.
 const TIERS = {
-  low:    { pr: 1.0, samples: 0, bloomScale: 0.5,  paper: 0, fringe: 0, maxPx: 1.0e6 },
-  medium: { pr: 1.5, samples: 2, bloomScale: 0.75, paper: 1, fringe: 1, maxPx: 1.9e6 },
-  high:   { pr: 2.0, samples: 4, bloomScale: 1.0,  paper: 1, fringe: 1, maxPx: 2.8e6 },
+  low:    { pr: 1.0,  samples: 0, bloomScale: 0.4,  bloomMips: 3, fringe: 0, sharpen: 0.22, maxPx: 1.0e6 },
+  medium: { pr: 1.75, samples: 2, bloomScale: 0.5,  bloomMips: 5, fringe: 1, sharpen: 0.30, maxPx: 2.1e6 },
+  high:   { pr: 2.0,  samples: 4, bloomScale: 0.75, bloomMips: 5, fringe: 1, sharpen: 0.30, maxPx: 3.7e6 },
 };
 const TIER_ORDER = ['low', 'medium', 'high'];
 
@@ -70,11 +72,17 @@ const BASE_W = { fish: 0.44, reel: 0.4 };
 const GRADE_NUM = ['exposure', 'bloomStrength', 'bloomRadius', 'bloomThreshold', 'tintAmount', 'vignette',
   'saturation', 'grain', 'contrast', 'fringe', 'paper', 'warmAmount', 'lift'];
 const GRADE_COL = ['tint', 'warm'];
+// Clear Night: bloom only on true emitters (a high threshold, a small radius), true darks (a low lift), a clean lens (no
+// resting fringe, no paper, grain as a dither), a light vignette and a gentle contrast curve. The zone's violet tint stays.
 const GRADE_DEFAULT = {
-  exposure: 1.0, bloomStrength: 0.85, bloomRadius: 0.6, bloomThreshold: 0.72, tintAmount: 0.18,
-  vignette: 0.38, saturation: 0.85, grain: 0.05, contrast: 1.04, fringe: 0.4, paper: 0.5, warmAmount: 0.14, lift: 0.6,
+  exposure: 1.0, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tintAmount: 0.18,
+  vignette: 0.24, saturation: 0.9, grain: 0.012, contrast: 1.08, fringe: 0, paper: 0, warmAmount: 0.14, lift: 0.3,
   tint: 0x40347e, warm: 0xf4cc96,
 };
+// bloom mip weights at radius 0 (→ the mirrored set at radius 1): the small mips carry it, so a halo hugs its emitter
+const BLOOM_FACTORS = [1.0, 0.7, 0.4, 0.2, 0.08];
+const BLOOM_KNEE = 0.10;      // a harder knee: rim light and pale stone under the threshold stay out of the bloom
+const FRINGE_PULSE = 0.4;     // chromatic fringe per unit of pulse({fringe}) (hits, a snapped line, the lantern going out)
 
 const isReal = (m) => !!m && !m.isStub;
 const wrapAngle = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
@@ -112,7 +120,7 @@ export function create(ctx) {
   const z0 = ctx.data?.ZONES?.[0]?.palette;
   const scene = new THREE.Scene();
   scene.name = 'gloomwater';
-  scene.fog = new THREE.FogExp2(z0?.fog ?? 0x3a3070, z0?.fogDensity ?? 0.016);
+  scene.fog = new THREE.FogExp2(z0?.fog ?? 0x3a3070, z0?.fogDensity ?? 0.0055);
   const bg = new THREE.Color().copy(scene.fog.color);
   scene.background = bg;
 
@@ -124,7 +132,8 @@ export function create(ctx) {
   // ---------------------------------------------------------------- post chain
   const renderPass = new RenderPass(scene, camera);
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(256, 256), GRADE_DEFAULT.bloomStrength, GRADE_DEFAULT.bloomRadius, GRADE_DEFAULT.bloomThreshold);
-  bloomPass.highPassUniforms.smoothWidth.value = 0.22;   // soft knee: no popping glows
+  bloomPass.highPassUniforms.smoothWidth.value = BLOOM_KNEE;
+  bloomPass.compositeMaterial.uniforms.bloomFactors.value = BLOOM_FACTORS;
   // Clamp what feeds the bloom: a tiny HDR-hot sprite (eyes, motes, cinders, Warden glow) otherwise
   // pours its whole energy through the half-res mips and blooms into a visible square on low.
   {
@@ -151,7 +160,8 @@ export function create(ctx) {
       composer.copyPass?.material?.dispose?.();
       composer.copyPass?.fsQuad?.dispose?.();
     }
-    const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples });
+    // (no pass reads the resolved depth, so the MSAA resolve skips it: one blit less per pass on the MSAA tiers)
+    const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples, resolveDepthBuffer: false });
     rt.texture.name = 'gw.hdr';
     composer = new EffectComposer(renderer, rt);
     composer.addPass(renderPass);
@@ -197,11 +207,18 @@ export function create(ctx) {
     const t = TIERS[name];
     bloomScale = t.bloomScale;
     bloomPass.materialHighPassFilter.uniforms.uBloomClamp.value = name === 'low' ? 2.0 : 3.0;
+    // the low tier blurs and composites only the first mips (a tight bloom has nothing in the wide ones): the unused mips
+    // keep a zero tint, so a stale target from a higher tier adds nothing
+    bloomPass.nMips = clamp(t.bloomMips | 0, 1, bloomPass.bloomTintColors.length);
+    bloomPass.bloomTintColors.forEach((c, i) => c.setScalar(i < bloomPass.nMips ? 1 : 0));
     buildComposer(ctx.isMobile ? 0 : t.samples);
     const m = gradePass.material;
-    if (m.defines.GW_PAPER !== t.paper || m.defines.GW_FRINGE !== t.fringe) {
-      m.defines.GW_PAPER = t.paper;
+    const sharpenOn = t.sharpen > 0 ? 1 : 0;
+    gu.uSharpen.value = t.sharpen;
+    if (m.defines.GW_PAPER !== 0 || m.defines.GW_FRINGE !== t.fringe || m.defines.GW_SHARPEN !== sharpenOn) {
+      m.defines.GW_PAPER = 0;   // no paper on any tier (Clear Night); the shader keeps the block for the audit tools
       m.defines.GW_FRINGE = t.fringe;
+      m.defines.GW_SHARPEN = sharpenOn;
       m.needsUpdate = true;
     }
     resize(W, H);
@@ -833,7 +850,8 @@ export function create(ctx) {
     gu.uWarmAmount.value = clamp(gCur.warmAmount, 0, 1);
     gu.uLift.value = Math.max(0, gCur.lift);
     gu.uVignette.value = clamp(gCur.vignette + reel * 0.08 + trophyK * 0.07 + fx.vigPulse + fx.death * 0.25 + fx.dark * 0.22 + fx.danger * 0.06 * heart, 0, 1);
-    gu.uFringe.value = Math.max(0, gCur.fringe * (1 + fx.fringePulse) + fx.danger * 0.3);
+    // the lens is clean at rest (fringe 0): only a hit's pulse and the low-Ember danger fringe it
+    gu.uFringe.value = Math.max(0, gCur.fringe + FRINGE_PULSE * fx.fringePulse + fx.danger * 0.3);
     gu.uPaper.value = Math.max(0, gCur.paper);
     gu.uGrain.value = Math.max(0, gCur.grain * (1 + fx.death * 0.6 + fx.dark * 0.5));
     gu.uFlash.value = fk;
