@@ -67,6 +67,10 @@ import { createEngine, clamp, lerp, mtof } from './audio-dsp.js';
 import { createMusic, ZONE_MUSIC } from './audio-music.js';
 import { SFX, CONTRACT_SFX, V3_SFX } from './audio-sfx.js';
 import * as V3 from './audio-v3.js';
+// >>> INTRO LANE B: import (the opening cut scene's sound cue; docs/v3/intro/SPEC.md section 7.7)
+import { createIntroCue } from './audio-intro.js';
+import { soundEvents, soundEventsBetween } from './intro.js';
+// <<< INTRO LANE B
 
 const ZONE_KEYS = Object.keys(ZONE_MUSIC);
 const PENTA = [0, 2, 4, 7, 9];
@@ -122,6 +126,9 @@ export function create(ctx) {
   const cove = { active: false, from: null, fire: null, roar: null, lap: null, pan: null, idle: 0, breathT: 1.5, bellT: 7, flickT: 0, risenAt: -9 };
   const fe = { emberDue: null, emberDone: true, step: null };
   const handlers = Object.create(null);   // event → [fn]: audio's own listeners (debug.audioEvent drives them without the bus)
+  // >>> INTRO LANE B: state (the opening cut scene's cue: one bus into the music gain, played by the film's clock)
+  const intro = { cue: null, events: null, t: -1, hold: false, skipped: false, water: false, releaseAt: 0, sfx: [], started: 0 };
+  // <<< INTRO LANE B
 
   function report(where, e) {
     if (errCount++ > 6) return;
@@ -358,6 +365,7 @@ export function create(ctx) {
   }
   function pickMood(dt) {
     if (!music) return;
+    if (intro.hold) return;   // INTRO LANE B: the cut scene's cue has the score; the title music stays out until the film ends
     const auto = autoMood();
     if (forced && !forcedLock && auto !== forcedAuto) { forced = null; forcedZone = null; }
     let mood = forced || auto;
@@ -375,7 +383,7 @@ export function create(ctx) {
       forced = String(mood); forcedLock = !!opts?.lock; forcedAuto = autoMood();
       forcedZone = opts?.zone && ZONE_MUSIC[opts.zone] ? opts.zone : null;
     }
-    if (music && unlocked) {
+    if (music && unlocked && !intro.hold) {   // (INTRO LANE B: not under the cut scene's cue)
       const m = forced || autoMood();
       music.setMood(m, (forced && forcedZone) || zoneId(), opts?.fade !== undefined ? { fade: opts.fade } : {});
     }
@@ -880,14 +888,15 @@ export function create(ctx) {
     const sp = liveW ? num(ctx.player?.speed) : 0;
     const maxSp = Math.max(1, num(st?.moveSpeed, 6));
     const spFrac = clamp(sp / maxSp, 0, 1.2);
-    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub')) {
+    const introWater = flow === 'intro' && intro.water;   // INTRO LANE B: the lake's water returns with the Wick's spark
+    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub' || introWater)) {
       water = makeNoiseLoop('pink', 'bandpass', 620, 0.9, N.sfxDry);
       water.lfo = ac.createOscillator(); water.lfo.frequency.value = 0.13;
       water.lg = ac.createGain(); water.lg.gain.value = 240;
       water.lfo.connect(water.lg); water.lg.connect(water.flt.frequency); water.lfo.start();
     }
     if (water) {
-      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub') ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
+      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub' || introWater) ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
       setT(water, 'g', water.g.gain, tgt, 0.4);
       setT(water, 'f', water.flt.frequency, 560 + 600 * Math.min(1, spFrac), 0.3, 0.01);
     }
@@ -1043,6 +1052,79 @@ export function create(ctx) {
     P.intensity += (target - P.intensity) * Math.min(1, dt * 0.8);
     if (override) for (const k in override) if (k in P) P[k] = override[k];
   }
+
+  // >>> INTRO LANE B: cue (SPEC section 7.7). One cue on its own bus into the music gain, so the master and music sliders apply.
+  // Its sections start when the film's clock (ctx.intro.state.t) crosses their mark: a paused film pauses the score, a slow
+  // machine stays in step, and a sought (held) film plays nothing. Locked audio: `on()` never runs these, so nothing is scheduled.
+  function introLog(why, t) {
+    const now = ac.currentTime;
+    log.push({ name: 'intro_cue', at: Math.round(now * 1000) / 1000, t: Math.round((t ?? now) * 1000) / 1000, pan: 0, why });
+    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);
+  }
+  function introStart() {
+    const S = ctx.data?.INTRO?.sound;
+    if (!S || !N || !eng) return;
+    introKill();
+    try { music.stopAll(num(S.titleFade, 0.3)); } catch (e) { report('intro title fade', e); }   // the title's harp goes, and stays out
+    intro.hold = true; intro.skipped = false; intro.water = false; intro.t = -1; intro.releaseAt = 0; intro.sfx.length = 0; intro.started = ac.currentTime;
+    intro.events = soundEvents(ctx.data.INTRO);
+    intro.cue = createIntroCue(eng, { dry: N.musicVol, wet: N.musicWetVol }, S, { onError: (e) => report('intro cue', e) });
+    introLog('start');
+    introTick();
+  }
+  function introFire(e, filmT) {
+    const c = intro.cue;
+    if (!c || c.dead) return;
+    // suspended (no gesture reached the context, or it is not running): silent, and nothing queues up to play later. The press
+    // that starts the film is itself resuming the context, so the film's first half second is scheduled all the same
+    if (ac.state !== 'running' && filmT > 0.5) return;
+    const m = e.mark || EMPTY;
+    if (m.sfx) {
+      if (e.kind !== 'on') return;
+      resetScratch(); scratch.volume = num(m.volume, 1); scratch.why = 'intro'; scratch.force = true;
+      const h = playV(m.sfx, scratch);
+      if (h) intro.sfx.push(h);
+    } else if (!c.play(e)) return;
+    if (e.id === 'spark' && e.kind === 'on') intro.water = true;
+    introLog(e.kind === 'on' ? e.id : `${e.id}:${e.kind}${e.kind === 'note' ? e.i : ''}`);
+  }
+  function introTick() {
+    const c = intro.cue;
+    if (!c) return;
+    const now = ac.currentTime;
+    if (intro.releaseAt) { if (now >= intro.releaseAt) introKill(); return; }
+    const d = ctx.intro;
+    if (!d || d.isStub || typeof d.isActive !== 'function' || !d.isActive()) { introEnd({ stopped: true }); return; }   // stopped with no event
+    const s = d.state, t = num(s.t, 0);
+    if (intro.skipped) return;
+    // a sought film, or a jump (the valve): move with it and play nothing
+    if (!s.hold && t > intro.t && t - intro.t <= 1) { for (const e of soundEventsBetween(intro.events, intro.t, t)) introFire(e, t); }
+    intro.t = t;
+  }
+  /** A skip (or a stop): the cue's bus to 0 in INTRO.skip.soundFade, the SFX it started with it; then its nodes are released. */
+  function introFade() {
+    const c = intro.cue;
+    if (!c || intro.releaseAt) return;
+    const S = ctx.data?.INTRO?.sound || EMPTY, f = Math.min(0.3, Math.max(0.02, num(S.skipFade, 0.25))), now = ac.currentTime;
+    intro.skipped = true;
+    intro.releaseAt = c.fade(f) + 0.05;
+    for (const h of intro.sfx) { try { h.out.gain.cancelScheduledValues(now); h.out.gain.setValueAtTime(h.out.gain.value, now); h.out.gain.linearRampToValueAtTime(0, now + f); } catch { /* ended */ } }
+    intro.sfx.length = 0;
+    introLog('fade', now + f);
+  }
+  /** The film is over: the game's own score takes over (the lake's calm bed after the hand-off, the title's after a replay). */
+  function introEnd(p) {
+    if (!intro.cue) { intro.hold = false; return; }
+    if (p.stopped || p.error) introFade();
+    else if (!intro.skipped && !intro.releaseAt) { intro.releaseAt = intro.cue.end(); introLog('end'); }
+    intro.hold = false; intro.water = false;
+    moodTimer = 0.5;   // the next update picks the mood by the flow
+  }
+  function introKill() {
+    if (intro.cue) { try { intro.cue.release(); } catch (e) { report('intro release', e); } }
+    intro.cue = null; intro.events = null; intro.releaseAt = 0; intro.sfx.length = 0; intro.hold = false; intro.water = false;
+  }
+  // <<< INTRO LANE B
 
   // ---------------------------------------------------------------- bus wiring
   function on(evt, fn) {
@@ -1271,6 +1353,11 @@ export function create(ctx) {
     on('run:start', () => { victoryHold = 0; stopContinuous(); });
     on('run:end', () => stopContinuous());
     on('flow:change', (p) => { if (p.flow !== 'playing') stopContinuous(); moodTimer = 0.5; });
+    // >>> INTRO LANE B: wire (v3 only: the director emits these; never with the flag off)
+    on('intro:start', () => introStart());
+    on('intro:skip', () => introFade());
+    on('intro:done', (p) => introEnd(p));
+    // <<< INTRO LANE B
   }
   function bobberPan() {
     const b = ctx.fishing?.bobberPos;
@@ -1365,6 +1452,14 @@ export function create(ctx) {
       // test tooling: drive audio's own listeners with an event, without the rest of the game hearing it
       ctx.debug.audioEvent = (evt, payload = {}) => { const hs = handlers[evt] || []; for (const h of hs) h(payload); return hs.length; };
       ctx.debug.audioLog = (n = 60) => log.slice(-Math.max(1, Math.min(LOG_MAX, num(n, 60) | 0))).map((e) => ({ ...e }));
+      // >>> INTRO LANE B: debug (the cue as audio has it: tests read the bus level and what was played)
+      ctx.debug.audioIntro = () => ({
+        active: !!intro.cue && !intro.cue.dead, hold: intro.hold, skipped: intro.skipped, t: intro.t, water: intro.water, releasing: intro.releaseAt > 0,
+        level: intro.cue ? intro.cue.level.gain.value : null, lowpass: intro.cue ? intro.cue.lowpass.frequency.value : null,
+        voices: intro.cue ? intro.cue.voices() : 0, fired: intro.cue ? intro.cue.fired.slice() : [], layers: music ? music.layers.filter((l) => !l.stopAt).length : 0,
+        state: ac ? ac.state : 'locked', time: ac ? ac.currentTime : 0,
+      });
+      // <<< INTRO LANE B
       ctx.debug.audioMood = (m) => setMood(m);
       ctx.debug.audioParams = (o) => {
         override = o && typeof o === 'object' ? { ...o } : null;
@@ -1415,6 +1510,9 @@ export function create(ctx) {
         v3Tick();
         busGains();
       } catch (e) { report('update', e); }
+      // >>> INTRO LANE B: cue (the film's clock plays the cue; its own try, so a fault in it never stops the score)
+      if (intro.cue) { try { introTick(); } catch (e) { report('intro cue', e); introKill(); } }
+      // <<< INTRO LANE B
     },
     unlock,
     play,

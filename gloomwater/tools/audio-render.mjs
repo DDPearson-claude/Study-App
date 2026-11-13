@@ -1,6 +1,9 @@
 // Offline renders of GLOOMWATER's synthesised sounds, to look at (spectrograms) and listen to (WAV) without playing the game.
 //
-//   node tools/audio-render.mjs [--out=tools/out/audio-render] [--only=name,name] [--set=af|fe|all] [--sr=32000]
+//   node tools/audio-render.mjs [--out=tools/out/audio-render] [--only=name,name] [--set=af|fe|intro|all] [--sr=32000]
+//   --set=intro  the opening cut scene's cue (src/audio-intro.js, INTRO.sound): `intro_cue` is the whole film through the game's
+//                bus (with ember_swell and flame_catch), `intro_bus` the cue's own bus alone, whose peak must stay under
+//                INTRO.sound.peakDb + 3 dB (exit code 1 otherwise); `intro_skip_*` a skip's 0.25 s fade at three moments
 //
 // Bundles src/audio-dsp.js + src/audio-sfx.js (+ audio-af.js) + src/audio-v3.js with esbuild, opens it in headless Chromium and
 // renders each case through an OfflineAudioContext with the game's own SFX bus shape (dry + the cavern convolver + the delay),
@@ -72,6 +75,8 @@ import { createEngine } from '${resolve(root, 'src/audio-dsp.js').replace(/\\/g,
 import { SFX } from '${resolve(root, 'src/audio-sfx.js').replace(/\\/g, '/')}';
 import * as V3 from '${resolve(root, 'src/audio-v3.js').replace(/\\/g, '/')}';
 import * as DATA from '${resolve(root, 'src/data.js').replace(/\\/g, '/')}';
+import { createIntroCue } from '${resolve(root, 'src/audio-intro.js').replace(/\\/g, '/')}';
+import { soundEvents } from '${resolve(root, 'src/intro.js').replace(/\\/g, '/')}';
 function bus(ac, eng) {
   const master = ac.createGain(); master.gain.value = 0.85;
   const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
@@ -163,6 +168,28 @@ window.renderPlay = (cls, tier, seed) => {
     hg.gain.setTargetAtTime(0, 0.15 + dur, 0.05);
   }).then((pcm) => ({ pcm, beats: beats.map((b) => [b.phase, +(0.15 + b.t).toFixed(2)]), events: ev.map((e) => [e.phase + (e.kind ? ':' + e.kind : ''), +(0.15 + e.t).toFixed(2)]) }));
 };
+// the opening cut scene's cue: every clock event at its film time. bus: 'game' = through the game's music-like path (reverb, the
+// compressor, with the two SFX), 'raw' = the cue's own bus straight to the output (what INTRO.sound.peakDb limits).
+// skipAt: a skip there (the bus fades in INTRO.sound.skipFade, nothing later is played).
+window.renderIntro = (mode, skipAt) => {
+  const I = DATA.INTRO, S = I.sound, ev = soundEvents(I);
+  const dur = skipAt ? skipAt + 1.2 : I.length + (S.endRing || 3.2) + 0.6;
+  return render(dur, (ac, eng, B) => {
+    const raw = mode === 'raw';
+    const music = ac.createGain(); music.gain.value = raw ? 1 : 0.62;   // (the game's music gain at its default setting, about)
+    music.connect(raw ? ac.destination : B.master);
+    const wetIn = ac.createGain(); wetIn.gain.value = raw ? 0 : 0.62; wetIn.connect(B.conv);
+    const cue = createIntroCue(eng, { dry: music, wet: wetIn }, S, {});
+    for (const e of ev) {
+      if (skipAt && e.t > skipAt) continue;
+      const at = 0.05 + e.t;
+      if (e.mark.sfx) { if (!raw && e.kind === 'on') voice(eng, B, e.mark.sfx, at, { volume: e.mark.volume ?? 1 }); continue; }
+      cue.play(e, at);
+    }
+    if (skipAt) cue.fade(S.skipFade, 0.05 + skipAt); else cue.end(0.05 + I.length);
+  }).then((pcm) => ({ pcm, beats: I.beats.map((b) => [b.id, +(0.05 + b.t0).toFixed(2)]), events: ev.filter((e) => e.kind !== 'off' && (!skipAt || e.t <= skipAt)).map((e) => [e.id + (e.kind === 'note' ? e.i : ''), +(0.05 + e.t).toFixed(2)]) }));
+};
+window.introPeakDb = DATA.INTRO.sound.peakDb;
 window.ready = true;
 `;
 const bundle = await esbuild.build({ stdin: { contents: entry, resolveDir: root, loader: 'js' }, bundle: true, format: 'iife', write: false, logLevel: 'silent' });
@@ -194,7 +221,14 @@ if (set === 'all' || set === 'fe') {
   for (const c of SINGLES.filter((x) => /^(cove_|ember|flame|setout)/.test(x.name))) if (want(c.name) && set === 'fe') jobs.push({ name: c.name, run: () => page.evaluate(([n, o, d]) => window.renderOne(n, o, d), [c.sfx, c.opts, c.dur]) });
   for (const key of MURK) if (want(`murk_${key}`)) jobs.push({ name: `murk_${key}`, run: () => page.evaluate((k) => window.renderMurk(k), key) });
 }
+if (set === 'intro' || (set === 'all' && only && [...only].some((n) => n.startsWith('intro_')))) {
+  if (want('intro_cue')) jobs.push({ name: 'intro_cue', play: true, run: () => page.evaluate(() => window.renderIntro('game', 0)) });
+  if (want('intro_bus')) jobs.push({ name: 'intro_bus', play: true, limitDb: true, run: () => page.evaluate(() => window.renderIntro('raw', 0)) });
+  for (const t of [3, 7.95, 16]) { const name = `intro_skip_${String(t).replace('.', '_')}`; if (want(name)) jobs.push({ name, play: true, skipAt: t, run: () => page.evaluate((x) => window.renderIntro('raw', x), t) }); }
+}
 const summary = [];
+let over = 0;
+const peakDb = await page.evaluate(() => window.introPeakDb);
 for (const j of jobs) {
   const r = await j.run();
   const pcm = j.play ? r.pcm : r;
@@ -206,7 +240,28 @@ for (const j of jobs) {
   const rms = Math.sqrt(ss / pcm[0].length);
   summary.push({ name: j.name, sec: +(pcm[0].length / SR).toFixed(2), peak: +peak.toFixed(3), rms: +rms.toFixed(4), ...(j.play ? { beats: r.beats.map((b) => b.join('@')).join(' '), events: r.events.map((e) => e.join('@')).join(' ') } : {}) });
   console.log(`${j.name.padEnd(26)} ${String(summary.at(-1).sec).padStart(5)} s  peak ${summary.at(-1).peak.toFixed(3)}  rms ${summary.at(-1).rms.toFixed(4)}${j.play ? `\n    beats ${summary.at(-1).beats}\n    events ${summary.at(-1).events}` : ''}`);
+  if (j.limitDb) {
+    // the cue's own bus (A7): its peak against INTRO.sound.peakDb, never over -3 dBFS; and where in the film the peak falls
+    const dbfs = 20 * Math.log10(Math.max(1e-6, peak));
+    let at = 0, pk = 0; pcm[0].forEach((v, i) => { const a = Math.abs(v); if (a > pk) { pk = a; at = i; } });
+    const secs = []; for (let s0 = 0; s0 < pcm[0].length; s0 += SR) { let m = 0; for (let i = s0; i < Math.min(pcm[0].length, s0 + SR); i++) m = Math.max(m, Math.abs(pcm[0][i]), Math.abs(pcm[1][i])); secs.push((20 * Math.log10(Math.max(1e-6, m / 32767))).toFixed(0)); }
+    console.log(`    the cue's bus peaks at ${dbfs.toFixed(1)} dBFS (${(at / SR).toFixed(2)} s); target ${peakDb} dBFS, limit -3 dBFS\n    peak per second (dBFS): ${secs.join(' ')}`);
+    summary.at(-1).peakDb = +dbfs.toFixed(2);
+    if (dbfs > -3) { over++; console.log('    FAIL: over -3 dBFS'); }
+  }
+  if (j.skipAt) {
+    // a skip (A7): the bus is silent 0.3 s after it, and the fade is a ramp (no step larger than the wave's own slope allows)
+    const i0 = Math.round((0.05 + j.skipAt) * SR), i1 = Math.round((0.05 + j.skipAt + 0.3) * SR);
+    let tail = 0; for (let i = i1; i < pcm[0].length; i++) tail = Math.max(tail, Math.abs(pcm[0][i]), Math.abs(pcm[1][i]));
+    let step = 0; for (let i = Math.max(1, i0 - 64); i < Math.min(pcm[0].length, i1 + 64); i++) step = Math.max(step, Math.abs(pcm[0][i] - pcm[0][i - 1]));
+    let before = 0; for (let i = Math.max(1, i0 - SR); i < i0; i++) before = Math.max(before, Math.abs(pcm[0][i] - pcm[0][i - 1]));
+    console.log(`    skip at ${j.skipAt} s: residue after 0.3 s ${(tail / 32767).toFixed(5)}; largest sample step in the fade ${(step / 32767).toFixed(4)} (in the second before it ${(before / 32767).toFixed(4)})`);
+    summary.at(-1).skip = { tail: +(tail / 32767).toFixed(5), step: +(step / 32767).toFixed(4), before: +(before / 32767).toFixed(4) };
+    if (tail / 32767 > 0.002) { over++; console.log('    FAIL: the cue still sounds 0.3 s after the skip'); }
+    if (step > before * 1.5 + 40) { over++; console.log('    FAIL: a click in the fade'); }
+  }
 }
 writeFileSync(resolve(outDir, 'summary.json'), JSON.stringify(summary, null, 1));
 await browser.close();
 console.log(`\n${jobs.length} renders → ${outDir}`);
+if (over) process.exit(1);
