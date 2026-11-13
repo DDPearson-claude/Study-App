@@ -1,5 +1,12 @@
 # Next version: what is left
 
+Release 45 (published 13 Nov 2026) is the live app: the Library home, the puzzle box hidden
+(U.flags.puzzleBox, since 25 Oct), and the quick wins from the audit of 13 Nov
+(docs/review/audit-2026-11-13.md, which lists what is still open: a steps lesson resuming at its
+step, a list of courses in progress, the laptop layouts, whether spaced review stays off, and the
+content decisions). The notes below this line are older; where they say "not yet published",
+it has been.
+
 Version 8 (published 6 Oct 2026, commit 1a777ee) shipped: the course dossier (field-journal
 Library, chapters bound as ideas finish, kept on delete, save a copy), the fact-check step
 (verify-lesson), quiz mode on target checks, the "Try this" lede, the run-2 panel's prompt
@@ -38,8 +45,8 @@ in docs/courses has been brought to version 2 with `--answers`.
   needs its picture to be answered ("What is this triangle's area?") is answered from its words
   alone; a version 3 guide could keep the unsolved picture for such examples (guides are near the
   250 KB limit, so only where the task needs it).
-- Examples answered by dragging or colouring (no `input`) make no puzzle; nor do complex numbers
-  2-8, whose examples carry no answer.
+- Examples answered by dragging or colouring (no `input`) make no puzzle. (Complex numbers 2-8
+  carry their answers since 13 Nov: guide.mjs reads an answer given as an option's index.)
 - Deleting Learn's unhooked code (the ask box, intake, planning states, the welcome) and its
   CSS waits for Dan to confirm (docs/HANDOFF-redesign.md section 4).
 - Look-up reads up to twelve lesson docs per search to say "ready to browse" or "coming soon". If
