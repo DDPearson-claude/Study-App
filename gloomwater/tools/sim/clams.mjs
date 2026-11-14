@@ -52,22 +52,23 @@ const placeIdOf = (name) => PLACE_ALIAS[slug(name)] || slug(name);
 // =====================================================================================================================
 // LOOP — the draft tables (the binding copy is docs/loop/SPEC.md; tune here, then copy there)
 // =====================================================================================================================
-// The twelve new waters. `base` is the value tier (tuned with --calibrate: section 6's two ladder rules); `lake` is the lake map's
+// The twelve new waters, in unlock order (SPEC v7 §5.2: the cold rim first, the green heart last; rivers alternate with stills).
+// The lake price is the v6 rule, 42 minutes of the water's own income fully mapped, re-derived for each water in its new slot. `base` is the value tier (tuned with --calibrate: section 6's two ladder rules); `lake` is the lake map's
 // price (about 42 minutes of the water's own income fully mapped; it opens the water's open, day and old water). Fight term: GEN.fight (28–32 on
 // T5 waters, 38–44 on T6 waters, so a giant at Prize lands about as often on arrival tackle as the built lakes' giants do). The place maps are shares of the lake map (PLACE_SHARE).
 const NEW_WATER = {
-  rushlight_fen:      { name: 'Rushlight Fen',      base: 86,  lake: 33300,   lure: ['rushlight_spinner', 'Rushlight Spinner'], legendBait: ['storm_candle', 'Storm Candle'] },
-  thin_water:         { name: 'The Thin Water',     base: 74,  lake: 40700,   lure: ['weir_spoon', 'Weir Spoon'],               legendBait: ['lamp_snail', 'Lamp Snail'] },
-  lampmoss_slough:    { name: 'Lampmoss Slough',    base: 103,  lake: 58400,   lure: ['mosslamp_jig', 'Moss-Lamp Jig'],          legendBait: ['carp_cutlet', 'Carp Cutlet'] },
-  pyrefall_gorge:     { name: 'Pyrefall Gorge',     base: 223,  lake: 71800,   lure: ['ember_wobbler', 'Ember Wobbler'],         legendBait: ['charred_offering', 'Charred Offering'] },
-  thunder_stair:      { name: 'The Thunder Stair',  base: 166,  lake: 88100,   lure: ['thunder_plug', 'Thunder Plug'],           legendBait: ['wired_bream', 'Wired Bream'] },
-  inkwood:            { name: 'The Inkwood',        base: 245,  lake: 145000,   lure: ['ink_fly', 'Ink Fly'],                     legendBait: ['blossom_fly', 'Blossom Fly'] },
-  siltway:            { name: 'The Siltway',        base: 309,  lake: 178000,   lure: ['silt_rattle', 'Silt Rattle'],             legendBait: ['bargemans_supper', "Bargeman's Supper"] },
-  salt_gate:          { name: 'The Salt Gate',      base: 238,  lake: 241000,   lure: ['tide_spoon', 'Tide Spoon'],               legendBait: ['tide_mullet', 'Tide Mullet'] },
-  lanternroot_lagoon: { name: 'Lanternroot Lagoon', base: 454,  lake: 373000,   lure: ['rootlamp_popper', 'Root-Lamp Popper'],    legendBait: ['mothwing_fly', 'Moth-Wing Fly'] },
-  waxen_reef:         { name: 'The Waxen Reef',     base: 1060, lake: 496000,   lure: ['wax_jig', 'Wax Jig'],                     legendBait: ['lantern_fry', 'Lantern-Fry'] },
-  last_light:         { name: 'The Last Light',     base: 920,  lake: 605000,  lure: ['lighthouse_feather', 'Lighthouse Feather'], legendBait: ['lighthouse_ration', 'Lighthouse Ration'] },
-  rime_sound:         { name: 'The Rime Sound',     base: 1247, lake: 738000,  lure: ['rime_pirk', 'Rime Pirk'],                 legendBait: ['old_ration', 'Old Ration'] },
+  rime_sound:         { name: 'The Rime Sound',     base: 44, lake: 30200,  lure: ['rime_pirk', 'Rime Pirk'],                 legendBait: ['old_ration', 'Old Ration'] },
+  thin_water:         { name: 'The Thin Water',     base: 68,  lake: 37400,   lure: ['weir_spoon', 'Weir Spoon'],               legendBait: ['lamp_snail', 'Lamp Snail'] },
+  last_light:         { name: 'The Last Light',     base: 64,  lake: 46000,  lure: ['lighthouse_feather', 'Lighthouse Feather'], legendBait: ['lighthouse_ration', 'Lighthouse Ration'] },
+  pyrefall_gorge:     { name: 'Pyrefall Gorge',     base: 176,  lake: 56700,   lure: ['ember_wobbler', 'Ember Wobbler'],         legendBait: ['charred_offering', 'Charred Offering'] },
+  waxen_reef:         { name: 'The Waxen Reef',     base: 158, lake: 73000,   lure: ['wax_jig', 'Wax Jig'],                     legendBait: ['lantern_fry', 'Lantern-Fry'] },
+  thunder_stair:      { name: 'The Thunder Stair',  base: 189,  lake: 106300,   lure: ['thunder_plug', 'Thunder Plug'],           legendBait: ['wired_bream', 'Wired Bream'] },
+  rushlight_fen:      { name: 'Rushlight Fen',      base: 421,  lake: 153000,   lure: ['rushlight_spinner', 'Rushlight Spinner'], legendBait: ['storm_candle', 'Storm Candle'] },
+  salt_gate:          { name: 'The Salt Gate',      base: 205,  lake: 207500,   lure: ['tide_spoon', 'Tide Spoon'],               legendBait: ['tide_mullet', 'Tide Mullet'] },
+  lampmoss_slough:    { name: 'Lampmoss Slough',    base: 538,  lake: 285900,   lure: ['mosslamp_jig', 'Moss-Lamp Jig'],          legendBait: ['carp_cutlet', 'Carp Cutlet'] },
+  siltway:            { name: 'The Siltway',        base: 629,  lake: 349200,   lure: ['silt_rattle', 'Silt Rattle'],             legendBait: ['bargemans_supper', "Bargeman's Supper"] },
+  lanternroot_lagoon: { name: 'Lanternroot Lagoon', base: 682,  lake: 525000,   lure: ['rootlamp_popper', 'Root-Lamp Popper'],    legendBait: ['mothwing_fly', 'Moth-Wing Fly'] },
+  inkwood:            { name: 'The Inkwood',        base: 1347,  lake: 665500,   lure: ['ink_fly', 'Ink Fly'],                     legendBait: ['blossom_fly', 'Blossom Fly'] },
 };
 // A place may draw fish of its water's open pool (× weight); the two day waters with no fish of their own are drawn this way.
 const PLACE_DRAWS = { lily_maze: { candlefin_koi: 3, weeping_carp: 1.5 }, lullaby: { sleepspore_jelly: 2, velvet_ray: 1.5 } };
@@ -150,8 +151,8 @@ export const LOOP = {
     ember_roe:     { at: 2, name: 'Ember Roe' },
     glass_larva:   { at: 3, name: 'Glass Larvae' },   // the Chime Jelly bites on nothing else
     shimmerfly:    { at: 4, name: 'Shimmerfly' },
-    windfall_plum: { at: 10, name: 'Windfall Plum', hold: 5 },   // new: the Inkwood's fruit eaters
-    tallow_soap:   { at: 9, name: 'Tallow Soap', hold: 5 },      // new: whiskered scavengers
+    windfall_plum: { at: 16, name: 'Windfall Plum', hold: 5 },   // new: the Inkwood's fruit eaters
+    tallow_soap:   { at: 10, name: 'Tallow Soap', hold: 5 },      // new: whiskered scavengers
   },
   tinSize: 10,
   // ---- the raft, besides the hold
@@ -576,13 +577,14 @@ title('1. What a fish sells for (clams): value tier × rarity × body × e^(0.9�
 
 // ---------------------------------------------------------------- 2. strategies and the anti-grind check
 const full = (w, extra = []) => [...placesOf(w, ['day', 'old', 'night']), ...extra];
+const W6 = LOOP.waters[5], W12 = LOOP.waters[11];   // the stations at 20 h and 40 h are slots, not waters (SPEC v7 re-ordered the waters)
 const STAGES = [
   { id: 'start', label: 'first trip: T0, hold 3, the Mossmere, open water only', kit: { water: 'mossmere', rod: 0, line: 0, reel: 0, hold: 3, lure: null, bait: null, places: [], oars: 0, keel: 0, lantern: 0 } },
   { id: '10min', label: '10 min: Line T1, hold 4, the Lily Maze', kit: { water: 'mossmere', rod: 0, line: 1, reel: 0, hold: 4, lure: null, bait: null, places: ['lily_maze'], oars: 0, keel: 0, lantern: 0 } },
   { id: '1h', label: '1 h: T1, hold 5, the Mossmere with 3 places, Glimmer Spoon', kit: { water: 'mossmere', rod: 1, line: 1, reel: 1, hold: 5, lure: 'glimmer_spoon', bait: null, places: full('mossmere'), oars: 1, keel: 1, lantern: 0 } },
   { id: '5h', label: '5 h: T2, hold 6, Sporewood with its 4 ordinary places, Glimmer Spoon', kit: { water: 'sporewood', rod: 2, line: 2, reel: 2, hold: 6, lure: 'glimmer_spoon', bait: null, places: placesOf('sporewood', ['day', 'old', 'night', 'extra']), oars: 2, keel: 1, lantern: 1 } },
-  { id: '20h', label: '20 h: T5, hold 8, the Thin Water with 3 places, its giants\' lure', kit: { water: 'thin_water', rod: 5, line: 5, reel: 5, hold: 8, lure: 'weir_spoon', bait: null, places: full('thin_water'), oars: 3, keel: 2, lantern: 2 } },
-  { id: '40h', label: '40 h: T6, hold 8, the Salt Gate with 4 places, Glimmer Spoon', kit: { water: 'salt_gate', rod: 6, line: 6, reel: 6, hold: 8, lure: 'glimmer_spoon', bait: null, places: placesOf('salt_gate', ['day', 'old', 'night', 'extra']), oars: 3, keel: 3, lantern: 3 } },
+  { id: '20h', label: `20 h: T5, hold 8, ${NAME[W6.id]} (slot 6) with 3 places, its giants' lure`, kit: { water: W6.id, rod: 5, line: 5, reel: 5, hold: 8, lure: W6.lure[0], bait: null, places: full(W6.id), oars: 3, keel: 2, lantern: 2 } },
+  { id: '40h', label: `40 h: T6, hold 8, ${NAME[W12.id]} (slot 12) with 4 places, Glimmer Spoon`, kit: { water: W12.id, rod: 6, line: 6, reel: 6, hold: 8, lure: 'glimmer_spoon', bait: null, places: placesOf(W12.id, ['day', 'old', 'night', 'extra']), oars: 3, keel: 3, lantern: 3 } },
 ];
 title('2. Strategies: does waiting for giants pay? (clams per minute against the natural rule)');
 for (const [i, st] of STAGES.entries()) {
@@ -613,7 +615,7 @@ for (const [i, st] of STAGES.entries()) {
 
 // ---------------------------------------------------------------- 3. clams per trip by tackle and hold
 title('3. Clams per trip (minutes) by tackle tier and hold: the natural rule, each water with its ordinary places');
-for (const w of ['mossmere', 'glasswater', 'paleabyss', 'pyrefall_gorge', 'siltway', 'rime_sound']) {
+for (const w of ['mossmere', 'glasswater', 'paleabyss', LOOP.waters[7].id, LOOP.waters[10].id, LOOP.waters[15].id]) {   // slots 1, 3, 4, 8, 11, 16
   const places = placesOf(w, ['day', 'old', 'night', 'extra']), lure = bestLureOf(w, Object.keys(LOOP.familyLures)), rows = [];
   for (const t of [0, 2, 4, 5, 6]) rows.push([`T${t}`, ...[3, 5, 6, 8].map((h) => { const x = run({ water: w, rod: t, line: t, reel: t, hold: h, lure, bait: null, places, oars: 1, keel: 1, lantern: 1 }, POL.natural(), Math.max(500, N >> 3), 77 + t * 10 + h); return `${f0(x.clams)} (${f1(x.min)})`; })]);
   console.log(`-- ${NAME[w]} (${lure ? LURE_NAME[lure] : 'no lure'})`);
@@ -625,7 +627,7 @@ title('4. Bait: what a tin is worth (natural rule; net of the tin)');
 {
   const rows = [], kitOf = (id) => STAGES.find((s) => s.id === id).kit;
   const G = { water: 'glasswater', rod: 3, line: 3, reel: 3, hold: 7, lure: 'glimmer_spoon', bait: null, places: full('glasswater'), oars: 3, keel: 2, lantern: 2 };
-  for (const [stId, bait] of [['1h', 'mireworm'], ['5h', 'spore_cake'], ['10h', 'ember_roe'], ['20h', WATER.thin_water.plainBait], ['40h', WATER.salt_gate.plainBait]]) {
+  for (const [stId, bait] of [['1h', 'mireworm'], ['5h', 'spore_cake'], ['10h', 'ember_roe'], ['20h', WATER[W6.id].plainBait], ['40h', WATER[W12.id].plainBait]]) {
     const kit = stId === '10h' ? G : kitOf(stId), nB = Math.max(N * 2, 8000), a = run(kit, POL.natural(), nB, 501), b = run({ ...kit, bait }, POL.natural(), nB, 501);
     const gain = b.gross - a.gross, cost = b.baitCost;
     rows.push([`${stId}: ${LOOP.bait[bait].name} (${NAME[kit.water]})`, f0(baitTin(bait, kit.water)), f1(b.baitUsed), f0(a.clams), f0(b.gross), f0(cost), f0(b.clams), pc(b.perMin / a.perMin - 1), (gain / Math.max(1e-9, cost)).toFixed(1)]);
@@ -795,7 +797,7 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
   check(within(M['5 h'].tpp, 1.5, 5), `5 h: ${f1(M['5 h'].tpp)} trips per purchase (target 1.5–5)`);
   check(within(at('lake:glasswater').h, 4.0, 6.5), `the Glasswater map at ${at('lake:glasswater').h.toFixed(1)} h (target 4.0–6.5)`);
   check(within(at('lake:paleabyss').h, 8.5, 13), `the Pallid Deep map at ${at('lake:paleabyss').h.toFixed(1)} h (target 8.5–13)`);
-  check(within(at('lake:rushlight_fen').h, 12, 18), `the first new water (Rushlight Fen) at ${at('lake:rushlight_fen').h.toFixed(1)} h (target 12–18)`);
+  check(within(at(`lake:${LOOP.waters[4].id}`).h, 12, 18), `the first new water (${LOOP.waters[4].name}) at ${at(`lake:${LOOP.waters[4].id}`).h.toFixed(1)} h (target 12–18)`);
   check(M['20 h'] && within(M['20 h'].tpp, 1.5, 7), `20 h: ${M['20 h'] ? f1(M['20 h'].tpp) : '—'} trips per purchase (target 1.5–7)`);
   check(M['20 h'] && within(M['20 h'].owned, 5, 8), `20 h: ${M['20 h'] ? M['20 h'].owned : '—'} waters owned (target 5–8)`);
   check(within(doneH, 40, 60), `the last purchase at ${doneH.toFixed(1)} h (target 40–60)`);
