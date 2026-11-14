@@ -1,6 +1,18 @@
 # Work queue (the lead's running list)
 
-The user asked on 14 November 2026: "Let's pause and focus on one task at a time." One job runs at a time; the user picks the next.
+The user asked on 14 November 2026: "Let's pause and focus on one task at a time." Then: "Just choose the next job and run continuously until all queued work is complete." One job runs at a time; the lead picks the order below and starts each the moment the one before is merged, without stopping to ask.
+
+## The order (the lead's choice: each job unblocks the next)
+
+1. The catch show: finish, merge, update the preview. *(running)*
+2. The world map and the story (resume `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map; publish the map; answer the user's questions.
+3. The cut scene's line 3, rewritten from the story; re-timed, re-checked, a new video with sound.
+4. The Chart-integration plan: the world map as the in-game Chart (SPEC §5.4, §13, PLAN's Chart lane).
+5. The three keys (resume `wf_1c95633f-092`).
+6. The Wicks' passives, design (resume `wf_91d42619-6b9`).
+7. The Wicks' balancing in the sim.
+8. The ramp is the land (resume `wf_f7bccff9-e78`).
+9. Slice 1a, built (its PLAN, amended by 3–7), then the preview with the loop on.
 
 ## Running
 
