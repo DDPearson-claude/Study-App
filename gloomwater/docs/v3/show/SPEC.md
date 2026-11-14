@@ -1,7 +1,9 @@
 # The show — the Wick presents its catch (spec for both build lanes)
 
-Status: audit done on `2ee62e7` (branch `gw-show`). LANE A ("the Wick and the fish") and LANE B ("the sequence, the camera,
-the card and the sound") build from this document without talking to each other; §6 is the seam between them. Numbers marked
+Status: audit done on `2ee62e7` (branch `gw-show`); both lanes built and merged on `gw-show`, staged and tuned as one moment
+(§7 records where the build differs from this text, and what the stage measured). LANE A ("the Wick and the fish") and LANE B
+("the sequence, the camera, the card and the sound") built from this document without talking to each other; §6 is the seam
+between them. Numbers marked
 **target** are acceptance; everything in `AUTOFISH.show` marked *start* is a tuning start its owning lane may move while §4
 stays green.
 
@@ -561,3 +563,71 @@ today's trophy camera (`render.setTrophyTarget`, which frames `getMeasureFocus`)
   S8's counts; unit tests for the order and the clock in node. Three look-and-fix rounds on the card's opening and the framing.
 - **The stage** merges A then B (no file is shared but `data.js` and `validate-data.mjs`, by key), removes nothing but the
   stubs lane A replaced, re-shoots `tools/out/show/after/` with the audit scenario, checks §4 and rebuilds `index.html` last.
+
+## 7. As built (the stage)
+
+Where the merged build differs from §2 – §6, the build is the truth; every number below is in `AUTOFISH.show` or measured by
+`tools/tests/show-audit.scenario.mjs` on the 30 fps stepper (960 × 540 and 390 × 844, the high tier).
+
+### 7.1 The poses (lane A, `src/actors-show.js`, `src/actors-wick.js`)
+
+- **One controller** lays each pose out on a bare copy of the rig before anything moves, so `getShowFocus()` is the settled
+  layout from the first frame; the fish leads on its own path (swing in, take, present with its overshoot, flaps, still) and
+  the hands are IK-locked onto it. The fish bends on a true arc, reports its cross-section and takes a wet gloss.
+- **The show frame follows the camera's heading**, not its position (low-passed; latched for alongside).
+- **Pinch.** On a wide screen a fish over 0.15 m is held up beside the cheek; on an upright one under the chin. **A fish under
+  0.15 m** is lifted into the dark of the face just under eye level (the near lens drops it below the eyes) and **rides on top
+  of the round fist**: a fish no deeper than the fist is never held in front of it (the fist, nearer the lens, hid the Quayling).
+  Its close-up keeps the flame's core, not its tip (`camera.pose.pinch.tinyFlameTip` 0). The side may flip to lens-left when the
+  brazier stands behind.
+- **Hug and hang** stand on the side the fish came up, unless clutter behind says otherwise, **or the creel or the brazier would
+  stand between the low lens and the fish's foot** (then the other side). Hang: the rod is planted before the near foot (lean 3 –
+  30°), the near hand on the fish, the far hand on the rod. Alongside: the fish lies against the deck's edge facing the lens,
+  not over it (`grip.alongside.chinOnDeck` 0), the Wick standing with a hand on its brow; outriggers (raft level ≥ 1) are ignored.
+- **Weight and life**: the deck edge dips, water drips, the fish flaps in the hold, the Wick leans and trembles under a big one,
+  the tremor stops in the pause; flame, bob and eyes carry the pride (`show.life`).
+- **No pop**: joints, the turn and the Wick's steps are rate-capped (9.6 rad/s; a sleeve's length 0.77 a frame) through a show
+  and for 1.5 s after; **on the way out the Wick turns back to its play at no more than 4 rad/s** (≈ 0.8 s for a half turn, the
+  lens's own ease-out), so it never spins its blooming wax back to a lens that is still close.
+- `keep` carries more than §6.2 names: `keep.fish` adds the bent hull's extremes (and the palm for a pinch); `keep.flame` is the
+  core plus a point up the flame (core only for a tiny pinch); `keep.hands` is the one holding hand for a pinch; for hang
+  `keep.rodTip` is the top of the line just above the snout (the true tip is `rodTip`). The focus uses the raft's resting dip.
+- **Cost**: the fists are their own meshes (+4 draw calls, always; the flag-off look is unchanged); the fish shader gained bend
+  uniforms, skipped at zero. The lantern post's step-aside cone is 1.8× while a show is up.
+
+### 7.2 The sequence, the camera, the card, the sound (lane B)
+
+- **The clock**: the reveal runs on the game's clock under its slow motion; lift, hold and pause on the real clock. Hurry: a tap,
+  Space or Enter runs the lift × 2.5 and opens the card once the fish has been presented 0.3 s (0.8 s for a first-ever species
+  or a personal best); a tap in the pause opens it at once; the valve is 8 s; main's cinematic ceiling is the valve + 4 s.
+- **Events** as §6.3, plus `card:count {dur}` and `card:stamp {records, isNew, seal}` (ui → audio); `fishing:show` also carries
+  `swarm, hurried, uid, protected, special, t`, and its `card` phase `origin {x, y}` (CSS px).
+- **The camera** blends the fitted pose over the play's rig with **one eased weight timed from `fishing.view.show`, arriving
+  exactly at the present** (whatever the class, a hurry or a swarm window); `camera.settle` / `settleSwarm` are no longer read
+  (the validator keeps them as a floor). The fit adds the fish box's corners (`finRoom` 1.35) and the flame's tip (`flameTip` ×
+  the head's radius) to `keep`. The target follows the layout through the lift and freezes `settleBefore` s before the pause;
+  the lens rides the Wick's feet on the swell, so the still is measured against the Wick. `render.setShowTarget(t, opts)` returns
+  `{yaw}` and takes `(null, {abort: true})`. Rows as built: pinch 8° (a tiny one 52°, no flame tip) · **both 7°, no footroom,
+  its own flame room 0.3** (an angler's photograph near eye level) · hug 10° · hang 8°, headroom 0.015 · **alongside 12°, no
+  footroom, and nothing under the lake framed** (its kept points are clamped to the surface and the box's corners round the sunk
+  tail are dropped; craned to 40° above 4 m; raked on a phone above 3.2 m).
+- **The clean frame**: the measuring overlay is retired (`ui-measure.js` keeps `holding()` / `phase()` / `takeOrigin()`;
+  `ui.showMeasure` is a no-op; `view.measure` stays null); world, HUD, fx, banner and toast layers take `.gw-showhide` during the
+  show and toasts, tips, banners and level-up pickers wait for the card.
+- **The card** unfolds from the fish's screen point (paper first, the ink ≈ 160 ms later), the length counts up, the class stamp
+  presses after it, personal best and Old Ledger are two knots on its ruler. Sounds: `show_lift`, `show_present`, `show_flap`,
+  `show_drip`, a hush at the pause, the cord's ticks on the count and the seal on the stamp; the fanfare no longer fires at
+  `fish:landed` during a show.
+- Actors without the seam (a fake, an older build) get the plain `catch` hold and `showCatch`; no measuring pose stands in.
+
+### 7.3 What the stage measured
+
+STAGE_MEASURED
+
+### 7.4 Left in the code, unused by the show
+
+`SIZE_CLASSES[].ceremony`, `BALANCE.ceremony`, `AUTOFISH.ceremony` (read only by legacy paths), `ui-v3` `measurePlan` /
+`measureAt` (`cordRuler` is still the card's), `fishing-fx` `stampFlash` / `gloryPulse`, `actors.showCord` and the measure
+poses (kept for `setPose` callers). Older scenarios that drove the retired overlay (`p1b-screens`, `af-ui`, `p1-full-seams`,
+`catch-shots`, `polish-shots`) are stale.
+
