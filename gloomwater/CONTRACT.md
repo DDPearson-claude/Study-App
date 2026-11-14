@@ -1554,7 +1554,7 @@ ctx.flow = 'intro'                                   // new flow value while the
 **The stage** (`src/intro-stage.js`, lane A; a pure function of timeline time):
 ```
 createIntroStage(ctx) -> {
-  prebuild() -> bool                     // ONE slice of building per call (the models, then one warm-up per part: 9 slices on medium / high, 8 on low);
+  prebuild() -> bool                     // ONE slice of building per call (the models, one warm-up per part, then the lake's own arena, world-art's `arena:<zone id>`, so nothing of the world first seen by the film's lens compiles under it: 10 slices on medium / high, 9 on low);
                                          //   true once everything is ready; nothing visible; false (no throw) while the world has no anchors yet.
                                          //   The fresh title calls it in idle time until it returns true
   ready -> bool

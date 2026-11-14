@@ -38,9 +38,11 @@ export default async function (api) {
     c.bus.on('intro:start', () => { M.start = performance.now(); });
     c.bus.on('intro:done', () => { M.done = performance.now(); });
     c.bus.on('run:start', () => { M.run = performance.now(); });
-    // (the click's own script time: the listener that runs the game's handler is wrapped at the document)
-    document.addEventListener('click', () => { M.c0 = performance.now(); }, true);
-    document.addEventListener('click', () => { M.press = performance.now() - M.c0; }, false);
+    // the press's own script time (the title's Begin runs game.beginIntro; its click listener stops the event, so it is timed here),
+    // and the hand-off's (main calls game.startNewRun inside intro:done's own emit)
+    const begin = c.game.beginIntro, start = c.game.startNewRun;
+    c.game.beginIntro = (...a) => { const t0 = performance.now(); try { return begin(...a); } finally { M.press = performance.now() - t0; } };
+    c.game.startNewRun = (...a) => { const t0 = performance.now(); try { return start(...a); } finally { M.handoff = performance.now() - t0; } };
     M.I = { length: I.length, maxDt: I.clock.maxDt };
   }, { quality, draw: !!args.draw });
   await page.waitForFunction(() => { const m = document.querySelector('.gw-m-title .gw-title-menu'); return !!m && Number(getComputedStyle(m).opacity) > 0.9; }, null, { timeout: 120000, polling: 200 });
@@ -54,12 +56,12 @@ export default async function (api) {
     const film = M.frames.reduce((a, d) => a + Math.min(d, mx), 0), lost = M.frames.reduce((a, d) => a + Math.max(0, d - mx), 0);
     const early = M.upd.filter(([t]) => t <= 1.4).reduce((a, [, ms]) => Math.max(a, ms), 0), worst = M.upd.reduce((a, [, ms]) => Math.max(a, ms), 0);
     return { wall: (M.done - M.start) / 1000, film, lost, frames: M.frames.length, over: M.frames.filter((d) => d > mx).length, longest: Math.max(...M.frames), press: M.press, early, worst,
-      handoff: M.run !== null ? M.run - M.done : null, flow: c.flow, runs: c.state.meta.runs, seen: c.state.meta.intro?.seen === true, errors: c.errors.slice(), length: M.I.length,
+      handoff: M.handoff ?? null, flow: c.flow, runs: c.state.meta.runs, seen: c.state.meta.intro?.seen === true, errors: c.errors.slice(), length: M.I.length,
       mem: { ...c.render.renderer.info.memory }, stage: c.intro.stage?.stats?.() };
   });
   log(`tier ${quality}, ${width}x${height}, drawing ${args.draw ? 'on' : 'off'}, the stage prebuilt under the title: ${ready}`);
   log(`wall ${r.wall.toFixed(2)} s from intro:start to intro:done; the film's clock took ${r.film.toFixed(2)} s of it in ${r.frames} frames (${(r.frames / r.wall).toFixed(0)} a second); ${r.over} frames were longer than the clamp (the longest ${r.longest.toFixed(2)} s) and gave up ${r.lost.toFixed(2)} s; wall − lost = ${(r.wall - r.lost).toFixed(2)} s`);
-  log(`script: the press ${r.press?.toFixed(1)} ms; the director's longest update in the first 1.4 s ${r.early.toFixed(1)} ms, over the whole film ${r.worst.toFixed(1)} ms; the hand-off (intro:done → run:start) ${r.handoff?.toFixed(1)} ms`);
+  log(`script: the press ${r.press?.toFixed(1)} ms; the director's longest update in the first 1.4 s ${r.early.toFixed(1)} ms, over the whole film ${r.worst.toFixed(1)} ms; the hand-off (game.startNewRun inside intro:done) ${r.handoff?.toFixed(1)} ms`);
   log(`after: flow ${r.flow}, runs ${r.runs}, seen ${r.seen}, the stage ${JSON.stringify({ built: r.stage?.built, live: r.stage?.live })}`);
   if (Math.abs(r.film - r.length) > 0.11) failures.push(`the film's clock ran ${r.film.toFixed(3)} s, not ${r.length}`);
   if (Math.abs(r.wall - r.lost - r.length) > 0.5) failures.push(`wall − lost is ${(r.wall - r.lost).toFixed(2)} s, not ${r.length} ± 0.5`);

@@ -423,7 +423,7 @@ words, the Skip word and the ink are judged over the picture as a player sees th
 The lanes' own records are `LANE-A.md` (the set, every retuned number, six look-and-fix rounds) and `LANE-B.md` (the director,
 the flow, the cue).
 
-### 12.1 Changed while staging (four look-and-fix rounds on the merged picture)
+### 12.1 Changed while staging (four look-and-fix rounds on the merged picture, and one warm-up fix)
 
 | what | plan | built | why (the frames that showed it) |
 |---|---|---|---|
@@ -441,6 +441,7 @@ the flow, the cue).
 | `setTime`'s `calm` | — | the stage treats **`calm` as `reduced`** for the flash and the cut | reduced flashing alone quarters the contact flash (lane B's request 4) |
 | the flank's exit | it glides out at full brightness; the whole body fades 11.9–12.2 | **the dark takes the body first** (`uSink`, 11.0 → 11.9, to 92 % ink), the ember's glow inside it last: the beat ends on one warm light carried off into the dark, which the Wick's spark answers 0.4 s later | 11.4–12.0 s in landscape was a flat pale wall with nothing on it (lane A's weakest frame; `r3/desk` 11.5, 12.0). Now 11.4 is a dimming wall under a bright glow, 11.7 a dark shape with the glow at the frame's edge, 12.0 near black (`r3/fine`, `r3/pfine`) |
 | the Wick's spark | 0.18 + 0.75 k m | **0.08 + 0.34 k m** (a 40 px point at its peak on a 960 px frame) | at the old size it was a 90 px soft orb, read as an out-of-focus light rather than a spark (`r3/q-spark`; `r4/spark`) |
+| the prewarm's last slice | the set's own parts only | **then the lake's arena** (`arena:<zone id>`, one more `render.warmPrograms` slice: 10 slices, 9 on low) | on a phone the portrait title culls the Mossmere's landmarks and the descent gate; their two programs (a toon variant and the gate's shader) compiled as the stage went live under the opening ink (`final/progprobe-phone2`). With the slice: 87 programs under the title and none added until play (`final/progprobe-phone5`); desktop was already clean |
 
 ### 12.2 Decisions taken by the lanes and kept
 
@@ -465,3 +466,17 @@ top-down, their reflections outliving them; 7.9 the flash; 8.2 the cut. 8.2–12
 ember taken at 10.4, its glow through the belly; from 11.0 the dark takes the body and the glow leaves last, near black by 12.0; no words. 12.5 the spark; 12.6–13.8 the ink opens from the flame;
 12.7–15.1 line 3; 13.5–14.2 the raft's lantern takes. 14.6–17.0 the crane home; 16.05–17.6 line 4 under the raft; 17.0–18.0 the
 play camera at rest; 17.6–18.0 the Skip word goes. 18.0 control: the HUD fades in over 0.6 s, the lake's name rises.
+
+### 12.4 Measured on the staged build (2026-11-14; software GL on a shared 4-core machine, so times are upper bounds)
+
+| | measure | where |
+|---|---|---|
+| A1 length | 18.00 s on `performance.now()` from `intro:start` to `intro:done`, drawing off, low tier (1,050 frames, 2 over the 0.1 s clamp); the film's own clock 18.02 s; on the phone 19.40 s wall of which 1.40 s were clamped away on 4 long frames (18.00 s of film); `intro:start` → `intro:done` 18.017 s of film in every full play | `intro-length`, `intro-flow` |
+| A2 skip | the Skip word in by 0.9 s, 64 × 44 px, inside the safe area at 960 × 540 and 390 × 844; ignored before 0.5 s; Esc / Enter / Space; veil skips in `lit`, `fall`, `below` and the fast finish in `wick` / `home` all land in the full play's end state | `intro-flow` (desktop and phone) |
+| A3 once | one press of Begin starts the film with no panel; the run starts at its end; the returning title offers Prologue; a replay leaves `meta` and the stored save byte-identical, also from another lake's title | `intro-flow` |
+| A5 words | contrast 14.2–16.1 : 1 on the frame behind each line (8.6–9.5 : 1 over flat pale gold, the worst case) | `intro-flow` |
+| A6 look | green + teal 0.0 % in every storyboard frame (31, desktop and phone) | `hue-report` on `board`, `board-phone` |
+| A9 press and hand-off | the press 7.7 ms of script (desktop, low tier; 46 ms on the phone run under load), the director's longest update 39 ms, `startNewRun` at the hand-off 21 ms | `intro-length`, `intro-flow` |
+| A9 set | peak 17 calls / 4,880 triangles (budget 30 / 10,000); no light, shadow map or render target; prebuild 10 slices, 23 ms in all, the longest 18 ms (high); memory back to its baseline after dispose and after a second build; no program compiled once the film runs (desktop high and phone medium) | `intro-shots`, the program probe |
+| A10 robust | a stage that throws ends in one `intro:done {error: true}` and play; hidden page holds the clock; resize during every beat; reload at 9 s plays the film again with the save unchanged | `intro-flow` |
+| A11 | `check.mjs` green; `validate-data` OK in all three modes; scenario-run ALL INVARIANTS HOLD on the minified flag-off build and with v3 on; `p1-smoke` 49 checks ok | §10 |
