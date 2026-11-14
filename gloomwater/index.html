@@ -7781,7 +7781,8 @@ void main() {
   .gw-cc-side .gw-cc-stamp { margin: 8px 0 6px 4px; gap: 12px; }
   .gw-cc-side .gw-cc-stamp span { font-size: 22px; padding: 4px 9px 3px 13px; }
   .gw-cc-side .gw-cc-seal { width: 40px; height: 40px; }
-  .gw-cc-side .gw-catch-actions { gap: 0 16px; margin-top: 8px; }
+  /* (its actions never fall under the card's foot: if the ink above is taller than the window, it scrolls beneath them) */
+  .gw-cc-side .gw-catch-actions { gap: 0 16px; margin-top: 8px; position: sticky; bottom: -1px; z-index: 2; padding-top: 6px; background: linear-gradient(to bottom, rgba(9, 9, 22, 0), rgba(9, 9, 22, .6) 45%); }
   .gw-cc-side .gw-cc-act { font-size: 20px; }
   .gw-cc-side .gw-cc-lore { font-size: 17px; margin-top: 6px; }
 }
@@ -7795,8 +7796,9 @@ void main() {
   .gw-cc-side .gw-cc-kicker { font-size: 15px; }
   .gw-cc-side .gw-cc-stamp { margin: 6px 0 2px 4px; }
   .gw-cc-side .gw-cc-stats dt { font-size: 18px; } .gw-cc-side .gw-cc-stats dd { font-size: 21px; }
-  .gw-cc-side .gw-catch-actions { gap: 0 13px; margin-top: 4px; }
-  .gw-cc-side .gw-cc-act { font-size: 18px; min-height: 38px; }
+  .gw-cc-side .gw-catch-actions { gap: 0 11px; margin-top: 2px; }
+  .gw-cc-side .gw-cc-act { font-size: 17px; min-height: 36px; }
+  .gw-cc-side.gw-legend .gw-catch-name { font-size: clamp(26px, 3.4vw, 34px); }
   .gw-cc-side .gw-cc-epithet { font-size: 17px; }
   .gw-cc-side .gw-cc-lore { font-size: 15px; margin-top: 2px; -webkit-line-clamp: 2 !important; }
   /* (a card that carries its kicker, epithet and lore up front gives up its ink drawing here: the fish itself is beside it) */
