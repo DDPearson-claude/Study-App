@@ -766,6 +766,9 @@ export function create(ctx) {
     } else { const p = playerPos(); if (p) pts.push(showPoint(n++).set(p.x, 1.1, p.z)); }
     return pts.length >= 3;
   }
+  /** A show's card is docked at the right of this screen (ui-screens' rule: 700 px wide or more, wider than 1.2 × its height,
+   *  and at least 480 px high: a phone on its side keeps the card across its middle). */
+  const cardAtSide = () => (Number(SHOWC?.behindCard?.landscapeSide) || 0) > 0 && W >= 700 && W >= H * 1.2 && H >= 480;
   /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
   function fitShow(v) {
     const S = showCam, a = W / H;
@@ -780,8 +783,9 @@ export function create(ctx) {
     // behind the card on a phone held upright the subject rides in the open top of the frame (the card rises from the foot)
     const BC = SHOWC.behindCard || {};
     const shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
-    // …and on a wide screen the card stands at the right (ui docks it there): the picture is fitted into the left of the frame
-    const side = S.hold && BC.hold !== false && row.upright < 0.5 ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
+    // …and on a wide screen the card stands at the right (ui docks it there, by the same rule: not a phone, wider than 1.2 × its
+    // height): the picture is fitted into the left of the frame
+    const side = S.hold && BC.hold !== false && cardAtSide() ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
     const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: row.margin + row.footroom,
       marginRight: side > 0 ? side : null, minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
     if (!fit) return false;
@@ -845,7 +849,7 @@ export function create(ctx) {
       // and lets the head and the fish sway a little inside it, as a boat's passengers do; the margins are that room)
       S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
       // a phone lifts the subject into the open top, once; a wide screen moves it to the left of the card, once
-      const cardLift = S.hold && !S.frozenCard && (showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01 || (Number(SHOWC.behindCard?.landscapeSide) || 0) > 0);
+      const cardLift = S.hold && !S.frozenCard && (showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01 || cardAtSide());
       if (!S.still || !S.init || cardLift) { if (fitShow(v)) { S.fitOk = true; if (S.hold) S.frozenCard = true; } }
       if (!S.fitOk) { S.w = 0; return; }   // (nothing to frame yet: the play's camera stays)
     } else {

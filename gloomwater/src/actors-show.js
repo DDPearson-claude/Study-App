@@ -361,13 +361,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       L.lockKeys = [key];
     } else {
       const lo = (L.grip.spreadClamp?.[0] ?? 0.13) / 2, hi = (L.grip.spreadClamp?.[1] ?? 0.44) / 2;
-      if (K.wings && upright) {   // a ray, like a painting: a hand on each wing's edge from behind, the disc to the lens, the tail hanging
-        const xr = T.X.set(1, 0, 0).applyQuaternion(Y.quat).dot(L.xS) >= 0 ? 1 : -1;   // which of its wings is to lens-right (the left hand's)
-        // (where the disc is no wider than the arms can hold: a big ray is held lower on its wings)
-        let fg = K.f0 + 0.03;
-        for (let f = fg; f <= 0.5; f += 0.02) { fg = f; if (fv.section(f, sec).halfW <= hi + 0.03) break; }
-        skin(fv, fg, xr, -0.3, rh * 0.45, Y.gripL); skin(fv, fg, -xr, -0.3, rh * 0.45, Y.gripR);
-      } else if (K.wings) {   // (a flat fish held snout-to-the-side: both hands under its lower wing)
+      if (K.wings) {   // a ray, like a painting: both hands under its lower wing, the disc to the lens
         const dn = T.X.set(1, 0, 0).applyQuaternion(Y.quat).y < 0 ? 1 : -1;   // which of its wings hangs down
         const h = clamp(0.2 * L.L, lo, hi * 0.8);
         skin(fv, clamp(K.f0 - h / L.L, 0.06, 0.4), dn, -0.25, rh * 0.6, Y.gripL); skin(fv, clamp(K.f0 + h / L.L, 0.14, 0.47), dn, -0.25, rh * 0.6, Y.gripR);

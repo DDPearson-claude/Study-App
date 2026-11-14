@@ -682,8 +682,9 @@ export function createScreens(K) {
       const phone = K.vw < 700;
       // the show's card on a wide screen (docs/v3/show/SPEC.md §2.10): docked at the right like a photograph's caption, over
       // behindCard.landscapeSide of the frame, so the Wick and its fish stay in sight beside it (render fits the picture into
-      // the left); its ink is one column
-      const sideK = !phone && N.v3 && showCard() && K.vw >= K.vh * 1.2 ? Math.max(0, Math.min(0.6, num(D().AUTOFISH?.show?.camera?.behindCard?.landscapeSide, 0))) : 0;
+      // the left: render.js cardAtSide is the same rule); its ink is one column. A phone on its side (under 480 px high) keeps
+      // the card across its middle
+      const sideK = !phone && N.v3 && showCard() && K.vw >= K.vh * 1.2 && K.vh >= 480 ? Math.max(0, Math.min(0.6, num(D().AUTOFISH?.show?.camera?.behindCard?.landscapeSide, 0))) : 0;
       const sideW = sideK > 0 ? Math.round(Math.max(380, Math.min(560, K.vw * sideK - 34))) : 0, sideM = sideK > 0 ? Math.round(Math.max(0, Math.min(40, K.vw * 0.012))) : 0;
       const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
