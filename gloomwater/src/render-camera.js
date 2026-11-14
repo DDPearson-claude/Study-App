@@ -188,7 +188,7 @@ const smooth01 = (t) => { const x = clamp(t, 0, 1); return x * x * (3 - 2 * x); 
 export const SHOW_CAMERA_DEFAULT = Object.freeze({
   margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45, out: 0.9, follow: 10, still: 0.02,
   pose: {
-    pinch: { elev: 8, fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52 },
+    pinch: { elev: 8, fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0 },
     both: { elev: 10, fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'] },
     hug: { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
     hang: { elev: 8, fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'] },
@@ -208,8 +208,9 @@ export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.
   const id = pose && cam.pose?.[pose] ? pose : 'both';
   const R = cam.pose?.[id] || SHOW_CAMERA_DEFAULT.pose[id], L = Math.max(0, num(length, 0.5));
   const up = showUpright(aspect);
-  let fov = num(R.fov, 44), elev = num(R.elev, 10);
+  let fov = num(R.fov, 44), elev = num(R.elev, 10), flameTip = null;
   if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFov)) fov = R.tinyFov;
+  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFlameTip)) flameTip = R.tinyFlameTip;   // (a tiny fish's close-up keeps the flame's core, not its tip)
   fov = lerp(fov, Math.max(fov, num(R.fovPortrait, fov)), up);
   let craned = 0, rake = 0;
   if (id === 'alongside') {
@@ -218,7 +219,7 @@ export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.
     elev = lerp(elev, num(R.craneElev, 40), craned);
   }
   const M = cam.margin || SHOW_CAMERA_DEFAULT.margin;
-  return { id, elev, fov, margin: lerp(num(M.landscape, 0.08), num(M.portrait, 0.06), up), headroom: num(R.headroom, num(cam.headroom, 0)), footroom: num(R.footroom, num(cam.footroom, 0)), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], rake, craned, upright: up };
+  return { id, elev, fov, margin: lerp(num(M.landscape, 0.08), num(M.portrait, 0.06), up), headroom: num(R.headroom, num(cam.headroom, 0)), footroom: num(R.footroom, num(cam.footroom, 0)), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], flameTip, rake, craned, upright: up };
 }
 /** The view's axes for render's convention (yaw 0 looks north, −Z, from the south; elev degrees above the subject): right, up, forward. */
 export function showAxes(yaw, elevDeg) {

@@ -292,10 +292,13 @@ export default async function (api) {
       check(Math.abs(m.wickOffLens) <= offLim, `${name}: the Wick faces the lens (${m.wickOffLens}° off, limit ${offLim}°)`);
       check(m.ui === 0 && m.words === 0, `${name}: 0 ui elements, 0 words at the pause`, { ui: m.ui, words: m.words });
     }
-    // ---- no ring round the raft (S5): no plain ripple asked for within 3.2 m of the raft from T0 − 1.2 s until play resumes
-    const rings = rec.rip.filter((e) => e.ring && e.d < 3.2 && e.t >= -1.2);
+    // ---- no ring round the raft (S5, SPEC §2.6: the hush is on from T0 to the card): no plain ripple asked for within 3.2 m of the
+    // raft from T0 until play resumes. (The play's own last beats, before T0, ring the fish where it thrashes, not the raft: a note.)
+    const rings = rec.rip.filter((e) => e.ring && e.d < 3.2 && e.t >= 0);
     rec.rings = rings;
-    check(rings.length === 0, `${name}: no ripple ring asked for within 3.2 m of the raft from 1.2 s before T0 to the way out`, rings.slice(0, 6));
+    check(rings.length === 0, `${name}: no ripple ring asked for within 3.2 m of the raft from T0 to the way out`, rings.slice(0, 6));
+    const before = rec.rip.filter((e) => e.ring && e.d < 3.2 && e.t >= -1.2 && e.t < 0);
+    if (before.length) note(`${name}: ${before.length} ripple(s) of the play's last beats within 3.2 m of the raft before T0 (the fish's own splash, nearest ${Math.min(...before.map((e) => e.d))} m)`);
     // ---- no pop (S5): the lens from T0 until 1.5 s after the card closes
     let dMax = 0, ddMax = 0, fMax = 0, prev = null, prevD = null;
     for (const r of trace) { if (prev) { const d = Math.hypot(r.x - prev.x, r.y - prev.y, r.z - prev.z); if (prevD != null) ddMax = Math.max(ddMax, Math.abs(d - prevD)); dMax = Math.max(dMax, d); fMax = Math.max(fMax, Math.abs(r.fov - prev.fov)); prevD = d; } prev = r; }

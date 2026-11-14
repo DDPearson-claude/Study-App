@@ -722,16 +722,20 @@ export function create(ctx) {
     let f = null;
     if (isReal(ctx.actors) && typeof ctx.actors.getShowFocus === 'function') { try { f = ctx.actors.getShowFocus(); } catch { f = null; } }
     if (f && !f.isStub && f.keep) {
-      for (const q of showKeep(f, row.keep)) pts.push(q);
+      // (a fish laid alongside trails its tail under the lake: what is under the surface is not framed, only what stands above it)
+      const lie = row.id === 'alongside', wl = lie ? (isReal(ctx.water) && ctx.water.getHeight ? Number(ctx.water.getHeight(f.fish?.center?.x ?? 0, f.fish?.center?.z ?? 0)) || 0 : 0) - 0.04 : -Infinity;
+      let n0 = 60;
+      for (const q of showKeep(f, row.keep)) pts.push(q.y >= wl ? q : showPoint(n0++).set(q.x, wl, q.z));
       // the flame is kept by its core; its tip stands a little higher (the frame leaves it room: it is half the Wick's face)
       const fl = f.head?.flame, hr = Number(f.head?.radius) || 0;
-      if (fl && Number.isFinite(fl.x) && hr > 0 && row.keep.includes('flame')) pts.push(showPoint(40).set(fl.x, fl.y + hr * (Number(SHOWC.flameTip) || 0.9), fl.z));
+      const tip = row.flameTip != null ? Number(row.flameTip) : Number.isFinite(SHOWC.flameTip) ? SHOWC.flameTip : 0.9;
+      if (fl && Number.isFinite(fl.x) && hr > 0 && tip > 0 && row.keep.includes('flame')) pts.push(showPoint(40).set(fl.x, fl.y + hr * tip, fl.z));
       const c = f.fish?.center;
       if (c && Number.isFinite(c.x)) {
         S.fishC.set(c.x, c.y, c.z); S.hasFish = true;
         // the fish's whole box, fins and all (its four named points are the tips of a diamond; the box's corners a little out)
         const ax = f.fish.axis, up = f.fish.up, L = Number(f.fish.length) || 0, dp = (Number(f.fish.depth) || L * 0.25) * 0.5 * (Number(SHOWC.finRoom) || 1.2);
-        if (ax && up && L > 0 && row.keep.includes('fish')) {
+        if (ax && up && L > 0 && row.keep.includes('fish') && !lie) {
           let n = 41;
           for (const sa of [-0.5, 0.5]) for (const su of [-1, 1]) pts.push(showPoint(n++).set(c.x + ax.x * L * sa + up.x * dp * su, c.y + ax.y * L * sa + up.y * dp * su, c.z + ax.z * L * sa + up.z * dp * su));
         }

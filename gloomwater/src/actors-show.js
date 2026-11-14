@@ -316,8 +316,9 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     let x, y;
     if (pinch && !L.tall && !tiny) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
       x = sd * (G.head.radius * 0.94 + (tiny ? 0.03 : upright ? 0.06 : 0.32 * L.L)); y = G.head.center.y - (tiny ? 0.03 : 0.08) - (upright ? ext * 0.5 : 0);
-    } else if (pinch) {       // an upright frame (and any tiny fish: before the dark cloak, where a sliver of silver reads): under the chin, the face above it
-      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + (tiny ? (L.tall ? 0.07 : 0.24) : 0.02), G.eyes.y - (tiny && !L.tall ? 0.06 : 0.12) - ext);
+    } else if (pinch) {       // an upright frame (and any tiny fish on a wide one: before the dark of the face, where a sliver of silver reads; it sits just
+                              // under eye level and the near lens drops it below the eyes): under the chin, the face above it
+      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + (tiny ? (L.tall ? 0.07 : 0.44) : 0.02), G.eyes.y - (tiny && !L.tall ? -0.07 : 0.12) - ext);
     } else { x = 0; y = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext); }   // the face must show above it
     const c = T.d.copy(L.spot).addScaledVector(L.xS, x).addScaledVector(L.zS, faceZ + reach); c.y = y;
     Y.pos.copy(cLocal).applyQuaternion(Y.quat).negate().add(c);
@@ -326,7 +327,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       const key = sd > 0 ? 'l' : 'r', g = key === 'l' ? Y.gripL : Y.gripR;
       if (fv.shape === 'crayfish') skin(fv, 0.72, 0, -1, rh * 0.6, g);                             // held from below by the carapace, behind its claws
       else if (K.round && fv.shape === 'jelly') { fv.section(0.42, sec); g.set(0, 0, sec.z - rh * 0.7); }   // the bell sits on the palm
-      else skin(fv, K.f0, 0, -1, rh * 0.72, g);
+      else {   // on the upturned palm; a fish no deeper than the fist rides ON it (else the round hand, nearer the lens, hides it)
+        const dep = fv.section ? (fv.section(K.f0, sec), sec.top - sec.bottom) : rh;
+        skin(fv, K.f0, 0, -1, rh * (0.72 + 0.28 * clamp((1.6 * rh - dep) / (0.8 * rh), 0, 1)), g);
+      }
       L.lockKeys = [key];
     } else {
       const lo = (L.grip.spreadClamp?.[0] ?? 0.13) / 2, hi = (L.grip.spreadClamp?.[1] ?? 0.44) / 2;
