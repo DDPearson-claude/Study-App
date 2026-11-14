@@ -1,10 +1,10 @@
-# The Full Hold: catch, keep, sell, upgrade (binding spec, v6)
+# The Full Hold: catch, keep, sell, upgrade (binding spec, v7.1)
 
-*Gloomwater's game loop after the user's redirect of 2026-11-13, rebuilt on the roster (`docs/loop/ROSTER.md`) and revised after two critics (§0.1). This file is binding. Where it conflicts with DESIGN §1–§25 or CONTRACT §13 it wins (§12 lists what it replaces). Its numbers are proven by `tools/sim/clams.mjs` (89 checks); when the numbers here and the sim disagree, re-run the sim and fix this file. Design only: no `src/` file changed with this document.*
+*Gloomwater's game loop after the user's redirect of 2026-11-13, rebuilt on the roster (`docs/loop/ROSTER.md`), revised after two critics (§0.1), and re-ordered into a greening ramp with rivers after the user's words of 14 November 2026 (§0.2; the waters' looks are `docs/loop/WATERS.md`), and revised after three critics of v7 (§0.3; `WATERS.md` §10 logs every finding). This file is binding. Where it conflicts with DESIGN §1–§25 or CONTRACT §13 it wins (§12 lists what it replaces). Its numbers are proven by `tools/sim/clams.mjs` (140 checks); when the numbers here and the sim disagree, re-run the sim and fix this file. Design only: no `src/` file changed with this document.*
 
-**How to read it.** §0.1 says what v6 changed and why. §1–§3 are the game and its rules (§3.5 is the rare giants). §4 is every number. §5–§7 are maps, home and raft. §8 is every word on screen. §9–§12 say what happens to what exists. §13 is the build plan. §16 lists the questions only the user can answer. Appendix A lists every fish with its price.
+**How to read it.** §0.3 says what v7.1 changed, §0.2 what v7 changed and why (§0.1 what v6 changed). §1–§3 are the game and its rules (§3.5 is the rare giants). §4 is every number. §5–§7 are maps, home and raft. §8 is every word on screen. §9–§12 say what happens to what exists. §13 is the build plan. §16 lists the questions only the user can answer. Appendix A lists every fish with its price.
 
-**Vocabulary (always these words).** **clams** (the currency; "Shells" is retired) · **the hold** · **slot** · **Keep / Let go** · **good bites** and **quiet water** · **an evening** (one trip) · **Home** · **the tally** (Murk buying the hold) · **the Chart** (the Map Table's screen) · **map** (the one word on screen for a lake map and a place map; a lake map opens a water's open water, its day water and its old water; a place map opens one more place) · **a water** (one of the 16 lakes and seas) · **day water, old water, night water, crown** (the kinds of place; on screen four glyphs, never words) · **a rare giant** (★: the descendant of an episode's main fish; *epic*, or *legendary* for a water's crown) · **a legend** (a legendary giant) · **value tier** (a water's price level, hidden) · **a reach** (four waters in a row: I the old kingdom, II the fresh waters, III the great rivers, IV the sea) · **Murk's orders** · **ink print** · **the Jetty** (the first, small home).
+**Vocabulary (always these words).** **clams** (the currency; "Shells" is retired) · **the hold** · **slot** · **Keep / Let go** · **good bites** and **quiet water** · **an evening** (one trip) · **Home** · **the tally** (Murk buying the hold) · **the Chart** (the Map Table's screen) · **map** (the one word on screen for a lake map and a place map; a lake map opens a water's open water, its day water and its old water; a place map opens one more place) · **a water** (one of the 16 lakes, rivers and seas) · **a river** (a water built on the river layout: banks, bends and a current; §5.3) · **lushness step** (0 to 15: how green and lush a water is; one step per water, §5.2) · **day water, old water, night water, crown** (the kinds of place; on screen four glyphs, never words) · **a rare giant** (★: the descendant of an episode's main fish; *epic*, or *legendary* for a water's crown) · **a legend** (a legendary giant) · **value tier** (a water's price level, hidden) · **a reach** (four waters in a row: I the old kingdom, II the cold rim, III the falls and the gate, IV the green heart) · **Murk's orders** · **ink print** · **the Jetty** (the first, small home).
 
 ---
 
@@ -19,13 +19,15 @@
 | 5 | "Use all of these fish as inspiration for our game's fish" (on the researched list of every fish landed on a television fishing series; `docs/loop/research/`) | Every fish on the list is the ancestor of one original fish of ours (`docs/loop/ROSTER.md`, `roster.json`, checked by `tools/sim/roster-check.mjs`). **All 164 live on at least one map** (§5.2; the sim checks it). The series and its presenter are never named in the game, and the roster's design notes never ship (§13, slice 1b). |
 | 6 | "The main episode based fish he catches should be the rare giants" | The 49 rare giants (33 epic, 16 legendary) are the scarcest, largest, dearest and hardest fish of their waters. **49 of the 55 maps promise a giant**, and every map but the first names a fish you cannot meet elsewhere (§3.5, §5.1 rule 9). |
 | 7 | "Yes to all five loop rules" (13 November 2026, answering v4's five questions) | Decisions now: a kept fish is final; the water goes quiet; every trip is an evening; a map's card names one fish; raft only for now. |
+| 8 | "Yes to all four defaults and the let-go rule." (14 November 2026, answering §16) | Decisions now: the twelve new waters are full 3D waters; about 48 hours to buy everything (the pacing run: 48.9 h); late prices run into the hundreds of thousands, shown as "196k" (a Trophy giant of the Inkwood sells for about 196,000 on average and 218,000 at most, an Elder Emberbelly about 548,000; the last lake map is 984k); a lake map opens two places at once (its day and old water); a fish let go returns its good bite and adds +0.2 favour there, to +0.4. |
+| 9 | "I want the lakes to get progressively more and more lush and green. I also want some of the levels to be rivers similar to the rivers fishes in the river monsters series. As we unlock new lakes and rivers we need to slowly but progressively start getting more and more green and lush." (14 November 2026) | **A ramp, not a switch** (§5.2, `WATERS.md`). The Mossmere keeps today's look exactly: lavender night, green only as a trace. From water 2 on, each water you unlock is one visible lushness step greener than the one before (0 to 15, one per water), slowly and steadily, until the last waters are deep green rainforest. Green lives on things (moss, fern, reed, leaf, vine, root, weed), never in the air, the light or the grade; the violet-dusk sky, the lavender moon, the clear air and the candle's one warm light never change; each water has a day, dusk and night look, and the green reads in all three. **Six of the twelve new waters are rivers** (slots 6, 8, 10, 12, 14, 16), modelled by type and feel on the kinds of river the series fished: a wide braided sand river, a snowmelt gorge, cataracts, a tidal mouth, a great brown lowland river and a blackwater river through flooded forest. They alternate with six stills, and the lushest come last. A river is a full 3D water: banks, bends, a current you can see, the raft on moving water (§5.3). The series, its presenter, its episodes and every real river or country stay in `docs/` only. |
 
-**Decided by the lead (and why).** Rows 1–5 stand from v4 and the user confirmed them; rows 6–14 came with v5; v6 revised 2, 6, 10, 11, 12 and 14 and added 15–21 (§0.1).
+**Decided by the lead (and why).** Rows 1–5 stand from v4 and the user confirmed them; rows 6–14 came with v5; v6 revised 2, 6, 10, 11, 12 and 14 and added 15–21 (§0.1); v7 revised 10, 11 and 14 and added 22–27 (§0.2); v7.1 revised 2, 10, 15, 23, 25 and 26 and added 28–31 (§0.3).
 
 | # | decision | why |
 |---|---|---|
 | 1 | **Kept stays kept.** A fish in the hold stays there until Murk buys it. | "Once your boat is full you can't catch anymore fish": a full boat is final. A swap is a bigger hold by another name. (User: yes.) |
-| 2 | **The water goes quiet, and let go forgives.** Every water has a few good bites an evening; every bite you strike or let pass spends one (§3.3). A fish let go at the card gives its bite back, and the next bites at that water run bigger (§3.2). | Without quiet water, "let everything go until the giants bite" brings 2.1–3.9 times the clams per trip. With it, no patient strategy reaches the natural rule per minute (the best is 89%). With the forgiving let go, letting a fish go is a real choice: choosy play earns 88–95% of the natural rule per minute (it was 67–79%). (User: yes to quiet water.) |
+| 2 | **The water goes quiet, and let go forgives.** Every water has a few good bites an evening; every bite you strike or let pass spends one (§3.3). A fish let go at the card gives its bite back, and the next bites at that water run bigger (§3.2). | Without quiet water, "let everything go until the giants bite" brings 2.1–3.9 times the clams per trip. With it, no patient strategy reaches the natural rule per minute (the best is 89%). With the forgiving let go, letting a fish go is a real choice: choosy play earns 88–95% of the natural rule per minute at the six stations and 87–104% on every new water at its arrival kit (it was 67–79%). (User: yes to quiet water.) |
 | 3 | **Every trip is an evening.** Dusk falls after 40 s on the water; night lasts until you turn for home (§3.4). | Night stays the big-fish hour without a clock or a skip button. (User: yes.) |
 | 4 | **Clams are the only key.** No proof catches, no tolls, no legend gates. | One currency, one way to discover places. |
 | 5 | **One lure and one bait at once.** | Both are on the user's list; with one slot for both a tin never beats a lure. |
@@ -33,20 +35,60 @@
 | 7 | **A giant lives at one place and is a fixed share of the bites there:** 6% in its hour, 2.5% outside it; its own giants' lure makes that ×1.5 (§3.5). | A share does not swing with what else bites. It keeps "the promise of a giant" honest: it comes, rarely. |
 | 8 | **A giant is never Small, runs big (+0.3 favour), may be an Elder at its own place, and fights +10 harder than a rare** (+12 as an Elder). | The giants are "the top of the value ladder and the hardest fish to land". The sim checks both for every water (§4.9). |
 | 9 | **Value is value tier × rarity × body × size.** Rarity ×1 / 2.4 / 5.5 / 12 (common to epic); body is the square root of the fish's typical length against 45 cm, clamped 0.6–1.6. | Big and rare fish, in the roster's own rarities and sizes. A giant sells for 1.7 times or more than the dearest other fish of its water at the same size class. |
-| 10 | **Each water's value tier is set by two rules.** On the day you buy its map, its open, day and old water pay at least 1.05 times the water before it, fully mapped. Fully mapped, it pays at least 1.2 times the water before it. | The next map is always worth having, from its first evening (sim section 6). The tier is hidden; it ranges from 7 (the Mossmere) to 1,247 (the Rime Sound). |
-| 11 | **Tackle T5 and T6.** T5 is on the shelf with the Pallid Deep map, T6 with the Inkwood map. | Sixteen waters need the gear to keep growing. Each lake map is judged on the tackle you own when you can buy it. |
+| 10 | **Each water's value tier is set by two rules.** On the day you buy its map, its open, day and old water pay at least 1.05 times the water before it, fully mapped. Fully mapped, it pays at least 1.2 times the water before it. | The next map is always worth having, from its first evening (sim section 6). The tier is hidden; it ranges from 7 (the Mossmere) to 1,675 (the Inkwood). |
+| 11 | **Tackle T5 and T6.** T5 is on the shelf with the Pallid Deep map, T6 with the slot-10 map (v7: the Thunder Stair). | Sixteen waters need the gear to keep growing. Each lake map is judged on the tackle you own when you can buy it. |
 | 12 | **Every tin gives the same favour and costs the same in a water** (1.5 × its value tier). Tins differ only in which fish they help hold, and in the few fish that bite on one bait only. **Bait does not change which fish bite.** | In v5 one tin beat every other everywhere. Now picking a tin means picking a fish, and no tin beats the water's plain bait (sim section 4). |
 | 13 | **An hour opens a window that runs into the next phase:** "day" bites by day and dusk, "dusk" at dusk and night, "night" at night. | The roster's hours, made playable in a 60-second evening. |
 | 14 | **The long game is about 48 hours** to buy everything: the four built lakes by hour 16, then a new water every 2–3 hours. | Long enough for 55 maps and 49 giants; each era is a few sessions. (Question 2, §16.) |
-| 15 | **Every place map earns its price.** Bought in price order, each raises clams a minute by at least 5% (8–32%), and no set of a water's places pays more than the next water fully mapped. | In v5 some maps made you poorer (the Last Light's Drift Line −13%, the Beam −29%), so stopping short was the best play. |
+| 15 | **Every place map earns its price.** Bought in price order, each raises clams a minute by at least 5% (8–29%), and no set of a water's places pays more than the next water fully mapped. | In v5 some maps made you poorer (the Last Light's Drift Line −13%, the Beam −29%), so stopping short was the best play. |
 | 16 | **A place's own fish are worth the sail.** At any place commons bite half as often; a day water draws its water's uncommon and rare fish 1.5 times as often. Eleven roster fish bite at a kind of place in play (§5.2), so no map card names a common. | v5's weak maps put a common on the card (the Marsh Lanes, the Bar, the Net Racks, the Step Pools). |
 | 17 | **The hold past 4 is a bigger evening, not a faster one, and it is priced like one.** Hold 5–8 add 8–20% a trip at about the same clams a minute, for one or two trips' income each (§4.2). | Quiet water limits the good bites, so a bigger hold cannot honestly be a multiplier. Pretending would make the grind pay. |
 | 18 | **The raft is Oars I–II, the Keel I–III and the Lantern I–II.** Quiet Hull is cut. The Keel makes every fish run bigger (§7). | Quiet Hull did nothing measurable (+0.3% at 1 h, −0.2% at 40 h). Each part now pays its way or costs at most two trips. |
 | 19 | **Orders never expire.** An order stays until it is filled, or until you wipe it. | An order that vanished after 3 evenings was a countdown. |
 | 20 | **Fewer words.** Home is a press-and-hold pill; "Gone quiet." is gone; orders and the Old Ledger are glyphs; a dear price is only dimmed; Cut bait is a long-press on Let go; a map's line is at most 8 words (§8). | "The UI is really cluttered, there's too much text on screen." |
 | 21 | **The natural route waits for a dusk giant.** On an old water whose giant bites only from dusk, the Wick waits there for the light to turn. | Without it the old water was fished in daylight and its dusk giant came home on 1 trip in 143 (the Thousandcast Pike); with it, 1 in 21. |
+| 22 | **The greening ramp.** Every water has a lushness step, 0 (the Mossmere) to 15 (the Inkwood), one per water in unlock order. Green share, foliage and night emitters rise with it; the air, the sky, the moon, the grade and the candle never change (`WATERS.md` §1, §3). | The user's words (§0 row 9). A ramp keeps the Mossmere the user approved and makes every new map a visible step greener, never a jump. |
+| 23 | **The cold rim first, the green heart last.** v7's order: 5 the Rime Sound, 6 the Thin Water, 7 the Last Light, 8 Pyrefall Gorge, 9 the Waxen Reef, 10 the Thunder Stair, 11 Rushlight Fen, 12 the Salt Gate, 13 Lampmoss Slough, 14 the Siltway, 15 Lanternroot Lagoon, 16 the Inkwood. | v6 put the ice fjord, the open sea and the reef last, where the lushest green must be. Re-theming them green would have taken away their giants' homes (the Long Winter under the ice, the Lantern Hole, the Jetsam Shark's open swell). Re-ordering keeps every home. v7.1 keeps the order, re-themes the Rime Sound as a temperate-rainforest fjord (the ice only at its head) and starts the Last Light under a near lighthouse island, so each is a real step greener (`WATERS.md` §2). The cost (the two largest legends come at hours 21–26) is §16 question 6. |
+| 24 | **Six rivers, alternating with six stills**, the rivers at 6, 8, 10, 12, 14 and 16. | "Some of the levels" are rivers, so lakes stay. Alternating gives a pleasing run; the three lushest river kinds (the tidal mouth with mangroves, the great lowland river, the blackwater forest) come last. |
+| 25 | **A river is a new layout** (`arena.layout: 'river'`) on an authored strip, seen up its channel by a camera that follows the river, with one water level, a current capped at 1.2 m/s in the lanes, white water that never cuts the lane, slack water at every place and dock, and the raft holding still while a line is out (§5.3, `WATERS.md` §4). | Moving water must not change how fishing feels or create a way to fail. |
+| 26 | **Prices follow the slot by the v6 rule, re-derived.** A lake map costs 42 minutes of its water's own income fully mapped (the rule behind v6's ladder); its place maps are the same shares (night 0.43, fifth 0.39, crown 0.59). The value tiers are re-calibrated for each water in its new slot. | One rule for every slot. Kept as it was, v6's lake ladder by slot gave 53.8 h and a 98-minute wait on v7's tiers (failing the 90-minute check); on v7.1's tiers it would give 49.2 h and an 82-minute wait. The 42-minute rule gives 48.9 h and a longest wait of 76 min, with all 140 checks passing. A slot's night water, crown, fifth place and legend bait also never cost less than 1.05× the slot before's (v7.1). |
+| 27 | **The built waters 2–4 gain a little green** (Sporewood step 1, Glasswater 2, the Pallid Deep 3) from materials only; their fog, water and grade stay. The Mossmere does not change at all. v7.1: the repaint ships switched off (`LOOP.lush`) until the user approves it side by side. | Monotonic from water 1: the ramp needs them to step up, gently (`WATERS.md` §6). Nothing the user approved changes before the user says yes. |
+| 28 | **Every new water is checked on its own** (v7.1, sim section 2b): the anti-grind, let-go and bait checks run on each of the twelve at the kit it is bought with, not only at the 20 h and 40 h stations. | v7 moved Pyrefall Gorge to slot 8 because it failed at slot 6; it still failed at 8, where no station looked. |
+| 29 | **Three fish bite where their water needs them** (v7.1): the Lampspot Snakehead in Pyrefall Gorge's open water (its roster kind), drawn ×2.5 at the Coin Run and the Boulder Garden; the Reedwalker Catfish in Rushlight Fen's open water, drawn ×2.5 at the Night Lanes. No fish changes water. | The Gorge's open water had two commons, so let-go play earned 81%; the Fen's thin pool forced a tier the Salt Gate after it halved (−51% for its giants). Now 87% and +7%. |
+| 30 | **The plain bait and the giants' lures earn their place** (v7.1): the Last Light's and Lanternroot Lagoon's plain bait is Shimmerfly, the Inkwood's Mire Worms; a new giants' lure names its giants and its two biggest rare or uncommon fish, and the Lighthouse Feather is also a predator's lure; the player fits whichever lure pays best. | A tin beat the Last Light's plain bait by 4.1 points and the Inkwood's by 3.9; the Thunder Plug cost the pacing player 18% a trip. Now no other tin is more than 1.8 points better anywhere, and every giants' lure earns 2–29% more than the best family lure. |
+| 31 | **A new water's giant lands a Prize 39–50% of the time on the tackle it is bought with** (v7.1: the Rime Sound's, the Thin Water's and the Thunder Stair's Fight terms raised). | The Icedoor Flounder landed 57%, above the legends' coin flip. The built lakes' giants land 27–34%; new tackle is a small reward, never a sure thing. |
 
 **Sources.** v4 (commit 1aa478c) reconciled three proposals: economy, maps, and trip-and-home (§15). v5 (commit 3fc4a12) rebuilt the fish values, the catalogue and the build plan around the roster (commit d20aa74). v6 is v5 revised after the player's-advocate and builder critics (§0.1).
+
+### 0.3 What v7.1 changed (three critics of v7)
+
+Three critics reviewed v7: the art and the ramp, the engine and the rivers, the economy. Every finding was checked; 47 are applied, two partly; `WATERS.md` §10 lists each with its one-line reason.
+
+| change | where | why |
+|---|---|---|
+| **The colour script measures and gates.** It paints each water in the camera's frame, measures each cell as `hue-report` does and fails on any gate; the ramp's targets (day +2.5 points a water, to 38%; dusk 0.88 and night 0.55 of day) are the measured, reachable values | `WATERS.md` §1, §7, §8 | v7's picture contradicted its own ramp (three reversals, two jumps) and its night targets were unreachable |
+| **One foliage track**, inside the neon caps; the mirror never turns the water green; the sky gate is on sky pixels; no disc round the candle | `WATERS.md` §1, §3 | the first green the user would see broke the caps; the late waters' water turned green |
+| **The Rime Sound and the Last Light re-themed** to be real steps up: a rainforest fjord with the ice only at its head; a near lighthouse island with a turf-and-fern cliff, reef breakers round the water | §5.2, `WATERS.md` §2, ROSTER §3 | they fought their slots (a step back after the requiem garden; a green sea) |
+| **The rivers rebuilt**: an authored strip arena (reaches 170–240 m), a camera that follows the river and looks up the channel, the landmark at the first bend, white water that never cuts the lane, places in slack water beside it, a tide that moves no geometry, two-phase flow in the first river, casts along the channel, gorge walls as swept meshes, every polar consumer listed | §5.3, `WATERS.md` §4 | the reaches could not fit their arena; white water split the lane; the rivers would have been seen side-on |
+| **The kit and its cost**: the Mossmere's built pads and reeds untouched, every new shader term compiled out at lush 0, cells on a grid, prototypes stamped, the cost line re-derived per pass and gated in slice 5 | `WATERS.md` §5 | the byte-identity test and the budget could not pass as written |
+| **The build plan**: slice 1c ships switched off and in its own export; a river spike (1d) right after it; slice 6 re-scoped so every slice ships consecutive waters; `LOOP.chainSkip`; the river work split and re-estimated | §13 | 6a could not sell the Last Light without the Thin Water; a slipping river would freeze every later still |
+| **The economy re-proven per water**: sim section 2b; three fish placed where their water needs them; plain baits, giants' lures, Fight terms and a price floor fixed; tiers and prices re-derived | §0 rows 28–31, §4, §5.2, Appendix A | Pyrefall Gorge and the Last Light failed checks no station ran; Rushlight Fen's tier halved at the Salt Gate |
+| **The legends' trade put to the user** | §16 question 6, SUMMARY | the biggest legends now come at hours 21–26; the user had not been told |
+
+### 0.2 What v7 changed (the user's words of 14 November 2026)
+
+| change | where | why |
+|---|---|---|
+| The user answered §16: yes to all four defaults and the let-go rule | §0 row 8, §16 | they are decisions now |
+| **The greening ramp**: a lushness step per water, 0 to 15, rising with unlock order; green on things, never in the air | §0 rows 9, 22; §5.2; §5.3; §11; `WATERS.md` | "progressively more and more lush and green" |
+| **Six rivers** (the Thin Water, Pyrefall Gorge, the Thunder Stair, the Salt Gate, the Siltway, the Inkwood) on a new river layout with a visible current | §0 rows 9, 24, 25; §5.3; `WATERS.md` §4 | "some of the levels to be rivers" |
+| **The twelve new waters re-ordered**: the cold rim first (the Rime Sound, the Thin Water, the Last Light, Pyrefall Gorge), the falls and the gate next (the Waxen Reef, the Thunder Stair, Rushlight Fen, the Salt Gate), the green heart last (Lampmoss Slough, the Siltway, Lanternroot Lagoon, the Inkwood) | §0 row 23; §5.2 | the sea and the ice sat where the lushest green must be |
+| **Looks rewritten for the ramp**: every new water gains the green of its step; Lampmoss Slough's "green only as a trace on the pads" and the Inkwood's "Leaves are plum and dusk, never green" are gone; the Last Light gains a weed meadow, a turf-capped rock and a far green island ("no shore you can reach"); the built waters 2–4 gain first moss, moss on crystal and the requiem garden | ROSTER §2–§3, `roster.json` `look`, `WATERS.md` §2 | each water's look must match its step and kind |
+| **No fish moved.** Every giant keeps its place, hour and share; all 164 fish keep their waters | ROSTER §3 | every giant's haunt is a pool, run, chute, eddy, bar, wreck, hole or ice hole its water keeps |
+| **Every new-water number re-derived**: value tiers re-calibrated in the new slots; lake maps at 42 minutes of each water's income; T6 with the slot-10 map; Tallow Soap with the Thunder Stair (slot 10), Windfall Plum with the Inkwood (slot 16) | §4, §5.2, Appendix A, `tools/sim/clams.mjs` | the sim's 89 checks pass; the long game is 48.5 h |
+| The sim's two late stations follow the slot (the 20 h station is slot 6, the 40 h station slot 12), and the "first new water" check reads slot 5 | `tools/sim/clams.mjs` | a re-order must not leave a check pointing at the wrong water |
+| **Build plan**: slice 1c (first moss on the built waters, an art lane beside 1b); the vegetation kit in slice 5; slice 6 split into 6a (the first green new waters on lake layouts) and 6b (the river layout, first on the Thin Water); the slices renamed by reach; body plans re-sequenced | §13 | the greening lands as early as it can without touching slice 1a |
+| Risks: phones and software GL, a green cast, the first step too big, moving water, the tide, Pyrefall Gorge's thin open water | §14 | — |
 
 ### 0.1 What v6 changed (the critics' findings)
 
@@ -90,7 +132,7 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 1. **Big and rare fish.** The rare giants are the dream. The size shows on the line; the species hides until the reveal.
 2. **The hold decides.** Few slots, no promise. Every keep is final, and every let go is forgiven.
 3. **A map opens every water.** The next map is always on Murk's shelf, with its fish drawn on it and a price, and it is never a step down.
-4. **Art, atmosphere and fishing.** The Clear Night look, the lavender Starlit palette, and very few words on screen.
+4. **Art, atmosphere and fishing.** The Clear Night look, the lavender Starlit palette, waters that grow greener and lusher with every map, and very few words on screen.
 5. **No way to fail.** Nothing is lost except the fish that got away.
 6. **One thumb, short sessions.** A trip is 2–6 minutes, the visit home included. Everything is a tap or a hold.
 
@@ -105,7 +147,7 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 | **a visit home** | 30–60 s | the tally: Murk buys the whole hold, fish by fish → the shelf: one thing is usually affordable → the Chart → Sail. |
 | **a session** | 5–15 min | 2–4 trips and 1–4 purchases. A goal line shows the next one ("Next: Under the Span · 150"). |
 | **an era** (one water) | 2–5 h | the lake map (its open, day and old water) → its giants' lure → the crown of the water before → its night water and fifth place → the next lake map. |
-| **the long game** | ≈ 48 h to buy everything | 16 waters, 55 maps, tackle T6, hold 8, the raft and the home built up, 16 legends, about 70 giants and 64 Elders landed on the way. After that: the Journal's seals, the 49 giants' prints, records, legend rematches, the later sheets (§5.2). |
+| **the long game** | ≈ 48 h to buy everything | 16 waters, 55 maps, tackle T6, hold 8, the raft and the home built up, 16 legends, about 68 giants and 66 Elders landed on the way. After that: the Journal's seals, the 49 giants' prints, records, legend rematches, the later sheets (§5.2). |
 
 ### 2.1 The first ten minutes (a fresh save, the game after slice 2)
 
@@ -185,13 +227,13 @@ Tests: measure leaves the hold unchanged; a let-go fish refunds its bite and add
 | 10 min: hold 4, the Lily Maze (7) | 81 · 2.8 | 101% | 100% | 83% | 88% | 63% | 11% | 6% |
 | 1 h: T1, hold 5, three Mossmere places (13) | 244 · 3.3 | 104% | 97% | 86% | 91% | 76% | 21% | 11% |
 | 5 h: T2, hold 6, four Sporewood places (17) | 406 · 3.7 | 99% | 100% | 80% | 93% | 79% | 29% | 15% |
-| 20 h: T5, hold 8, three Thin Water places (16) | 3,797 · 4.3 | 102% | 100% | 72% | 92% | 79% | 30% | 14% |
-| 40 h: T6, hold 8, four Salt Gate places (18) | 24,959 · 4.5 | 102% | 100% | 89% | 95% | 85% | 50% | 21% |
+| 20 h: T5, hold 8, three Thin Water places (16) | 3,585 · 4.3 | 103% | 102% | 75% | 94% | 81% | 30% | 15% |
+| 40 h: T6, hold 8, four Salt Gate places (18) | 28,209 · 4.5 | 102% | 100% | 89% | 95% | 85% | 50% | 21% |
 
 - **No patient strategy reaches the natural rule per minute** (the best is 89%). **The giant hunt earns 9–50%**: a giant is too rare to fill a hold with, even when every let-go fish gives its bite back.
 - **The natural rule is within 4% of the best rule found**, so playing by feel is playing well.
 - **The rule is needed.** With quiet water switched off, "only Trophy+, stay till full" brings **2.1–3.9 times** the clams per trip; players would drift into it.
-- **Choosy play is a real choice**: 88–95% of the natural rule per minute, and 38–75% more clams a trip for 1.5–2 times the minutes.
+- **Choosy play is a real choice**: 88–95% of the natural rule per minute, and 38–75% more clams a trip for 1.5–2 times the minutes. On every new water at the kit it is bought with (sim section 2b, over 6,000 trips): 87–104%.
 
 ### 3.4 Every trip is an evening
 
@@ -219,7 +261,7 @@ The roster's 49 giants (★) are the descendants of the episodes' main fish: 33 
 | **where** | an epic giant bites only at its own place (`placeName` in the roster), never in open water or elsewhere | a map is the promise of a giant: buying its map is the only way to meet it |
 | **how often** | a fixed share of the bites at its place: **6% in its hour, 2.5% outside it**; its water's giants' lure makes the share ×1.5. Family lures do not draw giants. | it comes, but rarely; the share does not swing with what else bites in that hour |
 | **how big** | never Small (z ≥ −0.25); its bites run big (favour +0.3); **it may be an Elder at its own place**, whatever the kind of place (roster ask 1). Every other fish reaches Elder only in old water. | the giants have the longest ladders in their waters (roster σ 0.16) |
-| **how hard** | Fight +10 over a rare of its water, +12 as an Elder. On its water's arrival tackle a Prize giant lands 27–55% of the time, less than any other fish there (sim 4b checks every giant). | "the hardest fish to land, never certain" |
+| **how hard** | Fight +10 over a rare of its water, +12 as an Elder. On its water's arrival tackle a Prize giant lands 27–34% of the time in the built lakes and 39–50% in the new waters, less than any other fish there and never more than a legend's coin flip (sim 4b checks every giant: 30–50% for the new waters). | "the hardest fish to land, never certain" |
 | **what it pays** | rarity ×12 (a rare is ×5.5). At the same size class the cheapest giant of a water sells for at least 1.7 times its dearest other fish (sim 1 checks every water). | "the top of the value ladder" |
 | **when lost** | the got-away note names it and its rough size; the giant becomes a Marked Fish: it waits at its place, +6 Hold on its next hook, once (the built light Marked Fish) | no fail; the story continues |
 | **on the map card** | a lake map's card names its old water's giant; a place map's card names its own giant (a crown names its legend). The giant is drawn life-size beside the Wick, with its hour glyph (§5.1 rule 9). | the promise is visible before you pay |
@@ -232,9 +274,10 @@ The roster's 49 giants (★) are the descendants of the episodes' main fish: 33 
 | The Buoy Lights (the Mossmere) | Hullkiss Lamprey (night) | T1 | 27% | 12% | 4.3% (1 in 23) | 9.9% |
 | The Gill Harp (Sporewood) | Harpstring Eel | T2 | 31% | 19% | 7.3% | 15.7% |
 | The Well of Ledgers (Glasswater) | Prismdrop Sturgeon | T3 | 32% | 16% | 6.7% | 14.7% |
-| The Broken Weir (the Thin Water) | Weirflame | T5 | 53% | 18% | 10.6% | 19.6% |
+| The Broken Weir (the Thin Water) | Weirflame | T5 | 48% | 18% | 10.1% | 17.9% |
 | The Sluice Throat (the Salt Gate) | Sweetwater Shark (dusk, night) | T6 | 46% | 17% | 7.3% | 17.3% |
-| The Fjord Floor (the Rime Sound) | Icedoor Flounder | T6 | 41% | 16% | 7.5% | 17.1% |
+| The Fjord Floor (the Rime Sound) | Icedoor Flounder | T5 | 50% | 17% | 10.3% | 18.8% |
+| The Kitchen Stair (the Inkwood) | Emberbelly | T6 | 39% | 16% | 8.2% | 16.8% |
 
 The Mossmere's two giants are the hardest to bring home (about 1 trip in 22 on T1), as the Thousandcast Pike's journal line promises ("Follows the lure to the raft, looks at you, and leaves. Ten thousand times."). A dusk or night giant at an old water bites at dusk because the Wick waits for it (§3.4); the hour glyph on its card says when to come.
 
@@ -275,20 +318,20 @@ clams = max(1, round(tier[water] × rarity × body × clamp(e^(0.9·z), 0.4, 30)
 | 2. Sporewood Pools | 11 | 12 | 101 | 225 | 553 | 1,421 |
 | 3. Glasswater Vault | 16 | 20 | 141 | 379 | 934 | 2,398 |
 | 4. The Pallid Deep | 35 | 42 | 366 | — (its one giant is its legend) | — | — |
-| 5. Rushlight Fen | 86 | 80 | — (no rare) | 1,663 | 4,091 | 10,506 |
-| 6. The Thin Water | 74 | 90 | 669 | 1,501 | 3,692 | 9,482 |
-| 7. Lampmoss Slough | 103 | 147 | 947 | 2,058 | 5,060 | 12,995 |
-| 8. Pyrefall Gorge | 223 | 192 | 2,050 | 4,626 | 11,378 | 29,217 |
-| 9. The Thunder Stair | 166 | 168 | — (no rare) | 3,441 | 8,464 | 21,735 |
-| 10. The Inkwood | 245 | 237 | 1,910 | 4,535 | 11,153 | 28,642 |
-| 11. The Siltway | 309 | 332 | 2,675 | 6,725 | 16,541 | 42,478 |
-| 12. The Salt Gate | 238 | 267 | 2,524 | 6,125 | 15,066 | 38,690 |
-| 13. Lanternroot Lagoon | 454 | 553 | 4,496 | 9,949 | 24,471 | 62,843 |
-| 14. The Waxen Reef | 1,060 | 1,221 | 9,745 | 22,041 | 54,210 | 139,215 |
-| 15. The Last Light | 920 | 1,183 | 11,137 | 23,437 | 57,645 | 148,035 |
-| 16. The Rime Sound | 1,247 | 1,932 | 13,394 | 32,180 | 79,151 | 203,263 |
+| 5. The Rime Sound | 45 | 70 | 483 | 1,161 | 2,856 | 7,335 |
+| 6. The Thin Water | 69 | 84 | 623 | 1,400 | 3,443 | 8,841 |
+| 7. The Last Light | 62 | 79 | 751 | 1,580 | 3,885 | 9,976 |
+| 8. Pyrefall Gorge | 118 | 101 | 1,085 | 2,448 | 6,021 | 15,460 |
+| 9. The Waxen Reef | 167 | 192 | 1,535 | 3,472 | 8,541 | 21,933 |
+| 10. The Thunder Stair | 203 | 205 | — (no rare) | 4,208 | 10,350 | 26,580 |
+| 11. Rushlight Fen | 336 | 310 | — (no rare) | 6,499 | 15,984 | 41,047 |
+| 12. The Salt Gate | 269 | 302 | 2,853 | 6,923 | 17,028 | 43,729 |
+| 13. Lampmoss Slough | 608 | 867 | 5,590 | 12,144 | 29,870 | 76,707 |
+| 14. The Siltway | 794 | 854 | 6,873 | 17,281 | 42,504 | 109,151 |
+| 15. Lanternroot Lagoon | 866 | 1,055 | 8,575 | 18,978 | 46,678 | 119,872 |
+| 16. The Inkwood | 1,675 | 1,618 | 13,057 | 31,002 | 76,252 | 195,818 |
 
-The tiers are uneven (Pyrefall Gorge 223, the Thunder Stair 166) because the waters' fish are uneven: each is set by the two ladder rules of decision 10, so each water pays what the next map promises.
+The tiers are uneven (Rushlight Fen 336, the Salt Gate 269; Pyrefall Gorge 118, the Last Light 62) because the waters' fish are uneven: each is set by the two ladder rules of decision 10, so each water pays what the next map promises. **No water's giants are a step down**: a Keeper giant sells for at least 0.8× the water before's (the sim checks it; the worst is 1.07, Rushlight Fen to the Salt Gate, where v7 had 0.65). A thin pool forces a high tier, so the water after it would look poorer; v7.1 thickened the Fen's pool (decision 29) instead of hiding it.
 
 Worked values (tests in slices 1a–2 use them): a Keeper Dusk Minnow (z 0.4) sells for **7**, a Keeper Weeping Carp **26**, a Prize Reedjaw Pike (z 1.4) **158**, a Trophy Reedjaw Pike (z 2.2) **406**, an Elder Reedjaw Pike (z 2.95) **1,022**, a Keeper Thousandcast Pike **150**, a Trophy Thousandcast Pike **944**.
 
@@ -319,9 +362,9 @@ The tiers T0–T4, their names and their Hold are `TACKLE` as built (§25.6.6). 
 | T3 | Glassreed · Glass-Gut · Whisper Drag | 8 / 9 / 8 | **1,200** | the Sporewood map |
 | T4 | Lantern-Spine · Silverthread · Tidewheel | 12 / 13 / 12 | **6,000** | the Glasswater map |
 | **T5** | **Bellwether · Starthread · Moonwheel** | 15 / 16 / 15 | **32,000** | the Pallid Deep map |
-| **T6** | **Crown-Reed · Kingshair · Last Wheel** | 18 / 19 / 18 | **100,000** | the Inkwood map |
+| **T6** | **Crown-Reed · Kingshair · Last Wheel** | 18 / 19 / 18 | **100,000** | the slot-10 map (the Thunder Stair) |
 
-Tackle matters most where the fish fight hardest (sim section 3, clams per trip at hold 8, the water's ordinary places): the Mossmere 308 at T0 and 535 at T6 (+74%); the Pallid Deep 365 and 1,714 (×4.7); the Rime Sound 3,836 and 66,998 (×17). Each new water's Fight term (Rushlight Fen 28 rising to the Rime Sound 44; the built lakes 0 / 7 / 16 / 24) is set so its giants at Prize land about as often on arrival tackle as the built lakes' giants do.
+Tackle matters most where the fish fight hardest (sim section 3, clams per trip at hold 8, the water's ordinary places): the Mossmere 308 at T0 and 535 at T6 (+74%); the Pallid Deep 365 and 1,714 (×4.7); the Inkwood 4,858 and 74,953 (×15). Each new water's Fight term follows its slot: 30–32 on the T5 waters (the Rime Sound 31, the Thin Water 31, the Last Light 30, Pyrefall Gorge 30, the Waxen Reef 32) and 39–44 on the T6 waters (the Thunder Stair 40 rising to the Inkwood 44); the built lakes are 0 / 7 / 16 / 24. It is set so a new water's giant at Prize lands **39–50%** of the time on the tackle the water is bought with (sim section 4b checks 30–50%), a little above the built lakes' giants (27–34%): the new tackle is a small reward, and no giant lands more often than a legend's coin flip.
 
 ### 4.4 Lures (permanent, one fitted)
 
@@ -334,30 +377,30 @@ Lures are bought once and kept for good; a snapped line never loses one. **Famil
 | Harbour-Bell Spinner | The Mossmere | Thousandcast Pike, Hullkiss Lamprey, Reedjaw Pike | 180 |
 | Spore-Lamp Fly | Sporewood Pools | Harpstring Eel, Festival Puffer, Emberbrood Snakehead | 500 |
 | Mirror Shard | Glasswater Vault | Shardspine Eel, Wolfwake Trout, Prismdrop Sturgeon | 2,400 |
-| Ferryman's Coin | The Pallid Deep | Gilt-Eyed Eel, Candlewake Sturgeon, the Clapper | 9,000 |
-| Rushlight Spinner | Rushlight Fen | Packtooth | 10,000 |
-| Weir Spoon | The Thin Water | Weirflame, Blotback Catfish | 12,200 |
-| Moss-Lamp Jig | Lampmoss Slough | Weirshadow Catfish, Old Portcullis, Lampspot Snakehead | 17,500 |
-| Ember Wobbler | Pyrefall Gorge | Pyregold Carp, the Unfinished, Lampspot Snakehead | 21,500 |
-| Thunder Plug | The Thunder Stair | Lampeye Perch, Soapthief | 26,400 |
-| Ink Fly | The Inkwood | Emberbelly, Nightcreek Hound, Smilejaw Bream, Gourdcracker | 43,500 |
-| Silt Rattle | The Siltway | Sternlamp Catfish, Dapplewheel Ray, Millstone Catfish | 53,400 |
-| Tide Spoon | The Salt Gate | Sweetwater Shark, Tideghost Shark, Inkmarble Eel, Longlash Ray | 72,300 |
-| Root-Lamp Popper | Lanternroot Lagoon | Snagheart Bass, Votive Shark, Rootjaw Catfish, Stiltshadow Shark | 111,900 |
-| Wax Jig | The Waxen Reef | Anvil Trevally, Spirewatch Pike, Mothlance Gar, Cabin Grouper | 148,800 |
-| Lighthouse Feather | The Last Light | Nightsail Lancer, Castaway Pike, Starbar Lancer | 181,500 |
-| Rime Pirk | The Rime Sound | Icedoor Flounder, Coalwing Skate | 221,400 |
+| Ferryman's Coin | The Pallid Deep | Gilt-Eyed Eel, Candlewake Sturgeon, The Clapper | 9,000 |
+| Rime Pirk | The Rime Sound | Icedoor Flounder, Coalwing Skate, Bellrope Cod | 8,900 |
+| Weir Spoon | The Thin Water | Weirflame, Blotback Catfish, Slipwhisker | 11,000 |
+| Lighthouse Feather | The Last Light | Nightsail Lancer, Castaway Pike, Starbar Lancer, Ambersickle Tuna; draws every predator as the Glimmer Spoon does | 13,700 |
+| Ember Wobbler | Pyrefall Gorge | Pyregold Carp, The Unfinished, Lampspot Snakehead, Almsfed Carp | 18,000 |
+| Wax Jig | The Waxen Reef | Anvil Trevally, Spirewatch Pike, Mothlance Gar, Cabin Grouper, Picket Pike | 25,500 |
+| Thunder Plug | The Thunder Stair | Lampeye Perch, Soapthief, Cocoon Sleeper, Swallowtail Catfish | 39,500 |
+| Rushlight Spinner | Rushlight Fen | Packtooth, Reedwalker Catfish, Foamnest Pike | 60,400 |
+| Tide Spoon | The Salt Gate | Sweetwater Shark, Tideghost Shark, Inkmarble Eel, Longlash Ray, Dusk Drummer | 82,800 |
+| Moss-Lamp Jig | Lampmoss Slough | Weirshadow Catfish, Old Portcullis, Lampspot Snakehead, Spotmail Gar | 108,300 |
+| Silt Rattle | The Siltway | Sternlamp Catfish, Dapplewheel Ray, Millstone Catfish, Tallyside Catfish | 132,200 |
+| Root-Lamp Popper | Lanternroot Lagoon | Snagheart Bass, Votive Shark, Rootjaw Catfish, Stiltshadow Shark, Harbourdrum Grouper | 200,100 |
+| Ink Fly | The Inkwood | Emberbelly, Nightcreek Hound, Smilejaw Bream, Gourdcracker, Starback Ray | 295,100 |
 
-(A new giants' lure names its water's epic giants and its longest rare; the names are drafts, to be confirmed when its sheet is scheduled, as roster ask 5 says.)
+(A new giants' lure names its water's epic giants and its two biggest rare or uncommon fish, rares first (v7.1; it named only the longest rare, so the Thunder Plug, in a water with no rare, named two fish and cost the pacing player 18% a trip). The Lighthouse Feather is also a predator's lure: in the open sea, where nearly every fish is a predator, it draws them as the Glimmer Spoon does. The player fits whichever lure pays best, measured, and the sim checks that every giants' lure, fitted on the tackle you settle with, earns at least 97% of the best family lure: they earn 2–29% more. The names are drafts, to be confirmed when each sheet is scheduled, as roster ask 5 says.)
 
 ### 4.5 Bait (consumable, one fitted beside the lure)
 
 - A **tin holds 10** and is **Murk's bait for one water**. **Every tin in a water costs the same: 1.5 × that water's value tier** (rounded to 5). One bait is spent per hooked fish (built: spent at the cast, refunded when the bite is let pass). With no bait you fish a bare hook; that is always allowed.
 - **Every tin does the same two things**: every fish runs bigger (favour +0.3), and the fish that favour it hold better (+5 Hold; the built tins keep their built Hold; the roster's `favours` say which fish). Where the lure and the bait both give Hold, the fish gets the larger, never both (built). **A tin does not change which fish bite**, except that a fish that bites on one bait only (the Gloam Eel on Lumen Moss, the Threadling Eel on Spore Cake, the Chime Jelly on Glass Larvae) needs it. So picking a tin is picking the fish you are after.
 
-| a tin of 10 | the Mossmere | Sporewood | Glasswater | the Pallid Deep | Rushlight Fen | the Thin Water | the Inkwood | the Salt Gate | the Rime Sound |
+| a tin of 10 | the Mossmere | Sporewood | Glasswater | the Pallid Deep | the Rime Sound | the Thin Water | Rushlight Fen | the Salt Gate | the Inkwood |
 |---|---|---|---|---|---|---|---|---|---|
-| any bait | **10** | 15 | 25 | 55 | 130 | 110 | 370 | 355 | 1,870 |
+| any bait | **10** | 15 | 25 | 55 | 70 | 105 | 505 | 405 | 2,515 |
 
 | bait | helps hold | first on the shelf with |
 |---|---|---|
@@ -367,13 +410,13 @@ Lures are bought once and kept for good; a snapped line never loses one. **Famil
 | Ember Roe | predators the roster names | Sporewood |
 | Glass Larvae | Glasswater's glass fish; the Chime Jelly bites on nothing else | Glasswater |
 | Shimmerfly | night risers | the Pallid Deep |
-| **Windfall Plum** (new) | the Inkwood's fruit eaters | the Inkwood |
-| **Tallow Soap** (new) | whiskered scavengers | the Thunder Stair |
+| **Windfall Plum** (new) | the Inkwood's fruit eaters (a tin you pick for them; the Inkwood's plain bait is Mire Worms) | the Inkwood (slot 16) |
+| **Tallow Soap** (new) | whiskered scavengers | the Thunder Stair (slot 10) |
 | **Cut Strip** (free) | +0.3 favour on predators, +4 Hold. Holding **Let go** on a Small or a Keeper cuts it into 3 strips (from slice 3). The roster's most-named bait (60 fish). The sim does not model it. | — |
 
-Each water's **plain bait** (the tin its fish name most; the Bait Bed's free bait): Mire Worms for the Mossmere and nine of the new waters, Spore Cake for Sporewood, Ember Roe for Glasswater, the Pallid Deep, Lanternroot Lagoon and the Last Light, Windfall Plum for the Inkwood.
+Each water's **plain bait** (the tin its fish name most, unless another tin beats it; the Bait Bed's free bait): Mire Worms for the Mossmere and ten of the new waters (the Inkwood among them: its fruit eaters are few), Spore Cake for Sporewood, Ember Roe for Glasswater and the Pallid Deep, Shimmerfly for the Last Light and Lanternroot Lagoon (their fish favour no one tin).
 
-What a tin is worth (natural rule, net of the tins; sim section 4): +10% clams a minute at hour 1 (Mire Worms, the Mossmere; a tin earns 4.9 times its price), +21% at hour 5 (Spore Cake, Sporewood; 8.9×), +14% at hour 10 (Ember Roe, Glasswater; 7.5×), +12% at hour 20 (Mire Worms, the Thin Water; 5.8×), +8% at hour 40 (Mire Worms, the Salt Gate; 7.3×). **Worth buying, never a must.** **No tin is the one to buy**: at hours 10, 20 and 40 no other tin beats the water's plain bait (the check allows 3 points a minute; the best is 0.0). Small fish have four uses: a slot when nothing better comes, an order, a let go that makes the next fish bigger, or Cut Strip.
+What a tin is worth (natural rule, net of the tins; sim section 4): +10% clams a minute at hour 1 (Mire Worms, the Mossmere; a tin earns 4.9 times its price), +21% at hour 5 (Spore Cake, Sporewood; 8.9×), +14% at hour 10 (Ember Roe, Glasswater; 7.5×), +13% at hour 20 (Mire Worms, the Thin Water; 6.1×), +8% at hour 40 (Mire Worms, the Salt Gate; 7.3×), and on every new water at the kit it is bought with +10–17% (4.4–9.1×; sim section 2b). **Worth buying, never a must.** **No tin is the one to buy**: at hours 10, 20 and 40, and on every new water, no other tin beats the water's plain bait by more than 1.8 points a minute (the check allows 3). Small fish have four uses: a slot when nothing better comes, an order, a let go that makes the next fish bigger, or Cut Strip.
 
 ### 4.6 Legends
 
@@ -383,20 +426,20 @@ What a tin is worth (natural rule, net of the tins; sim section 4): +10% clams a
 | The Drifting Grove · the Mother's Cup | Glowcap Bulb **250** | 24% (T2) | 3.0 | 759 | **2,200** | 880 |
 | The Glass Sovereign · the Fallen Chandelier | Prism Moth **1,000** | 21% (T3) | 3.2 | 3,221 | **7,500** | 3,000 |
 | The Lantern-Swallower · the Bottomless | Last Candle **3,000** | 17% (T4) | 3.5 | 10,595 | **19,000** | 7,600 |
-| The Long Thunder · the Dam Foot | Storm Candle **2,350** | 30% (T5) | 2.7 | 6,368 | **19,600** | 7,840 |
-| The Buried Moon · the Moonbed | Lamp Snail **2,880** | 29% (T5) | 2.7 | 7,820 | **24,000** | 9,600 |
-| The Last Sentry · the Sentry's Reach | Carp Cutlet **4,140** | 27% (T5) | 2.8 | 11,713 | **34,500** | 13,800 |
-| The Ashen Guest · the Last Pyre | Charred Offering **5,090** | 27% (T5) | 2.8 | 14,434 | **42,400** | 16,960 |
-| The Last Lock · the Throat | Wired Bream **6,240** | 25% (T5) | 3.0 | 18,493 | **52,000** | 20,800 |
-| The Banked Fire · the Breathing Mere | Blossom Fly **10,270** | 28% (T6) | 2.8 | 28,424 | **85,600** | 34,240 |
-| The Barge-Shadow · the Long Hole | Bargeman's Supper **12,600** | 27% (T6) | 2.8 | 35,649 | **105,000** | 42,000 |
-| The Old Shipwright · the Slipway | Tide Mullet **17,060** | 27% (T6) | 2.8 | 48,377 | **142,200** | 56,880 |
-| The Silver Regent · the Sighing Pool | Moth-Wing Fly **26,410** | 25% (T6) | 3.0 | 78,269 | **220,100** | 88,040 |
-| The Waxen Abbot · the Abbot's Cellar | Lantern-Fry **35,110** | 25% (T6) | 3.0 | 104,301 | **292,600** | 117,040 |
-| The Jetsam Shark · the Unlit Mile | Lighthouse Ration **42,840** | 22% (T6) | 3.1 | 134,401 | **357,000** | 142,800 |
-| The Long Winter · the Half-Mile Line | Old Ration **52,250** | 22% (T6) | 3.1 | 164,349 | **435,400** | 174,160 |
+| The Long Winter · the Half-Mile Line | Old Ration **3,150** | 27% (T5) | 2.8 | 8,932 | **20,000** | 8,000 |
+| The Buried Moon · the Moonbed | Lamp Snail **3,310** | 27% (T5) | 2.8 | 9,386 | **21,600** | 8,640 |
+| The Jetsam Shark · the Unlit Mile | Lighthouse Ration **3,480** | 27% (T5) | 2.8 | 9,846 | **26,900** | 10,760 |
+| The Ashen Guest · the Last Pyre | Charred Offering **4,240** | 28% (T5) | 2.8 | 11,761 | **35,300** | 14,120 |
+| The Waxen Abbot · the Abbot's Cellar | Lantern-Fry **6,020** | 26% (T5) | 2.9 | 17,466 | **50,200** | 20,080 |
+| The Last Lock · the Throat | Wired Bream **9,310** | 26% (T6) | 2.9 | 26,949 | **77,600** | 31,040 |
+| The Long Thunder · the Dam Foot | Storm Candle **14,240** | 27% (T6) | 2.8 | 40,289 | **118,700** | 47,480 |
+| The Old Shipwright · the Slipway | Tide Mullet **19,540** | 27% (T6) | 2.8 | 55,409 | **162,800** | 65,120 |
+| The Last Sentry · the Sentry's Reach | Carp Cutlet **25,550** | 25% (T6) | 3.0 | 75,720 | **212,900** | 85,160 |
+| The Barge-Shadow · the Long Hole | Bargeman's Supper **31,210** | 23% (T6) | 3.1 | 95,444 | **260,100** | 104,040 |
+| The Silver Regent · the Sighing Pool | Moth-Wing Fly **47,220** | 22% (T6) | 3.1 | 148,143 | **393,500** | 157,400 |
+| The Banked Fire · the Breathing Mere | Blossom Fly **69,640** | 21% (T6) | 3.2 | 224,293 | **580,300** | 232,120 |
 
-- A new legend's Fight is her water's Fight term + 26 (the built four are `CATCH_V3.legend.fight` as built, never `fightRun`); her bait costs 12% of her crown map.
+- A new legend's Fight is her water's Fight term + 26 (the built four are `CATCH_V3.legend.fight` as built, never `fightRun`); her bait costs 12% of her crown map, and never less than 1.05× the slot before's (v7.1).
 - **No legend opens anything.** A legend is a crown, never a key. Her print hangs under the sea-gate arch; her Waystone burns gold.
 - Tests: the game's first-try chance on the Belled Matriarch at T1 equals the sim's 27% (slice 2); the Lantern-Swallower's at T4 equals 17% (slice 5).
 
@@ -421,22 +464,22 @@ What a tin is worth (natural rule, net of the tins; sim section 4): +10% clams a
 | 2. Sporewood Pools | **2,000** | 1,200 | 1,100 (old) | 2,200 |
 | 3. Glasswater Vault | **10,200** | 4,800 | 4,000 (old) | 7,500 |
 | 4. The Pallid Deep | **26,000** | 14,000 | — | 19,000 |
-| 5. Rushlight Fen | **33,300** | 14,300 | — | 19,600 |
-| 6. The Thin Water | **40,700** | 17,500 | — | 24,000 |
-| 7. Lampmoss Slough | **58,400** | 25,100 | — | 34,500 |
-| 8. Pyrefall Gorge | **71,800** | 30,900 | — | 42,400 |
-| 9. The Thunder Stair | **88,100** | 37,900 | — | 52,000 |
-| 10. The Inkwood | **145,000** | 62,400 | 56,600 (old) | 85,600 |
-| 11. The Siltway | **178,000** | 76,500 | — | 105,000 |
-| 12. The Salt Gate | **241,000** | 103,600 | 94,000 (night) | 142,200 |
-| 13. Lanternroot Lagoon | **373,000** | 160,400 | 145,500 (night) | 220,100 |
-| 14. The Waxen Reef | **496,000** | 213,300 | 193,400 (old) | 292,600 |
-| 15. The Last Light | **605,000** | 260,200 | — | 357,000 |
-| 16. The Rime Sound | **738,000** | 317,300 | — | 435,400 |
+| 5. The Rime Sound | **29,700** | 14,700 | — | 20,000 |
+| 6. The Thin Water | **36,600** | 15,700 | — | 21,600 |
+| 7. The Last Light | **45,600** | 19,600 | — | 26,900 |
+| 8. Pyrefall Gorge | **59,900** | 25,800 | — | 35,300 |
+| 9. The Waxen Reef | **85,100** | 36,600 | 33,200 (old) | 50,200 |
+| 10. The Thunder Stair | **131,600** | 56,600 | — | 77,600 |
+| 11. Rushlight Fen | **201,200** | 86,500 | — | 118,700 |
+| 12. The Salt Gate | **275,900** | 118,600 | 107,600 (night) | 162,800 |
+| 13. Lampmoss Slough | **360,900** | 155,200 | — | 212,900 |
+| 14. The Siltway | **440,800** | 189,500 | — | 260,100 |
+| 15. Lanternroot Lagoon | **667,000** | 286,800 | 260,100 (night) | 393,500 |
+| 16. The Inkwood | **983,500** | 422,900 | 383,600 (old) | 580,300 |
 
-The four built lakes keep their order; the Mossmere keeps its prices; the other three are re-priced (each lake map is v5's lake map plus its day and old water). A new water's lake map costs about 42 minutes of its own income fully mapped; its place maps are shares of it: night 0.43, fifth 0.39, crown 0.59.
+The four built lakes keep their order; the Mossmere keeps its prices; the other three are re-priced (each lake map is v5's lake map plus its day and old water). A new water's lake map costs about 42 minutes of its own income fully mapped; its place maps are shares of it: night 0.43, fifth 0.39, crown 0.59. v7 re-derived these for each water in its new slot (§0 decision 26), and v7.1 again after its fixes: the lake maps rise every slot, from 29,700 to 983,500, and **so does every other price**: a slot's night water, crown, fifth place and legend bait cost at least 1.05× the slot before's (v7.1 added the floor: the Rime Sound's night water, crown and legend bait were below the Pallid Deep's). The Rime Sound's lake map is only 1.14× the Pallid Deep's and less than one T5 slot (32,000): the first new water comes within reach while the T5 tackle is still being bought (§14 risk 17).
 
-**The whole catalogue** (the pacing run's 144 purchases): **9,497,785 clams**: maps 71%, lures 10%, legend bait 7%, tackle 4%, looks 4%, home 3%, raft and hold under 1%. The legends' first landings pay back 1,839,600 of it.
+**The whole catalogue** (the pacing run's 144 purchases): **10,447,307 clams**: maps 73%, lures 10%, legend bait 7%, tackle 4%, looks 4%, home 3%, raft and hold under 1%. The legends' first landings pay back 1,989,100 of it.
 
 ### 4.9 Pacing targets, and the proof
 
@@ -446,43 +489,43 @@ The pacing run (sim section 5) is an average player: 90% of the natural rule's c
 |---|---|---|---|---|---|---|---|
 | **10 min** | 71 | 3.5 | 1.0 | 3 | the Mossmere | hold 4, Line T1, the Lily Maze | first purchase after trip 1; 2–5 bought; 40–90 clams |
 | **1 h** | 234 | 4.1 | 0.8 | 14 | the Mossmere | T1, hold 5, three places | 100–240 clams; 0.5–2.6 trips; 11–19 bought |
-| **5 h** | 777 | 4.6 | 3.7 | 46 | Glasswater | T3, hold 6, three waters, 11 places | 300–900 clams; 1.5–5 trips |
-| **20 h** | 3,742 | 5.4 | 6.5 | 75 | Rushlight Fen | T5, hold 8, five waters, 21 places | 1.5–7 trips; 5–8 waters owned |
-| **40 h** | 29,661 | 5.5 | 4.8 | 120 | Lanternroot Lagoon | T6, hold 8, 13 waters, 53 places | — |
-| **the end** | — | — | — | 144 | | everything, at 48.1 h | 40–60 h |
+| **5 h** | 778 | 4.6 | 3.5 | 46 | Glasswater | T3, hold 6, three waters, 11 places | 300–900 clams; 1.5–5 trips |
+| **20 h** | 3,376 | 5.6 | 6.2 | 75 | the Rime Sound | T5, hold 8, five waters, 21 places | 1.5–7 trips; 5–8 waters owned |
+| **40 h** | 32,826 | 5.4 | 4.2 | 119 | Lampmoss Slough | T6, hold 8, 13 waters, 53 places | — |
+| **the end** | — | — | — | 144 | | everything, at 48.9 h | 40–60 h |
 
 | water | its map bought at | the best water to fish from | its legend landed at |
 |---|---|---|---|
 | 1. The Mossmere | start | 0.0 h | 1.8 h |
-| 2. Sporewood Pools | **1.4 h** (target 1.2–2.0) | 1.4 h | 4.8 h |
-| 3. Glasswater Vault | **4.5 h** (4.0–6.5) | 4.5 h | 9.5 h |
-| 4. The Pallid Deep | **9.0 h** (8.5–13) | 9.0 h | 19.5 h |
-| 5. Rushlight Fen | **16.1 h** (12–18) | 16.1 h | 21.2 h |
-| 6. The Thin Water | 20.4 h | 20.4 h | 24.1 h |
-| 7. Lampmoss Slough | 22.4 h | 22.4 h | 26.0 h |
-| 8. Pyrefall Gorge | 25.1 h | 25.1 h | 28.5 h |
-| 9. The Thunder Stair | 27.0 h | 27.0 h | 33.0 h |
-| 10. The Inkwood | 29.8 h | 29.8 h | 35.7 h |
-| 11. The Siltway | 34.3 h | 34.3 h | 37.7 h |
-| 12. The Salt Gate | 36.8 h | 36.8 h | 40.7 h |
-| 13. Lanternroot Lagoon | 39.3 h | 39.3 h | 43.2 h |
-| 14. The Waxen Reef | 42.3 h | 42.3 h | 45.7 h |
-| 15. The Last Light | 44.5 h | 44.5 h | 47.4 h |
-| 16. The Rime Sound | 46.6 h | 46.6 h | 48.1 h |
+| 2. Sporewood Pools | **1.4 h** (target 1.2–2.0) | 1.4 h | 4.7 h |
+| 3. Glasswater Vault | **4.5 h** (4.0–6.5) | 4.5 h | 9.4 h |
+| 4. The Pallid Deep | **8.8 h** (8.5–13) | 8.8 h | 19.2 h |
+| 5. The Rime Sound | **15.8 h** (12–18) | 15.8 h | 21.0 h |
+| 6. The Thin Water | 20.0 h | 20.0 h | 23.8 h |
+| 7. The Last Light | 21.9 h | 21.9 h | 25.7 h |
+| 8. Pyrefall Gorge | 24.9 h | 24.9 h | 28.8 h |
+| 9. The Waxen Reef | 26.9 h | 26.9 h | 33.6 h |
+| 10. The Thunder Stair | 30.4 h | 30.4 h | 36.3 h |
+| 11. Rushlight Fen | 34.8 h | 34.8 h | 38.3 h |
+| 12. The Salt Gate | 37.3 h | 37.3 h | 40.9 h |
+| 13. Lampmoss Slough | 39.7 h | 39.7 h | 42.9 h |
+| 14. The Siltway | 42.0 h | 42.0 h | 45.4 h |
+| 15. Lanternroot Lagoon | 44.1 h | 44.1 h | 47.9 h |
+| 16. The Inkwood | 47.1 h | 47.1 h | 48.9 h |
 
 | milestone | value | target |
 |---|---|---|
-| the longest wait for one purchase | **80 min** (the Inkwood map) | ≤ 90 min |
+| the longest wait for one purchase | **76 min** (the Gilt Lantern look, hour 18) | ≤ 90 min |
 | the first giant comes home | about **hour 1.4** (a Thousandcast Pike or a Hullkiss Lamprey) | hour 0.4–3 |
 | giants landed and kept by the end | **about 70** | — |
-| Elders landed by the end | **about 64** | — |
+| Elders landed by the end | **about 67** | — |
 | a new water is the best water to fish | **from the day its map is bought**, all 15 | within 30 min |
-| on the day you buy a lake map, its open, day and old water ÷ the water before, fully mapped | **1.07–1.28** | ≥ 1.05 |
-| every water, fully mapped ÷ the one before | **1.22–1.55** (86 → 17,600 clams a minute) | ≥ 1.2 |
-| every place map, bought in price order | **+8% to +32%** clams a minute | ≥ +5% |
-| the best set of a water's places ÷ the next water fully mapped | **at most 0.83** | < 1 |
-| trips at the pacing marks, the visit home included | **3.5–5.5 min** | ≤ 6 |
-| maps' share of all spending | **71%** | 50–75% |
+| on the day you buy a lake map, its open, day and old water ÷ the water before, fully mapped | **1.07–1.13** | ≥ 1.05 |
+| every water, fully mapped ÷ the one before | **1.22–1.53** (86 → 23,400 clams a minute) | ≥ 1.2 |
+| every place map, bought in price order | **+8% to +29%** clams a minute | ≥ +5% |
+| the best set of a water's places ÷ the next water fully mapped | **at most 0.86** | < 1 |
+| trips at the pacing marks, the visit home included | **3.5–5.6 min** | ≤ 6 |
+| maps' share of all spending | **73%** | 50–75% |
 
 **The first trip** (natural rule, 4,000 trips): 44 clams on average, 19–80 for most players (10th–90th percentile); 2.2 minutes; 98% come home full; **52% bring home no Prize or bigger**; 8% a Trophy; 27% of hooked fish get away; 63% get a bite after dark.
 
@@ -491,19 +534,22 @@ The pacing run (sim section 5) is an average player: 90% of the natural rule's c
 | era | purchases in order |
 |---|---|
 | the Mossmere, 0–1.4 h | 0.05 Hold 4 · 30 → Line T1 · 50 → map: the Lily Maze · 60 → Rod T1 · 50 → Reel T1 · 50 → Oars I · 60 → Order Board I · 70 → 0.43 Hold 5 · 120 → map: Under the Span · 150 → Glimmer Spoon · 90 → Bone Jig · 110 → 0.76 map: the Buoy Lights · 260 → Feather Fly · 50 → Bait Bed I · 120 → **1.38 MAP: Sporewood Pools · 2,000** |
-| Sporewood, 1.4–4.5 h | Harbour-Bell Spinner · 180 → Lantern I · 100 → Line, Reel, Rod T2 · 300 each → Long Wall wing 1 · 250 → map: the Bell Pool · 500 → the Matriarch hunt · 142 → Oars II · 300 → Keel I · 100 → Order Board II · 400 → Spore-Lamp Fly · 500 → Landing lights I · 200 → 2.18 map: the Puffball Vent · 1,100 → Moth Popper · 400 → map: the Veilwater · 1,200 → Hold 6 · 450 → Lantern II · 500 → Slate Cloak Dye · 300 → Keel II · 600 → Line T3 · 1,200 → Oxblood Pennant · 400 → Bait Bed II · 700 → Reel T3 · 1,200 → Amber Lantern Glass · 600 → 3.39 Rod T3 · 1,200 → **4.52 MAP: Glasswater Vault · 10,200** |
-| Glasswater, 4.5–9.0 h | map: the Mother's Cup · 2,200 → the Grove hunt · 613 → Mirror Shard · 2,400 → Landing lights II · 1,200 → 5.37 map: the Well of Ledgers · 4,000 → Order Board III · 4,000 → Line T4 · 6,000 → Lantern Lure · 4,000 → map: the Broken Hymnal · 4,800 → Hold 7 · 2,000 → Reel T4 · 6,000 → Painted Prow · 2,500 → 7.60 Rod T4 · 6,000 → **8.96 MAP: The Pallid Deep · 26,000** |
-| the Pallid Deep, 9.0–16.1 h | Keel III · 3,000 → map: the Fallen Chandelier · 7,500 → the Sovereign hunt · 2,452 → Bait Bed III · 9,000 → Ferryman's Coin · 9,000 → map: the Sunken Belfry · 14,000 → Hold 8 · 3,500 → Landing lights III · 14,000 → Bell Buoy · 6,000 → 12.78 Line, Reel, Rod T5 · 32,000 each → **16.05 MAP: Rushlight Fen · 33,300** |
-| each new water, 16.1–48.1 h | its lake map → (Long Wall wings with waters 5, 9, 13; T6 · 100,000 each with the Inkwood; a look with waters 5, 7, 11, 15) → its giants' lure → the crown and legend hunt of the water before → its fifth place → its night water. The Rime Sound's own crown and the Long Winter end the shelf at 48.1 h. |
+| Sporewood, 1.4–4.5 h | Harbour-Bell Spinner · 180 → Lantern I · 100 → Line, Reel, Rod T2 · 300 each → Long Wall wing 1 · 250 → map: the Bell Pool · 500 → the Matriarch hunt · 142 → Oars II · 300 → Keel I · 100 → Order Board II · 400 → Spore-Lamp Fly · 500 → Landing lights I · 200 → 2.18 map: the Puffball Vent · 1,100 → Moth Popper · 400 → map: the Veilwater · 1,200 → Hold 6 · 450 → Lantern II · 500 → Slate Cloak Dye · 300 → Keel II · 600 → Line T3 · 1,200 → Oxblood Pennant · 400 → Bait Bed II · 700 → Reel T3 · 1,200 → Amber Lantern Glass · 600 → 3.32 Rod T3 · 1,200 → **4.46 MAP: Glasswater Vault · 10,200** |
+| Glasswater, 4.5–8.8 h | map: the Mother's Cup · 2,200 → the Grove hunt · 613 → Mirror Shard · 2,400 → Landing lights II · 1,200 → 5.24 map: the Well of Ledgers · 4,000 → Order Board III · 4,000 → Line T4 · 6,000 → Lantern Lure · 4,000 → map: the Broken Hymnal · 4,800 → Hold 7 · 2,000 → Reel T4 · 6,000 → Painted Prow · 2,500 → 7.54 Rod T4 · 6,000 → **8.81 MAP: The Pallid Deep · 26,000** |
+| the Pallid Deep, 8.8–15.8 h | Keel III · 3,000 → map: the Fallen Chandelier · 7,500 → the Sovereign hunt · 2,452 → Bait Bed III · 9,000 → Ferryman's Coin · 9,000 → map: the Sunken Belfry · 14,000 → Hold 8 · 3,500 → Landing lights III · 14,000 → Bell Buoy · 6,000 → 12.55 Line, Reel, Rod T5 · 32,000 each → **15.83 MAP: The Rime Sound · 29,700** |
+| each new water, 15.8–48.9 h | its lake map → (Long Wall wings with waters 5, 9, 13; T6 · 100,000 each with the slot-10 map, the Thunder Stair; a look with waters 5, 7, 11, 15) → its giants' lure → the crown and legend hunt of the water before → its fifth place → its night water. The Inkwood's own crown and the Banked Fire end the shelf at 48.9 h. |
 
 **What the sim found that shaped the design.**
 
 - **A giant's share must not depend on the pool.** With a fixed weight, a night water with little else biting gave its giant on 94% of bites; with family lures multiplying it, a giant came home on 55% of trips at hour 1. Hence the fixed share and "only its own giants' lure draws it" (§3.5).
 - **A bait that pulls in commons loses clams** (Mire Worms −16% at hour 1). Hence bait never changes the pool (§4.5). **A tin with more favour for less money beats every other**: hence one favour and one price per water.
-- **Open water alone cannot beat a mapped water.** A water's places hold 30–100% of its worth: its Elders, its giants and its best fish. To make a new water's open water beat the old water fully mapped, every tier would have to grow about 1.8 times per water (the Rime Sound's tier 65,000, its fully mapped income 700,000 clams a minute). **Opening the day and old water with the lake** does it with tiers that end at 1,247 (the Rime Sound; v5 397), where a giant Trophy sells for about 203,000.
+- **Open water alone cannot beat a mapped water.** A water's places hold 30–100% of its worth: its Elders, its giants and its best fish. To make a new water's open water beat the old water fully mapped, every tier would have to grow about 1.8 times per water (the last water's tier about 65,000, its fully mapped income 700,000 clams a minute). **Opening the day and old water with the lake** does it with tiers that end at 1,675 (v7.1: the Inkwood; v7 1,347, v6 1,247, v5 397), where a giant Trophy sells for about 196,000 on average and 218,000 at most (an Elder Emberbelly about 548,000).
 - **A place earns its sail only if its fish are better than open water's.** With every common still biting, a day water added 0–5% and some places lost clams. Halving commons at places, drawing a day water's better fish 1.5 times, and giving each weak place a fish of its own makes every place map worth +8% or more.
 - **The last place bought adds little if the places' good bites already fill the hold.** Hence fewer good bites per place (day 2, old 3, night 2) and more in open water, which grow with the hold.
 - **A bigger hold is not a faster one.** Under quiet water, each slot past 4 is filled from open water, poorer than your places. Hold 5–8 are priced as bigger evenings, not multipliers (§4.2).
+- **A re-order needs re-derived prices, and every water needs its own checks** (v7, v7.1). v7's claim that v6's lake prices made the long game 53 h with a 92-minute wait did not reproduce exactly: kept by slot on v7's tiers, v6's lake ladder gives 53.8 h and a 98-minute wait (the Thunder Stair map), failing the 90-minute check; on v7.1's tiers it would give 49.2 h and 82 minutes. The 42-minute rule gives 48.9 h and 76 minutes. v7 tried Pyrefall Gorge at slot 6, where it failed two checks at the 20 h station, and moved it to slot 8, where no station looked; the critics found it still failing there (choosy play 82%), and the Last Light failing "no tin is the one to buy" at slot 7 (Shimmerfly 4.1 points better). **Sim section 2b now runs the anti-grind, let-go and bait checks on every new water at the kit it is bought with**; choosy play is measured over a fixed 6,000 trips, because at 1,200 trips the ratio moves by ±5 points. The fixes are in the waters, not in the checks (decisions 28–31).
+- **A thin pool forces a high tier, and the water after it looks poorer** (v7.1). Rushlight Fen (seven fish, no rare in play, one giant) needed a tier of 421 to pass the open-water rule, so the Salt Gate after it (tier 205) sold its giants for 35% less. Drawing the Reedwalker Catfish into the Fen's open water and its Night Lanes thickens the pool: the Fen's tier is 336, and the Salt Gate's giants now sell for 1.07× the Fen's. A new check keeps every water's giants at ≥ 0.8× the water before's.
+- **A lure chosen by a rule of thumb can cost clams** (v7.1). Fitting the Thunder Plug (two giants named, no rare) instead of the Glimmer Spoon cost the pacing player 18% a trip for the rest of the era. The pacing player now fits whichever lure pays best, measured, and every giants' lure names its two biggest rare or uncommon fish.
 - **Each water needs its own value tier.** At one value point per tier the waters pay very different amounts, because their fish, Fight and tackle differ. `node tools/sim/clams.mjs --calibrate` prints the tiers that satisfy decision 10, with a 2-point margin so a noisy run still clears it; the table in §4.1 is its output.
 - The model's limits: no cast depth, no signs, no weather, no Marked Fish bonus, no Cut Strip, orders as a flat 6%, curiosities left out, 44 s for sailing out and the visit home. Read every number as ±10%.
 
@@ -527,6 +573,29 @@ The pacing run (sim section 5) is an average player: 90% of the natural rule's c
 | 10 | A trip is one water and every place you own in it. It starts at the dock nearest the place you tapped on the Chart. | More maps mean more good bites and a richer evening. |
 
 ### 5.2 The catalogue
+
+**The sixteen waters, in unlock order** (v7). *Kind*: a lake, a river (built on the river layout, §5.3), or another still (a sound, the open sea, a reef, a fen, a swamp, a lagoon, built on the lake layouts). *Lushness step*: how green and lush the water is (0 to 15, one step per water; `WATERS.md` §1 has its green share, foliage, colours and landmark). Prices follow the slot (§4.8).
+
+| # | water | kind | lushness step | lake map | v6 slot | why it sits here |
+|---|---|---|---|---|---|---|
+| 1 | The Mossmere | lake | 0 | yours | 1 | built; the look the user approved, unchanged: lavender night, green only as a trace |
+| 2 | Sporewood Pools | lake | 1 | 2,000 | 2 | built; first moss on the ember garden |
+| 3 | Glasswater Vault | lake | 2 | 10,200 | 3 | built; moss on the crystal |
+| 4 | The Pallid Deep | lake (deep) | 3 | 26,000 | 4 | built and priced, closes the old kingdom; re-themed gently as the requiem garden (moss, ivy, cedars, moonflowers) rather than moved |
+| 5 | **The Rime Sound** | sound | 4 | 29,700 | 16 | **moved from 16**: ice and stone are the least green thing we have, and its giants need the ice (the Long Winter, the Lantern Hole). Its green: firs on the cliff shoulders, moss and lichen, kelp |
+| 6 | **The Thin Water** | **river** (braided sand) | 5 | 36,600 | 6 | the first river: pale sand for miles, with reed islands, floating meadows and willow scrub |
+| 7 | **The Last Light** | open sea | 6 | 45,600 | 15 | **moved from 15**: almost no land, so before most rivers with real banks. **Its green (v7.1)**: the raft sets out under a near lighthouse island whose turf-and-fern cliff fills the near side of the view, the Drift Line's weed meadow, a far green island; reef breakers bound the water |
+| 8 | **Pyrefall Gorge** | **river** (gorge) | 7 | 59,900 | 8 | a rocky snowmelt river with hanging forest on its walls. (Its open water is thin: v7.1 lets the Lampspot Snakehead bite there; §4.9) |
+| 9 | **The Waxen Reef** | reef | 8 | 85,100 | 14 | **moved from 14**: the drowned town's roof ridges become green keys of palm, with seagrass meadows and vines down the spires |
+| 10 | **The Thunder Stair** | **river** (cataracts) | 9 | 131,600 | 9 | spray forest: everything the spray touches is green. T6 is on the shelf with this map |
+| 11 | **Rushlight Fen** | fen | 10 | 201,200 | 5 | **moved from 5**: re-themed from lavender rushes to a papyrus delta with palm islands, which belongs in the green half |
+| 12 | **The Salt Gate** | **river** (tidal mouth) | 11 | 275,900 | 12 | the first mangroves; the tide turns as night falls |
+| 13 | **Lampmoss Slough** | swamp | 12 | 360,900 | 7 | **moved from 7**: re-themed from dead trees to living swamp forest hung with grey-green moss |
+| 14 | **The Siltway** | **river** (great lowland) | 13 | 440,800 | 11 | forest walls and floating meadows on a river so wide the far bank is a green line |
+| 15 | **Lanternroot Lagoon** | lagoon | 14 | 667,000 | 13 | a full mangrove forest, synchronous fireflies |
+| 16 | **The Inkwood** | **river** (blackwater) | 15 | 983,500 | 10 | **moved from 10**: the green heart, a closed rainforest canopy over a black mirror; its "never green" look is gone |
+
+Rivers alternate exactly with stills from slot 5, and the three lushest river kinds come last. The reaches are renamed: **I the old kingdom** (1–4), **II the cold rim** (5–8), **III the falls and the gate** (9–12), **IV the green heart** (13–16). Every fish keeps its water and its place: no giant's haunt needed the old order.
 
 **The four built lakes.** Sites are built arena features (`ZONES[].arena`, `PLACES_V3`). The Mossmere's four places keep their §25.8.4 geometry (`MOSSMERE_V3.places`). The other built lakes' places are **re-sited as raft waters** (they were authored for walking layouts that are not built); the centres below are for the build to validate against `world-layout` (open water ≥ 80%, clear of islands, docks and the spawn). The Puffball Vent and the Well of Ledgers keep their `PLACES_V3` discs.
 
@@ -553,24 +622,24 @@ The Pallid Deep's only giant is its legend (the roster gives it one main fish); 
 
 **The twelve new waters.** Sites are authored with each water's arena (§5.3); the roster's water and giant descriptions (ROSTER §3) are the brief for each landmark. Every card's line (≤ 8 words) is written with its sheet.
 
-| water · its lake map | opens (day · old) | the lake card names | night water | fifth place | crown |
-|---|---|---|---|---|---|
-| **5. Rushlight Fen** · 33,300 | the Reed Lanes · the Run | ★ Packtooth | the Night Lanes · 14,300 · Reedwalker Catfish | — | the Dam Foot · 19,600 · ★ the Long Thunder |
-| **6. The Thin Water** · 40,700 | the Marsh Lanes · the Broken Weir | ★ Weirflame | the Lamp Ford · 17,500 · Blotback Catfish | — | the Moonbed · 24,000 · ★ the Buried Moon |
-| **7. Lampmoss Slough** · 58,400 | the Straight Canal · Under the Weir | ★ Weirshadow Catfish | the Lock Gate · 25,100 · ★ Old Portcullis (moved from the Mossmere) | — | the Sentry's Reach · 34,500 · ★ the Last Sentry |
-| **8. Pyrefall Gorge** · 71,800 | the Alms Steps · the Coin Run | ★ Pyregold Carp | the Boulder Garden · 30,900 · ★ the Unfinished | — | the Last Pyre · 42,400 · ★ the Ashen Guest |
-| **9. The Thunder Stair** · 88,100 | the Step Pools · the Cauldron | ★ Lampeye Perch | the Soap Landing · 37,900 · ★ Soapthief | — | the Throat · 52,000 · ★ the Last Lock |
-| **10. The Inkwood** · 145,000 | the Windfall · the Kitchen Stair | ★ Emberbelly | Rootgate Creek · 62,400 · ★ Nightcreek Hound | the Overhang (old) · 56,600 · ★ Smilejaw Bream | the Breathing Mere · 85,600 · ★ the Banked Fire |
-| **11. The Siltway** · 178,000 | the Seam · the Sunk Ferry | ★ Sternlamp Catfish | the Lamp Bar · 76,500 · ★ Dapplewheel Ray | — | the Long Hole · 105,000 · ★ the Barge-Shadow |
-| **12. The Salt Gate** · 241,000 | the Bar · the Sluice Throat | ★ Sweetwater Shark | the Harbour Stump · 103,600 · ★ Inkmarble Eel | the Turning Tide (night) · 94,000 · ★ Tideghost Shark | the Slipway · 142,200 · ★ the Old Shipwright |
-| **13. Lanternroot Lagoon** · 373,000 | the Bright Flats · the Sunken Orchard | ★ Snagheart Bass | the Stilt Shrine · 160,400 · ★ Votive Shark | the Monsoon Cut (night) · 145,500 · ★ Rootjaw Catfish | the Sighing Pool · 220,100 · ★ the Silver Regent |
-| **14. The Waxen Reef** · 496,000 | the Chimney Gardens · the Broken Keel | ★ Anvil Trevally | Lamp Row · 213,300 · ★ Mothlance Gar | the Drowned Spire (old) · 193,400 · ★ Spirewatch Pike | the Abbot's Cellar · 292,600 · ★ the Waxen Abbot |
-| **15. The Last Light** · 605,000 | the Lamp Rock · the Drift Line | ★ Nightsail Lancer | the Beam · 260,200 · ★ Castaway Pike | — | the Unlit Mile · 357,000 · ★ the Jetsam Shark |
-| **16. The Rime Sound** · 738,000 | the Net Racks · the Fjord Floor | ★ Icedoor Flounder | the Lantern Hole · 317,300 · Coalwing Skate | — | the Half-Mile Line · 435,400 · ★ the Long Winter |
+| water · its lake map | kind · step | opens (day · old) | the lake card names | night water | fifth place | crown |
+|---|---|---|---|---|---|---|
+| **5. The Rime Sound** · 29,700 | sound · 4 | the Net Racks · the Fjord Floor | ★ Icedoor Flounder | the Lantern Hole · 14,700 · Coalwing Skate | — | the Half-Mile Line · 20,000 · ★ the Long Winter |
+| **6. The Thin Water** · 36,600 | river · 5 | the Marsh Lanes · the Broken Weir | ★ Weirflame | the Lamp Ford · 15,700 · Blotback Catfish | — | the Moonbed · 21,600 · ★ the Buried Moon |
+| **7. The Last Light** · 45,600 | open sea · 6 | the Lamp Rock · the Drift Line | ★ Nightsail Lancer | the Beam · 19,600 · ★ Castaway Pike | — | the Unlit Mile · 26,900 · ★ the Jetsam Shark |
+| **8. Pyrefall Gorge** · 59,900 | river · 7 | the Alms Steps · the Coin Run | ★ Pyregold Carp | the Boulder Garden · 25,800 · ★ the Unfinished | — | the Last Pyre · 35,300 · ★ the Ashen Guest |
+| **9. The Waxen Reef** · 85,100 | reef · 8 | the Chimney Gardens · the Broken Keel | ★ Anvil Trevally | Lamp Row · 36,600 · ★ Mothlance Gar | the Drowned Spire (old) · 33,200 · ★ Spirewatch Pike | the Abbot's Cellar · 50,200 · ★ the Waxen Abbot |
+| **10. The Thunder Stair** · 131,600 | river · 9 | the Step Pools · the Cauldron | ★ Lampeye Perch | the Soap Landing · 56,600 · ★ Soapthief | — | the Throat · 77,600 · ★ the Last Lock |
+| **11. Rushlight Fen** · 201,200 | fen · 10 | the Reed Lanes · the Run | ★ Packtooth | the Night Lanes · 86,500 · Reedwalker Catfish | — | the Dam Foot · 118,700 · ★ the Long Thunder |
+| **12. The Salt Gate** · 275,900 | river · 11 | the Bar · the Sluice Throat | ★ Sweetwater Shark | the Harbour Stump · 118,600 · ★ Inkmarble Eel | the Turning Tide (night) · 107,600 · ★ Tideghost Shark | the Slipway · 162,800 · ★ the Old Shipwright |
+| **13. Lampmoss Slough** · 360,900 | swamp · 12 | the Straight Canal · Under the Weir | ★ Weirshadow Catfish | the Lock Gate · 155,200 · ★ Old Portcullis (moved from the Mossmere) | — | the Sentry's Reach · 212,900 · ★ the Last Sentry |
+| **14. The Siltway** · 440,800 | river · 13 | the Seam · the Sunk Ferry | ★ Sternlamp Catfish | the Lamp Bar · 189,500 · ★ Dapplewheel Ray | — | the Long Hole · 260,100 · ★ the Barge-Shadow |
+| **15. Lanternroot Lagoon** · 667,000 | lagoon · 14 | the Bright Flats · the Sunken Orchard | ★ Snagheart Bass | the Stilt Shrine · 286,800 · ★ Votive Shark | the Monsoon Cut (night) · 260,100 · ★ Rootjaw Catfish | the Sighing Pool · 393,500 · ★ the Silver Regent |
+| **16. The Inkwood** · 983,500 | river · 15 | the Windfall · the Kitchen Stair | ★ Emberbelly | Rootgate Creek · 422,900 · ★ Nightcreek Hound | the Overhang (old) · 383,600 · ★ Smilejaw Bream | the Breathing Mere · 580,300 · ★ the Banked Fire |
 
-Each cell is the place · its price · what its card names. The other fish at each place (its kind's fish, and the curiosities of roster §6) are in Appendix A.
+On a river, each place sits on one of the river's own forms (a pool, an undercut bank, an eddy, a creek mouth, the tail of a rapid, a bar edge) in slack water; `WATERS.md` §4.7 places them. Each cell is the place · its price · what its card names. The other fish at each place (its kind's fish, and the curiosities of roster §6) are in Appendix A.
 
-**Where eleven roster fish bite in play.** The roster gives each fish a kind of place; this spec decides where it bites in play (§12). Eleven fish are moved so that every place earns its price and no card names a common (decision 16). Their looks, names, sizes and hours are the roster's.
+**Where eleven roster fish bite in play.** The roster gives each fish a kind of place; this spec decides where it bites in play (§12). Eleven fish are moved so that every place earns its price and no card names a common (decision 16), and v7.1 draws two fish to the places their water needs (decision 29). Their looks, names, sizes and hours are the roster's.
 
 | fish | rarity | water | roster | in play | why |
 |---|---|---|---|---|---|
@@ -583,10 +652,11 @@ Each cell is the place · its price · what its card names. The other fish at ea
 | Grumbleplate | uncommon | the Thin Water | open water | day water | the Marsh Lanes' card was a common |
 | Cocoon Sleeper | uncommon | the Thunder Stair | open water | day water | the Step Pools' card was a common |
 | Kitewing Ray | uncommon | the Salt Gate | open water | day water | the Bar's card was a common |
-| Lampspot Snakehead | rare | Lampmoss Slough, Pyrefall Gorge | open water | day water | the Straight Canal added 3% |
+| Lampspot Snakehead | rare | Pyrefall Gorge, Lampmoss Slough | open water | **open water** (v7.1; v7 had moved it to the day water), drawn ×2.5 at the Gorge's Coin Run and Boulder Garden | the Gorge's open water had only two commons, so let-go play there earned 81% of the natural rule; now 87%. The Straight Canal still adds ≥ 5% without it |
+| Reedwalker Catfish | uncommon | Rushlight Fen | night water | **open water** (v7.1), drawn ×2.5 at the Night Lanes, whose card it still is | the Fen's thin pool forced a tier the Salt Gate after it halved |
 | Tailwatch Mudfish | uncommon | Lampmoss Slough | open water | night water | the Lock Gate had no night fish |
 
-**Every roster fish has a map** (sim section 0 checks it): an open-water fish comes with its lake map, a "day / old / night water" fish with any place of that kind in its water, a giant with its own place, a legend with her crown. The Lampspot Snakehead lives in two waters (Lampmoss Slough and Pyrefall Gorge). The Gill Lodger is never hooked (roster ask 7: it rides in about 1 in 8 Prize-or-bigger Siltway catfish, shown on the card with its own Keep or Let go). Curiosities bite at the places roster §6 names and take a slot like a fish.
+**Every roster fish has a map** (sim section 0 checks it): an open-water fish comes with its lake map, a "day / old / night water" fish with any place of that kind in its water, a giant with its own place, a legend with her crown. The Lampspot Snakehead lives in two waters (Pyrefall Gorge, where the player meets it first, and Lampmoss Slough). The Gill Lodger is never hooked (roster ask 7: it rides in about 1 in 8 Prize-or-bigger Siltway catfish, shown on the card with its own Keep or Let go). Curiosities bite at the places roster §6 names and take a slot like a fish.
 
 **What becomes of §25.8's other places.**
 
@@ -600,11 +670,15 @@ Each cell is the place · its price · what its card names. The other fish at ea
 
 **Rumours.** `RUMOURS`' three tiers become: tier 1, the line on the map's card; tier 2, Murk's one line when you buy it; tier 3, a note on the owned sheet once you have landed the named fish. Rumours pay nothing.
 
-### 5.3 What a place and a new water are, in the 3D world
+### 5.3 What a place, a new water and a river are, in the 3D world
 
 - **A place** is a small water (a disc or a lane, 5–8 m) inside a water's arena with its kind, its good bites and favour (§3.3), the fish it draws (at most two), its own fish, at most one giant, a landmark, a dock and its mist. Slice 2 ships places as this data. The twists of §25.8 (the bowl that overflows, threading the arches, Moonfall) are polish added per place afterwards; no place waits for its twist.
-- **A new water** is a new `ZONES` entry built like the four that exist: one of the built layouts (`bowl`, `twoBasins`, `ringTrench`, `drop` in `world-layout.js`), its islands and pillars from the kit with **new island and pillar kinds** for its landmarks (`world-art.js`), its palette and grade in the Starlit family (roster §3 gives each water's colours; green only as a trace), its docks, its four or five places and its crown pool. A new water is mostly data plus its landmarks; each one's draw calls stay inside §25.8.8's per-lake line.
-- On the **Chart** a new water is a new sheet; in the **Landing** a new Waystone at the sea-gate lights when its map is bought.
+- **A new still water** (a sound, the sea, a reef, a fen, a swamp, a lagoon) is a new `ZONES` entry built like the four that exist: one of the lake layouts (`bowl`, `twoBasins`, `ringTrench`, `drop` in `world-layout.js`), its islands and pillars from the kit with **new island and pillar kinds** for its landmarks (`world-art.js`), its docks, its four or five places and its crown pool. It names its theme (`zone.theme`, from a theme registry `src/world-themes.js`; the index clamp in `themeOf` goes, so no new water silently borrows the Pallid Deep's kit).
+- **A river** is the same, on the new **river layout** (`arena.layout: 'river'`; `WATERS.md` §4): an **authored strip** (`arena.bounds` {x: ±60, z: ±150}) with a centreline running from the spawn (downstream, south) up to its head, reaches of 170–240 m, one to three bends, a deep pool on the outside of each bend and a sand bar on the inside, soft banks (one terrain heightfield; gorge walls as swept wall meshes), and closed ends hidden by a fall or a weir and standing mist. **It is seen as a river**: on a river the sail camera yaws toward the channel 20 m ahead (±60° from north), so the channel recedes up the frame to its landmark at the first bend; the camera-side bank grows only low plants. **One water level** (falls and rapid steps are set dressing). **A current you can see**: the chop (with two-phase flow, so it never shears) and the foam lines move with the flow, standing waves stand in the chutes, V-wakes trail every snag, and small drift rides from mist to mist. Lanes run at 0.2–1.2 m/s (at most a fifth of the raft's speed); **white water never cuts the lane** (a 5.2 m sneak lane beside it, or a foam band the raft is carried through at a crawl), and the water above any fence is slack; every place, dock, the spawn and the legend's pool sit in slack water. **The raft on moving water** drifts at half the flow when idle and is nudged toward slack water, holds still from the cast to the card (the Wick drops a stone: no button, no words), and is never carried, stranded or capsized; the ends are dead water. Casts aim along the channel; a hooked fish's run is kept off the banks. The Salt Gate's current turns with the evening clock (ebb by day and dusk, slack as night falls, flood at night); no geometry moves: its mudflats sink and the shore line moves in the shader. The validator proves for every river: the spine fits its strip; one connected lane holding every dock, place and pool; every place 80% open water; the flow limits and no flow into a fence; dock widths; the drift sim on the real integrator (both tides); casts that find open water. Every system that is polar about the arena centre today (the shore radius, collide, the cliff and boulder rings, the mist and parallax rings, the depth bake, `uArenaR`, `randomWaterPoint`, the dock push, `calibrateDepth`) moves onto the strip in slice 6 (`WATERS.md` §4.2 lists them).
+- **Every water's look is its lushness step** (§5.2, `WATERS.md`): the Starlit sky, the lavender moon, the clear Clear Night air and the candle's one warm light, and the green of its step, carried by moss, foliage, floating plants, weed beds, the mirror and, at night, glow-moss and fireflies, never by fog, sky, light or grade. Each water has `lush` (step ÷ 15) and its day, dusk and night palette in `ZONE_LOOKS` (read only with the loop on, §13 slice 1c); `tools/validate-data.mjs` checks that `lush` rises with unlock order and that air keys stay out of green, and `tools/hue-report.mjs` checks the green share ladder, the step test, the sky and the water band, no cast and no neon (`WATERS.md` §7). (This replaces "palette in the Starlit family; green only as a trace", which now holds for the Mossmere alone.)
+- **The vegetation kit** (`WATERS.md` §5): seven archetypes (floating pads, emergent blades, fronds, bushes, ground tufts, trees, hanging strands) plus free moss, weed film and fireflies; each water picks its variants and plants by the step, built once per variant and stamped by matrix copy, merged by material into culled cells (a 3 × 3 grid on a lake, near and far bank strips on a river), swaying, opaque (no alpha test), on its own seeded random stream after every existing builder. **The Mossmere is not touched**: its built pads and reeds keep their builders, and every new shader term is compiled out at lush 0, so it builds and draws byte-identical.
+- **The cost line** (`WATERS.md` §5.4; to DESIGN §25.8.8 once measured): calls = materials × visible cells + outline, per pass. Flora adds about +15 / +10 / +5 main-pass calls (high / medium / low), +4 mirror and +4 shadow; river banks +1 and +1 mirror; gorge walls +1 in each pass; night emitters +1; drift +2. A lush lake's world is ≤ 68 / 52 / 46 main-pass calls, a lush river's ≤ 72 / 58 / 48; the whole frame at lush 1 on high about 211 calls (a lake) and 220 (a river), against today's measured 186, and about 370k and 340k triangles in all passes (today 236k). **Slice 5 measures it before any slice-6 arena is authored**: medium ≤ 230 calls and ≤ 320k triangles in all passes, high ≤ 250, and software GL on low ≤ 0.6 s a frame at 960×540; the software-GL cost on high is not measured yet.
+- On the **Chart** a new water is a new sheet (a river's sheet is a schematic: a gently bent spine at a fixed width, its places as vignettes at least 44 px across in their order along the river, its flow arrows along the spine); in the **Landing** a new Waystone at the sea-gate lights when its map is bought.
 
 ### 5.4 The Chart (the Map Table)
 
@@ -913,9 +987,10 @@ They ship in slice 1a. *v6's rule, kept as the alternative if the user wants Wic
 | **An opening cut scene** | Kept. It plays before the First Evening, or before the Jetty while the cove is not built. *(14 November 2026, the user: "After youve pressed start, it should immediately go into the cut scene".)* Under the loop it is started by New Descent's **Start** (no other click, no loading screen; Skip as built), shows the Wick you chose, and hands off to the Jetty, not to the lake. The title's **Prologue** word replays it. |
 | **On a catch the Wick holds the fish up, shows it, pauses, then the card opens** | Kept. A giant's show holds a beat longer (the built ceremony's longest class pose). The ink print is taken in the same beat. |
 | **Very few words on screen** | §8 is the whole text of the loop. |
-| **Art, atmosphere and fishing are the key drivers** | Every trip plays the game's best light. A new place is paid out as a view (the mist lifting). Sixteen waters, each its own palette and landmarks. |
+| **Art, atmosphere and fishing are the key drivers** | Every trip plays the game's best light. A new place is paid out as a view (the mist lifting). Sixteen waters, each its own palette and landmarks, each a step greener than the one before, six of them rivers. |
 | **The sharp Clear Night look, the lavender Starlit palette** | Kept. Mist banks are low (≤ 2.5 m), local and thin at the edge. |
-| **Never a ring round the raft or the Wick; green only as a trace** | Kept. The lantern's light is an edgeless pool; the good bites are dots by the float. |
+| **Never a ring round the raft or the Wick** | Kept. The lantern's light is an edgeless pool; the good bites are dots by the float; fireflies keep 6 m from the raft. |
+| **"Far too many green hues" (the early look); green only as a trace** | **Became the greening ramp** after the user's words of 14 November 2026: "I want the lakes to get progressively more and more lush and green … As we unlock new lakes and rivers we need to slowly but progressively start getting more and more green and lush." The Mossmere keeps green only as a trace, exactly as approved; each later water is one lushness step greener (§5.2, `WATERS.md`). Green never enters the air, the sky, the light, the grade or the UI, so the early complaint (green hues washing the frame) cannot come back. The built waters 2–4 step up first, gently, and are shown side by side for approval before any new water is built (§13 slice 1c). |
 | **Original work only** | Kept (§25.15.3). Every fish is original (roster §1): no real species' name, never the series or its presenter. The hold is a row of slots, not a cargo grid; no spoilage, no storm timer, no panic. |
 | **"Use all of these fish as inspiration"; "the main episode based fish … should be the rare giants"** | The roster is the species list; the giants rule is §3.5; every fish has a map (§5.2). |
 
@@ -941,7 +1016,8 @@ While `LOOP_ENABLED`, this file overrides DESIGN §1–§25 and CONTRACT §13 wh
 | §25.14 phase plan | **replaced** from here on by §13; what is built (P1, AF, the First Evening's logic) is the base; the P2–P4 lists are a parts bin |
 | §25.15 risks, cuts, originality | the originality rules kept |
 | §26.4 and `docs/loop/ROSTER.md` (the roster) | **binding for the fish**: names, looks, plays, sizes, rarities, hours, waters, places and giants. This spec is binding for where they bite in play (eleven fish move, §5.2), what they pay and what the maps cost; the roster deferred prices to it |
-| v4 and v5 of this file (commits 1aa478c, 3fc4a12) | **replaced** by v6; the loop, the hold rule and the parked list carry over |
+| v4, v5 and v6 of this file (commits 1aa478c, 3fc4a12, 85f78ae) | **replaced** by v7; the loop, the hold rule and the parked list carry over |
+| `docs/loop/WATERS.md` (the ramp and the rivers) | **binding for each water's look**: its lushness step, green share, foliage, palette by phase, landmark, and the river rules. DESIGN §19.1's palette rule (green and teal as rare trace accents) holds for the Mossmere and the Landing; for the other waters `WATERS.md` §3 and §7 replace it |
 | §1–§24, Appendix A and B | as §25.12 says; everything about combat, survival and the meta is parked (§9) |
 | CONTRACT §13 | binding for everything kept; a §14 for the loop's API is written with slice 1a |
 
@@ -949,7 +1025,7 @@ While `LOOP_ENABLED`, this file overrides DESIGN §1–§25 and CONTRACT §13 wh
 
 ## 13. The build plan
 
-Ten slices. Each ends playable, behind `GW_LOOP`. **Every slice's gate:** `node tools/validate-data.mjs` (its LOOP pass included), `node tools/check.mjs`, `node tools/sim/clams.mjs --quick` (from slice 1a it reads `data.LOOP`), `node tools/sim/roster-check.mjs`, the slice's browser scenario with no console errors, and **the flag-off checks unchanged**: the v1 golden trace, the flag-off scenario run, and the v3 browser scenarios `run-v3`, `m1-v3` and `af-progression` with the loop off (the loop edits v3's code paths: measure, the loadout, the v3 clock, the v3 card). Sizes: S ≤ 2 days, M 3–6 days, L 1–2 weeks, one implementer per lane. From slice 3 each slice has a **fish lane** (body plans in `models-fish.js`, the species data) beside its systems lane.
+Twelve slices. Each ends playable, behind `GW_LOOP`. **Every slice's gate:** `node tools/validate-data.mjs` (its LOOP pass included), `node tools/check.mjs`, `node tools/sim/clams.mjs --quick` (from slice 1a it reads `data.LOOP`), `node tools/sim/roster-check.mjs`, the slice's browser scenario with no console errors, and **the flag-off checks unchanged**: the v1 golden trace, the flag-off scenario run, and the v3 browser scenarios `run-v3`, `m1-v3` and `af-progression` with the loop off (the loop edits v3's code paths: measure, the loadout, the v3 clock, the v3 card). **From slice 1c every slice that touches a water's look also passes** the Mossmere byte-identity test (its rocks, organics, fine and floater geometry hash, its shader programs and a frame fingerprint unchanged), the `lush` and palette rules of `validate-data`, and the `hue-report` gates for every water it ships, **the step test against its neighbours included** (`WATERS.md` §7), with `python3 tools/loop-colour-script.py` re-run when a palette moves. **Every slice that ships a river also passes** the river validator, the drift sim and the cast sim (`WATERS.md` §4.6). Captures run only when the shared machines are free. Sizes: S ≤ 2 days, M 3–6 days, L 1–2 weeks, one implementer per lane. From slice 3 each slice has a **fish lane** (body plans in `models-fish.js`, the species data) beside its systems lane.
 
 **Two rules that let the roster arrive in pieces.** (1) A re-founded built species keeps its built model until its new plan ships (the Matriarch stays carp-shaped until the catfish plan). (2) A new roster species bites only once its body plan exists; until then it is not in the pool, and the sim's pacing for that slice is re-run on what ships.
 
@@ -992,6 +1068,32 @@ Before any UI, a **node-level trip harness** (`tools/tests/loop-trip.test.mjs`) 
 | built `cond` (§25.8 place conditions: deed, reflection, plumbBottom …) | — | ignored under the loop |
 | built `src: 'walk'` | — | the kept walk species the map cards name (the Wax-Bearer, the Clapper, the Unreflected, the Footnote, Hushcap Koi) are included under the loop |
 
+### Slice 1c: First moss (S–M, an art lane beside 1b). The ramp's first steps on the built waters, switched off until the user says yes.
+
+The greening of the built waters 2–4 lands as early as it can: it touches only `world-art.js`, `world-paint.js`, `world-fx.js`, a new `data.js` export and the tools, and runs in its own lane beside slice 1b, so it never blocks or changes slice 1a. **It ships switched off.** Its data lives in a new export, `ZONE_LOOKS` (keyed by zone id), read by `world-art.js` only when the loop flag is on and the `LOOP.lush` switch is set; `ZONES`, the flag-off game and its fingerprint (`tools/tests/v1-exports.json`) stay byte-identical, and DESIGN's ≤ 2% green-teal gate still holds for the flag-off game. `LOOP.lush` turns on only after the user's yes.
+
+| | |
+|---|---|
+| **the player sees** | with `LOOP.lush` on: Sporewood with its first moss and ferns, Glasswater with moss on the crystal and tree ferns in the arches, the Pallid Deep as the requiem garden (pale moss on bone, ivy on four ribs, cedar spires, moonflowers and glow-moss at night). The Mossmere exactly as today. With it off: everything exactly as today |
+| **data** | `ZONE_LOOKS`: `lush` (0, 1/15, 2/15, 3/15), `flora` (which kinds, which variants), the leaf keys (`leafDark / leaf / leafHi / moss2 / bloom / glowMoss`), the new `mossG` layer of `WATERS.md` §6 (the built violet `KIT.moss` stays), `flora.cliffMoss` as data (a hard-coded 0.45 today) · `LOOP.lush` (off) |
+| **engine** | **first commit: the Mossmere geometry-hash and program test**, before any builder is touched. Then the flora pass scaffolding: its own seeded random stream, run after every existing builder; the reeds and pads builders generalised for lush > 0 only (the Mossmere's `theme === 'mossmere'` pad and reed branches stay as they are); the flat 8-triangle pad; one fern frond and a simple cedar spire; ivy as hanging strands on the ribs; the night-emitter mesh (glow-moss and moonflowers with a night uniform, +1 call; the shared `glowMat` untouched); `mossG` in `colorRock` and the cliff band; the ring-0 canopy blend in the far rings (0 calls); every new shader term behind a define absent at lush 0; the night lavender share by step (0.25 + 0.035 × step; the Mossmere's formula unchanged) |
+| **tools** | `validate-data`: `lush` rises with unlock order, the Mossmere is 0, the air keys stay out of green, the leaf caps and the track · `hue-report`: per-water targets for waters 1–4, the step test, the sky-pixel gate, the water band, no cast, no neon, fixed capture poses, medium as the gating tier and the low-tier order check · `tools/loop-colour-script.py` (its lint and gates) |
+| **tests** | the Mossmere byte-identity test (rocks, organics, fine and floater hashes, its shader programs, a frame fingerprint) · the flag-off fingerprint unchanged · each built water's draw calls inside §25.8.8 (+2 / +2 / +3 calls) · green share by day 3 / 5.5 / 8% (±10%, at least ±0.5 points) for waters 2–4, the Mossmere ≤ 1% · **the step test for waters 1→2→3→4** (day 1.5–5 points a step, dusk and night rising) · sign readability (DESIGN c14) on waters 2–4 |
+| **the user's approval** | the four built lakes side by side by day, dusk and night, for the user's yes **before any new water is built and before `LOOP.lush` turns on** (if Sporewood or Glasswater reads as "green" rather than "a little moss", the step shrinks and the ramp is re-spaced) |
+| **left out** | the full vegetation kit (slice 5), the river layout (slice 1d, then slice 6) |
+
+### Slice 1d: The river spike (S–M, an engine lane right after 1c). A river you can sail, with no fish.
+
+The riskiest new engine work in the plan is proven first, on a test strip behind its own flag (`GW_RIVER_SPIKE`), long before the river waters are built.
+
+| | |
+|---|---|
+| **the player sees** (the spike's scenario, shown to the user like 1c) | a raft on a test river: the channel receding up the frame to a bend, the camera following the river, banks with placeholder plants, the current's look (chop with two-phase flow, foam lines, V-wakes), the raft drifting when idle and holding still with a line out, white water with its sneak lane |
+| **engine** | `world-layout.js`: layout `river` on `arena.bounds`, one spine, the 1 m field (bank distance, along, across, flow, depth), `shoreDist`, `flowAt`, `sampleWater`, `river.pointAt/sAt` · `world.js`: `collide` along the bank gradient, `getShoreDist`, `getFlow`, `getRiver` · `render.js`: the river camera rule (`BALANCE.cameras.sail.river`) · `water.js` / `water-shader.js`: `GW_RIVER` with two-phase flow, the rectangular depth bake with G from `getShoreDist` · `player.js`: idle drift, the nudge toward slack, the stone (`LOOP.river.holdStates`) |
+| **tools** | the validator's spine, lane, flow-into-fence and dock checks; the drift sim on `player.js`'s integrator through a pure shim; the cast sim; a river test strip in `tests/clarity-perf.scenario.mjs` (it writes the river's numbers for slice 5's cost gate) |
+| **the user's look** | the spike's frames (landscape and portrait), for a yes on "it reads as a river" before slice 6 builds one |
+| **left out** | fish, places, docks, drift meshes, subtypes (gorge, stair, tide, oxbow) |
+
 ### Slice 2: The mist lifts (L). Places, maps and the first giants.
 
 | | |
@@ -1031,43 +1133,64 @@ Before any UI, a **node-level trip harness** (`tools/tests/loop-trip.test.mjs`) 
 |---|---|
 | **the player can** | Buy Glasswater and the Pallid Deep (each lifting its day and old water); buy the eight remaining built place maps (Sporewood 3, Glasswater 3, the Pallid Deep 2), T3, T4 and T5, the Spore-Lamp Fly, Mirror Shard and Ferryman's Coin, the Moth Popper and Lantern Lure, and hunt the Drifting Grove, the Glass Sovereign (now a sturgeon) and the Lantern-Swallower. Meet six more giants. The first reach is done. |
 | **waters and fish** | Sporewood's places and giants (Harpstring Eel, Festival Puffer, Emberbrood Snakehead); Glasswater's fish (Rosefleck Trout, Duskbar Salmon, Redhome Salmon, Tremor Catfish, Pilgrim Salmon as a trout) and giants (Shardspine Eel, Wolfwake Trout, Prismdrop Sturgeon); the Pallid Deep's (Slipknot Eel) |
-| **new body plans** | none (all of reach I's plans are in) |
+| **new body plans** (fish lane, ahead of slice 6) | **cod** (5; M), **flatfish** (2; a new builder: M), **jack** (2; M): the cold rim's fish arrive early now that it is reach II |
+| **the vegetation kit** (art lane, M, about 1.5–2 weeks) | the seven archetypes of `WATERS.md` §5 (pads, blades, fronds, bushes, tufts, trees, strands), merged by material into three culled segments, the `GW_SWAY` vertex term and the raft's push, the flora floor tint and leaf translucency in `toonMaterial`, the planting bands, the tier multipliers, `arena.shoreShelf`, the fireflies preset, the theme registry `src/world-themes.js` (the `themeOf` clamp goes). Proven on the built waters first: the Pallid Deep's ivy and cedars move onto the kit with no visible change. Prototypes stamped by matrix copy (no per-piece `prep()`) |
+| **the cost gate** (before any slice-6 arena is authored) | a lush-1 test lake and slice 1d's river strip write their measured numbers into DESIGN §25.8.8 and pass: medium ≤ 230 calls and ≤ 320k triangles in all passes, high ≤ 250 calls, software GL on low ≤ 0.6 s a frame at 960×540, and the arena build ≤ 250 ms on desktop and ≤ 900 ms on a phone at lush 1, the river field included. CONTRACT §13's frame target is amended with these numbers |
 | **modules** | `data.js` (the re-sited places, validated against `world-layout`) · `world-art.js` (a landmark per place, in the lake's kit) · `fishing.js` (nothing new) · `tools/validate-data.mjs` (every place: open water ≥ 80%, a dock within reach, prices rising within a water, every giant has a place, every roster fish of the slice has a map) · `tools/sim/clams.mjs` (the pacing run on real data: §4.9's targets to the Rushlight Fen map are the gate, with section 6's ladder checks) |
 | **tests** | the pacing checks to hour 16 pass on `data.LOOP` · each built water's places exist, lift and fish · the species count per water matches Appendix A · the Lantern-Swallower's first-try chance at T4 equals the sim's 17% |
 | **left out** | the later sheets |
 
-### Slice 6: The fresh waters (L+). Waters 5–8.
+### Slice 6: The cold rim (L+). Waters 5–8: the first green new water, the first river, the sea and the gorge.
+
+Each half ships **consecutive** waters, so the chain of lake maps (§5.1 rule 4) never skips and the pacing checks run on what ships. **`LOOP.chainSkip`**: should a water slip, its sheet stays sealed on Murk's shelf and the next built water's map needs the last built water instead; the sim gains a `--shipped` mode with this slice (the pacing and ladder checks re-run on the waters actually shipped), and that run is the slice's gate.
+
+**6a. The Rime Sound and the Thin Water (L).** The first green new water and the first river, finishing slice 1d's engine.
 
 | | |
 |---|---|
-| **the player can** | Buy Rushlight Fen, the Thin Water, Lampmoss Slough and Pyrefall Gorge, their 8 place maps, four giants' lures and four legend baits, the Long Wall's second wing. Meet 6 giants (Packtooth, Weirflame, Weirshadow Catfish, Old Portcullis, Pyregold Carp, and the Unfinished, the gorge's one that got away) and 4 legends (the Long Thunder, the Buried Moon, the Last Sentry, the Ashen Guest). Find the Potlid Turtle and the Stone Lodger. |
-| **waters and fish** | 4 arenas; 33 roster fish (Old Portcullis moves from the Mossmere's later sheet) and 2 curiosities |
-| **new body plans** | **dogtooth** (6; the perch stretched with a teeth row: M); curiosities **softshell**, **salamander** (S each) |
-| **arena work** | each water: a `ZONES` entry on a built layout, its island and pillar kinds (the dam, the broken weir, the lock gate, the pyres), palette and grade, docks, places, crown |
-| **modules** | `data.js` (4 zones, 16 places, species, lures, baits) · `world-art.js` (new kinds) · `world.js` (arena build for new zones) · `models-fish.js` · `models-kit.js` · `tools/validate-data.mjs` · `tools/sim/clams.mjs` |
-| **tests** | the pacing and ladder checks to hour 30 · every new water's giant at Prize lands less often than its other fish on T5 · each new water is the best water from the day its map is bought · draw calls per water inside §25.8.8 |
-| **left out** | reaches III–IV |
+| **the player can** | Buy the Rime Sound and the Thin Water, their 4 place maps, two giants' lures and two legend baits, the Long Wall's second wing. Meet 2 giants (Icedoor Flounder, Weirflame) and 2 legends (the Long Winter, the Buried Moon). Sail a river: the Thin Water's sand bars, anchored reed islands and floating meadows, its current, the weir's foam band. |
+| **waters and fish** | 2 arenas; 22 roster fish |
+| **new body plans** | **shark** (the Long Winter here, 7 in all; a new builder: L), **dogtooth** (1; M); the cod and flatfish came with slice 5's fish lane |
+| **arena work** | the Rime Sound on `drop` as a temperate-rainforest fjord (spruce to the tideline, fern ledges, waterfalls; the glacier front, the floe ice and the Lantern Hole at its head; kelp); the Thin Water on the river layout (braided subtype, the weir at the first bend) |
+| **the river finish** (M) | drift (small things only; big floating things anchored; pushed off the raft, docks and places; mirrored on high), the docks on the bank rule, casts along the channel and runs clamped by `getShoreDist`, the arrival glide and mist-lift shot up the channel, the camera-side planting band and the culled near-bank canopy mesh, braids, the shore band by half-width |
+| **tests** | the step test 4→5→6 (and the Rime Sound's share, sky and night with glow-moss) · on the Thin Water: a cast, a bite and the anchor rule behave exactly as on a lake; no idle raft reaches an end; no line breaks while the raft drifts; a 10-minute soak capture at low and medium (no shear) · the pacing and ladder checks to hour 22 on the shipped waters |
 
-### Slice 7: The great rivers (L+). Waters 9–12.
+**6b. The Last Light and Pyrefall Gorge (L).**
 
 | | |
 |---|---|
-| **the player can** | Buy the Thunder Stair, the Inkwood, the Siltway and the Salt Gate, their 10 place maps (two fifths: the Overhang, the Turning Tide), T6, Windfall Plum and Tallow Soap, four giants' lures and legend baits, the third wing. Meet 10 giants and 4 legends (the Last Lock, the Banked Fire, the Barge-Shadow, the Old Shipwright). Find Little Logjaw and the Mudlark Crab; glimpse the Long Coil; find a Gill Lodger in a big Siltway catfish. |
-| **waters and fish** | 4 arenas; 48 roster fish, 3 curiosities and the Gill Lodger |
-| **new body plans** | **shark** (7; a new builder: L), **sawfish** (1; the shark with a saw: M) |
-| **modules** | as slice 6, plus `ui-loop.js` (the Gill Lodger's second card) |
-| **tests** | the pacing and ladder checks to hour 42 · T6 on the shelf with the Inkwood · the Gill Lodger shows on about 1 in 8 Prize+ Siltway catfish and never bites on its own |
+| **the player can** | Buy the Last Light and Pyrefall Gorge, their 4 place maps, two giants' lures and two legend baits. Meet 4 giants (Nightsail Lancer, Castaway Pike, Pyregold Carp, the Unfinished) and 2 legends (the Jetsam Shark, the Ashen Guest). Find the Guttering Squid, the Potlid Turtle and the Stone Lodger; lose the Unlit Lance. |
+| **waters and fish** | 2 arenas; 17 roster fish (the Lampspot Snakehead met first here) and 4 curiosities (the Guttering Squid, the Unlit Lance, the Potlid Turtle, the Stone Lodger) |
+| **new body plans** | **billfish** (2; the tuna with a bill: M); the jack came with slice 5's fish lane; curiosities **squid**, **softshell**, **salamander** (S each) |
+| **arena work** | the Last Light on `bowl`, `kind: sea`: the near Lamp Rock island with its turf-and-fern cliff at the spawn, the Drift Line's weed meadow, the far green island; the cliff ring off and **reef breakers** (a ring of foam and rocks) bounding the water in clear air · Pyrefall Gorge on the river layout's `gorge` subtype: swept wall meshes with hanging forest, three rapids each with a sneak lane, pool heads, the temple stairs at the first bend, a falls card beyond |
+| **tests** | the step test 6→7→8; the Last Light's share proved on its own frame before its arena is dressed · the pacing and ladder checks to hour 30 · every new water's giant at Prize lands 30–50% and less often than its other fish on T5 · each new water is the best water from the day its map is bought · draw calls per water inside §5.3's cost line · the Gorge: flow into every fence ≤ 0.25 m/s, no place in white water |
+
+Sizes, re-estimated (v7.1): slice 1d is S–M; the river finish in 6a is M; each river arena is M (the Thin Water, the Gorge), each still arena M. Slices 7 and 8 are re-planned on 6a's measured pace before they start.
+
+### Slice 7: The falls and the gate (L+). Waters 9–12.
+
+| | |
+|---|---|
+| **the player can** | Buy the Waxen Reef, the Thunder Stair, Rushlight Fen and the Salt Gate, their 10 place maps (two fifths: the Drowned Spire, the Turning Tide), **T6** (with the Thunder Stair), Tallow Soap, four giants' lures and legend baits, the third wing. Meet 9 giants and 4 legends (the Waxen Abbot, the Last Lock, the Long Thunder, the Old Shipwright). Find the Paper-Lantern Jelly and the Mudlark Crab. Watch the Salt Gate's tide turn as night falls. |
+| **waters and fish** | 4 arenas (two rivers); 39 roster fish and 2 curiosities |
+| **new body plans** | **sawfish** (1; the shark with a saw: M) |
+| **river work** | the Thunder Stair: a stepped gorge (step pools joined by sailable chute foam bands, the Cauldron's eddy, the 10 m Throat as scenery past the sailing water, a falls card, the moonbow at night); the Salt Gate: the `tidal` subtype (the flow a pure function of the evening clock; no geometry moves: the mudflat mesh sinks and the shader's shore line moves; the sluice's sneak lane) |
+| **arena work** | the Waxen Reef on `twoBasins` with its green keys and seagrass; Rushlight Fen on `twoBasins` as a papyrus delta with palm islands, the dam and its pool |
+| **modules** | as slice 6, plus `survival.js` / the evening clock feeding the tide |
+| **tests** | the pacing and ladder checks to hour 41 · T6 on the shelf with the Thunder Stair · the tide: slack within 5 s of nightfall, docks always reachable, no place leaves slack water at any tide, the drift sim on both tides · the step test for waters 8→12 |
 | **left out** | reach IV |
 
-### Slice 8: The sea (L+). Waters 13–16.
+### Slice 8: The green heart (L+). Waters 13–16.
 
 | | |
 |---|---|
-| **the player can** | Buy Lanternroot Lagoon, the Waxen Reef, the Last Light and the Rime Sound, their 10 place maps (two fifths: the Monsoon Cut, the Drowned Spire), four giants' lures and legend baits, the fourth wing. Meet 9 giants and 4 legends (the Silver Regent, the Waxen Abbot, the Jetsam Shark, the Long Winter). Find the Paper-Lantern Jelly and the Guttering Squid; lose the Unlit Lance. Finish the shelf at about hour 48. |
-| **waters and fish** | 4 arenas; 43 roster fish and 3 curiosities |
-| **new body plans** | **jack** (5; M), **billfish** (3; the tuna with a bill: M), **cod** (5; M), **flatfish** (2; a new builder: M); curiosity **squid** (S) |
-| **modules** | as slice 6 |
-| **tests** | the full pacing run passes on `data.LOOP` (every check of §4.9 and sim section 6) · `roster-check.mjs` and the sim's "every roster fish has a map" pass on the shipped data |
+| **the player can** | Buy Lampmoss Slough, the Siltway, Lanternroot Lagoon and the Inkwood, their 10 place maps (two fifths: the Monsoon Cut, the Overhang), Windfall Plum, four giants' lures and legend baits, the fourth wing. Meet 10 giants and 4 legends (the Last Sentry, the Barge-Shadow, the Silver Regent, the Banked Fire). Find Little Logjaw; glimpse the Long Coil; find a Gill Lodger in a big Siltway catfish. Finish the shelf at about hour 48. |
+| **waters and fish** | 4 arenas (two rivers); 45 roster fish, 2 curiosities, the Long Coil's sighting and the Gill Lodger |
+| **new body plans** | none: every plan is in, so the fish lane polishes and the art lane carries the densest foliage |
+| **river work** | the Siltway: a `meander` with the Seam (two waters side by side, unmixed), anchored floating meadows and giant lilies, a low far bank and mist so 36–40 m of water reads as wide; the Inkwood: the `oxbow` subtype with two blind creeks at least 11 m wide to ponds of at least 16 m, a little fall at Rootgate Creek, closed canopy with gaps and moon coins (≥ 6% sky) and fireflies at night |
+| **arena work** | Lampmoss Slough on `bowl` with its canal strip, living swamp trees and moss curtains; Lanternroot Lagoon on `ringTrench` as a mangrove forest with synchronous fireflies |
+| **modules** | as slice 6, plus `ui-loop.js` (the Gill Lodger's second card) |
+| **tests** | the full pacing run passes on `data.LOOP` (every check of §4.9 and sim section 6) · `roster-check.mjs` and the sim's "every roster fish has a map" pass on the shipped data · the Gill Lodger shows on about 1 in 8 Prize+ Siltway catfish and never bites on its own · the step test for waters 12→16 (night ≥ 25% of day, the night emitters never fewer) · the lush-1 frame inside slice 5's measured budget on medium phones and software GL |
 | **left out** | the later sheets |
 
 ### Slice 9: The long tail (each item ships alone, S–M).
@@ -1078,17 +1201,19 @@ The four other Wicks (§10.1) · the Old Ledger's double (`ledgerPaid`) and its 
 
 **What each slice brings** (roster fish that can bite at the end of it; giants include legends):
 
-| slice | waters | roster fish | giants | new plans |
-|---|---|---|---|---|
-| 1a | the Mossmere's open water (built species) | 0 | 0 | — |
-| 1b | + Sporewood's open water | 11 | 0 | — |
-| 2 | + the Mossmere's places, Sporewood's day and old water | 17 | 4 | lamprey, sturgeon, trout |
-| 3 | Sporewood's open water complete | 21 | 4 | catfish, bream, disc, tuna |
-| 4 | — | 21 | 4 | snakehead, gar |
-| 5 | reach I complete | 41 | 12 | — |
-| 6 | reach II | 74 | 22 | dogtooth (+ softshell, salamander) |
-| 7 | reach III | 122 | 36 | shark, sawfish |
-| 8 | reach IV | 165 entries, all 164 fish | 49 | jack, billfish, cod, flatfish (+ squid) |
+| slice | waters | roster fish | giants | new plans | lushness |
+|---|---|---|---|---|---|
+| 1a | the Mossmere's open water (built species) | 0 | 0 | — | — |
+| 1b | + Sporewood's open water | 11 | 0 | — | — |
+| 1c | (art lane) | — | — | — | the built waters 2–4 at steps 1–3, switched off until the user's yes; the Mossmere unchanged |
+| 1d | (engine lane) | — | — | — | the river spike: a test strip, no fish |
+| 2 | + the Mossmere's places, Sporewood's day and old water | 17 | 4 | lamprey, sturgeon, trout | — |
+| 3 | Sporewood's open water complete | 21 | 4 | catfish, bream, disc, tuna | — |
+| 4 | — | 21 | 4 | snakehead, gar | — |
+| 5 | reach I complete | 41 | 12 | cod, flatfish, jack (fish lane, ahead) | the vegetation kit |
+| 6 | reach II, the cold rim (6a: waters 5–6; 6b: 7–8) | 80 | 22 | shark, billfish, dogtooth (+ squid, softshell, salamander) | steps 4–7; the first river finished, then the gorge |
+| 7 | reach III, the falls and the gate | 119 | 35 | sawfish | steps 8–11; the stair and the tide |
+| 8 | reach IV, the green heart | 165 entries, all 164 fish | 49 | — | steps 12–15; the oxbow and creeks |
 
 ---
 
@@ -1098,12 +1223,22 @@ The four other Wicks (§10.1) · the Old Ledger's double (`ledgerPaid`) and its 
 |---|---|---|
 | 1 | **Slice 1a changes how the built game works** (measure, the card, `createRun`, the loadout, the clock) and is the riskiest slice, not the art. | Split from the roster's species (1b); the node trip harness before any UI; the v3 scenarios in every gate; the boot rule for a loop save opened with the flag off. |
 | 2 | **Quiet water feels like being told to stop.** | It never stops the fishing; the dots make it readable; the first quiet water is taught by Murk as advice; a fish let go lights its dot again. Knobs: `LOOP.water.good` (per kind), `openExtra`, `stale.favour`, `letGo`. The sim's anti-grind and choosy checks say how far each can move. |
-| 3 | **Twelve new arenas are the largest art cost in the plan** (slices 6–8). | Each is a built layout, kit pieces and new landmark kinds; places ship as data with mist first. If a reach slips, the shelf ends at the last shipped water and the giants' page shows the rest as outlines. (Question 1, §16.) |
-| 4 | **Late numbers are large** (a Trophy giant at the Rime Sound sells for about 203,000; its lake map costs 738,000). | "12.4k" and "1.2m" on screen; the tally counts up. Knob: the value tiers are a single table set by the two ladder rules; lowering the open-water rule from 1.05 to 1.0 makes the late numbers about 30% smaller (the Rime Sound's tier 882). (Question 3, §16.) |
+| 3 | **Twelve new arenas are the largest art cost in the plan** (slices 6–8), and six of them are rivers on a new layout. | Each still is a built layout, kit pieces and new landmark kinds; each river is the river layout plus its subtype; places ship as data with mist first. The river engine is proven first, on a test strip, in slice 1d; each half of slice 6 ships consecutive waters (6a the Rime Sound and the Thin Water, 6b the Last Light and the Gorge), so the chain of lake maps never skips; should a water slip, `LOOP.chainSkip` seals its sheet and the next built water's map needs the last built water, and the sim's `--shipped` run gates the slice. The body plans start in slice 5's fish lane. If a reach slips, the shelf ends at the last shipped water and the giants' page shows the rest as outlines. (Question 1, §16.) |
+| 4 | **Late numbers are large** (a Trophy giant of the Inkwood sells for about 196,000 on average and 218,000 at most, an Elder Emberbelly about 548,000; its lake map costs 983,500). | "12.4k" and "1.2m" on screen; the tally counts up. Knob: the value tiers are a single table set by the two ladder rules; lowering the open-water rule from 1.05 to 1.0 makes the late numbers about 30% smaller (the last tier about 1,200). (The user said yes: question 3, §16.) |
 | 5 | **The visit home is longer than the sim's 44 s.** A slower home makes bigger holds and choosy play worth more per minute, and every pacing number moves. | Slice 1a measures it and writes it into `LOOP.time`; the sim is re-run before slice 2. |
 | 6 | **Fourteen new body plans** (and four for curiosities) before the roster is whole. | Rule 2 of §13: a fish bites only once its plan exists, so no slice waits for all of them. Order by fish served: catfish, bream, disc, snakehead, shark. |
 | 7 | **Elders and giants are too hard without the parked relic and Boon Hold.** | The sim lands the first giant at about hour 1.4 and about 70 by the end. Knob: `LOOP.craft` (0–3 extra Hold on every fish), off at first; `LOOP.giant.fight` (10). |
 | 8 | **The numbers rest on a model** (±10%, §4.9). | Slice 1a moves the tables into data and the sim reads them; slices 5–8 re-prove the pacing and the ladder on the real game, reach by reach. |
+| 9 | **Lush waters are slow on phones and on the shared software-GL capture machines** (up to about 1,000+ plant instances, a heavier mirror, canopy shadows). | Merged segments with culling, no alpha test, solid near fronds, reeds unmirrored first, the canopy outline off on medium, tier multipliers (low 0.4×), cells drawn near to far, and §5.3's cost line **measured in slice 5 with pass/fail thresholds** (medium ≤ 230 calls and ≤ 320k triangles in all passes, software GL on low ≤ 0.6 s at 960×540) before any slice-6 arena is authored. Knobs: the archetypes' full counts, `flora.low`'s share, the canopy in the mirror, the firefly count. The software-GL cost on high is not measured yet; captures run at low and medium and only when the machines are free. |
+| 10 | **A green cast, neon, or the user's "far too many green hues" coming back.** | Green lives only on things: the air, sky, light, grade and UI keys are banned from green by `validate-data` on every water; `hue-report` fails a frame whose sky, water and stone drift green, whose water is more than 0.6× as green as its banks, whose sky pixels are green, or with neon or teal (`WATERS.md` §7); the colour script proves the targets meet every gate at once. The Mossmere and the Landing keep today's ≤ 1% gate. |
+| 11 | **The first step is too big**: Sporewood or Glasswater reads as "green", not "a little moss". | Slice 1c shows the four built lakes side by side for the user's yes before any new water is built. Knob: the share targets of waters 2–4 (3 / 6 / 8%) and the step size; the ramp can be re-spaced without moving any water. |
+| 12 | **Moving water breaks the fishing feel or reads as a soft fail** (the float drifts, the raft creeps or is pushed into a bank or a fence, a line breaks, a fish runs into the bank). | Every place, dock and pool is slack water; white water always leaves a sneak lane or carries the raft through, and the water above a fence is slack; the raft holds still from the cast to the card; the idle nudge points to slack water; lanes are capped at 1.2 m/s; banks push softly; the ends are dead water; casts aim along the channel and runs are clamped off the banks; the validator, the drift sim (on the real integrator) and the cast sim (§5.3). Knob: the lane cap and the idle drift share (0.5). If the current should matter in play, it becomes a place rule (the built "drift" rule), never a stronger push. |
+| 13 | **The Salt Gate's tide adds state** (docks, mist banks and the crown's footprint could clip). | The flow is a pure function of the evening clock; **no geometry moves** (the mudflat mesh sinks and the shader's shore line moves); the tests check every place stays slack at every tide and the drift sim runs on both. |
+| 14 | **Pyrefall Gorge's open water is thin** (two commons), so choosy play earned 81–83% there in v7, at slot 6 and at slot 8 alike. | Fixed in the water (v7.1): the Lampspot Snakehead bites in its open water and hunts the Coin Run and the Boulder Garden, and the Gorge's Fight is 30; choosy play earns 87% (sim section 2b, which now checks every new water). It is still the thinnest margin in the run. Knobs: the Lampspot's draw (×2.5), the Gorge's Fight term, or a plain bait override (Shimmerfly). |
+| 15 | **Big legends now come early**: the two largest legends (the Long Winter, 560 cm, landed at about hour 21; the Jetsam Shark, 480 cm, about hour 26) come in the cold rim, and the last legend (the Banked Fire, 325 cm) is not the biggest. | **Put to the user** (§16 question 6), with the other way beside it. Until they answer: a legend's value follows its slot, so the climax is the dearest, not the longest, and the last crown leads with spectacle (the Breathing Mere's sigh in the green hall). |
+| 16 | **Name leaks**: a real river, country, episode or the series slipping into a place name, lure, bait, Murk line or code. | Real places live only in `docs/` (`echoes`, `inspiredBy`, `WATERS.md`'s "modelled on" column and §4.1, §9); slice 1b's allow-list and `validate-data`'s forbidden-name rule cover `src/`; reviewers check every new name. |
+| 17 | **The first new map is close in price to the last old one.** The Rime Sound's lake map (29,700) is 1.14× the Pallid Deep's and less than one T5 slot (32,000), because the Rime Sound's own income is modest (its tier 45). | Every other price at slot 5 is floored above slot 4's (1.05×), and the player meets the map while buying T5, so it reads as the next goal, not a bargain. Knob: a floor on the lake map too (1.2× the slot before), which moves the pacing by minutes. |
+| 18 | **The river engine is the largest new system** (the field, the camera rule, the shader, collide, the depth bake, drift, the validator and its sims, every polar consumer). | Proven first in slice 1d on a test strip (S–M), finished in 6a (M), each river arena then M; slices 7–8 re-planned on 6a's measured pace. |
 
 ---
 
@@ -1117,7 +1252,7 @@ v4's rulings on the three proposals stand, the roster brought new ones, and v6 r
 | what quiets water | every bite; 4 good bites everywhere | each landed fish; about 3 per place | — | **every bite but a let go; open water one per slot plus one, 2 day, 3 old, 2 night, 2 crown** (v6) | counting catches leaves free re-rolls; with 4 everywhere choosy play beats natural play per trip |
 | the clock | a trip is day or night at random | "wait for dusk" at the table | a trip starts before dusk | **every trip is an evening; night holds** | no skip button, the best light every trip |
 | the catalogue | 3 charts + 26 place maps | 3 lake maps + 16 place maps | — | **15 lake maps + 40 place maps; a lake map opens its day and old water** (v6; v5: 15 + 70; v4: 3 + 16) | the roster's 16 waters; one pattern of four places, a fifth where a giant needs one |
-| price scale | Sporewood 1,000 · Glasswater 7,000 · Pallid 28,000 | 400 · 1,200 · 2,800 | — | **2,000 · 10,200 · 26,000, then 33,300 … 738,000** (v6: lake maps that open three places) | re-fitted to this sim; no wait above 90 min |
+| price scale | Sporewood 1,000 · Glasswater 7,000 · Pallid 28,000 | 400 · 1,200 · 2,800 | — | **2,000 · 10,200 · 26,000, then 29,700 … 983,500** (v6: lake maps that open three places; v7 and v7.1: re-derived for the new order) | re-fitted to this sim; no wait above 90 min |
 | a lake needs a place of the lake before | — | yes, one | — | **no** | clams are the only key |
 | the hold | 3 → 10 | 3 → 7 | 3, 4, 5, 8 tried | **3 → 8** | trips stay under 6 minutes, the visit home included |
 | raft parts | Oars, Quiet Hull, Lantern, Moss Lining (+5% sale) | hold, bait box, oars, lamp | — | **hold, Oars, Keel, Lantern** (v6: Quiet Hull cut) | no percentage on the sale anywhere |
@@ -1133,12 +1268,18 @@ v4's rulings on the three proposals stand, the roster brought new ones, and v6 r
 
 ## 16. Questions only the user can answer (each with the default this spec builds)
 
-v4's five questions were answered on 13 November 2026 ("Yes to all five loop rules") and are decisions now. The roster and v6 raise these:
+v4's five questions were answered on 13 November 2026 ("Yes to all five loop rules") and are decisions now. **v6's four questions below were answered by the user on 14 November 2026: "Yes to all four defaults and the let-go rule."** They are decisions now (§0 row 8).
 
-1. **Should each of the twelve new waters be a full 3D lake of its own** (its own arena, palette and landmarks: the largest art job in the plan), or should some become places inside the four built lakes? **Default: all twelve are full waters, built on the four arena layouts that exist, in three reaches of four (slices 6–8).**
-2. **Is about 48 hours to buy everything the right length** (the four built lakes by hour 16, then a new water every 2–3 hours)? **Default: yes.**
-3. **May late fish sell for hundreds of thousands of clams** (a Trophy giant of the Rime Sound for about 203,000, shown as "203k"; its lake map 738k)? The other way is to let a new water's first evening only match the old water (not beat it by 5%), which makes the late numbers about 30% smaller. **Default: yes, with "k" and "m" on screen.**
-4. **Should a lake map open its day water and old water at once** (two mist banks lift on the first evening, and the shelf has 55 maps), or should those stay separate place maps (70 maps) and the first evenings on a new water be poorer than on the old one? **Default: they open with the lake.**
+1. ~~Should each of the twelve new waters be a full 3D lake of its own?~~ **Answered: yes, all twelve are full 3D waters** (v7: six of them rivers, on the river layout).
+2. ~~Is about 48 hours to buy everything the right length?~~ **Answered: yes.** v7.1's pacing run ends at 48.9 h.
+3. ~~May late fish sell for hundreds of thousands of clams, shown with "k" and "m"?~~ **Answered: yes.** v7.1: a Trophy giant of the Inkwood about 196k (218k at most), an Elder Emberbelly about 548k; the last lake map 984k.
+4. ~~Should a lake map open its day water and old water at once?~~ **Answered: yes, two mist banks lift on the first evening.**
+5. (v6's let-go rule) ~~A fish let go returns its good bite and adds +0.2 favour there, up to +0.4?~~ **Answered: yes.**
+
+**v7 raises two smaller questions** (the build goes ahead on the defaults):
+
+6. **Is the new order right, given what it costs?** v7 put the cold, salt waters early and the rainforest waters late, so the greenest waters come last and every giant keeps its home. **The trade, plainly: the new order brings the two largest legends (the Long Winter, 560 cm, and the Jetsam Shark, 480 cm) to hours 21–26, and the last legend, the Banked Fire (325 cm), is smaller than both.** The climax is the dearest legend, not the biggest. The other ways: (a) **v6's order, every water re-themed lush where it stands**: a temperate-rainforest fjord at slot 16 (moss-hung spruce, waterfalls, its ice only at the head, round the Lantern Hole and the Long Winter) and the Jetsam Shark's swell beside a high green island at 15, the fen, the slough and the Inkwood early and less green than now; the biggest legends come last, but the late steps are the hardest to make lush; (b) **the new order with the legends' sizes swapped in the roster** (not proposed: the roster's giants follow their episodes). **Default: the new order** (v7.1 makes the Rime Sound a rainforest fjord and gives the Last Light its green island, so both are real steps up).
+7. **Is the first step small enough?** Slice 1c shows the four built lakes side by side (day, dusk, night) with their first moss before any new water is built, and the repaint stays switched off until the user says yes. **Default: the steps of `WATERS.md` §1 (green share by day 3, 5.5 and 8% for waters 2–4), shrunk if the user says it reads as green.**
 
 ---
 
@@ -1236,199 +1377,199 @@ Clams at each class's typical size (`BALANCE_V3.size.simZ`). ★ a rare giant. "
 | Slipknot Eel | common | any | open water | 14 | 41 | 100 | 257 | 647 |
 
 
-**5. Rushlight Fen** (value tier 86)
+**5. The Rime Sound** (value tier 45)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Long Thunder | legendary | night | The Dam Foot | — | — | — | — | pays 19,600 |
-| ★ Packtooth | epic | day, dusk | The Run | — | 1,663 | 4,091 | 10,506 | 26,412 |
-| Foamnest Pike | uncommon | day | day water | 70 | 206 | 508 | 1,304 | — |
-| Reedwalker Catfish | uncommon | dusk, night | night water | 117 | 345 | 849 | 2,181 | — |
-| Basket Fry | common | day | open water | 25 | 74 | 182 | 467 | 1,174 |
-| Blushing Bream | common | day, dusk | open water | 29 | 85 | 208 | 534 | 1,343 |
-| Hingecreak | common | any | open water | 27 | 80 | 196 | 503 | 1,265 |
+| ★ The Long Winter | legendary | any | The Half-Mile Line | — | — | — | — | pays 20,000 |
+| ★ Icedoor Flounder | epic | day, dusk | The Fjord Floor | — | 1,161 | 2,856 | 7,335 | 18,440 |
+| Bellrope Cod | rare | any | old water | 162 | 477 | 1,174 | 3,016 | 7,581 |
+| Coalwing Skate | rare | any | night water | 166 | 489 | 1,203 | 3,090 | — |
+| Bouldermouth | uncommon | day, dusk | day water | 64 | 188 | 463 | 1,190 | — |
+| Hemstitch Cod | uncommon | any | open water | 57 | 167 | 412 | 1,057 | 2,658 |
+| Rosedeep Rockfish | uncommon | any | night water | 52 | 153 | 376 | 965 | — |
+| Ashline Cod | common | any | open water | 26 | 75 | 185 | 475 | 1,194 |
+| Emberspot Flounder | common | any | day water | 22 | 66 | 162 | 417 | — |
+| Greybeard Cod | common | any | open water | 32 | 93 | 230 | 589 | 1,482 |
+| Thumbprint Cod | common | day, dusk | open water | 24 | 70 | 172 | 441 | 1,108 |
+| Wickstripe Rockfish | common | any | open water | 15 | 44 | 109 | 280 | 703 |
 
 
-**6. The Thin Water** (value tier 74)
-
-| fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
-|---|---|---|---|---|---|---|---|---|
-| ★ The Buried Moon | legendary | day, dusk | The Moonbed | — | — | — | — | pays 24,000 |
-| ★ Weirflame | epic | day, dusk | The Broken Weir | — | 1,501 | 3,692 | 9,482 | 23,838 |
-| Blotback Catfish | rare | night | night water | 227 | 669 | 1,644 | 4,223 | — |
-| Frostfleck Nipper | uncommon | any | open water | 53 | 155 | 380 | 977 | 2,455 |
-| Grumbleplate | uncommon | any | day water | 71 | 210 | 517 | 1,328 | — |
-| Slipwhisker | uncommon | dusk, night | open water | 87 | 255 | 627 | 1,610 | 4,047 |
-| Thorntail Ray | uncommon | dusk, night | open water | 72 | 213 | 524 | 1,345 | 3,382 |
-| Coinback Ray | common | any | open water | 35 | 103 | 253 | 650 | 1,635 |
-| Flatbill Catfish | common | dusk, night | open water | 26 | 77 | 189 | 484 | 1,217 |
-| Inkthumb | common | day | day water | 31 | 91 | 223 | 574 | — |
-
-
-**7. Lampmoss Slough** (value tier 103)
+**6. The Thin Water** (value tier 69)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Last Sentry | legendary | day, dusk | The Sentry's Reach | — | — | — | — | pays 34,500 |
-| ★ Old Portcullis | epic | night | The Lock Gate | — | 2,025 | 4,981 | 12,791 | 32,157 |
-| ★ Weirshadow Catfish | epic | any | Under the Weir | — | 2,090 | 5,139 | 13,198 | 33,180 |
-| Lampspot Snakehead | rare | day, dusk | day water | 322 | 947 | 2,329 | 5,981 | — |
-| Spotmail Gar | uncommon | day | day water | 136 | 402 | 988 | 2,536 | — |
-| Tailwatch Mudfish | uncommon | any | night water | 124 | 365 | 898 | 2,307 | — |
-| Hearsay Sunfish | common | day | open water | 33 | 97 | 238 | 611 | 1,535 |
-| Scrapwhisker Catfish | common | any | open water | 56 | 165 | 407 | 1,045 | 2,627 |
-| Startle Carp | common | day, dusk | open water | 61 | 179 | 439 | 1,128 | 2,837 |
+| ★ The Buried Moon | legendary | day, dusk | The Moonbed | — | — | — | — | pays 21,600 |
+| ★ Weirflame | epic | day, dusk | The Broken Weir | — | 1,400 | 3,443 | 8,841 | 22,227 |
+| Blotback Catfish | rare | night | night water | 212 | 623 | 1,533 | 3,937 | — |
+| Frostfleck Nipper | uncommon | any | open water | 49 | 144 | 355 | 911 | 2,289 |
+| Grumbleplate | uncommon | any | day water | 67 | 196 | 482 | 1,238 | — |
+| Slipwhisker | uncommon | dusk, night | open water | 81 | 238 | 584 | 1,501 | 3,773 |
+| Thorntail Ray | uncommon | dusk, night | open water | 67 | 199 | 488 | 1,254 | 3,153 |
+| Coinback Ray | common | any | open water | 33 | 96 | 236 | 606 | 1,524 |
+| Flatbill Catfish | common | dusk, night | open water | 24 | 71 | 176 | 451 | 1,135 |
+| Inkthumb | common | day | day water | 29 | 85 | 208 | 535 | — |
 
 
-**8. Pyrefall Gorge** (value tier 223)
-
-| fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
-|---|---|---|---|---|---|---|---|---|
-| ★ The Ashen Guest | legendary | night | The Last Pyre | — | — | — | — | pays 42,400 |
-| ★ Pyregold Carp | epic | day, dusk | The Coin Run | — | 4,592 | 11,295 | 29,005 | 72,917 |
-| ★ The Unfinished | epic | night | The Boulder Garden | — | 4,659 | 11,460 | 29,429 | 73,984 |
-| Lampspot Snakehead | rare | day, dusk | day water | 696 | 2,050 | 5,043 | 12,949 | — |
-| Almsfed Carp | uncommon | day, dusk | day water | 282 | 829 | 2,040 | 5,239 | — |
-| Pipsqueak Catfish | common | any | open water | 65 | 192 | 472 | 1,211 | 3,045 |
-| Puddle Snakehead | common | any | open water | 65 | 192 | 472 | 1,211 | 3,045 |
-
-
-**9. The Thunder Stair** (value tier 166)
+**7. The Last Light** (value tier 62)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Last Lock | legendary | day, dusk | The Throat | — | — | — | — | pays 52,000 |
-| ★ Lampeye Perch | epic | dusk, night | The Cauldron | — | 3,566 | 8,771 | 22,525 | 56,627 |
-| ★ Soapthief | epic | night | The Soap Landing | — | 3,316 | 8,156 | 20,945 | 52,656 |
-| Cocoon Sleeper | uncommon | any | day water | 250 | 735 | 1,807 | 4,641 | — |
-| Swallowtail Catfish | uncommon | dusk, night | open water | 201 | 591 | 1,454 | 3,733 | 9,384 |
-| Cradlemouth Bream | common | day | day water | 64 | 189 | 464 | 1,192 | — |
-| Sidepool Snakehead | common | any | day water | 58 | 172 | 423 | 1,086 | — |
-| Stairhopper | common | day | open water | 48 | 143 | 351 | 902 | 2,267 |
+| ★ The Jetsam Shark | legendary | night | The Unlit Mile | — | — | — | — | pays 26,900 |
+| ★ Castaway Pike | epic | dusk, night | The Beam | — | 1,453 | 3,573 | 9,175 | 23,067 |
+| ★ Nightsail Lancer | epic | day, dusk | The Drift Line | — | 1,706 | 4,197 | 10,777 | 27,093 |
+| Ambersickle Tuna | rare | dusk, night | night water | 244 | 719 | 1,769 | 4,542 | — |
+| Starbar Lancer | rare | day, dusk | day water | 266 | 782 | 1,923 | 4,940 | — |
+| Fadegold | uncommon | day, dusk | open water | 104 | 305 | 750 | 1,926 | 4,842 |
+| Soot Jack | uncommon | day, dusk | day water | 71 | 210 | 518 | 1,329 | — |
+| Grey Latchfin | common | day, dusk | day water | 25 | 73 | 180 | 463 | — |
+| Pinstripe Tuna | common | day, dusk | open water | 32 | 95 | 235 | 602 | 1,514 |
+| Scribbleback Mackerel | common | day, dusk | open water | 24 | 70 | 173 | 445 | 1,119 |
 
 
-**10. The Inkwood** (value tier 245)
-
-| fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
-|---|---|---|---|---|---|---|---|---|
-| ★ The Banked Fire | legendary | day, dusk | The Breathing Mere | — | — | — | — | pays 85,600 |
-| ★ Emberbelly | epic | day, dusk | The Kitchen Stair | — | 5,045 | 12,409 | 31,866 | 80,111 |
-| ★ Nightcreek Hound | epic | night | Rootgate Creek | — | 4,411 | 10,849 | 27,860 | 70,038 |
-| ★ Smilejaw Bream | epic | day, dusk | The Overhang | — | 4,148 | 10,202 | 26,200 | 65,865 |
-| Gourdcracker | rare | day, dusk | day water | 649 | 1,910 | 4,697 | 12,063 | — |
-| Inkside Nipper | uncommon | any | open water | 204 | 600 | 1,476 | 3,789 | 9,526 |
-| Starback Ray | uncommon | any, best at night | open water | 282 | 831 | 2,045 | 5,252 | 13,203 |
-| Windowtail Perch | uncommon | day | open water | 243 | 715 | 1,759 | 4,517 | 11,356 |
-| Ditch Hound | common | any | open water | 90 | 266 | 655 | 1,683 | 4,230 |
-| Gourdseed Minnow | common | any | open water | 72 | 211 | 518 | 1,331 | 3,346 |
-| Petal Bream | common | day | open water | 79 | 233 | 573 | 1,471 | 3,699 |
-
-
-**11. The Siltway** (value tier 309)
+**8. Pyrefall Gorge** (value tier 118)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Barge-Shadow | legendary | night | The Long Hole | — | — | — | — | pays 105,000 |
-| ★ Dapplewheel Ray | epic | night | The Lamp Bar | — | 6,902 | 16,977 | 43,598 | 109,604 |
-| ★ Sternlamp Catfish | epic | any, best at night | The Sunk Ferry | — | 6,548 | 16,105 | 41,358 | 103,972 |
-| Millstone Catfish | rare | dusk, night | open water | 965 | 2,841 | 6,987 | 17,943 | 45,109 |
-| Snufferjaw | rare | day, dusk | day water | 862 | 2,539 | 6,246 | 16,039 | — |
-| Tallyside Catfish | rare | night | night water | 898 | 2,644 | 6,502 | 16,698 | — |
-| Boathook Catfish | uncommon | any | open water | 356 | 1,049 | 2,579 | 6,624 | 16,652 |
-| Hullknock Perch | uncommon | dusk, night | open water | 319 | 939 | 2,309 | 5,930 | 14,907 |
-| Waxcomb Ray | uncommon | any | open water | 328 | 966 | 2,377 | 6,104 | 15,346 |
-| Bareface Catfish | common | day, dusk | day water | 119 | 351 | 864 | 2,218 | — |
-| Lacework Catfish | common | night | open water | 100 | 294 | 723 | 1,856 | 4,665 |
-| Silkwhisker | common | night | open water | 146 | 430 | 1,057 | 2,715 | 6,827 |
-| Tallow Borer | common | any | open water | 90 | 266 | 654 | 1,679 | 4,220 |
-| Vigil Catfish | common | any | open water | 109 | 320 | 787 | 2,022 | 5,082 |
+| ★ The Ashen Guest | legendary | night | The Last Pyre | — | — | — | — | pays 35,300 |
+| ★ Pyregold Carp | epic | day, dusk | The Coin Run | — | 2,430 | 5,977 | 15,348 | 38,584 |
+| ★ The Unfinished | epic | night | The Boulder Garden | — | 2,465 | 6,064 | 15,572 | 39,148 |
+| Lampspot Snakehead | rare | day, dusk | open water | 368 | 1,085 | 2,668 | 6,852 | 17,226 |
+| Almsfed Carp | uncommon | day, dusk | day water | 149 | 439 | 1,079 | 2,772 | — |
+| Pipsqueak Catfish | common | any | open water | 34 | 101 | 250 | 641 | 1,611 |
+| Puddle Snakehead | common | any | open water | 34 | 101 | 250 | 641 | 1,611 |
 
 
-**12. The Salt Gate** (value tier 238)
+**9. The Waxen Reef** (value tier 167)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Old Shipwright | legendary | dusk, night | The Slipway | — | — | — | — | pays 142,200 |
-| ★ Inkmarble Eel | epic | night | The Harbour Stump | — | 5,316 | 13,076 | 33,580 | 84,420 |
-| ★ Sweetwater Shark | epic | dusk, night | The Sluice Throat | — | 6,550 | 16,110 | 41,371 | 104,004 |
-| ★ Tideghost Shark | epic | night | The Turning Tide | — | 6,510 | 16,012 | 41,118 | 103,370 |
-| Dusk Drummer | rare | night | night water | 814 | 2,396 | 5,894 | 15,135 | — |
-| Longlash Ray | rare | any | open water | 1,015 | 2,989 | 7,352 | 18,879 | 47,461 |
-| Old Breather | rare | dusk, night | open water | 743 | 2,188 | 5,382 | 13,820 | 34,744 |
-| Creekling Shark | uncommon | any | open water | 336 | 989 | 2,433 | 6,249 | 15,709 |
-| Embereye Bass | uncommon | dusk, night | open water | 368 | 1,084 | 2,666 | 6,848 | 17,214 |
-| Kitewing Ray | uncommon | day, dusk | day water | 347 | 1,022 | 2,513 | 6,454 | — |
-| Tidetable Ray | uncommon | any, best at night | open water | 230 | 676 | 1,663 | 4,271 | 10,738 |
-| Brinewhisker | common | any | open water | 88 | 259 | 637 | 1,635 | 4,110 |
-| Saltroot Bream | common | any | open water | 75 | 220 | 542 | 1,393 | 3,501 |
-| Sandblower | common | day, dusk | day water | 109 | 322 | 791 | 2,031 | — |
+| ★ The Waxen Abbot | legendary | night | The Abbot's Cellar | — | — | — | — | pays 50,200 |
+| ★ Anvil Trevally | epic | day, dusk | The Broken Keel | — | 3,439 | 8,458 | 21,721 | 54,606 |
+| ★ Mothlance Gar | epic | night | Lamp Row | — | 3,489 | 8,582 | 22,039 | 55,405 |
+| ★ Spirewatch Pike | epic | day, dusk | The Drowned Spire | — | 3,489 | 8,582 | 22,039 | 55,405 |
+| Cabin Grouper | rare | any | night water | 521 | 1,535 | 3,776 | 9,698 | — |
+| Nebula Trout | uncommon | day, dusk | day water | 211 | 621 | 1,528 | 3,923 | — |
+| Picket Pike | uncommon | day, dusk | The Drowned Spire | 236 | 694 | 1,707 | 4,384 | 11,022 |
+| Amberside Snapper | common | any | open water | 82 | 241 | 593 | 1,524 | 3,830 |
+| Pebble Grouper | common | any | open water | 65 | 191 | 470 | 1,207 | 3,035 |
+| Waxdrop Damsel | common | day, dusk | open water | 49 | 145 | 357 | 916 | 2,302 |
 
 
-**13. Lanternroot Lagoon** (value tier 454)
+**10. The Thunder Stair** (value tier 203)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Silver Regent | legendary | day, dusk | The Sighing Pool | — | — | — | — | pays 220,100 |
-| ★ Rootjaw Catfish | epic | night | The Monsoon Cut | — | 10,141 | 24,944 | 64,057 | 161,036 |
-| ★ Snagheart Bass | epic | dusk, night | The Sunken Orchard | — | 9,069 | 22,307 | 57,285 | 144,011 |
-| ★ Votive Shark | epic | night | The Stilt Shrine | — | 10,637 | 26,163 | 67,187 | 168,906 |
-| Harbourdrum Grouper | rare | night | old water | 1,417 | 4,174 | 10,266 | 26,363 | 66,277 |
-| Stiltshadow Shark | rare | dusk, night | night water | 1,636 | 4,817 | 11,847 | 30,423 | — |
-| Sandghost | uncommon | day, dusk | day water | 534 | 1,572 | 3,867 | 9,930 | — |
-| Wide-Eyed Stray | uncommon | any | open water | 523 | 1,541 | 3,790 | 9,732 | 24,466 |
-| Flicker Trevally | common | day, dusk | open water | 175 | 516 | 1,269 | 3,260 | 8,194 |
-| Frownlip Mullet | common | day, dusk | open water | 175 | 516 | 1,269 | 3,260 | 8,194 |
-| Rootshade Snapper | common | any | open water | 213 | 628 | 1,544 | 3,966 | 9,971 |
+| ★ The Last Lock | legendary | day, dusk | The Throat | — | — | — | — | pays 77,600 |
+| ★ Lampeye Perch | epic | dusk, night | The Cauldron | — | 4,361 | 10,726 | 27,546 | 69,249 |
+| ★ Soapthief | epic | night | The Soap Landing | — | 4,055 | 9,974 | 25,614 | 64,393 |
+| Cocoon Sleeper | uncommon | any | day water | 305 | 899 | 2,210 | 5,675 | — |
+| Swallowtail Catfish | uncommon | dusk, night | open water | 245 | 723 | 1,778 | 4,565 | 11,476 |
+| Cradlemouth Bream | common | day | day water | 78 | 231 | 568 | 1,457 | — |
+| Sidepool Snakehead | common | any | day water | 71 | 210 | 517 | 1,328 | — |
+| Stairhopper | common | day | open water | 59 | 175 | 429 | 1,103 | 2,772 |
 
 
-**14. The Waxen Reef** (value tier 1060)
+**11. Rushlight Fen** (value tier 336)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Waxen Abbot | legendary | night | The Abbot's Cellar | — | — | — | — | pays 292,600 |
-| ★ Anvil Trevally | epic | day, dusk | The Broken Keel | — | 21,828 | 53,687 | 137,871 | 346,603 |
-| ★ Mothlance Gar | epic | night | Lamp Row | — | 22,147 | 54,472 | 139,887 | 351,671 |
-| ★ Spirewatch Pike | epic | day, dusk | The Drowned Spire | — | 22,147 | 54,472 | 139,887 | 351,671 |
-| Cabin Grouper | rare | any | night water | 3,309 | 9,745 | 23,969 | 61,553 | — |
-| Nebula Trout | uncommon | day, dusk | day water | 1,339 | 3,942 | 9,696 | 24,901 | — |
-| Picket Pike | uncommon | day, dusk | The Drowned Spire | 1,496 | 4,406 | 10,837 | 27,830 | 69,963 |
-| Amberside Snapper | common | any | open water | 520 | 1,531 | 3,766 | 9,671 | 24,312 |
-| Pebble Grouper | common | any | open water | 412 | 1,213 | 2,984 | 7,664 | 19,267 |
-| Waxdrop Damsel | common | day, dusk | open water | 312 | 920 | 2,263 | 5,811 | 14,609 |
+| ★ The Long Thunder | legendary | night | The Dam Foot | — | — | — | — | pays 118,700 |
+| ★ Packtooth | epic | day, dusk | The Run | — | 6,499 | 15,984 | 41,047 | 103,191 |
+| Foamnest Pike | uncommon | day | day water | 274 | 806 | 1,983 | 5,093 | — |
+| Reedwalker Catfish | uncommon | dusk, night | open water | 458 | 1,349 | 3,318 | 8,521 | 21,421 |
+| Basket Fry | common | day | open water | 98 | 289 | 711 | 1,825 | 4,588 |
+| Blushing Bream | common | day, dusk | open water | 112 | 331 | 813 | 2,088 | 5,249 |
+| Hingecreak | common | any | open water | 106 | 311 | 766 | 1,966 | 4,943 |
 
 
-**15. The Last Light** (value tier 920)
+**12. The Salt Gate** (value tier 269)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Jetsam Shark | legendary | night | The Unlit Mile | — | — | — | — | pays 357,000 |
-| ★ Castaway Pike | epic | dusk, night | The Beam | — | 21,555 | 53,017 | 136,150 | 342,277 |
-| ★ Nightsail Lancer | epic | day, dusk | The Drift Line | — | 25,318 | 62,273 | 159,920 | 402,032 |
-| Ambersickle Tuna | rare | dusk, night | night water | 3,624 | 10,670 | 26,244 | 67,396 | — |
-| Starbar Lancer | rare | day, dusk | day water | 3,941 | 11,604 | 28,542 | 73,297 | — |
-| Fadegold | uncommon | day, dusk | open water | 1,537 | 4,525 | 11,130 | 28,582 | 71,855 |
-| Soot Jack | uncommon | day, dusk | day water | 1,060 | 3,122 | 7,680 | 19,722 | — |
-| Grey Latchfin | common | day, dusk | day water | 369 | 1,087 | 2,675 | 6,868 | — |
-| Pinstripe Tuna | common | day, dusk | open water | 480 | 1,415 | 3,480 | 8,936 | 22,466 |
-| Scribbleback Mackerel | common | day, dusk | open water | 355 | 1,046 | 2,572 | 6,605 | 16,605 |
+| ★ The Old Shipwright | legendary | dusk, night | The Slipway | — | — | — | — | pays 162,800 |
+| ★ Inkmarble Eel | epic | night | The Harbour Stump | — | 6,009 | 14,779 | 37,954 | 95,416 |
+| ★ Sweetwater Shark | epic | dusk, night | The Sluice Throat | — | 7,403 | 18,208 | 46,759 | 117,551 |
+| ★ Tideghost Shark | epic | night | The Turning Tide | — | 7,358 | 18,097 | 46,474 | 116,834 |
+| Dusk Drummer | rare | night | night water | 920 | 2,708 | 6,661 | 17,107 | — |
+| Longlash Ray | rare | any | open water | 1,147 | 3,378 | 8,309 | 21,338 | 53,643 |
+| Old Breather | rare | dusk, night | open water | 840 | 2,473 | 6,083 | 15,621 | 39,270 |
+| Creekling Shark | uncommon | any | open water | 380 | 1,118 | 2,750 | 7,062 | 17,755 |
+| Embereye Bass | uncommon | dusk, night | open water | 416 | 1,225 | 3,014 | 7,739 | 19,457 |
+| Kitewing Ray | uncommon | day, dusk | day water | 392 | 1,155 | 2,841 | 7,295 | — |
+| Tidetable Ray | uncommon | any, best at night | open water | 260 | 764 | 1,880 | 4,828 | 12,137 |
+| Brinewhisker | common | any | open water | 99 | 293 | 719 | 1,848 | 4,645 |
+| Saltroot Bream | common | any | open water | 85 | 249 | 613 | 1,574 | 3,957 |
+| Sandblower | common | day, dusk | day water | 123 | 364 | 894 | 2,296 | — |
 
 
-**16. The Rime Sound** (value tier 1247)
+**13. Lampmoss Slough** (value tier 608)
 
 | fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
 |---|---|---|---|---|---|---|---|---|
-| ★ The Long Winter | legendary | any | The Half-Mile Line | — | — | — | — | pays 435,400 |
-| ★ Icedoor Flounder | epic | day, dusk | The Fjord Floor | — | 32,180 | 79,151 | 203,263 | 510,997 |
-| Bellrope Cod | rare | any | old water | 4,493 | 13,230 | 32,540 | 83,563 | 210,075 |
-| Coalwing Skate | rare | any | night water | 4,604 | 13,558 | 33,348 | 85,639 | — |
-| Bouldermouth | uncommon | day, dusk | day water | 1,772 | 5,219 | 12,836 | 32,963 | — |
-| Hemstitch Cod | uncommon | any | open water | 1,575 | 4,638 | 11,407 | 29,294 | 73,644 |
-| Rosedeep Rockfish | uncommon | any | night water | 1,437 | 4,232 | 10,409 | 26,731 | — |
-| Ashline Cod | common | any | open water | 708 | 2,084 | 5,127 | 13,166 | 33,098 |
-| Emberspot Flounder | common | any | day water | 621 | 1,829 | 4,498 | 11,550 | — |
-| Greybeard Cod | common | any | open water | 878 | 2,586 | 6,361 | 16,334 | 41,064 |
-| Thumbprint Cod | common | day, dusk | open water | 657 | 1,934 | 4,757 | 12,217 | 30,714 |
-| Wickstripe Rockfish | common | any | open water | 417 | 1,227 | 3,017 | 7,749 | 19,480 |
+| ★ The Last Sentry | legendary | day, dusk | The Sentry's Reach | — | — | — | — | pays 212,900 |
+| ★ Old Portcullis | epic | night | The Lock Gate | — | 11,954 | 29,402 | 75,506 | 189,819 |
+| ★ Weirshadow Catfish | epic | any | Under the Weir | — | 12,334 | 30,337 | 77,907 | 195,856 |
+| Lampspot Snakehead | rare | day, dusk | open water | 1,898 | 5,590 | 13,748 | 35,306 | 88,758 |
+| Spotmail Gar | uncommon | day | day water | 805 | 2,370 | 5,830 | 14,972 | — |
+| Tailwatch Mudfish | uncommon | any | night water | 732 | 2,156 | 5,302 | 13,616 | — |
+| Hearsay Sunfish | common | day | open water | 194 | 571 | 1,404 | 3,605 | 9,062 |
+| Scrapwhisker Catfish | common | any | open water | 332 | 976 | 2,402 | 6,168 | 15,506 |
+| Startle Carp | common | day, dusk | open water | 358 | 1,055 | 2,594 | 6,661 | 16,746 |
+
+
+**14. The Siltway** (value tier 794)
+
+| fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
+|---|---|---|---|---|---|---|---|---|
+| ★ The Barge-Shadow | legendary | night | The Long Hole | — | — | — | — | pays 260,100 |
+| ★ Dapplewheel Ray | epic | night | The Lamp Bar | — | 17,736 | 43,624 | 112,029 | 281,636 |
+| ★ Sternlamp Catfish | epic | any, best at night | The Sunk Ferry | — | 16,825 | 41,383 | 106,272 | 267,164 |
+| Millstone Catfish | rare | dusk, night | open water | 2,479 | 7,300 | 17,954 | 46,107 | 115,911 |
+| Snufferjaw | rare | day, dusk | day water | 2,216 | 6,525 | 16,049 | 41,214 | — |
+| Tallyside Catfish | rare | night | night water | 2,307 | 6,793 | 16,708 | 42,907 | — |
+| Boathook Catfish | uncommon | any | open water | 915 | 2,695 | 6,628 | 17,021 | 42,789 |
+| Hullknock Perch | uncommon | dusk, night | open water | 819 | 2,412 | 5,933 | 15,237 | 38,305 |
+| Waxcomb Ray | uncommon | any | open water | 843 | 2,483 | 6,108 | 15,686 | 39,434 |
+| Bareface Catfish | common | day, dusk | day water | 306 | 903 | 2,220 | 5,701 | — |
+| Lacework Catfish | common | night | open water | 256 | 755 | 1,857 | 4,768 | 11,987 |
+| Silkwhisker | common | night | open water | 375 | 1,105 | 2,717 | 6,978 | 17,542 |
+| Tallow Borer | common | any | open water | 232 | 683 | 1,680 | 4,313 | 10,843 |
+| Vigil Catfish | common | any | open water | 279 | 822 | 2,023 | 5,195 | 13,059 |
+
+
+**15. Lanternroot Lagoon** (value tier 866)
+
+| fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
+|---|---|---|---|---|---|---|---|---|
+| ★ The Silver Regent | legendary | day, dusk | The Sighing Pool | — | — | — | — | pays 393,500 |
+| ★ Rootjaw Catfish | epic | night | The Monsoon Cut | — | 19,345 | 47,580 | 122,188 | 307,175 |
+| ★ Snagheart Bass | epic | dusk, night | The Sunken Orchard | — | 17,299 | 42,550 | 109,270 | 274,700 |
+| ★ Votive Shark | epic | night | The Stilt Shrine | — | 20,290 | 49,905 | 128,159 | 322,187 |
+| Harbourdrum Grouper | rare | night | old water | 2,704 | 7,962 | 19,582 | 50,288 | 126,422 |
+| Stiltshadow Shark | rare | dusk, night | night water | 3,120 | 9,188 | 22,598 | 58,032 | — |
+| Sandghost | uncommon | day, dusk | day water | 1,018 | 2,999 | 7,376 | 18,942 | — |
+| Wide-Eyed Stray | uncommon | any | open water | 998 | 2,939 | 7,229 | 18,564 | 46,669 |
+| Flicker Trevally | common | day, dusk | open water | 334 | 984 | 2,421 | 6,218 | 15,631 |
+| Frownlip Mullet | common | day, dusk | open water | 334 | 984 | 2,421 | 6,218 | 15,631 |
+| Rootshade Snapper | common | any | open water | 407 | 1,198 | 2,946 | 7,565 | 19,019 |
+
+
+**16. The Inkwood** (value tier 1675)
+
+| fish | rarity | bites | where | Small | Keeper | Prize | Trophy | Elder |
+|---|---|---|---|---|---|---|---|---|
+| ★ The Banked Fire | legendary | day, dusk | The Breathing Mere | — | — | — | — | pays 580,300 |
+| ★ Emberbelly | epic | day, dusk | The Kitchen Stair | — | 34,492 | 84,836 | 217,863 | 547,698 |
+| ★ Nightcreek Hound | epic | night | Rootgate Creek | — | 30,155 | 74,169 | 190,470 | 478,834 |
+| ★ Smilejaw Bream | epic | day, dusk | The Overhang | — | 28,358 | 69,750 | 179,121 | 450,303 |
+| Gourdcracker | rare | day, dusk | day water | 4,434 | 13,057 | 32,115 | 82,473 | — |
+| Inkside Nipper | uncommon | any | open water | 1,393 | 4,101 | 10,088 | 25,906 | 65,127 |
+| Starback Ray | uncommon | any, best at night | open water | 1,930 | 5,685 | 13,982 | 35,906 | 90,267 |
+| Windowtail Perch | uncommon | day | open water | 1,660 | 4,889 | 12,026 | 30,882 | 77,636 |
+| Ditch Hound | common | any | open water | 619 | 1,821 | 4,480 | 11,505 | 28,922 |
+| Gourdseed Minnow | common | any | open water | 489 | 1,440 | 3,543 | 9,099 | 22,874 |
+| Petal Bream | common | day | open water | 541 | 1,593 | 3,917 | 10,059 | 25,288 |
 
 Waiting for a later sheet (built, not roster fish): Cupbearer (cupped_hands), The Remembered Sun (drowned_greenhouse), The Sexton (bell_window), The Unpaid Fare (ferry_slip), The Namesake (long_pier).
 
@@ -1438,12 +1579,16 @@ Curiosities (roster §6) are outside these tables: each sells at its water's rar
 
 ```
 cd gloomwater
-node tools/sim/clams.mjs              # everything, about 25 s; exits 1 if any of the 89 checks fails
-node tools/sim/clams.mjs --quick      # about 20 s
+node tools/sim/clams.mjs              # everything, about 2.5 min; exits 1 if any of the 140 checks fails
+node tools/sim/clams.mjs --quick      # about 55 s
 node tools/sim/clams.mjs --md         # the tables as markdown
 node tools/sim/clams.mjs --fish       # Appendix A
 node tools/sim/clams.mjs --json       # the LOOP draft tables
 node tools/sim/clams.mjs --calibrate  # the value tiers that satisfy decision 10's two ladder rules, with a 2-point margin
+node tools/sim/roster-check.mjs       # the roster's coverage and ladder rules
+python3 tools/loop-colour-script.py   # the waters' colour script (WATERS.md §8): lint, paint, measure and gate; tools/out/loop/colour-script.png; exit 1 on a failure
 ```
 
-It reads the fish from `docs/loop/roster.json` and the built species the roster keeps, and from `src/data.js` (loaded as the loop will load it: `GW_V3`, `GW_V3_PHASE = 1`, `GW_LOOP`) the size model, the land chance (`catchParts`), the lures and baits and the time model of a cast. It keeps its own draft `LOOP` table for everything this spec adds. It runs 89 checks: every roster fish has a map; one legend per water; one giant per place; the giants top every water's ladder; the anti-grind and choosy checks at six stages; the bait checks, and no tin beats the plain bait; every giant is the hardest fish of its water; every legend stays at or under a coin flip; the pacing targets of §4.9; every hold step and raft part pays its way; a new water is the best water from the day its map is bought; no lake map is a downgrade; every water pays 1.2 times the one before; every place map adds 5%; no stopping short. Change a price in `LOOP`, run it, and it says which target moved.
+**After a re-order** (v7): re-order `NEW_WATER` and `roster.json`'s `waters` together (the sim maps places and giants by position, and exits 1 if the two lists' names or orders disagree), move the slot-bound bait (`at`), run `--calibrate` and put its tiers in `NEW_WATER`, set each lake price to 42 × the water's fully mapped clams a minute (the calibrate line prints it), then run the sim and fix this file.
+
+It reads the fish from `docs/loop/roster.json` and the built species the roster keeps, and from `src/data.js` (loaded as the loop will load it: `GW_V3`, `GW_V3_PHASE = 1`, `GW_LOOP`) the size model, the land chance (`catchParts`), the lures and baits and the time model of a cast. It keeps its own draft `LOOP` table for everything this spec adds. It runs 140 checks: the roster and the sim agree on the waters' order; every roster fish has a map; one legend per water; one giant per place; the giants top every water's ladder and are never a step down from the water before; the anti-grind and choosy checks at six stages and on every new water at its arrival kit; every giants' lure earns its place; every new water's giant lands a Prize 30–50% on arrival tackle; the bait checks, and no tin beats the plain bait; every giant is the hardest fish of its water; every legend stays at or under a coin flip; the pacing targets of §4.9; every hold step and raft part pays its way; a new water is the best water from the day its map is bought; no lake map is a downgrade; every water pays 1.2 times the one before; every place map adds 5%; no stopping short. Change a price in `LOOP`, run it, and it says which target moved.

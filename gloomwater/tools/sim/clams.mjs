@@ -52,34 +52,42 @@ const placeIdOf = (name) => PLACE_ALIAS[slug(name)] || slug(name);
 // =====================================================================================================================
 // LOOP — the draft tables (the binding copy is docs/loop/SPEC.md; tune here, then copy there)
 // =====================================================================================================================
-// The twelve new waters. `base` is the value tier (tuned with --calibrate: section 6's two ladder rules); `lake` is the lake map's
+// The twelve new waters, in unlock order (SPEC v7 §5.2: the cold rim first, the green heart last; rivers alternate with stills).
+// The lake price is the v6 rule, 42 minutes of the water's own income fully mapped, re-derived for each water in its new slot. `base` is the value tier (tuned with --calibrate: section 6's two ladder rules); `lake` is the lake map's
 // price (about 42 minutes of the water's own income fully mapped; it opens the water's open, day and old water). Fight term: GEN.fight (28–32 on
-// T5 waters, 38–44 on T6 waters, so a giant at Prize lands about as often on arrival tackle as the built lakes' giants do). The place maps are shares of the lake map (PLACE_SHARE).
+// T5 waters, 39–44 on T6 waters; v7.1 raised the Rime Sound, the Thin Water and the Thunder Stair, so no giant at Prize lands more than half the time on arrival tackle; section 4b checks 30–50%). The place maps are shares of the lake map (PLACE_SHARE).
 const NEW_WATER = {
-  rushlight_fen:      { name: 'Rushlight Fen',      base: 86,  lake: 33300,   lure: ['rushlight_spinner', 'Rushlight Spinner'], legendBait: ['storm_candle', 'Storm Candle'] },
-  thin_water:         { name: 'The Thin Water',     base: 74,  lake: 40700,   lure: ['weir_spoon', 'Weir Spoon'],               legendBait: ['lamp_snail', 'Lamp Snail'] },
-  lampmoss_slough:    { name: 'Lampmoss Slough',    base: 103,  lake: 58400,   lure: ['mosslamp_jig', 'Moss-Lamp Jig'],          legendBait: ['carp_cutlet', 'Carp Cutlet'] },
-  pyrefall_gorge:     { name: 'Pyrefall Gorge',     base: 223,  lake: 71800,   lure: ['ember_wobbler', 'Ember Wobbler'],         legendBait: ['charred_offering', 'Charred Offering'] },
-  thunder_stair:      { name: 'The Thunder Stair',  base: 166,  lake: 88100,   lure: ['thunder_plug', 'Thunder Plug'],           legendBait: ['wired_bream', 'Wired Bream'] },
-  inkwood:            { name: 'The Inkwood',        base: 245,  lake: 145000,   lure: ['ink_fly', 'Ink Fly'],                     legendBait: ['blossom_fly', 'Blossom Fly'] },
-  siltway:            { name: 'The Siltway',        base: 309,  lake: 178000,   lure: ['silt_rattle', 'Silt Rattle'],             legendBait: ['bargemans_supper', "Bargeman's Supper"] },
-  salt_gate:          { name: 'The Salt Gate',      base: 238,  lake: 241000,   lure: ['tide_spoon', 'Tide Spoon'],               legendBait: ['tide_mullet', 'Tide Mullet'] },
-  lanternroot_lagoon: { name: 'Lanternroot Lagoon', base: 454,  lake: 373000,   lure: ['rootlamp_popper', 'Root-Lamp Popper'],    legendBait: ['mothwing_fly', 'Moth-Wing Fly'] },
-  waxen_reef:         { name: 'The Waxen Reef',     base: 1060, lake: 496000,   lure: ['wax_jig', 'Wax Jig'],                     legendBait: ['lantern_fry', 'Lantern-Fry'] },
-  last_light:         { name: 'The Last Light',     base: 920,  lake: 605000,  lure: ['lighthouse_feather', 'Lighthouse Feather'], legendBait: ['lighthouse_ration', 'Lighthouse Ration'] },
-  rime_sound:         { name: 'The Rime Sound',     base: 1247, lake: 738000,  lure: ['rime_pirk', 'Rime Pirk'],                 legendBait: ['old_ration', 'Old Ration'] },
+  rime_sound:         { name: 'The Rime Sound',     base: 45, lake: 29700,  lure: ['rime_pirk', 'Rime Pirk'],                 legendBait: ['old_ration', 'Old Ration'] },
+  thin_water:         { name: 'The Thin Water',     base: 69,  lake: 36600,   lure: ['weir_spoon', 'Weir Spoon'],               legendBait: ['lamp_snail', 'Lamp Snail'] },
+  last_light:         { name: 'The Last Light',     base: 62,  lake: 45600,  lure: ['lighthouse_feather', 'Lighthouse Feather', 'predator'], legendBait: ['lighthouse_ration', 'Lighthouse Ration'] },
+  pyrefall_gorge:     { name: 'Pyrefall Gorge',     base: 118,  lake: 59900,   lure: ['ember_wobbler', 'Ember Wobbler'],         legendBait: ['charred_offering', 'Charred Offering'] },
+  waxen_reef:         { name: 'The Waxen Reef',     base: 167, lake: 85100,   lure: ['wax_jig', 'Wax Jig'],                     legendBait: ['lantern_fry', 'Lantern-Fry'] },
+  thunder_stair:      { name: 'The Thunder Stair',  base: 203,  lake: 131600,   lure: ['thunder_plug', 'Thunder Plug'],           legendBait: ['wired_bream', 'Wired Bream'] },
+  rushlight_fen:      { name: 'Rushlight Fen',      base: 336,  lake: 201200,   lure: ['rushlight_spinner', 'Rushlight Spinner'], legendBait: ['storm_candle', 'Storm Candle'] },
+  salt_gate:          { name: 'The Salt Gate',      base: 269,  lake: 275900,   lure: ['tide_spoon', 'Tide Spoon'],               legendBait: ['tide_mullet', 'Tide Mullet'] },
+  lampmoss_slough:    { name: 'Lampmoss Slough',    base: 608,  lake: 360900,   lure: ['mosslamp_jig', 'Moss-Lamp Jig'],          legendBait: ['carp_cutlet', 'Carp Cutlet'] },
+  siltway:            { name: 'The Siltway',        base: 794,  lake: 440800,   lure: ['silt_rattle', 'Silt Rattle'],             legendBait: ['bargemans_supper', "Bargeman's Supper"] },
+  lanternroot_lagoon: { name: 'Lanternroot Lagoon', base: 866,  lake: 667000,   lure: ['rootlamp_popper', 'Root-Lamp Popper'],    legendBait: ['mothwing_fly', 'Moth-Wing Fly'] },
+  inkwood:            { name: 'The Inkwood',        base: 1675,  lake: 983500,   lure: ['ink_fly', 'Ink Fly'],                     legendBait: ['blossom_fly', 'Blossom Fly'] },
 };
 // A place may draw fish of its water's open pool (× weight); the two day waters with no fish of their own are drawn this way.
-const PLACE_DRAWS = { lily_maze: { candlefin_koi: 3, weeping_carp: 1.5 }, lullaby: { sleepspore_jelly: 2, velvet_ray: 1.5 } };
+const PLACE_DRAWS = { lily_maze: { candlefin_koi: 3, weeping_carp: 1.5 }, lullaby: { sleepspore_jelly: 2, velvet_ray: 1.5 }, night_lanes: { reedwalker_catfish: 2.5 },
+  coin_run: { lampspot_snakehead: 2.5 }, boulder_garden: { lampspot_snakehead: 2.5 } };
+// a water's plain bait where the count rule picks a tin that another beats (section 2b checks every water): the open sea's and the
+// lagoon's fish favour no one tin, so their plain bait is the Shimmerfly; the Inkwood's fruit eaters are few, so the Windfall Plum is a tin you pick for them
+const PLAIN_BAIT = { mossmere: 'mireworm', sporewood: 'spore_cake', glasswater: 'ember_roe', paleabyss: 'ember_roe', last_light: 'shimmerfly', lanternroot_lagoon: 'shimmerfly', inkwood: 'mireworm' };
 // Where a roster fish bites in play, where this spec moves it (SPEC §5.2: every place map promises a fish of its own, never a
 // common): the roster's kind of place is kept for every other fish.
 export const KIND_MOVE = { ambersickle_tuna: 'night', grumbleplate: 'day', cocoon_sleeper: 'day', kitewing_ray: 'day', bouldermouth: 'day', coalwing_skate: 'night',
-  starbar_lancer: 'day', lampspot_snakehead: 'day', cabin_grouper: 'night', tailwatch_mudfish: 'night' };
+  starbar_lancer: 'day', cabin_grouper: 'night', tailwatch_mudfish: 'night', reedwalker_catfish: 'open' };
+// v7.1: the Lampspot Snakehead bites in Pyrefall Gorge's open water again (the roster's own kind: the gorge's open water had only two
+// commons, so letting fish go there earned too little), and hunts the Coin Run and the Boulder Garden (PLACE_DRAWS ×2.5); the Reedwalker Catfish swims Rushlight Fen's open water and is drawn x1.5 at the
+// Night Lanes (PLACE_DRAWS, as strongly as a night-water fish there), which thickens the fen's thin pool so the Salt Gate after it is no step down in what a giant sells for.
 // A roster fish this spec gives a place of its own (it bites only there; SPEC §5.2)
 export const OWN_MOVE = { picket_pike: 'drowned_spire' };
 export const LAKE_OPENS = ['old', 'day'];   // a lake map opens its open water, its day water and its old water
 const PLACE_SHARE = { day: 0, old: 0, extra: 0.39, night: 0.43, crown: 0.59 };   // a new water's place maps, as a share of its lake map (which opens its day and old water)
-const GEN = { fight: [28, 29, 30, 31, 32, 38, 39, 40, 41, 42, 43, 44], legendFight: 26, legendBait: 0.12, lure: 0.3 };
+const GEN = { fight: [31, 31, 30, 30, 32, 40, 39, 40, 41, 42, 43, 44], legendFight: 26, legendBait: 0.12, lure: 0.3, floor: 1.05 };
 
 function makeWaters() {
   const built = [
@@ -92,13 +100,19 @@ function makeWaters() {
     { id: 'paleabyss', name: 'The Pallid Deep', base: 35, lake: 26000, prices: { day: 7000, old: 11000, night: 14000, crown: 19000 },
       legend: 'lantern_swallower', legendBait: ['last_candle', 3000], lure: ['ferry_coin', 9000] },
   ].map((w, i) => ({ ...w, order: i + 1, reach: 1, fight: null }));
+  // a slot's place maps and legend bait never cost less than the slot before's (v7.1: the floor is 1.05× the previous water's price of
+  // the same kind, its night water standing in for a fifth place), so every price on the shelf rises with the slot, not the lake maps only
+  let prev = built[built.length - 1];
   const fresh = Object.entries(NEW_WATER).map(([id, w], k) => {
-    const i = k + 5, lake = w.lake;
+    const i = k + 5, lake = w.lake, floor = (v, p) => Math.max(v, p ? Math.ceil(p * GEN.floor / 100) * 100 : 0);
     const prices = Object.fromEntries(Object.entries(PLACE_SHARE).map(([kind, s]) => [kind, Math.round(lake * s / 100) * 100]));
+    for (const kind of ['night', 'crown', 'extra']) prices[kind] = floor(prices[kind], prev.prices[kind] ?? prev.prices.night);
     const legend = ROSTER.fish.find((f) => f.rarity === 'legendary' && f.water.includes(w.name)).id;
-    return { id, name: w.name, order: i, reach: 1 + Math.floor((i - 1) / 4), base: w.base,
-      fight: GEN.fight[k], lake, prices, legend, legendBait: [w.legendBait[0], Math.round(prices.crown * GEN.legendBait / 10) * 10, w.legendBait[1]],
+    const bait = Math.max(Math.round(prices.crown * GEN.legendBait / 10) * 10, Math.ceil((prev.legendBait[1] * GEN.floor) / 10) * 10);
+    const W = { id, name: w.name, order: i, reach: 1 + Math.floor((i - 1) / 4), base: w.base,
+      fight: GEN.fight[k], lake, prices, legend, legendBait: [w.legendBait[0], bait, w.legendBait[1]],
       lure: [w.lure[0], Math.round(lake * GEN.lure / 100) * 100, w.lure[1]] };
+    prev = W; return W;
   });
   return [...built, ...fresh];
 }
@@ -136,6 +150,7 @@ export const LOOP = {
     mirror_shard: ['shardspine_eel', 'wolfwake_trout', 'prismdrop_sturgeon'],
     ferry_coin: ['gilt_eyed_eel', 'candlewake_sturgeon', 'the_clapper'],
   },
+  giantsLureNames: 2,                                     // a new water's giants' lure also names this many of its biggest rare or uncommon fish
   familyLures: { feather_fly: 50, glimmer_spoon: 90, bone_jig: 110, moth_popper: 400, lantern_lure: 4000 },
   familyLureAt: { moth_popper: 2, lantern_lure: 3 },
   // ---- bait: a tin of 10, one spent per hooked fish, fitted beside the lure. Every tin gives the same favour (every fish runs
@@ -150,8 +165,8 @@ export const LOOP = {
     ember_roe:     { at: 2, name: 'Ember Roe' },
     glass_larva:   { at: 3, name: 'Glass Larvae' },   // the Chime Jelly bites on nothing else
     shimmerfly:    { at: 4, name: 'Shimmerfly' },
-    windfall_plum: { at: 10, name: 'Windfall Plum', hold: 5 },   // new: the Inkwood's fruit eaters
-    tallow_soap:   { at: 9, name: 'Tallow Soap', hold: 5 },      // new: whiskered scavengers
+    windfall_plum: { at: 16, name: 'Windfall Plum', hold: 5 },   // new: the Inkwood's fruit eaters
+    tallow_soap:   { at: 10, name: 'Tallow Soap', hold: 5 },      // new: whiskered scavengers
   },
   tinSize: 10,
   // ---- the raft, besides the hold
@@ -172,6 +187,11 @@ export const LOOP = {
   player: { clams: 0.9, time: 1.25, orderGain: 0.06 },
 };
 const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));
+// places and giants are matched to waters by index (roster.json waters[i] and LOOP.waters[i]), species by name: the two lists must agree
+for (const [i, rw] of ROSTER.waters.entries()) {
+  if (rw.name !== LOOP.waters[i]?.name || rw.order !== i + 1) { console.error(`roster.json waters[${i}] is "${rw.name}" (order ${rw.order}) but the sim's slot ${i + 1} is "${LOOP.waters[i]?.name}": re-order one list to match the other`); process.exit(1); }
+}
+if (ROSTER.waters.length !== LOOP.waters.length) { console.error(`roster.json has ${ROSTER.waters.length} waters, the sim ${LOOP.waters.length}`); process.exit(1); }
 const WATER_OF_NAME = Object.fromEntries(ROSTER.waters.map((w, i) => [w.name, LOOP.waters[i].id]));
 const NAME = Object.fromEntries(LOOP.waters.map((w) => [w.id, w.name]));
 
@@ -234,14 +254,15 @@ for (const W of LOOP.waters) W.species = SPECIES.filter((s) => s.water === W.id)
 // the new waters' giants' lures name the water's giants and its biggest rare; each new water's plain bait is the tin its fish name most
 for (const W of LOOP.waters) {
   if (!LOOP.giantsLures[W.lure[0]]) {
-    const rare = W.species.filter((s) => s.rarity === 'rare' && !s.never).sort((a, b) => b.L50 - a.L50)[0];
-    LOOP.giantsLures[W.lure[0]] = [...W.species.filter((s) => s.giant && !s.legend).map((s) => s.id), ...(rare ? [rare.id] : [])];
+    // v7.1: its giants and its two biggest rare or uncommon fish (rares first), so fitting it never costs the draw of a family lure
+    const big = W.species.filter((s) => (s.rarity === 'rare' || s.rarity === 'uncommon') && !s.never && !s.giant).sort((a, b) => (b.rarity === 'rare') - (a.rarity === 'rare') || b.L50 - a.L50).slice(0, LOOP.giantsLureNames);
+    LOOP.giantsLures[W.lure[0]] = [...W.species.filter((s) => s.giant && !s.legend).map((s) => s.id), ...big.map((s) => s.id)];
   }
   const tins = ['mireworm', 'spore_cake', 'ember_roe', 'windfall_plum', 'tallow_soap'].filter((b) => (LOOP.bait[b].at ?? 1) <= W.order);
   const count = (b) => W.species.filter((s) => s.baits.has(b)).length;
-  W.plainBait = { mossmere: 'mireworm', sporewood: 'spore_cake', glasswater: 'ember_roe', paleabyss: 'ember_roe' }[W.id] || tins.sort((a, b) => count(b) - count(a))[0];
+  W.plainBait = PLAIN_BAIT[W.id] || tins.sort((a, b) => count(b) - count(a))[0];
 }
-const LURE_NAME = Object.fromEntries([...D.LURES.map((l) => [l.id, l.name]), ...LOOP.waters.filter((w) => w.lure[2]).map((w) => [w.lure[0], w.lure[2]])]);
+const LURE_NAME = Object.fromEntries([...D.LURES.map((l) => [l.id, l.name]), ...Object.values(NEW_WATER).map((w) => [w.lure[0], w.lure[1]])]);
 
 // =====================================================================================================================
 // value, land chance, bite pools
@@ -264,14 +285,24 @@ function itemHold(id, sp, night) {
   if (it.attract) return sp.baits.has(id) || sp.bait === id ? it.hold : 0;
   return 0;
 }
+// a giants' lure may also be a lure of a family (NEW_WATER lure[2]): it then draws that family as the family's own lure does
+const GL_FAMILY = Object.fromEntries(Object.values(NEW_WATER).filter((w) => w.lure[2]).map((w) => [w.lure[0], w.lure[2]]));
+const familyLure = (fam) => D.LURES.find((l) => l.family === fam && !l.night);
 const lureMatch = (id, sp) => {
   if (!id) return false;
-  if (LOOP.giantsLures[id]) return LOOP.giantsLures[id].includes(sp.id);
+  if (LOOP.giantsLures[id]) return LOOP.giantsLures[id].includes(sp.id) || (GL_FAMILY[id] != null && sp.family === GL_FAMILY[id]);
   const l = D.LURES.find((x) => x.id === id); if (!l) return false;
   return (l.family && sp.family === l.family) || (l.night && sp.hours.length === 1 && sp.hours[0] === 'night');
 };
-const lureAttract = (id) => (LOOP.giantsLures[id] ? 1.5 : D.LURES.find((x) => x.id === id)?.attract ?? 1);
-const lureFavour = (id, sp) => { const l = D.LURES.find((x) => x.id === id); return l?.favour && !LOOP.giantsLures[id] && lureMatch(id, sp) ? l.favour : 0; };
+const lureAttract = (id, sp) => {
+  if (!LOOP.giantsLures[id]) return D.LURES.find((x) => x.id === id)?.attract ?? 1;
+  const fam = GL_FAMILY[id] && sp && sp.family === GL_FAMILY[id] ? familyLure(GL_FAMILY[id])?.attract ?? 1 : 1;
+  return Math.max(fam, sp && !LOOP.giantsLures[id].includes(sp.id) ? 1 : 1.5);
+};
+const lureFavour = (id, sp) => {
+  if (LOOP.giantsLures[id]) return GL_FAMILY[id] && sp.family === GL_FAMILY[id] ? familyLure(GL_FAMILY[id])?.favour ?? 0 : 0;
+  const l = D.LURES.find((x) => x.id === id); return l?.favour && lureMatch(id, sp) ? l.favour : 0;
+};
 const P_CACHE = new Map();
 /** Land chance: data.js's catchParts for the Wick, the tackle, the strike, class and rarity and the built lakes' Fight; the draft adds the
  *  new waters' Fight term, a giant's Fight and the item Hold for fish data.js does not know yet. Same formula, same caps, same floor. */
@@ -321,16 +352,16 @@ function poolFor(water, placeId, phase, lure, bait) {
     else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? LOOP.dayDraw : 1)) * (P && s.rarity === 'common' ? LOOP.placeCommon : 1);
     if (s.bestNight && phase === 'night') w *= 1.5;
     if (bait && s.bait === bait) w *= 1.5;               // a bait changes which fish bite only for a fish that bites on nothing else
-    if (lureMatch(lure, s)) w *= lureAttract(lure);
+    if (lureMatch(lure, s)) w *= lureAttract(lure, s);
     list.push([s, w]);
   }
   let others = list.reduce((a, [, w]) => a + w, 0);
   if (others < (RW.common ?? 70)) for (const s of WATER[water].species) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
     if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait)) continue;
-    const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) ? lureAttract(lure) : 1); list.push([s, w]); others += w;
+    const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) ? lureAttract(lure, s) : 1); list.push([s, w]); others += w;
   }
   if (giant && others > 0) {                             // a giant is a fixed share of the bites at its place: more in its hour, never none
-    const share = giant.hours.includes(phase) ? LOOP.giant.share.inHour : LOOP.giant.share.offHour, gl = LOOP.giantsLures[lure]?.includes(giant.id) ? lureAttract(lure) : 1;   // only its own giants' lure draws it
+    const share = giant.hours.includes(phase) ? LOOP.giant.share.inHour : LOOP.giant.share.offHour, gl = LOOP.giantsLures[lure]?.includes(giant.id) ? lureAttract(lure, giant) : 1;   // only its own giants' lure draws it
     list.push([giant, others * share * gl / (1 - share * gl)]);
   }
   const pool = { list, tot: list.reduce((a, [, w]) => a + w, 0) };
@@ -571,18 +602,28 @@ title('1. What a fish sells for (clams): value tier × rarity × body × e^(0.9�
     const r = Math.min(...g.map((s) => clamsFor(s, z.keeper))) / Math.max(...o.map((s) => clamsFor(s, z.keeper)));
     if (r < worst) { worst = r; where = W.name; }
   }
+  // no step down: a water's giants (mean Keeper value) sell for at least 0.8× the giants of the water before
+  let dip = Infinity, dipAt = '', prevG = null;
+  for (const W of LOOP.waters) {
+    const g = W.species.filter((s) => s.giant && !s.legend); if (!g.length) continue;
+    const m = g.reduce((a, s) => a + clamsFor(s, z.keeper), 0) / g.length;
+    if (prevG) { const r = m / prevG.m; if (r < dip) { dip = r; dipAt = `${prevG.W.name} ${f0(prevG.m)} → ${W.name} ${f0(m)}`; } }
+    prevG = { W, m };
+  }
+  check(dip >= 0.8, `no water's giants are a step down: a Keeper giant sells for at least 0.8× the water before's (worst ${dip.toFixed(2)}: ${dipAt})`);
   check(worst > 1, `the giants top every water's ladder: at the same size class the cheapest giant sells for ${worst.toFixed(2)}× the dearest other fish (worst: ${where})`);
 }
 
 // ---------------------------------------------------------------- 2. strategies and the anti-grind check
 const full = (w, extra = []) => [...placesOf(w, ['day', 'old', 'night']), ...extra];
+const W6 = LOOP.waters[5], W12 = LOOP.waters[11];   // the stations at 20 h and 40 h are slots, not waters (SPEC v7 re-ordered the waters)
 const STAGES = [
   { id: 'start', label: 'first trip: T0, hold 3, the Mossmere, open water only', kit: { water: 'mossmere', rod: 0, line: 0, reel: 0, hold: 3, lure: null, bait: null, places: [], oars: 0, keel: 0, lantern: 0 } },
   { id: '10min', label: '10 min: Line T1, hold 4, the Lily Maze', kit: { water: 'mossmere', rod: 0, line: 1, reel: 0, hold: 4, lure: null, bait: null, places: ['lily_maze'], oars: 0, keel: 0, lantern: 0 } },
   { id: '1h', label: '1 h: T1, hold 5, the Mossmere with 3 places, Glimmer Spoon', kit: { water: 'mossmere', rod: 1, line: 1, reel: 1, hold: 5, lure: 'glimmer_spoon', bait: null, places: full('mossmere'), oars: 1, keel: 1, lantern: 0 } },
   { id: '5h', label: '5 h: T2, hold 6, Sporewood with its 4 ordinary places, Glimmer Spoon', kit: { water: 'sporewood', rod: 2, line: 2, reel: 2, hold: 6, lure: 'glimmer_spoon', bait: null, places: placesOf('sporewood', ['day', 'old', 'night', 'extra']), oars: 2, keel: 1, lantern: 1 } },
-  { id: '20h', label: '20 h: T5, hold 8, the Thin Water with 3 places, its giants\' lure', kit: { water: 'thin_water', rod: 5, line: 5, reel: 5, hold: 8, lure: 'weir_spoon', bait: null, places: full('thin_water'), oars: 3, keel: 2, lantern: 2 } },
-  { id: '40h', label: '40 h: T6, hold 8, the Salt Gate with 4 places, Glimmer Spoon', kit: { water: 'salt_gate', rod: 6, line: 6, reel: 6, hold: 8, lure: 'glimmer_spoon', bait: null, places: placesOf('salt_gate', ['day', 'old', 'night', 'extra']), oars: 3, keel: 3, lantern: 3 } },
+  { id: '20h', label: `20 h: T5, hold 8, ${NAME[W6.id]} (slot 6) with 3 places, its giants' lure`, kit: { water: W6.id, rod: 5, line: 5, reel: 5, hold: 8, lure: W6.lure[0], bait: null, places: full(W6.id), oars: 3, keel: 2, lantern: 2 } },
+  { id: '40h', label: `40 h: T6, hold 8, ${NAME[W12.id]} (slot 12) with 4 places, Glimmer Spoon`, kit: { water: W12.id, rod: 6, line: 6, reel: 6, hold: 8, lure: 'glimmer_spoon', bait: null, places: placesOf(W12.id, ['day', 'old', 'night', 'extra']), oars: 3, keel: 3, lantern: 3 } },
 ];
 title('2. Strategies: does waiting for giants pay? (clams per minute against the natural rule)');
 for (const [i, st] of STAGES.entries()) {
@@ -611,9 +652,32 @@ for (const [i, st] of STAGES.entries()) {
   if (st.id === '40h') check(nat.min <= 6, `late trips stay short: ${f1(nat.min)} min at hold 8 (target ≤ 6)`);
 }
 
+// ---------------------------------------------------------------- 2b. every new water, at its arrival kit
+title('2b. Every new water on the tackle it is bought with: the anti-grind, let-go and bait checks, water by water');
+{
+  const rows = [];
+  for (const W of LOOP.waters.slice(4)) {
+    const t = W.order < 10 ? 5 : 6, kit = { water: W.id, rod: t, line: t, reel: t, hold: 8, lure: W.lure[0], bait: null, places: full(W.id), oars: 3, keel: 2, lantern: 2 };
+    const seed = 1000 + W.order * 17, nat = run(kit, POL.natural(), N, seed);
+    const all = [POL.keepAll(), POL.dark(), POL.hop('prize'), POL.giantHunt(), POL.grind('prize'), POL.grind('trophy')].map((p) => run(kit, p, N, seed));
+    const patient = Math.max(...all.slice(1).map((x) => x.perMin / nat.perMin)), hunt = all[3].perMin / nat.perMin;
+    const CH = 6000, choosy = run(kit, POL.picky(), CH, 11).perMin / run(kit, POL.natural(), CH, 11).perMin;   // the same 6000 trips in quick and full runs: the ratio is noisy
+    const nB = Math.max(N, 4000), a = run(kit, POL.natural(), nB, 502), plain = W.plainBait, gainOf = (b) => run({ ...kit, bait: b }, POL.natural(), nB, 502).perMin / a.perMin - 1;
+    const gp = gainOf(plain); let worst = -Infinity, worstId = plain;
+    for (const b of Object.keys(LOOP.bait).filter((b) => (LOOP.bait[b].at ?? 1) <= W.order && b !== plain)) { const g = gainOf(b) - gp; if (g > worst) { worst = g; worstId = b; } }
+    const a1 = run(kit, POL.natural(), nB, 501), b1 = run({ ...kit, bait: plain }, POL.natural(), nB, 501), earn = (b1.gross - a1.gross) / Math.max(1e-9, b1.baitCost);
+    rows.push([`${W.order}. ${W.name}`, `T${t}`, pc(patient), pc(hunt), pc(choosy), `${LOOP.bait[plain].name} +${pc(gp)} (${earn.toFixed(1)}×)`, `${LOOP.bait[worstId].name} ${(worst * 100).toFixed(1)}`]);
+    check(patient <= 1.05 && hunt <= 0.75, `anti-grind (${W.name}): no patient strategy earns more than 105% of the natural rule (best ${pc(patient)}) and the giant hunt at most 75% (${pc(hunt)})`);
+    check(choosy >= 0.85 && choosy <= 1.05, `let go is a choice (${W.name}): choosy play earns ${pc(choosy)} of the natural rule per minute (target 85–105%)`);
+    check(gp >= 0.03 && gp <= 0.25 && earn >= 1.3, `bait (${W.name}, ${LOOP.bait[plain].name}): +${pc(gp)} clams a minute net of the tins, a tin earns ${earn.toFixed(1)}× its price (target +3–25% and ≥ 1.3×)`);
+    check(worst <= 0.03, `no tin is the one to buy (${W.name}): the best other tin (${LOOP.bait[worstId].name}) beats the plain bait by ${(worst * 100).toFixed(1)} points a minute (target ≤ 3)`);
+  }
+  table(['water', 'tackle', 'best patient', 'giant hunt', 'choosy', 'plain bait (earns × price)', 'best other tin vs plain (points)'], rows);
+}
+
 // ---------------------------------------------------------------- 3. clams per trip by tackle and hold
 title('3. Clams per trip (minutes) by tackle tier and hold: the natural rule, each water with its ordinary places');
-for (const w of ['mossmere', 'glasswater', 'paleabyss', 'pyrefall_gorge', 'siltway', 'rime_sound']) {
+for (const w of ['mossmere', 'glasswater', 'paleabyss', LOOP.waters[7].id, LOOP.waters[10].id, LOOP.waters[15].id]) {   // slots 1, 3, 4, 8, 11, 16
   const places = placesOf(w, ['day', 'old', 'night', 'extra']), lure = bestLureOf(w, Object.keys(LOOP.familyLures)), rows = [];
   for (const t of [0, 2, 4, 5, 6]) rows.push([`T${t}`, ...[3, 5, 6, 8].map((h) => { const x = run({ water: w, rod: t, line: t, reel: t, hold: h, lure, bait: null, places, oars: 1, keel: 1, lantern: 1 }, POL.natural(), Math.max(500, N >> 3), 77 + t * 10 + h); return `${f0(x.clams)} (${f1(x.min)})`; })]);
   console.log(`-- ${NAME[w]} (${lure ? LURE_NAME[lure] : 'no lure'})`);
@@ -625,7 +689,7 @@ title('4. Bait: what a tin is worth (natural rule; net of the tin)');
 {
   const rows = [], kitOf = (id) => STAGES.find((s) => s.id === id).kit;
   const G = { water: 'glasswater', rod: 3, line: 3, reel: 3, hold: 7, lure: 'glimmer_spoon', bait: null, places: full('glasswater'), oars: 3, keel: 2, lantern: 2 };
-  for (const [stId, bait] of [['1h', 'mireworm'], ['5h', 'spore_cake'], ['10h', 'ember_roe'], ['20h', WATER.thin_water.plainBait], ['40h', WATER.salt_gate.plainBait]]) {
+  for (const [stId, bait] of [['1h', 'mireworm'], ['5h', 'spore_cake'], ['10h', 'ember_roe'], ['20h', WATER[W6.id].plainBait], ['40h', WATER[W12.id].plainBait]]) {
     const kit = stId === '10h' ? G : kitOf(stId), nB = Math.max(N * 2, 8000), a = run(kit, POL.natural(), nB, 501), b = run({ ...kit, bait }, POL.natural(), nB, 501);
     const gain = b.gross - a.gross, cost = b.baitCost;
     rows.push([`${stId}: ${LOOP.bait[bait].name} (${NAME[kit.water]})`, f0(baitTin(bait, kit.water)), f1(b.baitUsed), f0(a.clams), f0(b.gross), f0(cost), f0(b.clams), pc(b.perMin / a.perMin - 1), (gain / Math.max(1e-9, cost)).toFixed(1)]);
@@ -657,10 +721,12 @@ title("4b. The giants a map promises: how often they bite and land (the natural 
     rows.push([`${W.order}. ${P.name}`, g.name, `T${t}`, pc(pPrize), pc(a.giantBite), `${(a.giantHome * 100).toFixed(1)}%`, f0(1 / Math.max(1e-9, a.giantKept)), `${(b.giantHome * 100).toFixed(1)}%`, f0(1 / Math.max(1e-9, b.giantKept))]);
     // the hardest fish to land: at Prize, on the arrival tackle, the giant lands less often than any other fish of its water
     const others = W.species.filter((s) => !s.giant && !s.never && !s.legend).map((s) => landP(s, 'prize', kit, 'struck', P.kind === 'night'));
+    if (W.fight != null && (pPrize < 0.3 || pPrize > 0.505)) check(false, `a new water's giant lands a Prize 30–50% of the time on arrival tackle: ${g.name} lands ${pc(pPrize)}`);
     if (pPrize >= Math.min(...others)) check(false, `the giant is the hardest fish of its water: ${g.name} at Prize lands ${pc(pPrize)}, another fish of ${W.name} lands ${pc(Math.min(...others))}`);
   }
   table(['place', 'its giant', 'tackle', 'a Prize lands', 'it bites on', 'comes home on', 'trips per giant', "with the giants' lure", 'trips'], rows);
   check(true, 'every giant is the hardest fish of its water to land at Prize, on that water\'s arrival tackle (any exception is listed above as a FAIL)');
+  check(true, "every new water's giant lands a Prize 30–50% of the time on that water's arrival tackle (any exception is listed above as a FAIL)");
   const lrows = [];
   for (const W of LOOP.waters) {
     const t = { mossmere: 1, sporewood: 2, glasswater: 3, paleabyss: 4 }[W.id] ?? (W.order < 10 ? 5 : 6), kit = { rod: t, line: t, reel: t };
@@ -672,23 +738,38 @@ title("4b. The giants a map promises: how often they bite and land (the natural 
     check(maxP <= C.cap.legend + 1e-9, `${sp.name}: never better than a coin flip, whatever you bring (best ${pc(maxP)})`);
   }
   table(['legend', 'tackle', 'first try lands', 'tries expected', 'bait per try', 'bait in all', 'first landing pays', 'later landings pay'], lrows);
+  // a giants' lure never costs you clams: fitted on the tackle you settle with, it earns at least 97% of the best family lure
+  const grows = []; let worstL = Infinity, worstLAt = '';
+  for (const W of LOOP.waters.slice(4)) {
+    const t = settleT(W), base = kitAt(W, t, 8, ordinaryPlaces(W), false), fam = run(base, POL.natural(), Math.max(1500, N >> 1), 707).perMin;
+    const own = run({ ...base, lure: W.lure[0] }, POL.natural(), Math.max(1500, N >> 1), 707).perMin, r = own / fam;
+    grows.push([`${W.order}. ${W.name}`, LURE_NAME[W.lure[0]], LOOP.giantsLures[W.lure[0]].map((id) => SPECIES.find((s) => s.id === id).name).join(', '), LURE_NAME[base.lure] || 'none', pc(r - 1)]);
+    if (r < worstL) { worstL = r; worstLAt = `${LURE_NAME[W.lure[0]]} in ${W.name}`; }
+  }
+  table(["water", "its giants' lure", 'draws', 'best family lure', 'giants\' lure vs family (clams a minute)'], grows);
+  check(worstL >= 0.97, `a giants' lure never costs clams: fitted, it earns at least 97% of the best family lure (worst ${pc(worstL)}: ${worstLAt})`);
 }
 
 // ---------------------------------------------------------------- 5. the pacing run
 title('5. Pacing: an average player along a sensible buying order, all 16 waters');
 {
   const P = LOOP.player, state = { clams: 0, sec: 0, trips: 0, earned: 0, spent: 0, rod: 0, line: 0, reel: 0, hold: LOOP.hold.start, maps: ['mossmere'], places: new Set(), lures: new Set(), oars: 0, keel: 0, lantern: 0, orders: 0, baitBed: 0, wall: 0, lights: 0, legends: new Set() };
-  const kitFor = (w) => ({ water: w, rod: state.rod, line: state.line, reel: state.reel, hold: state.hold, lure: bestLureOf(w, [...state.lures]),
+  const kitFor = (w, lure = bestLureOf(w, [...state.lures])) => ({ water: w, rod: state.rod, line: state.line, reel: state.reel, hold: state.hold, lure,
     bait: state.sec > 1800 ? WATER[w].plainBait : null, places: WATER[w].places.filter((p) => state.places.has(p.id) && !p.legend).map((p) => p.id), oars: state.oars, keel: state.keel, lantern: state.lantern });
   const evalCache = new Map();
-  const evalWater = (w) => {
-    const kit = kitFor(w), key = JSON.stringify(kit);
+  // the player fits the lure that pays best here, measured (v7.1): the giants' lure by its giants, or the best family lure owned
+  const evalOne = (kit) => {
+    const key = JSON.stringify(kit);
     if (!evalCache.has(key)) {
-      const x = run(kit, POL.natural(), QUICK ? 1000 : 1500, 9000 + evalCache.size);
+      const w = kit.water, x = run(kit, POL.natural(), QUICK ? 1000 : 1500, 9000 + evalCache.size);
       const bedFree = kit.bait ? Math.min(x.baitUsed, [0, 3, 6, 10][state.baitBed]) * (baitTin(kit.bait, w) / LOOP.tinSize) : 0;
-      evalCache.set(key, { water: w, clams: (x.clams + bedFree) * P.clams * (1 + P.orderGain * state.orders), min: x.min * P.time, kept: x.kept, elder: x.elder, giant: x.giantKept });
+      evalCache.set(key, { water: w, lure: kit.lure, clams: (x.clams + bedFree) * P.clams * (1 + P.orderGain * state.orders), min: x.min * P.time, kept: x.kept, elder: x.elder, giant: x.giantKept });
     }
     return evalCache.get(key);
+  };
+  const evalWater = (w) => {
+    const lures = [...new Set([bestLureOf(w, [...state.lures]), bestLureOf(w, [...state.lures].filter((id) => LOOP.familyLures[id] != null))])];
+    return lures.map((l) => evalOne(kitFor(w, l))).sort((a, b) => b.clams / b.min - a.clams / a.min)[0];
   };
   const bestWater = () => state.maps.slice(-3).map(evalWater).sort((a, b) => b.clams / b.min - a.clams / a.min)[0];
   function legendCost(id) {
@@ -759,9 +840,9 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
     const cost = price(id); let guard = 0;
     while (state.clams < cost && guard++ < 20000) playTrip();
     const kindOf = id.split(':')[0], measure = kindOf === 'hold' || kindOf === 'raft';
-    const w0 = measure ? bestWater().water : null, x0 = measure ? run(kitFor(w0), POL.natural(), nG, 606) : null, trip0 = measure ? evalWater(w0).clams : 0;
+    const b0 = measure ? bestWater() : null, w0 = b0?.water, x0 = measure ? run(kitFor(w0, b0.lure), POL.natural(), nG, 606) : null, trip0 = measure ? b0.clams : 0;
     state.clams -= cost; state.spent += cost; apply(id);
-    if (measure) { const x1 = run(kitFor(w0), POL.natural(), nG, 606); gains.push({ id, name: NAMES[kindOf](...id.split(':').slice(1)), h: state.sec / 3600, g: x1.perMin / x0.perMin - 1, gt: x1.clams / x0.clams - 1, trips: cost / trip0 }); }
+    if (measure) { const x1 = run(kitFor(w0, b0.lure), POL.natural(), nG, 606); gains.push({ id, name: NAMES[kindOf](...id.split(':').slice(1)), h: state.sec / 3600, g: x1.perMin / x0.perMin - 1, gt: x1.clams / x0.clams - 1, trips: cost / trip0 }); }
     const e = bestWater(), [kind, a, b] = id.split(':');
     sinceBuy.push(state.trips - lastBuyTrips);
     log.push({ id, name: NAMES[kind](a, b), cost, h: state.sec / 3600, trips: state.trips, waited: state.trips - lastBuyTrips, water: e.water, perTrip: e.clams, min: e.min });
@@ -795,7 +876,7 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
   check(within(M['5 h'].tpp, 1.5, 5), `5 h: ${f1(M['5 h'].tpp)} trips per purchase (target 1.5–5)`);
   check(within(at('lake:glasswater').h, 4.0, 6.5), `the Glasswater map at ${at('lake:glasswater').h.toFixed(1)} h (target 4.0–6.5)`);
   check(within(at('lake:paleabyss').h, 8.5, 13), `the Pallid Deep map at ${at('lake:paleabyss').h.toFixed(1)} h (target 8.5–13)`);
-  check(within(at('lake:rushlight_fen').h, 12, 18), `the first new water (Rushlight Fen) at ${at('lake:rushlight_fen').h.toFixed(1)} h (target 12–18)`);
+  check(within(at(`lake:${LOOP.waters[4].id}`).h, 12, 18), `the first new water (${LOOP.waters[4].name}) at ${at(`lake:${LOOP.waters[4].id}`).h.toFixed(1)} h (target 12–18)`);
   check(M['20 h'] && within(M['20 h'].tpp, 1.5, 7), `20 h: ${M['20 h'] ? f1(M['20 h'].tpp) : '—'} trips per purchase (target 1.5–7)`);
   check(M['20 h'] && within(M['20 h'].owned, 5, 8), `20 h: ${M['20 h'] ? M['20 h'].owned : '—'} waters owned (target 5–8)`);
   check(within(doneH, 40, 60), `the last purchase at ${doneH.toFixed(1)} h (target 40–60)`);
