@@ -185,7 +185,8 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     const shape = fv.shape, L = fv.length;
     const K = { face: 'flank', nose: 'side', tilt: 9, noseUp: 4, noseIn: 6, f0: 0.44, bend: null, round: false, wings: false };
     // a ray shows its back: flat on the palm tipped to us, or held up by its lower wing like a painting (its disc to the lens, its
-    // snout to the right of the frame as every held fish's); stood or hung, it is head-up
+    // snout to the right of the frame as every held fish's, its whip of a tail hanging off the other end: solveHeld); stood or
+    // hung, it is head-up
     if (shape === 'ray') { K.face = 'back'; K.wings = true; K.nose = id === 'pinch' || id === 'both' ? 'side' : 'up'; K.tilt = id === 'pinch' ? 58 : 12; K.f0 = 0.27; K.noseUp = id === 'both' ? 8 : 4; }
     // a crayfish is held from below by its carapace, back to us, claws up and out
     else if (shape === 'crayfish') { K.face = 'back'; K.nose = id === 'pinch' ? 'diag' : 'side'; K.tilt = id === 'pinch' ? 16 : 48; K.noseUp = 0; K.f0 = 0.5; }
@@ -193,7 +194,9 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     else if (shape === 'puffer') { K.round = true; K.f0 = 0.42; K.noseUp = 6; }
     else if (shape === 'eel') {
       if (id === 'pinch') K.bend = { head: [0.34, 0.2, 0.75], tail: [0.6, 0.26, 1.0] };
-      else if (id === 'both') K.bend = { head: [0.2, 0.12, -0.3], tail: [0.76, 0.16, 0.95], sag: 0.035 };
+      // draped over both hands: its head up at the left hand, its tail hanging off the right; a long one (the hug's band: it
+      // cannot be stood up, and hung edge-on it is a blade) loops deeper, more of it hanging
+      else if (id === 'both') K.bend = L >= 0.9 ? { head: [0.2, 0.16, -0.42], tail: [0.66, 0.22, 1.2], sag: 0.05 } : { head: [0.2, 0.12, -0.3], tail: [0.76, 0.16, 0.95], sag: 0.035 };
     }
     if (L < 0.15 && id === 'pinch') K.tilt = Math.max(K.tilt, 14);
     return K;
@@ -314,12 +317,35 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     const reach = pinch ? (tiny ? L.grip.reachTiny : L.grip.reach) : L.grip.reach + little * 0.1;
     const ext = upright ? (b.noseZ - cLocal.z) * (K.nose === 'diag' ? 0.75 : 1) : K.wings && !pinch ? b.halfW : Math.max(0.01, b.top - cy);   // how far it stands above its middle
     let x, y;
-    if (pinch && !L.tall && !tiny) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
-      x = sd * (G.head.radius * 0.94 + (tiny ? 0.03 : upright ? 0.06 : 0.32 * L.L)); y = G.head.center.y - (tiny ? 0.03 : 0.08) - (upright ? ext * 0.5 : 0);
-    } else if (pinch) {       // an upright frame (and any tiny fish on a wide one: before the dark of the face, where a sliver of silver reads; it sits just
-                              // under eye level and the near lens drops it below the eyes): under the chin, the face above it
-      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + (tiny ? (L.tall ? 0.07 : 0.44) : 0.02), G.eyes.y - (tiny && !L.tall ? -0.07 : 0.12) - ext);
-    } else { x = 0; y = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext); }   // the face must show above it
+    const hr0 = G.head.radius, chin = G.head.center.y - hr0 * 0.8;
+    if (tiny) {
+      // the smallest fish in the game: at arm's length toward the lens, out beside the cheek on its own hand's side, with the sky
+      // and the water behind it (never before the dark of the face, never at the mouth: that read as eating). The lens comes right
+      // up to it, so it is far nearer than the face and looks the bigger for it (the fisherman's trick); an upright frame has no
+      // room beside the head, so there it sits lower, off the shoulder
+      const T2 = L.grip.tinyAt || {}, at = L.tall ? (T2.upright || [0.34, 0.92]) : (T2.wide || [0.5, 0.2]);
+      x = sd * (hr0 * at[0] + 0.5 * L.L); y = G.head.center.y - hr0 * at[1];
+    } else if (pinch && !L.tall) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
+      x = sd * (hr0 * 0.94 + (upright ? 0.06 : 0.32 * L.L)); y = G.head.center.y - 0.08 - (upright ? ext * 0.5 : 0);
+    } else if (pinch) {       // an upright frame: under the chin, the face above it
+      x = sd * Math.abs(along(L, sh, L.xS)) * 0.3; y = Math.min(sh.y + 0.02, G.eyes.y - 0.12 - ext);
+    } else {
+      // both hands: its back just under the chin (the whole face above it, the collar behind it), pushed out at the lens. Held
+      // down at the chest it was a small thing under a big head and flame; a tall flat catch (a ray's disc) stays a little lower
+      const lift = L.grip.height === 'chest' ? 0 : 1;
+      const yChest = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext), yChin = chin + (L.grip.chinOver ?? 0.03) - ext;
+      x = 0; y = Math.min(Math.max(yChest, yChest + (yChin - yChest) * lift), G.eyes.y - 0.06 - ext);
+      void chest;
+    }
+    if (K.wings && !upright && !pinch) {
+      // a ray held up like a painting: its whip of a tail (a rigid needle across the Wick, held straight) hangs down off the
+      // disc's end under its own weight, past the Wick's hip; and the disc is held a little lower than a fish's back would be,
+      // its upper wing at the chin, so the eyes and the foot of the hood show over it
+      const dn = T.X.set(1, 0, 0).applyQuaternion(Y.quat).y < 0 ? 1 : -1;   // which of its own sides is down
+      K.bend = { side: [0.5, 0.2, -dn * 1.25] };
+      L.bendHold = K.bend; fv.setBend?.(K.bend);
+      y = Math.min(y, chin + 0.02 - ext);
+    }
     const c = T.d.copy(L.spot).addScaledVector(L.xS, x).addScaledVector(L.zS, faceZ + reach); c.y = y;
     Y.pos.copy(cLocal).applyQuaternion(Y.quat).negate().add(c);
     // the grips (fish-local): under the belly, or under a ray's lower wing
@@ -334,7 +360,13 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       L.lockKeys = [key];
     } else {
       const lo = (L.grip.spreadClamp?.[0] ?? 0.13) / 2, hi = (L.grip.spreadClamp?.[1] ?? 0.44) / 2;
-      if (K.wings) {   // a ray, like a painting: both hands under its lower wing, the disc to the lens
+      if (K.wings && upright) {   // a ray, like a painting: a hand on each wing's edge from behind, the disc to the lens, the tail hanging
+        const xr = T.X.set(1, 0, 0).applyQuaternion(Y.quat).dot(L.xS) >= 0 ? 1 : -1;   // which of its wings is to lens-right (the left hand's)
+        // (where the disc is no wider than the arms can hold: a big ray is held lower on its wings)
+        let fg = K.f0 + 0.03;
+        for (let f = fg; f <= 0.5; f += 0.02) { fg = f; if (fv.section(f, sec).halfW <= hi + 0.03) break; }
+        skin(fv, fg, xr, -0.3, rh * 0.45, Y.gripL); skin(fv, fg, -xr, -0.3, rh * 0.45, Y.gripR);
+      } else if (K.wings) {   // (a flat fish held snout-to-the-side: both hands under its lower wing)
         const dn = T.X.set(1, 0, 0).applyQuaternion(Y.quat).y < 0 ? 1 : -1;   // which of its wings hangs down
         const h = clamp(0.2 * L.L, lo, hi * 0.8);
         skin(fv, clamp(K.f0 - h / L.L, 0.06, 0.4), dn, -0.25, rh * 0.6, Y.gripL); skin(fv, clamp(K.f0 + h / L.L, 0.14, 0.47), dn, -0.25, rh * 0.6, Y.gripR);
@@ -448,7 +480,8 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     // the rod: its butt planted in front of the near foot, leaning over to the fish, bowing under it
     R.mode = 'raised';
     R.butt.copy(L.spot).addScaledVector(L.xS, sd * 0.2 * L.wide).addScaledVector(L.zS, G.vol.r + 0.07); R.butt.y = deckY;
-    const zF = along(L, shNear, L.zS) + 0.13;
+    // (the fish hangs nearer the lens than the rod's butt and the Wick: it is the subject, and it towers a little for it)
+    const zF = along(L, shNear, L.zS) + (L.grip.fore ?? 0.13);
     let lean = 0.2, best = Infinity, out = 0;
     const gaps = [L.grip.gap ?? 0.12, 0.07, 0.03];
     for (let gi = 0; gi < gaps.length; gi++) {
@@ -476,7 +509,9 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       // (a tail that must rest lies out along the planks, away from the Wick's feet; an eel hangs in a slow curve; a ray's disc
       // hangs beside the Wick, not over its head: most of its long tail trails on the deck)
       if (K.wings && onDeck) rest = Math.max(rest, 0.2);
-      L.bendHold = rest > 0.01 ? { tail: [1 - rest - 0.05, 0.07, K.wings ? 1.5 : -1.5] } : (fv.shape === 'eel' ? { tail: [0.7, 0.3, -0.3] } : (K.wings ? { tail: [0.6, 0.3, 0.25] } : null));
+      // (an eel hung straight is a blade a finger wide: it hangs in a slow S, bowed to the Wick under its head, its tail kicked out)
+      L.bendHold = rest > 0.01 ? { tail: [1 - rest - 0.05, 0.07, K.wings ? 1.5 : -1.5], ...(fv.shape === 'eel' ? { sag: 0.04 } : {}) }
+        : (fv.shape === 'eel' ? { tail: [0.5, 0.36, -0.9], sag: 0.045 } : (K.wings ? { tail: [0.6, 0.3, 0.25] } : null));
       fv.setBend?.(L.bendHold);
       Y.line = Math.max(hook, rest > 0.01 ? Math.max(hook, Y.tip.y - deckY - clear - L.L * (1 - rest)) : Y.tip.y - deckY - clear - L.L);
       Y.rested = rest > 0.01; Y.onDeck = onDeck;
@@ -710,7 +745,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
   }
   function letGo(g) {   // the fish leaves the scene at once (fishing disposes the model)
     g.done = true;
-    try { g.fv.setBend?.(null); g.fv.setWarm?.(0); } catch { /* visual */ }
+    try { g.fv.setBend?.(null); g.fv.setWarm?.(0); g.fv.setShown?.(0); } catch { /* visual */ }
     if (g.obj && g.obj.parent === holder) holder.remove(g.obj);
   }
   function dropGone() { if (gone) { if (!gone.done) letGo(gone); wick.setHandLock('r', null); wick.setHandLock('l', null); wick.setRodDrive({}); rodBow.on = false; gone = null; } }
@@ -880,7 +915,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     try {
       L.bendShown = flapBend(L, c); L.fv.setBend?.(L.bendShown);   // (after the grips were found on the body at rest)
       L.fv.update?.(dt, t, { swim: L.id === 'alongside' ? 0.08 : 0.16 + 0.1 * (1 - c.take), struggle: c.struggle * (L.id === 'alongside' ? 0.5 : 1) });
-      L.wet = Math.max(0.55, L.wet - dt * 0.12); L.fv.setWet?.(L.wet); L.fv.setWarm?.(Math.min(1, c.take * 1.2));
+      L.wet = Math.max(0.55, L.wet - dt * 0.12); L.fv.setWet?.(L.wet); L.fv.setWarm?.(Math.min(1, c.take * 1.2)); L.fv.setShown?.(Math.min(1, c.swing * 1.5));
     } catch { /* visual */ }
     // ---- the hands, locked on
     const near = L.side > 0 ? 'l' : 'r', far = L.side > 0 ? 'r' : 'l';
@@ -1020,10 +1055,14 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     // (and its outermost points as it is posed: a fin, a bent tail, a wing: left, right, top, bottom and nearest the lens)
     { const H = hull(true), ax = [camR, camR.clone().negate(), UP, UP.clone().negate(), new THREE.Vector3(L.zS.x, 0, L.zS.z).applyQuaternion(deckQ)];
       for (const a of ax) { let best = null, bd = -Infinity; for (const p of H) { const d = p.dot(a); if (d > bd) { bd = d; best = p; } } if (best && !fishPts.includes(best)) fishPts.push(best); } }
-    if (L.id === 'pinch') fishPts.push(hands[L.side > 0 ? 1 : 0].clone().addScaledVector(UP, -handR() * 1.2));   // (and the palm it lies on)
+    // (and the palm it lies on; the smallest fish is framed by itself: its hand may stand at the frame's foot, as an arm held out at a lens does)
+    if (L.id === 'pinch' && !(L.tiny && !L.tall)) fishPts.push(hands[L.side > 0 ? 1 : 0].clone().addScaledVector(UP, -handR() * 1.2));
     // the flame: its core; and, where the lens stands back, most of the way up it (a close-up may let the tip touch the frame)
-    const flameUp = L.id === 'pinch' ? (L.tiny ? null : flame.clone().lerp(P(G.flameTop), 0.3)) : flame.clone().lerp(P(G.flameTop), L.id === 'both' ? 0.5 : 0.85);
-    const keep = { fish: fishPts, head: headPts, flame: flameUp ? [flame, flameUp] : [flame], hands: L.id === 'pinch' ? [hands[L.side > 0 ? 1 : 0]] : hands, feet: [feet], rodTip: tipKeep ? [tipKeep] : [] };
+    const flameUp = L.id === 'pinch' ? (L.tiny ? null : flame.clone().lerp(P(G.flameTop), 0.3)) : flame.clone().lerp(P(G.flameTop), L.id === 'both' ? 0.15 : 0.85);
+    // (the Wick's own width: its cloak either side of its feet and at its shoulders, so a frame that keeps `body` never cuts it)
+    const br = (G.vol?.r || 0.22) * 1.15, sh = hc.clone().addScaledVector(UP, -hr * 1.3);
+    const body = [feet.clone().addScaledVector(camR, br), feet.clone().addScaledVector(camR, -br), sh.clone().addScaledVector(camR, br), sh.clone().addScaledVector(camR, -br)];
+    const keep = { fish: fishPts, head: headPts, flame: flameUp ? [flame, flameUp] : [flame], hands: L.id === 'pinch' ? [hands[L.side > 0 ? 1 : 0]] : hands, feet: [feet], rodTip: tipKeep ? [tipKeep] : [], body };
     const all = [...keep.fish, ...keep.head, flame, ...(L.id === 'hang' || L.id === 'hug' || L.id === 'alongside' ? keep.feet : [])];
     const box = new THREE.Box3().setFromPoints(all);
     box.getCenter(center);

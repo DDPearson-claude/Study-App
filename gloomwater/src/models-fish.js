@@ -18,7 +18,7 @@ uniform vec2 uAxis;
 // the show's posture (setBend; all zero outside it, and then nothing below runs): a held fish droops off the hands, a hung one
 // trails its tail on the planks. uBendT / uBendH = (hinge s, arc length, angle in rad: + toward the belly, 0 = straight) for the
 // part behind the hinge (toward the tail) and the part ahead of it (toward the snout); uBendS = (sag between the two hinges, on)
-uniform vec3 uBendT, uBendH; uniform vec2 uBendS;
+uniform vec3 uBendT, uBendH, uBendL; uniform vec2 uBendS;
 float gwLat(float s) {
   float w = s * s;
   float l = sin(s * uWaveK - uT) * w * uAmp * uSwim;
@@ -58,6 +58,8 @@ void gwDeform(inout vec3 p, inout vec3 n) {
     p.y -= uBendS.x * 4.0 * m * (1.0 - m);
     gwBendArc(p, n, zt, 1.0, uBendT);
     gwBendArc(p, n, zh, -1.0, uBendH);
+    // (and the tail may hang SIDEWAYS: a ray held up by its wing, its back to us, trails its whip down off its own side)
+    if (abs(uBendL.z) > 1e-4) { vec3 q = p.yxz, m = n.yxz; gwBendArc(q, m, 0.5 - uBendL.x, 1.0, uBendL); p = q.yxz; n = m.yxz; }
   }
 }`;
 
@@ -612,6 +614,7 @@ function eyeGeos(eyes, type, glowCol) {
 
 // ------------------------------------------------------------------ factory
 const WARM_RIM = new THREE.Color(0xffc98e), WARM_FILL = new THREE.Color(0x2c1a0c);
+const FIN_LIT = new THREE.Color(0xb98352);   // a fin with the lantern through it (the show's close-up: setShown)
 // setSilhouette: the unidentified fish of the bite and the fight (v3 auto-fishing): a dark shape at its true size, nothing of
 // its species (colours, pattern, glows, eyes) showing until it is landed
 const SIL_INK = new THREE.Color(0x0c0b14), SIL_RIM = new THREE.Color(0x6e7396);
@@ -676,10 +679,10 @@ export function createFishFactory(ctx) {
       uT: { value: 0 }, uT2: { value: 0 }, uSwim: { value: 1 }, uStruggle: { value: 0 }, uFlop: { value: 0 },
       uAmp: { value: anim.amp }, uWaveK: { value: anim.waveK }, uRay: { value: anim.ray || 0 }, uPuff: { value: 0 }, uPulse: { value: P.opts.jelly ? 0.12 : 0 },
       uAxis: { value: new THREE.Vector2(...(anim.axis || [1, 0])) },
-      uBendT: { value: new THREE.Vector3(0.8, 0.1, 0) }, uBendH: { value: new THREE.Vector3(0.2, 0.1, 0) }, uBendS: { value: new THREE.Vector2(0, 0) },
+      uBendT: { value: new THREE.Vector3(0.8, 0.1, 0) }, uBendH: { value: new THREE.Vector3(0.2, 0.1, 0) }, uBendS: { value: new THREE.Vector2(0, 0) }, uBendL: { value: new THREE.Vector3(0.8, 0.1, 0) },
       // the landing's reveal sweep (models-kit fx 'reveal'; off until setReveal)
       uGwRev: { value: new THREE.Vector4(0, 0, 0.22, 1.4) }, uGwRevZ: { value: new THREE.Vector2(E.ext.maxZ, E.ext.minZ) },
-      uGwRevInk: { value: SIL_INK.clone() }, uGwRevCol: { value: new THREE.Color(0xf3dca4) }, uGwRevFlood: { value: 0 },
+      uGwRevInk: { value: SIL_INK.clone() }, uGwRevCol: { value: new THREE.Color(0xf3dca4) }, uGwRevFlood: { value: 0 }, uGwShown: { value: 0 },
     };
     const spec = { key: 'fish', uniforms: U, pars: FISH_PARS, fx: 'reveal' };
     const object3d = new THREE.Group(); object3d.name = 'fish:' + (sp?.id || E.shape);
@@ -708,6 +711,7 @@ export function createFishFactory(ctx) {
     scaler.add(body);
     if (!translucent) body.add(outlineMesh(P.body, outline));
     // fins
+    let finMat = null;
     if (E.fins) {
       const fm = deformToon({ color: translucent ? new THREE.Color(hexColor(M.fin, 0x333840)).lerp(new THREE.Color(PALE), 0.55) : hexColor(M.fin, 0x333840), map: getFinAtlas(), side: THREE.DoubleSide, rim: 0.25, transparent: translucent, opacity: translucent ? 0.45 : 1,
         emissive: (P.opts.glowFins || translucent) && E.hasGlow ? E.glowCol : 0x000000, emissiveIntensity: (P.opts.glowFins || translucent) && E.hasGlow ? 0.45 : 0 }, spec);
@@ -716,6 +720,7 @@ export function createFishFactory(ctx) {
       mats.push(fm);
       const fins = new THREE.Mesh(E.fins, fm); fins.name = 'fins'; if (translucent) fins.renderOrder = 3;
       scaler.add(fins);
+      finMat = fm;
     }
     // extras (teeth, barbels, spines, plates, lure stalk, tentacles…)
     if (E.extras) {
@@ -764,6 +769,8 @@ export function createFishFactory(ctx) {
     const spriteBase = sprites.map((s) => s.material.opacity);
 
     let phase = Math.random() * 10, phase2 = Math.random() * 10, roll = 0, hop = 0, puff = 0, glowK = 1, warmK = 0, silK = 0;
+    let shownK = 0;
+    const finBase = finMat ? finMat.color.clone() : null;
     // the measuring ceremony's "lantern kiss" (setWarm): a warm rim on every lit part, a breath of warm light on a dark skin
     const rimMats = mats.filter((m) => m.userData?.rim).map((m) => ({ m, col: m.userData.rim.gwRimColor.value.clone(), str: m.userData.rim.gwRimStrength.value, thr: m.userData.rim.gwRimThreshold.value }));
     const warmEm = !E.hasGlow && !P.opts.jelly && !E.skin.emissiveMap;
@@ -828,18 +835,30 @@ export function createFishFactory(ctx) {
         applyRim();
         if (warmEm) { bodyMat.emissive.copy(WARM_FILL).multiplyScalar(w); applyGlow(); }
       },
+      /** 0 → 1: held up in the show, a metre from the lens and half a metre from the lantern: the light on its skin is eased
+       *  under a knee (its back, belly and pattern keep their contrast instead of burning out to one cream), and its fins, ink
+       *  dark from afar, take the lantern through them (a warm brown membrane, their rays showing). 0 restores it exactly. */
+      setShown(kk = 0) {
+        const w = THREE.MathUtils.clamp(Number(kk) || 0, 0, 1);
+        if (Math.abs(w - shownK) < 1e-3) return;
+        shownK = w;
+        U.uGwShown.value = w;
+        if (finMat && finBase && !translucent && !(P.opts.glowFins && E.hasGlow)) finMat.color.copy(finBase).lerp(FIN_LIT, 0.42 * w * (1 - silK));
+      },
       /** The show's posture (docs/v3/show/SPEC.md §2.3): the body bends about its side-to-side axis on true arcs. tail / head =
        *  [hinge, arc length, angle (rad; + toward the belly)] for the part behind / ahead of the hinge, the hinge and the arc as
        *  shares of the fish's true length (0 = the snout, 1 = the tail tip); sag = how far the middle hangs between the two
-       *  hinges (share of the length). setBend(null) straightens it (and the shader then skips the lot). */
+       *  hinges (share of the length); side = [hinge, arc, angle]: the tail behind that hinge hangs sideways (about the back-to-belly
+       *  axis; + toward the fish's own −x). setBend(null) straightens it (and the shader then skips the lot). */
       setBend(o = null) {
-        const T = U.uBendT.value, H = U.uBendH.value, S = U.uBendS.value;
-        if (!o) { T.z = 0; H.z = 0; S.set(0, 0); return; }
+        const T = U.uBendT.value, H = U.uBendH.value, S = U.uBendS.value, Ls = U.uBendL.value;
+        if (!o) { T.z = 0; H.z = 0; Ls.z = 0; S.set(0, 0); return; }
         const X = E.extentTrue, s0 = 0.5 - E.ext.maxZ, t = o.tail, h = o.head;
         if (t) T.set(s0 + THREE.MathUtils.clamp(+t[0] || 0, 0, 1) * X, Math.max(0.01, (+t[1] || 0.1) * X), +t[2] || 0); else T.set(s0 + 0.8 * X, 0.1, 0);
         if (h) H.set(s0 + THREE.MathUtils.clamp(+h[0] || 0, 0, 1) * X, Math.max(0.01, (+h[1] || 0.1) * X), +h[2] || 0); else H.set(s0 + 0.2 * X, 0.1, 0);
-        const sag = (+o.sag || 0) * X;
-        S.set(sag, Math.abs(T.z) > 1e-4 || Math.abs(H.z) > 1e-4 || Math.abs(sag) > 1e-5 ? 1 : 0);
+        const sag = (+o.sag || 0) * X, sd = o.side;   // side = [hinge, arc, angle]: the tail behind the hinge hangs toward the fish's own −x (angle > 0) or +x
+        if (sd) Ls.set(s0 + THREE.MathUtils.clamp(+sd[0] || 0, 0, 1) * X, Math.max(0.01, (+sd[1] || 0.1) * X), +sd[2] || 0); else Ls.set(s0 + 0.8 * X, 0.1, 0);
+        S.set(sag, Math.abs(T.z) > 1e-4 || Math.abs(H.z) > 1e-4 || Math.abs(Ls.z) > 1e-4 || Math.abs(sag) > 1e-5 ? 1 : 0);
       },
       /** The body's cross-section at a share of the true length (0 = the snout tip, 1 = the tail tip), in object3d-local metres
        *  before any bend: {z, halfW, top, bottom} (the body itself: fins, spines and claws reach past it). */
@@ -873,6 +892,17 @@ export function createFishFactory(ctx) {
           y = -R * (1 - c) - rest * sn + y * c; z = z0 - sgn * a;
         }
         v.y = y * k; v.z = z * k;
+        const Ls = U.uBendL.value;
+        if (Math.abs(Ls.z) > 1e-4) {   // the sideways hang of the tail: the same arc, in the x–z plane
+          let x = v.x / k; z = v.z / k;
+          const z0 = 0.5 - Ls.x, d = z0 - z;
+          if (d > 0) {
+            const w = Math.max(Ls.y, 1e-3), phi = Ls.z * Math.min(1, d / w), R = w / Ls.z, rest = Math.max(d - w, 0), c = Math.cos(phi), sn = Math.sin(phi);
+            const a = R * sn + rest * c + x * sn;
+            x = -R * (1 - c) - rest * sn + x * c; z = z0 - a;
+            v.x = x * k; v.z = z * k;
+          }
+        }
         return v;
       },
       /** 0 → 1: just out of the water: the skin glints (the lantern and the moon key catch it). 0 gives the dry skin back. */

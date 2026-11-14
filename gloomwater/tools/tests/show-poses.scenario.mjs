@@ -14,7 +14,8 @@
 //   --mode=bodies    the five Wick bodies × the five poses, the pause frame                        → bodies.jpg
 //   --mode=headings  the raft at 0 / 90 / 180 / 270 / 45° for a hug, a hang and an alongside       → headings.jpg
 //   --mode=one       one case: --species=reedjaw_pike --z=2.4 [--cls=trophy --pose=hug --body=taper --heading=90 --t=1.2 --cam=play]
-//   --only=eel,ray   a subset by case name · --cam=play shoots from the play camera · --phase=gloomtide a night
+//   --only=eel,ray   a subset by case name · --cam=play shoots from the play camera · --cam=real from the game's own show camera
+//                    (render.js: what a catch is framed by; --card adds a frame with the lens as it stands behind the card) · --phase=gloomtide a night
 //   --out=<name>     the sheet's name · --frames=N a strip's tile count
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -24,7 +25,7 @@ import { resolve, join } from 'node:path';
 export const GRID = [
   ['tiny · quayling', 'quayling', -2, {}], ['small · perch', 'mossback_perch', -0.7, {}], ['small · crayfish', 'gutter_crayfish', -0.7, {}], ['small · puffer', 'sporebelly_puffer', -0.7, {}], ['small · jelly', 'sleepspore_jelly', -0.7, {}],
   ['keeper · carp', 'weeping_carp', 0.5, {}], ['keeper · eel', 'gloam_eel', 0.5, {}], ['keeper · ray', 'velvet_ray', 0.5, {}], ['keeper · koi', 'candlefin_koi', 0.5, {}],
-  ['prize · pike', 'reedjaw_pike', 1.5, {}], ['prize · eel', 'gloam_eel', 1.5, {}], ['prize · ray', 'velvet_ray', 1.5, {}], ['prize · angler', 'mildew_angler', 1.5, {}], ['prize · jelly', 'chime_jelly', 1.5, {}],
+  ['prize · pike', 'reedjaw_pike', 1.5, {}], ['prize · eel', 'gloam_eel', 1.5, {}], ['prize · long eel', 'gloam_eel', 1.6, {}], ['prize · ray', 'velvet_ray', 1.5, {}], ['prize · angler', 'mildew_angler', 1.5, {}], ['prize · jelly', 'chime_jelly', 1.5, {}],
   ['trophy · pike', 'reedjaw_pike', 2.4, {}], ['trophy · eel', 'gloam_eel', 2.4, {}], ['trophy · ray', 'velvet_ray', 2.4, {}], ['trophy · carp', 'weeping_carp', 2.4, {}], ['trophy · minnow', 'dusk_minnow', 2.4, {}], ['trophy · crayfish', 'gutter_crayfish', 2.4, {}],
   ['elder · pike', 'reedjaw_pike', 3.0, {}], ['elder · eel', 'gloam_eel', 3.0, {}], ['elder · ray', 'velvet_ray', 3.0, {}], ['elder · perch', 'mossback_perch', 3.0, {}],
   ['ancient · pike', 'reedjaw_pike', 3.45, {}], ['ancient · eel', 'threadling_eel', 3.45, {}], ['ancient · mirror pike', 'mirror_pike', 3.45, {}], ['ancient · gilt eel', 'gilt_eyed_eel', 3.45, {}],
@@ -198,6 +199,7 @@ export default async function (api) {
     await g(([body, heading]) => {
       const c = window.__gw, P = window.__poses;
       try { c.debug.showPoseEnd?.({}); } catch { /* none up */ }
+      if (P.real) { try { c.render.setShowTarget(null, { abort: true }); } catch { /* optional */ } c.fishing.view.show = null; P.real = false; }
       P.cam = 'play'; P.cur = null; P.fit = null;
       c.actors.setCharacter(body);
       if (heading != null && c.player) { c.player.heading = heading; try { c.debug.setHeading?.(heading); } catch { /* optional */ } }
@@ -207,7 +209,14 @@ export default async function (api) {
       const c = window.__gw, P = window.__poses;
       P.readYaw();
       const r = c.debug.showPose({ speciesId: sp, z, cls: o.cls, pose: o.pose, special: !!o.special, fromSide: o.fromSide });
-      P.cam = o.cam === 'play' ? 'play' : 'show'; P.snap = true;
+      P.cam = o.cam === 'play' || o.cam === 'real' ? 'play' : 'show'; P.snap = true;
+      // --cam=real: the game's own show camera (render.js) frames the pose, as in a catch: fishing's view is stood in for
+      // (the hold, never frozen), so the lens fits actors' focus live
+      if (o.cam === 'real' && r) {
+        c.render.setShowTarget({ cls: r.cls, pose: r.id, length: r.length });
+        c.fishing.view.show = { phase: 'hold', t: 99, poseT: r.beats.lift + 0.02, dur: { reveal: 0, lift: r.beats.lift, hold: 99, pause: r.beats.pause }, hurried: false };
+        P.real = true;
+      }
       return r;
     }, [sp, z, { ...o, cam: o.cam || args.cam }]);
     if (!started) { failures.push(`${name}: no show`); return null; }
@@ -218,7 +227,9 @@ export default async function (api) {
     shots = shots.map((s) => ({ ...s, t: s.t === 'pause' ? B.lift + B.hold + Math.min(0.4, B.pause * 0.6) : s.t === 'present' ? B.lift : s.t === 'hold' ? B.lift + B.hold * 0.55 : s.t === 'take' ? B.lift * 0.62 : s.t }));
     const rec = { case: name, species: sp, z, ...started, frames: [] };
     let at = 0;
+    if ((o.cam || args.cam) === 'real' && args.card) shots = [...shots, { label: 'card', t: shots[shots.length - 1].t + 0.9, card: true }];
     for (const s of shots) {
+      if (s.card) await g(() => { const c = window.__gw; c.render.setShowTarget(null); c.fishing.view.show = { ...c.fishing.view.show, phase: 'card' }; });
       const want = Math.max(1, Math.round(s.t * 30)), n = want - at;
       if (n > 1) { await step(n - 1); at += n - 1; }
       await scale(1);
@@ -306,7 +317,7 @@ export default async function (api) {
     }
     sheet(String(args.out || 'grid') + '.jpg', tiles, portrait ? 6 : 4);
   }
-  await g(() => { try { window.__gw.debug.showPoseEnd?.({}); } catch { /* none */ } window.__poses.cam = 'play'; window.__poses.mute = false; window.__poses.end(); });
+  await g(() => { const c = window.__gw; try { c.debug.showPoseEnd?.({}); } catch { /* none */ } if (window.__poses.real) { try { c.render.setShowTarget(null, { abort: true }); } catch { /* optional */ } c.fishing.view.show = null; } window.__poses.cam = 'play'; window.__poses.mute = false; window.__poses.end(); });
   // S5 / S6 on what was shot (the numeric sweep of every pose time is tools/tests/show-poses.test.mjs, in node)
   for (const rec of Object.values(notes)) for (const fr of rec.frames) {
     const I = fr.info || {};

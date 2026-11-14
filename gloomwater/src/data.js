@@ -3786,7 +3786,11 @@ export const AUTOFISH = {
     // radius R). The glory is sized to it (R × (size + perGlory × glory)) and set R × back behind it, a touch softer than the
     // trophy shot's (the lens is close); it holds for holdShare of the show's hold, then fades through the rest of the hold and
     // fadePause of the pause: by the card it is gone, and the pause adds nothing
-    show: { size: 1, perGlory: 0.25, strength: 0.26, perGloryStrength: 0.12, rise: 0.3, holdShare: 0.45, fadePause: 0.8, back: 0.9 },
+    // (the lens is a metre or two away: at the trophy shot's strength the glory, the fish's own held light and the flare bleached
+    // a legend to a cream cut-out. So the strength climbs less with the class (perGloryStrength), an Elder's extra brightness is
+    // halved (brightShare), the light the fish holds after its reveal is halved (flood) and its glow ignites to glowCap at most;
+    // lake: where the billboard meets the water it thins away over that share of its size, never a straight bright edge)
+    show: { size: 1, perGlory: 0.25, strength: 0.25, perGloryStrength: 0.07, brightShare: 0.5, flood: 0.5, glowCap: 2.2, lake: 0.35, rise: 0.3, holdShare: 0.45, fadePause: 0.8, back: 0.9 },
     colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
   },
   // ---- the show (the user's request of 2026-11-13: "When a fish is caught, it should be an animation of our character holding the fish
@@ -3831,9 +3835,11 @@ export const AUTOFISH = {
     // the raft (0.85 × 1.22): one hand held out to the lens · both hands pushed forward · hugged and heaved, tail on the deck · hung
     // head-up from the rod · laid alongside the raft with the Wick standing over it
     poses: [{ id: 'pinch', below: 0.40 }, { id: 'both', below: 0.90 }, { id: 'hug', below: 1.50 }, { id: 'hang', below: 2.20 }, { id: 'alongside', below: Infinity }],
-    // a Trophy or bigger is never a one-hand pinch; an Elder or an Ancient cannot be lifted, and a long thin fish cannot be hugged
-    // upright (it drapes), so both hang from the rod instead of the hug; every legend lies alongside
-    poseRules: { noPinchFrom: 'trophy', noHugFrom: 'elder', thin: ['eel'], legend: 'alongside' },
+    // a Trophy or bigger is never a one-hand pinch; an Elder or an Ancient cannot be lifted, so it hangs from the rod instead of the
+    // hug; a long thin fish cannot be stood up either: in the hug's band it is DRAPED over both hands (thinDrape: its head up at one
+    // hand, its tail hanging off the other; hung edge-on from a rod it is a grey blade), an Elder's hangs in a slow S; every legend
+    // lies alongside
+    poseRules: { noPinchFrom: 'trophy', noHugFrom: 'elder', thin: ['eel'], thinDrape: 'both', legend: 'alongside' },
     poseNames: { pinch: 'showPinch', both: 'showBoth', hug: 'showHug', hang: 'showHang', alongside: 'showAlongside' },   // actors.setPose names
     // ================= LANE A: the Wick and the fish (actors retunes; world metres, seconds) =================
     // grip, by pose (src/actors-show.js lays each one out on a ghost of the rig, then locks the hands on by IK). reach = how far in
@@ -3853,10 +3859,10 @@ export const AUTOFISH = {
     // 'planted' upright by its butt in the other hand, 'stowed' (set down on the bow rest during the lift), 'raised' with the fish
     // on its tip. NOTHING is ever held above the Wick's head: its flame is there.
     grip: {
-      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.42, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', heightTiny: 'chin', rod: 'planted' },
-      both:      { hands: 2, reach: 0.30, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chest', rod: 'stowed' },
+      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.36, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', heightTiny: 'cheek', tinyAt: { wide: [0.95, -0.1], upright: [0.3, 0.95] }, rod: 'planted' },
+      both:      { hands: 2, reach: 0.40, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chin', chinOver: 0.03, rod: 'stowed' },
       hug:       { hands: 2, tilt: 70, heave: 18, tail: 'deck', side: 'whereItCameUp', rod: 'stowed' },
-      hang:      { hands: 2, tail: 'clear', tailClear: 0.04, gap: 0.12, lean: [3, 30], side: 'whereItCameUp', rod: 'raised' },
+      hang:      { hands: 2, tail: 'clear', tailClear: 0.04, gap: 0.12, fore: 0.34, lean: [3, 30], side: 'whereItCameUp', rod: 'raised' },
       alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0, inset: 0.24, flankUp: 30, squareWithin: 12, noseIn: 18, turn: 16, rod: 'planted' },
     },
     // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
@@ -3899,18 +3905,23 @@ export const AUTOFISH = {
       // the lift and (for the longer holds) into the hold, and frozen settleBefore s before the pause (never sooner than settleAfter s after the present):
       // followStill carries what is left, and the still is still. The frozen framing rides the Wick's feet on the swell; the raft's
       // rocking sways the head and the fish a little inside it (the margins are that room)
-      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 12, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
+      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 12, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.6, breath: 0.2,
       pose: {
-        pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0 },   // (a tiny fish: the flame's core kept, not its tip)
-        both:      { elev: 7,  fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0.3 },   // (an angler's photograph: near eye level, the hands at the foot, the flame's top at the edge's margin)
+        pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0, tinyElev: -5 },   // (a tiny fish: the flame's core kept, not its tip)
+        both:      { elev: 7,  fov: 52, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0, lowElev: -9, lowAbove: 0.95 },   // (an angler's photograph: near eye level, the hands at the foot, the flame's top at the edge's margin)
         hug:       { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
-        hang:      { elev: 8,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'], headroom: 0.015 },   // (a fish hung 2 m up sways with the raft's rocking: a little more room over it)
-        alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet'], footroom: 0, craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55 },   // (a low lens along the flank; nothing under the surface is framed)
+        hang:      { elev: 6,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet'], headroom: 0.015 },   // (a fish hung 2 m up sways with the raft's rocking: a little more room over it; the line runs out of the top of the frame: the rod's tip is not kept, the fish is)
+        alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet', 'body'], footroom: 0, craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55, marginPortrait: 0.1 },   // (a low lens along the flank; nothing under the surface is framed; the Wick's whole body is kept, a tenth of an upright frame clear of its edge)
       },
       still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
-      behindCard: { hold: true, portraitUp: 0.24 },   // while the card is up the framing holds (a phone lifts the subject into the open top)
-      out: 0.9,                                       // s to ease back to the play camera once the card has closed
-      outPerM: 0.068,                                 // (…or this many s per metre of the way back when that is longer: a phone's play camera stands 20 m off)
+      // while the card is up the framing holds (a phone lifts the subject into the open top; a wide screen's card is docked at
+      // the right, over landscapeSide of the frame's width, and the picture is fitted into the left beside it, like a caption's photograph)
+      behindCard: { hold: true, portraitUp: 0.24, landscapeSide: 0.5 },
+      // the way back to play once the card has closed: s, or outPerM s per metre of the way when that is longer (a phone's play
+      // camera stands 20 m off). It runs at an even rate of ZOOM (render-camera showOutEase: the lens's distance grows geometrically,
+      // eased in and out), so the lake settles in around the raft instead of the picture whipping away in the first third of a second
+      out: 1.4,
+      outPerM: 0.085,
     },
     // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
     // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
@@ -4864,7 +4875,8 @@ export function showPoseFor(lengthM, { sizeClass = 'keeper', ancient = false, le
   let pose = (S.poses.find((p) => L < p.below) || S.poses[S.poses.length - 1]).id;
   const rank = ancient ? SHOW_CLASSES.indexOf('ancient') : Math.max(0, SHOW_CLASSES.indexOf(sizeClass));
   if (pose === 'pinch' && rank >= SHOW_CLASSES.indexOf(R.noPinchFrom)) pose = 'both';
-  if (pose === 'hug' && (rank >= SHOW_CLASSES.indexOf(R.noHugFrom) || R.thin.includes(shape))) pose = 'hang';
+  if (pose === 'hug' && rank >= SHOW_CLASSES.indexOf(R.noHugFrom)) pose = 'hang';
+  else if (pose === 'hug' && R.thin.includes(shape)) pose = R.thinDrape || 'hang';
   return pose;
 }
 

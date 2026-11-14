@@ -203,14 +203,16 @@ export function showUpright(aspect) { return smooth01((1.25 - num(aspect, 16 / 9
  * tinyFov (the fish comes right up to the lens); an alongside fish over craneAbove metres is craned over (eased in over 1.5 m),
  * and on an upright screen one over rakeAbove metres is filmed along its length from the head end.
  */
-export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.15 } = {}) {
+export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.15, rise = 0 } = {}) {
   const cam = C && typeof C === 'object' ? C : SHOW_CAMERA_DEFAULT;
   const id = pose && cam.pose?.[pose] ? pose : 'both';
   const R = cam.pose?.[id] || SHOW_CAMERA_DEFAULT.pose[id], L = Math.max(0, num(length, 0.5));
   const up = showUpright(aspect);
   let fov = num(R.fov, 44), elev = num(R.elev, 10), flameTip = Number.isFinite(R.flameTip) ? R.flameTip : null;
   if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFov)) fov = R.tinyFov;
-  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFlameTip)) flameTip = R.tinyFlameTip;   // (a tiny fish's close-up keeps the flame's core, not its tip)
+  // (a tiny fish's close-up keeps the flame's core, not its tip; an upright frame has the height for the whole flame)
+  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFlameTip)) flameTip = lerp(R.tinyFlameTip, flameTip ?? num(cam.flameTip, 0.5), up);
+  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyElev)) elev = R.tinyElev;   // (and the lens comes down to the hand's height: the fish is level with it, the face and the flame above)
   fov = lerp(fov, Math.max(fov, num(R.fovPortrait, fov)), up);
   let craned = 0, rake = 0;
   if (id === 'alongside') {
@@ -218,8 +220,13 @@ export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.
     if (up > 0.5 && Number.isFinite(R.rakeAbove) && L > R.rakeAbove) { rake = num(R.rake, 55); craned = 1; }
     elev = lerp(elev, num(R.craneElev, 40), craned);
   }
+  // a flame that stands far above the catch (the Taper's stovepipe): the lens comes down and looks up along it (lowElev, eased in
+  // over 0.3 m from lowAbove m of rise), so the fish in front stays the subject instead of the frame fitting a tall column
+  if (Number.isFinite(R.lowElev) && Number.isFinite(R.lowAbove)) elev = lerp(elev, R.lowElev, smooth01((num(rise, 0) - R.lowAbove) / 0.3));
   const M = cam.margin || SHOW_CAMERA_DEFAULT.margin;
-  return { id, elev, fov, margin: lerp(num(M.landscape, 0.08), num(M.portrait, 0.06), up), headroom: num(R.headroom, num(cam.headroom, 0)), footroom: num(R.footroom, num(cam.footroom, 0)), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], flameTip, rake, craned, upright: up };
+  // (a row may keep its own side margins on an upright screen: the Wick beside a leviathan is never at the frame's very edge)
+  const margin = lerp(num(M.landscape, 0.08), num(R.marginPortrait, num(M.portrait, 0.06)), up);
+  return { id, elev, fov, margin, headroom: num(R.headroom, num(cam.headroom, 0)), footroom: num(R.footroom, num(cam.footroom, 0)), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], flameTip, rake, craned, upright: up };
 }
 /** The view's axes for render's convention (yaw 0 looks north, −Z, from the south; elev degrees above the subject): right, up, forward. */
 export function showAxes(yaw, elevDeg) {
@@ -235,15 +242,18 @@ const dot3 = (p, a) => p.x * a[0] + p.y * a[1] + p.z * a[2];
  * point is exact per axis (the tightest "left" and "right" points meet their edges together); d is then no less than
  * minLens + the nearest point's (zc − z); and cx, cy are re-centred on the projected extents at that d.
  * `shiftY` raises the subject that share of the frame's height above the centre (a phone's card owns the foot of the frame).
+ * `marginRight` (a share of the frame's width from its right edge, up to 0.8) keeps that side clear: the fit is made in what is left.
  * Returns {dist, look: {x, y, z}, cx, cy, zc, by: 'x' | 'y' | 'near'}, or null without points.
  */
-export function showFit(points, { yaw = 0, elev = 10, fov = 44, aspect = 16 / 9, margin = 0.08, marginTop = null, marginBottom = null, minLens = 0.35, depthAt = null, shiftY = 0 } = {}) {
+export function showFit(points, { yaw = 0, elev = 10, fov = 44, aspect = 16 / 9, margin = 0.08, marginTop = null, marginBottom = null, marginRight = null, minLens = 0.35, depthAt = null, shiftY = 0 } = {}) {
   const pts = (points || []).filter((p) => p && Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z));
   if (!pts.length) return null;
   const A = showAxes(yaw, elev);
   const tv = Math.tan(clamp(num(fov, 44), 10, 120) * DEG / 2), th = tv * Math.max(0.2, num(aspect, 16 / 9));
   // (the top and the foot of the frame may keep their own margins: room over the flame, room under the hands)
-  const m = clamp(num(margin, 0.08), 0, 0.3), kx = th * (1 - 2 * m);
+  // (the right of the frame may be kept clear too: on a wide screen the catch card stands there, and the picture beside it)
+  // (it is fitted into the strip that is left, then the look point is moved so that strip's middle is the picture's)
+  const m = clamp(num(margin, 0.08), 0, 0.3), mR = clamp(num(marginRight, m), m, 0.8), kx = th * (1 - m - mR);
   const kT = tv * (1 - 2 * clamp(num(marginTop, m), 0, 0.3)), kB = tv * (1 - 2 * clamp(num(marginBottom, m), 0, 0.3));
   const xs = pts.map((p) => dot3(p, A.r)), ys = pts.map((p) => dot3(p, A.u)), zs = pts.map((p) => dot3(p, A.f));
   const zc = depthAt && Number.isFinite(depthAt.x) ? dot3(depthAt, A.f) : zs.reduce((a, b) => a + b, 0) / zs.length;
@@ -274,7 +284,8 @@ export function showFit(points, { yaw = 0, elev = 10, fov = 44, aspect = 16 / 9,
     }
     return c;
   };
-  const cx = by === 'x' ? X.c : centre(xs, X.c, kx, kx);
+  let cx = by === 'x' ? X.c : centre(xs, X.c, kx, kx);
+  cx += (mR - m) * th * dist;
   let cy = by === 'y' ? Y.c : centre(ys, Y.c, kT, kB);
   cy -= clamp(num(shiftY, 0), -0.4, 0.4) * 2 * tv * dist;
   return { dist, cx, cy, zc, by, look: { x: A.r[0] * cx + A.u[0] * cy + A.f[0] * zc, y: A.r[1] * cx + A.u[1] * cy + A.f[1] * zc, z: A.r[2] * cx + A.u[2] * cy + A.f[2] * zc } };
@@ -309,6 +320,16 @@ export function showRakeYaw(yaw0, axis, rakeDeg = 55) {
 /** The blend's ease (0 → 1 → 0): no jump in position or speed at either end, and the lowest top speed an ease can have
  *  (1.5 × the mean), so the lens never pops and never whips: 12 m in 0.8 s peaks at 0.75 m a frame at 30 fps. */
 export function showEase(p) { return smooth01(p); }
+/**
+ * The way back to play (0 → 1 over the way out): how far the lens has gone from the close-up to the play camera. A plain ease
+ * of the distance is a whip-zoom (from 1.8 m to 9 m the picture shrinks five-fold in the first third of a second); this one
+ * eases the lens's DISTANCE along a geometric path (d0 → d1 at an even rate of zoom, eased in and out), so the picture opens
+ * out evenly and the lake settles in. ratio = the play camera's distance over the close-up's (≥ 1).
+ */
+export function showOutEase(k, ratio = 6) {
+  const s = smooth01(k), r = clamp(num(ratio, 6), 1.001, 60);
+  return (Math.pow(r, s) - 1) / (r - 1);
+}
 /**
  * Seconds until the present for a show's view (fishing.view.show): the rest of the reveal and the lift (the lift at
  * `liftRate` once the player has hurried). 0 from the hold on. The lens has arrived when this reaches 0.

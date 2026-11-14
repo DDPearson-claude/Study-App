@@ -680,10 +680,16 @@ export function createScreens(K) {
       const full = !inCreel && arr(r?.creel).length >= cs;
       const N = s.notes || (s.notes = catchNotes(p, sp, fish));
       const phone = K.vw < 700;
+      // the show's card on a wide screen (docs/v3/show/SPEC.md §2.10): docked at the right like a photograph's caption, over
+      // behindCard.landscapeSide of the frame, so the Wick and its fish stay in sight beside it (render fits the picture into
+      // the left); its ink is one column
+      const sideK = !phone && N.v3 && showCard() && K.vw >= K.vh * 1.2 ? Math.max(0, Math.min(0.6, num(D().AUTOFISH?.show?.camera?.behindCard?.landscapeSide, 0))) : 0;
+      const sideW = sideK > 0 ? Math.round(Math.max(380, Math.min(560, K.vw * sideK - 34))) : 0, sideM = sideK > 0 ? Math.round(Math.max(0, Math.min(40, K.vw * 0.012))) : 0;
       const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
       // the show: the card unfolds from where the fish is held (its centre on screen, from fishing:show {card}); a phone's card
       // still rises from the foot, and a re-render (more, make room, a boon picked) never replays the entrance
+      if (sideW > 0) { pn.classList.add('gw-cc-side'); pn.style.setProperty('--side-w', `${sideW}px`); pn.style.setProperty('--side-m', `${sideM}px`); }
       if (N.v3 && showCard()) {
         pn.classList.add('gw-cc-live');
         if (s.shown) pn.classList.add('gw-cc-again', 'gw-cc-pressed', 'gw-cc-counted');
@@ -691,18 +697,20 @@ export function createScreens(K) {
           const o = !phone ? K.measure?.takeOrigin?.(fish.uid ?? null) : (K.measure?.takeOrigin?.(fish.uid ?? null), null);
           if (o) {
             pn.classList.add('gw-cc-unfold');
-            pn.style.setProperty('--ox', `${Math.round(o.x - K.vw / 2)}px`);
+            // (the unfold's origin is measured from the panel's own middle: the screen's, or the docked card's)
+            pn.style.setProperty('--ox', `${Math.round(o.x - (sideW > 0 ? K.vw - 16 - sideM - sideW / 2 : K.vw / 2))}px`);
             pn.style.setProperty('--oy', `${Math.round(o.y - K.vh / 2)}px`);
           }
           pn.style.setProperty('--unfold', `${num(D().AUTOFISH?.show?.card?.unfold, 0.32)}s`);
         }
       }
       // the feathered ink patch (its edge is displaced by turbulence; preserveAspectRatio none lets it fill the card)
-      const wash = phone ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
+      const tallInk = phone || sideW > 0;
+      const wash = tallInk ? 'M20 30 C120 14 250 16 350 30 C360 200 356 420 346 610 C240 626 120 626 24 612 C12 420 14 200 20 30 Z'
         : 'M50 50 C300 20 700 24 930 60 C960 200 950 420 920 570 C640 600 320 600 60 576 C30 420 34 200 50 50 Z';
       // a legend, an Elder and an Ancient wear a gilded edge on the ink (a Trophy a pale-gold glow round it: ui.css)
       const gild = legend || (N.v3 && N.cls.id === 'elder');
-      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${phone ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${gild ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
+      pn.insertAdjacentHTML('afterbegin', `<svg class="gw-cc-wash" viewBox="0 0 ${tallInk ? '370 640' : '980 620'}" preserveAspectRatio="none" aria-hidden="true">${gild ? `<path class="gw-cc-gild" filter="url(#gw-ink-edge)" d="${wash}"/>` : ''}<path filter="url(#gw-ink-edge)" d="${wash}"/></svg>`);
       // v3: the favours that applied, as the float showed them (notches) and in plain words by family
       const ticks = (n) => `<svg class="gw-cc-ticks" viewBox="0 0 64 24" aria-hidden="true">${[7, 19, 31, 43, 55].map((x, i) => `<path class="${i < n ? 'gw-lit' : ''}" d="M${x - 3.2} 20.5 C${x - 1.6} 15 ${x + 1.6} 9 ${x + 3.6} 3.5"/>`).join('')}</svg>`;
       const X = ' class="gw-cc-xtra"';

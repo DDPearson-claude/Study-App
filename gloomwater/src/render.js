@@ -25,7 +25,7 @@ import { GradeShader } from './render-grade.js';
 import { setToonTier } from './toon.js';   // CLARITY LANE B: tier settings
 import {
   v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
-  SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showArrival,
+  SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showOutEase, showArrival,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
 } from './render-camera.js';
 
@@ -442,7 +442,7 @@ export function create(ctx) {
     row: null, by: '', tgt: { x: 0, y: 1, z: 0, dist: 3, elev: 10, yaw: 0, fov: 44 },
     sx: { x: 0, v: 0 }, sy: { x: 0, v: 0 }, sz: { x: 0, v: 0 }, sd: { x: 3, v: 0 }, se: { x: 10, v: 0 }, sw: { x: 0, v: 0 }, sf: { x: 44, v: 0 },
     pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 44, pts: [], focus: null, fishC: new THREE.Vector3(), hasFish: false,
-    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false, fitOk: false,
+    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false, fitOk: false, rise: 0, outRatio: 6,
   };
   const showAnchorTmp = new THREE.Vector3(), rigPos = new THREE.Vector3();
   const showPt = [];
@@ -769,16 +769,21 @@ export function create(ctx) {
   /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
   function fitShow(v) {
     const S = showCam, a = W / H;
-    const row = showRow(SHOWC, S.pose, { length: S.L, aspect: a, tinyBelow: ctx.data?.AUTOFISH?.show?.grip?.pinch?.tinyBelow ?? 0.15 });
+    let row = showRow(SHOWC, S.pose, { length: S.L, aspect: a, tinyBelow: ctx.data?.AUTOFISH?.show?.grip?.pinch?.tinyBelow ?? 0.15, rise: S.rise });
     S.row = row;
     if (!gatherShowPoints(row)) return false;
+    // (how far the flame stands over the catch: a row may bring the lens down for a tall body; eased, so the row never flips)
+    { const fl = S.focus?.head?.flame, fc = S.focus?.fish?.center, rise = fl && fc && Number.isFinite(fl.y) && Number.isFinite(fc.y) ? fl.y - fc.y : 0;
+      if (Math.abs(rise - S.rise) > 0.02) { S.rise = rise; row = showRow(SHOWC, S.pose, { length: S.L, aspect: a, tinyBelow: ctx.data?.AUTOFISH?.show?.grip?.pinch?.tinyBelow ?? 0.15, rise }); S.row = row; } }
     let yw = S.yaw0;
     if (row.rake > 0 && S.focus?.fish?.axis) yw = showRakeYaw(S.yaw0, S.focus.fish.axis, row.rake);
     // behind the card on a phone held upright the subject rides in the open top of the frame (the card rises from the foot)
     const BC = SHOWC.behindCard || {};
     const shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    // …and on a wide screen the card stands at the right (ui docks it there): the picture is fitted into the left of the frame
+    const side = S.hold && BC.hold !== false && row.upright < 0.5 ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
     const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: row.margin + row.footroom,
-      minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
+      marginRight: side > 0 ? side : null, minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
     if (!fit) return false;
     const T = S.tgt;
     // (the look point is kept as an offset from the raft's anchor: the lens rides the swell with the Wick, so the picture is steady)
@@ -839,7 +844,8 @@ export function create(ctx) {
       // (the raft rocks on the swell, so the layout is never quite at rest in the world: the frozen framing rides the Wick's feet
       // and lets the head and the fish sway a little inside it, as a boat's passengers do; the margins are that room)
       S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
-      const cardLift = S.hold && !S.frozenCard && showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01;   // a phone lifts the subject into the open top, once
+      // a phone lifts the subject into the open top, once; a wide screen moves it to the left of the card, once
+      const cardLift = S.hold && !S.frozenCard && (showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01 || (Number(SHOWC.behindCard?.landscapeSide) || 0) > 0);
       if (!S.still || !S.init || cardLift) { if (fitShow(v)) { S.fitOk = true; if (S.hold) S.frozenCard = true; } }
       if (!S.fitOk) { S.w = 0; return; }   // (nothing to frame yet: the play's camera stays)
     } else {
@@ -848,10 +854,12 @@ export function create(ctx) {
         // never travels faster going out than it came in
         S.outT = 0; S.w0 = S.w;
         S.outDur = Math.max(Number(SHOWC.out) || 0.9, S.pos.distanceTo(rigPos) * (Number(SHOWC.outPerM) || 0));
+        // (how many times further off the play camera stands than the close-up: the way back runs at an even rate of zoom)
+        S.outRatio = clamp((S.sd.x + S.pos.distanceTo(rigPos)) / Math.max(0.3, S.sd.x), 1, 40);
       }
       S.outT += dt;
       const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);
-      S.w = S.w0 * (1 - showEase(k));
+      S.w = S.w0 * (1 - showOutEase(k, S.outRatio));
       if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; S.fitOk = false; return; }
     }
     // the fitted target through its springs (a new target, the hand-over from the reveal's fit to the pose's, never jumps)
@@ -1057,6 +1065,7 @@ export function create(ctx) {
     S.L = L; S.swarm = !!t.swarm;
     if (fresh) {
       S.lastT = -1;
+      S.rise = 0;
       if (!(S.w > 0)) { S.p = 0; S.init = false; S.fitOk = false; }   // (a show starting behind the last one's card keeps the lens where it is)
       else S.p = Math.min(S.p, 0.999);
     }

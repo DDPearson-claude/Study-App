@@ -1709,7 +1709,7 @@ export function create(ctx) {
       // corners. It holds through the hold and is fading in the pause (r.hold / r.pause: the show's beats); an Elder's is brighter
       const G = AF().landing?.show || {};
       const R = Math.max(0.3, num(sf.radius, 0.6)), hs = clamp(num(G.holdShare, 0.45), 0, 1);
-      fx.glory(sf.center.x, sf.center.y, sf.center.z, { size: R * (num(G.size, 1) + num(G.perGlory, 0.25) * glory), strength: num(G.strength, 0.26) + num(G.perGloryStrength, 0.12) * glory + num(LF.gloryBright, 0),
+      fx.glory(sf.center.x, sf.center.y, sf.center.z, { size: R * (num(G.size, 1) + num(G.perGlory, 0.25) * glory), strength: num(G.strength, 0.26) + num(G.perGloryStrength, 0.12) * glory + num(LF.gloryBright, 0) * num(G.brightShare, 1), lake: num(G.lake, 0),
         rise: Math.min(num(G.rise, 0.3), Math.max(0.1, num(r.hold, 0.6) * 0.6)), hold: Math.max(0.1, num(r.hold, 0.6) * hs), fade: Math.max(0.4, num(r.hold, 0.6) * (1 - hs) + num(r.pause, 0.7) * num(G.fadePause, 0.8)), follow: null,
         back: Math.max(0.35, R * num(G.back, 0.9)), embers: num(LF.embers) + (special ? num(SPx.embers) : 0), rays: Math.min(1.3, 0.5 + glory * 0.6) });
     } else if (glory > 0) {   // a backlight bigger than the Wick and its fish, set behind them (the trophy camera frames both)
@@ -1727,8 +1727,10 @@ export function create(ctx) {
     }
     call(() => ctx.actors?.flareFlame?.(num(LF.flame) + (special ? num(SPx.flame) : 0)));
     if (r.fv && num(LF.glow, 1) > 1) {   // its glow ignites, and the whole fish holds the light for a moment (so it never reads as a cut-out)
-      S.glowIgnite = { fv: r.fv, amp: num(LF.glow, 1.5) - 1, t: 0, base: r.quality === 'perfect' ? 1.6 : 1, light: Math.min(0.32, 0.12 + 0.06 * num(LF.glory)) };
-      call(() => r.fv.setGlow?.(num(LF.glow, 1.5)));
+      // (in the show the lens is close: the glow ignites to landing.show.glowCap at most, and the held light is landing.show.flood of it)
+      const GS = sf ? (AF().landing?.show || {}) : {}, glowTo = Math.min(num(LF.glow, 1.5), num(GS.glowCap, Infinity));
+      S.glowIgnite = { fv: r.fv, amp: glowTo - 1, t: 0, base: r.quality === 'perfect' ? 1.6 : 1, light: Math.min(0.32, 0.12 + 0.06 * num(LF.glory)) * num(GS.flood, 1) };
+      call(() => r.fv.setGlow?.(glowTo));
       call(() => r.fv.setRevealLight?.(S.glowIgnite.light));
     }
     haptic(LF.haptic);

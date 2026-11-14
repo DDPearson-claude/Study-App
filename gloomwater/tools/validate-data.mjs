@@ -1716,9 +1716,9 @@ if (V3) {
       // poses: by true length, then class and shape
       ok(JSON.stringify(SH.poses.map((p) => p.id)) === JSON.stringify(POSES) && SH.poses.every((p, i, a) => p.below > 0 && (i === 0 || p.below > a[i - 1].below)) && SH.poses.at(-1).below === Infinity, 'AUTOFISH.show.poses: pinch < both < hug < hang < alongside by length');
       ok(POSES.every((p) => typeof SH.poseNames[p] === 'string' && /^show[A-Z]/.test(SH.poseNames[p]) && isObj(SH.grip[p]) && isObj(SH.camera.pose[p])) && new Set(Object.values(SH.poseNames)).size === POSES.length, 'AUTOFISH.show: every pose has an actors name, a grip and a camera row');
-      ok(SC.includes(SH.poseRules.noPinchFrom) && SC.includes(SH.poseRules.noHugFrom) && SH.poseRules.legend === 'alongside' && SH.poseRules.thin.every((sh) => D.FISH_SHAPES_V3.includes(sh)), 'AUTOFISH.show.poseRules: real classes and shapes; every legend lies alongside');
+      ok(SC.includes(SH.poseRules.noPinchFrom) && SC.includes(SH.poseRules.noHugFrom) && SH.poseRules.legend === 'alongside' && SH.poseRules.thin.every((sh) => D.FISH_SHAPES_V3.includes(sh)) && ['both', 'hang'].includes(SH.poseRules.thinDrape), 'AUTOFISH.show.poseRules: real classes and shapes; every legend lies alongside');
       ok(D.showPoseFor(0.08, { sizeClass: 'small' }) === 'pinch' && D.showPoseFor(0.2, { sizeClass: 'trophy' }) === 'both' && D.showPoseFor(0.6, { sizeClass: 'keeper' }) === 'both' && D.showPoseFor(1.2, { sizeClass: 'trophy', shape: 'pike' }) === 'hug'
-        && D.showPoseFor(1.2, { sizeClass: 'elder', shape: 'pike' }) === 'hang' && D.showPoseFor(1.2, { sizeClass: 'keeper', shape: 'eel' }) === 'hang' && D.showPoseFor(1.2, { sizeClass: 'elder', ancient: true }) === 'hang'
+        && D.showPoseFor(1.2, { sizeClass: 'elder', shape: 'pike' }) === 'hang' && D.showPoseFor(1.2, { sizeClass: 'keeper', shape: 'eel' }) === 'both' && D.showPoseFor(1.2, { sizeClass: 'elder', shape: 'eel' }) === 'hang' && D.showPoseFor(1.7, { sizeClass: 'keeper', shape: 'eel' }) === 'hang' && D.showPoseFor(1.2, { sizeClass: 'elder', ancient: true }) === 'hang'
         && D.showPoseFor(2.6, { sizeClass: 'elder' }) === 'alongside' && D.showPoseFor(0.5, { legend: true }) === 'alongside' && D.showPoseFor(9, { legend: true }) === 'alongside', 'data.showPoseFor: the ladder and its three rules');
       { const seen = new Set(); let n = 0;
         for (const sp of SV) for (const c of CLS) {
@@ -1749,7 +1749,7 @@ if (V3) {
           'AUTOFISH.show.camera: room over the flame and under the hands inside a fifth of the frame; the fish\'s box a little wider than its named points');
         ok(Cm.follow > 0 && Cm.followStill >= Cm.follow && Cm.settleAfter >= 0 && Cm.settleAfter < minHold && Cm.settleBefore > 0 && Cm.followStill * Cm.settleBefore >= 4,
           'AUTOFISH.show.camera: the fitted target is frozen before the pause and carried stiffly enough to be at rest when it begins');
-        ok(Cm.outPerM >= 0 && Cm.outPerM <= 0.1 && Cm.out <= 1.2, 'AUTOFISH.show.camera: the way back to play is about a second (a little longer from far off)');
+        ok(Cm.outPerM >= 0 && Cm.outPerM <= 0.1 && Cm.out >= 1.2 && Cm.out <= 1.6 && Cm.behindCard.landscapeSide >= 0 && Cm.behindCard.landscapeSide <= 0.6, 'AUTOFISH.show.camera: the way back to play is about a second and a half (a little longer from far off), never a whip; a wide screen\'s card leaves the picture at least two fifths of the frame');
         ok(Cm.presentKick > 0 && Cm.presentKick <= 1 && Cm.presentBloom > 0 && Cm.presentBloom <= 1 && Cm.breath >= 0 && Cm.breath <= 0.5 && Math.abs(AF.landing.ancient.pull) * Cm.breath <= Cm.margin.landscape,
           'AUTOFISH.show.camera: at the present the kick and the bloom are no bigger than the landing\'s, and an Elder\'s breath out stays inside the margin');
         ok(SH.card.countFrom >= 0 && SH.card.countFrom + Math.max(SH.card.stampAt, SH.card.count) <= AF.time.card * 0.6, 'AUTOFISH.show.card: the count and the stamp are over well inside the card\'s 2 s of the time model');

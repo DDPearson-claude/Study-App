@@ -1071,6 +1071,24 @@
 /* (the ink must be seen while it is still small: the modal itself comes up at once and only its scrim fades in) */
 .gw-modal.gw-m-catch:not(.gw-out):has(.gw-cc-unfold) { transition-duration: .08s; }
 .gw-modal.gw-m-catch:has(.gw-cc-unfold) .gw-scrim { animation: gwCcFade .5s ease-out backwards; }
+/* …and on a wide screen it is docked at the right like a photograph's caption (ui-screens sets --side-w / --side-m; render fits the
+   Wick and its fish into the left of the frame): one column of ink, the veil thin over the picture */
+@media (min-width: 701px) {
+  .gw-modal.gw-m-catch:has(.gw-cc-side) { justify-content: flex-end; }
+  .gw-modal.gw-m-catch:has(.gw-cc-side) .gw-scrim { background: linear-gradient(90deg, rgba(var(--veil-rgb), 0) 0%, rgba(var(--veil-rgb), .1) 40%, rgba(5, 6, 14, .66) 100%); }
+  .gw-cc-v3.gw-p-catch.gw-cc.gw-cc-side { width: var(--side-w, 46vw); min-height: 0; padding: 44px 44px 34px 50px; margin-right: var(--side-m, 10px); }
+  .gw-cc-side .gw-cc-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .gw-cc-side .gw-cc-art { justify-content: flex-start; }
+  .gw-cc-side .gw-fish-ink { max-height: 92px; width: auto !important; }
+  .gw-cc-side .gw-catch-name { font-size: clamp(32px, 3.9vw, 46px); }
+  .gw-cc-side .gw-cc-hero { font-size: clamp(36px, 4vw, 46px); }
+  .gw-cc-side .gw-cc-stamp { margin: 8px 0 6px 4px; gap: 12px; }
+  .gw-cc-side .gw-cc-stamp span { font-size: 22px; padding: 4px 9px 3px 13px; }
+  .gw-cc-side .gw-cc-seal { width: 40px; height: 40px; }
+  .gw-cc-side .gw-catch-actions { gap: 0 20px; margin-top: 8px; }
+  .gw-cc-side .gw-cc-act { font-size: 21px; }
+  .gw-cc-side .gw-cc-lore { font-size: 17px; margin-top: 6px; }
+}
 .gw-cc-v3.gw-p-catch.gw-cc-again, .gw-cc-again .gw-pc, .gw-cc-again .gw-cc-hero, .gw-cc-again .gw-cc-stamp > span, .gw-cc-again .gw-cc-seal, .gw-cc-again .gw-fish-ink { animation: none !important; }
 .gw-cc-again .gw-fish-ink { clip-path: none; }
 .gw-cc-live .gw-cc-hero { animation: gwCcFade .18s .14s ease-out backwards; }

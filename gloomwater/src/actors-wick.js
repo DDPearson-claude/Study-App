@@ -252,7 +252,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
-  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], STRETCH_KEYS = new Set(['rStretch', 'lStretch']), JOINT_RATE = 9.6, STRETCH_CAP = 2.4, TURN_BACK = 4;
+  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], STRETCH_KEYS = new Set(['rStretch', 'lStretch']), JOINT_RATE = 9.6, STRETCH_CAP = 2.4, TURN_BACK = 3.2, TURN_WAIT = 0.2;
   let showCool = 0;
   // the show: the spec actors-show.js keeps current every frame (null outside a show), the hands' IK locks (world targets), and the
   // rod as a prop (planted by its butt at a world point, or set down on the bow rest)
@@ -636,7 +636,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     else if (aimYaw !== null && base === 'idle' && env.fishingBusy) face = wrapPi(aimYaw - env.heading);
     // (on the way out the Wick turns back to its play no faster than the show's lens eases back out, ≈ 0.8 s for a half turn: it never
     // spins its back to a lens that is still close)
-    { const turn = wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt)), tc = SHOW.has(base) ? cap : TURN_BACK * Math.min(dt, 0.05); facing += capped ? clamp(turn, -tc, tc) : turn; }
+    // (…and it waits a breath: the lens has begun to draw back, 0.2 s, before the Wick turns from it, then it turns at its ease)
+    { const turn = wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt)), tc = SHOW.has(base) ? cap : (showCool > 1.5 - TURN_WAIT ? 0 : TURN_BACK * Math.min(dt, 0.05)); facing += capped ? clamp(turn, -tc, tc) : turn; }
     group.rotation.y = facing;
 
     // apply rig
@@ -694,15 +695,18 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (!out) flameOut = false;
     flame.group.visible = !out;
     flareK = Math.max(0, flareK - dt * 0.8);
-    const fl = Math.max(0, cur.flame) + (dead ? 0 : flareK) * 0.5;
-    const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + cur.flame + (dead ? 0 : flareK) * 0.28) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK) + flareK * Math.sin(t * 17.1) * 0.05);
+    // (in the close-up a flare that doubles the flame is a pale blot over the lantern post: there it stands at most 1.75 × its
+    // size, and its white heart is held back so its amber edge keeps the shape)
+    const flRaw = Math.max(0, cur.flame) + (dead ? 0 : flareK) * 0.5, fl = flRaw - Math.max(0, flRaw - 0.9) * ck;
+    const grow = cur.flame + (dead ? 0 : flareK) * 0.28, growC = grow - Math.max(0, grow - 0.75) * ck;
+    const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + growC) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK) + flareK * Math.sin(t * 17.1) * 0.05);
     const lowH = vitality < 0.5 ? 0.78 + 0.44 * vitality : 1;
     flame.group.scale.set(fs * flameShape[0], fs * flameShape[1] * lowH, fs * flameShape[0]);
     flame.outerMat.uniforms.uT.value = t; flame.innerMat.uniforms.uT.value = t * 1.13;
     const wild = (1 - flameK) * 0.9 + fl * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
     flame.outerMat.uniforms.uWild.value = wild; flame.innerMat.uniforms.uWild.value = wild;
     flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + fl * 0.8) * (1 - 0.7 * ck);
-    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck);
+    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck) * (1 - 0.3 * ck * Math.min(1, flRaw));
     flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + fl * 0.6) * (1 - 0.88 * ck);
     flame.halo.scale.setScalar(0.75 * (1 + fl * 0.5) * (1 - 0.5 * ck));
     // lean flame against motion

@@ -136,7 +136,8 @@ function judge(name, A, { size = true } = {}) {
   ok(A.step <= (size ? 0.45 : 0.5), `${name} (${id}): no jump in its path (largest step ${r3(A.step)} m a frame)`);
   ok(A.still <= LS.pauseStill + 1e-9, `${name}: still in the pause (${A.still})`);
   ok(I.wickOffLens <= (id === 'hang' || id === 'alongside' ? 40 : 15), `${name} (${id}): the Wick to the lens (${I.wickOffLens}° off)`);
-  const upright = ['jelly'].includes(A.r.shape) || (A.r.shape === 'crayfish' && id === 'pinch');
+  // (a ray in both hands is held head-up by its wings, its tail hanging: it reads by its disc, not by its length across the frame)
+  const upright = ['jelly'].includes(A.r.shape) || (A.r.shape === 'crayfish' && id === 'pinch') || (A.r.shape === 'ray' && id === 'both');
   if (!upright) ok(I.endOn <= (id === 'alongside' ? (tall && A.r.length > 3.2 ? 65 : 25) : size ? 16 : 20), `${name} (${id}): its flank square to the lens (${I.endOn}° end-on)`);
   ok(A.drift <= 0.06, `${name} (${id}): the settled focus holds still from the first frame (moved ${r3(A.drift)} m)`);
   ok(I.flaps >= (CLS.indexOf(A.r.cls) >= 4 ? 2 : 1), `${name}: ${I.flaps} flap(s)`);
