@@ -2,7 +2,7 @@
 
 *164 fish, 8 curiosities, 16 waters. Data: `docs/loop/roster.json`. Checked by `node tools/sim/roster-check.mjs` (exit 1 on any broken rule). Design only: nothing in `src/` changed.*
 
-> **SPEC v6 (`docs/loop/SPEC.md`) places this roster in play.** The twelve new waters are lake maps in the catalogue, not later sheets; a lake map opens its water's open, day and old water; the six fourth giants live at fifth places (the Puffball Vent, the Well of Ledgers, the Overhang, the Turning Tide, the Monsoon Cut, the Drowned Spire); eleven fish bite at another kind of place in play (SPEC §5.2, so every map names a fish of its own); every price is the spec's. Where this file says "later sheet" for those, or gives another place for those eleven, the spec wins. The design notes here (`inspiredBy`, `giantOf`) never ship (SPEC §13, slice 1b).
+> **SPEC v7 (`docs/loop/SPEC.md`) places this roster in play, and `docs/loop/WATERS.md` gives each water its look.** v7 re-ordered the twelve new waters (the cold rim first, the green heart last; six of them are rivers) and rewrote each water's look for its step on the greening ramp; no fish moved, and every fish keeps its home. The twelve new waters are lake maps in the catalogue, not later sheets; a lake map opens its water's open, day and old water; the six fourth giants live at fifth places (the Puffball Vent, the Well of Ledgers, the Overhang, the Turning Tide, the Monsoon Cut, the Drowned Spire); eleven fish bite at another kind of place in play (SPEC §5.2, so every map names a fish of its own); every price is the spec's. Where this file says "later sheet" for those, or gives another place for those eleven, the spec wins. The design notes here (`inspiredBy`, `giantOf`) never ship (SPEC §13, slice 1b).
 
 Every kind of fish landed in the researched list (`docs/loop/research/`, 255 catch records, about 162 kinds) is the ancestor of exactly one fish of ours.
 Our fish are original creatures of the Lamplit Kingdom: a new name, a silhouette that keeps what makes the real fish unmistakable, and the Starlit palette.
@@ -25,34 +25,36 @@ The real animal is a design note only (`inspiredBy`); the game never names it, t
 
 ## 2. The waters
 
-| # | water | echoes | fish | giants | its great prize | built? |
-|---|---|---|---|---|---|---|
-| 1 | **The Mossmere** | Still northern waters: European rivers and lakes, a reactor cooling pond, a Scottish loch, the lakes of New England and Ontario. | 13 | 3 | The Belled Matriarch (260 cm) | yes (`mossmere`) |
-| 2 | **Sporewood Pools** | Warm still water of south-east Asia and the forest pools of the Amazon: stocked lakes in Thailand, the tidal Mae Klong, Tonle Sap and the Mekong, a drying puddle in Brazil. | 12 | 4 | The Drifting Grove (300 cm) | yes (`sporewood`) |
-| 3 | **Glasswater Vault** | Cold clear rivers and deep cold lakes: the Amur, a Mongolian rapid, Alaskan and Columbian salmon rivers, a Japanese lake, the glacier rivers of New Zealand. | 12 | 4 | The Glass Sovereign (380 cm) | yes (`glasswater`) |
-| 4 | **The Pallid Deep** | The deep sea: the abyss off a mid-ocean island, deep-water traps and trawls of the Pacific, the rough ground of the English Channel. | 4 | 1 | The Lantern-Swallower (850 cm) | yes (`paleabyss`) |
-| 5 | **Rushlight Fen** | Reed delta and dam lake: the Okavango, the Zambezi and its gorge, Lake Kariba and the pool below its dam. | 7 | 2 | The Long Thunder (228 cm) | new sheet |
-| 6 | **The Thin Water** | Wide sandy rivers with marsh and a dam: the Parana and the Uruguay below a great dam, the Ibera marshes, the beaches of a Bolivian river. | 10 | 2 | The Buried Moon (255 cm) | new sheet |
-| 7 | **Lampmoss Slough** | Warm slow rivers of the American south: the Trinity River, the canals at the edge of the Everglades, the Illinois River, the water below a Missouri dam, catfish dens in Oklahoma. | 9 | 3 | The Last Sentry (265 cm) | new sheet |
-| 8 | **Pyrefall Gorge** | Himalayan snow rivers and their pools: the Kali, the Karnali and the Babai, a foothill reservoir; and a Japanese mountain stream for its one curiosity. | 7 | 3 | The Ashen Guest (245 cm) | new sheet |
-| 9 | **The Thunder Stair** | Rapids and falls of the great African rivers: the Congo at Brazzaville, Murchison Falls and the White Nile, a Rift Valley lake. | 8 | 3 | The Last Lock (262 cm) | new sheet |
-| 10 | **The Inkwood** | Blackwater flooded forest, forest lakes, oxbows and narrow jungle creeks: the Amazon near Manaus, the hidden ponds of Guyana, the creeks of Suriname, an oxbow in Bolivia. | 11 | 4 | The Banked Fire (325 cm) | new sheet |
-| 11 | **The Siltway** | The great brown river and its deep holes: the Amazon main stem at Manaus, Obidos and Leticia, the meeting of two rivers, the Essequibo, a sunken ferry. | 15 | 3 | The Barge-Shadow (300 cm) | new sheet |
-| 12 | **The Salt Gate** | River mouths where the sea comes in: the Breede, the Fitzroy and King Sound with their huge tides, a Brisbane river, a Fijian mountain river. | 14 | 4 | The Old Shipwright (610 cm) | new sheet |
-| 13 | **Lanternroot Lagoon** | Brackish lagoons, mangrove creeks and flats: lagoons on the Caribbean coast of Nicaragua and Florida, the Bahamas flats, a Solomon Islands village lagoon, jungle rivers of New Britain and Malaysia. | 11 | 4 | The Silver Regent (310 cm) | new sheet |
-| 14 | **The Waxen Reef** | Coral reefs, drop-offs and wrecks: Fiji, the islands off New Britain, Sulawesi, the Florida Keys, the Queensland coast. | 10 | 4 | The Waxen Abbot (250 cm) | new sheet |
-| 15 | **The Last Light** | The open ocean: blue water off a mid-ocean island, Cape Point, the Sea of Cortez, the Indian Ocean, the Bahamas drop-off. | 10 | 3 | The Jetsam Shark (480 cm) | new sheet |
-| 16 | **The Rime Sound** | Cold seas, fjords and sea ice: Norwegian fjords, the coast of Iceland, Greenland ice, Alaskan coastal water, the English Channel. | 12 | 2 | The Long Winter (560 cm) | new sheet |
+| # | water | kind | lush step | echoes | fish | giants | its great prize | built? | v6 slot |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | **The Mossmere** | lake | 0 | Still northern waters: European rivers and lakes, a reactor cooling pond, a Scottish loch, the lakes of New England and Ontario. | 13 | 3 | The Belled Matriarch (260 cm) | yes (`mossmere`) | 1 |
+| 2 | **Sporewood Pools** | lake | 1 | Warm still water of south-east Asia and the forest pools of the Amazon: stocked lakes in Thailand, the tidal Mae Klong, Tonle Sap and the Mekong, a drying puddle in Brazil. | 12 | 4 | The Drifting Grove (300 cm) | yes (`sporewood`) | 2 |
+| 3 | **Glasswater Vault** | lake | 2 | Cold clear rivers and deep cold lakes: the Amur, a Mongolian rapid, Alaskan and Columbian salmon rivers, a Japanese lake, the glacier rivers of New Zealand. | 12 | 4 | The Glass Sovereign (380 cm) | yes (`glasswater`) | 3 |
+| 4 | **The Pallid Deep** | lake (deep) | 3 | The deep sea: the abyss off a mid-ocean island, deep-water traps and trawls of the Pacific, the rough ground of the English Channel. | 4 | 1 | The Lantern-Swallower (850 cm) | yes (`paleabyss`) | 4 |
+| 5 | **The Rime Sound** | sound | 4 | Cold seas, fjords and sea ice: Norwegian fjords, the coast of Iceland, Greenland ice, Alaskan coastal water, the English Channel. Its look (v7.1) is a temperate-rainforest fjord with a glacier at its head, after the fjords of the Pacific north-west and southern Chile. | 12 | 2 | The Long Winter (560 cm) | new sheet | 16 |
+| 6 | **The Thin Water** | river (braided) | 5 | Wide sandy rivers with marsh and a dam: the Parana and the Uruguay below a great dam, the Ibera marshes, the beaches of a Bolivian river. | 10 | 2 | The Buried Moon (255 cm) | new sheet | 6 |
+| 7 | **The Last Light** | open sea | 6 | The open ocean: blue water off a mid-ocean island, Cape Point, the Sea of Cortez, the Indian Ocean, the Bahamas drop-off. | 10 | 3 | The Jetsam Shark (480 cm) | new sheet | 15 |
+| 8 | **Pyrefall Gorge** | river (gorge) | 7 | Himalayan snow rivers and their pools: the Kali, the Karnali and the Babai, a foothill reservoir; and a Japanese mountain stream for its one curiosity. | 7 | 3 | The Ashen Guest (245 cm) | new sheet | 8 |
+| 9 | **The Waxen Reef** | reef | 8 | Coral reefs, drop-offs and wrecks: Fiji, the islands off New Britain, Sulawesi, the Florida Keys, the Queensland coast. | 10 | 4 | The Waxen Abbot (250 cm) | new sheet | 14 |
+| 10 | **The Thunder Stair** | river (cataracts) | 9 | Rapids and falls of the great African rivers: the Congo at Brazzaville, Murchison Falls and the White Nile, a Rift Valley lake. | 8 | 3 | The Last Lock (262 cm) | new sheet | 9 |
+| 11 | **Rushlight Fen** | fen | 10 | Reed delta and dam lake: the Okavango, the Zambezi and its gorge, Lake Kariba and the pool below its dam. | 7 | 2 | The Long Thunder (228 cm) | new sheet | 5 |
+| 12 | **The Salt Gate** | river (tidal) | 11 | River mouths where the sea comes in: the Breede, the Fitzroy and King Sound with their huge tides, a Brisbane river, a Fijian mountain river. | 14 | 4 | The Old Shipwright (610 cm) | new sheet | 12 |
+| 13 | **Lampmoss Slough** | swamp | 12 | Warm slow rivers of the American south: the Trinity River, the canals at the edge of the Everglades, the Illinois River, the water below a Missouri dam, catfish dens in Oklahoma. | 9 | 3 | The Last Sentry (265 cm) | new sheet | 7 |
+| 14 | **The Siltway** | river (great lowland) | 13 | The great brown river and its deep holes: the Amazon main stem at Manaus, Obidos and Leticia, the meeting of two rivers, the Essequibo, a sunken ferry. | 15 | 3 | The Barge-Shadow (300 cm) | new sheet | 11 |
+| 15 | **Lanternroot Lagoon** | lagoon | 14 | Brackish lagoons, mangrove creeks and flats: lagoons on the Caribbean coast of Nicaragua and Florida, the Bahamas flats, a Solomon Islands village lagoon, jungle rivers of New Britain and Malaysia. | 11 | 4 | The Silver Regent (310 cm) | new sheet | 13 |
+| 16 | **The Inkwood** | river (blackwater) | 15 | Blackwater flooded forest, forest lakes, oxbows and narrow jungle creeks: the Amazon near Manaus, the hidden ponds of Guyana, the creeks of Suriname, an oxbow in Bolivia. | 11 | 4 | The Banked Fire (325 cm) | new sheet | 10 |
 
-The four built lakes come first and keep their order and prices (SPEC §5.2). The twelve new waters are later sheets, each a lake map with its four place maps, in the order above: the gentle fresh waters first (the smallest legends), then the great rivers, the sea and the far north last. Their prices follow the SPEC pattern and are set in `tools/sim/clams.mjs` when they are scheduled (SPEC §13, slice 6). Built lakes keep every built species that has no ancestor here (section 5).
+The four built lakes come first and keep their order and prices (SPEC §5.2). The twelve new waters follow in the order of SPEC v7: **the kingdom's cold rim first, its green heart last.** After the Pallid Deep the Wick crosses the cold rim (a rainforest fjord under a glacier, a braided river, the open sea under the last lighthouse, a snowmelt gorge), then the falls and the gate (a reef, cataracts, a papyrus fen, the tidal sea-gate), then the green heart (a swamp forest, the great barge river, a mangrove lagoon, the blackwater forest). Rivers (the Thin Water, Pyrefall Gorge, the Thunder Stair, the Salt Gate, the Siltway, the Inkwood) alternate with stills (the Rime Sound, the Last Light, the Waxen Reef, Rushlight Fen, Lampmoss Slough, Lanternroot Lagoon), and each water is one lushness step greener than the one before (`docs/loop/WATERS.md`). In v6 the sea and the far north came last; that put the waters with almost no land or plants exactly where the user now wants the lushest green, and re-theming them would have taken away their giants' homes (the Long Winter under the ice, the Lantern Hole, the Jetsam Shark's open swell), so they moved early instead. No fish moved: every giant's place is a pool, run, chute, eddy, bar, wreck, hole or ice hole that its water keeps. Prices follow the slot (SPEC §4.8, set by `tools/sim/clams.mjs`). The echoes column names real places as design notes only; the game never names them. Built lakes keep every built species that has no ancestor here (section 5).
+
+**v7.1** (after three critics): no fish moved and no fish changed. The Rime Sound's and the Last Light's looks are rewritten so each is a real step greener (§3), and the Thunder Stair's Throat is three raft-lengths wide. Where three roster fish bite *in play* is the spec's call, not the roster's (SPEC §5.2): the Lampspot Snakehead stays in Pyrefall Gorge's open water and hunts the Coin Run and the Boulder Garden; the Reedwalker Catfish swims Rushlight Fen's open water and is drawn to the Night Lanes. Their rows below keep the roster's kind of place.
 
 ## 3. The fish, water by water
 
 Giants first (★), then by rarity. Lengths in cm; a legend shows its first landing → fully grown. *Inspired by* is a design note only († caught by others, ‡ hooked and lost). Hours: day, dusk, night or any. *Where*: open water, a kind of place, or a giant's own place.
 
-### 1. The Mossmere (built)
+### 1. The Mossmere (built) · lake · lush step 0
 
-*As built: the starlit moat. Its new fish are slate, pewter, rust and ivory, with no glow but the eel's and the lamprey's.*
+*As built: the starlit moat. Its new fish are slate, pewter, rust and ivory, with no glow but the eel's and the lamprey's. Step 0 of the greening ramp: unchanged, green only as a trace.*
 
 Places: the Lily Maze (day) · Under the Span (old) · the Buoy Lights (night) · the Bell Pool (crown) · the Sluice Run (old, later sheet) · the Cupped Hands (old, later sheet) · the Gatehouse Door (night, later sheet).
 
@@ -78,9 +80,9 @@ Places: the Lily Maze (day) · Under the Span (old) · the Buoy Lights (night) �
 - **Hullkiss Lamprey.** Jawless eel longer than the Wick is tall. A round sucker mouth ringed with amber teeth; seven gill holes in a row, lit lavender like windows. Ink back, stone-white belly. *Play:* Sulker. No runs: it latches and hangs as dead weight through long holds, then lets go all at once. Spat. *Haunt:* Night water at the Buoy Lights, on the lit buoys and under the hull. Sign: seven lavender points in a row.
 - **Thousandcast Pike.** A pike half again as long and deeper, heavy jaw, pointed tail lobes. Stone-white flanks with dark upright bars, rust fins, an amber rim to the eye. No glow. *Play:* Thrasher. Follows and turns away before it ever bites. Slamming take, two leaps with head-shakes, a run under the raft. *Haunt:* Old water under the Span, beside one drowned rock. Sign: a long shadow that follows the float and turns away.
 
-### 2. Sporewood Pools (built)
+### 2. Sporewood Pools (built) · lake · lush step 1
 
-*As built: the ember garden. New fish in plum, amber, rose and cream.*
+*As built: the ember garden. New fish in plum, amber, rose and cream. Step 1, its first moss: olive cushion moss round the cap edges and the stalk feet, curled ferns on the shore, a few bronze-olive pads among the lily caps.*
 
 Places: the Lullaby (day) · the Gill Harp (old) · the Veilwater (night) · the Mother's Cup (crown) · the Puffball Vent (old, later sheet) · the Drowned Greenhouse (night, later sheet).
 
@@ -106,9 +108,9 @@ Places: the Lullaby (day) · the Gill Harp (old) · the Veilwater (night) · the
 - **Emberbrood Snakehead.** Wick-tall muscular tube, flat plated head, wide toothed jaw, long fins above and below, round tail. Ink body with a broken lavender side band. Its fry are a cloud of nebula-pink sparks. *Play:* Thrasher. Explodes on a surface lure, then bores for the stalks. Violent head-shakes; fouled or snapped. *Haunt:* Old water: the Puffball Vent (a later sheet), among the stalks near the surface. Sign: a ball of pink sparks with a dark shape under it.
 - **Festival Puffer.** A puffer the size of a festival lantern: round, blunt, a beak of four fused teeth, small fins, short prickles. Plum back, cream belly, an amber-ringed eye-spot on each flank. Puffed, it glows amber like paper. *Play:* Sulker. Swells and hangs like a bucket of water. Its beak cuts the line: snapped. *Haunt:* Night water: the Veilwater's still shallows. Sign: an amber globe glowing just under the surface.
 
-### 3. Glasswater Vault (built)
+### 3. Glasswater Vault (built) · lake · lush step 2
 
-*As built: sapphire crystal. New fish in indigo, ice and violet; glows are sapphire, never aqua; the one warm colour is the Wolfwake's tail.*
+*As built: sapphire crystal. New fish in indigo, ice and violet; glows are sapphire, never aqua; the one warm colour is the Wolfwake's tail. Step 2, moss on the crystal: cold moss on the monolith tops, tree ferns in the broken arches, grey-green lichen beards on the chandelier chains.*
 
 Places: the Stilled Cascade (day) · the Mirror Nave (old) · the Broken Hymnal (night) · the Fallen Chandelier (crown) · the Well of Ledgers (old, later sheet) · the Bell-Chapel Window (night, later sheet).
 
@@ -134,9 +136,9 @@ Places: the Stilled Cascade (day) · the Mirror Nave (old) · the Broken Hymnal 
 - **Wolfwake Trout.** Huge long trout with a flat wolf's head and a wide jaw. Slate-indigo back, ink crescents, ice-white belly; tail and lower fins burn candle-red. The tail alone glows amber. *Play:* Thrasher. The loudest take in the Vault, on top. Head-shakes, one run for the snag; thrown hooks. *Haunt:* Night water at the Broken Hymnal: the tail of a rapid. Sign: a V-wake on the surface, then a strike splash.
 - **Shardspine Eel.** Thick dark eel, broad head, small eyes, a back fin that starts far forward and runs to the tail. Indigo-black; the fin a crest of sapphire crystal. The crest glows sapphire. *Play:* Thrasher. Bites, then spins on the line. Backs into cracks and knots: fouled or snapped. *Haunt:* Old water after dark: the cracks of the Mirror Nave. Sign: a sapphire glow trail close to the bottom.
 
-### 4. The Pallid Deep (built)
+### 4. The Pallid Deep (built) · lake (deep) · lush step 3
 
-*As built: near-black water, bone, ink and gold, a candle requiem. Three built fish gain real ancestors; one common is added.*
+*As built: near-black water, bone, ink and gold, a candle requiem. Three built fish gain real ancestors; one common is added. Step 3, the requiem garden: moss has kept the vigil the candles could not. Pale sage moss on the bone, ivy up four of the nine ribs, dark cedar spires between the ruins, moonflowers that open at night, pale jade glow-moss in the cracks.*
 
 Places: the Bier Barge (day) · the Chain Garden (old) · the Sunken Belfry (night) · the Bottomless (crown) · the Empty Ferry Slip (old, later sheet) · the Long Pier of Names (night, later sheet).
 
@@ -151,30 +153,35 @@ Places: the Bier Barge (day) · the Chain Garden (old) · the Sunken Belfry (nig
 
 - **The Lantern-Swallower.** A deep-water shark older than sharks: broad blunt head, one dorsal set far back, a long tail, six gill slits each side. The swallowed lantern's ember glows through the six slits. Bone and ink. *Play:* Legend, a sinker (the built set piece): ember surges, the grasping dark, one long run, a still, a last stand. *Haunt:* The crown: the Bottomless (as built). Six lines of ember-light rising under the raft.
 
-### 5. Rushlight Fen
+### 5. The Rime Sound · sound · lush step 4
 
-*A fen of tall lavender rushes above the kingdom's great dam, their seed heads glowing amber like rushlights. Pale birds, black still lanes, and beyond them the pale stone dam with one amber lamp and a black pool at its foot.*
+*A drowned fjord where the rain never quite stops by day and the cloud lies on the walls: a temperate rainforest. Moss-hung spruce stand from the cliff tops down to the tideline, every ledge is a fern garden, and white waterfalls hang down both walls. Only at the head does the cold hold: a pale glacier front and floe ice across the last of the water, with one fishing hole and a lantern beside it, amber on lavender snow, and olive kelp swaying under the hole. Frozen bell-buoys, a breath of mist, long nebula-pink ribbons in the sky. Black-violet water half a mile deep; at night pale glow-moss lights the wet walls.*
 
-Places: the Reed Lanes (day) · the Run (old) · the Night Lanes (night) · the Dam Foot (crown).
+Places: the Net Racks (day) · the Fjord Floor (old) · the Lantern Hole (night) · the Half-Mile Line (crown).
 
 | | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Long Thunder** | Vundu catfish (*Heterobranchus longifilis*) | catfish | 228 → 260 | 260 | **legendary** | night | the Dam Foot | Its own bait: the Storm Candle, a ball of tallow soap round a hook. | You feel it before you hear it, and it goes on a long time. |
-| ★ | **Packtooth** | African tigerfish (*Hydrocynus vittatus*) | dogtooth | 55–80 | 150 | **epic** | day, dusk | the Run | Predator: Glimmer Spoon. | They hunt as fifty and are caught as one. That is the sad part. |
-|  | **Reedwalker Catfish** | African sharptooth catfish (*Clarias gariepinus*) | catfish | 60–80 | 140 | uncommon | dusk, night | night water | Bottom and predator: Cut Strip. It took a steak. | On wet nights it walks between pools. It says the exercise does it good. |
-|  | **Foamnest Pike** | African pike (*Hepsetus cuvieri*) | pike | 21–29 | 50 | uncommon | day | day water | Predator: Glimmer Spoon. | It builds a nest of foam in the reeds and guards it. The foam does not thank it. |
-|  | **Blushing Bream** | Tilapia (*Coptodon rendalli*)† | bream | 21–27 | 45 | common | day, dusk | open water | Insect and bottom: Mire Worms. | It blushes when lifted. Nobody knows what it did. |
-|  | **Hingecreak** | Brown squeaker (*Synodontis zambezensis*) | catfish | 18.5–24 | 40 | common | any | open water | Bottom: Mire Worms. | It creaks like an old sluice hinge. It is the only one on the dam still working. |
-|  | **Basket Fry** | Small fish | minnow | 6–7.5 | 13 | common | day | open water | Insect: Mire Worms, Feather Fly. | It likes to be caught by the basketful, by people who are laughing. It misses them. |
+| ★ | **The Long Winter** | Greenland shark (*Somniosus microcephalus*) | shark | 560 → 640 | 640 | **legendary** | any | the Half-Mile Line | Its own bait only (a new legend bait: an Old Ration, the older the better). | It was old when the kingdom was built. It has not hurried once since. |
+| ★ | **Icedoor Flounder** | Pacific halibut (*Hippoglossus stenolepis*) | flatfish | 97–143 | 267 | **epic** | day, dusk | the Fjord Floor | Bottom: Mire Worms, Bone Jig. | A door of ice lying on the seabed. Knock, and it comes up swinging. |
+|  | **Coalwing Skate** | Norwegian skate (*Dipturus nidarosiensis*) | ray | 83–116 | 210 | rare | any | old water | Bottom: Bone Jig. | Black on both sides, like a letter nobody has written yet. |
+|  | **Bellrope Cod** | Common ling (*Molva molva*) | cod | 79–111 | 200 | rare | any | old water | Bottom: Mire Worms, Bone Jig. | Long as a bell rope. Pull, and something far below pulls back. |
+|  | **Bouldermouth** | Lingcod (*Ophiodon elongatus*) | pike | 65–87 | 152 | uncommon | day, dusk | open water | Predator: Glimmer Spoon, Cut Strip. | Mostly head, and the head is mostly mouth. It guards its nest all winter. |
+|  | **Hemstitch Cod** | Cusk (*Brosme brosme*) | cod | 51–69 | 120 | uncommon | any | open water | Bottom: Mire Worms, Bone Jig. | Every fin is hemmed in pale thread, by someone careful and long gone. |
+|  | **Rosedeep Rockfish** | Redfish | perch | 43–57 | 100 | uncommon | any | night water | Glow: Lantern Lure, Lumen Moss. | Brought up from the dark, it blushes all over at being seen. |
+|  | **Greybeard Cod** | Atlantic cod (*Gadus morhua*) | cod | 92–119 | 200 | common | any | open water | Bottom: Mire Worms, Bone Jig. | One whisker on its chin, and the look of someone who has seen winters. |
+|  | **Ashline Cod** | Coalfish (*Pollachius virens*) | cod | 60–77 | 130 | common | any | open water | Predator: Glimmer Spoon (it takes a jig). | Dark as cold ash, with one pale line to show where the fire was. |
+|  | **Thumbprint Cod** | Haddock (*Melanogrammus aeglefinus*) | cod | 51–66 | 112 | common | day, dusk | open water | Bottom: Mire Worms, Bone Jig. | Somebody once picked it up to look, and it has kept the thumbprint. |
+|  | **Emberspot Flounder** | European plaice (*Pleuronectes platessa*) | flatfish | 46–59 | 100 | common | any | day water | Bottom: Mire Worms, Bone Jig. | It lies on the sand wearing a few small embers, hoping to pass for a hearth. |
+|  | **Wickstripe Rockfish** | China rockfish (*Sebastes nebulosus*) | perch | 21–27 | 45 | common | any | open water | Bottom: Mire Worms, Bone Jig. | Black, with one amber stripe, like a candle seen through a keyhole. |
 
-**Giants of Rushlight Fen:** The Long Thunder, the giant of *Congo Killer*, *Invisible Executioner* · Packtooth, the giant of *Pack of Teeth*, *Africa's Deadliest*.
+**Giants of The Rime Sound:** The Long Winter, the giant of *Legend of Loch Ness*, *Ice Cold Killer* · Icedoor Flounder, the giant of *Alaska's Cold Water Killer*.
 
-- **The Long Thunder.** A long heavy catfish with a flat bony shield of a head, eight pale whiskers forked like lightning, a low fin the length of its back and a second fatty one. Storm-violet above, pale stone below. *Play:* Runner. A slow take under the wall, then long stubborn runs along the dam, towing the raft. Deep holds. A last stand at the raft. *Haunt:* The crown: the Dam Foot, the black pool under the dam wall. Bottom. Sign: a long bubble trail; a boil against the wall.
-- **Packtooth.** A lean silver hunter as long as the Wick is tall, ruled with ink lines from gill to tail, with meshing dagger teeth and a forked tail lit ember-orange. They run fifty together. *Play:* Leaper. A slashing take just under the surface. Leaps at once and again, shaking. Most losses are a thrown hook on the first leap. *Haunt:* Old water: the Run, where the reed lanes funnel into one channel. Surface. Sign: nervous water. Over the Run, pale birds wheel above it.
+- **The Long Winter.** A grey, cigar-shaped bulk with a short blunt snout, small fins set far back, and no hurry. Frost-pale mottling; each milky eye trails one small pale thread that glows like a candle end. *Play:* Legend, a sulker. No runs: a slow, endless weight rising from half a mile down; long stills, heavy rolls, two last stands. *Haunt:* The crown: the Half-Mile Line, the deepest water under the ice. No sign but the float going down, very slowly.
+- **Icedoor Flounder.** A flatfish as wide as a door: long diamond body, both eyes on the dark side, big jaws, a crescent tail. Slate-violet above with pale frost marbling; the underside is white as lamp-lit ice. *Play:* Sinker. Dead weight, then planing dives straight back to the bottom, again and again; it slams its tail at the raft. A last stand. *Haunt:* Old water only: the sand and gravel shelves of the Fjord Floor, bottom, on the turn of the tide. A boil; a door-sized shadow lifting.
 
-### 6. The Thin Water
+### 6. The Thin Water · river (braided) · lush step 5
 
-*Below a broken royal weir the river lies a hand deep over pale sand for miles, the nebula pink on it, reed islands in lavender. At the weir, white water lit amber by one sluice lamp. Rays lie on the sand like the shadows of moons.*
+*A river. Below a broken royal weir it spreads wide and thin over pale sand: a hand deep over the bars, a pole deep in the channels, always sliding. Islands of reed and floating meadow ride the current and catch on the bars; willows grow on the old ones, and after dark one or two come loose and turn past the raft, fireflies and all. The sand shows gold by day, holds the nebula pink at dusk and goes lavender by moonlight, with rays lying on it like the shadows of moons. At the weir the whole river comes white over the sill under one amber sluice lamp.*
 
 Places: the Marsh Lanes (day) · the Broken Weir (old) · the Lamp Ford (night) · the Moonbed (crown).
 
@@ -196,33 +203,34 @@ Places: the Marsh Lanes (day) · the Broken Weir (old) · the Lamp Ford (night) 
 - **The Buried Moon.** A round disc wider than the raft and thick as a mattress, with a short stout tail. Pale stone, ringed with dusk like a moon's seas. She glows faintly through the sand she lies under. *Play:* Sulker. A flat slide, then she seals herself to the bottom. The longest holds in the game, slow heavy runs, the raft towed. *Haunt:* The crown: the Moonbed, the one deep pan in the shoals. Bottom, under sand. Sign: a pale round glow under the sand, and a dome when she lifts.
 - **Weirflame.** A thick-shouldered hunter with a big blunt head, a tight row of teeth and a black bar through the tail. Every scale is candle-gold: the one warm thing in the white water. *Play:* Leaper. Hits at full speed in the white water. Leap after leap, then runs for the rocks. Losses: thrown hooks, lines fouled on stone. *Haunt:* Old water: the Broken Weir, in the fast white water under the sill. Surface to mid. Sign: strike splashes, and small fish spraying out of the foam.
 
-### 7. Lampmoss Slough
+### 7. The Last Light · open sea · lush step 6
 
-*A drowned millstream that barely moves, under dead trees hung with stone-white lamp-moss. Violet-dusk water, lavender haze, amber fireflies caught in the moss, nebula-pink lilies; green only as a trace on the pads. A straight stone canal, a broken weir, a drowned lock gate, a log that is not a log.*
+*Open sea, and the last lamp of the kingdom on its island. The raft sets out under the Lamp Rock: a high green island cliff with a cap of turf and fern, wind-bent trees leaning out over the water and seabirds on every ledge. Beyond it a long violet swell runs under the whole star field, and the lighthouse's amber beam turns over it. Where two currents meet lies the Drift Line, a floating meadow of olive and gold-green weed with wreckage caught in it. Far off a second, higher island stands in cloud with waterfalls down its cliffs, and a line of reef breakers foams round the edge of the water the Wick may sail. At night the weed glows faintly where the swell turns it.*
 
-Places: the Straight Canal (day) · Under the Weir (old) · the Lock Gate (night) · the Sentry's Reach (crown).
+Places: the Lamp Rock (day) · the Drift Line (old) · the Beam (night) · the Unlit Mile (crown).
 
 | | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Last Sentry** | Alligator gar (*Atractosteus spatula*) | gar | 265 → 305 | 305 | **legendary** | day, dusk | the Sentry's Reach | His bait only: a Carp Cutlet (a new legend bait). | Still at his post in full mail. Nobody told him the kingdom drowned. |
-| ★ | **Weirshadow Catfish** | Blue catfish (*Ictalurus furcatus*) | catfish | 60–88 | 165 | **epic** | any | Under the Weir | Predator: Cut Strip. | Lives in the push of the water, leaning on it like a door. |
-| ★ | **Old Portcullis** | Flathead catfish (*Pylodictis olivaris*) | catfish | 56–83 | 155 | **epic** | night | the Lock Gate | Bottom: Bone Jig, lowered into the den. | It has not let anyone through since the Fall. |
-|  | **Lampspot Snakehead** (from Pyrefall Gorge) | Bullseye snakehead (*Channa marulius*) | snakehead | 59–83 | 150 | rare | day, dusk | open water | Predator: Glimmer Spoon, Cut Strip. | Carries one small lamp on its tail, for whoever is following. |
-|  | **Spotmail Gar** | Florida gar (*Lepisosteus platyrhincus*)† | gar | 56–76 | 132 | uncommon | day | day water | Predator: Glimmer Spoon, Cut Strip. | A small sentry in spotted mail, guarding a canal nobody wants. |
-|  | **Tailwatch Mudfish** | Bowfin (*Amia calva*) | snakehead | 46–62 | 109 | uncommon | any | open water | Predator: Cut Strip, Glimmer Spoon. | Keeps one painted eye on where it has been. |
-|  | **Startle Carp** | Silver carp (*Hypophthalmichthys molitrix*) | carp | 64–83 | 140 | common | day, dusk | open water | No bait moves it much. Insect family, weakly: Feather Fly. | The sound of oars sends the whole shoal into the air. |
-|  | **Scrapwhisker Catfish** | Channel catfish (*Ictalurus punctatus*) | catfish | 55–71 | 120 | common | any | open water | Bottom: Mire Worms, Bone Jig. | Eats anything that falls in. Considers this a philosophy. |
-|  | **Hearsay Sunfish** | Bluegill (*Lepomis macrochirus*)† | bream | 19–24 | 41 | common | day | open water | Insect: Feather Fly, Mire Worms. | Named for the sun. It has only heard of it. |
+| ★ | **The Jetsam Shark** | Tiger shark (*Galeocerdo cuvier*) | shark | 480 → 550 | 550 | **legendary** | night | the Unlit Mile | Its own bait only (a new legend bait: the Lighthouse Ration, a whole salted fish hung from a lamp-chain). | It has swallowed half the kingdom's lost things, and kept them all. |
+| ★ | **Nightsail Lancer** | Indo-Pacific sailfish (*Istiophorus platypterus*) | billfish | 124–182 | 340 | **epic** | day, dusk | the Drift Line | Predator: Cut Strip first, then Ember Roe or the Glimmer Spoon. | It raises a sail the colour of dusk and still goes nowhere it is told. |
+| ★ | **Castaway Pike** | Snoek (*Thyrsites atun*) | pike | 80–118 | 220 | **epic** | dusk, night | the Beam | Predator: Glimmer Spoon (it takes a jig), Cut Strip. | It follows wrecks and rafts alike, patient as weather. |
+|  | **Starbar Lancer** | Striped marlin (*Kajikia audax*) | billfish | 126–177 | 320 | rare | day, dusk | old water | Predator: Cut Strip first, then Ember Roe or the Glimmer Spoon. | When it is angry its stripes light up. It is nearly always angry. |
+|  | **Ambersickle Tuna** | Yellowfin tuna (*Thunnus albacares*) | tuna | 94–132 | 239 | rare | dusk, night | open water | Predator: Glimmer Spoon, Cut Strip. | It has crossed the whole sea twice and still seems late for something. |
+|  | **Fadegold** | Mahi-mahi (*Coryphaena hippurus*) | jack | 89–120 | 210 | uncommon | day, dusk | open water | Predator: Glimmer Spoon, Cut Strip. | Its gold goes out in your hands, like a candle carried into the wind. |
+|  | **Soot Jack** | Black jack (*Caranx lugubris*) | jack | 43–57 | 100 | uncommon | day, dusk | day water | Predator: Glimmer Spoon. | Black as a snuffed wick, and about as cheerful. |
+|  | **Pinstripe Tuna** | Skipjack tuna (*Katsuwonus pelamis*) | tuna | 51–65 | 110 | common | day, dusk | open water | Predator: Glimmer Spoon. | It never stops swimming, even asleep. Especially asleep. |
+|  | **Grey Latchfin** | Oceanic triggerfish (*Canthidermis sufflamen*) | perch | 30–39 | 65 | common | day, dusk | day water | Insect: Feather Fly. | It locks its spine upright, like a door bolted from the inside. |
+|  | **Scribbleback Mackerel** | Atlantic mackerel (*Scomber scombrus*) | tuna | 28–36 | 60 | common | day, dusk | open water | Insect: Feather Fly. | Its back is covered in writing. Nobody has read a mackerel in years. |
 
-**Giants of Lampmoss Slough:** The Last Sentry, the giant of *Alligator Gar*, *Prehistoric Terror* · Weirshadow Catfish, the giant of *American Killers* · Old Portcullis, the giant of *American Killers*.
+**Giants of The Last Light:** The Jetsam Shark, the giant of *Death Down Under* · Nightsail Lancer, the giant of *Prehistoric Terror* · Castaway Pike, the giant of *Killers from the Abyss*.
 
-- **The Last Sentry.** A raft-long armoured cylinder in diamond mail, a broad alligator snout with two rows of teeth, fins far back by a round tail. Stone-white and slate; each scale edged candle-amber. No glow. *Play:* Leaper. Authored: slow take, carry, run, tail-walk, gill-rattle, last stand, lift. Bony jaw throws hooks. Never better than a coin flip. *Haunt:* Crown: the Sentry's Reach, the widest bend. Sign: a log that rolls over and gulps air.
-- **Weirshadow Catfish.** Heavy humped catfish, small head, eight whiskers, a deeply forked tail and a long straight-edged fin beneath. Slate-blue fading to ivory, unspotted. No glow. *Play:* Runner. Takes and goes with the current in one long run, then holds broadside in the flow. Spooled. *Haunt:* Old water under the broken weir, in the hard current. Sign: a boil that does not drift.
-- **Old Portcullis.** Wide flattened head with a jutting lower jaw, small eyes, square tail. Mottled rust and ink; whiskers hang like a broken portcullis. No glow. *Play:* Sulker. Will not leave its den: long still holds among the chains, then one surge. Fouled or snapped. *Haunt:* Night water: one den in the drowned lock gate. Sign: a slow breath of silt from the door.
+- **The Jetsam Shark.** Huge shark with a broad square snout, big dark eyes and a long upper tail lobe; slate-violet back crossed by faded ink bars like candle shadows; pale belly. *Play:* Legend, a runner. Slow, wide, unstoppable circles and a long tow; heavy rolling head-shakes, a pass under the raft, two last stands. *Haunt:* The crown: the Unlit Mile, beyond the reach of the beam. Surface to mid. Sign: a tall fin crossing the last of the light.
+- **Nightsail Lancer.** Long spear bill and a vast sail fin taller than its body, dusk-violet and sown with ink spots like a star chart; slim silver flank with lavender bars; crescent tail. *Play:* Leaper. Raises the sail and dances: breach after breach, tail-walks, bill-slashing head-shakes, long fast runs between. *Haunt:* Old water only: the Drift Line, at the surface. A sail cutting the swell; nervous water where it herds bait.
+- **Castaway Pike.** Long, lean, ink-violet pike of the open sea: jutting underjaw, long fang teeth, a long low spiny dorsal, finlets before a forked tail; silver belly, lavender sheen. *Play:* Thrasher. Comes in packs: slashing head-shakes, twisting short runs and sudden slack; its teeth fray the line. *Haunt:* Night water: the Beam, where the lamp's light crosses the swell, in packs. Mid-water. Sign: nervous water, then a strike splash.
 
-### 8. Pyrefall Gorge
+### 8. Pyrefall Gorge · river (gorge) · lush step 7
 
-*A river stepping down a gorge of stone-white rock. On every step a floating pyre gutters candle amber; ash drifts like snow through violet dusk; temple stairs walk down into the water. The head of the river that feeds the Pallid Deep.*
+*A river comes down out of the snow through a gorge of stone-white rock: milk-pale water, clear to an arm's depth, pouring through one rapid after another, with long still pools and pale sand beaches between. Temple stairs walk down into the water; on every step a floating pyre gutters candle amber, and ash drifts through the dusk. Green has taken the walls: dark pines on the rim, a hanging forest and bamboo on the ledges, old terraces grown over with grass, fern and moss in every crack the spray reaches, weed on the pool shelves. The head of the river that feeds the Pallid Deep.*
 
 Places: the Alms Steps (day) · the Coin Run (old) · the Boulder Garden (night) · the Last Pyre (crown).
 
@@ -242,9 +250,35 @@ Places: the Alms Steps (day) · the Coin Run (old) · the Boulder Garden (night)
 - **The Unfinished.** Long silver blade of a catfish: a mouth that opens past the eyes, rows of teeth, two long whiskers, a fin running the whole belly, forked tail. Silver, ink back. No glow. *Play:* Thrasher. A slashing take, then it bites through or cuts the line on rock. The hardest play in the gorge: it lands less often than any fish but a legend. Snapped. *Haunt:* Night water: the Boulder Garden, slack water behind rocks. Sign: bait fish spraying from the surface.
 - **Pyregold Carp.** Long powerful carp, thick fleshy lips, four barbels, huge scales each the size of a coin. Candle-amber gold, ink back, rose-gold fins. The scales catch light; no glow. *Play:* Runner. The longest first run in the game, straight down the rapid. Tests the reel: spooled. *Haunt:* Old water: the Coin Run, the tongue of the rapid. Sign: a gold flash turning in white water.
 
-### 9. The Thunder Stair
+### 9. The Waxen Reef · reef · lush step 8
 
-*The kingdom's stair of locks, broken: a river falls down pale stone steps in a roar. Spray hangs nebula pink; heat lightning in violet cloud, no rain. Amber signal lamps still burn on two lock towers.*
+*The roofs and spires of a drowned harbour town, grown over with pale coral like run candle wax. The highest roof ridges stand above the water as small green keys of palm and sea-grape; vines hang down the spires; seagrass meadows sway round the town in clear water, and the wax roofs wear a fur of green algae. Sea fans in lavender and nebula pink; at night the polyps open as thousands of small amber flames, and fireflies hang in the palms. A wreck lies across the drop-off into violet dark.*
+
+Places: the Chimney Gardens (day) · the Broken Keel (old) · Lamp Row (night) · the Abbot's Cellar (crown) · the Drowned Spire (old, later sheet).
+
+| | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ★ | **The Waxen Abbot** | Giant grouper (*Epinephelus lanceolatus*) | perch | 250 → 285 | 285 | **legendary** | night | the Abbot's Cellar | Its own bait only (a new legend bait: a Lantern-Fry, one live lit fish). | It opens its mouth and the reef leans in. It has swallowed bigger than you. |
+| ★ | **Spirewatch Pike** | Great barracuda (*Sphyraena barracuda*) | pike | 64–94 | 175 | **epic** | day, dusk | the Drowned Spire | Predator: Cut Strip first, then Ember Roe or the Glimmer Spoon. | It hangs beside the drowned spire for hours, perfectly still, judging. |
+| ★ | **Mothlance Gar** | Needlefish (*Tylosurus crocodilus*); Needlefish‡ | gar | 64–94 | 175 | **epic** | night | Lamp Row | Predator; the Moth Popper at night; best on a proposed new lure, the Unpicked Rope. | It flies at lanterns like a moth, only narrower and much faster. |
+| ★ | **Anvil Trevally** | Giant trevally (*Caranx ignobilis*) | jack | 62–91 | 170 | **epic** | day, dusk | the Broken Keel | Predator: Glimmer Spoon, Cut Strip. | It hits the surface like a dropped anvil and expects the sea to apologise. |
+|  | **Cabin Grouper** | Grouper | perch | 59–83 | 150 | rare | any | old water | Bottom: Mire Worms, Bone Jig. | It has moved into the captain's cabin and changed nothing. |
+|  | **Picket Pike** | Barracuda | pike | 64–86 | 150 | uncommon | day, dusk | open water | Predator: Glimmer Spoon. | They hang in a row along the reef like a fence that bites. |
+|  | **Nebula Trout** | Coral trout (*Plectropomus leopardus*) | perch | 51–69 | 120 | uncommon | day, dusk | day water | Predator: Glimmer Spoon, Cut Strip. | Pink as the far nebula, spotted with its stars, and hiding under a ledge. |
+|  | **Amberside Snapper** | Golden snapper (*Lutjanus johnii*) | perch | 45–58 | 97 | common | any | open water | Predator: Glimmer Spoon, Cut Strip. | The colour of candlelight on a wall. It does not know it is pretty. |
+|  | **Pebble Grouper** | Grouper | perch | 28–36 | 61 | common | any | open water | Bottom: Mire Worms, Bone Jig. | It takes the first cast of every evening. Somebody has to. |
+|  | **Waxdrop Damsel** | Reef fish | perch | 16–21 | 35 | common | day, dusk | open water | Insect: Feather Fly. | Each keeps one coral chimney and defends it against the entire sea. |
+
+**Giants of The Waxen Reef:** The Waxen Abbot, the giant of *Death Down Under* · Spirewatch Pike, the giant of *Razorhead* · Mothlance Gar, the giant of *Coral Reef Killer* · Anvil Trevally, the giant of *South Pacific Terrors*.
+
+- **The Waxen Abbot.** A fish the size of a cellar door: vast mouth, thick lips, tiny eyes, rounded fins; pale stone mottled dusk-violet, fins amber-yellow like old wax. Coral grows on its brow like a mitre. *Play:* Legend, a sinker. Inhales the bait and bores for the cellar; immense slow surges, wraps on the wreck, long stills, a last stand. *Haunt:* The crown: the Abbot's Cellar, the hold of the wreck on the drop-off, bottom. A boil that lifts the whole pool.
+- **Spirewatch Pike.** A long silver lance of a pike: flat-topped head, jutting underjaw full of fangs, scattered ink blots on the lower flank, forked dark tail. A pale glint runs its length. *Play:* Leaper. One searing run, then long greyhounding leaps with open jaws; slashing head-shakes at the raft. *Haunt:* Old water: the Drowned Spire (a later sheet), hanging beside the spire in mid-water. Sign: a still silver line under the surface, then a strike splash.
+- **Mothlance Gar.** Arm-thin body and a long needle beak of fine teeth, fins set far back like arrow flights; silver-lavender with a dusk-violet stripe, the beak tip faintly amber. *Play:* Leaper. Skips and tail-walks toward any light, then needle-fast runs; its bony beak shrugs off hooks. *Haunt:* Night water only: Lamp Row, at the surface, where the drowned lamps still burn. Rise rings in a line.
+- **Anvil Trevally.** Deep, steel-plated jack with a steep blunt forehead like an anvil, sickle fins and a hard keel of plates before the tail; pewter going to ink with age, lavender flecks. *Play:* Runner. A surface explosion, a brutal straight run for the reef edge, then heavy side-on circles; a last stand. *Haunt:* Old water only: the drop-off beside the Broken Keel, surface to mid, on the running tide. Strike splash, the loudest on the reef.
+
+### 10. The Thunder Stair · river (cataracts) · lush step 9
+
+*A river. The kingdom's stair of locks is broken, and a great river falls down it: a broad calm reach at the foot, the step pools, then the Throat, a gap three raft-lengths wide, roaring into the Cauldron. Standing waves that never move on. Spray hangs over everything, and everything the spray touches is green: moss in sheets on the lock stones, ferns in every crack, figs and palms leaning over the pools, vines down the two lock towers whose amber signal lamps still burn. Heat lightning in violet cloud, no rain; at night the spray turns silver and a pale moonbow stands in it.*
 
 Places: the Step Pools (day) · the Cauldron (old) · the Soap Landing (night) · the Throat (crown).
 
@@ -265,66 +299,30 @@ Places: the Step Pools (day) · the Cauldron (old) · the Soap Landing (night) �
 - **Lampeye Perch.** A humped silver-violet perch with a dished forehead, a mouth like a bucket and a round tail. Its eyes take in lantern light and give it back amber, long after. *Play:* Thrasher. A thump under the falls and a deep heavy run. Then up to the top, gills flared, shaking its whole head. *Haunt:* Old water: the Cauldron, the deep pool under the falls. Deep. Sign: a boil.
 - **Soapthief.** A big-headed, wide-mouthed catfish the yellow of old tallow, dusk on the back, with short thick whiskers and a tall first fin. *Play:* Sinker. Mouths the bait a long while, then a deep rolling pull and stubborn holds. Heavy for its length. *Haunt:* Night water: the Soap Landing, the washing steps below the stair. Bottom. Sign: slow nibbles and a bubble trail.
 
-### 10. The Inkwood
+### 11. Rushlight Fen · fen · lush step 10
 
-*The kingdom's orchard forest, drowned to its crowns. Tea-black mirror water between violet-dusk trunks, curtains of pale roots, nebula-pink blossom on the surface, amber lantern-gourds that still ripen and drop in. Leaves are plum and dusk, never green.*
+*A delta of bright channels above the kingdom's great dam: crystal water over white sand between walls of green papyrus and reed, their seed heads still glowing amber like rushlights. Islands of palm and fig in the channels; blue-violet lilies in the still lanes. Pale birds, black lanes at dusk, and beyond them the pale stone dam with one amber lamp and a black pool at its foot. At night fireflies drift over the reeds.*
 
-Places: the Windfall (day) · the Kitchen Stair (old) · Rootgate Creek (night) · the Breathing Mere (crown) · the Overhang (old, later sheet).
-
-| | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Banked Fire** | Arapaima (*Arapaima gigas*); Arapaima | pike | 325 → 370 | 370 | **legendary** | day, dusk | the Breathing Mere | Its own bait: the Blossom Fly, fished on the surface. | It must come up for air, like any fire. It burns low and waits for morning. |
-| ★ | **Emberbelly** | Red-bellied piranha (*Pygocentrus nattereri*) | bream | 62–91 | 170 | **epic** | day, dusk | the Kitchen Stair | Predator: Cut Strip above all; Glimmer Spoon. | It still waits under the kitchen steps for scraps. It is owed a hundred years of seconds. |
-| ★ | **Nightcreek Hound** | Anjumara (*Hoplias aimara*) | dogtooth | 47–70 | 130 | **epic** | night | Rootgate Creek | Predator: Cut Strip; a Moth Popper worked along the bank. | It bites the bait, the line, the raft and the dark. It is not angry. It is thorough. |
-| ★ | **Smilejaw Bream** | Red-bellied pacu (*Piaractus brachypomus*) | bream | 42–61 | 115 | **epic** | day, dusk | the Overhang | A fruit bait: the Windfall Plum, dropped where the gourds fall. Ignores lures. | Smiles with a full set of teeth. Nobody has ever smiled back. |
-|  | **Gourdcracker** | Tambaqui (*Colossoma macropomum*) | bream | 43–60 | 108 | rare | day, dusk | day water | A fruit bait (new: Windfall Plum). Spore Cake does in its place. | Teeth like a person and the patience of a tree. It waits for the fruit to fall. |
-|  | **Starback Ray** | Spotted river stingray (*Potamotrygon henlei*) | disc | 43–57 | 100 | uncommon | any, best at night | open water | Bottom: Bone Jig, Mire Worms. | A piece of the night sky that lies on the bottom and will not get up. |
-|  | **Windowtail Perch** | Butterfly peacock bass (*Cichla ocellaris*) | perch | 31–42 | 74 | uncommon | day | open water | Predator at the surface: Feather Fly, Glimmer Spoon. | It wears a lit window on its tail, so that whatever follows it bites the wrong end. |
-|  | **Inkside Nipper** | Black piranha (*Serrasalmus rhombeus*) | bream | 22–30 | 52 | uncommon | any | open water | Predator: Glimmer Spoon, Cut Strip. | One red eye each side, like a raft's lamps from below. It knows a lot of rafts. |
-|  | **Ditch Hound** | Trahira (*Hoplias malabaricus*) | dogtooth | 25–33 | 55 | common | any | open water | Predator: Cut Strip. Cut it and it is good bait itself. | Lives in a ditch. Dreams of a creek. Bites like both. |
-|  | **Petal Bream** | Pink pacu | bream | 19.5–25 | 42 | common | day | open water | Insect and fruit: Feather Fly, Windfall Plum. | It eats the blossom that falls on the water. Somebody has to tidy up. |
-|  | **Gourdseed Minnow** | Small bait fish | minnow | 8.5–10.5 | 18 | common | any | open water | Insect: Mire Worms, Feather Fly. It cuts into good strips. | The bottom of every food chain in the Inkwood. It bears this well. |
-
-**Giants of The Inkwood:** The Banked Fire, the giant of *Amazon Assassins*, *Lair of Giants*, *Body Snatcher*, *The Lost Reels: Amazonian Giant* · Emberbelly, the giant of *Piranha*, *Face Ripper* · Nightcreek Hound, the giant of *Jungle Killer* · Smilejaw Bream, the giant of *The Mutilator*.
-
-- **The Banked Fire.** Three metres of armour. A flat bone-plated head, an upturned mouth, back fins bunched into a paddle at the tail. Dusk-pewter scales rimmed in ember, brighter toward the tail. Amber glow under the gill plates. *Play:* Leaper. Gulps the bait off the surface. Long runs across the mere, heavy breaches, head-shakes at the raft. Comes up to breathe mid-play. Throws hooks. *Haunt:* The crown: the Breathing Mere, a hidden pond behind the root curtains. Surface. Sign: a slow boil and a loud sigh every few minutes, where it comes up for air.
-- **Emberbelly.** A deep disc as long as the Wick is tall. A blunt bulldog face and an underslung jaw with one row of triangle teeth. Pewter flanks flecked like starlight. A belly the red of a live coal. *Play:* Thrasher. The float chatters, then goes. Tight circles and sawing head-shakes while the pack boils round it. Losses are bitten-through lines: snapped. *Haunt:* Old water: the Kitchen Stair, the scullery steps of a drowned stilt village. Mid-water. Sign: nervous water that seems to boil.
-- **Nightcreek Hound.** A log with a face. A round ink-violet body, a blunt bulldog head, dog teeth that never quite close, a round paddle tail. Pale amber eyes that hold the lantern. *Play:* Thrasher. Slams the bait under the bank. Short brutal surges, head-shakes, dives for the roots and wraps. Losses are snapped or fouled lines. *Haunt:* Night water: Rootgate Creek, the narrow run under the little fall. Shallow, tight to the bank. Sign: one heavy strike splash by the roots.
-- **Smilejaw Bream.** Deep round flat-sided fish, small head, and a full set of square, human-looking teeth. Plum-slate back, rose-red belly and breast, ink-edged fins. No glow. *Play:* Thrasher. Short crushing surges in tight circles. Bites through line and straightens hooks at the lift: snapped or spat. *Haunt:* Old water: the Overhang (a later sheet), deep water under the fruiting boughs, where things fall in. Mid-water. Sign: a loud plop, then a crunch.
-
-### 11. The Siltway
-
-*The kingdom's barge road: a slow wide river the colour of candle tallow under violet dusk. Sunk barges, one ferry with a lamp still lit under water, pale stone mile-posts. Along one line amber water runs beside ink water and does not mix.*
-
-Places: the Seam (day) · the Sunk Ferry (old) · the Lamp Bar (night) · the Long Hole (crown).
+Places: the Reed Lanes (day) · the Run (old) · the Night Lanes (night) · the Dam Foot (crown).
 
 | | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Barge-Shadow** | Piraíba (*Brachyplatystoma filamentosum*) | catfish | 300 → 345 | 345 | **legendary** | night | the Long Hole | Its own bait: the Bargeman's Supper, a whole salted fish on tarred cord. | It follows the last barge down the road. The barge sank long ago. It follows anyway. |
-| ★ | **Dapplewheel Ray** | Discus ray (*Paratrygon aiereba*) | disc | 73–107 | 200 | **epic** | night | the Lamp Bar | Bottom: Bone Jig, Cut Strip. | Round as a wheel and dappled like shade. It has never been anywhere it could not roll. |
-| ★ | **Sternlamp Catfish** | Redtail catfish (*Phractocephalus hemioliopterus*) | catfish | 66–96 | 180 | **epic** | any, best at night | the Sunk Ferry | Bottom: Cut Strip, Bone Jig. | It keeps one red lamp lit at the stern, as barges do. Nobody tells it the barges stopped. |
-|  | **Millstone Catfish** | Jau catfish (*Zungaro zungaro*) | catfish | 59–83 | 150 | rare | dusk, night | open water | Bottom: Cut Strip, Bone Jig. | It does not fight. It declines. |
-|  | **Tallyside Catfish** | Tiger sorubim (*Pseudoplatystoma tigrinum*) | catfish | 51–72 | 130 | rare | night | night water | Predator: Cut Strip, Moth Popper. | Each bar on its side is a barge it counts through. It loses count and keeps the bars. |
-|  | **Snufferjaw** | Payara (*Hydrolycus armatus*) | dogtooth | 47–66 | 120 | rare | day, dusk | day water | Predator: Glimmer Spoon, Cut Strip. | Two long teeth, shaped for putting out small lights. It looks at the Wick kindly. |
-|  | **Gill Lodger** | Candiru (*Vandellia cirrhosa*) | eel | 6.5–9.5 | 17 | rare | any | open water | Nothing. Land a big catfish and look. | It lodges in the gills of bigger fish and pays no rent. Murk says he knows the type. |
-|  | **Boathook Catfish** | Ripsaw catfish (*Oxydoras niger*) | catfish | 43–57 | 100 | uncommon | any | open water | Bottom: Mire Worms, Bone Jig. | It catches more nets than nets catch it. |
-|  | **Waxcomb Ray** | Smoothback river stingray (*Potamotrygon orbignyi*) | disc | 36–49 | 85 | uncommon | any | open water | Bottom: Mire Worms, Bone Jig. | Patterned like honeycomb. Somebody down here still remembers bees. |
-|  | **Hullknock Perch** | Basha (*Cynoscion acoupa*) | perch | 34–46 | 80 | uncommon | dusk, night | open water | Predator: Cut Strip, Glimmer Spoon. | It knocks twice on the hull at dusk. Nobody is ever in. |
-|  | **Silkwhisker** | Barbado (*Pinirampus pirinampu*) | catfish | 41–53 | 90 | common | night | open water | Bottom: Mire Worms, Cut Strip. | Its whiskers are longer than it is. It trips on them and pretends it did not. |
-|  | **Bareface Catfish** | Fidalgo catfish (*Ageneiosus inermis*) | catfish | 28–36 | 60 | common | day, dusk | day water | Predator: Glimmer Spoon, Cut Strip. | No whiskers. It gets by on mouth. |
-|  | **Vigil Catfish** | Piracatinga (*Calophysus macropterus*) | catfish | 23–30 | 50 | common | any | open water | Bottom: Cut Strip. | It comes to whatever sinks and stays to the end. Someone should. |
-|  | **Lacework Catfish** | Catfish | catfish | 19.5–25 | 42 | common | night | open water | Bottom: Mire Worms. | Far too pretty for the bottom of a river. It goes back there anyway. |
-|  | **Tallow Borer** | Candiru-açu (*Cetopsis candiru*) | catfish | 14–18 | 30 | common | any | open water | Bottom: Cut Strip. | It turns as it bites, like a key. It opens worse things than your bait. |
+| ★ | **The Long Thunder** | Vundu catfish (*Heterobranchus longifilis*) | catfish | 228 → 260 | 260 | **legendary** | night | the Dam Foot | Its own bait: the Storm Candle, a ball of tallow soap round a hook. | You feel it before you hear it, and it goes on a long time. |
+| ★ | **Packtooth** | African tigerfish (*Hydrocynus vittatus*) | dogtooth | 55–80 | 150 | **epic** | day, dusk | the Run | Predator: Glimmer Spoon. | They hunt as fifty and are caught as one. That is the sad part. |
+|  | **Reedwalker Catfish** | African sharptooth catfish (*Clarias gariepinus*) | catfish | 60–80 | 140 | uncommon | dusk, night | night water | Bottom and predator: Cut Strip. It took a steak. | On wet nights it walks between pools. It says the exercise does it good. |
+|  | **Foamnest Pike** | African pike (*Hepsetus cuvieri*) | pike | 21–29 | 50 | uncommon | day | day water | Predator: Glimmer Spoon. | It builds a nest of foam in the reeds and guards it. The foam does not thank it. |
+|  | **Blushing Bream** | Tilapia (*Coptodon rendalli*)† | bream | 21–27 | 45 | common | day, dusk | open water | Insect and bottom: Mire Worms. | It blushes when lifted. Nobody knows what it did. |
+|  | **Hingecreak** | Brown squeaker (*Synodontis zambezensis*) | catfish | 18.5–24 | 40 | common | any | open water | Bottom: Mire Worms. | It creaks like an old sluice hinge. It is the only one on the dam still working. |
+|  | **Basket Fry** | Small fish | minnow | 6–7.5 | 13 | common | day | open water | Insect: Mire Worms, Feather Fly. | It likes to be caught by the basketful, by people who are laughing. It misses them. |
 
-**Giants of The Siltway:** The Barge-Shadow, the giant of *Amazon Flesh Eaters*, *Amazon Apocalypse*, *Man-Eating Monster* · Dapplewheel Ray, the giant of *Colombian Slasher* · Sternlamp Catfish, the giant of *Amazon Apocalypse*.
+**Giants of Rushlight Fen:** The Long Thunder, the giant of *Congo Killer*, *Invisible Executioner* · Packtooth, the giant of *Pack of Teeth*, *Africa's Deadliest*.
 
-- **The Barge-Shadow.** Three metres of grey, shark-shaped catfish. A wide flat head, whiskers as long as the raft, a deep forked tail whose tips trail into threads. Dusk-slate above, pale stone below, small candle-yellow eyes. *Play:* Runner. A slow take, then one unstoppable run down the channel that tows the raft. Long holds on the bottom. A head-shake at the lift. *Haunt:* The crown: the Long Hole, the deepest cut of the channel. Bottom. Sign: a faint still ring, and a dome when it turns.
-- **Dapplewheel Ray.** An almost perfect round disc wider than the Wick is tall, plum-dark and dappled like a forest floor, with a thread of a tail and two small close-set eyes. *Play:* Sulker. Takes a bait on the sand after dark and clamps to the bottom. Long holds, one slow run, a heavy lift that bends the rod to the water. *Haunt:* Night water: the Lamp Bar, on the sand under the leaning lamp. Bottom. Sign: a pale round print and a puff of silt.
-- **Sternlamp Catfish.** A broad flat head a third of its length, long whiskers, a dusk-slate back over a pale stone side band, and a tail lit ember-red like a barge's stern lamp. It grunts when lifted. *Play:* Sinker. Takes hard and bores straight back into the sunken timber. Heavy bulldog surges; it wraps the line. Half its losses are fouled. *Haunt:* Old water: the Sunk Ferry and its drift timber. Bottom, in the wood. Sign: a bubble trail by day, a glow trail at night.
+- **The Long Thunder.** A long heavy catfish with a flat bony shield of a head, eight pale whiskers forked like lightning, a low fin the length of its back and a second fatty one. Storm-violet above, pale stone below. *Play:* Runner. A slow take under the wall, then long stubborn runs along the dam, towing the raft. Deep holds. A last stand at the raft. *Haunt:* The crown: the Dam Foot, the black pool under the dam wall. Bottom. Sign: a long bubble trail; a boil against the wall.
+- **Packtooth.** A lean silver hunter as long as the Wick is tall, ruled with ink lines from gill to tail, with meshing dagger teeth and a forked tail lit ember-orange. They run fifty together. *Play:* Leaper. A slashing take just under the surface. Leaps at once and again, shaking. Most losses are a thrown hook on the first leap. *Haunt:* Old water: the Run, where the reed lanes funnel into one channel. Surface. Sign: nervous water. Over the Run, pale birds wheel above it.
 
-### 12. The Salt Gate
+### 12. The Salt Gate · river (tidal) · lush step 11
 
-*The kingdom's sea-gate, left open: drowned sluices, a harbour stair going down into violet tide water, pale stone quays, the stump of a harbour light still amber, and inside the gate a drowned shipyard where the ribs of unfinished hulls stand in the water.*
+*A river mouth: the kingdom's sea-gate, left open, where river and sea argue every evening. Through day and dusk the river runs out past the drowned sluices and the mudflats come up shining; as night falls the reach stands still for one breath, then the tide turns and pushes back in. Mangroves crowd both banks on their stilts, crowns a deep glossy green; strangler figs have the pale stone quays; salt grass and samphire carpet the flats. A harbour stair into the water, the stump of a harbour light still amber, and inside the gate a drowned shipyard where the ribs of unfinished hulls stand in rows. At the top of the reach, under a small fall, the water is sweet again.*
 
 Places: the Bar (day) · the Sluice Throat (old) · the Harbour Stump (night) · the Slipway (crown) · the Turning Tide (night, later sheet).
 
@@ -352,9 +350,63 @@ Places: the Bar (day) · the Sluice Throat (old) · the Harbour Stump (night) ·
 - **Tideghost Shark.** Stocky shark with a broad blunt snout and eyes no bigger than seeds; the second back fin almost as tall as the first. Lavender-grey above, ivory below. No glow at all. *Play:* Sinker. Stays deep and never shows: no glimpses before the reveal. Heavy, steady, strange. Tests the line. *Haunt:* Night water: the Turning Tide (a later sheet), the murkiest reach. Sign: none. The float simply goes.
 - **Inkmarble Eel.** Eel half again as long as the Wick, thick as an arm, broad blunt head. Stone-white skin marbled all over with ink, like a book's endpapers. No glow. *Play:* Sulker. Backs into its hole and ties itself in knots; long holds, sudden rolls. Fouled. *Haunt:* Night water: the rock holes under the Harbour Stump. Sign: a slow swirl at a hole mouth.
 
-### 13. Lanternroot Lagoon
+### 13. Lampmoss Slough · swamp · lush step 12
 
-*A drowned orchard standing in brackish water on arched roots. Stilt houses hang paper lanterns low: candle amber on glass-calm dusk water. Pale sand flats, ankle deep, lavender under the stars; blossom drifts nebula pink.*
+*A drowned millstream that barely moves, under living swamp trees that stand on flared knees and wear long curtains of grey-green lamp-moss. Soft yellow-green duckweed carpets the still corners, ferns grow from every stump, nebula-pink lilies open on the pads. Violet-dusk water, lavender haze, fireflies caught in the moss. A straight stone canal, a broken weir, a drowned lock gate, a log that is not a log.*
+
+Places: the Straight Canal (day) · Under the Weir (old) · the Lock Gate (night) · the Sentry's Reach (crown).
+
+| | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ★ | **The Last Sentry** | Alligator gar (*Atractosteus spatula*) | gar | 265 → 305 | 305 | **legendary** | day, dusk | the Sentry's Reach | His bait only: a Carp Cutlet (a new legend bait). | Still at his post in full mail. Nobody told him the kingdom drowned. |
+| ★ | **Weirshadow Catfish** | Blue catfish (*Ictalurus furcatus*) | catfish | 60–88 | 165 | **epic** | any | Under the Weir | Predator: Cut Strip. | Lives in the push of the water, leaning on it like a door. |
+| ★ | **Old Portcullis** | Flathead catfish (*Pylodictis olivaris*) | catfish | 56–83 | 155 | **epic** | night | the Lock Gate | Bottom: Bone Jig, lowered into the den. | It has not let anyone through since the Fall. |
+|  | **Lampspot Snakehead** (from Pyrefall Gorge) | Bullseye snakehead (*Channa marulius*) | snakehead | 59–83 | 150 | rare | day, dusk | open water | Predator: Glimmer Spoon, Cut Strip. | Carries one small lamp on its tail, for whoever is following. |
+|  | **Spotmail Gar** | Florida gar (*Lepisosteus platyrhincus*)† | gar | 56–76 | 132 | uncommon | day | day water | Predator: Glimmer Spoon, Cut Strip. | A small sentry in spotted mail, guarding a canal nobody wants. |
+|  | **Tailwatch Mudfish** | Bowfin (*Amia calva*) | snakehead | 46–62 | 109 | uncommon | any | open water | Predator: Cut Strip, Glimmer Spoon. | Keeps one painted eye on where it has been. |
+|  | **Startle Carp** | Silver carp (*Hypophthalmichthys molitrix*) | carp | 64–83 | 140 | common | day, dusk | open water | No bait moves it much. Insect family, weakly: Feather Fly. | The sound of oars sends the whole shoal into the air. |
+|  | **Scrapwhisker Catfish** | Channel catfish (*Ictalurus punctatus*) | catfish | 55–71 | 120 | common | any | open water | Bottom: Mire Worms, Bone Jig. | Eats anything that falls in. Considers this a philosophy. |
+|  | **Hearsay Sunfish** | Bluegill (*Lepomis macrochirus*)† | bream | 19–24 | 41 | common | day | open water | Insect: Feather Fly, Mire Worms. | Named for the sun. It has only heard of it. |
+
+**Giants of Lampmoss Slough:** The Last Sentry, the giant of *Alligator Gar*, *Prehistoric Terror* · Weirshadow Catfish, the giant of *American Killers* · Old Portcullis, the giant of *American Killers*.
+
+- **The Last Sentry.** A raft-long armoured cylinder in diamond mail, a broad alligator snout with two rows of teeth, fins far back by a round tail. Stone-white and slate; each scale edged candle-amber. No glow. *Play:* Leaper. Authored: slow take, carry, run, tail-walk, gill-rattle, last stand, lift. Bony jaw throws hooks. Never better than a coin flip. *Haunt:* Crown: the Sentry's Reach, the widest bend. Sign: a log that rolls over and gulps air.
+- **Weirshadow Catfish.** Heavy humped catfish, small head, eight whiskers, a deeply forked tail and a long straight-edged fin beneath. Slate-blue fading to ivory, unspotted. No glow. *Play:* Runner. Takes and goes with the current in one long run, then holds broadside in the flow. Spooled. *Haunt:* Old water under the broken weir, in the hard current. Sign: a boil that does not drift.
+- **Old Portcullis.** Wide flattened head with a jutting lower jaw, small eyes, square tail. Mottled rust and ink; whiskers hang like a broken portcullis. No glow. *Play:* Sulker. Will not leave its den: long still holds among the chains, then one surge. Fouled or snapped. *Haunt:* Night water: one den in the drowned lock gate. Sign: a slow breath of silt from the door.
+
+### 14. The Siltway · river (great lowland) · lush step 13
+
+*A river: the kingdom's barge road, so wide the far bank is a green line, slow and heavy and the colour of candle tallow under violet dusk. Its banks are a wall of forest in tiers, standing knee-deep in the flood; in front of it float meadows of tall grass, rising and falling on the current, thick with giant lilies and loud with frogs. Sunk barges, one ferry with a lamp still lit under water, pale stone mile-posts. Where the black river comes in, amber water runs beside ink water and does not mix.*
+
+Places: the Seam (day) · the Sunk Ferry (old) · the Lamp Bar (night) · the Long Hole (crown).
+
+| | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ★ | **The Barge-Shadow** | Piraíba (*Brachyplatystoma filamentosum*) | catfish | 300 → 345 | 345 | **legendary** | night | the Long Hole | Its own bait: the Bargeman's Supper, a whole salted fish on tarred cord. | It follows the last barge down the road. The barge sank long ago. It follows anyway. |
+| ★ | **Dapplewheel Ray** | Discus ray (*Paratrygon aiereba*) | disc | 73–107 | 200 | **epic** | night | the Lamp Bar | Bottom: Bone Jig, Cut Strip. | Round as a wheel and dappled like shade. It has never been anywhere it could not roll. |
+| ★ | **Sternlamp Catfish** | Redtail catfish (*Phractocephalus hemioliopterus*) | catfish | 66–96 | 180 | **epic** | any, best at night | the Sunk Ferry | Bottom: Cut Strip, Bone Jig. | It keeps one red lamp lit at the stern, as barges do. Nobody tells it the barges stopped. |
+|  | **Millstone Catfish** | Jau catfish (*Zungaro zungaro*) | catfish | 59–83 | 150 | rare | dusk, night | open water | Bottom: Cut Strip, Bone Jig. | It does not fight. It declines. |
+|  | **Tallyside Catfish** | Tiger sorubim (*Pseudoplatystoma tigrinum*) | catfish | 51–72 | 130 | rare | night | night water | Predator: Cut Strip, Moth Popper. | Each bar on its side is a barge it counts through. It loses count and keeps the bars. |
+|  | **Snufferjaw** | Payara (*Hydrolycus armatus*) | dogtooth | 47–66 | 120 | rare | day, dusk | day water | Predator: Glimmer Spoon, Cut Strip. | Two long teeth, shaped for putting out small lights. It looks at the Wick kindly. |
+|  | **Gill Lodger** | Candiru (*Vandellia cirrhosa*) | eel | 6.5–9.5 | 17 | rare | any | open water | Nothing. Land a big catfish and look. | It lodges in the gills of bigger fish and pays no rent. Murk says he knows the type. |
+|  | **Boathook Catfish** | Ripsaw catfish (*Oxydoras niger*) | catfish | 43–57 | 100 | uncommon | any | open water | Bottom: Mire Worms, Bone Jig. | It catches more nets than nets catch it. |
+|  | **Waxcomb Ray** | Smoothback river stingray (*Potamotrygon orbignyi*) | disc | 36–49 | 85 | uncommon | any | open water | Bottom: Mire Worms, Bone Jig. | Patterned like honeycomb. Somebody down here still remembers bees. |
+|  | **Hullknock Perch** | Basha (*Cynoscion acoupa*) | perch | 34–46 | 80 | uncommon | dusk, night | open water | Predator: Cut Strip, Glimmer Spoon. | It knocks twice on the hull at dusk. Nobody is ever in. |
+|  | **Silkwhisker** | Barbado (*Pinirampus pirinampu*) | catfish | 41–53 | 90 | common | night | open water | Bottom: Mire Worms, Cut Strip. | Its whiskers are longer than it is. It trips on them and pretends it did not. |
+|  | **Bareface Catfish** | Fidalgo catfish (*Ageneiosus inermis*) | catfish | 28–36 | 60 | common | day, dusk | day water | Predator: Glimmer Spoon, Cut Strip. | No whiskers. It gets by on mouth. |
+|  | **Vigil Catfish** | Piracatinga (*Calophysus macropterus*) | catfish | 23–30 | 50 | common | any | open water | Bottom: Cut Strip. | It comes to whatever sinks and stays to the end. Someone should. |
+|  | **Lacework Catfish** | Catfish | catfish | 19.5–25 | 42 | common | night | open water | Bottom: Mire Worms. | Far too pretty for the bottom of a river. It goes back there anyway. |
+|  | **Tallow Borer** | Candiru-açu (*Cetopsis candiru*) | catfish | 14–18 | 30 | common | any | open water | Bottom: Cut Strip. | It turns as it bites, like a key. It opens worse things than your bait. |
+
+**Giants of The Siltway:** The Barge-Shadow, the giant of *Amazon Flesh Eaters*, *Amazon Apocalypse*, *Man-Eating Monster* · Dapplewheel Ray, the giant of *Colombian Slasher* · Sternlamp Catfish, the giant of *Amazon Apocalypse*.
+
+- **The Barge-Shadow.** Three metres of grey, shark-shaped catfish. A wide flat head, whiskers as long as the raft, a deep forked tail whose tips trail into threads. Dusk-slate above, pale stone below, small candle-yellow eyes. *Play:* Runner. A slow take, then one unstoppable run down the channel that tows the raft. Long holds on the bottom. A head-shake at the lift. *Haunt:* The crown: the Long Hole, the deepest cut of the channel. Bottom. Sign: a faint still ring, and a dome when it turns.
+- **Dapplewheel Ray.** An almost perfect round disc wider than the Wick is tall, plum-dark and dappled like a forest floor, with a thread of a tail and two small close-set eyes. *Play:* Sulker. Takes a bait on the sand after dark and clamps to the bottom. Long holds, one slow run, a heavy lift that bends the rod to the water. *Haunt:* Night water: the Lamp Bar, on the sand under the leaning lamp. Bottom. Sign: a pale round print and a puff of silt.
+- **Sternlamp Catfish.** A broad flat head a third of its length, long whiskers, a dusk-slate back over a pale stone side band, and a tail lit ember-red like a barge's stern lamp. It grunts when lifted. *Play:* Sinker. Takes hard and bores straight back into the sunken timber. Heavy bulldog surges; it wraps the line. Half its losses are fouled. *Haunt:* Old water: the Sunk Ferry and its drift timber. Bottom, in the wood. Sign: a bubble trail by day, a glow trail at night.
+
+### 15. Lanternroot Lagoon · lagoon · lush step 14
+
+*The drowned orchard has become a mangrove forest, standing in brackish glass-calm water on arched roots, its crowns a deep glossy green over palms and seagrass flats. Stilt houses hang paper lanterns low: candle amber on dusk water. Pale sand flats, ankle deep, lavender under the stars; blossom drifts nebula pink down the creeks. At night whole trees of fireflies flash together.*
 
 Places: the Bright Flats (day) · the Sunken Orchard (old) · the Stilt Shrine (night) · the Sighing Pool (crown) · the Monsoon Cut (night, later sheet).
 
@@ -379,82 +431,32 @@ Places: the Bright Flats (day) · the Sunken Orchard (old) · the Stilt Shrine (
 - **Rootjaw Catfish.** Very long flat-sided catfish, a jaw that opens past the eyes, two long whiskers, a tiny back fin, a fin along the whole belly, forked tail. Plum-silver, cream belly. No glow. *Play:* Sinker. Seizes and turns for the drowned stalks, wrapping the line round them. Fouled. *Haunt:* Night water: the Monsoon Cut (a later sheet), among sunken trunks. Sign: a slow swirl beside timber; a mauled bait.
 - **Snagheart Bass.** Deep, thick-shouldered bass, ink-black with a dusk-violet sheen; a heavy jaw with dog teeth that pit hard lures; broad square tail; old scars. Eyes ember-amber. *Play:* Thrasher. Hits like a dropped anchor and bolts for the snags to wrap the line; brutal short surges, deep head-shakes. *Haunt:* Old water only: the drowned trunks of the Sunken Orchard, mid-depth. Strike splash.
 
-### 14. The Waxen Reef
+### 16. The Inkwood · river (blackwater) · lush step 15
 
-*The roofs and spires of a drowned harbour town, grown over with pale coral like run candle wax. Sea fans in lavender and nebula pink; at night the polyps open as thousands of small amber flames. A wreck lies across the drop-off into violet dark.*
+*A blackwater river through the kingdom's drowned orchard forest, its green heart. Tea-black mirror water winds between trunks standing in it to their waists, and the canopy closes over it: green on green, leaves wider than the raft, curtains of vine and hanging root, ferns and pale flowers on every limb, moss on everything. Nebula-pink blossom on the surface; amber lantern-gourds still ripen and drop in. Narrow creeks slip under the roots to hidden ponds. At night the moon comes through in coins, fireflies hang in the green, and every leaf the lantern touches shines.*
 
-Places: the Chimney Gardens (day) · the Broken Keel (old) · Lamp Row (night) · the Abbot's Cellar (crown) · the Drowned Spire (old, later sheet).
-
-| | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Waxen Abbot** | Giant grouper (*Epinephelus lanceolatus*) | perch | 250 → 285 | 285 | **legendary** | night | the Abbot's Cellar | Its own bait only (a new legend bait: a Lantern-Fry, one live lit fish). | It opens its mouth and the reef leans in. It has swallowed bigger than you. |
-| ★ | **Spirewatch Pike** | Great barracuda (*Sphyraena barracuda*) | pike | 64–94 | 175 | **epic** | day, dusk | the Drowned Spire | Predator: Cut Strip first, then Ember Roe or the Glimmer Spoon. | It hangs beside the drowned spire for hours, perfectly still, judging. |
-| ★ | **Mothlance Gar** | Needlefish (*Tylosurus crocodilus*); Needlefish‡ | gar | 64–94 | 175 | **epic** | night | Lamp Row | Predator; the Moth Popper at night; best on a proposed new lure, the Unpicked Rope. | It flies at lanterns like a moth, only narrower and much faster. |
-| ★ | **Anvil Trevally** | Giant trevally (*Caranx ignobilis*) | jack | 62–91 | 170 | **epic** | day, dusk | the Broken Keel | Predator: Glimmer Spoon, Cut Strip. | It hits the surface like a dropped anvil and expects the sea to apologise. |
-|  | **Cabin Grouper** | Grouper | perch | 59–83 | 150 | rare | any | old water | Bottom: Mire Worms, Bone Jig. | It has moved into the captain's cabin and changed nothing. |
-|  | **Picket Pike** | Barracuda | pike | 64–86 | 150 | uncommon | day, dusk | open water | Predator: Glimmer Spoon. | They hang in a row along the reef like a fence that bites. |
-|  | **Nebula Trout** | Coral trout (*Plectropomus leopardus*) | perch | 51–69 | 120 | uncommon | day, dusk | day water | Predator: Glimmer Spoon, Cut Strip. | Pink as the far nebula, spotted with its stars, and hiding under a ledge. |
-|  | **Amberside Snapper** | Golden snapper (*Lutjanus johnii*) | perch | 45–58 | 97 | common | any | open water | Predator: Glimmer Spoon, Cut Strip. | The colour of candlelight on a wall. It does not know it is pretty. |
-|  | **Pebble Grouper** | Grouper | perch | 28–36 | 61 | common | any | open water | Bottom: Mire Worms, Bone Jig. | It takes the first cast of every evening. Somebody has to. |
-|  | **Waxdrop Damsel** | Reef fish | perch | 16–21 | 35 | common | day, dusk | open water | Insect: Feather Fly. | Each keeps one coral chimney and defends it against the entire sea. |
-
-**Giants of The Waxen Reef:** The Waxen Abbot, the giant of *Death Down Under* · Spirewatch Pike, the giant of *Razorhead* · Mothlance Gar, the giant of *Coral Reef Killer* · Anvil Trevally, the giant of *South Pacific Terrors*.
-
-- **The Waxen Abbot.** A fish the size of a cellar door: vast mouth, thick lips, tiny eyes, rounded fins; pale stone mottled dusk-violet, fins amber-yellow like old wax. Coral grows on its brow like a mitre. *Play:* Legend, a sinker. Inhales the bait and bores for the cellar; immense slow surges, wraps on the wreck, long stills, a last stand. *Haunt:* The crown: the Abbot's Cellar, the hold of the wreck on the drop-off, bottom. A boil that lifts the whole pool.
-- **Spirewatch Pike.** A long silver lance of a pike: flat-topped head, jutting underjaw full of fangs, scattered ink blots on the lower flank, forked dark tail. A pale glint runs its length. *Play:* Leaper. One searing run, then long greyhounding leaps with open jaws; slashing head-shakes at the raft. *Haunt:* Old water: the Drowned Spire (a later sheet), hanging beside the spire in mid-water. Sign: a still silver line under the surface, then a strike splash.
-- **Mothlance Gar.** Arm-thin body and a long needle beak of fine teeth, fins set far back like arrow flights; silver-lavender with a dusk-violet stripe, the beak tip faintly amber. *Play:* Leaper. Skips and tail-walks toward any light, then needle-fast runs; its bony beak shrugs off hooks. *Haunt:* Night water only: Lamp Row, at the surface, where the drowned lamps still burn. Rise rings in a line.
-- **Anvil Trevally.** Deep, steel-plated jack with a steep blunt forehead like an anvil, sickle fins and a hard keel of plates before the tail; pewter going to ink with age, lavender flecks. *Play:* Runner. A surface explosion, a brutal straight run for the reef edge, then heavy side-on circles; a last stand. *Haunt:* Old water only: the drop-off beside the Broken Keel, surface to mid, on the running tide. Strike splash, the loudest on the reef.
-
-### 15. The Last Light
-
-*Open sea. One lighthouse on a rock, the last lamp of the kingdom, its amber beam turning over a long violet swell under the whole star field. A drift line of wreckage and pale weed where two currents meet. No shore anywhere.*
-
-Places: the Lamp Rock (day) · the Drift Line (old) · the Beam (night) · the Unlit Mile (crown).
+Places: the Windfall (day) · the Kitchen Stair (old) · Rootgate Creek (night) · the Breathing Mere (crown) · the Overhang (old, later sheet).
 
 | | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Jetsam Shark** | Tiger shark (*Galeocerdo cuvier*) | shark | 480 → 550 | 550 | **legendary** | night | the Unlit Mile | Its own bait only (a new legend bait: the Lighthouse Ration, a whole salted fish hung from a lamp-chain). | It has swallowed half the kingdom's lost things, and kept them all. |
-| ★ | **Nightsail Lancer** | Indo-Pacific sailfish (*Istiophorus platypterus*) | billfish | 124–182 | 340 | **epic** | day, dusk | the Drift Line | Predator: Cut Strip first, then Ember Roe or the Glimmer Spoon. | It raises a sail the colour of dusk and still goes nowhere it is told. |
-| ★ | **Castaway Pike** | Snoek (*Thyrsites atun*) | pike | 80–118 | 220 | **epic** | dusk, night | the Beam | Predator: Glimmer Spoon (it takes a jig), Cut Strip. | It follows wrecks and rafts alike, patient as weather. |
-|  | **Starbar Lancer** | Striped marlin (*Kajikia audax*) | billfish | 126–177 | 320 | rare | day, dusk | old water | Predator: Cut Strip first, then Ember Roe or the Glimmer Spoon. | When it is angry its stripes light up. It is nearly always angry. |
-|  | **Ambersickle Tuna** | Yellowfin tuna (*Thunnus albacares*) | tuna | 94–132 | 239 | rare | dusk, night | open water | Predator: Glimmer Spoon, Cut Strip. | It has crossed the whole sea twice and still seems late for something. |
-|  | **Fadegold** | Mahi-mahi (*Coryphaena hippurus*) | jack | 89–120 | 210 | uncommon | day, dusk | open water | Predator: Glimmer Spoon, Cut Strip. | Its gold goes out in your hands, like a candle carried into the wind. |
-|  | **Soot Jack** | Black jack (*Caranx lugubris*) | jack | 43–57 | 100 | uncommon | day, dusk | day water | Predator: Glimmer Spoon. | Black as a snuffed wick, and about as cheerful. |
-|  | **Pinstripe Tuna** | Skipjack tuna (*Katsuwonus pelamis*) | tuna | 51–65 | 110 | common | day, dusk | open water | Predator: Glimmer Spoon. | It never stops swimming, even asleep. Especially asleep. |
-|  | **Grey Latchfin** | Oceanic triggerfish (*Canthidermis sufflamen*) | perch | 30–39 | 65 | common | day, dusk | day water | Insect: Feather Fly. | It locks its spine upright, like a door bolted from the inside. |
-|  | **Scribbleback Mackerel** | Atlantic mackerel (*Scomber scombrus*) | tuna | 28–36 | 60 | common | day, dusk | open water | Insect: Feather Fly. | Its back is covered in writing. Nobody has read a mackerel in years. |
+| ★ | **The Banked Fire** | Arapaima (*Arapaima gigas*); Arapaima | pike | 325 → 370 | 370 | **legendary** | day, dusk | the Breathing Mere | Its own bait: the Blossom Fly, fished on the surface. | It must come up for air, like any fire. It burns low and waits for morning. |
+| ★ | **Emberbelly** | Red-bellied piranha (*Pygocentrus nattereri*) | bream | 62–91 | 170 | **epic** | day, dusk | the Kitchen Stair | Predator: Cut Strip above all; Glimmer Spoon. | It still waits under the kitchen steps for scraps. It is owed a hundred years of seconds. |
+| ★ | **Nightcreek Hound** | Anjumara (*Hoplias aimara*) | dogtooth | 47–70 | 130 | **epic** | night | Rootgate Creek | Predator: Cut Strip; a Moth Popper worked along the bank. | It bites the bait, the line, the raft and the dark. It is not angry. It is thorough. |
+| ★ | **Smilejaw Bream** | Red-bellied pacu (*Piaractus brachypomus*) | bream | 42–61 | 115 | **epic** | day, dusk | the Overhang | A fruit bait: the Windfall Plum, dropped where the gourds fall. Ignores lures. | Smiles with a full set of teeth. Nobody has ever smiled back. |
+|  | **Gourdcracker** | Tambaqui (*Colossoma macropomum*) | bream | 43–60 | 108 | rare | day, dusk | day water | A fruit bait (new: Windfall Plum). Spore Cake does in its place. | Teeth like a person and the patience of a tree. It waits for the fruit to fall. |
+|  | **Starback Ray** | Spotted river stingray (*Potamotrygon henlei*) | disc | 43–57 | 100 | uncommon | any, best at night | open water | Bottom: Bone Jig, Mire Worms. | A piece of the night sky that lies on the bottom and will not get up. |
+|  | **Windowtail Perch** | Butterfly peacock bass (*Cichla ocellaris*) | perch | 31–42 | 74 | uncommon | day | open water | Predator at the surface: Feather Fly, Glimmer Spoon. | It wears a lit window on its tail, so that whatever follows it bites the wrong end. |
+|  | **Inkside Nipper** | Black piranha (*Serrasalmus rhombeus*) | bream | 22–30 | 52 | uncommon | any | open water | Predator: Glimmer Spoon, Cut Strip. | One red eye each side, like a raft's lamps from below. It knows a lot of rafts. |
+|  | **Ditch Hound** | Trahira (*Hoplias malabaricus*) | dogtooth | 25–33 | 55 | common | any | open water | Predator: Cut Strip. Cut it and it is good bait itself. | Lives in a ditch. Dreams of a creek. Bites like both. |
+|  | **Petal Bream** | Pink pacu | bream | 19.5–25 | 42 | common | day | open water | Insect and fruit: Feather Fly, Windfall Plum. | It eats the blossom that falls on the water. Somebody has to tidy up. |
+|  | **Gourdseed Minnow** | Small bait fish | minnow | 8.5–10.5 | 18 | common | any | open water | Insect: Mire Worms, Feather Fly. It cuts into good strips. | The bottom of every food chain in the Inkwood. It bears this well. |
 
-**Giants of The Last Light:** The Jetsam Shark, the giant of *Death Down Under* · Nightsail Lancer, the giant of *Prehistoric Terror* · Castaway Pike, the giant of *Killers from the Abyss*.
+**Giants of The Inkwood:** The Banked Fire, the giant of *Amazon Assassins*, *Lair of Giants*, *Body Snatcher*, *The Lost Reels: Amazonian Giant* · Emberbelly, the giant of *Piranha*, *Face Ripper* · Nightcreek Hound, the giant of *Jungle Killer* · Smilejaw Bream, the giant of *The Mutilator*.
 
-- **The Jetsam Shark.** Huge shark with a broad square snout, big dark eyes and a long upper tail lobe; slate-violet back crossed by faded ink bars like candle shadows; pale belly. *Play:* Legend, a runner. Slow, wide, unstoppable circles and a long tow; heavy rolling head-shakes, a pass under the raft, two last stands. *Haunt:* The crown: the Unlit Mile, beyond the reach of the beam. Surface to mid. Sign: a tall fin crossing the last of the light.
-- **Nightsail Lancer.** Long spear bill and a vast sail fin taller than its body, dusk-violet and sown with ink spots like a star chart; slim silver flank with lavender bars; crescent tail. *Play:* Leaper. Raises the sail and dances: breach after breach, tail-walks, bill-slashing head-shakes, long fast runs between. *Haunt:* Old water only: the Drift Line, at the surface. A sail cutting the swell; nervous water where it herds bait.
-- **Castaway Pike.** Long, lean, ink-violet pike of the open sea: jutting underjaw, long fang teeth, a long low spiny dorsal, finlets before a forked tail; silver belly, lavender sheen. *Play:* Thrasher. Comes in packs: slashing head-shakes, twisting short runs and sudden slack; its teeth fray the line. *Haunt:* Night water: the Beam, where the lamp's light crosses the swell, in packs. Mid-water. Sign: nervous water, then a strike splash.
-
-### 16. The Rime Sound
-
-*A drowned fjord between pale stone cliffs, sea ice across its head with one fishing hole and a lantern beside it: amber on lavender snow. Frozen bell-buoys, a breath of mist, long nebula-pink ribbons in the sky. Black-violet water half a mile deep.*
-
-Places: the Net Racks (day) · the Fjord Floor (old) · the Lantern Hole (night) · the Half-Mile Line (crown).
-
-| | fish | inspired by | plan | typical | record | rarity | hours | where | favours | journal |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ★ | **The Long Winter** | Greenland shark (*Somniosus microcephalus*) | shark | 560 → 640 | 640 | **legendary** | any | the Half-Mile Line | Its own bait only (a new legend bait: an Old Ration, the older the better). | It was old when the kingdom was built. It has not hurried once since. |
-| ★ | **Icedoor Flounder** | Pacific halibut (*Hippoglossus stenolepis*) | flatfish | 97–143 | 267 | **epic** | day, dusk | the Fjord Floor | Bottom: Mire Worms, Bone Jig. | A door of ice lying on the seabed. Knock, and it comes up swinging. |
-|  | **Coalwing Skate** | Norwegian skate (*Dipturus nidarosiensis*) | ray | 83–116 | 210 | rare | any | old water | Bottom: Bone Jig. | Black on both sides, like a letter nobody has written yet. |
-|  | **Bellrope Cod** | Common ling (*Molva molva*) | cod | 79–111 | 200 | rare | any | old water | Bottom: Mire Worms, Bone Jig. | Long as a bell rope. Pull, and something far below pulls back. |
-|  | **Bouldermouth** | Lingcod (*Ophiodon elongatus*) | pike | 65–87 | 152 | uncommon | day, dusk | open water | Predator: Glimmer Spoon, Cut Strip. | Mostly head, and the head is mostly mouth. It guards its nest all winter. |
-|  | **Hemstitch Cod** | Cusk (*Brosme brosme*) | cod | 51–69 | 120 | uncommon | any | open water | Bottom: Mire Worms, Bone Jig. | Every fin is hemmed in pale thread, by someone careful and long gone. |
-|  | **Rosedeep Rockfish** | Redfish | perch | 43–57 | 100 | uncommon | any | night water | Glow: Lantern Lure, Lumen Moss. | Brought up from the dark, it blushes all over at being seen. |
-|  | **Greybeard Cod** | Atlantic cod (*Gadus morhua*) | cod | 92–119 | 200 | common | any | open water | Bottom: Mire Worms, Bone Jig. | One whisker on its chin, and the look of someone who has seen winters. |
-|  | **Ashline Cod** | Coalfish (*Pollachius virens*) | cod | 60–77 | 130 | common | any | open water | Predator: Glimmer Spoon (it takes a jig). | Dark as cold ash, with one pale line to show where the fire was. |
-|  | **Thumbprint Cod** | Haddock (*Melanogrammus aeglefinus*) | cod | 51–66 | 112 | common | day, dusk | open water | Bottom: Mire Worms, Bone Jig. | Somebody once picked it up to look, and it has kept the thumbprint. |
-|  | **Emberspot Flounder** | European plaice (*Pleuronectes platessa*) | flatfish | 46–59 | 100 | common | any | day water | Bottom: Mire Worms, Bone Jig. | It lies on the sand wearing a few small embers, hoping to pass for a hearth. |
-|  | **Wickstripe Rockfish** | China rockfish (*Sebastes nebulosus*) | perch | 21–27 | 45 | common | any | open water | Bottom: Mire Worms, Bone Jig. | Black, with one amber stripe, like a candle seen through a keyhole. |
-
-**Giants of The Rime Sound:** The Long Winter, the giant of *Legend of Loch Ness*, *Ice Cold Killer* · Icedoor Flounder, the giant of *Alaska's Cold Water Killer*.
-
-- **The Long Winter.** A grey, cigar-shaped bulk with a short blunt snout, small fins set far back, and no hurry. Frost-pale mottling; each milky eye trails one small pale thread that glows like a candle end. *Play:* Legend, a sulker. No runs: a slow, endless weight rising from half a mile down; long stills, heavy rolls, two last stands. *Haunt:* The crown: the Half-Mile Line, the deepest water under the ice. No sign but the float going down, very slowly.
-- **Icedoor Flounder.** A flatfish as wide as a door: long diamond body, both eyes on the dark side, big jaws, a crescent tail. Slate-violet above with pale frost marbling; the underside is white as lamp-lit ice. *Play:* Sinker. Dead weight, then planing dives straight back to the bottom, again and again; it slams its tail at the raft. A last stand. *Haunt:* Old water only: the sand and gravel shelves of the Fjord Floor, bottom, on the turn of the tide. A boil; a door-sized shadow lifting.
+- **The Banked Fire.** Three metres of armour. A flat bone-plated head, an upturned mouth, back fins bunched into a paddle at the tail. Dusk-pewter scales rimmed in ember, brighter toward the tail. Amber glow under the gill plates. *Play:* Leaper. Gulps the bait off the surface. Long runs across the mere, heavy breaches, head-shakes at the raft. Comes up to breathe mid-play. Throws hooks. *Haunt:* The crown: the Breathing Mere, a hidden pond behind the root curtains. Surface. Sign: a slow boil and a loud sigh every few minutes, where it comes up for air.
+- **Emberbelly.** A deep disc as long as the Wick is tall. A blunt bulldog face and an underslung jaw with one row of triangle teeth. Pewter flanks flecked like starlight. A belly the red of a live coal. *Play:* Thrasher. The float chatters, then goes. Tight circles and sawing head-shakes while the pack boils round it. Losses are bitten-through lines: snapped. *Haunt:* Old water: the Kitchen Stair, the scullery steps of a drowned stilt village. Mid-water. Sign: nervous water that seems to boil.
+- **Nightcreek Hound.** A log with a face. A round ink-violet body, a blunt bulldog head, dog teeth that never quite close, a round paddle tail. Pale amber eyes that hold the lantern. *Play:* Thrasher. Slams the bait under the bank. Short brutal surges, head-shakes, dives for the roots and wraps. Losses are snapped or fouled lines. *Haunt:* Night water: Rootgate Creek, the narrow run under the little fall. Shallow, tight to the bank. Sign: one heavy strike splash by the roots.
+- **Smilejaw Bream.** Deep round flat-sided fish, small head, and a full set of square, human-looking teeth. Plum-slate back, rose-red belly and breast, ink-edged fins. No glow. *Play:* Thrasher. Short crushing surges in tight circles. Bites through line and straightens hooks at the lift: snapped or spat. *Haunt:* Old water: the Overhang (a later sheet), deep water under the fruiting boughs, where things fall in. Mid-water. Sign: a loud plop, then a crunch.
 
 ## 4. New body plans
 
