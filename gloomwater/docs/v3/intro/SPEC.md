@@ -513,3 +513,10 @@ reproduced on the frames or in a scenario before it was fixed; the fixes are as 
 | could: streaks in the phone's sky | the portrait looks a metre lower in both takes; the world's own shafts are left as they are | `r3p` 2.0, 14.5 |
 | could: the length scenario's lost-time sum counted time before the press | it counts only the part of each frame after `intro:start` | `intro-length` |
 | could: the raft's red flag competes with the flame | **not done**: a film-only colour would change at the hand-off in view of the player, and a game-wide colour is the art pass's call, not the film's | — |
+
+**Regression on the fixed build** (2026-11-14, software GL; logs in `tools/out/intro/fix/reg/`): `node tools/check.mjs` all
+checks passed (`intro` 411, `intro-stage` 160, `intro-seam` 114 assertions); `validate-data` OK in all three modes, the v1 export
+fingerprint untouched; `scenario-run` on the rebuilt minified flag-off `index.html` and `run-v3` on the v3 build: ALL INVARIANTS
+HOLD, 0 page / console / ctx errors; `p1-smoke` 49 ok; `intro-flow` (desktop) every part green (the three checks that encoded the
+old end rule and an unbuilt replay's length were updated with the fixes); `intro-length` 17.98 s wall, 18.02 s of film, wall −
+lost 17.96 s; the cue's bus peaks at −6.7 dBFS at the contact. The set's peak: 17 calls, 5,640 triangles (budget 30 / 10,000).
