@@ -203,7 +203,7 @@ section('the show camera: the fit of named points, for 16:9 and a phone held upr
   eq([C.showRow(SC, 'hang', { length: 1.6, aspect: 16 / 9 }).headroom, C.showRow(SC, 'pinch', { length: 0.3, aspect: 16 / 9 }).headroom, C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9 }).footroom, C.showRow(SC, 'hug', { length: 1.2, aspect: 16 / 9 }).footroom],
     [SC.pose.hang.headroom, SC.headroom, SC.pose.both.footroom ?? SC.footroom, SC.footroom], 'a row may keep its own room over the subject (a hung fish sways with the raft) or under it (two hands under a fish); the others take the camera\'s');
   eq([C.showRow(SC, 'pinch', { length: 0.115, aspect: 16 / 9 }).flameTip, C.showRow(SC, 'pinch', { length: 0.33, aspect: 16 / 9 }).flameTip, C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9 }).flameTip],
-    [SC.pose.pinch.tinyFlameTip, null, null], 'a tiny fish\'s close-up keeps the flame\'s core, not its tip; every other row the camera\'s flameTip');
+    [SC.pose.pinch.tinyFlameTip, SC.pose.pinch.flameTip ?? null, SC.pose.both.flameTip ?? null], 'a tiny fish\'s close-up keeps the flame\'s core, not its tip; a row may keep its own room over the flame');
   // the raked yaw: 55° off broadside, toward the head end, whichever way the fish lies
   near(C.showRakeYaw(0, { x: 1, z: 0 }, 55) / DEG, 55, 'snout to the east: the lens swings east', 1e-6);
   near(C.showRakeYaw(0, { x: -1, z: 0 }, 55) / DEG, -55, 'snout to the west: the lens swings west', 1e-6);

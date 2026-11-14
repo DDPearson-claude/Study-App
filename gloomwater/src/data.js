@@ -3901,10 +3901,10 @@ export const AUTOFISH = {
       headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0 },   // (a tiny fish: the flame's core kept, not its tip)
-        both:      { elev: 7,  fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0 },      // (an angler's photograph: near eye level, the hands at the foot)
+        both:      { elev: 7,  fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0.3 },   // (an angler's photograph: near eye level, the hands at the foot, the flame's top at the edge's margin)
         hug:       { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
         hang:      { elev: 8,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'], headroom: 0.015 },   // (a fish hung 2 m up sways with the raft's rocking: a little more room over it)
-        alongside: { elev: 16, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet'], craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55 },
+        alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet'], footroom: 0, craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55 },   // (a low lens along the flank; nothing under the surface is framed)
       },
       still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
       behindCard: { hold: true, portraitUp: 0.24 },   // while the card is up the framing holds (a phone lifts the subject into the open top)

@@ -252,7 +252,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
-  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], STRETCH_KEYS = new Set(['rStretch', 'lStretch']), JOINT_RATE = 9.6, STRETCH_CAP = 2.4;
+  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], STRETCH_KEYS = new Set(['rStretch', 'lStretch']), JOINT_RATE = 9.6, STRETCH_CAP = 2.4, TURN_BACK = 4;
   let showCool = 0;
   // the show: the spec actors-show.js keeps current every frame (null outside a show), the hands' IK locks (world targets), and the
   // rod as a prop (planted by its butt at a world point, or set down on the bow rest)
@@ -634,7 +634,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     else if (Number.isFinite(env.targetYaw) && base !== 'paddle' && base !== 'catch') face = wrapPi(env.targetYaw - env.heading);
     else if (aimYaw !== null && base !== 'paddle' && base !== 'idle') face = wrapPi(aimYaw - env.heading);
     else if (aimYaw !== null && base === 'idle' && env.fishingBusy) face = wrapPi(aimYaw - env.heading);
-    { const turn = wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt)); facing += capped ? clamp(turn, -cap, cap) : turn; }
+    // (on the way out the Wick turns back to its play no faster than the show's lens eases back out, ≈ 0.8 s for a half turn: it never
+    // spins its back to a lens that is still close)
+    { const turn = wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt)), tc = SHOW.has(base) ? cap : TURN_BACK * Math.min(dt, 0.05); facing += capped ? clamp(turn, -tc, tc) : turn; }
     group.rotation.y = facing;
 
     // apply rig

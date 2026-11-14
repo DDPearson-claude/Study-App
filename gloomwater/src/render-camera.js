@@ -208,7 +208,7 @@ export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.
   const id = pose && cam.pose?.[pose] ? pose : 'both';
   const R = cam.pose?.[id] || SHOW_CAMERA_DEFAULT.pose[id], L = Math.max(0, num(length, 0.5));
   const up = showUpright(aspect);
-  let fov = num(R.fov, 44), elev = num(R.elev, 10), flameTip = null;
+  let fov = num(R.fov, 44), elev = num(R.elev, 10), flameTip = Number.isFinite(R.flameTip) ? R.flameTip : null;
   if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFov)) fov = R.tinyFov;
   if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFlameTip)) flameTip = R.tinyFlameTip;   // (a tiny fish's close-up keeps the flame's core, not its tip)
   fov = lerp(fov, Math.max(fov, num(R.fovPortrait, fov)), up);

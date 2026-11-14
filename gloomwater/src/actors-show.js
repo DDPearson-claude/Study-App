@@ -646,7 +646,19 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     const c = clutter(L, L.id === 'pinch');
     if (L.id === 'pinch') return c[1] > c[0] + 0.25 ? -1 : 1;
     const from = L.hasFrom ? ((L.from.pos.x - L.spot.x) * L.xS.x + (L.from.pos.z - L.spot.z) * L.xS.z >= 0 ? 1 : -1) : 1;
-    return c[from > 0 ? 1 : 0] > c[from > 0 ? 0 : 1] + 0.5 ? -from : from;
+    const side = c[from > 0 ? 1 : 0] > c[from > 0 ? 0 : 1] + 0.5 ? -from : from;
+    // a fish stood or hung beside the Wick is never shown behind the creel or the brazier (with the lens low, either one hides its
+    // foot and half its length): if one stands between the lens and that side and not the other, it goes to the other side
+    return hidesFoot(L, side) && !hidesFoot(L, -side) ? -side : side;
+  }
+  function hidesFoot(L, side) {
+    const dl = L.id === 'hug' ? 2.1 : 1.4 + 1.0 * L.L, xf = side * (L.id === 'hug' ? 0.24 : 0.32);
+    for (const [x, z] of [[0.62, -0.8], [-0.64, 0.84]]) {   // the creel, the brazier
+      const xs = (x - L.spot.x) * L.xS.x + (z - L.spot.z) * L.xS.z, zs = (x - L.spot.x) * L.zS.x + (z - L.spot.z) * L.zS.z;
+      if (zs < 0.3 || zs > dl - 1.4) continue;   // (nearer the lens than that, the low lens has it below the frame)
+      if (Math.abs(xs / (dl - zs) - xf / dl) < 0.24 / (dl - zs)) return true;
+    }
+    return false;
   }
   function begin(fv, o = {}, cam, camPos) {
     if (S) finish(false);
