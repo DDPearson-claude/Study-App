@@ -653,7 +653,17 @@ held at the chest cannot fill its width; the Taper's `both` is 16.5 % (its stove
 an ordinary card (23 before), 9 for the Quayling, 39 for a legend's. Draw calls at the pause (the high tier): 138 – 169, the
 legend 199 (S8's medium-tier comparison: below).
 
-STAGE_REGRESSION
+**The sequence** (`tools/tests/show-seq.scenario.mjs` on the merged build): a tap at T0 + 0.1 s → the card at 0.97 s (plan
+0.98); a first-ever species tapped four times: 0.80 s from `fish:measured` to the card; a press in the pause → the card at
+once; a swarm window: the world frozen 1.20 s after an Elder's reveal, its pause still ≥ 0.6 s; a stuck show: the card at
+7.97 s (valve 8), the records written once; an abort in the hold: no view, the world unfrozen, measured once; after four
+catches and their cards the live geometries, textures and programs are unchanged (150 / 40 / 115). **S8** at the medium tier:
+the Lantern-Swallower's pause 152 draw calls (182 at most in its strip), the Small's 159 (184): today's ceremony peaked at 185.
+**Regression**: `node tools/check.mjs` green; `node tools/validate-data.mjs` OK in all three modes (the flag-off fingerprint
+untouched); `tools/sim/catch-v3.mjs` all PASS; `tools/scenario-run.mjs` on the minified flag-off `index.html` and
+`tools/tests/run-v3.scenario.mjs` on a v3 build: ALL INVARIANTS HOLD, 0 page, console and ctx errors; `p1-smoke` passes; the
+pose viewer's five bodies × five poses shoot clean. The film: `tools/out/show/show.mp4` (a Small and an Elder from the strike to
+the card closing, 12 frames a second of game time on the stepper).
 
 ### 7.4 Left in the code, unused by the show
 
