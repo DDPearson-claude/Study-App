@@ -260,8 +260,9 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
    */
   const CAM_ELEV = { pinch: 8, both: 10, hug: 10, hang: 8, alongside: 16 };
   function faceLens(L) {
-    const row = A().camera?.pose?.[L.id], elev = (row?.elev ?? CAM_ELEV[L.id] ?? 10) * DEG;
-    const d = L.id === 'pinch' ? 1.1 : L.id === 'both' ? 0.95 + 0.7 * L.L : L.id === 'hug' ? 2.1 : L.id === 'hang' ? 1.4 + 1.0 * L.L : Math.max(2.3, 0.9 * L.L);
+    // (the smallest fish's lens stands at the hand's height and nearer: its row's tinyElev)
+    const row = A().camera?.pose?.[L.id], elev = (L.tiny && !L.tall && Number.isFinite(row?.tinyElev) ? row.tinyElev : row?.elev ?? CAM_ELEV[L.id] ?? 10) * DEG;
+    const d = L.id === 'pinch' ? (L.tiny && !L.tall ? 0.8 : 1.1) : L.id === 'both' ? 0.95 + 0.7 * L.L : L.id === 'hug' ? 2.1 : L.id === 'hang' ? 1.4 + 1.0 * L.L : Math.max(2.3, 0.9 * L.L);
     const mid = L.hasMid ? L.mid : T.a.copy(L.spot).addScaledVector(UP, 0.6);
     const est = L.camEst.copy(mid).addScaledVector(L.zS, d * Math.cos(elev)).addScaledVector(UP, d * Math.sin(elev));
     const head = T.b.copy(L.spot); head.y += 0.8 * wick.group.scale.x / 1.22;

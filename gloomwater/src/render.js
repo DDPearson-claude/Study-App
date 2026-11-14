@@ -883,9 +883,11 @@ export function create(ctx) {
       springStep(S.sx, T.x, omFor(Math.abs(T.x - S.sx.x)), dt); springStep(S.sy, T.y, omFor(Math.abs(T.y - S.sy.x)), dt); springStep(S.sz, T.z, omFor(Math.abs(T.z - S.sz.x)), dt);
       springStep(S.sd, T.dist, omFor(Math.abs(T.dist - S.sd.x)), dt); springStep(S.se, T.elev, omFor(Math.abs(T.elev - S.se.x) * DEG * rad), dt); springStep(S.sf, T.fov, om, dt);
       const dyaw = wrapAngle(T.yaw - S.sw.x);
-      springStep(S.sw, S.sw.x + dyaw, omFor(Math.abs(dyaw) * rad * Math.cos(clamp(S.se.x, 2, 80) * DEG)), dt);
+      springStep(S.sw, S.sw.x + dyaw, omFor(Math.abs(dyaw) * rad * Math.cos(clamp(S.se.x, -30, 80) * DEG)), dt);
     }
-    const e = clamp(S.se.x, 2, 80) * DEG, yw = S.sw.x, d = Math.max(0.3, S.sd.x * (1 - pushK()));
+    // (a row may put the lens UNDER its subject: the smallest fish's close-up, a tall body's two-hand shot; held to 2° it was not where its fit
+    // had been made, and the flame's core stood at the frame's very top)
+    const e = clamp(S.se.x, -30, 80) * DEG, yw = S.sw.x, d = Math.max(0.3, S.sd.x * (1 - pushK()));
     S.look.set(S.anchor.x + S.sx.x, S.anchor.y + S.sy.x, S.anchor.z + S.sz.x);
     S.pos.set(S.look.x + Math.sin(yw) * Math.cos(e) * d, S.look.y + Math.sin(e) * d, S.look.z + Math.cos(yw) * Math.cos(e) * d);
     S.fov = S.sf.x;
