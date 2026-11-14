@@ -608,7 +608,7 @@ export function buildCrown(n = 40, color = 0xf0d49c) {
         vec3 p = vec3( cos( aSeed.x ) * r, 4.0 * h * u * ( 1.0 - u ), sin( aSeed.x ) * r );
         vA = uK * step( 0.0, u ) * ( 1.0 - smoothstep( 0.7, 1.0, u ) ) * ( 0.55 + 0.45 * aSeed.z );
         vec4 mv = modelViewMatrix * vec4( p, 1.0 );
-        gl_PointSize = clamp( uScale * ( 0.5 + 0.5 * aSeed.w ) / max( 1.0, - mv.z ), 2.0, 28.0 );
+        gl_PointSize = clamp( uScale * ( 0.6 + 0.6 * aSeed.w ) / max( 1.0, - mv.z ), 2.0, 30.0 );
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */`
@@ -617,7 +617,7 @@ export function buildCrown(n = 40, color = 0xf0d49c) {
       void main() {
         float d = length( gl_PointCoord - 0.5 ) * 2.0, a = ( 1.0 - smoothstep( 0.2, 1.0, d ) ) * vA;
         if ( a < 0.004 ) discard;
-        gl_FragColor = vec4( uColor * a, 1.0 );
+        gl_FragColor = vec4( uColor * ( a * 1.6 ), 1.0 );
       }`,
     transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending, fog: false, toneMapped: false,
   });

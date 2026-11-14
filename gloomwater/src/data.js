@@ -4040,7 +4040,7 @@ export const INTRO = {
       { id: 'glass',   t: 1.4,  to: 5.9,  what: 'glass chord', notes: [62, 69, 76], db: -20, attack: 0.4, partials: [1, 2.76, 5.4] },
       { id: 'ping',    t: 5.6,  what: 'the chain parts', hz: [2200, 1600], db: -16, dur: 0.08 },
       { id: 'fallBend', t: 5.9, to: 7.9, what: 'the top voice falls a fifth, the drone a semitone', bend: { from: [76, 38], to: [69, 37] } },
-      { id: 'impact',  t: 7.9,  what: 'sub thump and a low bell; a 300 Hz lowpass closes in 0.15 s', notes: [33], hz: [80, 40], db: -12, lowpass: 300, over: 0.15 },
+      { id: 'impact',  t: 7.9,  what: 'sub thump and a low bell; a 300 Hz lowpass closes in 0.15 s', notes: [33], hz: [80, 40], db: -12.6, lowpass: 300, over: 0.15 },
       { id: 'deep',    t: 8.2,  to: 12.4, what: 'sub drone under the lowpass', notes: [26, 33], db: -20 },
       { id: 'ember',   t: 9.0,  what: 'ember_swell (audio-af.js)', sfx: 'ember_swell', volume: 0.8 },
       { id: 'groan',   t: 9.6,  what: 'one slow, patient groan', hz: [70, 52], dur: 2.5, db: -18 },
