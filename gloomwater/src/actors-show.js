@@ -652,11 +652,13 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     return hidesFoot(L, side) && !hidesFoot(L, -side) ? -side : side;
   }
   function hidesFoot(L, side) {
-    const dl = L.id === 'hug' ? 2.1 : 1.4 + 1.0 * L.L, xf = side * (L.id === 'hug' ? 0.24 : 0.32);
+    // the line from the lens (dl m off, along zS) to the fish's foot (≈ xf m to that side of the Wick): does it pass within the
+    // prop's reach where the prop stands? Only props the low lens still sees count (not right under it, not behind the Wick)
+    const dl = L.id === 'hug' ? 2.1 : 1.4 + 1.0 * L.L, xf = side * (L.id === 'hug' ? 0.34 : 0.42);
     for (const [x, z] of [[0.62, -0.8], [-0.64, 0.84]]) {   // the creel, the brazier
       const xs = (x - L.spot.x) * L.xS.x + (z - L.spot.z) * L.xS.z, zs = (x - L.spot.x) * L.zS.x + (z - L.spot.z) * L.zS.z;
-      if (zs < 0.3 || zs > dl - 1.4) continue;   // (nearer the lens than that, the low lens has it below the frame)
-      if (Math.abs(xs / (dl - zs) - xf / dl) < 0.24 / (dl - zs)) return true;
+      if (zs < 0.2 || zs > dl - 0.8) continue;
+      if (Math.abs(xs - xf * (dl - zs) / dl) < 0.42) return true;
     }
     return false;
   }
