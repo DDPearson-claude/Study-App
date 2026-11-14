@@ -34,7 +34,7 @@
 //                           calls / triangles: the set's own cost in the frame at t, every pass (the main one and the lake's mirror)
 import * as THREE from 'three';
 import { REFLECT_LAYER } from './toon.js';
-import { buildLantern, buildWindows, buildRing, buildInkCard, buildMotes, buildEmber, buildFlank, buildSpark, flankPoint, FLANK_MARKS } from './intro-models.js';
+import { buildLantern, buildWindows, buildRing, buildInkCard, buildMotes, buildEmber, buildFlank, buildSpark, buildCrown, buildFloat, flankPoint, FLANK_MARKS, LINE_PTS } from './intro-models.js';
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -186,8 +186,10 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   const lurch = (F.lurch ?? 0.06) * (smooth(0, 0.14, tau) + 0.5 * Math.exp(-8 * tau) * Math.sin(30 * tau) * (tau > 0 ? 1 : 0));
   const y0 = S.lantern.at[2] - 0.3 * smooth(0, 0.16, tau);
   la.vis = on && t < cut;
+  // (after the contact it plunges on at about the speed it fell, tipping forward as it goes under: never a buoy on the water)
   la.y = t < F.contact ? lerp(y0, F.restY, p) : F.restY - (F.sink ?? 5) * (t - F.contact);
-  la.tilt = t < F.drop ? lurch : lerp(lurch, F.tilt, Math.pow(fall, 1.3));
+  la.tilt = (t < F.drop ? lurch : lerp(lurch, F.tilt, Math.pow(fall, 1.3))) + (F.tip ?? 0) * smooth(F.contact, F.contact + 0.35, t);
+  la.slump = smooth(F.contact, F.contact + (F.slump ?? 0.18), t);   // the chain stubs fall slack onto the roof
   la.fall = p;
   la.whip = 0.07 * Math.sin((t - F.drop) * 11) * fall * (t < F.contact ? 1 : Math.max(0, 1 - (t - F.contact) * 4));   // the stubs trail it
   const breath = 1 + 0.035 * Math.sin(t * 2.1) + 0.02 * Math.sin(t * 5.3 + 1.1);
@@ -215,6 +217,11 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   ring.vis = on && t >= F.contact && t < cut && ru < 1;
   ring.r = lerp(S.contact.ring.r[0], S.contact.ring.r[1], easeOut(ru, 2.4));
   ring.k = ring.vis ? (1 - ru) * (1 - ru) * 2.6 * (reduced ? 0.5 : 1) : 0;
+  // … and the crown of drops it throws up (seconds since the contact; out at the cut with everything of the lit world)
+  const crown = out.crown || (out.crown = {}), CR = S.contact.crown || {};
+  crown.tau = t - F.contact;
+  crown.vis = on && crown.tau >= 0 && crown.tau < (CR.life ?? 1.2) && t < cut;
+  crown.k = crown.vis ? (reduced ? 0.6 : 1) : 0;
 
   // ---- the kingdom's windows are lit from the swap to the cut (introWindow has each one)
   out.windows = on && t < cut;
@@ -276,6 +283,25 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   // … and where it is in the flank's own metres, for the glow through the belly
   fl.emberX = (a - mid) / unit; fl.emberY = (b - across) / unit; fl.emberK = fl.vis ? covered * 0.95 * (1 + 0.1 * Math.sin(t * 7.3)) : 0;
 
+  // a trail of bubbles from the ember while it sinks, gone as the flank's mouth takes it
+  out.bubbles = em.k > 0 ? em.k * (1 - covered) * smooth(cut, cut + 0.3, t) * (1 - smooth(B.ember.sinkUntil, FK.cover, t) * 0.6) : 0;
+
+  // ---- fishing: the Wick's line out to a float; its light takes with the lantern; one dip, one slow ring; gone into play
+  const fo = out.float || (out.float = { ring: {} }), FL = S.float;
+  if (FL) {
+    const fade = 1 - smooth(FL.out[0], FL.out[1], t);
+    fo.vis = on && t >= cut && fade > 0.001;
+    fo.k = fade;
+    fo.light = smooth(FL.light[0], FL.light[1], t) * fade;
+    const du = t - FL.dip;
+    fo.dip = du > 0 && du < 0.9 ? Math.sin(Math.PI * Math.min(1, du / 0.35)) * Math.exp(-3 * du) * (du < 0.35 ? 1 : 0.6) : 0;   // under, and back up
+    fo.bob = 0.018 * Math.sin(t * 2.1) + 0.01 * Math.sin(t * 3.7 + 1.2);
+    const ru2 = (t - FL.dip) / FL.ring.life;
+    fo.ring.vis = fo.vis && ru2 >= 0 && ru2 < 1;
+    fo.ring.r = lerp(FL.ring.r[0], FL.ring.r[1], easeOut(ru2, 1.8));
+    fo.ring.k = fo.ring.vis ? 0.5 * (1 - ru2) * (1 - ru2) * Math.min(1, ru2 * 8) * fade : 0;
+  } else fo.vis = false;
+
   // ---- the spark at the Wick's head
   const sp = out.spark || (out.spark = {});
   sp.k = bump(W.spark, W.spark + 0.22, t);
@@ -291,6 +317,7 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
 
 // ------------------------------------------------------------------ the stage
 const BELOW_DIST = 10;      // m: how far in front of the lens the picture plane of the dark beat stands (its things are sized in picture heights)
+const FLOAT_SCALE = 1.5;    // the film's float is a lantern-float, half again a bobber's size: it must read from the play camera
 const CARD_DIST = 60;       // m: the depth the ink card resets the picture to (everything of the dark beat is nearer)
 
 export function createIntroStage(ctx) {
@@ -324,7 +351,8 @@ export function createIntroStage(ctx) {
     const hang = hangPoint(INTRO, anchors);
     const lantern = buildLantern({ height: S.lantern.height, radius: S.lantern.radius, colors: C, glow: S.lantern.glow, halo: S.lantern.halo, chainTopLocal: S.lantern.chainTop - hang[1] });
     const windows = buildWindows(anchors.G, S.windows, { colors: C, memory: (S.memory.tiers || []).includes(tier) });
-    const ring = buildRing(C.ring), card = buildInkCard(C), motes = buildMotes(S.below.motes, 0xb8b0ea), ember = buildEmber(C), flank = buildFlank({ length: S.below.flank.length, girth: S.below.flank.girth, colors: C });
+    const ring = buildRing(C.ring), card = buildInkCard(C), motes = buildMotes(S.below.motes, 0xb8b0ea, S.below.bubbles ?? 0), ember = buildEmber(C), flank = buildFlank({ length: S.below.flank.length, girth: S.below.flank.girth, colors: C });
+    const crown = buildCrown(S.contact.crown?.drops ?? 40, C.ring), fish = buildFloat(C);
     const sparkTop = buildSpark(C.spark, 'intro:chain-spark'), sparkWick = buildSpark(C.spark, 'intro:wick-spark');
     card.uniforms.uDist.value = CARD_DIST;
 
@@ -332,19 +360,22 @@ export function createIntroStage(ctx) {
     const hangG = new THREE.Group(); hangG.name = 'intro:hang'; hangG.position.set(hang[0], hang[1], hang[2]);
     for (const u of lantern.uppers) hangG.add(u);
     hangG.add(sparkTop.sprite);
-    group.add(hangG, lantern.group, windows.mesh, windows.halos.points, ring.mesh, card.mesh, sparkWick.sprite);
+    group.add(hangG, lantern.group, windows.mesh, windows.halos.points, ring.mesh, crown.points, card.mesh, sparkWick.sprite, fish.float, fish.light, fish.line, fish.ring);
     if (windows.memory) group.add(windows.memory);
     ring.mesh.position.set(hang[0], 0.07, hang[2]);
+    crown.points.position.set(hang[0], 0.05, hang[2]);
+    { const CR = S.contact.crown || {}; const U = crown.uniforms; U.uLife.value = CR.life ?? 1.2; U.uReach.value.set(...(CR.reach || [2.5, 7])); U.uHeight.value.set(...(CR.height || [3.5, 8])); U.uR0.value = S.lantern.radius * 0.8; }
     // the dark beat's things stand in front of the lens, in picture heights (the group is scaled to the lens each frame)
     const below = new THREE.Group(); below.name = 'intro:below';
     below.add(motes.points, ember.halo, ember.core, flank.group);
     group.visible = false; below.visible = false;
 
-    const parts = [lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick];
+    const parts = [lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick, crown, fish];
     set = {
-      group, below, hangG, hang, lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick, tier, anchors, gate: anchors.G.theme === 'mossmere' || !anchors.G.theme,
+      group, below, hangG, hang, lantern, windows, ring, card, motes, ember, flank, sparkTop, sparkWick, crown, fish, tier, anchors, gate: anchors.G.theme === 'mossmere' || !anchors.G.theme,
+      floatAt: S.float ? resolvePoint(S.float.at, anchors) : null,
       geometries: parts.flatMap((p) => p.geometries), materials: parts.flatMap((p) => p.materials),
-      warm: [lantern.group, hangG, windows.mesh, windows.halos.points, ...(windows.memory ? [windows.memory] : []), ring.mesh, card.mesh, below],
+      warm: [lantern.group, hangG, windows.mesh, windows.halos.points, ...(windows.memory ? [windows.memory] : []), ring.mesh, card.mesh, below, crown.points, fish.float, fish.line],
       colors: {
         glass: new THREE.Color(C.glass), halo: new THREE.Color(C.halo), pale: new THREE.Color(C.ring), window: new THREE.Color(C.window), dying: new THREE.Color(C.emberDeep),
         ember: new THREE.Color(C.ember), emberDeep: new THREE.Color(C.emberDeep), ring: new THREE.Color(C.ring),
@@ -490,7 +521,8 @@ export function createIntroStage(ctx) {
       L.group.position.set(m.hang[0], la.y, m.hang[2]);
       L.group.rotation.set(0, 0, la.tilt);
       // the chain stubs hang true whatever the lantern's tilt (a shear about the chains' foot), with a little whip in the fall
-      { const th = la.tilt + la.whip, sn = Math.sin(th), cs = Math.cos(th), y0 = L.stubY;
+      // (… until the contact: then they fall slack across the roof, away from the way it tips)
+      { const th = la.tilt + la.whip + 1.25 * la.slump, sn = Math.sin(th), cs = Math.cos(th), y0 = L.stubY;
         L.stubs.matrix.set(1, sn, 0, -y0 * sn, 0, cs, 0, y0 * (1 - cs), 0, 0, 1, 0, 0, 0, 0, 1); L.stubs.matrixWorldNeedsUpdate = true; }
       L.glass.material.color.setScalar(L.glow * la.glow);
       L.halo.material.opacity = la.haloOpacity;
@@ -511,6 +543,12 @@ export function createIntroStage(ctx) {
     // the contact ring
     m.ring.mesh.visible = sc.ring.vis;
     if (sc.ring.vis) { m.ring.mesh.scale.set(sc.ring.r, 1, sc.ring.r); m.ring.mesh.material.color.setScalar(sc.ring.k); }
+    // the crown of drops
+    m.crown.points.visible = sc.crown.vis;
+    if (sc.crown.vis) {
+      const U = m.crown.uniforms; U.uTau.value = sc.crown.tau; U.uK.value = sc.crown.k;
+      R.renderer.getDrawingBufferSize(size2); U.uScale.value = (size2.y || 720) / (2 * Math.tan((((c ? pose.fov : cam.fov) || 46) * Math.PI) / 360));
+    }
 
     // the kingdom's windows, their halos and their memory in the lake
     const Wn = m.windows;
@@ -542,7 +580,7 @@ export function createIntroStage(ctx) {
     const cd = sc.card, CU = m.card.uniforms;
     m.card.mesh.visible = cd.vis;
     if (cd.vis) {
-      CU.uOpacity.value = cd.opacity; CU.uAspect.value = aspect; CU.uSurface.value = cd.surface;
+      CU.uOpacity.value = cd.opacity; CU.uAspect.value = aspect; CU.uSurface.value = cd.surface; CU.uT.value = t;
       // it opens from the Wick's flame: where that falls in the film's own frame
       let fx = 0.2, fy = 0.25;
       if (cd.open > 0 && c) {
@@ -565,8 +603,8 @@ export function createIntroStage(ctx) {
       const fov = c ? pose.fov : cam.fov, h = 2 * BELOW_DIST * Math.tan((fov * Math.PI) / 360);
       B.position.set(0, 0, -BELOW_DIST); B.scale.setScalar(h);
       const MU = m.motes.uniforms;
-      m.motes.points.visible = sc.motes > 0.001;
-      MU.uK.value = sc.motes; MU.uT.value = t; MU.uAspect.value = aspect;
+      m.motes.points.visible = sc.motes > 0.001 || sc.bubbles > 0.001;
+      MU.uK.value = sc.motes; MU.uT.value = t; MU.uAspect.value = aspect; MU.uEmber.value.set(sc.ember.x, sc.ember.y, sc.bubbles);
       R.renderer.getDrawingBufferSize(size2); MU.uViewH.value = size2.y || 720;
       const em = sc.ember, E = m.ember;
       E.core.visible = E.halo.visible = em.vis;
@@ -581,9 +619,33 @@ export function createIntroStage(ctx) {
       F.group.visible = fl.vis;
       if (fl.vis) {
         F.group.position.set(fl.x, fl.y, fl.z); F.group.rotation.set(0, 0, fl.angle); F.group.scale.setScalar(fl.unit);
-        F.uniforms.uAlpha.value = fl.alpha; F.uniforms.uSink.value = fl.sink; F.eyeMat.opacity = fl.alpha * (1 - fl.sink);
+        F.uniforms.uAlpha.value = fl.alpha; F.uniforms.uSink.value = fl.sink; F.uniforms.uT.value = t; F.eyeMat.opacity = fl.alpha * (1 - fl.sink);
         F.uniforms.uEmber.value.set(fl.emberX, fl.emberY, S.below.flank.girth * 0.2, fl.emberK);
       }
+    }
+
+    // fishing: the float on the water, its light, the line from the rod's tip, one ring
+    const fo = sc.float, FK2 = m.fish, fat = m.floatAt;
+    const fvis = !!(fo && fo.vis && fat);
+    FK2.float.visible = FK2.light.visible = FK2.line.visible = fvis; FK2.ring.visible = fvis && fo.ring.vis;
+    if (fvis) {
+      const fy = -0.06 + fo.bob - 0.16 * fo.dip;
+      FK2.float.position.set(fat[0], fy, fat[2]); FK2.float.rotation.set(0.06 * Math.sin(t * 1.3), 0, 0.08 * Math.sin(t * 1.7 + 0.4) + 0.25 * fo.dip); FK2.float.scale.setScalar(FLOAT_SCALE);
+      FK2.float.material.opacity = fo.k;
+      FK2.light.position.set(fat[0], fy + 0.36 * FLOAT_SCALE, fat[2]); FK2.light.scale.setScalar(0.7 + 0.9 * fo.light); FK2.light.material.opacity = 0.85 * fo.light;
+      if (fo.ring.vis) { FK2.ring.position.set(fat[0], 0.06, fat[2]); FK2.ring.scale.set(fo.ring.r, 1, fo.ring.r); FK2.ring.material.color.setScalar(fo.ring.k); }
+      // the line: from the rod's tip (the rod stands in its bow holder, as in play) to the float's stalk, in a slack curve
+      const tip = real(ctx.actors) && ctx.actors.getRodTip ? ctx.actors.getRodTip() : null;
+      if (tip && Number.isFinite(tip.x)) {
+        const a = FK2.line.geometry.attributes.position, ex = fat[0], ey = fy + 0.33 * FLOAT_SCALE, ez = fat[2];
+        const sag = 0.06 * Math.hypot(ex - tip.x, ez - tip.z);
+        for (let i = 0; i < LINE_PTS; i++) {
+          const u = i / (LINE_PTS - 1);
+          a.setXYZ(i, lerp(tip.x, ex, u), lerp(tip.y, ey, u) - sag * 4 * u * (1 - u) * (1 - 0.6 * u), lerp(tip.z, ez, u));
+        }
+        a.needsUpdate = true;
+        FK2.line.material.opacity = 0.55 * fo.k;
+      } else FK2.line.visible = false;
     }
 
     // the spark at the Wick's head (over the ink)

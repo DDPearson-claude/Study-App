@@ -407,7 +407,8 @@ function onIntroDone(p = {}) {
   Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0, inked: false });
   // a skip lands in play a moment after the key: the same key pressed again (a double Esc) is swallowed for INTRO.skip.after s,
   // so the first second of play never opens on the pause menu (the mirror of the 0.5 s guard at the start)
-  if (p.skipped) introFlow.swallowUntil = performance.now() + Math.max(0, Number(INTRO?.skip?.after) || 0.6) * 1000;
+  // (timed on the frame loop's own clock, `last`, which the keys are compared against too)
+  if (p.skipped) introFlow.swallowUntil = last + Math.max(0, Number(INTRO?.skip?.after) || 0.6) * 1000;
   try {
     markIntroSeen(ctx.state.meta, !!p.skipped);
     game.startNewRun({ character: H.character || 'wick', nightMode: H.nightMode || 'still', __intro: true });
@@ -807,7 +808,7 @@ window.addEventListener('keydown', (e) => {
     if (!e.repeat && (INTRO?.skip?.keys || []).includes(e.code)) game.skipIntro();   // (a held Enter from Begin never skips)
     return;
   }
-  if (introFlow.swallowUntil && performance.now() < introFlow.swallowUntil && (INTRO?.skip?.keys || []).includes(e.code)) { e.preventDefault(); return; }
+  if (introFlow.swallowUntil && last < introFlow.swallowUntil && (INTRO?.skip?.keys || []).includes(e.code)) { e.preventDefault(); return; }
   // <<< INTRO LANE B
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);

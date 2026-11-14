@@ -49,7 +49,7 @@ export function createIntroView(K) {
 
   let el = null, veilEl = null, lineEl = null, textEl = null, liveEl = null, skipEl = null, stillEl = null;
   const V = { on: false, line: null, lineK: 0, veil: 0, skip: 0, pokeUntil: 0, still: null, snapshots: true, snapCount: 0,
-    closing: null, curtain: null, band: null, w: 0, hgt: 0, title: null, titleInked: false };
+    closing: null, curtain: null, band: null, w: 0, hgt: 0, title: null, titleInked: false, afterT: 0 };
 
   // ---------------------------------------------------------------- the title under the opening ink
   /**
@@ -239,8 +239,13 @@ export function createIntroView(K) {
     if (skipEl) skipEl.style.pointerEvents = 'none';
     if (V.curtain) { draw(); return; }   // main asked for a curtain on this same event: it owns the ending
     const D = I(), veilSkip = !!p.skipped && p.mode === 'veil';
-    // the film is over: the game's own UI comes back now (under the opening ink after a veil skip)
+    // the film is over: the game's own UI comes back now (under the opening ink after a veil skip); into play, its lamp gauge a
+    // beat later than the rest (ui.css .gw-intro-after)
     root.classList.remove('gw-intro-on');
+    if (!p.replay) {
+      root.classList.remove('gw-intro-after'); void root.offsetWidth; root.classList.add('gw-intro-after');
+      clearTimeout(V.afterT); V.afterT = setTimeout(() => root.classList.remove('gw-intro-after'), 3800);
+    }
     V.closing = { t0: null, dur: veilSkip ? Number(D?.skip?.veilOut) || 0.35 : 0.25, veil: veilSkip ? 1 : V.veil, skip: veilSkip || p.skipped ? 0 : V.skip };
     draw();
   });

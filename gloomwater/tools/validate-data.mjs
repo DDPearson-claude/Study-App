@@ -388,7 +388,7 @@ for (const [k, v] of Object.entries(D.RARITY_COLORS || {})) palCheck(`RARITY_COL
     ok(Array.isArray(LN) && LN.length === T.length && LN.every((l, i) => l.i === i && isNum(l.at) && isNum(l.out)), 'INTRO.lines: one timed entry per text line, in order');
     for (const [k, l] of (LN || []).entries()) {
       const dur = l.out - l.at, cps = T[l.i].length / Math.max(0.01, dur - I.lineFade);
-      ok(l.at >= 0.5 && dur >= 1.5 && l.out <= L - 0.4, `INTRO.lines[${k}]: on screen at least 1.5 s, gone at least 0.4 s before the end`);
+      ok(l.at >= 0.5 && dur >= 1.5 && l.out <= L - 0.15, `INTRO.lines[${k}]: on screen at least 1.5 s, gone before the hand-off (at least 0.15 s before the end)`);
       ok(cps <= 17.5, `INTRO.lines[${k}]: ${cps.toFixed(1)} characters a second is too fast to read (at most 17.5 after the fade-in)`);
       ok(k === 0 || l.at >= LN[k - 1].out + 0.2, `INTRO.lines[${k}]: one line at a time (starts at least 0.2 s after the last one is gone)`);
       ok(!(l.at < beat('below').t1 && l.out > beat('below').t0), `INTRO.lines[${k}]: the beat "below" is wordless`);

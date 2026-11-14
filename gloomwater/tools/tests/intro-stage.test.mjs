@@ -231,7 +231,7 @@ for (const [tier, mirror] of [['high', true], ['medium', true], ['low', false]])
   const twin = g.scene.getObjectByName('intro:windows-memory'), win = g.scene.getObjectByName('intro:windows');
   if (S.memory.tiers.includes(tier)) ok(!!twin && twin.layers.mask === (1 << REFLECT_LAYER) && !win.layers.isEnabled(REFLECT_LAYER), `${tier}: the lake's memory is a mirror-only twin of the windows`);
   else ok(!twin && win.layers.isEnabled(REFLECT_LAYER), `${tier}: no twin`);
-  ok(st.stats().geometries <= 14, `${tier}: ${st.stats().geometries} geometries`);
+  ok(st.stats().geometries <= 18, `${tier}: ${st.stats().geometries} geometries`);
   st.dispose();
 }
 

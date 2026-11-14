@@ -79,7 +79,7 @@ for (const l of I.lines) {
 }
 ok(I.text.length <= 4, 'at most four lines');
 { let two = 0; for (let t = 0; t <= L; t += 0.005) if (I.lines.filter((l) => t >= l.at && t < l.out).length > 1) two++; eq(two, 0, 'never two lines at once'); }
-eq(DIR.lineAt(I, L - 0.4), null, 'no words in the last 0.4 s');
+eq(DIR.lineAt(I, L - 0.15), null, 'no words in the last 0.15 s (the hand-off comes on a clear frame)');
 eq([DIR.skipModeAt(I, 0.6), DIR.skipModeAt(I, 6), DIR.skipModeAt(I, 10), DIR.skipModeAt(I, 12.39), DIR.skipModeAt(I, 12.4), DIR.skipModeAt(I, 17.9)], ['veil', 'veil', 'veil', 'veil', 'finish', 'finish'], 'skipModeAt: the ink in lit / fall / below, the fast finish from wick on');
 eq([DIR.skipWordAt(I, 0.3), DIR.skipWordAt(I, K.showAt)], [0, 0], 'the Skip word is not shown before INTRO.skip.showAt');
 eq(DIR.skipWordAt(I, 1.0), 1, 'the Skip word is fully shown within 1 s of the first frame');
