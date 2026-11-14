@@ -2144,3 +2144,53 @@
   .gw-cc-v3 .gw-catch-actions { margin-top: 4px; }
   .gw-cc-v3 .gw-cc-lore { -webkit-line-clamp: 2 !important; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
 }
+
+/* >>> INTRO LANE B: the opening cut scene (docs/v3/intro/SPEC.md section 7): the words (.gw-intro-line, on a feathered ink pool,
+   inside INTRO.words.band, never a box), the Skip word (.gw-intro-skip, a target of at least 44 px, safe-area aware), the ink veil
+   (.gw-intro-veil), the reduced-motion snapshot layer and the title's quiet replay word (.gw-title-replay). v3 only.
+   Every opacity here is set by src/ui-intro.js from the film's clock: no transition, no animation (reduced motion changes nothing). */
+.gw-intro { position: fixed; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; --b0: 86%; --bh: 9%; }
+.gw-intro-still, .gw-intro-veil { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; visibility: hidden; }
+.gw-intro-veil { background: var(--night); }
+/* the words: one line, centred in its band; the bottom safe area lifts the band, never squeezes it */
+.gw-intro-line { position: absolute; left: 0; right: 0; top: calc(var(--b0) - var(--sab)); height: var(--bh); margin: 0; padding: 0 max(18px, var(--sar)) 0 max(18px, var(--sal));
+  display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden;
+  font: italic 400 19px/1.24 var(--f-body); letter-spacing: .012em; text-align: center; color: var(--ink);
+  text-shadow: 0 1px 2px #000, 0 0 10px rgba(4, 5, 12, .95), 0 0 22px rgba(4, 5, 12, .9); }
+.gw-intro-line > span { position: relative; display: block; max-width: min(100%, 40em); text-wrap: balance; }
+/* the pool: night ink feathered to nothing well inside its own edge (the same pool as a lore toast), behind the words only */
+.gw-intro-line > span::before { content: ''; position: absolute; z-index: -1; inset: -34px -130px; pointer-events: none;
+  background: radial-gradient(ellipse closest-side, rgba(var(--veil-rgb), .78), rgba(var(--veil-rgb), .76) 44%, rgba(var(--veil-rgb), .56) 64%, rgba(var(--veil-rgb), .24) 82%, rgba(var(--veil-rgb), .06) 94%, transparent 100%); }
+/* a phone held upright: the picture's foot sinks into ink across the whole width (a pool would be cut by the screen's sides) */
+.gw-intro[data-o="portrait"] .gw-intro-line { font-size: 18px; }
+.gw-intro[data-o="portrait"] .gw-intro-line > span::before { inset: auto; left: -50vw; right: -50vw; top: -46px; bottom: -40vh;
+  background: linear-gradient(180deg, transparent, rgba(var(--veil-rgb), .2) 16px, rgba(var(--veil-rgb), .52) 32px, rgba(var(--veil-rgb), .76) 46px, rgba(var(--veil-rgb), .8)); }
+@media (max-width: 700px) { .gw-intro-line { font-size: 18px; } }
+/* the smallest phones: two rows still fit the band (never under 16 px) */
+@media (max-width: 340px) { .gw-intro-line, .gw-intro[data-o="portrait"] .gw-intro-line { font-size: 16.5px; line-height: 1.2; } }
+.gw-intro-live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* the Skip word: quiet, top right, a full touch target, no frame */
+.gw-intro-skip { position: absolute; top: max(12px, var(--sat)); right: max(12px, var(--sar)); min-width: 64px; min-height: 44px; padding: 0 14px; margin: 0;
+  display: flex; align-items: center; justify-content: center; border: none; border-radius: 0; background: none; cursor: pointer; pointer-events: auto;
+  opacity: 0; visibility: hidden; -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none;
+  font: 400 15px/1 var(--f-display); text-transform: uppercase; letter-spacing: .24em; color: rgba(204, 201, 234, .92);
+  text-shadow: 0 1px 2px rgba(4, 5, 12, .95), 0 0 12px rgba(4, 5, 12, .8); isolation: isolate; }
+/* … on the same feathered night-ink pool as the words (no box, no border): it reads as a control over the brightest sky */
+.gw-intro-skip::before { content: ''; position: absolute; z-index: -1; inset: -4px -6px; pointer-events: none;
+  background: radial-gradient(ellipse closest-side, rgba(var(--veil-rgb), .66), rgba(var(--veil-rgb), .5) 52%, rgba(var(--veil-rgb), .18) 80%, transparent 100%); }
+.gw-intro-skip > span { margin-right: -.24em; }
+.gw-intro-skip:hover, .gw-intro-skip:focus-visible, .gw-intro-skip.gw-poked { color: var(--ink); text-shadow: 0 1px 2px rgba(4, 5, 12, .95), 0 0 14px var(--glow-soft); }
+/* the first seconds of play after the film: the lamp gauge (a warm arc under the raft) comes in a beat after the rest of the HUD,
+   once the lake's banner has had its moment, so the first warm curve after a film about one warm light is not a ring round the Wick */
+.gw-ui.gw-intro-after > .gw-hud .gw-cluster { animation: gwIntroGauge 3.6s linear; }
+@keyframes gwIntroGauge { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
+/* while it plays nothing else of the interface shows or takes a press */
+.gw-ui.gw-intro-on > .gw-hud, .gw-ui.gw-intro-on > .gw-toasts, .gw-ui.gw-intro-on > .gw-banner-layer, .gw-ui.gw-intro-on > .gw-fx, .gw-ui.gw-intro-on > .gw-world { visibility: hidden !important; }
+.gw-ui.gw-intro-on > .gw-modal-layer, .gw-ui.gw-intro-on > .gw-modal-layer * { pointer-events: none !important; }
+/* the title's replay word: one small quiet word under the title's lower line */
+.gw-title-replay { pointer-events: auto; display: inline-flex; align-items: center; justify-content: center; min-width: 88px; min-height: 44px; margin: 2px auto 0; padding: 0 16px;
+  border: none; background: none; cursor: pointer; font: 400 13.5px/1 var(--f-display); text-transform: uppercase; letter-spacing: .26em; color: var(--ink-faint);
+  text-shadow: 0 1px 2px #000, 0 0 10px rgba(4, 5, 12, .85); opacity: 0; animation: gwFade 1.4s 2.5s forwards; -webkit-tap-highlight-color: transparent; }
+.gw-title-replay > span { margin-right: -.26em; }
+.gw-title-replay:hover, .gw-title-replay:focus-visible { color: var(--ink); outline: none; text-shadow: 0 1px 2px #000, 0 0 14px var(--glow-soft); }
+/* <<< INTRO LANE B */

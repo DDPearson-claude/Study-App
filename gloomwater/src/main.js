@@ -10,6 +10,9 @@ import {
 } from './core.js';
 import * as data from './data.js';
 import { create as createFirstEvening } from './first-evening.js';
+// >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
+import { create as createIntro, markIntroSeen, replayOffered } from './intro.js';
+// <<< INTRO LANE B
 
 import * as renderMod from './render.js';
 import * as waterMod from './water.js';
@@ -177,7 +180,8 @@ const game = {
     hub.departing = null;
     setFlow('playing');
     // v3: the run leaves the cove (CONTRACT §13.3: prev 'cove'; progression resets the market, audio plays `setout`)
-    ctx.bus.emit('zone:change', { zone: run.zone, prev: FE_ON ? 'cove' : null });
+    // (INTRO LANE B: the cut scene's hand-off marks its zone:change {intro: true}: the lake is already on screen, SPEC section 7.5)
+    ctx.bus.emit('zone:change', { zone: run.zone, prev: FE_ON ? 'cove' : null, ...(opts.__intro ? { intro: true } : {}) });
     ctx.bus.emit('run:start', { continued: false });
     game.save();
   },
@@ -258,6 +262,7 @@ const game = {
     ctx.ui.showVictory?.(summary && !summary.isStub ? summary : { day: ctx.state.run?.day });
   },
   toTitle() {
+    stopIntro();   // INTRO LANE B: a film in progress ends with no event (the save untouched)
     if (ctx.flow === 'playing' && ctx.state.run?.active) { savedRun = ctx.state.run; }
     if (FE_ON) { stopFirstEvening(); hub.departing = null; hub.hearth = null; }
     game.save();
@@ -281,6 +286,7 @@ const game = {
   slowmo(seconds = LEAP.time ?? 0.25, scale = LEAP.timescale ?? 0.35) { return slowmo.start(seconds, scale); },
   save() {
     if (hub.sandbox !== null) return;   // a replay of the First Evening writes nothing (DESIGN §25.4.8)
+    if (ctx.flow === 'intro') return;   // INTRO LANE B: nothing is saved while the cut scene plays (a closed tab plays it again; a replay writes nothing)
     const live = ctx.state.run && ctx.state.run.active ? ctx.state.run : null;
     // v3 (CONTRACT §13.6): the player writes run.pos into the run before every save
     if (V3 && live && ctx.flow === 'playing') { try { ctx.player.writeSave?.(live); } catch (e) { report('player.writeSave', e); } }
@@ -288,6 +294,7 @@ const game = {
     writeSave({ meta: ctx.state.meta, run });
   },
   wipeAll() {
+    stopIntro(); introFlow.prewarm = false;   // INTRO LANE B: a wiped save is a fresh one again
     resetBeats();
     if (FE_ON) { stopFirstEvening(); hub.sandbox = null; hub.departing = null; hub.hearth = null; }
     wipeSave();
@@ -301,6 +308,189 @@ const game = {
   },
 };
 ctx.game = game;
+
+// >>> INTRO LANE B: flow (the opening cut scene: trigger, flow 'intro', the hand-off, the replay; SPEC §7)
+// "One Warm Light" (docs/v3/intro/SPEC.md §7, CONTRACT §13.13). The director (src/intro.js, ctx.intro) owns the film's time and
+// the stage; main owns everything around it:
+//   the trigger   game.introPending(): a fresh save's title says Begin; game.beginIntro() goes straight in (no panel, no click)
+//   the flow      'intro': no run, gameDt 0, ctx.cinematic held, no HUD, no save, no input but the skip keys
+//   the hand-off  on `intro:done`: meta.intro = {seen, skipped}, then startNewRun({character, nightMode, __intro: true}) in the
+//                 same task (flow:change → zone:change {intro: true} → run:start, then the save): the First Outing starts on
+//                 the frame the film ended on. A stage error hands over the same way (seen: true: a broken device never loops)
+//   the replay    game.replayIntro() from the title's quiet word: the same film, nothing written, back to the title
+//   the lake      the film is set on the first run's lake. A title that shows another lake (a returning save) is swapped
+//                 under the opening's full ink and put back at the end, with no zone:change for either
+// When the cove ships (FE_ON: world.SUPPORTS_COVE) the film is dressed at the sea-gate and hands to the First Evening's wake
+// (SPEC §7.5, INTRO.cove): written down, not built. Until that is built the film stays off with the cove on.
+const INTRO = V3 ? data.INTRO || null : null;
+const INTRO_LAKE = 'mossmere';   // the First Outing's lake (startNewRun's default start zone)
+const introFlow = { on: false, replay: false, back: null, idle: 0, prewarm: false, inked: false, wall: 0, swallowUntil: 0 };
+/** The film's DOM side (src/ui-intro.js), when the ui module is real. */
+function introView() { const u = ctx.ui; return u && !u.isStub && u.intro && typeof u.intro.curtain === 'function' ? u.intro : null; }
+const worldZoneId = () => safe(() => ctx.world.getZone?.()?.id, null);
+/** Show a lake with no zone:change (no banner, no sting, no save): the world, the raft at its spawn, the water's own maps. */
+function showLake(id, grade) {
+  const w = ctx.world;
+  if (w && !w.isStub && id && worldZoneId() !== id) {
+    w.setZone(id, { instant: true, flash: false });
+    const sp = w.getSpawn?.();
+    if (sp?.position && !ctx.player.isStub) ctx.player.teleport?.(sp.position, Number(sp.yaw) || 0);
+    if (!ctx.water.isStub) { ctx.water.setObstacles?.(null); ctx.water.rebakeDepth?.(); }
+  }
+  if (grade && !ctx.render.isStub) ctx.render.setGrade?.(grade, { instant: true });
+}
+/**
+ * Under the opening's full ink (the director calls it once, before the stage goes live): the film's lake and its grade go on,
+ * so the last shot is the run's own picture and nothing pops at the hand-off. A replay remembers what to put back.
+ */
+function introUnderInk() {
+  const zoneWas = worldZoneId();
+  const gradeWas = safe(() => ctx.render.getGrade?.(), null);
+  const lakeGrade = INTRO?.handoff?.grade === 'ease' ? null : (data.ZONES || []).find((z) => z.id === INTRO_LAKE)?.grade || null;
+  if (introFlow.replay) introFlow.back = { zone: zoneWas && zoneWas !== INTRO_LAKE ? zoneWas : null, grade: lakeGrade ? gradeWas : null };
+  showLake(INTRO_LAKE, lakeGrade);
+  introFlow.inked = !!lakeGrade;
+}
+function startIntro({ replay = false, reduced } = {}) {
+  if (!ctx.intro || !INTRO || FE_ON || ctx.flow !== 'title' || ctx.intro.isActive() || introFlow.on) return false;
+  // the title is closed for the game, but its picture stays for the opening ink to close over (ui-intro.js takeTitle): no fade of its own
+  try { introView()?.takeTitle?.(); } catch (e) { report('intro.takeTitle', e); }
+  try { ctx.ui.closeAll?.(); } catch (e) { report('ui.closeAll', e); }
+  resetBeats();
+  ctx.state.run = null;
+  ctx.paused = false;
+  Object.assign(introFlow, { on: true, replay: !!replay, back: null, idle: 0, inked: false, wall: 0, swallowUntil: 0 });
+  setFlow('intro');
+  ctx.cinematic = true;
+  let ok = false;
+  try { ok = ctx.intro.start({ replay: !!replay, reduced, underInk: introUnderInk }) === true; } catch (e) { report('intro.start', e); }
+  if (!ok && introFlow.on) leaveIntro();   // (it could not start: the title again, nothing changed)
+  return ok;
+}
+/** Out of flow 'intro' to the title with nothing written: what a replay put aside comes back. */
+function leaveIntro({ eased = false } = {}) {
+  const back = introFlow.back;
+  Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0 });
+  if (back) {
+    try {
+      if (back.zone) showLake(back.zone, back.grade);
+      else if (back.grade && !ctx.render.isStub) ctx.render.setGrade?.(back.grade, { instant: !eased });
+    } catch (e) { report('intro lake', e); }
+  }
+  ctx.cinematic = false;
+  ctx.state.run = null;
+  if (ctx.flow === 'intro') { setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e) { report('showTitle', e); } }
+}
+/** Hard abort with no event (toTitle, wipeAll, debug 'stop'). `title` also leaves flow 'intro' for the title. */
+function stopIntro({ title = false } = {}) {
+  if (!ctx.intro) return;
+  try { ctx.intro.stop(); } catch (e) { report('intro.stop', e); }
+  if (!introFlow.on) return;
+  if (title) { leaveIntro(); return; }
+  const back = introFlow.back;
+  Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0 });
+  if (back) { try { if (back.zone) showLake(back.zone, back.grade); else if (back.grade) ctx.render.setGrade?.(back.grade, { instant: true }); } catch (e) { report('intro lake', e); } }
+  ctx.cinematic = false;
+}
+/** `intro:done` (registered after every module's listeners, so they all saw the film end before the run starts). */
+function onIntroDone(p = {}) {
+  if (!introFlow.on) return;
+  if (p.replay) {
+    // a replay writes nothing: the title again, over the last frame; another lake comes back under a short curtain of ink
+    const inked = !!p.skipped && p.mode === 'veil';   // (a veil skip ends under full ink: the swap is already covered)
+    const V = Math.max(0.1, Number(INTRO?.trigger?.replay?.veil) || 0.3), view = introView();
+    if (introFlow.back?.zone && !inked && view && view.curtain({ in: V / 2, out: V / 2, onFull: () => leaveIntro() })) return;
+    leaveIntro({ eased: !inked });
+    return;
+  }
+  const H = INTRO?.handoff || {}, graded = introFlow.inked;
+  Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0, inked: false });
+  // a skip lands in play a moment after the key: the same key pressed again (a double Esc) is swallowed for INTRO.skip.after s,
+  // so the first second of play never opens on the pause menu (the mirror of the 0.5 s guard at the start)
+  // (timed on the frame loop's own clock, `last`, which the keys are compared against too)
+  if (p.skipped) introFlow.swallowUntil = last + Math.max(0, Number(INTRO?.skip?.after) || 0.6) * 1000;
+  try {
+    markIntroSeen(ctx.state.meta, !!p.skipped);
+    game.startNewRun({ character: H.character || 'wick', nightMode: H.nightMode || 'still', __intro: true });
+    // the lake's grade, if the film did not already wear it (INTRO.handoff.grade 'ease', or a film that broke before the ink):
+    // render ignores this zone:change, so it eases in here as control begins
+    if (!graded) { const g = (data.ZONES || []).find((z) => z.id === ctx.state.run?.zone)?.grade; if (g && !ctx.render.isStub) ctx.render.setGrade?.(g); }
+  } catch (e) {
+    report('intro hand-off', e);
+    if (ctx.flow === 'intro') { ctx.cinematic = false; setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e2) { report('showTitle', e2); } }
+  }
+}
+/**
+ * The director itself failed (its update threw, or the film outlived main's own valve): stop it with no event and hand over as an
+ * error (A10). A first play is marked seen and goes into the First Outing, as any skip does; a replay goes back to the title.
+ */
+function failIntro(why, { reported = false } = {}) {
+  if (!ctx.intro) return;
+  if (!reported) report('intro', why instanceof Error ? why : new Error(String(why)));
+  const replay = introFlow.replay;
+  try { ctx.intro.stop(); } catch (e) { report('intro.stop', e); }
+  if (introFlow.on) onIntroDone({ skipped: true, error: true, replay, mode: null });
+}
+/** Once a frame while the flow is 'intro': nothing may open over the film, and a film that ended without its hand-off is let go. */
+function tickIntroFlow(rawDt) {
+  if (ctx.flow !== 'intro') return;
+  if (safe(() => ctx.ui.isBlocking?.(), false) === true) { try { ctx.ui.closeAll?.(); } catch (e) { report('ui.closeAll', e); } }
+  if (ctx.intro?.isActive()) {
+    introFlow.idle = 0;
+    // main's own valve, on the wall clock (the director's runs inside its update): a film still up INTRO.clock.valve + 2 s of
+    // visible time after it started is ended here (a debug seek holds the film on purpose and is not counted)
+    const held = safe(() => ctx.intro.state.hold, false) === true, hidden = safe(() => document.hidden, false) === true;
+    if (!held && !hidden) introFlow.wall += Math.min(0.25, rawDt);
+    if (introFlow.wall > (Number(INTRO?.clock?.valve) || 25) + 2) failIntro(new Error(`the cut scene was still playing after ${introFlow.wall.toFixed(1)} s; handed over`));
+    return;
+  }
+  introFlow.idle += Math.min(0.25, rawDt);
+  if (introFlow.idle > 1.5) { report('intro', new Error('the cut scene ended without its hand-off; back to the title')); leaveIntro(); }
+}
+Object.assign(game, {
+  /** Would the title's primary word play the film now? (A3: a fresh save, a v3 build; a debug build only after an opt-in.) */
+  introPending: () => !!ctx.intro && !FE_ON && ctx.flow === 'title' && ctx.intro.pending(),
+  /** Does the title offer the quiet replay word? */
+  introReplayOffered: () => !!ctx.intro && !FE_ON && replayOffered({ v3: V3, intro: INTRO, meta: ctx.state.meta, pending: ctx.intro.pending() }),
+  /** The fresh title is up: let the stage build in idle time, so Begin costs nothing (SPEC §9). Once per fresh save. */
+  prewarmIntro() {
+    if (!ctx.intro || introFlow.prewarm) return false;
+    introFlow.prewarm = true;
+    const P = INTRO?.trigger?.prewarm || {};
+    let tries = Math.max(1, Number(P.tries) || 8);
+    const idle = (fn) => (typeof requestIdleCallback === 'function' ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 80));
+    // the stage builds ONE slice per prewarm() call (the models, then one warm-up per part: 9 or 10 in all). An idle period takes as
+    // many slices as it has time for; a busy one (a timeout) takes one. Whatever is left when Begin is pressed is built under the ink
+    const steps = () => safe(() => ctx.intro.stage?.stats?.().steps?.[0], 0) || 0;
+    const go = (deadline) => {
+      if (ctx.flow !== 'title' || !ctx.intro || ctx.intro.isActive()) return;
+      let ok = false;
+      for (;;) {
+        const before = steps();
+        try { ok = ctx.intro.prewarm() === true; } catch (e) { report('intro.prewarm', e); return; }
+        if (ok || --tries <= 0) break;
+        // (no step taken: the world cannot say its anchors yet. Ask again on a later slice rather than spin)
+        if (steps() === before || !(deadline && typeof deadline.timeRemaining === 'function' && deadline.timeRemaining() > 6)) break;
+      }
+      if (!ok && tries > 0) idle(go);
+    };
+    setTimeout(() => {
+      // the game makes its smoke and ember pools (two point clouds, one program) at the first puff, which is the Wick's first wax
+      // drip a few seconds into any title: have them exist now (one unseen mote under the lake), so that program is compiled
+      // under the title and never under the film
+      try { if (ctx.flow === 'title' && !ctx.models.isStub && !ctx.player.isStub) ctx.models.emitSmoke?.({ x: ctx.player.position.x, y: -40, z: ctx.player.position.z }, { alpha: 0, lifeT: 0.05, size: 0.01, jitter: 0 }); } catch (e) { report('intro.prewarm pools', e); }
+      idle(go);
+    }, Math.max(0, Number(P.after) || 0.5) * 1000);
+    return true;
+  },
+  /** The title's Begin on a fresh save: the film, then the First Outing, with no other click. */
+  beginIntro(opts = {}) { return !game.hasSavedRun() && startIntro({ replay: false, reduced: opts.reduced }); },
+  /** The title's replay word: the same film; nothing is written and it ends at the title. */
+  replayIntro(opts = {}) { return startIntro({ replay: true, reduced: opts.reduced }); },
+  /** The Skip word and the skip keys (honoured after INTRO.skip.guard). */
+  skipIntro() { return ctx.flow === 'intro' && !!ctx.intro && ctx.intro.skip() === true; },
+});
+// <<< INTRO LANE B
 
 // ------------------------------------------------------------------ v3: the Landing (CONTRACT §13.1, §13.3, §13.12)
 /** meta.firstEvening (progression owns it; created lazily, never by defaultMeta). */
@@ -434,6 +624,14 @@ for (const [name] of MODULES) {
   try { ctx[name].init?.(); } catch (e) { report(`init(${name})`, e); ctx[name] = makeStub(name); }
 }
 if (ctx.firstEvening) { try { ctx.firstEvening.init(); } catch (e) { report('init(firstEvening)', e); ctx.firstEvening = null; } }
+// >>> INTRO LANE B: create (v3 only; null with the flag off)
+ctx.intro = null;
+if (V3 && data.INTRO) {
+  try { ctx.intro = createIntro(ctx, { debug: DEBUG, hasSavedRun: () => game.hasSavedRun() }); ctx.intro.init(); } catch (e) { report('create(intro)', e); ctx.intro = null; }
+  // the hand-off: wired here, after every module's own listeners, so each of them saw `intro:done` before the run starts
+  if (ctx.intro) ctx.bus.on('intro:done', onIntroDone);
+}
+// <<< INTRO LANE B
 
 // bus wiring owned by main
 ctx.bus.on('zone:change', ({ zone } = {}) => { if (zone) hub.zone = zone; });
@@ -603,6 +801,15 @@ window.addEventListener('pointerdown', unlockAudio, { capture: true });
 
 window.addEventListener('keydown', (e) => {
   unlockAudio();
+  // >>> INTRO LANE B: keys (while the film plays only the skip keys do anything; nothing reaches the game or a focused element)
+  if (ctx.flow === 'intro') {
+    if (e.ctrlKey || e.metaKey || e.altKey || /^F\d+$/.test(e.code)) return;   // (the browser's own keys stay the browser's)
+    e.preventDefault();
+    if (!e.repeat && (INTRO?.skip?.keys || []).includes(e.code)) game.skipIntro();   // (a held Enter from Begin never skips)
+    return;
+  }
+  if (introFlow.swallowUntil && last < introFlow.swallowUntil && (INTRO?.skip?.keys || []).includes(e.code)) { e.preventDefault(); return; }
+  // <<< INTRO LANE B
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);
   if (safe(() => ctx.ui.handleKey?.(e.code), false) === true) { e.preventDefault(); return; }
@@ -721,6 +928,34 @@ if (FE_ON) Object.assign(ctx.debug, {
   glides(mode) { if (mode === 'skip' || mode === 'real') hub.glides = mode; return hub.glides; },
   hub: () => ({ flow: ctx.flow, zone: hub.zone, departing: !!hub.departing, sandbox: hub.sandbox !== null, hearth: hub.hearth ? +hub.hearth.t.toFixed(2) : null, glides: hub.glides }),
 });
+// >>> INTRO LANE B: debug (CONTRACT §13.13: one hook, registered only in a debug build; 'intro' is in core.HIDDEN_DEBUG_HOOKS)
+if (V3 && DEBUG && ctx.intro) {
+  /**
+   * intro()                      → the readout {phase, t, beat, line, replay, reduced, skipped, hold, optIn, pending, stage}
+   * intro('play', {replay, reduced}) · intro('seek', t) · intro('resume') · intro('skip') · intro('stop')
+   * intro('auto', bool)          → opt this page in to (or out of) auto-play on a fresh save's Begin
+   * intro('prewarm')             → build the set now (as the fresh-save title does in idle time)
+   */
+  ctx.debug.intro = (cmd, arg) => {
+    const d = ctx.intro;
+    const readout = () => ({ ...d.state, pending: d.pending(), flow: ctx.flow, seen: !!ctx.state.meta.intro?.seen, stage: peek(() => d.stage?.stats?.()),
+      view: peek(() => introView()?.debug()), back: introFlow.back ? { ...introFlow.back, grade: !!introFlow.back.grade } : null });
+    switch (cmd) {
+      case undefined: return readout();
+      // 'play' goes through the real flow: {replay: false} is the fresh save's Begin (it hands over to a run), anything else the replay
+      case 'play': { const o = arg && typeof arg === 'object' ? arg : {}; if (o.replay === false) game.beginIntro(o); else game.replayIntro(o); return readout(); }
+      // 'seek' holds the film at t (a replay, started through the flow if idle) and draws its words at once
+      case 'seek': if (!d.isActive()) game.replayIntro({}); d.seek(Number(arg) || 0); introView()?.sync(); return readout();
+      case 'resume': d.resume(); return readout();
+      case 'skip': if (!game.skipIntro()) d.skip(); return readout();
+      case 'stop': stopIntro({ title: true }); introView()?.update(0); return readout();
+      case 'auto': d.setOptIn(arg !== false); return readout();
+      case 'prewarm': d.prewarm(); return readout();
+      default: return null;
+    }
+  };
+}
+// <<< INTRO LANE B
 // M2 (CONTRACT §13.1, §13.11): a release build (v3, debug off) exposes no species, roll, plan or pre-roll on window.__gw
 if (V3 && !DEBUG) { for (const k of HIDDEN_DEBUG_HOOKS) delete ctx.debug[k]; }
 
@@ -730,7 +965,8 @@ let last = performance.now();
 const errorCounts = new Map();
 function frame(now) {
   requestAnimationFrame(frame);
-  const realDt = clamp((now - last) / 1000, 0, 0.05);
+  const rawDt = Math.max(0, (now - last) / 1000);   // (INTRO LANE B: the cut scene clamps its own dt, INTRO.clock)
+  const realDt = clamp(rawDt, 0, 0.05);
   last = now;
   const time = ctx.time;
   time.dt = realDt;
@@ -744,7 +980,7 @@ function frame(now) {
   if (running) slowmo.tick(realDt);
   time.gameDt = running ? realDt * time.timeScale : 0;
   if (cinematic) {
-    if (ctx.flow !== 'playing' && ctx.flow !== 'hub') ctx.cinematic = false; // (the cove's ceremony has no run)
+    if (ctx.flow !== 'playing' && ctx.flow !== 'hub' && ctx.flow !== 'intro') ctx.cinematic = false; // (the cove's ceremony has no run; INTRO LANE B: the cut scene holds the flag, its own valve ends it)
     else if (running && (cinematicFor += realDt) > CINEMATIC_MAX) {
       report('cinematic', new Error(`ctx.cinematic held for ${CINEMATIC_MAX} s of play; released`));
       ctx.cinematic = false;
@@ -757,6 +993,13 @@ function frame(now) {
     if (autosaveTimer > 30) { autosaveTimer = 0; game.save(); }
   }
 
+  // >>> INTRO LANE B: frame (the film's clock runs on real elapsed time, before the modules, so they all see this frame's moment)
+  if (ctx.intro) {
+    // (a director that throws ends the film at once: A10, any exception inside the cut scene ends it cleanly into the game)
+    try { ctx.intro.update(rawDt); } catch (e) { const n = (errorCounts.get('intro') || 0) + 1; errorCounts.set('intro', n); if (n <= 3) report('update(intro)', e); failIntro(e, { reported: true }); }
+    tickIntroFlow(rawDt);
+  }
+  // <<< INTRO LANE B
   for (const name of UPDATE_ORDER) {
     const m = ctx[name];
     if (!m || m.isStub || !m.update) continue;

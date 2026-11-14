@@ -64,6 +64,7 @@ export function create(ctx) {
   setupSurface(merchantR.object3d, { minReflect: 0.4 });
   merchantR.light.layers.enable(REFLECT_LAYER);
   const LFLAME_I = raft.lflame.outerMat.uniforms.uI.value;
+  let introKindle = null;   // INTRO LANE A: {wick, lantern} multipliers while the opening cut scene holds the raft's fire (else null)
   const catchHolder = new THREE.Group(); catchHolder.name = 'catchHolder'; group.add(catchHolder);
   const cord = createCord(ctx); group.add(cord.group);
 
@@ -414,6 +415,22 @@ export function create(ctx) {
       bz.flame.group.scale.setScalar(0.85 + st.brazierFlare * 1.4 + Math.sin(t * 5) * 0.05);
       bz.flame.outerMat.uniforms.uT.value = t * 1.2; bz.flame.innerMat.uniforms.uT.value = t * 1.4;
       if (st.brazierFlare > 0.6 && Math.random() < dt * 30) { bz.flame.group.getWorldPosition(tmp); ctx.models?.emitEmber?.(tmp, { color: 0xffa040, vy: 2.2, spread: 0.8, size: 0.08, lifeT: 0.9, alpha: 1, jitter: 0.1 }); }
+      // >>> INTRO LANE A: the opening cut scene's kindling (docs/v3/intro/SPEC.md §4 #13; inert until the stage calls setIntroKindle)
+      // straight multipliers on the raft's own fire, laid over what the lines above just set: 0 = out, 1 = exactly the game's
+      if (introKindle) {
+        const kl = introKindle.lantern;
+        lanternLight.intensity *= kl;
+        raft.glassMat.opacity *= kl;
+        raft.halo.material.opacity *= kl;
+        raft.lflame.group.visible = raft.lflame.group.visible && kl > 0.02;
+        raft.lflame.group.scale.multiplyScalar(0.3 + 0.7 * kl);
+        pu.uK.value *= kl;
+        pool.mesh.visible = pu.uK.value > 0.01;
+        bz.coalsMat.color.multiplyScalar(0.04 + 0.96 * kl);
+        bz.flame.group.visible = kl > 0.02;
+        bz.flame.group.scale.multiplyScalar(0.3 + 0.7 * kl);
+      }
+      // <<< INTRO LANE A
       // pennant / chime / trophies, L3 bulbs
       raft.animate(t, -localVel.x, -localVel.z);
       const bulbMat = raft.details[2].userData.bulbMat;
@@ -562,6 +579,19 @@ export function create(ctx) {
       return raycaster.intersectObject(merchantR.proxy, false).length > 0;
     },
     setRaftLevel(n) { st.raftLevelExplicit = true; raft.setLevel(n); },
+    // >>> INTRO LANE A: the opening cut scene's kindling (CONTRACT §13.13)
+    /**
+     * setIntroKindle({wick, lantern} | null): straight multipliers (0 … 1) on the Wick's head flame (size, light, halo, eyes) and
+     * on the raft's hanging lantern (its light, glass, halo, flame, the pool on the water, the brazier), applied after the game's
+     * own easing each frame, so the film can hold them out and bring them up as a function of its own time. null = the game's own.
+     */
+    setIntroKindle(k) {
+      const on = !!k && Number.isFinite(k.wick) && Number.isFinite(k.lantern);
+      introKindle = on ? { wick: clamp(k.wick, 0, 1), lantern: clamp(k.lantern, 0, 1) } : null;
+      wick.setIntroKindle?.(on ? introKindle.wick : null);
+      if (!on) raft.brazier.flame.group.visible = true;
+    },
+    // <<< INTRO LANE A
     getLanternPos(out = new THREE.Vector3()) { raft.lantern.updateWorldMatrix(true, false); return out.set(0, -0.46, 0).applyMatrix4(raft.lantern.matrixWorld); },
     getHeadPos(out = new THREE.Vector3()) { return wick.flame.group.getWorldPosition(out); },
     getWickPos(out = new THREE.Vector3()) { return wick.group.getWorldPosition(out); },

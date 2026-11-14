@@ -10,6 +10,9 @@ import { createScreens } from './ui-screens.js';
 import { createMeasure } from './ui-measure.js';
 import { v3Run, nightWord, pickMomentOk } from './ui-v3.js';
 import { afOn, logLocked as logLockedFor } from './ui-af.js';
+// >>> INTRO LANE B: import (the opening cut scene's words, Skip word and veil; docs/v3/intro/SPEC.md section 7)
+import { createIntroView } from './ui-intro.js';
+// <<< INTRO LANE B
 
 export function create(ctx) {
   // ------------------------------------------------------------------ root & style
@@ -160,16 +163,21 @@ export function create(ctx) {
     if (D().V3_ENABLED) { try { ctx.bus.emit('ui:screen', { id, open: true, section: opts.state?.section ?? null, speciesId: opts.state?.sel ?? null }); } catch { /* ignore */ } }
     return entry;
   }
-  function closeModal(id, { silent = false, instant = false } = {}) {
+  function closeModal(id, { silent = false, instant = false, hold = false } = {}) {
     const i = stack.findIndex((m) => m.id === id);
     if (i < 0) return false;
     const [entry] = stack.splice(i, 1);
     markCovered();
     try { entry.onClose?.(entry); } catch (e) { report('onClose', e); }
     const el = entry.el;
-    el.classList.remove('gw-in');
-    el.classList.add('gw-out');
-    if (instant) el.remove(); else setTimeout(() => el.remove(), 260);
+    // INTRO LANE B: `hold` closes the screen for the game (the stack, the events) but leaves its picture standing, inert, for the
+    // caller to remove (the opening cut scene's ink closes over the title's words: they never fade by themselves)
+    if (hold) { el.dataset.held = '1'; el.style.pointerEvents = 'none'; el.setAttribute('aria-hidden', 'true'); }
+    else {
+      el.classList.remove('gw-in');
+      el.classList.add('gw-out');
+      if (instant) el.remove(); else setTimeout(() => el.remove(), 260);
+    }
     if (!silent && !entry.quiet) { try { ctx.bus.emit('ui:modal', { open: false, id }); } catch { /* ignore */ } }
     if (D().V3_ENABLED) { try { ctx.bus.emit('ui:screen', { id, open: false }); } catch { /* ignore */ } }
     const t = top();
@@ -612,6 +620,10 @@ export function create(ctx) {
   K.measure = measure;
   const hud = createHud(K);
   K.hud = hud;
+  // >>> INTRO LANE B: view (v3 only: the film's words, Skip word, ink veil and reduced-motion layer; null with the flag off)
+  let introView = null;
+  if (D().V3_ENABLED === true && D().INTRO) { try { introView = createIntroView(K); } catch (e) { report('intro view', e); introView = null; } }
+  // <<< INTRO LANE B
 
   // ------------------------------------------------------------------ per-run trackers
   let zonesSeen = new Set();
@@ -904,6 +916,9 @@ export function create(ctx) {
         updateTips();
         updateTweens(dt);
       } catch (e) { report('update', e); }
+      // >>> INTRO LANE B: view (after everything else of the UI, on the frame's real time)
+      if (introView) { try { introView.update(dt); } catch (e) { report('intro view', e); } }
+      // <<< INTRO LANE B
     },
     isBlocking: () => hasBlocking(),
     isShopOpen: () => has('shop'),
@@ -935,6 +950,9 @@ export function create(ctx) {
     floatText, damageNumber,
     banner: (title, subtitle, opts) => banner(title, subtitle, opts),
     burnFish, cycleBait: baitCycle,
+    // >>> INTRO LANE B: view (main asks it for a curtain or a redraw; null with the flag off)
+    intro: introView,
+    // <<< INTRO LANE B
   };
   return api;
 }

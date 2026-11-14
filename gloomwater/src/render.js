@@ -498,8 +498,18 @@ export function create(ctx) {
     trophy.r = head.distanceTo(trophy.from) * Math.max(w, 1 - w) * (L < 2 ? 0.4 : 1) + Math.max(L * 0.5, 0.35);
   }
 
+  // >>> INTRO LANE A: cut-scene camera
+  // The opening cut scene's camera (v3; docs/v3/intro/SPEC.md §5, CONTRACT §13.13). Inert until setIntroCamera(pose) is called.
+  // pose = { pos: [x, y, z], look: [x, y, z], fov, w } in world metres; w = 1 is the pose alone, w = 0 the rig alone. While a
+  // pose is set the rig is held in `sail` (whatever the flow), so the film's last move settles into the play camera with no
+  // cut and nothing changes when the pose is released. null releases it.
+  let introCam = null;
+  function setIntroCamera(p) { introCam = p && Array.isArray(p.pos) && Array.isArray(p.look) ? p : null; }
+  // <<< INTRO LANE A
+
   function pickMode() {
     const flow = ctx.flow;
+    if (introCam) return 'sail';   // INTRO LANE A: cut-scene camera
     if (flow === 'title' || flow === 'boot') return 'title';
     if (flow === 'dead') return 'death';
     if (trophyLive()) return 'trophy';
@@ -757,10 +767,20 @@ export function create(ctx) {
     const floorY = mode === 'trophy' ? 0.5 : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? lerp(0.5, 1.2, smoothstep(0, TROPHY_OUT_T, modeT)) : 1.2;
     if (camPos.y < floorY) camPos.y = floorY;
 
+    // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
+    let introW = 0, introFov = null;
+    if (introCam) {
+      introW = clamp(Number(introCam.w ?? 1), 0, 1);
+      camPos.lerp(tmpV.set(Number(introCam.pos[0]) || 0, Number(introCam.pos[1]) || 0, Number(introCam.pos[2]) || 0), introW);
+      lookTarget.lerp(tmpV.set(Number(introCam.look[0]) || 0, Number(introCam.look[1]) || 0, Number(introCam.look[2]) || 0), introW);
+      if (Number.isFinite(introCam.fov)) introFov = lerp(cur.fov, introCam.fov, introW);
+    }
+    // <<< INTRO LANE A
+
     camera.position.copy(camPos);
     camera.up.set(0, 1, 0);
     camera.lookAt(lookTarget);
-    camera.rotateZ(Math.sin(time * 0.29 + 0.7) * 0.004 * (mode === 'title' ? 2 : 1));
+    camera.rotateZ(Math.sin(time * 0.29 + 0.7) * 0.004 * (mode === 'title' ? 2 : 1) * (1 - introW));
 
     // trauma shake (smooth noise, squared falloff)
     fx.trauma = Math.max(0, fx.trauma - fx.traumaDecay * dt);
@@ -778,7 +798,7 @@ export function create(ctx) {
 
     // fov with kick + slight breathing
     fx.fovKick = damp(fx.fovKick, 0, 5, dt);
-    const fov = clamp(cur.fov + fx.fovKick, 20, 95);
+    const fov = clamp((introFov ?? cur.fov) + fx.fovKick, 20, 95);   // (INTRO LANE A: the cut scene's lens)
     if (Math.abs(camera.fov - fov) > 1e-3 || camera.aspect !== W / H) {
       camera.fov = fov;
       camera.aspect = W / H;
@@ -942,7 +962,8 @@ export function create(ctx) {
       const bus = ctx.bus;
       if (!bus) return;
       const on = (evt, fn) => bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { console.error('[render]', evt, e); } });
-      on('zone:change', ({ zone, prev }) => {
+      on('zone:change', ({ zone, prev, intro }) => {
+        if (intro) return;   // INTRO LANE A: the cut scene hands over on the lake already on screen (no fade, no grade snap)
         applyZoneDefaults(zone, !prev);
         flash(0x000000, prev ? 1 : 0.9, prev ? 1.4 : 0.9);
       });
@@ -1034,6 +1055,20 @@ export function create(ctx) {
     },
     shake, flash, pulse, kick, attention, push,
     setTrophyTarget,
+    // >>> INTRO LANE A: cut-scene camera
+    setIntroCamera,
+    getIntroCamera() { return introCam; },
+    /**
+     * Compile an object's programs exactly as the frame will use them (inside the HDR target, with the scene's lights and
+     * fog), without drawing it: the cut scene warms its set under the title, so its first frame compiles nothing.
+     */
+    warmPrograms(obj) {
+      if (!obj || !composer || typeof renderer.compile !== 'function') return false;
+      const prev = renderer.getRenderTarget();
+      try { renderer.setRenderTarget(composer.renderTarget1); renderer.compile(obj, camera, scene); } finally { renderer.setRenderTarget(prev); }
+      return true;
+    },
+    // <<< INTRO LANE A
     getCameraMode() { return mode; },
     /** Jump the rig straight to its current target (cuts, tests). */
     snapCamera() {

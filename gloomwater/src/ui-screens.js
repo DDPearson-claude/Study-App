@@ -333,6 +333,29 @@ export function createScreens(K) {
         const z = K.zoneData(saved?.zone);
         add('Continue', '', () => { K.closeAll(); ctx.game?.continueRun?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main', sub: saved ? `Day ${saved.day || 1} · ${esc(z?.name || '')}` : '' });
       }
+      // >>> INTRO LANE B: title (SPEC section 7.1): while ctx.game.introPending() the primary word is "Begin" and plays the opening
+      // cut scene (no New Descent panel, no premise paragraph); otherwise a quiet "Prologue" word in the lower line replays it
+      const introGame = typeof ctx.game?.introPending === 'function' ? ctx.game : null;
+      if (introGame && safe(() => introGame.introPending(), false) === true) {
+        // a fresh save: one Wick, one lake, one night card, so nothing to choose. Begin goes straight into the film and the film
+        // ends in the first run. The film says the premise; the empty Journal, Shrine and Trials wait for a returning player
+        wrap.classList.add('gw-title--fresh');
+        wrap.querySelector('.gw-title-premise')?.remove();
+        wrap.querySelector('.gw-title-meta')?.remove();   // (nothing to count yet: the fresh title is the name, the tagline and two words)
+        add(D().INTRO?.trigger?.button || 'Begin', '', () => { ctx.game?.beginIntro?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main' });
+        add('Settings', 'Sound and picture', () => openSettings({ titleChild: true }));
+        safe(() => introGame.prewarmIntro?.(), null);   // the set builds in idle time under the title, so the press costs nothing
+        return;
+      }
+      if (introGame && safe(() => introGame.introReplayOffered?.(), false) === true) {
+        const R = D().INTRO?.trigger?.replay || {};
+        const rb = h('button', 'gw-title-replay', `<span>${esc(R.word || 'Prologue')}</span>`);
+        rb.type = 'button';
+        rb.title = R.hint || 'Watch the opening again';
+        rb.addEventListener('click', (e) => { e.stopPropagation(); sfx('ui_click'); ctx.game?.replayIntro?.(); });
+        wrap.querySelector('.gw-title-lower')?.appendChild(rb);
+      }
+      // <<< INTRO LANE B
       add('New Descent', hasRun ? 'Begins a new descent and abandons the waiting one' : '', () => openNewDescent(), { autofocus: !hasRun, cls: hasRun ? 'gw-tbtn' : 'gw-tbtn gw-tbtn--main' });
       add('Journal', `${named} / ${total} named`, () => openJournal());
       add('Shrine', `${fmt(m.memories || 0)} Memories`, () => openShrine());
@@ -1471,6 +1494,8 @@ export function createScreens(K) {
       content.appendChild(toggleRow('screenShake', 'Screen shake', true));
       content.appendChild(toggleRow('damageNumbers', 'Damage numbers', true));
       content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, 'Softer flares and hit flashes'));
+      // INTRO LANE B (A8): the opening cut scene as still pictures, for players whose system does not ask for reduced motion
+      if (D().V3_ENABLED && D().INTRO) content.appendChild(toggleRow('reducedMotion', 'Reduced motion', false, 'The opening plays as still pictures'));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">Fishing</div>');
       if (af()) {
         // automatic fishing (DESIGN §25.6.4–5): the strike ring (timing only, never odds) and the hurry hold; there is no reel button

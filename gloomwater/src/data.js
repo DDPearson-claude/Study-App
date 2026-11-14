@@ -3904,6 +3904,166 @@ export const FIRST_EVENING = {
   },
 };
 
+// The opening cut scene, "One Warm Light" (DESIGN §25.4.9; docs/v3/intro/SPEC.md is the binding build document; CONTRACT §13.13).
+// 18 s, skippable, plays once on a fresh save's first new game and ends inside the first run. Always exported; read only by the v3
+// build (src/intro.js the director, src/intro-stage.js the set and picture, src/ui-intro.js the words and the Skip word, the audio
+// cue). Every time is in seconds on the cut scene's own timeline. Camera poses and set positions are metres from a named anchor:
+// 'S' = the raft's spawn (world.getSpawn()), 'G' = the Sunken Gate (the Mossmere's hero landmark, beyond the north shore),
+// [anchor, east, up, south] (so -z is north, toward the gate, as everywhere in the game).
+// THREE BLOCKS, three owners (SPEC §8): `shared` is frozen (the lead / the merge agent only); lane A (set and picture) may retune
+// the LANE A block, lane B (director and flow) the LANE B block, each inside the validator's rules (tools/validate-data.mjs).
+export const INTRO = {
+  // >>> INTRO shared (frozen)
+  phase: 1, id: 'one_warm_light',
+  length: 18,                       // s, first frame → `intro:done` (validated 15–20)
+  beats: [                          // contiguous, 0 → length
+    { id: 'lit',   t0: 0,    t1: 5.0 },    // the lit kingdom: the great lantern over the lake, every window amber, all of it in the mirror
+    { id: 'fall',  t0: 5.0,  t1: 8.2 },    // a chain parts; the lantern drops to meet its reflection; the windows go out behind it; hard cut on contact
+    { id: 'below', t0: 8.2,  t1: 12.4 },   // ink: the ember sinks, a pale flank too big for the frame takes it and carries it off (wordless)
+    { id: 'wick',  t0: 12.4, t1: 14.6 },   // the surface, now: a spark, the Wick's flame catches, gutters, catches; its lantern takes
+    { id: 'home',  t0: 14.6, t1: 18.0 },   // the crane back into the play camera; control begins
+  ],
+  text: [                           // at most 4 lines, each at most 60 characters, one at a time, present tense
+    'A kingdom hangs a great lantern over its lake.',
+    'The lantern falls. The kingdom follows.',
+    'Its last candles fish to stay lit.',
+    'You are one of them.',
+  ],
+  // the screen band the words own (fractions of the viewport height, top → bottom): lane B draws them there and nowhere else, lane A
+  // keeps the lantern, its mirror image, the ember and the Wick's flame out of it
+  words: { band: { landscape: [0.86, 0.95], portrait: [0.90, 0.97] }, size: { desktop: 19, phone: 18 }, minSize: 16, maxLines: 2, maxChars: 60 },
+  // the opening ink dip over the title frame (lane B's DOM veil): [t, opacity]. The stage shows nothing and leaves the title camera
+  // alone before `swapAt` (inside the full ink), so the set never pops in over the title
+  veil: [[0, 0], [0.35, 1], [0.6, 1], [1.4, 0]], swapAt: 0.45,
+  cut: { at: 8.2, kind: 'hard', reduced: 'dip' },   // the one hard cut (contact → ink); a 0.3 s dip under reduced motion / reduced flashing
+  // <<< INTRO shared
+
+  // >>> INTRO LANE A (set and picture): src/intro-stage.js, src/intro-models.js
+  cameras: {
+    portraitBelow: 0.9,             // viewport aspect under which the `portrait` values apply (blended from 1.1 down to 0.9)
+    takes: [
+      // the gate take: low over the water on the play axis, 9 m north of the raft (the raft is behind the lens). One legible move:
+      // it starts low and wide, cranes up 1.4 m and tilts up as it pushes in 8.5 m (the rocks of the foreground slide against the
+      // gate), so the towers' spires come in by 1.5 s and stand in frame through the lit beat; the lantern's mirror image (its cap
+      // and all) stays above the words band the whole push (frac 0.84 at most to 5.9 s; tools: the fixer's frame check)
+      { id: 'gate', from: 0.45, to: 8.2, keys: [
+        { t: 0.45, pos: ['S', 0, 1.2, -9],    look: ['G', 0, -4, 0],   fov: 54, portrait: { look: ['G', 0, 2.5, 0], fov: 64 } },
+        { t: 3.0,  pos: ['S', 0, 2.0, -13.5], look: ['G', 0, 3.5, 0],  fov: 54, portrait: { look: ['G', 0, 3, 0], fov: 62 } },
+        { t: 5.0,  pos: ['S', 0, 2.6, -17.5], look: ['G', 0, 3.0, 0],  fov: 53, portrait: { look: ['G', 0, 3, 0], fov: 61 } },
+        { t: 5.9,  pos: ['S', 0, 2.6, -18.7], look: ['G', 0, 0.5, 0],  fov: 50, portrait: { look: ['G', 0, 2.5, 0], fov: 60 } },
+        { t: 8.2,  pos: ['S', 0, 2.2, -21.5], look: ['G', 0, -2.6, 0], fov: 38, portrait: { look: ['G', 0, 0, 0], fov: 50 } },
+      ] },
+      // the shoulder take (under the ink card until the Wick's spark): behind and right of the Wick, the dark gate beyond
+      // (portrait: nearly straight behind it, so the Wick stands whole in the lower-left third of a frame only 2.4 m wide there)
+      { id: 'shoulder', from: 8.2, to: 14.6, keys: [
+        { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.72, 2.6, 5.4], look: ['S', -0.2, 2.4, -30], fov: 52 } },
+        { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.8, 2.7, 5.7], look: ['S', -0.2, 2.4, -30], fov: 52 } },
+      ] },
+      // the crane home: the weight of the stage's pose goes 1 → 0 into render's own settled `sail` rig, then 1.8 s at rest
+      // (at rest from 16.2: the raft has risen clear of the words band by about 15.7, where the last line comes in under it)
+      { id: 'home', from: 14.6, to: 18, rig: 'sail', blend: [14.6, 16.2], ease: 'inOutSine' },
+    ],
+  },
+  set: {
+    // the great lantern hangs over the LAKE (the gate stands behind the cliff ring: anything falling there would vanish behind
+    // rock), 44 m in front of the gate on the play axis, on three chains that run up out of frame. `at` is its middle; `height`
+    // its cage, foot to cap
+    lantern: { at: ['G', 0, 14.2, 44], height: 7.6, radius: 2.9, glow: 2.6, halo: { size: 30, opacity: 0.55 }, chains: 3, chainTop: 48,
+      // its pool and gold path on the water (world.setIntroWaterLight). On the low tier (no mirror) the streak IS the lantern's
+      // reflection, a little calmer so it stays gold. Where the lake is a mirror (medium, high) the reflection itself carries the
+      // gold and the pool is off (`intensityMirror` 0): seen from 2 m up, 60 m away, a pool is one flat mustard band along the far
+      // shore, and any fainter it turns olive over the violet water
+      water: { intensity: 14, intensityMirror: 0, radius: 27, streak: 2, streakLow: 0.75 } },
+    // "then": three columns of nine slits on each tower; the lake's own eight candle slits and three braziers are "now" and stay lit
+    windows: { perTower: 27, cols: 3, rows: 9, y0: 4, dy: 3.4, size: [0.8, 1.8], glow: 2.0 },
+    // the chain parts (the lantern lurches `lurch` rad), the drop starts, the foot meets the water (the middle is then `restY`
+    // over it) and it plunges on at `sink` m/s (about the speed it fell at), tipping forward a further `tip` rad as it goes under;
+    // its chain stubs slump onto the roof in `slump` s
+    fall: { part: 5.6, drop: 5.9, contact: 7.9, tilt: 0.22, restY: 4.0, lurch: 0.06, sink: 12, tip: 0.38, slump: 0.18 },
+    // the dark comes down the towers with the lantern: the top row starts to gutter at `from` of the fall, the lowest at `to`
+    // (every window is out by the contact); no two windows of a row go at once (`jitter` s)
+    dark: { follows: 'lantern', gutter: 0.35, from: 0.02, to: 0.6, jitter: 0.1 },
+    memory: { linger: 1.2, rise: 5, fade: 0.5, tiers: ['medium', 'high'] },   // mirror-only twins: the reflections stay lit a beat and sink
+    // the contact: the flash, one widening ring, and a crown of drops thrown up round the lantern's foot (part of the set, so a
+    // seek shows it as a play does: `crown` drops, `height` and `reach` in m, `life` s)
+    contact: { flash: 0.3, ring: { r: [2, 30], life: 1.6 }, splash: 4, crown: { drops: 40, height: [3.5, 8], reach: [2.5, 7], life: 1.2 } },
+    // picture fractions from the top-left; the flank's `frame` is its girth in picture heights (landscape, portrait): more than
+    // the picture holds, so it is a wall with one eye and one belly line; `rise`: how far above the ember its middle line passes (girths)
+    // `motes`: silt, few and soft and slow; `bubbles`: a short trail rising from the ember while it sinks
+    below: { ember: { from: [0.5, 0.12], to: [0.5, 0.46], size: [0.14, 0.03], sinkUntil: 10.0 }, motes: 34, bubbles: 14,
+      flank: { length: 22, girth: 5.2, enter: 9.4, eye: 10.2, cover: 10.4, leave: 11.8, out: 12.2, portraitAngle: 28, frame: [1.15, 0.5], rise: [0.13, 0.12] } },
+    wick: { spark: 12.5, flame: [[12.5, 0], [12.6, 0.25], [12.8, 0.9], [13.05, 0.3], [13.4, 1]], lantern: [13.5, 14.2], lift: [12.6, 13.8] },
+    // fishing: the Wick's line is out from its rod in the bow holder to a float on the water `at` (from S); the float's small pale
+    // light takes with the Wick's lantern; it dips once as the harp's first note sounds (`dip`), sending one slow ring out over the
+    // water round the float (never round the raft); the line and the float fade as control begins (`out`), the rod stowed as in play
+    float: { at: ['S', -1.2, 0, -15], light: [13.6, 14.3], dip: 14.6, ring: { r: [0.3, 3.2], life: 2.6 }, out: [17.0, 17.8] },
+    colors: { glass: 0xed9e3b, halo: 0xed9e3b, window: 0xed9e3b, iron: 0x0a0818, ring: 0xf0d49c, ember: 0xe8862e, emberDeep: 0xb8501e,
+      flank: 0xd6d6e4, flankShade: 0x433e74, glint: 0xe8be77, ink: 0x0a0c19, inkTop: 0x3e2568, spark: 0xffd9a0 },   // (inkTop is the lake's violet-dusk as the frame's grade leaves it: under the Mossmere's grade #251E5C came out a pure blue, hue 240; this one lands at hue 252, between the lake's water and its sky)
+    budget: { calls: 30, triangles: 10000, textures: 2, lights: 0, shadowMaps: 0, prebuildMs: 60 },   // the set's own cost in any frame, every pass (the hard ceiling is 60 / 40,000)
+  },
+  // <<< INTRO LANE A
+
+  // >>> INTRO LANE B (director and flow): src/intro.js, src/ui-intro.js, main.js, audio
+  lines: [                          // i → text[i]; `at` the fade-in starts, `out` the line is gone; none in `below`
+    { i: 0, at: 1.2,  out: 5.0 },
+    { i: 1, at: 5.45, out: 8.1 },      // in with the chain's spark (5.6): the words land with the fall, not before it
+    { i: 2, at: 12.5, out: 14.85 },    // with the catching flame and the line in the water; gone before the crane carries the raft under the words
+    { i: 3, at: 15.7, out: 17.85 },    // as the play camera settles: the raft has just risen clear of the band, the line sits under it (1.35 s at full)
+  ],
+  lineFade: 0.4,
+  skip: { guard: 0.5, showAt: 0.6, target: 44, keys: ['Escape', 'Enter', 'NumpadEnter', 'Space'], word: 'Skip',
+    wordFade: 0.3,                  // the Skip word comes in over 0.3 s from showAt (there by 0.9 s)
+    wordOut: 0.15,                  // … and goes over the film's last 0.15 s, with the last line, the camera at rest (the keys skip to the very end)
+    poke: 2,                        // a press anywhere else only brightens the Skip word for this long
+    veilIn: 0.25, veilOut: 0.35,    // beats lit / fall / below: ink closes, the stage jumps to its end state, ink opens on the play frame
+    finish: 0.5, finishFrom: 'wick',   // beats wick / home: no veil; the remaining timeline plays out in `finish` s
+    soundFade: 0.25,
+    after: 0.6 },                   // after a skip's hand-off the skip keys are swallowed this long (a double Esc never opens the pause menu)
+  clock: { maxDt: 0.1, valve: 25, valveDt: 0.25 },   // real elapsed time, clamped per frame; ends by itself after `valve` s of visible time
+  stills: [                         // reduced motion: one still per beat (the stage at that time), cross-faded at the beat changes
+    { beat: 'lit', t: 3.6 }, { beat: 'fall', t: 7.2 }, { beat: 'below', t: 10.5 }, { beat: 'wick', t: 14.2 }, { beat: 'home', t: 17.9 },
+  ],
+  stillFade: 0.5,
+  // reduced flashing (and reduced motion): the one hard cut becomes an ink dip of `cutDip` s centred on it; under reduced motion
+  // the cross-fade into `below` lasts `cutDip` too (SPEC section 3)
+  calm: { cutDip: 0.3 },
+  // one cue in D Dorian (the Mossmere's key), 58 BPM at the end; sections start when the director's clock crosses their mark
+  // (src/intro.js soundEvents), so a paused timeline pauses the score. midi numbers; gains in dB below full scale on the cue's own
+  // bus (src/audio-intro.js; tools/audio-render.mjs --set=intro renders it offline and measures the peak)
+  sound: {
+    titleFade: 0.3, skipFade: 0.25, bus: 'music', peakDb: -6, voices: 12,
+    wet: 0.5,                       // the cue's send to the cavern reverb
+    endRing: 3.2,                   // the last harp note rings this long after `intro:done` before the cue's nodes are released
+    marks: [
+      { id: 'drone',   t: 0.0,  to: 8.2,  what: 'bowed drone', notes: [38, 45], db: -18, swell: 1.2, cents: 6, lowpass: 420 },
+      { id: 'bell',    t: 1.0,  what: 'one great bell', notes: [50], db: -14, decay: 6, partials: [1, 2.0, 2.4, 3.0, 4.5] },
+      { id: 'glass',   t: 1.4,  to: 5.9,  what: 'glass chord', notes: [62, 69, 76], db: -20, attack: 0.4, partials: [1, 2.76, 5.4] },
+      { id: 'ping',    t: 5.6,  what: 'the chain parts', hz: [2200, 1600], db: -16, dur: 0.08 },
+      { id: 'fallBend', t: 5.9, to: 7.9, what: 'the top voice falls a fifth, the drone a semitone', bend: { from: [76, 38], to: [69, 37] } },
+      { id: 'impact',  t: 7.9,  what: 'sub thump and a low bell; a 300 Hz lowpass closes in 0.15 s', notes: [33], hz: [80, 40], db: -12.6, lowpass: 300, over: 0.15 },
+      { id: 'deep',    t: 8.2,  to: 12.4, what: 'sub drone under the lowpass', notes: [26, 33], db: -20 },
+      { id: 'ember',   t: 9.0,  what: 'ember_swell (audio-af.js)', sfx: 'ember_swell', volume: 0.8 },
+      { id: 'groan',   t: 9.6,  what: 'one slow, patient groan', hz: [70, 52], dur: 2.5, db: -18 },
+      { id: 'spark',   t: 12.5, what: 'a tiny tick; the lowpass opens to 6 kHz over 0.8 s', lowpass: 6000, over: 0.8, db: -22 },
+      { id: 'flame',   t: 12.8, what: 'flame_catch (audio-af.js)', sfx: 'flame_catch', volume: 0.8 },
+      { id: 'harp',    t: 14.6, what: 'solo harp: the first four notes of the Mossmere motif', notes: [62, 65, 69, 67], beat: 1.034, db: -15, decay: 1.2 },
+    ],
+    into: 'calm',                   // the last harp note rings into the lake's calm bed (same key, same tempo)
+  },
+  // the trigger (A3): once, on a fresh save's first new game, straight from the title's primary button
+  trigger: { fresh: 'meta.runs === 0 && !meta.intro.seen', button: 'Begin', bypasses: 'newdescent', debugOptIn: ['GW_INTRO', '?intro=1', "debug.intro('auto', true)"],
+    prewarm: { after: 0.5, tries: 16 },  // the fresh title asks the stage to build in idle time, this long after it opens (the stage takes 10 slices, 9 on low: the models, one per part, the lake's arena; an idle period may take several)
+    replay: { word: 'Prologue', hint: 'Watch the opening again', where: 'title', writes: false, veil: 0.3 } },   // (`veil`: a replay on another lake puts it back under this much ink)
+  // game.startNewRun({character, nightMode, __intro: true}). `grade`: 'ink' = the lake's own grade goes on under the opening ink (the film
+  // is graded as the run is, nothing shifts at the hand-off); 'ease' = the film keeps the title's grade and the lake's eases in as control begins
+  handoff: { character: 'wick', nightMode: 'still', at: 'intro:done', event: { intro: true }, grade: 'ink' },
+  // when the cove ships (world.SUPPORTS_COVE): the same film dressed at the sea-gate, handing to the First Evening's wake at the hearth;
+  // its lines replace FIRST_EVENING.text.lore (the Lantern Line's three) and the `framing` step is not played. Not built.
+  cove: { endsIn: 'firstEvening:wake', wickAt: 'FIRST_EVENING.wake.candle', replaces: 'FIRST_EVENING.text.lore', skipsStep: 'framing',
+    text: { 2: 'Its last candles come ashore here, to fish and stay lit.' } },
+  // <<< INTRO LANE B
+};
+
 // ---- The expedition (brief §3.2–§3.5, §3.8). Phase names stay internal (`gloomtide` = night).
 export const EXPEDITION = {
   phases: { calm: 180, dusk: 20, gloomtide: 90, dawn: 10 }, calmByMode: { raft: 180, mixed: 180, foot: 185 },
