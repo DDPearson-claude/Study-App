@@ -12,7 +12,7 @@
 //   --only=small,elder          a subset of the cases
 //   --cases=name:species:z[:key=value;key=value]   more cases. Keys: phase (calm | dusk | gloomtide), zone (mossmere | sporewood |
 //                               glasswater | paleabyss), body (wick | taper | stub | tallow | ashwick), heading (rad), lead (s of the
-//                               play left before the landing; default 0.5), action (keep | release | eat | render)
+//                               play left before the landing; default 4), action (keep | release | eat | render)
 //   --frames=sheet|strip        sheet (default): the five frames of the proof sheet (water, lift, show, pause, card) and the way
 //                               out; strip: twelve
 //   --quality=high              the render tier (default high)
@@ -217,7 +217,7 @@ export default async function (api) {
     await waitFor(() => window.__gw.fishing.state === 'reeling', null, 30);
     const info = await playInfo();
     info.cls = info.legendary || info.ancient ? 'ancient' : info.sizeClass;
-    const lead = Number.isFinite(o.lead) ? o.lead : 0.5;
+    const lead = Number.isFinite(o.lead) ? o.lead : 4;   // (the jump fires the play's skipped beats at once, far out: their rings are gone when the fish lands)
     await g(([end, lead]) => window.__gw.debug.fishPlayTo(end ? Math.max(0, 1 - lead / end) : 0.95), [info.playEnd, lead]);
     await g(() => { const S = window.__show; S.reset(); S.rip.length = 0; S.uiEvery = 2; S.begin(); });
     const t0r = await g((ms) => window.__show.run(Math.round(60000 / ms), ms, 'landing'), STEP_MS);
