@@ -351,15 +351,24 @@ export function createIntroStage(ctx) {
       },
     };
   }
-  /** The steps of a build, one per prebuild() call: the models, then each part's programs compiled as the frame will use them. */
-  function stepCount() { return set ? 1 + set.warm.length : 1; }
+  /**
+   * The lake's own arena (world-art names it `arena:<zone id>`): its last slice warms the world the film's lens shows and the
+   * title's may not. On a phone the portrait title culls the landmarks and the descent gate, and their two programs compiled
+   * as the stage went live (under the full ink, but a compile all the same); warming the arena under the title adds about
+   * four programs in one slice and nothing compiles once the film runs.
+   */
+  function worldRoot() {
+    try { const id = ctx.world?.getZone?.()?.id; return id && ctx.render?.scene?.getObjectByName ? ctx.render.scene.getObjectByName('arena:' + id) || null : null; } catch { return null; }
+  }
+  /** The steps of a build, one per prebuild() call: the models, then each part's programs compiled as the frame will use them, then the lake's arena. */
+  function stepCount() { return set ? 2 + set.warm.length : 1; }
   function buildStep() {
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
     if (st.step === 0) buildModels();
     else {
-      const obj = set.warm[st.step - 1], R = ctx.render;
+      const obj = st.step - 1 < set.warm.length ? set.warm[st.step - 1] : worldRoot(), R = ctx.render;
       // (warming is an optimisation: a renderer that cannot do it draws the film all the same)
-      try { if (typeof R.warmPrograms === 'function') R.warmPrograms(obj); } catch { /* the first frame compiles instead */ }
+      try { if (obj && typeof R.warmPrograms === 'function') R.warmPrograms(obj); } catch { /* the first frame compiles instead */ }
     }
     st.step++;
     if (typeof performance !== 'undefined') st.buildMs += performance.now() - t0;
