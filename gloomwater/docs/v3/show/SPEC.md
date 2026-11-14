@@ -607,7 +607,9 @@ Where the merged build differs from §2 – §6, the build is the truth; every n
   (the validator keeps them as a floor). The fit adds the fish box's corners (`finRoom` 1.35) and the flame's tip (`flameTip` ×
   the head's radius) to `keep`. The target follows the layout through the lift and freezes `settleBefore` s before the pause;
   the lens rides the Wick's feet on the swell, so the still is measured against the Wick. `render.setShowTarget(t, opts)` returns
-  `{yaw}` and takes `(null, {abort: true})`. Rows as built: pinch 8° (a tiny one 52°, no flame tip) · **both 7°, no footroom,
+  `{yaw}` and takes `(null, {abort: true})`. **A far jump of the target** (a leviathan's fit after the reveal's guess at its class
+  length, a phone's rake swinging round it) is taken at no more than `camera.maxSpeed` (12 m/s) at its peak: the target's springs
+  lower their ω for a long way and get it back as the way shortens; the way back to play takes `out` s or `outPerM` (0.068) s a metre. Rows as built: pinch 8° (a tiny one 52°, no flame tip) · **both 7°, no footroom,
   its own flame room 0.3** (an angler's photograph near eye level) · hug 10° · hang 8°, headroom 0.015 · **alongside 12°, no
   footroom, and nothing under the lake framed** (its kept points are clamped to the surface and the box's corners round the sunk
   tail are dropped; craned to 40° above 4 m; raked on a phone above 3.2 m).
@@ -622,7 +624,36 @@ Where the merged build differs from §2 – §6, the build is the truth; every n
 
 ### 7.3 What the stage measured
 
-STAGE_MEASURED
+The after set (`tools/out/show/after/`, the audit scenario on the 30 fps stepper, the high tier; the proof sheet
+`tools/out/show/sheet.jpg`). Every check passed (the order once per fish, the clock, the still pause, the clean frame, no
+ring asked for near the raft from T0, no pop in or out, the world unfrozen after the card); the rows the picture misses are
+listed under it.
+
+| catch | pose | T0 → card (s) | the fish at the pause | the Wick | flank off square |
+|---|---|---|---|---|---|
+| Small · Mossback Perch 33 cm | pinch | 2.00 | 19.5 % of the width (≥ 14) | 0° off the lens | 1° |
+| Keeper · Weeping Carp 61 cm | both | 2.10 | 29.0 % (≥ 28) | 0° | 6° |
+| Prize · Reedjaw Pike 89 cm | both | 2.97 | 40.2 % (≥ 28) | 1° | 6° |
+| Trophy · Reedjaw Pike 1.12 m | hug | 3.47 | 53.4 % of the height (≥ 45) | 0° | 14° |
+| Elder · Reedjaw Pike 1.38 m | hang | 4.93 | 54.8 % (≥ 45) | 29° (three-quarter) | 9° |
+| Legend · Belled Matriarch 2.65 m | alongside | 5.23 | 56.3 % of the width (≥ 55) | 35° (three-quarter) | 16° |
+| Prize · Gloam Eel 90 cm | hang | 2.97 | 45.7 % of the height (≥ 45) | 30° | 14° |
+| Small · Quayling 11.5 cm (the phase-1 game's smallest) | pinch | 2.00 | 10.8 %, 104 px (≥ 9 %, 80 px) | 2° | 1° |
+| phone · Small Perch | pinch | 2.00 | 67.3 % of the width (≥ 30) | 1° | 4° |
+| phone · Elder Pike | hang | 4.93 | 41.9 % of the height (≥ 38) | 29° | 11° |
+| phone · Quayling | pinch | 2.00 | 31.9 % (≥ 18) | 1° | 1° |
+| phone · Lantern-Swallower 8.67 m | alongside, raked | 5.23 | 81.9 % of the width (≥ 70) | 36° | 45° (≤ 65 raked) |
+
+The four lakes (Mossmere above; Sporewood, Glasswater and the Pallid Deep), a Gloomtide night, and the Taper, Stub, Tallow
+and Ashwick bodies were shot as well: every check passed. **Misses of S1's size rows** (notes, not failures): a fish of
+0.43 – 0.57 m in two hands is 23 – 27 % of the width (the Plumgill Perch 23.0, the Glassgill Perch 23.8, the Pallid Wraithfin
+27.2, the Candlefin Koi at night 25.1; the row is 28): the Wick's head and flame set the frame's height and a small fish
+held at the chest cannot fill its width; the Taper's `both` is 16.5 % (its stovepipe and flame make the frame tall; 0.65 × 28
+= 18.2 was the bar); beside the raked Lantern-Swallower on a phone the Wick is 7 % of the height (≥ 9 asked). Card words: 15 on
+an ordinary card (23 before), 9 for the Quayling, 39 for a legend's. Draw calls at the pause (the high tier): 138 – 169, the
+legend 199 (S8's medium-tier comparison: below).
+
+STAGE_REGRESSION
 
 ### 7.4 Left in the code, unused by the show
 
