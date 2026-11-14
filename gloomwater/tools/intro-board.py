@@ -56,9 +56,15 @@ def sheet(src, out, o):
             t = fr['t']
             head = ('%.2f' % t).rstrip('0').rstrip('.') + ' s'
             line = fr.get('line') or ''
-            if not line:
+            # a line on its way in or out (under half strength): named, dimmed
+            fading = next((l for l in meta.get('lines', []) if l['at'] <= t < l['out']), None) if not line and (fr.get('lineK') or 0) > 0.03 else None
+            if fading:
+                line, col = '“' + fading['text'] + '” (fading ' + ('in' if t < (fading['at'] + fading['out']) / 2 else 'out') + ')', dim
+            elif not line:
                 if fr.get('veil', 0) >= 0.5:
                     line = '(the ink closes over the title)' if t < 0.45 else '(the ink lifts on the lit kingdom)' if t < 2 else '(ink)'
+                elif t < 0.05:
+                    line = '(the title: Begin is pressed, the film starts)'
                 else:
                     line = {'below': '(no words: the dark below)'}.get(fr.get('beat'), '')
                 col = dim

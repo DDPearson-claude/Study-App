@@ -351,7 +351,7 @@ export default async function (api) {
     check(p.dom.lineOpacity === 0, 'no words in the last half second', { o: p.dom.lineOpacity });
     check(p.st.mode === 'sail' && p.st.introCam && p.st.introCam.w === 0, 'the camera is the play camera, at rest, before control begins', { mode: p.st.mode, w: p.st.introCam?.w });
     // (A9 is lane A's: the set's own programs are warmed by prebuild. What is logged here is the game's own lazy work under the film's camera.)
-    log(`during the film: shader programs ${before.programs} → ${p.st.programs}, geometries ${before.mem.geometries} → ${p.st.mem.geometries}, textures ${before.mem.textures} → ${p.st.mem.textures} (the stub stage owns none)`);
+    log(`during the film: shader programs ${before.programs} → ${p.st.programs}, geometries ${before.mem.geometries} → ${p.st.mem.geometries}, textures ${before.mem.textures} → ${p.st.mem.textures} (the set included)`);
 
     // --- the end: 18 s, one end event, the hand-off in one task
     const out = await g(() => { const T = window.__if; const n = T.runOut(); return { n, sim: T.sim, cost: T.cost }; });
