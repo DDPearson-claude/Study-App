@@ -21,7 +21,7 @@ const I = D.INTRO;
 section('INTRO: the frozen block');
 eq(I.length, 18, 'INTRO.length');
 eq(I.beats.map((b) => [b.id, b.t0, b.t1]), [['lit', 0, 5], ['fall', 5, 8.2], ['below', 8.2, 12.4], ['wick', 12.4, 14.6], ['home', 14.6, 18]], 'INTRO.beats');
-eq(I.text, ['A kingdom hangs a great lantern over its lake.', 'The lantern falls. The kingdom follows it down.', 'Its last candles fish to stay lit.', 'You are one of them.'], 'INTRO.text');
+eq(I.text, ['A kingdom hangs a great lantern over its lake.', 'The lantern falls. The kingdom follows.', 'Its last candles fish to stay lit.', 'You are one of them.'], 'INTRO.text (line 2 shortened after review, SPEC §12.5)');
 eq(I.words.band, { landscape: [0.86, 0.95], portrait: [0.90, 0.97] }, 'INTRO.words.band');
 eq([I.veil, I.swapAt, I.cut.at], [[[0, 0], [0.35, 1], [0.6, 1], [1.4, 0]], 0.45, 8.2], 'INTRO.veil / swapAt / cut');
 ok(core.HIDDEN_DEBUG_HOOKS.includes('intro'), "the debug hook 'intro' is a hidden hook (never in a release build)");
@@ -36,7 +36,7 @@ eq(DIR.lineAt(I, 0.5), null, 'no line before the first one');
 eq(DIR.lineAt(I, 2).i, 0, 'line 0 at 2 s');
 eq(DIR.lineAt(I, 10), null, 'the beat "below" is wordless');
 eq(DIR.lineAt(I, 16.8).text, 'You are one of them.', 'the last line (as the play camera settles)');
-eq(DIR.lineAt(I, 17.8), null, 'no words when control begins');
+eq(DIR.lineAt(I, 17.86), null, 'no words when control begins');
 ok(DIR.lineAt(I, I.lines[0].at + 0.2).k < 1 && DIR.lineAt(I, I.lines[0].at + 1).k === 1, 'a line fades in over INTRO.lineFade');
 { let lines = 0, prev = null; for (let t = 0; t <= 18; t += 0.01) { const l = DIR.lineAt(I, t); const i = l ? l.i : null; if (i !== prev && i !== null) lines++; prev = i; } eq(lines, I.text.length, 'every line shows exactly once, one at a time'); }
 eq([DIR.veilAt(I, 0), DIR.veilAt(I, 0.45), DIR.veilAt(I, 2)], [0, 1, 0], 'veilAt: clear, full at the swap, clear again');
@@ -65,7 +65,7 @@ ok(DIR.introOptIn({ GW_INTRO: true }) && DIR.introOptIn({ location: { search: '?
 section('stage: the film\'s camera');
 const A = { S: { x: 0, z: 46 }, G: { x: 0, z: -77.63 } };
 eq(STG.introCamera(I, 0.2), null, 'before INTRO.swapAt the title keeps its camera');
-{ const c = STG.introCamera(I, I.swapAt); ok(c && c.take === 'gate' && c.w === 1 && c.rig === null, 'the gate take starts at the swap'); eq(STG.resolvePoint(c.pos, A), [0, 2.2, 34], 'its first pose: 12 m north of the raft, 2.2 m over the water'); }
+{ const c = STG.introCamera(I, I.swapAt); ok(c && c.take === 'gate' && c.w === 1 && c.rig === null, 'the gate take starts at the swap'); eq(STG.resolvePoint(c.pos, A), [0, 1.2, 37], 'its first pose: 9 m north of the raft, 1.2 m over the water (low and wide; SPEC §12.5)'); }
 { let worst = 0, prev = null;
   for (let t = I.swapAt; t < 8.2; t += 1 / 60) { const c = STG.introCamera(I, t), p = STG.resolvePoint(c.pos, A); if (prev) worst = Math.max(worst, Math.hypot(p[0] - prev[0], p[1] - prev[1], p[2] - prev[2])); prev = p; }
   ok(worst < 0.08, `the gate take is one continuous move (largest step at 60 fps ${worst.toFixed(3)} m)`); }
@@ -74,7 +74,8 @@ eq(STG.introCamera(I, 0.2), null, 'before INTRO.swapAt the title keeps its camer
   ok(c0.take === 'home' && c0.rig === 'sail' && c0.w === 1 && c1.w > 0 && c1.w < 1 && c2.w === 0 && c3.w === 0, 'the last take hands the camera to the sail rig (w 1 → 0) and rests');
   { const a = STG.resolvePoint(c0.pos, A), b = STG.resolvePoint(STG.introCamera(I, 14.5999).pos, A); ok(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < 0.01, 'no jump into the last take'); } }
 { const land = STG.introCamera(I, 3, 16 / 9), port = STG.introCamera(I, 3, 390 / 844), mid = STG.introCamera(I, 3, 1.0);
-  ok(land.fov === 46 && Math.abs(port.fov - 62) < 1e-6 && mid.fov > 46 && mid.fov < 62, 'portrait values apply under INTRO.cameras.portraitBelow and blend up to 1.1');
+  const k3 = I.cameras.takes[0].keys.find((k) => k.t === 3), lf = k3.fov, pf = k3.portrait.fov;
+  ok(Math.abs(land.fov - lf) < 1e-6 && Math.abs(port.fov - pf) < 1e-6 && mid.fov > lf && mid.fov < pf, 'portrait values apply under INTRO.cameras.portraitBelow and blend up to 1.1');
   eq([STG.portraitWeight(I, 0.46), STG.portraitWeight(I, 1.78)], [1, 0], 'portraitWeight'); }
 for (let t = 0; t <= 18; t += 0.37) { const a = JSON.stringify(STG.introCamera(I, t, 1.5)); STG.introCamera(I, 18 - t, 0.5); if (a !== JSON.stringify(STG.introCamera(I, t, 1.5))) { ok(false, `introCamera is pure (t ${t})`); break; } }
 pass++;
