@@ -150,6 +150,24 @@ for (const fps of [60, 10, 4, 2]) {
 { const seq = []; const g = game(); g.dir.start({ underInk: () => seq.push('hook') }); g.dir.seek(9); eq(seq, ['hook'], 'a seek goes live at once (the hook first)'); ok(g.dir.state.entered && g.times().at(-1) === 9, '… and shows the sought moment'); g.dir.stop(); }
 { const seq = []; const g = game(); g.dir.start({ underInk: () => seq.push('hook') }); g.dir.stop(); const g2 = game({ stage: g.stage }); g2.dir.start({}); g2.out(); eq(seq, [], 'a film stopped before the ink never runs its hook, and the hook does not leak into the next play'); }
 { const g = game(); quietly(() => { g.dir.start({ underInk: () => { throw new Error('lake'); } }); g.out(); }); const d = g.done(); ok(d.length === 1 && d[0].error === true && !g.dir.isActive() && g.ctx.errors.length >= 1, 'a hook that throws ends the film cleanly (intro:done {error: true})'); }
+{ // a press before the title's idle prebuild finished: the rest is built ONE slice a frame under the full ink, the clock held there
+  const st = recStage(); let left = 6; const seq = [];
+  st.prebuild = () => { st.calls.push(['prebuild']); seq.push(['slice', g.dir.state.t]); if (--left <= 0) st.built = true; return st.built; };
+  const enter = st.enter; st.enter = (o) => { seq.push(['enter', g.dir.state.t, st.built]); enter(o); };
+  const g = game({ stage: st });
+  g.dir.start({ underInk: () => seq.push(['hook', g.dir.state.t]) });
+  g.to(1);
+  const slices = seq.filter((x) => x[0] === 'slice'), ts = slices.map((x) => x[1]);
+  eq(seq[0][0], 'hook', 'an unbuilt stage: the under-ink work first');
+  eq(slices.length, 6, '… then one slice a frame until it is ready', seq);
+  ok(ts.every((t) => t === ts[0]) && DIR.veilAt(I, ts[0]) >= 1 && ts[0] < I.swapAt, '… the film\'s clock held at the full ink meanwhile, before the swap', ts);
+  const en = seq.find((x) => x[0] === 'enter');
+  ok(en && en[2] === true && DIR.veilAt(I, en[1]) >= 1, '… and the stage goes live built, still under the ink', en);
+  g.out(); eq(g.done().length, 1, '… and the film plays to its end'); eq(g.done()[0].t, L, '… at the film\'s end'); }
+{ // a world that never says its anchors: the hold is bounded, and enter() is left to build (or fail) under the ink
+  const st = recStage(); let n = 0; st.prebuild = () => { n++; return false; };
+  const g = game({ stage: st }); g.dir.start({}); g.to(2);
+  ok(n > 0 && n <= 48 && g.dir.state.entered, 'a build that never finishes holds the clock a bounded number of frames', { n }); g.dir.stop(); }
 
 // ================================================================== skip (A2)
 section('skip: the guard and the two paths (A2)');

@@ -324,7 +324,7 @@ ctx.game = game;
 // (SPEC §7.5, INTRO.cove): written down, not built. Until that is built the film stays off with the cove on.
 const INTRO = V3 ? data.INTRO || null : null;
 const INTRO_LAKE = 'mossmere';   // the First Outing's lake (startNewRun's default start zone)
-const introFlow = { on: false, replay: false, back: null, idle: 0, prewarm: false, inked: false };
+const introFlow = { on: false, replay: false, back: null, idle: 0, prewarm: false, inked: false, wall: 0, swallowUntil: 0 };
 /** The film's DOM side (src/ui-intro.js), when the ui module is real. */
 function introView() { const u = ctx.ui; return u && !u.isStub && u.intro && typeof u.intro.curtain === 'function' ? u.intro : null; }
 const worldZoneId = () => safe(() => ctx.world.getZone?.()?.id, null);
@@ -359,7 +359,7 @@ function startIntro({ replay = false, reduced } = {}) {
   resetBeats();
   ctx.state.run = null;
   ctx.paused = false;
-  Object.assign(introFlow, { on: true, replay: !!replay, back: null, idle: 0, inked: false });
+  Object.assign(introFlow, { on: true, replay: !!replay, back: null, idle: 0, inked: false, wall: 0, swallowUntil: 0 });
   setFlow('intro');
   ctx.cinematic = true;
   let ok = false;
@@ -405,6 +405,9 @@ function onIntroDone(p = {}) {
   }
   const H = INTRO?.handoff || {}, graded = introFlow.inked;
   Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0, inked: false });
+  // a skip lands in play a moment after the key: the same key pressed again (a double Esc) is swallowed for INTRO.skip.after s,
+  // so the first second of play never opens on the pause menu (the mirror of the 0.5 s guard at the start)
+  if (p.skipped) introFlow.swallowUntil = performance.now() + Math.max(0, Number(INTRO?.skip?.after) || 0.6) * 1000;
   try {
     markIntroSeen(ctx.state.meta, !!p.skipped);
     game.startNewRun({ character: H.character || 'wick', nightMode: H.nightMode || 'still', __intro: true });
@@ -416,11 +419,30 @@ function onIntroDone(p = {}) {
     if (ctx.flow === 'intro') { ctx.cinematic = false; setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e2) { report('showTitle', e2); } }
   }
 }
+/**
+ * The director itself failed (its update threw, or the film outlived main's own valve): stop it with no event and hand over as an
+ * error (A10). A first play is marked seen and goes into the First Outing, as any skip does; a replay goes back to the title.
+ */
+function failIntro(why, { reported = false } = {}) {
+  if (!ctx.intro) return;
+  if (!reported) report('intro', why instanceof Error ? why : new Error(String(why)));
+  const replay = introFlow.replay;
+  try { ctx.intro.stop(); } catch (e) { report('intro.stop', e); }
+  if (introFlow.on) onIntroDone({ skipped: true, error: true, replay, mode: null });
+}
 /** Once a frame while the flow is 'intro': nothing may open over the film, and a film that ended without its hand-off is let go. */
 function tickIntroFlow(rawDt) {
   if (ctx.flow !== 'intro') return;
   if (safe(() => ctx.ui.isBlocking?.(), false) === true) { try { ctx.ui.closeAll?.(); } catch (e) { report('ui.closeAll', e); } }
-  if (ctx.intro?.isActive()) { introFlow.idle = 0; return; }
+  if (ctx.intro?.isActive()) {
+    introFlow.idle = 0;
+    // main's own valve, on the wall clock (the director's runs inside its update): a film still up INTRO.clock.valve + 2 s of
+    // visible time after it started is ended here (a debug seek holds the film on purpose and is not counted)
+    const held = safe(() => ctx.intro.state.hold, false) === true, hidden = safe(() => document.hidden, false) === true;
+    if (!held && !hidden) introFlow.wall += Math.min(0.25, rawDt);
+    if (introFlow.wall > (Number(INTRO?.clock?.valve) || 25) + 2) failIntro(new Error(`the cut scene was still playing after ${introFlow.wall.toFixed(1)} s; handed over`));
+    return;
+  }
   introFlow.idle += Math.min(0.25, rawDt);
   if (introFlow.idle > 1.5) { report('intro', new Error('the cut scene ended without its hand-off; back to the title')); leaveIntro(); }
 }
@@ -785,6 +807,7 @@ window.addEventListener('keydown', (e) => {
     if (!e.repeat && (INTRO?.skip?.keys || []).includes(e.code)) game.skipIntro();   // (a held Enter from Begin never skips)
     return;
   }
+  if (introFlow.swallowUntil && performance.now() < introFlow.swallowUntil && (INTRO?.skip?.keys || []).includes(e.code)) { e.preventDefault(); return; }
   // <<< INTRO LANE B
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);
@@ -971,7 +994,8 @@ function frame(now) {
 
   // >>> INTRO LANE B: frame (the film's clock runs on real elapsed time, before the modules, so they all see this frame's moment)
   if (ctx.intro) {
-    try { ctx.intro.update(rawDt); } catch (e) { const n = (errorCounts.get('intro') || 0) + 1; errorCounts.set('intro', n); if (n <= 3) report('update(intro)', e); }
+    // (a director that throws ends the film at once: A10, any exception inside the cut scene ends it cleanly into the game)
+    try { ctx.intro.update(rawDt); } catch (e) { const n = (errorCounts.get('intro') || 0) + 1; errorCounts.set('intro', n); if (n <= 3) report('update(intro)', e); failIntro(e, { reported: true }); }
     tickIntroFlow(rawDt);
   }
   // <<< INTRO LANE B

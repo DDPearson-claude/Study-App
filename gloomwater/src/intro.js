@@ -33,6 +33,9 @@
 // When the stage goes live (stage.enter): at the press if it was prebuilt under the title and nothing waits to be done under the
 // ink; otherwise under the opening's full ink (INTRO.veil), one frame after the ink has been painted full, so a build, a lake
 // swap or a change of grade never shows. (Main always passes `underInk`, so in the game the stage always goes live under the ink.)
+// A stage the title's idle time did not finish building (Begin pressed within a second of the title) takes the rest of its
+// build there one slice a frame, the film's clock held at the full ink until it is ready (prepare()): a few frames of ink, no
+// freeze on the lit picture.
 //
 // What the stage is told each frame: stage.setTime(t, {live | seek, reduced, calm}). `live` on a played frame, `seek` when the
 // moment was jumped to (a debug seek, a skip's jump to the end, the valve). `reduced`: t is the beat's still (INTRO.stills) and the
@@ -46,6 +49,7 @@
 import { createIntroStage } from './intro-stage.js';
 
 const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+const MAX_SLICES = 48;   // a build under the ink takes at most this many frames (the stage has ten slices; a world that cannot say its anchors yet is not waited for)
 const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
 
 /** The beat that owns timeline time t: {id, i, t0, t1, k} (k = 0 … 1 through it). Pure. */
@@ -210,7 +214,7 @@ export function create(ctx, opts = {}) {
     return stage;
   }
   const S = { phase: 'idle', t: 0, wall: 0, beat: null, line: null, replay: false, reduced: false, calm: false, skipped: false, hold: false,
-    optIn: introOptIn(), failed: false, entered: false, ink: 0, hook: null, skip: null };
+    optIn: introOptIn(), failed: false, entered: false, ink: 0, hook: null, skip: null, prep: false, slices: 0 };
 
   function reducedMotion(force) {
     if (typeof force === 'boolean') return force;
@@ -221,15 +225,30 @@ export function create(ctx, opts = {}) {
   /** The stage goes live (once per play): main's under-ink work first (a replay's lake swap), then stage.enter(). */
   function enterStage() {
     if (S.entered) return;
-    S.entered = true;
+    S.entered = true; S.prep = false;
     const hook = S.hook;
     S.hook = null;
     if (hook) { try { hook({ replay: S.replay, t: S.t }); } catch (err) { S.failed = true; report('underInk', err); } }
     try { getStage()?.enter?.({ replay: S.replay, reduced: S.reduced }); } catch (err) { S.failed = true; report('stage.enter', err); }
   }
+  /**
+   * Under the full ink, before the stage goes live (SPEC §9: a press before the title's idle prebuild finished): main's under-ink
+   * work first (a replay's lake swap), then whatever is left of the build, ONE slice a frame (the models, each part's programs, the
+   * lake's arena), the film's clock held at the ink meanwhile. A few frames of ink instead of one long freeze under it and the
+   * compiles that followed on the lit picture. True while there is still a slice to take (the clock holds this frame).
+   */
+  function prepare() {
+    if (S.hook) { const hook = S.hook; S.hook = null; try { hook({ replay: S.replay, t: S.t }); } catch (err) { S.failed = true; report('underInk', err); } }
+    const st = S.failed ? null : getStage();
+    if (!st || typeof st.prebuild !== 'function' || st.ready !== false || S.slices >= MAX_SLICES) return (S.prep = false);
+    S.slices++;
+    let done = true;
+    try { done = st.prebuild() === true; } catch (err) { report('stage.prebuild', err); done = true; }   // (enter() builds the rest, or fails cleanly)
+    return (S.prep = !done);
+  }
   /** Not live yet: wait for one painted frame of full ink (or the ink's end, whatever the frame rate did), then go live. */
   function enterUnderInk(D) {
-    if (S.entered) return;
+    if (S.entered || S.prep) return;
     const V = D.veil || [], lastFull = [...V].reverse().find(([, k]) => k >= 1);
     if (S.ink >= 1 || !V.length || S.t >= (lastFull ? lastFull[0] : 0)) { enterStage(); return; }
     if (veilAt(D, S.t) >= 1) S.ink++;
@@ -278,7 +297,7 @@ export function create(ctx, opts = {}) {
       if (S.phase !== 'idle' || !I()) return false;
       const calm = ctx.state?.meta?.settings?.reducedFlashing === true;
       Object.assign(S, { phase: 'playing', t: 0, wall: 0, beat: null, line: null, replay: !!replay, reduced: reducedMotion(reduced), calm, skipped: false, hold: false,
-        failed: false, entered: false, ink: 0, hook: typeof underInk === 'function' ? underInk : null, skip: null });
+        failed: false, entered: false, ink: 0, hook: typeof underInk === 'function' ? underInk : null, skip: null, prep: false, slices: 0 });
       const st = getStage();
       // prebuilt under the title and nothing to do under the ink: live at the press (it costs nothing and shows nothing before the swap)
       if (!S.hook && st && st.ready === true) enterStage();
@@ -301,7 +320,9 @@ export function create(ctx, opts = {}) {
       if (S.phase !== 'playing' || S.hold) return;
       try { if (globalThis.document?.hidden) return; } catch { /* no document: run */ }
       const D = I(), K = D.skip || {};
-      const c = stepClock(S, realDt, D, S.skip ? S.skip.rate : 1);
+      // the opening ink is full and the stage is not built yet: one slice of it this frame, the clock held at the ink
+      const held = !S.entered && !S.skip && S.ink >= 1 && prepare();
+      const c = stepClock(S, realDt, D, S.skip ? S.skip.rate : held ? 0 : 1);
       S.t = c.t; S.wall = c.wall;
       let end = c.over, jump = c.over && c.t < D.length - 1e-9;   // (the valve: the end state without the rest of the film)
       if (S.skip) {

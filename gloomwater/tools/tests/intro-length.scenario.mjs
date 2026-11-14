@@ -8,7 +8,7 @@
 // real frame time and what the film's clock took of it (at most INTRO.clock.maxDt), and reports:
 //   - wall: performance.now() from `intro:start` to `intro:done`
 //   - film: the sum of the frames' clamped times (must be INTRO.length within a frame)
-//   - lost: what the clamp gave up on frames longer than maxDt (wall = film + lost, to a frame)
+//   - lost: what the clamp gave up on frames longer than maxDt, counted from intro:start (wall = film + lost, to a frame)
 //   - the press: the script time of the click that starts the film; the longest update of the director in the first 1.4 s (the
 //     stage going live under the ink) and over the whole film; the hand-off (`intro:done` → `run:start`)
 // Fails when the film's own time is not INTRO.length ± 0.11 s, when wall − lost is not INTRO.length ± 0.5 s, when the press or
@@ -27,13 +27,14 @@ export default async function (api) {
   await g(({ quality, draw }) => {
     const c = window.__gw, I = c.data.INTRO;
     c.state.meta.settings = c.state.meta.settings || {}; c.state.meta.settings.quality = quality; c.render.setQuality?.(quality);
-    const M = (window.__il = { frames: [], start: null, done: null, run: null, press: null, ev: [], upd: [] });
+    const M = (window.__il = { frames: [], spans: [], start: null, done: null, run: null, press: null, ev: [], upd: [] });
     if (!draw) c.render.render = () => {};
     const update = c.intro.update.bind(c.intro);
     c.intro.update = (rawDt) => {
       const active = c.intro.isActive(), t0 = performance.now();
       update(rawDt);
-      if (active) { const ms = performance.now() - t0; M.frames.push(rawDt); M.upd.push([c.intro.state.t, ms]); }
+      // (`spans`: the part of each frame's time that falls after intro:start: the first frame's interval began before the press)
+      if (active) { const ms = performance.now() - t0; M.frames.push(rawDt); M.spans.push(M.start === null ? rawDt : Math.min(rawDt, Math.max(0, (t0 - M.start) / 1000))); M.upd.push([c.intro.state.t, ms]); }
     };
     c.bus.on('intro:start', () => { M.start = performance.now(); });
     c.bus.on('intro:done', () => { M.done = performance.now(); });
@@ -53,7 +54,8 @@ export default async function (api) {
   await page.waitForFunction(() => window.__il.done !== null && window.__gw.flow !== 'intro', null, { timeout: 240000, polling: 100 });
   const r = await g(() => {
     const c = window.__gw, M = window.__il, mx = M.I.maxDt;
-    const film = M.frames.reduce((a, d) => a + Math.min(d, mx), 0), lost = M.frames.reduce((a, d) => a + Math.max(0, d - mx), 0);
+    // lost: what the clamp gave up, counted only on the time between intro:start and intro:done
+    const film = M.frames.reduce((a, d) => a + Math.min(d, mx), 0), lost = M.spans.reduce((a, d) => a + Math.max(0, d - mx), 0);
     const early = M.upd.filter(([t]) => t <= 1.4).reduce((a, [, ms]) => Math.max(a, ms), 0), worst = M.upd.reduce((a, [, ms]) => Math.max(a, ms), 0);
     return { wall: (M.done - M.start) / 1000, film, lost, frames: M.frames.length, over: M.frames.filter((d) => d > mx).length, longest: Math.max(...M.frames), press: M.press, early, worst,
       handoff: M.handoff ?? null, flow: c.flow, runs: c.state.meta.runs, seen: c.state.meta.intro?.seen === true, errors: c.errors.slice(), length: M.I.length,

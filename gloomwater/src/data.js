@@ -4006,7 +4006,8 @@ export const INTRO = {
     poke: 2,                        // a press anywhere else only brightens the Skip word for this long
     veilIn: 0.25, veilOut: 0.35,    // beats lit / fall / below: ink closes, the stage jumps to its end state, ink opens on the play frame
     finish: 0.5, finishFrom: 'wick',   // beats wick / home: no veil; the remaining timeline plays out in `finish` s
-    soundFade: 0.25 },
+    soundFade: 0.25,
+    after: 0.6 },                   // after a skip's hand-off the skip keys are swallowed this long (a double Esc never opens the pause menu)
   clock: { maxDt: 0.1, valve: 25, valveDt: 0.25 },   // real elapsed time, clamped per frame; ends by itself after `valve` s of visible time
   stills: [                         // reduced motion: one still per beat (the stage at that time), cross-faded at the beat changes
     { beat: 'lit', t: 3.6 }, { beat: 'fall', t: 7.2 }, { beat: 'below', t: 10.5 }, { beat: 'wick', t: 14.2 }, { beat: 'home', t: 17.9 },
