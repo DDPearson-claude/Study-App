@@ -105,19 +105,17 @@ for (const name of list(flags.rows, 'small,keeper,prize,trophy,elder,legend,eel'
   parts.push(text(caption(A.rec), { size: 15, fill: INK, bold: true }));
   parts.push(strip(A.files, A.labels));
 }
-// ---- the phone
+// ---- the phone: one row per catch, each frame at the phone's own size (390 × 844)
 {
   const names = list(flags.phone, 'small,elder').filter((n) => afterFrames(Ph, n));
   if (names.length) {
-    parts.push(text('On a phone held upright (390 × 844)', { size: 17, bold: true, pad: '10x10' }));
-    const pw = Math.floor((WIDTH / (names.length * COLS)) - 2 * GAP), ph = Math.round(pw * 844 / 390), cols = [];
+    parts.push(text('On a phone held upright (390 × 844, each frame at its own size)', { size: 17, bold: true, pad: '10x10' }));
+    const pw = Math.min(390, Math.floor(WIDTH / COLS) - 2 * GAP), ph = Math.round(pw * 844 / 390);
     for (const n of names) {
-      const A = afterFrames(Ph, n), w = COLS * (pw + 2 * GAP);
-      const col = join(tmp, `p${seq++}.png`);
-      im('convert', [text(`${CLS(A.rec)}  ·  ${nice(A.rec.species)}, ${cm(A.rec.lengthCm)}  ·  ${A.rec.tCard.toFixed(1)} s to the card`, { size: 14, bold: true, width: w }), strip(A.files, A.labels.map((l) => l.replace('leaving the water', 'the water')), { tw: pw, th: ph }), '-background', BG, '-append', col]);
-      cols.push(col);
+      const A = afterFrames(Ph, n);
+      parts.push(text(`${caption(A.rec)}`, { size: 15, bold: true }));
+      parts.push(strip(A.files, A.labels, { tw: pw, th: ph }));
     }
-    const row = join(tmp, `pr${seq++}.png`); im('convert', [...cols, '-background', BG, '+append', row]); parts.push(row);
   }
 }
 im('convert', [...parts, '-background', BG, '-gravity', 'West', '-append', '-quality', String(flags.quality || 86), out]);

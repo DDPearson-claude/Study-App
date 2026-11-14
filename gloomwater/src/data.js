@@ -3899,7 +3899,7 @@ export const AUTOFISH = {
       // the lift and (for the longer holds) into the hold, and frozen settleBefore s before the pause (never sooner than settleAfter s after the present):
       // followStill carries what is left, and the still is still. The frozen framing rides the Wick's feet on the swell; the raft's
       // rocking sways the head and the fish a little inside it (the margins are that room)
-      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 15, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
+      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 12, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0 },   // (a tiny fish: the flame's core kept, not its tip)
         both:      { elev: 7,  fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0.3 },   // (an angler's photograph: near eye level, the hands at the foot, the flame's top at the edge's margin)
@@ -3910,7 +3910,7 @@ export const AUTOFISH = {
       still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
       behindCard: { hold: true, portraitUp: 0.24 },   // while the card is up the framing holds (a phone lifts the subject into the open top)
       out: 0.9,                                       // s to ease back to the play camera once the card has closed
-      outPerM: 0.058,                                 // (…or this many s per metre of the way back when that is longer: a phone's play camera stands 20 m off)
+      outPerM: 0.068,                                 // (…or this many s per metre of the way back when that is longer: a phone's play camera stands 20 m off)
     },
     // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
     // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
