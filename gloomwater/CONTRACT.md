@@ -1543,7 +1543,7 @@ Steps advance on bus events only (`fishing:cast`, the float settled, `fishing:bi
 
 ### 13.13 The opening cut scene: the lane seam, state, events and hooks (DESIGN §25.4.9)
 
-"One Warm Light": 18 s, skippable, once on a fresh save's first new game, ending inside the first run. The binding build document is `docs/v3/intro/SPEC.md` (storyboard, set list, cameras, rules, acceptance, the scope-cut ladder); this section is the API. Data: `INTRO` (always exported, inert until `V3_ENABLED`; three marked blocks: `shared` frozen, `LANE A`, `LANE B`). With `V3_ENABLED` off `ctx.intro` is null and nothing here runs. Two lanes build it at the same time: **lane A "set and picture"** (everything drawn in 3D) and **lane B "director and flow"** (time, words, sound, input, the title and the hand-off).
+"One Warm Light": 18 s, skippable, once on a fresh save's first new game, ending inside the first run. **Built and staged** (both lanes merged). The binding build document is `docs/v3/intro/SPEC.md` (storyboard, set list, cameras, rules, acceptance, the scope-cut ladder; its §12 is the as-built record); this section is the API as built. Data: `INTRO` (always exported, inert until `V3_ENABLED`; three marked blocks: `shared` frozen, `LANE A`, `LANE B`). With `V3_ENABLED` off `ctx.intro` is null and nothing here runs. Two lanes build it at the same time: **lane A "set and picture"** (everything drawn in 3D) and **lane B "director and flow"** (time, words, sound, input, the title and the hand-off).
 
 **State** (main writes it at the hand-off; added lazily, `core.defaultMeta()` untouched; never read with the flag off):
 ```js
@@ -1554,52 +1554,64 @@ ctx.flow = 'intro'                                   // new flow value while the
 **The stage** (`src/intro-stage.js`, lane A; a pure function of timeline time):
 ```
 createIntroStage(ctx) -> {
-  prebuild() -> bool                     // build + warm programs, nothing visible; idempotent; under the title in idle time
+  prebuild() -> bool                     // ONE slice of building per call (the models, then one warm-up per part: 9 slices on medium / high, 8 on low);
+                                         //   true once everything is ready; nothing visible; false (no throw) while the world has no anchors yet.
+                                         //   The fresh title calls it in idle time until it returns true
   ready -> bool
-  enter({replay, reduced}) -> void       // the set goes live (builds at once whatever prebuild left); idempotent
-  setTime(t, {live, seek, reduced})      // EVERYTHING it draws, and the camera, at timeline time t (0 … INTRO.length); before INTRO.swapAt: nothing
+  enter({replay, reduced}) -> void       // the set goes live (builds at once whatever prebuild left); idempotent. The director calls it under the opening's full ink
+  setTime(t, {live, seek, reduced, calm})// EVERYTHING it draws, and the camera, at timeline time t (0 … INTRO.length); before enter() and before INTRO.swapAt: nothing.
+                                         //   live: a played frame (the lake's one splash at the contact); seek: the moment was jumped to (render's rig is snapped too);
+                                         //   reduced (reduced motion) or calm (reduced flashing): the contact flash quartered, the cut a 0.3 s dip.
+                                         //   At the first call past swapAt it re-reads the world's anchors and rebuilds if the lake changed (a replay from another lake's title)
   exit() -> void                         // gives back the camera, the mood, the water light, the Wick's kindling; idempotent; never throws
-  dispose() -> void                      // exit() + frees every geometry, material and texture it created
-  stats() -> {built, live, t, take, w, anchors, calls, triangles, geometries, textures}
+  dispose() -> void                      // exit() + frees every geometry and material it created (it owns no texture); reusable afterwards
+  stats() -> {built, live, t, take, w, anchors, calls, triangles, geometries, textures, lights, steps: [done, of], buildMs, tier}
 }
 introCamera(INTRO, t, aspect) -> null | {take, pos: [anchor, x, y, z], look: [...], fov, w, rig}    // pure; anchors 'S' (the spawn) and 'G' (the Sunken Gate)
 ```
-The stage never reads a clock, listens for input, touches the DOM, plays a sound, writes state or emits on the bus; it creates no light, no shadow map and no render target. Its own cost: ≤ 30 draw calls and ≤ 10,000 triangles in any frame, all passes (`INTRO.set.budget`).
+The stage never reads a clock, listens for input, touches the DOM, plays a sound, writes state or emits on the bus; it creates no light, no shadow map, no render target and no texture. Its own cost: ≤ 30 draw calls and ≤ 10,000 triangles in any frame, all passes (`INTRO.set.budget`); measured peak 17 calls (9 on low) and 4,880 triangles.
 
 **The director** (`src/intro.js`, lane B; `ctx.intro`, created by main when `data.V3_ENABLED && data.INTRO`):
 ```
 pending() -> bool                        // would the title's primary button play it now? v3, a fresh save (meta.runs === 0, !meta.intro.seen), no run waiting,
                                          //   and in a debug build only after an opt-in (GW_INTRO === true, ?intro=1, debug.intro('auto', true))
-prewarm() -> void                        // the fresh-save title is up: stage.prebuild() in idle time
-start({replay = false, reduced}) -> bool // from t = 0 (a replay writes nothing to the save)
-skip() -> bool                           // honoured after INTRO.skip.guard (0.5 s)
+prewarm() -> bool                        // one stage.prebuild() slice; true once the stage is ready (main's game.prewarmIntro() repeats it in idle time)
+start({replay = false, reduced, underInk}) -> bool   // from t = 0 (a replay writes nothing to the save). `underInk` (main's): called once under the opening's
+                                         //   full ink, before stage.enter(): the film's lake and grade go on there. With it the stage is never entered at the press
+skip() -> bool                           // honoured after INTRO.skip.guard (0.5 s), once; never on a held (sought) film
 update(realDt) -> void                   // main, once a frame, BEFORE the module loop; real elapsed time clamped to INTRO.clock.maxDt, paused while hidden, a 25 s valve
-seek(t) -> state                         // debug / tests: hold the clock at t and show exactly that moment
+seek(t) -> state                         // debug / tests: hold the clock at t and show exactly that moment (starts a replay if idle)
+resume() -> state                        // let a held film run on
 stop() -> void                           // hard abort, no event (toTitle, wipeAll)
-isActive() -> bool;  state -> {phase: 'idle'|'playing', t, wall, beat, line, replay, reduced, skipped, hold, optIn, failed}
+isActive() -> bool;  setOptIn(on);  stage
+state -> {phase: 'idle'|'playing', t, wall, beat, line, replay, reduced, calm, skipped, hold, optIn, failed, entered, skip: null | {mode, k, w}}
 ```
-Pure helpers (exported, tested): `beatAt`, `lineAt`, `veilAt`, `stillAt`, `stepClock`, `introPending`, `introOptIn`.
+Pure helpers (exported, tested): `beatAt`, `lineAt`, `veilAt`, `stillAt`, `stepClock`, `introPending`, `introOptIn`, `skipModeAt`, `skipWordAt`, `skipAllowed`, `cutDipAt`, `stillDipAt`, `inkFullAt`, `introSeen`, `markIntroSeen`, `replayOffered`, `soundEvents`, `soundEventsBetween`.
+
+**How the director drives the stage:** `prebuild()` slices under the fresh title only (a replay builds in `enter()`); nothing at the press; `setTime(t, …)` every frame from the first (a no-op until entered); one frame after the opening ink was painted full (t 0.37–0.5, at the latest 0.6): main's `underInk` hook, then `enter()`, then that frame's `setTime`; every played frame `setTime(t, {live: true, reduced, calm})` with t never decreasing (under reduced motion t is the beat's still, and the film's last call is `setTime(INTRO.length)`); `setTime(t, {seek: true})` on debug seeks, a veil skip's jump and the valve; `dispose()` before `intro:done` is emitted, on `stop()` and on any error.
 
 **Events** (the director emits; lane B's view, audio and main listen; the stage listens to none):
 
 | event | payload | notes |
 |---|---|---|
-| `intro:start` | `{replay, reduced}` | the view shows; audio fades the title music in ≤ 0.3 s and starts the cue |
-| `intro:beat` | `{id, i, prev, t}` | `lit` → `fall` → `below` → `wick` → `home`; the cue's sections are scheduled on the marks |
+| `intro:start` | `{replay, reduced, calm}` | the view shows; audio fades the title music in ≤ 0.3 s and starts the cue |
+| `intro:beat` | `{id, i, prev, t}` | `lit` → `fall` → `below` → `wick` → `home`; emitted **before** the stage shows the new beat (under reduced motion the view copies the outgoing picture for its cross-fade). The cue is played by the film's clock crossing its marks (`soundEvents`), not by this event |
 | `intro:line` | `{i, text, at, out}` \| `{i: null}` | one line at a time; the view fades it by the film's clock (`lineAt(t).k`) and announces it once |
 | `intro:skip` | `{t, mode: 'veil' \| 'finish'}` | `veil` in lit / fall / below (ink 0.25 s, jump to the end, ink off 0.35 s); `finish` in wick / home (the rest plays out in 0.5 s) |
-| `intro:done` | `{skipped, replay, t, error}` | exactly once per `start`; main hands over |
+| `intro:done` | `{skipped, replay, t, error, mode}` | exactly once per `start`; `mode`: the skip's (`'veil'` \| `'finish'`) or null; main hands over (it listens last, after every module) |
 
 **Order at the hand-off** (not a replay; today, `world.SUPPORTS_COVE` false): `intro:done` → main sets `meta.intro = {seen: true, skipped}` and calls `game.startNewRun({character: 'wick', nightMode: 'still', __intro: true})` → `flow:change {flow: 'playing', prev: 'intro'}` → `zone:change {zone: 'mossmere', prev: null, intro: true}` → `run:start {continued: false}` → the save. `zone:change {intro: true}` means "this lake is already on screen": render applies no zone defaults and no black fade, the world's `setZone` returns early (same zone), audio plays no sting. A replay ends with `flow:change {flow: 'title'}` and `ui.showTitle()`; no `zone:change`, no save. An error inside the film ends through the same `intro:done` with `{error: true}` and the same hand-off. **When the cove ships** the same `intro:done` starts the First Evening at step `wake` (its `framing` step is not played and `INTRO.text` replaces `FIRST_EVENING.text.lore`).
 
 **Hooks in other modules** (additive, inside `// >>> INTRO LANE A|B` … `// <<<` blocks; inert unless the film calls them):
 - **render** (lane A): `setIntroCamera({pos: [x, y, z], look: [x, y, z], fov, w} | null)`: the pose is laid over the rig's own with weight `w` (1 = the pose exactly, no sway or roll; 0 = the rig) and **the rig is held in `sail`** while a pose is set, whatever the flow, so the film's last move settles into the play camera and nothing changes when the run starts. `getIntroCamera()`.
-- **world** (lane A): `getHeroAnchor() -> {x, z, face, theme, zone}` (the lake's hero landmark as world-art places it: the Mossmere's Sunken Gate); `setIntroMood(on)` (the first run's opening mood: night 0, warm 0.35, no title multipliers); `setIntroWaterLight({x, y, z, color, intensity, radius, streak} | null)` (one more entry in the water's light list: the great lantern's pool and gold path, on every tier).
-- **actors** (lane A): `setIntroKindle({wick: 0–1, lantern: 0–1} | null)`: straight multipliers on the Wick's head flame and on the raft lantern (light, glass, halo, flame, pool), after the existing easing; `null` = the game's own.
-- **main** (lane B): `game.introPending()`, `game.beginIntro()`, `game.replayIntro()`; flow `intro` (the rule that clears `ctx.cinematic` outside `playing` / `hub` gains `intro`; the 20 s cinematic valve does not apply); `startNewRun({__intro: true})`; `ctx.intro.update(rawDt)` before the module loop.
-- **ui** (lane B): `src/ui-intro.js`: the words (inside `INTRO.words.band`, ≥ 16 px, no box), the Skip word (≥ 44 px, safe-area aware), the ink veil, the reduced-motion cross-fade layer; the title's *Begin* while `pending()` and the quiet *Prologue* word otherwise.
-- **audio** (lane B): the cue (`INTRO.sound`: D Dorian, on the music bus, ≤ 0.3 s fades, silent when locked); `audioLog` records `intro_cue` and its marks.
+- **render** (lane A, added): `warmPrograms(object3d) -> bool`: compiles an object's programs inside the frame's own HDR target with the scene's lights and fog, without drawing it (three's `renderer.compile`); the stage calls it once per part of the set, so nothing is compiled once the film runs.
+- **world** (lane A): `getHeroAnchor() -> {x, z, face, theme, zone}` (the lake's hero landmark as world-art places it: the Mossmere's Sunken Gate); `setIntroMood(on)` (the first run's opening mood: night 0, warm 0.35, no title multipliers); `setIntroWaterLight({x, y, z, color, intensity, radius, streak} | null)` (one more entry in the water's light list: the great lantern's gold path. The stage lays it on the low tier only; where the lake is a mirror the reflection is the gold, `INTRO.set.lantern.water.intensityMirror` 0).
+- **water**: `rebakeDepth()` (the depth map baked again for the lake now on screen: a replay's silent lake swap); the lake's ambient rings keep falling in flow `intro`.
+- **actors** (lane A): `setIntroKindle({wick: 0–1, lantern: 0–1} | null)`: straight multipliers on the Wick's head flame (size, light, halo, eyes) and on the raft's fire (the lantern's light, glass, halo and flame, the pool on the water, and the brazier), laid over the game's own values each frame; `null` = the game's own.
+- **main** (lane B): `game.introPending()`, `introReplayOffered()`, `prewarmIntro()` (the stage's slices in idle time under the fresh title, as many as an idle period has time for; the game's smoke-and-ember pools are made then too), `beginIntro({reduced})`, `replayIntro({reduced})`, `skipIntro()`; flow `intro` (no run, `gameDt` 0, `ctx.cinematic` held, `game.save()` returns at once, keydown handles only the skip keys and swallows the rest); `startNewRun({__intro: true})`; `ctx.intro.update(rawDt)` before the module loop. Under the opening's full ink main puts the film's lake on screen (a replay from another lake's title: `world.setZone` with no `zone:change`, the raft at its spawn, `water.rebakeDepth()`) and the lake's own grade (`INTRO.handoff.grade: 'ink'`: the film is graded as the run is; `'ease'` keeps the title's grade and eases the lake's in at the hand-off). Both are put back after a replay. The film and the replay are off while the cove is on (`FE_ON`) until the cove dressing is built.
+- **ui** (lane B): `src/ui-intro.js` (`ctx.ui.intro`): the words (inside `INTRO.words.band`, ≥ 16 px, no box), the Skip word (64 × 44 px, safe-area aware, in by 0.9 s, out over the film's last 0.4 s), the ink veil, the reduced-motion cross-fade layer, `curtain({in, out, onFull})`, `sync()`, `debug()`, and **`takeTitle()`**: at the press the title's screen is closed for the game (the kit's `closeModal(id, {hold: true})`: the stack and the events, not the picture) and its picture stands, inert, until the opening ink has closed over it, so the picture only darkens from the press. The title: *Begin* and Settings alone while `pending()` (no premise paragraph, no count line); the quiet *Prologue* word otherwise.
+- **audio** (lane B): the cue (`src/audio-intro.js`, `INTRO.sound`: D Dorian, on its own bus into the music gain, ≤ 0.3 s fades, silent when locked), played by the film's clock; `audioLog` records `intro_cue` and its marks; `debug.audioIntro()` (v3 debug builds) reads the bus.
 
 **Debug hook** (registered by main only when `core.debugEnabled()`; `'intro'` is in `core.HIDDEN_DEBUG_HOOKS`): `debug.intro()` → the readout `{phase, t, wall, beat, line, replay, reduced, skipped, hold, optIn, pending, flow, seen, stage}`; `debug.intro('play', {replay, reduced})`, `('seek', t)`, `('resume')`, `('skip')`, `('stop')`, `('auto', bool)`, `('prewarm')`. Under `GW_DEBUG` (the test harness) the film never plays by itself unless a scenario opts in, so every existing v3 scenario is unaffected.
 
-**Testing:** `tools/tests/intro-seam.test.mjs` (the seam: `INTRO`'s frozen block, both APIs, the events, purity, the trigger rule, the lane markers; neither lane edits it), `tools/tests/intro.test.mjs` (lane B's director), `tools/tests/intro-stage.test.mjs` (lane A's stage), all run by `tools/check.mjs`; browser scenarios through `tools/playtest.mjs`: `tools/tests/intro-shots.scenario.mjs` (lane A: a seek-driven frame strip on every tier, desktop and 390 × 844; the set's budget) and `tools/tests/intro-flow.scenario.mjs` (lane B: Begin → the film → play, every skip path, the replay, reduced motion, the end state). The data rules (length 15–20 s, contiguous beats, ≤ 4 lines of ≤ 60 characters, the skip and clock limits, the set's ceilings) are in `tools/validate-data.mjs` and run in all three passes.
+**Testing:** `tools/tests/intro-seam.test.mjs` (the seam: `INTRO`'s frozen block, both APIs, the events, purity, the trigger rule, the lane markers; neither lane edits it), `tools/tests/intro.test.mjs` (lane B's director), `tools/tests/intro-stage.test.mjs` (lane A's stage), all run by `tools/check.mjs`; browser scenarios through `tools/playtest.mjs`: `tools/tests/intro-shots.scenario.mjs` (lane A: a seek-driven frame strip on every tier, desktop and 390 × 844; the set's budget, purity, memory), `tools/tests/intro-flow.scenario.mjs` (lane B: Begin → the film → play, every skip path, the replay, reduced motion, the end state), `tools/tests/intro-board.scenario.mjs` (the stage: the film as the player sees it, canvas and DOM together, frame by frame; `tools/intro-board.py` makes the storyboard sheets and the video from its frames) and `tools/tests/intro-length.scenario.mjs` (the film on the real clock, and the script cost of the press and the hand-off). The data rules (length 15–20 s, contiguous beats, ≤ 4 lines of ≤ 60 characters, the skip and clock limits, the set's ceilings) are in `tools/validate-data.mjs` and run in all three passes.

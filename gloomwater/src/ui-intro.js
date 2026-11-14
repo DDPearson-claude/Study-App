@@ -178,8 +178,10 @@ export function createIntroView(K) {
     }
     if (V.curtain) veil = Math.max(veil, V.curtain.k);
     // the title's picture, kept from the press: gone one drawn frame after the ink is full (or as soon as the film is not there)
+    // (… or the film is already past its opening ink: a seek, a clock that jumped)
     if (V.title) {
-      if (V.titleInked || !s) dropTitle();
+      const lastFull = D ? [...(D.veil || [])].reverse().find(([, k]) => k >= 1) : null;
+      if (V.titleInked || !s || s.t >= (lastFull ? lastFull[0] : 0)) dropTitle();
       else if (veil >= 0.999) V.titleInked = true;
     }
     setOpacity(veilEl, veil, 'veil');

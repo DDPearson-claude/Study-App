@@ -1,6 +1,9 @@
 # The opening cut scene: "One Warm Light" (binding spec for both build lanes)
 
-Status: the lead's verdict on three storyboards, with the seam already in the tree (branch `gw-intro`): the `INTRO` table and its
+**Status: built and staged** (branch `gw-intro`; both lanes merged and tuned as one piece). Where the build departs from the plan
+below, the numbers here were brought up to date and **§12 "As built"** lists every departure with its reason; `docs/v3/intro/LANE-A.md`
+and `LANE-B.md` are the lanes' own records. What follows was written as the plan:
+the lead's verdict on three storyboards, with the seam already in the tree (branch `gw-intro`): the `INTRO` table and its
 validator rules, a director skeleton, a stage stub that already flies the film's camera, the render and world hooks, the lane
 markers, a seam test and a seek-driven frame-strip scenario. **Lane A ("set and picture")** and **lane B ("director and flow")**
 build from this document at the same time and do not talk to each other; a third agent merges them. Where this document and
@@ -68,11 +71,11 @@ Exact keys: `INTRO.cameras`, `INTRO.set`, `INTRO.lines`, `INTRO.sound`.
 
 | beat · t (s) | picture | camera | light and palette | line | sound | phone portrait (390 × 844) |
 |---|---|---|---|---|---|---|
-| **lit** 0–5.0 | 0–0.35 the title's words go and night ink closes (DOM veil); the stage swaps in under full ink at 0.45; ink lifts 0.6–1.4 on **the lit kingdom**: the gate's towers with 54 amber windows, the great lantern on its chains over the lake, all of it again in the water | take `gate`: from S + (0, 2.2, −12) looking at G + (0, −1.7, 0), fov 46, one slow push to S + (0, 2.1, −19). The raft is behind the lens. Waterline ≈ 49 %, lantern ≈ 19 %, its mirror image 74–86 % | violet-dusk water and sky as the lake has them; **amber only**: lantern glass ×2.6, windows ×2.0, one halo; the lantern's pool and broken gold path on the water (every tier). The raft's own lantern is out (`setIntroKindle`): one warm light | L1 1.2–4.5 | title harp out in 0.3 s; bowed drone D2 + A2; one great bell D3 at 1.0; glass chord D–A–E from 1.4 | same position, fov 62, look G + (0, 4, 0): towers span the width; lantern ≈ 31 %, waterline ≈ 53 %, mirror lantern 73–82 % |
+| **lit** 0–5.0 | 0–0.35 night ink closes over the title, its name and its two words still standing (DOM veil; they are taken away under the full ink, never faded by themselves); the stage swaps in under full ink at 0.45; ink lifts 0.6–1.4 on **the lit kingdom**: the gate's towers with 54 amber windows, the great lantern on its chains over the lake, all of it again in the water | take `gate`: from S + (0, 2.2, −12) looking at G + (0, −3.6, 0) (3° down), fov 46, one slow push to S + (0, 1.8, −21.5). The raft is behind the lens. Waterline 46–49 %, the lantern's mirror image ending at 82–83 % (clear of the words band) | violet-dusk water and sky as the lake has them; **amber only**: lantern glass ×2.6, windows ×2.0, one halo; on the low tier (no mirror) the lantern's broken gold path on the water; where the lake is a mirror the reflection itself is the gold and no pool is laid. The raft's own lantern is out (`setIntroKindle`): one warm light | L1 1.2–4.5 | title harp out in 0.3 s; bowed drone D2 + A2; one great bell D3 at 1.0; glass chord D–A–E from 1.4 | same position, fov 62, look G + (0, 4, 0): the whole gate, spires and all; waterline ≈ 53 %, the mirror lantern ending at 77–80 % |
 | **fall** 5.0–8.2 | 5.6 a chain parts (a spark at the top of frame); 5.9 the lantern drops, tilting 0.22 rad; **its reflection climbs to meet it**; each row of windows gutters out as the lantern's base passes its height, top down, while **the reflections stay lit 1.2 s longer and sink** (medium / high); 7.9 contact: a pale-gold flash and one widening pale-gold ring; **hard cut** at 8.2 | same take, still pushing; fov 46 → 36 from 5.9 as the pair converges on the waterline | the frame loses its warmth row by row; at contact only the lantern is left | L2 4.8–8.1 | chain ping 5.6; the top voice falls a fifth and the drone a semitone 5.9–7.9; 7.9 sub thump + low bell, a 300 Hz lowpass closes | fov 62 → 50; the fall runs down the centre axis |
-| **below** 8.2–12.4 | ink. Where the lantern went under, **the ember sinks** (frame (0.5, 0.12) → (0.5, 0.46) as fractions from the top-left, shrinking from 14 % to 3 % of the height, amber to deep orange) until 10.0. From 9.4 **a pale flank too big for the frame** slides across: an eye at 10.2, the body over the ember at 10.4, the ember glowing through its belly and travelling with it; gone by 12.2; 0.2 s of ink | the camera is already on the next take under the card | night ink #0A0C19 up to deep indigo #1D245D at the top; 60 slow motes; pale stone #D6D6E4 flank with a violet-dusk shadow side; the ember is the only warm pixel | none (wordless) | sub drone D1 + A1 under the lowpass; `ember_swell` 9.0; one slow, patient groan 9.6 | the flank crosses on a 28° diagonal, lower-left to upper-right |
-| **wick** 12.4–14.6 | 12.5 a spark at the Wick's head; the ink thins 12.6–13.8; **the flame catches, gutters, catches** (0 → 0.25 → 0.9 → 0.3 → 1 by 13.4); 13.5–14.2 its hanging lantern takes and its pool spreads on the water (feathered, no ring). Beyond: the gate, dark, eight candle slits left, mirrored | take `shoulder`: S + (2.6, 2.6, 5.2) looking at S + (−0.4, 2.0, −30), fov 40; a 0.3 m drift | the first run's opening light (`world.setIntroMood`): the lake as the player will have it; the Wick's flame is the one warm light | L3 12.9–15.4 | spark tick; `flame_catch` 12.8; the lowpass opens to 6 kHz in 0.8 s, the lake's water returns | S + (1.5, 2.6, 5.4) looking at S + (−0.2, 3.4, −30), fov 52: the lantern post lower-left, the gate upper-centre |
-| **home** 14.6–18.0 | the camera cranes back and up into **the play camera**; at rest from 17.4; at 18.0 control begins: the lake's name rises as its banner, the HUD comes in | take `home`: the pose's weight goes 1 → 0 (inOutSine, 14.6–17.4) into render's own settled `sail` rig (elev 24°, 15 m, fov 52), then 0.6 s at rest with the rig's own sway | unchanged: nothing pops when the run starts | L4 15.7–17.5 | solo harp, the Mossmere motif's first four notes (D4 F4 A4 G4, 58 BPM) from 14.6; the last rings into the calm bed | the rig's own portrait frame (fov 74, 20.7 m, elev 31°) |
+| **below** 8.2–12.4 | ink. Where the lantern went under, **the ember sinks** (frame (0.5, 0.12) → (0.5, 0.46) as fractions from the top-left, shrinking from 14 % to 3 % of the height, amber to deep orange) until 10.0. From 9.4 **a pale flank too big for the frame** slides across: an eye at 10.2, the body over the ember at 10.4, the ember glowing through its belly and travelling with it; gone by 12.2; 0.2 s of ink | the camera is already on the next take under the card | night ink #0A0C19 up to the lake's violet-dusk at the top (`inkTop` #3E2568, which the frame's grade lands at hue 252); 60 slow motes; pale stone #D6D6E4 flank with a violet-dusk shadow side; the ember is the only warm pixel | none (wordless) | sub drone D1 + A1 under the lowpass; `ember_swell` 9.0; one slow, patient groan 9.6 | the flank crosses on a 28° diagonal, lower-left to upper-right |
+| **wick** 12.4–14.6 | 12.5 a spark at the Wick's head; the ink thins 12.6–13.8; **the flame catches, gutters, catches** (0 → 0.25 → 0.9 → 0.3 → 1 by 13.4); 13.5–14.2 its hanging lantern takes and its pool spreads on the water (feathered, no ring). Beyond: the gate, dark, eight candle slits left, mirrored | take `shoulder`: S + (2.6, 2.6, 5.2) looking at S + (−0.4, 2.0, −30), fov 40; a 0.3 m drift | the first run's opening light (`world.setIntroMood`): the lake as the player will have it; the Wick's flame is the one warm light | L3 12.7–15.1 | spark tick; `flame_catch` 12.8; the lowpass opens to 6 kHz in 0.8 s, the lake's water returns | S + (0.72, 2.6, 5.4) looking at S + (−0.2, 3.4, −30), fov 52: nearly straight behind the Wick, which stands whole in the lower-left third; the gate upper-centre |
+| **home** 14.6–18.0 | the camera cranes back and up into **the play camera**; at rest from 17.0; the last line comes in under the raft as it settles; at 18.0 control begins: the lake's name rises as its banner, the HUD fades in (0.6 s) | take `home`: the pose's weight goes 1 → 0 (inOutSine, 14.6–17.0) into render's own settled `sail` rig (elev 24°, 15 m, fov 52), then 1 s at rest with the rig's own sway | unchanged: nothing pops when the run starts | L4 16.05–17.6 | solo harp, the Mossmere motif's first four notes (D4 F4 A4 G4, 58 BPM) from 14.6; the last rings into the calm bed | the rig's own portrait frame (fov 74, 20.7 m, elev 31°) |
 
 **The lines** (`INTRO.text`; 46 / 47 / 34 / 20 characters; present tense; no % and no exclamation mark):
 
@@ -82,7 +85,7 @@ Exact keys: `INTRO.cameras`, `INTRO.set`, `INTRO.lines`, `INTRO.sound`.
 4. You are one of them.
 
 Type: Alegreya italic, 19 px desktop / 18 px phone (never under 16), pale ink `#ECEBF6` on a feathered night-ink pool
-(`rgba(10,12,25,.84)`, the same pool as a lore toast; no box, no border), centred, at most two rows (line 1 or 2 may wrap on a
+(`rgba(10,12,25,.78)` at its centre, the same pool as a lore toast; no box, no border; on a phone held upright the foot of the picture sinks into ink across the whole width instead), centred, at most two rows (line 1 or 2 may wrap on a
 phone, `text-wrap: balance`), inside **the words band**: 86–95 % of the viewport height in landscape, 90–97 % in portrait
 (`INTRO.words.band`, above the bottom safe area). Each fades in and out over 0.4 s on the film's clock. Each is announced once
 through an `aria-live="polite"` region. Lane A keeps the lantern, its mirror image, the ember and the Wick's flame out of the band.
@@ -105,9 +108,9 @@ dimmed. "Mirror" = the object carries `toon.REFLECT_LAYER` so the lake's planar 
 
 | # | piece | new / reused | where and how | calls main + mirror | triangles |
 |---|---|---|---|---|---|
-| 1 | **the great lantern** | new (`intro-models.js`): an eight-sided iron cage, a conical cap, a base ring (one merged `toonMaterial` mesh, flat-shaded, `iron`; no inverted-hull outline at 60 m), eight glass panes (`glowMaterial(candle amber, 2.6)`), one halo (`glowSprite`, 26 m, 0.55) | G + (0, 17, 44), 6.5 m tall; open water is checked at build (`world.isOpenWater(x, z, 4)`, else step 2 m south). `castShadow` false | 3 + 3 | ≈ 700 |
+| 1 | **the great lantern** | new (`intro-models.js`): an eight-sided iron cage, a lathed roof with a wide eave, a base ring (one merged `toonMaterial` mesh, flat-shaded, `iron`; no inverted-hull outline at 60 m), one eight-sided block of amber glass (vertex colours × 2.6), one halo (`glowSprite`, 30 m, 0.55) | G + (0, 14.2, 44), 7.6 m tall (as built: bigger and lower, so its mirror image clears the words band); open water is checked at build (`world.isOpenWater(x, z, 4)`, else step 2 m south). `castShadow` false | 3 + 3 | ≈ 700 |
 | 2 | its chains | new: three thin dark tubes (`taperTube` or `tube`) from the cap up to y 70, part of the lantern's group, so they trail it down | — | 1 + 1 | ≈ 300 |
-| 3 | its light on the water | reused: `world.setIntroWaterLight({x, y, z, color, intensity 14, radius 40, streak 2})`: the water's own light pool, glitter path (medium / high) and gold streak (low). Follows the lantern down; 0 after contact | every tier | 0 | 0 |
+| 3 | its light on the water | reused: `world.setIntroWaterLight({x, y, z, color, intensity 14, radius 27, streak 0.75})` **on the low tier only** (as built): the gold path there is the lantern's only reflection. Where the lake is a mirror (medium, high) no pool is laid (`intensityMirror` 0): from the film's lens it was one flat mustard band along the far shore. Follows the lantern down; 0 after contact | low | 0 | 0 |
 | 4 | the windows "then" | new: 54 slits (3 columns × 9 rows per tower, 0.8 × 1.8 m boxes), one `InstancedMesh`, `glowMaterial(candle, 2.0)`; per-row brightness from the fall (`dark.follows: 'lantern'`, each row gutters out over 0.35 s). The lake's own 8 slits and 3 braziers are "now": never touched | on the towers' lake faces, by world-art's `r0` formula | 1 + 1 | 648 |
 | 5 | their halos | reused: `world-fx.createHalos(64)`, one point each second window | — | 1 + 1 | points |
 | 6 | **the lake's memory** | new: a twin of #4 on `REFLECT_LAYER` **only** (`layers.set`), lit 1.2 s longer than its row and rising 5 m in world space (so its mirror image sinks). Medium / high only. First piece to cut (§11) | — | 0 + 1 | 648 |
@@ -140,7 +143,7 @@ dimmed. "Mirror" = the object carries `toon.REFLECT_LAYER` so the lake's planar 
 ## 5. Cameras (lane A)
 
 `INTRO.cameras.takes`: `gate` (0.45–8.2, four keys), `shoulder` (8.2–14.6, two keys; under the ink card until 12.6), `home`
-(14.6–18.0, `rig: 'sail'`). `introCamera(INTRO, t, aspect)` in `src/intro-stage.js` evaluates them (Catmull-Rom through a take's
+(14.6–18.0, `rig: 'sail'`, blend 14.6–17.0). `introCamera(INTRO, t, aspect)` in `src/intro-stage.js` evaluates them (Catmull-Rom through a take's
 keys with zero velocity at its ends, `portrait` values blended in between aspect 1.1 and `portraitBelow` 0.9) and is already
 tested; the stage resolves the anchors and calls `render.setIntroCamera({pos, look, fov, w})`.
 
@@ -190,8 +193,9 @@ Main calls `ctx.intro.update(rawDt)` once a frame **before** the module loop (wi
   Descent panel (a fresh save has one Wick, one lake and one night card: nothing to choose). The premise paragraph is not shown
   (the film says it); Journal, Shrine and Trials (all empty) are left out; Settings stays. The title asks the director to
   `prewarm()` in idle time. With `pending()` false the title is today's, plus the replay word (§7.4).
-- `game.beginIntro()`: `ui.closeAll()`, `setFlow('intro')`, `ctx.cinematic = true`, `ctx.intro.start({replay: false})`. No other
-  click exists between Begin and play.
+- `game.beginIntro()`: the title's screen is closed for the game but its picture is kept standing (`ui.intro.takeTitle()`), then
+  `ui.closeAll()`, `setFlow('intro')`, `ctx.cinematic = true`, `ctx.intro.start({replay: false, underInk})`. No other click exists
+  between Begin and play.
 - Once: `meta.intro = {seen: true, skipped}` is written at the end event and saved by the run's first save in the same task.
   Never on later runs (`meta.runs > 0`).
 
@@ -410,3 +414,52 @@ kingdom, a fall, a dark beat, a flame and the crane home.
 
 Not cuttable: the acceptance list, the four lines, the hard cut's timing against the contact, the hand-off with no fade, and
 the replay.
+
+## 12. As built (the stage's record)
+
+The two lanes were merged (A, then B; no hunk in common) and tuned as one piece on seek-driven frames shot off the page, so the
+words, the Skip word and the ink are judged over the picture as a player sees them (`tools/tests/intro-board.scenario.mjs`,
+`tools/intro-board.py`). Data wins over every number quoted above; this section says where the build left the plan and why.
+The lanes' own records are `LANE-A.md` (the set, every retuned number, six look-and-fix rounds) and `LANE-B.md` (the director,
+the flow, the cue).
+
+### 12.1 Changed while staging (three look-and-fix rounds on the merged picture)
+
+| what | plan | built | why (the frames that showed it) |
+|---|---|---|---|
+| the title at the press | `ui.closeAll()`: the title fades by itself (0.22 s) while the ink closes | the title's screen is closed for the game but **its picture stands** until the ink has closed over it (`ui.intro.takeTitle()`, the kit's `closeModal(id, {hold})`); taken away one frame after the ink is full | the title carries its own dark veil: fading it lifted the lake's brightness by a third for a tenth of a second before the ink arrived (`r1/fine-a`: the press frame brighter than the title). Now the picture only darkens from the press (`r2/fine-a`; the press frame equals the title frame to 0.01 / 255) |
+| the fresh title | Begin, Settings, the meta line | **Begin, Settings** and nothing else under the name and the tagline | "No Wick has gone down yet · 0 of 33 species named" was the only other text on that screen and counts nothing yet |
+| line 3 | 12.9–15.4 | **12.7–15.1** | it comes with the catching flame and is gone before the crane has carried the raft under the words |
+| line 4 | 15.7–17.5 | **16.05–17.6** | at 15.7–16.4 the raft crosses the words band: the line and its ink pool sat on the Wick (`r1/sb-bot` 16 s). Now it comes in under the raft as the play camera settles: the last line labels the thing the player is about to steer (`r2/fine-b`) |
+| the crane home | blend 14.6–17.4, 0.6 s at rest | **14.6–17.0, 1 s at rest** | the raft has risen clear of the band by 16.2; a full second of the play camera at rest before control |
+| the Skip word's exit | over the last 0.5 s | **over the last 0.4 s** | it goes after the last line (17.6), not with it |
+| the ink's head (`inkTop`) | `#1D245D`, then lane A's `#251E5C` | **`#3E2568`** | the film now wears the Mossmere's grade (below), which crushed `#251E5C` to a pure blue (10, 10, 79; hue 240) beside a violet lake. `#3E2568` lands at (35, 16, 100), hue 252, between the lake's water (246) and its sky (254) (`tune/a-sheet`) |
+| the lantern's pool on the water | every tier | **the low tier only** (`set.lantern.water.intensityMirror: 0`) | from 2 m up and 60 m away the pool is one flat mustard band along the far shore, at any strength the water's light model allows it stays a band, and under about a third of full strength it turns olive over the violet water (`tune/b-lines`, `e-lines`). Where the lake is a mirror the reflection is the gold. On the low tier the path is the lantern's only reflection and stays |
+| the lake's own rings under the film | stop (flow `intro`) | **keep falling** (`water.js` runs its ambience in flow `intro` too) | nothing starts up at the hand-off |
+| the prewarm | one `prebuild()` per idle callback, 8 tries | **as many slices as an idle period has time for** (6 ms left), 16 tries; the game's own smoke-and-ember pools are made under the title too | the stage takes 9 or 10 slices; the pools' one program was otherwise compiled 4 s after the title opened, which could fall inside the film |
+| `water.rebakeDepth()` | — | **added** (lane B's request 1) | a replay from another lake's title bakes the Mossmere's depth map (shore foam, shallows) under the ink, and the title's again at the end |
+| `setTime`'s `calm` | — | the stage treats **`calm` as `reduced`** for the flash and the cut | reduced flashing alone quarters the contact flash (lane B's request 4) |
+
+### 12.2 Decisions taken by the lanes and kept
+
+- **The stage goes live under the opening ink, never at the press** (LANE-B §0.3): the press costs a flow change and nothing else
+  (measured: §12.4); `enter()` lands one frame after the ink was painted full (0.37–0.5 s of film).
+- **The film wears the Mossmere's grade** from the swap on (`INTRO.handoff.grade: 'ink'`; LANE-B §0.2). Render ignores
+  `zone:change {intro: true}` wholesale, so without this the first run would have played in the title's grade. Judged again on
+  the merged strips (the ink's head above is the one thing it changed).
+- **The film is off while the cove is on** (`FE_ON`), until its cove dressing is built (§7.5): today `world.SUPPORTS_COVE` is
+  false and the film is on.
+- The lantern bigger and lower (7.6 m at y 14.2), the gate take 3° down, the phone's shoulder take behind the Wick, the flank's own
+  small shader (smooth, 4,880 triangles, one eye, a mouth seam, a gill, a side line; the ridge and the breast fin cut: scope
+  ladder rung 2, in part), the ink card as a clip-space quad, the mirror-only twin as the windows' whole reflection, the kindle
+  taking the brazier, the stage re-anchoring at the swap, the sliced `prebuild()`: all as LANE-A.md.
+- Nothing else was cut from §11's ladder.
+
+### 12.3 What a player sees, second by second (desktop; `tools/out/intro/storyboard.jpg`)
+
+0 the title, its name and two words; the press. 0–0.35 ink closes over them. 0.6–1.4 ink lifts on the lit kingdom; the Skip word
+is there by 0.9. 1.2–4.5 line 1 over the slow push. 4.8–8.1 line 2; 5.6 a chain parts; 5.9–7.9 the fall, the windows guttering
+top-down, their reflections outliving them; 7.9 the flash; 8.2 the cut. 8.2–12.4 the dark: the ember sinks, the eye at 10.2, the
+ember taken at 10.4, its glow leaving through the belly; no words. 12.5 the spark; 12.6–13.8 the ink opens from the flame;
+12.7–15.1 line 3; 13.5–14.2 the raft's lantern takes. 14.6–17.0 the crane home; 16.05–17.6 line 4 under the raft; 17.0–18.0 the
+play camera at rest; 17.6–18.0 the Skip word goes. 18.0 control: the HUD fades in over 0.6 s, the lake's name rises.
