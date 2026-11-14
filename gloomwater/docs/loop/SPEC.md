@@ -1210,7 +1210,7 @@ Sizes, re-estimated (v7.1): slice 1d is S–M; the river finish in 6a is M; each
 
 ### Slice 9: The long tail (each item ships alone, S–M).
 
-The four other Wicks (§10.1) · the Old Ledger's double (`ledgerPaid`) and its ledger glyph · one twist per place (the built §25.8 ideas) · the later sheets (seven places, five built species) · weather as "tonight's water" on the Chart · the ink-print beat in the catch show.
+~~The four other Wicks (§10.1)~~ (moved to slice 1a by the user's ruling of 14 November 2026) · the Old Ledger's double (`ledgerPaid`) and its ledger glyph · one twist per place (the built §25.8 ideas) · the later sheets (seven places, five built species) · weather as "tonight's water" on the Chart · the ink-print beat in the catch show.
 
 **If the swarm comes back.** It returns as a choice on the Chart ("a quiet evening" or "a Gloomtide evening") by clearing `PARKED.swarm`, `.combat`, `.levels` and `.embers`. Nothing in this spec has to move.
 

@@ -1600,6 +1600,16 @@ the spec's figures move) and 27 (the open bite). (The lead has ruled on these: �
 tests home's camera, mood and sound; the home pause is T57 (as rewritten) and T73. "Fresh save: the opening's Begin and
 Settings" is superseded by the user's ruling of 14 November 2026 (§7.3): a fresh title is **New Descent** · **Settings**.
 
+**The lead's rulings on revision 4's open items (14 November 2026).**
+
+| item | ruling |
+|---|---|
+| the new words (the five trait lines, "Back", `TEXT_LOOP.forget`, `TEXT_LOOP.settings`) | Approved as written, credited to the lead. Each stays as short as it is now. |
+| "New Descent" on the fresh title and the panel | Allowed: it is the user's own word for the button. The allow-list carries this one exception. |
+| the glide out on every Sail (CHOICE 38) | Every Sail, 3 s, always skippable by a tap or a key: the journey out is part of the trip. |
+| SPEC edits outside the opening's sections | The lead strikes §13 slice 9's "The four other Wicks" in the merge commit. §10's opening row, §2.1's first rows and the §8.1/§8.3/§8.6 pointers follow in the Chart-integration docs commit, which edits those sections anyway. |
+| the user's questions (PLAN §7.1) | Built with the defaults until the user answers: all five Wicks free; the Wick fixed until a start-over in 1a; the Jetty as home until slice 4; no line under the logotype. |
+
 ### 7.3 The user's ruling of 14 November 2026 (the opening)
 
 The user, verbatim:
