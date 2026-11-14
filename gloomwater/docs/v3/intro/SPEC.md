@@ -423,7 +423,7 @@ words, the Skip word and the ink are judged over the picture as a player sees th
 The lanes' own records are `LANE-A.md` (the set, every retuned number, six look-and-fix rounds) and `LANE-B.md` (the director,
 the flow, the cue).
 
-### 12.1 Changed while staging (three look-and-fix rounds on the merged picture)
+### 12.1 Changed while staging (four look-and-fix rounds on the merged picture)
 
 | what | plan | built | why (the frames that showed it) |
 |---|---|---|---|
@@ -439,6 +439,8 @@ the flow, the cue).
 | the prewarm | one `prebuild()` per idle callback, 8 tries | **as many slices as an idle period has time for** (6 ms left), 16 tries; the game's own smoke-and-ember pools are made under the title too | the stage takes 9 or 10 slices; the pools' one program was otherwise compiled 4 s after the title opened, which could fall inside the film |
 | `water.rebakeDepth()` | — | **added** (lane B's request 1) | a replay from another lake's title bakes the Mossmere's depth map (shore foam, shallows) under the ink, and the title's again at the end |
 | `setTime`'s `calm` | — | the stage treats **`calm` as `reduced`** for the flash and the cut | reduced flashing alone quarters the contact flash (lane B's request 4) |
+| the flank's exit | it glides out at full brightness; the whole body fades 11.9–12.2 | **the dark takes the body first** (`uSink`, 11.0 → 11.9, to 92 % ink), the ember's glow inside it last: the beat ends on one warm light carried off into the dark, which the Wick's spark answers 0.4 s later | 11.4–12.0 s in landscape was a flat pale wall with nothing on it (lane A's weakest frame; `r3/desk` 11.5, 12.0). Now 11.4 is a dimming wall under a bright glow, 11.7 a dark shape with the glow at the frame's edge, 12.0 near black (`r3/fine`, `r3/pfine`) |
+| the Wick's spark | 0.18 + 0.75 k m | **0.08 + 0.34 k m** (a 40 px point at its peak on a 960 px frame) | at the old size it was a 90 px soft orb, read as an out-of-focus light rather than a spark (`r3/q-spark`; `r4/spark`) |
 
 ### 12.2 Decisions taken by the lanes and kept
 
@@ -460,6 +462,6 @@ the flow, the cue).
 0 the title, its name and two words; the press. 0–0.35 ink closes over them. 0.6–1.4 ink lifts on the lit kingdom; the Skip word
 is there by 0.9. 1.2–4.5 line 1 over the slow push. 4.8–8.1 line 2; 5.6 a chain parts; 5.9–7.9 the fall, the windows guttering
 top-down, their reflections outliving them; 7.9 the flash; 8.2 the cut. 8.2–12.4 the dark: the ember sinks, the eye at 10.2, the
-ember taken at 10.4, its glow leaving through the belly; no words. 12.5 the spark; 12.6–13.8 the ink opens from the flame;
+ember taken at 10.4, its glow through the belly; from 11.0 the dark takes the body and the glow leaves last, near black by 12.0; no words. 12.5 the spark; 12.6–13.8 the ink opens from the flame;
 12.7–15.1 line 3; 13.5–14.2 the raft's lantern takes. 14.6–17.0 the crane home; 16.05–17.6 line 4 under the raft; 17.0–18.0 the
 play camera at rest; 17.6–18.0 the Skip word goes. 18.0 control: the HUD fades in over 0.6 s, the lake's name rises.

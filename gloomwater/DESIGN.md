@@ -2677,7 +2677,7 @@ A tap hurries a line; the **Skip** word (top-right, ≥ 44 px) jumps to the wake
 |---|---|---|---|
 | `lit` | 0–5.0 | night ink closes over the title (its name and two words stand until the ink has them: the picture only darkens from the press) and lifts on the lit kingdom: the Sunken Gate's towers with every window amber, the great lantern on its chains over the lake, all of it again in the water. Low over the water, one slow push | "A kingdom hangs a great lantern over its lake." |
 | `fall` | 5.0–8.2 | a chain parts; the lantern drops and its reflection climbs to meet it; the windows gutter out row by row behind it while their reflections stay lit a beat longer and sink; a pale-gold flash at the waterline; hard cut | "The lantern falls. The kingdom follows it down." |
-| `below` | 8.2–12.4 | ink. The ember sinks; a pale flank too big for the frame slides across and takes it; the ember glows through its belly, travels with it, and is gone | (none) |
+| `below` | 8.2–12.4 | ink. The ember sinks; a pale flank too big for the frame slides across and takes it; the ember glows through its belly and travels with it; the dark takes the flank first and the glow last, and it is gone | (none) |
 | `wick` | 12.4–14.6 | a spark; the ink opens from the flame; the Wick's flame catches, gutters, catches; its hanging lantern takes and its pool spreads on the water. Beyond it the gate, dark, a few candle windows left | "Its last candles fish to stay lit." (12.7–15.1) |
 | `home` | 14.6–18.0 | the camera cranes back into the play camera and rests from 17.0; the last line comes in under the raft as it settles; control begins, the HUD fades in and the lake's name rises as its banner | "You are one of them." (16.05–17.6) |
 
