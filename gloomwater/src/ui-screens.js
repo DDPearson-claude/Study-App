@@ -833,8 +833,10 @@ export function createScreens(K) {
           const unit = / mm$/.test(N.len) ? 'mm' : / m$/.test(N.len) ? 'm' : 'cm';
           const say = (cm) => (unit === 'mm' ? `${Math.round(cm * 10)} mm` : unit === 'm' ? `${(cm / 100).toFixed(2)} m` : `${Math.round(cm)} cm`);
           hero.textContent = say(0);
+          // (a card closed, or drawn again, before its stamp has pressed still stamps: the seal is heard once for every fish)
+          const press = () => { if (pressed) return; pressed = true; if (s.stamped) return; s.stamped = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); };
           const step = () => {
-            if (!pn.isConnected) return;
+            if (!pn.isConnected || pn.closest('.gw-out')) { press(); return; }
             const t = performance.now() - t0;
             if (!started && t >= from) { started = true; emit('card:count', { dur: dur / 1000 }); }
             const k = Math.min(1, Math.max(0, (t - from) / dur)), e2 = 1 - (1 - k) * (1 - k) * (1 - k);
@@ -843,11 +845,11 @@ export function createScreens(K) {
             if (bead && rule) bead.style.left = `${(2 + 96 * Math.max(0, Math.min(1, cm / rule.max))).toFixed(2)}%`;
             for (const kn of knots) if (!kn.classList.contains('gw-on') && num(Number(kn.dataset.cm)) <= cm + 1e-6) kn.classList.add('gw-on');
             if (k >= 1 && !pn.classList.contains('gw-cc-counted')) pn.classList.add('gw-cc-counted');
-            if (!pressed && t >= stampAt) { pressed = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); }
+            if (!pressed && t >= stampAt) press();
             if (!pressed || k < 1) requestAnimationFrame(step);
           };
           requestAnimationFrame(step);
-        } else { pn.classList.add('gw-cc-counted', 'gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); }
+        } else { s.stamped = true; pn.classList.add('gw-cc-counted', 'gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); }
       }
       // v3: what it is worth to you counts up as the card lands, with soft coin ticks (once per card)
       if (N.v3 && !s.counted) {

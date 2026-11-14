@@ -190,6 +190,18 @@ section('the show camera: the fit of named points, for 16:9 and a phone held upr
     near(C.showFit(pts, o).dist, C.showFit(lay.points, o0).dist, `yaw ${yaw.toFixed(1)}: the same distance`, 1e-9);
   }
   ok(C.showFit([], o0) === null && C.showFit([{ x: NaN, y: 0, z: 0 }], o0) === null, 'no points: no fit');
+  // (the review's fixes, SPEC §8) a wide screen's card stands at the right: the picture is fitted into the left of the frame
+  { const fS = C.showFit(lay.points, { ...o0, marginRight: 0.5 }), xsS = lay.points.map((p) => C.showProject(p, fS, o0).x);
+    ok(Math.max(...xsS) <= 1 - 2 * 0.5 + 1e-3 && Math.min(...xsS) >= -1 + 2 * o0.margin - 0.02, `marginRight 0.5: every point in the left half, inside the left margin (x ${Math.min(...xsS).toFixed(2)} … ${Math.max(...xsS).toFixed(2)})`);
+    ok(fS.dist >= C.showFit(lay.points, o0).dist - 1e-9, 'marginRight never brings the lens nearer'); }
+  // the way back runs at an even rate of zoom: 0 → 1, never backwards, slow at both ends, and far gentler at the start than a plain ease
+  { let prev = 0, mono = true; for (let i = 0; i <= 100; i++) { const e = C.showOutEase(i / 100, 8); if (e < prev - 1e-12) mono = false; prev = e; }
+    ok(mono && Math.abs(C.showOutEase(0, 8)) < 1e-12 && Math.abs(C.showOutEase(1, 8) - 1) < 1e-12, 'showOutEase: 0 → 1, monotonic');
+    ok(C.showOutEase(0.33, 8) < 0.5 * C.showEase(0.33), `showOutEase: a third of the way through the lens has gone ${(C.showOutEase(0.33, 8) * 100).toFixed(0)} % of its way (a plain ease: ${(C.showEase(0.33) * 100).toFixed(0)} %)`);
+    near(C.showOutEase(0.4, 1), C.showEase(0.4), 'showOutEase: with no change of distance it is the plain ease', 2e-3); }
+  // a tiny pinch brings the lens down to the hand's height; a flame far above the catch (the Taper) brings a `both` lens under it
+  ok(C.showRow(SC, 'pinch', { length: 0.1, aspect: 16 / 9 }).elev === SC.pose.pinch.tinyElev && C.showRow(SC, 'pinch', { length: 0.33, aspect: 16 / 9 }).elev === SC.pose.pinch.elev, 'pinch: tinyElev under tinyBelow only');
+  ok(C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9, rise: 0.8 }).elev === SC.pose.both.elev && C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9, rise: 1.5 }).elev === SC.pose.both.lowElev, 'both: the lens comes down only when the flame stands far over the catch');
   // the rows: fov by screen, a tiny fish's wider lens, the crane, the upright rake
   eq([C.showRow(SC, 'pinch', { length: 0.33, aspect: 16 / 9 }).fov, C.showRow(SC, 'pinch', { length: 0.1, aspect: 16 / 9 }).fov, C.showRow(SC, 'pinch', { length: 0.33, aspect: 390 / 844 }).fov],
     [SC.pose.pinch.fov, SC.pose.pinch.tinyFov, SC.pose.pinch.fovPortrait], 'pinch: 44°; 52° under 0.15 m; 58° upright');

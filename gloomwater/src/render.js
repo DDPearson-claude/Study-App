@@ -855,7 +855,8 @@ export function create(ctx) {
         S.outT = 0; S.w0 = S.w;
         S.outDur = Math.max(Number(SHOWC.out) || 0.9, S.pos.distanceTo(rigPos) * (Number(SHOWC.outPerM) || 0));
         // (how many times further off the play camera stands than the close-up: the way back runs at an even rate of zoom)
-        S.outRatio = clamp((S.sd.x + S.pos.distanceTo(rigPos)) / Math.max(0.3, S.sd.x), 1, 40);
+        // (…up to six-fold: from a hand's breadth to a phone's far play camera an even zoom would run the lens past 27 m/s at its end)
+        S.outRatio = clamp((S.sd.x + S.pos.distanceTo(rigPos)) / Math.max(0.3, S.sd.x), 1, 6);
       }
       S.outT += dt;
       const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);

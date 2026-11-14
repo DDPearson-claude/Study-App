@@ -16,6 +16,7 @@
 //   --frames=sheet|strip        sheet (default): the five frames of the proof sheet (water, lift, show, pause, card) and the way
 //                               out; strip: twelve
 //   --quality=high              the render tier (default high)
+//   --marks=show,pause,card     shoot only these frames (the rest are stepped and measured: a quick look at one moment)
 //   --video=<dir>               instead: each case from the strike to the card closing, one PNG per 1/12 s of game time into <dir>
 //                               (tools/show-sheet.mjs --video turns them into an mp4)
 //   node tools/show-sheet.mjs --after=tools/out/show/after --before=tools/out/show/before --out=tools/out/show/sheet.jpg
@@ -105,6 +106,7 @@ export default async function (api) {
   const notes = existsSync(notesPath) ? JSON.parse(readFileSync(notesPath, 'utf8')) : {};
   const phone = api.width < 700;
   const quality = String(args.quality || 'high');
+  const marksOnly = args.marks ? String(args.marks).split(',') : null;
 
   const parseOpts = (s) => Object.fromEntries(String(s || '').split(';').filter(Boolean).map((kv) => { const [k, v] = kv.split('='); return [k, /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v]; }));
   let cases = CASES.map(([n, s, z, o]) => [n, s, z, { ...o }]);
@@ -226,12 +228,13 @@ export default async function (api) {
     const P = SH.plan[info.cls];
     const rec = { case: name, species: sp, z, cls: info.cls, sizeClass: info.sizeClass, ancient: !!info.ancient, legendary: !!info.legendary, lengthCm: info.length, plan: P, opts: o, step0: t0r.step, frames: [] };
     const shoot = async (label) => {
-      await scale(1);
+      const keepShot = !marksOnly || marksOnly.includes(label);   // (--marks: the other frames are measured, not shot)
+      if (keepShot) await scale(1);
       await g((ms) => window.__show.run(1, ms, null), STEP_MS);   // (one frame at full size, so the shot is sharp)
-      await wait(120);
+      if (keepShot) await wait(120);
       const m = await metrics();
       const file = `${name}-${String(rec.frames.length + 1).padStart(2, '0')}-${label}.png`;
-      await shotPng(resolve(shotsDir, file));
+      if (keepShot) await shotPng(resolve(shotsDir, file));
       rec.frames.push({ file, label, t: sec((m.step ?? 0) - rec.step0), ...m });
       log('shot', file, JSON.stringify({ t: rec.frames.at(-1).t, phase: m.phase, off: m.wickOffLens, hull: m.hull && `${m.hull.wPct}x${m.hull.hPct}% clear ${m.hull.clear}%`, wick: `${m.wickPct}%`, ui: m.ui, words: m.words, dist: m.camDist }));
       await scale(LOW);
@@ -294,9 +297,16 @@ export default async function (api) {
     }
     // ---- no ring round the raft (S5, SPEC §2.6: the hush is on from T0 to the card): no plain ripple asked for within 3.2 m of the
     // raft from T0 until play resumes. (The play's own last beats, before T0, ring the fish where it thrashes, not the raft: a note.)
-    const rings = rec.rip.filter((e) => e.ring && e.d < 3.2 && e.t >= 0);
+    // …nor one that would GROW round the raft (water.js: a ring of strength s lives 1.5 + 1.1 s seconds and spreads at 1.2 + 0.9 s
+    // m/s; a splash's first ring has its size, capped at 3): a leviathan's ring born six metres off is ten metres wide before it dies
+    const reach = (e) => { const s = Math.max(0.05, Math.min(3, e.s)); return 0.12 + (1.5 + 1.1 * s) * (1.2 + 0.9 * s); };
+    const rings = rec.rip.filter((e) => e.ring && e.t >= 0 && (e.d < 3.2 || reach(e) > e.d - 1));
     rec.rings = rings;
-    check(rings.length === 0, `${name}: no ripple ring asked for within 3.2 m of the raft from T0 to the way out`, rings.slice(0, 6));
+    check(rings.length === 0, `${name}: no ripple ring asked for from T0 to the way out within 3.2 m of the raft, nor one that would grow round it`, rings.slice(0, 6));
+    // (a ring of the play's last beats that is still spreading at T0 and would enclose the raft: the landing's hush takes it whole
+    // (water-shader: a ring that has grown round the raft fades with the hush wherever its far arc is); counted here as a note)
+    const live = rec.rip.filter((e) => e.ring && e.t < 0 && e.t + 1.5 + 1.1 * Math.max(0.05, Math.min(3, e.s)) > 0.3 && reach(e) > e.d);
+    if (live.length) note(`${name}: ${live.length} ring(s) of the play still spreading at T0 that would enclose the raft (hushed whole by the landing; widest reach ${Math.max(...live.map(reach)).toFixed(1)} m)`);
     const before = rec.rip.filter((e) => e.ring && e.d < 3.2 && e.t >= -1.2 && e.t < 0);
     if (before.length) note(`${name}: ${before.length} ripple(s) of the play's last beats within 3.2 m of the raft before T0 (the fish's own splash, nearest ${Math.min(...before.map((e) => e.d))} m)`);
     // ---- no pop (S5): the lens from T0 until 1.5 s after the card closes

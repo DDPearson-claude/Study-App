@@ -199,6 +199,7 @@ export default async function (api) {
     await g(([body, heading]) => {
       const c = window.__gw, P = window.__poses;
       try { c.debug.showPoseEnd?.({}); } catch { /* none up */ }
+      if (P.pinned) { delete c.fishing.view.show; c.fishing.view.show = null; P.pinned = false; }
       if (P.real) { try { c.render.setShowTarget(null, { abort: true }); } catch { /* optional */ } c.fishing.view.show = null; P.real = false; }
       P.cam = 'play'; P.cur = null; P.fit = null;
       c.actors.setCharacter(body);
@@ -229,7 +230,8 @@ export default async function (api) {
     let at = 0;
     if ((o.cam || args.cam) === 'real' && args.card) shots = [...shots, { label: 'card', t: shots[shots.length - 1].t + 0.9, card: true }];
     for (const s of shots) {
-      if (s.card) await g(() => { const c = window.__gw; c.render.setShowTarget(null); c.fishing.view.show = { ...c.fishing.view.show, phase: 'card' }; });
+      // (fishing lets a card's view go when no card is up: the stand-in is pinned for the shot)
+      if (s.card) await g(() => { const c = window.__gw, P = window.__poses; c.render.setShowTarget(null); const v = { ...c.fishing.view.show, phase: 'card' }; Object.defineProperty(c.fishing.view, 'show', { get: () => v, set: () => {}, configurable: true }); P.pinned = true; });
       const want = Math.max(1, Math.round(s.t * 30)), n = want - at;
       if (n > 1) { await step(n - 1); at += n - 1; }
       await scale(1);
@@ -317,7 +319,7 @@ export default async function (api) {
     }
     sheet(String(args.out || 'grid') + '.jpg', tiles, portrait ? 6 : 4);
   }
-  await g(() => { const c = window.__gw; try { c.debug.showPoseEnd?.({}); } catch { /* none */ } if (window.__poses.real) { try { c.render.setShowTarget(null, { abort: true }); } catch { /* optional */ } c.fishing.view.show = null; } window.__poses.cam = 'play'; window.__poses.mute = false; window.__poses.end(); });
+  await g(() => { const c = window.__gw; try { c.debug.showPoseEnd?.({}); } catch { /* none */ } if (window.__poses.pinned) { delete c.fishing.view.show; c.fishing.view.show = null; } if (window.__poses.real) { try { c.render.setShowTarget(null, { abort: true }); } catch { /* optional */ } c.fishing.view.show = null; } window.__poses.cam = 'play'; window.__poses.mute = false; window.__poses.end(); });
   // S5 / S6 on what was shot (the numeric sweep of every pose time is tools/tests/show-poses.test.mjs, in node)
   for (const rec of Object.values(notes)) for (const fr of rec.frames) {
     const I = fr.info || {};

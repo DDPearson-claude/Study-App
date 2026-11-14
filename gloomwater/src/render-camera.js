@@ -186,13 +186,13 @@ export function trophyFit(baseFov, radius, dist, aspect, { up = TROPHY_UP, acros
 const smooth01 = (t) => { const x = clamp(t, 0, 1); return x * x * (3 - 2 * x); };
 /** The numbers in force when data carries none (AUTOFISH.show.camera is the truth). */
 export const SHOW_CAMERA_DEFAULT = Object.freeze({
-  margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45, out: 0.9, follow: 10, still: 0.02,
+  margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45, out: 1.4, follow: 10, still: 0.02,
   pose: {
-    pinch: { elev: 8, fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0 },
-    both: { elev: 10, fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'] },
+    pinch: { elev: 8, fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0, tinyElev: -5 },
+    both: { elev: 7, fov: 52, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], flameTip: 0, lowElev: -9, lowAbove: 0.95 },
     hug: { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
-    hang: { elev: 8, fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet', 'rodTip'] },
-    alongside: { elev: 16, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet'], craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55 },
+    hang: { elev: 6, fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet'] },
+    alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet', 'body'], craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55, marginPortrait: 0.1 },
   },
 });
 /** 0 on a landscape screen, 1 on a phone held upright, eased between an aspect of 1.25 and 0.8. */

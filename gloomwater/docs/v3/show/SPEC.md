@@ -1,6 +1,6 @@
 # The show — the Wick presents its catch (spec for both build lanes)
 
-Status: audit done on `2ee62e7` (branch `gw-show`); both lanes built and merged on `gw-show`, staged and tuned as one moment
+Status: audit done on `2ee62e7` (branch `gw-show`); both lanes built and merged on `gw-show`, staged and tuned as one moment, then reviewed and fixed (§8)
 (§7 records where the build differs from this text, and what the stage measured). LANE A ("the Wick and the fish") and LANE B
 ("the sequence, the camera, the card and the sound") built from this document without talking to each other; §6 is the seam
 between them. Numbers marked
@@ -672,3 +672,42 @@ the card closing, 12 frames a second of game time on the stepper).
 poses (kept for `setPose` callers). Older scenarios that drove the retired overlay (`p1b-screens`, `af-ui`, `p1-full-seams`,
 `catch-shots`, `polish-shots`) are stale.
 
+## 8. After the review (the fixer)
+
+Two reviewers looked at the staged show (an art director and QA). Where this section differs from §2 – §7, this section is the
+truth; the numbers are `AUTOFISH.show` / `AUTOFISH.landing.show`, measured as §7 was.
+
+### 8.1 What changed, finding by finding
+
+| finding | what was wrong | what the build does now |
+|---|---|---|
+| **an eel hung from the rod is a grey blade** (must) | every long thin fish in the hug's band (0.9 – 1.5 m) hung edge-on beside the rod: 4 % of the frame wide | `poseRules.thinDrape: 'both'`: in the hug's band a thin fish is **draped over both hands** (head up at the left hand, the body across, the tail hanging off the right: `kitFor`'s deeper loop from 0.9 m). An Elder's, an Ancient's or one over 1.5 m still hangs (it cannot be lifted), but **in a slow S** (bowed to the Wick under its head, its tail kicked out: `sag` + a tail arc), three times as wide on screen |
+| **the smallest fish sits at the Wick's mouth** (must) | a fish under 15 cm rode a fist before the dark of the face at mouth height: it read as eating, 10 % of the frame | `grip.pinch.tinyAt`: it is held out at arm's length **beside the cheek on its own hand's side**, sky and water behind it; the lens comes down to the hand's height (`camera.pose.pinch.tinyElev` −5°) and up to `minLens`, so the fish, far nearer than the face, is ≈ 19 % of a wide frame's width and clear of the face. An upright frame has no room beside the head: there it sits off the shoulder under the chin, and the frame keeps the whole flame |
+| **the leviathan on a phone** (must) | the Wick stood at the frame's very edge; a straight bright edge crossed the water; the fish was near white | the alongside row keeps `body` (the Wick's cloak either side of its feet and shoulders) and a tenth of an upright frame as its side margin (`marginPortrait`); the straight edge was the **glory's billboard cut by the lake** under the craned lens: it now thins away over `landing.show.lake` of its size above the surface; the fish's light is under the show's knee (below) |
+| **an Elder hung looked smaller than a Trophy hugged** (should) | the hang's frame kept the rod's tip and the fish hung in the rod's plane | the hung fish stands `grip.hang.fore` (0.34 m) before the near shoulder, nearer the lens than the Wick and the rod's butt; the row keeps the fish, not the rod's tip (the line runs out of the top) at a lower lens (6°): an Elder pike fills ≈ 74 % of the frame's height against the hugged Trophy's ≈ 53 % |
+| **a grey disc on the hugged fish; a cream baguette** (should, both reviewers) | the "disc" was the pike's dorsal and anal fins, ink-dark and unlit, seen flat-on; the body, half a metre from the lantern, was lit several times over and burned out to one cream | `FishVisual.setShown` (the show sets it as the fish swings in): the LIGHT on the skin is eased under a knee (the diffuse term over the skin's own colour; glow, rim and glints untouched), so back, belly and stripes keep their contrast; the fins take the lantern through them (a warm brown membrane, their rays showing). The creel stays where it is: see §8.3 |
+| **a ray's tail is a rigid needle** (should) | held snout-to-the-side like a painting, its whip of a tail stuck straight out across the Wick | `setBend({side})`: the tail hangs down off the disc's end on a true arc, past the Wick's hip; the disc is held with its upper wing at the chin, so the eyes and the foot of the hood show over it |
+| **the card covers the picture on a wide screen** (should) | the card opened centred over the Wick and its fish | `camera.behindCard.landscapeSide` 0.5: a show's card on a screen wider than 1.2 × its height is docked at the right (one column of ink, the veil thin over the picture) and the lens fits the subject into the left of the frame as the card unfolds, like a caption beside its photograph |
+| **the way out is a whip-zoom** (should) | 1.8 m → 9 m in half a second | `camera.out` 1.4 s (`outPerM` 0.1), eased at an **even rate of zoom** (`showOutEase`: the lens's distance grows geometrically, up to six-fold, in and out on a smoothstep): a tenth of the way after the first third of the time, never over 0.8 m a frame; the Wick waits 0.2 s before it turns from the lens and turns at 3.2 rad/s |
+| **a legend bleached at the crowning beat** (should) | the glory, the fish's held light and the flare together | the glory's strength climbs less with the class (`perGloryStrength` 0.07, an Elder's extra brightness halved), the light the fish holds after its reveal is halved and its glow ignites to 2.2 × at most (`landing.show.flood`, `glowCap`), the present's bloom is 0.6 of the landing's, and in the close-up the head flame's flare stands at most 1.75 × its size with its white heart held back |
+| **two-hand fish small under a big head** (should) | the fish was already at the chin and the arms at full stretch; the frame was fitted to the flame's upper half | the row's lens is 52° and close and keeps the flame's core only (`flameTip` 0): the forced perspective does the rest (a 61 cm carp ≈ 33 % of the width, a 49 cm koi ≈ 28 %); a body whose flame stands more than 0.95 m over the catch is filmed from below (`lowElev` −9°): the Taper's carp 16.5 → ≈ 23 % |
+| **a ring round the raft as the leviathan surfaced** (should; QA's could) | a ring of the play's last beats, born six metres off, had grown to enclose the raft; the hush only took what lay within 5 m of it | water-shader: under the landing's hush a ring that has grown to within six metres of the raft, or round it, goes whole, wherever its far arc is (eased out to twelve). (A rule on the play's own rings by their strength was tried and withdrawn: it showed the outcome in the first half of a play.) The audit's ring check now also fails on a ring asked for after T0 that would grow round the raft, and counts the play's own still spreading at T0 |
+| the Wick looks at its fish, not at us (could) | three-quarter 30° / 35° in hang and alongside | 18° / 20° (`facing.threeQuarter`) |
+| the stamp is lost when the card is closed quickly (could) | the press ran on the card's clock only | a card closed (or drawn again) before its stamp has pressed stamps then: `card:stamp` once per fish |
+
+### 8.2 The acceptance rows this moves (§4)
+
+S1's table for the poses as they now stand: pinch under 0.2 m ≥ 15 % of a wide frame's width and clear of the head's disc; both
+≥ 28 % × min(1, L / 0.6) as before (a ray in both hands reads by its disc: ≥ 14 % wide or ≥ 20 % tall); a thin fish in the
+hug's band is a `both`; hang ≥ 60 % of a wide frame's height. The Wick in hang and alongside within ± 25° of the lens. S5: the
+ring check as above. The way back: `camera.out` 1.2 – 1.6 s (validated).
+
+### 8.3 Looked at and left
+
+- **The creel in the foreground of a hug.** It is raft furniture; its lid and handle are merged into the raft's static mesh (one
+  draw call, shared with the flag-off build), so it cannot step aside as the lantern post does without rebuilding the raft. A
+  yaw of the lens does not take it out of a 16:9 frame (it stands under a metre before the Wick), and the hug must keep the deck
+  the fish stands on. The side rule (§7.1) still keeps it from between the lens and the fish's foot.
+- **A hand under the hung fish's belly.** Both hands are spoken for (the rod, the flank); the rod's bow already carries the weight.
+- **Rings of the play itself** (before T0) can still spread round the raft from a big fish's thrash; the landing's hush takes them
+  from T0. Changing which rings a play asks for by where its plan ends shows the outcome (the hidden-information rule).

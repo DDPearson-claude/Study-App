@@ -8,9 +8,11 @@
 // (the swing in on the line → the hands take it → the present, with its overshoot → the hold's flaps → the still), and the
 // Wick's hands are locked onto it by IK (actors-wick.js), so a hand is on the fish whatever the body does. The layout is settled
 // on a ghost of the rig before anything has moved, so getShowFocus() can tell the camera where everything WILL be on the first
-// frame of the lift. Five poses by the fish's true length (data.showPoseFor): pinch (one hand out to the lens), both (two hands
-// pushed forward), hug (stood on its tail, heaved against the shoulder), hang (hung from the planted, bowing rod) and alongside
-// (laid along the raft, chin against the deck's edge, the Wick standing over it with a hand on its brow).
+// frame of the lift. Five poses by the fish's true length (data.showPoseFor): pinch (one hand out to the lens; the smallest fish at
+// arm's length beside the cheek), both (two hands pushed forward, its back under the chin; a long thin fish draped over them, a
+// ray held up like a painting, its tail hanging), hug (stood on its tail, heaved against the shoulder), hang (hung from the
+// planted, bowing rod, nearer the lens than the Wick; an eel in a slow S) and alongside (laid along the raft, chin against the
+// deck's edge, the Wick standing over it with a hand on its brow).
 import * as THREE from 'three';
 
 const clamp = THREE.MathUtils.clamp;
@@ -33,13 +35,13 @@ const LIFE0 = {
   settle: 0.28, firstFlap: 0.2, pauseStill: 0.12, swingIn: 0.4, takeAt: 0.62,
 };
 const GRIP0 = {
-  pinch: { hands: 1, reach: 0.3, reachTiny: 0.42, tinyBelow: 0.15, rod: 'planted' },
-  both: { hands: 2, reach: 0.3, spread: 0.31, spreadClamp: [0.13, 0.44], rod: 'stowed' },
+  pinch: { hands: 1, reach: 0.3, reachTiny: 0.36, tinyBelow: 0.15, tinyAt: { wide: [0.95, -0.1], upright: [0.3, 0.95] }, rod: 'planted' },
+  both: { hands: 2, reach: 0.4, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chin', chinOver: 0.03, rod: 'stowed' },
   hug: { hands: 2, tilt: 70, heave: 18, rod: 'stowed' },
-  hang: { hands: 2, tailClear: 0.04, gap: 0.12, lean: [3, 30], rod: 'raised' },
+  hang: { hands: 2, tailClear: 0.04, gap: 0.12, fore: 0.34, lean: [3, 30], rod: 'raised' },
   alongside: { hands: 1, stand: true, inset: 0.24, flankUp: 30, squareWithin: 12, noseIn: 18, turn: 16, rod: 'planted' },
 };
-const FACING0 = { faceWithin: 12, threeQuarter: { hang: 30, alongside: 35 }, flankWithin: 15, turnRate: 9 };
+const FACING0 = { faceWithin: 12, threeQuarter: { hang: 18, alongside: 20 }, flankWithin: 15, turnRate: 9 };
 
 // ------------------------------------------------------------------ the show's clock (pure; tools/tests/show-poses.test.mjs)
 /** The flaps of a hold: [{at, dur}] in pose time. The first comes firstFlap s after the present (as the overshoot settles), then
@@ -323,7 +325,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       // and the water behind it (never before the dark of the face, never at the mouth: that read as eating). The lens comes right
       // up to it, so it is far nearer than the face and looks the bigger for it (the fisherman's trick); an upright frame has no
       // room beside the head, so there it sits lower, off the shoulder
-      const T2 = L.grip.tinyAt || {}, at = L.tall ? (T2.upright || [0.34, 0.92]) : (T2.wide || [0.5, 0.2]);
+      const T2 = L.grip.tinyAt || {}, at = L.tall ? (T2.upright || [0.3, 0.95]) : (T2.wide || [0.95, -0.1]);
       x = sd * (hr0 * at[0] + 0.5 * L.L); y = G.head.center.y - hr0 * at[1];
     } else if (pinch && !L.tall) {   // a wide frame: held up beside the face at its cheek, so the lens comes right in on the two of them
       x = sd * (hr0 * 0.94 + (upright ? 0.06 : 0.32 * L.L)); y = G.head.center.y - 0.08 - (upright ? ext * 0.5 : 0);
@@ -335,7 +337,6 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       const lift = L.grip.height === 'chest' ? 0 : 1;
       const yChest = Math.min(chest - 0.01 + little * 0.08, G.eyes.y - 0.06 - ext), yChin = chin + (L.grip.chinOver ?? 0.03) - ext;
       x = 0; y = Math.min(Math.max(yChest, yChest + (yChin - yChest) * lift), G.eyes.y - 0.06 - ext);
-      void chest;
     }
     if (K.wings && !upright && !pinch) {
       // a ray held up like a painting: its whip of a tail (a rigid needle across the Wick, held straight) hangs down off the

@@ -3846,7 +3846,10 @@ export const AUTOFISH = {
     // front of the Wick's face plane the fish's middle is held, toward the lens (the fisherman's trick: a fish under tinyBelow m
     // comes right up to it); the arm decides how much of it there is (a sleeve stretches to 2.6 × its length, no further). On a wide
     // screen a pinched fish is held up beside the cheek, on an upright one under the chin, so the lens can close in on the two.
-    // A fish under `tinyBelow` is held under the face on any screen (heightTiny): before the dark cloak a sliver of silver reads.
+    // A fish under `tinyBelow` is held out at arm's length beside the cheek on its own hand's side (tinyAt: [how far out from the
+    // head's middle, how far under it], in head radii; an upright frame has no room beside the head: off the shoulder, under the
+    // chin), the sky and the water behind it: never before the dark of the face, never at the mouth (that read as eating).
+    // both: height 'chin' = its back just under the chin (chinOver m over it), the whole face above.
     // spread = each hand's distance from the fish's middle as a share of its length, the pair clamped to spreadClamp m apart.
     // hug: tilt = its lean from the deck (deg) over the near shoulder, stood on its tail (the last tenth bent flat on the planks),
     // heaved up through `heave` degrees by the present. hang: gap = the most it stands off the Wick's body (m), lean = the planted
@@ -3866,8 +3869,9 @@ export const AUTOFISH = {
       alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0, inset: 0.24, flankUp: 30, squareWithin: 12, noseIn: 18, turn: 16, rod: 'planted' },
     },
     // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
-    // three-quarter: the body faceOff degrees toward the fish, the head to the lens); the fish's flank within flankWithin of square-on
-    facing: { faceWithin: 12, threeQuarter: { hang: 30, alongside: 35 }, flankWithin: 15, turnRate: 9 },
+    // a little toward the fish: the body threeQuarter degrees off, the head to the lens; at 30 / 35 it looked at its fish, not at
+    // us); the fish's flank within flankWithin of square-on
+    facing: { faceWithin: 12, threeQuarter: { hang: 18, alongside: 20 }, flankWithin: 15, turnRate: 9 },
     // weight and life, by class: overshoot = the present's travel past the hold point (share of the lift's travel, settling in settle s);
     // twitch = [peak struggle 0..1, s between flaps] through the hold, the first flap firstFlap s after the present (so every class
     // flaps at least once before its pause); pauseStill = the struggle's ceiling during the pause (a still, not a freeze: breath and
@@ -3907,8 +3911,8 @@ export const AUTOFISH = {
       // rocking sways the head and the fish a little inside it (the margins are that room)
       headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 12, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.6, breath: 0.2,
       pose: {
-        pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0, tinyElev: -5 },   // (a tiny fish: the flame's core kept, not its tip)
-        both:      { elev: 7,  fov: 52, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0, lowElev: -9, lowAbove: 0.95 },   // (an angler's photograph: near eye level, the hands at the foot, the flame's top at the edge's margin)
+        pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0, tinyElev: -5 },   // (a tiny fish: the lens down at the hand's height and right up to it, the flame's core kept, not its tip; an upright frame keeps the tip)
+        both:      { elev: 7,  fov: 52, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0, lowElev: -9, lowAbove: 0.95 },   // (an angler's photograph: near eye level, wide and close so the fish held out is a third of the frame, the hands at the foot, the flame's core at the top; a flame more than lowAbove m over the catch (the Taper) is filmed from below, up its stovepipe)
         hug:       { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
         hang:      { elev: 6,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet'], headroom: 0.015 },   // (a fish hung 2 m up sways with the raft's rocking: a little more room over it; the line runs out of the top of the frame: the rod's tip is not kept, the fish is)
         alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet', 'body'], footroom: 0, craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55, marginPortrait: 0.1 },   // (a low lens along the flank; nothing under the surface is framed; the Wick's whole body is kept, a tenth of an upright frame clear of its edge)
@@ -3921,7 +3925,7 @@ export const AUTOFISH = {
       // camera stands 20 m off). It runs at an even rate of ZOOM (render-camera showOutEase: the lens's distance grows geometrically,
       // eased in and out), so the lake settles in around the raft instead of the picture whipping away in the first third of a second
       out: 1.4,
-      outPerM: 0.085,
+      outPerM: 0.1,
     },
     // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
     // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
