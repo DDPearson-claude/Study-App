@@ -360,6 +360,7 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
     uInk: { value: new THREE.Color(colors.ink ?? 0x0a0c19) }, uEmberCol: { value: new THREE.Color(colors.ember ?? 0xe8862e) },
     uEmber: { value: new THREE.Vector4(0, 0, 0, 0) }, uAlpha: { value: 1 }, uLight: { value: new THREE.Vector3(-0.18, 0.9, 0.4).normalize() },
     uMurk: { value: new THREE.Vector2(0.2, 0.1) },   // x: where along the body (from the nose, as a fraction) the dark starts to close, y: how fast across the depth
+    uSink: { value: 0 },                              // 0 … 1: the dark takes the whole body as it leaves (the glow inside is added after it)
     uHalf: { value: new THREE.Vector2(length / 2, hg) },
   };
   const mat = new THREE.ShaderMaterial({
@@ -373,7 +374,7 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
       }`,
     fragmentShader: /* glsl */`
       uniform vec3 uPale; uniform vec3 uShade; uniform vec3 uInk; uniform vec3 uEmberCol; uniform vec4 uEmber; uniform float uAlpha;
-      uniform vec3 uLight; uniform vec2 uMurk; uniform vec2 uHalf;
+      uniform vec3 uLight; uniform vec2 uMurk; uniform vec2 uHalf; uniform float uSink;
       varying vec3 vN; varying vec3 vLocal;
       void main() {
         vec3 n = normalize( vN );
@@ -397,7 +398,7 @@ export function buildFlank({ length = 22, girth = 5.2, colors = {} } = {}) {
         }
         // the dark closes over the far end of it and over what leans away from the lens
         float murk = smoothstep( uMurk.x, 0.72, s ) * 0.97 + clamp( - vLocal.z * uMurk.y, 0.0, 0.5 );
-        col = mix( col, uInk, clamp( murk, 0.0, 0.97 ) );
+        col = mix( col, uInk, clamp( max( murk, uSink ), 0.0, 0.97 ) );
         // the ember, inside: its glow comes through the belly
         vec3 e = vLocal - uEmber.xyz; e.z *= 0.25;
         float g = exp( - dot( e, e ) / ( uHalf.y * uHalf.y * 0.11 ) );

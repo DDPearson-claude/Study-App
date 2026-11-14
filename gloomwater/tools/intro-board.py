@@ -54,15 +54,18 @@ def sheet(src, out, o):
         d.rectangle([x - 1, y - 1, x + tile_w, y + tile_h], outline=(40, 40, 70))
         if fr['kind'] == 'film':
             t = fr['t']
-            head = '%04.1f s' % t if abs(t - round(t)) > 1e-6 else '%d s' % round(t)
+            head = ('%.2f' % t).rstrip('0').rstrip('.') + ' s'
             line = fr.get('line') or ''
             if not line:
-                line = {'below': '(no words: the dark below)'}.get(fr.get('beat'), '') if fr.get('veil', 0) < 0.5 else '(the ink closes over the title)'
+                if fr.get('veil', 0) >= 0.5:
+                    line = '(the ink closes over the title)' if t < 0.45 else '(the ink lifts on the lit kingdom)' if t < 2 else '(ink)'
+                else:
+                    line = {'below': '(no words: the dark below)'}.get(fr.get('beat'), '')
                 col = dim
             else:
                 line, col = '“' + line + '”', pale
         elif fr['kind'] == 'play':
-            head, line, col = '+%g s' % fr.get('after', 1), ('the film is over: this is play (the first run)' if fr.get('label') == 'play' else 'the title again'), amber
+            head, line, col = '+%s s' % ('%.2f' % fr.get('after', 1)).rstrip('0').rstrip('.'), ('the film is over: this is play (the first run)' if fr.get('label') == 'play' else 'the title again'), amber
         else:
             head, line, col = 'title', 'the title, before the press', dim
         d.text((x + 2, y + tile_h + 6), head, font=f_t, fill=amber)

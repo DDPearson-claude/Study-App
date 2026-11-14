@@ -252,6 +252,9 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   const mid = nose - len / 2, across = eB + rise * girth, away = 0.3 * smooth(FK.cover, FK.out, t);
   fl.x = mid * ca - across * sa; fl.y = mid * sa + across * ca; fl.z = -away;
   fl.alpha = 1 - smooth(FK.leave + 0.1, FK.out, t);
+  // the dark takes the body as it leaves, the glow inside it last: the beat ends on one warm light carried off, which the Wick's
+  // spark answers (without this, 11.4–12.0 s was a flat pale wall with nothing on it)
+  fl.sink = smooth(FK.sink?.[0] ?? FK.cover + 0.6, FK.sink?.[1] ?? FK.leave + 0.1, t) * 0.92;
   fl.eyeAt = nose - FLANK_MARKS.eye[0] * len;                                  // along the path (tests: the eye is in frame at FK.eye)
 
   // ---- the ember: it sinks and cools; the flank's nose takes it; it glows through the belly and leaves with it
@@ -276,7 +279,7 @@ export function introScore(INTRO, t, { aspect = 16 / 9, reduced = false } = {}, 
   // ---- the spark at the Wick's head
   const sp = out.spark || (out.spark = {});
   sp.k = bump(W.spark, W.spark + 0.22, t);
-  sp.size = 0.18 + 0.75 * sp.k;
+  sp.size = 0.08 + 0.34 * sp.k;   // m at the Wick's head: a point of fire, not an orb (at 0.18 + 0.75 k it was a 90 px blur on a 960 px frame)
 
   // ---- the Wick's kindling and its hanging lantern (actors.setIntroKindle): out while the great lantern burns
   const kd = out.kindle || (out.kindle = {});
@@ -569,7 +572,7 @@ export function createIntroStage(ctx) {
       F.group.visible = fl.vis;
       if (fl.vis) {
         F.group.position.set(fl.x, fl.y, fl.z); F.group.rotation.set(0, 0, fl.angle); F.group.scale.setScalar(fl.unit);
-        F.uniforms.uAlpha.value = fl.alpha; F.eyeMat.opacity = fl.alpha;
+        F.uniforms.uAlpha.value = fl.alpha; F.uniforms.uSink.value = fl.sink; F.eyeMat.opacity = fl.alpha * (1 - fl.sink);
         F.uniforms.uEmber.value.set(fl.emberX, fl.emberY, S.below.flank.girth * 0.2, fl.emberK);
       }
     }
