@@ -3894,11 +3894,12 @@ export const AUTOFISH = {
       // (flameTip × the head's radius above the core); follow = the spring ω (1/s) that carries the fitted target (the hand-over
       // from the reveal's fit to the pose's never jumps); at the present the landing's kick and bloom are scaled (presentKick,
       // presentBloom: the lens is already close) and an Elder's pull-back is a breath (`breath` × landing.pull)
-      // finRoom widens the fish's box past its named points (fins, a flapping tail); the fitted target is live through the reveal,
+      // finRoom widens the fish's box past its named points (fins, a flapping tail); maxSpeed (m/s) is the most a far jump of the
+      // target may move the lens at its peak (the leviathan's fit after the reveal's guess, a phone's rake); the fitted target is live through the reveal,
       // the lift and (for the longer holds) into the hold, and frozen settleBefore s before the pause (never sooner than settleAfter s after the present):
       // followStill carries what is left, and the still is still. The frozen framing rides the Wick's feet on the swell; the raft's
       // rocking sways the head and the fish a little inside it (the margins are that room)
-      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
+      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 15, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.8, breath: 0.2,
       pose: {
         pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0 },   // (a tiny fish: the flame's core kept, not its tip)
         both:      { elev: 7,  fov: 42, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0.3 },   // (an angler's photograph: near eye level, the hands at the foot, the flame's top at the edge's margin)

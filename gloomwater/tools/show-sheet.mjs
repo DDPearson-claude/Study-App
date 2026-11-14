@@ -80,7 +80,8 @@ const afterFrames = (S, name) => {
   const fr = FIVE.map(([k]) => rec.frames.find((f) => f.label === k)).filter((f) => f && existsSync(join(S.dir, f.file)));
   return fr.length === FIVE.length ? { rec, files: fr.map((f) => join(S.dir, f.file)), labels: fr.map((f, i) => `${FIVE[i][1]}  ·  ${f.t.toFixed(1)} s`) } : null;
 };
-const caption = (rec) => `${CLS(rec)}  ·  ${nice(rec.species)}, ${cm(rec.lengthCm)}  ·  ${POSE[rec.picture?.pose] || ''}  ·  ${rec.tCard.toFixed(1)} s from leaving the water to the card`;
+const poseWords = (rec) => (rec.picture?.pose === 'hang' && /eel/.test(rec.species || '') && rec.lengthCm < 150 ? 'too long and thin to stand up: hung from the planted rod' : POSE[rec.picture?.pose] || '');
+const caption = (rec) => `${CLS(rec)}  ·  ${nice(rec.species)}, ${cm(rec.lengthCm)}  ·  ${poseWords(rec)}  ·  ${rec.tCard.toFixed(1)} s from leaving the water to the card`;
 
 const parts = [text('Gloomwater  ·  the catch, shown: the Wick holds up its fish for us, a still pause, then the card', { size: 24, bold: true, pad: '10x12' })];
 // ---- before and after, the same class

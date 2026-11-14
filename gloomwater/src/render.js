@@ -862,9 +862,15 @@ export function create(ctx) {
       S.init = true;
     } else if (dt > 0) {
       const om = S.still ? (Number(SHOWC.followStill) || 22) : (Number(SHOWC.follow) || 10);
-      springStep(S.sx, T.x, om, dt); springStep(S.sy, T.y, om, dt); springStep(S.sz, T.z, om, dt);
-      springStep(S.sd, T.dist, om, dt); springStep(S.se, T.elev, om, dt); springStep(S.sf, T.fov, om, dt);
-      springStep(S.sw, S.sw.x + wrapAngle(T.yaw - S.sw.x), om, dt);
+      // a far jump of the target (a leviathan's fit after the reveal's guess at its class length, a phone's rake swinging the lens
+      // round it) is taken no faster than maxSpeed m/s at its peak: a critically damped spring peaks at jump·ω/e, so a long way's ω
+      // is lowered to keep that peak, and comes back up as the way shortens (every ordinary catch keeps `follow`)
+      const vmax = Number(SHOWC.maxSpeed) || 15, rad = Math.max(0.3, S.sd.x);
+      const omFor = (err) => Math.min(om, vmax * Math.E / Math.max(1e-3, err));
+      springStep(S.sx, T.x, omFor(Math.abs(T.x - S.sx.x)), dt); springStep(S.sy, T.y, omFor(Math.abs(T.y - S.sy.x)), dt); springStep(S.sz, T.z, omFor(Math.abs(T.z - S.sz.x)), dt);
+      springStep(S.sd, T.dist, omFor(Math.abs(T.dist - S.sd.x)), dt); springStep(S.se, T.elev, omFor(Math.abs(T.elev - S.se.x) * DEG * rad), dt); springStep(S.sf, T.fov, om, dt);
+      const dyaw = wrapAngle(T.yaw - S.sw.x);
+      springStep(S.sw, S.sw.x + dyaw, omFor(Math.abs(dyaw) * rad * Math.cos(clamp(S.se.x, 2, 80) * DEG)), dt);
     }
     const e = clamp(S.se.x, 2, 80) * DEG, yw = S.sw.x, d = Math.max(0.3, S.sd.x * (1 - pushK()));
     S.look.set(S.anchor.x + S.sx.x, S.anchor.y + S.sy.x, S.anchor.z + S.sz.x);
