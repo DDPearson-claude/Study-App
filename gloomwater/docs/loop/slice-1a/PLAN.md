@@ -1135,6 +1135,17 @@ the spec's figures move) and 27 (the open bite).
 - **A line under the name on the title?** §8.5 gives none and the built one names the parked swarm. Default: no line, the
   logotype and **Continue** only.
 
+### 7.2 The lead's rulings (14 November 2026, binding on every lane)
+
+| choice | ruling |
+|---|---|
+| 1 · F16, the lingering bite | **Drop** for slice 1a. T9 asserts `fishLinger()` is null and a re-cast after a pass is a new bite at its own cast's `waterKey`. The docs commit strikes "(built)" from SPEC §3.2 and the lingering test from §13. |
+| 12 · title and pause | Amended. **Settings must be reachable everywhere** (the opening's Reduced motion setting lives there). Title, a trip out or at home: **Continue**, and below it a quiet **Settings** link in the built secondary style. Fresh save: the opening's **Begin** and **Settings** exactly as gw-intro built them. Pause on the water: **Resume · Home · Settings**, no panel title. Escape at home opens the same panel without **Home**: **Resume · Settings**. T56 tests both. This is the one deviation from SPEC §8.5's "Continue only"; the docs commit records it there. |
+| 5 · the parked descent | Confirmed: parked in `meta.loop.parkedRun` at the first Sail, restored by the flag-off boot. |
+| 17 · the 5th bite | Confirmed: at 4 good bites the 5th is already quiet, as SPEC §3.3 says. The sim calls the same `quietTerms`; the stager re-pastes the figures it moves (step 5b). |
+| 27 · the open bite | Confirmed: a bite still open at a reload is refunded on Continue. |
+| title tagline | No line under the logotype (the default above). The swarm line and the death line are never shown under the loop. |
+
 ---
 
 ## Review log (revision 2)
