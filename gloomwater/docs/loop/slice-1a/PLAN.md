@@ -5,6 +5,12 @@ which seam, and how it is proven. Where the spec is silent the plan takes the sm
 (the list is in §7). On-screen words are the spec's (§8); this plan adds none. The opening's own words (**Begin**, the film's
 lines, Skip) are `gw-intro`'s, which SPEC §10 keeps "unchanged"; they are listed for the lead in §7 (PLAN CHOICE 12).
 Revision 2 applies the two critics' review; the **Review log** at the end lists every finding and what was done with it.
+**Revision 3 (14 November 2026) applies the user's ruling on the opening** (§7.3; the design is `docs/loop/OPENING.md`): one
+game mode, so New Descent is the choice of Wick and **Start** only; Start plays the cut scene; the film hands to the Jetty, where
+a very short tutorial ends with **Sail** and a glide out to the Mossmere. Its new words (the five Wicks' names and trait lines,
+**Start**, **New Descent**, Murk's wake line from SPEC §11, the two first-trip tips) are the ruling's and are listed in §7.3.
+It adds P12–P17, T59–T72, PLAN CHOICEs 29–41 and §5.5, and amends §1.2 T36/T43/T44/T53, §2.1–§2.5, §3.3–§3.6, §5.1, §6 and
+PLAN CHOICEs 2, 8 and 12 in place (each amended passage says "(rev. 3)").
 
 **The merged base (M) and the seam (S).** M = `ccr-87831d14-8jseye` + `gw-intro` + `gw-show`, merged by the stager first
 (§6.3 step 0 lists the two conflicts). Lane A then writes the **seam commit S** on M (§2.0: the data tables, the switch,
@@ -76,6 +82,12 @@ Line numbers below are **base** line numbers (`ccr-87831d14-8jseye` at 85f78ae),
 | P9 | Sail again | B, C | T36 |
 | P10 | Close the game mid-trip and continue | A (`restorePending`, the open bite, saves), B (`continueRun`, raft place) | T7, T32, T36, T48 |
 | P11 | Never fail | B (survival, combat parked), A (parked rewards), A+B+C (the gate is scenery) | T26–T29, T46, T58 |
+| P12 | (rev. 3) Press **New Descent** on a fresh save and choose only a Wick: five Wicks, all free, each a look, a name and one fishing trait line; then **Start** | C (the title, the panel), A (`LOOP.wicks`, `TEXT_LOOP.wicks`, `meta.loop.wick`, the traits) | T59, T61, T62, T71 |
+| P13 | (rev. 3) Press Start and go straight into the cut scene (Skip works), the chosen Wick in it, then glide to the Jetty | B (`beginIntro` under the loop, `enterHome('intro')`), C (the panel held under the ink) | T60, T63, T64, T71 |
+| P14 | (rev. 3) Be shown home in a very short tutorial at the Jetty: Murk's wake line, the Chart, the three empty slots, Murk's departure line, Sail; never trapped | C (`loop-tutorial.js`, the Jetty and Chart cues), A (`meta.loop.tutorial`), B (the glides) | T65, T67 |
+| P15 | (rev. 3) Sail and watch the raft glide out to the Mossmere's open water; on the first trip, the built light hints and two short tips teach the cast and the strike | B (the glide out), C (the two tips), A (`LOOP.tutorial`) | T66, T68, T72 |
+| P16 | (rev. 3) Come back later and never see the tutorial again; close the game mid-tutorial and resume it at home | A, B, C | T62, T67 |
+| P17 | (rev. 3) Reach Settings from every title and start over only through Settings' **Forget everything** (in-page confirms) | C | T62, T69 |
 
 ### 1.2 Tests (SPEC §13 slice 1a, and the rule tests of §3.2, §3.4 and §9)
 
@@ -121,15 +133,15 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T33 | an old save gains `meta.loop` and loses nothing (every other meta key byte-identical after `migrateSave`) | A · loop.test |
 | T34 | an old save with start-kit challenges starts a trip with no free bait (`run.bait` `{}`, no `startBoon`, `shells` 0) | A · loop-trip |
 | T35 | a trip saved with the flag on and opened with it off is sold and dropped (`sellStrandedTrip` on a v1 and a v3 envelope), with the tally's own bookkeeping (`tallyBook`: a kept Matriarch gives `legends.belled_matriarch === 1`); a v3 descent saved, then a loop Sail (parked), then a flag-off boot: the same descent is back in `save.run` and `meta.loop.parkedRun` is gone | A · loop.test |
-| T36 | the scenario: fresh save → three fish → Home → +clams → Hold 4 (its card reads **Yours.** until the shelf closes) → a second trip; after every Sail `debug.ui().stack` is empty (desktop 960×540 and phone 390×844) | D · loop-1a.scenario |
+| T36 | the scenario (rev. 3: it starts from a fresh save): the title (**New Descent** · **Settings**) → New Descent → a Wick → **Start** → the film (skipped) → the Jetty tutorial → Sail → the glide out → three fish → Home → +clams → Hold 4 (its card reads **Yours.** until the shelf closes) → a second trip; after every Sail `debug.ui().stack` is empty (desktop 960×540 and phone 390×844) | D · loop-1a.scenario |
 | T37 | measure the visit home and write it into `LOOP.time`; re-run the sim | D (measures), stager (writes, re-runs) |
 | T38 | a kept Belled Matriarch is sold at the tally for 500 (constructed with `makeFish`; a second one in the same trip 200) | A · loop-trip |
 | T39 | flag-off parity: every loop API is null or inert on v1 data and on v3-without-loop data; `sellStrandedTrip` is a no-op on a non-trip envelope | A · loop.test, loop-trip; B, C in their files |
 | T40 | the switch: `resolveLoopFlags` precedence; `applyLoopFlags` on a fake page writes `GW_LOOP`, `GW_V3`, `GW_V3_PHASE = 1`; in node it writes nothing | A · loop.test |
 | T41 | `validate-data --loop` (§3.1 rules) and the v3-without-loop fingerprint | A · validate-data |
 | T42 | the sim reads `data.LOOP` and fails if a moved key is still drafted | A · clams.mjs |
-| T43 | no `/shells?/i`, no "Memories", no "Descent" in the DOM on a loop trip, at the gate, at the Jetty, on the shelf, on the tally, in the pause menu and on the Journal's species page; and an **allow-list**: on the water's HUD, the card, the tally, the Jetty, the shelf, the Chart, the title and the pause menu, every visible text node is a `TEXT_LOOP` string, a species name, a size-class label, a number (with "cm" or a clam glyph), a built record kicker or the card's built "length" label (the logotype and the Settings panel are exempt) | D · scenario; C · ui-loop (the allow-list helper) |
-| T44 | a fresh loop save: the film (Begin) → the Jetty in flow `home`, the raft at the first dock, with Murk's first line at the Chart | D · scenario; B · loop-evening (`startRoute({loopOn: true, intro: true}) === 'home'`, `startRoute({loopOn: true}) === 'trip'`, `startRoute({loopOn: false})` is the built route) |
+| T43 | no `/shells?/i`, no "Memories", no "Descent" in the DOM on a loop trip, at the gate, at the Jetty, on the shelf, on the tally, in the pause menu and on the Journal's species page; and an **allow-list**: on the water's HUD, the card, the tally, the Jetty, the shelf, the Chart, the title and the pause menu, every visible text node is a `TEXT_LOOP` string, a species name, a size-class label, a number (with "cm" or a clam glyph), a built record kicker or the card's built "length" label (the logotype and the Settings panel are exempt). (rev. 3) The allow-list also takes a water's name (the Chart's row), the five Wicks' `CHARACTERS[].name`, `TEXT_LOOP.wicks.*`, `TEXT_LOOP.start`, `TEXT_LOOP.newDescent`, `TEXT_LOOP.murk.wake`, `TEXT_LOOP.back`, the built **Prologue** word (`INTRO.trigger.replay.word`) and `FIRST_EVENING.tips.fe_cast` / `fe_strike`; the New Descent panel joins the scanned screens; "New Descent" is allowed on the fresh title and the panel only | D · scenario; C · ui-loop (the allow-list helper) |
+| T44 | (rev. 3) a fresh loop save: New Descent → `[data-wick]` → Start → the film → the Jetty in flow `home`, the raft at the first dock, the wake line at the Jetty and Murk's first line at the Chart | D · scenario; B · loop-evening (`startRoute({loopOn: true, intro: true}) === 'home'`, `startRoute({loopOn: true}) === 'trip'`, `startRoute({loopOn: false})` is the built route) |
 | T45 | `createTrip` refuses a water not in `meta.loop.maps.lakes` (falls back to `maps.lakes[0]`) | A · loop-trip |
 | T46 | the gate is scenery: with the raft at the gate on a trip, `player.interact()` opens no modal and returns false, `player.interactable` is null for the gate and Murk's barge, no `gate:open` over 60 s (even with `run.legendaries.belled_matriarch` set), `getGateInfo().open === false`; `ui.openDescend()` does nothing while `loopOn()` | B · loop-evening; A · loop-trip (`evaluateGate`/`openGate`/`travel` inert); C · ui-loop |
 | T47 | the Journal's species page on the loop: an entry with `firstEvening: 3` reads "Evening 3" and contains no "Day" and no "descent"; off the loop the built line is unchanged | C · ui-loop |
@@ -138,12 +150,26 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T50 | press and hold: with 1 of 3 slots full a 0.3 s press does nothing and a 0.7 s hold opens the tally; with a full hold a tap does; a press on the pill never starts a cast charge (`fishing.state` stays `idle`); the pill's timer fires at 0.6 s | D · scenario; C · ui-loop (the timer) |
 | T51 | `migrateLoop` on a synthetic v2 block: flat bait counts move under `bait.mossmere`, `hold: 2` becomes `holdSlots: 5`, `raft.hull: 2` is refunded as 700 clams and removed, places are kept, a second migrate changes nothing | A · loop.test |
 | T52 | quiet water on a trip: no sign spawns once `bitesLeft` is 0; `baseTerms` has no `letPass`, `pressure` or `hush` term; `view.favour.bitesLeft` goes 4 → 3 on a bite and back to 4 on a let go | B · loop-evening |
-| T53 | parked buffs on a trip: `getCatchBuffs()` has `wellFed: false`, no boons, no relics, `firstHookTonight: false`; `getOdds` equals `catchChance` with no buff terms | A · loop-trip |
+| T53 | parked buffs on a trip: `getCatchBuffs(cls)` has `wellFed: false`, no boons, no relics; (rev. 3) `character` is the trip's Wick only where its trait applies (`'ashwick'` with `firstHookTonight` as built; `'tallow'` for a Trophy, Elder or legend; else null); with the Wick, `getOdds` equals `catchChance` with no buff terms | A · loop-trip |
 | T54 | a legend's card on a trip renders exactly two buttons, **Keep** (her price, 500 on a first landing) and **Let go**; no weight row, no Strike row, no favour row | C · ui-loop |
 | T55 | the counters read the evening on a trip: evening 1 shows the strike ring and the key hints and refuses the hurry; evening 2 allows the hurry; `getFishingCounters()` reports the evening | B · loop-evening; A · loop-trip; C · ui-loop (`gw-hints`) |
 | T56 | home's camera, mood and sound: `render.getCameraMode()` stays `'sail'` from the film's last frame into the Jetty and through the sail home; `world`'s mood targets in flow `home` are the dawn midpoint (not the title's); the audio mood in `home` is `'hub'` and the water bed is on | B · loop-evening (pure `loopHomeMood` and `zoneSting` cases; `pickMode` through the D scenario), D · scenario |
 | T57 | Escape never strands the player at home: Esc (or a scrim tap) on the tally skips to its end and leaves Sold; Esc on the Jetty does nothing; Esc on the shelf or the Chart returns to the Jetty | C · ui-loop (the modal options); D · scenario |
 | T58 | the parked keys on a trip: R, B and C do nothing and put nothing on screen; E does nothing; F and Space (outside a bite or a show) do nothing | C · ui-loop (`handleKey`); B · loop-evening (main's key guard, through `loop-rules.tripKeyAllowed`) |
+| T59 | (rev. 3) the New Descent panel under the loop: exactly five `button.gw-char[data-wick]` in `LOOP.wicks` order, all enabled; no `.gw-locked`, `.gw-mode`, `.gw-ways`, `.gw-cd-row`, `.gw-chips`, `.gw-rating`, `.gw-lore`, no panel heading or sub-line; its visible words are the five names, one trait line (the lit Wick's), **Back** and **Start**; ← → and 1–5 move the selection, Enter presses Start; off the loop the built panel is unchanged | C · ui-loop (`descentModel`, the key map); D · scenario (DOM, both sizes) |
+| T60 | (rev. 3) Start carries the Wick: `beginIntro({character: 'stub'})` writes `meta.loop.wick = 'stub'` and calls `actors.setCharacter('stub')` before `startIntro`; an unknown or missing id gives `'wick'` (`loopWickId`); the first trip's `run.character === 'stub'`; a reload shows Stub on the title (progression's `syncCharacter` reads `meta.loop.wick` after actors' own `lastCharacter` pass); `meta.lastCharacter` is never written | B · loop-evening (`loopWickId`); A · loop-trip (`createTrip`, `syncCharacter`); D · scenario |
+| T61 | (rev. 3) the Wicks' traits on a trip: for each id, `computeStats(out, trip)` equals the trip's tackle stats plus `LOOP.wicks[id].stats` exactly (Taper's `castMax` 4 m and `hookWindow` +0.10 over the rod's absolute values; Stub `moveSpeed` +1, `lightRadius` +1.5; Tallow `moveSpeed` −0.8); `creelSize === holdSlots`, `maxOil`, `rarityBonus` and every combat stat as for the Wick; Tallow +2 Hold for a Trophy and not for a Prize; Ashwick +3 on the first hook in `gloomtide` and 0 by day; off the loop `computeStats` and `catchBuffHold` are unchanged (the v3 fingerprint) | A · loop-trip, validate-data |
+| T62 | (rev. 3) the title: `loopFreshSave(meta, hasSavedTrip)` is true only with no trip saved, `meta.loop.wick` unset, `meta.loop.tutorial` null and `evenings` 0 (an old v3 save with `runs > 0` and no loop block is fresh); fresh → **New Descent** (focused) · **Settings**; otherwise **Continue** · **Settings** (quiet) and **Prologue** when `introReplayOffered()`; never Begin, Journal, Shrine, Trials, a tagline, the premise, the counts or a "Day N" sub-line under the loop; Continue at home → the Jetty | B · loop-evening (`loopFreshSave`); C · ui-loop (`titleModel`); D · scenario |
+| T63 | (rev. 3) Start → the film in one press: after the click, in the same task, flow is `intro` (no extra screen, no loading screen); Skip works; with no film (`filmAllowed` false: a debug build without the opt-in) Start goes to flow `home` with the raft at the first dock, the tutorial at the wake, `meta.intro` untouched | B · loop-evening (`filmAllowed`); D · scenario (both passes) |
+| T64 | (rev. 3) the hand-off: `intro:done` → flow `home`, `render.getCameraMode() === 'sail'` from the film's last frame, a 3 s glide (`player:glide {kind: 'home'}`) from the film's last place to `docks[0]`; a tap ends it at the dock; Murk's barge is moored when it starts; the save written at its start holds `meta.intro.seen`, `meta.loop.wick` and `meta.loop.tutorial {done: false}`; then `home:enter {from: 'intro'}` | B · loop-evening (fake player); D · scenario |
+| T65 | (rev. 3) the tutorial machine (pure): beats `arrive → wake → chart → out` in order; the wake ends on a Chart tap or opens the Chart `LOOP.tutorial.chartWait` (3 s) after the line; a tap elsewhere only ends the line; Escape on the Chart goes back to the Chart cue; Sail is live from the Chart's first frame and the machine never presses it; the clock waits while another screen is on top; one Murk line at a time, each from `TEXT_LOOP.murk`; the reference run (no taps, Sail pressed 2.5 s after the Chart opens) ≤ 20 s and the tap-through ≤ 8 s, both ≤ `LOOP.tutorial.budget.max` (45 s); `cue()` only ever names a tile or a button | C · loop-tutorial.test |
+| T66 | (rev. 3) the glide out: Sail → `loop.tutorialDone()` saved (first Sail) → `ui.closeAll` → a 3 s glide in flow `home` (`player:glide {kind: 'sailOut'}`) from the dock to `sailPlan(dock, centre).to` → `startTrip`; `run:start` never fires before the glide ends; after `run:start` the raft is at the glide's end (no respawn jump); a tap ends the glide at its end; every later Sail glides too; a blocking screen left open never freezes it (the screens close first) | B · loop-evening (`sailPlan`, a fake player and clock); D · scenario |
+| T67 | (rev. 3) resume and return: a reload during arrive, wake or chart → Continue → the Jetty → the tutorial at the wake (the line again, no glide); with `tutorial.done` no `.gw-cue` anywhere and the goal line drawn; `migrateLoop` gives a block with `evenings > 0` `tutorial {done: true}` and `wick 'wick'`; `freshLoop` has both null | A · loop.test; C · ui-loop; D · scenario |
+| T68 | (rev. 3) the first trip's words: on evening 1, `fe_cast` once, 1.5 s after `run:start` while fishing is `idle`, gone on `fishing:cast`; `fe_strike` (the touch or desktop form) in the first bite's window, gone on `fishing:strike` or `fishing:miss`; each marks `meta.seenTips`; neither on evening 2 or with the tip seen; every other tip, banner and greet stays suppressed (CHOICE 8) | C · ui-loop; D · scenario |
+| T69 | (rev. 3) start over: Settings → **Forget everything** under the loop shows the loop's sub-lines (`TEXT_LOOP.forget`), two in-page confirms (`.gw-confirm`, never `window.confirm`), then a fresh title with **New Descent**; off the loop the built words | C · ui-loop; D · scenario |
+| T70 | (rev. 3) flag-off and v3-without-loop: the title, New Descent (Wick detail, night-mode step, waystones, locks), Begin → film → First Outing and every tip are as built (`ui-screens-v3`, `ui-v3` and the intro tests unchanged; the `intro-flow` scenario with the loop off) | B, C (their files); stager (§4.2) |
+| T71 | (rev. 3) the panel under the ink: at Start, ui-intro holds the `newdescent` panel's picture with the title's (`takeTitle`), both inert and removed under the full ink; no frame shows the title without the panel before the ink | C · ui-loop (a fake K stack); D · scenario (a screenshot 0.1 s after Start) |
+| T72 | (rev. 3) the paths: `validate-data --loop` checks the arrive path (spawn → `docks[0]`) and each `LOOP.tutorial.outPath` stay ≥ raft radius + 0.3 m from every island and pillar of their lake's layout, and that `arrive + murkHold(wake) + chartWait + murkHold(firstChart) + out ≤ budget.max` | A · validate-data |
 
 ---
 
@@ -167,6 +193,9 @@ off M, merged by the stager into M:
   not yet wired into `progression.js`; and **`tools/tests/loop-fixture.mjs`** (owned by A): `loadLoopData()` (sets
   `GW_V3 = true`, `GW_V3_PHASE = 1`, `GW_LOOP = true`, imports `src/data.js?loop`), `freshLoopMeta(D)`, `tripRun(D, over)`,
   and `fakeLoop(over)`, an object with §3.3's methods that B's and C's tests pass where `ctx.progression.loop` goes.
+  (rev. 3) S2 also carries the opening's data (§2.1 item 15: `LOOP.wicks`, `LOOP.tutorial`, the new `TEXT_LOOP` words) and
+  `fakeLoop` gains `wick`, `setWick`, `tutorial`, `setTutorialStep` and `tutorialDone`, so C's tutorial and B's hand-off tests
+  run from their first commit.
 
 S must leave the gate green except the one sim check M already fails (§6.3 step 0); it passes `validate-data` (the built
 passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes later in A) and `check.mjs --quick`. After S, nothing in B, C or D needs a stub for A's names: they import and read them directly
@@ -209,7 +238,8 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
    (`LOOP()` = `D().LOOP_ENABLED === true && run()?.outing === 'trip'` or, for run-less calls, `D().LOOP_ENABLED === true`):
    - `createRun` (309): first line `if (D().LOOP_ENABLED === true) return loop.createTrip({startZone, character})`. `createTrip`
      builds the built run skeleton (the `r` literal at 330–344, `uid('run')`) and then sets: zone = `startZone` if in
-     `meta.loop.maps.lakes` else `maps.lakes[0]`; `outing 'trip'`; `nightMode 'still'`; `character 'wick'`; `shells 0`;
+     `meta.loop.maps.lakes` else `maps.lakes[0]`; `outing 'trip'`; `nightMode 'still'`; (rev. 3) `character = loopWickId(meta.loop.wick)` (a `LOOP.wicks` id, else `'wick'`;
+     never through `characterUsable`'s trial check); `shells 0`;
      `boons {}`; `upgrades {}`; `lures {}`; `bait = {...meta.loop.bait[zone]}` (empty in 1a); `equippedBait = null`;
      `equipped = null`; `creel []`; `bites {}`; `mercy {}`; `evening = meta.loop.evenings + 1`; `tally {dawns: 0, stillNights:
      0, swarmNights: 0}`; `flags.nightLog []`; hp, oil and satiety at the computed maxima. It never calls
@@ -218,7 +248,14 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
      true`, never on `run()` (createRun calls it before `ctx.state.run` is set). After the built body, `out.creelSize =
      meta.loop.holdSlots`; `castMax` and `hookWindow` from `TACKLE.rod[Math.min(t, TACKLE.rod.length - 1)]` for `t =
      meta.loop.tackle.rod` (TACKLE has tiers 0–4; the absolute values the TACKLE comment at data.js:3451 defines; **PLAN
-     CHOICE 13**); relic and journal-perk effects are skipped (`PARKED.meta`); `flags.mercy` is not added.
+     CHOICE 13**); relic and journal-perk effects are skipped (`PARKED.meta`); `flags.mercy` is not added. (rev. 3) The
+     built `character(r.character).effects` are **not** added on a trip; instead `LOOP.wicks[r.character].stats` is added
+     **after** the tackle's absolute `castMax`/`hookWindow` (so Taper's +4 m and +0.10 are not overwritten) and before
+     `creelSize = holdSlots` (PLAN CHOICE 31).
+   - (rev. 3) `syncCharacter` (1509): its `flow:change 'title'` call (1867) and its init call (1872) read
+     `loopWickId(meta.loop?.wick)` under `D().LOOP_ENABLED === true`, `meta.lastCharacter` otherwise. Progression's
+     listener runs after actors' own `lastCharacter` pass (actors.js 218, 224), so the title shows the chosen Wick with no edit
+     to `actors.js` (T60 proves the order).
    - `makeFishV3` (398): on a trip, stamps `fish.waterKey = D().loopWaterKey(place, r.zone)` (fishing already passes
      `place`), so `letGo` never needs its fallback.
    - `measure` (871): the records only (journal, PB, best setup, last lengths, seals, Old Ledger flag, Elder Log,
@@ -255,8 +292,11 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
    `itemLevel: 1`, `perRun: false`, `runless` as built, and `hold` from `tackleHoldAt` for T0–T4 or
    `LOOP.tackle.extraHold` for T5–T6 (never `meta.fitted`). `getFishingCounters` (580): under the loop the expedition count
    is the evening (`run?.evening ?? meta.loop.evenings + 1`) and `firstExpedition` is evening 1.
-   `ownedRelics` (141) `{}` under `PARKED.meta`. `getCatchBuffs` (163): `wellFed false`, `boons {}`, `relics {}`,
-   `firstHookTonight false`. `runLuresOn` (64) false on a trip. `getGearLog` (361) reads the trip's loadout (it already goes
+   `ownedRelics` (141) `{}` under `PARKED.meta`. `getCatchBuffs(cls)` (163) on a trip: `wellFed false`, `boons {}`, `relics {}`;
+   (rev. 3) `character` is `'ashwick'` for Ashwick (with `firstHookTonight` as built: the loop's night is phase `gloomtide`
+   and a trip's `r.day` is always 1), `'tallow'` for Tallow when `cls` is `trophy`, `elder` or a legend, else `null`
+   (PLAN CHOICE 31). Every caller that sums Hold passes the class (fishing.js:1163 does; a class-less call gives Tallow
+   nothing). `runLuresOn` (64) false on a trip. `getGearLog` (361) reads the trip's loadout (it already goes
    through `getLoadout`) and works with a null run at home (`zone` falls back to `'mossmere'`).
 9. **progression-market.js**: `update` (83) and `arrive` (35) return at once under `PARKED.murkInLake`; `offerBounties`
    (484), `expireBounties` (528), `bountyEvent` (571) return under `PARKED.bounties`.
@@ -270,6 +310,31 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
     `ctx.progression.getBitesLeft` (an alias of `loop.bitesLeft`); `fishing:bite {waterKey}` for a spooked bite →
     `fishing:miss {reason: 'spooked', waterKey}` (PLAN CHOICE 22); `run.eveningT` → derived (PLAN CHOICE 21). The same four
     lines go to the lead as a one-line SPEC errata request with the 1a commit.
+14. **The gate is scenery** (the facts' reference): item 6's last bullets (`evaluateGate`, `openGate`, `travel`, `syncGateVisual`).
+15. (rev. 3) **The opening's data and state** (`docs/loop/OPENING.md`), in S2:
+    - `LOOP.wicks` (in the LOOP block): `{ order: ['wick', 'taper', 'stub', 'tallow', 'ashwick'], wick: {stats: {}},
+      taper: {stats: {castMax: 4, hookWindow: 0.10}}, stub: {stats: {moveSpeed: 1.0, lightRadius: 1.5}}, tallow: {stats:
+      {moveSpeed: -0.8}, hold: {n: 2, fromClass: 'trophy'}}, ashwick: {stats: {}, hold: {n: 3, on: 'firstHookEachNight'}} }`
+      (SPEC §10.1's traits; the values are the built `CHARACTERS` effects where §10.1 cites them). A pure
+      `loopWickId(id) → id | 'wick'` beside `loopWaterKey`.
+    - `LOOP.tutorial = { arrive: 3, out: 3, chartWait: 3, slotInk: 0.25, castTipAfter: 1.5, outDist: 15,
+      outPath: { mossmere: [[24, 38], [16, 25.3]] }, budget: { reference: 20, tapThrough: 8, max: 45 } }`.
+    - `TEXT_LOOP` gains: `newDescent: 'New Descent'`, `start: 'Start'`, `back: 'Back'`, `wicks: { wick: 'Balanced.', taper:
+      'Casts farther. More time to strike.', stub: 'Sails faster. A wider light.', tallow: 'Sails slower. Holds big fish
+      better.', ashwick: 'Holds the first fish after dark better.' }`, `murk.wake: "Awake, little Wick? Good. Fish sell. Clams
+      buy. That's the whole of it."` (SPEC §11), `forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm:
+      'Every clam, every piece of gear and every name in the Journal will be lost.' }`. Each passes the originality scan and the
+      no-Shells/Memories/Descent rule except `newDescent` (the user's own word, allowed on the title and the panel only, T43).
+    - The apply block, under `if (LOOP_ENABLED)` only: `CATCH_V3.buffs.wicks.tallow = { hold: 2 }` (the class gate is
+      `getCatchBuffs`'s, item 8; `catchBuffHold` is an exported function and is not edited, §4.1 rule 7).
+    - `progression-loop.js`: `freshLoop` adds `wick: null, tutorial: null`; `migrateLoop` fills them, and a block with
+      `evenings > 0` and no tutorial gets `tutorial {done: true, step: null}` and `wick 'wick'`. Methods (§3.3): `wick()`,
+      `setWick(id)` (in memory; the next save writes it), `tutorial()`, `beginTutorial()` (`{done: false, step: 'arrive'}` when
+      null), `setTutorialStep(id)`, `tutorialDone()` (`{done: true, step: null}`, then `ctx.game.save()` synchronously).
+    - `validate-data --loop` (T72): `LOOP.wicks.order` is the five `CHARACTERS` ids; every `stats` key is a STATS key; the
+      arrive path and each `outPath` clear every island and pillar of their lake's layout by raft radius + 0.3 m; the time
+      budget; `TEXT_LOOP.wicks` has one line per id, each ≤ 8 words.
+    - CONTRACT §14 (item 13) also lists the opening's seam (the rev. 3 rows of §3.3–§3.6).
 
 ### 2.2 Lane B: the evening
 
@@ -293,14 +358,23 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
    the `zone:change` line): first line `if (LOOP_ON) return opts.__intro ? enterHome('intro') : startTrip(opts);`
    (**PLAN CHOICE 2**). `startTrip(opts)`: refuse unless `tripStartAllowed({flow, hasSavedTrip: game.hasSavedRun()})`; if a non-trip
    `savedRun` is waiting, `ctx.progression.loop.parkRun(savedRun)` first;
-   `run = ctx.progression.createRun({startZone: opts.water || 'mossmere', character: 'wick', nightMode: 'still', outing:
-   'trip'})`; on failure `report` and stay home (never `fallbackRun`); `lockRunMode(run, {nightMode: 'still', outing:
+   `run = ctx.progression.createRun({startZone: opts.water || 'mossmere', character: loopWickId(ctx.state.meta.loop?.wick),
+   nightMode: 'still', outing: 'trip'})` (rev. 3: the chosen Wick; createTrip validates it again); on failure `report` and stay home (never `fallbackRun`); `lockRunMode(run, {nightMode: 'still', outing:
    'trip'})`; **no write** to `meta.runs`, `meta.lastCharacter` (**PLAN CHOICE 3**); `ctx.state.run = run; savedRun = null;
    ctx.paused = false; actors.merchant.leave({instant: true}); ctx.ui.closeAll?.()` (the Chart sits on the Jetty; both must
    go before play), `setFlow('playing'); emit('zone:change', {zone: run.zone, prev: null, sail: true})` (the lake is already
    on screen: render does not flash, audio plays `setout`, ui shows no banner, item 18 and §2.3 item 1); `emit('run:start',
-   {continued: false}); game.save()`.
-4. **`game.sail(plan)`** → `startTrip({water: plan.water})`. `game.planSetOut` is left as it is (FE only).
+   {continued: false})`; (rev. 3) `if (opts.at) ctx.player.teleport(opts.at.position, opts.at.yaw)` in the same task (the
+   player's `run:start` listener respawns the raft at the lake's spawn; this puts it back where the glide out ended before
+   any frame is drawn, the `continueRun` restore pattern); `game.save()`.
+4. **`game.sail(plan)`** (rev. 3: the glide out, PLAN CHOICE 38): refuse unless `tripStartAllowed`; `const first =
+   ctx.progression.loop?.tutorial?.()?.done !== true`; if `first`, `ctx.progression.loop.tutorialDone()` (saved before
+   anything moves); `ctx.ui.closeAll?.()` (a blocking Chart would freeze `gameDt` and the glide with it); then, still in flow
+   `home`, `const g = sailPlan(dock, centre, LOOP.tutorial)` (`loop-rules.js`: `outPath[lake]` when given, else `outDist` m
+   from the dock toward the lake's centre); `await player.glide([g.from, g.to], {duration: LOOP.tutorial.out, skippable:
+   true})` with `player:glide {kind: 'sailOut'}`; on a tap (pressAction in `home`) `skipGlide()` then `teleport(g.to,
+   g.yaw)`; then `startTrip({water: plan.water, at: {position: g.to, yaw: g.yaw}})`. A second Sail while the glide runs is
+   ignored (`sailing` latch). `game.planSetOut` is left as it is (FE only).
 5. **`game.endRun(cause)`** (base 235): first lines under `LOOP_ON`: `if (!tripEndAllowed(cause)) { report('endRun', new
    Error('a trip ends only at home: ' + cause)); return; }`, then: `const tally = ctx.progression.loop?.endTrip?.() ?? null`
    (pays, sets `run.active = false`, empties the hold and **saves synchronously**, before anything moves); `resetBeats();
@@ -321,16 +395,22 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
      nearest of world.getDocks()], {duration: 2, skippable: true})` (it steps in flow `home`, item 15; the sky pales to dawn
      through world's `home` mood, item 16). The clams were paid and saved before it started, so a reload during the glide is
      a reload during the tally. At its end (or a tap): `player.teleport(dock.position, dock.yaw)`, then the arrival below.
-   - `from === 'intro'`: the same glide from where the film left the raft to the first dock (2 s, skippable), so the Jetty
-     opens on its one look (SPEC §6.1: the first dock at dawn, the raft tied up). The camera holds `'sail'` through it
-     (item 18), so the film's release of `setIntroCamera(null)` does not pop.
+   - `from === 'intro'` (rev. 3, PLAN CHOICE 35): first `ctx.progression.loop.beginTutorial()` (when the tutorial is not
+     done), Murk's barge moored (the arrival's `merchant.arrive`, moved before the glide), and **`game.save()` at once** (the
+     film's seen flag, `meta.loop.wick` and the tutorial reach the disk before the glide); then the glide from where the film
+     left the raft to the first dock (**3 s**, `LOOP.tutorial.arrive`, `kind: 'home'`, skippable), so the Jetty opens on its
+     one look (SPEC §6.1: the first dock at dawn, the raft tied up). The camera holds `'sail'` through it (item 18), so the
+     film's release of `setIntroCamera(null)` does not pop. At its end (or a tap: `teleport(dock)`), `home:enter`.
+   - `from === 'new'` (rev. 3: Start with no film, item 20): `beginTutorial()`, `showLake('mossmere')`, then as `'title'`.
    - `from === 'title'`: `showLake(meta.loop.lastTrip?.zone ?? meta.loop.maps.lakes[0])` (main's built helper, from
      `gw-intro`), then `player.teleport(dock.position, dock.yaw)`; then the arrival.
    - **the arrival**: `actors.merchant.arrive(dock2.position, dock2.yaw, {instant: true})` (Murk's barge moored at the next
      dock, else beside the first); set the lake's grade if the film did not wear it (`from === 'intro'`);
      `emit('home:enter', {from, tally})`; `game.save()`.
    `game.toHome()` = `enterHome('title', null)` (the title's Continue at home). `game.atHome()` = `LOOP_ON &&
-   !game.hasSavedRun()`.
+   !game.hasSavedRun()`. (rev. 3) The grade: `onIntroDone`'s `if (!graded)` line reads `ctx.state.run?.zone || (LOOP_ON ?
+   INTRO_LAKE : null)`, so the hand-off with no run still eases in the Mossmere's grade (one guarded expression; the built
+   path is unchanged because `ctx.state.run` is set there).
 8. **frame()** (base 731; on `gw-intro`'s version): `const inHome = LOOP_ON && ctx.flow === 'home'`; `running` includes it;
    `CINEMATIC_FROZEN` modules get dt 0 when `inHome`, as in the hub. `pressAction` (518): in `home`, a tap skips a skippable
    glide and nothing reaches fishing or combat. `keydown` (604): no pause in `home` (Esc is the UI's). On a trip, KeyE does
@@ -415,11 +495,33 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
       its `flow !== 'playing'` line; the water bed (M:934, 941) also runs in `home`. `audio-v3.js` `zoneSting`: `if (p.sail)
       return 'setout';` first. For T56, the `home` choice is a pure helper in `audio-v3.js` (`loopHomeMood(flow, loopOn)`)
       that `autoMood` calls, so node can test it.
+19. **The gate is scenery** (the facts' reference): item 15's player line (`interactable` null, `interact()` false on a trip).
+20. (rev. 3) **`game.beginIntro(opts)` under `LOOP_ON`** (the New Descent's Start; flag-off and v3 keep the built one-liner):
+    `if (game.hasSavedRun() || ctx.flow !== 'title') return false; const id = loopWickId(opts.character);
+    ctx.progression.loop?.setWick?.(id); ctx.actors.setCharacter?.(id);` (the film uses the real player Wick, and actors
+    re-apply a look only on `run:start` and flow `title`, so it holds through `intro` into `home`); then
+    `if (filmAllowed({intro: !!ctx.intro && !!INTRO, debug: debugEnabled(), optIn: ctx.intro?.state?.optIn === true}) &&
+    startIntro({replay: false, reduced: opts.reduced})) return true;` else (no film, or it could not start)
+    `ctx.ui.closeAll?.(); enterHome('new'); return true;` (PLAN CHOICE 34). `onIntroDone` is unchanged: its
+    `startNewRun({…, __intro: true})` is `enterHome('intro')` and ignores `opts.character`.
+21. (rev. 3) **`game.loopFresh()`** = `LOOP_ON && loopFreshSave(ctx.state.meta, game.hasSavedRun())`; the title reads it
+    (§2.3 item 5). `introPending` stays for the flag-off and v3 titles. The INTRO LANE B header comment (main.js:315) and the
+    `INTRO.trigger.bypasses` note gain one line each: "under the loop the trigger is New Descent → Start".
+22. (rev. 3) **`loop-rules.js`** gains (pure, T60–T66): `loopFreshSave(meta, hasSavedTrip)`, `loopWickId(id, order)`,
+    `filmAllowed({intro, debug, optIn})` (`intro && (!debug || optIn)`: a debug build plays the film only after the opt-in,
+    as `gw-intro` built), `sailPlan(dock, centre, T, lake)` → `{from, to, yaw}`. **`pressAction`** in `home`: a tap during a
+    `home` or `sailOut` glide skips it (main teleports to the path's end: `skipGlide` moves the raft only for a glide with an
+    `onLine`); nothing reaches the tutorial from main (the Jetty's taps are the UI's).
+23. (rev. 3) **player.js**: the `zone:change` listener (579) does not respawn on `{sail: true}` under the loop (`statsCache =
+    null` still runs); the `home` flow steps the glide (item 15). **Debug** (item 17): `ctx.debug.loop.tutorial(step |
+    'reset' | 'done')` and `ctx.debug.loop.wick(id)` (via `ctx.progression.loop`), for D.
 
 ### 2.3 Lane C: the screens
 
 **Owns:** new `src/ui-loop.js`, `src/ui.js`, `src/ui-hud.js`, `src/ui-hud-v3.js`, `src/ui-screens.js`, `src/ui-icons.js`,
-`src/ui.css` (a marked block at the end), new `tools/tests/ui-loop.test.mjs`.
+`src/ui.css` (a marked block at the end), new `tools/tests/ui-loop.test.mjs`; (rev. 3) new `src/loop-tutorial.js` (the
+tutorial's pure beat machine), new `tools/tests/loop-tutorial.test.mjs`, and in `src/ui-intro.js` (`gw-intro`'s file, in no
+other lane) the two functions `takeTitle` and `dropTitle` only (item 9).
 
 **Work.** Every branch is behind `const loopOn = () => D().LOOP_ENABLED === true` (and `run()?.outing === 'trip'` on the
 water). The words are `TEXT_LOOP`'s, read directly (`D().TEXT_LOOP.home`): S delivers them, so C has no stub literals and
@@ -431,7 +533,8 @@ the stager has nothing to swap.
    `handleKey` (M:850) on a trip swallows `KeyC`, `KeyR` and `KeyB` (returns true, does nothing, says nothing: no built
    creel, no Burn-a-fish, no bait cycle); tips (`TIPS`/`TIPS_V3`), the merchant greet, **every phase banner** (dusk, night,
    dawn) and, on a `zone:change {sail: true}`, the area banner and the lake's lore toast are suppressed (**PLAN CHOICE 8**,
-   revised: §8 is the whole text). The `flow:change` listener (M:689) also closes `jetty | tally | shelf | chart` on
+   revised: §8 is the whole text; rev. 3: except `fe_cast` and `fe_strike` on evening 1, which ui-loop shows itself, item 8).
+   The `flow:change` listener (M:689) also closes `jetty | tally | shelf | chart` on
    `'playing'`. `gw-hints` (M:917) reads the evening on a trip (`run.evening <= 1`), the built `meta.runs` otherwise. The
    HUD is shown in `playing` only, as today.
 2. **ui-loop.js** (new), `createLoopView(K)`: the hold row, the Home pill, the Jetty, the tally, the shelf, the Chart, Murk's
@@ -479,7 +582,21 @@ the stager has nothing to swap.
    - **The Chart** (§5.4 slice 1a): `openModal('chart', …, {onEscape: backToJetty})` from the Chart tile: one row per lake in `meta.loop.maps.lakes`
      (1a: the Mossmere, its open water preselected), the hold's empty slot row under it, one primary **Sail**
      (`data-action="sail"`) → `ctx.game.sail({water: 'mossmere', place: null})`. Murk's first line above Sail on the first
-     visit.
+     visit. (rev. 3) A Sail press disables Sail at once (the glide out runs behind it, §2.2 item 4).
+   - (rev. 3) **The tutorial on the Jetty and the Chart** (item 8): on `home:enter`, when `loop.tutorial().done !== true`,
+     `tutorial.start({from})`. The Jetty reads `tutorial.cue()`: the Chart tile gets `.gw-cue`, Murk and Journal `.gw-dim`
+     (still live), the goal line is not drawn, `.gw-murk-line` shows the wake line (`TEXT_LOOP.murk.wake`). A tap on the
+     sheet outside a tile → `tutorial.tap()`; the Chart tile → `tutorial.onTile('chart')` then the Chart. The Chart under
+     the tutorial: the three slot cells start empty and ink in `LOOP.tutorial.slotInk` s apart as `firstChart` appears;
+     Sail has `.gw-cue`; its `onEscape` also calls `tutorial.onEscapeChart()`; Sail → `tutorial.onSail()` then
+     `ctx.game.sail(...)`. `tutorial.update(dt)` runs in `loopView.update` on real dt, and the machine's clock only moves
+     while the top modal is `jetty` or `chart`. When the machine asks for the Chart (`tutorial.wantsChart`), ui-loop opens it
+     as the tile would.
+   - (rev. 3) **The first trip's two words** (PLAN CHOICE 39): on evening 1 (`run.evening === 1`), `fe_cast` as one `'tip'`
+     toast `LOOP.tutorial.castTipAfter` s after `run:start` while `fishing.state === 'idle'` and `!seenTips.fe_cast`, removed on
+     `fishing:cast`; `fe_strike` (`K.isTouch ? touch : desktop`) as a short `'tip'` line on the first `fishing:bite` of
+     evening 1 while `!seenTips.fe_strike`, removed on `fishing:strike` or `fishing:miss` (shown directly, not through
+     `updateTips`, which refuses during a bite). Each marks `meta.seenTips`. Nothing else is said on the water.
    - **Murk's lines** (§8.6): `murkOnce(id)` = `loop.sayOnce(id)`; at the Jetty or the Chart in `.gw-murk-line`; on the water
      as one `'lore'` toast after the card closes (toast already holds flavour behind modals and the show). In 1a: `firstChart`
      (at the Chart, evening 1), `firstSale` (after the first non-empty Sold), `firstQuiet` (the first `view.favour.bitesLeft
@@ -507,13 +624,31 @@ the stager has nothing to swap.
      `/\+(\d+)/` parse stays for every other card) and starts at `gw-show`'s delayed t0 (after the stamp press). `onKey` map
      `{Digit1: 'keep', Digit2: 'letgo', Numpad1, Numpad2}`; Digit1 and Numpad1 do nothing while Keep is disabled. The unfold, the ruler, the knots, the length count and the stamp
      are `gw-show`'s, untouched. `doFishAction(fish, 'letgo')` shows no lore toast.
-   - **`showTitle`** (M:301): under `loopOn()` the tagline is not drawn (`.gw-tagline` empty and hidden: §8.5 gives none,
-     §5.4) and the built `if (hasRun)` Continue (M:332–335) is skipped; the intro's fresh-save block runs as built (**Begin**
-     and Settings, then its own return: the opening's words, SPEC §10); its Prologue replay word is **not** added under the
-     loop; then the loop branch, placed just after `// <<< INTRO LANE B` and before New Descent: a trip out
-     (`ctx.game.hasSavedRun()`) → **Continue** (`continueRun`, no sub-line); at home → **Continue** (`ctx.game.toHome()`);
-     then return (no Settings, New Descent, Journal, Shrine, Trials) (**PLAN CHOICE 12**). `.gw-title-meta` and the premise
-     are removed.
+   - **`showTitle`** (M:301; rewritten in rev. 3, PLAN CHOICEs 12 and 33): one loop branch right after `nav` and `add` are
+     defined and **before** the built `if (hasRun)` (M:332), so neither the built Continue nor the intro's Begin block runs
+     under the loop. It hides `.gw-tagline` (§5.4) and removes `.gw-title-premise` and `.gw-title-meta`. Then:
+     `if (ctx.game.loopFresh?.() === true)`: **New Descent** (`TEXT_LOOP.newDescent`, primary, autofocus) →
+     `openNewDescent()`, a quiet **Settings** → `openSettings({titleChild: true})`, `prewarmIntro()` (built; the film's stage
+     builds under this title), return. Otherwise: **Continue** (primary, autofocus, no sub-line) → `K.closeAll();
+     ctx.game.hasSavedRun() ? ctx.game.continueRun() : ctx.game.toHome()`, a quiet **Settings**, and, when
+     `ctx.game.introReplayOffered() === true`, the built quiet **Prologue** button in `.gw-title-lower` (the same code as
+     M:349–357); return. Never Begin, Journal, Shrine or Trials, never a "Day N" sub-line. The fresh branch keys on
+     `loopFresh`, never on `introPending` (false in a debug build without the opt-in). A pure `titleModel({fresh, trip,
+     replay})` → the word list, for T62.
+   - (rev. 3) **`openNewDescent`** (M:379): first line `if (loopOn()) return openLoopDescent();`. `openLoopDescent` is a new
+     closure beside it: `K.openModal('newdescent', render, {state: {sel: ctx.progression.loop?.wick?.() ?? 'wick'},
+     onEscape: () => K.closeModal('newdescent'), onKey})`. The render: `panel(entry, body, {title: '', sub: '', cls: 'gw-p-wide
+     gw-p-descent gw-loop-descent'})`; a `.gw-chars` row of the five ids in `LOOP.wicks.order`, each `button.gw-char
+     [data-wick=id]` with `wickPortrait(CHARACTER.look)` and `CHARACTER.name` (`.gw-on` on the selection); under it one
+     `<p class="gw-loop-trait">` with `TEXT_LOOP.wicks[sel]`; the foot: **Back** (`TEXT_LOOP.back`, closes the panel) and
+     **Start** (`TEXT_LOOP.start`, `data-action="start"`, primary, flame icon, autofocus) → `ctx.game.beginIntro({character:
+     s.sel})`, with **no** `K.closeAll()` first (ui-intro holds the panel, item 9). It never calls `characters()`,
+     `challenges()`, `modeCards`, `nightsStep`, `ratingFor` or the waystones; no `.gw-locked`. `onKey`: ← → (and A D) move the
+     selection, Digit/Numpad 1–5 pick, Enter presses Start. A pure `descentModel(D, sel)` → `{cards: [{id, name}], line,
+     words}` for T59. The built panel is untouched off the loop.
+   - (rev. 3) **Settings' Forget everything** (M:1520–1521): under `loopOn()` the row's small line is `TEXT_LOOP.forget.row`
+     and the first confirm's sub-line `TEXT_LOOP.forget.confirm`; the confirms stay the in-page `confirm()` modal (M:209),
+     never `window.confirm`. Nothing else in Settings changes.
    - **`openPause`** (M:1595): under a trip the panel has **no title and no sub-line** (no "The Water Waits", no day, level
      or Wick), and the menu is **Resume** (primary), **Home** (dimmed with no words while
      `!ctx.game.canGoHome({fromPause: true}).ok`; else close the pause, `resume()`, `ctx.game.goHome()`), **Settings** (the
@@ -526,7 +661,25 @@ the stager has nothing to swap.
 6. **ui-icons.js**: `ICONS.clam`, a closed bivalve on the 24 grid (two valves and a hinge line, `currentColor`), distinct
    from the Shells fan.
 7. **ui.css**: one block at the end, `/* >>> LOOP 1a */ … /* <<< LOOP 1a */`, every rule under `.gw-loop` or a loop-only
-   class. It must not fight `gw-show`'s `.gw-cc-live` stamp and hero animations.
+   class. It must not fight `gw-show`'s `.gw-cc-live` stamp and hero animations. (rev. 3) `.gw-loop-descent` (desktop: cards
+   128×164 in one centred row, gap 16, the trait line 16 px under it; phone ≤ 480 px: the panel in the lower half, cards
+   62 px wide, gap 7, the foot's buttons ≥ 56 px above `--sab`); `.gw-cue` (a soft ink breathe of opacity and brightness
+   inside the element's own box, 1.6 s; under `prefers-reduced-motion` or the game's Reduced motion setting a static gold
+   edge); `.gw-tile.gw-dim` (opacity 0.55, still clickable); the slot cells' ink-in. Nothing is drawn in world space.
+8. (rev. 3) **`src/loop-tutorial.js`** (new, pure: no THREE, no DOM): `createLoopTutorial({bus, loop, data, now})` →
+   `{start({from}), update(dt, {top}), tap(), onTile(id), onEscapeChart(), onSail(), step, isActive(), cue() → {tile:
+   'chart' | null, sail: boolean, dim: boolean, line: string | null}, wantsChart, state}`. Beats `arrive → wake → chart →
+   out` (`arrive` is main's glide: the machine starts at `wake` on `home:enter`). Times from `LOOP.tutorial`; Murk's hold
+   from `murkHold` imported from `./first-evening.js` (a pure export; the module has no top-level side effects, and its
+   `create` is never called). It emits `firstEvening:line {kind: 'murk', key, text, hold, loop: true}` (audio's built
+   grumble, audio.js:1239) and `loop:tutorial {step, prev}`; never `firstEvening:step`; never touches fishing. It writes the
+   save only through `loop.setTutorialStep` and `loop.tutorialDone` (the latter from `game.sail`, §2.2 item 4; `onSail`
+   only ends the machine). ui-loop creates it only when `LOOP_ENABLED`. Tests: `tools/tests/loop-tutorial.test.mjs` (T65),
+   with a fake bus and `fakeLoop`.
+9. (rev. 3) **`src/ui-intro.js` `takeTitle` / `dropTitle`**: `takeTitle` also holds an open `newdescent` entry the same way
+   it holds `title` (`K.closeModal('newdescent', {hold: true})`, its element kept with the title's), and `dropTitle` removes
+   both; with no `newdescent` open the functions behave byte for byte as built. So at Start the panel stays standing, inert,
+   until the opening ink is full (T71).
 
 ### 2.4 Lane D: the scenario and the visit home
 
@@ -536,11 +689,23 @@ dispatch line: `--scenario=loop-1a`).
 D writes against the seam (§3: DOM hooks, `window.__gw`, `ctx.debug.loop`) and does not run a browser in its worktree. The
 stager runs both scripts on the merged build (§6).
 
-- **loop-1a.scenario.mjs** (T31, T32, T36, T43, T44, T46, T50, T56, T57): boot a fresh save at `?loop=1` (pre-seed
-  `meta.intro = {seen: true}` for the main path; a second pass with no seed first calls `__gw.debug.intro('auto', true)` and
-  re-shows the title, as `intro-flow.scenario` does, because a debug build shows no Begin without the opt-in, then checks
-  Begin → the film skipped → flow `home`, the raft at the first dock and `render.getCameraMode() === 'sail'` from the film's
-  last frame) → the Jetty (flow `home`,
+- **loop-1a.scenario.mjs** (T31, T32, T36, T43, T44, T46, T50, T56, T57; rev. 3 also T59–T64, T66–T69, T71). **Rev. 3:
+  the main pass starts from a fresh save** at `?loop=1` with no seed: `__gw.debug.intro('auto', true)` first and the title
+  re-shown (a debug build plays the film only after the opt-in), then: the title shows exactly **New Descent** and
+  **Settings** (T62) → New Descent → the panel (T59: five `[data-wick]`, the words, no `.gw-mode`/`.gw-ways`/`.gw-cd-row`/
+  `.gw-locked`) → ArrowRight (Taper lit, its one line) and a click on `[data-wick=taper]` → **Start** (`[data-action=start]`): flow `intro` in the same task
+  (T63), a screenshot 0.1 s later shows the panel under the ink (T71) → Skip → flow `home`, `getCameraMode() === 'sail'`,
+  `player:glide {kind: 'home'}`, the raft at `docks[0]` after 3 s (T64) → the Jetty with the wake line, `.gw-cue` on
+  `[data-tile=chart]`, Murk and Journal `.gw-dim`, no goal line → reload here once (Continue only, then the Jetty and the
+  wake line again: T67) → tap Chart → the Chart: three empty `.gw-slot` cells, Murk's `firstChart`, Sail `.gw-cue` → Esc
+  (the Jetty, the Chart cue) → Chart → Sail: `meta.loop.tutorial.done` saved, `player:glide {kind: 'sailOut'}` in flow
+  `home`, then flow `playing`, `run.character === 'taper'`, the raft at the glide's end (T66) → the `fe_cast` toast once
+  (T68) → keeps 1–2 by `debug.instantCatch` (the first real bite shows `fe_strike`) → … A **second pass** with no opt-in:
+  fresh save → New Descent → Start → no film: flow `home`, the tutorial at the wake, `meta.intro` unset (T63). A **third
+  pass** after the main one: reload → the title shows **Continue** · **Settings** · **Prologue** and no New Descent; Settings
+  → Forget everything → the two in-page confirms with the loop's words → a fresh title with New Descent (T69). The main
+  pass then continues as revision 2 wrote it (the scenario takes `--wick=<id>` for the stager's step 4b; default
+  `taper`): the Jetty (flow `home`,
   three `[data-tile]`, the goal line `Next: Hold 4 · 30`, the purse) → Chart → Sail → keeps 1–2 by `debug.instantCatch`
   then `[data-action=keep]` (the `em[data-to]` equals `loop.priceOf`) → keep 3 through the real path (`fishOutcome('land')`
   + `forceBite` + `fishStrike` + `fishPlayTo`, hurrying the show), with the press-and-hold checks of T50 at 1 of 3 (a 0.3 s
@@ -555,7 +720,9 @@ stager runs both scripts on the merged build (§6).
   and its allow-list (the helper from ui-loop) on every screen.
 - **loop-time.scenario.mjs** (T37): times each leg on a deterministic clock (`gw-show`'s `show-seq` rAF takeover): Home press
   → tally open, the tally per fish (3 fish, one giant-less), Sold → Jetty, Jetty → shelf → one buy → back, Jetty → Chart →
-  Sail → `run:start`, and the glide. It prints `{home, sale, shop, out, show}` in seconds as JSON for the stager.
+  Sail → `run:start`, and the glide. It prints `{home, sale, shop, out, show}` in seconds as JSON for the stager. (rev. 3)
+  It also prints `tutorial` (from `intro:done` to `run:start`, with no taps and Sail pressed 2.5 s after the Chart opens;
+  ≤ 45 s, T65's budget) and `sailOut` (Sail → `run:start`, the 3 s glide, which `LOOP.time.out` now includes).
 
 ### 2.5 Cross-file requests (the stager applies them after merging the owner)
 
@@ -582,6 +749,12 @@ owner's file exactly as written here.
 | B → A | progression.js module exports | `sellStrandedTrip` re-exported beside `migrateSave` (base 31), found by `moduleExport` |
 | A → B | fishing.js `bite()` / `spook()` | `waterKey` on `fishing:bite` and on `fishing:miss {reason: 'spooked'}` |
 | B, C, D → A | data.js, core.js, progression-loop.js, loop-fixture.mjs | everything in the seam commit S (§2.0); delivered before B, C and D branch |
+| C → B (rev. 3) | main.js `game` | `beginIntro({character})` under the loop (item 20), `loopFresh()` (item 21); `introReplayOffered`, `prewarmIntro`, `toHome` as built or planned |
+| C, B → A (rev. 3) | progression-loop.js | `wick()`, `setWick(id)`, `tutorial()`, `beginTutorial()`, `setTutorialStep(id)`, `tutorialDone()` (§2.1 item 15) |
+| B → C (rev. 3) | ui-intro.js `takeTitle` | holds an open `newdescent` with the title (§2.3 item 9); without it the panel pops off before the ink (cosmetic only) |
+| C → B (rev. 3) | main.js `game.sail` | `ctx.ui.closeAll` before the glide out; `run:start` only after it; `home:enter {from: 'intro' \| 'new' \| 'title' \| 'trip'}` |
+| D → B (rev. 3) | main.js debug | `ctx.debug.loop.tutorial(step \| 'reset' \| 'done')`, `ctx.debug.loop.wick(id)` (§2.2 item 23) |
+| A, C → B (rev. 3) | player.js | `player:glide {state, kind: 'home' \| 'sailOut'}` on the two loop glides; no respawn on `zone:change {sail: true}` |
 
 ---
 
@@ -735,6 +908,13 @@ export function tallyLines(creel) → TallyLine[];         // ascending by clams
                                                          // 'sailOut' rotates meta.loop.said.sailOut (an index) and never returns null
   parkRun(run) → void,                                   // a saved non-trip descent → meta.loop.parkedRun (kept in the save, never resumed under the loop;
                                                          // the flag-off boot puts it back, sellStrandedTrip)
+  // (rev. 3) the opening (docs/loop/OPENING.md)
+  wick() → WickId,                                       // meta.loop.wick through loopWickId ('wick' when unset)
+  setWick(id) → WickId,                                  // New Descent's Start; in memory (the next save writes it; flow 'intro' saves nothing)
+  tutorial() → { done, step } | null,                    // null before the opening
+  beginTutorial() → { done, step },                      // when null: { done: false, step: 'arrive' }; otherwise unchanged
+  setTutorialStep(id) → void,                            // a readout; a resume always starts at 'wake'
+  tutorialDone() → void,                                 // { done: true, step: null }, then ctx.game.save() synchronously (the first Sail, before it moves)
 }
 ```
 
@@ -774,6 +954,22 @@ giants, bait); `lastTrip = {id, evening, total, lines, seen: false}`; `run.creel
 `requestSave`); emit `loop:tally {…lastTrip}`. `writeSave` stores meta and the inactive run as one localStorage value
 (core.js:350 drops an inactive run), so a reload sees either the trip still out (nothing paid) or the paid meta and no run.
 
+(rev. 3) Two more keys in `meta.loop` (`freshLoop`: both `null`; `migrateLoop`: a block with `evenings > 0` and no tutorial
+gets `{done: true, step: null}` and `wick: 'wick'`), and the built records the opening writes. A save during the tutorial:
+
+```json
+{
+  "loop": { "v": 3, "clams": 0, "evenings": 0, "holdSlots": 3, "wick": "taper",
+            "tutorial": { "done": false, "step": "wake" }, "said": {}, "lastTrip": null, "…": "the rest of the block above" },
+  "intro": { "seen": true, "skipped": true },
+  "seenTips": {}
+}
+```
+
+After the first Sail: `"tutorial": {"done": true, "step": null}`, `"said": {"firstChart": true}`; after the first trip's two
+words, `"seenTips": {"fe_cast": true, "fe_strike": true}`. `meta.intro` is `gw-intro`'s record (unchanged); a Start with no
+film leaves it unset.
+
 Never written under the loop: `meta.runs`, `meta.lastCharacter`, `meta.deaths`, `meta.bestDay`, `meta.memories`,
 `meta.memoriesEarnedTotal`, `meta.relics`, `meta.unlocks`, `meta.challenges`, `meta.fitted`, `meta.lures`. Written as built
 (the records SPEC §9 keeps shared): `meta.journal`, `meta.totalFish`, `meta.elderLog`, `meta.firstAncients`, legend wounds,
@@ -790,6 +986,9 @@ game.toHome() → void                      // the title's Continue at home (ent
 game.atHome() → boolean                   // LOOP_ON && !hasSavedRun()
 game.hasSavedRun() → boolean              // built; under the loop true only for a saved trip
 game.endRun(cause)                        // LOOP: anything but 'home' is reported and refused
+game.beginIntro({ character, reduced })   // (rev. 3) LOOP: setWick + actors.setCharacter, then the film (filmAllowed) or enterHome('new')
+game.loopFresh() → boolean                // (rev. 3) the title's fresh branch: LOOP_ON && loopFreshSave(meta, hasSavedRun())
+game.sail({ water, place }) → boolean     // (rev. 3) also: tutorialDone on the first Sail, closeAll, the 3 s glide out, then startTrip({at})
 ```
 
 Main is never imported in node, so for T31 lane B puts its pure guards in a new file it owns, `src/loop-rules.js`, imported by
@@ -801,6 +1000,11 @@ export function tripStartAllowed({ flow, hasSavedTrip }) → boolean;     // flo
 export function goHomeAllowed({ flow, outing, paused, fromPause, cinematic, inShow, fishingState, blocking, cardOpen, notePending }) → { ok, why };
 export function startRoute({ loopOn, intro }) → 'home' | 'trip' | 'built';     // game.startNewRun's first line (T44)
 export function tripKeyAllowed(code) → boolean;                                  // main's keydown on a trip: false for KeyE, KeyF, Space outside a bite or a show
+// (rev. 3) the opening
+export function loopFreshSave(meta, hasSavedTrip) → boolean;   // !hasSavedTrip && no meta.loop.wick && meta.loop.tutorial == null && !(meta.loop.evenings > 0)
+export function loopWickId(id, order = ['wick','taper','stub','tallow','ashwick']) → WickId;   // a known id, else 'wick'
+export function filmAllowed({ intro, debug, optIn }) → boolean;  // intro && (!debug || optIn)
+export function sailPlan(dock, centre, T, lake) → { from, to, yaw };   // T.outPath[lake] when given, else T.outDist m from the dock toward the centre
 ```
 
 `notePending` is `fishing.state === 'lost' && fishing.isAnchored()`; `cardOpen` is `ctx.ui.isCatchOpen?.() === true`.
@@ -823,13 +1027,19 @@ saved non-trip descent is handed to `ctx.progression.loop.parkRun(run)` at the f
 | `home:enter` | main (B) | `{from: 'trip' \| 'title' \| 'intro', tally: TallyResult \| null}` | loop |
 | `loop:buy` | progression (A) | `{item, price, clams}` | loop |
 | `flow:change` | main (built) | new flow string `'home'` (never `'hub'`) | loop |
+| `home:enter` (rev. 3) | main (B) | `from` also `'new'` (Start with no film) | loop |
+| `player:glide` (rev. 3) | player (B, built) | `{state: 'start' \| 'end', kind: 'home' \| 'sailOut'}` for the hand-off and the glide out | loop adds the kinds |
+| `loop:tutorial` (rev. 3) | loop-tutorial (C) | `{step, prev}`, `step` ∈ `wake \| chart \| out \| done` | loop |
+| `firstEvening:line` (rev. 3) | loop-tutorial (C) | `{kind: 'murk', key: 'wake' \| 'firstChart', text, hold, loop: true}`, for audio's built grumble; never `firstEvening:step` | loop |
 
 ctx fields: `ctx.progression.loop` (§3.3); `ctx.progression.getBitesLeft(key)` (alias); `ctx.fishing.waterAt({x, z})`;
 `ctx.fishing.view.favour.bitesLeft` (number on a trip), `.quiet` (bitesLeft ≤ 0);
 `ctx.fishing.inShow` (`gw-show`); `ctx.survival.getPhaseInfo().open` (true on a trip's night); `ctx.ui.loop` (C's view);
 `ctx.debug.loop` (B, debug builds). DOM hooks for D: `[data-loop=home|jetty|tally|shelf|chart]`, `[data-tile=murk|chart|journal]`,
 `[data-action=keep|letgo|sold|sail]`, `[data-buy="hold:4"|"rod:1"|…]`, `.gw-hold .gw-slot[data-filled]`, `.gw-home.gw-pulse`;
-modal ids `jetty`, `tally`, `shelf`, `chart`, `catch` (read through `window.__gw.debug.ui().openModal`).
+modal ids `jetty`, `tally`, `shelf`, `chart`, `catch` (read through `window.__gw.debug.ui().openModal`). (rev. 3)
+`button.gw-char[data-wick=wick|taper|stub|tallow|ashwick]`, `.gw-loop-trait`, `[data-action=start]`, `.gw-cue`, `.gw-dim`,
+modal id `newdescent`; `ctx.ui.loop.tutorial` (the machine's `state`, `step`, `cue()`); `ctx.game.loopFresh`.
 
 ---
 
@@ -899,25 +1109,31 @@ Before each browser run, clear `localStorage` `gloomwater.loop` (a stored loop f
 
 ## 5. The opening and the show under the loop
 
-### 5.1 A fresh save under `GW_LOOP` (the opening, `gw-intro`)
+### 5.1 A fresh save under `GW_LOOP` (the opening, `gw-intro`; rewritten in rev. 3)
 
-- The title of a fresh save says **Begin** (the intro's block, unchanged). Begin plays the 18 s film. At `intro:done`,
-  `onIntroDone` (unchanged) writes `meta.intro = {seen, skipped}` and calls `game.startNewRun({…, __intro: true})`. Under the
-  loop that call becomes `enterHome('intro')`: flow `home`; the raft glides 2 s from where the film left it to the first
-  dock while the sky eases to home's dawn look, and the Jetty opens on its one look (SPEC §6.1). The camera stays in
-  `'sail'` from the film's last frame (render's `home` branch, §2.2 item 18), so releasing the film's camera does not pop.
-  The Chart's first visit shows Murk's line "Three slots in that hold. Fill them and come home." This is SPEC §11 ("It plays … before the Jetty while the cove is not built"; "the game opens at the
-  Jetty with the same departure line") and §8.6 ("the first evening, at the Chart") (**PLAN CHOICE 2**).
-- `onIntroDone` eases the lake's grade only `if (!graded)` and reads `ctx.state.run?.zone`, which is null at home; `enterHome
-  ('intro')` therefore sets the Mossmere's grade itself when the film did not wear it.
-- `introPending` stays `meta.runs === 0 && !meta.intro.seen`. The loop writes no `meta.runs`, so the film plays exactly once
-  (`seen` is set at the hand-off) and `replayOffered` (runs > 0 or seen) still offers the Prologue word.
-- No film (a debug build without opt-in, no INTRO data, a returning save): the title's one word under the loop is
-  **Continue**, which goes to the Jetty (`game.toHome()`: the last water loaded with `showLake`, the raft at its first
-  dock). The Prologue replay word is not offered under the loop (§8.5: Continue only).
-- `game.save()` returns early while flow is `intro` (gw-intro main.js:289); `enterHome` saves after `setFlow('home')`, so the
-  seen flag and the fresh `meta.loop` reach the disk.
-- The intro-flow scenario runs with the loop off and still sees the First Outing (outing `first`).
+The whole design is `docs/loop/OPENING.md`; this is how the built opening is reused.
+
+- The title of a fresh loop save (`game.loopFresh()`) says **New Descent** and **Settings** (§2.3 item 5). **Begin** is not
+  shown under the loop: the user's word is New Descent, and its panel offers only the Wick (§2.3, PLAN CHOICE 29). Start
+  calls `game.beginIntro({character})` (§2.2 item 20), which sets the Wick and plays the built 18 s film through the built
+  `startIntro` (the stage prebuilt under the title by `prewarmIntro`, so no loading screen); the panel is held under the
+  ink with the title (§2.3 item 9). Skip is as built.
+- At `intro:done`, `onIntroDone` (unchanged but for the one grade expression, §2.2 item 7) writes `meta.intro = {seen,
+  skipped}` and calls `game.startNewRun({…, __intro: true})`, which under the loop is `enterHome('intro')`: the tutorial
+  begins, Murk's barge is moored, the save is written, then flow `home` and the **3 s** glide from where the film left the
+  raft to the first dock while the sky eases to home's dawn look (**PLAN CHOICEs 2 and 35**). The camera stays in `'sail'`
+  from the film's last frame (§2.2 item 18), so releasing the film's camera does not pop.
+- Then the tutorial at the Jetty (§5.5): the wake line, the Chart, the three empty slots and Murk's departure line
+  "Three slots in that hold. Fill them and come home." (SPEC §11, §8.6), **Sail**, and the glide out.
+- `introPending` stays `meta.runs === 0 && !meta.intro.seen` and is read only by the flag-off and v3 titles. Under the loop
+  the film is played by Start whenever `filmAllowed` (a release build; a debug build after the opt-in), and replayed by the
+  **Prologue** word on the Continue title when `replayOffered` (the lead keeps it: §7.3).
+- No film (a debug build without the opt-in, no INTRO data, a start failure): Start goes to `enterHome('new')` and the
+  tutorial starts at the wake (PLAN CHOICE 34). A returning save's title is **Continue** · **Settings** (· **Prologue**);
+  Continue at home goes to the Jetty (`game.toHome()`), where a tutorial not yet done resumes at the wake.
+- `game.save()` returns early while flow is `intro` (gw-intro main.js:289); `enterHome('intro')` saves right after
+  `setFlow('home')`, so the seen flag, `meta.loop.wick` and the tutorial reach the disk before the glide.
+- The intro-flow scenario runs with the loop off and still sees Begin and the First Outing (outing `first`).
 
 ### 5.2 The Keep and Let go buttons on the unfolding card (`gw-show`)
 
@@ -953,9 +1169,26 @@ Before each browser run, clear `localStorage` `gloomwater.loop` (a stored loop f
 
 SPEC §8.5 gives the title's words as **Continue** only; it names no tagline, and §11 says §8 is the whole text of the loop.
 The built tagline ends "Burn back the swarm." (the swarm is parked). **§8.5's wording is therefore no tagline at all:**
-under the loop the title shows the logotype and **Continue**, nothing else (`.gw-tagline` empty and hidden). `TEXT.tagline`
+under the loop the title shows the logotype and its words, nothing else (`.gw-tagline` empty and hidden; rev. 3: the words
+are **New Descent** · **Settings** on a fresh save, **Continue** · **Settings** (· **Prologue**) otherwise, §2.3 item 5). `TEXT.tagline`
 and `taglineAlts` are unchanged for every other build. (PLAN CHOICE 14 of revision 1, a built alternative line, is
 withdrawn.) Whether the user wants a line under the name is a question for the user (§7.1); the default is none.
+
+### 5.5 The tutorial at home (rev. 3; `docs/loop/OPENING.md` §6)
+
+| beat | owner | on screen | the line | advances on | budget |
+|---|---|---|---|---|---|
+| arrive | B (`enterHome('intro')`) | the 3 s glide to `docks[0]` | none | its end, or a tap | 3 s |
+| wake | C (`loop-tutorial`, the Jetty) | the three tiles, the Chart tile `.gw-cue`, Murk and Journal `.gw-dim`, the purse, no goal line | `TEXT_LOOP.murk.wake` (5.95 s, the grumble) | a Chart tap; a tap elsewhere ends the line; the Chart opens itself `chartWait` (3 s) after the line | ≤ 9 s |
+| chart | C (the Chart) | the Mossmere chosen, three empty slots inking in 0.25 s apart, Sail `.gw-cue` and live | `TEXT_LOOP.murk.firstChart` (once, `sayOnce`) | **Sail**, by the player only; Esc → back to the wake's cue (no line) | ≈ 3 s |
+| out | B (`game.sail`) | the screens close; the 3 s glide out | none | its end, or a tap | 3 s |
+
+With no taps and Sail pressed 2.5 s after the Chart opens: 3 + 5.95 + 3 + 2.5 + 3 ≈ 17.5 s (T65's reference ≤ 20 s); tapping
+through ≈ 5 s (≤ 8 s); the validator's budget sum ≤ 45 s (T72). `meta.loop.tutorial.done` is written at Sail, before the
+glide. A reload anywhere before Sail resumes at the wake. The first trip then teaches the cast and the strike with the built
+hints (the key glyphs and the strike ring on evening 1, T55) and the two tips `fe_cast` and `fe_strike` (§2.3 item 2,
+PLAN CHOICE 39). `first-evening.js` is not used (it is the cove's and stays behind `FE_ON`); only its pure `murkHold` is
+imported.
 
 ---
 
@@ -969,15 +1202,18 @@ withdrawn.) Whether the user wants a line under the name is a question for the u
   `loop.test.mjs` and `loop-trip.test.mjs` (T1, T2, T4–T8 counting, T10–T12, T18–T25, T28, T29, T33–T35, T38–T42, T45, T46
   progression side, T48, T51, T53, T55 counters);
   `node tools/sim/clams.mjs --quick` all checks (or a stated list of what moved and why, §6.4); `node tools/sim/
-  roster-check.mjs`; `progression*.test.mjs` unchanged and green.
+  roster-check.mjs`; `progression*.test.mjs` unchanged and green; rev. 3: T53 as amended, T60 (progression side), T61, T67
+  (migrate), T72.
 - **B:** `node tools/check.mjs --quick` green including `loop-evening.test.mjs` (T3, T8 emits, T9, T11 fishing side,
   T13–T17, T26, T27, T30 fishing side, T31 guards, T44 routing, T46 player side, T49, T52, T55 fishing side, T56 pure
-  cases, T58 main side); `survival-v3`, `fishing-*`, `combat-*`, `player-cove`, `audio-*`, `render-*`,
+  cases, T58 main side; rev. 3: `loopFreshSave`, `loopWickId`, `filmAllowed`, `sailPlan`, the glides' order with a fake
+  player: T60, T62–T64, T66); `survival-v3`, `fishing-*`, `combat-*`, `player-cove`, `audio-*`, `render-*`,
   `first-evening`, `v1-fishing-trace` unchanged and green; esbuild bundles.
 - **C:** `node tools/check.mjs --quick` green including `ui-loop.test.mjs` (`fmtClams` via core, `tallyPlan` order and
   timing, `goalLine`, `shelfCards` (the bought-card rule, Hold 5 and T2 permanent), `slotCells`, `murkLineFor` (empty
   unless a once-line is due), `pillHold` (0.6 s), the allow-list helper, the modal options of T57, the keys of T58, T47,
-  T54, every string from `TEXT_LOOP`);
+  T54, every string from `TEXT_LOOP`; rev. 3: `titleModel` and `descentModel` (T59, T62), the tips of T68, the Forget words
+  of T69, the held panel of T71) and `loop-tutorial.test.mjs` (T65);
   `ui-v3`, `ui-af`, `ui-screens-v3`, `ui-show` unchanged and green; esbuild bundles.
 - **D:** both scripts parse (`node --check`) and dry-run their pure helpers; every selector and hook they use is named in §3.6.
 - **Every lane** reports, in its hand-off, which checks it ran and the summary lines, and any cross-file request still open.
@@ -1012,9 +1248,19 @@ checks of §4.2 unchanged.
 3. **Build:** `node build.mjs --dev --out=tools/out/loop-1a.html`.
 4. **The scenario:** `node tools/playtest.mjs --html=tools/out/loop-1a.html --shots=tools/out/loop-1a/desktop
    --script=tools/tests/loop-1a.scenario.mjs --width=960 --height=540`, then the same with `--mobile`
-   (`--shots=tools/out/loop-1a/phone`). Look at every screenshot: the HUD (slots top-left, the pill, nothing parked), the
-   float's dots, the card (Keep · value / Let go), the tally, the Jetty, the shelf, the Chart, the title. No ring or disc
-   around the raft or the Wick; no green beyond a trace.
+   (`--shots=tools/out/loop-1a/phone`). (rev. 3) **It starts from a fresh save:** the title (New Descent · Settings) → New
+   Descent → a Wick → Start → the film (skip allowed) → the tutorial at the Jetty (the wake line, the Chart cue) → the Chart
+   (three empty slots, Murk's departure line, Sail) → Sail → the glide out → the first trip (`fe_cast`) → the rest of T36.
+   Look at every screenshot: the title, the New Descent panel (five Wicks, one line, Back, Start; nothing else), the panel
+   under the ink at Start, the glide to the dock, the Jetty with its cue, the Chart, the glide out, the HUD (slots top-left,
+   the pill, nothing parked), the float's dots, the card (Keep · value / Let go), the tally, the shelf. No ring or disc
+   around the raft or the Wick; no green beyond a trace; a cue never leaves its tile or button.
+4b. (rev. 3) **The five Wicks in the film:** run the scenario's main pass once per Wick (`--wick=<id>`, D's flag) and look at
+   the film's close takes (beats `wick` and `home`): the head- and rod-anchored shots follow the chosen body (scales 0.8 to
+   1.15, Stub's tall flame, Tallow's and Ashwick's hoods). A take that crops a Wick badly is a note for the intro's owner
+   (its framing is `gw-intro`'s), not a reason to show the default Wick (that would undo the player's choice).
+4c. (rev. 3) **The timings:** `loop-time.scenario.mjs`'s `tutorial` ≤ 45 s (expected ≈ 17.5 s) and `sailOut` ≈ 3 s; write
+   `sailOut` into `LOOP.time.out` with step 5.
 5. **Measure the visit home:** run `loop-time.scenario.mjs` on the same build; write its `{home, sale, shop, out, show}` into
    `LOOP.time` in `data.js` (a value-only edit in A's file, recorded in the commit message); re-run `node tools/sim/clams.mjs
    --quick` and the full run. Every check must pass (the gate). If one fails, apply the knob lane A named for it in its
@@ -1055,7 +1301,15 @@ home could still move (the 1 h clams, the trip minutes, the choosy %), the knob 
 | R10 | Murk's barge has no second dock in some lake layouts | moor it beside the first dock |
 | R11 | Hold 6–8 on a phone overflow the top-left row (8 × 36 px + the right cluster) | 1a stops at Hold 5 (`shelfMax`); a two-row wrap from slice 2 |
 | R12 | The gate is still drawn in the Mossmere, sealed | scenery by the spec (§9); no pill, no marker, no modal on a trip (T46) |
-| R13 | No Settings at home: the title is Continue only and the Jetty has three tiles | the built Settings stay in the pause on the water; a question for the lead (§7.1) |
+| R13 | No Settings at home: the title is Continue only and the Jetty has three tiles | resolved by the lead's ruling 12 (Settings everywhere) and rev. 3's titles (§2.3 item 5) |
+| R14 | (rev. 3) The New Descent panel vanishes before the ink closes (`startIntro`'s `closeAll`; ui-intro holds only the title) | §2.3 item 9 holds the panel too; the fallback is a 0.2 s CSS fade on `.gw-loop-descent` at Start (T71) |
+| R15 | (rev. 3) The film's close takes were framed on the default Wick; Stub (0.8) and Tallow (1.15) may crop | the stager's step 4b; the framing knob is `gw-intro`'s (`INTRO` takes) |
+| R16 | (rev. 3) The player's `run:start` listener respawns the raft at the lake's spawn, so a trip would start with a jump from the glide's end (the same jump the revision-2 plan had from the dock) | `startTrip({at})` re-places the raft in the same task (§2.2 item 3); no respawn on `zone:change {sail: true}` (item 23); T66 |
+| R17 | (rev. 3) A blocking Chart freezes `gameDt`, so a glide started under it never moves and `run:start` never fires | `game.sail` closes the screens before the glide (§2.2 item 4); T66 |
+| R18 | (rev. 3) The hand-off glide covers 25.3 m; at 2 s it would run twice the raft's speed | 3 s (`LOOP.tutorial.arrive`); the knob is that value |
+| R19 | (rev. 3) The glide-out path is hand-placed per lake; later waters need their own | `LOOP.tutorial.outPath[lake]` or the `outDist` rule, both checked by `validate-data --loop` (T72) |
+| R20 | (rev. 3) Actors re-apply `meta.lastCharacter` on flow `title` before progression applies `meta.loop.wick` | the listener order is load-bearing; T60 asserts the title shows the chosen Wick after a reload |
+| R21 | (rev. 3) `LOOP.time.out` (14 s in the sim) now includes a 3 s glide on every Sail | T37/step 4c measures `sailOut`; the sim is re-run with it (§6.4) |
 
 ---
 
@@ -1068,7 +1322,9 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
    asserts there is no linger, and the lead strikes "(built)" and the 1a test from SPEC §3.2 and §13 in the same commit.
    "Build": lane B builds it exactly as §2.2 item 12 says, and T9 asserts the first bite's `waterKey`.
 2. **The film hands to the Jetty, not to a trip.** `startNewRun({__intro: true})` under the loop is `enterHome('intro')`
-   (§11, §8.6), which glides the raft to the first dock (SPEC §6.1's one look). `onIntroDone` is unchanged.
+   (§11, §8.6), which glides the raft to the first dock (SPEC §6.1's one look). `onIntroDone` is unchanged. (rev. 3) The
+   film is started by New Descent's **Start**, not by Begin, and the Jetty that follows runs the tutorial (§5.5), which
+   ends with Sail and the glide out.
 3. **The loop writes no `meta.runs`, `lastCharacter`, `deaths`, `bestDay`** (§9 "touches nothing else"); evenings live in
    `meta.loop.evenings`; Journal entries get `firstEvening`, shown as "Evening N" on the species page; every built counter
    that read `meta.runs` (the hurry, the strike ring, the key hints, `getFishingCounters`) reads the evening on a trip.
@@ -1082,7 +1338,7 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
    2 s glide (flow `home`, the clams already paid) eases from the night toward it through world's built mood smoothing.
 8. **Revised: no banners on a trip.** §8 is the whole text, so the phase banners (dusk, night, dawn), the area banner and
    the lake's lore toast at a Sail, the tips and the merchant greet are all suppressed under the loop. The phases keep their
-   looks (§10); only their words go.
+   looks (§10); only their words go. (rev. 3) Two exceptions on evening 1 only: `fe_cast` and `fe_strike` (PLAN CHOICE 39).
 9. **The Home pill on a keyboard**: a held `H` (0.6 s), a tap with a full hold.
 10. **An empty tally**: Murk's line and the one button **Sold**.
 11. **The shelf in 1a**: only the tabs with items (Tackle: rod, line, reel; Raft: the hold); tiers are bought in order per
@@ -1092,6 +1348,9 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
     tagline, no Prologue word); the pause shows Resume, Home and the built Settings, with no panel title or sub-line. On a
     fresh save the opening's title block (**Begin** and Settings, `gw-intro`) runs unchanged: SPEC §10 keeps the opening
     "unchanged". For the lead: those two words, and that Settings is reachable only from the pause on the water.
+    (Amended by the lead's ruling, §7.2, and again by the user's ruling of 14 November 2026, §7.3: a fresh title is **New
+    Descent** · **Settings**; a title with progress is **Continue** · **Settings** · **Prologue**; Begin is not used under
+    the loop.)
 13. **"Casts farther"**: under the loop `castMax` and `hookWindow` come from `TACKLE.rod[min(t, 4)]` (the absolute values the
     TACKLE comment defines).
 14. **Withdrawn** (revision 1 drew a built tagline alternative). §8.5 gives no tagline, so none is drawn (§5.4).
@@ -1124,6 +1383,53 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
 28. **The gate is scenery** (§9): on a trip it stays drawn as built (sealed), never opens, offers no pill, marker or modal,
     and E does nothing near it or near Murk's barge.
 
+**Revision 3: the opening (14 November 2026; §7.3, `docs/loop/OPENING.md`).**
+
+29. **One mode.** Under the loop New Descent is the choice of Wick and **Start**, nothing else: no night modes, no First
+    Outing card, no waystones or start water, no trials or locks, no start boon, kit, quirk, Shells, lore, premise or
+    heading. The panel keeps the built id `newdescent` and the built portraits.
+30. **All five Wicks free from the first New Descent** (the lead's default; the user may overrule, §7.1). §10.1's "joins
+    you when" conditions are dropped and the choice moves from home (slice 9) to New Descent (slice 1a). *If overruled:*
+    the panel shows the Wick and Start, the four others dark with no words (or hidden); `LOOP.wicks[id].joins` carries
+    §10.1's conditions, read by a pure `wickJoined(meta, id)`; changing Wick moves to home (the Journal's first page) and
+    waits on the slices that make each condition reachable.
+31. **The traits are `LOOP.wicks`, fishing only.** On a trip the built `CHARACTERS[].effects`, quirks, start boons and kits
+    never apply; `LOOP.wicks[id].stats` is added after the tackle's absolute values; Tallow's +2 Hold reaches `catchChance`
+    through `getCatchBuffs(cls)` and a LOOP-only `CATCH_V3.buffs.wicks.tallow` (the exported `catchBuffHold` is not
+    edited); Ashwick's +3 is the built rule on the loop's night. Stub's light is the built `lightRadius` +1.5 m (§10.1's
+    "as if one level higher" is read as the built Stub's own value until the Lantern part ships in slice 3).
+32. **The chosen Wick is `meta.loop.wick`**, set at Start, written by home's first save, used by every trip and by the
+    title and home's look. It stays until a start-over; changing Wick later is not in 1a (slice 9's home choice, if the
+    user wants one). `meta.lastCharacter` is never written (CHOICE 3 holds).
+33. **No New Descent once the loop has begun.** "Begun" = a trip out, or `meta.loop.wick` set, or a tutorial record, or an
+    evening sold (`loopFreshSave`). There is one mode, so there is nothing to choose again, and beginning again would cost
+    clams and gear. Starting over is Settings' built **Forget everything** (two in-page confirms → `wipeAll` → a fresh title),
+    with the loop's words. An old v3 save that never played the loop is fresh to it (it gets the choice, the film and the
+    tutorial once; the shared Journal and records are kept).
+34. **Start plays the film when `filmAllowed`** (a release build; a debug build only after the intro opt-in, as `gw-intro`
+    built). Otherwise, or if the film cannot start, Start goes straight to the Jetty (`enterHome('new')`) and the tutorial;
+    `meta.intro` is not written, so the film is still unseen there.
+35. **The hand-off glide is 3 s** (25.3 m on the Mossmere; 2 s would be twice the raft's speed). Murk's barge is moored
+    and the save written as it starts, so a tab closed during the glide keeps the chosen Wick and the seen film.
+36. **The tutorial lives on the Jetty and the Chart** (no new screen, no Skip word): a pure beat machine in
+    `src/loop-tutorial.js` (lane C, which owns both screens). Each beat ends on a tap or a short wait; the Chart opens by
+    itself 3 s after the wake line; Sail is never pressed for the player; Escape on the Chart goes back to the Jetty's cue;
+    the goal line is hidden while the tutorial runs; done is written at Sail; a reload resumes at the wake. Murk and the
+    Journal stay live (dimmed). `first-evening.js` is not used (only its pure `murkHold`).
+37. **The three empty slots are shown on the Chart**, under the Mossmere row, inking in one by one as Murk's departure line
+    ("Three slots in that hold …") appears. The Jetty shows no slots.
+38. **The glide out on every Sail**: 3 s from the dock 15 m toward the lake's centre (`LOOP.tutorial.outPath` per lake,
+    validated), in flow `home`, skippable by a tap every time, then the trip starts in place. It is how leaving home
+    always looks, so the first Sail is not a special case; `LOOP.time.out` includes it (R21).
+39. **Two words on the first trip** (amends CHOICE 8): `fe_cast` ("Hold on the water. Let go to cast.") once, 1.5 s after
+    the first trip starts; `fe_strike` ("Now. Tap." / "Now. Click.") in the first bite's window; each once per save.
+    With the built key glyphs and strike ring (evening 1, T55), that is all the teaching on the water.
+40. **Murk's wake line** is SPEC §11's ("Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it."), said
+    at the Jetty on the first morning (`TEXT_LOOP.murk.wake`), voiced by the built grumble through
+    `firstEvening:line {kind: 'murk', loop: true}`.
+41. **Old saves.** A `meta.loop` block with an evening sold migrates to `tutorial.done` and `wick 'wick'`. An old v3
+    `meta.lastCharacter` is ignored under the loop (the title and trips read `meta.loop.wick`).
+
 ### 7.1 For the lead to confirm first, and for the user
 
 **The lead, before the lanes branch:** PLAN CHOICE 1 (F16: build or drop), 12 (the opening's Begin and Settings on a fresh
@@ -1133,7 +1439,9 @@ the spec's figures move) and 27 (the open bite).
 **Only the user can answer** (each with the default this plan builds):
 
 - **A line under the name on the title?** §8.5 gives none and the built one names the parked swarm. Default: no line, the
-  logotype and **Continue** only.
+  logotype and its words only.
+- (rev. 3) **Do all five Wicks start free, or do they join over time?** Default: all five free at the first New Descent
+  (PLAN CHOICE 30, which also writes out the alternative).
 
 ### 7.2 The lead's rulings (14 November 2026, binding on every lane)
 
@@ -1145,6 +1453,38 @@ the spec's figures move) and 27 (the open bite).
 | 17 · the 5th bite | Confirmed: at 4 good bites the 5th is already quiet, as SPEC §3.3 says. The sim calls the same `quietTerms`; the stager re-pastes the figures it moves (step 5b). |
 | 27 · the open bite | Confirmed: a bite still open at a reload is refunded on Continue. |
 | title tagline | No line under the logotype (the default above). The swarm line and the death line are never shown under the loop. |
+
+### 7.3 The user's ruling of 14 November 2026 (the opening)
+
+The user, verbatim:
+
+> "When you press new descent, make sure there aren't any other options to choose from other than different characters, we
+> should only have one game mode which we've outlined in the new loop."
+
+> "After youve pressed start, it should immediately go into the cut scene, then you move into the tutorial at the home base.
+> Which ends with being shown how to head out to the lake"
+
+The lead's reading, binding on every lane, and where this plan builds it:
+
+| the ruling | built by | where |
+|---|---|---|
+| One game mode: New Descent shows only the Wick and Start | C | §2.3 item 5 (`openLoopDescent`), CHOICE 29, T59 |
+| The Wick's card: its look, its name, its one §10.1 trait in a few words | A (words, traits), C (panel) | §2.1 item 15, CHOICE 31, T59, T61 |
+| All five Wicks free from the first New Descent (the lead's default; the user may overrule) | A, C | CHOICE 30, §7.1 |
+| The title: fresh → New Descent · Settings; with progress → Continue · Settings; no New Descent while a trip is out or at home | C (title), B (`loopFresh`) | §2.3 item 5, CHOICE 33, T62 |
+| Start → the cut scene at once (no extra click, no loading screen); Skip works; the Prologue word stays | B (`beginIntro`), C (the held panel) | §2.2 item 20, §2.3 item 9, CHOICE 34, T63, T71 |
+| The film hands off to home (the Jetty), not to the lake | B | §2.2 item 7, CHOICEs 2 and 35, T64 |
+| A very short tutorial at home, in the lore's place, one line at a time, Murk's spec lines, the three empty slots | C (`loop-tutorial.js`), A (`meta.loop.tutorial`) | §5.5, CHOICEs 36, 37, 40, T65, T67 |
+| It ends by showing how to head out: the Chart, the Mossmere, Sail, the glide out | C (Chart), B (`game.sail`) | §2.2 item 4, CHOICE 38, T66 |
+| Fishing is taught on the first trip with the built light hints | C | CHOICE 39, T55, T68 |
+| Never trapped; a returning player never sees it again | A, B, C | §5.5, T65, T67 |
+| Flag-off and v3-without-loop builds unchanged | all | §4, T70 |
+
+The new on-screen words (each the user's, the spec's or a built word): **New Descent**, **Start**, **Back**, the five
+`CHARACTERS[].name`, the five `TEXT_LOOP.wicks` lines, `TEXT_LOOP.murk.wake` (SPEC §11), `FIRST_EVENING.tips.fe_cast` and
+`fe_strike` (built), `TEXT_LOOP.forget` (Settings' start-over). SPEC §8.5, §10.1, §11 and §13 slice 1a record them (the docs
+commit of 14 November 2026). Still open for the lead: SPEC §13 slice 9's "The four other Wicks" item (another branch edits
+that slice; strike it after `gw-loop-waters` merges) and the allow-list's `newDescent` exception to the no-"Descent" rule.
 
 ---
 
