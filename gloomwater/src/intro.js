@@ -12,7 +12,7 @@
 //   init()                                wires nothing visible (visibility is read live in update)
 //   pending() -> bool                     would the title's primary button play the film now? (the A3 rule: introPending)
 //   prewarm() -> bool                     a fresh save's title is up: let the stage build in idle time (true once it is ready)
-//   start({replay, reduced, underInk}) -> bool   from t = 0; false if already playing. `underInk` (main's, optional) is called once
+//   start({replay, reduced, underInk}) -> bool   from t = 0; false if already playing. (opts.sliceMs: the under-ink build's time per frame, 8) `underInk` (main's, optional) is called once
 //                                         under the opening's full ink, before the stage goes live (a replay's lake swap, §7.4)
 //   skip() -> bool                        honoured after INTRO.skip.guard s of film, once
 //   update(realDt)                        main calls it once a frame BEFORE the module loop (so world, actors and render see this frame's t)
@@ -241,9 +241,13 @@ export function create(ctx, opts = {}) {
     if (S.hook) { const hook = S.hook; S.hook = null; try { hook({ replay: S.replay, t: S.t }); } catch (err) { S.failed = true; report('underInk', err); } }
     const st = S.failed ? null : getStage();
     if (!st || typeof st.prebuild !== 'function' || st.ready !== false || S.slices >= MAX_SLICES) return (S.prep = false);
-    S.slices++;
+    // one slice, and more while this frame has time for them (a fast machine is done in a frame or two; a slow one takes one a frame)
+    const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now()), t0 = now(), budget = num(opts.sliceMs, 8);
     let done = true;
-    try { done = st.prebuild() === true; } catch (err) { report('stage.prebuild', err); done = true; }   // (enter() builds the rest, or fails cleanly)
+    do {
+      S.slices++;
+      try { done = st.prebuild() === true; } catch (err) { report('stage.prebuild', err); done = true; }   // (enter() builds the rest, or fails cleanly)
+    } while (!done && S.slices < MAX_SLICES && now() - t0 < budget);
     return (S.prep = !done);
   }
   /** Not live yet: wait for one painted frame of full ink (or the ink's end, whatever the frame rate did), then go live. */

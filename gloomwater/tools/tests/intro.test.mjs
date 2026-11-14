@@ -41,11 +41,11 @@ function recStage({ ready = false, throwAt = null, throwOn = null } = {}) {
   };
   return st;
 }
-function game({ stage = recStage(), meta = { runs: 0 }, debug = false, savedRun = false, settings = null } = {}) {
+function game({ stage = recStage(), meta = { runs: 0 }, debug = false, savedRun = false, settings = null, sliceMs } = {}) {
   const ctx = { data: D, errors: [], bus: core.createBus(), state: { meta: settings ? { ...meta, settings } : meta, run: null }, flow: 'title' };
   const ev = [], order = [];
   for (const e of ['intro:start', 'intro:beat', 'intro:line', 'intro:skip', 'intro:done']) ctx.bus.on(e, (p) => { ev.push([e, p]); order.push(e === 'intro:beat' ? `beat:${p.id}` : e); });
-  const dir = DIR.create(ctx, { debug, hasSavedRun: () => savedRun, createStage: () => stage });
+  const dir = DIR.create(ctx, { debug, hasSavedRun: () => savedRun, createStage: () => stage, sliceMs });
   dir.init();
   globalThis.document = { hidden: false };
   let real = 0;
@@ -154,7 +154,7 @@ for (const fps of [60, 10, 4, 2]) {
   const st = recStage(); let left = 6; const seq = [];
   st.prebuild = () => { st.calls.push(['prebuild']); seq.push(['slice', g.dir.state.t]); if (--left <= 0) st.built = true; return st.built; };
   const enter = st.enter; st.enter = (o) => { seq.push(['enter', g.dir.state.t, st.built]); enter(o); };
-  const g = game({ stage: st });
+  const g = game({ stage: st, sliceMs: 0 });
   g.dir.start({ underInk: () => seq.push(['hook', g.dir.state.t]) });
   g.to(1);
   const slices = seq.filter((x) => x[0] === 'slice'), ts = slices.map((x) => x[1]);
@@ -168,6 +168,11 @@ for (const fps of [60, 10, 4, 2]) {
   const st = recStage(); let n = 0; st.prebuild = () => { n++; return false; };
   const g = game({ stage: st }); g.dir.start({}); g.to(2);
   ok(n > 0 && n <= 48 && g.dir.state.entered, 'a build that never finishes holds the clock a bounded number of frames', { n }); g.dir.stop(); }
+{ // with time in the frame, several slices are taken in it (a fast machine is not held for ten frames)
+  const st = recStage(); let left = 6, frames = 0; const seen = new Set();
+  st.prebuild = () => { seen.add(g.dir.state.t); if (--left <= 0) st.built = true; return st.built; };
+  const g = game({ stage: st, sliceMs: 50 }); g.dir.start({}); g.to(1);
+  ok(seen.size === 1 && left <= 0, 'a frame with time to spare takes every slice it can', { frames: seen.size }); g.dir.stop(); }
 
 // ================================================================== skip (A2)
 section('skip: the guard and the two paths (A2)');

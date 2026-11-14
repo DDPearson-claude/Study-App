@@ -347,8 +347,8 @@ export default async function (api) {
     await lineProbe(I.lines[2]);
     await lineProbe(I.lines[3]);
     check(JSON.stringify(seenLines) === JSON.stringify(I.text), 'the four lines, in order', seenLines);
-    p = await probe(17.8, 'home-rest');
-    check(p.dom.lineOpacity === 0, 'no words in the last half second', { o: p.dom.lineOpacity });
+    p = await probe(17.9, 'home-rest');
+    check(p.dom.lineOpacity === 0, 'no words in the film\'s last 0.15 s (the hand-off comes on a clear frame)', { o: p.dom.lineOpacity });
     check(p.st.mode === 'sail' && p.st.introCam && p.st.introCam.w === 0, 'the camera is the play camera, at rest, before control begins', { mode: p.st.mode, w: p.st.introCam?.w });
     // (A9 is lane A's: the set's own programs are warmed by prebuild. What is logged here is the game's own lazy work under the film's camera.)
     log(`during the film: shader programs ${before.programs} → ${p.st.programs}, geometries ${before.mem.geometries} → ${p.st.mem.geometries}, textures ${before.mem.textures} → ${p.st.mem.textures} (the set included)`);
@@ -431,7 +431,9 @@ export default async function (api) {
     await g(() => window.__if.runOut());
     let ev = await events();
     const done = ev.find((x) => x.e === 'intro:done'), start = ev.find((x) => x.e === 'intro:start');
-    check(done && done.p.replay === true && done.p.skipped === false && Math.abs(done.sim - start.sim - 18) <= 0.05, 'the replay lasts 18 s and ends in intro:done {replay: true}', { p: done?.p, len: done ? done.sim - start.sim : null });
+    // (a replay's title has not built the set in idle time: the director builds it under the opening ink, one slice a frame with the
+    // film's clock held there (SPEC §12.5), so the replay lasts 18 s of film plus those few frames of ink)
+    check(done && done.p.replay === true && done.p.skipped === false && done.p.t === 18 && done.sim - start.sim >= 17.95 && done.sim - start.sim <= 18.7, 'the replay lasts 18 s (and a few frames of ink while its set is built) and ends in intro:done {replay: true}', { p: done?.p, len: done ? done.sim - start.sim : null });
     check(!ev.some((x) => x.e === 'zone:change' || x.e === 'run:start'), 'a replay starts no run and changes no lake on the bus', ev.map((x) => x.e));
     await settle(500);
     s = await state();
@@ -531,7 +533,8 @@ export default async function (api) {
     });
     const ev = await events();
     const start = ev.find((x) => x.e === 'intro:start'), done = ev.find((x) => x.e === 'intro:done');
-    check(start?.p.reduced === true && done && Math.abs(done.sim - start.sim - 18) <= 0.05 && done.p.skipped === false, `reduced motion: the same length (${(done.sim - start.sim).toFixed(3)} s)`, done?.p);
+    // (the same 18 s of film; a press before the title's idle build finished adds a few frames of ink while the set is built, SPEC §12.5)
+    check(start?.p.reduced === true && done && done.p.t === 18 && done.sim - start.sim >= 17.95 && done.sim - start.sim <= 18.7 && done.p.skipped === false, `reduced motion: the same length (${(done.sim - start.sim).toFixed(3)} s)`, done?.p);
     const after = run.rows.filter((r) => r.t >= run.swapAt + 0.1);
     const stageTimes = [...new Set(after.map((r) => r.stage))];
     check(JSON.stringify(stageTimes) === JSON.stringify(run.stills.map((x) => x.t)), 'the stage holds one still per beat (five in all)', stageTimes);
