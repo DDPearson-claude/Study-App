@@ -40,6 +40,8 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 
 **After M1**
 
+- *(new, the user, 15 November 2026)* **The far-water Wicks and their tales** (design now, beside slice 1a; built after M1). The user: "Could there be other fishermen we meet periodically that give us information on certain species that can increase our percent chance to catch? Even tell us about fish we dont know exist or have as a silhouette, super special unlocks you gain through information only". Asked four questions, the user chose: **the far-water Wicks** (other candles who woke long ago and stayed out fishing) are the fishermen; they give **both** tips (a species' chance raised, shown only in the player's logs) **and** tales of secret fish that are not on the catalogue until told; **tales can reveal places too** (maps are no longer the only discovery); **built after the Mossmere**. Design job: `docs/loop/FARWICKS.md`, with SPEC, LORE and the lore brief amended.
+
 15. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`) and the rest of slice 1c; slice 1d, the river spike.
 16. Sporewood and onward (the slices' other halves, then 5–9).
 
