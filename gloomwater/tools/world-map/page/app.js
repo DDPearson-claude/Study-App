@@ -67,6 +67,9 @@
     const t = (d - pc.s[j]) / (pc.s[j + 1] - pc.s[j] || 1), a = pc.pts[j], b = pc.pts[j + 1];
     return { x: lerp(a[0], b[0], t), y: lerp(a[1], b[1], t), ang: Math.atan2(b[1] - a[1], b[0] - a[0]) };
   };
+  // where a sea piece crosses the line y: the Long Coast's two ticks at the Fold's pleats
+  const crossing = (id, y) => { const pc = PC.find((q) => q.id === id); if (!pc) return null; for (let i = 1; i < pc.pts.length; i++) { const a = pc.pts[i - 1], b = pc.pts[i]; if ((a[1] - y) * (b[1] - y) <= 0 && a[1] !== b[1]) return lerp(a[0], b[0], (y - a[1]) / (b[1] - a[1])); } return null; };
+  const FOLD_TICKS = [D.fold.y0, D.fold.y1].map((y) => [crossing('longCoast', y), y]).filter((q) => q[0] != null);
   // a piece sailed both ways by the legs owned so far is an out-and-back: one line, one return mark
   const bothWays = (i) => { let f = false, b = false; for (const l of D.legs) { if (l.to > S.owned) break; for (const v of l.via) if (v[0] === i) { if (v[1] > 0) f = true; else b = true; } } return f && b; };
 
@@ -799,7 +802,7 @@
     // the Long Coast's sailing line is broken by the Fold: a tick at each pleat
     if (shown(9)) {
       ctx.strokeStyle = `rgba(${C.paper},.9)`; ctx.lineWidth = 0.6; ctx.beginPath();
-      for (const [x, y] of [[131.4, D.fold.y0], [133.2, D.fold.y1]]) { ctx.moveTo(x - 5, y + 1.4); ctx.lineTo(x + 5, y - 1.4); ctx.moveTo(x - 5, y + 3.2); ctx.lineTo(x + 5, y + 0.4); }
+      for (const [x, y] of FOLD_TICKS) { ctx.moveTo(x - 5, y + 1.4); ctx.lineTo(x + 5, y - 1.4); ctx.moveTo(x - 5, y + 3.2); ctx.lineTo(x + 5, y + 0.4); }
       ctx.stroke();
     }
   }
@@ -867,12 +870,14 @@
   const caption = (html) => { const el = $('caption'); if (html) { el.innerHTML = html; el.classList.add('is-on'); } else el.classList.remove('is-on'); };
   const legDuration = (leg) => clamp(1300 + leg.len * 16, 2000, 6800);
   const legCaption = (n) => `<b>${n}</b>${W[n - 1].name}. ${W[n - 1].from}`;
-  // a short leg is framed close; a long one (the Long Coast through the Fold, the barge road) from far out
+  // a short leg is framed close; a long one from far out: the barge road, and the Long Coast, which is a
+  // hand's width on the sheet but some 4,500 km through the Fold
   function frameLeg(n, ms) {
     const leg = legs[n - 1], b = leg.box, pad = 46;
     const box = [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
     const v = fitView(box, S.vw < 700 ? 26 : 60, 2.6);
-    flyTo(leg.len > 420 || v.k < S.fitK * 1.25 ? homeView() : v, ms);
+    const throughFold = b[1] < D.fold.y0 && b[3] > D.fold.y1;
+    flyTo(leg.len > 420 || throughFold || v.k < S.fitK * 1.25 ? homeView() : v, ms);
   }
   function setOwned(n, opts) {
     opts = opts || {};
@@ -929,7 +934,7 @@
   function endJourney() {
     const j = S.journey; j.phase = 'done';
     $('journey').textContent = 'Sail again'; $('journeyStop').hidden = true;
-    caption('<b>Home</b>The whole Lamp Road, about 8,000 km, from the Landing to the Inkwood. At the Landing the hearth burns full.');
+    caption('<b>Home</b>The whole Lamp Road, about 7,400 km, from the Landing to the Inkwood. At the Landing the hearth burns full.');
     S.raft = { x: HOME.at[0], y: HOME.at[1] + 5 };
     S.hearthFull = true;
     flyTo(homeView(), 1800);

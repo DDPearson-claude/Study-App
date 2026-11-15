@@ -133,7 +133,7 @@ window.bake = async function bake() {
     else if (r.cls === 'black') band(r.pts, BLACKWATER, '#1b1526');
     else if (r.cls === 'seasonal') { band(r.pts, 'rgb(66,54,78)', '#1b1526', 0.2); ctx.beginPath(); ctx.moveTo(r.pts[0], r.pts[1]); for (let i = 3; i < r.pts.length; i += 3) ctx.lineTo(r.pts[i], r.pts[i + 1]); ctx.strokeStyle = 'rgba(206,198,236,0.55)'; ctx.lineWidth = 0.2; ctx.setLineDash([0.9, 1.1]); ctx.stroke(); ctx.setLineDash([]); }
     else if (r.cls === 'clear') band(r.pts, 'rgb(222,222,250)', WATER_INK, 0.2);
-    else if (maxW(r) >= 1.0) band(r.pts, r.id === 'pyre' ? 'rgb(222,222,242)' : 'rgb(178,174,232)', WATER_INK, 0.24);
+    else if (maxW(r) >= 1.0) band(r.pts, r.id === 'pyre' || r.id === 'chalkwater' ? 'rgb(222,222,242)' : 'rgb(178,174,232)', WATER_INK, 0.24);
     else strokeVar(r.pts, WATER_INK);
   }
   // the Seam: black water beside brown, unmixed
@@ -346,9 +346,12 @@ window.bake = async function bake() {
       case 'stilts': { for (let q = 0; q < l.n; q++) { const a = hash(q, 41) * 6.3, r = Math.sqrt(hash(q, 43)) * l.r, x = l.at[0] + Math.cos(a) * r * 0.8, y = l.at[1] + Math.sin(a) * r; ctx.beginPath(); ctx.rect(x - 0.5, y - 0.9, 1.0, 0.62); ctx.moveTo(x - 0.68, y - 0.9); ctx.lineTo(x, y - 1.4); ctx.lineTo(x + 0.68, y - 0.9); ctx.moveTo(x - 0.38, y - 0.28); ctx.lineTo(x - 0.38, y + 0.3); ctx.moveTo(x + 0.38, y - 0.28); ctx.lineTo(x + 0.38, y + 0.3); ctx.fillStyle = STONE; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.13; ctx.stroke(); lamp(x + 0.7, y - 0.46, 0.16, '#f0a23c'); } break; }
       case 'rows': { // the orchard's rows and dikes, in the old plan's simple, unsure hand
         ctx.translate(l.at[0], l.at[1]); ctx.rotate((l.rot * Math.PI) / 180);
-        ctx.strokeStyle = `rgba(${INK_RGB},0.8)`; ctx.lineWidth = 0.2;
-        for (let yy = -l.h / 2; yy <= l.h / 2 + 0.01; yy += 2.1) { ctx.beginPath(); for (let xx = -l.w / 2; xx <= l.w / 2; xx += 2) { const wy = yy + (hash(xx, yy + l.at[0]) - 0.5) * 0.5; if (xx === -l.w / 2) ctx.moveTo(xx, wy); else ctx.lineTo(xx, wy); } ctx.stroke(); }
-        ctx.beginPath(); ctx.rect(-l.w / 2 - 0.6, -l.h / 2 - 0.8, l.w + 1.2, l.h + 1.6); ctx.setLineDash([1.6, 0.7]); ctx.stroke(); ctx.setLineDash([]);
+        // each line is laid on a pale under-line, so the plan reads on top of the canopy and is not lost in it
+        for (const [style, lw] of [['rgba(238,232,236,0.7)', 0.62], [`rgba(${INK_RGB},0.9)`, 0.22]]) {
+          ctx.strokeStyle = style; ctx.lineWidth = lw;
+          for (let yy = -l.h / 2; yy <= l.h / 2 + 0.01; yy += 2.1) { ctx.beginPath(); for (let xx = -l.w / 2; xx <= l.w / 2; xx += 2) { const wy = yy + (hash(xx, yy + l.at[0]) - 0.5) * 0.5; if (xx === -l.w / 2) ctx.moveTo(xx, wy); else ctx.lineTo(xx, wy); } ctx.stroke(); }
+          ctx.beginPath(); ctx.rect(-l.w / 2 - 0.6, -l.h / 2 - 0.8, l.w + 1.2, l.h + 1.6); ctx.setLineDash([1.6, 0.7]); ctx.stroke(); ctx.setLineDash([]);
+        }
         break; }
       case 'oxbow': { ctx.translate(l.at[0], l.at[1]); ctx.rotate((l.rot * Math.PI) / 180); ctx.beginPath(); ctx.arc(0, 0, 3.2 * s, 0.5, 2.9); ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke(); ctx.strokeStyle = SILT; ctx.lineWidth = 1.0; ctx.stroke(); break; }
       case 'buoys': { for (const p of l.pts) { ctx.beginPath(); ctx.moveTo(p[0], p[1] - 0.8); ctx.lineTo(p[0] + 0.52, p[1]); ctx.lineTo(p[0], p[1] + 0.42); ctx.lineTo(p[0] - 0.52, p[1]); ctx.closePath(); ctx.fillStyle = 'rgba(240,236,250,0.95)'; ctx.fill(); ctx.strokeStyle = '#231d3a'; ctx.lineWidth = 0.12; ctx.stroke(); ctx.beginPath(); ctx.moveTo(p[0], p[1] - 0.8); ctx.lineTo(p[0], p[1] - 1.4); ctx.stroke(); } break; }

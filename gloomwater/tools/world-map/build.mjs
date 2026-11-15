@@ -5,6 +5,7 @@
 //   node tools/world-map/build.mjs --page       reuse the cached bake; rewrite the page and the PNGs
 //   node tools/world-map/build.mjs --no-shots   skip the Playwright renders
 //   node tools/world-map/build.mjs --bake-only  bake and report, write no page
+//   node tools/world-map/road.mjs               only the route rule on canon.mjs's courses (no bake, a second)
 //
 // Reads tools/world-map/canon.mjs (the world as data, from docs/loop/WORLD.md and LORE.md) and writes,
 // all under tools/out/world/ (untracked):
@@ -15,10 +16,15 @@
 //   checks/            close looks and behaviour checks (wheel, drag, pinch, tap, slider, journey, reduced
 //                      motion, 1280 px in the light scheme, a phone on its side)
 //   cache/             the baked world image and page data, so --page is fast; crops and a preview of the bake
-// The bake prints two checks: that computed flow follows each named river's WORLD.md course, and that the
-// green ink round the sixteen waters never steps back along the road (the greening ramp, measured on the
-// finished image). Deterministic: seeded by canon.mjs SEED; two bakes give the same bytes. Needs
-// Playwright's Chromium (it inks the world image on a canvas and encodes it as WebP).
+// The build's checks. The route rule (WORLD.md §6.1, road.mjs): the Lamp Road only goes forward. It is
+// checked on canon.mjs's courses before anything is baked, and again on the road as the chart draws it; each
+// prints a per-leg table, and a failure of either STOPS the build with no page written. The bake prints two
+// more: that computed flow follows each named river's WORLD.md course, and that the green ink round the
+// sixteen waters never steps back along the road (the greening ramp, measured on the finished image); the
+// renders print the page's behaviour checks. A failure of any of those still writes the outputs, to be
+// looked at, and the build ends with a non-zero exit code. Deterministic: seeded by canon.mjs SEED; two
+// bakes give the same bytes. Needs Playwright's Chromium (it inks the world image on a canvas and encodes
+// it as WebP).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +34,7 @@ import { buildTerrain, GS } from './terrain.mjs';
 import { buildInk } from './ink.mjs';
 import { buildPageData, buildMasks } from './pagedata.mjs';
 import { renderShots } from './shots.mjs';
+import { canonLegs, drawnLegs, checkRoad, reportRoad } from './road.mjs';
 
 const require = createRequire(import.meta.url);
 let chromium;
@@ -39,7 +46,8 @@ const cacheDir = path.join(outDir, 'cache');
 fs.mkdirSync(cacheDir, { recursive: true });
 const args = new Set(process.argv.slice(2));
 const BS = 2.6; // baked pixels per chart unit
-const log = (s) => console.log(s);
+const failures = []; // checks that failed without stopping the build
+const log = (s) => { console.log(s); if (/^\s*(\[page\] )?FAIL\b/.test(s)) failures.push(s.trim()); };
 const dataUriToBuf = (u) => Buffer.from(u.slice(u.indexOf(',') + 1), 'base64');
 
 async function bake() {
@@ -59,7 +67,8 @@ async function bake() {
   // sea, so its green is read on the fjord coast it sails from)
   const ramp = WATERS.map((w) => (w.n === 7 ? [156, 440, 30] : [w.at[0], w.at[1], 26]));
   log('bake (Chromium)');
-  const crops = { kingdom: [330, 150, 340, 340], west: [70, 170, 320, 340], south: [540, 820, 440, 330], step: [110, 720, 340, 330], fold: [60, 540, 640, 260], gap: [180, 960, 420, 330], east: [600, 100, 440, 560], low: [380, 1120, 420, 300] };
+  const crops = { kingdom: [330, 150, 340, 340], west: [70, 170, 320, 340], south: [540, 820, 440, 330], step: [110, 720, 340, 330], fold: [60, 540, 640, 260], gap: [180, 960, 420, 330], east: [600, 100, 440, 560], low: [380, 1120, 420, 300],
+    thin: [110, 180, 200, 170], pyre: [80, 430, 320, 230], inkwood: [680, 850, 230, 200] };
   const files = {
     '/bake.html': ['text/html', '<!doctype html><meta charset="utf-8"><script src="/bake-client.js"></script>'],
     '/bake-client.js': ['text/javascript', fs.readFileSync(path.join(here, 'bake-client.js'))],
@@ -123,9 +132,28 @@ function assemble() {
 }
 
 const t0 = Date.now();
+// the route rule, first on the courses as WORLD.md gives them: a road that goes back on itself is not baked
+if (!reportRoad(checkRoad(canonLegs(), { reach: 6, stated: true }), 'the route rule (WORLD.md §6.1), on the canon courses', log)) {
+  console.error('the build stops: the Lamp Road in canon.mjs breaks the route rule');
+  process.exit(1);
+}
 if (!args.has('--page') || !fs.existsSync(path.join(cacheDir, 'data.json'))) await bake();
+// and then on the road as the chart draws it (the meandered rivers, the finished coast): no page is written
+// for a drawn road that breaks the rule
+{
+  const data = JSON.parse(fs.readFileSync(path.join(cacheDir, 'data.json'), 'utf8'));
+  if (!reportRoad(checkRoad(drawnLegs(data), { reach: 8 }), 'the route rule, on the road as drawn', log)) {
+    console.error('the build stops: the drawn Lamp Road breaks the route rule');
+    process.exit(1);
+  }
+}
 if (!args.has('--bake-only')) {
   assemble();
   if (!args.has('--no-shots')) await renderShots(chromium, outDir, log);
 }
 log(`done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+if (failures.length) {
+  console.error(`${failures.length} check${failures.length === 1 ? '' : 's'} failed:`);
+  for (const f of failures) console.error('  ' + f);
+  process.exit(1);
+}

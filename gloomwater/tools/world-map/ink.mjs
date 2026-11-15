@@ -69,7 +69,7 @@ export function buildInk(T, log = () => {}) {
     const rush = T.riverById.rush, sweet = T.riverById.sweetwater, pyre = T.riverById.pyre, fall = T.riverById.fallway;
     stamp(ribbonMask, rush.pts.filter((p) => p[0] > 268), 0.3); stamp(ribbonMask, sweet.pts, 0.3);
     stamp(stairMask, rush.pts.filter((p) => p[0] > 212 && p[0] < 268), 0.3);
-    stamp(gorgeMask, pyre.pts.filter((p) => p[1] > 538 && p[1] < 606), 0.3);
+    stamp(gorgeMask, pyre.pts.filter((p) => p[0] > 198 && p[0] < 242), 0.3); // Pyrefall Gorge: the gorge mouth (200,589) up to the temple (240,607)
     stamp(fallMask, fall.pts.filter((p) => p[0] < 300), 0.3);
   }
   const U = (m) => { const d = edt(m, W, H); for (let k = 0; k < N; k++) d[k] /= GS; return d; }; // units
@@ -215,10 +215,11 @@ export function buildInk(T, log = () => {}) {
   barsAlong('sluiceRun', (p) => p[1] < 208 && p[1] > 193, 2.2, 0.45);
   barsAlong('sweetwater', (p) => p[1] > 986 && p[1] < 995, 2.4, 0.5);
   barsAlong('lockwater', (p) => p[0] > 536 && p[0] < 562, 2.6, 0.4);
+  barsAlong('pyre', (p) => p[0] > 241 && p[0] < 249, 1.8, 0.5); // the west icefall's foot, above the temple
   {
     const r = T.riverById.pyre, s = arcLengths(r.pts); let next = 0;
     r.pts.forEach((p, i) => {
-      if (p[1] > 603 || p[1] < 541 || s[i] < next) return; next = s[i] + 1.15;
+      if (p[0] < 198 || p[0] > 242 || s[i] < next) return; next = s[i] + 1.15;
       const [tx, ty] = tangentAt(r.pts, i);
       for (const side of [-1, 1]) { const a = p[3] / 2 + 0.75, b = a + 1.5 + 1.6 * rnd(); gorge.push(+(p[0] - ty * a * side).toFixed(2), +(p[1] + tx * a * side).toFixed(2), +(p[0] - ty * b * side + tx * 0.5).toFixed(2), +(p[1] + tx * b * side + ty * 0.5).toFixed(2)); }
     });
@@ -296,14 +297,14 @@ export function buildInk(T, log = () => {}) {
     const cov = coverAt(L);
     if (y < FOLD.y0 + 8) {
       const fade = smoothstep(FOLD.y0 + 8, FOLD.y0 - 22, y);
-      if (R > 0.62) { // the Spine's wet west face: firs on the fjord walls and up the stream valleys, little between
-        if (dThin[k] < 12) return [G.WILLOW, dThin[k] < 6.6 ? 0.6 * smoothstep(4.2, 5.2, dThin[k]) + 0.4 : smoothstep(12, 7.5, dThin[k])];
+      // the gorge, on the Spine's wet west face: pines on the rim, hanging forest where the spray reaches
+      const gr = 0.9 * smoothstep(17.5, 3, dGorge[k]);
+      if (gr > 0.02) return [nzV.n(x / 3, y / 3) > 0.1 ? G.BROADLEAF : G.CONIFER, gr];
+      if (R > 0.62) { // the rest of the wet west face: firs on the fjord walls and up the stream valleys, little between
+        if (dThin[k] < 9.5) return [G.WILLOW, 0.5 * (dThin[k] < 6.2 ? 0.6 * smoothstep(4.2, 5.2, dThin[k]) + 0.4 : smoothstep(9.5, 6.5, dThin[k]))]; // a narrow belt on the bars: the valley is step 5, between the Sound's 4 and the Last Light's 6
         const wall = Math.max(smoothstep(7.5, 1.2, dl), 0.8 * smoothstep(4.5, 0.8, dw));
         return [G.CONIFER, fade * (cov / FILL[G.CONIFER]) * (0.2 + 1.5 * wall) * (1 - smoothstep(700, 1150, hh))];
       }
-      // the gorge: pines on the rim, hanging forest where the spray reaches
-      const gr = smoothstep(19, 3, dGorge[k]);
-      if (gr > 0.02) return [nzV.n(x / 3, y / 3) > 0.1 ? G.BROADLEAF : G.CONIFER, gr];
       const fl = smoothstep(6, 1.5, dFall[k]); // spray firs by the Fallway's falls
       if (fl > 0.05 && x < 300) return [G.CONIFER, 0.45 * fl];
       if (x > 640) { // the Eastern Downs: heath, with a few trees along the streams
@@ -408,8 +409,8 @@ export function buildInk(T, log = () => {}) {
 
   // ---- stipple on the ice
   const iceDots = [];
-  for (let n = 0; n < 26000; n++) {
-    const x = 236 + rnd() * 136, y = 150 + rnd() * 160, k = cellAt(x, y);
+  for (let n = 0; n < 30000; n++) { // (the box reaches west to the outlet glacier above the ice-lake)
+    const x = 216 + rnd() * 156, y = 150 + rnd() * 160, k = cellAt(x, y);
     if (iceRaw[k] === 1 && !sea[k]) iceDots.push(+x.toFixed(2), +y.toFixed(2));
   }
   // ---- the Fold: rows of one repeated mark, waves on the sea and dunes on the land, coast to coast

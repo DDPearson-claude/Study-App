@@ -11,10 +11,10 @@ export const GS = 2; // grid cells per chart unit
 // Rain, 0..1 (WORLD.md §3): westerlies wet the Spine's west face, the trades wet the south lobe's
 // east side and reach through the Low Gap; the Terrace, the Fold and the Shingle Flats are dry.
 const RAIN = [
-  [150, 250, 0.95], [200, 300, 1], [180, 400, 1], [240, 430, 1], [170, 500, 0.95], [230, 540, 0.9], [180, 600, 0.55], [230, 620, 0.8],
-  [170, 650, 0.2], [260, 330, 1], [240, 230, 0.9], [300, 230, 1], [200, 200, 0.9],
+  [150, 250, 0.95], [200, 300, 1], [180, 400, 1], [240, 430, 1], [170, 500, 0.95], [230, 540, 0.9], [176, 590, 0.86], [232, 612, 0.95],
+  [206, 586, 0.95, 16], [170, 650, 0.2], [260, 330, 1], [240, 230, 0.9], [300, 230, 1], [200, 200, 0.9],
   [345, 300, 0.5], [400, 300, 0.42], [500, 300, 0.4], [600, 260, 0.42], [600, 400, 0.38], [450, 420, 0.36], [340, 440, 0.32],
-  [332, 520, 0.24], [400, 540, 0.13], [460, 580, 0.14], [296, 592, 0.8, 12], [345, 572, 0.3], [560, 560, 0.3], [700, 300, 0.48],
+  [332, 520, 0.24], [400, 540, 0.13], [460, 580, 0.14], [304, 590, 0.3, 14], [345, 572, 0.26], [560, 560, 0.3], [700, 300, 0.48],
   [800, 300, 0.55], [750, 450, 0.5], [820, 480, 0.55], [700, 560, 0.42], [780, 580, 0.5], [500, 200, 0.45], [700, 190, 0.5],
   [840, 170, 0.5], [420, 640, 0.14],
   [160, 700, 0.04], [200, 660, 0.08], [300, 700, 0.11], [400, 690, 0.11], [500, 680, 0.14], [600, 680, 0.24], [660, 730, 0.42],
@@ -27,10 +27,12 @@ const RAIN = [
   [400, 1200, 0.8], [320, 1180, 0.76], [250, 1120, 0.72], [300, 1250, 0.7], [470, 1280, 0.62], [600, 1260, 0.46], [615, 1320, 0.36],
   [720, 1230, 0.66], [880, 1000, 1],
 ];
-// The greening ramp as a field: each water's lushness step, plus the country no sheet shows.
-const LUSH_EXTRA = [[640, 900, 15], [690, 942, 15], [600, 868, 14.7], [742, 984, 15], [724, 928, 15], [660, 996, 14.7], [500, 1104, 13], [575, 1112, 13], [640, 1096, 13], [700, 1074, 13.2],
-  [740, 430, 3.5], [830, 170, 2.2], [700, 200, 1.5], [800, 850, 12.4], [620, 1290, 11], [420, 1220, 12.2], [505, 790, 10.5],
-  [450, 690, 7.5], [700, 770, 11.6], [560, 1200, 12.4], [850, 1150, 13.2], [300, 1230, 12], [170, 250, 4.5], [180, 520, 6.2],
+// The greening ramp as a field: each water's lushness step, plus the country no sheet shows. (The fjord coast
+// greens southward from the Last Light's step 6 toward Pyrefall's 7; the forest's heart lies with the Inkwood,
+// beyond the lagoon.)
+const LUSH_EXTRA = [[640, 900, 15], [690, 942, 15], [600, 868, 14.7], [742, 984, 14.8], [724, 928, 15], [660, 996, 14.7], [736, 880, 15], [778, 876, 15], [500, 1104, 13], [575, 1112, 13], [640, 1096, 13], [700, 1074, 13.2],
+  [740, 430, 3.5], [830, 170, 2.2], [700, 200, 1.5], [806, 830, 12.6], [620, 1290, 11], [420, 1220, 12.2], [505, 790, 10.5],
+  [450, 690, 7.5], [700, 770, 11.6], [560, 1200, 12.4], [850, 1150, 13.2], [300, 1230, 12], [170, 250, 4.5], [166, 432, 6.7], [152, 446, 6.9], [180, 520, 6.8],
   [560, 420, 2], [640, 330, 0.8], [400, 780, 9.5], [380, 940, 10.5], [520, 1000, 13.6], [600, 1100, 13.2], [450, 1100, 12.8]];
 
 export function buildTerrain(log = () => {}) {
@@ -121,7 +123,10 @@ export function buildTerrain(log = () => {}) {
   // drowned valleys of the fjord coast: seeded, winding, tapering, some with a side arm
   {
     const rf = mulberry32(SEED + 6);
-    const tooNear = (x, y) => nearestOnPolyline(inletLines.rimeSound, x, y).d < 13 || (x > 212 && y > 196 && y < 314) || (Math.abs(y - 471) < 7 && x < 205) || x > 262;
+    const courseOf = (id) => RIVERS.find((r) => r.id === id).pts;
+    const thin = courseOf('thinWater'), pyre = courseOf('pyre');
+    const tooNear = (x, y) => nearestOnPolyline(inletLines.rimeSound, x, y).d < 13 || nearestOnPolyline(thin, x, y).d < 15 || (x > 196 && y > 196 && y < 242) // the Thin Water's valley, its ice-lake and the glacier above it
+      || nearestOnPolyline(pyre, x, y).d < 13 || (Math.abs(y - 471) < 7 && x < 205) || x > 262;
     for (let y = 212; y < 552; y += 8 + rf() * 13) {
       let xc = -1; const j = Math.round(gj(y));
       for (let i = Math.round(gi(60)); i < Math.round(gi(260)); i++) if (sdBase[j * W + i] > 0) { xc = cx(i); break; }
@@ -177,7 +182,7 @@ export function buildTerrain(log = () => {}) {
   const anchors = [[600, 186, 30], [540, 192, 26], [570, 194, 26], [630, 192, 26], [662, 190, 26], [690, 184, 22], [146, 335, 18], [188, 792, 42], [150, 766, 20],
     [228, 1006, 38], [858, 975, 50], [858, 134, 16], [652, 692, 34], [612, 1334, 12], [110, 440, 16], [55, 495, 14], [450, 118, 16], [320, 162, 30],
     [947, 638, 12], [215, 1242, 10], [132, 756, 14], [940, 1070, 18], [920, 1041, 12], [930, 1121, 12], [862, 810, 15], [749, 608, 15],
-    [741, 169, 15], [164, 471, 12], [165, 665, 15], [946, 1136, 16], [870, 950, 20]];
+    [741, 169, 15], [164, 471, 12], [165, 665, 15], [946, 1136, 16], [870, 950, 20], [164, 572, 16]];
   const coastNoise = (x, y) => {
     const fj = smoothstep(335, 280, x) * smoothstep(196, 226, y) * smoothstep(545, 500, y);
     const nc = smoothstep(228, 196, y);
@@ -388,7 +393,7 @@ export function buildTerrain(log = () => {}) {
     });
   }
   for (const c of canals) {
-    const zs = c.id === 'straightCanal' ? [[252, 1010, 1.5], [280, 1035, 8], [318, 1062, 15], [355, 1080, 13], [398, 1094, 10.6]] : null;
+    const zs = c.rise ? c.pts.map((p, i) => [p[0], p[1], c.rise[i]]) : null; // a canal that climbs to a summit (canon.mjs `rise`)
     const dense = zs ? resample(zs, 0.4) : c.dense.map((p) => [p[0], p[1], c.level]);
     splat(dense, 4, (k, d, p) => { const q = d / 4, cap = p[2] + 0.5 * Math.pow(d, 1.2) + q * q * q * q * 3000; if (cap < capF[k]) capF[k] = cap; });
   }
