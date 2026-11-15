@@ -45,7 +45,7 @@ export const WATCH = ['flow:change', 'home:enter', 'zone:change', 'run:start', '
   'fishing:show', 'fish:measured', 'fish:landed', 'fish:action', 'loop:holdFull', 'loop:tally', 'loop:buy', 'loop:tutorial',
   'fish:escaped', 'firstEvening:line', 'merchant:arrive', 'gate:open', 'card:stamp'];
 
-class Abort extends Error {}
+export class Abort extends Error {}
 
 // ================================================================== pure helpers (node; the dry run checks them)
 /** Clams as core.fmtClams writes them (PLAN §3.2; the dry run proves the two agree): "9,999", "12.4k", "1.2m". */
@@ -500,6 +500,62 @@ export function makeKit(api, { label = 'loop' } = {}) {
     }
     return { x: W * 0.5, y: H * 0.42, el: null };
   });
+  /** The catch card: Keep's figure, the buttons, and what loop.priceOf says of the fish it shows. */
+  K.card = () => g(() => {
+    const T = window.__lp, c = window.__gw, m = T.one('[data-modal=catch]');
+    const keep = m?.querySelector('[data-action=keep]'), em = keep?.querySelector('em[data-to]');
+    let price = null;
+    try { price = T.landed ? c.progression.loop.priceOf(T.landed) : null; } catch { price = null; }
+    return { open: !!m, keep: keep ? { to: em ? Number(em.dataset.to) : null, disabled: !!keep.disabled } : null, letgo: !!m?.querySelector('[data-action=letgo]'),
+      buttons: m ? [...m.querySelectorAll('.gw-pf button, footer button')].filter(T.visible).map(T.say) : [], price,
+      fish: T.landed ? { uid: T.landed.uid ?? null, speciesId: T.landed.speciesId ?? T.landed.id ?? null, z: T.landed.z ?? null } : null };
+  });
+  /** Keep the open card by a real tap on Keep; → the fish's uid and its figure. */
+  K.keepCard = async (what, { shot = false, scan = false, dwell = 1.5 } = {}) => {
+    const ok = await K.until("c.debug.ui().openModal === 'catch'", 8);
+    K.need(ok.ok, `${what}: the catch card opens`, ok);
+    await K.settle(250);
+    if (dwell > 0) await K.secs(dwell);   // (gw-show's count-up starts after the stamp press: t0 + 1100 ms)
+    const cd = await K.card();
+    K.check(cd.keep && cd.keep.to !== null && cd.keep.to === cd.price, `${what}: Keep's em[data-to] is loop.priceOf(fish)`, cd);
+    K.check(cd.keep && !cd.keep.disabled && cd.letgo, `${what}: the card offers Keep and Let go`, cd.buttons);
+    if (scan) await K.scan('the card');
+    if (shot) await K.shoot('card');
+    await K.tap('[data-modal=catch] [data-action=keep]');
+    const closed = await K.until("c.debug.ui().openModal !== 'catch'", 3);
+    K.check(closed.ok, `${what}: Keep closes the card`);
+    await K.secs(0.4);
+    return cd;
+  };
+  /** A fish caught through the real path (a real press to cast, the bite forced, the strike, the play hurried to its end). */
+  K.realCatch = async (speciesId, z, { what, onBite = null, outcome = 'land', natural = false } = {}) => {
+    const pt = await K.waterPoint();
+    const pr = await K.pressHold(pt.x, pt.y, 0.5, 'c.fishing.state');
+    const cast = await K.until("c.fishing.state === 'waiting' || c.fishing.state === 'bite'", 8);
+    if (!cast.ok) K.note(`${what}: the real press did not cast (${JSON.stringify(pr.seen.slice(-3))}); forceBite casts instead`);
+    await g(([sp, z, o, nat]) => {
+      const d = window.__gw.debug;
+      d.fishOutcome?.(o);
+      if (nat) d.forceBite?.({ natural: true });
+      else d.forceBite?.({ speciesId: sp, z, wait: 0.2 });
+    }, [speciesId, z, outcome, natural]);
+    const bit = await K.until("c.fishing.state === 'bite'", natural ? 60 : 4);
+    K.need(bit.ok, `${what}: a bite`, bit);
+    if (onBite) await onBite();
+    await g(() => window.__gw.debug.fishStrike?.('struck'));
+    const reel = await K.until("c.fishing.state === 'reeling' || c.fishing.state === 'landing'", 3);
+    K.need(reel.ok, `${what}: the strike hooks it`, reel);
+    await K.steps(3);
+    await g(() => window.__gw.debug.fishPlayTo?.(0.97));
+    return bit;
+  };
+  /** Wait out a show into its card (Space hurries it, as a player may). */
+  K.toCard = async (what, { hurry = true, dwell = 1.5 } = {}) => {
+    const sh = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 25);
+    K.need(sh.ok, `${what}: the play reaches its show`, sh);
+    if (hurry && (await K.state()).inShow) await K.key('Space');
+    return K.keepCard(what, { dwell });
+  };
   return K;
 }
 
@@ -549,62 +605,7 @@ export default async function (api) {
       pill: pill ? { shown: T.visible(pill), pulse: pill.classList.contains('gw-pulse') && pill.classList.contains('gw-home'), box: T.box('[data-loop=home]') } : null,
       vw: innerWidth };
   });
-  /** The catch card: Keep's figure, the buttons, and what loop.priceOf says of the fish it shows. */
-  const card = () => g(() => {
-    const T = window.__lp, c = window.__gw, m = T.one('[data-modal=catch]');
-    const keep = m?.querySelector('[data-action=keep]'), em = keep?.querySelector('em[data-to]');
-    let price = null;
-    try { price = T.landed ? c.progression.loop.priceOf(T.landed) : null; } catch { price = null; }
-    return { open: !!m, keep: keep ? { to: em ? Number(em.dataset.to) : null, disabled: !!keep.disabled } : null, letgo: !!m?.querySelector('[data-action=letgo]'),
-      buttons: m ? [...m.querySelectorAll('.gw-pf button, footer button')].filter(T.visible).map(T.say) : [], price,
-      fish: T.landed ? { uid: T.landed.uid ?? null, speciesId: T.landed.speciesId ?? T.landed.id ?? null, z: T.landed.z ?? null } : null };
-  });
-  /** Keep the open card by a real tap on Keep; → the fish's uid and its figure. */
-  const keepCard = async (what, { shot = false, scan = false } = {}) => {
-    const ok = await K.until("c.debug.ui().openModal === 'catch'", 8);
-    K.need(ok.ok, `${what}: the catch card opens`, ok);
-    await K.settle(250);
-    await K.secs(1.5);   // (gw-show's count-up starts after the stamp press: t0 + 1100 ms)
-    const cd = await card();
-    K.check(cd.keep && cd.keep.to !== null && cd.keep.to === cd.price, `${what}: Keep's em[data-to] is loop.priceOf(fish)`, cd);
-    K.check(cd.keep && !cd.keep.disabled && cd.letgo, `${what}: the card offers Keep and Let go`, cd.buttons);
-    if (scan) await K.scan('the card');
-    if (shot) await K.shoot('card');
-    await K.tap('[data-modal=catch] [data-action=keep]');
-    const closed = await K.until("c.debug.ui().openModal !== 'catch'", 3);
-    K.check(closed.ok, `${what}: Keep closes the card`);
-    await K.secs(0.4);
-    return cd;
-  };
-  /** A fish caught through the real path (a real press to cast, the bite forced, the strike, the play hurried to its end). */
-  const realCatch = async (speciesId, z, { what, onBite = null, outcome = 'land', natural = false } = {}) => {
-    const pt = await K.waterPoint();
-    const pr = await K.pressHold(pt.x, pt.y, 0.5, 'c.fishing.state');
-    const cast = await K.until("c.fishing.state === 'waiting' || c.fishing.state === 'bite'", 8);
-    if (!cast.ok) K.note(`${what}: the real press did not cast (${JSON.stringify(pr.seen.slice(-3))}); forceBite casts instead`);
-    await g(([sp, z, o, nat]) => {
-      const d = window.__gw.debug;
-      d.fishOutcome?.(o);
-      if (nat) d.forceBite?.({ natural: true });
-      else d.forceBite?.({ speciesId: sp, z, wait: 0.2 });
-    }, [speciesId, z, outcome, natural]);
-    const bit = await K.until("c.fishing.state === 'bite'", natural ? 60 : 4);
-    K.need(bit.ok, `${what}: a bite`, bit);
-    if (onBite) await onBite();
-    await g(() => window.__gw.debug.fishStrike?.('struck'));
-    const reel = await K.until("c.fishing.state === 'reeling' || c.fishing.state === 'landing'", 3);
-    K.need(reel.ok, `${what}: the strike hooks it`, reel);
-    await K.steps(3);
-    await g(() => window.__gw.debug.fishPlayTo?.(0.97));
-    return bit;
-  };
-  /** Wait out a show into its card (Space hurries it, as a player may). */
-  const toCard = async (what, { hurry = true } = {}) => {
-    const sh = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 25);
-    K.need(sh.ok, `${what}: the play reaches its show`, sh);
-    if (hurry && (await K.state()).inShow) await K.key('Space');
-    return keepCard(what);
-  };
+  const { card, keepCard, realCatch, toCard } = K;
 
   // ================================================================ MAIN
   if (want('main')) {
