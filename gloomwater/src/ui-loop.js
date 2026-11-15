@@ -357,7 +357,17 @@ export function scaleSvg() {
 }
 /** The three Jetty tiles' small ink drawings: Murk (his barge-lamp, the UI's one sage trace), the Chart (a rolled sheet), the Journal. */
 function tileArt(id) {
-  if (id === 'murk') return murkPortrait();
+  if (id === 'murk') {
+    // Murk in the tiles' own pale ink (his full portrait is the shelf's): the hunched toad under his towering pack, his gold eyes and
+    // his dim barge-lamp, the interface's one sage trace
+    return `<svg class="gw-tile-art gw-tile-art--murk" viewBox="0 0 96 64" aria-hidden="true"><g filter="url(#gw-brush)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 44 C28 26 34 12 46 8 C54 5 62 8 64 17 L65 44" stroke-width="1.7"/><path d="M35 18 h24 M33 27 h29 M32 36 h31" stroke-width="1.1" stroke-opacity=".55"/>
+      <path d="M64 17 q8 -10 9 -2 v4" stroke-width="1.4"/><path d="M69 19 h8 l-1.4 3 h-5.2 z M70.5 22 h5.2 l1 6 h-7.2 z" stroke-width="1.2"/>
+      <path d="M18 62 C15 50 22 40 36 38 C43 30 59 30 66 38 C79 40 86 50 83 62" stroke-width="1.8"/>
+      <path d="M26 52 c5 -2 8 -1 10 1 M62 53 c4 -3 8 -2 11 1" stroke-width="1.1" stroke-opacity=".6"/></g>
+      <path d="M36 41 q5 -3.4 10 0 q-5 1.8 -10 0z M52 41 q5 -3.4 10 0 q-5 1.8 -10 0z" fill="#e8c86a"/>
+      <circle cx="73" cy="25" r="2.2" class="gw-tile-sage"/></svg>`;
+  }
   if (id === 'chart') {
     return `<svg class="gw-tile-art" viewBox="0 0 96 64" aria-hidden="true"><g filter="url(#gw-brush)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 14 C30 10 66 10 82 14 L80 50 C64 46 32 46 16 50 Z" stroke-width="1.8"/><path d="M82 14 c5 1 6 6 3 9 c-2 2 -5 1 -5 -2" stroke-width="1.6"/>
@@ -471,7 +481,7 @@ export function createLoopView(K) {
   const seenTip = (id) => !!K.meta?.().seenTips?.[id];
   const markTip = (id) => { const m = K.meta?.(); if (m) { m.seenTips = m.seenTips || {}; m.seenTips[id] = true; } };
   function tipEl(text) {
-    const el = h('div', 'gw-toast gw-toast--tip gw-loop-tip', `${icon('quill', { cls: 'gw-toast-ico' })}<span></span>`);
+    const el = h('div', 'gw-toast gw-toast--tip gw-loop-tip gw-toast--loop', `${icon('quill', { cls: 'gw-toast-ico' })}<span></span>`);
     el.querySelector('span').textContent = text;
     K.layers.toasts.appendChild(el);
     requestAnimationFrame(() => el.classList.add('gw-in'));
@@ -488,7 +498,7 @@ export function createLoopView(K) {
   // ------------------------------------------------------------------ Murk's lines on the water (one lore toast; never in a bite)
   function murkToast(line) {
     if (!line) return;
-    K.toast(line, 'lore', { icon: 'lantern', cls: 'gw-toast--murk', dur: 4600 });
+    K.toast(line, 'lore', { icon: 'lantern', cls: 'gw-toast--murk gw-toast--loop', dur: 4600 });
   }
   let quietSaid = false;
 
@@ -668,7 +678,8 @@ export function createLoopView(K) {
     // the scale: a fish glyph lands on the right pan per row, a clam on the left as it is valued; the beam dips to the fish and levels
     const fishLoad = el.querySelector('.gw-scale-pan--fish .gw-sc-load'), clamLoad = el.querySelector('.gw-scale-pan--clams .gw-sc-load');
     if (fishLoad && fishLoad.childElementCount !== onPans) {
-      fishLoad.innerHTML = Array.from({ length: onPans }, (_, i) => `<path class="gw-sc-fish" transform="translate(${214 - 14 + (i % 3) * 10} ${60 - Math.floor(i / 3) * 5}) scale(.5)" d="M0 6c3-4 7.5-5.5 11.5-3.5L17 -1v14l-5.5-3.5C7.5 11.5 3 10 0 6z"/>`).join('');
+      // (the place is the group's attribute; the glyph inside drops in by CSS, which would override a transform attribute on it)
+      fishLoad.innerHTML = Array.from({ length: onPans }, (_, i) => `<g transform="translate(${214 - 17 + (i % 3) * 11} ${59 - Math.floor(i / 3) * 5}) scale(.62)"><path class="gw-sc-fish" d="M0 6c3-4 7.5-5.5 11.5-3.5L17 -1v14l-5.5-3.5C7.5 11.5 3 10 0 6z"/></g>`).join('');
     }
     if (clamLoad && clamLoad.childElementCount !== cl) {
       clamLoad.innerHTML = Array.from({ length: cl }, (_, i) => `<ellipse class="gw-sc-clam" cx="${46 - 12 + (i % 3) * 12}" cy="${62 - Math.floor(i / 3) * 4}" rx="5" ry="3.2"/>`).join('');
@@ -845,7 +856,7 @@ export function createLoopView(K) {
   });
   on('loop:holdFull', (p) => {
     if (p.via !== 'cast') return;
-    K.toast(TL().holdFull || "Hold's full.", 'bad', { icon: 'creel', dur: 2200 });
+    K.toast(TL().holdFull || "Hold's full.", 'bad', { icon: 'creel', dur: 2200, cls: 'gw-toast--loop' });
     K.sfx?.('denied', { volume: 0.5 });
     pill.classList.remove('gw-pulse'); void pill.offsetWidth; pill.classList.add('gw-pulse');
     holdRow.classList.remove('gw-shake'); void holdRow.offsetWidth; holdRow.classList.add('gw-shake');

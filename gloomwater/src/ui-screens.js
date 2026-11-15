@@ -966,7 +966,7 @@ export function createScreens(K) {
         // Keep · clam · the value (key 1; dimmed with no words when the hold is full) and Let go (key 2)
         const [K1, K2] = cardActions({ clams: p.clams ?? safe(() => ctx.progression?.loop?.priceOf?.(fish), 0), holdFull: full, D: D() });
         foot.classList.add('gw-catch-actions--loop');
-        foot.appendChild(btn(`${esc(K1.label)} <em data-to="${K1.clams}">${icon('clam')}<b>${esc(fmtClams(s.loopCounted ? K1.clams : 0))}</b></em>`, { ...A, key: K1.key, action: K1.action, cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: K1.disabled, onClick: act('keep'), autofocus: K1.autofocus }));
+        foot.appendChild(btn(`${esc(K1.label)} <em data-to="${K1.clams}">${icon('clam')}<b style="min-width:${K1.clamsText.length}ch">${esc(fmtClams(s.loopCounted ? K1.clams : 0))}</b></em>`, { ...A, key: K1.key, action: K1.action, cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: K1.disabled, onClick: act('keep'), autofocus: K1.autofocus }));
         foot.appendChild(btn(esc(K2.label), { ...A, key: K2.key, action: K2.action, cls: 'gw-cc-act gw-cc-letgo', onClick: act('letgo'), autofocus: K2.autofocus }));
       } else {
       foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));

@@ -2194,9 +2194,11 @@
 
 /* Murk's lines on the water: a lore toast with his sage lamp (the interface's one green trace); the first trip's two tips */
 .gw-loop-on .gw-toast--murk .gw-toast-ico { color: var(--murk-sage); filter: drop-shadow(0 0 5px rgba(169, 201, 160, .55)); }
-.gw-loop-tip { font-size: 21px; letter-spacing: .01em; flex-wrap: nowrap; }
-.gw-loop-tip > span { max-width: none; white-space: nowrap; }
-@media (max-width: 400px) { .gw-loop-tip { font-size: 19px; padding: 10px 26px; } .gw-loop-tip > span { white-space: normal; } }
+/* (a loop toast's line is measured against the screen, never against its own shrink-to-fit box: one line where it fits) */
+.gw-toast--loop { flex-wrap: nowrap; }
+.gw-toast--loop > span { max-width: min(80vw, 600px); }
+.gw-loop-tip { font-size: 21px; letter-spacing: .01em; }
+@media (max-width: 400px) { .gw-loop-tip { font-size: 19px; padding: 10px 26px; } }
 
 /* ---------------------------------------------------------------- Murk's line (the Jetty, the Chart, the shelf, the tally) */
 .gw-murk-line { position: relative; margin: 0 auto; max-width: 44ch; padding: 6px 26px; text-align: center; font: italic 400 22px/1.38 var(--f-body); color: #e6e1fa;
@@ -2230,7 +2232,7 @@
 .gw-tile::before { inset: 4px 10px; border-radius: 46% 46% 40% 40%; background: radial-gradient(ellipse 52% 54% at 50% 46%, rgba(160, 150, 240, .2), transparent 72%); }
 .gw-tile .gw-tile-vig { width: 112px; height: 72px; opacity: .78; display: flex; align-items: center; justify-content: center; }
 .gw-tile .gw-tile-vig > svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); }
-.gw-tile--murk .gw-tile-vig .gw-murk { width: 92px; height: 79px; filter: brightness(1.75) contrast(1.05) drop-shadow(0 0 1px rgba(214, 214, 228, .5)) drop-shadow(0 1px 3px #000); }
+.gw-tile-sage { fill: var(--murk-sage); filter: drop-shadow(0 0 4px rgba(169, 201, 160, .9)); }
 .gw-tile-art { color: var(--ink); }
 .gw-tile-lamp { fill: var(--hearth); filter: drop-shadow(0 0 4px rgba(240, 162, 74, .9)); }
 .gw-tile .gw-mode-name b { font-size: 21px; letter-spacing: .2em; }
@@ -2311,7 +2313,7 @@
 .gw-p-shelf { width: min(820px, calc(100vw - 24px)); padding: 6px 40px 52px; }
 .gw-shelf-head { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 0 16px; padding: 0 44px 0 44px; flex: none; }
 .gw-shelf-murk { grid-column: 2; display: flex; justify-content: center; }
-.gw-shelf-murk .gw-murk { width: 104px; height: 89px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .8)); }
+.gw-shelf-murk .gw-murk { width: 104px; height: 89px; filter: brightness(1.45) drop-shadow(0 0 1px rgba(214, 214, 228, .45)) drop-shadow(0 2px 6px rgba(0, 0, 0, .8)); }
 .gw-shelf-purse { grid-column: 3; grid-row: 1; justify-self: end; align-self: start; margin-top: 10px; font: 400 26px/1 var(--f-display); text-shadow: 0 1px 2px #000; }
 .gw-shelf-purse .gw-ico { width: 26px; height: 26px; filter: drop-shadow(0 0 6px var(--clam-glow)); }
 .gw-shelf-head .gw-murk-line { grid-column: 1 / -1; margin: 2px auto 0; padding: 0 8px; font-size: 19px; max-width: 46ch; }
@@ -2380,7 +2382,7 @@
 .gw-cc-loop .gw-catch-actions--loop { gap: 2px 34px; }
 .gw-cc-loop .gw-cc-keep em { display: inline-flex; align-items: center; gap: 4px; font: 500 .96em/1 var(--f-body); color: var(--clam); margin-left: 8px; }
 .gw-cc-loop .gw-cc-keep em .gw-ico { width: 1.02em; height: 1.02em; color: var(--clam); filter: drop-shadow(0 0 5px var(--clam-glow)); }
-.gw-cc-loop .gw-cc-keep em b { font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
+.gw-cc-loop .gw-cc-keep em b { display: inline-block; text-align: left; font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
 .gw-cc-loop .gw-cc-keep:disabled { opacity: .32; }
 .gw-cc-star { font-style: normal; color: var(--gold); margin-right: .3em; text-shadow: 0 0 12px rgba(232, 190, 119, .7); }
 .gw-cc-giant .gw-cc-stamp > span { color: var(--gold) !important; border-color: var(--gold) !important; text-shadow: 0 0 10px rgba(232, 190, 119, .45); }
@@ -2411,7 +2413,6 @@
   .gw-jetty-tiles { flex-direction: column; align-items: stretch; gap: 2px; width: min(358px, 100%); }
   .gw-tile { flex: none; flex-direction: row; justify-content: flex-start; gap: 14px; min-height: 64px; padding: 4px 16px; }
   .gw-tile .gw-tile-vig { width: 78px; height: 52px; }
-  .gw-tile--murk .gw-tile-vig .gw-murk { width: 62px; height: 53px; }
   .gw-tile .gw-mode-name b { font-size: 20px; }
   .gw-tile::before { inset: 2px 0; border-radius: 40%; }
   .gw-jetty-goal { margin-top: 8px; font-size: 14.5px; }
