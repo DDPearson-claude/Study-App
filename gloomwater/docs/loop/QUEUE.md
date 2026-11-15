@@ -8,13 +8,14 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 
 1. ~~The catch show~~ *(DONE 15 November: merged at 32c7133 with the cut scene; the preview updated; the film with its sound sent)*
 2. The world map and the story (resume `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map (a 2D generator and page, not a game render); publish the map; answer the user's questions.
-3. The Chart-integration plan: the world map as the in-game Chart (SPEC §5.4, §13, PLAN's Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers).
-4. The three keys (resume `wf_1c95633f-092`).
-5. The Wicks' passives, design (resume `wf_91d42619-6b9`).
-6. The Wicks' balancing in the sim.
-7. Slice 1a, built (its PLAN, amended by 3–6), then the preview with the loop on.
-8. *(visual)* The cut scene's line 3, rewritten from the story; re-timed, re-checked, a new video with sound.
-9. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`).
+3. **Pounds** (the user, 15 November 2026: "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please"). A fish's size is told in pounds everywhere the player sees it: the card's headline and its count, records and personal bests, the Journal and ledger, bounties and challenges, the play's estimate, Murk's lines. Format (the lead's default, the UK angler's way): under 1 lb in ounces ("11 oz"; under 1 oz to the nearest quarter, "¾ oz"); 1 lb to under 100 lb as "4 lb 6 oz"; 100 lb and up in whole pounds ("212 lb"). Length stays the hidden truth (the model's scale, the show's pose, the classes) and is kept only as a detail line on the card. The species' weights are audited against their real-world cousins so the pounds ring true. v3 and the loop only; the flag-off v1 game keeps parity. Code job: data, ui, progression, validator, tests, docs.
+4. The Chart-integration plan: the world map as the in-game Chart (SPEC §5.4, §13, PLAN's Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers).
+5. The three keys (resume `wf_1c95633f-092`).
+6. The Wicks' passives, design (resume `wf_91d42619-6b9`).
+7. The Wicks' balancing in the sim.
+8. Slice 1a, built (its PLAN, amended by 3–7), then the preview with the loop on.
+9. *(visual)* The cut scene's line 3, rewritten from the story; re-timed, re-checked, a new video with sound.
+10. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`).
 
 ## Running
 
