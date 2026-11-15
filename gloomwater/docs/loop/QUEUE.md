@@ -35,7 +35,7 @@ The user, 15 November 2026: "Can we run anything else in parallel without slowin
 
 - **Pounds** (job 3; branch `gw-pounds`; run `wf_946e4698-445`): the heavy job.
 - **WICKS.md revision 3, Tallow the carrier** (the user's answers; branch `gw-loop-wicks2`; run `wf_9be33f54-5ef`): beside it (writing only).
-- **The names audit** (beside; branch `gw-loop-names`; run `wf_7ea4c5ad-c45`): every place, river and sea name checked against real-world names (the road job found "Chalk Water" was real and renamed it the Flourwater; "the Sweetwater" and "the Rush" are suspects); renames applied, the map re-baked and republished.
+- ~~The names audit~~ (cancelled 15 November: the user, "I dont care if they're named after real rivers or lakes"; the rule since: real river and lake names are allowed in the world and on the map; the TV series and its presenter are still never named in anything that ships).
 
 ## Backlog for slice 1a (job 9) (found on the catch show's merge; small, code only; lane B unless named)
 
