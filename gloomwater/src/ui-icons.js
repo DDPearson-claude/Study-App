@@ -23,6 +23,10 @@ export const ICONS = {
   scallop: P('M12 3.2C4.8 5.9 3 13 5.6 19.4h12.8C21 13 19.2 5.9 12 3.2z') + P('M12 3.2v16.2M7.9 6.2l1.3 13.2M16.1 6.2l-1.3 13.2', ' stroke-opacity=".8"'),
   book: P('M3.6 4.7C7.3 3.8 10.2 4.7 12 6.6c1.8-1.9 4.7-2.8 8.4-1.9v14.6c-3.7-.9-6.6 0-8.4 1.9-1.8-1.9-4.7-2.8-8.4-1.9z') + P('M12 6.6v14.6'),
   coin: C(12, 12, 7.5) + C(12, 12, 5, ' stroke-opacity=".5"') + P('M12 9v6'),
+  // the Full Hold's clam (slice-1a PLAN §2.3 item 6): a closed bivalve, two valves meeting at a seam and a hinge with its umbo on
+  // top; no radiating ribs, so it never reads as the Shells fan
+  clam: P('M3.4 12.6C4 8 7.6 5.3 12 5.3s8 2.7 8.6 7.3c-.6 4.1-4 6.7-8.6 6.7s-8-2.6-8.6-6.7z') + P('M3.6 12.7c3 1.9 13.8 1.9 16.8 0')
+    + P('M9.9 5.6c.5-1.5 3.7-1.5 4.2 0', ' stroke-opacity=".85"') + P('M7.2 9.4c2.8-1.7 6.8-1.7 9.6 0M8.6 16.6c2.2 1 4.6 1 6.8 0', ' stroke-opacity=".5"'),
   // ---------------------------------------------------------------- hud buttons
   creel: P('M5 9.5h14l-1.5 10h-11z') + P('M5.6 13.2h12.8M6.1 16.5h11.8M9.4 9.5l.5 10M14.6 9.5l-.5 10', ' stroke-opacity=".6"') + P('M8 9.5c0-3 1.8-4.8 4-4.8s4 1.8 4 4.8'),
   journal: P('M5 4.5h10.5a2 2 0 0 1 2 2V20H7a2 2 0 0 1-2-2z') + P('M5 18a2 2 0 0 1 2-2h10.5') + P('M8.5 8.5h5.5M8.5 11h4', ' stroke-opacity=".6"') + P('M14 4.5V9l1-.8 1 .8V4.5', ' stroke-opacity=".8"'),
