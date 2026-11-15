@@ -255,6 +255,8 @@ const game = {
     ctx.state.run = savedRun;
     savedRun = null;
     ctx.paused = false;
+    // the loop: the saved raft place, read now (a save on the way to run:start writes the spawn's place into run.pos)
+    const loopPos = LOOP_ON ? (ctx.state.run.pos ?? ctx.state.run.flags?.pos ?? null) : null;
     setFlow('playing');
     if (FE_ON) {
       // CONTRACT §13.4 Continue: the title orbited the cove, so prev is 'cove' and `continued` marks the Continue
@@ -267,8 +269,7 @@ const game = {
     ctx.bus.emit('zone:change', { zone: ctx.state.run.zone, prev: null });
     ctx.bus.emit('run:start', { continued: true });
     if (LOOP_ON) {   // the raft's place (T32): after run:start, whose listener put it at the lake's spawn
-      const pos = ctx.state.run?.pos ?? ctx.state.run?.flags?.pos;
-      if (pos) { try { ctx.player.restore?.(pos); } catch (e) { report('player.restore', e); } }
+      if (loopPos) { try { ctx.player.restore?.(loopPos); } catch (e) { report('player.restore', e); } }
     }
   },
   endRun(cause = 'unknown') {
