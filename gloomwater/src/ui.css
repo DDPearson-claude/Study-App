@@ -2140,14 +2140,17 @@
 .gw-hud.gw-loop .gw-actions { right: calc(var(--sar) + 26px); bottom: calc(var(--sab) + 28px); }
 
 /* the hold row (top-left): the Wick's count of slots, each a small ink cradle; a kept fish sits in it, a giant's cradle is gilded */
-.gw-hold { display: flex; align-items: flex-end; gap: 4px; pointer-events: none; padding: 2px 0 0; min-height: 38px; }
+.gw-hold { position: relative; display: flex; align-items: flex-end; gap: 4px; pointer-events: none; padding: 4px 10px 2px; margin-left: -10px; min-height: 40px; isolation: isolate; }
+.gw-hold::before { content: ''; position: absolute; inset: -14px -26px -12px; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 50% 50% at 50% 55%, rgba(var(--veil-rgb), .66), rgba(var(--veil-rgb), .36) 58%, transparent 100%); }
 .gw-hold:empty { display: none; }
 .gw-slot { position: relative; flex: none; width: 40px; height: 32px; display: flex; align-items: flex-end; justify-content: center; color: var(--ink-dim); }
 .gw-slot::before { content: ''; position: absolute; left: 3px; right: 3px; bottom: 2px; height: 14px; background: currentColor; opacity: .55;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 14'%3E%3Cpath d='M2 2.5 C3.5 9.5 9 12.2 17 12.2 S30.5 9.5 32 2.5' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M9 10.4 L8.4 7.6 M17 12 V9 M25 10.4 L25.6 7.6' fill='none' stroke='black' stroke-width='1.1' stroke-linecap='round' stroke-opacity='.75'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 14'%3E%3Cpath d='M2 2.5 C3.5 9.5 9 12.2 17 12.2 S30.5 9.5 32 2.5' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M9 10.4 L8.4 7.6 M17 12 V9 M25 10.4 L25.6 7.6' fill='none' stroke='black' stroke-width='1.1' stroke-linecap='round' stroke-opacity='.75'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); transition: opacity .4s, color .4s; }
-.gw-slot.gw-filled::before { opacity: .9; color: var(--ink); }
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 14'%3E%3Cpath d='M2 2.5 C3.5 9.5 9 12.2 17 12.2 S30.5 9.5 32 2.5' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round'/%3E%3Cpath d='M9 10.4 L8.4 7.6 M17 12 V9 M25 10.4 L25.6 7.6' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-opacity='.75'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 14'%3E%3Cpath d='M2 2.5 C3.5 9.5 9 12.2 17 12.2 S30.5 9.5 32 2.5' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round'/%3E%3Cpath d='M9 10.4 L8.4 7.6 M17 12 V9 M25 10.4 L25.6 7.6' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-opacity='.75'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 2px rgba(4, 5, 12, .95)) drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); transition: opacity .4s, color .4s; }
+.gw-hud .gw-slot::before { color: var(--ink); opacity: .78; }
+.gw-slot.gw-filled::before { opacity: .95; color: var(--ink); }
 .gw-slot.gw-gild::before { color: var(--gold); opacity: 1; filter: drop-shadow(0 0 5px rgba(232, 190, 119, .7)); }
 .gw-slot-fish { position: relative; display: block; width: 40px; height: 22px; margin-bottom: 5px; transform: scale(var(--s, .82)); transform-origin: 50% 85%;
   filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .95)) drop-shadow(0 0 4px rgba(4, 5, 12, .9)); }
@@ -2191,7 +2194,9 @@
 
 /* Murk's lines on the water: a lore toast with his sage lamp (the interface's one green trace); the first trip's two tips */
 .gw-loop-on .gw-toast--murk .gw-toast-ico { color: var(--murk-sage); filter: drop-shadow(0 0 5px rgba(169, 201, 160, .55)); }
-.gw-loop-tip { font-size: 21px; letter-spacing: .01em; }
+.gw-loop-tip { font-size: 21px; letter-spacing: .01em; flex-wrap: nowrap; }
+.gw-loop-tip > span { max-width: none; white-space: nowrap; }
+@media (max-width: 400px) { .gw-loop-tip { font-size: 19px; padding: 10px 26px; } .gw-loop-tip > span { white-space: normal; } }
 
 /* ---------------------------------------------------------------- Murk's line (the Jetty, the Chart, the shelf, the tally) */
 .gw-murk-line { position: relative; margin: 0 auto; max-width: 44ch; padding: 6px 26px; text-align: center; font: italic 400 22px/1.38 var(--f-body); color: #e6e1fa;
@@ -2217,7 +2222,9 @@
 .gw-clams b { font-weight: 500; }
 .gw-clams .gw-ico { color: var(--clam); }
 .gw-jetty-low { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 0 16px calc(var(--sab) + 28px); }
-.gw-jetty-low .gw-murk-line { margin-bottom: 10px; max-width: min(46ch, 92vw); background: radial-gradient(ellipse 54% 60% at 50% 50%, rgba(var(--veil-rgb), .55), transparent 100%); }
+/* Murk's line rides the upper third, clear of the raft (the scene's one warm light) and of the tiles */
+.gw-jetty-say { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 15vh); z-index: 1; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+.gw-jetty-say .gw-murk-line { max-width: min(62ch, 92vw); padding: 8px 40px; background: radial-gradient(ellipse 50% 62% at 50% 50%, rgba(var(--veil-rgb), .62), rgba(var(--veil-rgb), .3) 60%, transparent 100%); }
 .gw-jetty-tiles { display: flex; justify-content: center; align-items: flex-end; gap: 10px 34px; flex-wrap: nowrap; }
 .gw-tile { flex: 0 1 190px; padding: 8px 14px 14px; gap: 2px; }
 .gw-tile::before { inset: 4px 10px; border-radius: 46% 46% 40% 40%; background: radial-gradient(ellipse 52% 54% at 50% 46%, rgba(160, 150, 240, .2), transparent 72%); }
@@ -2302,12 +2309,12 @@
 
 /* ---------------------------------------------------------------- Murk's shelf (SPEC §8.4): a drawing, a name, one line, a price */
 .gw-p-shelf { width: min(820px, calc(100vw - 24px)); padding: 6px 40px 52px; }
-.gw-shelf-head { position: relative; display: grid; grid-template-columns: 104px 1fr auto; align-items: center; gap: 4px 16px; padding: 0 44px 0 0; flex: none; }
-.gw-shelf-murk { grid-row: span 2; display: flex; }
+.gw-shelf-head { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 0 16px; padding: 0 44px 0 44px; flex: none; }
+.gw-shelf-murk { grid-column: 2; display: flex; justify-content: center; }
 .gw-shelf-murk .gw-murk { width: 104px; height: 89px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .8)); }
-.gw-shelf-purse { grid-column: 3; justify-self: end; font: 400 26px/1 var(--f-display); text-shadow: 0 1px 2px #000; }
+.gw-shelf-purse { grid-column: 3; grid-row: 1; justify-self: end; align-self: start; margin-top: 10px; font: 400 26px/1 var(--f-display); text-shadow: 0 1px 2px #000; }
 .gw-shelf-purse .gw-ico { width: 26px; height: 26px; filter: drop-shadow(0 0 6px var(--clam-glow)); }
-.gw-shelf-head .gw-murk-line { grid-column: 2 / span 2; text-align: left; margin: 0; padding: 0; font-size: 19px; max-width: none; }
+.gw-shelf-head .gw-murk-line { grid-column: 1 / -1; margin: 2px auto 0; padding: 0 8px; font-size: 19px; max-width: 46ch; }
 .gw-shelf-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 6px 18px; padding: 10px 0 2px; }
 .gw-shelf-card { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 10px 8px 6px; }
 .gw-shelf-art { position: relative; width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
@@ -2326,7 +2333,7 @@
 
 /* ---------------------------------------------------------------- the Chart (slice 1a: a list; SPEC §5.4) */
 .gw-p-chart { width: min(620px, calc(100vw - 24px)); padding: 8px 40px 54px; }
-.gw-p-chart .gw-pc > .gw-murk-line { margin-bottom: 8px; }
+.gw-p-chart .gw-pc > .gw-murk-line { margin-bottom: 8px; max-width: 52ch; }
 .gw-chart { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .gw-chart-row { position: relative; display: flex; align-items: center; gap: 22px; padding: 4px 18px; color: var(--ink); }
 .gw-chart-row::before { content: ''; position: absolute; inset: -6px -20px; z-index: -1; pointer-events: none; border-radius: 50%;
@@ -2399,6 +2406,8 @@
   .gw-pill.gw-home { min-height: 60px; font-size: 20px; padding-right: 2.1em; }
   .gw-murk-line { font-size: 19px; padding: 4px 8px; max-width: 30ch; }
   .gw-jetty-low { padding: 0 16px calc(var(--sab) + 18px); gap: 2px; }
+  .gw-jetty-say { top: calc(var(--sat) + 84px); }
+  .gw-jetty-say .gw-murk-line { padding: 6px 18px; }
   .gw-jetty-tiles { flex-direction: column; align-items: stretch; gap: 2px; width: min(358px, 100%); }
   .gw-tile { flex: none; flex-direction: row; justify-content: flex-start; gap: 14px; min-height: 64px; padding: 4px 16px; }
   .gw-tile .gw-tile-vig { width: 78px; height: 52px; }
@@ -2413,7 +2422,7 @@
   .gw-trow-fish { width: 48px; height: 24px; }
   .gw-trow-name b { font-size: 19px; }
   .gw-p-shelf { padding: 4px 12px 50px; }
-  .gw-shelf-head { grid-template-columns: 74px 1fr auto; padding-right: 40px; gap: 2px 10px; }
+  .gw-shelf-head { padding: 0 40px; gap: 0 8px; }
   .gw-shelf-murk .gw-murk { width: 74px; height: 63px; }
   .gw-shelf-head .gw-murk-line { font-size: 17px; }
   .gw-shelf-purse { font-size: 22px; }
@@ -2438,7 +2447,7 @@
   .gw-m-newdescent:has(.gw-loop-descent) { align-items: flex-end; padding-bottom: max(12px, var(--sab)); }
   .gw-loop-descent { width: calc(100vw - 32px); max-height: calc(58vh); padding: 12px 0 40px; }
   .gw-loop-descent .gw-pc { overflow: visible; }
-  .gw-loop-chars { display: grid; grid-template-columns: repeat(6, 52px); gap: 12px; justify-content: center; }
+  .gw-loop-chars { display: grid; grid-template-columns: repeat(6, 46px); gap: 12px; justify-content: center; }   /* 3 × 104 + 2 × 12 = 336 */
   .gw-loop-chars .gw-char { grid-column: span 2; width: 104px; min-height: 128px; padding: 4px 2px 14px; gap: 4px; }
   .gw-loop-chars .gw-char:nth-child(4) { grid-column: 2 / span 2; }
   .gw-loop-chars .gw-char svg { width: 66px; height: 79px; }

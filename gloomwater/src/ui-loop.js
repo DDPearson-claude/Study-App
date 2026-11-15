@@ -518,8 +518,8 @@ export function createLoopView(K) {
     wrap.innerHTML = `<div class="gw-jetty-veil" aria-hidden="true"></div>
       <button type="button" class="gw-hbtn gw-hb-pause gw-loop-pauseglyph" data-loop="homepause">${icon('pause')}</button>
       <div class="gw-jetty-purse">${clamTag(clams)}</div>
+      <div class="gw-jetty-say"><p class="gw-murk-line${line ? ' gw-in' : ''}"></p></div>
       <div class="gw-jetty-low">
-        <p class="gw-murk-line${line ? ' gw-in' : ''}"></p>
         <nav class="gw-jetty-tiles"></nav>
         <p class="gw-jetty-goal"></p>
       </div>`;

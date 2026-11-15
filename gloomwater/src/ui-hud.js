@@ -302,12 +302,14 @@ export function createHud(K) {
   let insetTop = 70, insetBottom = 26, insetSide = 24, tlW = 340, tlH = 200, trW = 470, trH = 132;
   function gatherTargets() {
     let n = 0;
-    const loopTrip = D().LOOP_ENABLED === true && run()?.outing === 'trip';   // the loop: Murk is home and the gate is scenery (T46)
+    const loopTrip = D().LOOP_ENABLED === true && run()?.outing === 'trip';   // the loop: Murk is home, the gate is scenery (T46)
     const pp = ctx.player?.position;
     if (!pp) return 0;
     const add = (kind, pos) => { if (n >= MK_N || !pos) return; const t = targets[n++]; t.kind = kind; t.pos.set(num(pos.x), num(pos.y, 0) + 0.5, num(pos.z)); t.dist = Math.hypot(t.pos.x - pp.x, t.pos.z - pp.z); };
     // while a fish is on (the bite, the play, the landing) the edges stay clear for the float and the bite mark: only the
     // watch-lamp (and a boss) keep a marker
+    // the loop on a trip: no edge marker at all (SPEC §8.1's HUD has none; maps are the only discovery, so nothing points the way)
+    if (loopTrip) return 0;
     const fst = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : 'idle';
     if (fst === 'bite' || fst === 'reeling' || fst === 'landing') {
       v3.markers(add);
@@ -315,9 +317,9 @@ export function createHud(K) {
       return n;
     }
     const m = ctx.actors?.merchant;
-    if (!loopTrip && m && m.present === true && m.position) add('merchant', m.position);
+    if (m && m.present === true && m.position) add('merchant', m.position);
     const r = run();
-    const gate = loopTrip ? null : safe(() => ctx.world?.getGate?.(), null);
+    const gate = safe(() => ctx.world?.getGate?.(), null);
     if (gate?.position && safe(() => ctx.world?.getGateState?.(), null) !== 'hidden') add(r?.gateOpen ? 'gate' : 'gateSealed', gate.position);
     // nearest two spots
     let s1 = null, s2 = null, d1 = 1e9, d2 = 1e9;
