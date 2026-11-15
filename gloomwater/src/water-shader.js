@@ -540,7 +540,10 @@ void main() {
 #ifdef GW_V3
     // the landing's close-up (a cinematic): a plain ring near the raft fades out, so none sweeps round the Wick and its fish
     // (art rule: never a ring around the raft or the player); far water keeps its rings
-    if (uRaft.w < 0.0) fade *= 1.0 + uRaft.w * (1.0 - smoothstep(5.0, 10.0, length(xz - uRaft.xy)));
+    // (…and a ring that has grown to within six metres of the raft, or round it, goes WHOLE, wherever its far arc is: a
+    // leviathan's ring, born six metres off and five wide, was an arc over the raft and the fish across a phone's whole frame as
+    // it surfaced)
+    if (uRaft.w < 0.0) fade *= 1.0 + uRaft.w * max(1.0 - smoothstep(5.0, 10.0, length(xz - uRaft.xy)), 1.0 - smoothstep(6.0, 12.0, length(r.xy - uRaft.xy) - rad));
 #endif
     float w = 0.06 + age * 0.08;
     float x1 = (d - rad) / w;

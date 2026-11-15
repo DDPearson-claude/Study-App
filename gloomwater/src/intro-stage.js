@@ -702,8 +702,8 @@ export function createIntroStage(ctx) {
     const visit = (o, vis) => {
       vis = vis && o.visible;
       if (!vis) return;
-      if (o.isMesh || o.isSprite || o.isPoints) {
-        const g = o.geometry, n = o.isSprite ? 2 : o.isPoints ? 0 : ((g.index ? g.index.count : g.attributes.position.count) / 3) * (o.isInstancedMesh ? o.count : 1);
+      if (o.isMesh || o.isSprite || o.isPoints || o.isLine) {   // (a line is a draw call too: the float's fishing line)
+        const g = o.geometry, n = o.isSprite ? 2 : o.isPoints || o.isLine ? 0 : ((g.index ? g.index.count : g.attributes.position.count) / 3) * (o.isInstancedMesh ? o.count : 1);
         const passes = (o.layers.isEnabled(0) ? 1 : 0) + (mirror && o.layers.isEnabled(REFLECT_LAYER) ? 1 : 0);
         calls += passes; triangles += n * passes;
       }

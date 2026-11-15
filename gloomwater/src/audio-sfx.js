@@ -443,6 +443,52 @@ export const SFX_V3 = {
     v.tone(out, { type: 'triangle', f: mtof(r - 12) * p, t, a: 0.08, hold: 0.4, d: 1.2, peak: 0.07 });
     v.tone(out, { type: 'triangle', f: mtof(r - 5) * p, t, a: 0.08, hold: 0.4, d: 1.2, peak: 0.05 });
   } },
+  // ------------------------------------------------------------- the show (docs/v3/show/SPEC.md §2.8): the Wick presents its catch
+  show_lift: { gain: 0.8, gap: 0.2, max: 1, pri: 3, wet: 0.3, pj: 0.02, fn(v, out, t, p, o) {
+    // the haul: water sheeting off the fish as it swings in (a falling hiss and a patter of drops), a low heave by its weight;
+    // from Trophy a creak of rope and deck under it (o.k weight 0..1, o.dur the lift's length, o.creak 0..1)
+    const k = clamp(num0(o.k, 0.3)), d = clamp(num0(o.dur, 0.5), 0.2, 1.6), cr = clamp(num0(o.creak, 0));
+    v.burst(out, { kind: 'pink', t, a: 0.03, d: d * 0.9, peak: 0.22 + 0.16 * k, ft: 'bandpass', f: (3400 - 900 * k) * p, f2: (900 - 350 * k) * p, glide: d * 0.9, q: 0.8 });
+    v.burst(out, { t: t + 0.02, a: 0.01, d: d * 0.45, peak: 0.1 + 0.05 * k, ft: 'highpass', f: 5200, q: 0.7 });
+    droplets(v, out, t + d * 0.25, Math.round(4 + 8 * k), d * 0.75, 0.1, 1100 - 300 * k, 3000 - 600 * k);
+    v.tone(out, { type: 'sine', f: (150 - 70 * k) * p, f2: (84 - 36 * k) * p, glide: d * 0.6, t, a: d * 0.35, hold: d * 0.2, d: 0.3, peak: 0.1 + 0.3 * k });
+    if (cr > 0) {
+      // rope and plank taking the weight: two slow, narrow groans a fourth apart
+      for (const [dt, f, pk] of [[d * 0.3, 178, 0.11], [d * 0.62, 133, 0.13]]) {
+        v.tone(out, { type: 'sawtooth', f: f * p, f2: f * 0.9 * p, glide: 0.22, t: t + dt, a: 0.05, hold: 0.06, d: 0.2, peak: pk * cr, ft: 'bandpass', ff: 620, q: 6 });
+      }
+    }
+  } },
+  show_present: { gain: 0.85, gap: 0.25, max: 1, pri: 3, wet: 0.5, dly: 0.2, pj: 0.004, fn(v, out, t, p, o, eng) {
+    // the flourish: the fish thrust at the lens. A short rising figure on the pluck, a clear chime on its last note (by class a
+    // bronze bell and a low warmth under it); the landing chime's answer, never a second fanfare
+    const V = o.voicing || { root: 81, notes: [0, 5, 9], gap: 0.055, bell: false, sub: false, shimmer: 0 };
+    const r = V.root, n = V.notes.length;
+    V.notes.forEach((m, i) => {
+      const g = v.gain(0.34 + 0.05 * (i / Math.max(1, n - 1))); g.connect(out);
+      v.buffer(eng.ks(r + m, 'harp'), t + i * V.gap, p, g);
+    });
+    const top = t + (n - 1) * V.gap;
+    chime(v, out, top, mtof(r + V.notes[n - 1] + 12) * p, 0.2, 1.5);
+    chime(v, out, top + 0.01, mtof(r + V.notes[n - 1] + 19) * p, 0.08, 1.1);
+    if (V.bell) bell(v, out, t, mtof(r - 12) * p, 0.2, [1, 2.0, 2.76, 4.07], [2.2, 1.3, 0.8, 0.45]);
+    if (V.sub) v.tone(out, { type: 'sine', f: mtof(r - 24) * p, t, a: 0.02, hold: 0.15, d: 1.1, peak: 0.16 });
+    for (let i = 0; i < (V.shimmer || 0); i++) chime(v, out, top + 0.1 + i * 0.07, mtof(r + 36 - pent(i)) * p, 0.05, 0.8);
+  }, duck: [0.5, 0.7] },
+  show_flap: { gain: 0.6, gap: 0.08, max: 2, pri: 2, wet: 0.2, pj: 0.06, vj: 0.1, fn(v, out, t, p, o) {
+    // the fish flaps in the grip: a wet slap of tail on palm or cloak, a drop or two flung off (p falls with its weight)
+    const k = clamp(num0(o.k, 0.3));
+    v.burst(out, { kind: 'pink', t, a: 0.002, d: 0.05 + 0.05 * k, peak: 0.5, ft: 'bandpass', f: 1500 * p, f2: 700 * p, glide: 0.05, q: 1.1 });
+    v.burst(out, { t, a: 0.0005, d: 0.014, peak: 0.24, ft: 'highpass', f: 4200, q: 0.7 });
+    v.tone(out, { type: 'sine', f: 210 * p, f2: 110 * p, glide: 0.05, t, a: 0.002, d: 0.07 + 0.06 * k, peak: 0.3 + 0.25 * k });
+    droplets(v, out, t + 0.03, 2, 0.1, 0.07, 1500, 3200);
+  } },
+  show_drip: { gain: 0.4, gap: 0.05, max: 3, pri: 1, wet: 0.25, pj: 0.12, vj: 0.2, fn(v, out, t, p) {
+    // a drop off the fish onto the planks: a small bright plip and the wood's dull answer
+    const f = rnd(1500, 2600) * p;
+    v.tone(out, { type: 'sine', f, f2: f * 1.8, glide: 0.03, t, a: 0.001, d: 0.05, peak: 0.4 });
+    v.tone(out, { type: 'triangle', f: 320 * p, t: t + 0.004, a: 0.001, d: 0.035, peak: 0.12 });
+  } },
   // ------------------------------------------------------------- the measuring ceremony (§25.6.8)
   cord_tick: { gain: 0.5, gap: 0, max: 48, pri: 3, pj: 0.008, vj: 0.06, fn(v, out, t, p) {
     // one knot of the measuring cord passing the mark: a dry fibre tick on a small wooden blip (p rises with the count)

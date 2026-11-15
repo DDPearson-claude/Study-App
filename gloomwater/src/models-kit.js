@@ -67,8 +67,19 @@ transformed = gwP${kind === 'outline' ? ' + normalize(gwN) * uGwThick' : ''}; vG
       let fs = shader.fragmentShader;
       fs = fs.replace('#include <common>', `#include <common>
 varying vec3 vGwLocal;
-uniform vec4 uGwRev; uniform vec2 uGwRevZ; uniform vec3 uGwRevInk; uniform vec3 uGwRevCol; uniform float uGwRevFlood;`);
-      fs = fs.replace('#include <opaque_fragment>', `outgoingLight += uGwRevCol * uGwRevFlood;
+uniform vec4 uGwRev; uniform vec2 uGwRevZ; uniform vec3 uGwRevInk; uniform vec3 uGwRevCol; uniform float uGwRevFlood; uniform float uGwShown;`);
+      // the show's exposure (uGwShown 0 → 1; off it changes nothing): a fish held up beside the lantern is lit many times over, and
+      // its back, its belly and its stripes all burn out to one cream. The LIGHT on it is eased under a knee (the diffuse term
+      // over the skin's own colour is the light; glow, rim and glints are left alone), so the pattern keeps its contrast
+      const knee = kind === 'toon' ? `if (uGwShown > 0.001) {
+  vec3 gwDf = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse;
+  float gwE = dot(gwDf, vec3(0.2126, 0.7152, 0.0722)) / max(dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722)), 0.03);
+  float gwX = max(gwE - 0.55, 0.0);
+  float gwE2 = min(gwE, 0.55) + gwX / (1.0 + gwX * 1.6);
+  outgoingLight -= gwDf * (1.0 - gwE2 / max(gwE, 1e-4)) * uGwShown;
+}
+` : '';
+      fs = fs.replace('#include <opaque_fragment>', `${knee}outgoingLight += uGwRevCol * uGwRevFlood;
 if (uGwRev.y > 0.001) {
   float gwS = (uGwRevZ.x - vGwLocal.z) / max(1e-3, uGwRevZ.x - uGwRevZ.y);
   float gwD = gwS - uGwRev.x;

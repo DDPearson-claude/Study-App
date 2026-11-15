@@ -183,7 +183,10 @@ export const LOOP = {
     lights:  { prices: [200, 1200, 14000], perLevel: 'jetty lanterns, quay lanterns, the sea-gate beacon (looks only)' },
   },
   looks: { slate_dye: 300, oxblood_pennant: 400, amber_glass: 600, painted_prow: 2500, bell_buoy: 6000, gilt_lantern: 40000, reed_sail: 50000, star_pennant: 100000, moon_lamp: 200000 },
-  time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 1.5 },
+  // (`show` is 0 since the catch show is built: AUTOFISH.time.ceremony now holds the whole landing, the reveal and the show
+  // (data.showPlan(class).total), so an allowance for the show here would count it twice; it was 1.5 s over the old measuring
+  // ceremony. docs/loop/slice-1a/PLAN.md, PLAN CHOICE 15)
+  time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 0 },
   player: { clams: 0.9, time: 1.25, orderGain: 0.06 },
 };
 const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));

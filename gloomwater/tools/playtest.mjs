@@ -20,8 +20,8 @@ const require = createRequire(import.meta.url);
 let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node22/lib/node_modules/playwright')); }
 const args = Object.fromEntries(process.argv.slice(2).map((a) => {
-  const [k, v] = a.replace(/^--/, '').split('=');
-  return [k, v === undefined ? true : v];
+  const [k, ...rest] = a.replace(/^--/, '').split('=');   // (a value may itself hold '=': --cases=name:sp:z:zone=glasswater)
+  return [k, rest.length ? rest.join('=') : true];
 }));
 const htmlPath = resolve(here, '..', String(args.html || 'index.html'));
 const shotsDir = resolve(here, '..', String(args.shots || 'tools/out/shots'));

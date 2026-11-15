@@ -13,9 +13,13 @@ const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 export const ONE_SHOT = { cast: 0.5, hookset: 0.42, eat: 1.7, flare: 0.95, zap: 0.38, hurt: 0.55, celebrate: 1.5, levelup: 1.35, toss: 0.8, die: 1e9 };
 const BRAZIER_YAW = Math.atan2(-0.74, 0.68); // raft-local direction from the Wick's spot to the brazier
-export const CONTINUOUS = new Set(['idle', 'paddle', 'charge', 'wait', 'reel', 'strain', 'catch', 'measurePalm', 'measureArms', 'measureHang', 'measureAlongside']);
+export const CONTINUOUS = new Set(['idle', 'paddle', 'charge', 'wait', 'reel', 'strain', 'catch', 'measurePalm', 'measureArms', 'measureHang', 'measureAlongside',
+  'showPinch', 'showBoth', 'showHug', 'showHang', 'showAlongside']);
 // v3 measuring poses (DESIGN §25.6.8; CONTRACT §13.7 actors setPose): chosen by the fish's length, the Wick is 0.85 m
 export const MEASURE = new Set(['measurePalm', 'measureArms', 'measureHang', 'measureAlongside']);
+// the show (docs/v3/show/SPEC.md §2.2): the Wick turned to the lens, presenting its catch. The body is posed here; the hands are
+// locked by IK onto the fish and the rod (actors-show.js gives the world targets), and the rod is planted or set down as a prop
+export const SHOW = new Set(['showPinch', 'showBoth', 'showHug', 'showHang', 'showAlongside']);
 const SHOULDER_Y = 0.43, SHOULDER_X = 0.19, SHOULDER_Z = 0.03, ARM = 0.17;
 const BUILDS = { wick: [1, 1, 1], taper: [0.86, 1.12, 0.86], stub: [1.04, 0.94, 1.04], tallow: [1.12, 0.88, 1.12], ashwick: [0.97, 1.03, 0.97], glimmer: [1, 1, 1] };
 // per-character flame shape [width, height] and eye shape [w, h] (DESIGN §11/§19.7)
@@ -130,10 +134,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const arms = {};
   for (const [key, side] of [['r', -1], ['l', 1]]) {
     const sh = new THREE.Group(); sh.position.set(side * 0.19, 0.43, 0.03); body.add(sh);
-    const g = build([tag(xf(new THREE.CapsuleGeometry(0.045, 0.1, 4, 8), { p: [0, -0.08, 0] }), PAL.CLOAK), tag(xf(new THREE.SphereGeometry(0.046, 10, 8), { p: [0, -0.17, 0] }), PAL.WAX)]);
+    // (the sleeve and the wax hand are two meshes: a sleeve stretches with the arm, and so does the hand, as it always has, except
+    // in a show pose, where the hand that holds the fish stays round: update() sets fist.scale.y)
+    const g = build([tag(xf(new THREE.CapsuleGeometry(0.045, 0.1, 4, 8), { p: [0, -0.08, 0] }), PAL.CLOAK)]);
     const sleeve = outlineOf(new THREE.Mesh(g, rigidMat)); sh.add(sleeve);
     const hand = new THREE.Group(); hand.position.set(0, -0.17, 0); sh.add(hand);
-    arms[key] = { sh, hand, sleeve, side };
+    const fist = outlineOf(new THREE.Mesh(build([tag(new THREE.SphereGeometry(0.046, 10, 8), PAL.WAX)]), rigidMat)); hand.add(fist);
+    arms[key] = { sh, hand, sleeve, fist, side };
   }
 
   // ---------------------------------------------------------------- head: wax + drips + shadowed face + wick string
@@ -246,6 +253,14 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
   // measuring: the held fish's length in body units, the alongside side (+1 = the raft's +x), the stamp impulse
   const meas = { lenB: 0.4, side: 1, stamp: 0, faceYaw: null };
+  const last = {}, ARM_KEYS = ['rRaise', 'rOut', 'rStretch', 'lRaise', 'lOut', 'lStretch'], STRETCH_KEYS = new Set(['rStretch', 'lStretch']), JOINT_RATE = 9.6, STRETCH_CAP = 2.4, TURN_BACK = 3.2, TURN_WAIT = 0.2;
+  let showCool = 0;
+  // the show: the spec actors-show.js keeps current every frame (null outside a show), the hands' IK locks (world targets), and the
+  // rod as a prop (planted by its butt at a world point, or set down on the bow rest)
+  let sh = null;
+  const lock = { r: { k: 0, pos: new THREE.Vector3(), max: 2.4 }, l: { k: 0, pos: new THREE.Vector3(), max: 2.4 } };
+  const rodDrive = { k: 0, butt: new THREE.Vector3(), dir: new THREE.Vector3(0, 1, 0), scale: 0, stow: 0, driven: false };
+  const ikPose = {}, roundK = { r: 0, l: 0 };
   const flameCol = new THREE.Color(DEFAULT_LOOK.flame), baseFlameCol = new THREE.Color(DEFAULT_LOOK.flame);
   const tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), tmpM = new THREE.Matrix4();
 
@@ -308,12 +323,12 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
 
   // ---------------------------------------------------------------- pose functions
   /** Arm IK in body space: raise / swing / stretch the arm so its hand reaches (tx, ty, tz). */
-  function reach(o, side, tx, ty, tz, maxStretch = 1.9) {
+  function reach(o, side, tx, ty, tz, maxStretch = 1.9, minStretch = 0.7) {
     const sx = side === 'r' ? -SHOULDER_X : SHOULDER_X;
     let vx = tx - sx, vy = ty - SHOULDER_Y, vz = tz - SHOULDER_Z;
     const len = Math.hypot(vx, vy, vz) || 1e-4;
     vx /= len; vy /= len; vz /= len;
-    const out = Math.asin(clamp(side === 'r' ? -vx : vx, -1, 1)), raise = Math.atan2(vz, -vy), st = clamp(len / ARM, 0.7, maxStretch);
+    const out = Math.asin(clamp(side === 'r' ? -vx : vx, -1, 1)), raise = Math.atan2(vz, -vy), st = clamp(len / ARM, minStretch, maxStretch);
     if (side === 'r') { o.rRaise = raise; o.rOut = out; o.rStretch = st; } else { o.lRaise = raise; o.lOut = out; o.lStretch = st; }
   }
   /** The four measuring poses (DESIGN §25.6.8). Hands are placed by IK; actors puts the fish on them. */
@@ -361,7 +376,82 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       o.sq += Math.sin((1 - k) * Math.PI * 2) * 0.05 * k; o.flame += 0.7 * k; o.glow += 0.5 * k; o.eye = Math.min(o.eye, 0.55 + (1 - k) * 0.5);
     }
   }
+  /** One arm's starting pose by its side of the show (the IK locks take over as the hands close). */
+  function armTo(o, key, raise, out, stretch = 1) {
+    if (key === 'r') { o.rRaise = raise; o.rOut = out; o.rStretch = stretch; } else { o.lRaise = raise; o.lOut = out; o.lStretch = stretch; }
+  }
+  const REST_SHOW = { side: 1, p: 1, take: 1, calm: 0, flap: 0, dip: 0, bob: 0, weight: 0, life: {}, glance: 0, special: 0, wide: 0, lensYawLocal: null, lensElev: 0, fishYawLocal: null, fishElev: 0, crouch: 0 };
+  /**
+   * The five show poses (docs/v3/show/SPEC.md §2.2): the Wick turned to the lens, presenting its catch. The body, the head, the legs
+   * and the flame are posed here from the show's curves (sh, kept by actors-show.js: take 0..1 the hands closing, dip the squash as
+   * they take the weight, p the present 0 → 1 with its overshoot, flap each twitch of the fish, calm the still of the pause); the
+   * arms given here are only where the hands start from: the IK locks put them on the fish and on the rod.
+   * still = the settled pose (no breath, no tremor): what the ghost rig is asked for.
+   */
+  function poseShow(name, o, t, still = false, faceNow = facing, twistNow = cur.twist, pitchNow = cur.pitch) {
+    const S = sh || REST_SHOW, L = S.life || {}, sd = S.side === -1 ? -1 : 1;
+    const near = sd > 0 ? 'l' : 'r', far = sd > 0 ? 'r' : 'l';   // the arm on the fish's side, and the other
+    const ps = clamp(S.p ?? 1, 0, 1), over = (S.p ?? 1) - ps;
+    const calm = clamp(S.calm || 0, 0, 1), live = 1 - calm, take = clamp(S.take ?? 1, 0, 1);   // (the pause is a still: breath and flame only)
+    const breathe = still ? 0 : Math.sin(t * 1.7) * 0.022;
+    const w = clamp(S.weight || 0, 0, 1), flap = still ? 0 : (S.flap || 0), dip = S.dip || 0, sp = S.special || 0;
+    const strain = (L.strain || 0) * (0.3 + 0.7 * ps) * take;
+    const j = still || strain < 0.01 ? 0 : (Math.sin(t * 37) * 0.028 + Math.sin(t * 23.7) * 0.018) * strain * live;   // the strain pose's tremor
+    // shared: the squash as the hands take the weight, the stretch into the present, the knees giving with each flap, the proud bob
+    o.sq = breathe * (0.6 + 0.4 * calm) - 0.09 * dip * (0.5 + 0.5 * w) + 0.5 * over + 0.04 * ps * (1 - w) - 0.035 * flap - 0.05 * strain;
+    o.y = (S.bob || 0) - 0.02 * dip - 0.012 * flap + Math.abs(j) * 0.1;
+    o.flame = (L.flame ?? 0.3) * (0.2 + 0.8 * ps) + 0.6 * over + 0.15 * sp + Math.abs(j) * 2;
+    o.glow = 1.3 + 0.3 * sp;
+    o.eye = (S.wide || 0) > 0.01 ? 0.5 + 0.9 * S.wide : 0.5 - (0.1 * ps + 0.1 * Math.min(1, strain * 1.3)) * live;   // the happy squint, tightest at the present
+    o.eyeLift = 0.012 * ps;
+    switch (name) {
+      case 'showPinch': {   // one hand out to the lens (the fisherman's trick), the rod planted like a staff in the other
+        // (it leans back as the arm goes out: the hand gets as far in front of the face as an arm can)
+        o.twist = -sd * (0.1 + 0.26 * ps); o.pitch = 0.05 * take * (1 - ps) - 0.07 * ps + 0.3 * over - 0.05 * dip; o.roll = sd * 0.03 * ps;
+        armTo(o, near, 0.9 + 0.6 * ps, 0.1, 1 + 0.9 * ps); armTo(o, far, 0.55, 0.55, 1.1);
+        o.legL = 0.1 * ps; o.legR = -0.08 * ps; o.hRoll = -sd * (0.08 + (S.tiny ? 0.12 : 0)) * ps;
+        break;
+      }
+      case 'showBoth': {   // both hands under it, pushed forward at chest height; the body leans back a little as counterweight
+        o.pitch = -0.09 * dip + (0.05 - 0.13 * w) * ps + 0.25 * over; o.twist = 0;
+        armTo(o, 'r', 1.0 + 0.45 * ps, 0.08, 1 + 0.8 * ps); armTo(o, 'l', 1.0 + 0.45 * ps, 0.08, 1 + 0.8 * ps);
+        o.legL = -0.08 - 0.12 * w; o.legR = 0.1 + 0.12 * w; o.hRoll = Math.sin((still ? 0 : t) * 0.6) * 0.03 * live;
+        break;
+      }
+      case 'showHug': {   // stood on its tail, heaved against the shoulder: leaning away and back, legs braced, a tremor
+        o.roll = sd * (0.07 + 0.09 * strain) + j; o.pitch = -0.07 - 0.09 * strain + j * 0.3 + 0.2 * over; o.twist = sd * (0.2 + (S.hugTwist || 0)) * (0.4 + 0.6 * take);
+        armTo(o, near, 1.2, 0.5, 1.3); armTo(o, far, 1.35, -0.3, 1.7);
+        o.legL = -0.28 * (0.5 + 0.5 * take); o.legR = 0.3 * (0.5 + 0.5 * take); o.hRoll = -sd * (0.08 + 0.08 * ps);
+        break;
+      }
+      case 'showHang': {   // it cannot be lifted: hung from the planted, bowing rod, the Wick hauling back on it, three-quarter
+        o.pitch = -0.06 - 0.13 * strain + j * 0.3 + 0.2 * over; o.roll = sd * 0.05 * strain + j; o.twist = 0;
+        armTo(o, 'r', 1.3, 0.05, 1.5); armTo(o, 'l', 1.3, 0.05, 1.5);
+        o.legL = -0.2 - 0.2 * strain; o.legR = 0.24 + 0.2 * strain; o.hRoll = -sd * 0.06 * ps;
+        break;
+      }
+      case 'showAlongside': {   // standing at the deck's edge over it, the rod planted in the far hand, the near hand on its brow
+        const c = clamp(S.crouch || 0, 0, 1);
+        o.y += -0.05 * c; o.pitch = 0.03 + 0.2 * c + 0.15 * over; o.roll = -sd * 0.03;
+        armTo(o, near, 0.7 + 0.3 * c, 0.35, 1.6); armTo(o, far, 0.55, 0.5, 1.1);
+        o.legL = -0.06 - 0.5 * c; o.legR = 0.06 - 0.15 * c; o.hRoll = -sd * 0.05;
+        break;
+      }
+      default: break;
+    }
+    // the rod: whipped up as the fish swings in on the line (then it is planted, or set down: actors-show drives it as a prop)
+    const sw = clamp(S.swing ?? 1, 0, 1);
+    o.rod = 0.8 - 0.75 * sw;
+    if (sw < 1) o.rRaise += 0.55 * Math.sin(Math.PI * sw);
+    // the head: to the lens whatever the body does (it may stand three-quarter), a glance at the fish and back at us
+    const g = clamp(S.glance || 0, 0, 1);
+    const tw = still ? o.twist : twistNow, pt = still ? o.pitch : pitchNow;
+    const ly = Number.isFinite(S.lensYawLocal) ? wrapPi(S.lensYawLocal - faceNow) - tw : 0, fy = Number.isFinite(S.fishYawLocal) ? wrapPi(S.fishYawLocal - faceNow) - tw : ly;
+    o.hYaw = clamp((1 - g) * ly + g * fy, -1.05, 1.05);
+    o.hPitch = clamp(-((1 - g) * (S.lensElev || 0) + g * (S.fishElev || 0)) * 0.85 - pt * 0.8, -0.5, 0.55) - 0.04 * sp;
+  }
   function poseBase(name, o, t, env) {
+    if (SHOW.has(name)) { poseShow(name, o, t); return; }
     if (MEASURE.has(name)) { poseMeasure(name, o, t); return; }
     const breathe = Math.sin(t * 1.7) * 0.022;
     switch (name) {
@@ -505,8 +595,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   function update(dt, t, env) {
     poseT += dt;
     // resolve base pose
-    let b = (MEASURE.has(env.measurePose) ? env.measurePose : null) || explicitBase || env.autoBase || 'idle';
-    if (holding && !MEASURE.has(b)) b = 'catch';
+    let b = (SHOW.has(env.showPose) ? env.showPose : null) || (MEASURE.has(env.measurePose) ? env.measurePose : null) || explicitBase || env.autoBase || 'idle';
+    if (holding && !MEASURE.has(b) && !SHOW.has(b)) b = 'catch';
     meas.stamp = Math.max(0, meas.stamp - dt * 1.6);
     if ((b === 'idle' || b === 'paddle') && env.moving) b = 'paddle';
     else if (b === 'paddle' && !env.moving) b = 'idle';
@@ -520,12 +610,23 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     poseBase(base, tgt, t, env);
     if (action) poseAction(action, tgt, actionT, t);
     const fast = action === 'cast' || action === 'hookset' || action === 'zap' || action === 'hurt';
-    const lam = fast ? 30 : action ? 16 : 11;
+    const lam = fast ? 30 : action ? 16 : SHOW.has(base) ? 14 : 11;
+    // a show (and the 1.5 s after it) never pops: no joint moves faster than JOINT_RATE (SPEC S5: ≤ 0.35 a frame at 30 fps)
+    showCool = SHOW.has(base) ? 1.5 : Math.max(0, showCool - dt);
+    const capped = showCool > 0, cap = JOINT_RATE * Math.min(dt, 0.05);
+    if (capped) for (const k of KEYS) last[k] = cur[k];
     for (const k of KEYS) cur[k] = damp(cur[k], tgt[k], lam, dt);
+    if (capped) {
+      // (a sleeve let go of the fish springs back before the arm swings away: its length is not an angle, and its cap is the same hand speed)
+      if (lock.r.k <= 0.001 && last.rStretch > tgt.rStretch + 0.15) cur.rStretch = damp(last.rStretch, tgt.rStretch, 30, dt);
+      if (lock.l.k <= 0.001 && last.lStretch > tgt.lStretch + 0.15) cur.lStretch = damp(last.lStretch, tgt.lStretch, 30, dt);
+      for (const k of KEYS) { const c = STRETCH_KEYS.has(k) ? cap * STRETCH_CAP : cap; cur[k] = last[k] + clamp(cur[k] - last[k], -c, c); }
+    }
 
     // facing: aim / catch-to-camera / forward
     let face = 0;
     if (pointYaw !== null && aimHold > 0) { aimHold -= dt; face = wrapPi(pointYaw - env.heading); if (aimHold <= 0) pointYaw = null; }
+    else if (SHOW.has(base) && sh && Number.isFinite(sh.faceYaw)) face = sh.faceYaw;   // to the lens (three-quarter for hang and alongside)
     else if (base === 'measureAlongside' && Number.isFinite(meas.faceYaw)) face = meas.faceYaw;
     else if (base === 'measureHang' && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading + 1.05);   // side-on: rod and fish across the frame
     else if (MEASURE.has(base) && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading);
@@ -534,7 +635,10 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     else if (Number.isFinite(env.targetYaw) && base !== 'paddle' && base !== 'catch') face = wrapPi(env.targetYaw - env.heading);
     else if (aimYaw !== null && base !== 'paddle' && base !== 'idle') face = wrapPi(aimYaw - env.heading);
     else if (aimYaw !== null && base === 'idle' && env.fishingBusy) face = wrapPi(aimYaw - env.heading);
-    facing += wrapPi(face - facing) * (1 - Math.exp(-7 * dt));
+    // (on the way out the Wick turns back to its play no faster than the show's lens eases back out, ≈ 0.8 s for a half turn: it never
+    // spins its back to a lens that is still close)
+    // (…and it waits a breath: the lens has begun to draw back, 0.2 s, before the Wick turns from it, then it turns at its ease)
+    { const turn = wrapPi(face - facing) * (1 - Math.exp(-(SHOW.has(base) ? (sh?.turnRate || 9) : 7) * dt)), tc = SHOW.has(base) ? cap : (showCool > 1.5 - TURN_WAIT ? 0 : TURN_BACK * Math.min(dt, 0.05)); facing += capped ? clamp(turn, -tc, tc) : turn; }
     group.rotation.y = facing;
 
     // apply rig
@@ -544,30 +648,44 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     squash.scale.set(buildS[0] * (1 - sq * 0.55), buildS[1] * (1 + sq), buildS[2] * (1 - sq * 0.55));
     head.rotation.set(cur.hPitch, cur.hYaw, cur.hRoll, 'YXZ');
     head.position.y = 0.5 - cur.melt * 0.06;
+    // the show's hand locks: IK in body space onto the world targets (the fish, the rod), blended in as the hands close
+    if (lock.r.k > 0.001 || lock.l.k > 0.001) {
+      body.updateWorldMatrix(true, false);
+      if (lock.r.k > 0.001) ikLock('r');
+      if (lock.l.k > 0.001) ikLock('l');
+      if (capped) for (const k of ARM_KEYS) { const c = STRETCH_KEYS.has(k) ? cap * STRETCH_CAP : cap; cur[k] = last[k] + clamp(cur[k] - last[k], -c, c); }   // (the reach to the fish too: quick, never a jump)
+    }
     arms.r.sh.rotation.set(-cur.rRaise, 0, -cur.rOut, 'XYZ'); arms.r.sh.scale.set(1, cur.rStretch, 1);
     arms.l.sh.rotation.set(-cur.lRaise, 0, cur.lOut, 'XYZ'); arms.l.sh.scale.set(1, cur.lStretch, 1);
     arms.r.hand.scale.set(1, 1 / cur.rStretch, 1); arms.l.hand.scale.set(1, 1 / cur.lStretch, 1);
+    // the wax hands stretch with their sleeves (as ever), but a hand locked onto the show's fish or rod stays round
+    roundK.r = damp(roundK.r, lock.r.k > 0.02 ? 1 : 0, 14, dt); roundK.l = damp(roundK.l, lock.l.k > 0.02 ? 1 : 0, 14, dt);
+    arms.r.fist.scale.y = cur.rStretch + (1 - cur.rStretch) * roundK.r; arms.l.fist.scale.y = cur.lStretch + (1 - cur.lStretch) * roundK.l;
     legs[0].rotation.x = cur.legL; legs[1].rotation.x = cur.legR;
     // rod orientation: absolute pitch from vertical toward +Z, compensating the arm
     rodMount.rotation.set(cur.rod + cur.rRaise, cur.rodYaw, cur.rOut, 'XYZ');
+    driveRod();
     paddleRig.rotation.set(0, cur.paddleYaw, cur.paddleRoll);
     // eyes: blink + expression
     blinkT -= dt;
     if (blinkT <= 0) { blink = 0.13; blinkT = 2.2 + Math.random() * 3.5; }
+    if (sh && SHOW.has(base) && (sh.p ?? 0) > 0.3 && (sh.calm ?? 0) < 0.5) { blink = 0; blinkT = Math.max(blinkT, 0.5); }   // (no blink on the present: eyes on us)
     blink = Math.max(0, blink - dt);
     const open = clamp(cur.eye, 0.05, 1.6) * (blink > 0 ? 0.12 : 1);
     eyes.scale.set((1 + (cur.eye > 1 ? (cur.eye - 1) * 0.3 : 0)) * eyeShape[0], open * eyeShape[1], 1);
     eyes.position.y = 0.14 + cur.eyeLift;
     // a measuring close-up (the trophy camera 1.6–5 m away) would bloom the head flame and eyes into a white blot: damp them,
     // and bring the Wick's own exposure down (eased, so the cut to the trophy camera never pops)
-    const ckT = MEASURE.has(base) || env.landingClose === true ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
+    const ckT = MEASURE.has(base) || SHOW.has(base) || env.landingClose === true ? clamp(Number(env.closeK) || 0, 0, 1) : 0;
     let ck = damp(expo, ckT, 6, dt);
     if (Math.abs(ck - ckT) < 1e-3) ck = ckT;
     applyExposure(ck);
     eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3 * clamp(cur.glow, 0, 3) * (0.35 + 0.65 * Math.max(0.15, vitality)) * (1 - 0.72 * ck));
     // props
-    const prop = action === 'eat' || action === 'die' ? 'none' : base === 'paddle' ? 'oar' : base === 'catch' ? (catchBig ? 'rod' : 'none')
-      : MEASURE.has(base) ? (base === 'measureHang' ? 'rod' : 'none') : 'rod';
+    // (a rod set down by the show lies on the bow rest; while it travels there or back it is still the hand's rod, driven)
+    const prop = rodDrive.stow >= 0.999 ? 'none' : rodDrive.stow > 0.001 || rodDrive.k > 0.001 ? 'rod'
+      : action === 'eat' || action === 'die' ? 'none' : base === 'paddle' ? 'oar' : base === 'catch' ? (catchBig ? 'rod' : 'none')
+        : MEASURE.has(base) ? (base === 'measureHang' ? 'rod' : 'none') : 'rod';
     rod.visible = prop === 'rod'; stowed.visible = !rod.visible;
     paddle.visible = prop === 'oar'; paddleStowed.visible = !paddle.visible;
     // flame
@@ -578,15 +696,18 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (!out) flameOut = false;
     flame.group.visible = !out;
     flareK = Math.max(0, flareK - dt * 0.8);
-    const fl = Math.max(0, cur.flame) + (dead ? 0 : flareK) * 0.5;
-    const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + cur.flame + (dead ? 0 : flareK) * 0.28) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK) + flareK * Math.sin(t * 17.1) * 0.05);
+    // (in the close-up a flare that doubles the flame is a pale blot over the lantern post: there it stands at most 1.75 × its
+    // size, and its white heart is held back so its amber edge keeps the shape)
+    const flRaw = Math.max(0, cur.flame) + (dead ? 0 : flareK) * 0.5, fl = flRaw - Math.max(0, flRaw - 0.9) * ck;
+    const grow = cur.flame + (dead ? 0 : flareK) * 0.28, growC = grow - Math.max(0, grow - 0.75) * ck;
+    const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + growC) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK) + flareK * Math.sin(t * 17.1) * 0.05);
     const lowH = vitality < 0.5 ? 0.78 + 0.44 * vitality : 1;
     flame.group.scale.set(fs * flameShape[0], fs * flameShape[1] * lowH, fs * flameShape[0]);
     flame.outerMat.uniforms.uT.value = t; flame.innerMat.uniforms.uT.value = t * 1.13;
     const wild = (1 - flameK) * 0.9 + fl * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
     flame.outerMat.uniforms.uWild.value = wild; flame.innerMat.uniforms.uWild.value = wild;
     flame.outerMat.uniforms.uI.value = (1.6 + flameK * 0.9 + fl * 0.8) * (1 - 0.7 * ck);
-    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck);
+    flame.innerMat.uniforms.uI.value = 2.8 * (1 - 0.62 * ck) * (1 - 0.3 * ck * Math.min(1, flRaw));
     flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + fl * 0.6) * (1 - 0.88 * ck);
     flame.halo.scale.setScalar(0.75 * (1 + fl * 0.5) * (1 - 0.5 * ck));
     // >>> INTRO LANE A: the opening cut scene's kindling (docs/v3/intro/SPEC.md §4 #13; null = the game's own flame)
@@ -623,10 +744,110 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     else headMat.emissive.setRGB(fe * 0.8, fe * 0.8, fe * 0.8);
   }
 
+  /** Put a hand on its world target: exact IK in body space (the arm stretches, a cartoon sleeve), blended by the lock's k. */
+  function ikLock(key) {
+    const K = lock[key], k = Math.min(1, K.k);
+    tmpV.copy(K.pos); body.worldToLocal(tmpV);
+    reach(ikPose, key, tmpV.x, tmpV.y, tmpV.z, K.max, 0.4);
+    if (key === 'r') { cur.rRaise += wrapPi(ikPose.rRaise - cur.rRaise) * k; cur.rOut += (ikPose.rOut - cur.rOut) * k; cur.rStretch += (ikPose.rStretch - cur.rStretch) * k; }
+    else { cur.lRaise += wrapPi(ikPose.lRaise - cur.lRaise) * k; cur.lOut += (ikPose.lOut - cur.lOut) * k; cur.lStretch += (ikPose.lStretch - cur.lStretch) * k; }
+  }
+  /** The rod as a prop of the show: planted by its butt at a world point (k → 1), or set down on the bow rest (stow → 1). In
+   *  between, its world transform eases from the hand's to the prop's (a short tossed arc to the rest), so it never jumps. */
+  const rdP = new THREE.Vector3(), rdQ = new THREE.Quaternion(), rdS = new THREE.Vector3(), rdP2 = new THREE.Vector3(), rdQ2 = new THREE.Quaternion(), rdS2 = new THREE.Vector3();
+  const rdM = new THREE.Matrix4(), UPV = new THREE.Vector3(0, 1, 0), ROD_BUTT = 0.13;
+  function driveRod() {
+    const k = clamp(rodDrive.k, 0, 1), st = clamp(rodDrive.stow, 0, 1);
+    if (k <= 0.001 && st <= 0.001) {
+      if (rodDrive.driven) { rod.matrixAutoUpdate = true; rod.position.set(0, 0, 0); rod.quaternion.identity(); rod.scale.set(1, 1, 1); rod.updateMatrix(); rodDrive.driven = false; }
+      return;
+    }
+    rodMount.updateWorldMatrix(true, false);
+    rodMount.matrixWorld.decompose(rdP, rdQ, rdS);   // where the hand carries it
+    const s0 = (rdS.x + rdS.y + rdS.z) / 3; rdS.setScalar(s0);
+    if (k > 0.001) {
+      const sc = rodDrive.scale > 0 ? rodDrive.scale : s0;
+      rdQ2.setFromUnitVectors(UPV, rodDrive.dir);
+      rdP2.copy(rodDrive.butt).addScaledVector(rodDrive.dir, ROD_BUTT * sc);
+      rdP.lerp(rdP2, k); rdQ.slerp(rdQ2, k); rdS.setScalar(s0 + (sc - s0) * k);
+    }
+    if (st > 0.001) {
+      stowed.updateWorldMatrix(true, false); stowed.matrixWorld.decompose(rdP2, rdQ2, rdS2);
+      const e = st * st * (3 - 2 * st);
+      rdP.lerp(rdP2, e); rdP.y += Math.sin(e * Math.PI) * 0.3; rdQ.slerp(rdQ2, e); rdS.lerp(rdS2, e);
+    }
+    rdM.compose(rdP, rdQ, rdS);
+    rod.matrixAutoUpdate = false;
+    rod.matrix.copy(rodMount.matrixWorld).invert().multiply(rdM);
+    rodDrive.driven = true;
+  }
+  // a bare copy of the rig's bones (no meshes): where the head, the flame and the shoulders WILL be once a show pose has settled,
+  // so the show's layout and the camera's target are known on the pose's first frame (SPEC §2.6, §6.2 getShowFocus)
+  const ghost = (() => {
+    const g = new THREE.Group(), r = new THREE.Group(), q = new THREE.Group(), b = new THREE.Group(), h = new THREE.Group();
+    g.add(r); r.add(q); q.add(b); b.add(h);
+    return { g, r, q, b, h, o: neutral({}) };
+  })();
+  /** The body's volumes (for the show's clearances; S5): the cloak as a capsule a–b of radius r, the wax head as a sphere. */
+  function volumesOf(bodyNode, headNode, out) {
+    const e = bodyNode.matrixWorld.elements, sx = Math.hypot(e[0], e[1], e[2]);
+    out.a = (out.a || new THREE.Vector3()).set(0, 0.17, 0).applyMatrix4(bodyNode.matrixWorld);
+    out.b = (out.b || new THREE.Vector3()).set(0, 0.36, 0).applyMatrix4(bodyNode.matrixWorld);
+    out.r = 0.272 * sx;
+    out.head = (out.head || new THREE.Vector3()).set(0, 0.155, 0).applyMatrix4(headNode.matrixWorld);
+    out.headR = 0.215 * sx;
+    return out;
+  }
+  /**
+   * Settle a show pose on the ghost rig: spec = the show's spec at rest (p 1, take 1, no flap), at = {x, y, z, faceYaw} the Wick's spot
+   * and facing in its parent's (the deck's) space. Returns, in that same space: head {center, radius}, flame (its core), feet,
+   * shoulders {r, l}, the body's volumes, and scale (body units → metres). ghostReach() then clamps a hand target to the arm.
+   */
+  function probeShow(spec, at, out = {}) {
+    const G = ghost, o = neutral(G.o), saved = sh;
+    sh = spec;
+    try { poseShow(spec.pose, o, 0, true, at.faceYaw); } finally { sh = saved; }
+    G.g.position.set(at.x, at.y, at.z); G.g.rotation.y = at.faceYaw; G.g.scale.copy(group.scale);
+    G.r.position.y = o.y; G.r.rotation.set(o.pitch, o.twist, o.roll, 'YXZ');
+    G.q.scale.set(buildS[0] * (1 - o.sq * 0.55), buildS[1] * (1 + o.sq), buildS[2] * (1 - o.sq * 0.55));
+    G.h.position.set(0, 0.5, 0.01); G.h.rotation.set(o.hPitch, o.hYaw, o.hRoll, 'YXZ');
+    G.g.updateMatrixWorld(true);
+    const V = (out.vol = volumesOf(G.b, G.h, out.vol || {}));
+    out.head = { center: V.head, radius: V.headR };
+    const fs = (0.5 + 0.5 * Math.max(0.2, vitality)) * Math.max(0.15, 1 + o.flame);
+    out.flame = (out.flame || new THREE.Vector3()).set(flameBaseX, flameBaseY + 0.16 * fs * flameShape[1], 0).applyMatrix4(G.h.matrixWorld);
+    out.flameTop = (out.flameTop || new THREE.Vector3()).set(flameBaseX, flameBaseY + 0.27 * fs * flameShape[1], 0).applyMatrix4(G.h.matrixWorld);
+    out.feet = (out.feet || new THREE.Vector3()).set(at.x, at.y, at.z);
+    out.shR = (out.shR || new THREE.Vector3()).set(-SHOULDER_X, SHOULDER_Y, SHOULDER_Z).applyMatrix4(G.b.matrixWorld);
+    out.shL = (out.shL || new THREE.Vector3()).set(SHOULDER_X, SHOULDER_Y, SHOULDER_Z).applyMatrix4(G.b.matrixWorld);
+    out.eyes = (out.eyes || new THREE.Vector3()).set(0, 0.14, 0.212).applyMatrix4(G.h.matrixWorld);
+    out.scale = group.scale.x; out.pose = o;
+    return out;
+  }
+  /** Clamp a hand target (the ghost's parent space, after probeShow) to what that arm can reach; returns how far it was moved (m). */
+  function ghostReach(key, v, maxStretch = 2.4) {
+    const b = ghost.b;
+    tmpV.copy(v); b.worldToLocal(tmpV);
+    const sx = key === 'r' ? -SHOULDER_X : SHOULDER_X;
+    tmpV2.set(tmpV.x - sx, tmpV.y - SHOULDER_Y, tmpV.z - SHOULDER_Z);
+    const len = tmpV2.length(), max = ARM * maxStretch;
+    if (len <= max) return 0;
+    tmpV2.multiplyScalar(max / len); tmpV.set(sx + tmpV2.x, SHOULDER_Y + tmpV2.y, SHOULDER_Z + tmpV2.z).applyMatrix4(b.matrixWorld);
+    const moved = tmpV.distanceTo(v);
+    v.copy(tmpV);
+    return moved;
+  }
   // rod bend toward the line / gravity, and tip position
-  function bendRod(lineEnd, tension) {
+  function bendRod(lineEnd, tension, exact = null) {
     rod.updateWorldMatrix(true, false);
     const bend = rodU.uBend.value;
+    if (exact) {   // the show's planted rod: its bow is the show's own (already eased), so the tip is where the layout says
+      bend.set(exact.x, exact.z);
+      const u = 0.86, L = ROD_L;
+      rodBell.position.set(bend.x * L * u * u + 0.012, L * u - 0.5 * (bend.x * bend.x + bend.y * bend.y) * L * u * u * u, bend.y * L * u * u);
+      rodBell.rotation.set(bellSwing * 0.6, 0, bellSwing);
+      return;
+    }
     let bx = 0, bz = 0;
     // gravity droop
     tmpQ.copy(rod.getWorldQuaternion(tmpQ)).invert();
@@ -673,6 +894,31 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       if (side === 1 || side === -1) meas.side = side;
       meas.faceYaw = Number.isFinite(faceYaw) ? faceYaw : null;
     },
+    // ---- the show (actors-show.js drives these every frame of a show; all of them rest at "off")
+    /** The show's spec (kept by reference; null = no show): the pose reads its curves, side and head aims from it. */
+    setShow(spec) { sh = spec || null; },
+    /** A hand's IK lock: world position, k 0..1 (0 = the pose's own arm), and how far the sleeve may stretch. */
+    setHandLock(key, pos, k = 1, max = 2.4) {
+      const K = key === 'l' ? lock.l : lock.r;
+      if (!pos || !(k > 0)) { K.k = 0; return; }
+      K.pos.copy(pos); K.k = Math.min(1, k); K.max = max;
+    },
+    /** The rod as a prop: planted by its butt at `butt` along `dir` (world; k 0..1, scale = its size, 0 = as carried), and / or on
+     *  its way to the bow rest (stow 0..1; at 1 it lies there). */
+    setRodDrive({ butt = null, dir = null, k = 0, scale = 0, stow = 0 } = {}) {
+      rodDrive.k = butt && dir ? clamp(k, 0, 1) : 0; rodDrive.stow = clamp(stow, 0, 1); rodDrive.scale = scale;
+      if (butt) rodDrive.butt.copy(butt);
+      if (dir) rodDrive.dir.copy(dir).normalize();
+    },
+    probeShow, ghostReach,
+    /** The body's volumes now, in world space: {a, b, r} the cloak's capsule, {head, headR} the wax head (the show's clearances). */
+    getVolumes(out = {}) { body.updateWorldMatrix(true, false); head.updateWorldMatrix(true, false); return volumesOf(body, head, out); },
+    get rodLength() { return ROD_L; }, get rodButt() { return ROD_BUTT; },
+    get facing() { return facing; },
+    get build() { return buildS; },
+    get rodStowK() { return rodDrive.stow; },
+    /** The rig's joint values this frame (a copy; tests watch them for jumps), and where the rod is. */
+    getJoints(out = {}) { for (const k of KEYS) out[k] = cur[k]; out.facing = facing; out.rodDrive = rodDrive.k; out.rodStow = rodDrive.stow; return out; },
     /** The seal stamps (fish:measured): a satisfied bob, a flare of the head flame and a few sparks. */
     stamp() { meas.stamp = 1; if (!dead) sparks(6); },
     /** The landing (v3): the head flame flares up (k 0..1.5) and throws a few sparks, then settles over a second or two. */
