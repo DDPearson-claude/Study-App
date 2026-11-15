@@ -2,6 +2,18 @@
 
 The user asked on 14 November 2026: "Let's pause and focus on one task at a time." Then: "Just choose the next job and run continuously until all queued work is complete." One job runs at a time; the lead picks the order below and starts each the moment the one before is merged, without stopping to ask.
 
+## How jobs are run (the user's "Yes", 15 November 2026)
+
+The user asked why changing a unit of weight took so long and cost so many tokens, and said **"Yes"** to sizing each job to the work. This amends the user's job template of 14 November ("Outsource all coding and building tasks to fable 5.2 extra high, things that you dont think need as much heavy labour give to opus 5.5 on high"):
+
+| size | for example | how it runs |
+|---|---|---|
+| **small** | a unit, wording, a rename, a number, a docs amendment | **one agent** at **high** effort (Fable for code, Opus for docs); no separate spec, review or fix agents; only the tests that touch the change; the full regression once, by the lead, at the merge |
+| **medium** | a new screen, a system change, a sim re-tune | a **build agent** (Fable, extra high) and **one reviewer** (Opus, high); a fix agent only if the review finds a must |
+| **large** | a slice build, the cove, an art job | the full pipeline as before: spec, lanes, stage, reviews, fix |
+
+Also binding: **no scope the user did not ask for** (if something extra looks worth doing, ask first); the full browser regression runs **once**, at the merge, not in every agent; one machine-heavy job at a time, design jobs beside it.
+
 ## The order (the lead's choice, re-ordered by the user's words of 15 November 2026)
 
 The user, 15 November 2026: "Once this visual job has ran, focus on all code based jobs first as they're much faster". Then, asked what it takes to get map 1 and the home base "fully 100% finished and playable", the user said **"Yes"** to the lead's re-cut: **finish the Mossmere and the home base first** (milestone M1, "the Mossmere and the Landing, complete"); everything for Sporewood and the later waters waits until M1 is done. The design and code jobs still run first (2–7); then M1's builds in order (8–13); then the rest.
