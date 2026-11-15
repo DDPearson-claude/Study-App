@@ -9,30 +9,31 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 1. ~~The catch show~~ *(DONE 15 November: merged at 32c7133 with the cut scene; the preview updated; the film with its sound sent)*
 2. ~~The world map and the story~~ *(DONE 15 November: merged at ad8461d; LORE.md v2 and WORLD.md v2, the Waxwold; the map published as the artifact "The Waxwold"; the new line 3 proposed: "Its last candles fish from lamp to lamp.")*
 3. **Pounds** *(running)* (the user, 15 November 2026: "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please"). A fish's size is told in pounds everywhere the player sees it: the card's headline and its count, records and personal bests, the Journal and ledger, bounties and challenges, the play's estimate, Murk's lines. Format (the lead's default, the UK angler's way): under 1 lb in ounces ("11 oz"; under 1 oz to the nearest quarter, "¾ oz"); 1 lb to under 100 lb as "4 lb 6 oz"; 100 lb and up in whole pounds ("212 lb"). Length stays the hidden truth (the model's scale, the show's pose, the classes) and is kept only as a detail line on the card. The species' weights are audited against their real-world cousins so the pounds ring true. v3 and the loop only; the flag-off v1 game keeps parity.
-4. **The M1 plan, with the Chart** (design): re-cut SPEC §13 and the slice PLANs into M1 (the slices' Mossmere halves, the cove pulled forward, Sporewood's sheet sealed "coming soon"); the world map as the in-game Chart (SPEC §5.4, §13, the Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers); the sim's pacing for a Mossmere-only arc (`--shipped`); M1's done-list.
-5. The three keys (resume `wf_1c95633f-092`).
-6. The Wicks' passives, design (resume `wf_91d42619-6b9`).
-7. The Wicks' balancing in the sim.
+4. **The Lamp Road re-routed** (the user, 15 November 2026, on the published map: "Going from 7, back on yourself to 8 then back on yourself massively to 9 makes no sense"). The unlock order stays (the ramp, the kinds and the sims are built on it); the waters move on the continent so **the road only goes forward**: every water lies further along than the one before; a side water up a river or fjord may be a short out-and-back of its own length, never a return past an earlier water. Known breaks: 7→8→9 (the Last Light out at sea, back inland up to Pyrefall's snow temple, back out and down the Long Coast to the Reef: Pyrefall moves to a gorge coming down to the west coast at the Spine's south end, just past the Last Light, its temple the last stop before the long voyage south); 5→6→7 (up the Thin Water at the Sound's head, back down the whole Sound: the Thin Water meets the Sound near its mouth, on the way out to sea); 14→15→16 (the Inkwood lies back between the Siltway and the lagoon: it moves beyond the lagoon so it stays the road's far end). WORLD.md and LORE.md (each water's "from" leg, coordinates, regions, story lines) and the map generator are revised; the map is re-baked and republished to the same link; a validator in the generator fails any leg that runs back past an earlier water.
+5. **The M1 plan, with the Chart** (design): re-cut SPEC §13 and the slice PLANs into M1 (the slices' Mossmere halves, the cove pulled forward, Sporewood's sheet sealed "coming soon"); the world map as the in-game Chart (SPEC §5.4, §13, the Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers); the sim's pacing for a Mossmere-only arc (`--shipped`); M1's done-list.
+6. The three keys (resume `wf_1c95633f-092`).
+7. The Wicks' passives, design (resume `wf_91d42619-6b9`).
+8. The Wicks' balancing in the sim.
 
 **M1: the Mossmere and the Landing, complete** (each step built, reviewed, merged and previewed before the next)
 
-8. Slice 1a: the core loop at the Jetty (the opening with the five Wicks, the tutorial, three slots, the tally, the tackle shelf, saves), its PLAN amended by 3–7; the cut scene's new line 3 put in and re-timed; the catch show's backlog below.
-9. The Mossmere's roster fish (slice 1b's Mossmere half): the eight at roster sizes, the converter, the allow-list.
-10. *(visual)* The Mossmere's places, giants and legend (slice 2's Mossmere half): the four places in mist, the Thousandcast Pike and the Hullkiss Lamprey, the Belled Matriarch, Elders in old water, Kissmark Trout, Gloam Eel, Bridgechain Sturgeon, the lamprey / sturgeon / trout plans, the drawn Chart.
-11. Bait, lures, the raft parts and Murk's orders (slice 3 without Sporewood's fish), and the catfish plan so the Matriarch is a catfish.
-12. *(visual)* The cove built (FE-W1, `SUPPORTS_COVE`), then the Landing as home (slice 4): the posts, the home upgrades in the scene, the Waystones, the prints and the giants' page.
-13. The polish pass: the show's sound mix, phone performance, one full playthrough from a fresh save to an empty shelf, the new cut-scene video with its sound.
+9. Slice 1a: the core loop at the Jetty (the opening with the five Wicks, the tutorial, three slots, the tally, the tackle shelf, saves), its PLAN amended by 3–8; the cut scene's new line 3 put in and re-timed; the catch show's backlog below.
+10. The Mossmere's roster fish (slice 1b's Mossmere half): the eight at roster sizes, the converter, the allow-list.
+11. *(visual)* The Mossmere's places, giants and legend (slice 2's Mossmere half): the four places in mist, the Thousandcast Pike and the Hullkiss Lamprey, the Belled Matriarch, Elders in old water, Kissmark Trout, Gloam Eel, Bridgechain Sturgeon, the lamprey / sturgeon / trout plans, the drawn Chart.
+12. Bait, lures, the raft parts and Murk's orders (slice 3 without Sporewood's fish), and the catfish plan so the Matriarch is a catfish.
+13. *(visual)* The cove built (FE-W1, `SUPPORTS_COVE`), then the Landing as home (slice 4): the posts, the home upgrades in the scene, the Waystones, the prints and the giants' page.
+14. The polish pass: the show's sound mix, phone performance, one full playthrough from a fresh save to an empty shelf, the new cut-scene video with its sound.
 
 **After M1**
 
-14. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`) and the rest of slice 1c; slice 1d, the river spike.
-15. Sporewood and onward (the slices' other halves, then 5–9).
+15. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`) and the rest of slice 1c; slice 1d, the river spike.
+16. Sporewood and onward (the slices' other halves, then 5–9).
 
 ## Running
 
 - **Pounds** (job 3; branch `gw-pounds`).
 
-## Backlog for slice 1a (job 8) (found on the catch show's merge; small, code only; lane B unless named)
+## Backlog for slice 1a (job 9) (found on the catch show's merge; small, code only; lane B unless named)
 
 The merge review (15 November) found no regression a player would see; these are the leftovers, carried into slice 1a's build because it opens the same files:
 
@@ -54,8 +55,8 @@ The merge review (15 November) found no regression a player would see; these are
 
 | item | the user's words | when |
 |---|---|---|
-| Rewrite the cut scene's line 3 ("Its last candles fish to stay lit.") so it fits the new loop and points toward the journey | "Yes, rewrite line 3 once the story's done" (14 November 2026) | drafted in LORE.md §12 by job 2: "Its last candles fish from lamp to lamp." (the alternate: keep the old line); put in and re-timed in job 8 (slice 1a); the new video in job 13 |
-| The world map becomes the in-game Chart | "Yes make the map our in-game Chart" | job 4 (the M1 plan, with the Chart) |
-| Wick balancing in the sim | "each one has a powerful unique passive ability" | job 7 |
-| Slice 1a build (three slots on the built fish, the opening, the Chart) | — | job 8, the start of M1 |
-| Finish the Mossmere and the home base first (M1) | "What do we need to do to get map 1 and the home base fully 100% finished and playable" · "Yes" (15 November 2026) | jobs 4 and 8–13 |
+| Rewrite the cut scene's line 3 ("Its last candles fish to stay lit.") so it fits the new loop and points toward the journey | "Yes, rewrite line 3 once the story's done" (14 November 2026) | drafted in LORE.md §12 by job 2: "Its last candles fish from lamp to lamp." (the alternate: keep the old line); put in and re-timed in job 9 (slice 1a); the new video in job 14 |
+| The world map becomes the in-game Chart | "Yes make the map our in-game Chart" | job 5 (the M1 plan, with the Chart) |
+| Wick balancing in the sim | "each one has a powerful unique passive ability" | job 8 |
+| Slice 1a build (three slots on the built fish, the opening, the Chart) | — | job 9, the start of M1 |
+| Finish the Mossmere and the home base first (M1) | "What do we need to do to get map 1 and the home base fully 100% finished and playable" · "Yes" (15 November 2026) | jobs 5 and 9–14 |
