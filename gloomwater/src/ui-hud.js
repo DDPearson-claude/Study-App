@@ -302,11 +302,14 @@ export function createHud(K) {
   let insetTop = 70, insetBottom = 26, insetSide = 24, tlW = 340, tlH = 200, trW = 470, trH = 132;
   function gatherTargets() {
     let n = 0;
+    const loopTrip = D().LOOP_ENABLED === true && run()?.outing === 'trip';   // the loop: Murk is home, the gate is scenery (T46)
     const pp = ctx.player?.position;
     if (!pp) return 0;
     const add = (kind, pos) => { if (n >= MK_N || !pos) return; const t = targets[n++]; t.kind = kind; t.pos.set(num(pos.x), num(pos.y, 0) + 0.5, num(pos.z)); t.dist = Math.hypot(t.pos.x - pp.x, t.pos.z - pp.z); };
     // while a fish is on (the bite, the play, the landing) the edges stay clear for the float and the bite mark: only the
     // watch-lamp (and a boss) keep a marker
+    // the loop on a trip: no edge marker at all (SPEC §8.1's HUD has none; maps are the only discovery, so nothing points the way)
+    if (loopTrip) return 0;
     const fst = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : 'idle';
     if (fst === 'bite' || fst === 'reeling' || fst === 'landing') {
       v3.markers(add);
@@ -538,6 +541,24 @@ export function createHud(K) {
     const vis = v3.frame(r, dt);
     v3.update(dt);
 
+    // ---- the Full Hold on a trip (slice-1a PLAN §2.3 item 3): the parked gauges are hidden by CSS under .gw-hud.gw-loop and never
+    // read here (no clock: a null night must never paint NaN; no oil, wax, Embers, flare, Burn, level or Shells); ui-loop draws the
+    // hold row and the Home pill. Kept: the Journal glyph (locked while a line is out), the pause glyph, the float and the markers.
+    const loopTrip = D().LOOP_ENABLED === true && r.outing === 'trip';
+    toggle(el, 'loop', 'gw-loop', loopTrip);
+    if (loopTrip) {
+      const lineOut = !!K.logLocked?.();
+      const lockWord = D().AUTOFISH?.text?.logLocked || 'Reel in first.';
+      toggle(R.journalBtn, 'lkJ', 'gw-locked', lineOut);
+      setAttr(R.journalBtn, 'jbT', 'title', lineOut ? lockWord : 'Journal (J)');
+      setAttr(R.journalBtn, 'jbA', 'aria-label', lineOut ? `Journal: ${lockWord}` : 'Journal (J)');
+      toggle(R.pill, 'pill', 'gw-on', false);
+      toggle(el, 'idle', 'gw-idle', false);
+      gatherTargetsAndPaint();
+      paintFishing(dt);
+      return;
+    }
+
     // ---- vitals
     const maxHp = Math.max(1, Math.round(stat('maxHp')));
     const hp = Math.max(0, Math.min(maxHp, Math.round(num(r.hp))));
@@ -717,6 +738,8 @@ export function createHud(K) {
 
   return {
     setVisible, reset, update, onResize, onFishingState,
+    /** a HUD button's press guard (preventDefault + stopPropagation, so the host never starts a cast charge) */
+    tapGuard,
     /** v3: a card of the HUD's own owns the middle of the screen (the Scorched card) */
     cardUp: () => !!v3.cardUp,
     /** automatic fishing: the got-away note for a fish:escaped payload (CONTRACT §13.7 ui showGotAway) */
