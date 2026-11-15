@@ -993,10 +993,15 @@ export function createScreens(K) {
           let said = null;
           const write = (t) => { if (t !== said) { said = t; hero.innerHTML = weightHtml(t); } };   // (the units keep their own face)
           write(say(0));
-          // (a card closed, or drawn again, before its stamp has pressed still stamps: the seal is heard once for every fish)
+          // (a card drawn again before its stamp has pressed still stamps: the seal is heard once for every fish; a card that has
+          // left the play, closed or closing, drops its pending stamp, so no seal sounds under what follows: PLAN §2.2 item 25)
           const press = () => { if (pressed) return; pressed = true; if (s.stamped) return; s.stamped = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); };
           const step = () => {
-            if (!pn.isConnected || pn.closest('.gw-out')) { press(); return; }
+            if (!pn.isConnected || pn.closest('.gw-out')) {
+              if (!pn.closest('.gw-out') && K.entry('catch') === entry) press();   // drawn again: the card is still open
+              else pressed = true;                                                  // left the play: the stamp is dropped
+              return;
+            }
             const t = performance.now() - t0;
             if (!started && t >= from) { started = true; emit('card:count', { dur: dur / 1000 }); }
             const k = Math.min(1, Math.max(0, (t - from) / dur)), e2 = 1 - (1 - k) * (1 - k) * (1 - k);
@@ -1849,7 +1854,11 @@ export function createScreens(K) {
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn(esc(TL().resume || 'Resume'), { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
       const can = safe(() => ctx.game?.canGoHome?.({ fromPause: true }), null)?.ok === true;
-      const home = btn(esc(TL().home || 'Home'), { cls: 'gw-mbtn gw-loop-home', icon: 'hearth', disabled: !can, onClick: () => { resume(); safe(() => ctx.game?.goHome?.(), null); } });
+      // (main's goHome({fromPause}) clears the pause itself and ends the trip, whose run:end closes the screens; refused, the pause resumes)
+      const home = btn(esc(TL().home || 'Home'), { cls: 'gw-mbtn gw-loop-home', icon: 'hearth', disabled: !can, onClick: () => {
+        if (safe(() => ctx.game?.goHome?.({ fromPause: true }), false) === true) K.closeAll((m) => m.id === 'pause' || m.state?.pauseChild);
+        else resume();
+      } });
       home.dataset.loop = 'home';
       menu.appendChild(home);
       menu.appendChild(btn(esc(TL().settings?.label || 'Settings'), { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
