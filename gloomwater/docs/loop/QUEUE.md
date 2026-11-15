@@ -21,8 +21,8 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 10. The Mossmere's roster fish (slice 1b's Mossmere half): the eight at roster sizes, the converter, the allow-list.
 11. *(visual)* The Mossmere's places, giants and legend (slice 2's Mossmere half): the four places in mist, the Thousandcast Pike and the Hullkiss Lamprey, the Belled Matriarch, Elders in old water, Kissmark Trout, Gloam Eel, Bridgechain Sturgeon, the lamprey / sturgeon / trout plans, the drawn Chart.
 12. Bait, lures, the raft parts and Murk's orders (slice 3 without Sporewood's fish), and the catfish plan so the Matriarch is a catfish.
-13. *(visual)* The cove built (FE-W1, `SUPPORTS_COVE`), then the Landing as home (slice 4): the posts, the home upgrades in the scene, the Waystones, the prints and the giants' page.
-14. The polish pass: the show's sound mix, phone performance, one full playthrough from a fresh save to an empty shelf, the new cut-scene video with its sound.
+13. *(visual)* The cove built (FE-W1, `SUPPORTS_COVE`) with the loop's `home` flow made live in it (main, player), then the Landing as home (slice 4): the posts, the home upgrades in the scene, the Waystones, the prints and the giants' page. The lead's decision (M1.md §2.15): the v3 First Evening stays dormant, `FE_ON` false by feature detection (it also needs the unbuilt sea-gate film, and is false under the loop).
+14. The polish pass: the show's sound mix, phone performance, one full playthrough from a fresh save to an empty shelf (headless for all five Wicks, a browser spine, and a person at real speed on a real phone), the new cut-scene video with its sound; M1 is done on the user's yes after playing it.
 
 **After M1**
 

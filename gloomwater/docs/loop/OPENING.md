@@ -379,7 +379,7 @@ Exactly what they have today: the title with Begin on a fresh v3 save (film → 
 night-mode step, waystones and locked Wicks, the premise and the counts, Journal, Shrine and Trials on the title, the Wicks'
 built effects and trial unlocks, the built Settings rows, and every tip. Every change above is behind `LOOP_ENABLED` and
 reads `meta.loop`, which only a loop build writes (revision 3: the film's line 3 too, set in the apply block; and with
-`world.SUPPORTS_COVE` true from M1 step 5, main's `FE_ON` keeps its own switch, so the v3 opening is unchanged); the ui-intro hold of the New Descent panel is behind `LOOP_ENABLED` too.
+`world.SUPPORTS_COVE` true from M1 step 5, main's `FE_ON` stays false by feature detection, since it also needs the unbuilt sea-gate film and is false under the loop, so the v3 opening is unchanged: `M1.md` §2.15); the ui-intro hold of the New Descent panel is behind `LOOP_ENABLED` too.
 
 ## Review log (revision 2 of this file, 14 November 2026)
 

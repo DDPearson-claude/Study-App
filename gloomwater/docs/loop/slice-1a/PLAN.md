@@ -24,6 +24,10 @@ catch show's four leftovers from QUEUE's backlog, pounds on the tally, the Chart
 §0 below; each amended passage elsewhere says "(rev. 6)". It runs after pounds (`gw-pounds`) has merged and after the three
 keys (QUEUE job 6) and the Wicks' balancing (QUEUE job 8, `clams.mjs --wicks`) are committed, so S2's data has its numbers.
 
+**Revision 7 (15 November 2026) follows M1's revision 2** (`M1.md` §10): slice 1a is sized L (four lanes in parallel, about
+two weeks); item 25's four show fixes are v3 fixes too and the one sanctioned flag-off change, with a committed `show-seq`
+sound fixture for the offline render (§2.2 item 25, "(rev. 7)"); the M1 sim gate is `--step=1` (M1's step numbers).
+
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
 three conflicts with `gw-show`. Lane A then writes the **seam commit S** on M (§2.0: the data tables, the switch,
@@ -92,10 +96,10 @@ or `M:N` (a trial merge of 3292886 and `gw-show`). In M, find code by its functi
 | | C | the tally's double tick and seal glyph for a first (`sfx('coinBright')`, falling back to `coin`); the five lines under New Descent; the hold row and the Chart's cells from `loop.hold().slots` (never a Wick test in the view); `murkLineFor('firstChart', wick)`; the goal line's "Hold N" from `wickSlots` of the next step (Tallow at the start: "Next: Hold 5 · 30") | T23/T24, T59, T65/T67 with Tallow (four cells, its line, the same on a reload) |
 | | D | a per-Wick smoke step (each Wick's "seen" event: the Wick's first-sale ticks; Taper's non-common first card; Stub's quick bite; for Tallow, four cells on the Chart, Murk's "Four slots" line and four fish home before "Hold's full."; Ashwick's ember-glow comeback; the comeback and the linger never on one cast); the line one line high on a phone; Tallow's 6 cells at Hold 5 on a phone. The main pass reads its counts from `loop.hold().slots` and its goal line from `goalLine` (Tallow: keep 4, the 5th refused, `Next: Hold 5 · 30`, then `holdSlots === 4` and 5 empty cells, T50 at 1 of 4) | T36 (the default Wick's "three fish" becomes "a full hold"), the `--wick=<id>` passes |
 | **the film's line 3** (SPEC §0 row 16, `LORE.md` §12) | B (with A's apply-block line, §2.5) | §2.2 item 26 | `intro-length`, the A5 words test, the v3 fingerprint unchanged |
-| **the catch show's leftovers** (QUEUE's backlog for job 9) | B | §2.2 item 25 | the offline show render's gates; `intro-show-seam`; `show-seq` |
+| **the catch show's leftovers** (QUEUE's backlog for job 9) | B | §2.2 item 25 | the offline show render's gates (on the committed `show-seq` sound fixture); `intro-show-seam` and `show-seq` re-baselined for these fixes alone (`M1.md` §2.15) |
 | **pounds** (`gw-pounds`, merged first) | A, C | A: `endTrip` stores each fish's weight with the result (`data.fishWeight`); C: the tally's rows lightest first, heaviest last, each with its weight small (`fmtWeight`); the card is `gw-pounds`' as merged | T21, T22 with weights; T43's allow-list takes a weight |
 | **the Chart's 1a part** (SPEC §5.4, `M1.md` §3.6) | C | the Chart is a list drawn from a new pure `chartModel(meta, D)` (§2.3 item 2, rev. 6), which M1 step 3's drawn Chart draws instead; no Sporewood row; the row `[data-water=mossmere]`, its cells `.gw-slot`, Sail `[data-action=sail]` | `ui-loop.test` (`chartModel` on a fresh save: one sheet, no places, no next); T65 unchanged |
-| **the M1 sim gate** | A | `clams.mjs --shipped=mossmere --step=1a` once the balancing jobs commit it (`M1.md` §6.4); until then `--quick` | §6.2 |
+| **the M1 sim gate** | A | `clams.mjs --shipped=mossmere --step=1` once the balancing jobs commit it (`M1.md` §6.4); until then `--quick` | §6.2 |
 | **§7.1** | — | the Jetty question is answered by M1 (the Landing is built in step 5); "Do the five passives feel right?" is added | — |
 
 The R11 phone check grows with Tallow: 6 cells at 1a's Hold 5 must fit the top-left row beside the right cluster; if they do
@@ -612,6 +616,12 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
       Small's cord ticks ≥ 6 dB over the bed; no hush rise on the card's first frame (the lake rise's gulp: the hush waits
       for the card); the unfold gets its own sound (`ui_unfold`, in place of the generic `ui_open`). These are gates on the
       render's numbers; the by-ear mix of every class is M1 step 6's.
+    - (rev. 7, `M1.md` revision 2) **They are v3 fixes too, and the one sanctioned flag-off change** (`M1.md` §2.15): all four
+      happen in the v3 build today, so they are not gated by `LOOP_ENABLED`. Lane B's first commit captures `show-seq`'s
+      sound log as a committed fixture (`tools/tests/fixtures/show-seq-sound.json`), so the offline render runs as
+      `node tools/audio-render.mjs --set=show --log=tools/tests/fixtures/show-seq-sound.json` with no film run; the fixes'
+      commit re-baselines `show-seq`'s audio expectations and `intro-show-seam` for these four alone (the diff listed in the
+      merge note) and re-writes the v3 fingerprint only for the `ui_unfold` entry.
 26. (rev. 6) **The film's line 3** (SPEC §0 row 16, `LORE.md` §12): under the loop the third line is "Its last candles fish
     from lamp to lamp." (40 characters), set in `data.js`'s apply block (A writes the line, §2.1 item 15; B owns the
     film's behaviour and its checks). The v3-without-loop film keeps "Its last candles fish to stay lit." (its fingerprint
@@ -1446,7 +1456,7 @@ and choosy checks run once per `LOOP.wicks` entry with the traits the sim models
 Wick outside it is a trait to soften, never a band to widen). Cast distance, raft speed and light are not modelled and are
 printed as such. The logs show no trait by the built rule (§2.1 item 8). (rev. 6) T75 is rewritten by `WICKS.md` §3.3: the
 passives, run per Wick and also flag-off, by the balancing job (QUEUE job 8) before 1a branches; and M1's own gate is
-`clams.mjs --shipped=mossmere --step=1a` (`docs/loop/M1.md` §6.4) once committed. This plan edits no sim file.
+`clams.mjs --shipped=mossmere --step=1` (`docs/loop/M1.md` §6.4; M1's step numbers) once committed. This plan edits no sim file.
 
 ### 6.5 Risks and knobs
 
