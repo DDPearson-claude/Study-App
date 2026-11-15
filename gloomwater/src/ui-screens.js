@@ -5,7 +5,7 @@
 import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
-import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler } from './ui-v3.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizer } from './ui-v3.js';
 import * as AF from './ui-af.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -81,6 +81,9 @@ export function createScreens(K) {
   // The numbers come from progression (getOdds, getGearLog, compareOdds, getTackleRating: CONTRACT §13.7; one formula, one owner);
   // ui only words and lays them out (data.catchDisplay rounds down). Every route into a log refuses while a line is out (K.refuseLocked).
   const af = () => AF.afOn(D());
+  /** The v3 build: a fish's size is told in pounds and ounces (docs/v3/pounds/SPEC.md); flag off, every line reads as v1 wrote it. */
+  const V3 = () => D().V3_ENABLED === true;
+  const lbs = (sp, fish) => fmtWeight(fishWeight(sp, fish));
   const prog = () => (ctx.progression && !K.isStub(ctx.progression) ? ctx.progression : null);
   const call = (name, ...a) => { const P = prog(); return typeof P?.[name] === 'function' ? safe(() => P[name](...a), null) : null; };
   const COVE_ID = 'cove';
@@ -178,7 +181,7 @@ export function createScreens(K) {
     const res = call('getOdds', sp.id);
     if (!res) return '';
     const lo = call('getLoadout');
-    const v = AF.oddsView(D(), res, { speciesName: sp.name, loadout: loadoutNames(lo), itemName: itemName(res.withBest?.item), nightMode: run()?.nightMode || null, cove: sp.zone === COVE_ID || !!sp.cove });
+    const v = AF.oddsView(D(), res, { speciesName: sp.name, loadout: loadoutNames(lo), itemName: itemName(res.withBest?.item), nightMode: run()?.nightMode || null, cove: sp.zone === COVE_ID || !!sp.cove, species: sp });
     const cellsHtml = (cells, row) => cells.map((c) => `<div class="gw-odds-c gw-cls-${esc(c.cls)}${c.cls === hl ? ' gw-hl' : ''}${c.unseen ? ' gw-unseen' : ''}${c.unreachable ? ' gw-unreach' : ''}"${row ? '' : ` role="listitem" aria-label="${esc(c.label)}: ${esc(c.unseen ? 'not yet known' : c.unreachable ? 'out of reach' : c.text)}"`}><b>${esc(c.text)}</b><small>${esc(c.label)}</small></div>`).join('');
     const withRow = v.withBest ? `<p class="gw-odds-with"><span>${esc(v.withBest.label)}</span> ${v.withBest.cells.map((c) => `${esc(c.label)} <b>${esc(c.text)}</b>`).join(' \u00b7 ')}</p>` : '';
     return `<section class="gw-odds${v.unseen ? ' gw-odds-unseen' : ''}" data-section="odds">
@@ -192,11 +195,13 @@ export function createScreens(K) {
     </section>`;
   }
   /** The Got away list (last 5) and the one that got away (journal fields progression writes on fish:escaped). */
-  function gotAwayBlock(rec) {
+  function gotAwayBlock(rec, sp = null) {
     const list = arr(rec?.gotAway).slice(-5).reverse();
     if (!list.length) return '';
     const row = (g) => {
-      const parts = [`<b>${esc(AF.classLabel(D(), g.sizeClass, g.ancient))}</b>`, esc(AF.nearLength(D(), g.length))];
+      const parts = [`<b>${esc(AF.classLabel(D(), g.sizeClass, g.ancient))}</b>`];
+      const near = AF.nearWeight(D(), sp, g.length);
+      if (near) parts.push(esc(near));
       const ph = AF.placePhrase(placeNameOf(g.place));
       if (ph) parts.push(esc(ph)); else if (g.zone && zoneName(g.zone)) parts.push(`in ${esc(zoneName(g.zone).replace(/^The /, 'the '))}`);
       if (g.day) parts.push(`day ${esc(g.day)}`);
@@ -527,8 +532,9 @@ export function createScreens(K) {
   }
   const PHASE_WHEN = { calm: 'in the calm', dusk: 'at dusk', gloomtide: 'in the Gloomtide', dawn: 'at grey dawn' };
   const firstSentence = (t) => { const m = /^(.+?[.!?])(\s|$)/.exec(String(t || '').trim()); return m ? m[1] : String(t || '').trim(); };
-  // v3 (DESIGN §25.6.8, §25.14.2 U2): the card prints the measured fish — its class as the stamp (and its seal), length in
-  // cm, weight in kg, an Elder's name, and the favours that applied, as the float showed them (notches + plain words)
+  // v3 (DESIGN §25.6.8, §25.14.2 U2): the card prints the measured fish — its class as the stamp (and its seal), its weight in
+  // pounds and ounces as the hero (docs/v3/pounds/SPEC.md §3), its length as one small line in cm, an Elder's name, and the
+  // favours that applied, as the float showed them (notches + plain words)
   const CLASS_PHRASE = { small: 'only a little one.', keeper: 'a keeper.', prize: 'a prize!', trophy: 'a real trophy!', elder: 'an Elder!' };
   const isV3Fish = (fish) => !!D().V3_ENABLED && typeof fish?.sizeClass === 'string' && num(fish?.length) > 0;
   function catchNotesV3(p, sp, fish) {
@@ -540,8 +546,9 @@ export function createScreens(K) {
     const z = K.zoneData(sp.zone) || K.zoneData(r?.zone) || (af() && (sp.zone === COVE_ID || sp.cove) ? { name: zoneName(COVE_ID) } : null);
     const zn = (z?.name || '').replace(/^The /, 'the ');
     const stamp = legend ? 'Legend' : ci.label;
-    // the kicker names the same record the measuring banner did (its best line), in a few words: the hero length says the rest
-    const best = recordLines(D(), { records: recs, isNew: !!p.isNew, species: sp, length: fish.length, max: 1 })[0] || null;
+    // the kicker names the same record the measuring banner did (its best line), in a few words: the hero weight says the rest
+    const W = fishWeight(sp, fish);
+    const best = recordLines(D(), { records: recs, isNew: !!p.isNew, species: sp, length: fish.length, weight: W, max: 1 })[0] || null;
     const REC_KICK = { oldLedger: 'Old Ledger beaten', pb: 'A new personal best', isNew: 'A new name for the journal', elderLog: 'Written in the Elder Log',
       place: 'A new record for this place', resident: 'A resident giant, landed' };
     const recKick = !best ? null : best.kind === 'classFirst'
@@ -549,7 +556,7 @@ export function createScreens(K) {
       : REC_KICK[best.kind] || best.text;
     const kicker = legend ? `A legend of ${zn || 'the deep'}` : recKick || (p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
       : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`);
-    const len = fmtLength(fish.length, D());
+    const wt = fmtWeight(W), cm = fmtCm(fish.length);
     const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
       : p.isRecord ? 'biggest yet!' : ci.id === 'trophy' ? CLASS_PHRASE.trophy : p.isNew ? 'a first!' : CLASS_PHRASE[ci.id] || '';
     // the bait it took: the cast's own (its favour term names it) before whatever is equipped now
@@ -564,7 +571,7 @@ export function createScreens(K) {
     const special = legend || !!p.isNew || !!p.isRecord || classFirst || !!fish.name || !!ci.ancient || !!best;
     // the lore and the epithet up front only for a new name, a legend or an Ancient; a record keeps its kicker and the hero
     const loreUp = legend || !!p.isNew || !!ci.ancient;
-    return { stamp, kicker, len, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true, special, loreUp };
+    return { stamp, kicker, wt, cm, W, phrase, more, legend, size: ci.id, cls: ci, name: fish.name || '', favours, groups: favourGroups(favours, D()), notches: notchesFor(mu, D()), v3: true, special, loreUp };
   }
   /** The catch as the journal records it: stamp, kicker, note, numbers. */
   function catchNotes(p, sp, fish) {
@@ -747,10 +754,12 @@ export function createScreens(K) {
       const sw = grade ? (D().AUTOFISH?.text?.strike?.[grade] || cap(grade)) : '';
       const strikeRow = sw ? `<dt${X}>strike</dt><dd class="gw-cc-strike gw-strike-${esc(grade)} gw-cc-xtra">${esc(sw)}</dd>` : '';
       const worthRow = cove ? (qWord ? `<dt${X}>quality</dt><dd${X}>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt${X}>worth</dt><dd${X}>${fmt(y.sell)} shells${qWord}</dd>`;
-      const stats = `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;
+      // v3: the hero is the weight, so the list keeps the length as its one small line (cm) and has no weight row
+      const stats = N.v3 ? `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.cm)}</dd>${worthRow}${strikeRow}${favRow}</dl>`
+        : `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;   // v1
       const lore = firstSentence(sp.lore) || hintFor(sp);
       // the show (SPEC §2.9, §2.10): what the measuring overlay said lives on the card. Its ruler line is the species' cord: this
-      // fish's bead slides out along it as the length counts up; your best and the Old Ledger are two knots on it (marks, no
+      // fish's bead slides out along it as the weight counts up; your best and the Old Ledger are two knots on it (marks, no
       // words: oxblood and black), lit when the count passes them
       const live = N.v3 && showCard();
       let ruleKnots = '', rule = null;
@@ -766,9 +775,12 @@ export function createScreens(K) {
           + `<i class="gw-cc-bead" style="left:${at(s.shown ? fish.length : 0)}%" data-to="${at(fish.length)}"></i>`;
       }
       // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
-      // card; an ordinary catch shows name, class, length, weight and the actions, the rest one tap away ("more")
+      // card; an ordinary catch shows name, class, its size and the actions, the rest one tap away ("more")
       const sx = N.special ? '' : ' gw-cc-xtra';
-      // v3: the hero length and the kicker carry the record, so the handwritten note (length, phrase, bait and hour) folds behind
+      // v3: the hero is the weight. A hidden sizer holds the widest figure the count shows, so the stamp row never moves while the
+      // live figure runs up inside a fixed box; a pounds-and-ounces figure ("12 lb 13 oz") takes a smaller hand
+      const heroHtml = N.v3 ? `<b class="gw-cc-hero${N.wt.length >= 9 ? ' gw-cc-hero--long' : ''}" aria-label="${esc(N.wt)}"><span class="gw-cc-hero-sizer" aria-hidden="true">${esc(weightSizer(N.W))}</span><span class="gw-cc-hero-n">${esc(N.wt)}</span></b>` : '';
+      // v3: the hero weight and the kicker carry the record, so the handwritten note (weight, phrase, bait and hour) folds behind
       // "more"; the lore and the epithet are up front only for a new name, a legend or an Ancient
       const nx = N.v3 ? ' gw-cc-xtra' : sx;
       const lx = N.v3 ? (N.loreUp ? '' : ' gw-cc-xtra') : sx;
@@ -776,13 +788,13 @@ export function createScreens(K) {
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             ${live ? '<div class="gw-cc-rule">' : ''}<svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>${live ? `${ruleKnots}</div>` : ''}
-            <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+            <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.v3 ? N.wt : N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
             <div class="gw-cc-kicker${sx}">${esc(N.kicker)}</div>
             <h2 class="gw-catch-name">${esc(sp.name)}</h2>
             ${N.name ? `<div class="gw-cc-epithet gw-cc-elder">“${esc(N.name)}”</div>` : sp.epithet ? `<div class="gw-cc-epithet${lx}">${esc(sp.epithet)}</div>` : ''}
-            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}${N.v3 ? `<b class="gw-cc-hero">${esc(N.len)}</b>` : ''}</div>
+            <div class="gw-cc-stamp gw-cc-stamp--${esc(N.stamp.toLowerCase())}"><span>${esc(N.stamp)}</span>${N.v3 && !legend && N.cls.seal ? sealSvg(N.cls.seal, { ancient: N.cls.ancient, cls: 'gw-cc-seal' }) : ''}${N.v3 ? heroHtml : ''}</div>
             ${stats}
             <p class="gw-cc-lore${lx}">${esc(lore)}</p>
             <button type="button" class="gw-link gw-cc-more" data-more aria-expanded="${s.more ? 'true' : 'false'}">${s.more ? 'less' : 'more'}</button>
@@ -811,7 +823,7 @@ export function createScreens(K) {
           const fy = fishYields(f);
           const row = h('div', 'gw-room-row');
           row.appendChild(fishCanvas(fsp, 56, 30));
-          row.insertAdjacentHTML('beforeend', `<span class="gw-room-name">${esc(fsp?.name || f.speciesId)}<small>${fmtKg(f.weight)}</small></span>`);
+          row.insertAdjacentHTML('beforeend', `<span class="gw-room-name">${esc(fsp?.name || f.speciesId)}<small>${V3() ? esc(lbs(fsp, f)) : fmtKg(f.weight)}</small></span>`);   // v1
           row.appendChild(btn(`Eat <em>+${fy.food}</em>`, { cls: 'gw-btn--sm gw-cc-act', hooks: false, brush: true, onClick: () => { if (doFishAction(f, 'eat')) entry.render(); } }));
           row.appendChild(btn(`Render <em>+${fy.oil}</em>`, { cls: 'gw-btn--sm gw-cc-act', hooks: false, brush: true, onClick: () => { if (doFishAction(f, 'render')) entry.render(); } }));
           list.appendChild(row);
@@ -840,22 +852,22 @@ export function createScreens(K) {
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
       foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
       if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: af() ? 'A little luck with rarer fish until tomorrow' : '+2% rare-fish luck until tomorrow', onClick: act('release') }));
-      // the show: the length counts up beside the class stamp (the cord's ticks under it), the stamp presses after it (the
+      // the show: the weight counts up beside the class stamp (the cord's ticks under it), the stamp presses after it (the
       // seal's sound, a small hit of the card: never of the camera), the knots light as the count passes them (once per card)
       if (live && !s.shown) {
         s.shown = true;
         const CD = D().AUTOFISH?.show?.card || {};
         const from = num(CD.countFrom, 0.2) * 1000, dur = Math.max(60, num(CD.count, 0.5) * 1000), stampAt = from + Math.max(num(CD.stampAt, 0.55) * 1000, dur);
-        const hero = content.querySelector('.gw-cc-hero'), bead = content.querySelector('.gw-cc-bead');
+        const hero = content.querySelector('.gw-cc-hero-n'), bead = content.querySelector('.gw-cc-bead');
         const knots = [...content.querySelectorAll('.gw-cc-knot')];
         const L = num(fish.length);
         const emit = (e, x) => { try { ctx.bus.emit(e, { speciesId: fish.speciesId, sizeClass: fish.sizeClass, ancient: !!fish.ancient, legendary: legend, length: L, uid: fish.uid ?? null, ...x }); } catch (err) { K.report(e, err); } };
         if (hero && L > 0 && typeof requestAnimationFrame === 'function') {
           const t0 = performance.now();
           let started = false, pressed = false;
-          // the count keeps the final figure's unit all the way up (a 33 cm perch never reads in mm on its way there)
-          const unit = / mm$/.test(N.len) ? 'mm' : / m$/.test(N.len) ? 'm' : 'cm';
-          const say = (cm) => (unit === 'mm' ? `${Math.round(cm * 10)} mm` : unit === 'm' ? `${(cm / 100).toFixed(2)} m` : `${Math.round(cm)} cm`);
+          // the count is driven by the length (the bead, the knots and the cord's ticks run as built) and shows the weight of that
+          // length, W · (cm / L)³, in the final figure's own band (ounces, pounds and ounces, or whole pounds for a giant)
+          const say = (cm) => weightCount(N.W * (cm / L) ** 3, N.W);
           hero.textContent = say(0);
           // (a card closed, or drawn again, before its stamp has pressed still stamps: the seal is heard once for every fish)
           const press = () => { if (pressed) return; pressed = true; if (s.stamped) return; s.stamped = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); };
@@ -865,7 +877,7 @@ export function createScreens(K) {
             if (!started && t >= from) { started = true; emit('card:count', { dur: dur / 1000 }); }
             const k = Math.min(1, Math.max(0, (t - from) / dur)), e2 = 1 - (1 - k) * (1 - k) * (1 - k);
             const cm = L * e2;
-            hero.textContent = k >= 1 ? N.len : say(cm);
+            hero.textContent = k >= 1 ? N.wt : say(cm);
             if (bead && rule) bead.style.left = `${(2 + 96 * Math.max(0, Math.min(1, cm / rule.max))).toFixed(2)}%`;
             for (const kn of knots) if (!kn.classList.contains('gw-on') && num(Number(kn.dataset.cm)) <= cm + 1e-6) kn.classList.add('gw-on');
             if (k >= 1 && !pn.classList.contains('gw-cc-counted')) pn.classList.add('gw-cc-counted');
@@ -1191,7 +1203,7 @@ export function createScreens(K) {
         const row = h('div', `gw-item gw-fishrow r-${sp?.rarity || 'common'}`);
         row.style.setProperty('--rc', K.rarityCss(sp?.rarity));
         row.appendChild(fishCanvas(sp, 74, 40));
-        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}${qPill(f.quality)}</div><div class="gw-item-desc">${fmtKg(f.weight)}${sp?.rarity === 'legendary' ? ' · Trophy or Toll: its price pays the way down, or keep it to mount for Memories.' : ''}</div></div>`);
+        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}${qPill(f.quality)}</div><div class="gw-item-desc">${V3() ? esc(lbs(sp, f)) : fmtKg(f.weight)}${sp?.rarity === 'legendary' ? ' · Trophy or Toll: its price pays the way down, or keep it to mount for Memories.' : ''}</div></div>`);   // v1
         row.appendChild(btn(`Sell ${shellTag(y.sell)}`, { cls: 'gw-buy', onClick: () => { if (doFishAction(f, 'sell')) { murkSay(entry, sp?.rarity === 'legendary' ? 'legendary' : 'sell'); entry.render(); } }, sound: false }));
         content.appendChild(row);
       }
@@ -1252,7 +1264,7 @@ export function createScreens(K) {
         const row = h('div', `gw-item gw-fishrow r-${sp?.rarity || 'common'}`);
         row.style.setProperty('--rc', K.rarityCss(sp?.rarity));
         row.appendChild(fishCanvas(sp, 80, 44));
-        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}${qPill(f.quality)}</div><div class="gw-item-desc">${fmtKg(f.weight)} · worth ${fmt(y.sell)} Shells</div></div>`);
+        row.insertAdjacentHTML('beforeend', `<div class="gw-item-text"><div class="gw-item-name">${esc(sp?.name || f.speciesId)}${qPill(f.quality)}</div><div class="gw-item-desc">${V3() ? esc(lbs(sp, f)) : fmtKg(f.weight)} · worth ${fmt(y.sell)} Shells</div></div>`);   // v1
         const acts = h('div', 'gw-fish-acts');
         acts.appendChild(btn(`Eat <em>+${y.food}</em>`, { cls: 'gw-btn--sm', icon: 'food', onClick: () => { if (doFishAction(f, 'eat')) entry.render(); } }));
         acts.appendChild(btn(`Render <em>+${y.oil}</em>`, { cls: 'gw-btn--sm', icon: 'oil', onClick: () => { if (doFishAction(f, 'render')) entry.render(); } }));
@@ -1349,15 +1361,22 @@ export function createScreens(K) {
         det.appendChild(art);
         if (known) {
           const pb = num(rec.pbLength);
+          // v3: the biggest is the weight of the best length (a legacy row with no length reads its stored kg in pounds); the
+          // species' range in pounds and ounces. Flag off, both read as v1 wrote them
+          const jBig = V3() ? esc(fmtWeight(fishWeight(sp, { length: pb, weight: num(rec.pbWeight) || num(rec.biggest) })))
+            : pb > 0 ? esc(fmtLength(pb, D())) : rec.biggest ? fmtKg(rec.biggest) : '—';   // v1
+          const jRange = V3() ? (arr(sp.weight).length ? esc(`${fmtWeight(sp.weight[0])} \u2013 ${fmtWeight(sp.weight[1])}`) : '—')
+            : arr(sp.weight).length ? `${sp.weight[0]}–${sp.weight[1]} kg` : '—';   // v1
           det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3>${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
             <div class="gw-kicker" style="--rc:${K.rarityCss(sp.rarity)}">${esc(RARITY_LABEL[sp.rarity] || '')}</div>
             <p class="gw-lore">${esc(sp.lore || '')}</p>
-            <dl class="gw-facts"><div><dt>Biggest</dt><dd>${pb > 0 ? esc(fmtLength(pb, D())) : rec.biggest ? fmtKg(rec.biggest) : '—'}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
-            <div><dt>First</dt><dd>${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}</dd></div><div><dt>Weight</dt><dd>${arr(sp.weight).length ? `${sp.weight[0]}–${sp.weight[1]} kg` : '—'}</dd></div></dl>
+            <dl class="gw-facts"><div><dt>Biggest</dt><dd>${jBig}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
+            <div><dt>First</dt><dd>${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}</dd></div><div><dt>Weight</dt><dd>${jRange}</dd></div></dl>
             <p class="gw-jr-where">${icon('map_pin')}${esc(hintFor(sp, true))}</p>`);
         } else if (glimpsed) {
           const last = arr(rec.gotAway).slice(-1)[0] || rec.escape || null;
-          const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}, ${AF.nearLength(D(), last.length)}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
+          const near = last ? AF.nearWeight(D(), sp, last.length) : '';
+          const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}${near ? `, ${near}` : ''}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
           det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3><div class="gw-kicker gw-glimpse-k">Glimpsed</div>
             <p class="gw-lore">${esc(line)}</p><p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`);
         } else {
@@ -1365,7 +1384,7 @@ export function createScreens(K) {
         }
         const ob = oddsBlock(sp, s.hl);
         if (ob) det.insertAdjacentHTML('beforeend', ob);
-        if (af()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec));
+        if (af()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));
         if (ob && ctx.flow === 'playing') {
           const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
           gl.type = 'button';
@@ -1782,7 +1801,7 @@ export function createScreens(K) {
       if (recs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">${esc(T.newRecord || 'New record!')}</div>${recs.map((x) => `<div class="gw-dl-row">${icon('star')}<span>${esc(x)}</span></div>`).join('')}</div>`);
       const chs = arr(S.challengesCompleted);
       if (chs.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Trials completed</div>${chs.map((c) => `<div class="gw-dl-row gw-good">${icon('check')}<span><b>${esc(c?.name || c)}</b>${c?.reward ? `<small>${esc([c.reward.unlock ? K.unlockLabel(c.reward.unlock) : '', c.reward.memories ? `+${c.reward.memories} Memories` : ''].filter(Boolean).join(' · '))}</small>` : ''}</span></div>`).join('')}</div>`);
-      // automatic fishing (DESIGN §25.6.7): the summary lists the fish that got away ("A Trophy Reedjaw, near 1.1 m, threw the hook…")
+      // automatic fishing (DESIGN §25.6.7): the summary lists the fish that got away ("A Trophy Reedjaw, near 20 lb, threw the hook…")
       const away = af() ? arr(S.gotAway).filter((x) => typeof x === 'string' && x).slice(0, 4) : [];
       if (away.length) lists.insertAdjacentHTML('beforeend', `<div class="gw-dl"><div class="gw-group">Got away</div>${away.map((x) => `<div class="gw-dl-row">${icon('hook')}<span>${esc(x)}</span></div>`).join('')}</div>`);
       const nm = soCloseLines(S).slice(0, 2);   // declutter: the two nearest "so close" lines

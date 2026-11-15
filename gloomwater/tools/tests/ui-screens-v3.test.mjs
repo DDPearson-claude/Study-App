@@ -97,20 +97,29 @@ section('U3: the record banners');
   const sp = D.SPECIES_BY_ID.reedjaw_pike;
   const L = V.recordLines(D, { species: sp, length: 112, records: [{ kind: 'pb', length: 112, prevLength: 97 }, { kind: 'classFirst', sizeClass: 'trophy' }, { kind: 'oldLedger' }, { kind: 'bestSetup', favours: [] }] });
   ok(L.length === 3 && L[0].kind === 'oldLedger' && L[1].kind === 'classFirst' && L[2].kind === 'pb', 'Old Ledger, class first, then the PB (best setup stays quiet)', L.map((l) => l.kind));
-  ok(L[2].text === 'New best: 112 cm (was 97)', 'DESIGN\'s own words for a PB', L[2].text);
+  // pounds: a 112 cm Reedjaw is 0.0075 · 112³ g = 10.54 kg = 23 lb 4 oz; a 97 cm one 6.85 kg = 15 lb 2 oz
+  ok(L[2].text === 'New best: 23 lb 4 oz (was 15 lb 2 oz)' && L[2].sub === '8 lb 2 oz past your old mark', 'a PB is told in weight, and the gain adds up as read', L[2]);
   ok(L[1].text === 'First Trophy Reedjaw Pike', 'a class first names class and species', L[1].text);
   ok(L[0].text === 'Old Ledger beaten', 'the Old Ledger', L[0].text);
   const anc = V.recordLines(D, { species: sp, records: [{ kind: 'classFirst', sizeClass: 'elder', ancient: true }] });
   ok(/^First Ancient Reedjaw Pike$/.test(anc[0].text) && anc[0].tone === 'gold', 'an Ancient first, in gold', anc);
   const nw = V.recordLines(D, { species: sp, isNew: true, records: [] });
   ok(nw.length === 1 && nw[0].kind === 'isNew', 'a first catch of the species', nw);
-  const small = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 8.36, prevLength: 7.9 }] });
-  ok(small[0].text === 'New best: 8.4 cm (was 7.9)', 'under 20 cm the banner keeps a decimal', small[0].text);
+  const cup = D.SPECIES_BY_ID.cupbearer || D.SPECIES_V3.find((s) => s.id === 'cupbearer');
+  const small = V.recordLines(D, { species: cup, records: [{ kind: 'pb', length: 11.9, prevLength: 9.9 }] });
+  ok(small[0].text === 'New best: ¾ oz (was ½ oz)' && small[0].sub === '¼ oz past your old mark', 'under an ounce the banner counts in quarters', small[0]);
+  const hair = V.recordLines(D, { species: D.SPECIES_BY_ID.dusk_minnow, records: [{ kind: 'pb', length: 22.1, prevLength: 22 }] })[0];
+  ok(hair.text === 'New best: 5 oz (was 5 oz)' && hair.sub === '¼ oz past your old mark', 'a best that reads the same still says by how much (never less than ¼ oz)', hair);
   ok(V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 50, prevLength: 40 }, { kind: 'oldLedger' }], max: 1 }).length === 1, 'max lines respected');
   const pbL = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 156.2, prevLength: 112 }] })[0];
-  ok(pbL.sub === '44 cm past your old mark', 'the PB banner says by how much', pbL);
+  ok(pbL.text === 'New best: 63 lb 0 oz (was 23 lb 4 oz)' && pbL.sub === '39 lb 12 oz past your old mark', 'the PB banner says by how much, in weight', pbL);
   const pb0 = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 60 }] })[0];
-  ok(pb0.text === 'New best: 60 cm' && pb0.sub === sp.name, 'a PB with no earlier mark names the species', pb0);
+  ok(pb0.text === 'New best: 3 lb 9 oz' && pb0.sub === sp.name, 'a PB with no earlier mark names the species', pb0);
+  const legacy = V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 112, weight: 10.5, prevLength: null, prevWeight: 6.2 }] })[0];
+  ok(legacy.text === 'New best: 23 lb 4 oz (was 13 lb 11 oz)', 'a legacy record with no length reads its stored kg in pounds', legacy);
+  const lg = V.recordLines(D, { species: D.SPECIES_BY_ID.belled_matriarch, records: [{ kind: 'pb', length: 266, prevLength: 260 }] })[0];
+  ok(lg.text === 'New best: 283 lb (was 265 lb)' && lg.sub === '18 lb 0 oz past your old mark', 'a legend grows in whole pounds', lg);
+  ok(V.recordLines(D, { species: sp, records: [{ kind: 'pb', length: 112, prevLength: 97 }] }).every((l) => !/\d\s?(cm|kg|mm)\b/.test(l.text + l.sub)), 'no banner carries a length or a kg figure');
   ok(V.recordLines(D, { species: sp, records: null }).length === 0, 'no records, no banners');
 }
 

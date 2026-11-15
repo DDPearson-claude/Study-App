@@ -34,14 +34,12 @@ export function slotEmphasis(C, slot) {
   const styles = Object.keys(E).filter((s) => (Number(E[s]?.[slot]) || 0) === mult && mult > 1);
   return { mult, styles };
 }
-/** A got-away length as the note words it (AUTOFISH.gotAway.round: 1 cm under 20 cm, 5 cm under 1 m, 0.1 m above). */
-export function approxText(cm, A) {
+/** A got-away size as the note words it: the weight of the estimated length (cm), in friendly steps of pounds (AUTOFISH.gotAway.roundLb:
+ *  1 lb under 10 lb, 5 lb under 100 lb, 25 lb under 1,000 lb, then 100 lb; whole ounces under a pound). "" when nothing is known. */
+export function approxText(D, sp, cm) {
   const v = Number(cm);
-  if (!(v > 0)) return '';
-  const steps = A?.gotAway?.round || [[20, 1], [100, 5], [Infinity, 10]];
-  const step = (steps.find(([lim]) => v < lim) || steps[steps.length - 1])[1];
-  const r = Math.max(step, Math.round(v / step) * step);
-  return r < 100 ? `${r} cm` : `${(r / 100).toFixed(1)} m`;
+  if (!(v > 0) || !sp?.size || typeof D?.fmtWeightNear !== 'function') return '';
+  return D.fmtWeightNear(D.sizeWeight(sp, v), D.AUTOFISH?.gotAway?.roundLb);
 }
 
 export function createAutofish(S) {
@@ -558,7 +556,7 @@ export function createAutofish(S) {
     }
     S.requestSave();
   }
-  /** The run summary's got-away lines (Prize and bigger): "A Trophy Reedjaw Pike, near 1.1 m, threw the hook, day 3." */
+  /** The run summary's got-away lines (Prize and bigger): "A Trophy Reedjaw Pike, near 30 lb, threw the hook, day 3." */
   function gotAwayLines(r = run()) {
     const A = AF();
     const T = A?.text || {};
@@ -569,7 +567,8 @@ export function createAutofish(S) {
       const label = g.sizeClass === 'legend' ? '' : `${S.classLabel(g.sizeClass)} `;
       const art = g.sizeClass === 'legend' ? '' : /^[aeiou]/i.test(label) ? 'An ' : 'A ';
       const who = g.sizeClass === 'legend' ? (sp?.name || g.speciesId) : `${art}${label}${sp?.name || g.speciesId}`;
-      const near = g.length ? `, ${A?.gotAway?.word || 'near'} ${approxText(g.length, A)}` : '';
+      const size = approxText(D(), sp, g.length);
+      const near = size ? `, ${A?.gotAway?.word || 'near'} ${size}` : '';
       const cause = T.toastCause?.[g.reason] || 'got away';
       return `${who}${g.name ? ` (${g.name})` : ''}${near}, ${cause}${g.day ? `, day ${g.day}` : ''}.`;
     });

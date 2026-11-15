@@ -8,7 +8,7 @@ import { icon, ORN, ornamentCss, spriteSvg } from './ui-icons.js';
 import { createHud } from './ui-hud.js';
 import { createScreens } from './ui-screens.js';
 import { createMeasure } from './ui-measure.js';
-import { v3Run, nightWord, pickMomentOk } from './ui-v3.js';
+import { v3Run, nightWord, pickMomentOk, fmtWeight, fishWeight } from './ui-v3.js';
 import { afOn, logLocked as logLockedFor } from './ui-af.js';
 // >>> INTRO LANE B: import (the opening cut scene's words, Skip word and veil; docs/v3/intro/SPEC.md section 7)
 import { createIntroView } from './ui-intro.js';
@@ -43,7 +43,7 @@ export function create(ctx) {
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fill = (tpl, vars = {}) => String(tpl ?? '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined && vars[k] !== null ? vars[k] : m));
   const fmt = (n) => Math.round(num(n)).toLocaleString('en-US');
-  const fmtKg = (kg) => { kg = num(kg); return (kg < 10 ? kg.toFixed(2) : kg < 100 ? kg.toFixed(1) : Math.round(kg).toString()) + ' kg'; };
+  const fmtKg = (kg) => { kg = num(kg); return (kg < 10 ? kg.toFixed(2) : kg < 100 ? kg.toFixed(1) : Math.round(kg).toString()) + ' kg'; };   // v1
   const cssHex = (n, d = '#e9e2cf') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : typeof n === 'string' && n ? n : d);
   const pick = (list) => { const a = arr(list); return a.length ? a[Math.floor(Math.random() * a.length)] : ''; };
   function h(tag, cls = '', html = '') {
@@ -610,7 +610,7 @@ export function create(ctx) {
 
   // ------------------------------------------------------------------ assemble
   const K = {
-    ctx, root, layers, D, h, esc, fill, fmt, fmtKg, cssHex, pick, num, arr, safe, isStub, report, sfx,
+    ctx, root, layers, D, h, esc, fill, fmt, fmtKg, fmtWeight, fishWeight, cssHex, pick, num, arr, safe, isStub, report, sfx,   // v3 reads a fish's size with fmtWeight(fishWeight(sp, fish)): pounds and ounces
     stats, stat, run, meta, settings, zoneData, zoneIndex, speciesData, boonData, baitData, rarityCss, phaseInfo,
     fmtEffect, effectLines, unlockLabel, icon, ORN, isTouch,
     openModal, closeModal, closeAll, top, has, hasBlocking, userEscape, entry: (id) => stack.find((m) => m.id === id) || null,

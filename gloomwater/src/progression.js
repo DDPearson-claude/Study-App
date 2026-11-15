@@ -81,8 +81,9 @@ export function create(ctx) {
 
   // ------------------------------------------------------------------ small helpers
   const toast = (text, kind = 'info') => { if (text) ctx.bus.emit('toast', { text, kind }); };
-  const fmtKg = (kg) => { const v = Number(kg) || 0; return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : Math.round(v).toString()) + ' kg'; };
-  const fmtCm = (cm) => { const v = Number(cm) || 0; return v < 20 ? v.toFixed(1) : Math.round(v).toString(); };   // v3 lengths ("{cm} cm")
+  const fmtKg = (kg) => { const v = Number(kg) || 0; return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : Math.round(v).toString()) + ' kg'; };   // v1
+  /** v3: a fish's size as the player reads it, in pounds and ounces (from its length with the species' k; else the stored kg). */
+  const fmtW = (sp, length, kg) => D().fmtWeight(D().fishWeight(sp, { length, weight: kg }));
   const qualityLabel = (q) => D().QUALITY?.[q]?.label || 'Common';
   const round2 = (v) => Math.round(v * 100) / 100;
   let saveQueued = false;
@@ -957,7 +958,8 @@ export function create(ctx) {
       r.stats = r.stats || freshRunStats();
       r.stats.fishCaught = (r.stats.fishCaught || 0) + 1;
       f.landed = (f.landed | 0) + 1;
-      if (!r.stats.biggest || fish.weight > (r.stats.biggest.weight || 0)) r.stats.biggest = { speciesId: sp.id, weight: fish.weight, length: fish.length };
+      // across species "biggest" is the heaviest, by the weight the card shows (pounds: derived from the length)
+      { const b = r.stats.biggest; if (!b || D().fishWeight(sp, fish) > D().fishWeight(species(b.speciesId), b)) r.stats.biggest = { speciesId: sp.id, weight: fish.weight, length: fish.length }; }
       m.totalFish = (m.totalFish || 0) + 1;
       if (phaseInfo().phase === 'gloomtide') { f.nightCatch = (f.nightCatch | 0) + 1; f.maxNightCatch = Math.max(f.maxNightCatch | 0, f.nightCatch); }
       if (sp.rarity === 'legendary') { r.legendaries = r.legendaries || {}; r.legendaries[sp.id] = true; }
@@ -1369,9 +1371,9 @@ export function create(ctx) {
     for (const x of f.records || []) {
       const sp = species(x.speciesId);
       if (V3() && x.length != null) {
-        const nb = (data.TEXT_V3?.newBest || 'New best: {cm} cm (was {was})').replace('{cm}', fmtCm(x.length)).replace('{was}', x.prevLength != null ? fmtCm(x.prevLength) : fmtKg(x.prev || 0));
+        const nb = (data.TEXT_V3?.newBest || 'New best: {w} (was {was})').replace('{w}', fmtW(sp, x.length, x.weight)).replace('{was}', fmtW(sp, x.prevLength, x.prev));
         lines.push(`${sp?.name || x.speciesId} · ${nb}`);
-      } else lines.push((T.biggest || 'Biggest catch: {name}, {kg} kg').replace('{name}', sp?.name || x.speciesId).replace('{kg}', fmtKg(x.weight).replace(' kg', '')));
+      } else lines.push((T.biggest || 'Biggest catch: {name}, {kg} kg').replace('{name}', sp?.name || x.speciesId).replace('{kg}', fmtKg(x.weight).replace(' kg', '')));   // v1
     }
     if (V3()) {
       for (const x of f.classFirsts || []) {

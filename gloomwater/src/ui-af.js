@@ -4,7 +4,8 @@
 //
 // Promise 2 of §25.6.0 lives here: the only strings with a "%" in them come from oddsView / compareLine (the Journal's Your odds
 // block and the gear log). Everything shown from the cast to the reveal (strike word, class estimate, hurry mark) is size-only;
-// everything after a loss (the got-away note) names the species and a rough size, never the odds.
+// everything after a loss (the got-away note) names the species and a rough size, never the odds. A size is a weight in pounds
+// (docs/v3/pounds/SPEC.md): never shown while a line is out, because weight is k·L³ and k names the body; after the loss, "near 9 lb".
 //
 //   afOn(D)                           the automatic-fishing path (a v3 build that carries AUTOFISH): no reel bar, pips or Ease
 //   logLocked(o)                      the log lock (AUTOFISH.logLock): a line is out and neither the card nor the note shows
@@ -12,13 +13,15 @@
 //   strikeRingOn(setting, o)          the strike ring: always / the First Evening and the first expedition / never
 //   strikeTiming(D, cls, mult)        {dur, clean, cleanK}: the window after the "!" and its Clean part, by class (never species)
 //   withArticle(name) / classPhrase   "A Dusk Minnow", "the Remembered Sun"; "An Elder", "A Trophy"
-//   nearLength(D, cm)                 "near 14 cm" · "near 85 cm" · "near 1.6 m" (AUTOFISH.gotAway.round)
+//   nearWeight(D, sp, cm)             "near 6 oz" · "near 9 lb" · "near 45 lb" · "near 275 lb": the weight of an estimated length, in friendly steps
+//   nearLength(D, cm)                 "near 14 cm" · "near 85 cm" · "near 1.6 m" (AUTOFISH.gotAway.round; kept for tools: the player reads nearWeight)
 //   placePhrase(name)                 "under the Span", "at the Bell Pool"
 //   gotAwayNote(D, p, o)              the toast (Small–Prize) or the card (Trophy+) for a fish:escaped payload
 //   oddsView(D, res, o)               the Journal's Your odds block from progression.getOdds (floored %, "?" unseen, "—" unreachable)
 //   gearLine / gearHold / compareLine the gear log: an item's Hold, its ×1.6 styles, its targets; the pinned compare
 //   ratingLine(D, rating, o)          the Set Out card's tackle rating, in words only
-//   leakScan(text, o)                 the hidden-information scan the tests run over the DOM: species names, rarity words, "%"
+//   leakScan(text, o)                 the hidden-information scan the tests run over the DOM: species names, rarity words, "%", a weight
+import { fmtWeightNear, sizeWeight } from './data.js';   // pure, flag-free helpers (docs/v3/pounds/SPEC.md §2)
 
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -107,7 +110,20 @@ export function classPhrase(D, cls, ancient = false) {
   const l = classLabel(D, cls, ancient);
   return `${/^[aeiou]/i.test(l) ? 'An' : 'A'} ${l}`;
 }
-/** A got-away length, never exact (AUTOFISH.gotAway: "near", 1 cm under 20 cm, 5 cm under 1 m, 0.1 m above). cm in. */
+/**
+ * A got-away size, never exact: the weight of the estimated length cm for the species sp (W = k·L³), in friendly steps
+ * (AUTOFISH.gotAway.roundLb: whole ounces under a pound, 1 lb under 10 lb, 5 lb under 100 lb, 25 lb under 1,000 lb, then 100 lb).
+ * "near 9 lb"; the figure keeps to one line. Only for after the loss (the species is named then): a weight names the body.
+ */
+export function nearWeight(D, sp, cm) {
+  cm = Math.max(0, num(cm));
+  const G = D?.AUTOFISH?.gotAway || {};
+  if (!(cm > 0) || !sp?.size || !(num(sp.size.k) > 0)) return '';
+  const fig = fmtWeightNear(sizeWeight(sp, cm), arr(G.roundLb).length ? G.roundLb : undefined);
+  return fig ? `${G.word || 'near'} ${fig.replace(/ /g, ' ')}` : '';
+}
+/** A got-away length, never exact (AUTOFISH.gotAway: "near", 1 cm under 20 cm, 5 cm under 1 m, 0.1 m above). cm in. Kept for
+ *  tools; the player reads nearWeight. */
 export function nearLength(D, cm) {
   cm = Math.max(0, num(cm));
   const G = D?.AUTOFISH?.gotAway || {};
@@ -129,10 +145,11 @@ export function placePhrase(name) {
 // ------------------------------------------------------------------ the got-away note (DESIGN §25.6.7)
 /**
  * The note for fish:escaped {speciesId, sizeClass, approxLength (cm, already ±8%), reason, place, markedFish, name?, grade, legendary,
- * ancient?, beat?}. o = {speciesName, placeName}. Small / Keeper / Prize: a one-line toast; Trophy and bigger (and legends): the card.
+ * ancient?, beat?}. o = {speciesName, placeName, species (the species row; else D.SPECIES_BY_ID[p.speciesId])}. Small / Keeper / Prize:
+ * a one-line toast; Trophy and bigger (and legends): the card. The size is the weight of the estimated length ("An Elder, near 45 lb.").
  * Returns {mode, toast, kicker, title, name, size, cause, still, hint, link, aria}. Never a % and never a progress number.
  */
-export function gotAwayNote(D, p = {}, { speciesName = '', placeName = '' } = {}) {
+export function gotAwayNote(D, p = {}, { speciesName = '', placeName = '', species = null } = {}) {
   const tx = T(D);
   const G = D?.AUTOFISH?.gotAway || {};
   const toastCls = arr(G.toast).length ? G.toast : ['small', 'keeper', 'prize'];
@@ -146,8 +163,9 @@ export function gotAwayNote(D, p = {}, { speciesName = '', placeName = '' } = {}
   let cause = C[reason] || 'It got away.';
   if (reason === 'thrown' && (beat === 'leap' || p.onLeap) && C.thrownLeap) cause = C.thrownLeap;
   if (reason === 'snapped' && (beat === 'lastStand' || beat === 'run') && C.snappedLong) cause = C.snappedLong;
-  const len = nearLength(D, p.approxLength ?? p.length);
-  const size = legend ? (len ? `${cap(len)}.` : '') : fill(tx.size || '{a} {class}, near {len}.', { a: classPhrase(D, cls, p.ancient).split(' ')[0], class: classLabel(D, cls, p.ancient), len: len.replace(/^near\s/, '') });
+  const near = nearWeight(D, species || D?.SPECIES_BY_ID?.[p.speciesId] || null, p.approxLength ?? p.length);
+  const who = { a: classPhrase(D, cls, p.ancient).split(' ')[0], class: classLabel(D, cls, p.ancient) };
+  const size = legend ? (near ? `${cap(near)}.` : '') : near ? fill(tx.size || '{a} {class}, near {size}.', { ...who, size: near.replace(/^\S+\s/, '') }) : `${who.a} ${who.class}.`;
   let still = '';
   if (p.markedFish) {
     const ph = placePhrase(placeName);
@@ -177,10 +195,11 @@ export function pct(D, p) {
 /**
  * The Your odds block from progression.getOdds(speciesId) = {known: 'unseen'|'glimpsed'|'caught', odds: {small…ancient: p|null} |
  * {legend: p}, withBest: {item, odds}|null, marked: [{name, sizeClass, approxLength, p}], wounds}. o = {speciesName, loadout: [names],
- * itemName (the name for withBest.item), nightMode, cove (a Landing species: no Gloomtide line)}. Returns {title, loadout, cells: [{cls, label, text, p, unseen, unreachable}],
+ * itemName (the name for withBest.item), nightMode, cove (a Landing species: no Gloomtide line), species (the page's species row: a
+ * Marked Fish's size is told as the weight of its estimated length)}. Returns {title, loadout, cells: [{cls, label, text, p, unseen, unreachable}],
  * unseen, withBest: {label, cells}|null, marked: [string], wounds: string, notes: [string]}.
  */
-export function oddsView(D, res, { speciesName = '', loadout = [], itemName = '', nightMode = null, cove = false } = {}) {
+export function oddsView(D, res, { speciesName = '', loadout = [], itemName = '', nightMode = null, cove = false, species = null } = {}) {
   const L = T(D).log || {};
   const unseenMark = D?.CATCH_V3?.display?.unseen || '?';
   const known = res?.known || 'unseen';
@@ -202,9 +221,9 @@ export function oddsView(D, res, { speciesName = '', loadout = [], itemName = ''
     withBest = { label, item: res.withBest.item, cells: show.map((c) => cell(c, res.withBest.odds, false)) };
   }
   const marked = unseen ? [] : arr(res?.marked).map((m) => {
-    const len = nearLength(D, m.approxLength).replace(/^near\s/, '');
-    const vars = { name: m.name || speciesName, class: classLabel(D, m.sizeClass, m.ancient), len };
-    const head = len ? fill(L.marked || '{name}, {class}, near {len}', vars) : `${vars.name}, ${vars.class}`;   // no estimate kept: no "near"
+    const size = nearWeight(D, species, m.approxLength).replace(/^\S+\s/, '');
+    const vars = { name: m.name || speciesName, class: classLabel(D, m.sizeClass, m.ancient), size };
+    const head = size ? fill(L.marked || '{name}, {class}, near {size}', vars) : `${vars.name}, ${vars.class}`;   // no estimate kept: no "near"
     return `${head}: ${pct(D, m.p)}`;
   });
   const w = Math.max(0, Math.round(num(res?.wounds)));
@@ -302,14 +321,18 @@ export function ratingLine(D, rating, { speciesName = '' } = {}) {
 
 // ------------------------------------------------------------------ the hidden-information scan (U2′ acceptance)
 const RARITY_WORDS = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+/** A weight on screen: "4 lb", "6 oz", "¼ oz", "1½ lb" (a weight is k·L³, so one shown while a line is out would name the body). */
+export const WEIGHT_RE = /\d\s?(lb|oz)\b|[\u00bc\u00bd\u00be]\s?(lb|oz)\b/;
 /**
  * Scan some visible text (the DOM's text plus every aria-label and title) for anything that names or encodes the hooked fish while a
- * line is out: species names, rarity words and "%". o = {names: [species names], words: [extra], allowPct: false}. Returns the hits.
+ * line is out: species names, rarity words, "%" and a weight in pounds or ounces. o = {names: [species names], words: [extra],
+ * allowPct: false, allowWeight: false}. Returns the hits.
  */
-export function leakScan(text, { names = [], words = RARITY_WORDS, allowPct = false } = {}) {
+export function leakScan(text, { names = [], words = RARITY_WORDS, allowPct = false, allowWeight = false } = {}) {
   const s = String(text || '');
   const hits = [];
   if (!allowPct && s.includes('%')) hits.push('%');
+  if (!allowWeight && WEIGHT_RE.test(s.replace(/\u00a0/g, ' '))) hits.push('weight');
   for (const n of arr(names)) {
     if (!n || n.length < 3) continue;
     const re = new RegExp(`(^|[^A-Za-z])${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^A-Za-z])`, 'i');

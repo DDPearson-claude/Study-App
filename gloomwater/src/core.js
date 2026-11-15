@@ -370,4 +370,4 @@ export function disposeObject(obj) {
 
 /** Format numbers for UI: 1234 -> "1,234". */
 export const fmt = (n) => Math.round(n).toLocaleString('en-US');
-export const fmtKg = (kg) => (kg < 10 ? kg.toFixed(2) : kg < 100 ? kg.toFixed(1) : Math.round(kg).toString()) + ' kg';
+export const fmtKg = (kg) => (kg < 10 ? kg.toFixed(2) : kg < 100 ? kg.toFixed(1) : Math.round(kg).toString()) + ' kg';   // v1

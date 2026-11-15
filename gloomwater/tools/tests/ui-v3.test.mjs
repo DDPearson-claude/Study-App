@@ -113,7 +113,7 @@ const rt4 = D.catchRating('mossmere', { rod: 4, line: 4, reel: 4 }, {});
 ok(!/%|\d/.test(AF.ratingLine(D, rt4, { speciesName: 'Reedjaw Pike' })), 'Mossmere T4: no number and no % in the rating', AF.ratingLine(D, rt4, { speciesName: 'Reedjaw Pike' }));
 const ga = AF.gotAwayNote(D, { speciesId: 'reedjaw_pike', sizeClass: 'elder', approxLength: 160, reason: 'snapped', beat: 'lastStand', markedFish: true, name: 'Old Ninefin', grade: 'struck' }, { speciesName: 'Reedjaw Pike', placeName: 'Under the Span' });
 eq([ga.mode, ga.kicker, ga.title, ga.name], ['card', 'THE ONE THAT GOT AWAY', 'Reedjaw Pike', 'Old Ninefin'], 'an Elder escape is the card, with its name');
-eq([ga.size, ga.cause, ga.still, ga.hint], ['An Elder, near 1.6\u00a0m.', 'It parted the line on its last run.', "It's still out there, under the Span.", 'Heavier line holds the long runs.'], 'the card\'s lines, word for word (DESIGN §25.6.7)');
+eq([ga.size, ga.cause, ga.still, ga.hint], ['An Elder, near 70\u00a0lb.', 'It parted the line on its last run.', "It's still out there, under the Span.", 'Heavier line holds the long runs.'], 'the card\'s lines, word for word (DESIGN §25.6.7)');
 ok(!/%/.test(JSON.stringify(ga)), 'no % anywhere in the note', ga);
 eq(AF.gotAwayNote(D, { speciesId: 'dusk_minnow', sizeClass: 'small', approxLength: 13, reason: 'spat' }, { speciesName: 'Dusk Minnow' }).toast, 'A Dusk Minnow spat the hook.', 'a Small escape is a one-line toast (DESIGN\'s example)');
 
