@@ -725,8 +725,11 @@ export default async function (api) {
       const wantWords = [...order.map((id) => D.names[id]), TL.wicks[nd.on[0] || 'wick'], TL.back, TL.start];
       K.check(panelWords.length === wantWords.length && wantWords.every((w) => panelWords.includes(w)), 'T59: the words are the five names, the lit Wick\'s one line, Back and Start', { panelWords, wantWords });
       if (K.phone) {
-        const rows = [...new Set(nd.boxes.map((b) => b.t))].sort((a, b) => a - b);
-        const first = nd.boxes.filter((b) => b.t === rows[0]).length, second = nd.boxes.filter((b) => b.t === rows[1]).length;
+        // (rows by top within 12 px: the lit card stands a few px proud of its row)
+        const rows = [];
+        for (const t of nd.boxes.map((b) => b.t).sort((a, b) => a - b)) if (!rows.length || t - rows[rows.length - 1] > 12) rows.push(t);
+        const inRow = (b, r) => b.t >= r - 1 && b.t - r <= 12;
+        const first = nd.boxes.filter((b) => inRow(b, rows[0])).length, second = nd.boxes.filter((b) => inRow(b, rows[1])).length;
         K.check(rows.length === 2 && first === 3 && second === 2, 'T59: on a phone the cards are a 3 + 2 grid', nd.boxes);
         K.check(nd.boxes.every((b) => Math.abs(b.w - 104) <= 2), 'T59: each card 104 px wide on a phone', nd.boxes.map((b) => b.w));
         K.check(nd.fit.every(Boolean), 'T59: no Wick\'s name is truncated (scrollWidth ≤ clientWidth)', nd.fit);
@@ -889,6 +892,7 @@ export default async function (api) {
         const r = await K.until("c.debug.ui().openModal === 'chart'", 2);
         K.need(r.ok, 'the Chart tile opens the Chart (modal chart)', await top());
         await K.secs(1.4);   // (the slot cells ink in 0.25 s apart)
+        await K.settle(900);   // (… as a CSS animation on the wall clock: the shot shows every cell inked)
         return chart();
       };
       const checkChart = (ch, what, { line = true, slots = E.slots0 } = {}) => {
@@ -987,6 +991,7 @@ export default async function (api) {
             onBite: async () => {
               const bites = (await K.events()).filter((e) => e.e === 'fishing:bite');
               K.check(bites.length === 1 && typeof bites[0].p?.waterKey === 'string', 'T8: the first real bite of the evening carries its waterKey', bites.map((b) => b.p));
+              await K.steps(1);      // (the tip's .gw-in lands in the next animation frame: one frame of the bite's window)
               await K.settle(450);   // (frames held: the bite's window does not run meanwhile)
               K.check(await g((t) => window.__lp.seen(t), strikeTip), 'T68: fe_strike in the first bite\'s window', strikeTip);
               K.check(!(await g((t) => window.__lp.seen(t), castTip)), 'T68: fe_cast is gone once the line is cast');
@@ -1153,6 +1158,7 @@ export default async function (api) {
       K.check(so2 && pos1 && Math.hypot(so2.raft[0] - pos1[0], so2.raft[1] - pos1[1]) <= 0.5, 'T66: every Sail glides out, from within 0.5 m of the raft', { raft: pos1, glide: so2?.raft });
       s = await K.state();
       K.check(s.run?.evening === 2 && s.run?.character === wick, 'the second evening, as the same Wick', s.run);
+      await K.settle(450);   // (the HUD fades in on the wall clock once the trip starts)
       h = await hud();
       K.check(h.cells === E.slots4 && h.filled === 0, `${E.slots4} empty cells on the water`, h);
       await K.secs(2.4);
@@ -1323,6 +1329,8 @@ export default async function (api) {
       K.check(w.ok, `T50: a 0.7 s hold on the pill at 1 of ${E.slots4} opens the tally`, await K.state().then((x) => ({ flow: x.flow, modal: x.modal })));
       if (w.ok) {
         await K.key('Escape');
+        await K.secs(0.3);
+        await K.settle(400);   // (Sold fades in on the wall clock at the tally's end)
         await K.tap('[data-loop=tally] [data-action=sold]') || await K.tap('[data-action=sold]');
         w = await K.until("c.debug.ui().openModal === 'jetty'", 2);
         K.check(w.ok, 'Sold → the Jetty');
@@ -1386,7 +1394,9 @@ export default async function (api) {
         const T = window.__lp;
         const r = T.all('[data-modal=settings] .gw-set-row').find((x) => /Forget everything/.test(x.textContent));
         if (!r) return null;
-        const b = [...r.querySelectorAll('button')].find(T.visible), bb = b?.getBoundingClientRect();
+        const b = [...r.querySelectorAll('button')].find(T.visible);
+        try { b?.scrollIntoView({ block: 'center' }); } catch { /* ignore */ }   // (Settings scrolls at 540 px high: the row is below the fold)
+        const bb = b?.getBoundingClientRect();
         return { small: r.querySelector('small')?.textContent.replace(/\s+/g, ' ').trim() ?? null, has: r.textContent.includes(rowLine), x: bb ? bb.left + bb.width / 2 : null, y: bb ? bb.top + bb.height / 2 : null };
       }, TL.forget.row);
       K.need(row && row.x !== null, 'T69: the Forget everything row and its button');
@@ -1421,6 +1431,9 @@ export default async function (api) {
       await K.titleReady();
       K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.newDescent), 'New Descent');
       await K.settle();
+      K.need((await K.until("c.debug.ui().openModal === 'newdescent'", 1)).ok, 'the panel');
+      await K.steps(2);
+      await K.settle(400);   // (the panel fades in on the wall clock)
       await K.tap(`[data-modal=newdescent] button.gw-char[data-wick=${wick === 'wick' ? 'stub' : wick}]`);
       const ab = await g(() => { const c = window.__gw, b = window.__lp.one('[data-modal=newdescent] [data-action=start]'); if (!b) return null; b.click(); return { flow: c.flow, wick: c.debug.loop?.wick?.() ?? null }; });
       K.need(ab && ab.flow === 'intro', 'Start → the film', ab);

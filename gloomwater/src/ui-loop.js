@@ -480,10 +480,12 @@ export function createLoopView(K) {
   const TIP = { since: 0, castEl: null, strikeEl: null, firstBite: false };
   const seenTip = (id) => !!K.meta?.().seenTips?.[id];
   const markTip = (id) => { const m = K.meta?.(); if (m) { m.seenTips = m.seenTips || {}; m.seenTips[id] = true; } };
-  function tipEl(text) {
-    const el = h('div', 'gw-toast gw-toast--tip gw-loop-tip gw-toast--loop', `${icon('quill', { cls: 'gw-toast-ico' })}<span></span>`);
+  // `low`: fe_strike sits in the lower part of the screen (the HUD layer), clear of the float, its bite glyph and the strike ring,
+  // which the bite's camera frames in the upper part, where the toasts are
+  function tipEl(text, { low = false } = {}) {
+    const el = h('div', `gw-toast gw-toast--tip gw-loop-tip gw-toast--loop${low ? ' gw-loop-tip--low' : ''}`, `${icon('quill', { cls: 'gw-toast-ico' })}<span></span>`);
     el.querySelector('span').textContent = text;
-    K.layers.toasts.appendChild(el);
+    (low ? hudEl : K.layers.toasts).appendChild(el);
     requestAnimationFrame(() => el.classList.add('gw-in'));
     return el;
   }
@@ -869,7 +871,7 @@ export function createLoopView(K) {
     const text = strikeTipText(D(), K.isTouch);
     if (!text) return;
     markTip('fe_strike');
-    TIP.strikeEl = tipEl(text);
+    TIP.strikeEl = tipEl(text, { low: true });
   });
   on('fishing:strike', () => dropTip('strikeEl'));
   on('fishing:miss', () => dropTip('strikeEl'));
@@ -899,6 +901,9 @@ export function createLoopView(K) {
     pill.classList.toggle('gw-on', ok);
     const full = holdFull();
     pill.classList.toggle('gw-full', full);
+    // the refused cast's pulse (its glow is infinite) and the row's shake belong to that full hold: gone once it is not full
+    // (a new trip, a fish let go), so they never replay when the HUD shows again
+    if (!full) { pill.classList.remove('gw-pulse'); holdRow.classList.remove('gw-shake'); }
     if (!ok && P.press) pressEnd(P.press.src, { cancel: true });
     if (P.press) {
       P.press.t += d;
