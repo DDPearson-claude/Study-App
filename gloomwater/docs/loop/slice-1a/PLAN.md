@@ -1308,10 +1308,14 @@ checks of §4.2 unchanged.
 −1. **The lead's rulings, before the lanes branch** (recorded in §7 with the date): F16 "build" or "drop" (PLAN CHOICE 1;
    default "drop"), and the choices the lead should confirm first (§7.1). A lane never waits for a ruling it does not
    need: only B's T9 and fishing's F16 item depend on the first.
-0. **Before the lanes:** (rev. 4) `gw-intro` and `gw-loop-waters` are already in the base (3292886); merge `gw-show` into
-   it → M. The conflicts are known (trial merge of 3292886 and `gw-show`):
-   - `render.js`, the FOV line: keep both terms, `const fov = clamp(lerp(introFov ?? cur.fov, showCam.fov, showCam.w) +
-     fx.fovKick, 20, 95);` (the film's lens, then the show's blend over it).
+0. **Before the lanes:** (rev. 5, 15 November 2026: DONE. `gw-show` was merged onto the dev line by `gw-show-merge` and
+   the dev branch took it at 32c7133, so M is the dev head; the rest of this step is the record.) (rev. 4) `gw-intro` and
+   `gw-loop-waters` are already in the base (3292886); merge `gw-show` into it → M. The conflicts are known (trial merge of
+   3292886 and `gw-show`):
+   - `render.js`, the FOV line: (rev. 5) as merged, the film's lens WINS over the show's blend:
+     `const fov = clamp((introFov ?? rigFov) + fx.fovKick, 20, 95);` with `rigFov` the play's lens under the show's blend; pinned by
+     `tools/tests/intro-seam.test.mjs` and CONTRACT §13.13 (the earlier text here had the show's blend over the film's
+     lens, which that test rejects).
    - `render.js`, the API list: the union, `setTrophyTarget, setShowTarget,` then `gw-intro`'s marked block
      (`setIntroCamera`, `getIntroCamera`, `warmPrograms`) unchanged.
    - `DESIGN.md`: keep both branches' added text in order (intro, then show); neither changes the other's paragraphs.

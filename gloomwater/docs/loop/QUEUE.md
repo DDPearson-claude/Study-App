@@ -6,7 +6,7 @@ The user asked on 14 November 2026: "Let's pause and focus on one task at a time
 
 The user, 15 November 2026: "Once this visual job has ran, focus on all code based jobs first as they're much faster". So once the catch show is merged, every code, data, sim and design job runs before the two jobs that must render the 3D game in software to be judged (jobs 8 and 9). A code job keeps its browser runs to the regression it needs; no look-and-fix art rounds unless the job is about how something looks.
 
-1. The catch show: merge, update the preview, send the film with its sound. *(the last visual job; finishing)*
+1. ~~The catch show~~ *(DONE 15 November: merged at 32c7133 with the cut scene; the preview updated; the film with its sound sent)*
 2. The world map and the story (resume `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map (a 2D generator and page, not a game render); publish the map; answer the user's questions.
 3. The Chart-integration plan: the world map as the in-game Chart (SPEC §5.4, §13, PLAN's Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers).
 4. The three keys (resume `wf_1c95633f-092`).
@@ -18,7 +18,16 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 
 ## Running
 
-- **The catch show** (built by run `wf_8cfae246-907` on `gw-show`, head 6c26e12: both reviews' musts and shoulds fixed, every check green). Now merging onto the dev line with the cut scene (run `wf_503a8381-99b`, branch `gw-show-merge`): the merge and full regression, an independent review of the cut scene and the show together, the show's film with its sound. Then the dev branch moves to the merge, the preview is updated, and job 2 starts.
+- **The world map and the story** (job 2; resumes run `wf_83a11939-9e7` on `gw-loop-world`).
+
+## Backlog for slice 1a (found on the catch show's merge; small, code only; lane B unless named)
+
+The merge review (15 November) found no regression a player would see; these are the leftovers, carried into slice 1a's build because it opens the same files:
+
+- **The grade under a replayed film:** `render.js` trophyK eases toward the trophy grade while `showCam.w > 0.5` even when the film's camera is set, so a Prologue started straight from a show's card opens with the trophy vignette and saturation for about 2 s. The film should own the grade as it owns the lens.
+- **The card's stamp under the film:** a card closed before its stamp still emits `card:stamp` next frame; `audio.js`'s handler has no flow guard, so a seal and its duck can sound under the film's first frame. Guard it by the flow (or drop the stamp when the card's panel left the play).
+- **A trial completing on a catch rings inside the show** (`challenge_complete`, `unlock`): a new player's first fish ("First Light") would hear them in the still pause while their toasts are rightly held. Hold the sounds with the toasts until the card.
+- **The show's sound mix** (the film's listen, `tools/out/show-merge` on `gw-show-merge`): the present is not the loudest beat (the caught instant's chime + splash + haul is); an Elder's card out-shouts its show (three class chimes at -2.9 dBFS, the black-wax stamp the loudest sample at -1.5); the Small's cord ticks sit at bed level; a lake rise can gulp on the card's first frame (hush rises during the landing as the rings are hushed); the unfold has only the generic `ui_open`. Audio lane, by ear and by the offline render (`node tools/audio-render.mjs --set=show`).
 
 ## Paused (work saved on their branches; each resumes from its workflow run)
 
