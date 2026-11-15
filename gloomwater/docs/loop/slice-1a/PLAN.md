@@ -230,9 +230,9 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T74 | (rev. 4) Settings under the loop: no **Damage numbers** row, no "Softer flares and hit flashes" line; the strike-ring option reads `TEXT_LOOP.settings.ringFirst` ("First evening") and the hurry row's line `TEXT_LOOP.settings.hurry`; the Forget row's words are `TEXT_LOOP.forget`; off the loop every row and word is as built | C · ui-loop; D · scenario |
 | T75 | (rev. 4) the Wicks in the sim: `clams.mjs` runs its 1 h clams check and its choosy check once per `LOOP.wicks` entry, applying the traits the sim models (Taper's strike window, Tallow's and Ashwick's Hold); every Wick passes the same bands; the traits it cannot model (cast distance, raft speed, light) are printed as "not modelled" | A · clams.mjs |
 | T81 | **v8 (SPEC §5.5, the three keys).** `listFor(D, 'mossmere')` on loop data is exactly the six built phase-1 open-water fish (Dusk Minnow, Mossback Perch, Gutter Crayfish, Weeping Carp, Candlefin Koi, Reedjaw Pike), computed by the rule of SPEC §5.5 (c), never listed: the Gloam Eel (Lumen Moss only) and the Belled Matriarch (a legend) are not on it; `isOpen('mossmere') === true` and `isOpen('sporewood') === false` on a fresh `meta.loop` | A · loop.test |
-| T82 | **v8.** `listCount(meta, D, 'mossmere')` counts `num(journal[id].caught) > 0` only: a Glimpsed entry (`seen`, `caught 0`) does not count, nor an entry with `caught 0` and no `seen` (the built `caughtOf()` would count it); a fish let go counts (its measure writes the entry, T4); an entry already in an old save's Journal counts | A · loop-trip |
+| T82 | **v8.** `listCount(meta, D, 'mossmere')` counts `meta.loop.landed[id]` only (SPEC §5.5 (c), `M1.md` §2.11): `measure()` under the loop writes it for a kept fish and for a fish let go (T4); a Glimpsed fish does not count; an entry already in an old save's Journal does not count (a v3 save opens with the Mossmere's count at 0); the built `caughtOf()` is never read | A · loop-trip |
 | T83 | **v8.** Under `loopOn()` the Journal's Mossmere tab badge reads `listCount` as "n/6" and the list's six cards come first, each with its notch (empty until landed), a missing one drawn as the built silhouette with "· · ·", its hour glyphs and its place glyph and no hint sentence; the Mossmere's other species follow after a thin rule, outside the count. Off the loop the built badge (every species) and grid are unchanged. The Journal still passes T43's word scan | C · ui-loop |
-| T84 | **v8.** `validate-data --loop`: every `LOOP.access.gear` id names a shelf item that exists in `LOOP` (1a: `sporewood: 'rod:1'`); `LOOP.access.pull` has `perEvening`, `cap`, `keeperFloor`, `sureFrom`; `LOOP.tackle.shelfAt[6] === 9` | A · validate-data |
+| T84 | **v8.** `validate-data --loop`: every `LOOP.access.gear` id names a shelf item that exists in `LOOP` (1a: `sporewood: 'rod:1'`); `LOOP.access.pull` has `perEvening`, `cap`, `keeperFloor`, `floorFrom`, `sureFrom`; `LOOP.tackle.shelfAt[6] === 9` | A · validate-data |
 
 ---
 
@@ -811,7 +811,7 @@ the stager has nothing to swap.
      (`listFor`) come first, each with a small notch in its corner (an empty ring until landed, pressed after); a missing one
      keeps the built silhouette and "· · ·" and gains its hour glyphs (`ICONS.sun`, `.moon`; dusk as both, half-lit) and its
      place glyph (none for open water in 1a), with no `hintFor()` sentence; the other Mossmere species follow after a thin
-     ink rule, outside the count. "Known" for the count is `caught > 0`, never the built `caughtOf()`. Off the loop the
+     ink rule, outside the count. "Known" for the count is `meta.loop.landed` (v8), never the Journal's `caught` or the built `caughtOf()`. Off the loop the
      built grid is untouched. No Chart seal, no card seal and no new `TEXT_LOOP` string in 1a (they come with 1b). T83.
    - **`openDescend`** (M:1639) returns at once while `loopOn()` (the gate is scenery).
    - Export the closures `panel`, `btn`, `tabs`, `fishCanvas`, `murkSay` additively as `parts` in the return object
@@ -976,7 +976,7 @@ export const LOOP = {
   access: {                                          // v8 (SPEC §5.5 (g)), lane A: the three keys' data shape; inert in 1a (nothing is gated)
     gear: { sporewood: 'rod:1' },                    // a water's gear key, as a shelf buy id; each later slice adds the waters it ships
     list: { kinds: ['open', 'day', 'old'], plainBaitOnly: true },   // the list rule (SPEC §5.5 (c)); members are computed by listFor, never listed
-    pull: { perEvening: 1, cap: 6, keeperFloor: -0.25, sureFrom: 8 } },   // the pull (SPEC §5.5 (d)); read from slice 1b
+    pull: { perEvening: 1, cap: 6, keeperFloor: -0.25, floorFrom: 1, sureFrom: 8 } },   // the pull (SPEC §5.5 (d)); read from slice 1b
   waters: { mossmere: { order: 1, tier: 7, prices: { day: 60, old: 150, night: 260, crown: 500 } } },
   time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 0 },   // show 0 after gw-show: PLAN CHOICE 15; T37 rewrites
 };
@@ -1056,7 +1056,7 @@ export function tallyLines(creel) → TallyLine[];         // (pounds) ascending
                                                          // the fish's length, never a weight: the weight is derived wherever it is shown
 // v8 (SPEC §5.5), lane A: the list, pure and shared with the sim
 export function listFor(D, waterId) → speciesId[];      // the water's list by SPEC §5.5 (c): in 1a the Mossmere's six built phase-1 open-water fish
-export function listCount(meta, D, waterId) → { have, need };   // have = listed ids with num(meta.journal[id]?.caught) > 0 (never the built caughtOf)
+export function listCount(meta, D, waterId) → { have, need };   // have = listed ids in meta.loop.landed (written by measure() under the loop, kept or let go; `{}` in freshLoop and migrateLoop; never the Journal's caught)
 ```
 
 `createLoop(S)` → the object exposed as `ctx.progression.loop` (null off the loop). Every method calls `ensureLoop()` first
