@@ -18,11 +18,21 @@
 //   --quality=high              the render tier (default high)
 //   --marks=show,pause,card     shoot only these frames (the rest are stepped and measured: a quick look at one moment)
 //   --video=<dir>               instead: each case from the strike to the card closing, one PNG per 1/12 s of game time into <dir>
-//                               (tools/show-sheet.mjs --video turns them into an mp4)
+//                               (tools/show-sheet.mjs --video turns them into an mp4), and beside them <dir>/sound.json: the
+//                               film's sound log (every event audio.js listens to and every sound asked of it by name, with
+//                               the step it fell on; what audio reads of the game after every step; the step each frame was
+//                               shot at). tools/audio-render.mjs --set=show plays it back through the game's own audio module,
+//                               offline, at the film's timing. While a take is stepped the card runs on the film's clock too
+//                               (performance.now() and the CSS animations are held to the stepper: the unfold, the count and
+//                               the stamp fall on their frames); --card-clock=wall leaves them on the wall clock as before
+//   --film-scale=0.34           with --video: the render scale of the film (default 1; a low one for a quick sound-log run)
 //   node tools/show-sheet.mjs --after=tools/out/show/after --before=tools/out/show/before --out=tools/out/show/sheet.jpg
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { install, fetchCached, STEP_MS } from './show-seq.scenario.mjs';
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 // name, species, z, options: the proof sheet's rows, then the extremes the stage looks at
 export const CASES = [
@@ -90,6 +100,94 @@ function installStage() {
   return true;
 }
 
+/**
+ * In the page, for the film (--video): the sound log and the film's clock.
+ * The log (S.snd): every bus event audio.js listens to (its payload cut down to plain data), every sound another module asks
+ * audio for by name (audio.play / note / duck / setMood), each with the step it fell on, and after every step what audio reads
+ * of the game (the flow, the pause, the modal, the hour, fishing's state and view, the raft) with the audio clock, so the game's
+ * own list of sounds issued (debug.audioLog) can be laid on the steps too.
+ * The clock: while a take is stepped, performance.now() is the stepper's clock and every CSS animation is held to it, so the
+ * card's unfold, its count and its stamp run at the film's pace (on the wall clock a software-GL frame outlasts them all).
+ */
+function installSound([events, cardClock]) {
+  const c = window.__gw, S = window.__show;
+  const realNow = performance.now.bind(performance);
+  const snd = S.snd = { on: false, film: false, w0: 0, ev: [], st: [], frames: [], log: [], clock: cardClock !== 'wall' };
+  const isPlain = (o) => { const p = Object.getPrototypeOf(o); return p === Object.prototype || p === null; };
+  /** Plain data only (depth 4): numbers, strings, flags, lists, plain objects; a vector as {x, y, z}; nothing else. */
+  const plain = (v, d = 0) => {
+    if (v === null || v === undefined) return null;
+    const t = typeof v;
+    if (t === 'number') return Number.isFinite(v) ? Math.round(v * 1e4) / 1e4 : null;
+    if (t === 'string') return v.length > 160 ? v.slice(0, 160) : v;
+    if (t === 'boolean') return v;
+    if (t !== 'object' || d >= 4) return undefined;
+    if (Array.isArray(v)) return v.slice(0, 24).map((x) => plain(x, d + 1) ?? null);
+    if (!isPlain(v)) return typeof v.x === 'number' && typeof v.z === 'number' ? { x: plain(v.x), y: plain(v.y ?? 0), z: plain(v.z) } : undefined;
+    const out = {}; let n = 0;
+    for (const k of Object.keys(v)) { if (n++ > 64) break; const x = plain(v[k], d + 1); if (x !== undefined) out[k] = x; }
+    return out;
+  };
+  const tryGet = (f, d = null) => { try { const v = f(); return v === undefined ? d : v; } catch { return d; } };
+  /** What audio.js reads of the game (its ctx reads, by name). */
+  const snap = () => {
+    const r = c.state?.run, f = c.fishing, fv = f?.view && !f.view.isStub ? f.view : null, p = c.player, es = tryGet(() => c.combat?.enemies, null);
+    const pi = tryGet(() => c.survival?.getPhaseInfo?.()), st = tryGet(() => c.progression?.getStats?.()), au = tryGet(() => c.debug.audio?.());
+    return plain({
+      flow: c.flow, paused: c.paused === true, blocking: tryGet(() => c.ui.isBlocking?.() === true, false), cinematic: !!c.cinematic,
+      run: r ? { zone: r.zone, hp: r.hp, oil: r.oil, day: r.day, phase: r.phase, outing: r.outing ?? null, scorched: !!r.scorched, lampWatch: !!r.lampWatch, nightMode: r.nightMode ?? null } : null,
+      phase: pi ? { phase: pi.phase, isNight: !!pi.isNight, k: pi.k ?? null, swarm: typeof pi.swarm === 'boolean' ? pi.swarm : null } : null,
+      surv: { nightMode: tryGet(() => c.survival?.nightMode), lightRadius: tryGet(() => c.survival?.lightRadius) },
+      combat: { n: Array.isArray(es) ? es.length : 0, boss: Array.isArray(es) && es.some((e) => e && e.boss && (e.hp === undefined || e.hp > 0)), nightMode: tryGet(() => c.combat?.nightMode), swarmActive: tryGet(() => c.combat?.swarmActive) },
+      fs: f?.state ?? null,
+      fv: fv ? { tension: fv.tension, danger: fv.danger, progress: fv.progress, rarity: fv.rarity ?? null, surge: fv.surge === true, surgeWarn: fv.surgeWarn ?? 0, charge: fv.charge ?? 0, cleanAt: fv.cleanAt ?? null,
+        speciesId: fv.speciesId ?? null, play: fv.play ? { line: fv.play.line, hurry: fv.play.hurry === true } : null, show: fv.show ? { phase: fv.show.phase, pose: fv.show.pose ?? null, dur: fv.show.dur ?? null } : null,
+        measure: fv.measure ?? null } : null,
+      bob: f?.bobberPos ? { x: f.bobberPos.x, z: f.bobberPos.z } : null,
+      pos: p?.position ? { x: p.position.x, z: p.position.z } : null, speed: p?.speed ?? 0, anchored: p?.anchored === true,
+      yaw: tryGet(() => c.render?.getYaw?.(), 0), down: c.input?.down === true,
+      gameT: c.time?.gameT ?? 0, gameDt: c.time?.gameDt ?? 0, frame: c.time?.frame ?? 0, timeScale: c.time?.timeScale ?? 1,
+      stats: st && !st.isStub ? { moveSpeed: st.moveSpeed, lightRadius: st.lightRadius } : null,
+      au: au ? { t: au.time, mood: au.mood, zone: au.zone, state: au.state } : null,
+    });
+  };
+  const put = (e) => { if (!snd.on) return; e.s = S.step; e.w = Math.round(realNow() - snd.w0); if (!snd.film) { e.pre = true; e.st = tryGet(snap); } snd.ev.push(e); };
+  for (const ev of events) c.bus.on(ev, (p) => put({ ev, p: plain(p) ?? {} }));
+  for (const k of ['play', 'note', 'duck', 'setMood']) {
+    const orig = c.audio?.[k];
+    if (typeof orig !== 'function') continue;
+    try { c.audio[k] = function (...a) { put({ call: k, a: plain(a) }); return orig.apply(this, a); }; } catch { /* frozen: no log of it */ }
+  }
+  // ---- the film's clock: performance.now() and the CSS animations follow the stepper while a take is stepped
+  if (snd.clock) performance.now = () => (S.on && snd.film && S.now != null ? S.now : realNow());
+  const born = new WeakMap(), held = new Set();
+  const cssStep = () => {
+    for (const a of document.getAnimations()) {
+      if (!born.has(a)) { born.set(a, S.now - (Number(a.currentTime) || 0)); held.add(a); try { a.pause(); } catch { /* idle */ } }
+      const t = S.now - born.get(a), end = Number(a.effect?.getComputedTiming?.().endTime);
+      try { if (Number.isFinite(end) && t >= end) { held.delete(a); a.finish(); } else a.currentTime = Math.max(0, t); } catch { /* cancelled under us */ }
+    }
+  };
+  const cssFree = () => { for (const a of held) { try { if (a.playState === 'paused') a.play(); } catch { /* gone */ } } held.clear(); };
+  const frame0 = S.frame;
+  S.frame = async (ms) => {
+    const r = await frame0(ms);
+    if (snd.film) { if (snd.clock) { try { cssStep(); } catch { /* a log and a clock only */ } } snd.st.push(tryGet(snap)); }
+    return r;
+  };
+  const grab = () => { for (const e of tryGet(() => c.debug.audioLog(240), [])) if (!snd.log.some((x) => x.at === e.at && x.t === e.t && x.name === e.name)) snd.log.push(e); };
+  snd.grab = grab;
+  /** Before the cast: the log is on (what sounds before the film's first frame is laid before its t = 0 by the wall clock). */
+  snd.arm = () => { snd.on = true; snd.film = false; snd.w0 = realNow(); snd.ev = []; snd.st = []; snd.frames = []; snd.log = []; snd.t0 = tryGet(() => c.debug.audio().time, 0); };
+  /** The film's first step. */
+  snd.take = () => { const w = realNow(); for (const e of snd.ev) e.w -= Math.round(w - snd.w0); snd.w0 = w; snd.film = true; snd.pre = tryGet(snap); };
+  snd.end = () => {
+    grab(); snd.on = false; snd.film = false; cssFree();
+    return { ev: snd.ev, st: snd.st, frames: snd.frames, pre: snd.pre ?? null, audioLog: snd.log.filter((e) => e.at >= snd.t0 - 0.01).sort((a, b) => a.at - b.at), clock: snd.clock ? 'film' : 'wall' };
+  };
+  return { events: events.length, clock: snd.clock };
+}
+
 export default async function (api) {
   const { page, wait, evalGame: g, log, args } = api;
   page.setDefaultTimeout(300000);
@@ -106,6 +204,7 @@ export default async function (api) {
   const notes = existsSync(notesPath) ? JSON.parse(readFileSync(notesPath, 'utf8')) : {};
   const phone = api.width < 700;
   const quality = String(args.quality || 'high');
+  const filmScale = Number(args['film-scale']) > 0 ? Number(args['film-scale']) : 1;
   const marksOnly = args.marks ? String(args.marks).split(',') : null;
 
   const parseOpts = (s) => Object.fromEntries(String(s || '').split(';').filter(Boolean).map((kv) => { const [k, v] = kv.split('='); return [k, /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v]; }));
@@ -139,11 +238,25 @@ export default async function (api) {
     for (const sp of c.data.SPECIES || []) m.journal[sp.id] = { caught: 4, biggest: 99, pbLength: 2000, seals: { prize: true, trophy: true, elder: true } };
     c.game.save?.();
   });
+  // the film is of an ordinary catch: this returning player's trials are done too (with a full Journal and none of them marked,
+  // the first fish filmed completed four at its present, and their stings and the unlock's rang through the show and its pause)
+  if (videoDir) await g(() => { const c = window.__gw, m = c.state.meta; m.challenges = m.challenges || {}; for (const ch of [...(c.data.CHALLENGES || []), ...(c.data.CHALLENGES_V3 || [])]) m.challenges[ch.id] = true; c.game.save?.(); });
   if (await g(() => window.__gw.flow !== 'title')) { await g(() => window.__gw.game.toTitle?.() ?? window.__gw.game.quitToTitle?.()); await wait(1500); }
   await page.mouse.move(2, 200);
   await g((q) => { const c = window.__gw; try { if (c.state.meta.settings) c.state.meta.settings.quality = q; c.render.setQuality?.(q); } catch { /* optional */ } }, quality);
   await g(install);
   await g(installStage);
+  // the film's sound log listens to what audio.js listens to (its `on('…')` list, read from the source: it cannot fall behind)
+  const sound = { v: 1, fps: 12, takes: [] };
+  if (videoDir) {
+    const src = readFileSync(resolve(here, '..', '..', 'src', 'audio.js'), 'utf8');
+    const events = [...new Set([...src.matchAll(/\bon\('([a-zA-Z]+:?[a-zA-Z:]*)'/g)].map((m) => m[1]))];
+    const r = await g(installSound, [events, String(args['card-clock'] || 'film')]);
+    log(`the film's sound log listens to ${r.events} events; the card's clock: ${r.clock ? 'the film' : 'the wall'}`);
+    sound.meta = await g(() => { const c = window.__gw, m = c.state.meta, s = m.settings || {};
+      return { settings: { master: s.master ?? null, music: s.music ?? null, sfx: s.sfx ?? null }, deepestZone: m.deepestZone ?? 0, isMobile: !!c.isMobile, v3: c.data.V3_ENABLED === true, v3phase: c.data.V3_PHASE ?? null,
+        journal: Object.fromEntries(Object.entries(m.journal || {}).map(([k, v]) => [k, { caught: v?.caught ?? 0 }])), width: innerWidth, height: innerHeight }; });
+  }
   const scale = (x) => g((x) => window.__gw.debug.renderScale?.(x), x).catch(() => {});
   const frameNo = () => g(() => window.__gw.time.frame);
   const frames = async (n, timeoutS = 180) => { const f0 = await frameNo(), t0 = Date.now(); while (Date.now() - t0 < timeoutS * 1000) { if ((await frameNo()) >= f0 + n) return true; await wait(100); } return false; };
@@ -323,12 +436,13 @@ export default async function (api) {
   // ================================================================ a catch as a film: from the strike to the card closing
   async function filmCase([name, sp, z, o], n0) {
     await stage(o);
+    await g(() => window.__show.snd.arm());
     if (!(await toBite(name, sp, z))) return n0;
     const STEP = 1000 / 36, EVERY = 3;   // 36 steps a second of the game's real clock, one frame kept in three: 12 a second
     let n = n0;
-    const keep = async () => { await wait(60); await shotPng(resolve(videoDir, `f${String(n++).padStart(5, '0')}.png`)); };
-    await scale(1);
-    await g(() => { const S = window.__show; S.reset(); S.begin(); });
+    const keep = async () => { await wait(60); await shotPng(resolve(videoDir, `f${String(n++).padStart(5, '0')}.png`)); await g(() => { const S = window.__show; S.snd.frames.push(S.step); }); };
+    await scale(filmScale);
+    await g(() => { const S = window.__show; S.reset(); S.snd.take(); S.begin(); });
     const run = async (steps, stopOn = null) => {
       let hit = false;
       for (let i = 0; i < steps && !hit; i += EVERY) { hit = (await g(([k, ms, s]) => window.__show.run(k, ms, s), [EVERY, STEP, stopOn])).hit; await keep(); }
@@ -342,18 +456,26 @@ export default async function (api) {
     const left = Number.isFinite(o.play) ? o.play : 6;
     if (info.playEnd && info.playEnd - (info.playT || 0) > left) await g(([end, l]) => window.__gw.debug.fishPlayTo(Math.max(0, 1 - l / end)), [info.playEnd, left]);
     if (!(await run(36 * 70, 'landing'))) { failures.push(`${name}: the play never reached the landing`); await g(() => window.__show.end()); return n; }
-    const s0 = await g(() => window.__show.step);
+    const s0 = await g(() => { window.__show.snd.grab(); return window.__show.step; });
     await run(36 * 12, 'card');
-    const s1 = await g(() => window.__show.step);
-    // the card: its unfold runs on the wall clock, so each kept frame waits its twelfth of a second
+    const s1 = await g(() => { window.__show.snd.grab(); return window.__show.step; });
+    // the card: its unfold, count and stamp follow the film's clock (installSound); with --card-clock=wall they run on the wall
+    // clock as they did, each kept frame waiting its twelfth of a second
     for (let i = 0; i < 30; i++) { await g(([k, ms]) => window.__show.run(k, ms, null), [EVERY, STEP]); await wait(70); await keep(); }
-    await closeCard(o.action);
+    const s2 = await g(() => window.__show.step);
+    const action = await closeCard(o.action);
     await run(36 * 2.2);
+    const snd = await g(() => window.__show.snd.end());
     await g(() => { window.__show.end(); const c = window.__gw; c.debug.fishOutcome(null); });
     await scale(LOW);
     log(`${name}: filmed ${n - n0} frames; T0 → card ${((s1 - s0) * STEP / 1000).toFixed(2)} s`);
     notes[`film-${name}`] = { case: name, species: sp, cls: info.legendary || info.ancient ? 'ancient' : info.sizeClass, lengthCm: info.length, frames: [n0, n - 1], tCard: +((s1 - s0) * STEP / 1000).toFixed(2), playCutTo: left };
     writeFileSync(notesPath, JSON.stringify(notes, null, 1));
+    // the take's sound log, beside its frames
+    sound.stepMs = STEP; sound.every = EVERY;
+    sound.takes.push({ name, species: sp, cls: notes[`film-${name}`].cls, lengthCm: info.length, opts: o, frame0: n0, frameN: n - n0, marks: { landing: s0, card: s1, close: s2 }, action, ...snd });
+    writeFileSync(resolve(videoDir, 'sound.json'), JSON.stringify(sound));
+    log(`${name}: sound log: ${snd.ev.length} events (${snd.ev.filter((e) => e.pre).length} before the first frame), ${snd.st.length} steps, ${snd.audioLog.length} sounds issued by the game`);
     await clearModals();
     return n;
   }

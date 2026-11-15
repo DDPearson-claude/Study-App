@@ -4,6 +4,19 @@
 //   --set=intro  the opening cut scene's cue (src/audio-intro.js, INTRO.sound): `intro_cue` is the whole film through the game's
 //                bus (with ember_swell and flame_catch), `intro_bus` the cue's own bus alone, whose peak must stay under
 //                INTRO.sound.peakDb + 3 dB (exit code 1 otherwise); `intro_skip_*` a skip's 0.25 s fade at three moments
+//   --set=show --log=<film>/sound.json [--film=<silent.mp4> --mux=<out.mp4>] [--sr=48000] [--pre=14] [--tail=2.5] [--lead=1]
+//                [--gain=auto|<dB>] [--seed=7]
+//                the catch show's film, heard: the sound log of a film run (tools/tests/show-audit.scenario.mjs --video writes
+//                it beside the frames) played back through the game's OWN audio module (src/audio.js: its handlers, its score
+//                and beds, its buses and compressor) on an OfflineAudioContext stepped at the film's steps. Per take: a pre-roll
+//                (what sounded before the first frame, the score and the water settled), every step's events on their step with
+//                what audio reads of the game at that step, a tail. A step's sounds are laid --lead steps early (default 1), so
+//                a sound falls within a step either side of the first frame that shows it (a frame holds three steps). The
+//                takes are joined at the film's cuts (the tail of one rings 0.5 s under the next). One gain for the whole film
+//                (auto: the mean to -21 dBFS, never a peak over -1.5 dBFS). Writes show.wav, show.png (spectrogram, the beats
+//                marked), show.json (every sound the module issued at its film time, the game's own list from the run laid on
+//                the steps beside it, the level per beat). With --film and --mux: the film with this sound (the picture copied,
+//                AAC 192k, the last 0.6 s faded), ffmpeg's volumedetect and a spectrogram strip beside it.
 //
 // Bundles src/audio-dsp.js + src/audio-sfx.js (+ audio-af.js) + src/audio-v3.js with esbuild, opens it in headless Chromium and
 // renders each case through an OfflineAudioContext with the game's own SFX bus shape (dry + the cavern convolver + the delay),
@@ -15,6 +28,8 @@ import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import * as esbuild from 'esbuild';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -25,7 +40,7 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v === undefined ? true : v]; }));
 const outDir = resolve(root, String(args.out || 'tools/out/audio-render'));
 mkdirSync(outDir, { recursive: true });
-const SR = Number(args.sr || 32000);
+const SR = Number(args.sr || (args.set === 'show' ? 48000 : 32000));
 
 // ------------------------------------------------------------------ the cases
 const P = (phase, cls, extra = {}) => ({ phase, sizeClass: cls === 'ancient' ? 'elder' : cls, ...(cls === 'ancient' ? { ancient: true } : {}), dur: 1.2, strength: 0.7, tier: 0, ...extra });
@@ -77,6 +92,7 @@ import * as V3 from '${resolve(root, 'src/audio-v3.js').replace(/\\/g, '/')}';
 import * as DATA from '${resolve(root, 'src/data.js').replace(/\\/g, '/')}';
 import { createIntroCue } from '${resolve(root, 'src/audio-intro.js').replace(/\\/g, '/')}';
 import { soundEvents } from '${resolve(root, 'src/intro.js').replace(/\\/g, '/')}';
+import { create as createAudio } from '${resolve(root, 'src/audio.js').replace(/\\/g, '/')}';
 function bus(ac, eng) {
   const master = ac.createGain(); master.gain.value = 0.85;
   const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
@@ -190,14 +206,272 @@ window.renderIntro = (mode, skipAt) => {
   }).then((pcm) => ({ pcm, beats: I.beats.map((b) => [b.id, +(0.05 + b.t0).toFixed(2)]), events: ev.filter((e) => e.kind !== 'off' && (!skipAt || e.t <= skipAt)).map((e) => [e.id + (e.kind === 'note' ? e.i : ''), +(0.05 + e.t).toFixed(2)]) }));
 };
 window.introPeakDb = DATA.INTRO.sound.peakDb;
+// ---- the catch show's film (--set=show): one take of a film run's sound log through the game's own audio module.
+// The module is given an OfflineAudioContext (behind a face that always reads 'running' and cannot be resumed or suspended by
+// the module) and a ctx whose every read answers from the log's snapshot of that step; the context is suspended at each step's
+// time, the step's events are handed to the module's own listeners, its update() runs, and rendering goes on.
+window.renderShowTake = async (take, meta, o) => {
+  // (one seed per take: the score's own choices and every sound's small jitter repeat from run to run)
+  let seed = (o.seed >>> 0) || 7;
+  Math.random = () => { seed = (seed + 0x6D2B79F5) >>> 0; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  window.setInterval = () => 0;   // (the module's 25 ms score tick: update() ticks the score at every step here)
+  const SR = o.sr, fps = o.fps, stepS = o.stepMs / 1000, lead = o.lead * stepS, PRE = o.pre, TAIL = o.tail;
+  const F = take.frames, N = take.st.length, dur = F.length / fps;
+  // the film time of step n: a kept frame is 1 / fps of film whatever steps its chunk held (three; fewer where a stop fell)
+  const filmT = (n) => {
+    if (!F.length || n >= F[F.length - 1]) return dur + (n - (F[F.length - 1] || 0)) * stepS;
+    let k = 0; while (n >= F[k]) k++;
+    const a = k ? F[k - 1] : 0;
+    return (k + (n - a) / Math.max(1, F[k] - a)) / fps;
+  };
+  // what sounded before the first frame, on the GAME's clock (the run is staged at a few frames a second: the bite that fell
+  // one game frame before the film fell seconds before it by the wall clock); the wall clock where the log has no game time
+  const g0 = take.pre?.gameT;
+  const preX = (e) => { const g = e.st?.gameT; return typeof g0 === 'number' && typeof g === 'number' && g <= g0 + 1e-6 && g0 - g < 600 ? g - g0 : e.w / 1000; };
+  const pre = take.ev.filter((e) => e.pre);
+  let film = take.ev.filter((e) => !e.pre);
+  // the film's cut of a long play (the scenario jumps the play to its last seconds with debug.fishPlayTo, and the game hands
+  // every skipped beat to its listeners in that one step): the sound is cut as the picture is. A step that holds more than one
+  // of the play's own beats is that cut: the beats wholly skipped do not sound, the beat cut into sounds for what is left of it
+  const OVER = new Set(['glimpse', 'leap', 'scare']);
+  const isBeat = (e) => e.ev === 'fishing:reel' && e.p && typeof e.p.phase === 'string' && typeof e.p.t === 'number';
+  const cuts = [];
+  for (const s0 of [...new Set(film.filter(isBeat).map((e) => e.s))]) {
+    const batch = film.filter((e) => e.s === s0 && isBeat(e));
+    if (batch.filter((e) => !OVER.has(e.p.phase)).length < 2) continue;
+    const next = film.find((e) => e.s > s0 && isBeat(e) && !OVER.has(e.p.phase));
+    const T = next ? next.p.t - (next.s - s0) * stepS : Math.max(...batch.map((e) => e.p.t));   // the play's clock after the jump
+    const live = batch.filter((e) => e.p.t <= T + 1e-6 && e.p.t + (e.p.dur || 0) > T + 0.05);
+    for (const e of live) e.p = { ...e.p, dur: +(e.p.t + e.p.dur - T).toFixed(3), cutFrom: e.p.dur };
+    film = film.filter((e) => !batch.includes(e) || live.includes(e));
+    cuts.push({ step: s0, x: +filmT(s0).toFixed(3), to: +T.toFixed(2), skipped: batch.filter((e) => !live.includes(e)).map((e) => e.p.phase + (e.p.kind ? ':' + e.p.kind : '')), into: live.map((e) => ({ phase: e.p.phase, left: e.p.dur })) });
+  }
+  const byStep = new Map(); for (const e of film) { if (!byStep.has(e.s)) byStep.set(e.s, []); byStep.get(e.s).push(e); }
+  // the ticks, on the film's axis x (s; the output's sample 0 is x = 0): the pre-roll, the steps, the tail
+  const ticks = [];
+  { let pi = 0, j = 0;
+    for (let x = -PRE; x < -lead - stepS / 2; x = -PRE + (++j) * stepS) {
+      const evs = []; while (pi < pre.length && (j === 0 ? preX(pre[pi]) <= x : preX(pre[pi]) - lead <= x)) evs.push(pre[pi++]);
+      ticks.push({ x, evs, st: null, pre: true });
+    }
+    const rest = pre.slice(pi);   // (anything of the last instants before the first frame goes with step 0)
+    for (let n = 0; n < N; n++) ticks.push({ x: filmT(n) - lead, n, evs: [...(n === 0 ? rest : []), ...(byStep.get(n) || [])], st: take.st[n] });
+    for (const [sx, es] of byStep) if (sx >= N) ticks[ticks.length - 1].evs.push(...es);
+    for (let x = ticks[ticks.length - 1].x + stepS; x < dur + TAIL; x += stepS) ticks.push({ x, evs: [], st: null }); }
+  const total = PRE + dur + TAIL + 0.05;
+  const real = new OfflineAudioContext(2, Math.ceil(SR * total), SR);
+  const face = new Proxy(real, { get(t, k) {
+    if (k === 'state') return 'running';
+    if (k === 'resume' || k === 'suspend' || k === 'close') return () => Promise.resolve();
+    const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
+  window.AudioContext = function () { return face; };
+  // ---- the game, as audio reads it (every read from the step's snapshot)
+  let cur = pre.find((e) => e.st)?.st || take.pre || take.st[0];
+  let gameNow = null;   // (before the first frame the game's clock runs on with the pre-roll: a bite tell waits for its moment on it)
+  const U = (v) => (v === null ? undefined : v);
+  const L = Object.create(null);
+  const ctx = {
+    bus: { on(ev, fn) { (L[ev] || (L[ev] = [])).push(fn); }, emit() {} },
+    data: DATA, debug: {}, isMobile: !!meta.isMobile, actors: {},
+    get flow() { return cur.flow; }, get paused() { return cur.paused === true; }, get cinematic() { return cur.cinematic === true; },
+    state: { get run() { return cur.run; }, meta: { settings: Object.fromEntries(Object.entries(meta.settings || {}).filter(([, v]) => v !== null)), journal: meta.journal || {}, deepestZone: meta.deepestZone || 0 } },
+    ui: { isBlocking: () => cur.blocking === true },
+    survival: { getPhaseInfo: () => (cur.phase ? { ...cur.phase, swarm: U(cur.phase.swarm) } : null), get nightMode() { return U(cur.surv?.nightMode); }, get lightRadius() { return U(cur.surv?.lightRadius); } },
+    combat: { get enemies() { const n = cur.combat?.n || 0; return Array.from({ length: n }, (_, i) => (i === 0 && cur.combat.boss ? { boss: true, hp: 1 } : {})); },
+      get nightMode() { return U(cur.combat?.nightMode); }, get swarmActive() { return U(cur.combat?.swarmActive); } },
+    fishing: { get state() { return cur.fs || 'idle'; }, get view() { return cur.fv; }, get bobberPos() { return cur.bob; } },
+    player: { get position() { return cur.pos; }, get speed() { return cur.speed || 0; }, get anchored() { return cur.anchored === true; } },
+    render: { getYaw: () => cur.yaw || 0 },
+    input: { get down() { return cur.down === true; } },
+    time: { get gameT() { return gameNow ?? (cur.gameT || 0); }, get gameDt() { return cur.gameDt || 0; }, get frame() { return cur.frame || 0; } },
+    progression: { getStats: () => cur.stats },
+    world: { getZone: () => ({ id: cur.run?.zone }) },
+  };
+  const audio = createAudio(ctx);
+  audio.init();
+  audio.unlock();
+  const issued = [], seen = new Set(), moods = [];
+  let lastMood = null;
+  const hand = (e) => { if (e.ev) for (const h of (L[e.ev] || [])) h(e.p || {}); else if (e.call && typeof audio[e.call] === 'function') audio[e.call](...(e.a || [])); };
+  /** What the module issued since the last look (its own log), each sound at its scheduled start on the film's axis. */
+  const collect = (step) => {
+    for (const s of ctx.debug.audioLog(240)) { const key = s.name + '|' + s.at + '|' + s.t; if (!seen.has(key)) { seen.add(key); issued.push({ name: s.name, x: +(s.t - PRE).toFixed(3), issued: +(s.at - PRE).toFixed(3), why: s.why ?? null, pan: s.pan, step }); } }
+    if (seen.size > 4000) { const keep = [...seen].slice(-600); seen.clear(); for (const k of keep) seen.add(k); }
+  };
+  const run = (i) => {
+    const tk = ticks[i];
+    gameNow = tk.pre && typeof g0 === 'number' ? g0 + tk.x + lead : null;
+    const before = tk.evs.filter((e) => e.pre);   // (what sounded before the first frame: each with the game as it was then)
+    for (const e of before) { if (e.st) cur = e.st; if (!tk.pre) gameNow = null; hand(e); }
+    if (before.length) collect(null);
+    if (tk.st) cur = tk.st;
+    for (const e of tk.evs) if (!e.pre) hand(e);
+    audio.update(i ? Math.min(0.1, tk.x - ticks[i - 1].x) : stepS);
+    collect(tk.n ?? null);
+    const m = audio.getMood();
+    if (m !== lastMood) { lastMood = m; moods.push({ x: +tk.x.toFixed(3), mood: m, zone: ctx.debug.audio().zone }); }
+  };
+  // the suspends, on distinct render quanta, each scheduled while the one before holds the context
+  const Q = 128, frames = []; let lastF = 0;
+  for (let i = 1; i < ticks.length; i++) { let f = Math.round((PRE + ticks[i].x) * SR / Q) * Q; if (f <= lastF) f = lastF + Q; frames.push(f); lastF = f; }
+  run(0);
+  const arm = (i) => { if (i >= ticks.length) return; real.suspend(frames[i - 1] / SR).then(() => { try { run(i); } catch (e) { console.warn('show step', i, String(e)); } arm(i + 1); real.resume(); }); };
+  arm(1);
+  const buf = await real.startRendering();
+  const a = buf.getChannelData(0), b = buf.getChannelData(1), i0 = Math.round(PRE * SR), n = Math.min(a.length - i0, Math.round((dur + TAIL) * SR));
+  const out = new Float32Array(n * 2);
+  for (let i = 0; i < n; i++) { out[2 * i] = a[i0 + i]; out[2 * i + 1] = b[i0 + i]; }
+  const bytes = new Uint8Array(out.buffer); let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  // the marks of the take, on the film's axis: the first event of each kind
+  const at = (pred) => { const e = film.find(pred); return e ? +(filmT(e.s)).toFixed(3) : null; };
+  const marks = {
+    strike: at((e) => e.ev === 'fishing:strike'), T0: at((e) => e.ev === 'fishing:landing'), caught: at((e) => e.ev === 'fishing:caught'),
+    lift: at((e) => e.ev === 'fishing:show' && e.p.phase === 'lift'), present: at((e) => e.ev === 'fishing:show' && e.p.phase === 'hold'),
+    pause: at((e) => e.ev === 'fishing:show' && e.p.phase === 'pause'), card: at((e) => e.ev === 'fishing:show' && e.p.phase === 'card'),
+    cardOpen: at((e) => e.ev === 'ui:modal' && e.p.open === true), count: at((e) => e.ev === 'card:count'), stamp: at((e) => e.ev === 'card:stamp'),
+    action: at((e) => e.ev === 'fish:action'), cardClose: at((e) => e.ev === 'ui:modal' && e.p.open === false),
+  };
+  return { b64: btoa(bin), n, dur, issued, moods, marks, cuts, steps: N, stepT: Array.from({ length: N }, (_, k) => +filmT(k).toFixed(4)) };
+};
 window.ready = true;
 `;
 const bundle = await esbuild.build({ stdin: { contents: entry, resolveDir: root, loader: 'js' }, bundle: true, format: 'iife', write: false, logLevel: 'silent' });
-const html = `<!doctype html><meta charset="utf-8"><body><script>${bundle.outputFiles[0].text}</script>`;
+// (the show is a v3 thing: its replay reads data.js as the film's page did, the flag on at the film's phase)
+const showLogPath = args.set === 'show' ? resolve(process.cwd(), String(args.log || 'tools/out/show/film/sound.json')) : null;
+const showLog = showLogPath ? JSON.parse(readFileSync(showLogPath, 'utf8')) : null;
+const flag = showLog ? `<script>globalThis.GW_V3=true;globalThis.GW_V3_PHASE=${Number(showLog.meta?.v3phase) || 1};</script>` : '';
+const html = `<!doctype html><meta charset="utf-8"><body>${flag}<script>${bundle.outputFiles[0].text}</script>`;
 const htmlPath = resolve(outDir, 'render.html');
 writeFileSync(htmlPath, html);
 
 import { wav, spectrogram } from './audio-spectro.mjs';
+
+// ------------------------------------------------------------------ the show's film (--set=show)
+const dB = (v) => 20 * Math.log10(Math.max(1e-9, v));
+/** Peak and RMS (dBFS, both channels) of [L, R] float arrays between two times. */
+function level(ch, sr, t0 = 0, t1 = Infinity) {
+  const a = Math.max(0, Math.round(t0 * sr)), b = Math.min(ch[0].length, Math.round(t1 * sr));
+  let pk = 0, ss = 0;
+  for (const c of ch) for (let i = a; i < b; i++) { const v = Math.abs(c[i]); if (v > pk) pk = v; ss += v * v; }
+  return b > a ? { peak: +dB(pk).toFixed(1), rms: +dB(Math.sqrt(ss / ((b - a) * ch.length))).toFixed(1) } : { peak: null, rms: null };
+}
+async function renderShow() {
+  const log = showLog, fps = log.fps || 12, stepMs = log.stepMs || 1000 / 36;
+  const o = { sr: SR, fps, stepMs, lead: Number(args.lead ?? 1), pre: Number(args.pre ?? 14), tail: Number(args.tail ?? 2.5), seed: Number(args.seed ?? 7) };
+  page.on('console', (m) => { if (m.type() === 'warning' || m.type() === 'error') console.log(`[page ${m.type()}]`, m.text()); });
+  const filmLen = log.takes.reduce((n, t) => n + t.frames.length, 0) / fps;
+  const mix = [new Float64Array(Math.round(filmLen * SR)), new Float64Array(Math.round(filmLen * SR))];
+  const ramp = (k) => { const c = Math.cos(0.5 * Math.PI * Math.max(0, Math.min(1, k))); return 1 - c * c; };   // 0 → 1
+  const FADE_IN = 0.12, RING = 0.5;
+  const takes = [];
+  let start = 0;
+  for (const [i, take] of log.takes.entries()) {
+    const r = await page.evaluate(([t, m, oo]) => window.renderShowTake(t, m, oo), [take, log.meta || {}, { ...o, seed: o.seed + i }]);
+    const f = new Float32Array(new Uint8Array(Buffer.from(r.b64, 'base64')).buffer);
+    const i0 = Math.round(start * SR), nEnd = Math.round(r.dur * SR);
+    for (let k = 0; k < r.n; k++) {
+      const j = i0 + k; if (j >= mix[0].length) break;
+      // in over the first frames; after the take's last frame its tail rings on under the next take, fading
+      const g = ramp(k / (FADE_IN * SR)) * (k < nEnd ? 1 : 1 - ramp((k - nEnd) / (RING * SR)));
+      if (g <= 0 && k >= nEnd) break;
+      mix[0][j] += f[2 * k] * g; mix[1][j] += f[2 * k + 1] * g;
+    }
+    // the game's own list of the sounds it issued in the film run, laid on the steps by the audio clock each step logged
+    const clock = take.st.map((st) => st?.au?.t ?? null);
+    const game = (take.audioLog || []).map((e) => { let n = clock.findIndex((t) => t !== null && t >= e.at - 6e-4); /* (the two clocks are rounded, to 4 and 3 places) */ if (n < 0) n = clock.length; const pre = take.pre?.au?.t != null && e.at <= take.pre.au.t;
+      return { name: e.name, step: pre ? null : n, x: pre ? null : +(r.stepT[Math.min(n, r.steps - 1)] ?? r.dur).toFixed(3), why: e.why ?? null }; });
+    // the two lists against each other: the same name within a step (the run's audio clock is coarse beside a fast step)
+    const key = (e) => `${e.name}@${e.step}`;
+    const A = game.filter((e) => e.step !== null), B = r.issued.filter((e) => e.step !== null), used = new Set();
+    const onlyGameAll = A.filter((a) => { const j = B.findIndex((b, i) => !used.has(i) && b.name === a.name && Math.abs(b.step - a.step) <= 1); if (j < 0) return true; used.add(j); return false; });
+    const cutSteps = new Set(r.cuts.map((c) => c.step));
+    const atCut = onlyGameAll.filter((e) => cutSteps.has(e.step)).map(key), onlyGame = onlyGameAll.filter((e) => !cutSteps.has(e.step)).map(key), onlyReplay = B.filter((_, i) => !used.has(i)).map(key);
+    // each beat's first sound against the frame that first shows it (ms; a frame holds three steps)
+    const fps0 = fps, sync = [];
+    const frameOf = (step) => { let k = take.frames.findIndex((f) => step < f); if (k < 0) k = take.frames.length - 1; return k; };
+    for (const [label, ev, snd] of [['the strike', (e) => e.ev === 'fishing:strike', /^strike_/], ['T0, the swell', (e) => e.ev === 'fishing:landing', /^land_swell$/], ['caught, the chime', (e) => e.ev === 'fishing:caught', /^land_chime$/],
+      ['the lift', (e) => e.ev === 'fishing:show' && e.p.phase === 'lift', /^show_lift$/], ['the present', (e) => e.ev === 'fishing:show' && e.p.phase === 'hold', /^show_present$/], ['the card opens', (e) => e.ev === 'ui:modal' && e.p.open === true, /^ui_open$/],
+      ['the count', (e) => e.ev === 'card:count', /^cord_tick$/], ['the stamp', (e) => e.ev === 'card:stamp', /^seal_stamp$/], ['the card closes', (e) => e.ev === 'ui:modal' && e.p.open === false, /^ui_close$/]]) {
+      const e = take.ev.find((x) => !x.pre && ev(x)); if (!e) continue;
+      const k = frameOf(e.s), s0 = r.issued.find((x) => snd.test(x.name) && x.step !== null && x.step >= e.s);
+      sync.push({ beat: label, step: e.s, frame: take.frame0 + k, frameAt: +(start + k / fps0).toFixed(3), sound: s0 ? s0.name : null, soundAt: s0 ? +(start + s0.x).toFixed(3) : null, ms: s0 ? Math.round((s0.x - k / fps0) * 1000) : null });
+    }
+    takes.push({ name: take.name, species: take.species, cls: take.cls, lengthCm: take.lengthCm, action: take.action ?? null, start: +start.toFixed(3), dur: r.dur, frames: [take.frame0, take.frame0 + take.frames.length - 1], steps: r.steps, clock: take.clock ?? null,
+      marks: r.marks, cuts: r.cuts, moods: r.moods, issued: r.issued, game, sync, check: { game: A.length, replay: B.length, atCut, onlyGame, onlyReplay } });
+    console.log(`take ${i + 1}  ${take.name}  ${take.species} (${take.cls}, ${take.lengthCm} cm)  film ${start.toFixed(2)} – ${(start + r.dur).toFixed(2)} s  ${r.steps} steps, ${take.ev.length} events, ${r.issued.length} sounds issued`);
+    start += r.dur;
+  }
+  // ---- one gain for the whole film
+  const raw = level(mix, SR);
+  let gainDb = args.gain !== undefined && args.gain !== 'auto' ? Number(args.gain) : Math.min(-21 - raw.rms, -1.5 - raw.peak);
+  const gk = Math.pow(10, gainDb / 20);
+  for (const c of mix) for (let i = 0; i < c.length; i++) c[i] *= gk;
+  const out = level(mix, SR);
+  const pcm = mix.map((c) => Array.from(c, (x) => Math.round(Math.max(-1, Math.min(1, x)) * 32767)));
+  // ---- the beats: where each falls in the film and how loud the film is through it
+  const beats = [], marksPng = [];
+  const SEG = [['bite → strike', null, 'strike'], ['the play', 'strike', 'T0'], ['the reveal (T0 → the lift)', 'T0', 'lift'], ['the lift', 'lift', 'present'], ['the present and the hold', 'present', 'pause'], ['the still pause', 'pause', 'cardOpen'],
+    ['the card (open → the count)', 'cardOpen', 'count'], ['the count', 'count', 'stamp'], ['the stamp and after', 'stamp', 'action'], ['the card closing, back to play', 'action', null]];
+  for (const t of takes) {
+    // (a beat's window opens where its sounds do: its event's film time less the lead)
+    const M = t.marks, ld = o.lead * stepMs / 1000, at = (k) => (k === null || M[k] === null ? null : M[k] - ld);
+    for (const [label, a, b] of SEG) {
+      const x0 = a === null ? 0 : at(a), x1 = b === null ? t.dur : at(b);
+      if (x0 === null || x1 === null || !(x1 > x0)) continue;
+      beats.push({ take: t.name, beat: label, from: +(t.start + x0).toFixed(2), to: +(t.start + x1).toFixed(2), ...level(mix, SR, t.start + x0, t.start + x1) });
+    }
+    for (const [k, x] of Object.entries(M)) if (x !== null) marksPng.push([k, t.start + x]);
+  }
+  // a 50 ms envelope (dBFS RMS), for the eye
+  const env = []; for (let x = 0; x < filmLen; x += 0.05) env.push(level(mix, SR, x, x + 0.05).rms);
+  writeFileSync(resolve(outDir, 'show.wav'), wav(pcm, SR));
+  writeFileSync(resolve(outDir, 'show.png'), spectrogram(pcm, SR, marksPng));
+  console.log(`\nthe film: ${filmLen.toFixed(2)} s at ${SR} Hz; raw peak ${raw.peak} dBFS, mean ${raw.rms} dBFS; gain ${gainDb.toFixed(1)} dB → peak ${out.peak} dBFS, mean ${out.rms} dBFS`);
+  for (const t of takes) {
+    console.log(`\n${t.name}  (${t.species}, ${t.cls}; the film from ${t.start.toFixed(2)} s; the card's clock: ${t.clock || '?'})`);
+    console.log('  marks  ' + Object.entries(t.marks).filter(([, x]) => x !== null).map(([k, x]) => `${k} ${(t.start + x).toFixed(2)}`).join('  '));
+    for (const c of t.cuts) console.log(`  the play's cut at ${(t.start + c.x).toFixed(2)} s (to ${c.to} s of the play): ${c.skipped.length} skipped beats not sounded (${c.skipped.join(' ')}); cut into ${c.into.map((b) => `${b.phase} with ${b.left} s left`).join(', ') || 'nothing'}`);
+    console.log('  score  ' + t.moods.filter((m) => m.x >= -1).map((m) => `${m.mood}/${m.zone} @ ${(t.start + m.x).toFixed(2)}`).join('  ') + `   (before the first frame: ${t.moods.filter((m) => m.x < -1).map((m) => m.mood).join(' → ') || '—'})`);
+    console.log('  sounds issued (film s):');
+    let line = '   ';
+    for (const e of t.issued.filter((e) => e.x > -1.2).sort((a, b) => a.x - b.x)) { const w = ` ${e.name}${e.why ? `[${e.why}]` : ''}@${(t.start + e.x).toFixed(2)}`; if (line.length + w.length > 150) { console.log(line); line = '   '; } line += w; }
+    console.log(line);
+    console.log(`  against the game's own list from the film run: ${t.check.game} issued there, ${t.check.replay} here on the film's steps; only there: ${t.check.onlyGame.join(' ') || '—'}; only here: ${t.check.onlyReplay.join(' ') || '—'}${t.check.atCut.length ? `; piled there on the play's cut, not sounded here: ${t.check.atCut.length}` : ''}`);
+    console.log('  sound against picture (the beat\'s first sound, ms after the first frame that shows it): ' + t.sync.map((y) => `${y.beat} f${y.frame} ${y.ms === null ? 'no sound' : (y.ms >= 0 ? '+' : '') + y.ms}`).join(' · '));
+    // the take's level, a quarter second at a time (dBFS RMS), and what is issued inside the pause
+    const q = []; for (let x = 0; x < t.dur; x += 0.25) q.push(Math.round(level(mix, SR, t.start + x, t.start + x + 0.25).rms));
+    console.log('  level per 0.25 s (dBFS): ' + q.join(' '));
+    const ld = o.lead * stepMs / 1000;
+    const inPause = t.issued.filter((e) => t.marks.pause !== null && t.marks.cardOpen !== null && e.x >= t.marks.pause - ld - 0.001 && e.x < t.marks.cardOpen - ld - 0.001).map((e) => `${e.name}@${(t.start + e.x).toFixed(2)}`);
+    console.log(`  issued inside the pause: ${inPause.join(' ') || 'nothing'}`);
+  }
+  console.log('\n  beat                                   film s          peak    mean (dBFS)');
+  for (const b of beats) console.log(`  ${(b.take + ': ' + b.beat).padEnd(40)} ${b.from.toFixed(2).padStart(5)} – ${b.to.toFixed(2).padStart(5)}   ${String(b.peak).padStart(6)}  ${String(b.rms).padStart(6)}`);
+  const summary = { log: showLogPath, sr: SR, seconds: +filmLen.toFixed(3), options: o, raw, gainDb: +gainDb.toFixed(2), level: out, takes, beats, env50ms: env };
+  // ---- the film with its sound
+  if (args.film && args.mux) {
+    const FF = '/usr/bin/ffmpeg', film = resolve(process.cwd(), String(args.film)), mux = resolve(process.cwd(), String(args.mux));
+    mkdirSync(dirname(mux), { recursive: true });
+    const probe = spawnSync('/usr/bin/ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=nb_frames,duration', '-of', 'csv=p=0', film], { encoding: 'utf8' }).stdout.trim();
+    const vdur = Number(probe.split(',')[0]) || 0;
+    if (Math.abs(vdur - filmLen) > 0.05) console.log(`  WARNING: the film is ${vdur} s, the sound log ${filmLen.toFixed(3)} s (another run's frames?)`);
+    const fadeAt = Math.max(0, filmLen - 0.6).toFixed(3);
+    execFileSync(FF, ['-y', '-loglevel', 'error', '-i', film, '-i', resolve(outDir, 'show.wav'), '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-af', `afade=t=out:st=${fadeAt}:d=0.6`, '-shortest', '-movflags', '+faststart', mux], { stdio: 'inherit' });
+    const vd = spawnSync(FF, ['-hide_banner', '-i', mux, '-vn', '-af', 'volumedetect', '-f', 'null', '-'], { encoding: 'utf8' }).stderr;
+    const mean = Number(/mean_volume:\s*(-?[\d.]+) dB/.exec(vd)?.[1]), max = Number(/max_volume:\s*(-?[\d.]+) dB/.exec(vd)?.[1]);
+    // the strip beside the film: the film's own sound (with its closing fade), the beats marked
+    const strip = mux.replace(/\.mp4$/, '') + '-spectrogram.png', f0 = Math.round(Number(fadeAt) * SR);
+    writeFileSync(strip, spectrogram(pcm.map((c) => c.map((v, i) => (i < f0 ? v : Math.round(v * Math.max(0, 1 - (i - f0) / (0.6 * SR)))))), SR, marksPng));
+    const strip2 = mux.replace(/\.mp4$/, '') + '-spectrum-ffmpeg.png';
+    spawnSync(FF, ['-y', '-loglevel', 'error', '-i', mux, '-lavfi', 'showspectrumpic=s=2440x480:legend=1:scale=log:fscale=log:color=intensity', strip2], { stdio: 'inherit' });
+    summary.mux = { film, out: mux, videoSeconds: vdur, mean_volume: mean, max_volume: max, strip, strip2 };
+    console.log(`\n${mux}\n  ffmpeg volumedetect: mean ${mean} dB, max ${max} dB  ${max < -1 ? 'ok (no clipping: max under -1 dB)' : 'FAIL (max not under -1 dB)'}  ${mean >= -26 && mean <= -18 ? 'ok (mean in -26 … -18 dB)' : 'NOTE (mean outside -26 … -18 dB)'}\n  ${strip}\n  ${strip2}`);
+  }
+  writeFileSync(resolve(outDir, 'show.json'), JSON.stringify(summary));
+  console.log(`\nshow.wav, show.png, show.json → ${outDir}`);
+  return 0;
+}
 
 // ------------------------------------------------------------------ run
 const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
@@ -205,6 +479,7 @@ const page = await browser.newPage();
 page.on('pageerror', (e) => console.log('pageerror', String(e)));
 await page.goto(pathToFileURL(htmlPath).href);
 await page.waitForFunction(() => window.ready === true);
+if (showLog) { const code = await renderShow(); await browser.close(); process.exit(code); }
 const only = args.only ? new Set(String(args.only).split(',')) : null;
 const set = String(args.set || 'all');
 const want = (n) => !only || only.has(n);
