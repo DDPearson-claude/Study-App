@@ -660,10 +660,11 @@ export function create(ctx) {
   // ---- a trial completed on a catch (slice-1a PLAN §2.2 item 25): its chimes are held with their toasts from T0 until the card has
   // gone, then rung in the order they came (v3; the loop parks the trials)
   const heldChimes = [];
-  /** The show holds the screen: the landing (T0), ctx.cinematic (the lift to the card) or the show's view (to the card's close). */
+  /** The show holds the screen: the landing (T0), ctx.cinematic (the lift to the card), the show's view, or the catch card itself (its
+   *  chimes wait until the card has gone: the show's view can clear as the card opens, which rang them on the card's first frame) */
   function showHolds() {
     if (ctx.data?.V3_ENABLED !== true) return false;
-    return ctx.cinematic === true || fishState() === 'landing' || !!fishView()?.show;
+    return ctx.cinematic === true || fishState() === 'landing' || !!fishView()?.show || ctx.ui?.isCatchOpen?.() === true;
   }
   function releaseChimes() {
     if (!heldChimes.length || showHolds()) return;
