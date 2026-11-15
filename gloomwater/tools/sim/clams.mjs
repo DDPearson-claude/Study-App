@@ -227,12 +227,12 @@ export const LOOP = {
   wicks: {
     order: ['wick', 'taper', 'stub', 'tallow', 'ashwick'],
     // the balancing (QUEUE job 8, `--wicks`): firstMult 1.5 → 1.4, Taper's perWater true → false, Stub's waitMul 0.75 → 0.78, Tallow's
-    // everyWater (its good bite at every place too, the upward knob) and maxSlots 8 (its trips passed 6 min at 9 slots with everyWater): a cap
-    // with the Harbour Chest still bought, the form WICKS §2.4 did not propose; both Tallow knobs await the lead's ruling (WICKS §3.5)
+    // everyWater (its good bite at every place too). The lead's rulings (WICKS §3.5, 15 November 2026): everyWater kept, and Tallow keeps
+    // its 9 slots at Hold 8 (no cap: the Harbour Chest is the Inkwood's gear key and gives Tallow its 9th slot)
     wick:    { passive: 'curious', firstMult: 1.4, firstFloor: 0.4, stats: {} },                                 // a kept first sells × firstMult, at least firstFloor × the tier
     taper:   { passive: 'long_reach', firstBites: 1, perWater: false, giantShare: 1.3, giantCap: 0.12, stats: {} }, // the first bite of each evening is never common
     stub:    { passive: 'moth_bright', waitMul: 0.78, quietStep: 0.08, quietWait: false, stats: { lightRadius: 1.5 } },   // quick bites; lively quiet water
-    tallow:  { passive: 'broad_back', slots: 1, good: 1, everyWater: true, maxSlots: 8, stats: {} },          // one more slot at every step (to 8); +1 good bite at every water
+    tallow:  { passive: 'broad_back', slots: 1, good: 1, everyWater: true, stats: {} },                      // one more slot at every step (to 9); +1 good bite at every water
     ashwick: { passive: 'burns_back', hold: 4, stats: {} },                                                   // a fish that gets away comes back once, tired (+4: the run cap)
   },
 };
@@ -249,7 +249,7 @@ export const simWick = (id) => (id && id !== 'order' && LOOP.wicks[id] ? id : nu
 export const STAND_INS = [];
 const fromData = (name, standIn) => (typeof D[name] === 'function' ? D[name] : (STAND_INS.push(name), standIn));
 /** Tallow's slots: the bought count (`holdSlots`, 3–8, the save's) plus the Wick's `slots`. */
-export const wickSlots = fromData('wickSlots', (holdSlots, wickId) => { const K = LOOP.wicks[simWick(wickId)]; return Math.min(K?.maxSlots ?? Infinity, holdSlots + (K?.slots || 0)); });
+export const wickSlots = fromData('wickSlots', (holdSlots, wickId) => { const K = LOOP.wicks[simWick(wickId)]; return holdSlots + (K?.slots || 0); });
 /** Good bites a water gives each evening: open water one per slot of the Wick's hold plus openExtra plus the Wick's `good`; a place its built
  *  count, plus the Wick's `good` where its `everyWater` (Tallow's upward knob, WICKS §3.3 check 9: ECONOMY's measured every-water version). */
 export const goodBitesFor = fromData('goodBitesFor', ({ kind, holdSlots, wickId }) => { const K = LOOP.wicks[simWick(wickId)]; return kind === 'open'
@@ -552,7 +552,7 @@ export const firstBonus = (sp, base, K = LOOP.wicks.wick) => Math.max(Math.round
 export function trip(kit, policy, r, opts = {}) {
   const L = LOOP, T = A.time, E = L.evening, F = L.favour;
   const wid = simWick(opts.wick), WK = wid ? L.wicks[wid] : null, pas = WK?.passive || null;
-  const slots = wickSlots(kit.hold, wid);                          // Tallow: the bought hold + 1, to its maxSlots (WICKS §2.4); everyone else the bought hold
+  const slots = wickSlots(kit.hold, wid);                          // Tallow: the bought hold + 1 (WICKS §2.4); everyone else the bought hold
   const freshOf = (W) => (opts.noQuiet ? Infinity : goodBitesFor({ kind: W.kind, holdSlots: kit.hold, wickId: wid }));
   const waitMul = pas === 'moth_bright' ? WK.waitMul : 1;           // Stub: every wait × waitMul (the sim has no legend cast inside a trip)
   const taperN = pas === 'long_reach' ? WK.firstBites ?? 1 : 0, taperLeft = new Map();   // Taper: first bites left under the rule, per water (or per evening)
@@ -1054,14 +1054,16 @@ const warns = [];
 const warn = (ok, label) => { console.log(`${ok ? 'ok  ' : 'warn'}  ${label}`); if (!ok) warns.push(label); };
 const within = (v, lo, hi) => v >= lo && v <= hi;
 const sg = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
+const ASHWICK_SEEN = 0.6;         // Ashwick's "seen" floor: a comeback on at least 60% of first trips (the lead, 15 November 2026; WICKS §3.2, §3.5 decision 1)
+const TALLOW_TRIP_HOLD8 = 6.1;   // Tallow's own trip ceiling at Hold 8, its 9 slots (the lead, 15 November 2026: measured 6.05 with everyWater; WICKS §4 guard 3)
 const wickName = (w) => (w ? { wick: 'the Wick', taper: 'Taper', stub: 'Stub', tallow: 'Tallow', ashwick: 'Ashwick' }[w] : 'none');
 /** Section 5's tables and checks on one pacing run. tag: '' for the no-passive run (section 5 itself), else a Wick's name, set before
- *  every check. Tallow's clams-a-trip marks are read per slot and its trips must print under 6.0 min (WICKS §3.3 check 1). */
+ *  every check. Tallow's clams-a-trip marks are read per slot and its trips must print under 6.0 min, Tallow's at Hold 8 at most 6.1 (WICKS §3.3 check 1, §4 guard 3). */
 function pacingReport(R, { tag = '', print = true } = {}) {
   const { log, markRows, gains, KEYS: K, doneH, giantAt, giants, elders, longest, byKind, firstFished } = R;
   const ck = (ok, label) => check(ok, (tag ? `[${tag}] ` : '') + label);
   // a band of the no-passive curve's own level (clams a trip, purchases and maps by an hour): a Wick is meant to be faster (WICKS §3.2, +5–20% a
-  // minute), so for a Wick these are printed as warnings, not failures; the structural checks (and the ±10% of check 1) stay failures
+  // minute), so for a Wick these are printed as warnings, not failures; the structural checks (and the ±5% of check 1) stay failures
   const band = (ok, label) => (tag ? warn(ok, `[${tag}] ${label}`) : check(ok, label));
   const perSlot = (m) => m.clams * m.hold / m.slots, slotNote = R.wick === 'tallow' ? ' per slot' : '';
   const at = (id) => log.find((l) => l.id === id);
@@ -1100,9 +1102,12 @@ function pacingReport(R, { tag = '', print = true } = {}) {
   const bad = gains.filter((x) => !(x.g >= 0.03 || (x.g >= -0.03 && x.trips <= 2)));
   band(!bad.length, `every hold step and raft part raises clams a minute by at least 3% when bought, or is priced as a look (at most 2 trips' income, and no more than 3% a minute lost)${bad.length ? ': ' + bad.map((x) => `${x.name} ${sg(x.g)}/min, ${x.trips.toFixed(1)} trips`).join('; ') : ''}`);
   const lag = LOOP.waters.slice(1).map((W) => ({ W, d: (firstFished[W.id] ?? 99) - K.openedAt[W.id] })).reduce((a, x) => (x.d > a.d ? x : a));
-  ck(lag.d <= 0.5, `a new water is the best water to fish within half an hour of opening (v8: its three keys held; longest: ${lag.W.name}, ${(lag.d * 60).toFixed(0)} min)`);
+  // the map ladder per Wick is a warning (the lead, WICKS §3.5 decision 5); the no-passive player's stays a failure
+  band(lag.d <= 0.5, `a new water is the best water to fish within half an hour of opening (v8: its three keys held; longest: ${lag.W.name}, ${(lag.d * 60).toFixed(0)} min)`);
   const longTrip = markRows.reduce((a, m) => Math.max(a, m.min), 0);
-  if (tag) ck(+longTrip.toFixed(1) < 6, `trips stay short: at most ${f1(longTrip)} min per trip at the pacing marks, the visit home included, at ${R.wick === 'tallow' ? `${Math.max(...markRows.map((m) => m.slots))} slots` : 'every hold'} (target under 6: a printed 6.0 fails)`);
+  // a Wick's trips print under 6.0 min; Tallow's at Hold 8 (its 9 slots) may run to TALLOW_TRIP_HOLD8 (the lead, WICKS §4 guard 3)
+  const tripOver = markRows.filter((m) => (R.wick === 'tallow' && m.hold >= 8 ? +m.min.toFixed(1) > TALLOW_TRIP_HOLD8 : +m.min.toFixed(1) >= 6));
+  if (tag) ck(!tripOver.length, `trips stay short: at most ${f1(longTrip)} min per trip at the pacing marks, the visit home included, at ${R.wick === 'tallow' ? `${Math.max(...markRows.map((m) => m.slots))} slots` : 'every hold'} (target under 6: a printed 6.0 fails${R.wick === 'tallow' ? `; Tallow at Hold 8, 9 slots, up to ${TALLOW_TRIP_HOLD8}` : ''})${tripOver.length ? `: over at ${tripOver.map((m) => `${m.label} ${f1(m.min)}`).join(', ')}` : ''}`);
   else ck(longTrip <= 6, `trips stay short: at most ${f1(longTrip)} min per trip at the pacing marks, the visit home included (target ≤ 6)`);
   const mapShare = (byKind.maps || 0) / R.spent;
   ck(within(mapShare, 0.5, 0.75), `maps are the big goals: ${pc(mapShare)} of all clams spent (target 50–75%)`);
@@ -1189,12 +1194,13 @@ function shippedReport() {
   const ck = (tag, ok, label) => check(ok, (tag ? `[${tag}] ` : '') + label);
   for (const w of ALL) {
     const Rw = runs[w ?? 'none'], tag = w ? wickName(w) : '', ends = [...Rw.markRows.map((m) => m.min), Rw.log[Rw.log.length - 1].min], tLong = Math.max(...ends), slots = wickSlots(Rw.state.hold, w);
-    if (step === 5) ck(tag, Rw.doneH >= 2 && Rw.doneH <= 4, `M1: the empty shelf at ${Rw.doneH.toFixed(2)} h (target 2–4 h)`);
+    if (step === 5) ck(tag, Rw.doneH >= 1.5 && Rw.doneH <= 4, `M1: the empty shelf at ${Rw.doneH.toFixed(2)} h (target 1.5–4 h: the measured length is M1's default, M1 §6.2)`);
     ck(tag, Rw.longest.w <= 30, `M1: no purchase is more than 30 min away (longest ${f0(Rw.longest.w)} min, ${Rw.longest.l.name})`);
     if (step >= 3) ck(tag, Rw.giantAt != null && Rw.giantAt >= 0.4 && Rw.giantAt <= 3, `M1: the first giant comes home at about hour ${Rw.giantAt == null ? '—' : Rw.giantAt.toFixed(1)} (target 0.4–3)`);
     ck(tag, w ? +tLong.toFixed(1) < 6 : tLong <= 6, `M1: trips stay short at every mark and at the empty shelf, the visit home included: at most ${f1(tLong)} min at ${slots} slots (target ${w ? 'under 6: a printed 6.0 fails' : '≤ 6'})`);
     const bad = Rw.gains.filter((x) => !(x.g >= 0.03 || (x.g >= -0.03 && x.trips <= 2)));
-    ck(tag, !bad.length, `M1: every hold step and raft part raises clams a minute by at least 3% when bought, or is priced as a look (at most 2 trips' income, no more than 3% a minute lost)${bad.length ? ': ' + bad.map((x) => `${x.name} ${pc1(x.g)}/min, ${x.trips.toFixed(1)} trips`).join('; ') : ''}`);
+    // "pays its way" fails at step 5 (the shipped M1); at steps 1–4, a build stage, it is a warning (the lead, M1 §6.2)
+    (step === 5 ? (ok, label) => ck(tag, ok, label) : (ok, label) => warn(ok, (tag ? `[${tag}] ` : '') + label))(!bad.length, `M1${step < 5 ? ` (step ${step}, a build stage: a warning)` : ''}: every hold step and raft part raises clams a minute by at least 3% when bought, or is priced as a look (at most 2 trips' income, no more than 3% a minute lost)${bad.length ? ': ' + bad.map((x) => `${x.name} ${pc1(x.g)}/min, ${x.trips.toFixed(1)} trips`).join('; ') : ''}`);
     const Lw = Rw.KEYS.list.mossmere;
     ck(tag, Lw.p95 <= LOOP.access.target.p95 && Lw.p99 <= LOOP.access.target.p99 && Lw.open === 0, `M1: the Mossmere's list (${Lw.toLand} fish) is landed by the slow player in twenty in ${f0(Lw.p95)} min, the slowest in a hundred in ${f0(Lw.p99)} (target ≤ ${LOOP.access.target.p95} and ≤ ${LOOP.access.target.p99})`);
   }
@@ -1222,7 +1228,8 @@ function shippedReport() {
       const d = runs[w].doneH / mean - 1;
       check(Math.abs(d) <= 0.1, `[${wickName(w)}] M1: the empty shelf at ${runs[w].doneH.toFixed(2)} h, ${pc1(d)} of the five-Wick mean ${mean.toFixed(2)} h (target within ±10%)`);
       warn(Math.abs(d) <= 0.05, `[${wickName(w)}] M1 aim: within ±5% of the mean (${pc1(d)})`);
-      check(seenOf(w) >= 1, `[${wickName(w)}] M1's first trip: ${seenOf(w).toFixed(2)} clearly visible events of its passive on average (target ≥ 1, WICKS §3.2)`);
+      if (w === 'ashwick') check(F.ashwick.comebackTrip >= ASHWICK_SEEN, `[Ashwick] M1's first trip: ${seenOf(w).toFixed(2)} comebacks on average, on ${pc(F.ashwick.comebackTrip)} of first trips (target: a comeback on at least ${pc(ASHWICK_SEEN)} of them, WICKS §3.2)`);
+      else check(seenOf(w) >= 1, `[${wickName(w)}] M1's first trip: ${seenOf(w).toFixed(2)} clearly visible events of its passive on average (target ≥ 1, WICKS §3.2)`);
     }
   }
   console.log(failures.length ? `\n${failures.length} check(s) FAILED${warns.length ? `, ${warns.length} warning(s)` : ''}` : `\nall checks passed${warns.length ? ` (${warns.length} warning(s))` : ''}`);
@@ -1242,7 +1249,7 @@ function wicksReport() {
 
   // ---- the pacing run per Wick (check 1): run first, the other sections read its ledgers and kits
   const PR = {}; for (const w of ALL) PR[w ?? 'none'] = pacing({ wick: w });
-  const TALLOW_R3 = withKnobs('tallow', { everyWater: false, maxSlots: null }, () => pacing({ wick: 'tallow' }));   // Tallow as revision 3 wrote it, for comparison
+  const TALLOW_R3 = withKnobs('tallow', { everyWater: false }, () => pacing({ wick: 'tallow' }));   // Tallow as revision 3 wrote it (open water only), for comparison
   const mean = WICK_IDS.reduce((a, w) => a + PR[w].doneH, 0) / WICK_IDS.length;
 
   // ---- W1. the first trip and the 1a kit
@@ -1266,7 +1273,9 @@ function wicksReport() {
   for (const w of WICK_IDS) {
     check(F[w].nightBite >= 0.5, `[${wickName(w)}] first trip: ${pc(F[w].nightBite)} get a bite after dark (target ≥ 50%; check 4)`);
     check(F[w].full >= 0.9, `[${wickName(w)}] first trip: ${pc(F[w].full)} come home full${w === 'tallow' ? ' (at 4 slots)' : ''} (target ≥ 90%; check 4)`);
-    check(seen[w].n >= 1, `[${wickName(w)}] the "seen" floor: ${seen[w].text} (target ≥ 1 clearly visible event per first trip on average; check 4)`);
+    // Ashwick's floor is a comeback seen on at least 60% of first trips (the lead, WICKS §3.5 decision 1); every other Wick ≥ 1 event a trip
+    if (w === 'ashwick') check(F.ashwick.comebackTrip >= ASHWICK_SEEN, `[Ashwick] the "seen" floor: ${seen[w].text} (target: a comeback on at least ${pc(ASHWICK_SEEN)} of first trips; check 4)`);
+    else check(seen[w].n >= 1, `[${wickName(w)}] the "seen" floor: ${seen[w].text} (target ≥ 1 clearly visible event per first trip on average; check 4)`);
   }
   // the domain gains on the 1a kit (§3.2)
   const stubQuiet = ratio(K1.stub.quietClams / Math.max(1e-9, K1.stub.quietSec), K1.null.quietClams / Math.max(1e-9, K1.null.quietSec));
@@ -1286,9 +1295,9 @@ function wicksReport() {
   // the Wick at each new water's first 5 evenings, from its pacing players' ledgers on the day the water opens
   {
     const P = PR.wick, five = new Map(LOOP.waters.slice(1).map((W) => [W, seq(P.KEYS.kit[W.id], P.ledgerAt[W.id], 5, QUICK ? 160 : 400, 1300 + W.order).gain]));
-    const vals = [...five.values()], out5 = [...five].filter(([, g]) => g < 0.15 || g > 0.3);
+    const vals = [...five.values()], out5 = [...five].filter(([, g]) => g < 0.12 || g > 0.32);   // +12–32% (the lead, WICKS §3.5 decision 2)
     console.log(`The Wick at each new water's first 5 evenings (clams its firsts add, from its pacing players' ledgers on the day the water opens): ${[...five].map(([W, g]) => `${W.order}. ${W.name.replace(/^The /, '')} ${pc1(g)}`).join(' · ')}\n`);
-    check(!out5.length, `[the Wick] its own domain at each new water's first 5 evenings: ${pc1(Math.min(...vals))} to ${pc1(Math.max(...vals))} (target +15–30% at every water; check 2)${out5.length ? `: out at ${out5.map(([W, g]) => `${W.name} ${pc1(g)}`).join(', ')}` : ''}`);
+    check(!out5.length, `[the Wick] its own domain at each new water's first 5 evenings: ${pc1(Math.min(...vals))} to ${pc1(Math.max(...vals))} (target +12–32% at every water; check 2)${out5.length ? `: out at ${out5.map(([W, g]) => `${W.name} ${pc1(g)}`).join(', ')}` : ''}`);
   }
 
   // ---- W2. the stations: clams a minute and the anti-grind checks per Wick (check 3)
@@ -1333,7 +1342,8 @@ function wicksReport() {
     for (const w of WICK_IDS) {
       const r = per(w);
       if (w === 'taper') check(r.trip >= 1.2 && r.trip <= 1.4 && r.hour >= 0.85, `[Taper] giants home ×${r.trip.toFixed(2)} a trip and ×${r.hour.toFixed(2)} an hour over all the giants' places (target +20–40% a trip, its ceiling +40%; check 5)`);
-      else check(r.trip >= 0.85 && r.hour >= 0.85 && r.hour <= 1.15, `[${wickName(w)}] giants home ×${r.trip.toFixed(2)} a trip${w === 'tallow' ? ` (×${r.perFish.toFixed(2)} per fish home: a bigger hold brings more of every fish)` : ''} and ×${r.hour.toFixed(2)} an hour (target ≥ 0.85× both; only Taper above 1.15× an hour; check 5)`);
+      // Tallow's limit is 1.25 an hour: a side effect of its good bite at every place (the lead, WICKS §3.5 decision 4); Taper's ×1.33 stays the domain
+      else { const hi = w === 'tallow' ? 1.25 : 1.15; check(r.trip >= 0.85 && r.hour >= 0.85 && r.hour <= hi, `[${wickName(w)}] giants home ×${r.trip.toFixed(2)} a trip${w === 'tallow' ? ` (×${r.perFish.toFixed(2)} per fish home: a bigger hold brings more of every fish)` : ''} and ×${r.hour.toFixed(2)} an hour (target ≥ 0.85× both and ≤ ${hi}× an hour${w === 'tallow' ? ': Tallow\'s own limit, its extra good bites' : ''}; only Taper above it; check 5)`); }
     }
     check(shareMax <= 0.12 + 1e-9, `[Taper] a giant's share of the bites is at most 12% at every place, hour and lure (highest ${(shareMax * 100).toFixed(1)}%: ${shareAt}; check 5)`);
   }
@@ -1373,8 +1383,7 @@ function wicksReport() {
     table(['mark', ...WICK_IDS.map(wickName)], ['10 min', '1 h', '5 h', '20 h', '40 h'].map((lb) => [lb, ...WICK_IDS.map((w) => { const m = PR[w].markRows.find((x) => x.label === lb); return m ? `${m.state.replace(/, \d+ waters?/, '').replace(/, \d+ places?/, '')} · ${f1(m.min)} min` : '—'; })]));
     for (const w of WICK_IDS) {
       const R = PR[w], d = R.doneH / mean - 1;
-      check(Math.abs(d) <= 0.1, `[${wickName(w)}] everything bought at ${R.doneH.toFixed(1)} h, ${pc1(d)} of the five-Wick mean ${mean.toFixed(1)} h (target within ±10%; check 1)`);
-      warn(Math.abs(d) <= 0.05, `[${wickName(w)}] aim: within ±5% of the mean (${pc1(d)})`);
+      check(Math.abs(d) <= 0.05, `[${wickName(w)}] everything bought at ${R.doneH.toFixed(1)} h, ${pc1(d)} of the five-Wick mean ${mean.toFixed(1)} h (target within ±5%: the balance check, WICKS §3.5 decision 3; check 1)`);
     }
     check(mean >= 40 && mean <= 60, `the five-Wick mean ${mean.toFixed(1)} h is inside §4.9's 40–60 h band (outside it, one common price factor; check 1)`);
     console.log('\nSection 5\'s checks per Wick. Its bands of the no-passive curve\'s own level (clams a trip at a mark, purchases and maps by an hour, the last purchase in');
@@ -1392,7 +1401,7 @@ function wicksReport() {
     table(['era (the newest open water)', ...WICK_IDS.map(wickName), 'Tallow as revision 3'], LOOP.waters.map((W) => [`${W.order}. ${W.name}`, ...WICK_IDS.map((w) => { const v = g(PR[w], W); return v == null ? '—' : pc1(v); }), (() => { const v = g(TALLOW_R3, W); return v == null ? '—' : pc1(v); })()]));
     for (const w of WICK_IDS) {
       const vals = LOOP.waters.map((W) => ({ W, v: g(PR[w], W) })).filter((x) => x.v != null), bad = vals.filter((x) => x.v < 0.05 || x.v > 0.2);
-      check(!bad.length, `[${wickName(w)}] +5–20% clams a minute in every era (${pc1(Math.min(...vals.map((x) => x.v)))} to ${pc1(Math.max(...vals.map((x) => x.v)))})${bad.length ? `: out in ${bad.map((x) => `${x.W.name} ${pc1(x.v)}`).join(', ')}` : ''}`);
+      warn(!bad.length, `[${wickName(w)}] +5–20% clams a minute in every era (a warning: the lead, WICKS §3.5 decision 3) (${pc1(Math.min(...vals.map((x) => x.v)))} to ${pc1(Math.max(...vals.map((x) => x.v)))})${bad.length ? `: out in ${bad.map((x) => `${x.W.name} ${pc1(x.v)}`).join(', ')}` : ''}`);
     }
   }
 
@@ -1413,10 +1422,11 @@ function wicksReport() {
         for (const P of W.places.filter((p) => !p.legend && !p.inLake).sort((x, y) => x.price - y.price)) { cur = [...cur, P.id]; const r = rate(kitAt(W, t, h, cur), 3, w), gg = r / prev - 1; prev = r; if (gg < wPlace) { wPlace = gg; wPlaceAt = `${P.name} (${W.name})`; } }
       }
       rows.push([wickName(w), `${wOpen.toFixed(2)} (${wOpenAt})`, `${wFull.toFixed(2)} (${wFullAt})`, `${pc1(wPlace)} (${wPlaceAt})`]);
-      check(wOpen >= LADDER.open - 0.005, `[${wickName(w)}] no lake map is a downgrade on the day you buy it (worst ${wOpen.toFixed(2)}, ${wOpenAt}; target ≥ ${LADDER.open}; check 8)`);
-      check(wFull >= LADDER.growth - 0.005, `[${wickName(w)}] every water, fully mapped, pays at least ${LADDER.growth}× the one before (worst ${wFull.toFixed(2)}, ${wFullAt}; check 8)`);
-      check(wPlace >= LADDER.place - 0.005, `[${wickName(w)}] every place map, bought in price order, raises clams a minute by at least 5% (worst ${pc1(wPlace)}: ${wPlaceAt}; check 1)`);
+      warn(wOpen >= LADDER.open - 0.005, `[${wickName(w)}] no lake map is a downgrade on the day you buy it (worst ${wOpen.toFixed(2)}, ${wOpenAt}; target ≥ ${LADDER.open}; check 8)`);
+      warn(wFull >= LADDER.growth - 0.005, `[${wickName(w)}] every water, fully mapped, pays at least ${LADDER.growth}× the one before (worst ${wFull.toFixed(2)}, ${wFullAt}; check 8)`);
+      warn(wPlace >= LADDER.place - 0.005, `[${wickName(w)}] every place map, bought in price order, raises clams a minute by at least 5% (worst ${pc1(wPlace)}: ${wPlaceAt}; check 1)`);
     }
+    console.log('The map ladder per Wick is a warning (the lead, WICKS §3.5 decision 5): the tiers are the no-passive player\'s, whose ladder (section 6) stays a failure.\n');
     table(['Wick', 'worst lake map on the day bought (≥ 1.05)', 'worst water fully mapped ÷ the one before (≥ 1.2)', 'worst place map (≥ +5%)'], rows);
     console.log('The Wick fishes as the no-passive player (its passive is the sale), so its rows are section 6\'s; its firsts only raise each new water\'s first evenings.\n');
   }
