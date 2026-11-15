@@ -30,8 +30,12 @@
 // What comes from src/data.js (never copied here): the size classes and the size model (BALANCE_V3.size, sizeClassOf, isAncient,
 // maxZFor), the land chance (catchParts: the Wick, TACKLE Hold T0–T4, the strike, the Fight terms of the built lakes, class and
 // rarity, CATCH_V3.items' Hold, the caps, the legend rule), the lures and baits (LURES, BAITS), the time model (AUTOFISH).
-// What is a draft table here (it moves into data.js as `LOOP` with slice 1, and grows per slice): the value rule, the hold
-// ladder, quiet water, the evening, the 16 waters' value tiers and Fight terms, tackle T5–T6, the map catalogue and every price.
+// What comes from data.js's `LOOP` (slice 1a moved it there; slice-1a PLAN §6.4, T42): the value rule, the hold ladder, quiet water,
+// let go, the evening, tackle (prices, T5–T6, shelfAt), the trip's fixed times, and the Mossmere's value tier and place prices; and
+// the quiet terms (data.quietTerms, the game's own function: at 4 good bites the 5th bite is already quiet, PLAN CHOICE 17).
+// What is still a draft table here (it moves into data.js slice by slice): the other 15 waters' value tiers and Fight terms, the
+// map catalogue and every other price, the giants, bait, lures, the raft and home, the three keys' targets, and the Wicks' copy
+// (checked equal to data.js's LOOP.wicks).
 //
 // Run from gloomwater/:
 //   node tools/sim/clams.mjs            everything (about 95 s)
@@ -108,7 +112,7 @@ const GEN = { fight: [31, 31, 30, 30, 32, 40, 39, 40, 41, 42, 43, 44], legendFig
 
 function makeWaters() {
   const built = [
-    { id: 'mossmere', name: 'The Mossmere', base: 7, lake: 0, prices: { day: 60, old: 150, night: 260, crown: 500 },
+    { id: 'mossmere', name: 'The Mossmere', base: D.LOOP.waters.mossmere.tier, lake: 0, prices: { ...D.LOOP.waters.mossmere.prices },   // data.js (slice 1a)
       legend: 'belled_matriarch', legendBait: ['heartmoss', 60], lure: ['bell_spinner', 180] },
     { id: 'sporewood', name: 'Sporewood Pools', base: 11, lake: 2000, prices: { day: 400, old: 800, extra: 1100, night: 1200, crown: 2200 },
       legend: 'drifting_grove', legendBait: ['glowcap_bulb', 250], lure: ['sporelamp_fly', 500] },
@@ -135,30 +139,24 @@ function makeWaters() {
 }
 
 export const baitTin = (id, water) => Math.max(5, Math.round(LOOP.baitRule.grade * WATER[water].base / 5) * 5);
-export const LOOP = {
-  // ---- sale value: clams = max(1, round(base[water] × rarity × body × clamp(e^(perZ·z)) × classBonus)). body = clamp(√(L50 / 45 cm)).
-  // A legend is not sold: her first landing pays her crown map's price, later landings 40% of it.
-  value: { perZ: 0.9, clamp: [0.4, 30], classBonus: { trophy: 1.25, elder: 1.6 }, rarity: { common: 1, uncommon: 2.4, rare: 5.5, epic: 12 },
-    body: { ref: 45, exp: 0.5, clamp: [0.6, 1.6] }, legendRematch: 0.4 },
+/** The keys slice 1a moved into data.js (PLAN §6.4): read from data.LOOP, never drafted here (T42 fails if one comes back). */
+export const MOVED = ['value', 'hold', 'water', 'letGo', 'evening', 'tackle', 'time'];
+const DRAFT = {
+  // ---- sale value (data.LOOP.value): clams = max(1, round(base[water] × rarity × body × clamp(e^(perZ·z)) × classBonus)). body =
+  // clamp(√(L50 / 45 cm)). A legend is not sold: her first landing pays her crown map's price, later landings 40% of it.
   // ---- the rare giants (roster: the descendant of each episode's main fish; epic, or legendary for a water's crown)
   giant: { share: { inHour: 0.06, offHour: 0.025 }, favour: 0.3, minZ: -0.25, fight: 10, elderFight: 2 },   // its share of the bites at its own place; never Small; +10 Fight over a rare
   kindWeight: 2.5,                                        // a fish of a kind of place (a "night water" rare) at a place of that kind
   dayDraw: 1.5,                                             // a day water draws its water's open uncommon and rare fish (× weight)
   placeCommon: 0.5,                                         // a common's weight at any place (the place's own fish crowd out the small fry)
-  // ---- the hold: 3 slots at the start; each step is bought once, in order
-  hold: { start: 3, ladder: [{ slots: 4, price: 30 }, { slots: 5, price: 120 }, { slots: 6, price: 450 }, { slots: 7, price: 2000 }, { slots: 8, price: 3500 }] },
-  // ---- the water goes quiet: good bites per evening by kind (open water: one per slot of the hold, plus openExtra). EVERY bite spends one.
-  // open water: one good bite per slot of the hold, plus openExtra (a bigger hold is a longer good evening, not a longer quiet one)
-  water: { good: { day: 2, old: 3, night: 2, crown: 2 }, openPerSlot: 1, openExtra: 1, stale: { favour: -0.15, floor: -1.2, wait: 0.3, waitMax: 2.2 } },
-  // let go: the water forgives. A fish let go at the card gives back the good bite it spent, and the next bites at that water run
-  // bigger: +favour each, to cap, for the rest of the evening there
-  letGo: { favour: 0.2, cap: 0.4, refund: 1 },
-  evening: { day: 40, dusk: 20 },
+  // ---- the hold (data.LOOP.hold): 3 slots at the start; each step is bought once, in order. The water goes quiet (data.LOOP.water):
+  // good bites per evening by kind (open water: one per slot of the hold, plus openExtra); EVERY bite spends one. Let go
+  // (data.LOOP.letGo): the bite back, and +favour at that water to its cap. The evening (data.LOOP.evening): 40 s of day, 20 of dusk.
   favour: { place: 0.15, window: { day: 0.4, old: 0.4, night: 0.3, crown: 0.2 }, dusk: 0.2, night: 0.25, perLantern: 0.1, perKeel: 0.1, setup: 0.15 },
   kept: { weight: 3, live: 0.5 },                         // a built place's own species (not a giant): a rare's weight × 3, half the time
-  // ---- tackle: one price per tier per slot (Rod, Line, Reel bought separately); T5 and T6 are new (their Hold below); no proof catches
-  tackle: { price: [0, 50, 300, 1200, 6000, 32000, 100000], extraHold: { rod: [15, 18], line: [16, 19], reel: [15, 18] },
-    names: { 5: ['Bellwether', 'Starthread', 'Moonwheel'], 6: ['Crown-Reed', 'Kingshair', 'Last Wheel'] }, shelfAt: [1, 1, 1, 2, 3, 4, 9] },   // shelfAt: the water whose map puts it on the shelf (v8: T6 with the slot-9 map, so Rod T6, the Thunder Stair's gear key, can be bought before its map)
+  // ---- tackle (data.LOOP.tackle): one price per tier per slot (Rod, Line, Reel bought separately); T5 and T6 are new; no proof
+  // catches; shelfAt: the water whose map puts a tier on the shelf (v8: T6 with the slot-9 map, so Rod T6, the Thunder Stair's gear
+  // key, can be bought before its map)
   waters: makeWaters(),
   // ---- the giants' lures: the four built ones are re-aimed at their lake's giants; one new lure per new water (+10 Hold, attract ×1.5)
   giantsLures: {
@@ -200,10 +198,8 @@ export const LOOP = {
     lights:  { prices: [200, 1200, 14000], perLevel: "the Barge lights: lanterns on the rails, lanterns along the roof's edge, a beacon on the bow (looks only)" },
   },
   looks: { slate_dye: 300, oxblood_pennant: 400, amber_glass: 600, painted_prow: 2500, bell_buoy: 6000, gilt_lantern: 40000, reed_sail: 50000, star_pennant: 100000, moon_lamp: 200000 },
-  // (`show` is 0 since the catch show is built: AUTOFISH.time.ceremony now holds the whole landing, the reveal and the show
-  // (data.showPlan(class).total), so an allowance for the show here would count it twice; it was 1.5 s over the old measuring
-  // ceremony. docs/loop/slice-1a/PLAN.md, PLAN CHOICE 15)
-  time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 0 },
+  // (the trip's fixed times are data.LOOP.time: `show` is 0 since the catch show is built, because AUTOFISH.time.ceremony holds the
+  // whole landing, the reveal and the show, PLAN CHOICE 15; the visit home is measured by T37 and written there)
   player: { clams: 0.9, time: 1.25, orderGain: 0.06 },
   // ---- the three keys (SPEC v8 §5.5): a water opens for sailing with its lake map, its gear key and the list of the water before it
   access: {
@@ -236,6 +232,8 @@ export const LOOP = {
     ashwick: { passive: 'burns_back', hold: 4, stats: {} },                                                   // a fish that gets away comes back once, tired (+4: the run cap)
   },
 };
+/** The sim's tables: the draft above with the moved keys read from data.js (the binding copy: PLAN §6.4). */
+export const LOOP = { ...DRAFT, ...Object.fromEntries(MOVED.map((k) => [k, D.LOOP[k]])) };
 const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));
 
 // ---- the Wicks' pure helpers (WICKS.md §2.2–§2.4, §3.1): `wickSlots`, `goodBitesFor`, `quietTerms`, `wickPoolWeights`. Slice 1a exports
@@ -243,8 +241,13 @@ const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));
 // below, written to the rule as WICKS.md states it, with the same signature. `--wicks` prints which is which. The sim has no `meta.loop`,
 // so it calls the numeric `wickSlots`, never `loopSlots`. A Wick id the table does not know (the reference row's null) is no passive.
 export const WICK_IDS = LOOP.wicks.order;
-/** Run fn with some of a Wick's knobs changed (a comparison row), then put them back. */
-export function withKnobs(wid, patch, fn) { const K = LOOP.wicks[wid], keep = { ...K }; Object.assign(K, patch); try { return fn(); } finally { for (const k of Object.keys(K)) delete K[k]; Object.assign(K, keep); } }
+/** Run fn with some of a Wick's knobs changed (a comparison row), then put them back. The data.js helpers read data's own
+ *  LOOP.wicks (slice 1a's seam), so its row is patched too while fn runs. */
+export function withKnobs(wid, patch, fn) {
+  const tables = [LOOP.wicks[wid], D.LOOP?.wicks?.[wid]].filter((K, i, a) => K && a.indexOf(K) === i), keeps = tables.map((K) => ({ ...K }));
+  for (const K of tables) Object.assign(K, patch);
+  try { return fn(); } finally { tables.forEach((K, i) => { for (const k of Object.keys(K)) delete K[k]; Object.assign(K, keeps[i]); }); }
+}
 export const simWick = (id) => (id && id !== 'order' && LOOP.wicks[id] ? id : null);
 export const STAND_INS = [];
 const fromData = (name, standIn) => (typeof D[name] === 'function' ? D[name] : (STAND_INS.push(name), standIn));
@@ -603,7 +606,8 @@ export function trip(kit, policy, r, opts = {}) {
       if (hold.length >= slots || out.bites >= 400) break outer;
       const cbHere = !!comeback && comeback.at === W.id;            // Ashwick's policy always takes a waiting comeback: no leaving
       if (!cbHere && W.early && !missAt(W, phase())) break;          // open water's missing fish are landed or their light is gone: on to the places; open water tops up last
-      const over = Math.max(0, here - fresh);
+      const over = Math.max(0, here - fresh);                        // the policies' count: quiet bites already taken here
+      const qOver = Math.max(0, here + 1 - fresh);                   // this bite's quiet terms (PLAN CHOICE 17, the game's loop.favour): at 4 good bites the 5th is quiet
       const ctx = { slots: slots - hold.length, hold: slots, here, freshHere: Math.max(0, fresh - here), over, last, watersLeft: waters.length - 1 - wi, phase: phase(), kind: W.kind, giantHere: !!(W.id && PLACE[W.id].giants.length) };
       if (!cbHere && policy.leave(ctx)) { if (last) break outer; break; }
       const ph = phase(), night = ph === 'night';
@@ -619,18 +623,18 @@ export function trip(kit, policy, r, opts = {}) {
       }
       const pulled = !!PULL && nEv >= PULL.floorFrom && miss.has(sp.id);
       const atOwn = sp.giant;                              // a giant only bites at its own place
-      const q = quietTerms(over, wid);
+      const q = quietTerms(qOver, wid);
       let mu = (W.id ? F.place + F.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
         + baitFav + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (kit.keel | 0) + mercy;
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
-      inQuiet = over > 0;
+      inQuiet = qOver > 0;
       const wait = T.wait * waitMul * q.waitMult; out.waitSec += wait;
       adv(T.cast + wait);
       const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, W.kind === 'old' || atOwn ? SZ.z.max : SZ.elsewhereMaxZ);   // Elders: old water, and a giant at its own place
       const z = isCb ? comeback.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
       if (isCb) comeback = null;
       const cls = D.isAncient(z) ? 'ancient' : D.sizeClassOf(z);
-      here++; out.bites++; if (over > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++; if (sp.rarity !== 'common') out.nonCommon++;
+      here++; out.bites++; if (qOver > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++; if (sp.rarity !== 'common') out.nonCommon++;
       if (!isCb && !policy.strike(cls, ctx)) { adv(L.time.pass); continue; }
       out.hooks++; if (kit.bait) out.baitUsed++;
       const p = landP(sp, cls, kit, pickStrike(r), night, isCb ? Math.min(C.buffs.runCap ?? C.buffs.cap, WK.hold) : 0);
@@ -1054,6 +1058,24 @@ const warns = [];
 const warn = (ok, label) => { console.log(`${ok ? 'ok  ' : 'warn'}  ${label}`); if (!ok) warns.push(label); };
 const within = (v, lo, hi) => v >= lo && v <= hi;
 const sg = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
+// ---- the tables data.js holds (slice-1a PLAN §6.4, T42): checked in every mode, before anything is printed from them
+{
+  const drafted = MOVED.filter((k) => k in DRAFT), mismatched = MOVED.filter((k) => LOOP[k] !== D.LOOP[k]);
+  check(!drafted.length && !mismatched.length && D.LOOP_ENABLED === true, `T42: the sim reads data.LOOP's ${MOVED.join(', ')}; none is still drafted here${drafted.length ? ` (drafted: ${drafted.join(', ')})` : ''}${mismatched.length ? ` (not data's: ${mismatched.join(', ')})` : ''}`);
+  const MW = WATER.mossmere;
+  check(MW.base === D.LOOP.waters.mossmere.tier && JSON.stringify(MW.prices) === JSON.stringify(D.LOOP.waters.mossmere.prices), `the Mossmere's value tier (${MW.base}) and place prices are data.LOOP.waters.mossmere's`);
+  // the sale rule is one rule: the sim's clamsFor equals data.fishClams for every built Mossmere species on its built L50, at every class
+  const built = D.SPECIES.filter((s) => s.zone === 'mossmere' && s.rarity !== 'legendary' && !s.cove && s.size);
+  const off = [];
+  for (const s of built) for (const zz of [-1.2, 0, 0.4, 1.4, 2.2, 2.95]) {
+    const like = { water: 'mossmere', rarity: s.rarity, L50: D.sizeL50(s, 'mossmere') };
+    if (clamsFor(like, zz) !== D.fishClams(s, zz)) off.push(`${s.id} z ${zz}: ${clamsFor(like, zz)} vs ${D.fishClams(s, zz)}`);
+  }
+  check(built.length >= 6 && !off.length, `the sim's clamsFor equals data.fishClams for all ${built.length} built Mossmere species on their built L50, at six sizes${off.length ? `: ${off.slice(0, 4).join('; ')}` : ''}`);
+  const wk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, LOOP.wicks[w]]))), dk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, D.LOOP.wicks[w]])));
+  check(wk === dk && JSON.stringify(LOOP.wicks.order) === JSON.stringify(D.LOOP.wicks.order), "the sim's Wick table is data.LOOP.wicks (the balancing job's values, as ruled)");
+  check(STAND_INS.length === 0, `the Wicks' helpers are data.js's own (${['wickSlots', 'goodBitesFor', 'quietTerms', 'wickPoolWeights'].join(', ')})${STAND_INS.length ? `: stand-ins for ${STAND_INS.join(', ')}` : ''}`);
+}
 const ASHWICK_SEEN = 0.6;         // Ashwick's "seen" floor: a comeback on at least 60% of first trips (the lead, 15 November 2026; WICKS §3.2, §3.5 decision 1)
 const TALLOW_TRIP_HOLD8 = 6.1;   // Tallow's own trip ceiling at Hold 8, its 9 slots (the lead, 15 November 2026: measured 6.05 with everyWater; WICKS §4 guard 3)
 const wickName = (w) => (w ? { wick: 'the Wick', taper: 'Taper', stub: 'Stub', tallow: 'Tallow', ashwick: 'Ashwick' }[w] : 'none');

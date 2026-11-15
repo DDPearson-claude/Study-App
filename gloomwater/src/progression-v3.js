@@ -6,6 +6,7 @@
 //          Elder names, z recovered from a v1 weight (fishing builds that still roll weights)
 //   • P1–P2 the interim night tally that replaces memoriesFor's nights row (MEMORIES_V3.interim)
 // Nothing here runs unless data.V3_ENABLED is true (progression.js gates every call).
+import { migrateLoop } from './progression-loop.js';
 
 export const v3On = (D) => D?.V3_ENABLED === true;
 
@@ -116,6 +117,8 @@ export function migrateSave(D, save) {
   // the First Evening's legacy rule: a separate, idempotent step after Pg0 (Pg0 runs only when !meta.v3ids; this one runs only while
   // meta.firstEvening is undefined, so a P1-era v3 save gets it too)
   if (isObj(save.meta)) firstEveningLegacy(D, save.meta);
+  // the Full Hold (slice-1a PLAN §2.1 item 7): meta.loop made whole under the loop only (a trip saved beside it marks the tutorial done)
+  if (D?.LOOP_ENABLED === true && isObj(save.meta)) migrateLoop(save.meta, D, { hasTrip: save.run?.outing === 'trip' });
   return save;
 }
 

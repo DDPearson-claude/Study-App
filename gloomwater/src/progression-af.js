@@ -18,6 +18,9 @@
 //   Pg14  per-run lures: Murk sells every lure at 40% once its lake is lit (AUTOFISH.runLures), kept in run.lures until the run
 //         ends; one bait OR one lure on the line (run.equipped); a snapped line never loses it (nothing here ever removes one).
 //   S7    Well-fed is +2 Hold, through getCatchBuffs().wellFed (a run buff), never a reel stat.
+//   The Full Hold (slice-1a PLAN §2.1 item 8; only under data.LOOP_ENABLED): a trip's loadout is meta.loop.tackle (perRun false, so a
+//         legend fights at CATCH_V3.legend.fight), at home too (the shelf's Odds ›); no relics, boons, Well-fed or per-run lures; the
+//         Wick's buff is Ashwick's tired comeback only (WICKS §2.5); the counters read the evening; a comeback is not also marked.
 import { uid } from './core.js';
 import { elderName } from './progression-v3.js';
 
@@ -52,14 +55,28 @@ export function createAutofish(S) {
   const on = () => D().V3_ENABLED === true && !!C3() && typeof D().catchChance === 'function';
   const safe = (fn, fb) => { try { const v = fn(); return v === undefined ? fb : v; } catch (e) { S.report('autofish', e); return fb; } };
   const frame = () => ctx.time?.frame ?? 0;
+  /** The Full Hold: the build, and a trip (only createTrip writes outing 'trip'). Off the loop both are false: every path is v3's. */
+  const loopOn = () => D().LOOP_ENABLED === true;
+  const loopRun = (r) => loopOn() && r?.outing === 'trip';
+  const loopBlock = () => { try { return S.loop?.state?.() || meta()?.loop || null; } catch { return meta()?.loop || null; } };
+  /** The Hold of the loop's tackle: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6. */
+  function loopHold(tk = {}) {
+    const X = D().LOOP?.tackle?.extraHold || {}, out = {};
+    for (const s of SLOTS) {
+      const t = Math.max(0, Math.trunc(Number(tk?.[s]) || 0));
+      out[s] = t <= 4 ? safe(() => D().tackleHoldAt(s, t), 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
+    }
+    return out;
+  }
 
   // ------------------------------------------------------------------ build shape
   /** P3 expeditions exist (persistent fitted tackle). Until P3's createExpedition lands every run uses per-run UPGRADES. */
   const expeditions = () => (D().V3_PHASE ?? 4) >= 3 && typeof S.createExpedition === 'function';
   /** Tiers come from UPGRADES (P1–P2 runs, The Long Descent): legends use CATCH_V3.legend.fightRun (mods.perRun). */
-  const perRunOf = (r = run()) => (r ? r.outing === 'descent' || !expeditions() : !expeditions());
-  /** Murk sells lures per run at 40% (AUTOFISH.runLures: P1–P2 runs, not The Long Descent). */
-  const runLuresOn = (r = run()) => on() && !!r && r.outing !== 'descent' && !expeditions() && (AF()?.runLures?.phases || [1, 2]).includes(D().V3_PHASE);
+  /** The Full Hold: a trip's (and home's) gear is the loop's own, kept forever, so never per-run (SPEC §9 "The loadout"). */
+  const perRunOf = (r = run()) => (loopOn() && (!r || loopRun(r)) ? false : r ? r.outing === 'descent' || !expeditions() : !expeditions());
+  /** Murk sells lures per run at 40% (AUTOFISH.runLures: P1–P2 runs, not The Long Descent). Never on a trip (PARKED.runShop). */
+  const runLuresOn = (r = run()) => on() && !!r && !loopRun(r) && r.outing !== 'descent' && !expeditions() && (AF()?.runLures?.phases || [1, 2]).includes(D().V3_PHASE);
 
   let lureMap = null;
   const lure = (id) => {
@@ -120,6 +137,12 @@ export function createAutofish(S) {
   /** CONTRACT §13.7 getLoadout() -> {rod, line, reel, hold?, item, itemLevel, upgrade?} (+ perRun: legends' per-run Fight). */
   function getLoadout() {
     const r = run();
+    if (loopOn() && (!r || loopRun(r))) {   // the Full Hold: meta.loop.tackle, on a trip and at home (the shelf's Odds ›); no item in 1a
+      const tk = loopBlock()?.tackle || {};
+      const out = { rod: tk.rod | 0, line: tk.line | 0, reel: tk.reel | 0, hold: loopHold(tk), item: null, itemLevel: 1, perRun: false };
+      if (!r) out.runless = true;
+      return out;
+    }
     if (!r) return { rod: 0, line: 0, reel: 0, item: null, itemLevel: 1, perRun: perRunOf(null), runless: true };
     const item = lineOut() && castSnap?.runId === r.id ? castSnap.item : equippedItem(r);
     if (perRunOf(r)) {
@@ -138,6 +161,7 @@ export function createAutofish(S) {
   /** The owned relic levels that give Hold (CATCH_V3.buffs.relics): always with you, so they are in the logs too. */
   function ownedRelics() {
     const out = {};
+    if (D().PARKED?.meta === true) return out;   // the Full Hold: relics are parked (their Hold is 0, in the logs too)
     const rel = meta()?.relics || {};
     for (const id of Object.keys(C3()?.buffs?.relics || {})) if ((rel[id] | 0) > 0) out[id] = rel[id] | 0;
     return out;
@@ -157,10 +181,18 @@ export function createAutofish(S) {
     const h = r.flags.nightHook;
     r.flags.nightHook = h && h.day === day ? { day, n: (h.n | 0) + 1, frame: frame() } : { day, n: 1, frame: frame() };
   }
-  /** CONTRACT §13.7 getCatchBuffs(sizeClass?) -> {wellFed, boons, relics, character, firstHookTonight} (data.catchBuffHold caps it). */
-  function getCatchBuffs() {
+  /** CONTRACT §13.7 getCatchBuffs(sizeClass?) -> {wellFed, boons, relics, character, firstHookTonight} (data.catchBuffHold caps it).
+   *  The class is optional (fishing passes it; a class-less call such as getCatchMods' gets the same): off a trip it is ignored. On a
+   *  trip (the Full Hold): no Well-fed, Boons or relics; `character` is 'ashwick' only while Ashwick's comeback bite is open
+   *  (run.flags.openComeback; the apply block's CATCH_V3.buffs.wicks.ashwick = {hold: 4}, WICKS §2.5), null for every other Wick. */
+  function getCatchBuffs(cls) {
+    void cls;
     const r = run();
     const relics = ownedRelics();
+    if (loopRun(r)) {
+      const ashwick = r.character === 'ashwick' && r.flags?.openComeback === true;
+      return { wellFed: false, boons: {}, relics: {}, character: ashwick ? 'ashwick' : null, firstHookTonight: firstHookTonight(r) };
+    }
     if (!r) return { wellFed: false, boons: {}, relics, character: null, firstHookTonight: false };
     const boons = {};
     for (const id of Object.keys(C3()?.buffs?.boons || {})) {
@@ -404,10 +436,14 @@ export function createAutofish(S) {
     } else {
       // P3 expeditions and the hub: the Gear Bench's tiers (kept forever; T2–T4 need a proof catch)
       const m = meta() || {};
+      const LT = loopOn() ? loopBlock()?.tackle || {} : null;   // the Full Hold: the loop's tiers, LOOP's prices, no proof catches
       for (const slot of SLOTS) {
         for (const t of D().TACKLE?.[slot] || []) {
-          const row = { id: t.id, kind: slot, name: t.name, tier: t.tier, hold: t.hold, emphasis: slotEmphasis(C, slot), targets: 'all', price: t.price,
-            owned: (m.tackle?.[slot] | 0) >= t.tier, fitted: (m.fitted?.[slot] | 0) === t.tier, proof: t.proof ? { id: t.proof, done: proofDone(t.proof) } : null };
+          const row = LT
+            ? { id: t.id, kind: slot, name: t.name, tier: t.tier, hold: t.hold, emphasis: slotEmphasis(C, slot), targets: 'all', price: D().LOOP?.tackle?.price?.[t.tier] ?? t.price,
+              owned: (LT[slot] | 0) >= t.tier, fitted: (LT[slot] | 0) === t.tier, proof: null }
+            : { id: t.id, kind: slot, name: t.name, tier: t.tier, hold: t.hold, emphasis: slotEmphasis(C, slot), targets: 'all', price: t.price,
+              owned: (m.tackle?.[slot] | 0) >= t.tier, fitted: (m.fitted?.[slot] | 0) === t.tier, proof: t.proof ? { id: t.proof, done: proofDone(t.proof) } : null };
           if (pinSp) { const lo = { ...base, [slot]: t.tier }; delete lo.hold; row.compare = compareWith(lo); }
           out.push(row);
         }
@@ -419,7 +455,7 @@ export function createAutofish(S) {
       const it = C.items[b.id];
       if (!it || b.legend) continue;
       const held = r?.bait?.[b.id] | 0;
-      const onSale = (!b.unlock || S.isUnlocked(`bait:${b.id}`)) && (b.zoneMin ?? 0) <= zi;
+      const onSale = !loopOn() && (!b.unlock || S.isUnlocked(`bait:${b.id}`)) && (b.zoneMin ?? 0) <= zi;   // the Full Hold: no bait on the 1a shelf
       if (!held && !onSale) continue;
       const row = { id: b.id, kind: 'bait', name: b.name, hold: it.hold, targets: targetsOf(b.id), price: S.priceOfBait?.(b) ?? b.price, owned: held,
         equipped: equippedItem(r) === b.id, onSale };
@@ -510,7 +546,7 @@ export function createAutofish(S) {
   }
   /** fish:escaped (after the loss and its quiet beat): Glimpsed page, Got away list, the one that got away, Elder Log "still out
    *  there", legend wounds, Marked Fish, the gear log's pin, the run's got-away lines. Nothing is written in a replay. */
-  function onEscaped(e = {}) {
+  function onEscaped(e = {}, { comeback = false } = {}) {
     if (!on() || S.isReplay()) return;
     const sp = S.species(e.speciesId);
     if (!sp) return;
@@ -545,7 +581,7 @@ export function createAutofish(S) {
     // legends: wounded (+6 Hold on the next attempt, ≤ 3 counted); Marked Fish: a re-hooked one stays out there, a new one is marked
     if (legend) addLegendWound(sp.id);
     else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
-    else if (e.markedFish) addMarkedFish({ ...e, name, zone: lake });
+    else if (e.markedFish && !comeback) addMarkedFish({ ...e, name, zone: lake });   // the Full Hold: Ashwick's comeback is not also marked
     // the gear log pins the last fish that got away (not the Landing's Quayling: the gear log is about the lakes)
     if (!S.isCove(sp.id)) m.lastAway = { speciesId: sp.id, sizeClass: cls, reason: e.reason || null, name, approxLength: len, zone: lake };
     if (r) {
@@ -580,13 +616,17 @@ export function createAutofish(S) {
     const m = meta() || {};
     const r = run();
     const A = AF() || {};
-    const expedition = expeditions() ? (m.expeditions | 0) : (m.runs | 0);
+    // the Full Hold: the count is the evening (the loop never writes meta.runs); evening 1 is the first expedition (T55)
+    const evening = loopOn() ? (Number(r?.evening) > 0 ? Math.trunc(Number(r.evening)) : Math.max(0, Number(loopBlock()?.evenings) || 0) + 1) : null;
+    const expedition = evening != null ? evening : expeditions() ? (m.expeditions | 0) : (m.runs | 0);
     const fromRun = A.play?.inputs?.hurry?.fromRun ?? 2;
-    const firstExpedition = r ? r.outing === 'first' : expeditions() ? !m.firstOutingDone : (m.runs | 0) === 0;
+    const firstExpedition = evening != null ? evening === 1 : r ? r.outing === 'first' : expeditions() ? !m.firstOutingDone : (m.runs | 0) === 0;
     const setting = m.settings?.strikeRing || A.strike?.ring?.default || 'firstExpedition';
     const fe = !!ctx.firstEvening?.isActive?.();
     const strikeRing = setting === 'always' || (setting === 'firstExpedition' && (firstExpedition || fe));
-    return { runs: m.runs | 0, expedition, hurry: expedition >= fromRun && r?.outing !== 'first', firstExpedition, strikeRing, setting };
+    const out = { runs: m.runs | 0, expedition, hurry: expedition >= fromRun && r?.outing !== 'first', firstExpedition, strikeRing, setting };
+    if (evening != null) out.evening = evening;
+    return out;
   }
 
   return {

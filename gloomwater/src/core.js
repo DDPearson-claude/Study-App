@@ -165,6 +165,69 @@ export function setV3Flag(on, phase) {
   return val;
 }
 
+// ---------------------------------------------------------------- the Full Hold's switch (docs/loop/SPEC.md §9, slice-1a/PLAN.md §3.2)
+// The same shape as v3's switch, and it runs first (LOOP_FLAGS is declared above V3_FLAGS): when it turns the loop on it writes
+// GW_LOOP = true, GW_V3 = true and GW_V3_PHASE = 1 before data.js evaluates, so v3's switch then sees preset globals and leaves
+// them (the loop always runs v3 at phase 1). Precedence:
+//   1. a preset GW_LOOP (boolean) wins; a preset GW_V3 === false keeps the loop off (a v1 template); both are left untouched;
+//   2. the page URL: `?loop` / `?loop=1|on|true` or `?loop=0|off|false` (with `?v3=0` or `?v3phase=4` the loop still wins, PLAN CHOICE 18);
+//   3. localStorage `gloomwater.loop` (`{on}`; written by setLoopFlag);
+//   4. the shipped default, LOOP_ROLLOUT.
+// "Off" writes nothing, so the flag-off game evaluates data.js exactly as before. Node tools (no document) are never touched.
+/** The shipped default. Flip `on` only in the commit that passes the loop's gate. */
+export const LOOP_ROLLOUT = Object.freeze({ on: false });
+export const LOOP_FLAG_KEY = 'gloomwater.loop';
+
+/**
+ * Pure resolution of the loop's switch. `preset` = {loop: GW_LOOP, v3: GW_V3} read from globalThis; `search` = location.search;
+ * `stored` = the parsed localStorage value. Returns {on, source: 'preset'|'url'|'storage'|'default', apply}, where `apply` says
+ * whether the globals must be written (only when this switch itself turns the loop on).
+ */
+export function resolveLoopFlags({ preset = null, search = '', stored = null, rollout = LOOP_ROLLOUT } = {}) {
+  if (preset && typeof preset.loop === 'boolean') return { on: preset.loop, source: 'preset', apply: false };
+  if (preset && preset.v3 === false) return { on: false, source: 'preset', apply: false };
+  let on = null, source = 'default';
+  if (stored !== null && stored !== undefined) {
+    const so = typeof stored === 'object' ? parseFlagOn(stored.on) : parseFlagOn(typeof stored === 'number' ? stored : String(stored));
+    if (so !== null) { on = so; source = 'storage'; }
+  }
+  let q = null;
+  try { q = new URLSearchParams(search || ''); } catch { q = null; }
+  if (q && q.has('loop')) {
+    const u = parseFlagOn(q.get('loop'));
+    if (u !== null) { on = u; source = 'url'; }
+  }
+  if (on === null) { on = !!rollout?.on; source = 'default'; }
+  return { on, source, apply: on };
+}
+
+/** Browser pages only: reads the URL / localStorage and, when the result is "on", writes GW_LOOP = true, GW_V3 = true and
+ *  GW_V3_PHASE = 1. In node (no document) it resolves the presets alone and writes nothing. */
+export function applyLoopFlags(g = globalThis) {
+  const page = typeof g.document !== 'undefined';
+  const preset = { loop: g.GW_LOOP, v3: g.GW_V3 };
+  let search = '', stored = null;
+  if (page) {
+    try { search = g.location?.search || ''; } catch { search = ''; }
+    stored = storage.get(LOOP_FLAG_KEY);
+  }
+  const r = resolveLoopFlags({ preset, search, stored });
+  if (!page) return { ...r, apply: false };
+  if (r.on && r.apply) { g.GW_LOOP = true; g.GW_V3 = true; g.GW_V3_PHASE = 1; }
+  return r;
+}
+
+/** Stores the loop's switch for the next load (`on` null clears it back to the URL / shipped default). Returns the stored value. */
+export function setLoopFlag(on) {
+  if (on === null || on === undefined) { storage.remove(LOOP_FLAG_KEY); return null; }
+  const val = { on: !!on };
+  storage.set(LOOP_FLAG_KEY, val);
+  return val;
+}
+
+/** How this page load resolved the loop's switch (read by main). Declared ABOVE V3_FLAGS: it must write its globals first. */
+export const LOOP_FLAGS = applyLoopFlags();
+
 /** How this page load resolved the switch (read by main's debug hooks). */
 export const V3_FLAGS = applyV3Flags();
 
@@ -201,6 +264,7 @@ export const HIDDEN_DEBUG_HOOKS = Object.freeze([
   'fishChance', 'fishPlan', 'fishOutcome', 'fishSeed', 'fishStrike', 'fishLinger', 'preroll', 'fishing', 'fishSigns', 'fishReel',
   'fishHook', 'forceBite', 'instantCatch', 'sign', 'odds', 'marked', 'wound', 'rollResident', 'addMarkedFish',
   'intro',   // the opening cut scene's hook (CONTRACT §13.13): play / seek / skip / state / the auto-play opt-in
+  'loop',    // the Full Hold's hook (slice-1a PLAN §2.2 item 17): its state, the bites spent, clams given, home and sail
 ]);
 
 // ---------------------------------------------------------------- the world is live (CONTRACT §13.1)
@@ -370,4 +434,13 @@ export function disposeObject(obj) {
 
 /** Format numbers for UI: 1234 -> "1,234". */
 export const fmt = (n) => Math.round(n).toLocaleString('en-US');
+/** Clams as the loop shows them (SPEC §8): below 10,000 as fmt ("9,999"); then one decimal and "k" ("12.4k"), from a million one
+ *  decimal and "m" ("1.2m"). The decimal is cut, never rounded up, so a purse never reads more than it holds. */
+export const fmtClams = (n) => {
+  const v = Number(n) || 0, a = Math.abs(v), sign = v < 0 ? '-' : '';
+  if (Math.round(a) < 10000) return fmt(v);
+  const k = Math.floor(a / 100) / 10;
+  if (k < 1000) return `${sign}${k.toFixed(1)}k`;
+  return `${sign}${(Math.floor(a / 100000) / 10).toFixed(1)}m`;
+};
 export const fmtKg = (kg) => (kg < 10 ? kg.toFixed(2) : kg < 100 ? kg.toFixed(1) : Math.round(kg).toString()) + ' kg';   // v1
