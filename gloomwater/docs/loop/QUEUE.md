@@ -50,6 +50,8 @@ The user, 15 November 2026: "Can we run anything else in parallel without slowin
 - **The three keys** (job 6, MEDIUM; the heavy job; branch `gw-loop-access`).
 - ~~The names audit~~ (cancelled 15 November: the user, "I dont care if they're named after real rivers or lakes"; the rule since: real river and lake names are allowed in the world and on the map; the TV series and its presenter are still never named in anything that ships).
 
+- **The home barge** (beside; MEDIUM docs; branch `gw-loop-barge`; run `wf_97e282fc-c62`). The user, 15 November 2026: "Should our home base actually be a floating caravan style base that moors in a specific location at each water, but then it makes sense as we move on that our base stays the same because it follows us. Otherwise we'd have to buil 17 individually home cave locations which would cost a fortune at each new water. Where as if we tow it with us when we move that makes sense". The lead: yes. The Wick's own old barge-house, found at the Landing in the opening, moored at one mooring per water, Murk's barge alongside; a one-time voyage when a new water opens, quick returns by the lit lamps; home upgrades become the barge's; the ending reworked; M1 step 5 becomes the barge instead of the cove.
+
 ## Backlog for slice 1a (job 9) (found on the catch show's merge; small, code only; lane B unless named)
 
 The merge review (15 November) found no regression a player would see; these are the leftovers, carried into slice 1a's build because it opens the same files:
