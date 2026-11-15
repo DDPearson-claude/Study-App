@@ -1,6 +1,8 @@
 # The show — the Wick presents its catch (spec for both build lanes)
 
-Status: audit done on `2ee62e7` (branch `gw-show`); both lanes built and merged on `gw-show`, staged and tuned as one moment, then reviewed and fixed (§8)
+Status: audit done on `2ee62e7` (branch `gw-show`); both lanes built and merged on `gw-show`, staged and tuned as one moment, then reviewed and fixed (§8);
+merged into the dev line beside the opening cut scene (`docs/v3/intro/SPEC.md`): the film's lens wins over the show's while the film has
+the camera (CONTRACT §13.13), and the two are played one after the other and on top of each other by `tools/tests/intro-show-seam.scenario.mjs`
 (§7 records where the build differs from this text, and what the stage measured). LANE A ("the Wick and the fish") and LANE B
 ("the sequence, the camera, the card and the sound") built from this document without talking to each other; §6 is the seam
 between them. Numbers marked

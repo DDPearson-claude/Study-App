@@ -163,5 +163,17 @@ for (const [f, lane, other] of [['main.js', 'B', 'A'], ['ui.css', 'B', 'A'], ['u
 }
 { const t = src('data.js'); ok(['>>> INTRO shared (frozen)', '<<< INTRO shared', '>>> INTRO LANE A', '<<< INTRO LANE A', '>>> INTRO LANE B', '<<< INTRO LANE B'].every((m) => t.includes(m)), 'data.js: INTRO is in three marked blocks'); }
 
+// ------------------------------------------------------------------ the film's lens and the catch show's (CONTRACT §13.13, §13.7b)
+// Both lay a pose over render's rig. The film's wins while one is set: its place and look point are laid on after the show's, and
+// its fov is eased from the rig's fov under the show's, so at w = 1 the camera is the film's whatever weight a show still has.
+// (The browser proof is tools/tests/intro-show-seam.scenario.mjs; this pins the order in the source so a merge cannot turn it round.)
+section("render: the film's lens wins over the show's");
+{ const t = src('render.js');
+  const iShow = t.indexOf('camPos.lerp(tmpV, sw)'), iFilm = t.indexOf('camPos.lerp(tmpV.set(Number(introCam.pos[0])'), iFov = t.indexOf('const fov = clamp(');
+  ok(iShow > 0 && iFilm > iShow && iFov > iFilm, "the film's pose is laid on after the show's lens, before the fov is set");
+  ok(t.includes('const rigFov = lerp(cur.fov, showCam.fov, sw)') && t.includes('introFov = lerp(rigFov, introCam.fov, introW)'), "the film's fov is eased from the rig's fov under the show's (the same order as its place)");
+  ok(t.includes('const fov = clamp((introFov ?? rigFov) + fx.fovKick, 20, 95)'), "the fov is the film's while a pose is set, else the rig's under the show's");
+  ok(/if \(introCam\) return 'sail';[^\n]*\n(?:[^\n]*\n){0,3}?[^\n]*trophyLive\(\)/.test(t), 'the rig is held in sail under the film, before the trophy shot is asked'); }
+
 console.log(`intro-seam: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
