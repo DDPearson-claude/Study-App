@@ -33,8 +33,12 @@
 // `[data-water=mossmere]`, `.gw-slot`, `button[data-loop=homepause]`; modal ids through `__gw.debug.ui()`; `ctx.progression.loop`,
 // `ctx.ui.loop.tutorial`, `ctx.debug.loop`, `ctx.fishing.waterAt`, the events of §3.6), the built debug hooks §2.4 names
 // (`debug.instantCatch`, `forceBite`, `fishOutcome`, `fishStrike`, `fishPlayTo`, `debug.intro`, `debug.ui`) and built markup the
-// scenario only reads (the title's `.gw-tbtn`, the modal layer's `[data-modal]`, the HUD's `.gw-tl` / `.gw-tr` / `.gw-hb-pause`).
-// A neighbour that is absent fails its check; it never throws (PLAN §3's stub rule).
+// scenario only reads (the title's `.gw-tbtn`, the modal layer's `[data-modal]`, the HUD's `.gw-tl` / `.gw-tr` / `.gw-hb-pause`, the
+// shelf's `[role=tab]`, Settings' `.gw-set-row`). T43's allow-list is this file's rules (built from the data: PLAN T43's list) or
+// ui-loop.js's own textAllowed when the tree has it (imported in node; a word passes when either lets it); the goal line is
+// checked against ui-loop's goalLine of loop.goal() the same way. Stub's smoke step reads the seeded wait of the same cast as the
+// Wick by setting run.character for that one cast (a debug-only poke, put back at once). A neighbour that is absent fails its
+// check; it never throws (PLAN §3's stub rule). Each pass prints `LOOP_1A {wick, size, failures, notes, seen}` at the end.
 import { pathToFileURL } from 'node:url';
 
 export const SAVE_KEY = 'gloomwater.save.v1';   // core.SAVE_KEY (built)
@@ -1420,7 +1424,7 @@ export default async function (api) {
       await K.tap(`[data-modal=newdescent] button.gw-char[data-wick=${wick === 'wick' ? 'stub' : wick}]`);
       const ab = await g(() => { const c = window.__gw, b = window.__lp.one('[data-modal=newdescent] [data-action=start]'); if (!b) return null; b.click(); return { flow: c.flow, wick: c.debug.loop?.wick?.() ?? null }; });
       K.need(ab && ab.flow === 'intro', 'Start → the film', ab);
-      await g(() => window.__lp.runTo(2));
+      await K.secs(0.8);   // (its stage may still be building: the film is stopped either way)
       await g(() => window.__gw.debug.intro?.('stop'));
       await K.until("c.flow === 'title'", 3);
       await K.titleReady();
