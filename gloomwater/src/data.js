@@ -4797,7 +4797,7 @@ export const LOOP = {
   },
   waters: { mossmere: { order: 1, tier: 7, prices: { day: 60, old: 150, night: 260, crown: 500 } } },
   // the visit home and the trip's fixed times (the sim's; T37 measures them). show 0: AUTOFISH.time.ceremony holds the show (PLAN CHOICE 15)
-  time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 0 },
+  time: { out: 14, between: 8, raftSpeed: 6, home: 2, sale: 5.8, shop: 16, pass: 0.9, show: 0 },
   // ---- the five Wicks (docs/loop/WICKS.md §2, §5; the values of the balancing run as the lead ruled them, §3.5): one passive each,
   // always on, fishing only. `stats` is added on a trip after the tackle's absolute values (PLAN CHOICE 31); Stub's light is the look
   wicks: {

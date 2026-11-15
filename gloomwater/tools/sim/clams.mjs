@@ -114,7 +114,7 @@ function makeWaters() {
   const built = [
     { id: 'mossmere', name: 'The Mossmere', base: D.LOOP.waters.mossmere.tier, lake: 0, prices: { ...D.LOOP.waters.mossmere.prices },   // data.js (slice 1a)
       legend: 'belled_matriarch', legendBait: ['heartmoss', 60], lure: ['bell_spinner', 180] },
-    { id: 'sporewood', name: 'Sporewood Pools', base: 11, lake: 2000, prices: { day: 400, old: 800, extra: 1100, night: 1200, crown: 2200 },
+    { id: 'sporewood', name: 'Sporewood Pools', base: 11, lake: 2600, prices: { day: 400, old: 800, extra: 1100, night: 1200, crown: 2200 },
       legend: 'drifting_grove', legendBait: ['glowcap_bulb', 250], lure: ['sporelamp_fly', 500] },
     { id: 'glasswater', name: 'Glasswater Vault', base: 16, lake: 10200, prices: { day: 2000, old: 3200, extra: 4000, night: 4800, crown: 7500 },
       legend: 'glass_sovereign', legendBait: ['prism_moth', 1000], lure: ['mirror_shard', 2400] },

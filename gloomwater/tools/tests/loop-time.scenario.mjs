@@ -145,7 +145,8 @@ export default async function (api) {
       let seenLog = 0, t = 0;
       const logLen = () => { try { return (c.debug.audioLog?.(400) || []).filter((x) => /^coin/.test(x?.name || '')).length; } catch { return 0; } };
       const base = logLen();
-      const soldUp = () => !!T.one('[data-loop=tally] [data-action=sold]') || !!T.one('[data-action=sold]');
+      // (Sold is drawn from the start, waiting (.gw-wait) until the tally's end: a press before then only skips to the end)
+      const soldUp = () => { const b = T.one('[data-loop=tally] [data-action=sold]') || T.one('[data-action=sold]'); return !!b && !b.classList.contains('gw-wait'); };
       const wall0 = Date.now();
       while (t < maxSec) {
         const lag = wall0 + (t + 1 / 30) * 1000 - Date.now();
