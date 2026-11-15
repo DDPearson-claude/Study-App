@@ -5,14 +5,15 @@
 //   checks: each legend's length ≥ 1.4 × the longest non-legend "said to reach" in its lake; ceiling ≤ 2.8 × median;
 //   ≥ 2 giant-tail species (σ ≥ 0.16) per lake; the Elder (z 3.0) / Keeper (z 0.4) length ratio
 //   plus the value normaliser at the assumed μ mix, the resident z distribution and the class odds per μ.
-// Run from gloomwater/:  node tools/sim/roster-v3.mjs [--rows]     (--rows prints the brief §6.5 size columns)
+// Run from gloomwater/:  node tools/sim/roster-v3.mjs [--rows]     (--rows prints the brief §6.5 size columns: lengths in cm,
+// weights as the game tells them, in pounds and ounces: data.fmtWeight, docs/v3/pounds/SPEC.md; DESIGN §25.7.6's cells)
 import * as D from '../../src/data.js';
 
 const SZ = D.BALANCE_V3.size;
 const rows = process.argv.includes('--rows');
 const LAKES = ['mossmere', 'sporewood', 'glasswater', 'paleabyss'];
 const fmtL = (cm) => (cm < 20 ? `${Math.round(cm * 10)} mm` : `${Math.round(cm)}`);
-const fmtW = (g) => (g < 1000 ? `${Math.round(g)} g` : g < 100000 ? `${(g / 1000).toFixed(1)} kg` : `${Math.round(g / 1000)} kg`);
+const fmtW = (g) => D.fmtWeight(g / 1000);
 const maxCeil = {}, giant = {}, ratios = [];
 const lines = [];
 D.SPECIES_V3.forEach((sp, i) => {

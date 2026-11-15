@@ -724,3 +724,74 @@ presenter, a real river or a country: the cousins' names in §6 are docs-only, t
 - **The play's estimate.** If the lead wants a number during the play itself, only a species-independent figure is allowed: a class
   word, or the class-length ladder with one fixed `k`, which would mislead by up to a factor of 10 between an eel and a crayfish. D6
   recommends none.
+
+---
+
+## 11. As built (branch `gw-pounds`)
+
+The build follows §0–§9. What it settled, added or did differently, so the document and the code agree:
+
+**The retune went in as §6.3 wrote it, and nothing else moved.** `node tools/sim/catch-v3.mjs`, `node tools/sim/clams.mjs --quick`,
+`node tools/sim/roster-check.mjs` and `node tools/sim/roster-v3.mjs` print byte for byte what they printed at 27f2950; across all 53
+species no length, value or oil yield changed at z −2, 0, 1.04, 2.65 or 3.6. `validate-data.mjs` passes its three passes. The record,
+before → after, from the two data builds (weights of the model, `k·L³`):
+
+| species | body and k (g/cm³): before → after | at L50 | at the Trophy top | said to reach |
+|---|---|---|---|---|
+| Dusk Minnow | minnow 0.01 → minnow 0.013 | 22 cm: 4 oz → **5 oz** | Trophy top 35 cm: 1 lb 0 oz → **1 lb 4 oz** | 50 cm: 2 lb 13 oz → **3 lb 10 oz** |
+| Lampsipper | minnow 0.01 → minnow 0.013 | 26 cm: 6 oz → **8 oz** | Trophy top 42 cm: 1 lb 10 oz → **2 lb 1 oz** | 59 cm: 4 lb 10 oz → **6 lb 0 oz** |
+| Gloam Eel | eel 0.0016 → eel 0.0022 | 72 cm: 1 lb 5 oz → **1 lb 13 oz** | Trophy top 119 cm: 5 lb 14 oz → **8 lb 2 oz** | 170 cm: 17 lb 7 oz → **24 lb 0 oz** |
+| Cupbearer | minnow 0.01 → minnow 0.013 | 8 cm: ¼ oz → **¼ oz** | Trophy top 12 cm: ½ oz → **¾ oz** | 16 cm: 2 oz → **2 oz** |
+| The Belled Matriarch | legend 0.013086 → legend 0.006827 | 260 cm: 507 lb → **265 lb** | fully grown 298 cm: 761 lb → **397 lb** | — |
+| Mildew Angler | angler 0.025 → angler 0.017 | 60 cm: 11 lb 14 oz → **8 lb 2 oz** | Trophy top 107 cm: 67 lb 12 oz → **46 lb 1 oz** | 158 cm: 218 lb → **148 lb** |
+| Harpstring Eel | eel 0.0016 → eel 0.0022 | 82 cm: 1 lb 15 oz → **2 lb 11 oz** | Trophy top 135 cm: 8 lb 11 oz → **12 lb 0 oz** | 194 cm: 25 lb 12 oz → **35 lb 7 oz** |
+| The Drifting Grove | legend 0.011852 → legend 0.005556 | 300 cm: 705 lb → **331 lb** | fully grown 343 cm: 1,058 lb → **496 lb** | — |
+| Prism Minnow | minnow 0.01 → minnow 0.013 | 23 cm: 4 oz → **6 oz** | Trophy top 37 cm: 1 lb 2 oz → **1 lb 7 oz** | 52 cm: 3 lb 3 oz → **4 lb 2 oz** |
+| Shardspine Eel | eel 0.0016 → eel 0.0022 | 85 cm: 2 lb 3 oz → **3 lb 0 oz** | Trophy top 144 cm: 10 lb 8 oz → **14 lb 7 oz** | 208 cm: 31 lb 15 oz → **43 lb 15 oz** |
+| Vesper Gar | pike 0.0075 → gar 0.003 | 70 cm: 5 lb 11 oz → **2 lb 4 oz** | Trophy top 122 cm: 29 lb 13 oz → **11 lb 15 oz** | 178 cm: 93 lb 4 oz → **37 lb 5 oz** |
+| The Blind Scrivener | angler 0.025 → angler 0.017 | 64 cm: 14 lb 7 oz → **9 lb 13 oz** | Trophy top 114 cm: 82 lb 3 oz → **55 lb 14 oz** | 169 cm: 265 lb → **180 lb** |
+| Rainglass Darter | minnow 0.01 → trout 0.011 | 39 cm: 1 lb 5 oz → **1 lb 7 oz** | Trophy top 61 cm: 5 lb 0 oz → **5 lb 8 oz** | 86 cm: 13 lb 15 oz → **15 lb 6 oz** |
+| Ossuary Fry | minnow 0.01 → minnow 0.013 | 23 cm: 4 oz → **6 oz** | Trophy top 37 cm: 1 lb 2 oz → **1 lb 7 oz** | 52 cm: 3 lb 3 oz → **4 lb 2 oz** |
+| Pallid Wraithfin | ghost 0.01 → ghost 0.006 | 46 cm: 2 lb 2 oz → **1 lb 5 oz** | Trophy top 76 cm: 9 lb 10 oz → **5 lb 12 oz** | 109 cm: 28 lb 7 oz → **17 lb 1 oz** |
+| Gilt-Eyed Eel | eel 0.0016 → conger 0.004 | 131 cm: 7 lb 15 oz → **19 lb 13 oz** | Trophy top 234 cm: 45 lb 2 oz → **113 lb** | 345 cm: 145 lb → **363 lb** |
+| Funeral Veil | ghost 0.01 → ghost 0.006 | 42 cm: 1 lb 10 oz → **1 lb 0 oz** | Trophy top 62 cm: 5 lb 5 oz → **3 lb 3 oz** | 86 cm: 14 lb 1 oz → **8 lb 7 oz** |
+| Lampwarden Angler | angler 0.025 → angler 0.017 | 72 cm: 20 lb 9 oz → **14 lb 0 oz** | Trophy top 121 cm: 98 lb 13 oz → **67 lb 3 oz** | 121 cm: 98 lb 13 oz → **67 lb 3 oz** |
+| The Wax-Bearer | eel 0.0016 → eel 0.0022 | 127 cm: 7 lb 4 oz → **9 lb 15 oz** | Trophy top 209 cm: 32 lb 6 oz → **44 lb 8 oz** | 300 cm: 95 lb 11 oz → **132 lb** |
+| The Unpaid Fare | ghost 0.01 → ghost 0.006 | 87 cm: 14 lb 8 oz → **8 lb 11 oz** | Trophy top 147 cm: 70 lb 7 oz → **42 lb 4 oz** | 213 cm: 214 lb → **129 lb** |
+| Pilgrim Salmon (sporewood) | pike 0.0075 → trout 0.011 | 66 cm: 4 lb 12 oz → **7 lb 0 oz** | Trophy top 109 cm: 21 lb 5 oz → **31 lb 4 oz** | 156 cm: 62 lb 15 oz → **92 lb 6 oz** |
+| Pilgrim Salmon (glasswater) | pike 0.0075 → trout 0.011 | 76 cm: 7 lb 4 oz → **10 lb 10 oz** | Trophy top 125 cm: 32 lb 9 oz → **47 lb 11 oz** | 180 cm: 96 lb 2 oz → **141 lb** |
+| Pilgrim Salmon (paleabyss) | pike 0.0075 → trout 0.011 | 87 cm: 10 lb 14 oz → **16 lb 0 oz** | Trophy top 143 cm: 48 lb 13 oz → **71 lb 9 oz** | 206 cm: 144 lb → **212 lb** |
+| Quayling | minnow 0.01 → minnow 0.013 | 14 cm: 1 oz → **1 oz** | Trophy top 16 cm: 1 oz → **2 oz** | 16 cm: 1 oz → **2 oz** |
+
+The Threadling Eel moved to the `swampeel` key at its old constant, so its weights are the same; 31 of the 53 species keep their `k`.
+The Heavyweight was completed in play by a 24 lb 14 oz Trophy Weeping Carp (over 18 lb) during the captures.
+
+**Corrections to this document's own figures.**
+
+- §6.2's spot check "a 90 cm Gloam Eel is 3 lb 8 oz" reads **3 lb 9 oz** in the game (0.0022 · 90³ g = 1.6038 kg = 56.6 oz). The validator and
+  the tests use 3 lb 9 oz.
+- §6.2's table prints the model's weight at L50. A Fish's own figure is rounded to 10 g first (`fishWeight`, D5), so a fish of exactly
+  L50 can read one ounce off the table: a 60 cm Mildew Angler reads 8 lb 1 oz, a 66 cm Pilgrim Salmon 6 lb 15 oz.
+
+**Decisions the build took** (each can be overruled in one line):
+
+| # | what | why |
+|---|---|---|
+| B1 | The hero's live figure is laid **over** its sizer, out of the flow (`position: absolute`), not beside it in one grid cell (§3.2) | the handwriting face has no tabular figures and its ¼ ½ ¾ are wide: measured in the browser, a passing "¼ oz" was 18 px wider than a final "3 oz" and "18 lb 10 oz" 6 px wider than "24 lb 14 oz". In a shared grid cell that moved the box; laid over the sizer nothing can move (the capture scenario asserts 0 px of change in the hero's box, the stamp and the list) |
+| B2 | The hero's two parts are `<i>`, not `<span>` | `.gw-cc-stamp span` styles every span in the stamp row as a rubber stamp |
+| B3 | `.gw-cc-v3 .gw-cc-stamp` wraps (`flex-wrap`, 8 px between the rows) | on a 390 px phone a Trophy's stamp, its seal and "24 lb 14 oz" are wider than the card: the figure takes the next line (§3.2 allowed it). A Keeper's "1 lb 8 oz" still sits beside its stamp |
+| B4 | `recordLines`' sub-line says the gain **as the two figures read** ("New best: 23 lb 4 oz (was 15 lb 2 oz)" → "8 lb 2 oz past your old mark"), and falls back to the true gain only when the two read the same | `fmtWeight(Wnow − Wprev)` (§3.4) can be an ounce off the difference of the two printed figures |
+| B5 | `ui-screens.js` still calls `fmtLength` once, on the Journal's kept v1 arm (flag off, a save that carries `pbLength`) | §7 item 8 asked for none, but the v1 arm must stay character for character; the test asserts the call sits only on a `// v1` line |
+| B6 | `progression-af.approxText(D, sp, cm)` is kept and now returns the near weight | one helper for the summary's got-away lines; its test moved with it |
+| B7 | A heavy bounty saved in kg is re-told in `progression-market`'s `decorate` (every read of the ledger), not only in the ledger row | the toasts ("Bounty honoured: …") read the same text |
+| B8 | `CHALLENGES_V3` drops `params.kg` when a rewrite gives `params.lb` | the rewrite merges onto v1's params, which would have kept `kg: 8` beside `lb: 33` |
+| B9 | `BALANCE_V3.records.elderLog` lists `weight` before `cm` (was `cm`, `kg`) | §4.3's rule, in the data that names the Elder Log's fields |
+| B10 | `ui-v3.js` and `ui-af.js` import the pure helpers from `data.js` directly | they are flag-free functions; every other value still comes through the `D` each function is handed |
+| B11 | `tools/sim/roster-v3.mjs --rows` prints weights in pounds, and DESIGN §25.7.6's table was re-told from it | the table is the player-facing size sheet; the sim's default output is unchanged |
+| B12 | The captures use a new scenario, `tools/tests/pounds-shots.scenario.mjs` (1280×720 and 390×844), not `catch-shots` (§7.9) | `catch-shots` is stale since the show; the new one also checks the card in the DOM (the hero, the length line, no kg, the count never falling, nothing moving or overflowing) |
+
+**Checked in the browser** (the risks of §10): the handwriting face draws its own ¼ ½ ¾ (measured against the fallback faces: different
+advances), so no body-font span is needed; the docked desktop card and the 390 px phone card hold "24 lb 14 oz" without overflow.
+
+**Not done here:** `docs/loop/QUEUE.md` job 3 is left for the lead to mark at the merge. The loop's rules (§5) are written into
+`docs/loop/SPEC.md`; there is no loop code yet to apply them to.

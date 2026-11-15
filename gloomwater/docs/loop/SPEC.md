@@ -683,7 +683,7 @@ On a river, each place sits on one of the river's own forms (a pool, an undercut
 ### 5.4 The Chart (the Map Table)
 
 - One sheet per water you own, side by side by reach; the next water is the rolled, sealed sheet at the end with its price.
-- A sheet is the water's outline in ink. Owned places are small vignettes with their glyph and name. Unowned places are mist blots with a glyph and a price. Under each owned place: your best fish there (species glyph, cm), and a gold ★ once you have landed its giant.
+- A sheet is the water's outline in ink. Owned places are small vignettes with their glyph and name. Unowned places are mist blots with a glyph and a price. Under each owned place: your best fish there (species glyph, its weight in pounds: across species the best is the heaviest, `data.fishWeight`), and a gold ★ once you have landed its giant.
 - **One action:** tap a water (a place, or open water), then **Sail**. Tapping a blot or the rolled sheet opens Murk's card for it.
 - Below the sheet: the lure slot and the bait slot (two glyphs, a count on the bait), and the hold's slots.
 - First it is a screen (slice 1a: a list of sheets; slice 2: the drawn sheet). When the Landing is built it is the Map Table's top (§6.1).
@@ -734,7 +734,7 @@ No home upgrade changes what a fish is worth except an order, and no upgrade any
 
 You sell what you keep, so nothing is mounted. Instead, at the measure (records are written at the seal stamp, before the card) the Wick takes an **ink print** of the fish. The print is yours whether the fish is kept or let go.
 
-- The Journal keeps the best print per species (length, class seal, where, which evening), and a page of the 49 giants: a dark outline until landed, then its print in a gold frame.
+- The Journal keeps the best print per species (weight in pounds, with the length as its small line in cm; class seal, where, which evening), and a page of the 49 giants: a dark outline until landed, then its print in a gold frame.
 - A Long Wall wing hangs those prints at true size. Until a wing is bought the prints live in the Journal only.
 - The class seals (Prize, Trophy, Elder per species; §25.7.4) and the 49 giants are the long goals after the shelf is empty.
 - The Live Well, "mark for home", mounts and the keep-pond are parked (§9).
@@ -777,7 +777,9 @@ You sell what you keep, so nothing is mounted. Instead, at the measure (records 
 
 ### 8.2 The catch card
 
-After the Wick has held the fish up and paused: the built card (name, class stamp and length as the hero, the record kicker in a few words). A giant's card has a gold ★ before its name and its seal stamped in gold.
+**Every size on screen is a weight in pounds** (the user, 15 November 2026: "we always use pounds as a gauge of fish size"; `docs/v3/pounds/SPEC.md` §5, DESIGN §25.7.1): `11 oz`, `4 lb 6 oz`, `212 lb`, from the one formatter `data.fmtWeight` on `data.fishWeight(species, fish)`. That holds for the card, the tally, the ink print, the Chart's best fish, any size a hold slot shows and any size in a Murk's order (a round target from `data.weightTarget`, checked on the whole ounces the card shows). Length stays the hidden truth: value (§4.1) still reads `L50` and z, never weight, and the one length shown is the card's small line in cm.
+
+After the Wick has held the fish up and paused: the built card (name, class stamp and **weight** as the hero, counting up; the length as a small line in cm; the record kicker in a few words). A giant's card has a gold ★ before its name and its seal stamped in gold.
 
 | button | words |
 |---|---|
@@ -792,7 +794,7 @@ Gone from the card: Eat, Render, Release's luck, Mark for home, the Strike line 
 | step | what happens | words |
 |---|---|---|
 | the sail home | a 2 s glide; the sky pales to dawn | none |
-| **the tally** | the fish go onto Murk's scale one by one, biggest last; each value ticks up with a coin sound; then the total. A giant goes last, alone, with a longer pause. A fish that filled an order shows a chalk tick and its value doubles; from slice 9 a ledger glyph does the same for the Old Ledger. | fish names (small), values, the total "+193", one button: **Sold** |
+| **the tally** | the fish go onto Murk's scale one by one, lightest first and **heaviest** last (by the weight the card showed); each shows its weight (small, dim ink) and its value ticks up with a coin sound; then the total. A giant goes last, alone, with a longer pause. `endTrip()` stores each fish's weight with the result, so a replayed tally shows what was weighed. A fish that filled an order shows a chalk tick and its value doubles; from slice 9 a ledger glyph does the same for the Old Ledger. | fish names and weights (small), values, the total "+193", one button: **Sold** |
 | an empty hold | nothing to weigh | Murk: "Nothing? The water keeps its own counsel. Go again." |
 | the Jetty | three tiles and the goal line | **Murk** · **Chart** · **Journal** · "Next: Hold 4 · 30" |
 
@@ -1079,7 +1081,7 @@ Before any UI, a **node-level trip harness** (`tools/tests/loop-trip.test.mjs`) 
 | `hours` | `time` (a window list) | "day" → day, dusk · "dusk" → dusk, night · "night" → night · "day, dusk" and "dusk, night" as written · "any" → all · "any, best at night" → all, ×1.5 after dark (§3.4) |
 | `haunt` | `depth` | any depth under the loop (the sim has no cast depth); the haunt text stays for the Journal |
 | `favours` | `baits` (Hold list) and `bait` (bait-only) | a tin named in the text is a Hold bait; "bites on X only" makes X its only bait |
-| `sizeModel` | `size` | `L50`, σ and the class ladder as the roster gives them |
+| `sizeModel` | `size` | `L50`, σ and the class ladder as the roster gives them. **`size.k` is the body plan's**: `BALANCE.size.k[bodyPlan]` (validate-data keeps "a species' k equals its body constant"), each plan's constant set from a real cousin's weight at the plan's typical length (`docs/v3/pounds/SPEC.md` §6.4). A fish whose own cousin is more than ±30% off its plan gets **its own named body key** (as `trout`, `gar`, `conger` and `swampeel` were split off), never a per-fish number in `roster.json`. A legend carries an authored `W50` (kg, the cousin's weight at its first-landing length) through `legendSize(L50, W50)`, re-derived as `k·L50³` when the roster's `L50` differs from the built one. The cousin's reference weight lives in a docs-only roster field, `refWeight: {cm, kg, source}`, which is **not** on the allow-list; `roster-check.mjs` gains the ±30% rule |
 | `water` (a list) | `zones` (a list) | a fish of two waters (the Lampspot Snakehead) has both |
 | `place`, `placeName`, `giant` | `kind`, `place`, `giant` | as the roster, except the eleven moves of §5.2 |
 | built `cond` (§25.8 place conditions: deed, reflection, plumbBottom …) | — | ignored under the loop |

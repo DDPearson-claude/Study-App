@@ -321,7 +321,7 @@ joins the climax at the present.
 | each flap | `show_flap`: a wet slap, by the fish's length (lane A emits `show:beat {kind: 'flap'}`) |
 | hold | `show_drip`: sparse drips on wood |
 | pause | nothing new: the bed and the lake |
-| card | the unfold; `cord_tick` rising under the length as it counts up; `seal_stamp` on the stamp's press; the coin ticks (as today) |
+| card | the unfold; `cord_tick` rising under the weight as it counts up; `seal_stamp` on the stamp's press; the coin ticks (as today) |
 
 `fish:measured` no longer plays the cord or the seal by itself, and `fish:landed`'s fanfare no longer waits for a stamp.
 
@@ -333,7 +333,8 @@ joins the climax at the present.
 - **The measuring overlay is retired** on the automatic-fishing path: no ink band, no ruler, no class words, no count, no
   banner, no "tap to skip". `ui.showMeasure` is never called; `fishing.view.measure` stays `null`; `ui-measure.js` keeps one
   duty, holding the card back until `view.show.phase === 'card'`.
-- **What moved onto the card** (§2.10): the length **counts up** beside the class stamp, which **presses** after it; your best
+- **What moved onto the card** (§2.10): the weight **counts up** beside the class stamp (in pounds and ounces since
+  `docs/v3/pounds/SPEC.md`; the length is the card's small line in cm), which **presses** after it; your best
   and the Old Ledger are **two knots on the card's ruler line** (marks, no words: oxblood and black); the record is the card's
   kicker, as it already is ("A new personal best", "Old Ledger beaten", "Your first Trophy"); an Elder's name is the card's
   epithet, as it already is. "(was 20 cm)" moves behind "more".
@@ -345,7 +346,8 @@ joins the climax at the present.
 - **Opens from the fish.** Its ink wash grows from the screen point of the held fish's centre (`fishing:show {phase: 'card',
   origin: {x, y}}` → the modal's transform origin; 0.32 s), the content fading in behind it. On a phone it rises from the foot
   as it does today and the picture stays in the open top of the frame.
-- **Content: today's decluttered card**, no new words. The hero length counts 0 → its figure in 0.5 s, the stamp presses at
+- **Content: today's decluttered card**, no new words. The hero weight counts 0 → its figure in 0.5 s (in the final's own band:
+  ounces, then pounds and ounces; a giant in whole pounds; driven by the length, so the bead and the ticks run as before), the stamp presses at
   0.55 s, the two knots tick onto the ruler; the worth's coin count follows as today.
 - **Behind the card** the Wick keeps presenting (breathing, a twitch now and then at a third of the hold's strength).
 - **The action closes it**: `fish:action` → `actors.endShow({action})`: keep: the fish drops into the creel; eat / render:
@@ -618,7 +620,7 @@ Where the merged build differs from §2 – §6, the build is the truth; every n
 - **The clean frame**: the measuring overlay is retired (`ui-measure.js` keeps `holding()` / `phase()` / `takeOrigin()`;
   `ui.showMeasure` is a no-op; `view.measure` stays null); world, HUD, fx, banner and toast layers take `.gw-showhide` during the
   show and toasts, tips, banners and level-up pickers wait for the card.
-- **The card** unfolds from the fish's screen point (paper first, the ink ≈ 160 ms later), the length counts up, the class stamp
+- **The card** unfolds from the fish's screen point (paper first, the ink ≈ 160 ms later), the weight counts up, the class stamp
   presses after it, personal best and Old Ledger are two knots on its ruler. Sounds: `show_lift`, `show_present`, `show_flap`,
   `show_drip`, a hush at the pause, the cord's ticks on the count and the seal on the stamp; the fanfare no longer fires at
   `fish:landed` during a show.
