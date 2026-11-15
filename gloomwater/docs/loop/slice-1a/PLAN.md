@@ -43,6 +43,13 @@ rule, so step 5 adds the barge at the dock 1a already uses, turns the three tile
 scene, and starts the opening at the Landing (drawn on the Chart) with the first tow; nothing 1a builds is thrown away. The
 Jetty's lore gap (R22) closes there. Amended in place: §0's §7.1 row, R22, CHOICE 44, §7.1, §7.2, §7.3 (each says "(rev. 8)").
 
+**v8 additions (SPEC v8 §5.5, the three keys to a new water, the user's rule of 14 November 2026).** Slice 1a gains only
+the data shape `LOOP.access` and `shelfAt[6] = 9` (lane A, §3.1), the pure `listFor` / `listCount` and `isOpen` (lane A,
+§3.3), the Mossmere's Journal count (lane C, §2.3 item 5) and tests T81–T84 (§1.2; T76–T80 are `WICKS.md`'s); T45's wording and `game.sail`'s note
+read "open" for "owned". Nothing is gated in 1a (only the Mossmere is open), so its behaviour and the opening are unchanged.
+Every addition is marked **v8** where it appears. The gate, the pull, the seals and Murk's two lines come later: SPEC §5.5 (h)
+says what each needs, and M1's plan places them.
+
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
 three conflicts with `gw-show`. Lane A then writes the **seam commit S** on M (§2.0: the data tables, the switch,
@@ -200,7 +207,7 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T42 | the sim reads `data.LOOP` and fails if a moved key is still drafted | A · clams.mjs |
 | T43 | no `/shells?/i`, no "Memories", no "Descent" in the DOM on a loop trip, at the gate, at the Jetty, on the shelf, on the tally, in the pause menu and on the Journal's species page; and an **allow-list**: on the water's HUD, the card, the tally, the Jetty, the shelf, the Chart, the title and the pause menu, every visible text node is a `TEXT_LOOP` string, a species name, a size-class label, a number (a weight as `data.fmtWeight` prints it, with its "lb" / "oz"; the card's one length with "cm"; or a number with a clam glyph: (pounds) no "kg", and no "cm" anywhere but the card's length line), a built record kicker or the card's built "length" label (the logotype and the Settings panel are exempt). (rev. 3) The allow-list also takes a water's name (the Chart's row), the five Wicks' `CHARACTERS[].name`, `TEXT_LOOP.wicks.*`, `TEXT_LOOP.start`, `TEXT_LOOP.newDescent`, `TEXT_LOOP.murk.wake`, `TEXT_LOOP.back`, the built **Prologue** word (`INTRO.trigger.replay.word`) and `FIRST_EVENING.tips.fe_cast` / `fe_strike`; the New Descent panel joins the scanned screens; "New Descent" is allowed on the fresh title and the panel only. (rev. 4) The home pause (`homepause`, **Resume** · **Settings**) joins the scanned screens; the Settings panel stays exempt | D · scenario; C · ui-loop (the allow-list helper) |
 | T44 | (rev. 3) a fresh loop save: New Descent → `[data-wick]` → Start → the film → the Jetty in flow `home`, the raft at the first dock, the wake line at the Jetty and Murk's first line at the Chart | D · scenario; B · loop-evening (`startRoute({loopOn: true, intro: true}) === 'home'`, `startRoute({loopOn: true}) === 'trip'`, `startRoute({loopOn: false})` is the built route) |
-| T45 | `createTrip` refuses a water not in `meta.loop.maps.lakes` (falls back to `maps.lakes[0]`) | A · loop-trip |
+| T45 | `createTrip` refuses a water that is not open (**v8, SPEC §5.5**: `isOpen(zone)`; in 1a only the Mossmere is open, so it behaves exactly as "not in `meta.loop.maps.lakes`") and falls back to `maps.lakes[0]` | A · loop-trip |
 | T46 | the gate is scenery: with the raft at the gate on a trip, `player.interact()` opens no modal and returns false, `player.interactable` is null for the gate and Murk's barge, no `gate:open` over 60 s (even with `run.legendaries.belled_matriarch` set), `getGateInfo().open === false`; `ui.openDescend()` does nothing while `loopOn()` | B · loop-evening; A · loop-trip (`evaluateGate`/`openGate`/`travel` inert); C · ui-loop |
 | T47 | the Journal's species page on the loop: an entry with `firstEvening: 3` reads "Evening 3" and contains no "Day" and no "descent"; off the loop the built line is unchanged | C · ui-loop |
 | T48 | a reload in the middle of a play loses no bite: `noteBite` opens `run.flags.openBite`; a save taken in the reveal or the lift and reloaded refunds it (`bitesSpent` equals the value before the bite); a save taken with the card open reopens the card and refunds nothing | A · loop-trip |
@@ -231,6 +238,10 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T73 | (rev. 4) Escape and Settings at home: on the Jetty (and during the tutorial's wake and chart beats) Esc opens `homepause` with exactly **Resume** and **Settings**; on a phone the quiet pause glyph (`[data-loop=homepause]`, the built pause glyph, no word, ≥ 44 px, top-left under `--sat`) opens the same panel; Settings opens over it and Done returns to it; Resume returns to the Jetty; the tutorial's clock does not move while `homepause` or `settings` is on top; a home glide (arrive or sail out) is skipped, not paused, by Esc | C · ui-loop (the modal options, the clock rule with `loop-tutorial`); D · scenario (both sizes) |
 | T74 | (rev. 4) Settings under the loop: no **Damage numbers** row, no "Softer flares and hit flashes" line; the strike-ring option reads `TEXT_LOOP.settings.ringFirst` ("First evening") and the hurry row's line `TEXT_LOOP.settings.hurry`; the Forget row's words are `TEXT_LOOP.forget`; off the loop every row and word is as built | C · ui-loop; D · scenario |
 | T75 | (rev. 4) the Wicks in the sim: `clams.mjs` runs its 1 h clams check and its choosy check once per `LOOP.wicks` entry, applying the traits the sim models (Taper's strike window, Tallow's and Ashwick's Hold); every Wick passes the same bands; the traits it cannot model (cast distance, raft speed, light) are printed as "not modelled" | A · clams.mjs |
+| T81 | **v8 (SPEC §5.5, the three keys).** `listFor(D, 'mossmere')` on loop data is exactly the six built phase-1 open-water fish (Dusk Minnow, Mossback Perch, Gutter Crayfish, Weeping Carp, Candlefin Koi, Reedjaw Pike), computed by the rule of SPEC §5.5 (c), never listed: the Gloam Eel (Lumen Moss only) and the Belled Matriarch (a legend) are not on it; `isOpen('mossmere') === true` and `isOpen('sporewood') === false` on a fresh `meta.loop` | A · loop.test |
+| T82 | **v8.** `listCount(meta, D, 'mossmere')` counts `num(journal[id].caught) > 0` only (SPEC §5.5 (c)): a Glimpsed entry (`seen`, `caught 0`) does not count, nor an entry with `caught 0` and no `seen` (the built `caughtOf()` would count it); a fish let go counts (its measure writes the entry, T4); an entry already in an old save's Journal counts, on a page the loop hides as on one it draws (`M1.md` §2.11: a v3 save that landed the six opens at "6/6") | A · loop-trip |
+| T83 | **v8.** Under `loopOn()` the Journal's Mossmere tab badge reads `listCount` as "n/6" and the list's six cards come first, each with its notch (empty until landed), a missing one drawn as the built silhouette with "· · ·", its hour glyphs and its place glyph and no hint sentence; the Mossmere's other species follow after a thin rule, outside the count. Off the loop the built badge (every species) and grid are unchanged. The Journal still passes T43's word scan | C · ui-loop |
+| T84 | **v8.** `validate-data --loop`: every `LOOP.access.gear` id names a shelf item that exists in `LOOP` (1a: `sporewood: 'rod:1'`); `LOOP.access.pull` has `perEvening`, `cap`, `keeperFloor`, `floorFrom`, `sureFrom`; `LOOP.tackle.shelfAt[6] === 9` | A · validate-data |
 
 ---
 
@@ -300,7 +311,7 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
    (`LOOP()` = `D().LOOP_ENABLED === true && run()?.outing === 'trip'` or, for run-less calls, `D().LOOP_ENABLED === true`):
    - `createRun` (309): first line `if (D().LOOP_ENABLED === true) return loop.createTrip({startZone, character})`. `createTrip`
      builds the built run skeleton (the `r` literal at 330–344, `uid('run')`) and then sets: zone = `startZone` if in
-     `meta.loop.maps.lakes` else `maps.lakes[0]`; `outing 'trip'`; `nightMode 'still'`; (rev. 3) `character = D().loopWickId(meta.loop.wick)` (a `LOOP.wicks` id, else `'wick'`;
+     `meta.loop.maps.lakes` (v8: if `isOpen(startZone)`; the same set in 1a) else `maps.lakes[0]`; `outing 'trip'`; `nightMode 'still'`; (rev. 3) `character = D().loopWickId(meta.loop.wick)` (a `LOOP.wicks` id, else `'wick'`;
      never through `characterUsable`'s trial check); `shells 0`;
      `boons {}`; `upgrades {}`; `lures {}`; `bait = {...meta.loop.bait[zone]}` (empty in 1a); `equippedBait = null`;
      `equipped = null`; `creel []`; `bites {}`; `mercy {}`; `evening = meta.loop.evenings + 1`; `tally {dawns: 0, stillNights:
@@ -804,6 +815,13 @@ the stager has nothing to swap.
      built settings, §8.5). No Journal, Trials or Title quick links, no Abandon, no boons list (**PLAN CHOICE 12**).
    - **`openJournal`**, the species page (M:1345): under `loopOn()` the "First" cell reads `Evening {entry.firstEvening}`
      (or "—"), with no "Day" and no descent clause; the built text stays off the loop (SPEC §3.4, §10 "Evening N").
+   - **v8 (SPEC §5.5 (f), the three keys), `openJournal`'s grid** (M:1218–1300), under `loopOn()` only: the Mossmere tab's
+     badge is `ctx.progression.loop.listCount('mossmere')` as "n/6" (not the built count of every species); the list's cards
+     (`listFor`) come first, each with a small notch in its corner (an empty ring until landed, pressed after); a missing one
+     keeps the built silhouette and "· · ·" and gains its hour glyphs (`ICONS.sun`, `.moon`; dusk as both, half-lit) and its
+     place glyph (none for open water in 1a), with no `hintFor()` sentence; the other Mossmere species follow after a thin
+     ink rule, outside the count. "Known" for the count is `caught > 0` (an old save's catches included), never the built `caughtOf()`. Off the loop the
+     built grid is untouched. No Chart seal, no card seal and no new `TEXT_LOOP` string in 1a (M1's plan places them). T83.
    - **`openDescend`** (M:1639) returns at once while `loopOn()` (the gate is scenery).
    - Export the closures `panel`, `btn`, `tabs`, `fishCanvas`, `murkSay` additively as `parts` in the return object
      (gw-show:1781), for ui-loop.
@@ -962,7 +980,12 @@ export const LOOP = {
            // the roster's hour strings only; a built string ('calm', 'gloom', 'dawn') keeps the built timeOk rule (PLAN CHOICE 24)
   tackle: { price: [0, 50, 300, 1200, 6000, 32000, 100000], extraHold: { rod: [15, 18], line: [16, 19], reel: [15, 18] },
             names: { 5: ['Bellwether', 'Starthread', 'Moonwheel'], 6: ['Crown-Reed', 'Kingshair', 'Last Wheel'] },
-            shelfAt: [1, 1, 1, 2, 3, 4, 10] },      // the water (catalogue order) whose map puts a tier on the shelf; 1 = start
+            shelfAt: [1, 1, 1, 2, 3, 4, 9] },       // the water (catalogue order) whose map puts a tier on the shelf; 1 = start
+                                                     // (v8: T6 with the slot-9 map, the Waxen Reef, SPEC decision 37; no 1a shelf change)
+  access: {                                          // v8 (SPEC §5.5 (g)), lane A: the three keys' data shape; inert in 1a (nothing is gated)
+    gear: { sporewood: 'rod:1' },                    // a water's gear key, as a shelf buy id; each later slice adds the waters it ships
+    list: { kinds: ['open', 'day', 'old'], plainBaitOnly: true },   // the list rule (SPEC §5.5 (c)); members are computed by listFor, never listed
+    pull: { perEvening: 1, cap: 6, keeperFloor: -0.25, floorFrom: 1, sureFrom: 8 } },   // the pull (SPEC §5.5 (d)); read from slice 1b
   waters: { mossmere: { order: 1, tier: 7, prices: { day: 60, old: 150, night: 260, crown: 500 } } },
   time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 0 },   // show 0 after gw-show: PLAN CHOICE 15; T37 rewrites
 };
@@ -1040,6 +1063,9 @@ export function goalOf(items) → { id, name, price } | null;   // the cheapest 
 export function tallyLines(creel) → TallyLine[];         // (pounds) ascending by the weight the card shows (data.weightOz of data.fishWeight(species, line);
                                                          // ties by clams, then catch order); giants and legends last (a giant alone, last). A line keeps
                                                          // the fish's length, never a weight: the weight is derived wherever it is shown
+// v8 (SPEC §5.5), lane A: the list, pure and shared with the sim
+export function listFor(D, waterId) → speciesId[];      // the water's list by SPEC §5.5 (c): in 1a the Mossmere's six built phase-1 open-water fish
+export function listCount(meta, D, waterId) → { have, need };   // have = listed ids with num(meta.journal[id]?.caught) > 0 (never the built caughtOf); an old save's catches count
 ```
 
 `createLoop(S)` → the object exposed as `ctx.progression.loop` (null off the loop). Every method calls `ensureLoop()` first
@@ -1070,6 +1096,8 @@ export function tallyLines(creel) → TallyLine[];         // (pounds) ascending
   refundOpenBite() → boolean,                            // on Continue (restorePending, before the card reopens): if run.flags.openBite is set
                                                          // and no pendingCatch fish carries its key, bites[key] − 1 (floor 0); PLAN CHOICE 27
   debugGive(n) → number,                                 // debug builds only: meta.loop.clams += n, requestSave; returns the purse
+  isOpen(waterId) → boolean,                             // v8 (SPEC §5.5): in 1a true only for 'mossmere' (meta.loop.opened, the gate and the pull come later, SPEC §5.5 (h))
+  listCount(waterId) → { have, need },                   // v8: the pure listCount on this save, for the Journal badge (C reads it)
   createTrip({ startZone, character }) → Run,            // §2.1 item 6
   endTrip() → TallyResult | null,                        // §3.4
   lastTrip() → TallyResult | null,  markTallySeen(id) → void,
@@ -1157,7 +1185,7 @@ Marked Fish, `meta.intro` (by `gw-intro`). `core.defaultMeta()` gains no key.
 
 ```js
 game.startNewRun(opts)      // LOOP: opts.__intro → enterHome('intro'); else startTrip(opts)
-game.sail({ water, place }) → boolean     // the Chart's Sail; refused while a trip is saved or flow ∉ {home, title}
+game.sail({ water, place }) → boolean     // the Chart's Sail; refused while a trip is saved or flow ∉ {home, title}, or (v8) the water is not open (1a: always open)
 game.canGoHome({ fromPause }) → { ok, why }   // why ∈ 'play' | 'show' | 'card' | 'note' | 'flow' | null
 game.goHome() → boolean                   // cancels a waiting line, then endRun('home'): endTrip pays and saves, then the 2 s glide
 game.toHome() → void                      // the title's Continue at home (enterHome('title'))
@@ -1381,7 +1409,7 @@ imported.
   `loop-fixture.mjs` loads the loop data in node; esbuild bundles. Handed to the stager before anything else.
 - **A:** `node tools/validate-data.mjs` (four passes, `--loop` included); `node tools/check.mjs --quick` green including
   `loop.test.mjs` and `loop-trip.test.mjs` (T1, T2, T4–T8 counting, T10–T12, T18–T25, T28, T29, T33–T35, T38–T42, T45, T46
-  progression side, T48, T51, T53, T55 counters);
+  progression side, T48, T51, T53, T55 counters; v8: T81, T82, T84);
   `node tools/sim/clams.mjs --quick` all checks (or a stated list of what moved and why, §6.4); `node tools/sim/
   roster-check.mjs`; `progression*.test.mjs` unchanged and green; rev. 3: T53 as amended, T60 (progression side), T61, T67
   (migrate), T72; rev. 4: `loopWickId` and `sailPlan` (T60, T66), T75.
@@ -1395,7 +1423,7 @@ imported.
   unless a once-line is due), `pillHold` (0.6 s), the allow-list helper, the modal options of T57, the keys of T58, T47,
   T54, every string from `TEXT_LOOP`; rev. 3: `titleModel` and `descentModel` (T59, T62), the tips of T68, the Forget words
   of T69, the held panel of T71; rev. 4: the home pause of T57 and T73, the Settings rows of T74) and
-  `loop-tutorial.test.mjs` (T65);
+  `loop-tutorial.test.mjs` (T65); v8: T83 in `ui-loop`;
   `ui-v3`, `ui-af`, `ui-screens-v3`, `ui-show` unchanged and green; esbuild bundles.
 - **D:** both scripts parse (`node --check`) and dry-run their pure helpers; every selector and hook they use is named in §3.6.
 - **Every lane** reports, in its hand-off, which checks it ran and the summary lines, and any cross-file request still open.

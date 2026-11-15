@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // tools/sim/clams.mjs — the clam economy of the Full Hold (docs/loop/SPEC.md, DESIGN §26), rebuilt on the roster.
 //
-// What it proves (89 checks; exits 1 if any fails):
+// What it proves (166 checks; exits 1 if any fails):
 //   0. every roster fish lives on at least one map; one legend per water; one giant per place;
 //   1. fish values by water, rarity and size class under the value rule, and that the rare giants top every water's ladder;
 //   2. the anti-grind rule: with "the water goes quiet", waiting for giants never beats fishing naturally; and "let go" is a real
@@ -13,7 +13,15 @@
 //      step and raft part pays its way, and a new water is the best water from the day its map is bought;
 //   6. the next map is always worth having: no lake map is a downgrade on the day you buy it (its open, day and old water pay
 //      ≥ 1.05× the water before it fully mapped), every water fully mapped pays ≥ 1.2× the one before, every place map raises
-//      clams a minute by ≥ 5%, and no set of a water's places pays more than the next water fully mapped.
+//      clams a minute by ≥ 5%, and no set of a water's places pays more than the next water fully mapped;
+//   7. the three keys (SPEC v8 §5.5): a water opens with its lake map, its gear key and one of each fish on the list of the water before
+//      it, landed (kept or let go). Every gear key is on the shelf before its map and owned before it in the pacing run; every list has
+//      ≥ 4 fish that bite on the water's plain bait; with the pull (the mercy) and the Journal route the slow player in twenty lands
+//      each list in ≤ 60 min and the slowest in a hundred in ≤ 75; under 5% of players still have a list open when the next map and its
+//      gear are owned; the pull's windfall is ≤ 15 min of income an era; no bought map waits sealed more than 30 min; a fresh save's
+//      first trip is untouched; everything is bought in 45–52 h. Section 5's pacing run is gated the same way (a water is fished only
+//      once it is open; a list is taken as landed at its 95th-percentile time). Giants, legends and the fish of places bought later
+//      are never on a list; a place map needs only clams.
 //
 // Where the fish come from: docs/loop/roster.json (164 fish: rarity, water, place kind or a giant's own place, hours, family,
 // play style, size model) plus the built species the roster keeps beside them (src/data.js SPECIES_V3, roster §5 "kept as they
@@ -25,10 +33,10 @@
 // ladder, quiet water, the evening, the 16 waters' value tiers and Fight terms, tackle T5–T6, the map catalogue and every price.
 //
 // Run from gloomwater/:
-//   node tools/sim/clams.mjs            everything (about 25 s)
-//   node tools/sim/clams.mjs --quick    fewer trips per row (numbers move by a few percent; about 20 s)
+//   node tools/sim/clams.mjs            everything (about 80 s)
+//   node tools/sim/clams.mjs --quick    fewer trips per row (numbers move by a few percent; about 55 s)
 //   node tools/sim/clams.mjs --md       the tables as markdown (for SPEC.md)
-//   node tools/sim/clams.mjs --fish     Appendix A: every fish of every water with its values (markdown)
+//   node tools/sim/clams.mjs --fish     Appendix A: every fish of every water with its values and its list mark (markdown)
 //   node tools/sim/clams.mjs --json     the LOOP draft tables as JSON
 //   node tools/sim/clams.mjs --calibrate  the value tiers that satisfy section 6's two ladder rules (with a 2-point margin)
 // Deterministic: every row has its own fixed seed. Exits 1 if a pacing target, a ladder rule or the anti-grind check fails.
@@ -141,7 +149,7 @@ export const LOOP = {
   kept: { weight: 3, live: 0.5 },                         // a built place's own species (not a giant): a rare's weight × 3, half the time
   // ---- tackle: one price per tier per slot (Rod, Line, Reel bought separately); T5 and T6 are new (their Hold below); no proof catches
   tackle: { price: [0, 50, 300, 1200, 6000, 32000, 100000], extraHold: { rod: [15, 18], line: [16, 19], reel: [15, 18] },
-    names: { 5: ['Bellwether', 'Starthread', 'Moonwheel'], 6: ['Crown-Reed', 'Kingshair', 'Last Wheel'] }, shelfAt: [1, 1, 1, 2, 3, 4, 10] },   // shelfAt: the water whose map puts it on the shelf
+    names: { 5: ['Bellwether', 'Starthread', 'Moonwheel'], 6: ['Crown-Reed', 'Kingshair', 'Last Wheel'] }, shelfAt: [1, 1, 1, 2, 3, 4, 9] },   // shelfAt: the water whose map puts it on the shelf (v8: T6 with the slot-9 map, so Rod T6, the Thunder Stair's gear key, can be bought before its map)
   waters: makeWaters(),
   // ---- the giants' lures: the four built ones are re-aimed at their lake's giants; one new lure per new water (+10 Hold, attract ×1.5)
   giantsLures: {
@@ -188,6 +196,22 @@ export const LOOP = {
   // ceremony. docs/loop/slice-1a/PLAN.md, PLAN CHOICE 15)
   time: { out: 14, between: 8, raftSpeed: 6, home: 6, sale: 8, shop: 16, pass: 0.9, show: 0 },
   player: { clams: 0.9, time: 1.25, orderGain: 0.06 },
+  // ---- the three keys (SPEC v8 §5.5): a water opens for sailing with its lake map, its gear key and the list of the water before it
+  access: {
+    // the gear key of every lake map: a shelf buy id, held when the owned level is at least the key's (no new item: tackle, raft and hold as priced above)
+    gear: { sporewood: 'rod:1', glasswater: 'rod:3', paleabyss: 'rod:4', rime_sound: 'reel:5', thin_water: 'oars:2', last_light: 'keel:3',
+      pyrefall_gorge: 'line:5', waxen_reef: 'rod:5', thunder_stair: 'rod:6', rushlight_fen: 'line:6', salt_gate: 'reel:6',
+      lampmoss_slough: 'lantern:1', siltway: 'keel:2', lanternroot_lagoon: 'lantern:2', inkwood: 'hold:8' },
+    // the list rule: a water's open-water fish and the fish of the day and old water its lake map opens, on its plain bait; the members are computed (listFor), never listed
+    list: { kinds: ['open', 'day', 'old'], plainBaitOnly: true },
+    // the pull (the mercy): a listed fish not yet landed bites at weight × min(cap, 1 + perEvening × n), n = evenings ended at that water with its list open;
+    // from n ≥ floorFrom it never bites Small (z ≥ keeperFloor); from n ≥ sureFrom the first bite at each place and in open water, in a light where a missing
+    // fish bites there, is one of them. floorFrom is 1 (the sim's re-tune): the first evening at a water is the natural rule untouched, so a fresh save's first
+    // trip keeps its length and its bite after dark (with the floor from the first evening the hold filled early and 39% of first trips saw the night, not 63%)
+    pull: { perEvening: 1, cap: 6, keeperFloor: -0.25, floorFrom: 1, sureFrom: 8 },
+    // what section 7 holds every list to: the time to land it at the kit the water opens with, on the Journal route with the pull (pacing minutes, the visit home included)
+    target: { p95: 60, p99: 75, stillOpen: 0.05, extraWait: 5, windfall: 15, sealed: 30, minList: 4, hours: [45, 52] },
+  },
 };
 const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));
 // places and giants are matched to waters by index (roster.json waters[i] and LOOP.waters[i]), species by name: the two lists must agree
@@ -268,6 +292,35 @@ for (const W of LOOP.waters) {
 const LURE_NAME = Object.fromEntries([...D.LURES.map((l) => [l.id, l.name]), ...Object.values(NEW_WATER).map((w) => [w.lure[0], w.lure[1]])]);
 
 // =====================================================================================================================
+// the three keys (SPEC §5.5): the list of a water, computed from the fish above
+// =====================================================================================================================
+/** Why a fish is on its water's list or not: 'list' (on it), 'tin' (it bites only on a tin that is not the water's plain bait),
+ *  or 'off' (a giant, a legend, the never-hooked, or a fish of a place the lake map does not open). */
+export function listMark(s) {
+  const W = WATER[s.water], R = LOOP.access.list;
+  if (s.giant || s.legend || s.never) return 'off';
+  if (s.ownPlace) { const P = PLACE[s.ownPlace]; if (!P.inLake || !R.kinds.includes(P.kind)) return 'off'; }
+  else if (s.kind !== 'open' && !(R.kinds.includes(s.kind) && W.places.some((p) => p.inLake && p.kind === s.kind))) return 'off';
+  else if (s.kind === 'open' && !R.kinds.includes('open')) return 'off';
+  return R.plainBaitOnly && s.bait && s.bait !== W.plainBait ? 'tin' : 'list';
+}
+const LISTS = new Map();
+/** A water's list (the next water's catch key): the ids of its open-water fish and of the fish of the day water and old water its lake map
+ *  opens (their own fish included), each only if it bites on the water's plain bait. The Mossmere has no lake map: its open water only. */
+export function listFor(waterId) {
+  if (!LISTS.has(waterId)) LISTS.set(waterId, WATER[waterId].species.filter((s) => listMark(s) === 'list').map((s) => s.id));
+  return LISTS.get(waterId);
+}
+/** The gear key of a water's lake map as { slot, level, id, price, shelfAt }: shelfAt is the water whose map puts it on the shelf (1: from the start). */
+export function gearKey(waterId) {
+  const id = LOOP.access.gear[waterId]; if (!id) return null;
+  const [slot, lv] = id.split(':'), level = +lv;
+  const tackle = slot === 'rod' || slot === 'line' || slot === 'reel';
+  const price = tackle ? LOOP.tackle.price[level] : slot === 'hold' ? LOOP.hold.ladder.find((h) => h.slots === level).price : LOOP.raft[slot].prices[level - 1];
+  return { id, slot, level, price, shelfAt: tackle ? LOOP.tackle.shelfAt[level] : 1 };
+}
+
+// =====================================================================================================================
 // value, land chance, bite pools
 // =====================================================================================================================
 const bodyOf = (sp) => { const B = LOOP.value.body; return Math.min(B.clamp[1], Math.max(B.clamp[0], (sp.L50 / B.ref) ** B.exp)); };
@@ -338,12 +391,14 @@ function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) | 0
 const gauss = (r) => { let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); };
 const truncZ = (r, mu, min, max) => { for (let i = 0; i < 200; i++) { const z = mu + gauss(r); if (z >= min && z <= max) return z; } return Math.min(max, Math.max(min, mu)); };
 
-const POOLS = new Map();
+const POOLS = new Map(), PULLED = new Map();
 /** The fish that can bite in a water at a phase: open-water fish everywhere; a place adds the fish of its kind, its giant and its own
  *  built species; the lure and the bait tilt the pool; a fish that bites on one bait only needs it. */
-function poolFor(water, placeId, phase, lure, bait) {
-  const key = `${water}|${placeId}|${phase}|${lure}|${bait}`;
-  if (POOLS.has(key)) return POOLS.get(key);
+function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1) {
+  // the pull (SPEC §5.5 (d)): a listed fish not yet landed (`miss`) bites at weight × pull, after the hours, place and bait filters; a giant's
+  // share is unchanged. `pool.sure` is the missing fish alone, for the sure bite. The missing set and the factor are part of the cache key.
+  const cache = miss ? PULLED : POOLS, key = miss ? `${water}|${placeId}|${phase}|${lure}|${bait}|${pull}|${[...miss].sort().join(',')}` : `${water}|${placeId}|${phase}|${lure}|${bait}`;
+  if (cache.has(key)) return cache.get(key);
   const P = placeId ? PLACE[placeId] : null, list = []; let giant = null;
   for (const s of WATER[water].species) {
     if (s.legend || s.never || !s.hours.includes(phase)) continue;
@@ -356,8 +411,10 @@ function poolFor(water, placeId, phase, lure, bait) {
     if (s.bestNight && phase === 'night') w *= 1.5;
     if (bait && s.bait === bait) w *= 1.5;               // a bait changes which fish bite only for a fish that bites on nothing else
     if (lureMatch(lure, s)) w *= lureAttract(lure, s);
+    if (miss && miss.has(s.id)) w *= pull;
     list.push([s, w]);
   }
+  const sure = miss ? list.filter(([s]) => miss.has(s.id)) : null;
   let others = list.reduce((a, [, w]) => a + w, 0);
   if (others < (RW.common ?? 70)) for (const s of WATER[water].species) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
     if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait)) continue;
@@ -367,8 +424,9 @@ function poolFor(water, placeId, phase, lure, bait) {
     const share = giant.hours.includes(phase) ? LOOP.giant.share.inHour : LOOP.giant.share.offHour, gl = LOOP.giantsLures[lure]?.includes(giant.id) ? lureAttract(lure, giant) : 1;   // only its own giants' lure draws it
     list.push([giant, others * share * gl / (1 - share * gl)]);
   }
-  const pool = { list, tot: list.reduce((a, [, w]) => a + w, 0) };
-  POOLS.set(key, pool); return pool;
+  const pool = { list, tot: list.reduce((a, [, w]) => a + w, 0), sure: sure && sure.length ? { list: sure, tot: sure.reduce((a, [, w]) => a + w, 0) } : null };
+  if (miss && PULLED.size > 60000) PULLED.clear();
+  cache.set(key, pool); return pool;
 }
 const pick = (r, pool) => { let x = r() * pool.tot; for (const [s, w] of pool.list) { x -= w; if (x <= 0) return s; } return pool.list[pool.list.length - 1][0]; };
 const STRIKES = Object.entries(A.player.strike);
@@ -376,48 +434,90 @@ const pickStrike = (r) => { let x = r(); for (const [g, f] of STRIKES) { x -= f;
 const playMid = (c) => (A.play[c].dur[0] + A.play[c].dur[1]) / 2;
 export const KIND_ORDER = { old: 0, day: 1, late: 2, night: 3, crown: 4, open: 5 };   // the natural route: old water first, day water while it is light,
 // an old water whose giant bites only from dusk ("late", the hour glyph on its card) at dusk, night water when dark falls, open water to top up
-const routeKind = (P) => (P.kind === 'old' && P.giants.length && !SP[P.giants[0] + '@' + P.water].hours.includes('day') ? 'late' : P.kind);
+// v8 (SPEC decision 21): so is an old water whose own fish bites only from dusk (the Chain Garden and its Candlewake Sturgeon)
+const lateOwn = (P) => WATER[P.water].species.some((s) => s.ownPlace === P.id && !s.giant && !s.hours.includes('day'));
+const routeKind = (P) => (P.kind === 'old' && ((P.giants.length && !SP[P.giants[0] + '@' + P.water].hours.includes('day')) || lateOwn(P)) ? 'late' : P.kind);
+const LIGHT = ['day', 'dusk', 'night'];
+/** The Journal route (SPEC §3.4, v8): while the water's list has fish missing, the Wick reads the Journal's silhouettes (a place glyph and
+ *  the hour glyphs) and fishes first where a missing fish bites in the light there is: a place whose missing fish bite by day comes
+ *  first (the day water before the old water: its fish have the least light), then open water for as long as its missing fish bite;
+ *  a stop whose missing fish bite only later is fished when they do (the Wick waits there for the light to turn); the rest of the
+ *  natural route follows, and open water tops up last. `home` maps each missing fish to its stop (null: open water). */
+function journalRoute(kit, stops, miss) {
+  const home = new Map(), first = new Map();
+  for (const id of miss) {
+    const s = SP[id + '@' + kit.water]; if (!s) continue;
+    const h = s.ownPlace ? (kit.places.includes(s.ownPlace) ? s.ownPlace : undefined) : s.kind === 'open' ? null : kit.places.find((p) => PLACE[p].kind === s.kind && PLACE[p].inLake) ?? kit.places.find((p) => PLACE[p].kind === s.kind);
+    if (h === undefined) continue;                         // its place is not owned: nothing to sail to
+    home.set(id, h); first.set(h, Math.min(first.get(h) ?? 9, LIGHT.findIndex((ph) => s.hours.includes(ph))));
+  }
+  if (!home.size) return { stops, home };
+  const keyed = [];
+  for (const W of stops) {
+    const e = first.get(W.id), nat = KIND_ORDER[W.route || W.kind] + 1;   // the natural route's order: old 1, day 2, late 3, night 4, crown 5, open 6
+    if (e === undefined) { keyed.push([nat, W]); continue; }
+    if (W.id === null) { if (e === 0) keyed.push([0.5, { ...W, target: true, early: true }]); keyed.push([nat, { ...W, target: true }]); continue; }
+    keyed.push([e === 0 ? (W.route === 'late' ? nat : W.kind === 'day' ? 0 : 0.2) : Math.max(nat, e === 1 ? 3 : 4), { ...W, target: true }]);   // a dusk giant's old water keeps its hour
+  }
+  return { stops: keyed.sort((a, b) => a[0] - b[0]).map(([, W]) => W), home };
+}
 
 // =====================================================================================================================
 // one trip.  kit: {water, rod, line, reel, hold, lure, bait, places: [ids], oars, keel, lantern}
 // policy: {strike(cls, ctx), keep(fish, ctx), leave(ctx), waitDark}
+// opts: {noQuiet} · the three keys (SPEC §5.5): {missing: Set of the water's listed fish not yet landed, n: evenings already ended there with
+//   the list open, pull: false for no mercy, journal: true for the Journal route}. `out.landedIds` lists every fish landed, kept or let go.
 // =====================================================================================================================
 export function trip(kit, policy, r, opts = {}) {
   const L = LOOP, T = A.time, S = L.water.stale, E = L.evening, F = L.favour;
   const freshOf = (W) => (opts.noQuiet ? Infinity : W.kind === 'open' ? Math.round(kit.hold * L.water.openPerSlot) + L.water.openExtra : L.water.good[W.kind]);
   const sail = (base) => base * L.time.raftSpeed / (L.time.raftSpeed + L.raft.oars.speed * (kit.oars | 0));
-  const waters = [{ id: null, kind: 'open' }, ...kit.places.map((id) => ({ id, kind: PLACE[id].kind, route: routeKind(PLACE[id]) }))].sort((a, b) => KIND_ORDER[a.route || a.kind] - KIND_ORDER[b.route || b.kind]);
+  let waters = [{ id: null, kind: 'open' }, ...kit.places.map((id) => ({ id, kind: PLACE[id].kind, route: routeKind(PLACE[id]) }))].sort((a, b) => KIND_ORDER[a.route || a.kind] - KIND_ORDER[b.route || b.kind]);
+  const miss = opts.missing && opts.missing.size ? new Set(opts.missing) : null;          // a fish landed on this trip leaves the set at once
+  const PULL = miss && opts.pull !== false ? L.access.pull : null, nEv = opts.n | 0;
+  const pullBy = PULL ? Math.min(PULL.cap, 1 + PULL.perEvening * nEv) : 1, sureDone = PULL && nEv >= PULL.sureFrom ? new Set() : null;
+  let home = null, openHere = 0;
+  if (miss && opts.journal) ({ stops: waters, home } = journalRoute(kit, waters, miss));
+  // the missing fish of a stop that bite in a light (the Journal's place and hour glyphs)
+  const missAt = (W, ph) => { for (const [id, h] of home) if (h === W.id && miss.has(id) && SP[id + '@' + kit.water].hours.includes(ph)) return true; return false; };
   const baitFav = kit.bait && L.bait[kit.bait] ? L.baitRule.favour : 0;
   let clock = 0, real = 0;
   const adv = (s, frozen = false) => { real += s; if (!frozen) clock += s; };
   const phase = () => (clock < E.day ? 'day' : clock < E.day + E.dusk ? 'dusk' : 'night');
   const toDark = () => { const w = E.day + E.dusk - clock; if (w > 0) adv(w); };
   const out = { clams: 0, kept: 0, bites: 0, hooks: 0, landed: 0, letGo: 0, lost: 0, prize: 0, trophy: 0, elder: 0, elderBites: 0, nightBites: 0, baitUsed: 0, stale: 0,
-    giantBites: 0, giantLanded: 0, giantKept: 0, giantClams: 0, giantRefused: 0 };
+    giantBites: 0, giantLanded: 0, giantKept: 0, giantClams: 0, giantRefused: 0, landedIds: [] };
   const hold = [];
   adv(sail(L.time.out));
   if (policy.waitDark) toDark();
   outer: for (let wi = 0; wi < waters.length; wi++) {
     const W = waters[wi], last = wi === waters.length - 1;
-    if (wi > 0) adv(sail(L.time.between));
+    if (wi > 0 && waters[wi - 1].id !== W.id) adv(sail(L.time.between));
     if (W.kind === 'night') toDark();
     if (W.route === 'late' && clock < E.day) adv(E.day - clock);   // a dusk giant's old water: wait there for the light to turn
-    let here = 0, mercy = 0; const fresh = freshOf(W);
+    if (W.target && miss.size && !missAt(W, phase())) {            // the Journal route: its missing fish bite later; wait there for the light to turn
+      if (clock < E.day && missAt(W, 'dusk')) adv(E.day - clock); else if (missAt(W, 'night')) toDark();
+    }
+    let here = W.id === null ? openHere : 0, mercy = 0; const fresh = freshOf(W);
     for (;;) {
       if (hold.length >= kit.hold || out.bites >= 400) break outer;
+      if (W.early && !missAt(W, phase())) break;                    // open water's missing fish are landed or their light is gone: on to the places; open water tops up last
       const over = Math.max(0, here - fresh);
       const ctx = { slots: kit.hold - hold.length, hold: kit.hold, freshHere: Math.max(0, fresh - here), over, last, watersLeft: waters.length - 1 - wi, phase: phase(), kind: W.kind, giantHere: !!(W.id && PLACE[W.id].giants.length) };
       if (policy.leave(ctx)) { if (last) break outer; break; }
-      const ph = phase(), night = ph === 'night', pool = poolFor(kit.water, W.id, ph, kit.lure, kit.bait);
+      const ph = phase(), night = ph === 'night', pool = PULL && miss.size ? poolFor(kit.water, W.id, ph, kit.lure, kit.bait, miss, pullBy) : poolFor(kit.water, W.id, ph, kit.lure, kit.bait);
       if (!pool.tot) { if (last) break outer; break; }
-      const sp = pick(r, pool);
+      let sp;
+      if (sureDone && pool.sure && !sureDone.has(W.id)) { sp = pick(r, pool.sure); sureDone.add(W.id); }   // the sure bite: the first bite here in a light where a missing fish bites
+      else sp = pick(r, pool);
+      const pulled = !!PULL && nEv >= PULL.floorFrom && miss.has(sp.id);
       const atOwn = sp.giant;                              // a giant only bites at its own place
       let mu = (W.id ? F.place + F.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
         + baitFav + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + Math.max(S.floor, S.favour * over) + F.perKeel * (kit.keel | 0) + mercy;
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
       adv(T.cast + T.wait * Math.min(S.waitMax, 1 + S.wait * over));
       const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, W.kind === 'old' || atOwn ? SZ.z.max : SZ.elsewhereMaxZ);   // Elders: old water, and a giant at its own place
-      const z = truncZ(r, mu, sp.giant ? LOOP.giant.minZ : SZ.z.min, maxZ);
+      const z = truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
       const cls = D.isAncient(z) ? 'ancient' : D.sizeClassOf(z);
       here++; out.bites++; if (over > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++;
       if (!policy.strike(cls, ctx)) { adv(L.time.pass); continue; }
@@ -427,12 +527,14 @@ export function trip(kit, policy, r, opts = {}) {
       adv(T.strike);
       if (r() < p) {
         out.landed++; if (sp.giant) out.giantLanded++;
+        out.landedIds.push(sp.id); if (miss) miss.delete(sp.id);   // landed: its Journal entry is written at the measure, kept or let go
         adv(playMid(cls) * quick);
         adv(T.ceremony[cls] + L.time.show + T.card, true);
         const fish = { sp, z, cls, value: clamsFor(sp, z) };
         if (policy.keep(fish, ctx)) { hold.push(fish); if (CI[cls] >= 2) out.prize++; if (CI[cls] >= 3) out.trophy++; if (CI[cls] >= 4) out.elder++; if (sp.giant) { out.giantKept++; out.giantClams += fish.value; } } else { out.letGo++; mercy = Math.min(L.letGo.cap, mercy + L.letGo.favour); if (L.letGo.refund) here = Math.max(0, here - 1); }
       } else { out.lost++; adv(playMid(cls) * quick * 0.72 + T.lostNote); }
     }
+    if (W.id === null) openHere = here;                             // the Journal route may visit open water twice: its good bites are counted once
   }
   adv(L.time.home + L.time.sale + L.time.shop, true);
   out.kept = hold.length; out.gross = hold.reduce((a, f) => a + f.value, 0);
@@ -490,6 +592,33 @@ const bestLureOf = (water, owned) => {                     // the lure that pays
   }
   return best;
 };
+
+// =====================================================================================================================
+// the three keys (SPEC §5.5): how long a water's list takes
+// =====================================================================================================================
+/** The fish of a water's list a player still has to land on arriving there: its list less the fish already landed for an earlier
+ *  water's list (one Journal entry serves every list it is on: the Lampspot Snakehead of Pyrefall Gorge is ticked in Lampmoss Slough). */
+export function listToLand(waterId) {
+  const seen = new Set();
+  for (const W of LOOP.waters) { if (W.id === waterId) break; for (const id of listFor(W.id)) seen.add(id); }
+  return listFor(waterId).filter((id) => !seen.has(id));
+}
+const asc = (a, b) => a - b, quant = (a, q) => a[Math.min(a.length - 1, Math.floor(a.length * q))];
+/** `players` players fish one water on `kit`, evening after evening, until every fish of its list is landed (kept or let go), on the
+ *  natural rule. mode: {journal: the Journal route, pull: false for no mercy}. Times are pacing minutes (the visit home and the
+ *  pacing player's 25% of looking around included). `open` is the share of players not done after `maxEv` evenings. */
+export function listStudy(W, kit, players, mode = { journal: true }, seed = 7000 + W.order, maxEv = 400) {
+  const r = rng(seed), start = listToLand(W.id), times = [], evs = []; let clams = 0, sec = 0, open = 0;
+  for (let i = 0; i < players; i++) {
+    const missing = new Set(start); let n = 0, t = 0;
+    while (missing.size && n < maxEv) { const x = trip(kit, POL.natural(), r, { missing, n, ...mode }); t += x.sec; clams += x.clams; for (const id of x.landedIds) missing.delete(id); n++; }
+    if (missing.size) open++;
+    times.push(t * LOOP.player.time / 60); evs.push(n); sec += t;
+  }
+  times.sort(asc); evs.sort(asc);
+  return { toLand: start.length, players, times, mean: times.reduce((a, b) => a + b, 0) / players, p50: quant(times, 0.5), p95: quant(times, 0.95), p99: quant(times, 0.99),
+    ev: evs.reduce((a, b) => a + b, 0) / players, ev95: quant(evs, 0.95), perMin: clams / Math.max(1e-9, sec / 60), open: open / players };
+}
 
 // the tackle a water is fished on once you are settled there; the tackle and hold you own on the day you buy its map (the pacing order)
 export const settleT = (W) => ({ mossmere: 1, sporewood: 2, glasswater: 3, paleabyss: 4 }[W.id] ?? (W.order < 10 ? 5 : 6));
@@ -553,13 +682,13 @@ if (args.includes('--calibrate')) {
 }
 if (args.includes('--fish')) {
   for (const W of LOOP.waters) {
-    console.log(`\n**${W.order}. ${W.name}** (value tier ${W.base})\n`);
+    console.log(`\n**${W.order}. ${W.name}** (value tier ${W.base} · its list: ${listFor(W.id).length})\n`);
     const rows = W.species.filter((s) => !s.never).sort((a, b) => (b.legend - a.legend) || (b.giant - a.giant) || (LOOP.value.rarity[b.rarity] ?? 99) - (LOOP.value.rarity[a.rarity] ?? 99) || a.name.localeCompare(b.name)).map((s) => {
       const where = s.legend ? PLACES.find((p) => p.legend === s.id)?.name : s.giant ? PLACE[s.placeId].name : s.ownPlace ? PLACE[s.ownPlace].name : s.kind === 'open' ? 'open water' : `${s.kind} water`;
       const vals = s.legend ? ['—', '—', '—', '—', `pays ${f0(PLACES.find((p) => p.legend === s.id).price)}`] : CL5.map((c) => ((c === 'small' && s.giant) || (c === 'elder' && !(s.giant || s.kind === 'old' || (s.ownPlace && PLACE[s.ownPlace].kind === 'old') || s.kind === 'open')) ? '—' : f0(clamsFor(s, z[c]))));
-      return [`${s.giant ? '★ ' : ''}${s.name}${s.roster ? '' : ' (built)'}`, s.rarity, s.hoursText, where, ...vals];
+      return [`${s.giant ? '★ ' : ''}${s.name}${s.roster ? '' : ' (built)'}`, s.rarity, s.hoursText, where, { list: '✓', tin: 'tin', off: '—' }[listMark(s)], ...vals];
     });
-    table(['fish', 'rarity', 'bites', 'where', 'Small', 'Keeper', 'Prize', 'Trophy', 'Elder'], rows);
+    table(['fish', 'rarity', 'bites', 'where', 'list', 'Small', 'Keeper', 'Prize', 'Trophy', 'Elder'], rows);
   }
   console.log(`Waiting for a later sheet (built, not roster fish): ${WAITING.map((s) => `${s.name} (${s.place})`).join(', ')}.`);
   return 0;
@@ -754,9 +883,11 @@ title("4b. The giants a map promises: how often they bite and land (the natural 
 }
 
 // ---------------------------------------------------------------- 5. the pacing run
-title('5. Pacing: an average player along a sensible buying order, all 16 waters');
+title('5. Pacing: an average player along a sensible buying order, all 16 waters, each opened by its three keys');
+const KEYS = { list: {}, kit: {}, boughtAt: {}, openedAt: { mossmere: 0 }, gearAt: {}, era: {}, sealed: {}, doneH: 0 };   // what section 7 reads back
+const NL = QUICK ? 600 : 2000;                             // players per list study
 {
-  const P = LOOP.player, state = { clams: 0, sec: 0, trips: 0, earned: 0, spent: 0, rod: 0, line: 0, reel: 0, hold: LOOP.hold.start, maps: ['mossmere'], places: new Set(), lures: new Set(), oars: 0, keel: 0, lantern: 0, orders: 0, baitBed: 0, wall: 0, lights: 0, legends: new Set() };
+  const P = LOOP.player, state = { clams: 0, sec: 0, trips: 0, earned: 0, spent: 0, rod: 0, line: 0, reel: 0, hold: LOOP.hold.start, maps: ['mossmere'], open: [], places: new Set(), lures: new Set(), oars: 0, keel: 0, lantern: 0, orders: 0, baitBed: 0, wall: 0, lights: 0, legends: new Set() };
   const kitFor = (w, lure = bestLureOf(w, [...state.lures])) => ({ water: w, rod: state.rod, line: state.line, reel: state.reel, hold: state.hold, lure,
     bait: state.sec > 1800 ? WATER[w].plainBait : null, places: WATER[w].places.filter((p) => state.places.has(p.id) && !p.legend).map((p) => p.id), oars: state.oars, keel: state.keel, lantern: state.lantern });
   const evalCache = new Map();
@@ -774,7 +905,15 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
     const lures = [...new Set([bestLureOf(w, [...state.lures]), bestLureOf(w, [...state.lures].filter((id) => LOOP.familyLures[id] != null))])];
     return lures.map((l) => evalOne(kitFor(w, l))).sort((a, b) => b.clams / b.min - a.clams / a.min)[0];
   };
-  const bestWater = () => state.maps.slice(-3).map(evalWater).sort((a, b) => b.clams / b.min - a.clams / a.min)[0];
+  const bestWater = () => state.open.slice(-3).map(evalWater).sort((a, b) => b.clams / b.min - a.clams / a.min)[0];   // v8: the three newest OPEN waters
+  // ---- the three keys (SPEC §5.5). A water opens when its map is bought, its gear key is owned and the list of the water before it is landed.
+  // The list is modelled as landed once the player has fished that water for its 95th-percentile list time, measured (listStudy) on the kit
+  // the water opened with: the pacing player is the slow one in twenty, so no figure here leans on luck.
+  const fishedAt = {};                                      // pacing seconds fished at each water
+  const ownsGear = (w) => { const g = gearKey(w); return !g || (g.slot === 'hold' ? state.hold : state[g.slot]) >= g.level; };
+  const listDone = (w) => (fishedAt[w] || 0) >= KEYS.list[w].p95 * 60;
+  const openWater = (w) => { state.open.push(w); KEYS.openedAt[w] = state.sec / 3600; KEYS.kit[w] = kitFor(w, evalWater(w).lure); KEYS.list[w] = listStudy(WATER[w], KEYS.kit[w], NL); };
+  openWater('mossmere');
   function legendCost(id) {
     const kit = { rod: state.rod, line: state.line, reel: state.reel }; let alive = 1, tries = 0;
     for (let k = 0; k < 12 && alive > 0.02; k++) { tries += alive; alive *= 1 - legendP(id, kit, k); }
@@ -826,6 +965,15 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
     ORDER.push(`lake:${W.id}`, ...ex.slice(0, 3), ...pl(W.id, 'day'), ...pl(W.id, 'old'), `lure:${W.lure[0]}`, ...crownOf(prev), ...pl(W.id, 'extra'), ...pl(W.id, 'night'), ...ex.slice(3));
   }
   ORDER.push(...crownOf(LOOP.waters[15].id));
+  // v8: a gear key is bought before its map (the three seals show it from the first visit): any key the order above buys later moves to
+  // just before its lake map. Today that is Rod T6 alone, the Thunder Stair's key (SPEC decision 37); Line and Reel T6 stay after that map.
+  const gearOrderId = (w) => { const g = gearKey(w); return !g ? null : g.slot === 'hold' ? `hold:${g.level}` : LOOP.raft[g.slot] ? `raft:${g.slot}:${g.level}` : `${g.slot}:${g.level}`; };
+  const movedKeys = [];
+  for (const W of LOOP.waters.slice(1)) {
+    const gid = gearOrderId(W.id), i = ORDER.indexOf(gid), j = ORDER.indexOf(`lake:${W.id}`);
+    if (i < 0) throw new Error(`the gear key ${gid} of ${W.name} is not in the buying order`);
+    if (i > j) { ORDER.splice(i, 1); ORDER.splice(j, 0, gid); movedKeys.push(`${NAME[W.id]}: ${gid}`); }
+  }
   const NAMES = { hold: (a) => `Hold ${a}`, rod: (a) => `Rod T${a}`, line: (a) => `Line T${a}`, reel: (a) => `Reel T${a}`, lake: (a) => `MAP: ${NAME[a]}`, place: (a) => `map: ${PLACE[a].name}`,
     lure: (a) => `lure: ${LURE_NAME[a] || a}`, raft: (a, b) => `raft: ${{ oars: 'Oars', keel: 'Keel', lantern: 'Lantern' }[a]} ${'I'.repeat(+b)}`,
     home: (a, b) => `home: ${{ orders: 'Order Board', baitBed: 'Bait Bed', wall: 'Long Wall wing', lights: 'Landing lights' }[a]} ${b}`, legend: (a) => `legend hunt: ${SPECIES.find((s) => s.id === a).name}`,
@@ -837,21 +985,36 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
     markRows.push({ label, owned: state.maps.length, clams: e.clams, min: e.min, tpp, bought: log.length, water: e.water, state: `T${state.rod}/${state.line}/${state.reel}, hold ${state.hold}, ${state.maps.length} water${state.maps.length > 1 ? 's' : ''}, ${state.places.size} place${state.places.size === 1 ? '' : 's'}`, giants });
   };
   const firstFished = {};
-  const playTrip = () => { const e = bestWater(); if (firstFished[e.water] == null) firstFished[e.water] = state.sec / 3600; state.clams += e.clams; state.earned += e.clams; state.sec += e.min * 60; state.trips++; elders += e.elder; giants += e.giant; if (giantAt === null && giants >= 1) giantAt = state.sec / 3600; while (mi < marks.length && state.sec / 3600 >= marks[mi][0]) snapshot(marks[mi++][1]); return e; };
+  // `at`: a sealed water waits on the list alone, so the player fishes the water whose list it is, whatever pays best
+  const playTrip = (at = null) => { const e = at ? evalWater(at) : bestWater(); if (firstFished[e.water] == null) firstFished[e.water] = state.sec / 3600; fishedAt[e.water] = (fishedAt[e.water] || 0) + e.min * 60; state.clams += e.clams; state.earned += e.clams; state.sec += e.min * 60; state.trips++; elders += e.elder; giants += e.giant; if (giantAt === null && giants >= 1) giantAt = state.sec / 3600; while (mi < marks.length && state.sec / 3600 >= marks[mi][0]) snapshot(marks[mi++][1]); return e; };
   const gains = [], nG = QUICK ? 3000 : 6000;
-  for (const id of ORDER) {
+  const queue = [...ORDER];
+  const buy = (id) => {
     const cost = price(id); let guard = 0;
     while (state.clams < cost && guard++ < 20000) playTrip();
     const kindOf = id.split(':')[0], measure = kindOf === 'hold' || kindOf === 'raft';
     const b0 = measure ? bestWater() : null, w0 = b0?.water, x0 = measure ? run(kitFor(w0, b0.lure), POL.natural(), nG, 606) : null, trip0 = measure ? b0.clams : 0;
     state.clams -= cost; state.spent += cost; apply(id);
     if (measure) { const x1 = run(kitFor(w0, b0.lure), POL.natural(), nG, 606); gains.push({ id, name: NAMES[kindOf](...id.split(':').slice(1)), h: state.sec / 3600, g: x1.perMin / x0.perMin - 1, gt: x1.clams / x0.clams - 1, trips: cost / trip0 }); }
-    const e = bestWater(), [kind, a, b] = id.split(':');
-    sinceBuy.push(state.trips - lastBuyTrips);
-    log.push({ id, name: NAMES[kind](a, b), cost, h: state.sec / 3600, trips: state.trips, waited: state.trips - lastBuyTrips, water: e.water, perTrip: e.clams, min: e.min });
-    lastBuyTrips = state.trips;
-  }
+    const [kind, a, b] = id.split(':'), hBuy = state.sec / 3600;
+    for (const W of LOOP.waters) if (KEYS.gearAt[W.id] == null && gearOrderId(W.id) === id) KEYS.gearAt[W.id] = hBuy;
+    const entry = { id, name: NAMES[kind](a, b), cost, h: hBuy, trips: state.trips, waited: state.trips - lastBuyTrips };
+    sinceBuy.push(entry.waited); log.push(entry); lastBuyTrips = state.trips;
+    if (kind === 'lake') {                                  // v8: the map inks the water; it opens with its gear key and the list of the water before
+      const prevW = LOOP.waters[WATER[a].order - 2].id, gid = gearOrderId(a); let g2 = 0;
+      KEYS.boughtAt[a] = hBuy; KEYS.gearOwned = (KEYS.gearOwned ?? true) && ownsGear(a);
+      if (!ownsGear(a)) { const k = queue.indexOf(gid); if (k >= 0) queue.splice(k, 1); buy(gid); }   // the sealed sheet shows the gear seal hollow: it is the next thing bought
+      KEYS.era[prevW] = (fishedAt[prevW] || 0) / 60;        // the fishing the water before had when the map and its gear were in hand
+      while (!listDone(prevW) && g2++ < 20000) playTrip(prevW);
+      KEYS.sealed[a] = (state.sec / 3600 - hBuy) * 60;
+      openWater(a);
+    }
+    const e = bestWater();
+    entry.water = e.water; entry.perTrip = e.clams; entry.min = e.min;
+  };
+  while (queue.length) buy(queue.shift());
   const doneH = state.sec / 3600;
+  KEYS.doneH = doneH; KEYS.era[LOOP.waters[15].id] = (fishedAt[LOOP.waters[15].id] || 0) / 60; KEYS.movedKeys = movedKeys;
   while (mi < marks.length && state.trips < 40000) playTrip();
   table(['#', 'hour', 'trips', 'waited', 'buys', 'clams', 'then fishing', 'clams/trip', 'min/trip'],
     log.map((l, i) => [i + 1, l.h.toFixed(2), l.trips, l.waited, l.name, f0(l.cost), NAME[l.water], f0(l.perTrip), f1(l.min)]));
@@ -862,7 +1025,7 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
   table(['mark', 'clams/trip', 'min/trip', 'trips per purchase', 'bought', 'fishing', 'state', 'giants landed'], markRows.map((m) => [m.label, f0(m.clams), f1(m.min), f1(m.tpp), m.bought, NAME[m.water], m.state, f1(m.giants)]));
   title('5c. When each water opens');
   const at = (id) => log.find((l) => l.id === id);
-  table(['water', 'map bought at', 'the best water to fish from', 'its legend landed at'], LOOP.waters.map((W) => [`${W.order}. ${W.name}`, W.order === 1 ? 'start' : `${at(`lake:${W.id}`).h.toFixed(1)} h`, firstFished[W.id] == null ? 'never' : `${firstFished[W.id].toFixed(1)} h`, `${at(`legend:${W.legend}`).h.toFixed(1)} h`]));
+  table(['water', 'map bought at', 'opens at (its three keys held)', 'the best water to fish from', 'its legend landed at'], LOOP.waters.map((W) => [`${W.order}. ${W.name}`, W.order === 1 ? 'start' : `${at(`lake:${W.id}`).h.toFixed(1)} h`, W.order === 1 ? 'start' : `${KEYS.openedAt[W.id].toFixed(1)} h`, firstFished[W.id] == null ? 'never' : `${firstFished[W.id].toFixed(1)} h`, `${at(`legend:${W.legend}`).h.toFixed(1)} h`]));
   check(LOOP.waters.every((W) => firstFished[W.id] != null), 'every water becomes the best water to fish for a while');
   const M = Object.fromEntries(markRows.map((m) => [m.label, m]));
   const longest = log.reduce((a, l) => (l.waited * l.min > a.w ? { w: l.waited * l.min, l } : a), { w: 0, l: null });
@@ -890,8 +1053,8 @@ title('5. Pacing: an average player along a sensible buying order, all 16 waters
   // every step pays its way: +3% clams a minute when bought, or (a bigger evening, priced as a look) more clams a trip for at most 2 trips' income
   const bad = gains.filter((x) => !(x.g >= 0.03 || (x.g >= -0.03 && x.trips <= 2)));
   check(!bad.length, `every hold step and raft part raises clams a minute by at least 3% when bought, or is priced as a look (at most 2 trips' income, and no more than 3% a minute lost)${bad.length ? ': ' + bad.map((x) => `${x.name} ${sg(x.g)}/min, ${x.trips.toFixed(1)} trips`).join('; ') : ''}`);
-  const lag = LOOP.waters.slice(1).map((W) => ({ W, d: (firstFished[W.id] ?? 99) - at(`lake:${W.id}`).h })).reduce((a, x) => (x.d > a.d ? x : a));
-  check(lag.d <= 0.5, `a new water is the best water to fish within half an hour of buying its map (longest: ${lag.W.name}, ${(lag.d * 60).toFixed(0)} min)`);
+  const lag = LOOP.waters.slice(1).map((W) => ({ W, d: (firstFished[W.id] ?? 99) - KEYS.openedAt[W.id] })).reduce((a, x) => (x.d > a.d ? x : a));
+  check(lag.d <= 0.5, `a new water is the best water to fish within half an hour of opening (v8: its three keys held; longest: ${lag.W.name}, ${(lag.d * 60).toFixed(0)} min)`);
   const longTrip = markRows.reduce((a, m) => Math.max(a, m.min), 0);
   check(longTrip <= 6, `trips stay short: at most ${f1(longTrip)} min per trip at the pacing marks, the visit home included (target ≤ 6)`);
   const mapShare = (byKind.maps || 0) / state.spent;
@@ -939,6 +1102,64 @@ title('6. The next map is always worth having (clams per minute, the natural rul
     }
   }
   check(worstSub < 1, `no stopping short: no set of a water's places pays more than the next water fully mapped (closest ${worstSub.toFixed(2)}: ${worstSubAt})`);
+}
+
+// ---------------------------------------------------------------- 7. the three keys
+title('7. The three keys: the map, the gear and one of each fish of the water before (SPEC §5.5)');
+{
+  const T = LOOP.access.target, PU = LOOP.access.pull, Ws = LOOP.waters;
+  // (a) the gear key of every lake map
+  const grows = Ws.slice(1).map((W) => {
+    const g = gearKey(W.id);
+    return [`${W.order}. ${W.name}`, g.id, f0(g.price), g.shelfAt === 1 ? 'start' : `the ${NAME[Ws[g.shelfAt - 1].id].replace(/^The /, '')} map`, `${KEYS.gearAt[W.id].toFixed(1)} h`, `${KEYS.boughtAt[W.id].toFixed(1)} h`, `${KEYS.openedAt[W.id].toFixed(1)} h`, f0(KEYS.sealed[W.id])];
+  });
+  console.log('-- (a) the gear key of every lake map, and when the pacing run holds each key');
+  table(['water', 'gear key', 'price', 'on the shelf with', 'the pacing run owns it at', 'its map bought at', 'it opens at', 'sealed (min)'], grows);
+  if (KEYS.movedKeys.length) console.log(`   bought before its map, ahead of the v7.1 order: ${KEYS.movedKeys.join('; ')}\n`);
+  const lateShelf = Ws.slice(1).filter((W) => gearKey(W.id).shelfAt > W.order - 1).map((W) => W.name);
+  check(!lateShelf.length, `every gear key is on the shelf before its map is offered${lateShelf.length ? ': not ' + lateShelf.join(', ') : ''}`);
+  check(KEYS.gearOwned === true, 'the pacing run owns every gear key when it buys the map (a key is bought before its map)');
+  // (b) the lists
+  console.log('-- (b) the list of every water (computed from the fish: open water, and the day and old water its lake map opens, on its plain bait)');
+  table(['water', 'count', 'its list (the next water\'s catch key)', 'needs a tin (off the list)'], Ws.map((W) => [`${W.order}. ${W.name}`, listFor(W.id).length,
+    listFor(W.id).map((id) => SP[id + '@' + W.id].name).join(', '), W.species.filter((x) => listMark(x) === 'tin').map((x) => x.name).join(', ') || '—']));
+  const shortest = Ws.reduce((a, W) => (listFor(W.id).length < listFor(a.id).length ? W : a));
+  check(listFor(shortest.id).length >= T.minList, `every list has at least ${T.minList} fish (shortest: ${shortest.name}, ${listFor(shortest.id).length})`);
+  const noBite = [];
+  for (const W of Ws) for (const id of listFor(W.id)) {
+    const stops = [null, ...lakePlaces(W)];
+    if (!stops.some((pid) => LIGHT.some((ph) => { const x = poolFor(W.id, pid, ph, null, W.plainBait).list.find(([sp]) => sp.id === id); return x && SP[id + '@' + W.id].hours.includes(ph); }))) noBite.push(`${SP[id + '@' + W.id].name} (${W.name})`);
+  }
+  check(!noBite.length, `every listed fish bites on its water's plain bait, in its hours, in open water or at a place its lake map opens${noBite.length ? ': not ' + noBite.join(', ') : ''}`);
+  // (c) how long a list takes, at the kit the water opens with in the pacing run
+  const nC = QUICK ? 100 : 200, rows = [], stat = {};
+  for (const W of Ws) {
+    const kit = KEYS.kit[W.id], L = KEYS.list[W.id], nat = run(kit, POL.natural(), Math.max(N, 4000), 7100 + W.order).perMin;
+    const noPull = listStudy(W, kit, nC, { journal: true, pull: false }, 7200 + W.order, 150), plain = listStudy(W, kit, nC, { journal: false }, 7300 + W.order, 150);
+    const era = KEYS.era[W.id], next = Ws[W.order], ratio = L.perMin / nat, windfall = L.mean * (ratio - 1);
+    const still = next ? L.times.filter((t) => t > era).length / L.players : null, extra = next ? L.times.reduce((a, t) => a + Math.max(0, t - era), 0) / L.players : null;
+    stat[W.id] = { L, era, still, extra, ratio, windfall, next };
+    const big = (x) => `${f0(x.p50)} / ${x.open > 0.05 ? `over ${f0(x.p95)}` : f0(x.p95)}`;
+    rows.push([`${W.order}. ${W.name}`, `T${kit.rod}/${kit.line}/${kit.reel}, hold ${kit.hold}`, `${L.toLand} of ${listFor(W.id).length}`, `${f0(L.mean)} / ${f0(L.p50)}`, `${f0(L.p95)} / ${f0(L.p99)}`, `${f1(L.ev)} / ${L.ev95}`, big(noPull), big(plain), f0(era),
+      next ? `${(still * 100).toFixed(1)}%` : '—', next ? f1(extra) : '—', pc(ratio), `${windfall >= 0 ? '+' : ''}${f1(windfall)}`]);
+    check(L.p95 <= T.p95 && L.p99 <= T.p99 && L.open === 0, `the list of ${W.name} (${L.toLand} to land): the slow player in twenty lands it in ${f0(L.p95)} min, the slowest in a hundred in ${f0(L.p99)} (target ≤ ${T.p95} and ≤ ${T.p99}; the Journal route with the pull, ${L.players} players)`);
+  }
+  console.log(`-- (c) the time to land a whole list: ${NL} players a water, each on the kit the pacing run opens it with, the natural rule on the Journal route, with the pull`);
+  console.log(`   (×min(${PU.cap}, 1 + ${PU.perEvening} × evenings), never Small from evening ${PU.floorFrom + 1}, the sure bite from evening ${PU.sureFrom + 1}); pacing minutes, the visit home included; contrasts: ${nC} players\n`);
+  table(['water', 'kit', 'to land', 'mean / median min', 'p95 / p99 min', 'evenings (mean / p95)', 'without the pull: median / p95', 'the plain natural route (with the pull): median / p95', 'its era: fished there before the next map (min)',
+    'still open then', 'expected extra wait (min)', 'clams a minute while it is open ÷ natural', 'windfall (min of income)'], rows);
+  const gated = Ws.slice(0, 15), wStill = gated.reduce((a, W) => (stat[W.id].still > stat[a.id].still ? W : a)), wExtra = gated.reduce((a, W) => (stat[W.id].extra > stat[a.id].extra ? W : a));
+  check(stat[wStill.id].still < T.stillOpen, `fewer than ${pc(T.stillOpen)} of players still have a list open when the pacing run owns the next map and its gear (${stat[wStill.id].still > 0 ? `most: ${wStill.name}, ${(stat[wStill.id].still * 100).toFixed(1)}%` : `none of ${NL} at any water; the shortest era is ${f0(Math.min(...gated.map((W) => stat[W.id].era)))} min of fishing, the longest list's slowest player in a hundred ${f0(Math.max(...gated.map((W) => stat[W.id].L.p99)))} min`})`);
+  check(stat[wExtra.id].extra <= T.extraWait, `the catch key's extra wait is at most ${T.extraWait} min for the average player (${stat[wExtra.id].extra > 0 ? `longest: ${wExtra.name}, ${f1(stat[wExtra.id].extra)} min` : 'none at any water'})`);
+  const wWind = Ws.reduce((a, W) => (stat[W.id].windfall > stat[a.id].windfall ? W : a)), net = Ws.reduce((a, W) => a + stat[W.id].windfall, 0);
+  check(stat[wWind.id].windfall <= T.windfall, `the pull's windfall is at most ${T.windfall} min of income an era (largest: ${wWind.name}, ${f1(stat[wWind.id].windfall)} min; all 16 eras together ${net >= 0 ? '+' : ''}${f1(net)} min, which the pacing run leaves out)`);
+  const wSeal = Ws.slice(1).reduce((a, W) => (KEYS.sealed[W.id] > KEYS.sealed[a.id] ? W : a));
+  check(KEYS.sealed[wSeal.id] <= T.sealed, `no bought lake map waits sealed more than ${T.sealed} min (${KEYS.sealed[wSeal.id] > 0 ? `longest: ${wSeal.name}, ${f0(KEYS.sealed[wSeal.id])} min` : 'every water opens the moment its map is bought: its gear is owned and the list of the water before is landed'})`);
+  check(KEYS.doneH >= T.hours[0] && KEYS.doneH <= T.hours[1], `the long game with the three keys: everything bought at ${KEYS.doneH.toFixed(1)} h (target ${T.hours[0]}–${T.hours[1]}: about 48)`);
+  // the first trip of a fresh save is fished with the whole of the Mossmere's list missing: the mercy must leave it as section 2 found it
+  // (a floor from the first evening fills the hold early: 48 clams in 1.9 min, and only 39% of first trips get a bite after dark)
+  const st = STAGES[0].kit, a = run(st, POL.natural(), N, 1000), b = run(st, POL.natural(), N, 1000, { missing: new Set(listFor('mossmere')), n: 0, journal: true });
+  check(b.min >= 1.5 && b.min <= 3 && b.noBig >= 0.4 && b.noBig <= 0.8 && b.nightBite >= 0.5, `the first trip of a fresh save, every fish of the Mossmere's list still missing, with the pull as it stands that evening: ${f0(b.clams)} clams in ${f1(b.min)} min, ${pc(b.noBig)} bring home no Prize or bigger, ${pc(b.nightBite)} get a bite after dark (the natural rule alone: ${f0(a.clams)} in ${f1(a.min)}, ${pc(a.noBig)}, ${pc(a.nightBite)}; targets as section 2: 1.5–3 min, 40–80%, ≥ 50%)`);
 }
 
 console.log(failures.length ? `\n${failures.length} check(s) FAILED` : '\nall checks passed');

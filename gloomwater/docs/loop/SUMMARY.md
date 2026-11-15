@@ -6,7 +6,7 @@ You are **the Wick**, a small living candle, one of the last of a drowned kingdo
 
 ## The loop in five steps
 
-1. **Pick a water** you own a map for, and sail out for the evening.
+1. **Pick a water** you have opened, and sail out for the evening.
 2. **Fish.** You cast and strike; the rest is automatic. You see how big a fish is on the line, but not what it is until it comes up.
 3. **Keep it or let it go.** The Wick holds the fish up, then a card shows its price. Keep puts it in your hold.
 4. **Go home** when the hold is full (or sooner). Murk weighs the fish one by one and pays you in **clams**.
@@ -39,6 +39,20 @@ A trip takes 2 to 6 minutes. Dusk falls after the first minute; night is when th
 Nothing is found by exploring. A place you have not bought is **standing mist** on the water, and on clear nights you can see something big turning inside it. Buying its map lifts the mist for good. Every map's card shows one fish drawn life-size beside the Wick, so you know what you are paying for.
 
 Your first lake, **the Mossmere**, is yours from the start. Its first maps are **the Lily Maze** (60, glowing koi), **Under the Span** (150, the Thousandcast Pike), **the Buoy Lights** (260, the Hullkiss Lamprey) and **the Bell Pool** (500, the Belled Matriarch). The next lake, **Sporewood Pools** (2,000), opens with two of its spots already clear. There are **16 waters and 55 maps** in all. A new lake is always better than the one before from its first evening, and every map is worth what it costs.
+
+## Three keys to a new water (your rule of 14 November)
+
+You asked that reaching a new area should need **the map, the right rod or gear, and one of each fish of the area you are in**. That is now the rule.
+
+- **The map** is still bought with clams, and it is still the only way to discover a water: buying it draws the new water on your Chart. You can always buy it; the other two keys decide when you can **sail** there.
+- **The gear** is one thing Murk already sells, named for each water: the first real rod for Sporewood, a glass rod for Glasswater, a cold-water reel for the fjord, a second pair of oars for the first river, a heavy keel for the open sea, the top rod for the waterfalls, and so on. It is always on Murk's shelf before you need it. No new item was added, and most players will already own it.
+- **The fish**: one of each of the water's ordinary fish, landed at least once. **Keeping it or letting it go both count.** The giants and the legend **never** count (they stay the dream), and nor do fish of spots you buy later. Each water has 4 to 12 fish on its list; the first lake has 12 (6 in the very first build).
+- **On screen** it is three small seals beside the next water on the Chart (map, gear, fish), with one number on the fish seal, like **7/12**. When all three are lit, the seals break and the way is drawn in ink. The Journal shows the fish you still need as dark shapes, with a sun or moon for when they bite and a mark for where. A new fish on the list gets a small seal on its catch card. Murk says two short lines about it, once each: one when you buy a map before you hold the other two keys ("One of every fish here first. And the right gear."), one when you finish a water's list ("Every fish in this water. I'll write that down."). There is no padlock and no other text.
+- **No luck walls.** A fish you still need comes a little more often each evening you fish there, and after eight evenings it is the first bite wherever it can bite. It still keeps its own hours (a night fish still comes only at night). Your very first evening at a water is left exactly as it was. In the full test, with 2,000 players at every water, the slowest player in twenty finished a water's list in 16 to 53 minutes, and nobody was still short of a fish by the time they had saved up for the next map.
+- **Spots inside a water** still need only clams.
+- **The journey stays about 48 hours.** The full test has now been run with the three keys in it: everything is bought in 47.6 hours, exactly as long as without the keys, and every new water opens the moment you buy its map. No price changed. (The top rod goes on sale one map earlier, so you can buy it before the waterfalls' map.)
+- **You said yes** (14 November) to the defaults we put to you: giants and legends are not on the list; a fish you let go still counts; fish you still need bite more the longer you fish there, in their own hours; spots inside a water need only clams; three small seals on the Chart; at most two lines from Murk.
+- **In the first build** (the Mossmere and the home barge) there is one gate, the Mossmere to Sporewood, and it is shown sealed ("Coming soon") until the build after. You can already earn two of its three seals there: the rod and the Mossmere's fish.
 
 ## The waters: greener as you go, and six rivers
 
@@ -95,7 +109,12 @@ The night creatures and all fighting, weapons and levels; health, hunger and oil
 
 You said yes to all four questions and to the let-go rule. So: all twelve new waters are full 3D waters (six of them rivers); about 48 hours of play buys everything; late fish sell for hundreds of thousands of clams, shown as "196k" (a big giant in the last river sells for about 196,000 and an enormous one for about 548,000; the last map costs 984k); a lake's map opens two of its spots at once; and a fish you let go gives its good bite back and makes the next fish there a little bigger.
 
-## Two small questions (we will go ahead unless you say otherwise)
+## A few small questions (we will go ahead unless you say otherwise)
 
 1. **Is the new order right, now that you know its cost?** The cold fjord and the open sea come right after the first four lakes, the rivers take turns with lakes and seas, and the rainforest waters come last; but the two biggest legends come early (hours 21 to 26) and the last legend is not the biggest. The other way keeps the cold waters at the end, made lush (a rainforest fjord and a green-island sea), with the biggest legends last. *We will build the new order unless you prefer the other way.*
 2. **Is the first step small enough?** We will show you the first four lakes side by side, with their first moss, by day, dusk and night, before building any new water, and the moss stays switched off in the game until you say yes. *If it reads as "too green", we make the steps smaller.*
+3. **Should the keys stop you sailing, or stop you buying the map?** *We will let you always buy the map (it draws the water on your Chart) and ask for the gear and the fish before you can sail there.* The other way would hold the map back until you have both.
+4. ~~Which fish count?~~ **You said yes:** *each water's ordinary fish: never its giants or its legend, never the fish of spots you buy later.* You could instead ask for those spot fish too, which makes the journey longer.
+5. **Is the gear list right?** Most of the gear asked for is bought long before its map anyway, and the last four waters ask for raft parts you will already own. *We will keep it that way, with no new items.* The other ways: a new river anchor for the first river, or new top gear for the last waters (more to buy, a longer journey).
+6. ~~Should spots inside a water need anything but clams?~~ **You said no: only clams.**
+7. ~~Do fish you caught before this version count, and does letting a fish go count?~~ **You said yes to both:** *fish already in your Journal count toward each water's list (even those of waters not built yet, which wait in the Journal until their water comes), and so does a fish you let go.*
