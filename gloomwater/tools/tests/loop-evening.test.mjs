@@ -425,6 +425,18 @@ section('the Wicks on the water: Taper (WICKS §2.2)');
   E.loop.s.taperFirst = true;
   for (let i = 0; i < 80; i++) { E.toBite({}); if (SP(E.dbg().species)?.rarity === 'common') later++; E.reset(); }
   ok(later > 20, `Taper: once spent, commons bite again (${later}/80)`);
+  // a spook during the nibbles spends the rule like any bite (WICKS §2.2 (a)): the next cast is the plain pool
+  {
+    const K = tripEnv({ wick: 'taper' }); K.ctx._depth = 0.55; K.loop.calls.length = 0;
+    K.ctx.debug.forceBite({ wait: 3 }); K.tick(3); K.F.onPointerDown({ input: 'mouse' }); K.F.onPointerUp();
+    ok(K.F.state === 'lost' && K.events.some((x) => x.e === 'fishing:miss' && x.p.reason === 'spooked'), '(Taper: the press during the nibbles spooks)');
+    eq(K.loop.calls.filter((c) => c.name === 'spendTaperFirst').length, 1, 'Taper: a spooked first bite spends the rule once (spendTaperFirst)');
+    ok(K.loop.api ? !K.loop.api.taperFirstOpen() : K.loop.s.taperFirst === true, 'Taper: … and the rule is closed for the evening');
+    const P = tripEnv({ wick: 'taper' }); P.ctx._depth = 0.55; P.loop.calls.length = 0;
+    ok(P.toBite({}), '(Taper: a bite left to lapse)');
+    for (let i = 0; i < 400 && P.F.state === 'bite'; i++) P.tick(1);
+    eq(P.loop.calls.filter((c) => c.name === 'spendTaperFirst').length, 1, 'Taper: a passed first bite spends it once too');
+  }
   // where the uncommon-and-rare pool fails the sign rule the rule waits (the flag stays clear)
   const pool = (phase, d) => D.SPECIES.filter((s) => s.zone === 'mossmere' && s.rarity !== 'legendary' && !s.bait && d >= (s.depth?.[0] ?? 0) && d <= (s.depth?.[1] ?? 1)
     && (s.time === 'calm' ? phase !== 'gloomtide' : s.time === 'gloom' ? phase === 'gloomtide' : true));

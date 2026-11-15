@@ -1353,7 +1353,9 @@ export function create(ctx) {
   /** A tap during the nibbles: the fish felt it ('spooked'); the cast ends, the bait is spent, no favour is carried. */
   function spook() {
     if (LOOP()) {
-      // the loop: a spook spends a bite at its water (T8) and a waiting comeback with it (WICKS §2.5)
+      // the loop: a spook spends a bite at its water (T8) and a waiting comeback with it (WICKS §2.5); a bite rolled under Taper's
+      // rule spends the rule too ("a spooked or passed first bite spends the rule, like any bite", WICKS §2.2 (a))
+      if (S.taperRule) { S.taperRule = false; try { loopApi()?.spendTaperFirst?.(); } catch (e) { report(e); } }
       if (S.comeback) { S.comeback = null; try { loopApi()?.consumeComeback?.(); } catch (e) { report(e); } }
       emit('fishing:miss', { reason: 'spooked', waterKey: S.cast?.waterKey ?? null });
     } else
