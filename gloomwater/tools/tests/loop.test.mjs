@@ -260,5 +260,28 @@ section('createLoop and loop-fixture (PLAN §2.0)');
   ok(over.holdFull() === true && over.hold().full === true, 'fakeLoop: a method can be replaced');
 }
 
+// ------------------------------------------------------------------ the Wick's ledger (WICKS §2.1) and the fixture's parity with CONTRACT §14.4
+section('progression-loop: stampFirst; fakeLoop as a view sees the real ledger');
+{
+  const F = { seen: [], seals: [], best: {} }, sp = D.SPECIES_BY_ID.reedjaw_pike, seals = D.sealsFor(sp);
+  eq(PL.stampFirst(F, sp, { length: 40, sizeClass: 'keeper' }, { seals }), { kind: true, seal: false, best: false, first: true }, 'a new kind is a first');
+  eq(PL.stampFirst(F, sp, { length: 30, sizeClass: 'keeper' }, { seals }), { kind: false, seal: false, best: false, first: false }, 'a shorter Keeper of it is not');
+  eq(PL.stampFirst(F, sp, { length: 70, sizeClass: 'prize' }, { seals }), { kind: false, seal: true, best: true, first: true }, 'its first Prize (and a longer best): one first');
+  eq(PL.stampFirst(F, sp, { length: 69, sizeClass: 'prize' }, { seals }), { kind: false, seal: false, best: false, first: false }, 'a second Prize, shorter: none');
+  eq(PL.stampFirst(F, sp, { length: 140, sizeClass: 'elder', ancient: true }, { seals }).first, true, 'an Ancient Elder');
+  ok(F.seals.includes('reedjaw_pike|elder') && F.seals.includes('reedjaw_pike|ancient') && F.best.reedjaw_pike === 140, 'the ledger keeps the seals and the best');
+  const M = D.SPECIES_BY_ID.belled_matriarch;
+  eq(PL.stampFirst(F, M, { length: 90, legendary: true }, { seals: D.sealsFor(M) }).first, false, 'a legend is never a first (her price is her own)');
+  ok(F.seen.includes('belled_matriarch'), '… though the ledger notes her');
+  const bus = core.createBus();
+  const fk = fakeLoop({ D, bus, clams: 500 });
+  fk.buy('hold:4');
+  ok(fk.shelf().tabs.find((t) => t.id === 'raft').items[0].bought === true, 'fakeLoop: the bought card reads Yours. while the shelf is open');
+  bus.emit('ui:modal', { id: 'shelf', open: false });
+  eq(fk.shelf().tabs.find((t) => t.id === 'raft').items[0].id, 'hold:5', 'fakeLoop with a bus: the session ends with the shelf (as the real one)');
+  ok(fk.endTrip().zone === 'mossmere', "fakeLoop: lastTrip carries the trip's water");
+  eq(fakeLoop({ D, wick: 'tallow' }).sayOnce('firstChart'), D.TEXT_LOOP.murk.firstChartBy.tallow, "fakeLoop: the Chart's line is the Wick's own count");
+}
+
 console.log(`\nloop: ${pass} passed, ${fail} failed`);
 if (fail) { console.log(failures.map((f) => '  - ' + f).join('\n')); process.exit(1); }

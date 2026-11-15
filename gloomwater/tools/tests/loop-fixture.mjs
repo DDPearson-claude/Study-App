@@ -6,7 +6,10 @@
 //   tripRun(D, over)      a trip run as createTrip builds it (PLAN §2.1 item 6): outing 'trip', night mode 'still', the hold empty
 //   fakeLoop(over)        an in-memory object with every method of PLAN §3.3 (LOOP_METHODS), working on its own small state, with
 //                         a call log. `over`: `D` (the loop data, for the real helpers and words), `state` (initial state), any
-//                         state key directly (holdSlots, wick, tutorial, clams, onTrip, …), and any method to replace.
+//                         state key directly (holdSlots, wick, tutorial, clams, onTrip, …), any method to replace, and `bus` (a
+//                         core.createBus(): the shelf's session then ends on ui:modal {id: 'shelf'} and home:enter, as the real one's).
+//                         It follows CONTRACT §14.4 where a view can tell (lastTrip carries `zone`; sayOnce('firstChart') is the
+//                         Wick's own count); progression's own tests run the real createLoop (loop-trip.test.mjs).
 // Nothing here is used by the game. Run as a script it checks itself: node tools/tests/loop-fixture.mjs
 import { pathToFileURL } from 'node:url';
 import { defaultMeta } from '../../src/core.js';
@@ -54,7 +57,7 @@ export function tripRun(D, over = {}) {
 
 /** An in-memory `ctx.progression.loop` for B's and C's tests (every method of PLAN §3.3; see the header). */
 export function fakeLoop(over = {}) {
-  const { D = null, state = {}, ...rest } = over || {};
+  const { D = null, state = {}, bus = null, ...rest } = over || {};
   const methods = {}, plain = {};
   for (const [k, v] of Object.entries(rest)) (typeof v === 'function' ? methods : plain)[k] = v;
   const s = {
@@ -147,7 +150,7 @@ export function fakeLoop(over = {}) {
       for (const f of s.fish) if (f && typeof f === 'object' && !Number.isFinite(Number(f.clams))) f.clams = price(f);
       const lines = tallyLines(s.fish, { D, saleOf: api.saleOf }), total = lines.reduce((a, l) => a + l.clams, 0);
       s.clams += total; s.evenings += 1;
-      s.lastTrip = { id: s.runId, evening: s.evening, total, lines, seen: false };
+      s.lastTrip = { id: s.runId, evening: s.evening, zone: s.zone, total, lines, seen: false };
       s.fish = []; s.pending = []; s.openBite = null; s.onTrip = false; s.saves++;
       return { ...s.lastTrip };
     },
@@ -174,6 +177,7 @@ export function fakeLoop(over = {}) {
       }
       if (s.said[id]) return null;
       s.said[id] = true;
+      if (id === 'firstChart') return T?.murk?.firstChartBy?.[wickId(s.wick)] ?? T?.murk?.firstChart ?? id;
       return T?.murk?.[id] ?? id;
     },
     parkRun(run) { if (run && typeof run === 'object') s.parkedRun = run; },
@@ -189,6 +193,10 @@ export function fakeLoop(over = {}) {
     consumeComeback() { const c = s.comeback; s.comeback = null; return c ? { ...c } : null; },
   };
   Object.assign(api, methods);
+  if (bus && typeof bus.on === 'function') {
+    bus.on('ui:modal', (e) => { if (e?.id === 'shelf') s.session = []; });
+    bus.on('home:enter', () => { s.session = []; });
+  }
   const fake = { calls, s };
   for (const name of Object.keys(api)) {
     const fn = api[name];
