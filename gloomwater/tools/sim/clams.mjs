@@ -243,8 +243,13 @@ const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));
 // below, written to the rule as WICKS.md states it, with the same signature. `--wicks` prints which is which. The sim has no `meta.loop`,
 // so it calls the numeric `wickSlots`, never `loopSlots`. A Wick id the table does not know (the reference row's null) is no passive.
 export const WICK_IDS = LOOP.wicks.order;
-/** Run fn with some of a Wick's knobs changed (a comparison row), then put them back. */
-export function withKnobs(wid, patch, fn) { const K = LOOP.wicks[wid], keep = { ...K }; Object.assign(K, patch); try { return fn(); } finally { for (const k of Object.keys(K)) delete K[k]; Object.assign(K, keep); } }
+/** Run fn with some of a Wick's knobs changed (a comparison row), then put them back. The data.js helpers read data's own
+ *  LOOP.wicks (slice 1a's seam), so its row is patched too while fn runs. */
+export function withKnobs(wid, patch, fn) {
+  const tables = [LOOP.wicks[wid], D.LOOP?.wicks?.[wid]].filter((K, i, a) => K && a.indexOf(K) === i), keeps = tables.map((K) => ({ ...K }));
+  for (const K of tables) Object.assign(K, patch);
+  try { return fn(); } finally { tables.forEach((K, i) => { for (const k of Object.keys(K)) delete K[k]; Object.assign(K, keeps[i]); }); }
+}
 export const simWick = (id) => (id && id !== 'order' && LOOP.wicks[id] ? id : null);
 export const STAND_INS = [];
 const fromData = (name, standIn) => (typeof D[name] === 'function' ? D[name] : (STAND_INS.push(name), standIn));
