@@ -7,8 +7,8 @@ The user asked on 14 November 2026: "Let's pause and focus on one task at a time
 The user, 15 November 2026: "Once this visual job has ran, focus on all code based jobs first as they're much faster". Then, asked what it takes to get map 1 and the home base "fully 100% finished and playable", the user said **"Yes"** to the lead's re-cut: **finish the Mossmere and the home base first** (milestone M1, "the Mossmere and the Landing, complete"); everything for Sporewood and the later waters waits until M1 is done. The design and code jobs still run first (2–7); then M1's builds in order (8–13); then the rest.
 
 1. ~~The catch show~~ *(DONE 15 November: merged at 32c7133 with the cut scene; the preview updated; the film with its sound sent)*
-2. The world map and the story (run `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map (a 2D generator and page); publish the map; answer the user's questions. *(running)*
-3. **Pounds** (the user, 15 November 2026: "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please"). A fish's size is told in pounds everywhere the player sees it: the card's headline and its count, records and personal bests, the Journal and ledger, bounties and challenges, the play's estimate, Murk's lines. Format (the lead's default, the UK angler's way): under 1 lb in ounces ("11 oz"; under 1 oz to the nearest quarter, "¾ oz"); 1 lb to under 100 lb as "4 lb 6 oz"; 100 lb and up in whole pounds ("212 lb"). Length stays the hidden truth (the model's scale, the show's pose, the classes) and is kept only as a detail line on the card. The species' weights are audited against their real-world cousins so the pounds ring true. v3 and the loop only; the flag-off v1 game keeps parity.
+2. ~~The world map and the story~~ *(DONE 15 November: merged at ad8461d; LORE.md v2 and WORLD.md v2, the Waxwold; the map published as the artifact "The Waxwold"; the new line 3 proposed: "Its last candles fish from lamp to lamp.")*
+3. **Pounds** *(running)* (the user, 15 November 2026: "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please"). A fish's size is told in pounds everywhere the player sees it: the card's headline and its count, records and personal bests, the Journal and ledger, bounties and challenges, the play's estimate, Murk's lines. Format (the lead's default, the UK angler's way): under 1 lb in ounces ("11 oz"; under 1 oz to the nearest quarter, "¾ oz"); 1 lb to under 100 lb as "4 lb 6 oz"; 100 lb and up in whole pounds ("212 lb"). Length stays the hidden truth (the model's scale, the show's pose, the classes) and is kept only as a detail line on the card. The species' weights are audited against their real-world cousins so the pounds ring true. v3 and the loop only; the flag-off v1 game keeps parity.
 4. **The M1 plan, with the Chart** (design): re-cut SPEC §13 and the slice PLANs into M1 (the slices' Mossmere halves, the cove pulled forward, Sporewood's sheet sealed "coming soon"); the world map as the in-game Chart (SPEC §5.4, §13, the Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers); the sim's pacing for a Mossmere-only arc (`--shipped`); M1's done-list.
 5. The three keys (resume `wf_1c95633f-092`).
 6. The Wicks' passives, design (resume `wf_91d42619-6b9`).
@@ -30,7 +30,7 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 
 ## Running
 
-- **The world map and the story** (job 2; resumes run `wf_83a11939-9e7` on `gw-loop-world`).
+- **Pounds** (job 3; branch `gw-pounds`).
 
 ## Backlog for slice 1a (job 8) (found on the catch show's merge; small, code only; lane B unless named)
 
@@ -54,7 +54,7 @@ The merge review (15 November) found no regression a player would see; these are
 
 | item | the user's words | when |
 |---|---|---|
-| Rewrite the cut scene's line 3 ("Its last candles fish to stay lit.") so it fits the new loop and points toward the journey | "Yes, rewrite line 3 once the story's done" (14 November 2026) | the words drafted in LORE.md by job 2; put in and re-timed in job 8 (slice 1a); the new video in job 13 |
+| Rewrite the cut scene's line 3 ("Its last candles fish to stay lit.") so it fits the new loop and points toward the journey | "Yes, rewrite line 3 once the story's done" (14 November 2026) | drafted in LORE.md §12 by job 2: "Its last candles fish from lamp to lamp." (the alternate: keep the old line); put in and re-timed in job 8 (slice 1a); the new video in job 13 |
 | The world map becomes the in-game Chart | "Yes make the map our in-game Chart" | job 4 (the M1 plan, with the Chart) |
 | Wick balancing in the sim | "each one has a powerful unique passive ability" | job 7 |
 | Slice 1a build (three slots on the built fish, the opening, the Chart) | — | job 8, the start of M1 |
