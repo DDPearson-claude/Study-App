@@ -50,6 +50,12 @@ read "open" for "owned". Nothing is gated in 1a (only the Mossmere is open), so 
 Every addition is marked **v8** where it appears. The gate, the pull, the seals and Murk's two lines come later: SPEC §5.5 (h)
 says what each needs, and M1's plan places them.
 
+**Revision 9 (15 November 2026) applies the barge review's shoulds** (`docs/loop/M1.md` §10.3, applied with the finds job).
+**Slice 1a's work does not change**: in M1 steps 1–4 `startTrip` still sends Murk away. From M1 step 5 Murk's barge is moored
+beside the home barge in a `moored` mode (SPEC §6.1, §13 step 5), so step 5 drops the `merchant.leave` call from `startTrip`
+(§2.2 item 3), and T29 reads "no `merchant:arrive` and no Trade pill on a trip", which holds in every step. Each amended
+passage says "(rev. 9)".
+
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
 three conflicts with `gw-show`. Lane A then writes the **seam commit S** on M (§2.0: the data tables, the switch,
@@ -191,7 +197,7 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T26 | parked: a night with no enemy (`combat.update` spawns nothing for 120 s of night on a trip) | B · loop-evening |
 | T27 | no change in oil, satiety or health, no death (`setOil`/`hurt`/`snuff` debug hooks are no-ops on a trip) | B · loop-evening |
 | T28 | no Memories (`meta.memories`, `memoriesEarnedTotal` unchanged through measure, keep, let go, endTrip) | A · loop-trip |
-| T29 | no Murk on the water (`market.update` over 300 s of calm on a trip: no `merchant:arrive`) | A · loop-trip |
+| T29 | (rev. 9) no `merchant:arrive` and no Trade pill on a trip (`market.update` over 300 s of calm on a trip: no `merchant:arrive`, and no Trade pill in the DOM; from M1 step 5 Murk's barge is moored in view and still has none) | A · loop-trip |
 | T30 | no giant spot in the Mossmere's open water: `ZONES[0].arena.giantSpots` and `watchLamps` empty on loop data (A); B, through the cap path, never a forced z (a forced z skips `capZ` by design): at each old `RAFT_FALLBACK_V3.mossmere.giants` centre and at 20 seeded open-water points, `fishing.waterAt(p).giant === false` and `capZ({species, place: null, giantWater: false, size})` ≤ `classMaxZ.trophy` (2.64) for every Mossmere species; and 2,000 seeded `fishing.rollSize(sp, 1.8, {giant: waterAt(p).giant})` (the most favour) give no `elder`. `forceBite`'s z is untouched | A · validate-data --loop; B · loop-evening |
 | T31 | no path from the pause menu or the title empties a hold without selling it: `endRun(cause)` for every cause but `'home'` is refused under the loop (`tripEndAllowed`); `startTrip` is refused while a trip is saved (`tripStartAllowed`); the DOM has no Abandon / New Descent | B · loop-evening (main's pure guards, see §3.5); D · scenario (DOM) |
 | T32 | continue mid-trip: hold, `run.bites`, `run.mercy`, `run.phase`/`phaseTime` and `run.pos` survive a reload | A · loop-trip (state); D · scenario (raft place) |
@@ -454,7 +460,8 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
    nightMode: 'still', outing: 'trip'})` (rev. 3: the chosen Wick; createTrip validates it again); on failure `report` and stay home (never `fallbackRun`); `lockRunMode(run, {nightMode: 'still', outing:
    'trip'})`; **no write** to `meta.runs`, `meta.lastCharacter` (**PLAN CHOICE 3**); `ctx.state.run = run; savedRun = null;
    ctx.paused = false; actors.merchant.leave({instant: true}); ctx.ui.closeAll?.()` (the Chart sits on the Jetty; both must
-   go before play), `setFlow('playing'); emit('zone:change', {zone: run.zone, prev: null, sail: true})` (the lake is already
+   go before play; (rev. 9) from M1 step 5 the `leave` call goes: Murk's barge stays moored at the mooring's `murk` slot in its
+   `moored` mode, SPEC §13 step 5), `setFlow('playing'); emit('zone:change', {zone: run.zone, prev: null, sail: true})` (the lake is already
    on screen: render does not flash, audio plays `setout`, ui shows no banner, item 18 and §2.3 item 1); `emit('run:start',
    {continued: false})`; (rev. 3) `if (opts.at) ctx.player.teleport(opts.at.position, opts.at.yaw)` in the same task (the
    player's `run:start` listener respawns the raft at the lake's spawn; this puts it back where the glide out ended before
