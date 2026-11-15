@@ -130,8 +130,7 @@ export default async function (api) {
 
     // ---------------------------------------------------------- home, the tally watched to its end, Sold
     K.step('time: home and the sale');
-    await K.until('c.game.canGoHome?.()?.ok === true', 6);
-    await K.settle(350);
+    await K.pillReady();
     m.homeTap = await sim();
     K.need(await K.tap('[data-loop=home]', null, { settle: 0 }), 'the Home pill (a tap, the hold full)');
     detail.taps.home = 1;
@@ -175,16 +174,19 @@ export default async function (api) {
     await K.settle();
     m.murkTap = await sim();
     K.need(await K.tap('[data-loop=jetty] [data-tile=murk]', null, { settle: 0 }), 'the Murk tile');
-    K.need((await K.until("!!window.__lp.one('[data-buy=\"hold:4\"]')", 3)).ok, 'the shelf with Hold 4');
+    K.need((await K.until("c.debug.ui().openModal === 'shelf'", 3)).ok, 'the shelf');
     await K.settle(200);
-    K.need(await K.tap('[data-buy="hold:4"]', null, { settle: 0 }), 'Hold 4');
+    const b4 = await K.buyBox('hold:4', TL.tabs?.raft);
+    K.need(b4 && !b4.disabled, 'the shelf offers Hold 4', b4);
+    await K.tapXY(b4.x, b4.y);
+    detail.taps.shopTab = (await K.box('[data-loop=shelf] [role=tab]')) ? 1 : 0;
     const bought = await K.until(`(c.progression?.loop?.state?.()?.holdSlots ?? 0) >= 4 && window.__lp.seen(${JSON.stringify(TL.yours)})`, 3);
     K.check(bought.ok, 'Hold 4 bought (Yours.)');
     await K.key('Escape', { settle: 0 });
     const back = await K.until("c.debug.ui().openModal === 'jetty'", 3);
     K.need(back.ok, 'Escape → the Jetty');
     m.jettyAfterShop = await sim();
-    detail.taps.shop = 3;
+    detail.taps.shop = 3 + (detail.taps.shopTab || 0);
 
     // ---------------------------------------------------------- out: the Chart and Sail
     K.step('time: out');

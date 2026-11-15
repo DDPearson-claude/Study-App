@@ -228,11 +228,13 @@ export function scanDom(opts, rules, classify) {
       out.n++;
       out.texts.push(text);
       if (k.startsWith('banned')) out.banned.push(`${k}: ${text}`);
-      else if (k === 'unknown' && o.allow !== false) out.unknown.push(text);
+      else if (k === 'unknown' && o.allow !== false) {
+        const screen = el.closest('[data-modal]')?.dataset.modal || (el.closest('.gw-hud') ? 'hud' : el.closest('.gw-toasts') ? 'toast' : null);
+        if (!out.unknown.some((u) => u.text === text && u.screen === screen)) out.unknown.push({ text, screen });
+      }
     }
   }
   out.texts = [...new Set(out.texts)];
-  out.unknown = [...new Set(out.unknown)];
   return out;
 }
 
@@ -381,6 +383,35 @@ export function installDriver(watch) {
   return 'ok';
 }
 
+// ================================================================== ui-loop's allow-list helper (node side, when the tree has it)
+let kitP = null;
+/** ui-loop.js and the loop data in node ({UL, D}), or null when the tree has no ui-loop.js (lane C's) or the fixture fails. */
+export function uiLoopModule() {
+  if (!kitP) {
+    kitP = (async () => {
+      try {
+        const UL = await import('../../src/ui-loop.js');
+        const { loadLoopData } = await import('./loop-fixture.mjs');
+        return { UL, D: await loadLoopData() };
+      } catch { return null; }
+    })();
+  }
+  return kitP;
+}
+/** (text, screen) → boolean from ui-loop's textAllowed on the loop data, or null without it. */
+export async function uiLoopHelper() {
+  const k = await uiLoopModule();
+  if (!k || typeof k.UL.textAllowed !== 'function') return null;
+  const words = typeof k.UL.allowedWords === 'function' ? k.UL.allowedWords(k.D) : null;
+  return (text, screen) => { try { return k.UL.textAllowed(text, { D: k.D, screen, words }) === true; } catch { return false; } };
+}
+/** The Jetty's goal line for loop.goal(): ui-loop's goalLine when the tree has it (PLAN §0's D row), else this file's goalText. */
+export async function goalLineText(T, wicks, goal, wick) {
+  const k = await uiLoopModule();
+  if (k && typeof k.UL.goalLine === 'function') { try { return k.UL.goalLine(goal, { D: k.D, wick })?.text ?? null; } catch { /* fall back */ } }
+  return goalText(T, wicks, goal, wick);
+}
+
 // ================================================================== the node-side kit (shared with loop-time.scenario.mjs)
 export function makeKit(api, { label = 'loop' } = {}) {
   const { page, wait, evalGame: g, log, args, width, height } = api;
@@ -461,8 +492,21 @@ export function makeKit(api, { label = 'loop' } = {}) {
   K.scan = async (where, opts = {}) => {
     const r = await K.scanRaw(opts);
     K.check(r.banned.length === 0, `T43 (${where}): no "Shells", "Memories", "Descent" or "kg" on screen`, r.banned);
-    if (opts.allow !== false) K.check(r.unknown.length === 0, `T43 (${where}): every visible word is on the allow-list`, r.unknown);
+    if (opts.allow !== false) {
+      const helper = await uiLoopHelper();
+      const left = r.unknown.filter((u) => !(helper && helper(u.text, u.screen)));
+      K.check(left.length === 0, `T43 (${where}): every visible word is on the allow-list${helper ? ' (this file\'s rules or ui-loop\'s textAllowed)' : ''}`, left);
+    }
     return r;
+  };
+  /** The Home pill is live: canGoHome ok, a frame or two for the view to show it, its fade on the wall clock. */
+  K.pillReady = async () => { const r = await K.until('c.game.canGoHome?.()?.ok === true', 6); await K.steps(2); await K.settle(350); return r.ok; };
+  /** A shelf card's buy button ([data-buy=id]); the shelf shows one tab at a time, so the tab that holds it is chosen first. */
+  K.buyBox = async (id, tabWord) => {
+    let b = await K.box(`[data-loop=shelf] [data-buy="${id}"]`) || await K.box(`[data-buy="${id}"]`);
+    if (!b && tabWord) { await K.tap('[data-loop=shelf] [role=tab]', tabWord); await K.settle(250); b = await K.box(`[data-buy="${id}"]`); }
+    for (let i = 0; i < 3 && !b; i++) { await K.key('ArrowRight'); await K.settle(200); b = await K.box(`[data-buy="${id}"]`); }
+    return b;
   };
   K.noErrors = async (where) => { const e = await g(() => window.__gw.errors.slice()); K.check(e.length === 0, `ctx.errors stays empty (${where})`, e.slice(0, 6)); };
   // ---- real input
@@ -603,15 +647,15 @@ export default async function (api) {
     const T = window.__lp, root = T.one('[data-loop=chart]');
     const sail = T.one('[data-loop=chart] [data-action=sail]') || T.one('[data-action=sail]');
     return { root: !!root, water: !!T.one('[data-loop=chart] [data-water=mossmere]'), cells: root ? root.querySelectorAll('.gw-slot').length : 0,
-      filled: root ? root.querySelectorAll('.gw-slot[data-filled]').length : 0, sail: sail ? { cue: sail.classList.contains('gw-cue'), disabled: !!sail.disabled } : null,
+      filled: root ? [...root.querySelectorAll('.gw-slot[data-filled]')].filter((x) => !['0', 'false'].includes(x.dataset.filled)).length : 0, sail: sail ? { cue: sail.classList.contains('gw-cue'), disabled: !!sail.disabled } : null,
       text: root ? root.textContent.replace(/\s+/g, ' ').trim() : '' };
   });
   /** The water's HUD: the hold row, the Home pill. */
   const hud = () => g(() => {
-    const T = window.__lp, row = T.one('.gw-hold'), pill = document.querySelector('[data-loop=home]');
+    const T = window.__lp, row = T.one('.gw-hud .gw-hold') || T.one('[data-loop=hold]'), pill = document.querySelector('[data-loop=home]');
     const r = (e) => { if (!e) return null; const b = e.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom }; };
     const tr = [...document.querySelectorAll('.gw-tr *')].filter((e) => T.visible(e) && !e.children.length).map(r);
-    return { cells: row ? row.querySelectorAll('.gw-slot').length : 0, filled: row ? row.querySelectorAll('.gw-slot[data-filled]').length : 0, row: r(row), right: tr,
+    return { cells: row ? row.querySelectorAll('.gw-slot').length : 0, filled: row ? [...row.querySelectorAll('.gw-slot[data-filled]')].filter((x) => !['0', 'false'].includes(x.dataset.filled)).length : 0, row: r(row), right: tr,
       pill: pill ? { shown: T.visible(pill), pulse: pill.classList.contains('gw-pulse') && pill.classList.contains('gw-home'), box: T.box('[data-loop=home]') } : null,
       vw: innerWidth };
   });
@@ -955,8 +999,7 @@ export default async function (api) {
         K.check(s.hold?.n === i + 1 && h.filled === i + 1, `${what}: the hold and the HUD hold ${i + 1}`, { hold: s.hold, filled: h.filled });
         if (i === 0) {
           // T50 at 1 of N: a 0.3 s press on the pill does nothing, and never starts a cast charge
-          await K.until('c.game.canGoHome?.()?.ok === true', 4);
-          await K.settle(350);
+          await K.pillReady();
           const pb = await K.box('[data-loop=home]');
           K.need(pb, 'the Home pill is shown in idle (canGoHome ok)');
           const pr = await K.pressHold(pb.x, pb.y, 0.3, 'c.fishing.state');
@@ -991,8 +1034,7 @@ export default async function (api) {
       const far = docks[2] || docks[docks.length - 1];
       await g((p) => window.__gw.player.teleport({ x: p.x, z: p.z }, p.yaw), far);
       await K.steps(3);
-      await K.until('c.game.canGoHome?.()?.ok === true', 4);
-      await K.settle(350);
+      await K.pillReady();
       const purse0 = (await K.state()).loop?.clams ?? null;
       e0 = await K.evCount();
       K.need(await K.tap('[data-loop=home]'), 'T50: a tap on the Home pill with a full hold');
@@ -1040,6 +1082,8 @@ export default async function (api) {
       j = await jetty();
       s = await K.state();
       K.check(looseRe(E.goal0).test(j.text), `the goal line "${E.goal0}"`, j.text.slice(0, 200));
+      const gl0 = await goalLineText(TL, D.LOOP.wicks, s.goal, wick);
+      K.check(gl0 === E.goal0, 'the goal line from loop.goal() (ui-loop\'s goalLine) is the one PLAN §0 names', { goalLine: gl0, plan: E.goal0, goal: s.goal });
       K.check(j.text.includes(clamText(s.loop?.clams ?? -1)), 'the purse shows the clams (fmtClams)', { clams: s.loop?.clams });
       K.check(j.cues === 0, 'T67: with the tutorial done no .gw-cue anywhere', j.cues);
       K.check(j.text.includes(TL.murk.firstSale), 'Murk\'s firstSale line after the first Sold', j.text.slice(0, 200));
@@ -1059,7 +1103,7 @@ export default async function (api) {
       w = await K.until("c.debug.ui().openModal === 'shelf'", 2);
       K.need(w.ok, 'the Murk tile opens the shelf (modal shelf)', await top());
       await K.secs(0.5);
-      const b4 = await K.box('[data-loop=shelf] [data-buy="hold:4"]') || await K.box('[data-buy="hold:4"]');
+      const b4 = await K.buyBox('hold:4', TL.tabs?.raft);
       K.need(b4 && !b4.disabled, 'the shelf offers [data-buy="hold:4"]', b4);
       K.check(b4.text.includes(clamText(D.LOOP.hold.ladder[0].price)) || (await g(() => window.__lp.text('[data-loop=shelf]') || '')).includes(clamText(D.LOOP.hold.ladder[0].price)), 'Hold 4\'s price on its card', b4.text);
       await K.scan('the shelf');
@@ -1077,7 +1121,7 @@ export default async function (api) {
       await K.settle();
       K.check((await top()) === 'jetty', 'T57: Escape on the shelf → the Jetty', await top());
       s = await K.state();
-      const gl = goalText(TL, D.LOOP.wicks, s.goal, wick);
+      const gl = await goalLineText(TL, D.LOOP.wicks, s.goal, wick);
       j = await jetty();
       K.check(!gl || looseRe(gl).test(j.text), `the next goal line "${gl}" (loop.goal())`, j.text.slice(0, 200));
       if (wick === 'tallow') K.check(s.hold?.slots === 5, 'WICKS §2.4: Tallow\'s hold after Hold 4 is five slots', s.hold);
@@ -1091,8 +1135,14 @@ export default async function (api) {
       K.need(await K.tap('[data-loop=chart] [data-action=sail]', null, { settle: 0 }), 'Sail');
       s = await K.state();
       K.check(s.stack.length === 0, 'T36: after Sail debug.ui().stack is empty', s.stack);
+      // T73 / T66: a home glide is skipped, not paused: Escape (a tap on a phone) ends the glide out at its end, and the trip starts
+      await K.secs(0.6);
+      const sk0 = await K.sim();
+      if (K.phone) { const wq = await K.waterPoint(); await K.tapXY(wq.x, wq.y); } else await page.keyboard.press('Escape');
       w = await K.until("c.flow === 'playing'", 6);
       K.need(w.ok, 'the second trip starts', await K.state());
+      const skipT = (await K.sim()) - sk0;
+      K.check(skipT < 0.5 && !(await K.events(e0)).some((e) => e.e === 'ui:modal' && e.p?.id === 'homepause' && e.p?.open), `T73: ${K.phone ? 'a tap' : 'Escape'} skips the glide out (the trip ${skipT.toFixed(2)} s later), and opens no home pause`, skipT);
       await K.steps(2);
       ev = await K.events(e0);
       const so2 = ev.find((e) => e.e === 'player:glide' && e.p?.kind === 'sailOut' && e.p?.state === 'start');
@@ -1260,8 +1310,7 @@ export default async function (api) {
 
       // ---------------------------------------------------------- a 0.7 s hold on the pill at 1 of N (T50), the tally, Sold
       K.step('main: the pill held');
-      await K.until('c.game.canGoHome?.()?.ok === true', 4);
-      await K.settle(350);
+      await K.pillReady();
       const pb = await K.box('[data-loop=home]');
       K.need(pb, 'the Home pill');
       e0 = await K.evCount();
@@ -1283,7 +1332,7 @@ export default async function (api) {
         await K.tap('[data-loop=jetty] [data-tile=murk]');
         await K.settle();
         await K.until("c.debug.ui().openModal === 'shelf'", 2);
-        const b5 = await K.box('[data-buy="hold:5"]');
+        const b5 = await K.buyBox('hold:5', TL.tabs?.raft);
         K.need(b5 && !b5.disabled, 'the shelf offers [data-buy="hold:5"]', b5);
         await K.tapXY(b5.x, b5.y);
         await K.steps(3);
@@ -1362,6 +1411,26 @@ export default async function (api) {
       K.check(await g(() => window.__gw.game.loopFresh?.() === true), 'T69: game.loopFresh()');
       await K.scan('the title after Forget', { newDescentOk: true });
       await K.shoot('title-forgot');
+      // T60: a first film abandoned to the title (debug.intro('stop')) forgets the Wick: the title is fresh again and a save writes none
+      K.step('forget: a first film abandoned');
+      await g(() => { window.__gw.debug.intro?.('auto', true); window.__gw.ui.showTitle(); });
+      await K.titleReady();
+      K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.newDescent), 'New Descent');
+      await K.settle();
+      await K.tap(`[data-modal=newdescent] button.gw-char[data-wick=${wick === 'wick' ? 'stub' : wick}]`);
+      const ab = await g(() => { const c = window.__gw, b = window.__lp.one('[data-modal=newdescent] [data-action=start]'); if (!b) return null; b.click(); return { flow: c.flow, wick: c.debug.loop?.wick?.() ?? null }; });
+      K.need(ab && ab.flow === 'intro', 'Start → the film', ab);
+      await g(() => window.__lp.runTo(2));
+      await g(() => window.__gw.debug.intro?.('stop'));
+      await K.until("c.flow === 'title'", 3);
+      await K.titleReady();
+      const back = await K.state();
+      const tw2 = await K.titleWords();
+      await g(() => window.__gw.game.save?.());
+      const sv = await g(() => window.__lp.stored());
+      K.check(back.flow === 'title' && JSON.stringify(tw2) === JSON.stringify([TL.newDescent, TL.settings.label]) && back.loop?.wick == null, 'T60: a first film abandoned to the title: the title is fresh again, the Wick forgotten', { flow: back.flow, words: tw2, wick: back.loop?.wick });
+      K.check(sv?.meta?.loop ? sv.meta.loop.wick == null : true, 'T60: … and a save then writes no Wick', sv?.meta?.loop?.wick);
+      await K.shoot('title-abandoned');
       await K.noErrors('forget');
     } catch (e) {
       if (e instanceof Abort) K.note('the forget pass stopped', e.message);
@@ -1472,6 +1541,10 @@ export async function dryRun() {
   ok(JSON.stringify(R2) === JSON.stringify(R), 'wordRules from its source gives the same rules');
   ok(new Function(`return (${classifyText.toString()})`)()('Sold', R2, {}) === 'ok', 'classifyText from its source');
   ok(WATCH.includes('player:glide') && WATCH.includes('home:enter') && WATCH.includes('loop:holdFull'), 'the watched events');
+  const hp = await uiLoopHelper();
+  ok(hp === null || (hp('Sold', 'tally') === true && hp('Trade', 'hud') === false && hp('New Descent', 'pause') === false), 'ui-loop\'s helper: absent, or it agrees on plain cases', hp ? 'loaded' : 'absent');
+  ok((await goalLineText(TL, L.wicks, { id: 'hold:4', name: 'Hold 4', price: 30, slot: 'hold', level: 4 }, 'tallow')) === 'Next: Hold 5 · 30', 'goalLineText: Tallow\'s first goal (ui-loop\'s goalLine when present)');
+  ok((await goalLineText(TL, L.wicks, { id: 'rod:1', name: 'Ashwood', price: 50, slot: 'rod', level: 1 }, 'wick')) === 'Next: Ashwood · 50', 'goalLineText: a tackle goal');
   // the in-page driver on a fake page: the held frames, the synthetic clock (and performance.now on it), the task boundary after
   // each frame (a glide's promise ends it inside the same `until`), the event record, the dry frame when nothing is queued
   const drv = await driverSelfTest();
