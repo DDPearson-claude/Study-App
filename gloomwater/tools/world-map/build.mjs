@@ -11,6 +11,7 @@
 //   preview.html       the same page wrapped in the host's skeleton, for local viewing and the renders
 //   map-desktop.png    1600 px wide       map-phone.png   390 px wide viewport
 //   map-journey.png    the route at 16 maps owned
+//   checks/            close looks and behaviour checks (wheel, drag, pinch, tap, slider, journey, reduced motion)
 //   cache/             the baked world image and page data, so --page is fast
 // Deterministic: seeded by canon.mjs SEED. Needs Playwright's Chromium (it inks the world image
 // on a canvas and encodes it as WebP).
@@ -46,6 +47,8 @@ async function bake() {
   const K = buildInk(T, log);
   log('page data');
   const data = buildPageData(T);
+  for (const s of data.strays) log('  WARNING ' + s);
+  if (!data.strays.length) log('  sea legs keep to the sea (up to six units at a river mouth count as the join)');
   const masks = buildMasks(T);
 
   log('bake (Chromium)');
@@ -53,7 +56,7 @@ async function bake() {
   const files = {
     '/bake.html': ['text/html', '<!doctype html><meta charset="utf-8"><script src="/bake-client.js"></script>'],
     '/bake-client.js': ['text/javascript', fs.readFileSync(path.join(here, 'bake-client.js'))],
-    '/meta.json': ['application/json', JSON.stringify({ W: T.W, H: T.H, x0: T.x0, y0: T.y0, UW: T.UW, UH: T.UH, BS, GS, quality: 0.9, seed: SEED, pw: K.pw, ph: K.ph, currents: CURRENTS, crops, toneW: masks.tw, toneH: masks.th })],
+    '/meta.json': ['application/json', JSON.stringify({ W: T.W, H: T.H, x0: T.x0, y0: T.y0, UW: T.UW, UH: T.UH, BS, GS, quality: 0.9, seed: SEED, pw: K.pw, ph: K.ph, currents: CURRENTS, crops, toneW: masks.tw * 2, toneH: masks.th * 2 })],
     '/vec.json': ['application/json', JSON.stringify(K.vec)],
     '/base.bin': ['application/octet-stream', Buffer.from(K.base.buffer)],
     '/glyphs.bin': ['application/octet-stream', Buffer.from(K.glyphArr.buffer)],
@@ -80,13 +83,14 @@ async function bake() {
   data.world = { w: out.size[0], h: out.size[1], bs: BS };
   data.masks = { cols: masks.cols, rows: masks.rows, tw: masks.tw, th: masks.th, unit: masks.unit };
   data.checks = T.checks;
-  data.tone = out.tone;
+  data.tone = { bits: out.tone, w: masks.tw * 2, h: masks.th * 2, unit: masks.unit / 2 };
   fs.writeFileSync(path.join(cacheDir, 'data.json'), JSON.stringify(data));
   log(`  world image ${out.size[0]}x${out.size[1]}, ${(fs.statSync(path.join(cacheDir, 'world.webp')).size / 1e6).toFixed(2)} MB`);
 }
 
 function assemble() {
   const data = JSON.parse(fs.readFileSync(path.join(cacheDir, 'data.json'), 'utf8'));
+  for (const k of ['strays', 'seaWays', 'checks']) delete data[k]; // build-time reports, not page data
   const uri = (file, type) => `data:${type};base64,${fs.readFileSync(path.join(cacheDir, file)).toString('base64')}`;
   let html = fs.readFileSync(path.join(here, 'page/template.html'), 'utf8');
   const js = fs.readFileSync(path.join(here, 'page/app.js'), 'utf8');

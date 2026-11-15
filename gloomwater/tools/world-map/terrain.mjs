@@ -313,7 +313,9 @@ export function buildTerrain(log = () => {}) {
     const dense = resample(spline(rg.pts, 1), 0.45);
     // let the crest wander a little so it does not read as a ruled line
     const wand = dense.map((p, i) => [p[0] + 4.5 * nzE.n(i / 160 + 3, 1.7) * (rg.id === 'spine' ? 1 : 0.6), p[1], p[2], p[3]]);
-    splat(wand, (p) => p[3] * 2.7, (k, d, p) => { const v = p[2] * Math.exp(-(d * d) / (2 * p[3] * p[3])); if (v > rangeAdd[k]) rangeAdd[k] = v; });
+    // the profile is brought to nothing at its rim, so a range never ends in a ruled step
+    const rim = Math.exp(-(2.7 * 2.7) / 2);
+    splat(wand, (p) => p[3] * 2.7, (k, d, p) => { const v = (p[2] * (Math.exp(-(d * d) / (2 * p[3] * p[3])) - rim)) / (1 - rim); if (v > rangeAdd[k]) rangeAdd[k] = v; });
   }
   const stepLine = resample(spline(STEP, 1), 1);
   const stepAt = (x, y) => {

@@ -220,7 +220,7 @@ export function buildInk(T, log = () => {}) {
         tree = G.CONIFER;
         td = 0.42 * Math.exp(-d2(x, y, 377, 430) / (36 * 36)) * (dw > 1 ? 1 : 0); // cedars round the Pallid Deep
         td = Math.max(td, east * (0.1 + 0.4 * smoothstep(5, 1.5, dw) + 0.25 * smoothstep(780, 850, x)));
-        if (east > 0.5 && nzV.n(x / 6 + 3, y / 6) > 0) tree = G.BROADLEAF;
+        if (east > 0.5 && nzV.n(x / 6 + 3, y / 6) > 0.3 && dw < 4) tree = G.BROADLEAF;
         td *= 1 - smoothstep(treeline - 500, treeline - 150, hh);
         gd *= 1 - smoothstep(1300, 1900, hh);
       }

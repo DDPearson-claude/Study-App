@@ -98,7 +98,7 @@ export function buildPageData(T) {
     if (pc.k !== 'sea') continue;
     let n = 0;
     for (let i = 0; i < pc.p.length; i += 2) { const k = clamp(Math.round(T.gj(pc.p[i + 1])), 0, T.H - 1) * T.W + clamp(Math.round(T.gi(pc.p[i])), 0, T.W - 1); if (!T.sea[k]) n++; }
-    if (n > 2) strays.push(`leg ${leg.to}: ${n} sea points on land`);
+    if (n > 6) strays.push(`leg ${leg.to}: ${n} sea points on land`); // a few units at a river mouth are the join, not a stray
   }
 
   // where an owned road runs on into a water not yet bought: a small lavender wisp (WORLD.md §10)

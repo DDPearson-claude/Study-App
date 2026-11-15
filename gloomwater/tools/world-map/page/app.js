@@ -87,7 +87,7 @@
     }
     maskCv.width = M.tw; maskCv.height = M.th;
     S.tileAlpha = S.tiles.map((t) => { const d = t.getContext('2d').getImageData(0, 0, M.tw, M.th).data, a = new Uint8Array(M.tw * M.th); for (let i = 0; i < a.length; i++) a[i] = d[i * 4 + 3]; return a; });
-    const bin = atob(D.tone); S.tone = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) S.tone[i] = bin.charCodeAt(i);
+    const bin = atob(D.tone.bits); S.tone = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) S.tone[i] = bin.charCodeAt(i);
     S.ready = true;
     $('loading').classList.add('is-done');
     buildMask(); invalidate();
@@ -108,9 +108,11 @@
   function darkAt(x, y) {
     const M = D.masks, i = clamp(Math.floor((x - SH.x0) / M.unit), 0, M.tw - 1), j = clamp(Math.floor((y - SH.y0) / M.unit), 0, M.th - 1), q = j * M.tw + i;
     if (S.mode !== 'inked') { let a = 0; for (let k = 0; k < S.owned; k++) a = Math.max(a, S.tileAlpha[k][q]); if (a < 110) return false; }
-    return !!(S.tone[q >> 3] & (1 << (q & 7)));
+    const T = D.tone, ti = clamp(Math.floor((x - SH.x0) / T.unit), 0, T.w - 1), tj = clamp(Math.floor((y - SH.y0) / T.unit), 0, T.h - 1), tq = tj * T.w + ti;
+    return !!(S.tone[tq >> 3] & (1 << (tq & 7)));
   }
-  const darkUnder = (px, py, w) => { let n = 0; for (const f of [-0.4, 0, 0.4]) if (darkAt(cxOf(px + f * w), cyOf(py))) n++; return n >= 2; };
+  // a name is lettered pale only where nearly all of it lies on dark ground
+  const darkUnder = (px, py, w) => { let n = 0; for (const f of [-0.45, -0.22, 0, 0.22, 0.45]) if (darkAt(cxOf(px + f * w), cyOf(py))) n++; return n >= 4; };
 
   // ------------------------------------------------------------------ the view
   const sx = (x) => (x - S.view.x) * S.view.k + S.vw / 2, sy = (y) => (y - S.view.y) * S.view.k + S.vh / 2;
