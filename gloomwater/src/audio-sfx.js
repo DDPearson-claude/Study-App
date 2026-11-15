@@ -46,6 +46,13 @@ export const SFX = {
     chime(v, out, t + 0.04, mtof(74) * p, 0.16, 0.7);
     chime(v, out, t + 0.1, mtof(81) * p, 0.1, 0.8);
   } },
+  // the catch card unfolding from the fish (slice-1a PLAN §2.2 item 25): a soft paper rustle and one low wooden note, short and
+  // quieter than the present it follows (in place of the generic ui_open)
+  ui_unfold: { gain: 0.7, gap: 0.2, max: 1, pri: 3, wet: 0.25, fn(v, out, t, p) {
+    v.burst(out, { kind: 'pink', t, a: 0.02, d: 0.11, peak: 0.3, ft: 'bandpass', f: 2600 * p, f2: 1200 * p, glide: 0.1, q: 0.9 });
+    v.burst(out, { kind: 'pink', t: t + 0.05, a: 0.01, d: 0.07, peak: 0.18, ft: 'highpass', f: 3800 * p, q: 0.7 });
+    v.tone(out, { type: 'triangle', f: 392 * p, t: t + 0.02, a: 0.004, d: 0.12, peak: 0.12 });
+  } },
   ui_close: { gain: 0.95, gap: 0.08, max: 2, pri: 3, wet: 0.3, fn(v, out, t, p) {
     v.burst(out, { kind: 'pink', t, a: 0.03, d: 0.2, peak: 0.36, ft: 'bandpass', f: 1800 * p, f2: 420 * p, glide: 0.22, q: 1.2 });
     chime(v, out, t + 0.02, mtof(76) * p, 0.1, 0.5);

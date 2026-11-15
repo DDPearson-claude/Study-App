@@ -7,6 +7,8 @@
 //
 // The fake progression is a P1 one (getStats with the v3 fight stats, refundBait, measure), so fishing reads the stats it is given;
 // `progression: 'v1'` drops refundBait / measure (a pre-P1 progression). `lean: true` records neither events nor bobber poses (long runs).
+// The Full Hold (slice-1a PLAN §2.2, additive): `loop` puts an object where `ctx.progression.loop` goes (tools/tests/loop-fixture.mjs'
+// fakeLoop), `runOver` is merged into the run (outing 'trip', evening, character…), `buffs` is what getCatchBuffs returns.
 import * as THREE from 'three';
 import { createBus } from '../../src/core.js';
 
@@ -16,7 +18,7 @@ globalThis.document = globalThis.document || { createElement: () => ({ width: 0,
 const { create: createFishing } = await import('../../src/fishing.js');
 
 export function makeFishingEnv({ data, mode = 'lantern', outing = 'normal', phase = 'calm', stats = {}, raft = [30, 30], zoneId = 'mossmere',
-  seed = 42, lean = false, progression = 'p1', upgrades = {} } = {}) {
+  seed = 42, lean = false, progression = 'p1', upgrades = {}, loop = null, runOver = null, buffs = undefined } = {}) {
   const bus = createBus();
   const events = [];
   const origEmit = bus.emit.bind(bus);
@@ -24,13 +26,15 @@ export function makeFishingEnv({ data, mode = 'lantern', outing = 'normal', phas
   const zone = data.ZONES.find((z) => z.id === zoneId);
   const calls = { refund: [], bobber: [], consume: 0 };
   const ph = { phase };
-  const run = { active: true, zone: zoneId, day: 1, phase, nightMode: mode, outing, upgrades, bait: { mireworm: 5 }, equippedBait: 'mireworm', flags: {}, hp: 3, oil: 80, satiety: 50 };
+  const run = { active: true, zone: zoneId, day: 1, phase, nightMode: mode, outing, upgrades, bait: { mireworm: 5 }, equippedBait: 'mireworm', flags: {}, hp: 3, oil: 80, satiety: 50, ...(runOver || {}) };
   const prog = {
     getStats: () => ({ castMax: 16, hookWindow: 1, lineStrength: 1, reelSpeed: 1, sweetZone: 0.16, slackTime: 1.6, biteSpeed: 1, rarityBonus: 0, nibbleTells: 0, maxOil: 100, absorb: 0.3, dragAt: 0.8, shock: 0, pipBonus: 0, ...stats }),
     consumeBait: () => { calls.consume++; return run.equippedBait; },
     getEquippedBait: () => run.equippedBait,
   };
   if (progression !== 'v1') Object.assign(prog, { refundBait: (id) => { calls.refund.push(id); return true; }, measure: () => ({ records: [] }) });
+  if (loop) prog.loop = loop;
+  if (buffs !== undefined) prog.getCatchBuffs = typeof buffs === 'function' ? buffs : () => buffs;
   const ctx = {
     THREE, bus, data, flow: 'playing', paused: false, errors: [], debug: {}, isMobile: false,
     state: { meta: { settings: {}, relics: {} }, run },

@@ -1223,7 +1223,7 @@ export function create(ctx) {
             pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
             focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
-            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H),
+            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H), trophyK: r1(trophyK),
             presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
             // the show camera (SPEC §2.6): its weight, the fitted target and what set its distance
             show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {

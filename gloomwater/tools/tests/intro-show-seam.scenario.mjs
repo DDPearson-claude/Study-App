@@ -48,7 +48,7 @@ function install() {
     return { sim: r4(T.sim), flow: c.flow, film: c.intro?.isActive() ? r4(c.intro.state.t) : null, mode: dc.mode ?? null, cine: !!c.cinematic,
       pos: [cam.position.x, cam.position.y, cam.position.z], fov: cam.fov, rigFov: dc.cur?.fov ?? null,
       intro: ic ? { pos: ic.pos.slice(), fov: ic.fov, w: ic.w } : null,
-      showW: dc.show ? dc.show.w : 0, showOn: !!dc.show?.on, showHold: !!dc.show?.hold, showFov: dc.show?.tgt?.fov ?? null,
+      showW: dc.show ? dc.show.w : 0, showOn: !!dc.show?.on, showHold: !!dc.show?.hold, showFov: dc.show?.tgt?.fov ?? null, trophyK: dc.trophyK ?? null,
       phase: v?.phase ?? null, state: c.fishing?.state ?? null, modal: c.debug.ui?.()?.openModal ?? null,
       hudHid: !!document.querySelector('#ui > .gw-hud')?.classList.contains('gw-showhide') };
   };
@@ -363,7 +363,7 @@ export default async function (api) {
       check(!!before.show && before.show.hold === true && before.show.w >= 0.99, 'the show\'s lens must be fully in behind the second card', before.show);
       // the title, and the film in the same breath (no frame between: the show's weight is still whole when the film starts)
       await g(() => { const T = window.__seam; T.trace.length = 0; T.tracing = true; T.ev.length = 0; });
-      const went = await g(() => { const c = window.__gw; c.game.toTitle(); const flow = c.flow; const ok = c.game.replayIntro(); return { flow, ok, now: c.flow, active: c.intro.isActive() }; });
+      const went = await g(() => { const c = window.__gw; window.__seamAu0 = c.debug.audio?.()?.time ?? 0; c.game.toTitle(); const flow = c.flow; const ok = c.game.replayIntro(); return { flow, ok, now: c.flow, active: c.intro.isActive() }; });
       check(went.flow === 'title' && went.ok === true && went.now === 'intro' && went.active, 'the title must replay the film', went);
       await scale(LOW);
       const ran = await g(([dt]) => window.__seam.step(1500, dt, false, 'filmEnd'), [DT]);
@@ -390,6 +390,12 @@ export default async function (api) {
       check(r.worstFov < FOV_EPS && r.worstFovUnderShow < FOV_EPS, 'the film\'s fov must win over a show\'s lens', r);
       check(r.modes.length === 1 && r.modes[0] === 'sail' && !r.showHeld, 'under the film the rig is in sail and no show is on or held', r);
       check(r.showGoneAtFilm !== null && r.showGoneAtFilm < 6, 'the show\'s weight must be gone early in the film', r);
+      // the catch show's leftovers (slice-1a PLAN §2.2 item 25; re-baselined for these fixes alone): the film owns the grade from its
+      // first frame (no trophy vignette under a Prologue started from a card), and a card closed before its stamp sounds nothing under it
+      const graded = posed.filter((f) => (f.trophyK ?? 0) > 0.001);
+      check(graded.length === 0, 'item 25: no trophy grade under the film from its first frame', { frames: graded.length, first: graded[0] ?? null });
+      const under2 = await g(() => (window.__gw.debug.audioLog?.(240) || []).filter((e) => e.at >= (window.__seamAu0 || 0) - 0.005 && /^(seal_stamp|cord_tick|class_chime)$/.test(e.name)).map((e) => e.name));
+      check(under2.length === 0, 'item 25: no card stamp (nor count) sounds under the film', under2);
       check(end.flow === 'title' && end.introCam === null && end.show === null && end.cine === false && !end.active && !end.introOn && !end.hid, 'the replay must leave the title with nothing of the film or the show behind', end);
       check(end.errors.length === 0, 'no errors through the replay', end.errors);
     }
