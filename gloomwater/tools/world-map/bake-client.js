@@ -133,7 +133,7 @@ window.bake = async function bake() {
     else if (r.cls === 'black') band(r.pts, BLACKWATER, '#1b1526');
     else if (r.cls === 'seasonal') { band(r.pts, 'rgb(66,54,78)', '#1b1526', 0.2); ctx.beginPath(); ctx.moveTo(r.pts[0], r.pts[1]); for (let i = 3; i < r.pts.length; i += 3) ctx.lineTo(r.pts[i], r.pts[i + 1]); ctx.strokeStyle = 'rgba(206,198,236,0.55)'; ctx.lineWidth = 0.2; ctx.setLineDash([0.9, 1.1]); ctx.stroke(); ctx.setLineDash([]); }
     else if (r.cls === 'clear') band(r.pts, 'rgb(222,222,250)', WATER_INK, 0.2);
-    else if (maxW(r) >= 1.0) band(r.pts, r.id === 'pyre' ? 'rgb(222,222,242)' : 'rgb(178,174,232)', WATER_INK, 0.24);
+    else if (maxW(r) >= 1.0) band(r.pts, r.id === 'pyre' || r.id === 'flourwater' ? 'rgb(222,222,242)' : 'rgb(178,174,232)', WATER_INK, 0.24);
     else strokeVar(r.pts, WATER_INK);
   }
   // the Seam: black water beside brown, unmixed
@@ -344,11 +344,36 @@ window.bake = async function bake() {
       case 'posts': { for (const p of l.pts) { ctx.beginPath(); ctx.rect(p[0] - 0.3, p[1] - 0.8, 0.6, 1.0); ctx.fillStyle = '#f6f3fa'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.14; ctx.stroke(); } break; }
       case 'barge': case 'wreck': { ctx.translate(l.at[0], l.at[1]); ctx.rotate((l.rot * Math.PI) / 180); ctx.beginPath(); ctx.moveTo(-1.8, 0); ctx.quadraticCurveTo(0, -1.0, 1.8, 0); ctx.quadraticCurveTo(0, 1.0, -1.8, 0); ctx.moveTo(-0.45, -0.55); ctx.lineTo(-0.45, 0.55); ctx.moveTo(0.45, -0.55); ctx.lineTo(0.45, 0.55); ctx.strokeStyle = 'rgba(232,226,250,0.85)'; ctx.lineWidth = 0.17; ctx.stroke(); break; }
       case 'stilts': { for (let q = 0; q < l.n; q++) { const a = hash(q, 41) * 6.3, r = Math.sqrt(hash(q, 43)) * l.r, x = l.at[0] + Math.cos(a) * r * 0.8, y = l.at[1] + Math.sin(a) * r; ctx.beginPath(); ctx.rect(x - 0.5, y - 0.9, 1.0, 0.62); ctx.moveTo(x - 0.68, y - 0.9); ctx.lineTo(x, y - 1.4); ctx.lineTo(x + 0.68, y - 0.9); ctx.moveTo(x - 0.38, y - 0.28); ctx.lineTo(x - 0.38, y + 0.3); ctx.moveTo(x + 0.38, y - 0.28); ctx.lineTo(x + 0.38, y + 0.3); ctx.fillStyle = STONE; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.13; ctx.stroke(); lamp(x + 0.7, y - 0.46, 0.16, '#f0a23c'); } break; }
-      case 'rows': { // the orchard's rows and dikes, in the old plan's simple, unsure hand
+      case 'rows': { // the orchard's rows on their dikes, in the old plan's simple, unsure hand: loose strokes, no frame
         ctx.translate(l.at[0], l.at[1]); ctx.rotate((l.rot * Math.PI) / 180);
-        ctx.strokeStyle = `rgba(${INK_RGB},0.8)`; ctx.lineWidth = 0.2;
-        for (let yy = -l.h / 2; yy <= l.h / 2 + 0.01; yy += 2.1) { ctx.beginPath(); for (let xx = -l.w / 2; xx <= l.w / 2; xx += 2) { const wy = yy + (hash(xx, yy + l.at[0]) - 0.5) * 0.5; if (xx === -l.w / 2) ctx.moveTo(xx, wy); else ctx.lineTo(xx, wy); } ctx.stroke(); }
-        ctx.beginPath(); ctx.rect(-l.w / 2 - 0.6, -l.h / 2 - 0.8, l.w + 1.2, l.h + 1.6); ctx.setLineDash([1.6, 0.7]); ctx.stroke(); ctx.setLineDash([]);
+        const n = Math.max(2, Math.round(l.h / 2.7)), rows = [];
+        for (let r = 0; r <= n; r++) { // each dike its own length and its own waver
+          const yy = -l.h / 2 + (l.h * r) / n, a = -l.w / 2 + l.w * 0.26 * hash(r + 1, l.at[0]), b = l.w / 2 - l.w * 0.26 * hash(r + 7, l.at[1]), line = [];
+          for (let xx = a; xx < b; xx += 1.5) line.push(xx, yy + (hash(xx + r * 3.3, l.at[0] + r) - 0.5) * 0.8);
+          rows.push(line);
+        }
+        // each stroke lies on a thin pale under-line, so the plan reads on top of the canopy and is not lost in it
+        for (const [style, lw] of [['rgba(240,234,238,0.86)', 0.86], [`rgba(${INK_RGB},0.95)`, 0.25]]) {
+          ctx.strokeStyle = style; ctx.lineWidth = lw;
+          ctx.beginPath(); for (const line of rows) path(line);
+          for (let r = 0; r < n; r++) for (let q = 0; q < 2; q++) { // a cross dike or two between neighbouring rows
+            const A = rows[r], B = rows[r + 1], i = 2 * Math.floor(hash(r + q * 5, l.at[1] + 2) * Math.min(A.length, B.length) / 2);
+            if (i + 1 < A.length && i + 1 < B.length) { ctx.moveTo(A[i], A[i + 1]); ctx.lineTo(B[i] + 0.3, B[i + 1]); }
+          }
+          ctx.stroke();
+        }
+        break; }
+      case 'snags': { // a shoal, snag-choked reach: pale bars of sand in the black water, and drowned trunks lying across it
+        l.pts.forEach((p, q) => {
+          const side = q % 2 ? 1 : -1, w = p[3];
+          ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(p[2]);
+          ctx.beginPath(); ctx.ellipse(0, side * w * 0.17, 1.5 + 0.8 * hash(q, 71), w * 0.25, 0, 0, 6.3); ctx.fillStyle = 'rgba(224,212,196,0.95)'; ctx.fill();
+          const x0s = 3.0 * (hash(q, 73) - 0.5) + 2.6, lean = 0.5 + 0.7 * hash(q, 75);
+          ctx.beginPath(); ctx.moveTo(x0s, -side * w * 0.5); ctx.lineTo(x0s + lean, side * w * 0.34);
+          ctx.moveTo(x0s + lean * 0.45, -side * w * 0.12); ctx.lineTo(x0s + lean * 0.45 + 0.7, -side * w * 0.42);
+          ctx.strokeStyle = 'rgba(246,242,252,0.92)'; ctx.lineWidth = 0.2; ctx.stroke();
+          ctx.restore();
+        });
         break; }
       case 'oxbow': { ctx.translate(l.at[0], l.at[1]); ctx.rotate((l.rot * Math.PI) / 180); ctx.beginPath(); ctx.arc(0, 0, 3.2 * s, 0.5, 2.9); ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke(); ctx.strokeStyle = SILT; ctx.lineWidth = 1.0; ctx.stroke(); break; }
       case 'buoys': { for (const p of l.pts) { ctx.beginPath(); ctx.moveTo(p[0], p[1] - 0.8); ctx.lineTo(p[0] + 0.52, p[1]); ctx.lineTo(p[0], p[1] + 0.42); ctx.lineTo(p[0] - 0.52, p[1]); ctx.closePath(); ctx.fillStyle = 'rgba(240,236,250,0.95)'; ctx.fill(); ctx.strokeStyle = '#231d3a'; ctx.lineWidth = 0.12; ctx.stroke(); ctx.beginPath(); ctx.moveTo(p[0], p[1] - 0.8); ctx.lineTo(p[0], p[1] - 1.4); ctx.stroke(); } break; }

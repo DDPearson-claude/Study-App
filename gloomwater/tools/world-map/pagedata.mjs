@@ -3,7 +3,7 @@
 // reveal masks and their inked edges, the veil over the never-charted land, and the lettering
 // with the sheet that brings each name.
 import { SHEET, SEED, WATERS, HOME, ACTS, PIECES, LEGS, SHEETS, LABELS, LANDMARKS, FOLD } from './canon.mjs';
-import { clamp, smoothstep, makeNoise, spline, resample, arcLengths, nearestOnPolyline, encodePNG, isolines, chaikin, simplify } from './lib/util.mjs';
+import { clamp, smoothstep, makeNoise, spline, resample, arcLengths, nearestOnPolyline, stretch, encodePNG, isolines, chaikin, simplify } from './lib/util.mjs';
 
 const r1 = (v) => Math.round(v * 10) / 10;
 
@@ -12,18 +12,6 @@ function waterway(T, id) {
   const c = T.canals.find((q) => q.id === id);
   if (!c) throw new Error('no waterway ' + id);
   return c.dense;
-}
-function stretch(pts, from, to) {
-  const s = arcLengths(pts);
-  const a = from ? nearestOnPolyline(pts, from[0], from[1], s) : { i: 0, t: 0 };
-  const b = to ? nearestOnPolyline(pts, to[0], to[1], s) : { i: pts.length - 2, t: 1 };
-  const ia = a.i + a.t, ib = b.i + b.t;
-  const lo = Math.min(ia, ib), hi = Math.max(ia, ib);
-  const at = (f) => { const i = Math.min(pts.length - 2, Math.floor(f)), t = f - i; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t]; };
-  const out = [at(lo)];
-  for (let i = Math.floor(lo) + 1; i <= Math.floor(hi); i++) out.push([pts[i][0], pts[i][1]]);
-  out.push(at(hi));
-  return ia <= ib ? out : out.reverse();
 }
 
 // signed distance to a sheet's inked region (negative inside), and its alpha: a clean edge that

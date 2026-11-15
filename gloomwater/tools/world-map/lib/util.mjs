@@ -140,6 +140,21 @@ export function nearestOnPolyline(pts, x, y, sArr) {
   return { d: Math.sqrt(best), i: bi, t: bt, s };
 }
 
+// The part of a polyline between the points nearest to `from` and `to` (either may be left out for that
+// end), in the order from -> to: a stretch of a waterway.
+export function stretch(pts, from, to) {
+  const s = arcLengths(pts);
+  const a = from ? nearestOnPolyline(pts, from[0], from[1], s) : { i: 0, t: 0 };
+  const b = to ? nearestOnPolyline(pts, to[0], to[1], s) : { i: pts.length - 2, t: 1 };
+  const ia = a.i + a.t, ib = b.i + b.t;
+  const lo = Math.min(ia, ib), hi = Math.max(ia, ib);
+  const at = (f) => { const i = Math.min(pts.length - 2, Math.floor(f)), t = f - i; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t]; };
+  const out = [at(lo)];
+  for (let i = Math.floor(lo) + 1; i <= Math.floor(hi); i++) out.push([pts[i][0], pts[i][1]]);
+  out.push(at(hi));
+  return ia <= ib ? out : out.reverse();
+}
+
 export function pointInPolygon(poly, x, y) {
   let inside = false;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {

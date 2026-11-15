@@ -36,7 +36,7 @@ export async function renderShots(chromium, outDir, log = () => {}, only = null)
   log(`  web fonts loaded: ${JSON.stringify(fonts)}`);
   if (want('desktop')) await shot(d.page, path.join(outDir, 'map-desktop.png'));
   if (want('journey')) {
-    await d.page.evaluate(() => { const c = window.__chart; c.journeyStill(16, 0.7); c.fit(); document.getElementById('caption').innerHTML = '<b>16</b>The Inkwood. West from the lagoon’s head up the Monsoon Cut, about 140 km through the drowned orchard rows, then upstream under the closed canopy.'; document.getElementById('caption').classList.add('is-on'); });
+    await d.page.evaluate(() => { const c = window.__chart, w = DATA.waters[15]; c.journeyStill(16, 0.45); c.fit(); document.getElementById('caption').innerHTML = `<b>16</b>${w.name}. ${w.from}`; document.getElementById('caption').classList.add('is-on'); });
     await settle(d.page);
     await shot(d.page, path.join(outDir, 'map-journey.png'));
     await d.page.evaluate(() => { const c = window.__chart; c.stopJourney(); c.state.raft = null; document.getElementById('caption').classList.remove('is-on'); c.fit(); });
@@ -52,6 +52,9 @@ export async function renderShots(chromium, outDir, log = () => {}, only = null)
     await look('d-east', () => window.__chart.look([560, 80, 1040, 800], 20));
     await look('d-mossmere', () => window.__chart.look([540, 150, 660, 280], 20));
     await look('d-lagoon', () => window.__chart.look([760, 930, 900, 1040], 20));
+    await look('d-thin', () => window.__chart.look([120, 190, 300, 350], 20)); // the Sound's mouth, the Thin Water's own out-and-back
+    await look('d-pyre', () => window.__chart.look([80, 430, 330, 660], 20)); // the Last Light, the fjord coast, the bight and Pyrefall
+    await look('d-inkwood', () => window.__chart.look([700, 860, 900, 1010], 20)); // through the lagoon to the Inkwood beyond
     await look('d-title', () => window.__chart.look([-80, 1230, 330, 1480], 10));
     await look('d-corner', () => window.__chart.look([560, -80, 1080, 220], 10));
     await look('d-world', () => { const c = window.__chart; c.setMode('world'); c.fit(); });
