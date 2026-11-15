@@ -10,6 +10,9 @@ import {
 } from './core.js';
 import * as data from './data.js';
 import { create as createFirstEvening } from './first-evening.js';
+// the Full Hold (docs/loop/slice-1a/PLAN.md §3.5): main's pure guards, tested in node (tools/tests/loop-evening.test.mjs)
+import { startRoute, tripKeyAllowed, loopFreshSave } from './loop-rules.js';
+import { createLoopHome } from './loop-home.js';
 // >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
 import { create as createIntro, markIntroSeen, replayOffered } from './intro.js';
 // <<< INTRO LANE B
@@ -46,13 +49,18 @@ const CINEMATIC_MAX = SHOW_VALVE > 0 ? SHOW_VALVE + 4
   : Math.max(20, ...(Array.isArray(data.SIZE_CLASSES) ? data.SIZE_CLASSES : []).map((c) => (Number(c.ceremony) || 0) * 3 + 5));
 // v3 is on for this page load (data reads the flag; main reads it for the run options, the save migration and saving).
 const V3 = data.V3_ENABLED === true;
+// The Full Hold (docs/loop/SPEC.md, slice-1a/PLAN.md §2.2): catch, keep, sell, upgrade. Read once, here (PLAN §4.1 rule 1). Off the
+// loop PARKED is {}, so every PARKED.x is falsy and every loop branch below is skipped: the v1 and v3 builds run as built.
+const LOOP_ON = data.LOOP_ENABLED === true;
+const PARKED = LOOP_ON ? (data.PARKED || {}) : {};
 // The First Evening slice (DESIGN §25.4.8, §25.14.2b; CONTRACT §13.1, §13.12): with v3 on and the cove's data in the build, boot
 // builds the cove under the title, Begin on a fresh save plays the First Evening, every new run sets out from the Landing through
 // the 3 s glide, and a snuff cuts to the hearth for 3 s before the summary. With v3 off none of it exists.
 // Feature detection (CONTRACT §13.0: structure switches by feature detection, not a second flag): the slice runs only once the
 // world module can build the cove (`export const SUPPORTS_COVE = true` from the FE-W1 world work). Until then a v3 build keeps
 // today's flow — New Descent straight into the lake, the death screen at once — so a half-built opening never ships.
-const FE_ON = V3 && !!data.COVE && !!data.FIRST_EVENING && worldMod.SUPPORTS_COVE === true;
+// (the loop replaces the First Evening: under GW_LOOP the slice is off whatever the world can build; M1.md §2.15)
+const FE_ON = V3 && !LOOP_ON && !!data.COVE && !!data.FIRST_EVENING && worldMod.SUPPORTS_COVE === true;
 const FE = FE_ON ? data.FIRST_EVENING : null;
 const UPDATE_ORDER = ['player', 'fishing', 'survival', 'combat', 'progression', 'actors', 'models', 'world', 'water', 'audio', 'ui', 'render'];
 
@@ -86,12 +94,24 @@ const saveEnvelope = loadSave();
 const bootErrors = [];
 let migratedAtBoot = false;
 let bootSave = saveEnvelope;
+// The loop's one flag-off rule (PLAN §2.2 item 2, §4.1 rule 9): a trip saved by a loop build and opened with the loop off is sold
+// and dropped (its clams paid into meta.loop, the hold emptied), and a descent the loop parked is put back. A no-op for every save
+// a flag-off build writes (no `outing: 'trip'`, no meta.loop.parkedRun). Found by feature detection: until progression re-exports
+// it, nothing runs.
+let strandWrite = false;
+{
+  const strand = LOOP_ON ? null : moduleExport(progressionMod, 'sellStrandedTrip');
+  if (strand) {
+    try { const r = strand(bootSave); if (r && (r.sold || r.restored) && r.save) { bootSave = r.save; strandWrite = true; } } catch (e) { bootErrors.push(['sellStrandedTrip', e]); }
+  }
+}
 const pureMigrate = V3 ? moduleExport(progressionMod, 'migrateSave') : null;
 if (pureMigrate) {
   // a module-level (pure) migrateSave runs before any module exists, so nothing ever sees the old ids
   try { bootSave = pureMigrate(saveEnvelope) || saveEnvelope; migratedAtBoot = true; } catch (e) { bootErrors.push(['migrateSave', e]); }
 }
 const saved = normalizeSave(bootSave);
+if (strandWrite) { try { writeSave({ meta: saved.meta, run: saved.run }); } catch (e) { bootErrors.push(['sellStrandedTrip write', e]); } }
 // the First Evening's legacy step (CONTRACT §13.2; progression owns it, main applies the same idempotent rule as a fallback):
 // only while meta.firstEvening is undefined — a v1 / v2 / P1-era save with runs or a lake fish → {done: true, legacy: true}
 if (FE_ON) { try { firstEveningLegacy(saved.meta, data.COVE.fishing?.species); } catch (e) { bootErrors.push(['firstEveningLegacy', e]); } }
@@ -158,13 +178,18 @@ function lockRunMode(run, mode) {
   if (typeof run.outing !== 'string') run.outing = mode.outing;
 }
 const game = {
-  hasSavedRun: () => !!(savedRun && savedRun.active),
+  // (the loop, PLAN §3.5: only a saved TRIP is Continued; a non-trip descent waits, parked at the first Sail, PLAN CHOICE 5)
+  hasSavedRun: () => !!(savedRun && savedRun.active) && (!LOOP_ON || savedRun.outing === 'trip'),
   /**
    * New run (title → New Descent). v3 (CONTRACT §13.0): `{character, nightMode}` (+ the v1 `startZone`); run 1
    * (`meta.runs === 0`) is the First Outing (outing 'first', every night still, no choice); later runs take the chosen
    * mode or the default (Lantern).
    */
   startNewRun(opts = {}) {
+    // the loop (PLAN §2.2 item 3, CHOICE 2): the film's hand-off goes home to the Jetty; anything else starts a trip
+    const route = startRoute({ loopOn: LOOP_ON, intro: !!opts.__intro });
+    if (route === 'home') return enterHome('intro');
+    if (route === 'trip') return startTrip(opts);
     // v3 (DESIGN §25.4.8): every new run sets out from the Landing: the raft at the jetty, the 3 s glide under the arch, then the
     // run. A fresh save's first new game is the First Evening (a release build never lets New Descent skip it).
     if (FE_ON && !opts.__arch) return departFromLanding(opts);
@@ -221,6 +246,8 @@ const game = {
   },
   cancelSetOut() { if (FE_ON && ctx.firstEvening?.step === 'plan') ctx.firstEvening.onCardClosed(); },
   continueRun() {
+    // the loop (PLAN §2.2 item 10): no saved trip → the Jetty; a saved trip continues with the raft where it was
+    if (LOOP_ON && !game.hasSavedRun()) return enterHome('title');
     if (!savedRun) return game.startNewRun();
     resetBeats();
     // a run saved before v3 was on played v1's nights (a swarm every night): it continues as Gloomtide
@@ -239,8 +266,13 @@ const game = {
     }
     ctx.bus.emit('zone:change', { zone: ctx.state.run.zone, prev: null });
     ctx.bus.emit('run:start', { continued: true });
+    if (LOOP_ON) {   // the raft's place (T32): after run:start, whose listener put it at the lake's spawn
+      const pos = ctx.state.run?.pos ?? ctx.state.run?.flags?.pos;
+      if (pos) { try { ctx.player.restore?.(pos); } catch (e) { report('player.restore', e); } }
+    }
   },
   endRun(cause = 'unknown') {
+    if (LOOP_ON) { endTripHome(cause); return; }   // a trip ends only at home (PLAN §2.2 item 5)
     if (ctx.flow !== 'playing' || !ctx.state.run) return;
     let summary = null;
     try { summary = ctx.progression.summarizeRun(cause); } catch (e) { report('summarizeRun', e); }
@@ -257,6 +289,7 @@ const game = {
     ctx.ui.showDeath?.(summary);
   },
   victory() {
+    if (LOOP_ON) return;   // (the loop: no victory, no death; a trip ends only at home)
     const meta = ctx.state.meta;
     meta.victory = true;
     meta.victories = (meta.victories || 0) + 1;
@@ -324,6 +357,7 @@ ctx.game = game;
 //   the replay    game.replayIntro() from the title's quiet word: the same film, nothing written, back to the title
 //   the lake      the film is set on the first run's lake. A title that shows another lake (a returning save) is swapped
 //                 under the opening's full ink and put back at the end, with no zone:change for either
+// Under the loop (LOOP_ON, slice-1a PLAN §2.2 items 20–24) the trigger is New Descent → Start (game.beginIntro({character})).
 // When the cove ships (FE_ON: world.SUPPORTS_COVE) the film is dressed at the sea-gate and hands to the First Evening's wake
 // (SPEC §7.5, INTRO.cove): written down, not built. Until that is built the film stays off with the cove on.
 const INTRO = V3 ? data.INTRO || null : null;
@@ -373,7 +407,7 @@ function startIntro({ replay = false, reduced } = {}) {
 }
 /** Out of flow 'intro' to the title with nothing written: what a replay put aside comes back. */
 function leaveIntro({ eased = false } = {}) {
-  const back = introFlow.back;
+  const back = introFlow.back, firstPlay = introFlow.on && !introFlow.replay;   // (read before the flow is reset)
   Object.assign(introFlow, { on: false, replay: false, back: null, idle: 0 });
   if (back) {
     try {
@@ -383,7 +417,12 @@ function leaveIntro({ eased = false } = {}) {
   }
   ctx.cinematic = false;
   ctx.state.run = null;
-  if (ctx.flow === 'intro') { setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e) { report('showTitle', e); } }
+  if (ctx.flow === 'intro') {
+    // the loop (PLAN CHOICE 46): a first film abandoned to the title forgets the Wick it was started with, so the title is fresh
+    // again (New Descent, not Continue) and no half-begun save is written
+    if (LOOP_ON && firstPlay) { try { loopApi()?.setWick?.(null); } catch (e) { report('loop.setWick', e); } }
+    setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e) { report('showTitle', e); }
+  }
 }
 /** Hard abort with no event (toTitle, wipeAll, debug 'stop'). `title` also leaves flow 'intro' for the title. */
 function stopIntro({ title = false } = {}) {
@@ -418,7 +457,7 @@ function onIntroDone(p = {}) {
     game.startNewRun({ character: H.character || 'wick', nightMode: H.nightMode || 'still', __intro: true });
     // the lake's grade, if the film did not already wear it (INTRO.handoff.grade 'ease', or a film that broke before the ink):
     // render ignores this zone:change, so it eases in here as control begins
-    if (!graded) { const g = (data.ZONES || []).find((z) => z.id === ctx.state.run?.zone)?.grade; if (g && !ctx.render.isStub) ctx.render.setGrade?.(g); }
+    if (!graded) { const g = (data.ZONES || []).find((z) => z.id === (ctx.state.run?.zone || (LOOP_ON ? INTRO_LAKE : null)))?.grade; if (g && !ctx.render.isStub) ctx.render.setGrade?.(g); }
   } catch (e) {
     report('intro hand-off', e);
     if (ctx.flow === 'intro') { ctx.cinematic = false; setFlow('title'); try { ctx.ui.showTitle?.(); } catch (e2) { report('showTitle', e2); } }
@@ -487,14 +526,56 @@ Object.assign(game, {
     }, Math.max(0, Number(P.after) || 0.5) * 1000);
     return true;
   },
-  /** The title's Begin on a fresh save: the film, then the First Outing, with no other click. */
-  beginIntro(opts = {}) { return !game.hasSavedRun() && startIntro({ replay: false, reduced: opts.reduced }); },
+  /** The title's Begin on a fresh save: the film, then the First Outing, with no other click. (The loop: New Descent's Start.) */
+  beginIntro(opts = {}) {
+    if (LOOP_ON) return beginLoopIntro(opts);
+    return !game.hasSavedRun() && startIntro({ replay: false, reduced: opts.reduced });
+  },
   /** The title's replay word: the same film; nothing is written and it ends at the title. */
   replayIntro(opts = {}) { return startIntro({ replay: true, reduced: opts.reduced }); },
   /** The Skip word and the skip keys (honoured after INTRO.skip.guard). */
   skipIntro() { return ctx.flow === 'intro' && !!ctx.intro && ctx.intro.skip() === true; },
 });
 // <<< INTRO LANE B
+
+// >>> LOOP LANE B: the Full Hold's evening and home (docs/loop/slice-1a/PLAN.md §2.2 items 3–11, 17, 20–24; §3.5, §5)
+// One game mode under GW_LOOP: New Descent's Start → the film → the Jetty (flow `home`, no run) → Sail → the 3 s glide out →
+// a trip (outing `trip`) → Home → the sail home → the tally at the Jetty. Main owns the flows; the home flow itself is
+// src/loop-home.js (a factory node can drive with a fake player); progression's loop (ctx.progression.loop, lane A) owns every
+// number and record; the screens are ui's (lane C). Off the loop nothing here runs.
+const SKIP_KEYS = () => (Array.isArray(INTRO?.skip?.keys) ? INTRO.skip.keys : ['Escape', 'Enter', 'NumpadEnter', 'Space']);
+const loopHome = LOOP_ON ? createLoopHome({
+  ctx, data, report, setFlow, resetBeats, showLake, save: () => game.save(), lockRunMode, lake: INTRO_LAKE,
+  savedRun: { get: () => savedRun, set: (r) => { savedRun = r; } },
+  hasSavedRun: () => game.hasSavedRun(),
+  startIntro: (o) => startIntro(o),
+  introOn: () => ({ intro: !!ctx.intro && !!INTRO, debug: DEBUG, optIn: safe(() => ctx.intro.state?.optIn, false) === true }),
+}) : null;
+/** progression's loop API (null off the loop, or before lane A wires it). */
+function loopApi() { return loopHome ? loopHome.loopApi() : null; }
+function enterHome(from, tally = null) { return loopHome ? loopHome.enterHome(from, tally) : false; }
+function startTrip(opts) { return loopHome ? loopHome.startTrip(opts) : false; }
+function endTripHome(cause) { return loopHome ? loopHome.endTripHome(cause) : false; }
+function beginLoopIntro(opts) { return loopHome ? loopHome.beginIntro(opts) : false; }
+function skipHomeGlide() { return loopHome ? loopHome.skipHomeGlide() : false; }
+const homeGliding = () => !!loopHome && loopHome.gliding() !== null;
+Object.assign(game, {
+  /** The Chart's Sail (PLAN §2.2 item 4): tutorialDone on the first Sail, closeAll, the 3 s glide out, then startTrip({at}). */
+  sail: (plan) => (loopHome ? loopHome.sail(plan) : false),
+  /** May the player go home now? → {ok, why} (PLAN §3.5). */
+  canGoHome: (o) => (loopHome ? loopHome.canGoHome(o) : { ok: false, why: 'flow' }),
+  /** Home (the pill's press and hold, or the pause's Home). */
+  goHome: (o) => (loopHome ? loopHome.goHome(o) : false),
+  /** The title's Continue at home. */
+  toHome: () => enterHome('title', null),
+  /** At home (no trip saved): the title's Continue goes to the Jetty. */
+  atHome: () => LOOP_ON && !game.hasSavedRun(),
+  /** The title's fresh branch (PLAN §2.2 item 21): New Descent · Settings while nothing of the loop has begun. */
+  loopFresh: () => LOOP_ON && loopFreshSave(ctx.state.meta, game.hasSavedRun()),
+  /** A home glide is running (the hand-off, the sail home or the glide out): its kind, or null. */
+  homeGlide: () => (loopHome ? loopHome.gliding() : null),
+});
+// <<< LOOP LANE B
 
 // ------------------------------------------------------------------ v3: the Landing (CONTRACT §13.1, §13.3, §13.12)
 /** meta.firstEvening (progression owns it; created lazily, never by defaultMeta). */
@@ -718,6 +799,9 @@ let fishPointerId = null;
 let primaryId = null;
 const tapNdc = new THREE.Vector2();
 function pressAction(e) {
+  // the loop's home (PLAN §2.2 items 8, 22): a tap during a home glide skips it; nothing reaches fishing or combat (the Jetty's taps
+  // are the ui's). gameAcceptsInput is false in flow home, so this comes first.
+  if (LOOP_ON && ctx.flow === 'home') { if (!safe(() => ctx.ui.isBlocking?.(), false) && homeGliding()) skipHomeGlide(); return; }
   if (!gameAcceptsInput()) return;
   if (V3) {
     const kind = e.pointerType === 'touch' || e.pointerType === 'pen' ? 'touch' : 'mouse';
@@ -736,8 +820,9 @@ function pressAction(e) {
   // during the show (from the fish breaking the surface to its card: the reveal, then the frozen world of ctx.cinematic) combat
   // and trade take no press: it goes to fishing only, which owns the show's hurry
   const cine = ctx.cinematic || (V3 && safe(() => ctx.fishing.inShow, false) === true);
-  if (!cine && safe(() => ctx.combat.onPointerDown?.(ndc), false) === true) return;
-  if (!cine && safe(() => ctx.actors.pickMerchant?.(ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
+  // (the loop parks combat and the run's shop, PLAN §2.2 item 9: a tap is fishing's)
+  if (!cine && !PARKED.combat && safe(() => ctx.combat.onPointerDown?.(ndc), false) === true) return;
+  if (!cine && !PARKED.runShop && safe(() => ctx.actors.pickMerchant?.(ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
     ctx.ui.openShop?.();
     return;
   }
@@ -815,6 +900,11 @@ window.addEventListener('keydown', (e) => {
   }
   if (introFlow.swallowUntil && last < introFlow.swallowUntil && (INTRO?.skip?.keys || []).includes(e.code)) { e.preventDefault(); return; }
   // <<< INTRO LANE B
+  // the loop's home (PLAN §2.2 item 8, R23): while a home glide runs and no screen is up, a skip key ends it at its end (the
+  // Escape that skipped the film was swallowed above); otherwise the keys at home are the ui's (the Jetty's home pause)
+  if (LOOP_ON && ctx.flow === 'home' && homeGliding() && !e.repeat && SKIP_KEYS().includes(e.code) && !safe(() => ctx.ui.isBlocking?.(), false)) {
+    skipHomeGlide(); e.preventDefault(); return;
+  }
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);
   if (safe(() => ctx.ui.handleKey?.(e.code), false) === true) { e.preventDefault(); return; }
@@ -834,7 +924,12 @@ window.addEventListener('keydown', (e) => {
   // (fishing owns the rule: the reveal is never cut, a first-ever species or a personal best keeps its 0.8 s). No Flare under it.
   if (V3 && (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') && safe(() => ctx.fishing.inShow, false) === true) { if (!e.repeat) safe(() => ctx.fishing.hurryShow?.(), null); e.preventDefault(); return; }
   const cine = ctx.cinematic; // the ceremony freezes combat (no Flare) and the world's interactions
-  if (e.code === 'Space' || e.code === 'KeyF') { if (!cine) safe(() => ctx.combat.flare?.(), null); e.preventDefault(); }
+  // the loop's trip (T58): no Flare, no E (Murk is home, the gate is scenery); the strike and the hurry were routed above
+  if (LOOP_ON && ctx.state.run?.outing === 'trip' && !tripKeyAllowed(e.code, { biting: biting(), inShow: safe(() => ctx.fishing.inShow, false) === true })) {
+    if (e.code === 'Space' || e.code === 'KeyF' || e.code === 'KeyE') e.preventDefault();
+    return;
+  }
+  if (e.code === 'Space' || e.code === 'KeyF') { if (!cine && !PARKED.combat) safe(() => ctx.combat.flare?.(), null); e.preventDefault(); }
   else if (e.code === 'KeyE') { if (!cine) safe(() => ctx.player.interact?.(), null); e.preventDefault(); }
 });
 /** Keys in the hub: Esc / Enter skip the framing; Space / Enter / Esc skip a skippable glide; E uses a post; no Flare, no pause. */
@@ -964,6 +1059,35 @@ if (V3 && DEBUG && ctx.intro) {
   };
 }
 // <<< INTRO LANE B
+// >>> LOOP LANE B: debug (PLAN §2.2 items 17, 23; 'loop' is in core.HIDDEN_DEBUG_HOOKS: debug builds only)
+if (LOOP_ON && DEBUG) {
+  ctx.debug.loop = {
+    state: () => loopApi()?.state?.() ?? null,
+    giveClams: (n) => loopApi()?.debugGive?.(n) ?? null,
+    bites: (key) => loopApi()?.bitesSpent?.(key) ?? null,
+    home: () => game.goHome(),
+    sail: (w) => game.sail({ water: w }),
+    /** tutorial() the record · tutorial(step) jump to a beat · 'done' mark it done · 'reset' begin it again (progression's resetTutorial) */
+    tutorial(step) {
+      const L = loopApi();
+      if (!L) return null;
+      if (step === 'done') L.tutorialDone?.();
+      else if (step === 'reset') { if (typeof L.resetTutorial === 'function') L.resetTutorial(); else return false; }
+      else if (typeof step === 'string') { L.beginTutorial?.(); L.setTutorialStep?.(step); }
+      return L.tutorial?.() ?? null;
+    },
+    /** wick() the chosen Wick · wick(id) choose one (the title or home only: never on a trip) */
+    wick(id) {
+      const L = loopApi();
+      if (!L) return null;
+      if (id !== undefined && ctx.flow !== 'playing') { const w = data.loopWickId(id); L.setWick?.(w); safe(() => ctx.actors.setCharacter?.(w), null); }
+      return L.wick?.() ?? null;
+    },
+    /** what main knows of home: the flow, the glide (kind) and the latch of a Sail */
+    homeState: () => ({ flow: ctx.flow, glide: loopHome?.gliding() ?? null, sailing: !!loopHome?.sailing, atHome: game.atHome(), fresh: game.loopFresh() }),
+  };
+}
+// <<< LOOP LANE B
 // M2 (CONTRACT §13.1, §13.11): a release build (v3, debug off) exposes no species, roll, plan or pre-roll on window.__gw
 if (V3 && !DEBUG) { for (const k of HIDDEN_DEBUG_HOOKS) delete ctx.debug[k]; }
 
@@ -984,7 +1108,9 @@ function frame(now) {
   const blocking = safe(() => ctx.ui.isBlocking?.(), false) === true;
   // v3: the hub (the Landing) runs too; survival and combat idle there (CONTRACT §13.1)
   const inHub = FE_ON && ctx.flow === 'hub';
-  const running = (ctx.flow === 'playing' || inHub) && !ctx.paused && !blocking;
+  // the loop's home (PLAN §2.2 item 8): the Jetty runs (the glides, the raft at its dock); survival and combat idle there, as in the hub
+  const inHome = LOOP_ON && ctx.flow === 'home';
+  const running = (ctx.flow === 'playing' || inHub || inHome) && !ctx.paused && !blocking;
   if (running) slowmo.tick(realDt);
   time.gameDt = running ? realDt * time.timeScale : 0;
   if (cinematic) {
@@ -1013,7 +1139,7 @@ function frame(now) {
     if (!m || m.isStub || !m.update) continue;
     try {
       // the cinematic flag is read live: fishing (updated first) can start the ceremony this very frame
-      m.update(GAMEPLAY.has(name) ? ((cinematic || inHub) && CINEMATIC_FROZEN.has(name) ? 0 : time.gameDt) : time.dt, time.t);
+      m.update(GAMEPLAY.has(name) ? ((cinematic || inHub || inHome) && CINEMATIC_FROZEN.has(name) ? 0 : time.gameDt) : time.dt, time.t);
     } catch (e) {
       const n = (errorCounts.get(name) || 0) + 1;
       errorCounts.set(name, n);

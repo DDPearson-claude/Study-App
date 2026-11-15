@@ -179,6 +179,11 @@ export function create(ctx) {
   const v3Data = () => { const o = B().oil; return !!(o && typeof o === 'object' && o.context && typeof o.context === 'object'); };
   /** Expedition rules apply to this run: v3 data and not The Long Descent (which keeps every v1 / v2 rule). */
   const v3Run = (run) => !!run && run.outing !== 'descent' && v3Data();
+  // ---- the Full Hold (slice-1a PLAN §2.2 item 13): a trip's evening (day 40 s, dusk 20 s, a night with no end); no death, no
+  // hunger, no drain, no hush. Keyed on outing 'trip', which only progression's createTrip writes, on loop data (PLAN §4.1 rule 2)
+  const loopRun = (run) => !!run && run.outing === 'trip' && D().LOOP_ENABLED === true;
+  const PK = (k) => D().PARKED?.[k] === true;
+  const EV = () => D().LOOP?.evening || {};
   /** The night mode this run plays. The First Outing is all still; a run without a mode played v1's nights (Gloomtide). */
   function modeOf(run) {
     if (run?.outing === 'first') return 'still';
@@ -203,11 +208,19 @@ export function create(ctx) {
   }
   /** Arrival Hush seconds on the calm of `day` (day 1 of a run and the first calm after a gate: run.surv.hushDay). */
   function hushFor(run, day) {
+    if (loopRun(run)) return 0;   // the loop: no Arrival Hush (T16)
     const s = run?.surv;
     if (!s || !(num(s.hushDay, 0) > 0) || s.hushDay !== day) return 0;
     return Math.max(0, num(D().EXPEDITION?.arrivalHush, V3_FALLBACK.arrivalHush));
   }
   function v3PhaseDuration(phase, day, run) {
+    if (loopRun(run)) {
+      // the evening (SPEC §3.4): LOOP.evening; night null is a night with no end (tested with == null, never through num())
+      const L = EV();
+      if (phase === 'calm') return Math.max(0.5, num(L.day, 40));
+      if (phase === 'dusk') return Math.max(0.5, num(L.dusk, 20));
+      if (phase === 'gloomtide') return L.night == null ? Infinity : Math.max(1, Number(L.night));
+    }
     const E = D().EXPEDITION || {};
     const P = E.phases || V3_FALLBACK.phases;
     if (phase === 'calm') {
@@ -300,6 +313,7 @@ export function create(ctx) {
   /** Well-fed (BALANCE.wellFed): satiety at or above `at` of max. Progression's isWellFed() wins when it exists. */
   function wellFedOf(run, s = stats()) {
     if (!v3Run(run)) return false;
+    if (loopRun(run) && PK('hunger')) return false;   // the loop: no hunger, no Well-fed
     const p = ctx.progression;
     if (real(p) && typeof p.isWellFed === 'function') {
       try { const v = p.isWellFed(); if (typeof v === 'boolean') return v; } catch { /* fall through */ }
@@ -337,6 +351,16 @@ export function create(ctx) {
     const phase = run && ORDER.includes(run.phase) ? run.phase : 'calm';
     const day = Math.max(1, (run?.day | 0) || 1);
     const duration = phaseDuration(phase, day, run);
+    if (loopRun(run) && phase === 'gloomtide' && !Number.isFinite(duration)) {
+      // the loop's open night (PLAN CHOICE 6): no end, so the time runs on unclamped and the look climbs to the full night over
+      // LOOP.evening.nightLook s and holds there (k ≤ 0.85: it never reaches the dawn fade at k ≥ 0.88)
+      const time = Math.max(0, num(run.phaseTime, 0));
+      return {
+        phase, day, time, duration: Infinity, k: Math.min(0.85, time / Math.max(1, num(EV().nightLook, 90))),
+        isNight: true, nextPhase: nextOf(phase), remaining: Infinity, isDark: true, open: true,
+        hush: 0, guttering: false, gutterLeft: 0, swarm: false, nightMode: modeOf(run),
+      };
+    }
     const time = clamp(num(run?.phaseTime, 0), 0, duration);
     const info = {
       phase, day, time, duration, k: duration > 0 ? clamp(time / duration) : 0,
@@ -347,6 +371,7 @@ export function create(ctx) {
     if (v3Run(run)) {
       // CONTRACT §13.7: + hush (s of Arrival Hush in this calm), guttering, swarm (tonight's swarm in the run's mode)
       const s = run.surv;
+      if (loopRun(run)) info.open = false;   // (the loop: the evening is open only at night)
       info.hush = phase === 'calm' ? hushFor(run, day) : 0;
       info.guttering = !!s?.out;
       info.gutterLeft = s?.out ? Math.max(0, gutterTime() - num(s.gutterT, 0)) : 0;
@@ -359,6 +384,10 @@ export function create(ctx) {
   /** The four phase lengths of `day` (the HUD clock's segments; calm includes that day's Arrival Hush). */
   function getPhaseDurations(day) {
     const run = ctx.state.run;
+    if (loopRun(run)) {   // the loop's evening (the HUD clock's segments): the night has no length
+      const L = EV(), calm = Math.max(0.5, num(L.day, 40)), dusk = Math.max(0.5, num(L.dusk, 20));
+      return { calm, dusk, gloomtide: L.night == null ? null : Number(L.night), dawn: phaseDuration('dawn', 1, run), total: null, hush: 0, open: true };
+    }
     const d = Math.max(1, (Number.isFinite(day) ? day | 0 : run?.day | 0) || 1);
     const out = {};
     for (const p of ORDER) out[p] = phaseDuration(p, d, run);
@@ -476,6 +505,7 @@ export function create(ctx) {
   }
 
   function duskForecast(run) {
+    if (loopRun(run)) return;   // the loop: no oil, no forecast
     const s = stats();
     const z = zoneData(run);
     const L = phaseDuration('gloomtide', run.day, run);
@@ -594,6 +624,7 @@ export function create(ctx) {
   // ---------------------------------------------------------------- v3: Snuffed, Scorched, the forced lamp-watch
   /** Oil has run out for good (guttering ran its 25 s): Snuffed, unless the Second Wick relights (progression.tryRevive). */
   function snuff(run) {
+    if (loopRun(run) && PK('death')) return false;   // the loop: never snuffed
     if (T.dead || !run) return;
     const w = sv(run);
     run.stats.snuffed = (run.stats.snuffed | 0) + 1;
@@ -710,6 +741,7 @@ export function create(ctx) {
 
   /** v3: Embers reached 0. Gloomtide (and v1 / The Long Descent) snuffs; Lantern is Scorched; Still keeps the run going. */
   function embersZero(run, src) {
+    if (loopRun(run) && PK('death')) return;   // the loop: no Embers to lose
     if (embersSnuff(run)) { die(causeFor(src), run); return; }
     run.hp = 0;
     const w = sv(run);
@@ -754,6 +786,7 @@ export function create(ctx) {
   function damage(n, source, opts = null) {
     const run = ctx.state.run;
     if (!playing(run) || T.dead) return 0;
+    if (loopRun(run)) return 0;   // the loop: nothing hurts the Wick (SPEC §9, T27)
     n = num(Number(n), 0);
     const src = normSource(source);
     const env = ENV_SOURCES.has(src) || opts?.env === true;
@@ -844,6 +877,7 @@ export function create(ctx) {
 
   function die(cause, run) {
     if (T.dead) return;
+    if (loopRun(run) && PK('death')) return;   // the loop: no way to fail (T27)
     if (tryRevive(run)) { revive(run); return; }
     T.dead = true;
     if (cause !== 'snuffed') run.hp = 0;   // Snuffed (v3) is the oil, not the Embers
@@ -1048,6 +1082,7 @@ export function create(ctx) {
    * (no starvation, ever), guttering → Snuffed, and a Scorched anchor that waits for the fight in progress to end.
    */
   function simulateV3(dt, run, s, w) {
+    if (loopRun(run)) { T.oilRate = 0; T.satRate = 0; return; }   // the loop: the clock only (no drain, lantern, gutter, snuff, lamp-watch)
     const z = zoneData(run);
     T.oilCtx = oilContext();
     T.oilRate = v3OilRate(run, s, T.oilCtx);
@@ -1213,9 +1248,10 @@ export function create(ctx) {
         god(on = true) { T.god = !!on; return T.god; },
         setPhase(name) { return setPhase(name); },
         // extras
-        setOil(n) { const r = ctx.state.run; if (!r) return null; r.oil = clamp(num(n, 0), 0, maxOil(freshStats())); checkLantern(r); return r.oil; },
-        setSatiety(n) { const r = ctx.state.run; if (!r) return null; r.satiety = clamp(num(n, 0), 0, maxSat(freshStats())); return r.satiety; },
-        setHp(n) { const r = ctx.state.run; if (!r) return null; r.hp = clamp(Math.round(num(n, 1)), 0, maxHp(freshStats())); if (r.hp <= 0) die('gloom', r); return r.hp; },
+        // (the loop, T27: on a trip the vitals do not move, so these change nothing)
+        setOil(n) { const r = ctx.state.run; if (!r || loopRun(r)) return null; r.oil = clamp(num(n, 0), 0, maxOil(freshStats())); checkLantern(r); return r.oil; },
+        setSatiety(n) { const r = ctx.state.run; if (!r || loopRun(r)) return null; r.satiety = clamp(num(n, 0), 0, maxSat(freshStats())); return r.satiety; },
+        setHp(n) { const r = ctx.state.run; if (!r || loopRun(r)) return null; r.hp = clamp(Math.round(num(n, 1)), 0, maxHp(freshStats())); if (r.hp <= 0) die('gloom', r); return r.hp; },
         hurt(n = 1, source = 'debug') { return damage(n, source, { ignoreIframes: true, ignoreArmor: true }); },
         setDay(n) { const r = ctx.state.run; if (!r) return null; r.day = Math.max(1, num(n, 1) | 0); diffKey = ''; return r.day; },
         survival() {
@@ -1238,7 +1274,7 @@ export function create(ctx) {
         /** Snuff now: oil 0 with today's Last Flicker spent, and the guttering run out (progression.tryRevive still applies). */
         snuff() {
           const r = ctx.state.run;
-          if (!r || !v3Run(r) || T.dead) return false;
+          if (!r || !v3Run(r) || T.dead || loopRun(r)) return false;
           const w = sv(r);
           r.oil = 0; w.flickerDay = r.day; checkLantern(r);
           w.gutterT = gutterTime();
@@ -1248,7 +1284,7 @@ export function create(ctx) {
         /** Start guttering now (oil 0, today's Last Flicker spent): `gutterLeft` counts down to Snuffed. */
         gutter() {
           const r = ctx.state.run;
-          if (!r || !v3Run(r) || T.dead) return false;
+          if (!r || !v3Run(r) || T.dead || loopRun(r)) return false;
           const w = sv(r);
           r.oil = 0; w.flickerDay = r.day; checkLantern(r);
           return api.gutterLeft;
@@ -1256,7 +1292,7 @@ export function create(ctx) {
         /** Embers to 0 in the run's mode (Lantern → Scorched; Still → out until dawn; Gloomtide → the Embers death). */
         scorch() {
           const r = ctx.state.run;
-          if (!r || !v3Run(r) || T.dead) return false;
+          if (!r || !v3Run(r) || T.dead || loopRun(r)) return false;
           embersZero(r, 'debug');
           return { scorched: r.scorched ? { ...r.scorched } : null, lampWatch: r.lampWatch ? { ...r.lampWatch } : null, dead: T.dead };
         },
@@ -1299,7 +1335,8 @@ export function create(ctx) {
       if (run) {
         validate(run);
         // the measuring ceremony is cinematic (CONTRACT §13.1): main gives survival dt 0; never tick the clock or drains under it
-        if (playing(run) && dt > 0 && !T.dead && ctx.cinematic !== true) simulate(dt, run);
+        // (the loop: the evening also stands still from T0 of the show, the reveal included, to the card: fishing.inShow; T14)
+        if (playing(run) && dt > 0 && !T.dead && ctx.cinematic !== true && !(loopRun(run) && ctx.fishing?.inShow === true)) simulate(dt, run);
       } else T.runRef = null;
       pushVisuals(rdt, ctx.state.run);
       fx.update(rdt, real(ctx.player) ? ctx.player.position : null);

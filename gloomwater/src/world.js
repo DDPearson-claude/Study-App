@@ -276,6 +276,8 @@ export function create(ctx) {
     let n = 0, w = 0;
     const run = ctx.state?.run;
     if (introMood) { n = INTRO_MOOD.night; w = INTRO_MOOD.warm; }   // INTRO LANE A
+    // the loop's Jetty (slice-1a PLAN §2.2 item 16, CHOICE 7): the built dawn look at its midpoint, "the sky pales to dawn"
+    else if (ctx.data?.LOOP_ENABLED === true && ctx.flow === 'home') { n = 0.88 * (1 - smoothstep(0, 0.9, 0.5)); w = 0.6; }
     else if (ctx.flow === 'title' || ctx.flow === 'boot' || !run) { n = 0.16; w = 0.14; }
     else {
       const pi = phaseInfo();
@@ -316,7 +318,7 @@ export function create(ctx) {
     AIR.mist.value = Math.max(0, AIR_MIST[0] + AIR_MIST[1] * n + AIR_MIST[2] * w);
     AIR.sheets.value = Math.max(0, AIR_SHEETS[0] + AIR_SHEETS[1] * n + AIR_SHEETS[2] * w);
     AIR.shafts.value = AIR_SHAFTS; AIR.pools.value = AIR_POOLS; AIR.ringHaze.value = AIR_RING_HAZE;
-    const isTitle = (ctx.flow === 'title' || !ctx.state?.run) && !introMood;   // (INTRO LANE A: the cut scene wears the run's mood)
+    const isTitle = (ctx.flow === 'title' || !ctx.state?.run) && !introMood && !(ctx.data?.LOOP_ENABLED === true && ctx.flow === 'home');   // (INTRO LANE A: the cut scene wears the run's mood; the loop's home is no title)
     env.glowK = (1 - 0.42 * n) * (isTitle ? 1.1 : 1);
     env.shaftK = (1 - 0.9 * n) * (1 + 0.35 * w) * (isTitle ? 1.2 : 1);
     env.partK = 1 - 0.55 * n;   // drifting motes thin out at night: the eyes and the stars own the dark

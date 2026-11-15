@@ -539,6 +539,8 @@ export function create(ctx) {
     if (flow === 'title' || flow === 'boot') return 'title';
     if (flow === 'dead') return 'death';
     if (trophyLive()) return 'trophy';
+    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return 'sail';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';
     const fs = fishingState();
@@ -1156,7 +1158,9 @@ export function create(ctx) {
     const fk = fx.flashT < 1 ? fx.flashPeak * Math.pow(1 - fx.flashT, 2) : 0;
 
     const reel = mode === 'reel' ? 1 : 0;
-    trophyK = damp(trophyK, mode === 'trophy' || showCam.w > 0.5 ? 1 : 0, 2.4, dt);
+    // the film owns the grade as it owns the lens (slice-1a PLAN §2.2 item 25): while its camera is set no trophy grade is worn, from
+    // its first frame (a Prologue started from a show's card opened with the trophy vignette for about 2 s)
+    trophyK = introCam ? 0 : damp(trophyK, mode === 'trophy' || showCam.w > 0.5 ? 1 : 0, 2.4, dt);
     const heart = reducedFlashing() ? 0.6 : 0.5 + 0.5 * Math.sin(time * TAU * 1.1) * Math.sin(time * TAU * 1.1);
     renderer.toneMappingExposure = BASE_EXPOSURE * Math.max(0.05, gCur.exposure) * (1 - fx.death * 0.18) * (1 - fx.dark * 0.12);
     bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + BLOOM_PULSE_GAIN * fx.bloomPulse));
@@ -1219,7 +1223,7 @@ export function create(ctx) {
             pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
             focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
-            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H),
+            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H), trophyK: r1(trophyK),
             presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
             // the show camera (SPEC §2.6): its weight, the fitted target and what set its distance
             show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {
@@ -1241,8 +1245,9 @@ export function create(ctx) {
       const bus = ctx.bus;
       if (!bus) return;
       const on = (evt, fn) => bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { console.error('[render]', evt, e); } });
-      on('zone:change', ({ zone, prev, intro }) => {
+      on('zone:change', ({ zone, prev, intro, sail }) => {
         if (intro) return;   // INTRO LANE A: the cut scene hands over on the lake already on screen (no fade, no grade snap)
+        if (sail && ctx.data?.LOOP_ENABLED === true) return;   // the loop's Sail: the lake is already on screen (no flash)
         applyZoneDefaults(zone, !prev);
         flash(0x000000, prev ? 1 : 0.9, prev ? 1.4 : 0.9);
       });

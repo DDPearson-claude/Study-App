@@ -155,6 +155,15 @@ export function sealOf(sizeClass, data, { legendary = false } = {}) {
   if (c && 'seal' in c) return c.seal || null;
   return SEALS[sizeClass] || null;
 }
+/**
+ * The show's mix (slice-1a PLAN §2.2 item 25; measured by `node tools/audio-render.mjs --set=show` on the committed show-seq sound
+ * fixture): the present is the loudest beat of every show, so the caught instant's splash, chime and haul sit under it; on the card
+ * the cord's ticks stand clear of the bed and its class chimes and the heaviest wax stay under the show's present. Volumes on the
+ * sounds' own gains (audio-sfx).
+ */
+export const SHOW_MIX = Object.freeze({ splash: 0.5, landChime: 0.55, lift: 0.62, present: 1.3, cordTick: 1.6, classChime: 0.4 });
+/** The seal's stamp on the card, by seal: the heavier the wax, the further under the present (null: the Small's and Keeper's dab). */
+export function stampVolume(seal) { return seal === 'blackWaxRibbon' ? 0.36 : seal === 'oxbloodWax' ? 0.55 : seal === 'inkStamp' ? 0.75 : 1; }
 /** The gold thread on the seal: an Ancient (an Elder with z ≥ 3.2) or a legend. */
 export function goldThread({ ancient = false, legendary = false } = {}) { return !!ancient || !!legendary; }
 
@@ -393,11 +402,14 @@ export function speciesVoice(speciesId) { return (typeof speciesId === 'string' 
  * Landing (prev 'cove', CONTRACT §13.3), nothing entering the hub or on a Continue (the title orbited the cove).
  */
 export function zoneSting(p = {}) {
+  if (p && p.sail) return 'setout';   // the loop's Sail (slice-1a PLAN §2.2 item 18): the glide out ends on the lake, prev null
   if (!p || !p.prev) return null;
   if (p.hub) return null;
   if (p.continued) return null;
   return p.prev === 'cove' ? 'setout' : 'descend';
 }
+/** The loop's home mood (slice-1a PLAN §2.2 item 18, T56): flow `home` (the Jetty) plays the built `hub` mood; null elsewhere. */
+export function loopHomeMood(flow, loopOn) { return loopOn === true && flow === 'home' ? 'hub' : null; }
 /** The cove bed's level by flow: under the title, at the Landing, and under the hearth cut of a snuff. */
 export function coveBedLevel(flow, { paused = false } = {}) {
   const base = flow === 'hub' ? 1 : flow === 'title' ? 0.62 : flow === 'dead' ? 0.8 : 0;
