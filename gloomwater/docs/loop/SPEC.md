@@ -309,7 +309,7 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 | **a visit home** | 30–60 s | at the barge, moored on the water you fished: the tally: Murk buys the whole hold, fish by fish → the shelf: one thing is usually affordable → the Chart → Sail. |
 | **a session** | 5–15 min | 2–4 trips and 1–4 purchases. A goal line shows the next one ("Next: Under the Span · 150"). |
 | **an era** (one water) | 2–5 h | the lake map (its open, day and old water) → the tow: the home goes to the new water, once → its giants' lure → the crown of the water before → its night water and fifth place → the next lake map; with the next water's gear and the last fish of this water's list, the next water opens. |
-| **the long game** | ≈ 48 h to buy everything | 16 waters, 55 maps, 16 Journal lists, tackle T6, hold 8, the raft and the barge built up, the home towed the whole road, 16 legends, about 68 giants and 66 Elders landed on the way. After that: the Journal's seals, the 49 giants' prints, records, legend rematches, the later sheets (§5.2). |
+| **the long game** | ≈ 47 h to buy everything | 16 waters, 55 maps, 16 Journal lists, tackle T6, hold 8, the raft and the barge built up, the home towed the whole road, 16 legends, about 68 giants and 66 Elders landed on the way. After that: the Journal's seals, the 49 giants' prints, records, legend rematches, the later sheets (§5.2). |
 
 ### 2.1 The first ten minutes (a fresh save, the game after M1 step 3; the default Wick)
 
@@ -325,7 +325,7 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 | 2:30 | | Trip 2 with four slots and a new place: the mist lifts off the Lily Maze. |
 | 10:00 | | After 3–4 trips: hold 4, Line T1, the Lily Maze; 71 clams a trip on average. The next card on the shelf is **Under the Span · 150**, with a pike drawn on it longer than the Wick is tall. |
 
-(The first trip above is a lucky one. The average first trip sells for 43 clams, and 54% of first trips have no Prize or bigger: the no-passive player's figures; each Wick's are `WICKS.md` check 4's. The first giant comes home at about hour 1.4.)
+(The first trip above is a lucky one. The average first trip sells for 43 clams, and 54% of first trips have no Prize or bigger: the no-passive player's figures; each Wick's are `WICKS.md` check 4's. The first giant comes home at about hour 1.3.)
 
 ---
 
@@ -347,7 +347,7 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 - The card opens after the Wick has held the fish up and paused. It has two buttons: **Keep** with the clam value, and **Let go**. From slice 3, holding **Let go** on a Small or a Keeper cuts it into 3 Cut Strips (§4.5) instead of letting it go; the button shows a knife while it is held. There is no third button, until the aquarium is built after M1: then an eligible fish's card also offers **Aquarium**, which gives up its sale (§8.2, decisions 66–67).
 - **Kept stays kept.** There is no way to take a fish out of the hold on the water.
 - **Let go forgives.** A fish let go gives back the good bite it spent (§3.3), and every later bite at that water this evening runs bigger: favour +0.2 for each fish let go there, to at most +0.4. It pays no clams. Moving to another water starts again at 0.
-- **Why.** In v5 letting go was never right: choosy play earned 67–79% of the natural rule per minute. Now it earns 88–96%, and 38–75% more clams a trip for 1.5–2 times the minutes, while the giant hunt stays at 9–48% (§3.3). Being choosy is a way to play, not a trap and not the best way.
+- **Why.** In v5 letting go was never right: choosy play earned 67–79% of the natural rule per minute. Now it earns 86–95%, and 38–75% more clams a trip for 1.5–2 times the minutes, while the giant hunt stays at 8–47% (§3.3). Being choosy is a way to play, not a trap and not the best way.
 - **The record is yours either way.** The Journal page, the personal best, the class seal and the ink print are written at the measure, before the card. Selling a fish or letting it go loses none of them. (The Old Ledger's double is paid only on a sale, from slice 9; §4.1.)
 - **Let it pass** stays: no tap during the bite, and the fish lets go; the bait comes back. It spends a good bite, and nothing gives it back. A passed Prize or bigger lingering 45 s for one more cast (F16) is not built and is dropped for slice 1a (the lead's ruling, PLAN §7.2); were it built, that cast would spend a bite from the place where the fish first bit.
 - **Ashwick's comeback** (`WICKS.md` §2.5): a hooked fish that gets away from Ashwick (not a giant, not a legend, not a line cut by sailing away) is the next bite at that water this evening, the same fish, tired (+4 Hold), once. It spends a good bite like any bite (a let-go comeback refunds as built), and a fish that will come back is not also marked.
@@ -384,21 +384,21 @@ Tests: measure leaves the hold unchanged; a let-go fish refunds its bite and add
 - **Who counts.** As with the built pressure: `fishing` emits `fishing:bite {waterKey}` once per bite (passed, struck, spooked or lingering), `progression-loop` owns and saves `run.bites`, and `fishing` reads it through `getBitesLeft(key)`.
 - **Why going home is attractive.** Home is where the fish turn into clams, where the water comes back, and where the next purchase is. A trip costs about 45 s of sailing, selling and shopping, so half-empty trips pay badly, and so does sitting on quiet water.
 
-**Proof** (sim section 2; clams per minute as a share of the natural rule: "let Smalls pass while good water is left, keep the rest, move on when a water goes quiet, go home"; slice 1a's full run: the sim reads `data.LOOP` and counts the quiet bite as the game does, the 5th bite at 4 good bites already quiet, PLAN CHOICE 17):
+**Proof** (sim section 2; clams per minute as a share of the natural rule: "let Smalls pass while good water is left, keep the rest, move on when a water goes quiet, go home"; slice 1a's full run: the sim reads `data.LOOP` and counts the quiet bite as the game does, the 5th bite at 4 good bites already quiet, PLAN CHOICE 17; then the visit home as slice 1a's T37 measured it, `LOOP.time` home 2 s and sale 5.8 s):
 
 | stage | natural rule: clams · minutes | best rule found | keep what bites | wait for dark | **choosy**: Prize+ while fresh, then fill | only Prize+, home when quiet | **the giant hunt** (keep only giants and Trophy+, stay till full) | only Trophy+, stay till full |
 |---|---|---|---|---|---|---|---|---|
-| first trip: T0, hold 3, the Mossmere's open water (4 good bites) | 43 · 2.2 | 107% | 97% | 78% | 96% | 46% | 9% | 3% |
-| 10 min: hold 4, the Lily Maze (7) | 81 · 2.7 | 102% | 101% | 82% | 88% | 63% | 10% | 5% |
-| 1 h: T1, hold 5, three Mossmere places (13) | 245 · 3.2 | 103% | 97% | 85% | 91% | 75% | 19% | 10% |
-| 5 h: T2, hold 6, four Sporewood places (17) | 406 · 3.6 | 99% | 100% | 80% | 94% | 79% | 27% | 14% |
-| 20 h: T5, hold 8, three Thin Water places (16) | 3,586 · 4.2 | 103% | 102% | 75% | 94% | 81% | 28% | 15% |
-| 40 h: T6, hold 8, four Salt Gate places (18) | 28,209 · 4.4 | 102% | 100% | 89% | 95% | 85% | 48% | 20% |
+| first trip: T0, hold 3, the Mossmere's open water (4 good bites) | 43 · 2.1 | 107% | 98% | 77% | 94% | 47% | 8% | 3% |
+| 10 min: hold 4, the Lily Maze (7) | 81 · 2.6 | 102% | 102% | 82% | 86% | 64% | 10% | 5% |
+| 1 h: T1, hold 5, three Mossmere places (13) | 245 · 3.1 | 103% | 97% | 84% | 90% | 74% | 19% | 10% |
+| 5 h: T2, hold 6, four Sporewood places (17) | 406 · 3.5 | 99% | 100% | 79% | 92% | 78% | 26% | 14% |
+| 20 h: T5, hold 8, three Thin Water places (16) | 3,586 · 4.1 | 103% | 102% | 75% | 93% | 80% | 27% | 14% |
+| 40 h: T6, hold 8, four Salt Gate places (18) | 28,209 · 4.3 | 102% | 100% | 88% | 95% | 84% | 47% | 19% |
 
-- **No patient strategy reaches the natural rule per minute** (the best is 89%). **The giant hunt earns 9–48%**: a giant is too rare to fill a hold with, even when every let-go fish gives its bite back.
+- **No patient strategy reaches the natural rule per minute** (the best is 88%). **The giant hunt earns 8–47%**: a giant is too rare to fill a hold with, even when every let-go fish gives its bite back.
 - **The natural rule is within 7% of the best rule found** (the first trip's best, 107%, lets the last Small pass and fishes four quiet bites; from 10 minutes on it is within 3%), so playing by feel is playing well.
 - **The rule is needed.** With quiet water switched off, "only Trophy+, stay till full" brings **2.3–3.9 times** the clams per trip; players would drift into it.
-- **Choosy play is a real choice**: 88–96% of the natural rule per minute, and 38–75% more clams a trip for 1.5–2 times the minutes. On every new water at the kit it is bought with (sim section 2b, over 6,000 trips): 87–105%.
+- **Choosy play is a real choice**: 86–95% of the natural rule per minute, and 38–75% more clams a trip for 1.5–2 times the minutes. On every new water at the kit it is bought with (sim section 2b, over 6,000 trips): 86–104%.
 
 ### 3.4 Every trip is an evening
 
@@ -512,8 +512,8 @@ Worked values (tests in slices 1a–2 use them): a Keeper Dusk Minnow (z 0.4) se
 |---|---|---|---|---|---|---|
 | name | Wicker Creel | Lidded Creel | Double Creel | Wellbox | Ferry Hamper | Harbour Chest |
 | price | start | **30** | **120** | **450** | **2,000** | **3,500** |
-| bought at about (pacing run) | — | trip 1 | 0.4 h | 2.5 h | 6.6 h | 10.3 h |
-| clams a minute, when bought | — | +8% | +3% | +1% | +1% | 0% |
+| bought at about (pacing run) | — | trip 1 | 0.4 h | 2.5 h | 6.6 h | 10.2 h |
+| clams a minute, when bought | — | +7% | +2% | 0% | +1% | −1% |
 | clams a trip, when bought | — | +32% | +21% | +18% | +15% | +10% |
 | price, in trips of income then | — | 0.8 | 1.6 | 1.0 | 1.6 | 1.5 |
 
@@ -632,7 +632,7 @@ Each gate is the era in which the pacing run of §4.9 buys the item, so the full
 | water | lake map (opens its open, day and old water) | night water | fifth place | crown |
 |---|---|---|---|---|
 | 1. The Mossmere | yours (day water 60 · old water 150 are place maps) | 260 | — | 500 |
-| 2. Sporewood Pools | **2,000** | 1,200 | 1,100 (old) | 2,200 |
+| 2. Sporewood Pools | **2,600** | 1,200 | 1,100 (old) | 2,200 |
 | 3. Glasswater Vault | **10,200** | 4,800 | 4,000 (old) | 7,500 |
 | 4. The Pallid Deep | **26,000** | 14,000 | — | 19,000 |
 | 5. The Rime Sound | **29,700** | 14,700 | — | 20,000 |
@@ -656,69 +656,69 @@ The four built lakes keep their order; the Mossmere keeps its prices; the other 
 
 ### 4.9 Pacing targets, and the proof
 
-The pacing run (sim section 5) is an average player: 90% of the natural rule's clams, 25% more time per trip for looking around, plain bait from minute 30, +6% per order slot. It buys 144 things in a sensible order and always fishes the best of its three newest waters (v8: its three newest **open** waters; a lake map waits until the water before it is open). **Every figure in this section is the no-passive player's**, from slice 1a's full run (15 November 2026): the sim reads `data.LOOP`'s tables and counts the quiet bite as the game does (at 4 good bites the 5th is already quiet, PLAN CHOICE 17), which moved the figures by a point or two and the end from 47.6 h to 47.7 h. The pacing once per Wick (`clams.mjs --wicks`, the lead's rulings of `WICKS.md` §3.5 applied: Tallow's 9 slots and its good bite at every place): everything is bought at **43.5 h** (the Wick), **43.7 h** (Taper), **44.4 h** (Stub), **43.6 h** (Tallow) and **44.9 h** (Ashwick), all within ±2.0% of their mean of 44.0 h (target ±5%), against 47.7 h with no passive. The mean is inside the 40–60 h band, so there is no price factor (×1.0, as 1a needs). Tallow's clams-a-trip marks are read per slot; its trips stay under 6 min below Hold 8 and run to 6.1 min at Hold 8, its own ceiling (`WICKS.md` §4 guard 3). Each Wick's own clams a minute against this section's marks are in `WICKS.md` §3.5. With the 5th bite quiet, one per-Wick check moves outside its bar: **Tallow's Sporewood list p95 is 60.25 min against ≤ 60** (59.8 before; `WICKS.md` §3.5 named it the margin to watch); it goes to the lead with the visit home's measure (slice 1a T37), and every other per-Wick check passes (32 warnings, as ruled). **M1's own arc** (the Mossmere alone, its 32-item shelf) is `docs/loop/M1.md` §6, measured by `clams.mjs --shipped=mossmere`: the empty shelf at 2.04 h with no passive and at 1.73–1.96 h per Wick (slice 1a's re-run; M1's step-5 gate passes, as does its step-1 gate `--shipped=mossmere --step=1`, per Wick too).
+The pacing run (sim section 5) is an average player: 90% of the natural rule's clams, 25% more time per trip for looking around, plain bait from minute 30, +6% per order slot. It buys 144 things in a sensible order and always fishes the best of its three newest waters (v8: its three newest **open** waters; a lake map waits until the water before it is open). **Every figure in this section is the no-passive player's**, from slice 1a's full run (15 November 2026): the sim reads `data.LOOP`'s tables and counts the quiet bite as the game does (at 4 good bites the 5th is already quiet, PLAN CHOICE 17), which moved the figures by a point or two and the end from 47.6 h to 47.7 h. Then the visit home as slice 1a's T37 measured it (`LOOP.time` home 2 s and sale 5.8 s; out 14 s and shop 16 s kept, because a scripted press measures no person's time at the Chart or the shelf) brought the Pallid Deep map to 8.4 h, under its 8.5 h floor; lane A's knob for the map hours, Sporewood's lake map at **2,600** (it was 2,000), put it back at 8.6 h, and the end is at **46.6 h**. The pacing once per Wick (`clams.mjs --wicks`, the lead's rulings of `WICKS.md` §3.5 applied: Tallow's 9 slots and its good bite at every place): everything is bought at **42.8 h** (the Wick), **42.8 h** (Taper), **43.4 h** (Stub), **42.8 h** (Tallow) and **44.0 h** (Ashwick), all within ±1.9% of their mean of 43.2 h (target ±5%), against 46.6 h with no passive. The mean is inside the 40–60 h band, so there is no price factor (×1.0, as 1a needs). Tallow's clams-a-trip marks are read per slot; its trips stay under 6 min below Hold 8 and run to 6.1 min at Hold 8, its own ceiling (`WICKS.md` §4 guard 3). Each Wick's own clams a minute against this section's marks are in `WICKS.md` §3.5. With the 5th bite quiet, one per-Wick check had moved outside its bar, Tallow's Sporewood list p95 (60.25 min against ≤ 60; 59.8 before; `WICKS.md` §3.5 named it the margin to watch); with the visit home measured and Sporewood's map at 2,600 it is **59 min**, and every per-Wick check passes (32 warnings, as ruled). **M1's own arc** (the Mossmere alone, its 32-item shelf) is `docs/loop/M1.md` §6, measured by `clams.mjs --shipped=mossmere`: the empty shelf at 1.97 h with no passive and at 1.67–1.89 h per Wick (slice 1a's re-run with the measured visit home; M1's step-5 gate passes, as does its step-1 gate `--shipped=mossmere --step=1`, per Wick too).
 
-**v8: the gate in the pacing run** (sim sections 5 and 7; the full run of 15 November 2026). The pacing run is gated as the game is: a lake map is bought only once the water before it is open, a water is fished only once it is open, and a gear key is bought before its map (that moves Rod T6 alone, decision 37). A list counts as landed once the player has fished that water for its **95th-percentile** list time on the kit the water opened with (§5.5 (d)), so the pacing player is the slow one in twenty. **What the gate costs: nothing.** Every water opens the moment its map is bought (sealed 0 min at all 15) and the shelf ends at **47.6 h**, the same as the same sim without the keys; all 167 checks pass (slice 1a's re-run, with the quiet bite counted as the game counts it: **47.7 h**, every check passing). The one map that moves by more than 0.1 h is the Thunder Stair's, from 29.6 h to 30.5 h, because Rod T6 is bought first at 29.3 h; by Rushlight Fen the run is level again (33.9 h both ways). Bought only after its map, as v7.1 ordered it, the rod would leave the Thunder Stair sealed for 57 min. **Where v7.1's 48.9 h went:** when the catch show was built its seconds moved into the built ceremony and the sim's separate 1.5 s allowance was dropped (`LOOP.time.show`, PLAN CHOICE 15); that made the run 47.6 h before the keys were added. The tables below are the gated run. No price, value tier or gear key changed in v8; the one knob the sim moved is the pull's Keeper floor, which starts on the second evening at a water (§5.5 (d)).
+**v8: the gate in the pacing run** (sim sections 5 and 7; the full run of 15 November 2026). The pacing run is gated as the game is: a lake map is bought only once the water before it is open, a water is fished only once it is open, and a gear key is bought before its map (that moves Rod T6 alone, decision 37). A list counts as landed once the player has fished that water for its **95th-percentile** list time on the kit the water opened with (§5.5 (d)), so the pacing player is the slow one in twenty. **What the gate costs: nothing.** Every water opens the moment its map is bought (sealed 0 min at all 15) and the shelf ends at **47.6 h**, the same as the same sim without the keys; all 167 checks pass (slice 1a's re-run, with the quiet bite counted as the game counts it: **47.7 h**, every check passing; with the visit home measured and Sporewood's map at 2,600: **46.6 h**, every check passing). The one map that moves by more than 0.1 h is the Thunder Stair's, from 29.6 h to 30.5 h, because Rod T6 is bought first at 29.3 h; by Rushlight Fen the run is level again (33.9 h both ways). Bought only after its map, as v7.1 ordered it, the rod would leave the Thunder Stair sealed for 57 min. **Where v7.1's 48.9 h went:** when the catch show was built its seconds moved into the built ceremony and the sim's separate 1.5 s allowance was dropped (`LOOP.time.show`, PLAN CHOICE 15); that made the run 47.6 h before the keys were added. The tables below are the gated run. No price, value tier or gear key changed in v8; the one knob the sim moved is the pull's Keeper floor, which starts on the second evening at a water (§5.5 (d)).
 
-**The M1 view** (the user's re-cut of 15 November 2026; §13, `docs/loop/M1.md`). M1 builds the Mossmere and the home barge only. The three keys still govern every gate; in M1 the only gate is the Mossmere → Sporewood one, and Sporewood's sheet is **shown sealed until after M1** ("Coming soon": no price and a hollow map seal, decision 39). Its other two seals can both be pressed in M1: the gear is the Ashwood rod (Rod T1, 50 clams, on M1's shelf) and the catch is the Mossmere's list, so a player who finishes M1 sees two pressed seals beside the hollow one (`M1.md` §5). The Mossmere's rows here are M1's: on the starting kit its list of 12 is landed in 22 min on average and in 30 min by the slow player in twenty (36 by the slowest in a hundred), a small part of M1's 2.5–3 h. (In the full game the Sporewood map is affordable after 81 min of fishing, at 1.4 h.) M1's own run is `clams.mjs --shipped=mossmere` (`M1.md` §6.4), which is to report the list's time on M1's shelf; this sim exports `listStudy` for it.
+**The M1 view** (the user's re-cut of 15 November 2026; §13, `docs/loop/M1.md`). M1 builds the Mossmere and the home barge only. The three keys still govern every gate; in M1 the only gate is the Mossmere → Sporewood one, and Sporewood's sheet is **shown sealed until after M1** ("Coming soon": no price and a hollow map seal, decision 39). Its other two seals can both be pressed in M1: the gear is the Ashwood rod (Rod T1, 50 clams, on M1's shelf) and the catch is the Mossmere's list, so a player who finishes M1 sees two pressed seals beside the hollow one (`M1.md` §5). The Mossmere's rows here are M1's: on the starting kit its list of 12 is landed in 21 min on average and in 29 min by the slow player in twenty (34 by the slowest in a hundred), a small part of M1's 2.5–3 h. (In the full game the Sporewood map is affordable after 90 min of fishing, at 1.5 h.) M1's own run is `clams.mjs --shipped=mossmere` (`M1.md` §6.4), which is to report the list's time on M1's shelf; this sim exports `listStudy` for it.
 
 | mark | clams per trip | minutes per trip | trips per purchase | bought | where | state | target |
 |---|---|---|---|---|---|---|---|
-| **10 min** | 71 | 3.4 | 1.0 | 3 | the Mossmere | hold 4, Line T1, the Lily Maze | first purchase after trip 1; 2–5 bought; 40–90 clams |
-| **1 h** | 234 | 4.0 | 0.8 | 14 | the Mossmere | T1, hold 5, three places | 100–240 clams; 0.5–2.6 trips; 11–19 bought |
-| **5 h** | 772 | 4.5 | 3.5 | 46 | Glasswater | T3, hold 6, three waters, 11 places | 300–900 clams; 1.5–5 trips |
-| **20 h** | 3,754 | 5.3 | 4.2 | 77 | the Thin Water | T5, hold 8, six waters, 23 places | 1.5–7 trips; 5–8 waters owned |
-| **40 h** | 40,741 | 5.4 | 4.2 | 124 | Lampmoss Slough | T6, hold 8, 13 waters, 55 places | — |
-| **the end** | — | — | — | 144 | | everything, at 47.7 h | 40–60 h (v8, sim section 7: 45–52) |
+| **10 min** | 71 | 3.3 | 1.0 | 3 | the Mossmere | hold 4, Line T1, the Lily Maze | first purchase after trip 1; 2–5 bought; 40–90 clams |
+| **1 h** | 234 | 3.9 | 0.8 | 14 | the Mossmere | T1, hold 5, three places | 100–240 clams; 0.5–2.6 trips; 11–19 bought |
+| **5 h** | 772 | 4.4 | 3.7 | 46 | Glasswater | T3, hold 6, three waters, 11 places | 300–900 clams; 1.5–5 trips |
+| **20 h** | 3,754 | 5.1 | 4.5 | 78 | the Thin Water | T5, hold 8, six waters, 24 places | 1.5–7 trips; 5–8 waters owned |
+| **40 h** | 40,741 | 5.3 | 4.2 | 124 | Lampmoss Slough | T6, hold 8, 13 waters, 55 places | — |
+| **the end** | — | — | — | 144 | | everything, at 46.6 h | 40–60 h (v8, sim section 7: 45–52) |
 
 | water | its map bought at | it opens at (v8: its three keys held) | the best water to fish from | its legend landed at |
 |---|---|---|---|---|
-| 1. The Mossmere | start | start | 0.0 h | 1.8 h |
-| 2. Sporewood Pools | **1.4 h** (target 1.2–2.0) | 1.4 h | 1.4 h | 4.6 h |
-| 3. Glasswater Vault | **4.4 h** (4.0–6.5) | 4.4 h | 4.4 h | 9.2 h |
-| 4. The Pallid Deep | **8.7 h** (8.5–13) | 8.7 h | 8.7 h | 18.7 h |
-| 5. The Rime Sound | **15.4 h** (12–18) | 15.4 h | 15.4 h | 20.5 h |
-| 6. The Thin Water | 19.5 h | 19.5 h | 19.5 h | 23.2 h |
-| 7. The Last Light | 21.4 h | 21.4 h | 21.4 h | 25.1 h |
-| 8. Pyrefall Gorge | 24.2 h | 24.2 h | 24.2 h | 28.1 h |
-| 9. The Waxen Reef | 26.2 h | 26.2 h | 26.2 h | 32.7 h |
-| 10. The Thunder Stair | 30.5 h (its key, Rod T6, at 29.3 h) | 30.5 h | 30.5 h | 35.3 h |
-| 11. Rushlight Fen | 33.9 h | 33.9 h | 33.9 h | 37.3 h |
-| 12. The Salt Gate | 36.4 h | 36.4 h | 36.4 h | 39.9 h |
-| 13. Lampmoss Slough | 38.7 h | 38.7 h | 38.7 h | 41.7 h |
-| 14. The Siltway | 40.9 h | 40.9 h | 40.9 h | 44.2 h |
-| 15. Lanternroot Lagoon | 42.9 h | 42.9 h | 42.9 h | 46.6 h |
-| 16. The Inkwood | 45.8 h | 45.8 h | 45.8 h | 47.7 h |
+| 1. The Mossmere | start | start | 0.0 h | 1.9 h |
+| 2. Sporewood Pools | **1.5 h** (target 1.2–2.0) | 1.5 h | 1.5 h | 4.7 h |
+| 3. Glasswater Vault | **4.4 h** (4.0–6.5) | 4.4 h | 4.4 h | 9.1 h |
+| 4. The Pallid Deep | **8.6 h** (8.5–13) | 8.6 h | 8.6 h | 18.3 h |
+| 5. The Rime Sound | **15.2 h** (12–18) | 15.2 h | 15.2 h | 20.2 h |
+| 6. The Thin Water | 19.2 h | 19.2 h | 19.2 h | 22.8 h |
+| 7. The Last Light | 21.0 h | 21.0 h | 21.0 h | 24.5 h |
+| 8. Pyrefall Gorge | 23.8 h | 23.8 h | 23.8 h | 27.5 h |
+| 9. The Waxen Reef | 25.7 h | 25.7 h | 25.7 h | 32.0 h |
+| 10. The Thunder Stair | 29.8 h (its key, Rod T6, at 28.8 h) | 29.8 h | 29.8 h | 34.6 h |
+| 11. Rushlight Fen | 33.3 h | 33.3 h | 33.3 h | 36.5 h |
+| 12. The Salt Gate | 35.6 h | 35.6 h | 35.6 h | 39.0 h |
+| 13. Lampmoss Slough | 37.9 h | 37.9 h | 37.9 h | 40.9 h |
+| 14. The Siltway | 40.0 h | 40.0 h | 40.0 h | 43.3 h |
+| 15. Lanternroot Lagoon | 42.0 h | 42.0 h | 42.0 h | 45.6 h |
+| 16. The Inkwood | 44.8 h | 44.8 h | 44.8 h | 46.6 h |
 
 | milestone | value | target |
 |---|---|---|
-| the longest wait for one purchase | **73 min** (the Pallid Deep map, hour 8.7) | ≤ 90 min |
-| the first giant comes home | about **hour 1.4** (a Thousandcast Pike or a Hullkiss Lamprey) | hour 0.4–3 |
-| giants landed and kept by the end | **about 74** | — |
+| the longest wait for one purchase | **72 min** (the gilt lantern, a look, hour 17.3) | ≤ 90 min |
+| the first giant comes home | about **hour 1.3** (a Thousandcast Pike or a Hullkiss Lamprey) | hour 0.4–3 |
+| giants landed and kept by the end | **about 73** | — |
 | Elders landed by the end | **about 70** | — |
 | a new water is the best water to fish | **from the day it opens**, all 15 (v8: measured from the opening; every water opens the day its map is bought) | within 30 min |
 | v8: the longest a bought lake map waits sealed (its gear or the list not yet held) | **0 min at every water** (each gear key is owned before its map; each list is landed long before the map is affordable). 57 min at the Thunder Stair if Rod T6 is bought after its map | ≤ 30 min |
-| v8: the 95th-percentile time to land a water's whole list, at the kit it opens with, on the Journal route with the pull | **16–53 min** (p99 18–59) at the 15 waters whose list is a key; the Inkwood's Journal seal 54 (62). The table is §5.5 (d) | ≤ 60 min (p99 ≤ 75), and less than that water's era |
-| v8: players whose list is still open when the next map and its gear are owned | **none of 2,000 at any water** (the shortest era is the Mossmere's 81 min of fishing; the tightest, the Siltway's 119 min against a p99 of 59) | < 5% at every water; the expected extra wait ≤ 5 min (it is 0) |
-| v8: the pull's windfall in each era | **−3.5 to +8.8 min of income** (while a list is open the Journal route with the pull earns 80–140% of the natural rule's clams a minute, for 9–39 min on average; the Mossmere is the +8.8). All 16 eras together: +9.9 min, which the pacing run leaves out | ≤ 15 min of income |
+| v8: the 95th-percentile time to land a water's whole list, at the kit it opens with, on the Journal route with the pull | **15–52 min** (p99 18–58) at the 15 waters whose list is a key; the Inkwood's Journal seal 53 (60). The table is §5.5 (d) | ≤ 60 min (p99 ≤ 75), and less than that water's era |
+| v8: players whose list is still open when the next map and its gear are owned | **none of 2,000 at any water** (the shortest era is the Mossmere's 90 min of fishing; the tightest, the Siltway's 122 min against a p99 of 58) | < 5% at every water; the expected extra wait ≤ 5 min (it is 0) |
+| v8: the pull's windfall in each era | **−3.4 to +8.4 min of income** (while a list is open the Journal route with the pull earns 80–140% of the natural rule's clams a minute, for 9–38 min on average; the Mossmere is the +8.4). All 16 eras together: +9.5 min, which the pacing run leaves out | ≤ 15 min of income |
 | on the day you buy a lake map, its open, day and old water ÷ the water before, fully mapped | **1.06–1.10** | ≥ 1.05 |
 | every water, fully mapped ÷ the one before | **1.20–1.53** (88 → 24,000 clams a minute; the 1.20 is the Rime Sound after the Pallid Deep, decision 21) | ≥ 1.2 |
 | every place map, bought in price order | **+8% to +29%** clams a minute | ≥ +5% |
 | the best set of a water's places ÷ the next water fully mapped | **at most 0.87** | < 1 |
-| trips at the pacing marks, the visit home included | **3.4–5.4 min** | ≤ 6 |
+| trips at the pacing marks, the visit home included | **3.3–5.3 min** | ≤ 6 |
 | maps' share of all spending | **73%** | 50–75% |
 
-**The first trip** (natural rule, 4,000 trips): 43 clams on average, 18–75 for most players (10th–90th percentile); 2.2 minutes; 98% come home full; **54% bring home no Prize or bigger**; 7% a Trophy; 26% of hooked fish get away; 63% get a bite after dark. (The no-passive player. Per Wick, measured in `WICKS.md` §3.5: Tallow's first trip 60 clams, 96% full, 41% with no Prize or bigger, 94% a bite after dark; Stub's first trips 52% a bite after dark; the Wick's 63 clams with its firsts.) v8: the pull leaves the first trip exactly so (it starts on the second evening at a water; the sim checks a fresh save's first trip with the whole list missing).
+**The first trip** (natural rule, 4,000 trips): 43 clams on average, 18–75 for most players (10th–90th percentile); 2.1 minutes; 98% come home full; **54% bring home no Prize or bigger**; 7% a Trophy; 26% of hooked fish get away; 63% get a bite after dark. (The no-passive player. Per Wick, measured in `WICKS.md` §3.5: Tallow's first trip 60 clams, 96% full, 41% with no Prize or bigger, 94% a bite after dark; Stub's first trips 52% a bite after dark; the Wick's 63 clams with its firsts.) v8: the pull leaves the first trip exactly so (it starts on the second evening at a water; the sim checks a fresh save's first trip with the whole list missing).
 
 **The buying order of the pacing run** (hour · what · price; the full table with trips is printed by the sim):
 
 | era | purchases in order |
 |---|---|
-| the Mossmere, 0–1.4 h | 0.05 Hold 4 · 30 → Line T1 · 50 → map: the Lily Maze · 60 → Rod T1 · 50 (v8: Sporewood's gear key) → Reel T1 · 50 → Oars I · 60 → Order Board I · 70 → 0.43 Hold 5 · 120 → map: Under the Span · 150 → Glimmer Spoon · 90 → Bone Jig · 110 → 0.75 map: the Buoy Lights · 260 → Feather Fly · 50 → Bait Bed I · 120 → **1.36 MAP: Sporewood Pools · 2,000** |
-| Sporewood, 1.4–4.4 h | Harbour-Bell Spinner · 180 → Lantern I · 100 → Line, Reel, Rod T2 · 300 each → Long Wall wing 1 · 250 → map: the Bell Pool · 500 → the Matriarch hunt · 142 → Oars II · 300 → Keel I · 100 → Order Board II · 400 → Spore-Lamp Fly · 500 → Barge lights I · 200 → 2.14 map: the Puffball Vent · 1,100 → Moth Popper · 400 → map: the Veilwater · 1,200 → Hold 6 · 450 → Lantern II · 500 → Slate Cloak Dye · 300 → Keel II · 600 → Line T3 · 1,200 → Oxblood Pennant · 400 → Bait Bed II · 700 → Reel T3 · 1,200 → Amber Lantern Glass · 600 → 3.26 Rod T3 · 1,200 → **4.37 MAP: Glasswater Vault · 10,200** |
-| Glasswater, 4.4–8.7 h | map: the Mother's Cup · 2,200 → the Grove hunt · 613 → Mirror Shard · 2,400 → Barge lights II · 1,200 → 5.12 map: the Well of Ledgers · 4,000 → Order Board III · 4,000 → Line T4 · 6,000 → Lantern Lure · 4,000 → map: the Broken Hymnal · 4,800 → Hold 7 · 2,000 → Reel T4 · 6,000 → Painted Prow · 2,500 → 7.45 Rod T4 · 6,000 → **8.69 MAP: The Pallid Deep · 26,000** |
-| the Pallid Deep, 8.7–15.4 h | Keel III · 3,000 → map: the Fallen Chandelier · 7,500 → the Sovereign hunt · 2,452 → Bait Bed III · 9,000 → Ferryman's Coin · 9,000 → map: the Sunken Belfry · 14,000 → Hold 8 · 3,500 → Barge lights III · 14,000 → Bell Buoy · 6,000 → 12.39 Line, Reel, Rod T5 · 32,000 each → **15.44 MAP: The Rime Sound · 29,700** |
-| each new water, 15.4–47.7 h | its lake map → (Long Wall wings with waters 5, 9, 13; v8: Rod T6 · 100,000 at 29.3 h, on the shelf with the slot-9 map and bought before the slot-10 map, the Thunder Stair at 30.5 h, whose key it is; Line and Reel T6 at 31.2 and 32.1 h, after the Thunder Stair map and before Rushlight Fen's at 33.9 h; a look with waters 5, 7, 11, 15) → its giants' lure → the crown and legend hunt of the water before → its fifth place → its night water. The Inkwood's own crown and the Banked Fire end the shelf at 47.7 h. |
+| the Mossmere, 0–1.5 h | 0.04 Hold 4 · 30 → Line T1 · 50 → map: the Lily Maze · 60 → Rod T1 · 50 (v8: Sporewood's gear key) → Reel T1 · 50 → Oars I · 60 → Order Board I · 70 → 0.41 Hold 5 · 120 → map: Under the Span · 150 → Glimmer Spoon · 90 → Bone Jig · 110 → 0.72 map: the Buoy Lights · 260 → Feather Fly · 50 → Bait Bed I · 120 → **1.50 MAP: Sporewood Pools · 2,600** |
+| Sporewood, 1.5–4.4 h | Harbour-Bell Spinner · 180 → Lantern I · 100 → Line, Reel, Rod T2 · 300 each → Long Wall wing 1 · 250 → map: the Bell Pool · 500 → the Matriarch hunt · 142 → Oars II · 300 → Keel I · 100 → Order Board II · 400 → Spore-Lamp Fly · 500 → Barge lights I · 200 → 2.26 map: the Puffball Vent · 1,100 → Moth Popper · 400 → map: the Veilwater · 1,200 → Hold 6 · 450 → Lantern II · 500 → Slate Cloak Dye · 300 → Keel II · 600 → Line T3 · 1,200 → Oxblood Pennant · 400 → Bait Bed II · 700 → Reel T3 · 1,200 → Amber Lantern Glass · 600 → 3.35 Rod T3 · 1,200 → **4.36 MAP: Glasswater Vault · 10,200** |
+| Glasswater, 4.4–8.6 h | map: the Mother's Cup · 2,200 → the Grove hunt · 613 → Mirror Shard · 2,400 → Barge lights II · 1,200 → 5.17 map: the Well of Ledgers · 4,000 → Order Board III · 4,000 → Line T4 · 6,000 → Lantern Lure · 4,000 → map: the Broken Hymnal · 4,800 → Hold 7 · 2,000 → Reel T4 · 6,000 → Painted Prow · 2,500 → 7.36 Rod T4 · 6,000 → **8.56 MAP: The Pallid Deep · 26,000** |
+| the Pallid Deep, 8.6–15.2 h | Keel III · 3,000 → map: the Fallen Chandelier · 7,500 → the Sovereign hunt · 2,452 → Bait Bed III · 9,000 → Ferryman's Coin · 9,000 → map: the Sunken Belfry · 14,000 → Hold 8 · 3,500 → Barge lights III · 14,000 → Bell Buoy · 6,000 → 12.16 Line, Reel, Rod T5 · 32,000 each → **15.23 MAP: The Rime Sound · 29,700** |
+| each new water, 15.2–46.6 h | its lake map → (Long Wall wings with waters 5, 9, 13; v8: Rod T6 · 100,000 at 28.8 h, on the shelf with the slot-9 map and bought before the slot-10 map, the Thunder Stair at 29.8 h, whose key it is; Line and Reel T6 at 30.7 and 31.4 h, after the Thunder Stair map and before Rushlight Fen's at 33.9 h; a look with waters 5, 7, 11, 15) → its giants' lure → the crown and legend hunt of the water before → its fifth place → its night water. The Inkwood's own crown and the Banked Fire end the shelf at 47.7 h. |
 
 **What the sim found that shaped the design.**
 
@@ -733,7 +733,7 @@ The pacing run (sim section 5) is an average player: 90% of the natural rule's c
 - **A lure chosen by a rule of thumb can cost clams** (v7.1). Fitting the Thunder Plug (two giants named, no rare) instead of the Glimmer Spoon cost the pacing player 18% a trip for the rest of the era. The pacing player now fits whichever lure pays best, measured, and every giants' lure names its two biggest rare or uncommon fish.
 - **Each water needs its own value tier.** At one value point per tier the waters pay very different amounts, because their fish, Fight and tackle differ. `node tools/sim/clams.mjs --calibrate` prints the tiers that satisfy decision 10, with a 2-point margin so a noisy run still clears it; the table in §4.1 is its output. (v8: the Rime Sound's margin is now 0.4 points, §14 risk 30.)
 - **The three keys cost no time, and the mercy is why** (v8). Gated, the run ends at 47.6 h with every water opening the moment its map is bought. Without the pull the slow player in twenty needs 3.8 h to over 10 h for a list at five waters (section 7's contrast column), and a gated run with the pull switched off ends at about 61 h with bought maps waiting sealed for up to 14.5 h (a quick scratch run). The sure bite carries the limit: without it Sporewood's slow player in twenty needs about 130 min, with it 53 (§14 risk 24). **A floor from the first evening would have changed the first trip** (48 clams in 1.9 min, and a bite after dark on 39% of first trips instead of 63%); from the second evening it costs the lists nothing.
-- The model's limits: no cast depth, no signs, no weather, no Marked Fish bonus, no Cut Strip, orders as a flat 6%, curiosities left out, 44 s for sailing out and the visit home. Read every number as ±10%. **Finds** (§4.10) are outside these figures until the balancing job's finds table is in the sim; §4.10 states how far they may move them. **The Well** (after M1, v8.3) is outside them too: the pacing run buys no tank and places no fish, and the Well's own gate is the Well-keeper's run, `clams.mjs --well`, within 60 h (decision 70, `AQUARIUM.md` §12).
+- The model's limits: no cast depth, no signs, no weather, no Marked Fish bonus, no Cut Strip, orders as a flat 6%, curiosities left out, 38 s for sailing out and the visit home (T37 measured the home leg at 2 s and the tally at 5.8 s; the Chart and the shelf keep the sim's allowance). Read every number as ±10%. **Finds** (§4.10) are outside these figures until the balancing job's finds table is in the sim; §4.10 states how far they may move them. **The Well** (after M1, v8.3) is outside them too: the pacing run buys no tank and places no fish, and the Well's own gate is the Well-keeper's run, `clams.mjs --well`, within 60 h (decision 70, `AQUARIUM.md` §12).
 
 ### 4.10 Finds: what they sell for, how often, and the sim (`docs/loop/FINDS.md` §4, §11)
 
@@ -787,7 +787,7 @@ clams = round(tier[water] × grade.x × LOOP.priceFactor)            (a treasure
 | # | water | kind | lushness step | lake map | v6 slot | why it sits here |
 |---|---|---|---|---|---|---|
 | 1 | The Mossmere | lake | 0 | yours | 1 | built; the look the user approved, unchanged: lavender night, green only as a trace |
-| 2 | Sporewood Pools | lake | 1 | 2,000 | 2 | built; first moss on the ember garden |
+| 2 | Sporewood Pools | lake | 1 | 2,600 | 2 | built; first moss on the ember garden |
 | 3 | Glasswater Vault | lake | 2 | 10,200 | 3 | built; moss on the crystal |
 | 4 | The Pallid Deep | lake (deep) | 3 | 26,000 | 4 | built and priced, closes the old kingdom; re-themed gently as the requiem garden (moss, ivy, cedars, moonflowers) rather than moved |
 | 5 | **The Rime Sound** | sound | 4 | 29,700 | 16 | **moved from 16**: ice and stone are the least green thing we have, and its giants need the ice (the Long Winter, the Lantern Hole). Its green: firs on the cliff shoulders, moss and lichen, kelp |
@@ -814,7 +814,7 @@ Rivers alternate exactly with stills from slot 5, and the three lushest river ki
 | Under the Span | old | 150 | the Toppled Bridge's piers · (−29.5, 0.5) | ★ Thousandcast Pike (dusk) | Bridgechain Sturgeon (its own); Elders | "The bridge kept its chain. Something kept it." |
 | The Buoy Lights | night | 260 | the west channel · (−48, −2) | ★ Hullkiss Lamprey | Gloam Eel (on Lumen Moss) | "The harbour lights went under, still lit." |
 | The Bell Pool | crown | 500 | the Bell Pool · (−4, −14) | ★ the Belled Matriarch | — | "The moon looks in on the old bell." |
-| **Sporewood Pools** | lake | 2,000 | opens the Lullaby (day) · (−28, −8) and the Gill Harp (old) · the south-east stalks (39, 27) | ★ Harpstring Eel; its seal: the Drifting Grove | 12 open-water fish; Sleepspore Jelly (on Lumen Moss) and Velvet Ray drawn at the Lullaby; Elders at the Gill Harp | "A harp in the Pools knows one song." |
+| **Sporewood Pools** | lake | 2,600 | opens the Lullaby (day) · (−28, −8) and the Gill Harp (old) · the south-east stalks (39, 27) | ★ Harpstring Eel; its seal: the Drifting Grove | 12 open-water fish; Sleepspore Jelly (on Lumen Moss) and Velvet Ray drawn at the Lullaby; Elders at the Gill Harp | "A harp in the Pools knows one song." |
 | The Puffball Vent | old (fifth) | 1,100 | the cap reef's vent · (0, −25) | ★ Emberbrood Snakehead | Elders | "Pink sparks at the surface. Something under them." |
 | The Veilwater | night | 1,200 | lee of West Lily Cap · (−36, −36) | ★ Festival Puffer | Hushcap Koi (its own), Nightbloom Carp | "A koi that only glows in the dark." |
 | The Mother's Cup | crown | 2,200 | the Grove Well · (28, −16) | ★ the Drifting Grove | — | "The Mother breathes. Big things breathe with her." |
@@ -984,24 +984,24 @@ It cannot be farmed: the species hides until the reveal, so a player cannot keep
 
 | water | the kit it opens with | to land | mean / median (min) | p95 / p99 with the pull (min) | without the pull: median / p95 | the plain natural route, with the pull: median / p95 | its era: minutes fished there before the next map and its gear are owned | clams a minute while the list is open ÷ the natural rule | windfall (min of income) |
 |---|---|---|---|---|---|---|---|---|---|
-| 1. The Mossmere | T0, hold 3 | 12 of 12 | 22 / 22 | **29 / 34** | 72 / 337 | 23 / 32 | 81 | 137% | +8.1 |
-| 2. Sporewood Pools | T1, hold 5 | 11 of 11 | 39 / 39 | **53 / 61** | 258 / over 639 | 40 / 57 | 181 | 102% | +0.7 |
-| 3. Glasswater Vault | T3, hold 6 | 12 of 12 | 37 / 38 | **49 / 54** | 172 / 516 | 38 / 49 | 254 | 103% | +1.2 |
-| 4. The Pallid Deep | T4, hold 7 | 10 of 10 | 31 / 30 | **47 / 53** | 87 / 226 | 32 / 50 | 410 | 116% | +5.1 |
-| 5. The Rime Sound | T5, hold 8 | 8 of 8 | 24 / 22 | **39 / 48** | 41 / 130 | 49 / 105 | 245 | 103% | +0.8 |
-| 6. The Thin Water | T5, hold 8 | 7 of 7 | 18 / 16 | **28 / 34** | 27 / 71 | 48 / 99 | 112 | 90% | −1.7 |
-| 7. The Last Light | T5, hold 8 | 6 of 6 | 27 / 26 | **45 / 51** | 56 / 154 | 82 / 160 | 169 | 102% | +0.5 |
-| 8. Pyrefall Gorge | T5, hold 8 | 4 of 4 | 17 / 16 | **32 / 39** | 25 / 82 | 31 / 91 | 122 | 80% | −3.5 |
-| 9. The Waxen Reef | T5, hold 8 | 4 of 4 | 11 / 11 | **18 / 23** | 12 / 32 | 25 / 74 | 255 | 96% | −0.5 |
-| 10. The Thunder Stair | Rod T6, Line and Reel T5, hold 8 | 5 of 5 | 19 / 17 | **33 / 38** | 25 / 65 | 17 / 34 | 205 | 98% | −0.3 |
-| 11. Rushlight Fen | T6, hold 8 | 5 of 5 | 9 / 10 | **16 / 18** | 10 / 20 | 21 / 55 | 151 | 88% | −1.2 |
-| 12. The Salt Gate | T6, hold 8 | 9 of 9 | 26 / 25 | **41 / 48** | 55 / 147 | 25 / 40 | 137 | 94% | −1.6 |
-| 13. Lampmoss Slough | T6, hold 8 | 4 of 5 | 9 / 10 | **16 / 21** | 10 / 21 | 20 / 58 | 133 | 105% | +0.5 |
-| 14. The Siltway | T6, hold 8 | 10 of 10 | 35 / 35 | **53 / 59** | 96 / 320 | 81 / 170 | 119 | 104% | +1.6 |
-| 15. Lanternroot Lagoon | T6, hold 8 | 6 of 6 | 20 / 18 | **33 / 41** | 32 / 73 | 22 / 38 | 173 | 106% | +1.3 |
-| 16. The Inkwood | T6, hold 8 | 7 of 7 | 32 / 30 | **54 / 62** | 78 / 329 | 58 / 120 | 112 (to the end of the shelf) | 94% | −1.8 |
+| 1. The Mossmere | T0, hold 3 | 12 of 12 | 21 / 21 | **29 / 34** | 74 / 303 | 22 / 29 | 90 | 140% | +8.4 |
+| 2. Sporewood Pools | T1, hold 5 | 11 of 11 | 38 / 37 | **50 / 58** | 256 / over 617 | 38 / 57 | 171 | 102% | +0.8 |
+| 3. Glasswater Vault | T3, hold 6 | 12 of 12 | 36 / 37 | **48 / 54** | 161 / 420 | 37 / 48 | 252 | 103% | +1.0 |
+| 4. The Pallid Deep | T4, hold 7 | 10 of 10 | 30 / 29 | **46 / 52** | 85 / 219 | 32 / 53 | 400 | 117% | +5.1 |
+| 5. The Rime Sound | T5, hold 8 | 8 of 8 | 23 / 22 | **38 / 47** | 40 / 127 | 49 / 102 | 239 | 103% | +0.8 |
+| 6. The Thin Water | T5, hold 8 | 7 of 7 | 17 / 16 | **27 / 33** | 27 / 67 | 47 / 101 | 109 | 90% | −1.6 |
+| 7. The Last Light | T5, hold 8 | 6 of 6 | 26 / 25 | **44 / 50** | 53 / 147 | 82 / 161 | 165 | 102% | +0.5 |
+| 8. Pyrefall Gorge | T5, hold 8 | 4 of 4 | 17 / 16 | **31 / 38** | 25 / 80 | 31 / 89 | 114 | 80% | −3.4 |
+| 9. The Waxen Reef | T5, hold 8 | 4 of 4 | 11 / 10 | **18 / 22** | 12 / 31 | 24 / 72 | 249 | 95% | −0.5 |
+| 10. The Thunder Stair | Rod T6, Line and Reel T5, hold 8 | 5 of 5 | 19 / 17 | **32 / 38** | 25 / 63 | 17 / 33 | 205 | 98% | −0.4 |
+| 11. Rushlight Fen | T6, hold 8 | 5 of 5 | 9 / 10 | **15 / 18** | 10 / 20 | 20 / 54 | 142 | 88% | −1.1 |
+| 12. The Salt Gate | T6, hold 8 | 9 of 9 | 25 / 24 | **40 / 46** | 54 / 144 | 25 / 39 | 134 | 94% | −1.5 |
+| 13. Lampmoss Slough | T6, hold 8 | 4 of 5 | 9 / 10 | **16 / 20** | 10 / 20 | 20 / 57 | 130 | 105% | +0.5 |
+| 14. The Siltway | T6, hold 8 | 10 of 10 | 34 / 34 | **52 / 58** | 94 / 312 | 79 / 159 | 122 | 104% | +1.5 |
+| 15. Lanternroot Lagoon | T6, hold 8 | 6 of 6 | 19 / 18 | **32 / 40** | 32 / 72 | 21 / 37 | 163 | 107% | +1.3 |
+| 16. The Inkwood | T6, hold 8 | 7 of 7 | 31 / 30 | **53 / 60** | 74 / 321 | 57 / 113 | 109 (to the end of the shelf) | 94% | −1.8 |
 
-The limits are p95 ≤ 60 min and p99 ≤ 75: the slowest list is Sporewood's (53 / 61) and the tightest against its era the Siltway's (a p99 of 59 min in an era of 119). Of 2,000 players a water, **none** still had a list open when the pacing run owned the next map and its gear, so the catch key does not hold back a player who reads the Journal. Two contrasts the sim prints but does not check: **with the pull but on the plain natural route**, the slow player in twenty needs 160–170 min at the Last Light and the Siltway and 91–105 min at the Rime Sound, the Thin Water and Pyrefall Gorge, about three times the Journal route's time (the Pallid Deep's 50 min is decision 21's late-route fix at work: before it the Candlewake Sturgeon was never landed on the natural route); **without the pull**, Sporewood's p95 is over 10 h and Glasswater's 8.6 h. So the silhouettes' place and hour glyphs and the Journal route are part of the mercy, not optional. While a list is open, the Journal route with the pull earns 80–137% of the natural rule's clams a minute, for the 9–39 minutes a list is open on average: between 3.5 minutes of income lost (Pyrefall Gorge, where the route gives up good water for its four fish) and 8.1 gained (the Mossmere, where on the starting kit a pulled Reedjaw Pike or Kissmark Trout is worth several commons); all 16 eras together +9.2 min.
+The limits are p95 ≤ 60 min and p99 ≤ 75: the slowest list is the Inkwood's Journal seal (53 / 60), Sporewood's the slowest key (50 / 58), and the tightest against its era the Siltway's (a p99 of 58 min in an era of 122). Of 2,000 players a water, **none** still had a list open when the pacing run owned the next map and its gear, so the catch key does not hold back a player who reads the Journal. Two contrasts the sim prints but does not check: **with the pull but on the plain natural route**, the slow player in twenty needs 159–161 min at the Last Light and the Siltway and 89–102 min at the Rime Sound, the Thin Water and Pyrefall Gorge, about three times the Journal route's time (the Pallid Deep's 53 min is decision 21's late-route fix at work: before it the Candlewake Sturgeon was never landed on the natural route); **without the pull**, Sporewood's p95 is over 10 h and Glasswater's 7.0 h. So the silhouettes' place and hour glyphs and the Journal route are part of the mercy, not optional. While a list is open, the Journal route with the pull earns 80–140% of the natural rule's clams a minute, for the 9–38 minutes a list is open on average: between 3.4 minutes of income lost (Pyrefall Gorge, where the route gives up good water for its four fish) and 8.4 gained (the Mossmere, where on the starting kit a pulled Reedjaw Pike or Kissmark Trout is worth several commons); all 16 eras together +9.5 min.
 
 **The sim's one re-tune: the Keeper floor starts on the second evening** (15 November 2026; `floorFrom: 1`). As first written the floor held from the first cast. On a fresh save every fish of the Mossmere's list is missing, so no bite of the first trip was Small: the hold filled in 1.9 min instead of 2.1, for 48 clams instead of 44, and only **39%** of first trips got a bite after dark, against §3.4's 63% (target ≥ 50%). With the floor from the second evening the first trip is exactly the natural rule's (the sim checks it with the whole list missing), which is also how the mercy was put to the user: uncaught species bite more the longer you fish there (§0 row 10). The lists are no slower for it: Sporewood's, the slowest, is 53 / 61 min (p95 / p99) with the floor from the second evening and 52 / 63 from the first. Nothing else in `LOOP.access` moved, and no price.
 
@@ -1727,7 +1727,7 @@ The riskiest new engine work in the plan is proven first, on a test strip behind
 
 | | |
 |---|---|
-| **the player can** | Buy the **Sporewood map** (2,000) once the three keys are held (§5.5) and sail to Sporewood's open water; pick a water on the Chart (pan and zoom arrive with the second sheet). |
+| **the player can** | Buy the **Sporewood map** (2,600) once the three keys are held (§5.5) and sail to Sporewood's open water; pick a water on the Chart (pan and zoom arrive with the second sheet). |
 | **waters and fish** | Sporewood's open-water roster fish on built plans (Netcloud Fry, Threadling Eel, Velvet Ray on the built ray) and the built species the roster keeps there. (Its day and old water open with its map from slice 2's Sporewood half.) |
 | **modules** | `data.js` (the Sporewood map and tier; Sporewood's `SPECIES_LOOP`; `LOOP.shipped` to Sporewood) · `progression-loop.js` (`createRun` starts in the water tapped) · `ui-chart.js` (the second sheet; pan and zoom) · the generator's export of sheet 2 |
 | **tests** | Sail with the Sporewood map starts in Sporewood · the converter's output equals the sim's species table for Sporewood's fish · nothing of sheet 3 or beyond is drawn |
