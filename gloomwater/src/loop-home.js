@@ -124,6 +124,7 @@ export function createLoopHome(deps) {
       return true;
     }
     teleportHome();
+    try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); }   // (no glide from the title: the Jetty on the cut)
     arrive();
     return true;
   }
