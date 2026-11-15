@@ -151,7 +151,7 @@ export default async function (api) {
       while (t < maxSec) {
         const lag = wall0 + (t + 1 / 30) * 1000 - Date.now();
         if (lag > 0) await new Promise((r) => setTimeout(r, lag));
-        if (!T.step(1, 1 / 30)) break;
+        if (!(await T.step(1, 1 / 30))) break;
         t += 1 / 30;
         const n = logLen() - base;
         while (seenLog < n) { coins.push(+T.sim.toFixed(3)); seenLog++; }

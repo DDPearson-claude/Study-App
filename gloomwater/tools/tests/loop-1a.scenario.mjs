@@ -256,35 +256,41 @@ export function installDriver(watch) {
     T.drawing(true);
     for (const cb of q) raf((ts) => cb(Math.max(ts + T.offset, T.clock)));
   };
-  /** n frames of the game's own loop, dt seconds each; the canvas drawn only when `paint`. Returns the frames that ran. */
-  T.step = (n = 1, dt = 1 / 30, paint = false) => {
-    T.drawing(paint);
+  // a task boundary after every frame: the promise jobs a frame queued (a glide's end, a Sail's trip) run before the next frame,
+  // as they do between two real frames (a synchronous loop of frames would hold them all until it returned)
+  const mc = new MessageChannel(), waiters = [];
+  mc.port1.onmessage = () => { const w = waiters.shift(); if (w) w(); };
+  T.tick = () => new Promise((r) => { waiters.push(r); mc.port2.postMessage(0); });
+  /** One frame of the game's own loop (dt seconds), then a task boundary. → whether a frame ran. */
+  T.frame = async (dt = 1 / 30) => {
+    if (!T.held || !T.held.length) { T.dry++; await T.tick(); return false; }
+    T.clock += dt * 1000; T.sim += dt;
+    const q = T.held; T.held = [];
+    for (const cb of q) { try { cb(T.clock); } catch (e) { c.errors.push('frame: ' + (e?.message || e)); } }
+    await T.tick();
+    return true;
+  };
+  /** n frames, dt seconds each; the canvas drawn only for the last when `paint`. → the frames that ran. */
+  T.step = async (n = 1, dt = 1 / 30, paint = false) => {
     let ran = 0;
-    for (let i = 0; i < n; i++) {
-      if (!T.held || !T.held.length) { T.dry++; continue; }
-      T.clock += dt * 1000; T.sim += dt;
-      const q = T.held; T.held = [];
-      for (const cb of q) { try { cb(T.clock); } catch (e) { c.errors.push('frame: ' + (e?.message || e)); } }
-      ran++;
-    }
-    T.drawing(true);
+    try { for (let i = 0; i < n; i++) { T.drawing(paint && i === n - 1); if (await T.frame(dt)) ran++; } } finally { T.drawing(true); }
     return ran;
   };
   /** Step until `src` (an expression of c and T) holds, at most maxSec of game time. → {ok, t}. */
-  T.until = (src, maxSec = 10, dt = 1 / 30) => {
+  T.until = async (src, maxSec = 10, dt = 1 / 30) => {
     const f = new Function('c', 'T', `try { return !!(${src}); } catch (e) { return false; }`);
     let t = 0;
     if (f(c, T)) return { ok: true, t: 0 };
     while (t < maxSec - 1e-9) {
-      if (!T.step(1, dt)) return { ok: false, t, dry: true };
+      if (!(await T.step(1, dt))) return { ok: false, t, dry: true };
       t += dt;
       if (f(c, T)) return { ok: true, t: +t.toFixed(3) };
     }
     return { ok: false, t: +t.toFixed(3) };
   };
   /** The film to time t (or its end); and to its end. */
-  T.runTo = (t, dt = 1 / 30, max = 4000) => { let n = 0; while (c.intro?.isActive?.() && c.intro.state.t < t - 1e-6 && n++ < max) T.step(1, dt); return c.intro?.state?.t ?? null; };
-  T.runOut = (dt = 1 / 30, max = 4000) => { let n = 0; while (c.intro?.isActive?.() && n++ < max) T.step(1, dt); return n; };
+  T.runTo = async (t, dt = 1 / 30, max = 4000) => { let n = 0; while (c.intro?.isActive?.() && c.intro.state.t < t - 1e-6 && n++ < max) await T.step(1, dt); return c.intro?.state?.t ?? null; };
+  T.runOut = async (dt = 1 / 30, max = 4000) => { let n = 0; while (c.intro?.isActive?.() && n++ < max) await T.step(1, dt); await T.step(1, dt); return n; };
   // ---- the DOM, read
   T.visible = (el) => {
     if (!el || !el.isConnected) return false;
@@ -405,7 +411,7 @@ export function makeKit(api, { label = 'loop' } = {}) {
   /** A frame drawn, then shot (desk-/phone-<label>-NN-name.png in --shots). */
   K.shoot = async (name) => {
     if (args.noshots) return;
-    try { await g(() => { window.__lp.step(1, 1 / 120, true); }); } catch { /* the page is between loads */ }
+    try { await g(() => window.__lp.step(1, 1 / 120, true)); } catch { /* the page is between loads */ }
     await wait(90);
     await api.shot(`${tag}-${K.prefix}-${String(++K.shotN).padStart(2, '0')}-${name}`);
   };
@@ -484,7 +490,7 @@ export function makeKit(api, { label = 'loop' } = {}) {
     const w0 = Date.now(), seen = [];
     let sim = 0;
     while (sim < sec - 1e-6) {
-      const r = await g(([src]) => { window.__lp.step(1, 1 / 30); if (!src) return null; try { return new Function('c', 'T', `return (${src})`)(window.__gw, window.__lp); } catch { return null; } }, [probe]);
+      const r = await g(async ([src]) => { await window.__lp.step(1, 1 / 30); if (!src) return null; try { return new Function('c', 'T', `return (${src})`)(window.__gw, window.__lp); } catch { return null; } }, [probe]);
       if (probe) seen.push(r);
       sim += STEP;
     }
@@ -640,10 +646,18 @@ export default async function (api) {
       K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.newDescent), 'the title\'s New Descent');
       await K.settle();
       await K.steps(3);
-      const panel = () => g(([phone]) => {
+      const panel = () => g(([phone, names]) => {
         const T = window.__lp, m = T.one('[data-modal=newdescent]');
         const cards = m ? [...m.querySelectorAll('button.gw-char[data-wick]')] : [];
-        const fit = (b) => { const name = [...b.querySelectorAll('*')].reverse().find((e) => e.children.length === 0 && e.textContent.trim()); return name ? name.scrollWidth <= name.clientWidth + 1 : true; };
+        // the name's own element (the deepest that holds just the name): not truncated, inside its card
+        const fit = (b) => {
+          const nm = names[b.dataset.wick], els = [...b.querySelectorAll('*')].filter((e) => e.textContent.replace(/\s+/g, ' ').trim() === nm);
+          const e = els[els.length - 1] || (b.textContent.includes(nm) ? b : null);
+          if (!e) return false;
+          if (e.clientWidth > 0) return e.scrollWidth <= e.clientWidth + 1;
+          const r = e.getBoundingClientRect(), cb = b.getBoundingClientRect();
+          return r.left >= cb.left - 1 && r.right <= cb.right + 1;
+        };
         const tr = m?.querySelector('.gw-loop-trait');
         const rowsOf = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return new Set([...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1).map((q) => Math.round(q.bottom))).size; };
         return {
@@ -653,7 +667,7 @@ export default async function (api) {
           forbidden: m ? ['.gw-locked', '.gw-mode', '.gw-ways', '.gw-cd-row', '.gw-chips', '.gw-rating', '.gw-lore'].filter((q) => m.querySelector(q)) : [],
           x: !!m?.querySelector('.gw-x'), phone,
         };
-      }, [K.phone]);
+      }, [K.phone, D.names]);
       let nd = await panel();
       K.need(nd.top === 'newdescent', 'T59: New Descent opens its panel (modal newdescent)', nd.top);
       K.check(JSON.stringify(nd.ids) === JSON.stringify(order) && nd.enabled, 'T59: five button.gw-char[data-wick] in LOOP.wicks order, all enabled', nd.ids);
@@ -1458,9 +1472,77 @@ export async function dryRun() {
   ok(JSON.stringify(R2) === JSON.stringify(R), 'wordRules from its source gives the same rules');
   ok(new Function(`return (${classifyText.toString()})`)()('Sold', R2, {}) === 'ok', 'classifyText from its source');
   ok(WATCH.includes('player:glide') && WATCH.includes('home:enter') && WATCH.includes('loop:holdFull'), 'the watched events');
+  // the in-page driver on a fake page: the held frames, the synthetic clock (and performance.now on it), the task boundary after
+  // each frame (a glide's promise ends it inside the same `until`), the event record, the dry frame when nothing is queued
+  const drv = await driverSelfTest();
+  for (const [msg, c, x] of drv) ok(c, `driver: ${msg}`, x);
   console.log(`loop-1a dry run: ${n - bad.length}/${n} checks passed`);
   for (const b of bad) console.log('  FAIL', b);
   return bad.length;
+}
+/** installDriver on a fake page (node globals standing in for the window): → [[msg, ok, extra]]. */
+async function driverSelfTest() {
+  const out = [], G = globalThis, saved = {};
+  for (const k of ['window', 'requestAnimationFrame', 'localStorage', 'confirm', '__gw', '__lp']) saved[k] = Object.getOwnPropertyDescriptor(G, k);
+  const realNow = performance.now.bind(performance);
+  try {
+    const handlers = {}, store = {};
+    const bus = { on: (e, f) => { (handlers[e] = handlers[e] || []).push(f); }, emit: (e, p) => { for (const f of handlers[e] || []) f(p); } };
+    // a game: each frame asks for the next first (as main does); a 3 s glide whose promise's job emits home:enter
+    const game = { frames: 0, dts: [], uiDts: [], last: null, uiLast: null, glide: null };
+    const frame = (now) => {
+      G.requestAnimationFrame(frame);
+      if (game.last !== null) game.dts.push((now - game.last) / 1000);
+      game.last = now;
+      const u = performance.now();
+      if (game.uiLast !== null) game.uiDts.push((u - game.uiLast) / 1000);
+      game.uiLast = u;
+      game.frames++;
+      if (game.glide && (game.glide.t += 1 / 30) >= 3 - 1e-9) { const r = game.glide.resolve; game.glide = null; r(); }
+    };
+    G.window = G;
+    G.requestAnimationFrame = (cb) => setTimeout(() => cb(realNow()), 5);
+    G.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => { store[k] = String(v); } };
+    G.__gw = { bus, errors: [], flow: 'home', render: { render() {} }, debug: { ui: () => ({ openModal: null, stack: [] }) }, state: { meta: {}, run: null } };
+    G.requestAnimationFrame(frame);
+    const r = (new Function(`return (${installDriver.toString()})`))()(WATCH);
+    out.push(['installs', r === 'ok', r]);
+    const T = G.__lp;
+    T.hold();
+    for (let i = 0; i < 200 && !(T.held && T.held.length); i++) await new Promise((res) => setTimeout(res, 5));
+    out.push(['a frame is queued once held', T.held.length > 0, T.held.length]);
+    const f0 = game.frames;
+    const ran = await T.step(30);
+    out.push(['30 frames step on the held clock', ran === 30 && game.frames - f0 === 30, { ran, frames: game.frames - f0 }]);
+    out.push(['every frame is 1/30 s of the game\'s clock', game.dts.slice(-29).every((d) => Math.abs(d - 1 / 30) < 1e-6), game.dts.slice(-3)]);
+    out.push(['performance.now follows the held clock', game.uiDts.slice(-29).every((d) => Math.abs(d - 1 / 30) < 1e-6), game.uiDts.slice(-3)]);
+    // the glide ends inside an until: its promise job runs before the next frame, so home:enter is seen on time
+    new Promise((resolve) => { game.glide = { t: 0, resolve }; }).then(() => bus.emit('home:enter', { from: 'intro' }));
+    const s0 = T.sim;
+    const u = await T.until("T.ev.some((e) => e.e === 'home:enter')", 6);
+    const he = T.ev.find((e) => e.e === 'home:enter');
+    out.push(['until sees a promise job of a frame (the glide\'s end) on time', u.ok && Math.abs(u.t - 3) < 0.05 && Math.abs(he.sim - s0 - 3) < 0.05, { u, at: he && he.sim - s0 }]);
+    out.push(['the event record carries its payload', he?.p?.from === 'intro' && he?.flow === 'home', he]);
+    const nope = await T.until('false', 0.5);
+    out.push(['until gives up at its limit', nope.ok === false && Math.abs(nope.t - 0.5) < 0.05, nope]);
+    // release: the clock never runs backwards, and frames run on their own again
+    const c0 = T.clock;
+    T.release();
+    const f1 = game.frames;
+    await new Promise((res) => setTimeout(res, 80));
+    out.push(['released, the game runs on the wall clock again', game.frames > f1 && performance.now() >= c0, { frames: game.frames - f1 }]);
+    out.push(['no dt ever negative', game.dts.every((d) => d >= 0) && game.uiDts.every((d) => d >= 0), Math.min(...game.dts, ...game.uiDts)]);
+    T.hold();
+    await new Promise((res) => setTimeout(res, 30));
+    out.push(['window.confirm is counted and refused', G.confirm() === false && T.confirms === 1, T.confirms]);
+  } catch (e) {
+    out.push(['the self-test ran', false, String(e?.stack || e)]);
+  } finally {
+    try { if (G.__lp) G.__lp.held = null; } catch { /* ignore */ }
+    for (const [k, d] of Object.entries(saved)) { if (d) Object.defineProperty(G, k, d); else delete G[k]; }
+    try { delete performance.now; } catch { /* ignore */ }
+  }
+  return out;
 }
 /** Is a species on the Mossmere's list (progression-loop's listFor, when it is exported; else no bait and not a legend)? */
 function listed(D, id) {
