@@ -7,7 +7,10 @@ Jetty, the Chart and Sail, the glide out and the first trip's two hints. The bui
 v3-without-loop builds keep their opening exactly as built (§11). Revision 2 of this file applies the critics' review (the
 review log is at the end). **Revision 3** (15 November 2026, the M1 plan, `docs/loop/M1.md`) applies `WICKS.md` revision 3
 (the five passives and their lines; Tallow's four slots and its chart line), the film's new line 3, the drawn Chart from M1
-step 3 (§6.1) and the Landing as home from M1 step 5 (§6.2).*
+step 3 (§6.1) and the Landing as home from M1 step 5 (§6.2). **Revision 4** (15 November 2026, the home barge: SPEC v7.3 §6,
+`docs/loop/M1.md` revision 3): home is the Wick's own barge, moored at the Jetty; from M1 step 5 the opening starts at the
+Landing, drawn on the Chart, where the Wick wakes aboard the old barge-house and tows it to the Mossmere (§6.2); the Jetty
+stays home in steps 1–4 and becomes the barge's mooring.*
 
 ## 0. The user's words (14 November 2026), verbatim
 
@@ -24,7 +27,8 @@ creature attacks parked · no way to fail · every catch a win · never a ring o
 only.
 
 **The lead's reading (binding).** One game mode, the loop. New Descent shows only the choice of Wick and **Start**. Start goes
-straight into the film. The film hands off to home (the Jetty), not to the lake. The tutorial is at home, very short, one line
+straight into the film. The film hands off to home (the Jetty; from M1 step 5 to the Landing, where the Wick wakes and
+tows the home barge to the Jetty, §6.2), not to the lake. The tutorial is at home, very short, one line
 at a time, and ends by showing how to head out: the Chart, the Mossmere, **Sail**, the glide out. Fishing is taught on the
 first trip by the built light hints. Nothing traps the player, and a returning player never sees the tutorial again.
 
@@ -50,15 +54,15 @@ for lane C; in SPEC, §8.5's New Descent row and §10.1.
 | 1 | the title, a fresh save | the logotype over the live lake | **New Descent** · **Settings** | New Descent | the player |
 | 2 | New Descent | five Wicks (a row on desktop, 3 + 2 on a phone), one lit | the five names, the lit Wick's one line (its passive), **Back**, **Start** | Start (or Back) | the player |
 | 3 | the film | "One Warm Light", as built | the film's four lines (line 3 under the loop: "Its last candles fish from lamp to lamp.", §4), **Skip** | the film's end, or Skip | 18 s (≈ 1 s skipped) |
-| 4 | arrive | the raft glides from the film's last place to the Jetty's dock; the sky pales to dawn (from M1 step 5: one ink dip, then the raft glides in under the Landing's arch to the jetty, §6.2) | none | the glide's end, or a tap | 3 s |
-| 5 | wake | the Jetty; the **Chart** tile breathes; Murk and Journal dimmed (from M1 step 5: the Landing; the Map Table's post breathes) | Murk: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." | a tap on **Chart**; or the Chart opens by itself 3 s after the line (once) | ≤ 9 s |
+| 4 | arrive | the raft glides from the film's last place to the Jetty's dock; the sky pales to dawn (from M1 step 5: one ink dip to the Landing on the Chart, the old barge-house in the cove, §6.2) | none | the glide's end, or a tap | 3 s (step 5: 2 s) |
+| 5 | wake | the Jetty; the **Chart** tile breathes; Murk and Journal dimmed (from M1 step 5: the Landing on the Chart, the Wick kindling aboard; then **the first tow** up the Sluice Run to the Mossmere, ≈ 7 s, §6.2) | Murk: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." | a tap on **Chart**; or the Chart opens by itself 3 s after the line (once) | ≤ 9 s |
 | 6 | the Chart | the Mossmere, chosen (from M1 step 3 on the drawn Chart, its first sheet inking in the first time, §6.1); the hold's empty slots ink in (three; four for Tallow); **Sail** breathes | Murk: "Three slots in that hold. Fill them and come home." (Tallow: "Four slots in that hold. Fill them and come home.") | **Sail** (the player presses it) | ≈ 3 s |
 | 7 | the glide out | the raft leaves the dock for open water | none | the glide's end, or a tap | 3 s |
 | 8 | the first trip | the water; the hold; the Home pill | "Hold on the water. Let go to cast." once, then "Now. Tap." / "Now. Click." at the first bite | the player fishes | — |
 
 From Start to the first cast: about 18 s of film (≈ 1 s skipped), then **≈ 17.5 s** of home with no taps, or **≈ 5 s**
 tapping through. The home part is always under the 45 s aim and can never pass 60 s without the player choosing to wait on
-Sail.
+Sail. (From M1 step 5, with the Landing and the first tow: **≈ 22 s** untouched, ≈ 7 s tapping through; §6.2.)
 
 ## 2. The title
 
@@ -219,11 +223,11 @@ ashore, and keeps "the Mossmere's drowned ferry harbour at Murk's day-1 dock" on
 "in the game somewhere". The Jetty is that fallback, and nothing on screen gives a lore reason for the dock (the film's four
 lines name no place). This is a **known gap** against the user's earlier words ("in a place thay makes sense for this game
 to start in based on our lore"), accepted for slice 1a because the cove world is not built (`world.SUPPORTS_COVE` is
-false). **Slice 4 (M1 step 5) fixes it:** the Landing replaces the Jetty as home, and the same tutorial beats move onto its posts. What
+false). **M1 step 5 fixes it** (revision 4): the opening starts at the Landing, where the Wick wakes aboard the old barge-house, and the first tow brings that barge to the Jetty, so the Jetty is home because the home is moored there. What
 the Jetty does give the user's words: the game never starts "in the game somewhere" on the lake; it starts at home, with
 Murk as the first voice, and the lake is something you are shown how to reach. The gap is recorded in PLAN §7.3 and put to
-the user in PLAN §7.1. **M1 step 5 closes it** (revision 3; `docs/loop/M1.md` §4): the cove is built and home moves to the
-Landing, and the beats below run on its posts (§6.2).
+the user in PLAN §7.1. **M1 step 5 closes it** (revision 4; `docs/loop/M1.md` §4): the beats run at the Landing on the Chart
+and then on the barge at the Jetty (§6.2); the cove is not built.
 
 **The rules.** One line at a time, Murk's own lines from the spec. No Skip word: every beat ends on its own tap or a short
 wait. No pointer, arrow, ring or disc anywhere in the world; a cue is a soft ink "breathe" inside a tile's or a button's own
@@ -299,25 +303,44 @@ While the tutorial runs the mist blots show their glyph without a price, and Spo
 T67 and T72 are unchanged: the list of 1a and the drawn Chart are both `[data-water=mossmere]` with `.gw-slot` cells and
 `[data-action=sail]`.
 
-### 6.2 At the Landing (M1 step 5; revision 3)
+### 6.2 At the Landing, then the barge (M1 step 5; revision 4)
 
-When the cove is built (`world.SUPPORTS_COVE`) home is the Landing, in raft mode, and the same four beats run there:
+*Revision 4 (15 November 2026; the user: "if we tow it with us when we move that makes sense"; SPEC v7.3 §6). Revision 3 put
+home in the cove and ran these beats on its posts; the cove is not home now, and is not built in M1.*
 
-| beat | at the Landing |
-|---|---|
-| **arrive** | the film's last frame → one ink dip (0.6 s) → the cove at dawn, the raft gliding in under the arch to the jetty's mooring (the cove's `homeInPath`, 3 s); a tap ends it |
-| **wake** | the raft at the jetty; Murk's wake line; **the Map Table's post** breathes (its lantern, inside its own bounds; never a ring); the Murk and Journal posts are dimmed but live |
-| **chart** | the post opens the Chart (§6.1); the beat as above |
-| **out** | the screens close; the glide out under the arch (the cove's `setOutPath`, about 6 s to the arch line, skippable), then one ink dip and the trip starts at the Mossmere's dock nearest the place chosen |
+From M1 step 5 the opening starts where the lore starts it, at **the Landing**, the sea cave under the outer wall where the
+window candles washed ashore (`LORE.md` §3, Prologue). An old kingdom barge-house, the Slow Hearth, has lain moored there
+since the fall, Murk's banked fire in its stove and the dozing candles by it. The Wick wakes aboard and tows it up the Sluice
+Run to the Mossmere, where it is home from then on, moored at the Jetty (SPEC §6.5). The Landing is drawn on the Chart, in
+reach I's hand (whether it should be 3D instead is `M1.md` §8 question 6; default: the Chart). The parked cove is not used.
 
-The First Evening's director (`first-evening.js`), its fishing lesson and the Quayling stay the v3 build's; the loop's
-tutorial does not teach fishing at home (§8). The title stays on the Mossmere. `INTRO.cove`'s unbuilt variant is not used:
-the film is the same film with the same line 3.
+| beat | from M1 step 5 | the one line | advances on | budget |
+|---|---|---|---|---|
+| **arrive** | the film's last frame → one ink dip (0.6 s) → the Chart's first sheet, closed in on the Landing: the arch, the old barge-house moored in the cove with its stove's banked glow in the window, the dozing candles by it, Murk's barge alongside with its green dot | none | 1.5 s, or a tap | 2 s |
+| **wake** | the same picture; the Wick's mark kindles aboard (a flame catching, as in the film) | "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." (unchanged; 5.95 s) | 1 s after the line ends, or a tap once it shows | ≤ 7 s |
+| **tow** | the first tow (SPEC §6.5): the view follows the Sluice Run from the Landing up its locks to the Mossmere, the raft's mark towing the barge's on a line, Murk's barge alongside; the Mossmere's sheet inks in as they arrive (the sheet's first ink-in, so §6.1's chart beat does not repeat it) | none | its end, or a tap (it lands at the mooring) | ≈ 7 s |
+| **chart** | the Chart as §6.1, the barge now drawn at the Jetty; the Mossmere chosen; the hold's empty slots ink in (three; four for Tallow); **Sail** breathes | "Three slots in that hold. Fill them and come home." (Tallow: "Four slots in that hold. Fill them and come home.") | **Sail**, pressed by the player | ≈ 3 s |
+| **out** | the screens close; one ink dip (0.6 s) into the Mossmere at late day: the barge moored at the Jetty, Murk's barge alongside, the raft at the stern; the glide out (§7) | none | its end, or a tap | 3.6 s |
+
+- **Time**: from Start to the first cast, about 18 s of film, then **≈ 22 s untouched** (≈ 7 s tapping through), under the
+  45 s aim; it never passes 60 s unless the player waits on Sail.
+- **Saves**: `meta.loop.home = {water: 'mossmere', towed: ['mossmere']}` is written when the tow begins, before it plays, so
+  a reload mid-tow resumes at the chart beat with the barge at the Jetty; a reload during arrive or wake resumes at the wake
+  (the Landing on the Chart, the line again, then the tow). Done is written at Sail, as before (§6).
+- **The machine**: `loop-tutorial.js` gains the tow beat between wake and chart; T65's timings, T67's resume points and T72
+  are re-set for it; the chart beat's selectors (`[data-water=mossmere]`, `.gw-slot`, `[data-action=sail]`) are unchanged.
+- **The first visit home**: the sail home's glide ends at the barge's stern, and the first tally is the player's first sight
+  of home in 3D, at first light. The barge's four targets carry the tiles' words under them, so nothing more needs teaching;
+  no cue is drawn at home once the tutorial is done. A reload before the first Sail lands on the chart beat over the barge
+  (the chart table's target breathes, as the Chart tile did).
+- The First Evening's director (`first-evening.js`), its fishing lesson and the Quayling stay the v3 build's; the loop's
+  tutorial does not teach fishing at home (§8). The title stays on the Mossmere. `INTRO.cove`'s unbuilt variant is not used:
+  the film is the same film with the same line 3.
 
 ## 7. The glide out (every Sail)
 
-(Revision 3: from M1 step 5 home is the Landing's mooring, and every Sail is the glide out under the arch, §6.2; what
-follows is the Jetty's, M1 steps 1–4.) **Home is always the Jetty's dock** (`docks[0]`, PLAN CHOICE 44): the sail home ends there (its 2 s glide heads for it and
+(Revision 4: from M1 step 5 home is the home barge moored at the Jetty, `docks[0]`, with the raft tied at its stern, so this
+glide is the same in every step; revision 3's glide under the Landing's arch is withdrawn with the cove.) **Home is always the Jetty's dock** (`docks[0]`, PLAN CHOICE 44): the sail home ends there (its 2 s glide heads for it and
 the raft is placed there as the tally opens), and `enterHome('title')` and `enterHome('new')` put the raft there too. So
 every Sail starts from the same place, and the glide out never begins with a jump.
 
@@ -346,8 +369,8 @@ Fishing is taught on the water, on evening 1 only (the loop's counters read the 
 | the save | the title | after Continue |
 |---|---|---|
 | a trip out | Continue · Settings · Prologue | the trip, as saved |
-| at home, tutorial done | Continue · Settings · Prologue | the Jetty (the tally first if one is unseen), the goal line, no cue |
-| at home, tutorial not done (closed mid-tutorial) | Continue · Settings (· Prologue if the film was seen) | the Jetty, the tutorial from the wake |
+| at home, tutorial done | Continue · Settings · Prologue | the Jetty (from M1 step 5 the barge at the Jetty; the tally first if one is unseen), the goal line, no cue |
+| at home, tutorial not done (closed mid-tutorial) | Continue · Settings (· Prologue if the film was seen) | the Jetty, the tutorial from the wake (from M1 step 5: from the wake at the Landing, or from the chart beat if the tow was begun, §6.2) |
 | a wiped save | New Descent · Settings | the whole opening again |
 
 ## 10. The save fields
@@ -429,3 +452,16 @@ The M1 plan (QUEUE job 5) applied `WICKS.md` §5's OPENING pointers and the user
 | the film's line 3 under the loop, "Its last candles fish from lamp to lamp." (`LORE.md` §12; slice 1a's lane B; the new video is M1 step 6's) | §1 row 3, §11 |
 | the drawn Chart from M1 step 3: the first sheet inks in the first time; blots without prices and the sealed sheet without its seals while the tutorial runs | §6.1 |
 | the Landing as home from M1 step 5: the beats on the posts, the hand-off through one ink dip, the glide out under the arch; the lore gap closes | §1 rows 4–5, §6, §6.2, §7 |
+
+## Review log (revision 4 of this file, 15 November 2026)
+
+The home barge (SPEC v7.3, `docs/loop/M1.md` revision 3), on the user's words of 15 November 2026: "Should our home base
+actually be a floating caravan style base that moors in a specific location at each water … if we tow it with us when we
+move that makes sense".
+
+| change | where |
+|---|---|
+| from M1 step 5 the opening starts at the Landing, drawn on the Chart: the Wick wakes aboard the old barge-house, the first tow brings it up the Sluice Run to the Jetty, then the chart beat and Sail; ≈ 22 s untouched | §0, §1 rows 4–5 and its time line, §6, §6.2 (rewritten) |
+| the Jetty is home in steps 1–4 and the barge's mooring from step 5, so the glide out is the same in every step; revision 3's posts and glide under the arch are withdrawn with the cove | §6, §7, §9 |
+| the save writes `home.water` and `home.towed` when the tow begins; the tutorial machine gains the tow beat (T65, T67, T72 re-set) | §6.2 |
+

@@ -2,7 +2,7 @@
 
 ## Who we are
 
-You are **the Wick**, a small living candle, one of the last of a drowned kingdom. You fish from a raft. Home is **the Landing**, a quiet cove where an old trader, **Murk**, keeps his barge. Murk buys every fish you bring home and sells you everything else.
+You are **the Wick**, a small living candle, one of the last of a drowned kingdom. You fish from a raft. Home is **the Slow Hearth**, an old barge-house you find at the Landing and tow with you from water to water; an old trader, **Murk**, moors his barge alongside it wherever it lies. Murk buys every fish you bring home and sells you everything else.
 
 ## The loop in five steps
 
@@ -52,7 +52,7 @@ You asked that reaching a new area should need **the map, the right rod or gear,
 - **Spots inside a water** still need only clams.
 - **The journey stays about 48 hours.** The full test has now been run with the three keys in it: everything is bought in 47.6 hours, exactly as long as without the keys, and every new water opens the moment you buy its map. No price changed. (The top rod goes on sale one map earlier, so you can buy it before the waterfalls' map.)
 - **You said yes** (14 November) to the defaults we put to you: giants and legends are not on the list; a fish you let go still counts; fish you still need bite more the longer you fish there, in their own hours; spots inside a water need only clams; three small seals on the Chart; at most two lines from Murk.
-- **In the first build** (the Mossmere and the Landing) there is one gate, the Mossmere to Sporewood, and it is shown sealed ("Coming soon") until the build after. You can already earn two of its three seals there: the rod and the Mossmere's fish.
+- **In the first build** (the Mossmere and the home barge) there is one gate, the Mossmere to Sporewood, and it is shown sealed ("Coming soon") until the build after. You can already earn two of its three seals there: the rod and the Mossmere's fish.
 
 ## The waters: greener as you go, and six rivers
 
@@ -100,7 +100,7 @@ The night creatures and all fighting, weapons and levels; health, hunger and oil
 2. **The first new fish** of the first two lakes, and the second lake's map.
 3. **The mist lifts**: spots, maps, the first giants and the first legend.
 4. **Bait, lures, the raft** and Murk's orders.
-5. **Home**: the cove, the opening scene, the very short first evening, home upgrades and fish prints.
+5. **Home**: the home barge moored on the first lake, the opening at the Landing and the first tow, home upgrades on the barge and fish prints.
 6. **The rest of the first four lakes.**
 7. **Twelve new waters**, four at a time: the cold rim (the fjord and the first river, then the sea and the gorge), the falls and the gate, then the green heart. A little moss comes to the first four lakes early, alongside step 2, and is shown to you before any new water is built. Right after it, a test river with no fish proves the river (its camera, its current and the raft on it) and is shown to you too.
 8. **The extras**: the other four candles you can play, and small touches.
