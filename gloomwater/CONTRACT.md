@@ -1672,3 +1672,253 @@ Pure helpers (exported, tested): `beatAt`, `lineAt`, `veilAt`, `stillAt`, `stepC
 **Debug hook** (registered by main only when `core.debugEnabled()`; `'intro'` is in `core.HIDDEN_DEBUG_HOOKS`): `debug.intro()` → the readout `{phase, t, wall, beat, line, replay, reduced, skipped, hold, optIn, pending, flow, seen, stage}`; `debug.intro('play', {replay, reduced})`, `('seek', t)`, `('resume')`, `('skip')`, `('stop')`, `('auto', bool)`, `('prewarm')`. Under `GW_DEBUG` (the test harness) the film never plays by itself unless a scenario opts in, so every existing v3 scenario is unaffected.
 
 **Testing:** `tools/tests/intro-seam.test.mjs` (the seam: `INTRO`'s frozen block, both APIs, the events, purity, the trigger rule, the lane markers; neither lane edits it), `tools/tests/intro.test.mjs` (lane B's director), `tools/tests/intro-stage.test.mjs` (lane A's stage), all run by `tools/check.mjs`; browser scenarios through `tools/playtest.mjs`: `tools/tests/intro-shots.scenario.mjs` (lane A: a seek-driven frame strip on every tier, desktop and 390 × 844; the set's budget, purity, memory), `tools/tests/intro-flow.scenario.mjs` (lane B: Begin → the film → play, every skip path, the replay, reduced motion, the end state), `tools/tests/intro-board.scenario.mjs` (the stage: the film as the player sees it, canvas and DOM together, frame by frame; `tools/intro-board.py` makes the storyboard sheets and the video from its frames), `tools/tests/intro-length.scenario.mjs` (the film on the real clock, and the script cost of the press and the hand-off) and `tools/tests/intro-show-seam.scenario.mjs` (the film and the catch show in one page: a fresh game's film to its hand-off, the first catch shown, then the film replayed over a show's lens; the camera rules above, frame by frame). The data rules (length 15–20 s, contiguous beats, ≤ 4 lines of ≤ 60 characters, the skip and clock limits, the set's ceilings) are in `tools/validate-data.mjs` and run in all three passes.
+
+---------------------------------------------------------------------------------
+
+## 14. The Full Hold (the loop: catch, keep, sell, upgrade; `docs/loop/SPEC.md`, slice 1a)
+
+Binding for the loop (SPEC v8.4 §3, §4, §8, §9, §12; the build plan `docs/loop/slice-1a/PLAN.md` §3, which this section states as
+built). It is the seam every lane codes against: data and core names are imported directly; the ctx objects (`ctx.progression.loop`,
+`ctx.game.*`, `ctx.ui.loop`, `ctx.fishing.waterAt`, `view.favour.bitesLeft`) are read with optional chaining and a strict type test
+(`=== true`, `typeof x === 'number'`, `?.() ?? builtValue`): an absent neighbour means the built behaviour, never a throw. Where this
+section and §13 disagree, this section wins **only under `data.LOOP_ENABLED`**; with the loop off every path is v1's or v3's as
+built (§14.0).
+
+### 14.0 The switch, the build and the rules every module follows
+
+- **One switch, read once.** `data.LOOP_ENABLED = V3_ENABLED && globalThis.GW_LOOP === true`. Every loop branch reads it (or a module
+  constant built from it once) or a `data.PARKED.<key>`, never `globalThis.GW_LOOP`. `data.PARKED` is frozen: `{}` off the loop, and
+  on the loop exactly these 31 keys, all true: `swarm combat levels embers hunger oilAsLife nightModes death days farWater liveWell
+  meta tolls longDescent challenges quality mercy passFavour baitAttract murkInLake runShop residents weather walking giantSpots
+  watchLamps arrivalHush eatRender bounties firstCatchShells proofs`. Under `GW_LOOP` data evaluates at **`V3_PHASE` 1** whatever
+  `GW_V3_PHASE` says (without `GW_LOOP` the phase expression is v3's, byte for byte).
+- **The page switch** (`core.js`, declared above `V3_FLAGS` so it writes first): `LOOP_ROLLOUT = {on: false}`, `LOOP_FLAG_KEY =
+  'gloomwater.loop'`, `resolveLoopFlags({preset, search, stored, rollout}) → {on, source, apply}` (a preset `GW_LOOP` boolean wins;
+  a preset `GW_V3 === false` keeps the loop off; then `?loop` / `?loop=1|on|true|0|off|false`; then localStorage; then the rollout;
+  `?loop=1` beats `?v3=0` and `?v3phase`), `applyLoopFlags(g)` (a page only: when on, writes `GW_LOOP = true`, `GW_V3 = true`,
+  `GW_V3_PHASE = 1`; node writes nothing), `setLoopFlag(on | null)`, `LOOP_FLAGS`. `'loop'` is in `HIDDEN_DEBUG_HOOKS`.
+- **Inside a trip only.** Behaviour on the water is keyed on `run.outing === 'trip'`, which only `progression-loop`'s `createTrip`
+  writes. Loop branches are an early `if (…) return …` or a guarded line; no built statement is reordered; new event fields are added
+  only under the loop (flag-off and v3 payloads are the same objects); `meta.loop` is written only under the loop (and by the
+  flag-off boot rule, only for a trip envelope or a parked descent, which only a loop build writes); no v1 or v3 table is mutated
+  outside the apply block's `if (LOOP_ENABLED)`, and no exported v1 / v3 function of `data.js` is edited (the v1 fingerprint and
+  `tools/tests/v3-exports.json` prove it in validate-data passes 1–3, which also assert `LOOP_ENABLED === false`, `PARKED` `{}` and
+  no `TEXT.loop`).
+- **The one change that runs with the flag off** is the boot rule (`sellStrandedTrip`, §14.3): a no-op unless `save.run.outing ===
+  'trip'` or `meta.loop.parkedRun` exists.
+
+### 14.1 data.js exports (always exported; read by built code only under the loop)
+
+| export | what |
+|---|---|
+| `LOOP_ENABLED`, `PARKED` | §14.0 |
+| `LOOP` | the tables (SPEC §3, §4): `value` (perZ 0.9, clamp 0.4–30, classBonus Trophy 1.25 · Elder 1.6, rarity 1 · 2.4 · 5.5 · 12, body √(L50/45) clamped 0.6–1.6, legendRematch 0.4), `priceFactor` (1), `hold` (start 3, max 8, shelfMax 5, the ladder 4–8 at 30 · 120 · 450 · 2,000 · 3,500 with its names), `water` (good bites day 2 · old 3 · night 2 · crown 2; open water one per slot + 1; quiet −0.15 a bite to −1.2, waits ×(1 + 0.3·over) to ×2.2), `letGo` (+0.2 to +0.4, the bite back), `evening` (day 40, dusk 20, night `null` = no end, never read through `num()`; nightLook 90), `hours` (the roster's hour strings only), `tackle` (price per tier 0 · 50 · 300 · 1,200 · 6,000 · 32,000 · 100,000; T5–T6 Hold and names; `shelfAt`), `access` (v8: `gear`, `list`, `pull`; inert in 1a), `waters` (the Mossmere: order 1, tier 7, place prices, crown 500), `time` (the sim's trip legs; `show` 0), `wicks` (§14.8), `tutorial` (§14.8) |
+| `TEXT_LOOP` | every word the loop shows (SPEC §8; the opening's are §8.5's table); `TEXT.loop === TEXT_LOOP` under the loop. `settings` is `{label: 'Settings', ringFirst, hurry}` |
+| `fishClams(sp, z, {zone, tier})` | SPEC §4.1 on the built size model: `max(1, round(tier × rarity × body(L50) × clamp(e^(0.9·z)) × classBonus × priceFactor))`; a legend → `null` |
+| `loopWaterKey(placeId, zoneId)` | the bite-count key: a place's id, or `open:<zoneId>` |
+| `loopWickId(id)` | a `LOOP.wicks.order` id, else `'wick'` (the only implementation) |
+| `wickSlots(holdSlots, wickId)`, `loopSlots(metaLoop, wickId = metaLoop.wick)` | a Wick's slots: the bought count + the Wick's `slots` (Tallow 1) |
+| `goodBitesFor({kind = 'open', holdSlots, wickId})` | open water `wickSlots × openPerSlot + openExtra + good`; a place its built count `+ good` where the Wick's `everyWater` (Tallow's) |
+| `quietTerms(over, wickId)` | `{over, favour, waitMult}` for a bite `over` bites past the good count (the caller counts `over`; §14.4 `favour`); Stub: −`quietStep` a bite and no slower waits |
+| `wickPoolWeights(wickId, pool, weights, {firstBite, signRule})` | Taper's first bite: the commons zeroed where the uncommon-and-rare rest passes `AUTOFISH.signRule`; otherwise **the same array** (the rule waits) |
+| `sailPlan(dock, centre, T = LOOP.tutorial, lake)` | the glide out: `{from, to, yaw, path}` (`T.outPath[lake]` when given, else `T.outDist` m toward the centre; yaw in the player's heading convention, `atan2(−dx, −dz)`) |
+
+The apply block, under `if (LOOP_ENABLED)` only: `TEXT.loop = TEXT_LOOP`; `CATCH_V3.buffs.wicks.ashwick = {hold: LOOP.wicks.ashwick.hold}`
+(no `on`: `getCatchBuffs` names Ashwick only while a comeback bite is open; there is no Tallow buff); `INTRO.text[2] =
+INTRO.cove.text[2] = TEXT_LOOP.introLine3`; and under `PARKED` no watch lamps and no stopgap `arena.giantSpots` in any lake (T30).
+
+### 14.2 progression-loop.js: the pure exports (no data import; data is passed in)
+
+| export | what |
+|---|---|
+| `LOOP_SCHEMA` (3), `LOOP_METHODS` | the save block's version; the 35 method names of §14.4 (createLoop and the fixture's `fakeLoop` carry exactly these) |
+| `freshLoop(D)` | §14.5's block: 3 slots, T0, the Mossmere owned, `wick` and `tutorial` null, `firsts` empty |
+| `migrateLoop(meta, D, {hasTrip})` | idempotent, in place: creates the block, fills missing keys, clamps `holdSlots` 3–8 and tiers 0–6, a v1/v2 draft block gets SPEC §9's five rules; a block that has played (`evenings > 0`, a `lastTrip`, or `hasTrip`) with no tutorial gets `{done: true, step: null}` and the Wick `'wick'` |
+| `tallyLines(creel, {D, saleOf})` | the rows `{uid, speciesId, sizeClass, length, base, clams, first, giant, legend}`, lightest first by the weight the card shows (`data.weightOz(fishWeight)`; ties by clams, then catch order), legends after, a giant last; a row keeps the **length**, never a weight |
+| `tallyBook(metaLoop, creel, run, opts)` | one tally's bookkeeping, shared by `endTrip` and the boot rule: clams, evenings + 1, `legends[id]`, `giants[id].landed`, `bait[run.zone]`; → `{lines, total}` |
+| `sellStrandedTrip(save)` | the flag-off boot rule (re-exported by `progression.js` beside `migrateSave`): a saved trip is sold at its stamped prices (a card still open was never kept: not sold) into `meta.loop.lastTrip {…, boot: true, seen: true}` and dropped; then a `parkedRun` goes back into `save.run`; idempotent by `lastTrip.id`; → `{save, sold, restored}` |
+| `shelfItems(D, metaLoop, session)` | the shelf's cards `{id ('rod:1' \| 'hold:4'), tab, slot, level, name, goalName ('Hold 4' or the tier's name), line, price, bought}`: per tackle slot the next tier on the shelf, the next hold step up to `shelfMax`; a card in `session` reads bought in place; the last step a 1a shelf offers (Hold 5, T2), once owned, a permanent bought card |
+| `goalOf(items)` | the cheapest card not bought: `{id, name, price, slot, level}` or null (the view names "Hold N" from `wickSlots` of `level` for Tallow) |
+| `stampFirst(firsts, sp, fish, {cls, seals})` | the Wick's ledger (WICKS §2.1): a kind not seen, its first Prize / Trophy / Elder seal or Ancient, or a longer best; → `{kind, seal, best, first}` (`first` never for a giant or a legend) |
+| `listFor(D, waterId)`, `listCount(meta, D, waterId)` | v8: a water's list by SPEC §5.5 (c) (computed, never listed; 1a: the Mossmere's six), and `{have, need}` counting `caught > 0` only |
+| `createLoop(S)` | §14.4 |
+
+### 14.3 progression.js under the loop
+
+`create(ctx)` builds `createLoop(S)` after `createAutofish(S)` when `data.LOOP_ENABLED` and exposes it as **`progression.loop`** (null
+off the loop); **`progression.getBitesLeft(key)`** = `loop.bitesLeft(key)` (null off the loop). On a trip:
+
+- `createRun(opts)` → `loop.createTrip(opts)` for every run of a loop build.
+- `computeStats(out, r)` (keyed on the argument): the STATS bases, the rod's absolute `castMax` / `hookWindow` (`TACKLE.rod[min(tier,
+  4)]` for `meta.loop.tackle.rod`), then `LOOP.wicks[r.character].stats` (Stub's `lightRadius` +1.5, the look), clamped;
+  `creelSize = loopSlots(meta.loop, r.character)`; `hold` = the loop tackle's Hold. No CHARACTERS effects, upgrades, boons, Heartwax,
+  release luck, relics or journal perks.
+- `makeFish` stamps `fish.waterKey = loopWaterKey(place, run.zone)`.
+- `measure(fish)` writes the **records only** (journal count, PB, best setup, last lengths, class seals, the Old Ledger flag, the Elder
+  Log, first Ancients, legend wounds cleared, a Marked Fish removed, `meta.totalFish`, the run's counters), plus `entry.firstEvening =
+  run.evening` (new and on first catch), the Wick's ledger (`stampFirst`, the Wick only; `fish.first`) and `fish.measured = true`;
+  the fish goes **on the card** (`pending`, saved as `run.flags.pendingCatch`), never into the hold. No Memories, Shells, XP, toasts,
+  journal milestones, Murk's line, bounties, trials, gate or victory; a record's `memories` figure is 0. `fish:measured` is
+  unchanged; `fish:landed` adds `clams` (`loop.priceOf`) and `holdFull`, with `firstShells: 0, xp: 0`. A fish that already carries
+  `measured` is never measured again.
+- `fishAction(fish, 'keep')` → `loop.keep`; `'letgo'` / `'release'` → `loop.letGo`; `'eat' | 'render' | 'burn' | 'sell'` → `{ok:
+  false, msg: ''}`.
+- Continue: `restorePending` first refunds an open bite (`loop.refundOpenBite()`), puts each saved card fish back on the card (never
+  in the hold), and in a microtask after every `run:start` listener emits `fish:landed {…, measured: true, records: [], restored: true,
+  clams, holdFull}` for each; it never calls `measure`. No auto-keep on a trip (a card waits for the player).
+- `run:start` on a trip normalises `run.bites`, `run.mercy` (objects), `run.evening` (a number), `flags.openBite`,
+  `flags.openComeback`, `flags.taperFirst`, `run.comeback`. Pressure is off (`notePressure` returns, `getPressure` 0).
+- **The gate is scenery** (`PARKED.tolls`): `evaluateGate` and `openGate` return at once, `travel` → `{ok: false, msg: ''}`,
+  `syncGateVisual` pushes `'sealed'` (or `'hidden'` with no next lake).
+- `syncCharacter` on `flow:change 'title'` and at init reads `loopWickId(meta.loop.wick)` (after actors' own `lastCharacter` pass,
+  so the title shows the chosen Wick).
+- The listeners (registered only under `LOOP_ENABLED`): `fishing:bite` → `loop.noteBite`; `fishing:miss {reason: 'spooked'}` →
+  `loop.noteBite` (a spook spends one); `fishing:miss` (any), `fishing:escaped`, `fish:measured` → `loop.closeBite`; `fish:escaped`
+  → Ashwick's comeback first, then the built got-away side (`af.onEscaped(e, {comeback})`: a fish that will come back is not also a
+  Marked Fish); `ui:modal {id: 'shelf'}` (open or close), `home:enter` and a trip's `run:start` end the shelf's session (§14.4
+  `shelf`); `zone:change` to another lake drops a waiting comeback.
+- `progression-v3.migrateSave(D, save)` runs `migrateLoop(save.meta, D, {hasTrip: save.run?.outing === 'trip'})` under the loop
+  (after the built steps; the `!v3On(D)` early return stays first).
+- `progression-af.js`: on a trip **and at home** (no run) under the loop, `getLoadout()` is `{rod, line, reel}` from
+  `meta.loop.tackle`, `hold` from `tackleHoldAt` (T0–T4) or `LOOP.tackle.extraHold` (T5–T6), `item: null`, `itemLevel: 1`, `perRun:
+  false` (`runless: true` at home), so a legend fights at `CATCH_V3.legend.fight`; `ownedRelics()` is `{}` under `PARKED.meta`;
+  **`getCatchBuffs(cls?)`** (the class is optional; off a trip it is ignored) is `{wellFed: false, boons: {}, relics: {}, character:
+  'ashwick' only while Ashwick's comeback bite is open, else null}`; per-run lures are off; `getFishingCounters()` counts the
+  **evening** (`run.evening`, or `meta.loop.evenings + 1` at home) as `expedition`, `firstExpedition` = evening 1, the hurry from
+  evening 2, and adds `evening`; the gear log reads the loop's tiers (owned / fitted from `meta.loop.tackle`, `LOOP.tackle.price`, no
+  proof catches) and shows no bait on the 1a shelf. The logs keep their built rule: tackle odds, owned relics (none under the loop),
+  no run buffs, so no Wick's passive is in a log.
+- `progression-market.js`: `arrive` and `update` return at once under `PARKED.murkInLake`; `offerBounties`, `expireBounties`,
+  `bountyEvent` under `PARKED.bounties`. `progression-challenges.js`: under `PARKED.challenges` `evaluate` → `[]`, `complete` →
+  false and every `hooks.*` is a no-op (`meta.challenges` is kept as it is).
+
+### 14.4 `ctx.progression.loop` (null off the loop)
+
+Every method makes `meta.loop` whole first (a lazy `migrateLoop`: `wipeAll` resets meta). On a trip the Wick is `run.character`; at
+home it is `meta.loop.wick`. The hold **is** `run.creel`.
+
+| method | what |
+|---|---|
+| `state()` | the save block `meta.loop` |
+| `hold()` → `{slots, fish, full}` | `slots` = `loopSlots(meta.loop, wick)` (Tallow one more; at home too), `fish` = the hold (`[]` at home). The view draws `slots` cells and never tests the Wick |
+| `holdFull()` | on a trip `run.creel.length >= slots`; else false |
+| `priceOf(fish)` | the card's number: `fish.clams` when stamped; else `fishClams(sp, z, {zone: run.zone})`; a legend her crown (`LOOP.waters[sp.zone].prices.crown`) on her first landing (none sold before and none already in the hold), later × `legendRematch` (500, then 200) |
+| `saleOf(fish)` → `{base, clams, first}` | what the tally pays: the base, plus for the Wick (Curious) on a kept first (`fish.first`) `max(round(firstFloor × tier), round((firstMult − 1) × base))`; never on a giant or a legend; with an order or the Old Ledger (later slices) the larger applies |
+| `keep(fish)` → `{ok, full?, msg, gained: {clams}}` | refused when full (`loop:holdFull {via: 'keep'}`, `msg` = `TEXT_LOOP.holdFull`); else stamps `fish.clams = priceOf(fish)`, into the hold, the card closed, `fish:action {action: 'keep', fish, gained: {clams}}`, a save |
+| `letGo(fish)` → `{ok, gained: {bite, favour}}` | `run.bites[key] − 1` (floor 0) and `run.mercy[key] + 0.2` (to 0.4) at `fish.waterKey`; the fish is gone; `fish:action {action: 'release', letgo: true, fish, gained}` (`gained` holds what was actually given back); a save. A fish in the hold cannot be let go (kept stays kept). Never touches `run.flags.mercy`, pays nothing |
+| `noteBite({waterKey, comeback?, reason?})` | `run.bites[key] + 1`; opens `run.flags.openBite = key` (not for a spook); `comeback: true` opens `run.flags.openComeback`; a missing key counts at `open:<zone>` and is reported once (R8) |
+| `bitesSpent(key)`, `bitesLeft(key)` | spent; `max(0, goodBitesFor(kind, holdSlots, wick) − spent)` (a place's kind from `PLACE_BY_ID`) |
+| `favour(key)` → `{favour, waitMult, over, good, spent, mercy, quiet}` | exactly these field names (T11): `over = max(0, spent + 1 − good)` (at 4 good bites the 5th bite is already quiet, PLAN CHOICE 17), `favour` and `waitMult` = `quietTerms(over, wick)`, `mercy` the let-go favour there, `quiet = spent >= good`. Fishing adds `{family: 'quiet', value: favour}` and `{family: 'letGo', value: mercy}` |
+| `closeBite()`, `refundOpenBite()` | the open bite (PLAN CHOICE 27): closed when the play reaches its card, is lost or passes; on Continue a bite still open with no card fish carrying its key is given back (→ true) |
+| `taperFirstOpen()`, `spendTaperFirst()` | Taper's first bite, one an evening (`run.flags.taperFirst`): open while the Wick is Taper and fewer than `firstBites` were served under the rule this evening; set by `spendTaperFirst()` when fishing serves a bite under the rule; never re-armed by a let-go refund; a new trip starts it afresh |
+| `comeback(key)`, `consumeComeback()` | Ashwick's waiting comeback at a water (`{waterKey, speciesId, z, zone, sizeClass}`) or null; consumed (and saved) when fishing serves its bite. Stored on `fish:escaped` for Ashwick only: never a giant, a legend, a cut line or the comeback itself; dropped by a lake change and by the end of the trip |
+| `isOpen(waterId)`, `listCount(waterId)` | v8: in 1a true only for the Mossmere; `{have, need}` on this save |
+| `createTrip({startZone, character})` → Run | the built run skeleton with `outing 'trip'`, `nightMode 'still'`, the zone (`isOpen`, else the first owned), `character = loopWickId(meta.loop.wick ?? character)`, `shells 0`, no boons, upgrades, lures, kit, start boon or purse, `bait` = `meta.loop.bait[zone]`, an empty hold, `bites {}`, `mercy {}`, `evening = evenings + 1`, `comeback null`, the flags' `openBite`, `openComeback`, `taperFirst`, the maxima from `computeStats` |
+| `endTrip()` → TallyResult \| null | null off a trip; `{…lastTrip, already: true}` for a run already paid; else stamps each hold fish, `tallyBook` with `saleOf`, `lastTrip = {id, evening, zone, total, lines, seen: false}`, empties the hold and the card, ends the run (`active: false`), **saves at once** (`ctx.game.save()`), then `loop:tally {…lastTrip}` |
+| `lastTrip()`, `markTallySeen(id)` | the replayable tally; Sold marks it seen |
+| `shelf()` → `{tabs: [{id, items}]}`, `goal()`, `buy(id)` → `{ok, msg, clams}` | the shelf by tab (only tabs with a card: 1a Tackle and Raft); the goal line's item; a buy (`'hold'` = the next step, or a card id) refused out of order or too dear, else spends, sets, invalidates the stats, **saves at once**, `loop:buy {item, price, clams}`. Works at home with no run. The session (cards reading **Yours.** in place) ends when the `shelf` modal opens or closes (`ui:modal`), at `home:enter` and at a trip's start |
+| `sayOnce(id)` | `TEXT_LOOP.murk[id]` the first time, then null (`firstChart` is the Wick's own count, `firstChartBy[wick]`); `'sailOut'` rotates and never returns null |
+| `parkRun(run)` | a saved non-trip descent → `meta.loop.parkedRun` (never resumed under the loop; the flag-off boot puts it back) |
+| `debugGive(n)` | debug builds only (`core.debugEnabled()`): `meta.loop.clams += n` |
+| `wick()`, `setWick(id \| null)` | the save's Wick (`'wick'` when unset); New Descent's Start sets it (on a fresh save the Wick's ledger is cleared with it); `null` clears it (a first film abandoned to the title) |
+| `tutorial()`, `beginTutorial()`, `setTutorialStep(id)`, `tutorialDone()` | `{done, step}` or null; `{done: false, step: 'arrive'}` when null (a running record is left alone); a readout (a resume always starts at the wake); `{done: true, step: null}` and `said.firstChart = true`, **saved at once** (the first Sail, before anything moves) |
+
+### 14.5 The save
+
+`meta.loop` (SPEC §9; written only under the loop; `core.defaultMeta()` gains no key):
+
+```
+{ v: 3, clams, evenings, holdSlots (the bought count, 3–8, for every Wick), tackle: {rod, line, reel}, lures: [], fitted: {lure, bait},
+  bait: {waterId: {baitId: n}}, maps: {lakes: ['mossmere'], places: []}, raft: {oars, keel, lantern}, home: {orders, baitBed, wall, lights},
+  looks: [], orders: [], legends: {id: n}, giants: {id: {landed, marked}}, prints: {}, ledgerPaid: [],
+  said: {lineId: true, sailOut: index}, lastTrip: {id, evening, zone, total, lines: [TallyLine], seen, boot?} | null,
+  wick: WickId | null, tutorial: {done, step} | null, firsts: {seen: [id], seals: ['id|class'], best: {id: cm}},
+  parkedRun?: Run }                      // only while an old descent waits (PLAN CHOICE 5)
+```
+
+A trip (`save.run`): the built run plus `outing: 'trip'`, `nightMode: 'still'`, `evening`, `creel: [Fish & {clams, measured, waterKey,
+first?}]` (the hold), `bites: {waterKey: n}`, `mercy: {waterKey: favour}`, `comeback: {…} | null`, `flags.pendingCatch: [Fish]` (a card
+open), `flags.openBite`, `flags.openComeback`, `flags.taperFirst`, and the built `phase`, `phaseTime`, `pos`. `run.shells` is 0 and
+unused; `run.eveningT` is derived (calm + dusk + `phaseTime`), never stored. **Never written under the loop:** `meta.runs`,
+`meta.lastCharacter`, `meta.deaths`, `meta.bestDay`, `meta.memories`, `meta.memoriesEarnedTotal`, `meta.relics`, `meta.unlocks`,
+`meta.challenges`, `meta.fitted`, `meta.lures`. Written as built (shared with the old game): the Journal, `meta.totalFish`, the Elder
+Log, first Ancients, legend wounds, Marked Fish, `meta.intro`, `meta.seenTips`. **No weight is ever saved**: a tally row stores the
+fish's length and every screen derives the weight (`data.fmtWeight(data.fishWeight(species, line))`).
+
+`endTrip` writes the paid meta and the ended run in one `writeSave` (which drops an inactive run), so a reload sees either the trip
+still out (nothing paid) or the paid meta and no run, with the unseen `lastTrip` to replay.
+
+### 14.6 main's game API and `loop-rules.js` (lane B)
+
+`game.startNewRun(opts)` (under the loop: `opts.__intro` → `enterHome('intro')`, else `startTrip(opts)`); `game.sail({water, place}) →
+boolean` (refused while a trip is saved or outside `home` / `title`, or for a water not open; the first Sail calls `tutorialDone()`;
+`ui.closeAll`; the 3 s glide out; then `startTrip({water, at})`); `game.canGoHome({fromPause}) → {ok, why}` (`why` ∈ `'play' | 'show' |
+'card' | 'note' | 'flow' | null`); `game.goHome() → boolean` (a waiting line is reeled in, then `endRun('home')`: `endTrip` pays and
+saves, then the 2 s glide home); `game.toHome()`; `game.atHome()`; `game.hasSavedRun()` (true only for a saved trip); `game.endRun(cause)`
+(anything but `'home'` is reported and refused); `game.beginIntro({character, reduced})`; `game.loopFresh()`. `src/loop-rules.js`
+(pure): `tripEndAllowed(cause)`, `tripStartAllowed({flow, hasSavedTrip})`, `goHomeAllowed({…}) → {ok, why}`, `startRoute({loopOn,
+intro})`, `tripKeyAllowed(code)`, `loopFreshSave(meta, hasSavedTrip)`, `filmAllowed({intro, debug, optIn})`. Debug (debug builds
+only): `ctx.debug.loop = {state, giveClams, bites, home, sail, tutorial, wick}`.
+
+### 14.7 Events and ctx fields
+
+| event | emitter | payload |
+|---|---|---|
+| `fishing:bite` | fishing | built payload `+ waterKey` (and `comeback: true` on Ashwick's returning fish) |
+| `fishing:miss` | fishing | `{reason: 'spooked', waterKey}` for a spooked bite (no second `fishing:bite`) |
+| `loop:holdFull` | fishing (a refused cast), progression (a refused keep) | `{via: 'cast' \| 'keep'}`; the toast and pulse on `'cast'` only |
+| `fish:measured`, `fish:landed` | progression | built payloads; `fish:landed` adds `clams`, `holdFull` (and `restored: true` on Continue) |
+| `fish:action` | progression | `{action: 'keep', fish, gained: {clams}}` · `{action: 'release', letgo: true, fish, gained: {bite, favour}}` |
+| `loop:tally` | progression, inside `endTrip`, after the save | the TallyResult |
+| `loop:buy` | progression | `{item, price, clams}` |
+| `zone:change` | main at a Sail | `{zone, prev: null, sail: true}` (render: no flash; audio: `setout`; ui: no banner) |
+| `run:end` | main | `{summary: null, cause: 'home'}` |
+| `home:enter` | main, after `run:end` | `{from: 'trip' \| 'title' \| 'intro' \| 'new', tally: TallyResult \| null}` |
+| `flow:change` | main | the new flow `'home'` (never `'hub'`) |
+| `player:glide` | player | `{state: 'start' \| 'end', kind: 'home' \| 'sailOut'}` for the loop's glides |
+| `loop:tutorial`, `firstEvening:line {kind: 'murk', key, text, hold, loop: true}` | the tutorial machine (lane C) | `{step, prev}`; the grumble's line |
+
+ctx fields: `ctx.progression.loop`, `ctx.progression.getBitesLeft(key)`, `ctx.fishing.waterAt({x, z}) → {giant, waterKey, placeId}`,
+`ctx.fishing.view.favour.bitesLeft` (a number on a trip) and `.quiet`, `ctx.survival.getPhaseInfo().open` (true on a trip's night),
+`ctx.ui.loop` (lane C's view), `ctx.ui.isCatchOpen()`, `ctx.debug.loop`. DOM hooks: `[data-loop=home|jetty|tally|shelf|chart|homepause]`,
+`[data-tile=murk|chart|journal]`, `[data-action=keep|letgo|sold|sail|start]`, `[data-buy="hold:4"|"rod:1"|…]`, `.gw-hold
+.gw-slot[data-filled]`, `.gw-home.gw-pulse`, `button.gw-char[data-wick=…]`, `.gw-loop-trait`, `.gw-cue`, `.gw-dim`; modal ids
+`jetty`, `tally`, `shelf`, `chart`, `catch`, `newdescent`, `homepause`.
+
+### 14.8 The five Wicks and the opening's data (`docs/loop/WICKS.md` §2, §5; `docs/loop/OPENING.md`)
+
+`LOOP.wicks = {order: ['wick', 'taper', 'stub', 'tallow', 'ashwick'], wick: {passive: 'curious', firstMult: 1.4, firstFloor: 0.4},
+taper: {passive: 'long_reach', firstBites: 1, perWater: false, giantShare: 1.3, giantCap: 0.12}, stub: {passive: 'moth_bright',
+waitMul: 0.78, quietStep: 0.08, quietWait: false, stats: {lightRadius: 1.5}}, tallow: {passive: 'broad_back', slots: 1, good: 1,
+everyWater: true}, ashwick: {passive: 'burns_back', hold: 4}}` (each with `stats`; the values the lead ruled on 15 November 2026). Who
+reads what: progression (the Wick's ledger and sale, Tallow's slots and good bites, Taper's flag, Ashwick's comeback and its buff,
+Stub's quiet terms through `favour`); fishing (Taper's pool through `wickPoolWeights` while `taperFirstOpen()`, Stub's wait ×`waitMul`
+not on a legend cast, Ashwick's returning bite; nothing for Tallow); the views (the hold's `slots`, the tally rows' `{base, clams,
+first}`, `murkLineFor('firstChart', wick)`). No Wick term reaches a log or the DOM's words beyond `TEXT_LOOP.wicks`.
+
+`LOOP.tutorial = {arrive: 3, out: 3, chartWait: 3, slotInk: 0.25, castTipAfter: 1.5, outDist: 15, outPath: {mossmere: [[24, 38], [16,
+25.3]]}, budget: {reference: 20, tapThrough: 8, max: 45}}`. validate-data's `--loop` pass checks the arrive glide and every lake's
+glide out (`sailPlan`) clear every island, pillar and gate stone by the raft radius + 0.3 m, and the tutorial's budget.
+
+### 14.9 The names the spec uses → the names built
+
+| the spec says | built as |
+|---|---|
+| `run.hold` | `run.creel` (PLAN CHOICE 19), sized by `loopSlots(meta.loop, run.character)` through `computeStats().creelSize` |
+| `getBitesLeft(key)` | `ctx.progression.getBitesLeft(key)`, an alias of `ctx.progression.loop.bitesLeft(key)` |
+| `fishing:bite {waterKey}` for a spooked bite | `fishing:miss {reason: 'spooked', waterKey}` (PLAN CHOICE 22; a second `fishing:bite` would play the bite tell) |
+| `run.eveningT` | derived: calm + dusk + `run.phaseTime` (PLAN CHOICE 21), never stored |
+
+The same four lines go to the lead as a one-line SPEC errata request with the slice's commit.
+
+### 14.10 Testing and validation
+
+`node tools/validate-data.mjs` runs four passes: v1, `--walk`, `--v3` (each asserting the loop is off; pass 3 also asserts the
+v3-without-loop fingerprint) and **`--loop`** (§4.3 of the plan: the build, `PARKED`, no giant water or watch lamps, the ladder, the
+tackle prices and Hold, quiet water, the evening, `fishClams(dusk_minnow, 0.4) === 7`, the crown, the v8 keys, the Wicks' knobs in
+their ranges, every `TEXT_LOOP` word, the glides' clearance and the tutorial's budget). `node tools/check.mjs` runs
+`tools/tests/loop.test.mjs` (data, the switch, the pure module, saves, the shelf, the list) and `tools/tests/loop-trip.test.mjs` (a real
+progression on the loop's data: the hold, keep, let go, quiet water, the tally paid once, Continue, the open bite, the shelf at home,
+the parked systems, the counters and WICKS' T76–T80), with lanes B's and C's loop tests. `tools/tests/loop-fixture.mjs` is the shared
+fixture (`loadLoopData`, `freshLoopMeta`, `tripRun`, `fakeLoop`). The economy is `node tools/sim/clams.mjs` (it reads `data.LOOP`'s
+moved tables and `data.quietTerms`, and fails if a moved key is drafted again, T42); M1's gate is `clams.mjs --shipped=mossmere --step=1`.
