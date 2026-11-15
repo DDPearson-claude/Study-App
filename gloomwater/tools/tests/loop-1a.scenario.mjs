@@ -619,7 +619,7 @@ export function makeKit(api, { label = 'loop' } = {}) {
 
 // ================================================================== the scenario
 export default async function (api) {
-  const { page, wait, evalGame: g, log, args } = api;
+  const { page, evalGame: g, log, args } = api;
   page.setDefaultTimeout(300000);
   const wick = typeof args.wick === 'string' ? args.wick : 'taper';
   const K = makeKit(api, { label: wick });
