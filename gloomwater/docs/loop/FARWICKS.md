@@ -1,10 +1,11 @@
 # The far-water Wicks: tales from the other candles out on the water
 
 *Design for the user's idea of 15 November 2026 and the four answers that followed it (§0). Revision 2, 15 November 2026 (the two critics' review, §14). Revision 3, 15 November 2026: the one line budget for every
-speaker and the one meeting rule shared with the five met on the road (`CHARACTERS.md` §3; SPEC v8.6 decisions 83, 84 and 91).
+speaker, and the one beat an evening shared with the five met on the road, each kind keeping its own clock (`CHARACTERS.md` §3;
+SPEC v8.6 decisions 83, 84 and 91; revised after that design's two critics, so the tales' cadence and save are revision 2's).
 **Written now, built after M1**: nothing here is in M1, and M1's steps, shelf, budgets, pacing and done-list change in
 nothing (`M1.md` §5 carries one pointer line). Binding with `SPEC.md` v8.6 (§0 rows 24–28, decisions 71–80 and 83–84, §5.1 rule 12,
-§8.8, §8.9, §8.10, §13, §16 questions 26–31), `LORE.md` v2.3 (§2.11, §5.3, §6, §9, §10), `WICKS.md` revision 3, `FINDS.md` revision
+§8.8, §8.9, §8.10, §13, §16 questions 26–31), `LORE.md` v2.4 (§2.11, §5.3, §6, §9, §10), `WICKS.md` revision 3, `FINDS.md` revision
 3, `AQUARIUM.md` revision 2 and `ROSTER.md`. Design only: no `src/` or `tools/` file changed with this document. Every
 number is a starting number (a knob with its range) for the build to measure; figures marked *(est.)* are hand estimates
 from the committed sim's tables and pool weights (no sim was run for this design), and none may be quoted as measured until
@@ -178,15 +179,15 @@ place is owned and the water fished a while). An evening at a water is a **meeti
 | rule | value (`LOOP.farwicks.meet`) | why |
 |---|---|---|
 | the save has ended at least 5 evenings, and the tutorial is over | `fromEvening: 6` | the first trips are the game's own (SPEC §4.9's first trip and 10-minute mark untouched) |
-| not the water's first evening; no told place's lift tonight; no other beat on the water tonight (revision 3: a visit by one of the five, or an aboard character's line, `CHARACTERS.md` §3.4) | — | one beat an evening |
-| at least 4 evenings ended since the last **meeting of any kind**, anywhere: a lantern lifted, **tapped or not**, or (revision 3) a visit by one of the five that came (`meet.last`) | `gap: 4` | never two meetings close together, so a player who ignores lanterns is not shown one most evenings; each stays special |
+| not the water's first evening; no told place's lift tonight; tonight's beat not already given to one of the five (revision 3: the evening's one beat is chosen once, at its start, `run.meet`; `CHARACTERS.md` §3.4) | — | one beat an evening |
+| at least 4 evenings ended since the last lantern lifted, anywhere, **tapped or not** (`tales.last` is the evening a lantern lifted; revision 3: the five's visits keep their own clock and never count here) | `gap: 4` | never two lanterns close together, so a player who ignores them is not shown one most evenings; each stays special |
 | the reach's far-water Wick has a ready tale: one of this water first, else the earliest ready of another **open** water of its reach | — | a tale never waits on the player coming back to one water; it never strays out of its reach |
-| tonight's roll: 1 in 2 on the first and second eligible evenings, certain on the third (`meet.wait`) | `chance: 0.5`, `sureOn: 3` | "periodically", not like clockwork, and never more than three evenings late |
-| **who comes** (revision 3): a reaction (a beat of the five answering a legend landed or lost, or the hearth stirred) first; else the ready source that showed least recently (`meet.by`): this reach's far-water Wick, or this water's one of the five (`CHARACTERS.md` §3.4); a tie goes to the visitor | — | the five and the far-water Wicks take turns, so a water with a visitor still hears all its tales; a reaction lands while it means something |
+| tonight's roll: 1 in 2 on the first and second eligible evenings, certain on the third (`tales.wait`) | `chance: 0.5`, `sureOn: 3` | "periodically", not like clockwork, and never more than three evenings late |
+| **when one of the five is due the same evening** (revision 3): the five's reactions and follow-ons come first (a beat answering a legend landed or lost, or the hearth stirred, or finishing one just begun); else the tale, if the last visit chosen did not come (`folk.missed`); else whichever has waited more eligible evenings (`tales.wait` against `folk.wait`); a tie goes to the tale (`CHARACTERS.md` §3.4) | — | one beat an evening; a tale that gives way keeps its `wait` and comes on a later evening; no tale ever waits on a visitor that does not come |
 
 **Readiness is checked once, at the start of the evening** (as the trip begins): a tale that becomes ready during the evening
-(a list landed before dusk) waits for a later evening. **The roll** is a hash of (`meet.seed`, `meta.loop.evenings`,
-`waterId`), where `meet.seed` is drawn once by `migrateLoop` or `freshLoop` (§9; revision 3 moves it from `tales`), so a reload at any point of the evening
+(a list landed before dusk) waits for a later evening. **The roll** is a hash of (`tales.seed`, `meta.loop.evenings`,
+`waterId`), where `tales.seed` is drawn once by `migrateLoop` or `freshLoop` (§9), so a reload at any point of the evening
 gives the same `run.meet`, and two saves never share every roll. A water's tales are told in their order (A, B, C) when more
 than one is ready, and the water the player is on comes before another water of the reach; a tale of another water is told
 only when that water is open, and its told place (if any) lifts on the next evening at its own water (`tales.lift`). The
@@ -198,8 +199,8 @@ nothing.
 save; about three meetings at each water, spread through its era as its tales come ready; **48 in all, about one an hour of
 play** over the 47.6 h road (SPEC §4.9). An M1 save that has already fished the Mossmere a long while meets Dip within its
 next three eligible evenings there (the gap permitting), and hears A, B and C at least four evenings apart, never at once.
-(Revision 3: the five's visits share the gap, so at their nine waters a tale comes about one to two evenings later *(est.)*;
-the 48 and the hour stand.)
+(Revision 3: the five keep their own clock, so a tale is delayed only on an evening one of them takes; at their nine waters
+a tale comes about half an evening later on average, at most a few evenings *(est.)*; the 48 and the hour stand.)
 
 ### 3.3 The beat
 
@@ -729,22 +730,22 @@ meeting; the five's source, `{kind: 'folk', beat}`, joins it with `CHARACTERS.md
 places; `data.tipWeights(list, tips, ctx)` over `[species, w]` pairs (§4.1); `catchBuffHold` gains the `told` term, which
 the sim reaches through `landP(…, { run, told })`.
 
-**The save** (one new block, and the one meeting rule's state; nothing else touched):
+**The save** (one new block; nothing else touched):
 
 ```
-meta.loop.tales = { told: [taleId], met: [wickId], lift: [placeId], landed: [taleId], secretPull: { speciesId: n } }
-meta.loop.meet  = { seed: n, last: evening, wait: n, by: { sourceId: evening } }   // revision 3: shared with the five (CHARACTERS.md §11)
-run.meet = { kind: 'tale', wick, tale, spot } | null       // tonight's meeting, chosen at the evening's start, restored by Continue
+meta.loop.tales = { seed: n, told: [taleId], met: [wickId], last: evening, wait: n, lift: [placeId], landed: [taleId], secretPull: { speciesId: n } }
+run.meet = { kind: 'tale', wick, tale, spot } | null       // tonight's beat, chosen at the evening's start, restored by Continue (revision 3: the kind; the five add { kind: 'folk', beat }, CHARACTERS.md §11)
 ```
 
-- `meet.seed`: drawn once by `migrateLoop` or `freshLoop`; tonight's roll is a hash of (`seed`, `meta.loop.evenings`, `waterId`),
+- `seed`: drawn once by `migrateLoop` or `freshLoop`; tonight's roll is a hash of (`seed`, `meta.loop.evenings`, `waterId`),
   so a reload at any point of the evening gives the same `run.meet`. `told`: every tale told, once, never undone; the tips, secrets and told places all derive from it and the data. Written in
-  the same save as the beat's first line. `met`: the Wicks whose greeting has been said. `meet.last`: the evening the last
-  meeting showed: a lantern lifted, tapped or not, or a visit came (the gap). `meet.wait`: eligible evenings since the gap passed (the sure third). `meet.by`: when each source (each far-water Wick, each of the five) last showed (who comes first). `lift`: told places whose mist lift has
+  the same save as the beat's first line. `met`: the Wicks whose greeting has been said. `last`: the evening the last
+  lantern lifted, tapped or not (the gap). `wait`: eligible evenings since the gap passed (the sure third; it also steps on an evening one of the five takes, revision 3). `lift`: told places whose mist lift has
   not played. `landed`: tips whose fish has been landed since the tale (×3 → ×1.2). `secretPull`: evenings at its water since its
   tale, for each told secret not yet landed (named apart from `meta.loop.pull`, the list pull's evenings per water).
-- **Migration** (`migrateLoop`): a block without `tales` gains `{told: [], met: [], lift: [], landed: [], secretPull: {}}`, a
-  block without `meet` gains `{seed, last: 0, wait: 0, by: {}}` with a fresh `seed`, and `meta.loop.v` steps by one (as `migrateLoop` does whenever it adds a block).
+- **Migration** (`migrateLoop`): a block without `tales` gains `{seed, told: [], met: [], last: 0, wait: 0, lift: [], landed:
+  [], secretPull: {}}`, with a fresh `seed`, and `meta.loop.v` steps by one (as `migrateLoop` does whenever it adds a block).
+  (Revision 3 keeps revision 2's block exactly; the five's own clock is `meta.loop.folk`, `CHARACTERS.md` §11.)
   An M1 save keeps everything and meets Dip within its next three eligible evenings (the gap permitting), hearing A, B and C
   at least four evenings apart.
 - **The shared Journal**: a landed secret writes its entry like any species. The flag-off game (v1, or v3 as built) ignores
@@ -799,9 +800,9 @@ every line meets §8's budget and scans (the imperative list included).
 ### 10.3 Tests
 
 - **The cadence**: no lantern before the save's 6th evening, in the tutorial, on a water's first evening, on a lift's
-  evening, within 4 evenings of the last meeting of any kind (a lantern, tapped or not, or, revision 3, a visit that came), on an evening another beat holds, or without a ready tale; with a ready tale, a lantern
+  evening, within 4 evenings of the last lantern (tapped or not; revision 3: a visit by one of the five never counts here), on an evening one of the five holds (`run.meet`), or without a ready tale; with a ready tale, a lantern
   within three eligible evenings; an ignored lantern counts for the gap and its tale comes back; readiness checked at the
-  start of the evening (a list landed before dusk readies its tale for the next evening); the roll seeded by `meet.seed`
+  start of the evening (a list landed before dusk readies its tale for the next evening); the roll seeded by `tales.seed`
   (a reload at any point of the evening gives the same `run.meet`; two fresh saves differ); a far-water Wick only in its own reach's waters; a tale of
   this water before another's; its greeting once.
 - **The lantern and the beat**: it lifts at dusk at a meet spot in the camera's view; **no ring, disc or outline** (a pixel
@@ -924,7 +925,7 @@ character, so that job can add voices without the brief contradicting it.
 
 | revision | what changed, and why |
 |---|---|
-| 3 (15 November 2026) | the five met on the road (`CHARACTERS.md`): **the one line budget for every speaker** (at most two rows of 36 characters and 8 words, one row wherever it can be; every far-water line stays one row; §0, §7, §8, §10.3); **the one meeting rule** shared with the five (§3.2: the gap from any meeting, no other beat that evening, who comes first; the seed, `last` and `wait` move to `meta.loop.meet`; `run.meet` gains a kind; §9, §10.3). No tale, tip, secret, told place, line or number changes; the tales at the five's nine waters come about one to two evenings later *(est.)* |
+| 3 (15 November 2026) | the five met on the road (`CHARACTERS.md`): **the one line budget for every speaker** (at most two rows of 36 characters and 8 words, one row wherever it can be; every far-water line stays one row; §0, §7, §8, §10.3); **one beat on the water an evening**, shared with the five (§3.2: the evening's beat chosen once at its start in `run.meet`, which gains a kind; when one of the five is due the same evening, its reactions first, else the tale if the last visit did not come, else whoever has waited longer, a tie to the tale; §9, §10.3). **Revised after the characters design's two critics**: a gap shared across both kinds (the first draft of this revision) would have delayed each tale by a whole meeting interval at nine waters and left the five's follow-ons out of reach, so the tales keep revision 2's own gap, roll and save (`tales.seed`, `last`, `wait`) exactly, and the five keep their own clock (`CHARACTERS.md` §3.4). No tale, tip, secret, told place, line or number changes; at the five's nine waters a tale comes about half an evening later on average *(est.)*; the header now binds `LORE.md` v2.4 |
 | 2 (15 November 2026) | the two critics' review (§14): 2 musts, 16 shoulds and 16 coulds, every one applied or answered. Secrets kept off every list by name, not by the freeze; the tip clamped to `AUTOFISH.biteRule`, applied in a fixed order with the giant recomputed, on its own `told` Hold line; the sixteen secrets spread over twelve plans (no plan more than three, none twice in a row), the Standing Ribbon replaced; every tale line an observation, never a command; Glim's C line reworded; Murk's "Still out there" after the first meeting with Glim; Farthing bee wax, Dip moved off Taper's silhouette, Lean given its laugh; an ignored lantern counts for the gap; the seed; the raft glides back after a meeting and the sim charges it; the told route; a Mossmere-only gate with tales on; the ladder's tale states and a last resort; save-free helpers for the sim; the branch rebased onto the moved base. The user's four answers unchanged |
 | 1 (15 November 2026) | written for the user's idea and four answers of 15 November 2026: four far-water Wicks, one to each reach (Dip, Glim, Lean, Farthing), met at dusk by a lantern you pull alongside, about once an hour, never missable; three tales a water: a tip (×3 until landed, then ×1.2 and +2 Hold for good, its number only in the logs), a secret fish on no page until told (sixteen, one a water), and four told places no chart drew; the knot as the one mark; the budget and `clams.mjs --tales`'s gates; built after M1 as its own slice after the aquarium, each later water's tales with its slice; six questions (SPEC §16 26–31). A docs job, one writer, no reviewer |
 
