@@ -336,6 +336,8 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
 
 **When.** After the three-keys rule lands (SPEC v8 §5.5, sim section 7 and the pull), and only once `clams.mjs --wicks` is
 **committed**. No knob value here, and no common price factor, is adopted before that run. Lane A owns the run (PLAN §6.4).
+**Run** on 15 November 2026 (QUEUE job 8, branch `gw-loop-balance`): §3.5 has the measured figures and the knob values the
+run sets; where §3.2 and §3.4 carried an *(est.)* mark, the measured figure now stands in its place.
 
 ### 3.1 How each passive is modelled
 
@@ -356,6 +358,16 @@ Not modelled, measured elsewhere: the spook rate per Wick (B's fishing test, Stu
 1a targets on the **built** phase-1 pools (a node test against fishing's own `speciesPool`, not the roster): Taper's first
 bite share by day and night, the Wick's count of firsts and its clams over the first 10 trips.
 
+**As built** (the run of §3.5). The four helpers are not in `data.js` until slice 1a exports them: the sim carries stand-ins
+with the same signatures, written to §2's rules, uses `data.js`'s own the moment it has one, and prints which it used.
+The Wick's sale in the pacing run is the mean over 16 sampled players, each with its own ledger (the pacing run is an
+expectation; one player's firsts would make it a lottery); its fishing is the no-passive player's. Taper's giant roll comes
+first and keeps its share; `wickPoolWeights` acts on the rest. Ashwick's +`hold` reaches `catchParts` as a run buff, so it is
+held to the run cap (`CATCH_V3.buffs.runCap` 4). Tallow's two §3.3 knobs are fields of `LOOP.wicks.tallow` (`everyWater`:
+its `good` at every place too; `maxSlots`: §2.4's fallback), read by `goodBitesFor` and `wickSlots`; revision 3's rule is
+printed beside it as a comparison row in place of `--wick-opt`. Every Wick's clams a minute in each era are measured
+against the no-passive player **on the same kits** (the kits that Wick fishes). `catch-v3.mjs --wicks` prints the two rows.
+
 ### 3.2 Targets
 
 - **Total time.** "Everything bought" per Wick within **±10%** of the five-Wick mean (fail), aim **±5%** (warn). **Tune the
@@ -370,11 +382,11 @@ bite share by day and night, the Wick's count of firsts and its clams over the f
 
 | Wick | its own domain, target | seen per first trip (floor ≥ 1) |
 |---|---|---|
-| The Wick | clams from firsts: the first 10 trips +20–35%; at each new water's first 5 evenings +15–30% | first-sale ticks at the tally (est. about 3 on trip 1) |
+| The Wick | clams from firsts: the first 10 trips +20–35%; at each new water's first 5 evenings +15–30% | first-sale ticks at the tally (measured: 2.8 on trip 1, §3.5) |
 | Taper | non-common share of bites ×1.6–2.0 in the 1a kit (built pools); (slice 2+) giants home per trip +20–40%, giant share ≤ 12% | 1 non-common first card per water (exactly 1 in 1a, when the pool allows) |
 | Stub | bites a minute +10–15%; on quiet water, clams a minute past the good bites ×1.3–1.6 | every bite sooner; quiet bites at the fresh pace |
-| Tallow | fish a trip +20–35% and clams a trip +20–35% in the 1a kit (Tallow's Hold 4 is 5 slots and 7 good bites, against 4 and 5); still +5% or more clams a minute at the last era (Hold 8, 9 slots) | the fourth slot filled: 4 fish home on ≥ 90% of first trips (est. 98%), the fourth glyph and the fourth tally row |
-| Ashwick | fish lost for good −50% or more | comebacks (est. about 1.1 per first trip on T0, in about 3 trips of 4) |
+| Tallow | fish a trip +20–35% and clams a trip +20–35% in the 1a kit (Tallow's Hold 4 is 5 slots and 7 good bites, against 4 and 5); still +5% or more clams a minute at the last era (Hold 8, 9 slots) | the fourth slot filled: 4 fish home on ≥ 90% of first trips (measured: 96%), the fourth glyph and the fourth tally row |
+| Ashwick | fish lost for good −50% or more | comebacks (measured: 0.90 per first trip on T0, on 63% of first trips: under the floor, §3.5) |
 
 Ashwick, the Wick and (revision 3) Tallow are the front-runners early: **print their first-25-trip clams side by side**.
 If Ashwick leads the five by more than 10% after the per-era tuning, its knob is "the first fish that gets away **each
@@ -422,46 +434,112 @@ quiet bites others spend. The access job picks one: count only good bites at pla
 alone); or cap each evening's count at the no-passive count for that hold; or accept it and rely on check 7's per-Wick p95
 in minutes, with Tallow named as the one to watch. Today's rule (evenings ended) gives Tallow no extra pull.
 
-### 3.4 The five, re-checked (revision 3)
+### 3.4 The five, re-checked (revision 3; measured, §3.5)
 
-Against §3.2's three targets and §1.1's "no two Wicks doing the same thing", with Tallow the carrier. Only Tallow's
-figures come from a run of the hauler (ECONOMY's scratch prototype of `clams.mjs`, every price ×1.08, its other four Wicks
-on its own passives, not revision 2's), so they are *est.* like every other figure here; T75 re-measures all five. That run
-measured the every-water version (§2.4): its 1a figures are this rule's exactly, its whole-game figures are not.
+Against §3.2's three targets and §1.1's "no two Wicks doing the same thing", with Tallow the carrier. Revision 3 had only
+ECONOMY's scratch figures for Tallow (*est.*); the committed run (§3.5) measured all five, on the knobs it sets. The figures
+below are that run's: the full run of `clams.mjs --wicks`, no price factor (×1.0).
 
-| Wick | clams a minute, est. (target +5–20% every era) | everything bought (target ±10% of the mean) | seen per first trip (floor ≥ 1) | the risk |
+| Wick | clams a minute over the no-passive player (target +5–20% every era) | everything bought (target ±10% of the mean) | seen per first trip (floor ≥ 1) | the risk, as measured |
 |---|---|---|---|---|
-| The Wick | front-loaded: large on the first trips and on each arrival, small between | unmeasured | about 3 first-sale ticks | fades in 1a after the first hour (§6.3 risk 4) |
-| Taper | about ×1.9 non-common bites in 1a | unmeasured | 1 non-common first card a water | strong in 1a (risk 2) |
-| Stub | bites a minute +10–15% | unmeasured | every bite sooner | the grind and choosy checks (risk 3) |
-| **Tallow** | **+8.9%** in the 1a kit (25.9 → about 28.2 a minute); clams a trip **+29%** (63.6 → 82.0), fish a trip **+25%**; the first trip **+38%** (44 → 61) | **47.2 h** (the every-water version) against that run's five-Wick mean of 47.6 h (**−0.8%**); "+1 slot alone" 48.3 h (+1.5%: no faster, §2.4); this rule unmeasured, between the two *(est.)* | **4 fish home** on ≥ 90% of first trips (that run: 99%) | the late eras (Hold 5–8 add −2% to +3% a minute, SPEC §4.2), the per-trip marks and the 6-minute trip (risk 6) |
-| Ashwick | comebacks about 1.1 a first trip on T0 | unmeasured | about 1 comeback in 3 of 4 first trips | near the floor; front-runner (risk 5) |
+| The Wick | front-loaded: +41% on the first trip, +21.3% in the Mossmere's era, +4.7% to +11.5% in the eras after (3 of 16 out) | **43.5 h** (−0.9%) | **2.8** first-sale ticks | fades between arrivals; each new water's first 5 evenings +13.5% to +31.4% (3 of 15 out of +15–30%) |
+| Taper | +4.6% to +16.4% (Rushlight Fen out); ×1.76 non-common bites in the 1a kit | **43.6 h** (−0.7%) | **1.00** non-common first card | at one first bite a water it ran +28–48% in 7 eras: now one an evening (`perWater` false) |
+| Stub | +5.7% to +12.8% (all 16 in); bites a minute +10.1% in 1a | **44.3 h** (+1.0%) | 5.3 bites, each 2.1 s sooner | its first trips' dark: 52% at `waitMul` 0.78 (48% at 0.75) |
+| **Tallow** | −2.4% to +20.0% (Sporewood +3.5% and the Waxen Reef −2.4% out); in the 1a kit +9.6% a minute, clams a trip **+29.9%** (64 → 83), fish a trip **+25.1%**; the first trip **+36%** (44 → 60) | **43.1 h** (−1.7%) with its good bite at every water and 8 slots; revision 3's rule 48.0 h (+9.6%) | **4 fish home** on 96% of first trips, and the fourth slot on the first Chart | revision 3's rule earned nothing a minute (−4.1% to +1.3% in every era); its 9 slots made 6.05-minute trips; its giants ×1.20 an hour |
+| Ashwick | +0.5% to +11.9% (7 eras under +5%) | **44.8 h** (+2.2%) | **0.90** comebacks, on 63% of first trips | under the floor; few late losses, and a comeback fills a slot a fresh bite would have filled |
 
-- **Within ±10%.** Tallow's hauler (the every-water version) measured −0.8% of its run's mean, the closest of that run's
-  five; this rule has fewer good bites at places, so it is slower than that, by an unmeasured amount; the other four are
-  revision 2's and unmeasured, so the spread is still T75's to prove. Removing Long Night removes revision 2's only
-  ceiling-raising passive (the cap lift), so the late-game spread risk falls.
-- **+5–20% a minute in every era.** Tallow's +8.9% in 1a is inside (the 1a kit is open water only, so this is this rule's
-  figure). Late, a slot past Hold 4 adds little a minute (SPEC §4.2: "bigger evenings, not faster ones"), so Tallow's late
-  gain rests on its good bite at open water, and places' counts do not grow for it. **The late eras are unmeasured for this
-  rule**: the record has no no-passive run at ×1.08 to set beside Tallow's 47.2 h (the 47.6 h "with no passive" is the
-  built ×1.0 run, which only happens to equal the ×1.08 five-Wick mean), and that 47.2 h is the every-water version anyway.
-  The last era is the one to watch (risk 9), and the knob is `good`, then the every-place +1 (check 9).
-- **≥ 1 visible event per first trip.** Tallow's is the surest of the five: the fourth slot is on the Chart before the first
-  cast and fills on nearly every first trip.
-- **No two the same.** Tallow owns the count (slots, and open water's good bites); **Stub** owns what happens past the
-  count (the wait, the quiet step). A Tallow first trip fills its 4 slots inside its 6 good bites, so the two never act on
-  the same bite; Stub settles on a water past the point where it goes quiet, Tallow goes home full. **Taper** owns which fish
-  bite; Tallow's extra fish come from the same pool with the same odds, and its giants are held to ≤ 1.15× per hour (check
-  5). **The Wick** owns the sale; Tallow's fish sell at the base price. **Ashwick** owns the lost fish and the catch Hold
-  stat on its comeback; Tallow's "hold" is the slots, never the fight's Hold. **The clock** is now no Wick's.
+- **Within ±10%.** All five are within ±2.3% of their mean of 43.8 h, inside the aim of ±5%. The mean is inside §4.9's
+  40–60 h band, so no common price factor is applied (×1.0, as 1a needs). The no-passive player takes 47.6 h.
+- **+5–20% a minute in every era.** Stub alone holds it in all 16 eras; 67 of the 80 Wick-eras are inside. The misses and
+  why are §3.5's list; none is a Wick far outside (the lowest is Tallow's −2.4% at the Waxen Reef, the highest the Wick's
+  +21.3% in the Mossmere's first hour).
+- **≥ 1 visible event per first trip.** Four of five; Ashwick's 0.90 comebacks is under it (§3.5).
+- **No two the same.** As revision 3 set it, with one change: since the run, Tallow owns a good bite at **every** water, not
+  only open water (the upward knob of check 9), and **Stub** still owns what happens past the count. Tallow's extra good
+  bites at places bring more giants home (×1.20 an hour, over check 5's 1.15): the one overlap the run found, with Taper's
+  domain (§3.5). **The Wick** owns the sale, **Ashwick** the lost fish and the catch Hold on its comeback, **Taper** which
+  fish bite; **the clock** is no Wick's.
+
+### 3.5 The measured run (QUEUE job 8, 15 November 2026)
+
+*`node tools/sim/clams.mjs --wicks` on branch `gw-loop-balance` (the full run: 4,000 trips a station row, 1,500 a pacing
+kit, 2,000 players a list; `--quick` moves the figures by a point or two). The knobs below are the run's; every other knob is
+as §2 starts it. Where §2 still states a starting number this section's value supersedes it; the lead's docs commit carries
+them into §2, SPEC §3.x and PLAN 1a. `catch-v3.mjs --wicks` prints the two catch rows (both pass).*
+
+**The knobs the run sets** (the fewest and smallest that met §3.2, in check 9's order):
+
+| Wick | knob | §2's start | the run's value | why |
+|---|---|---|---|---|
+| The Wick | `firstMult` | 1.5 | **1.4** | at 1.5 its first 10 trips paid +36% (target +20–35%) and the Mossmere's era +26%; `firstFloor` 0.4 stays (0.3 moved nothing measurable) |
+| Taper | `perWater` | true | **false** | the first bite **of each evening** is never common. With one at every water and place Taper ran +28% to +48% a minute in 7 eras and finished 10% ahead of the mean. `giantShare` 1.3 stays (1.4 did not lift Rushlight Fen, 3.7%) |
+| Stub | `waitMul` | 0.75 | **0.78** | at 0.75, 48–49% of its first trips saw a bite after dark (check 4: ≥ 50%, the knob not the bar); 0.77 gives 50.1%, 0.78 gives 52% with a margin; every era stays above +5% |
+| Tallow | `everyWater` (new field) | — | **true** | its `good` 1 at every place too (check 9's upward knob, ECONOMY's measured every-water version). Revision 3's rule earned −4.1% to +1.3% a minute in every era and took 48.0 h (+9.6%); `good` 2 at open water alone moved nothing (open water's count never binds a 9-slot trip) |
+| Tallow | `maxSlots` (new field) | — (9) | **8** | §2.4's fallback: with every water its trips reached 6.05 min at the 40 h mark (check 1: a printed 6.0 fails); at 8 slots the longest is 5.5 min and Tallow is 1% faster, not slower (the ninth slot paid nothing a minute) |
+| Ashwick | `hold` | 4 | 4 | already the run cap (`CATCH_V3.buffs.runCap` 4): the range's 5 and 6 do nothing; "once per evening" only weakens it |
+
+**Per Wick** (the five-Wick mean 43.8 h; the no-passive player 47.6 h; no price factor):
+
+| | the Wick | Taper | Stub | Tallow | Ashwick |
+|---|---|---|---|---|---|
+| everything bought | 43.5 h (−0.9%) | 43.6 h (−0.7%) | 44.3 h (+1.0%) | 43.1 h (−1.7%) | 44.8 h (+2.2%) |
+| its own domain, the 1a kit (§3.2) | first 10 trips +28.8% | non-common bites ×1.76 | bites a minute +10.1%; quiet water ×1.40 | fish a trip +25.1%, clams a trip +29.9% | lost for good −78% (4% of fish hooked, against 20%) |
+| seen on the first trip | 2.8 first-sale ticks | 1.00 non-common first card | 5.3 bites, 2.1 s sooner each | 4 fish home on 96%; 4 slots on the Chart | **0.90 comebacks** (63% of trips) |
+| first trip: clams; a bite after dark | 63; 63% | 54; 66% | 44; 52% | 60; 94% | 50; 62% |
+| clams a minute, the six stations of section 2 | +41, +30, +15, +13, +11, +7% | +20, +14, +7, +11, +9, +5% | +8, +6, +6, +8, +7, +5% | +10, +11, +10, +5, +17, +7% | +12, +15, +7, +8, +6, +6% |
+| clams a minute, the 16 eras | +4.7 to +21.3% | +4.6 to +16.4% | +5.7 to +12.8% | −2.4 to +20.0% | +0.5 to +11.9% |
+| giants home a trip; an hour (÷ none) | ×1.00; ×1.00 | ×1.33; ×1.32 (share ≤ 12.0%) | ×1.01; ×1.09 | ×1.35; ×1.20 | ×0.95; ×0.95 |
+| the first 25 pacing trips, clams a minute | +50% | +26% | +7% | +39% | +23% |
+| lists: the worst p95 / p99 (min) | 54 / 62 | 53 / 61 | 50 / 57 | **60** / 71 (Sporewood) | 51 / 56 |
+| longest trip at the marks; longest wait | 5.4 min; 73 min | 5.4; 68 | 5.1; 73 | 5.5; 72 | 5.6; 74 |
+
+**What passes**: everything within ±2.3% of the mean (aim ±5%); every domain target of the 1a kit; every anti-grind check
+at every station (the giant hunt, the grinds and waiting for dark under their bars; choosy play 81–100% per Wick, the mean
+inside 85–105%; Taper's hop 68–100% of its natural rule); Taper's giants +33% with no share above 12%; every class cap with
+the comeback's +4 (catch-v3: closest 98.9% of a cap); no giant at Prize above 50%; every list p95 ≤ 60 and p99 ≤ 75; no map
+sealed; Tallow's trips under 6 min at 8 slots. **What fails** (16 checks; the lead's, each with its cause):
+
+1. **Ashwick's seen floor**: 0.90 comebacks per first trip (a T0 first trip loses about one hooked fish in four, and hooks only 3–4). No §3.3 knob
+   raises it. For the lead: accept 0.90 (63% of first trips see the ember), or a stronger rule (for the user).
+2. **The Wick's first 5 evenings** at each new water span +13.5% (the Waxen Reef) to +31.4% (the Pallid Deep): the waters
+   differ more than the band is wide, and both knobs scale every water alike. Lampmoss Slough +13.8% is the other low one.
+3. **Clams a minute per era** (13 of 80 out): the Wick in the Mossmere (+21.3%: everything is a first) and at the Waxen Reef
+   and the Thunder Stair (+4.7%, +4.8%); Taper at Rushlight Fen (+4.6%: its thin pool rarely passes the sign rule, so the
+   rule waits); Tallow at Sporewood (+3.5%) and the Waxen Reef (−2.4%: a place-heavy water whose last slots fill no faster);
+   Ashwick in 7 eras (+0.5% to +4.5%): on good tackle few fish get away, and a comeback fills a slot a fresh bite would
+   have filled. Ashwick has no upward knob inside the run cap.
+4. **Tallow's giants**: ×1.20 an hour (check 5: Stub and Tallow ≤ 1.15). It comes with the good bite at every place: more
+   bites at a giant's place. The price of the every-water knob; the lead's call.
+5. **The map ladder per Wick** (check 8) and its echo in check 1: on the day a lake map is bought, Taper's Thunder Stair pays
+   0.99 and Tallow's Waxen Reef 0.94 of the water before (≥ 1.05); fully mapped, Taper's Thin Water 1.14, Stub's Siltway
+   1.17, Tallow's Rime Sound 1.13 and Ashwick's 1.15 (≥ 1.2); Ashwick's Veilwater adds +3.5% (≥ +5%); and the new water is
+   the best water only after 89 min (Taper, the Thunder Stair) and 162 min (Tallow, the Rime Sound), against 30. The tiers
+   were calibrated on the no-passive player. `clams.mjs --calibrate --wicks` prints each Wick's tiers: the highest of the
+   five is Taper's, from Glasswater on (17 against 16, up to the Inkwood's 2,706 against 1,675). Adopting them re-prices the
+   whole game, which is not a knob of this job: the tiers are unchanged and the lead decides.
+
+**Measured against the plan, for the lead:**
+
+- **The per-Wick marks of §4.9** (clams a trip at 10 min, 1 h and 5 h; purchases and maps by an hour; the last purchase in
+  40–60 h; a hold step's gain) are the no-passive curve's own levels. A Wick that is +5–20% a minute must land outside some
+  of them (the no-passive player's 1 h mark is 234 of the band's 240), so `--wicks` prints them as warnings (22), not
+  failures. The ±10% of check 1 and every structural check stay failures.
+- **Tallow's fallback against the three keys**: §2.4's fallback says the Harbour Chest is not offered to Tallow, but SPEC v8
+  made Hold 8 the Inkwood's gear key, so Tallow could never open the Inkwood. The run keeps the ladder whole (Tallow buys the
+  Harbour Chest, the key, at its price) and stops Tallow's slots at 8: the form §2.4 did not propose (that step gives
+  Tallow no slot). The lead picks it, another key for the Inkwood, or 9 slots with 6.05-minute trips.
+- **Taper's hook**: §2.2 reads the first bite from `loop.favour(key).spent === 0`. That cannot wait for a bite where the
+  pool passes the sign rule (the first bite spends it either way), a let-go refund would re-arm it, and with `perWater` false
+  it is one flag an evening. The sim counts first bites served under the rule; slice 1a needs the same (a flag of its own).
+- **Ashwick's `hold` range** (2–6) is capped at 4 by the run cap; the range can read 2–4.
+- **M1** ends under its 2–4 h band for every Wick (M1.md §6).
 
 ## 4. Guards: what no passive may ever do
 
 1. **Fight or hurt anything.** No combat term, ever.
 2. **Fail you.** No passive can lose clams, a fish in the hold, a map or a save.
 3. **Change the hold's size, beyond the user's one exception.** Every Wick but Tallow starts with 3 slots; Tallow starts with 4,
-   one more at every step, 9 at the most (8 under §2.4's fallback) (the user, 15 November 2026: "Default for all except 4 which i want yes"; §2.4). Every
+   one more at every step, 8 at the most (§2.4's fallback, in force since the run of §3.5; 9 without it) (the user, 15 November 2026: "Default for all except 4 which i want yes"; §2.4). Every
    Wick buys the same ladder, in the same order, at the same prices. The hold still decides when a trip ends.
 4. **Skip a key.** The map, the gear and the list are needed by every Wick. A passive may speed the list (Taper's first bites,
    Stub's pace); it never ticks a fish that was not landed, and never changes the pull's sure evening.
@@ -474,8 +552,9 @@ measured the every-water version (§2.4): its 1a figures are this rule's exactly
    common", and only where the uncommon-and-rare pool keeps ≥ 2 kinds and none above 80%. Ashwick's returning fish was already
    named by the got-away note.
 9. **Add good bites, beyond Tallow's.** Only Tallow's passive changes a good-bite count: at open water, one with its extra slot
-   and its own `good` 1, so two more than another Wick at the same step; none at a place. Every bite spends one, for every
-   Wick (Ashwick's comeback included).
+   and its own `good` 1, so two more than another Wick at the same step (one more at Hold 8, where its slots stop at 8); and,
+   since the run of §3.5, its own `good` 1 at every place too (check 9's upward knob). Every bite spends one, for every Wick
+   (Ashwick's comeback included).
 10. **Stack sale doubles.** Only the Wick touches the sale; with an order or the Old Ledger, the larger applies. The card shows
     the base price for every Wick.
 11. **Share a variable.** Each passive owns what §1.1 lists; no other Wick touches it. No Wick moves the clock; only Tallow
