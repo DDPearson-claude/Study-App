@@ -2,7 +2,8 @@
 
 *Gloomwater's loop, `docs/loop/`. The judge's ruling on three proposals (§6), written 15 November 2026; **revision 2** the same
 day, after a review of 49 findings (§7); **revision 3** the same day, after the user's answers to the five questions (§1.2,
-§7.2): Tallow becomes the carrier (Broad Back, §2.4) and its old passive, Long Night, is kept whole in §6.4. Every number is a
+§7.2): Tallow becomes the carrier (Broad Back, §2.4) and its old passive, Long Night, is kept whole in §6.4; and a critic's
+review of revision 3 the same day (§7.3), which checked Tallow's figures against the run's record. Every number is a
 **starting number** (a knob with its range), not a result: the sim run of §3 sets the final values after the three-keys rule
 (SPEC v8 §5.5, branch `gw-loop-access`) lands and after `clams.mjs --wicks` is committed. Figures marked *(est.)* are hand
 estimates or come from uncommitted scratch sims; none may be quoted as measured. This file amends nothing by itself. §5
@@ -19,8 +20,8 @@ lists what changes in SPEC, OPENING, PLAN and LORE, for the lead's docs commit.*
 **Earlier words that bind this design:** catch big and rare fish; the hold limits you (3 slots at the start); no way to fail;
 maps are the only way to discover a place; "every catch should feel like a win"; the UI must not be cluttered ("too much
 text on screen"); creature attacks parked (no combat); original work only. **The one exception is the user's own:** asked
-"Do you want a carrier Wick who starts with more hold?", the user said yes (15 November 2026), so Tallow starts with 4 slots
-(§2.4). Every other Wick starts with 3, as the user first said.
+whether they wanted a carrier Wick who starts with more hold (question 4, as the revision-2 run put it), the user said yes
+(15 November 2026), so Tallow starts with 4 slots (§2.4). Every other Wick starts with 3, as the user first said.
 
 **The lead's reading (binding), in short.** All five Wicks are free from the first New Descent. Each has **one** passive
 (no button, always on) that is **powerful** (felt in the first evening, about 20–40% in its own domain or a rule-bending
@@ -41,7 +42,7 @@ its height.
 | The Wick | **Curious** | the sale of a **first**: a new kind, a first Prize, Trophy or Elder, a new personal best | what you keep | about 3 first-sale ticks at the first tally |
 | Taper | **Long Reach** | the rarity of **the first bite at each water** each evening; from slice 2, a giant's share of the bites | where you fish: one more water, one more place | 1 uncommon or rare card, every evening |
 | Stub | **Moth-Bright** | the wait for a bite, and **quiet water** | how long you stay, and how choosy you are | every bite sooner; quiet water keeps its pace |
-| Tallow | **Broad Back** | **the hold's size** (one more slot at every step) and **open water's good-bite count** (+1) | how big a trip is: how much you bring home before the hold says go | a fourth empty slot on the first Chart, and 4 fish home on the first trip *(est.)* |
+| Tallow | **Broad Back** | **the hold's size** (one more slot at every step) and **open water's good-bite count** (two more than another Wick at the same step: one comes with its slot, one is its own `good`) | how big a trip is: how much you bring home before the hold says go | a fourth empty slot on the first Chart, and 4 fish home on the first trip *(est.)* |
 | Ashwick | **Burns Back** | **a fish that got away** (not a giant, not a legend) | how hard you push a big tell | about 1 comeback in 3 of 4 first trips on T0, more as you push |
 
 Giants home are Taper's alone among the passives (check 5): Ashwick's comeback skips giants, the Wick's first sale skips
@@ -53,14 +54,15 @@ names and code ids. They are **never shown**: the New Descent screen shows only 
 ### 1.2 The five questions, answered
 
 The revision-2 run put five questions to the user, each with the default it built. The user answered on 15 November 2026:
-**"Default for all except 4 which i want yes"**. All five are now answered; none is open.
+**"Default for all except 4 which i want yes"**. All five are now answered; none is open. The questions below are worded
+as the run's record put them (revision 2 itself did not print them); only the user's answer is quoted verbatim.
 
-| # | the question | the default | the answer | what this file does |
+| # | the question (the run's wording) | the default | the answer | what this file does |
 |---|---|---|---|---|
 | 1 | Should a lost giant come back for Ashwick? | no: it becomes the built Marked Fish for every Wick, so giants stay Taper's | **default (no)** | unchanged (§2.5) |
 | 2 | Should the Wick be "paid for every first" or "finishes catch lists fast"? | paid for firsts (a list-speed version copied the pull) | **default (paid for firsts)** | unchanged (§2.1) |
 | 3 | Should Stub be the stayer (lively quiet water) or pure speed? | the stayer | **default (the stayer)** | unchanged (§2.3) |
-| 4 | Do you want a carrier Wick who starts with more hold? | no, because of "3 slots at the start"; it stays the alternative | **yes** | the lead gives it to Tallow, the thick and sturdy candle, the doc's own pairing for the hauler (§6): **Broad Back**, 4 slots at the start, one more slot at every Hold step and +1 good bite at open water (§2.4). Long Night leaves Tallow and is kept whole in §6.4 |
+| 4 | Do you want a carrier Wick who starts with more hold? | no, because of "3 slots at the start"; it stays the alternative | **yes** | the lead gives it to Tallow, the thick and sturdy candle, the doc's own pairing for the hauler (§6): **Broad Back**, 4 slots at the start, one more slot at every Hold step and +1 good bite at open water on top of its slot's (two more than another Wick at the same step; §2.4). Long Night leaves Tallow and is kept whole in §6.4 |
 | 5 | Do the five lines read right? | as written | **default (as written)** | the four unchanged lines stand; Tallow's line is new with its new passive (§2.4), in the same style and under the same caps, for the lead's sign-off |
 
 ## 2. The five Wicks
@@ -187,7 +189,7 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
 
 - **Passive:** **Broad Back** (`broad_back`). **On screen:** "Stout enough for one more fish." (6 words, 31 characters)
 - **Rule.** Tallow's hold is **one slot bigger than the hold bought, at every step**, and its open water has **one more good
-  bite**. Nothing else changes.
+  bite than its slots give** (so two more than another Wick's at the same step). Nothing else changes.
   - **(a) The slots.** Tallow's slot count is `holdSlots + slots`, `slots` **1** (fixed: it is the user's "yes", not a
     tuning knob). `meta.loop.holdSlots` stays what it is for every Wick, **the bought count** (3–8, SPEC §9): the save,
     `migrateLoop`'s clamp 3–8 and T51 are unchanged, and Tallow's slot is computed, never stored. So:
@@ -201,15 +203,41 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
 
   - **The ladder and its cap.** Tallow buys **the same five steps, in the same order, at the same prices** (30, 120, 450,
     2,000, 3,500), and each still gives exactly one more slot. The ladder caps where it caps for everyone: at its fifth
-    step, the Harbour Chest (`LOOP.hold.max` 8 is the bought count). Tallow's top is therefore **9 slots**; no step is
-    added, skipped or re-priced, and the slot never stacks twice. In slice 1a the shelf stops at Hold 5 (`shelfMax`), so
-    Tallow's hold is **4–6** slots in 1a, every other Wick's 3–5.
+    step, the Harbour Chest (`LOOP.hold.max` 8 is the bought count). Tallow's top is therefore **9 slots** (the default);
+    no step is added, skipped or re-priced, and the slot never stacks twice. In slice 1a the shelf stops at Hold 5
+    (`shelfMax`), so Tallow's hold is **4–6** slots in 1a, every other Wick's 3–5.
+  - **The other reading of "capped as the ladder caps" (the fallback).** SPEC §4.2 says "The hold stops at 8 so trips stay
+    under 6 minutes", and Tallow's 9 slots go past the hold that reason was set for. The user's yes was to a Wick "who starts
+    with more hold"; it says nothing about the top. So the lead's "capped as the ladder caps" can also be read as **Tallow's
+    hold stops at 8 slots, like everyone's**. The fallback, for the lead's call: Tallow's ladder ends at the Ferry Hamper
+    (Hold 7, 8 slots) and the Harbour Chest is not offered to Tallow (it saves 3,500 clams, which check 1's ±10% prices). The
+    other form (the Harbour Chest offered but giving Tallow no slot) breaks "each step gives one more slot" and is not
+    proposed. **The fallback is used if Tallow's trips pass 6 minutes** (check 1); until then 9 stands.
+  - **What "Hold N" means.** In docs, tests, the sim's printouts and item ids (`hold:4`), "Hold N" is always **the step
+    bought** (N = `holdSlots`, the ladder's count): "Tallow's Hold 4" is the Lidded Creel, which gives Tallow 5 slots. On
+    screen only, the goal line names the slots the next step gives the Wick (below). Every line of this file uses it so.
   - **(b) The good bite.** Open water's good bites are SPEC §3.3's "one per slot of your hold, plus one", counted on
-    **Tallow's** slots, **plus `good` 1** (range 0–2): `holdSlots + 3` for Tallow. It applies to the open water of every
-    water (one per lake). The places keep their built counts (day 2, old 3, night 2, crown 2). Every bite still spends one,
-    the let-go refund is as built, and quiet water past the count is as built (Stub's milder quiet water stays Stub's).
-  - **Why both halves.** A slot without a good bite fills from quiet water with Smalls: ECONOMY's "+1 slot alone" gave only
-    +1.5% *(scratch sim, est.)*. The good bite is what makes the slot pay, at good favour.
+    **Tallow's** slots (`holdSlots + 2`), **plus `good` 1** (range 0–2): **`holdSlots + 3`** for Tallow, against
+    `holdSlots + 1` for every other Wick at the same step. So Tallow's open water has **two more good bites** than another
+    Wick's at the same step: one comes with its slot, one is its own. It applies to the open water of every water (one per
+    lake). The places keep their built counts (day 2, old 3, night 2, crown 2). Every bite still spends one, the let-go
+    refund is as built, and quiet water past the count is as built (Stub's milder quiet water stays Stub's).
+  - **What ECONOMY measured (from the run's record).** ECONOMY's scratch prototype of `clams.mjs` sized the hold one bigger
+    first (`kit.hold + 1`) and then counted open water's good bites on that hold (`freshOf`: one per slot, plus one), plus
+    `goodPlus` at **every** water, places included. So:
+    - ECONOMY's "+1 slot alone" (`goodPlus` 0) already had its slot's good bite at open water (`holdSlots + 2`). It gave
+      48.3 h, which ECONOMY reported as +1.5% against 47.6 h: no faster. The likely reasons (this file's reading, not
+      measured): at open water the count keeps the same one-bite margin over the hold as every Wick's (a lost fish still
+      runs into quiet water), and from the 1 h mark trips fill at places, whose counts are fixed, so the extra slot fills
+      from quiet water there.
+    - ECONOMY's "+1 slot, +1 good bite" is `holdSlots + 3` at open water **and +1 at every place**. In the 1a kit (open water
+      only) that is **exactly this rule**, so the 1a figures (+8.9% a minute, 63.6 → 82.0 clams a trip, 44 → 61 on the first
+      trip) describe it. The whole-game figures (47.2 h, the 1 h 284 and 5 h 911 marks, the 6.0 min trip) are that
+      every-water version, which this file keeps only as the upward knob (check 9). **This rule's whole game is
+      unmeasured**; it should land between the slot alone (48.3 h) and 47.2 h *(est.)*. The lead's "+1 good bite (ECONOMY's
+      measured version)" is read as open water only, as the ruling says.
+  - **Why both halves.** The good bite is what makes the slot pay: it lets the extra slot fill at good favour before the water
+    goes quiet. The slot alone was no faster (above).
   - **What the hold still does.** A full hold refuses the cast at Tallow's count ("Hold's full.", the Home pill pulses), and
     only the tally empties it. The tally sells whatever is in it, one row per fish, as built. **Unchanged:** which fish bite,
     sizes, the strike, the land chance, the catch Hold stat (that is the fight's Hold, which Ashwick's comeback raises; this
@@ -221,8 +249,10 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
   open water.
 - **First evening.** The first Chart shows **four** empty slots, and Murk says so (below). The open water has 6 good bites
   instead of 4, so the first trip brings home **4 fish instead of 3: about 61 clams instead of 44 (+38%)** *(ECONOMY's
-  scratch sim, est.)*. The fourth glyph in the hold row and the fourth tally row are the event, on every first trip that comes
-  home full (98% of built first trips, SPEC §4.9).
+  scratch sim, est.; the first trip is open water only, so this is exactly this rule)*. The fourth glyph in the hold row and
+  the fourth tally row are the event, on every first trip that comes home full (99% of Tallow's first trips in that run,
+  against 98% for the no-passive player, SPEC §4.9). The same run gives Tallow's first trips 94% a bite after dark (63%
+  without a passive) and 41% with no Prize or bigger (52%) *(est.)*: a longer trip reaches the night.
 - **The tutorial's line for Tallow.** OPENING's chart beat reads, for Tallow only: **"Four slots in that hold. Fill them and
   come home."**, and four empty slots ink in under the Mossmere row (0.25 s apart, 1.0 s, inside the ≈ 3 s beat; the line is
   one character shorter, so `murkHold` and T72's budget do not grow). Every other Wick hears "Three slots in that hold. Fill
@@ -233,23 +263,27 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
   top-up of SPEC §3.3, so a Tallow trip runs one fish longer at every era. Late holds are the risk (§3.3 check 1, §6.3).
 - **How it shows.** **The HUD:** the hold row (`.gw-hold`, top-left) has Tallow's count of cells: 4 on the first trip, 6 at
   1a's top, 9 at the end. **The Chart:** Tallow's empty slots ink in under the water's row in the tutorial. **The shelf:** the
-  hold card keeps the ladder's name and price and the built line "One more slot."; the goal line's "Hold N" names the slots
-  the step gives this Wick ("Hold 5" for Tallow's Lidded Creel), so it never reads one short. **The tally:** one more row.
-  **The float:** one more good-bite dot at open water (the built dots, no new sign). **On the raft:** in 1a the hold is the
+  hold card keeps the ladder's name and price and the built line "One more slot."; on screen only, the goal line's "Hold N"
+  names the slots the next step gives this Wick (at the start, "Next: Hold 5 · 30" for Tallow's Lidded Creel, "Next: Hold
+  4 · 30" for every other Wick), so it never reads one short. **The tally:** one more row. **The float:** two more
+  good-bite dots at open water than another Wick has at the same step (the built dots, no new sign; in 1a at most 8, under
+  the built cap of 9; from Hold 7, 10 and 11, so the cap must grow, §5). **On the raft:** in 1a the hold is the
   HUD row only (no deck model is built). From the slice that draws SPEC §7's hold on the deck ("a bigger creel on the deck,
   then a chest"), Tallow's deck shows the same creel or chest as the bought step, with a small wicker basket lashed beside
   it, its one more slot (the same basket at every step, so it reads as Tallow's, not as a ladder step). *Polish:* Tallow's
   broad flame settles lower and steadier as the hold fills.
 - **Code hooks.** `data.js` (A): `LOOP.wicks.tallow = {passive: 'broad_back', slots: 1, good: 1, stats: {}}`,
   `TEXT_LOOP.wicks.tallow` (the line), `TEXT_LOOP.murk.firstChartBy = {tallow: 'Four slots in that hold. Fill them and come
-  home.'}`; one pure `loopSlots(metaLoop, wickId) = metaLoop.holdSlots + (LOOP.wicks[loopWickId(wickId)]?.slots || 0)`
-  beside `loopWickId`; `goodBitesFor({kind, holdSlots, wickId})`: open water `loopSlots × openPerSlot + openExtra +
-  (LOOP.wicks[id]?.good || 0)`, a place as built (`goodBitesFor` is a new 1a export, so the v1 fingerprint does not move).
+  home.'}`; beside `loopWickId`, one pure count on numbers, **`wickSlots(holdSlots, wickId) = holdSlots +
+  (LOOP.wicks[loopWickId(wickId)]?.slots || 0)`**, and its wrapper for a save, `loopSlots(metaLoop, wickId) =
+  wickSlots(metaLoop.holdSlots, wickId)`; `goodBitesFor({kind, holdSlots, wickId})` takes the bought count as a number:
+  open water `wickSlots(holdSlots, wickId) × openPerSlot + openExtra + (LOOP.wicks[loopWickId(wickId)]?.good || 0)`, a
+  place as built (`goodBitesFor` and `wickSlots` are new 1a exports, so the v1 fingerprint does not move).
   `progression.js` `computeStats` (A): `out.creelSize = loopSlots(meta.loop, r.character)` in place of `holdSlots`.
   `progression-loop.js` (A): `hold().slots`, `holdFull()` (`run.creel.length >= loopSlots(meta.loop, run.character)`) and
   `bitesLeft(key)` read the Wick (on a trip `run.character`; at home `meta.loop.wick`). `ui-loop.js` (C): the hold row and
   the Chart draw `loop.hold().slots` cells (no Wick test in the view); `murkLineFor('firstChart', wick)` picks
-  `firstChartBy[wick]` when it exists; `goalLine` names "Hold N" from `loopSlots` after the step. **`fishing.js` (B):
+  `firstChartBy[wick]` when it exists; `goalLine` names "Hold N" from `wickSlots(next step, wick)`. **`fishing.js` (B):
   nothing** (it reads `getBitesLeft`, which is already Wick-aware). No RNG draw, no v1 or v3 table, no exported v1 function
   changes.
 
@@ -307,14 +341,15 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
 
 `clams.mjs` gains a `--wicks` mode and `opts.wick` (an id from `LOOP.wicks`) on `trip()`, `run()` and the pacing run. The
 "no passive" Wick (`none`) stays as the reference row. All Wicks read the same `data.js` functions the game does
-(`wickPoolWeights`, `quietTerms`, `loopSlots`, `goodBitesFor`).
+(`wickPoolWeights`, `quietTerms`, `wickSlots`, `goodBitesFor`; the sim has no `meta.loop`, so it calls the numeric
+`wickSlots`, never `loopSlots`).
 
 | Wick | `clams.mjs` | `catch-v3.mjs` |
 |---|---|---|
 | The Wick | The **pacing run carries one `firsts` ledger** (seen, Prize/Trophy/Elder/Ancient seals exactly as `measure()` stamps them, best length) across the whole game; `trip()` marks each kept non-giant, non-legend fish that is a first and pays the bonus formula, larger-of with an order. Station rows start from the pacing run's ledger at that station's hour | — |
 | Taper | `poolFor(…, wick, firstBite)` through `wickPoolWeights`; `trip()` tracks the first bite per water per evening; (slice 2) the giant's share × `giantShare`, capped at `giantCap` | — |
 | Stub | `trip()`: `T.wait × waitMul` (not on legend bites); `quietTerms(over, 'stub')` (no wait growth, −0.08 a bite) | — |
-| Tallow | **Tallow's run starts with 4 slots and +1 good bite:** `trip()` sizes the hold by `loopSlots(kit, 'tallow')` (`kit.hold + 1`, so 4 at the start and 9 at Hold 8) and the open water's fresh count by `goodBitesFor({kind: 'open', holdSlots: kit.hold, wickId: 'tallow'})` (`kit.hold + 3`); places, quiet water, the clock and prices as built. The pacing run buys the same ladder in the same order at the same prices as every Wick, and prints Tallow's trip length and clams a trip at each mark beside its slots | — (no catch term: the catch Hold is untouched) |
+| Tallow | **Tallow's run starts with 4 slots and 6 good bites at open water:** `trip()` keeps `kit.hold` as the bought count and sizes the hold by `wickSlots(kit.hold, 'tallow')` (`kit.hold + 1`, so 4 at the start and 9 at Hold 8), and the open water's fresh count by `goodBitesFor({kind: 'open', holdSlots: kit.hold, wickId: 'tallow'})` (`kit.hold + 3`, two more than the no-passive Wick's `kit.hold + 1`); places (their built counts, **not** ECONOMY's +1), quiet water, the clock and prices as built. A second Tallow row, `--wick-opt good-every-water`, runs ECONOMY's measured every-water version (the upward knob) so the two can be compared. The pacing run buys the same ladder in the same order at the same prices as every Wick, and prints Tallow's trip length and clams a trip at each mark beside its slots | — (no catch term: the catch Hold is untouched) |
 | Ashwick | `trip()`: on a loss (not a giant, a legend, a cut line or a comeback) store `{sp, z, water}`; **`leave()` is false while a comeback waits** (Ashwick's policy always takes it); the next bite at that water reuses it, spends a good bite (`here++`) and lands with `landP(…, extraHold = hold)`; `landP` takes `extraHold` in its cache key | a **comeback** row: every non-giant species and class at the kit each water opens with and at its era's end, with +`hold`, stays under its class cap. The other Wicks add no term: their `catchChance` equals the no-passive Wick's |
 
 Not modelled, measured elsewhere: the spook rate per Wick (B's fishing test, Stub's shorter `W` fits fewer nibbles), and the
@@ -338,22 +373,25 @@ bite share by day and night, the Wick's count of firsts and its clams over the f
 | The Wick | clams from firsts: the first 10 trips +20–35%; at each new water's first 5 evenings +15–30% | first-sale ticks at the tally (est. about 3 on trip 1) |
 | Taper | non-common share of bites ×1.6–2.0 in the 1a kit (built pools); (slice 2+) giants home per trip +20–40%, giant share ≤ 12% | 1 non-common first card per water (exactly 1 in 1a, when the pool allows) |
 | Stub | bites a minute +10–15%; on quiet water, clams a minute past the good bites ×1.3–1.6 | every bite sooner; quiet bites at the fresh pace |
-| Tallow | fish a trip +20–35% and clams a trip +20–35% in the 1a kit (Tallow's Hold 4 is 5 slots and 7 good bites); still +5% or more clams a minute at the last era (Hold 8, 9 slots) | the fourth slot filled: 4 fish home on ≥ 90% of first trips (est. 98%), the fourth glyph and the fourth tally row |
+| Tallow | fish a trip +20–35% and clams a trip +20–35% in the 1a kit (Tallow's Hold 4 is 5 slots and 7 good bites, against 4 and 5); still +5% or more clams a minute at the last era (Hold 8, 9 slots) | the fourth slot filled: 4 fish home on ≥ 90% of first trips (est. 98%), the fourth glyph and the fourth tally row |
 | Ashwick | fish lost for good −50% or more | comebacks (est. about 1.1 per first trip on T0, in about 3 trips of 4) |
 
 Ashwick, the Wick and (revision 3) Tallow are the front-runners early: **print their first-25-trip clams side by side**.
 If Ashwick leads the five by more than 10% after the per-era tuning, its knob is "the first fish that gets away **each
-evening** comes back" (once per evening), then `hold`. If Tallow does, its knob is `good` 1 → 0, never the slot
-(that is the user's answer).
+evening** comes back" (once per evening), then `hold`. If Tallow does, its knob is `good` 1 → 0, never the starting slot
+(that is the user's answer). If Tallow both leads by more than 10% and its trips pass 6 minutes, the cap fallback of §2.4
+comes first (Tallow's hold stops at 8 slots: it shortens the longest trips and lowers the lead), and `good` only after it.
+`good` is a clams-a-minute knob, not a trip-length knob.
 
 ### 3.3 Checks to add (`--wicks`, each printed per Wick and as the five-Wick mean)
 
 1. Pacing (section 5), once per Wick: the end time against §3.2; every §4.9 mark per Wick (10 min 40–90 clams; 1 h 100–240;
    5 h 300–900; trips ≤ 6 min; the longest wait for one purchase ≤ 90 min; the first giant at hour 0.4–3; the map arrival
    bands); **every place map raises clams a minute by ≥ 5% for every Wick**. **Tallow's clams-a-trip marks are read per
-   slot** (its clams a trip × `holdSlots / loopSlots`, so a bigger hold is not a failure by design), and its trip length is
-   held to **≤ 6 min with the visit home at every mark, Hold 8's 9 slots included** (fail): both are the lead's to confirm
-   (§6.3).
+   slot** (its clams a trip × `holdSlots / wickSlots(holdSlots, 'tallow')`, so a bigger hold is not a failure by design), and
+   its trip length is held to **≤ 6 min with the visit home at every mark, Hold 8's 9 slots included** (fail; "≤ 6" means
+   under SPEC §4.2's "under 6 minutes", so a printed 6.0 fails, as ECONOMY's prototype marked it). If it fails, Tallow's
+   hold stops at 8 slots (§2.4's fallback) and the run is repeated. Both are the lead's to confirm (§6.3).
 2. Domain gains (§3.2) and clams a minute per era per Wick (+5–20%, fail).
 3. Anti-grind, per Wick: the giant hunt ≤ 75% of the natural rule; the grind ≤ the natural rule (**binding for Stub**, whose
    quiet water is gentler); wait-for-dark ≤ 100% (fail); choosy play 80–110% per
@@ -371,34 +409,44 @@ evening** comes back" (once per evening), then `hold`. If Tallow does, its knob 
 8. The map ladder: `--calibrate` takes, for each water, the highest tier over the five Wicks (a ladder rule must hold for
    every Wick), then the price factor is retuned.
 9. The knobs, in order, if a Wick is out of band: the Wick `firstMult` then `firstFloor`; Taper `perWater`, then (slice 2)
-   `giantShare`; Stub `waitMul` then `quietStep`; Tallow `good` (range 0–2; the slot is fixed by the user's answer), and
-   upward only, the +1 good bite at every place too (ECONOMY's own version); Ashwick `hold`, then once per evening.
+   `giantShare`; Stub `waitMul` then `quietStep`; Tallow `good` for clams a minute (range 0–2; the starting slot is fixed by
+   the user's answer), and upward only, the +1 good bite at every place too (ECONOMY's measured every-water version); for
+   Tallow's trip length, the cap fallback (§2.4), then the visit home's share of `LOOP.time`; Ashwick `hold`, then once per
+   evening.
 
 The model's limits stay as SPEC §4.9 says (±10%); the look (light radius) is printed "not modelled". **For the access
 job:** the pull counts evenings ended at a water, so very short evenings (one cast, then home) raise it cheaply; counting it
-in good bites spent at the water would close that.
+in good bites spent at the water would close that, **but it would give Tallow more pull per open-water evening**: Tallow
+spends 6 good bites there against 4 (7–11 against 5–9 later), about 1.5× at the start, in fewer minutes per bite than the
+quiet bites others spend. The access job picks one: count only good bites at places (open water's count is Tallow's
+alone); or cap each evening's count at the no-passive count for that hold; or accept it and rely on check 7's per-Wick p95
+in minutes, with Tallow named as the one to watch. Today's rule (evenings ended) gives Tallow no extra pull.
 
 ### 3.4 The five, re-checked (revision 3)
 
 Against §3.2's three targets and §1.1's "no two Wicks doing the same thing", with Tallow the carrier. Only Tallow's
 figures come from a run of the hauler (ECONOMY's scratch prototype of `clams.mjs`, every price ×1.08, its other four Wicks
-on its own passives, not revision 2's), so they are *est.* like every other figure here; T75 re-measures all five.
+on its own passives, not revision 2's), so they are *est.* like every other figure here; T75 re-measures all five. That run
+measured the every-water version (§2.4): its 1a figures are this rule's exactly, its whole-game figures are not.
 
 | Wick | clams a minute, est. (target +5–20% every era) | everything bought (target ±10% of the mean) | seen per first trip (floor ≥ 1) | the risk |
 |---|---|---|---|---|
 | The Wick | front-loaded: large on the first trips and on each arrival, small between | unmeasured | about 3 first-sale ticks | fades in 1a after the first hour (§6.3 risk 4) |
 | Taper | about ×1.9 non-common bites in 1a | unmeasured | 1 non-common first card a water | strong in 1a (risk 2) |
 | Stub | bites a minute +10–15% | unmeasured | every bite sooner | the grind and choosy checks (risk 3) |
-| **Tallow** | **+8.9%** in the 1a kit (25.9 → about 28.2 a minute); clams a trip **+29%** (63.6 → 82.0), fish a trip **+25%**; the first trip **+38%** (44 → 61) | **47.2 h** against that run's five-Wick mean of 47.6 h (**−0.8%**); "+1 slot alone" 48.3 h (+1.5%: too weak, hence the good bite) | **4 fish home** on ≥ 90% of first trips | the late eras (Hold 5–8 add −2% to +3% a minute, SPEC §4.2) and the per-trip marks (risk 6) |
+| **Tallow** | **+8.9%** in the 1a kit (25.9 → about 28.2 a minute); clams a trip **+29%** (63.6 → 82.0), fish a trip **+25%**; the first trip **+38%** (44 → 61) | **47.2 h** (the every-water version) against that run's five-Wick mean of 47.6 h (**−0.8%**); "+1 slot alone" 48.3 h (+1.5%: no faster, §2.4); this rule unmeasured, between the two *(est.)* | **4 fish home** on ≥ 90% of first trips (that run: 99%) | the late eras (Hold 5–8 add −2% to +3% a minute, SPEC §4.2), the per-trip marks and the 6-minute trip (risk 6) |
 | Ashwick | comebacks about 1.1 a first trip on T0 | unmeasured | about 1 comeback in 3 of 4 first trips | near the floor; front-runner (risk 5) |
 
-- **Within ±10%.** Tallow's hauler measured −0.8% of its run's mean, the closest of that run's five; the other four are
+- **Within ±10%.** Tallow's hauler (the every-water version) measured −0.8% of its run's mean, the closest of that run's
+  five; this rule has fewer good bites at places, so it is slower than that, by an unmeasured amount; the other four are
   revision 2's and unmeasured, so the spread is still T75's to prove. Removing Long Night removes revision 2's only
   ceiling-raising passive (the cap lift), so the late-game spread risk falls.
-- **+5–20% a minute in every era.** Tallow's +8.9% in 1a is inside. Late, a slot past Hold 4 adds little a minute (SPEC
-  §4.2: "bigger evenings, not faster ones"), so Tallow's late gain rests on its good bite; the run's whole-game figure
-  (47.2 h at prices ×1.08 is roughly 43.7 h at ×1.0, about 8% sooner than the 47.6 h with no passive) suggests it holds, but the last era is the one to watch, and the
-  knob is `good` (check 9).
+- **+5–20% a minute in every era.** Tallow's +8.9% in 1a is inside (the 1a kit is open water only, so this is this rule's
+  figure). Late, a slot past Hold 4 adds little a minute (SPEC §4.2: "bigger evenings, not faster ones"), so Tallow's late
+  gain rests on its good bite at open water, and places' counts do not grow for it. **The late eras are unmeasured for this
+  rule**: the record has no no-passive run at ×1.08 to set beside Tallow's 47.2 h (the 47.6 h "with no passive" is the
+  built ×1.0 run, which only happens to equal the ×1.08 five-Wick mean), and that 47.2 h is the every-water version anyway.
+  The last era is the one to watch (risk 9), and the knob is `good`, then the every-place +1 (check 9).
 - **≥ 1 visible event per first trip.** Tallow's is the surest of the five: the fourth slot is on the Chart before the first
   cast and fills on nearly every first trip.
 - **No two the same.** Tallow owns the count (slots, and open water's good bites); **Stub** owns what happens past the
@@ -413,7 +461,7 @@ on its own passives, not revision 2's), so they are *est.* like every other figu
 1. **Fight or hurt anything.** No combat term, ever.
 2. **Fail you.** No passive can lose clams, a fish in the hold, a map or a save.
 3. **Change the hold's size, beyond the user's one exception.** Every Wick but Tallow starts with 3 slots; Tallow starts with 4,
-   one more at every step, 9 at the most (the user, 15 November 2026: "Default for all except 4 which i want yes"; §2.4). Every
+   one more at every step, 9 at the most (8 under §2.4's fallback) (the user, 15 November 2026: "Default for all except 4 which i want yes"; §2.4). Every
    Wick buys the same ladder, in the same order, at the same prices. The hold still decides when a trip ends.
 4. **Skip a key.** The map, the gear and the list are needed by every Wick. A passive may speed the list (Taper's first bites,
    Stub's pace); it never ticks a fish that was not landed, and never changes the pull's sure evening.
@@ -425,8 +473,9 @@ on its own passives, not revision 2's), so they are *est.* like every other figu
 8. **Tell before the reveal.** No sign may reveal a fish's species or novelty before the reveal. Taper's rule tells only "not a
    common", and only where the uncommon-and-rare pool keeps ≥ 2 kinds and none above 80%. Ashwick's returning fish was already
    named by the got-away note.
-9. **Add good bites, beyond Tallow's one.** Only Tallow's passive changes a good-bite count: +1 at open water, none at a place.
-   Every bite spends one, for every Wick (Ashwick's comeback included).
+9. **Add good bites, beyond Tallow's.** Only Tallow's passive changes a good-bite count: at open water, one with its extra slot
+   and its own `good` 1, so two more than another Wick at the same step; none at a place. Every bite spends one, for every
+   Wick (Ashwick's comeback included).
 10. **Stack sale doubles.** Only the Wick touches the sale; with an order or the Old Ledger, the larger applies. The card shows
     the base price for every Wick.
 11. **Share a variable.** Each passive owns what §1.1 lists; no other Wick touches it. No Wick moves the clock; only Tallow
@@ -449,24 +498,39 @@ evening, §8.5's Last Light delay, the §4.4 Lantern text change, `loopEvening` 
 **SPEC.md**
 - §0: two decisions rows. (1) The user's words of 14 November ("a powerful unique passive"), pointing here. (2) The user's
   answers of 15 November 2026, verbatim, "Default for all except 4 which i want yes": the four defaults stand, and **the
-  carrier is Tallow** (4 slots at the start, one more at every step, +1 good bite at open water). Row 3's ruling ("3 slots at
-  the start, 8 at the most") gains "(Tallow: 4 and 9, the user's own exception of 15 November 2026; `WICKS.md` §2.4)".
+  carrier is Tallow** (4 slots at the start, one more at every step, and at open water two more good bites than another Wick
+  at the same step: its slot's and one of its own). Row 3's ruling ("3 slots at the start, 8 at the most") gains "(Tallow: 4
+  and 9, the user's own exception of 15 November 2026; `WICKS.md` §2.4)". Row 4's figures ("52% of first trips bring home
+  no Prize or bigger") are marked the no-passive player's; Tallow's (about 41%, *est.*) is printed by check 4.
+- §2's evening example (line 156, Murk's "Three slots in that hold.") stays the default Wick's on purpose, with a note: for
+  Tallow, "Four slots in that hold." (OPENING's chart beat). Line 165's "44 clams on average, and 52% … no Prize" is the
+  no-passive player's.
 - §3.1 the hold: "slots at the start | **3** (Tallow 4)"; "slots at the most | **8** (Tallow 9) (five steps, bought in order,
   §4.2)"; "a full hold" unchanged (it refuses at the Wick's count); "on screen" unchanged (the row has the Wick's count of
   glyphs).
-- §3.3: open water's good bites "one per slot of your hold, plus one (4 to 9)" gains "**Tallow: one more** (6 to 11; its
-  slots are one more too)". The places' counts are unchanged.
+- §3.3: open water's good bites "one per slot of your hold, plus one (4 to 9)" gains "**Tallow: two more at the same step**
+  (6 to 11: one per slot of its bigger hold, plus one, plus its own one)". The places' counts are unchanged.
 - §4.2: one line under the ladder: "Tallow's hold is one slot bigger at every step (4 to 9) at the same prices; the step's
-  name is the ladder's." The per-step figures stay the no-passive player's.
+  name is the ladder's." The per-step figures stay the no-passive player's. The sentence "The hold stops at 8 so trips stay
+  under 6 minutes" gains "(Tallow: 9; its trips held to ≤ 6 min by `WICKS.md` check 1, or its hold stops at 8, §2.4's
+  fallback)".
 - §4.9: the pacing run per Wick (§3.3 check 1), with Tallow's clams-a-trip marks read per slot and its trips ≤ 6 min at 9
-  slots (for the lead's sign-off); the price factor ×1.0 in 1a; the dark target unchanged for every Wick.
+  slots (for the lead's sign-off); the price factor ×1.0 in 1a; the dark target unchanged for every Wick. The first-trip
+  figures (line 530: "98% come home full", "52% bring home no Prize or bigger", "63% get a bite after dark"; line 252: "With
+  3 slots and 4 good bites, 63% …") are marked the no-passive player's; Tallow's (about 99%, 41% and 94% in ECONOMY's run,
+  *est.*) are printed by check 4.
+- §15's hold row (line 1274, "3 → 8 · trips stay under 6 minutes") gains "(Tallow: 4 → 9; check 1 holds its trips to ≤ 6
+  min)".
 - §7 the raft's hold row: "what you see" gains "(Tallow: the same, with a small basket lashed beside it, its one more slot)".
-- §8.1 the hold row: the Wick's count of cells. §8.6 Murk's first line: for Tallow, "Four slots in that hold. Fill them and
-  come home." §11's tutorial row (line 1001): "the First Outing card shows the Mossmere, three empty slots (four for Tallow)",
-  and Murk's departure line likewise.
-- §9: `holdSlots` stays the bought count (3–8) for every Wick; a Wick's slot count is `loopSlots(meta.loop, wick)`.
+- §8.1 the hold row: the Wick's count of cells. §8.3's Jetty row (line 797): the goal line "Next: Hold 4 · 30" gains
+  "(Tallow: Next: Hold 5 · 30)", §2.4's on-screen rule. §8.6 Murk's first line: for Tallow, "Four slots in that hold. Fill
+  them and come home." §11's tutorial row (line 1001): "the First Outing card shows the Mossmere, three empty slots (four
+  for Tallow)", and Murk's departure line likewise.
+- §9: `holdSlots` stays the bought count (3–8) for every Wick; a Wick's slot count is `loopSlots(meta.loop, wick)`
+  (`wickSlots(holdSlots, wick)` on numbers).
 - §10.1: the trait table becomes the five passives (name, line, rule in one line each; Tallow's: "Broad Back · Stout enough
-  for one more fish. · one more slot at every step (4 to 9) and +1 good bite at open water"). "Each a look and one small
+  for one more fish. · one more slot at every step (4 to 9) and, at open water, two more good bites than another Wick at
+  the same step"). "Each a look and one small
   fishing trait" becomes "each a look and one passive (`WICKS.md`)". "No trait touches the hold, the sale or the good bites"
   is struck and replaced by: "Only Tallow's passive changes the hold's size and a good-bite count (the user's carrier, 15
   November 2026); only the Wick's touches the sale; none touches a legend, the clock or the odds shown." The v6 "join over
@@ -474,14 +538,17 @@ evening, §8.5's Last Light delay, the §4.4 Lantern text change, `loopEvening` 
 - §8.5 (about line 835): the five trait lines become §2's lines (no Last Light delay: Tallow no longer moves the clock).
 - §3.2 (Ashwick's comeback beside the let-go and the linger); §3.3 (Stub's wait and gentler quiet water); §3.5 (Taper's giant
   share ×1.3 under 12%; a lost giant is the Marked Fish for every Wick); §4.1 (the Wick's first bonus, larger-of with orders
-  and the Ledger; `LOOP.priceFactor`); §13 slice 1a (the passives ship in 1a; Tallow's hold row is 4–6 cells in 1a); §14 (the
-  risks of §6.3).
+  and the Ledger; `LOOP.priceFactor`); §13 slice 1a (the passives ship in 1a; Tallow's hold row is 4–6 cells in 1a; line
+  1055, "the three empty slots" → "the empty slots (three; four for Tallow)" and "Fill three slots" → "Fill the hold (three
+  slots; four for Tallow)"; line 1060's tests, "the hold: 3 slots, the 4th keep refused" → "the hold: 3 slots (Tallow 4),
+  the next keep refused", "quiet after 4 (hold 3)" → "quiet after 4 at hold 3 (Tallow 6)", and the scenario's "three fish →
+  Home" → "a full hold → Home"); §14 (the risks of §6.3).
 - §10's "the five Wicks" row: still "changed", pointing here; §10's creel row "3 slots, bought to 8" gains "(Tallow 4 to 9)".
 
 **OPENING.md**
 - The lead's default paragraph (line 29): "one small fishing trait" → "one passive".
 - §3's table (lines 103–109): the "line" and "trait" columns become §2's lines and passives (Tallow: "Stout enough for one more
-  fish." · one more slot at every step, +1 good bite at open water).
+  fish." · one more slot at every step, and two more good bites at open water than another Wick at the same step).
 - Line 112, "No trait touches the hold, the sale or the good bites", is struck and replaced by SPEC §10.1's new sentence.
 - **The chart beat** (the beat table's row 6, line 53; the beat detail, line 228; the phone mock, line 260): "the hold's
   three empty slots ink in" → "the hold's empty slots ink in (three; four for Tallow)"; Murk's line is "Three slots in that
@@ -498,9 +565,11 @@ evening, §8.5's Last Light delay, the §4.4 Lantern text change, `loopEvening` 
   removing Long Night needs no edit. If the owner wants one line for the carrier, it fits §5.1's window candles: the thick
   kitchen candle that burned all night is the sturdiest of them. No lore line is required.
 
-**For the access job** (`gw-loop-access`): count the pull in good bites spent at a water, not in evenings ended (§3.3). With
-Tallow's extra good bite at open water, the count is per good bite spent, so Tallow's evening at a water is not worth more
-pull than its bites.
+**For the access job** (`gw-loop-access`): count the pull in good bites spent at a water, not in evenings ended (§3.3). But
+counting good bites gives Tallow about **1.5× the pull per open-water evening** (6 good bites against 4 at the start, 7–11
+against 5–9 later), each in fewer minutes than a quiet bite. Pick one: count only good bites at places; or cap each
+evening's count at the no-passive count for that hold (`goodBitesFor` with no Wick); or accept it and rely on check 7's
+per-Wick p95 in minutes, with Tallow named as the one to watch.
 
 **slice-1a/PLAN.md**
 - §2.1 item 15, the `LOOP.wicks` shape:
@@ -508,8 +577,9 @@ pull than its bites.
   firstBites: 1, perWater: true, giantShare: 1.3, giantCap: 0.12, stats: {}}, stub: {passive: 'moth_bright', waitMul: 0.75,
   quietStep: 0.08, quietWait: false, stats: {lightRadius: 1.5}}, tallow: {passive: 'broad_back', slots: 1, good: 1, stats:
   {}}, ashwick: {passive: 'burns_back', hold: 4, stats: {}}}`; plus `LOOP.priceFactor: 1`, the pure exports
-  `wickPoolWeights` and **`loopSlots(metaLoop, wickId)`** beside `loopWickId`, `quietTerms(over, wickId)`, and
-  **`goodBitesFor({kind, holdSlots, wickId})`** (§3.1 of PLAN: "open water `loopSlots × openPerSlot + openExtra + good`").
+  `wickPoolWeights`, **`wickSlots(holdSlots, wickId)`** (numbers) and its save wrapper **`loopSlots(metaLoop, wickId)`**
+  beside `loopWickId`, `quietTerms(over, wickId)`, and **`goodBitesFor({kind, holdSlots, wickId})`** (`holdSlots` a number;
+  §3.1 of PLAN: "open water `wickSlots(holdSlots, wickId) × openPerSlot + openExtra + good`").
   `loopEvening` is **not** added (withdrawn with Long Night). `TEXT_LOOP.murk.firstChartBy = {tallow: 'Four slots in that
   hold. Fill them and come home.'}` beside `firstChart`.
 - §2.1's `computeStats` item (about lines 266–272) and CHOICE 31: `out.creelSize = loopSlots(meta.loop, r.character)` (the
@@ -534,9 +604,23 @@ pull than its bites.
   them and come home."
 - **R11** (Hold 6–8 overflow the phone's top-left row): Tallow reaches **6 cells at 1a's Hold 5**. D's phone screenshot of a
   Tallow trip at Hold 5 (6 cells, 358 px) must fit the row beside the right cluster; if it does not, the two-row wrap planned
-  for slice 2 comes into 1a. `shelfMax` stays 5 for every Wick (the same ladder).
+  for slice 2 comes into 1a. `shelfMax` stays 5 for every Wick (the same ladder). R11's "8 × 36 px" becomes "9 × 36 px
+  (Tallow's top)" for slice 2's two-row wrap (8 under §2.4's fallback).
+- **The good-bite dots** (PLAN §2.3, ui-hud-v3 item 4, line 661: `min(9, bitesLeft)`): in 1a Tallow's open water has at most 8
+  (Hold 5), so 1a is unchanged. From the slice that sells Hold 7, the cap becomes the largest `goodBitesFor` over the Wicks
+  (11, Tallow at Hold 8), so every bite still puts a dot out (SPEC §3.3), and the phone check of the float covers 11 dots.
+- **P5** (line 92): "Fill three slots" → "Fill the hold (three slots; four for Tallow)".
+- **T10** (line 124): holds for every Wick but Tallow; for Tallow `goodBites('open:mossmere') === 6` at hold 3 and 7 at
+  hold 4. The test reads the count through `goodBitesFor` with the run's Wick (or runs on the default Wick and adds the
+  Tallow pair).
+- **The scenario's main pass** (lines 778–790, `--wick=<id>`, run per Wick in the stager's step 4b): its hard-coded steps
+  fail for Tallow (the goal line `Next: Hold 4 · 30`, keep 3, the 4th press refused, `buy hold:4` then `holdSlots === 4`
+  and "4 empty cells", and T50's "1 of 3"). The main pass reads its counts from `loop.hold().slots` and its goal line from
+  `goalLine` (Tallow: keep 4, the 5th refused, `Next: Hold 5 · 30`, then `holdSlots === 4` and 5 empty cells, T50 at 1 of
+  4); or the stager skips the main pass for `--wick=tallow` and runs only lane D's Tallow step. The lead picks; the first is
+  the default.
 - The lanes. **A**: `data.js` (`LOOP.wicks`, `TEXT_LOOP.wicks`, `TEXT_LOOP.murk.firstChartBy`, the apply-block Ashwick buff,
-  `wickPoolWeights`, `loopSlots`, `goodBitesFor`'s Wick, `quietTerms`' Wick), `progression.js` (`measure` → `fish.first` and
+  `wickPoolWeights`, `wickSlots` and `loopSlots`, `goodBitesFor`'s Wick, `quietTerms`' Wick), `progression.js` (`measure` → `fish.first` and
   the ledger; `computeStats`' `creelSize`), `progression-loop.js` (`saleOf`, the comeback, `isFirstBite`, `favour` with the
   Wick, `hold`/`holdFull`/`bitesLeft` through `loopSlots`), `progression-af.js` (`onEscaped`'s marking), `validate-data`
   (each knob in its range; each line ≤ 8 words and ≤ 36 characters; `firstChartBy` keys are Wick ids), `clams.mjs` and
@@ -544,15 +628,16 @@ pull than its bites.
   Ashwick's comeback bite, ember pulse and the fallback; **nothing for Tallow**), audio (`coinBright`, the ember hiss);
   `survival.js` is **not** touched (withdrawn with Long Night). **C**: the tally's double tick and seal glyph, the five lines,
   the hold row and the Chart's cells from `loop.hold().slots`, `murkLineFor`'s Wick, the goal line's "Hold N" from
-  `loopSlots`. **D**: a per-Wick smoke step in the 1a scenario (each Wick's "seen" event appears: for Tallow, four cells on
+  `wickSlots` (the next step's). **D**: a per-Wick smoke step in the 1a scenario (each Wick's "seen" event appears: for Tallow, four cells on
   the Chart, Murk's "Four slots" line, and four fish home before "Hold's full."; the comeback and the linger never on the
   same cast; the trait line one line high on a phone; Tallow's 6 cells at Hold 5 on a phone). The flame flourishes
   (`actors.js`, `fishing-fx.js`) and Tallow's deck basket are owned by no 1a lane: they are polish.
 - Tests: **T1** (the hold: 3 slots on a fresh `meta.loop` for every Wick but Tallow, **4 for Tallow**; `computeStats().creelSize
   === loopSlots(meta.loop, wick)`; `holdSlots` is 3 for every Wick on a fresh save; a Mended Creel or an upgrade changes
-  nothing else); **T23/T24** (the shelf's prices and order are the same for Tallow; after `buy('hold')` Tallow has 5 slots and
-  its goal line reads "Hold 6" for the next step); **T36** (the scenario's "three fish → Home" is the default Wick's; D's
-  Tallow step brings four); **T53** (`character` is `'ashwick'` only on a comeback bite; null for every other Wick, and in
+  nothing else); **T23/T24** (the shelf's prices and order are the same for Tallow; after `buy('hold')`, the Hold 4 step,
+  `holdSlots === 4`, Tallow has 5 slots and its on-screen goal line reads "Next: Hold 6 · 120" for the Hold 5 step);
+  **T36** (the scenario's "three fish → Home" is the default Wick's; the `--wick=tallow` pass and D's Tallow step bring
+  four, above); **T53** (`character` is `'ashwick'` only on a comeback bite; null for every other Wick, and in
   the fallback); **T61** (the only stat is Stub's `lightRadius`; Taper's `castMax` and `hookWindow`, Tallow's moveSpeed and
   +2 Hold and Ashwick's built Holds are gone on a trip; `creelSize === loopSlots`; off the loop `computeStats` and
   `catchBuffHold` are unchanged); **T65/T67** (the chart beat with Tallow: four cells, the Tallow line, and the same on a
@@ -565,8 +650,9 @@ pull than its bites.
     the plain pool where it does not; for every Wick, every pool × tilt that passes `signTiltOk` has top share ≤ 0.8 with the
     Wick's weights;
   - Stub: `W` ×0.75 before the clamp, not on a legend cast; quiet water: no wait growth, −0.08 a bite to −1.2;
-  - Tallow: `loopSlots` is `holdSlots + 1` at every step (4 to 9) and `holdSlots` + 0 for the other four; open water's
-    `goodBitesFor` is `holdSlots + 3` for Tallow and `holdSlots + 1` for the others, a place's count the same for all five;
+  - Tallow: `wickSlots(holdSlots, 'tallow')` is `holdSlots + 1` at every step (4 to 9) and `holdSlots` + 0 for the other
+    four, and `loopSlots(meta.loop, w) === wickSlots(meta.loop.holdSlots, w)`; open water's `goodBitesFor` is `holdSlots + 3`
+    for Tallow and `holdSlots + 1` for the others (two more at the same step), a place's count the same for all five;
     the cast is refused at Tallow's count and not one before; the tally pays every fish in a 4-fish hold; a save with
     `holdSlots: 8` gives Tallow 9 and `migrateLoop` still clamps the stored count to 3–8; no "broad back" string in the DOM;
   - Ashwick: same `z`; spends a bite; once; a spook spends it; a cast at another water keeps it; `run:end` or a lake change
@@ -575,7 +661,10 @@ pull than its bites.
 - §7.1, the user's questions: add "Do the five passives (`WICKS.md`) feel right?" (the five questions of this file are
   answered: §1.2).
 
-**QUEUE.md** (the lead's): job 7's note already records the answers; job 8 (the balancing) runs §3 with Tallow the carrier.
+**QUEUE.md** (the lead's): job 7's note (on the main branch since 8c12f89, not on this branch) records the answers, but its
+list of passives still reads "Tallow: Long Night, an early night of bigger fish". It becomes "Tallow: Broad Back, one more
+slot at every step and two more good bites at open water (Long Night kept in `WICKS.md` §6.4)". Job 8 (the balancing) runs
+§3 with Tallow the carrier, and measures this rule's whole game (only its 1a figures are measured).
 
 ## 6. The judging
 
@@ -588,9 +677,9 @@ broken, works in 1a, one short line. The table is the first ruling's; revision 2
 | firsts: new kinds bite more, new seals sell higher | the Wick (PLAYSTYLES, FANTASY) | 4 | 4 | 5 | 4 | 5 | 5 | 4 | **31** | **the Wick** |
 | the rarity mix (and giants) | Taper (PLAYSTYLES, FANTASY), Stub (ECONOMY) | 5 | 4 | 5 (Taper) | 4 | 4 | 4 | 5 | **31** | **Taper** |
 | the bite wait | Stub (PLAYSTYLES, FANTASY), Taper (ECONOMY) | 4 | 4 | 5 (Stub) | 5 | 4 | 5 | 5 | **32** | **Stub** |
-| early dark and bigger night fish | Ashwick (PLAYSTYLES, ECONOMY), Tallow (FANTASY) | 5 | 4 | 4 | 5 | 5 | 5 | 5 | **33** | **Tallow** |
+| early dark and bigger night fish | Ashwick (PLAYSTYLES, ECONOMY), Tallow (FANTASY) | 5 | 4 | 4 | 5 | 5 | 5 | 5 | **33** | **Tallow** (revision 3: kept in §6.4) |
 | the fish that got away comes back | Tallow (PLAYSTYLES), Ashwick (FANTASY), the Wick (ECONOMY) | 5 | 5 | 5 (Ashwick) | 4 | 4 | 5 | 5 | **33** | **Ashwick** |
-| +1 slot and +1 good bite | Tallow (ECONOMY) | 4 | 3 | 4 | 4 | 2 | 5 | 5 | 27 | not used |
+| +1 slot and +1 good bite | Tallow (ECONOMY) | 4 | 3 | 4 | 4 | 2 | 5 | 5 | 27 | not used (revision 3: Tallow) |
 
 **Revision 2.** The review found that three of the five were not felt or not unique as written. The Wick keeps only its
 sale (its novelty half copied the pull and did nothing on evening 1) and gains personal bests, which are built. Taper's
@@ -616,7 +705,7 @@ leaves Tallow and is kept whole in §6.4. Scored again:
 
 | revision 3 passive | words | fun | fit | sim | rules | 1a | line | total |
 |---|---|---|---|---|---|---|---|---|
-| Tallow: Broad Back (+1 slot at every step, +1 good bite at open water) | 5 (the user asked for it) | 4 | 5 | 4 | 4 (the per-trip marks read per slot) | 5 | 5 | 32 |
+| Tallow: Broad Back (+1 slot at every step; at open water, its slot's good bite plus one more) | 5 (the user asked for it) | 4 | 5 | 4 | 4 (the per-trip marks read per slot) | 5 | 5 | 32 |
 
 The other four are unchanged (31, 33, 31, 34).
 
@@ -632,8 +721,8 @@ The other four are unchanged (31, 33, 31, 34).
   "Burned Once, Burns Back" and "It went out once. It came back angry" describe the comeback almost word for word.
 - **Tallow: the carrier (revision 3).** Revisions 1 and 2 gave Tallow the night ("Slow to light. Slower to go out" read as a
   short day and a long night) and kept the hauler as "the alternative if the user wants a carrier". The user wants one. It
-  is the lead's own example, ECONOMY's version (+1 slot, +1 good bite) is well measured *(scratch sim, est.)*, ECONOMY
-  offered it for Tallow, and Tallow is the thick, sturdy candle, the Stout Candle: the one built to carry. Its quirk now reads
+  is the lead's own example, ECONOMY's version (+1 slot, +1 good bite) is measured in the 1a kit *(scratch sim, est.)*, where
+  it is exactly this rule (its whole-game figures add +1 at every place too, §2.4), ECONOMY offered it for Tallow, and Tallow is the thick, sturdy candle, the Stout Candle: the one built to carry. Its quirk now reads
   as the hauler's evening: the last to turn for home. ECONOMY's fallback (the slot comes with the first Hold step) is not
   needed: the user's yes is to a Wick "who starts with more hold". FANTASY's other hauler (two Smalls or Keepers to a slot)
   gained too little a minute and stays out.
@@ -673,15 +762,20 @@ The other four are unchanged (31, 33, 31, 34).
   4. The Wick fades in 1a after the first hour (6 kinds only) and is strongest on each new water later.
   5. Ashwick's comeback appears in about 3 first trips in 4 on T0 (est.), near the "seen" floor; fewer as tackle improves.
   6. (revision 3) Tallow's bigger trips fail §4.9's clams-a-trip marks by design (ECONOMY's run: 1 h 284 against 100–240, 5 h
-     911 against 300–900, *est.*), and its late trips at 9 slots reached 6.0 min, the ceiling. **For the lead:** confirm
-     that Tallow's per-trip marks are read per slot and that its trip length is held to ≤ 6 min (check 1). If 9 slots break
-     the 6-minute ceiling, the knob is `good` 1 → 2 (the last slots fill on fresh water, without quiet water's longer waits),
-     then the visit home's share of `LOOP.time`; the slot stays.
+     911 against 300–900, *est.*; both for the every-water version, §2.4). In that run the longest trip at the pacing marks,
+     the visit home included, was 6.0 min, which the prototype itself marked a fail (not under SPEC §4.2's "under 6
+     minutes"); the late trip at Hold 8 (9 slots) was 4.9 min, and the slot alone gave 5.8 min. **For the lead:** confirm
+     that Tallow's per-trip marks are read per slot and that its trip length is held to ≤ 6 min (check 1). If Tallow's trips
+     pass 6 minutes, the fix is §2.4's fallback (Tallow's hold stops at 8 slots: its ladder ends at the Ferry Hamper), then
+     the visit home's share of `LOOP.time`. `good` is not the trip-length knob: the record has more good bites giving
+     longer trips (5.8 → 6.0 min), not shorter. The starting slot stays.
   7. Retiring the built `castMax` +4 m changes Taper's v3-era feel on a trip only; v3 keeps it.
   8. (revision 3) Tallow's 6 cells at 1a's Hold 5 may overflow the phone's hold row (PLAN R11); D's screenshot decides
      whether slice 2's two-row wrap comes into 1a.
   9. (revision 3) Tallow's late-era gain a minute rests on its good bite (SPEC §4.2: a slot past 4 adds little a minute);
-     check 2 fails it under +5% at any era, and `good` 1 → 2 is the knob.
+     places' counts do not grow for it (only ECONOMY's every-water version, which this rule is not, was run late). Check 2
+     fails it under +5% at any era; the knob is `good` 1 → 2, then the +1 at every place (check 9). If risk 6's fallback is
+     in force, the late eras are re-run with it.
 
 ### 6.4 The alternatives, kept for later
 
@@ -832,3 +926,24 @@ slots at the start, one more at every Hold step, +1 good bite at open water; Lon
 | R3-8 | Long Night kept whole | §6.4 | its rule, sim row, targets, checks, guards, pointers and test, as revision 2 wrote them |
 | R3-9 | the judging | §6, §6.1, §6.3 | the hauler rescored (32) and given to Tallow; three new open risks (the per-trip marks and the 6-minute ceiling, the phone row, the late eras) |
 
+### 7.3 The critic's review of revision 3 (15 November 2026)
+
+Twelve findings: one must, seven shoulds, four coulds. The must was settled from the run's record: ECONOMY's scratch
+prototype of `clams.mjs` (its `trip()` and `freshOf`) and its report files. **Accepted:** all twelve.
+
+| # | sev | finding | verdict | what changed |
+|---|---|---|---|---|
+| 1 | must | the good-bite count may not be what ECONOMY measured; "+1" reads as +1 against other Wicks | accepted | the record shows ECONOMY counted open water on Tallow's slots and added `goodPlus` at every water: open water `holdSlots + 3` is ECONOMY's, so the rule stands; "a slot without a good bite" is replaced (the slot alone already had its open-water bite); the 1a figures are this rule's exactly, the whole-game ones (47.2 h, 284, 911, 6.0 min) are the every-water version and this rule's whole game is unmeasured (§2.4, §3.4, §6.1); "two more than another Wick at the same step" in §1.1, §1.2, §2.4, guard 9, the dots, §3.1 and the SPEC, OPENING and QUEUE pointers |
+| 2 | should | the 43.7 h inference mixes price scales | accepted | dropped: the record has no no-passive run at ×1.08 (the 47.6 h with no passive is the built ×1.0 run and only equals the ×1.08 mean); the late eras are unmeasured for this rule (§3.4, risk 9) |
+| 3 | should | `loopSlots(kit, …)` would return NaN | accepted | one numeric `wickSlots(holdSlots, wickId)`; `loopSlots` wraps it; `goodBitesFor`, the goal line and the sim call `wickSlots` (§2.4, §3.1, §3.3, §5) |
+| 4 | should | the 8-slot cap's 6-minute reason; the other reading of "capped as the ladder caps"; the knobs conflict | accepted | 9 stays the default; the fallback (Tallow's hold stops at 8: its ladder ends at the Ferry Hamper) is named in §2.4 and used if its trips pass 6 min; `good` is a clams-a-minute knob only (the record: more good bites, longer trips); the 6.0 min corrected (the longest trip at the pacing marks, a fail in the prototype; the 9-slot late trip was 4.9 min); the SPEC §4.2 sentence and §15's hold row added to §5 (the critic's "§16 table" is §15, line 1274) |
+| 5 | should | the access-job claim about the pull is backwards | accepted | counting good bites gives Tallow about 1.5× the pull per open-water evening; three choices for the access job (§3.3, §5) |
+| 6 | should | the scenario's `--wick` pass, T10 and P5 not covered | accepted | §5 PLAN pointers for P5, T10 (Tallow 6 and 7) and the main pass (counts from `loop.hold().slots`, or skip it for Tallow) |
+| 7 | should | the dots cap of 9 | accepted | §5: the cap becomes 11 from the slice that sells Hold 7 (1a's top is 8, unchanged); R11's 8 × 36 px becomes 9 |
+| 8 | should | SPEC lines missing | accepted | §8.3's Jetty row, §13's player row and tests (lines 1055, 1060), §2's line 156 (kept as the default Wick's), §0 row 4 and §4.9's first-trip figures (marked the no-passive player's; Tallow's about 99%, 41%, 94%, *est.*) |
+| 9 | could | "Hold N" means two things | accepted | §2.4 states it once: the bought step everywhere but the on-screen goal line |
+| 10 | could | the QUEUE pointer is stale | accepted | job 7's list of passives gets Tallow's Broad Back |
+| 11 | could | question 4 quoted as if verbatim | accepted | §1 and §1.2 cite the run's wording without quotation marks; the user's answer stays verbatim |
+| 12 | could | the first ruling's table has no revision-3 marker | accepted | "(revision 3: kept in §6.4)" and "(revision 3: Tallow)" |
+
+`loopSlots` is kept as the save wrapper, since the hold row, `holdFull` and `computeStats` read a save.
