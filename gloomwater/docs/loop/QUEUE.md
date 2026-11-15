@@ -4,7 +4,7 @@ The user asked on 14 November 2026: "Let's pause and focus on one task at a time
 
 ## The order (the lead's choice: each job unblocks the next)
 
-1. The catch show: finish, merge, update the preview. *(running)*
+1. The catch show: finish, merge, update the preview. *(built and passed on `gw-show` 6c26e12; merging)*
 2. The world map and the story (resume `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map; publish the map; answer the user's questions.
 3. The cut scene's line 3, rewritten from the story; re-timed, re-checked, a new video with sound.
 4. The Chart-integration plan: the world map as the in-game Chart (SPEC §5.4, §13, PLAN's Chart lane).
@@ -16,7 +16,7 @@ The user asked on 14 November 2026: "Let's pause and focus on one task at a time
 
 ## Running
 
-- **The catch show** (workflow run `wf_8cfae246-907`, branch `gw-show`): reviews, then the fix stage; then merge into the game, regress, update the preview, send the sheet and video.
+- **The catch show** (built by run `wf_8cfae246-907` on `gw-show`, head 6c26e12: both reviews' musts and shoulds fixed, every check green). Now merging onto the dev line with the cut scene (run `wf_503a8381-99b`, branch `gw-show-merge`): the merge and full regression, an independent review of the cut scene and the show together, the show's film with its sound. Then the dev branch moves to the merge, the preview is updated, and job 2 starts.
 
 ## Paused (work saved on their branches; each resumes from its workflow run)
 
