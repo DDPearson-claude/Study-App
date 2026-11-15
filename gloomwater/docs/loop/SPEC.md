@@ -1,10 +1,10 @@
-# The Full Hold: catch, keep, sell, upgrade (binding spec, v7.1)
+# The Full Hold: catch, keep, sell, upgrade (binding spec, v7.2)
 
-*Gloomwater's game loop after the user's redirect of 2026-11-13, rebuilt on the roster (`docs/loop/ROSTER.md`), revised after two critics (§0.1), and re-ordered into a greening ramp with rivers after the user's words of 14 November 2026 (§0.2; the waters' looks are `docs/loop/WATERS.md`), and revised after three critics of v7 (§0.3; `WATERS.md` §10 logs every finding). This file is binding. Where it conflicts with DESIGN §1–§25 or CONTRACT §13 it wins (§12 lists what it replaces). Its numbers are proven by `tools/sim/clams.mjs` (140 checks); when the numbers here and the sim disagree, re-run the sim and fix this file. Design only: no `src/` file changed with this document.*
+*Gloomwater's game loop after the user's redirect of 2026-11-13, rebuilt on the roster (`docs/loop/ROSTER.md`), revised after two critics (§0.1), and re-ordered into a greening ramp with rivers after the user's words of 14 November 2026 (§0.2; the waters' looks are `docs/loop/WATERS.md`), revised after three critics of v7 (§0.3; `WATERS.md` §10 logs every finding), and re-cut to the milestone M1 with the world map as the in-game Chart and the five Wicks' passives after the user's words of 14 and 15 November 2026 (v7.2, §0.5; `docs/loop/M1.md`, `docs/loop/WICKS.md`). This file is binding. Where it conflicts with DESIGN §1–§25 or CONTRACT §13 it wins (§12 lists what it replaces). Its numbers are proven by `tools/sim/clams.mjs` (140 checks); when the numbers here and the sim disagree, re-run the sim and fix this file. Design only: no `src/` file changed with this document.*
 
-**How to read it.** §0.3 says what v7.1 changed, §0.2 what v7 changed and why (§0.1 what v6 changed). §1–§3 are the game and its rules (§3.5 is the rare giants). §4 is every number. §5–§7 are maps, home and raft. §8 is every word on screen. §9–§12 say what happens to what exists. §13 is the build plan. §16 lists the questions only the user can answer. Appendix A lists every fish with its price.
+**How to read it.** §0.5 says what v7.2 changed (M1, the Chart, the five passives; §0.4 is kept for the three keys, v8, on `gw-loop-access`), §0.3 what v7.1 changed, §0.2 what v7 changed and why (§0.1 what v6 changed). §1–§3 are the game and its rules (§3.5 is the rare giants). §4 is every number. §5–§7 are maps, home and raft. §8 is every word on screen. §9–§12 say what happens to what exists. §13 is the build plan. §16 lists the questions only the user can answer. Appendix A lists every fish with its price.
 
-**Vocabulary (always these words).** **clams** (the currency; "Shells" is retired) · **the hold** · **slot** · **Keep / Let go** · **good bites** and **quiet water** · **an evening** (one trip) · **Home** · **the tally** (Murk buying the hold) · **the Chart** (the Map Table's screen) · **map** (the one word on screen for a lake map and a place map; a lake map opens a water's open water, its day water and its old water; a place map opens one more place) · **a water** (one of the 16 lakes, rivers and seas) · **a river** (a water built on the river layout: banks, bends and a current; §5.3) · **lushness step** (0 to 15: how green and lush a water is; one step per water, §5.2) · **day water, old water, night water, crown** (the kinds of place; on screen four glyphs, never words) · **a rare giant** (★: the descendant of an episode's main fish; *epic*, or *legendary* for a water's crown) · **a legend** (a legendary giant) · **value tier** (a water's price level, hidden) · **a reach** (four waters in a row: I the old kingdom, II the cold rim, III the falls and the gate, IV the green heart) · **Murk's orders** · **ink print** · **the Jetty** (the first, small home).
+**Vocabulary (always these words).** **clams** (the currency; "Shells" is retired) · **the hold** · **slot** · **Keep / Let go** · **good bites** and **quiet water** · **an evening** (one trip) · **Home** · **the tally** (Murk buying the hold) · **the Chart** (the Map Table's screen) · **map** (the one word on screen for a lake map and a place map; a lake map opens a water's open water, its day water and its old water; a place map opens one more place) · **a water** (one of the 16 lakes, rivers and seas) · **a river** (a water built on the river layout: banks, bends and a current; §5.3) · **lushness step** (0 to 15: how green and lush a water is; one step per water, §5.2) · **day water, old water, night water, crown** (the kinds of place; on screen four glyphs, never words) · **a rare giant** (★: the descendant of an episode's main fish; *epic*, or *legendary* for a water's crown) · **a legend** (a legendary giant) · **value tier** (a water's price level, hidden) · **a reach** (four waters in a row: I the old kingdom, II the cold rim, III the falls and the gate, IV the green heart) · **Murk's orders** · **ink print** · **the Jetty** (the first, small home) · **M1** (the milestone: the Mossmere and the Landing, complete; §13, `docs/loop/M1.md`) · **a passive** (a Wick's one always-on fishing power; §10.1) · **Coming soon** (the sealed sheet of a water past the last shipped one; §5.4).
 
 ---
 
@@ -14,15 +14,23 @@
 |---|---|---|
 | 1 | "Who are we and what is the gameplay loop? I basically want to try and catch big and rare fish, the fish we keep i want to sell for clams and we use the clams to upgrade our gear, raft, homebase, bait, lures, buy maps of new locations to fish, which is the only way of discovering a new place is to buy the map." | §1–§2 the loop. Big and rare fish are worth far more than small ones, and the rare giants most of all (§4.1). Clams buy six things: gear, raft, home, bait, lures, maps (§4). Nothing is found by exploring: a map is the only way a water or a place becomes known and reachable (§5). |
 | 2 | "for now park the creature attacks." | The swarm and everything that only serves it or makes failure possible is switched off behind one table of flags and kept in the code (§9). |
-| 3 | "I just want to catch fish so we're limited buy storage for caught fish in our boat starting at 3 catch slots." | The hold: 3 slots at the start, 8 at the most (§3.1, §4.2). No food, no oil to manage. |
-| 4 | "there's no way to fail, but once your boat is full you can't catch anymore fish and you might not catch a big one at all as its chance" | No fail state anywhere (§3.6). A full hold refuses the cast (§3.1). A big fish is a chance each evening, never a promise: 52% of first trips bring home no Prize or bigger, and a giant comes home on 4–11% of trips at its place on arrival tackle (§4.9, §3.5). |
+| 3 | "I just want to catch fish so we're limited buy storage for caught fish in our boat starting at 3 catch slots." | The hold: 3 slots at the start, 8 at the most (§3.1, §4.2) (Tallow: 4 and 9, the user's own exception of 15 November 2026, row 12; `WICKS.md` §2.4). No food, no oil to manage. |
+| 4 | "there's no way to fail, but once your boat is full you can't catch anymore fish and you might not catch a big one at all as its chance" | No fail state anywhere (§3.6). A full hold refuses the cast (§3.1). A big fish is a chance each evening, never a promise: 52% of first trips bring home no Prize or bigger (the no-passive player's figure; each Wick's is printed by `WICKS.md` check 4, Tallow's about 41%, *est.*), and a giant comes home on 4–11% of trips at its place on arrival tackle (§4.9, §3.5). |
 | 5 | "Use all of these fish as inspiration for our game's fish" (on the researched list of every fish landed on a television fishing series; `docs/loop/research/`) | Every fish on the list is the ancestor of one original fish of ours (`docs/loop/ROSTER.md`, `roster.json`, checked by `tools/sim/roster-check.mjs`). **All 164 live on at least one map** (§5.2; the sim checks it). The series and its presenter are never named in the game, and the roster's design notes never ship (§13, slice 1b). |
 | 6 | "The main episode based fish he catches should be the rare giants" | The 49 rare giants (33 epic, 16 legendary) are the scarcest, largest, dearest and hardest fish of their waters. **49 of the 55 maps promise a giant**, and every map but the first names a fish you cannot meet elsewhere (§3.5, §5.1 rule 9). |
 | 7 | "Yes to all five loop rules" (13 November 2026, answering v4's five questions) | Decisions now: a kept fish is final; the water goes quiet; every trip is an evening; a map's card names one fish; raft only for now. |
 | 8 | "Yes to all four defaults and the let-go rule." (14 November 2026, answering §16) | Decisions now: the twelve new waters are full 3D waters; about 48 hours to buy everything (the pacing run: 48.9 h); late prices run into the hundreds of thousands, shown as "196k" (a Trophy giant of the Inkwood sells for about 196,000 on average and 218,000 at most, an Elder Emberbelly about 548,000; the last lake map is 984k); a lake map opens two places at once (its day and old water); a fish let go returns its good bite and adds +0.2 favour there, to +0.4. |
-| 9 | "I want the lakes to get progressively more and more lush and green. I also want some of the levels to be rivers similar to the rivers fishes in the river monsters series. As we unlock new lakes and rivers we need to slowly but progressively start getting more and more green and lush." (14 November 2026) | **A ramp, not a switch** (§5.2, `WATERS.md`). The Mossmere keeps today's look exactly: lavender night, green only as a trace. From water 2 on, each water you unlock is one visible lushness step greener than the one before (0 to 15, one per water), slowly and steadily, until the last waters are deep green rainforest. Green lives on things (moss, fern, reed, leaf, vine, root, weed), never in the air, the light or the grade; the violet-dusk sky, the lavender moon, the clear air and the candle's one warm light never change; each water has a day, dusk and night look, and the green reads in all three. **Six of the twelve new waters are rivers** (slots 6, 8, 10, 12, 14, 16), modelled by type and feel on the kinds of river the series fished: a wide braided sand river, a snowmelt gorge, cataracts, a tidal mouth, a great brown lowland river and a blackwater river through flooded forest. They alternate with six stills, and the lushest come last. A river is a full 3D water: banks, bends, a current you can see, the raft on moving water (§5.3). The series, its presenter, its episodes and every real river or country stay in `docs/` only. |
+| 9 | "I want the lakes to get progressively more and more lush and green. I also want some of the levels to be rivers similar to the rivers fishes in the river monsters series. As we unlock new lakes and rivers we need to slowly but progressively start getting more and more green and lush." (14 November 2026) | **A ramp, not a switch** (§5.2, `WATERS.md`). The Mossmere keeps today's look exactly: lavender night, green only as a trace. From water 2 on, each water you unlock is one visible lushness step greener than the one before (0 to 15, one per water), slowly and steadily, until the last waters are deep green rainforest. Green lives on things (moss, fern, reed, leaf, vine, root, weed), never in the air, the light or the grade; the violet-dusk sky, the lavender moon, the clear air and the candle's one warm light never change; each water has a day, dusk and night look, and the green reads in all three. **Six of the twelve new waters are rivers** (slots 6, 8, 10, 12, 14, 16), modelled by type and feel on the kinds of river the series fished: a wide braided sand river, a snowmelt gorge, cataracts, a tidal mouth, a great brown lowland river and a blackwater river through flooded forest. They alternate with six stills, and the lushest come last. A river is a full 3D water: banks, bends, a current you can see, the raft on moving water (§5.3). The series, its presenter and its episodes stay in `docs/` only (v7.2, row 17: real river and lake names may ship). |
+| 10 | "To access a new area we should need a few pre requisite really. We need the map, the appropriate rod or gear and have caught one of each fish species in the current area." (recorded as 14 November 2026 on `gw-loop-access`; in the lead's list of the user's decisions of 15 November 2026) | **The three keys** (the map, the gear, one of each fish of the water before). Their rule and every number are v8 §5.5's, the three-keys job's (QUEUE job 6, branch `gw-loop-access`); this revision decides none of them and leaves §0.4, decisions 32–37, §5.5 and §8.7 to it. On the Chart they are **three small seals per sheet** (§5.4). In M1 they show on Sporewood's sealed sheet and fill as they are earned; its map seal stays hollow ("Coming soon") until Sporewood ships (decision 39). |
+| 11 | "You can choose any of the 5 wicks but each one has a powerful unique passive ability to help them catch fish or boost something else" (14 November 2026) | **Five passives**, one a Wick, each powerful in its own domain and balanced over the whole game within ±10% (`WICKS.md`, §10.1): the Wick, Curious (firsts sell higher); Taper, Long Reach (first bites are never common; giants ×1.3, under 12%); Stub, Moth-Bright (quick bites, lively quiet water); Tallow, Broad Back (row 12); Ashwick, Burns Back (a lost fish comes back once). The built small traits are retired on a trip. |
+| 12 | "Default for all except 4 which i want yes" (15 November 2026, answering `WICKS.md`'s five questions) | The four defaults stand (no giant comes back for Ashwick; the Wick is paid for firsts; Stub is the stayer; the five lines as written), and **the carrier is Tallow**: 4 slots at the start, one more at every Hold step (4 to 9), and at open water two more good bites than another Wick at the same step (its slot's and one of its own). Long Night is kept whole in `WICKS.md` §6.4. |
+| 13 | "Yes make the map our in-game Chart" (14 November 2026) | **The world map is the Chart** (§5.4, decision 40, `docs/loop/M1.md` §3): the generator's bake reused as per-sheet crops in the HTML, its live layer drawn by one module shared with the published page, each water's sheet drawn by the game from its arena; a list in slice 1a, the drawn Chart from M1 step 3. |
+| 14 | Asked "What do we need to do to get map 1 and the home base fully 100% finished and playable": "Yes" to the lead's re-cut (15 November 2026) | **M1 first** (§13, decision 41, `docs/loop/M1.md`): slice 1a, the Mossmere halves of slices 1b and 2, slice 3 without Sporewood's fish, the cove (FE-W1) and slice 4, then a polish pass (QUEUE jobs 9–14). Everything for Sporewood and the later waters waits; Sporewood's sheet shows sealed, "Coming soon", until then. |
+| 15 | "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please" (15 November 2026) | **Pounds**: every size on screen is a weight in pounds and ounces (`docs/v3/pounds/SPEC.md`, branch `gw-pounds`; §8). Length stays the hidden truth behind value. |
+| 16 | "Yes, rewrite line 3 once the story's done" (14 November 2026); the new line put in during slice 1a (15 November 2026) | **The film's line 3** under the loop is `LORE.md` §12's: "Its last candles fish from lamp to lamp." (§11; slice 1a's lane B; the new video in M1 step 6). |
+| 17 | "I dont care if they're named after real rivers or lakes" (15 November 2026) | **Real river and lake names may ship**, in the world and on the map. The TV series and its presenter are never named in anything that ships; episode titles and the roster's research fields stay in `docs/` (slice 1b's allow-list). |
 
-**Decided by the lead (and why).** Rows 1–5 stand from v4 and the user confirmed them; rows 6–14 came with v5; v6 revised 2, 6, 10, 11, 12 and 14 and added 15–21 (§0.1); v7 revised 10, 11 and 14 and added 22–27 (§0.2); v7.1 revised 2, 10, 15, 23, 25 and 26 and added 28–31 (§0.3).
+**Decided by the lead (and why).** Rows 1–5 stand from v4 and the user confirmed them; rows 6–14 came with v5; v6 revised 2, 6, 10, 11, 12 and 14 and added 15–21 (§0.1); v7 revised 10, 11 and 14 and added 22–27 (§0.2); v7.1 revised 2, 10, 15, 23, 25 and 26 and added 28–31 (§0.3); v7.2 added 38–42 (§0.5). Numbers 32–37 are kept for the three keys (v8, `gw-loop-access`).
 
 | # | decision | why |
 |---|---|---|
@@ -57,8 +65,33 @@
 | 29 | **Three fish bite where their water needs them** (v7.1): the Lampspot Snakehead in Pyrefall Gorge's open water (its roster kind), drawn ×2.5 at the Coin Run and the Boulder Garden; the Reedwalker Catfish in Rushlight Fen's open water, drawn ×2.5 at the Night Lanes. No fish changes water. | The Gorge's open water had two commons, so let-go play earned 81%; the Fen's thin pool forced a tier the Salt Gate after it halved (−51% for its giants). Now 87% and +7%. |
 | 30 | **The plain bait and the giants' lures earn their place** (v7.1): the Last Light's and Lanternroot Lagoon's plain bait is Shimmerfly, the Inkwood's Mire Worms; a new giants' lure names its giants and its two biggest rare or uncommon fish, and the Lighthouse Feather is also a predator's lure; the player fits whichever lure pays best. | A tin beat the Last Light's plain bait by 4.1 points and the Inkwood's by 3.9; the Thunder Plug cost the pacing player 18% a trip. Now no other tin is more than 1.8 points better anywhere, and every giants' lure earns 2–29% more than the best family lure. |
 | 31 | **A new water's giant lands a Prize 39–50% of the time on the tackle it is bought with** (v7.1: the Rime Sound's, the Thin Water's and the Thunder Stair's Fight terms raised). | The Icedoor Flounder landed 57%, above the legends' coin flip. The built lakes' giants land 27–34%; new tackle is a small reward, never a sure thing. |
+| 38 | **The shelf grows with the road.** Every shelf item has an "on the shelf with" map (§4.2, §4.7): Hold 4–6, tackle T1–T2, the raft's and the home's first two levels, the Long Wall's first wing and the first three looks are on the shelf from the start; Hold 7, Order Board III, Landing lights II and the Painted Prow come with the Glasswater map; Hold 8, Keel III, Bait Bed III, Landing lights III and the Bell Buoy with the Pallid Deep map; the other four looks with waters 5, 7, 11 and 15; tackle and lures as §4.3–§4.4. | Each gate is the era in which the pacing run buys the item (§4.9), so the full game's pacing does not move (a sim check keeps it so). On the Mossmere alone (M1) the late items would be hours of grinding on the cheapest water for things meant for later waters. |
+| 39 | **`LOOP.shipped`: the last shipped water.** No lake map past it is offered; the next water's sheet is sealed "Coming soon" (no price, its map seal hollow, §5.4); the sim's `--shipped` runs on it. M1: the Mossmere. | One switch for "what is built", generalising slice 6's `LOOP.chainSkip`; the player sees where the road goes next and never meets a dead button. |
+| 40 | **The world map is the Chart** (§5.4): the generator's bake as per-sheet crops (≤ 150 KB a sheet in reach I; ≤ 300 KB for M1's Chart in all), its live layer in one shared module (`src/chart-draw.js`, which the generator's page also inlines), each water's sheet drawn by the game from its arena. | The user's words (row 13). Embedding the published page would double the game and draw unowned waters; redrawing the continent at runtime would be slow on phones and drift from the published map. |
+| 41 | **M1 first** (§13): the six steps of QUEUE jobs 9–14, then the rest, in QUEUE's order. | The user's words (row 14). |
+| 42 | **The giants' page shows the giants of the waters you own** (in M1 the Mossmere's three), each a dark outline until landed; a water's giants join it with its lake map, all 49 by the end. | `WORLD.md` §10: nothing unowned is drawn. 46 outlines of fish you cannot yet meet would read as a list of locks. |
 
 **Sources.** v4 (commit 1aa478c) reconciled three proposals: economy, maps, and trip-and-home (§15). v5 (commit 3fc4a12) rebuilt the fish values, the catalogue and the build plan around the roster (commit d20aa74). v6 is v5 revised after the player's-advocate and builder critics (§0.1).
+
+### 0.5 What v7.2 changed (M1, the Chart, the five passives; 15 November 2026)
+
+The M1 plan (QUEUE job 5; `docs/loop/M1.md` is the milestone's done-list, build order, Chart plan and pacing). §0.4, decisions 32–37, §5.5 and §8.7 are kept for the three keys (v8, `gw-loop-access`), which lands after this revision; this one leaves clear hooks for it and decides none of its numbers.
+
+| change | where | why |
+|---|---|---|
+| **The user's words of 14 and 15 November 2026**, verbatim, with their rulings | §0 rows 10–17 | they bind M1 |
+| **M1 first**: §13 re-cut into M1's six steps (QUEUE jobs 9–14), each slice's post-M1 part after them, marked "after M1" | §13, decision 41, `M1.md` §4 | the user's "Yes" (row 14) |
+| **The world map is the Chart**: the bake as per-sheet crops, the live layer one shared module (`src/chart-draw.js`), each water's sheet the game's own; a list in slice 1a, drawn from M1 step 3; the tutorial's chart beat on it; the Map Table's top in the Landing | §5.4, §6.1, §6.2, §11, decision 40, `M1.md` §3 | "Yes make the map our in-game Chart" (row 13) |
+| **Sealed until shipped**: `LOOP.shipped`; Sporewood's sheet "Coming soon" with its three seals until M1 is done | §5.4, §8.3, §8.6, §13, decision 39 | the re-cut; a road the player can see, and no dead button |
+| **The shelf grows with the road**: an "on the shelf with" map for every hold step, raft part, home upgrade and look, set from the pacing run's eras | §4.2, §4.7, decision 38 | M1's arc ends at about 2.5–3 h (*est.*, `M1.md` §6) without grinding the cheapest water for later items; the full game's pacing does not move |
+| **The five passives** (`WICKS.md` revision 3, its §5's pointers): Tallow the carrier (4 slots at the start, 4 to 9; at open water two more good bites than another Wick at the same step); the Wick's firsts; Taper's first bites and giants; Stub's waits and quiet water; Ashwick's comeback; their five lines | §0 rows 3, 4, 11, 12; §2; §3.1–§3.5; §4.1; §4.2; §4.9; §7; §8.1; §8.3; §8.5; §8.6; §9; §10; §10.1; §11; §13; §14; §15 | rows 11–12 |
+| **The opening's pointers** (PLAN §7.2: "the Chart-integration docs commit"): §2.1's first rows; §8.1, §8.3 and §8.6 point to §8.5's opening table; §10's film row | §2.1, §8, §10 | `OPENING.md` |
+| **The film's line 3** under the loop: "Its last candles fish from lamp to lamp." | §8.5, §10, §11, §13 step 1 | row 16 |
+| **Pounds** in §8's number rule (the rest of pounds is `gw-pounds`'s; its §5.4 and §6.4 wording is carried here verbatim) | §5.4, §6.4, §8 | row 15 |
+| **Names**: real river and lake names may ship | §0 row 9, §11, §14 risk 16 | row 17 |
+| **The giants' page** shows the giants of the waters you own | §6.2, §6.4, decision 42 | nothing unowned is drawn |
+| F16's "(built)" struck from §3.2 | §3.2 | PLAN §7.2, the lead's ruling 1 |
+| **Two new questions** for the user | §16 questions 13–14, `M1.md` §8 | — |
 
 ### 0.3 What v7.1 changed (three critics of v7)
 
@@ -149,11 +182,12 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 | **an era** (one water) | 2–5 h | the lake map (its open, day and old water) → its giants' lure → the crown of the water before → its night water and fifth place → the next lake map. |
 | **the long game** | ≈ 48 h to buy everything | 16 waters, 55 maps, tackle T6, hold 8, the raft and the home built up, 16 legends, about 68 giants and 66 Elders landed on the way. After that: the Journal's seals, the 49 giants' prints, records, legend rematches, the later sheets (§5.2). |
 
-### 2.1 The first ten minutes (a fresh save, the game after slice 2)
+### 2.1 The first ten minutes (a fresh save, the game after M1 step 3; the default Wick)
 
 | clock | where | beat |
 |---|---|---|
-| 0:00 | home | Murk: "Three slots in that hold. Fill them and come home." The Chart shows one sheet: the Mossmere. **Sail.** |
+| before 0:00 | the title | **New Descent** → the five Wicks, the lit one's line → **Start** → the film "One Warm Light" (18 s; line 3 "Its last candles fish from lamp to lamp.") → the 3 s glide home → Murk's wake line → the Chart (about 17.5 s at home untouched, about 5 s tapping through; `OPENING.md` §1) |
+| 0:00 | home | Murk: "Three slots in that hold. Fill them and come home." The Chart shows one sheet: the Mossmere (its first sheet inks in, the hold's empty slots ink in under it). **Sail.** (Tallow: "Four slots in that hold. Fill them and come home." and four slots; `WICKS.md` §2.4. The rest of this table is the default Wick's, the Wick's firsts aside.) |
 | 0:15 | the Mossmere, late day | First cast. A double pop: a Small. The player strikes anyway. A Dusk Minnow. The Wick holds it up. Card: **Keep · 2** / **Let go**. Let go: the bite comes back, and the next fish here will run a little bigger. |
 | 0:40 | | A plunge: a Keeper. A Weeping Carp: **Keep · 26**. One slot full. |
 | 1:00 | dusk | The light turns. A Keeper Rustfin Sucker: **Keep · 9**. Two slots full. The float shows one good bite left. |
@@ -162,7 +196,7 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 | 2:30 | | Trip 2 with four slots and a new place: the mist lifts off the Lily Maze. |
 | 10:00 | | After 3–4 trips: hold 4, Line T1, the Lily Maze; 71 clams a trip on average. The next card on the shelf is **Under the Span · 150**, with a pike drawn on it longer than the Wick is tall. |
 
-(The first trip above is a lucky one. The average first trip sells for 44 clams, and 52% of first trips have no Prize or bigger. The first giant comes home at about hour 1.4.)
+(The first trip above is a lucky one. The average first trip sells for 44 clams, and 52% of first trips have no Prize or bigger: the no-passive player's figures; each Wick's are `WICKS.md` check 4's. The first giant comes home at about hour 1.4.)
 
 ---
 
@@ -172,8 +206,8 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 
 | rule | value |
 |---|---|
-| slots at the start | **3** |
-| slots at the most | **8** (five steps, bought in order, §4.2) |
+| slots at the start | **3** (Tallow 4: §10.1) |
+| slots at the most | **8** (Tallow 9) (five steps, bought in order, §4.2) |
 | what takes a slot | one kept fish of any size; a giant, a legend and a curiosity take one slot each |
 | a full hold | the cast is refused. One line: "Hold's full." The Home pill pulses. You cannot fish for sport with a full hold. |
 | what empties it | only the tally at home. Murk buys everything in it. Nothing is carried over to the next trip. |
@@ -186,7 +220,8 @@ You are **the Wick**: a small living candle, one of the last of a drowned kingdo
 - **Let go forgives.** A fish let go gives back the good bite it spent (§3.3), and every later bite at that water this evening runs bigger: favour +0.2 for each fish let go there, to at most +0.4. It pays no clams. Moving to another water starts again at 0.
 - **Why.** In v5 letting go was never right: choosy play earned 67–79% of the natural rule per minute. Now it earns 88–95%, and 38–75% more clams a trip for 1.5–2 times the minutes, while the giant hunt stays at 9–50% (§3.3). Being choosy is a way to play, not a trap and not the best way.
 - **The record is yours either way.** The Journal page, the personal best, the class seal and the ink print are written at the measure, before the card. Selling a fish or letting it go loses none of them. (The Old Ledger's double is paid only on a sale, from slice 9; §4.1.)
-- **Let it pass** stays: no tap during the bite, and the fish lets go; the bait comes back. It spends a good bite, and nothing gives it back. A passed Prize or bigger lingers 45 s for one more cast (built); that cast spends a bite from the place where the fish first bit.
+- **Let it pass** stays: no tap during the bite, and the fish lets go; the bait comes back. It spends a good bite, and nothing gives it back. A passed Prize or bigger lingering 45 s for one more cast (F16) is not built and is dropped for slice 1a (the lead's ruling, PLAN §7.2); were it built, that cast would spend a bite from the place where the fish first bit.
+- **Ashwick's comeback** (`WICKS.md` §2.5): a hooked fish that gets away from Ashwick (not a giant, not a legend, not a line cut by sailing away) is the next bite at that water this evening, the same fish, tired (+4 Hold), once. It spends a good bite like any bite (a let-go comeback refunds as built), and a fish that will come back is not also marked.
 
 **How the built code changes (slice 1a).** Under `LOOP`:
 
@@ -206,7 +241,7 @@ Tests: measure leaves the hold unchanged; a let-go fish refunds its bite and add
 
 | water | good bites an evening | favour there | what it is for |
 |---|---|---|---|
-| open water (the whole water, one pool) | **one per slot of your hold, plus one** (4 to 9) | 0 | where you start; later, the top-up |
+| open water (the whole water, one pool) | **one per slot of your hold, plus one** (4 to 9; **Tallow: two more at the same step**, 6 to 11: one per slot of its bigger hold, plus one, plus its own one) | 0 | where you start; later, the top-up |
 | day water | **2** | +0.55 | its day fish; its water's uncommon and rare fish, drawn 1.5 times as often |
 | old water | **3** | +0.55 | **Elders bite here**, and most giants live here |
 | night water | **2**, only after dark | +0.45 | the night fish, and night giants |
@@ -214,6 +249,7 @@ Tests: measure leaves the hold unchanged; a let-go fish refunds its bite and add
 
 - **At any place, commons bite half as often**: the place's own fish crowd out the small fry. That is what makes the sail to a place worth it.
 - A quiet place is still better than quiet open water for a bite or two. Nothing ever stops biting: the hold can always be filled.
+- **Stub's waits** (`WICKS.md` §2.3): every wait for a bite is ×0.75 (not on a legend cast); past the good bites Stub's bites keep the fresh wait and lose 0.08 favour a bite instead of 0.15, to the same −1.2. Only Tallow changes a good-bite count; only Stub changes quiet water.
 - Legends, giants, the got-away note and a Marked Fish follow the same count. Nibbles and feints are not bites. A spooked bite (a tap during the nibbles) spends one.
 - **The player sees it.** When the float settles it shows its favour notches (built) and one small dot per good bite left. A bite puts a dot out; a fish let go lights it again. With none left the float dims. There is no line on screen; Murk's first quiet-water line teaches it once (§8.6). Quiet water spawns no rise rings.
 - **Who counts.** As with the built pressure: `fishing` emits `fishing:bite {waterKey}` once per bite (passed, struck, spooked or lingering), `progression-loop` owns and saves `run.bites`, and `fishing` reads it through `getBitesLeft(key)`.
@@ -249,7 +285,7 @@ Tests: measure leaves the hold unchanged; a let-go fish refunds its bite and add
 - The clock runs on the water only. It stands still during a catch's ceremony and card (built: the cinematic freeze), in menus and at home. Nothing ends the night.
 - **Two built clock rules change.** v3's 30 s Arrival Hush on day 1 is 0 under the loop (every trip would otherwise open with +0.2 the sim does not model). The night's length is `null`, read as "no end": `getPhaseDurations` reports the night as open, the HUD draws no clock, and the oil "need" sum is not computed (oil is parked). Tests: no hush term on a trip's first cast; no NaN in `getPhaseInfo` after 10 minutes of night.
 - Trips are counted as evenings ("Evening 14" on Journal entries), not days.
-- With 3 slots and 4 good bites, 63% of first trips get a bite after dark. A bigger hold reaches deeper into the night.
+- With 3 slots and 4 good bites, 63% of first trips get a bite after dark (the no-passive player; Tallow's 6 good bites about 94%, *est.*; every Wick ≥ 50%, `WICKS.md` check 4). A bigger hold reaches deeper into the night.
 - A legend keeps her hour for the sure bite (§3.5). Waiting for dark on purpose pays 72–89% of the natural rule per minute: allowed, never needed.
 
 ### 3.5 The rare giants
@@ -259,11 +295,11 @@ The roster's 49 giants (★) are the descendants of the episodes' main fish: 33 
 | rule | value | why |
 |---|---|---|
 | **where** | an epic giant bites only at its own place (`placeName` in the roster), never in open water or elsewhere | a map is the promise of a giant: buying its map is the only way to meet it |
-| **how often** | a fixed share of the bites at its place: **6% in its hour, 2.5% outside it**; its water's giants' lure makes the share ×1.5. Family lures do not draw giants. | it comes, but rarely; the share does not swing with what else bites in that hour |
+| **how often** | a fixed share of the bites at its place: **6% in its hour, 2.5% outside it**; its water's giants' lure makes the share ×1.5. Family lures do not draw giants. Taper's passive makes it ×1.3, never above 12% of bites (`WICKS.md` §2.2). | it comes, but rarely; the share does not swing with what else bites in that hour |
 | **how big** | never Small (z ≥ −0.25); its bites run big (favour +0.3); **it may be an Elder at its own place**, whatever the kind of place (roster ask 1). Every other fish reaches Elder only in old water. | the giants have the longest ladders in their waters (roster σ 0.16) |
 | **how hard** | Fight +10 over a rare of its water, +12 as an Elder. On its water's arrival tackle a Prize giant lands 27–34% of the time in the built lakes and 39–50% in the new waters, less than any other fish there and never more than a legend's coin flip (sim 4b checks every giant: 30–50% for the new waters). | "the hardest fish to land, never certain" |
 | **what it pays** | rarity ×12 (a rare is ×5.5). At the same size class the cheapest giant of a water sells for at least 1.7 times its dearest other fish (sim 1 checks every water). | "the top of the value ladder" |
-| **when lost** | the got-away note names it and its rough size; the giant becomes a Marked Fish: it waits at its place, +6 Hold on its next hook, once (the built light Marked Fish) | no fail; the story continues |
+| **when lost** | the got-away note names it and its rough size; the giant becomes a Marked Fish: it waits at its place, +6 Hold on its next hook, once (the built light Marked Fish), for every Wick: Ashwick's comeback never applies to a giant (`WICKS.md` §2.5) | no fail; the story continues |
 | **on the map card** | a lake map's card names its old water's giant; a place map's card names its own giant (a crown names its legend). The giant is drawn life-size beside the Wick, with its hour glyph (§5.1 rule 9). | the promise is visible before you pay |
 
 **How rare is the big one** (sim 4b: the natural rule at the water's arrival tackle, that place and open water only, hold 6; a few of the 33 rows):
@@ -337,6 +373,8 @@ Worked values (tests in slices 1a–2 use them): a Keeper Dusk Minnow (z 0.4) se
 
 **Two extras, both paid at the tally.** A fish that fills one of **Murk's orders** sells for double (§6.3). **From slice 9**, a fish that beats Murk's **Old Ledger** figure for its species (a mid-Trophy, built) sells for double, once per species. The loop keeps its own record of it, `meta.loop.ledgerPaid: [speciesId]`, written only when that species is sold, because the built `entry.oldLedger` is set at the measure (kept or not) and an old save has already used it. A record fish let go keeps its record but not the double.
 
+**The Wick's firsts** (`WICKS.md` §2.1). When the Wick is the Wick (Curious), a kept fish that is a first in this New Descent (a kind not caught before; its first Prize, Trophy, Elder or Ancient; a new personal best) sells for more at the tally: `max(round(0.4 × tier), round(0.5 × base))` (`firstMult` ×1.5, `firstFloor` 0.4), one bonus a fish, never on a giant or a legend; with an order or the Old Ledger the larger applies, never both. The card's **Keep** shows the base price for every Wick; the tally row ticks the bonus. `LOOP.priceFactor` (×1.0 in 1a) is the balancing job's one common price factor (`WICKS.md` §3.2).
+
 ### 4.2 The hold ladder
 
 | hold | 3 | 4 | 5 | 6 | 7 | 8 |
@@ -348,7 +386,7 @@ Worked values (tests in slices 1a–2 use them): a Keeper Dusk Minnow (z 0.4) se
 | clams a trip, when bought | — | +32% | +20% | +18% | +15% | +8% |
 | price, in trips of income then | — | 0.8 | 1.6 | 1.1 | 1.5 | 1.5 |
 
-Open water's good bites grow with the hold (one per slot, plus one), so a bigger hold is a longer good evening, not a longer quiet one. Even so, only Hold 4 makes you faster: past it, each new slot is filled from open water, which is poorer than your places, so clams a minute stay about level while each evening grows. **Hold 5–8 are bigger evenings, priced like looks**: one or two trips each. The hold stops at 8 so trips stay under 6 minutes. (A slower visit home makes bigger holds worth more per minute; slice 1a measures it.)
+Open water's good bites grow with the hold (one per slot, plus one), so a bigger hold is a longer good evening, not a longer quiet one. Even so, only Hold 4 makes you faster: past it, each new slot is filled from open water, which is poorer than your places, so clams a minute stay about level while each evening grows. **Hold 5–8 are bigger evenings, priced like looks**: one or two trips each. The hold stops at 8 (Tallow: 9; its trips held to ≤ 6 min by `WICKS.md` check 1, or its hold stops at 8, §2.4's fallback) so trips stay under 6 minutes. (A slower visit home makes bigger holds worth more per minute; slice 1a measures it.) Tallow's hold is one slot bigger at every step (4 to 9) at the same prices; the step's name is the ladder's (`WICKS.md` §2.4); the figures above are the no-passive player's. **On the shelf with** (decision 38): Hold 4–6 from the start, Hold 7 with the Glasswater map, Hold 8 with the Pallid Deep map.
 
 ### 4.3 Tackle (Rod, Line, Reel: the global gear)
 
@@ -445,16 +483,18 @@ What a tin is worth (natural rule, net of the tins; sim section 4): +10% clams a
 
 ### 4.7 The raft and the home (the tables are in §7 and §6)
 
-| what | levels | prices |
-|---|---|---|
-| Oars | I–II | 60 · 300 |
-| Keel | I–III | 100 · 600 · 3,000 |
-| Lantern | I–II | 100 · 500 |
-| Murk's Order Board | I–III | 70 · 400 · 4,000 |
-| Bait Bed | I–III | 120 · 700 · 9,000 |
-| The Long Wall | 4 wings, one per reach | 250 · 30,000 · 80,000 · 150,000 |
-| Landing lights | I–III | 200 · 1,200 · 14,000 |
-| Looks (9) | — | 300 · 400 · 600 · 2,500 · 6,000 · 40,000 · 50,000 · 100,000 · 200,000 |
+| what | levels | prices | on the shelf with (decision 38) |
+|---|---|---|---|
+| Oars | I–II | 60 · 300 | the start |
+| Keel | I–III | 100 · 600 · 3,000 | I–II the start · III the Pallid Deep map |
+| Lantern | I–II | 100 · 500 | the start |
+| Murk's Order Board | I–III | 70 · 400 · 4,000 | I–II the start · III the Glasswater map |
+| Bait Bed | I–III | 120 · 700 · 9,000 | I–II the start · III the Pallid Deep map |
+| The Long Wall | 4 wings, one per reach | 250 · 30,000 · 80,000 · 150,000 | wing I the start · II–IV their reach's first lake map (waters 5, 9, 13) |
+| Landing lights | I–III | 200 · 1,200 · 14,000 | I the start · II the Glasswater map · III the Pallid Deep map |
+| Looks (9) | — | 300 · 400 · 600 · 2,500 · 6,000 · 40,000 · 50,000 · 100,000 · 200,000 | the first three the start · the Painted Prow the Glasswater map · the Bell Buoy the Pallid Deep map · the Gilt Lantern, the Reed Sail, the Star Pennant and the Moon Lamp waters 5, 7, 11 and 15 |
+
+Each gate is the era in which the pacing run of §4.9 buys the item, so the full game's buying order is unchanged; the sim checks that no pacing purchase comes before its gate. In M1 (the Mossmere alone) the shelf is therefore 32 permanent items, 7,750 clams (`docs/loop/M1.md` §2.5, §6). The home and raft items are first sold in M1's steps (§13): the raft parts and the Order Board in step 4, the Bait Bed, the lights, the wing and the looks in step 5.
 
 ### 4.8 Maps (the catalogue is §5.2)
 
@@ -483,7 +523,7 @@ The four built lakes keep their order; the Mossmere keeps its prices; the other 
 
 ### 4.9 Pacing targets, and the proof
 
-The pacing run (sim section 5) is an average player: 90% of the natural rule's clams, 25% more time per trip for looking around, plain bait from minute 30, +6% per order slot. It buys 144 things in a sensible order and always fishes the best of its three newest waters.
+The pacing run (sim section 5) is an average player: 90% of the natural rule's clams, 25% more time per trip for looking around, plain bait from minute 30, +6% per order slot. It buys 144 things in a sensible order and always fishes the best of its three newest waters. **Every figure in this section is the no-passive player's.** The balancing job (`WICKS.md` §3, QUEUE job 8) runs the pacing once per Wick (`clams.mjs --wicks`): each Wick buys everything within ±10% of the five-Wick mean, Tallow's clams-a-trip marks are read per slot and its trips held to ≤ 6 min at 9 slots, the price factor ×1.0 in 1a. **M1's own arc** (the Mossmere alone, its 32-item shelf, about 2.5–3 h to an empty shelf, *est.*) is `docs/loop/M1.md` §6, proven by `clams.mjs --shipped=mossmere`.
 
 | mark | clams per trip | minutes per trip | trips per purchase | bought | where | state | target |
 |---|---|---|---|---|---|---|---|
@@ -527,7 +567,7 @@ The pacing run (sim section 5) is an average player: 90% of the natural rule's c
 | trips at the pacing marks, the visit home included | **3.5–5.6 min** | ≤ 6 |
 | maps' share of all spending | **73%** | 50–75% |
 
-**The first trip** (natural rule, 4,000 trips): 44 clams on average, 19–80 for most players (10th–90th percentile); 2.2 minutes; 98% come home full; **52% bring home no Prize or bigger**; 8% a Trophy; 27% of hooked fish get away; 63% get a bite after dark.
+**The first trip** (natural rule, 4,000 trips): 44 clams on average, 19–80 for most players (10th–90th percentile); 2.2 minutes; 98% come home full; **52% bring home no Prize or bigger**; 8% a Trophy; 27% of hooked fish get away; 63% get a bite after dark. (The no-passive player; Tallow's first trip, *est.* in `WICKS.md` §2.4: about 61 clams, 99% full, 41% with no Prize or bigger, 94% a bite after dark.)
 
 **The buying order of the pacing run** (hour · what · price; the full table with trips is printed by the sim):
 
@@ -682,11 +722,16 @@ On a river, each place sits on one of the river's own forms (a pool, an undercut
 
 ### 5.4 The Chart (the Map Table)
 
-- One sheet per water you own, side by side by reach; the next water is the rolled, sealed sheet at the end with its price.
-- A sheet is the water's outline in ink. Owned places are small vignettes with their glyph and name. Unowned places are mist blots with a glyph and a price. Under each owned place: your best fish there (species glyph, cm), and a gold ★ once you have landed its giant.
-- **One action:** tap a water (a place, or open water), then **Sail**. Tapping a blot or the rolled sheet opens Murk's card for it.
-- Below the sheet: the lure slot and the bait slot (two glyphs, a count on the bait), and the hold's slots.
-- First it is a screen (slice 1a: a list of sheets; slice 2: the drawn sheet). When the Landing is built it is the Map Table's top (§6.1).
+*The user, 14 November 2026: "Yes make the map our in-game Chart" (§0 row 13). The Chart is the world map: `WORLD.md` §10 holds its look and its reveal, `tools/world-map/` its art, `docs/loop/M1.md` §3 its build plan.*
+
+- **It is the map.** The Chart is the Waxwold of `WORLD.md` §10, revealed sheet by sheet: the paper, and for each water you own its sheet of the continent at its true place (its coast and relief, its landmark vignette, its lamp, its road from the water before as an amber line with flow arrows), the Landing with its hearth, Murk's barge and the Waystone arcs at its corner, and the border's four cartouches. **Nothing unowned is drawn** (rule 5 holds): no coast, river, name or marker of a water you do not own.
+- **How it is built** (decision 40). The generator's bake is reused as **per-sheet crops** embedded in the HTML (`tools/world-map/build.mjs --game` writes the generated `src/chart-art.js`: ≤ 150 KB a sheet in reach I, at 5 px a Chart unit; ≤ 100 KB a sheet in reaches II–IV; **≤ 300 KB for M1's Chart in all**). Its live layer (the road, lamps, vignettes, lettering, frame and the sheets' ink-in) is one module, `src/chart-draw.js`, which the generator's page also inlines, so the published map and the Chart never drift. Each water's own sheet (below) is drawn by the game from its arena data and pinned beside its true place with a short ink stroke. The game never bakes.
+- A sheet is the water's outline in ink. Owned places are small vignettes with their glyph and name. Unowned places are mist blots with a glyph and a price. Under each owned place: your best fish there (species glyph, its weight in pounds: across species the best is the heaviest, `data.fishWeight`), and a gold ★ once you have landed its giant.
+- Places sit at their arena sites, so the Chart matches the mist in the world. Where two vignettes would overlap (Under the Span and the Buoy Lights are 18.7 m apart) they are pushed apart along the shore with a fine ink leader; no two tap targets overlap at 358 px. On a phone the best-fish line shows for the chosen place only.
+- **The next water** is a rolled sheet sealed with its legend's wax, at the end of a nameless lavender wisp where the owned road runs on, with the three keys' **three small seals** beside it (the map, the gear, the catch; §5.5 sets what each holds and how it reads). **A water past the last shipped one** (`LOOP.shipped`, decision 39; in M1, Sporewood) reads **"Coming soon"**: no price, its map seal hollow, no buy button; its gear and catch seals still fill as they are earned, and nothing earned is lost when it ships. While the tutorial runs, blots show no price and the sealed sheet shows only its wax.
+- **One action:** tap a water (a place, or open water), then **Sail**. Tapping a blot or the rolled sheet opens Murk's card for it (the sealed sheet's card: its wax, its seals enlarged, "Coming soon" where the price would be). A place map bought re-inks its vignette on the next open (0.8 s); a landed giant's ★ appears on the next open. Reduced motion draws every ink-in at once.
+- Below the sheet: the lure slot and the bait slot (two glyphs, a count on the bait), and the hold's slots (the Wick's count).
+- **By step** (`M1.md` §3.6). **Slice 1a: a list** on the Chart's screen (one row, the Mossmere, its open water chosen, the hold's slots, **Sail**), drawn from the pure `chartModel(meta, D)`. **M1 step 3: the drawn Chart** (the first sheet, the Mossmere's sheet, the sealed sheet), with the tutorial's chart beat on it: the first time the Chart ever opens its first sheet inks in (1.2 s, under Murk's line), then the hold's empty slots ink in, three, or four for Tallow (§11, `OPENING.md` §6). Step 4: the lure and bait slots. **Step 5: the Map Table's top** in the Landing: its post opens the Chart, and the table's 512² canvas shows it, drawn by the same code (§6.1). After M1: pan and zoom with the second sheet, river sheets as schematics (§5.3), the cartouches as reaches fill.
 
 ---
 
@@ -696,8 +741,8 @@ On a river, each place sits on one of the river's own forms (a pool, an undercut
 
 | stage | what home is | built from |
 |---|---|---|
-| **the Jetty** (slices 1a–3) | A screen over the live scene: the last water's first dock at dawn, Murk's barge moored, your raft tied up. Three ink tiles, one word each: **Murk** · **Chart** · **Journal**. Your clams, top-right. One goal line. Home upgrades you own are drawn on the tiles and in the scene. | Murk's barge and the docks (built: `actors-merchant`, `world.getMerchantDock`), the shop screen, the Journal |
-| **the Landing, raft-mode** (slice 4) | The cove of §25.4 as its First Evening slice: quay, jetty, hearth, Murk's barge, the sea-gate and its Waystones. You stay on the raft; the three tiles become three posts you sail up to. Home upgrades are objects in the cove. | the cove world of §25.14.2b (FE-W1; `world.js SUPPORTS_COVE`), `player-cove.js` (built) |
+| **the Jetty** (M1 steps 1–4: slice 1a to slice 3) | A screen over the live scene: the last water's first dock at dawn, Murk's barge moored, your raft tied up. Three ink tiles, one word each: **Murk** · **Chart** · **Journal**. Your clams, top-right. One goal line. Home upgrades you own are drawn on the tiles and in the scene. | Murk's barge and the docks (built: `actors-merchant`, `world.getMerchantDock`), the shop screen, the Journal |
+| **the Landing, raft-mode** (M1 step 5: the cove, then slice 4) | The cove of §25.4 as its First Evening slice: quay, jetty, hearth, Murk's barge, the sea-gate and its Waystones. You stay on the raft; the three tiles become three posts you sail up to (Murk's barge, the Map Table, the Journal lectern; from the Long Wall's first wing, its post). Home upgrades are objects in the cove. The tutorial's beats move onto the posts (`OPENING.md` §6). | the cove world of §25.14.2b (FE-W1; `world.js SUPPORTS_COVE`), `player-cove.js` (built) |
 | **the Landing, walked** (later, not planned here) | The full walkable cove of §25.4. | needs the foot controller (parked) |
 
 Home is honest at every stage: it is where Murk is, where the fish become clams and where the water comes back. Only its look grows.
@@ -711,7 +756,7 @@ Home is honest at every stage: it is where Murk is, where the fish become clams 
 
 | trigger | what shows |
 |---|---|
-| a lake map bought | its sheet is pinned beside the others; its Waystone lights at the sea-gate (the Landing; 16 Waystones in four arcs, one per reach) |
+| a lake map bought | its sheet is inked on the Chart at its true place (§5.4); its Waystone lights at the sea-gate (the Landing; 16 Waystones in four arcs, one per reach; an arc's stones are set on the sill when its reach ships, so M1 has arc I's four); its giants join the Journal's giants' page as dark outlines (decision 42) |
 | a place map bought | its vignette is inked on the sheet |
 | a species landed | its Journal page; its ink print (§6.4) |
 | a giant landed | its print is framed in gold in the Journal; its place's vignette gets a gold ★ |
@@ -734,7 +779,7 @@ No home upgrade changes what a fish is worth except an order, and no upgrade any
 
 You sell what you keep, so nothing is mounted. Instead, at the measure (records are written at the seal stamp, before the card) the Wick takes an **ink print** of the fish. The print is yours whether the fish is kept or let go.
 
-- The Journal keeps the best print per species (length, class seal, where, which evening), and a page of the 49 giants: a dark outline until landed, then its print in a gold frame.
+- The Journal keeps the best print per species (weight in pounds, with the length as its small line in cm; class seal, where, which evening), and a page of the giants: those of every water you own (decision 42; all 49 by the end), each a dark outline until landed, then its print in a gold frame.
 - A Long Wall wing hangs those prints at true size. Until a wing is bought the prints live in the Journal only.
 - The class seals (Prize, Trophy, Elder per species; §25.7.4) and the 49 giants are the long goals after the shelf is empty.
 - The Live Well, "mark for home", mounts and the keep-pond are parked (§9).
@@ -745,7 +790,7 @@ You sell what you keep, so nothing is mounted. Instead, at the measure (records 
 
 | part | levels · price | what it does | clams a minute, when bought (pacing) | what you see |
 |---|---|---|---|---|
-| **The hold** | 4–8 slots · 30 · 120 · 450 · 2,000 · 3,500 | one more slot each; open water gets one more good bite with each | +9% (Hold 4); Hold 5–8 about level (−2% to +3%) but +8–20% a trip | a bigger creel on the deck, then a chest |
+| **The hold** | 4–8 slots · 30 · 120 · 450 · 2,000 · 3,500 | one more slot each; open water gets one more good bite with each | +9% (Hold 4); Hold 5–8 about level (−2% to +3%) but +8–20% a trip | a bigger creel on the deck, then a chest (Tallow: the same, with a small basket lashed beside it, its one more slot) |
 | **Oars** | I 60 · II 300 | raft speed +1.5 m/s per level (6 → 9) | +3%, +2% | longer oars, a second pair |
 | **Keel** | I 100 · II 600 · III 3,000 | every fish runs a little bigger: favour +0.1 everywhere per level | +4%, +3%, +4% | a deeper keel, then a weighted one with a brass shoe |
 | **Lantern** | I 100 · II 500 | night fish run bigger: favour +0.1 after dark per level; the pool of light reaches 15% farther per level | +2%, +2% | a taller lantern with clearer glass |
@@ -759,13 +804,13 @@ You sell what you keep, so nothing is mounted. Instead, at the measure (records 
 
 ## 8. Flows, and every word on screen
 
-**The rule.** One line at a time. No panel of text. Numbers are prices, clams, centimetres and the count on a bait; from 10,000 a number shows as "12.4k" (and "1.2m"). Odds stay in the logs (§25.6.11). Murk speaks one line, rarely, and never during a bite.
+**The rule.** One line at a time. No panel of text. Numbers are prices, clams, a fish's weight in pounds ("11 oz", "4 lb 6 oz", "212 lb"; §8.2; the only length shown is the card's small line in cm) and the count on a bait; from 10,000 a number shows as "12.4k" (and "1.2m"). Odds stay in the logs (§25.6.11). Murk speaks one line, rarely, and never during a bite. The opening's words and the first trip's two tips are §8.5's opening table; §8.1, §8.3 and §8.6 point to it.
 
 ### 8.1 On the water
 
 | element | words | notes |
 |---|---|---|
-| the hold | none (slot glyphs) | top-left; a giant's slot is gold-edged |
+| the hold | none (slot glyphs) | top-left; the Wick's count of cells (Tallow one more: 4 at the start, 7 at Hold 6; two rows past 6 on a phone); a giant's slot is gold-edged |
 | the Home pill | **Home** | bottom corner, ≥ 56 px. **Press and hold** (0.6 s; a ring of ink fills the pill) to go home; with a full hold a tap is enough. No dialog. Not available during a play. |
 | the float | none (favour notches, good-bite dots) | shown when the float settles, cleared at the strike (built) |
 | quiet water | none | the float dims; Murk's first quiet-water line teaches it once (§8.6) |
@@ -774,6 +819,7 @@ You sell what you keep, so nothing is mounted. Instead, at the measure (records 
 | tackle | none (the lure glyph, the bait glyph with its count) | built selector |
 | the Journal glyph | none | locked while a line is in the water (built) |
 | gone from the HUD | the oil gauge, satiety, Embers, the level bar, the day counter, the night-mode glyph, the flare button, Far Water | §9 |
+| evening 1 only | "Hold on the water. Let go to cast." and "Now. Tap." / "Now. Click.", once each per save | §8.5's opening table |
 
 ### 8.2 The catch card
 
@@ -794,7 +840,8 @@ Gone from the card: Eat, Render, Release's luck, Mark for home, the Strike line 
 | the sail home | a 2 s glide; the sky pales to dawn | none |
 | **the tally** | the fish go onto Murk's scale one by one, biggest last; each value ticks up with a coin sound; then the total. A giant goes last, alone, with a longer pause. A fish that filled an order shows a chalk tick and its value doubles; from slice 9 a ledger glyph does the same for the Old Ledger. | fish names (small), values, the total "+193", one button: **Sold** |
 | an empty hold | nothing to weigh | Murk: "Nothing? The water keeps its own counsel. Go again." |
-| the Jetty | three tiles and the goal line | **Murk** · **Chart** · **Journal** · "Next: Hold 4 · 30" |
+| the Jetty (M1 steps 1–4; from step 5, the Landing's posts) | three tiles and the goal line; the goal line names the slots the next step gives this Wick (Tallow: "Next: Hold 5 · 30" for the Lidded Creel); no goal line while the tutorial runs or once the shelf is empty; Murk's wake line is §8.5's | **Murk** · **Chart** · **Journal** · "Next: Hold 4 · 30" |
+| the Chart (§5.4) | the first sheet, the water's sheet with its places, the sealed next sheet, the lure and bait slots, the hold's slots | water and place names, prices, weights, the bait's count, "Coming soon" (a water past `LOOP.shipped`), **Sail** |
 
 ### 8.4 Murk's shelf
 
@@ -826,24 +873,24 @@ Five tabs, a glyph and one word each: **Tackle** · **Raft** · **Bait** · **Ma
 |---|---|
 | the pause menu | **Resume** · **Home** (the tally, as from the pill) · the built settings. *Abandon Descent* is not offered. |
 | the title, a fresh save *(14 November 2026, the user's ruling; Settings is the lead's ruling that it is reachable everywhere)* | **New Descent** · **Settings** (quiet). No tagline, premise, counts, Begin, Journal, Shrine or Trials. "Fresh" = the loop has not begun: no trip out, no Wick chosen, no tutorial record, no evening sold |
-| **New Descent** *(14 November 2026, the user's ruling; the one trait line under the cards and **Back** are the plan's wording, PLAN CHOICEs 29 and 42, for the lead's sign-off)* | the five Wicks (a portrait and a name each), the lit Wick's one trait line (§10.1), **Back** · **Start**. Nothing else: one game mode, so no night modes, waters, trials, locks, boons, kits or Shells. **Start** plays the opening cut scene at once (§11) |
+| **New Descent** *(14 November 2026, the user's ruling; the one trait line under the cards and **Back** are the plan's wording, PLAN CHOICEs 29 and 42, for the lead's sign-off)* | the five Wicks (a portrait and a name each), the lit Wick's one line (its passive, §10.1), **Back** · **Start**. Nothing else: one game mode, so no night modes, waters, trials, locks, boons, kits or Shells. **Start** plays the opening cut scene at once (§11) |
 | the title, a trip out | **Continue** · **Settings** (quiet) · the quiet **Prologue** word (replays the cut scene). *New Descent* is not offered while a trip is out. *(14 November 2026, the user's ruling as the lead read it: Settings by the lead's ruling that it is reachable everywhere, Prologue kept by the lead; v6 said "Continue only".)* |
 | the title, at home | **Continue** (the Jetty) · **Settings** · **Prologue**. *New Descent* is not offered once the loop has begun; starting over is Settings' **Forget everything** (two in-page confirms). *(14 November 2026, the user's ruling as the lead read it; no New Descent at home is PLAN CHOICE 33; v6 said "Continue".)* |
 | Escape at home *(the lead's ruling)* | **Resume** · **Settings**. On a phone the same panel opens from a quiet pause glyph (no word) in the Jetty's corner. |
 | Settings, under the loop *(the plan's wording, PLAN CHOICE 43, for the lead's sign-off)* | as built, but no **Damage numbers** row and no flare line under Reduced flashing; the strike ring's first option reads "First evening" and the hurry row's line "From your second evening, hold anywhere to hurry a small fish in. It never changes the outcome"; Forget everything's line reads "Clams, gear, the Journal. There is no undo." and its first confirm "Every clam, every piece of gear and every name in the Journal will be lost." |
 
-The trait lines *(the plan's wording for the user's ruling of 14 November 2026, PLAN CHOICE 31, for the lead's sign-off)*:
-The Wick "Balanced." · Taper "Casts farther. More time to strike." · Stub "Sails faster. A wider light." · Tallow "Sails
-slower. Holds big fish better." · Ashwick "Holds the first fish after dark better."
+The passives' lines *(`WICKS.md` §2; the user said yes to the lines as written on 15 November 2026, §0 row 12; Tallow's new line is the lead's, for sign-off)*:
+The Wick "Firsts and new bests sell higher." · Taper "First bites are never common fish." · Stub "Quick bites, even on quiet water." · Tallow "Stout enough for one more fish." · Ashwick "A fish that gets away comes back." (each ≤ 8 words and ≤ 36 characters: one line at 18 px on a 358 px phone)
 
 **The opening and the first trip's words** *(14 November 2026, the user's ruling; every word the opening puts on screen, so
 §8 stays the whole text of the loop)*:
 
 | when | where | words |
 |---|---|---|
-| the hand-off glide (the film's last shot → the Jetty's dock, 3 s) | the water | none |
+| the film (Start) | the film | its four lines as built, but line 3 under the loop: "Its last candles fish from lamp to lamp." (§11, `LORE.md` §12) |
+| the hand-off glide (the film's last shot → the Jetty's dock, 3 s; from M1 step 5, one ink dip → the Landing's jetty) | the water | none |
 | the first morning (the tutorial's wake) | the Jetty | Murk: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." (§11) |
-| the tutorial's Chart, every time before the first Sail | the Chart | Murk: "Three slots in that hold. Fill them and come home." (§8.6's first line) |
+| the tutorial's Chart, every time before the first Sail | the Chart | Murk: "Three slots in that hold. Fill them and come home." (§8.6's first line; Tallow: "Four slots in that hold. Fill them and come home.") |
 | the sail out (every Sail, a 3 s glide from the dock to open water) | the water | none |
 | evening 1, once per save, the line idle | the water | "Hold on the water. Let go to cast." (built tip `fe_cast`) |
 | evening 1, once per save, the first bite's strike window | the water | "Now. Tap." on touch, "Now. Click." with a mouse (built tip `fe_strike`) |
@@ -854,7 +901,7 @@ The opening, step by step, is `docs/loop/OPENING.md`.
 
 | when | line |
 |---|---|
-| the first evening, at the Chart | "Three slots in that hold. Fill them and come home." |
+| the first evening, at the Chart (the tutorial's: §8.5's opening table) | "Three slots in that hold. Fill them and come home." (Tallow: "Four slots in that hold. Fill them and come home.") |
 | the first sale | "Clams. Spend them here. I'm the only shop left." |
 | the first quiet water | "Quiet water. Move on, or go home." |
 | the first fish let go | "Let one go and the water remembers." |
@@ -862,7 +909,7 @@ The opening, step by step, is `docs/loop/OPENING.md`.
 | the first Trophy sold | "Now that's a fish." |
 | the first map bought | "It's in the mist. Go and look." |
 | the first giant sold | "That one had a name before you met it." |
-| a lake map first affordable | "I've a chart you can afford now." |
+| a lake map first affordable (never for a water past `LOOP.shipped`, so never in M1) | "I've a chart you can afford now." |
 | a legend's first landing | "Her. You brought me her. Sit down, I'll count it twice." |
 | sailing out (rotating, built lines kept) | "Bring me something with a story." · "The big ones come up at dusk. They always did." · "Back already? Good. Out you go." |
 
@@ -917,7 +964,7 @@ meta.loop = { v: 3, clams, evenings, holdSlots, tackle: {rod, line, reel}, lures
               legends: {id: landings}, giants: {id: {landed, marked}}, prints: {speciesId: {…}}, ledgerPaid: [] }
 ```
 
-- `holdSlots` is the slot count (3–8), not a ladder level.
+- `holdSlots` is the bought slot count (3–8) for every Wick, not a ladder level; a Wick's slot count is `loopSlots(meta.loop, wick)` (`wickSlots(holdSlots, wick)` on numbers: Tallow +1). Slice 1a adds `wick`, `tutorial`, `said` and `lastTrip` (`OPENING.md` §10, PLAN §3.4) and `firsts: {seen, seals, best}` (the Wick's ledger, cleared by New Descent, seeded empty on migration); the run adds `comeback` (Ashwick) and `flags.openComeback`; M1 step 3 adds `chartPick` (the Chart's last chosen place). `LOOP.shipped` (decision 39) is data, never save.
 - **The loadout.** Under the loop `getLoadout` reads `meta.loop.tackle` and `meta.loop.lures` with `perRun: false`; the built `meta.fitted` and `meta.lures` belong to the old game and are left alone. So a legend uses `CATCH_V3.legend.fight` (the Lantern-Swallower fights at 56, as the sim assumes), never `fightRun`.
 - A trip is a run with `run.outing = 'trip'` and night mode `still`: its creel is the hold (`run.hold`), plus `run.bites = {waterKey: n}`, `run.mercy = {waterKey: favour}` and `run.eveningT`. `run.shells` is not used. At **Sail**, `run.bait` is copied from `meta.loop.bait[water]` (plus the Bait Bed's free tins); the tally writes what is left back.
 - Journal entries, records, class seals, got-away lists, legend wounds and Marked Fish stay where they are (`meta`, built) and are shared with the old game. The Old Ledger's double has its own `ledgerPaid` (§4.1).
@@ -944,7 +991,7 @@ meta.loop = { v: 3, clams, evenings, holdSlots, tackle: {rod, line, reel}, lures
 | pressure (−0.12 per catch, reset at dawn) | **changed** | becomes §3.3: per bite, per evening, open water included, reset at home |
 | the measuring ceremony, the landing's payoff, the catch show | **kept** | the card follows the show |
 | the catch card | **changed** | Keep · value / Let go (held: Cut bait); a giant's card in gold |
-| the creel | **changed** | it is the hold: 3 slots, bought to 8, sold whole at home |
+| the creel | **changed** | it is the hold: 3 slots, bought to 8 (Tallow 4 to 9), sold whole at home |
 | fish value (§25.7.3) | **changed** | §4.1 |
 | food and oil from fish | **parked** | — |
 | tackle tiers (§25.6.6) | **changed** | persistent, bought with clams at home, no proof catches, new prices; **T5 and T6 added** |
@@ -961,32 +1008,33 @@ meta.loop = { v: 3, clams, evenings, holdSlots, tackle: {rod, line, reel}, lures
 | day and night | **changed** | the evening (§3.4); the looks of each phase are kept |
 | the Journal, records, class seals, the Old Ledger | **kept** | plus the Prints page, the giants' page and "Evening N"; from slice 9 an Old Ledger record pays double once, when sold |
 | the Long Wall | **changed** | ink prints, bought by wing, one wing per reach (§6.4) |
-| the five Wicks | **changed** | §10.1 |
+| the five Wicks | **changed** | five passives, all free from the first New Descent (§10.1, `WICKS.md`) |
 | fish body plans (`FISH_SHAPES`) | **changed** | 15 new plans and 3 for curiosities, plus the named `sturgeon`, arrive with the slices that need them (§13) |
 | curiosities (roster §6) | **new** | bite like fish, take a slot, sell at the water's rare Keeper price, write a *Not fish* page |
 | challenges, Memories, relics, the Shrine | **parked** | — |
 | the swarm, weapons, levels, Boons, health, hunger, oil as life, night modes, death, Far Water | **parked** | §9 |
 | The Long Descent, the Live Well, the keep-pond, walking | **parked** (unbuilt) | — |
 | the Landing as a 3D cove (§25.4) | **kept** | home's look; reached in stages (§6.1); the Jetty and a `home` flow first |
-| the First Evening (§25.4.8) | **kept** | three lines change (§11) |
-| the opening cut scene | **kept** | unchanged (§11) |
+| the First Evening (§25.4.8) | **kept** for the v3 build | under the loop its cove is home from M1 step 5, and the loop's own tutorial runs there (§11); its fishing lesson and the Quayling stay the v3 build's |
+| the opening cut scene | **kept** | the film is kept; under the loop its trigger and its hand-off change and its line 3 reads "Its last candles fish from lamp to lamp." (§11, `LORE.md` §12) |
 | the Clear Night look, the Starlit palette, the UI style | **kept** | unchanged; the new waters' palettes follow roster §3 |
 | the Tide Chart, Murk's Chum, supplies | **cut** | nothing to supply |
+| the world map (`tools/world-map/`, `WORLD.md` §10) | **new** | it is the Chart (§5.4): its bake and its live layer in the game |
 | the Votive Font, the Drowned Almshouse | **cut** | §5.2 |
 
 ### 10.1 The five Wicks
 
-*(14 November 2026, the user: "When you press new descent, make sure there aren't any other options to choose from other than different characters"; that all five are free is the lead's default, which the user may overrule; the "on screen" lines are the plan's wording, PLAN CHOICE 31, for the lead's sign-off.)* The five Wicks are candles of the Landing, **all five free from the first New Descent**: each a look and one small fishing trait. You choose one on the New Descent screen (§8.5) and it is the Wick of every trip (`meta.loop.wick`) until a start-over. Their combat stats, quirks, start boons and kits are parked. No trait touches the hold, the sale or the good bites.
+*(14 November 2026, the user: "When you press new descent, make sure there aren't any other options to choose from other than different characters", and "You can choose any of the 5 wicks but each one has a powerful unique passive ability to help them catch fish or boost something else"; 15 November 2026: "Default for all except 4 which i want yes" (§0 rows 11–12). That all five are free is the lead's default, which the user may overrule.)* The five Wicks are candles of the Landing, **all five free from the first New Descent**: each a look and **one passive**, always on, with no button (`docs/loop/WICKS.md` is binding for them: each rule, its knobs and ranges, its hooks and its tests). You choose one on the New Descent screen (§8.5) and it is the Wick of every trip (`meta.loop.wick`) until a start-over. Their combat stats, quirks, start boons and kits are parked, and their built small traits (Taper's cast and strike window, Stub's and Tallow's raft speed, Tallow's +2 Hold on a Trophy, Ashwick's +3 Hold after dark) are retired on a trip; Stub's light radius stays as a look. **Only Tallow's passive changes the hold's size and a good-bite count (the user's carrier, 15 November 2026); only the Wick's touches the sale; none touches a legend, the clock or the odds shown.** Every number below is a starting number; the balancing job (`WICKS.md` §3, QUEUE job 8) sets the final values.
 
-| Wick | trait (fishing only) | on screen |
-|---|---|---|
-| The Wick | none: balanced | "Balanced." |
-| Taper, the Long Reach | casts 4 m farther; strike window +10% (its built `castMax` and `hookWindow`) | "Casts farther. More time to strike." |
-| Stub, the Bright Little One | raft speed +1; the lantern reaches farther (its built light radius until the Lantern part ships) | "Sails faster. A wider light." |
-| Tallow, the Stout Candle | raft speed −0.8; +2 Hold on a Trophy or bigger | "Sails slower. Holds big fish better." |
-| Ashwick, Burned Once | +3 Hold on the first fish hooked after dark each evening (built `CATCH_V3.buffs.wicks`) | "Holds the first fish after dark better." |
+| Wick | passive | on screen | the rule, in one line |
+|---|---|---|---|
+| The Wick, a Small, Stubborn Flame | Curious | "Firsts and new bests sell higher." | a kept first (a new kind; its first Prize, Trophy, Elder or Ancient; a new best) sells for ×1.5, at least +0.4 × the water's tier; never a giant or a legend; the larger of it and an order (§4.1) |
+| Taper, the Long Reach | Long Reach | "First bites are never common fish." | the first bite at each water each evening is drawn from its uncommon and rare fish where the pool allows (two kinds at least, none above 80%); from slice 2 a giant's share ×1.3, never above 12% (§3.5) |
+| Stub, the Bright Little One | Moth-Bright | "Quick bites, even on quiet water." | every wait ×0.75 (not on a legend cast); past the good bites no slower waits and −0.08 favour a bite instead of −0.15 (§3.3) |
+| Tallow, the Stout Candle (the carrier) | Broad Back | "Stout enough for one more fish." | one more slot at every step (4 to 9; `holdSlots` stays the bought count) and, at open water, two more good bites than another Wick at the same step (§3.1, §3.3) |
+| Ashwick, Burned Once | Burns Back | "A fish that gets away comes back." | the next bite at that water is the same fish, tired (+4 Hold), once; never a giant or a legend (§3.2) |
 
-They ship in slice 1a, so §13 slice 9's "The four other Wicks" item is struck by this revision (its cell is left for the lead's docs commit). The choice lasts for the save in 1a; whether it can be changed later without starting over is a question for the user (PLAN §7.1 asks it, with the cheap build: a Wick row on the Journal's first page). *v6's rule, kept as the alternative if the user wants Wicks to join over time:* the Wick is free and the others join when 12 species are in the Journal (Taper), the Sporewood map is bought (Stub), 5 Trophies are landed (Tallow) and a giant is landed (Ashwick); they are then chosen at home (the hearth when the Landing exists, a row on the Journal's first page before), and New Descent shows the one free Wick and **Start**, the others hidden. In 1a only Tallow's join can be met.
+They ship in slice 1a, so §13 slice 9's "The four other Wicks" item is struck. The choice lasts for the save in 1a; whether it can be changed later without starting over is a question for the user (PLAN §7.1 asks it, with the cheap build: a Wick row on the Journal's first page). *v6's rule, kept as the alternative if the user wants Wicks to join over time:* the Wick is free and the others join when 12 species are in the Journal (Taper), the Sporewood map is bought (Stub), 5 Trophies are landed (Tallow) and a giant is landed (Ashwick); they are then chosen at home (the hearth when the Landing exists, a row on the Journal's first page before), and New Descent shows the one free Wick and **Start**, the others hidden. In 1a only Tallow's join can be met.
 
 ---
 
@@ -998,15 +1046,15 @@ They ship in slice 1a, so §13 slice 9's "The four other Wicks" item is struck b
 | **Gear is global; bait and lures are fish-specific** | Unchanged, and now both are fitted at once (§4.4–§4.5). A bait is fish-specific through Hold; it no longer changes the pool, and every tin gives the same favour, so picking a tin is picking a fish. |
 | **Bigger fish are harder; the size class shows; the species hides until the reveal** | Unchanged. A giant's tell is its class's tell. The card's clam value appears only after the reveal. A map card naming a giant is a promise about a place, not about a line (§5.1 rule 9). |
 | **The got-away note** | Unchanged; a lost giant's note names it, and it becomes a Marked Fish. |
-| **A very short tutorial at the Landing: the First Evening** (§25.4.8) | Kept as designed for the cove: the wake by the hearth, one cast, one strike, the play, the reveal, the card. It teaches fishing only. Three lines change: Murk's wake line becomes "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it."; the First Outing card shows the Mossmere, three empty slots and **Sail**; Murk's departure line becomes "Three slots in that hold. Fill them and come home." The Quayling is still not for sale (the tutorial's card has **Let go** only). *(14 November 2026, the user: "then you move into the tutorial at the home base. Which ends with being shown how to head out to the lake".)* Until the cove is built the tutorial is **at the Jetty** (slice 1a; `docs/loop/OPENING.md`), Murk's dock and the only shop left: DESIGN §25.4.8's fallback F0, not yet the lore's Landing where the last Wicks came ashore, which slice 4 brings (a known gap). The raft glides from the cut scene's last shot to Murk's dock at dawn; Murk's wake line; the **Chart** tile is cued; the Chart shows the Mossmere, the hold's three empty slots and Murk's departure line; you press **Sail** and the raft glides out to open water (every Sail glides out the same way). One line at a time, no Skip word, every beat ends on a tap or a short wait (under 45 s; about 17 s untouched), never again once done. Fishing is taught on the first trip by the built light hints (the key glyphs, the strike ring) and two words once each: "Hold on the water. Let go to cast." and "Now. Tap." / "Now. Click." (§8.5 lists every word the opening shows). |
-| **An opening cut scene** | Kept; under the loop its trigger and its hand-off change (§10's "unchanged" is the film itself). It plays before the First Evening, or before the Jetty while the cove is not built. *(14 November 2026, the user: "After youve pressed start, it should immediately go into the cut scene".)* Under the loop it is started by New Descent's **Start** (no other click, no loading screen; Skip as built), shows the Wick you chose, and hands off to the Jetty, not to the lake. The title's **Prologue** word replays it. |
+| **A very short tutorial at the Landing: the First Evening** (§25.4.8) | Kept as designed for the cove: the wake by the hearth, one cast, one strike, the play, the reveal, the card. It teaches fishing only. Three lines change: Murk's wake line becomes "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it."; the First Outing card shows the Mossmere, three empty slots (four for Tallow) and **Sail**; Murk's departure line becomes "Three slots in that hold. Fill them and come home." The Quayling is still not for sale (the tutorial's card has **Let go** only). *(14 November 2026, the user: "then you move into the tutorial at the home base. Which ends with being shown how to head out to the lake".)* Until the cove is built the tutorial is **at the Jetty** (slice 1a; `docs/loop/OPENING.md`), Murk's dock and the only shop left: DESIGN §25.4.8's fallback F0, not yet the lore's Landing where the last Wicks came ashore, which M1 step 5 brings (a known gap until then; from step 5 the same beats run on the Landing's posts, and the First Evening's fishing lesson is not used under the loop). The raft glides from the cut scene's last shot to Murk's dock at dawn; Murk's wake line; the **Chart** tile is cued; the Chart shows the Mossmere, the hold's empty slots (three; four for Tallow) and Murk's departure line (Tallow's names four; from M1 step 3 on the drawn Chart, whose first sheet inks in the first time it opens, §5.4); you press **Sail** and the raft glides out to open water (every Sail glides out the same way). One line at a time, no Skip word, every beat ends on a tap or a short wait (under 45 s; about 17 s untouched), never again once done. Fishing is taught on the first trip by the built light hints (the key glyphs, the strike ring) and two words once each: "Hold on the water. Let go to cast." and "Now. Tap." / "Now. Click." (§8.5 lists every word the opening shows). |
+| **An opening cut scene** | Kept; under the loop its trigger and its hand-off change, and its line 3 is `LORE.md` §12's, "Its last candles fish from lamp to lamp." (the user, 14 November 2026: "Yes, rewrite line 3 once the story's done"; put in during slice 1a, under the loop only, so the v3 film keeps its line). `INTRO.cove.text[2]` (an unbuilt cove variant) is retired under the loop: the Landing's opening plays the same film with the same line. It plays before the First Evening, or before the Jetty while the cove is not built. *(14 November 2026, the user: "After youve pressed start, it should immediately go into the cut scene".)* Under the loop it is started by New Descent's **Start** (no other click, no loading screen; Skip as built), shows the Wick you chose, and hands off to the Jetty (from M1 step 5: through one ink dip to the Landing), not to the lake. The title's **Prologue** word replays it. |
 | **On a catch the Wick holds the fish up, shows it, pauses, then the card opens** | Kept. A giant's show holds a beat longer (the built ceremony's longest class pose). The ink print is taken in the same beat. |
 | **Very few words on screen** | §8 is the whole text of the loop. |
 | **Art, atmosphere and fishing are the key drivers** | Every trip plays the game's best light. A new place is paid out as a view (the mist lifting). Sixteen waters, each its own palette and landmarks, each a step greener than the one before, six of them rivers. |
 | **The sharp Clear Night look, the lavender Starlit palette** | Kept. Mist banks are low (≤ 2.5 m), local and thin at the edge. |
 | **Never a ring round the raft or the Wick** | Kept. The lantern's light is an edgeless pool; the good bites are dots by the float; fireflies keep 6 m from the raft. |
 | **"Far too many green hues" (the early look); green only as a trace** | **Became the greening ramp** after the user's words of 14 November 2026: "I want the lakes to get progressively more and more lush and green … As we unlock new lakes and rivers we need to slowly but progressively start getting more and more green and lush." The Mossmere keeps green only as a trace, exactly as approved; each later water is one lushness step greener (§5.2, `WATERS.md`). Green never enters the air, the sky, the light, the grade or the UI, so the early complaint (green hues washing the frame) cannot come back. The built waters 2–4 step up first, gently, and are shown side by side for approval before any new water is built (§13 slice 1c). |
-| **Original work only** | Kept (§25.15.3). Every fish is original (roster §1): no real species' name, never the series or its presenter. The hold is a row of slots, not a cargo grid; no spoilage, no storm timer, no panic. |
+| **Original work only** | Kept (§25.15.3). Every fish is original (roster §1): no real species' name, never the series or its presenter. Real river and lake names may ship (§0 row 17). The hold is a row of slots, not a cargo grid; no spoilage, no storm timer, no panic. |
 | **"Use all of these fish as inspiration"; "the main episode based fish … should be the rare giants"** | The roster is the species list; the giants rule is §3.5; every fish has a map (§5.2). |
 
 ---
@@ -1033,6 +1081,10 @@ While `LOOP_ENABLED`, this file overrides DESIGN §1–§25 and CONTRACT §13 wh
 | §26.4 and `docs/loop/ROSTER.md` (the roster) | **binding for the fish**: names, looks, plays, sizes, rarities, hours, waters, places and giants. This spec is binding for where they bite in play (eleven fish move, §5.2), what they pay and what the maps cost; the roster deferred prices to it |
 | v4, v5 and v6 of this file (commits 1aa478c, 3fc4a12, 85f78ae) | **replaced** by v7; the loop, the hold rule and the parked list carry over |
 | `docs/loop/WATERS.md` (the ramp and the rivers) | **binding for each water's look**: its lushness step, green share, foliage, palette by phase, landmark, and the river rules. DESIGN §19.1's palette rule (green and teal as rare trace accents) holds for the Mossmere and the Landing; for the other waters `WATERS.md` §3 and §7 replace it |
+| `docs/loop/WICKS.md` (the five passives) | **binding for the Wicks**: each passive's rule, its knobs and ranges, its hooks and its tests; the balancing job sets the final values |
+| `docs/loop/OPENING.md` | **binding for the opening**: the title, New Descent, Start, the hand-off, the tutorial and the first trip's words |
+| `docs/loop/M1.md` | **binding for M1**: its done-list, its build order, its Chart plan and its pacing |
+| `docs/loop/WORLD.md` §10 and `tools/world-map/` | **binding for the Chart's look and its reveal**; the generator's bake and `src/chart-draw.js` are the Chart's art |
 | §1–§24, Appendix A and B | as §25.12 says; everything about combat, survival and the meta is parked (§9) |
 | CONTRACT §13 | binding for everything kept; a §14 for the loop's API is written with slice 1a |
 
@@ -1040,36 +1092,57 @@ While `LOOP_ENABLED`, this file overrides DESIGN §1–§25 and CONTRACT §13 wh
 
 ## 13. The build plan
 
-> **The user's re-cut (15 November 2026, binding).** Asked what it takes to get map 1 and the home base "fully 100% finished and playable", the user said "Yes" to finishing **the Mossmere and the Landing first**: milestone **M1** is slice 1a, the Mossmere halves of slices 1b and 2, slice 3 without Sporewood's fish, the cove (FE-W1) and slice 4, then a polish pass. Sporewood's content, slices 1c and 1d and everything after wait until M1 is done; Sporewood's sheet shows sealed until then. The slice tables below are re-cut to M1 by the M1 plan (`docs/loop/QUEUE.md` job 4); until that lands, read each slice as its Mossmere half.
+> **The user's re-cut (15 November 2026, binding).** Asked what it takes to get map 1 and the home base "fully 100% finished and playable", the user said "Yes" to finishing **the Mossmere and the Landing first**: milestone **M1** is slice 1a, the Mossmere halves of slices 1b and 2, slice 3 without Sporewood's fish, the cove (FE-W1) and slice 4, then a polish pass. Sporewood's content, slices 1c and 1d and everything after wait until M1 is done; Sporewood's sheet shows sealed until then. **v7.2 re-cuts the slices here** (the M1 plan, QUEUE job 5; `docs/loop/M1.md` holds the milestone's done-list, build order, Chart plan and pacing): M1's six steps first (QUEUE jobs 9–14), then each slice's part after M1, marked **after M1**, in QUEUE's order (jobs 15–16).
 
-Twelve slices. Each ends playable, behind `GW_LOOP`. **Every slice's gate:** `node tools/validate-data.mjs` (its LOOP pass included), `node tools/check.mjs`, `node tools/sim/clams.mjs --quick` (from slice 1a it reads `data.LOOP`), `node tools/sim/roster-check.mjs`, the slice's browser scenario with no console errors, and **the flag-off checks unchanged**: the v1 golden trace, the flag-off scenario run, and the v3 browser scenarios `run-v3`, `m1-v3` and `af-progression` with the loop off (the loop edits v3's code paths: measure, the loadout, the v3 clock, the v3 card). **From slice 1c every slice that touches a water's look also passes** the Mossmere byte-identity test (its rocks, organics, fine and floater geometry hash, its shader programs and a frame fingerprint unchanged), the `lush` and palette rules of `validate-data`, and the `hue-report` gates for every water it ships, **the step test against its neighbours included** (`WATERS.md` §7), with `python3 tools/loop-colour-script.py` re-run when a palette moves. **Every slice that ships a river also passes** the river validator, the drift sim and the cast sim (`WATERS.md` §4.6). Captures run only when the shared machines are free. Sizes: S ≤ 2 days, M 3–6 days, L 1–2 weeks, one implementer per lane. From slice 3 each slice has a **fish lane** (body plans in `models-fish.js`, the species data) beside its systems lane.
+Twelve slices, cut into M1's six steps and the parts after M1. Each step ends playable, behind `GW_LOOP`; the default build flips to the loop at the end of M1 step 2 (the opening and the Mossmere's roster fish both in, as slice 1a's rule says). **Every slice's gate:** `node tools/validate-data.mjs` (its LOOP pass included), `node tools/check.mjs`, `node tools/sim/clams.mjs --quick` (from slice 1a it reads `data.LOOP`), `node tools/sim/roster-check.mjs`, the slice's browser scenario with no console errors, and **the flag-off checks unchanged**: the v1 golden trace, the flag-off scenario run, and the v3 browser scenarios `run-v3`, `m1-v3` and `af-progression` with the loop off (the loop edits v3's code paths: measure, the loadout, the v3 clock, the v3 card). **From slice 1c every slice that touches a water's look also passes** the Mossmere byte-identity test (its rocks, organics, fine and floater geometry hash, its shader programs and a frame fingerprint unchanged), the `lush` and palette rules of `validate-data`, and the `hue-report` gates for every water it ships, **the step test against its neighbours included** (`WATERS.md` §7), with `python3 tools/loop-colour-script.py` re-run when a palette moves. **Every slice that ships a river also passes** the river validator, the drift sim and the cast sim (`WATERS.md` §4.6). **From M1 step 1 the sim's gate is also** `node tools/sim/clams.mjs --shipped=<the last shipped water> --step=<the step>` (M1: `--shipped=mossmere`; `docs/loop/M1.md` §6.4), once the balancing jobs (QUEUE jobs 6 and 8, which own `clams.mjs`) have committed it; until then `--quick`. Captures run only when the shared machines are free. Sizes: S ≤ 2 days, M 3–6 days, L 1–2 weeks, one implementer per lane. From slice 3 each slice has a **fish lane** (body plans in `models-fish.js`, the species data) beside its systems lane.
 
-**Two rules that let the roster arrive in pieces.** (1) A re-founded built species keeps its built model until its new plan ships (the Matriarch stays carp-shaped until the catfish plan). (2) A new roster species bites only once its body plan exists; until then it is not in the pool, and the sim's pacing for that slice is re-run on what ships.
+**Two rules that let the roster arrive in pieces.** (1) A re-founded built species keeps its built model until its new plan ships (the Matriarch stays carp-shaped until the catfish plan). (2) A new roster species bites only once its body plan exists; until then it is not in the pool, and the sim's pacing for that slice is re-run on what ships. (3) **A water past `LOOP.shipped` is sealed** (decision 39): no lake map past it is on the shelf, its sheet on the Chart reads "Coming soon", and the sim runs on what ships.
 
-### Slice 1a: Three slots on the built fish (M). The smallest thing that is already the user's game.
+### M1: the Mossmere and the Landing, complete (QUEUE jobs 9–14)
+
+| step | QUEUE job | what ships | from | size |
+|---|---|---|---|---|
+| 1 | 9 | the core loop at the Jetty, the opening, the five Wicks and their passives, the film's line 3, the catch show's leftovers | slice 1a, whole | M |
+| 2 | 10 | the Mossmere's roster fish at roster sizes; the converter and the allow-list; `LOOP.shipped` | slice 1b's Mossmere half | S |
+| 3 | 11 *(visual)* | the Mossmere's four places in mist, its two giants and its legend, Elders in old water, the Kissmark Trout, the Gloam Eel's water, the Bridgechain Sturgeon, the lamprey, sturgeon and trout plans, **the drawn Chart** | slice 2's Mossmere half | L |
+| 4 | 12 | bait, lures, Cut Strip, Oars, the Keel and the Lantern, Murk's orders, the gear log; the catfish plan, so the Matriarch is a catfish | slice 3 without Sporewood's fish | M |
+| 5 | 13 *(visual)* | the cove built (FE-W1 and its raft-mode neighbours, `world.SUPPORTS_COVE`), then the Landing as home: the posts, the home upgrades in the scene, the Waystones, the prints, the giants' page, the tutorial at the Landing | DESIGN §25.14.2b + slice 4 | L+ |
+| 6 | 14 | the polish pass: the show's sound mix, phone performance, a full playthrough from a fresh save to an empty shelf, the new cut-scene video | — | M |
+
+Each step is built, reviewed, merged and previewed before the next. Before step 1: pounds merged (`gw-pounds`), the three keys (v8, QUEUE job 6) and the Wicks' balancing (QUEUE job 8, `clams.mjs --wicks`) committed. **M1 is done** when every box of `docs/loop/M1.md` §2 is ticked on the default build, desktop and phone, from a fresh save.
+
+### M1 step 1 (QUEUE job 9). Slice 1a: Three slots on the built fish (M). The smallest thing that is already the user's game.
 
 Before any UI, a **node-level trip harness** (`tools/tests/loop-trip.test.mjs`) drives `progression-loop` with a fake `ctx`: cast, bite, measure, keep, let go, `endTrip`, buy. It proves the rules below without a browser.
 
 | | |
 |---|---|
-| **the player can** | *(14 November 2026, the user:)* Press **New Descent** and choose one of the five Wicks, nothing else; press **Start** and go straight into the cut scene; glide to the Jetty and be shown, in a very short tutorial, the three empty slots and how to head out (the Chart, **Sail**, the glide out). Start at the Jetty. Sail to the Mossmere's open water for an evening. Catch fish automatically (as built). Keep or let go at the card, seeing the clams. Fill three slots; be refused a cast when full. Go home (press and hold). Watch Murk's tally. Buy **Hold 4, Hold 5, Rod, Line and Reel T1 and T2**. Sail again. Close the game mid-trip and continue. Never fail. |
+| **the player can** | *(14 November 2026, the user:)* Press **New Descent** and choose one of the five Wicks, nothing else; press **Start** and go straight into the cut scene; glide to the Jetty and be shown, in a very short tutorial, the hold's empty slots (three; four for Tallow) and how to head out (the Chart, **Sail**, the glide out). Start at the Jetty. Sail to the Mossmere's open water for an evening. Catch fish automatically (as built). Keep or let go at the card, seeing the clams. Fill the hold (three slots; four for Tallow); be refused a cast when full. Go home (press and hold). Watch Murk's tally. Buy **Hold 4, Hold 5, Rod, Line and Reel T1 and T2**. Sail again. Close the game mid-trip and continue. Never fail. *(15 November 2026, §0 rows 11, 12, 15 and 16:)* Play a Wick whose one passive works from the first evening (§10.1); watch the film with its new line 3; read each fish's weight in pounds on the card and on Murk's scale. |
 | **waters and fish** | the Mossmere's open water, on the **built phase-1 species** and their built sizes; §4.1 uses the built L50 |
 | **new body plans** | none |
 | **reuses** | automatic fishing and its logs; the catch card, the ceremony and the landing's payoff; the creel (as the hold); `TACKLE` tiers and `getLoadout`; pressure (as quiet water's pattern); the Still night; the Journal; the built Mossmere arena; Murk's barge at a dock |
 | **modules** | *(14 November 2026, the user: the opening)* new `loop-tutorial.js` (the Jetty tutorial's beats) · `ui-screens.js` (the title of §8.5 and the Wick-only New Descent) · `ui-intro.js` (the New Descent panel held under the cut scene's ink) · `progression-loop.js` (`meta.loop.wick`, `meta.loop.tutorial`) · `main.js` (`beginIntro` with the chosen Wick, the hand-off glide to the Jetty, the glide out on every Sail) · `data.js` (`LOOP_ENABLED`, `PARKED`, `LOOP`: value rule and the Mossmere's tier, hold, water, evening, the tackle prices, `TEXT_LOOP`; *14 November 2026:* `LOOP.wicks`, `LOOP.tutorial`, the opening's words) · `core.js` (the switch; writes `GW_V3` and `GW_V3_PHASE = 1`) · `main.js` (the `home` flow; Jetty → Sail → Home → tally; no death flow; the pause menu and title of §8.5; the boot rule of §9) · new `progression-loop.js` (`meta.loop`, clams, the hold, `endTrip`, the shelf, `run.bites`, `run.mercy`) · `progression.js` (**`measure()` writes records only** and pays no first-catch Shells; **`fishAction('keep' | 'letgo')`** as §3.2; `restorePending` reopens the card; **`createRun` under LOOP**: the zone must be in `meta.loop.maps.lakes`, outing `trip`, night mode `still`, no start Shells, kit, purse or Wick start kit, bait from `meta.loop.bait`) · `progression-market.js` (no Murk on the water) · `progression-af.js` (`getLoadout` from `meta.loop.tackle`, `perRun: false`; parked buffs 0) · `fishing.js` (emits `fishing:bite`; reads `getBitesLeft`; the cast refused when full; no pass favour; no Elders in open water; hour windows) · `survival.js` (parked drains; the evening clock; no hush; the open night) · `combat.js` / `combat-modes.js` (parked) · `ui-hud-v3.js` (slots, the Home pill, dots; parked gauges hidden) · `ui-screens.js` and new `ui-loop.js` (the card's buttons, the tally, the Jetty, the shelf, the Chart as a list) · `tools/validate-data.mjs` (the LOOP pass) · `tools/sim/clams.mjs` (reads `data.LOOP`; its draft table for what has moved is deleted) |
-| **tests** (`tools/tests/loop.test.mjs`, the trip harness, browser scenario `loop-1a`) | the hold: 3 slots, the 4th keep refused, the cast refused when full · keep and let go: both write the record; measure leaves the hold unchanged; let go refunds its bite and adds +0.2 favour there, to +0.4; Continue with the card open reopens it · bites: struck, passed, landed, lost and spooked bites each spend one; a lingering re-cast spends from where the fish first bit; quiet after 4 (hold 3); −0.15 each to −1.2; no reset at dusk or night; reset at home · the evening: day 40 s, dusk 20 s, night holds; frozen in the ceremony; a "dusk" fish bites at night, not by day; no hush; no NaN after 10 min of night · value: a Keeper Dusk Minnow (z 0.4) 7 on the built L50 (the roster's sizes arrive in 1b), clams persist; "12.4k" from 10,000 · the tally: `endTrip` pays once; a reload during the tally pays exactly once · the shelf: prices, the order of hold steps, a tier raises `catchChance` · parked: a night with no enemy, no change in oil, satiety or health, no death, no Memories, no Murk on the water, no giant spot in the Mossmere's open water · no path from the pause menu or the title empties a hold without selling it · saves: continue mid-trip; an old save gains `meta.loop` and loses nothing; an old save with start-kit challenges starts a trip with no free bait; a trip saved with the flag on and opened with it off is sold and dropped · *(14 November 2026, the user)* the opening: New Descent shows only the five Wicks and Start; Start plays the cut scene at once; the chosen Wick is the film's and every trip's; the film hands to the Jetty; the tutorial's beats each end on a tap or a short wait, it is under 45 s, it ends with Sail and the glide out, a reload resumes it, a done save never sees it; the first trip's two words once each; flag-off and v3-without-loop openings unchanged · the scenario: fresh save → New Descent → a Wick → Start → the cut scene (skipped) → the tutorial → Sail → three fish → Home → +clams → Hold 4 → a second trip · **measure the visit home** (the tally fish by fish, the glide, the Jetty, the shelf, the Chart) and write it into `LOOP.time`; re-run the sim |
+| **tests** (`tools/tests/loop.test.mjs`, the trip harness, browser scenario `loop-1a`) | the hold: 3 slots (Tallow 4), the next keep refused, the cast refused when full · keep and let go: both write the record; measure leaves the hold unchanged; let go refunds its bite and adds +0.2 favour there, to +0.4; Continue with the card open reopens it · bites: struck, passed, landed, lost and spooked bites each spend one; a lingering re-cast spends from where the fish first bit; quiet after 4 at hold 3 (Tallow 6); −0.15 each to −1.2; no reset at dusk or night; reset at home · the evening: day 40 s, dusk 20 s, night holds; frozen in the ceremony; a "dusk" fish bites at night, not by day; no hush; no NaN after 10 min of night · value: a Keeper Dusk Minnow (z 0.4) 7 on the built L50 (the roster's sizes arrive in 1b), clams persist; "12.4k" from 10,000 · the tally: `endTrip` pays once; a reload during the tally pays exactly once · the shelf: prices, the order of hold steps, a tier raises `catchChance` · parked: a night with no enemy, no change in oil, satiety or health, no death, no Memories, no Murk on the water, no giant spot in the Mossmere's open water · no path from the pause menu or the title empties a hold without selling it · saves: continue mid-trip; an old save gains `meta.loop` and loses nothing; an old save with start-kit challenges starts a trip with no free bait; a trip saved with the flag on and opened with it off is sold and dropped · *(14 November 2026, the user)* the opening: New Descent shows only the five Wicks and Start; Start plays the cut scene at once; the chosen Wick is the film's and every trip's; the film hands to the Jetty; the tutorial's beats each end on a tap or a short wait, it is under 45 s, it ends with Sail and the glide out, a reload resumes it, a done save never sees it; the first trip's two words once each; flag-off and v3-without-loop openings unchanged · the scenario: fresh save → New Descent → a Wick → Start → the cut scene (skipped) → the tutorial → Sail → a full hold → Home → +clams → Hold 4 → a second trip · **measure the visit home** (the tally fish by fish, the glide, the Jetty, the shelf, the Chart) and write it into `LOOP.time`; re-run the sim |
 | **left out on purpose** | roster species and sizes (1b); places, mist and giants; bait and lures (the built selector is hidden); orders; the other raft parts; home upgrades; legends; the cove and the cove's First Evening (the default build flips to the loop only when slice 1b and the opening are both in). *(14 November 2026, the user:)* the cut scene, the Jetty tutorial and the five Wicks are **in** slice 1a; changing Wick after the first New Descent is left out (a question for the user, PLAN §7.1) |
+| **the five passives** *(15 November 2026)* | `WICKS.md` §2 and §5: `LOOP.wicks` in its shape; `wickSlots` and `loopSlots`; `goodBitesFor` and `quietTerms` with the Wick; `wickPoolWeights`; the Wick's `firsts` ledger and `loop.saleOf`; Ashwick's comeback; `coinBright`; Tallow's hold row (4–6 cells in 1a) and its chart line; tests T76–T80 (proposed there) and T1, T10, T23/T24, T36, T53, T61, T65/T67, T72, T75 as amended (PLAN revision 6). Every Wick's built small trait is retired on a trip; Stub's light radius stays as a look |
+| **the film's line 3** | under the loop only (the apply block), `INTRO.text[2]` = "Its last candles fish from lamp to lamp." (`LORE.md` §12) and `INTRO.cove.text[2]` the same; its timing `INTRO.lines[2]` kept (12.5–14.85 s: 40 characters at 17.0 a second, under the film's 17.5 rule), re-checked by `intro-length` and the A5 words test and moved by at most 0.15 s if either fails; the v3-without-loop film keeps its line (the v3 fingerprint). Lane B (PLAN §2.2 item 26). The new video is M1 step 6's |
+| **the catch show's leftovers** (QUEUE's backlog for job 9) | lane B (PLAN §2.2 item 25): the film owns the grade under a replayed film; the card's stamp guarded by the flow; a trial's sounds held with its toasts until the card; the show's measured mix faults (the offline render's gates). The by-ear mix is M1 step 6's |
+| **pounds** | from `gw-pounds`, merged first: the card's weight as its hero; the tally's rows on Murk's scale, lightest first and heaviest last, each with its weight (`endTrip` stores it); no length on a loop screen but the card's small line |
+| **the Chart** | a list (one row, the Mossmere, its open water chosen, the hold's slots, **Sail**), drawn from the pure `chartModel(meta, D)` that M1 step 3 draws as the drawn Chart (§5.4; `M1.md` §3.6). No Sporewood row |
+| **the gate, added** | the per-Wick smoke pass (PLAN lane D); `intro-length` and A5 with line 3; the offline show render's gates; `clams.mjs --shipped=mossmere --step=1a` once committed |
 
-### Slice 1b: The roster's first fish (S–M), and the Sporewood map.
+### M1 step 2 (QUEUE job 10). Slice 1b's Mossmere half: the roster's first fish (S).
 
 | | |
 |---|---|
-| **the player can** | Catch the roster's Mossmere and Sporewood fish at their roster sizes. Buy the **Sporewood map** and sail to Sporewood's open water. Pick a water on the Chart. |
-| **waters and fish** | every roster fish of the Mossmere and Sporewood on a built plan (the Mossmere: Dusk Minnow, Mossback Perch, Likely Chub, Overbold Bass, Rustfin Sucker, Milkeye Perch, Weeping Carp, Reedjaw Pike; Sporewood: Netcloud Fry, Threadling Eel, Velvet Ray on the built ray) and the built species the roster keeps there; the roster's re-founded sizes. 11 roster fish. (Sporewood's day and old water open with its map from slice 2, when places exist.) |
+| **the player can** | Catch the Mossmere's roster fish at their roster sizes, told in pounds. Sporewood's map is not on the shelf (`LOOP.shipped` is the Mossmere). |
+| **waters and fish** | the Mossmere's open water: the eight roster fish on built plans (Dusk Minnow, Mossback Perch, Likely Chub, Overbold Bass, Rustfin Sucker, Milkeye Perch, Weeping Carp, Reedjaw Pike) and the three built species the roster keeps there (Gutter Crayfish, Candlefin Koi, Lampsipper): 11 fish, the Mossmere's list as it stands at 1b (§5.5) |
 | **the converter** | one shared module, **`src/roster-species.js`**, `rosterSpecies(roster, builtSpecies)`, imported by `data.js` and by `tools/sim/clams.mjs` so the game and the sim cannot drift. Its rules are the table below. |
-| **the allow-list** | the converter copies only `id, name, look, journal, haunt, play, sizes, hours, place, rarity, family, bodyPlan` (and `water`, `placeName`, `giant`). **`giantOf`, `inspiredBy`, `draft` and every research field stay in `docs/`.** `validate-data` fails if `giantOf`, `inspiredBy`, any episode title or any research common name appears anywhere in `src/` (the game ships as one HTML file). |
-| **modules** | `src/roster-species.js` (new) · `data.js` (`SPECIES_LOOP` from the converter; the Sporewood map and tier) · `progression-loop.js` (maps owned; `createRun` starts in the water tapped) · `ui-loop.js` (the Chart's list of sheets) · `tools/validate-data.mjs` (the allow-list rule; every map card's named fish exists in loop `SPECIES`) · `tools/sim/clams.mjs` (imports the converter) |
-| **tests** | the worked values of §4.1 on the roster sizes (Weeping Carp 26, Reedjaw Pike 158 / 406 / 1,022) · Sail with the Sporewood map starts in Sporewood · no forbidden field in `src/` · the converter's output equals the sim's species table for the slice's fish |
+| **the allow-list** | the converter copies only `id, name, look, journal, haunt, play, sizes, hours, place, rarity, family, bodyPlan` (and `water`, `placeName`, `giant`). **`giantOf`, `inspiredBy`, `refWeight`, `draft` and every research field stay in `docs/`.** `validate-data` fails if `giantOf`, `inspiredBy`, any episode title, any research common name, the series or its presenter appears anywhere in `src/` (the game ships as one HTML file). Real river and lake names are allowed (§0 row 17). |
+| **`LOOP.shipped`** | `'mossmere'` (decision 39): no lake map past it on the shelf; the Chart (from step 3) seals the next sheet "Coming soon"; the sim runs `--shipped=mossmere` |
+| **modules** | `src/roster-species.js` (new) · `data.js` (`SPECIES_LOOP` from the converter for the Mossmere; `LOOP.shipped`) · `tools/validate-data.mjs` (the allow-list and the names rule; every shipped fish on its plan; every map card's named fish exists in loop `SPECIES`) · `tools/sim/clams.mjs` (imports the converter; owned by the balancing jobs) |
+| **tests** | the worked values of §4.1 on the roster sizes (Weeping Carp 26, Reedjaw Pike 158 / 406 / 1,022) · no forbidden field or name in `src/` · the converter's output equals the sim's species table for the 11 · the Sporewood map is never offered while `LOOP.shipped` is the Mossmere · every weight within its body plan's ±30% (pounds) |
+| **left out** | Sporewood's map, water and fish (after M1); the Kissmark Trout and the Bridgechain Sturgeon (step 3, with their plans); the Gloam Eel (step 3's night water, step 4's bait); places |
 
 **The converter's rules.**
 
@@ -1085,7 +1158,59 @@ Before any UI, a **node-level trip harness** (`tools/tests/loop-trip.test.mjs`) 
 | built `cond` (§25.8 place conditions: deed, reflection, plumbBottom …) | — | ignored under the loop |
 | built `src: 'walk'` | — | the kept walk species the map cards name (the Wax-Bearer, the Clapper, the Unreflected, the Footnote, Hushcap Koi) are included under the loop |
 
-### Slice 1c: First moss (S–M, an art lane beside 1b). The ramp's first steps on the built waters, switched off until the user says yes.
+### M1 step 3 (QUEUE job 11, visual). Slice 2's Mossmere half: the mist lifts, and the drawn Chart (L).
+
+| | |
+|---|---|
+| **the player can** | See mist banks over the Mossmere's four places, with a giant's back turning in Under the Span's and the Buoy Lights'. Buy the Lily Maze (60), Under the Span (150), the Buoy Lights (260) and the Bell Pool (500) from a shelf of at most three map cards, each naming its fish. Watch the mist lift. Meet Elders in old water. Meet the **Thousandcast Pike** and the **Hullkiss Lamprey**; land one; see its gold card, its ★ on the Chart and the Journal's giants' page. Hunt the Belled Matriarch with Heartmoss and be paid 500 for her at the tally. Catch the Kissmark Trout and the Bridgechain Sturgeon. Buy Hold 6. **Use the drawn Chart** (§5.4): the first sheet, the Mossmere's sheet with its places, Sporewood's sealed sheet with its three seals and "Coming soon". |
+| **waters and fish** | the Mossmere's four places; its 2 epic giants and its legend; the Kissmark Trout (open water), the Bridgechain Sturgeon (Under the Span's own), the Gloam Eel's night water (it bites from step 4, on Lumen Moss): 16 of the Mossmere's 17 fish bite |
+| **new body plans** | **lamprey** (the eel with a mouth parameter: S), **sturgeon** (named, now built: M; Bridgechain first), **trout** (the minnow with a fatty fin and jaw: M; Kissmark Trout first). The Matriarch stays carp-shaped until step 4 |
+| **the Chart** | `M1.md` §3: the generator's game export of sheet 1 (`tools/world-map/build.mjs --game` → the generated `src/chart-art.js`), the shared drawing module `src/chart-draw.js` (the generator's page inlines it), `src/ui-chart.js` (the screen; the Mossmere's sheet from its arena; blots, vignettes, best fish, ★; the sealed sheet and its seals from §5.5's data); the tutorial's chart beat on it (§11) |
+| **the Mossmere re-dress** | DESIGN §25.8's W9 (the span arches and deck, buoy-lanterns for the street lamp-posts, the leaning toll-tower, the Sluice Veil card; +4 / +3 calls, inside §25.8.8's Mossmere line) behind `LOOP.redress`, off until the user's yes (§16 question 14) |
+| **modules** | `data.js` (`LOOP.places` for the Mossmere from `MOSSMERE_V3` geometry; giant shares; map cards; place pools: commons ×0.5, a day water's draw ×1.5; Hold 6) · `world.js` / `world-v3.js` / `world-fx.js` (mist banks from the built mist material; the giant's back in the mist; the landmark silhouettes; W9) · `fishing.js` (`placeAt` from `LOOP.places`; good bites and favour by kind; draws; a place's own species; night water; Elders by kind and for giants; the giant's share, floor, favour and Fight; Taper's ×1.3; a cast into mist) · `models-fish.js` (three plans) · `render-camera.js` (the mist-lift shot) · `ui-loop.js` (the Maps tab, the gold card, the giants' page) · `ui-hud-v3.js` (the hold row in two rows past 6 cells) · `progression-loop.js` (maps owned, giants landed, the legend's prize at the tally, wounds) · the Chart's three files and the generator's export |
+| **tests** | a cast into mist returns and spends nothing · owning a map removes its mist and adds its good bites · Elders roll only in old water and for a giant at its own place · a giant never bites elsewhere and is never Small · over 20,000 bites at Under the Span the Thousandcast share is 6% ± 1 at dusk and night, 2.5% ± 0.7 by day · the Thousandcast at Prize lands less often than every other Mossmere fish on T1 · night water gives nothing before dark · the shelf never shows more than three maps · the Matriarch needs her pool, her bait, her hour and a free slot · her first-try chance at T1 equals the sim's 27% · draw calls inside §25.8.8's Mossmere line · the Chart: nothing unowned drawn (the sheet-2 region of every Chart frame is bare paper), the byte budget (≤ 300 KB of Chart in `index.html`), no two tap targets overlapping at 358 px, the sealed sheet with no price and no buy button, the tutorial's beat (T65) unchanged on the drawn Chart · `clams.mjs --shipped=mossmere --step=2` |
+| **the user's look** | the frames (the four mist banks, a lift, each giant's show, the Matriarch, the Chart on desktop and phone; W9 side by side) before the merge |
+| **left out** | Sporewood's day and old water and the Harpstring Eel (after M1); place twists and Moonfall (slice 9's "one twist per place"); the harbour re-dress beyond W9; pan and zoom on the Chart |
+
+### M1 step 4 (QUEUE job 12). Slice 3 without Sporewood's fish: bait, lures, the raft and Murk's orders, and the Matriarch a catfish (M).
+
+| | |
+|---|---|
+| **the player can** | Fit a lure and a bait. Buy the Mossmere's tins (Mire Worms, Lumen Moss: 10 a tin of 10) and its four lures (Feather Fly, Glimmer Spoon, Bone Jig and the re-aimed Harbour-Bell Spinner). Cut a Small or a Keeper into bait by holding Let go. Catch the Gloam Eel on Lumen Moss. Buy Oars I–II, the Keel I–II and the Lantern I–II and see them on the raft. Buy the Order Board I–II and fill Murk's orders for double. Read the gear log at the shelf. See the Matriarch as a catfish. |
+| **waters and fish** | the Mossmere: all 17 fish bite |
+| **new body plans** | **catfish** (a new builder from the pike profile; M in M1, where only the Matriarch rides on it; its other 30 fish are checked against it after M1) |
+| **modules** | `data.js` (`LOOP.lures`, `.baitRule`, `.raft`, `.home.orders`; the giants' lure lists) · `progression-loop.js` and `progression-market.js` (tins per water, orders on the bounty engine, no expiry) · `progression-af.js` and `fishing.js` (two fitted items; bait favour; cut bait; bait attract parked) · `actors-raft.js` (the parts' models) · `player.js` (raft speed) · `models-fish.js` (the catfish plan) · `ui-loop.js`, `ui-af.js`, `ui-chart.js` (the lure and bait slots under the sheet) |
+| **tests** | lure and bait Hold never stack (the larger counts) · a bait is spent per hooked fish and comes back on a pass · a bait changes the pool only for its bait-only fish (the Gloam Eel) · every tin in a water costs 1.5 × its tier · the Keel adds +0.1 favour a level everywhere · family lures do not raise a giant's share; its giants' lure does, ×1.5 · an order doubles exactly the fish that fill it, never names a giant and never expires · the sim's bait rows hold on real data · no item is offered before its "on the shelf with" (decision 38) · the Matriarch's first-try chance at T1 is still 27% on her new body · `clams.mjs --shipped=mossmere --step=3` |
+| **left out** | Sporewood's four fish and the bream, disc and tuna plans (after M1); the Moth Popper and the Lantern Lure (with their maps); the Bait Bed (step 5); Keel III and Order Board III (with their maps) |
+
+### M1 step 5 (QUEUE job 13, visual). The cove, then slice 4: the Landing as home (L+).
+
+| | |
+|---|---|
+| **the cove** (5a, M) | DESIGN §25.14.2b's raft-mode parts, built for the loop: **FE-W1** (`setZone('cove')` resolves `COVE`; `themeOf` reads `zone.theme`; rect and capsule obstacles; the cove's depth recipe; `world-cove.js`: the quay, the jetty, the customs steps, the lower-wall slab with the chimney breast), **FE-W2** (the arch, the Waystone sill with reach I's four stones, the breakwaters, the channel-mouth card), **FE-W3** (the hearth, two bollard lanterns, the Map Table and its post), **FE-Wa1**, **FE-R1** (the cove's grade, the sail and setout modes; the loop's title stays on the Mossmere), **FE-A1** (Murk moored at home, no Trade pill), **FE-S1** (raft mode, the mooring, the posts, the closure), **FE-Au1** (the cove bed, the sting). `world.SUPPORTS_COVE = true`; main's `FE_ON` gains its own switch, off, so the v3 build's opening is unchanged; the loop's home is the cove when `LOOP_ENABLED && SUPPORTS_COVE`. 5a can merge alone (home drawn as the Jetty's tiles over the cove) if 5b slips |
+| **the player can** (5b, slice 4, L) | Come home at first light to the Landing: glide in under the arch to the jetty; sail up to Murk's barge (the shelf), the Map Table (the Chart) and the Journal lectern, and from the first wing the Long Wall. Be shown the tutorial at the Landing (`OPENING.md` §6: the same beats on the posts; the film hands off through one ink dip). Buy the Bait Bed I–II, Landing lights I, the Long Wall's first wing and the three looks, and see each in the cove; see the Order Board on the barge, the raft's parts on the moored raft, the rod on the rack. See the Mossmere's Waystone lit on the sill, gold once the Matriarch is home, and her print under the arch. Browse ink prints and the giants' page. Sail out under the arch every evening. |
+| **needs** | 5a |
+| **new body plans** | none in M1 (slice 4's snakehead and gar serve later waters: after M1) |
+| **modules** | `world.js` (cove objects per home level; arc I's four Waystones) · `main.js` (the loop's `home` flow in the cove; the film's hand-off through one ink dip to the Landing; the glide in and the glide out under the arch) · `player-cove.js` · `ui-loop.js` (posts for tiles; the Prints page; the giants' page in gold) · `ui-chart.js` (`drawToTexture` for the Map Table's top) · `ui-fishart.js` (the print, the gold frame) · `progression-loop.js` (prints at the measure) · `loop-tutorial.js` (the cue on the Map Table post). `first-evening.js` is not used under the loop |
+| **tests** | the opening ends in the first trip in under 60 s · a print is written for a kept and for a let-go fish · the best print per species wins · every home level changes the scene · the cove's draw calls inside §25.4.7 (≤ 140 / 100, ≤ 4 PointLights) · FE-W1's and FE-S1's acceptance tests for the parts built (the raft never enters a walk shape; a cast onto land is refused; the build ≤ 150 / 600 ms; the glide out reaches the arch line in 6 ± 0.3 s and fires once) · the tutorial's T65, T67 and T72 at the Landing · the v3 scenarios unchanged with `SUPPORTS_COVE` true · `clams.mjs --shipped=mossmere --step=4` |
+| **the user's look** | the Landing at dawn and with its first lights, desktop and phone, before the merge |
+| **left out** | walking at home; the First Evening's fishing lesson and the Quayling (the v3 build's); the keep-pond, the Shrine, the Trials Board, the galleries, stair and upper wall; wings II–IV (they come with their reaches); arcs II–IV |
+
+### M1 step 6 (QUEUE job 14). The polish pass (M).
+
+| | |
+|---|---|
+| **the show's sound mix** | by ear and by the offline render (`tools/audio-render.mjs --set=show`, and a new `--set=home` for the tally and the cove): every class's show, the giant's and the legend's; the card; the tally; the mist lift; the cove bed. Gates: the present the loudest beat of every show; no card sound louder than its show's present; the master's peak ≤ −1.0 dBFS; nothing under the film from a show or a card |
+| **phone performance** | `M1.md` §2.14's budgets on the phone profile (390×844, DPR 3, medium tier, 4× CPU throttle: p95 ≤ 33 ms on the water, in the show and at the Landing), fixed where they fail |
+| **the playthrough** | a scripted run from a fresh save to an empty shelf (`loop-m1.scenario.mjs`: the natural rule at `debug.timeScale` ×4, outcomes untouched; per Wick as machine time allows, Tallow and Ashwick first), ticking `M1.md` §2's boxes and recording each purchase's hour beside the sim's; then the lead's own pass on a phone at real speed (the first 30 minutes and the last purchase) |
+| **the new cut-scene video** | the 18 s film with line 3 and its sound, rendered as the intro stage's deliverables (desktop and phone mp4s, the storyboards), sent to the user |
+| **tests** | every box of `M1.md` §2 |
+
+### After M1 (QUEUE jobs 15–16)
+
+In QUEUE's order: job 15, the ramp is the land (`wf_f7bccff9-e78`) and the rest of slice 1c, then slice 1d (the river spike); job 16, Sporewood and onward: slice 1b's, 2's and 3's Sporewood parts and slice 4's fish lane, then slices 5–9. Each moves `LOOP.shipped` forward as its water ships.
+
+### After M1: Slice 1c: First moss (S–M, an art lane beside 1b). The ramp's first steps on the built waters, switched off until the user says yes.
 
 The greening of the built waters 2–4 lands as early as it can: it touches only `world-art.js`, `world-paint.js`, `world-fx.js`, a new `data.js` export and the tools, and runs in its own lane beside slice 1b, so it never blocks or changes slice 1a. **It ships switched off.** Its data lives in a new export, `ZONE_LOOKS` (keyed by zone id), read by `world-art.js` only when the loop flag is on and the `LOOP.lush` switch is set; `ZONES`, the flag-off game and its fingerprint (`tools/tests/v1-exports.json`) stay byte-identical, and DESIGN's ≤ 2% green-teal gate still holds for the flag-off game. `LOOP.lush` turns on only after the user's yes.
 
@@ -1099,7 +1224,7 @@ The greening of the built waters 2–4 lands as early as it can: it touches only
 | **the user's approval** | the four built lakes side by side by day, dusk and night, for the user's yes **before any new water is built and before `LOOP.lush` turns on** (if Sporewood or Glasswater reads as "green" rather than "a little moss", the step shrinks and the ramp is re-spaced) |
 | **left out** | the full vegetation kit (slice 5), the river layout (slice 1d, then slice 6) |
 
-### Slice 1d: The river spike (S–M, an engine lane right after 1c). A river you can sail, with no fish.
+### After M1: Slice 1d: The river spike (S–M, an engine lane right after 1c). A river you can sail, with no fish.
 
 The riskiest new engine work in the plan is proven first, on a test strip behind its own flag (`GW_RIVER_SPIKE`), long before the river waters are built.
 
@@ -1111,40 +1236,38 @@ The riskiest new engine work in the plan is proven first, on a test strip behind
 | **the user's look** | the spike's frames (landscape and portrait), for a yes on "it reads as a river" before slice 6 builds one |
 | **left out** | fish, places, docks, drift meshes, subtypes (gorge, stair, tide, oxbow) |
 
-### Slice 2: The mist lifts (L). Places, maps and the first giants.
+### After M1: slice 1b's Sporewood half (S). The Sporewood map.
 
 | | |
 |---|---|
-| **the player can** | See mist banks in the Mossmere, with a giant's back turning in one. Buy the Lily Maze, Under the Span, the Buoy Lights and the Bell Pool from a shelf of at most three map cards, each naming its fish. Watch the mist lift. Meet the **Thousandcast Pike** and the **Hullkiss Lamprey**; land one; see its gold card and the Journal's giants page. Meet Elders in old water. Hunt the Belled Matriarch with Heartmoss and be paid 500 for her at the tally. Use the drawn Chart. Sporewood's map now lifts its two banks: the Lullaby and the Gill Harp. |
-| **waters and fish** | the Mossmere's four places; its 2 epic giants and its legend; Kissmark Trout, Gloam Eel (night water), Bridgechain Sturgeon (Under the Span's own); Sporewood's day and old water and the Harpstring Eel |
-| **new body plans** | **lamprey** (the eel with a mouth parameter: S), **sturgeon** (named, now built: M; Bridgechain first), **trout** (the minnow with a fatty fin and jaw: M; Kissmark Trout first) |
-| **modules** | `data.js` (`LOOP.places` for the Mossmere from `MOSSMERE_V3` geometry, and Sporewood's two; giant shares; map cards; place pools: commons ×0.5, a day water's draw ×1.5) · `world.js` / `world-v3.js` / `world-fx.js` (mist banks from the built mist material; the giant's back in the mist; the landmark silhouettes that exist) · `fishing.js` (`placeAt` from `LOOP.places`; good bites and favour by kind; draws; a place's own species; night water; Elders by kind and for giants; the giant's share, floor, favour and Fight; a cast into mist) · `models-fish.js` (three plans) · `render-camera.js` (the mist-lift shot) · `ui-loop.js` (the Chart's sheet, blots, the Maps tab, the gold card) · `progression-loop.js` (maps owned, giants landed, the legend's prize at the tally, wounds) |
-| **tests** | a cast into mist returns and spends nothing · owning a map removes its mist and adds its good bites · a lake map lifts its day and old water · Elders roll only in old water and for a giant at its own place · a giant never bites elsewhere and is never Small · over 20,000 bites at Under the Span the Thousandcast share is 6% ± 1 at dusk and night, 2.5% ± 0.7 by day · the Thousandcast at Prize lands less often than every other Mossmere fish on T1 · night water gives nothing before dark · the shelf never shows more than three maps · the Matriarch needs her pool, her bait, her hour and a free slot · her first-try chance at T1 equals the sim's 27% · draw calls inside §25.8.8's Mossmere line |
-| **left out** | place twists, Moonfall, the harbour re-dress, the other waters' places |
+| **the player can** | Buy the **Sporewood map** (2,000) once the three keys are held (§5.5) and sail to Sporewood's open water; pick a water on the Chart (pan and zoom arrive with the second sheet). |
+| **waters and fish** | Sporewood's open-water roster fish on built plans (Netcloud Fry, Threadling Eel, Velvet Ray on the built ray) and the built species the roster keeps there. (Its day and old water open with its map from slice 2's Sporewood half.) |
+| **modules** | `data.js` (the Sporewood map and tier; Sporewood's `SPECIES_LOOP`; `LOOP.shipped` to Sporewood) · `progression-loop.js` (`createRun` starts in the water tapped) · `ui-chart.js` (the second sheet; pan and zoom) · the generator's export of sheet 2 |
+| **tests** | Sail with the Sporewood map starts in Sporewood · the converter's output equals the sim's species table for Sporewood's fish · nothing of sheet 3 or beyond is drawn |
 
-### Slice 3: Bait, lures and the raft (M), and Sporewood's fish.
+### After M1: slice 2's Sporewood half (M). The Lullaby, the Gill Harp and the Harpstring Eel.
 
 | | |
 |---|---|
-| **the player can** | Fit a lure and a bait. Buy tins for a water and permanent lures, among them the re-aimed Harbour-Bell Spinner. Cut a Small into bait by holding Let go. Buy Oars, the Keel and the Lantern and see them on the raft. Buy the Order Board and fill Murk's orders for double. Read the gear log at the shelf. Catch all of Sporewood's open-water roster fish; see the Matriarch as a catfish and the Velvet Ray as a disc. |
+| **the player can** | Watch Sporewood's map lift its two banks, the Lullaby (day) and the Gill Harp (old); meet the Harpstring Eel. |
+| **modules** | `data.js` (`LOOP.places` for Sporewood's two), the rest as M1 step 3 |
+| **tests** | as M1 step 3, for Sporewood's two places and its giant |
+
+### After M1: slice 3's Sporewood fish (M).
+
+| | |
+|---|---|
+| **the player can** | Catch all of Sporewood's open-water roster fish; see the Velvet Ray as a disc; buy the Moth Popper (with the Sporewood map). |
 | **waters and fish** | Sporewood's open water complete: Cindertail Catfish, Downcast Catfish, Falsesmile Barb, Lostsea Mackerel (4 new) |
-| **new body plans** | **catfish** (31 fish; a new builder from the pike profile: L), **bream** (11; the perch with depth and jaw: M), **disc** (8; the built ray rounded: M), **tuna** (4; the minnow with finlets: M) |
-| **modules** | `data.js` (`LOOP.lures`, `.baitRule`, `.raft`, `.home.orders`; the giants' lure lists) · `progression-loop.js` and `progression-market.js` (tins per water, orders on the bounty engine, no expiry) · `progression-af.js` and `fishing.js` (two fitted items; bait favour; cut bait; bait attract parked) · `actors-raft.js` (the parts' models) · `player.js` (raft speed) · `models-fish.js` (four plans) · `ui-loop.js`, `ui-af.js` |
-| **tests** | lure and bait Hold never stack (the larger counts) · a bait is spent per hooked fish and comes back on a pass · a bait changes the pool only for its bait-only fish · every tin in a water costs 1.5 × its tier · the Keel adds +0.1 favour a level everywhere · family lures do not raise a giant's share; its giants' lure does, ×1.5 · an order doubles exactly the fish that fill it, never names a giant and never expires · the sim's bait rows hold on real data |
-| **left out** | the Bait Bed; new waters' baits |
+| **new body plans** | **bream** (11; the perch with depth and jaw: M), **disc** (8; the built ray rounded: M), **tuna** (4; the minnow with finlets: M); the catfish plan checked against its Sporewood fish |
 
-### Slice 4: Home (L). The Landing in raft mode.
+### After M1: slice 4's fish lane (M), ahead of slice 5.
 
 | | |
 |---|---|
-| **the player can** | Open the game with the cut scene and the First Evening (with the three changed lines). Come home to the cove at dawn and sail up to Murk, the Chart and the Journal. Buy the Bait Bed, the Landing lights, the first wing of the Long Wall and the looks, and see each in the cove. See a Waystone light for each water owned. Browse ink prints and the giants' page. |
-| **needs** | the cove world (FE-W1, `SUPPORTS_COVE`), from the opening lane |
-| **new body plans** (fish lane, ahead of slice 5) | **snakehead** (6; the eel thickened: M), **gar** (4; the pike with a snout: S) |
-| **modules** | `world.js` (cove objects per home level; four Waystone arcs) · `main.js` and `first-evening.js` (the loop's lines and flow; the `home` flow moves into the cove) · `player-cove.js` · `ui-loop.js` (posts for tiles; the Prints page) · `ui-fishart.js` (the print, the gold frame) · `progression-loop.js` (prints at the measure) · `models-fish.js` |
-| **tests** | the First Evening ends in the first trip in under 60 s · a print is written for a kept and for a let-go fish · the best print per species wins · every home level changes the scene · the cove's draw calls inside §25.4.7 |
-| **left out** | walking at home; wings II–IV (they come with their reaches) |
+| **new body plans** | **snakehead** (6; the eel thickened: M), **gar** (4; the pike with a snout: S) |
 
-### Slice 5: The old kingdom, complete (L). The built lakes' places, T3–T5, three legends.
+### After M1: Slice 5: The old kingdom, complete (L). The built lakes' places, T3–T5, three legends.
 
 | | |
 |---|---|
@@ -1157,7 +1280,7 @@ The riskiest new engine work in the plan is proven first, on a test strip behind
 | **tests** | the pacing checks to hour 16 pass on `data.LOOP` · each built water's places exist, lift and fish · the species count per water matches Appendix A · the Lantern-Swallower's first-try chance at T4 equals the sim's 17% |
 | **left out** | the later sheets |
 
-### Slice 6: The cold rim (L+). Waters 5–8: the first green new water, the first river, the sea and the gorge.
+### After M1: Slice 6: The cold rim (L+). Waters 5–8: the first green new water, the first river, the sea and the gorge.
 
 Each half ships **consecutive** waters, so the chain of lake maps (§5.1 rule 4) never skips and the pacing checks run on what ships. **`LOOP.chainSkip`**: should a water slip, its sheet stays sealed on Murk's shelf and the next built water's map needs the last built water instead; the sim gains a `--shipped` mode with this slice (the pacing and ladder checks re-run on the waters actually shipped), and that run is the slice's gate.
 
@@ -1184,7 +1307,7 @@ Each half ships **consecutive** waters, so the chain of lake maps (§5.1 rule 4)
 
 Sizes, re-estimated (v7.1): slice 1d is S–M; the river finish in 6a is M; each river arena is M (the Thin Water, the Gorge), each still arena M. Slices 7 and 8 are re-planned on 6a's measured pace before they start.
 
-### Slice 7: The falls and the gate (L+). Waters 9–12.
+### After M1: Slice 7: The falls and the gate (L+). Waters 9–12.
 
 | | |
 |---|---|
@@ -1197,7 +1320,7 @@ Sizes, re-estimated (v7.1): slice 1d is S–M; the river finish in 6a is M; each
 | **tests** | the pacing and ladder checks to hour 41 · T6 on the shelf with the Thunder Stair · the tide: slack within 5 s of nightfall, docks always reachable, no place leaves slack water at any tide, the drift sim on both tides · the step test for waters 8→12 |
 | **left out** | reach IV |
 
-### Slice 8: The green heart (L+). Waters 13–16.
+### After M1: Slice 8: The green heart (L+). Waters 13–16.
 
 | | |
 |---|---|
@@ -1210,23 +1333,28 @@ Sizes, re-estimated (v7.1): slice 1d is S–M; the river finish in 6a is M; each
 | **tests** | the full pacing run passes on `data.LOOP` (every check of §4.9 and sim section 6) · `roster-check.mjs` and the sim's "every roster fish has a map" pass on the shipped data · the Gill Lodger shows on about 1 in 8 Prize+ Siltway catfish and never bites on its own · the step test for waters 12→16 (night ≥ 25% of day, the night emitters never fewer) · the lush-1 frame inside slice 5's measured budget on medium phones and software GL |
 | **left out** | the later sheets |
 
-### Slice 9: The long tail (each item ships alone, S–M).
+### After M1: Slice 9: The long tail (each item ships alone, S–M).
 
 ~~The four other Wicks (§10.1)~~ (moved to slice 1a by the user's ruling of 14 November 2026) · the Old Ledger's double (`ledgerPaid`) and its ledger glyph · one twist per place (the built §25.8 ideas) · the later sheets (seven places, five built species) · weather as "tonight's water" on the Chart · the ink-print beat in the catch show.
 
 **If the swarm comes back.** It returns as a choice on the Chart ("a quiet evening" or "a Gloomtide evening") by clearing `PARKED.swarm`, `.combat`, `.levels` and `.embers`. Nothing in this spec has to move.
 
-**What each slice brings** (roster fish that can bite at the end of it; giants include legends):
+**What each step and slice brings** (roster fish that can bite at the end of it; giants include legends):
 
-| slice | waters | roster fish | giants | new plans | lushness |
+| step or slice | waters | roster fish | giants | new plans | lushness |
 |---|---|---|---|---|---|
-| 1a | the Mossmere's open water (built species) | 0 | 0 | — | — |
-| 1b | + Sporewood's open water | 11 | 0 | — | — |
-| 1c | (art lane) | — | — | — | the built waters 2–4 at steps 1–3, switched off until the user's yes; the Mossmere unchanged |
-| 1d | (engine lane) | — | — | — | the river spike: a test strip, no fish |
-| 2 | + the Mossmere's places, Sporewood's day and old water | 17 | 4 | lamprey, sturgeon, trout | — |
-| 3 | Sporewood's open water complete | 21 | 4 | catfish, bream, disc, tuna | — |
-| 4 | — | 21 | 4 | snakehead, gar | — |
+| M1 step 1 (slice 1a) | the Mossmere's open water (built species) | 0 | 0 | — | — |
+| M1 step 2 (1b's Mossmere half) | the Mossmere's open water | 8 | 0 | — | — |
+| M1 step 3 (2's Mossmere half) | + the Mossmere's four places | 12 | 3 | lamprey, sturgeon, trout | — |
+| M1 step 4 (3 without Sporewood's fish) | — (the Gloam Eel bites) | 13 | 3 | catfish | — |
+| M1 step 5 (the cove, then 4) | + the Landing (home) | 13 | 3 | — | — |
+| M1 step 6 (polish) | — | 13 | 3 | — | — |
+| after M1: 1b's Sporewood half | + Sporewood's open water | 16 | 3 | — | — |
+| after M1: 1c | (art lane) | — | — | — | the built waters 2–4 at steps 1–3, switched off until the user's yes; the Mossmere unchanged |
+| after M1: 1d | (engine lane) | — | — | — | the river spike: a test strip, no fish |
+| after M1: 2's Sporewood half | + Sporewood's day and old water | 17 | 4 | — | — |
+| after M1: 3's Sporewood fish | Sporewood's open water complete | 21 | 4 | bream, disc, tuna | — |
+| after M1: 4's fish lane | — | 21 | 4 | snakehead, gar | — |
 | 5 | reach I complete | 41 | 12 | cod, flatfish, jack (fish lane, ahead) | the vegetation kit |
 | 6 | reach II, the cold rim (6a: waters 5–6; 6b: 7–8) | 80 | 22 | shark, billfish, dogtooth (+ squid, softshell, salamander) | steps 4–7; the first river finished, then the gorge |
 | 7 | reach III, the falls and the gate | 119 | 35 | sawfish | steps 8–11; the stair and the tide |
@@ -1253,9 +1381,11 @@ Sizes, re-estimated (v7.1): slice 1d is S–M; the river finish in 6a is M; each
 | 13 | **The Salt Gate's tide adds state** (docks, mist banks and the crown's footprint could clip). | The flow is a pure function of the evening clock; **no geometry moves** (the mudflat mesh sinks and the shader's shore line moves); the tests check every place stays slack at every tide and the drift sim runs on both. |
 | 14 | **Pyrefall Gorge's open water is thin** (two commons), so choosy play earned 81–83% there in v7, at slot 6 and at slot 8 alike. | Fixed in the water (v7.1): the Lampspot Snakehead bites in its open water and hunts the Coin Run and the Boulder Garden, and the Gorge's Fight is 30; choosy play earns 87% (sim section 2b, which now checks every new water). It is still the thinnest margin in the run. Knobs: the Lampspot's draw (×2.5), the Gorge's Fight term, or a plain bait override (Shimmerfly). |
 | 15 | **Big legends now come early**: the two largest legends (the Long Winter, 560 cm, landed at about hour 21; the Jetsam Shark, 480 cm, about hour 26) come in the cold rim, and the last legend (the Banked Fire, 325 cm) is not the biggest. | **Put to the user** (§16 question 6), with the other way beside it. Until they answer: a legend's value follows its slot, so the climax is the dearest, not the longest, and the last crown leads with spectacle (the Breathing Mere's sigh in the green hall). |
-| 16 | **Name leaks**: a real river, country, episode or the series slipping into a place name, lure, bait, Murk line or code. | Real places live only in `docs/` (`echoes`, `inspiredBy`, `WATERS.md`'s "modelled on" column and §4.1, §9); slice 1b's allow-list and `validate-data`'s forbidden-name rule cover `src/`; reviewers check every new name. |
+| 16 | **Name leaks**: an episode, the series or its presenter slipping into a place name, lure, bait, Murk line or code (v7.2: real river and lake names may ship, §0 row 17). | Episode titles and the research fields live only in `docs/` (`echoes`, `inspiredBy`, `refWeight`, `WATERS.md`'s "modelled on" column); slice 1b's allow-list and `validate-data`'s forbidden-name rule cover `src/`; reviewers check every new name. |
 | 17 | **The first new map is close in price to the last old one.** The Rime Sound's lake map (29,700) is 1.14× the Pallid Deep's and less than one T5 slot (32,000), because the Rime Sound's own income is modest (its tier 45). | Every other price at slot 5 is floored above slot 4's (1.05×), and the player meets the map while buying T5, so it reads as the next goal, not a bargain. Knob: a floor on the lake map too (1.2× the slot before), which moves the pacing by minutes. |
 | 18 | **The river engine is the largest new system** (the field, the camera rule, the shader, collide, the depth bake, drift, the validator and its sims, every polar consumer). | Proven first in slice 1d on a test strip (S–M), finished in 6a (M), each river arena then M; slices 7–8 re-planned on 6a's measured pace. |
+| 19 | **The five passives drift apart, or one Wick is plainly best** (Tallow's late holds and 6-minute trips; Taper strong in 1a; Ashwick and the Wick front-loaded) | `WICKS.md` §3's checks per Wick, §6.3's risks and §3.3's knobs in order; Tallow's cap fallback (its hold stops at 8). |
+| 20 | **M1 ends flat, slips, or its Chart costs too much** | `docs/loop/M1.md` §7 (fourteen risks with their guards); decision 38's column is the size knob, never a price |
 
 ---
 
@@ -1271,7 +1401,7 @@ v4's rulings on the three proposals stand, the roster brought new ones, and v6 r
 | the catalogue | 3 charts + 26 place maps | 3 lake maps + 16 place maps | — | **15 lake maps + 40 place maps; a lake map opens its day and old water** (v6; v5: 15 + 70; v4: 3 + 16) | the roster's 16 waters; one pattern of four places, a fifth where a giant needs one |
 | price scale | Sporewood 1,000 · Glasswater 7,000 · Pallid 28,000 | 400 · 1,200 · 2,800 | — | **2,000 · 10,200 · 26,000, then 29,700 … 983,500** (v6: lake maps that open three places; v7 and v7.1: re-derived for the new order) | re-fitted to this sim; no wait above 90 min |
 | a lake needs a place of the lake before | — | yes, one | — | **no** | clams are the only key |
-| the hold | 3 → 10 | 3 → 7 | 3, 4, 5, 8 tried | **3 → 8** | trips stay under 6 minutes, the visit home included |
+| the hold | 3 → 10 | 3 → 7 | 3, 4, 5, 8 tried | **3 → 8** (Tallow: 4 → 9) | trips stay under 6 minutes, the visit home included (`WICKS.md` check 1 holds Tallow's to ≤ 6 min) |
 | raft parts | Oars, Quiet Hull, Lantern, Moss Lining (+5% sale) | hold, bait box, oars, lamp | — | **hold, Oars, Keel, Lantern** (v6: Quiet Hull cut) | no percentage on the sale anywhere |
 | home | Order Board, Bait Bed, Long Wall, cosmetics | sheets pinned, Waystones lit | — | **both** | the user listed the home |
 | a place you do not own | a named blank on Murk's table | standing mist | — | **mist in the world, with its giant's back; an unnamed blot on the Chart** | the water sells the map |
@@ -1293,10 +1423,17 @@ v4's five questions were answered on 13 November 2026 ("Yes to all five loop rul
 4. ~~Should a lake map open its day water and old water at once?~~ **Answered: yes, two mist banks lift on the first evening.**
 5. (v6's let-go rule) ~~A fish let go returns its good bite and adds +0.2 favour there, up to +0.4?~~ **Answered: yes.**
 
+**v7.2.** The user answered `WICKS.md`'s five questions on 15 November 2026 ("Default for all except 4 which i want yes", §0 row 12) and said yes to the map as the Chart and to M1 (§0 rows 13–14); they are decisions now. PLAN §7.1's question about the Jetty as home is answered by M1 (the Landing is built in step 5); its other user questions stay open on their defaults (no line under the logotype; the Wick fixed until a start-over). Questions 8–12 are kept for the three keys (v8). M1 asks two (13–14, below; `docs/loop/M1.md` §8).
+
 **v7 raises two smaller questions** (the build goes ahead on the defaults):
 
 6. **Is the new order right, given what it costs?** v7 put the cold, salt waters early and the rainforest waters late, so the greenest waters come last and every giant keeps its home. **The trade, plainly: the new order brings the two largest legends (the Long Winter, 560 cm, and the Jetsam Shark, 480 cm) to hours 21–26, and the last legend, the Banked Fire (325 cm), is smaller than both.** The climax is the dearest legend, not the biggest. The other ways: (a) **v6's order, every water re-themed lush where it stands**: a temperate-rainforest fjord at slot 16 (moss-hung spruce, waterfalls, its ice only at the head, round the Lantern Hole and the Long Winter) and the Jetsam Shark's swell beside a high green island at 15, the fen, the slough and the Inkwood early and less green than now; the biggest legends come last, but the late steps are the hardest to make lush; (b) **the new order with the legends' sizes swapped in the roster** (not proposed: the roster's giants follow their episodes). **Default: the new order** (v7.1 makes the Rime Sound a rainforest fjord and gives the Last Light its green island, so both are real steps up).
 7. **Is the first step small enough?** Slice 1c shows the four built lakes side by side (day, dusk, night) with their first moss before any new water is built, and the repaint stays switched off until the user says yes. **Default: the steps of `WATERS.md` §1 (green share by day 3, 5.5 and 8% for waters 2–4), shrunk if the user says it reads as green.**
+
+**v7.2 raises two** (M1 builds the defaults):
+
+13. **Is about 2.5–3 hours the right size for "the Mossmere and the Landing, complete"?** M1's shelf ends with the hold at 6 (Tallow 7), tackle T2, the raft's and the home's first two levels, the Long Wall's first wing and the first three looks; the bigger hold steps, Keel III, the third Order Board and Bait Bed, the brighter Landing lights and the dearer looks come with the later waters where the full game buys them (decision 38). **Default: yes, as planned.** The other way: bring Hold 7 and Keel III into M1 (about +45 minutes on the Mossmere).
+14. **The Mossmere's harbour re-dress** (DESIGN W9: arches and a broken deck over the Toppled Bridge, buoy-lanterns in place of the street lamp-posts, a leaning toll-tower, a water-curtain down the east cliff) changes the look the user approved, to take out the last of the "drowned high street". **Default: built in M1 step 3 behind `LOOP.redress` and shown side by side; on only after the user's yes.**
 
 ---
 

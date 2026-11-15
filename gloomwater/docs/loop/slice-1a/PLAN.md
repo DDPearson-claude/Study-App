@@ -18,6 +18,12 @@ Jetty's lore gap stated, Escape at home given a lane and a touch path, home fixe
 the tutorial, `loopWickId` and `sailPlan` moved into `data.js`, the first film abandoned to the title, Settings under the
 loop, and T73–T75 and PLAN CHOICEs 42–46 added (each amended passage says "(rev. 4)").
 
+**Revision 6 (15 November 2026) applies the M1 plan** (`docs/loop/M1.md`, QUEUE job 5; SPEC v7.2): slice 1a is **M1 step 1**
+(QUEUE job 9), and it now carries `WICKS.md` revision 3 (the five passives, Tallow the carrier), the film's new line 3, the
+catch show's four leftovers from QUEUE's backlog, pounds on the tally, the Chart's 1a part and the M1 sim gate. The list is
+§0 below; each amended passage elsewhere says "(rev. 6)". It runs after pounds (`gw-pounds`) has merged and after the three
+keys (QUEUE job 6) and the Wicks' balancing (QUEUE job 8, `clams.mjs --wicks`) are committed, so S2's data has its numbers.
+
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
 three conflicts with `gw-show`. Lane A then writes the **seam commit S** on M (§2.0: the data tables, the switch,
@@ -77,6 +83,25 @@ or `M:N` (a trial merge of 3292886 and `gw-show`). In M, find code by its functi
 - The built hour rule `timeOk`: `'calm'` bites in every phase but `gloomtide` (so already at dusk), `'gloom'` only in
   `gloomtide`, anything else always. Only the roster's strings need the loop's window table.
 
+## 0. Revision 6: what M1 step 1 adds (15 November 2026)
+
+| what | lane | the work | proved by |
+|---|---|---|---|
+| **the five passives** (`WICKS.md` §2, §5) | A | `data.js` (S2): `LOOP.wicks` in WICKS §5's shape (§2.1 item 15, rev. 6), `LOOP.priceFactor: 1`, the pure exports `wickPoolWeights`, `wickSlots(holdSlots, wickId)`, `loopSlots(metaLoop, wickId)`, `quietTerms(over, wickId)` and `goodBitesFor({kind, holdSlots, wickId})` (open water `wickSlots(holdSlots, wickId) × openPerSlot + openExtra + good`), `TEXT_LOOP.wicks` (the five lines), `TEXT_LOOP.murk.firstChartBy = {tallow: 'Four slots in that hold. Fill them and come home.'}`, the apply block's `CATCH_V3.buffs.wicks.ashwick = {hold: LOOP.wicks.ashwick.hold}` under `if (LOOP_ENABLED)` only (no Tallow buff); `progression.js` (`measure` → `fish.first` and the `firsts` ledger; `computeStats`' `creelSize = loopSlots(meta.loop, r.character)`; the only stat is Stub's `lightRadius` look); `progression-loop.js` (`saleOf`, the comeback, `isFirstBite`, `favour` with the Wick, `hold().slots` / `holdFull` / `bitesLeft` through `loopSlots`; `meta.loop.firsts`, `run.comeback`, `run.flags.openComeback`); `progression-af.js` (`onEscaped`'s marking); `validate-data` (each knob in its range; each line ≤ 8 words and ≤ 36 characters; `firstChartBy` keys are Wick ids); `clams.mjs` and `catch-v3.mjs` are the balancing job's | T1, T10, T23/T24, T53, T61, T72, T75 as `WICKS.md` §5 rewrites them; T76–T80 (WICKS's proposed tests: the Wick, Taper, Stub, Tallow, Ashwick) |
+| | B | `fishing.js`: Taper's first bite in `rollSpecies`, `signTiltOk` and the preroll; Stub's wait (`W *= waitMul × quiet.waitMult` before the clamp; not on a legend cast); Ashwick's comeback bite (`rollBite` reuses `z` through `S.prerollSp/S.prerollZ`; `fishing:bite {comeback: true}`; `loop.consumeComeback()`; the ember `fx.pulse` when the float settles); **nothing for Tallow**. Audio: `coinBright`, the ember hiss. `survival.js` is not touched (Long Night is withdrawn) | B's fishing tests per Wick (the spook rate recorded) |
+| | C | the tally's double tick and seal glyph for a first (`sfx('coinBright')`, falling back to `coin`); the five lines under New Descent; the hold row and the Chart's cells from `loop.hold().slots` (never a Wick test in the view); `murkLineFor('firstChart', wick)`; the goal line's "Hold N" from `wickSlots` of the next step (Tallow at the start: "Next: Hold 5 · 30") | T23/T24, T59, T65/T67 with Tallow (four cells, its line, the same on a reload) |
+| | D | a per-Wick smoke step (each Wick's "seen" event: the Wick's first-sale ticks; Taper's non-common first card; Stub's quick bite; for Tallow, four cells on the Chart, Murk's "Four slots" line and four fish home before "Hold's full."; Ashwick's ember-glow comeback; the comeback and the linger never on one cast); the line one line high on a phone; Tallow's 6 cells at Hold 5 on a phone. The main pass reads its counts from `loop.hold().slots` and its goal line from `goalLine` (Tallow: keep 4, the 5th refused, `Next: Hold 5 · 30`, then `holdSlots === 4` and 5 empty cells, T50 at 1 of 4) | T36 (the default Wick's "three fish" becomes "a full hold"), the `--wick=<id>` passes |
+| **the film's line 3** (SPEC §0 row 16, `LORE.md` §12) | B (with A's apply-block line, §2.5) | §2.2 item 26 | `intro-length`, the A5 words test, the v3 fingerprint unchanged |
+| **the catch show's leftovers** (QUEUE's backlog for job 9) | B | §2.2 item 25 | the offline show render's gates; `intro-show-seam`; `show-seq` |
+| **pounds** (`gw-pounds`, merged first) | A, C | A: `endTrip` stores each fish's weight with the result (`data.fishWeight`); C: the tally's rows lightest first, heaviest last, each with its weight small (`fmtWeight`); the card is `gw-pounds`' as merged | T21, T22 with weights; T43's allow-list takes a weight |
+| **the Chart's 1a part** (SPEC §5.4, `M1.md` §3.6) | C | the Chart is a list drawn from a new pure `chartModel(meta, D)` (§2.3 item 2, rev. 6), which M1 step 3's drawn Chart draws instead; no Sporewood row; the row `[data-water=mossmere]`, its cells `.gw-slot`, Sail `[data-action=sail]` | `ui-loop.test` (`chartModel` on a fresh save: one sheet, no places, no next); T65 unchanged |
+| **the M1 sim gate** | A | `clams.mjs --shipped=mossmere --step=1a` once the balancing jobs commit it (`M1.md` §6.4); until then `--quick` | §6.2 |
+| **§7.1** | — | the Jetty question is answered by M1 (the Landing is built in step 5); "Do the five passives feel right?" is added | — |
+
+The R11 phone check grows with Tallow: 6 cells at 1a's Hold 5 must fit the top-left row beside the right cluster; if they do
+not, slice 2's two-row wrap comes into 1a. The good-bite dots stay `min(9, bitesLeft)` in 1a (Tallow's open water has at most
+8 at Hold 5).
+
 ---
 
 ## 1. Scope
@@ -89,7 +114,7 @@ or `M:N` (a trial merge of 3292886 and `gw-show`). In M, find code by its functi
 | P2 | Sail to the Mossmere's open water for an evening | A (`createTrip`), B (`game.sail` → `startTrip`), C (the Chart) | T36, T45 |
 | P3 | Catch fish automatically (as built) | B (fishing, unchanged except the guards) | T36, T52, T55; v3 fishing tests unchanged |
 | P4 | Keep or let go at the card, seeing the clams | A (`fishAction`, `priceOf`), C (the card's buttons) | T4–T6, T36, T54 |
-| P5 | Fill three slots; be refused a cast when full | A (`holdFull`), B (the cast refusal), C (the slots, the line, the pulse) | T1–T3, T36 |
+| P5 | Fill the hold (three slots; four for Tallow, rev. 6); be refused a cast when full | A (`holdFull`), B (the cast refusal), C (the slots, the line, the pulse) | T1–T3, T36 |
 | P6 | Go home (press and hold) | B (`goHome`, `endRun('home')`), C (the Home pill) | T21, T31, T36, T49, T50 |
 | P7 | Watch Murk's tally | A (`endTrip`), C (the tally screen) | T21, T22, T36 |
 | P8 | Buy Hold 4, Hold 5, Rod, Line and Reel T1 and T2 | A (`loop.buy`, `loop.shelf`), C (the shelf) | T23–T25, T36, T53 |
@@ -98,7 +123,7 @@ or `M:N` (a trial merge of 3292886 and `gw-show`). In M, find code by its functi
 | P11 | Never fail | B (survival, combat parked), A (parked rewards), A+B+C (the gate is scenery) | T26–T29, T46, T58 |
 | P12 | (rev. 3) Press **New Descent** on a fresh save and choose only a Wick: five Wicks, all free, each a look, a name and one fishing trait line; then **Start** | C (the title, the panel), A (`LOOP.wicks`, `TEXT_LOOP.wicks`, `meta.loop.wick`, the traits) | T59, T61, T62, T71 |
 | P13 | (rev. 3) Press Start and go straight into the cut scene (Skip works), the chosen Wick in it, then glide to the Jetty | B (`beginIntro` under the loop, `enterHome('intro')`), C (the panel held under the ink) | T60, T63, T64, T71 |
-| P14 | (rev. 3) Be shown home in a very short tutorial at the Jetty: Murk's wake line, the Chart, the three empty slots, Murk's departure line, Sail; never trapped | C (`loop-tutorial.js`, the Jetty and Chart cues), A (`meta.loop.tutorial`), B (the glides) | T65, T67, T73 |
+| P14 | (rev. 3) Be shown home in a very short tutorial at the Jetty: Murk's wake line, the Chart, the hold's empty slots (three; four for Tallow, rev. 6), Murk's departure line (Tallow's names four), Sail; never trapped | C (`loop-tutorial.js`, the Jetty and Chart cues), A (`meta.loop.tutorial`), B (the glides) | T65, T67, T73 |
 | P15 | (rev. 3) Sail and watch the raft glide out to the Mossmere's open water; on the first trip, the built light hints and two short tips teach the cast and the strike | B (the glide out), C (the two tips), A (`LOOP.tutorial`) | T66, T68, T72 |
 | P16 | (rev. 3) Come back later and never see the tutorial again; close the game mid-tutorial and resume it at home | A, B, C | T62, T67 |
 | P17 | (rev. 3) Reach Settings from every title and start over only through Settings' **Forget everything** (in-page confirms); (rev. 4) reach Settings at home too (Escape or the quiet pause glyph), with no parked rows under the loop | C | T62, T69, T73, T74 |
@@ -334,28 +359,35 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
     lines go to the lead as a one-line SPEC errata request with the 1a commit.
 14. **The gate is scenery** (the facts' reference): item 6's last bullets (`evaluateGate`, `openGate`, `travel`, `syncGateVisual`).
 15. (rev. 3) **The opening's data and state** (`docs/loop/OPENING.md`), in S2:
-    - `LOOP.wicks` (in the LOOP block): `{ order: ['wick', 'taper', 'stub', 'tallow', 'ashwick'], wick: {stats: {}},
-      taper: {stats: {castMax: 4, hookWindow: 0.10}}, stub: {stats: {moveSpeed: 1.0, lightRadius: 1.5}}, tallow: {stats:
-      {moveSpeed: -0.8}, hold: {n: 2, fromClass: 'trophy'}}, ashwick: {stats: {}, hold: {n: 3, on: 'firstHookEachNight'}} }`
-      (SPEC §10.1's traits; the values are the built `CHARACTERS` effects where §10.1 cites them). A pure
+    - `LOOP.wicks` (in the LOOP block; rev. 6, `WICKS.md` §5's shape): `{ order: ['wick', 'taper', 'stub', 'tallow',
+      'ashwick'], wick: {passive: 'curious', firstMult: 1.5, firstFloor: 0.4, stats: {}}, taper: {passive: 'long_reach',
+      firstBites: 1, perWater: true, giantShare: 1.3, giantCap: 0.12, stats: {}}, stub: {passive: 'moth_bright', waitMul:
+      0.75, quietStep: 0.08, quietWait: false, stats: {lightRadius: 1.5}}, tallow: {passive: 'broad_back', slots: 1, good: 1,
+      stats: {}}, ashwick: {passive: 'burns_back', hold: 4, stats: {}} }`, and `LOOP.priceFactor: 1` (SPEC §10.1's passives;
+      every number a starting number the balancing job sets). Beside `loopWickId`: `wickPoolWeights`, `wickSlots(holdSlots,
+      wickId)`, `loopSlots(metaLoop, wickId)`, `quietTerms(over, wickId)`, `goodBitesFor({kind, holdSlots, wickId})` (§0). A pure
       `loopWickId(id) → id | 'wick'` beside `loopWaterKey`, reading `LOOP.wicks.order` (rev. 4: the only implementation;
       main, `loop-rules.js` and progression import or read it, none keeps its own list). (rev. 4) A pure
       `sailPlan(dock, centre, T = LOOP.tutorial, lake) → {from, to, yaw}` beside it: `T.outPath[lake]` when given, else
       `T.outDist` m from the dock toward the lake's centre; main's `game.sail` and `validate-data --loop` both call it.
     - `LOOP.tutorial = { arrive: 3, out: 3, chartWait: 3, slotInk: 0.25, castTipAfter: 1.5, outDist: 15,
       outPath: { mossmere: [[24, 38], [16, 25.3]] }, budget: { reference: 20, tapThrough: 8, max: 45 } }`.
-    - `TEXT_LOOP` gains: `newDescent: 'New Descent'`, `start: 'Start'`, `back: 'Back'`, `wicks: { wick: 'Balanced.', taper:
-      'Casts farther. More time to strike.', stub: 'Sails faster. A wider light.', tallow: 'Sails slower. Holds big fish
-      better.', ashwick: 'Holds the first fish after dark better.' }`, `murk.wake: "Awake, little Wick? Good. Fish sell. Clams
+    - `TEXT_LOOP` gains: `newDescent: 'New Descent'`, `start: 'Start'`, `back: 'Back'`, `wicks: { wick: 'Firsts and new bests sell higher.',
+      taper: 'First bites are never common fish.', stub: 'Quick bites, even on quiet water.', tallow: 'Stout enough for one
+      more fish.', ashwick: 'A fish that gets away comes back.' }` (rev. 6, `WICKS.md` §2's lines), `murk.firstChartBy: {
+      tallow: 'Four slots in that hold. Fill them and come home.' }` (rev. 6, beside `murk.firstChart`)`, `murk.wake: "Awake, little Wick? Good. Fish sell. Clams
       buy. That's the whole of it."` (SPEC §11), `forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm:
       'Every clam, every piece of gear and every name in the Journal will be lost.' }`, and (rev. 4, CHOICE 43) `settings:
       { ringFirst: 'First evening', hurry: 'From your second evening, hold anywhere to hurry a small fish in. It never
       changes the outcome' }`. Each passes the originality scan and the no-Shells/Memories/Descent rule except `newDescent`
       (the user's own word, allowed on the title and the panel only, T43). The trait lines, `back`, `forget` and `settings`
-      are this plan's wording and wait on the lead's sign-off (§7.1); `newDescent`, `start`, `murk.wake` are the user's or
+      are this plan's wording (rev. 6: the five lines are now `WICKS.md`'s, the user's "as written" of 15 November 2026) and wait on the lead's sign-off (§7.1); `newDescent`, `start`, `murk.wake` are the user's or
       the spec's.
-    - The apply block, under `if (LOOP_ENABLED)` only: `CATCH_V3.buffs.wicks.tallow = { hold: 2 }` (the class gate is
-      `getCatchBuffs`'s, item 8; `catchBuffHold` is an exported function and is not edited, §4.1 rule 7).
+    - The apply block, under `if (LOOP_ENABLED)` only (rev. 6): `CATCH_V3.buffs.wicks.ashwick = { hold:
+      LOOP.wicks.ashwick.hold }` (no `on`; `getCatchBuffs` returns `character: 'ashwick'` only while a comeback bite is open;
+      `catchBuffHold` is an exported function and is not edited, §4.1 rule 7). No Tallow buff: Tallow's passive is the hold,
+      never the fight's Hold. And (rev. 6, B's request, §2.5) `INTRO.text[2] = INTRO.cove.text[2] = TEXT_LOOP.introLine3`
+      with `TEXT_LOOP.introLine3 = 'Its last candles fish from lamp to lamp.'`.
     - `progression-loop.js`: `freshLoop` adds `wick: null, tutorial: null`; `migrateLoop(meta, D, {hasTrip})` fills them,
       and a block with `evenings > 0`, a `lastTrip` or `hasTrip` (rev. 4) and no tutorial gets `tutorial {done: true, step:
       null}` and `wick 'wick'`. Methods (§3.3): `wick()`, `setWick(id)` (in memory; the next save writes it; rev. 4:
@@ -561,6 +593,33 @@ passes, with pass 3 now checking the new v3 fingerprint; the `--loop` pass comes
     film was a first play (`!introFlow.replay`, read before it is reset), calls `ctx.progression.loop?.setWick?.(null)`
     before `setFlow('title')`, so the title is fresh again (New Descent, not Continue) and a `pagehide` save writes
     `wick: null`. `failIntro` is unchanged (it hands over through `onIntroDone`, as built).
+25. (rev. 6) **The catch show's four leftovers** (QUEUE's backlog for job 9; found on the show's merge, 15 November 2026):
+    - **The grade under a replayed film**: `render.js` eases `trophyK` toward the trophy grade while `showCam.w > 0.5` even
+      when the film's camera is set, so a Prologue started straight from a show's card opens with the trophy vignette and
+      saturation for about 2 s. The film owns the grade as it owns the lens: while the film's camera is set, `trophyK` eases
+      to 0. Test: a Prologue from an open card shows no trophy grade from its first frame (`intro-show-seam`).
+    - **The card's stamp under the film**: a card closed before its stamp still emits `card:stamp` next frame, and
+      `audio.js`'s handler has no flow guard, so a seal and its duck can sound under the film's first frame. The handler
+      plays only in flow `playing` (or `home`), and the card drops its stamp when its panel has left the play. Test: no
+      `card:stamp` sound in flow `intro`.
+    - **A trial completing on a catch rings inside the show** (`challenge_complete`, `unlock`; v3 without the loop, since the
+      loop parks challenges): the sounds are held with their toasts until the card. Test: none of the two in the show's
+      window of `show-seq`'s audio log.
+    - **The show's sound mix, its measured faults** (`tools/out/show-merge` on `gw-show-merge`; the offline render,
+      `node tools/audio-render.mjs --set=show`): the present must be the loudest beat of each show (today the caught
+      instant's chime, splash and haul are); an Elder's card must not out-shout its show (three class chimes at −2.9 dBFS, the
+      black-wax stamp the loudest sample at −1.5): no card sound above its show's present, the master's peak ≤ −1.0 dBFS; the
+      Small's cord ticks ≥ 6 dB over the bed; no hush rise on the card's first frame (the lake rise's gulp: the hush waits
+      for the card); the unfold gets its own sound (`ui_unfold`, in place of the generic `ui_open`). These are gates on the
+      render's numbers; the by-ear mix of every class is M1 step 6's.
+26. (rev. 6) **The film's line 3** (SPEC §0 row 16, `LORE.md` §12): under the loop the third line is "Its last candles fish
+    from lamp to lamp." (40 characters), set in `data.js`'s apply block (A writes the line, §2.1 item 15; B owns the
+    film's behaviour and its checks). The v3-without-loop film keeps "Its last candles fish to stay lit." (its fingerprint
+    and `intro-flow` are unchanged). Its timing `INTRO.lines[2]` stays `{at: 12.5, out: 14.85}`: 40 characters in 2.35 s is
+    17.0 a second, under the film's 17.5 rule (A5). B runs `intro-length` and the A5 words test with the loop on; if either
+    fails, or the line takes two rows at 390 px and its box leaves the words band, `out` moves later by at most 0.15 s
+    (the raft must still be clear of the band, `intro-shots`), never `at` (the `below` beat ends at 12.4 s). The new
+    cut-scene video with this line and its sound is M1 step 6's, not 1a's.
 
 ### 2.3 Lane C: the screens
 
@@ -586,7 +645,8 @@ the stager has nothing to swap.
 2. **ui-loop.js** (new), `createLoopView(K)`: the hold row, the Home pill, the Jetty, the tally, the shelf, the Chart, Murk's
    lines. Pure exports for node: `slotCells`, `tallyPlan`, `goalLine`, `shelfCards`, `murkLineFor`, `clamTag` (uses
    `core.fmtClams`).
-   - **The hold** (§3.1, §8.1): a `.gw-hold` row appended into `.gw-tl` (ui-hud.js:22): `holdSlots` cells; a kept fish is a
+   - **The hold** (§3.1, §8.1): a `.gw-hold` row appended into `.gw-tl` (ui-hud.js:22): `loop.hold().slots` cells (rev. 6:
+     the Wick's count, Tallow one more; the view never tests the Wick); a kept fish is a
      `drawFishInk` canvas (~34×20) scaled by class (Small 0.7 … Elder 1.2), gold-edged (`--gold` drop-shadow) for an epic or
      legendary fish. Data: `ctx.progression.loop.hold()`. Repaint on `fish:action` and `run:start`; shake on
      `loop:holdFull`.
@@ -613,8 +673,10 @@ the stager has nothing to swap.
    - **The tally** (§8.3): `openModal('tally', …, {dismissable: false, onEscape: skipToEnd})` on `home:enter {tally}` (after
      `run:end`'s `closeAll`) or at the Jetty when `loop.lastTrip()` is unseen (a reload). **Murk's scale**: one ink drawing
      (a beam and two pans, `ui-icons` style) at the top of the sheet; each fish, a small ink fish, settles onto the pan as its
-     row counts up. Rows from `tallyPlan(tally)`: ascending by clams, giants and legends last, a giant alone with a longer
-     pause; the name small, the value counting up with one `sfx('coin')`; then the total `+N` in gold; one button **Sold**
+     row counts up. Rows from `tallyPlan(tally)`: (rev. 6, pounds) ascending by the weight the card showed (lightest first,
+     heaviest last), giants and legends last, a giant alone with a longer pause; the name small with its weight beside it
+     (`fmtWeight`, stored with the result by `endTrip`), the value counting up with one `sfx('coin')` (rev. 6: a Wick's first
+     ticks twice, its base then its sale, with `sfx('coinBright')` and the seal glyph, from the row's `{base, clams, first}`); then the total `+N` in gold; one button **Sold**
      (`data-action="sold"`). A tap, Enter or Esc skips to the end; a second tap or Enter presses Sold (Esc never does). An empty hold: Murk's line `TEXT_LOOP.murk.empty` and **Sold** (**PLAN CHOICE 10**). Sold →
      `loop.markTallySeen(id)`, close, open the Jetty. The tally never pays.
    - **The shelf** (§8.4): `openModal('shelf', …, {onEscape: backToJetty})` from the Murk tile; its own render (never
@@ -632,12 +694,19 @@ the stager has nothing to swap.
      while `loop.tutorial?.()?.done !== true` it is the tutorial's (`cue().line`, item 8), shown on **every** Chart open
      before the first Sail, and `sayOnce('firstChart')` is not called; `said.firstChart` is written by `tutorialDone()` at
      the first Sail. After that the Chart has no line (it has been said). One owner, so neither a double line nor a lost one.
+     (rev. 6) The line is `murkLineFor('firstChart', wick)`: `TEXT_LOOP.murk.firstChartBy[wick]` when it exists (Tallow's
+     "Four slots in that hold. Fill them and come home."), else `firstChart`. The Chart renders a new pure export,
+     **`chartModel(meta, D, {tutorial})`** (beside `slotCells`; SPEC §5.4, `M1.md` §3.8): in 1a one sheet (the Mossmere,
+     open water chosen, no places), no `next`, `hold.slots` from `loop.hold().slots`. M1 step 3's drawn Chart draws the same
+     model, so the row keeps `[data-water=mossmere]`, its cells `.gw-slot` and Sail `[data-action=sail]`, and T65 does not
+     change. No Sporewood row in 1a (the tutorial's Chart holds one water and one line).
      (rev. 3) A Sail press disables Sail at once (the glide out runs behind it, §2.2 item 4).
    - (rev. 3) **The tutorial on the Jetty and the Chart** (item 8): on `home:enter`, when `loop.tutorial?.()?.done !== true` (rev. 4: a null record reads as not done; B's `enterHome` has already begun it),
      `tutorial.start({from})`. The Jetty reads `tutorial.cue()`: the Chart tile gets `.gw-cue`, Murk and Journal `.gw-dim`
      (still live), the goal line is not drawn, `.gw-murk-line` shows the wake line (`TEXT_LOOP.murk.wake`). A tap on the
      sheet outside a tile → `tutorial.tap()`; the Chart tile → `tutorial.onTile('chart')` then the Chart. The Chart under
-     the tutorial: the three slot cells start empty and ink in `LOOP.tutorial.slotInk` s apart as `firstChart` appears;
+     the tutorial: the hold's slot cells (three; four for Tallow, rev. 6) start empty and ink in `LOOP.tutorial.slotInk` s
+     apart as the departure line appears;
      Sail has `.gw-cue`; its `onEscape` also calls `tutorial.onEscapeChart()`; Sail → `tutorial.onSail()` then
      `ctx.game.sail(...)`. `tutorial.update(dt)` runs in `loopView.update` on real dt, and the machine's clock only moves
      while the top modal is `jetty` or `chart`. When the machine asks for the Chart (`tutorial.wantsChart`), ui-loop opens it
@@ -735,7 +804,7 @@ the stager has nothing to swap.
    only ends the machine). ui-loop creates it only when `LOOP_ENABLED`. Tests: `tools/tests/loop-tutorial.test.mjs` (T65),
    with a fake bus and `fakeLoop`. (rev. 4) Two rules: the wake's self-opening of the Chart fires **at most once** per
    start (`state.autoOpened`); after `onEscapeChart()` it never fires again and only the tile's cue remains. In the chart
-   beat `cue().line` is `TEXT_LOOP.murk.firstChart` (read directly, never through `sayOnce`) every time the Chart is the
+   beat `cue().line` is `murkLineFor('firstChart', wick)` (rev. 6; read directly, never through `sayOnce`) every time the Chart is the
    top screen, so a reload or an Escape never loses the line. The clock moves only while the top modal is `jetty` or
    `chart` (so `homepause`, `settings`, `shelf` and the Journal hold it).
 9. (rev. 3) **`src/ui-intro.js` `takeTitle` / `dropTitle`**: `takeTitle` also holds an open `newdescent` entry the same way
@@ -1201,8 +1270,10 @@ The whole design is `docs/loop/OPENING.md`; this is how the built opening is reu
   begins, Murk's barge is moored, the save is written, then flow `home` and the **3 s** glide from where the film left the
   raft to the first dock while the sky eases to home's dawn look (**PLAN CHOICEs 2 and 35**). The camera stays in `'sail'`
   from the film's last frame (§2.2 item 18), so releasing the film's camera does not pop.
-- Then the tutorial at the Jetty (§5.5): the wake line, the Chart, the three empty slots and Murk's departure line
-  "Three slots in that hold. Fill them and come home." (SPEC §11, §8.6), **Sail**, and the glide out.
+- Then the tutorial at the Jetty (§5.5): the wake line, the Chart, the hold's empty slots (three; four for Tallow, rev. 6)
+  and Murk's departure line "Three slots in that hold. Fill them and come home." (Tallow: "Four slots …"; SPEC §11, §8.6),
+  **Sail**, and the glide out. (rev. 6) Under the loop the film's line 3 is "Its last candles fish from lamp to lamp."
+  (§2.2 item 26).
 - `introPending` stays `meta.runs === 0 && !meta.intro.seen` and is read only by the flag-off and v3 titles. Under the loop
   the film is played by Start whenever `filmAllowed` (a release build; a debug build after the opt-in), and replayed by the
   **Prologue** word on the Continue title when `replayOffered` (the lead keeps it: §7.3).
@@ -1258,7 +1329,7 @@ withdrawn.) Whether the user wants a line under the name is a question for the u
 |---|---|---|---|---|---|
 | arrive | B (`enterHome('intro')`) | the 3 s glide to `docks[0]` | none | its end, or a tap | 3 s |
 | wake | C (`loop-tutorial`, the Jetty) | the three tiles, the Chart tile `.gw-cue`, Murk and Journal `.gw-dim`, the purse, no goal line | `TEXT_LOOP.murk.wake` (5.95 s, the grumble) | a Chart tap; a tap elsewhere ends the line; the Chart opens itself `chartWait` (3 s) after the line | ≤ 9 s |
-| chart | C (the Chart) | the Mossmere chosen, three empty slots inking in 0.25 s apart, Sail `.gw-cue` and live | `TEXT_LOOP.murk.firstChart` (rev. 4: the tutorial's, on every Chart open before the first Sail; `said.firstChart` written at Sail) | **Sail**, by the player only; Esc → back to the wake's cue (no line, and the Chart never opens itself again) | ≈ 3 s |
+| chart | C (the Chart) | the Mossmere chosen, the hold's empty slots (`loop.hold().slots`: three, four for Tallow; rev. 6) inking in 0.25 s apart, Sail `.gw-cue` and live | `murkLineFor('firstChart', meta.loop.wick)` (rev. 4: the tutorial's, on every Chart open before the first Sail; `said.firstChart` written at Sail; rev. 6: Tallow's names four, one character shorter, so the budget does not grow) | **Sail**, by the player only; Esc → back to the wake's cue (no line, and the Chart never opens itself again) | ≈ 3 s |
 | out | B (`game.sail`) | the screens close; the 3 s glide out | none | its end, or a tap | 3 s |
 
 With no taps and Sail pressed 2.5 s after the Chart opens: 3 + 5.95 + 3 + 2.5 + 3 ≈ 17.5 s (T65's reference ≤ 20 s); tapping
@@ -1373,7 +1444,9 @@ home could still move (the 1 h clams, the trip minutes, the choosy %), the knob 
 (rev. 4, T75) The five Wicks: Taper's strike window and Tallow's and Ashwick's Hold raise the land chance, so the 1 h clams
 and choosy checks run once per `LOOP.wicks` entry with the traits the sim models, and every Wick must pass the same band (a
 Wick outside it is a trait to soften, never a band to widen). Cast distance, raft speed and light are not modelled and are
-printed as such. The logs show no trait by the built rule (§2.1 item 8).
+printed as such. The logs show no trait by the built rule (§2.1 item 8). (rev. 6) T75 is rewritten by `WICKS.md` §3.3: the
+passives, run per Wick and also flag-off, by the balancing job (QUEUE job 8) before 1a branches; and M1's own gate is
+`clams.mjs --shipped=mossmere --step=1a` (`docs/loop/M1.md` §6.4) once committed. This plan edits no sim file.
 
 ### 6.5 Risks and knobs
 
@@ -1513,8 +1586,10 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
     for the player; Escape on the Chart goes back to the Jetty's cue, and Escape on the Jetty opens the home pause;
     the goal line is hidden while the tutorial runs; done is written at Sail; a reload resumes at the wake. Murk and the
     Journal stay live (dimmed). `first-evening.js` is not used (only its pure `murkHold`).
-37. **The three empty slots are shown on the Chart**, under the Mossmere row, inking in one by one as Murk's departure line
-    ("Three slots in that hold …") appears. The Jetty shows no slots.
+37. **The hold's empty slots are shown on the Chart** (rev. 6: three, or four for Tallow, `loop.hold().slots`), under the
+    Mossmere row, inking in one by one as Murk's departure line (`murkLineFor('firstChart', wick)`: "Three slots in that
+    hold …", Tallow "Four slots …") appears. (rev. 6) From M1 step 3 the row is the drawn Chart's Mossmere (`docs/loop/M1.md`
+    §3.5: the first sheet inks in the first time the Chart opens, then the slots); the beat is unchanged. The Jetty shows no slots.
 38. **The glide out on every Sail**: 3 s from the dock 15 m toward the lake's centre (`LOOP.tutorial.outPath` per lake,
     validated), in flow `home`, skippable by a tap every time, then the trip starts in place. It is how leaving home
     always looks, so the first Sail is not a special case; `LOOP.time.out` includes it (R21). (rev. 4) This goes past what
@@ -1585,9 +1660,12 @@ the spec's figures move) and 27 (the open bite). (The lead has ruled on these: �
   (CHOICE 32), and only Forget everything offers New Descent again. If yes, the cheap build is a Wick row on the Journal's
   first page at home (lane C, about a day): the five portraits and the lit Wick's trait line from `descentModel`, no Start,
   a tap sets `meta.loop.wick` for the next trip; never during a trip; no new words.
-- (rev. 4) **Is the Jetty (Murk's dock) an acceptable home until the Landing is built in slice 4?** The lore puts the
-  beginning at the Landing, where the last Wicks came ashore (DESIGN §25.4.8); the Jetty is its fallback (R22). Default
-  built: yes, the Jetty in 1a, the Landing from slice 4, with the same tutorial beats.
+- ~~(rev. 4) **Is the Jetty (Murk's dock) an acceptable home until the Landing is built in slice 4?**~~ (rev. 6) Answered
+  by M1: the Jetty is home in M1 steps 1–4 and the Landing is built in step 5, with the same tutorial beats on its posts
+  (`docs/loop/M1.md` §4, `OPENING.md` §6.2).
+- (rev. 6) **Do the five passives (`WICKS.md`) feel right?** The five questions of that file are answered (15 November
+  2026: "Default for all except 4 which i want yes"); this asks how they play. Default: as `WICKS.md` revision 3, with the
+  balancing job's numbers.
 
 ### 7.2 The lead's rulings (14 November 2026, binding on every lane)
 
