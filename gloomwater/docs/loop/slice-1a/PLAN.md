@@ -39,7 +39,8 @@ sound fixture for the offline render (§2.2 item 25, "(rev. 7)"); the M1 sim gat
 the data shape `LOOP.access` and `shelfAt[6] = 9` (lane A, §3.1), the pure `listFor` / `listCount` and `isOpen` (lane A,
 §3.3), the Mossmere's Journal count (lane C, §2.3 item 5) and tests T81–T84 (§1.2; T76–T80 are `WICKS.md`'s); T45's wording and `game.sail`'s note
 read "open" for "owned". Nothing is gated in 1a (only the Mossmere is open), so its behaviour and the opening are unchanged.
-Every addition is marked **v8** where it appears. The gate, the pull, the seals and Murk's two lines are slice 1b's.
+Every addition is marked **v8** where it appears. The gate, the pull, the seals and Murk's two lines come later: SPEC §5.5 (h)
+says what each needs, and M1's plan places them.
 
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
@@ -230,7 +231,7 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T74 | (rev. 4) Settings under the loop: no **Damage numbers** row, no "Softer flares and hit flashes" line; the strike-ring option reads `TEXT_LOOP.settings.ringFirst` ("First evening") and the hurry row's line `TEXT_LOOP.settings.hurry`; the Forget row's words are `TEXT_LOOP.forget`; off the loop every row and word is as built | C · ui-loop; D · scenario |
 | T75 | (rev. 4) the Wicks in the sim: `clams.mjs` runs its 1 h clams check and its choosy check once per `LOOP.wicks` entry, applying the traits the sim models (Taper's strike window, Tallow's and Ashwick's Hold); every Wick passes the same bands; the traits it cannot model (cast distance, raft speed, light) are printed as "not modelled" | A · clams.mjs |
 | T81 | **v8 (SPEC §5.5, the three keys).** `listFor(D, 'mossmere')` on loop data is exactly the six built phase-1 open-water fish (Dusk Minnow, Mossback Perch, Gutter Crayfish, Weeping Carp, Candlefin Koi, Reedjaw Pike), computed by the rule of SPEC §5.5 (c), never listed: the Gloam Eel (Lumen Moss only) and the Belled Matriarch (a legend) are not on it; `isOpen('mossmere') === true` and `isOpen('sporewood') === false` on a fresh `meta.loop` | A · loop.test |
-| T82 | **v8.** `listCount(meta, D, 'mossmere')` counts `meta.loop.landed[id]` only (SPEC §5.5 (c), `M1.md` §2.11): `measure()` under the loop writes it for a kept fish and for a fish let go (T4); a Glimpsed fish does not count; an entry already in an old save's Journal does not count (a v3 save opens with the Mossmere's count at 0); the built `caughtOf()` is never read | A · loop-trip |
+| T82 | **v8.** `listCount(meta, D, 'mossmere')` counts `num(journal[id].caught) > 0` only (SPEC §5.5 (c)): a Glimpsed entry (`seen`, `caught 0`) does not count, nor an entry with `caught 0` and no `seen` (the built `caughtOf()` would count it); a fish let go counts (its measure writes the entry, T4); an entry already in an old save's Journal counts, on a page the loop hides as on one it draws (`M1.md` §2.11: a v3 save that landed the six opens at "6/6") | A · loop-trip |
 | T83 | **v8.** Under `loopOn()` the Journal's Mossmere tab badge reads `listCount` as "n/6" and the list's six cards come first, each with its notch (empty until landed), a missing one drawn as the built silhouette with "· · ·", its hour glyphs and its place glyph and no hint sentence; the Mossmere's other species follow after a thin rule, outside the count. Off the loop the built badge (every species) and grid are unchanged. The Journal still passes T43's word scan | C · ui-loop |
 | T84 | **v8.** `validate-data --loop`: every `LOOP.access.gear` id names a shelf item that exists in `LOOP` (1a: `sporewood: 'rod:1'`); `LOOP.access.pull` has `perEvening`, `cap`, `keeperFloor`, `floorFrom`, `sureFrom`; `LOOP.tackle.shelfAt[6] === 9` | A · validate-data |
 
@@ -811,8 +812,8 @@ the stager has nothing to swap.
      (`listFor`) come first, each with a small notch in its corner (an empty ring until landed, pressed after); a missing one
      keeps the built silhouette and "· · ·" and gains its hour glyphs (`ICONS.sun`, `.moon`; dusk as both, half-lit) and its
      place glyph (none for open water in 1a), with no `hintFor()` sentence; the other Mossmere species follow after a thin
-     ink rule, outside the count. "Known" for the count is `meta.loop.landed` (v8), never the Journal's `caught` or the built `caughtOf()`. Off the loop the
-     built grid is untouched. No Chart seal, no card seal and no new `TEXT_LOOP` string in 1a (they come with 1b). T83.
+     ink rule, outside the count. "Known" for the count is `caught > 0` (an old save's catches included), never the built `caughtOf()`. Off the loop the
+     built grid is untouched. No Chart seal, no card seal and no new `TEXT_LOOP` string in 1a (M1's plan places them). T83.
    - **`openDescend`** (M:1639) returns at once while `loopOn()` (the gate is scenery).
    - Export the closures `panel`, `btn`, `tabs`, `fishCanvas`, `murkSay` additively as `parts` in the return object
      (gw-show:1781), for ui-loop.
@@ -1056,7 +1057,7 @@ export function tallyLines(creel) → TallyLine[];         // (pounds) ascending
                                                          // the fish's length, never a weight: the weight is derived wherever it is shown
 // v8 (SPEC §5.5), lane A: the list, pure and shared with the sim
 export function listFor(D, waterId) → speciesId[];      // the water's list by SPEC §5.5 (c): in 1a the Mossmere's six built phase-1 open-water fish
-export function listCount(meta, D, waterId) → { have, need };   // have = listed ids in meta.loop.landed (written by measure() under the loop, kept or let go; `{}` in freshLoop and migrateLoop; never the Journal's caught)
+export function listCount(meta, D, waterId) → { have, need };   // have = listed ids with num(meta.journal[id]?.caught) > 0 (never the built caughtOf); an old save's catches count
 ```
 
 `createLoop(S)` → the object exposed as `ctx.progression.loop` (null off the loop). Every method calls `ensureLoop()` first
@@ -1087,7 +1088,7 @@ export function listCount(meta, D, waterId) → { have, need };   // have = list
   refundOpenBite() → boolean,                            // on Continue (restorePending, before the card reopens): if run.flags.openBite is set
                                                          // and no pendingCatch fish carries its key, bites[key] − 1 (floor 0); PLAN CHOICE 27
   debugGive(n) → number,                                 // debug builds only: meta.loop.clams += n, requestSave; returns the purse
-  isOpen(waterId) → boolean,                             // v8 (SPEC §5.5): in 1a true only for 'mossmere' (meta.loop.opened, the gate and the pull arrive in 1b)
+  isOpen(waterId) → boolean,                             // v8 (SPEC §5.5): in 1a true only for 'mossmere' (meta.loop.opened, the gate and the pull come later, SPEC §5.5 (h))
   listCount(waterId) → { have, need },                   // v8: the pure listCount on this save, for the Journal badge (C reads it)
   createTrip({ startZone, character }) → Run,            // §2.1 item 6
   endTrip() → TallyResult | null,                        // §3.4
