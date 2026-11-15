@@ -298,10 +298,10 @@ export function buildInk(T, log = () => {}) {
     if (y < FOLD.y0 + 8) {
       const fade = smoothstep(FOLD.y0 + 8, FOLD.y0 - 22, y);
       // the gorge, on the Spine's wet west face: pines on the rim, hanging forest where the spray reaches
-      const gr = 0.9 * smoothstep(17.5, 3, dGorge[k]);
-      if (gr > 0.02) return [nzV.n(x / 3, y / 3) > 0.1 ? G.BROADLEAF : G.CONIFER, gr];
+      const gr = 0.7 * smoothstep(13.5, 2.5, dGorge[k]);
+      if (gr > 0.02) return [nzV.n(x / 3, y / 3) > 0.1 ? G.BROADLEAF : G.CONIFER, gr, 1.7]; // (a hanging forest holds to walls no other tree would)
       if (R > 0.62) { // the rest of the wet west face: firs on the fjord walls and up the stream valleys, little between
-        if (dThin[k] < 9.5) return [G.WILLOW, 0.5 * (dThin[k] < 6.2 ? 0.6 * smoothstep(4.2, 5.2, dThin[k]) + 0.4 : smoothstep(9.5, 6.5, dThin[k]))]; // a narrow belt on the bars: the valley is step 5, between the Sound's 4 and the Last Light's 6
+        if (dThin[k] < 9.5) return [G.WILLOW, 0.37 * (dThin[k] < 6.2 ? 0.6 * smoothstep(4.2, 5.2, dThin[k]) + 0.4 : smoothstep(9.5, 6.5, dThin[k]))]; // a narrow belt on the bars: the valley is step 5, between the Sound's 4 and the Last Light's 6
         const wall = Math.max(smoothstep(7.5, 1.2, dl), 0.8 * smoothstep(4.5, 0.8, dw));
         return [G.CONIFER, fade * (cov / FILL[G.CONIFER]) * (0.2 + 1.5 * wall) * (1 - smoothstep(700, 1150, hh))];
       }
@@ -385,11 +385,11 @@ export function buildInk(T, log = () => {}) {
       const k = cellAt(px, py);
       if (sea[k] || lakeF[k] > -0.9 || iceRaw[k] > 0) continue;
       const L = clamp(T.lushAt(px, py), 0, 15);
-      const [type, p] = trees ? trunkOf(px, py, k, L) : groundOf(px, py, k, L);
+      const [type, p, steep] = trees ? trunkOf(px, py, k, L) : groundOf(px, py, k, L);
       if (type < 0 || p <= 0.004) continue;
       if (u2 > p) continue;
       const [gx, gy] = slopeAt(k), s = Math.hypot(gx, gy);
-      if (s > (type === G.CONIFER ? 1.0 : 0.7)) continue;
+      if (s > (steep || (type === G.CONIFER ? 1.0 : 0.7))) continue;
       const clear = trees ? (type === G.MANGROVE ? 0.5 : 1.25) : 0.7;
       if (dBank[k] < clear || sd[k] < (type === G.MANGROVE ? 0.3 : 1.1)) continue;
       if (hillMask[k] && u1 < 0.8) continue;
@@ -429,6 +429,17 @@ export function buildInk(T, log = () => {}) {
 
   // resolve landmarks that sit on rivers
   const landmarks = LANDMARKS.map((l) => {
+    if (l.g === 'snags') { // [x, y, the river's bearing, its inked width] every so often down the reach
+      const r = T.riverById[l.river], s = arcLengths(r.pts);
+      const a = nearestOnPolyline(r.pts, l.from[0], l.from[1], s).s, b = nearestOnPolyline(r.pts, l.to[0], l.to[1], s).s;
+      const pts = []; let j = 0;
+      for (let d = a; d < b; d += l.every) {
+        while (j < r.pts.length - 2 && s[j + 1] < d) j++;
+        const p = r.pts[j], q = r.pts[Math.min(r.pts.length - 1, j + 2)];
+        pts.push([+p[0].toFixed(2), +p[1].toFixed(2), +Math.atan2(q[1] - p[1], q[0] - p[0]).toFixed(3), +p[3].toFixed(2)]);
+      }
+      return { g: 'snags', pts };
+    }
     if (l.g !== 'posts') return l;
     const r = T.riverById[l.river], s = arcLengths(r.pts);
     const a = nearestOnPolyline(r.pts, l.from[0], l.from[1], s).s, b = nearestOnPolyline(r.pts, l.to[0], l.to[1], s).s;

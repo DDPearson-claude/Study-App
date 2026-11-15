@@ -225,7 +225,7 @@ export function reportRoad(res, title, log = console.log) {
   log(`  every leg ends at its water's own point, or within ${res.far.reach.toFixed(1)} units of it (the farthest: ${res.far.name})`);
   if (rule.stations && res.stated) {
     const worst = Math.max(...res.stations.map((s, i) => Math.abs(s - rule.stations[i])));
-    log(`  ${worst <= 6 ? 'ok  ' : 'WARNING'} WORLD.md §6.1 states ${rule.stations.join(', ')}: the largest difference is ${worst.toFixed(0)} unit${worst.toFixed(0) === '1' ? '' : 's'}`);
+    log(`  ${worst <= 1 ? 'ok  ' : 'WARNING'} WORLD.md §6.1 states ${rule.stations.join(', ')}: the largest difference is ${worst.toFixed(0)} unit${worst.toFixed(0) === '1' ? '' : 's'}`);
   }
   log(res.ok ? '  ok   the Lamp Road only goes forward' : '  FAIL the Lamp Road goes back on itself');
   return res.ok;

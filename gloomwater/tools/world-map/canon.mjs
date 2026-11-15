@@ -151,13 +151,14 @@ export const RIVERS = [
     pts: [[330, 280, 1500], [350, 303, 1000], [378, 313, 760], [404, 341, 590], [432, 343, 520], [440, 350, 500]] },
   { id: 'fallway', name: 'the Fallway', cls: 'river', w: [1.2, 1.7], meander: [2.8, 14], bank: 20,
     pts: [[350, 418, 520], [338, 409, 500], [325, 400, 470], [305, 385, 400], [282, 360, 250], [262, 336, 90], [256, 314, 0]] },
-  // the ice-lake (214,216), the old weir (210,232), down its sand valley to the delta (184,306) and its mouth
-  // (178,322) on the Rime Sound's north shore, near the Sound's mouth
+  // the ice-lake (214,216), the old weir (210,232), down its sand valley to the delta's upper bars (186,300), where
+  // the Chart pins the water, the delta (184,306) and its mouth (178,322) on the Rime Sound's north shore
   { id: 'thinWater', name: 'the Thin Water', cls: 'braided', meander: [1.8, 13], bank: 4,
-    pts: [[214, 216, 120], [210, 232, 112], [204, 250, 84], [200, 268, 58], [192, 288, 30], [184, 306, 9], [178, 322, 0]] },
+    pts: [[214, 216, 120], [210, 232, 112], [204, 250, 84], [200, 268, 58], [192, 288, 30], [186, 300, 15], [184, 306, 9], [178, 322, 0]] },
   // the Pyre Peaks' west icefall (250,615), the snow temple (240,607), Pyrefall Gorge (228,601), the gorge mouth
-  // (200,589), the fan (182,580) and the mouth in the bight (166,572): west down the Spine's wet face to the sea
-  { id: 'pyre', name: 'the Pyre', cls: 'river', w: [0.5, 1.6], meander: [3.2, 16], bank: 11,
+  // (200,589), the fan (182,580) and the mouth in the bight (166,572): west down the Spine's wet face to the sea.
+  // Its banks are steep (`bank`): between the two spurs of RANGES below, its valley is the gorge's notch
+  { id: 'pyre', name: 'the Pyre', cls: 'river', w: [0.5, 1.6], meander: [3.2, 16], bank: 19,
     pts: [[250, 615, 2400], [240, 607, 1150], [228, 601, 640], [214, 595, 330], [200, 589, 140], [182, 580, 36], [166, 572, 0]] },
   { id: 'rush', name: 'the Rush', cls: 'river', w: [0.5, 1.7], meander: [4.6, 22], bank: 5,
     pts: [[482, 770, 1150], [450, 790, 900], [410, 815, 760], [372, 835, 680], [352, 845, 645], [322, 852, 640], [272, 822, 640],
@@ -200,7 +201,7 @@ export const RIVERS = [
   // the Pyre Peaks' north-east icefall (276,610), out of the foothills at (335,545), across the Shingle Flats to
   // the Pallid Deep's south end (376,452): the same snow as the Pyre's, on the far side of the divide. No leg
   // of the road. (Last in the list, so every older river keeps its own seeded meanders.)
-  { id: 'chalkwater', name: 'the Chalkwater', cls: 'river', w: [0.5, 1.6], meander: [3.2, 16], bank: 11,
+  { id: 'flourwater', name: 'the Flourwater', cls: 'river', w: [0.5, 1.6], meander: [3.2, 16], bank: 11,
     pts: [[276, 610, 2100], [290, 598, 1420], [304, 590, 1110], [314, 578, 1000], [322, 563, 880], [335, 545, 760], [352, 505, 650], [368, 470, 562], [376, 452, 520]] },
 ];
 
@@ -269,6 +270,11 @@ export const RANGES = [
   { id: 'spine', pts: [[292, 165, 1300, 15], [298, 200, 1900, 19], [300, 235, 2100, 22], [304, 270, 2200, 22], [306, 310, 2400, 19],
     [305, 350, 2300, 17], [305, 375, 2200, 15], [305, 395, 2300, 15], [300, 430, 2500, 17], [298, 460, 2600, 19], [292, 500, 2700, 19],
     [288, 530, 2800, 19], [276, 580, 3000, 21], [262, 628, 3500, 24], [258, 665, 2000, 19], [250, 700, 1000, 15], [245, 728, 260, 12]] },
+  // the Pyre Peaks' two last spurs, one on each side of the Pyre, run down to the bight: the gorge is a notch between
+  // real walls from the temple (240,607) to the gorge mouth (200,589), and the range comes down to the sea there
+  // (WORLD.md §5.8, LORE.md Act II)
+  { id: 'pyreNorth', pts: [[258, 597, 1500, 10], [245, 593, 1350, 10], [232, 588, 1500, 9.5], [218, 582, 1150, 8.5], [205, 575, 1080, 8.5], [193, 566, 640, 7.5], [182, 557, 440, 7], [173, 549, 200, 6]] },
+  { id: 'pyreSouth', pts: [[251, 631, 1700, 10], [240, 622, 1450, 10], [226, 615, 1520, 9.5], [212, 609, 1120, 8.5], [199, 603.5, 1060, 8.5], [187, 599, 660, 7.5], [176, 596, 420, 7], [166, 595, 200, 6]] },
   { id: 'southern', pts: [[330, 1186, 260, 13], [400, 1222, 420, 16], [470, 1250, 360, 15], [522, 1236, 160, 13]] },
   { id: 'greyHorn', pts: [[790, 172, 120, 9], [830, 156, 150, 8], [858, 138, 110, 6]] },
   { id: 'lowHorn', pts: [[640, 1262, 180, 10], [622, 1296, 160, 8], [612, 1326, 100, 6]] },
@@ -329,18 +335,18 @@ export const WATERS = [
     legend: 'The Long Winter', legendLine: 'It was old when the kingdom was built. It has not hurried once since.',
     from: 'Down the Fallway, west through the Spine Gap and past its falls by the old slipway, about 110 km and 520 m down to the sea, then a short way west down the fjord.',
     murk: 'Someone fishes the ice up there. Not me.' },
-  { n: 6, name: 'The Thin Water', at: [200, 268], kind: 'river', detail: 'a braided sand river', lat: '50.8°N', land: 'willows on pale sand bars', vg: [210, 232],
+  { n: 6, name: 'The Thin Water', at: [186, 300], kind: 'river', detail: 'a braided sand river', lat: '50.5°N', land: 'willows on pale sand bars', vg: [210, 232],
     story: 'Below the broken old weir the river spreads wide and thin over pale sand. The sluice lamp still burns, and on the first evening it brightens once as the raft passes.',
     legend: 'The Buried Moon', legendLine: 'A moon that comes down to see the water and stays for the sand. Nobody can talk her back.',
-    from: 'West down the Sound on the way out, about 45 km, to the Thin Water’s mouth on the north shore, then north up over its sand delta and the bars toward the weir: about 60 km of river, and the same river back.',
+    from: 'West down the Sound on the way out, about 45 km, to the Thin Water’s mouth on the north shore, then north up over its sand delta onto the bars below the old weir: about 25 km of river, and the same river back.',
     murk: 'That lamp’s never gone out. Don’t ask me why.' },
   { n: 7, name: 'The Last Light', at: [100, 452], kind: 'open sea', detail: 'under the lighthouse on the Lamp Rock', lat: '49.6°N', land: 'turf and fern on the sea rocks', vg: [110, 440],
     story: 'The kingdom’s last lighthouse, on the outer rock, lit for ships on the sea road. Beyond it lies the Far Sea, never charted. Nothing is drawn past the far isle.',
     legend: 'The Jetsam Shark', legendLine: 'It has swallowed half the kingdom’s lost things, and kept them all.',
-    from: 'Downstream all the way: back down the Thin Water to its mouth, out over the Sound’s sill a few kilometres on, then about 125 km south-west on the cold current to the Lamp Rock.',
+    from: 'Downstream all the way: back down the Thin Water to its mouth, out over the Sound’s sill about 32 km on, then about 125 km south-west on the cold current to the Lamp Rock.',
     murk: 'It turns for ships that left. It’s polite like that.' },
   { n: 8, name: 'Pyrefall Gorge', at: [228, 601], kind: 'river', detail: 'a snowmelt gorge, temple stairs and pyres', lat: '48.4°N', land: 'pines and hanging forest in the spray', vg: [241, 607],
-    story: 'The end of the cold road: the snow temple at the head of a gorge where the mountains come down to the sea, the last stop before the long voyage south. Travellers lit a lamp at the temple fires before the passes and the long coast, and left a coin on the water for luck. The fires still burn on the steps with nobody to feed them.',
+    story: 'The end of the cold road: the snow temple at the head of a gorge where the mountains come down to the sea, the last stop before the long voyage south. Travellers lit a lamp at the temple fires before the skerry passes and the long coast, and left a coin on the water for luck. The fires still burn on the steps with nobody to feed them.',
     legend: 'The Ashen Guest', legendLine: 'Uninvited to every funeral. Never once absent.',
     from: 'On south from the Lamp Rock along the fjord coast on the cold current, about 130 km, into the bight at the Pyre’s mouth, then east up the Pyre over its fan and into the gorge toward the temple: about 70 km.',
     murk: 'Temple fires. Nobody feeds them. They go anyway.' },
@@ -407,7 +413,7 @@ export const PIECES = {
   soundA: { p: [[256, 313.5], [242, 312], [220, 312]], k: 'sea' },
   soundB: { p: [[220, 312], [198, 320], [178, 326]], k: 'sea' }, // west down the Sound to the Thin Water's junction
   thinMouth: { p: [[178, 322], [178, 326]], k: 'sea' }, // the Thin Water's mouth, out to the Sound's sea lane
-  thinWater: { r: 'thinWater', from: [200, 268], to: [178, 322] },
+  thinWater: { r: 'thinWater', from: [186, 300], to: [178, 322] }, // the delta's upper bars down to the mouth
   soundC: { p: [[178, 326], [160, 331], [146, 333]], k: 'sea' }, // on out to the sill
   seaOut: { p: [[146, 333], [124, 343], [106, 372], [98, 414], [100, 452]], k: 'sea' },
   fjordCoast: { p: [[100, 452], [113, 520], [130, 560], [136, 574]], k: 'sea' }, // south on the cold current to the bight
@@ -461,7 +467,7 @@ export const ROAD_RULE = {
   spurRatio: 1.1, // a side water's way out is no longer than this many times its way in
   retrace: 6, // the trunk never runs this near to trunk already travelled
   turn: 120, // degrees, water to water; only a side water may turn more
-  stations: [0, 64, 149, 242, 343, 553, 597, 769, 897, 1085, 1199, 1307, 1494, 1592, 2059, 2238, 2346],
+  stations: [0, 62, 147, 240, 341, 551, 595, 767, 895, 1083, 1197, 1305, 1492, 1589, 2055, 2233, 2341],
 };
 
 // Sea ways from the Landing (WORLD.md §6): no leg of the Lamp Road, drawn faintly on the sea.
@@ -481,8 +487,8 @@ export const SHEETS = [
   /* 6 */ [{ r: 'thinWater', w: 26 }, [216, 212, 30], [296, 236, 58], [246, 248, 36], [252, 204, 22], [228, 280, 18], [172, 242, 50], [146, 276, 34], { p: [[236, 174], [300, 158], [350, 162], [420, 156], [450, 132]], w: 26 }, [450, 118, 24]],
   /* 7 */ [[104, 448, 52], [55, 495, 26], { p: [[146, 333], [124, 343], [106, 372], [98, 414], [100, 452]], w: 34 }, [192, 420, 60], [162, 372, 40], [300, 450, 36]],
   // the Pyre Peaks' sheet: the gorge down their west face to the bight, the fjord coast the road came down, and
-  // on their far side the Chalkwater over the Shingle Flats (the same snow, WORLD.md §5.8)
-  /* 8 */ [{ r: 'pyre', w: 30 }, [228, 601, 40], [262, 628, 48], [290, 530, 44], [190, 505, 46], [172, 574, 42], [226, 562, 34], [268, 568, 24], [178, 610, 24], { p: [[100, 452], [113, 520], [130, 560], [136, 574]], w: 40 }, { r: 'chalkwater', w: 30 }, [400, 536, 74]],
+  // on their far side the Flourwater over the Shingle Flats (the same snow, WORLD.md §5.8)
+  /* 8 */ [{ r: 'pyre', w: 30 }, [228, 601, 40], [262, 628, 48], [290, 530, 44], [190, 505, 46], [172, 574, 42], [226, 562, 34], [268, 568, 24], [178, 610, 24], { p: [[100, 452], [113, 520], [130, 560], [136, 574]], w: 40 }, { r: 'flourwater', w: 30 }, [400, 536, 74]],
   /* 9 */ [{ p: [[136, 574], [128, 606], [137, 680], [133, 730], [138, 758]], w: 42 }, [138, 758, 36], [205, 655, 50]],
   /* 10 */ [[190, 792, 36], [236, 804, 34], { p: [[247, 712], [239, 780]], w: 26 }],
   /* 11 */ [[322, 852, 42], { p: [[272, 822], [330, 852]], w: 26 }, { r: 'rush', from: [352, 845], to: [482, 770], w: 28 }, [360, 780, 66], [500, 790, 50]],
@@ -525,7 +531,7 @@ export const LABELS = [
   { t: 'the Summit Cut', canal: 'summitCut', at: [426, 398], kind: 'river', z: 3.0 },
   { t: 'the Fallway', river: 'fallway', at: [296, 374], kind: 'river', z: 2.0 },
   { t: 'the Pyre', river: 'pyre', at: [197, 588], kind: 'river', z: 2.2 },
-  { t: 'the Chalkwater', river: 'chalkwater', at: [350, 510], kind: 'river', z: 1.5 },
+  { t: 'the Flourwater', river: 'flourwater', at: [350, 510], kind: 'river', z: 1.5 },
   { t: 'the Rush', river: 'rush', at: [420, 808], kind: 'river', z: 1.4 },
   { t: 'the Sweetwater', river: 'sweetwater', at: [300, 928], kind: 'river', z: 1.4 },
   { t: 'the Straight Canal', canal: 'straightCanal', at: [358, 1081], kind: 'river', z: 2.0 },
@@ -539,7 +545,7 @@ export const LABELS = [
   { t: 'the Spine Gap', at: [305, 385], kind: 'place', z: 1.8 },
   { t: 'the old weir', at: [210, 232], kind: 'place', z: 2.8 },
   { t: 'the ice-lake', at: [214, 214], kind: 'place', z: 3.2 },
-  { t: 'the sand delta', at: [184, 308], kind: 'place', z: 3.4, sheet: 6 },
+  { t: 'the sand delta', at: [181, 314], kind: 'place', z: 3.4, sheet: 6 },
   { t: 'the Pyre Peaks', at: [262, 632], kind: 'place', z: 1.1 },
   { t: 'the snow temple', at: [240, 607], kind: 'place', z: 3.0 },
   { t: 'the Pyre’s mouth', at: [161, 571], kind: 'place', z: 3.2, on: 'sea', sheet: 8 },
@@ -568,6 +574,8 @@ export const LABELS = [
   { t: 'the arch', at: [600.5, 180], kind: 'place', z: 5.5, on: 'sea' },
   { t: 'the cold current', at: [84, 560], kind: 'note', a: -84, z: 1.5, on: 'sea', sheet: 9 },
   { t: 'about 4,500 km', at: [116, 690], kind: 'note', a: -84, z: 0.55, on: 'sea', sheet: 9, force: true },
+  // why the road goes round by the lagoon: the barge pilots' note on the Inkwood's lower reach, above the Seam
+  { t: 'shoals and snags', at: [777, 1045], kind: 'note', a: -68, z: 1.7, sheet: 14 },
   { t: 'the warm countercurrent', at: [146, 890], kind: 'note', a: -80, z: 1.5, on: 'sea', sheet: 12 },
 ];
 
@@ -596,7 +604,8 @@ export const LANDMARKS = [
   { g: 'posts', river: 'siltway', from: [398, 1094], to: [842, 1070], every: 20 },
   { g: 'barge', at: [776, 1094.5], s: 1, rot: 30 },
   { g: 'stilts', at: [836, 980], n: 7, r: 5 },
-  { g: 'rows', at: [764, 896], w: 30, h: 12, rot: 7 }, { g: 'rows', at: [815, 936], w: 16, h: 9, rot: 31 }, // the drowned orchard's dikes: by the Kitchen Stair, and along the Monsoon Cut
+  { g: 'rows', at: [760, 893], w: 28, h: 11, rot: 7 }, { g: 'rows', at: [809, 949], w: 16, h: 8, rot: 31 }, // the drowned orchard's dikes: by the Kitchen Stair, and in the fork below the Parting, beside the Monsoon Cut
+  { g: 'snags', river: 'inkwood', from: [797, 944], to: [760, 1062], every: 6.5 }, // the Inkwood's shoal, snag-choked lower reach (WORLD.md §6)
   { g: 'tower', at: [858, 136.5], s: 1 },
   { g: 'drowned', at: [662, 690], n: 8, r: 6 },
   { g: 'oxbow', at: [560, 1125], s: 1, rot: 200 }, { g: 'oxbow', at: [650, 1112], s: 1.1, rot: 160 }, { g: 'oxbow', at: [468, 1104], s: 0.8, rot: 20 }, { g: 'oxbow', at: [702, 1084], s: 0.8, rot: 150 },

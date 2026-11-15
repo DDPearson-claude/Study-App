@@ -275,7 +275,7 @@
         const n = Math.max(1, Math.floor(Lpx / 58));
         for (let q = 0; q < n; q++) { const p = pointOnPiece(pc, pc.len * ((q + 0.62) / n)); chevron(sx(p.x), sy(p.y), p.ang, aw * 2.3 + 1.4); }
       }
-      if (Lpx > 54 && bothWays(i)) { const p = pointOnPiece(pc, pc.len * 0.3); returnMark(sx(p.x), sy(p.y), p.ang, aw * 2.2 + 2.2); }
+      if (Lpx > 30 && pc.k !== 'sea' && bothWays(i)) { const p = pointOnPiece(pc, pc.len * (Lpx > 54 ? 0.3 : 0.5)); returnMark(sx(p.x), sy(p.y), p.ang, Lpx > 54 ? aw * 2.2 + 2.2 : aw * 1.7 + 1.6); }
     }
     // where the owned road runs on into a water not yet bought: a small wisp, no name and no shape
     const j = S.journey;
@@ -934,7 +934,7 @@
   function endJourney() {
     const j = S.journey; j.phase = 'done';
     $('journey').textContent = 'Sail again'; $('journeyStop').hidden = true;
-    caption('<b>Home</b>The whole Lamp Road, about 7,400 km, from the Landing to the Inkwood. At the Landing the hearth burns full.');
+    caption('<b>Home</b>The whole Lamp Road, about 7,300 km, from the Landing to the Inkwood. At the Landing the hearth burns full.');
     S.raft = { x: HOME.at[0], y: HOME.at[1] + 5 };
     S.hearthFull = true;
     flyTo(homeView(), 1800);
