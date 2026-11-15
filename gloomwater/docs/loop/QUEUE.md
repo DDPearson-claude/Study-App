@@ -12,6 +12,8 @@ The user asked why changing a unit of weight took so long and cost so many token
 | **medium** | a new screen, a system change, a sim re-tune | a **build agent** (Fable, extra high) and **one reviewer** (Opus, high); a fix agent only if the review finds a must |
 | **large** | a slice build, the cove, an art job | the full pipeline as before: spec, lanes, stage, reviews, fix |
 
+If Fable's usage runs out, every Fable agent switches to **Opus 5.5 at the same effort** (the user, 15 November 2026: "If we run out of fable usage just switch to a similar opus 5.5 model and effort level"); new workflow scripts wrap each Fable agent so a usage-limit failure re-runs it on Opus at the same effort, and a running job that stops on the limit is resumed with its Fable agents switched to Opus.
+
 Also binding: **no scope the user did not ask for** (if something extra looks worth doing, ask first); the full browser regression runs **once**, at the merge, not in every agent; one machine-heavy job at a time, design jobs beside it.
 
 ## The order (the lead's choice, re-ordered by the user's words of 15 November 2026)
