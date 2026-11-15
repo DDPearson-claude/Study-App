@@ -5,7 +5,9 @@ screen, Start, the cut scene "One Warm Light" (`docs/v3/intro/SPEC.md`, built), 
 Jetty, the Chart and Sail, the glide out and the first trip's two hints. The build plan is `docs/loop/slice-1a/PLAN.md`
 (§1.1 P12–P17, T59–T75, §5.5, PLAN CHOICEs 29–46, §7.1, §7.3). Everything here is behind `LOOP_ENABLED`; the flag-off and
 v3-without-loop builds keep their opening exactly as built (§11). Revision 2 of this file applies the critics' review (the
-review log is at the end).*
+review log is at the end). **Revision 3** (15 November 2026, the M1 plan, `docs/loop/M1.md`) applies `WICKS.md` revision 3
+(the five passives and their lines; Tallow's four slots and its chart line), the film's new line 3, the drawn Chart from M1
+step 3 (§6.1) and the Landing as home from M1 step 5 (§6.2).*
 
 ## 0. The user's words (14 November 2026), verbatim
 
@@ -27,7 +29,7 @@ at a time, and ends by showing how to head out: the Chart, the Mossmere, **Sail*
 first trip by the built light hints. Nothing traps the player, and a returning player never sees the tutorial again.
 
 **The lead's default on the Wicks (the user may overrule).** All five Wicks are free from the first New Descent: each a look
-and one small fishing trait (SPEC §10.1). The "joins you when" conditions are dropped, and the choice moves from "at home,
+and one passive (SPEC §10.1, `WICKS.md`; revision 3). The "joins you when" conditions are dropped, and the choice moves from "at home,
 slice 9" to the New Descent screen in slice 1a. Their combat stats stay parked.
 
 *The alternative, if the user wants Wicks to join over time.* The New Descent screen shows **only the Wick** and **Start**:
@@ -46,11 +48,11 @@ for lane C; in SPEC, §8.5's New Descent row and §10.1.
 | # | step | on screen | words | advances on | time |
 |---|---|---|---|---|---|
 | 1 | the title, a fresh save | the logotype over the live lake | **New Descent** · **Settings** | New Descent | the player |
-| 2 | New Descent | five Wicks (a row on desktop, 3 + 2 on a phone), one lit | the five names, the lit Wick's one trait line, **Back**, **Start** | Start (or Back) | the player |
-| 3 | the film | "One Warm Light", as built | the film's four lines, **Skip** | the film's end, or Skip | 18 s (≈ 1 s skipped) |
-| 4 | arrive | the raft glides from the film's last place to the Jetty's dock; the sky pales to dawn | none | the glide's end, or a tap | 3 s |
-| 5 | wake | the Jetty; the **Chart** tile breathes; Murk and Journal dimmed | Murk: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." | a tap on **Chart**; or the Chart opens by itself 3 s after the line (once) | ≤ 9 s |
-| 6 | the Chart | the Mossmere, chosen; three empty slots ink in; **Sail** breathes | Murk: "Three slots in that hold. Fill them and come home." | **Sail** (the player presses it) | ≈ 3 s |
+| 2 | New Descent | five Wicks (a row on desktop, 3 + 2 on a phone), one lit | the five names, the lit Wick's one line (its passive), **Back**, **Start** | Start (or Back) | the player |
+| 3 | the film | "One Warm Light", as built | the film's four lines (line 3 under the loop: "Its last candles fish from lamp to lamp.", §4), **Skip** | the film's end, or Skip | 18 s (≈ 1 s skipped) |
+| 4 | arrive | the raft glides from the film's last place to the Jetty's dock; the sky pales to dawn (from M1 step 5: one ink dip, then the raft glides in under the Landing's arch to the jetty, §6.2) | none | the glide's end, or a tap | 3 s |
+| 5 | wake | the Jetty; the **Chart** tile breathes; Murk and Journal dimmed (from M1 step 5: the Landing; the Map Table's post breathes) | Murk: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." | a tap on **Chart**; or the Chart opens by itself 3 s after the line (once) | ≤ 9 s |
+| 6 | the Chart | the Mossmere, chosen (from M1 step 3 on the drawn Chart, its first sheet inking in the first time, §6.1); the hold's empty slots ink in (three; four for Tallow); **Sail** breathes | Murk: "Three slots in that hold. Fill them and come home." (Tallow: "Four slots in that hold. Fill them and come home.") | **Sail** (the player presses it) | ≈ 3 s |
 | 7 | the glide out | the raft leaves the dock for open water | none | the glide's end, or a tap | 3 s |
 | 8 | the first trip | the water; the hold; the Home pill | "Hold on the water. Let go to cast." once, then "Now. Tap." / "Now. Click." at the first bite | the player fishes | — |
 
@@ -95,23 +97,25 @@ lore or tackle rating. All five Wicks are free (the lead's default).
 
 **A card** (`button.gw-char[data-wick=<id>]`): the Wick's ink portrait (`wickPortrait(look)`, built) and its name. The lit
 card is raised, its flame lit and its ink full; the others are a shade dimmer. **Under the cards, one line**: the lit Wick's
-trait (SPEC §10.1 in a few words). This amends the lead's reading, which put the trait on each card: five trait lines at
+passive (SPEC §10.1, `WICKS.md` §2; revision 3). This amends the lead's reading, which put the trait on each card: five trait lines at
 once would be five lines of text on one screen, against "too much text on screen", so only the lit Wick's line shows and
 moving the selection changes it (PLAN CHOICE 42). Names wrap onto a second line when they must; they are never truncated
 or shrunk below the panel's body size.
 
-| Wick (`CHARACTERS[].name`) | the line (`TEXT_LOOP.wicks[id]`; **proposed**, for the lead's sign-off) | the trait (`LOOP.wicks[id]`, fishing only) |
+| Wick (`CHARACTERS[].name`) | the line (`TEXT_LOOP.wicks[id]`; `WICKS.md` §2, the user's "as written", 15 November 2026; Tallow's for the lead's sign-off) | the passive (`LOOP.wicks[id]`, fishing only) |
 |---|---|---|
-| The Wick | Balanced. | none |
-| Taper | Casts farther. More time to strike. | cast +4 m; strike window +10% |
-| Stub | Sails faster. A wider light. | raft speed +1; light radius as the built Stub (+1.5 m) |
-| Tallow | Sails slower. Holds big fish better. | raft speed −0.8; +2 Hold on a Trophy or bigger |
-| Ashwick | Holds the first fish after dark better. | +3 Hold on the first fish hooked after dark each evening |
+| The Wick | Firsts and new bests sell higher. | **Curious**: a kept first (a new kind, its first Prize, Trophy, Elder or Ancient, a new best) sells higher at the tally |
+| Taper | First bites are never common fish. | **Long Reach**: the first bite at each water each evening is uncommon or rare where the pool allows; from slice 2 a giant's share ×1.3 |
+| Stub | Quick bites, even on quiet water. | **Moth-Bright**: every wait ×0.75; quiet water stays lively (−0.08 a bite, no slower waits); the built light radius stays as a look |
+| Tallow | Stout enough for one more fish. | **Broad Back**: one more slot at every step (4 at the start, 4–6 in 1a) and two more good bites at open water than another Wick at the same step |
+| Ashwick | A fish that gets away comes back. | **Burns Back**: the next bite at that water is the same fish, tired, once (never a giant or a legend) |
 
-The five lines are new words this plan proposes (the user asked for "different characters"; the lead asked for the trait
-"in a few words"); the names and the traits are SPEC §10.1's. No trait touches the hold, the sale or the good bites. The
-built Wicks' other effects (Embers, oil, armour, the aura, rarity, creel size), their quirks, boons and kits never apply on
-a trip.
+The names are `CHARACTERS[].name`; the lines and passives are `WICKS.md`'s (revision 3), each ≤ 8 words and ≤ 36
+characters, so the line is one line high at 18 px on a 358 px phone (`validate-data --loop` checks the caps; lane D's phone
+screenshot of each lit Wick checks the height). **Only Tallow's passive changes the hold's size and a good-bite count (the
+user's carrier, 15 November 2026); only the Wick's touches the sale; none touches a legend, the clock or the odds shown**
+(SPEC §10.1). The built Wicks' other effects (Embers, oil, armour, the aura, rarity, creel size, raft speed, the small Hold
+traits), their quirks, boons and kits never apply on a trip.
 
 **The foot:** **Back** (closes the panel, back to the title; a new word, proposed) and **Start** (primary, the flame glyph,
 focused). **Keys:** ← → (and A D) move the selection; 1–5 pick a Wick; Enter presses Start; Escape is Back.
@@ -133,7 +137,7 @@ changeable later without starting over is a question for the user (PLAN §7.1, w
 |     |          |  ||        ||  |          |  |          |  |          |     |
 |     | The Wick |  ||  Taper ||  |   Stub   |  |  Tallow  |  | Ashwick  |     |
 |     +----------+  +==========+  +----------+  +----------+  +----------+     |
-|                    Casts farther. More time to strike.                       |
+|                     First bites are never common fish.                       |
 |                                                                              |
 |      Back                                                  [ (flame) Start ] |
 +------------------------------------------------------------------------------+
@@ -159,7 +163,7 @@ a 3 + 2 grid so each portrait reads as a look (a row of five would leave 62 px p
 |       | Tallow | | Ashwick|          |
 |       +--------+ +--------+          |
 |                                      |
-|  Casts farther. More time to strike. |
+|  First bites are never common fish.  |
 |                                      |
 |  [ Back ]   [     (flame) Start    ] |   both >= 56 px tall
 +--------------------------------------+
@@ -182,6 +186,10 @@ The words on this screen are exactly: the five names, one trait line, **Back**, 
    a fresh save: the next visit shows New Descent again. If the film is abandoned back to the title (main's 1.5 s idle valve,
    or a film that could not start), the in-memory Wick is cleared too, so the title is still fresh and New Descent is
    offered again (PLAN CHOICE 46).
+5. (Revision 3.) Under the loop the film's third line reads **"Its last candles fish from lamp to lamp."** (`LORE.md`
+   §12; the user, 14 November 2026: "Yes, rewrite line 3 once the story's done"; 40 characters in the line's built window,
+   12.5–14.85 s). The v3 film keeps its line, and nothing else in the film changes (PLAN §2.2 item 26). The new video with
+   its sound is M1 step 6's.
 
 **No film** (a debug build without the intro opt-in, no `INTRO` data, or a film that cannot start): Start goes straight to
 home (`enterHome('new')`: the raft at the Jetty's dock) and the tutorial begins at the wake. `meta.intro` is not touched, so
@@ -211,10 +219,11 @@ ashore, and keeps "the Mossmere's drowned ferry harbour at Murk's day-1 dock" on
 "in the game somewhere". The Jetty is that fallback, and nothing on screen gives a lore reason for the dock (the film's four
 lines name no place). This is a **known gap** against the user's earlier words ("in a place thay makes sense for this game
 to start in based on our lore"), accepted for slice 1a because the cove world is not built (`world.SUPPORTS_COVE` is
-false). **Slice 4 fixes it:** the Landing replaces the Jetty as home, and the same tutorial beats move onto its posts. What
+false). **Slice 4 (M1 step 5) fixes it:** the Landing replaces the Jetty as home, and the same tutorial beats move onto its posts. What
 the Jetty does give the user's words: the game never starts "in the game somewhere" on the lake; it starts at home, with
 Murk as the first voice, and the lake is something you are shown how to reach. The gap is recorded in PLAN §7.3 and put to
-the user in PLAN §7.1.
+the user in PLAN §7.1. **M1 step 5 closes it** (revision 3; `docs/loop/M1.md` §4): the cove is built and home moves to the
+Landing, and the beats below run on its posts (§6.2).
 
 **The rules.** One line at a time, Murk's own lines from the spec. No Skip word: every beat ends on its own tap or a short
 wait. No pointer, arrow, ring or disc anywhere in the world; a cue is a soft ink "breathe" inside a tile's or a button's own
@@ -225,7 +234,7 @@ tutorial clock (`loop-tutorial.js`, pure) runs on real time and only while the J
 |---|---|---|---|---|
 | **arrive** | the glide (§5) | none | its end, or a tap | 3 s |
 | **wake** | the Jetty: **Murk** · **Chart** · **Journal**; the Chart tile breathes; Murk and Journal are dimmed but live; the purse, top-right; the quiet pause glyph, top-left | "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." (SPEC §11; held 5.95 s, Murk's grumble) | a tap on **Chart** at any moment. A tap elsewhere ends the line early. 3 s after the line ends, the Chart opens by itself, **once**: after the player has backed out of the Chart it never opens itself again, and only the tile's breathe remains | ≤ 9 s |
-| **chart** | the Chart: one row, **The Mossmere**, already chosen; under it the hold's three empty slots ink in one by one (0.25 s apart) as the line appears; **Sail** breathes and is live from the first frame | "Three slots in that hold. Fill them and come home." (§8.6). Shown by the tutorial every time the Chart opens before the first Sail, so a reload or a step back never loses it | **Sail**, pressed by the player (never for them). Escape goes back to the Jetty, where the Chart tile still breathes | the player; ≈ 3 s |
+| **chart** | the Chart: one row, **The Mossmere**, already chosen (from M1 step 3, the drawn Chart: §6.1); under it the hold's empty slots (three; four for Tallow: `loop.hold().slots`) ink in one by one (0.25 s apart) as the line appears; **Sail** breathes and is live from the first frame | "Three slots in that hold. Fill them and come home." (§8.6; for Tallow "Four slots in that hold. Fill them and come home.", `TEXT_LOOP.murk.firstChartBy.tallow`, one character shorter, so no budget grows). Shown by the tutorial every time the Chart opens before the first Sail, so a reload or a step back never loses it | **Sail**, pressed by the player (never for them). Escape goes back to the Jetty, where the Chart tile still breathes | the player; ≈ 3 s |
 | **out** | the screens close; the glide out (§7) | none | its end, or a tap | 3 s |
 
 - The Murk and Journal tiles stay live: a curious player may open the shelf or the Journal and come back; the cue waits.
@@ -252,7 +261,7 @@ tutorial clock (`loop-tutorial.js`, pure) runs on real time and only while the J
 +------------------------------------------------------------------------------+
 ```
 
-**The Chart, desktop 960×540:**
+**The Chart in slice 1a (a list), desktop 960×540** (the default Wick; Tallow's shows four cells and its line):
 
 ```
 +------------------------------------------------------------------------------+
@@ -271,9 +280,44 @@ tutorial clock (`loop-tutorial.js`, pure) runs on real time and only while the J
 purse and the pause glyph under the safe-area top. The Chart is one card in the lower half with the line above it and
 **Sail** full width (≥ 56 px) at the bottom.
 
+### 6.1 The chart beat on the drawn Chart (M1 step 3; revision 3)
+
+From M1 step 3 the Chart is the world map (SPEC §5.4, `docs/loop/M1.md` §3): the first sheet (the Landing, the Sluice Run,
+the Mossmere) and the Mossmere's own sheet pinned beside it. The beat's words, timing and rules are unchanged; only the
+picture changes:
+
+1. The Chart opens on the first sheet, the Mossmere's open water chosen.
+2. **The first time the Chart ever opens**, the first sheet inks in (`WORLD.md` §10's reveal, 1.2 s, under Murk's line): the
+   first thing the player discovers is the water they are about to sail. A reload in the beat draws it at once; so does
+   reduced motion.
+3. Murk's line, as above (Tallow's names four).
+4. Under the sheet the hold's empty slots ink in, 0.25 s apart: three, or four for Tallow (1.0 s, inside the ≈ 3 s beat).
+5. **Sail** breathes and is live from the first frame.
+
+While the tutorial runs the mist blots show their glyph without a price, and Sporewood's sealed sheet shows only its wax
+(no seals, no "Coming soon"): one line at a time, nothing to read but Murk's. The beat machine (`loop-tutorial.js`), T65,
+T67 and T72 are unchanged: the list of 1a and the drawn Chart are both `[data-water=mossmere]` with `.gw-slot` cells and
+`[data-action=sail]`.
+
+### 6.2 At the Landing (M1 step 5; revision 3)
+
+When the cove is built (`world.SUPPORTS_COVE`) home is the Landing, in raft mode, and the same four beats run there:
+
+| beat | at the Landing |
+|---|---|
+| **arrive** | the film's last frame → one ink dip (0.6 s) → the cove at dawn, the raft gliding in under the arch to the jetty's mooring (the cove's `homeInPath`, 3 s); a tap ends it |
+| **wake** | the raft at the jetty; Murk's wake line; **the Map Table's post** breathes (its lantern, inside its own bounds; never a ring); the Murk and Journal posts are dimmed but live |
+| **chart** | the post opens the Chart (§6.1); the beat as above |
+| **out** | the screens close; the glide out under the arch (the cove's `setOutPath`, about 6 s to the arch line, skippable), then one ink dip and the trip starts at the Mossmere's dock nearest the place chosen |
+
+The First Evening's director (`first-evening.js`), its fishing lesson and the Quayling stay the v3 build's; the loop's
+tutorial does not teach fishing at home (§8). The title stays on the Mossmere. `INTRO.cove`'s unbuilt variant is not used:
+the film is the same film with the same line 3.
+
 ## 7. The glide out (every Sail)
 
-**Home is always the Jetty's dock** (`docks[0]`, PLAN CHOICE 44): the sail home ends there (its 2 s glide heads for it and
+(Revision 3: from M1 step 5 home is the Landing's mooring, and every Sail is the glide out under the arch, §6.2; what
+follows is the Jetty's, M1 steps 1–4.) **Home is always the Jetty's dock** (`docks[0]`, PLAN CHOICE 44): the sail home ends there (its 2 s glide heads for it and
 the raft is placed there as the tally opens), and `enterHome('title')` and `enterHome('new')` put the raft there too. So
 every Sail starts from the same place, and the glide out never begins with a jump.
 
@@ -334,7 +378,8 @@ a `lastTrip`, or comes with a saved trip `tutorial {done: true, step: null}` and
 Exactly what they have today: the title with Begin on a fresh v3 save (film → First Outing), New Descent with its Wick detail,
 night-mode step, waystones and locked Wicks, the premise and the counts, Journal, Shrine and Trials on the title, the Wicks'
 built effects and trial unlocks, the built Settings rows, and every tip. Every change above is behind `LOOP_ENABLED` and
-reads `meta.loop`, which only a loop build writes; the ui-intro hold of the New Descent panel is behind `LOOP_ENABLED` too.
+reads `meta.loop`, which only a loop build writes (revision 3: the film's line 3 too, set in the apply block; and with
+`world.SUPPORTS_COVE` true from M1 step 5, main's `FE_ON` stays false by feature detection, since it also needs the unbuilt sea-gate film and is false under the loop, so the v3 opening is unchanged: `M1.md` §2.15); the ui-intro hold of the New Descent panel is behind `LOOP_ENABLED` too.
 
 ## Review log (revision 2 of this file, 14 November 2026)
 
@@ -372,3 +417,15 @@ PLAN-side detail; this table says what changed in this file and in SPEC.
 | 25 | SPEC slice 9 and §10's row after the waters merge (minor) | applied in part | as row 10: §10.1 carries the strike; slice 9 and §10's row are for the lead |
 | 26 | The sim and its gates run only for the Wick; trait odds never in a log (minor) | applied | PLAN §6.4 runs the 1 h and choosy checks per Wick; the logs' built rule (tackle odds, no run buffs) is recorded |
 | 27 | `panel()` adds a ✕ (minor) | applied | §3: no ✕ (`close: false`) |
+
+## Review log (revision 3 of this file, 15 November 2026)
+
+The M1 plan (QUEUE job 5) applied `WICKS.md` §5's OPENING pointers and the user's decisions of 14 and 15 November 2026.
+
+| change | where |
+|---|---|
+| "one small fishing trait" → "one passive"; the five lines and passives (`WICKS.md` §2); SPEC §10.1's new sentence in place of "No trait touches the hold, the sale or the good bites"; the phone line's caps and check | §0, §1 row 2, §3 |
+| the chart beat: "the hold's empty slots ink in (three; four for Tallow)"; Tallow's line, "Four slots in that hold. Fill them and come home."; the mocks stay the default Wick's | §1 row 6, §6 |
+| the film's line 3 under the loop, "Its last candles fish from lamp to lamp." (`LORE.md` §12; slice 1a's lane B; the new video is M1 step 6's) | §1 row 3, §11 |
+| the drawn Chart from M1 step 3: the first sheet inks in the first time; blots without prices and the sealed sheet without its seals while the tutorial runs | §6.1 |
+| the Landing as home from M1 step 5: the beats on the posts, the hand-off through one ink dip, the glide out under the arch; the lore gap closes | §1 rows 4–5, §6, §6.2, §7 |
