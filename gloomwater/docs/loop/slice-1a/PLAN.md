@@ -35,6 +35,14 @@ keys (QUEUE job 6) and the Wicks' balancing (QUEUE job 8, `clams.mjs --wicks`) a
 two weeks); item 25's four show fixes are v3 fixes too and the one sanctioned flag-off change, with a committed `show-seq`
 sound fixture for the offline render (§2.2 item 25, "(rev. 7)"); the M1 sim gate is `--step=1` (M1's step numbers).
 
+**Revision 8 (15 November 2026) follows the home barge** (the user: "Should our home base actually be a floating caravan
+style base that moors in a specific location at each water … if we tow it with us when we move that makes sense"; SPEC v7.3
+§6, `M1.md` revision 3). **Slice 1a's work does not change.** Its Jetty, `docks[0]` home and flow `home` are where the home
+barge moors from M1 step 5: CHOICE 44's dock is the Mossmere's mooring, the first case of SPEC §6.5's one-mooring-per-water
+rule, so step 5 adds the barge at the dock 1a already uses, turns the three tiles into the barge's own places in the same
+scene, and starts the opening at the Landing (drawn on the Chart) with the first tow; nothing 1a builds is thrown away. The
+Jetty's lore gap (R22) closes there. Amended in place: §0's §7.1 row, R22, CHOICE 44, §7.1, §7.2, §7.3 (each says "(rev. 8)").
+
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
 three conflicts with `gw-show`. Lane A then writes the **seam commit S** on M (§2.0: the data tables, the switch,
@@ -107,7 +115,7 @@ or `M:N` (a trial merge of 3292886 and `gw-show`). In M, find code by its functi
 | **pounds** (`gw-pounds`, merged first) | A, C | A: `endTrip` stores each fish's weight with the result (`data.fishWeight`); C: the tally's rows lightest first, heaviest last, each with its weight small (`fmtWeight`); the card is `gw-pounds`' as merged | T21, T22 with weights; T43's allow-list takes a weight |
 | **the Chart's 1a part** (SPEC §5.4, `M1.md` §3.6) | C | the Chart is a list drawn from a new pure `chartModel(meta, D)` (§2.3 item 2, rev. 6), which M1 step 3's drawn Chart draws instead; no Sporewood row; the row `[data-water=mossmere]`, its cells `.gw-slot`, Sail `[data-action=sail]` | `ui-loop.test` (`chartModel` on a fresh save: one sheet, no places, no next); T65 unchanged |
 | **the M1 sim gate** | A | `clams.mjs --shipped=mossmere --step=1` once the balancing jobs commit it (`M1.md` §6.4); until then `--quick` | §6.2 |
-| **§7.1** | — | the Jetty question is answered by M1 (the Landing is built in step 5); "Do the five passives feel right?" is added | — |
+| **§7.1** | — | the Jetty question is answered by M1 (rev. 8: the home barge moors at the Jetty from step 5); "Do the five passives feel right?" is added | — |
 
 The R11 phone check grows with Tallow: 6 cells at 1a's Hold 5 must fit the top-left row beside the right cluster; if they do
 not, slice 2's two-row wrap comes into 1a. The good-bite dots stay `min(9, bitesLeft)` in 1a (Tallow's open water has at most
@@ -1497,7 +1505,7 @@ passives, run per Wick and also flag-off, by the balancing job (QUEUE job 8) bef
 | R19 | (rev. 3) The glide-out path is hand-placed per lake; later waters need their own | `LOOP.tutorial.outPath[lake]` or the `outDist` rule, both checked by `validate-data --loop` (T72) |
 | R20 | (rev. 3) Actors re-apply `meta.lastCharacter` on flow `title` before progression applies `meta.loop.wick` | the listener order is load-bearing; T60 asserts the title shows the chosen Wick after a reload |
 | R21 | (rev. 3) `LOOP.time.out` (14 s in the sim) now includes a 3 s glide on every Sail | T37/step 4c measures `sailOut`; the sim is re-run with it (§6.4) |
-| R22 | (rev. 4) The Jetty is DESIGN §25.4.8's fallback F0, not the lore's Landing; nothing on screen says why the Wick wakes at Murk's dock (a known gap against the user's "a place that makes sense … based on our lore") | stated in `OPENING.md` §6 and §7.3; slice 4 moves home to the Landing; put to the user in §7.1 |
+| R22 | (rev. 4) The Jetty is DESIGN §25.4.8's fallback F0, not the lore's Landing; nothing on screen says why the Wick wakes at Murk's dock (a known gap against the user's "a place that makes sense … based on our lore") | stated in `OPENING.md` §6 and §7.3; (rev. 8) M1 step 5 starts the opening at the Landing, drawn on the Chart, and the first tow moors the home barge at the Jetty, so the Jetty is home because the home is moored there; put to the user in §7.1 |
 | R23 | (rev. 4) Escape has two jobs at home: it skips a home glide and opens the home pause | it skips only while a glide runs and no screen is up; the film's swallow guard covers a double press after a film skip; T73 |
 | R24 | (rev. 4) The Wick chosen at the first New Descent cannot be changed without Forget everything | the user's question in §7.1; the cheap build is written there |
 
@@ -1641,7 +1649,9 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
 44. **Home is always the Jetty's dock, `docks[0]`.** SPEC §6.1 says "the last water's first dock"; the sail home heads for
     it and ends there, the title's Continue and Start-with-no-film put the raft there, and so every Sail's glide out starts
     where the raft already is. The alternative (home at the nearest dock, with a glide-out path per dock) was rejected: the
-    Jetty would have five looks and Murk's mooring would move.
+    Jetty would have five looks and Murk's mooring would move. (rev. 8) This is the Mossmere's **mooring** (SPEC §6.5, decision
+    44): from M1 step 5 the home barge lies at `docks[0]` with the raft tied at its stern, so the sail home, Continue and every
+    glide out keep this dock, and later waters get one mooring each in the same way.
 45. **Escape at home** (the lead's ruling 12, which had no lane): the Jetty's Escape opens a loop-only home pause,
     **Resume** · **Settings** (`homepause`, lane C), and the Jetty carries the built quiet pause glyph (no word) so a phone
     reaches it too. The tutorial clock waits under it. During a home glide no screen is up and a key skips the glide.
@@ -1685,8 +1695,8 @@ the spec's figures move) and 27 (the open bite). (The lead has ruled on these: �
   first page at home (lane C, about a day): the five portraits and the lit Wick's trait line from `descentModel`, no Start,
   a tap sets `meta.loop.wick` for the next trip; never during a trip; no new words.
 - ~~(rev. 4) **Is the Jetty (Murk's dock) an acceptable home until the Landing is built in slice 4?**~~ (rev. 6) Answered
-  by M1: the Jetty is home in M1 steps 1–4 and the Landing is built in step 5, with the same tutorial beats on its posts
-  (`docs/loop/M1.md` §4, `OPENING.md` §6.2).
+  by M1: the Jetty is home in M1 steps 1–4; (rev. 8) from step 5 it is the home barge's mooring, and the opening starts at
+  the Landing, drawn on the Chart, with the first tow (`docs/loop/M1.md` §4, `OPENING.md` §6.2).
 - (rev. 6) **Do the five passives (`WICKS.md`) feel right?** The five questions of that file are answered (15 November
   2026: "Default for all except 4 which i want yes"); this asks how they play. Default: as `WICKS.md` revision 3, with the
   balancing job's numbers.
@@ -1714,7 +1724,7 @@ Settings" is superseded by the user's ruling of 14 November 2026 (§7.3): a fres
 | "New Descent" on the fresh title and the panel | Allowed: it is the user's own word for the button. The allow-list carries this one exception. |
 | the glide out on every Sail (CHOICE 38) | Every Sail, 3 s, always skippable by a tap or a key: the journey out is part of the trip. |
 | SPEC edits outside the opening's sections | The lead strikes §13 slice 9's "The four other Wicks" in the merge commit. §10's opening row, §2.1's first rows and the §8.1/§8.3/§8.6 pointers follow in the Chart-integration docs commit, which edits those sections anyway. |
-| the user's questions (PLAN §7.1) | Built with the defaults until the user answers: all five Wicks free; the Wick fixed until a start-over in 1a; the Jetty as home until slice 4; no line under the logotype. |
+| the user's questions (PLAN §7.1) | Built with the defaults until the user answers: all five Wicks free; the Wick fixed until a start-over in 1a; the Jetty as home until M1 step 5, then the home barge's mooring (rev. 8); no line under the logotype. |
 
 ### 7.3 The user's ruling of 14 November 2026 (the opening)
 
@@ -1737,7 +1747,7 @@ The lead's reading, binding on every lane, and where this plan builds it:
 | Start → the cut scene at once (no extra click, no loading screen); Skip works; the Prologue word stays | B (`beginIntro`), C (the held panel) | §2.2 item 20, §2.3 item 9, CHOICE 34, T63, T71 |
 | The film hands off to home (the Jetty), not to the lake | B | §2.2 item 7, CHOICEs 2 and 35, T64 |
 | A very short tutorial at home, one line at a time, Murk's spec lines, the three empty slots | C (`loop-tutorial.js`), A (`meta.loop.tutorial`) | §5.5, CHOICEs 36, 37, 40, T65, T67 |
-| … "in the lore's place" (rev. 4): **a known gap.** The Jetty is Murk's dock, slice 1a's home (SPEC §6.1) and DESIGN §25.4.8's fallback F0; the lore's place is the Landing, where the last Wicks came ashore, which slice 4 builds | — | `OPENING.md` §6, R22, §7.1 (the user's question) |
+| … "in the lore's place" (rev. 4): **a known gap.** The Jetty is Murk's dock, slice 1a's home (SPEC §6.1) and DESIGN §25.4.8's fallback F0; the lore's place is the Landing, where the last Wicks came ashore; (rev. 8) M1 step 5 starts the opening there (drawn on the Chart) and tows the home barge to the Jetty | — | `OPENING.md` §6, R22, §7.1 (the user's question) |
 | Settings reachable everywhere, home included (the lead's ruling 12) | C | §2.3 items 2 and 10, CHOICE 45, T57, T73 |
 | It ends by showing how to head out: the Chart, the Mossmere, Sail, the glide out | C (Chart), B (`game.sail`) | §2.2 item 4, CHOICE 38, T66 |
 | Fishing is taught on the first trip with the built light hints | C | CHOICE 39, T55, T68 |

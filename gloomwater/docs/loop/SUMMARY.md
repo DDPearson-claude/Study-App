@@ -2,7 +2,7 @@
 
 ## Who we are
 
-You are **the Wick**, a small living candle, one of the last of a drowned kingdom. You fish from a raft. Home is **the Landing**, a quiet cove where an old trader, **Murk**, keeps his barge. Murk buys every fish you bring home and sells you everything else.
+You are **the Wick**, a small living candle, one of the last of a drowned kingdom. You fish from a raft. Home is **the Slow Hearth**, an old barge-house you find at the Landing and tow with you from water to water; an old trader, **Murk**, moors his barge alongside it wherever it lies. Murk buys every fish you bring home and sells you everything else.
 
 ## The loop in five steps
 
@@ -86,7 +86,7 @@ The night creatures and all fighting, weapons and levels; health, hunger and oil
 2. **The first new fish** of the first two lakes, and the second lake's map.
 3. **The mist lifts**: spots, maps, the first giants and the first legend.
 4. **Bait, lures, the raft** and Murk's orders.
-5. **Home**: the cove, the opening scene, the very short first evening, home upgrades and fish prints.
+5. **Home**: the home barge moored on the first lake, the opening at the Landing and the first tow, home upgrades on the barge and fish prints.
 6. **The rest of the first four lakes.**
 7. **Twelve new waters**, four at a time: the cold rim (the fjord and the first river, then the sea and the gorge), the falls and the gate, then the green heart. A little moss comes to the first four lakes early, alongside step 2, and is shown to you before any new water is built. Right after it, a test river with no fish proves the river (its camera, its current and the raft on it) and is shown to you too.
 8. **The extras**: the other four candles you can play, and small touches.
