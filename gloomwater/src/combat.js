@@ -643,6 +643,7 @@ export function create(ctx) {
   };
   function flare() {
     const run = C.run;
+    if (parked()) return false;   // the loop: no Flare on a trip
     if (!run || ctx.flow !== 'playing' || ctx.paused) return false;
     // v3 C2: no Flare where the mode's table hides it (Still; Lantern outside a swarm night's dusk and night): the key does nothing
     if (C.mode && !presentNow().flare) return false;
@@ -709,6 +710,7 @@ export function create(ctx) {
   }
   function onPointerDown(ndc) {
     const run = C.run;
+    if (parked()) return false;   // the loop: no zap on a trip (a tap is fishing's)
     if (!run || ctx.flow !== 'playing' || ctx.paused || !ndc) return false;
     if (data()?.V3_ENABLED === true && fishState() === 'bite') return false;   // C7: during the bite the tap is the strike (main routes it)
     if (C.mode && !M.tapsWhileHooked(C.mode, BAL()) && C.hooked()) return false;   // the hard rule: the tap stays fishing's
@@ -1317,6 +1319,11 @@ export function create(ctx) {
     if (dawn) levels.collectAll();
   }
   let hadRun = false, lastRunId = null;
+  // ---- the Full Hold (slice-1a PLAN §2.2 item 14): combat and levels are parked on a trip (outing 'trip', loop data only)
+  const parked = () => data()?.PARKED?.combat === true && (C.run || ctx.state.run)?.outing === 'trip';
+  const levelsParked = () => data()?.PARKED?.levels === true && (C.run || ctx.state.run)?.outing === 'trip';
+  C.levelsParked = levelsParked;
+  let parkedCleared = false;
   function onRunStart({ continued } = {}) {
     clearAll();
     levels.reset();
@@ -1349,6 +1356,8 @@ export function create(ctx) {
       C.run = run;
     }
     hitEmits = 0;
+    if (parked()) { if (!parkedCleared) { parkedCleared = true; clearAll(); } return; }   // the loop: a night with no enemy (T26)
+    parkedCleared = false;
     refreshMode();
     if (!(dt > 0)) { levels.update(0, t); return; }
     numTokens = Math.min(12, numTokens + dt * 14);
@@ -1466,6 +1475,7 @@ export function create(ctx) {
   }
   function addXpV3(n, opts) {
     if (!(n > 0)) return;
+    if (levelsParked()) return;   // the loop: no XP, no levels
     if (C.mode && !opts?.modeApplied && opts?.source !== 'discovery') {
       const L = NM.lastLanded;
       const same = L && L.xp === n && ((ctx.time?.frame ?? 0) - L.frame <= 1 || Math.abs((ctx.time?.gameT ?? 0) - L.gameT) < 0.05);
@@ -1628,7 +1638,7 @@ export function create(ctx) {
       bus.on('fishing:hook', () => { NM.snagsThisFight = 0; });
       bus.on('fishing:snag', (p) => { try { onFishingSnag(p || {}); } catch (e) { C.report('fishing:snag', e); } });
       bus.on('fishing:reel', (p) => { try { onStagedSnag(p || {}); } catch (e) { C.report('fishing:reel', e); } });
-      bus.on('fish:landed', (p) => { if (C.mode) onFishLanded(p || {}); });
+      bus.on('fish:landed', (p) => { if (C.mode && !levelsParked()) onFishLanded(p || {}); });
       bus.on('place:discover', ({ first } = {}) => {
         if (!C.run || !C.mode || first === false) return;
         const xp = M.discoveryXp('place', C.run, BAL());
@@ -1744,7 +1754,9 @@ export function create(ctx) {
     flareReady() { return flareCd <= 0 ? 1 : clamp01(1 - flareCd / Math.max(0.01, flareTotal)); },
     canFlare() { const r = ctx.state.run; if (!r || flareCd > 0 || (r.oil ?? 0) <= 0) return false; if (C.mode && !presentNow().flare) return false; return (r.flags?.flareCharges || r.flareCharges || 0) > 0 || (r.oil ?? 0) >= (C.stats?.flareCost ?? 16); },
     addXp(n, opts) {
-      if (!C.run) C.run = ctx.state.run; refreshMode();
+      if (!C.run) C.run = ctx.state.run;
+      if (levelsParked()) return;   // the loop: no XP (T5: progression's measure never reaches here on a trip either)
+      refreshMode();
       if (C.mode) addXpV3(n, opts);
       else if (data()?.V3_ENABLED === true && opts?.source === 'fish' && !opts?.normApplied) levels.gainXp(M.fishXpNormed(n, { fishXp: opts.fishXp ?? n, norm: M.econNorm(data(), fishLake(opts)) }));
       else levels.gainXp(n);

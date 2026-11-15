@@ -347,6 +347,8 @@ export function create(ctx) {
     const flow = ctx.flow;
     if (flow === 'dead') return 'death';
     if (flow === 'hub') return afPlayMood(fishState()) || 'hub';   // v3: the Landing (the First Evening's play is Small / Keeper)
+    const hm = V3.loopHomeMood(flow, ctx.data?.LOOP_ENABLED === true);   // the loop's Jetty: the built hub mood
+    if (hm) return hm;
     const run = ctx.state?.run;
     if (flow !== 'playing' || !run) return 'title';
     if (victoryHold > 0) return 'victory';
@@ -926,19 +928,20 @@ export function create(ctx) {
 
     // --- water bed under the raft (always some lapping; louder when sailing)
     // v3: the Landing (flow hub) is a live world too: sailing, casting and the First Evening's play (no run there)
-    const liveW = live || (flow === 'hub' && ctx.paused !== true && num(ctx.time?.gameDt) > 0);
+    const homeW = flow === 'home' && ctx.data?.LOOP_ENABLED === true;   // the loop's Jetty: the water bed under the raft at its dock
+    const liveW = live || ((flow === 'hub' || homeW) && ctx.paused !== true && num(ctx.time?.gameDt) > 0);
     const sp = liveW ? num(ctx.player?.speed) : 0;
     const maxSp = Math.max(1, num(st?.moveSpeed, 6));
     const spFrac = clamp(sp / maxSp, 0, 1.2);
     const introWater = flow === 'intro' && intro.water;   // INTRO LANE B: the lake's water returns with the Wick's spark
-    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub' || introWater)) {
+    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub' || introWater || homeW)) {
       water = makeNoiseLoop('pink', 'bandpass', 620, 0.9, N.sfxDry);
       water.lfo = ac.createOscillator(); water.lfo.frequency.value = 0.13;
       water.lg = ac.createGain(); water.lg.gain.value = 240;
       water.lfo.connect(water.lg); water.lg.connect(water.flt.frequency); water.lfo.start();
     }
     if (water) {
-      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub' || introWater) ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
+      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub' || introWater || homeW) ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
       setT(water, 'g', water.g.gain, tgt, 0.4);
       setT(water, 'f', water.flt.frequency, 560 + 600 * Math.min(1, spFrac), 0.3, 0.01);
     }
@@ -1306,6 +1309,8 @@ export function create(ctx) {
     on('firstEvening:beat', (p) => { if (p.id === 'ember') playEmber(); });
     on('firstEvening:line', (p) => feLine(p));
     // an Elder's old trick (fishing:surge {trick} already plays the splash and strain) gets a low warning swell
+    // the loop, Ashwick's comeback settling on the float (WICKS §2.5): a short ember hiss beside the bobber
+    on('fishing:comeback', () => { resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });
     on('fishing:oldTrick', () => { resetScratch(); scratch.pan = bobberPan(); scratch.pitch = 0.72; scratch.volume = 0.9; play('surge_warn', scratch); });
     // a legend snag (Still / Lantern Grasping Dark): the 1 s telegraph, then the strain of the +0.2 spike
     on('fishing:snag', (p) => {

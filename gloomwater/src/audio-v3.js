@@ -393,11 +393,14 @@ export function speciesVoice(speciesId) { return (typeof speciesId === 'string' 
  * Landing (prev 'cove', CONTRACT §13.3), nothing entering the hub or on a Continue (the title orbited the cove).
  */
 export function zoneSting(p = {}) {
+  if (p && p.sail) return 'setout';   // the loop's Sail (slice-1a PLAN §2.2 item 18): the glide out ends on the lake, prev null
   if (!p || !p.prev) return null;
   if (p.hub) return null;
   if (p.continued) return null;
   return p.prev === 'cove' ? 'setout' : 'descend';
 }
+/** The loop's home mood (slice-1a PLAN §2.2 item 18, T56): flow `home` (the Jetty) plays the built `hub` mood; null elsewhere. */
+export function loopHomeMood(flow, loopOn) { return loopOn === true && flow === 'home' ? 'hub' : null; }
 /** The cove bed's level by flow: under the title, at the Landing, and under the hearth cut of a snuff. */
 export function coveBedLevel(flow, { paused = false } = {}) {
   const base = flow === 'hub' ? 1 : flow === 'title' ? 0.62 : flow === 'dead' ? 0.8 : 0;

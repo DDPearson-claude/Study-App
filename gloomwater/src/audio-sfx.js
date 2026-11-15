@@ -146,6 +146,13 @@ export const SFX = {
     v.tone(out, { type: 'sine', f: 3530 * p, t: t + 0.035, a: 0.001, d: 0.18, peak: 0.32 });
     v.tone(out, { type: 'square', f: 4800 * p, t, a: 0.0005, d: 0.02, peak: 0.04 });
   } },
+  // the loop's tally (WICKS §2.1): a first's row ticks twice with a brighter coin, a fifth over the plain one and a small shimmer
+  coinBright: { gain: 0.6, gap: 0.04, max: 4, pri: 2, wet: 0.25, pj: 0.04, fn(v, out, t, p) {
+    v.tone(out, { type: 'sine', f: 3130 * p, t, a: 0.001, d: 0.16, peak: 0.4 });
+    v.tone(out, { type: 'sine', f: 4700 * p, t: t + 0.03, a: 0.001, d: 0.24, peak: 0.28 });
+    v.tone(out, { type: 'sine', f: 6260 * p, t: t + 0.06, a: 0.001, d: 0.3, peak: 0.1 });
+    v.tone(out, { type: 'square', f: 5200 * p, t, a: 0.0005, d: 0.02, peak: 0.035 });
+  } },
   buy: { gain: 0.6, gap: 0.1, max: 2, pri: 3, wet: 0.2, fn(v, out, t, p) {
     for (let i = 0; i < 3; i++) {
       const f = rnd(2100, 2700) * p;
@@ -490,6 +497,13 @@ export const SFX_V3 = {
     v.tone(out, { type: 'triangle', f: 320 * p, t: t + 0.004, a: 0.001, d: 0.035, peak: 0.12 });
   } },
   // ------------------------------------------------------------- the measuring ceremony (§25.6.8)
+  // the loop, Ashwick's comeback (WICKS §2.5): an ember dropped on the water beside the float, a short falling hiss and two crackles
+  ember_hiss: { gain: 0.55, gap: 0.5, max: 1, pri: 2, wet: 0.3, fn(v, out, t, p) {
+    v.burst(out, { kind: 'white', t, a: 0.004, d: 0.42, peak: 0.34, ft: 'highpass', f: 5200 * p, f2: 2600 * p, glide: 0.4, q: 0.7 });
+    v.burst(out, { kind: 'pink', t: t + 0.02, a: 0.01, d: 0.3, peak: 0.16, ft: 'bandpass', f: 1400 * p, q: 1.1 });
+    crackle(v, out, t + 0.05, 0.35, 0.12, 3200 * p);
+    v.tone(out, { type: 'sine', f: 190 * p, f2: 120 * p, glide: 0.2, t, a: 0.01, d: 0.22, peak: 0.12 });
+  } },
   cord_tick: { gain: 0.5, gap: 0, max: 48, pri: 3, pj: 0.008, vj: 0.06, fn(v, out, t, p) {
     // one knot of the measuring cord passing the mark: a dry fibre tick on a small wooden blip (p rises with the count)
     v.burst(out, { t, a: 0.0005, d: 0.014, peak: 0.5, ft: 'bandpass', f: 2800 * p, q: 3 });

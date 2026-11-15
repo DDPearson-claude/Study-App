@@ -294,7 +294,18 @@ export function create(ctx) {
     if (d < num(B.mid?.[1], 0.75)) return 'mid';
     return 'deep';
   }
-  const timeOk = (sp, phase) => { const t = sp?.time || 'any'; return t === 'calm' ? phase !== 'gloomtide' : t === 'gloom' ? phase === 'gloomtide' : true; };
+  const timeOkBuilt = (sp, phase) => { const t = sp?.time || 'any'; return t === 'calm' ? phase !== 'gloomtide' : t === 'gloom' ? phase === 'gloomtide' : true; };
+  // the Full Hold (slice-1a PLAN §2.2 item 12, CHOICE 24): the roster's hour strings read LOOP.hours; a built string ('calm',
+  // 'gloom', 'dawn') or an unknown one keeps the built rule. Chosen once, at create (PLAN §4.1 rule 6: the built function is
+  // byte for byte the one the v1 golden trace runs through)
+  const LOOP_DATA = D().LOOP_ENABLED === true;
+  const BUILT_HOURS = new Set(['calm', 'gloom', 'dawn']);
+  const timeOkLoop = (sp, phase) => {
+    const t = String(sp?.time || 'any').replace(/\s+/g, ''), H = D().LOOP?.hours;
+    const win = !BUILT_HOURS.has(t) && H && Object.prototype.hasOwnProperty.call(H, t) && Array.isArray(H[t]) ? H[t] : null;
+    return win ? win.includes(phase) : timeOkBuilt(sp, phase);
+  };
+  const timeOk = LOOP_DATA ? timeOkLoop : timeOkBuilt;
   function starving() {
     if (v3on() && BAL('wellFed').starvation === false) return false;   // v3: no starvation, ever (Well-fed instead)
     const r = run(); return !!r && num(r.satiety, 1) <= 0;
@@ -337,6 +348,48 @@ export function create(ctx) {
   const spV3 = (sp) => !!sp?.size && v3on();
   const rnd = () => (S.rng || Math.random)();
   const prog = () => (isReal(ctx.progression) ? ctx.progression : null);
+  // ---- the Full Hold (slice-1a PLAN §2.2 item 12, §0's lane B rows): every loop branch is guarded by LOOP(), a trip on loop data
+  /** On a trip (outing 'trip', which only progression's createTrip writes) in a loop build. */
+  const LOOP = () => LOOP_DATA && run()?.outing === 'trip';
+  /** progression's loop (lane A), or null (PLAN §3's stub rule: an absent neighbour means the built behaviour). */
+  const loopApi = () => { const l = prog()?.loop; return l && typeof l === 'object' && !l.isStub ? l : null; };
+  /** The trip's Wick and its passive's numbers (WICKS.md §2; LOOP.wicks[run.character]). */
+  const wickId = () => (typeof D().loopWickId === 'function' ? D().loopWickId(run()?.character) : 'wick');
+  const wickDef = () => D().LOOP?.wicks?.[wickId()] || null;
+  /** The bite-count key of a water: a place's id or `open:<lake>` (PLAN CHOICE 16). */
+  const loopKey = (placeId) => (typeof D().loopWaterKey === 'function' ? D().loopWaterKey(placeId ?? null, lakeId()) : (placeId ? String(placeId) : `open:${lakeId()}`));
+  /** loop.favour(key) on a trip, else null: {favour, waitMult, over, good, spent, mercy, quiet} (PLAN §3.3). */
+  function loopFavour(key) {
+    if (!LOOP() || !key) return null;
+    let f = null;
+    try { f = loopApi()?.favour?.(key); } catch (e) { report(e); }
+    return f && typeof f === 'object' && typeof f.favour === 'number' ? f : null;
+  }
+  /** The good bites left at a water on a trip (a number), else null. */
+  function loopBitesLeft(key) {
+    if (!LOOP() || !key) return null;
+    let n = null;
+    try { n = loopApi()?.bitesLeft?.(key); } catch (e) { report(e); }
+    return typeof n === 'number' && Number.isFinite(n) ? n : null;
+  }
+  /** Taper's first bite of the evening is still to come (WICKS §2.2: loop.taperFirstOpen(), one flag an evening). */
+  function taperOpen() {
+    if (!LOOP() || wickDef()?.passive !== 'long_reach') return false;
+    try { return loopApi()?.taperFirstOpen?.() === true; } catch (e) { report(e); return false; }
+  }
+  /** Taper's weights over a pool (data.wickPoolWeights): the commons zeroed where the rest passes the sign rule, else `w` itself. */
+  function taperWeights(pool, w) {
+    if (!taperOpen() || typeof D().wickPoolWeights !== 'function') return w;
+    try { return D().wickPoolWeights(wickId(), pool, w, { firstBite: true, signRule: AF().signRule || undefined }) || w; } catch (e) { report(e); return w; }
+  }
+  /** The water the raft is on now (a cast's water when one is out): its key. */
+  function waterKeyNow() {
+    if (S.cast?.waterKey) return S.cast.waterKey;
+    const r = raftPos();
+    return loopKey(placeAt(r.x, r.z)?.id ?? null);
+  }
+  /** Quiet water on a trip (SPEC §3.3): no good bites left where the line is (or the raft is). */
+  function loopQuietNow() { const n = loopBitesLeft(waterKeyNow()); return n !== null && n <= 0; }
   const round2 = (v) => Math.round(v * 100) / 100;
   function nightMode() {
     const m = run()?.nightMode;
@@ -396,6 +449,7 @@ export function create(ctx) {
   }
   /** The stopgap's giant water in a lake whose places are not in the build (world.getGiantSpots(), else arena.giantSpots). */
   function giantSpots() {
+    if (D().PARKED?.giantSpots === true) return [];   // the loop: no Elder water in open water (a backstop to the data gate, SPEC §9)
     let g = null;
     try { g = ctx.world?.getGiantSpots?.(); } catch { /* optional */ }
     if (Array.isArray(g) && !g.isStub) return g;
@@ -408,7 +462,9 @@ export function create(ctx) {
     const place = placeAt(x, z);
     let gs = null;
     if (!place) for (const g of giantSpots()) if (inGiantSpot(g, x, z)) { gs = g; break; }
-    return { place, giantSpot: gs, giant: place ? placeHoldsGiants(place) : !!gs, pressureKey: place?.id || gs?.id || null };
+    const out = { place, giantSpot: gs, giant: place ? placeHoldsGiants(place) : !!gs, pressureKey: place?.id || gs?.id || null };
+    if (LOOP_DATA) out.waterKey = loopKey(place?.id ?? null);   // the loop's bite count key (castInfo copies it into S.cast)
+    return out;
   }
   /** Pressure at a place (or stopgap giant water): −0.12 per catch there today, floor −0.6. Progression owns the count (it
    *  keeps run.pressure from fishing:caught.pressureKey and saves it, so a reload keeps "gone quiet"); fishing's own count
@@ -454,7 +510,8 @@ export function create(ctx) {
     if (ph === 'dusk') out.push({ family: 'hour', id: 'dusk', value: num(H.dusk, 0.2) });
     else if (ph === 'dawn') out.push({ family: 'hour', id: 'dawn', value: num(H.dawn, 0.2) });
     else if (ph === 'gloomtide') out.push({ family: 'hour', id: 'nightRise', value: num(H.nightRise, 0.25) });   // every night mode
-    if (info.condition === 'hush') out.push({ family: 'hour', id: 'hush', value: num(H.hush, 0.2) });
+    const trip = LOOP();
+    if (info.condition === 'hush' && !trip) out.push({ family: 'hour', id: 'hush', value: num(H.hush, 0.2) });
     let fw = null;
     try { fw = prog()?.getFarWater?.(); } catch { /* optional (P3) */ }
     const fwv = Math.min(num(H.farWaterCap, 0.24), num(fw?.favour, 0));
@@ -472,6 +529,15 @@ export function create(ctx) {
     if (CW && CW.zones?.includes(zoneData()?.id) && lineTier() < num(CW.belowLineTier, 3)) out.push({ family: 'tackle', id: 'clearWater', value: num(CW.favour, -0.1) });
     const sk = info.sign?.kind;
     if (sk && num(Fv.signs?.[sk], 0)) out.push({ family: 'signs', id: sk, value: num(Fv.signs[sk], 0) });
+    if (trip) {
+      // the loop (SPEC §3.2, §3.3): no let-it-pass and no pressure; the water's own quiet and the let-go's mercy instead
+      const q = loopFavour(info.waterKey);
+      if (q) {
+        if (q.favour) out.push({ family: 'quiet', id: 'quiet', value: q.favour });
+        if (q.mercy) out.push({ family: 'letGo', id: 'letGo', value: q.mercy });
+      }
+      return out;
+    }
     if (info.letPass > 0) out.push({ family: 'signs', id: 'letItPass', value: info.letPass });
     const pr = pressureFavour(info.pressureKey);
     if (pr < 0) out.push({ family: 'pressure', id: 'pressure', value: round2(pr) });
@@ -518,6 +584,8 @@ export function create(ctx) {
     const f = favourAt(info);
     const quietAt = num(BAL('favour').pressure?.quietAt, -0.36);
     view.favour = { mu: round2(f.mu), notches: num(D().favourNotches?.(f.mu), 0), terms: f.terms, quiet: pressureFavour(info.pressureKey) <= quietAt };
+    const left = loopBitesLeft(info.waterKey);   // the loop: the float's good-bite dots (PLAN §3.6)
+    if (left !== null) { view.favour.bitesLeft = left; view.favour.quiet = left <= 0; }
   }
   /** Roll the size score of the hooked species (F1): z ~ N(μ, 1) truncated to the cast's cap; legends are authored (μ 0). */
   function rollSize(sp = S.species, info = S.cast) {
@@ -590,6 +658,7 @@ export function create(ctx) {
     if (S.flee) { disposeFv(S.flee.fv); S.flee = null; }
     if (clearCatch) { releaseCatch(); view.measure = null; view.show = null; }
     S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
+    S.comeback = null; S.taperRule = false;
     S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     S.plan = null; S.plan0 = null; S.loss = null; S.reveal = null; S.lostInfo = null; S.p = null; S.draws = null; S.outcome = null; S.hurry = false; S.panFrom = null;
     if (S.glowIgnite) { try { S.glowIgnite.fv.setRevealLight?.(0); } catch { /* disposed */ } }
@@ -698,7 +767,16 @@ export function create(ctx) {
     S.aimYaw = Math.atan2(-V.aimDir.x, -V.aimDir.z);
   }
 
+  /** The loop (T3): a full hold refuses the cast before anything changes; ui toasts "Hold's full." and pulses Home on it. */
+  function holdRefuses() {
+    if (!LOOP()) return false;
+    let full = false;
+    try { full = loopApi()?.holdFull?.() === true; } catch (e) { report(e); }
+    if (full) emit('loop:holdFull', { via: 'cast' });
+    return full;
+  }
   function startCharge() {
+    if (holdRefuses()) return;
     if (S.catchFv) releaseCatch();
     if (state === 'lost') {   // a new cast interrupts the reel-in
       api.bobberPos = null;
@@ -752,6 +830,7 @@ export function create(ctx) {
   }
 
   function beginCast(dist, power, instant = false) {
+    if (holdRefuses()) { if (state === 'charging') setState('idle'); return; }   // (debug and instant casts too)
     const C = BAL('cast');
     S.castDist = dist;
     S.extShift.set(0, 0, 0);   // raft displacement no paddling caused, since this cast (lineBroken in Still / Lantern)
@@ -839,6 +918,12 @@ export function create(ctx) {
       refreshFloat(); S.floatT = 0.5;
     }
     rollBite();
+    if (S.comeback) {
+      // Ashwick's comeback settles in: an ember glow on the float (unlike any built sign) and its hiss (audio)
+      fx.pulse(x, z, { color: 0xd0643a, r0: 0.2, r1: 1.6, duration: 1.1, width: 0.08, alpha: 0.85 });
+      fx.burst(x, 0.15, z, { color: 0xd0643a, color2: 0xf0a060, count: 8, spread: 0.7, up: 1.2, gravity: -0.6, size: 0.05, life: 0.9, radius: 0.2 });
+      emit('fishing:comeback', { phase: 'float', waterKey: S.comeback.waterKey });
+    }
     setState('waiting');
   }
 
@@ -852,7 +937,7 @@ export function create(ctx) {
     if (!pool.length) pool = all.length ? all : (D().SPECIES || []).filter((s) => s.rarity !== 'legendary');
     return pool;
   }
-  function rollSpecies(depth, rb, baitId, famMult = null, rng = Math.random) {
+  function rollSpecies(depth, rb, baitId, famMult = null, rng = Math.random, trip = false) {
     const phase = phaseNow();
     const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
     const attract = baitById(baitId)?.bonus?.attract || [];
@@ -868,6 +953,12 @@ export function create(ctx) {
       if (famMult && s.family && famMult[s.family]) v *= famMult[s.family];   // v3 signs: predators × 3, bottom feeders × 2
       total += v; return v;
     });
+    // the loop, Taper's first bite of the evening (WICKS §2.2): the commons zeroed where the rest passes the sign rule (the same
+    // one draw, so the RNG count is unchanged); where it does not, the rule waits for a later bite
+    if (trip) {
+      const tw = taperWeights(pool, w);
+      if (tw !== w) { for (let i = 0; i < w.length; i++) w[i] = tw[i]; total = w.reduce((a, b) => a + b, 0); S.taperRule = total > 0; }
+    }
     let r = rng() * total;
     for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
     return pool[pool.length - 1];
@@ -889,6 +980,7 @@ export function create(ctx) {
     const isPity = pity();
     // legend rule
     S.legendCast = false;
+    S.taperRule = false; S.comeback = null;   // (the loop's per-cast marks: Taper's rule served, Ashwick's comeback)
     const lg = legendInfo();
     if (lg && baitId && baitId === lg.baitId && timeOk(lg.species, phase) && S.clock >= S.legendDimUntil
       && Math.hypot(V.bob.x - lg.x, V.bob.z - lg.z) <= lg.r) S.legendCast = true;
@@ -903,11 +995,23 @@ export function create(ctx) {
       let fam = rule && !rule.spook && (rule.predators || rule.bottom) ? { predator: rule.predators || 1, bottom: rule.bottom || 1 } : null;
       // the sign rule (F17): a tilt that would name a fish (< 2 species, or one above 80%) is dropped here: the blind pool bites
       if (fam && afOn() && !signTiltOk(speciesPool(S.depth, baitId, phase), (q) => fam[q.family] || 1)) fam = null;
-      sp = signsOn() ? rollSpecies(S.depth, rb, baitId, fam, rnd) : rollSpecies(S.depth, rb, baitId);   // v3: seeded with the fight (debug fishSeed)
+      const trip = LOOP();
+      sp = signsOn() ? rollSpecies(S.depth, rb, baitId, fam, rnd, trip) : rollSpecies(S.depth, rb, baitId);   // v3: seeded with the fight (debug fishSeed)
       // a rise / boil / glow carries a pre-rolled fish: it takes the bait (always / 60% / 70%) when the bait suits it
       const pre = rule?.preroll && S.signHit?.sign ? S.prerolls.get(S.signHit.sign.id) : null;
-      if (pre && (!pre.sp.bait || pre.sp.bait === baitId) && timeOk(pre.sp, phase) && rnd() < num(rule.preroll.chance, 1)) {
+      if (pre && (!pre.sp.bait || pre.sp.bait === baitId) && timeOk(pre.sp, phase) && rnd() < num(rule.preroll.chance, 1)
+        && !(trip && S.taperRule && pre.sp.rarity === 'common')) {   // (Taper's first bite: a pre-rolled common does not take the bait)
         sp = pre.sp; S.prerollSp = pre.sp; S.prerollZ = pre.z; S.prerollSign = S.signHit.sign; S.prerollTook = true;
+      }
+      // the loop, Ashwick's comeback (WICKS §2.5): the next bite at the water a fish got away from is that fish, its z kept
+      if (trip) {
+        let cb = null;
+        try { cb = loopApi()?.comeback?.(S.cast?.waterKey); } catch (e) { report(e); }
+        const csp = cb && typeof cb === 'object' ? speciesById(cb.speciesId) : null;
+        if (csp && csp.rarity !== 'legendary' && Number.isFinite(Number(cb.z))) {
+          sp = csp; S.prerollSp = csp; S.prerollZ = Number(cb.z); S.prerollSign = null; S.prerollTook = false; S.taperRule = false;
+          S.comeback = { speciesId: csp.id, z: Number(cb.z), waterKey: S.cast?.waterKey ?? null };
+        }
       }
     }
     S.species = sp;
@@ -920,6 +1024,11 @@ export function create(ctx) {
     let W = (num(Bt.waitBase, 3) + expRand(num(Bt.waitMean, 5.5)))   // unseeded: the seeded draws stay the reel's (sim parity)
       / (biteSpeed * (S.spot ? 1 / num(SP.waitMult, 0.55) : 1) * (gloom ? num(Bt.gloomMult, 1.15) : 1))
       * (S.clean ? num(C.cleanBiteMult, 0.85) : 1) * (isPity ? num(Bt.pity?.waitMult, 0.7) : 1);
+    if (LOOP()) {
+      // the loop: Stub's quick bites (WICKS §2.3; not on a legend cast) and quiet water's slower waits (SPEC §3.3), before the clamp
+      const q = loopFavour(S.cast?.waterKey);
+      W *= (S.legendCast ? 1 : num(wickDef()?.waitMul, 1)) * num(q?.waitMult, 1);
+    }
     W = clamp(W, num(Bt.waitMin, 2), num(Bt.waitMax, 25));
     if (S.legendCast) W *= num(SP.legend?.waitMult, 0.7);
     const lead0 = afOn() ? TELL_LEAD_AF : TELL_LEAD;
@@ -1011,6 +1120,13 @@ export function create(ctx) {
     if (S.prerollSign && S.prerollSp === sp) { endSign(S.prerollSign, 0.8); S.prerollSign = null; }
     setState('bite');
     if (afOn()) {
+      if (LOOP()) {
+        // the loop: the bite spends one at its water (progression counts it); Taper's first bite and Ashwick's comeback are spent here
+        const cb = !!S.comeback;
+        if (S.taperRule) { S.taperRule = false; try { loopApi()?.spendTaperFirst?.(); } catch (e) { report(e); } }
+        if (cb) { try { loopApi()?.consumeComeback?.(); } catch (e) { report(e); } }
+        emit('fishing:bite', { ...withLegend({ sizeClass: shownClass(), biteTell: S.tell }), waterKey: S.cast?.waterKey ?? null, ...(cb ? { comeback: true } : {}) });
+      } else
       emit('fishing:bite', withLegend({ sizeClass: shownClass(), biteTell: S.tell }));   // no species (F17)
       haptic(AF().strike?.haptic?.bite?.[afClass() === 'legend' ? 'elder' : afClass()]);
       if (strikeRingOn()) {   // the strike ring: a thin ink ring closing on the float over the window, its Clean part brighter (timing only)
@@ -1100,6 +1216,7 @@ export function create(ctx) {
     const b = S.castBait ? baitById(S.castBait) : null;
     let refunded = false;
     if (b && !b.legend) { try { refunded = prog()?.refundBait?.(S.castBait) === true; } catch (e) { report(e); } }
+    if (LOOP()) return refunded;   // the loop: a pass writes no favour (SPEC §3.2: only Let go forgives, at the card)
     const prev = S.letPass && S.clock - S.letPass.at <= num(LP.resetAfter, 60) ? S.letPass.value : 0;
     S.letPass = { value: Math.min(num(LP.cap, 0.3), round2(prev + num(LP.favour, 0.15))), x: V.bob.x, z: V.bob.z, place: S.cast?.place?.id || null, at: S.clock };
     return refunded;
@@ -1175,6 +1292,8 @@ export function create(ctx) {
     const r = run();
     let wf = false;
     try { wf = isReal(ctx.survival) && ctx.survival.wellFed === true; } catch { wf = false; }
+    // (the loop: no buffs but the Wick's own; only Ashwick's comeback bite names a Wick here, WICKS §2.5)
+    if (LOOP()) return { wellFed: false, boons: {}, relics: {}, character: S.comeback && wickId() === 'ashwick' ? 'ashwick' : null, firstHookTonight: false };
     return { wellFed: wf, boons: { ...(r?.boons || {}) }, relics: { ...(ctx.state?.meta?.relics || {}) }, character: r?.character || null, firstHookTonight: firstHookTonight() };
   }
   /** A legend's escapes (wounds) and landings (growth): meta in expeditions and P1–P2 runs, the run inside The Long Descent. */
@@ -1191,6 +1310,7 @@ export function create(ctx) {
     if (set === 'always') return true;
     if (set === 'never') return false;
     const r = run(), meta = ctx.state?.meta || {};
+    if (LOOP()) return num(r?.evening, 1) <= 1;   // the loop: the first evening (meta.runs is never written on a trip, PLAN CHOICE 3)
     return r?.outing === 'first' || num(meta.expeditions, NaN) <= 1 || num(meta.runs, 0) <= 1;
   }
   /** Hurry (Small / Keeper, from the 2nd run): a hold speeds the play to the same outcome. */
@@ -1199,12 +1319,18 @@ export function create(ctx) {
     if (!H || !S.plan || S.plan.legend || !H.classes?.includes(S.playCls)) return false;
     const meta = ctx.state?.meta || {};
     if (meta.settings?.hurry === false) return false;
+    if (LOOP()) return num(run()?.evening, 1) >= num(H.fromRun, 2);   // the loop: from the second evening
     return num(meta.runs, 0) >= num(H.fromRun, 2) || num(meta.expeditions, 0) >= num(H.fromRun, 2);
   }
   /** The sign rule (AUTOFISH.signRule): a tilt is kept only where the tilted pool holds ≥ 2 species and none above 80%. */
   function signTiltOk(pool, mult = null) {
     const R = AF().signRule || {}, W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
     let tot = 0, top = 0, n = 0;
+    if (taperOpen()) {   // the loop, Taper's first bite (WICKS §2.2): the tilt is judged on the weights the draw will use
+      const ws = taperWeights(pool, pool.map((s) => num(W[s.rarity], 10) * (mult ? num(mult(s), 1) : 1)));
+      for (const w of ws) { if (!(w > 0)) continue; n++; tot += w; top = Math.max(top, w); }
+      return n >= num(R.minSpecies, 2) && (tot > 0 ? top / tot : 1) <= num(R.maxShare, 0.8) + 1e-9;
+    }
     for (const s of pool) { const w = num(W[s.rarity], 10) * (mult ? num(mult(s), 1) : 1); if (w <= 0) continue; n++; tot += w; top = Math.max(top, w); }
     return n >= num(R.minSpecies, 2) && (tot > 0 ? top / tot : 1) <= num(R.maxShare, 0.8) + 1e-9;
   }
@@ -1226,6 +1352,11 @@ export function create(ctx) {
   }
   /** A tap during the nibbles: the fish felt it ('spooked'); the cast ends, the bait is spent, no favour is carried. */
   function spook() {
+    if (LOOP()) {
+      // the loop: a spook spends a bite at its water (T8) and a waiting comeback with it (WICKS §2.5)
+      if (S.comeback) { S.comeback = null; try { loopApi()?.consumeComeback?.(); } catch (e) { report(e); } }
+      emit('fishing:miss', { reason: 'spooked', waterKey: S.cast?.waterKey ?? null });
+    } else
     emit('fishing:miss', { reason: 'spooked' });
     fx.pulse(V.bob.x, V.bob.z, { color: 0x8e96a4, r0: 0.2, r1: 1.4, duration: 0.6, alpha: 0.6 });
     call(() => ctx.water?.addRipple?.(V.bob.x, V.bob.z, 0.6));
@@ -2214,7 +2345,7 @@ export function create(ctx) {
     if (legendary) {
       const r = run();
       if (r?.flags?.wounded?.[sp.id]) delete r.flags.wounded[sp.id];
-      if (sp.final) {
+      if (sp.final && !LOOP()) {   // (a trip never reaches dawn on the water)
         call(() => ctx.combat?.killAll?.('dawn'));
         if (phaseNow() === 'gloomtide') {
           if (isReal(ctx.survival) && typeof ctx.survival.setPhase === 'function') call(() => ctx.survival.setPhase('dawn'));
@@ -2838,6 +2969,7 @@ export function create(ctx) {
    *  The species stays hidden until the bite (the float never reveals it either). */
   function spawnSign(kind = null, o = {}) {
     if (!isReal(ctx.world) && !o.at) return null;
+    if (!o.force && loopQuietNow()) return null;   // the loop: quiet water shows no signs (SPEC §3.3, T52)
     const SB = BAL('signs');
     if (S.signs.length >= maxAlive(SB) && !o.force) return null;
     const phase = phaseNow();
@@ -3408,6 +3540,14 @@ export function create(ctx) {
     addSpots(n, opts) { try { return addSpots(n, opts || {}); } catch (e) { report(e); return 0; } },
     // v3 (CONTRACT §13.7)
     isHooked() { return state === 'reeling' || state === 'landing'; },
+    /** The loop's read of the water at a point (T30, the D scenario): {giant, waterKey, placeId}. Read-only. */
+    waterAt(p) {
+      try {
+        if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) return null;
+        const w = waterInfo(p.x, p.z);
+        return { giant: !!w.giant, waterKey: w.waterKey ?? loopKey(w.place?.id ?? null), placeId: w.place?.id ?? null };
+      } catch (e) { report(e); return null; }
+    },
     /** Automatic fishing: the anchor (CONTRACT §13.7a) holds from the strike until the card or the got-away note: player ignores
      *  movement input and combat moves neither the Wick nor the raft while this is true. */
     isAnchored() { return afOn() && (state === 'reeling' || state === 'landing' || (state === 'lost' && !!S.lostInfo && !S.noteSent)); },
