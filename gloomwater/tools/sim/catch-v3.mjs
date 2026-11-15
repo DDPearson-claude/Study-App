@@ -13,6 +13,7 @@
 //   node tools/sim/catch-v3.mjs --all           every lake × species × class at T0…T4, without / with the best bait or lure
 //   node tools/sim/catch-v3.mjs --lake mossmere one lake's full table          --species reedjaw_pike  one species
 //   node tools/sim/catch-v3.mjs --leaps         the leap, bite and sign ambiguity rules, cell by cell (worst cells first)
+//   node tools/sim/catch-v3.mjs --wicks         the five Wicks' rows (WICKS §3.1): Ashwick's comeback under every cap; the others add no term
 //   node tools/sim/catch-v3.mjs --md            markdown tables               --json  CATCH_V3 + AUTOFISH as JSON
 //   node tools/sim/catch-v3.mjs --strike clean|struck|early|late   (default struck: the log's reference strike)
 // Deterministic (closed form; the outing estimate is an expectation, no RNG). The manual tension reel's sim (reel-v3.mjs) was
@@ -462,6 +463,39 @@ function landing() {
   say();
 }
 
+// ---- the five Wicks (docs/loop/WICKS.md §3.1, the catch-v3 column): Ashwick's comeback is the only Wick term in the land chance.
+// A comeback is tired: +hold through the per-Wick run buff (under the loop the apply block sets CATCH_V3.buffs.wicks.ashwick = {hold},
+// inside the run cap); the loop's runs carry no relics. Until slice 1a puts LOOP.wicks in data.js, `hold` is the balancing sim's
+// (tools/sim/clams.mjs LOOP.wicks.ashwick.hold). The other four Wicks add no term at all.
+const ASHWICK_HOLD = D.LOOP?.wicks?.ashwick?.hold ?? 4;
+export function wicks() {
+  const rows = [], comeback = Math.min(C.buffs.runCap ?? C.buffs.cap, ASHWICK_HOLD), W = [28, 8, 20, 22, 26];
+  let worst = 0, worstAt = '', diff = 0, diffAt = '', n = 0;
+  say(MD ? `**The Wicks' land-chance rows** (WICKS §3.1; the lake's arrival tier T(i) and its era's end T(i+1), the log's reference strike, no relics)` : `== The Wicks' rows (WICKS §3.1): Ashwick's comeback (+${comeback} Hold, tired) on each lake's arrival tier and its era's end; the other Wicks add no term`);
+  say(row(['lake · class', 'tackle', 'no passive (mean)', 'comeback (mean)', 'closest to its cap'], W)); if (MD) say(sep(5));
+  for (const [i, lake] of LAKES.entries()) for (const t of [i, Math.min(4, i + 1)].filter((v, k, a) => a.indexOf(v) === k)) for (const cls of CLASSES) {
+    let a = 0, b = 0, k = 0, near = 0;
+    for (const sp of SP.filter((s) => homeLake(s) === lake && s.rarity !== 'legendary' && !s.cove)) {
+      if (!D.catchClassAllowed(sp, cls)) continue;
+      for (const item of [null, D.catchBestItem(sp).id]) {
+        const p0 = chance(sp, cls, { tackle: T(t), item, buffs: 0 }), p1 = chance(sp, cls, { tackle: T(t), item, buffs: comeback });
+        a += p0; b += p1; k++; near = Math.max(near, p1 / C.cap[cls]);
+        if (p1 / C.cap[cls] > worst) { worst = p1 / C.cap[cls]; worstAt = `${sp.name} ${CL[cls]}, T${t}${item ? ` + ${itemName(item)}` : ''}`; }
+        // the other four Wicks, and Ashwick on any bite but a comeback (the loop's getCatchBuffs gives no character then): no term
+        for (const w of ['wick', 'taper', 'stub', 'tallow']) {
+          const q = D.catchChance(sp, cls, { ...T(t), item }, { strike: STRIKE, buffs: { character: w } }), q0 = D.catchChance(sp, cls, { ...T(t), item }, { strike: STRIKE, buffs: {} });
+          n++; if (Math.abs(q - q0) > diff) { diff = Math.abs(q - q0); diffAt = `${w}: ${sp.name} ${CL[cls]}`; }
+        }
+      }
+    }
+    if (k) rows.push([`${LAKE_NAME[lake]} · ${CL[cls]}`, `T${t}`, `${(a / k * 100).toFixed(1)}%`, `${(b / k * 100).toFixed(1)}% (+${((b - a) / k * 100).toFixed(1)})`, `${(near * 100).toFixed(1)}% of its cap (${C.cap[cls] * 100}%)`]);
+  }
+  for (const r of rows) say(row(r, W));
+  say(`${worst < 1 ? 'PASS ' : 'CHECK'} Ashwick's comeback stays under every class cap (+${comeback} Hold, every built non-legend species and class, with and without its best item): closest ${(worst * 100).toFixed(1)}% of its cap (${worstAt}); giants and legends never come back`);
+  say(`${diff === 0 ? 'PASS ' : 'CHECK'} the Wick, Taper, Stub and Tallow add no land-chance term: their catchChance equals the no-passive Wick's in all ${n} cells${diff ? ` (largest difference ${(diff * 100).toFixed(2)} points, ${diffAt})` : ''}`);
+  say();
+}
+
 // ---------------------------------------------------------------------------------------------------------- main
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (has('--json')) { console.log(JSON.stringify({ CATCH_V3: C, AUTOFISH: A }, null, 1)); process.exit(0); }
@@ -470,8 +504,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   else if (lake) lakeTable(lake);
   else if (has('--all')) for (const l of LAKES) lakeTable(l);
   else if (has('--leaps')) leaps(true);
+  else if (has('--wicks')) wicks();
   else {
-    targets();
+    targets(); wicks();
     for (const l of LAKES) lakeTable(l, (s) => s.reference || s.id === SP.find((x) => x.zone === l && x.rarity === 'common')?.id);
     lakeAverages(); items(); legends(); perRun(); strikeModel(); favour(); outings(); elderPacing(); landing(); leaps();
   }
