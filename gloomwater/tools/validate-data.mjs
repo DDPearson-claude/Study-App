@@ -6,8 +6,9 @@
 // Three passes: (1) the v1 tables with WALK_ENABLED and V3_ENABLED off — every v1 table must stay exactly as v1
 // (QA §24.13 #1); (2) a child process with `--walk` re-checks every table with the walking build on and runs the v2
 // map checks (DESIGN §24, CONTRACT §12); (3) a child process with `--v3` re-checks everything with the walking AND
-// the v3 builds on (BRIEF-v3, DESIGN §25, CONTRACT §13) and runs the v3 rules. `--v1` skips passes 2–3; `--walk` runs
-// pass 2 only; `--v3` runs pass 3 only.
+// the v3 builds on (BRIEF-v3, DESIGN §25, CONTRACT §13) and runs the v3 rules; (4) a child process with `--loop` evaluates the
+// Full Hold's build (GW_V3, GW_V3_PHASE 1, GW_LOOP; slice-1a PLAN §4.3) and runs the LOOP rules only. `--v1` skips passes 2–4;
+// `--walk` runs pass 2 only; `--v3` runs pass 3 only; `--loop` runs pass 4 only.
 const V3 = process.argv.includes('--v3');
 const WALK = process.argv.includes('--walk') || V3;   // v3 is designed on top of §24: pass 3 runs both builds
 
@@ -17,6 +18,9 @@ const WALK = process.argv.includes('--walk') || V3;   // v3 is designed on top o
 // the merged base's untouched data.js, by the one-shot `--write-v3-fingerprint`, which refuses to overwrite the file. Pass 3
 // asserts both builds still match it, so v3-without-loop data is proven unchanged by the loop. Never refreshed in place.
 const V3_FP_PATH = new URL('./tests/v3-exports.json', import.meta.url);
+// the originality scans' word lists (pass 1's for every display string, pass 3's v3 guardrails, brief §13.3), shared with pass 4
+const ORIGINALITY_BANNED = /\b(hollow ?knight|hallownest|geo|soul|charms?|vessels?|grubs?|husks?|lumafly|dreamers?|mourner|greenpath|archives|masks?|shades?)\b/i;
+const ORIGINALITY_V3 = [/\bpale\s+[A-Z][a-z]+/, /\bcollector\b/i, /bottled light/i, /\b(bronze|silver|gold|diamond)\s+(medal|tier|rank)\b/i, /\b(morphs?|aberrant|aberration|sanity|panic|spoil(ed|age)?)\b/i, /\bmarrow\b/i, /\bhallow/i];
 /** Fresh module instances of the two v3 builds (GW_LOOP unset), the flags put back after. */
 async function v3FingerprintBuilds() {
   const keep = { walk: globalThis.GW_WALK, v3: globalThis.GW_V3, phase: globalThis.GW_V3_PHASE, loop: globalThis.GW_LOOP };
@@ -54,6 +58,142 @@ if (process.argv.includes('--write-v3-fingerprint')) {
   };
   fs.writeFileSync(V3_FP_PATH, JSON.stringify(REF, null, 1) + '\n');
   console.log(`validate-data --write-v3-fingerprint: ${names.length} exports of the two v3 builds written to tools/tests/v3-exports.json (from ${from})`);
+  process.exit(0);
+}
+// ---------------------------------------------------------------------------- pass 4: the Full Hold (slice-1a PLAN §4.3, T41, T72, T84)
+// Its own process: GW_V3, GW_V3_PHASE 1 and GW_LOOP set, GW_WALK unset, data.js?loop, the LOOP rules only, then exit. Nothing here
+// runs in passes 1–3 (which assert the loop is off).
+if (process.argv.includes('--loop')) {
+  delete globalThis.GW_WALK;
+  globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true;
+  const L4 = await import('../src/data.js?loop');
+  const WLY = await import('../src/world-layout.js');
+  const { murkHold } = await import('../src/first-evening.js');
+  const PLM = await import('../src/progression-loop.js');
+  const errs = [], warns = [];
+  let n = 0;
+  const ok4 = (c, m) => { n++; if (!c) errs.push(m); return !!c; };
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const num4 = (v) => typeof v === 'number' && Number.isFinite(v);
+  const inR = (v, lo, hi) => num4(v) && v >= lo - 1e-12 && v <= hi + 1e-12;
+  const { LOOP: LP, TEXT_LOOP: TL, PARKED: PK } = L4;
+  // the build
+  ok4(L4.V3_ENABLED === true && L4.V3_PHASE === 1 && L4.WALK_ENABLED === false && L4.LOOP_ENABLED === true, 'the loop build: V3_ENABLED, V3_PHASE 1, no walking, LOOP_ENABLED');
+  const KEYS = 'swarm combat levels embers hunger oilAsLife nightModes death days farWater liveWell meta tolls longDescent challenges quality mercy passFavour baitAttract murkInLake runShop residents weather walking giantSpots watchLamps arrivalHush eatRender bounties firstCatchShells proofs'.split(' ');
+  ok4(Object.isFrozen(PK) && same(Object.keys(PK).sort(), KEYS.slice().sort()) && Object.values(PK).every((v) => v === true), `PARKED has exactly the 31 keys of PLAN §3.1, all true (got ${Object.keys(PK).length})`);
+  ok4(L4.TEXT.loop === TL, 'TEXT.loop === TEXT_LOOP');
+  // T30 (A side): no Elder water and no watch lamps in any lake under the loop
+  for (const z of L4.ZONES) ok4(!(z.arena.giantSpots || []).length && !(z.arena.watchLamps || []).length, `${z.id}: no giantSpots and no watchLamps under the loop (T30)`);
+  // the hold ladder (SPEC §4.2) and the 1a shelf
+  const H = LP.hold;
+  ok4(H.start === 3 && H.max === 8 && H.shelfMax === 5 && H.startName === 'Wicker Creel', 'LOOP.hold: 3 to 8, the 1a shelf to Hold 5');
+  ok4(same(H.ladder.map((s) => s.slots), [4, 5, 6, 7, 8]) && same(H.ladder.map((s) => s.price), [30, 120, 450, 2000, 3500]) && H.ladder.every((s) => typeof s.name === 'string' && s.name),
+    'LOOP.hold.ladder: slots 4..8 in order, prices 30 · 120 · 450 · 2,000 · 3,500, each named');
+  // tackle (SPEC §4.3): the prices and TACKLE T0–T4's Hold as the table states it
+  const TK = LP.tackle;
+  ok4(same(TK.price, [0, 50, 300, 1200, 6000, 32000, 100000]), 'LOOP.tackle.price: 0 · 50 · 300 · 1,200 · 6,000 · 32,000 · 100,000');
+  ok4(same(TK.extraHold, { rod: [15, 18], line: [16, 19], reel: [15, 18] }) && [5, 6].every((t) => (TK.names[t] || []).length === 3), 'T5 and T6: Hold 15/16/15 and 18/19/18, three names each');
+  ok4(same(['rod', 'line', 'reel'].map((s) => L4.TACKLE[s].map((t) => t.hold)), [[0, 2, 5, 8, 12], [0, 2, 5, 9, 13], [0, 2, 5, 8, 12]]), "TACKLE T0–T4's Hold equals SPEC §4.3's table");
+  ok4(TK.shelfAt.length === TK.price.length && TK.shelfAt[6] === 9 && TK.shelfAt.slice(0, 3).every((w) => w === 1), 'v8 (T84): LOOP.tackle.shelfAt[6] === 9; T0–T2 on the first shelf');
+  // quiet water (SPEC §3.3) and let go (§3.2)
+  ok4(same(LP.water, { good: { day: 2, old: 3, night: 2, crown: 2 }, openPerSlot: 1, openExtra: 1, stale: { favour: -0.15, floor: -1.2, wait: 0.3, waitMax: 2.2 } }), 'LOOP.water: the good bites and quiet water of SPEC §3.3');
+  ok4(same(LP.letGo, { favour: 0.2, cap: 0.4, refund: 1 }), 'LOOP.letGo: +0.2 to +0.4, the bite back');
+  ok4(same(L4.quietTerms(1), { over: 1, favour: -0.15, waitMult: 1.3 }), 'quietTerms(1): the 5th bite at 4 good bites (CHOICE 17), −0.15 and ×1.3');
+  ok4(same(L4.quietTerms(8), { over: 8, favour: -1.2, waitMult: 2.2 }), 'quietTerms(8) (the 12th bite at 4): floors at −1.2 with ×2.2');
+  ok4(L4.goodBitesFor({ kind: 'open', holdSlots: 3 }) === 4 && L4.goodBitesFor({ kind: 'open', holdSlots: 8 }) === 9, 'open water: one good bite per slot, plus one (4 to 9)');
+  // the evening (§3.4) and its hours
+  ok4(LP.evening.day === 40 && LP.evening.dusk === 20 && LP.evening.night === null && num4(LP.evening.nightLook) && LP.evening.nightLook > 0, 'LOOP.evening: 40 / 20 / null (no end), a night look > 0');
+  const PH = ['calm', 'dusk', 'gloomtide', 'dawn'];
+  ok4(Object.values(LP.hours).every((v) => Array.isArray(v) && v.length && v.every((p) => PH.includes(p))) && ['calm', 'gloom', 'dawn'].every((b) => !(b in LP.hours)), "LOOP.hours: the roster's strings only, each a list of built phases");
+  // value (§4.1)
+  const SPX = (id) => L4.SPECIES_BY_ID[id];
+  ok4(L4.fishClams(SPX('dusk_minnow'), 0.4) === 7, `fishClams(dusk_minnow, 0.4) === 7 on the built L50 (got ${L4.fishClams(SPX('dusk_minnow'), 0.4)})`);
+  ok4(L4.fishClams(SPX('belled_matriarch'), 0) === null, 'a legend is never priced by size');
+  ok4(LP.waters.mossmere.tier === 7 && LP.waters.mossmere.prices.crown === 500 && LP.value.legendRematch === 0.4, "the Mossmere: tier 7, the Matriarch's crown 500, later ×0.4");
+  ok4(num4(LP.priceFactor) && LP.priceFactor > 0, 'LOOP.priceFactor is a positive number (1 in 1a)');
+  ok4(LP.time.show === 0 && ['out', 'between', 'raftSpeed', 'home', 'sale', 'shop', 'pass'].every((k) => num4(LP.time[k]) && LP.time[k] > 0), 'LOOP.time: show 0 (CHOICE 15), the other legs positive');
+  // v8, the three keys (T84)
+  const items = PLM.shelfItems(L4, { ...PLM.freshLoop(L4), holdSlots: H.max, tackle: { rod: 0, line: 0, reel: 0 } });
+  for (const [w, id] of Object.entries(LP.access.gear)) {
+    const [slot, lvl] = String(id).split(':'), t = Number(lvl);
+    ok4(L4.ZONE_BY_ID[w] && (slot === 'hold' ? H.ladder.some((s) => s.slots === t) : ['rod', 'line', 'reel'].includes(slot) && Number.isInteger(t) && t >= 1 && t < TK.price.length),
+      `v8 (T84): LOOP.access.gear.${w} = '${id}' names a shelf item of LOOP`);
+  }
+  ok4(items.length >= 0 && same(Object.keys(LP.access.pull).sort(), ['cap', 'floorFrom', 'keeperFloor', 'perEvening', 'sureFrom']), 'v8 (T84): LOOP.access.pull has perEvening, cap, keeperFloor, floorFrom, sureFrom');
+  ok4(same(LP.access.list, { kinds: ['open', 'day', 'old'], plainBaitOnly: true }), 'v8: the list rule (SPEC §5.5 (c))');
+  ok4(same(PLM.listFor(L4, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike']), "v8 (T81): the Mossmere's list is the six built open-water fish, computed");
+  // the five Wicks (WICKS §2, §3.5, §5; T72)
+  const W = LP.wicks, ids = L4.CHARACTERS.map((c) => c.id);
+  ok4(same(W.order, ['wick', 'taper', 'stub', 'tallow', 'ashwick']) && W.order.every((id) => ids.includes(id)) && W.order.length === 5, 'LOOP.wicks.order is the five CHARACTERS ids');
+  ok4(W.order.every((id) => typeof W[id]?.passive === 'string' && new Set(W.order.map((x) => W[x].passive)).size === 5), 'five Wicks, one passive each, all different');
+  ok4(W.order.every((id) => Object.keys(W[id].stats || {}).every((k) => k in L4.STATS && num4(W[id].stats[k]))), 'every LOOP.wicks stats key is a STATS key');
+  ok4(same(Object.entries(W).filter(([k]) => k !== 'order').flatMap(([, K]) => Object.keys(K.stats || {})), ['lightRadius']), "the only Wick stat is Stub's light (the look)");
+  ok4(W.wick.passive === 'curious' && inR(W.wick.firstMult, 1.3, 1.6) && inR(W.wick.firstFloor, 0.3, 0.6), `the Wick: firstMult in 1.3–1.6 (${W.wick.firstMult}), firstFloor in 0.3–0.6 (${W.wick.firstFloor})`);
+  ok4(W.taper.passive === 'long_reach' && Number.isInteger(W.taper.firstBites) && inR(W.taper.firstBites, 1, 2) && typeof W.taper.perWater === 'boolean', 'Taper: firstBites 1–2, perWater a boolean');
+  ok4(inR(W.taper.giantShare, 1.1, 1.4) && inR(W.taper.giantCap, 0.01, 0.12), `Taper (slice 2, ranges only): giantShare 1.1–1.4 (${W.taper.giantShare}), giantCap ≤ 0.12 (${W.taper.giantCap})`);
+  ok4(W.stub.passive === 'moth_bright' && inR(W.stub.waitMul, 0.7, 0.85) && inR(W.stub.quietStep, 0.05, 0.1) && typeof W.stub.quietWait === 'boolean', `Stub: waitMul 0.7–0.85 (${W.stub.waitMul}), quietStep 0.05–0.1 (${W.stub.quietStep})`);
+  ok4(W.tallow.passive === 'broad_back' && W.tallow.slots === 1 && Number.isInteger(W.tallow.good) && inR(W.tallow.good, 0, 2) && typeof W.tallow.everyWater === 'boolean', 'Tallow: slots === 1 (the user\'s yes), good 0–2, everyWater a boolean');
+  ok4(L4.wickSlots(H.max, 'tallow') === 9 && L4.wickSlots(H.max, 'wick') === 8 && L4.loopSlots({ holdSlots: 3 }, 'tallow') === 4, 'Tallow: 4 slots at the start, 9 at Hold 8; every other Wick 3 to 8');
+  ok4(W.ashwick.passive === 'burns_back' && Number.isInteger(W.ashwick.hold) && inR(W.ashwick.hold, 2, 4) && W.ashwick.hold <= (L4.CATCH_V3.buffs.runCap ?? L4.CATCH_V3.buffs.cap), `Ashwick: hold 2–4, inside the run cap (${W.ashwick.hold})`);
+  ok4(same(L4.CATCH_V3.buffs.wicks.ashwick, { hold: W.ashwick.hold }) && !('tallow' in L4.CATCH_V3.buffs.wicks), "the apply block: Ashwick's tired comeback {hold} with no `on`; no Tallow buff");
+  // the Wicks' words (guard 12): one line each, ≤ 8 words and ≤ 36 characters; the first Chart's line per Wick
+  ok4(same(Object.keys(TL.wicks).sort(), W.order.slice().sort()), 'TEXT_LOOP.wicks has one line per Wick');
+  for (const [id, line] of Object.entries(TL.wicks)) ok4(typeof line === 'string' && line.trim().split(/\s+/).length <= 8 && line.length <= 36, `TEXT_LOOP.wicks.${id}: ≤ 8 words and ≤ 36 characters ("${line}")`);
+  ok4(Object.keys(TL.murk.firstChartBy || {}).every((id) => W.order.includes(id) && typeof TL.murk.firstChartBy[id] === 'string'), 'TEXT_LOOP.murk.firstChartBy keys are Wick ids');
+  ok4(L4.INTRO.text[2] === TL.introLine3 && L4.INTRO.cove.text[2] === TL.introLine3, "the film's line 3 under the loop is TEXT_LOOP.introLine3 (LORE §12)");
+  // every TEXT_LOOP string: no Shells, Memories or Descent (New Descent the one exception, the user's word), and the originality scans
+  const words = [];
+  const walk = (v, path) => { if (typeof v === 'string') words.push([path, v]); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, `${path}.${k}`); };
+  walk(TL, 'TEXT_LOOP');
+  for (const [path, w] of words) {
+    ok4(path === 'TEXT_LOOP.newDescent' || !/shells?|memories|descent/i.test(w), `${path}: no Shells, Memories or Descent ("${w}")`);
+    ok4(!ORIGINALITY_BANNED.test(w) && !ORIGINALITY_V3.some((re) => re.test(w)), `${path}: passes the originality scans ("${w}")`);
+    ok4(!/\b(curious|long_reach|moth_bright|broad_back|burns_back)\b/.test(w), `${path}: no passive's code id reaches a word (guard 7)`);
+  }
+  ok4(Array.isArray(TL.murk.sailOut) && TL.murk.sailOut.length >= 1 && TL.murk.sailOut.every((x) => typeof x === 'string' && x), "Murk's sail-out lines rotate (at least one)");
+  // the opening's paths (T72): the arrive glide (spawn → docks[0]) and every lake's glide out from docks[0] through data.sailPlan clear
+  // every island, pillar and gate stone by the raft's radius + 0.3 m and stay inside the shore by as much
+  const T = LP.tutorial, rr = L4.BALANCE.move.raftRadius, pad = rr + 0.3;
+  const clear = (Lay, a, b) => {
+    const obs = [...Lay.obstacles.filter((o) => o.kind !== 'post'), ...(Lay.gateObstacles || [])];
+    const len = Math.hypot(b.x - a.x, b.z - a.z), steps = Math.max(1, Math.ceil(len / 0.25));
+    let worst = Infinity, at = null;
+    for (let i = 0; i <= steps; i++) {
+      const x = a.x + (b.x - a.x) * (i / steps), z = a.z + (b.z - a.z) * (i / steps);
+      const shore = Lay.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+      let m = shore;
+      for (const o of obs) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
+      if (m < worst) { worst = m; at = { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 }; }
+    }
+    return { worst, at };
+  };
+  const intro = L4.ZONE_BY_ID[L4.INTRO?.lake || 'mossmere'] || L4.ZONES[0];
+  { const Lay = WLY.buildLayout(intro), c = clear(Lay, Lay.spawn, Lay.docks[0]);
+    ok4(c.worst >= pad, `T72: ${intro.id}'s arrive glide (spawn → docks[0]) clears every island and pillar by ≥ ${pad.toFixed(1)} m (closest ${c.worst.toFixed(2)} m at ${JSON.stringify(c.at)})`);
+    ok4(Math.abs(Math.hypot(Lay.docks[0].x - Lay.spawn.x, Lay.docks[0].z - Lay.spawn.z) / T.arrive - LP.time.raftSpeed) <= LP.time.raftSpeed, `T72: the arrive glide runs at most twice the raft's speed (R18)`); }
+  for (const z of L4.ZONES) {
+    const Lay = WLY.buildLayout(z), dock = Lay.docks[0], g = L4.sailPlan(dock, { x: 0, z: 0 }, T, z.id);
+    ok4(Array.isArray(g.path) && g.path.length >= 2 && Number.isFinite(g.yaw) && Math.hypot(g.from.x - dock.x, g.from.z - dock.z) < 1e-9, `T72: ${z.id}'s glide out starts at docks[0]`);
+    let worst = Infinity, at = null;
+    for (let i = 1; i < g.path.length; i++) { const c = clear(Lay, g.path[i - 1], g.path[i]); if (c.worst < worst) ({ worst, at } = c); }
+    ok4(worst >= pad, `T72: ${z.id}'s glide out (${T.outPath?.[z.id] ? 'its outPath' : `the outDist rule, ${T.outDist} m`}) clears every island and pillar by ≥ ${pad.toFixed(1)} m (closest ${worst.toFixed(2)} m at ${JSON.stringify(at)})`);
+  }
+  { const Lay = WLY.buildLayout(intro); ok4(clear(Lay, { x: -50, z: 0 }, { x: 50, z: 0 }).worst < pad, 'T72 self-test: a glide straight across the lake fails the clearance check'); }
+  for (const [lake, P] of Object.entries(T.outPath || {})) ok4(L4.ZONE_BY_ID[lake] && Array.isArray(P) && P.length >= 2 && P.every((q) => Array.isArray(q) && q.length === 2 && q.every(num4)), `LOOP.tutorial.outPath.${lake}: a lake's path of [x, z] points`);
+  // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
+  const FL = L4.FIRST_EVENING?.lines || {};
+  const depart = Math.max(murkHold(TL.murk.firstChart, FL), ...Object.values(TL.murk.firstChartBy || {}).map((x) => murkHold(x, FL)));
+  const sum = T.arrive + murkHold(TL.murk.wake, FL) + T.chartWait + depart + T.out;
+  ok4(['arrive', 'out', 'chartWait', 'slotInk', 'castTipAfter', 'outDist'].every((k) => num4(T[k]) && T[k] > 0), 'LOOP.tutorial: every time and distance positive');
+  ok4(T.budget.tapThrough <= T.budget.reference && T.budget.reference <= T.budget.max && sum <= T.budget.max, `T72: the tutorial's budget: ${sum.toFixed(2)} s ≤ ${T.budget.max} s (reference ≤ ${T.budget.reference}, tap-through ≤ ${T.budget.tapThrough})`);
+  if (!(sum <= T.budget.reference + 0.5)) warns.push(`the tutorial's no-tap time ${sum.toFixed(2)} s is past its ${T.budget.reference} s reference`);
+  for (const w of warns) console.log('  warn:', w);
+  if (errs.length) {
+    for (const e of errs.slice(0, 80)) console.log('  FAIL:', e);
+    console.log(`validate-data --loop: ${errs.length} failure(s) in ${n} checks`);
+    process.exit(1);
+  }
+  console.log(`validate-data --loop (V3_ENABLED, V3_PHASE 1 and LOOP_ENABLED on): OK (${n} checks; ${Object.keys(PK).length} parked, ${H.ladder.length} hold steps, ${W.order.length} Wicks, ${words.length} words; the tutorial ${sum.toFixed(2)} s of ${T.budget.max})`);
   process.exit(0);
 }
 if (WALK) globalThis.GW_WALK = true;
@@ -492,7 +632,7 @@ for (const [k, v] of Object.entries(D.RARITY_COLORS || {})) palCheck(`RARITY_COL
 }
 
 // ---------------------------------------------------------------------------- originality scan (display strings)
-const BANNED = /\b(hollow ?knight|hallownest|geo|soul|charms?|vessels?|grubs?|husks?|lumafly|dreamers?|mourner|greenpath|archives|masks?|shades?)\b/i;
+const BANNED = ORIGINALITY_BANNED;
 const seen = new Set();
 const scan = (v, path) => {
   if (typeof v === 'string') { if (BANNED.test(v)) errors.push(`originality: banned word in ${path}: "${v.slice(0, 80)}"`); return; }
@@ -1531,7 +1671,7 @@ if (V3) {
   for (const [a, b] of Object.entries(RN.names)) ok(isStr(a) && isStr(b) && a !== b, `rename name ${a}`);
 
   // ---- originality guardrails (brief §13.3) on every v3 display string
-  const G3 = [/\bpale\s+[A-Z][a-z]+/, /\bcollector\b/i, /bottled light/i, /\b(bronze|silver|gold|diamond)\s+(medal|tier|rank)\b/i, /\b(morphs?|aberrant|aberration|sanity|panic|spoil(ed|age)?)\b/i, /\bmarrow\b/i, /\bhallow/i];
+  const G3 = ORIGINALITY_V3;
   const seen3 = new Set();
   const scan3 = (v, path) => {
     if (typeof v === 'string') { for (const re of G3) if (re.test(v)) errors.push(`originality (v3): "${v.slice(0, 70)}" at ${path} matches ${re}`); return; }
@@ -2072,7 +2212,7 @@ if (errors.length) {
 console.log(`validate-data${V3 ? ' --v3 (V3_ENABLED and WALK_ENABLED on)' : WALK ? ' --walk (WALK_ENABLED on)' : ' (v1 tables, WALK_ENABLED off)'}: OK (${checks} checks; ${D.SPECIES.length} species, ${D.BOONS.length} boons, ${D.CHARACTERS.length} characters, ${D.CHALLENGES.length} challenges, ${D.RELICS.length} relics, ${D.UPGRADES.length} upgrades, ${D.ENEMIES.length} enemies)`);
 if (!WALK && !process.argv.includes('--v1')) {
   const { spawnSync } = await import('node:child_process');
-  for (const pass of ['--walk', '--v3']) {
+  for (const pass of ['--walk', '--v3', '--loop']) {
     const r = spawnSync(process.execPath, [new URL(import.meta.url).pathname, pass, ...(pass === '--walk' && process.argv.includes('--refresh-fingerprint') ? ['--refresh-fingerprint'] : [])], { stdio: 'inherit' });
     if (r.status !== 0) process.exit(r.status ?? 1);
   }
