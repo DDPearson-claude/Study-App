@@ -255,6 +255,13 @@ export function installDriver(watch) {
   const draw = c.render.render.bind(c.render);
   T.drawing = (on) => { c.render.render = on ? draw : () => {}; };
   T.hold = () => { if (!T.held) { T.held = []; T.clock = Math.max(T.clock, realNow() + T.offset); } };
+  /** Wait ms of wall time while the browser keeps producing frames (its own requestAnimationFrame, never the game's held loop): a
+   *  CSS transition or animation only starts on a rendered frame, and with the game's frames held and its canvas not drawn the
+   *  browser may produce none, so a fade waited out with a bare timeout can sit at its first frame. */
+  // (… and, past ms, until no CSS transition is still pending or running and no animation is still pending, at most 4 s more: with
+  // software GL the compositor can take over a second to start a fade)
+  const busy = () => { try { return document.getAnimations().some((a) => a.pending || (typeof CSSTransition === 'function' && a instanceof CSSTransition && a.playState === 'running')); } catch { return false; } };
+  T.pump = (ms) => new Promise((r) => { const t0 = realNow(); const f = () => { const e = realNow() - t0; if (e >= ms && (e >= ms + 4000 || !busy())) r(); else raf(f); }; raf(f); });
   T.release = () => {
     const q = T.held || [];
     T.held = null;
@@ -442,7 +449,7 @@ export function makeKit(api, { label = 'loop' } = {}) {
   K.events = (from = 0) => g((f) => window.__lp.ev.slice(f), from);
   K.evCount = () => g(() => window.__lp.ev.length);
   K.sim = () => g(() => window.__lp.sim);
-  K.settle = (ms = 320) => wait(ms);
+  K.settle = (ms = 320) => g((m) => (window.__lp?.pump ? window.__lp.pump(m) : new Promise((r) => setTimeout(r, m))), ms).catch(() => wait(ms));   // (wall time, the browser's frames pumped)
   /** A frame drawn, then shot (desk-/phone-<label>-NN-name.png in --shots). */
   K.shoot = async (name) => {
     if (args.noshots) return;
@@ -813,6 +820,8 @@ export default async function (api) {
       K.need(w.ok, 'T44: the Jetty opens on home:enter (modal jetty)', await K.state());
       await K.settle();
       const checkWake = async (what) => {
+        // (the Jetty's screen fades in on the wall clock; under load it can still be below the visible threshold after a short settle)
+        for (let i = 0; i < 12 && !(await g(() => !!window.__lp.one('[data-loop=jetty]'))); i++) await K.settle(300);
         const j = await jetty(), st2 = await K.state();
         K.check(j.root, `${what}: [data-loop=jetty] is on screen`);
         K.check(j.text.includes(TL.murk.wake), `${what}: Murk's wake line at the Jetty`, j.text.slice(0, 160));
@@ -1357,6 +1366,7 @@ export default async function (api) {
         await K.tap('[data-loop=chart] [data-action=sail]', null, { settle: 0 });
         await K.until("c.flow === 'playing'", 6);
         await K.secs(0.5);
+        await K.settle(700);   // (the HUD fades in on the wall clock once the trip starts)
         h = await hud();
         const overlap = h.row ? h.right.filter((r) => r && r.l < h.row.r - 1 && r.r > h.row.l && r.t < h.row.b && r.b > h.row.t) : ['no row'];
         seen.tallowHold5 = { cells: h.cells, row: h.row, overlap: overlap.length };
