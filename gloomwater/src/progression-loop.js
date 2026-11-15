@@ -32,7 +32,7 @@ export const LOOP_METHODS = Object.freeze([
   'closeBite', 'refundOpenBite', 'debugGive', 'isOpen', 'listCount', 'createTrip', 'endTrip', 'lastTrip', 'markTallySeen',
   'shelf', 'goal', 'buy', 'sayOnce', 'parkRun',
   // the opening (docs/loop/OPENING.md)
-  'wick', 'setWick', 'tutorial', 'beginTutorial', 'setTutorialStep', 'tutorialDone',
+  'wick', 'setWick', 'tutorial', 'beginTutorial', 'setTutorialStep', 'tutorialDone', 'resetTutorial',
   // the passives (WICKS §2.2, §2.5): Taper's flag, one per evening; Ashwick's comeback
   'taperFirstOpen', 'spendTaperFirst', 'comeback', 'consumeComeback',
 ]);
@@ -752,13 +752,22 @@ export function createLoop(S) {
     L.said.firstChart = true;
     saveNow();
   }
+  /** Debug builds only (main's debug.loop.tutorial('reset')): the tutorial begins again at its first beat, the Chart's line its own. */
+  function resetTutorial() {
+    const L = ensureLoop();
+    if (!L) return null;
+    L.tutorial = { done: false, step: 'arrive' };
+    if (isObj(L.said)) delete L.said.firstChart;
+    requestSave();
+    return { ...L.tutorial };
+  }
 
   const api = {
     state: () => ensureLoop(),
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
     isOpen, listCount: (waterId) => { ensureLoop(); return listCount(meta(), D(), waterId); },
     createTrip, endTrip, lastTrip, markTallySeen, shelf, goal, buy, sayOnce, parkRun,
-    wick, setWick, tutorial, beginTutorial, setTutorialStep, tutorialDone,
+    wick, setWick, tutorial, beginTutorial, setTutorialStep, tutorialDone, resetTutorial,
     taperFirstOpen, spendTaperFirst, comeback, consumeComeback,
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */

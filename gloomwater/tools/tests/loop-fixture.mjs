@@ -187,6 +187,7 @@ export function fakeLoop(over = {}) {
     beginTutorial() { if (!s.tutorial) s.tutorial = { done: false, step: 'arrive' }; return s.tutorial; },
     setTutorialStep(id) { if (s.tutorial && !s.tutorial.done) s.tutorial.step = id ?? null; },
     tutorialDone() { s.tutorial = { done: true, step: null }; s.said.firstChart = true; s.saves++; },
+    resetTutorial() { s.tutorial = { done: false, step: 'arrive' }; delete s.said.firstChart; return { ...s.tutorial }; },
     taperFirstOpen: () => s.onTrip && passive() === 'long_reach' && !s.taperFirst,
     spendTaperFirst() { if (!api.taperFirstOpen()) return false; s.taperFirst = true; return true; },
     comeback: (key) => (s.onTrip && s.comeback && s.comeback.waterKey === key ? { ...s.comeback } : null),

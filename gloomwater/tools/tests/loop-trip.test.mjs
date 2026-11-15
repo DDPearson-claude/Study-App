@@ -571,6 +571,9 @@ section('the opening\'s records (T60, T67) and Murk\'s lines (§8.6)');
   eq(env.L.sayOnce('firstChart'), null, "the Chart's line was the tutorial's");
   eq([env.L.sayOnce('firstSale'), env.L.sayOnce('firstSale')], [D.TEXT_LOOP.murk.firstSale, null], 'sayOnce: once');
   eq([0, 1, 2, 3].map(() => env.L.sayOnce('sailOut')), [...D.TEXT_LOOP.murk.sailOut, D.TEXT_LOOP.murk.sailOut[0]], 'sailOut rotates and never runs out');
+  { const m3 = freshLoopMeta(D), e3 = makeEnv({ meta: m3 });
+    e3.L.beginTutorial(); e3.L.tutorialDone();
+    eq([e3.L.resetTutorial(), m3.loop.said.firstChart], [{ done: false, step: 'arrive' }, undefined], "resetTutorial (debug.loop.tutorial('reset')): begun again, the Chart's line the tutorial's"); }
   const m2 = freshLoopMeta(D); m2.loop.wick = 'tallow';
   eq(makeEnv({ meta: m2 }).L.sayOnce('firstChart'), D.TEXT_LOOP.murk.firstChartBy.tallow, "Tallow's own count");
   eq(makeEnv({ meta: freshLoopMeta(D) }).L.sayOnce('nope'), null, 'an unknown line is null');

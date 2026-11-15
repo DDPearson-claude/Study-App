@@ -1731,7 +1731,7 @@ INTRO.cove.text[2] = TEXT_LOOP.introLine3`; and under `PARKED` no watch lamps an
 
 | export | what |
 |---|---|
-| `LOOP_SCHEMA` (3), `LOOP_METHODS` | the save block's version; the 35 method names of §14.4 (createLoop and the fixture's `fakeLoop` carry exactly these) |
+| `LOOP_SCHEMA` (3), `LOOP_METHODS` | the save block's version; the 36 method names of §14.4 (createLoop and the fixture's `fakeLoop` carry exactly these) |
 | `freshLoop(D)` | §14.5's block: 3 slots, T0, the Mossmere owned, `wick` and `tutorial` null, `firsts` empty |
 | `migrateLoop(meta, D, {hasTrip})` | idempotent, in place: creates the block, fills missing keys, clamps `holdSlots` 3–8 and tiers 0–6, a v1/v2 draft block gets SPEC §9's five rules; a block that has played (`evenings > 0`, a `lastTrip`, or `hasTrip`) with no tutorial gets `{done: true, step: null}` and the Wick `'wick'` |
 | `tallyLines(creel, {D, saleOf})` | the rows `{uid, speciesId, sizeClass, length, base, clams, first, giant, legend}`, lightest first by the weight the card shows (`data.weightOz(fishWeight)`; ties by clams, then catch order), legends after, a giant last; a row keeps the **length**, never a weight |
@@ -1822,6 +1822,7 @@ home it is `meta.loop.wick`. The hold **is** `run.creel`.
 | `debugGive(n)` | debug builds only (`core.debugEnabled()`): `meta.loop.clams += n` |
 | `wick()`, `setWick(id \| null)` | the save's Wick (`'wick'` when unset); New Descent's Start sets it (on a fresh save the Wick's ledger is cleared with it); `null` clears it (a first film abandoned to the title) |
 | `tutorial()`, `beginTutorial()`, `setTutorialStep(id)`, `tutorialDone()` | `{done, step}` or null; `{done: false, step: 'arrive'}` when null (a running record is left alone); a readout (a resume always starts at the wake); `{done: true, step: null}` and `said.firstChart = true`, **saved at once** (the first Sail, before anything moves) |
+| `resetTutorial()` | debug builds only (`debug.loop.tutorial('reset')`): `{done: false, step: 'arrive'}` again and `said.firstChart` cleared; returns the record |
 
 ### 14.5 The save
 
