@@ -258,10 +258,10 @@ section('static: no kg figure in src/ outside a line marked `// v1`');
   const statsV3 = scr.find((l) => /const stats = N\.v3 \?/.test(l)) || '';
   ok(/gw-cc-len">\$\{esc\(N\.cm\)\}/.test(statsV3) && !/weight/.test(statsV3) && !/fmtKg/.test(statsV3), 'the v3 card\'s list: the length line in cm, no weight row (the hero is the weight)');
   const hero = scr.find((l) => /const heroHtml = /.test(l)) || '';
-  ok(/gw-cc-hero-sizer/.test(hero) && /weightSizer\(N\.W\)/.test(hero) && /gw-cc-hero-n">\$\{esc\(N\.wt\)\}/.test(hero) && /gw-cc-hero--long/.test(hero), 'the hero: a sizer, the live figure and the long hand');
+  ok(/gw-cc-hero-sizer/.test(hero) && /weightSizer\(N\.W\)/.test(hero) && /gw-cc-hero-n">\$\{esc\(N\.wt\)\}/.test(hero) && /gw-cc-hero--long/.test(hero) && !/<span/.test(hero), 'the hero: a sizer, the live figure and the long hand (no <span>: the stamp row styles every span as a stamp)');
   ok(scr.some((l) => /hero\.textContent = k >= 1 \? N\.wt : say\(cm\)/.test(l)) && scr.some((l) => /weightCount\(N\.W \* \(cm \/ L\) \*\* 3, N\.W\)/.test(l)), 'the count shows the weight of the running length and lands on the final');
   const css = readFileSync(resolve(srcDir, 'ui.css'), 'utf8');
-  ok(/\.gw-cc-hero-sizer \{ visibility: hidden; \}/.test(css) && /\.gw-cc-hero--long > span \{ font-size: \.78em; \}/.test(css) && !/\.gw-cc-v3 \.gw-cc-stats \.gw-cc-lenk[^{]*\{ display: none/.test(css), 'ui.css: the sizer, the long hand, and the v3 length line is shown');
+  ok(/\.gw-cc-hero-sizer \{ visibility: hidden; \}/.test(css) && /\.gw-cc-hero--long > i \{ font-size: \.78em; \}/.test(css) && /\.gw-cc-hero > i \{[^}]*font-style: normal;/.test(css) && /\.gw-cc-hero-n \{ position: absolute; left: 0; top: 0; \}/.test(css) && !/\.gw-cc-v3 \.gw-cc-stats \.gw-cc-lenk[^{]*\{ display: none/.test(css), 'ui.css: the sizer gives the box, the live figure lies over it out of the flow, the long hand, and the v3 length line is shown');
   // the play's HUD never formats a weight (a weight is k·L³: it would name the body before the reveal)
   const hud = readFileSync(resolve(srcDir, 'ui-hud-v3.js'), 'utf8');
   ok(!/fmtWeight|fishWeight|nearWeight|weightCount|fmtWeightNear/.test(hud), 'the in-play HUD never reads a weight');

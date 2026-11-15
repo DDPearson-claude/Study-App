@@ -777,9 +777,10 @@ export function createScreens(K) {
       // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
       // card; an ordinary catch shows name, class, its size and the actions, the rest one tap away ("more")
       const sx = N.special ? '' : ' gw-cc-xtra';
-      // v3: the hero is the weight. A hidden sizer holds the widest figure the count shows, so the stamp row never moves while the
-      // live figure runs up inside a fixed box; a pounds-and-ounces figure ("12 lb 13 oz") takes a smaller hand
-      const heroHtml = N.v3 ? `<b class="gw-cc-hero${N.wt.length >= 9 ? ' gw-cc-hero--long' : ''}" aria-label="${esc(N.wt)}"><span class="gw-cc-hero-sizer" aria-hidden="true">${esc(weightSizer(N.W))}</span><span class="gw-cc-hero-n">${esc(N.wt)}</span></b>` : '';
+      // v3: the hero is the weight. A hidden sizer (the widest figure the count shows) gives the hero its box and the live figure
+      // lies over it, so the stamp row never moves while the count runs; a pounds-and-ounces figure ("12 lb 13 oz") takes a
+      // smaller hand. (Its two parts are <i>, not <span>: every span inside the stamp row is drawn as a rubber stamp)
+      const heroHtml = N.v3 ? `<b class="gw-cc-hero${N.wt.length >= 9 ? ' gw-cc-hero--long' : ''}" aria-label="${esc(N.wt)}"><i class="gw-cc-hero-sizer" aria-hidden="true">${esc(weightSizer(N.W))}</i><i class="gw-cc-hero-n">${esc(N.wt)}</i></b>` : '';
       // v3: the hero weight and the kicker carry the record, so the handwritten note (weight, phrase, bait and hour) folds behind
       // "more"; the lore and the epithet are up front only for a new name, a legend or an Ancient
       const nx = N.v3 ? ' gw-cc-xtra' : sx;
