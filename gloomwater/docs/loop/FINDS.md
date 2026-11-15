@@ -123,7 +123,7 @@ bought, and a part only adds its one beside them. It never changes a price, a pa
 and adds no percentage to a sale. So the shelf's 32 items in M1, its 7,750 clams and the full game's 144 purchases and their
 gates (decision 38) stay as they are; what moves is how fast the clams come, and the sim prices that (§4.4, §11) inside the
 gates already set. After M1, the aquarium's fittings are parts of another kind: there a part grows the aquarium's world,
-not a number (`AQUARIUM.md` §8).
+not a number (`AQUARIUM.md` §9).
 
 The other way (parts that only look and sound, with no effect at all) is SPEC §16 question 21: it leaves the shelf's
 pacing untouched, but makes "upgrade our base" a second kind of look.
