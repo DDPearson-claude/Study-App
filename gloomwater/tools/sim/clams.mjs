@@ -606,7 +606,8 @@ export function trip(kit, policy, r, opts = {}) {
       if (hold.length >= slots || out.bites >= 400) break outer;
       const cbHere = !!comeback && comeback.at === W.id;            // Ashwick's policy always takes a waiting comeback: no leaving
       if (!cbHere && W.early && !missAt(W, phase())) break;          // open water's missing fish are landed or their light is gone: on to the places; open water tops up last
-      const over = Math.max(0, here - fresh);
+      const over = Math.max(0, here - fresh);                        // the policies' count: quiet bites already taken here
+      const qOver = Math.max(0, here + 1 - fresh);                   // this bite's quiet terms (PLAN CHOICE 17, the game's loop.favour): at 4 good bites the 5th is quiet
       const ctx = { slots: slots - hold.length, hold: slots, here, freshHere: Math.max(0, fresh - here), over, last, watersLeft: waters.length - 1 - wi, phase: phase(), kind: W.kind, giantHere: !!(W.id && PLACE[W.id].giants.length) };
       if (!cbHere && policy.leave(ctx)) { if (last) break outer; break; }
       const ph = phase(), night = ph === 'night';
@@ -622,18 +623,18 @@ export function trip(kit, policy, r, opts = {}) {
       }
       const pulled = !!PULL && nEv >= PULL.floorFrom && miss.has(sp.id);
       const atOwn = sp.giant;                              // a giant only bites at its own place
-      const q = quietTerms(over, wid);
+      const q = quietTerms(qOver, wid);
       let mu = (W.id ? F.place + F.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
         + baitFav + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (kit.keel | 0) + mercy;
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
-      inQuiet = over > 0;
+      inQuiet = qOver > 0;
       const wait = T.wait * waitMul * q.waitMult; out.waitSec += wait;
       adv(T.cast + wait);
       const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, W.kind === 'old' || atOwn ? SZ.z.max : SZ.elsewhereMaxZ);   // Elders: old water, and a giant at its own place
       const z = isCb ? comeback.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
       if (isCb) comeback = null;
       const cls = D.isAncient(z) ? 'ancient' : D.sizeClassOf(z);
-      here++; out.bites++; if (over > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++; if (sp.rarity !== 'common') out.nonCommon++;
+      here++; out.bites++; if (qOver > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++; if (sp.rarity !== 'common') out.nonCommon++;
       if (!isCb && !policy.strike(cls, ctx)) { adv(L.time.pass); continue; }
       out.hooks++; if (kit.bait) out.baitUsed++;
       const p = landP(sp, cls, kit, pickStrike(r), night, isCb ? Math.min(C.buffs.runCap ?? C.buffs.cap, WK.hold) : 0);
