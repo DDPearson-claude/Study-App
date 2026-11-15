@@ -227,7 +227,8 @@ export const LOOP = {
   wicks: {
     order: ['wick', 'taper', 'stub', 'tallow', 'ashwick'],
     // the balancing (QUEUE job 8, `--wicks`): firstMult 1.5 → 1.4, Taper's perWater true → false, Stub's waitMul 0.75 → 0.78, Tallow's
-    // everyWater (its good bite at every place too, the upward knob) and maxSlots 8 (§2.4's fallback: its trips stayed over 6 min at 9 slots)
+    // everyWater (its good bite at every place too, the upward knob) and maxSlots 8 (its trips passed 6 min at 9 slots with everyWater): a cap
+    // with the Harbour Chest still bought, the form WICKS §2.4 did not propose; both Tallow knobs await the lead's ruling (WICKS §3.5)
     wick:    { passive: 'curious', firstMult: 1.4, firstFloor: 0.4, stats: {} },                                 // a kept first sells × firstMult, at least firstFloor × the tier
     taper:   { passive: 'long_reach', firstBites: 1, perWater: false, giantShare: 1.3, giantCap: 0.12, stats: {} }, // the first bite of each evening is never common
     stub:    { passive: 'moth_bright', waitMul: 0.78, quietStep: 0.08, quietWait: false, stats: { lightRadius: 1.5 } },   // quick bites; lively quiet water
@@ -573,11 +574,13 @@ export function trip(kit, policy, r, opts = {}) {
   const adv = (s, frozen = false) => { real += s; if (!frozen) clock += s; if (inQuiet) out.quietSec += s; };
   const phase = () => (clock < E.day ? 'day' : clock < E.day + E.dusk ? 'dusk' : 'night');
   const toDark = () => { const w = E.day + E.dusk - clock; if (w > 0) adv(w); };
-  // Taper's first bite: the giant keeps its share (its roll comes first, unchanged), the rest is wickPoolWeights' (null: the rule waits)
+  // Taper's first bite: the giant keeps its share (its roll comes first, unchanged), the rest is wickPoolWeights' (null: the rule waits).
+  // The helper hands back the weights it was given when the sign rule fails (WICKS §2.2: the rule waits), so the same array means "not
+  // served", even for a pool with no commons; a common left with weight means the same, whatever array a data.js helper returns
   const taperPool = (pool) => {
     const g = pool.list.find(([s]) => s.giant), rest = pool.list.filter(([s]) => !s.giant), w0 = rest.map(([, w]) => w);
     const w1 = wickPoolWeights(wid, rest.map(([s]) => s), w0, { firstBite: true, signRule: A.signRule });
-    if (rest.some(([s], i) => s.rarity === 'common' && w1[i] > 0)) return null;
+    if (w1 === w0 || rest.some(([s], i) => s.rarity === 'common' && w1[i] > 0)) return null;
     const list = rest.map(([s], i) => [s, w1[i]]).filter(([, w]) => w > 0), others = list.reduce((a, [, w]) => a + w, 0);
     if (!others) return null;
     if (g) { const sh = g[1] / pool.tot; list.push([g[0], others * sh / (1 - sh)]); }
