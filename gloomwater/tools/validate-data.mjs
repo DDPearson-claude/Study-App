@@ -141,6 +141,9 @@ if (process.argv.includes('--loop')) {
   for (const [id, line] of Object.entries(TL.wicks)) ok4(typeof line === 'string' && line.trim().split(/\s+/).length <= 8 && line.length <= 36, `TEXT_LOOP.wicks.${id}: ≤ 8 words and ≤ 36 characters ("${line}")`);
   ok4(Object.keys(TL.murk.firstChartBy || {}).every((id) => W.order.includes(id) && typeof TL.murk.firstChartBy[id] === 'string'), 'TEXT_LOOP.murk.firstChartBy keys are Wick ids');
   ok4(L4.INTRO.text[2] === TL.introLine3 && L4.INTRO.cove.text[2] === TL.introLine3, "the film's line 3 under the loop is TEXT_LOOP.introLine3 (LORE §12)");
+  { const I = L4.INTRO, l = I.lines[2], cps = I.text[2].length / Math.max(0.01, l.out - l.at - I.lineFade), below = I.beats.find((b) => b.id === 'below');
+    ok4(cps <= 17.5 && I.lines[3].at >= l.out + 0.2 && l.out <= I.length - 0.15 && !(l.at < below.t1 && l.out > below.t0),
+      `the film's line 3 under the loop keeps A5: ${cps.toFixed(1)} characters a second (at most 17.5), one line at a time, none in "below"`); }
   // every TEXT_LOOP string: no Shells, Memories or Descent (New Descent the one exception, the user's word), and the originality scans
   const words = [];
   const walk = (v, path) => { if (typeof v === 'string') words.push([path, v]); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, `${path}.${k}`); };

@@ -4226,6 +4226,7 @@ export const INTRO = {
     into: 'calm',                   // the last harp note rings into the lake's calm bed (same key, same tempo)
   },
   // the trigger (A3): once, on a fresh save's first new game, straight from the title's primary button
+  // (`bypasses`: under the loop the trigger is New Descent → Start)
   trigger: { fresh: 'meta.runs === 0 && !meta.intro.seen', button: 'Begin', bypasses: 'newdescent', debugOptIn: ['GW_INTRO', '?intro=1', "debug.intro('auto', true)"],
     prewarm: { after: 0.5, tries: 16 },  // the fresh title asks the stage to build in idle time, this long after it opens (the stage takes 10 slices, 9 on low: the models, one per part, the lake's arena; an idle period may take several)
     replay: { word: 'Prologue', hint: 'Watch the opening again', where: 'title', writes: false, veil: 0.3 } },   // (`veil`: a replay on another lake puts it back under this much ink)
@@ -5321,6 +5322,7 @@ if (V3_ENABLED) {
     TEXT.loop = TEXT_LOOP;
     CATCH_V3.buffs.wicks.ashwick = { hold: LOOP.wicks.ashwick.hold };
     INTRO.text[2] = INTRO.cove.text[2] = TEXT_LOOP.introLine3;
+    INTRO.lines[2].out = 15.2;   // line 3's longer words stay ≤ the A5 reading rate (17.4 a second; the gap to line 4 stays 0.5 s)
   }
   // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
   const moss = ZONES[0];

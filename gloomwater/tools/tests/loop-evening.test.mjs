@@ -665,10 +665,9 @@ section('the film\'s line 3 under the loop (item 26, LORE §12)');
     const l = { ...I.lines[2], out }, below = I.beats.find((b) => b.id === 'below');
     return { cps: I.text[2].length / (out - l.at - I.lineFade), gap: I.lines[3].at - out, end: out <= I.length - 0.15, below: !(l.at < below.t1 && out > below.t0) };
   };
+  eq([I.lines[2].out, IV.lines[2].out], [15.2, 14.85], 'line 3 goes at 15.2 under the loop (the apply block); v3 without the loop keeps 14.85');
   const now = a5(I.lines[2].out);
-  if (now.cps > 17.5) note(`line 3 at its built timing reads at ${now.cps.toFixed(1)} characters a second after the ${I.lineFade} s fade-in (A5: ≤ 17.5); PLAN's +0.15 s gives ${a5(I.lines[2].out + 0.15).cps.toFixed(1)}. The cross-file request moves its out to 15.2 under the loop`);
-  const fix = a5(15.2);
-  ok(fix.cps <= 17.5 && fix.gap >= 0.2 && fix.end && fix.below, `with out 15.2 (the request) line 3 meets A5: ${fix.cps.toFixed(2)} a second, ${fix.gap.toFixed(2)} s before line 4`);
+  ok(now.cps <= 17.5 && now.gap >= 0.2 && now.end && now.below, `line 3 meets A5 under the loop: ${now.cps.toFixed(2)} a second, ${now.gap.toFixed(2)} s before line 4`);
   const rows = (s, px = 390, sizePx = I.words.size.phone) => Math.ceil(s.length * sizePx * 0.5 / (px - 32));
   ok(rows(I.text[2]) <= I.words.maxLines, `line 3 takes at most ${I.words.maxLines} rows at 390 px (est. ${rows(I.text[2])})`);
 }
