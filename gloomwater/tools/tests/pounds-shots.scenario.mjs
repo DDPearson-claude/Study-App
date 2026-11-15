@@ -1,12 +1,14 @@
 // The catch card in pounds, captured and checked (docs/v3/pounds/SPEC.md §3, §7.9): on the v3 phase-1 build a perch, a small
 // minnow (ounces) and a trophy carp (a long pounds-and-ounces hero) are landed with debug.instantCatch; each card's hero must be
-// the weight (counted up inside its sizer: the stamp row never moves), its list must open with the length line in cm, no kg may
-// show, and nothing may overflow the card. Then the perch's Journal page (Biggest and Weight in pounds).
+// the weight (counted up inside its sizer: the stamp row never moves), with its unit letters in the body face (the hand's "lb"
+// reads "eb"); its list must open with the length line in cm, no kg may show, and nothing may overflow the card. A second
+// perch a hair longer that reads the same weight is no personal best. Then the perch's Journal page (Biggest in pounds; Weight
+// from its smallest to a top Trophy, and what it is said to reach under it).
 //
 //   node build.mjs --dev --out=tools/out/pounds/dev.html     (this scenario turns v3 on with ?v3=1&v3phase=1)
 //   node tools/playtest.mjs --html=tools/out/pounds/dev.html --shots=tools/out/pounds/desktop --script=tools/tests/pounds-shots.scenario.mjs --width=1280 --height=720
 //   node tools/playtest.mjs --html=tools/out/pounds/dev.html --shots=tools/out/pounds/phone --script=tools/tests/pounds-shots.scenario.mjs --mobile
-//   (--only=perch,journal takes a subset: perch, small, trophy, journal)
+//   (--only=perch,journal takes a subset: perch, small, trophy, tie, journal)
 //
 // Web fonts: like tools/tests/p1b-ui.scenario.mjs, the stylesheets the page links are served from tools/out/.font-cache (fetched
 // with curl on a miss), so the shots show the real hand.
@@ -161,7 +163,10 @@ export default async function (api) {
       const cs = (q, k) => { const x = p?.querySelector(q); return x ? getComputedStyle(x)[k] : null; };
       const spd = D.SPECIES_BY_ID[sp];
       return {
-        cls: p?.className || '', hero: p?.querySelector('.gw-cc-hero-n')?.textContent ?? null, sizer: p?.querySelector('.gw-cc-hero-sizer')?.textContent ?? null, aria: p?.querySelector('.gw-cc-hero')?.getAttribute('aria-label') ?? null,
+        cls: p?.className || '', hero: p?.querySelector('.gw-cc-hero-n')?.textContent ?? null, sizers: [...(p?.querySelectorAll('.gw-cc-hero-sizer > i') || [])].map((x) => x.textContent), aria: p?.querySelector('.gw-cc-hero')?.getAttribute('aria-label') ?? null,
+        units: [...(p?.querySelectorAll('.gw-cc-hero-n .gw-u') || [])].map((u) => ({ t: u.textContent, family: getComputedStyle(u).fontFamily, style: getComputedStyle(u).fontStyle, px: parseFloat(getComputedStyle(u).fontSize) })),
+        noteUnits: [...(p?.querySelectorAll('.gw-cc-note .gw-u') || [])].map((u) => ({ t: u.textContent, family: getComputedStyle(u).fontFamily })),
+        heroPx: parseFloat(cs('.gw-cc-hero-n', 'fontSize') || '0'), kicker: p?.querySelector('.gw-cc-kicker')?.textContent ?? '', record: !!p?.classList.contains('gw-record'),
         long: !!p?.querySelector('.gw-cc-hero--long'), len: p?.querySelector('.gw-cc-len')?.textContent ?? null, lenShown: cs('.gw-cc-len', 'display') !== 'none' && cs('.gw-cc-lenk', 'display') !== 'none',
         stats: p?.querySelector('.gw-cc-stats')?.textContent?.replace(/\s+/g, ' ') ?? '', all: p?.innerText ?? '', note: p?.querySelector('.gw-cc-note')?.textContent?.replace(/\s+/g, ' ') ?? '',
         heroFont: cs('.gw-cc-hero-n', 'fontSize'), heroFamily: cs('.gw-cc-hero-n', 'fontFamily'), sizerVis: cs('.gw-cc-hero-sizer', 'visibility'),
@@ -173,13 +178,18 @@ export default async function (api) {
       };
     }, sp);
     const rows = await g(() => window.__pounds.rows);
-    log(`${name}: ${sp} z ${z} → hero "${s.hero}" (sizer "${s.sizer}", ${s.heroFont}${s.long ? ', long hand' : ''}) · length "${s.len}" · ${rows.length} count frames · fish ${JSON.stringify(s.fish)}`);
+    log(`${name}: ${sp} z ${z} → hero "${s.hero}" (sizers ${JSON.stringify(s.sizers)}, ${s.heroFont}${s.long ? ', long hand' : ''}; units ${s.units.map((u) => `"${u.t}" ${u.family.split(',')[0]} ${u.style} ${u.px}px`).join(', ')}) · length "${s.len}" · ${rows.length} count frames · fish ${JSON.stringify(s.fish)}`);
     check(done, `${name}: the card counted and the stamp pressed`, s.cls);
     check(!!s.fish && s.fish.speciesId === sp && s.hero === s.want?.wt && s.aria === s.want?.wt && WEIGHT.test(s.hero || '') && look.test(s.hero || ''), `${name}: the hero is the fish's weight, fmtWeight(fishWeight(sp, fish)) = "${s.want?.wt}"`, { hero: s.hero, aria: s.aria, want: s.want });
     check(s.len === s.want?.cm && /^\d+(\.\d)? cm$/.test(s.len || '') && s.lenShown && /^length/.test(s.stats.trim()), `${name}: the list opens with the length line, "length ${s.want?.cm}"`, { len: s.len, stats: s.stats });
     check(!/\bkg\b/.test(s.all) && !/weight/.test(s.stats) && (s.all.match(/\bcm\b/g) || []).length === 1, `${name}: no kg on the card, no weight row, and exactly one cm (the length line)`, { stats: s.stats, cm: (s.all.match(/\bcm\b/g) || []).length });
     check(s.note.includes(s.want?.wt || '#'), `${name}: the handwritten note says the weight`, s.note);
-    check(s.sizerVis === 'hidden' && (s.sizer || '').length >= (s.hero || '').length && s.long === ((s.hero || '').length >= 9), `${name}: a hidden sizer at least as wide as the figure; the long hand for a pounds-and-ounces figure`, { sizer: s.sizer, long: s.long });
+    check(s.sizerVis === 'hidden' && s.sizers[0] === s.hero && s.sizers.length >= 1 && (toOz(s.hero) >= 16 || toOz(s.hero) < 1 || s.sizers.includes('¾ oz')) && s.long === ((s.hero || '').length >= 9), `${name}: a hidden sizer that opens with the figure (and holds "¾ oz" for a final in ounces); the long hand for a pounds-and-ounces figure`, { sizers: s.sizers, long: s.long });
+    // the units are set apart from the handwritten number, in the body face (the hand's "lb" reads "eb")
+    const unitsWant = (s.hero || '').match(/\b(lb|oz)\b/g) || [];
+    check(s.units.length === unitsWant.length && s.units.map((u) => u.t).join(' ') === unitsWant.join(' ') && s.units.every((u) => /Alegreya|Palatino|Georgia|serif/i.test(u.family) && !/Cedarville|cursive|Script/i.test(u.family) && u.px < s.heroPx * 0.7 && u.px >= 14) && /Cedarville|cursive/i.test(s.heroFamily || ''),
+      `${name}: each unit of the hero (${unitsWant.join(', ')}) is set in the body face, smaller than the handwritten number (${s.units[0]?.px} px beside ${s.heroPx} px)`, { units: s.units, heroFamily: s.heroFamily });
+    check(s.noteUnits.length === unitsWant.length && s.noteUnits.every((u) => !/Cedarville|cursive|Script/i.test(u.family)), `${name}: the handwritten note sets its units apart too`, s.noteUnits);
     // nothing overflows or overlaps: the hero inside the card and the window, clear of the stamp and the seal, above the list
     const inside = s.rHero && s.panel && s.rHero.r <= Math.min(s.panel.r, s.vw) + 0.5 && s.rHero.l >= s.panel.l - 0.5 && s.rN.r <= Math.min(s.panel.r, s.vw) + 0.5;
     const hit = (a, b) => !!a && !!b && a.l < b.r - 1 && b.l < a.r - 1 && a.t < b.b - 1 && b.t < a.b - 1;
@@ -197,12 +207,52 @@ export default async function (api) {
     check(rows.length > 3 && mono && texts.at(-1) === s.hero, `${name}: the count never falls and lands on "${s.hero}" (${distinct.length} figures seen)`, distinct.slice(0, 20));
     check(rows.length > 3 && Object.values(moved).every((v) => v === 0), `${name}: the hero's box keeps one size through the count; the stamp, the hero and the list under them never move`, moved);
     check(last.nw <= last.w + 1, `${name}: the final figure fits its box (${last.nw} ≤ ${last.w} px)`, last);
+    check(over <= 4, `${name}: no passing figure runs more than a few px past the box (${over > 0 ? over : 0} px: the sizer holds the wide ones)`, { over, box: last.w });
     await shot(`card-${name}`);
     await g(() => { const e = document.querySelector('#ui .gw-m-catch'); (e?.querySelector('[data-action="keep"]:not([disabled])') || e?.querySelector('[data-action="release"]'))?.click(); });
     await waitFor(() => window.__gw.debug.ui?.()?.openModal !== 'catch', null, 30);
   }
 
-  // ---------------------------------------------------------------- the Journal page: Biggest and Weight in pounds
+  // ---------------------------------------------------------------- a best is told by the weight the card shows
+  if (want('tie')) {
+    await clearModals();
+    await idleFishing();
+    // two perch a hair apart that read the same weight, then one an ounce or more up
+    const tie = await g(() => {
+      const c = window.__gw, D = c.data, sp = D.SPECIES_BY_ID.mossback_perch;
+      const shown = (L) => D.fmtWeight(D.fishWeight(sp, { length: L }));
+      const base = Math.round(D.sizeLength(sp, 0.9) * 10) / 10;
+      let a = base; while (shown(a) !== shown(a + 0.1)) a = Math.round((a + 0.1) * 10) / 10;   // a length whose next tenth reads the same
+      const land = (L) => {
+        const f = c.progression.makeFish('mossback_perch', 0.9); f.length = L; f.weight = D.sizeWeight(sp, L);
+        const r = c.progression.measure(f);
+        return { L, wt: shown(L), pb: r.records.some((x) => x.kind === 'pb'), isRecord: !!r.isRecord, mark: c.state.meta.journal.mossback_perch.pbLength };
+      };
+      return { first: land(a), a };
+    });
+    await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'catch', null, 60);
+    await wait(2400);
+    await g(() => { const e = document.querySelector('#ui .gw-m-catch'); (e?.querySelector('[data-action="keep"]:not([disabled])') || e?.querySelector('[data-action="release"]'))?.click(); });
+    await waitFor(() => window.__gw.debug.ui?.()?.openModal !== 'catch', null, 30);
+    const second = await g((a) => {
+      const c = window.__gw, D = c.data, sp = D.SPECIES_BY_ID.mossback_perch, L = Math.round((a + 0.1) * 10) / 10;
+      const f = c.progression.makeFish('mossback_perch', 0.9); f.length = L; f.weight = D.sizeWeight(sp, L);
+      const r = c.progression.measure(f);
+      return { L, wt: D.fmtWeight(D.fishWeight(sp, { length: L })), pb: r.records.some((x) => x.kind === 'pb'), isRecord: !!r.isRecord, mark: c.state.meta.journal.mossback_perch.pbLength };
+    }, tie.a);
+    await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'catch', null, 60);
+    await waitFor(() => { const p = document.querySelector('#ui .gw-m-catch .gw-p-catch'); return !!p && p.classList.contains('gw-cc-counted'); }, null, 60);
+    await wait(1200);
+    const card = await g(() => { const all = document.querySelectorAll('#ui .gw-m-catch .gw-p-catch'), p = all[all.length - 1]; return { hero: p?.querySelector('.gw-cc-hero-n')?.textContent ?? null, kicker: p?.querySelector('.gw-cc-kicker')?.textContent ?? '', record: !!p?.classList.contains('gw-record'), note: p?.querySelector('.gw-cc-note')?.textContent?.replace(/\s+/g, ' ') ?? '', all: p?.innerText ?? '' }; });
+    log(`tie: a ${tie.first.L} cm perch (${tie.first.wt}), then a ${second.L} cm one (${second.wt}) → pb record ${second.pb}, isRecord ${second.isRecord}, the mark ${second.mark} cm · card kicker "${card.kicker}", hero "${card.hero}"`);
+    check(tie.first.wt === second.wt && second.L > tie.first.L, `two perch a tenth of a cm apart read the same weight ("${second.wt}")`, { first: tie.first, second });
+    check(second.pb === false && second.isRecord === false && second.mark === second.L, 'the longer one moves the mark (length is the hidden truth) but is told as no best: no record, isRecord false', second);
+    check(card.hero === second.wt && !card.record && !/personal best/i.test(card.kicker) && !/New best|biggest yet|past your old mark/i.test(card.all), `its card says nothing of a best (kicker "${card.kicker}")`, card);
+    await g(() => { const e = document.querySelector('#ui .gw-m-catch'); (e?.querySelector('[data-action="keep"]:not([disabled])') || e?.querySelector('[data-action="release"]'))?.click(); });
+    await waitFor(() => window.__gw.debug.ui?.()?.openModal !== 'catch', null, 30);
+  }
+
+  // ---------------------------------------------------------------- the Journal page: Biggest in pounds; Weight to a top Trophy, the ceiling under it
   if (want('journal')) {
     await clearModals();
     await idleFishing();
@@ -214,11 +264,17 @@ export default async function (api) {
     const j = await g(() => {
       const c = window.__gw, D = c.data, sp = D.SPECIES_BY_ID.mossback_perch, rec = c.state.meta.journal.mossback_perch;
       const facts = Object.fromEntries([...document.querySelectorAll('#ui .gw-facts > div')].map((d) => [d.querySelector('dt')?.textContent, d.querySelector('dd')?.textContent]));
-      return { facts, all: document.querySelector('#ui .gw-facts')?.innerText ?? '', want: { big: D.fmtWeight(D.fishWeight(sp, { length: rec.pbLength })), range: `${D.fmtWeight(sp.weight[0])} – ${D.fmtWeight(sp.weight[1])}` } };
+      const w = D.weightSpan(sp), dd = [...document.querySelectorAll('#ui .gw-facts > div')].find((d) => d.querySelector('dt')?.textContent === 'Weight')?.querySelector('dd');
+      const box = (x) => { if (!x) return null; const r = x.getBoundingClientRect(); return { l: +r.left.toFixed(1), r: +r.right.toFixed(1), t: +r.top.toFixed(1), b: +r.bottom.toFixed(1) }; };
+      return { facts, range: dd?.querySelector('.gw-facts-range')?.textContent ?? null, reach: dd?.querySelector('.gw-facts-sub')?.textContent ?? null, all: document.querySelector('#ui .gw-facts')?.innerText ?? '',
+        rRange: box(dd?.querySelector('.gw-facts-range')), rReach: box(dd?.querySelector('.gw-facts-sub')), rFacts: box(document.querySelector('#ui .gw-facts')), vw: innerWidth, scrollW: document.documentElement.scrollWidth,
+        want: { big: D.fmtWeight(D.fishWeight(sp, { length: rec.pbLength })), range: `${D.fmtWeight(w.min)} – ${D.fmtWeight(w.top)}`, reach: `said to reach ${D.fmtWeight(w.reach)}`, old: `${D.fmtWeight(sp.weight[0])} – ${D.fmtWeight(sp.weight[1])}` } };
     });
-    log(`journal: Biggest "${j.facts.Biggest}" · Weight "${j.facts.Weight}"`);
+    log(`journal: Biggest "${j.facts.Biggest}" · Weight "${j.range}" · "${j.reach}"`);
     check(j.facts.Biggest === j.want.big && WEIGHT.test(j.facts.Biggest || ''), `the Journal's Biggest is the weight of the best length ("${j.want.big}")`, j.facts);
-    check(j.facts.Weight === j.want.range && !/\bkg\b|\bcm\b|\bmm\b/.test(j.all), `the Journal's Weight is the species' range in pounds ("${j.want.range}"); no kg, cm or mm in the facts`, j.facts);
+    check(j.range === j.want.range && j.range !== j.want.old && !/\bkg\b|\bcm\b|\bmm\b/.test(j.all), `the Journal's Weight runs from the smallest to a top Trophy ("${j.want.range}"), not to the ceiling; no kg, cm or mm in the facts`, { range: j.range, facts: j.facts });
+    check(j.reach === j.want.reach, `the ceiling is told under it, as hearsay ("${j.want.reach}")`, { reach: j.reach });
+    check(!!j.rRange && !!j.rReach && !!j.rFacts && j.rReach.t >= j.rRange.b - 2 && j.rReach.l >= j.rFacts.l - 1 && j.rReach.r <= j.rFacts.r + 1 && j.rRange.r <= j.rFacts.r + 1 && j.scrollW <= j.vw + 1, 'the ceiling line sits under the range, inside the facts; no sideways scroll', { range: j.rRange, reach: j.rReach, facts: j.rFacts });
     await g(() => document.querySelector('#ui .gw-facts')?.scrollIntoView({ block: 'center' }));   // (openLog lands on the odds; the facts sit above them)
     await wait(300);
     await shot('journal-perch');

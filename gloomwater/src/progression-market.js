@@ -479,8 +479,9 @@ export function createMarket(S) {
   }
 
   function decorate(b) {
-    // v3: a heavy bounty saved before weights were told in pounds keeps its kg check; its words are re-told exactly
-    if (b.type === 'heavy' && b.targetOz == null && b.kg > 0 && D().V3_ENABLED === true && / kg\.$/.test(b.text || '')) b.text = b.text.replace(/over [\d.]+ kg\.$/, `over ${D().fmtWeight(b.kg)}.`);
+    // v3: a heavy bounty saved before weights were told in pounds is re-told in the card's figure and takes the new check with it
+    // (over that figure, on the ounces the card shows), so its words and its check agree for the day it has left
+    if (b.type === 'heavy' && b.targetOz == null && b.kg > 0 && D().V3_ENABLED === true && / kg\.$/.test(b.text || '')) { b.text = b.text.replace(/over [\d.]+ kg\.$/, `over ${D().fmtWeight(b.kg)}.`); b.targetOz = D().weightOz(b.kg); }
     let progressText;
     if (b.type === 'unscathed' || b.type === 'noFlare' || b.type === 'boss' && b.count === 1 || b.type === 'legend' || b.type === 'heavy' || b.type === 'quality' || b.type === 'nightFish') {
       progressText = b.progress >= b.count ? 'Done' : 'Not yet';
@@ -583,7 +584,7 @@ export function createMarket(S) {
       switch (b.type) {
         case 'catchSpecies': if (kind === 'fish' && e.fish?.speciesId === b.target) step(b); break;
         case 'catchRarity': if (kind === 'fish' && (RARITY_RANK[e.species?.rarity] ?? 0) >= (RARITY_RANK[b.target] ?? 1)) step(b); break;
-        case 'heavy': if (kind === 'fish' && e.fish?.speciesId === b.target && (b.targetOz != null ? D().weightOz(D().fishWeight(S.species(b.target), e.fish)) > b.targetOz : (e.fish.weight || 0) >= (b.kg || 0))) step(b); break;   // v3: the whole ounces the card shows, over the target
+        case 'heavy': if (kind === 'fish' && e.fish?.speciesId === b.target && (b.targetOz != null ? D().weightOz(D().fishWeight(S.species(b.target), e.fish)) > b.targetOz : (e.fish.weight || 0) >= (b.kg || 0))) step(b); break;   // v3: the ounces the card shows (data.weightOz), over the target
         case 'depthCatch': if (kind === 'fish' && e.depth != null && e.depth >= (b.target ?? 0.75)) step(b); break;
         case 'quality': if (kind === 'fish' && (QUALITY_RANK[e.fish?.quality] ?? 0) >= (QUALITY_RANK[b.target] ?? 1)) step(b); break;
         case 'nightFish': if (kind === 'fish' && e.species?.time === 'gloom') step(b); break;

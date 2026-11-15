@@ -1264,7 +1264,7 @@ if (V3) {
   ok(D.CHALLENGES.every((c) => c.scope !== 'run') && D.CHALLENGES.filter((c) => c.tier === 5).length === 8, 'no "run" scope left; 8 tier V challenges');
   ok(JSON.stringify(D.CHALLENGES.filter((c) => c.tier === 5).map((c) => c.reward.memories)) === '[5,10,20,15,30,40,20,15]', 'tier V rewards +5 / +10 / +20 / +15 / +30 / +40 / +20 / +15');
   ok(CH.first_prize.reward.unlock === 'relic:measuring_cord' && CH.ten_trophies.reward.unlock === 'relic:rumour_shell' && CH.old_ledger_five.reward.unlock === 'relic:murks_spyglass', 'tier V reveals the Measuring Cord, the Rumour Shell and Murk\'s Spyglass');
-  ok(CH.heavy_catch.params.lb === 33 && !('kg' in CH.heavy_catch.params) && /over 33 lb\.$/.test(CH.heavy_catch.desc) && CH.complete_chronicle.params.n === 53 && CH.every_still_place.params.n === 21 && CH.light_comes_up.params.id === 'lantern_swallower'
+  ok(CH.heavy_catch.params.lb === 33 && !('kg' in CH.heavy_catch.params) && /over 33 lb 0 oz\.$/.test(CH.heavy_catch.desc) && CH.complete_chronicle.params.n === 53 && CH.every_still_place.params.n === 21 && CH.light_comes_up.params.id === 'lantern_swallower'
     && CH.many_flames.params.class === 'trophy' && CH.unwarded.alt?.params?.n === 3 && CH.kindle_one.alt?.params?.pool === 'angler' && CH.down_the_sluice.type === 'lightWaystone' && CH.the_long_way_round.scope === 'total', 'challenge rewrites (brief §11)');
   ok(CH.long_vigil.reward.unlock === 'character:tallow' && CH.long_vigil.type === 'nightsOut' && CH.unwarded.reward.unlock === 'character:ashwick', 'either-path Wick unlocks keep their challenges');
   const TYPES = new Set(['catch', 'nights', 'nightsOut', 'level', 'slayElite', 'journal', 'slay', 'boss', 'lightWaystone', 'reachZone', 'nightNoDamage', 'slayNight', 'boonLevel', 'nightCatch', 'perfectHooks', 'quality', 'weight',
@@ -1498,11 +1498,16 @@ if (V3) {
     }
     ok(!bad, `fmtWeight: a figure outside the format, or one that falls as the weight grows (${bad})`);
     ok(Math.abs(D.OZ_PER_KG - 16 * D.LB_PER_KG) < 1e-6 && Math.abs(1 / D.LB_PER_KG - 0.45359237) < 1e-9, 'OZ_PER_KG = 16 × LB_PER_KG; 1 lb = 0.45359237 kg');
-    ok(D.weightOz(0.45) === 16 && D.weightOz(0) === 0 && D.weightOz(NaN) === 0, 'weightOz: the whole ounces the card shows');
+    ok(D.weightOz(0.45) === 16 && D.weightOz(0) === 0 && D.weightOz(NaN) === 0 && D.weightOz(Infinity) === 0, 'weightOz: the ounces the card shows; 0 for no weight');
+    ok(D.weightOz(0.0142) === 0.5 && D.weightOz(1607.9 / D.OZ_PER_KG) === 1600 && D.weightOz(1608.1 / D.OZ_PER_KG) === 1616, 'weightOz: quarters under an ounce, whole pounds from 100 lb (the figure fmtWeight prints)');
+    { let off = ''; for (let kg = 0.0001; kg <= 500 && !off; kg *= 1.003) if (toOz(D.fmtWeight(kg)) !== D.weightOz(kg)) off = `${kg} kg: "${D.fmtWeight(kg)}" vs ${D.weightOz(kg)} oz`;
+      ok(!off, `weightOz is the figure fmtWeight prints, at every weight (${off})`); }
     ok(D.fmtWeightNear(4.3) === '9 lb' && D.fmtWeightNear(9.1) === '20 lb' && D.fmtWeightNear(125) === '275 lb' && D.fmtWeightNear(3200) === '7,100 lb' && D.fmtWeightNear(0.17) === '6 oz' && D.fmtWeightNear(0) === '',
       'fmtWeightNear: the got-away steps (1 lb, 5 lb, 25 lb, 100 lb)');
     ok(JSON.stringify(D.AUTOFISH.gotAway.roundLb) === '[[10,1],[100,5],[1000,25],[null,100]]' && D.AUTOFISH.gotAway.roundLb[3][0] === Infinity, 'AUTOFISH.gotAway.roundLb: the "near" weight steps');
-    ok(D.weightTarget(0.72, 0.81).text === '1½ lb' && D.weightTarget(3.88, 4.63).text === '9 lb' && D.weightTarget(0.178, 0.201).text === '6 oz' && D.weightTarget(0.72, 0.66).text === '1 lb', 'weightTarget: round bounty targets, never above the cap');
+    ok(D.weightTarget(0.72, 0.81).text === '1 lb 8 oz' && D.weightTarget(3.88, 4.63).text === '9 lb 0 oz' && D.weightTarget(0.178, 0.201).text === '6 oz' && D.weightTarget(0.72, 0.66).text === '1 lb 0 oz', 'weightTarget: round bounty targets in the card\'s own figure, never above the cap');
+    { let off = ''; for (let kg = 0.03; kg < 60 && !off; kg *= 1.02) { const T = D.weightTarget(kg, kg * 1.2); if (T.text !== D.fmtWeight(T.kg) || D.weightOz(T.kg) !== T.oz || !SHAPE.test(T.text)) off = `${kg} kg: ${JSON.stringify(T)}`; }
+      ok(!off, `weightTarget: the words are fmtWeight of the target, and its ounces are the ones the check compares (${off})`); }
     ok(D.fmtCm(8.4) === '8.4 cm' && D.fmtCm(33.2) === '33 cm' && D.fmtCm(850) === '850 cm' && D.fmtCm(0) === '—', 'fmtCm: the card\'s length line, cm always');
     // a fish's displayed weight is derived from its length with the species' k
     { const carp = D.SPECIES_BY_ID.weeping_carp, bm = D.SPECIES_BY_ID.belled_matriarch;
@@ -1512,8 +1517,14 @@ if (V3) {
     const at = (id, cm) => D.fmtWeight(D.sizeWeight(D.SPECIES_BY_ID[id], cm));
     ok(at('weeping_carp', 61) === '8 lb 0 oz' && at('reedjaw_pike', 112) === '23 lb 4 oz' && at('gloam_eel', 90) === '3 lb 9 oz', `weights ring true: carp 61 cm ${at('weeping_carp', 61)}, pike 112 cm ${at('reedjaw_pike', 112)}, eel 90 cm ${at('gloam_eel', 90)}`);
     for (const s of D.SPECIES.filter((x) => x.rarity === 'legendary')) { const lb = s.size.W50 * D.LB_PER_KG; ok(lb >= 200 && lb < 10000, `legend ${s.id}: ${Math.round(lb)} lb at first landing (the giants weigh hundreds of pounds)`); }
-    for (const b of ['trout', 'gar', 'conger', 'swampeel']) ok(isNum(SZ.k[b]) && D.SPECIES_V3.some((s) => s.size.body === b), `size.k.${b}: a body key split off for a cousin far from its plan, used by a species`);
+    for (const b of ['trout', 'gar', 'greateel', 'swampeel']) ok(isNum(SZ.k[b]) && D.SPECIES_V3.some((s) => s.size.body === b), `size.k.${b}: a body key split off for a cousin far from its plan, used by a species`);
     ok(D.SPECIES_BY_ID.threadling_eel.size.k === 0.0016 && D.SPECIES_BY_ID.gloam_eel.size.k === 0.0022 && D.SPECIES_BY_ID.pilgrim_salmon.size.k === SZ.k.trout, 'the eel retune keeps the Threadling (swampeel); the Pilgrim Salmon is a trout body');
+    // a body key is a plain family or build word, never a real species' own name (the cousins live in docs only)
+    ok(Object.keys(SZ.k).every((b) => !/conger|wels|roach|chinook|grayling|ratfish|kaluga|sixgill|zander|mussum/i.test(b)), `size.k: no body key is a real species' own name (${Object.keys(SZ.k).join(', ')})`);
+    // the Journal's range: smallest to a top Trophy, then the ceiling ("said to reach")
+    for (const s of D.SPECIES_V3) { const w = D.weightSpan(s); ok(!!w && w.min === s.weight[0] && w.reach === s.weight[1] && w.min < w.top && w.top <= w.reach, `weightSpan(${s.id}): min < top ≤ reach (${JSON.stringify(w)})`); }
+    { const w = D.weightSpan(D.SPECIES_BY_ID.mossback_perch); ok(D.fmtWeight(w.top) === '5 lb 15 oz' && D.fmtWeight(w.reach) === '17 lb 11 oz', `a perch's page runs to a top Trophy (${D.fmtWeight(w.top)}), said to reach ${D.fmtWeight(w.reach)}`); }
+    ok(typeof D.TEXT_V3.saidToReach === 'string' && D.TEXT_V3.saidToReach.includes('{w}'), 'TEXT_V3.saidToReach takes a weight');
     // no player-facing kg (or a bare cm figure for a fish) in v3 text
     const KG = /\bkg\b|\{kg\}|\{cm\} cm|\{len\}/;
     const scanKg = (v, path) => {
@@ -1554,7 +1565,7 @@ if (V3) {
     ok(R.BAIT_BY_ID.last_candle && !R.BAIT_BY_ID.pale_marrow && R.SPECIES_BY_ID.lantern_swallower && R.SUPPLY_BY_ID.murks_chum && R.BOUNTY_BY_ID.spot_catch.type === 'signCatch', `${tag}: renames (Pg0 migrates ids in P1), Murk's Chum and the sign bounty from P1`);
     ok(R.TIPS.filter((t) => t.id.startsWith('v3_')).every((t) => t.phase <= p), `${tag}: tips of later phases are not in the build`);
     { const hc = R.CHALLENGE_BY_ID.heavy_catch, lb = p >= 3 ? 33 : 18;   // pounds: 8 kg → 18 lb (P1–2), 15 kg → 33 lb (P3+); the heavy bounty's words take {w}
-      ok(hc.params.lb === lb && !('kg' in hc.params) && hc.desc === `Land a non-legendary fish over ${lb} lb.`, `${tag}: the Heavyweight asks for over ${lb} lb (got ${JSON.stringify(hc.params)}: "${hc.desc}")`);
+      ok(hc.params.lb === lb && !('kg' in hc.params) && hc.desc === `Land a non-legendary fish over ${D.fmtWeight(lb / D.LB_PER_KG)}.` && /over \d+ lb 0 oz\.$/.test(hc.desc), `${tag}: the Heavyweight asks for over ${lb} lb, in the card's own figure (got ${JSON.stringify(hc.params)}: "${hc.desc}")`);
       ok(R.BOUNTY_BY_ID.heavy.text === 'Land a {species} over {w}.', `${tag}: the heavy bounty's words take a weight in pounds ({w})`); }
     ok(R.CHALLENGE_BY_ID.complete_chronicle.params.n === R.SPECIES.length, `${tag}: the Chronicle asks for every species in the build`);
     // every lake has exactly 3 giant sources (its holdsGiants places, else the raft stopgap) and 2 watch lamps

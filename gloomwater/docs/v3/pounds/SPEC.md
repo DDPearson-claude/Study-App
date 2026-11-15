@@ -11,7 +11,7 @@ count, one for "near" estimates and one for bounty and challenge targets. Length
 scale, the show's pose, the classes, values, food, oil and clams do not change. Length survives only as a small `33 cm` line on the
 catch card. The weights come from `W = k·L³`. Checked against real cousins, 14 species were off by more than ±30%: those in the eel, angler and ghost bodies, the Pilgrim Salmon
 and the Vesper Gar (both on the pike body), and two legends. This spec retunes four body constants (minnow, eel, angler, ghost; the
-minnow is 26–27% light), adds four new body keys (`trout`, `gar`, `conger`, `swampeel`) and changes two legends' authored weights. Nothing in the economy or the rules reads `k`: a scratch copy with the retune ran `catch-v3.mjs`,
+minnow is 26–27% light), adds four new body keys (`trout`, `gar`, `greateel`, `swampeel`) and changes two legends' authored weights. Nothing in the economy or the rules reads `k`: a scratch copy with the retune ran `catch-v3.mjs`,
 `clams.mjs --quick` and `roster-check.mjs` byte-identical to the baseline, and `validate-data.mjs` passed all its passes. The flag-off
 game (v1) is untouched. Every shared line branches on the v3 flag, and no v1 export, text or table changes.
 
@@ -26,14 +26,15 @@ game (v1) is untouched. Every shared line branches on the v3 flag, and no v1 exp
 | D3 | ≥ 100 lb: whole pounds, `en-US` grouping from 1,000 (`7,055 lb`), the same as the game's `fmt` | the Lantern-Swallower is 7,055 lb |
 | D4 | Plain spaces in the core string; `{ nbsp: true }` replaces every space with U+00A0 (for prose lines that can wrap) | so `4 lb` / `6 oz` never split across a line on a phone |
 | D5 | **Displayed weight is derived from length** at read time: `fishWeight(sp, fish) = k·length³` (rounded as `fishFigures` rounds), falling back to the stored `fish.weight` only when no length is known | the retune then applies to old saves too (journal PBs, the Elder Log, a creel saved mid-run), and the display and the comparisons can never disagree |
-| D6 | **The play's estimate stays a class word, with no number** ("by the look of it: Prize", as built). The numeric estimate the ruling asks for is the **got-away note's "near N lb"** (and its echoes: the Journal's Got away list, the Glimpsed page, the logs' Marked Fish lines, the expedition summary) | Showing a weight during the play would leak the species. Weight is `k·L³` and `k` is the species' own, so a weight shown during the play would name the body shape, which breaks DESIGN §25.6.10 / CONTRACT §13.7a species-swap invariance. Once the fish is gone (`fish:escaped`), the note already names the species, so a weight there leaks nothing new |
+| D6 | **The play's estimate stays a class word, with no number** ("by the look of it: Prize", as built). The numeric estimate the ruling asks for is the **got-away note's "near N lb"** (and its echoes: the Journal's Got away list, the Glimpsed page, the logs' Marked Fish lines, the expedition summary) | Showing a weight during the play would leak the species. Weight is `k·L³` and `k` is the species' own, so a weight shown during the play would name the body shape, which breaks DESIGN §25.6.10 / CONTRACT §13.7a species-swap invariance. Once the fish is gone (`fish:escaped`), the note already names the species, so a weight there leaks nothing new **For the lead to confirm at the merge** (the ruling's list names "the play's estimate"; this is the one place the build departs from it): the rule it would break is the user's own, "I dont want you to be able to tell what type of fish could be on your line" (DESIGN §25.0.1 row 8). A species-blind figure is not a way out: a size class is cut on the size score, not on weight, so in the preview build's Mossmere (seven fish) a Prize is anything from `7 oz` to `17 lb 5 oz` (a typical Prize minnow 9 oz, a typical Prize carp 12 lb 14 oz: ×24). A band that wide says nothing, and a single figure would be wrong by an order of magnitude for some fish (§12 item 3) |
 | D7 | The "near" estimate uses friendly steps: under 1 lb as `fmtWeight`; 1 to under 10 lb to the nearest 1 lb; 10 to under 100 lb to the nearest 5 lb; 100 to under 1,000 lb to the nearest 25 lb; from 1,000 lb to the nearest 100 lb. The word stays `near` (`AUTOFISH.gotAway.word`) | The steps follow the length steps already in use (1 cm, 5 cm, 0.1 m). The ruling's "about" is an example of the rounding, not a new word; one data string changes it if the lead wants it |
 | D8 | The card's count is **driven by length, as today** (`cm = L·e(k)`, so the cord bead, the knots and the audio's crossings are unchanged), and it **shows the weight of that length**: `w = W·(cm/L)³` | The audio rules (`card:count`, the chime at a band crossing) and the bead stay exactly as built. The number stays low for the first ~15% of the count and then rises fast to land, which reads like a pointer swinging onto the scale |
 | D9 | The count uses the final's own band: a final under 1 lb counts in ounces; a final from 1 lb to under 100 lb counts in ounces up to 1 lb, then in `N lb M oz`; **a final ≥ 100 lb counts in whole pounds from `0 lb`** | The lead's "whole ounces up to 1 lb, then pounds plus ounces". For a giant, an ounce stage would flash for one frame and stretch the reserved width to `99 lb 15 oz` |
-| D10 | Bounty and challenge targets are **round units**, and the check is made on the same whole ounces the card shows: `weightOz(fish) > targetOz` | words, card and check agree: a card reading `33 lb 0 oz` does not fill "over 33 lb", one reading `33 lb 1 oz` does |
+| D10 | Bounty and challenge targets are **round units, worded as the card words a weight** (`fmtWeight`: "over 6 oz", "over 1 lb 8 oz", "over 9 lb 0 oz", "over 33 lb 0 oz"; never a half-pound glyph or a bare "9 lb"), and the check is made on the same ounces the card shows: `weightOz(fish) > targetOz` | words, card and check agree, and the player compares like with like: a card reading `33 lb 0 oz` does not fill "over 33 lb 0 oz", one reading `33 lb 1 oz` does |
 | D11 | The card's length line reads `length · 33 cm`: the existing `length` row of the card's stats list, always in cm, one decimal under 20 cm (`8.4 cm`), no mm or m | the ruling: "kept only as a small detail line on the card (in cm)" |
 | D12 | The handwritten note ("…, 4 lb 6 oz, a prize! took the mire worms…") and the record kicker's fallback use the weight | anglers say the weight |
-| D13 | The Journal's species "Weight" row (today `0.11–2.8 kg`) shows the range in pounds, with an en dash and spaces (the Dusk Minnow after the retune: `2 oz – 3 lb 10 oz`) | the same derived `sp.weight` pair, re-worded |
+| D13 | The Journal's species "Weight" row (today `0.11–2.8 kg`) shows the range in pounds, with an en dash and spaces, **from the species' smallest to a top Trophy** (the most open water holds), and under it, as hearsay, what it is **said to reach** (the ceiling, an Elder's): the Dusk Minnow `2 oz – 1 lb 4 oz` · `said to reach 3 lb 10 oz`; the Mossback Perch `10 oz – 5 lb 15 oz` · `said to reach 17 lb 11 oz` | `data.weightSpan(sp)` from the same derived `sp.weight` pair. A range that ran to the ceiling read as a 17 lb perch on the first Journal page a player opens; a real one is a fish of a lifetime at 6 lb |
+| D14 | **A personal best is kept by length and told by the weight the card shows**: the mark (`pbLength`) moves with any longer fish, but a best is told (the record line, the kicker, `isRecord`, the summary line) only when `weightOz` of the new fish is above `weightOz` of the old mark | the two figures are printed in whole ounces; a fish a hair longer read "New best: 5 oz (was 5 oz)" (about a third of small minnow bests did) |
 
 ---
 
@@ -64,22 +65,22 @@ the v1 arm left character for character as it is.
 | site | today | layer | change |
 |---|---|---|---|
 | `src/progression.js:84` `fmtKg`, `:85` `fmtCm` | helpers | shared | keep both (v1 uses `fmtKg`); add `fmtW = (sp, kg, len) => data.fmtWeight(…)` use in v3 lines |
-| `progression.js:897` `isPB = isNew \|\| (prevLength != null ? fish.length > prevLength : fish.weight > entry.biggest)` | per-species PB by length | v3 | **unchanged**: for one species, by length = by weight (one k per species; the Pilgrim Salmon's L50 varies by lake but its k does not) |
+| `progression.js:897` `isPB = isNew \|\| (prevLength != null ? fish.length > prevLength : fish.weight > entry.biggest)` | per-species PB by length | v3 | the mark stays by length; **told** only when the shown weight rises (D14): `toldPB = isPB && !isNew && weightOz(now) > weightOz(old mark)` gates the `pb` record, `isRecord` and the summary line |
 | `progression.js:960` `r.stats.biggest` compares `fish.weight` across species | the run's heaviest (not shown anywhere today) | v3 | compare `fishWeight(sp, fish)`; any future display uses `fmtWeight` |
 | `progression.js:1372` `TEXT_V3.newBest` `'New best: {cm} cm (was {was})'`, falls back to `fmtKg(x.prev)` | summary record lines (death / dawn summary, `ui-screens.js:1781`) | v3 | `'New best: {w} (was {was})'`, both from `fishWeight` of the lengths (`x.length`, `x.prevLength`); legacy `x.prev` kg → `fmtWeight(x.prev)` |
 | `progression.js:1374` `TEXT.records.biggest` `'Biggest catch: {name}, {kg} kg'` | v1 summary | v1 | none (TEXT is fingerprinted) |
 | `src/ui-screens.js:1355` Journal "Biggest": `fmtLength(pb)` else `fmtKg(rec.biggest)` | shared screen (v1 Journal has no `pbLength`) | shared | `V3 ? fmtWeight(pb > 0 ? fishWeight(sp, {length: pb}) : rec.pbWeight ?? rec.biggest) : (today's expression)` |
-| `ui-screens.js:1356` Journal "Weight": `${sp.weight[0]}–${sp.weight[1]} kg` | shared | shared | `V3 ? \`${fmtWeight(w0)} – ${fmtWeight(w1)}\` : today` |
+| `ui-screens.js:1356` Journal "Weight": `${sp.weight[0]}–${sp.weight[1]} kg` | shared | shared | v3: `data.weightSpan(sp)`: `min – top`, and `said to reach {reach}` under it (D13); the v1 arm as today |
 | `ui-screens.js:1194`, `:1255` creel / sell rows `${fmtKg(f.weight)}` | market Sell tab, Burn | shared | `V3 ? fmtWeight(fishWeight(sp, f)) : fmtKg(f.weight)` |
 | `src/progression-market.js:146` sell item `desc: \`${S.fmtKg(fish.weight)} · …\`` | shared | shared | `V3 ? fmtWeight(…) : today` |
 | `progression-market.js:444–447` heavy bounty target `b.kg` (rounded kg) | v3 branch exists (`kgV3`) | shared | v3: `const T = data.weightTarget(kgV3, kgAtZ(1.04))`; `b.kg = T.kg; b.targetOz = T.oz; fill.w = T.text`; v1 arm unchanged |
 | `progression-market.js:471` `b.text = fill(t.text, fill)` with template `'Land a {species} over {kg} kg.'` (`data.js:1301`, v1 `BOUNTIES`) | text filled once, saved with the bounty | shared | the v3 apply block (`data.js` ~5073, beside `spot_catch`) patches the heavy template to `'Land a {species} over {w}.'` |
 | `progression-market.js:578` heavy check `(e.fish.weight \|\| 0) >= (b.kg \|\| 0)` | shared | shared | `b.targetOz != null ? weightOz(fishWeight(sp, e.fish)) > b.targetOz : today` |
-| `ui-screens.js:1210` ledger row `fill(b.text, { kg: b.target?.kg })` | shared | shared | v3: an old saved heavy bounty (no `targetOz`, text with `kg`) is re-worded from `b.kg` with `fmtWeight(b.kg)` (exact, so it stays honest against its old `>=` check); new ones already carry the words |
+| `ui-screens.js:1210` ledger row `fill(b.text, { kg: b.target?.kg })` | shared | shared | v3: an old saved heavy bounty (no `targetOz`, text with `kg`) is re-worded from `b.kg` with `fmtWeight(b.kg)` and takes `targetOz = weightOz(b.kg)` with it, so its words and its check agree; new ones already carry the words |
 | `progression-market.js:523` toast "Murk's Ledger: {bounty text}" | from `b.text` | shared | follows the bounty text |
 | `src/progression-challenges.js:183` `(fish.weight \|\| 0) > (p.kg ?? 8)` | Heavyweight | shared | `p.lb != null ? weightOz(fishWeight(species, fish)) > p.lb * 16 : today` |
-| `src/data.js:1276` v1 `heavy_catch` "over 8 kg" `{kg: 8}` (in play in v3 phases 1–2) | v1 table | v1 table; v3 patch | the v3 apply block, `P < 3`: `Object.assign(hc, { desc: 'Land a non-legendary fish over 18 lb.', params: { lb: 18, excludeLegendary: true } })` |
-| `data.js:4417` `CHALLENGES_V3` override "over 15 kg" `{kg: 15}` (phase ≥ 3) | v3 | v3 | `'Land a non-legendary fish over 33 lb.'`, `{ lb: 33, excludeLegendary: true }` |
+| `src/data.js:1276` v1 `heavy_catch` "over 8 kg" `{kg: 8}` (in play in v3 phases 1–2) | v1 table | v1 table; v3 patch | the v3 apply block, `P < 3`: `Object.assign(hc, { desc: 'Land a non-legendary fish over 18 lb 0 oz.', params: { lb: 18, excludeLegendary: true } })` |
+| `data.js:4417` `CHALLENGES_V3` override "over 15 kg" `{kg: 15}` (phase ≥ 3) | v3 | v3 | `'Land a non-legendary fish over 33 lb 0 oz.'`, `{ lb: 33, excludeLegendary: true }` |
 | `tools/validate-data.mjs:1267` asserts `heavy_catch.params.kg === 15` | v3 pass | tool | `params.lb === 33`; add: phase-1 build's `heavy_catch.params.lb === 18` |
 | `src/core.js:373` `fmtKg` | exported, **no caller** | dead | leave |
 | `src/ui.js:46` `fmtKg` on `K` | shared helper | shared | keep; add `fmtWeight` and `fishWeight` to `K` |
@@ -112,7 +113,7 @@ the v1 arm left character for character as it is.
 | 3964 | `AUTOFISH.text.size` "`{a} {class}, near {len}.`" | v3 | `{size}` |
 | 3977 | `AUTOFISH.text.log.marked` "`{name}, {class}, near {len}`" | v3 | `{size}` |
 | 3946 | `AUTOFISH.gotAway.round` (cm steps) | v3 | keep (fishing still rounds `approxLength` in cm, `fishing.js:1589–1591`); add `roundLb: [[10, 1], [100, 5], [1000, 25], [Infinity, 100]]` |
-| 4417 | `CHALLENGES_V3.heavy_catch` "over 15 kg" | v3 | "over 33 lb", `{lb: 33}` |
+| 4417 | `CHALLENGES_V3.heavy_catch` "over 15 kg" | v3 | "over 33 lb 0 oz", `{lb: 33}` |
 | 4686 | `TEXT_V3.newBest` "`New best: {cm} cm (was {was})`" | v3 | "`New best: {w} (was {was})`" |
 | 4673–4700 | `TEXT_V3.watchLamp` / `lampWatch*` / `hud.*` "`{m} m`" | v3 | none: distances, not fish |
 | 1939, 2072 | place `look` text ("six-metre spore geyser", "seven metres up") | v3 world text | none: not a fish size |
@@ -151,22 +152,28 @@ Nothing in v1 calls them.
 export const LB_PER_KG = 2.20462262185;              // 1 lb = 0.45359237 kg exactly
 export const OZ_PER_KG = 35.27396195;                // 16 × LB_PER_KG
 const QUARTERS = ['\u00bc', '\u00bd', '\u00be'];     // ¼ ½ ¾
+/** The ounces a weight reads as on screen, exactly the figure fmtWeight prints: quarters under 1 oz (never below ¼), whole ounces
+ *  to under 100 lb, whole pounds beyond. Every size comparison the player can see in v3 (a personal best, a heavy bounty, the
+ *  Heavyweight) is made on it, so the words, the card and the check can never disagree. 0 for no weight. */
+export function weightOz(kg) {
+  if (typeof kg !== 'number' || !Number.isFinite(kg) || kg <= 0) return 0;
+  const oz = kg * OZ_PER_KG;
+  const q = Math.round(oz * 4);                       // quarters
+  if (q < 4) return Math.max(1, q) / 4;
+  const w = Math.round(oz);                           // whole ounces (q ≥ 4 ⇒ w ≥ 1)
+  return w < 1600 ? w : Math.round(oz / 16) * 16;     // 100 lb and up: whole pounds
+}
 /** "¼ oz" … "15 oz" · "1 lb 0 oz" … "99 lb 15 oz" · "100 lb" … "7,055 lb"; "—" for no weight. Rounds once, to whole ounces
  *  (under 1 oz to the nearest quarter, never below ¼), then carries: never "16 oz", "1 lb 16 oz" or "100 lb 0 oz". */
 export function fmtWeight(kg, { nbsp = false } = {}) {
-  if (typeof kg !== 'number' || !Number.isFinite(kg) || kg <= 0) return '\u2014';
+  const w = weightOz(kg);
+  if (!(w > 0)) return '\u2014';
   const sp = nbsp ? '\u00a0' : ' ';
-  const oz = kg * OZ_PER_KG;
-  const q = Math.round(oz * 4);                       // quarters
-  if (q < 4) return `${QUARTERS[Math.max(1, q) - 1]}${sp}oz`;
-  const w = Math.round(oz);                           // whole ounces (q ≥ 4 ⇒ w ≥ 1)
+  if (w < 1) return `${QUARTERS[w * 4 - 1]}${sp}oz`;
   if (w < 16) return `${w}${sp}oz`;
-  const lb = Math.floor(w / 16);
-  if (lb < 100) return `${lb}${sp}lb${sp}${w % 16}${sp}oz`;   // "4 lb 6 oz"
-  return `${Math.round(oz / 16).toLocaleString('en-US')}${sp}lb`;
+  if (w < 1600) return `${Math.floor(w / 16)}${sp}lb${sp}${w % 16}${sp}oz`;   // "4 lb 6 oz"
+  return `${(w / 16).toLocaleString('en-US')}${sp}lb`;
 }
-/** The whole ounces the card shows (the unit every size comparison in v3 uses). 0 for no weight. */
-export function weightOz(kg) { return typeof kg === 'number' && kg > 0 ? Math.round(kg * OZ_PER_KG) : 0; }
 /** A fish's weight for the player: derived from its length with the species' k (so a retune reaches old saves), else the stored kg. */
 export function fishWeight(sp, fish) {
   const L = Number(fish?.length);
@@ -187,15 +194,15 @@ export function fmtWeightNear(kg, steps = [[10, 1], [100, 5], [1000, 25], [Infin
   const step = (steps.find(([below]) => lb < below) || steps[steps.length - 1])[1];
   return `${Math.max(step, Math.round(lb / step) * step).toLocaleString('en-US')} lb`;
 }
-/** A round target for "over {w}" (a heavy bounty, a Murk's order): under 1 lb whole oz; 1–3 lb in half pounds ("1½ lb");
- *  3 lb and up whole pounds; never above capKg (the top Keeper's weight). Returns {oz, kg, text}. */
+/** A round target for "over {w}" (a heavy bounty, a Murk's order): a round unit (whole ounces under 1 lb, half pounds from 1 to
+ *  3 lb, whole pounds beyond), never above capKg (the top Keeper's weight), and worded as the card words a weight (fmtWeight:
+ *  "6 oz", "1 lb 8 oz", "9 lb 0 oz"), so the player compares like with like. Returns {oz, kg, text}. */
 export function weightTarget(kg, capKg = Infinity) {
   const oz = kg * OZ_PER_KG, cap = capKg * OZ_PER_KG;
   const unit = oz < 15.5 ? 1 : oz < 47.5 ? 8 : 16;    // whole oz · half pound · whole pound
   let t = Math.max(1, Math.round(oz / unit) * unit);
   if (t > cap) t = Math.max(1, Math.floor(cap / unit) * unit);
-  const text = t < 16 ? `${t} oz` : t % 16 === 8 ? `${(t - 8) / 16}\u00bd lb` : `${t / 16} lb`;
-  return { oz: t, kg: t / OZ_PER_KG, text };
+  return { oz: t, kg: t / OZ_PER_KG, text: fmtWeight(t / OZ_PER_KG) };
 }
 /** The card's length line: cm always (one decimal under 20 cm): "8.4 cm", "112 cm", "850 cm". */
 export function fmtCm(cm) { cm = Number(cm); if (!(cm > 0)) return '\u2014'; return cm < 20 ? `${Math.round(cm * 10) / 10} cm` : `${Math.round(cm)} cm`; }
@@ -243,9 +250,13 @@ form's pounds are always 1–99.
 → `10 lb`; 9.1 kg (20.1 lb) → `20 lb`; 44 kg (97.0 lb) → `95 lb`; 44.6 kg (98.3 lb) → `100 lb`; 125 kg (275.6 lb) → `275 lb`;
 3200 kg → `7,100 lb`; 0 → `''`.
 
-`weightTarget`: 0.178 kg, cap 0.201 → `{oz: 6, text: '6 oz'}`; 0.72 kg (1.59 lb), cap 0.81 → `1½ lb`; 0.79 kg (1.74 lb), cap 0.91 →
-`1½ lb`; 3.88 kg (8.56 lb), cap 4.63 → `9 lb`; 0.508 kg (1.12 lb), cap 0.567 → `1 lb`; a target that rounds above its cap steps down
-(0.72 kg, cap 0.66 kg → `1 lb`). `text` never reads `16 oz` or `0 oz`.
+`weightTarget`: 0.178 kg, cap 0.201 → `{oz: 6, text: '6 oz'}`; 0.72 kg (1.59 lb), cap 0.81 → `1 lb 8 oz`; 0.79 kg (1.74 lb), cap 0.91 →
+`1 lb 8 oz`; 3.88 kg (8.56 lb), cap 4.63 → `9 lb 0 oz`; 0.508 kg (1.12 lb), cap 0.567 → `1 lb 0 oz`; a target that rounds above its cap
+steps down (0.72 kg, cap 0.66 kg → `1 lb 0 oz`). `text` is always `fmtWeight` of the target (never a half-pound glyph, `16 oz` or
+`0 oz`), and `weightOz(T.kg) === T.oz`.
+
+`weightOz`: exactly the figure `fmtWeight` prints, at every weight (0.0142 kg → 0.5; 0.45 kg → 16; 100.4 lb → 1600, not 1606;
+100.6 lb → 1616; 0, a negative, `NaN`, `Infinity`, a string → 0).
 
 `fmtCm`: 8.4 → `8.4 cm`; 19.94 → `19.9 cm`; 33.2 → `33 cm`; 850 → `850 cm`; 0 → `—`.
 
@@ -272,6 +283,9 @@ strike   Clean · favour ▮▮▯ …             (behind "more", as built)
   `8.4 cm`. The First Evening's Quayling: `1 oz`, `14 cm`.
 
 ### 3.2 The hero's markup and width (no jitter)
+
+*(As built, the markup differs: the parts are `<i>`, the live figure lies over the sizer, the sizer holds several figures laid one
+over another, and each unit is set apart in the body face. See §11 B1–B3 and §12 items 4 and 6; CONTRACT §13.7 has the markup.)*
 
 ```html
 <b class="gw-cc-hero{ long ? ' gw-cc-hero--long' : '' }" aria-label="{N.wt}">
@@ -323,11 +337,15 @@ It never shows a value above the final: `fmtWeight` never decreases as the weigh
 
 ### 3.4 Records and personal bests
 
-- **Per species: unchanged, by length.** It is the same test as by weight (one `k` per species). `entry.pbLength` stays the record;
-  `pbWeight` stays stored (kg) and is not shown.
+- **Per species: kept by length, told by the weight the card shows** (D14). `entry.pbLength` stays the record and moves with any
+  longer fish (`pbWeight` stays stored, in kg, and is not shown). A best is **told** only when the figure rises:
+  `weightOz(fishWeight(sp, fish)) > weightOz(fishWeight(sp, {length: pbLength}))`. A fish a hair longer that reads the same weight as
+  the old mark sends no `pb` record, no `isRecord`, no kicker and no summary line: never "New best: 5 oz (was 5 oz)".
 - **"New best" words:** `TEXT_V3.newBest = 'New best: {w} (was {was})'`. `{w}` = `fmtWeight(fishWeight(sp, {length}))`,
   `{was}` = the same from `prevLength` (or `fmtWeight(prevWeight)` for a legacy record with no length). `recordLines` sub:
-  `` `${fmtWeight(Wnow − Wprev)} past your old mark` `` (a gain that rounds under ¼ oz shows `¼ oz`).
+  the difference of the two figures as they read, `fmtWeight((weightOz(now) − weightOz(prev)) / OZ_PER_KG)` + ` past your old mark`
+  ("New best: 23 lb 4 oz (was 15 lb 2 oz)" → "8 lb 2 oz past your old mark"). `recordLines` itself drops a `pb` record whose two
+  figures read the same (a record saved by an older build).
 - **Across species, "biggest" is the heaviest:** `r.stats.biggest` compares `fishWeight`. The loop's tally orders by it (§5.1).
   v1's "Biggest catch: {name}, {kg} kg" stays v1.
 - The card's PB knot and Old Ledger knot stay on the length ruler, with no words.
@@ -339,8 +357,10 @@ It never shows a value above the final: `fmtWeight` never decreases as the weigh
 ### 4.1 The Journal (`openJournal`)
 
 - **Biggest:** the weight of the PB length (`fmtWeight(fishWeight(sp, {length: pbLength}))`).
-- **Weight:** the species' range, `fmtWeight(sp.weight[0]) – fmtWeight(sp.weight[1])` (e.g. the Dusk Minnow after the retune:
-  `2 oz – 3 lb 10 oz`).
+- **Weight:** the species' range from its smallest to a top Trophy, and under it what it is said to reach (D13;
+  `data.weightSpan(sp)` → `{min, top, reach}`, `TEXT_V3.saidToReach`): the Dusk Minnow `2 oz – 1 lb 4 oz` · `said to reach 3 lb 10 oz`.
+  A species capped at a Trophy or under (the Lampwarden Angler, the Quayling) and a legend (`265 lb – 397 lb`, first landing to
+  fully grown) have no second line.
 - **Got away list:** `Trophy, near 9 lb, under the Span, day 3 · threw the hook`.
 - **Glimpsed page:** `Got away: a trophy, near 9 lb, under the Span, day 3.`
 - **Your odds' Marked Fish lines:** `Old Ninefin, Elder, near 45 lb: 12%`.
@@ -366,15 +386,17 @@ It never shows a value above the final: `fmtWeight` never decreases as the weigh
 
 - **The conversion rule.** A target authored in kg becomes `lb = Math.round(kg × 2.20462)`: 8 kg → **18 lb** (8.16 kg),
   15 kg → **33 lb** (14.97 kg). It is stored as `params.lb`. The check is `weightOz(fishWeight(sp, fish)) > lb × 16`.
-- **Heavyweight**, phases 1–2: "Land a non-legendary fish over **18 lb**." (the v1 row, patched in the v3 apply block).
-- **Heavyweight**, phase ≥ 3: "over **33 lb**" (`CHALLENGES_V3`).
-- **Heavy bounties.** `weightTarget(heavyTargetKg(sp, 0.75), weight at z 1.04)` gives "`Land a Weeping Carp over 9 lb.`"
+- **Heavyweight**, phases 1–2: "Land a non-legendary fish over **18 lb 0 oz**." (the v1 row, patched in the v3 apply block).
+- **Heavyweight**, phase ≥ 3: "over **33 lb 0 oz**" (`CHALLENGES_V3`). Both are `fmtWeight` of the target: the card's own figure.
+- **Heavy bounties.** `weightTarget(heavyTargetKg(sp, 0.75), weight at z 1.04)` gives "`Land a Weeping Carp over 9 lb 0 oz.`"
   - The cap keeps today's test (`progression-v3.test.mjs:512`: the target is never above the top Keeper).
   - The words, the stored `targetOz` and the check agree.
-  - Examples after the retune (75th percentile → target): Dusk Minnow 6.2 oz → `6 oz` · Mossback Perch 1.74 lb → `1½ lb` ·
-    Gutter Crayfish → `9 oz` · Weeping Carp 8.56 lb → `9 lb` · Candlefin Koi → `4 lb` · Glassblown Puffer 1.59 lb → `1½ lb` ·
-    Mirror Pike → `10 lb` · Gilt-Eyed Eel → `27 lb` · Shroud Ray → `19 lb`.
-- **Saved bounties** from before the build: words from `fmtWeight(b.kg)` (exact), check unchanged (`>= b.kg`). They last one day.
+  - Examples after the retune (75th percentile → target): Dusk Minnow 6.2 oz → `6 oz` · Mossback Perch 1.74 lb → `1 lb 8 oz` ·
+    Gutter Crayfish → `9 oz` · Weeping Carp 8.56 lb → `9 lb 0 oz` · Candlefin Koi → `4 lb 0 oz` · Glassblown Puffer 1.59 lb →
+    `1 lb 8 oz` · Mirror Pike → `10 lb 0 oz` · Gilt-Eyed Eel → `27 lb 0 oz` · Shroud Ray → `19 lb 0 oz`.
+- **Saved bounties** from before the build: words from `fmtWeight(b.kg)` (exact), and the same figure as the target
+  (`targetOz = weightOz(b.kg)`), so the check is the new one: over it, on the ounces the card shows. They last one day; the target
+  itself was drawn under the old `k`, so for that day an eel's is easier and an angler's harder than a new one would be.
 - **Achievability after the retune** (the sims do not model challenges):
   - 18 lb, open water, top Trophy at most: still reachable in every lake. The Mossmere through a Trophy Weeping Carp or Reedjaw; Sporewood
     a Prize Velvet Ray or Mildew Angler; Glasswater a Prize Mirror Pike or Blind Scrivener; the Pallid Deep a typical Gilt-Eyed Eel.
@@ -386,7 +408,7 @@ It never shows a value above the final: `fmtWeight` never decreases as the weigh
 
 - No current line carries a size.
 - The Sell / Burn rows and the sell item `desc` read `6 lb 3 oz · Fine`.
-- The ledger and its toasts read `Land a Weeping Carp over 9 lb.`
+- The ledger and its toasts read `Land a Weeping Carp over 9 lb 0 oz.`
 - The rule for any later line: `fmtWeight` for a fish in hand, `fmtWeightNear` for one that got away, `weightTarget` for a target.
 
 ---
@@ -398,7 +420,10 @@ It never shows a value above the final: `fmtWeight` never decreases as the weigh
 - Murk's scale reads weights. Each fish's row is `name` (small) · **its weight** (`fmtWeight`, small, ink-dim) · its value ticking
   up.
 - The order is **lightest first, heaviest last** (`fishWeight`); a giant goes last, alone, as written.
-- `endTrip()` stores the weights with the result, so the replay shows what was weighed even if a later build retunes `k`.
+- `endTrip()` stores each fish's **length** with the result (as slice 1a's PLAN §3.4 `lastTrip.lines` do), never a weight: the
+  tally reads `fmtWeight(fishWeight(species, line))`, on the first showing and on a replay. One rule everywhere (D5): a retune of `k`
+  reaches a replayed tally as it reaches the Journal's best.
+- A row's order key is `weightOz(fishWeight(species, line))`; two fish that read the same go by clams, then by the order caught.
 
 ### 5.2 The rest
 
@@ -490,7 +515,7 @@ Lengths in cm, weights in the game's new format.
 | ossuary_fry | minnow | 0.01 → **0.013** | 23 | 4 oz → **6 oz** | roach (no cousin): 6 oz | -26% → -4% | S 22: 5 oz · K 26: 8 oz · P 30: 12 oz · T 37: 1 lb 7 oz · R 52: 4 lb 2 oz |
 | pallid_wraithfin | ghost | 0.01 → **0.006** | 46 | 2 lb 2 oz → **1 lb 5 oz** | spotted ratfish: 1 lb 3 oz | +82% **✗** → +9% | S 45: 1 lb 3 oz · K 53: 1 lb 15 oz · P 61: 3 lb 1 oz · T 76: 5 lb 12 oz · R 109: 17 lb 1 oz |
 | bonecrook_crayfish | crayfish | 0.03 | 27 | 1 lb 5 oz | signal crayfish: 1 lb 5 oz | 0% | S 26: 1 lb 3 oz · K 30: 1 lb 12 oz · P 34: 2 lb 10 oz · T 41: 4 lb 10 oz · R 57: 12 lb 8 oz |
-| gilt_eyed_eel | eel → conger | 0.0016 → **0.004** | 131 | 7 lb 15 oz → **19 lb 13 oz** | conger eel: 19 lb 13 oz | -60% **✗** → 0% | S 126: 17 lb 9 oz · K 155: 32 lb 11 oz · P 185: 55 lb 8 oz · T 234: 113 lb · R 345: 363 lb |
+| gilt_eyed_eel | eel → greateel | 0.0016 → **0.004** | 131 | 7 lb 15 oz → **19 lb 13 oz** | conger eel: 19 lb 13 oz | -60% **✗** → 0% | S 126: 17 lb 9 oz · K 155: 32 lb 11 oz · P 185: 55 lb 8 oz · T 234: 113 lb · R 345: 363 lb |
 | shroud_ray | ray | 0.012 | 82 | 14 lb 9 oz | stingray (uncertain): 14 lb 9 oz | 0% | S 79: 13 lb 2 oz · K 95: 22 lb 9 oz · P 111: 36 lb 8 oz · T 139: 70 lb 13 oz · R 201: 215 lb |
 | funeral_veil | ghost | 0.01 → **0.006** | 42 | 1 lb 10 oz → **1 lb 0 oz** | ratfish (no cousin): 14 oz | +82% **✗** → +9% | S 41: 15 oz · K 46: 1 lb 5 oz · P 52: 1 lb 14 oz · T 62: 3 lb 3 oz · R 86: 8 lb 7 oz |
 | lampwarden_angler | angler | 0.025 → **0.017** | 72 | 20 lb 9 oz → **14 lb 0 oz** | anglerfish: 13 lb 3 oz | +56% **✗** → +6% | S 70: 12 lb 10 oz · K 83: 21 lb 10 oz · P 98: 35 lb 0 oz · R 121: 67 lb 3 oz |
@@ -524,13 +549,13 @@ Spot checks against the lead's figures, after the retune:
    - `eel 0.0016 → 0.0022` (European eel);
    - `angler 0.025 → 0.017` (anglerfish);
    - `ghost 0.010 → 0.006` (ratfish);
-   - **new** `trout: 0.011` (salmon, grayling); `gar: 0.0030` (longnose gar); `conger: 0.0040` (conger); `swampeel: 0.0016` (today's
+   - **new** `trout: 0.011` (salmon, grayling); `gar: 0.0030` (longnose gar); `greateel: 0.0040` (conger); `swampeel: 0.0016` (today's
      eel constant, kept for the slim swamp eel, so its weights do not move).
 2. Species bodies:
    - `pilgrim_salmon` (line 3129) `body: 'pike', k: SZK.pike` → `body: 'trout', k: SZK.trout`;
    - `rainglass_darter` (3081) `'minnow'` → `'trout'`;
    - `vesper_gar` (3074) `'pike'` → `'gar'`;
-   - `gilt_eyed_eel` (3096) `'eel'` → `'conger'`;
+   - `gilt_eyed_eel` (3096) `'eel'` → `'greateel'`;
    - `threadling_eel` (3040) `'eel'` → `'swampeel'`.
 
    `size.body` feeds only `k`. The model's `shape` is separate and untouched.
@@ -560,8 +585,9 @@ and the cap is the top-Keeper weight).
    - A plan's value is chosen from a real cousin by §6.2's method: the length–weight relation at the plan's median L50, recorded in
      the docs beside the table.
 2. **A fish whose own cousin is more than ±30% off its plan's `k`** (a conger in `eel`, a zander in `perch`, a heavy-bodied barb in
-   `bream`) gets its own body key, named for the cousin's kind, in `BALANCE_V3.size.k`. It never gets a per-fish number in
-   `roster.json`.
+   `bream`) gets its own body key in `BALANCE_V3.size.k`, named with a plain family or build word (`trout`, `gar`, `greateel`, `swampeel`) and
+   **never with a real species' own name**: `tools/sim/roster-check.mjs` `REAL_NAMES` is the list (it holds "conger"; family words such
+   as trout, gar, eel and pike are allowed there). It never gets a per-fish number in `roster.json`.
 3. **Legends:** the roster gives `W50` (kg), the cousin's weight at the legend's first-landing length. The converter uses
    `legendSize(L50, W50)`, so a legend whose roster L50 differs from the built one (the Glass Sovereign 380 vs 300 cm) keeps the
    cousin's `k`: `W50_new = k·L50_new³`.
@@ -607,11 +633,11 @@ off then `GW_V3 = true; GW_V3_PHASE = 1`, the way `ui-screens-v3.test.mjs` does.
    - `gotAwayNote` for two species with the same `approxLength` gives different weights, which is allowed because it shows after the
      loss (assert that `mode`, `kicker` and `cause` are species-free, as now).
 6. **Bounties and challenges:**
-   - Heavyweight P1 `params.lb === 18`, desc "over 18 lb", P3 33;
+   - Heavyweight P1 `params.lb === 18`, desc "over 18 lb 0 oz", P3 33;
    - a fish of exactly `33 lb 0 oz` does not complete it, one of `33 lb 1 oz` does;
-   - a heavy bounty's `text` matches `/over (\d+ oz|\d+½? lb)\.$/`, its `targetOz` equals `weightTarget(...)`, it stays ≤ the
-     top-Keeper weight (keep the 512 test), and the check uses `targetOz`;
-   - an old saved bounty (`kg` only) reads `fmtWeight(b.kg)`.
+   - a heavy bounty's `text` ends `over {fmtWeight(b.kg)}.` (no half-pound glyph), its `targetOz` equals `weightTarget(...)` and
+     `weightOz(b.kg)`, it stays ≤ the top-Keeper weight (keep the 512 test), and the check uses `targetOz`;
+   - an old saved bounty (`kg` only) reads `fmtWeight(b.kg)` and takes `targetOz = weightOz(b.kg)`.
 7. **v1 parity** (flag off; in `pounds.test.mjs`):
    - `TEXT`, `BOUNTIES`, `CHALLENGES` and `SPECIES` are deep-equal to the flag-off import's (the fingerprint already proves this; this
      makes it explicit);
@@ -657,14 +683,14 @@ off then `GW_V3 = true; GW_V3_PHASE = 1`, the way `ui-screens-v3.test.mjs` does.
 | `DESIGN.md` §25.7.4 | records table | personal best: "per species by length (the same as by weight); shown as weight: 'New best: 4 lb 6 oz (was 3 lb 12 oz)'"; Elder Log: "weight, then cm"; legend growth: "265 lb · 397 lb" |
 | `DESIGN.md` §25.7.6 | the roster table (e.g. row 29 "75 / 3.2 kg … 205 / 65 kg") | the weight columns in lb (`7 lb 0 oz`, …) from `roster-v3.mjs --rows` after the retune, or a note: "weights in this table predate the pounds audit; `docs/v3/pounds/SPEC.md` §6.2 is current" |
 | `DESIGN.md` §25.4 (2495), §25.8.1 (3538) | wall plaque "(species, cm, kg, …)"; Tally Posts "(species glyph, cm, kg)" | "(species, weight, cm, …)"; "(species glyph, weight)" |
-| `DESIGN.md` §25.12 challenge table (3835) | Heavyweight "over 15 kg" | "over 33 lb (P1–2: over 18 lb)" |
+| `DESIGN.md` §25.12 challenge table (3835) | Heavyweight "over 15 kg" | "over 33 lb 0 oz (P1–2: over 18 lb 0 oz)" |
 | `DESIGN.md` §25.14 work list (4044 U2) | "the card shows cm, kg, class and favours" | add a new row **U20 Pounds** (ui, progression, data; S–M; this spec) and leave U2 as history |
 | `DESIGN.md` §869 (v1 Heavyweight row), §1838 kg column | v1 | none (v1 stays as written) |
 | `CONTRACT.md` §13.2 | `Fish += { … weight /*kg*/ … }` (980), journal `pbWeight` (990) | keep kg internally; add "**display**: `data.fishWeight(sp, fish)` → `data.fmtWeight`; never `fish.weight` directly in v3 UI" |
 | `CONTRACT.md` §13.5 | `fish:escaped {approxLength}` (1031) | unchanged payload; add "the ui words it as weight with `fmtWeightNear`" |
 | `CONTRACT.md` §13.7b ui ↔ audio (1422) | "`card:count {dur}` as the length counts up" | "as the weight counts up (driven by length: `cm = L·e(k)`, shown `W·(cm/L)³`)" |
-| `CONTRACT.md` §13.7 ui exports | ui-v3 | add `fmtCm` (re-export), `weightCount(w, W)`, `weightSizer(W)`; ui-af `nearWeight(D, sp, cm)` |
-| `CONTRACT.md` §13.8 | schema (1428), helpers row (1515), `BALANCE.ceremony` row (1479) | `size.k` table gains `trout`, `gar`, `conger`, `swampeel`; helpers add `fmtWeight`, `weightOz`, `fishWeight`, `fmtWeightNear`, `weightTarget`, `fmtCm`, `LB_PER_KG`, `OZ_PER_KG`; `AUTOFISH.gotAway.roundLb`; `TEXT_V3.newBest` uses `{w}`; `heavy_catch.params.lb`; `mmBelow` "read by `fmtLength` only" |
+| `CONTRACT.md` §13.7 ui exports | ui-v3 | add `fmtCm` (re-export), `weightCount(w, W)`, `weightSizer(W)` / `weightSizers(W)`, `weightHtml(text)`; ui-af `nearWeight(D, sp, cm)` |
+| `CONTRACT.md` §13.8 | schema (1428), helpers row (1515), `BALANCE.ceremony` row (1479) | `size.k` table gains `trout`, `gar`, `greateel`, `swampeel`; helpers add `fmtWeight`, `weightOz`, `fishWeight`, `fmtWeightNear`, `weightTarget`, `weightSpan`, `fmtCm`, `LB_PER_KG`, `OZ_PER_KG`; `AUTOFISH.gotAway.roundLb`; `TEXT_V3.newBest` uses `{w}`; `heavy_catch.params.lb`; `mmBelow` "read by `fmtLength` only" |
 | `CONTRACT.md` §13.10 | tests | add `pounds.test.mjs` and the leak pattern |
 | `docs/loop/SPEC.md` §8.2 | "name, class stamp and length as the hero" | "name, class stamp and **weight** as the hero, the length as a small line (cm)" |
 | `docs/loop/SPEC.md` §8.3 | the tally row | "the fish go onto Murk's scale one by one, **heaviest** last; each shows its weight (small) and its value ticking up…" |
@@ -700,7 +726,7 @@ presenter, a real river or a country: the cousins' names in §6 are docs-only, t
 - **The handwriting font and the fraction glyphs.**
   - Cedarville Cursive (`--f-hand`) may lack ¼ ½ ¾. The browser then takes them from the fallback font: legible, a slightly different
     hand.
-  - Only Smalls of the Cupbearer, and the half-pound bounty words, use them.
+  - Only the smallest fish use them (a Cupbearer, a Quayling): no target is worded with one (D10).
   - Check in the phone capture. If they look wrong, the hero can wrap the glyph in a `<span class="gw-frac">` set in `--f-body`.
 - **A wider hero.** `12 lb 13 oz` is about twice `178 cm`. The `--long` size step and the sizer handle it, but the docked
   desktop card (`.gw-cc-side`, 380–560 px) and the 390 px phone must be looked at once (§7.9).
@@ -753,7 +779,7 @@ before → after, from the two data builds (weights of the model, `k·L³`):
 | Rainglass Darter | minnow 0.01 → trout 0.011 | 39 cm: 1 lb 5 oz → **1 lb 7 oz** | Trophy top 61 cm: 5 lb 0 oz → **5 lb 8 oz** | 86 cm: 13 lb 15 oz → **15 lb 6 oz** |
 | Ossuary Fry | minnow 0.01 → minnow 0.013 | 23 cm: 4 oz → **6 oz** | Trophy top 37 cm: 1 lb 2 oz → **1 lb 7 oz** | 52 cm: 3 lb 3 oz → **4 lb 2 oz** |
 | Pallid Wraithfin | ghost 0.01 → ghost 0.006 | 46 cm: 2 lb 2 oz → **1 lb 5 oz** | Trophy top 76 cm: 9 lb 10 oz → **5 lb 12 oz** | 109 cm: 28 lb 7 oz → **17 lb 1 oz** |
-| Gilt-Eyed Eel | eel 0.0016 → conger 0.004 | 131 cm: 7 lb 15 oz → **19 lb 13 oz** | Trophy top 234 cm: 45 lb 2 oz → **113 lb** | 345 cm: 145 lb → **363 lb** |
+| Gilt-Eyed Eel | eel 0.0016 → greateel 0.004 | 131 cm: 7 lb 15 oz → **19 lb 13 oz** | Trophy top 234 cm: 45 lb 2 oz → **113 lb** | 345 cm: 145 lb → **363 lb** |
 | Funeral Veil | ghost 0.01 → ghost 0.006 | 42 cm: 1 lb 10 oz → **1 lb 0 oz** | Trophy top 62 cm: 5 lb 5 oz → **3 lb 3 oz** | 86 cm: 14 lb 1 oz → **8 lb 7 oz** |
 | Lampwarden Angler | angler 0.025 → angler 0.017 | 72 cm: 20 lb 9 oz → **14 lb 0 oz** | Trophy top 121 cm: 98 lb 13 oz → **67 lb 3 oz** | 121 cm: 98 lb 13 oz → **67 lb 3 oz** |
 | The Wax-Bearer | eel 0.0016 → eel 0.0022 | 127 cm: 7 lb 4 oz → **9 lb 15 oz** | Trophy top 209 cm: 32 lb 6 oz → **44 lb 8 oz** | 300 cm: 95 lb 11 oz → **132 lb** |
@@ -780,7 +806,7 @@ The Heavyweight was completed in play by a 24 lb 14 oz Trophy Weeping Carp (over
 | B1 | The hero's live figure is laid **over** its sizer, out of the flow (`position: absolute`), not beside it in one grid cell (§3.2) | the handwriting face has no tabular figures and its ¼ ½ ¾ are wide: measured in the browser, a passing "¼ oz" was 18 px wider than a final "3 oz" and "18 lb 10 oz" 6 px wider than "24 lb 14 oz". In a shared grid cell that moved the box; laid over the sizer nothing can move (the capture scenario asserts 0 px of change in the hero's box, the stamp and the list) |
 | B2 | The hero's two parts are `<i>`, not `<span>` | `.gw-cc-stamp span` styles every span in the stamp row as a rubber stamp |
 | B3 | `.gw-cc-v3 .gw-cc-stamp` wraps (`flex-wrap`, 8 px between the rows) | on a 390 px phone a Trophy's stamp, its seal and "24 lb 14 oz" are wider than the card: the figure takes the next line (§3.2 allowed it). A Keeper's "1 lb 8 oz" still sits beside its stamp |
-| B4 | `recordLines`' sub-line says the gain **as the two figures read** ("New best: 23 lb 4 oz (was 15 lb 2 oz)" → "8 lb 2 oz past your old mark"), and falls back to the true gain only when the two read the same | `fmtWeight(Wnow − Wprev)` (§3.4) can be an ounce off the difference of the two printed figures |
+| B4 | `recordLines`' sub-line says the gain **as the two figures read** ("New best: 23 lb 4 oz (was 15 lb 2 oz)" → "8 lb 2 oz past your old mark"). (After the review, §12 item 1: two figures that read the same are no best at all, so there is no fall-back) | `fmtWeight(Wnow − Wprev)` (§3.4) can be an ounce off the difference of the two printed figures |
 | B5 | `ui-screens.js` still calls `fmtLength` once, on the Journal's kept v1 arm (flag off, a save that carries `pbLength`) | §7 item 8 asked for none, but the v1 arm must stay character for character; the test asserts the call sits only on a `// v1` line |
 | B6 | `progression-af.approxText(D, sp, cm)` is kept and now returns the near weight | one helper for the summary's got-away lines; its test moved with it |
 | B7 | A heavy bounty saved in kg is re-told in `progression-market`'s `decorate` (every read of the ledger), not only in the ledger row | the toasts ("Bounty honoured: …") read the same text |
@@ -791,7 +817,31 @@ The Heavyweight was completed in play by a 24 lb 14 oz Trophy Weeping Carp (over
 | B12 | The captures use a new scenario, `tools/tests/pounds-shots.scenario.mjs` (1280×720 and 390×844), not `catch-shots` (§7.9) | `catch-shots` is stale since the show; the new one also checks the card in the DOM (the hero, the length line, no kg, the count never falling, nothing moving or overflowing) |
 
 **Checked in the browser** (the risks of §10): the handwriting face draws its own ¼ ½ ¾ (measured against the fallback faces: different
-advances), so no body-font span is needed; the docked desktop card and the 390 px phone card hold "24 lb 14 oz" without overflow.
+advances), so the fractions need no body-font span (the unit letters do: §12 item 4); the docked desktop card and the 390 px phone card
+hold "24 lb 14 oz" without overflow.
 
 **Not done here:** `docs/loop/QUEUE.md` job 3 is left for the lead to mark at the merge. The loop's rules (§5) are written into
 `docs/loop/SPEC.md`; there is no loop code yet to apply them to.
+
+---
+
+## 12. After the review (branch `gw-pounds`)
+
+The review found no defect that had to block the merge, six things that should change and five that could. What was done with each,
+so the document and the code agree. The sections above are already amended; this is the record.
+
+| # | the finding | done |
+|---|---|---|
+| 1 | **A best that read the same figure twice.** A personal best was decided by length (to 0.1 cm) and shown in whole ounces, so a fish a hair longer read "New best: 5 oz (was 5 oz)", "¼ oz past your old mark" (about a third of small minnow bests) | **Fixed (D14).** The mark is kept by length and a best is **told** only when `weightOz` rises: `progression.measure` gates the `pb` record, `isRecord` (so the kicker, the "biggest yet!" note and the Wick's cheer) and the summary line on it; `recordLines` and the summary also drop a saved record whose two figures read the same. The gain is always the difference of the two printed figures. Tests: `ui-screens-v3` (the tie, one ounce up, the whole-pound band), `progression-v3` (the mark moves, nothing is told, then one ounce up is told against the moved mark), and the capture scenario lands two perch a tenth of a centimetre apart |
+| 2 | **Targets in a third format.** "over 1½ lb", "over 9 lb": the card beside them read "1 lb 8 oz" | **Fixed (D10).** `weightTarget` keeps its round units and words the target with `fmtWeight`: "over 6 oz", "over 1 lb 8 oz", "over 9 lb 0 oz". The Heavyweight reads "over 18 lb 0 oz" and "over 33 lb 0 oz". No target carries a fraction glyph |
+| 3 | **The play's estimate is still a class word**, where the ruling's list names it | **Kept, and put to the lead (D6).** A true weight during a play is `k·L³` and names the body, against the user's own rule that the fish on the line cannot be told (DESIGN §25.0.1 row 8, §25.6.10; the species-swap test). A species-blind figure was measured and is not usable, because a class is cut on the size score and not on weight: in the preview build's Mossmere (seven fish, phase 1) a Keeper runs `4 oz – 10 lb 3 oz`, a Prize `7 oz – 17 lb 5 oz` and a Trophy `11 oz – 34 lb 14 oz` (a typical Prize minnow is 9 oz and a typical Prize carp 12 lb 14 oz: ×24). With every lake's full roster a Prize's typical fish are ×12 apart in Sporewood, ×34 in Glasswater, ×114 in the Pallid Deep and ×610 in the Mossmere (its 8 cm Cupbearer beside its carp). A band that wide says nothing, and a single figure would be wrong by one or two orders of magnitude for some fish. The numeric estimate stays the got-away note's "near N lb", after the loss. **The lead's sign-off is asked for at the merge**; the line to write into QUEUE job 3 is: "the play's estimate stays a class word (a weight during a play would name the fish: the user's rule of row 8); the numeric estimate is the got-away note's 'near N lb'". `docs/loop/QUEUE.md` is not edited on this branch: the lead's checkout has rewritten the lines around job 3 since the base, so an edit here would conflict at the merge |
+| 4 | **"lb" read "eb"** on every hero: the handwriting face draws a looped l | **Fixed.** `ui-v3.weightHtml` puts each unit in `<i class="gw-u">`, and `.gw-u` sets it in the body face (italic, a size down, close to its number). It is used wherever a weight is written in the hand: the hero and its count, the handwritten note, a full card's creel rows. The hero's `textContent` and `aria-label` are still the plain figure. The capture scenario checks each unit's face and size |
+| 5 | **The loop's documents disagreed** (the SPEC: heaviest last, weights stored; the slice-1a PLAN: a length hero, rows by clams, lengths stored) | **Fixed in both.** One order: lightest first, heaviest last, by `weightOz`; ties by clams, then catch order; giants and legends last. One store: `lastTrip.lines` keep the **length** and the tally derives the weight (D5), so this spec's §5.1 and the loop SPEC §8.3 no longer store a weight. The PLAN is amended in place (its header's pounds paragraph; T43's allow-list, the tally, the card, `tallyLines`, the save example, §5.2) |
+| 6 | **The sizer was called "the widest figure the count shows"**, but a final in ounces was passed by wider quarter figures (18 px past the box) | **Fixed.** The sizer now holds several figures laid one over another (`weightSizers`: the final, "(P − 1) lb 15 oz", and the quarters a final under a pound passes), so the box is as wide as the widest of them; the comment and CONTRACT say what remains (a figure with other digits can run a pixel or two past: the hand has no tabular figures). The capture scenario allows 4 px |
+| 7 | **`weightOz` compared whole ounces where the card shows whole pounds** (from 100 lb), and `weightOz(Infinity)` was `Infinity` | **Fixed.** `weightOz` is now exactly the figure `fmtWeight` prints, in every band (quarters, whole ounces, whole pounds), 0 for no weight, and `fmtWeight` is built on it, so the two cannot drift. ui-v3's private copy is gone. The validator and `pounds.test` sweep 0.1 g to 500 kg for the identity |
+| 8 | **An old saved bounty kept "at least" under words that say "over"** | **Fixed.** When its words are re-told it takes `targetOz = weightOz(b.kg)` and so the new check. What remains for its last day: the target was drawn under the old `k` |
+| 9 | **Real fish names as body keys** (`trout`, `conger`) | **`conger` renamed `greateel`; `trout`, `gar` and `swampeel` kept.** The project's own list of real species' names (`roster-check.mjs` `REAL_NAMES`) holds "conger" and expressly allows family words such as trout, gar, eel and pike; `trout` and `gar` are also the roster's own body-plan names (`roster.json.newBodyPlans`), which the slice-1b converter writes into `size.k` by rule, and the game already ships a Vesper Gar and a Pilgrim Salmon. The validator and `pounds.test` now refuse a real species' name as a key (§6.4 rule 2) |
+| 10 | **The Journal's range ran to the ceiling** ("10 oz – 17 lb 11 oz" for a perch) | **Fixed (D13).** The range runs to a top Trophy and the ceiling is told under it as hearsay: "10 oz – 5 lb 15 oz", "said to reach 17 lb 11 oz" (`data.weightSpan`, `TEXT_V3.saidToReach`). The size model itself is unchanged: an Elder perch of 85 cm is still in the game, where giants live |
+
+**Still open, for the lead:** item 3's sign-off; the word "near" against the ruling's "about" (D7, one data string); the low-confidence
+cousins of §6 (rays, jellies, the ghost fish, the swamp eel) and Old Portcullis at +28% until slice 1b gives it a catfish constant.

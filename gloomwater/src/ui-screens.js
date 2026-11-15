@@ -5,7 +5,7 @@
 import { loadSave } from './core.js';
 import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
-import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizer } from './ui-v3.js';
+import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizers, weightHtml } from './ui-v3.js';
 import * as AF from './ui-af.js';
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -777,10 +777,11 @@ export function createScreens(K) {
       // declutter: a new name, a record, a legend, a class first or a named Elder keeps its kicker, note, epithet and lore on the
       // card; an ordinary catch shows name, class, its size and the actions, the rest one tap away ("more")
       const sx = N.special ? '' : ' gw-cc-xtra';
-      // v3: the hero is the weight. A hidden sizer (the widest figure the count shows) gives the hero its box and the live figure
-      // lies over it, so the stamp row never moves while the count runs; a pounds-and-ounces figure ("12 lb 13 oz") takes a
-      // smaller hand. (Its two parts are <i>, not <span>: every span inside the stamp row is drawn as a rubber stamp)
-      const heroHtml = N.v3 ? `<b class="gw-cc-hero${N.wt.length >= 9 ? ' gw-cc-hero--long' : ''}" aria-label="${esc(N.wt)}"><i class="gw-cc-hero-sizer" aria-hidden="true">${esc(weightSizer(N.W))}</i><i class="gw-cc-hero-n">${esc(N.wt)}</i></b>` : '';
+      // v3: the hero is the weight. A hidden sizer gives the hero its box (the final figure and the wide ones the count passes,
+      // laid one over another: weightSizers) and the live figure lies over it, so the stamp row never moves while the count
+      // runs; a pounds-and-ounces figure ("12 lb 13 oz") takes a smaller hand. The unit letters are set apart (weightHtml: the
+      // hand's "lb" reads "eb"). (Its parts are <i>, not <span>: every span inside the stamp row is drawn as a rubber stamp)
+      const heroHtml = N.v3 ? `<b class="gw-cc-hero${N.wt.length >= 9 ? ' gw-cc-hero--long' : ''}" aria-label="${esc(N.wt)}"><i class="gw-cc-hero-sizer" aria-hidden="true">${weightSizers(N.W).map((t) => `<i>${weightHtml(t)}</i>`).join('')}</i><i class="gw-cc-hero-n">${weightHtml(N.wt)}</i></b>` : '';
       // v3: the hero weight and the kicker carry the record, so the handwritten note (weight, phrase, bait and hour) folds behind
       // "more"; the lore and the epithet are up front only for a new name, a legend or an Ancient
       const nx = N.v3 ? ' gw-cc-xtra' : sx;
@@ -789,7 +790,7 @@ export function createScreens(K) {
           <div class="gw-cc-left">
             <div class="gw-cc-art"></div>
             ${live ? '<div class="gw-cc-rule">' : ''}<svg class="gw-cc-measure" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><g filter="url(#gw-brush)"><path d="M8 18 H392" stroke-width="2"/><path d="M8 8 V28 M392 8 V28" stroke-width="2.4"/><path d="M56 14 V22 M104 14 V22 M152 14 V22 M200 12 V24 M248 14 V22 M296 14 V22 M344 14 V22" stroke-width="1.3" opacity=".6"/></g></svg>${live ? `${ruleKnots}</div>` : ''}
-            <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${esc(N.v3 ? N.wt : N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
+            <p class="gw-cc-note${nx}">${N.name ? `${esc(N.name)}, ` : ''}${N.v3 ? weightHtml(N.wt) : esc(N.len)}${N.phrase ? `, ${esc(N.phrase)} ` : ''}<span class="gw-cc-note-more gw-cc-xtra">${N.phrase ? '' : ', '}${esc(N.more)}</span></p>
           </div>
           <div class="gw-cc-right">
             <div class="gw-cc-kicker${sx}">${esc(N.kicker)}</div>
@@ -824,7 +825,7 @@ export function createScreens(K) {
           const fy = fishYields(f);
           const row = h('div', 'gw-room-row');
           row.appendChild(fishCanvas(fsp, 56, 30));
-          row.insertAdjacentHTML('beforeend', `<span class="gw-room-name">${esc(fsp?.name || f.speciesId)}<small>${V3() ? esc(lbs(fsp, f)) : fmtKg(f.weight)}</small></span>`);   // v1
+          row.insertAdjacentHTML('beforeend', `<span class="gw-room-name">${esc(fsp?.name || f.speciesId)}<small>${V3() ? weightHtml(lbs(fsp, f)) : fmtKg(f.weight)}</small></span>`);   // v1
           row.appendChild(btn(`Eat <em>+${fy.food}</em>`, { cls: 'gw-btn--sm gw-cc-act', hooks: false, brush: true, onClick: () => { if (doFishAction(f, 'eat')) entry.render(); } }));
           row.appendChild(btn(`Render <em>+${fy.oil}</em>`, { cls: 'gw-btn--sm gw-cc-act', hooks: false, brush: true, onClick: () => { if (doFishAction(f, 'render')) entry.render(); } }));
           list.appendChild(row);
@@ -869,7 +870,9 @@ export function createScreens(K) {
           // the count is driven by the length (the bead, the knots and the cord's ticks run as built) and shows the weight of that
           // length, W · (cm / L)³, in the final figure's own band (ounces, pounds and ounces, or whole pounds for a giant)
           const say = (cm) => weightCount(N.W * (cm / L) ** 3, N.W);
-          hero.textContent = say(0);
+          let said = null;
+          const write = (t) => { if (t !== said) { said = t; hero.innerHTML = weightHtml(t); } };   // (the units keep their own face)
+          write(say(0));
           // (a card closed, or drawn again, before its stamp has pressed still stamps: the seal is heard once for every fish)
           const press = () => { if (pressed) return; pressed = true; if (s.stamped) return; s.stamped = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); };
           const step = () => {
@@ -878,7 +881,7 @@ export function createScreens(K) {
             if (!started && t >= from) { started = true; emit('card:count', { dur: dur / 1000 }); }
             const k = Math.min(1, Math.max(0, (t - from) / dur)), e2 = 1 - (1 - k) * (1 - k) * (1 - k);
             const cm = L * e2;
-            hero.textContent = k >= 1 ? N.wt : say(cm);
+            write(k >= 1 ? N.wt : say(cm));
             if (bead && rule) bead.style.left = `${(2 + 96 * Math.max(0, Math.min(1, cm / rule.max))).toFixed(2)}%`;
             for (const kn of knots) if (!kn.classList.contains('gw-on') && num(Number(kn.dataset.cm)) <= cm + 1e-6) kn.classList.add('gw-on');
             if (k >= 1 && !pn.classList.contains('gw-cc-counted')) pn.classList.add('gw-cc-counted');
@@ -1366,7 +1369,11 @@ export function createScreens(K) {
           // species' range in pounds and ounces. Flag off, both read as v1 wrote them
           const jBig = V3() ? esc(fmtWeight(fishWeight(sp, { length: pb, weight: num(rec.pbWeight) || num(rec.biggest) })))
             : pb > 0 ? esc(fmtLength(pb, D())) : rec.biggest ? fmtKg(rec.biggest) : '—';   // v1
-          const jRange = V3() ? (arr(sp.weight).length ? esc(`${fmtWeight(sp.weight[0])} \u2013 ${fmtWeight(sp.weight[1])}`) : '—')
+          // (the range runs from its smallest to a top Trophy, the most open water holds; the ceiling, an Elder's, is what it is
+          // "said to reach": a perch page reads "10 oz – 5 lb 15 oz", then "said to reach 17 lb 11 oz")
+          const span = V3() ? D().weightSpan?.(sp) : null;
+          const reach = span && fmtWeight(span.reach) !== fmtWeight(span.top) ? fill(D().TEXT_V3?.saidToReach || 'said to reach {w}', { w: fmtWeight(span.reach) }) : '';
+          const jRange = V3() ? (span ? `<span class="gw-facts-range">${esc(`${fmtWeight(span.min)} \u2013 ${fmtWeight(span.top)}`)}</span>${reach ? `<small class="gw-facts-sub">${esc(reach)}</small>` : ''}` : '—')
             : arr(sp.weight).length ? `${sp.weight[0]}–${sp.weight[1]} kg` : '—';   // v1
           det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3>${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
             <div class="gw-kicker" style="--rc:${K.rarityCss(sp.rarity)}">${esc(RARITY_LABEL[sp.rarity] || '')}</div>

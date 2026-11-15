@@ -2667,9 +2667,10 @@ export const BALANCE_V3 = {
     elsewhereMaxZ: 2.64,              // … everywhere else z is clamped to a top Trophy
     classMaxZ: { keeper: 1.039, prize: 1.879, trophy: 2.64, elder: 3.6 },   // maxClass → z clamp (fry water: prize; Lampwarden: trophy)
     // k per body (g/cm³), each checked against a real cousin's weight at the same length (within ±30%; docs/v3/pounds/SPEC.md §6).
-    // A fish whose cousin is far off its plan gets its own key (trout, gar, conger, swampeel), never a per-fish number.
+    // A fish whose cousin is far off its plan gets its own key (trout, gar, greateel, swampeel), never a per-fish number. A key is a
+    // plain family or build word, never a real species' own name (tools/sim/roster-check.mjs REAL_NAMES).
     k: { minnow: 0.013, perch: 0.013, crayfish: 0.030, carp: 0.016, koi: 0.015, pike: 0.0075, eel: 0.0022, angler: 0.017,
-      ray: 0.012, puffer: 0.030, jelly: 0.020, ghost: 0.006, sturgeon: 0.006, trout: 0.011, gar: 0.0030, conger: 0.0040, swampeel: 0.0016 },
+      ray: 0.012, puffer: 0.030, jelly: 0.020, ghost: 0.006, sturgeon: 0.006, trout: 0.011, gar: 0.0030, greateel: 0.0040, swampeel: 0.0016 },
     sigma: [0.09, 0.175], giantTailSigma: 0.16, maxReachRatio: 2.8,       // validated: σ range, ≥ 2 giant tails per lake, ceiling ≤ 2.8 × median
     elderKeeperRatio: { elderZ: 3.0, keeperZ: 0.4, range: [1.58, 2.0] }, // an Elder is ≈ 1.6–2.0× a typical Keeper's length
     legend: { sigma: 0.02, minRatio: 1.4, growthWeight: 0.07, growthLength: 0.023, growthCap: 1.5 },   // authored; ≥ 1.4× the lake's longest reach; +7% per landing, cap × 1.5 weight
@@ -3095,7 +3096,7 @@ export const SPECIES_V3 = [
   sv3('ossuary_fry', { size: sz(23, 0.12, 'minnow'), family: 'insect', prefers: 'mist', phase: 1, src: 'v1' }),
   sv3('pallid_wraithfin', { size: sz(46, 0.13, 'ghost'), family: 'predator', prefers: 'hush', phase: 1, src: 'v1' }),
   sv3('bonecrook_crayfish', { size: sz(27, 0.10, 'crayfish'), family: 'bottom', prefers: 'drip', phase: 1, src: 'v1' }),
-  sv3('gilt_eyed_eel', { size: sz(131, 0.16, 'conger'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', reference: true }),
+  sv3('gilt_eyed_eel', { size: sz(131, 0.16, 'greateel'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', reference: true }),
   sv3('shroud_ray', { size: sz(82, 0.14, 'ray'), family: 'bottom', prefers: 'hush', phase: 1, src: 'v1' }),
   sv3('funeral_veil', { size: sz(42, 0.09, 'ghost'), family: 'glow', prefers: 'drip', phase: 1, src: 'v1' },
     { hint: 'It follows the night the way a widow follows a cart.' }),
@@ -4416,7 +4417,7 @@ const CHALLENGE_REWRITES_V3 = {
   night_angler:       { desc: 'Land 3 fish during a single night.', scope: 'expedition' },
   perfect_10_run:     { desc: 'Set 10 perfect hooks in one expedition.', scope: 'expedition' },
   kindled:            { desc: 'Reach level 15 in one expedition.', scope: 'expedition' },
-  heavy_catch:        { desc: 'Land a non-legendary fish over 33 lb.', params: { lb: 33, excludeLegendary: true } },
+  heavy_catch:        { desc: 'Land a non-legendary fish over 33 lb 0 oz.', params: { lb: 33, excludeLegendary: true } },   // the card's own figure (fmtWeight)
   catch_100:          { desc: 'Land 100 fish.' },
   shells_1000_run:    { desc: 'Earn 1000 Shells in one expedition.', scope: 'expedition' },
   kindle_one:         { desc: 'Kindle a weapon, or raise an Angler Boon to level 5.', scope: 'expedition', alt: { type: 'boonLevel', params: { pool: 'angler', level: 5 } } },
@@ -4687,6 +4688,7 @@ export const TEXT_V3 = {
   lampWatchLeave: 'You left the lamp-watch. The Gloom stirs.',                                 // survival, > 10 m out of the pool
   lampWatchCast: 'On a lamp-watch you fish within {m} m of the lamp.',                          // fishing, a cast beyond the limit is refused
   newBest: 'New best: {w} (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
+  saidToReach: 'said to reach {w}',   // the Journal's Weight row: the ceiling (an Elder's), under the species' ordinary range
   stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
   firstEvening: FIRST_EVENING.text,   // FE-D1: the opening's lore lines, Murk's lines, the ribbon and the Skip / Replay words (one source)
   // (D1′: the near-miss card's line, its cause names and its tension tips are retired; the got-away note's words are AUTOFISH.text)
@@ -4763,22 +4765,28 @@ export function sizeWeight(sp, cm) { return (sp.size.k * cm ** 3) / 1000; }
 export const LB_PER_KG = 2.20462262185;              // 1 lb = 0.45359237 kg exactly
 export const OZ_PER_KG = 35.27396195;                // 16 × LB_PER_KG
 const QUARTERS = ['\u00bc', '\u00bd', '\u00be'];     // ¼ ½ ¾
+/** The ounces a weight reads as on screen, exactly the figure fmtWeight prints: quarters under 1 oz (never below ¼), whole ounces
+ *  to under 100 lb, whole pounds beyond. Every size comparison the player can see in v3 (a personal best, a heavy bounty, the
+ *  Heavyweight) is made on it, so the words, the card and the check can never disagree. 0 for no weight. */
+export function weightOz(kg) {
+  if (typeof kg !== 'number' || !Number.isFinite(kg) || kg <= 0) return 0;
+  const oz = kg * OZ_PER_KG;
+  const q = Math.round(oz * 4);                       // quarters
+  if (q < 4) return Math.max(1, q) / 4;
+  const w = Math.round(oz);                           // whole ounces (q ≥ 4 ⇒ w ≥ 1)
+  return w < 1600 ? w : Math.round(oz / 16) * 16;     // 100 lb and up: whole pounds
+}
 /** "¼ oz" … "15 oz" · "1 lb 0 oz" … "99 lb 15 oz" · "100 lb" … "7,055 lb"; "—" for no weight. Rounds once, to whole ounces
  *  (under 1 oz to the nearest quarter, never below ¼), then carries: never "16 oz", "1 lb 16 oz" or "100 lb 0 oz". */
 export function fmtWeight(kg, { nbsp = false } = {}) {
-  if (typeof kg !== 'number' || !Number.isFinite(kg) || kg <= 0) return '\u2014';
+  const w = weightOz(kg);
+  if (!(w > 0)) return '\u2014';
   const sp = nbsp ? '\u00a0' : ' ';
-  const oz = kg * OZ_PER_KG;
-  const q = Math.round(oz * 4);                       // quarters
-  if (q < 4) return `${QUARTERS[Math.max(1, q) - 1]}${sp}oz`;
-  const w = Math.round(oz);                           // whole ounces (q ≥ 4 ⇒ w ≥ 1)
+  if (w < 1) return `${QUARTERS[w * 4 - 1]}${sp}oz`;
   if (w < 16) return `${w}${sp}oz`;
-  const lb = Math.floor(w / 16);
-  if (lb < 100) return `${lb}${sp}lb${sp}${w % 16}${sp}oz`;   // "4 lb 6 oz"
-  return `${Math.round(oz / 16).toLocaleString('en-US')}${sp}lb`;
+  if (w < 1600) return `${Math.floor(w / 16)}${sp}lb${sp}${w % 16}${sp}oz`;   // "4 lb 6 oz"
+  return `${(w / 16).toLocaleString('en-US')}${sp}lb`;
 }
-/** The whole ounces the card shows (the unit every size comparison in v3 uses). 0 for no weight. */
-export function weightOz(kg) { return typeof kg === 'number' && kg > 0 ? Math.round(kg * OZ_PER_KG) : 0; }
 /** A fish's weight for the player: derived from its length with the species' k (so a retune reaches old saves), else the stored kg. */
 export function fishWeight(sp, fish) {
   const L = Number(fish?.length);
@@ -4794,15 +4802,15 @@ export function fmtWeightNear(kg, steps = [[10, 1], [100, 5], [1000, 25], [Infin
   const step = (steps.find(([below]) => lb < below) || steps[steps.length - 1])[1];
   return `${Math.max(step, Math.round(lb / step) * step).toLocaleString('en-US')} lb`;
 }
-/** A round target for "over {w}" (a heavy bounty, a Murk's order): under 1 lb whole oz; 1–3 lb in half pounds ("1½ lb");
- *  3 lb and up whole pounds; never above capKg (the top Keeper's weight). Returns {oz, kg, text}. */
+/** A round target for "over {w}" (a heavy bounty, a Murk's order): a round unit (whole ounces under 1 lb, half pounds from 1 to
+ *  3 lb, whole pounds beyond), never above capKg (the top Keeper's weight), and worded as the card words a weight (fmtWeight:
+ *  "6 oz", "1 lb 8 oz", "9 lb 0 oz"), so the player compares like with like. Returns {oz, kg, text}. */
 export function weightTarget(kg, capKg = Infinity) {
   const oz = kg * OZ_PER_KG, cap = capKg * OZ_PER_KG;
   const unit = oz < 15.5 ? 1 : oz < 47.5 ? 8 : 16;    // whole oz · half pound · whole pound
   let t = Math.max(1, Math.round(oz / unit) * unit);
   if (t > cap) t = Math.max(1, Math.floor(cap / unit) * unit);
-  const text = t < 16 ? `${t} oz` : t % 16 === 8 ? `${(t - 8) / 16}\u00bd lb` : `${t / 16} lb`;
-  return { oz: t, kg: t / OZ_PER_KG, text };
+  return { oz: t, kg: t / OZ_PER_KG, text: fmtWeight(t / OZ_PER_KG) };
 }
 /** The card's length line: cm always (one decimal under 20 cm): "8.4 cm", "112 cm", "850 cm". */
 export function fmtCm(cm) { cm = Number(cm); if (!(cm > 0)) return '\u2014'; return cm < 20 ? `${Math.round(cm * 10) / 10} cm` : `${Math.round(cm)} cm`; }
@@ -4815,6 +4823,19 @@ export function maxZFor(sp) { return SZB.classMaxZ[sp.maxClass] ?? SZB.reachZ; }
 export function reachOf(sp, zone = null) {
   if (sp.rarity === 'legendary') return sizeL50(sp) * Math.cbrt(SZB.legend.growthCap);
   return sizeLength(sp, maxZFor(sp), zone);
+}
+/** A species' weights for its Journal page (kg): {min, top, reach}. `min` is its smallest fish and `reach` what it is "said to
+ *  reach" (the ends of the derived `weight` pair); `top` is a top Trophy (z at `elsewhereMaxZ`, or the species' own class cap), the
+ *  most open water holds: Elders live only where giants do. Legends: first landing to fully grown. null with no weights. */
+export function weightSpan(sp) {
+  const w = sp?.weight;
+  if (!Array.isArray(w) || w.length < 2) return null;
+  if (!sp.size || sp.rarity === 'legendary') return { min: w[0], top: w[1], reach: w[1] };
+  const L50 = typeof sp.size.L50 === 'number' ? sp.size.L50 : Math.min(...Object.values(sp.size.L50));   // (as the derived pair: the smallest lake's)
+  const z = SZB.elsewhereMaxZ;
+  if (maxZFor(sp) <= z) return { min: w[0], top: w[1], reach: w[1] };   // capped at a Trophy or under: its ceiling is its top
+  const top = sizeWeight(sp, L50 * Math.exp(sp.size.sigma * z + SZB.tail * Math.max(0, z - SZB.tailFrom) ** 2));
+  return { min: w[0], top: Math.min(top, w[1]), reach: w[1] };
 }
 /** The float's favour notches (0–5) for μ. */
 export function favourNotches(mu) { let n = 0; for (const t of BALANCE_V3.favour.notches) if (mu >= t) n++; return n; }
@@ -5126,7 +5147,7 @@ if (V3_ENABLED) {
   const hb = BOUNTIES.find((x) => x.id === 'heavy');
   if (hb) Object.assign(hb, { text: 'Land a {species} over {w}.' });
   const hc = CHALLENGES.find((c) => c.id === 'heavy_catch');
-  if (hc && P < 3) Object.assign(hc, { desc: 'Land a non-legendary fish over 18 lb.', params: { lb: 18, excludeLegendary: true } });
+  if (hc && P < 3) Object.assign(hc, { desc: 'Land a non-legendary fish over 18 lb 0 oz.', params: { lb: 18, excludeLegendary: true } });
   if (P >= 3) { RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk)); }
   BOONS.push(...BOONS_V3);
   for (const b of BOONS) if (ANGLER_POOL.includes(b.id) && !b.tags.includes('angler')) b.tags = [...b.tags, 'angler'];

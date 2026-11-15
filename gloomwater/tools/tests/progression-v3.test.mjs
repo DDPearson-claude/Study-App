@@ -527,7 +527,7 @@ section('pounds: records, the run\'s biggest, heavy bounties and the Heavyweight
     for (let L = Math.cbrt((oz - 2) / D.OZ_PER_KG * 1000 / sp.size.k); L < 2000; L += 0.005) if (D.weightOz(D.fishWeight(sp, { length: L })) === oz) { f.length = L; f.weight = D.sizeWeight(sp, L); return f; }
     return null;
   };
-  // ---- a PB is still kept by length (the same test as by weight for one species) and told in weight
+  // ---- a PB is kept by length (the hidden truth) and told in weight, only when the figure the card shows rises
   const env = makeCtx();
   const { P, ctx } = env;
   const run = startRun(env, { nightMode: 'still' });
@@ -544,6 +544,27 @@ section('pounds: records, the run\'s biggest, heavy bounties and the Heavyweight
   // a legacy record with no length (a save from before lengths): its stored kg, in pounds
   run.flags.records = [{ speciesId: 'reedjaw_pike', weight: 10.54, length: 112, prev: 6.2, prevLength: null }];
   ok(P.summarizeRun('victory-preview').records.includes('Reedjaw Pike · New best: 23 lb 4 oz (was 13 lb 11 oz)'), 'a legacy record with no length reads its stored kg in pounds');
+  // a fish a hair longer than the old mark that reads the same weight: the mark moves (length is the hidden truth), nothing is told
+  {
+    const e4 = makeCtx();
+    const run4 = startRun(e4, { nightMode: 'still' });
+    const minnow = data.SPECIES_BY_ID.dusk_minnow;
+    const mk = (L) => { const f = e4.P.makeFish('dusk_minnow', 0); f.length = L; f.weight = data.sizeWeight(minnow, L); return f; };
+    const shown = (L) => fmtWeight(fishWeight(minnow, { length: L }));
+    eq([shown(22.2), shown(22.6), shown(23.2)], ['5 oz', '5 oz', '6 oz'], 'three minnows: two read 5 oz, the third 6 oz');
+    e4.P.measure(mk(22.2));
+    const tie = e4.P.measure(mk(22.6));
+    eq([tie.records.some((x) => x.kind === 'pb'), tie.isRecord, e4.last('fish:landed').isRecord, e4.last('fish:measured').records.some((x) => x.kind === 'pb')], [false, false, false, false], 'a 22.6 cm minnow after a 22.2 cm one (both 5 oz): no best is told, on the result or on either event');
+    eq([e4.ctx.state.meta.journal.dusk_minnow.pbLength, (run4.flags.records || []).length], [22.6, 0], '… but the mark itself moves to the longer fish, and the summary gets no line');
+    ok(!e4.P.summarizeRun('victory-preview').records.some((l) => /New best/.test(l)), '… and the summary says no "New best"');
+    const up = e4.P.measure(mk(23.2));
+    const pb4 = up.records.find((x) => x.kind === 'pb');
+    eq([!!pb4, pb4?.prevLength, up.isRecord, e4.last('fish:landed').isRecord], [true, 22.6, true, true], 'one ounce up (6 oz) is a best, against the moved mark');
+    ok(e4.P.summarizeRun('victory-preview').records.includes('Dusk Minnow · New best: 6 oz (was 5 oz)'), 'the summary tells it: "New best: 6 oz (was 5 oz)"');
+    // a record line saved by an older build whose two figures read the same is not told either
+    run4.flags.records = [{ speciesId: 'dusk_minnow', weight: 0.15, length: 22.6, prev: 0.142, prevLength: 22.2 }];
+    ok(!e4.P.summarizeRun('victory-preview').records.some((l) => /New best/.test(l)), 'a saved record that reads "5 oz (was 5 oz)" is dropped from the summary');
+  }
 
   // ---- across species the run's biggest is the heaviest, not the longest
   for (const order of [['gilt_eyed_eel', 'mirror_pike'], ['mirror_pike', 'gilt_eyed_eel']]) {
@@ -565,37 +586,41 @@ section('pounds: records, the run\'s biggest, heavy bounties and the Heavyweight
       const sp = data.SPECIES_BY_ID[hb.target];
       const capKg = data.sizeWeight(sp, data.sizeLength(sp, 1.04, run.zone));
       const T = weightTarget(V3H.heavyTargetKg(data, sp, 0.75, run.zone), capKg);
-      if (!(new RegExp(`^Land an? .+ over (\\d+ oz|\\d+½? lb)\\.$`).test(hb.text)) || hb.targetOz !== T.oz || !hb.text.endsWith(`over ${T.text}.`) || hb.targetOz > capKg * OZ_PER_KG + 1e-9 || Math.abs(hb.kg * OZ_PER_KG - hb.targetOz) > 1e-9 || /kg/.test(hb.text)) {
+      if (!(new RegExp(`^Land an? .+ over (\\d{1,2} oz|\\d{1,2} lb \\d{1,2} oz|[\\d,]+ lb)\\.$`).test(hb.text)) || /[¼½¾]/.test(hb.text) || T.text !== fmtWeight(hb.kg) || data.weightOz(hb.kg) !== hb.targetOz || hb.targetOz !== T.oz || !hb.text.endsWith(`over ${T.text}.`) || hb.targetOz > capKg * OZ_PER_KG + 1e-9 || Math.abs(hb.kg * OZ_PER_KG - hb.targetOz) > 1e-9 || /kg/.test(hb.text)) {
         ok(false, `heavy bounty: words, ounces and cap (${JSON.stringify({ text: hb.text, targetOz: hb.targetOz, kg: hb.kg, want: T, capOz: capKg * OZ_PER_KG })})`);
       }
     }
   }
-  ok(seen >= 20 && texts.size >= 3, `${seen} heavy bounties over ${texts.size} wordings, each "over N oz / N½ lb / N lb" with targetOz = weightTarget(…) ≤ the top Keeper (${[...texts].slice(0, 4).join(' · ')})`);
+  ok(seen >= 20 && texts.size >= 3, `${seen} heavy bounties over ${texts.size} wordings, each in the card's own figure ("over 6 oz", "over 1 lb 8 oz", "over 9 lb 0 oz") with targetOz = weightTarget(…) ≤ the top Keeper (${[...texts].slice(0, 4).join(' · ')})`);
   // the check: the ounces the card shows, strictly over the target
-  const hb = { id: 'b-heavy', templateId: 'heavy', type: 'heavy', text: 'Land a Weeping Carp over 9 lb.', zone: run.zone, target: 'weeping_carp', count: 1, progress: 0, reward: { shells: 5 }, expiresDay: 99, offeredDay: 1, memories: 0, kg: 144 / OZ_PER_KG, targetOz: 144 };
+  const hb = { id: 'b-heavy', templateId: 'heavy', type: 'heavy', text: 'Land a Weeping Carp over 9 lb 0 oz.', zone: run.zone, target: 'weeping_carp', count: 1, progress: 0, reward: { shells: 5 }, expiresDay: 99, offeredDay: 1, memories: 0, kg: 144 / OZ_PER_KG, targetOz: 144 };
   run.bounties = [hb];
   const carp = data.SPECIES_BY_ID.weeping_carp;
   const at9 = fishAtOz(P, 'weeping_carp', 144), over9 = fishAtOz(P, 'weeping_carp', 145);
   eq([fmtWeight(fishWeight(carp, at9)), fmtWeight(fishWeight(carp, over9))], ['9 lb 0 oz', '9 lb 1 oz'], 'two carp, an ounce apart');
   P.measure(at9);
-  eq(hb.progress, 0, 'a card reading 9 lb 0 oz does not fill "over 9 lb"');
+  eq(hb.progress, 0, 'a card reading 9 lb 0 oz does not fill "over 9 lb 0 oz"');
   P.measure(over9);
   eq(hb.progress, 1, 'one reading 9 lb 1 oz does');
-  // an old saved bounty (kg only): re-told exactly, checked as it was offered
+  // an old saved bounty (kg only): re-told in the card's figure, and checked as its new words say (over it, on the shown ounces)
   const old = { id: 'b-old', templateId: 'heavy', type: 'heavy', text: 'Land a Weeping Carp over 3.9 kg.', zone: run.zone, target: 'weeping_carp', count: 1, progress: 0, reward: { shells: 5 }, expiresDay: 99, offeredDay: 1, memories: 0, kg: 3.9 };
   run.bounties = [old];
-  eq(P.getBounties()[0].text, `Land a Weeping Carp over ${fmtWeight(3.9)}.`, 'a heavy bounty saved in kg reads in pounds (8 lb 10 oz)');
+  eq(P.getBounties()[0].text, 'Land a Weeping Carp over 8 lb 10 oz.', 'a heavy bounty saved in kg reads in pounds (8 lb 10 oz)');
+  eq([old.targetOz, fmtWeight(3.9), data.weightOz(3.9)], [138, '8 lb 10 oz', 138], '… and takes the ounces its words show as its target');
+  eq(P.getBounties()[0].text, 'Land a Weeping Carp over 8 lb 10 oz.', '… once (a second read changes nothing)');
   const under = P.makeFish('weeping_carp', 0); under.length = 60; under.weight = 3.46;
-  const heavyOld = P.makeFish('weeping_carp', 0); heavyOld.length = 63; heavyOld.weight = 4.0;
-  P.measure(under); eq(old.progress, 0, '… and keeps its own check (under 3.9 kg: no)');
-  P.measure(heavyOld); eq(old.progress, 1, '… (3.9 kg or more: yes)');
+  const level = fishAtOz(P, 'weeping_carp', 138), heavyOld = fishAtOz(P, 'weeping_carp', 139);
+  P.measure(under); eq(old.progress, 0, '… a lighter carp: no');
+  P.measure(level); eq(old.progress, 0, '… a card reading 8 lb 10 oz does not fill "over 8 lb 10 oz" (the old check was "at least")');
+  P.measure(heavyOld); eq(old.progress, 1, '… one reading 8 lb 11 oz does');
 
   // ---- the Heavyweight: over 18 lb (phases 1–2), over 33 lb (from phase 3), by the ounces the card shows
   for (const [D, lb] of [[data, 18], [data3, 33]]) {
     const e3 = makeCtx({ D });
     startRun(e3, { nightMode: 'still' });
     const hc = D.CHALLENGE_BY_ID.heavy_catch;
-    eq([hc.params.lb, hc.desc], [lb, `Land a non-legendary fish over ${lb} lb.`], `the Heavyweight asks for over ${lb} lb`);
+    eq([hc.params.lb, hc.desc], [lb, `Land a non-legendary fish over ${lb} lb 0 oz.`], `the Heavyweight asks for over ${lb} lb, in the card's own figure`);
+    eq(hc.desc.endsWith(`over ${D.fmtWeight(lb / D.LB_PER_KG)}.`), true, '… which is fmtWeight of its target');
     const flat = fishAtOz(e3.P, 'weeping_carp', lb * 16, D), over = fishAtOz(e3.P, 'weeping_carp', lb * 16 + 1, D);
     eq([D.fmtWeight(D.fishWeight(D.SPECIES_BY_ID.weeping_carp, flat)), D.fmtWeight(D.fishWeight(D.SPECIES_BY_ID.weeping_carp, over))], [`${lb} lb 0 oz`, `${lb} lb 1 oz`], 'two carp an ounce apart');
     e3.P.measure(flat);
