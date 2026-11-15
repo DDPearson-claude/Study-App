@@ -233,7 +233,9 @@ section('createLoop and loop-fixture (PLAN §2.0)');
   const L = PL.createLoop({ ctx: { data: D, state: { meta: freshLoopMeta(D), run: null } } });
   for (const k of PL.LOOP_METHODS) ok(typeof L[k] === 'function', `createLoop has ${k}`);
   eq(Object.keys(L).sort(), PL.LOOP_METHODS.slice().sort(), 'createLoop carries exactly LOOP_METHODS');
-  ok(L.holdFull() === false && L.keep({}).ok === false && L.buy('hold').ok === false && L.hold() === null && L.taperFirstOpen() === false, 'S: every method is inert');
+  ok(L.holdFull() === false && L.keep({}).ok === false && L.taperFirstOpen() === false && L.endTrip() === null && L.comeback('open:mossmere') === null,
+    'createLoop at home (no run): nothing to keep, no trip to end, no first bite to spend');
+  eq([L.hold().slots, L.hold().fish, L.buy('hold').ok, L.state().clams], [3, [], false, 0], 'createLoop at home: 3 slots, an empty hold, no clams for Hold 4');
   const fk = fakeLoop({ D });
   for (const k of PL.LOOP_METHODS) ok(typeof fk[k] === 'function', `fakeLoop has ${k}`);
   eq(Object.keys(fk.favour('open:mossmere')).sort(), ['favour', 'good', 'mercy', 'over', 'quiet', 'spent', 'waitMult'], "fakeLoop.favour: §3.3's field names (T11)");

@@ -16,11 +16,17 @@
 // rating in words), legend wounds, the got-away side of fish:escaped, per-run lures (Pg14), Well-fed as +2 Hold (S7), the
 // landing normaliser on value, food, oil and fish XP (CATCH_V3.economy.norm), and the First Evening's save flag (FE-Pg1:
 // meta.firstEvening, the run-less measure of the Quayling, nothing written in a replay). With the flag off every path below is v1's.
+//
+// The Full Hold (docs/loop/SPEC.md, slice-1a/PLAN.md §2.1 item 6; only when data.LOOP_ENABLED): createRun builds a trip
+// (progression-loop's createTrip), and on a trip (run.outing === 'trip') the hold is run.creel sized by data.loopSlots, measure()
+// writes the records only and leaves the fish on the card, Keep and Let go go to the ledger (ctx.progression.loop, CONTRACT §14),
+// a Continue reopens the card, pressure is replaced by quiet water, and the gate is scenery. Off the loop `loop` is null.
 import { uid, clamp } from './core.js';
 import { createChallenges } from './progression-challenges.js';
 import { createMarket } from './progression-market.js';
 import { createAutofish } from './progression-af.js';
 import * as V3H from './progression-v3.js';
+import { createLoop } from './progression-loop.js';
 import * as DATA from './data.js';
 
 /**
@@ -31,6 +37,9 @@ import * as DATA from './data.js';
 export function migrateSave(save, data = DATA) {
   return V3H.migrateSave(data, save);
 }
+/** The Full Hold's boot rule with the flag off (SPEC §9; PLAN §4.1 rule 9): a saved trip is sold and dropped, a parked descent is put
+ *  back. main finds it with moduleExport(progressionMod, 'sellStrandedTrip'); it needs no data. */
+export { sellStrandedTrip } from './progression-loop.js';
 
 const QUALITY_RANK = { normal: 0, fine: 1, perfect: 2 };
 const BAIT_PREFERENCE = ['mireworm', 'lumen_moss', 'spore_cake', 'ember_roe', 'glass_larva', 'shimmerfly'];
@@ -61,6 +70,9 @@ export function create(ctx) {
   const instantMemory = (id) => { const I = interim(); return !I || (I.instant || []).includes(id); };
   /** v3 rules apply to this run (The Long Descent keeps v1 / v2 rules except fishing's, CONTRACT §13.0). */
   const v3Run = (r = run()) => V3() && !!r && r.outing !== 'descent';
+  /** The Full Hold: the build (data.LOOP_ENABLED, read once per call, never globalThis) and a trip (only createTrip writes 'trip'). */
+  const LOOP_ON = () => D().LOOP_ENABLED === true;
+  const tripRun = (r = run()) => LOOP_ON() && !!r && r.outing === 'trip';
 
   // ------------------------------------------------------------------ lookups
   const lookup = (map, arr, id) => (id == null ? null : D()[map]?.[id] || (D()[arr] || []).find((x) => x.id === id) || null);
@@ -132,6 +144,7 @@ export function create(ctx) {
     return (Number(r.satiety) || 0) >= W.at * max - 1e-9;
   }
   function computeStats(out, r) {
+    if (r?.outing === 'trip' && D().LOOP_ENABLED === true) return tripStats(out, r);   // keyed on the argument (createTrip calls it before run is set)
     const STATS = D().STATS || {};
     const m = meta() || {};
     for (const k in STATS) out[k] = STATS[k].base ?? 0;
@@ -163,6 +176,42 @@ export function create(ctx) {
       out[k] = v;
     }
     if (V3()) out.hold = holdOf(r); else if ('hold' in out) delete out.hold;
+    return out;
+  }
+  /** The Full Hold (PLAN §2.1 item 6, CHOICEs 13 and 31; WICKS §2): a trip's stats are the STATS bases, the rod's absolute castMax
+   *  and hookWindow (TACKLE.rod[min(tier, 4)] for meta.loop.tackle.rod), then the Wick's LOOP.wicks[id].stats (Stub's lightRadius,
+   *  the look), clamped; creelSize = data.loopSlots(meta.loop, run.character) (the bought hold; Tallow one more). No CHARACTERS
+   *  effects, upgrades, boons, Heartwax, release luck, relics or journal perks (all parked). `hold` is the loop tackle's Hold. */
+  function tripStats(out, r) {
+    const d = D(), STATS = d.STATS || {};
+    const L = loop?.state?.() || {};
+    for (const k in STATS) out[k] = STATS[k].base ?? 0;
+    const rods = d.TACKLE?.rod || [];
+    const t = Math.max(0, Math.min(Math.max(0, rods.length - 1), Math.trunc(Number(L.tackle?.rod) || 0)));
+    const rod = rods[t];
+    if (rod && 'castMax' in out) out.castMax = rod.castMax;
+    if (rod && 'hookWindow' in out) out.hookWindow = rod.hookWindow;
+    const wid = typeof d.loopWickId === 'function' ? d.loopWickId(r.character) : 'wick';
+    const add = d.LOOP?.wicks?.[wid]?.stats || {};
+    for (const k in add) { const v = add[k]; if (typeof v === 'number' && k in out) out[k] += v; }
+    for (const k in STATS) {
+      const s = STATS[k];
+      let v = Math.round(out[k] * 1e6) / 1e6;
+      if (s.min != null && v < s.min) v = s.min;
+      if (s.max != null && v > s.max) v = s.max;
+      out[k] = v;
+    }
+    out.creelSize = typeof d.loopSlots === 'function' ? d.loopSlots(L, wid) : (L.holdSlots ?? 3);
+    out.hold = loopTackleHold(L.tackle);
+    return out;
+  }
+  /** The Hold of the loop's tackle per slot: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6. */
+  function loopTackleHold(tk = {}) {
+    const d = D(), X = d.LOOP?.tackle?.extraHold || {}, out = {};
+    for (const s of ['rod', 'line', 'reel']) {
+      const t = Math.max(0, Math.trunc(Number(tk?.[s]) || 0));
+      out[s] = t <= 4 ? (typeof d.tackleHoldAt === 'function' ? d.tackleHoldAt(s, t) : 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
+    }
     return out;
   }
   /** Cached once per frame for the live run (invalidated on every change we make or hear of). */
@@ -253,6 +302,15 @@ export function create(ctx) {
   S.priceOfBait = (b) => market.priceOfBait(b);
   const af = createAutofish(S);
   S.af = af;
+  // the Full Hold's ledger (progression-loop.js): built only under the loop; `loop` is null otherwise (CONTRACT §14)
+  Object.assign(S, {
+    pending: null, gone: null,   // set below, once the card's Map and the acted-on Set exist
+    addToCreel: (f) => addToCreel(f), syncPending: () => syncPending(), computeStats: (out, r) => computeStats(out, r),
+    freshRunStats: () => freshRunStats(), debugOn: () => debugOn(), uid,
+  });
+  const loop = LOOP_ON() ? createLoop(S) : null;
+  const loopIn = loop ? S.loopInternal : null;
+  S.loop = loop;
 
   // ------------------------------------------------------------------ currencies
   function addShells(n, source = 'misc') {
@@ -308,6 +366,7 @@ export function create(ctx) {
     return { outing: 'normal', nightMode: order.includes(nightMode) ? nightMode : (NM.default || 'lantern') };
   }
   function createRun({ startZone = 'mossmere', character: charId = null, nightMode = null, outing = null } = {}) {
+    if (D().LOOP_ENABLED === true) return loop.createTrip({ startZone, character: charId });   // the Full Hold: every run is a trip
     const data = D();
     const zones = data.ZONES || [];
     const econ = BAL('economy');
@@ -428,6 +487,7 @@ export function create(ctx) {
       if (mf?.name && !fish.legendary) fish.name = mf.name;
     }
     if (fig.sizeClass === 'elder' && !fish.legendary && !fish.name) fish.name = V3H.elderName(D(), sp, fishUid, catchZone);
+    if (tripRun(r)) fish.waterKey = D().loopWaterKey(fish.place, r.zone);   // the Full Hold: where its bite was spent (letGo refunds it there)
     return fish;
   }
   /** The landing normaliser of a lake (CATCH_V3.economy.norm; the cove and unknown lakes 1). */
@@ -458,6 +518,7 @@ export function create(ctx) {
   }
   /** On Continue: catches that were still on the card when the page closed go into the creel. */
   function restorePending() {
+    if (tripRun()) return restorePendingTrip();
     const r = run();
     const list = Array.isArray(r?.flags?.pendingCatch) ? r.flags.pendingCatch : [];
     delete r?.flags?.pendingCatch;
@@ -468,7 +529,42 @@ export function create(ctx) {
       else toast(`${D().TEXT?.creelFull || 'Your creel is full.'} The ${name} slips back into the water.`, 'bad');
     }
   }
+  /** The Full Hold (PLAN §2.1 item 6, CHOICE 27): Continue reopens the card. A bite still open at the close with no fish on the card is
+   *  refunded first; each saved card fish goes back on the card (never into the hold), and in a microtask (after every run:start
+   *  listener: ui's clears its catch queue) fish:landed {restored: true} reopens its card. measure is never called again. */
+  function restorePendingTrip() {
+    const r = run();
+    try { loop.refundOpenBite(); } catch (e) { report('loop.refundOpenBite', e); }
+    const list = Array.isArray(r?.flags?.pendingCatch) ? r.flags.pendingCatch : [];
+    delete r.flags.pendingCatch;
+    const back = [];
+    for (const fish of list) {
+      if (!fish?.uid || !fish.speciesId || (r.creel || []).some((f) => f.uid === fish.uid)) continue;
+      pending.set(fish.uid, { fish, t: 0 });
+      back.push(fish);
+    }
+    syncPending();
+    if (!back.length) return;
+    const runId = r.id;
+    Promise.resolve().then(() => {
+      const now = run();
+      if (!now || now.id !== runId || now.active === false) return;
+      for (const fish of back) {
+        if (!pending.has(fish.uid)) continue;
+        const sp = species(fish.speciesId);
+        if (!sp) continue;
+        const cls = fish.sizeClass || D().sizeClassOf?.(fish.z ?? 0) || 'keeper';
+        ctx.bus.emit('fish:landed', {
+          fish, isNew: false, isRecord: false, species: sp, firstShells: 0, xp: 0, mastered: false,
+          measured: true, records: [], sizeClass: cls, ancient: !!fish.ancient, length: fish.length, cove: false,
+          favours: (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value })), name: fish.name || null,
+          restored: true, clams: loop.priceOf(fish), holdFull: loop.holdFull(),
+        });
+      }
+    });
+  }
   const gone = new Set();           // uids eaten / rendered / sold / released / stolen (never act on them twice)
+  S.pending = pending; S.gone = gone;
   function creelSize() { return Math.max(0, getStats().creelSize | 0); }
   function addToCreel(fish) {
     const r = run();
@@ -512,6 +608,10 @@ export function create(ctx) {
     const r = run();
     if (!r && V3() && (hubZone || V3H.coveSpecies(D()).has(typeof fishOrUid === 'object' ? fishOrUid?.speciesId : null))) return coveAction(fishOrUid, action);
     if (!r) return { ok: false, msg: 'There is no descent under way.', gained: {} };
+    if (tripRun(r)) {   // the Full Hold: Keep → the hold, Let go (and Release) → back to the water; nothing else is offered on a trip
+      const tr = resolveFish(fishOrUid);
+      return tr ? loopIn.fishAction(tr.fish, action) : { ok: false, msg: '', gained: {} };
+    }
     const res = resolveFish(fishOrUid);
     if (!res) return { ok: false, msg: 'That fish is gone.', gained: {} };
     const { fish, inCreel } = res;
@@ -873,11 +973,15 @@ export function create(ctx) {
     if (!fish || !fish.speciesId) return { records: [] };
     if (!V3()) { const f = landFish({ speciesId: fish.speciesId, weight: fish.weight, quality: fish.quality }); return { records: [], fish: f }; }
     if (fish.uid && measured.has(fish.uid)) return measured.get(fish.uid);
+    if (fish.measured === true && tripRun()) return { records: [], fish, isNew: false, isRecord: false, sizeClass: fish.sizeClass || 'keeper' };   // a restored card: measured before the reload
     const sp = species(fish.speciesId);
     if (!sp) return { records: [] };
     if (feReplay()) return measureReplay(fish, sp);
     const r = run();
     const live = !!r && r.active !== false;
+    // the Full Hold (PLAN §2.1 item 6): on a trip the measure writes the records only. No Memories, Shells, XP, toasts, bounties,
+    // trials, gate or victory; the fish waits on the card (pending), never in the hold, until Keep or Let go
+    const lp = live && tripRun(r);
     const m = meta();
     const MV = D().MEMORIES_V3 || {};
     const T3 = D().TEXT_V3 || {};
@@ -886,7 +990,8 @@ export function create(ctx) {
     const canSeal = D().sealsFor?.(sp) || [];
     const records = [];
     const memLines = [];
-    const bank = (n, source, label) => { n = Math.round(Number(n) || 0); if (n <= 0) return; addMemories(n, source); memLines.push(`${label} · +${n} Memor${n === 1 ? 'y' : 'ies'}`); };
+    const bank = (n, source, label) => { n = Math.round(Number(n) || 0); if (n <= 0 || lp) return; addMemories(n, source); memLines.push(`${label} · +${n} Memor${n === 1 ? 'y' : 'ies'}`); };
+    const memOf = (n) => (lp ? 0 : n);   // a record's Memories figure (the card's kicker) is 0 on a trip: Memories are parked
 
     // journal: count, PB (length, then weight), best setup, last lengths -------------------------------
     m.journal = m.journal || {};
@@ -903,6 +1008,7 @@ export function create(ctx) {
     entry.caught = (entry.caught || 0) + 1;
     entry.biggest = Math.max(entry.biggest || 0, fish.weight || 0);
     if (isNew) { entry.firstDay = r?.day ?? 1; entry.firstRun = m.runs || 1; }
+    if (lp && isNew) entry.firstEvening = Number(r.evening) || 1;   // "Evening N" on the species page (SPEC §3.4)
     if (isPB) {
       entry.pbLength = fish.length; entry.pbWeight = fish.weight; entry.pbZ = fish.z;
       entry.bestSetup = (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value }));
@@ -919,7 +1025,7 @@ export function create(ctx) {
       if (!entry.seals[cls]) {
         entry.seals[cls] = true;
         classFirst = true;
-        const mem = instantNow('classFirst') ? (MV.classFirst?.[cls] || 0) : 0;
+        const mem = memOf(instantNow('classFirst') ? (MV.classFirst?.[cls] || 0) : 0);
         records.push({ kind: 'classFirst', sizeClass: cls, memories: mem });
         bank(mem, 'classFirst', (T3.classFirst || 'First {class} {species}').replace('{class}', classLabel(cls)).replace('{species}', sp.name));
       }
@@ -938,7 +1044,7 @@ export function create(ctx) {
     const ledgerZ = BAL('records').oldLedgerZ;
     if (canSeal.length && ledgerZ != null && (fish.z ?? -Infinity) >= ledgerZ && !entry.oldLedger) {
       entry.oldLedger = true;
-      const mem = instantNow('oldLedger') ? (MV.oldLedger ?? BAL('records').oldLedgerMemories ?? 0) : 0;
+      const mem = memOf(instantNow('oldLedger') ? (MV.oldLedger ?? BAL('records').oldLedgerMemories ?? 0) : 0);
       records.push({ kind: 'oldLedger', memories: mem });
       bank(mem, 'oldLedger', T3.oldLedger || 'Old Ledger beaten');
     }
@@ -951,7 +1057,7 @@ export function create(ctx) {
       records.push({ kind: 'elderLog', name: fish.name || null });
     }
     // a new name in the Journal banks at once in v3 (the death screen drops its species row) -------------
-    if (isNew && instantNow('newSpecies')) addMemories(MV.newSpecies ?? BAL('journal').newSpeciesMemories ?? 3, 'journal');
+    if (isNew && instantNow('newSpecies') && !lp) addMemories(MV.newSpecies ?? BAL('journal').newSpeciesMemories ?? 3, 'journal');
 
     // counters, first-catch Shells, XP (live runs only) ------------------------------------------------
     const econ = BAL('economy');
@@ -971,12 +1077,19 @@ export function create(ctx) {
       if (classFirst) (f.classFirsts = f.classFirsts || []).push({ speciesId: sp.id, sizeClass: cls });
       if (isNew) {
         r.stats.newSpecies = (r.stats.newSpecies || 0) + 1;
-        if (sp.rarity !== 'legendary' || econ.newSpeciesLegendary !== false) firstShells = Math.round((econ.newSpeciesShells ?? 1.5) * (sp.value || 0));
+        if (!lp && (sp.rarity !== 'legendary' || econ.newSpeciesLegendary !== false)) firstShells = Math.round((econ.newSpeciesShells ?? 1.5) * (sp.value || 0));
         if (firstShells > 0) addShells(firstShells, 'journal');
       }
-      xpInfo = fishXpV3(r, sp, { isNew, classFirst });
-      // the creel (CONTRACT §13.7): a full creel leaves the fish on the card (Keep then offers a swap)
-      if (!addToCreel(fish)) { pending.set(fish.uid, { fish, t: 0 }); syncPending(); }
+      if (lp) {
+        // the Wick's ledger in the same save as the Journal (WICKS §2.1), then the card: the fish waits there, measured
+        try { loopIn.noteFirst(fish, sp, cls); } catch (e) { report('loop.noteFirst', e); }
+        fish.measured = true;
+        pending.set(fish.uid, { fish, t: 0 }); syncPending();
+      } else {
+        xpInfo = fishXpV3(r, sp, { isNew, classFirst });
+        // the creel (CONTRACT §13.7): a full creel leaves the fish on the card (Keep then offers a swap)
+        if (!addToCreel(fish)) { pending.set(fish.uid, { fish, t: 0 }); syncPending(); }
+      }
     } else {
       // run-less (the Landing): journal and records only; a landed fish still counts for First Light (FIRST_EVENING.firstLight)
       m.totalFish = (m.totalFish || 0) + 1;
@@ -992,12 +1105,18 @@ export function create(ctx) {
       speciesId: sp.id, z: fish.z, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, weight: fish.weight,
       favours: fish.favours || [], records, name: fish.name || null, place: fish.place ?? null, fish, cove: !live,
     });
-    ctx.bus.emit('fish:landed', {
+    const landed = {
       fish, isNew, isRecord: toldPB, species: sp, firstShells, xp: xpInfo.xp, mastered: entry.caught === (J.masteryAt ?? 10),
       measured: true, records, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, cove: !live,
       // the card lists the favour terms that applied to this fish (DESIGN §25.6.1; CONTRACT §13.7)
       favours: (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value })), name: fish.name || null,
-    });
+    };
+    if (lp) { landed.clams = loop.priceOf(fish); landed.holdFull = loop.holdFull(); }   // the card's Keep · value, dimmed when full
+    ctx.bus.emit('fish:landed', landed);
+    if (lp) {   // the Full Hold: no toasts, milestones, Murk's line, bounties, trials, gate or victory on a trip (the record's event stays)
+      if (isNew) ctx.bus.emit('journal:new', { speciesId: sp.id });
+      return result;
+    }
     if (live && xpInfo.xp > 0) { try { ctx.combat?.addXp?.(xpInfo.xp, { source: 'fish', speciesId: sp.id, fishXp: xpInfo.fishXp, discoveryXp: xpInfo.discoveryXp, modeApplied: true, normApplied: true, norm: xpInfo.norm, lake: r?.zone || sp.zone }); } catch (err) { report('combat.addXp', err); } }
 
     // aftermath: journal milestones, Memories toast, bounties, trials, gate, victory --------------------
@@ -1053,6 +1172,7 @@ export function create(ctx) {
   /** A catch at a place (or stopgap giant water) leans on it: run.pressure[key] counts today's catches there (saved with the run;
    *  reset at dawn). Legends do not count. fishing reads it back through getPressure. */
   function notePressure(e = {}) {
+    if (tripRun()) return;   // the Full Hold: quiet water replaces pressure (run.bites, progression-loop)
     const r = run();
     const key = typeof e.pressureKey === 'string' && e.pressureKey ? e.pressureKey : null;
     if (!r || r.active === false || !key || e.legendary) return;
@@ -1062,7 +1182,7 @@ export function create(ctx) {
   /** getPressure(placeId) -> favour (≤ 0): −0.12 per catch there today, floor −0.6 (BALANCE.favour.pressure). */
   function getPressure(key) {
     const r = run();
-    if (!V3() || !r || !key) return 0;
+    if (!V3() || !r || !key || tripRun(r)) return 0;
     const n = (r.pressure && r.pressure[key]) | 0;
     if (!n) return 0;
     const P = BAL('favour').pressure || {};
@@ -1133,12 +1253,14 @@ export function create(ctx) {
   function syncGateVisual(instant) {
     const r = run();
     if (!r) return;
-    const state = !nextZoneOf(r.zone) ? 'hidden' : r.gateOpen ? 'open' : 'sealed';
+    // the Full Hold: the gate is scenery on a trip (PARKED.tolls), drawn as built and always sealed
+    const state = !nextZoneOf(r.zone) ? 'hidden' : r.gateOpen && !(tripRun(r) && D().PARKED?.tolls) ? 'open' : 'sealed';
     if (gateSynced === state && !instant) return;
     gateSynced = state;
     try { ctx.world?.setGateState?.(state, !!instant); } catch (err) { report('world.setGateState', err); }
   }
   function openGate({ forced = false } = {}) {
+    if (tripRun() && D().PARKED?.tolls) return false;   // the gate is scenery on a trip
     const r = run();
     const nz = r ? nextZoneOf(r.zone) : null;
     if (!r || !nz || r.gateOpen) return false;
@@ -1154,6 +1276,7 @@ export function create(ctx) {
   function evaluateGate() {
     const r = run();
     if (!r || r.active === false) return;
+    if (tripRun(r) && D().PARKED?.tolls) return;   // the gate is scenery on a trip
     if (r.gateOpen) return;
     const reqs = gateRequirements(r);
     if (!nextZoneOf(r.zone)) return;
@@ -1205,6 +1328,7 @@ export function create(ctx) {
   function travel(target) {
     const r = run();
     if (!r) return { ok: false, msg: 'There is no descent under way.' };
+    if (tripRun(r) && D().PARKED?.tolls) return { ok: false, msg: '' };   // the gate is scenery: waters are reached from the Chart
     const zid = typeof target === 'object' && target ? target.id : target;
     const nz = zone(zid);
     if (!nz) return { ok: false, msg: 'No such water.' };
@@ -1514,6 +1638,9 @@ export function create(ctx) {
     for (const id in r.upgrades || {}) if (upgrade(id)?.category === 'raft') lv += r.upgrades[id] | 0;
     try { ctx.actors?.setRaftLevel?.(Math.min(3, Math.floor(lv / 2))); } catch (e) { report('actors.setRaftLevel', e); }
   }
+  /** The Wick the title and home show: meta.loop.wick under the loop (data.loopWickId; actors' own lastCharacter pass runs first,
+   *  so this one wins), meta.lastCharacter otherwise. */
+  const titleCharacter = () => (LOOP_ON() ? D().loopWickId?.(meta()?.loop?.wick) ?? 'wick' : meta()?.lastCharacter);
   function syncCharacter(id) {
     const c = character(id);
     if (c) try { ctx.actors?.setCharacter?.(c); } catch (e) { report('actors.setCharacter', e); }
@@ -1552,6 +1679,18 @@ export function create(ctx) {
       if (!r.lures || typeof r.lures !== 'object' || Array.isArray(r.lures)) r.lures = {};
       af.syncEquipped(r);
       hubZone = null;
+    }
+    if (tripRun(r)) {   // the Full Hold: a trip's own fields (an older save may lack one)
+      const obj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+      if (!obj(r.bites)) r.bites = {};
+      if (!obj(r.mercy)) r.mercy = {};
+      if (!Number.isFinite(Number(r.evening)) || Number(r.evening) < 1) r.evening = Math.max(0, Number(loop.state()?.evenings) || 0) + 1;
+      else r.evening = Math.trunc(Number(r.evening));
+      if (r.flags.openBite === undefined) r.flags.openBite = null;
+      if (r.flags.openComeback === undefined) r.flags.openComeback = false;
+      if (r.flags.taperFirst === undefined) r.flags.taperFirst = false;
+      if (r.comeback === undefined) r.comeback = null;
+      loopIn.resetSession();
     }
     if (!continued) r.flags.startBestLevel = meta()?.bestLevel || 0;
     if (continued) restorePending(); else delete r.flags.pendingCatch;
@@ -1835,7 +1974,8 @@ export function create(ctx) {
       // automatic fishing (progression-af.js): the cast's item, Ashwick's first hook tonight, the got-away side of a loss
       on('fishing:cast', () => af.noteCast({ fromEvent: true }));
       on('fishing:hook', () => af.noteHook());
-      on('fish:escaped', (e) => af.onEscaped(e));
+      // the Full Hold: Ashwick's comeback is stored first, and a fish that will come back is not also a Marked Fish (WICKS §2.5)
+      on('fish:escaped', (e) => { const comeback = loopIn ? loopIn.onEscaped(e) === true : false; af.onEscaped(e, comeback ? { comeback } : undefined); });
       // a returning player's first v3 bite: one line (af_changed; DESIGN §25.4.8 "Returning players")
       on('fishing:bite', () => {
         const m = meta();
@@ -1871,13 +2011,24 @@ export function create(ctx) {
     on('player:scorched', () => { const s = nightSeen(); if (s) s.scorched = true; });
     on('run:start', onRunStart);
     on('run:end', () => { pending.clear(); });
+    if (D().LOOP_ENABLED === true && loop) {
+      // the Full Hold (PLAN §2.1 item 6): every bite spends one at its water (a spook too); the open bite closes when the play reaches
+      // its card, is lost or passes (PLAN CHOICE 27); the shelf's "Yours." session ends with the shelf; a comeback waits at its lake
+      on('fishing:bite', (e) => loop.noteBite(e));
+      on('fishing:miss', (e) => { if (e.reason === 'spooked') loop.noteBite({ ...e, spooked: true }); loop.closeBite(); });
+      on('fish:measured', () => loop.closeBite());
+      on('fishing:escaped', () => loop.closeBite());
+      on('ui:modal', ({ id }) => { if (id === 'shelf') loopIn.resetSession(); });
+      on('home:enter', () => loopIn.resetSession());
+      on('zone:change', (e) => loopIn.onZoneChange(e));
+    }
     on('flow:change', ({ flow }) => {
-      if (flow === 'title') { market.reset(); pending.clear(); syncCharacter(meta()?.lastCharacter); invalidate(); }
+      if (flow === 'title') { market.reset(); pending.clear(); syncCharacter(titleCharacter()); invalidate(); }
       // a replay that ended without its firstEvening:done (back at the title, the director idle): the sandbox closes too
       if (flow === 'title' && replayActive && !ctx.firstEvening?.isActive?.()) replayActive = false;
     });
     registerDebug();
-    syncCharacter(meta()?.lastCharacter);
+    syncCharacter(titleCharacter());
   }
 
   // ------------------------------------------------------------------ per-frame
@@ -1891,7 +2042,7 @@ export function create(ctx) {
     gateTimer -= dt;
     if (gateTimer <= 0) { gateTimer = 0.5; evaluateGate(); }
     if ((r.flags?.pendingCatch?.length || 0) !== pending.size) syncPending();
-    if (pending.size && dt > 0 && ctx.ui?.isBlocking?.() !== true) {
+    if (pending.size && dt > 0 && !tripRun(r) && ctx.ui?.isBlocking?.() !== true) {   // on a trip a card waits for the player
       for (const [id, p] of pending) {
         p.t += dt;
         if (p.t < AUTO_KEEP_AFTER) continue;
@@ -2036,6 +2187,9 @@ export function create(ctx) {
     buyLure: (lureId) => (V3() ? market.buyLure(lureId) : { ok: false, msg: 'Murk has none of that.' }),
     // the First Evening (FE-Pg1)
     getFirstEvening, setFirstEvening,
+    // the Full Hold (CONTRACT §14): the ledger (null off the loop) and the spec's name for the good bites left at a water
+    loop,
+    getBitesLeft: (key) => (loop ? loop.bitesLeft(key) : null),
     isWellFed: () => { const r = run(); return V3() && !!r && wellFedOf(r, getStats()); },
     /** v3 New Descent (U17): whether the next run is the First Outing, and the mode cards to offer (Lantern preselected). */
     getNightModes: () => {

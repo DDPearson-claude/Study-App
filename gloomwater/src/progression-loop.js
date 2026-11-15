@@ -6,13 +6,15 @@
 // The pure exports (no ctx, no data import; node tests call them directly):
 //   freshLoop(D) · migrateLoop(meta, D, {hasTrip}) · tallyLines(creel, {D, saleOf}) · tallyBook(metaLoop, creel, run, opts) ·
 //   sellStrandedTrip(save) (the flag-off boot rule: needs no data) · shelfItems(D, metaLoop, session) · goalOf(items) ·
-//   v8 (SPEC §5.5): listFor(D, waterId) · listCount(meta, D, waterId)
+//   stampFirst(firsts, sp, fish, {cls, seals}) (the Wick's ledger) · v8 (SPEC §5.5): listFor(D, waterId) · listCount(meta, D, waterId)
 // meta.loop (SPEC §9, PLAN §3.4): `holdSlots` is the bought count (3–8) for every Wick; a Wick's slots are data.loopSlots. Slice 1a
 // adds `wick`, `tutorial`, `said`, `lastTrip` and `firsts` (the Wick's ledger, WICKS §2.1), and `parkedRun` only while an old descent
 // waits (PLAN CHOICE 5). A trip is a run with `outing: 'trip'`; its hold IS `run.creel` (PLAN CHOICE 19).
 //
-// Seam commit S (PLAN §2.0): the pure exports are built; createLoop(S) returns every method of §3.3 as an inert stub (null, false,
-// 0 or {ok: false}) and is not yet wired into progression.js. LOOP_METHODS names them, for the fixture's fakeLoop and the tests.
+// createLoop(S) is the ledger itself (PLAN §3.3, §3.4): progression.js builds it under data.LOOP_ENABLED and exposes it as
+// `ctx.progression.loop` (null off the loop). LOOP_METHODS names its methods, for the fixture's fakeLoop and the tests; CONTRACT §14
+// is the seam in full. Its one import is core.js's uid (never data.js).
+import { uid } from './core.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -279,48 +281,496 @@ export function listCount(meta, D, waterId) {
 }
 
 /**
- * `ctx.progression.loop` (PLAN §3.3). Seam commit S: every method is an inert stub (null, false, 0 or {ok: false}); lane A builds
- * them on its branch and progression.js wires the object in (null off the loop). Read it through optional chaining (§3's stub rule).
+ * The Wick's ledger (WICKS §2.1): record a measured fish in `meta.loop.firsts` = {seen: [speciesId], seals: ['id|class'], best:
+ * {speciesId: cm}} and say whether it is a first of this New Descent: a kind not seen before; that kind's first Prize, Trophy or
+ * Elder (the built class seals, `seals` = data.sealsFor(sp)) or its first Ancient; or a new personal best (longer than any of that
+ * kind before). Giants and legends are never a first (their prices are their own), though the ledger still notes them. In place;
+ * returns {kind, seal, best, first}.
+ */
+export function stampFirst(firsts, sp, fish, { cls = fish?.sizeClass, seals = [] } = {}) {
+  const none = { kind: false, seal: false, best: false, first: false };
+  if (!isObj(firsts) || !sp?.id || !isObj(fish)) return none;
+  if (!Array.isArray(firsts.seen)) firsts.seen = [];
+  if (!Array.isArray(firsts.seals)) firsts.seals = [];
+  if (!isObj(firsts.best)) firsts.best = {};
+  const id = sp.id, len = num(fish.length), kind = !firsts.seen.includes(id);
+  let seal = false;
+  const mark = (k) => { if (!firsts.seals.includes(k)) { firsts.seals.push(k); seal = true; } };
+  if (Array.isArray(seals) && seals.includes(cls)) mark(`${id}|${cls}`);
+  if (fish.ancient === true && cls === 'elder' && Array.isArray(seals) && seals.includes('elder')) mark(`${id}|ancient`);
+  const prev = num(firsts.best[id], 0), best = !kind && len > prev;
+  if (kind || best) firsts.best[id] = Math.max(prev, len);
+  if (kind) firsts.seen.push(id);
+  const priced = sp.rarity === 'legendary' || fish.legendary === true || fish.giant === true || sp.giant === true;
+  return { kind, seal, best, first: !priced && (kind || seal || best) };
+}
+
+/**
+ * `ctx.progression.loop` (PLAN §3.3, §3.4; WICKS §2): the ledger of the Full Hold, built by progression.js's create() under
+ * data.LOOP_ENABLED (null off the loop). `S` is progression's shared internals; createLoop needs from it: ctx, report, requestSave,
+ * invalidate, species, pending (the card's Map), gone (the Set of fish acted on), addToCreel, syncPending, computeStats,
+ * freshRunStats and debugOn. Every method calls ensureLoop() first (a lazy migrateLoop: wipeAll resets meta to defaultMeta()).
+ * On a trip (run.outing === 'trip') the hold IS run.creel (PLAN CHOICE 19), sized by data.loopSlots(meta.loop, run.character);
+ * at home (no run) a method reads meta.loop.wick. Internals for progression.js (the measure's firsts, fishAction, the comeback on
+ * fish:escaped, the shelf's session) go on S.loopInternal; they are not part of the API.
  */
 export function createLoop(S) {
-  void S;
-  const no = () => ({ ok: false, msg: '' });
+  const ctx = S.ctx;
+  const D = () => ctx.data || {};
+  const meta = () => ctx.state?.meta || null;
+  const run = () => ctx.state?.run || null;
+  const on = () => D().LOOP_ENABLED === true;
+  const onTrip = (r = run()) => on() && !!r && r.outing === 'trip';
+  const report = (where, err) => { try { S.report?.(`loop.${where}`, err); } catch { /* optional */ } };
+  const requestSave = () => { try { S.requestSave?.(); } catch (e) { report('requestSave', e); } };
+  const saveNow = () => { try { ctx.game?.save?.(); } catch (e) { report('save', e); } };
+  const emit = (evt, payload) => { try { ctx.bus?.emit?.(evt, payload); } catch (e) { report(`emit(${evt})`, e); } };
+  const LOOP = () => D().LOOP || {};
+  const wickIdOf = (id) => (typeof D().loopWickId === 'function' ? D().loopWickId(id) : 'wick');
+  const keyOf = (place, zone) => (typeof D().loopWaterKey === 'function' ? D().loopWaterKey(place ?? null, zone) : place ? String(place) : `open:${zone}`);
+  const spOf = (id) => (typeof S.species === 'function' ? S.species(id) : D().SPECIES_BY_ID?.[id]) || null;
+
+  // ---------------------------------------------------------------- the save block (lazy, PLAN §3.3)
+  let seen = { meta: null, loop: null };
+  function ensureLoop() {
+    if (!on()) return null;
+    const m = meta();
+    if (!isObj(m)) return null;
+    if (m === seen.meta && m.loop === seen.loop && isObj(m.loop)) return m.loop;
+    try { migrateLoop(m, D(), { hasTrip: run()?.outing === 'trip' }); } catch (e) { report('migrateLoop', e); if (!isObj(m.loop)) m.loop = freshLoop(D()); }
+    seen = { meta: m, loop: m.loop };
+    return m.loop;
+  }
+  /** The Wick that fishes now: the trip's (run.character) or, at home, the save's (meta.loop.wick). */
+  const wickNow = () => { const r = run(); return onTrip(r) ? wickIdOf(r.character) : wickIdOf(ensureLoop()?.wick); };
+  const passive = (w = wickNow()) => LOOP().wicks?.[w]?.passive ?? null;
+  const slotsNow = () => { const L = ensureLoop(); if (!L) return 0; return typeof D().loopSlots === 'function' ? D().loopSlots(L, wickNow()) : L.holdSlots; };
+  /** The kind of water a bite-count key names: 'open:<zone>' is open water; a place's id its place kind (PLACE_BY_ID). */
+  function kindOf(key) {
+    if (typeof key !== 'string' || key.startsWith('open:')) return 'open';
+    const p = D().PLACE_BY_ID?.[key] || (D().ZONES || []).flatMap((z) => z.arena?.places || []).find((x) => x?.id === key);
+    return p?.kind || 'day';
+  }
+  const goodAt = (key) => {
+    const L = ensureLoop();
+    if (!L) return 0;
+    const fn = D().goodBitesFor;
+    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow() }) : 0;
+  };
+  const tripKey = (k) => (typeof k === 'string' && k ? k : keyOf(null, run()?.zone || 'mossmere'));
+  const spentAt = (key) => { const r = run(); return onTrip(r) && isObj(r.bites) ? Math.max(0, int(r.bites[tripKey(key)])) : 0; };
+  const flags = (r = run()) => { if (!r) return {}; if (!isObj(r.flags)) r.flags = {}; return r.flags; };
+
+  // ---------------------------------------------------------------- prices (SPEC §4.1, §4.6; WICKS §2.1)
+  /** The card's number: a fish's stamped clams, else its price by size (data.fishClams on the water it bites in), or a legend's
+   *  crown price: her first landing (none sold before and none already in the hold) the crown map's price, later × legendRematch. */
+  function priceOf(fish) {
+    ensureLoop();
+    if (!isObj(fish)) return 0;
+    if (Number.isFinite(Number(fish.clams)) && fish.clams !== null) return Math.max(0, Math.round(Number(fish.clams)));
+    const sp = spOf(fish.speciesId);
+    if (!sp) return 1;
+    const L = ensureLoop() || {}, LP = LOOP();
+    if (sp.rarity === 'legendary' || fish.legendary === true) {
+      const crown = num(LP.waters?.[sp.zone]?.prices?.crown, 0);
+      const r = run();
+      const inHold = onTrip(r) && (r.creel || []).some((f) => f && f.uid !== fish.uid && f.speciesId === sp.id);
+      const first = int(L.legends?.[sp.id]) === 0 && !inHold;
+      return Math.max(1, Math.round(first ? crown : crown * num(LP.value?.legendRematch, 0.4)));
+    }
+    const zone = run()?.zone || sp.zone;
+    let v = null;
+    try { v = D().fishClams?.(sp, num(fish.z), { zone }); } catch (e) { report('fishClams', e); }
+    return Math.max(1, Math.round(num(v, 1)));
+  }
+  /** What the tally pays for a hold fish (WICKS §2.1): {base (the card's number), clams (the sale), first}. The Wick (Curious) adds
+   *  max(round(firstFloor × tier), round((firstMult − 1) × base)) to a kept first, once a fish, never on a giant or a legend; with an
+   *  order or the Old Ledger (later slices) the larger applies, never both. Every other Wick sells at the base. */
+  function saleOf(fish) {
+    const base = priceOf(fish);
+    const out = { base, clams: base, first: false };
+    if (!isObj(fish) || fish.first !== true || fish.giant === true || fish.legendary === true) return out;
+    const r = run(), w = r ? wickIdOf(r.character) : wickNow(), K = LOOP().wicks?.[w];
+    if (K?.passive !== 'curious') return out;
+    const sp = spOf(fish.speciesId);
+    if (!sp || sp.rarity === 'legendary') return out;
+    const tier = num(LOOP().waters?.[r?.zone || sp.zone]?.tier, 0);
+    const bonus = Math.max(Math.round(num(K.firstFloor) * tier), Math.round((num(K.firstMult, 1) - 1) * base));
+    const order = 0;   // Murk's orders and the Old Ledger's double arrive in later slices: the larger of the three applies
+    const add = Math.max(bonus, order);
+    if (add > 0) { out.clams = base + add; out.first = bonus >= order; }
+    return out;
+  }
+
+  // ---------------------------------------------------------------- the hold (SPEC §3.1, §3.2)
+  const hold = () => { ensureLoop(); const r = run(); return { slots: slotsNow(), fish: onTrip(r) ? (r.creel || []) : [], full: holdFull() }; };
+  function holdFull() {
+    const r = run();
+    if (!onTrip(r)) return false;
+    return (r.creel || []).length >= slotsNow();
+  }
+  function keep(fish) {
+    const r = run();
+    ensureLoop();
+    if (!onTrip(r) || !isObj(fish)) return { ok: false, msg: '', gained: { clams: 0 } };
+    if ((r.creel || []).some((f) => f?.uid === fish.uid)) return { ok: true, msg: '', gained: { clams: priceOf(fish) } };
+    if (holdFull()) {
+      emit('loop:holdFull', { via: 'keep' });
+      return { ok: false, full: true, msg: D().TEXT_LOOP?.holdFull || '', gained: { clams: 0 } };
+    }
+    const clams = priceOf(fish);
+    fish.clams = clams;
+    if (!S.addToCreel?.(fish)) {
+      emit('loop:holdFull', { via: 'keep' });
+      return { ok: false, full: true, msg: D().TEXT_LOOP?.holdFull || '', gained: { clams: 0 } };
+    }
+    S.pending?.delete?.(fish.uid);
+    S.syncPending?.();
+    const gained = { clams };
+    emit('fish:action', { action: 'keep', fish, gained });
+    requestSave();
+    return { ok: true, msg: '', gained };
+  }
+  function letGo(fish) {
+    const r = run();
+    ensureLoop();
+    if (!onTrip(r) || !isObj(fish)) return { ok: false, msg: '', gained: { bite: 0, favour: 0 } };
+    if ((r.creel || []).some((f) => f?.uid === fish.uid)) return { ok: false, msg: '', gained: { bite: 0, favour: 0 } };   // kept stays kept
+    const LG = LOOP().letGo || {};
+    const key = typeof fish.waterKey === 'string' && fish.waterKey ? fish.waterKey : keyOf(fish.place ?? null, r.zone);
+    r.bites = isObj(r.bites) ? r.bites : {};
+    r.mercy = isObj(r.mercy) ? r.mercy : {};
+    const n = Math.max(0, int(r.bites[key]));
+    const back = Math.min(n, Math.max(0, int(LG.refund ?? 1)));
+    r.bites[key] = n - back;
+    const before = num(r.mercy[key]), after = Math.min(num(LG.cap, 0.4), before + num(LG.favour, 0.2));
+    r.mercy[key] = Math.round(after * 1e6) / 1e6;
+    const favour = Math.round(Math.max(0, after - before) * 1e6) / 1e6;
+    if (fish.uid) S.gone?.add?.(fish.uid);
+    S.pending?.delete?.(fish.uid);
+    S.syncPending?.();
+    const gained = { bite: back, favour };
+    emit('fish:action', { action: 'release', letgo: true, fish, gained });
+    requestSave();
+    return { ok: true, msg: '', gained };
+  }
+
+  // ---------------------------------------------------------------- quiet water and the open bite (SPEC §3.3, PLAN CHOICE 27)
+  let warnedKey = false;
+  let lastBiteComeback = false;
+  function noteBite(e = {}) {
+    const r = run();
+    if (!onTrip(r)) return;
+    ensureLoop();
+    let key = e?.waterKey;
+    if (typeof key !== 'string' || !key) {
+      key = keyOf(null, r.zone);
+      if (!warnedKey) { warnedKey = true; report('noteBite', new Error(`a bite without a waterKey: counted at ${key}`)); }
+    }
+    r.bites = isObj(r.bites) ? r.bites : {};
+    r.bites[key] = Math.max(0, int(r.bites[key])) + 1;
+    const f = flags(r);
+    const spook = e?.reason === 'spooked' || e?.spooked === true;
+    if (!spook) f.openBite = key;
+    lastBiteComeback = e?.comeback === true;
+    if (lastBiteComeback && !spook) f.openComeback = true;
+    requestSave();
+  }
+  const bitesSpent = (key) => { ensureLoop(); return spentAt(key); };
+  const bitesLeft = (key) => { ensureLoop(); return Math.max(0, goodAt(tripKey(key)) - spentAt(key)); };
+  /** The quiet terms of the NEXT bite at a water (PLAN CHOICE 17: at 4 good bites the 5th is already quiet): over = max(0, spent + 1 −
+   *  good); favour and waitMult from data.quietTerms(over, the Wick); mercy the let-go favour there (0–0.4); quiet = spent ≥ good. */
+  function favour(key) {
+    ensureLoop();
+    const k = tripKey(key), spent = spentAt(k), good = goodAt(k), r = run();
+    const over = Math.max(0, spent + 1 - good);
+    const q = typeof D().quietTerms === 'function' ? D().quietTerms(over, wickNow()) : { over, favour: 0, waitMult: 1 };
+    const mercy = onTrip(r) && isObj(r.mercy) ? num(r.mercy[k]) : 0;
+    return { favour: q.favour, waitMult: q.waitMult, over: q.over ?? over, good, spent, mercy, quiet: spent >= good };
+  }
+  function closeBite() {
+    const r = run();
+    if (!onTrip(r)) return;
+    const f = flags(r);
+    f.openBite = null;
+    f.openComeback = false;
+  }
+  function refundOpenBite() {
+    const r = run();
+    if (!onTrip(r)) return false;
+    const f = flags(r), key = f.openBite;
+    f.openBite = null;
+    f.openComeback = false;
+    if (typeof key !== 'string' || !key) return false;
+    const list = Array.isArray(f.pendingCatch) ? f.pendingCatch : [];
+    if (list.some((p) => (typeof p?.waterKey === 'string' ? p.waterKey : keyOf(p?.place ?? null, r.zone)) === key)) return false;
+    r.bites = isObj(r.bites) ? r.bites : {};
+    const n = Math.max(0, int(r.bites[key]));
+    if (n <= 0) return false;
+    r.bites[key] = n - 1;
+    return true;
+  }
+
+  // ---------------------------------------------------------------- the passives' run state (WICKS §2.2, §2.5)
+  /** Taper's first bite (one an evening, run.flags.taperFirst): open while the Wick is Taper and fewer than firstBites have been served
+   *  under the rule this evening. A let-go refund never re-arms it; the next evening's run starts it afresh. */
+  function taperFirstOpen() {
+    const r = run();
+    if (!onTrip(r) || passive(wickIdOf(r.character)) !== 'long_reach') return false;
+    const want = Math.max(1, int(LOOP().wicks?.taper?.firstBites, 1));
+    const v = flags(r).taperFirst, served = v === true ? want : Math.max(0, int(v));
+    return served < want;
+  }
+  function spendTaperFirst() {
+    if (!taperFirstOpen()) return false;
+    const r = run(), f = flags(r), want = Math.max(1, int(LOOP().wicks?.taper?.firstBites, 1));
+    const served = Math.max(0, int(f.taperFirst)) + 1;
+    f.taperFirst = served >= want ? true : served;
+    requestSave();
+    return true;
+  }
+  /** Ashwick's waiting comeback at this water (the same species and z), or null. */
+  function comeback(key) {
+    const r = run();
+    if (!onTrip(r) || !isObj(r.comeback)) return null;
+    if (key != null && r.comeback.waterKey !== key) return null;
+    return { ...r.comeback };
+  }
+  /** Fishing serves the comeback's bite: it is gone from the run (and saved) before the land roll, so a Continue never brings it twice. */
+  function consumeComeback() {
+    const r = run();
+    if (!onTrip(r) || !isObj(r.comeback)) return null;
+    const c = { ...r.comeback };
+    r.comeback = null;
+    requestSave();
+    return c;
+  }
+  /** fish:escaped (internal): Ashwick's fish comes back once at that water this evening, tired. Never a giant or a legend, never a
+   *  line cut by sailing away, and never the comeback itself (lost twice, it is gone). Returns true when a comeback was stored, so the
+   *  built marking skips it (a fish that will come back is not also a Marked Fish). */
+  function onEscaped(e = {}) {
+    const r = run();
+    const wasComeback = lastBiteComeback;
+    lastBiteComeback = false;
+    if (!onTrip(r) || passive(wickIdOf(r.character)) !== 'burns_back') return false;
+    if (wasComeback || e.cut === true || e.reason === 'cut' || e.legendary === true) return false;
+    const sp = spOf(e.speciesId);
+    if (!sp || sp.rarity === 'legendary' || sp.giant === true || e.giant === true) return false;
+    const z = Number(e.z);
+    if (!Number.isFinite(z)) return false;
+    const zone = e.zone || r.zone;
+    r.comeback = { waterKey: keyOf(e.place ?? null, zone), speciesId: sp.id, z, zone, sizeClass: e.sizeClass ?? null };
+    requestSave();
+    return true;
+  }
+  /** zone:change on a trip: a comeback waits only at its own lake. */
+  function onZoneChange(e = {}) {
+    const r = run();
+    if (onTrip(r) && isObj(r.comeback) && e.zone && r.comeback.zone && r.comeback.zone !== e.zone) r.comeback = null;
+  }
+
+  // ---------------------------------------------------------------- the records (WICKS §2.1): measure's part, internal
+  /** measure() on a trip (internal): the Wick's ledger in the same save as the Journal; fish.first on the hold fish. */
+  function noteFirst(fish, sp, cls) {
+    const r = run(), L = ensureLoop();
+    if (!onTrip(r) || !L || !isObj(fish) || !sp) return false;
+    if (passive(wickIdOf(r.character)) !== 'curious') return false;
+    let seals = [];
+    try { seals = D().sealsFor?.(sp) || []; } catch { seals = []; }
+    const res = stampFirst(L.firsts, sp, fish, { cls, seals });
+    if (res.first) fish.first = true;
+    return res.first;
+  }
+
+  // ---------------------------------------------------------------- a trip (PLAN §2.1 item 6) and its tally (§3.4)
+  function isOpen(waterId) {
+    const L = ensureLoop();
+    if (!L || typeof waterId !== 'string') return false;
+    return !!LOOP().waters?.[waterId] && (L.maps?.lakes || []).includes(waterId);
+  }
+  function createTrip({ startZone = 'mossmere', character = null } = {}) {
+    const L = ensureLoop();
+    if (!L) return null;
+    const d = D();
+    const zone = isOpen(startZone) ? startZone : (L.maps.lakes.find((id) => isOpen(id)) || L.maps.lakes[0] || 'mossmere');
+    const wick = wickIdOf(L.wick != null ? L.wick : character);
+    const m = meta() || {};
+    const r = {
+      active: true, id: uid('run'), seed: (Math.random() * 1e9) | 0, playTime: 0, character: wick,
+      day: 1, phase: 'calm', phaseTime: 0, hp: 5, oil: 100, satiety: 100,
+      zone, zonesUnlocked: [zone], gateOpen: false,
+      shells: 0, bait: isObj(L.bait?.[zone]) ? { ...L.bait[zone] } : {}, equippedBait: null, creel: [], upgrades: {}, legendaries: {}, bounties: [],
+      level: 1, xp: 0, xpNext: d.xpForLevel?.(1) ?? 5, boons: {}, rerollsUsed: 0,
+      stats: typeof S.freshRunStats === 'function' ? S.freshRunStats() : {},
+      flags: {
+        zoneEnteredDay: 1, streak: 0, mercy: 0, heartwax: 0, wounded: {},
+        nights: 0, nightActive: false, nightSlain: 0, maxNightSlain: 0, nightCatch: 0, maxNightCatch: 0,
+        nightDamaged: false, nightFlares: 0, perfectHooks: 0, bestStreak: 0, slain: 0, elites: 0, bosses: 0, landed: 0,
+        deepestEndured: -1, bountiesDone: 0, bountyMemories: 0, challengesDone: [], records: [], ch: {},
+        startDeepest: m.deepestZone || 0,
+        nightLog: [], openBite: null, openComeback: false, taperFirst: false,
+      },
+      outing: 'trip', nightMode: 'still', tally: { dawns: 0, stillNights: 0, swarmNights: 0 },
+      lures: {}, equipped: null, bites: {}, mercy: {}, evening: Math.max(0, int(L.evenings)) + 1, comeback: null,
+    };
+    try {
+      const st = S.computeStats?.({}, r);
+      if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
+    } catch (e) { report('computeStats', e); }
+    session = [];
+    return r;
+  }
+  /** The tally (PLAN §3.4): pays once (a second call on the same run returns {…lastTrip, already: true}), empties the hold, ends the
+   *  run (active false) and saves at once, before anything moves; then loop:tally. A row stores the fish's length, never a weight. */
+  function endTrip() {
+    const r = run(), L = ensureLoop();
+    if (!onTrip(r) || !L) return null;
+    if (isObj(L.lastTrip) && r.id != null && L.lastTrip.id === r.id) return { ...L.lastTrip, already: true };
+    const creel = Array.isArray(r.creel) ? r.creel : [];
+    for (const f of creel) if (isObj(f) && !Number.isFinite(Number(f.clams))) f.clams = priceOf(f);
+    const { lines, total } = tallyBook(L, creel, r, { D: D(), saleOf });
+    L.lastTrip = { id: r.id ?? null, evening: int(r.evening) || L.evenings, zone: r.zone ?? null, total, lines, seen: false };
+    r.creel = [];
+    try { S.pending?.clear?.(); } catch { /* optional */ }
+    S.syncPending?.();
+    const f = flags(r);
+    f.openBite = null; f.openComeback = false;
+    delete f.pendingCatch;
+    r.comeback = null;
+    r.active = false;
+    S.invalidate?.();
+    saveNow();
+    const out = { ...L.lastTrip };
+    emit('loop:tally', { ...out });
+    return out;
+  }
+  const lastTrip = () => { const L = ensureLoop(); return isObj(L?.lastTrip) ? L.lastTrip : null; };
+  function markTallySeen(id) {
+    const L = ensureLoop();
+    if (!isObj(L?.lastTrip) || L.lastTrip.id !== id || L.lastTrip.seen === true) return;
+    L.lastTrip.seen = true;
+    requestSave();
+  }
+
+  // ---------------------------------------------------------------- Murk's shelf (SPEC §8.4, PLAN CHOICEs 11 and 26)
+  // the shelf's session: the cards bought since the shelf opened (they read "Yours." in place until it closes). Cleared when the
+  // 'shelf' modal opens or closes (ui:modal), at home:enter and at a trip's start; never saved.
+  let session = [];
+  const TAB_ORDER = ['tackle', 'raft', 'bait', 'maps', 'home'];
+  function shelf() {
+    const L = ensureLoop();
+    if (!L) return { tabs: [] };
+    const all = shelfItems(D(), L, session);
+    return { tabs: TAB_ORDER.map((id) => ({ id, items: all.filter((i) => i.tab === id) })).filter((t) => t.items.length) };
+  }
+  const goal = () => { const L = ensureLoop(); return L ? goalOf(shelfItems(D(), L)) : null; };
+  function buy(itemId) {
+    const L = ensureLoop();
+    if (!L) return { ok: false, msg: '', clams: 0 };
+    const id = itemId === 'hold' ? `hold:${L.holdSlots + 1}` : String(itemId ?? '');
+    const it = shelfItems(D(), L).find((i) => i.id === id && !i.bought);
+    if (!it || num(L.clams) < num(it.price)) return { ok: false, msg: '', clams: num(L.clams) };
+    L.clams = num(L.clams) - num(it.price);
+    if (it.slot === 'hold') L.holdSlots = it.level;
+    else L.tackle[it.slot] = it.level;
+    if (!session.includes(id)) session.push(id);
+    try { S.invalidate?.(); } catch { /* optional */ }
+    saveNow();
+    emit('loop:buy', { item: id, price: it.price, clams: L.clams });
+    return { ok: true, msg: '', clams: L.clams };
+  }
+  function debugGive(n) {
+    const L = ensureLoop();
+    if (!L) return 0;
+    let dbg = false;
+    try { dbg = S.debugOn?.() === true; } catch { dbg = false; }
+    if (!dbg) return num(L.clams);
+    L.clams = Math.max(0, num(L.clams) + Math.round(num(n)));
+    requestSave();
+    return L.clams;
+  }
+
+  // ---------------------------------------------------------------- Murk's once-lines (SPEC §8.6)
+  function sayOnce(id) {
+    const L = ensureLoop();
+    const M = D().TEXT_LOOP?.murk || {};
+    if (!L || typeof id !== 'string') return null;
+    if (!isObj(L.said)) L.said = {};
+    if (id === 'sailOut') {
+      const lines = Array.isArray(M.sailOut) ? M.sailOut : [];
+      if (!lines.length) return null;
+      const i = Math.max(0, int(L.said.sailOut)) % lines.length;
+      L.said.sailOut = (i + 1) % lines.length;
+      requestSave();
+      return lines[i];
+    }
+    if (L.said[id]) return null;
+    const text = id === 'firstChart' ? (M.firstChartBy?.[wickNow()] ?? M.firstChart) : M[id];
+    if (typeof text !== 'string' || !text) return null;
+    L.said[id] = true;
+    requestSave();
+    return text;
+  }
+  /** A saved non-trip descent at the first Sail (PLAN CHOICE 5): kept in meta.loop.parkedRun, never resumed under the loop; the
+   *  flag-off boot puts it back (sellStrandedTrip). */
+  function parkRun(r) {
+    const L = ensureLoop();
+    if (!L || !isObj(r) || r.outing === 'trip') return;
+    L.parkedRun = r;
+    requestSave();
+  }
+
+  // ---------------------------------------------------------------- the opening (OPENING.md §10, PLAN §2.1 item 15)
+  const wick = () => wickIdOf(ensureLoop()?.wick);
+  function setWick(id) {
+    const L = ensureLoop();
+    if (!L) return null;
+    if (id == null) { L.wick = null; return null; }
+    L.wick = wickIdOf(id);
+    // New Descent's Start: the Wick's ledger is this New Descent's own (WICKS §2.1); a save that has sold an evening keeps its ledger
+    if (int(L.evenings) === 0 && !isObj(L.lastTrip)) L.firsts = { seen: [], seals: [], best: {} };
+    return L.wick;
+  }
+  const tutorial = () => { const L = ensureLoop(); return isObj(L?.tutorial) ? { ...L.tutorial } : null; };
+  function beginTutorial() {
+    const L = ensureLoop();
+    if (!L) return null;
+    if (!isObj(L.tutorial)) L.tutorial = { done: false, step: 'arrive' };
+    return { ...L.tutorial };
+  }
+  function setTutorialStep(id) {
+    const L = ensureLoop();
+    if (!isObj(L?.tutorial) || L.tutorial.done === true) return;
+    L.tutorial.step = typeof id === 'string' ? id : null;
+    requestSave();
+  }
+  function tutorialDone() {
+    const L = ensureLoop();
+    if (!L) return;
+    L.tutorial = { done: true, step: null };
+    if (!isObj(L.said)) L.said = {};
+    L.said.firstChart = true;
+    saveNow();
+  }
+
   const api = {
-    state: () => null,
-    hold: () => null,
-    holdFull: () => false,
-    priceOf: () => 0,
-    saleOf: () => null,
-    keep: no,
-    letGo: no,
-    noteBite: () => {},
-    bitesSpent: () => 0,
-    bitesLeft: () => 0,
-    favour: () => null,
-    closeBite: () => {},
-    refundOpenBite: () => false,
-    debugGive: () => 0,
-    isOpen: () => false,
-    listCount: () => null,
-    createTrip: () => null,
-    endTrip: () => null,
-    lastTrip: () => null,
-    markTallySeen: () => {},
-    shelf: () => null,
-    goal: () => null,
-    buy: no,
-    sayOnce: () => null,
-    parkRun: () => {},
-    wick: () => null,
-    setWick: () => null,
-    tutorial: () => null,
-    beginTutorial: () => null,
-    setTutorialStep: () => {},
-    tutorialDone: () => {},
-    taperFirstOpen: () => false,
-    spendTaperFirst: () => false,
-    comeback: () => null,
-    consumeComeback: () => null,
+    state: () => ensureLoop(),
+    hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
+    isOpen, listCount: (waterId) => { ensureLoop(); return listCount(meta(), D(), waterId); },
+    createTrip, endTrip, lastTrip, markTallySeen, shelf, goal, buy, sayOnce, parkRun,
+    wick, setWick, tutorial, beginTutorial, setTutorialStep, tutorialDone,
+    taperFirstOpen, spendTaperFirst, comeback, consumeComeback,
+  };
+  /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
+  S.loopInternal = {
+    ensure: ensureLoop, onTrip, noteFirst, onEscaped, onZoneChange,
+    resetSession: () => { session = []; },
+    /** fishAction on a trip: Keep → keep, Let go (and Release) → letGo; every other action does nothing. */
+    fishAction(fish, action) {
+      if (action === 'keep') return keep(fish);
+      if (action === 'letgo' || action === 'release') return letGo(fish);
+      return { ok: false, msg: '', gained: {} };
+    },
   };
   return api;
 }
