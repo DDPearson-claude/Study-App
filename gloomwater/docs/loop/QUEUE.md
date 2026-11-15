@@ -2,26 +2,37 @@
 
 The user asked on 14 November 2026: "Let's pause and focus on one task at a time." Then: "Just choose the next job and run continuously until all queued work is complete." One job runs at a time; the lead picks the order below and starts each the moment the one before is merged, without stopping to ask.
 
-## The order (the lead's choice, re-ordered by the user's word of 15 November 2026)
+## The order (the lead's choice, re-ordered by the user's words of 15 November 2026)
 
-The user, 15 November 2026: "Once this visual job has ran, focus on all code based jobs first as they're much faster". So once the catch show is merged, every code, data, sim and design job runs before the two jobs that must render the 3D game in software to be judged (jobs 8 and 9). A code job keeps its browser runs to the regression it needs; no look-and-fix art rounds unless the job is about how something looks.
+The user, 15 November 2026: "Once this visual job has ran, focus on all code based jobs first as they're much faster". Then, asked what it takes to get map 1 and the home base "fully 100% finished and playable", the user said **"Yes"** to the lead's re-cut: **finish the Mossmere and the home base first** (milestone M1, "the Mossmere and the Landing, complete"); everything for Sporewood and the later waters waits until M1 is done. The design and code jobs still run first (2–7); then M1's builds in order (8–13); then the rest.
 
 1. ~~The catch show~~ *(DONE 15 November: merged at 32c7133 with the cut scene; the preview updated; the film with its sound sent)*
-2. The world map and the story (resume `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map (a 2D generator and page, not a game render); publish the map; answer the user's questions.
-3. **Pounds** (the user, 15 November 2026: "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please"). A fish's size is told in pounds everywhere the player sees it: the card's headline and its count, records and personal bests, the Journal and ledger, bounties and challenges, the play's estimate, Murk's lines. Format (the lead's default, the UK angler's way): under 1 lb in ounces ("11 oz"; under 1 oz to the nearest quarter, "¾ oz"); 1 lb to under 100 lb as "4 lb 6 oz"; 100 lb and up in whole pounds ("212 lb"). Length stays the hidden truth (the model's scale, the show's pose, the classes) and is kept only as a detail line on the card. The species' weights are audited against their real-world cousins so the pounds ring true. v3 and the loop only; the flag-off v1 game keeps parity. Code job: data, ui, progression, validator, tests, docs.
-4. The Chart-integration plan: the world map as the in-game Chart (SPEC §5.4, §13, PLAN's Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers).
+2. The world map and the story (run `wf_83a11939-9e7`): LORE.md, WORLD.md, the continent map (a 2D generator and page); publish the map; answer the user's questions. *(running)*
+3. **Pounds** (the user, 15 November 2026: "I know this is a weird unit of measurement change but we always use pounds as a gauge of fish size can we have that as our unit of measurement please"). A fish's size is told in pounds everywhere the player sees it: the card's headline and its count, records and personal bests, the Journal and ledger, bounties and challenges, the play's estimate, Murk's lines. Format (the lead's default, the UK angler's way): under 1 lb in ounces ("11 oz"; under 1 oz to the nearest quarter, "¾ oz"); 1 lb to under 100 lb as "4 lb 6 oz"; 100 lb and up in whole pounds ("212 lb"). Length stays the hidden truth (the model's scale, the show's pose, the classes) and is kept only as a detail line on the card. The species' weights are audited against their real-world cousins so the pounds ring true. v3 and the loop only; the flag-off v1 game keeps parity.
+4. **The M1 plan, with the Chart** (design): re-cut SPEC §13 and the slice PLANs into M1 (the slices' Mossmere halves, the cove pulled forward, Sporewood's sheet sealed "coming soon"); the world map as the in-game Chart (SPEC §5.4, §13, the Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers); the sim's pacing for a Mossmere-only arc (`--shipped`); M1's done-list.
 5. The three keys (resume `wf_1c95633f-092`).
 6. The Wicks' passives, design (resume `wf_91d42619-6b9`).
 7. The Wicks' balancing in the sim.
-8. Slice 1a, built (its PLAN, amended by 3–7), then the preview with the loop on.
-9. *(visual)* The cut scene's line 3, rewritten from the story; re-timed, re-checked, a new video with sound.
-10. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`).
+
+**M1: the Mossmere and the Landing, complete** (each step built, reviewed, merged and previewed before the next)
+
+8. Slice 1a: the core loop at the Jetty (the opening with the five Wicks, the tutorial, three slots, the tally, the tackle shelf, saves), its PLAN amended by 3–7; the cut scene's new line 3 put in and re-timed; the catch show's backlog below.
+9. The Mossmere's roster fish (slice 1b's Mossmere half): the eight at roster sizes, the converter, the allow-list.
+10. *(visual)* The Mossmere's places, giants and legend (slice 2's Mossmere half): the four places in mist, the Thousandcast Pike and the Hullkiss Lamprey, the Belled Matriarch, Elders in old water, Kissmark Trout, Gloam Eel, Bridgechain Sturgeon, the lamprey / sturgeon / trout plans, the drawn Chart.
+11. Bait, lures, the raft parts and Murk's orders (slice 3 without Sporewood's fish), and the catfish plan so the Matriarch is a catfish.
+12. *(visual)* The cove built (FE-W1, `SUPPORTS_COVE`), then the Landing as home (slice 4): the posts, the home upgrades in the scene, the Waystones, the prints and the giants' page.
+13. The polish pass: the show's sound mix, phone performance, one full playthrough from a fresh save to an empty shelf, the new cut-scene video with its sound.
+
+**After M1**
+
+14. *(visual)* The ramp is the land (resume `wf_f7bccff9-e78`) and the rest of slice 1c; slice 1d, the river spike.
+15. Sporewood and onward (the slices' other halves, then 5–9).
 
 ## Running
 
 - **The world map and the story** (job 2; resumes run `wf_83a11939-9e7` on `gw-loop-world`).
 
-## Backlog for slice 1a (found on the catch show's merge; small, code only; lane B unless named)
+## Backlog for slice 1a (job 8) (found on the catch show's merge; small, code only; lane B unless named)
 
 The merge review (15 November) found no regression a player would see; these are the leftovers, carried into slice 1a's build because it opens the same files:
 
@@ -43,7 +54,8 @@ The merge review (15 November) found no regression a player would see; these are
 
 | item | the user's words | when |
 |---|---|---|
-| Rewrite the cut scene's line 3 ("Its last candles fish to stay lit.") so it fits the new loop and points toward the journey | "Yes, rewrite line 3 once the story's done" (14 November 2026) | job 8: after the code jobs (the user's word of 15 November); the words can be drafted with the story |
-| The world map becomes the in-game Chart | "Yes make the map our in-game Chart" | a Chart-integration plan after the world map job, before slice 1a is built |
-| Wick balancing in the sim | "each one has a powerful unique passive ability" | job 6, after the three keys and the passives |
-| Slice 1a build (three slots on the built fish, the opening, the Chart) | — | after the above are merged |
+| Rewrite the cut scene's line 3 ("Its last candles fish to stay lit.") so it fits the new loop and points toward the journey | "Yes, rewrite line 3 once the story's done" (14 November 2026) | the words drafted in LORE.md by job 2; put in and re-timed in job 8 (slice 1a); the new video in job 13 |
+| The world map becomes the in-game Chart | "Yes make the map our in-game Chart" | job 4 (the M1 plan, with the Chart) |
+| Wick balancing in the sim | "each one has a powerful unique passive ability" | job 7 |
+| Slice 1a build (three slots on the built fish, the opening, the Chart) | — | job 8, the start of M1 |
+| Finish the Mossmere and the home base first (M1) | "What do we need to do to get map 1 and the home base fully 100% finished and playable" · "Yes" (15 November 2026) | jobs 4 and 8–13 |
