@@ -14,7 +14,8 @@ stays home in steps 1–4 and becomes the barge's mooring. **Revision 5** (15 No
 applied with the finds job; `docs/loop/M1.md` §10.3): the first tow ends in 3D: after its leg on the Chart, one ink dip into
 the Mossmere and the raft towing the barge in to the Jetty (3 s, skippable), then the chart beat over the moored barge
 (about 25 s untouched); the tow's parts are timed and gated one by one; the barge's save field is `meta.loop.barge` (§6.2,
-§10).*
+§10). Binding with SPEC v8.1 (rebased on v8, the three keys): the Mossmere's sheet inks in on the opening's tow, since no
+purchase inks it; a later water's tow plays over the sheet its purchase inked (SPEC §5.5), with no second ink-in.*
 
 ## 0. The user's words (14 November 2026), verbatim
 
@@ -322,7 +323,7 @@ reach I's hand (whether it should be 3D instead is `M1.md` §8 question 6; defau
 |---|---|---|---|---|
 | **arrive** | the film's last frame → one ink dip (0.6 s) → the Chart's first sheet, closed in on the Landing: the arch, the old barge-house moored in the cove with its stove's banked glow in the window, the dozing candles by it, Murk's barge alongside with its green dot | none | 1.5 s, or a tap | 2 s |
 | **wake** | the same picture; the Wick's mark kindles aboard (a flame catching, as in the film) | "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it." (unchanged; 5.95 s) | 1 s after the line ends, or a tap once it shows | ≤ 7 s |
-| **tow** | the first tow's leg (SPEC §6.5): the view follows the Sluice Run from the Landing up its locks to the Mossmere, the raft's mark towing the barge's on a line, Murk's barge alongside; the Mossmere's sheet inks in as they arrive (the sheet's one ink-in: no purchase inked it, and §6.1's chart beat does not repeat it) | none | its end, or a tap (the sheet inked at once) | 5 s (4 s, and 0.5 s each for the lock flight and the fall; ≤ 6 s) |
+| **tow** | the first tow's leg (SPEC §6.5): the view follows the Sluice Run from the Landing up its locks to the Mossmere, the raft's mark towing the barge's on a line, Murk's barge alongside; the Mossmere's sheet inks in as they arrive (its one ink-in: no purchase inks the Mossmere, and §6.1's chart beat does not repeat it; a later water's tow plays over the sheet its purchase inked, SPEC §5.5, with no second ink-in) | none | its end, or a tap (the sheet inked at once) | 5 s (4 s, and 0.5 s each for the lock flight and the fall; ≤ 6 s) |
 | **glide in** | the tow's second half: one ink dip (0.6 s, held until the Mossmere's first frame is drawn) into the Mossmere at late day; the raft towing the barge in on its line, Murk's barge alongside, to the Jetty, where the barge moors and the raft ties up at its stern, the home camera easing to the mooring's framing | none | its end, or a tap (at the mooring) | 3.6 s (the dip 0.6 s, the glide 3 s) |
 | **chart** | the Chart as §6.1, over the moored barge in the water (on the sheet the barge is now drawn at the Jetty); the Mossmere chosen; the hold's empty slots ink in (three; four for Tallow); **Sail** breathes | "Three slots in that hold. Fill them and come home." (Tallow: "Four slots in that hold. Fill them and come home.") | **Sail**, pressed by the player | ≈ 3 s |
 | **out** | the screens close; the glide out from the barge's stern (§7); no dip (the glide in already brought the Mossmere) | none | its end, or a tap | 3 s |
@@ -481,6 +482,6 @@ The barge review's shoulds (`docs/loop/M1.md` §10.3), applied with the finds jo
 | change | where |
 |---|---|
 | the tow ends in 3D: after its leg on the Chart (5 s for the Sluice Run), one ink dip into the Mossmere and the raft towing the barge in to the Jetty (3 s, a tap ends it); the chart beat opens over the moored barge; the out beat loses its dip; ≈ 25 s untouched, ≈ 8 s tapping through | §1 rows 5–6 and its time line, §6.2 |
-| the tow is the sheet's one ink-in | §6.2 |
+| each sheet inks in once: the Mossmere's on the opening's tow (no purchase inks it); a bought water's by its purchase (SPEC §5.5), never again by its tow | §6.2 |
 | the barge's save field is `meta.loop.barge = {water, towed}`, not `home.water` and `home.towed` (revision 4's row above is history) | §6.2, §10 |
 

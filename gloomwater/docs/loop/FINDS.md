@@ -1,6 +1,8 @@
 # Finds from the water: treasures, barge parts and looks
 
-*Binding design for what the line brings up that is not a fish (revision 1, 15 November 2026). Binding with `SPEC.md` v8.1
+*Binding design for what the line brings up that is not a fish (revision 2, 15 November 2026; revision 2 is the review's:
+every barge part does one small, real thing at its water, §3.2; the rates' share of clams restated, §4.4; the catch path's
+modules named, §12). Binding with `SPEC.md` v8.1
 (§0 row 19, decisions 49–57, §3.1, §4.10, §6.2, §6.3, §8, §9, §13 step 5c, §16 questions 20–21), `M1.md` revision 4 (§2.16,
 §4 step 5c), `LORE.md` v2.2 (each water's drowned works, §3; the guards, §10) and `WICKS.md` revision 3. The aquarium, whose
 upgrades and looks are finds too, is `AQUARIUM.md`. Design only: no `src/` or `tools/` file changed with this document.
@@ -35,7 +37,8 @@ logs. Very few words on screen. Nothing is fought; nothing is magic (`LORE.md` �
 Now and then the line comes up heavy and slow, with no fight in it: a **snag**. The Wick hauls it in and holds it up to the
 light, dripping: a spoon, a coin, a lamp-glass, a bell, a purse. Its card says what it is. **Keep** it and it takes a slot
 like a fish; at home Murk weighs it on his scale with the catch and pays for a treasure, or carries a part or a look
-aboard, where it is fitted to the Slow Hearth, the raft or the Wick, and seen at every water from then on. Each water gives
+aboard, where it is fitted to the Slow Hearth, the raft or the Wick, and seen at every water from then on. A part also does
+one small thing for good at the water it came from: a free tin, one more order, one more good bite. Each water gives
 up its own things, from its own drowned works. Most are small. One in each water is somebody's whole fortune.
 
 ---
@@ -57,7 +60,7 @@ up its own things, from its own drowned works. Most are small. One in each water
 | **let go** | **Let go** drops it back: the bite is refunded, no favour, no clams. A treasure let go may come up again another evening; a part or a look let go stays in the water's set and may come up again | nothing is lost by choosing |
 | **the tally** | treasures go on Murk's scale after the fish, by value, the jackpot last and alone with a giant's pause, and are paid; parts and looks are carried aboard, no price (§6.4) | you sell what you keep |
 | **parts and looks never repeat** | once you own one, it leaves its water's draw; a water's draw is then all treasure | a second bell for the bow is not a find |
-| **what a find never does** | count toward the catch key (the three keys' catch seal, SPEC §5.5), the Journal's species, a record, a class seal, an ink print, the giants' page, Murk's orders, the Old Ledger, or a Wick's firsts; change a price, a payout, the odds, a slot count, the bait or the shelf; add a percentage anywhere | the catch key and every fish record stay about fish; the shelf's pacing does not move (§3.2) |
+| **what a find never does** | count toward the catch key (the three keys' catch seal, SPEC §5.5), the Journal's species, a record, a class seal, an ink print, the giants' page, Murk's orders, the Old Ledger, or a Wick's firsts; stand in for a shelf item; change a price, a payout, the odds, a slot count or the shelf; add a percentage anywhere. A barge part's one capped effect (§3.2) is the only number a find moves | the catch key and every fish record stay about fish; the shelf's 32 items and its gates stay as they are (§3.2) |
 | **the Wicks' passives** | Taper's first bite is its first **fish** bite (a snag does not use it up); Stub's quicker waits are every bite's, a snag's too; Tallow's bigger hold holds finds like fish; Ashwick's comeback never applies (a find never gets away); the Wick's firsts never pay on a find | the passives stay about fish (`WICKS.md`); the balancing job's ±10% runs with finds on (§10) |
 | **no way to fail** | a snag can be passed, hauled or let go; none of it costs anything but the slot you chose to fill | SPEC §3.6 |
 
@@ -83,18 +86,33 @@ Fittings from the drowned works that the Slow Hearth can wear for good: a bell f
 windows, a stone bollard for the stern. Each water has **three**. A part is kept, never sold: it takes the slot a fish would
 have filled that evening, and is fitted at the tally's end (Murk sees to it by first light).
 
-**What a part does, and why it is only that.** A part is a **found fitting**: an upgrade only finds give, fitted at the
-place of one of SPEC §6.3's upgrades (the bow rail by the Order Board's second board, the roof by the Bait Bed, the rails
-by the Barge lights, the cabin by the Long Wall), and it changes **what you see and hear at home and of home from the
-water**: a bell that rings you home, warmer windows seen from farther across the night water, a bollard the raft ties to.
-**It never stands in for a shelf item and never changes a number** (a price, a payout, the odds, the slots, the bait, the
-orders). So the shelf's 32 items in M1, its 7,750 clams and the full game's 144 purchases, their gates and their pacing do
-not move (decision 38), and the sim needs no new price: a part costs only the slot it filled (§10). Every part changes the
-home frame (a before-and-after pair is a test), like every shelf upgrade. After M1, the aquarium's fittings are parts of
-this kind too (`AQUARIUM.md` §8), and there a part grows the aquarium's world.
+**What a part does.** A part is a **found fitting**: an upgrade only finds give, fitted at the place of one of SPEC §6.3's
+upgrades, and it does two things. It changes **what you see and hear at home and of home from the water** (a bell that rings
+you home, warmer windows seen from farther across the night water, a bollard the raft ties to: every part changes the home
+frame, a before-and-after pair as a test, like every shelf upgrade). And it does **one small, real thing**, of the kind of
+the upgrade whose place it takes, capped at one:
 
-The other way (a part that does something with a number, such as a planter that gives one more free tin a night or a slate
-that chalks one more order) is SPEC §16 question 21: it would move the pacing, so the default keeps parts to looks and life.
+| a part's kind | what it does, for good, **at its own water** | the shelf upgrade it sits beside | its cap |
+|---|---|---|---|
+| **bait** (a planter, a pot, a carved hollow) | **+1 free tin** of the water's plain bait each evening, on top of the Bait Bed's floor (with no Bait Bed, a floor of 1). It tops you up like the Bed; it never piles up | the Bait Bed (§6.3) | one tin a water |
+| **order** (a bell, a slate, a board) | once **Order Board I** is owned, **one more order** on the board, always for a fish of the part's own water, chalked and filled only while the barge lies there (elsewhere it waits, unwiped, like any order). Before Order Board I it does nothing but ring | Murk's Order Board (§6.3) | one order a water |
+| **bite** (a lamp, a glass, a light) | **+1 good bite** at its water's open water each evening (one more dot on the float; the hold ladder's own kind, SPEC §3.3) | the Barge lights' place (home's light; the lights themselves stay looks only) | one good bite a water |
+
+**At its own water**, because home goes where you fish: the barge is always moored at the water you are fishing, so a
+part works whenever you fish the water it came from, and each new water's parts are the ones you use most while it is the
+best water. It also caps itself: at any water at most +1 tin, +1 order and +1 good bite, however many waters' parts you
+own, so sixteen waters' parts never add up to a second shelf. Each water's three parts are **one of each kind** (§5), so a
+water's set completes one small upgrade of each kind there.
+
+**What a part never does.** It never stands in for a shelf item: the Bait Bed, the Order Board and the hold are still
+bought, and a part only adds its one beside them. It never changes a price, a payout, the odds, a slot count or the shelf,
+and adds no percentage to a sale. So the shelf's 32 items in M1, its 7,750 clams and the full game's 144 purchases and their
+gates (decision 38) stay as they are; what moves is how fast the clams come, and the sim prices that (§4.4, §11) inside the
+gates already set. After M1, the aquarium's fittings are parts of another kind: there a part grows the aquarium's world,
+not a number (`AQUARIUM.md` §8).
+
+The other way (parts that only look and sound, with no effect at all) is SPEC §16 question 21: it leaves the shelf's
+pacing untouched, but makes "upgrade our base" a second kind of look.
 
 ### 3.3 Looks (the user's "cosmetics")
 
@@ -121,7 +139,7 @@ finds table before the aquarium ships, so nothing is found that has nowhere to g
 | term | value *(est.)* | so |
 |---|---|---|
 | **the snag rate** | **1 bite in 20** (`LOOP.finds.snag.perBite` 0.05) at a water's open water and every place; 0 on the first evening and on a legend's cast | about 0.25 snags a trip at Hold 3–4 (about 5 bites), 0.4 at Hold 5–6 (about 8), 0.45 at Hold 8 |
-| **the kind** | while the water has a part or a look you do not own: **35%** of its snags are one of them (each unowned one equally likely, never one already in this trip's hold), 65% a treasure; once you own them all, every snag is a treasure | a water's six parts and looks come over about 18 snags: most players have the Mossmere's six by M1's end (§4.4) |
+| **the kind** | while the water has a part or a look you do not own: **35%** of its snags are one of them (each unowned one equally likely, never one already in this trip's hold), else a treasure; **a soft guarantee**: each snag that brings a treasure while some are unowned raises the share by **15 points** for that water (to 100%), and a part or a look brought up sets it back to 35%. Once you own them all, every snag is a treasure | a water's six parts and looks come over about 18 snags: about **85% of players** own the Mossmere's six by M1's end, against about 55% without the guarantee (*est.*, a hand Monte Carlo of §4.3's snag counts; the sim reports it, §11) |
 | **the treasure's grade** | plain **50%** · fine **28%** · precious **15%** · rare **5.5%** · jackpot **1.5%** | the jackpot about 1 snag in 67 of treasure |
 
 ### 4.2 What a treasure sells for
@@ -160,9 +178,9 @@ priced by hand. From 10,000 a value shows as "12.4k" (SPEC §8).
 | | per snag | per trip at Hold 6 (0.4 snags) | in M1 (about 45 trips, about 18 snags) |
 |---|---|---|---|
 | any find | — | 1 trip in 2.5 | about 18 |
-| a part or a look (while some are unowned) | 35% | 1 trip in 7 | about 6 (the set's six) |
-| a rare treasure | 3.6% | 1 trip in 70 | at least one rare or the jackpot: about half of players |
-| **the jackpot** (while parts and looks remain) | 1.0% | 1 trip in 250 | about 1 player in 6 |
+| a part or a look (while some are unowned) | 35% and rising (§4.1) | 1 trip in 7 or better | about 5.8 of the set's six (all six: about 85% of players) |
+| a rare treasure | 3.6% | 1 trip in 70 | at least one rare or the jackpot: about half of players (about 11–12 treasures) |
+| **the jackpot** (while parts and looks remain) | 1.0% (a little less while the share climbs) | 1 trip in 250 | about 1 player in 6 |
 | **the jackpot** (the water's set owned) | 1.5% | 1 trip in 170 | — |
 
 Over the whole road (about 700 trips) a player brings home two or three jackpots, each in a different water as often as
@@ -172,12 +190,23 @@ not: a dream that comes true a few times, never a promise. Hidden on screen; sho
 
 A find fills a slot that a fish would have filled, so **a part or a look costs about one fish's sale** and a treasure pays
 its price instead of one. On the Mossmere a slot is worth about 15–65 clams through M1 and a treasure about 80 on average,
-so the treasures about pay for the parts and looks: over M1 the finds net about **±0** clams on average *(est.: about +960
-from treasures, about −990 from the 18 slots)*, with a wide spread (a jackpot at hour 1 brings the empty shelf about 30–40
-minutes sooner). Early trips gain most (about +14% a trip over the first ten minutes, almost all of it the rare tail; the
-median early find is a 14-clam spoon). Late, when every part and look is owned, a snag pays about 1.7 times the slot it
-fills *(est.)*, about +1% a trip at hour 20 and +3.5% at hour 40. The sim's gates are §10's: the M1 empty shelf within ±10%
-of the finds-off run and inside 2–4 h; the full run within ±5% of 48.9 h.
+so the treasures about pay for the parts and looks: over M1 the treasures bring about **+920** clams *(est.: about 11.5
+treasures × 80)* against about **−990** for the 18 slots, about **±0**, with a wide spread (a jackpot at hour 1 brings the
+empty shelf about 30–40 minutes sooner). **The parts' effects** are what moves M1: the Mossmere's three come at about hour
+0.4–1.5 on most saves, and once all three are fitted they add about **+6–10% a minute** there *(est.: the Gate Lamp-Glass's
+good bite about +3–4% at Hold 5–6, the Rust Buoy-Bell's order about +4–6% once Order Board I is owned (the pacing run's
++6% an order), the Moat Bollard's tin about 10 clams an evening, +1–4%)*, so M1's empty shelf comes about **4–7% sooner**
+than without finds (*est.*), inside the ±10% gate. Late, when a water's parts and looks are owned, a snag pays about 1.7
+times the slot it fills, and the water's three parts add about +5–8% a minute while it is the water you fish, so the full
+run ends about 2–4% sooner (*est.*), inside its ±5% gate.
+
+**Finds' share of the clams** *(est.)*: about **11%** of M1's (about 920 of 8,000–8,500 earned) and about **9%** late (0.45
+snags a trip × ×11.4 the tier ≈ 5.1 tiers, against about 7.5 fish slots × 6.7 tiers ≈ 50). That is the share the user's
+"huge value" asks for: finds are felt in the purse, and fishing still earns nine clams in ten. The sim's aim is **8–12%**
+and it **fails above 15%** (§11); if it lands above 12%, the first knob is `perBite` (0.04 gives about 7–9%).
+
+The sim's gates are §11's: the M1 empty shelf's p50 within ±10% of the finds-off run and inside 2–4 h, its p10 at or above
+2 h; the full run within ±5% of the finds-off run's own end (v8's gated pacing run ends at 47.6 h, SPEC §4.9).
 
 ---
 
@@ -197,21 +226,23 @@ The worn last link stays on the Toppled Bridge and the Gate's eight lit slits st
 | `salt_lens` | **Salt-Glass Lens** (the relic's name) | treasure | precious · **105** | "Fitted to a lantern long since drowned." | both | a thick round lens, salt-frosted, catching the lantern's light |
 | `two_headed_coin` | **Two-Headed Coin** (the relic's name) | treasure | rare · **350** | "Lucky, they said. Heads every time." | pinch | a heavy gold coin, a head on both faces |
 | `toll_purse` | **The Toll-Keeper's Purse** | treasure | **jackpot · 1,750** | "Full. Nobody came to collect." | both | a waterlogged leather purse with a brass clasp, coins showing at its mouth; its slot gold-edged |
-| `buoy_bell` | **Rust Buoy-Bell** (the Waystone keepsake's) | part · the barge's bow post | — | "It rang the boats home once." | both | at home: on the bow post; it rings once as the raft ties up at dawn, and Murk's hand bell answers |
-| `gate_glass` | **Gate Lamp-Glass** | part · the cabin windows | — | "Amber, from the Gate's drowned lamps." | both | the cabin's small square windows glazed amber: home's glow is warmer and reads farther across the night water (emissive only, no PointLight) |
-| `moat_bollard` | **Moat Bollard** | part · the stern deck | — | "Carved stone. Boats tied here for centuries." | alongside | a squat carved stone bollard on the stern deck; the raft ties up to it, a turn of line round its neck |
+| `buoy_bell` | **Rust Buoy-Bell** (the Waystone keepsake's) | part (order) · the barge's bow post, beside the Order Board's bow board | — | "It rang the boats home once." | both | at home: on the bow post; it rings once as the raft ties up at dawn, and Murk's hand bell answers. **Once Order Board I is owned, one more order on the board, for a Mossmere fish** |
+| `gate_glass` | **Gate Lamp-Glass** | part (bite) · the cabin windows | — | "Amber, from the Gate's drowned lamps." | both | the cabin's small square windows glazed amber: home's glow is warmer and reads farther across the night water (emissive only, no PointLight). **+1 good bite at the Mossmere's open water each evening** (the Mossmere's fish still know the Gate's lamps) |
+| `moat_bollard` | **Moat Bollard** | part (bait) · the stern deck | — | "Carved stone. Boats tied here for centuries." | alongside | a squat carved stone bollard on the stern deck; the raft ties up to it, a turn of line round its neck; wet moss in the hollow of its carved crown. **+1 free tin of Mire Worms each evening at the Mossmere** (the worms keep in its moss) |
 | `rod_tassel` | **Knotted Rod Tassel** (`COSMETICS_V3`'s) | look · the Wick's rod | — | "Every knot, a fish someone was proud of." | pinch | a tassel of knotted cord at the rod's butt, swinging as the Wick casts |
 | `toll_vane` | **Toll-Tower Vane** | look · the raft's stern post | — | "It still points into the wind." | both | a small iron weathervane (a fish, of course) on the raft's stern post, turning with the evening's breeze |
 | `lily_boxes` | **Night-Lily Window Boxes** | look · the barge's windows | — | "A window box, still flowering." | both | two stone boxes under the cabin windows, pale night lilies opening at dusk (the Mossmere's green only as a trace) |
 
 No slot holds two looks in M1: the Wick's rod and the raft's stern post have no bought look, and the window boxes hang
-below the windows the Gate Lamp-Glass glazes. The barge parts stay inside the home's ≤ 6 main-pass calls (merged into the
+below the windows the Gate Lamp-Glass glazes (the glass does a thing, the boxes only dress: the part and the look stay
+two kinds). The barge parts stay inside the home's ≤ 6 main-pass calls (merged into the
 hull's per-material meshes, §7).
 
 ### 5.2 The other fifteen waters: their themes
 
-Each water's set is authored with its slice (after M1), to the same shape: five treasures (one per grade), three parts,
-three looks (one per wearer) and, from the aquarium, four well pieces. Its theme is its drowned works (`LORE.md` §3); its
+Each water's set is authored with its slice (after M1), to the same shape: five treasures (one per grade), three parts
+(one of each kind, §3.2: a bell, slate or board for the order part, a lamp or glass for the bite part, a planter, pot or
+hollow for the bait part; its slice names which), three looks (one per wearer) and, from the aquarium, four well pieces. Its theme is its drowned works (`LORE.md` §3); its
 look follows its lushness step (`WATERS.md`); its story clue (the last link, the stool and seven knots, the dam's baskets,
 the canal bed's kettle and chair, the wax-ringed niches, the banked hearth) is never a find, and nothing human (no face,
 no figure, no name plate) ever comes up.
@@ -283,10 +314,12 @@ jackpot), a hull for a part, a ribbon for a look.
 
 A Journal page beside *Not fish*, its tab **Keepsakes**, shown from the first find. One panel per water you own (nothing
 unowned is drawn, decision 42's rule), its eleven finds in three short rows: the treasures, the barge's parts, the looks.
-A find you have had is drawn in ink with its name (a treasure with its count, "×3"); one you have not is a dark outline
+A find you have had is drawn in ink with its name (a treasure with its count, "×3"; a part with its kind's small glyph, a
+tin, a chalk mark or a float, the same glyph the hold's bait, order and bite dots use, and no words); one you have not is a dark outline
 with no name, so a water's set reads as a set without saying how it is found. The jackpot's outline is the one drawn in
 gold. A small **Odds ›** opens the log (built: the gear log's panel): this water's snag rate, its kind share and its grades
-(the only place a find's % shows). From the first water after M1 that brings a second look for one slot, the page's looks
+(the only place a find's % shows), and each owned part's effect as a line in the log's built style ("+1 tin · the
+Mossmere"). From the first water after M1 that brings a second look for one slot, the page's looks
 row lets you tap an owned look to wear it (a tick), the slot's other looks greyed; in M1 every look is simply worn.
 
 ---
@@ -333,21 +366,24 @@ Every new string (each for the lead's sign-off; SPEC §8 holds the whole text):
 ```
 LOOP.finds = {
   snag:   { perBite: 0.05, firstEvening: 0, legendCast: 0 },
-  kind:   { share: 0.35 },                                        // of snags, while the water has an unowned part or look
+  kind:   { share: 0.35, step: 0.15 },                            // of snags, while the water has an unowned part or look;
+                                                                  // +step after each treasure snag there, back to share on a part or look
+  parts:  { bait: 1, order: 1, bite: 1 },                         // each kind's effect at its own water, capped at one (§3.2)
   grades: { plain: {share: 0.50, x: 2}, fine: {share: 0.28, x: 6}, precious: {share: 0.15, x: 15},
             rare: {share: 0.055, x: 50}, jackpot: {share: 0.015, x: 250} },
   haul:   { pinch: 2, both: 3, alongside: 4 },                    // s
   hold:   { pinch: 1.2, both: 1.5, alongside: 1.8 },              // the show's held beat, s
-  items:  [ { id, water, kind: 'treasure' | 'part' | 'look' | 'well', grade, slot, pose, name, line }, … ],
+  items:  [ { id, water, kind: 'treasure' | 'part' | 'look' | 'well', grade, slot, pose, name, line,
+              effect: 'bait' | 'order' | 'bite' /* parts only */ }, … ],
 }
-meta.loop.finds = { got: { findId: count }, worn: { slot: findId } }   // a part with got ≥ 1 is fitted
+meta.loop.finds = { got: { findId: count }, worn: { slot: findId }, share: { waterId: kindShare } }   // a part with got ≥ 1 is fitted
 run.hold[i] = { find: findId }                                        // beside the fish entries
 lastTrip.lines[i] = { find: findId, value }                           // the tally replays it
 ```
 
 `migrateLoop` seeds `finds` empty and steps `v`; `freshLoop` the same. The Journal, records and prints are untouched.
 `validate-data --loop`: ids unique; every find's water is a shipped or later water; every water's set has five treasures
-(one per grade), three parts and three looks (four well pieces once the aquarium ships); grade shares sum to 1; every line
+(one per grade), three parts (one of each effect) and three looks (four well pieces once the aquarium ships); grade shares sum to 1; every line
 ≤ 8 words and 36 characters; every slot known; no find named after a real brand, a person or anything the names rule bars
 (SPEC §14 risk 16).
 
@@ -359,26 +395,37 @@ This design edits no sim file. The balancing job builds **a finds table per wate
 then the sim's draft table mirrors §4 and §5) and models:
 
 - **The snag**: every bite at a water is a snag with `perBite` (0 on the first evening and on a legend's cast); a snag
-  spends a good bite like any bite and takes a slot when kept; its kind by `kind.share` among the water's unowned parts and
-  looks, else a treasure; a treasure's grade by `grades`, its value `tier × x × priceFactor`; a part or a look once owned
-  leaves the draw.
-- **The players**: the natural, choosy and pacing players keep every find while a slot is free (a find is never let go); the
+  spends a good bite like any bite and takes a slot when kept; its kind by `kind.share` (with the soft guarantee's `step`)
+  among the water's unowned parts and looks, else a treasure; a treasure's grade by `grades`, its value `tier × x ×
+  priceFactor`; a part or a look once owned leaves the draw.
+- **The parts' effects** (§3.2), at their own water only: the bait part's +1 free plain tin an evening (the Bait Bed's
+  floor + 1, or 1 with no Bed; the sim's bait cost model), the order part's +1 order once Order Board I is owned (the
+  pacing run's +6% an order slot, at that water), the bite part's +1 good bite at open water (through `goodBitesFor`).
+- **The players**: the natural and pacing players keep every find while a slot is free; the **choosy** player keeps every
+  part and look but **lets go a treasure worth less than the water's mean fish** at its arrival kit (the let-go refunds the
+  bite, no favour), and that strategy is held to the anti-grind check (it may not beat the natural rule a minute); the
   giant hunt keeps none (a find is not a giant).
 - **What it prints, and gates**:
   - `--shipped=mossmere --step=5c` against `--finds=off`, over 2,000 runs: the empty shelf's hour, p10 / p50 / p90; **gate:
-    p50 inside 2–4 h and within ±10% of finds-off**; the longest wait ≤ 30 min; the first giant still hour 0.4–3; trips
-    ≤ 6 min with the visit home; the Mossmere's parts and looks owned at the empty shelf (p50; report) and the share of
-    players with a rare or the jackpot by then (report).
-  - **The full pacing run**: the end within 40–60 h and **within ±5% of finds-off (48.9 h)**; the longest wait ≤ 90 min; every
-    §4.9 mark inside its target; "a new water is the best water from the day its map is bought" still holds for all 15.
+    p50 inside 2–4 h and within ±10% of finds-off; p10 at or above 2 h** (the low tail is where a jackpot or an early part
+    bites); the longest wait ≤ 30 min; the first giant still hour 0.4–3; trips ≤ 6 min with the visit home; the
+    Mossmere's parts and looks owned at the empty shelf (p50, and the share of players with all six; report, aimed ≥ 80%);
+    the hour each part is fitted (p50; report); **finds' share of M1's clams** (report, aimed 8–12%, **fail above 15%**);
+    the share of players with a rare or the jackpot by then (report).
+  - **The full pacing run**: the end within 40–60 h and **within ±5% of the finds-off run's own end** (v8's gated run:
+    47.6 h); the longest wait ≤ 90 min; every §4.9 mark inside its target; "a new water is the best water from the day its
+    map is bought" still holds for all 15.
   - **Per water**: snags a trip, a rare-or-better 1 in N trips and the jackpot 1 in N trips at its arrival kit (report;
     aimed: the jackpot 1 in 120–300 once the set is owned); the jackpot ≥ 1.5× the water's mean giant Trophy (**fail**; the
-    Pallid Deep against its rare Trophy); finds' share of all clams over the run (report, aimed ≤ 6%, **fail above 10%**).
+    Pallid Deep against its rare Trophy); its three parts' gain a minute once fitted (report, aimed ≤ 10%); finds' share of
+    all clams over the run (report, aimed 8–12%, **fail above 15%**).
   - `--wicks`: each Wick's full shelf within ±10% of the five-Wick mean with finds on (`WICKS.md` §3).
-  - The checks that must not move: anti-grind (no patient strategy reaches the natural rule a minute), let go (a let-go
-    find refunds its bite and gives no favour), bait (no tin beats the plain bait), every hold step and raft part paying its
-    way.
-- **The knobs, in order**: `perBite`, `grades.jackpot.share`, `grades.*.x`, `kind.share`.
+  - The checks that must not move: anti-grind (no patient strategy, the choosy finds rule included, reaches the natural
+    rule a minute), let go (a let-go find refunds its bite and gives no favour), bait (no tin beats the plain bait; the bait
+    part's free tin is plain bait), every hold step and raft part paying its way, and the shelf's 32 M1 items and 144 full-run
+    purchases unchanged (no part stands in for one).
+- **The knobs, in order**: `perBite`, `grades.jackpot.share`, `grades.*.x`, `parts` (the bite part to "after dark only"
+  first, then the order part to "from Order Board II"), `kind.share` and `kind.step`.
 - **The aquarium** (after M1): its well pieces join each water's draw when it ships, and the full run is re-proven then.
 
 ---
@@ -387,20 +434,22 @@ then the sim's draft table mirrors §4 and §5) and models:
 
 **Where and why.** After step 5b, inside QUEUE job 13 (the lead may run it as its own job). A find's three kinds need
 everything they land on: the hold and the card (step 1), the show (built), the shelf economy settled (step 4), and the
-barge, its object variants and the looks (step 5). Earlier, at step 3 or 4, the parts and the window boxes would have no
+barge, its object variants and the looks (step 5), and the parts' effects need the Bait Bed and the Order Board (step 4).
+Earlier, at step 3 or 4, the parts and the window boxes would have no
 barge to go on, so either they would wait in a crate (a screen M1 does not need) or the step would ship treasures alone
 and come back for the rest. After 5b, nothing is drawn that has nowhere to go, the sim's finds table is proven once on M1's
-finished shelf, and the step touches only one roll, one card, the tally, one Journal page and the barge's variants.
+finished shelf, and the step touches one roll, one play plan, one card, the tally, one Journal page, the parts' three
+effects and the barge's variants.
 
 | | |
 |---|---|
-| **the player can** | Feel a slow heavy bite with no fight, strike it and watch the Wick haul up and hold out something that is not a fish; read its card; keep it or let it go. Sell the Mossmere's treasures at the tally (a spoon for 14 up to the Toll-Keeper's Purse for 1,750). Bring home its three barge parts and see each fitted to the Slow Hearth (the bell ringing them home, the amber windows, the stone bollard at the stern), and its three looks worn by the Wick, the raft and the barge. Turn the Journal to **Keepsakes** and see the Mossmere's eleven, found and outlined, with an **Odds ›** |
+| **the player can** | Feel a slow heavy bite with no fight, strike it and watch the Wick haul up and hold out something that is not a fish; read its card; keep it or let it go. Sell the Mossmere's treasures at the tally (a spoon for 14 up to the Toll-Keeper's Purse for 1,750). Bring home its three barge parts and see each fitted to the Slow Hearth and doing its thing (the bell ringing them home and one more order on the board, the amber windows and one more good bite on the float, the stone bollard at the stern and one more free tin), and its three looks worn by the Wick, the raft and the barge. Turn the Journal to **Keepsakes** and see the Mossmere's eleven, found and outlined, with an **Odds ›** |
 | **data** | `LOOP.finds` (§10) with the Mossmere's eleven; `TEXT_LOOP`'s words (§9) |
-| **modules** | `fishing.js` (the snag roll per bite, 0 on evening 1 and on a legend's cast; the tell; the haul with land chance 1; `fishing:bite` as any bite; the refund on a let go without favour) · `fishing-fx.js` (the slow slide-under and the haul) · `models-finds.js` (new: the eleven props) · `actors-show.js` (the find row; `data.showPoseFor` by the find's `pose`) · `progression-loop.js` (`run.hold` find entries; `endTrip` values treasures, carries parts and looks to `meta.loop.finds`; `lastTrip.lines`; `migrateLoop`) · `ui-loop.js` (the find card; the tally's rows; the Keepsakes page and its Odds ›) · `ui-hud-v3.js` (the hold glyphs, the jackpot's gold edge) · `ui-fishart.js` (the find's ink drawing) · `actors-home.js` (the three parts as merged variants) · `actors-raft.js`, `actors-wick.js` (the vane, the tassel) · `audio.js` (§8) · `data.js` · `tools/validate-data.mjs` (§10's checks) |
-| **tests** | over 20,000 bites at the Mossmere the snag share is 5% ± 0.5, and 0 on evening 1 and on the Matriarch's cast · a snag spends a good bite; a let-go find refunds it and adds no favour · a snag is never lost (its haul always lands) · a kept find takes a slot; a full hold refuses the cast · the tally pays a treasure exactly `tier × x` once (a reload during the tally pays once) and carries a part aboard with no clams · a part or a look owned is never drawn again; with all six owned every snag is a treasure · a find never counts toward the catch seal, a species, a record, a print, an order or the Wick's firsts (Ashwick never brings one back) · every part changes the home frame (a before-and-after pair each) and home stays ≤ 6 main-pass calls with all three fitted (`clarity-perf --home`) · the Keepsakes page draws only owned waters' sets, the outlines unnamed, the jackpot's in gold · the show's find row: no flaps, the right pose for each of the eleven, the jackpot's longer beat · `clams.mjs --shipped=mossmere --step=5c` (§11) · the v3 scenarios and the flag-off run unchanged |
+| **modules** | `fishing.js` (the snag roll per bite, 0 on evening 1 and on a legend's cast; the tell; the haul with land chance 1; the landing **bypasses the fish path**: no `progression.makeFish`, no measure, no class-length wipe, the prop shown at its own size; the refund on a let go without favour) · `fishing-play.js` (a **`find` plan** for `planPlay`: no runs, no pans, no tension beats, land chance 1, its haul time by the find's `pose`, §2) · `fishing-fx.js` (the slow slide-under and the haul) · **the events** (CONTRACT §13, a new line): `fishing:bite {waterKey, sizeClass: 'find'}` (counted as any bite; `ui-hud-v3.js`'s class estimate shows nothing for `'find'`, and `audio-v3.js`'s play beats and music rules play the haul's own sounds, §8, never a class's), then **`fishing:found {findId, waterKey}`** in place of `fishing:caught` (no `fish:measured`, no `fish:landed`), so `actors-measure.js` and `ui-measure.js` never run and no Journal entry, record, class seal or print is written (`progression`'s `makeFish` and print untouched); the find card listens for `fishing:found` · `models-finds.js` (new: the eleven props) · `actors-show.js` (the find row; `data.showPoseFor` by the find's `pose`) · `progression-loop.js` (`run.hold` find entries; `endTrip` values treasures, carries parts and looks to `meta.loop.finds`; `lastTrip.lines`; the kind share and its soft guarantee; **the parts' effects**: the bait floor + 1 at `Sail`, the order part's extra order on `meta.loop.orders`, the bite part through `goodBitesFor`; `migrateLoop`) · `ui-loop.js` (the find card; the tally's rows; the Keepsakes page, its effect glyphs and its Odds ›; the order board's bow order) · `ui-hud-v3.js` (the hold glyphs, the jackpot's gold edge; nothing for a `'find'` bite) · `ui-fishart.js` (the find's ink drawing) · `actors-home.js` (the three parts as merged variants) · `actors-raft.js`, `actors-wick.js` (the vane, the tassel) · `audio.js`, `audio-v3.js` (§8; the `'find'` bite) · `data.js` (`LOOP.finds`; `goodBitesFor` takes the bite part) · `tools/validate-data.mjs` (§10's checks) |
+| **tests** | over 20,000 bites at the Mossmere the snag share is 5% ± 0.5, and 0 on evening 1 and on the Matriarch's cast · a snag's bite carries `sizeClass: 'find'`, its landing emits `fishing:found` and never `fishing:caught`, `fish:measured` or `fish:landed`, and the measure never opens · `planPlay` with the find plan has no runs and lands every time · the soft guarantee: the kind share climbs 15 points after each treasure snag while a part or look is unowned and returns to 35% on one · the parts' effects at the Mossmere only: the bollard sets out one more free Mire Worms tin than the Bait Bed's floor (1 with no Bed), the bell adds one order once Order Board I is owned (none before), the lamp-glass makes `goodBitesFor('open')` one more; none of them at another water (a fixture with Sporewood shipped); the shelf's 32 items and their prices unchanged · a snag spends a good bite; a let-go find refunds it and adds no favour · a snag is never lost (its haul always lands) · a kept find takes a slot; a full hold refuses the cast · the tally pays a treasure exactly `tier × x` once (a reload during the tally pays once) and carries a part aboard with no clams · a part or a look owned is never drawn again; with all six owned every snag is a treasure · a find never counts toward the catch seal, a species, a record, a print, an order or the Wick's firsts (Ashwick never brings one back) · every part changes the home frame (a before-and-after pair each) and home stays ≤ 6 main-pass calls with all three fitted (`clarity-perf --home`) · the Keepsakes page draws only owned waters' sets, the outlines unnamed, the jackpot's in gold · the show's find row: no flaps, the right pose for each of the eleven, the jackpot's longer beat · `clams.mjs --shipped=mossmere --step=5c` (§11) · the v3 scenarios and the flag-off run unchanged |
 | **the user's look** | the haul, the show and the card for a spoon, the purse and the bollard; the barge with its three parts; the Keepsakes page; desktop and phone |
 | **left out** | the looks' wear toggle (no slot holds two looks in M1); the well pieces (with the aquarium, after M1); every other water's set (with its slice) |
-| **size** | S–M (the eleven props and the find row are most of it) |
+| **size** | **M** (re-checked with the catch path named: the eleven props and the find row are most of it; the find plan, the bypass of the measure path, the new event and the parts' three effects add about 2–3 days to the S–M first estimate) |
 
 ---
 
@@ -422,14 +471,15 @@ finished shelf, and the step touches only one roll, one card, the tally, one Jou
 
 | risk | guard, and the knob |
 |---|---|
-| **A jackpot early makes M1 too short, or finds make the long game faster** | the sim's gates (§11: M1 p50 within ±10%, the full run within ±5%); the knobs in order: `perBite`, the jackpot's share, the multipliers |
+| **A jackpot early makes M1 too short, or finds make the long game faster** | the sim's gates (§11: M1 p50 within ±10% and p10 ≥ 2 h, the full run within ±5%); the knobs in order: `perBite`, the jackpot's share, the multipliers |
 | **Finds crowd out fish, and the evening stops being about fishing** | 1 bite in 20, never on evening 1, never on a legend's cast; a find is always optional (pass or let go); the knob `perBite` |
 | **The haul reads as a lost fight or a dull wait** | 2–4 s, hurried by a hold, never lost, its own sounds; the knob `LOOP.finds.haul` |
 | **The words grow** | one name and one line per find, three Murk lines in all, one tab word; the Keepsakes page draws, it does not explain |
-| **Parts feel like no upgrade at all** | each changes the home frame and its life (a sound, a light, a tie-up); SPEC §16 question 21 asks whether some should do more |
+| **Parts feel like no upgrade at all** | each does one real thing at its water (a tin, an order, a good bite), shown by a glyph on the Keepsakes page and felt on the float and the board, and changes the home frame and its life; SPEC §16 question 21 asks whether they should only look and sound |
+| **The parts' effects move the pacing, or stack into a second shelf** | each capped at one a kind a water, working only at its own water; never a shelf item; the sim's gates (§11: M1 p50 within ±10% and p10 ≥ 2 h, the full run within ±5%); the knobs: the bite part to after dark, the order part from Order Board II |
 | **Draw calls at home grow with every part** | parts merge into the hull's per-material meshes (no new call); `clarity-perf --home` gates it |
 
 ## 15. Questions for the user
 
-SPEC §16 questions 20 (how rare and how big the jackpots are) and 21 (whether barge parts should do something beyond look
-and life), each with the default this design builds.
+SPEC §16 questions 20 (how rare and how big the jackpots are) and 21 (whether barge parts should each do one small thing,
+the default, or only look and sound), each with the default this design builds.
