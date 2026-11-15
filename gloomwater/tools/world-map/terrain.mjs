@@ -1,15 +1,15 @@
-// The Evenland's terrain, baked from canon.mjs: a fractal coastline round WORLD.md's outline, a
+// The Waxwold's terrain, baked from canon.mjs: a fractal coastline round WORLD.md's outline, a
 // heightfield (blended region heights, the ranges, the Great Step, noise, stream incision), the
 // named rivers burned in along their WORLD.md courses, lakes, an ice field, and a drainage network
 // computed on the result (priority-flood filling, lowest-neighbour flow, rain-weighted accumulation).
 // Everything is seeded; the same inputs give the same world.
-import { SHEET, SEED, OUTLINE, ISLANDS, INLETS, LAGOON, KEEP_LAND, KEEP_SEA, ROUGH, LAKES, TARNS, RIVERS, CANALS, HEIGHTS, RANGES, ICE, STEP, WATERS } from './canon.mjs';
+import { SHEET, SEED, OUTLINE, ISLANDS, INLETS, LAGOON, KEEP_LAND, KEEP_SEA, COAST, ROUGH, LAKES, TARNS, RIVERS, CANALS, HEIGHTS, RANGES, ICE, STEP, WATERS } from './canon.mjs';
 import { clamp, lerp, smoothstep, mulberry32, makeNoise, spline, resample, arcLengths, nearestOnPolyline, edt, fillPolygonMask, boxBlur, pointInPolygon } from './lib/util.mjs';
 
 export const GS = 2; // grid cells per chart unit
 
 // Rain, 0..1 (WORLD.md §3): westerlies wet the Spine's west face, the trades wet the south lobe's
-// east side and reach through the Low Gap; the Terrace, the Fold and the Pale Flats are dry.
+// east side and reach through the Low Gap; the Terrace, the Fold and the Shingle Flats are dry.
 const RAIN = [
   [150, 250, 0.95], [200, 300, 1], [180, 400, 1], [240, 430, 1], [170, 500, 0.95], [230, 540, 0.9], [180, 600, 0.55], [230, 620, 0.8],
   [170, 650, 0.2], [260, 330, 1], [240, 230, 0.9], [300, 230, 1], [200, 200, 0.9],
@@ -28,9 +28,10 @@ const RAIN = [
   [720, 1230, 0.66], [880, 1000, 1],
 ];
 // The greening ramp as a field: each water's lushness step, plus the country no sheet shows.
-const LUSH_EXTRA = [[740, 430, 3.5], [830, 170, 2.2], [700, 200, 1.5], [780, 860, 14], [620, 1290, 12], [420, 1220, 13], [505, 790, 10.5],
-  [450, 690, 7.5], [700, 770, 12.5], [560, 1200, 13.5], [850, 1150, 14], [300, 1230, 12.5], [170, 250, 4.5], [180, 520, 6.2],
-  [560, 420, 2], [640, 330, 0.8], [400, 780, 9.5], [380, 940, 10.5], [520, 1000, 14], [600, 1100, 13.2], [450, 1100, 12.8]];
+const LUSH_EXTRA = [[640, 900, 15], [690, 942, 15], [600, 868, 14.7], [742, 984, 15], [724, 928, 15], [660, 996, 14.7], [500, 1104, 13], [575, 1112, 13], [640, 1096, 13], [700, 1074, 13.2],
+  [740, 430, 3.5], [830, 170, 2.2], [700, 200, 1.5], [800, 850, 12.4], [620, 1290, 11], [420, 1220, 12.2], [505, 790, 10.5],
+  [450, 690, 7.5], [700, 770, 11.6], [560, 1200, 12.4], [850, 1150, 13.2], [300, 1230, 12], [170, 250, 4.5], [180, 520, 6.2],
+  [560, 420, 2], [640, 330, 0.8], [400, 780, 9.5], [380, 940, 10.5], [520, 1000, 13.6], [600, 1100, 13.2], [450, 1100, 12.8]];
 
 export function buildTerrain(log = () => {}) {
   const { W: CW, H: CH, PAD } = SHEET;
@@ -104,6 +105,10 @@ export function buildTerrain(log = () => {}) {
   const dIn = edt(inv, W, H), dOut = edt(polyMask, W, H);
   const sdBase = new Float32Array(N);
   for (let k = 0; k < N; k++) sdBase[k] = (polyMask[k] ? dIn[k] - 0.5 : -(dOut[k] - 0.5)) / GS;
+  // bays and capes between the canon points: blended in smoothly, so they read as coast and not as stamps
+  const smax = (a, b, kk) => { const hh = clamp(0.5 + (0.5 * (a - b)) / kk, 0, 1); return lerp(b, a, hh) + kk * hh * (1 - hh); };
+  for (const b of COAST.capes) forBlob(b, 16, (k, x, y) => { sdBase[k] = smax(sdBase[k], ellipseSd(b, x, y), 7); });
+  for (const b of COAST.bays) forBlob(b, 16, (k, x, y) => { sdBase[k] = -smax(-sdBase[k], ellipseSd(b, x, y), 7); });
   for (const isl of ISLANDS) {
     const b = [isl.at[0], isl.at[1], isl.rx, isl.ry, isl.rot];
     forBlob(b, 14, (k, x, y) => { const s = ellipseSd(b, x, y); if (s > sdBase[k]) sdBase[k] = s; });
@@ -155,7 +160,11 @@ export function buildTerrain(log = () => {}) {
       if (rf() < keep && Math.hypot(x - 600, y - 180) > 30 && Math.hypot(x - 110, y - 440) > 26) islet(x, y, s);
     }
   }
-  for (const way of KEEP_SEA) splat(resample(spline(way.pts, 2), 0.5), way.hw + 9, (k, d) => { const v = d - way.hw; if (v < inletF[k]) inletF[k] = v; });
+  for (const way of KEEP_SEA) {
+    const wide = way.pts[0].length > 2; // each point carries its own half-width
+    const dense = wide ? resample(way.pts, 3) : resample(spline(way.pts, 2), 0.5);
+    splat(dense, (p) => (wide ? p[2] : way.hw) + 9, (k, d, p) => { const v = d - (wide ? p[2] : way.hw); if (v < inletF[k]) inletF[k] = v; });
+  }
   for (const lagB of LAGOON.blobs) forBlob(lagB, 9, (k, x, y) => { const v = -ellipseSd(lagB, x, y); if (v < inletF[k]) inletF[k] = v; });
   const keepF = new Float32Array(N).fill(-1e6); // > 0 where land is kept
   for (const kl of KEEP_LAND) {
@@ -166,7 +175,7 @@ export function buildTerrain(log = () => {}) {
   splat(inletLines.tidalInlet, (p) => p[2] + 4, (k, d, p) => { const v = d - p[2]; if (v < tidal[k]) tidal[k] = v; });
 
   const anchors = [[600, 186, 30], [540, 192, 26], [570, 194, 26], [630, 192, 26], [662, 190, 26], [690, 184, 22], [146, 335, 18], [188, 792, 42], [150, 766, 20],
-    [228, 1006, 38], [848, 985, 46], [858, 134, 16], [648, 700, 20], [612, 1334, 12], [110, 440, 16], [55, 495, 14], [450, 118, 16],
+    [228, 1006, 38], [858, 975, 50], [858, 134, 16], [652, 692, 34], [612, 1334, 12], [110, 440, 16], [55, 495, 14], [450, 118, 16], [320, 162, 30],
     [947, 638, 12], [215, 1242, 10], [132, 756, 14], [940, 1070, 18], [920, 1041, 12], [930, 1121, 12], [862, 810, 15], [749, 608, 15],
     [741, 169, 15], [164, 471, 12], [165, 665, 15], [946, 1136, 16], [870, 950, 20]];
   const coastNoise = (x, y) => {
@@ -177,8 +186,8 @@ export function buildTerrain(log = () => {}) {
     let damp = 1;
     for (const a of anchors) { const d2 = (x - a[0]) * (x - a[0]) + (y - a[1]) * (y - a[1]); damp *= 1 - 0.88 * Math.exp(-d2 / (a[2] * a[2])); }
     const wx = x + 7 * nzC.fbm(x / 50 + 13, y / 50, 2), wy = y + 7 * nzC.fbm(x / 50, y / 50 + 13, 2);
-    const aB = 42 * (1 - 0.55 * lc - 0.3 * fj), aM = 20 * (1 + 0.2 * fj - 0.5 * lc + 0.15 * so);
-    const aS = 8 * (1 + 0.5 * fj + 0.1 * nc - 0.5 * lc + 0.3 * so), aT = 3 * (1 + 0.6 * fj - 0.35 * lc + 0.2 * so), aU = 1.1 * (1 + 0.6 * fj - 0.3 * lc);
+    const aB = 15 * (1 - 0.55 * lc - 0.3 * fj), aM = 21 * (1 + 0.2 * fj - 0.5 * lc + 0.15 * so);
+    const aS = 9.5 * (1 + 0.5 * fj + 0.1 * nc - 0.45 * lc + 0.3 * so), aT = 3.4 * (1 + 0.6 * fj - 0.3 * lc + 0.2 * so), aU = 1.2 * (1 + 0.6 * fj - 0.3 * lc);
     return damp * (aB * nzC.fbm(wx / 150, wy / 150, 3) + aM * nzC.fbm(wx / 56 + 40, wy / 56, 3)) +
       (0.25 + 0.75 * damp) * (aS * nzC.fbm(wx / 21, wy / 21 + 70, 3) + aT * nzC.fbm(x / 7.5 + 9, y / 7.5, 2) + aU * nzC.fbm(x / 2.7, y / 2.7 + 31, 2));
   };
@@ -243,7 +252,7 @@ export function buildTerrain(log = () => {}) {
     for (const b of l.blobs) {
       forBlob(b, 8, (k, x, y) => {
         if (sea[k]) return;
-        const wob = l.kind === 'tarn' ? 0.25 : 1;
+        const wob = l.kind === 'tarn' || l.kind === 'mere' ? 0.25 : 1;
         const v = ellipseSd(b, x, y) + wob * (0.9 * nzL.fbm(x / 7 + li * 13, y / 7, 3) + 0.35 * nzL.fbm(x / 2.2, y / 2.2 + li * 7, 2));
         if (v > lakeF[k]) { lakeF[k] = v; if (v > 0) lakeId[k] = li + 1; }
       });
@@ -277,7 +286,7 @@ export function buildTerrain(log = () => {}) {
     for (let i = 1; i < out.length; i++) if (out[i][2] > out[i - 1][2] - 1e-4) out[i][2] = out[i - 1][2] - 1e-4;
     return out;
   };
-  const rivers = RIVERS.map((r, idx) => ({ id: r.id, name: r.name, cls: r.cls, bank: r.bank, pts: meander(r, idx) }));
+  const rivers = RIVERS.map((r, idx) => ({ id: r.id, name: r.name, cls: r.cls, bank: r.bank, w: r.w, pts: meander(r, idx) }));
   // the fen: the Rush spreads into bright channels where it meets the reservoir's head (WORLD.md §5.11)
   [[336, 843.5], [335.5, 849], [335, 854.5], [336, 860]].forEach((e, i) => {
     rivers.push({ id: 'fen' + i, name: null, cls: 'fen', bank: 1, minor: true,
@@ -306,7 +315,7 @@ export function buildTerrain(log = () => {}) {
   for (const l of LAKES) if (l.level != null) for (const b of l.blobs) autoHeights.push([b[0], b[1], l.level + 6, Math.max(9, b[2] * 0.8)]);
   const baseAt = shepard([...HEIGHTS, ...autoHeights], 3, 22);
   const roughAt = shepard(ROUGH, 3, 40);
-  const rainAt = shepard(RAIN, 3, 20);
+  const rainAt = shepard(RAIN, 3, 30);
   const lushAt = shepard([...WATERS.map((w) => [w.at[0], w.at[1], w.n - 1, 30]), ...LUSH_EXTRA.map((p) => [p[0], p[1], p[2], 34])], 3, 30);
   const rangeAdd = new Float32Array(N);
   for (const rg of RANGES) {
@@ -317,7 +326,12 @@ export function buildTerrain(log = () => {}) {
     const rim = Math.exp(-(2.7 * 2.7) / 2);
     splat(wand, (p) => p[3] * 2.7, (k, d, p) => { const v = (p[2] * (Math.exp(-(d * d) / (2 * p[3] * p[3])) - rim)) / (1 - rim); if (v > rangeAdd[k]) rangeAdd[k] = v; });
   }
-  const stepLine = resample(spline(STEP, 1), 1);
+  // the Great Step's lip: WORLD.md's line, wandering as a real escarpment does, and held where the lock
+  // stair (240,806) and the fall line cross it
+  const stepLine = resample(spline(STEP, 1), 1).map((p) => {
+    const hold = (1 - Math.exp(-((p[1] - 808) * (p[1] - 808)) / (20 * 20))) * smoothstep(690, 730, p[1]) * smoothstep(1004, 960, p[1]);
+    return [p[0] + hold * (9 * nzE.fbm(p[1] / 52, 7.7, 2) + 3 * nzE.fbm(p[1] / 15, 3.1, 2)), p[1]];
+  });
   const stepAt = (x, y) => {
     if (y < 680 || y > 1024 || x < 120 || x > 430) return 1;
     const nr = nearestOnPolyline(stepLine, x, y);
@@ -325,7 +339,7 @@ export function buildTerrain(log = () => {}) {
     const cross = (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);
     const sdS = cross < 0 ? nr.d : -nr.d; // positive east of the Step (the Terrace)
     const win = smoothstep(688, 722, y) * (1 - smoothstep(985, 1020, y));
-    const wob = 3 * nzE.fbm(x / 26, y / 26, 3);
+    const wob = 2 * nzE.fbm(x / 20, y / 20, 3);
     return lerp(1, 0.06 + 0.94 * smoothstep(-5, 6.5, sdS + wob), win);
   };
   const crownPoly = ICE.crown.poly;
@@ -489,7 +503,7 @@ export function buildTerrain(log = () => {}) {
     // perpetual snow on the high Spine and the Pyre Peaks (cold north only)
     for (let j = 0; j < H; j++) {
       const y = cy(j); if (y > 720) break;
-      const line = lerp(2750, 3350, smoothstep(250, 700, y));
+      const line = lerp(3300, 3950, smoothstep(250, 700, y));
       for (let i = 0; i < W; i++) { const k = j * W + i; if (!sea[k] && !ice[k] && h[k] > line + 140 * nzE.fbm(cx(i) / 9, y / 9, 3)) ice[k] = 0.6; }
     }
   }
@@ -505,10 +519,13 @@ export function buildTerrain(log = () => {}) {
 
   // ------------------------------------------------------------------ 7. the drawn network
   // named rivers carry a width; the rest of the network is traced from the accumulation field
-  const widthOf = { great: [0.9, 3.4], black: [0.5, 1.9], river: [0.26, 1.0], kingdom: [0.3, 0.9], braided: [0.3, 0.6], stream: [0.2, 0.62], clear: [0.24, 0.9], arm: [0.7, 1.2], seasonal: [0.3, 0.5], fen: [0.22, 0.3] };
+  // Drawn widths, in chart units, source to mouth. A road chart draws its waters large: the rivers the
+  // Lamp Road sails are wide enough to carry the road's line inside their banks (canon.mjs `w`).
+  const widthOf = { great: [0.35, 5.4], black: [0.5, 2.7], river: [0.3, 1.3], kingdom: [0.9, 1.6], braided: [0.3, 0.6], stream: [0.2, 0.7], clear: [0.3, 1.25], arm: [1.9, 2.3], seasonal: [1.15, 1.35], fen: [0.28, 0.4] };
   for (const r of rivers) {
-    const s = arcLengths(r.pts), L = s[s.length - 1], [w0, w1] = widthOf[r.cls];
-    r.pts = r.pts.map((p, i) => [p[0], p[1], p[2], lerp(w0, w1, Math.pow(s[i] / L, 0.7))]);
+    const s = arcLengths(r.pts), L = s[s.length - 1], [w0, w1] = r.w || widthOf[r.cls];
+    const pw = r.cls === 'great' ? 1.05 : 0.7;
+    r.pts = r.pts.map((p, i) => [p[0], p[1], p[2], lerp(w0, w1, Math.pow(s[i] / L, pw))]);
     r.len = L;
   }
   const T_STREAM = 150, T_WADI = 520;
@@ -545,6 +562,8 @@ export function buildTerrain(log = () => {}) {
       if (best) { pts[pts.length - 1][0] = best.p[0]; pts[pts.length - 1][1] = best.p[1]; }
     }
     for (let it = 0; it < 8; it++) for (let i = 1; i < pts.length - 1; i++) { pts[i][0] = (pts[i - 1][0] + 2 * pts[i][0] + pts[i + 1][0]) / 4; pts[i][1] = (pts[i - 1][1] + 2 * pts[i][1] + pts[i + 1][1]) / 4; }
+    // a pen does not rule its streams: bend them a little, all by one smooth field so that confluences still meet
+    for (let i = 0; i < pts.length - (nearNamed[endK] ? 1 : 0); i++) { const p = pts[i], wx = nzM.fbm(p[0] / 13 + 80, p[1] / 13, 2), wy = nzM.fbm(p[0] / 13, p[1] / 13 + 80, 2); p[0] += 1.7 * wx; p[1] += 1.7 * wy; }
     const wadiShare = pts.reduce((a, p) => a + (p[3] === 2 ? 1 : 0), 0) / pts.length;
     streams.push({ wadi: wadiShare > 0.6, pts: pts.filter((_, i) => i % 2 === 0 || i === pts.length - 1).map((p) => [p[0], p[1], p[2]]) });
   }

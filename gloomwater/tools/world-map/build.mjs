@@ -1,25 +1,29 @@
 #!/usr/bin/env node
-// The Evenland world map: generator.
+// The Waxwold world map: generator.
 //
 //   node tools/world-map/build.mjs              bake the terrain, write the page, render the PNGs
 //   node tools/world-map/build.mjs --page       reuse the cached bake; rewrite the page and the PNGs
 //   node tools/world-map/build.mjs --no-shots   skip the Playwright renders
+//   node tools/world-map/build.mjs --bake-only  bake and report, write no page
 //
 // Reads tools/world-map/canon.mjs (the world as data, from docs/loop/WORLD.md and LORE.md) and writes,
 // all under tools/out/world/ (untracked):
 //   world-map.html     the page, in the Artifact host's format (no doctype/html/head/body; one file)
 //   preview.html       the same page wrapped in the host's skeleton, for local viewing and the renders
 //   map-desktop.png    1600 px wide       map-phone.png   390 px wide viewport
-//   map-journey.png    the route at 16 maps owned
-//   checks/            close looks and behaviour checks (wheel, drag, pinch, tap, slider, journey, reduced motion)
-//   cache/             the baked world image and page data, so --page is fast
-// Deterministic: seeded by canon.mjs SEED. Needs Playwright's Chromium (it inks the world image
-// on a canvas and encodes it as WebP).
+//   map-journey.png    the route at 16 maps owned, the raft on its last leg
+//   checks/            close looks and behaviour checks (wheel, drag, pinch, tap, slider, journey, reduced
+//                      motion, 1280 px in the light scheme, a phone on its side)
+//   cache/             the baked world image and page data, so --page is fast; crops and a preview of the bake
+// The bake prints two checks: that computed flow follows each named river's WORLD.md course, and that the
+// green ink round the sixteen waters never steps back along the road (the greening ramp, measured on the
+// finished image). Deterministic: seeded by canon.mjs SEED; two bakes give the same bytes. Needs
+// Playwright's Chromium (it inks the world image on a canvas and encodes it as WebP).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { SHEET, SEED, CURRENTS } from './canon.mjs';
+import { SHEET, SEED, CURRENTS, WATERS } from './canon.mjs';
 import { buildTerrain, GS } from './terrain.mjs';
 import { buildInk } from './ink.mjs';
 import { buildPageData, buildMasks } from './pagedata.mjs';
@@ -34,7 +38,7 @@ const outDir = path.resolve(here, '../out/world');
 const cacheDir = path.join(outDir, 'cache');
 fs.mkdirSync(cacheDir, { recursive: true });
 const args = new Set(process.argv.slice(2));
-const BS = 2.8; // baked pixels per chart unit
+const BS = 2.6; // baked pixels per chart unit
 const log = (s) => console.log(s);
 const dataUriToBuf = (u) => Buffer.from(u.slice(u.indexOf(',') + 1), 'base64');
 
@@ -51,12 +55,15 @@ async function bake() {
   if (!data.strays.length) log('  sea legs keep to the sea (up to six units at a river mouth count as the join)');
   const masks = buildMasks(T);
 
+  // where the greening ramp is measured: the land within 26 units of each water (the Last Light is open
+  // sea, so its green is read on the fjord coast it sails from)
+  const ramp = WATERS.map((w) => (w.n === 7 ? [156, 440, 30] : [w.at[0], w.at[1], 26]));
   log('bake (Chromium)');
-  const crops = { kingdom: [330, 150, 340, 340], west: [90, 180, 300, 330], south: [540, 820, 420, 320], step: [120, 720, 330, 330], fold: [100, 560, 600, 240], gap: [180, 960, 420, 330], east: [600, 200, 380, 500] };
+  const crops = { kingdom: [330, 150, 340, 340], west: [70, 170, 320, 340], south: [540, 820, 440, 330], step: [110, 720, 340, 330], fold: [60, 540, 640, 260], gap: [180, 960, 420, 330], east: [600, 100, 440, 560], low: [380, 1120, 420, 300] };
   const files = {
     '/bake.html': ['text/html', '<!doctype html><meta charset="utf-8"><script src="/bake-client.js"></script>'],
     '/bake-client.js': ['text/javascript', fs.readFileSync(path.join(here, 'bake-client.js'))],
-    '/meta.json': ['application/json', JSON.stringify({ W: T.W, H: T.H, x0: T.x0, y0: T.y0, UW: T.UW, UH: T.UH, BS, GS, quality: 0.9, seed: SEED, pw: K.pw, ph: K.ph, currents: CURRENTS, crops, toneW: masks.tw * 2, toneH: masks.th * 2 })],
+    '/meta.json': ['application/json', JSON.stringify({ W: T.W, H: T.H, x0: T.x0, y0: T.y0, UW: T.UW, UH: T.UH, BS, GS, quality: 0.9, seed: SEED, pw: K.pw, ph: K.ph, currents: CURRENTS, crops, ramp })],
     '/vec.json': ['application/json', JSON.stringify(K.vec)],
     '/base.bin': ['application/octet-stream', Buffer.from(K.base.buffer)],
     '/glyphs.bin': ['application/octet-stream', Buffer.from(K.glyphArr.buffer)],
@@ -82,15 +89,19 @@ async function bake() {
   fs.writeFileSync(path.join(cacheDir, 'masks.png'), masks.png);
   data.world = { w: out.size[0], h: out.size[1], bs: BS };
   data.masks = { cols: masks.cols, rows: masks.rows, tw: masks.tw, th: masks.th, unit: masks.unit };
+  data.edges = masks.edges;
   data.checks = T.checks;
-  data.tone = { bits: out.tone, w: masks.tw * 2, h: masks.th * 2, unit: masks.unit / 2 };
   fs.writeFileSync(path.join(cacheDir, 'data.json'), JSON.stringify(data));
   log(`  world image ${out.size[0]}x${out.size[1]}, ${(fs.statSync(path.join(cacheDir, 'world.webp')).size / 1e6).toFixed(2)} MB`);
+  log(`greening ramp (green ink, per cent of the land round each water, in unlock order):`);
+  log('  ' + out.ramp.map((v, i) => `${i + 1}:${v}`).join('  '));
+  const back = out.ramp.map((v, i) => (i > 0 && v < out.ramp[i - 1] - 0.4 ? i + 1 : 0)).filter(Boolean);
+  log(back.length ? `  FAIL the ramp steps back at water ${back.join(', ')}` : '  ok   every water is at least as green as the one before');
 }
 
 function assemble() {
   const data = JSON.parse(fs.readFileSync(path.join(cacheDir, 'data.json'), 'utf8'));
-  for (const k of ['strays', 'seaWays', 'checks']) delete data[k]; // build-time reports, not page data
+  for (const k of ['strays', 'checks']) delete data[k]; // build-time reports, not page data
   const uri = (file, type) => `data:${type};base64,${fs.readFileSync(path.join(cacheDir, file)).toString('base64')}`;
   let html = fs.readFileSync(path.join(here, 'page/template.html'), 'utf8');
   const js = fs.readFileSync(path.join(here, 'page/app.js'), 'utf8');
