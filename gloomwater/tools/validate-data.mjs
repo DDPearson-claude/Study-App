@@ -1264,7 +1264,7 @@ if (V3) {
   ok(D.CHALLENGES.every((c) => c.scope !== 'run') && D.CHALLENGES.filter((c) => c.tier === 5).length === 8, 'no "run" scope left; 8 tier V challenges');
   ok(JSON.stringify(D.CHALLENGES.filter((c) => c.tier === 5).map((c) => c.reward.memories)) === '[5,10,20,15,30,40,20,15]', 'tier V rewards +5 / +10 / +20 / +15 / +30 / +40 / +20 / +15');
   ok(CH.first_prize.reward.unlock === 'relic:measuring_cord' && CH.ten_trophies.reward.unlock === 'relic:rumour_shell' && CH.old_ledger_five.reward.unlock === 'relic:murks_spyglass', 'tier V reveals the Measuring Cord, the Rumour Shell and Murk\'s Spyglass');
-  ok(CH.heavy_catch.params.kg === 15 && CH.complete_chronicle.params.n === 53 && CH.every_still_place.params.n === 21 && CH.light_comes_up.params.id === 'lantern_swallower'
+  ok(CH.heavy_catch.params.lb === 33 && !('kg' in CH.heavy_catch.params) && /over 33 lb 0 oz\.$/.test(CH.heavy_catch.desc) && CH.complete_chronicle.params.n === 53 && CH.every_still_place.params.n === 21 && CH.light_comes_up.params.id === 'lantern_swallower'
     && CH.many_flames.params.class === 'trophy' && CH.unwarded.alt?.params?.n === 3 && CH.kindle_one.alt?.params?.pool === 'angler' && CH.down_the_sluice.type === 'lightWaystone' && CH.the_long_way_round.scope === 'total', 'challenge rewrites (brief §11)');
   ok(CH.long_vigil.reward.unlock === 'character:tallow' && CH.long_vigil.type === 'nightsOut' && CH.unwarded.reward.unlock === 'character:ashwick', 'either-path Wick unlocks keep their challenges');
   const TYPES = new Set(['catch', 'nights', 'nightsOut', 'level', 'slayElite', 'journal', 'slay', 'boss', 'lightWaystone', 'reachZone', 'nightNoDamage', 'slayNight', 'boonLevel', 'nightCatch', 'perfectHooks', 'quality', 'weight',
@@ -1478,6 +1478,66 @@ if (V3) {
   scan3(D.SPECIES.map((s) => ({ name: s.name, epithet: s.epithet, hint: s.hint, lore: s.lore })), 'SPECIES');
   checks++;
 
+  // ---- pounds (docs/v3/pounds/SPEC.md): a fish's size is told in pounds and ounces; internals stay kg and cm
+  {
+    // the format table (SPEC §2.3): exact strings
+    const FW = [[0.0068, '¼ oz'], [0.0001, '¼ oz'], [0.0142, '½ oz'], [0.0248, '¾ oz'], [0.02481, '1 oz'], [0.0283, '1 oz'], [0.1, '4 oz'], [0.3118, '11 oz'],
+      [0.4394, '15 oz'], [0.4395, '1 lb 0 oz'], [0.45, '1 lb 0 oz'], [0.4536, '1 lb 0 oz'], [0.8930, '1 lb 15 oz'], [0.8931, '2 lb 0 oz'], [1.9845, '4 lb 6 oz'],
+      [14.515, '32 lb 0 oz'], [45.0, '99 lb 3 oz'], [45.35, '100 lb'], [45.5, '100 lb'], [45.6, '101 lb'], [96.16, '212 lb'], [120, '265 lb'], [300, '661 lb'],
+      [453.6, '1,000 lb'], [3200, '7,055 lb'], [0, '—'], [-2, '—'], [NaN, '—'], [undefined, '—'], ['3', '—']];
+    for (const [kg, want] of FW) ok(D.fmtWeight(kg) === want, `fmtWeight(${kg}) must read "${want}" (got "${D.fmtWeight(kg)}")`);
+    ok(D.fmtWeight(1.9845, { nbsp: true }) === '4\u00a0lb\u00a06\u00a0oz', 'fmtWeight {nbsp} joins the figure with no-break spaces');
+    // the shape and the carry: never "16 oz", "1 lb 16 oz" or "100 lb 0 oz"; the figure never falls as the weight grows
+    const SHAPE = /^([¼½¾]|\d{1,2}) oz$|^\d{1,2} lb \d{1,2} oz$|^\d{1,3}(,\d{3})* lb$/;
+    const toOz = (t) => { const m = /^(?:([\d,]+) lb)?(?: ?([¼½¾]|\d+) oz)?$/.exec(t); return (m[1] ? +m[1].replace(/,/g, '') * 16 : 0) + (m[2] ? ({ '¼': 0.25, '½': 0.5, '¾': 0.75 }[m[2]] ?? +m[2]) : 0); };
+    let prev = 0, bad = null;
+    for (let kg = 0.0001; kg < 4000 && !bad; kg *= 1.003) {
+      const t = D.fmtWeight(kg), m = /^(\d+) lb (\d+) oz$/.exec(t), v = SHAPE.test(t) ? toOz(t) : -1;
+      if (v < prev || (m && (+m[1] < 1 || +m[1] > 99 || +m[2] > 15)) || /^1[6-9] oz$|^[2-9]\d oz$/.test(t)) bad = `${kg.toFixed(4)} kg → "${t}"`;
+      prev = v;
+    }
+    ok(!bad, `fmtWeight: a figure outside the format, or one that falls as the weight grows (${bad})`);
+    ok(Math.abs(D.OZ_PER_KG - 16 * D.LB_PER_KG) < 1e-6 && Math.abs(1 / D.LB_PER_KG - 0.45359237) < 1e-9, 'OZ_PER_KG = 16 × LB_PER_KG; 1 lb = 0.45359237 kg');
+    ok(D.weightOz(0.45) === 16 && D.weightOz(0) === 0 && D.weightOz(NaN) === 0 && D.weightOz(Infinity) === 0, 'weightOz: the ounces the card shows; 0 for no weight');
+    ok(D.weightOz(0.0142) === 0.5 && D.weightOz(1607.9 / D.OZ_PER_KG) === 1600 && D.weightOz(1608.1 / D.OZ_PER_KG) === 1616, 'weightOz: quarters under an ounce, whole pounds from 100 lb (the figure fmtWeight prints)');
+    { let off = ''; for (let kg = 0.0001; kg <= 500 && !off; kg *= 1.003) if (toOz(D.fmtWeight(kg)) !== D.weightOz(kg)) off = `${kg} kg: "${D.fmtWeight(kg)}" vs ${D.weightOz(kg)} oz`;
+      ok(!off, `weightOz is the figure fmtWeight prints, at every weight (${off})`); }
+    ok(D.fmtWeightNear(4.3) === '9 lb' && D.fmtWeightNear(9.1) === '20 lb' && D.fmtWeightNear(125) === '275 lb' && D.fmtWeightNear(3200) === '7,100 lb' && D.fmtWeightNear(0.17) === '6 oz' && D.fmtWeightNear(0) === '',
+      'fmtWeightNear: the got-away steps (1 lb, 5 lb, 25 lb, 100 lb)');
+    ok(JSON.stringify(D.AUTOFISH.gotAway.roundLb) === '[[10,1],[100,5],[1000,25],[null,100]]' && D.AUTOFISH.gotAway.roundLb[3][0] === Infinity, 'AUTOFISH.gotAway.roundLb: the "near" weight steps');
+    ok(D.weightTarget(0.72, 0.81).text === '1 lb 8 oz' && D.weightTarget(3.88, 4.63).text === '9 lb 0 oz' && D.weightTarget(0.178, 0.201).text === '6 oz' && D.weightTarget(0.72, 0.66).text === '1 lb 0 oz', 'weightTarget: round bounty targets in the card\'s own figure, never above the cap');
+    { let off = ''; for (let kg = 0.03; kg < 60 && !off; kg *= 1.02) { const T = D.weightTarget(kg, kg * 1.2); if (T.text !== D.fmtWeight(T.kg) || D.weightOz(T.kg) !== T.oz || !SHAPE.test(T.text)) off = `${kg} kg: ${JSON.stringify(T)}`; }
+      ok(!off, `weightTarget: the words are fmtWeight of the target, and its ounces are the ones the check compares (${off})`); }
+    ok(D.fmtCm(8.4) === '8.4 cm' && D.fmtCm(33.2) === '33 cm' && D.fmtCm(850) === '850 cm' && D.fmtCm(0) === '—', 'fmtCm: the card\'s length line, cm always');
+    // a fish's displayed weight is derived from its length with the species' k
+    { const carp = D.SPECIES_BY_ID.weeping_carp, bm = D.SPECIES_BY_ID.belled_matriarch;
+      ok(D.fishWeight(carp, { length: 61, weight: 99 }) === 3.63 && D.fishWeight(carp, { weight: 2.5 }) === 2.5 && D.fishWeight(carp, {}) === 0, 'fishWeight: from the length (k·L³), else the stored kg');
+      ok(D.fmtWeight(D.fishWeight(bm, { length: 260 })) === '265 lb', `the Belled Matriarch reads 265 lb at 260 cm (got ${D.fmtWeight(D.fishWeight(bm, { length: 260 }))})`); }
+    // the audit's anchors (SPEC §6.2): a 61 cm carp ≈ 8 lb, a 112 cm pike ≈ 23 lb, a 90 cm eel ≈ 3½ lb; giants in the hundreds of pounds
+    const at = (id, cm) => D.fmtWeight(D.sizeWeight(D.SPECIES_BY_ID[id], cm));
+    ok(at('weeping_carp', 61) === '8 lb 0 oz' && at('reedjaw_pike', 112) === '23 lb 4 oz' && at('gloam_eel', 90) === '3 lb 9 oz', `weights ring true: carp 61 cm ${at('weeping_carp', 61)}, pike 112 cm ${at('reedjaw_pike', 112)}, eel 90 cm ${at('gloam_eel', 90)}`);
+    for (const s of D.SPECIES.filter((x) => x.rarity === 'legendary')) { const lb = s.size.W50 * D.LB_PER_KG; ok(lb >= 200 && lb < 10000, `legend ${s.id}: ${Math.round(lb)} lb at first landing (the giants weigh hundreds of pounds)`); }
+    for (const b of ['trout', 'gar', 'greateel', 'swampeel']) ok(isNum(SZ.k[b]) && D.SPECIES_V3.some((s) => s.size.body === b), `size.k.${b}: a body key split off for a cousin far from its plan, used by a species`);
+    ok(D.SPECIES_BY_ID.threadling_eel.size.k === 0.0016 && D.SPECIES_BY_ID.gloam_eel.size.k === 0.0022 && D.SPECIES_BY_ID.pilgrim_salmon.size.k === SZ.k.trout, 'the eel retune keeps the Threadling (swampeel); the Pilgrim Salmon is a trout body');
+    // a body key is a plain family or build word, never a real species' own name (the cousins live in docs only)
+    ok(Object.keys(SZ.k).every((b) => !/conger|wels|roach|chinook|grayling|ratfish|kaluga|sixgill|zander|mussum/i.test(b)), `size.k: no body key is a real species' own name (${Object.keys(SZ.k).join(', ')})`);
+    // the Journal's range: smallest to a top Trophy, then the ceiling ("said to reach")
+    for (const s of D.SPECIES_V3) { const w = D.weightSpan(s); ok(!!w && w.min === s.weight[0] && w.reach === s.weight[1] && w.min < w.top && w.top <= w.reach, `weightSpan(${s.id}): min < top ≤ reach (${JSON.stringify(w)})`); }
+    { const w = D.weightSpan(D.SPECIES_BY_ID.mossback_perch); ok(D.fmtWeight(w.top) === '5 lb 15 oz' && D.fmtWeight(w.reach) === '17 lb 11 oz', `a perch's page runs to a top Trophy (${D.fmtWeight(w.top)}), said to reach ${D.fmtWeight(w.reach)}`); }
+    ok(typeof D.TEXT_V3.saidToReach === 'string' && D.TEXT_V3.saidToReach.includes('{w}'), 'TEXT_V3.saidToReach takes a weight');
+    // no player-facing kg (or a bare cm figure for a fish) in v3 text
+    const KG = /\bkg\b|\{kg\}|\{cm\} cm|\{len\}/;
+    const scanKg = (v, path) => {
+      if (typeof v === 'string') { ok(!KG.test(v), `${path}: a fish's size is told in pounds in v3 ("${v.slice(0, 60)}")`); return; }
+      if (!v || typeof v !== 'object') return;
+      for (const [k, c] of Object.entries(v)) scanKg(c, `${path}.${k}`);
+    };
+    scanKg(D.TEXT_V3, 'TEXT_V3'); scanKg(D.AUTOFISH.text, 'AUTOFISH.text'); scanKg(D.FIRST_EVENING.text, 'FIRST_EVENING.text'); scanKg(D.DESC_V3, 'DESC_V3');
+    scanKg(D.TIPS.map((t) => t.text), 'TIPS'); scanKg(D.MERCHANT_LINES, 'MERCHANT_LINES'); scanKg(D.BOUNTIES.map((b) => b.text), 'BOUNTIES');
+    scanKg(D.CHALLENGES.map((c) => [c.name, c.desc]), 'CHALLENGES'); scanKg(D.LEDGER, 'LEDGER');
+    ok(D.TEXT_V3.newBest === 'New best: {w} (was {was})' && D.AUTOFISH.text.size.includes('{size}') && D.AUTOFISH.text.log.marked.includes('{size}'), 'the record line and the got-away words take a weight ({w}, {size})');
+  }
+
   // ---- phases (DESIGN §25.14.1, CONTRACT §13.0): each phase's build carries exactly its data, with and without §24
   const PH = {};
   { const f0 = [globalThis.GW_WALK, globalThis.GW_V3, globalThis.GW_V3_PHASE];
@@ -1504,6 +1564,9 @@ if (V3) {
     ok(R.ZONES.every((z) => !!z.homeward === (p >= 3)), `${tag}: Homeward stones from P3`);
     ok(R.BAIT_BY_ID.last_candle && !R.BAIT_BY_ID.pale_marrow && R.SPECIES_BY_ID.lantern_swallower && R.SUPPLY_BY_ID.murks_chum && R.BOUNTY_BY_ID.spot_catch.type === 'signCatch', `${tag}: renames (Pg0 migrates ids in P1), Murk's Chum and the sign bounty from P1`);
     ok(R.TIPS.filter((t) => t.id.startsWith('v3_')).every((t) => t.phase <= p), `${tag}: tips of later phases are not in the build`);
+    { const hc = R.CHALLENGE_BY_ID.heavy_catch, lb = p >= 3 ? 33 : 18;   // pounds: 8 kg → 18 lb (P1–2), 15 kg → 33 lb (P3+); the heavy bounty's words take {w}
+      ok(hc.params.lb === lb && !('kg' in hc.params) && hc.desc === `Land a non-legendary fish over ${D.fmtWeight(lb / D.LB_PER_KG)}.` && /over \d+ lb 0 oz\.$/.test(hc.desc), `${tag}: the Heavyweight asks for over ${lb} lb, in the card's own figure (got ${JSON.stringify(hc.params)}: "${hc.desc}")`);
+      ok(R.BOUNTY_BY_ID.heavy.text === 'Land a {species} over {w}.', `${tag}: the heavy bounty's words take a weight in pounds ({w})`); }
     ok(R.CHALLENGE_BY_ID.complete_chronicle.params.n === R.SPECIES.length, `${tag}: the Chronicle asks for every species in the build`);
     // every lake has exactly 3 giant sources (its holdsGiants places, else the raft stopgap) and 2 watch lamps
     for (const z of R.ZONES) {

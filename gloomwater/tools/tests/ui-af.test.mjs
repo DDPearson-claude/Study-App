@@ -62,6 +62,12 @@ eq([AF.classPhrase(D, 'elder'), AF.classPhrase(D, 'trophy'), AF.classPhrase(D, '
 eq([AF.nearLength(D, 13.6), AF.nearLength(D, 19.4), AF.nearLength(D, 21), AF.nearLength(D, 87), AF.nearLength(D, 99), AF.nearLength(D, 108), AF.nearLength(D, 163)],
   [`near 14${NB}cm`, `near 19${NB}cm`, `near 20${NB}cm`, `near 85${NB}cm`, `near 100${NB}cm`, `near 1.1${NB}m`, `near 1.6${NB}m`], '1 cm under 20 cm, 5 cm under 1 m, 0.1 m above; always "near"');
 eq(AF.nearLength(D, 0), '', 'no length, no words');
+// pounds (docs/v3/pounds/SPEC.md §4.2): the got-away size is the weight of the estimated length, in friendly steps
+const SP = D.SPECIES_BY_ID;
+eq([AF.nearWeight(D, SP.dusk_minnow, 20), AF.nearWeight(D, SP.mossback_perch, 41), AF.nearWeight(D, SP.reedjaw_pike, 87), AF.nearWeight(D, SP.reedjaw_pike, 110), AF.nearWeight(D, SP.reedjaw_pike, 160), AF.nearWeight(D, SP.belled_matriarch, 262)],
+  [`near 4${NB}oz`, `near 2${NB}lb`, `near 10${NB}lb`, `near 20${NB}lb`, `near 70${NB}lb`, `near 275${NB}lb`], 'whole ounces under a pound, 1 lb under 10 lb, 5 lb under 100 lb, 25 lb beyond; always "near"');
+eq([AF.nearWeight(D, SP.reedjaw_pike, 0), AF.nearWeight(D, null, 90), AF.nearWeight(D, {}, 90)], ['', '', ''], 'no length or no species, no words');
+ok(AF.nearWeight(D, SP.gloam_eel, 90) !== AF.nearWeight(D, SP.weeping_carp, 90), 'the same length weighs differently by body (which is why no weight shows before the fish is gone)', [AF.nearWeight(D, SP.gloam_eel, 90), AF.nearWeight(D, SP.weeping_carp, 90)]);
 eq([AF.placePhrase('Under the Span'), AF.placePhrase('The Bell Pool'), AF.placePhrase('Cupped Hands'), AF.placePhrase('')], ['under the Span', 'at the Bell Pool', 'at Cupped Hands', ''], 'place phrases after "It\'s still out there,"');
 
 section('the got-away note (DESIGN §25.6.7; fish:escaped after the quiet beat)');
@@ -86,7 +92,16 @@ eq(card('thrown', { markedFish: true }).still, D.AUTOFISH.text.stillOutWater, 'a
 eq(card('thrown', { markedFish: true }, {}).still, "It's still out there, in that deep water.", '…word for word');
 eq(note({ speciesId: 'reedjaw_pike', sizeClass: 'trophy', approxLength: 110, reason: 'thrown', markedFish: true }, { placeName: 'Under the Span' }).still, "It's still out there, under the Span.", 'from a place: the place');
 eq(card('thrown').still, '', 'not marked: no still-out-there line');
-eq(note({ speciesId: 'reedjaw_pike', sizeClass: 'elder', ancient: true, approxLength: 240, reason: 'spooled' }).size, `An Ancient, near 2.4${NB}m.`, 'an Ancient\'s size line');
+eq(note({ speciesId: 'reedjaw_pike', sizeClass: 'elder', ancient: true, approxLength: 240, reason: 'spooled' }).size, `An Ancient, near 225${NB}lb.`, 'an Ancient\'s size line, in pounds');
+eq(note({ speciesId: 'belled_matriarch', sizeClass: 'legend', legendary: true, approxLength: 262, reason: 'snapped' }).size, `Near 275${NB}lb.`, 'a legend\'s size line');
+eq(AF.gotAwayNote(D, { speciesId: 'no_such_fish', sizeClass: 'elder', approxLength: 160, reason: 'thrown' }).size, 'An Elder.', 'an unknown species: the class alone, never a bare "near"');
+{ // two species at the same estimated length read different weights (allowed: the note shows after the loss and names the species);
+  // everything about the note that is not the species' own stays species-free
+  const a = note({ speciesId: 'gloam_eel', sizeClass: 'trophy', approxLength: 110, reason: 'thrown' }), b = note({ speciesId: 'weeping_carp', sizeClass: 'trophy', approxLength: 110, reason: 'thrown' });
+  ok(a.size !== b.size && /near \d+.lb\.$/.test(a.size) && /near \d+.lb\.$/.test(b.size), 'the got-away size follows the species\' body', [a.size, b.size]);
+  eq([a.mode, a.kicker, a.cause, a.hint, a.link], [b.mode, b.kicker, b.cause, b.hint, b.link], 'mode, kicker, cause, hint and link are species-free');
+  ok(!/\d\s?(cm|mm|m|kg)\b/.test(JSON.stringify([a, b]).replace(/\u00a0/g, ' ')), 'no got-away note carries a length or a kg figure');
+}
 let anyPct = false;
 for (const sp of ['dusk_minnow', 'reedjaw_pike', 'gloam_eel', 'belled_matriarch']) for (const c of ['small', 'keeper', 'prize', 'trophy', 'elder', 'legend']) for (const r of Object.keys(toastCases)) for (const g of ['clean', 'struck', 'early', 'late']) {
   const n = note({ speciesId: sp, sizeClass: c, legendary: c === 'legend', approxLength: 50, reason: r, grade: g, markedFish: c === 'elder' });
@@ -119,8 +134,9 @@ ok(qu.cells[0].p > 0.85 && qu.cells[0].p < 0.95, 'the Quayling\'s Small sits in 
 eq(AF.oddsView(D, { known: 'caught', odds: D.catchOdds('quayling', {}, { lake: 'cove' }) }, { cove: true }).notes, [D.AUTOFISH.text.log.strike], 'the Landing has no Gloom: no Gloomtide line under its odds');
 const gl = AF.oddsView(D, { known: 'glimpsed', odds: oddsRJ }, { speciesName: 'Reedjaw Pike' });
 ok(!gl.unseen && gl.cells.every((c) => /%$/.test(c.text)), 'a Glimpsed species shows its odds (it counts as known)');
-const mk = AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: 'Old Ninefin', sizeClass: 'trophy', approxLength: 108, p: 0.8123 }] }, { speciesName: 'Reedjaw Pike' });
-eq(mk.marked, [`Old Ninefin, Trophy, near 1.1${NB}m: 81%`], 'a Marked Fish\'s own line');
+const mk = AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: 'Old Ninefin', sizeClass: 'trophy', approxLength: 108, p: 0.8123 }] }, { speciesName: 'Reedjaw Pike', species: D.SPECIES_BY_ID.reedjaw_pike });
+eq(mk.marked, [`Old Ninefin, Trophy, near 20${NB}lb: 81%`], 'a Marked Fish\'s own line, its size in pounds');
+eq(AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: 'Old Ninefin', sizeClass: 'trophy', approxLength: 108, p: 0.8123 }] }, { speciesName: 'Reedjaw Pike' }).marked, ['Old Ninefin, Trophy: 81%'], 'without the species row: no estimate, no "near"');
 eq(AF.oddsView(D, { known: 'caught', odds: oddsRJ, marked: [{ name: null, sizeClass: 'elder', approxLength: null, p: 0.2 }] }, { speciesName: 'Reedjaw Pike' }).marked, ['Reedjaw Pike, Elder: 20%'], 'a Marked Fish with no name or kept estimate');
 const lg = AF.oddsView(D, { known: 'caught', odds: D.catchOdds('belled_matriarch', lo, {}), wounds: 2 }, { speciesName: 'The Belled Matriarch' });
 ok(lg.legend && lg.cells.length === 1 && lg.cells[0].cls === 'legend' && /%$/.test(lg.cells[0].text), 'a legend: one attempt %');
@@ -163,6 +179,10 @@ section('the hidden-information scan (U2′ acceptance helper)');
 eq(AF.leakScan('Hold to hurry · by the look of it: Trophy', { names: ['Reedjaw Pike', 'Gloam Eel'] }), [], 'the play\'s words are clean');
 eq(AF.leakScan('a Gloam Eel? 23%', { names: ['Reedjaw Pike', 'Gloam Eel'] }), ['%', 'Gloam Eel'], 'a species name and a % are found');
 eq(AF.leakScan('Rare', {}), ['Rare'], 'a rarity word is found');
+// a weight is k·L³ and k names the body: none may show while a line is out (docs/v3/pounds/SPEC.md D6)
+for (const t of ['4 lb 6 oz', '11 oz', '¼ oz', '212 lb', '1½ lb', `near 9${NB}lb`, '7,055 lb', '32lb']) eq(AF.leakScan(t, {}), ['weight'], `a weight is found ("${t}")`);
+eq(AF.leakScan('4 lb 6 oz', { allowWeight: true }), [], 'allowed after the reveal (the card) and after the loss (the note)');
+eq([AF.leakScan('a pound of bait', {}), AF.leakScan('dozens of bulbs', {}), AF.leakScan('12 slots', {})], [[], [], []], 'word-bounded: prose is not a weight');
 eq(AF.leakScan('Elders are rarely held', {}), [], 'word-bounded ("rarely" is not "Rare")');
 const playWords = ['by the look of it', ...Object.values(D.AUTOFISH.text.strike), 'hurrying', D.AUTOFISH.text.logLocked];
 eq(AF.leakScan(playWords.join(' · '), { names: Object.values(names) }), [], 'nothing shown from the cast to the reveal names a species, a rarity or a %');

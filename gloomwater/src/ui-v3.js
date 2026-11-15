@@ -12,11 +12,16 @@
 //   favourMu(terms, D) / notchesFor   μ of a term list (capped) and its notches
 //   TELLS / tellInfo(id)              the five bite tells: the pictogram key, the words and the class they belong to
 //   classInfo(D, id, ancient)         {id, label, seal, rank}
-//   fmtLength(cm, D)                  "84 mm" below 20 cm, "112 cm", "8.50 m" from 10 m
+//   fmtLength(cm, D)                  "84 mm" below 20 cm, "112 cm", "8.50 m" from 10 m (no player-facing caller: a fish's size is its weight)
+//   fmtWeight / fishWeight / fmtCm    re-exported from data.js: "4 lb 6 oz" · a fish's weight from its length · "56 cm" (the card's length line)
+//   weightCount(w, W) / weightSizers(W) the catch card's count toward the final weight W (kg) and the figures that size its box
+//   weightHtml(text)                  a printed weight as markup: the unit letters apart (set in the body face: the hand's "lb" reads "eb")
 //   (the tackle rating and the near-miss card went with D1′: the rating is progression.getTackleRating in words and the got-away
 //    note replaces the near-miss card; both are ui-af.js now)
 //   nearestLamp(lamps, x, z, speed)   {lamp, dist, secs} of the nearest watch-lamp
 //   watchLineText(D, info)            "Nearest watch-lamp 34 m · ≈ 7 s" (TEXT_V3.watchLamp)
+import { fmtWeight, fishWeight, fmtCm, weightOz, LB_PER_KG, OZ_PER_KG } from './data.js';   // pure, flag-free helpers (docs/v3/pounds/SPEC.md §2)
+export { fmtWeight, fishWeight, fmtCm };
 
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -179,7 +184,8 @@ export function classInfo(D, id, ancient = false) {
   return { id, label, seal: sc ? sc.seal : (SEALS[id] || null), rank: Math.max(0, CLASS_ORDER.indexOf(id)), ancient: !!ancient && id === 'elder' };
 }
 
-/** Lengths: millimetres under 20 cm (BALANCE.ceremony.mmBelow), centimetres to 10 m, then metres. */
+/** Lengths: millimetres under 20 cm (BALANCE.ceremony.mmBelow), centimetres to 10 m, then metres. Kept for tools; the player reads
+ *  a fish's size as its weight (fmtWeight) and its length only as the card's small line (fmtCm). */
 export function fmtLength(cm, D = null) {
   cm = num(cm);
   const mmBelow = num(D?.BALANCE?.ceremony?.mmBelow, 20);
@@ -187,6 +193,47 @@ export function fmtLength(cm, D = null) {
   if (cm < mmBelow) return `${Math.round(cm * 10)} mm`;
   if (cm >= 1000) return `${(cm / 100).toFixed(2)} m`;
   return `${Math.round(cm)} cm`;
+}
+
+// ------------------------------------------------------------------ the catch card's weight (docs/v3/pounds/SPEC.md §3)
+const wholeLb = (kg) => weightOz(kg) >= 1600;   // the final reads in whole pounds ("100 lb" and up)
+/**
+ * The catch card's count: the figure shown while the cord runs out, for a running weight w (kg) on the way to the final W (kg).
+ * It lands exactly on fmtWeight(W) and uses the final's own band: a final of 100 lb or more counts in whole pounds from "0 lb";
+ * anything lighter counts in ounces ("0 oz", "¼ oz" … "15 oz") and then in pounds and ounces. It never falls and never passes W.
+ */
+export function weightCount(w, W) {
+  w = Math.max(0, num(w)); W = num(W);
+  if (!(W > 0) || w >= W) return fmtWeight(W);
+  if (wholeLb(W)) return `${Math.floor(w * LB_PER_KG).toLocaleString('en-US')} lb`;
+  return Math.round(w * OZ_PER_KG * 4) < 1 ? '0 oz' : fmtWeight(w);
+}
+/** The longest figure (by characters) weightCount(w, W) shows on its way to W: the final, or "11 lb 15 oz" on the way to "12 lb 3 oz". */
+export function weightSizer(W) {
+  const fin = fmtWeight(num(W));
+  const m = /^(\d+) lb \d+ oz$/.exec(fin);
+  if (!m || +m[1] < 2) return fin;
+  const before = `${+m[1] - 1} lb 15 oz`;   // "11 lb 15 oz" is passed on the way to "12 lb 3 oz"
+  return before.length > fin.length ? before : fin;
+}
+/**
+ * The figures that size the hero's box, the final first: the card lays them one over another, hidden, so the box is as wide as
+ * the widest of them in whatever face draws it. With the final: "11 lb 15 oz" on the way to a pounds-and-ounces figure, and for a
+ * final under a pound the quarter figures it passes ("¾ oz" is wider than "3 oz" in the hand). A figure with other digits can
+ * still measure a pixel or two more (the hand has no tabular figures); the live figure lies over the box, out of the flow.
+ */
+export function weightSizers(W) {
+  W = num(W);
+  const fin = fmtWeight(W), out = [fin], oz = weightOz(W);
+  const m = /^(\d+) lb \d+ oz$/.exec(fin);
+  if (m && +m[1] >= 2) out.push(`${+m[1] - 1} lb 15 oz`);
+  if (oz > 0 && oz < 16) for (const [q, t] of [[0.75, '\u00be oz'], [0.5, '\u00bd oz'], [0.25, '\u00bc oz']]) if (oz > q) out.push(t);
+  return [...new Set(out)];
+}
+/** A printed weight as markup: the figures as they are, each unit ("lb", "oz") in an <i class="gw-u"> the stylesheet sets in the
+ *  body face. In the handwriting face a looped l makes "lb" read "eb", and the unit is the point of the figure. */
+export function weightHtml(text) {
+  return String(text ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/\b(lb|oz)\b/g, '<i class="gw-u">$1</i>');
 }
 
 // ------------------------------------------------------------------ watch-lamps (S6)
@@ -293,14 +340,14 @@ export function cordRuler(D, sp, length, { zone = null, best = null } = {}) {
   return { max, step, knots, bands, marks, best: b > 0 && Math.abs(b - L) > 0.05 ? Math.round(b * 10) / 10 : null, passesBest: b > 0 && L > b + 0.05, ledger, passesLedger: ledger !== null && L >= ledger };
 }
 
-/** A length for a banner line: "112", "8.4" under 20 cm (the template carries the unit). */
-const cmNum = (cm) => { cm = num(cm); return cm < 20 ? (Math.round(cm * 10) / 10).toString() : Math.round(cm).toString(); };
 const RECORD_ORDER = { oldLedger: 0, classFirst: 1, pb: 2, isNew: 3, elderLog: 4, place: 5, resident: 6 };
 /**
- * The ceremony's banners (DESIGN §25.6.8 "New best: 112 cm (was 97)" · "First Trophy Reedjaw" · "Old Ledger beaten"), from
- * fish:measured's records (+ a first catch of the species). Most telling first, at most `max`. [{kind, text, sub, tone}]
+ * The ceremony's banners (DESIGN §25.6.8 "New best: 4 lb 6 oz (was 3 lb 12 oz)" · "First Trophy Reedjaw" · "Old Ledger beaten"),
+ * from fish:measured's records (+ a first catch of the species). A personal best is told in weight: each figure is the weight of
+ * its length with the species' k (data.fishWeight; a record's own `weight` / `prevWeight` kg when no length is known), and a best
+ * whose figure does not rise past the old mark's is not told at all. Most telling first, at most `max`. [{kind, text, sub, tone}]
  */
-export function recordLines(D, { records = [], isNew = false, species = null, length = 0, max = 3 } = {}) {
+export function recordLines(D, { records = [], isNew = false, species = null, length = 0, weight = 0, max = 3 } = {}) {
   const T = D?.TEXT_V3 || {};
   const name = species?.name || '';
   const out = [];
@@ -309,13 +356,16 @@ export function recordLines(D, { records = [], isNew = false, species = null, le
     if (!r || typeof r !== 'object') continue;
     let line = null;
     if (r.kind === 'pb') {
-      const was = r.prevLength != null ? cmNum(r.prevLength) : null;
-      const tpl = T.newBest || 'New best: {cm} cm (was {was})';
-      const now = num(r.length ?? length);
-      const gain = was ? now - num(r.prevLength) : 0;
-      // the sub-line says by how much (the species is already named under the cord)
-      const sub = gain > 0 ? `${cmNum(gain)} cm past your old mark` : name;
-      line = { kind: 'pb', text: was ? fill(tpl, { cm: cmNum(now), was }) : fill(tpl, { cm: cmNum(now) }).replace(/\s*\(was \{was\}\)/, ''), sub, tone: 'gold' };
+      const now = fishWeight(species, { length: r.length ?? length, weight: r.weight ?? weight });
+      const prev = fishWeight(species, { length: r.prevLength, weight: r.prevWeight ?? r.prev });
+      const tpl = T.newBest || 'New best: {w} (was {was})';
+      // a best is told only when the figure the card shows rises: a fish a hair longer that reads the same weight as the old
+      // mark is no "New best: 5 oz (was 5 oz)" (progression sends none; this guards a record saved by an older build)
+      const gainOz = weightOz(now) - weightOz(prev);
+      if (prev > 0 && !(gainOz > 0)) continue;
+      // the sub-line says by how much, in the figures as they read (the species is already named above): "10 oz past your old mark"
+      const sub = prev > 0 ? `${fmtWeight(gainOz / OZ_PER_KG)} past your old mark` : name;
+      line = { kind: 'pb', text: prev > 0 ? fill(tpl, { w: fmtWeight(now), was: fmtWeight(prev) }) : fill(tpl, { w: fmtWeight(now) }).replace(/\s*\(was \{was\}\)/, ''), sub, tone: 'gold' };
     } else if (r.kind === 'classFirst') {
       const cls = classInfo(D, r.sizeClass, !!r.ancient)?.label || cap(r.sizeClass);
       line = { kind: 'classFirst', text: fill(T.classFirst || 'First {class} {species}', { class: cls, species: name }).replace(/\s+$/, ''), sub: r.memories ? `+${r.memories} Memories` : '', tone: r.ancient ? 'gold' : 'seal' };

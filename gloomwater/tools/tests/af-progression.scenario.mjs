@@ -243,7 +243,7 @@ export default async function (api) {
   await g(() => window.__gw.game.endRun('snuffed'));
   await waitFor(() => window.__gw.flow === 'dead' || window.__gw.ui.isBlocking?.() === true, null, 120);
   const sum = await g(() => { const c = window.__gw; const s = c.progression.summarizeRun?.('victory-preview'); return { flow: c.flow, gotAway: s?.gotAway ?? null, marked: s?.markedFishCreated ?? null }; });
-  check(Array.isArray(sum.gotAway) && sum.gotAway.some((l) => /Gloam Eel, near 95 cm, threw the hook/.test(l)) && sum.gotAway.some((l) => /Elder Reedjaw Pike/.test(l)), 'summary.gotAway: "A Trophy Gloam Eel, near 95 cm, threw the hook, day 1." …', sum);
+  check(Array.isArray(sum.gotAway) && sum.gotAway.some((l) => /Gloam Eel, near 4 lb, threw the hook/.test(l)) && sum.gotAway.some((l) => /Elder Reedjaw Pike/.test(l)), 'summary.gotAway: "A Trophy Gloam Eel, near 4 lb, threw the hook, day 1." …', sum);
   await frames(10);
   await uiShot('07-death-screen');
 

@@ -143,7 +143,8 @@ export function createMarket(S) {
       id: `sell:${fish.uid}`, kind: 'sell', category: 'sell', tab: 'sell', name: sp?.name || fish.speciesId,
       desc: legendary
         ? (trophy ? `Trophy or Toll: sell it for the toll, or keep it to the end of the descent and mount it for +${trophy} Memories.` : 'Murk would pay a fortune for it.')
-        : `${S.fmtKg(fish.weight)} · ${S.qualityLabel(fish.quality)}`,
+        : D().V3_ENABLED === true ? `${D().fmtWeight(D().fishWeight(sp, fish))} · ${S.qualityLabel(fish.quality)}`   // v3: pounds (docs/v3/pounds/SPEC.md)
+        : `${S.fmtKg(fish.weight)} · ${S.qualityLabel(fish.quality)}`,   // v1
       price, level: 0, maxLevel: 0, canBuy: canTrade(), reason: closedReason(),
       fish, legendary, rarity: sp?.rarity || 'common', icon: 'fish', quality: fish.quality,
     };
@@ -445,6 +446,11 @@ export function createMarket(S) {
         const kg = kgV3 ?? sp.weight[0] + (sp.weight[1] - sp.weight[0]) * tq;
         b.target = sp.id; b.kg = kg < 1 ? Math.round(kg * 100) / 100 : Math.round(kg * 10) / 10;
         fill.species = sp.name; fill.kg = b.kg;
+        if (kgV3 != null) {   // v3: a round target in pounds and ounces, never above the top Keeper; the words, the stored ounces and the check agree
+          const keeperZ = (D().SIZE_CLASSES || []).find((c) => c.id === 'keeper')?.zMax ?? 1.04;
+          const T = D().weightTarget(kgV3, D().sizeWeight(sp, D().sizeLength(sp, keeperZ, r.zone)));
+          b.kg = T.kg; b.targetOz = T.oz; fill.w = T.text;
+        }
         break;
       }
       case 'catchRarity': b.target = p.rarity || 'uncommon'; b.count = pickInt(p.n); fill.n = b.count; break;
@@ -473,6 +479,9 @@ export function createMarket(S) {
   }
 
   function decorate(b) {
+    // v3: a heavy bounty saved before weights were told in pounds is re-told in the card's figure and takes the new check with it
+    // (over that figure, on the ounces the card shows), so its words and its check agree for the day it has left
+    if (b.type === 'heavy' && b.targetOz == null && b.kg > 0 && D().V3_ENABLED === true && / kg\.$/.test(b.text || '')) { b.text = b.text.replace(/over [\d.]+ kg\.$/, `over ${D().fmtWeight(b.kg)}.`); b.targetOz = D().weightOz(b.kg); }
     let progressText;
     if (b.type === 'unscathed' || b.type === 'noFlare' || b.type === 'boss' && b.count === 1 || b.type === 'legend' || b.type === 'heavy' || b.type === 'quality' || b.type === 'nightFish') {
       progressText = b.progress >= b.count ? 'Done' : 'Not yet';
@@ -575,7 +584,7 @@ export function createMarket(S) {
       switch (b.type) {
         case 'catchSpecies': if (kind === 'fish' && e.fish?.speciesId === b.target) step(b); break;
         case 'catchRarity': if (kind === 'fish' && (RARITY_RANK[e.species?.rarity] ?? 0) >= (RARITY_RANK[b.target] ?? 1)) step(b); break;
-        case 'heavy': if (kind === 'fish' && e.fish?.speciesId === b.target && (e.fish.weight || 0) >= (b.kg || 0)) step(b); break;
+        case 'heavy': if (kind === 'fish' && e.fish?.speciesId === b.target && (b.targetOz != null ? D().weightOz(D().fishWeight(S.species(b.target), e.fish)) > b.targetOz : (e.fish.weight || 0) >= (b.kg || 0))) step(b); break;   // v3: the ounces the card shows (data.weightOz), over the target
         case 'depthCatch': if (kind === 'fish' && e.depth != null && e.depth >= (b.target ?? 0.75)) step(b); break;
         case 'quality': if (kind === 'fish' && (QUALITY_RANK[e.fish?.quality] ?? 0) >= (QUALITY_RANK[b.target] ?? 1)) step(b); break;
         case 'nightFish': if (kind === 'fish' && e.species?.time === 'gloom') step(b); break;

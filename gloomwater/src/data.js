@@ -1273,7 +1273,7 @@ export const CHALLENGES = [
   { id: 'perfect_10_run', tier: 2, name: 'Clockwork Wrist', desc: 'Set 10 perfect hooks in one descent.', type: 'perfectHooks', params: { n: 10 }, scope: 'run', reward: { unlock: 'relic:steady_hook', memories: 10 } },
   { id: 'kindled', tier: 2, name: 'Kindled', desc: 'Reach level 15 in one descent.', type: 'level', params: { n: 15 }, scope: 'run', reward: { unlock: 'relic:remembrance', memories: 20 } },
   { id: 'shimmering', tier: 2, name: 'Shimmering', desc: 'Land a Shimmering fish.', type: 'quality', params: { quality: 'perfect' }, scope: 'total', reward: { unlock: 'relic:shimmer_scale', memories: 5 } },
-  { id: 'heavy_catch', tier: 2, name: 'Heavyweight', desc: 'Land a non-legendary fish over 8 kg.', type: 'weight', params: { kg: 8, excludeLegendary: true }, scope: 'total', reward: { unlock: 'bait:shimmerfly', memories: 10 } },
+  { id: 'heavy_catch', tier: 2, name: 'Heavyweight', desc: 'Land a non-legendary fish over 8 kg.', type: 'weight', params: { kg: 8, excludeLegendary: true }, scope: 'total', reward: { unlock: 'bait:shimmerfly', memories: 10 } },   // v1
   { id: 'catch_100', tier: 2, name: 'Old Hand', desc: 'Land 100 fish across all descents.', type: 'catch', params: { n: 100 }, scope: 'total', reward: { unlock: 'relic:listening_bobber', memories: 20 } },
   { id: 'shells_1000_run', tier: 2, name: "Murk's Favourite", desc: 'Earn 1000 Shells in one descent.', type: 'shells', params: { n: 1000 }, scope: 'run', reward: { unlock: 'relic:torn_ledger', memories: 20 } },
   // ---- III. Deeper Water (runs 8–20+)
@@ -1298,7 +1298,7 @@ export const BOUNTIES = [
   { id: 'catch_species', type: 'catchSpecies', text: 'Bring me {n} {species}.', params: { n: [2, 3], rarities: ['common', 'uncommon'] }, base: 18, perN: 8, weight: 3, zoneMin: 0, dayMin: 1 },
   { id: 'catch_uncommon', type: 'catchRarity', text: 'Land {n} uncommon fish.', params: { rarity: 'uncommon', n: 2 }, base: 35, weight: 2, zoneMin: 0, dayMin: 1 },
   { id: 'catch_rare', type: 'catchRarity', text: 'Land a rare fish.', params: { rarity: 'rare', n: 1 }, base: 45, weight: 2, zoneMin: 0, dayMin: 2 },
-  { id: 'heavy', type: 'heavy', text: 'Land a {species} over {kg} kg.', params: { percentile: 0.75 }, base: 40, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'heavy', type: 'heavy', text: 'Land a {species} over {kg} kg.', params: { percentile: 0.75 }, base: 40, weight: 2, zoneMin: 0, dayMin: 1 },   // v1
   { id: 'deep_water', type: 'depthCatch', text: 'Land {n} fish from deep water.', params: { n: 2, depthMin: 0.75 }, base: 30, weight: 2, zoneMin: 0, dayMin: 1 },
   { id: 'perfect_hooks', type: 'perfectHooks', text: 'Set {n} perfect hooks.', params: { n: [3, 5] }, base: 30, weight: 2, zoneMin: 0, dayMin: 1 },
   { id: 'streak', type: 'streak', text: 'Chain {n} perfect hooks in a row.', params: { n: [3, 4] }, base: 45, weight: 1, zoneMin: 0, dayMin: 2 },
@@ -1503,7 +1503,7 @@ export const TEXT = {
     { maxDay: 10, text: 'Few Wicks see a seventh dawn. Fewer remember it.' },
     { maxDay: 999, text: 'Old Murk will tell this one, badly, for years.' },
   ],
-  records: { deepest: 'Deepest descent: {zone}', biggest: 'Biggest catch: {name}, {kg} kg', journal: 'The Journal holds {n} of {total} names.', level: 'Highest flame: level {n}' },
+  records: { deepest: 'Deepest descent: {zone}', biggest: 'Biggest catch: {name}, {kg} kg', journal: 'The Journal holds {n} of {total} names.', level: 'Highest flame: level {n}' },   // v1
   victoryTitle: 'The Light Comes Up',
   victorySubtitle: 'The Pale Leviathan is landed.',
   victory: [
@@ -2666,8 +2666,11 @@ export const BALANCE_V3 = {
     giantsOnly: 2.65,                 // Elders roll only where giants live (holdsGiants places, residents, Marked Fish, P4 Underdepth) …
     elsewhereMaxZ: 2.64,              // … everywhere else z is clamped to a top Trophy
     classMaxZ: { keeper: 1.039, prize: 1.879, trophy: 2.64, elder: 3.6 },   // maxClass → z clamp (fry water: prize; Lampwarden: trophy)
-    k: { minnow: 0.010, perch: 0.013, crayfish: 0.030, carp: 0.016, koi: 0.015, pike: 0.0075, eel: 0.0016, angler: 0.025,
-      ray: 0.012, puffer: 0.030, jelly: 0.020, ghost: 0.010, sturgeon: 0.006 },
+    // k per body (g/cm³), each checked against a real cousin's weight at the same length (within ±30%; docs/v3/pounds/SPEC.md §6).
+    // A fish whose cousin is far off its plan gets its own key (trout, gar, greateel, swampeel), never a per-fish number. A key is a
+    // plain family or build word, never a real species' own name (tools/sim/roster-check.mjs REAL_NAMES).
+    k: { minnow: 0.013, perch: 0.013, crayfish: 0.030, carp: 0.016, koi: 0.015, pike: 0.0075, eel: 0.0022, angler: 0.017,
+      ray: 0.012, puffer: 0.030, jelly: 0.020, ghost: 0.006, sturgeon: 0.006, trout: 0.011, gar: 0.0030, greateel: 0.0040, swampeel: 0.0016 },
     sigma: [0.09, 0.175], giantTailSigma: 0.16, maxReachRatio: 2.8,       // validated: σ range, ≥ 2 giant tails per lake, ceiling ≤ 2.8 × median
     elderKeeperRatio: { elderZ: 3.0, keeperZ: 0.4, range: [1.58, 2.0] }, // an Elder is ≈ 1.6–2.0× a typical Keeper's length
     legend: { sigma: 0.02, minRatio: 1.4, growthWeight: 0.07, growthLength: 0.023, growthCap: 1.5 },   // authored; ≥ 1.4× the lake's longest reach; +7% per landing, cap × 1.5 weight
@@ -2758,7 +2761,7 @@ export const BALANCE_V3 = {
     seals: { classes: ['prize', 'trophy', 'elder'], species: 48, total: 143, legend: 4, noElder: ['lampwarden_angler'] },
     escapeEstimate: 0.08,
     tallyPosts: { live: 2, canvas: [128, 64] },
-    elderLog: ['name', 'cm', 'kg', 'place', 'expedition', 'day', 'wick', 'ancient', 'lost'],
+    elderLog: ['name', 'weight', 'cm', 'place', 'expedition', 'day', 'wick', 'ancient', 'lost'],   // a line leads with the weight (pounds), then the length
   },
 
   // ---- Oil (brief §3.4): oil/s = stats.oilDrain × zone.drain.oil × context[phase] × Far Water night factor.
@@ -3029,7 +3032,7 @@ export const SPECIES_V3 = [
     model: { shape: 'sturgeon', body: 0x4a4e58, belly: 0xcfcabd, fin: 0x8a4b3a, glow: null, pattern: 'bands', eyes: 'normal', scale: 1.3 },
     hint: 'Under the broken bridge, but only when the water goes still as a mirror.',
     lore: 'Rust scutes run down its back like the links of the chain that held the bridge. The Mossmere\'s longest fish, and it knows it.' },
-  sv3('belled_matriarch', { size: legendSize(260, 230), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'bell_pool' },
+  sv3('belled_matriarch', { size: legendSize(260, 120), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'bell_pool' },
     { model: { body: 0x6a5a44, glow: 0xd8d0ff, fin: 0x8a7a5c }, lore: 'A harbour bell grew into her skull when she was young. Her scales have gone the colour of tarnished bronze, and she has tolled for the drowned ever since.' }),
 
   // ---------------------------------------------------------------- Sporewood Pools (12): plum, amber, rose, cream
@@ -3037,7 +3040,7 @@ export const SPECIES_V3 = [
   sv3('plumgill_perch', { size: sz(40, 0.13, 'perch'), family: 'predator', prefers: 'hush', phase: 1, src: 'v1' }),
   sv3('capshell_crayfish', { size: sz(24, 0.10, 'crayfish'), family: 'bottom', prefers: 'mist', phase: 1, src: 'v1' }),
   sv3('velvet_ray', { size: sz(67, 0.14, 'ray'), family: 'bottom', prefers: 'hush', phase: 1, src: 'v1', style: 'runner', spots: { mothers_cup: 2, gill_harp: 2 } }),
-  sv3('threadling_eel', { size: sz(86, 0.13, 'eel'), family: 'predator', prefers: 'drip', phase: 1, src: 'v1' }),
+  sv3('threadling_eel', { size: sz(86, 0.13, 'swampeel'), family: 'predator', prefers: 'drip', phase: 1, src: 'v1' }),
   {
     id: 'nightbloom_carp', name: 'Nightbloom Carp', zone: 'sporewood', rarity: 'uncommon', tier: 3, value: 40, food: 32, oil: 30, time: 'gloom',
     depth: [0.3, 1], bait: null, behavior: 'sinker', difficulty: diff(3, 'sinker'),
@@ -3057,7 +3060,7 @@ export const SPECIES_V3 = [
     model: { shape: 'koi', body: 0xe8d8b0, belly: 0xfff6e0, fin: 0xffb46a, glow: 0xffd28a, pattern: 'spots', eyes: 'normal', scale: 1.0, sunDisc: true },
     hint: 'On the Lit Row of the Drowned Greenhouse. Only a clean cast down the very middle of the row.',
     lore: 'The one warm fish in the Pools: a pale-gold disc on each flank, like a sun it has only heard about. The gardeners kept it for the greenhouse, and it kept the greenhouse.' },
-  sv3('drifting_grove', { size: legendSize(300, 320), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'mothers_cup' }),
+  sv3('drifting_grove', { size: legendSize(300, 150), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'mothers_cup' }),
 
   // ---------------------------------------------------------------- Glasswater Vault (13): indigo, ice, violet; sapphire glows
   sv3('prism_minnow', { size: sz(23, 0.12, 'minnow'), family: 'insect', prefers: 'drip', phase: 1, src: 'v1' },
@@ -3071,14 +3074,14 @@ export const SPECIES_V3 = [
   {
     id: 'vesper_gar', name: 'Vesper Gar', zone: 'glasswater', rarity: 'rare', tier: 4, value: 135, food: 36, oil: 54, time: 'gloom',
     depth: [0.5, 1], bait: null, behavior: 'darter', difficulty: diff(4, 'darter'),
-    size: sz(70, 0.15, 'pike'), family: 'predator', prefers: 'hush', phase: 4, src: 'v3', spots: { broken_hymnal: 3 },
+    size: sz(70, 0.15, 'gar'), family: 'predator', prefers: 'hush', phase: 4, src: 'v3', spots: { broken_hymnal: 3 },
     model: { shape: 'pike', body: 0x23285a, belly: 0xc8d0f0, fin: 0xb48cff, glow: 0xb48cff, pattern: 'scales', eyes: 'glow', scale: 1.25, snout: 'needle' },
     hint: 'Deep water at night, thickest where the Broken Hymnal leaves its chord unfinished.',
     lore: 'A needle-jawed gar with violet glass fins that ring on every turn. The copyists said it sang vespers. It only ever sang the one note.' },
   sv3('blind_scrivener', { size: sz(64, 0.16, 'angler'), family: 'glow', prefers: 'mist', phase: 1, src: 'v1', style: 'sulker', spots: { well_of_ledgers: 2 } }),
   sv3('the_unreflected', { size: sz(60, 0.13, 'perch'), family: 'insect', prefers: 'hush', phase: 3, src: 'walk' }),
   sv3('the_footnote', { size: sz(51, 0.13, 'perch'), family: 'bottom', prefers: 'mist', phase: 3, src: 'walk', style: 'sulker' }, { model: { pattern: 'marks' } }),
-  sv3('rainglass_darter', { size: sz(39, 0.11, 'minnow'), family: 'insect', prefers: 'drip', phase: 3, src: 'walk' }),
+  sv3('rainglass_darter', { size: sz(39, 0.11, 'trout'), family: 'insect', prefers: 'drip', phase: 3, src: 'walk' }),
   {
     id: 'the_sexton', name: 'The Sexton', zone: 'glasswater', rarity: 'rare', tier: 4, value: 150, food: 42, oil: 60, time: 'any',
     depth: [0.85, 0.95], bait: null, behavior: 'thrasher', difficulty: diffMul(diff(4, 'thrasher'), { stamina: 0.65 }), place: 'bell_window', cond: 'deed',   // Ancient 40% / 145 s (was 1% / 293 s)
@@ -3093,7 +3096,7 @@ export const SPECIES_V3 = [
   sv3('ossuary_fry', { size: sz(23, 0.12, 'minnow'), family: 'insect', prefers: 'mist', phase: 1, src: 'v1' }),
   sv3('pallid_wraithfin', { size: sz(46, 0.13, 'ghost'), family: 'predator', prefers: 'hush', phase: 1, src: 'v1' }),
   sv3('bonecrook_crayfish', { size: sz(27, 0.10, 'crayfish'), family: 'bottom', prefers: 'drip', phase: 1, src: 'v1' }),
-  sv3('gilt_eyed_eel', { size: sz(131, 0.16, 'eel'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', reference: true }),
+  sv3('gilt_eyed_eel', { size: sz(131, 0.16, 'greateel'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', reference: true }),
   sv3('shroud_ray', { size: sz(82, 0.14, 'ray'), family: 'bottom', prefers: 'hush', phase: 1, src: 'v1' }),
   sv3('funeral_veil', { size: sz(42, 0.09, 'ghost'), family: 'glow', prefers: 'drip', phase: 1, src: 'v1' },
     { hint: 'It follows the night the way a widow follows a cart.' }),
@@ -3126,7 +3129,7 @@ export const SPECIES_V3 = [
     id: 'pilgrim_salmon', name: 'Pilgrim Salmon', zone: null, zones: ['sporewood', 'glasswater', 'paleabyss'], wanderer: true,
     rarity: 'rare', tier: 3, value: 30, valueByLake: true, food: 30, oil: 34, time: 'dawn', depth: [0.3, 0.8], bait: null,
     behavior: 'darter', difficulty: diff(3, 'darter'), homeward: { within: 20, calmSeconds: 30 }, perLakePerRealDay: 1,
-    size: { L50: { sporewood: 66, glasswater: 76, paleabyss: 87 }, sigma: 0.13, body: 'pike', k: SZK.pike },
+    size: { L50: { sporewood: 66, glasswater: 76, paleabyss: 87 }, sigma: 0.13, body: 'trout', k: SZK.trout },
     family: 'predator', prefers: 'drip', phase: 3, src: 'v3', style: 'runner',
     model: { shape: 'pike', body: 0x6a4a3e, belly: 0xd8c4b0, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 1.2, jaw: 'hooked' },
     hint: 'At dawn, and for a little while after, near the stone that points home. Once a day in each lake.',
@@ -3943,7 +3946,7 @@ export const AUTOFISH = {
   // ---- let it pass: a passed Prize+ bite lingers, so passing on a size hint is a real bet (change the bait or lure, cast back)
   letPass: { classes: ['prize', 'trophy', 'elder', 'ancient'], lingers: 45, radius: 6, rebite: 0.5, keeps: ['speciesId', 'z'], once: true, refund: true, favour: 0.15 },
   // ---- the got-away note (the user's answer 4): after the fish is gone, never during the play, never a %
-  gotAway: { estimate: 0.08, word: 'near', round: [[20, 1], [100, 5], [Infinity, 10]], toast: ['small', 'keeper', 'prize'], toastSec: 2.5, cardSec: 7.5,
+  gotAway: { estimate: 0.08, word: 'near', round: [[20, 1], [100, 5], [Infinity, 10]], roundLb: [[10, 1], [100, 5], [1000, 25], [Infinity, 100]], toast: ['small', 'keeper', 'prize'], toastSec: 2.5, cardSec: 7.5,
     markedFrom: { openWater: 'elder', place: 'trophy' }, journalLast: 5, glimpsed: true, oddsLink: 'whenIdle', pinsGearCompare: true },
   // ---- the Set Out card's tackle rating, in words only (computed from catchChance against the lake's reference species)
   rating: { holdsAt: 0.5, words: [[0.4, 'a coin flip'], [0.15, 'a long shot'], [0.05, 'rarely held'], [0, 'beyond this tackle']] },
@@ -3961,7 +3964,7 @@ export const AUTOFISH = {
   text: {
     strike: { clean: 'Clean', struck: 'Struck', early: 'Early', late: 'Late' }, strikeLine: 'Strike: {grade}',
     estimate: 'by the look of it: {class}',
-    kicker: 'THE ONE THAT GOT AWAY', size: '{a} {class}, near {len}.', stillOut: "It's still out there, {place}.", stillOutWater: "It's still out there, in that deep water.",
+    kicker: 'THE ONE THAT GOT AWAY', size: '{a} {class}, near {size}.', stillOut: "It's still out there, {place}.", stillOutWater: "It's still out there, in that deep water.",
     oddsLink: 'Odds in your log',
     toast: '{a} {species} {cause}.',
     cause: {
@@ -3974,7 +3977,7 @@ export const AUTOFISH = {
       strike: 'A clean strike holds better.', place: 'Here, the chains take their share.' },
     rating: 'Against the {species}: holds {held}s. {next}s are {word}.', ratingNone: 'Against the {species}: even Smalls are {word}.',
     log: { title: 'Your odds', with: 'With the {item}:', strike: 'A clean strike adds a little; an early or late one costs a little.',
-      gloomtide: 'Gloomtide: a hand slam that lands parts the line.', unseen: 'Land or lose one to learn its odds.', marked: '{name}, {class}, near {len}' },
+      gloomtide: 'Gloomtide: a hand slam that lands parts the line.', unseen: 'Land or lose one to learn its odds.', marked: '{name}, {class}, near {size}' },
     gear: { tackle: '+{hold} Hold on every fish · counts ×1.6 against {styles}.', item: '+{hold} Hold against {targets}.', none: 'Helps nothing you have met yet.',
       compare: '{name} ({class}): {from} → {to} with this.', lastAway: 'The {name} that {cause} ({class})' },
     logLocked: 'Reel in first.',
@@ -4414,7 +4417,7 @@ const CHALLENGE_REWRITES_V3 = {
   night_angler:       { desc: 'Land 3 fish during a single night.', scope: 'expedition' },
   perfect_10_run:     { desc: 'Set 10 perfect hooks in one expedition.', scope: 'expedition' },
   kindled:            { desc: 'Reach level 15 in one expedition.', scope: 'expedition' },
-  heavy_catch:        { desc: 'Land a non-legendary fish over 15 kg.', params: { kg: 15, excludeLegendary: true } },
+  heavy_catch:        { desc: 'Land a non-legendary fish over 33 lb 0 oz.', params: { lb: 33, excludeLegendary: true } },   // the card's own figure (fmtWeight)
   catch_100:          { desc: 'Land 100 fish.' },
   shells_1000_run:    { desc: 'Earn 1000 Shells in one expedition.', scope: 'expedition' },
   kindle_one:         { desc: 'Kindle a weapon, or raise an Angler Boon to level 5.', scope: 'expedition', alt: { type: 'boonLevel', params: { pool: 'angler', level: 5 } } },
@@ -4444,6 +4447,7 @@ const CHALLENGES_T5 = [
 export const CHALLENGES_V3 = v3uniq(CHALLENGES, WALK_CHALLENGES, CHALLENGES_T5).map((c) => {
   const out = { ...v3clone(c), ...v3clone(CHALLENGE_REWRITES_V3[c.id] || {}) };
   if (CHALLENGE_REWRITES_V3[c.id]?.params) out.params = { ...v3clone(c.params || {}), ...CHALLENGE_REWRITES_V3[c.id].params };
+  if (out.params && 'lb' in out.params) delete out.params.kg;   // a target in pounds replaces the v1 kg (the Heavyweight)
   if (out.scope === 'run') out.scope = 'expedition';
   out.tab = GLOOM_TAB.includes(c.id) ? 'gloom' : c.tier === 5 ? 'measure' : c.tier === 4 ? 'paths' : 'fishing';
   if (c.tier === 4) out.needsWalk = true;
@@ -4683,7 +4687,8 @@ export const TEXT_V3 = {
   lampWatchStart: 'Lamp-watch. The Gloom keeps away tonight; fish within {m} m of the lamp.',   // survival, at dusk's end in a watch-lamp's pool
   lampWatchLeave: 'You left the lamp-watch. The Gloom stirs.',                                 // survival, > 10 m out of the pool
   lampWatchCast: 'On a lamp-watch you fish within {m} m of the lamp.',                          // fishing, a cast beyond the limit is refused
-  newBest: 'New best: {cm} cm (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
+  newBest: 'New best: {w} (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
+  saidToReach: 'said to reach {w}',   // the Journal's Weight row: the ceiling (an Elder's), under the species' ordinary range
   stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
   firstEvening: FIRST_EVENING.text,   // FE-D1: the opening's lore lines, Murk's lines, the ribbon and the Skip / Replay words (one source)
   // (D1′: the near-miss card's line, its cause names and its tension tips are retired; the got-away note's words are AUTOFISH.text)
@@ -4742,7 +4747,7 @@ export const MERCHANT_LINES_V3 = {
   ledger: ['Another figure beaten. I will need more chalk.', 'Your name looks better on the board than the old one did.'],
 };
 
-// ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg.
+// ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
 /** L50 (cm) of a species in a lake (the Pilgrim Salmon grows each lake down). */
 export function sizeL50(sp, zone = null) {
@@ -4756,6 +4761,59 @@ export function sizeLength(sp, z, zone = null) {
 }
 /** Weight (kg) of a fish of length cm: W = k · L³ (k in g/cm³). */
 export function sizeWeight(sp, cm) { return (sp.size.k * cm ** 3) / 1000; }
+// ---- Weight for the player (docs/v3/pounds/SPEC.md). Internals stay kg; the player reads pounds and ounces.
+export const LB_PER_KG = 2.20462262185;              // 1 lb = 0.45359237 kg exactly
+export const OZ_PER_KG = 35.27396195;                // 16 × LB_PER_KG
+const QUARTERS = ['\u00bc', '\u00bd', '\u00be'];     // ¼ ½ ¾
+/** The ounces a weight reads as on screen, exactly the figure fmtWeight prints: quarters under 1 oz (never below ¼), whole ounces
+ *  to under 100 lb, whole pounds beyond. Every size comparison the player can see in v3 (a personal best, a heavy bounty, the
+ *  Heavyweight) is made on it, so the words, the card and the check can never disagree. 0 for no weight. */
+export function weightOz(kg) {
+  if (typeof kg !== 'number' || !Number.isFinite(kg) || kg <= 0) return 0;
+  const oz = kg * OZ_PER_KG;
+  const q = Math.round(oz * 4);                       // quarters
+  if (q < 4) return Math.max(1, q) / 4;
+  const w = Math.round(oz);                           // whole ounces (q ≥ 4 ⇒ w ≥ 1)
+  return w < 1600 ? w : Math.round(oz / 16) * 16;     // 100 lb and up: whole pounds
+}
+/** "¼ oz" … "15 oz" · "1 lb 0 oz" … "99 lb 15 oz" · "100 lb" … "7,055 lb"; "—" for no weight. Rounds once, to whole ounces
+ *  (under 1 oz to the nearest quarter, never below ¼), then carries: never "16 oz", "1 lb 16 oz" or "100 lb 0 oz". */
+export function fmtWeight(kg, { nbsp = false } = {}) {
+  const w = weightOz(kg);
+  if (!(w > 0)) return '\u2014';
+  const sp = nbsp ? '\u00a0' : ' ';
+  if (w < 1) return `${QUARTERS[w * 4 - 1]}${sp}oz`;
+  if (w < 16) return `${w}${sp}oz`;
+  if (w < 1600) return `${Math.floor(w / 16)}${sp}lb${sp}${w % 16}${sp}oz`;   // "4 lb 6 oz"
+  return `${(w / 16).toLocaleString('en-US')}${sp}lb`;
+}
+/** A fish's weight for the player: derived from its length with the species' k (so a retune reaches old saves), else the stored kg. */
+export function fishWeight(sp, fish) {
+  const L = Number(fish?.length);
+  if (sp?.size && L > 0) { const w = sizeWeight(sp, L); return w < 1 ? Math.round(w * 1000) / 1000 : Math.round(w * 100) / 100; }
+  return Number(fish?.weight) > 0 ? Number(fish.weight) : 0;
+}
+/** A "near" weight (the got-away note): friendly steps, never an exact figure. Returns the figure only ("6 oz", "3 lb", "20 lb",
+ *  "275 lb", "7,100 lb"); the caller adds AUTOFISH.gotAway.word. */
+export function fmtWeightNear(kg, steps = [[10, 1], [100, 5], [1000, 25], [Infinity, 100]]) {
+  if (!(kg > 0)) return '';
+  if (Math.round(kg * OZ_PER_KG) < 16) return fmtWeight(kg);
+  const lb = kg * LB_PER_KG;
+  const step = (steps.find(([below]) => lb < below) || steps[steps.length - 1])[1];
+  return `${Math.max(step, Math.round(lb / step) * step).toLocaleString('en-US')} lb`;
+}
+/** A round target for "over {w}" (a heavy bounty, a Murk's order): a round unit (whole ounces under 1 lb, half pounds from 1 to
+ *  3 lb, whole pounds beyond), never above capKg (the top Keeper's weight), and worded as the card words a weight (fmtWeight:
+ *  "6 oz", "1 lb 8 oz", "9 lb 0 oz"), so the player compares like with like. Returns {oz, kg, text}. */
+export function weightTarget(kg, capKg = Infinity) {
+  const oz = kg * OZ_PER_KG, cap = capKg * OZ_PER_KG;
+  const unit = oz < 15.5 ? 1 : oz < 47.5 ? 8 : 16;    // whole oz · half pound · whole pound
+  let t = Math.max(1, Math.round(oz / unit) * unit);
+  if (t > cap) t = Math.max(1, Math.floor(cap / unit) * unit);
+  return { oz: t, kg: t / OZ_PER_KG, text: fmtWeight(t / OZ_PER_KG) };
+}
+/** The card's length line: cm always (one decimal under 20 cm): "8.4 cm", "112 cm", "850 cm". */
+export function fmtCm(cm) { cm = Number(cm); if (!(cm > 0)) return '\u2014'; return cm < 20 ? `${Math.round(cm * 10) / 10} cm` : `${Math.round(cm)} cm`; }
 /** Size class id for z (Ancient is an Elder with isAncient(z)). */
 export function sizeClassOf(z) { return SIZE_CLASSES.find((c) => z < c.zMax).id; }
 export function isAncient(z) { return z >= SZB.ancient; }
@@ -4765,6 +4823,19 @@ export function maxZFor(sp) { return SZB.classMaxZ[sp.maxClass] ?? SZB.reachZ; }
 export function reachOf(sp, zone = null) {
   if (sp.rarity === 'legendary') return sizeL50(sp) * Math.cbrt(SZB.legend.growthCap);
   return sizeLength(sp, maxZFor(sp), zone);
+}
+/** A species' weights for its Journal page (kg): {min, top, reach}. `min` is its smallest fish and `reach` what it is "said to
+ *  reach" (the ends of the derived `weight` pair); `top` is a top Trophy (z at `elsewhereMaxZ`, or the species' own class cap), the
+ *  most open water holds: Elders live only where giants do. Legends: first landing to fully grown. null with no weights. */
+export function weightSpan(sp) {
+  const w = sp?.weight;
+  if (!Array.isArray(w) || w.length < 2) return null;
+  if (!sp.size || sp.rarity === 'legendary') return { min: w[0], top: w[1], reach: w[1] };
+  const L50 = typeof sp.size.L50 === 'number' ? sp.size.L50 : Math.min(...Object.values(sp.size.L50));   // (as the derived pair: the smallest lake's)
+  const z = SZB.elsewhereMaxZ;
+  if (maxZFor(sp) <= z) return { min: w[0], top: w[1], reach: w[1] };   // capped at a Trophy or under: its ceiling is its top
+  const top = sizeWeight(sp, L50 * Math.exp(sp.size.sigma * z + SZB.tail * Math.max(0, z - SZB.tailFrom) ** 2));
+  return { min: w[0], top: Math.min(top, w[1]), reach: w[1] };
 }
 /** The float's favour notches (0–5) for μ. */
 export function favourNotches(mu) { let n = 0; for (const t of BALANCE_V3.favour.notches) if (mu >= t) n++; return n; }
@@ -5072,6 +5143,11 @@ if (V3_ENABLED) {
     desc: 'A pail of scraps. Your next cast stirs up nervous water for 30 s: a predator under a bait ball.' });
   const sb = BOUNTIES.find((x) => x.id === 'spot_catch');
   if (sb) Object.assign(sb, { type: 'signCatch', text: 'Catch {n} fish cast inside a sign on the water.' });
+  // pounds (docs/v3/pounds/SPEC.md §4.4): a fish's size is told in pounds; the heavy bounty's words and the Heavyweight's target
+  const hb = BOUNTIES.find((x) => x.id === 'heavy');
+  if (hb) Object.assign(hb, { text: 'Land a {species} over {w}.' });
+  const hc = CHALLENGES.find((c) => c.id === 'heavy_catch');
+  if (hc && P < 3) Object.assign(hc, { desc: 'Land a non-legendary fish over 18 lb 0 oz.', params: { lb: 18, excludeLegendary: true } });
   if (P >= 3) { RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk)); }
   BOONS.push(...BOONS_V3);
   for (const b of BOONS) if (ANGLER_POOL.includes(b.id) && !b.tags.includes('angler')) b.tags = [...b.tags, 'angler'];

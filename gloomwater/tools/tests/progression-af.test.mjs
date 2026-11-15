@@ -295,8 +295,13 @@ section('Pg13 / F15: fish:escaped — a Glimpsed page with odds and no Memories,
   ok(run.flags.markedFishCreated.length === 4, 'the run lists the Marked Fish it created');
   // summary lines
   const sum = P.summarizeRun('victory-preview');
-  ok(Array.isArray(sum.gotAway) && sum.gotAway.some((l) => /Trophy Gloam Eel, near 95 cm, threw the hook, day 1\./.test(l)), `the death screen lists got-away lines (${sum.gotAway[0]})`);
-  eq(approxText(160, data.AUTOFISH), '1.6 m', 'size words: 0.1 m above 1 m'); eq(approxText(47, data.AUTOFISH), '45 cm', '5 cm under 1 m'); eq(approxText(13.4, data.AUTOFISH), '13 cm', '1 cm under 20 cm');
+  // pounds: a 95 cm Gloam Eel is 0.0022 · 95³ g = 1.89 kg = 4.2 lb, told as "near 4 lb" (never a length, never an exact figure)
+  ok(Array.isArray(sum.gotAway) && sum.gotAway.some((l) => /Trophy Gloam Eel, near 4 lb, threw the hook, day 1\./.test(l)), `the death screen lists got-away lines in pounds (${sum.gotAway[0]})`);
+  ok(sum.gotAway.every((l) => !/\d\s?(cm|mm|m|kg)\b/.test(l)), `no got-away line carries a length or a kg figure (${sum.gotAway.join(' | ')})`);
+  const pike = data.SPECIES_BY_ID.reedjaw_pike, minnow = data.SPECIES_BY_ID.dusk_minnow;
+  eq(approxText(data, pike, 160), '70 lb', 'size words: 5 lb steps from 10 lb (a 160 cm Reedjaw is 67.7 lb)'); eq(approxText(data, pike, 47), '2 lb', '1 lb steps under 10 lb');
+  eq(approxText(data, minnow, 13.4), '1 oz', 'whole ounces under a pound'); eq(approxText(data, data.SPECIES_BY_ID.lantern_swallower, 850), '7,100 lb', '100 lb steps from 1,000 lb');
+  eq([approxText(data, pike, 0), approxText(data, null, 90), approxText(data, {}, 90)], ['', '', ''], 'no length or no species: no words');
   eq(ctx.errors, [], 'no errors');
 }
 

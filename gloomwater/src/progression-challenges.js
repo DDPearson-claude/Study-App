@@ -180,7 +180,7 @@ export function createChallenges(S) {
       for (const c of ofType('weight')) {
         const p = c.params || {};
         if (p.excludeLegendary && species?.rarity === 'legendary') continue;
-        if ((fish.weight || 0) > (p.kg ?? 8)) counterBump(c);
+        if (p.lb != null ? D().weightOz(D().fishWeight(species, fish)) > p.lb * 16 : (fish.weight || 0) > (p.kg ?? 8)) counterBump(c);   // v3 asks in pounds (params.lb): the ounces the card shows (data.weightOz)
       }
       evaluate(['catch', 'journal', 'quality', 'weight', 'nightCatch', 'level']);
     },

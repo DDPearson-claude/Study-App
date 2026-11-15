@@ -304,8 +304,11 @@ export default async function (api) {
       await g(([sp, z]) => window.__gw.debug.instantCatch(sp, { z }), [sp, z]);
       await waitFor(() => window.__gw.debug.ui?.()?.openModal === 'catch', null, 90);
       await wait(2600);   // the stamp and the ink sketch draw in
-      s = await g(() => { const e = document.querySelector('#ui .gw-m-catch'); return { stamp: e?.querySelector('.gw-cc-stamp')?.textContent?.trim(), stats: e?.querySelector('.gw-cc-stats')?.textContent?.replace(/\s+/g, ' '), seal: !!e?.querySelector('.gw-cc-seal'), name: e?.querySelector('.gw-cc-elder')?.textContent || '' }; });
-      check(/cm|mm/.test(s.stats) && /kg/.test(s.stats) && /favour/.test(s.stats) && new RegExp(name === 'elder' ? 'Ancient|Elder' : name, 'i').test(s.stamp), `catch card (${name}): class stamp, cm, kg and the favours`, s);
+      s = await g(() => { const e = document.querySelector('#ui .gw-m-catch'); return { stamp: e?.querySelector('.gw-cc-stamp')?.textContent?.trim(), stats: e?.querySelector('.gw-cc-stats')?.textContent?.replace(/\s+/g, ' '), seal: !!e?.querySelector('.gw-cc-seal'), name: e?.querySelector('.gw-cc-elder')?.textContent || '',
+        hero: e?.querySelector('.gw-cc-hero-n')?.textContent ?? '', len: e?.querySelector('.gw-cc-len')?.textContent ?? '', all: e?.querySelector('.gw-cc-grid')?.innerText ?? '' }; });
+      // pounds (docs/v3/pounds/SPEC.md §3): the hero is the weight, the length is the list's one small line in cm, and no kg anywhere
+      check(/^([¼½¾]|\d{1,2}) oz$|^\d{1,2} lb \d{1,2} oz$|^\d{1,3}(,\d{3})* lb$/.test(s.hero) && /^\d+(\.\d)? cm$/.test(s.len) && /^length/.test((s.stats || '').trim()) && !/\bkg\b|\bmm\b|weight/.test(s.stats) && !/\bkg\b/.test(s.all)
+        && /favour/.test(s.stats) && new RegExp(name === 'elder' ? 'Ancient|Elder' : name, 'i').test(s.stamp), `catch card (${name}): class stamp, the weight as the hero (${s.hero}), the length line in cm (${s.len}), no kg, and the favours`, s);
       await shot(`14-catch-${name}`);
       await g(() => { document.querySelector('#ui .gw-m-catch [data-action="release"]')?.click() || document.querySelector('#ui .gw-m-catch [data-action="keep"]')?.click(); });
       await frames(3);

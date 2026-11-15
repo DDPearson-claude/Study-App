@@ -81,8 +81,9 @@ export function create(ctx) {
 
   // ------------------------------------------------------------------ small helpers
   const toast = (text, kind = 'info') => { if (text) ctx.bus.emit('toast', { text, kind }); };
-  const fmtKg = (kg) => { const v = Number(kg) || 0; return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : Math.round(v).toString()) + ' kg'; };
-  const fmtCm = (cm) => { const v = Number(cm) || 0; return v < 20 ? v.toFixed(1) : Math.round(v).toString(); };   // v3 lengths ("{cm} cm")
+  const fmtKg = (kg) => { const v = Number(kg) || 0; return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : Math.round(v).toString()) + ' kg'; };   // v1
+  /** v3: a fish's size as the player reads it, in pounds and ounces (from its length with the species' k; else the stored kg). */
+  const fmtW = (sp, length, kg) => D().fmtWeight(D().fishWeight(sp, { length, weight: kg }));
   const qualityLabel = (q) => D().QUALITY?.[q]?.label || 'Common';
   const round2 = (v) => Math.round(v * 100) / 100;
   let saveQueued = false;
@@ -895,13 +896,17 @@ export function create(ctx) {
     const prevLength = entry.pbLength ?? null;
     const prevWeight = entry.pbWeight ?? entry.biggest ?? 0;
     const isPB = isNew || (prevLength != null ? fish.length > prevLength : fish.weight > (entry.biggest || 0));
+    // a best is kept by length (the hidden truth) and told by the weight the card shows: a fish a hair longer that reads the same
+    // figure as the old mark moves the mark, but is no "New best: 5 oz (was 5 oz)" (no record line, no kicker, no summary line)
+    const shownOz = (o) => D().weightOz(D().fishWeight(sp, o));
+    const toldPB = isPB && !isNew && shownOz(fish) > shownOz(prevLength != null ? { length: prevLength } : { weight: prevWeight });
     entry.caught = (entry.caught || 0) + 1;
     entry.biggest = Math.max(entry.biggest || 0, fish.weight || 0);
     if (isNew) { entry.firstDay = r?.day ?? 1; entry.firstRun = m.runs || 1; }
     if (isPB) {
       entry.pbLength = fish.length; entry.pbWeight = fish.weight; entry.pbZ = fish.z;
       entry.bestSetup = (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value }));
-      if (!isNew) records.push({ kind: 'pb', length: fish.length, weight: fish.weight, prevLength, prevWeight });
+      if (toldPB) records.push({ kind: 'pb', length: fish.length, weight: fish.weight, prevLength, prevWeight });
       if (entry.bestSetup.length) records.push({ kind: 'bestSetup', favours: entry.bestSetup });
     }
     entry.lastLengths = [...(Array.isArray(entry.lastLengths) ? entry.lastLengths : []), fish.length].slice(-12);
@@ -957,7 +962,8 @@ export function create(ctx) {
       r.stats = r.stats || freshRunStats();
       r.stats.fishCaught = (r.stats.fishCaught || 0) + 1;
       f.landed = (f.landed | 0) + 1;
-      if (!r.stats.biggest || fish.weight > (r.stats.biggest.weight || 0)) r.stats.biggest = { speciesId: sp.id, weight: fish.weight, length: fish.length };
+      // across species "biggest" is the heaviest, by the weight the card shows (pounds: derived from the length)
+      { const b = r.stats.biggest; if (!b || D().fishWeight(sp, fish) > D().fishWeight(species(b.speciesId), b)) r.stats.biggest = { speciesId: sp.id, weight: fish.weight, length: fish.length }; }
       m.totalFish = (m.totalFish || 0) + 1;
       if (phaseInfo().phase === 'gloomtide') { f.nightCatch = (f.nightCatch | 0) + 1; f.maxNightCatch = Math.max(f.maxNightCatch | 0, f.nightCatch); }
       if (sp.rarity === 'legendary') { r.legendaries = r.legendaries || {}; r.legendaries[sp.id] = true; }
@@ -980,14 +986,14 @@ export function create(ctx) {
     if (fish.markedFishId) af.removeMarkedFish(fish.markedFishId);
 
     // fish:measured at the stamp, then fish:landed opens the card ---------------------------------------
-    const result = { records, fish, isNew, isRecord: !isNew && isPB, sizeClass: cls };
+    const result = { records, fish, isNew, isRecord: toldPB, sizeClass: cls };
     if (fish.uid) measured.set(fish.uid, result);
     ctx.bus.emit('fish:measured', {
       speciesId: sp.id, z: fish.z, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, weight: fish.weight,
       favours: fish.favours || [], records, name: fish.name || null, place: fish.place ?? null, fish, cove: !live,
     });
     ctx.bus.emit('fish:landed', {
-      fish, isNew, isRecord: !isNew && isPB, species: sp, firstShells, xp: xpInfo.xp, mastered: entry.caught === (J.masteryAt ?? 10),
+      fish, isNew, isRecord: toldPB, species: sp, firstShells, xp: xpInfo.xp, mastered: entry.caught === (J.masteryAt ?? 10),
       measured: true, records, sizeClass: cls, ancient: !!fish.ancient, length: fish.length, cove: !live,
       // the card lists the favour terms that applied to this fish (DESIGN §25.6.1; CONTRACT §13.7)
       favours: (fish.favours || []).map((t) => ({ family: t.family, id: t.id, value: t.value })), name: fish.name || null,
@@ -1369,9 +1375,11 @@ export function create(ctx) {
     for (const x of f.records || []) {
       const sp = species(x.speciesId);
       if (V3() && x.length != null) {
-        const nb = (data.TEXT_V3?.newBest || 'New best: {cm} cm (was {was})').replace('{cm}', fmtCm(x.length)).replace('{was}', x.prevLength != null ? fmtCm(x.prevLength) : fmtKg(x.prev || 0));
+        const w = fmtW(sp, x.length, x.weight), was = fmtW(sp, x.prevLength, x.prev);
+        if (w === was) continue;   // a best saved by an older build that reads the same weight as its old mark: not told
+        const nb = (data.TEXT_V3?.newBest || 'New best: {w} (was {was})').replace('{w}', w).replace('{was}', was);
         lines.push(`${sp?.name || x.speciesId} · ${nb}`);
-      } else lines.push((T.biggest || 'Biggest catch: {name}, {kg} kg').replace('{name}', sp?.name || x.speciesId).replace('{kg}', fmtKg(x.weight).replace(' kg', '')));
+      } else lines.push((T.biggest || 'Biggest catch: {name}, {kg} kg').replace('{name}', sp?.name || x.speciesId).replace('{kg}', fmtKg(x.weight).replace(' kg', '')));   // v1
     }
     if (V3()) {
       for (const x of f.classFirsts || []) {

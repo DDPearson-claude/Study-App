@@ -17,6 +17,13 @@ lead's sign-off (§7.1). It adds P12–P17, T59–T72, PLAN CHOICEs 29–41 and 
 Jetty's lore gap stated, Escape at home given a lane and a touch path, home fixed at `docks[0]`, the departure line owned by
 the tutorial, `loopWickId` and `sailPlan` moved into `data.js`, the first film abandoned to the title, Settings under the
 loop, and T73–T75 and PLAN CHOICEs 42–46 added (each amended passage says "(rev. 4)").
+**The pounds amendment (15 November 2026) applies the user's ruling on the unit** ("we always use pounds as a gauge of fish
+size"; SPEC §8.2's first paragraph, `docs/v3/pounds/SPEC.md` §5; built on `gw-pounds`, which the merged base must carry before
+lane A's seam commit). Every size the loop shows is a weight from `data.fmtWeight(data.fishWeight(species, fish))`: the card's
+hero is the **weight** (its count, its sizer and its unit letters are `gw-pounds`' and stay untouched), the length is the card's
+one small `length` line in cm, and the tally shows each fish's weight and runs **lightest first, heaviest last**. Lengths stay
+the stored truth (`lastTrip.lines[].length`); no weight is ever saved. It amends §1.2 T43, §2.3 (the tally, the card), §3.3
+(`tallyLines`), §3.4 and §5.2 in place (each amended passage says "(pounds)").
 
 **The merged base (M) and the seam (S).** (rev. 4) M = `ccr-87831d14-8jseye` + `gw-show`, merged by the stager first. The
 base is now 3292886, which already carries `gw-intro` (3b2009d) and `gw-loop-waters` (SPEC v7.1); §6.3 step 0 lists the
@@ -154,7 +161,7 @@ harness of §13), `tools/tests/loop-evening.test.mjs` (B: survival, fishing, com
 | T40 | the switch: `resolveLoopFlags` precedence; `applyLoopFlags` on a fake page writes `GW_LOOP`, `GW_V3`, `GW_V3_PHASE = 1`; in node it writes nothing | A · loop.test |
 | T41 | `validate-data --loop` (§3.1 rules) and the v3-without-loop fingerprint | A · validate-data |
 | T42 | the sim reads `data.LOOP` and fails if a moved key is still drafted | A · clams.mjs |
-| T43 | no `/shells?/i`, no "Memories", no "Descent" in the DOM on a loop trip, at the gate, at the Jetty, on the shelf, on the tally, in the pause menu and on the Journal's species page; and an **allow-list**: on the water's HUD, the card, the tally, the Jetty, the shelf, the Chart, the title and the pause menu, every visible text node is a `TEXT_LOOP` string, a species name, a size-class label, a number (with "cm" or a clam glyph), a built record kicker or the card's built "length" label (the logotype and the Settings panel are exempt). (rev. 3) The allow-list also takes a water's name (the Chart's row), the five Wicks' `CHARACTERS[].name`, `TEXT_LOOP.wicks.*`, `TEXT_LOOP.start`, `TEXT_LOOP.newDescent`, `TEXT_LOOP.murk.wake`, `TEXT_LOOP.back`, the built **Prologue** word (`INTRO.trigger.replay.word`) and `FIRST_EVENING.tips.fe_cast` / `fe_strike`; the New Descent panel joins the scanned screens; "New Descent" is allowed on the fresh title and the panel only. (rev. 4) The home pause (`homepause`, **Resume** · **Settings**) joins the scanned screens; the Settings panel stays exempt | D · scenario; C · ui-loop (the allow-list helper) |
+| T43 | no `/shells?/i`, no "Memories", no "Descent" in the DOM on a loop trip, at the gate, at the Jetty, on the shelf, on the tally, in the pause menu and on the Journal's species page; and an **allow-list**: on the water's HUD, the card, the tally, the Jetty, the shelf, the Chart, the title and the pause menu, every visible text node is a `TEXT_LOOP` string, a species name, a size-class label, a number (a weight as `data.fmtWeight` prints it, with its "lb" / "oz"; the card's one length with "cm"; or a number with a clam glyph: (pounds) no "kg", and no "cm" anywhere but the card's length line), a built record kicker or the card's built "length" label (the logotype and the Settings panel are exempt). (rev. 3) The allow-list also takes a water's name (the Chart's row), the five Wicks' `CHARACTERS[].name`, `TEXT_LOOP.wicks.*`, `TEXT_LOOP.start`, `TEXT_LOOP.newDescent`, `TEXT_LOOP.murk.wake`, `TEXT_LOOP.back`, the built **Prologue** word (`INTRO.trigger.replay.word`) and `FIRST_EVENING.tips.fe_cast` / `fe_strike`; the New Descent panel joins the scanned screens; "New Descent" is allowed on the fresh title and the panel only. (rev. 4) The home pause (`homepause`, **Resume** · **Settings**) joins the scanned screens; the Settings panel stays exempt | D · scenario; C · ui-loop (the allow-list helper) |
 | T44 | (rev. 3) a fresh loop save: New Descent → `[data-wick]` → Start → the film → the Jetty in flow `home`, the raft at the first dock, the wake line at the Jetty and Murk's first line at the Chart | D · scenario; B · loop-evening (`startRoute({loopOn: true, intro: true}) === 'home'`, `startRoute({loopOn: true}) === 'trip'`, `startRoute({loopOn: false})` is the built route) |
 | T45 | `createTrip` refuses a water not in `meta.loop.maps.lakes` (falls back to `maps.lakes[0]`) | A · loop-trip |
 | T46 | the gate is scenery: with the raft at the gate on a trip, `player.interact()` opens no modal and returns false, `player.interactable` is null for the gate and Murk's barge, no `gate:open` over 60 s (even with `run.legendaries.belled_matriarch` set), `getGateInfo().open === false`; `ui.openDescend()` does nothing while `loopOn()` | B · loop-evening; A · loop-trip (`evaluateGate`/`openGate`/`travel` inert); C · ui-loop |
@@ -613,8 +620,11 @@ the stager has nothing to swap.
    - **The tally** (§8.3): `openModal('tally', …, {dismissable: false, onEscape: skipToEnd})` on `home:enter {tally}` (after
      `run:end`'s `closeAll`) or at the Jetty when `loop.lastTrip()` is unseen (a reload). **Murk's scale**: one ink drawing
      (a beam and two pans, `ui-icons` style) at the top of the sheet; each fish, a small ink fish, settles onto the pan as its
-     row counts up. Rows from `tallyPlan(tally)`: ascending by clams, giants and legends last, a giant alone with a longer
-     pause; the name small, the value counting up with one `sfx('coin')`; then the total `+N` in gold; one button **Sold**
+     row counts up. Rows from `tallyPlan(tally)`: (pounds) **lightest first, heaviest last**, by the weight the card shows
+     (`data.weightOz(data.fishWeight(species, line))`; two that read the same go by clams, then in the order caught), giants
+     and legends last, a giant alone with a longer pause; the name small with its weight beside it
+     (`data.fmtWeight(data.fishWeight(species, line))`, small, dim ink), the value counting up with one `sfx('coin')`; then the
+     total `+N` in gold; one button **Sold**
      (`data-action="sold"`). A tap, Enter or Esc skips to the end; a second tap or Enter presses Sold (Esc never does). An empty hold: Murk's line `TEXT_LOOP.murk.empty` and **Sold** (**PLAN CHOICE 10**). Sold →
      `loop.markTallySeen(id)`, close, open the Jetty. The tally never pays.
    - **The shelf** (§8.4): `openModal('shelf', …, {onEscape: backToJetty})` from the Murk tile; its own render (never
@@ -666,13 +676,13 @@ the stager has nothing to swap.
    - **`showCatch`** (gw-show:666): `const loopCard = loopOn() && run()?.outing === 'trip'`; under it the foot holds two
      buttons only: **Keep** (`key '1'`, `action 'keep'`, primary, label `Keep <em data-to="${V}">${icon('clam')}
      ${fmtClams(V)}</em>`, V = `p.clams ?? loop.priceOf(fish)`; disabled with no words when `p.holdFull`) and **Let go**
-     (`key '2'`, `action 'letgo'`, autofocus when Keep is disabled). Gone: the weight row (`<dt>weight</dt>`, a kg number
-     §8 does not allow; the length stays the hero), the worth row (gw-show:717), the Strike row (its home in the Journal is
+     (`key '2'`, `action 'letgo'`, autofocus when Keep is disabled). Gone: the weight row (`<dt>weight</dt>`: (pounds) `gw-pounds` already dropped it from the v3 card, whose hero is the
+     weight in pounds and whose list opens with the one small `length` line in cm; the loop card keeps that hero and that line as built, and shows no kg), the worth row (gw-show:717), the Strike row (its home in the Journal is
      the built "Your odds" block's strike note: **PLAN CHOICE 25**) and the favour row, `.gw-catch-full` and the room list
      (gw-show:757), Eat, Render, Release, the banked pick. A giant: a gold ★ before
      `.gw-catch-name` and the class stamp in gold (`.gw-cc-giant`, the gilded wash). The count-up reads `data-to` (the old
      `/\+(\d+)/` parse stays for every other card) and starts at `gw-show`'s delayed t0 (after the stamp press). `onKey` map
-     `{Digit1: 'keep', Digit2: 'letgo', Numpad1, Numpad2}`; Digit1 and Numpad1 do nothing while Keep is disabled. The unfold, the ruler, the knots, the length count and the stamp
+     `{Digit1: 'keep', Digit2: 'letgo', Numpad1, Numpad2}`; Digit1 and Numpad1 do nothing while Keep is disabled. The unfold, the ruler, the knots, the count (pounds: the weight counting up, driven by the length as `gw-pounds` built it) and the stamp
      are `gw-show`'s, untouched. `doFishAction(fish, 'letgo')` shows no lore toast.
    - **`showTitle`** (M:301; rewritten in rev. 3, PLAN CHOICEs 12 and 33): one loop branch right after `nav` and `add` are
      defined and **before** the built `if (hasRun)` (M:332), so neither the built Continue nor the intro's Begin block runs
@@ -943,7 +953,9 @@ export function shelfItems(D, metaLoop, session = []) → ShelfItem[];   // the 
                                                          // water is owned; plus, as {bought: true} cards, the ids in `session` (bought since the shelf
                                                          // opened) and the last step of each ladder the 1a shelf offers once it is owned (Hold 5; T2): PLAN CHOICE 26
 export function goalOf(items) → { id, name, price } | null;   // the cheapest unbought item
-export function tallyLines(creel) → TallyLine[];         // ascending by clams; giants and legends last (a giant alone, last)
+export function tallyLines(creel) → TallyLine[];         // (pounds) ascending by the weight the card shows (data.weightOz of data.fishWeight(species, line);
+                                                         // ties by clams, then catch order); giants and legends last (a giant alone, last). A line keeps
+                                                         // the fish's length, never a weight: the weight is derived wherever it is shown
 ```
 
 `createLoop(S)` → the object exposed as `ctx.progression.loop` (null off the loop). Every method calls `ensureLoop()` first
@@ -1017,6 +1029,10 @@ Example after one trip and Hold 4 (the clam values other than the Dusk Minnow's 
                            { "uid": "f_3", "speciesId": "weeping_carp", "sizeClass": "keeper", "length": 51.2, "clams": 27, "giant": false, "legend": false } ] }
 }
 ```
+
+(pounds) A tally line stores the fish's **length** and no weight. The tally (first showing or replay) derives each weight with
+`data.fishWeight(species, line)` and words it with `data.fmtWeight`, so the three lines above read `6 oz`, `9 oz` and
+`4 lb 12 oz` (the weights of 23.4, 27.0 and 51.2 cm with each species' `k`), and a later retune of `k` reaches a replayed tally as it reaches the Journal.
 
 A trip run (`save.run`), on top of the built run: `outing: 'trip'`, `nightMode: 'still'`, `evening: 2`, `creel: [Fish & {clams}]`
 (the hold), `bites: {"open:mossmere": 3}`, `mercy: {"open:mossmere": 0.2}`, `flags.pendingCatch: [Fish & {measured: true}]`
@@ -1215,8 +1231,9 @@ The whole design is `docs/loop/OPENING.md`; this is how the built opening is reu
 
 ### 5.2 The Keep and Let go buttons on the unfolding card (`gw-show`)
 
-- The card still unfolds from the fish at `fishing:show {phase: 'card', origin}` (`K.measure.takeOrigin`), with the length
-  count, the stamp press and the record knots as `gw-show` built them (the ruler hidden on a phone). The two buttons sit in
+- The card still unfolds from the fish at `fishing:show {phase: 'card', origin}` (`K.measure.takeOrigin`), with the count
+  ((pounds) the hero is the weight, counting up to its final figure; the length is the list's small line in cm), the stamp press
+  and the record knots as `gw-show` and `gw-pounds` built them (the ruler hidden on a phone). The two buttons sit in
   the same `foot` (`.gw-pf`) the built buttons used: **Keep · clam · value** on the left (key 1, primary), **Let go** on the
   right (key 2). On a phone the card's action grid is two columns, so they share one row; a value up to "12.4k" fits at the
   card's type size (D checks it at 390×844).

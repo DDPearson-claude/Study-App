@@ -152,6 +152,7 @@ export default async function (api) {
     const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const hits = [];
     if (text.includes('%')) hits.push('%');
+    if (/\d\s?(lb|oz)\b|[¼½¾]\s?(lb|oz)\b/.test(text.replace(/\u00a0/g, ' '))) hits.push('weight');   // a weight is k·L³: it would name the body (ui-af WEIGHT_RE)
     for (const n of D.SPECIES.map((s) => s.name)) if (new RegExp(`(^|[^A-Za-z])${esc(n)}($|[^A-Za-z])`, 'i').test(text)) hits.push(n);
     for (const wd of ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary']) if (new RegExp(`\\b${wd}\\b`).test(text)) hits.push(wd);
     const bite = root.querySelector('.gw-bite');
@@ -401,8 +402,8 @@ export default async function (api) {
       await g(() => { const c = window.__gw; c.bus.emit('fishing:escaped', { reason: 'snapped', sizeClass: 'elder' }); c.bus.emit('fish:escaped', { speciesId: 'reedjaw_pike', sizeClass: 'elder', z: 3.05, approxLength: 163, reason: 'snapped', beat: 'lastStand', place: null, x: 2, zPos: 9, markedFish: true, name: 'Old Ninefin', grade: 'struck', legendary: false }); window.__gw.ui.update(0.016); });
       card = await g(() => { const q = (s) => document.querySelector(`#ui .gw-gotaway ${s}`)?.textContent?.trim(); return { on: document.querySelector('#ui .gw-gotaway')?.classList.contains('gw-on'), k: q('.gw-ga-k'), title: q('.gw-ga-title'), name: q('.gw-ga-name'), line: q('.gw-ga-line'), still: q('.gw-ga-still'), hint: q('.gw-ga-hint'), link: q('.gw-ga-link') }; });
     }, { settle: 1000 });
-    check(card.on && card.title === 'Reedjaw Pike' && /Old Ninefin/.test(card.name) && /An Elder, near 1\.6\s?m\. It parted the line on its last run\./.test(card.line) && /in that deep water/.test(card.still) && /Heavier line/.test(card.hint) && /Odds in your log/.test(card.link),
-      'an Elder got away: the ink card (name, near-length, cause, still out there, the gear hint, "Odds in your log")', card);
+    check(card.on && card.title === 'Reedjaw Pike' && /Old Ninefin/.test(card.name) && /An Elder, near 70\s?lb\. It parted the line on its last run\./.test(card.line) && /in that deep water/.test(card.still) && /Heavier line/.test(card.hint) && /Odds in your log/.test(card.link),
+      'an Elder got away: the ink card (name, its size as a near weight, cause, still out there, the gear hint, "Odds in your log")', card);
     sc = await scan();
     check(!sc.hits.includes('%'), 'the card carries no %', sc);
     // the link opens that species at that class
