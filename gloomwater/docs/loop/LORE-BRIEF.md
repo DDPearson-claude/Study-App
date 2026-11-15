@@ -32,7 +32,7 @@ You are **the Wick**, a small living candle, one of the last of a drowned kingdo
 3. A forgotten water hides in mist until it is remembered.
 4. A kept lamp remembers the way.
 
-**The mist and the maps.** Forgetting looks like lavender mist: a water nobody remembers sinks into it and cannot be found. A chart is a remembering; when a living flame carries one, the mist lets that water go for good. So buying a map is the only way to find a new place, and only Murk, who holds the last of the kingdom's charts, can sell them.
+**The mist and the maps.** Forgetting looks like lavender mist: a water nobody remembers sinks into it and cannot be found. A chart is a remembering; when a living flame carries one, the mist lets that water go for good. So buying a map is the only way to find a new water, and the main way to find a new place, and only Murk, who holds the last of the kingdom's charts, can sell them. A water lifts for any flame that carries its chart, or has fished it. A far-water Wick (section 5) can also tell you the way to one of four small corners no chart ever drew, places the drowning or the long years since made after the charts were drawn, and that lifts its mist the same way. No tale ever tells the way to a whole water.
 
 **The dark.** "The Gloom" is just night on cold water: patient, not cruel.
 
@@ -111,16 +111,40 @@ All five can be chosen. Each has a look and one always-on passive with no button
 
 **Where the other Wicks are.**
 - **By the stove.** The ones not out on the water doze aboard the barge and travel with it.
-- **On the far waters.** A few woke long ago, went out and stayed. They are never met, heard or sought. Their only sign is the stool, the lit lantern and the seven knots by the fishing hole at the Rime Sound. "That is all."
+- **On the far waters.** A few woke long ago, went out and stayed. Four of them are met now and then out on the water, one in each reach: the far-water Wicks, below. Their first sign is the stool, the lit lantern and the seven knots by the fishing hole at the Rime Sound, which are Glim's.
 - **In the water.** Candles that sank on the night of the fall doze in the drowned towns and the deep. A cold candle can catch again some day; nothing says when.
 - **An empty place by the stove** holds only an old wax drip. It has no story and stays empty.
 - **The First Wick**, the first window candle ever lit, in the Inkwood's village, is only a story the Wicks tell, never a character.
+
+### The far-water Wicks
+
+A few Wicks woke long ago, went out on the water and never came home. Four of them can be met, now and then, one in each reach of the road. They are fishers who stayed out: not playable, never aboard the barge, never at the tally.
+
+| | reach | in one line | look | raft and kit |
+|---|---|---|---|---|
+| **Dip** | the old kingdom (waters 1–4) | It lay on the bottom a long while and knows who lives down there. | middling height, worn by the bottom's slow water into a flat oval like a river stone stood on end, wax the colour of old pearl, faintly banded grey, a small snail shell on one shoulder; a short hood of wet-sand sailcloth with tide lines; a small, very still flame, river-blue at the root, white above, gold only at its tip | its own window's shutter for a raft; a short black rod, its line weighted with an old iron key; a tin slit-lantern. It fishes straight down, dead still |
+| **Glim** | the cold rim (waters 5–8) | It likes the cold and the quiet, and counts the Long Winter's passing in knots. | small and round, white wax crazed by the cold; a patched, quilted hood of faded rose; a cold flame, nearly white with a lavender edge | a sled-raft on bone runners with a tiny stool; a short bone ice rod, its line tied with knots; a lantern on a driftwood crook. The stool, lantern and seven knots at the Rime Sound are its: it leaves that lantern burning by its fishing hole as a fisher leaves a rod, and on an evening you meet it there, the lantern is with it and the hole is dark |
+| **Lean** | the falls and the gate (waters 9–12) | It fishes the warm coast for the joy of it, and laughs at every fish, landed or lost. | the only tall one of the four: honey-gold beeswax softened by the heat so it leans, and leans further toward whoever it talks to; a loose ochre shawl; a rose-gold flame | a raft of fishing baskets lashed together, big ones and very small ones; a long, light cane rod; a brass lantern with one rose pane |
+| **Farthing** | the green heart (waters 13–16) | The cheapest candle in the kingdom, and the one that went farthest. | small and thin, made from the dregs of the orchard wax, remelted, brown-yellow and uneven, with a crooked wick; a scrap of sacking grown over with pale lichen; a small yellow flame with a thread of smoke | a sunk barge's hatch cover, poled, a small frog often riding on its edge; a short rod; a paper lantern from the stilt village |
+
+Their light is a pinpoint that lights nothing around it, like every glow but your own lantern's. No masks, no horns. All four let every fish go: they have no use for clams. Their names are for the designers only: on screen none is named, and each is known by its look, its flame's colour and a small flame mark.
+
+**Their story.** Dip went down with its window into the drowned capital on the night of the fall, lay cold on the bottom a long while and caught again where it lay, so it never knew there was a cove or a stove to go home to: it is the one cold candle shown to have caught again. The other three woke by Murk's banked stove in his first years in the cove, while the waters were still remembered, and kept going down the road until each found the water it would rather be on. Nothing called them home: a fisher stays out while the fish rise. They are content. They tell you what they know because a window candle was set in a window so that whoever was out on the water could find the way, and telling another small fisher where the fish lie is the same light. Murk knows the three who woke by his stove (Dip he never met), and says once, after you first meet Glim: "Still out there, that lot? Good."
+
+**Meeting one.** Some evenings, as dusk falls, a small lantern lifts across the water; tap it and your raft drifts alongside. The two flames lean toward each other, it says a line or two (never more than three), and it goes back to its fishing. Never during a bite, never at home, never on a water's first evening. A missed lantern comes again a few evenings later: nothing is ever lost, and a lantern you leave alone never nags. About once an hour of play. Their greetings, the first time each is met: Dip "I lay down there a long while." · Glim "Quiet up here. Sit, if you like." · Lean "Another one out! Oh, that's good." · Farthing "All this way? Me too."
+
+**What it tells you: a tale.** A tale is always a fisher's observation, never an instruction. One of three kinds, each marked by a small inked knot (a loose loop tied in the teller's flame colour) on the Journal's page or on the Chart:
+- **a tip** about a fish of that water you have seen (it never names a fish you have not caught; it describes it): that fish comes to your hook more often there and lands a little easier, for good. The number shows only in the player's own logs;
+- **a secret**: a fish that is on no page and never bites until you are told, then appears as a hatched silhouette with a knot, waiting to be caught. There is one in each water, and each is a different kind of fish from the one before it (a trout, a walking catfish, a sturgeon on crystal shelves, a puffer that swells into thorns, a weed-drift fish that walks on its fins, a flounder flat under temple steps, and so on). A secret is never needed for anything;
+- **a told place**: four times on the road, a corner of a water no chart ever drew, which opens out of the mist on the next evening there.
+
+**What they never are.** Not keepers (they tend no lamp), not guides (they lead nowhere), not quest-givers (they ask nothing), not traders (Murk is the only shop), not rivals (they never take a fish you could catch), and not storytellers: they talk of fish, water and themselves, never of the fall, the people, the great lantern, Murk or the road's end. They are never sought: no marker, no quest, no way to call one.
 
 ---
 
 ## 6. The cast so far
 
-The rules every character keeps are in section 12. In short: nobody is an enemy; everyone is kind, busy or asleep; **only Murk speaks**.
+The rules every character keeps are in section 12. In short: nobody is an enemy; everyone is kind, busy or asleep. **Who speaks is the creator's call, character by character**: so far, Murk at home and the four far-water Wicks out on the water, a line or two when you meet one.
 
 ### Old Murk
 
@@ -173,7 +197,7 @@ Frogs are ordinary animals, not folk: the south's voice. None in the stone north
 
 **Smaller characters with settled natures:** the Thousandcast Pike ("Follows the lure to the raft, looks at you, and leaves. Ten thousand times."); the Sternlamp Catfish, keeping one red stern lamp lit "as barges do"; the Votive Shark ("It is not sure it likes being loved."); Emberbelly ("owed a hundred years of seconds"); the Lampwarden Angler, "still waiting for someone to come home". A few catches are not fish and are still only animals: the Stone Lodger, a giant salamander ("Has rented the same rock for a hundred years and never paid."); the Potlid Turtle, a softshell turtle; and Little Logjaw, a small caiman: of all the amber eyes at the edge of the light, this one came closer.
 
-**Who you meet on the road:** Murk, at home. Out on the water: no voices, only lamps, great fish, frogs and, at the very end, the Banked Fire's breath. The north is empty; the world fills up as it greens.
+**Who you meet on the road:** Murk, at home. Out on the water, now and then at dusk, that reach's far-water Wick (section 5); otherwise no voices, only lamps, great fish, frogs and, at the very end, the Banked Fire's breath. The north is empty; the world fills up as it greens.
 
 ---
 
@@ -213,11 +237,11 @@ Frogs are ordinary animals, not folk: the south's voice. None in the stone north
 
 The story is told through the films, one landmark per water, the tow, the greetings, short card lines, Murk's lines, the legends' prints, the sill's stones, sound, and the Chart drawing itself. Almost everything in this brief stays off screen.
 
-- **Who speaks:** only Murk, one line at a time, rarely, never during a bite. Nothing speaks out on the water.
-- **How much:** film lines at most 60 characters, present tense. A card line (a map, a find) at most 8 words. A Wick's line at most 8 words and 36 characters; only the chosen Wick's shows. A fish has one or two short journal sentences. Murk says one line per map, once. Three one-sentence notes appear on the Chart once their fish is landed (the Lantern-Swallower's, the Old Shipwright's, and the Barge-Shadow's in Murk's hand).
-- **Never:** panels of text, quests, puzzles, reveals in text, or odds shown during play.
+- **Who speaks:** the creator's call, character by character. So far: Murk, one line at a time, rarely, never during a bite; and out on the water a far-water Wick, at most three short lines when you pull alongside it, never during a bite.
+- **How much:** film lines at most 60 characters, present tense. A card line (a map, a find) at most 8 words. A Wick's line at most 8 words and 36 characters; only the chosen Wick's shows. A far-water Wick's line the same, each said once. A fish has one or two short journal sentences. Murk says one line per map, once. Three one-sentence notes appear on the Chart once their fish is landed (the Lantern-Swallower's, the Old Shipwright's, and the Barge-Shadow's in Murk's hand).
+- **Never:** panels of text, quests, puzzles, reveals in text, a log of tales, or odds shown during play (a tip's rise shows only in the player's own logs).
 - **Sound:** silence and bells in the north; wind and surf on the cold road; spray and heat lightning on the dry coast; frogs, insects and bees swelling into a chorus in the south.
-- **The Chart** is an old hand-drawn road chart that assembles in the order you travel, each reach in its own chart-maker's hand: court surveyors' fine ink, sea-road wardens' lamp marks, harbour-masters' soundings, barge pilots' strip maps, and the Inkwood's plain orchard plan in an unsure hand. Nothing you do not own is drawn. At the end its border spells the acts.
+- **The Chart** is an old hand-drawn road chart that assembles in the order you travel, each reach in its own chart-maker's hand: court surveyors' fine ink, sea-road wardens' lamp marks, harbour-masters' soundings, barge pilots' strip maps, and the Inkwood's plain orchard plan in an unsure hand. Nothing you do not own is drawn; a place a far-water Wick has told you of is drawn with a small knot where a price would be. At the end its border spells the acts.
 
 ---
 
@@ -244,37 +268,38 @@ The style is "hand-inked melancholy": a clear, starry night with no fog, drawn i
 2. There is no way to fail, and every catch feels like a win. No new character takes, threatens or blocks anything; Murk is the only one who trades.
 3. Never draw a ring or disc round the raft or the player.
 4. Real river and lake names are allowed, though every water and river so far has an invented name. No fish or creature takes a real species' name; every name is original.
-5. Almost no words (section 10). **Only Murk speaks.** A new character has no dialogue.
+5. Almost no words (section 10). **Who speaks is the creator's call, character by character**; so far Murk at home and the four far-water Wicks on the water (a line or two, only when met). A new character speaks only if the creator chooses it to: then a line at a time, short, never during a bite.
 6. Everything is original, borrowing nothing recognisable from other games.
 
 **The world's guards, in plain words.**
 - **No enemies.** Nothing is fought, nothing hunts, nothing is lost but the fish that got away. The Gloom is night, not a creature. *Not:* an eel that steals your catch.
 - **No human face or figure, ever,** and the word "human" never appears on screen. *Not:* a ghostly fisherwoman on the pier.
-- **No quests, puzzles or text reveals.** No character opens or unlocks anything. *Not:* a heron that shows you a hidden pool.
+- **No quests, puzzles or text reveals.** No character opens or unlocks anything, except that a far-water Wick's tale can show you a fish or one of four hidden corners (section 5); no other character does. *Not:* a heron that leads you to a hidden pool (only a far-water Wick's tale shows a hidden corner, and it never leads you there).
 - **Fish are fish.** No corrupted or mutated catch as the plot, no fish made of lost things. *Not:* a fish woven from drowned letters.
 - **No relic collector and no keeper.** The Wick collects firsts and bests of fish, nothing else. No one tends the Last Light or any lamp: the lamps that burn unfed have no keeper or lamplighter, and the burning stays unexplained. No keeper mystery either: the Wick has not done all this before, and Murk hides nothing. *Not:* an old lamplighter toad who keeps the Thin Water's lamp lit.
 - **No single first flame.** The First Wick is only a folk tale, not the source of other flames. No Wick sits in a lamp to keep it lit, and the Wick never relights a fire as the climax. *Not:* a Wick revealed as the spark every lamp came from.
 - **Death stays where it is:** the Pallid Deep's quiet remembrance and the temple's old lines at Pyrefall (the Ashen Guest's "Uninvited to every funeral", and a carp fed with alms). Wicks are not souls; no one ferries or guides the dead. Existing ferry names, such as the Sunk Ferry, stay; no new ones are added. *Not:* a ferryman frog.
 - **No fleet, no lamp chain.** No fleet of the people sailing anywhere, and no chain of lamps lighting up along the road as you go. *Not:* a lamp that relights behind you at every water.
 - **Names.** No "Kingdom's ___", "King's ___", "royal ___" or new "Pale ___" names. Avoid the words Soul, Charm, Vessel, Grub, Shade, Husk, Mask and Abyss in names; no new "Ashen" or "Ash-" names. No masks. A Wick never has horns, a white mask, black oval eyes or a grey-blue cloak. Never pair Ashwick or the Ashen Guest with the ending.
-- **Fixed cast.** Murk is never younger than the fall and stays the only shop and the only voice. The old toads are never seen whole and never speak. The far-water Wicks are never met. The empty place by the stove stays empty: a wax drip, no story, no new Wick there. The playable Wicks are five.
+- **Fixed cast.** Murk is never younger than the fall and stays the only shop. The old toads are never seen whole and never speak. The far-water Wicks are four (Dip, Glim, Lean and Farthing), met now and then on the water and never sought, never aboard and never playable; there is no fifth. The empty place by the stove stays empty: a wax drip, no story, no new Wick there. The playable Wicks are five.
 - **Magic stays the four small wonders.** The ending never changes the sky.
 - **Light.** No new warm light that lights the water, and no new green light (section 11).
 
 **What a new character can be**, built only from the rules above:
 - a fish of one of the waters (a common fish, a giant, or a small wry one), with a look and one or two journal sentences;
 - an ordinary animal of the road (a frog, bird, bat, moth, salamander or turtle), behaving as an animal;
-- an absent being shown only by the signs it leaves, like the far-water Wicks and the old toads;
+- an absent being shown only by the signs it leaves, like the old toads;
+- one of the four far-water Wicks, redesigned within section 5's rules (four, fishers, candles of the art direction, a pinpoint light, a raft and a small kit); there is no fifth;
 - a sound, or a silent one-time greeting from a lamp.
 
-It appears only as something seen, something heard, or one short card or journal line.
+It appears only as something seen, something heard, or one short card or journal line, and, if the creator chooses it to speak, a few short lines.
 
 ---
 
 ## 13. Open: where the docs leave room
 
 1. Where did the last of the people go after the final hearth was banked, and are any still beyond the map? Left unanswered on purpose; the game never answers it.
-2. Who are the far-water Wicks, who sat on the stool and tied the seven knots at the Rime Sound? That sign is their only one ("That is all."), and they are never met, heard or sought.
+2. **The far-water Wicks** are settled in outline (section 5): four, met now and then, Dip, Glim, Lean and Farthing. Open: their names and looks beyond these first drafts (any redesign keeps them four, fishers and candles of the art direction); how much of each one's past is ever shown (only by looks and a line or two, never a text reveal); the seven knots at the Rime Sound, which are Glim's and which the game keeps unspoken (a knot for each time the Long Winter has passed under its hole).
 3. Who are the cold candles dozing in the drowned towns, and will any catch again?
 4. How and when do Taper, Stub, Tallow and Ashwick wake? The story says one at a time, with no reason given, yet all five can be chosen from the start. How does the story read when "you" is one of the other four?
 5. Tallow's lore line is settled ("Slow to light. Slower to go out."); its origin among the window candles is not. One idea, not adopted: the thick kitchen candle that burned all night, the sturdiest of them.
@@ -288,6 +313,7 @@ It appears only as something seen, something heard, or one short card or journal
 13. The people named the legends (settled). The stories behind each name are open, told only through things left behind or a fish's journal sentences, never a text reveal.
 14. The many small places of each water (the Lily Maze, the Bell Pool, the Gill Harp, the Well of Ledgers, the Coin Run, Lamp Row, the Sunk Ferry, Rootgate Creek and more) have fish and looks but little story.
 15. More animals along the road, as long as they stay animals, not folk.
+16. **The secret fish**: one in each water, sixteen in all, each a fish nobody has landed, told of by a far-water Wick. Three are named (the Casement Trout of the Mossmere's drowned windows, the Snowmelt Cod of the Rime Sound's glacier foot, the Hideaway Ray of Lanternroot Lagoon's flats); the others are working drafts.
 
 ---
 
@@ -316,3 +342,8 @@ It appears only as something seen, something heard, or one short card or journal
 | **a find** | a drowned thing brought up on the hook |
 | **the Seam** | where black forest water meets the brown river and will not mix |
 | **the Fold** | the long empty middle of the continent, folded small on the old charts |
+| **a far-water Wick** | one of the four candles who stayed out on the water: Dip, Glim, Lean and Farthing |
+| **a tale** | what a far-water Wick tells you: a tip, a secret or a told place |
+| **a secret** | a fish on no page, never biting, until a tale tells you of it |
+| **a told place** | a corner of a water no chart drew, shown by a tale |
+| **the knot** | the small inked mark a tale leaves |
