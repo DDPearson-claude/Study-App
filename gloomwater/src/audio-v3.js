@@ -183,6 +183,44 @@ export function landingVoicing(cls, { special = false } = {}) {
   return { ...v, notes: v.notes.slice(), shimmer: v.shimmer + (special ? 4 : 0) };
 }
 
+// =================================================================== the show (docs/v3/show/SPEC.md §2.8; AUTOFISH.show.sound)
+// From the fish breaking the surface to the card the catch has four sounds of its own, all by class (never by species): the
+// lift (a wet haul, water sheeting off; from Trophy a creak of rope and deck), the present (the flourish: a short rising figure
+// on the game's pluck and bell, the landing chime's answer), a wet slap on each flap, and sparse drips on wood. The pause adds
+// nothing (the score sits back a little: the hush). The cord's ticks and the seal moved to the card's count and stamp.
+const SHOW_V = {
+  //         the present: root (midi), notes above it, s between notes, a bell under it, a low warmth · the lift: weight 0..1, creak
+  small:   { root: 86, notes: [0, 5], gap: 0.055, bell: false, sub: false, k: 0.1, creak: 0 },
+  keeper:  { root: 81, notes: [0, 5, 9], gap: 0.055, bell: false, sub: false, k: 0.25, creak: 0 },
+  prize:   { root: 76, notes: [0, 5, 9, 12], gap: 0.06, bell: false, sub: true, k: 0.45, creak: 0 },
+  trophy:  { root: 72, notes: [0, 7, 12, 16], gap: 0.065, bell: true, sub: true, k: 0.65, creak: 0.6 },
+  elder:   { root: 67, notes: [0, 7, 12, 16, 19], gap: 0.07, bell: true, sub: true, k: 0.85, creak: 0.85 },
+  ancient: { root: 64, notes: [0, 7, 12, 16, 19, 24], gap: 0.075, bell: true, sub: true, k: 1, creak: 1 },
+};
+/** The show's class row for a fishing:show payload ({cls} from data.showClassOf; else sizeClass / ancient / legendary). */
+export function showClass(p = {}) {
+  if (typeof p.cls === 'string' && SHOW_V[p.cls]) return p.cls;
+  if (p.legendary || p.ancient) return 'ancient';
+  return SHOW_V[p.sizeClass] ? p.sizeClass : 'keeper';
+}
+/** The present's flourish: {root, notes, gap, bell, sub, shimmer}: bigger is lower, longer and fuller; a special catch shimmers. */
+export function showPresentVoicing(cls, { special = false } = {}) {
+  const v = SHOW_V[cls] || SHOW_V.keeper;
+  return { root: v.root, notes: v.notes.slice(), gap: v.gap, bell: v.bell, sub: v.sub, shimmer: special ? 3 : 0 };
+}
+/** The lift's haul: {k (weight 0..1), dur (s: the lift's own length, the swarm row's in a window), creak (0..1, from Trophy)}. */
+export function showLiftParams(cls, dur) {
+  const v = SHOW_V[cls] || SHOW_V.keeper;
+  return { k: v.k, dur: clamp(num(dur, 0.5), 0.2, 1.6), creak: v.creak };
+}
+/** A flap in the grip (show:beat {kind: 'flap', strength, cls}): a wet slap, lower and fuller for a heavier fish. */
+export function showFlapParams(cls, strength = 0.6) {
+  const v = SHOW_V[cls] || SHOW_V.keeper, st = clamp(num(strength, 0.6), 0, 1);
+  return { pitch: lerp2(1.35, 0.6, v.k), volume: 0.35 + 0.55 * st, k: v.k };
+}
+/** How far the score sits back for the pause (the hush) and for how long: [amount 0..1, seconds]. */
+export function showHush(pause) { return [0.55, clamp(num(pause, 0.7) + 0.15, 0.3, 1.5)]; }
+
 // =================================================================== automatic fishing (DESIGN §25.6, §25.14.2a Au2; CONTRACT §13.7a)
 // The play's sounds come ONLY from what fishing:strike / fishing:reel / fishing:escaped carry: the size class (and `ancient`),
 // the class length (`length`, else the lake's class ladder: never a species' own length), the mean fitted tier and the beat

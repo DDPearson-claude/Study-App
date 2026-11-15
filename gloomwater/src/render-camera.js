@@ -177,3 +177,167 @@ export function trophyFit(baseFov, radius, dist, aspect, { up = TROPHY_UP, acros
   if (tNeed <= tCap) return { fov: clamp(Math.max(f0, 2 * Math.atan(tNeed) / DEG), f0, capF), dist: d };
   return { fov: capF, dist: Math.min(d * TROPHY_PORTRAIT_BACK, d * tNeed / tCap) };
 }
+
+// ------------------------------------------------------------------ the show camera (docs/v3/show/SPEC.md §2.6; AUTOFISH.show.camera)
+// After the fish clears the water the Wick turns to the lens and presents it. The show camera does not frame a sphere: it FITS
+// the named points actors returns (the fish's snout, tail, back and belly, the wax head, the flame, the hands, the feet, the rod
+// tip), so the fish, held toward the lens, is the subject at any length from a few centimetres to several metres, on a 16:9 screen
+// and on a phone held upright. All of it is pure maths here; render.js blends the fitted pose over the play's rig.
+const smooth01 = (t) => { const x = clamp(t, 0, 1); return x * x * (3 - 2 * x); };
+/** The numbers in force when data carries none (AUTOFISH.show.camera is the truth). */
+export const SHOW_CAMERA_DEFAULT = Object.freeze({
+  margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45, out: 1.4, follow: 10, still: 0.02,
+  pose: {
+    pinch: { elev: 8, fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0, tinyElev: -5 },
+    both: { elev: 7, fov: 52, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], flameTip: 0, lowElev: -9, lowAbove: 0.95 },
+    hug: { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
+    hang: { elev: 6, fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet'] },
+    alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet', 'body'], craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55, marginPortrait: 0.1 },
+  },
+});
+/** 0 on a landscape screen, 1 on a phone held upright, eased between an aspect of 1.25 and 0.8. */
+export function showUpright(aspect) { return smooth01((1.25 - num(aspect, 16 / 9)) / 0.45); }
+/**
+ * The camera row for a pose on this screen: {elev, fov (vertical, deg), margin, keep, rake (deg off broadside; 0 = none),
+ * craned}. `pose` null (the reveal, before actors has the fish) reads the `both` row. A pinch under tinyBelow metres opens to
+ * tinyFov (the fish comes right up to the lens); an alongside fish over craneAbove metres is craned over (eased in over 1.5 m),
+ * and on an upright screen one over rakeAbove metres is filmed along its length from the head end.
+ */
+export function showRow(C, pose, { length = 0.5, aspect = 16 / 9, tinyBelow = 0.15, rise = 0 } = {}) {
+  const cam = C && typeof C === 'object' ? C : SHOW_CAMERA_DEFAULT;
+  const id = pose && cam.pose?.[pose] ? pose : 'both';
+  const R = cam.pose?.[id] || SHOW_CAMERA_DEFAULT.pose[id], L = Math.max(0, num(length, 0.5));
+  const up = showUpright(aspect);
+  let fov = num(R.fov, 44), elev = num(R.elev, 10), flameTip = Number.isFinite(R.flameTip) ? R.flameTip : null;
+  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFov)) fov = R.tinyFov;
+  // (a tiny fish's close-up keeps the flame's core, not its tip; an upright frame has the height for the whole flame)
+  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyFlameTip)) flameTip = lerp(R.tinyFlameTip, flameTip ?? num(cam.flameTip, 0.5), up);
+  if (id === 'pinch' && L < tinyBelow && Number.isFinite(R.tinyElev)) elev = R.tinyElev;   // (and the lens comes down to the hand's height: the fish is level with it, the face and the flame above)
+  fov = lerp(fov, Math.max(fov, num(R.fovPortrait, fov)), up);
+  let craned = 0, rake = 0;
+  if (id === 'alongside') {
+    craned = Number.isFinite(R.craneAbove) ? smooth01((L - R.craneAbove) / 1.5) : 0;
+    if (up > 0.5 && Number.isFinite(R.rakeAbove) && L > R.rakeAbove) { rake = num(R.rake, 55); craned = 1; }
+    elev = lerp(elev, num(R.craneElev, 40), craned);
+  }
+  // a flame that stands far above the catch (the Taper's stovepipe): the lens comes down and looks up along it (lowElev, eased in
+  // over 0.3 m from lowAbove m of rise), so the fish in front stays the subject instead of the frame fitting a tall column
+  if (Number.isFinite(R.lowElev) && Number.isFinite(R.lowAbove)) elev = lerp(elev, R.lowElev, smooth01((num(rise, 0) - R.lowAbove) / 0.3));
+  const M = cam.margin || SHOW_CAMERA_DEFAULT.margin;
+  // (a row may keep its own side margins on an upright screen: the Wick beside a leviathan is never at the frame's very edge)
+  const margin = lerp(num(M.landscape, 0.08), num(R.marginPortrait, num(M.portrait, 0.06)), up);
+  return { id, elev, fov, margin, headroom: num(R.headroom, num(cam.headroom, 0)), footroom: num(R.footroom, num(cam.footroom, 0)), keep: Array.isArray(R.keep) ? R.keep : ['fish', 'head', 'flame'], flameTip, rake, craned, upright: up };
+}
+/** The view's axes for render's convention (yaw 0 looks north, −Z, from the south; elev degrees above the subject): right, up, forward. */
+export function showAxes(yaw, elevDeg) {
+  const sy = Math.sin(yaw), cy = Math.cos(yaw), e = num(elevDeg, 10) * DEG, ce = Math.cos(e), se = Math.sin(e);
+  const f = [-sy * ce, -se, -cy * ce], r = [cy, 0, -sy];
+  return { r, u: [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]], f };
+}
+const dot3 = (p, a) => p.x * a[0] + p.y * a[1] + p.z * a[2];
+/**
+ * THE FIT (SPEC §2.6). points: world points to keep in frame; depthAt: the fish's centre (the look point's depth). With the
+ * view's right, up and forward axes, each point has x, y (across and up the frame) and z (depth). A point is inside when
+ * |x − cx| ≤ (d + z − zc) · tan(fovH / 2) · (1 − 2·margin), and the same for y with fovV. The smallest d that holds for every
+ * point is exact per axis (the tightest "left" and "right" points meet their edges together); d is then no less than
+ * minLens + the nearest point's (zc − z); and cx, cy are re-centred on the projected extents at that d.
+ * `shiftY` raises the subject that share of the frame's height above the centre (a phone's card owns the foot of the frame).
+ * `marginRight` (a share of the frame's width from its right edge, up to 0.8) keeps that side clear: the fit is made in what is left.
+ * Returns {dist, look: {x, y, z}, cx, cy, zc, by: 'x' | 'y' | 'near'}, or null without points.
+ */
+export function showFit(points, { yaw = 0, elev = 10, fov = 44, aspect = 16 / 9, margin = 0.08, marginTop = null, marginBottom = null, marginRight = null, minLens = 0.35, depthAt = null, shiftY = 0 } = {}) {
+  const pts = (points || []).filter((p) => p && Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z));
+  if (!pts.length) return null;
+  const A = showAxes(yaw, elev);
+  const tv = Math.tan(clamp(num(fov, 44), 10, 120) * DEG / 2), th = tv * Math.max(0.2, num(aspect, 16 / 9));
+  // (the top and the foot of the frame may keep their own margins: room over the flame, room under the hands)
+  // (the right of the frame may be kept clear too: on a wide screen the catch card stands there, and the picture beside it)
+  // (it is fitted into the strip that is left, then the look point is moved so that strip's middle is the picture's)
+  const m = clamp(num(margin, 0.08), 0, 0.3), mR = clamp(num(marginRight, m), m, 0.8), kx = th * (1 - m - mR);
+  const kT = tv * (1 - 2 * clamp(num(marginTop, m), 0, 0.3)), kB = tv * (1 - 2 * clamp(num(marginBottom, m), 0, 0.3));
+  const xs = pts.map((p) => dot3(p, A.r)), ys = pts.map((p) => dot3(p, A.u)), zs = pts.map((p) => dot3(p, A.f));
+  const zc = depthAt && Number.isFinite(depthAt.x) ? dot3(depthAt, A.f) : zs.reduce((a, b) => a + b, 0) / zs.length;
+  // per axis: d ≥ (x − cx) / k − dz and d ≥ (cx − x) / k − dz for every point; the least d is where the two envelopes meet
+  const solve = (vs, kp, kn) => {
+    let a = -Infinity, b = -Infinity;
+    for (let i = 0; i < vs.length; i++) { const dz = zs[i] - zc; a = Math.max(a, vs[i] / kp - dz); b = Math.max(b, -vs[i] / kn - dz); }
+    const c = (a - b) / (1 / kp + 1 / kn);
+    return { c, d: a - c / kp };
+  };
+  const X = solve(xs, kx, kx), Y = solve(ys, kT, kB);
+  let near = -Infinity;
+  for (let i = 0; i < zs.length; i++) near = Math.max(near, zc - zs[i]);
+  const dNear = num(minLens, 0.35) + Math.max(0, near);
+  const dist = Math.max(X.d, Y.d, dNear, 0.05);
+  const by = dist === X.d ? 'x' : dist === Y.d ? 'y' : 'near';
+  // re-centre on the projected extents at the distance chosen (the axis that did not set it has room to spare)
+  // (the spare room is shared in proportion to each side's safe extent: kp up / right, kn down / left)
+  const centre = (vs, c0, kp, kn) => {
+    let lo = Infinity, hi = -Infinity;
+    for (const v of vs) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    let a = lo, b = hi, c = c0;
+    for (let it = 0; it < 24; it++) {
+      c = (a + b) / 2;
+      let mx = -Infinity, mn = Infinity;
+      for (let i = 0; i < vs.length; i++) { const q = (vs[i] - c) / Math.max(1e-4, dist + zs[i] - zc); mx = Math.max(mx, q); mn = Math.min(mn, q); }
+      if (mx / kp + mn / kn > 0) a = c; else b = c;
+    }
+    return c;
+  };
+  let cx = by === 'x' ? X.c : centre(xs, X.c, kx, kx);
+  cx += (mR - m) * th * dist;
+  let cy = by === 'y' ? Y.c : centre(ys, Y.c, kT, kB);
+  cy -= clamp(num(shiftY, 0), -0.4, 0.4) * 2 * tv * dist;
+  return { dist, cx, cy, zc, by, look: { x: A.r[0] * cx + A.u[0] * cy + A.f[0] * zc, y: A.r[1] * cx + A.u[1] * cy + A.f[1] * zc, z: A.r[2] * cx + A.u[2] * cy + A.f[2] * zc } };
+}
+/** Where a world point lands in the frame for a fitted camera: {x, y} in −1..1 (0 = the centre; ±1 = the edges), z = its depth (m). */
+export function showProject(p, fit, { yaw = 0, elev = 10, fov = 44, aspect = 16 / 9 } = {}) {
+  const A = showAxes(yaw, elev), tv = Math.tan(num(fov, 44) * DEG / 2), th = tv * num(aspect, 16 / 9);
+  const z = fit.dist + dot3(p, A.f) - fit.zc;
+  return { x: (dot3(p, A.r) - fit.cx) / (Math.max(1e-6, z) * th), y: (dot3(p, A.u) - fit.cy) / (Math.max(1e-6, z) * tv), z };
+}
+/** The kept points of a show focus (actors.getShowFocus().keep) for a row's `keep` list; missing groups are skipped. */
+export function showKeep(focus, keys) {
+  const out = [], K = focus && focus.keep;
+  if (!K) return out;
+  for (const k of keys || []) { const g = K[k]; if (Array.isArray(g)) for (const p of g) if (p && Number.isFinite(p.x)) out.push(p); }
+  return out;
+}
+/**
+ * The raked yaw (an upright screen, a long alongside fish): the lens turns `rakeDeg` off broadside toward the fish's head end,
+ * so the head and the Wick are near and the body runs away up the frame. yaw0: the play's yaw; axis: the fish's tail → snout
+ * direction on the water {x, z}. Returns the yaw nearest yaw0 from which the view runs from the head toward the tail.
+ */
+export function showRakeYaw(yaw0, axis, rakeDeg = 55) {
+  const ax = num(axis?.x, 0), az = num(axis?.z, 0), l = Math.hypot(ax, az);
+  if (!(l > 1e-6) || !(rakeDeg > 0)) return yaw0;
+  const thA = Math.atan2(ax, az), thF = Math.atan2(-Math.sin(yaw0), -Math.cos(yaw0));   // headings of the fish's axis and of the view
+  let d = thF - thA; d = Math.atan2(Math.sin(d), Math.cos(d));
+  const want = (90 + clamp(rakeDeg, 0, 80)) * DEG * (d >= 0 ? 1 : -1);                  // the view runs against the axis: head → tail
+  const thV = thA + want;
+  return Math.atan2(-Math.sin(thV), -Math.cos(thV));
+}
+/** The blend's ease (0 → 1 → 0): no jump in position or speed at either end, and the lowest top speed an ease can have
+ *  (1.5 × the mean), so the lens never pops and never whips: 12 m in 0.8 s peaks at 0.75 m a frame at 30 fps. */
+export function showEase(p) { return smooth01(p); }
+/**
+ * The way back to play (0 → 1 over the way out): how far the lens has gone from the close-up to the play camera. A plain ease
+ * of the distance is a whip-zoom (from 1.8 m to 9 m the picture shrinks five-fold in the first third of a second); this one
+ * eases the lens's DISTANCE along a geometric path (d0 → d1 at an even rate of zoom, eased in and out), so the picture opens
+ * out evenly and the lake settles in. ratio = the play camera's distance over the close-up's (≥ 1).
+ */
+export function showOutEase(k, ratio = 6) {
+  const s = smooth01(k), r = clamp(num(ratio, 6), 1.001, 60);
+  return (Math.pow(r, s) - 1) / (r - 1);
+}
+/**
+ * Seconds until the present for a show's view (fishing.view.show): the rest of the reveal and the lift (the lift at
+ * `liftRate` once the player has hurried). 0 from the hold on. The lens has arrived when this reaches 0.
+ */
+export function showArrival(view, liftRate = 2.5) {
+  if (!view || typeof view !== 'object') return 0;
+  const D = view.dur || {}, rate = view.hurried ? Math.max(1, num(liftRate, 2.5)) : 1;
+  if (view.phase === 'reveal') return Math.max(0, num(D.reveal, 0) - num(view.t, 0)) + num(D.lift, 0.5) / rate;
+  if (view.phase === 'lift') return Math.max(0, num(D.lift, 0.5) - num(view.poseT, 0)) / rate;
+  return 0;
+}

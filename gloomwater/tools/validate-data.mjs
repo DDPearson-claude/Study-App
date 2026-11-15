@@ -1758,6 +1758,80 @@ if (V3) {
       for (const [id, b] of Object.entries(CT.buffs.boons)) ok(D.BOON_BY_ID[id] && /Hold/.test(D.BOON_BY_ID[id].desc), `Boon ${id} says what Hold it gives`);
       ok(/Hold/.test(D.CHARACTER_BY_ID.ashwick.fishing.desc) && D.CHARACTER_BY_ID.ashwick.fishing.firstHookHold === CT.buffs.wicks.ashwick.hold, "Ashwick's Burned Once gives +3 Hold on the first fish hooked each night"); }
     ok(AF.gotAway.estimate === 0.08 && D.BALANCE_V3.records.escapeEstimate === AF.gotAway.estimate, 'the got-away length estimate is ±8% (§25.7.4)');
+    // ---- the show (AUTOFISH.show; docs/v3/show/SPEC.md): the Wick presents the fish to the lens, a still pause, then the card
+    { const SH = AF.show, SC = D.SHOW_CLASSES, POSES = ['pinch', 'both', 'hug', 'hang', 'alongside'];
+      ok(isObj(SH) && JSON.stringify(SH.phases) === '["reveal","lift","hold","pause","card"]' && JSON.stringify(SC) === JSON.stringify(CLS), 'AUTOFISH.show: phases reveal → lift → hold → pause → card; one row per size class and the Ancient');
+      const plans = Object.fromEntries(SC.map((c) => [c, D.showPlan(c)]));
+      for (const [i, c] of SC.entries()) {
+        const B = SH.beats[c], P = plans[c];
+        ok(isObj(B) && B.lift > 0 && B.hold > 0 && B.pause >= SH.minPause, `AUTOFISH.show.beats.${c}: lift, hold and a pause of at least ${SH.minPause} s`);
+        ok(isObj(AF.landing[c]) && within(P.reveal + B.lift + B.hold + B.pause, P.total, 2e-3), `AUTOFISH.show: ${c} has a landing row; showPlan adds up`);
+        ok(Math.abs(P.total - SH.about[c]) <= SH.tolerance + 1e-9 && P.total <= SH.max[c] + 1e-9, `AUTOFISH.show: ${c} runs ${P.total} s from the fish clearing the water to the card (about ${SH.about[c]}, never over ${SH.max[c]})`);
+        ok(within(AF.time.ceremony[c], P.total, 0.02), `AUTOFISH.time.ceremony.${c} ${AF.time.ceremony[c]} must be the show's ${P.total} s (the catch sim's time model)`);
+        if (i) ok(P.total >= plans[SC[i - 1]].total && B.lift >= SH.beats[SC[i - 1]].lift && SH.max[c] >= SH.max[SC[i - 1]], `AUTOFISH.show: ${c} is never quicker than ${SC[i - 1]} (a small fish is quick, the biggest takes its time)`);
+        // the hurry: a tap from T0 gets to the card sooner, the protected hold stays, the reveal is never cut
+        const H = D.showPlan(c, { hurried: true }), HP = D.showPlan(c, { hurried: true, protected: true });
+        ok(H.total < HP.total && HP.total < P.total && within(H.reveal, P.reveal, 1e-9) && HP.hold >= SH.hurry.protectedHold - 1e-9, `AUTOFISH.show.hurry: ${c} hurried ${H.total} s < protected ${HP.total} s < ${P.total} s; the reveal whole`);
+        // the swarm window: every class plays the short variant
+        ok(within(D.showPlan(c, { swarm: true }).show, D.BALANCE_V3.ceremony.cinematic.duringSwarm, 1e-9), `AUTOFISH.show.swarm: ${c} holds the arena hidden for ${D.BALANCE_V3.ceremony.cinematic.duringSwarm} s after the reveal, as today`);
+        // weight and life
+        const Lf = SH.life[c];
+        ok(isObj(Lf) && Lf.overshoot > 0 && Lf.overshoot <= 0.25 && Array.isArray(Lf.twitch) && Lf.twitch[0] > SH.life.pauseStill && Lf.twitch[1] > 0 && Lf.drips > 0 && Lf.strain >= 0 && Lf.strain <= 1 && Lf.dip >= 0 && Lf.dip <= 0.1 && Lf.flame > 0,
+          `AUTOFISH.show.life.${c}: an overshoot, a twitch livelier than the pause's still, drips, strain 0–1, a dip of at most 0.1 m, a proud flame`);
+        ok(SH.life.firstFlap > 0 && SH.life.firstFlap < B.hold && (CLS.indexOf(c) < 4 || SH.life.firstFlap + Lf.twitch[1] < B.hold), `AUTOFISH.show.life: ${c} flaps in its hold (twice for an Elder or bigger)`);
+        if (i) { const Pv = SH.life[SC[i - 1]]; ok(Lf.overshoot <= Pv.overshoot && Lf.strain >= Pv.strain && Lf.dip >= Pv.dip && Lf.flame >= Pv.flame && Lf.drips >= Pv.drips && Lf.twitch[1] >= Pv.twitch[1], `AUTOFISH.show.life: ${c} is heavier than ${SC[i - 1]} (less overshoot, more strain, dip, flame and drips, slower flaps)`); }
+        // the camera has arrived by the present: a critically damped spring has (1 + x)·e^−x < 5 % of its travel left at x = ω·t ≥ 4.75
+        ok(SH.camera.settle[c] * (P.reveal + B.lift) >= 4.75, `AUTOFISH.show.camera.settle.${c}: ω ${SH.camera.settle[c]} × ${(P.reveal + B.lift).toFixed(2)} s must reach 4.75 (the lens has arrived when the fish is presented)`);
+      }
+      ok(SH.max.small <= 2.5 && SH.max.keeper <= 2.5 && SH.max.ancient <= 6 && SH.about.small <= 2 && SH.about.keeper <= 2 && SH.minPause >= 0.6, 'AUTOFISH.show: a Small or a Keeper never over 2.5 s, nothing over 6 s, the pause at least 0.6 s');
+      ok(within(SH.swarm.lift + SH.swarm.hold + SH.swarm.pause, D.BALANCE_V3.ceremony.cinematic.duringSwarm, 1e-9) && SH.swarm.pause >= SH.minPause, 'AUTOFISH.show.swarm: lift + hold + pause = BALANCE.ceremony.cinematic.duringSwarm, its pause still a pause');
+      ok(SH.hurry.from === 'T0' && SH.hurry.cutsReveal === false && SH.hurry.liftRate > 1 && SH.hurry.hold > 0 && SH.hurry.hold < SH.hurry.protectedHold && SH.hurry.protectedHold >= 0.8 && SH.hurry.protectedHold <= 1 && JSON.stringify(SH.hurry.protected) === '["isNew","pb"]',
+        'AUTOFISH.show.hurry: a tap hurries from T0, never cuts the reveal, and a first-ever species or a personal best is held at least 0.8 s');
+      ok(within(AF.player.tapTo, (D.showPlan('small', { hurried: true }).total + D.showPlan('keeper', { hurried: true }).total) / 2, 0.1), `AUTOFISH.player.tapTo ${AF.player.tapTo} must be the hurried Small / Keeper show (${D.showPlan('small', { hurried: true }).total} / ${D.showPlan('keeper', { hurried: true }).total} s)`);
+      ok(SH.valve > Math.max(...Object.values(SH.max)) && SH.valve <= 12, 'AUTOFISH.show.valve: past the longest show, well inside main\'s cinematic valve');
+      ok(SH.at.measure === 'present' && SH.at.climax === 'present' && SH.at.cinematicFrom === 'caught' && SH.at.cinematicTo === 'card', 'AUTOFISH.show.at: records and the climax at the present; the world frozen from fishing:caught to the card (as the ceremony froze it)');
+      // poses: by true length, then class and shape
+      ok(JSON.stringify(SH.poses.map((p) => p.id)) === JSON.stringify(POSES) && SH.poses.every((p, i, a) => p.below > 0 && (i === 0 || p.below > a[i - 1].below)) && SH.poses.at(-1).below === Infinity, 'AUTOFISH.show.poses: pinch < both < hug < hang < alongside by length');
+      ok(POSES.every((p) => typeof SH.poseNames[p] === 'string' && /^show[A-Z]/.test(SH.poseNames[p]) && isObj(SH.grip[p]) && isObj(SH.camera.pose[p])) && new Set(Object.values(SH.poseNames)).size === POSES.length, 'AUTOFISH.show: every pose has an actors name, a grip and a camera row');
+      ok(SC.includes(SH.poseRules.noPinchFrom) && SC.includes(SH.poseRules.noHugFrom) && SH.poseRules.legend === 'alongside' && SH.poseRules.thin.every((sh) => D.FISH_SHAPES_V3.includes(sh)) && ['both', 'hang'].includes(SH.poseRules.thinDrape), 'AUTOFISH.show.poseRules: real classes and shapes; every legend lies alongside');
+      ok(D.showPoseFor(0.08, { sizeClass: 'small' }) === 'pinch' && D.showPoseFor(0.2, { sizeClass: 'trophy' }) === 'both' && D.showPoseFor(0.6, { sizeClass: 'keeper' }) === 'both' && D.showPoseFor(1.2, { sizeClass: 'trophy', shape: 'pike' }) === 'hug'
+        && D.showPoseFor(1.2, { sizeClass: 'elder', shape: 'pike' }) === 'hang' && D.showPoseFor(1.2, { sizeClass: 'keeper', shape: 'eel' }) === 'both' && D.showPoseFor(1.2, { sizeClass: 'elder', shape: 'eel' }) === 'hang' && D.showPoseFor(1.7, { sizeClass: 'keeper', shape: 'eel' }) === 'hang' && D.showPoseFor(1.2, { sizeClass: 'elder', ancient: true }) === 'hang'
+        && D.showPoseFor(2.6, { sizeClass: 'elder' }) === 'alongside' && D.showPoseFor(0.5, { legend: true }) === 'alongside' && D.showPoseFor(9, { legend: true }) === 'alongside', 'data.showPoseFor: the ladder and its three rules');
+      { const seen = new Set(); let n = 0;
+        for (const sp of SV) for (const c of CLS) {
+          const legend = sp.rarity === 'legendary';
+          if (!legend && !D.catchClassAllowed(sp, c)) continue;
+          const z = { small: -1.2, keeper: 0.4, prize: 1.45, trophy: 2.25, elder: 2.9, ancient: 3.4 }[c];
+          const L = D.sizeLength(sp, legend ? 1 : z) / 100;
+          const pose = D.showPoseFor(L, { sizeClass: c === 'ancient' ? 'elder' : c, ancient: c === 'ancient', legend, shape: sp.model?.shape });
+          seen.add(pose); n++;
+          ok(POSES.includes(pose) && (legend ? pose === 'alongside' : true) && !(pose === 'pinch' && CLS.indexOf(c) >= 3) && !(pose === 'hug' && (CLS.indexOf(c) >= 4 || sp.model?.shape === 'eel')) && !(pose !== 'alongside' && pose !== 'hang' && L >= 1.5),
+            `show pose: ${sp.id} ${c} (${L.toFixed(2)} m) → ${pose}`);
+        }
+        ok(seen.size === POSES.length && n > 250, `the roster uses every show pose (${[...seen].join(', ')}; ${n} species × class cells)`); }
+      // the grips, the facing and the camera
+      ok(SH.grip.pinch.hands === 1 && SH.grip.pinch.reachTiny > SH.grip.pinch.reach && SH.grip.pinch.reach >= 0.2 && SH.grip.pinch.tinyBelow < SH.poses[0].below && SH.grip.both.hands === 2 && SH.grip.both.reach >= 0.15 && SH.grip.hug.tail === 'deck' && SH.grip.hug.tilt > 45 && SH.grip.hug.tilt < 90
+        && SH.grip.hang.rod === 'raised' && SH.grip.alongside.stand === true && SH.grip.alongside.flankUp >= 30, 'AUTOFISH.show.grip: one hand held out to the lens (a tiny fish further) · both hands forward · hugged, tail on the deck · hung from the raised rod · standing beside an alongside fish');
+      ok(SH.facing.faceWithin > 0 && SH.facing.faceWithin <= 20 && SH.facing.flankWithin > 0 && SH.facing.flankWithin <= 20 && Object.values(SH.facing.threeQuarter).every((a) => a > 0 && a <= 40), 'AUTOFISH.show.facing: the Wick to the lens, the flank square to it');
+      for (const p of POSES) { const Cp = SH.camera.pose[p]; ok(Cp.elev >= 0 && Cp.elev <= 30 && Cp.fov >= 36 && Cp.fov <= 56 && Cp.fovPortrait >= Cp.fov && Cp.fovPortrait <= 70 && ['fish', 'head', 'flame'].every((k) => Cp.keep.includes(k)), `AUTOFISH.show.camera.pose.${p}: a near-level lens, a fov of 36–56° (to 70° upright), the fish, the head and the flame always kept in frame`); }
+      ok(SH.camera.settleSwarm * (plans.small.reveal + SH.swarm.lift) >= 4.75, 'AUTOFISH.show.camera.settleSwarm: the lens has arrived by the present in a swarm window too');
+      ok(SH.camera.from === 'T0' && SH.camera.margin.landscape > 0 && SH.camera.margin.landscape <= 0.15 && SH.camera.margin.portrait > 0 && SH.camera.margin.portrait <= 0.15 && SH.camera.minLens >= 0.3 && SH.camera.still > 0 && SH.camera.still <= 0.05 && SH.camera.out > 0
+        && SH.camera.pose.alongside.rakeAbove > SH.poses.at(-2).below && SH.camera.pose.alongside.rake > 0 && SH.camera.pose.alongside.rake <= 65 && SH.camera.pose.alongside.craneElev > SH.camera.pose.alongside.elev,
+        'AUTOFISH.show.camera: takes over at T0, safe margins, never nearer than the near plane allows, still in the pause; a long alongside fish is craned over and, upright, raked');
+      ok(SH.card.opensFrom === 'fish' && SH.card.unfold > 0 && SH.card.unfold <= 0.5 && SH.card.knots.every((k) => AF.ceremony.cordMarks.includes(k)) && SH.card.stampAt >= SH.card.count, 'AUTOFISH.show.card: unfolds from the held fish; the count, then the stamp; your best and the Old Ledger as knots');
+      ok(Object.values(SH.sound).every((v) => typeof v === 'string' && v.length) && SH.hud === 'hiddenFromT0', 'AUTOFISH.show: named sounds; nothing over the picture from T0');
+      // lane B's own numbers (the fit's room, the target's springs, the present's kick, the card's count, the glory on the picture)
+      { const Cm = SH.camera, G = AF.landing.show, minHold = Math.min(...SC.map((c) => SH.beats[c].hold), SH.swarm.hold);
+        ok(Cm.headroom >= 0 && Cm.footroom >= 0 && Cm.margin.landscape + Math.max(Cm.headroom, Cm.footroom) <= 0.2 && Cm.flameTip >= 0 && Cm.flameTip <= 1.5 && Cm.finRoom >= 1 && Cm.finRoom <= 2,
+          'AUTOFISH.show.camera: room over the flame and under the hands inside a fifth of the frame; the fish\'s box a little wider than its named points');
+        ok(Cm.follow > 0 && Cm.followStill >= Cm.follow && Cm.settleAfter >= 0 && Cm.settleAfter < minHold && Cm.settleBefore > 0 && Cm.followStill * Cm.settleBefore >= 4,
+          'AUTOFISH.show.camera: the fitted target is frozen before the pause and carried stiffly enough to be at rest when it begins');
+        ok(Cm.outPerM >= 0 && Cm.outPerM <= 0.1 && Cm.out >= 1.2 && Cm.out <= 1.6 && Cm.behindCard.landscapeSide >= 0 && Cm.behindCard.landscapeSide <= 0.6, 'AUTOFISH.show.camera: the way back to play is about a second and a half (a little longer from far off), never a whip; a wide screen\'s card leaves the picture at least two fifths of the frame');
+        ok(Cm.presentKick > 0 && Cm.presentKick <= 1 && Cm.presentBloom > 0 && Cm.presentBloom <= 1 && Cm.breath >= 0 && Cm.breath <= 0.5 && Math.abs(AF.landing.ancient.pull) * Cm.breath <= Cm.margin.landscape,
+          'AUTOFISH.show.camera: at the present the kick and the bloom are no bigger than the landing\'s, and an Elder\'s breath out stays inside the margin');
+        ok(SH.card.countFrom >= 0 && SH.card.countFrom + Math.max(SH.card.stampAt, SH.card.count) <= AF.time.card * 0.6, 'AUTOFISH.show.card: the count and the stamp are over well inside the card\'s 2 s of the time model');
+        ok(isObj(G) && G.size > 0.5 && G.size <= 2 && G.perGlory >= 0 && G.strength > 0 && G.strength + G.perGloryStrength * AF.landing.ancient.glory + AF.landing.ancient.gloryBright <= 1 && G.rise > 0 && G.rise < Math.min(...SC.map((c) => SH.beats[c].hold))
+          && G.holdShare >= 0 && G.holdShare <= 1 && G.fadePause > 0 && G.fadePause <= 1 && G.back > 0, 'AUTOFISH.landing.show: the glory sized to the picture, never over full strength, risen inside the shortest hold and gone by the card'); } }
     // every player-facing string of automatic fishing and the First Evening: one line (≤ 90), no %, no exclamation mark
     const strs = []; const walkS = (v, path) => { if (typeof v === 'string') strs.push([v, path]); else if (v && typeof v === 'object') for (const [k, c] of Object.entries(v)) walkS(c, `${path}.${k}`); };
     walkS(AF.text, 'AUTOFISH.text'); walkS(FE.text, 'FIRST_EVENING.text'); walkS(FE.tips, 'FIRST_EVENING.tips');

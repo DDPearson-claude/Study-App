@@ -140,5 +140,105 @@ section('R2 trophy distance, crane, yaw');
   eq([C.trophyUp(0.2, T), C.trophyUp(0.6, T), C.trophyUp(1.2, T), C.trophyUp(3, T), C.trophyUp(8.5, T)], [0.06, C.TROPHY_UP, C.TROPHY_UP, 0.11, 0.14], 'the subject rides higher for an alongside fish and under the crane');
 }
 
+// ------------------------------------------------------------------ the show camera (docs/v3/show/SPEC.md §2.6; AUTOFISH.show.camera)
+section('the show camera: the fit of named points, for 16:9 and a phone held upright, from a few centimetres to several metres');
+{
+  const SC = data.AUTOFISH.show.camera;
+  const P3 = (x, y, z) => ({ x, y, z });
+  /** A stand-in layout: the Wick at the origin facing +z (the lens is to the south, yaw 0), the fish held `reach` m toward the lens. */
+  const layout = (L, { reach = 0.3, y = 0.62, depth = L * 0.25, dx = 0 } = {}) => {
+    const head = P3(0, 0.82, 0), hr = 0.21;
+    return { fish: P3(dx, y, reach), points: [P3(dx + L / 2, y, reach), P3(dx - L / 2, y, reach), P3(dx, y + depth / 2, reach), P3(dx, y - depth / 2, reach),
+      P3(hr, head.y, 0), P3(-hr, head.y, 0), P3(0, head.y + hr, 0), P3(0, head.y - hr, 0), P3(0, 1.2, 0)] };
+  };
+  const within = (pts, fit, o, m) => pts.every((p) => { const q = C.showProject(p, fit, o); return Math.abs(q.x) <= 1 - 2 * m + 1e-6 && Math.abs(q.y) <= 1 - 2 * m + 1e-6 && q.z > 0; });
+  const edge = (pts, fit, o) => Math.max(...pts.map((p) => { const q = C.showProject(p, fit, o); return Math.max(Math.abs(q.x), Math.abs(q.y)); }));
+  for (const aspect of [960 / 540, 390 / 844, 1, 21 / 9]) {
+    for (const [pose, L, o2] of [['pinch', 0.067, { reach: 0.42, y: 0.8, dx: 0.2 }], ['pinch', 0.33, {}], ['both', 0.61, { reach: 0.24 }], ['both', 0.89, { reach: 0.24 }], ['hug', 1.12, { reach: 0.15, y: 0.56, depth: 1.12, dx: 0.3 }],
+      ['hang', 1.66, { reach: 0.05, y: 0.9, depth: 1.66, dx: 0.4 }], ['alongside', 2.65, { reach: 0.9, y: 0.1 }], ['alongside', 9.1, { reach: 1.6, y: 0.1 }]]) {
+      const row = C.showRow(SC, pose, { length: L, aspect });
+      const lay = layout(L, o2);
+      const o = { yaw: 0, elev: row.elev, fov: row.fov, aspect, margin: row.margin, minLens: SC.minLens, depthAt: lay.fish };
+      const fit = C.showFit(lay.points, o);
+      const tag = `${pose} ${L} m @ ${aspect.toFixed(2)}`;
+      ok(fit && fit.dist > 0 && within(lay.points, fit, o, row.margin), `${tag}: every kept point inside the safe area (lens ${fit?.dist.toFixed(2)} m, fov ${row.fov.toFixed(0)}°)`);
+      ok(fit.by === 'near' || Math.abs(edge(lay.points, fit, o) - (1 - 2 * row.margin)) < 1e-6, `${tag}: the tightest point sits on the safe area's edge (the smallest distance that holds)`);
+      ok(lay.points.every((p) => C.showProject(p, fit, o).z >= SC.minLens - 1e-6), `${tag}: the lens is never nearer than ${SC.minLens} m to a kept point`);
+      // a smaller distance would crop: at 0.97 × the fitted distance some point leaves the safe area (unless minLens set it)
+      if (fit.by !== 'near') ok(!within(lay.points, { ...fit, dist: fit.dist * 0.97 }, o, row.margin), `${tag}: 3 % nearer crops`);
+    }
+  }
+  // the fisherman's trick is the fit's own arithmetic: held toward the lens, the same fish fills more of the frame
+  const rowB = C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9 });
+  // (the fish's width over the wax head's width, on screen)
+  const share = (reach) => { const lay = layout(0.6, { reach }); const o = { yaw: 0, elev: rowB.elev, fov: rowB.fov, aspect: 16 / 9, margin: rowB.margin, depthAt: lay.fish }; const fit = C.showFit(lay.points, o);
+    const w = (a, b) => C.showProject(lay.points[a], fit, o).x - C.showProject(lay.points[b], fit, o).x;
+    return w(0, 1) / w(4, 5); };
+  ok(share(0.3) > share(0.05) * 1.15 && share(0.5) > share(0.3) * 1.1, `held out to the lens the fish looks bigger beside the face (× ${share(0.05).toFixed(2)} → × ${share(0.3).toFixed(2)} → × ${share(0.5).toFixed(2)} the head's width)`);
+  // room over the flame and under the hands; a card's lift
+  const lay = layout(0.33), o0 = { yaw: 0, elev: 8, fov: 44, aspect: 16 / 9, margin: 0.08, depthAt: lay.fish };
+  const f1 = C.showFit(lay.points, { ...o0, marginTop: 0.12, marginBottom: 0.1 });
+  const ys = lay.points.map((p) => C.showProject(p, f1, o0).y);
+  near(Math.max(...ys), 1 - 0.24, 'marginTop: the highest point sits 12 % under the top edge', 1e-6);
+  near(Math.min(...ys), -(1 - 0.2), 'marginBottom: the lowest 10 % over the foot', 1e-6);
+  const f2 = C.showFit(lay.points, { ...o0, shiftY: 0.24 });
+  near(Math.min(...lay.points.map((p) => C.showProject(p, f2, o0).y)) - Math.min(...lay.points.map((p) => C.showProject(p, C.showFit(lay.points, o0), o0).y)), 0.48, 'shiftY 0.24 raises the subject 24 % of the frame\'s height', 0.02);
+  // any yaw: the fit turns with the lens (the raft's heading does not matter)
+  for (const yaw of [0, 1.1, -2.4, Math.PI]) {
+    const rot = (p) => ({ x: p.x * Math.cos(yaw) + p.z * Math.sin(yaw), y: p.y, z: -p.x * Math.sin(yaw) + p.z * Math.cos(yaw) });
+    const pts = lay.points.map(rot), o = { ...o0, yaw, depthAt: rot(lay.fish) };
+    near(C.showFit(pts, o).dist, C.showFit(lay.points, o0).dist, `yaw ${yaw.toFixed(1)}: the same distance`, 1e-9);
+  }
+  ok(C.showFit([], o0) === null && C.showFit([{ x: NaN, y: 0, z: 0 }], o0) === null, 'no points: no fit');
+  // (the review's fixes, SPEC §8) a wide screen's card stands at the right: the picture is fitted into the left of the frame
+  { const fS = C.showFit(lay.points, { ...o0, marginRight: 0.5 }), xsS = lay.points.map((p) => C.showProject(p, fS, o0).x);
+    ok(Math.max(...xsS) <= 1 - 2 * 0.5 + 1e-3 && Math.min(...xsS) >= -1 + 2 * o0.margin - 0.02, `marginRight 0.5: every point in the left half, inside the left margin (x ${Math.min(...xsS).toFixed(2)} … ${Math.max(...xsS).toFixed(2)})`);
+    ok(fS.dist >= C.showFit(lay.points, o0).dist - 1e-9, 'marginRight never brings the lens nearer'); }
+  // the way back runs at an even rate of zoom: 0 → 1, never backwards, slow at both ends, and far gentler at the start than a plain ease
+  { let prev = 0, mono = true; for (let i = 0; i <= 100; i++) { const e = C.showOutEase(i / 100, 8); if (e < prev - 1e-12) mono = false; prev = e; }
+    ok(mono && Math.abs(C.showOutEase(0, 8)) < 1e-12 && Math.abs(C.showOutEase(1, 8) - 1) < 1e-12, 'showOutEase: 0 → 1, monotonic');
+    ok(C.showOutEase(0.33, 8) < 0.5 * C.showEase(0.33), `showOutEase: a third of the way through the lens has gone ${(C.showOutEase(0.33, 8) * 100).toFixed(0)} % of its way (a plain ease: ${(C.showEase(0.33) * 100).toFixed(0)} %)`);
+    near(C.showOutEase(0.4, 1), C.showEase(0.4), 'showOutEase: with no change of distance it is the plain ease', 2e-3); }
+  // a tiny pinch brings the lens down to the hand's height; a flame far above the catch (the Taper) brings a `both` lens under it
+  ok(C.showRow(SC, 'pinch', { length: 0.1, aspect: 16 / 9 }).elev === SC.pose.pinch.tinyElev && C.showRow(SC, 'pinch', { length: 0.33, aspect: 16 / 9 }).elev === SC.pose.pinch.elev, 'pinch: tinyElev under tinyBelow only');
+  ok(C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9, rise: 0.8 }).elev === SC.pose.both.elev && C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9, rise: 1.5 }).elev === SC.pose.both.lowElev, 'both: the lens comes down only when the flame stands far over the catch');
+  // the rows: fov by screen, a tiny fish's wider lens, the crane, the upright rake
+  eq([C.showRow(SC, 'pinch', { length: 0.33, aspect: 16 / 9 }).fov, C.showRow(SC, 'pinch', { length: 0.1, aspect: 16 / 9 }).fov, C.showRow(SC, 'pinch', { length: 0.33, aspect: 390 / 844 }).fov],
+    [SC.pose.pinch.fov, SC.pose.pinch.tinyFov, SC.pose.pinch.fovPortrait], 'pinch: 44°; 52° under 0.15 m; 58° upright');
+  eq(C.showRow(SC, null, { length: 0.5, aspect: 16 / 9 }).id, 'both', 'the reveal (no pose yet) reads the `both` row');
+  const A = SC.pose.alongside;
+  eq([C.showRow(SC, 'alongside', { length: 2.65, aspect: 16 / 9 }).elev, C.showRow(SC, 'alongside', { length: 9.1, aspect: 16 / 9 }).elev], [A.elev, A.craneElev], 'alongside: 16°; craned to 40° for the 9 m one');
+  ok(C.showRow(SC, 'alongside', { length: 4.5, aspect: 16 / 9 }).elev > A.elev && C.showRow(SC, 'alongside', { length: 4.5, aspect: 16 / 9 }).elev < A.craneElev, 'the crane eases in above 4 m');
+  eq([C.showRow(SC, 'alongside', { length: 9.1, aspect: 16 / 9 }).rake, C.showRow(SC, 'alongside', { length: 9.1, aspect: 390 / 844 }).rake, C.showRow(SC, 'alongside', { length: 2.65, aspect: 390 / 844 }).rake], [0, A.rake, 0], 'the rake: upright only, above 3.2 m');
+  eq(C.showRow(SC, 'alongside', { length: 9.1, aspect: 390 / 844 }).elev, A.craneElev, 'raked: craned to 40°');
+  near(C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9 }).margin, SC.margin.landscape, 'margin 8 % on a landscape screen'); near(C.showRow(SC, 'both', { length: 0.6, aspect: 390 / 844 }).margin, SC.margin.portrait, '6 % upright');
+  eq([C.showRow(SC, 'hang', { length: 1.6, aspect: 16 / 9 }).headroom, C.showRow(SC, 'pinch', { length: 0.3, aspect: 16 / 9 }).headroom, C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9 }).footroom, C.showRow(SC, 'hug', { length: 1.2, aspect: 16 / 9 }).footroom],
+    [SC.pose.hang.headroom, SC.headroom, SC.pose.both.footroom ?? SC.footroom, SC.footroom], 'a row may keep its own room over the subject (a hung fish sways with the raft) or under it (two hands under a fish); the others take the camera\'s');
+  eq([C.showRow(SC, 'pinch', { length: 0.115, aspect: 16 / 9 }).flameTip, C.showRow(SC, 'pinch', { length: 0.33, aspect: 16 / 9 }).flameTip, C.showRow(SC, 'both', { length: 0.6, aspect: 16 / 9 }).flameTip],
+    [SC.pose.pinch.tinyFlameTip, SC.pose.pinch.flameTip ?? null, SC.pose.both.flameTip ?? null], 'a tiny fish\'s close-up keeps the flame\'s core, not its tip; a row may keep its own room over the flame');
+  // the raked yaw: 55° off broadside, toward the head end, whichever way the fish lies
+  near(C.showRakeYaw(0, { x: 1, z: 0 }, 55) / DEG, 55, 'snout to the east: the lens swings east', 1e-6);
+  near(C.showRakeYaw(0, { x: -1, z: 0 }, 55) / DEG, -55, 'snout to the west: the lens swings west', 1e-6);
+  eq(C.showRakeYaw(0.3, null, 55), 0.3, 'no axis: no rake');
+  // a 9.1 m fish upright, raked: never cropped
+  { const L = 9.1, aspect = 390 / 844, row = C.showRow(SC, 'alongside', { length: L, aspect });
+    const pts = [P3(-L / 2, 0.1, 1.6), P3(L / 2, 0.1, 1.6), P3(0, 0.6, 1.6), P3(0, -0.3, 1.6), P3(L / 2 - 0.6, 0.82, 0.6), P3(L / 2 - 0.6, 1.2, 0.6), P3(L / 2 - 0.6, 0.2, 0.6)];
+    const yaw = C.showRakeYaw(0, { x: 1, z: 0 }, row.rake), o = { yaw, elev: row.elev, fov: row.fov, aspect, margin: row.margin, depthAt: P3(0, 0.1, 1.6) };
+    const fit = C.showFit(pts, o), flat = C.showFit(pts, { ...o, yaw: 0, elev: A.elev });
+    ok(within(pts, fit, o, row.margin) && fit.dist < flat.dist * 0.75, `the Lantern-Swallower on a phone: whole in frame, raked from ${fit.dist.toFixed(1)} m (broadside it would need ${flat.dist.toFixed(1)} m)`); }
+  // the blend: eased, arriving exactly at the present
+  eq([C.showEase(0), C.showEase(1), C.showEase(-1), C.showEase(2)], [0, 1, 0, 1], 'the ease runs 0 → 1 and clamps');
+  let vmax = 0; for (let i = 1; i <= 200; i++) vmax = Math.max(vmax, (C.showEase(i / 200) - C.showEase((i - 1) / 200)) * 200);
+  ok(vmax <= 1.5 + 1e-6 && C.showEase(0.01) < 0.001 && 1 - C.showEase(0.99) < 0.001, `no jump at either end; top speed ${vmax.toFixed(2)} × the mean (12 m in 0.8 s = ${(vmax * 12 / 0.8 / 30).toFixed(2)} m a frame at 30 fps)`);
+  const view = (phase, t, poseT, hurried = false) => ({ phase, t, poseT, hurried, dur: { reveal: 0.35, lift: 0.45, hold: 0.5, pause: 0.7 } });
+  near(C.showArrival(view('reveal', 0, 0)), 0.8, 'T0: the present is reveal + lift away');
+  near(C.showArrival(view('reveal', 0.2, 0, true), 2.5), 0.15 + 0.18, 'hurried in the reveal: the reveal whole, the lift at × 2.5');
+  near(C.showArrival(view('lift', 0.5, 0.15)), 0.3, 'in the lift: what is left of it');
+  eq([C.showArrival(view('hold', 1, 0.6)), C.showArrival(view('card', 2, 1.7)), C.showArrival(null)], [0, 0, 0], 'from the hold on: arrived');
+  // every class's settle (data) means the lens has arrived by the present; the data's rows are sane
+  for (const cls of data.SHOW_CLASSES) { const pl = data.showPlan(cls); ok(SC.settle[cls] * (pl.reveal + pl.lift) >= 4.75, `${cls}: settle × (reveal + lift) ≥ 4.75`); }
+  ok(SC.followStill > SC.follow && SC.settleAfter < data.AUTOFISH.show.beats.keeper.hold && SC.headroom >= 0 && SC.footroom >= 0 && SC.margin.landscape + SC.footroom < 0.2, 'the target is frozen inside the shortest hold; room at the foot within reason');
+}
+
 console.log(`render-v3: ${pass} passed, ${fail} failed`);
 if (fail) { console.log(failures.join('\n')); process.exit(1); }

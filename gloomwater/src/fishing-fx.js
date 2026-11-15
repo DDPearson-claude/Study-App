@@ -698,19 +698,25 @@ const additive = (o) => new THREE.ShaderMaterial({ transparent: true, depthWrite
 // a fish held at the Wick's hands (art rule: never a ring around the raft or the player). s: the glory's own radius (1 = size).
 const GLORY_VS = /* glsl */`
 uniform vec3 uC; uniform float uSize;
-varying vec2 vUv;
+varying vec2 vUv; varying float vWy;
 void main() {
   vUv = position.xy;
   vec4 mv = viewMatrix * vec4(uC, 1.0);
   mv.xy += position.xy * uSize * 1.4;
+  // the fragment's height in the world (the billboard's right and up axes are the view matrix's first two rows)
+  vWy = uC.y + (viewMatrix[1][0] * position.x + viewMatrix[1][1] * position.y) * uSize * 1.4;
   gl_Position = projectionMatrix * mv;
 }`;
 const GLORY_FS = /* glsl */`
-uniform float uA, uT, uRays; uniform vec3 uGold, uLav, uPink;
-varying vec2 vUv;
+uniform float uA, uT, uRays; uniform vec3 uGold, uLav, uPink; uniform vec2 uWater;
+varying vec2 vUv; varying float vWy;
 void main() {
   float q = length(vUv);
   if (q > 1.0) discard;
+  // where the billboard meets the lake it thins away over uWater.y metres (a lens craned over a fish laid alongside looks down
+  // on the water: the glow's foot, cut dead by the surface, was a straight bright edge across the frame)
+  float lake = smoothstep(uWater.x, uWater.x + uWater.y, vWy);
+  if (lake <= 0.0) discard;
   float s = q * 1.4;
   float core = exp(-s * s * 14.0);
   float bloom = exp(-s * s * 4.2);
@@ -721,7 +727,7 @@ void main() {
   ry *= smoothstep(0.02, 0.16, s) * exp(-s * s * 2.2) * uRays;
   vec3 col = uGold * (core * 0.62 + bloom * 0.3 + ry * 0.5) + mix(uLav, uPink, 0.25 + 0.25 * sin(a + uT * 0.4)) * halo * 0.3;
   float fade = 1.0 - q * q; fade *= fade;
-  gl_FragColor = vec4(col * uA * fade, 1.0);
+  gl_FragColor = vec4(col * uA * fade * lake, 1.0);
 }`;
 
 // ------------------------------------------------------------------ factory
@@ -922,9 +928,9 @@ export function createFishingFx(ctx) {
 
   // ---------------------------------------------------------------- the landing's glory (built on first use: +1 call while it shows)
   let gloryMesh = null;
-  const gloryU = { uC: { value: new THREE.Vector3() }, uSize: { value: 1 }, uA: { value: 0 }, uT: time, uRays: { value: 1 },
+  const gloryU = { uC: { value: new THREE.Vector3() }, uSize: { value: 1 }, uA: { value: 0 }, uT: time, uRays: { value: 1 }, uWater: { value: new THREE.Vector2(-1e4, 1) },
     uGold: { value: new THREE.Color(0xf3dca4) }, uLav: { value: new THREE.Color(0xc9b8f0) }, uPink: { value: new THREE.Color(0xf0b8d8) } };
-  const gl0 = { on: false, t: 0, rise: 0.14, hold: 0.4, fade: 1, size: 1, a: 1, follow: null, back: 0.4, x: 0, y: 0, z: 0, embersT: 0, embers: 0 };
+  const gl0 = { on: false, t: 0, rise: 0.14, hold: 0.4, fade: 1, size: 1, a: 1, follow: null, back: 0.4, x: 0, y: 0, z: 0, embersT: 0, embers: 0, lake: 0 };
   const gloryTmp = new THREE.Vector3(), gloryCam = new THREE.Vector3();
   function buildGlory() {
     if (gloryMesh) return gloryMesh;
@@ -948,6 +954,9 @@ export function createFishingFx(ctx) {
       if (d > 1e-3) gloryTmp.addScaledVector(gloryCam, Math.min(g.back, d * 0.4) / d);
     }
     gloryU.uC.value.copy(gloryTmp);
+    // the lake under it (v3's show only: the plain glory of a v1 / v2 build keeps its whole disc)
+    let wy = 0; try { wy = Number(ctx.water?.getHeight?.(gloryTmp.x, gloryTmp.z)) || 0; } catch { wy = 0; }
+    if (g.lake > 0) gloryU.uWater.value.set(wy + 0.02, Math.max(0.15, g.lake * gloryU.uSize.value)); else gloryU.uWater.value.set(-1e4, 1);
   }
 
   // ---------------------------------------------------------------- v3 signs (built on first use: the flag-off build never has it)
@@ -1176,13 +1185,13 @@ export function createFishingFx(ctx) {
     /** The landing's glory (v3): a soft radial bloom with slow rays behind the revealed fish at (x, y, z) or following `follow`
      *  (an Object3D), `size` m radius, `strength` 0..1.5, held `hold` s then fading over `fade` s; `embers` rising motes over its
      *  life in pale gold and lavender. A camera-facing glow: never a ring on the water or round the raft. */
-    glory(x, y, z, { size = 1, strength = 1, hold = 0.5, fade = 1.2, rise = 0.14, follow = null, back = 0.4, embers = 0, rays = 1 } = {}) {
+    glory(x, y, z, { size = 1, strength = 1, hold = 0.5, fade = 1.2, rise = 0.14, follow = null, back = 0.4, embers = 0, rays = 1, lake = 0 } = {}) {
       if (!(size > 0) || !(strength > 0)) return false;
       buildGlory();
       const g = gl0;
       g.on = true; g.t = 0; g.rise = Math.max(0.02, rise); g.hold = Math.max(0, hold); g.fade = Math.max(0.1, fade);
       g.size = size; g.a = Math.min(1.6, strength); g.follow = follow || null; g.back = back; g.x = x; g.y = y; g.z = z;
-      g.embers = Math.max(0, Math.round(embers)); g.embersT = 0;
+      g.embers = Math.max(0, Math.round(embers)); g.embersT = 0; g.lake = Math.max(0, Number(lake) || 0);
       gloryU.uRays.value = rays;
       placeGlory();
       gloryMesh.visible = true;
