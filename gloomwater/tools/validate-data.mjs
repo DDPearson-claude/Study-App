@@ -10,6 +10,52 @@
 // pass 2 only; `--v3` runs pass 3 only.
 const V3 = process.argv.includes('--v3');
 const WALK = process.argv.includes('--walk') || V3;   // v3 is designed on top of §24: pass 3 runs both builds
+
+// ---------------------------------------------------------------------------- the v3-without-loop fingerprint (slice 1a, PLAN §4.3)
+// tools/tests/v3-exports.json hashes every export of data.js in the two v3 builds with GW_LOOP unset: phase 1 with walking off
+// (`p1`, the loop's own data before its switch) and phase 4 with walking on (`walk`, pass 3's build). It was written once, from
+// the merged base's untouched data.js, by the one-shot `--write-v3-fingerprint`, which refuses to overwrite the file. Pass 3
+// asserts both builds still match it, so v3-without-loop data is proven unchanged by the loop. Never refreshed in place.
+const V3_FP_PATH = new URL('./tests/v3-exports.json', import.meta.url);
+/** Fresh module instances of the two v3 builds (GW_LOOP unset), the flags put back after. */
+async function v3FingerprintBuilds() {
+  const keep = { walk: globalThis.GW_WALK, v3: globalThis.GW_V3, phase: globalThis.GW_V3_PHASE, loop: globalThis.GW_LOOP };
+  const put = (k, v) => { if (v === undefined) delete globalThis[k]; else globalThis[k] = v; };
+  try {
+    delete globalThis.GW_LOOP;
+    globalThis.GW_WALK = false; globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1;
+    const p1 = await import('../src/data.js?v3fp-p1');
+    globalThis.GW_WALK = true; globalThis.GW_V3 = true; delete globalThis.GW_V3_PHASE;
+    const walk = await import('../src/data.js?v3fp-walk');
+    return { p1, walk };
+  } finally {
+    put('GW_WALK', keep.walk); put('GW_V3', keep.v3); put('GW_V3_PHASE', keep.phase); put('GW_LOOP', keep.loop);
+  }
+}
+if (process.argv.includes('--write-v3-fingerprint')) {
+  const fs = await import('node:fs');
+  if (fs.existsSync(V3_FP_PATH)) {
+    console.log(`validate-data --write-v3-fingerprint: ${V3_FP_PATH.pathname} exists; it is written once and never overwritten`);
+    process.exit(1);
+  }
+  const { fingerprint } = await import('./fingerprint.mjs');
+  const { execSync } = await import('node:child_process');
+  const B = await v3FingerprintBuilds();
+  if (B.p1.V3_ENABLED !== true || B.p1.V3_PHASE !== 1 || B.p1.WALK_ENABLED !== false || B.walk.V3_ENABLED !== true || B.walk.WALK_ENABLED !== true) {
+    console.log('validate-data --write-v3-fingerprint: the two v3 builds did not evaluate with the expected flags'); process.exit(1);
+  }
+  const names = [...new Set([...Object.keys(B.p1), ...Object.keys(B.walk)])].sort();
+  let from = 'unknown';
+  try { from = execSync('git rev-parse --short HEAD', { cwd: new URL('..', import.meta.url), encoding: 'utf8' }).trim(); } catch { /* not a checkout */ }
+  const REF = {
+    from,
+    note: 'per-export hash of src/data.js in the v3 builds with GW_LOOP unset (p1: GW_V3_PHASE 1, walking off; walk: phase 4, walking on); validate-data pass 3 asserts both; written once by --write-v3-fingerprint, never refreshed',
+    names, p1: fingerprint(B.p1, names), walk: fingerprint(B.walk, names), written: new Date().toISOString().slice(0, 10),
+  };
+  fs.writeFileSync(V3_FP_PATH, JSON.stringify(REF, null, 1) + '\n');
+  console.log(`validate-data --write-v3-fingerprint: ${names.length} exports of the two v3 builds written to tools/tests/v3-exports.json (from ${from})`);
+  process.exit(0);
+}
 if (WALK) globalThis.GW_WALK = true;
 if (V3) globalThis.GW_V3 = true;
 const D = await import(WALK ? '../src/data.js?walk' : '../src/data.js');
@@ -880,6 +926,22 @@ if (V3) {
   const NW = await import('../src/data.js?v3nowalk');   // v3 without §24
   [globalThis.GW_WALK, globalThis.GW_V3] = flags;
   ok(V1.V3_ENABLED === false && NW.V3_ENABLED === true && NW.WALK_ENABLED === false, 'reference instances evaluated with the intended flags');
+
+  // ---- the v3-without-loop fingerprint (slice 1a, PLAN §4.3): the phase-1 build and this pass's build hash as the merged base
+  // wrote them (fresh instances, GW_LOOP unset; v3FingerprintBuilds puts the flags back as they were)
+  {
+    const fs = await import('node:fs');
+    const { fingerprint } = await import('./fingerprint.mjs');
+    if (ok(fs.existsSync(V3_FP_PATH), 'tools/tests/v3-exports.json (the v3-without-loop fingerprint) is missing')) {
+      const REF = JSON.parse(fs.readFileSync(V3_FP_PATH, 'utf8')), FB = await v3FingerprintBuilds();
+      ok(FB.p1.V3_PHASE === 1 && FB.p1.WALK_ENABLED === false && FB.walk.WALK_ENABLED === true && FB.p1.LOOP_ENABLED !== true && FB.walk.LOOP_ENABLED !== true,
+        'the v3 fingerprint builds evaluated with the intended flags (phase 1 without walking; phase 4 with it; no loop)');
+      for (const [key, M] of [['p1', FB.p1], ['walk', FB.walk]]) {
+        const now = fingerprint(M, REF.names);
+        for (const n of REF.names) ok(now[n] === REF[key][n], `v3 fingerprint: export ${n} changed from ${REF.from} in the ${key} build (the loop must stay behind LOOP_ENABLED; the file is never refreshed)`);
+      }
+    }
+  }
 
   // ---- exports, the flag and the merge
   const V3_EXPORTS = ['V3_ENABLED', 'BALANCE_V3', 'SIZE_CLASSES', 'SPECIES_V3', 'SPECIES_V3_BY_ID', 'FISH_FAMILIES', 'FISH_STYLES', 'FISH_SHAPES_V3', 'WEATHER', 'KEPT_CONDS',
