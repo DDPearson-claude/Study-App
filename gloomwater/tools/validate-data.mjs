@@ -95,6 +95,8 @@ if (!V3) {
   }
 }
 ok(D.V3_ENABLED === V3, `V3_ENABLED must be ${V3} in this pass`);
+// the Full Hold stays off in passes 1–3 (slice-1a PLAN §4.3): no switch, nothing parked, no loop words in TEXT
+ok(D.LOOP_ENABLED === false && Object.keys(D.PARKED || {}).length === 0 && !('loop' in D.TEXT), 'the loop is off in this pass (LOOP_ENABLED false, PARKED {}, no TEXT.loop)');
 
 // ---------------------------------------------------------------------------- STATS (contract §8 list)
 const STAT_KEYS = ['maxHp', 'maxOil', 'maxSatiety', 'oilDrain', 'satietyDrain', 'lightRadius', 'auraDps', 'flareCost',
