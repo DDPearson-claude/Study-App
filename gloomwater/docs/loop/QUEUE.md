@@ -12,7 +12,7 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 4. **The Lamp Road re-routed** *(running, beside pounds)* (the user, 15 November 2026, on the published map: "Going from 7, back on yourself to 8 then back on yourself massively to 9 makes no sense"). The unlock order stays (the ramp, the kinds and the sims are built on it); the waters move on the continent so **the road only goes forward**: every water lies further along than the one before; a side water up a river or fjord may be a short out-and-back of its own length, never a return past an earlier water. Known breaks: 7→8→9 (the Last Light out at sea, back inland up to Pyrefall's snow temple, back out and down the Long Coast to the Reef: Pyrefall moves to a gorge coming down to the west coast at the Spine's south end, just past the Last Light, its temple the last stop before the long voyage south); 5→6→7 (up the Thin Water at the Sound's head, back down the whole Sound: the Thin Water meets the Sound near its mouth, on the way out to sea); 14→15→16 (the Inkwood lies back between the Siltway and the lagoon: it moves beyond the lagoon so it stays the road's far end). WORLD.md and LORE.md (each water's "from" leg, coordinates, regions, story lines) and the map generator are revised; the map is re-baked and republished to the same link; a validator in the generator fails any leg that runs back past an earlier water.
 5. **The M1 plan, with the Chart** (design): re-cut SPEC §13 and the slice PLANs into M1 (the slices' Mossmere halves, the cove pulled forward, Sporewood's sheet sealed "coming soon"); the world map as the in-game Chart (SPEC §5.4, §13, the Chart lane, the three seals, the tutorial's last beat on the map, the SPEC pointers); the sim's pacing for a Mossmere-only arc (`--shipped`); M1's done-list.
 6. The three keys (resume `wf_1c95633f-092`).
-7. The Wicks' passives, design (resume `wf_91d42619-6b9`). *(running, beside pounds)*
+7. ~~The Wicks' passives, design~~ *(DONE 15 November: `docs/loop/WICKS.md`, merged; the Wick: Curious, firsts sell higher; Taper: Long Reach, first bites never common; Stub: Moth-Bright, quick bites; Tallow: Long Night, an early night of bigger fish; Ashwick: Burns Back, a lost fish comes back once. Five questions for the user, built with defaults: giants do not come back for Ashwick; the Wick is paid for firsts; Stub is the stayer; no carrier Wick; the five lines as written)*
 8. The Wicks' balancing in the sim.
 
 **M1: the Mossmere and the Landing, complete** (each step built, reviewed, merged and previewed before the next)
@@ -35,7 +35,6 @@ The user, 15 November 2026: "Can we run anything else in parallel without slowin
 
 - **Pounds** (job 3; branch `gw-pounds`; run `wf_946e4698-445`): the heavy job.
 - **The Lamp Road re-routed** (job 4; branch `gw-loop-road`; run `wf_313685e9-8c8`): beside it (docs, then a niced 2D map bake).
-- **The Wicks' passives, design** (job 7; branch `gw-loop-wicks`; run `wf_91d42619-6b9`, resumed): beside it (writing only).
 
 ## Backlog for slice 1a (job 9) (found on the catch show's merge; small, code only; lane B unless named)
 
