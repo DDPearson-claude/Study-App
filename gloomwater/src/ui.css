@@ -2194,7 +2194,7 @@
 .gw-loop-tip { font-size: 21px; letter-spacing: .01em; }
 
 /* ---------------------------------------------------------------- Murk's line (the Jetty, the Chart, the shelf, the tally) */
-.gw-murk-line { position: relative; margin: 0 auto; max-width: 34ch; padding: 6px 26px; text-align: center; font: italic 400 22px/1.38 var(--f-body); color: #e6e1fa;
+.gw-murk-line { position: relative; margin: 0 auto; max-width: 44ch; padding: 6px 26px; text-align: center; font: italic 400 22px/1.38 var(--f-body); color: #e6e1fa;
   text-shadow: 0 1px 2px #000, 0 0 14px rgba(4, 5, 12, .9); opacity: 0; transform: translateY(4px); transition: opacity .6s ease, transform .8s var(--ease-ink); }
 .gw-murk-line:empty { display: none; }
 .gw-murk-line.gw-in { opacity: 1; transform: none; }
@@ -2205,8 +2205,11 @@
 .gw-m-jetty .gw-modal-body { align-items: stretch; }
 .gw-jetty { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; pointer-events: auto; }
 .gw-jetty-veil { position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(var(--veil-rgb), .5), rgba(var(--veil-rgb), .12) 18%, transparent 36%, transparent 48%, rgba(var(--veil-rgb), .3) 64%, rgba(var(--veil-rgb), .7) 86%, rgba(var(--veil-rgb), .82)); }
-.gw-loop-pauseglyph { position: absolute; top: calc(var(--sat) + 14px); left: calc(var(--sal) + 14px); width: 48px; min-height: 48px; margin: 0; z-index: 2; }
+  background: radial-gradient(ellipse 62% 34% at 50% 84%, rgba(var(--veil-rgb), .62), rgba(var(--veil-rgb), .3) 62%, transparent 100%),
+    linear-gradient(180deg, rgba(var(--veil-rgb), .52), rgba(var(--veil-rgb), .14) 16%, transparent 32%, transparent 44%, rgba(var(--veil-rgb), .34) 58%, rgba(var(--veil-rgb), .74) 78%, rgba(var(--veil-rgb), .88)); }
+.gw-loop-pauseglyph { position: absolute; top: calc(var(--sat) + 12px); left: calc(var(--sal) + 12px); width: 52px; min-height: 52px; margin: 0; z-index: 2; color: var(--ink-dim);
+  background: radial-gradient(circle closest-side, rgba(var(--veil-rgb), .55), transparent); border-radius: 50%; }
+.gw-loop-pauseglyph .gw-ico { width: 24px; height: 24px; filter: drop-shadow(0 1px 2px #000); }
 .gw-jetty-purse { position: absolute; top: calc(var(--sat) + 18px); right: calc(var(--sar) + 26px); z-index: 2; display: flex; align-items: center;
   font: 400 26px/1 var(--f-display); letter-spacing: .06em; text-shadow: 0 1px 2px #000, 0 0 14px rgba(4, 5, 12, .9); }
 .gw-jetty-purse .gw-price .gw-ico { width: 27px; height: 27px; filter: drop-shadow(0 0 6px var(--clam-glow)); }
@@ -2214,13 +2217,13 @@
 .gw-clams b { font-weight: 500; }
 .gw-clams .gw-ico { color: var(--clam); }
 .gw-jetty-low { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 0 16px calc(var(--sab) + 28px); }
-.gw-jetty-low .gw-murk-line { margin-bottom: 6px; }
+.gw-jetty-low .gw-murk-line { margin-bottom: 10px; max-width: min(46ch, 92vw); background: radial-gradient(ellipse 54% 60% at 50% 50%, rgba(var(--veil-rgb), .55), transparent 100%); }
 .gw-jetty-tiles { display: flex; justify-content: center; align-items: flex-end; gap: 10px 34px; flex-wrap: nowrap; }
 .gw-tile { flex: 0 1 190px; padding: 8px 14px 14px; gap: 2px; }
 .gw-tile::before { inset: 4px 10px; border-radius: 46% 46% 40% 40%; background: radial-gradient(ellipse 52% 54% at 50% 46%, rgba(160, 150, 240, .2), transparent 72%); }
 .gw-tile .gw-tile-vig { width: 112px; height: 72px; opacity: .78; display: flex; align-items: center; justify-content: center; }
 .gw-tile .gw-tile-vig > svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .9)); }
-.gw-tile--murk .gw-tile-vig .gw-murk { width: 92px; height: 79px; }
+.gw-tile--murk .gw-tile-vig .gw-murk { width: 92px; height: 79px; filter: brightness(1.75) contrast(1.05) drop-shadow(0 0 1px rgba(214, 214, 228, .5)) drop-shadow(0 1px 3px #000); }
 .gw-tile-art { color: var(--ink); }
 .gw-tile-lamp { fill: var(--hearth); filter: drop-shadow(0 0 4px rgba(240, 162, 74, .9)); }
 .gw-tile .gw-mode-name b { font-size: 21px; letter-spacing: .2em; }

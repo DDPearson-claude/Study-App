@@ -8,7 +8,7 @@ import { drawFish, drawFishInk } from './ui-fishart.js';
 import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizers, weightHtml } from './ui-v3.js';
 import * as AF from './ui-af.js';
 // >>> LOOP 1a (lane C): the Full Hold's words and models (docs/loop/slice-1a/PLAN.md §2.3 item 5); read only under data.LOOP_ENABLED
-import { titleModel, descentModel, settingsWords, journalFirst, journalModel } from './ui-loop.js';
+import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS } from './ui-loop.js';
 import { listFor as loopListFor } from './progression-loop.js';
 import { fmtClams } from './core.js';
 // <<< LOOP 1a
@@ -588,6 +588,8 @@ export function createScreens(K) {
       content.appendChild(line);
       foot.appendChild(btn(esc(TL().back || 'Back'), { cls: 'gw-loop-back', onClick: () => K.closeModal('newdescent') }));
       foot.appendChild(btn(esc(TL().start || 'Start'), { cls: 'gw-btn--primary gw-loop-start', icon: 'flame', autofocus: true, action: 'start', onClick: () => start(s) }));
+      // a new Wick lit: Start keeps the keyboard's focus (the panel was drawn again under it)
+      if (!K.isTouch) requestAnimationFrame(() => { const a = document.activeElement; if (!a || a === document.body || !a.isConnected) foot.querySelector('[data-action=start]')?.focus({ preventScroll: true }); });
     }, { state: { sel: sel0, titleChild: true, started: false }, onEscape: () => K.closeModal('newdescent'), onKey: (code) => {
       const t = K.top();
       if (!t || t.id !== 'newdescent') return false;
@@ -856,8 +858,7 @@ export function createScreens(K) {
       const strikeRow = sw ? `<dt${X}>strike</dt><dd class="gw-cc-strike gw-strike-${esc(grade)} gw-cc-xtra">${esc(sw)}</dd>` : '';
       const worthRow = cove ? (qWord ? `<dt${X}>quality</dt><dd${X}>${esc(qWord.replace(/^, /, ''))}</dd>` : '') : `<dt${X}>worth</dt><dd${X}>${fmt(y.sell)} shells${qWord}</dd>`;
       // v3: the hero is the weight, so the list keeps the length as its one small line (cm) and has no weight row
-      const stats = loopCard ? `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.cm)}</dd></dl>`   // (the loop: the one length line, no worth, strike or favour row)
-        : N.v3 ? `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.cm)}</dd>${worthRow}${strikeRow}${favRow}</dl>`
+      const stats = N.v3 ? `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.cm)}</dd>${worthRow}${strikeRow}${favRow}</dl>`
         : `<dl class="gw-cc-stats"><dt class="gw-cc-lenk">length</dt><dd class="gw-cc-len">${esc(N.len)}</dd><dt>weight</dt><dd>${esc(fmtKg(fish.weight))}</dd>${worthRow}${strikeRow}${favRow}</dl>`;   // v1
       const lore = firstSentence(sp.lore) || hintFor(sp);
       // the show (SPEC §2.9, §2.10): what the measuring overlay said lives on the card. Its ruler line is the species' cord: this
@@ -908,6 +909,8 @@ export function createScreens(K) {
       if (loopCard) {
         // the loop's card keeps only SPEC §8.2's words: no note, lore, epithet, "more", worth or make-room; the kicker only for a record
         for (const sel of ['.gw-cc-note', '.gw-cc-lore', '.gw-cc-epithet', '.gw-cc-more', '.gw-catch-full']) content.querySelector(sel)?.remove();
+        // the one length line: no worth, strike or favour row (the Strike line lives in the Journal, PLAN CHOICE 25)
+        for (const x of content.querySelectorAll('.gw-cc-stats > :not(.gw-cc-lenk):not(.gw-cc-len)')) x.remove();
         const kick = content.querySelector('.gw-cc-kicker');
         if (kick && (!N.special || / \u00b7 /.test(N.kicker))) kick.remove(); else kick?.classList.remove('gw-cc-xtra');
         if (fish.giant === true) content.querySelector('.gw-catch-name')?.insertAdjacentHTML('afterbegin', '<i class="gw-cc-star" aria-hidden="true">\u2605</i>');
@@ -961,10 +964,10 @@ export function createScreens(K) {
       }
       if (loopCard) {
         // Keep · clam · the value (key 1; dimmed with no words when the hold is full) and Let go (key 2)
-        const V = Math.max(0, Math.round(num(Number(p.clams ?? safe(() => ctx.progression?.loop?.priceOf?.(fish), 0)), 0)));
+        const [K1, K2] = cardActions({ clams: p.clams ?? safe(() => ctx.progression?.loop?.priceOf?.(fish), 0), holdFull: full, D: D() });
         foot.classList.add('gw-catch-actions--loop');
-        foot.appendChild(btn(`${esc(TL().keep || 'Keep')} <em data-to="${V}">${icon('clam')}<b>${esc(fmtClams(s.loopCounted ? V : 0))}</b></em>`, { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: full, onClick: act('keep'), autofocus: !full }));
-        foot.appendChild(btn(esc(TL().letGo || 'Let go'), { ...A, key: '2', action: 'letgo', cls: 'gw-cc-act gw-cc-letgo', onClick: act('letgo'), autofocus: full }));
+        foot.appendChild(btn(`${esc(K1.label)} <em data-to="${K1.clams}">${icon('clam')}<b>${esc(fmtClams(s.loopCounted ? K1.clams : 0))}</b></em>`, { ...A, key: K1.key, action: K1.action, cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: K1.disabled, onClick: act('keep'), autofocus: K1.autofocus }));
+        foot.appendChild(btn(esc(K2.label), { ...A, key: K2.key, action: K2.action, cls: 'gw-cc-act gw-cc-letgo', onClick: act('letgo'), autofocus: K2.autofocus }));
       } else {
       foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
@@ -1050,7 +1053,7 @@ export function createScreens(K) {
       }
     }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-catch',
       onKey: (code) => {
-        const map = loopCard ? { Digit1: 'keep', Digit2: 'letgo', Numpad1: 'keep', Numpad2: 'letgo' } : cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
+        const map = loopCard ? CARD_KEYS : cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
         if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
         const bm = /^(?:Digit|Numpad)([5-7])$/.exec(code);
         if (bm) {

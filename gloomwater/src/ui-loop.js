@@ -7,7 +7,7 @@
 // light (the clam's gold, the Jetty's lamp) in a cold world. Nothing is ever drawn in world space, and never round the raft.
 //
 // Pure exports (node: tools/tests/ui-loop.test.mjs): slotCells · tallyPlan · goalLine · shelfCards · murkLineFor · clamTag ·
-// pillHold · chartModel · titleModel · descentModel · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
+// pillHold · chartModel · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
 // settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg
 import { icon, ORN, murkPortrait } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
@@ -198,6 +198,19 @@ export function descentModel(D, sel = 'wick') {
   const line = TL.wicks?.[s] || '';
   return { cards, sel: s, line, words: [...cards.map((c) => c.name), line, TL.back || 'Back', TL.start || 'Start'] };
 }
+
+/** The catch card's foot on a trip (SPEC §8.2, PLAN §2.3 item 5, T54): exactly Keep (key 1, primary; its clams; dimmed with no
+ *  words when the hold is full) and Let go (key 2; focused when Keep is dimmed). Pure. */
+export function cardActions({ clams = 0, holdFull = false, D = null } = {}) {
+  const TL = T_(D);
+  const V = Math.max(0, Math.round(num(Number(clams), 0)));
+  return [
+    { action: 'keep', key: '1', label: TL.keep || 'Keep', clams: V, clamsText: fmtClams(V), primary: true, disabled: holdFull === true, autofocus: holdFull !== true },
+    { action: 'letgo', key: '2', label: TL.letGo || 'Let go', clams: null, primary: false, disabled: false, autofocus: holdFull === true },
+  ];
+}
+/** The card's keys on a trip (T54): 1 keeps, 2 lets go (1 does nothing while Keep is dimmed: the button is disabled). */
+export const CARD_KEYS = Object.freeze({ Digit1: 'keep', Digit2: 'letgo', Numpad1: 'keep', Numpad2: 'letgo' });
 
 /** The loop's modal options (T57): what Escape does on each screen. The Jetty's Escape opens the home pause (never closes the Jetty);
  *  the tally's skips to its end (never presses Sold); the shelf's and the Chart's go back to the Jetty. */
