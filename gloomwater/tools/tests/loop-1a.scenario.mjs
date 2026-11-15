@@ -310,17 +310,15 @@ export function installDriver(watch) {
   };
   T.buttons = (sel) => T.all(`${sel} button`).map(say).filter(Boolean);
   /** Is a visible text node in the UI's layers that contains `s`? */
+  /** Is `s` on screen: the smallest visible element in the UI's layers whose words hold it (a line split by a glyph or a <b> still
+   *  reads whole; the world-space words are not looked at). */
   T.seen = (s) => {
     if (!s) return false;
     const want = String(s).replace(/\s+/g, ' ').trim();
+    const has = (e) => e.textContent.replace(/\s+/g, ' ').includes(want);
     for (const root of document.querySelectorAll('#ui > .gw-hud, #ui > .gw-modal-layer, #ui > .gw-toasts, #ui > .gw-banner-layer')) {
-      const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-      for (let t = tw.nextNode(); t; t = tw.nextNode()) {
-        if (!t.nodeValue || !t.nodeValue.includes(want.slice(0, 12))) continue;
-        const el = t.parentElement?.closest('*');
-        const block = el?.closest('.gw-toast, [data-modal], .gw-hud > *') || el;
-        if (block && T.visible(el) && block.textContent.replace(/\s+/g, ' ').includes(want)) return true;
-      }
+      if (!has(root)) continue;
+      for (const e of root.querySelectorAll('*')) if (has(e) && ![...e.children].some(has) && !e.closest('[data-held]') && T.visible(e)) return true;
     }
     return false;
   };
@@ -472,7 +470,12 @@ export function makeKit(api, { label = 'loop' } = {}) {
     if (settle) await K.steps(settle);
     return b;
   };
-  K.key = async (code, { settle = 2 } = {}) => { await page.keyboard.press(code); if (settle) await K.steps(settle); };
+  /** A real key press. Space and Enter first take the focus off any button (a focused button would take them as its click). */
+  K.key = async (code, { settle = 2 } = {}) => {
+    if (code === 'Space' || code === 'Enter') await g(() => { try { document.activeElement?.blur?.(); } catch { /* ignore */ } });
+    await page.keyboard.press(code);
+    if (settle) await K.steps(settle);
+  };
   let cdp = null;
   const touch = async (type, x, y) => { cdp = cdp || await page.context().newCDPSession(page); await cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] }); };
   /** A real press held `sec` of both clocks (game frames stepped meanwhile); `probe` (an expression) is sampled every frame. */
@@ -524,7 +527,8 @@ export function makeKit(api, { label = 'loop' } = {}) {
     await K.tap('[data-modal=catch] [data-action=keep]');
     const closed = await K.until("c.debug.ui().openModal !== 'catch'", 3);
     K.check(closed.ok, `${what}: Keep closes the card`);
-    await K.secs(0.4);
+    await K.until("c.fishing.state === 'idle'", 6);
+    await K.secs(0.3);
     return cd;
   };
   /** A fish caught through the real path (a real press to cast, the bite forced, the strike, the play hurried to its end). */
@@ -641,11 +645,11 @@ export default async function (api) {
         const cards = m ? [...m.querySelectorAll('button.gw-char[data-wick]')] : [];
         const fit = (b) => { const name = [...b.querySelectorAll('*')].reverse().find((e) => e.children.length === 0 && e.textContent.trim()); return name ? name.scrollWidth <= name.clientWidth + 1 : true; };
         const tr = m?.querySelector('.gw-loop-trait');
-        const trs = tr ? getComputedStyle(tr) : null, lh = trs ? (parseFloat(trs.lineHeight) || parseFloat(trs.fontSize) * 1.25) : 0;
+        const rowsOf = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return new Set([...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1).map((q) => Math.round(q.bottom))).size; };
         return {
           top: window.__gw.debug.ui().openModal, ids: cards.map((b) => b.dataset.wick), enabled: cards.every((b) => !b.disabled), on: cards.filter((b) => b.classList.contains('gw-on')).map((b) => b.dataset.wick),
           boxes: cards.map((b) => { const r = b.getBoundingClientRect(); return { w: Math.round(r.width), t: Math.round(r.top), l: Math.round(r.left) }; }), fit: cards.map(fit),
-          trait: tr ? tr.textContent.replace(/\s+/g, ' ').trim() : null, traitRows: tr && lh ? Math.round(tr.getBoundingClientRect().height / lh) : null,
+          trait: tr ? tr.textContent.replace(/\s+/g, ' ').trim() : null, traitRows: tr ? rowsOf(tr) : null,
           forbidden: m ? ['.gw-locked', '.gw-mode', '.gw-ways', '.gw-cd-row', '.gw-chips', '.gw-rating', '.gw-lore'].filter((q) => m.querySelector(q)) : [],
           x: !!m?.querySelector('.gw-x'), phone,
         };
@@ -777,15 +781,16 @@ export default async function (api) {
       K.step('main: the home pause');
       const openHomePause = async () => {
         const j = await jetty();
-        K.check(!!j.glyph && j.glyph.w >= 44 && j.glyph.h >= 44 && j.glyph.l < api.width / 2 && j.glyph.t < 160 && !j.glyph.text, 'T73: the Jetty\'s quiet pause glyph (button[data-loop=homepause], no word, ≥ 44 px, top-left)', j.glyph);
+        if (K.phone) K.check(!!j.glyph && j.glyph.w >= 44 && j.glyph.h >= 44 && j.glyph.l < api.width / 2 && j.glyph.t < 160 && !j.glyph.text, 'T73: the Jetty\'s quiet pause glyph on a phone (button[data-loop=homepause], no word, ≥ 44 px, top-left)', j.glyph);
+        else if (!j.glyph) K.note('no pause glyph on the desktop Jetty (Escape is the way; T73 asks for the glyph on a phone)');
         if (K.phone) await K.tap('button[data-loop=homepause]');
         else await K.key('Escape');
         await K.settle();
         return K.until("c.debug.ui().openModal === 'homepause'", 1);
       };
-      const t0 = (await K.state()).tut;
       w = await openHomePause();
       K.check(w.ok, `T73: ${K.phone ? 'the pause glyph' : 'Escape'} on the Jetty opens the home pause`, await top());
+      const t0 = (await K.state()).tut;
       const hpWords = await g(() => window.__lp.buttons('[data-modal=homepause]'));
       K.check(hpWords.length === 2 && hpWords[0] === TL.resume && hpWords[1] === TL.settings.label, 'T73: the home pause is exactly Resume · Settings', hpWords);
       await K.scan('the home pause');
@@ -894,8 +899,10 @@ export default async function (api) {
       K.step('main: the first trip');
       const castTip = tipText(D, 'fe_cast'), strikeTip = tipText(D, 'fe_strike');
       await K.secs(0.8);
+      await K.settle(400);
       K.check(!(await g((t) => window.__lp.seen(t), castTip)), 'T68: fe_cast waits 1.5 s after run:start');
       await K.secs(1.4);
+      await K.settle(450);
       K.check(await g((t) => window.__lp.seen(t), castTip), 'T68: fe_cast shows on evening 1 while idle', castTip);
       let h = await hud();
       K.check(h.cells === E.slots0 && h.filled === 0, `the HUD's hold row: ${E.slots0} empty cells (.gw-hold .gw-slot)`, h);
@@ -918,11 +925,13 @@ export default async function (api) {
             onBite: async () => {
               const bites = (await K.events()).filter((e) => e.e === 'fishing:bite');
               K.check(bites.length === 1 && typeof bites[0].p?.waterKey === 'string', 'T8: the first real bite of the evening carries its waterKey', bites.map((b) => b.p));
+              await K.settle(450);   // (frames held: the bite's window does not run meanwhile)
               K.check(await g((t) => window.__lp.seen(t), strikeTip), 'T68: fe_strike in the first bite\'s window', strikeTip);
               K.check(!(await g((t) => window.__lp.seen(t), castTip)), 'T68: fe_cast is gone once the line is cast');
               await K.shoot('first-bite');
             },
           });
+          await K.settle(600);
           K.check(!(await g((t) => window.__lp.seen(t), strikeTip)), 'T68: fe_strike is gone at the strike');
           cd = await toCard(what);
         }
@@ -932,6 +941,8 @@ export default async function (api) {
         K.check(s.hold?.n === i + 1 && h.filled === i + 1, `${what}: the hold and the HUD hold ${i + 1}`, { hold: s.hold, filled: h.filled });
         if (i === 0) {
           // T50 at 1 of N: a 0.3 s press on the pill does nothing, and never starts a cast charge
+          await K.until('c.game.canGoHome?.()?.ok === true', 4);
+          await K.settle(350);
           const pb = await K.box('[data-loop=home]');
           K.need(pb, 'the Home pill is shown in idle (canGoHome ok)');
           const pr = await K.pressHold(pb.x, pb.y, 0.3, 'c.fishing.state');
@@ -951,6 +962,7 @@ export default async function (api) {
       const wp = await K.waterPoint();
       const ref = await K.pressHold(wp.x, wp.y, 0.45, 'c.fishing.state');
       await K.steps(3);
+      await K.settle(450);
       ev = await K.events(e0);
       K.check(ref.seen.every((x) => x === 'idle') && (await K.state()).fishing === 'idle', 'T3: a press with a full hold never enters charging', ref.seen);
       K.check(await g((t) => window.__lp.seen(t), TL.holdFull), `the "${TL.holdFull}" toast on the refused cast`);
@@ -965,6 +977,8 @@ export default async function (api) {
       const far = docks[2] || docks[docks.length - 1];
       await g((p) => window.__gw.player.teleport({ x: p.x, z: p.z }, p.yaw), far);
       await K.steps(3);
+      await K.until('c.game.canGoHome?.()?.ok === true', 4);
+      await K.settle(350);
       const purse0 = (await K.state()).loop?.clams ?? null;
       e0 = await K.evCount();
       K.need(await K.tap('[data-loop=home]'), 'T50: a tap on the Home pill with a full hold');
@@ -974,6 +988,7 @@ export default async function (api) {
       s = await K.state();
       K.check(ev.some((e) => e.e === 'run:end' && e.p?.cause === 'home'), 'run:end {cause: home}');
       K.check(ev.some((e) => e.e === 'player:glide' && e.p?.kind === 'home'), 'the sail home glides (player:glide {kind: home})');
+      K.check(ev.filter((e) => e.e === 'player:glide').every((e) => e.mode === 'sail'), 'T56: the camera stays sail through the sail home', ev.filter((e) => e.e === 'player:glide').map((e) => e.mode));
       K.check(near(s.pos, docks[0]) <= 0.6, 'T66: after the tally opens the raft is at docks[0] (home is the Jetty)', { pos: s.pos, dock: docks[0] });
       const lt = s.loop?.lastTrip;
       K.check(lt && Array.isArray(lt.lines) && lt.lines.length === E.slots0, `T21: the tally holds ${E.slots0} rows`, lt);
@@ -986,10 +1001,18 @@ export default async function (api) {
         seen.wickFirstSale = firsts.length;
         K.check(firsts.length >= 1, 'the Wick\'s seen event: a first sells higher at the tally (a row with first and clams > base)', lt?.lines);
       }
-      await K.secs(0.8);
+      await K.secs(wick === 'wick' ? 3 : 0.8);
       await K.shoot('tally');
+      if (wick === 'wick') {
+        // the Wick's first ticks twice with the brighter coin (WICKS §2.1): the built audio log, when this page logs its sounds
+        const coins = await g(() => { try { return (window.__gw.debug.audioLog?.(400) || []).map((x) => x?.name).filter((n) => /^coin/.test(n || '')); } catch { return []; } });
+        if (!coins.length) K.note('the audio log holds no coin yet (a suspended audio context?): the brighter coin is not checked', coins);
+        else K.check(coins.includes('coinBright'), 'the Wick\'s first-sale ticks: coinBright at the tally', coins);
+        seen.wickCoins = coins;
+      }
       await K.key('Escape');
       await K.secs(0.3);
+      await K.settle(400);
       s = await K.state();
       const soldBox = await K.box('[data-loop=tally] [data-action=sold]') || await K.box('[data-action=sold]');
       K.check(s.modal === 'tally' && !!soldBox, 'T57: Escape on the tally skips to its end and leaves Sold', { modal: s.modal, sold: !!soldBox });
@@ -1065,6 +1088,7 @@ export default async function (api) {
       h = await hud();
       K.check(h.cells === E.slots4 && h.filled === 0, `${E.slots4} empty cells on the water`, h);
       await K.secs(2.4);
+      await K.settle(450);
       K.check(!(await g((t) => window.__lp.seen(t), castTip)), 'T68: no fe_cast on evening 2');
       K.check(!(await K.events(e0)).some((e) => e.e === 'merchant:arrive' && e.flow === 'playing'), 'T29: no merchant:arrive on a trip');
       await K.shoot('water-2');
@@ -1222,6 +1246,8 @@ export default async function (api) {
 
       // ---------------------------------------------------------- a 0.7 s hold on the pill at 1 of N (T50), the tally, Sold
       K.step('main: the pill held');
+      await K.until('c.game.canGoHome?.()?.ok === true', 4);
+      await K.settle(350);
       const pb = await K.box('[data-loop=home]');
       K.need(pb, 'the Home pill');
       e0 = await K.evCount();
@@ -1275,8 +1301,7 @@ export default async function (api) {
   if (want('forget')) {
     try {
       K.step('forget: the returning title');
-      if (!mainRan) await K.load({ fresh: false });
-      else await K.reload();
+      if (!mainRan) { await K.load({ fresh: false }); await K.titleReady(); } else await K.reload();
       const D = await data(), TL = D.T;
       const offered = await g(() => window.__gw.game.introReplayOffered?.() === true);
       const words = await K.titleWords();

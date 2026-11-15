@@ -130,6 +130,8 @@ export default async function (api) {
 
     // ---------------------------------------------------------- home, the tally watched to its end, Sold
     K.step('time: home and the sale');
+    await K.until('c.game.canGoHome?.()?.ok === true', 6);
+    await K.settle(350);
     m.homeTap = await sim();
     K.need(await K.tap('[data-loop=home]', null, { settle: 0 }), 'the Home pill (a tap, the hold full)');
     detail.taps.home = 1;
@@ -138,13 +140,17 @@ export default async function (api) {
     m.tallyOpen = (await evAt('ui:modal', (p) => p.open === true && p.id === 'tally', m.homeTap))?.sim ?? await sim();
     const lt = (await K.state()).loop?.lastTrip;
     const totalText = `+${clamText(lt?.total ?? 0)}`;
-    const watch = await g(([totalText, maxSec]) => {
+    // (stepped at the wall clock's pace, one frame each 1/30 s: a tally sequenced on timers or CSS reads the same as one on the frame's dt)
+    const watch = await g(async ([totalText, maxSec]) => {
       const c = window.__gw, T = window.__lp, coins = [];
       let seenLog = 0, t = 0;
       const logLen = () => { try { return (c.debug.audioLog?.(400) || []).filter((x) => /^coin/.test(x?.name || '')).length; } catch { return 0; } };
       const base = logLen();
       const soldUp = () => !!T.one('[data-loop=tally] [data-action=sold]') || !!T.one('[data-action=sold]');
+      const wall0 = Date.now();
       while (t < maxSec) {
+        const lag = wall0 + (t + 1 / 30) * 1000 - Date.now();
+        if (lag > 0) await new Promise((r) => setTimeout(r, lag));
         if (!T.step(1, 1 / 30)) break;
         t += 1 / 30;
         const n = logLen() - base;
