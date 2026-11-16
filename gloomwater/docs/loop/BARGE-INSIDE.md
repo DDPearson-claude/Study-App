@@ -777,7 +777,7 @@ The Line's tier tints the line (undyed, amber, lavender). The Reel's tier sets t
 | textures | **One new**: the print atlas, one 1024 × 1024 canvas (4 MB, 5.3 MB with mips), drawn from `galleryModel`'s frames.<br>The chart top stays as built. The hands, the rod and the interior are vertex-coloured, so nothing else | 512 px a metre, so a 0.5 m print is about 256 px across at the Long Wall's 1.9 m. Its close look opens the print card's own drawing for detail.<br>**A new print redraws the atlas only after the present ends or on the next Long Wall visit**, never during the measure |
 | per-part motion | 0 calls | Each part's pivot and hinge axis are baked into vertex attributes on the timber (`gwPart` and `gwPivot`), and the material keeps **one vec4 per part** (lift, angle, glint, spare) in a uniform array of 24 slots: the 16 print candles, the stove's door, the kettle's lid, the ledger's cover, the hanging lantern and 4 spare. A candle lit by a new print is a glint value, so no rebuild |
 | a rebuild | ≤ 15 ms on the low desktop (*est.*) | `setVariants` and `bakeWarm` grow with the vertices, and run only when what you own changes, never during the present |
-| **each place's frame** | **≤ 150 calls on low**: the home frame's line. The arrival shot at first light measured **144 on low (139 on a phone)** at b527fae; re-measured on the current preview in Appendix A.<br>On medium and high, no worse than the arrival shot's (226–227, over 200 and reported, not failed) | measured per place (`clarity-perf --aboard`) |
+| **each place's frame** | **≤ 150 calls on low**: the home frame's line. The arrival shot at first light measured **144 on low, on desktop and on a phone** (*measured* on the current preview; the phone was 139 at b527fae, so tonight's watercraft added 5 there). At the stern: 144 less the hidden Wick (6–10), plus the rod and hands (2) and the tells (1), so *est.* 137–141.<br>On medium and high, no worse than the arrival shot's (227 and 228, over 200 and reported, not failed) | measured per place (`clarity-perf --aboard`) |
 | **each place's cost** | **cpuMs no worse than the arrival shot's** at the phone size on low, and **p95 ≤ 33 ms on the software-GL tier** at every place, at the stern during a play | `clarity-perf --aboard`, its cpuMs per place against the arrival shot's (§8.3: aboard the cost is fill, not calls) |
 | the Wick aboard | hidden | Its meshes, outlines and flame are not drawn aboard (*est.* 6–10 calls saved) |
 
@@ -1139,7 +1139,7 @@ TEXT_LOOP.aboard = { /* accessible names only, never drawn: each place's and eac
 
 1. **Fishing assumes a trip throughout** (`playing()`, `LOOP()`, `run()`, the cove path in `measure()`). A missed site would cast from the raft, spend a trip's bite or bank Memories at home.
    - Mitigation: I-3's first commit is the audit table of every site, locked by a node test; an explicit fishing mode; `origin()` and `raft()` kept apart; the 300-bite test through the real ledger.
-2. **The low tier's 150-call line is tight**, and aboard the cost moves to fill.
+2. **The low tier's 150-call line is tight** (the arrival shot is at 144 on a phone now), and aboard the cost moves to fill.
    - Mitigations: the Wick hidden; the atlas culled outside the cabin; the mirror weight in the cabin; the water and the ink drawn after the timber aboard; each place measured for calls and cpuMs.
    - If it still fails, the knobs in order: the tells off at the stern on low; the candles' glow merged; the atlas only at the Long Wall; a lower pixel ratio in motion on low with fixed-size targets (§9.7).
 3. **Portrait first person is narrow.**
@@ -1192,7 +1192,7 @@ The port rail is 11.8 m from the shore; the starboard rail 14.6 m.
 
 **The places' framing**: `home-targets.js`'s `project` and `rectOf` on §3.1's boxes through §3.2's poses at 1280 × 720 and 1920 × 1080 (fov 52°), 390 × 844 and 358 × 664 (fov 66–68°), then raw overlaps and `layoutTargets` (min 44 px) with the places' targets as its order. Every place passes at all four with no raw overlap.
 
-**The home frame's calls**: `clarity-perf.scenario.mjs --home` on the published preview build (`tools/out/preview/dev.html`), desktop 960 × 540 and phone, its `perf-home.json` written to the scratchpad.
+**The home frame's calls**: `clarity-perf.scenario.mjs --home` on the published preview build (`tools/out/preview/dev.html`, c34557d), its frames written to the scratchpad. First light: desktop 960 × 540, low 144 (the barge 4 main, 0 mirror, 0 shadow; its cpu share 8%), medium 227 (the barge 4 / 2 / 1), high 228; phone, low 144 (the barge 4 / 0 / 0). No PointLight of the barge's; Murk's lamp at 0.
 
 **The Wick's eye**: in `actors-wick.js`, the head is at y 0.5 and the eyes 0.14 above it; `actors.js` draws the Wick × 1.22 on the raft. So the eye is 0.78 m above its feet.
 
