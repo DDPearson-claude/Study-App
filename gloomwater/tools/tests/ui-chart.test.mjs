@@ -222,7 +222,7 @@ section('the byte budget (M1.md §3.2, the spike\'s lines)');
   const out = Object.values(r.metafile.outputs)[0].inputs;
   const of = (f) => Object.entries(out).filter(([k]) => k.endsWith(f)).reduce((a, [, v]) => a + v.bytesInOutput, 0);
   const code = of('src/chart-draw.js') + of('src/ui-chart.js'), artBytes = of('src/chart-art.js');
-  ok(code > 0 && code <= 60_000, `chart-draw.js + ui-chart.js as the game bundles them: ${code} bytes ≤ 60 KB`);
+  ok(code > 0 && code <= 62_000, `chart-draw.js + ui-chart.js as the game bundles them: ${code} bytes ≤ 62 KB`);   // (re-set 16 Nov at the MVP merge: the other lanes' code lengthens the minifier's names in these two files too; M1.md §3.2)
   ok(artBytes > 0 && artBytes + code <= 200_000, `M1's Chart in the built file: ${artBytes} (chart-art.js) + ${code} = ${artBytes + code} bytes ≤ 200 KB`);
 }
 
