@@ -298,7 +298,7 @@ creel drawn with one tick for each slot (as the order board's count is chalk tic
 | the creel (Wicker Creel … Wellbox) | its name and the creel glyph with a tick a slot (Tallow's one more drawn as a ring-tick) · the good bites it gives open water, as the float's dots (`goodBitesFor`) | "Next: Wellbox · 900" · the glyph with six ticks and open water's dots, ●×7 → ●×8 | 3 (the Lidded Creel, the Double Creel, the Wellbox) |
 | Oars I–II | "Faster." · "+{v} m/s" (`LOOP.raft.oars.speed` × level: +1.5, +3.0) | "Next: Oars II · 600" · "+3.0 m/s" | 2 |
 | Keel I–II | "Bigger fish." · its move at the picks: "Trophy 15% → 19%" (Keel II, Under the Span at dusk; on the open water at dusk with a tin, 7% → 10%) | none at Keel II; from none, "Next: Keel I · …" and its move with " with this." | 2 |
-| Lantern I–II | "Bigger fish at night." · its move at the picked place at night (the night glyph beside it): "Trophy 19% → 21%" · "light +15%" a level | "Next: Lantern II · 1,000" · "Trophy 21% → 23% with this." | 2 |
+| Lantern I–II | "Bigger fish at night." · its move at the picked place at night (the night glyph beside it): "Trophy 19% → 21%" (its wider light is seen on the water, not printed) | "Next: Lantern II · 1,000" · "Trophy 21% → 23% with this." | 2 |
 | Murk's Order Board I–II | "Orders pay double." · the count of orders as chalk ticks (`orderCount`, the Buoy-Bell's included) | "Next: Murk's Order Board II · 800" · one more chalk tick | 2 |
 | Bait Bed I–II | "Free bait every evening." · "{n}" with the tin's glyph (`LOOP.home.baitBed.floor`: 3, 6) | "Next: Bait Bed II · 1,400" · "6" with the tin's glyph | 2 |
 | the Long Wall, wing I | "Your best prints, on the wall." | — | 1 |
@@ -339,7 +339,7 @@ a button to the picks). Only what is on is listed; nothing is listed that the pl
 | Murk's Order Board, the Rust Buoy-Bell | "Orders pay double." and the chalk ticks (1 + 1) | — | `orderCount` |
 | the Bait Bed, the Moat Bollard | "Free bait every evening." and "3" with the tin glyph (+10 with the bollard) | — | `baitBedFloor`, `findBaitFloor` |
 | Oars I–II | "Faster." "+1.5 m/s" | — | `raftStats` |
-| **on a trip, at the water you are on** | "Let go" · "Quiet water" | each its move ("Trophy 9% → 11%"; quiet water's runs downward) | `loop.favour(waterKey)`: its `mercy` and its `favour` |
+| **on a trip, at the water you are on** | "Let go" · "Quiet water" | each its move: on the open water at dusk on the example's kit, one let go "Trophy 10% → 13%", quiet water at −0.30 "Trophy 10% → 6%" (*measured*) | `loop.favour(waterKey)`: its `mercy` and its `favour` |
 
 **Never listed**: a Marked giant's +6, a legend's wounds, a waiting comeback (WATERCRAFT §7.1: the lost fish is named nowhere);
 a sign's favour, the clean cast and the depth band (they are the cast's, read on the water, not owned); an area. On a desktop
@@ -866,7 +866,7 @@ the sheet and the book agree.
 |---|---|---|
 | the marked giant's +6 (`LOOP.giant.markedHold`, `CATCH_V3.markedFish`) | neither: never shown | unchanged |
 | Taper's giant rule (lane 4's `lurePool`, WC-1's `finishPool`) | `castOdds` (`finishPool`) | `lurePool` stays exported for other waters |
-| Stub's light (`LOOP.wicks.stub.stats.lightRadius` +1.5 m, the light's look; WC-2's `sight.lantern.stub` ×1.5, how far a silhouette is seen at night) | neither: Stub's exact line carries no light figure, and the Lantern's "+15% light a level" is true of both | **for the lead**: one rule for both (WICKS §2.3 calls Stub's light "the look"; WC-2 made it see farther); until then the sheet prints no figure for it |
+| Stub's light (`LOOP.wicks.stub.stats.lightRadius` +1.5 m, the light's look; WC-2's `sight.lantern.stub` ×1.5, how far a silhouette is seen at night) | neither: Stub's exact line and the Lantern's plate carry no light figure (the light is seen on the water) | **for the lead**: one rule for both (WICKS §2.3 calls Stub's light "the look"; WC-2 made it see farther); until then the sheet prints no figure for it |
 | a legend's landings | the roll's: `meta.records.legendGrowth`, which the loop never writes, so 0 (the Matriarch 31% at the example's tackle) | **for the lead**: the Journal's odds row (`progression-af`) counts her landings from the Journal (one landing: 28%, *measured*), so after a landing the Journal and the roll disagree; the sheet follows the roll |
 | WC-3's Who bites (`bitesTable`) | `openMix` with the bait's rb | **for the lead**: `bitesTable` (and so the built gear log's block, off the sheet) has no rb step, so on Lumen Moss it prints the evening's shares without the moss's bonus; the sheet replaces it under the loop, so it is shown nowhere the loop draws |
 | the creel's "Hold {n}" (`TEXT_LOOP.holdName`) and the grip's "+{n} Hold" (`AUTOFISH.text.gear`) | the grip only (§3.3) | **for the lead**: Murk's shelf and book still print the creel's step as "Hold {n}"; if the user finds it confusing there too, the book can take the creel glyph the sheet draws |
