@@ -208,6 +208,7 @@ export default async function (api) {
     if (!(e instanceof Abort)) K.failures.push(`[${K.part}] threw: ${e?.stack || e}`);
   }
   saveNotes();
+  await K.release().catch(() => {});   // (the held frame loop handed back, so playtest's fps read and close can run: the stage)
   log(`LOOP_3A_LOOK ${JSON.stringify({ size: K.tag, redress, failures: K.failures, notes: K.notes, frames: n })}`);
   return { failures: K.failures };
 }

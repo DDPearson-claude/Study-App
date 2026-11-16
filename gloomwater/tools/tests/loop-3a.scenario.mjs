@@ -424,6 +424,7 @@ export default async function (api) {
   } catch (e) {
     if (!(e instanceof Abort)) K.failures.push(`[${K.part}] threw: ${e?.stack || e}`);
   }
+  await K.release().catch(() => {});   // (the held frame loop handed back, so playtest's fps read and close can run: the stage)
   log(`LOOP_3A ${JSON.stringify({ size: K.tag, failures: K.failures, notes: K.notes, seen })}`);
   return { failures: K.failures };
 }
