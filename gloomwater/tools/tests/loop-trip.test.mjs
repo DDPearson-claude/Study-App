@@ -340,7 +340,7 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   ok(b.ok && b.clams === 370 && meta.loop.holdSlots === 4 && env.calls.saves.length === n + 1, 'T23: Hold 4 for 30, saved at once');
   eq(env.last('loop:buy'), { item: 'hold:4', price: 30, clams: 370 }, 'loop:buy');
   const sh = env.L.shelf();
-  eq(sh.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps'], 'CHOICE 11 (M1 step 3a): Tackle, Raft, Bait and Maps');
+  eq(sh.tabs.map((t) => t.id).filter((id) => id !== 'home'), ['tackle', 'raft', 'bait', 'maps'], 'CHOICE 11 (M1 step 3a): Tackle, Raft, Bait and Maps (M1 step 5b adds Home)');
   eq(sh.tabs[1].items.map((i) => [i.id, i.bought]), [['hold:4', true]], "CHOICE 26: the bought card reads Yours. while the shelf is open");
   env.ctx.bus.emit('ui:modal', { open: false, id: 'shelf' });
   eq(env.L.shelf().tabs[1].items.map((i) => [i.id, i.price]), [['hold:5', 120]], 'the next open: Hold 5 · 120');

@@ -1084,6 +1084,7 @@ export function create(ctx) {
         // M1 step 3a: a giant's fish carries `giant` (the hold's gold edge, the tally's last place); the best fish there (meta.loop.best)
         if (sp.giant === true) fish.giant = true;
         try { loop.noteBest(fish, fish.waterKey); } catch (e) { report('loop.noteBest', e); }
+        try { loop.notePrint?.(fish, sp, cls); } catch (e) { report('loop.notePrint', e); }   // M1 step 5b: the ink print, kept or let go
         // the Wick's ledger in the same save as the Journal (WICKS §2.1), then the card: the fish waits there, measured
         try { loopIn.noteFirst(fish, sp, cls); } catch (e) { report('loop.noteFirst', e); }
         fish.measured = true;

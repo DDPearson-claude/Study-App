@@ -232,7 +232,7 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
   const g = L.goal();
   ok(g && g.id !== 'bait:heartmoss' && g.id !== 'lake:sporewood', 'the goal line never names the ball or the sealed card', g);
   const all = placesMeta(D, { own: FOUR, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
-  eq(PL.goalOf(PL.shelfItems(D, all.loop)), null, 'the empty shelf (step 3\'s): no goal line, though the ball and the sealed card are still there');
+  eq(PL.goalOf(PL.shelfItems(D, all.loop).filter((i) => i.tab !== 'home')), null, 'the empty shelf (step 3\'s): no goal line, though the ball and the sealed card are still there (M1 step 5b: the Home tab aside)');
   ok(PL.shelfItems(D, all.loop).some((i) => i.id === 'bait:heartmoss') && PL.shelfItems(D, all.loop).some((i) => i.id === 'lake:sporewood'), '… the ball is always on the shelf, and Sporewood\'s card reads "Coming soon"');
   // the shelf's ids for 3b's priced blots: a place card names its place and its fish
   const fresh = PL.shelfItems(D, PL.freshLoop(D)).filter((i) => i.slot === 'place');

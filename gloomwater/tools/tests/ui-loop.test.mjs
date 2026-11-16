@@ -93,8 +93,8 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
 {
   const L = fakeLoop({ D, clams: 40 });
   let m = U.shelfCards(L.shelf(), { D, clams: 40 });
-  eq(m.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps)');
-  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps], 'one word each, TEXT_LOOP.tabs');
+  eq(m.tabs.map((t) => t.id).filter((id) => id !== 'home'), ['tackle', 'raft', 'bait', 'maps'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps; M1 step 5b: Home)');
+  eq(m.tabs.filter((t) => t.id !== 'home').map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps], 'one word each, TEXT_LOOP.tabs');
   const tack = m.tabs[0].cards, raft = m.tabs[1].cards;
   eq(tack.map((c) => c.id), ['rod:1', 'line:1', 'reel:1'], 'Tackle: the next tier of each slot');
   eq(tack.map((c) => c.name), ['Ashwood', 'Braided Gut', 'Brass Spool'], 'the TACKLE names');
