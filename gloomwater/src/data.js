@@ -4980,42 +4980,6 @@ export function quietTerms(over, wickId = null) {
   const step = K.quietStep != null ? -K.quietStep : S.favour;
   return { over: n, favour: n > 0 ? Math.max(S.floor, step * n) : 0, waitMult: K.quietWait === false ? 1 : Math.min(S.waitMax, 1 + S.wait * n) };
 }
-/** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
- *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
- *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the
- *  one draw, so the RNG count is unchanged. */
-export function wickPoolWeights(wickId, pool, weights, { firstBite = false, signRule = AUTOFISH.signRule } = {}) {
-  if (LOOP.wicks[loopWickId(wickId)]?.passive !== 'long_reach' || !firstBite || !Array.isArray(pool) || !Array.isArray(weights)) return weights;
-  const keep = weights.map((w, i) => (pool[i]?.rarity === 'common' ? 0 : w)), tot = keep.reduce((a, b) => a + b, 0), by = new Map();
-  pool.forEach((s, i) => { if (keep[i] > 0) by.set(s.id, (by.get(s.id) || 0) + keep[i]); });
-  if (!tot || by.size < signRule.minSpecies || Math.max(...by.values()) / tot > signRule.maxShare + 1e-12) return weights;
-  return keep;
-}
-/** The glide out of a Sail (PLAN CHOICE 38): from the dock to T.outPath[lake]'s last point when the lake has one, else T.outDist m
- *  toward the lake's centre. `path` is every point of the glide (from first); yaw faces the way the raft travels (player.heading). */
-export function sailPlan(dock, centre = { x: 0, z: 0 }, T = LOOP.tutorial, lake = null) {
-  const P = lake ? T?.outPath?.[lake] : null, pt = (q) => ({ x: Number(q[0]), z: Number(q[1]) });
-  const from = dock && Number.isFinite(Number(dock.x)) ? { x: Number(dock.x), z: Number(dock.z) } : P?.length ? pt(P[0]) : { x: 0, z: 0 };
-  let path;
-  if (Array.isArray(P) && P.length >= 2) path = [from, ...P.slice(1).map(pt)];
-  else {
-    const cx = Number(centre?.x) || 0, cz = Number(centre?.z) || 0, d = Math.hypot(cx - from.x, cz - from.z), s = d > 0 ? Math.min(Number(T?.outDist) || 0, d) / d : 0;
-    path = [from, { x: from.x + (cx - from.x) * s, z: from.z + (cz - from.z) * s }];
-  }
-  const to = path[path.length - 1], a = path[path.length - 2];
-  return { from, to, yaw: Math.atan2(-(to.x - a.x), -(to.z - a.z)), path };
-}
-/** M1 step 3a (PLAN CHOICE 7): the glide out of a Sail toward a water or a place of it, from the dock. A place: its own authored glide
- *  (LOOP.places[id].out, [[x, z], …], the first point the dock) when it has one, else T.outDist m toward its centre; no place (or one
- *  LOOP.places does not hold): the water's glide (sailPlan with the lake: its outPath, else toward the lake's centre). validate-data
- *  --loop proves every one clears each island and pillar by the raft's radius + 0.3 m. */
-export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T = LOOP.tutorial) {
-  const P = place ? LOOP.places?.[place] : null, rec = P ? MOSSMERE_V3.places.find((q) => q.id === place) : null;
-  if (!P || !rec) return sailPlan(dock, { x: 0, z: 0 }, T, water);
-  if (Array.isArray(P.out) && P.out.length >= 2) return sailPlan(dock, { x: rec.x, z: rec.z }, { ...T, outPath: { [place]: P.out } }, place);
-  return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
-}
-
 // >>> M1 step 5c (lane 5C: the Mossmere's finds; docs/loop/FINDS.md §10, §5.1, §9; SPEC §4.10, decisions 49–57). Additive: a new LOOP
 // key and new TEXT_LOOP words, read only under data.LOOP_ENABLED (LOOP and TEXT_LOOP are not in the v3 fingerprint). The rules are
 // src/loop-finds.js's (pure); findShares below is the one function the snag roll draws from and the catalogue prints.
@@ -5066,6 +5030,41 @@ Object.assign(TEXT_LOOP.murk, { firstTreasure: 'The water keeps what it takes. M
 /** M1 step 5c (FINDS §10): the share of the water's next snag for each of its finds as the save stands (pure; loop-finds.js). */
 export function findShares(meta, D = { LOOP, TEXT_LOOP }, waterId = 'mossmere', opts = {}) { return findSharesOf(meta, D, waterId, opts); }
 // <<< M1 step 5c (lane 5C)
+/** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
+ *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
+ *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the
+ *  one draw, so the RNG count is unchanged. */
+export function wickPoolWeights(wickId, pool, weights, { firstBite = false, signRule = AUTOFISH.signRule } = {}) {
+  if (LOOP.wicks[loopWickId(wickId)]?.passive !== 'long_reach' || !firstBite || !Array.isArray(pool) || !Array.isArray(weights)) return weights;
+  const keep = weights.map((w, i) => (pool[i]?.rarity === 'common' ? 0 : w)), tot = keep.reduce((a, b) => a + b, 0), by = new Map();
+  pool.forEach((s, i) => { if (keep[i] > 0) by.set(s.id, (by.get(s.id) || 0) + keep[i]); });
+  if (!tot || by.size < signRule.minSpecies || Math.max(...by.values()) / tot > signRule.maxShare + 1e-12) return weights;
+  return keep;
+}
+/** The glide out of a Sail (PLAN CHOICE 38): from the dock to T.outPath[lake]'s last point when the lake has one, else T.outDist m
+ *  toward the lake's centre. `path` is every point of the glide (from first); yaw faces the way the raft travels (player.heading). */
+export function sailPlan(dock, centre = { x: 0, z: 0 }, T = LOOP.tutorial, lake = null) {
+  const P = lake ? T?.outPath?.[lake] : null, pt = (q) => ({ x: Number(q[0]), z: Number(q[1]) });
+  const from = dock && Number.isFinite(Number(dock.x)) ? { x: Number(dock.x), z: Number(dock.z) } : P?.length ? pt(P[0]) : { x: 0, z: 0 };
+  let path;
+  if (Array.isArray(P) && P.length >= 2) path = [from, ...P.slice(1).map(pt)];
+  else {
+    const cx = Number(centre?.x) || 0, cz = Number(centre?.z) || 0, d = Math.hypot(cx - from.x, cz - from.z), s = d > 0 ? Math.min(Number(T?.outDist) || 0, d) / d : 0;
+    path = [from, { x: from.x + (cx - from.x) * s, z: from.z + (cz - from.z) * s }];
+  }
+  const to = path[path.length - 1], a = path[path.length - 2];
+  return { from, to, yaw: Math.atan2(-(to.x - a.x), -(to.z - a.z)), path };
+}
+/** M1 step 3a (PLAN CHOICE 7): the glide out of a Sail toward a water or a place of it, from the dock. A place: its own authored glide
+ *  (LOOP.places[id].out, [[x, z], …], the first point the dock) when it has one, else T.outDist m toward its centre; no place (or one
+ *  LOOP.places does not hold): the water's glide (sailPlan with the lake: its outPath, else toward the lake's centre). validate-data
+ *  --loop proves every one clears each island and pillar by the raft's radius + 0.3 m. */
+export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T = LOOP.tutorial) {
+  const P = place ? LOOP.places?.[place] : null, rec = P ? MOSSMERE_V3.places.find((q) => q.id === place) : null;
+  if (!P || !rec) return sailPlan(dock, { x: 0, z: 0 }, T, water);
+  if (Array.isArray(P.out) && P.out.length >= 2) return sailPlan(dock, { x: rec.x, z: rec.z }, { ...T, outPath: { [place]: P.out } }, place);
+  return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
+}
 
 // ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.1): the places, the place pool and the giants' share. Pure: each reads only LOOP,
 // MOSSMERE_V3's place records and RARITY_WEIGHTS; the sim's poolFor (tools/sim/clams.mjs, fixed in the seam) is the same rule.
