@@ -13,16 +13,22 @@ window.bake = async function bake() {
   const paper = await bin('/paper.bin', Uint8ClampedArray);
   const { W, H, x0, y0, UW, UH, BS, quality } = meta;
   const win = vec.win;
+  // the game export's crop viewport (build.mjs --game, docs/loop/M1.md §3.1): one sheet's box at its own scale, never the whole
+  // world canvas. Without it the whole world is baked at BS, as the page has it.
+  const V = meta.view || null;
+  const S = V ? V.scale : BS, bx = V ? V.box[0] : x0, by = V ? V.box[1] : y0;
+  const blur = (px) => (V ? `blur(${(px * S / BS).toFixed(3)}px)` : `blur(${px}px)`); // a feather keeps its width in chart units
 
   const cv = document.createElement('canvas');
-  cv.width = Math.round(UW * BS); cv.height = Math.round(UH * BS);
+  cv.width = V ? Math.round(V.box[2] * S) : Math.round(UW * BS); cv.height = V ? Math.round(V.box[3] * S) : Math.round(UH * BS);
   const ctx = cv.getContext('2d');
   const tmp = document.createElement('canvas');
   tmp.width = W; tmp.height = H;
   tmp.getContext('2d').putImageData(new ImageData(base, W, H), 0, 0);
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(tmp, 0, 0, cv.width, cv.height);
-  ctx.setTransform(BS, 0, 0, BS, -x0 * BS, -y0 * BS); // chart units from here on
+  if (V) ctx.drawImage(tmp, (bx - x0) * meta.GS, (by - y0) * meta.GS, V.box[2] * meta.GS, V.box[3] * meta.GS, 0, 0, cv.width, cv.height);
+  else ctx.drawImage(tmp, 0, 0, cv.width, cv.height);
+  ctx.setTransform(S, 0, 0, S, -bx * S, -by * S); // chart units from here on
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   // everything inked stays inside the neatline
   ctx.save(); ctx.beginPath(); ctx.rect(win[0], win[1], win[2] - win[0], win[3] - win[1]); ctx.clip();
@@ -87,7 +93,7 @@ window.bake = async function bake() {
 
   // ---- lakes
   strokeLines(vec.lakeLining, 'rgba(230,224,252,0.42)', 0.2);
-  ctx.beginPath(); for (const a of vec.lakeShores) path(a, true); ctx.strokeStyle = `rgba(${INK_RGB},0.25)`; ctx.lineWidth = 0.8; ctx.filter = 'blur(1.4px)'; ctx.stroke(); ctx.filter = 'none';
+  ctx.beginPath(); for (const a of vec.lakeShores) path(a, true); ctx.strokeStyle = `rgba(${INK_RGB},0.25)`; ctx.lineWidth = 0.8; ctx.filter = blur(1.4); ctx.stroke(); ctx.filter = 'none';
   ctx.beginPath(); for (const a of vec.lakeShores) path(a, true); ctx.strokeStyle = INK; ctx.lineWidth = 0.32; ctx.stroke();
   strokeLines(vec.panShores, `rgba(${INK_RGB},0.7)`, 0.26, [0.3, 0.8]);
 
@@ -158,7 +164,7 @@ window.bake = async function bake() {
   }
 
   // ---- the coast: a feathered under-line, then the pen
-  ctx.beginPath(); for (const a of vec.coast) path(a); ctx.strokeStyle = `rgba(${INK_RGB},0.34)`; ctx.lineWidth = 1.0; ctx.filter = 'blur(1.6px)'; ctx.stroke(); ctx.filter = 'none';
+  ctx.beginPath(); for (const a of vec.coast) path(a); ctx.strokeStyle = `rgba(${INK_RGB},0.34)`; ctx.lineWidth = 1.0; ctx.filter = blur(1.6); ctx.stroke(); ctx.filter = 'none';
   ctx.beginPath(); for (const a of vec.coast) path(a); ctx.strokeStyle = INK; ctx.lineWidth = 0.4; ctx.stroke();
 
   // ---- plant marks. Their green follows WATERS.md's foliage track, olive at step 1 to deep green at 15.
@@ -410,6 +416,9 @@ window.bake = async function bake() {
   });
   ctx.restore();
 
+  // ---- the game export: one sheet, its reveal mask as a feathered alpha, encoded and decoded again so the build can check it
+  if (V) return sheetOut(cv, V);
+
   // ---- hand the images back
   const out = {};
   out.world = cv.toDataURL('image/webp', quality);
@@ -442,3 +451,38 @@ window.bake = async function bake() {
   out.size = [cv.width, cv.height];
   return out;
 };
+
+// The game export's sheet (build.mjs --game): the mask (a grey grid over the box, `/mask.bin`) cut into the crop's alpha, the
+// crop encoded as WebP, then decoded again: the build compares two bakes' decoded RGBA (the encoder's bytes vary with the
+// Chromium build; its pixels must not) and checks that no pixel outside the mask carries alpha.
+async function sheetOut(cv, V) {
+  const M = V.mask, grey = new Uint8ClampedArray(await (await fetch('/mask.bin')).arrayBuffer());
+  const mc = document.createElement('canvas'); mc.width = M.w; mc.height = M.h;
+  const md = new ImageData(M.w, M.h);
+  for (let i = 0; i < grey.length; i++) { md.data[i * 4] = md.data[i * 4 + 1] = md.data[i * 4 + 2] = 255; md.data[i * 4 + 3] = grey[i]; }
+  mc.getContext('2d').putImageData(md, 0, 0);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = 'destination-in';
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(mc, 0, 0, M.w, M.h, 0, 0, cv.width, cv.height);
+  ctx.globalCompositeOperation = 'source-over';
+  const uri = cv.toDataURL('image/webp', V.quality);
+  // the mask alone at the crop's size: where it is empty the sheet must be empty too
+  const mk = document.createElement('canvas'); mk.width = cv.width; mk.height = cv.height;
+  const mkx = mk.getContext('2d'); mkx.imageSmoothingEnabled = true; mkx.imageSmoothingQuality = 'high';
+  mkx.drawImage(mc, 0, 0, M.w, M.h, 0, 0, cv.width, cv.height);
+  const mask = mkx.getImageData(0, 0, cv.width, cv.height).data;
+  // decode what was encoded
+  const img = new Image(); img.src = uri; await img.decode();
+  const dc = document.createElement('canvas'); dc.width = img.naturalWidth; dc.height = img.naturalHeight;
+  const dx = dc.getContext('2d'); dx.drawImage(img, 0, 0);
+  const px = dx.getImageData(0, 0, dc.width, dc.height).data;
+  let h1 = 0x811c9dc5 >>> 0, leak = 0, opaque = 0, partial = 0;
+  for (let i = 0; i < px.length; i++) { h1 ^= px[i]; h1 = Math.imul(h1, 0x01000193) >>> 0; }
+  for (let i = 3; i < px.length; i += 4) {
+    if (mask[i] === 0 && px[i] !== 0) leak++;
+    if (px[i] === 255) opaque++; else if (px[i] > 0) partial++;
+  }
+  return { sheet: uri, size: [cv.width, cv.height], decoded: [dc.width, dc.height], hash: h1.toString(16).padStart(8, '0'), leak, opaque, partial, chromium: navigator.userAgent };
+}

@@ -6,6 +6,8 @@
 //   node tools/world-map/build.mjs --no-shots   skip the Playwright renders
 //   node tools/world-map/build.mjs --bake-only  bake and report, write no page
 //   node tools/world-map/road.mjs               only the route rule on canon.mjs's courses (no bake, a second)
+//   node tools/world-map/build.mjs --game [--sheets=1] [--spike]
+//                                               the game export: the shipped sheets into src/chart-art.js (game.mjs)
 //
 // Reads tools/world-map/canon.mjs (the world as data, from docs/loop/WORLD.md and LORE.md) and writes,
 // all under tools/out/world/ (untracked):
@@ -108,7 +110,17 @@ async function bake() {
   log(back.length ? `  FAIL the ramp steps back at water ${back.join(', ')}` : '  ok   every water is at least as green as the one before');
 }
 
-function assemble() {
+// The bundling step (docs/loop/M1.md §3.1): the page's drawing is the game's src/chart-draw.js, an ES module; the page is one
+// classic script, so the module is bundled into it as the global ChartDraw ahead of page/app.js. One code draws both.
+export async function chartDrawBundle() {
+  const esbuild = await import('esbuild');
+  const r = await esbuild.build({ entryPoints: [path.resolve(here, '../../src/chart-draw.js')], bundle: true, format: 'iife', globalName: 'ChartDraw', target: ['es2020'], write: false, legalComments: 'none', logLevel: 'silent' });
+  const js = r.outputFiles[0].text;
+  if (js.includes('</script')) throw new Error('src/chart-draw.js must not contain a closing script tag');
+  return js;
+}
+
+async function assemble() {
   const data = JSON.parse(fs.readFileSync(path.join(cacheDir, 'data.json'), 'utf8'));
   for (const k of ['strays', 'checks']) delete data[k]; // build-time reports, not page data
   const uri = (file, type) => `data:${type};base64,${fs.readFileSync(path.join(cacheDir, file)).toString('base64')}`;
@@ -116,7 +128,7 @@ function assemble() {
   const js = fs.readFileSync(path.join(here, 'page/app.js'), 'utf8');
   if (js.includes('</script')) throw new Error('page/app.js must not contain a closing script tag');
   const sub = (key, value) => { if (!html.includes(key)) throw new Error('template is missing ' + key); html = html.split(key).join(value); };
-  sub('/*__APP__*/', js);
+  sub('/*__APP__*/', `${await chartDrawBundle()}\n${js}`);
   sub('"__DATA__"', JSON.stringify(data).replace(/</g, '\\u003c'));
   sub('__WORLD_URI__', uri('world.webp', 'image/webp'));
   sub('__PAPER_URI__', uri('paper.jpg', 'image/jpeg'));
@@ -137,6 +149,14 @@ if (!reportRoad(checkRoad(canonLegs(), { reach: 6, stated: true }), 'the route r
   console.error('the build stops: the Lamp Road in canon.mjs breaks the route rule');
   process.exit(1);
 }
+// the game export (docs/loop/M1.md §3.7): the shipped sheets' crops and live data into src/chart-art.js, and nothing else
+if (args.has('--game')) {
+  const { gameExport } = await import('./game.mjs');
+  const res = await gameExport({ chromium, args, log });
+  log(`done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+  if (!res.ok) { console.error('the game export stops: ' + (res.error || 'a check failed')); process.exit(1); }
+  process.exit(failures.length ? 1 : 0);
+}
 if (!args.has('--page') || !fs.existsSync(path.join(cacheDir, 'data.json'))) await bake();
 // and then on the road as the chart draws it (the meandered rivers, the finished coast): no page is written
 // for a drawn road that breaks the rule
@@ -148,7 +168,7 @@ if (!args.has('--page') || !fs.existsSync(path.join(cacheDir, 'data.json'))) awa
   }
 }
 if (!args.has('--bake-only')) {
-  assemble();
+  await assemble();
   if (!args.has('--no-shots')) await renderShots(chromium, outDir, log);
 }
 log(`done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);

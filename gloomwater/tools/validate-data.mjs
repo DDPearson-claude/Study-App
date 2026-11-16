@@ -316,9 +316,14 @@ if (process.argv.includes('--loop')) {
   ok4(L4.wickSlots(H.max, 'tallow') === 9 && L4.wickSlots(H.max, 'wick') === 8 && L4.loopSlots({ holdSlots: 3 }, 'tallow') === 4, 'Tallow: 4 slots at the start, 9 at Hold 8; every other Wick 3 to 8');
   ok4(W.ashwick.passive === 'burns_back' && Number.isInteger(W.ashwick.hold) && inR(W.ashwick.hold, 2, 4) && W.ashwick.hold <= (L4.CATCH_V3.buffs.runCap ?? L4.CATCH_V3.buffs.cap), `Ashwick: hold 2–4, inside the run cap (${W.ashwick.hold})`);
   ok4(same(L4.CATCH_V3.buffs.wicks.ashwick, { hold: W.ashwick.hold }) && !('tallow' in L4.CATCH_V3.buffs.wicks), "the apply block: Ashwick's tired comeback {hold} with no `on`; no Tallow buff");
-  // the Wicks' words (guard 12): one line each, ≤ 8 words and ≤ 36 characters; the first Chart's line per Wick
+  // the Wicks' words (guard 12): one name and one line each (the user, 16 November 2026: "more obvious what it does": WICKS §7.4),
+  // the line ≤ 8 words and ≤ 36 characters (one row of SPEC §8.10's budget), the name one or two words; the first Chart's line per Wick
   ok4(same(Object.keys(TL.wicks).sort(), W.order.slice().sort()), 'TEXT_LOOP.wicks has one line per Wick');
   for (const [id, line] of Object.entries(TL.wicks)) ok4(typeof line === 'string' && line.trim().split(/\s+/).length <= 8 && line.length <= 36, `TEXT_LOOP.wicks.${id}: ≤ 8 words and ≤ 36 characters ("${line}")`);
+  ok4(same(Object.keys(TL.passives || {}).sort(), W.order.slice().sort()), 'TEXT_LOOP.passives has one name per Wick');
+  { const P = TL.passives || {}, names = W.order.map((id) => P[id]);
+    ok4(names.every((x) => typeof x === 'string' && /^[A-Z][a-z]+(?:[ -][A-Z][a-z]+)?$/.test(x) && x.length <= 16) && new Set(names).size === 5, `TEXT_LOOP.passives: five different names of one or two words, ≤ 16 characters (${names.join(', ')})`);
+    ok4(W.order.every((id) => (P[id] || '').toLowerCase().replace(/[ -]/g, '_') === W[id].passive), 'TEXT_LOOP.passives: each Wick\'s name is its passive\'s (WICKS §2: curious → Curious, broad_back → Broad Back)'); }
   ok4(Object.keys(TL.murk.firstChartBy || {}).every((id) => W.order.includes(id) && typeof TL.murk.firstChartBy[id] === 'string'), 'TEXT_LOOP.murk.firstChartBy keys are Wick ids');
   ok4(L4.INTRO.text[2] === TL.introLine3 && L4.INTRO.cove.text[2] === TL.introLine3, "the film's line 3 under the loop is TEXT_LOOP.introLine3 (LORE §12)");
   { const I = L4.INTRO, l = I.lines[2], cps = I.text[2].length / Math.max(0.01, l.out - l.at - I.lineFade), below = I.beats.find((b) => b.id === 'below');
@@ -356,6 +361,26 @@ if (process.argv.includes('--loop')) {
   ok4(['arrive', 'out', 'chartWait', 'slotInk', 'castTipAfter', 'outDist'].every((k) => num4(T[k]) && T[k] > 0), 'LOOP.tutorial: every time and distance positive');
   ok4(T.budget.tapThrough <= T.budget.reference && T.budget.reference <= T.budget.max && sum <= T.budget.max, `T72: the tutorial's budget: ${sum.toFixed(2)} s ≤ ${T.budget.max} s (reference ≤ ${T.budget.reference}, tap-through ≤ ${T.budget.tapThrough})`);
   if (!(sum <= T.budget.reference + 0.5)) warns.push(`the tutorial's no-tap time ${sum.toFixed(2)} s is past its ${T.budget.reference} s reference`);
+  // M1 step 3b (M1.md §3.7): the drawn Chart's art. src/chart-art.js holds exactly the shipped waters' sheets (LOOP.shipped; with
+  // none set, the waters LOOP.waters holds), every place a sheet names exists in LOOP.places, and nothing of an unshipped water
+  // (its name, a never-charted name) is in it
+  {
+    const { CHART_ART: CA } = await import('../src/chart-art.js');
+    const ord = (id) => Number(LP.waters?.[id]?.order) || 0;
+    const sh = LP.shipped;
+    const shipped = Object.keys(LP.waters || {}).filter((id) => ord(id) > 0 && (typeof sh === 'string' ? ord(id) <= ord(sh) : Array.isArray(sh) ? sh.includes(id) : true)).sort((a, b) => ord(a) - ord(b));
+    const art = Array.isArray(CA?.sheets) ? CA.sheets : [];
+    ok4(same(art.map((q) => q.water), shipped), `chart-art.js: its sheets are exactly the shipped waters' (${art.map((q) => q.water).join(', ')} against ${shipped.join(', ')})`);
+    ok4(art.every((q) => q.n === ord(q.water) && Array.isArray(q.box) && q.box.length === 4 && typeof q.uri === 'string' && q.uri.startsWith('data:image/webp;base64,') && /^[0-9a-f]{8}$/.test(q.hash)), 'chart-art.js: each sheet is its water\'s (n = LOOP.waters order), a box, a WebP crop and its decoded pixels\' hash');
+    const LPL = LP.places, placeIds = new Set(Array.isArray(LPL) ? LPL.map((q) => q?.id) : LPL && typeof LPL === 'object' ? Object.keys(LPL) : []);
+    const named = art.flatMap((q) => Array.isArray(q.places) ? q.places : []).concat(Array.isArray(CA?.live?.places) ? CA.live.places : []);
+    ok4(named.every((id) => placeIds.has(typeof id === 'string' ? id : id?.id)), `chart-art.js: every place on a sheet exists in LOOP.places (${named.length} named)`);
+    const text = JSON.stringify(CA?.live || {});
+    const later = L4.ZONES.filter((z) => !shipped.includes(z.id)).map((z) => z.name.replace(/^The /, ''));
+    ok4(![...later, 'Eastern Downs', 'Morning Gulf', 'Morning Isle', 'Low Horn'].some((nm) => text.includes(nm)), 'chart-art.js: no name of an unshipped water, and none of WORLD §10\'s never list');
+    ok4((CA?.live?.waters || []).every((w) => shipped.includes(w.water)) && (CA?.live?.pieces || []).every((pc) => pc.leg <= Math.max(...art.map((q) => q.n))), 'chart-art.js: no lamp, vignette or road leg of an unshipped sheet');
+    ok4(typeof TL.comingSoon === 'string' && TL.comingSoon === 'Coming soon', 'TEXT_LOOP.comingSoon: "Coming soon" (SPEC §5.4)');
+  }
   for (const w of warns) console.log('  warn:', w);
   if (errs.length) {
     for (const e of errs.slice(0, 80)) console.log('  FAIL:', e);

@@ -487,3 +487,71 @@ export function modeVignette(id) {
     <circle cx="116.4" cy="49.6" r="1.6" fill="#e05a48"/>
     ${waterLines()}`, 'gw-vig-first');
 }
+
+// ---------------------------------------------------------------- the Wicks' passives (New Descent under the loop, WICKS.md §2)
+// One small ink picture a passive, so what it does reads at a glance before Start (the user, 16 November 2026: "Could they be
+// accompanied with a small image indicating what they do?"). Drawn on a 64×64 grid in the hand of the vignettes above: pale ink in
+// currentColor, pen strokes that swell and taper, a faint wash in the bodies, and one candle-amber accent each (the Starlit
+// palette's candle, var(--amber)): the Wick's clam and new-kind star, Taper's spark over a rarer fish, Stub's moth at a biting
+// float, Tallow's one more fish in the creel, Ashwick's ember way back. Keyed by the Wick's id; never a passive's code id.
+const PI_WARM = ' style="color:var(--amber, #ed9e3b)"';
+const SK = (d, w = 2.2, o = 1) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${o < 1 ? ` stroke-opacity="${o}"` : ''}/>`;
+/** One of the 24-grid glyphs above (ICONS), placed at (x, y) (its top-left) and scaled by s; the stroke kept at w grid units. */
+const glyphAt = (name, x, y, s, { w = 2.2, rot = 0 } = {}) => `<g transform="translate(${x} ${y})${rot ? ` rotate(${rot} ${12 * s} ${12 * s})` : ''} scale(${s})" fill="none" stroke="currentColor" stroke-width="${r2(w / s)}" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</g>`;
+/** A fish in profile, nose to the right, about 37 units long, centred at (x, y); s scales it, flip turns it to face left. */
+function inkFish(x, y, { s = 1, flip = false, rot = 0, w = 2.2, wash = 0.2 } = {}) {
+  const k = r2(w / s);
+  const body = 'M-12 0C-6-8.4 6-10 14-4.2C15.9-2.8 17.4-1.3 18 0C17.4 1.3 15.9 2.8 14 4.2C6 9.6-6 8.4-12 0Z';
+  const tail = 'M-12 0C-14.6-3.2-16.8-6-19.2-8.2C-18-3-18 3-19.2 8.2C-16.8 6-14.6 3.2-12 0Z';
+  const shape = (d) => `<path d="${d}" fill="currentColor" fill-opacity="${wash}" stroke="currentColor" stroke-width="${k}" stroke-linejoin="round"/>`;
+  return `<g transform="translate(${x} ${y})${rot ? ` rotate(${rot})` : ''} scale(${flip ? -s : s} ${s})">${shape(body)}${shape(tail)}`
+    + SK('M-3.6-7.2C-.8-12.4 4.4-12.6 7-7.6', r2(k * 0.85)) + SK('M-1.6 6.6C0 9.8 2.8 9.8 4 7.2', r2(k * 0.7), 0.75)
+    + SK('M9.8-4.6C8.4-1.6 8.4 1.6 9.8 4.6', r2(k * 0.6), 0.55) + `<circle cx="13.6" cy="-1.3" r="1.4" fill="currentColor"/></g>`;
+}
+/** The clam of the prices (ICONS.clam's two valves, seam and hinge), drawn a little wider and washed, centred at (x, y). */
+const inkClam = (x, y, s = 1.08) => `<g transform="translate(${x} ${y}) scale(${r2(s * 1.22)} ${s}) translate(-12 -12.3)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="${r2(2 / s)}">`
+  + '<path d="M3.4 12.6C4 8 7.6 5.3 12 5.3s8 2.7 8.6 7.3c-.6 4.1-4 6.7-8.6 6.7s-8-2.6-8.6-6.7z" fill="currentColor" fill-opacity=".28"/>'
+  + '<path d="M3.6 12.7c3 1.9 13.8 1.9 16.8 0M9.9 5.6c.5-1.5 3.7-1.5 4.2 0" fill="none"/></g>';
+/** A filled five-point star (the card's mark for a first). */
+const star5 = (cx, cy, R, r = R * 0.45) => `<path d="M${Array.from({ length: 10 }, (_, i) => { const a = -Math.PI / 2 + (i * Math.PI) / 5, q = i % 2 ? r : R; return `${r2(cx + q * Math.cos(a))} ${r2(cy + q * Math.sin(a))}`; }).join('L')}Z" fill="currentColor"/>`;
+/** A four-point spark with drawn-in sides. */
+const spark4 = (cx, cy, R) => { const q = R * 0.2; return `<path d="M${cx} ${r2(cy - R)}Q${r2(cx + q)} ${r2(cy - q)} ${r2(cx + R)} ${cy}Q${r2(cx + q)} ${r2(cy + q)} ${cx} ${r2(cy + R)}Q${r2(cx - q)} ${r2(cy + q)} ${r2(cx - R)} ${cy}Q${r2(cx - q)} ${r2(cy - q)} ${cx} ${r2(cy - R)}Z" fill="currentColor"/>`; };
+/** A fish's tail standing up out of a creel: its wrist rooted at (x, y), the two lobes spread above it; tilt in degrees. */
+const TAIL = 'M-2.2 0C-2 -2.6 -1.6 -4.6 -1.5 -6.4C-5.4 -7.6 -8 -10.8 -8.2 -15.2C-5.6 -13.2 -2.8 -12 0 -11.8C2.8 -12 5.6 -13.2 8.2 -15.2C8 -10.8 5.4 -7.6 1.5 -6.4C1.6 -4.6 2 -2.6 2.2 0';
+const tailUp = (x, y, { w = 1.7, tilt = 0 } = {}) => `<path transform="translate(${x} ${y})${tilt ? ` rotate(${tilt})` : ''}" d="${TAIL}" fill="currentColor" fill-opacity=".5" stroke="currentColor" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+const pondLines = (y) => BP(`M4 ${y} C20 ${y - 1} 44 ${y - 1} 60 ${y}`, { w: 2, min: 0.3 })
+  + BP(`M12 ${y + 6} C26 ${y + 5.4} 40 ${y + 5.4} 54 ${y + 6}`, { w: 1.4, min: 0.2 }, ' fill-opacity=".6"')
+  + BP(`M22 ${y + 11.4} C32 ${y + 11} 42 ${y + 11} 48 ${y + 11.6}`, { w: 1, min: 0.15 }, ' fill-opacity=".4"');
+const PASSIVE_ART = {
+  // the Wick, Curious: a new kind (the star the card stamps on a first) goes up to Murk for more clams (the arrow rising to the clam)
+  wick: () => inkFish(23, 45, { s: 1.06 })
+    + `<g${PI_WARM}>${star5(20.4, 45.2, 4.8)}${BP('M43 41.6 C47.4 39.4 49.8 35.2 50.2 29.6', { w: 2.8, min: 0.7, peak: 0.85 })}`
+    + `${SK('M46.3 32.8L50.2 28.6L54.1 32.9', 2.3)}${inkClam(50.4, 15.4)}</g>`,
+  // Taper, Long Reach: the evening (the crescent) opens on a rarer fish, rising out of the water under a spark
+  taper: () => `${crescent(13, 12.5, 6.6, 'currentColor', 0.8)}${pondLines(39)}`
+    + inkFish(31, 29.5, { s: 0.98, rot: -32 })
+    + `${BP('M9.4 36.4 C10.2 33.6 11.8 32.2 13.8 32.4', { w: 1.6, min: 0.3 }, ' fill-opacity=".7"')}${BP('M20.4 34.6 C21.6 32.8 23.4 32.4 24.8 33.4', { w: 1.4, min: 0.3 }, ' fill-opacity=".6"')}`
+    + `<g${PI_WARM}>${spark4(51.5, 11.5, 7)}${spark4(58.4, 21.6, 3.4)}</g>`,
+  // Stub, Moth-Bright: the float already tugged under (a bite, soon), ripples round it, and a moth come to the light
+  stub: () => `${pondLines(42)}`
+    + `<g transform="translate(26 43) rotate(16) scale(1.3) translate(-26 -42)">${SK('M18.4 42C18.4 35.6 21.8 32 26 32S33.6 35.6 33.6 42', 2.4)}${SK('M19 38.4H33', 1.4, 0.5)}${SK('M26 32V21.4', 2.1)}${SK('M23.8 21.6H28.2', 2)}`
+    + `${SK('M18.4 42C18.4 47.6 21.8 50.8 26 50.8S33.6 47.6 33.6 42', 1.8, 0.32)}</g>`
+    + `${BP('M7 45.2 C12 50.6 39.6 50.6 47 45.2', { w: 2, min: 0.3 }, ' fill-opacity=".75"')}`
+    + SK('M7.4 19.6L11.6 24.2M17.4 10.6L18.8 16.8M29.6 9.8L28.6 16', 2.4, 0.9)
+    + `<g${PI_WARM}>${glyphAt('moth', 38.8, 1.4, 1.06, { rot: 14, w: 2.1 })}</g>`,
+  // Tallow, Broad Back: a creel that takes one more fish than anyone's (the fourth tail warm, and the plus)
+  tallow: () => `<path d="M9 33L55 33L51.2 57H12.8Z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>`
+    + SK('M10.4 41.2C24 43.2 40 43.2 53.6 41.2M11.6 49.2C24.4 51.2 39.6 51.2 52.4 49.2', 1.5, 0.55) + SK('M20.6 33L22 57M32 33V57M43.4 33L42 57', 1.3, 0.38) + SK('M7 33H57', 2.8)
+    + tailUp(15, 33, { tilt: -16 }) + tailUp(25.4, 33, { tilt: -5 }) + tailUp(36, 33, { tilt: 6 })
+    + `<g${PI_WARM}>${tailUp(47, 33, { w: 1.9, tilt: 17 })}${SK('M56.6 5.4V16.6M51 11H62.2', 2.6)}</g>`,
+  // Ashwick, Burns Back: the fish that got away, coming back the way it went, on an ember's warm curl
+  ashwick: () => inkFish(25, 44, { s: 0.98, flip: true })
+    + `<g${PI_WARM}>${BP('M50.4 47 C60.4 40 60.4 21.6 46.4 16.8 C36.6 13.6 24.6 15.4 16.4 22.2', { w: 3.2, min: 0.5, peak: 0.85 })}`
+    + `${SK('M14.6 15.4L14.2 23.6L22.4 25.2', 2.4)}<circle cx="53.6" cy="51" r="1.7" fill="currentColor"/><circle cx="58.2" cy="47.4" r="1.25" fill="currentColor" fill-opacity=".8"/>`
+    + `<circle cx="56.8" cy="53.8" r="0.95" fill="currentColor" fill-opacity=".6"/></g>`,
+};
+/** The small ink picture of a Wick's passive (New Descent under the loop): inline SVG markup, '' for an unknown id. */
+export function passiveIcon(id, { cls = '' } = {}) {
+  const art = PASSIVE_ART[id];
+  return art ? `<svg class="gw-pico${cls ? ` ${cls}` : ''}" viewBox="0 0 64 64" aria-hidden="true" focusable="false">${art()}</svg>` : '';
+}

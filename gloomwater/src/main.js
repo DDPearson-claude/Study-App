@@ -1156,6 +1156,9 @@ if (LOOP_ON && DEBUG) {
       return { ...p, due: peek(() => loopApi()?.liftDue?.(), []), lifting: loopHome?.lifting() ?? null, lift: loopHome?.liftState?.() ?? null,
         banks: peek(() => ctx.debug.world?.places?.()) ?? peek(() => ctx.world.places?.()) ?? null };
     },
+    /** the drawn Chart (M1 step 3b): chart() its state · chart('fixture', state | places) the M1 §2.4 places drawn before step 3a
+     *  ships them · chart('layout') the last layout and its targets · chart('clear') */
+    chart: (cmd, arg) => safe(() => ctx.ui?.loop?.chartDebug?.(cmd, arg), null),
   };
 }
 /** debug: a place id, or 'all' (the Mossmere's places in the Chart's order), as the ids LOOP.places holds. */

@@ -7,7 +7,7 @@
 // light (the clam's gold, the Jetty's lamp) in a cold world. Nothing is ever drawn in world space, and never round the raft.
 //
 // Pure exports (node: tools/tests/ui-loop.test.mjs): slotCells · tallyPlan · goalLine · shelfCards · murkLineFor · clamTag ·
-// pillHold · chartModel · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
+// pillHold · chartModel · chartNext · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
 // settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg
 // M1 step 3a (PLAN §2.3; node: ui-loop.test.mjs, ui-catalogue.test.mjs): chartNext · chartPlacesOf · chartRows · baitSlotModel ·
 // mapArtSizes · MAP_ART · catalogueView · giantsView · liftTitle · saleLineId. The view adds renderChartList, baitSlot and
@@ -17,6 +17,7 @@ import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './u
 import { drawFishInk } from './ui-fishart.js';
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
+import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 
 export { murkLineFor };
@@ -300,16 +301,17 @@ export function titleModel({ fresh = false, replay = false, D = null } = {}) {
   return { fresh: false, primary: TL.continue || 'Continue', words, prologue: !!replay };
 }
 
-/** New Descent under the loop (SPEC §8.5, PLAN CHOICEs 29, 42): the five Wicks in LOOP.wicks order, the lit Wick's one line, Back,
- *  Start. {cards: [{id, name, look}], sel, line, words}. */
+/** New Descent under the loop (SPEC §8.5, PLAN CHOICEs 29, 42): the five Wicks in LOOP.wicks order, the lit Wick's passive (its
+ *  picture, its name and its one line: the user's "more obvious what it does", 16 November 2026), Back, Start.
+ *  {cards: [{id, name, look}], sel, passive, line, words}. */
 export function descentModel(D, sel = 'wick') {
   const order = arr(D?.LOOP?.wicks?.order).length ? D.LOOP.wicks.order : ['wick', 'taper', 'stub', 'tallow', 'ashwick'];
   const by = (id) => D?.CHARACTER_BY_ID?.[id] || arr(D?.CHARACTERS).find((c) => c?.id === id) || null;
   const s = order.includes(sel) ? sel : order[0];
   const cards = order.map((id) => ({ id, name: by(id)?.name || id, look: by(id)?.look || {} }));
   const TL = T_(D);
-  const line = TL.wicks?.[s] || '';
-  return { cards, sel: s, line, words: [...cards.map((c) => c.name), line, TL.back || 'Back', TL.start || 'Start'] };
+  const passive = TL.passives?.[s] || '', line = TL.wicks?.[s] || '';
+  return { cards, sel: s, passive, line, words: [...cards.map((c) => c.name), ...(passive ? [passive] : []), line, TL.back || 'Back', TL.start || 'Start'] };
 }
 
 /** The catch card's foot on a trip (SPEC §8.2, PLAN §2.3 item 5, T54): exactly Keep (key 1, primary; its clams; dimmed with no
@@ -598,6 +600,13 @@ export function createLoopView(K) {
   const tut = createLoopTutorial({ bus: ctx.bus, loop, data: D, now: () => (typeof performance !== 'undefined' ? performance.now() / 1000 : 0) });
   const reducedMotion = () => K.settings?.().reducedMotion === true || (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
   K.root.classList.add('gw-loop-on');
+  // the drawn Chart (M1 step 3b): its art decoded once in idle time after the title is up, with the chart's faces; until then, or
+  // if it cannot decode, the Chart is 1a's list
+  const chart = createChartView({ K, ctx, D, h, report: (w, e) => report(w, e) });
+  try {
+    const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
+    setTimeout(() => idle(() => { chart.prepare(); }), 400);
+  } catch (e) { report('chart.prepare', e); }
 
   // ------------------------------------------------------------------ the HUD on the water: the hold row and the Home pill
   const hudEl = K.layers.hud;
@@ -1134,8 +1143,22 @@ export function createLoopView(K) {
   function renderChart(entry, body) {
     const { panel = null, btn = null } = parts();
     if (!panel || !btn) return;
-    const model = chartModelNow();
-    // (M1 step 3b's drawn branch sits here, read only while !chartListForced; then placeBaitSlot(body, model, entry) after it)
+    const s = entry.state, c = tut.cue(), model = chartModelNow(), line = c.line;
+    // the drawn Chart (M1 step 3b), once its art is decoded and the list is not forced (ctx.debug.ui.chartList); the list below is the
+    // fallback where the drawing cannot load. The bait slot is this view's own piece, put before Sail in the drawn foot (PLAN §2.3 item 2)
+    if (!chartListForced && chart.ready()) {
+      const ink = !s.inked && !reducedMotion();
+      s.inked = true;
+      const sail = sailButton(s, c, () => chart.pick() || { water: model.pick.water || 'mossmere', place: model.pick.place ?? null });
+      chart.render(entry, body, model, {
+        panel, btn, line, sail, reduced: reducedMotion(), slotsInk: ink, slotStep: num(D().LOOP?.tutorial?.slotInk, 0.25),
+        onBuy: (place) => openShelf({ tab: 'maps', focus: place }),
+        onCatalogue: (water) => K.screens?.openJournal?.({ from: 'chart', zone: water }),
+        onSealed: (water, next) => chart.openSealed(next, { panel, onGear: () => openShelf({ tab: 'tackle', focus: next?.seals?.gear?.item || 'rod:1' }), onCatch: () => K.screens?.openJournal?.({ from: 'chart', zone: model.pick.water || 'mossmere' }) }),
+      });
+      placeBaitSlot(body, model, entry);
+      return;
+    }
     renderChartList(entry, body, model);
   }
   /** The chosen water and place on this open (M1.md §3.4): the model's (the saved pick, or open water) until a row is tapped. */
@@ -1164,7 +1187,6 @@ export function createLoopView(K) {
     const pick = chartPickOf(entry, model);
     const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}${tutorial ? '' : ' gw-p-chart--3a'}` });
     pn.dataset.loop = 'chart';
-    const line = c.line;
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart"></div>`;
     if (line) content.querySelector('.gw-murk-line').textContent = line;
     const list = content.querySelector('.gw-chart');
@@ -1422,6 +1444,8 @@ export function createLoopView(K) {
     renderChartList, baitSlot, placeBaitSlot, sealRow,
     /** debug builds (ctx.debug.ui.chartList): draw the list even when 3b's drawn Chart is ready (T134, T149's list runs) */
     chartList: (on) => { if (on !== undefined) { chartListForced = on === true; if (K.has('chart')) K.entry('chart')?.render(); } return chartListForced; },
+    /** the drawn Chart (M1 step 3b): its readout and, in debug builds, its fixture (main's ctx.debug.loop.chart) */
+    chart, chartDebug: (cmd, arg) => chart.debug(cmd, arg),
     /** the tutorial's machine (its state, step and cue(): PLAN §3.6) */
     tutorial: tut,
     pill, holdRow,

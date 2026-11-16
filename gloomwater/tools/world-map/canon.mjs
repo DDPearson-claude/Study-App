@@ -581,7 +581,7 @@ export const LABELS = [
 
 // ---- small drawn things at their true places: the kingdom's works and ruins (WORLD.md §8). g names a
 // glyph in the bake. The one landmark vignette of each water (WORLD.md §10) is not here: the page draws
-// those live, so they stay legible at the whole-world view (page/app.js VIGNETTES).
+// those live, so they stay legible at the whole-world view (src/chart-draw.js VIGNETTES, shared with the game).
 export const LANDMARKS = [
   { g: 'wall', pts: [[522, 199], [546, 203], [566, 204.5], [586, 198], [594, 197.5]], s: 1 },
   { g: 'wall', pts: [[607, 197.5], [616, 198], [638, 204], [662, 198], [688, 192]], s: 1 },
