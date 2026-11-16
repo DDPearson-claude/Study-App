@@ -45,7 +45,7 @@ export const POSE_B = {
   lily_maze: { pos: [-28, 5.5, 34], look: [-41, 0.2, 23.5], fov: 50 },
   under_the_span: { pos: [-22, 4.2, -9], look: [-31, 1.8, 1.5], fov: 52 },
   buoy_lights: { pos: [-41, 4.5, -18], look: [-48, 0.2, -1], fov: 52 },
-  bell_pool: { pos: [3, 5.5, -6], look: [-4.5, 0, -14.5], fov: 50 },
+  bell_pool: { pos: [3.5, 6.2, -12.5], look: [-3.4, 0, -17.2], fov: 50 },   // (on its drowned bell, which lies in the pool's north half: the fix pass)
 };
 /** Sheet 4's poses: the same four poses with LOOP.redress off and on. */
 export const REDRESS_POSES = [
@@ -127,7 +127,8 @@ export default async function (api) {
       }
       K.step('sheet 1: the cast into a bank (lane B\'s mist cast)');
       await K.places.unlift();
-      await K.places.light('dusk', 0.5); await K.places.at('bell_pool', { back: 2.5 }); await settle(2);
+      // (a clear gap of water between the raft and the bank's feathered edge, so the float lands inside the mist: the fix pass)
+      await K.places.light('dusk', 0.5); await K.places.at('bell_pool', { back: 4 }); await settle(2);
       // (a forced cast from just outside the bank lands in it: lane B's mist cast sinks the float into the bank and brings it back)
       const ev0 = await K.evCount();
       await g(() => { const d = window.__gw.debug; try { window.__gw.fishing.cancel?.('debug'); d.forceBite?.({ wait: 2 }); } catch { /* optional */ } });
@@ -144,8 +145,12 @@ export default async function (api) {
     if (sheets.includes('redress') || (sheets.includes('places') && !redress && !args.noredress)) {
       K.step(`sheet 4: the harbour ${redress ? 're-dressed' : 'today'}`);
       await K.places.lift('all', { play: false });   // (the harbour, not the mist: every place lifted on both sides)
+      // (both halves at the same moment: no Murk line on either; the re-dressed run, shot straight after its sail out, waited for none and
+      // caught his sail-out line on the phone: the fix pass)
+      await K.until("!document.querySelector('.gw-toast--murk.gw-in')", 12);
       for (const light of ['dusk', 'gloomtide']) {
         await K.places.light(light, 0.45); await K.places.pose(-6, 30, 0); await settle(3);
+        await g(() => { for (const el of document.querySelectorAll('.gw-toast--murk')) { el.classList.remove('gw-in'); el.classList.add('gw-out'); } });
         for (const p of REDRESS_POSES) {
           await K.places.camera({ pos: p.pos, look: p.look, fov: p.fov }); await settle(0.5);
           await frame('redress', `${p.what}-${light}-${redress ? 'on' : 'off'}`, `${p.note}, ${light}, ${redress ? 're-dressed' : 'today'}`, { side: redress ? 'right' : 'left', light });
@@ -179,11 +184,45 @@ export default async function (api) {
       }
     }
     if (sheets.includes('catalogue')) {
-      K.step('sheet 3: the catalogue (lane C\'s screens)');
-      const opened = await g(() => { const s = window.__gw.ui?.screens ?? window.__gw.screens; try { (s?.openJournal ?? window.__gw.ui?.openJournal)?.({ from: 'chart', zone: 'mossmere' }); return true; } catch { return false; } });
-      await K.secs(0.5); await K.settle(400);
-      if (opened) await frame('catalogue', 'page', 'the Mossmere\'s catalogue');
-      await g(() => window.__gw.ui.closeAll?.());
+      K.step('sheet 3: the catalogue (lane C\'s screens), two saves, scrolled, the giants\' page, an enlarged silhouette');
+      // (the fix pass: the sheet showed only the unscrolled head; the places' groups, the giants' gold edges, the Matriarch's gold card,
+      // Odds ›, the giants' page and the enlarged silhouette are 3a's and were never looked at)
+      const open = () => g(() => { const s = window.__gw.ui?.screens ?? window.__gw.screens; try { (s?.openJournal ?? window.__gw.ui?.openJournal)?.({ from: 'chart', zone: 'mossmere' }); return true; } catch { return false; } });
+      const scrollTo = (f) => g((f) => { const sc = document.querySelector('[data-loop=catalogue] .gw-cat-scroll'); if (!sc) return null; sc.scrollTop = (sc.scrollHeight - sc.clientHeight) * f; return Math.round(sc.scrollTop); }, f);
+      const saved = await g(() => { const m = window.__gw.state.meta; return JSON.stringify({ places: m.loop?.maps?.places ?? [], journal: m.journal ?? {} }); });
+      for (const variant of ['bare', 'owned']) {
+        await g(([variant, saved]) => {
+          const m = window.__gw.state.meta, S0 = JSON.parse(saved);
+          m.loop.maps = m.loop.maps || {};
+          const J = JSON.parse(JSON.stringify(S0.journal));
+          if (variant === 'bare') {
+            m.loop.maps.places = [];
+            for (const id of ['thousandcast_pike', 'hullkiss_lamprey', 'belled_matriarch', 'bridgechain_sturgeon', 'candlefin_koi', 'weeping_carp', 'gloam_eel']) delete J[id];
+          } else {
+            m.loop.maps.places = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
+            for (const [id, len, w] of [['thousandcast_pike', 120, 4.5], ['belled_matriarch', 130, 127], ['bridgechain_sturgeon', 90, 9], ['candlefin_koi', 51, 4]]) J[id] = { ...(J[id] || {}), caught: Math.max(1, J[id]?.caught | 0), biggest: w, pbLength: len, seals: { prize: true, ...(J[id]?.seals || {}) } };
+          }
+          m.journal = J;
+        }, [variant, saved]);
+        if (!(await open())) { K.note('no catalogue'); break; }
+        await K.secs(0.5); await K.settle(400);
+        await frame('catalogue', `${variant}-top`, `the Mossmere's catalogue (${variant === 'bare' ? 'no place owned, no giant caught' : 'every place owned, a giant and the Matriarch caught'}): its head and the list`);
+        await scrollTo(0.5); await K.steps(1); await K.settle(250);
+        await frame('catalogue', `${variant}-mid`, `the catalogue scrolled to its middle (${variant}): the fixed head clear of the list`);
+        await scrollTo(1); await K.steps(1); await K.settle(250);
+        await frame('catalogue', `${variant}-end`, `the catalogue's end (${variant}): the places' groups, the giants' gold edges, the Matriarch's card, Odds ›`);
+        const tab = await g(() => { const t = document.querySelector('[data-loop=catalogue] .gw-tab--giants'); if (t) { t.click(); return true; } return false; });
+        if (tab) { await K.steps(2); await K.settle(350); await frame('catalogue', `${variant}-giants`, `the giants' page (${variant}): hatched until landed, then gold-framed`); }
+        await g(() => window.__gw.ui.closeAll?.()); await K.steps(1);
+        if (variant === 'bare') {
+          await open(); await K.secs(0.4); await K.settle(300);
+          const big = await g(() => { const c = [...document.querySelectorAll('[data-loop=catalogue] .gw-cat-card.gw-hatched[data-species]')].find((e) => /thousandcast|hullkiss|belled/.test(e.dataset.species)) || document.querySelector('[data-loop=catalogue] .gw-cat-card.gw-hatched[data-species]'); if (!c) return null; c.scrollIntoView({ block: 'center' }); c.click(); return c.dataset.species; });
+          await K.steps(2); await K.settle(350);
+          if (big) await frame('catalogue', 'bare-big', `an uncaught fish enlarged (${big}): its silhouette and glyphs, no word`);
+          await g(() => window.__gw.ui.closeAll?.()); await K.steps(1);
+        }
+      }
+      await g((saved) => { const m = window.__gw.state.meta, S0 = JSON.parse(saved); m.loop.maps.places = S0.places; m.journal = S0.journal; }, saved);
     }
     if (sheets.includes('hud')) {
       K.step('sheet 5: the HUD (the hold row, the title card)');

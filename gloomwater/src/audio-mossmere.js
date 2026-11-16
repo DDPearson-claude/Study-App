@@ -37,9 +37,12 @@ export const BED_LAYERS = Object.freeze({
   tone2: { src: 'osc', type: 'sine', f: 82.4, ft: 'lowpass', ff: 220, q: 0.6, vib: 0.3 },                    // and its fifth (E2)
 });
 /** Each layer's gain by light (the master and the SFX bus come after: these sit under the built water bed, 0.022 … 0.11). */
+// (the fix pass: late day and dusk sat 16–19 dB under night, the place's own sound all but silent for the first minute of every trip,
+// the lift's included; they now sit about 5 dB under night, their character kept: day the air and the reeds, dusk thinner with the
+// first low tone under it)
 export const BED_LEVELS = Object.freeze({
-  day:   { air: 0.016, reeds: 0.010, low: 0.000, tone: 0.000, tone2: 0.000 },
-  dusk:  { air: 0.009, reeds: 0.006, low: 0.010, tone: 0.004, tone2: 0.000 },
+  day:   { air: 0.15, reeds: 0.09, low: 0.000, tone: 0.000, tone2: 0.000 },
+  dusk:  { air: 0.1, reeds: 0.06, low: 0.022, tone: 0.009, tone2: 0.000 },
   night: { air: 0.004, reeds: 0.003, low: 0.026, tone: 0.011, tone2: 0.006 },
 });
 /** The bed's gains at a light: {air, reeds, low, tone, tone2} (a fresh object). */

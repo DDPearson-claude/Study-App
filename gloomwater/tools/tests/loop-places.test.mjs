@@ -181,7 +181,7 @@ section('T106: the giants\' land chance (T1, Prize; Elders; their price)');
 section('T107: the Matriarch\'s try (T1, wounds)');
 {
   const p0 = D.catchChance('belled_matriarch', 'legend', T1);
-  ok(p0 >= 0.265 && p0 <= 0.28, `the Matriarch on T1: ${(p0 * 100).toFixed(2)}% (the sim's 27% ± 0.5)`);
+  ok(p0 >= 0.265 && p0 <= 0.275, `the Matriarch on T1: ${(p0 * 100).toFixed(2)}% (the sim's 27% ± 0.5)`);
   const ws = [0, 1, 2, 3, 4, 9].map((w) => D.catchChance('belled_matriarch', 'legend', T1, { wounds: w }));
   ok(ws.every((p, i) => i === 0 || p >= ws[i - 1]) && ws.every((p) => p <= 0.5) && ws[3] === ws[4] && ws[4] === ws[5], 'each escape +6 Hold to +18 (three counted), never above 50%', ws.map((p) => p.toFixed(3)));
   const ml = PL.freshLoop(D);

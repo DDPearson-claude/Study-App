@@ -406,6 +406,15 @@ section('T133: chartModel\'s places and its one next (M1.md §3.8; the signature
   ok(by.under_the_span.marked === false && by.under_the_span.giantLanded === false && by.buoy_lights.giantLanded === true && by.buoy_lights.marked === false && pm.loop.giants.thousandcast_pike.marked === 1, 'giantLanded from meta.loop.giants; the mark kept in the save, never on the Chart');
   ok(by.bell_pool.giantLanded === true && by.bell_pool.wounds === 0 && by.lily_maze.wounds === 0 && pm.legendWounds.belled_matriarch === 2, 'the Bell Pool: its legend landed; her wounds kept in the save, no nick on the Chart');
   eq(L.filter((p) => p.price != null).map((p) => [p.id, p.price]), [['under_the_span', 150], ['buoy_lights', 260]], 'the two cheapest unowned maps priced');
+  // a giant (or the legend) landed and let go: never sold, so the ledger has no sale, but the Journal has it caught (M1 §2.4's ★)
+  {
+    const lg = placesMeta(D, { own: ['under_the_span', 'bell_pool'] });
+    lg.loop.giants = { thousandcast_pike: { landed: 0, marked: 0 } };
+    lg.loop.legends = {};
+    lg.journal = { ...(lg.journal || {}), thousandcast_pike: { caught: 1, pbLength: 140 }, belled_matriarch: { caught: 1, pbLength: 120 } };
+    const G = Object.fromEntries(U.chartModel(lg, D, {}).sheets[0].places.map((p) => [p.id, p]));
+    ok(G.under_the_span.giantLanded === true && G.bell_pool.giantLanded === true && G.buoy_lights.giantLanded === false, 'a giant and the legend landed and let go: their places\' ★ (the Journal\'s caught), the unlanded one none', G);
+  }
   // T109's Chart case: the Chart's non-null prices are exactly mapCards' place cards
   for (const own of [[], ['lily_maze'], ['lily_maze', 'under_the_span'], ['under_the_span', 'buoy_lights'], ['lily_maze', 'under_the_span', 'buoy_lights'], ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']]) {
     const mm = placesMeta(D, { own });
