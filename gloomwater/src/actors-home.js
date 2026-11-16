@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { toonMaterial, addOutline } from './toon.js';
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, smoothNormals } from './models-kit.js';
 import { BARGE_LOCAL, TARGET_BOXES } from './home-targets.js';
+import { findHomeParts, findHomeSig } from './actors-finds.js';   // M1 step 5c (lane 5C): the finds' parts and look on the barge
 
 const clamp = THREE.MathUtils.clamp, damp = THREE.MathUtils.damp;
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
@@ -594,9 +595,11 @@ export function createHome(ctx) {
   /** Rebuild the merged timber and glow for what is owned (V from homeVariants). */
   function setVariants(V) {
     const v = V && typeof V === 'object' ? V : homeVariants(null);
-    if (variant && variant.sig === v.sig) return false;
+    const fsig = findHomeSig(ctx.state?.meta?.loop);   // (M1 step 5c: the finds fitted change the variant too)
+    if (variant && variant.sig === v.sig && variant.fsig === fsig) return false;
     variant = v;
     const parts = variantParts(v, A);
+    v.fsig = fsig; findHomeParts(ctx.state?.meta?.loop, A, parts);   // M1 step 5c: merged into the same timber and glow (no draw call)
     const tg = bakeWarm(mergeGeos([...base.timber.map((g) => g), ...parts.timber]), A, parts.lamps);
     const gg = mergeGeos([...base.glow, ...parts.glow]);
     timber.geometry.dispose(); glow.geometry.dispose();

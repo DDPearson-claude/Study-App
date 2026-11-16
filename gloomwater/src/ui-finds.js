@@ -9,7 +9,7 @@
 //         v) (the catalogue's finds row, ui-screens' renderCataloguePage calls it)
 // Every word is TEXT_LOOP's (the finds' names and lines, Keep, Let go, Snags, "1 bite in N"); rates only on the catalogue's finds row.
 import { icon } from './ui-icons.js';
-import { fmtClams } from './core.js';
+import { fmtClams, debugEnabled } from './core.js';
 import { HATCH } from './ui-fishart.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
@@ -253,6 +253,12 @@ export function createFindsView(K) {
   });
   on('fishing:show', (p) => { if (p.phase === 'card' && pending && (!p.uid || p.uid === pending.entry.uid)) openCard(); });
   on('run:end', () => { pending = null; });
+  // the Rust Buoy-Bell rings once as the raft ties up at dawn, and Murk's hand bell answers (FINDS §5.1, §8)
+  on('home:enter', (p) => {
+    if (p.from !== 'trip' || !(Number(loop()?.finds?.()?.got?.buoy_bell) >= 1)) return;
+    audio('merchant_bell', { volume: 0.5, pitch: 0.62 });
+    setTimeout(() => audio('merchant_bell', { volume: 0.35, pitch: 1.25 }), 1100);
+  });
   on('fishing:state', (p) => { if (p.state === 'casting' && pending && !K.has('catch')) pending = null; });
 
   function openCard() {
@@ -300,6 +306,20 @@ export function createFindsView(K) {
     const keepLabel = v.keep.clams != null ? `${escH(v.keep.label)} <em>${icon('clam')}<b>${escH(v.keep.clamsText)}</b></em>` : `${escH(v.keep.label)} <em>${FIND_GLYPHS[v.keep.glyph] || ''}</em>`;
     foot.appendChild(btn(keepLabel, { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: v.keep.disabled, autofocus: !v.keep.disabled, onClick: () => choose('keep') }));
     foot.appendChild(btn(escH(v.letGo.label), { ...A, key: '2', action: 'letgo', cls: 'gw-cc-act gw-cc-letgo', autofocus: v.keep.disabled, onClick: () => choose('letgo') }));
+  }
+  // debug builds only (the scenarios): ctx.debug.finds = {force(id, opts), give(ids), take(ids), state(), keep(), letgo(), catalogue()}
+  if (debugEnabled()) {
+    ctx.debug = ctx.debug || {};
+    ctx.debug.finds = {
+      force: (id, o = { wait: 1.2 }) => ctx.debug.forceFind?.(id, o) ?? false,
+      /** own these finds (fitted or worn), as a tally would have counted them; saved */
+      give: (ids = []) => { const L = loop()?.state?.(); if (!L) return null; L.finds = L.finds || { got: {}, worn: {}, share: {} }; for (const id of [].concat(ids)) L.finds.got[id] = Math.max(1, Number(L.finds.got[id]) || 0); try { ctx.game?.save?.(); } catch { /* ignore */ } return { ...L.finds.got }; },
+      take: (ids = []) => { const L = loop()?.state?.(); if (!L?.finds) return null; for (const id of [].concat(ids)) delete L.finds.got[id]; return { ...L.finds.got }; },
+      state: () => ({ pending: pending ? { ...pending.entry } : null, card: K.has('catch') ? (K.entry('catch')?.state?.entry?.find ?? 'fish') : null, finds: loop()?.finds?.() ?? null,
+        hold: (ctx.state?.run?.creel || []).map((f) => f?.find || f?.speciesId), shares: loop()?.findShares?.() ?? null }),
+      keep: () => choose('keep'), letgo: () => choose('letgo'),
+      catalogue: () => { try { return K.screens?.openJournal?.({ zone: 'mossmere' }) ?? ctx.ui?.openJournal?.({ zone: 'mossmere' }); } catch (e) { report('catalogue', e); return false; } },
+    };
   }
   return {
     update() {

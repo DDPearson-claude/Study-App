@@ -33,6 +33,7 @@ import { createRaft, DECK_Y } from './actors-raft.js';
 import { createWick, ONE_SHOT } from './actors-wick.js';
 import { createMerchant } from './actors-merchant.js';
 import { createHome } from './actors-home.js';
+import { createFindLooks } from './actors-finds.js';   // M1 step 5c (lane 5C): the vane on the raft, the tassel on the rod (the loop only)
 import { makeLightPool, makeLine, makeBobber } from './actors-fx.js';
 import { createCord } from './actors-measure.js';
 import { createShow, SHOW_IDS } from './actors-show.js';
@@ -67,6 +68,7 @@ export function create(ctx) {
   // the loop's home barge, the Slow Hearth (M1 step 5a): moored at the water's mooring through home and every evening; off the
   // loop it is never built
   const home = ctx.data?.LOOP_ENABLED === true ? createHome(ctx) : null;
+  const findLooks = createFindLooks(ctx, { raft, wick });   // M1 step 5c (lane 5C): null off the loop
   if (home) group.add(home.object3d);
   const lightHolder = new THREE.Group(); lightHolder.name = 'actorLights'; group.add(lightHolder);
   lightHolder.add(merchantR.light); // keep the merchant light always in the scene graph (stable light count)
@@ -202,6 +204,7 @@ export function create(ctx) {
     const zid = ctx.world?.getZone?.()?.id ?? null;
     home.show(!!m && (!where || where === zid) && ctx.flow !== 'boot');
     home.update(dt, hasWater() ? H : null);
+    findLooks?.update(dt);   // M1 step 5c
   }
   const api = {
     group, raft: raft.yawGroup, wick: wick.group, lanternLight, merchant, merchantLight: merchantR.light, lightPool: pool.mesh, home,

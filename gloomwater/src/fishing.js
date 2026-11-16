@@ -1297,7 +1297,7 @@ export function create(ctx) {
       // dome tell's first three read "Elder?" before the card: the stage, T149's scan on the phone; she is named by her pool and bait)
       if (LOOP() && sp?.rarity === 'legendary') view.legendary = true;
       emit('fishing:tell', withLegend({ sizeClass: shownClass(), biteTell: S.tell, lead: round2(Math.max(0, S.waitDur - S.stateT)), dur: round2(S.tellTotal), lastDip }));
-      if (!S.letPassTip && sp?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.letPassTip = true; emit('tip:show', { id: 'af_letpass' }); }
+      if (!S.letPassTip && !S.find && sp?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.letPassTip = true; emit('tip:show', { id: 'af_letpass' }); }
       return;
     }
     V.tmp.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
@@ -1629,7 +1629,7 @@ export function create(ctx) {
     const p = { phase, kind: kind ?? undefined, sizeClass: shownClass(), t: Math.round(t * 100) / 100, dur: Math.round(dur * 100) / 100,
       strength: Math.round(num(strength, 0.5) * 100) / 100, tier: Math.round(num(S.plan?.tier, 0) * 100) / 100 };
     if (p.kind === undefined) delete p.kind;
-    if (S.ancient && !isLegend()) p.ancient = true;
+    if (S.ancient && !isLegend() && !S.find) p.ancient = true;
     if (length !== undefined) p.length = Math.round(length * 1000) / 1000;
     return withLegend(p);
   }
@@ -1915,7 +1915,7 @@ export function create(ctx) {
   function startRevealAF() {
     const sp = S.species;
     S.quality = qualityAF();
-    if (!isLegend()) { view.sizeClass = S.sizeClass; view.ancient = !!S.ancient; S.estimated = true; }
+    if (!isLegend() && !S.find) { view.sizeClass = S.sizeClass; view.ancient = !!S.ancient; S.estimated = true; }   // (5c: a find names no class)
     S.revealed = true;
     view.play = null;
     const findProp = S.find ? call(() => createFindProp(S.find, D())) || null : null;   // M1 step 5c: the find's own prop, at its own size
@@ -1962,7 +1962,7 @@ export function create(ctx) {
         call(() => ctx.render?.attention?.({ x: V.fish.x, z: V.fish.z }, 0.8 + S.reveal.dur * 2, 0.5));
         if (num(LF.push) > 0) call(() => ctx.render?.push?.(num(LF.push), S.reveal.dur, Math.min(0.3, S.reveal.dur * 0.5), 0.9));   // game seconds
       }   // (with the show camera the kick and the push are its own approach: one move in, from T0, no double zoom)
-      emit('fishing:landing', { sizeClass: S.sizeClass || null, ancient: !!S.ancient, legend: isLegend(), dur: round2(S.reveal.dur) });
+      emit('fishing:landing', S.find ? { sizeClass: 'find', ancient: false, legend: false, dur: round2(S.reveal.dur), find: true } : { sizeClass: S.sizeClass || null, ancient: !!S.ancient, legend: isLegend(), dur: round2(S.reveal.dur) });
     }
     // the show camera frames where the fish will lie when the wipe ends: beside the raft, broadside, at its class length
     if (show?.cam) {
@@ -3878,7 +3878,7 @@ export function create(ctx) {
       Object.assign(ctx.debug || (ctx.debug = {}), {
         forceBite: (opts) => { try { return debugForceBite(opts); } catch (e) { report(e); return false; } },
         // M1 step 5c (debug builds): the next bite a snag that brings up this find (forceBite's options: {wait})
-        forceFind: (id, opts) => { try { return debugForceFind(id, opts); } catch (e) { report(e); return false; } },
+        forceFind: (id, opts) => { if (!debugOn()) return false; try { return debugForceFind(id, opts); } catch (e) { report(e); return false; } },
         instantCatch: (id, opts) => { try { return debugInstantCatch(id, opts); } catch (e) { report(e); return false; } },
         fishHook: (id, opts) => { try { return debugHook(id, opts); } catch (e) { report(e); return false; } },
         // v3 (CONTRACT §13.11)

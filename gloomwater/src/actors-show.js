@@ -44,6 +44,8 @@ const GRIP0 = {
 // the long thin bodies held as an eel (the lamprey is the loop's plan, M1 step 3a: built only under the loop, so this is the eel alone off it)
 const EEL_LIKE = (shape) => shape === 'eel' || shape === 'lamprey';
 const FACING0 = { faceWithin: 12, threeQuarter: { hang: 18, alongside: 20 }, flankWithin: 15, turnRate: 9 };
+// M1 step 5c (lane 5C; FINDS §6.2): the find row: the object does not flap, struggle or breathe; a small settle, a few drips
+const FIND_ROW = Object.freeze({ overshoot: 0.06, twitch: [0, 9], drips: 6, strain: 0, dip: 0.01, flame: 0.3, bob: 0.008 });
 
 // ------------------------------------------------------------------ the show's clock (pure; tools/tests/show-poses.test.mjs)
 /** The flaps of a hold: [{at, dur}] in pose time. The first comes firstFlap s after the present (as the overshoot settles), then
@@ -633,7 +635,8 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
 
   // ---------------------------------------------------------------- begin / end
   function newLayout(fv, id, cls, o = {}) {
-    const a = A(), LS = a.life || LIFE0, row = LS[cls] || LIFE0[cls] || LIFE0.keeper, ci = Math.max(0, SHOW_CLASSES.indexOf(cls));
+    // (M1 step 5c: a find's row in place of a fish's life row: no flaps, no struggle, no strain; it is held still and turned to the lens)
+    const a = A(), LS = a.life || LIFE0, row = o.find ? FIND_ROW : LS[cls] || LIFE0[cls] || LIFE0.keeper, ci = Math.max(0, SHOW_CLASSES.indexOf(cls));
     const L = fv ? fv.length || 0.5 : 0.5;
     const b = fv?.bounds || { noseZ: L * 0.5, tailZ: -L * 0.5, halfW: L * 0.07, top: L * 0.1, bottom: -L * 0.1 };
     const lay = {
@@ -650,7 +653,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       pend: { a: 0, tw: 0 }, drip: { next: 0, n: 0, pre: 0 }, seen: { take: false, present: false, settle: false, flaps: 0 }, wet: 1, bob2: 0,
     };
     lay.wide = Math.max(0.8, (wick.build?.[0] || 1));
-    lay.flaps = showFlaps(lay.beats, row, LS);
+    lay.flaps = o.find ? [] : showFlaps(lay.beats, row, LS);   // (5c: a find never flaps)
     if (fv) { lay.kit = kitFor(fv, id); lay.tiny = id === 'pinch' && L < (lay.grip.tinyBelow ?? 0.15); }
     return lay;
   }
