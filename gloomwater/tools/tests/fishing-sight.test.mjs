@@ -93,7 +93,8 @@ section('which fish (§6.2)');
 
 section('how far, how many (§6.3)');
 {
-  ok(SI.spawnBand(0.2).join() === '6,12' && SI.spawnBand(0.4).join() === '8,20' && SI.spawnBand(0.9).join() === '10,28', 'bands: <25 cm 6–12, 25–60 cm 8–20, >60 cm 10–28');
+  // (16 Nov 2026: with a live camera the spawn is chosen on the screen, fishing-sight-read.test.mjs; these are the no-camera fallback's)
+  ok(SI.spawnBand(0.2).join() === '4.5,8' && SI.spawnBand(0.4).join() === '5,11' && SI.spawnBand(0.8).join() === '6,15' && SI.spawnBand(1.3).join() === '7,20', 'fallback bands (no camera): <30 cm 4.5–8, <60 cm 5–11, <1 m 6–15, bigger 7–20');
   let okBand = true, okKeep = true;
   const rng = mul(21);
   for (let i = 0; i < 3000; i++) {
@@ -102,7 +103,7 @@ section('how far, how many (§6.3)');
     const range = SI.spawnRange(L, { light: 'day', keepOff: k });
     const p = SI.spawnPoint({ x: 0, z: 0 }, range, () => true, rng);
     const band = SI.spawnBand(L);
-    if (!p || p.d < band[0] || p.d > band[1] || p.d < k) okBand = false;
+    if (!p || p.d < Math.max(band[0], k + 0.4) - 1e-9 || p.d > Math.max(band[1], k + 0.9) + 1e-9 || p.d < k) okBand = false;
   }
   ok(okBand, 'every spawn within its length\'s band and past its own distance');
   ok(okKeep && SI.keepOffFor(0.1, 0.5) < SI.keepOffFor(0.9, 0.5), 'its own 3–5 m off the raft: a small fish nearer, a big one farther');

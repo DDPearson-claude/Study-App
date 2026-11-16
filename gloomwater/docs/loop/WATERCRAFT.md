@@ -615,6 +615,55 @@ raft scales with its length** (revision 2), so every shape is drawn big enough t
 m; over 60 cm, 10–28 m (by day and dusk; at night inside the lantern's light, §6.1). They share the sign budget's spirit: a
 few, never a crowd.
 
+**Revision 3 (16 Nov 2026; the user's word, the lead's call, over the bands above).** Every silhouette is spawned where its
+**true length reads through the live camera**: drawn at least about **24 px on a phone, 30 px on a desktop**, broadside as it is
+first seen (`fishing-sight.js` `projectedLength`, `readableSpot`, through the camera's own matrices). The fish is rolled at a point
+of visible water in the open part of the frame, then placed in that same water where it reads: a small fish near, on the camera's
+side of the raft (never inside its own 3–5 m), a big one anywhere in view, as it reads farther; never behind a rock island, the
+shore's boulders or the raft and its Wick (`sightBlocked`), and it keeps to the open frame as it swims (it turns back at the frame's
+edge as at its water's). It is **never drawn bigger than the fish**: where the camera cannot draw that length at the mark anywhere in
+view, it goes where it draws biggest, and under **0.65 of the mark** it is not seen at all on that screen (the pick rolls again), as a
+real angler does not make out a hand-long perch at that range. At night the lantern's stronger light is tried first. With no camera
+(node, a headless page) the bands become a fallback by length: under 30 cm 4.5–8 m, under 60 cm 5–11 m, under 1 m 6–15 m, bigger
+7–20 m, leaning to the camera's side. The play camera sets the limit: at the sail framing (the one the player looks for fish under)
+a 30 cm perch draws at most about 21 px at 1280x720, 16 at 960x540, 11 on a 390x844 phone and 9 on a 358x664 one; a fish reaches
+the mark there only from about 44, 58, 67 and 84 cm, and is seen at all from 28, 38, 44 and 54 cm (with the line out, the fish
+framing, from 26, 35, 46 and 57 cm to the mark). `tools/tests/fishing-sight-read.test.mjs` prints the table.
+**How it is drawn (the same revision):** a darker, near-opaque core that softens to its edge, darkest down the back as a fish seen
+from above is; the tail's fork and the pectoral and pelvic fins held to about a pixel so they survive small; its shadow on the bed
+offset and fainter; a faint pale push of water just ahead of the head when it moves (a short arc, never closed). The play camera's low
+angle would press a shape lying on the bed nearly flat, so the footprint is eased out along the line of sight by (1 / sin of the
+view's angle)^0.75, at most 2× (`fishing-fx.js` SIGN_VS; `lookStretch`): the eye looking down into clear water. Across the view its
+length is untouched; end on it never draws longer than it would across. No outline glow, no rim, no glitter, no ring. The float's
+resting ripple on the Mossmere under the loop is the water's cool white and quieter (`actors.js`, `view.waterWhite`); a bite's red
+cue is unchanged.
+
+**Revision 4 (16 Nov 2026, the review of revision 3: on a phone small and medium fish were never shown, and the shown ones drew under
+the mark).** The camera, not the spawn rule, set that limit: the sail framing stands 15 m off the raft, and a phone held upright widens
+it (fov + 22°, dist × 1.38), so a 30 cm perch could draw 11 px at best on 390x844 and 9 on 358x664. So **the watch**
+(`render-camera.js` `WATCH`, `portraitFit`; `render.js` `updateWatch`): on the Mossmere under the loop, once the raft has been at rest
+0.8 s, the lens eases in (about 1.2 s; out in about 0.4 s as soon as the raft moves, held while a cast is charged) to the angler's
+own look over the near water, as one stands still and peers into the shallows: on a landscape screen 10.5 m off at 24°, fov 42° (in
+place of 15 m, fov 52°); on a phone held upright 11 m off at 28°, fov 46° (in place of its widened 20.7 m at 31°, fov 74°); with the
+line out a phone's fish framing softens its widening (× 1.06, + 8°; the float stays framed), a landscape one is unchanged. The pose
+is a balance measured on the real Mossmere (`fishing-wc2.test.mjs`, the watch section): nearer still and a big fish finds no water
+in view past its own 4–5 m off the raft; farther and a small one draws under the floor. At rest, in the watch, **every Lake 1
+silhouette species is seen on both phones and at 1280x720**: its biggest draws at about the mark or past it, its smallest at least at
+the floor (the 16 cm crayfish and the 17 cm minnow shoal about 17–24 px on a phone, as an angler makes out a hand-long fish at a few
+metres and no farther). One exception, by the camera's reach: at 960x540 (a 30 px mark) those two at their very smallest draw at most
+15–17 px and are not shown there; from about 18 cm they are. While sailing the old framing holds, and the rule still places a shape
+only where it reads. `fishing-sight-read.test.mjs` prints the table for the sail, watch, fish and fish-at-rest framings and holds the
+watch to this; `fishing-wc2.test.mjs` places a Keeper carp, a Keeper perch and a pike by the game's rule at five raft spots on all four
+screens and checks each whole shape.
+The open frame on a phone keeps clear of the thumb: down to 0.72 of the height on the left (the touch stick's ring), to 0.87 on the
+right, above the HOME band (`READ.framePortrait.low`). **No part of a shape behind a post:** the sight test runs on its head, its tail
+and its shadow, not its centre alone (`shapePoints`, `shapeBlocked`), and a shape keeps its drawn half-length and 0.5 m clear of dock
+posts, pillars and moored hulls as it spawns and swims. **At the Buoy Lights by night** a shape is placed through the same rule,
+broadside, in a lamp's light but its drawn half-length and 0.6 m off the lamp, never under its flare. A shape in view keeps to the
+frame as it swims (it turns back at the frame's edge). The push of water at the head fades out where it would span under about 4–8 px
+(it would close into a pale bead, a glint), and on the Mossmere the nervous water's fry hop as dark flicks with no landing rings, no
+specks and a quieter, broken rim (no glitter on the water).
+
 ### 6.4 How they move
 
 Steered like a sign's travel (`fishing-signs.js` `travel`: a slowly turning heading, leashed), with a body-type style:

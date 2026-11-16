@@ -849,8 +849,11 @@ export function create(ctx) {
       bobRing.visible = true;
       bobRing.position.set(x, h + 0.075, z);
       bobRing.scale.setScalar((0.25 + ph * (B.state === 'bite' ? 1.4 : 0.9)) * Math.max(1, far * 0.8));
-      ringMat.color.set(B.state === 'bite' ? 0xff5a3a : 0xead6a8);   // pale gold-stone ripple (transient), red on a bite
-      ringMat.opacity = (1 - ph) * (B.state === 'bite' ? 0.9 : 0.5);
+      // pale gold-stone ripple (transient), red on a bite; on the Mossmere under the loop (fishing's view.waterWhite) the float's own
+      // ripple is the water's cool white and quieter, never gold (WATERCRAFT §5.7); the bite's cue is unchanged
+      const white = ctx.fishing?.view?.waterWhite === true;
+      ringMat.color.set(B.state === 'bite' ? 0xff5a3a : white ? 0xa9b3bd : 0xead6a8);
+      ringMat.opacity = (1 - ph) * (B.state === 'bite' ? 0.9 : white ? 0.2 : 0.5);
     } else bobRing.visible = false;
   }
 

@@ -99,6 +99,43 @@ export function fishElev(sep, base) { return num(base?.elev, 28) + clamp(clamp(n
  */
 export function reelDistance(sep, base) { return Math.max(num(base?.dist, 10), 7.5 + clamp(num(sep, 0), 0, 40) * 0.6); }
 
+// ------------------------------------------------------------------ the portrait widening and the watch (16 Nov 2026)
+/**
+ * The watch (WATERCRAFT §6.3, revision 4; the user: "You should be able to see the outline or silhouette of some fish under the lake
+ * … proportionate to the size of the fish"). The sail framing stands 15 m off the raft (a phone held upright widens it further: fov
+ * + 22°, dist × 1.38, elev + 7°, so the raft and its pool fit while sailing); from there a hand-long perch draws 9–21 px. On the
+ * Mossmere under the loop, once the raft has been at rest `after` s, the lens eases in to the angler's own look over the near water (as
+ * one stands still and peers into the shallows), so a silhouette there draws at its true length big enough to read: `land` is that
+ * pose on a landscape screen, `sail` on a phone held upright (blended by portraitK), and `fish` softens a phone's widening while the
+ * line is out (the float stays framed; a landscape fish framing is already near). It eases out as soon as the raft moves.
+ */
+export const WATCH = Object.freeze({
+  still: 0.35,        // m/s: the raft counts as at rest under this
+  after: 0.8,         // s at rest before the watch eases in
+  rateIn: 0.8, rateOut: 2.4,   // its weight's ease (per s) in and out
+  land: Object.freeze({ elev: 24, dist: 10.5, aim: 0, aimY: 0.6, fov: 42 }),
+  sail: Object.freeze({ elev: 28, dist: 11, aim: -1, aimY: 0.6, fov: 46 }),
+  fish: Object.freeze({ back: 0.06, widen: 8, tilt: 4 }),   // the line out: dist × (1 + back), fov + widen, elev + tilt (in place of 0.38, 22, 7)
+});
+/** How upright the screen is for the raft framings' widening: 0 at an aspect of 1.25 and wider, 1 at 0.5 and narrower. */
+export function portraitK(aspect) { const t = clamp((1.25 - num(aspect, 16 / 9)) / 0.75, 0, 1); return t * t * (3 - 2 * t); }
+/**
+ * The raft framings for the screen's shape (render.js fillTargets), in place on `tgt` ({elev, dist, aim, aimY, fov}): an upright
+ * screen's widening by portraitK, and the watch's weight w (0..1) over it in the sail and night framings (its pose, `land` to `sail`
+ * by portraitK) and, on an upright screen, the fish framing (a softer widening).
+ */
+export function portraitFit(tgt, aspect, mode = 'sail', w = 0, W = WATCH) {
+  const pf = portraitK(aspect), ww = clamp(num(w, 0), 0, 1);
+  if (pf > 0) {
+    const fishW = mode === 'fish' ? ww : 0;
+    tgt.fov = Math.min(78, tgt.fov + pf * lerp(22, W.fish.widen, fishW));
+    tgt.dist *= 1 + pf * lerp(0.38, W.fish.back, fishW);
+    tgt.elev = Math.min(80, tgt.elev + pf * lerp(7, W.fish.tilt, fishW));
+  }
+  if ((mode === 'sail' || mode === 'night') && ww > 0) for (const k of ['elev', 'dist', 'aim', 'aimY', 'fov']) tgt[k] = lerp(tgt[k], lerp(W.land[k], W.sail[k], pf), ww);
+  return tgt;
+}
+
 /** The night overview's target weight (v3): 1 only while combat.swarmActive and the run is in play; never the phase. */
 export function nightTarget({ playing, swarmActive }) { return playing && swarmActive === true ? 1 : 0; }
 
