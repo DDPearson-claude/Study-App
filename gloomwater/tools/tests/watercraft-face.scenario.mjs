@@ -78,7 +78,9 @@ export default async function (api) {
     await K.places.light('dusk', 0.6);
     await K.places.pose(4, 20, 0); await settle(1);
     const ev0 = await K.evCount();
-    await g(() => { const c = window.__gw; c.debug.fishOutcome('lose', 'thrown'); c.debug.fishHook('reedjaw_pike', { z: 2.2 }); c.debug.fishPlayTo(0.97); });
+    await g(() => { const c = window.__gw; c.debug.fishOutcome('lose', 'thrown'); c.debug.fishHook('reedjaw_pike', { z: 2.2 }); });
+    await K.secs(1.4);   // (the forced hook's strike burst plays out first: a debug hook has no float on screen, so it bursts mid-frame)
+    await g(() => window.__gw.debug.fishPlayTo(0.97));
     const lost = await K.until("c.fishing.state === 'lost'", 25);
     K.check(lost.ok, 'the play ends in the loss', lost);
     await K.steps(4);
@@ -130,7 +132,11 @@ export default async function (api) {
     const worms = await g(() => { const row = [...document.querySelectorAll('.gw-gear-row')].find((r) => /Mire Worms/.test(r.textContent)); if (!row) return null; row.scrollIntoView({ block: 'center' });
       const t = row.querySelector('[data-loop=whobites]'); return t ? { pike: t.querySelector('[data-fish=reedjaw_pike]')?.textContent || null, text: t.textContent, hold: row.querySelector('.gw-item-hold')?.textContent } : { hold: row.querySelector('.gw-item-hold')?.textContent }; });
     K.check(wb && worms?.pike && /<1%/.test(worms.pike), 'the gear log\'s Who bites shows the Reedjaw Pike "<1%" on worms', worms);
-    K.check(worms && !/Kissmark Trout|Rustfin Sucker|Milkeye Perch/.test(worms.text || '') && /you have not met/.test(worms.text || ''), 'no unmet fish named; the rest counted', worms?.text);
+    const metChk = await g(() => { const c = window.__gw, J = c.state.meta.journal || {}, t = document.querySelector('.gw-gear-row [data-loop=whobites]');
+      const rows = t ? [...t.querySelectorAll('[data-fish]')].map((r) => r.dataset.fish) : [];
+      const unmetNames = Object.values(c.data.SPECIES_BY_ID || {}).filter((sp) => sp && !J[sp.id] && t && t.textContent.includes(sp.name)).map((sp) => sp.name);
+      return { rows, notMet: rows.filter((id) => !J[id]), unmetNames, more: t?.querySelector('.gw-wb-more')?.textContent || '' }; });
+    K.check(metChk.rows.length > 0 && !metChk.notMet.length && !metChk.unmetNames.length, 'Who bites names only fish in the Journal; the rest counted', metChk);
     K.check(worms && /Hold on the fish it suits \(\d+ you have met\)\./.test(worms.hold || ''), 'the Hold line counts, never names', worms?.hold);
     await settle(0.3);
     await K.shoot('gear-log-who-bites');

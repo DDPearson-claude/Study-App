@@ -76,7 +76,7 @@ const CSS_HUD = `
 `;
 // >>> WC-3 (WATERCRAFT §3.9): the gear log's Who bites, under a Mossmere tin's or lure's Hold line
 const CSS_WB = `
-.gw-wb { margin: 8px 0 2px; padding: 6px 10px 6px; border-radius: 4px; background: rgba(10, 9, 26, .35); box-shadow: inset 0 0 0 1px rgba(214, 214, 228, .1); }
+.gw-wb { max-width: 460px; margin: 8px 0 2px; padding: 6px 10px 6px; border-radius: 4px; background: rgba(10, 9, 26, .35); box-shadow: inset 0 0 0 1px rgba(214, 214, 228, .1); }
 .gw-wb-h { font: 400 15px/1.2 var(--f-head, var(--f-body)); letter-spacing: .06em; color: var(--ink-dim); margin: 0 0 4px; }
 .gw-wb table { width: 100%; border-collapse: collapse; font: 400 15px/1.35 var(--f-body); color: var(--ink); font-variant-numeric: tabular-nums; }
 .gw-wb th { font-weight: 400; font-size: 13px; color: var(--ink-dim); text-align: right; padding: 0 0 2px 10px; }
