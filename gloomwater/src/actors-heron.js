@@ -116,7 +116,7 @@ export function stepHeron(H, { dt = 0.016, raft = null, phase = 'calm', spots = 
   H.y = Math.sin(Math.PI * k) * HERON.flyH * (H.away ? 1.6 : 1);
   if (k >= 1) {
     if (H.away) { H.mode = 'gone'; H.y = 0; H.events.push('gone'); }
-    else { H.mode = 'stand'; H.y = 0; H.t = 0; H.events.push('land'); }
+    else { H.mode = 'stand'; H.x = H.to.x; H.z = H.to.z; H.y = 0; H.t = 0; H.events.push('land'); }
   }
   return H;
 }
