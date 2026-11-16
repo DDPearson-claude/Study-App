@@ -45,6 +45,18 @@ export default async function (api) {
       return els.map((e) => { const r = e.getBoundingClientRect(); return { c: e.className.split(' ')[0], w: Math.round(r.width), h: Math.round(r.height) }; }).filter((x) => x.w < 44 || x.h < 44);
     });
     K.check(taps.length === 0, 'every tap target in the book is 44 px or larger', taps);
+    const over = await g(() => {
+      const R = (e) => e.getBoundingClientRect(), hit = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+      const vis = (sel) => [...document.querySelectorAll(`[data-loop=shelf] ${sel}`)].filter(window.__lp.visible);
+      const plates = vis('.gw-plate'), lone = [...vis('.gw-mb-turn'), ...vis('.gw-book-tab'), ...vis('.gw-book-close'), ...vis('[data-buy]'), ...vis('[data-purse]')];
+      const out = [];
+      for (let i = 0; i < lone.length; i++) {
+        for (const p of plates) if (hit(R(lone[i]), R(p))) out.push(`${lone[i].className.split(' ')[0]} × ${p.dataset.item}`);
+        for (let j = i + 1; j < lone.length; j++) if (hit(R(lone[i]), R(lone[j]))) out.push(`${lone[i].className.split(' ')[0]} × ${lone[j].className.split(' ')[0]}`);
+      }
+      return out;
+    });
+    K.check(over.length === 0, 'no tap target overlaps another (the corners, the tabs, the close mark, the order line and the plates)', over);
 
     K.step('cat: a leaf mid-turn, then the next spread');
     await g(() => window.__gw.ui.loop.murkBook.slow(9));   // (the turn slowed for the shot: 4 s instead of 0.45 s)

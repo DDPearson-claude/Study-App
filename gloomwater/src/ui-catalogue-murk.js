@@ -81,7 +81,7 @@ const CSS = `
 .gw-mb-head .gw-mb-ch { font: italic 400 16px/1 var(--f-body); letter-spacing: .04em; text-transform: none; color: var(--cat-ink-2); }
 .gw-mb-slot--l .gw-mb-head, .gw-mb-slot--r .gw-mb-head { margin: 0 6px; }
 .gw-mb-body { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.gw-mb-foot { display: flex; justify-content: center; padding: 2px 0 0; font: 500 16px/1 var(--f-body); color: var(--cat-ink-2); letter-spacing: .1em; }
+.gw-mb-foot { display: flex; justify-content: center; align-items: center; min-height: 34px; padding: 0; flex: none; font: 500 16px/1 var(--f-body); color: var(--cat-ink-2); letter-spacing: .1em; }
 .gw-mb-foot::before, .gw-mb-foot::after { content: '\\2014'; margin: 0 8px; color: var(--cat-faint); }
 .gw-mb-foot:empty::before, .gw-mb-foot:empty::after { content: none; }
 .gw-mb-chap { display: flex; flex-direction: column; align-items: center; margin: 4px 0 0; flex: none; }
@@ -102,8 +102,10 @@ const CSS = `
 .gw-plate-art { position: relative; flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
 .gw-plate-art .cat-eng { width: 100%; height: 100%; max-height: 100%; color: var(--cat-ink); transition: transform .3s; }
 .gw-book .cat-pp { fill: var(--cat-paper); } .gw-book .cat-pp-stroke { stroke: var(--cat-paper); }
-.gw-plate-line { flex: 1; min-width: 0; font: italic 400 16px/1.12 var(--f-body); color: var(--cat-ink); text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.gw-plate-low { width: 100%; display: flex; align-items: flex-end; justify-content: flex-end; gap: 6px; min-height: 28px; flex: none; }
+.gw-plate-line { flex: none; width: 100%; font: italic 400 16px/1.1 var(--f-body); color: var(--cat-ink); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.gw-plate-low { width: 100%; display: flex; align-items: flex-end; justify-content: flex-end; gap: 6px; min-height: 26px; flex: none; }
+.gw-book[data-layout=desktop] .gw-plate-low { margin-top: -2px; }
+.gw-book[data-layout=desktop] .gw-plate-kick { line-height: 1; }
 .gw-plate-price { flex: none; margin-right: 8px; }
 .gw-plate-price { position: relative; display: inline-flex; align-items: center; gap: 4px; font: 700 22px/1 var(--f-body); color: var(--cat-amber); font-variant-numeric: lining-nums; padding: 2px 4px; }
 .gw-plate-price .gw-price { color: inherit; font: inherit; gap: 4px; }
@@ -174,7 +176,7 @@ const CSS = `
 .gw-book[data-layout=phone] .gw-book-tab[aria-selected=true] { transform: translateY(-4px); }
 .gw-book .gw-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 /* the page corners */
-.gw-mb-turn { position: absolute; bottom: 0; z-index: 5; width: 52px; height: 52px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--cat-ink-2); -webkit-tap-highlight-color: transparent; }
+.gw-mb-turn { position: absolute; bottom: 0; z-index: 5; width: 48px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--cat-ink-2); -webkit-tap-highlight-color: transparent; }
 .gw-mb-turn svg { width: 100%; height: 100%; display: block; }
 .gw-mb-turn .gw-mb-curl-back { fill: var(--cat-paper-2); filter: drop-shadow(-2px -2px 2px rgba(0,0,0,.18)); }
 .gw-mb-turn--next { right: 0; } .gw-mb-turn--prev { left: 0; }
@@ -214,12 +216,20 @@ const CSS = `
 .gw-book[data-layout=phone] .gw-plate-kick, .gw-book[data-layout=phone] .gw-plate-name, .gw-book[data-layout=phone] .gw-plate-line, .gw-book[data-layout=phone] .gw-plate-hours,
 .gw-book[data-layout=phone] .gw-plate-soon, .gw-book[data-layout=phone] .gw-seals { grid-column: 2; text-align: left; justify-content: flex-start; }
 .gw-book[data-layout=phone] .gw-plate-name { white-space: normal; width: 114%; margin: 2px 0; transform-origin: 0 50%; font-size: 21px; line-height: 1.04; text-align: left; }
-.gw-book[data-layout=phone] .gw-plate-line { -webkit-line-clamp: 3; text-align: left; margin-top: 4px; }
+.gw-book[data-layout=phone] .gw-plate-line { -webkit-line-clamp: 3; text-align: left; margin-top: 4px; flex: 1; }
 .gw-book[data-layout=phone] .gw-plate-hours { grid-row: 3; margin-top: 4px; }
 .gw-book[data-layout=phone] .gw-plate-low { grid-column: 2; grid-row: 4; flex-direction: column; align-items: stretch; justify-content: space-between; }
 .gw-book[data-layout=phone] .gw-plate-low .gw-plate-price { align-self: flex-end; }
 .gw-book[data-layout=phone] .gw-mb-title { font-size: 34px; }
 .gw-book[data-layout=phone] .gw-mb-chap h3 { font-size: 24px; }
+/* a tall phone page (390 x 844): the drawing over its words, as on a desktop page, larger */
+.gw-book.gw-tall .gw-plate { display: flex; flex-direction: column; align-items: center; padding: 8px 6px 4px; }
+.gw-book.gw-tall .gw-plate-kick, .gw-book.gw-tall .gw-plate-name { text-align: center; }
+.gw-book.gw-tall .gw-plate-name { transform-origin: 50% 50%; margin: 2px -8%; width: 116%; }
+.gw-book.gw-tall .gw-plate-art { height: auto; flex: 1; min-height: 0; }
+.gw-book.gw-tall .gw-plate-low { flex-direction: row; align-items: flex-end; }
+.gw-book.gw-tall .gw-plate-line { text-align: left; -webkit-line-clamp: 2; }
+.gw-book.gw-tall .gw-plate-hours { justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .gw-mb-ring path, .gw-mb-stamp.gw-press, .gw-book-order { animation: none; } }
 `;
 
@@ -239,6 +249,11 @@ export function createMurkBook(deps) {
   // where the book was left this visit (an item on that page, or its kind): cleared at home:enter and a trip's start
   let memo = null, uidN = 0, live = null, lastSwipe = -1e9;
   try { for (const ev of ['home:enter', 'run:start']) K.ctx?.bus?.on?.(ev, () => { memo = null; }); } catch (e) { report('cat.bus', e); }
+  // a turned phone or a resized window: the book drawn again at its new size (a spread or a page), at the same item
+  try {
+    let rt = 0;
+    if (typeof addEventListener === 'function') addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { const e = K.entry?.('shelf'); if (e && live?.entry === e) e.render(); }, 180); });
+  } catch (e) { report('cat.resize', e); }
   const uid = () => `mc${(uidN = (uidN + 1) % 1e6)}`;
   const vw = () => num(K.vw, typeof innerWidth === 'number' ? innerWidth : 960), vh = () => num(K.vh, typeof innerHeight === 'number' ? innerHeight : 540);
 
@@ -254,7 +269,7 @@ export function createMurkBook(deps) {
   function sizes(layout) {
     const W = vw(), H = vh();
     if (layout === 'desktop') {
-      const ph = Math.max(380, Math.min(H - 116, 700));
+      const ph = Math.max(300, Math.min(H - 116, 700));
       const pw = Math.max(BOOK.minPage, Math.min((W - 220) / 2, ph * 0.76));
       return { pw: Math.floor(pw), ph: Math.floor(Math.min(ph, pw / 0.62)) };
     }
@@ -308,8 +323,10 @@ export function createMurkBook(deps) {
       const soon = h('span', 'gw-plate-soon'); soon.textContent = TL().comingSoon || 'Coming soon'; el.appendChild(soon);
       return el;
     }
+    // the one line under the drawing (a desktop: its own row, the full width; a phone: beside the drawing), then the price
+    if (c.line && B.layout === 'desktop') { const ln = h('span', 'gw-plate-line'); ln.textContent = c.line; el.appendChild(ln); }
     const low = h('div', 'gw-plate-low');
-    if (c.line) { const ln = h('span', 'gw-plate-line'); ln.textContent = c.line; low.appendChild(ln); }
+    if (c.line && B.layout !== 'desktop') { const ln = h('span', 'gw-plate-line'); ln.textContent = c.line; low.appendChild(ln); }
     const price = h('span', 'gw-plate-price', c.price == null ? '' : clamTag(c.price));
     if (S.marked === c.id && !c.bought) price.insertAdjacentHTML('beforeend', RING);
     low.appendChild(price);
@@ -414,6 +431,7 @@ export function createMurkBook(deps) {
     root.dataset.loop = 'shelf';
     root.dataset.layout = B.layout;
     root.style.setProperty('--pw', `${pw}px`); root.style.setProperty('--ph', `${ph}px`); root.style.setProperty('--turn', `${BOOK.turn}s`);
+    if (B.layout === 'phone' && ph >= 600) root.classList.add('gw-tall');   // (a tall phone page: each drawing over its words, larger)
     const line = h('p', `gw-murk-line${S.line ? ' gw-in' : ''}`);
     line.textContent = S.line || '';
     root.appendChild(line);
@@ -616,7 +634,8 @@ export function createMurkBook(deps) {
   function debug() {
     if (!live) return null;
     const { B, entry } = live;
-    return { layout: B.layout, page: entry.state.page, spread: spreadOf(B, entry.state.page), count: B.count, chapters: B.chapters.map((c) => ({ ...c })), goalPage: B.goalPage, marked: entry.state.marked ?? null, turning: !!turning };
+    return { layout: B.layout, page: entry.state.page, spread: spreadOf(B, entry.state.page), count: B.count, chapters: B.chapters.map((c) => ({ ...c })), goalPage: B.goalPage,
+      marked: entry.state.marked ?? null, turning: !!turning, pages: B.pages.map((p) => ({ kind: p.kind, chapter: p.chapter ?? null, items: p.items.slice() })) };
   }
   return { render, onKey, debug, slow: (k) => { turnScale = Math.max(0.1, Number(k) || 1); }, go: (page) => { const e = K.entry?.('shelf'); if (e) go(e, page); }, pageOf: (focus) => (live ? focusPage(live.B, focus) : null) };
 }

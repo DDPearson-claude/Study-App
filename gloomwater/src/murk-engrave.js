@@ -93,6 +93,11 @@ function rod(P, lv) {
   P.paper(ell(c[0], c[1], 5.6, 5.6)).shade(ell(c[0], c[1], 5.6, 5.6), 3).ink(ell(c[0], c[1], 5.6, 5.6), 1.2);
   const s0 = along(x0, y0, x1, y1, 0.3);
   P.ink(ell(s0[0], s0[1], 4.2, 4.2), 1.1);
+  // a small reel hung under the seat, its drum hatched, its handle out
+  const r0 = along(x0, y0, x1, y1, 0.31, 10);
+  P.ink(`M${f(s0[0])} ${f(s0[1])} L${f(r0[0])} ${f(r0[1])}`, 1.6);
+  P.paper(ell(r0[0], r0[1] + 3, 9, 9)).shade(`M${f(r0[0] + 1)} ${f(r0[1] - 6)} A9 9 0 0 1 ${f(r0[0] + 1)} ${f(r0[1] + 12)} A5 9 0 0 0 ${f(r0[0] + 1)} ${f(r0[1] - 6)}Z`, 3).ink(ell(r0[0], r0[1] + 3, 9, 9), 1.2).solid(ell(r0[0], r0[1] + 3, 1.6, 1.6));
+  P.ink(`M${f(r0[0])} ${f(r0[1] + 3)} l7 5`, 1.3).ink(ell(r0[0] + 8, r0[1] + 9, 2, 2), 1);
   // the guides, more of them on the better rods; the silk whippings beside each
   const n = 4 + Math.min(3, lv);
   for (let i = 0; i < n; i++) {

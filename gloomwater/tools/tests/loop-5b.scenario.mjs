@@ -73,8 +73,10 @@ export default async function (api) {
         const t = await g(() => { const T = window.__lp, b = [...document.querySelectorAll('[data-modal=shelf] .gw-tab')].find((x) => /Home/.test(x.textContent)); if (!b) return false; b.click(); return true; });
         await K.settle(700); await K.steps(2);   // (Murk's catalogue: the fore-edge tab turns the leaves to the Home chapter, 0.45 s)
         K.check(t, 'the shelf has its Home tab');
-        const cards = await g(() => [...document.querySelectorAll('[data-modal=shelf] [data-item]')].map((e) => e.dataset.item));
-        K.check(['baitBed:2', 'wall:1', 'lights:1'].every((x) => cards.includes(x)), 'the Home tab: the Bait Bed, the Long Wall, Barge lights and the looks', cards);
+        // Murk's catalogue: the Home chapter's plates across its pages (a phone shows two a page), its first page on screen
+        const cards = await g(() => { const b = window.__gw.ui.loop.murkBook?.debug?.(); return b ? b.pages.filter((p) => p.chapter === 'home').flatMap((p) => p.items) : [...document.querySelectorAll('[data-modal=shelf] [data-item]')].map((e) => e.dataset.item); });
+        K.check(['baitBed:2', 'wall:1', 'lights:1'].every((x) => cards.includes(x)), 'the Home chapter: the Bait Bed, the Long Wall, Barge lights and the looks', cards);
+        K.check(!!(await K.box(`[data-modal=shelf] [data-item="${cards[0]}"]`)), 'the Home chapter opens on its first plate', cards[0]);
         await K.shoot('shelf-home');
         await K.scan('shelf home');
       }
