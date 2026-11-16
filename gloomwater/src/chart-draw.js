@@ -842,16 +842,18 @@ export function layoutChart(model, art, view) {
       if (!moved) break;
     }
     // the lettering: each place's words where they meet nothing else (under it, else above, beside it), clear of the isles where
-    // they can be. On a phone only the chosen place shows its best fish, but every owned place keeps its line's room, so choosing
-    // never moves a word.
-    const placed = fixed.slice();
-    for (const A of items) placed.push(around(A.at[0], A.at[1], A.size, A.size));
+    // they can be. On a phone only the chosen place shows its best fish, but every owned place keeps its line's room where it can,
+    // so choosing moves no word; only where the chosen place's best fish then finds no room at all (all four owned on a short phone)
+    // is the chosen place lettered first (layout.relettered).
+    const base = fixed.slice();
+    for (const A of items) base.push(around(A.at[0], A.at[1], A.size, A.size));
+    let placed = base.slice();
     const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + q.x * lake.s - r, lake.cy + q.z * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
     const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
     const free = (q) => inCard(q) && !placed.some((o) => rectsMeet(q, o, 1));
     // the nearest free spot (the spots come nearest first), slid along the line to stay on the sheet; lying on an isle costs it a
     // little, so the words keep by their place rather than wander off to clear water
-    const firstFree = (spots, bw, bh) => {
+    const nearest = (spots, bw, bh) => {
       const lo = card.x + 8 + bw / 2, hi = card.x + card.w - 8 - bw / 2;
       let best = null, cost = Infinity;
       spots.forEach((sp, i) => {
@@ -862,66 +864,85 @@ export function layoutChart(model, art, view) {
         const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0);
         if (c < cost) { cost = c; best = [cxx, sp[1]]; }
       });
-      return best;
+      return best ? { at: best, cost } : null;
+    };
+    const firstFree = (spots, bw, bh) => nearest(spots, bw, bh)?.at || null;
+    // the spots round a mark of radius r for a box bw x bh: under it, above it, beside it, at its corners, a little further out each round
+    const ring = (x, y, r, bw, bh) => {
+      const S = [];
+      for (const d of [0, 10, 22, 36]) {
+        const below = y + r + 2 + d + bh / 2, above = y - r - 2 - d - bh / 2, right = x + r + 4 + d + bw / 2, left = x - r - 4 - d - bw / 2;
+        S.push([x, below], [x, above], [right, y], [left, y], [x + bw * 0.3, below], [x - bw * 0.3, below], [x + bw * 0.3, above], [x - bw * 0.3, above],
+          [right, y + r + bh / 2 - 6], [left, y + r + bh / 2 - 6], [right, y - r - bh / 2 + 6], [left, y - r - bh / 2 + 6]);
+      }
+      return S;
     };
     const bestLine = (A) => { const s = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: font(`400 ${LS.sub}px ${fig}`), px: LS.sub }; s.w = Math.round(Math.round(LS.sub * 0.82) * 1.83) + 6 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(s.weight) : '', s.font); return s; };
+    const letterPass = (order, final) => { // → {done (the places in the order lettered), ok (no chosen best line short of room)}
+      placed = base.slice();
+      const done = [];
+      let ok = true;
+      for (const A of order) {
+        delete A.label; delete A.label2; delete A.box; delete A.sub; delete A.fitSub;
+        A.leader = Math.hypot(A.at[0] - A.site[0], A.at[1] - A.site[1]) > 5;
+        // the ways its words may stand, in order: its name on one line, else stacked on two as a surveyor letters a crowded water; each
+        // first with room kept for its best fish under it (an owned place), then without
+        const sets = [];
+        if (A.owned) {
+          const nf = font(`italic 400 ${LS.place}px ${F.chart}`), text = A.p.name || A.id, star = A.p.giantLanded ? 16 : 0;
+          const nm = (t, last) => ({ text: t, font: nf, px: LS.place, w: measure(t, nf) + (last ? star : 0) });
+          const words = text.split(' ');
+          let cut = 0, gapD = Infinity;
+          for (let i = 1; i < words.length; i++) { const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length); if (d < gapD) { gapD = d; cut = i; } }
+          const one = [nm(text, true)], two = cut ? [nm(words.slice(0, cut).join(' '), false), nm(words.slice(cut).join(' '), true)] : null;
+          const sub = A.p.best ? bestLine(A) : null, tag = (ls, c) => Object.assign(ls, { cost: c });   // (stacked costs 3; no room kept, 10)
+          if (sub) sets.push(tag([...one, sub], 0));
+          if (sub && two) sets.push(tag([...two, sub], 3));
+          sets.push(tag(one, sub ? 30 : 0));
+          if (two) sets.push(tag(two, sub ? 33 : 3));
+        } else if (A.price != null) { const pr = { text: String(A.price), font: font(`400 ${LS.price}px ${fig}`), px: LS.price, price: true }; pr.w = measure(pr.text, pr.font) + Math.round(LS.price * 0.78) + 5; sets.push(Object.assign([pr], { cost: 0 })); }
+        if (!sets.length) { done.push(A); continue; }
+        const [x, y] = A.at, r = A.size / 2;
+        // (a place by the west or east shore letters out on the paper first, as a surveyor would, clear of the water)
+        const sd = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
+        const spotsFor = (bw, bh) => [...(sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : []), ...ring(x, y, r, bw, bh)];
+        const size = (ls) => { const lh = Math.max(...ls.map((l) => l.px)) + 3; return [Math.max(...ls.map((l) => l.w)) + 6, ls.length * lh + 2, lh]; };
+        // the words stand nearest their place: a farther spot costs more than stacking the name or keeping no room for the best fish
+        let use = null, best = null, bw = 0, bh = 0, lh = 0, cost = Infinity;
+        sets.forEach((s) => {
+          const [w0, h0, l0] = size(s), nb = nearest(spotsFor(w0, h0), w0, h0), c = nb ? nb.cost + s.cost : Infinity;
+          if (c < cost) { cost = c; use = s; best = nb.at; [bw, bh, lh] = [w0, h0, l0]; }
+        });
+        if (!best) { use = sets[sets.length - 1]; [bw, bh, lh] = size(use); best = spotsFor(bw, bh)[0]; }
+        const q = around(best[0], best[1], bw, bh);
+        placed.push(q);
+        use.forEach((l, i) => { l.x = best[0]; l.y = q[1] + 1 + lh * (i + 0.5); });
+        const names = use.filter((l) => l.kind !== 'best'), sub = use.find((l) => l.kind === 'best');
+        A.label = { ...names[0] };
+        if (names[1]) A.label2 = { ...names[1] };
+        A.box = q;
+        const show = !phone || model?.pick?.place === A.id;
+        if (sub && show) A.sub = sub;
+        else if (!sub && A.owned && A.p.best && show) A.fitSub = bestLine(A);   // (no room kept for it: fitted below, moving no word)
+        done.push(A);
+      }
+      // a chosen place whose best fish had no room kept for it: fitted last beside its name, moving no other word
+      for (const A of done) {
+        if (!A.fitSub) continue;
+        const s = A.fitSub, q = A.box, lh = s.px + 3, r = A.size / 2, [x, y] = A.at;
+        const spots = [[q[0] + q[2] / 2, q[1] + q[3] + 1.5 + lh / 2], [q[0] + q[2] / 2, q[1] - 1.5 - lh / 2], ...ring(x, y, r, s.w + 6, lh)];
+        const fr = firstFree(spots, s.w + 6, lh), sp = fr || spots[0];
+        if (!fr) { ok = false; if (final) { delete A.fitSub; continue; } }   // (no room at all: its best fish waits for a roomier sheet)
+        placed.push(around(sp[0], sp[1], s.w + 6, lh));
+        s.x = sp[0]; s.y = sp[1]; A.sub = s; delete A.fitSub;
+      }
+      return { done, ok };
+    };
     const order = items.slice().sort((a, b) => (b.owned - a.owned) || ((b.price != null) - (a.price != null)));
-    for (const A of order) {
-      A.leader = Math.hypot(A.at[0] - A.site[0], A.at[1] - A.site[1]) > 5;
-      // the ways its words may stand, in order: its name on one line, else stacked on two as a surveyor letters a crowded water; each
-      // first with room kept for its best fish under it (an owned place), then without
-      const sets = [];
-      if (A.owned) {
-        const nf = font(`italic 400 ${LS.place}px ${F.chart}`), text = A.p.name || A.id, star = A.p.giantLanded ? 16 : 0;
-        const nm = (t, last) => ({ text: t, font: nf, px: LS.place, w: measure(t, nf) + (last ? star : 0) });
-        const words = text.split(' ');
-        let cut = 0, gapD = Infinity;
-        for (let i = 1; i < words.length; i++) { const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length); if (d < gapD) { gapD = d; cut = i; } }
-        const one = [nm(text, true)], two = cut ? [nm(words.slice(0, cut).join(' '), false), nm(words.slice(cut).join(' '), true)] : null;
-        const sub = A.p.best ? bestLine(A) : null;
-        if (sub) sets.push([...one, sub]);
-        if (sub && two) sets.push([...two, sub]);
-        sets.push(one);
-        if (two) sets.push(two);
-      } else if (A.price != null) { const pr = { text: String(A.price), font: font(`400 ${LS.price}px ${fig}`), px: LS.price, price: true }; pr.w = measure(pr.text, pr.font) + Math.round(LS.price * 0.78) + 5; sets.push([pr]); }
-      if (!sets.length) { out.places.push(A); continue; }
-      const [x, y] = A.at, r = A.size / 2;
-      // (a place by the west or east shore letters out on the paper first, as a surveyor would, clear of the water)
-      const sd = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
-      const spotsFor = (bw, bh) => { // under it, above it, beside it, at its corners, a little further out each round
-        const S = sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : [];
-        for (const d of [0, 10, 22, 36]) {
-          const below = y + r + 2 + d + bh / 2, above = y - r - 2 - d - bh / 2, right = x + r + 4 + d + bw / 2, left = x - r - 4 - d - bw / 2;
-          S.push([x, below], [x, above], [right, y], [left, y], [x + bw * 0.3, below], [x - bw * 0.3, below], [x + bw * 0.3, above], [x - bw * 0.3, above],
-            [right, y + r + bh / 2 - 6], [left, y + r + bh / 2 - 6], [right, y - r - bh / 2 + 6], [left, y - r - bh / 2 + 6]);
-        }
-        return S;
-      };
-      const size = (ls) => { const lh = Math.max(...ls.map((l) => l.px)) + 3; return [Math.max(...ls.map((l) => l.w)) + 6, ls.length * lh + 2, lh]; };
-      let use = null, best = null, bw = 0, bh = 0, lh = 0;
-      for (const s of sets) { const [w0, h0, l0] = size(s), b = firstFree(spotsFor(w0, h0), w0, h0); if (b) { use = s; best = b; [bw, bh, lh] = [w0, h0, l0]; break; } }
-      if (!best) { use = sets[sets.length - 1]; [bw, bh, lh] = size(use); best = spotsFor(bw, bh)[0]; }
-      const q = around(best[0], best[1], bw, bh);
-      placed.push(q);
-      use.forEach((l, i) => { l.x = best[0]; l.y = q[1] + 1 + lh * (i + 0.5); });
-      const names = use.filter((l) => l.kind !== 'best'), sub = use.find((l) => l.kind === 'best');
-      A.label = { ...names[0] };
-      if (names[1]) A.label2 = { ...names[1] };
-      A.box = q;
-      const show = !phone || model?.pick?.place === A.id;
-      if (sub && show) A.sub = sub;
-      else if (!sub && A.owned && A.p.best && show) A.fitSub = bestLine(A);   // (no room kept for it: fitted below, moving no word)
-      out.places.push(A);
-    }
-    // a chosen place whose best fish had no room kept for it: fitted last beside its name, moving no other word
-    for (const A of out.places) {
-      if (!A.fitSub) continue;
-      const s = A.fitSub, q = A.box, lh = s.px + 3, r = A.size / 2, [x, y] = A.at;
-      const spots = [[q[0] + q[2] / 2, q[1] + q[3] + 1.5 + lh / 2], [q[0] + q[2] / 2, q[1] - 1.5 - lh / 2], [x + r + 4 + s.w / 2, y], [x - r - 4 - s.w / 2, y], [x, y + r + 2 + lh / 2]];
-      const sp = firstFree(spots, s.w + 6, lh) || spots[0];
-      placed.push(around(sp[0], sp[1], s.w + 6, lh));
-      s.x = sp[0]; s.y = sp[1]; A.sub = s; delete A.fitSub;
-    }
+    const pk = model?.pick?.place;
+    let pass = letterPass(order, !pk);
+    if (!pass.ok && pk) { pass = letterPass([...order.filter((A) => A.id === pk), ...order.filter((A) => A.id !== pk)], true); out.relettered = true; }
+    out.places.push(...pass.done);
     for (const A of items) {
       if (A.owned) out.targets.push({ id: `place:${A.id}`, kind: 'place', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: A.p.name || A.id });
       else if (A.price != null) out.targets.push({ id: `buy:${A.id}`, kind: 'buy', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: String(A.price) });

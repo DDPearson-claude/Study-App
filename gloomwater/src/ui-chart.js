@@ -290,8 +290,18 @@ export function createChartView(deps) {
       };
       let L;
       try { L = drawChart(g, m, S.art, view, t); } catch (e) { S.paintErr = String(e?.stack || e); report('chart.paint', e); return null; }
-      // (debug builds, ctx.debug.loop.chart('time'): one pixel read back, so the time is the raster's, not only the recording's)
-      if (S.timing) { try { g.getImageData(0, 0, 1, 1); } catch { /* ignore */ } const ms = now() - t0; S.timing.paints.push({ ms: Math.round(ms * 10) / 10, inking: sheetK < 1 || Object.values(placeK).some((v) => v < 1), w, h: hh, dpr }); if (S.timing.paints.length === 1) S.timing.openToPaint = Math.round((now() - S.timing.opened) * 10) / 10; }
+      // (debug builds, ctx.debug.loop.chart('time'): the paint's own call, and the same frame drawn again on a CPU canvas of the same
+      // size with one pixel read back, so the time is the raster's and never waits on the GPU process's queue of 3D frames)
+      if (S.timing) {
+        const r1 = (v) => Math.round(v * 10) / 10, rec = { recordMs: r1(now() - t0), cpuMs: null, inking: sheetK < 1 || Object.values(placeK).some((v) => v < 1), w, h: hh, dpr };
+        try {
+          const off = document.createElement('canvas'); off.width = cv.width; off.height = cv.height;
+          const g2 = off.getContext('2d', { willReadFrequently: true }), t1 = now();
+          drawChart(g2, m, S.art, view, t); g2.getImageData(0, 0, 1, 1); rec.cpuMs = r1(now() - t1);
+        } catch { /* ignore */ }
+        S.timing.paints.push(rec);
+        if (S.timing.paints.length === 1) S.timing.openToPaint = r1(now() - S.timing.opened);
+      }
       S.lastLayout = L; S.lastCanvas = cv; S.draws++;
       if (!S.firstPaint) S.firstPaint = { at: now(), fonts: typeof document !== 'undefined' && document.fonts?.check ? FONT_FACES.every((f) => document.fonts.check(f)) : true, sheetInk: sheetK };
       placeHits(L);

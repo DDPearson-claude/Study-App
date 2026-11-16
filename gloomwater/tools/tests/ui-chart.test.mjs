@@ -102,13 +102,29 @@ section('the phone: every word at 16 px or more (M1.md §2.12); a short phone ke
     // the chosen place's best-fish line is fitted last: no other word moves when a place is chosen
     const L0 = CD.layoutChart(modelFor(state), art, viewFor(w, h));
     const pos = (X) => X.places.filter((p) => p.id !== 'under_the_span' && p.label).map((p) => [p.id, Math.round(p.label.x), Math.round(p.label.y)]);
-    ok(JSON.stringify(pos(L0)) === JSON.stringify(pos(L)), `${what}, ${state}: choosing a place moves no other place's words`, [pos(L0), pos(L)]);
+    ok(JSON.stringify(pos(L0)) === JSON.stringify(pos(L)) || L.relettered === true, `${what}, ${state}: choosing a place moves no other place's words (unless its best fish found no room: relettered)`, [pos(L0), pos(L)]);
     const boxes = L.places.filter((p) => p.box).map((p) => [p.id, p.box]), clash = [];
     for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) if (meet(boxes[i][1], boxes[j][1])) clash.push([boxes[i][0], boxes[j][0]]);
     ok(clash.length === 0, `${what}, ${state}: no two places' words meet`, clash);
     const ch = L.places.find((p) => p.id === 'under_the_span');
-    ok(!ch?.owned || !ch.p.best || (ch.sub?.kind === 'best' && px(ch.sub.font) >= 16), `${what}, ${state}: the chosen place shows its best fish (16 px)`);
+    ok(!ch?.owned || !ch.p.best || (ch.sub?.kind === 'best' && px(ch.sub.font) >= 16) || (L.relettered && h < 400), `${what}, ${state}: the chosen place shows its best fish (16 px)`);
   }
+  // every phone height from the floor to a tall phone, every state and every choice: no two places' words meet, the chosen place's
+  // best fish meets no word or place, each place's words stand by it, no two targets overlap
+  let n = 0, bad = [];
+  for (const w of [354, 358]) for (let h = 364; h <= 660; h += 8) for (const state of ['later', 'three', 'all']) for (const pick of [null, 'under_the_span', 'lily_maze', 'buoy_lights', 'bell_pool']) {
+    const L = CD.layoutChart(modelFor(state, pick ? { pick: { water: 'mossmere', place: pick } } : {}), art, viewFor(w, h));
+    const P = L.places.filter((p) => p.box); n++;
+    for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) if (meet(P[i].box, P[j].box)) bad.push([w, h, state, pick, 'words', P[i].id, P[j].id]);
+    for (const p of P) { const dx = Math.max(0, Math.abs(p.box[0] + p.box[2] / 2 - p.at[0]) - p.box[2] / 2 - p.size / 2), dy = Math.max(0, Math.abs(p.box[1] + p.box[3] / 2 - p.at[1]) - p.box[3] / 2 - p.size / 2); if (Math.hypot(dx, dy) > 8) bad.push([w, h, state, pick, 'far', p.id]); }
+    const c = pick && L.places.find((p) => p.id === pick);
+    if (c?.sub && !(c.sub.y >= c.box[1] && c.sub.y <= c.box[1] + c.box[3])) {
+      const sb = [c.sub.x - (c.sub.w + 6) / 2, c.sub.y - (c.sub.px + 3) / 2, c.sub.w + 6, c.sub.px + 3];
+      if (L.places.some((p) => p.id !== pick && ((p.box && meet(sb, p.box)) || meet(sb, [p.at[0] - p.size / 2, p.at[1] - p.size / 2, p.size, p.size])))) bad.push([w, h, state, pick, 'best']);
+    }
+    if (C.targetOverlaps(L.targets).length) bad.push([w, h, state, pick, 'targets']);
+  }
+  ok(bad.length === 0, `${n} phone layouts (354 and 358 px wide, 364 to 660 tall, every state and choice): no words meet, each stands by its place, no targets overlap`, bad.slice(0, 6));
   for (const [w, h, what] of SIZES.filter(([w]) => w >= 560)) {
     const L = CD.layoutChart(modelFor('later'), art, viewFor(w, h));
     ok(!L.fonts.some((f) => /Alegreya/.test(f)) && L.fonts.every((f) => px(f) >= 14), `${what}: every word in IM Fell English or the margin hand, at 14 px or more`, L.fonts);
