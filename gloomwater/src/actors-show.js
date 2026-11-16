@@ -41,6 +41,8 @@ const GRIP0 = {
   hang: { hands: 2, tailClear: 0.04, gap: 0.12, fore: 0.34, lean: [3, 30], rod: 'raised' },
   alongside: { hands: 1, stand: true, inset: 0.24, flankUp: 30, squareWithin: 12, noseIn: 18, turn: 16, rod: 'planted' },
 };
+// the long thin bodies held as an eel (the lamprey is the loop's plan, M1 step 3a: built only under the loop, so this is the eel alone off it)
+const EEL_LIKE = (shape) => shape === 'eel' || shape === 'lamprey';
 const FACING0 = { faceWithin: 12, threeQuarter: { hang: 18, alongside: 20 }, flankWithin: 15, turnRate: 9 };
 
 // ------------------------------------------------------------------ the show's clock (pure; tools/tests/show-poses.test.mjs)
@@ -194,7 +196,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     else if (shape === 'crayfish') { K.face = 'back'; K.nose = id === 'pinch' ? 'diag' : 'side'; K.tilt = id === 'pinch' ? 16 : 48; K.noseUp = 0; K.f0 = 0.5; }
     else if (shape === 'jelly') { K.face = 'back'; K.nose = 'up'; K.tilt = 0; K.round = true; K.f0 = 0.3; }
     else if (shape === 'puffer') { K.round = true; K.f0 = 0.42; K.noseUp = 6; }
-    else if (shape === 'eel') {
+    else if (shape === 'eel' || shape === 'lamprey') {   // (the loop's lamprey, M1 step 3a, is held as an eel: it hangs, poseRules.thin)
       if (id === 'pinch') K.bend = { head: [0.34, 0.2, 0.75], tail: [0.6, 0.26, 1.0] };
       // draped over both hands: its head up at the left hand, its tail hanging off the right; a long one (the hug's band: it
       // cannot be stood up, and hung edge-on it is a blade) loops deeper, more of it hanging
@@ -506,8 +508,8 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
       // hangs beside the Wick, not over its head: most of its long tail trails on the deck)
       if (K.wings && onDeck) rest = Math.max(rest, 0.2);
       // (an eel hung straight is a blade a finger wide: it hangs in a slow S, bowed to the Wick under its head, its tail kicked out)
-      L.bendHold = rest > 0.01 ? { tail: [1 - rest - 0.05, 0.07, K.wings ? 1.5 : -1.5], ...(fv.shape === 'eel' ? { sag: 0.04 } : {}) }
-        : (fv.shape === 'eel' ? { tail: [0.5, 0.36, -0.9], sag: 0.045 } : (K.wings ? { tail: [0.6, 0.3, 0.25] } : null));
+      L.bendHold = rest > 0.01 ? { tail: [1 - rest - 0.05, 0.07, K.wings ? 1.5 : -1.5], ...(EEL_LIKE(fv.shape) ? { sag: 0.04 } : {}) }
+        : (EEL_LIKE(fv.shape) ? { tail: [0.5, 0.36, -0.9], sag: 0.045 } : (K.wings ? { tail: [0.6, 0.3, 0.25] } : null));
       fv.setBend?.(L.bendHold);
       Y.line = Math.max(hook, rest > 0.01 ? Math.max(hook, Y.tip.y - deckY - clear - L.L * (1 - rest)) : Y.tip.y - deckY - clear - L.L);
       Y.rested = rest > 0.01; Y.onDeck = onDeck;
@@ -568,7 +570,7 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
     const rise = Math.max(0, yHead - yMid), pitch = Math.min(Math.asin(clamp(rise / span, 0, 0.5)), 8 * DEG);
     T.q.setFromAxisAngle(T.d.crossVectors(e, UP).normalize(), pitch); Y.quat.premultiply(T.q);
     const neck = flat ? 0 : clamp(Math.atan2(rise - Math.sin(pitch) * span, 0.2 * L.L), 0, 0.7);
-    L.bendHold = { head: neck > 0.03 ? [0.27, 0.16, -neck] : null, tail: fv.shape === 'eel' ? [0.6, 0.3, 0.3] : null };
+    L.bendHold = { head: neck > 0.03 ? [0.27, 0.16, -neck] : null, tail: EEL_LIKE(fv.shape) ? [0.6, 0.3, 0.3] : null };
     fv.setBend?.(L.bendHold);
     // place it: the head at the edge, the middle afloat
     const hl = T.d.set(0, (sec.top + sec.bottom) / 2, sec.z); fv.section(headF, sec); hl.set(0, (sec.top + sec.bottom) / 2, sec.z); fv.bendPoint?.(hl);
