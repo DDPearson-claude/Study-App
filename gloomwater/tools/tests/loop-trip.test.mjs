@@ -660,7 +660,7 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   ok(sw.sealed === true && sw.price === null && sw.seals.gear.held === true && sw.seals.catch.have === 8 && sw.seals.map.shipped === false, "Sporewood's card: sealed, no price; Rod T1 held, 8 of 12");
   eq(env.L.seals(), sw.seals, 'seals(): the next water\'s three keys');
   const cat = env.L.catalogue('mossmere');
-  ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds === null, 'catalogue: the twelve, then the three places with fish');
+  ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds?.rows?.look?.length === 3, 'catalogue: the twelve, then the three places with fish');
   ok(env.L.fitted().bait === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: nothing fitted, no pick, nothing lifted');
   ok(env.L.fit('bait', 'heartmoss').ok === false && env.L.markLifted('lily_maze') === false
     && env.L.spendBait('heartmoss') === false && env.L.takeGiantMark('thousandcast_pike') === false, 'the writers refuse what the save lacks: no ball to fit, no place to lift, no trip, no mark');

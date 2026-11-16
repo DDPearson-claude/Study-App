@@ -17,6 +17,9 @@
 // `ctx.progression.loop` (null off the loop). LOOP_METHODS names its methods, for the fixture's fakeLoop and the tests; CONTRACT §14
 // is the seam in full. Its one import is core.js's uid (never data.js).
 import { uid } from './core.js';
+// M1 step 5c (lane 5C): the finds, pure (src/loop-finds.js)
+import { fillFinds, findTallyLine, findTallyGroup, bookFinds, findCatalogue, findBiteBonus, findBaitFloor, findShares as findSharesOf, snagChance,
+  drawFind, noteSnag, holdEntry, findById, owned as findOwned } from './loop-finds.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -34,6 +37,8 @@ export const LOOP_METHODS = Object.freeze([
   'state', 'hold', 'holdFull', 'priceOf', 'saleOf', 'keep', 'letGo', 'noteBite', 'bitesSpent', 'bitesLeft', 'favour',
   'closeBite', 'refundOpenBite', 'debugGive', 'isOpen', 'listCount', 'createTrip', 'endTrip', 'lastTrip', 'markTallySeen',
   'shelf', 'goal', 'buy', 'sayOnce', 'parkRun',
+  // M1 step 5c (lane 5C, FINDS §10): the snag roll, a find landed, kept or let go, the save's finds, the catalogue's finds half
+  'snagRoll', 'noteFound', 'keepFind', 'letGoFind', 'finds', 'findShares', 'findCatalogue',
   // the opening (docs/loop/OPENING.md)
   'wick', 'setWick', 'tutorial', 'beginTutorial', 'setTutorialStep', 'tutorialDone', 'resetTutorial',
   // the passives (WICKS §2.2, §2.5): Taper's flag, one per evening; Ashwick's comeback
@@ -71,6 +76,7 @@ export function freshLoop(D) {
     maps: { lakes: [firstWater(D)], places: [] }, raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 },
     looks: [], orders: [], legends: {}, giants: {}, prints: {}, ledgerPaid: [],
     said: {}, lastTrip: null, wick: null, tutorial: null, firsts: { seen: [], seals: [], best: {} },
+    finds: { got: {}, worn: {}, share: {} },   // M1 step 5c (FINDS §10): additive, filled for every block (no schema step)
     // M1 step 3a (PLAN §3.3): the places whose lift has played; the best fish there (`<placeId | open:<water>>` → {speciesId, length},
     // never a weight); the Chart's pick {water, place}, null until one is made (never filled as an object: 3b reads a non-object as the
     // tutorial's first open). LOOP_SCHEMA stays 3: the keys are additive, the fill below gives them to every block (PLAN CHOICE 1)
@@ -148,6 +154,7 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   if (!Array.isArray(L.maps.places)) L.maps.places = [];
   for (const k of ['seen', 'seals']) if (!Array.isArray(L.firsts[k])) L.firsts[k] = [];
   if (!isObj(L.firsts.best)) L.firsts.best = {};
+  fillFinds(L);   // M1 step 5c: meta.loop.finds {got, worn, share}, whole
   L.lifted = L.lifted.filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i);
   if (L.chartPick !== null && !isObj(L.chartPick)) L.chartPick = null;
   if (L.lastTrip !== null && !isObj(L.lastTrip)) L.lastTrip = null;
@@ -178,6 +185,8 @@ function weightKey(D, f) {
  */
 export function tallyLines(creel, { D = null, saleOf = null } = {}) {
   const rows = (Array.isArray(creel) ? creel : []).filter(isObj).map((f, i) => {
+    // M1 step 5c (FINDS §6.4): a find after the fish: the treasures by value, the jackpot last and alone, then the parts and looks
+    if (typeof f.find === 'string') { const line = findTallyLine(f); return { line, i, w: line.clams, g: findTallyGroup(line) }; }
     const stamped = Math.max(0, Math.round(num(f.clams)));
     const sale = typeof saleOf === 'function' ? saleOf(f) : null;
     const base = isObj(sale) && Number.isFinite(Number(sale.base)) ? Math.max(0, Math.round(Number(sale.base))) : stamped;
@@ -212,6 +221,7 @@ export function tallyBook(metaLoop, creel, run, opts = {}) {
         g.landed = int(g.landed) + 1;
       }
     }
+    bookFinds(metaLoop, lines, opts.D || null);   // M1 step 5c: each find brought home counted; a part fitted, a look worn
     if (run?.zone) {
       if (!isObj(metaLoop.bait)) metaLoop.bait = {};
       metaLoop.bait[run.zone] = isObj(run.bait) ? { ...run.bait } : {};
@@ -463,7 +473,8 @@ export function catalogueFor(meta, D, waterId) {
   if (rest.length) groups.unshift({ placeId: null, kind: 'open', owned: true, name: null, entries: rest });
   const { frontier, next } = frontierOf(ml, D), lc = listCount(meta, D, waterId);
   const name = (D?.ZONES || []).find((z) => z?.id === waterId)?.name ?? null;
-  return { head: { waterId, name, have: lc.have, need: lc.need, seals: frontier === waterId && next ? sealsOf(meta, D, next) : null }, list, groups, finds: null };
+  return { head: { waterId, name, have: lc.have, need: lc.need, seals: frontier === waterId && next ? sealsOf(meta, D, next) : null }, list, groups,
+    finds: findCatalogue(meta, D, waterId) };   // M1 step 5c: the finds half (loop-finds.findCatalogue; the page's only rates)
 }
 
 /**
@@ -541,7 +552,9 @@ export function createLoop(S) {
     const L = ensureLoop();
     if (!L) return 0;
     const fn = D().goodBitesFor;
-    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow() }) : 0;
+    // (M1 step 5c: a bite part's +1 at its own water's open water, FINDS §3.2)
+    const extra = kindOf(key) === 'open' ? findBiteBonus(L, D(), String(key || '').slice(5) || run()?.zone || 'mossmere') : 0;
+    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow(), extra }) : 0;
   };
   const tripKey = (k) => (typeof k === 'string' && k ? k : keyOf(null, run()?.zone || 'mossmere'));
   const spentAt = (key) => { const r = run(); return onTrip(r) && isObj(r.bites) ? Math.max(0, int(r.bites[tripKey(key)])) : 0; };
@@ -806,6 +819,13 @@ export function createLoop(S) {
     // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
     const fb = L.fitted?.bait;
     if (typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
+    // M1 step 5c (FINDS §3.2): the bait part tops the bag of its water's plain bait up to the Bait Bed's floor + one tin (lane 5B's
+    // Bed floor in baits: LOOP.home.baitBed.floor[level − 1] when that table exists, else 0); it never piles up
+    try {
+      const bl = int(L.home?.baitBed), bf = bl > 0 ? int(LOOP().home?.baitBed?.floor?.[bl - 1]) : 0;
+      const fl = findBaitFloor(L, d, zone, bf);
+      if (fl.baitId && int(r.bait[fl.baitId]) < fl.floor) r.bait[fl.baitId] = fl.floor;
+    } catch (e) { report('findBaitFloor', e); }
     try {
       const st = S.computeStats?.({}, r);
       if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
@@ -1126,6 +1146,64 @@ export function createLoop(S) {
     return barge();
   }
 
+  // ---------------------------------------------------------------- M1 step 5c (lane 5C): the finds (FINDS §2, §4.1, §6, §10)
+  /** The snag roll of one bite (fishing's own step, apart from the species roll): null, or the find this bite brings up. rng() is
+   *  drawn once for the snag and, on a snag, once for the find. Never on evening 1 or a legend's cast; never a part or a look already
+   *  in this trip's hold or already owned; `force` (debug) names the find. */
+  function snagRoll({ legendCast = false, tutorial = false, rng = Math.random, force = null } = {}) {
+    const r = run(), L = ensureLoop();
+    if (!onTrip(r) || !L) return null;
+    const water = r.zone || 'mossmere';
+    if (typeof force === 'string') { const it = findById(D(), force); return it && it.water === water && !(it.kind !== 'treasure' && findOwned(L, force)) ? force : null; }
+    const p = snagChance(D(), { evening: int(r.evening, 2), legendCast, tutorial });
+    if (!(p > 0) || !(rng() < p)) return null;
+    const exclude = (r.creel || []).filter((f) => isObj(f) && typeof f.find === 'string').map((f) => f.find);
+    return drawFind(findSharesOf(meta(), D(), water, { exclude }), rng());
+  }
+  /** fishing:found's ledger side: the soft guarantee moves (a treasure while some are unowned +step, a part or a look back to share),
+   *  the open bite closes (a find never reaches the measure). → the hold entry the card offers. */
+  function noteFound({ findId, waterKey = null } = {}) {
+    const r = run(), L = ensureLoop();
+    if (!onTrip(r) || !L || !findById(D(), findId)) return null;
+    try { noteSnag(L, D(), r.zone || 'mossmere', findId); } catch (e) { report('noteSnag', e); }
+    closeBite();
+    const key = typeof waterKey === 'string' && waterKey ? waterKey : keyOf(null, r.zone);
+    return holdEntry(D(), findId, { uid: uid('find'), waterKey: key });
+  }
+  /** Keep a find: one slot like a fish (refused when full), its value stamped (a treasure), into the hold; fish:action keep. */
+  function keepFind(entry) {
+    const r = run();
+    ensureLoop();
+    if (!onTrip(r) || !isObj(entry) || typeof entry.find !== 'string') return { ok: false, msg: '', gained: { clams: 0 } };
+    if (!Array.isArray(r.creel)) r.creel = [];
+    if (r.creel.some((f) => f?.uid === entry.uid)) return { ok: true, msg: '', gained: { clams: entry.clams || 0 } };
+    if (holdFull()) { emit('loop:holdFull', { via: 'keep' }); return { ok: false, full: true, msg: D().TEXT_LOOP?.holdFull || '', gained: { clams: 0 } }; }
+    const e = { ...entry };
+    r.creel.push(e);
+    const gained = { clams: e.kind === 'treasure' ? Math.max(0, int(e.clams)) : 0 };
+    emit('fish:action', { action: 'keep', find: true, fish: e, gained });
+    requestSave();
+    return { ok: true, msg: '', gained };
+  }
+  /** Let a find go: the bite back at its water, no favour (the favour is a fish's), no clams; fish:action release. */
+  function letGoFind(entry) {
+    const r = run();
+    ensureLoop();
+    if (!onTrip(r) || !isObj(entry)) return { ok: false, msg: '', gained: { bite: 0, favour: 0 } };
+    if ((r.creel || []).some((f) => f?.uid === entry.uid)) return { ok: false, msg: '', gained: { bite: 0, favour: 0 } };   // kept stays kept
+    const key = typeof entry.waterKey === 'string' && entry.waterKey ? entry.waterKey : keyOf(null, r.zone);
+    r.bites = isObj(r.bites) ? r.bites : {};
+    const n = Math.max(0, int(r.bites[key])), back = Math.min(n, 1);
+    r.bites[key] = n - back;
+    const gained = { bite: back, favour: 0 };
+    emit('fish:action', { action: 'release', letgo: true, find: true, fish: entry, gained });
+    requestSave();
+    return { ok: true, msg: '', gained };
+  }
+  const findsState = () => { const L = ensureLoop(); return L ? fillFinds(L).finds : null; };
+  const findSharesNow = (waterId = run()?.zone || 'mossmere') => (ensureLoop() ? findSharesOf(meta(), D(), waterId) : {});
+  const findCatalogueNow = (waterId = 'mossmere') => (ensureLoop() ? findCatalogue(meta(), D(), waterId) : null);
+
   const api = {
     state: () => ensureLoop(),
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
@@ -1136,6 +1214,7 @@ export function createLoop(S) {
     fit, fitted, spendBait, refundBait, liftDue: liftDueNow, markLifted, lifted, markGiant, takeGiantMark, noteBest,
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
     barge, towBarge,
+    snagRoll, noteFound, keepFind, letGoFind, finds: findsState, findShares: findSharesNow, findCatalogue: findCatalogueNow,   // M1 step 5c
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {

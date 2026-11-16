@@ -93,7 +93,7 @@ section('T136: the catalogue\'s page (SPEC §8.8): the head, the list notched, t
   ok(hv.head.count === '8/12' && hv.list.filter((c) => c.caught).length === 8 && hv.list.find((c) => c.id === 'dusk_minnow').name === 'Dusk Minnow', 'a half page: 8/12, the caught ones named');
   ok(hv.groups.find((g) => g.placeId === 'under_the_span').name === 'Under the Span' && hv.groups.find((g) => g.placeId === 'buoy_lights').name === null, 'an owned place\'s heading its name; an unowned one its glyph alone');
   ok(hv.groups.flatMap((g) => g.cards).find((c) => c.id === 'thousandcast_pike').caught === true, 'a caught giant is drawn and named');
-  ok(fresh.finds === null, 'no finds row before 5c');
+  ok(fresh.finds && fresh.finds.rows.treasure.length === 5, 'M1 step 5c: the finds row (five treasures, three parts, three looks)');
   // the layout (SPEC §8.8): six a row at 960 px, three at 358 px; every card and seal a ≥ 44 px target
   const css = src('ui.css');
   ok(/\.gw-loop-on \.gw-cat-grid \{ display: grid; grid-template-columns: repeat\(6, minmax\(0, 1fr\)\);/.test(css) && /@media \(max-width: 700px\) \{[\s\S]*\.gw-loop-on \.gw-cat-grid \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/.test(css), 'six cards a row on a desktop, three on a phone');
