@@ -632,11 +632,11 @@ section('the Wicks on the water: Stub\'s spook exposure, recorded (WICKS §2.3)'
 }
 section('the Wicks on the water: Ashwick\'s comeback (WICKS §2.5)');
 {
-  const cb = { waterKey: OPEN, speciesId: 'reedjaw_pike', z: 2.05 };
+  const cb = { waterKey: OPEN, speciesId: 'weeping_carp', z: 2.05 };   // (WC-1: a fish the bare hook brings; a stray's comeback waits: watercraft.test.mjs)
   const E = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb } } });
   E.events.length = 0;
   ok(E.toBite({}), '(the bite is live)');
-  ok(E.dbg().species === 'reedjaw_pike' && Math.abs(E.dbg().z - 2.05) < 1e-9, 'Ashwick: the next bite at that water is that fish at the same z');
+  ok(E.dbg().species === 'weeping_carp' && Math.abs(E.dbg().z - 2.05) < 1e-9, 'Ashwick: the next bite at that water is that fish at the same z');
   ok(E.count('fishing:comeback') === 1, 'Ashwick: the float settles with the ember (fishing:comeback, the hiss)');
   const b = E.events.find((x) => x.e === 'fishing:bite')?.p;
   ok(b && b.comeback === true && b.waterKey === OPEN, 'Ashwick: fishing:bite {comeback: true, waterKey}');
@@ -645,6 +645,10 @@ section('the Wicks on the water: Ashwick\'s comeback (WICKS §2.5)');
   E.toIdle(); E.events.length = 0;
   E.toBite({}); E.toIdle();
   ok(!E.events.some((x) => x.e === 'fishing:bite' && x.p.comeback), 'Ashwick: it comes back once');
+  // WC-1 (WATERCRAFT.md §3.6): a pike's comeback waits on the bare hook (it never takes one past 1 in 100): kept, no fishing:comeback
+  const P = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb, speciesId: 'reedjaw_pike' } } }); P.events.length = 0;
+  P.toBite({}); P.toIdle();
+  ok(P.loop.s.comeback !== null && P.count('fishing:comeback') === 0 && !P.events.some((x) => x.e === 'fishing:bite' && x.p.comeback), 'Ashwick (WC-1): a stray\'s comeback waits on a hook it will not take');
   const S = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb } } });
   S.ctx.debug.forceBite({ wait: 3 }); S.tick(3); S.F.onPointerDown({ input: 'mouse' });
   ok(S.loop.s.comeback === null, 'Ashwick: a spook spends it');

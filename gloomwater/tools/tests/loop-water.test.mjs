@@ -11,6 +11,7 @@ delete globalThis.GW_V3; delete globalThis.GW_V3_PHASE;
 const { loadLoopData, fakeLoop } = await import('./loop-fixture.mjs');
 const D = await loadLoopData({ query: 'loop-water' });
 const { makeFishingEnv } = await import('./fishing-env.mjs');
+const WC = await import('../../src/watercraft.js');   // WC-1: on the Mossmere a cast draws from watercraft.castOdds
 
 let pass = 0, fail = 0;
 function ok(cond, msg) { if (cond) pass++; else { fail++; console.log('  FAIL:', msg); } }
@@ -45,11 +46,12 @@ function waterEnv({ own = [], lifted = own, wick = 'wick', phase = 'calm', seed 
   env.roll = (n, o = {}) => env.ctx.debug.fishPoolRoll(n, o);
   return env;
 }
-/** placePool's shares (each species' normalised weight, the giant's included) */
+/** The shares a cast draws from (WC-1, WATERCRAFT.md §4): watercraft.castOdds on placePool's pool, the hook table and the hour tilt
+ *  (fishing-env's world has no shore probe, so open water has no area here); each species' share, the giant's included */
 function poolShares(o) {
   const pp = D.placePool(D.SPECIES, o), out = {};
-  for (const [s, w] of pp.list) out[s.id] = (out[s.id] || 0) + w / pp.tot;
-  if (pp.giant) out[pp.giant.sp.id] = pp.giant.weight / pp.tot;
+  const odds = WC.castOdds(D, { pool: pp, area: null, phase: o.phase, bait: o.bait ?? null, wickId: o.wickId ?? null });
+  for (const e of odds.entries) out[e.sp.id] = (out[e.sp.id] || 0) + e.p;
   return { shares: out, pp };
 }
 /** every drawn share within 3σ of the pool's (and no species drawn the pool does not hold) */
@@ -127,15 +129,16 @@ section('an owned place: its key, its pool, the draws (T122)');
     const r = P.roll(N, { place });
     const { shares } = poolShares({ placeId: place, phase });
     const bad = sharesMatch(r.counts, shares, N);
-    ok(r.place === place && bad.length === 0, `T122: ${N} draws at ${place ?? 'open water'} (${phase}) match placePool's shares within 3σ${bad.length ? ': ' + bad.join(', ') : ''}`);
+    ok(r.place === place && bad.length === 0, `T122: ${N} draws at ${place ?? 'open water'} (${phase}) match castOdds' shares on placePool within 3σ${bad.length ? ': ' + bad.join(', ') : ''}`);
   }
   const L = waterEnv({ own: ALL, seed: 3 }).roll(N, { place: 'lily_maze' }).counts, O = waterEnv({ own: ALL, seed: 3 }).roll(N, { place: null }).counts;
   const ratio = (C, a, b) => (C[a] || 0) / Math.max(1, C[b] || 0);
-  // (a day water draws its other uncommons ×dayDraw 1.5: the koi's ×3 is twice the Kissmark's there, the carp's ×1.5 the same)
-  const koi = ratio(L, 'candlefin_koi', 'kissmark_trout'), carp = ratio(L, 'weeping_carp', 'kissmark_trout'), com = (L.dusk_minnow / N) / (O.dusk_minnow / N);
-  ok(Math.abs(koi - 3 / D.LOOP.place.dayDraw) < 0.25 && Math.abs(carp - 1.5 / D.LOOP.place.dayDraw) < 0.15, `T122: the Lily Maze's koi ×3 and carp ×1.5 (against the Kissmark's day draw ×${D.LOOP.place.dayDraw}: ${koi.toFixed(2)}, ${carp.toFixed(2)})`);
-  const ko = ratio(O, 'candlefin_koi', 'kissmark_trout');
-  ok(Math.abs(ko - 1) < 0.12, `… in open water the koi draws as any uncommon (${ko.toFixed(2)})`);
+  // (the koi's ×3 against the carp's ×1.5 there: twice their open-water ratio; WC-1: on the bare hook the Kissmark is a stray, so the
+  // ratio is taken against the carp, a taker; the hour tilts cancel)
+  const koi = ratio(L, 'candlefin_koi', 'weeping_carp'), ko = ratio(O, 'candlefin_koi', 'weeping_carp'), com = (L.dusk_minnow / N) / (O.dusk_minnow / N);
+  ok(Math.abs(koi / ko - 3 / 1.5) < 0.25, `T122: the Lily Maze's koi ×3 and carp ×1.5 (the koi against the carp ×${(koi / ko).toFixed(2)} of open water's)`);
+  const kt = WC.tilt('candlefin_koi', 'calm') / WC.tilt('weeping_carp', 'calm');
+  ok(Math.abs(ko - kt) < 0.12, `… in open water the koi draws as the carp, an uncommon, by their hour tilts (${ko.toFixed(2)}, want ${kt.toFixed(2)})`);
   note(`a common there against open water: ×${com.toFixed(2)} of its share (its weight ×${D.LOOP.place.common}, the rest of the pool heavier there)`);
   ok(D.placePool(D.SPECIES, { placeId: 'lily_maze', phase: 'calm' }).list.find(([s]) => s.id === 'dusk_minnow')[1] === D.RARITY_WEIGHTS.common * D.LOOP.place.common, 'T122: commons ×0.5 at a place (the pool\'s weight)');
   const twelve = new Set(D.LOOP.species.mossmere);
@@ -180,7 +183,8 @@ section('a giant through fishing (T124)');
   ok(f.terms.some((t) => t.family === 'place' && t.id === 'giant' && t.value === D.LOOP.giant.favour), `T124: +${D.LOOP.giant.favour} in its favour terms`);
   ok(!E.F.favourAt(centre('under_the_span')).terms.some((t) => t.id === 'giant'), '… never in the float\'s (the float names no fish)');
   const N = 20000;
-  const share = (place, phase, wick = 'wick') => { const W = waterEnv({ own: ALL, phase, wick, seed: 11 }); W.loop.s.taperFirst = true; return (W.roll(N, { place }).counts[place === 'buoy_lights' ? 'hullkiss_lamprey' : 'thousandcast_pike'] || 0) / N; };
+  // (WC-1: a giant takes Cut Strip; on the bare hook it is a stray, ≤ 1%: watercraft.test.mjs)
+  const share = (place, phase, wick = 'wick') => { const W = waterEnv({ own: ALL, phase, wick, seed: 11 }); W.loop.s.taperFirst = true; return (W.roll(N, { place, bait: 'cut_strip' }).counts[place === 'buoy_lights' ? 'hullkiss_lamprey' : 'thousandcast_pike'] || 0) / N; };
   const sd = (p) => 3 * Math.sqrt(p * (1 - p) / N);
   const dusk = share('under_the_span', 'dusk'), night = share('under_the_span', 'gloomtide'), day = share('under_the_span', 'calm');
   ok(Math.abs(dusk - 0.06) <= 0.01 && Math.abs(night - 0.06) <= 0.01, `T124: the Thousandcast at Under the Span 6% ± 1 at dusk and night (${(100 * dusk).toFixed(2)}%, ${(100 * night).toFixed(2)}%)`);
@@ -197,7 +201,7 @@ section('a giant through fishing (T124)');
   }
   // Taper's first bite at a giant's place: the commons zeroed, the giant keeps its share
   const T = waterEnv({ own: ALL, phase: 'dusk', wick: 'taper', seed: 17 });
-  const tr = T.roll(N, { place: 'under_the_span' }).counts;
+  const tr = T.roll(N, { place: 'under_the_span', bait: 'cut_strip' }).counts;
   ok(!Object.keys(tr).some((id) => D.SPECIES_BY_ID[id].rarity === 'common') && Math.abs((tr.thousandcast_pike || 0) / N - 0.078) <= 0.012, `Taper's first bite there: no common, the giant at its share (${(100 * (tr.thousandcast_pike || 0) / N).toFixed(2)}%)`);
 }
 

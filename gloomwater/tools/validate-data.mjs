@@ -247,8 +247,8 @@ if (process.argv.includes('--loop')) {
       "Her. You brought me her. Sit down, I'll count it twice.", "Every fish in this water. I'll write that down."]), "T118: Murk's four new lines are SPEC §8.6's strings exactly");
     ok4([...ids.map((id) => TL.maps[id]), TL.shelf.heartmoss, TL.murk.firstMap, TL.murk.firstGiant, TL.murk.legendFirst, TL.murk.listComplete, TL.tabs.giants].every((t) => !/\d/.test(t)), 'T118: no new line carries a digit');
     const strings = []; const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) walk(x); };
-    walk(TL); walk(LP);
-    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP');
+    walk({ ...TL, log: { ...(TL.log || {}), under: '' } }); walk(LP);   // (WC-1: the gear log's "<1%" is SPEC §8.11's one share word, the log's only)
+    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP (but the gear log\'s "<1%", SPEC §8.11)');
     ok4(LP.redress === false && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
       'T118: LOOP.redress is false (no ?redress), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
     // T118: each map card's fish bites at its place (its pool there in some light: the giant's share, a drawn or own fish; the legend
@@ -440,6 +440,70 @@ if (process.argv.includes('--loop')) {
       ok4(LR.mooringChecks(bad, { obstacles: Lay.obstacles, shoreR: Lay.shoreR }).length > 0, 'mooring self-test: a hull circle on the statue fails');
       ok4(!HT.frameCheck(M, { pos: [18, 6, 60], look: [18, 1, 80], fov: 40 }, { vw: 358, vh: 664 }).ok, 'mooring self-test: a camera looking away fails its frame'); }
   }
+  // >>> WC-1 (docs/loop/WATERCRAFT.md rev. 2 §2.2, §3.2, §3.3, §8.3): the Mossmere's watercraft. The lily beds and the reed arcs are open
+  // water (≥ 80%) and ≥ 3 m clear of every dock post, place footprint, the mooring's hull circles and lane, and the tow's glide-in path
+  // (LOOP.tow.glideIn, when present: the segment d m out from the hull along the barge's line, widened 3 m a side); the inflow's centre is
+  // water; the baked shares sum to 1 and sit within ±3 points of §2.1; the hook table names only real ids, every Lake 1 fish, grades 0–3
+  // and null only where §3.2 has it; every pool the game can draw has a taker (S > 0)
+  {
+    const WC = await import('../src/watercraft.js'), M = WC.WATERCRAFT.mossmere, G = M.geometry, Z = L4.ZONE_BY_ID.mossmere;
+    const Lay = WLY.buildLayout(Z), moor = L4.loopMooring('mossmere', Lay.docks), posts = Lay.docks.flatMap((d) => d.posts || []);
+    const fromShore = (x, z) => Lay.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+    const inPlace = (x, z) => !!L4.placeAtV3('mossmere', x, z);
+    const gl = LP.tow?.glideIn?.mossmere, seg = gl && moor ? [{ x: moor.hull.x, z: moor.hull.z }, { x: moor.hull.x + Math.sin(moor.hull.yaw) * gl.d, z: moor.hull.z + Math.cos(moor.hull.yaw) * gl.d }] : null;
+    const dSeg = (p, a, b) => { const vx = b.x - a.x, vz = b.z - a.z, t = Math.max(0, Math.min(1, ((p.x - a.x) * vx + (p.z - a.z) * vz) / (vx * vx + vz * vz || 1))); return Math.hypot(p.x - a.x - t * vx, p.z - a.z - t * vz); };
+    /** the worst clearance of a set of points from the posts, the hulls, the mooring's lane, the glide-in and the places (by probing 3 m round each point) */
+    const clearance = (pts) => {
+      let worst = Infinity, what = '';
+      const take = (d, w) => { if (d < worst) { worst = d; what = w; } };
+      for (const p of pts) {
+        for (const q of posts) take(Math.hypot(p.x - q.x, p.z - q.z) - q.r, 'a dock post');
+        for (const c of moor?.circles || []) take(Math.hypot(p.x - c.x, p.z - c.z) - c.r, 'a hull circle');
+        for (const q of moor?.lane || []) take(Math.hypot(p.x - q.x, p.z - q.z), 'the mooring\'s lane');
+        if (seg) take(dSeg(p, seg[0], seg[1]) - 3, 'the glide-in path');
+        for (let k = 0; k < 16; k++) for (const r of [0, 1, 2, 3]) { const a = k * Math.PI / 8; if (inPlace(p.x + r * Math.cos(a), p.z + r * Math.sin(a))) take(r, 'a place\'s footprint'); }
+      }
+      return { worst, what };
+    };
+    const openShare = (pts) => pts.filter((p) => fromShore(p.x, p.z) > 0 && WLY.isOpenWaterL(Lay, Lay.obstacles, p.x, p.z, 0)).length / Math.max(1, pts.length);
+    for (const b of G.beds) {
+      const pts = []; for (let x = b.x - b.r; x <= b.x + b.r; x += 0.75) for (let z = b.z - b.r; z <= b.z + b.r; z += 0.75) if (Math.hypot(x - b.x, z - b.z) <= b.r) pts.push({ x, z });
+      const o = openShare(pts), c = clearance(pts);
+      ok4(o >= 0.8 && c.worst >= 3, `WC-1: the lily bed (${b.x}, ${b.z}) r ${b.r} is ${(o * 100).toFixed(0)}% open water (≥ 80%) and ${c.worst.toFixed(1)} m clear (≥ 3; nearest: ${c.what})`);
+    }
+    for (const [a0, a1] of G.reedArcs) {
+      const pts = []; for (let a = a0; a <= a1; a += 0.5) { const t = a * Math.PI / 180, sr = Lay.shoreR(t); for (let f = G.reedOff[0]; f <= G.reedOff[1]; f += 0.5) pts.push({ x: (sr - f) * Math.cos(t), z: (sr - f) * Math.sin(t) }); }
+      const o = openShare(pts), c = clearance(pts);
+      ok4(o >= 0.8 && c.worst >= 3, `WC-1: the reed arc [${a0}°, ${a1}°] is ${(o * 100).toFixed(0)}% open water (≥ 80%) and ${c.worst.toFixed(1)} m clear (≥ 3; nearest: ${c.what})`);
+    }
+    ok4(fromShore(G.inflow.x, G.inflow.z) > 0 && WLY.isOpenWaterL(Lay, Lay.obstacles, G.inflow.x, G.inflow.z, 0), `WC-1: the inflow's centre (${G.inflow.x}, ${G.inflow.z}) is water`);
+    const DOC = { margin: 23.7, reeds: 5.8, pads: 2.9, stones: 11.7, dropoff: 10.7, lane: 1.2, open: 21.0, deep: 18.1, inflow: 1.8, outflow: 3.2 };
+    for (const l of ['day', 'dusk', 'night']) {
+      const sh = M.shares[l], nm = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0), sum = WC.AREAS.reduce((a, k) => a + nm(sh[k]), 0);
+      const off = WC.AREAS.filter((a) => !(l === 'night' && ['lane', 'open', 'deep'].includes(a)) && Math.abs(nm(sh[a]) * 100 - DOC[a]) > 3);
+      ok4(Math.abs(sum - 1) < 1e-3 && !off.length && (l !== 'night' || sh.lane === 0), `WC-1: the baked ${l} shares sum to 1 (${sum.toFixed(4)}) and are within ±3 points of §2.1${off.length ? ': off ' + off.join(', ') : ''}`);
+    }
+    const ITEMS = new Set([...L4.BAITS.map((b) => b.id), ...L4.LURES.map((l) => l.id), ...Object.keys(LP.lures || {}), ...(LP.tins?.mossmere || []), 'cut_strip']);
+    const FISH = L4.SPECIES.filter((x) => x.zone === 'mossmere').map((x) => x.id), T = M.hook.table, rows = Object.keys(T);
+    ok4(same([...rows].sort(), [...FISH].sort()), `WC-1: the hook table has a row for every Lake 1 fish and no other (${rows.length} rows)`);
+    ok4(WC.HOOK_ITEMS.every((id) => id === 'bare' || ITEMS.has(id)), `WC-1: the hook table's items are real ids (${WC.HOOK_ITEMS.filter((id) => id !== 'bare').join(', ')})`);
+    const badCell = [];
+    for (const id of rows) for (const it of WC.HOOK_ITEMS) {
+      const g = T[id][it], mayNull = id === L4.ZONES[0].legendary || (id === 'gloam_eel' && it === 'bare');
+      if (!(g === null ? mayNull : Number.isInteger(g) && g >= 0 && g <= 3) || (mayNull && g !== null)) badCell.push(`${id}.${it} ${g}`);
+    }
+    ok4(!badCell.length && same(M.hook.mult, [0.1, 1, 1.6, 2.5]) && M.hook.cap === 0.01, `WC-1: every grade is 0–3, null only for the legend and the eel's bare cell; mult [0.1, 1, 1.6, 2.5], cap 0.01${badCell.length ? ': ' + badCell.slice(0, 4).join(', ') : ''}`);
+    ok4(['reedjaw_pike', 'milkeye_perch', 'kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'].every((id) => T[id].bare === 0) && T.reedjaw_pike.mireworm === 0, 'WC-1: the bare hook is 0 for the five hunters, and a worm 0 for the Reedjaw Pike (the user\'s rule)');
+    let minS = Infinity, at = '', pools = 0;
+    const HOOKS = [{}, { bait: 'mireworm' }, { bait: 'lumen_moss' }, { bait: 'cut_strip' }, ...WC.LURE_IDS.map((l) => ({ lure: l })), { lure: 'glimmer_spoon', bait: 'mireworm' }, { lure: 'feather_fly', bait: 'lumen_moss' }, { lure: 'bone_jig', bait: 'cut_strip' }];
+    for (const where of [...WC.AREAS.map((a) => ({ area: a })), ...Object.keys(LP.places || {}).map((p) => ({ place: p }))]) for (const ph of ['calm', 'dusk', 'gloomtide']) for (const h of HOOKS) for (const wick of [null, 'taper']) {
+      const pool = L4.placePool(L4.SPECIES, { placeId: where.place ?? null, phase: ph, bait: h.bait ?? null, wickId: wick, water: 'mossmere' });
+      const o = WC.castOdds(L4, { pool, area: pool.place ? null : where.area ?? 'open', phase: ph, lure: h.lure ?? null, bait: h.bait ?? null, wickId: wick });
+      pools++; if (o.S < minS) { minS = o.S; at = `${where.place ?? where.area}, ${ph}, ${[h.lure, h.bait].filter(Boolean).join('+') || 'bare'}`; }
+    }
+    ok4(minS > 0, `WC-1: every pool the game can draw has a taker (${pools} pools; smallest S ${minS.toFixed(2)}, ${at})`);
+  }
+  // <<< WC-1
   // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
   const FL = L4.FIRST_EVENING?.lines || {};
   const depart = Math.max(murkHold(TL.murk.firstChart, FL), ...Object.values(TL.murk.firstChartBy || {}).map((x) => murkHold(x, FL)));
