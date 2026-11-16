@@ -331,7 +331,7 @@ export default async function (api) {
     rec.tCard = sec((await g(() => window.__show.step)) - info.step0);
     // the catch show's leftovers (slice-1a PLAN §2.2 item 25; re-baselined for this fix alone): a trial this catch completed (the
     // returning player here has none marked) rings with its toast after the card, never inside the show's window
-    const trialIn = await g((a) => (window.__gw.debug.audioLog?.(240) || []).filter((e) => e.at >= a - 0.005 && /^(challenge_complete|unlock)$/.test(e.name)).map((e) => e.name), au0);
+    const trialIn = await g((a) => (window.__gw.debug.audioLog?.(240) || []).filter((e) => e.at >= a - 0.005 && /^(challenge_complete|unlock)$/.test(e.name)).map((e) => `${e.name} at ${(+e.at).toFixed(2)} (T0 ${(+a).toFixed(2)})`), au0);
     check(trialIn.length === 0, `${name}: item 25: no trial chime in the show's window (T0 → the card)`, trialIn);
     if (strip) {
       // the unfold itself (the card's entrance runs on the wall clock): its animations held at three moments
