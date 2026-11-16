@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { toonMaterial, addOutline } from './toon.js';
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, smoothNormals } from './models-kit.js';
 import { BARGE_LOCAL, TARGET_BOXES } from './home-targets.js';
+import { drawToTexture, loadChartImage } from './chart-top.js';   // M1 step 5b (lane 5b-home): the chart table's top shows the Chart
 
 const clamp = THREE.MathUtils.clamp, damp = THREE.MathUtils.damp;
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
@@ -470,7 +471,72 @@ function variantParts(V, A) {
     timber.push(paint(tube([new THREE.Vector3(x + 0.06, y0 + 0.2, z + 0.05), new THREE.Vector3(x + 0.04, y0 + 1.0, z + 0.06), new THREE.Vector3(x + 0.01, y0 + 2.0, z + 0.05)], (u) => 0.022 - u * 0.014, 5, { capStart: true }), lit(tierCol, 1.8)));
     timber.push(cyl(0.035, 0.035, 0.09, 8, [x + 0.07, y0 + 0.62, z + 0.08], lit(C.iron), [0, 0, Math.PI / 2]));
   }
+  homeParts5b(V, A, timber, glow);   // M1 step 5b (lane 5b-home): the gallery's frames, the eave's print, the Order Board, the dozing Wicks
   return { timber, glow, lamps };
+}
+
+// ---------------------------------------------------------------- M1 step 5b (lane 5b-home; SPEC §6.2, §6.3; M1.md §2.6)
+/** A fish's side profile as a flat ink shape (an ellipse body, a forked tail, two barbels for a catfish), w m long, facing +x. */
+function fishShape(w, h, { barbels = false } = {}) {
+  const S = new THREE.Shape(), bw = w * 0.78, x0 = -w / 2;
+  S.moveTo(x0 + bw, 0);
+  S.bezierCurveTo(x0 + bw, h * 0.55, x0 + bw * 0.35, h * 0.62, x0 + w * 0.2, h * 0.18);
+  S.lineTo(x0, h * 0.5); S.lineTo(x0 + w * 0.07, 0); S.lineTo(x0, -h * 0.5); S.lineTo(x0 + w * 0.2, -h * 0.18);
+  S.bezierCurveTo(x0 + bw * 0.35, -h * 0.55, x0 + bw, -h * 0.48, x0 + bw, 0);
+  const g = [new THREE.ShapeGeometry(S, 6)];
+  if (barbels) for (const s of [1, -1]) g.push(xf(new THREE.PlaneGeometry(w * 0.2, h * 0.05), { p: [x0 + bw + w * 0.08, s * h * 0.12, 0], r: [0, 0, s * 0.35] }));
+  return mergeGeos(g.map((q) => { q.deleteAttribute?.('uv'); return q.toNonIndexed ? q.toNonIndexed() : q; }));
+}
+/** A face's geometry turned to look along +x (from a +z-facing plane) or kept facing +z. */
+const faceX = (g, sgn = 1) => xf(g, { r: [0, sgn * Math.PI / 2, 0] });
+function homeParts5b(V, A, timber, glow) {
+  const CB = HULL.cabin, top = CB.top, dy = HULL.deckY, cw = CB.w, WS = 0.44, WY = dy + 1.02;
+  // ---- the Long Wall, wing I (the cabin's port wall): framed prints seen against the lit port windows, a candle under each
+  if (V.wall >= 1) {
+    const n = Math.max(1, V.prints | 0);
+    let k = 0;
+    for (const z of [-2.55, -0.85, 0.95]) {
+      const per = k < n ? Math.min(2, n - k) : 1;
+      for (let j = 0; j < per; j++) {
+        const fz = z + (per === 2 ? (j ? 0.1 : -0.1) : 0), fw = per === 2 ? 0.15 : 0.24;
+        // the frame's dark edge and its pale print, just inside the glass (the window glow behind them)
+        timber.push(box(0.01, 0.15, fw, [-(cw + 0.037), WY + 0.06, fz], lit(C.frame, 1)));
+        timber.push(box(0.012, 0.1, fw - 0.05, [-(cw + 0.039), WY + 0.06, fz], lit(C.page, 1.1)));
+        glow.push(glowQuad(0.035, 0.06, [-(cw + 0.04), WY - 0.11, fz], '-x', GLOW.door));   // its candle
+      }
+      k += per;
+    }
+    // the doorway's own frame: a gold-edged board seen inside, over the stove's glow
+    timber.push(box(0.36, 0.22, 0.012, [BARGE_LOCAL.door.x, dy + 1.12, CB.z1 - 0.012], lit(C.stoneGilt, 1.3)));
+    timber.push(box(0.3, 0.16, 0.014, [BARGE_LOCAL.door.x, dy + 1.12, CB.z1 - 0.006], lit(C.page, 1.1)));
+  }
+  // ---- the legend's print along the eave above the door (SPEC §6.2): a long paper strip under the roof's edge, her ink on it
+  if (V.eave >= 1) {
+    const L = 2.5, H = 0.3, y = top - 0.24, z = CB.z1 + 0.1;
+    timber.push(box(L + 0.08, H + 0.06, 0.02, [0, y, z], lit(C.stoneGilt, 1.4)));   // its gold frame (a legend's)
+    timber.push(box(L, H, 0.024, [0, y, z + 0.004], lit(C.page, 1.5)));
+    const fish = paint(xf(fishShape(L * 0.92, H * 0.78, { barbels: true }), { p: [0, y, z + 0.018] }), lit(C.ink, 1));
+    timber.push(fish);
+    // two pegs and the cord it hangs from
+    for (const s of [-1, 1]) timber.push(cyl(0.02, 0.02, 0.05, 6, [s * (L / 2 - 0.1), y + H / 2 + 0.05, z], lit(C.iron), [Math.PI / 2, 0, 0]));
+  }
+  // ---- Murk's Order Board (SPEC §6.3): a chalk board hung on the starboard rail, facing his barge alongside; a bigger one at II
+  if (V.orders >= 1) {
+    const big = V.orders >= 2, w = big ? 0.92 : 0.62, h = big ? 0.56 : 0.42, z = -1.65, x = halfBeam(z) + 0.05, y = sheer(z) + (A.rails?.RH ?? 0.52) - h / 2 + 0.06;
+    timber.push(box(0.04, h + 0.06, w + 0.06, [x, y, z], lit(C.post)));
+    timber.push(box(0.045, h - 0.02, w - 0.04, [x + 0.004, y, z], lit(0x222630, 1.4)));
+    const rows = big ? 2 : 1;
+    for (let r = 0; r < rows; r++) {
+      const ry = y + h * 0.22 - r * h * 0.36;
+      // the chalked order: a fish's tally marks and a short scrawl (no words drawn)
+      for (let i = 0; i < 4; i++) timber.push(box(0.05, 0.012, 0.012 + (i === 3 ? 0.07 : 0), [x + 0.03, ry - 0.06, z - w * 0.3 + i * 0.05], lit(0xd8d2e0, 1.3)));
+      timber.push(box(0.05, 0.016, w * 0.55, [x + 0.03, ry + 0.02, z + w * 0.08], lit(0xd8d2e0, 1.2)));
+    }
+    for (const s of [-1, 1]) timber.push(paint(tube([new THREE.Vector3(x, y + h / 2, z + s * w * 0.4), new THREE.Vector3(x - 0.02, sheer(z) + (A.rails?.RH ?? 0.52) + 0.02, z + s * w * 0.35)], 0.01, 3), lit(C.rope)));
+  }
+  // ---- the life aboard: the dozing Wicks' small flames in the cabin's starboard aft window (SPEC §6.1: "dozing by the stove")
+  for (const [dz, hh] of [[-0.12, 0.055], [0.05, 0.045], [0.15, 0.05]]) glow.push(glowQuad(0.028, hh, [cw + 0.04, WY - 0.13, 0.95 + dz], 'x', GLOW.ember));
+  void WS; void faceX;
 }
 
 /**
@@ -567,7 +633,13 @@ export function homeVariants(metaLoop, waterOrder = ['mossmere']) {
   }
   const v = { bed: Math.max(0, Number(H.baitBed) | 0), lights: Math.max(0, Number(H.lights) | 0), wall: Math.max(0, Number(H.wall) | 0),
     rod: Math.max(0, Number(L.tackle?.rod) | 0), stones, looks: Array.isArray(L.looks) ? L.looks.filter((x) => typeof x === 'string').sort() : [] };
-  v.sig = JSON.stringify([v.bed, v.lights, v.wall, v.rod, v.stones, v.looks]);
+  // M1 step 5b (lane 5b-home): Murk's Order Board I–II (a chalk board on the rail facing his barge), the legend's print along the eave
+  // once she is home (SPEC §6.2), and how many prints wing I's frames hang (the cabin's port windows show them)
+  v.orders = Math.max(0, Number(H.orders) | 0);
+  const P = L.prints && typeof L.prints === 'object' ? L.prints : {};
+  v.eave = Object.values(legendOf).some((id) => (Number(legends[id]) || 0) >= 1 && Number(P[id]?.length) > 0) ? 1 : 0;
+  v.prints = v.wall > 0 ? Math.min(6, Object.keys(P).filter((id) => Number(P[id]?.length) > 0 && !Object.values(legendOf).includes(id)).length) : 0;
+  v.sig = JSON.stringify([v.bed, v.lights, v.wall, v.rod, v.stones, v.looks, v.orders, v.eave, v.prints]);
   return v;
 }
 
@@ -604,6 +676,27 @@ export function createHome(ctx) {
     return true;
   }
   setVariants(homeVariants(null));
+
+  // ---- M1 step 5b (lane 5b-home): the chart table's top shows the Chart (chart-top.js drawToTexture on one small canvas): one plane,
+  // its own textured material (the barge's fourth main-pass call), out of the mirror and the shadow; redrawn only when the stones change
+  const chartTop = (() => {
+    try {
+      if (typeof document === 'undefined' || !document.createElement) return null;
+      const cv = document.createElement('canvas');
+      const tex = new THREE.CanvasTexture(cv);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const mat = toonMaterial({ color: 0xffffff, map: tex, rim: 0.04 });
+      const T = A.chart.top;
+      const mesh = new THREE.Mesh(xf(new THREE.PlaneGeometry(T.w, T.d), { r: [-Math.PI / 2, 0, 0], p: [T.x, T.y + 0.004, T.z] }), mat);
+      mesh.name = 'home:chartTop'; mesh.userData.noReflect = true; mesh.userData.noCast = true;
+      bob.add(mesh); mats.push(mat, { dispose: () => tex.dispose() });
+      const st = { sig: null, image: null };
+      const draw = (stones) => { drawToTexture(cv, { image: st.image, stones }); tex.needsUpdate = true; };
+      loadChartImage().then((img) => { st.image = img; if (img) draw(variant?.stones || []); }).catch(() => {});
+      return { mesh, tex, refresh(stones) { const k = JSON.stringify([!!st.image, stones]); if (k === st.sig) return; st.sig = k; draw(stones); } };
+    } catch { return null; }
+  })();
+  if (chartTop) chartTop.refresh(variant?.stones || []);
 
   // ---------------------------------------------------------------- placement and life
   const mooring = { x: 0, z: 0, yaw: 0, set: false };
@@ -677,11 +770,11 @@ export function createHome(ctx) {
       }
       // the variant follows what is owned (meta.loop), read twice a second
       sigT -= dt;
-      if (sigT <= 0) { sigT = 0.5; try { setVariants(homeVariants(ctx.state?.meta?.loop, api.waterOrder)); } catch { /* keep the last */ } }
+      if (sigT <= 0) { sigT = 0.5; try { setVariants(homeVariants(ctx.state?.meta?.loop, api.waterOrder)); chartTop?.refresh(variant?.stones || []); } catch { /* keep the last */ } }
     },
     waterOrder: ['mossmere'],
     /** Draw calls this actor adds (main / mirror / shadow): the budget's own count (M1 §2.14). */
-    calls() { return { main: 2 + (outline ? 1 : 0), mirror: 2, shadow: 1 }; },
+    calls() { return { main: 2 + (outline ? 1 : 0) + (chartTop ? 1 : 0), mirror: 2, shadow: 1 }; },   // (M1 step 5b: + the chart table's top)
     stats() {
       return { visible: object3d.visible, moored: mooring.set, x: mooring.x, z: mooring.z, yaw: mooring.yaw, variant: variant ? JSON.parse(variant.sig) : null,
         verts: { timber: timber.geometry.attributes.position.count, glow: glow.geometry.attributes.position.count, ink: inkGeo.attributes.position.count },

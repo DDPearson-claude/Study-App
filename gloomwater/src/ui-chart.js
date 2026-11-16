@@ -14,6 +14,7 @@
 // writes nothing but the chosen place (meta.loop.chartPick). Never a ring or a disc round the raft or the player.
 import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
+import { gildStep, gildCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home)
 import { buildLayout } from './world-layout.js';
 import { drawFishInk } from './ui-fishart.js';
 
@@ -283,8 +284,10 @@ export function createChartView(deps) {
           sheetK = ink.sheet >= 1 ? 1 : S.inkHold; for (const id of Object.keys(ink.places)) placeK[id] = S.inkHold; more = false;
         }
       }
+      const G5 = gildStep(ml, m, t, st, opts.reduced); more ||= G5.more;   // M1 step 5b: the gilding's re-inking
       const g = cv.getContext('2d');
       const view = {
+        gild: (c, d, mm, a, v) => gildCard(c, d, mm, a * G5.k, v),
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
         water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),

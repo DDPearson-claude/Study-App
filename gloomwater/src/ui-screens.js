@@ -9,6 +9,7 @@ import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3
 import * as AF from './ui-af.js';
 // >>> LOOP 1a (lane C): the Full Hold's words and models (docs/loop/slice-1a/PLAN.md §2.3 item 5); read only under data.LOOP_ENABLED
 import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS, catalogueView, giantsView } from './ui-loop.js';
+import { renderPrintsPage } from './ui-prints.js';   // M1 step 5b (lane 5b-home): the Journal's Prints page
 import { listFor as loopListFor, catalogueFor } from './progression-loop.js';
 import { fmtClams } from './core.js';
 // <<< LOOP 1a
@@ -1626,7 +1627,7 @@ export function createScreens(K) {
     const cur = run()?.zone;
     const sp0 = extra.sel ? K.speciesData(extra.sel) : null;
     const zone = zones.includes(extra.zone) ? extra.zone : sp0 && zones.includes(sp0.zone) ? sp0.zone : zones.includes(cur) ? cur : zones[0];
-    const st = { zone, tab: extra.tab === 'giants' ? 'giants' : 'water', view: sp0 ? 'species' : 'page', sel: sp0?.id || null, hl: extra.hl || null,
+    const st = { zone, tab: extra.tab === 'giants' || extra.tab === 'prints' ? extra.tab : 'water', view: sp0 ? 'species' : 'page', sel: sp0?.id || null, hl: extra.hl || null,
       section: extra.section || null, big: null, from: extra.from || null, titleChild: ctx.flow !== 'playing', pauseChild: !!extra.pauseChild };
     const open = K.entry?.('journal');
     if (open) { Object.assign(open.state, st); open.render(); return true; }
@@ -1635,9 +1636,9 @@ export function createScreens(K) {
         const t = K.top();
         if (!t || t.id !== 'journal') return false;
         if (t.state.view !== 'page' || t.state.big) return false;
-        const ids = [...zones, 'giants'];
-        const curId = t.state.tab === 'giants' ? 'giants' : t.state.zone;
-        return tabKeys(t, ids, () => curId, (v) => { if (v === 'giants') t.state.tab = 'giants'; else { t.state.tab = 'water'; t.state.zone = v; } t.state.section = null; })(code);
+        const ids = [...zones, 'prints', 'giants'];   // (M1 step 5b: the Prints page before the giants')
+        const curId = t.state.tab === 'giants' || t.state.tab === 'prints' ? t.state.tab : t.state.zone;
+        return tabKeys(t, ids, () => curId, (v) => { if (v === 'giants' || v === 'prints') t.state.tab = v; else { t.state.tab = 'water'; t.state.zone = v; } t.state.section = null; })(code);
       } });
     return true;
   }
@@ -1702,9 +1703,10 @@ export function createScreens(K) {
     if (!zones.length) zones.push(s.zone);
     const cat = (zid) => safe(() => ctx.progression?.loop?.catalogue?.(zid), null) || safe(() => catalogueFor(m, D(), zid), null);
     const tabList = zones.map((zid) => { const v = catalogueView(cat(zid), D()); return { id: zid, label: zoneName(zid).replace(/^The /, ''), badge: v ? v.head.count : '' }; });
+    tabList.push({ id: 'prints', label: TLs.tabs?.prints || 'Prints' });   // M1 step 5b (lane 5b-home): the Prints page (SPEC §8.8's tab row)
     tabList.push({ id: 'giants', label: '', icon: 'star' });
-    const curTab = s.tab === 'giants' ? 'giants' : s.zone;
-    const tb = tabs(tabList, curTab, (id) => { if (id === 'giants') s.tab = 'giants'; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; s.pageScroll = null; entry.render(); });
+    const curTab = s.tab === 'giants' || s.tab === 'prints' ? s.tab : s.zone;
+    const tb = tabs(tabList, curTab, (id) => { if (id === 'giants' || id === 'prints') s.tab = id; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; s.pageScroll = null; entry.render(); });
     const gt = [...tb.querySelectorAll('.gw-tab')].pop();
     if (gt) { gt.classList.add('gw-tab--giants'); gt.setAttribute('aria-label', TLs.tabs?.giants || 'Giants'); }
     pn.insertBefore(tb, content);
@@ -1723,6 +1725,10 @@ export function createScreens(K) {
         if (sec) { sec.classList.add('gw-odds-focus'); requestAnimationFrame(() => { try { sec.scrollIntoView({ block: 'start', inline: 'nearest' }); } catch { /* ignore */ } }); }
       }
     } else if (s.tab === 'giants') renderGiants(entry, content, zones);
+    else if (s.tab === 'prints') {   // M1 step 5b: each printed fish's best print; a tap opens its page (Back returns here)
+      const pv = safe(() => ctx.progression?.loop?.prints?.(zones), null);
+      renderPrintsPage({ h, content, view: pv, phone: K.vw < 700, D: D(), onPick: (id) => { sfx('ui_click'); s.view = 'species'; s.sel = id; s.big = null; entry.render(); } });
+    }
     else renderCataloguePage(entry, content, catalogueView(cat(s.zone), D()));
     if (s.big) {
       // the enlarged silhouette (SPEC §8.8): drawn large in place with its glyphs; no name, no number, no word. A tap or Back closes it

@@ -23,6 +23,10 @@ import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
+// M1 step 5b (lane 5b-home): the cabin's gallery behind [data-tile=wall], the empty shelf's line and the Mossmere's gilding
+import { createGalleryView } from './ui-prints.js';
+import { shelfBare, waterGilded } from './home-shelf.js';
+import { shelfItems as shelfItems5b, listCount as listCount5b } from './progression-loop.js';
 
 export { murkLineFor };
 
@@ -98,6 +102,7 @@ export function goalLine(goal, { D = null, wick = null } = {}) {
  */
 const TAB_ICON = { tackle: 'rod', raft: 'hull', bait: 'worm', maps: 'map', home: 'hearth' };
 const ART = { rod: 'rod', line: 'line', reel: 'reel', hold: 'creel', bait: 'mossball', place: 'map', lake: 'map' };
+Object.assign(ART, { baitBed: 'moss', wall: 'journal', lights: 'lantern', look: 'star' });   // M1 step 5b (lane 5b-home): the Home tab's glyphs
 export function shelfCards(shelf, { D = null, clams = 0 } = {}) {
   const TL = T_(D);
   const tabs = arr(shelf?.tabs).filter((t) => isObj(t) && arr(t.items).length);
@@ -205,7 +210,9 @@ export function chartModel(meta, D, opts = {}) {
   lakes.sort((a, b) => num(W[a].order, 99) - num(W[b].order, 99));
   const zone = (id) => D?.ZONE_BY_ID?.[id] || arr(D?.ZONES).find((z) => z?.id === id) || null;
   const tutorial = opts.tutorial === true;
-  const sheets = lakes.map((id) => ({ waterId: id, name: zone(id)?.name || id, owned: true, gilded: false, places: chartPlacesOf(meta, D, id, { tutorial }) }));
+  // M1 step 5b (lane 5b-home; M1.md §2.5): a water complete (its shelf bare, its list full, its giants and legend landed) is gilded
+  const gild = (id) => { try { return !tutorial && waterGilded(meta, D, id, { items: shelfItems5b(D, ml, [], { meta }), listCount: listCount5b }); } catch { return false; } };
+  const sheets = lakes.map((id) => ({ waterId: id, name: zone(id)?.name || id, owned: true, gilded: gild(id), places: chartPlacesOf(meta, D, id, { tutorial }) }));
   const slots = Number.isFinite(Number(opts.slots)) ? Number(opts.slots) : typeof D?.loopSlots === 'function' ? D.loopSlots(ml) : num(ml.holdSlots, 3);
   const water = lakes.includes(opts.water) ? opts.water : lakes[0] ?? null;
   // M1 step 3a (M1.md §3.4: "the first open of a session chooses the place you sailed to last"): the saved pick while the Chart can
@@ -485,7 +492,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/shells?|memories/i.test(t)) return false;
   if (W.has(t)) return true;
   if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★' || t === '· · ·') return true;
-  if (CM_RE.test(t)) return screen === 'catch';
+  if (CM_RE.test(t)) return screen === 'catch' || screen === 'prints' || screen === 'gallery';   // (M1 step 5b: a print's small line)
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
   if (/^Evening \d+$/.test(t)) return true;
   // M1 step 3a: a list's count ("7/12", SPEC §8), and a giant's or the legend's name after its ★
@@ -610,6 +617,7 @@ export function createLoopView(K) {
   // the drawn Chart (M1 step 3b): its art decoded once in idle time after the title is up, with the chart's faces; until then, or
   // if it cannot decode, the Chart is 1a's list
   const chart = createChartView({ K, ctx, D, h, report: (w, e) => report(w, e) });
+  const gallery = createGalleryView({ K, D, loop, report: (w, e) => report(w, e) });   // M1 step 5b: the cabin's gallery (wing I)
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
     setTimeout(() => idle(() => { chart.prepare(); }), 400);
@@ -876,8 +884,8 @@ export function createLoopView(K) {
   function onTile(id) {
     if (id === 'murk') { openShelf(); return; }
     if (id === 'journal') { K.screens?.openJournal?.({ from: 'jetty' }); return; }
-    // the cabin's doorway (wing I): the prints live in the Journal until step 5b's cabin and its gallery
-    if (id === 'wall') { K.screens?.openJournal?.({ from: 'wall' }); return; }
+    // the cabin's doorway (wing I): the gallery, wing I's prints at true size round you (M1 step 5b)
+    if (id === 'wall') { gallery.open(); return; }
     if (id === 'chart') { tut.onTile('chart'); openChart(); }
   }
   function jettyKeys(code) {
@@ -1191,6 +1199,8 @@ export function createLoopView(K) {
       K.hud?.dirtyStats?.();
       // the first place map (SPEC §8.6, T144): "It's in the mist. Go and look." in the shelf's head, once a save
       if (String(id).startsWith('place:')) { const line = L('sayOnce', 'firstMap'); if (line) entry.state.line = line; }
+      // M1 step 5b (M1.md §2.5, SPEC §8.6): the shelf's last permanent card bought: Murk's empty-shelf line, once
+      try { const all = arr(L('shelf')?.tabs).flatMap((t) => arr(t.items)); if (shelfBare(all)) { const line = L('sayOnce', 'shelfBare'); if (line) entry.state.line = line; } } catch (e) { report('shelfBare', e); }
     } else K.sfx?.('denied', { volume: 0.5 });
     entry.render();
   }
