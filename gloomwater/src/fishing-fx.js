@@ -23,7 +23,7 @@
 import * as THREE from 'three';
 
 export const MAX_SLOTS = 10;          // spot slots (8 feeding spots + legend column + spare)
-export const MAX_SIGNS = 10;          // v3 sign / pre-rolled fish instances (≤ 6 signs + pre-rolled fish)
+export const MAX_SIGNS = 20;          // v3 sign / pre-rolled fish instances (≤ 6 signs + pre-rolled fish; WC-2: + ≤ 4 silhouettes, the answers)
 const ARC_DOTS = 18;
 const PULSES = 8;
 const PARTICLES = 192;
