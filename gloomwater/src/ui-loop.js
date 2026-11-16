@@ -481,6 +481,9 @@ export function allowedWords(D) {
   for (const id of Object.keys(isObj(D?.LOOP?.places) ? D.LOOP.places : {})) { const n = typeof D?.loopPlace === 'function' ? D.loopPlace(id)?.name : null; if (n) out.add(n); }
   for (const lb of Object.values(isObj(D?.LOOP?.legendBait) ? D.LOOP.legendBait : {})) { const n = arr(D?.BAITS).find((b) => b?.id === lb?.id)?.name; if (n) out.add(n); }
   for (const k of ['A new personal best', 'A new name for the journal', 'Old Ledger beaten', 'Written in the Elder Log', 'A new record for this place', 'length']) out.add(k);
+  // M1 step 5c (FINDS §9): the finds row's heading as it is drawn ("Snags", "· 1 bite in 20"); the names and lines are TEXT_LOOP's
+  { const pb = Number(D?.LOOP?.finds?.snag?.perBite), bi = T_(D).finds?.biteIn;
+    if (pb > 0 && typeof bi === 'string') { const r = bi.replace('{n}', String(Math.round(1 / pb))); out.add(r); out.add(`· ${r}`); } }
   return out;
 }
 const NUM_RE = /^[+]?\d[\d,]*(\.\d+)?[km]?$/;
@@ -498,6 +501,9 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (CM_RE.test(t)) return screen === 'catch';
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
   if (/^Evening \d+$/.test(t)) return true;
+  // M1 step 5c (SPEC §8.8): a find's rate on the catalogue's finds row (the page's only rates); a treasure's count ("Bent Tin Spoon ×3")
+  if (/^\d{1,2}(?:\.\d)?%$/.test(t)) return screen === 'journal';
+  { const m2 = /^(.+) ×\d+$/.exec(t); if (m2 && W.has(m2[1])) return true; }
   // M1 step 3a: a list's count ("7/12", SPEC §8), and a giant's or the legend's name after its ★
   if (/^\d+\/\d+$/.test(t)) return true;
   if (/^★ /.test(t) && W.has(t.slice(2))) return true;
