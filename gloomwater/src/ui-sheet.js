@@ -214,12 +214,14 @@ const CSS = `
   --cat-faint: rgba(38, 29, 44, .34); --cat-amber: rgb(150, 84, 18); --sh-pink: rgb(196, 74, 136);
   position: relative; flex: 1 1 auto; min-height: 0; display: flex; gap: 14px; color: var(--cat-ink); font: 400 17px/1.3 var(--f-body); }
 .gw-sheet .cat-pp { fill: var(--cat-paper); } .gw-sheet .cat-pp-stroke { stroke: var(--cat-paper); }
-.gw-sh-page { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
-  scrollbar-color: rgba(38, 29, 44, .3) transparent; background-color: var(--cat-paper);
+.gw-sh-page { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background-color: var(--cat-paper);
   background-image: ${PAPER_NOISE}, ${FIBRE}, radial-gradient(ellipse 120% 100% at 50% 50%, rgba(0,0,0,0) 62%, rgba(120, 92, 70, .14) 100%);
-  border-radius: 4px; box-shadow: 0 1px 0 var(--cat-paper-2), 0 2px 0 rgb(214, 204, 190), 0 3px 0 var(--cat-paper-2), 0 12px 30px rgba(0,0,0,.45); padding: 14px 24px 40px; overflow-x: clip;
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), rgba(0,0,0,.08) 100%); mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), rgba(0,0,0,.08) 100%); }
-.gw-sh-page.gw-sh-end { -webkit-mask-image: none; mask-image: none; }
+  border-radius: 4px; box-shadow: 0 1px 0 var(--cat-paper-2), 0 2px 0 rgb(214, 204, 190), 0 3px 0 var(--cat-paper-2), 0 12px 30px rgba(0,0,0,.45); }
+/* the page's own scroll: its words fade into the paper over its last 30 px while there is more below (no line reads as cut) */
+.gw-sh-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: clip; overscroll-behavior: contain; scrollbar-width: thin;
+  scrollbar-color: rgba(38, 29, 44, .3) transparent; padding: 14px 24px 40px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%); mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%); }
+.gw-sh-scroll.gw-sh-end { -webkit-mask-image: none; mask-image: none; }
 .gw-sh-corner { position: sticky; display: block; height: 0; z-index: 2; pointer-events: none; }
 .gw-sh-corner .gw-mb-corner { position: absolute; width: 26px; height: 26px; color: var(--cat-ink-2); }
 .gw-sh-corner--t .gw-mb-corner:first-child { left: -16px; top: -8px; } .gw-sh-corner--t .gw-mb-corner:last-child { right: -16px; top: -8px; transform: scaleX(-1); }
@@ -291,7 +293,8 @@ const CSS = `
 .gw-sh-pickrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .gw-sh-at { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; justify-content: center; margin: -2px 0 6px; font: italic 400 17px/1.2 var(--f-body); color: var(--cat-ink-2); }
 .gw-sh-at .gw-ico { width: 20px; height: 20px; color: var(--cat-ink-2); }
-.gw-sh-buff { display: grid; grid-template-columns: 30px minmax(0, 9.5em) 1fr; gap: 0 10px; padding: 6px 0; border-top: 1px solid rgba(38, 29, 44, .16); align-items: start; }
+.gw-sh-buff { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 1px 10px; padding: 6px 0; border-top: 1px solid rgba(38, 29, 44, .16); align-items: start; }
+.gw-sh-buff .gw-sh-eff { grid-column: 2; }
 .gw-sh-buff:first-of-type { border-top: none; }
 .gw-sh-buff > .gw-sh-bg { width: 26px; height: 26px; color: var(--cat-ink); display: flex; } .gw-sh-buff > .gw-sh-bg svg { width: 26px; height: 26px; }
 .gw-sh-buff b { font: 400 17px/1.25 var(--f-body); font-weight: 600; }
@@ -322,7 +325,7 @@ const CSS = `
 .gw-sh-jump { display: none; }
 /* a phone: one column; plates fold to one row */
 .gw-sheet[data-layout=phone] { gap: 0; }
-.gw-sheet[data-layout=phone] .gw-sh-page { padding: 10px 14px 40px; }
+.gw-sheet[data-layout=phone] .gw-sh-scroll { padding: 10px 14px 40px; }
 .gw-sheet[data-layout=phone] .gw-sh-corner--t .gw-mb-corner:first-child { left: -11px; } .gw-sheet[data-layout=phone] .gw-sh-corner--t .gw-mb-corner:last-child { right: -11px; }
 .gw-sheet[data-layout=phone] .gw-sh-head { grid-template-columns: 72px 1fr; }
 .gw-sheet[data-layout=phone] .gw-sh-portrait, .gw-sheet[data-layout=phone] .gw-sh-portrait svg { width: 72px; height: 82px; }
@@ -337,7 +340,7 @@ const CSS = `
 .gw-sheet[data-layout=phone] .gw-sh-art { grid-row: span 1; }
 .gw-sheet[data-layout=phone] .gw-sh-fold { display: flex; align-items: center; gap: 8px; min-height: 56px; min-width: 0; }
 .gw-sheet[data-layout=phone] .gw-sh-fold .gw-sh-pname { flex: 1 1 auto; min-width: 0; font-size: 17px; }
-.gw-sheet[data-layout=phone] .gw-sh-fig { flex: none; font: 600 17px/1 var(--f-body); font-variant-numeric: tabular-nums; }
+.gw-sheet[data-layout=phone] .gw-sh-fig { flex: none; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; font: 600 17px/1 var(--f-body); font-variant-numeric: tabular-nums; }
 .gw-sheet[data-layout=phone] .gw-sh-plate:not(.gw-open) .gw-sh-more { display: none; }
 .gw-sheet[data-layout=phone] .gw-sh-plate.gw-open .gw-sh-more { grid-column: 1 / -1; }
 .gw-sheet[data-layout=phone] .gw-sh-hookrow, .gw-sheet[data-layout=phone] .gw-sh-small { grid-template-columns: 1fr; }
@@ -480,7 +483,8 @@ export function createSheetView(K) {
     const esc = escH;
     const dropIf = (f) => (f ? DROP : '');
     const pageL = document.createElement('div'), pageR = lay === 'phone' ? pageL : document.createElement('div');
-    pageL.className = 'gw-sh-page gw-sh-page--l'; if (pageR !== pageL) pageR.className = 'gw-sh-page gw-sh-page--r';
+    pageL.className = 'gw-sh-scroll gw-sh-scroll--l'; if (pageR !== pageL) pageR.className = 'gw-sh-scroll gw-sh-scroll--r';
+    const leaf = (sc, side) => { const p = document.createElement('div'); p.className = `gw-sh-page gw-sh-page--${side}`; p.appendChild(sc); return p; };   // (the paper; its scroll inside)
     const corners = `<div class="gw-sh-corner gw-sh-corner--t">${CORNER}${CORNER}</div>`;
     pageL.insertAdjacentHTML('beforeend', corners);
     if (pageR !== pageL) pageR.insertAdjacentHTML('beforeend', corners);
@@ -707,8 +711,8 @@ export function createSheetView(K) {
       od.appendChild(tb); }
     for (const t of [v.odds.unmet, v.odds.strike]) if (t) { const p = document.createElement('p'); p.className = 'gw-sh-foot'; p.textContent = t; od.appendChild(p); }
     // ---- assemble: a desktop's spread (left you and what you own, right what it does) or a phone's column (Buffs first)
-    if (lay === 'desktop') { pageL.append(tk, rf, hm); pageR.append(picks, bf, od); root.append(pageL, pageR); }
-    else { pageL.append(bf, tk, rf, hm, od); root.append(pageL); }
+    if (lay === 'desktop') { pageL.append(tk, rf, hm); pageR.append(picks, bf, od); root.append(leaf(pageL, 'l'), leaf(pageR, 'r')); }
+    else { pageL.append(bf, tk, rf, hm, od); root.append(leaf(pageL, 'l')); }
     content.appendChild(root);
     // where it opens: Odds (an Odds ›), Tackle (the rack), the head (the ledger, the pause), or where it was
     const sc = s.scroll;
@@ -726,14 +730,14 @@ export function createSheetView(K) {
   }
   /** The page's foot fades while there is more below, and lifts at the scroll's end (its last line whole). */
   function footFade(root) {
-    for (const p of root.querySelectorAll('.gw-sh-page')) {
+    for (const p of root.querySelectorAll('.gw-sh-scroll')) {
       const upd = () => p.classList.toggle('gw-sh-end', p.scrollTop + p.clientHeight >= p.scrollHeight - 2);
       p.addEventListener('scroll', upd, { passive: true });
       requestAnimationFrame(upd);
     }
   }
-  const captureScroll = (root) => [...root.querySelectorAll('.gw-sh-page')].map((p) => p.scrollTop);
-  const restoreScroll = (root, sc) => { [...root.querySelectorAll('.gw-sh-page')].forEach((p, i) => { p.scrollTop = num(sc[i]); }); };
+  const captureScroll = (root) => [...root.querySelectorAll('.gw-sh-scroll')].map((p) => p.scrollTop);
+  const restoreScroll = (root, sc) => { [...root.querySelectorAll('.gw-sh-scroll')].forEach((p, i) => { p.scrollTop = num(sc[i]); }); };
 
   // ---- live: the page re-reads the save on every change while it is open (SHEET §5.1)
   try {

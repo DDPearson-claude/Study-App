@@ -68,11 +68,11 @@ export default async function (api) {
         if (leaves[i].contains(leaves[j]) || leaves[j].contains(leaves[i])) continue;
         if (hit(leaves[i].getBoundingClientRect(), leaves[j].getBoundingClientRect())) over.push(`${leaves[i].className} × ${leaves[j].className}`);
       }
-      for (const p of root.querySelectorAll('.gw-sh-page')) if (p.scrollWidth > p.clientWidth + 1) cut.push(`page scrolls sideways ${p.scrollWidth} > ${p.clientWidth}`);
+      for (const p of root.querySelectorAll('.gw-sh-scroll')) if (p.scrollWidth > p.clientWidth + 1) cut.push(`page scrolls sideways ${p.scrollWidth} > ${p.clientWidth}`);
       if (document.documentElement.scrollWidth > innerWidth + 1) cut.push('the document scrolls sideways');
       const rr = root.getBoundingClientRect();
       if (rr.left < -0.5 || rr.right > innerWidth + 0.5) cut.push(`the sheet leaves the screen ${Math.round(rr.left)}..${Math.round(rr.right)}`);
-      return { small: small.slice(0, 8), tiny: tiny.slice(0, 8), over: over.slice(0, 8), cut, pages: [...root.querySelectorAll('.gw-sh-page')].map((p) => ({ w: p.clientWidth, h: p.clientHeight, sh: p.scrollHeight })) };
+      return { small: small.slice(0, 8), tiny: tiny.slice(0, 8), over: over.slice(0, 8), cut, pages: [...root.querySelectorAll('.gw-sh-scroll')].map((p) => ({ w: p.clientWidth, h: p.clientHeight, sh: p.scrollHeight })) };
     });
     if (!r) { K.check(false, `fit (${where}): the sheet is open`); return null; }
     K.check(r.small.length === 0, `fit (${where}): every text on the sheet is 16 px or larger`, r.small);
@@ -182,7 +182,7 @@ export default async function (api) {
     await shotTop('example-span', '[data-sec=odds]');
     await scanSheet('the example, Under the Span');
     if (K.phone) { await shotTop('example-buffs', '[data-sec=buffs]'); await shotTop('example-tackle', '[data-sec=tackle]'); await shotTop('example-raft', '[data-sec=raft]'); }
-    else await g(() => { for (const p of document.querySelectorAll('[data-modal=journal] .gw-sh-page')) p.scrollTop = p.scrollHeight; });
+    else await g(() => { for (const p of document.querySelectorAll('[data-modal=journal] .gw-sh-scroll')) p.scrollTop = p.scrollHeight; });
     if (!K.phone) { await K.settle(200); await K.shoot('example-pages-end'); }
     // a fit at home: the spoon over the worms (the chip in the Tackle plate or the picks)
     K.need(await tapIn('[data-modal=journal] [data-fit="lure:glimmer_spoon"]'), 'the spoon chip');
