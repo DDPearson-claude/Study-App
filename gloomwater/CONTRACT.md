@@ -2022,6 +2022,49 @@ test opens.
 `game.lifting() → placeId | null` (B) · `ui.loop.openShelf({tab, focus})`, `screens.openJournal({from: 'chart', zone})` (C) ·
 `ctx.debug.ui.chartList(on)`, `ctx.debug.ui.hatchProbe(id, w, h)` (C) · `ctx.debug.world.places()` (D).
 
+**Lanes B, C and D as delivered** (the stage, M1 step 3a):
+
+- **main's game API** (B): `game.sail({water, place})`: a `place` key given (a place id, or `null` for open water) is saved as the
+  pick (`loop.setPick`); with no `place` key the Chart's saved pick of that water is sailed to (3b writes it on a tap). An owned
+  place's glide out is `data.loopSailPlan(dock, {water, place})`, kept only while it clears the live obstacles by the raft's radius +
+  0.3 m (else `loop-rules.placeGlide`, its bearing turned the least that clears; none: open water's glide); a place not owned: open
+  water's glide. `game.lifting() → placeId | null` (the lift playing now). The lift (`loop-home.js`): after the glide out and
+  `run:start` (never on a Continue), each `liftDue()` place in price order: `ctx.cinematic` on, `place:lift {placeId, phase: 'start',
+  name}`, `world.liftMist(id, LOOP.lift.thin)` and `render.frameLandmark(world.placeAnchor(id) ?? its landmark, {dur, back})`, at 3 s
+  `{phase: 'title'}`, at 4.2 s `{phase: 'end'}`, `markLifted`, `world.setPlaces`; a tap or a skip key ends it at once
+  (`liftMist(id, 0)`, `frameLandmark(null, {back})`); reduced motion skips the thinning; no cast, no raft move and no Home during it.
+  `world.setPlaces({owned, lifted})` at `run:start`, `home:enter`, `loop:buy` and after each lift.
+- **Fishing** (B): on a trip `rollSpecies` draws `data.placePool` at the cast's place (the giant's share set last, so it stays exact;
+  `speciesPool` and the signs never carry a giant); `waterAt(p).mist === true` over a place not owned or not yet lifted; a cast into a
+  bank emits `fishing:mist {placeId}`, the float sinks into it and rises (`fishing-fx` `setMistFloat(visible, x, y, z, alpha)`,
+  `mistWisps(x, z, k)`), idle again in about 2 s, no bite, the bait kept; `capZ`'s loop branch (Elders in old water, or a giant at its
+  own place); a giant lost at any class is `fish:escaped {markedFish: true, place}`; her hook spends the ball through
+  `loop.spendBait`, a Marked giant's hook takes `loop.takeGiantMark` (`mods.marked`). Under the loop the legend pool's still ring is
+  never drawn (no ring round the raft) and the built legend toast never shows.
+- **`loop-rules.js`** (B): `glideClearance(path, obstacles) → m` · `placeGlide(sailPlan, dock, centre, T, obstacles, {clear, step,
+  max}) → plan | null`.
+- **Sound** (B): `src/audio-mossmere.js` (pure: `mossLight`, `mossOn`, `bedLevels`, `bedBreath`, `PLACE_VOICES`, `EARSHOT`,
+  `voiceGain`, `BANK`, `bankVoice`, `placeVoiceAt`, `giantRollOn`, `ROLL_EARSHOT`, `MOSS_EVENTS` …); `audio-sfx.js` `SFX_MOSS` /
+  `MOSS_SFX` (ten sounds); `giant_roll` on `world:giantBack` at night, `mist_lift` on `place:lift {phase: 'start'}`, `seal_press` on
+  `loop:seal`. `tools/audio-render.mjs --set=mossmere`.
+- **The screens** (C): `ui.loop.openShelf({tab, focus})` (`tab` tackle · raft · bait · maps; `focus` a place id or a card id); the
+  view's `renderChartList`, `baitSlot(model, {onFit})` (`[data-slot=bait]`), `placeBaitSlot(root, model, entry)` (before
+  `[data-action=sail]` in whichever Chart's foot is drawn: the list's, or 3b's drawn foot), `sealRow`, `chartList(on)`; the list's
+  rows `[data-place]` and `[data-action=catalogue]`; `screens.openJournal({from: 'chart', zone})` is the catalogue under the loop
+  (cards `[data-species]`); `chart:pick {water, place}` and `loop:seal {seal: 'catch'}` emitted; the lift's title card on `place:lift
+  {phase: 'title'}`. Pure (`ui-loop.js`): `chartNext` (one: 3b's rule, its seals `sealsOf`'s) · `chartPlacesOf` · `chartRows` ·
+  `baitSlotModel` · `mapArtSizes` · `MAP_ART` · `catalogueView` · `giantsView` · `liftTitle` · `saleLineId`. `ui-fishart.js`:
+  `setLoopArt(on)` (the loop's 2D `trout`, `sturgeon`, `lamprey` plans), `drawFish(…, {hatch: true})`, `hatchProbe(sp, w, h)`.
+- **The world** (D): `src/world-places.js` (built only under the loop); `world.setPlaces({owned, lifted})`, `world.liftMist(id, s)`
+  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r}` (the place's water centre and radius), `world.places()`;
+  `world:giantBack {placeId, x, z}` (at `gloomtide`, in a standing Under the Span or Buoy Lights bank); `world-art.js` `opts.redress`
+  (W9's rest, only with `LOOP.redress`); `render.frameLandmark(p | null, {dur, back})` (null: ease back now; `render-camera.js`
+  `landmarkShot`, `landmarkWeight`); `models-fish.js` `lamprey`, `sturgeon`, `trout` (read only under the loop).
+- **Debug hooks** (debug builds, the loop only): `ctx.debug.loop.own(id | 'all')`, `.lift(id | 'all', {play})`, `.giveBait(id, n,
+  {fit})`, `.at(placeId)`, `.places()`, `.chart(cmd, arg)` (3b), `.homeState()` (+ `sailPlace`, `lift`) · `ctx.debug.fishPoolRoll(n,
+  {place, bait, rb})` · `ctx.debug.audioMoss()` · `ctx.debug.ui.chartList(on)`, `.hatchProbe(id, w, h) → {pixels, offHue, maxInk,
+  inner}`, `.catalogue()` · `ctx.debug.world.places()`, `.giantBack(id, near)`.
+
 **The sim** (`tools/sim/clams.mjs`): `poolFor` gives a giant at its place its share whatever the hour (its offHour share outside its
 hours; PLAN CHOICE 27), and `data.placePool` is the same rule; its data check compares `SPECIES_LOOP`'s fifteen with its own table.
 `MOVED` += `place`, `giant` (read from `data.LOOP`; T42); T104 prints the check of `data.placePool` against `poolFor` in every mode
