@@ -52,8 +52,8 @@ const lit = (hex, k = WOOD) => new THREE.Color(hex).multiplyScalar(k);
 const C = {
   strakeA: 0x33241f, strakeB: 0x3b2a25, tar: 0x1b1418, wale: 0x5e4a40, cap: 0x7d6858, moss: 0x3c4a2e, mossDeep: 0x2f3c26,
   deckA: 0x4c3a31, deckB: 0x45342c, seam: 0x2a1e1a,
-  wallA: 0x5c4436, wallB: 0x523d31, post: 0x2c211d, roof: 0x3a3140, roofEdge: 0x7d7390, frame: 0x2a1f1c,
-  canvasA: 0x7d7196, canvasB: 0x93707e, canvasC: 0xa39bac, seamC: 0x4b4360, pole: 0x3a2b24,
+  wallA: 0x5c4436, wallB: 0x523d31, post: 0x2c211d, roof: 0x3b2d27, roofEdge: 0x76604f, frame: 0x2a1f1c,
+  canvasA: 0x4f3b30, canvasB: 0x5a3c2f, canvasC: 0x433731, seamC: 0x2c201c, pole: 0x3a2b24,
   iron: 0x2a2830, rope: 0x8c7552, stone: 0x8a8498, stoneBlank: 0xa7a1b6, stoneInk: 0x2a2436, stoneGilt: 0xc9a25a,
   page: 0xd9d0bf, cover: 0x5a2a31, chart: 0xd0c5ab, chartEdge: 0x8f826a, ink: 0x2a2530, shutter: 0x6b5a7a,
   door: 0x7a5262, doorB: 0x704a5a, fascia: 0x8d8399, pot: 0x6d4a3c, paint: 0x5d5476, paintDark: 0x4a4260,
@@ -310,13 +310,13 @@ function baseParts() {
       const P = [];
       for (const [p, q, r] of [[top[0], top[2], top[1]], [top[0], top[3], top[2]], [a, b, c], [a, c, d]]) P.push(p.x, p.y, p.z, q.x, q.y, q.z, r.x, r.y, r.z);
       g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.computeVertexNormals();
-      cells.push(paint(g, lit(pick(i, j), 1.7)));
+      cells.push(paint(g, lit(pick(i, j), 1.5)));
     }
     // seams along the patch lines and a hem along the low edge
     const awning = mergeGeos(cells);
     timber.push(awning);
-    for (let i = 1; i < NX; i++) { const pts = []; for (let j = 0; j <= NZ; j++) pts.push(at(i / NX, j / NZ).add(new THREE.Vector3(0, 0.03, 0))); timber.push(paint(tube(pts, 0.008, 3), lit(C.seamC, 1.5))); }
-    { const pts = []; for (let i = 0; i <= NX; i++) pts.push(at(i / NX, 1).add(new THREE.Vector3(0, 0.0, 0.04))); timber.push(paint(tube(pts, 0.025, 4), lit(C.canvasB, 1.5))); }
+    for (let i = 1; i < NX; i++) { const pts = []; for (let j = 0; j <= NZ; j++) pts.push(at(i / NX, j / NZ).add(new THREE.Vector3(0, 0.03, 0))); timber.push(paint(tube(pts, 0.008, 3), lit(C.seamC, 1.3))); }
+    { const pts = []; for (let i = 0; i <= NX; i++) pts.push(at(i / NX, 1).add(new THREE.Vector3(0, 0.0, 0.04))); timber.push(paint(tube(pts, 0.025, 4), lit(C.canvasB, 1.4))); }
     ink.push(awning);
   }
   // ---- the chart table under the awning: four legs, a frame and a pale sheet on top (5b draws the Chart on it)
