@@ -4890,12 +4890,26 @@ export const LOOP = {
   // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches), built only behind this switch: false unless the dev
   // URL flag ?redress=1 (core.js, read once beside ?loop; PLAN CHOICE 13). The user's yes flips the data value in a commit of its own.
   redress: LOOP_ENABLED && globalThis.GW_REDRESS === true,
+  // ---- M1 step 5a, the home barge (SPEC §6.1, §6.5; M1.md §4 step 5): the Slow Hearth, about 12 × 3.6 m, its hull a row of keel
+  // circles in the lake's obstacles (the raft's collision, the water's foam and the validator read them), Murk's barge its own
+  barge: { length: 12, beam: 3.6, keel: { n: 5, r: 1.8, step: 2.4 }, murkR: 2.4,
+    // the glide in (the sail home, the film's hand-off): its last stretch is the mooring's lane, so it reaches the stern from open
+    // water; `reach` m of it at most in the sail home's 2 s (twice the raft's speed; past that the glide begins `reach` m out)
+    reach: 24, arc: ['mossmere'] },   // arc I's stones on the sill, in road order (the reach's waters as each ships)
+  // one mooring per water (SPEC §6.5): the Mossmere's is the Jetty, docks[0]; the raft's tie-up at the stern IS docks[dock] (PLAN
+  // CHOICE 44's place); hull {x, z, yaw} the Slow Hearth's centre and heading (yaw 0: the bow faces −Z), murk Murk's barge (his
+  // facing in the docks' convention), lane the glide in's points before the tie-up (the glide out, reversed), cam the home camera
+  // (pos, look, fov; `portrait` for a screen taller than wide)
+  mooring: {
+    mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62 } } },
+  },
 };
 export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)
   holdFull: "Hold's full.", home: 'Home', keep: 'Keep', letGo: 'Let go', sold: 'Sold', yours: 'Yours.', odds: 'Odds ›',
   sail: 'Sail', resume: 'Resume', continue: 'Continue', next: 'Next: {name} · {price}', holdName: 'Hold {n}',
   tabs: { tackle: 'Tackle', raft: 'Raft', bait: 'Bait', maps: 'Maps', home: 'Home', giants: 'Giants' },   // giants: the ★ tab's accessible name only (PLAN CHOICE 25)
-  jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal' },
+  jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal', wall: 'The Long Wall' },   // (wall: the doorway's accessible name only, SPEC §6.3's; no word is drawn under it)
   shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Holds every fish better.', reel: 'Holds every fish better.',
     heartmoss: 'For the Belled Matriarch. One try.' },   // a legend's bait (SPEC §8.4)
   // the place maps' lines (SPEC §5.2's table), one per place, each ≤ 8 words
@@ -5081,6 +5095,30 @@ export function placePool(species, { placeId = null, phase = 'calm', bait = null
   let g = null;
   if (giant && rest > 0) { const share = giantShare(giant, phase, wickId); g = { sp: giant, share, weight: rest * share / (1 - share) }; }
   return { list, giant: g, tot: rest + (g ? g.weight : 0), place: P ? P.id : null };
+}
+
+/**
+ * M1 step 5a (SPEC §6.5): a water's mooring, resolved on its lake's docks ([{x, z, yaw}] or world.getDocks()' {position, yaw}).
+ * → null when the water has none, else {water, dock, raft: {x, z, yaw} (the stern's tie-up, docks[dock]), hull: {x, z, yaw},
+ * murk: {x, z, yaw}, lane: [{x, z}], cam, circles: the hulls' obstacle circles [{x, z, r, kind: 'hull' | 'murk'}]}.
+ */
+export function loopMooring(waterId, docks = [], B = LOOP.barge, M = LOOP.mooring) {
+  const m = M?.[waterId];
+  if (!m || typeof m !== 'object') return null;
+  const ds = Array.isArray(docks) ? docks : [];
+  const d = ds[Number(m.dock) || 0];
+  const dx = Number(d?.position?.x ?? d?.x), dz = Number(d?.position?.z ?? d?.z);
+  if (!Number.isFinite(dx) || !Number.isFinite(dz)) return null;
+  const hull = { x: Number(m.hull.x), z: Number(m.hull.z), yaw: Number(m.hull.yaw) || 0 };
+  const murk = m.murk ? { x: Number(m.murk.x), z: Number(m.murk.z), yaw: Number(m.murk.yaw) || 0 } : null;
+  const K = B?.keel || { n: 5, r: 1.8, step: 2.4 }, fx = -Math.sin(hull.yaw), fz = -Math.cos(hull.yaw);
+  const circles = [];
+  for (let i = 0; i < K.n; i++) { const s = (i - (K.n - 1) / 2) * K.step; circles.push({ x: hull.x + fx * s, z: hull.z + fz * s, r: K.r, kind: 'hull' }); }
+  if (murk) circles.push({ x: murk.x, z: murk.z, r: Number(B?.murkR) || 2.4, kind: 'murk' });
+  return {
+    water: waterId, dock: Number(m.dock) || 0, raft: { x: dx, z: dz, yaw: Number(d?.yaw) || 0 }, hull, murk,
+    lane: (Array.isArray(m.lane) ? m.lane : []).map((q) => ({ x: Number(q[0]), z: Number(q[1]) })), cam: m.cam || null, circles,
+  };
 }
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).

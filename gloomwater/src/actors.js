@@ -32,6 +32,7 @@ import * as THREE from 'three';
 import { createRaft, DECK_Y } from './actors-raft.js';
 import { createWick, ONE_SHOT } from './actors-wick.js';
 import { createMerchant } from './actors-merchant.js';
+import { createHome } from './actors-home.js';
 import { makeLightPool, makeLine, makeBobber } from './actors-fx.js';
 import { createCord } from './actors-measure.js';
 import { createShow, SHOW_IDS } from './actors-show.js';
@@ -63,6 +64,10 @@ export function create(ctx) {
   const bobRing = new THREE.Mesh(new THREE.RingGeometry(0.82, 1, 40, 1), ringMat);
   bobRing.rotation.x = -Math.PI / 2; bobRing.renderOrder = 2; bobRing.visible = false; group.add(bobRing);
   const merchantR = createMerchant(ctx); group.add(merchantR.object3d);
+  // the loop's home barge, the Slow Hearth (M1 step 5a): moored at the water's mooring through home and every evening; off the
+  // loop it is never built
+  const home = ctx.data?.LOOP_ENABLED === true ? createHome(ctx) : null;
+  if (home) group.add(home.object3d);
   const lightHolder = new THREE.Group(); lightHolder.name = 'actorLights'; group.add(lightHolder);
   lightHolder.add(merchantR.light); // keep the merchant light always in the scene graph (stable light count)
   const lanternLight = raft.light;
@@ -71,6 +76,7 @@ export function create(ctx) {
   // (the mirror takes only their larger parts: a chime bone or a toe is not worth a draw call in a reflection)
   setupSurface(raft.yawGroup, { minReflect: 0.15 });
   setupSurface(merchantR.object3d, { minReflect: 0.4 });
+  if (home) setupSurface(home.object3d, { minReflect: 0.4 });
   merchantR.light.layers.enable(REFLECT_LAYER);
   const LFLAME_I = raft.lflame.outerMat.uniforms.uI.value;
   let introKindle = null;   // INTRO LANE A: {wick, lantern} multipliers while the opening cut scene holds the raft's fire (else null)
@@ -151,7 +157,7 @@ export function create(ctx) {
     const FL = st.meas.fill, ml = merchantR.light;
     if (FL.saved) {
       ml.color.copy(FL.saved.color); ml.distance = FL.saved.distance; ml.decay = FL.saved.decay;
-      if (merchantR.mode === 'hidden') ml.intensity = 0;
+      if (merchantR.mode === 'hidden' || merchantR.mode === 'moored') ml.intensity = 0;
     }
     FL.saved = null; FL.k = 0;
   }
@@ -180,11 +186,25 @@ export function create(ctx) {
     get light() { return merchantR.light; },
     arrive(position, yaw = 0, opts) { restoreFill(); st.arriveFrame = ctx.time?.frame ?? -1; merchantR.arrive(position, yaw, opts); },
     leave(opts) { merchantR.leave(opts); },
+    /** The loop (M1 step 5a): Murk moored at the mooring's murk slot (his lamp's PointLight held at 0, no turning to the raft). */
+    moor(position, yaw = 0, { zone = null } = {}) { restoreFill(); st.arriveFrame = ctx.time?.frame ?? -1; st.mooredZone = zone; merchantR.moor(position, yaw); },
+    get mode() { return merchantR.mode; },
+    get lampLit() { return merchantR.lampLit; },
     ringBell(s) { merchantR.ringBell(s); },
   };
 
+  /** The Slow Hearth at this water's mooring (world.getMooring()), shown while the barge lies here (meta.loop.barge.water). */
+  let homeMooring = null;
+  function updateHome(dt) {
+    const m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null;
+    if (m !== homeMooring) { homeMooring = m; if (m?.hull) home.moor(m.hull); }
+    const where = ctx.state?.meta?.loop?.barge?.water;
+    const zid = ctx.world?.getZone?.()?.id ?? null;
+    home.show(!!m && (!where || where === zid) && ctx.flow !== 'boot');
+    home.update(dt, hasWater() ? H : null);
+  }
   const api = {
-    group, raft: raft.yawGroup, wick: wick.group, lanternLight, merchant, merchantLight: merchantR.light, lightPool: pool.mesh,
+    group, raft: raft.yawGroup, wick: wick.group, lanternLight, merchant, merchantLight: merchantR.light, lightPool: pool.mesh, home,
     get pose() { return wick.pose; },
     get raftLevel() { return raft.level; },
 
@@ -230,7 +250,13 @@ export function create(ctx) {
       });
       // a new lake: drop transient visuals; hide a merchant left over from the old lake unless
       // someone already re-placed him during this same event dispatch
-      bus.on('zone:change', () => { resetTransient(); if (st.arriveFrame !== (ctx.time?.frame ?? -2)) merchantR.leave({ instant: true }); });
+      // (the loop: moored Murk stays through a Sail's zone:change and a Continue; only another water unmoors him)
+      bus.on('zone:change', (p = {}) => {
+        resetTransient();
+        if (st.arriveFrame === (ctx.time?.frame ?? -2)) return;
+        if (merchantR.mode === 'moored') { if (p?.zone && st.mooredZone && p.zone !== st.mooredZone) merchantR.leave({ instant: true, unmoor: true }); }
+        else merchantR.leave({ instant: true });
+      });
       bus.on('flow:change', ({ flow } = {}) => {
         if (flow === 'title') { wick.revive(); resetTransient(); applyCharacter(characterById(ctx.state?.meta?.lastCharacter)); st.lantern = 1; st.vitality = 1; wick.setVitality(1); merchantR.leave({ instant: true }); }
       });
@@ -296,6 +322,12 @@ export function create(ctx) {
         px = ctx.player.position.x; pz = ctx.player.position.z; heading = Number(ctx.player.heading) || 0;
         vx = ctx.player.velocity?.x || 0; vz = ctx.player.velocity?.z || 0;
       }
+      // the loop's home (M1 step 5a): tied at the barge's stern, the raft swings round to its mooring (and back out on the glide
+      // out) instead of snapping to the tie-up's heading
+      if (home && ctx.flow === 'home' && Number.isFinite(st.homeHead)) {
+        st.homeHead += Math.atan2(Math.sin(heading - st.homeHead), Math.cos(heading - st.homeHead)) * (1 - Math.exp(-3.2 * dt));
+        heading = st.homeHead;
+      } else st.homeHead = heading;
       const yaw = heading + Math.PI, c = Math.cos(yaw), s = Math.sin(yaw);
       raft.yawGroup.position.set(px, 0, pz);
       raft.yawGroup.rotation.y = yaw;
@@ -528,11 +560,15 @@ export function create(ctx) {
 
       // ---------------------------------------------------------- merchant
       merchantR.update(dt, hasWater() ? H : null);
+      // ---------------------------------------------------------- the home barge (the loop): moored at this water's mooring
+      if (home) updateHome(dt);
       // the ceremony's candle fill: a soft warm light on the held fish's flank. No new light (the light count stays stable):
       // while Murk is away his lamp's PointLight (always in the scene, dark) is borrowed, then given back as it was
-      const FL = st.meas.fill, borrow = !!closeUp && merchantR.mode === 'hidden';
+      // (the loop: moored Murk's lamp is dark too, so the ceremony borrows it at home as it does while he is away)
+      const lampFree = merchantR.mode === 'hidden' || merchantR.mode === 'moored';
+      const FL = st.meas.fill, borrow = !!closeUp && lampFree;
       FL.k = damp(FL.k, borrow ? 1 : 0, borrow ? 5 : 8, dt);
-      if (FL.k > 0.01 && merchantR.mode === 'hidden') {
+      if (FL.k > 0.01 && lampFree) {
         const ml = merchantR.light;
         if (!FL.saved) FL.saved = { color: ml.color.clone(), distance: ml.distance, decay: ml.decay };
         // low and in front of the held fish, toward the camera: a soft warm glow on its flank (not on the pale wax head)
@@ -734,6 +770,7 @@ export function create(ctx) {
       ctx.render?.scene?.remove?.(group);
       cord.dispose();
       for (const m of [...raft.mats, ...wick.mats, ...merchantR.mats, ...bobber.mats]) m?.dispose?.();
+      home?.dispose();
       pool.dispose(); line.dispose();
     },
   };

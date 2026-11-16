@@ -187,9 +187,23 @@ export function create(ctx) {
     return 'sealed';
   }
 
+  // the loop's home barge (M1 step 5a, SPEC §6.5): the water's mooring on its docks, and the hulls' keel circles in the lake's
+  // obstacles (the raft's collision, the water's foam and the validator read them); off the loop there is none
+  let mooring = null;
   function setLayout(z) {
     zone = z;
     layout = buildLayout(z);
+    mooring = ctx.data?.LOOP_ENABLED === true && typeof ctx.data.loopMooring === 'function' ? ctx.data.loopMooring(z.id, layout.docks) : null;
+    if (mooring) {
+      // the Jetty's two mooring posts were Murk's old berth: with the barge moored there they go (their circles and their art)
+      const d = layout.docks[mooring.dock], posts = Array.isArray(d?.posts) ? d.posts : [];
+      if (posts.length) {
+        const at = (o) => posts.some((p) => Math.abs(p.x - o.x) < 1e-9 && Math.abs(p.z - o.z) < 1e-9);
+        for (let i = layout.obstacles.length - 1; i >= 0; i--) if (layout.obstacles[i].kind === 'post' && at(layout.obstacles[i])) layout.obstacles.splice(i, 1);
+        d.posts = [];
+      }
+      for (const c of mooring.circles) layout.obstacles.push({ x: c.x, z: c.z, r: c.r, kind: c.kind });
+    }
     bounds.radius = layout.R;
     gateInfo.position.set(layout.gate.x, 0, layout.gate.z);
     gateInfo.radius = layout.gate.radius;
@@ -500,6 +514,13 @@ export function create(ctx) {
       s.color.copy(MERCHANT_LAMP); s.intensity = 1.5 * env.glowK; s.distance = 8; s.streak = 0.45;
       waterLights.push(s);
     }
+    // the loop's home barge (M1 step 5a): its windows' warm streak on the water (emissive only: no PointLight, no pool's edge)
+    const hl = ctx.actors?.home?.waterLight;
+    if (hl && !ctx.actors.isStub && hl.intensity > 0.01 && i < wl.length) {
+      const s = wl[i++];
+      s.position.copy(hl.position); s.color.copy(hl.color); s.intensity = hl.intensity * env.glowK; s.distance = hl.distance; s.streak = hl.streak; s.radius = hl.radius;
+      waterLights.push(s);
+    }
     if (arena) {
       const g = arena.gateAnchor;
       if (g && g.intensity > 0.05) { const s = wl[i++]; s.position.set(g.x, g.y, g.z); s.color.copy(g.color); s.intensity = g.intensity * env.glowK; s.distance = g.distance; waterLights.push(s); }
@@ -765,6 +786,8 @@ export function create(ctx) {
     getShoreRadius: (angle) => shoreR(angle),
     getDocks: () => (layout?.docks || []).map((d) => ({ position: new THREE.Vector3(d.x, 0, d.z), yaw: d.yaw })),
     getMood: () => mood,
+    /** The loop (M1 step 5a): this water's mooring (data.loopMooring on its docks: raft, hull, murk, lane, cam, circles), or null. */
+    getMooring: () => mooring,
     getLightShafts: () => (layout?.cracks || []).map((c) => ({ x: c.x, z: c.z })),
     // >>> INTRO LANE A: stage hooks
     getHeroAnchor,

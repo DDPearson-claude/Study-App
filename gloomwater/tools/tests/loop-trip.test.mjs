@@ -368,7 +368,9 @@ section('parked on a trip: Murk, the gate, the trials, the buffs (T29, T46, T53)
   const env = makeEnv({ meta });
   const r = startTrip(env);
   for (let t = 0; t < 300; t += 0.5) { env.phase.time = t; env.P.update(0.5); }
-  ok(env.count('merchant:arrive') === 0 && env.P.isMerchantPresent() === false, 'T29: no merchant:arrive over 300 s of calm on a trip');
+  // (PLAN rev. 9: from M1 step 5 Murk's barge is moored in view through the evening, the actor's moored mode; the market never
+  // brings him, and nothing offers his shelf on the water)
+  ok(env.count('merchant:arrive') === 0 && env.P.isMerchantPresent() === false && env.P.canShop?.() !== true, 'T29 (rev. 9): no merchant:arrive and no Trade pill over 300 s of calm on a trip');
   r.legendaries.belled_matriarch = true;
   for (let t = 0; t < 60; t += 0.5) env.P.update(0.5);
   ok(env.count('gate:open') === 0 && env.P.getGateInfo().open === false && !env.calls.gate.includes('open'), 'T46: the gate never opens on a trip, even with a legend landed');
@@ -592,7 +594,7 @@ section('the opening\'s records (T60, T67) and Murk\'s lines (§8.6)');
   const old = { meta: { ...defaultMeta(), runs: 4, journal: { dusk_minnow: { caught: 2 } }, relics: { seven_knots: 1 }, v3ids: true, firstEvening: { done: true } }, run: null };
   const keep = clone(old.meta);
   migrateSaveModule(old, D);
-  ok(PL.migrateLoop({ loop: clone(old.meta.loop) }, D).loop && old.meta.loop.v === 3, 'T33: an old save gains meta.loop');
+  ok(PL.migrateLoop({ loop: clone(old.meta.loop) }, D).loop && old.meta.loop.v === PL.LOOP_SCHEMA, 'T33: an old save gains meta.loop');
   eq(Object.fromEntries(Object.entries(old.meta).filter(([k]) => k !== 'loop')), keep, 'T33: every other meta key is unchanged');
   const trip = { meta: { ...defaultMeta(), loop: { v: 3 } }, run: { id: 'run_t', active: true, outing: 'trip' } };
   migrateSaveModule(trip, D);
@@ -646,7 +648,8 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   const { meta } = normalizeSave(raw);
   const env = makeEnv({ meta }), L = env.L.state();
   const keep = ['clams', 'tackle', 'holdSlots', 'evenings', 'said', 'firsts', 'lastTrip', 'maps', 'v'];
-  eq(keep.map((k) => L[k]), keep.map((k) => before[k]), 'T117: the step-2 save opens with its clams, tackle, hold, evenings, said, firsts, lastTrip and maps as saved, v 3');
+  // since step 5a's merge the save migrates up to LOOP_SCHEMA (4: meta.loop.barge), everything else as saved
+  eq(keep.map((k) => L[k]), keep.map((k) => (k === 'v' ? PL.LOOP_SCHEMA : before[k])), 'T117: the step-2 save opens with its clams, tackle, hold, evenings, said, firsts, lastTrip and maps as saved, v up to LOOP_SCHEMA');
   eq([L.lifted, L.best, L.chartPick], [[], {}, null], 'T117: lifted [], best {}, chartPick null (never an object)');
   ok(L.clams === 412 && L.holdSlots === 5 && env.L.listCount('mossmere').have === 8 && env.L.listCount('mossmere').need === 12, 'T117: 412 clams, Hold 5, eight of the twelve caught');
   const again = clone(meta.loop); PL.migrateLoop(meta, D);
@@ -865,8 +868,8 @@ section('T117: saves (the step-2 save under 3a, a trip with a place and a ball, 
   const { meta } = normalizeSave(raw);
   const env = makeEnv({ meta });
   const L = env.L.state();
-  eq([L.clams, L.tackle, L.holdSlots, L.evenings, L.said, L.firsts, L.v], [before.meta.loop.clams, before.meta.loop.tackle, before.meta.loop.holdSlots, before.meta.loop.evenings, before.meta.loop.said, before.meta.loop.firsts, 3],
-    "the step-2 save: its clams, tackle, hold, evenings, said, firsts as saved; v still 3");
+  eq([L.clams, L.tackle, L.holdSlots, L.evenings, L.said, L.firsts, L.v], [before.meta.loop.clams, before.meta.loop.tackle, before.meta.loop.holdSlots, before.meta.loop.evenings, before.meta.loop.said, before.meta.loop.firsts, PL.LOOP_SCHEMA],
+    "the step-2 save: its clams, tackle, hold, evenings, said, firsts as saved; v up to LOOP_SCHEMA (step 5a's barge)");
   eq(meta.journal, before.meta.journal, 'its Journal byte-identical');
   ok(L.chartPick === null && typeof L.chartPick !== 'object' || L.chartPick === null, 'chartPick === null (never an object)');
   eq([L.lifted, L.best, L.maps.places], [[], {}, []], 'lifted [], best {}, no place owned');

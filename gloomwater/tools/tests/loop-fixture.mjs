@@ -18,7 +18,7 @@
 // Nothing here is used by the game. Run as a script it checks itself: node tools/tests/loop-fixture.mjs
 import { pathToFileURL } from 'node:url';
 import { defaultMeta } from '../../src/core.js';
-import { freshLoop, LOOP_METHODS, tallyLines, shelfItems, goalOf, listCount as listCountOf, mapCards as mapCardsOf, sealsOf, catalogueFor,
+import { freshLoop, LOOP_METHODS, LOOP_SCHEMA, tallyLines, shelfItems, goalOf, listCount as listCountOf, mapCards as mapCardsOf, sealsOf, catalogueFor,
   liftDue as liftDueOf } from '../../src/progression-loop.js';
 
 /** The loop's data module (GW_V3, GW_V3_PHASE 1, GW_LOOP), cached per query. */
@@ -87,6 +87,7 @@ export function fakeLoop(over = {}) {
     openBite: null, openComeback: false, taperFirst: false, comeback: null, session: [], saves: 0,
     // M1 step 3a
     fitted: { lure: null, bait: null }, bag: {}, lifted: [], marked: {}, best: {}, chartPick: null,
+    barge: { water: 'mossmere', towed: [] },
     ...state, ...plain,
   };
   if (!Array.isArray(s.maps.places)) s.maps = { ...s.maps, places: [] };
@@ -111,8 +112,8 @@ export function fakeLoop(over = {}) {
     const sp = D?.SPECIES_BY_ID?.[f?.speciesId];
     return (sp && typeof D?.fishClams === 'function' ? D.fishClams(sp, f.z) : null) ?? 1;
   };
-  const metaLoop = () => ({ v: 3, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
-    wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}),
+  const metaLoop = () => ({ v: LOOP_SCHEMA, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
+    wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, barge: { water: s.barge.water, towed: [...s.barge.towed] }, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}),
     fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
     giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])) });
   const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
@@ -251,6 +252,8 @@ export function fakeLoop(over = {}) {
     mapCards: () => (D ? mapCardsOf(D, metaLoop(), { meta: metaNow() }) : []),
     seals: (waterId = 'sporewood') => (D ? sealsOf(metaNow(), D, waterId) : null),
     catalogue: (waterId = 'mossmere') => (D ? catalogueFor(metaNow(), D, waterId) : null),
+    barge: () => ({ water: s.barge.water, towed: [...s.barge.towed] }),
+    towBarge(w) { if (typeof w !== 'string' || !w) return null; s.barge.water = w; if (!s.barge.towed.includes(w)) s.barge.towed.push(w); s.saves++; return api.barge(); },
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {

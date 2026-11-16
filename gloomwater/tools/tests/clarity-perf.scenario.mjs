@@ -17,6 +17,7 @@
 // triangles of the costliest frame (all passes: the shadow map on its own beat, the lake's mirror, the scene, the post chain),
 // callsMin, the mirror's own share, points, the pass list, the HDR target, cpuMs (CPU milliseconds per frame, GPU + renderer
 // process, averaged over the frames), wallMs (the fastest frame on the wall clock). Written to <shots>/perf-cpu.json (perf-cpu-phone.json with --mobile).
+// --home (M1 step 5a, §2.14): the home barge's cost at first light and at night from open water, tools/tests/clarity-perf-home.mjs.
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -24,6 +25,7 @@ export default async function (api) {
   if (api.args.loop) return loopPerf(api);
   const { page, wait, evalGame: g, log, args, width, height } = api;
   page.setDefaultTimeout(300000);
+  if (args.home) return (await import('./clarity-perf-home.mjs')).homePerf(api);
   const failures = [];
   const phone = !!args.mobile || width < height;
   const N = Math.max(2, Number(args.frames) || 8);

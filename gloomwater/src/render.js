@@ -560,14 +560,63 @@ export function create(ctx) {
     return lmk.w;
   }
 
+  // the home camera (M1 step 5a; SPEC §6.1): the mooring's `cam` ({pos, look, fov}, `portrait` on a screen taller than wide),
+  // blended over the rig by one weight eased 1.2 s in from 'sail' and out again when the glide out begins; null without a mooring
+  const HOME_EASE = 1.2;
+  const homeCam = { k: 0, w: 0, pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 45 };
+  function homePose() {
+    if (ctx.data?.LOOP_ENABLED !== true) return null;
+    let m = null;
+    try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
+    const c = m?.cam;
+    if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
+    return W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos) ? c.portrait : c;
+  }
+  // the home side (M1 step 5a): the mooring's camera looks at the raft from the far side of the sail framing's north yaw, so in
+  // flow home the rig turns to that side of the raft (the sail home's glide, the rest, the glide out's first moments) and back to
+  // the north as the raft leaves; a turn that large is one eased orbit (HOME_SWING s, smoothstep) round the raft, the way that
+  // keeps the lens off the hulls, never a cut and never a pass over the raft
+  const HOME_SWING = 2.4;
+  const swing = { on: false, side: false, from: 0, d: 0, to: 0, t: 0 };
+  function homeSide() {
+    if (introCam || ctx.flow !== 'home') return null;
+    const g = ctx.player?.glideState;
+    if (g && g.kind === 'sailOut' && Number(g.t) >= HOME_EASE * 0.5) return null;   // (the glide out turns back to the north)
+    const pose = homePose();
+    return pose ? Math.atan2(pose.pos[0] - pose.look[0], pose.pos[2] - pose.look[2]) : null;
+  }
+  /** The swing's delta (d or the long way round): the arc whose camera stays farther from the mooring's hull circles. */
+  function swingWay(from, d, dist) {
+    let circles = null;
+    try { circles = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.()?.circles : null; } catch { circles = null; }
+    if (!Array.isArray(circles) || !circles.length || Math.abs(d) < 1e-3) return d;
+    const clear = (dd) => {
+      let m = Infinity;
+      for (const s of [0.25, 0.5, 0.75]) {
+        const a = from + dd * s, x = fX.x + Math.sin(a) * dist, z = fZ.x + Math.cos(a) * dist;
+        for (const c of circles) m = Math.min(m, Math.hypot(x - c.x, z - c.z) - (Number(c.r) || 0));
+      }
+      return m;
+    };
+    const alt = d - Math.sign(d) * 2 * Math.PI, cd = clear(d), ca = clear(alt);
+    return ca > cd + 1 && cd < 6 ? alt : d;
+  }
+  function updateHomeCam(dt) {
+    const pose = mode === 'home' ? homePose() : null;
+    if (pose) { homeCam.pos.fromArray(pose.pos); homeCam.look.fromArray(pose.look); homeCam.fov = Number(pose.fov) || 45; }
+    homeCam.k = clamp(homeCam.k + (pose ? dt : -dt) / HOME_EASE, 0, 1);
+    homeCam.w = homeCam.k * homeCam.k * (3 - 2 * homeCam.k);
+  }
+
   function pickMode() {
     const flow = ctx.flow;
     if (introCam) return 'sail';   // INTRO LANE A: cut-scene camera
     if (flow === 'title' || flow === 'boot') return 'title';
     if (flow === 'dead') return 'death';
     if (trophyLive()) return 'trophy';
-    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit)
-    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return 'sail';
+    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit); with
+    // the home barge (M1 step 5a) the raft tied at its stern is framed by the mooring's camera ('home', eased 1.2 s from 'sail')
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return homePose() && ctx.player?.gliding !== true ? 'home' : 'sail';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';
     const fs = fishingState();
@@ -596,11 +645,11 @@ export function create(ctx) {
   }
 
   function fillTargets(p) {
-    const base = P[mode];
+    const base = P[mode === 'home' ? 'sail' : mode];   // ('home' keeps the sail rig under its fixed pose)
     for (const k of PARAM_KEYS) tgt[k] = base[k];
     const nk = nightK;
     if (mode === 'trophy') { fillTrophy(); return; }   // its own portrait fit (the distance is the rule's)
-    if (mode === 'sail' || mode === 'night') {
+    if (mode === 'sail' || mode === 'night' || mode === 'home') {
       const s = P.sail, n = P.night;
       for (const k of PARAM_KEYS) tgt[k] = lerp(s[k], n[k], nk);
     } else if (mode === 'fish' || mode === 'reel') {
@@ -647,7 +696,7 @@ export function create(ctx) {
     }
     // the loop's Jetty at rest (flow home, no glide running): the look target on the moored raft itself, not 6.5 m ahead of it, so
     // the raft and the Wick's flame sit mid-frame above the Jetty's tile row; the home glides keep the sail framing
-    if (mode === 'sail' && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
+    if ((mode === 'sail' || mode === 'home') && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
     // portrait screens: widen, pull back and tilt down so the raft and its pool fit
     const a = W / H;
     if (a < 1.25) {
@@ -656,6 +705,8 @@ export function create(ctx) {
       tgt.dist *= 1 + pf * 0.38;
       tgt.elev = Math.min(80, tgt.elev + pf * 7);
     }
+    // the home camera's lens (M1 step 5a): the mooring's pose's own fov (its portrait pose has its own)
+    if (mode === 'home') { const hp = homePose(); if (hp) tgt.fov = Number(hp.fov) || tgt.fov; }
   }
 
   /**
@@ -718,6 +769,7 @@ export function create(ctx) {
     if (mode === 'trophy') return trophy.yaw;
     if (mode === 'title') return titleYaw;
     if (mode === 'death') return deathYaw + (time - deathT0) * 0.045;
+    if (ctx.data?.LOOP_ENABLED === true) { const hs = homeSide(); if (hs != null) return hs; }
     if (mode === 'shop') {
       const m = merchantPos();
       if (m && p) {
@@ -986,7 +1038,24 @@ export function create(ctx) {
     }
 
     const ty = targetYaw(p);
-    if (trophyMove > 0 && dt > 0) {
+    // the home swing (M1 step 5a): the turn to the home side of the raft and back as one orbit
+    const side = ctx.data?.LOOP_ENABLED === true && homeSide() != null;
+    if (side !== swing.side) {
+      swing.side = side;
+      const d = wrapAngle(ty - yaw);
+      if (Math.abs(d) > 0.35 && dt > 0) {
+        swing.on = true; swing.from = yaw; swing.to = ty; swing.t = 0;
+        swing.d = swingWay(yaw, d, cur.dist * Math.cos(clamp(cur.elev, 3, 85) * DEG));
+      }
+    }
+    if (swing.on && Math.abs(wrapAngle(ty - swing.to)) > 0.02) swing.on = false;   // (another target: the usual ease takes it)
+    if (swing.on) {
+      swing.t += dt;
+      const y0 = yaw, k = clamp(swing.t / HOME_SWING, 0, 1);
+      yaw = swing.from + swing.d * k * k * (3 - 2 * k);
+      yawS.v = dt > 0 ? wrapAngle(yaw - y0) / dt : 0;
+      if (k >= 1) swing.on = false;
+    } else if (trophyMove > 0 && dt > 0) {
       yawS.x = yaw;
       springStep(yawS, yaw + wrapAngle(ty - yaw), trophyMove, dt);
       yaw = yawS.x;
@@ -1039,6 +1108,15 @@ export function create(ctx) {
       camPos.lerp(tmpV.set(lmk.pose.pos[0], lmk.pose.pos[1], lmk.pose.pos[2]), lw);
       lookTarget.lerp(tmpV.set(lmk.pose.look[0], lmk.pose.look[1], lmk.pose.look[2]), lw);
       lmkFov = lerp(rigFov, lmk.pose.fov, lw);
+    }
+    // the home camera over the rig (M1 step 5a): the mooring's framing, a slow breath at rest
+    updateHomeCam(dt);
+    // (its lens is the rig's own fov target in mode 'home', fillTargets: the rig eases it with the pose)
+    if (homeCam.w > 0) {
+      const hw = homeCam.w, br = reducedMotion ? 0.01 : 0.05;
+      tmpV.copy(homeCam.pos); tmpV.x += Math.sin(time * 0.23) * br; tmpV.y += Math.sin(time * 0.31 + 0.7) * br * 0.6;
+      camPos.lerp(tmpV, hw);
+      lookTarget.lerp(homeCam.look, hw);
     }
 
     // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
@@ -1266,7 +1344,7 @@ export function create(ctx) {
           camera.getWorldDirection(tmpV2);
           const subj = trophyLive() ? trophy.subject : null;
           return {
-            v3: V3, mode, prevMode, modeT: r1(modeT), cur: prm(cur), tgt: prm(tgt), yawDeg: r1(yaw / DEG), fov: r1(camera.fov),
+            v3: V3, mode, prevMode, modeT: r1(modeT), homeW: r1(homeCam.w), homeSwing: swing.on ? r1(swing.t) : null, cur: prm(cur), tgt: prm(tgt), yawDeg: r1(yaw / DEG), fov: r1(camera.fov),
             pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
             focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
@@ -1416,8 +1494,10 @@ export function create(ctx) {
       fX.x = focusTarget.x; fY.x = focusTarget.y; fZ.x = focusTarget.z;
       fX.v = fY.v = fZ.v = 0;
       yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
+      swing.on = false; swing.side = ctx.data?.LOOP_ENABLED === true && homeSide() != null;   // (on the home side at once on a cut)
       focusInit = true;
       if (showCam.on || showCam.hold) { showCam.p = 1; showCam.init = false; }   // the show camera too: at its fitted target, fully in
+      homeCam.k = mode === 'home' ? 1 : 0;   // (the home camera too: at the mooring's framing on the cut)
       updateCamera(0);
     },
     getYaw() { return yaw; },

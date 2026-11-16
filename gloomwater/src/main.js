@@ -270,6 +270,7 @@ const game = {
     ctx.bus.emit('run:start', { continued: true });
     if (LOOP_ON) {   // the raft's place (T32): after run:start, whose listener put it at the lake's spawn
       if (loopPos) { try { ctx.player.restore?.(loopPos); } catch (e) { report('player.restore', e); } }
+      loopHome?.moorMurk?.();   // (M1 step 5a: Murk moored at the home barge through the evening, as enterHome moors him)
     }
   },
   endRun(cause = 'unknown') {

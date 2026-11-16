@@ -8,17 +8,21 @@
 //
 // Pure exports (node: tools/tests/ui-loop.test.mjs): slotCells · tallyPlan · goalLine · shelfCards · murkLineFor · clamTag ·
 // pillHold · chartModel · chartNext · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
-// settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg
+// settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg · homeTargetIds
 // M1 step 3a (PLAN §2.3; node: ui-loop.test.mjs, ui-catalogue.test.mjs): chartNext · chartPlacesOf · chartRows · baitSlotModel ·
 // mapArtSizes · MAP_ART · catalogueView · giantsView · liftTitle · saleLineId. The view adds renderChartList, baitSlot and
 // placeBaitSlot (the bait slot in the foot of whichever Chart is drawn), the shelf's map, bait and sealed cards (openShelf({tab,
 // focus})), the next water's seals (sealRow), the lift's title card, Murk's home lines with the catch seal's press.
+// M1 step 5a (the home barge): with a mooring on the water the Jetty's three tiles are the barge's own places, DOM buttons over
+// their objects' projected bounds (home-targets.js), with the tiles' words, selectors and focus order ([data-tile=murk|chart|
+// journal], then the cabin's doorway [data-tile=wall] from wing I, no word), re-placed every frame; without one, 1a's tile row.
 import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
+import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
 
 export { murkLineFor };
 
@@ -554,6 +558,9 @@ export function scaleSvg() {
     + `<g class="gw-scale-beam"><path class="gw-sc-beam" filter="url(#gw-brush)" d="M42 22 Q130 16 218 22"/><circle class="gw-sc-knob" cx="42" cy="22" r="2.2"/><circle class="gw-sc-knob" cx="218" cy="22" r="2.2"/></g>`
     + `${pan(46, 'gw-scale-pan--clams')}${pan(214, 'gw-scale-pan--fish')}</svg>`;
 }
+/** The home barge's targets in their focus order (M1 step 5a): Murk, Chart, Journal, then the doorway once wing I is owned. */
+export function homeTargetIds(metaLoop) { return ['murk', 'chart', 'journal', ...((Number(metaLoop?.home?.wall) || 0) >= 1 ? ['wall'] : [])]; }
+
 /** The three Jetty tiles' small ink drawings: Murk (his barge-lamp, the UI's one sage trace), the Chart (a rolled sheet), the Journal. */
 function tileArt(id) {
   if (id === 'murk') {
@@ -781,6 +788,31 @@ export function createLoopView(K) {
     }
     if (goal) wrap.querySelector('.gw-jetty-goal').innerHTML = goal.html; else wrap.querySelector('.gw-jetty-goal').remove();
     const nav = wrap.querySelector('.gw-jetty-tiles');
+    if (homeMooring()) {
+      // the barge's own places (M1 step 5a): each tile's word under its object, the doorway (wing I) with none
+      nav.remove();
+      wrap.classList.add('gw-jetty--barge');
+      const layer = h('div', 'gw-jetty-targets');
+      for (const id of homeTargetIds(K.meta?.()?.loop)) {
+        const cue = c.tile === id, dim = c.dim && !cue;
+        const b = h('button', `gw-tile gw-jetty-target gw-jetty-target--${id}${cue ? ' gw-cue' : ''}${dim ? ' gw-dim' : ''}`);
+        b.type = 'button';
+        b.dataset.tile = id;
+        if (cue || (!c.tile && id === 'chart')) b.dataset.autofocus = '1';
+        const word = id === 'wall' ? null : TL().jetty?.[id] || id;
+        b.innerHTML = `<span class="gw-jetty-tbox" aria-hidden="true"></span>${word ? `<span class="gw-jetty-tword">${ORN.hookL}<b></b>${ORN.hookR}</span>` : ''}`;
+        if (word) b.querySelector('b').textContent = word; else b.setAttribute('aria-label', TL().jetty?.wall || 'The Long Wall');
+        b.style.visibility = 'hidden';   // (until placeTargets puts it over its object, this frame)
+        b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); onTile(id); });
+        layer.appendChild(b);
+      }
+      wrap.insertBefore(layer, wrap.querySelector('.gw-jetty-low'));
+      wrap.querySelector('[data-loop=homepause]').addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); openHomePause(); });
+      wrap.addEventListener('click', () => { if (tut.tap()) { refreshJetty(true); return; } if (J.line) { J.line = null; refreshJetty(true); } });
+      TG.sig = '';
+      placeTargets(true, wrap);   // (placed in the same task: a press the moment the Jetty opens finds them)
+      return;
+    }
     for (const id of ['murk', 'chart', 'journal']) {
       const cue = c.tile === id, dim = c.dim && !cue;
       const b = h('button', `gw-mode gw-tile gw-tile--${id}${cue ? ' gw-cue' : ''}${dim ? ' gw-dim' : ''}`);
@@ -805,9 +837,47 @@ export function createLoopView(K) {
     const sig = JSON.stringify([c, clams, goal?.text, jettyLine()]);
     if (force || sig !== jettySig) e.render();
   }
+  // ------------------------------------------------------------------ the home barge's targets (M1 step 5a)
+  /** The water's mooring with its barge (world.getMooring()), or null (then the Jetty is 1a's tile row). */
+  function homeMooring() {
+    try { const m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; return m && m.hull ? m : null; } catch { return null; }
+  }
+  const TG = { sig: '', proj: { x: 0, y: 0 }, last: null };
+  /** Each target's button over its object's projected bounds, the word under it, kept ≥ 44 px, clear of the purse, the pause glyph
+   *  and the goal line, and never over another (home-targets.layoutTargets); called every frame while the Jetty is up. */
+  function placeTargets(force = false, root = null) {
+    const el = root || K.entry('jetty')?.el, layer = el?.querySelector('.gw-jetty-targets');
+    const M = homeMooring(), R = ctx.render;
+    if (!layer || !M || !R || R.isStub || typeof R.projectToScreen !== 'function') return null;
+    const vw = Math.max(1, innerWidth), vh = Math.max(1, innerHeight), phone = vw < 700 || vh < 500;
+    const C = targetCorners(M) || {};
+    const proj = (p) => { const o = R.projectToScreen({ x: p[0], y: p[1], z: p[2] }, TG.proj); return { x: o.x, y: o.y, depth: o.behind ? -1 : 1 }; };
+    const btns = [...layer.querySelectorAll('.gw-jetty-target')];
+    const rects = {};
+    for (const b of btns) rects[b.dataset.tile] = C[b.dataset.tile] ? rectOf(C[b.dataset.tile], proj) : null;
+    const box = (sel) => { const q = el.querySelector(sel); if (!q) return null; const r = q.getBoundingClientRect(); return r.width > 0 ? { l: r.left - 4, t: r.top - 4, r: r.right + 4, b: r.bottom + 4 } : null; };
+    const reserve = ['.gw-jetty-purse', '[data-loop=homepause]', '.gw-jetty-goal'].map(box).filter(Boolean);
+    const word = phone ? 30 : 34;
+    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false }, reserve, margin: phone ? 6 : 10 });
+    const sig = lay.items.map((it) => `${it.id}:${Math.round(it.l)},${Math.round(it.t)},${Math.round(it.w)},${Math.round(it.h)}`).join('|');
+    TG.last = lay;
+    if (!force && sig === TG.sig) return lay;
+    TG.sig = sig;
+    const byId = new Map(lay.items.map((it) => [it.id, it]));
+    for (const b of btns) {
+      const it = byId.get(b.dataset.tile);
+      if (!it) { b.style.visibility = 'hidden'; continue; }
+      Object.assign(b.style, { visibility: '', left: `${it.l.toFixed(1)}px`, top: `${it.t.toFixed(1)}px`, width: `${it.w.toFixed(1)}px`, height: `${it.h.toFixed(1)}px` });
+      b.style.setProperty('--box-h', `${(it.box.b - it.box.t).toFixed(1)}px`);
+    }
+    return lay;
+  }
+
   function onTile(id) {
     if (id === 'murk') { openShelf(); return; }
     if (id === 'journal') { K.screens?.openJournal?.({ from: 'jetty' }); return; }
+    // the cabin's doorway (wing I): the prints live in the Journal until step 5b's cabin and its gallery
+    if (id === 'wall') { K.screens?.openJournal?.({ from: 'wall' }); return; }
     if (id === 'chart') { tut.onTile('chart'); openChart(); }
   }
   function jettyKeys(code) {
@@ -1391,6 +1461,7 @@ export function createLoopView(K) {
       if (tut.wantsChart && topId === 'jetty') { tut.onTile('chart'); openChart(); }
       if (J.line && topId === 'jetty') { J.lineT += d; if (J.lineT > J.lineHold) { J.line = null; J.press = null; } }
       if (topId === 'jetty') refreshJetty();
+      if (K.has('jetty')) placeTargets();
     }
     if (!onTrip() || ctx.flow !== 'playing') return;
     paintHold();
@@ -1457,6 +1528,9 @@ export function createLoopView(K) {
       tips: { cast: !!TIP.castEl, strike: !!TIP.strikeEl },
       liftTitle: LT.el ? { name: LT.el.querySelector('b')?.textContent ?? null, t: LT.t, dur: LT.dur } : null,
       chartList: chartListForced,
+      targets: TG.last ? { ok: TG.last.ok, faults: TG.last.faults.slice(), items: TG.last.items.map((it) => ({ ...it, box: { ...it.box } })) } : null,
     }),
+    /** the home barge's targets, placed now (tests): → the layout {items, ok, faults} or null without the barge */
+    placeTargets: () => placeTargets(true),
   };
 }

@@ -23,8 +23,9 @@ const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n :
 const int = (v, d = 0) => Math.trunc(num(v, d));
 const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, int(v, lo)));
 const SLOTS = ['rod', 'line', 'reel'];
-/** The schema of meta.loop this module writes (v1 and v2 were drafts' blocks, migrated by migrateLoop's five rules). */
-export const LOOP_SCHEMA = 3;
+/** The schema of meta.loop this module writes (v1 and v2 were drafts' blocks, migrated by migrateLoop's five rules; v4, M1 step 5a,
+ *  adds the home barge's own field `barge = {water, towed}`, SPEC §6.5). */
+export const LOOP_SCHEMA = 4;
 /** v5's Quiet Hull I–III, refunded by migrateLoop rule 3 (a draft-only part; never sold again). */
 const V5_HULL = [100, 600, 8000];
 
@@ -40,6 +41,8 @@ export const LOOP_METHODS = Object.freeze([
   // M1 step 3a (PLAN §3.2): the bait slot, the lift, the Marked giant, the best fish there, the Chart's pick, the cards, seals and catalogue
   'fit', 'fitted', 'spendBait', 'refundBait', 'liftDue', 'markLifted', 'lifted', 'markGiant', 'takeGiantMark', 'noteBest',
   'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
+  // the home barge (M1 step 5a, SPEC §6.5): where it lies and the waters it has been towed to
+  'barge', 'towBarge',
 ]);
 
 /** The water a fresh save owns: the one LOOP.waters puts first (the Mossmere). */
@@ -72,6 +75,8 @@ export function freshLoop(D) {
     // never a weight); the Chart's pick {water, place}, null until one is made (never filled as an object: 3b reads a non-object as the
     // tutorial's first open). LOOP_SCHEMA stays 3: the keys are additive, the fill below gives them to every block (PLAN CHOICE 1)
     lifted: [], best: {}, chartPick: null,
+    // the home barge (SPEC §6.5, M1 §2.11): its own field, apart from `home` (the upgrades); the opening's tow writes `towed`
+    barge: { water: firstWater(D), towed: [] },
   };
 }
 
@@ -90,7 +95,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   const topTier = Math.max(0, (D?.LOOP?.tackle?.price?.length ?? 7) - 1), first = firstWater(D);
   if (!isObj(meta.loop)) meta.loop = fresh;
   const L = meta.loop;
-  if (!(num(L.v) >= LOOP_SCHEMA)) {
+  const v0 = num(L.v);
+  if (!(v0 >= LOOP_SCHEMA)) {
     // rule 1: a flat bait bag belongs to the only water a v4/v5 draft sold bait for
     if (isObj(L.bait)) {
       const flat = Object.entries(L.bait).filter(([, v]) => !isObj(v));
@@ -117,6 +123,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
         for (const p of D?.LOOP?.waters?.[lake]?.places || []) if (p && (p.kind === 'day' || p.kind === 'old') && !places.includes(p.id)) places.push(p.id);
       }
     }
+    // v4 (M1 step 5a, §2.11's box): a save from steps 1–4 opens at the barge, as if the opening's tow had played (it never replays)
+    if (!(v0 >= 4) && !isObj(L.barge)) L.barge = { water: first, towed: [first] };
     L.v = LOOP_SCHEMA;
   }
   // fill and normalise (every block, every boot)
@@ -125,7 +133,11 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
     if (isObj(v) && !isObj(L[k])) L[k] = v;
     else if (Array.isArray(v) && !Array.isArray(L[k])) L[k] = v;
   }
-  for (const k of ['tackle', 'fitted', 'maps', 'raft', 'home', 'firsts']) for (const [kk, vv] of Object.entries(fresh[k])) if (L[k][kk] === undefined) L[k][kk] = vv;
+  for (const k of ['tackle', 'fitted', 'maps', 'raft', 'home', 'firsts', 'barge']) for (const [kk, vv] of Object.entries(fresh[k])) if (L[k][kk] === undefined) L[k][kk] = vv;
+  // the barge: a known water (else the first), the waters it was towed to as a list of known ids, each once
+  { const known = (id) => typeof id === 'string' && (isObj(D?.LOOP?.waters?.[id]) || id === first);
+    if (!known(L.barge.water)) L.barge.water = first;
+    L.barge.towed = Array.isArray(L.barge.towed) ? [...new Set(L.barge.towed.filter(known))] : []; }
   L.clams = Math.max(0, num(L.clams));
   L.evenings = Math.max(0, int(L.evenings));
   L.holdSlots = clampInt(L.holdSlots, start, max);
@@ -1099,6 +1111,21 @@ export function createLoop(S) {
   const seals = (waterId) => { const L = ensureLoop(); return L ? sealsOf(meta(), D(), waterId ?? frontierOf(L, D()).next ?? 'sporewood') : null; };
   const catalogue = (waterId = 'mossmere') => (ensureLoop() ? catalogueFor(meta(), D(), waterId) : null);
 
+  // ---------------------------------------------------------------- the home barge (M1 step 5a, SPEC §6.5)
+  /** Where the barge lies and the waters it has been towed to: a copy of meta.loop.barge, or null. */
+  function barge() { const L = ensureLoop(); return L && isObj(L.barge) ? { water: L.barge.water, towed: [...(L.barge.towed || [])] } : null; }
+  /** A water's tow played (the opening's, in 5a its hand-off; step 5b's playTow): the barge lies there and the water is in `towed`. */
+  function towBarge(waterId) {
+    const L = ensureLoop();
+    if (!L || typeof waterId !== 'string' || !waterId) return null;
+    if (!isObj(L.barge)) L.barge = { water: waterId, towed: [] };
+    if (!Array.isArray(L.barge.towed)) L.barge.towed = [];
+    L.barge.water = waterId;
+    if (!L.barge.towed.includes(waterId)) L.barge.towed.push(waterId);
+    requestSave();
+    return barge();
+  }
+
   const api = {
     state: () => ensureLoop(),
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
@@ -1108,6 +1135,7 @@ export function createLoop(S) {
     taperFirstOpen, spendTaperFirst, comeback, consumeComeback,
     fit, fitted, spendBait, refundBait, liftDue: liftDueNow, markLifted, lifted, markGiant, takeGiantMark, noteBest,
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
+    barge, towBarge,
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {

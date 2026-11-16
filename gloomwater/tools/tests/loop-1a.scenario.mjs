@@ -838,7 +838,9 @@ export default async function (api) {
       const docks = await g(() => window.__lp.docks());
       s = await K.state();
       K.check(near(s.pos, docks[0]) <= 0.6, 'T44/T64: the raft at the first dock', { pos: s.pos, dock: docks[0] });
-      K.check(he?.mode === 'sail' && s.mode === 'sail', 'T56: the camera is still sail at the Jetty', { enter: he?.mode, now: s.mode });
+      // (M1 step 5a: with the home barge the raft tied at its stern is framed by the mooring's own camera, 'home', eased from 'sail')
+      const barge = await g(() => !!window.__gw.world.getMooring?.());
+      K.check(he?.mode === 'sail' && (s.mode === 'sail' || (barge && s.mode === 'home')), `T56: the camera is still sail at the Jetty${barge ? ' (the home barge\'s framing, eased from it)' : ''}`, { enter: he?.mode, now: s.mode });
       const mood = await g(() => { try { return window.__gw.debug.audio?.()?.mood ?? null; } catch { return null; } });
       K.check(mood === null || mood === 'hub', 'T56: the audio mood at home is hub', mood);
 
