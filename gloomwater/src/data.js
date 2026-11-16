@@ -5003,6 +5003,11 @@ TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
 TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
   mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip' };
 // <<< M1 step 4 (lane 4)
+// >>> TK, the tackle tin (the user's words of 16 November 2026: "We should have an option to equip bait or change lures whilst out on the
+// lake"; src/ui-tackle.js, CONTRACT §14.19). Few words: the tin's name, the drawer's two rows, its two empties, the one line while a fish
+// is on. The items' names are TEXT_LOOP.gearItems' (and the built BAITS' for the legend's ball); no odds, no likes, no percentage.
+TEXT_LOOP.tackle = { tin: 'Tackle', bait: 'Bait', lure: 'Lure', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' };
+// <<< TK
 
 // >>> WC-1 (docs/loop/WATERCRAFT.md rev. 2 §3.9, §8.1; SPEC v8.7 §8.11, decisions 93–104). Additive: LOOP.cost (Murk's price factor, read
 // by the sim now and applied in the game by the integrator's step P), loopCost and nice, loopLight's export, and the watercraft words.

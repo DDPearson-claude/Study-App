@@ -4450,6 +4450,31 @@ export function create(ctx) {
     return state === 'reeling';
   }
 
+  // ---------------------------------------------------------------- TK: the tackle tin (the user, 16 Nov 2026; CONTRACT §14.19)
+  /** The line as a hook change reads it: `fishOn` from the class tell and the bite through the hook, the play, the show and its card;
+   *  `out` a line in the water with no fish on it (the float in flight, or waiting before any tell); `castBait` the bait out on it. */
+  function hookLine() {
+    const tell = state === 'waiting' && !!S.tell;
+    const fishOn = state === 'bite' || state === 'reeling' || state === 'landing' || tell || !!S.show || view.show?.phase === 'card';
+    const out = !fishOn && (state === 'casting' || state === 'waiting') && !S.mist;
+    return { state, out, fishOn, castBait: out && typeof S.castBait === 'string' ? S.castBait : null };
+  }
+  /** A line out with no fish on it comes in quietly (a hook change): the cast's bait back in the bag (progression.refundBait, once a
+   *  cast; a legend's ball is spent only at her hook), the float reels in as after a pass, and nothing else: no fishing:miss, no
+   *  fishing:escaped, no favour or streak touched, no bite counted (fishing:reelIn {quiet, refunded, baitId} for the sound). */
+  function reelInQuiet() {
+    if (!hookLine().out) return { ok: false, refunded: false, baitId: null };
+    const baitId = typeof S.castBait === 'string' ? S.castBait : null;
+    let refunded = false;
+    if (baitId && !legendBaitId(baitId)) { try { refunded = prog()?.refundBait?.(baitId) === true; } catch (e) { report(e); } }
+    if (state === 'casting') V.bob.set(V.bob.x, 0, V.bob.z);   // (the float in flight comes in from below where it was)
+    S.species = null; S.events = []; S.evIdx = 0; S.legendCast = false; S.signHit = null; S.castBait = null;
+    S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;   // (a sign's fish never took it: its sign stays)
+    toLost(num(BAL('cast').reelInTime, 0.6));
+    emit('fishing:reelIn', { quiet: true, refunded, baitId });
+    return { ok: true, refunded, baitId };
+  }
+
   // ---------------------------------------------------------------- api
   const api = {
     state: 'idle',
@@ -4523,6 +4548,9 @@ export function create(ctx) {
     startCeremony(fish, opts) { return api.startShow(fish, opts); },
     skipCeremony() { return api.hurryShow(); },
     get inCeremony() { return !!S.show && S.show.phase !== 'reveal'; },
+    /** TK (CONTRACT §14.19): the line as a hook change reads it {state, out, fishOn, castBait}; the quiet reel-in of a line with no fish. */
+    hookLine() { try { return hookLine(); } catch (e) { report(e); return { state, out: false, fishOn: true, castBait: null }; } },
+    reelInQuiet() { try { return reelInQuiet(); } catch (e) { report(e); return { ok: false, refunded: false, baitId: null }; } },
 
     init() {
       if (signsOn()) api.spots = api.signs = S.signs;
@@ -4619,6 +4647,7 @@ export function create(ctx) {
           // v3
           z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: S.lengthCm ? Math.round(S.lengthCm * 10) / 10 : null, mu: S.mu, terms: S.favourTerms, tell: S.tell,
           place: S.cast?.place?.id || null, giant: !!S.cast?.giant, pressureKey: S.cast?.pressureKey || null, letPass: S.letPass ? { ...S.letPass } : null,
+          castInfoBait: S.cast ? (S.cast.baitId ?? null) : undefined, castBait: S.castBait ?? null,   // (TK: the bait the cast's castInfo carries)
           extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean,
           // v3 visual half
           fishLen: S.fishLen, meshScale: F.fv?.object3d?.scale?.x ?? null, fvLength: F.fv?.length ?? null, revealed: !!S.revealed,

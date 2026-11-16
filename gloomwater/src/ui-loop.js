@@ -26,6 +26,7 @@ import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, wickCorners, rectOf, layoutTargets } from './home-targets.js';
 import { orderPhraseOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
 import { createGearView, CHALK_TICK } from './ui-gear.js';   // M1 step 4 (lane 4): the lure slot, the tins, the orders' board, the ticks
+import { createTackleView } from './ui-tackle.js';   // TK: the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake)
 
 export { murkLineFor };
 // M1 step 5b (lane 5b-home): the cabin's gallery behind [data-tile=wall], the empty shelf's line and the Mossmere's gilding
@@ -653,6 +654,8 @@ export function createLoopView(K) {
   // if it cannot decode, the Chart is 1a's list
   const chart = createChartView({ K, ctx, D, h, report: (w, e) => report(w, e) });
   const gear = createGearView({ K, L, D, report: (w, e) => report(w, e), murkToast: (line) => murkToast(line) });   // M1 step 4 (lane 4)
+  let tackle = null;   // TK: the tackle tin on the trip's HUD and its drawer (src/ui-tackle.js; CONTRACT §14.19)
+  try { tackle = createTackleView({ K, L, D, report: (w, e) => report(w, e) }); } catch (e) { report('tackle', e); }
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
     setTimeout(() => idle(() => { chart.prepare(); }), 400);
@@ -1548,6 +1551,7 @@ export function createLoopView(K) {
   // ------------------------------------------------------------------ per frame
   function update(dt) {
     const d = Math.max(0, Math.min(0.25, num(dt)));
+    try { tackle?.update(d); } catch (e) { report('tackle.update', e); }   // TK
     if (LT.el) { LT.t += d; if (LT.t >= LT.dur) dropLiftTitle(); }
     // the tutorial's clock (real time; it runs only under the Jetty or the Chart)
     const topId = K.top()?.id ?? null;
@@ -1600,6 +1604,7 @@ export function createLoopView(K) {
   /** ui's handleKey on a trip (T58): the parked keys are swallowed; H is the Home pill's press and hold (PLAN CHOICE 9). */
   function handleKey(code) {
     if (!onTrip() || ctx.flow !== 'playing') return false;
+    if (code === 'KeyB' && tackle?.toggle?.() === true) return true;   // TK: B opens the tackle tin (once the tutorial is done)
     if (tripKeySwallow(code)) return true;
     if (code === 'KeyH') { if (!P.press) { pressStart('key'); if (P.press && holdFull()) { fireHome('key'); pressEnd('key', { cancel: true }); } } return true; }
     return false;
@@ -1607,6 +1612,7 @@ export function createLoopView(K) {
 
   return {
     murkBook: book,   // Murk's catalogue: debug() (its layout, page, chapters), go(page), pageOf(focus)
+    tackle,   // TK: the tackle tin (debug(), open(), close(), toggle())
     update, handleKey, openJetty, openTally, openShelf, openChart, openHomePause, paintHold,
     /** M1 step 3a: the list Chart, the bait slot (its own piece, for either Chart's foot), the next water's seals as buttons */
     renderChartList, baitSlot, placeBaitSlot, sealRow,

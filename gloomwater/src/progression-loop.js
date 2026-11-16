@@ -8,7 +8,7 @@
 //   sellStrandedTrip(save) (the flag-off boot rule: needs no data) · shelfItems(D, metaLoop, session) · goalOf(items) ·
 //   stampFirst(firsts, sp, fish, {cls, seals}) (the Wick's ledger) · v8 (SPEC §5.5): listFor(D, waterId) · listCount(meta, D, waterId) ·
 //   M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.2): mapCards(D, metaLoop, {meta}) · sealsOf(meta, D, waterId) · liftDue(D, metaLoop) ·
-//   catalogueFor(meta, D, waterId)
+//   catalogueFor(meta, D, waterId) · TK (the tackle tin, CONTRACT §14.19): hookChangeable({trip, state, fishOn, card}) · HOOK_BUSY
 // meta.loop (SPEC §9, PLAN §3.4): `holdSlots` is the bought count (3–8) for every Wick; a Wick's slots are data.loopSlots. Slice 1a
 // adds `wick`, `tutorial`, `said`, `lastTrip` and `firsts` (the Wick's ledger, WICKS §2.1), and `parkedRun` only while an old descent
 // waits (PLAN CHOICE 5). A trip is a run with `outing: 'trip'`; its hold IS `run.creel` (PLAN CHOICE 19).
@@ -51,6 +51,8 @@ export const LOOP_METHODS = Object.freeze([
   // M1 step 3a (PLAN §3.2): the bait slot, the lift, the Marked giant, the best fish there, the Chart's pick, the cards, seals and catalogue
   'fit', 'fitted', 'spendBait', 'refundBait', 'liftDue', 'markLifted', 'lifted', 'markGiant', 'takeGiantMark', 'noteBest',
   'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
+  // the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake; CONTRACT §14.19): may the hook change now, and the change
+  'canChangeHook', 'changeHook',
   // M1 step 5b (lane 5b-home): the ink print at the measure, the Prints page and the cabin's gallery
   'notePrint', 'prints', 'gallery',
   // the home barge (M1 step 5a, SPEC §6.5): where it lies and the waters it has been towed to
@@ -58,6 +60,18 @@ export const LOOP_METHODS = Object.freeze([
   // M1 step 4 (lane 4): Murk's orders (read, wipe one, the one a fish on the card fills) and Cut Strip (a held Let go)
   'orders', 'wipeOrder', 'orderFor', 'cutBait',
 ]);
+
+// >>> TK (the tackle tin: the user's words of 16 November 2026, "We should have an option to equip bait or change lures whilst out on
+// the lake"; SPEC §16 answer 43 superseded; CONTRACT §14.19). Pure: the rule of when the hook may change.
+/** The fishing states with a fish on the line: from the bite through the hook and the play to the landing (TK). */
+export const HOOK_BUSY = Object.freeze(['bite', 'reeling', 'landing']);
+/** May the hook change now? (pure; TK) At home always; on a trip unless a fish is on: its tell or bite, the hook, the play, the show
+ *  and its card (`fishOn`: fishing.hookLine()'s; `card`: a catch or a find waiting on its card). → true / false. */
+export function hookChangeable({ trip = false, state = 'idle', fishOn = false, card = false } = {}) {
+  if (!trip) return true;
+  return !(fishOn === true || card === true || HOOK_BUSY.includes(state));
+}
+// <<< TK
 
 /** The water a fresh save owns: the one LOOP.waters puts first (the Mossmere). */
 /** M1 step 2 (SPEC §13 rule 3, decision 39): is a water inside what ships (its order ≤ LOOP.shipped's)? No LOOP.shipped: every water of
@@ -1126,6 +1140,71 @@ export function createLoop(S) {
     requestSave();
     return { ok: true, gained };
   }
+  // ---------------------------------------------------------------- TK: the tackle tin (CONTRACT §14.19): the hook changed on the lake
+  /** The line as a change reads it: fishing.hookLine() ({state, out, fishOn, castBait}), or the bare fishing state when it has none. */
+  function lineNow() {
+    const F = ctx.fishing;
+    let l = null;
+    try { l = typeof F?.hookLine === 'function' ? F.hookLine() : null; } catch (e) { report('hookLine', e); }
+    if (isObj(l)) return l;
+    const st = typeof F?.state === 'string' ? F.state : 'idle';
+    return { state: st, out: st === 'casting' || st === 'waiting', fishOn: HOOK_BUSY.includes(st) || F?.inShow === true, castBait: null };
+  }
+  /** A catch or a find waiting on its card (progression's pending card, saved as flags.pendingCatch; a find's flags.pendingFind). */
+  const cardWaits = (r = run()) => {
+    const f = isObj(r?.flags) ? r.flags : {};
+    return (Array.isArray(f.pendingCatch) && f.pendingCatch.length > 0) || isObj(f.pendingFind) || (S.pending?.size ?? 0) > 0;
+  };
+  /** canChangeHook() (TK): true at home; on a trip true unless a fish is on (its tell or bite, the hook, the play, the show, the card). */
+  function canChangeHook() {
+    if (!ensureLoop()) return false;
+    const r = run();
+    if (!onTrip(r)) return true;
+    const l = lineNow();
+    return hookChangeable({ trip: true, state: l.state, fishOn: l.fishOn === true, card: cardWaits(r) });
+  }
+  /**
+   * changeHook({bait, lure}) (TK, CONTRACT §14.19): the one way to change what is on the hook, at home or on the lake. `bait`: a bait the
+   * bag holds (a legend's ball, a tin of the water, Cut Strip), null for a bare hook, undefined to leave it; `lure`: an owned lure, null
+   * for none, undefined to leave it. Refused while a fish is on (reason 'fish'), for a bait the bag has none of ('bait') or a lure not
+   * owned ('lure'): nothing changes. A line in the water with no fish on it comes in quietly first (fishing.reelInQuiet: the cast's bait
+   * back in the bag, no miss, no lost-fish line, no favour or streak lost, no bite counted); then the fit paths (fit('bait'), fitLure)
+   * write meta.loop.fitted at once and the run's line, so the next cast carries the new choice. The hook table and its cap are untouched
+   * (they read the bait at the cast). → {ok, changed, reeled, bait, lure, count}; loop:hook {bait, lure, reeled} on a change.
+   */
+  function changeHook({ bait, lure } = {}) {
+    const L = ensureLoop();
+    if (!L) return { ok: false, reason: 'off' };
+    if (!canChangeHook()) return { ok: false, reason: 'fish' };
+    const r = run(), trip = onTrip(r), line = trip ? lineNow() : null;
+    const cast = trip && line?.out === true && typeof line.castBait === 'string' ? line.castBait : null;   // the bait out on this cast
+    const nowBait = trip ? (cast ?? (typeof r.equippedBait === 'string' ? r.equippedBait : null)) : (L.fitted?.bait ?? null);
+    const nowLure = trip ? (typeof r.lure === 'string' ? r.lure : null) : (L.fitted?.lure ?? null);
+    const wantBait = bait === undefined ? nowBait : bait, wantLure = lure === undefined ? nowLure : lure;
+    // the checks, before anything moves (the cast's own bait counts whole: it comes back as the line comes in)
+    if (wantBait != null && wantBait !== nowBait) {
+      const kind = typeof wantBait === 'string' && (!!ballWater(wantBait) || tinWater(D(), wantBait) != null || wantBait === 'cut_strip');
+      const n = kind ? bagCount(wantBait, L) + (cast === wantBait && !ballWater(cast) ? 1 : 0) : 0;
+      if (n <= 0) return { ok: false, reason: 'bait' };
+    }
+    if (wantLure != null && wantLure !== nowLure && !(typeof wantLure === 'string' && lureOf(D(), wantLure) && Array.isArray(L.lures) && L.lures.includes(wantLure))) {
+      return { ok: false, reason: 'lure' };
+    }
+    if (wantBait === nowBait && wantLure === nowLure) return { ok: true, changed: false, reeled: false, bait: nowBait, lure: nowLure, count: wantBait ? bagCount(wantBait, L) : 0 };
+    let reeled = false;
+    if (trip && line?.out === true) { try { reeled = ctx.fishing?.reelInQuiet?.()?.ok === true; } catch (e) { report('reelInQuiet', e); } }
+    // the bait: through fit('bait') (a bare hook takes the run's line bare too, whatever the bag had moved onto it)
+    if (wantBait !== nowBait || (trip && r.equippedBait !== wantBait)) {
+      const res = fit('bait', wantBait);
+      if (trip && wantBait == null && r.equippedBait != null) { r.equippedBait = null; r.equipped = null; emit('bait:change', { baitId: null }); }
+      if (res?.ok !== true && wantBait != null) report('changeHook', new Error(`fit('bait', ${wantBait}) refused after its check`));
+    }
+    if (wantLure !== nowLure) fitLure(wantLure);
+    const out = { ok: true, changed: true, reeled, bait: trip ? (r.equippedBait ?? null) : (L.fitted?.bait ?? null), lure: trip ? (r.lure ?? null) : (L.fitted?.lure ?? null) };
+    out.count = out.bait ? bagCount(out.bait, L) : 0;
+    emit('loop:hook', { bait: out.bait, lure: out.lure, reeled });
+    return out;
+  }
   /** The orders' pure list rule: listFor on this save's data (the water's list). */
   const listForD = (d, w) => listFor(d, w);
   /** endTrip's part (internal): the orders the hold fills, in the tally's order; marks each filling fish (fish.order = its id) so
@@ -1376,6 +1455,7 @@ export function createLoop(S) {
     notePrint, prints, gallery,   // M1 step 5b (lane 5b-home)
     barge, towBarge,
     orders, wipeOrder, orderFor, cutBait,   // M1 step 4 (lane 4)
+    canChangeHook, changeHook,   // TK: the tackle tin (CONTRACT §14.19)
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {
