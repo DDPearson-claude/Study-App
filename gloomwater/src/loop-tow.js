@@ -45,6 +45,21 @@ export function legProgress(t, legS, crossings = [], base = 4, w = 0.02) {
   return 1;
 }
 
+/**
+ * The glide in's poses with the raft leading (SPEC §6.5: "the raft towing the barge in on its line"): the barge comes in bow first
+ * `d` m along its own line to its mooring, the raft ahead of its bow on a `line` m tow line (its path is straight, so the glide's own
+ * ease is the barge's), Murk's barge alongside. u 0..1 (the way travelled) → {hull, murk, raft, bow} ({x, z, yaw} each; bow {x, z}).
+ * At u 1 the raft lies ahead of the bow; the tie-up at the stern (M.raft) follows at the mooring. Pure.
+ */
+export function towLeadPose(M, u, { d = 14, line = 3, length = 12 } = {}) {
+  if (!M?.hull) return null;
+  const k = clamp01(num(u, 0)), yaw = M.hull.yaw, fx = -Math.sin(yaw), fz = -Math.cos(yaw), back = (1 - k) * num(d, 14), half = num(length, 12) / 2;
+  const hull = { x: M.hull.x - fx * back, z: M.hull.z - fz * back, yaw };
+  const ahead = half + num(line, 3) + 1.1;   // (the raft's stern, where the line is made fast, 1.1 m behind its centre)
+  return { hull, raft: { x: hull.x + fx * ahead, z: hull.z + fz * ahead, yaw }, bow: { x: hull.x + fx * half, z: hull.z + fz * half },
+    murk: M.murk ? { x: M.murk.x - fx * back, z: M.murk.z - fz * back, yaw: M.murk.yaw } : null };
+}
+
 /** Each part's seconds for a tow (gated on its own, M1 §4 step 5b): {arrive, wake, leg, dip, glide} (arrive and wake: the opening). */
 export function towPhases(D, water, { opening = false, reduced = false, wick = null } = {}) {
   const T = D?.LOOP?.tow || {}, plan = typeof D?.towPlan === 'function' ? D.towPlan(water, { reduced }, T) : null;
@@ -164,7 +179,7 @@ export function createLoopTow(deps) {
     S.M = M && M.hull ? M : null;
     if (!S.M) return;
     const d = num(T().glideIn?.[S.water]?.d, 14);
-    const p0 = D.towGlidePose(S.M, 0, { d, ease: false });
+    const p0 = leadPose(S.M, 0, d);
     placeBoats(p0);
     try { ctx.player?.teleport?.({ x: p0.raft.x, z: p0.raft.z }, p0.raft.yaw); } catch (e) { report('player.teleport', e); }
     try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); }
@@ -192,14 +207,16 @@ export function createLoopTow(deps) {
       scene.add(m); S.mesh = m;
     } catch (e) { report('tow line', e); S.mesh = null; }
   }
+  // the raft leads (towLeadPose): the line runs from the raft's stern back to the barge's bow
+  const leadPose = (M, u, d) => towLeadPose(M, u, { d, line: num(T().glideIn?.[S.water]?.line, 3), length: num(D?.LOOP?.barge?.length, 12) });
   function placeLine(p) {
-    const m = S.mesh, rp = ctx.player?.position;
-    if (!m || !p || !rp) return;
-    const h = num(ctx.player?.heading, p.raft.yaw), bx = rp.x - Math.sin(h) * 1.1, bz = rp.z - Math.cos(h) * 1.1;
-    const dx = p.stern.x - bx, dz = p.stern.z - bz, len = Math.max(0.05, Math.hypot(dx, dz));
-    m.position.set((bx + p.stern.x) / 2, 0.5, (bz + p.stern.z) / 2);
+    const m = S.mesh, rp = ctx.player?.position, to = p?.bow;
+    if (!m || !to || !rp) return;
+    const h = num(ctx.player?.heading, p.raft.yaw), bx = rp.x + Math.sin(h) * 1.1, bz = rp.z + Math.cos(h) * 1.1;
+    const dx = to.x - bx, dz = to.z - bz, len = Math.max(0.05, Math.hypot(dx, dz));
+    m.position.set((bx + to.x) / 2, 0.55, (bz + to.z) / 2);
     m.scale.set(1, 1, len);
-    m.lookAt(p.stern.x, 0.58, p.stern.z);
+    m.lookAt(to.x, 0.55, to.z);
   }
   /** The glide in: the raft's own glide (loop-home's, so a tap or a skip key ends it at the mooring), the barge and Murk with it. */
   function beginGlide() {
@@ -211,22 +228,26 @@ export function createLoopTow(deps) {
       if (M?.raft) { try { ctx.player?.teleport?.({ x: M.raft.x, z: M.raft.z }, M.raft.yaw); } catch (e) { report('player.teleport', e); } }
       done(); return;
     }
-    const d = num(T().glideIn?.[S.water]?.d, 14), p0 = D.towGlidePose(M, 0, { d, ease: false });
+    const d = num(T().glideIn?.[S.water]?.d, 14), p0 = leadPose(M, 0, d), p1 = leadPose(M, 1, d);
     S.glide = { from: { x: p0.raft.x, z: p0.raft.z }, d };
     audio('tow_oars', { volume: 0.7 });
-    H.glideHome([[p0.raft.x, p0.raft.z], [M.raft.x, M.raft.z]], { duration: S.P.glide, kind: 'towIn', to: M.raft, yaw: M.raft.yaw, done });
+    // the raft's own glide, straight in along the barge's line to just ahead of its berth (its ease is the barge's); the tie-up at the
+    // stern follows at the mooring (finish)
+    H.glideHome([[p0.raft.x, p0.raft.z], [p1.raft.x, p1.raft.z]], { duration: S.P.glide, kind: 'towIn', to: { x: p1.raft.x, z: p1.raft.z }, yaw: p1.raft.yaw, done });
   }
   function glidePose() {
     const g = S.glide, M = S.M, rp = ctx.player?.position;
     if (!g || !M || !rp) return null;
     const u = clamp01(Math.hypot(rp.x - g.from.x, rp.z - g.from.z) / Math.max(0.01, g.d));
-    return D.towGlidePose(M, u, { d: g.d, ease: false });
+    return leadPose(M, u, g.d);
   }
   /** The tow's end: everything at its mooring; the opening goes home (home:enter, the chart beat), a later tow its onDone. */
   function finish() {
     if (S.phase === 'done' || !S.phase) return;
     const M = S.M || safe(() => ctx.world?.getMooring?.(), null);
     if (M?.hull) placeBoats(D.towGlidePose(M, 1, { d: 0, ease: false }));
+    // the raft cast off and tied up at the barge's stern (the mooring's tie-up), as the chart beat opens over it
+    if (M?.raft) { try { ctx.player?.teleport?.({ x: M.raft.x, z: M.raft.z }, M.raft.yaw); } catch (e) { report('player.teleport', e); } }
     lineMesh(false);
     S.glide = null; S.dipA = 0;
     safe(() => view()?.dip?.(0));

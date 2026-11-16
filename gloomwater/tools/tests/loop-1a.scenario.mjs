@@ -859,6 +859,10 @@ export default async function (api) {
         K.check(st0?.meta?.loop?.barge?.towed?.includes('mossmere') === true, 'T67 (step 5): the tow\'s begin saves barge.towed before it plays', st0?.meta?.loop?.barge);
         await K.secs(2.5);
         await K.shoot('tow-leg');
+        w = await K.until("c.debug.loop.tow().phase === 'glide'", 6);
+        K.check(w.ok, 'T65 (step 5): the leg → one ink dip → the glide in', await tw());
+        await K.secs(1.2);
+        await K.shoot('tow-glide-in');
         w = await K.until("window.__lp.ev.some((e) => e.e === 'home:enter')", 12);
         K.need(w.ok, 'T65 (step 5): the leg, the dip and the glide in end at home:enter', await tw());
         const tl = await tw();

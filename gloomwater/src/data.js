@@ -5036,7 +5036,7 @@ export const LOOP_TOW = {
   },
   // the glide in on each water: `d` m out along the barge's own line from its mooring (it comes in bow first, the raft at its stern
   // on a short line, Murk's barge alongside, all moving as one), eased to rest in `glide` s
-  glideIn: { mossmere: { d: 14 } },
+  glideIn: { mossmere: { d: 14, line: 3 } },   // (the raft leads on a `line` m tow line ahead of the bow: loop-tow.towLeadPose)
   // the glide in's camera: the mooring's own framing drawn back `pull` times its distance at the dip, dollying in as they arrive
   cam: { pull: 2.2 },
 };

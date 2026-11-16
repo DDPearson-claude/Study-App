@@ -121,8 +121,7 @@ export default async function (api) {
       await K.shoot('glide-in');
       K.need((await K.until("window.__lp.ev.some((e) => e.e === 'home:enter')", 4)).ok, 'the glide in ends at home:enter');
       s = await tow();
-      const he = (await K.events()).find((e) => e.e === 'home:enter');
-      const gl = he.sim - markAt(s, 'glide');
+      const gl = markAt(s, 'done') - markAt(s, 'glide');   // (the tow's own clock)
       K.check(Math.abs(gl - d.tow.glide) <= TOL + 0.1, `the glide in ${d.tow.glide} s`, gl);
       K.check(atMooring(s), 'the raft tied at the barge\'s stern (the mooring)', { raft: s.raft, moor: s.moor?.raft });
       K.check(s.moor && Math.hypot(s.barge.x - s.moor.hull.x, s.barge.z - s.moor.hull.z) <= 0.3, 'the barge at its mooring', { barge: s.barge, hull: s.moor?.hull });

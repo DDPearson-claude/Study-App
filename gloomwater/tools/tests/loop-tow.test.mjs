@@ -91,6 +91,32 @@ section('the glide in\'s poses (towGlidePose) and their paths (T72)');
   ok(worst > 0, 'T72: the glide in (raft, barge and Murk) clears every island and pillar', { worst, who });
 }
 
+section('the raft leads the barge in on its line (towLeadPose), clear of the islands, pillars and shore');
+{
+  const { towLeadPose } = await import('../../src/loop-tow.js');
+  const WL = await import('../../src/world-layout.js');
+  const d = TW.glideIn.mossmere.d, line = TW.glideIn.mossmere.line, half = D.LOOP.barge.length / 2;
+  const p1 = towLeadPose(MOOR, 1, { d, line }), p0 = towLeadPose(MOOR, 0, { d, line });
+  near(p1.hull.x, MOOR.hull.x, 'at the end the barge lies at its mooring (x)'); near(p1.hull.z, MOOR.hull.z, '… (z)');
+  near(Math.hypot(p0.hull.x - p1.hull.x, p0.hull.z - p1.hull.z), d, `it comes in ${d} m along its own line`, 1e-9);
+  for (const u of [0, 0.5, 1]) {
+    const p = towLeadPose(MOOR, u, { d, line }), fx = -Math.sin(p.hull.yaw), fz = -Math.cos(p.hull.yaw);
+    const ahead = (p.raft.x - p.bow.x) * fx + (p.raft.z - p.bow.z) * fz;
+    near(ahead, line + 1.1, `the raft leads, ${line} m of line ahead of the bow (u ${u})`, 1e-9);
+    near(Math.hypot(p.bow.x - p.hull.x, p.bow.z - p.hull.z), half, '… the line made fast at the bow', 1e-9);
+  }
+  const Lay = WL.buildLayout(ZONE), rad = D.BALANCE?.move?.raftRadius ?? 1.6, A = ZONE.arena;
+  const solids = [...A.islands.map((q) => ({ x: q.x, z: q.z, r: q.r ?? 4 })), ...A.pillars.map((q) => ({ x: q.x, z: q.z, r: q.r ?? 1.2 }))];
+  let worst = Infinity, shore = Infinity;
+  for (let i = 0; i <= 20; i++) {
+    const p = towLeadPose(MOOR, i / 20, { d, line });
+    for (const o of solids) worst = Math.min(worst, Math.hypot(p.raft.x - o.x, p.raft.z - o.z) - rad - 0.3 - o.r);
+    shore = Math.min(shore, Lay.shoreR(Math.atan2(p.raft.z, p.raft.x)) - Math.hypot(p.raft.x, p.raft.z) - rad);
+  }
+  ok(worst > 0, 'T72: the leading raft clears every island and pillar', worst);
+  ok(shore > 0, 'T72: … and the shore', shore);
+}
+
 section('legProgress: the leg\'s way (4 s of travel, a 0.5 s hold at each crossing)');
 {
   const leg = TW.legs.mossmere, L = D.towLegSeconds(leg);
