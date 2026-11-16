@@ -11,6 +11,7 @@
 //   raftStats(D, metaLoop)                     {speed: m/s added, light: the light's radius ×}
 //   orders: orderPool · newOrder · refillOrders · orderMatches · assignOrders · orderPhrase · orderPhraseOk · orderCount
 import { uid } from './core.js';
+import { findOrderBonus } from './loop-finds.js';   // M1 step 5c: the Rust Buoy-Bell's one more order (the integration's seam)
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -163,7 +164,8 @@ export function raftStats(D, metaLoop) {
 /** How many orders Murk chalks at this save's Order Board level (LOOP.home.orders.count; 0 with no board). */
 export function orderCount(D, metaLoop) {
   const lv = Math.max(0, int(metaLoop?.home?.orders));
-  return lv > 0 ? Math.max(0, int(arr(D?.LOOP?.home?.orders?.count)[lv - 1], lv)) : 0;
+  // + the Rust Buoy-Bell (a found part, M1 step 5c): one more order once Order Board I is owned (loop-finds findOrderBonus)
+  return lv > 0 ? Math.max(0, int(arr(D?.LOOP?.home?.orders?.count)[lv - 1], lv)) + findOrderBonus(metaLoop, D) : 0;
 }
 /** The fish an order may name (SPEC §6.3): a fish of an opened water that the player can always reach there: its list (SPEC §5.5 (c),
  *  `listFor`) and the own fish of the places the save owns; never a giant, the legend, a bait-only fish or a fish of a place not owned.
