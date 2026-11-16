@@ -340,7 +340,7 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   ok(b.ok && b.clams === 370 && meta.loop.holdSlots === 4 && env.calls.saves.length === n + 1, 'T23: Hold 4 for 30, saved at once');
   eq(env.last('loop:buy'), { item: 'hold:4', price: 30, clams: 370 }, 'loop:buy');
   const sh = env.L.shelf();
-  eq(sh.tabs.map((t) => t.id), ['tackle', 'raft'], 'CHOICE 11: Tackle and Raft only');
+  eq(sh.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps'], 'CHOICE 11 (M1 step 3a): Tackle, Raft, Bait and Maps');
   eq(sh.tabs[1].items.map((i) => [i.id, i.bought]), [['hold:4', true]], "CHOICE 26: the bought card reads Yours. while the shelf is open");
   env.ctx.bus.emit('ui:modal', { open: false, id: 'shelf' });
   eq(env.L.shelf().tabs[1].items.map((i) => [i.id, i.price]), [['hold:5', 120]], 'the next open: Hold 5 · 120');
@@ -659,8 +659,9 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   const cat = env.L.catalogue('mossmere');
   ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds === null, 'catalogue: the twelve, then the three places with fish');
   ok(env.L.fitted().bait === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: nothing fitted, no pick, nothing lifted');
-  ok(env.L.fit('bait', 'heartmoss').ok === false && env.L.setPick({ water: 'mossmere', place: null }).ok === false && env.L.markLifted('lily_maze') === false
-    && env.L.spendBait('heartmoss') === false && env.L.takeGiantMark('thousandcast_pike') === false, 'the seam\'s writers are inert stubs (real in the ledger\'s delivery)');
+  ok(env.L.fit('bait', 'heartmoss').ok === false && env.L.markLifted('lily_maze') === false
+    && env.L.spendBait('heartmoss') === false && env.L.takeGiantMark('thousandcast_pike') === false, 'the writers refuse what the save lacks: no ball to fit, no place to lift, no trip, no mark');
+  eq(env.L.setPick({ water: 'mossmere', place: null }), { ok: true, pick: { water: 'mossmere', place: null } }, 'setPick: open water of an owned lake');
   meta.loop.chartPick = { water: 'mossmere', place: 'lily_maze' };   // 3b's direct write of the same shape
   eq(env.L.pick(), { water: 'mossmere', place: 'lily_maze' }, 'pick() reads a chartPick written directly');
   meta.loop.maps.places = ['bell_pool', 'lily_maze'];

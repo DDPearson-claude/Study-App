@@ -219,7 +219,10 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   ok(PL.sellStrandedTrip(v1save).sold === false && JSON.stringify(v1save) === before, 'T39: a non-trip envelope is returned untouched');
   // T23/T24: the shelf
   const shelf0 = PL.shelfItems(D, PL.freshLoop(D));
-  eq(shelf0.map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 30, false]], 'T23: the fresh shelf');
+  const kit = (items) => items.filter((i) => i.tab === 'tackle' || i.tab === 'raft');
+  eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 30, false]], 'T23: the fresh shelf (Tackle and Raft)');
+  eq(shelf0.filter((i) => i.tab === 'bait' || i.tab === 'maps').map((i) => [i.id, i.price, i.bought]),
+    [['bait:heartmoss', 60, false], ['place:lily_maze', 60, false], ['place:under_the_span', 150, false], ['lake:sporewood', null, false]], 'M1 step 3a: the Bait tab and the Maps tab (two place maps and the sealed card)');
   eq(shelf0.find((i) => i.id === 'hold:4').name, 'Lidded Creel', "a hold card names the ladder's step");
   ok(!shelf0.some((i) => i.id === 'hold:5' || i.id === 'rod:2'), 'T24: Hold 5 and T2 wait for the step below');
   eq(PL.goalOf(shelf0), { id: 'hold:4', name: 'Hold 4', price: 30, slot: 'hold', level: 4 }, 'the goal line: the cheapest, "Hold 4 · 30"');
@@ -229,10 +232,12 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   eq(PL.shelfItems(D, after).filter((i) => ['rod', 'hold'].includes(i.slot)).map((i) => [i.id, i.price]), [['rod:2', 300], ['hold:5', 120]], 'T23: the next steps on the next open');
   // M1 step 3a: the shelf's last hold step is Hold 6 (LOOP.hold.shelfMax), so Hold 5 is followed by the Wellbox at 450
   const five = PL.shelfItems(D, { ...PL.freshLoop(D), holdSlots: 5, tackle: { rod: 2, line: 2, reel: 2 } });
-  eq(five.map((i) => [i.id, i.price, i.bought]), [['rod:2', 300, true], ['line:2', 300, true], ['reel:2', 300, true], ['hold:6', 450, false]], 'M1 step 3a: after Hold 5, Hold 6 at 450 (shelfMax 6)');
-  const top = PL.shelfItems(D, { ...PL.freshLoop(D), holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
-  ok(top.length === 4 && top.every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
-  eq(PL.goalOf(top), null, 'an empty shelf: no goal line');
+  eq(kit(five).map((i) => [i.id, i.price, i.bought]), [['rod:2', 300, true], ['line:2', 300, true], ['reel:2', 300, true], ['hold:6', 450, false]], 'M1 step 3a: after Hold 5, Hold 6 at 450 (shelfMax 6)');
+  const all4 = PL.freshLoop(D); all4.maps.places = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
+  const top = PL.shelfItems(D, { ...all4, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
+  ok(kit(top).length === 4 && kit(top).every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
+  eq(top.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed]), [['lake:sporewood', true]], 'every place map owned: the Maps tab is the sealed card alone');
+  eq(PL.goalOf(top), null, 'an empty shelf: no goal line (the ball is a consumable, the sealed card has no price)');
   // T81/T82: the list
   eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'], "T81: the Mossmere's list, computed (M1 step 3a: the twelve, with the Kissmark Trout)");
   const jm = { journal: { dusk_minnow: { caught: 1 }, weeping_carp: { seen: true, caught: 0 }, reedjaw_pike: {}, gloam_eel: { caught: 3 }, mossback_perch: { caught: '2' } } };

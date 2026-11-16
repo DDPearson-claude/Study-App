@@ -1081,6 +1081,9 @@ export function create(ctx) {
         if (firstShells > 0) addShells(firstShells, 'journal');
       }
       if (lp) {
+        // M1 step 3a: a giant's fish carries `giant` (the hold's gold edge, the tally's last place); the best fish there (meta.loop.best)
+        if (sp.giant === true) fish.giant = true;
+        try { loop.noteBest(fish, fish.waterKey); } catch (e) { report('loop.noteBest', e); }
         // the Wick's ledger in the same save as the Journal (WICKS §2.1), then the card: the fish waits there, measured
         try { loopIn.noteFirst(fish, sp, cls); } catch (e) { report('loop.noteFirst', e); }
         fish.measured = true;
@@ -1851,9 +1854,12 @@ export function create(ctx) {
     } else f.streak = 0;
     market.bountyEvent('hook', { perfect: !!perfect, streak: f.streak });
     challenges.evaluate(['perfectHooks']);
-    // a legend bait is spent the moment its legend is hooked
+    // a legend bait is spent the moment its legend is hooked; on a trip only through the ledger's spendBait (M1 step 3a, PLAN CHOICE 5:
+    // once a bite, so fishing's own call at her hook and this one spend one ball between them)
     const sp = species(speciesId);
-    if (sp?.rarity === 'legendary' && sp.bait && (r.bait?.[sp.bait] | 0) > 0) {
+    if (sp?.rarity === 'legendary' && sp.bait && loop && tripRun(r)) {
+      if (loop.spendBait(sp.bait)) afterBaitSpent(sp.bait);
+    } else if (sp?.rarity === 'legendary' && sp.bait && (r.bait?.[sp.bait] | 0) > 0) {
       r.bait[sp.bait] -= 1;
       afterBaitSpent(sp.bait);
     }

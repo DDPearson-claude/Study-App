@@ -116,7 +116,7 @@ export function fakeLoop(over = {}) {
     fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
     giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])) });
   const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
-  const items = () => (D ? shelfItems(D, metaLoop(), s.session) : [
+  const items = () => (D ? shelfItems(D, metaLoop(), s.session, { meta: metaNow() }) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
     { id: 'hold:4', tab: 'raft', slot: 'hold', level: 4, name: 'Lidded Creel', goalName: 'Hold 4', line: '', price: 30, bought: s.session.includes('hold:4') },
   ]);
@@ -184,16 +184,20 @@ export function fakeLoop(over = {}) {
     markTallySeen(id) { if (s.lastTrip && s.lastTrip.id === id) s.lastTrip.seen = true; },
     shelf() {
       const all = items();
-      return { tabs: ['tackle', 'raft'].map((id) => ({ id, items: all.filter((i) => i.tab === id) })).filter((t) => t.items.length) };
+      return { tabs: ['tackle', 'raft', 'bait', 'maps', 'home'].map((id) => ({ id, items: all.filter((i) => i.tab === id) })).filter((t) => t.items.length) };
     },
     goal: () => goalOf(items()),
     buy(itemId) {
       const id = itemId === 'hold' ? `hold:${s.holdSlots + 1}` : String(itemId);
       const it = items().find((i) => i.id === id && !i.bought);
-      if (!it || s.clams < it.price) return { ok: false, msg: '', clams: s.clams };
+      if (!it || it.sealed || it.price == null || s.clams < it.price) return { ok: false, msg: '', clams: s.clams };
       s.clams -= it.price;
-      if (it.slot === 'hold') s.holdSlots = it.level; else s.tackle[it.slot] = it.level;
-      s.session.push(id); s.saves++;
+      if (it.slot === 'hold') s.holdSlots = it.level;
+      else if (it.slot === 'place') s.maps = { ...s.maps, places: [...(s.maps.places || []), it.placeId] };
+      else if (it.slot === 'bait') s.bag[it.baitId] = (s.bag[it.baitId] | 0) + 1;
+      else s.tackle[it.slot] = it.level;
+      if (!it.consumable) s.session.push(id);
+      s.saves++;
       return { ok: true, msg: '', clams: s.clams };
     },
     sayOnce(id) {
