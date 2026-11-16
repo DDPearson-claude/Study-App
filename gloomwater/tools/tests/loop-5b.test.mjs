@@ -225,6 +225,23 @@ section('the scene: every home level changes the barge, in the same three meshes
   ok(meshes <= 6, `the barge's visible meshes: ${meshes} (each one draw call)`);
 }
 
+section('the gilding on the drawn Chart: 1.2 s on the next open, once (chart-gild.js; M1.md §2.5)');
+{
+  const CG = await import('../../src/chart-gild.js');
+  const model = { sheets: [{ waterId: 'mossmere', gilded: true }] }, ml = {}, st = {};
+  const a = CG.gildStep(ml, model, 1000, st), b = CG.gildStep(ml, model, 1600, st), c = CG.gildStep(ml, model, 2300, st);
+  ok(a.k === 0 && a.more && b.k > 0.4 && b.k < 0.6 && b.more && c.k === 1 && !c.more, 'the re-inking runs 1.2 s on the page\'s clock', { a, b, c });
+  eq(ml.gilt, ['mossmere'], 'then the water is kept as gilt (meta.loop.gilt): the next open draws it gold at once');
+  eq(CG.gildStep(ml, model, 5000, {}), { k: 1, more: false }, '… and never re-inks again');
+  const ml2 = {}; eq([CG.gildStep(ml2, model, 0, {}, true), ml2.gilt], [{ k: 1, more: false }, ['mossmere']], 'reduced motion: gold at once');
+  eq(CG.gildStep({}, { sheets: [{ waterId: 'mossmere', gilded: false }] }, 0, {}), { k: 1, more: false }, 'a water not complete: nothing to re-ink');
+  const calls = []; const ctx = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => calls.push(k)), set: (t, k, v) => { t[k] = v; return true; } });
+  const card = { waterId: 'mossmere', x: 0, y: 0, w: 100, h: 80, lake: { cx: 50, cy: 40, s: 0.5 } };
+  const view = { water: { mossmere: { shore: [[0, -10], [10, 0], [0, 10], [-10, 0]] } } };
+  eq(CG.gildCard(ctx, card, { sheets: [{ waterId: 'mossmere', gilded: false }] }, 1, view), null, 'gildCard: a sheet not gilded draws nothing (its name keeps its ink)');
+  ok(typeof CG.gildCard(ctx, card, model, 1, view) === 'string' && calls.includes('stroke'), 'gildCard: a gilded sheet strokes its shore and neatline in gold and gives its name a gold colour');
+}
+
 section('home\'s sound: the stove, water against the hulls, a far bell, Murk\'s hand bell (M1.md §2.13), under the loop at home only');
 {
   const AHm = await import('../../src/audio-home.js');
