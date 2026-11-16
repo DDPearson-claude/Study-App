@@ -788,7 +788,7 @@ export function createSheetView(K) {
         if (sc) { restoreScroll(root, sc); s.scroll = null; return; }
         const at = s.section;
         if (at === 'odds') { const t = root.querySelector('[data-sec=odds]'); if (lay === 'desktop') pageR.scrollTop = 0; else t?.scrollIntoView({ block: 'start' }); }
-        else if (at === 'tackle') { const t = root.querySelector('[data-sec=tackle]'); if (lay === 'desktop') pageL.scrollTop = Math.max(0, t.offsetTop - 28);   // (its head below the page's top fade) else t?.scrollIntoView({ block: 'start' }); }
+        else if (at === 'tackle') { const t = root.querySelector('[data-sec=tackle]'); if (lay === 'desktop') pageL.scrollTop = Math.max(0, t.offsetTop - 28); else t?.scrollIntoView({ block: 'start' }); }   // (its head below the page's top fade)
         s.section = null;
       } catch (e) { report('scroll', e); }
     });
