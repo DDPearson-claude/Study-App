@@ -317,6 +317,8 @@ export default async function (api) {
     K.step('home: the other maps, two balls, Hold 6');
     await K.toHomeVia();
     const T = D.T;
+    // (Murk's prices are doubled in the shipped game, LOOP.cost.shipped: the purse is topped up so every buy below can be afforded)
+    await g(() => { try { window.__gw.debug.loop.giveClams?.(8000); } catch { /* optional */ } });
     for (const [id, tab] of [['place:under_the_span', T.tabs?.maps], ['place:buoy_lights', T.tabs?.maps], ['place:bell_pool', T.tabs?.maps], ['bait:heartmoss', T.tabs?.bait], ['bait:heartmoss', T.tabs?.bait], ['hold:6', T.tabs?.raft]]) {
       const r = await K.buyReal(id, tab);
       K.check(r.ok, `T149: ${id} bought from the shelf${r.via === 'ledger' ? ' (through the ledger: no card on this tree)' : ''}`, r);
@@ -426,7 +428,9 @@ export default async function (api) {
       if (!root) return null;
       const cards = [...root.querySelectorAll('[data-species]')].filter(T2.visible).map((e) => e.dataset.species);
       const texts = [...root.querySelectorAll('[data-species]')].map((e) => e.textContent);
-      return { cards: [...new Set(cards)], pct: texts.some((t) => /%/.test(t)) || /%/.test(root.textContent.replace(/Odds ›/g, '')) };
+      // (the finds row carries its rates: the user's rule, "rates under the finds only"; every other word must carry none)
+      const rest = root.cloneNode(true); rest.querySelectorAll('.gw-cat-finds').forEach((e) => e.remove());
+      return { cards: [...new Set(cards)], pct: texts.some((t) => /%/.test(t)) || /%/.test(rest.textContent.replace(/Odds ›/g, '')) };
     });
     K.check(cat && cat.cards.length === 17, 'T136/T149: the catalogue shows all 17 of the Mossmere\'s fish', cat?.cards?.length);
     K.check(cat && !cat.pct, 'T136/T149: no % in the catalogue', cat);
