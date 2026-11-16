@@ -93,11 +93,17 @@ section('(a) areaAt on 24 authored points (each ≥ 1.5 m inside its area: its e
   eq(WC.laneFor(1, 'gloomtide'), null, 'laneFor at night: null');
   eq(WC.laneFor(7), WC.laneFor(7, 'dusk'), 'laneFor is deterministic per evening (by day and dusk the same lane)');
   ok(JSON.stringify(WC.laneFor(7)) !== JSON.stringify(WC.laneFor(8)), 'laneFor: a different line the next evening');
-  const avoid = [...A.islands.map((o) => [o.x, o.z, o.r + 3]), [-4, -14, 8]];
-  eq(M.laneAvoid, avoid, 'laneAvoid is ZONES[0].arena\'s islands (r + 3) and the Bell Pool (6 + 2 m)');
-  let laneOk = true;
-  for (let e = 1; e <= 200; e++) { const l = WC.laneFor(e); if (Math.hypot(l.x - 0, l.z + 5) > 25.01 || avoid.some(([x, z, r]) => Math.hypot(l.x - x, l.z - z) < r)) laneOk = false; }
-  ok(laneOk, 'laneFor over 200 evenings: each centre within 25 m of (0, −5), clear of every island and the Bell Pool');
+  const span = D.loopPlace('under_the_span').area.pts, spanPts = [0, 1 / 3, 2 / 3, 1].map((t) => [span[0][0] + (span[1][0] - span[0][0]) * t, span[0][1] + (span[1][1] - span[0][1]) * t]);
+  const avoid = [...A.islands.map((o) => [o.x, o.z, o.r + 7]), [-4, -14, 14], ...A.pillars.map((p) => [p.x, p.z, +(p.r + 5).toFixed(1)]), ...spanPts.map(([x, z]) => [+x.toFixed(1), +z.toFixed(1), 6])];
+  eq(M.laneAvoid.map((c) => c.map((v) => +v.toFixed(1))), avoid, 'laneAvoid is ZONES[0].arena\'s islands (r + 7), the Bell Pool and rim (14 m), the pillars (r + 5) and Under the Span\'s channel');
+  let laneOk = true; const lanes = {};
+  for (let e = 1; e <= 500; e++) {
+    const l = WC.laneFor(e), a = D.placeAtV3('mossmere', l.x, l.z)?.id || WC.areaAt(l.x, l.z, probe, geo);
+    lanes[a] = (lanes[a] || 0) + 1;
+    if (Math.hypot(l.x - 0, l.z + 5) > 25.01 && !(l.x === M.laneFallback.x && l.z === M.laneFallback.z)) laneOk = false;
+    if (a !== 'deep' && a !== 'open') laneOk = false;
+  }
+  ok(laneOk, `laneFor over 500 evenings: each centre within 25 m of (0, −5) and in deep or open water (${JSON.stringify(lanes)})`);
   // §2.2's geometry block, verbatim
   eq(M.geometry.reedArcs, [[100, 112], [120, 135], [232, 244], [318, 332]], 'revision 2\'s reed arcs');
   eq(M.geometry.beds, [{ x: -26, z: 34, r: 5 }, { x: 40, z: 28, r: 5 }, { x: -20, z: -50, r: 4.5 }, { x: -6, z: 52, r: 4.5 }], 'revision 2\'s lily beds');
