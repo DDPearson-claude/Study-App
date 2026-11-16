@@ -121,7 +121,8 @@ async function run(kind) {
 
   // ---- the sealed sheet's card: the wax, three seals, "Coming soon"; no price and no buy button
   check(await tap('[data-loop=chart] [data-sealed=sporewood]'), `${kind}: tap the sealed sheet`);
-  await wait(700);
+  await until(() => { const m = document.querySelector('[data-modal=chartsealed]'); return !!m && m.classList.contains('gw-in') && Number(getComputedStyle(m).opacity) > 0.95; }, null, 30000);
+  await wait(900);
   const sc = await g(() => {
     const m = document.querySelector('[data-modal=chartsealed]');
     return { open: !!m, text: m ? m.textContent.replace(/\s+/g, ' ').trim() : '', seals: m ? [...m.querySelectorAll('[data-seal]')].map((b) => ({ key: b.dataset.seal, disabled: b.disabled, w: b.getBoundingClientRect().width, h: b.getBoundingClientRect().height })) : [],

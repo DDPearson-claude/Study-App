@@ -186,7 +186,7 @@ export function createChartView(deps) {
     const st = entry.state;
     S.renders = (S.renders || 0) + 1;
     const m = drawModel(model);
-    const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart gw-p-chart--drawn${opts.reduced ? ' gw-rm' : ''}` });
+    const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart gw-p-chart--drawn${line ? ' gw-p-chart--line' : ''}${opts.reduced ? ' gw-rm' : ''}` });
     pn.dataset.loop = 'chart';
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart gw-chart--drawn"><div class="gw-chart-sheet"><canvas class="gw-chart-cv" aria-hidden="true"></canvas><div class="gw-chart-hits"></div></div></div>`;
     if (line) content.querySelector('.gw-murk-line').textContent = line;
