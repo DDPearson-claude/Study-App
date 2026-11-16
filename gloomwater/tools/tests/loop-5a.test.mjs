@@ -93,7 +93,10 @@ section('the world under the loop: the hulls in layout.obstacles, the mooring re
   eq(kinds(W).filter((k) => k === 'hull').length, 5, 'under the loop the five keel circles are among the lake\'s obstacles');
   eq(kinds(W).filter((k) => k === 'murk').length, 1, '… and Murk\'s barge\'s');
   eq(kinds(off).filter((k) => k === 'hull' || k === 'murk').length, 0, 'off the loop none (the built lake unchanged)');
-  eq(W.getObstacles().length - off.getObstacles().length, 6, '… and nothing else differs in the obstacles');
+  eq(W.getObstacles().length - off.getObstacles().length, 6 - 2, '… and nothing else differs in the obstacles but the Jetty\'s two posts (Murk\'s old berth), gone');
+  const d0 = LAY.docks[0];
+  ok(d0.posts.every((p) => !W.getObstacles().some((o) => o.kind === 'post' && Math.abs(o.x - p.x) < 1e-9 && Math.abs(o.z - p.z) < 1e-9)) && off.getObstacles().filter((o) => o.kind === 'post').length === W.getObstacles().filter((o) => o.kind === 'post').length + 2,
+    '… the posts of docks[0] only; every other dock keeps its own');
   ok(!!W.getMooring() && W.getMooring().cam && off.getMooring() === null, 'world.getMooring(): the mooring under the loop, null off it');
   const p = { x: M.raft.x, z: M.raft.z };
   W.collide(p, RAFT_R);

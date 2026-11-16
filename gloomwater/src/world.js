@@ -179,7 +179,16 @@ export function create(ctx) {
     zone = z;
     layout = buildLayout(z);
     mooring = ctx.data?.LOOP_ENABLED === true && typeof ctx.data.loopMooring === 'function' ? ctx.data.loopMooring(z.id, layout.docks) : null;
-    if (mooring) for (const c of mooring.circles) layout.obstacles.push({ x: c.x, z: c.z, r: c.r, kind: c.kind });
+    if (mooring) {
+      // the Jetty's two mooring posts were Murk's old berth: with the barge moored there they go (their circles and their art)
+      const d = layout.docks[mooring.dock], posts = Array.isArray(d?.posts) ? d.posts : [];
+      if (posts.length) {
+        const at = (o) => posts.some((p) => Math.abs(p.x - o.x) < 1e-9 && Math.abs(p.z - o.z) < 1e-9);
+        for (let i = layout.obstacles.length - 1; i >= 0; i--) if (layout.obstacles[i].kind === 'post' && at(layout.obstacles[i])) layout.obstacles.splice(i, 1);
+        d.posts = [];
+      }
+      for (const c of mooring.circles) layout.obstacles.push({ x: c.x, z: c.z, r: c.r, kind: c.kind });
+    }
     bounds.radius = layout.R;
     gateInfo.position.set(layout.gate.x, 0, layout.gate.z);
     gateInfo.radius = layout.gate.radius;

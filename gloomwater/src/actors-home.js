@@ -673,7 +673,7 @@ export function createHome(ctx) {
       if (smokeT <= 0) {
         smokeT = 0.7 + Math.random() * 0.6;
         toWorld(A.pipe.x, A.pipe.y, A.pipe.z, tmp);
-        ctx.models?.emitSmoke?.(tmp, { color: 0x75707a, vy: 0.35, spread: 0.12, size: 0.3, sizeGrow: 0.8, lifeT: 3.4, alpha: 0.16, jitter: 0.04 });
+        ctx.models?.emitSmoke?.(tmp, { color: 0x7a7480, vy: 0.4, spread: 0.12, size: 0.34, sizeGrow: 0.9, lifeT: 3.6, alpha: 0.26, jitter: 0.04 });
       }
       // the variant follows what is owned (meta.loop), read twice a second
       sigT -= dt;

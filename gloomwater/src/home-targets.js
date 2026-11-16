@@ -56,9 +56,8 @@ export function bargePoints(M, { length = 12, beam = 3.6, top = 3.5 } = {}) {
   if (!M?.hull) return [];
   const pts = [];
   for (const z of [-length / 2, 0, length / 2]) for (const x of [-beam / 2, beam / 2]) for (const y of [0, z === 0 ? top : 1.2]) pts.push(place([x, y, z], M.hull, M.hull.yaw));
-  // the raft tied at the stern, its deck's corners and the Wick's flame over it (the player is always in the frame at home)
-  if (M.raft) for (const [dx, dz] of [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]]) pts.push([M.raft.x + dx, 0.2, M.raft.z + dz]);
-  if (M.raft) pts.push([M.raft.x, 2.6, M.raft.z]);
+  // the raft tied at the stern: its deck and the Wick's flame over it (the player is always in the frame at home)
+  if (M.raft) pts.push([M.raft.x, 0.2, M.raft.z], [M.raft.x, 2.6, M.raft.z]);
   return pts;
 }
 
