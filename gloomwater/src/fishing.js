@@ -3218,10 +3218,9 @@ export function create(ctx) {
     const size = (1.05 + 0.045 * S.castDist) / 0.74;
     if (LOOP()) {
       // the loop (the user's rule: never a ring or disc around the raft or the Wick; SPEC §8.1: no aim words): no range ring
-      // round the raft, no band word, and the reticle only once the aim point is well clear of the raft and the Wick's flame on
-      // screen (it inks in from 7 m to 9 m out; nearer, the cast arc alone shows where the float will land)
-      const k = clamp((S.castDist - 7) / 2, 0, 1);
-      fx.setReticle(k > 0, V.target.x, V.target.z, size, key, clean, (view.anchoring ? 0.55 : 1) * k, S.clock * 0.6, { label: false });
+      // round the raft, no band word and no reticle (from the trip camera even a reticle 7–9 m out floats just over the Wick's
+      // flame, a halo): the cast arc's dots alone show where the float will land
+      fx.setReticle(false);
       fx.setRange(false);
     } else {
       fx.setReticle(true, V.target.x, V.target.z, size, key, clean, view.anchoring ? 0.55 : 1, S.clock * 0.6);

@@ -1718,7 +1718,8 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
 49. (the stage's review; the user's rule) **No ring round the raft or the Wick on a trip's cast.** The built cast UI drew a
     castMax range ring round the raft and the depth reticle with its SHALLOW / MID / DEEP word 3 m out, over the Wick, and
     the anchor's plop spread a ring round the raft as the first cast charged. Under the loop's trip: no range ring, no band
-    word, the reticle only from 7 m out (inked in by 9 m; nearer, the cast arc alone), the plop's drops with no ring,
+    word and no reticle (from the trip camera even a reticle 7–9 m out floats just over the Wick's flame; the cast arc's dots
+    show the aim), the plop's drops with no ring,
     and a fish's ring in the play that would grow over the raft keeps its spray only. Off the loop as built.
 50. (the stage's review; for the lead) **`LOOP.time` is only partly measured** (T37, SPEC §13). The stage wrote the measured
     `home` (2 s) and `sale` (5.8 s, a three-fish tally); `out` stays 14 (the measured glide is 3 s; the Chart and Sail took no
