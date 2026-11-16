@@ -3,7 +3,9 @@
 // passes in ui-loop's shelfCards model, the layout and the goal; node tests (tools/tests/murk-catalogue.test.mjs) prove the pages.
 //
 //   bookLayout(vw, vh)                    'desktop' (a two-page spread) or 'phone' (one page at a time, full width)
-//   bookPages(tabs, {layout, odds, goal}) the book: its pages in order (the frontispiece and the cover, one chapter per shelf tab in the
+//   bookSizes(vw, vh, layout)             the page's px and the spread's grid: 'full', 'short' (960 × 540: an item to a half-page row)
+//                                         or 'low' (a phone turned to landscape: an item a page)
+//   bookPages(tabs, {layout, size, odds, goal}) the book: its pages in order (the frontispiece and the cover, one chapter per shelf tab in the
 //                                         shelf's order, each opening on a fresh page with its tab word, its items set in a ruled grid
 //                                         of BOOK[layout].per (a desktop's maps two a page), the gear log's page last), its chapters (the fore-edge tabs), the page of
 //                                         every item and of the goal item. The page count depends only on how many items each chapter
@@ -22,8 +24,14 @@ export const BOOK = Object.freeze({
   // (a desktop's Maps chapter sets its map plates two to a page, side by side and the page's full height: a map is drawn large)
   desktop: Object.freeze({ per: 4, cols: 2, rows: 2, leaf: 2, chapters: Object.freeze({ maps: Object.freeze({ per: 2, cols: 2, rows: 1 }) }) }),
   phone: Object.freeze({ per: 2, cols: 1, rows: 2, leaf: 1 }),
+  // a short spread (a page under `shortPage` px tall, 960 × 540): one item to a half-page row, its engraving beside its words, so the
+  // drawing stays large; a map plate (or the sealed water's) has its page to itself
+  short: Object.freeze({ per: 2, cols: 1, rows: 2, leaf: 2, chapters: Object.freeze({ maps: Object.freeze({ per: 1, cols: 1, rows: 1 }) }) }),
+  // a low spread (a screen under `lowH` px tall: a phone turned to landscape, 844 × 390): one item a page, Murk's line and the purse
+  // set beside the book
+  low: Object.freeze({ per: 1, cols: 1, rows: 1, leaf: 2 }),
   // the spread needs room for two pages of at least `minPage` px and the fore-edge tabs; below it (or in portrait) one page at a time
-  minPage: 300, edge: 64, turn: 0.45,
+  minPage: 300, edge: 64, turn: 0.45, shortPage: 520, lowH: 480, lowSide: 336,
 });
 /** The chapters, in the shelf's order (SPEC §8.4: Tackle · Raft · Bait · Maps · Home); the gear log's page closes the book. */
 export const CHAPTERS = Object.freeze(['tackle', 'raft', 'bait', 'maps', 'home']);
@@ -36,13 +44,36 @@ export function bookLayout(vw, vh) {
 }
 
 /**
+ * The page's size for a screen (CSS px) and the spread's grid: {pw, ph, size}. A desktop: two pages side by side with room for the
+ * fore-edge tabs ('full'); a page under BOOK.shortPage tall is 'short' (its pages a little wider, an item to a half-page row); a screen
+ * under BOOK.lowH tall is 'low' (one item a page, the book's full height, Murk's line and the purse beside it). A phone: one page,
+ * full width ('full'). Pure.
+ */
+export function bookSizes(vw, vh, layout = bookLayout(vw, vh)) {
+  const W = Number(vw) || 0, H = Number(vh) || 0;
+  if (layout === 'desktop') {
+    if (H < BOOK.lowH) {
+      const ph = Math.max(240, H - 44);
+      return { pw: Math.floor(Math.max(220, Math.min((W - BOOK.lowSide) / 2, ph * 0.9))), ph: Math.floor(ph), size: 'low' };
+    }
+    const ph0 = Math.max(300, Math.min(H - 132, 700));
+    const pw = Math.max(BOOK.minPage, Math.min((W - 220) / 2, ph0 * 0.76));
+    const ph = Math.floor(Math.min(ph0, pw / 0.62));
+    if (ph < BOOK.shortPage) return { pw: Math.floor(Math.max(BOOK.minPage, Math.min((W - 220) / 2, ph * 0.92))), ph, size: 'short' };
+    return { pw: Math.floor(pw), ph, size: 'full' };
+  }
+  return { pw: Math.floor(Math.min(W - 20, 520)), ph: Math.floor(Math.max(420, Math.min(H - 176, 760))), size: 'full' };
+}
+
+/**
  * The book from shelfCards' tabs ([{id, label, cards: [{id, …}]}]). Pages: {n, kind: 'front' | 'cover' | 'items' | 'odds' | 'end',
  * chapter, label, first (the chapter's opening page: it carries the tab word as its head), items (card ids, at most `per`), part
  * (the chapter's page count so far), folio (the printed page number; none on the frontispiece and the cover)}. On a desktop the book is
  * an even number of pages (an end leaf when needed) so every spread is whole.
  */
-export function bookPages(tabs, { layout = 'desktop', odds = false, goal = null, oddsLabel = '' } = {}) {
-  const L = BOOK[layout] ? layout : 'desktop', G = BOOK[L], per = G.per;
+export function bookPages(tabs, { layout = 'desktop', size = 'full', odds = false, goal = null, oddsLabel = '' } = {}) {
+  const L = layout === 'phone' ? 'phone' : 'desktop';
+  const Z = L === 'desktop' && (size === 'short' || size === 'low') ? size : 'full', G = BOOK[Z === 'full' ? L : Z], per = G.per;
   const pages = [], chapters = [], itemPage = {};
   if (L === 'desktop') pages.push({ kind: 'front' });
   pages.push({ kind: 'cover' });
@@ -65,7 +96,7 @@ export function bookPages(tabs, { layout = 'desktop', odds = false, goal = null,
   pages.forEach((p, i) => { p.n = i; p.folio = p.kind === 'front' || p.kind === 'cover' ? null : i; if (!('items' in p)) p.items = []; });
   const goalId = isObj(goal) ? goal.id : goal;
   const goalPage = goalId != null && String(goalId) in itemPage ? itemPage[String(goalId)] : null;
-  return { layout: L, per, cols: G.cols, rows: G.rows, leaf: G.leaf, pages, chapters, itemPage, goalPage, count: pages.length,
+  return { layout: L, size: Z, per, cols: G.cols, rows: G.rows, leaf: G.leaf, pages, chapters, itemPage, goalPage, count: pages.length,
     spreads: L === 'desktop' ? pages.length / 2 : pages.length };
 }
 

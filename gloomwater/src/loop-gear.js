@@ -269,7 +269,8 @@ export function orderPhrase(D, o) {
   const left = Math.max(1, Math.max(1, int(o.n, 1)) - Math.max(0, int(o.have)));
   const art = (s) => `${VOWEL.test(s) ? W.an : W.a} ${s}`;
   if (o.kind === 'class') { const lab = arr(D?.SIZE_CLASSES).find((c) => c?.id === o.cls)?.label || 'Prize'; return art(`${lab} ${name}`); }
-  if (o.kind === 'heavy') return `${art(name)} ${W.over} ${typeof D?.fmtWeight === 'function' ? D.fmtWeight(num(o.oz) / num(D.OZ_PER_KG, 35.27396195)) : `${o.oz} oz`}`;
+  // (the weight's figure never breaks across lines: non-breaking spaces inside it; orderPhraseOk's \s takes them)
+  if (o.kind === 'heavy') return `${art(name)} ${W.over} ${typeof D?.fmtWeight === 'function' ? D.fmtWeight(num(o.oz) / num(D.OZ_PER_KG, 35.27396195), { nbsp: true }) : `${o.oz} oz`}`;
   return left === 1 ? art(name) : `${left} ${pluralName(name, left)}`;
 }
 const WEIGHT_RE = /^(?:[¼½¾]|\d+(?:\s?[¼½¾])?)\s?oz$|^\d[\d,]*\s?lb(?:\s\d+\s?oz)?$/;

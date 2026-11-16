@@ -105,6 +105,29 @@ section('bookPages: the page count is stable as items are bought (a bought card 
   eq(M.bookPages(cardsOf(L), { layout: 'desktop', goal: 'nope:1' }).goalPage, null, 'a goal not on the shelf: no goal page (the book opens at the cover)');
 }
 
+section('bookSizes and the short and low spreads (the integration review: 960 × 540 and a phone turned to landscape)');
+{
+  eq(M.bookSizes(1280, 720).size, 'full', '1280 × 720: the full spread (2 × 2 a page)');
+  eq(M.bookSizes(1920, 1080).size, 'full', '1920 × 1080: the full spread');
+  eq(M.bookSizes(960, 540).size, 'short', '960 × 540: a short spread');
+  eq(M.bookSizes(844, 390).size, 'low', '844 × 390 (a phone turned to landscape): a low spread');
+  eq(M.bookSizes(390, 844).size, 'full', 'a phone in portrait: its one page');
+  const s = M.bookSizes(960, 540), l = M.bookSizes(844, 390);
+  ok(s.pw * 2 + 220 <= 960 && s.ph + 132 <= 540, '960 × 540: two pages, the tabs, Murk\'s line and the foot fit', s);
+  ok(l.pw * 2 + M.BOOK.lowSide <= 844 && l.ph + 44 <= 390, '844 × 390: two pages, the tabs and the side column (the line, the purse) fit; the page the screen\'s height', l);
+  const tabs = cardsOf(fake());
+  const full = M.bookPages(tabs, { layout: 'desktop', odds: true }), sh = M.bookPages(tabs, { layout: 'desktop', size: 'short', odds: true }), lo = M.bookPages(tabs, { layout: 'desktop', size: 'low', odds: true });
+  eq([full.size, sh.size, lo.size], ['full', 'short', 'low'], 'the book says its grid');
+  ok(sh.pages.filter((p) => p.kind === 'items' && p.chapter !== 'maps').every((p) => p.items.length <= 2 && p.cols === 1 && p.rows === 2), 'short: an item to a half-page row (1 × 2)');
+  ok(sh.pages.filter((p) => p.chapter === 'maps').every((p) => p.items.length === 1 && p.cols === 1 && p.rows === 1), 'short: a map (or the sealed water) has its page to itself');
+  ok(lo.pages.filter((p) => p.kind === 'items').every((p) => p.items.length === 1 && p.cols === 1 && p.rows === 1), 'low: an item a page');
+  ok([sh, lo].every((b) => b.count % 2 === 0 && b.spreads === b.count / 2 && b.pages[0].kind === 'front' && b.pages[1].kind === 'cover'), 'short and low: whole spreads, the frontispiece facing the cover');
+  const ids = (b) => Object.keys(b.itemPage).sort();
+  eq(ids(sh), ids(full), 'short: every item of the full book is in it');
+  eq(ids(lo), ids(full), 'low: every item of the full book is in it');
+  eq(M.bookPages(tabs, { layout: 'phone', size: 'low' }).per, M.BOOK.phone.per, 'a phone keeps its own grid whatever size is asked');
+}
+
 section('spreads, turns and focus');
 {
   const b = M.bookPages(cardsOf(fake()), { layout: 'desktop', odds: true });

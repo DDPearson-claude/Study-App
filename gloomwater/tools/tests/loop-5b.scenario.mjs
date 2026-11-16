@@ -25,7 +25,7 @@ export default async function (api) {
     await K.titleReady();
     await g(() => { window.__lp.ev.length = 0; window.__gw.game.beginIntro({ character: 'wick' }); });
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Start: flow home');
-    await g(() => { const c = window.__gw; c.debug.loop.tutorial('done'); c.ui.closeAll?.(); c.ui.loop.openJetty(); });
+    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.ui.closeAll?.(); c.ui.loop.openJetty(); });   // (the opening's tow cut to the mooring first: loop-tow.scenario plays it)
     await K.secs(1.6); await K.settle(300);
     const b0 = await barge();
     await K.shoot('home-before');
