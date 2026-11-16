@@ -257,7 +257,8 @@ export function createTowView(K) {
     g.restore();
   }
   function murkMark(g, x, y, ang, z) {   // Murk's barge: the lily pad, the old toad and his towering pack, the green lamp on its pole
-    g.save(); g.translate(x, y); g.rotate(ang + Math.PI / 2); g.scale(z * 1.5, z * 1.5); g.lineJoin = 'round'; g.lineCap = 'round';
+    void ang;   // (upright on the sheet, seen from the side as the raft's mark is: turned with the way it was drawn upside down)
+    g.save(); g.translate(x, y); g.scale(z * 1.5, z * 1.5); g.lineJoin = 'round'; g.lineCap = 'round';
     shape(g, () => g.ellipse(0, 3, 5.6, 1.7, 0, 0, 6.3), 'rgb(116,132,100)', 0.8);
     shape(g, () => { g.moveTo(-3.4, 2.6); g.quadraticCurveTo(-4.2, -0.4, -2, -0.4); g.quadraticCurveTo(-0.2, -0.2, -0.4, 2.6); g.closePath(); }, 'rgb(116,92,76)', 0.7);
     shape(g, () => { g.moveTo(-0.2, 2.6); g.lineTo(-0.5, -8.6); g.lineTo(1, -10.2); g.lineTo(2.8, -8.6); g.lineTo(2.7, 2.6); g.closePath(); }, 'rgb(196,176,150)', 0.7);
