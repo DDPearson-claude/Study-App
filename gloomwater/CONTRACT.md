@@ -2317,4 +2317,8 @@ Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (
 - **Words**: `TEXT_LOOP.sheet` (the title, two heads, five exact lines, the cast line, the effect words, the moves, the size labels,
   "Where you last cast", "Quiet water", accessible names); `ui-loop.textAllowed(t, {screen: 'sheet'})` passes its number forms and its
   filled templates. Odds live on this page and nowhere else.
-- **Files**: `src/loop-sheet.js`, `src/ui-sheet.js`, `tools/tests/loop-sheet.test.mjs` (S1–S14), `tools/tests/loop-sheet.scenario.mjs`.
+- **The picks** (`ui-sheet.pickSession()`, pure): the class lasts the session; Where and the hour are dropped at `run:start`, `run:end`,
+  `home:enter` and each `fishing:land`, so `sheetModel`'s defaults (the raft's water and hour, "Where you last cast") hold again.
+- **A phone's Journal** on the sheet: the row `.gw-tabs--sheet` (the sheet's tab the portrait alone, its label `.gw-tab-lab` hidden;
+  `.gw-tabs--tight` drops the count badges while the row would scroll sideways) and the panel's head "{name}'s Sheet" clear of the X.
+- **Files**: `src/loop-sheet.js`, `src/ui-sheet.js`, `tools/tests/loop-sheet.test.mjs` (S1–S16), `tools/tests/loop-sheet.scenario.mjs`.

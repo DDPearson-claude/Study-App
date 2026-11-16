@@ -82,6 +82,29 @@ export default async function (api) {
     log('pages', JSON.stringify(r.pages));
     return r;
   };
+  /** The Journal's tab row on a phone (the review at 358 px): four tabs in the row with no sideways scroll, none under the close X, the
+   *  words 16 px; the page's running head "Taper's Sheet" (the user's answer 42) on screen. */
+  const tabCheck = async (where) => {
+    const r = await g(() => {
+      const M = document.querySelector('[data-modal=journal]'), tb = M?.querySelector('.gw-tabs'), x = M?.querySelector('.gw-x');
+      if (!tb) return null;
+      const box = (e) => { const b = e.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom }; };
+      const tabs = [...tb.querySelectorAll('.gw-tab')].map((t) => ({ cls: t.className, ...box(t), fs: parseFloat(getComputedStyle(t).fontSize), w: t.getBoundingClientRect().width, h: t.getBoundingClientRect().height }));
+      const X = x ? box(x) : null, row = box(tb);
+      const hit = (a, b) => a.l < b.r - 0.5 && b.l < a.r - 0.5 && a.t < b.b - 0.5 && b.t < a.b - 0.5;
+      const h2 = M.querySelector('.gw-ph h2');
+      return { sw: tb.scrollWidth, cw: tb.clientWidth, lastR: tabs.length ? tabs[tabs.length - 1].r : 0, rowR: row.r, underX: X ? tabs.filter((t) => hit(t, X)).map((t) => t.cls) : [],
+        small: tabs.filter((t) => t.fs < 15.5).map((t) => `${t.cls} ${t.fs}`), tiny: tabs.filter((t) => t.w < 43.5 || t.h < 43.5).map((t) => `${t.cls} ${Math.round(t.w)}x${Math.round(t.h)}`),
+        head: h2 && h2.getBoundingClientRect().width > 0 ? h2.textContent.trim() : null, n: tabs.length };
+    });
+    if (!r) { K.check(false, `tabs (${where}): the Journal's tab row`); return null; }
+    K.check(r.sw <= r.cw + 1 && r.lastR <= r.rowR + 0.5, `tabs (${where}): the row fits, its last tab (the giants' star) inside it`, r);
+    K.check(r.underX.length === 0, `tabs (${where}): no tab under the close X`, r.underX);
+    K.check(r.small.length === 0 && r.tiny.length === 0, `tabs (${where}): the tabs' words 16 px, their targets 44 px`, { small: r.small, tiny: r.tiny });
+    K.check(r.head === "Taper's Sheet", `tabs (${where}): the page's running head names it "Taper's Sheet"`, r.head);
+    log('tabs', where, JSON.stringify(r));
+    return r;
+  };
   /** A real tap on a sheet element, scrolled into its page's view first (a page scrolls on its own). */
   const tapIn = async (sel, text = null) => {
     await g((s) => { const t = [...document.querySelectorAll(s)].find((e) => e.getBoundingClientRect().width > 0); try { t?.scrollIntoView({ block: 'center' }); } catch { /* ignore */ } }, sel);
@@ -97,6 +120,15 @@ export default async function (api) {
     if (await g(() => !!document.querySelector('[data-modal=homepause]') && !document.querySelector('[data-modal=journal]'))) { await K.key('Escape'); await K.settle(500); }
   };
   const modals = () => g(() => [...document.querySelectorAll('[data-modal]')].map((e) => e.dataset.modal));
+  /** Back to the Jetty: the Journal by its X, Murk's book by its Escape (each returns where it came from). */
+  const toJetty = async () => {
+    for (let i = 0; i < 6; i++) {
+      const m = await modals();
+      if (m.includes('journal')) { await g(() => document.querySelector('[data-modal=journal] .gw-x')?.click()); await K.settle(500); }
+      else if (m.includes('shelf') || m.includes('homepause')) { await K.key('Escape'); await K.settle(600); }
+      else break;
+    }
+  };
   const shotTop = async (name, sel = null) => {
     if (sel) await g((s) => { const t = document.querySelector(`[data-modal=journal] ${s}`); try { t?.scrollIntoView({ block: 'start' }); } catch { /* ignore */ } }, sel);
     await K.settle(200);
@@ -166,8 +198,12 @@ export default async function (api) {
     K.need(await sheetOpen(), 'the sheet is open (example)');
     K.check(await g(() => !!document.querySelector('[data-modal=journal] .gw-tab--sheet.gw-on, [data-modal=journal] .gw-tab--sheet[aria-selected=true]')), 'it is the Journal\'s first tab');
     await shotTop('example-head');
+    if (K.phone) await tabCheck(`${width}x${height}`);
     await scanSheet('the example, open water');
     await fitCheck('the example');
+    // the page-open budget (SHEET §9: 50 ms): a warm opening from the pause, timed in the page (a note: the machine's load moves it)
+    { const ms = await g(() => Number(document.querySelector('[data-modal=journal] .gw-sheet')?.dataset.ms ?? NaN));
+      K.note(`the sheet's page built in ${ms} ms (budget 50 ms; software GL on a busy machine)`); }
     // the picks: Under the Span at dusk, Trophy
     K.need(await tapIn('[data-modal=journal] [data-where=under_the_span]'), 'the Under the Span chip');
     await K.settle(400);
@@ -216,6 +252,7 @@ export default async function (api) {
       await K.settle(900);
       const sz = `${w2}x${h2}`;
       await shotTop(`${sz}-head`);
+      if (w2 < 700) await tabCheck(sz);
       await fitCheck(sz);
       await scanSheet(sz);
       if (w2 < 700) { await shotTop(`${sz}-buffs`, '[data-sec=buffs]'); await shotTop(`${sz}-tackle`, '[data-sec=tackle]'); await shotTop(`${sz}-raft`, '[data-sec=raft]'); }
@@ -243,6 +280,40 @@ export default async function (api) {
       const pin = await g(() => window.__gw.state.meta.gearPin);
       K.check(so && (await sheetOpen()) && pin?.speciesId === 'reedjaw_pike' && pin.sizeClass === 'prize', 'a caught fish\'s Odds › opens the sheet with that fish pinned at the lit class', pin);
       await closeJournal();
+      // Murk's book: its Odds › opens the sheet's Odds over the book, and closing the sheet leaves the book at the same page
+      if (await g(() => typeof window.__gw.ui.loop?.openShelf === 'function')) {
+        await g(() => window.__gw.ui.loop.openShelf({ tab: 'tackle' }));
+        await K.settle(800);
+        await g(() => document.querySelector('[data-loop=shelf] [role=tab].gw-tab[data-chapter=odds]')?.click());
+        await K.settle(900);
+        const pg = await g(() => window.__gw.ui.loop.murkBook?.debug?.()?.page ?? null);
+        const ob = await K.tap('[data-loop=shelf] .gw-shelf-odds');
+        await K.settle(700);
+        const om = await g(() => window.__gw.ui.sheet?.model?.() || null);
+        K.check(ob && (await sheetOpen()), 'the book\'s Odds › opens the sheet', { ob, modals: await modals() });
+        await shotTop('book-odds', '[data-sec=odds]');
+        await g(() => document.querySelector('[data-modal=journal] .gw-x')?.click());
+        for (let i = 0; i < 20 && (await g(() => !!document.querySelector('[data-modal=journal]'))); i++) await K.settle(200);
+        await K.settle(400);
+        const back = await g(() => ({ book: !!document.querySelector('[data-loop=shelf]'), page: window.__gw.ui.loop.murkBook?.debug?.()?.page ?? null }));
+        K.check(back.book && back.page === pg, 'closing the sheet returns to the book at the same page', { pg, back, picks: om?.picks?.place });
+        await toJetty();
+        // the Next line (at home): a tap opens Murk's book at that card
+        await g(() => window.__gw.ui.openSheet({ from: 'pause' }));
+        await K.settle(700);
+        const nid = await g(() => { const b = document.querySelector('[data-modal=journal] .gw-sh-nextbtn'); return b ? b.closest('[data-plate]')?.dataset.plate || '?' : null; });
+        const want = await g(() => { const m = window.__gw.ui.sheet.model(); const p = m.tackle.slots.find((x) => x.next); return p ? p.next.id : null; });
+        if (nid && want) {
+          // (a phone: the plate is folded; a tap unfolds it and shows its Next line)
+          if (K.phone && !(await g((k) => document.querySelector(`[data-modal=journal] [data-plate="${k}"]`)?.classList.contains('gw-open'), nid))) { await tapIn(`[data-modal=journal] [data-plate="${nid}"]`); await K.settle(400); }
+          await tapIn('[data-modal=journal] .gw-sh-nextbtn');
+          await K.settle(900);
+          const at = await g((id) => { const el = document.querySelector(`[data-loop=shelf] [data-item="${id}"]`); const r = el?.getBoundingClientRect(); return { book: !!document.querySelector('[data-loop=shelf]'), shown: !!r && r.width > 0 && r.right > 0 && r.left < innerWidth }; }, want);
+          K.check(at.book && at.shown, 'the Next line opens Murk\'s book at that card', { want, at });
+          await K.shoot('next-book');
+        } else K.note('no Next line on the page here', { nid, want });
+        await toJetty();
+      } else K.note('no openShelf seam here');
       // the rack target at home (no word; its accessible name the full label)
       await K.settle(300);
       log('modals before the rack', JSON.stringify(await modals()));
@@ -276,11 +347,42 @@ export default async function (api) {
         K.check(await sheetOpen(), 'the trip pause item opens the sheet');
         await K.settle(600);
         K.check(await sheetOpen(), 'the sheet stays open over the trip\'s pause');
-        const chips = await g(() => [...document.querySelectorAll('[data-modal=journal] [data-fit]')].filter((b) => !b.disabled && !b.classList.contains('gw-on')).length);
-        K.check(chips === 0, 'on a trip the hook\'s chips are read only', chips);
+        // the picks made at home (Under the Span, the Prize then the Trophy) do not follow onto the lake (the review's must 1, SHEET §3.5)
+        const hour = await g(() => { const c = window.__gw; return c.data.loopLight?.(c.survival?.getPhaseInfo?.()?.phase ?? 'calm') ?? null; });
+        const tp = await g(() => window.__gw.ui.sheet.model().picks);
+        K.check(tp.place === null && tp.light === hour, 'on a trip the page opens where the raft is (the open water) at the hour it is', { picks: tp, hour });
+        // the hook's chips are live on a trip (the user, 16 Nov 2026: answer 43 superseded): a tap changes the run's hook
+        const live = await g(() => [...document.querySelectorAll('[data-modal=journal] [data-fit]')].filter((b) => !b.disabled && !b.classList.contains('gw-on')).map((b) => b.dataset.fit));
+        K.check(live.length > 0, 'on a trip the hook\'s chips are live (loop.changeHook)', live);
+        const pickB = live.find((k) => k.startsWith('bait:') && k !== 'bait:');
+        if (pickB) {
+          await tapIn(`[data-modal=journal] [data-fit="${pickB}"]`);
+          await K.settle(500);
+          const hk = await g(() => ({ run: window.__gw.state.run?.equippedBait ?? null, model: window.__gw.ui.sheet.model().tackle.hook.bait }));
+          K.check(hk.run === pickB.slice(5) && hk.model === hk.run, 'a chip on a trip changes the run\'s bait, and the page reads it', { pickB, hk });
+        }
         await K.shoot('trip');
         await scanSheet('a trip');
         await g(() => window.__gw.ui.closeAll?.());
+        await K.settle(500);
+        // a cast lands and comes in quietly: the page opens on "Where you last cast" (the user's answer 41)
+        await g(() => { try { window.__gw.game?.resume?.(); } catch { /* ignore */ } });
+        await K.secs(0.6);
+        const pt = await K.waterPoint();
+        await K.pressHold(pt.x, pt.y, 0.5, 'c.fishing.state');
+        const cast = await K.until("c.fishing.state === 'waiting' || c.fishing.state === 'bite'", 8);
+        if (cast.ok) {
+          const lc = await g(() => window.__gw.fishing.lastCastArea?.() || null);
+          await g(() => window.__gw.fishing.reelInQuiet?.());
+          await K.until("c.fishing.state === 'idle'", 4);
+          await g(() => window.__gw.ui.openSheet({ from: 'pause' }));
+          await K.settle(700);
+          const ap = await g(() => window.__gw.ui.sheet.model()?.picks || null);
+          const want = lc && lc.place ? lc.place : 'last';
+          K.check(ap && ap.place === want && ap.light === hour, 'after a cast the page opens where you last cast, at the trip\'s hour', { lc, picks: ap, hour });
+          await K.shoot('trip-lastcast');
+          await g(() => window.__gw.ui.closeAll?.());
+        } else K.note('the real press did not cast here', cast);
       } else K.note('the sail did not start a trip here', out);
     }
   } catch (e) {

@@ -1763,6 +1763,7 @@ export function createScreens(K) {
     const nm = wid ? arr(D().CHARACTERS).find((c) => c?.id === wid)?.name : null;
     if (nm && /^The Wick(?=['’]s )/.test(jTitle)) jTitle = jTitle.replace(/^The Wick/, nm);
     const onSheet = s.tab === 'sheet' && !!sheetV();
+    if (onSheet && K.vw < 700) jTitle = safe(() => sheetV().title(), jTitle);   // (a phone: the sheet's running head, SHEET §2.1, the user's answer 42)
     const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, cls: `gw-p-wide gw-p-journal gw-p-journal--loop gw-p-catalogue${af() ? ' gw-p-af' : ''}${onSheet ? ' gw-p-sheet' : ''}` });
     pn.dataset.loop = 'catalogue';
     // the tabs: each owned water (its name and its list's count) and the giants' ★ (no word: its accessible name, PLAN CHOICE 25)
@@ -1787,7 +1788,9 @@ export function createScreens(K) {
         st0.classList.add('gw-tab--sheet'); st0.dataset.tab = 'sheet'; st0.setAttribute('aria-label', SV.title());
         st0.insertAdjacentHTML('afterbegin', `<span class="gw-tab-wick" aria-hidden="true">${safe(() => SV.portrait('tab'), '')}</span>`);
         if (safe(() => SV.hasFresh(), false)) st0.insertAdjacentHTML('beforeend', SV.DROP);
-        if (K.vw < 700) { tb.classList.add('gw-tabs--many'); const nm = SV.title().replace(/['’]s .*$/, ''); requestAnimationFrame(() => { try { const lab = st0.querySelector('span:not(.gw-tab-wick)'); if (tb.scrollWidth > tb.clientWidth + 1) lab.textContent = nm; if (tb.scrollWidth > tb.clientWidth + 1) lab.style.display = 'none'; } catch { /* ignore */ } }); }   // (the bare name, then the portrait alone; its accessible name stays whole)
+        // a phone (the review at 358 px: four tabs in 302 px): the portrait alone from the first paint, its accessible name whole, the page's
+        // running head "{name}'s Sheet" (ui-sheet's CSS); the count badges go only when the row would still scroll sideways
+        if (K.vw < 700) { tb.classList.add('gw-tabs--many', 'gw-tabs--sheet'); st0.querySelector('span:not(.gw-tab-wick)')?.classList.add('gw-tab-lab'); requestAnimationFrame(() => { try { if (tb.scrollWidth > tb.clientWidth + 1) tb.classList.add('gw-tabs--tight'); } catch { /* ignore */ } }); }
       }
     }
     pn.insertBefore(tb, content);

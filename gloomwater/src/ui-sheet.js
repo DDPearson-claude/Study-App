@@ -222,6 +222,17 @@ const CSS = `
   scrollbar-color: rgba(38, 29, 44, .3) transparent; padding: 14px 24px 40px;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%); mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%); }
 .gw-sh-scroll.gw-sh-end { -webkit-mask-image: none; mask-image: none; }
+/* … and its head: once scrolled, the words melt into the paper over its first 26 px (a sticky paper fog under the corners and the table's
+   head), and a row slides under the stuck table head through a short fade below its rule (no line reads as cut at either edge) */
+.gw-sh-fog { position: sticky; top: -14px; display: block; height: 0; z-index: 1; pointer-events: none; }
+.gw-sh-fog::before { content: ''; position: absolute; left: -24px; right: -24px; top: 0; height: 26px; opacity: 0; transition: opacity .2s;
+  background: linear-gradient(to bottom, var(--cat-paper) 35%, rgba(238, 228, 210, 0)); }
+.gw-sheet[data-layout=phone] .gw-sh-fog { top: -10px; } .gw-sheet[data-layout=phone] .gw-sh-fog::before { left: -14px; right: -14px; }
+.gw-sh-scroll.gw-sh-scrolled .gw-sh-fog::before { opacity: 1; }
+.gw-sh-table thead th::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 10px; pointer-events: none; opacity: 0;
+  background: linear-gradient(to bottom, var(--cat-paper), rgba(238, 228, 210, 0)); }
+.gw-sh-table.gw-sh-stuck thead th::after { opacity: 1; }
+.gw-mbtn.gw-loop-sheet.gw-locked > span, .gw-mbtn.gw-loop-sheet.gw-locked .gw-sh-wick { opacity: .32; }
 .gw-sh-corner { position: sticky; display: block; height: 0; z-index: 2; pointer-events: none; }
 .gw-sh-corner .gw-mb-corner { position: absolute; width: 26px; height: 26px; color: var(--cat-ink-2); }
 .gw-sh-corner--t .gw-mb-corner:first-child { left: -16px; top: -8px; } .gw-sh-corner--t .gw-mb-corner:last-child { right: -16px; top: -8px; transform: scaleX(-1); }
@@ -349,7 +360,12 @@ const CSS = `
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-art, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-art,
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-art .cat-eng, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-art .cat-eng { width: 56px; height: 56px; }
 .gw-sheet[data-layout=phone] .gw-sh-buff { grid-template-columns: 26px minmax(0, 1fr); gap: 0 10px; }
-.gw-sheet[data-layout=phone] .gw-sh-chip--txt { padding: 0 6px; } .gw-sheet[data-layout=phone] .gw-sh-chip--txt.gw-on { padding: 0 5px; }
+.gw-sheet[data-layout=phone] .gw-sh-chip--txt { padding: 0 4px; font-size: 16px; } .gw-sheet[data-layout=phone] .gw-sh-chip--txt.gw-on { padding: 0 3px; }
+/* (a phone's picks a little tighter, the review at 358 px: two Where chips to a row, the five classes on one row) */
+.gw-sheet[data-layout=phone] .gw-sh-pickrow { gap: 5px; }
+.gw-sheet[data-layout=phone] .gw-sh-chip--where { padding: 0 5px; gap: 3px; font-size: 16px; } .gw-sheet[data-layout=phone] .gw-sh-chip--where.gw-on { padding: 0 4px; }
+/* a section a jump or an Odds › brings to the top sits below the page's top fade */
+.gw-sh-sec, .gw-sh-picks { scroll-margin-top: 24px; }
 .gw-sheet[data-layout=phone] .gw-sh-buff .gw-sh-eff { grid-column: 2; }
 .gw-sheet[data-layout=phone] .gw-sh-table td:first-child { word-break: normal; overflow-wrap: anywhere; }
 .gw-sheet[data-layout=desktop] .gw-sh-fold { display: contents; }
@@ -359,8 +375,21 @@ const CSS = `
 .gw-tab .gw-tab-wick { display: inline-flex; width: 22px; height: 26px; } .gw-tab .gw-tab-wick svg { width: 22px; height: 26px; }
 .gw-tab .gw-sh-drop, .gw-mbtn .gw-sh-drop { margin-left: 2px; }
 .gw-mbtn .gw-sh-wick { display: inline-flex; width: 24px; height: 28px; margin-right: 2px; } .gw-mbtn .gw-sh-wick svg { width: 24px; height: 28px; }
-/* a phone: the Journal's own title gives its height to the page (the tab names it: the portrait and the Wick's name) */
-@media (max-width: 700px) { .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-ph { display: none; } .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-tabs { margin-top: 6px; } }
+/* a phone: the Journal's head is the page's own running head, "Taper's Sheet" (the user's answer 42), one line clear of the close X, and
+   the tab row below it; the row (gw-tabs--sheet) fits its four tabs in 302 px at 358: the sheet's tab is the portrait alone from the first
+   paint (its accessible name the full label), the words 16 px, the count badges dropped only when the row would still not fit */
+@media (max-width: 700px) {
+  .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-ph { display: block; padding: 12px 52px 0; margin: 0; }
+  .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-ph .gw-pdiv, .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-ph .gw-psub { display: none; }
+  .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-ph h2 { font-size: 20px; line-height: 28px; margin: 0; letter-spacing: .12em; white-space: nowrap; overflow: visible; }
+  .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-tabs { margin-top: 4px; }
+  .gw-loop-on .gw-p-catalogue .gw-tabs--sheet .gw-tab { padding: 0 7px 6px; min-height: 44px; font-size: 16px; letter-spacing: .04em; gap: 4px; }
+  .gw-loop-on .gw-p-catalogue .gw-tabs--sheet .gw-badge { font-size: 16px; }
+  .gw-loop-on .gw-p-catalogue .gw-tabs--sheet .gw-tab--giants { min-width: 44px; }
+  .gw-loop-on .gw-p-catalogue .gw-tabs--sheet .gw-tab--sheet { min-width: 48px; }
+  .gw-loop-on .gw-p-catalogue .gw-tabs--sheet .gw-tab--sheet .gw-tab-lab { display: none; }
+  .gw-loop-on .gw-p-catalogue .gw-tabs--tight .gw-badge { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { .gw-sheet * { transition: none !important; } }
 `;
 const DROP = '<i class="gw-sh-drop" aria-hidden="true"><svg viewBox="0 0 9 12"><path d="M4.5 0.6 C3 3.6 1 5.6 1 8 a3.5 3.5 0 0 0 7 0 C8 5.6 6 3.6 4.5 0.6Z"/></svg></i>';
@@ -507,7 +536,7 @@ export function createSheetView(K) {
 
   // ---------------------------------------------------------------- the DOM
   function render(entry, content) {
-    const s = entry.state;
+    const s = entry.state, t0 = typeof performance !== 'undefined' ? performance.now() : 0;
     const m = model(pickS.forEntry(s));
     const lay = phone() ? 'phone' : 'desktop';
     const root = document.createElement('div');
@@ -521,7 +550,7 @@ export function createSheetView(K) {
     const pageL = document.createElement('div'), pageR = lay === 'phone' ? pageL : document.createElement('div');
     pageL.className = 'gw-sh-scroll gw-sh-scroll--l'; if (pageR !== pageL) pageR.className = 'gw-sh-scroll gw-sh-scroll--r';
     const leaf = (sc, side) => { const p = document.createElement('div'); p.className = `gw-sh-page gw-sh-page--${side}`; p.appendChild(sc); return p; };   // (the paper; its scroll inside)
-    const corners = `<div class="gw-sh-corner gw-sh-corner--t">${CORNER}${CORNER}</div>`;
+    const corners = `<div class="gw-sh-corner gw-sh-corner--t">${CORNER}${CORNER}</div><i class="gw-sh-fog" aria-hidden="true"></i>`;
     pageL.insertAdjacentHTML('beforeend', corners);
     if (pageR !== pageL) pageR.insertAdjacentHTML('beforeend', corners);
     const secHead = (word) => `<div class="gw-sh-h"><h3>${esc(word)}</h3>${RULE.replace('gw-mb-rule', 'gw-mb-rule')}</div>`;
@@ -559,7 +588,7 @@ export function createSheetView(K) {
       if (p.fresh) el.dataset.fresh = p.key;
       const art = `<div class="gw-sh-art" aria-hidden="true">${artSvg(p.art, uid())}</div>`;
       const nameRow = `<div class="gw-sh-pname"><b></b>${p.notches ? `<span class="gw-sh-notches" role="img" aria-label="${esc(p.notchLabel)}">${notchesHtml(p.notches)}</span>` : ''}${p.ticks ? `<span class="gw-sh-ticks" aria-hidden="true">${ticksHtml(p.ticks)}</span>` : ''}${p.dots ? `<span class="gw-sh-dots" aria-hidden="true">${dotsHtml(p.dots)}</span>` : ''}${dropIf(p.fresh)}</div>`;
-      const fig = `<span class="gw-sh-fig">${p.night && p.figure ? `<span class="gw-sh-night">${icon('moon')}</span>` : ''}${esc(p.figure || '')}</span>`;
+      const fig = `<span class="gw-sh-fig">${p.night && p.figure ? `<span class="gw-sh-night">${icon('moon')}</span>` : ''}${p.tin != null && p.figure ? `<span class="gw-sh-tin">${icon('worm')}</span>` : ''}${esc(p.figure || '')}</span>`;   // (the Bait Bed's figure with its tin glyph)
       el.innerHTML = `${art}<div class="gw-sh-fold">${nameRow}${fig}</div><div class="gw-sh-more"></div>`;
       el.querySelector('.gw-sh-pname b').textContent = p.name;
       const more = el.querySelector('.gw-sh-more');
@@ -647,7 +676,7 @@ export function createSheetView(K) {
           <div class="gw-sh-more"><div class="gw-sh-line" style="${q.effect.on ? '' : 'opacity:.45'}">${glyph} <span></span></div></div>`;
         el.querySelector('.gw-sh-pname b').textContent = q.name;
         el.querySelector('.gw-sh-more span:last-child').textContent = q.n;
-        el.querySelector('.gw-sh-fig').textContent = q.n;
+        el.querySelector('.gw-sh-fig').innerHTML = `${glyph}<span></span>`; el.querySelector('.gw-sh-fig > span:last-child').textContent = q.n;
         try { drawFindArt(el.querySelector('canvas'), D(), q.id, { ink: [38, 29, 44], w: lay === 'phone' ? 56 : 72, h: lay === 'phone' ? 42 : 54 }); } catch (er) { report('findArt', er); }
         g.appendChild(el);
       }
@@ -751,6 +780,7 @@ export function createSheetView(K) {
     if (lay === 'desktop') { pageL.append(tk, rf, hm); pageR.append(picks, bf, od); root.append(leaf(pageL, 'l'), leaf(pageR, 'r')); }
     else { pageL.append(bf, tk, rf, hm, od); root.append(leaf(pageL, 'l')); }
     content.appendChild(root);
+    try { root.dataset.ms = (performance.now() - t0).toFixed(1); } catch { /* ignore */ }   // (the page's build time, SHEET §9's 50 ms budget)
     // where it opens: Odds (an Odds ›), Tackle (the rack), the head (the ledger, the pause), or where it was
     const sc = s.scroll;
     requestAnimationFrame(() => {
@@ -758,7 +788,7 @@ export function createSheetView(K) {
         if (sc) { restoreScroll(root, sc); s.scroll = null; return; }
         const at = s.section;
         if (at === 'odds') { const t = root.querySelector('[data-sec=odds]'); if (lay === 'desktop') pageR.scrollTop = 0; else t?.scrollIntoView({ block: 'start' }); }
-        else if (at === 'tackle') { const t = root.querySelector('[data-sec=tackle]'); if (lay === 'desktop') pageL.scrollTop = Math.max(0, t.offsetTop - 10); else t?.scrollIntoView({ block: 'start' }); }
+        else if (at === 'tackle') { const t = root.querySelector('[data-sec=tackle]'); if (lay === 'desktop') pageL.scrollTop = Math.max(0, t.offsetTop - 28);   // (its head below the page's top fade) else t?.scrollIntoView({ block: 'start' }); }
         s.section = null;
       } catch (e) { report('scroll', e); }
     });
@@ -768,7 +798,12 @@ export function createSheetView(K) {
   /** The page's foot fades while there is more below, and lifts at the scroll's end (its last line whole). */
   function footFade(root) {
     for (const p of root.querySelectorAll('.gw-sh-scroll')) {
-      const upd = () => p.classList.toggle('gw-sh-end', p.scrollTop + p.clientHeight >= p.scrollHeight - 2);
+      const tb = p.querySelector('.gw-sh-table'), th = tb?.querySelector('thead th');
+      const upd = () => {
+        p.classList.toggle('gw-sh-end', p.scrollTop + p.clientHeight >= p.scrollHeight - 2);
+        p.classList.toggle('gw-sh-scrolled', p.scrollTop > 2);
+        if (th) tb.classList.toggle('gw-sh-stuck', p.scrollTop > 2 && th.getBoundingClientRect().top <= p.getBoundingClientRect().top + 1);
+      };
       p.addEventListener('scroll', upd, { passive: true });
       requestAnimationFrame(upd);
     }

@@ -1081,3 +1081,24 @@ Built as §9 says, in its order (the Hold rule's commit first and alone), with t
 - **The paper** is Murk's book's (`ui-catalogue-murk.js` exports `PAPER_NOISE`, `FIBRE`, `CORNER`, `RULE`); the tokens are the sheet's
   own copy of the book's (the book's rule was left whole, so the catalogue's own lane keeps its file).
 - **Prices** are the shelf's (`shelfItems`, Murk's factor in): a node test checks the Next card at ×1 and ×2.
+
+**The review's fixes (16 November 2026, after `gw-m1-mvp` dbc861a was merged into the lane):**
+
+- **Answer 43 superseded** (the user: "We should have an option to equip bait or change lures whilst out on the lake"). The hook's
+  chips tap `loop.changeHook({bait} | {lure})` at home and on a trip; `sheetModel`'s `canChange` option (the ledger passes
+  `loop.canChangeHook()`) leaves them dead only while a fish is on. The page re-reads on `loop:hook`.
+- **The picks last one stretch of play** (answer 41 and §3.5's trip defaults). `ui-sheet.pickSession()`: the class lasts the session,
+  but Where and the hour are dropped when a trip starts or ends, at home, and at each landed cast, so a trip opens where the raft is at
+  the hour it is, and once a spot has been fished on "Where you last cast". An opening's own view (the book's or a fish's Odds ›)
+  still holds. Node S15; the scenario sails, casts, reels in quietly and opens the page.
+- **"Where you last cast" is not saved.** `fishing.lastCastArea()` lives in the fishing module's memory, so after a reload or Continue
+  the page opens on the open water until the next cast. Accepted for the MVP: a save field (`meta.loop.lastCast`) is the follow-up.
+- **The tab row on a phone** (§2.1, changed). At 358 px the sheet's tab pushed the giants' star out of the row. On a phone the
+  sheet's tab is now the portrait alone from the first paint (its accessible name "Taper's Sheet"), the row's words 16 px, the count
+  badges dropped only while the row would still not fit (at 358 px), and the Journal's head on the sheet tab is the page's own
+  running head, "Taper's Sheet", one line clear of the close X. So the name is on screen at every size, and no tab sits under the X.
+- **No line reads as cut at a page's top.** Once a page is scrolled a paper fog fades its first 26 px (sticky, under the corners and
+  the table's head), and a row slides under the stuck table head through a short fade below its rule. A jump or an Odds › brings a
+  section's head below the fade.
+- **Smaller fixes**: the Bait Bed's folded figure carries the tin glyph; the trip pause's locked item is dimmed like the locked Home;
+  a phone's Where chips two to a row and its five classes on one row.
