@@ -1083,6 +1083,7 @@ export function createLoopView(K) {
     head.querySelector('.gw-murk-line').textContent = s.line || '';
     pn.insertBefore(head, content);
     gear.shelfBoard(pn, content, entry);   // M1 step 4 (lane 4): Murk's orders, chalked under his line
+    content.classList.add('gw-scroll');   // M1 step 4: a tab can hold more cards than a screen (Tackle's seven): they scroll under the tabs
     if (tabs && model.tabs.length > 1) pn.insertBefore(tabs(model.tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon })), s.tab, (id) => { s.tab = id; s.focus = null; entry.render(); }), content);
     const tab = model.tabs.find((t) => t.id === s.tab);
     const grid = h('div', `gw-shelf-cards gw-shelf-cards--${s.tab || 'none'}`);
