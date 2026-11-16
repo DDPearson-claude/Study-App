@@ -622,13 +622,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     pads.name = 'placePads'; pads.frustumCulled = false;
     setupSurface(pads, { cast: false, reflect: false });
     group.add(pads);
-    // koi glowing under the pads like lanterns: a soft bud under most of them (candle amber, a few pale gold)
-    const gold = mixArr(lin(candle), lin(0xffd59a), 0.45);
-    padList.forEach((q, i) => {
-      if (i % 5 === 4) return;
-      addDecal({ x: q.x + (rng() - 0.5) * 0.5, z: q.z + (rng() - 0.5) * 0.5, y: 0.02, sx: 0.55 + q.s * 0.55, sz: 0.55 + q.s * 0.55, kind: 0, place: idx.get('lily_maze'),
-        g: i % 3 === 0 ? gold : lin(candle), depth: 0.25 + rng() * 0.45, night: 0.55 });
-    });
+    // (WC-3, WATERCRAFT §5.7: the static candle-amber glow-buds under the pads retire under the loop: the koi's own candle fins on
+    // its silhouette are the warm light now, WC-2's. The stream keeps its draws, so every later place's dressing lies where it lay)
+    padList.forEach((q, i) => { if (i % 5 === 4) return; rng(); rng(); rng(); rng(); });
   }
 
   // ---------------------------------------------------------- the Buoy Lights: 24 float caps over two rows of drowned lanterns

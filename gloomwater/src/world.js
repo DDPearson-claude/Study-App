@@ -750,6 +750,8 @@ export function create(ctx) {
     },
     setZone,
     getZone: () => zone,
+    /** WC-3 (WATERCRAFT §5.4): the reeds' and pads' twitch, {nudge(x, z, k)}, on the Mossmere under the loop; null elsewhere. */
+    get stems() { return arena?.stems || null; },
     getSpawn,
     getDepth,
     collide,

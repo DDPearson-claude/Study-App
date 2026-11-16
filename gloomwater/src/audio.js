@@ -963,6 +963,7 @@ export function create(ctx) {
       scratch.volume = V.volume * at.gain * k; scratch.muffle = at.muffle; scratch.why = `${pl.id}${at.muffle ? ':bank' : ''}`;
       play(V.sfx, scratch);
     }
+    mossWaterVoices(dt, k, light, px, pz, live);   // WC-3: the inflow's trickle
     // the Buoy Lights' low hum: a loop through its own panner, by distance, louder once its lamps are lit at night
     const hg = hum ? hum.at.gain * MOSS.humLight(light) * k * hum.V.hum.level : 0;
     if (hg > 0.0005 && !moss.hum) {
@@ -981,6 +982,46 @@ export function create(ctx) {
       }
     }
   }
+  // >>> WC-3 (WATERCRAFT §5.4, §5.6): the water's own voices on the Mossmere under the loop (audio-mossmere.js's SFX_WC)
+  const wcS = { reg: false, timers: {} };
+  function wcReg() { if (!wcS.reg) { wcS.reg = true; Object.assign(SFX, MOSS.SFX_WC); } }
+  function mossWaterVoices(dt, k, light, px, pz, live) {
+    wcReg();
+    for (const [id, V] of Object.entries(MOSS.WATER_VOICES)) {
+      const at = MOSS.waterVoiceAt(V, px, pz);
+      if (!live || at.gain <= 0.01) { wcS.timers[id] = Math.min(num(wcS.timers[id], 0.4), 0.4); continue; }
+      wcS.timers[id] = num(wcS.timers[id], 0.4) - dt;
+      if (wcS.timers[id] > 0) continue;
+      wcS.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch(); spatial({ x: V.x, z: V.z }, scratch);
+      scratch.volume = V.volume * at.gain * k * MOSS.trickleLight(light); scratch.why = id;
+      play(V.sfx, scratch);
+    }
+  }
+  function mossTrip() { const r = ctx.state?.run; return LOOP_ON() && MOSS.mossOn({ loopOn: true, flow: ctx.flow, zone: r?.zone ?? null, outing: r?.outing ?? null }); }
+  function wcStems(p) {
+    if (!mossTrip()) return;
+    const pl = ctx.player?.position, g = MOSS.stemsRustle(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.STEMS.volume * g; scratch.why = 'stems'; play(MOSS.STEMS.sfx, scratch);
+  }
+  function wcToll(p) {
+    if (!mossTrip() || !MOSS.tollOn(p)) return;
+    let at = null;
+    try { const lp = ctx.data?.loopPlace?.(MOSS.TOLL.place); if (lp && Number.isFinite(lp.x)) at = { x: lp.x, z: lp.z }; } catch { at = null; }
+    resetScratch(); if (at) spatial(at, scratch);
+    scratch.pitch = MOSS.TOLL.pitch; scratch.volume = MOSS.TOLL.volume; scratch.why = 'toll'; scratch.force = true;
+    play(MOSS.TOLL.sfx, scratch);
+  }
+  function wcCroak(p) {
+    if (!LOOP_ON()) return;
+    const pl = ctx.player?.position, g = MOSS.croakGain(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p?.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.CROAK.volume * g; scratch.why = 'heron'; play(MOSS.CROAK.sfx, scratch);
+  }
+  // <<< WC-3
   // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): home's bed (audio-home.js)
   const homeS = { stove: null, idle: 0, timers: {}, reg: false };
   /** Where a home voice sounds: the cabin door (the stove), the barge's side, Murk's barge, or nowhere (far: unpanned). */
@@ -1512,7 +1553,7 @@ export function create(ctx) {
     on('firstEvening:line', (p) => feLine(p));
     // an Elder's old trick (fishing:surge {trick} already plays the splash and strain) gets a low warning swell
     // the loop, Ashwick's comeback settling on the float (WICKS §2.5): a short ember hiss beside the bobber
-    on('fishing:comeback', () => { resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });
+    on('fishing:comeback', () => { if (MOSS.comebackQuiet({ loopOn: LOOP_ON(), zone: ctx.state?.run?.zone ?? null })) return; resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });   // (WC-3: silent on the Mossmere under the loop)
     // the loop, M1 step 3a: the giant's back, a place's lift, the catch seal's press (audio-mossmere.js)
     on('world:giantBack', (p) => mossGiantBack(p));
     on('place:lift', (p) => mossLift(p));
@@ -1523,7 +1564,9 @@ export function create(ctx) {
       resetScratch(); scratch.pan = bobberPan();
       if (p.state === 'warn') { scratch.pitch = 0.6; play('surge_warn', scratch); } else { scratch.volume = 0.9; play('line_strain', scratch); }
     });
-    on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); });
+    on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); else if (p.kind === 'stems') wcStems(p); });   // (WC-3: the stems' rustle)
+    on('fishing:bite', (p) => wcToll(p));   // WC-3: the Matriarch takes: a low toll from the Bell Pool's floor
+    on('heron:lift', (p) => wcCroak(p));     // WC-3: the heron lifts off with a croak
     on('sign:rise', (p) => riseSound(p));
     on('sign:end', (p) => { if (p.id !== undefined) signHeard.delete(p.id); });
     on('fish:measured', () => {

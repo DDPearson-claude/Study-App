@@ -181,15 +181,24 @@ function arenaHash(data, opts = {}) {
   h.update(Buffer.from(pos.buffer)); h.update(Buffer.from(col.buffer));
   return { all: h.digest('hex'), parts, arena, layout: Lz, floaters: fl };
 }
-const off = arenaHash(D_P1), on = arenaHash(D_LOOP);
+const off = arenaHash(D_P1), on = arenaHash(D_LOOP, { face: false });
 ok(off.all === on.all, `the arena hashes the same off and on the loop (${off.all.slice(0, 12)} / ${on.all.slice(0, 12)})`, JSON.stringify({ off: off.parts, on: on.parts }));
+// (WC-3, WATERCRAFT §5.4: under the loop the Mossmere's face adds its reed beds to the 'fine' static and its lily beds' pads to the
+// pads' InstancedMesh, and nothing else: every other static and every halo is the built arena's)
+const faceH = arenaHash(D_LOOP);
+{
+  const diff = Object.keys({ ...faceH.parts, ...on.parts }).filter((k) => faceH.parts[k] !== on.parts[k]);
+  ok(JSON.stringify(diff) === JSON.stringify(['fine']), 'WC-3: the face changes only the \'fine\' static among the statics', diff);
+  ok(faceH.arena.halos.count === on.arena.halos.count && faceH.floaters.length === on.floaters.length, 'WC-3: the face adds no halo and no instanced mesh (the bed pads ride in the pads\' own)', [faceH.floaters, on.floaters]);
+  ok(faceH.floaters.filter((f, i) => f !== on.floaters[i]).every((f) => /^lilypads:/.test(f)), 'WC-3: only the pads\' count grows', faceH.floaters);
+}
 ok(JSON.stringify(off.arena.lampPosts) === JSON.stringify(on.arena.lampPosts) && off.arena.lampPosts.length > 0, `the street lamp-posts as built (${off.arena.lampPosts.length})`);
 ok(off.arena.piers.length === 4 && JSON.stringify(off.arena.piers) === JSON.stringify(on.arena.piers), 'the Toppled Bridge\'s four piers as built');
 // the places on the loop arena: their own stream, after every builder
 const halo0 = on.arena.halos.count;
 const vis = buildPlaces({ data: D_LOOP, bus: createBus() }, on.layout, on.arena, { places, quality: 'high', mist: D_LOOP.LOOP.mist, giantBack: D_LOOP.LOOP.giantBack });
 const after = arenaHash(D_LOOP);
-ok(after.all === on.all, 'building the places changes nothing the arena built (a fresh build hashes the same)');
+ok(after.all === faceH.all, 'building the places changes nothing the arena built (a fresh build hashes the same)');
 ok(on.arena.halos.count - halo0 === 26, 'the places add only the Buoy Lights\' lamps (24 caps, 2 channel markers) to the shared halos');
 let w9 = 0; vis.group.traverse((o) => { if (o.name === 'tollTower' || o.name === 'sluiceVeil') w9++; });
 ok(w9 === 0, 'LOOP.redress off: no W9 mesh');
@@ -197,7 +206,7 @@ ok(D_LOOP.LOOP.redress === false && on.arena.redress === false, 'LOOP.redress is
 
 section('T146: LOOP.redress on (?redress=1): the bollards replace the posts; the toll-tower and the Sluice Veil appear');
 ok(D_RED.LOOP.redress === true, 'GW_REDRESS turns LOOP.redress on (core\'s ?redress=1)');
-const red = arenaHash(D_RED, { redress: true });
+const red = arenaHash(D_RED, { redress: true, face: false });
 ok(red.parts.rocks === on.parts.rocks && red.parts.landmarks === on.parts.landmarks, 'the rocks and the landmarks unchanged');
 ok(red.parts.organics !== on.parts.organics && red.parts.glows !== on.parts.glows, 'the posts\' iron and lanterns give way to the bollards\' (organics and glows changed)');
 ok(JSON.stringify(red.arena.lampPosts.map((p) => [p.x, p.z])) === JSON.stringify(on.arena.lampPosts.map((p) => [p.x, p.z])), 'a bollard stands where each lamp-post stood');

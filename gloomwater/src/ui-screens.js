@@ -11,7 +11,7 @@ import * as AF from './ui-af.js';
 import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS, catalogueView, giantsView } from './ui-loop.js';
 import { renderPrintsPage } from './ui-prints.js';   // M1 step 5b (lane 5b-home): the Journal's Prints page
 import { listFor as loopListFor, catalogueFor } from './progression-loop.js';
-import { cardHooks as gearCardHooks } from './ui-gear.js';   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
+import { cardHooks as gearCardHooks, whoBitesHtml } from './ui-gear.js';   // (WC-3: the gear log's Who bites)   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
 // <<< LOOP 1a
 
@@ -1507,7 +1507,7 @@ export function createScreens(K) {
       }
       const ob = oddsBlock(sp, s.hl);
       if (ob) det.insertAdjacentHTML('beforeend', ob);
-      if (af()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));
+      if (af() && !loopOn()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));   // (WC-3, WATERCRAFT §7.2: no Got away list under the loop)
       if (ob && ctx.flow === 'playing') {
         const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
         gl.type = 'button';
@@ -1880,6 +1880,8 @@ export function createScreens(K) {
           const row = h('div', `gw-item gw-gear-row${e.id === equipped ? ' gw-equipped' : ''}`);
           row.innerHTML = `<span class="gw-item-ico">${icon(ic)}</span><div class="gw-item-text"><div class="gw-item-name">${esc(e.name || itemName(e.id))}${own}</div>
             <div class="gw-item-hold">${esc(L.hold)}</div>${L.compare ? `<div class="gw-item-cmp">${esc(L.compare)}</div>` : ''}</div>`;
+          // (WC-3, WATERCRAFT §3.9: a Mossmere tin's or lure's Who bites under its line: the fish met by name, the rest counted)
+          if (loopOn()) row.querySelector('.gw-item-text')?.insertAdjacentHTML('beforeend', safe(() => whoBitesHtml(D(), e, { met: (id) => !!meta()?.journal?.[id], names, esc }), ''));
           content.appendChild(row);
         }
       }

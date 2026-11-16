@@ -10,6 +10,7 @@
 // frame before the main render — draws the scene mirrored about the water plane (only what carries toon.REFLECT_LAYER)
 // into a reduced half-float target that the shader looks up (GW_REFL); setKeyLight(light) hands over the key light,
 // whose direction drives the glitter and whose shadow map the water samples (GW_SHADOW). Low keeps the analytic water.
+import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's face (pure)
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
 import { WATER_VERT, WATER_FRAG, SPLASH_VERT, SPLASH_FRAG } from './water-shader.js';
@@ -71,6 +72,10 @@ export function create(ctx) {
   // v3 water (signs + Glowtide) is compiled only in a v3 build: data carries BALANCE.nightModes (CONTRACT §13.0, modules
   // feature-detect v3); a v1 / v2 build keeps the base shader, its uniform list and its compile time
   const V3W = !!ctx.data?.BALANCE?.nightModes;
+  // >>> WC-3 (docs/loop/WATERCRAFT.md §5.4, §5.7): the Mossmere's face (a loop build only: GW_WC, two uniforms, the depth texture's
+  // spare channels; 0 new calls and no new sampler). Drawn only while the lake on screen is the Mossmere (watercraft-face.faceOn)
+  const WCW = V3W && ctx.data?.LOOP_ENABLED === true;
+  // <<< WC-3
   const uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
     uTime: { value: 0 },
     uWaveT: { value: 0 },
@@ -104,6 +109,7 @@ export function create(ctx) {
     uBandN: { value: new THREE.Vector3(1, 0, 0) },
     // v3 night sparkle (setGlowtide; DESIGN §25.8.3): the one uniform the v3 water adds in P1 (CONTRACT §13.9)
     ...(V3W ? { uGlowtide: { value: 0 } } : {}),
+    ...(WCW ? { uWc: { value: 0 }, uLane: { value: new THREE.Vector4(0, 0, 0, 0) } } : {}),   // (WC-3: the face and the wind lane)
   }]);
   // Clear Night: the planar reflection, the key light and its shadow map (added after merge(): the matrices are shared
   // by reference with the virtual camera's and the light's own)
@@ -124,7 +130,7 @@ export function create(ctx) {
     uniforms,
     vertexShader: WATER_VERT,
     fragmentShader: WATER_FRAG,
-    defines: V3W ? { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L, GW_V3: 1 } : { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L },
+    defines: V3W ? { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L, GW_V3: 1, ...(WCW ? { GW_WC: 1 } : {}) } : { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L },
     fog: true,
     lights: false,
   });
@@ -693,8 +699,10 @@ export function create(ctx) {
   // G holds the signed distance to world's (noisy) shoreline, ±16 m, so the shore foam and the
   // dark cliff reflection follow the real cliff line instead of a fixed circle.
   const DEPTH_RES = 128;
-  const depthData = new Uint8Array(DEPTH_RES * DEPTH_RES * 2);
-  const depthTex = new THREE.DataTexture(depthData, DEPTH_RES, DEPTH_RES, THREE.RGFormat, THREE.UnsignedByteType);
+  // (WC-3: a loop build bakes RGBA: B the inflow's seam and the outflow's pull, A the gravel fan, watercraft-face.faceMasks)
+  const DEPTH_CH = WCW ? 4 : 2;
+  const depthData = new Uint8Array(DEPTH_RES * DEPTH_RES * DEPTH_CH);
+  const depthTex = new THREE.DataTexture(depthData, DEPTH_RES, DEPTH_RES, WCW ? THREE.RGBAFormat : THREE.RGFormat, THREE.UnsignedByteType);
   depthTex.minFilter = depthTex.magFilter = THREE.LinearFilter;
   depthTex.wrapS = depthTex.wrapT = THREE.ClampToEdgeWrapping;
   depthTex.generateMipmaps = false;
@@ -713,6 +721,7 @@ export function create(ctx) {
     }
     const S = depthJob.half;
     const end = Math.min(DEPTH_RES, depthJob.row + 24);
+    if (depthJob.row === 0) depthJob.face = WCW && wcFaceNow();   // (WC-3: the face's masks for the lake being baked)
     try {
       for (let r = depthJob.row; r < end; r++) {
         const z = ((r + 0.5) / DEPTH_RES) * 2 * S - S;
@@ -720,11 +729,16 @@ export function create(ctx) {
           const x = ((c + 0.5) / DEPTH_RES) * 2 * S - S;
           let d = Number(w.getDepth(x, z));
           if (!isFinite(d)) d = 1;
-          const i = (r * DEPTH_RES + c) * 2;
+          const i = (r * DEPTH_RES + c) * DEPTH_CH;
           depthData[i] = Math.round(clamp(d, 0, 1) * 255);
           let sr = typeof w.getShoreRadius === 'function' ? Number(w.getShoreRadius(Math.atan2(z, x))) : NaN;
           if (!isFinite(sr) || sr <= 0) sr = Number(U.uArenaR.value) || 60;
           depthData[i + 1] = Math.round(clamp((sr - Math.hypot(x, z) + 16) / 32, 0, 1) * 255);
+          if (WCW) {
+            const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sr - Math.hypot(x, z) }) : null;
+            depthData[i + 2] = m ? Math.round(m.seam * 255) : 0;
+            depthData[i + 3] = m ? Math.round(m.fan * 255) : 0;
+          }
         }
       }
     } catch (err) {
@@ -894,7 +908,7 @@ export function create(ctx) {
       let c = splashCol, b = 0.6 + rand() * 0.8;
       if (gk > 0.05 && rand() < 0.4 * gk) {
         c = glowDrop.copy(U.uStarCol.value).lerp(U.uGlow.value, 0.35);
-        if (rand() < 0.2) c.copy(GLOW_GOLD);
+        if (rand() < 0.2) c.copy(wcWhite() ? U.uFoam.value : GLOW_GOLD);   // (WC-3: water-white on the Mossmere under the loop)
         c.multiplyScalar(0.5 + 0.5 * gk);
         b = 1.2 + rand() * 0.9;
       }
@@ -926,7 +940,7 @@ export function create(ctx) {
       let c = splashCol, b = 0.55 + rand() * 0.6;
       if (gk > 0.05 && rand() < 0.45 * gk) {
         c = glowDrop.copy(U.uStarCol.value).lerp(U.uGlow.value, 0.35);
-        if (rand() < 0.2) c.copy(GLOW_GOLD);
+        if (rand() < 0.2) c.copy(wcWhite() ? U.uFoam.value : GLOW_GOLD);   // (WC-3: water-white on the Mossmere under the loop)
         c.multiplyScalar(0.5 + 0.5 * gk);
         b = 1.1 + rand() * 0.8;
       }
@@ -1013,6 +1027,38 @@ export function create(ctx) {
     try { return ctx.world.isOpenWater(x, z, 0.5) === true; } catch { return true; }
   }
 
+  // >>> WC-3 (WATERCRAFT §5.4, §5.7): the face's switch, the wind lane's uniforms, the water-white droplets
+  let wcZone = null;
+  const wcLaneKey = { k: '', v: [0, 0, 0, 0] };
+  function wcZoneNow() {
+    let id = null;
+    try { id = isReal(ctx.world) ? ctx.world.getZone?.()?.id ?? null : null; } catch { id = null; }
+    return id || wcZone || ctx.state?.run?.zone || null;
+  }
+  function wcFaceNow() { return WCW && WF.faceOn(ctx.data, wcZoneNow()); }
+  function wcWhite() { return WCW && U.uWc.value > 0.5; }
+  function wcEvening() {
+    const r = ctx.state?.run, e = Number(r?.evening);
+    if (e > 0) return Math.trunc(e);
+    const m = ctx.state?.meta?.loop;
+    return Math.max(0, Math.trunc(Number(m?.evenings) || 0)) + 1;
+  }
+  function wcUpdate(dt = 0.016) {
+    if (!WCW) return;
+    const on = wcFaceNow();
+    U.uWc.value = on ? 1 : 0;
+    if (!on) { U.uLane.value.w = 0; return; }
+    let phase = null;
+    try { phase = ctx.survival && !ctx.survival.isStub ? ctx.survival.getPhaseInfo?.()?.phase ?? null : null; } catch { phase = null; }
+    phase = phase || ctx.state?.run?.phase || 'calm';
+    const ev = wcEvening(), key = `${ev}:${WF.lightOf(phase)}`;
+    if (key !== wcLaneKey.k) { wcLaneKey.k = key; wcLaneKey.v = WF.laneUniform(WF.eveningLane(ev, null), phase); }   // (its line is the evening's; the light only fades it)
+    const v = wcLaneKey.v, L4 = U.uLane.value;
+    // (the lane fades in and out over a few seconds as the light turns, never pops)
+    L4.x = v[0]; L4.y = v[1]; L4.z = v[2]; L4.w += (v[3] - L4.w) * (1 - Math.exp(-0.9 * dt));
+  }
+  // <<< WC-3
+
   // ---------------------------------------------------------------- zone defaults
   function applyZonePalette(zoneId, instant) {
     const z = (ctx.data?.ZONES || []).find((q) => q.id === zoneId);
@@ -1048,6 +1094,7 @@ export function create(ctx) {
       startDepthBake(0.2);
       ctx.bus?.on('zone:change', (e) => {
         try {
+          if (e?.zone) wcZone = e.zone;   // (WC-3)
           applyZonePalette(e?.zone, !e?.prev);
           obstaclesDirty = true;
           manualObstacles = null;
@@ -1143,6 +1190,7 @@ export function create(ctx) {
       }
 
       stepDepthBake(dt);
+      wcUpdate(dt);   // (WC-3: the face's switch and the wind lane)
       packRipples(t);
       packWakes(t);
       packLights(realT);

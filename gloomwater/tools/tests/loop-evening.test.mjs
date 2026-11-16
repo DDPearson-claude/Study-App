@@ -813,7 +813,8 @@ section('audio: home, the sail, the passives\' sounds (T56) and the show\'s left
   A.done();
   const B = makeAudioHarness({ create: createAudio, data: D, run: tripRun(D, {}) });
   B.bus.emit('fishing:comeback', { phase: 'float' }); B.step(0.1);
-  ok(B.log().some((e) => e.name === 'ember_hiss'), 'Ashwick: the ember hiss');
+  // (WC-3, WATERCRAFT §7.2: Ashwick's comeback is a surprise on the Mossmere under the loop: no ember hiss there)
+  ok(!B.log().some((e) => e.name === 'ember_hiss'), 'Ashwick: no ember hiss on the Mossmere under the loop (WATERCRAFT §7.2)');
   B.done();
   const S = makeAudioHarness({ create: createAudio, data: DV3, run: { zone: 'mossmere', day: 1, phase: 'calm' } });
   S.ctx.flow = 'intro';

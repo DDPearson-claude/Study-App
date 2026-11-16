@@ -402,8 +402,9 @@ section('T133: chartModel\'s places and its one next (M1.md §3.8; the signature
   const L = U.chartModel(pm, D, {}).sheets[0].places, by = Object.fromEntries(L.map((p) => [p.id, p]));
   ok(by.lily_maze.owned && by.lily_maze.price === null && by.bell_pool.owned && by.bell_pool.price === null, 'an owned place\'s price is null');
   eq(by.lily_maze.best, { speciesId: 'candlefin_koi', weight: D.fishWeight(D.SPECIES_BY_ID.candlefin_koi, { length: 51 }) }, 'best: {speciesId, weight} with weight = data.fishWeight of the saved length, no other field passed through');
-  ok(by.under_the_span.marked === true && by.under_the_span.giantLanded === false && by.buoy_lights.giantLanded === true && by.buoy_lights.marked === false, 'giantLanded and marked from meta.loop.giants');
-  ok(by.bell_pool.giantLanded === true && by.bell_pool.wounds === 2 && by.lily_maze.wounds === 0, 'the Bell Pool: its legend landed, her wounds (meta.legendWounds)');
+  // (WC-3, WATERCRAFT §7.2: under the loop the Chart names no lost fish: marked false and wounds 0 though the save keeps both)
+  ok(by.under_the_span.marked === false && by.under_the_span.giantLanded === false && by.buoy_lights.giantLanded === true && by.buoy_lights.marked === false && pm.loop.giants.thousandcast_pike.marked === 1, 'giantLanded from meta.loop.giants; the mark kept in the save, never on the Chart');
+  ok(by.bell_pool.giantLanded === true && by.bell_pool.wounds === 0 && by.lily_maze.wounds === 0 && pm.legendWounds.belled_matriarch === 2, 'the Bell Pool: its legend landed; her wounds kept in the save, no nick on the Chart');
   eq(L.filter((p) => p.price != null).map((p) => [p.id, p.price]), [['under_the_span', 150], ['buoy_lights', 260]], 'the two cheapest unowned maps priced');
   // T109's Chart case: the Chart's non-null prices are exactly mapCards' place cards
   for (const own of [[], ['lily_maze'], ['lily_maze', 'under_the_span'], ['under_the_span', 'buoy_lights'], ['lily_maze', 'under_the_span', 'buoy_lights'], ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']]) {

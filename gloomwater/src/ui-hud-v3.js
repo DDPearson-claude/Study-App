@@ -45,6 +45,11 @@ export function createHudV3(K, el, R, w) {
    *  estimate (decision 62), the play its class stamp; the tell's word, the strike word, the stamp's "by the look of it" and the
    *  hurry word go; the favour list opens on a press only (a hover after the aim opened it over the Wick). */
   const trip = () => D().LOOP_ENABLED === true && run()?.outing === 'trip';
+  // >>> WC-3 (WATERCRAFT §7.2, the lost fish): on a trip nothing names a fish before it is landed or after it is lost. The bite's tell
+  // is one neutral glyph (the float's own dip in the water keeps its class's heft), no class word at the float, no class stamp in the
+  // play, and no got-away note at all (no toast, no card, no queue). The flag-off game and the expeditions keep every one of them.
+  const TRIP_TELL = 'plunge';
+  // <<< WC-3
 
   // ------------------------------------------------------------------ elements
   const wf = h('div', 'gw-wf', `<span class="gw-wf-ico">${icon('wellfed')}</span><span class="gw-wf-t">Well-fed</span>`);
@@ -161,7 +166,7 @@ export function createHudV3(K, el, R, w) {
     if (p.phase === 'glimpse' && !p.legendary && (p.kind === 'skitter' || ['prize', 'trophy', 'elder', 'ancient'].includes(p.sizeClass))) glimpsed = p.sizeClass || true;
   });
   onAf('fishing:cast', () => { glimpsed = false; playSeen = false; dismissNote(); });
-  onAf('fish:escaped', (p) => { nmQ.push({ p, at: performance.now() }); });
+  onAf('fish:escaped', (p) => { if (!trip()) nmQ.push({ p, at: performance.now() }); });   // (WC-3: the queue never fills on a trip)
   on('player:scorched', () => showScorched());
 
   // ------------------------------------------------------------------ frame
@@ -406,8 +411,11 @@ export function createHudV3(K, el, R, w) {
     if (!T) { tellId = ''; return; }
     if (id !== tellId) {
       tellId = id;
-      tellSvg.innerHTML = TELL_SVG[id] || TELL_SVG.plunge;
-      tell.dataset.tell = id;
+      // (WC-3: on a trip one neutral glyph for every bite, so the picture never names the class)
+      const shown = trip() ? TRIP_TELL : id;
+      tellSvg.innerHTML = TELL_SVG[shown] || TELL_SVG.plunge;
+      tell.dataset.tell = shown;
+      if (trip()) { tellW.innerHTML = ''; restartAnim(tell, 'gw-pop'); placeNear(tell, 'tellT', bobP, -92, -62, 66); return; }
       // the first three of each kind also name the class they mean (the reading is the player's after that)
       const n = tellCount(id);
       const ci = V.classInfo(D(), T.cls);
@@ -435,7 +443,7 @@ export function createHudV3(K, el, R, w) {
     if (strikeT > 0) { strikeT -= dt; if (strikeT <= 0) strike.classList.remove('gw-on'); }
     const playing = af && (st === 'reeling' || (st === 'bite' && !!v.sizeClass));
     // the class estimate stamp (a seal and a word, "by the look of it")
-    const c = playing ? estimateClass(st, v) : '';
+    const c = playing && !trip() ? estimateClass(st, v) : '';   // (WC-3: no class stamp on a trip)
     const ckey = c ? `${c}${v.ancient ? '+' : ''}` : '';
     if (ckey !== clsShown) {
       clsShown = ckey;
@@ -490,6 +498,9 @@ export function createHudV3(K, el, R, w) {
     const word = trip() ? null : AF.strikeWord(D(), grade, n);   // (a trip: the ring burst says it, no word)
     if (grade === 'struck' && word) m.seenTips.ui_struck = n + 1;   // "Struck" is printed for the first 20 strikes, then the ring says it
     const W = K.vw, H = K.vh;
+    // (WC-3: on a trip a strike whose float is not on screen bursts nowhere: the frame's middle is where the Wick sits, and a ring
+    // there would ring the player)
+    if (!strikeAt.ok && trip()) return;
     const x = strikeAt.ok ? strikeAt.x : W / 2, y = strikeAt.ok ? strikeAt.y : H * 0.55;
     strike.style.transform = `translate3d(${Math.max(70, Math.min(W - 70, x)).toFixed(0)}px,${Math.max(80, Math.min(H - 200, y)).toFixed(0)}px,0)`;
     strike.dataset.grade = grade;
@@ -510,6 +521,7 @@ export function createHudV3(K, el, R, w) {
     return !!K.openLog?.({ speciesId: p.speciesId, section: 'odds', sizeClass: p.sizeClass === 'legend' ? null : p.sizeClass, from: 'gotAway' });
   }
   function showGotAway(p) {
+    if (trip()) return;   // WC-3 (WATERCRAFT §7.2): a lost fish is a mystery on a trip: no toast, no card, nothing queued
     if (!p || !p.speciesId) return;
     const N = noteOf(p);
     if (N.mode === 'toast') {

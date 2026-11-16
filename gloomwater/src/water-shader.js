@@ -91,6 +91,13 @@ uniform vec4 uNeb1, uNeb2;
 #ifdef GW_V3
 uniform float uGlowtide;      // v3 night sparkle 0..1 (water.setGlowtide; the term is compiled out on low)
 #endif
+#ifdef GW_WC
+// >>> WC-3 (docs/loop/WATERCRAFT.md §5.4, §5.7): the Mossmere's face under the loop (a loop build only: GW_WC). uDepthTex's spare
+// channels carry the baked masks (B the inflow's seam and the outflow's pull, A the gravel fan under the Sluice Veil)
+uniform float uWc;            // 1 on the Mossmere under the loop (the face and the water-white Glowtide), else 0
+uniform vec4 uLane;           // the wind lane (watercraft.laneFor(evening)): centre x, z, heading (rad), strength (day and dusk 1, night 0)
+// <<< WC-3
+#endif
 uniform vec2 uMood;           // the night 0..1 and the dawn's warmth 0..1 (world's mood)
 #ifdef GW_REFL
 uniform sampler2D uReflTex;   // the scene mirrored about the water plane (water.renderReflection)
@@ -467,6 +474,25 @@ void main() {
     shallow = max(shallow * 0.6, (1.0 - depthAt) * 0.85);
   }
   if (dShore < 4.0 && dShore > -2.0) foam += edgeFoam(dShore, xz, 0.0) * 0.8 * smoothstep(-2.0, -0.6, dShore);
+#ifdef GW_WC
+  // >>> WC-3: the drop-off's shade. Along the shelf's lip (depth 0.35-0.45) the pale margins end on a soft line and the mid water
+  // beyond reads a little deeper; at the Bell Pool's rim (6-12 m from her bell) the pale lip falls to ink
+  vec4 wcTex = vec4(0.0);
+  float wcRim = 0.0, wcPale = 0.0, wcLip = 0.0;
+  if (uWc > 0.5) {
+    if (uDepthOn > 0.5) {
+      wcTex = texture2D(uDepthTex, xz * uDepthScale + 0.5);
+      float lipN = (wNoise(xz * 0.31 + 4.7) - 0.5) * 0.06;
+      wcLip = 1.0 - smoothstep(0.33 + lipN, 0.47 + lipN, wcTex.r);
+      shallow = mix(shallow * 0.8, max(shallow, 0.64), wcLip);
+    }
+    float rd = length(xz - vec2(-4.0, -14.0)) + (wNoise(xz * 0.55 + 1.3) - 0.5) * 1.5;
+    wcRim = 1.0 - smoothstep(6.2, 8.2, rd);
+    wcPale = smoothstep(6.8, 8.4, rd) * (1.0 - smoothstep(9.5, 12.5, rd));
+    shallow = shallow * (1.0 - 0.92 * wcRim) + wcPale * 0.2;
+  }
+  // <<< WC-3
+#endif
 
   // ---- obstacle islands / pillars: foam rings, shallows, and inky mirror reflections
   float refl = 0.0;
@@ -615,6 +641,45 @@ void main() {
   // a boil's or strike's slick calms the wind chop: glassy water that mirrors the stars
   g -= gChop * min(sFlat, 1.0) * 0.9;
 #endif
+#ifdef GW_WC
+  // >>> WC-3: the inflow's seam (foam threads running west from the Veil's spill, broken, sliding downstream), the outflow's
+  // threads slowly converging on the Moss Sluice, and the wind lane (a smooth slick across the ripple, a scum line on its
+  // downwind edge). Drawn as water: foam and calm, never a line of light
+  float wcSlick = 0.0;
+  if (uWc > 0.5) {
+    if (wcTex.b > 0.004) {
+      vec2 toG = vec2(0.0, -49.0) - xz;
+      float rg = length(toG), th;
+      if (rg < 16.0) {
+        float ang = atan(toG.y, toG.x);
+        th = pow(0.5 + 0.5 * cos(ang * 7.0 + rg * 0.24 + (wNoise(xz * 0.45) - 0.5) * 2.4), 9.0);
+        th *= 0.3 + 0.7 * smoothstep(0.35, 0.7, wNoise(vec2(rg * 1.2 + uTime * 0.55, ang * 5.0)));
+      } else {
+        float zc = 4.0 + sin(xz.x * 0.19 + 0.7) * 1.3 + sin(xz.x * 0.47 + 1.47) * 0.55;
+        float ac = xz.y - zc;
+        th = exp(-ac * ac / 0.09) + 0.55 * exp(-(ac - 1.3) * (ac - 1.3) / 0.05) + 0.4 * exp(-(ac + 1.15) * (ac + 1.15) / 0.045);
+        th *= 0.25 + 0.75 * smoothstep(0.32, 0.66, wNoise(vec2(xz.x * 0.85 + uTime * 0.8, xz.y * 2.3)));
+      }
+      foam += th * wcTex.b * 1.0;
+      lines += th * wcTex.b * 0.7;   // (the threads catch the sky as pale strokes)
+    }
+    if (uLane.w > 0.001) {
+      vec2 ld = vec2(cos(uLane.z), sin(uLane.z));
+      vec2 lo = xz - uLane.xy;
+      float along = dot(lo, ld), across = dot(lo, vec2(-ld.y, ld.x));
+      float ac = across + (wNoise(vec2(along * 0.07, 3.1)) - 0.5) * 1.6;
+      float endK = 1.0 - smoothstep(18.0, 25.0, abs(along) + (wNoise(vec2(across * 0.3, along * 0.05)) - 0.5) * 4.0);
+      // (the lane is open water's: its slick fades out over the margins, as WATERCRAFT's areas carve it, depth ≥ 0.35)
+      wcSlick = (1.0 - smoothstep(1.3, 2.2, abs(ac))) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0);
+      float sc = (ac - 2.0) / 0.2;
+      float scum = exp(-sc * sc) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0) * (0.3 + 0.7 * smoothstep(0.3, 0.7, wNoise(vec2(along * 0.85, across * 2.5))));
+      g -= gChop * wcSlick * 0.85;
+      foam += scum * 0.4;
+      lines += scum * 0.35;
+    }
+  }
+  // <<< WC-3
+#endif
 
   vec3 N = normalize(vec3(-g.x, 1.0, -g.y));
   vec3 V = normalize(cameraPosition - P);
@@ -636,6 +701,18 @@ void main() {
   // lying on it the open lake otherwise reads as a dark sheet, most of all on a tall phone frame; by night it is the
   // lake's floor colour and nothing more
   base *= 1.2 - 0.2 * uMood.x;
+#ifdef GW_WC
+  // >>> WC-3: clean water over the pale gravel fan under the Veil (its speckle drops on low), and the Bell Pool's ink
+  if (uWc > 0.5) {
+    float gv = wcTex.a;
+#ifndef GW_LOW
+    gv *= 0.6 + 0.8 * smoothstep(0.35, 0.75, wNoise(xz * 4.1) * 0.6 + wNoise(xz * 8.7 + 3.0) * 0.4);
+#endif
+    base = mix(base, mix(uShallow * 1.25, uFoam * 0.34, 0.5), clamp(gv, 0.0, 1.0) * 0.5);
+    base = mix(base, uDeep * 0.6, wcRim * 0.5);
+  }
+  // <<< WC-3
+#endif
   vec2 vd = normalize(xz - cameraPosition.xz + vec2(1e-4));
   vec2 vp = vec2(-vd.y, vd.x);
 #ifdef GW_REFL
@@ -654,6 +731,9 @@ void main() {
   vec2 gFine = fineGrad(xz, uTime) * (0.085 * fineK);
 #ifdef GW_V3
   gFine *= 1.0 - 0.9 * min(sFlat, 1.0);
+#endif
+#ifdef GW_WC
+  gFine *= 1.0 - 0.85 * wcSlick;   // (WC-3: the wind lane's slick is glassy)
 #endif
   // (a breath of the air's colour keeps the deepest water off black; the dawn lays a little of its pale mist on the lake)
   vec3 body = mix(base, uSky * 0.72, 0.07 + 0.04 * uMood.x + 0.2 * uMood.y);
@@ -701,6 +781,9 @@ void main() {
   // blob or a ring
   vec3 Ng = normalize(vec3(N.x - gFine.x * 1.5, N.y, N.z - gFine.y * 1.5));
   float spark = smoothstep(0.3, 0.6, wNoise(xz * 1.7 + vec2(uTime * 0.45, -uTime * 0.3)) * (0.6 + 0.8 * wNoise(xz * 0.6 - vec2(uTime * 0.12, 0.0) + 9.0))) * fineK;
+#ifdef GW_WC
+  spark *= 1.0 - 0.9 * wcSlick;   // (WC-3: the slick has no ripples to glitter)
+#endif
   // swell crests catch the key light: thin pale strokes on the faces turned to the eye (never in cast shadow)
   float crest = smoothstep(0.62, 0.88, wNoise(xz * vec2(0.35, 0.9) + vGradH.z * 6.0 + uTime * 0.05));
   col += sheen * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.22 * near * wsh;
@@ -735,6 +818,13 @@ void main() {
 #else
   col += sheen * min(sFlat, 1.0) * 0.07;     // a slick takes a faint silver sheen
 #endif
+#endif
+#ifdef GW_WC
+  col += sheen * wcSlick * 0.2;              // (WC-3: the wind lane's slick, a sheen where the ripple dies)
+  // (WC-3: the drop-off's shade on what the eye sees, the mirror included: the Bell Pool's ink below its pale lip, and the margins
+  // a breath paler than the mid water beyond the shelf's lip)
+  col = mix(col, col * 0.42, wcRim * 0.62 * uWc);
+  col += (uShallow * 0.1 + sheen * 0.05) * (wcPale + wcLip * 0.5) * uWc;
 #endif
 
   // ---- lights: warm pools and dashed vertical streaks
@@ -851,6 +941,9 @@ void main() {
     float gd = length(fract(gc) - gp);
     float tw = pow(max(0.0, sin(uTime * (0.5 + gr * 1.5) + gr * 40.0)), 8.0);
     float gl = (1.0 - smoothstep(0.0, 0.06, gd)) * tw * near * 1.6;
+#ifdef GW_WC
+    gl *= 1.0 - wcSlick;
+#endif
     float pl = dot(pool, vec3(0.333));
     vec3 gcol = mix(uStarCol, uGlow, 0.35) * 0.55;   // star-like glints (never a Cinder's amber)
     col += mix(gcol, pool * 6.0 + uGlow * 0.2, clamp(pl * 4.0, 0.0, 1.0)) * gl;
@@ -901,7 +994,11 @@ void main() {
       vec3 gcol = mix(uStarCol, uGlow, 0.45);
       // the stirred water itself breathes a faint living light, the glints ride on it
       col += gcol * (0.1 + shim * 0.35) * gE;
+#ifdef GW_WC
+      col += mix(gcol, mix(vec3(0.95, 0.8, 0.52), uFoam, uWc), step(0.86, gh)) * glint * 2.2 * gE;   // (WC-3: water-white on the Mossmere)
+#else
       col += mix(gcol, vec3(0.95, 0.8, 0.52), step(0.86, gh)) * glint * 2.2 * gE;
+#endif
     }
   }
 #endif
