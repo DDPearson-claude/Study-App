@@ -6,7 +6,9 @@
 // The pure exports (no ctx, no data import; node tests call them directly):
 //   freshLoop(D) · migrateLoop(meta, D, {hasTrip}) · tallyLines(creel, {D, saleOf}) · tallyBook(metaLoop, creel, run, opts) ·
 //   sellStrandedTrip(save) (the flag-off boot rule: needs no data) · shelfItems(D, metaLoop, session) · goalOf(items) ·
-//   stampFirst(firsts, sp, fish, {cls, seals}) (the Wick's ledger) · v8 (SPEC §5.5): listFor(D, waterId) · listCount(meta, D, waterId)
+//   stampFirst(firsts, sp, fish, {cls, seals}) (the Wick's ledger) · v8 (SPEC §5.5): listFor(D, waterId) · listCount(meta, D, waterId) ·
+//   M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.2): mapCards(D, metaLoop, {meta}) · sealsOf(meta, D, waterId) · liftDue(D, metaLoop) ·
+//   catalogueFor(meta, D, waterId)
 // meta.loop (SPEC §9, PLAN §3.4): `holdSlots` is the bought count (3–8) for every Wick; a Wick's slots are data.loopSlots. Slice 1a
 // adds `wick`, `tutorial`, `said`, `lastTrip` and `firsts` (the Wick's ledger, WICKS §2.1), and `parkedRun` only while an old descent
 // waits (PLAN CHOICE 5). A trip is a run with `outing: 'trip'`; its hold IS `run.creel` (PLAN CHOICE 19).
@@ -35,6 +37,9 @@ export const LOOP_METHODS = Object.freeze([
   'wick', 'setWick', 'tutorial', 'beginTutorial', 'setTutorialStep', 'tutorialDone', 'resetTutorial',
   // the passives (WICKS §2.2, §2.5): Taper's flag, one per evening; Ashwick's comeback
   'taperFirstOpen', 'spendTaperFirst', 'comeback', 'consumeComeback',
+  // M1 step 3a (PLAN §3.2): the bait slot, the lift, the Marked giant, the best fish there, the Chart's pick, the cards, seals and catalogue
+  'fit', 'fitted', 'spendBait', 'refundBait', 'liftDue', 'markLifted', 'lifted', 'markGiant', 'takeGiantMark', 'noteBest',
+  'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
 ]);
 
 /** The water a fresh save owns: the one LOOP.waters puts first (the Mossmere). */
@@ -63,6 +68,10 @@ export function freshLoop(D) {
     maps: { lakes: [firstWater(D)], places: [] }, raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 },
     looks: [], orders: [], legends: {}, giants: {}, prints: {}, ledgerPaid: [],
     said: {}, lastTrip: null, wick: null, tutorial: null, firsts: { seen: [], seals: [], best: {} },
+    // M1 step 3a (PLAN §3.3): the places whose lift has played; the best fish there (`<placeId | open:<water>>` → {speciesId, length},
+    // never a weight); the Chart's pick {water, place}, null until one is made (never filled as an object: 3b reads a non-object as the
+    // tutorial's first open). LOOP_SCHEMA stays 3: the keys are additive, the fill below gives them to every block (PLAN CHOICE 1)
+    lifted: [], best: {}, chartPick: null,
   };
 }
 
@@ -127,6 +136,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   if (!Array.isArray(L.maps.places)) L.maps.places = [];
   for (const k of ['seen', 'seals']) if (!Array.isArray(L.firsts[k])) L.firsts[k] = [];
   if (!isObj(L.firsts.best)) L.firsts.best = {};
+  L.lifted = L.lifted.filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i);
+  if (L.chartPick !== null && !isObj(L.chartPick)) L.chartPick = null;
   if (L.lastTrip !== null && !isObj(L.lastTrip)) L.lastTrip = null;
   if (L.tutorial !== null) L.tutorial = isObj(L.tutorial) ? { done: L.tutorial.done === true, step: typeof L.tutorial.step === 'string' ? L.tutorial.step : null } : null;
   if (L.wick !== null) L.wick = typeof D?.loopWickId === 'function' ? D.loopWickId(L.wick) : (typeof L.wick === 'string' ? L.wick : null);
@@ -140,7 +151,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
 /** The ounces a hold fish's weight reads on the card (data.weightOz of data.fishWeight; pounds, PLAN §3.3), or a stand-in with no data. */
 function weightKey(D, f) {
   if (typeof D?.weightOz === 'function' && typeof D?.fishWeight === 'function') {
-    const sp = D.SPECIES_V3_BY_ID?.[f.speciesId] ?? D.SPECIES_BY_ID?.[f.speciesId] ?? null;
+    // the loop's own record first (the card's: the converter's roster size), as ui-loop's tallyPlan reads it (M1 step 3a)
+    const sp = D.SPECIES_BY_ID?.[f.speciesId] ?? D.SPECIES_V3_BY_ID?.[f.speciesId] ?? null;
     return D.weightOz(D.fishWeight(sp, f));
   }
   return num(f.weight) > 0 ? num(f.weight) : num(f.length);   // the boot rule has no data: the stored kg, else the length
@@ -233,11 +245,15 @@ function tierName(D, slot, t) {
  * Murk's shelf (SPEC §8.4, PLAN CHOICEs 11 and 26), one card per slot: per tackle slot (Tackle tab) the next tier, if its shelfAt water
  * is owned; for the hold (Raft tab) the next step, up to LOOP.hold.shelfMax. A card bought while the shelf is open (its id in
  * `session`) stays in its place as {bought: true} until the shelf closes, and the last step a slot's ladder offers on this shelf
- * (1a: Hold 5, T2), once owned, is a permanent {bought: true} card. Prices are LOOP's (the price factor is a fish's, not the shelf's).
- * Each item: {id ('rod:1' | 'hold:4', the buy id and data-buy), tab, slot, level, name (the card's), goalName (the goal line's:
- * "Hold N" or the tier's name), line (the card's one line), price, bought}.
+ * (1a: Hold 5, T2; M1 step 3a: Hold 6), once owned, is a permanent {bought: true} card. Prices are LOOP's (the price factor is a fish's,
+ * not the shelf's). Each item: {id ('rod:1' | 'hold:4', the buy id and data-buy), tab, slot, level, name (the card's), goalName (the goal
+ * line's: "Hold N" or the tier's name), line (the card's one line), price, bought}.
+ * M1 step 3a: the Bait tab's legend bait {id: 'bait:<id>', slot: 'bait', baitId, water, count, consumable: true, bought: false} and the
+ * Maps tab from mapCards: a place card {id: 'place:<id>', slot: 'place', placeId, kind, fish, hours, …} and the next water's card {id:
+ * 'lake:<id>', slot: 'lake', waterId, sealed, seals, price (null while sealed)}. `opts.meta` (the save's meta) gives the sealed card's
+ * catch seal its count.
  */
-export function shelfItems(D, metaLoop, session = []) {
+export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   const L = D?.LOOP; if (!L) return [];
   const ml = isObj(metaLoop) ? metaLoop : {}, T = L.tackle, TL = D.TEXT_LOOP || {}, ses = new Set(Array.isArray(session) ? session : []);
   const owned = new Set([1]);   // shelfAt 1 = the start
@@ -258,14 +274,40 @@ export function shelfItems(D, metaLoop, session = []) {
   if (h > H.start && ses.has(`hold:${h}`)) out.push(hold(h, true));
   else if (h + 1 <= H.shelfMax && step(h + 1)) out.push(hold(h + 1, false));
   else if (h > H.start && step(h)) out.push(hold(h, true));
-  // M1 step 2 (decision 39): a lake map past LOOP.shipped is never offered (the shelf has no map cards before step 3; the guard holds for every later one)
+  // M1 step 3a (SPEC §5.1 rule 8, M1.md §2.5; PLAN §2.1 item 4): the Bait tab's legend bait (a consumable: always on the shelf of its
+  // water, never "Yours.", never the goal line; `count` the bag holds) and the Maps tab (mapCards: the two cheapest place maps not owned,
+  // then the next lake's card). A place map bought while the shelf is open keeps its slot as {bought: true} ("Yours.") and the next card
+  // takes it only when the shelf closes, so the tab never holds more than three cards.
+  for (const [water, lb] of Object.entries(isObj(L.legendBait) ? L.legendBait : {})) {
+    if (!isObj(lb) || typeof lb.id !== 'string' || !(ml.maps?.lakes || []).includes(water) || !waterShipped(D, water)) continue;
+    const b = (D.BAITS || []).find((x) => x?.id === lb.id);
+    out.push({ id: `bait:${lb.id}`, tab: 'bait', slot: 'bait', level: null, baitId: lb.id, water, name: b?.name ?? lb.id, goalName: b?.name ?? lb.id,
+      line: TL.shelf?.[lb.id] ?? '', price: num(lb.price, 0), count: Math.max(0, int(ml.bait?.[water]?.[lb.id])), consumable: true, bought: false });
+  }
+  const sesPlaces = [...ses].filter((id) => typeof id === 'string' && id.startsWith('place:')).map((id) => id.slice(6));
+  const ownedPlaces = Array.isArray(ml.maps?.places) ? ml.maps.places : [];
+  const view = sesPlaces.length ? { ...ml, maps: { ...(ml.maps || {}), places: ownedPlaces.filter((p) => !sesPlaces.includes(p)) } } : ml;
+  const zoneName = (id) => (D.ZONES || []).find((z) => z?.id === id)?.name ?? id;
+  for (const c of mapCards(D, view, { meta: isObj(meta) ? { ...meta, loop: ml } : { loop: ml } })) {
+    if (c.waterId) {
+      out.push({ id: c.id, tab: 'maps', slot: 'lake', level: null, waterId: c.waterId, name: zoneName(c.waterId), goalName: zoneName(c.waterId),
+        line: '', price: c.sealed ? null : c.price, sealed: c.sealed === true, seals: c.seals, bought: false });
+      continue;
+    }
+    const name = D.loopPlace?.(c.placeId)?.name ?? D.PLACE_BY_ID?.[c.placeId]?.name ?? c.placeId;
+    out.push({ id: c.id, tab: 'maps', slot: 'place', level: null, placeId: c.placeId, kind: c.kind, name, goalName: name, line: c.line, price: c.price,
+      fish: c.fish, hours: c.hours, bought: ses.has(c.id) && ownedPlaces.includes(c.placeId) });
+  }
+  // M1 step 2 (decision 39): a lake map past LOOP.shipped is never offered (the sealed card is the next water's, never a lake map to buy)
   return out.filter((it) => !(it.tab === 'maps' && it.water && !waterShipped(D, it.water)));
 }
 
-/** The goal line's item (SPEC §8.3, PLAN CHOICE 11): the cheapest card not bought (the first on a tie), or null when none is left. */
+/** The goal line's item (SPEC §8.3, PLAN CHOICEs 6 and 11): the cheapest permanent card not bought (the first on a tie), or null when
+ *  none is left. A consumable (the legend bait, later the tins) and a sealed card (no price) are never the goal. */
 export function goalOf(items) {
   let best = null;
-  for (const it of Array.isArray(items) ? items : []) if (isObj(it) && !it.bought && (!best || num(it.price) < num(best.price))) best = it;
+  const goalable = (it) => isObj(it) && !it.bought && it.consumable !== true && it.sealed !== true && it.price != null && Number.isFinite(Number(it.price));
+  for (const it of Array.isArray(items) ? items : []) if (goalable(it) && (!best || num(it.price) < num(best.price))) best = it;
   return best ? { id: best.id, name: best.goalName ?? best.name, price: best.price, slot: best.slot, level: best.level } : null;
 }
 
@@ -273,13 +315,22 @@ export function goalOf(items) {
  * v8 (SPEC §5.5 (c)): a water's list, computed by the rule and never listed: its open-water fish and the fish of the day and old
  * water its lake map opens (LOOP.access.list.kinds), on its plain bait (a fish that bites on another bait only is off it);
  * giants and legends never. In 1a, on the loop's data, the Mossmere's six built phase-1 open-water fish.
+ * M1 step 3a (PLAN §2.0): a fish of a place (its `place`) or of a kind of place (a `kind` other than 'open') joins the list only when
+ * a place its water's lake map opens (LOOP.waters[w].places, [{id, kind}], migrateLoop rule 5's list) has that id or that kind, and
+ * that kind is a list kind. A place map's place (LOOP.places) never counts: the Mossmere's lake map opens none, so the Bridgechain and
+ * the Gloam Eel stay off and its list is its open water's twelve.
  */
 export function listFor(D, waterId) {
   const A = D?.LOOP?.access?.list || { kinds: ['open', 'day', 'old'], plainBaitOnly: true };
   const plain = D?.LOOP?.waters?.[waterId]?.plainBait ?? null;
-  const kindOf = (s) => (s.place ? D?.PLACE_BY_ID?.[s.place]?.kind ?? null : 'open');
+  const opens = (D?.LOOP?.waters?.[waterId]?.places || []).filter((p) => isObj(p) && A.kinds.includes(p.kind));
+  const inList = (s) => {
+    if (s.place) return opens.some((p) => p.id === s.place);
+    const kind = typeof s.kind === 'string' && s.kind ? s.kind : 'open';
+    return kind === 'open' ? A.kinds.includes('open') : opens.some((p) => p.kind === kind);
+  };
   return (D?.SPECIES || []).filter((s) => isObj(s) && s.zone === waterId && s.rarity !== 'legendary' && s.rarity !== 'epic' && !s.giant && !s.cove
-    && A.kinds.includes(kindOf(s)) && (!A.plainBaitOnly || !s.bait || s.bait === plain)).map((s) => s.id);
+    && inList(s) && (!A.plainBaitOnly || !s.bait || s.bait === plain)).map((s) => s.id);
 }
 
 /** v8 (SPEC §5.5 (c)): the list's count on this save: listed ids with num(journal[id].caught) > 0 (never the built caughtOf), so a
@@ -287,6 +338,120 @@ export function listFor(D, waterId) {
 export function listCount(meta, D, waterId) {
   const ids = listFor(D, waterId), J = isObj(meta?.journal) ? meta.journal : {};
   return { have: ids.filter((id) => num(J[id]?.caught) > 0).length, need: ids.length };
+}
+
+// ---------------------------------------------------------------- M1 step 3a (PLAN §3.2): the cards, the seals, the lift, the catalogue
+/** The waters in the Chart's order (ZONES by index), as ids. */
+const chartWaters = (D) => (Array.isArray(D?.ZONES) ? D.ZONES : []).filter((z) => isObj(z) && typeof z.id === 'string').slice()
+  .sort((a, b) => num(a.index, 0) - num(b.index, 0)).map((z) => z.id);
+/** The frontier water (the last owned water the Chart draws: owned and in LOOP.waters, as 3b's chartNext reads it) and the water after
+ *  it ({frontier, next}; either null). A fresh save's frontier is the Mossmere and its next water Sporewood. */
+function frontierOf(metaLoop, D) {
+  const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {}, zones = chartWaters(D);
+  const owned = (Array.isArray(metaLoop?.maps?.lakes) ? metaLoop.maps.lakes : []).filter((id) => typeof id === 'string');
+  if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
+  const at = Math.max(-1, ...owned.filter((id) => isObj(W[id])).map((id) => zones.indexOf(id)));
+  return { frontier: at >= 0 ? zones[at] : null, next: at >= 0 ? zones[at + 1] ?? null : null };
+}
+/** Is a water inside what ships, as 3b's chartNext computes it (LOOP.shipped a string: its order ≥ the water's > 0; an array: listed;
+ *  none: in LOOP.waters)? */
+function shippedAsChart(D, waterId) {
+  const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {}, sh = D?.LOOP?.shipped, order = (id) => num(W[id]?.order, 0);
+  return typeof sh === 'string' ? order(waterId) > 0 && order(waterId) <= order(sh) : Array.isArray(sh) ? sh.includes(waterId) : isObj(W[waterId]);
+}
+const LIGHT_GLYPH = { day: 'sun', dusk: 'dusk', night: 'moon' };
+/** A fish's hour glyphs (SPEC §8.8): its window (data.loopHours) as 'sun' | 'dusk' | 'moon'; a fish of every light shows none. */
+function hourGlyphs(D, sp) {
+  const h = typeof D?.loopHours === 'function' ? D.loopHours(sp) : ['day', 'dusk', 'night'];
+  return h.length >= 3 ? [] : h.map((x) => LIGHT_GLYPH[x]).filter(Boolean);
+}
+/** The bait glyph of a fish that bites on one bait only, while that bait is on the shelf (3a: the water's legend bait, LOOP.legendBait;
+ *  PLAN CHOICE 16: the Gloam Eel's Lumen Moss arrives with step 4's data); else null. */
+function baitGlyph(D, sp) {
+  const id = sp?.bait;
+  if (!id) return null;
+  return Object.values(D?.LOOP?.legendBait || {}).some((b) => b?.id === id) ? id : null;
+}
+/**
+ * The next water's three keys as the save stands (SPEC §5.5 (f)): {map: {held, price, shipped}, gear: {held, slot, tier, item},
+ * catch: {held, have, need}}, a superset of 3b's chartNext seals. `shipped` as chartNext computes it; the map seal is held when its lake
+ * map is owned, and priced only once shipped (in M1 always hollow: "Coming soon", price null); the gear key from LOOP.access.gear
+ * (tackle by tier, the hold by its slots, a raft part by level); the catch from listCount of the water before it (the frontier).
+ */
+export function sealsOf(meta, D, waterId = 'sporewood') {
+  const ml = isObj(meta?.loop) ? meta.loop : {}, owned = Array.isArray(ml.maps?.lakes) ? ml.maps.lakes : [];
+  const shipped = shippedAsChart(D, waterId), W = D?.LOOP?.waters?.[waterId];
+  const item = String(D?.LOOP?.access?.gear?.[waterId] || ''), [slot, t] = item.split(':'), tier = Math.max(0, Math.floor(Number(t) || 0));
+  const have = slot === 'hold' ? num(ml.holdSlots, 0) : SLOTS.includes(slot) ? num(ml.tackle?.[slot], 0) : num(ml.raft?.[slot], 0);
+  const zones = chartWaters(D), i = zones.indexOf(waterId), prev = i > 0 ? zones[i - 1] : null;
+  const lc = prev ? listCount(meta, D, prev) : { have: 0, need: 0 };
+  return {
+    map: { held: owned.includes(waterId), price: shipped && Number.isFinite(Number(W?.lake)) ? Number(W.lake) : null, shipped },
+    gear: { held: !!slot && tier > 0 && have >= tier, slot: slot || null, tier: tier || 1, item: item || null },
+    catch: { held: lc.need > 0 && lc.have >= lc.need, have: lc.have, need: lc.need },
+  };
+}
+/**
+ * Murk's map cards (SPEC §5.1 rule 8, M1.md §2.4): the two cheapest place maps of the owned, shipped waters not yet owned (by price,
+ * then the Chart's order), then the next lake's card; at most three, in that order. A place card: {id: 'place:<id>', placeId, kind, price,
+ * fish (the fish its card names), line (TEXT_LOOP.maps), hours (that fish's hour glyphs)}; the lake card: {id: 'lake:<id>', waterId,
+ * sealed (not shipped: "Coming soon", no buy), price (null while sealed), seals (sealsOf; pass `meta` for the catch seal's count)}.
+ */
+export function mapCards(D, metaLoop, { meta = null } = {}) {
+  const ml = isObj(metaLoop) ? metaLoop : {}, P = isObj(D?.LOOP?.places) ? D.LOOP.places : {};
+  const lakes = (Array.isArray(ml.maps?.lakes) ? ml.maps.lakes : []).filter((w) => waterShipped(D, w));
+  const have = new Set(Array.isArray(ml.maps?.places) ? ml.maps.places : []), ids = Object.keys(P);
+  const places = ids.filter((id) => isObj(P[id]) && lakes.includes(P[id].water) && !have.has(id))
+    .sort((a, b) => num(P[a].price, Infinity) - num(P[b].price, Infinity) || ids.indexOf(a) - ids.indexOf(b)).slice(0, 2)
+    .map((id) => {
+      const sp = D?.SPECIES_BY_ID?.[P[id].card] || null;
+      return { id: `place:${id}`, placeId: id, kind: P[id].kind, price: num(P[id].price, 0), fish: P[id].card ?? null,
+        line: D?.TEXT_LOOP?.maps?.[id] ?? '', hours: sp ? hourGlyphs(D, sp) : [] };
+    });
+  const { next } = frontierOf(ml, D);
+  if (!next) return places;
+  const seals = sealsOf(isObj(meta) ? { ...meta, loop: ml } : { loop: ml }, D, next);
+  return [...places, { id: `lake:${next}`, waterId: next, sealed: !seals.map.shipped, price: seals.map.shipped ? seals.map.price : null, seals }];
+}
+/** The owned places whose mist has not lifted yet (maps.places not in `lifted`, LOOP.places only), in price order (the Chart's on a tie). */
+export function liftDue(D, metaLoop) {
+  const P = isObj(D?.LOOP?.places) ? D.LOOP.places : {}, ids = Object.keys(P), ml = isObj(metaLoop) ? metaLoop : {};
+  const done = new Set(Array.isArray(ml.lifted) ? ml.lifted : []);
+  return (Array.isArray(ml.maps?.places) ? ml.maps.places : []).filter((id, i, a) => isObj(P[id]) && !done.has(id) && a.indexOf(id) === i)
+    .sort((a, b) => num(P[a].price, 0) - num(P[b].price, 0) || ids.indexOf(a) - ids.indexOf(b));
+}
+/**
+ * The catalogue of a water (SPEC §8.8, M1.md §2.17): {head: {waterId, name, have, need, seals (the next water's, while this water is the
+ * frontier; else null)}, list: Entry[] (the list's fish in its order, each with its place glyph), groups: [{placeId, kind, owned, name
+ * (null while unowned), entries}] (open water first for its fish off the list, then each place in the Chart's order: its own fish, its
+ * giant, its kind's fish, its legend; a place with none has no group), finds: null (M1 step 5c)}. Entry: {id, caught, giant, legend,
+ * hours: ('sun'|'dusk'|'moon')[], place: 'open'|'day'|'old'|'night'|'crown'|null (the list's glyph; null under a heading), bait}. Every
+ * fish of the water once; never a number or a rate in an entry (revision 7); caught = journal[id].caught > 0.
+ */
+export function catalogueFor(meta, D, waterId) {
+  const J = isObj(meta?.journal) ? meta.journal : {}, ml = isObj(meta?.loop) ? meta.loop : {};
+  const P = isObj(D?.LOOP?.places) ? D.LOOP.places : {}, owned = new Set(Array.isArray(ml.maps?.places) ? ml.maps.places : []);
+  const fish = (D?.SPECIES || []).filter((s) => isObj(s) && s.zone === waterId && !s.cove);
+  const byId = new Map(fish.map((s) => [s.id, s]));
+  const entry = (s, place) => ({ id: s.id, caught: num(J[s.id]?.caught) > 0, giant: s.giant === true, legend: s.rarity === 'legendary',
+    hours: hourGlyphs(D, s), place, bait: baitGlyph(D, s) });
+  const used = new Set(), take = (s, place) => { used.add(s.id); return entry(s, place); };
+  const kindOf = (s) => (s.place ? P[s.place]?.kind ?? D?.PLACE_BY_ID?.[s.place]?.kind ?? null : typeof s.kind === 'string' && s.kind ? s.kind : 'open');
+  const list = listFor(D, waterId).map((id) => byId.get(id)).filter(Boolean).map((s) => take(s, kindOf(s)));
+  const groups = [];
+  const placeIds = Object.keys(P).filter((id) => isObj(P[id]) && P[id].water === waterId);
+  for (const id of placeIds) {
+    const p = P[id], legend = p.legend ? byId.get(p.legend) : null, giant = p.giant ? byId.get(p.giant) : null;
+    const own = fish.filter((s) => s.place === id && !s.giant && s.rarity !== 'legendary');
+    const kind = fish.filter((s) => !s.place && !s.giant && s.rarity !== 'legendary' && s.kind === p.kind && s.kind !== 'open');
+    const es = [...own, ...(giant ? [giant] : []), ...kind, ...(legend ? [legend] : [])].filter((s) => !used.has(s.id)).map((s) => take(s, null));
+    if (es.length) groups.push({ placeId: id, kind: p.kind, owned: owned.has(id), name: owned.has(id) ? D?.loopPlace?.(id)?.name ?? D?.PLACE_BY_ID?.[id]?.name ?? null : null, entries: es });
+  }
+  const rest = fish.filter((s) => !used.has(s.id)).map((s) => take(s, null));
+  if (rest.length) groups.unshift({ placeId: null, kind: 'open', owned: true, name: null, entries: rest });
+  const { frontier, next } = frontierOf(ml, D), lc = listCount(meta, D, waterId);
+  const name = (D?.ZONES || []).find((z) => z?.id === waterId)?.name ?? null;
+  return { head: { waterId, name, have: lc.have, need: lc.need, seals: frontier === waterId && next ? sealsOf(meta, D, next) : null }, list, groups, finds: null };
 }
 
 /**
@@ -479,6 +644,7 @@ export function createLoop(S) {
     r.bites = isObj(r.bites) ? r.bites : {};
     r.bites[key] = Math.max(0, int(r.bites[key])) + 1;
     const f = flags(r);
+    f.biteN = Math.max(0, int(f.biteN)) + 1;   // the evening's bite count: a legend's ball is spent once a bite (spendBait)
     const spook = e?.reason === 'spooked' || e?.spooked === true;
     if (!spook) f.openBite = key;
     lastBiteComeback = e?.comeback === true;
@@ -561,9 +727,12 @@ export function createLoop(S) {
     const r = run();
     const wasComeback = lastBiteComeback;
     lastBiteComeback = false;
-    if (!onTrip(r) || passive(wickIdOf(r.character)) !== 'burns_back') return false;
-    if (wasComeback || e.cut === true || e.reason === 'cut' || e.legendary === true) return false;
+    if (!onTrip(r)) return false;
     const sp = spOf(e.speciesId);
+    // M1 step 3a (M1.md §2.4, PLAN CHOICE 22): a giant lost at its own place is a Marked Fish there, for every Wick and at any class
+    if (sp && sp.giant === true && sp.rarity !== 'legendary' && (!sp.place || e.place === sp.place)) markGiant(sp.id);
+    if (passive(wickIdOf(r.character)) !== 'burns_back') return false;
+    if (wasComeback || e.cut === true || e.reason === 'cut' || e.legendary === true) return false;
     if (!sp || sp.rarity === 'legendary' || sp.giant === true || e.giant === true) return false;
     const z = Number(e.z);
     if (!Number.isFinite(z)) return false;
@@ -622,6 +791,9 @@ export function createLoop(S) {
       outing: 'trip', nightMode: 'still', tally: { dawns: 0, stillNights: 0, swarmNights: 0 },
       lures: {}, equipped: null, bites: {}, mercy: {}, evening: Math.max(0, int(L.evenings)) + 1, comeback: null,
     };
+    // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
+    const fb = L.fitted?.bait;
+    if (typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
     try {
       const st = S.computeStats?.({}, r);
       if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
@@ -638,6 +810,8 @@ export function createLoop(S) {
     const creel = Array.isArray(r.creel) ? r.creel : [];
     for (const f of creel) if (isObj(f) && !Number.isFinite(Number(f.clams))) f.clams = priceOf(f);
     const { lines, total } = tallyBook(L, creel, r, { D: D(), saleOf });
+    // the bag comes home (tallyBook); a fitted ball with none left comes off the slot (a fit needs one in the bag)
+    if (typeof L.fitted?.bait === 'string' && !(int(L.bait?.[r.zone]?.[L.fitted.bait]) > 0)) L.fitted.bait = null;
     L.lastTrip = { id: r.id ?? null, evening: int(r.evening) || L.evenings, zone: r.zone ?? null, total, lines, seen: false };
     r.creel = [];
     try { S.pending?.clear?.(); } catch { /* optional */ }
@@ -669,20 +843,29 @@ export function createLoop(S) {
   function shelf() {
     const L = ensureLoop();
     if (!L) return { tabs: [] };
-    const all = shelfItems(D(), L, session);
+    const all = shelfItems(D(), L, session, { meta: meta() });
     return { tabs: TAB_ORDER.map((id) => ({ id, items: all.filter((i) => i.tab === id) })).filter((t) => t.items.length) };
   }
-  const goal = () => { const L = ensureLoop(); return L ? goalOf(shelfItems(D(), L)) : null; };
+  const goal = () => { const L = ensureLoop(); return L ? goalOf(shelfItems(D(), L, [], { meta: meta() })) : null; };
+  /** buy(itemId): a tackle tier, a hold step, (M1 step 3a) a place map 'place:<id>' (to maps.places), the legend bait 'bait:<id>' (+1 in
+   *  its water's bag; a consumable, never "Yours.") or an unsealed lake card 'lake:<id>' (none in M1: Sporewood's is sealed and refused).
+   *  The price comes off at once and the save is written before loop:buy {item, price, clams}. */
   function buy(itemId) {
     const L = ensureLoop();
     if (!L) return { ok: false, msg: '', clams: 0 };
     const id = itemId === 'hold' ? `hold:${L.holdSlots + 1}` : String(itemId ?? '');
-    const it = shelfItems(D(), L).find((i) => i.id === id && !i.bought);
-    if (!it || num(L.clams) < num(it.price)) return { ok: false, msg: '', clams: num(L.clams) };
+    const it = shelfItems(D(), L, [], { meta: meta() }).find((i) => i.id === id && !i.bought);
+    if (!it || it.sealed === true || it.price == null || !Number.isFinite(Number(it.price)) || num(L.clams) < num(it.price)) return { ok: false, msg: '', clams: num(L.clams) };
     L.clams = num(L.clams) - num(it.price);
     if (it.slot === 'hold') L.holdSlots = it.level;
-    else L.tackle[it.slot] = it.level;
-    if (!session.includes(id)) session.push(id);
+    else if (it.slot === 'place') { if (!L.maps.places.includes(it.placeId)) L.maps.places.push(it.placeId); }
+    else if (it.slot === 'lake') { if (!L.maps.lakes.includes(it.waterId)) L.maps.lakes.push(it.waterId); }
+    else if (it.slot === 'bait') {
+      if (!isObj(L.bait)) L.bait = {};
+      const bag = isObj(L.bait[it.water]) ? L.bait[it.water] : (L.bait[it.water] = {});
+      bag[it.baitId] = Math.max(0, int(bag[it.baitId])) + 1;   // a legend's bait is one try a ball (SPEC §4.6)
+    } else L.tackle[it.slot] = it.level;
+    if (it.consumable !== true && !session.includes(id)) session.push(id);
     try { S.invalidate?.(); } catch { /* optional */ }
     saveNow();
     emit('loop:buy', { item: id, price: it.price, clams: L.clams });
@@ -771,6 +954,151 @@ export function createLoop(S) {
     return { ...L.tutorial };
   }
 
+  // ---------------------------------------------------------------- M1 step 3a (PLAN §2.1 item 5, §3.2, CONTRACT §14.11): the bait slot,
+  // the ball, the lift, the Marked giant, the best fish there, the Chart's pick; the cards, seals and catalogue (pure reads)
+  const fitted = () => { const L = ensureLoop(); return { lure: L?.fitted?.lure ?? null, bait: L?.fitted?.bait ?? null }; };
+  /** The water whose legend bait `id` is (LOOP.legendBait), or null: in 3a the bait slot holds only a legend's bait (PLAN CHOICE 16). */
+  const ballWater = (id) => Object.entries(isObj(LOOP().legendBait) ? LOOP().legendBait : {}).find(([, b]) => isObj(b) && b.id === id)?.[0] ?? null;
+  /** How many of a bait the bag holds: the trip's (run.bait) on a trip, else the save's bag of that bait's water. */
+  const bagCount = (id, L = ensureLoop()) => {
+    const r = run();
+    if (onTrip(r)) return Math.max(0, int(r.bait?.[id]));
+    return Math.max(0, int(L?.bait?.[ballWater(id) ?? r?.zone ?? firstWater(D())]?.[id]));
+  };
+  /** fit(slot, id) (SPEC §5.4, M1.md §3.6): the bait slot takes a legend's bait the bag holds (refused with none left), or null to
+   *  unfit; saved in meta.loop.fitted.bait at once; loop:fit {slot, id}. On a trip the run's line carries it too (run.equippedBait). The
+   *  lure slot is step 4's (refused). */
+  function fit(slot, id = null) {
+    const L = ensureLoop();
+    if (!L || slot !== 'bait') return { ok: false };
+    const r = run(), trip = onTrip(r);
+    if (id != null) {
+      if (typeof id !== 'string' || !ballWater(id) || bagCount(id, L) <= 0) return { ok: false };
+    }
+    const next = id == null ? null : id, prev = L.fitted.bait ?? null;
+    L.fitted.bait = next;
+    if (trip) {
+      if (next) { r.equippedBait = next; r.equipped = next; }
+      else if (prev && r.equippedBait === prev) { r.equippedBait = null; r.equipped = null; }
+      emit('bait:change', { baitId: r.equippedBait ?? null });
+    }
+    saveNow();
+    emit('loop:fit', { slot, id: next });
+    return { ok: true, id: next, count: next ? bagCount(next, L) : 0 };
+  }
+  /** The ball on her hook (PLAN CHOICE 5): one comes out of the trip's bag, once a bite (a second call for the same bite, as fishing's
+   *  hook and progression's fishing:hook both ask, spends nothing more); false off a trip, for a bait that is not a legend's, or with
+   *  none left. refundBait gives back only the ball this bite spent (a pass), once. */
+  function spendBait(id) {
+    const r = run();
+    ensureLoop();
+    if (!onTrip(r) || typeof id !== 'string' || !ballWater(id)) return false;
+    const f = flags(r), bite = Math.max(0, int(f.biteN));
+    if (isObj(f.baitOut) && f.baitOut.id === id && f.baitOut.bite === bite) return true;
+    const n = Math.max(0, int(r.bait?.[id]));
+    if (n <= 0) return false;
+    if (!isObj(r.bait)) r.bait = {};
+    r.bait[id] = n - 1;
+    f.baitOut = { id, bite };
+    requestSave();
+    return true;
+  }
+  function refundBait(id) {
+    const r = run();
+    const L = ensureLoop();
+    if (!onTrip(r) || typeof id !== 'string') return false;
+    const f = flags(r);
+    if (!isObj(f.baitOut) || f.baitOut.id !== id || f.baitOut.bite !== Math.max(0, int(f.biteN))) return false;
+    if (!isObj(r.bait)) r.bait = {};
+    r.bait[id] = Math.max(0, int(r.bait[id])) + 1;
+    f.baitOut = null;
+    if (L?.fitted?.bait === id && r.equippedBait !== id) { r.equippedBait = id; r.equipped = id; emit('bait:change', { baitId: id }); }
+    requestSave();
+    return true;
+  }
+  const liftDueNow = () => { const L = ensureLoop(); return L ? liftDue(D(), L) : []; };
+  /** The lift has played (SPEC §5.1 rule 7, PLAN CHOICE 8): `lifted` gains an owned place once, saved at once; false otherwise (a place
+   *  not owned, not a place, or already lifted). A reload before it replays the lift on the next trip. */
+  function markLifted(id) {
+    const L = ensureLoop();
+    if (!L || typeof id !== 'string' || !isObj(LOOP().places?.[id]) || !L.maps.places.includes(id) || L.lifted.includes(id)) return false;
+    L.lifted.push(id);
+    saveNow();
+    return true;
+  }
+  const lifted = () => { const L = ensureLoop(); return Array.isArray(L?.lifted) ? L.lifted.slice() : []; };
+  /** A giant lost at its place is a Marked Fish there (M1.md §2.4, PLAN CHOICE 22): giants[id].marked = 1, for every Wick, at any class.
+   *  progression's fish:escaped calls it (through onEscaped); false for a fish that is not a giant. */
+  function markGiant(id) {
+    const L = ensureLoop();
+    const sp = spOf(id);
+    if (!L || !sp || sp.giant !== true || sp.rarity === 'legendary') return false;
+    if (!isObj(L.giants)) L.giants = {};
+    const g = isObj(L.giants[sp.id]) ? L.giants[sp.id] : (L.giants[sp.id] = { landed: 0, marked: 0 });
+    g.landed = Math.max(0, int(g.landed));
+    g.marked = 1;
+    requestSave();
+    return true;
+  }
+  /** Fishing hooks a giant: its mark (if any) is taken, once (+LOOP.giant.markedHold Hold on this hook: catchChance's mods.marked);
+   *  true when there was one. */
+  function takeGiantMark(id) {
+    const L = ensureLoop();
+    const g = L?.giants?.[id];
+    if (!isObj(g) || !(int(g.marked) > 0)) return false;
+    g.marked = 0;
+    requestSave();
+    return true;
+  }
+  /** The key a fish's best is kept under: a loop place's id, or open water's `open:<water>` (the fish's waterKey, where its bite was
+   *  spent: night water before dark is open water's); null for anything else. */
+  function bestKey(fish, key) {
+    const k = typeof key === 'string' && key ? key : typeof fish?.waterKey === 'string' && fish.waterKey ? fish.waterKey
+      : keyOf(fish?.place ?? null, run()?.zone || spOf(fish?.speciesId)?.zone || firstWater(D()));
+    return k.startsWith('open:') || isObj(LOOP().places?.[k]) ? k : null;
+  }
+  /** The best fish there (M1.md §3.8): a measured fish that is the heaviest at its place (or in open water, `open:<water>`) by the
+   *  weight the card shows (data.fishWeight) is written as best[key] = {speciesId, length} (never a weight); true when it is. */
+  function noteBest(fish, key) {
+    const L = ensureLoop();
+    if (!L || !isObj(fish)) return false;
+    const sp = spOf(fish.speciesId), len = num(fish.length);
+    if (!sp || !(len > 0)) return false;
+    const k = bestKey(fish, key);
+    if (!k) return false;
+    if (!isObj(L.best)) L.best = {};
+    const w = (s, length) => { try { return num(D().fishWeight?.(s, { length }), length); } catch { return length; } };
+    const prev = L.best[k];
+    if (isObj(prev)) {
+      const ps = spOf(prev.speciesId);
+      if (!(w(sp, len) > (ps ? w(ps, num(prev.length)) : 0))) return false;
+    }
+    L.best[k] = { speciesId: sp.id, length: len };
+    requestSave();
+    return true;
+  }
+  /** The Chart's pick (M1.md §3.8; the ledger's one writer; 3b's ui-chart writes the same {water, place} shape itself): an open water
+   *  and, optionally, a place of it the save owns. Refused otherwise ({ok: false}). Saved with the next save. */
+  function setPick(o = {}) {
+    const L = ensureLoop();
+    if (!L || !isObj(o)) return { ok: false };
+    const water = typeof o.water === 'string' ? o.water : null, place = o.place == null ? null : String(o.place);
+    if (!water || !isOpen(water)) return { ok: false };
+    if (place !== null) {
+      const P = LOOP().places?.[place];
+      if (!isObj(P) || P.water !== water || !L.maps.places.includes(place)) return { ok: false };
+    }
+    L.chartPick = { water, place };
+    requestSave();
+    return { ok: true, pick: { water, place } };
+  }
+  /** The Chart's pick {water, place} (setPick's, or 3b's direct write of the same shape), or null before one is made. */
+  const pick = () => { const p = ensureLoop()?.chartPick; return isObj(p) ? { water: p.water ?? null, place: p.place ?? null } : null; };
+  const mapCardsNow = () => { const L = ensureLoop(); return L ? mapCards(D(), L, { meta: meta() }) : []; };
+  /** sealsOf for a water (default: the next water after the frontier, Sporewood in M1). */
+  const seals = (waterId) => { const L = ensureLoop(); return L ? sealsOf(meta(), D(), waterId ?? frontierOf(L, D()).next ?? 'sporewood') : null; };
+  const catalogue = (waterId = 'mossmere') => (ensureLoop() ? catalogueFor(meta(), D(), waterId) : null);
+
   const api = {
     state: () => ensureLoop(),
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
@@ -778,6 +1106,8 @@ export function createLoop(S) {
     createTrip, endTrip, lastTrip, markTallySeen, shelf, goal, buy, sayOnce, parkRun,
     wick, setWick, tutorial, beginTutorial, setTutorialStep, tutorialDone, resetTutorial,
     taperFirstOpen, spendTaperFirst, comeback, consumeComeback,
+    fit, fitted, spendBait, refundBait, liftDue: liftDueNow, markLifted, lifted, markGiant, takeGiantMark, noteBest,
+    setPick, pick, mapCards: mapCardsNow, seals, catalogue,
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {

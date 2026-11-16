@@ -93,8 +93,8 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
 {
   const L = fakeLoop({ D, clams: 40 });
   let m = U.shelfCards(L.shelf(), { D, clams: 40 });
-  eq(m.tabs.map((t) => t.id), ['tackle', 'raft'], 'only the tabs with an item: Tackle and Raft');
-  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft], 'one word each, TEXT_LOOP.tabs');
+  eq(m.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps)');
+  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps], 'one word each, TEXT_LOOP.tabs');
   const tack = m.tabs[0].cards, raft = m.tabs[1].cards;
   eq(tack.map((c) => c.id), ['rod:1', 'line:1', 'reel:1'], 'Tackle: the next tier of each slot');
   eq(tack.map((c) => c.name), ['Ashwood', 'Braided Gut', 'Brass Spool'], 'the TACKLE names');
@@ -110,13 +110,14 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
   m = U.shelfCards(L.shelf(), { D, clams: 10 });
   const h5 = m.tabs.find((t) => t.id === 'raft').cards[0];
   ok(h5.id === 'hold:5' && h5.price === 120 && h5.name === 'Double Creel' && h5.dear, 'the next open: Hold 5 · 120, the Double Creel');
-  // Hold 5 and T2 keep a permanent "Yours." card (the last steps a 1a shelf offers)
-  const L2 = fakeLoop({ D, clams: 0, holdSlots: 5, tackle: { rod: 2, line: 2, reel: 2 } });
+  // Hold 6 and T2 keep a permanent "Yours." card (the last steps the shelf offers; M1 step 3a: LOOP.hold.shelfMax 6)
+  const L2 = fakeLoop({ D, clams: 0, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   m = U.shelfCards(L2.shelf(), { D, clams: 0 });
-  ok(m.tabs.length === 2 && m.tabs.every((t) => t.cards.every((c) => c.bought && c.buyWord === TL.yours)), 'Hold 5 and the T2s: permanent "Yours." cards', m.tabs.map((t) => t.cards.map((c) => c.id)));
+  const kitTabs = m.tabs.filter((t) => t.id === 'tackle' || t.id === 'raft');   // M1 step 3a: the Bait and Maps tabs are lane C's T133–T135
+  ok(kitTabs.length === 2 && kitTabs.every((t) => t.cards.every((c) => c.bought && c.buyWord === TL.yours)), 'Hold 6 and the T2s: permanent "Yours." cards', kitTabs.map((t) => t.cards.map((c) => c.id)));
   eq(m.tabs[0].cards.map((c) => c.id), ['rod:2', 'line:2', 'reel:2'], 'the T2s in place');
   ok(U.shelfCards(null, { D }).tabs.length === 0 && U.shelfCards({ tabs: [{ id: 'bait', items: [] }] }, { D }).tabs.length === 0, 'an empty shelf: no tabs');
-  for (const t of U.shelfCards(L.shelf(), { D }).tabs) for (const c of t.cards) ok(U.textAllowed(c.name, { D }) && U.textAllowed(c.line, { D }), `allow-list: ${c.name} and its line`);
+  for (const t of U.shelfCards(L.shelf(), { D }).tabs.filter((x) => x.id === 'tackle' || x.id === 'raft')) for (const c of t.cards) ok(U.textAllowed(c.name, { D }) && U.textAllowed(c.line, { D }), `allow-list: ${c.name} and its line`);
 }
 
 section('slotCells (SPEC §8.1): the Wick\'s count of cells, the kept fish in order, scaled by class, giants gilded');
@@ -343,8 +344,8 @@ section('v8 T83: the Journal\'s Mossmere tab under the loop: the list first, its
   const ids = listFor(D, 'mossmere');
   m.journal = { [ids[0]]: { caught: 2 }, [ids[1]]: { caught: 0, seen: true }, [ids[2]]: { caught: 0 }, gloam_eel: { caught: 4 } };
   const J = U.journalModel(m, D, 'mossmere', { listFor });
-  ok(J.need === 11 && J.list.length === 11, 'eleven on the list (M1 step 2)', J.list.map((x) => x.id));
-  ok(J.have === 1 && J.badge === '1/11', 'counted by num(caught) > 0 only: a Glimpsed entry and a caught-0 entry do not count, a fish off the list neither', J.badge);
+  ok(J.need === 12 && J.list.length === 12, 'twelve on the list (M1 step 3a, with the Kissmark Trout)', J.list.map((x) => x.id));
+  ok(J.have === 1 && J.badge === '1/12', 'counted by num(caught) > 0 only: a Glimpsed entry and a caught-0 entry do not count, a fish off the list neither', J.badge);
   ok(J.rest.map((x) => x.id).includes('gloam_eel') && J.rest.map((x) => x.id).includes('belled_matriarch') && !J.rest.some((x) => ids.includes(x.id)), 'the Eel and the Matriarch follow, outside the count');
   ok(J.list[0].landed && !J.list[1].landed, 'each listed card knows its notch');
   ok(U.journalModel(m, D, 'mossmere', {}).need === 0, 'no listFor: an empty list (the built grid)');
@@ -357,7 +358,8 @@ section('every word the screens show is TEXT_LOOP\'s or a built word SPEC §8 na
   const W = U.allowedWords(D);
   const words = [
     ...U.titleModel({ fresh: true, D }).words, ...U.titleModel({ fresh: false, replay: true, D }).words, ...U.descentModel(D, 'stub').words,
-    ...U.shelfCards(fakeLoop({ D }).shelf(), { D }).tabs.flatMap((t) => [t.label, ...t.cards.flatMap((c) => [c.name, c.line, c.priceText])]),
+    // (M1 step 3a: the Bait and Maps cards name a bait and the places, which lane C's T143 adds to the allow-list; their tab words here)
+    ...U.shelfCards(fakeLoop({ D }).shelf(), { D }).tabs.flatMap((t) => [t.label, ...(t.id === 'tackle' || t.id === 'raft' ? t.cards.flatMap((c) => [c.name, c.line, c.priceText]) : [])]),
     ...U.cardActions({ clams: 9, D }).map((a) => a.label), TL.sold, TL.sail, TL.home, TL.resume, TL.holdFull, TL.odds, TL.yours,
     ...Object.values(TL.jetty), U.tallyPlan({ lines: [] }, { D }).line,
   ];

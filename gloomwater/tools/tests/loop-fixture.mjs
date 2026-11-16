@@ -9,11 +9,17 @@
 //                         state key directly (holdSlots, wick, tutorial, clams, onTrip, …), any method to replace, and `bus` (a
 //                         core.createBus(): the shelf's session then ends on ui:modal {id: 'shelf'} and home:enter, as the real one's).
 //                         It follows CONTRACT §14.4 where a view can tell (lastTrip carries `zone`; sayOnce('firstChart') is the
-//                         Wick's own count); progression's own tests run the real createLoop (loop-trip.test.mjs).
+//                         Wick's own count); progression's own tests run the real createLoop (loop-trip.test.mjs). M1 step 3a's
+//                         methods (PLAN §3.5) work on the same state: `fitted` {lure, bait}, `bag` {baitId: n} (the trip's water's),
+//                         `lifted`, `marked` {speciesId: 1}, `best`, `chartPick`, `maps.places`; mapCards, seals and catalogue go
+//                         through the real pure functions (they need `D`).
+//   placesMeta(D, o)      M1 step 3a (PLAN §3.5): a meta with places owned and lifted, Heartmoss Balls in the Mossmere's bag, the hold
+//                         and tackle set and Journal entries caught: o = {own, lifted (= own), balls, holdSlots, tackle, caught}
 // Nothing here is used by the game. Run as a script it checks itself: node tools/tests/loop-fixture.mjs
 import { pathToFileURL } from 'node:url';
 import { defaultMeta } from '../../src/core.js';
-import { freshLoop, LOOP_METHODS, tallyLines, shelfItems, goalOf, listCount as listCountOf } from '../../src/progression-loop.js';
+import { freshLoop, LOOP_METHODS, tallyLines, shelfItems, goalOf, listCount as listCountOf, mapCards as mapCardsOf, sealsOf, catalogueFor,
+  liftDue as liftDueOf } from '../../src/progression-loop.js';
 
 /** The loop's data module (GW_V3, GW_V3_PHASE 1, GW_LOOP), cached per query. */
 export async function loadLoopData({ query = 'loop' } = {}) {
@@ -24,6 +30,20 @@ export async function loadLoopData({ query = 'loop' } = {}) {
 /** A fresh meta with a fresh meta.loop (no Wick, no tutorial, no evening: the title's "fresh" save). */
 export function freshLoopMeta(D) {
   return { ...defaultMeta(), loop: freshLoop(D) };
+}
+
+/** M1 step 3a (PLAN §3.5): a meta that has played (the Wick chosen, the tutorial done, one evening) with `own` place maps owned and
+ *  `lifted` lifted (default: all of `own`), `balls` Heartmoss Balls in the Mossmere's bag, the hold's bought slots and the tackle set,
+ *  and each id of `caught` landed once in the Journal. */
+export function placesMeta(D, { own = [], lifted = own, balls = 0, holdSlots = 5, tackle = { rod: 1, line: 1, reel: 1 }, caught = [] } = {}) {
+  const m = freshLoopMeta(D), L = m.loop;
+  Object.assign(L, { wick: 'wick', tutorial: { done: true, step: null }, evenings: 1, holdSlots, tackle: { rod: 0, line: 0, reel: 0, ...tackle } });
+  L.maps.places = own.slice();
+  L.lifted = lifted.filter((id) => own.includes(id));
+  const ball = D?.LOOP?.legendBait?.mossmere?.id ?? 'heartmoss';
+  if (balls > 0) L.bait.mossmere = { ...(L.bait.mossmere || {}), [ball]: balls };
+  for (const id of caught) m.journal[id] = { caught: 1, biggest: 0, firstDay: 1, firstRun: 1 };
+  return m;
 }
 
 let tripN = 0;
@@ -65,8 +85,11 @@ export function fakeLoop(over = {}) {
     wick: null, tutorial: null, said: {}, lastTrip: null, parkedRun: null, journal: {},
     onTrip: true, runId: 'run_fake', zone: 'mossmere', evening: 1, fish: [], pending: [], bites: {}, mercy: {},
     openBite: null, openComeback: false, taperFirst: false, comeback: null, session: [], saves: 0,
+    // M1 step 3a
+    fitted: { lure: null, bait: null }, bag: {}, lifted: [], marked: {}, best: {}, chartPick: null,
     ...state, ...plain,
   };
+  if (!Array.isArray(s.maps.places)) s.maps = { ...s.maps, places: [] };
   const calls = [];
   const T = D?.TEXT_LOOP || null;
   const wickId = (id) => (typeof D?.loopWickId === 'function' ? D.loopWickId(id) : ['wick', 'taper', 'stub', 'tallow', 'ashwick'].includes(id) ? id : 'wick');
@@ -89,8 +112,11 @@ export function fakeLoop(over = {}) {
     return (sp && typeof D?.fishClams === 'function' ? D.fishClams(sp, f.z) : null) ?? 1;
   };
   const metaLoop = () => ({ v: 3, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
-    wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}) });
-  const items = () => (D ? shelfItems(D, metaLoop(), s.session) : [
+    wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}),
+    fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
+    giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])) });
+  const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
+  const items = () => (D ? shelfItems(D, metaLoop(), s.session, { meta: metaNow() }) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
     { id: 'hold:4', tab: 'raft', slot: 'hold', level: 4, name: 'Lidded Creel', goalName: 'Hold 4', line: '', price: 30, bought: s.session.includes('hold:4') },
   ]);
@@ -158,16 +184,20 @@ export function fakeLoop(over = {}) {
     markTallySeen(id) { if (s.lastTrip && s.lastTrip.id === id) s.lastTrip.seen = true; },
     shelf() {
       const all = items();
-      return { tabs: ['tackle', 'raft'].map((id) => ({ id, items: all.filter((i) => i.tab === id) })).filter((t) => t.items.length) };
+      return { tabs: ['tackle', 'raft', 'bait', 'maps', 'home'].map((id) => ({ id, items: all.filter((i) => i.tab === id) })).filter((t) => t.items.length) };
     },
     goal: () => goalOf(items()),
     buy(itemId) {
       const id = itemId === 'hold' ? `hold:${s.holdSlots + 1}` : String(itemId);
       const it = items().find((i) => i.id === id && !i.bought);
-      if (!it || s.clams < it.price) return { ok: false, msg: '', clams: s.clams };
+      if (!it || it.sealed || it.price == null || s.clams < it.price) return { ok: false, msg: '', clams: s.clams };
       s.clams -= it.price;
-      if (it.slot === 'hold') s.holdSlots = it.level; else s.tackle[it.slot] = it.level;
-      s.session.push(id); s.saves++;
+      if (it.slot === 'hold') s.holdSlots = it.level;
+      else if (it.slot === 'place') s.maps = { ...s.maps, places: [...(s.maps.places || []), it.placeId] };
+      else if (it.slot === 'bait') s.bag[it.baitId] = (s.bag[it.baitId] | 0) + 1;
+      else s.tackle[it.slot] = it.level;
+      if (!it.consumable) s.session.push(id);
+      s.saves++;
       return { ok: true, msg: '', clams: s.clams };
     },
     sayOnce(id) {
@@ -192,6 +222,35 @@ export function fakeLoop(over = {}) {
     spendTaperFirst() { if (!api.taperFirstOpen()) return false; s.taperFirst = true; return true; },
     comeback: (key) => (s.onTrip && s.comeback && s.comeback.waterKey === key ? { ...s.comeback } : null),
     consumeComeback() { const c = s.comeback; s.comeback = null; return c ? { ...c } : null; },
+    // M1 step 3a (PLAN §3.2): the bait slot, the ball, the lift, the Marked giant, the best fish there, the pick, cards, seals, catalogue
+    fit(slot, id) {
+      if (slot !== 'bait' && slot !== 'lure') return { ok: false };
+      if (id != null && slot === 'bait' && !(s.bag[id] > 0)) return { ok: false };
+      s.fitted = { ...s.fitted, [slot]: id ?? null }; s.saves++;
+      return { ok: true };
+    },
+    fitted: () => ({ ...s.fitted }),
+    spendBait(id) { if (!(s.bag[id] > 0)) return false; s.bag[id] -= 1; return true; },
+    refundBait(id) { s.bag[id] = (s.bag[id] | 0) + 1; return true; },
+    liftDue: () => (D ? liftDueOf(D, metaLoop()) : (s.maps.places || []).filter((id) => !s.lifted.includes(id))),
+    markLifted(id) { if (typeof id !== 'string' || s.lifted.includes(id)) return false; s.lifted.push(id); s.saves++; return true; },
+    lifted: () => s.lifted.slice(),
+    markGiant(id) { if (typeof id !== 'string') return false; s.marked[id] = 1; return true; },
+    takeGiantMark(id) { if (!s.marked[id]) return false; s.marked[id] = 0; return true; },
+    noteBest(fish, key) {
+      if (!fish || typeof key !== 'string') return false;
+      const prev = s.best[key];
+      if (prev && Number(prev.length) >= Number(fish.length)) return false;
+      s.best[key] = { speciesId: fish.speciesId ?? null, length: Number(fish.length) || 0 }; return true;
+    },
+    setPick({ water = 'mossmere', place = null } = {}) {
+      if (place != null && !(s.maps.places || []).includes(place)) return { ok: false };
+      s.chartPick = { water, place }; return { ok: true };
+    },
+    pick: () => (s.chartPick && typeof s.chartPick === 'object' ? { water: s.chartPick.water ?? null, place: s.chartPick.place ?? null } : null),
+    mapCards: () => (D ? mapCardsOf(D, metaLoop(), { meta: metaNow() }) : []),
+    seals: (waterId = 'sporewood') => (D ? sealsOf(metaNow(), D, waterId) : null),
+    catalogue: (waterId = 'mossmere') => (D ? catalogueFor(metaNow(), D, waterId) : null),
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {
@@ -223,6 +282,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   for (const fl of [fakeLoop(), fakeLoop({ D })]) for (const k of LOOP_METHODS) ok(typeof fl[k] === 'function', `fakeLoop has ${k}`);
   const f = fakeLoop({ D, wick: 'tallow' });
   ok(f.hold().slots === 4 && f.bitesLeft('open:mossmere') === 6, 'fakeLoop: Tallow has 4 slots and 6 good bites');
+  // M1 step 3a: the new methods on the real pure functions, and placesMeta
+  const g = fakeLoop({ D, maps: { lakes: ['mossmere'], places: ['lily_maze'] }, bag: { heartmoss: 1 } });
+  ok(g.mapCards().map((c) => c.id).join() === 'place:under_the_span,place:buoy_lights,lake:sporewood' && g.liftDue().join() === 'lily_maze', 'fakeLoop: mapCards and liftDue');
+  ok(g.fit('bait', 'heartmoss').ok && g.fitted().bait === 'heartmoss' && g.spendBait('heartmoss') && !g.spendBait('heartmoss') && g.refundBait('heartmoss'), 'fakeLoop: fit, spendBait, refundBait');
+  ok(!g.setPick({ water: 'mossmere', place: 'bell_pool' }).ok && g.setPick({ water: 'mossmere', place: 'lily_maze' }).ok && g.pick().place === 'lily_maze', 'fakeLoop: setPick refuses a place not owned');
+  ok(g.catalogue().list.length === 12 && g.seals().catch.need === 12, 'fakeLoop: catalogue and seals');
+  const pm = placesMeta(D, { own: ['lily_maze', 'bell_pool'], lifted: ['lily_maze'], balls: 2, caught: ['dusk_minnow'] });
+  ok(pm.loop.maps.places.length === 2 && pm.loop.lifted.join() === 'lily_maze' && pm.loop.bait.mossmere.heartmoss === 2 && pm.journal.dusk_minnow.caught === 1 && pm.loop.holdSlots === 5, 'placesMeta');
   console.log(fails.length ? fails.map((x) => '  FAIL: ' + x).join('\n') : `loop-fixture: ok (${LOOP_METHODS.length} methods)`);
   process.exit(fails.length ? 1 : 0);
 }
