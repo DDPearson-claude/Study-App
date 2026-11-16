@@ -110,6 +110,18 @@ export const ICONS = {
   // a dock buoy-lamp on the water (the watch-lamp)
   watchlamp: P('M8.6 15.4h6.8l-1.1 3.6H9.7z') + P('M12 15.4v-5') + P('M10 6.4h4v4h-4z') + P('M9.4 6.4 12 4.2l2.6 2.2')
     + C(12, 8.5, 0.95, F) + P('M3 20.6c2 .8 4 .8 6 0M15 20.6c2 .8 4 .8 6 0', ' stroke-opacity=".55"'),
+  // ---------------------------------------------------------------- M1 step 3a (the loop's screens only; PLAN §2.3 item 7)
+  // the hours: dusk is the sun half under its horizon (the day is `sun`, the night `moon`)
+  dusk: P('M3.5 16h17') + P('M7 16a5 5 0 0 1 10 0') + P('M12 6.6v2M6.2 9.4l1.3 1.3M17.8 9.4l-1.3 1.3', ' stroke-opacity=".7"') + P('M7 19.4h10', ' stroke-opacity=".45"'),
+  // the place kinds (SPEC §8.8: the Chart's blots and the catalogue's headings): open water ≈, day ☀, old ◎, night ☾, crown ♛
+  kind_open: P('M4 10.4c2.2-1.6 3.8-1.6 5.3 0s3.2 1.6 5.4 0 3.6-1.6 5.3 0M4 15.2c2.2-1.6 3.8-1.6 5.3 0s3.2 1.6 5.4 0 3.6-1.6 5.3 0'),
+  kind_day: C(12, 12, 3.4) + P('M12 3.8v2.2M12 18v2.2M3.8 12H6M18 12h2.2M6.2 6.2l1.6 1.6M16.2 16.2l1.6 1.6M6.2 17.8l1.6-1.6M16.2 7.8l1.6-1.6', ' stroke-opacity=".8"'),
+  kind_old: C(12, 12, 7.6) + C(12, 12, 3.4),
+  kind_night: P('M15.6 4.2a8 8 0 1 0 4.6 12.6 6.4 6.4 0 0 1-4.6-12.6z', F),
+  kind_crown: P('M4.4 17.6V9l4.2 4 3.4-6.6 3.4 6.6 4.2-4v8.6z') + P('M4.4 20h15.2', ' stroke-opacity=".7"') + C(4.4, 7.4, 1, F) + C(12, 4.7, 1, F) + C(19.6, 7.4, 1, F),
+  // the Heartmoss Ball (a legend's bait, the bait slot): moss rolled round a warm stone, two tufts and the stone's glow at its heart
+  mossball: C(12, 13, 7.2) + P('M6.4 9.6c1.4.6 2.4.4 3.2-.6M13.6 6.6c.4 1.2 1.4 1.8 2.8 1.6M6 15.6c1.6-.2 2.6.4 3 1.6M15 17.8c.2-1.4 1.2-2.2 2.6-2.2', ' stroke-opacity=".6"')
+    + P('M12 11.4c.9-1.3 3-.8 2.6 1-.3 1.2-1.6 2-2.6 2.7-1-.7-2.3-1.5-2.6-2.7-.4-1.8 1.7-2.3 2.6-1z', FO(0.85)) + P('M10.6 5.2c.4-1 1.1-1.6 2-1.8', ' stroke-opacity=".7"'),
 };
 const ALIASES = { food_loaf: 'food', gear: 'rod', bait: 'worm', supplies: 'oil', sell: 'shell', heartmoss: 'heart', default: 'star' };
 
@@ -298,8 +310,35 @@ export function sealSvg(seal, { ancient = false, cls = '' } = {}) {
     <path class="gw-seal-knot" d="${KNOT}" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 2)"/>${thread}`);
 }
 
+/**
+ * M1 step 3a (SPEC §5.5 (f), §8.7): one of the next water's three keys as a small seal: 'map' (a rolled sheet), 'gear' (the rod) or
+ * 'catch' (a fish). A hollow outline until held, pressed wax with a tick after; never a padlock. `count` ("7/12") is the catch seal's
+ * figure, set under it by the caller (no words in the seal). The loop's screens only.
+ */
+const KEY_GLYPH = {
+  map: '<path d="M12.6 16.2c3-1.2 5.6-1.2 7.4 0s4.4 1.2 7.4 0v8.4c-3 1.2-5.6 1.2-7.4 0s-4.4-1.2-7.4 0z"/><path d="M20 16.2v8.4" stroke-opacity=".6"/>',
+  gear: '<path d="M13.2 27.4 26.8 13"/><circle cx="16.4" cy="24" r="2.1"/><path d="M26.8 13c1.3 2.8 1.4 5.8.9 8.6" stroke-opacity=".6"/>',
+  catch: '<path d="M11.6 20.4c3-4 7.6-5.4 11.6-3.4l5-3.2v12.8l-5-3.2c-4 2-8.6.6-11.6-3z"/><circle cx="15.6" cy="19.6" r=".9" fill="currentColor" stroke="none"/>',
+};
+export function keySeal(key, { held = false, cls = '' } = {}) {
+  const g = KEY_GLYPH[key] || KEY_GLYPH.map;
+  const tick = held ? '<path class="gw-key-tick" d="M24.6 30.2l2.6 2.6 5-5.6" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' : '';
+  return `<svg class="gw-key gw-key--${key}${held ? ' gw-key--held' : ''} ${cls}" viewBox="0 0 40 40" aria-hidden="true" focusable="false">`
+    + `<path class="gw-key-wax" d="${WAX}"/><g class="gw-key-glyph" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${g}</g>${tick}</svg>`;
+}
+/** M1 step 3a: the next water's rolled sheet under its wax (Sporewood's sealed card on the shelf): a scroll tied with a cord, a seal
+ *  of nebula-rose wax on its knot. No word, no name. The loop's screens only. */
+export function sealedSheet({ cls = '' } = {}) {
+  return `<svg class="gw-sealed ${cls}" viewBox="0 0 160 84" aria-hidden="true" focusable="false"><g filter="url(#gw-brush)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path class="gw-sealed-sheet" d="M24 22c34-5 78-5 112 0v38c-34-5-78-5-112 0z" stroke-width="1.8"/>
+    <path d="M136 22c7 1 9 9 4 13-3 2.4-6.6 1-6.6-2.4M24 60c-7 1-9 9-4 13 3 2.4 6.6 1 6.6-2.4" stroke-width="1.6"/>
+    <path d="M40 34c16-2 34-2 50 0M40 44c20-2 42-2 62 0M40 52c12-1.4 24-1.4 36 0" stroke-width="1" stroke-opacity=".35"/>
+    <path d="M80 18c-2 12-2 34 0 46" stroke-width="1.2" stroke-opacity=".7"/></g>
+    <g transform="translate(62 23) scale(.95)"><path class="gw-sealed-wax" d="${WAX}"/><path class="gw-sealed-knot" d="${KNOT}" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 2)"/></g></svg>`;
+}
+
 // ---------------------------------------------------------------- portraits
-const hex = (n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));
+const hex =(n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));
 
 /** A small candle-creature portrait drawn from a character's `look`. */
 export function wickPortrait(look = {}, { locked = false, uid = 'w', loop = false } = {}) {
