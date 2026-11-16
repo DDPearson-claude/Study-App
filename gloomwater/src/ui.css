@@ -2341,6 +2341,12 @@
 .gw-shelf-card.gw-bought .gw-shelf-buy:disabled { opacity: 1; color: var(--gold); font: italic 400 21px/1 var(--f-body); letter-spacing: .01em; text-transform: none; }
 .gw-shelf-card.gw-bought .gw-shelf-art { color: var(--gold); }
 .gw-shelf-odds { display: block; margin: 6px auto 0; font-size: 18px; }
+/* each item stands in a soft cradle of ink light with a flourish under it, so a shelf of one reads as a shelf, not empty space */
+.gw-shelf-card::before { content: ''; position: absolute; inset: -4px 8% 4px; z-index: -1; pointer-events: none; border-radius: 46%;
+  background: radial-gradient(ellipse 60% 56% at 50% 42%, rgba(160, 150, 240, .12), rgba(160, 150, 240, .04) 62%, transparent 76%); }
+.gw-shelf-card::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 120px; height: 12px; margin-left: -60px; background: var(--ink-dim);
+  -webkit-mask: var(--orn-flourish) center / contain no-repeat; mask: var(--orn-flourish) center / contain no-repeat; opacity: .5; pointer-events: none; }
+.gw-shelf-cards { isolation: isolate; }
 
 /* ---------------------------------------------------------------- the Chart (slice 1a: a list; SPEC §5.4) */
 .gw-p-chart { width: min(620px, calc(100vw - 24px)); padding: 8px 40px 54px; }
@@ -2406,6 +2412,22 @@
 .gw-jr-rule { grid-column: 1 / -1; height: 12px; margin: 2px 12% 4px; color: var(--ink-dim); opacity: .5; }
 .gw-jr-rule svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .gw-jr-rule path { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
+/* the odds sit 3 + 3 (six capitals' labels ran together at 960 px: "ELDERANCIENT"); on a wide window the species list scrolls in
+   its own column above Close instead of running under it */
+.gw-loop-on .gw-p-journal--loop .gw-odds-row:not(.gw-odds-legend) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 4px; }
+@media (min-width: 761px) {
+  .gw-loop-on .gw-p-journal--loop .gw-jr-grid { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(174, 172, 208, .26) transparent;
+    -webkit-mask: linear-gradient(180deg, #000 calc(100% - 26px), transparent); mask: linear-gradient(180deg, #000 calc(100% - 26px), transparent); }
+}
+
+/* ---------------------------------------------------------------- Settings under the loop: a fade at the list's foot while more
+   lies below (the rows run past a 540 px window), and a tighter rhythm on a short window so the Picture rows begin above the fold */
+.gw-loop-on .gw-p-settings .gw-pc.gw-more { -webkit-mask: linear-gradient(180deg, #000 calc(100% - 56px), rgba(0, 0, 0, .12)); mask: linear-gradient(180deg, #000 calc(100% - 56px), rgba(0, 0, 0, .12)); }
+@media (max-height: 620px) {
+  .gw-loop-on .gw-p-settings .gw-set-row { min-height: 48px; padding: 1px 0; }
+  .gw-loop-on .gw-p-settings .gw-group { margin: 14px 0 4px; }
+  .gw-loop-on .gw-p-settings .gw-ph h2 { font-size: calc(var(--t-h1) * .86); }
+}
 
 /* ---------------------------------------------------------------- the phone (390 × 844): thumbs, the lower half, a 16 px gutter */
 @media (max-width: 700px) {
@@ -2437,8 +2459,10 @@
   .gw-shelf-murk .gw-murk { width: 74px; height: 63px; }
   .gw-shelf-head .gw-murk-line { font-size: 17px; }
   .gw-shelf-purse { font-size: 22px; }
-  .gw-shelf-cards { grid-template-columns: 1fr; gap: 0; }
-  .gw-shelf-card { display: grid; grid-template-columns: 52px 1fr; grid-template-rows: auto auto auto; text-align: left; align-items: center; justify-items: start; gap: 0 12px; padding: 8px 4px; }
+  .gw-shelf-cards { grid-template-columns: 1fr; gap: 0; justify-items: center; }
+  /* (the card a centred column of its own width: a shelf of one sits mid-screen, not against the left gutter) */
+  .gw-shelf-card { display: grid; grid-template-columns: 52px auto; grid-template-rows: auto auto auto; text-align: left; align-items: center; justify-items: start; gap: 0 12px; padding: 8px 18px 12px 4px; width: max-content; max-width: 100%; }
+  .gw-p-shelf .gw-tabs { justify-content: center; }
   .gw-shelf-card + .gw-shelf-card { background: linear-gradient(90deg, transparent, var(--ink-ghost) 30%, var(--ink-ghost) 70%, transparent) top / 100% 1px no-repeat; }
   .gw-shelf-art { grid-row: span 3; width: 50px; height: 50px; }
   .gw-shelf-art .gw-ico { width: 26px; height: 26px; }

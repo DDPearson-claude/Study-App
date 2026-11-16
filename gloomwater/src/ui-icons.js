@@ -302,7 +302,7 @@ export function sealSvg(seal, { ancient = false, cls = '' } = {}) {
 const hex = (n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));
 
 /** A small candle-creature portrait drawn from a character's `look`. */
-export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
+export function wickPortrait(look = {}, { locked = false, uid = 'w', loop = false } = {}) {
   const flame = hex(look.flame, '#ffb347'), cloak = hex(look.cloak, '#4a2e24'), eyes = hex(look.eyes, '#ffb347');
   const wax = hex(look.wax, '#e9dfc6');
   const s = Math.max(0.75, Math.min(1.2, Number(look.scale) || 1));
@@ -328,11 +328,27 @@ export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
     <path d="M0 0v3" stroke="${ink}" stroke-width="1.6"/></g>`;
   const glow = locked ? '' : `<radialGradient id="${g}"><stop offset="0" stop-color="${flame}" stop-opacity=".55"/><stop offset="1" stop-color="${flame}" stop-opacity="0"/></radialGradient>`;
   const rim = locked ? `<path d="${cloakPath}" fill="none" stroke="rgba(214,214,228,.18)" stroke-width="1"/>` : `<path d="M${50 + 15 * wide} ${top + 24} C${50 + 20 * wide} 72 ${50 + 25 * wide} 90 ${50 + 26 * wide} 112" fill="none" stroke="rgba(214,214,228,.45)" stroke-width="1.2"/>`;
+  // the loop's New Descent (slice 1a): each Wick reads as itself at a glance. The figure stands at its own height from its feet (Stub
+  // small under its tall flame, Tallow stout; Taper's height is its hat), a hood's opening shows the wax inside it, and an ash wax
+  // (Ashwick: charred, burning back) carries an ember edge and embers in its cloak. Off the loop the built portrait.
+  let inner = `${candle}${fl}${hood}<path d="${cloakPath}" fill="${inkFill || cloak}" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>${rim}${face}`;
+  let feet = `<path d="M${50 - 9 * wide} 108 v6 M${50 + 9 * wide} 108 v6" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`;
+  if (loop && !locked) {
+    const n = typeof look.wax === 'number' ? look.wax : 0xe9dfc6;
+    const lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+    const charred = lum < 0.7;
+    const waxRing = hat === 'hood' ? `<ellipse cx="50" cy="${top + 19}" rx="${12.5 * wide}" ry="10.5" fill="none" stroke="${wax}" stroke-width="2.6" opacity=".9"/>` : '';
+    const ember = charred ? `<path d="M${50 - 19 * wide} ${top + 30} C${50 - 22 * wide} ${top + 4} ${50 - 10} ${top - 6} 50 ${top - 7} C${50 + 10} ${top - 6} ${50 + 22 * wide} ${top + 4} ${50 + 19 * wide} ${top + 30}" fill="none" stroke="${flame}" stroke-width="1.5" opacity=".85"/>
+      <g fill="${flame}" class="gw-pember"><circle cx="${50 - 12 * wide}" cy="96" r="1.6"/><circle cx="${50 + 7 * wide}" cy="88" r="1.3"/><circle cx="${50 + 15 * wide}" cy="103" r="1.7"/><circle cx="${50 - 3 * wide}" cy="105" r="1.1"/></g>` : '';
+    inner = `${candle}${fl}${hood}<path d="${cloakPath}" fill="${cloak}" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>${rim}${waxRing}${face}${ember}`;
+    const k = hat === 'tall' ? 1 : Math.max(0.78, Math.min(1.16, s));
+    if (Math.abs(k - 1) > 0.01) { inner = `<g transform="translate(50 114) scale(${k.toFixed(3)}) translate(-50 -114)">${inner}</g>`; feet = `<g transform="translate(50 114) scale(${k.toFixed(3)}) translate(-50 -114)">${feet}</g>`; }
+  }
   return `<svg class="gw-portrait" viewBox="0 0 100 120" aria-hidden="true"><defs>${glow}</defs>
     ${locked ? '' : `<circle cx="50" cy="${top - 14}" r="34" fill="url(#${g})" class="gw-pglow"/>`}
     <ellipse cx="50" cy="114" rx="${30 * wide}" ry="4" fill="rgba(0,0,0,.45)"/>
-    <path d="M${50 - 9 * wide} 108 v6 M${50 + 9 * wide} 108 v6" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>
-    ${candle}${fl}${hood}<path d="${cloakPath}" fill="${inkFill || cloak}" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>${rim}${face}
+    ${feet}
+    ${inner}
     ${locked ? '<text x="50" y="92" text-anchor="middle" class="gw-portrait-q">?</text>' : ''}</svg>`;
 }
 

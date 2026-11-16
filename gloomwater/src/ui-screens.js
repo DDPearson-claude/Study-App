@@ -577,7 +577,7 @@ export function createScreens(K) {
         const b = h('button', `gw-char${c.id === s.sel ? ' gw-on' : ''}`);
         b.type = 'button';
         b.dataset.wick = c.id;
-        b.innerHTML = `${wickPortrait(c.look, { uid: 'lw' + i + uid() })}<span class="gw-char-name"></span>`;
+        b.innerHTML = `${wickPortrait(c.look, { uid: 'lw' + i + uid(), loop: true })}<span class="gw-char-name"></span>`;
         b.querySelector('.gw-char-name').textContent = c.name;
         b.addEventListener('click', () => pick(entry, c.id));
         grid.appendChild(b);
@@ -1477,7 +1477,14 @@ export function createScreens(K) {
       const glimpsedOf = (id) => !!J[id] && !!J[id].seen && !(num(J[id].caught) > 0);
       const inTab = (x, zid) => (zid === COVE_ID ? x.zone === COVE_ID || x.cove === true : x.zone === zid);
       const named = allSp.filter((x) => J[x.id]).length;
-      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: loopJ ? '' : `${named} of ${allSp.length} names written`, cls: `gw-p-wide gw-p-journal${af() ? ' gw-p-af' : ''}${loopJ ? ' gw-p-journal--loop' : ''}` });
+      // (the loop: the Journal is the chosen Wick's: "Taper's Journal"; the Wick's own reads as built)
+      let jTitle = T.journalTitle || 'Journal';
+      if (loopJ) {
+        const wid = safe(() => D().loopWickId?.(run()?.character || ctx.progression?.loop?.wick?.()), null);
+        const nm = wid ? arr(D().CHARACTERS).find((c) => c?.id === wid)?.name : null;
+        if (nm && /^The Wick(?=['’]s )/.test(jTitle)) jTitle = jTitle.replace(/^The Wick/, nm);
+      }
+      const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, sub: loopJ ? '' : `${named} of ${allSp.length} names written`, cls: `gw-p-wide gw-p-journal${af() ? ' gw-p-af' : ''}${loopJ ? ' gw-p-journal--loop' : ''}` });
       // v8 (SPEC §5.5 (f), T83): under the loop a water's badge is its list's count (num(caught) > 0 only), "n/6"
       const loopBadge = (zid) => {
         const lc = safe(() => ctx.progression?.loop?.listCount?.(zid), null);
@@ -1797,6 +1804,14 @@ export function createScreens(K) {
       rrow.appendChild(btn('Erase', { cls: 'gw-btn--danger gw-btn--sm', onClick: () => confirm('Forget everything?', { sub: SW ? esc(SW.forgetConfirm) : 'Every Memory, relic, trial and name in the Journal will be lost.', yes: 'Forget', danger: true, onYes: () => confirm('Truly?', { sub: 'The water will not remember you.', yes: 'Erase it all', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.wipeAll?.(), null); } }) }) }));
       content.appendChild(rrow);
       foot.appendChild(btn('Done', { onClick: () => K.closeModal('settings'), autofocus: true }));
+      if (SW) {
+        // the loop: the rows run below the fold on a short window, so the list fades out at its foot while more lies below
+        // (Done stays in the footer)
+        const more = () => content.classList.toggle('gw-more', content.scrollTop + content.clientHeight < content.scrollHeight - 4);
+        content.addEventListener('scroll', more, { passive: true });
+        requestAnimationFrame(() => requestAnimationFrame(more));
+        setTimeout(more, 400);
+      }
     }, { state: { ...extra } });
   }
 

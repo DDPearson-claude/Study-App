@@ -1704,6 +1704,22 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
     Descent is offered again and no half-begun save (a Wick with no tutorial) is written. Any `enterHome` also begins the
     tutorial when its record is missing, and `migrateLoop` marks it done for a block that has a `lastTrip` or a saved
     trip.
+47. (the stage's review, 16 November 2026; for the lead) **Line 3's `out` is 15.2, not "at most 15.0".** §2.2 item 26 capped
+    the move of line 3's `out` at 0.15 s (14.85 → ≤ 15.0), but its arithmetic left out `INTRO.lineFade`: the A5 rule (≤ 17.5
+    characters a second over the line's time on screen, its fades out) cannot be met for "Its last candles fish from lamp to
+    lamp." within that cap. The build moves it 0.35 s (`INTRO.lines[2].out = 15.2` in the apply block, loop only; the v3
+    film keeps 14.85); the gap to line 4 stays 0.5 s. A code-vs-PLAN deviation, recorded here and re-shown on the phone.
+48. (the stage's review; for the lead) **The trip's water carries SPEC §8.1's words only** (T43; decision 62 keeps the class
+    estimate a word). Under the loop's trip the bite tell keeps its glyph and its class estimate ("Keeper?") but not its
+    motion word ("a plunge"); the strike shows its ring burst with no word ("Clean", "Struck", "Early", "Late"); the play's
+    stamp keeps its seal and class without "by the look of it"; the hurry mark keeps its chevrons only; and the float's
+    favour list opens on a press, never on a hover. Off the loop the built words stay. The got-away note ("A Mossback Perch
+    spat the hook.") is kept as SPEC §2 and §10 keep it, though it is no `TEXT_LOOP` string: T43 does not scan it.
+49. (the stage's review; the user's rule) **No ring round the raft or the Wick on a trip's cast.** The built cast UI drew a
+    castMax range ring round the raft and the depth reticle with its SHALLOW / MID / DEEP word 3 m out, over the Wick, and
+    the anchor's plop spread a ring round the raft as the first cast charged. Under the loop's trip: no range ring, no band
+    word, the reticle only from 5.5 m out (inked in by 7.5 m; nearer, the cast arc alone), the plop's drops with no ring,
+    and a fish's ring in the play that would grow over the raft keeps its spray only. Off the loop as built.
 
 ### 7.1 For the lead to confirm first, and for the user
 

@@ -618,6 +618,9 @@ export function create(ctx) {
       tgt.dist = lerp(11, 25, s);
       tgt.aimY = lerp(0.8, 0, s);
     }
+    // the loop's Jetty at rest (flow home, no glide running): the look target on the moored raft itself, not 6.5 m ahead of it, so
+    // the raft and the Wick's flame sit mid-frame above the Jetty's tile row; the home glides keep the sail framing
+    if (mode === 'sail' && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
     // portrait screens: widen, pull back and tilt down so the raft and its pool fit
     const a = W / H;
     if (a < 1.25) {
@@ -794,11 +797,19 @@ export function create(ctx) {
     if (row.rake > 0 && S.focus?.fish?.axis) yw = showRakeYaw(S.yaw0, S.focus.fish.axis, row.rake);
     // behind the card on a phone held upright the subject rides in the open top of the frame (the card rises from the foot)
     const BC = SHOWC.behindCard || {};
-    const shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    let shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    // (the loop's card on a phone held upright is taller (Keep · value / Let go under the weight): its top stands at about 0.62 of
+    // the frame, so the held fish is fitted into the open top instead of being pushed up whole: the foot keeps 30% clear and the
+    // subject rides a little higher, flame tip to fins above the card; the built shows keep their lift)
+    let mBottom = row.margin + row.footroom;
+    if (S.hold && BC.hold !== false && ctx.data?.LOOP_ENABLED === true && row.upright > 0.01 && !cardAtSide()) {
+      mBottom = lerp(mBottom, Math.max(mBottom, 0.3), clamp(row.upright, 0, 1));
+      shiftY = 0.08 * row.upright;
+    }
     // …and on a wide screen the card stands at the right (ui docks it there, by the same rule: not a phone, wider than 1.2 × its
     // height): the picture is fitted into the left of the frame
     const side = S.hold && BC.hold !== false && cardAtSide() ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
-    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: row.margin + row.footroom,
+    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: mBottom,
       marginRight: side > 0 ? side : null, minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
     if (!fit) return false;
     const T = S.tgt;
