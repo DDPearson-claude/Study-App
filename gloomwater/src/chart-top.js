@@ -48,7 +48,8 @@ export function drawToTexture(canvas, { image = null, stones = [], gilded = fals
   if (image && image.width > 0) {
     // the bake fitted to the sheet by its height, centred (its edges fall off the leaf as on the Chart's own vellum)
     const k = (H - 34) / image.height, iw = image.width * k, ih = image.height * k;
-    try { g.globalAlpha = 0.95; g.drawImage(image, (W - iw) / 2, 17, iw, ih); drew = true; } catch { drew = false; }
+    try { g.globalAlpha = 1; g.drawImage(image, (W - iw) / 2, 17, iw, ih); g.globalCompositeOperation = 'multiply'; g.globalAlpha = 0.8; g.drawImage(image, (W - iw) / 2, 17, iw, ih); drew = true; } catch { drew = false; }
+    g.globalCompositeOperation = 'source-over';
     g.globalAlpha = 1;
   }
   // the surveyors' fine neatline, in gold once the water is complete (M1.md §2.5's gilding)

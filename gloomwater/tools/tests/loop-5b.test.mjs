@@ -225,5 +225,19 @@ section('the scene: every home level changes the barge, in the same three meshes
   ok(meshes <= 6, `the barge's visible meshes: ${meshes} (each one draw call)`);
 }
 
+section('home\'s sound: the stove, water against the hulls, a far bell, Murk\'s hand bell (M1.md §2.13), under the loop at home only');
+{
+  const AHm = await import('../../src/audio-home.js');
+  const { SFX } = await import('../../src/audio-sfx.js');
+  ok(AHm.homeOn({ loopOn: true, flow: 'home' }) && !AHm.homeOn({ loopOn: true, flow: 'playing' }) && !AHm.homeOn({ loopOn: false, flow: 'home' }), 'home\'s bed: under the loop, at home only');
+  eq([AHm.homeLevel(true), AHm.homeLevel(true, { blocking: true }), AHm.homeLevel(false)], [1, 0.6, 0], 'its level: full, softer under a screen, off');
+  eq(Object.keys(AHm.HOME_VOICES), ['stove', 'hull', 'farBell', 'handBell'], 'its voices: the stove, the hulls, a far bell, Murk\'s hand bell');
+  ok(Object.values(AHm.HOME_VOICES).every((V) => (AHm.SFX_HOME[V.sfx] || SFX[V.sfx]) && V.every[0] > 0 && V.every[1] >= V.every[0]), 'each voice has its recipe (the hand bell the built merchant_bell) and a sane interval');
+  ok(AHm.HOME_SFX.every((id) => !(id in SFX)), 'the home recipes are not in the built SFX table until audio.js registers them under the loop (the v3 table unchanged)');
+  const calls = [];
+  const v = { burst: (o, x) => calls.push(['burst', x.peak]), tone: (o, x) => calls.push(['tone', x.peak]), filter: () => ({ connect() {} }) };
+  for (const id of AHm.HOME_SFX) { calls.length = 0; AHm.SFX_HOME[id].fn(v, {}, 0, 1, {}); ok(calls.length > 0 && calls.every(([, pk]) => pk > 0 && pk <= 0.6), `${id}: plays (${calls.length} parts, every peak ≤ 0.6)`); }
+}
+
 console.log(`\nloop-5b: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -87,7 +87,7 @@ export default async function (api) {
 
     // ------------------------------------------------------------------ each target opens its screen; Escape / close comes home
     K.step('5a: each target opens its screen; Escape and close come home');
-    const opens = { murk: 'shelf', chart: 'chart', journal: 'journal', wall: 'journal' };
+    const opens = { murk: 'shelf', chart: 'chart', journal: 'journal', wall: 'gallery' };   // (M1 step 5b: the doorway opens the cabin's gallery)
     for (const id of want) {
       const b = await K.tap(`[data-modal=jetty] [data-tile=${id}]`);
       K.need(b, `the ${id} target can be tapped`);

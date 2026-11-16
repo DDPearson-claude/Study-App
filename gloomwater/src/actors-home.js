@@ -491,34 +491,38 @@ function fishShape(w, h, { barbels = false } = {}) {
 const faceX = (g, sgn = 1) => xf(g, { r: [0, sgn * Math.PI / 2, 0] });
 function homeParts5b(V, A, timber, glow) {
   const CB = HULL.cabin, top = CB.top, dy = HULL.deckY, cw = CB.w, WS = 0.44, WY = dy + 1.02;
-  // ---- the Long Wall, wing I (the cabin's port wall): framed prints seen against the lit port windows, a candle under each
+  // ---- the Long Wall, wing I (the cabin's port wall): seen across the cabin through the starboard windows (the side the home camera
+  // looks at) and the aft window by the door: the frames' dark edges and pale prints against the lit room, a candle under each
   if (V.wall >= 1) {
-    const n = Math.max(1, V.prints | 0);
+    const n = Math.max(2, V.prints | 0);
     let k = 0;
-    for (const z of [-2.55, -0.85, 0.95]) {
-      const per = k < n ? Math.min(2, n - k) : 1;
+    const hang = (x, z, face, per) => {
       for (let j = 0; j < per; j++) {
-        const fz = z + (per === 2 ? (j ? 0.1 : -0.1) : 0), fw = per === 2 ? 0.15 : 0.24;
-        // the frame's dark edge and its pale print, just inside the glass (the window glow behind them)
-        timber.push(box(0.01, 0.15, fw, [-(cw + 0.037), WY + 0.06, fz], lit(C.frame, 1)));
-        timber.push(box(0.012, 0.1, fw - 0.05, [-(cw + 0.039), WY + 0.06, fz], lit(C.page, 1.1)));
-        glow.push(glowQuad(0.035, 0.06, [-(cw + 0.04), WY - 0.11, fz], '-x', GLOW.door));   // its candle
+        const off = per === 2 ? (j ? 0.1 : -0.1) : 0, fw = per === 2 ? 0.15 : 0.24;
+        if (face === 'x') {
+          timber.push(box(0.01, 0.15, fw, [x + 0.003, WY + 0.06, z + off], lit(C.frame, 1)));
+          timber.push(box(0.012, 0.1, fw - 0.05, [x + 0.005, WY + 0.06, z + off], lit(C.page, 1.1)));
+          glow.push(glowQuad(0.035, 0.06, [x + 0.006, WY - 0.12, z + off], 'x', GLOW.door));   // its candle
+        } else {
+          timber.push(box(fw, 0.15, 0.01, [x + off, WY + 0.06, z + 0.003], lit(C.frame, 1)));
+          timber.push(box(fw - 0.05, 0.1, 0.012, [x + off, WY + 0.06, z + 0.005], lit(C.page, 1.1)));
+          glow.push(glowQuad(0.035, 0.06, [x + off, WY - 0.12, z + 0.006], 'z', GLOW.door));
+        }
       }
-      k += per;
-    }
-    // the doorway's own frame: a gold-edged board seen inside, over the stove's glow
-    timber.push(box(0.36, 0.22, 0.012, [BARGE_LOCAL.door.x, dy + 1.12, CB.z1 - 0.012], lit(C.stoneGilt, 1.3)));
-    timber.push(box(0.3, 0.16, 0.014, [BARGE_LOCAL.door.x, dy + 1.12, CB.z1 - 0.006], lit(C.page, 1.1)));
+    };
+    for (const z of [-2.55, -0.85]) { const per = k < n ? Math.min(2, n - k) : 1; hang(cw + 0.036, z, 'x', per); k += per; }
+    hang(0.78, CB.z1 + 0.036, 'z', 1);   // the aft window beside the door
   }
-  // ---- the legend's print along the eave above the door (SPEC §6.2): a long paper strip under the roof's edge, her ink on it
+  // ---- the legend's print along the eave (SPEC §6.2: a legend's print hangs along one of the cabin's eaves; the Matriarch's along the
+  // starboard eave, the side the home camera sees): a long paper strip under the roof's edge, her ink on it at true size, a gold frame
   if (V.eave >= 1) {
-    const L = 2.5, H = 0.3, y = top - 0.24, z = CB.z1 + 0.1;
-    timber.push(box(L + 0.08, H + 0.06, 0.02, [0, y, z], lit(C.stoneGilt, 1.4)));   // its gold frame (a legend's)
-    timber.push(box(L, H, 0.024, [0, y, z + 0.004], lit(C.page, 1.5)));
-    const fish = paint(xf(fishShape(L * 0.92, H * 0.78, { barbels: true }), { p: [0, y, z + 0.018] }), lit(C.ink, 1));
+    const L = 2.6, H = 0.3, y = top - 0.27, x = cw + 0.075, z = -1.0;
+    timber.push(box(0.02, H + 0.06, L + 0.08, [x, y, z], lit(C.stoneGilt, 1.4)));   // its gold frame (a legend's)
+    timber.push(box(0.024, H, L, [x + 0.004, y, z], lit(C.page, 1.5)));
+    const fish = paint(xf(fishShape(L * 0.92, H * 0.78, { barbels: true }), { r: [0, Math.PI / 2, 0] }), lit(C.ink, 1));
+    xf(fish, { p: [x + 0.018, y, z] });
     timber.push(fish);
-    // two pegs and the cord it hangs from
-    for (const s of [-1, 1]) timber.push(cyl(0.02, 0.02, 0.05, 6, [s * (L / 2 - 0.1), y + H / 2 + 0.05, z], lit(C.iron), [Math.PI / 2, 0, 0]));
+    for (const zz of [z - L / 2 + 0.1, z + L / 2 - 0.1]) timber.push(cyl(0.02, 0.02, 0.06, 6, [x, y + H / 2 + 0.05, zz], lit(C.iron), [0, 0, Math.PI / 2]));
   }
   // ---- Murk's Order Board (SPEC §6.3): a chalk board hung on the starboard rail, facing his barge alongside; a bigger one at II
   if (V.orders >= 1) {

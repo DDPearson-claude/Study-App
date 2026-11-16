@@ -492,7 +492,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/shells?|memories/i.test(t)) return false;
   if (W.has(t)) return true;
   if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★' || t === '· · ·') return true;
-  if (CM_RE.test(t)) return screen === 'catch' || screen === 'prints' || screen === 'gallery';   // (M1 step 5b: a print's small line)
+  if (CM_RE.test(t)) return screen === 'catch' || screen === 'prints' || screen === 'gallery' || screen === 'journal';   // (M1 step 5b: a print's small line, SPEC §6.4)
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
   if (/^Evening \d+$/.test(t)) return true;
   // M1 step 3a: a list's count ("7/12", SPEC §8), and a giant's or the legend's name after its ★
