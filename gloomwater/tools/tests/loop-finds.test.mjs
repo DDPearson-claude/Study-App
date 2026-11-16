@@ -292,6 +292,17 @@ section('the catch path: fishing:bite {sizeClass: \'find\'}, then fishing:found 
   void pl;
 }
 
+{
+  // Taper's first bite is its first FISH bite: a snag does not use it up (FINDS §2's passives)
+  const { makeFishingEnv } = await import('./fishing-env.mjs');
+  const loop = fakeLoop({ D, holdSlots: 4, evening: 2, wick: 'taper' });
+  const env = makeFishingEnv({ data: D, mode: 'still', outing: 'trip', phase: 'calm', seed: 13, loop, runOver: { bait: {}, equippedBait: null, evening: 2, character: 'taper', outing: 'trip' } });
+  env.ctx.bus.on('fishing:bite', (e) => loop.noteBite(e));
+  env.ctx.debug.forceFind('door_ring', { wait: 2 });
+  for (let i = 0; i < 400 && env.F.state === 'waiting'; i++) env.tick(1);
+  eq([env.F.state, loop.calls.filter((c) => c.name === 'spendTaperFirst').length], ['bite', 0], "a snag's bite never spends Taper's first bite");
+}
+
 // ------------------------------------------------------------------ the screens' pure parts (ui-loop's tally plan, Murk's lines; ui-finds)
 section('the tally\'s rows and the card (pure)');
 {

@@ -1145,7 +1145,7 @@ export function create(ctx) {
     // freely): on a trip a bite may be a snag that brings up a find instead of a fish (never on evening 1, the tutorial or a legend's
     // cast; the ledger's snagRoll draws from data.findShares). The fish rolled above stays rolled and is never shown; S.find marks it.
     S.find = null;
-    if (LOOP() && !S.legendCast) {
+    if (LOOP() && !S.legendCast && (!S.comeback || S.forceFind)) {   // (Ashwick's waiting comeback bites first: a snag never eats it)
       const force = S.forceFind; S.forceFind = null;
       try { S.find = loopApi()?.snagRoll?.({ legendCast: false, tutorial: !!S.tutorial, rng: S.findRng || Math.random, force }) ?? null; } catch (e) { report(e); S.find = null; }
       if (typeof S.find !== 'string' || !S.find) S.find = null;
@@ -1259,7 +1259,7 @@ export function create(ctx) {
       if (LOOP()) {
         // the loop: the bite spends one at its water (progression counts it); Taper's first bite and Ashwick's comeback are spent here
         const cb = !!S.comeback;
-        if (S.taperRule) { S.taperRule = false; try { loopApi()?.spendTaperFirst?.(); } catch (e) { report(e); } }
+        if (S.taperRule && !S.find) { S.taperRule = false; try { loopApi()?.spendTaperFirst?.(); } catch (e) { report(e); } }   // (5c: a snag never uses Taper's first)
         if (cb) { try { loopApi()?.consumeComeback?.(); } catch (e) { report(e); } }
         emit('fishing:bite', { ...withLegend({ sizeClass: shownClass(), biteTell: S.tell }), waterKey: S.cast?.waterKey ?? null, ...(cb ? { comeback: true } : {}) });
       } else
