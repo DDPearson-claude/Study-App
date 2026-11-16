@@ -615,6 +615,29 @@ raft scales with its length** (revision 2), so every shape is drawn big enough t
 m; over 60 cm, 10–28 m (by day and dusk; at night inside the lantern's light, §6.1). They share the sign budget's spirit: a
 few, never a crowd.
 
+**Revision 3 (16 Nov 2026; the user's word, the lead's call, over the bands above).** Every silhouette is spawned where its
+**true length reads through the live camera**: drawn at least about **24 px on a phone, 30 px on a desktop**, broadside as it is
+first seen (`fishing-sight.js` `projectedLength`, `readableSpot`, through the camera's own matrices). The fish is rolled at a point
+of visible water in the open part of the frame, then placed in that same water where it reads: a small fish near, on the camera's
+side of the raft (never inside its own 3–5 m), a big one anywhere in view, as it reads farther; never behind a rock island, the
+shore's boulders or the raft and its Wick (`sightBlocked`), and it keeps to the open frame as it swims (it turns back at the frame's
+edge as at its water's). It is **never drawn bigger than the fish**: where the camera cannot draw that length at the mark anywhere in
+view, it goes where it draws biggest, and under **0.65 of the mark** it is not seen at all on that screen (the pick rolls again), as a
+real angler does not make out a hand-long perch at that range. At night the lantern's stronger light is tried first. With no camera
+(node, a headless page) the bands become a fallback by length: under 30 cm 4.5–8 m, under 60 cm 5–11 m, under 1 m 6–15 m, bigger
+7–20 m, leaning to the camera's side. The play camera sets the limit: at the sail framing (the one the player looks for fish under)
+a 30 cm perch draws at most about 21 px at 1280x720, 16 at 960x540, 11 on a 390x844 phone and 9 on a 358x664 one; a fish reaches
+the mark there only from about 44, 58, 67 and 84 cm, and is seen at all from 28, 38, 44 and 54 cm (with the line out, the fish
+framing, from 26, 35, 46 and 57 cm to the mark). `tools/tests/fishing-sight-read.test.mjs` prints the table.
+**How it is drawn (the same revision):** a darker, near-opaque core that softens to its edge, darkest down the back as a fish seen
+from above is; the tail's fork and the pectoral and pelvic fins held to about a pixel so they survive small; its shadow on the bed
+offset and fainter; a faint pale push of water just ahead of the head when it moves (a short arc, never closed). The play camera's low
+angle would press a shape lying on the bed nearly flat, so the footprint is eased out along the line of sight by (1 / sin of the
+view's angle)^0.75, at most 2× (`fishing-fx.js` SIGN_VS; `lookStretch`): the eye looking down into clear water. Across the view its
+length is untouched; end on it never draws longer than it would across. No outline glow, no rim, no glitter, no ring. The float's
+resting ripple on the Mossmere under the loop is the water's cool white and quieter (`actors.js`, `view.waterWhite`); a bite's red
+cue is unchanged.
+
 ### 6.4 How they move
 
 Steered like a sign's travel (`fishing-signs.js` `travel`: a slowly turning heading, leashed), with a body-type style:

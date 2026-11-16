@@ -27,7 +27,7 @@ const geo = { arena: Z0.arena, hulls: D.loopMooring('mossmere', Z0.arena.docks)?
 const isWater = (x, z) => probe.fromShore(x, z) > 0.5 && !(Z0.arena.islands || []).some((o) => Math.hypot(x - o.x, z - o.z) < o.r * 1.08 + 0.3);
 function world(rng) {
   return {
-    getZone: () => Z0, getDepth: depth, getShoreRadius: shoreR, isOpenWater: (x, z) => isWater(x, z),
+    getZone: () => Z0, getDepth: depth, getShoreRadius: shoreR, isOpenWater: (x, z) => isWater(x, z), getObstacles: () => L.obstacles,
     randomWaterPoint: (o = {}) => {
       const f = o.from || { x: 0, z: 0 };
       for (let i = 0; i < 40; i++) {
@@ -124,6 +124,46 @@ section('silhouettes in the game (§6)');
   Q.tick(30 * 300);
   const quiet = Q.F.view.favour?.quiet ?? null;
   ok(qn === 0 || quiet === false, `quiet water: no silhouette (${qn} spawned; quiet ${quiet}; key ${key})`);
+}
+
+section('silhouettes placed where they read through the live camera (16 Nov 2026)');
+{
+  // the play camera's sail framing over the raft, as render.js places it (yaw 0; a phone held upright widens, steps back, tilts down)
+  const DEG = Math.PI / 180, sm = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const rigAt = (W, H) => {
+    let { elev, dist, aim, aimY, fov } = D.BALANCE.cameras.sail;
+    if (W / H < 1.25) { const pf = sm(1.25, 0.5, W / H); fov = Math.min(78, fov + pf * 22); dist *= 1 + pf * 0.38; elev = Math.min(80, elev + pf * 7); }
+    const cam = new THREE.PerspectiveCamera(fov, W / H, 0.1, 400);
+    cam.position.set(RAFT[0], dist * Math.sin(elev * DEG), RAFT[1] + dist * Math.cos(elev * DEG));
+    cam.lookAt(RAFT[0], aimY, RAFT[1] - aim); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
+    return cam;
+  };
+  const was = [globalThis.innerWidth, globalThis.innerHeight];
+  for (const [W, H] of [[1280, 720], [390, 844]]) {
+    globalThis.innerWidth = W; globalThis.innerHeight = H;
+    const camera = rigAt(W, H), lens = SI.lensOf(camera, W, H), need = SI.readPx(W, H);
+    const E = env({ raft: RAFT, seed: 21, scene: null });
+    E.ctx.render.camera = camera;
+    const spawned = [];
+    E.ctx.bus.on('sign:spawn', (p) => { if (p.kind === 'sight') { const v = E.ctx.debug.fishSights().find((q) => q.id === p.id); if (v) spawned.push(v); } });
+    E.tick(30 * 600);
+    let frame = 0, keep = 0, floor = 0, read = 0, where = 0, hidden = 0;
+    const eye = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+    const blockers = [{ x: RAFT[0], z: RAFT[1], r: 1.7, h: 2.4 }, ...L.obstacles.filter((o) => o.kind === 'island').map((o) => ({ x: o.x, z: o.z, r: o.r * 1.2, h: 3.6 }))];
+    const land = (x, z) => Math.hypot(x, z) > shoreR(Math.atan2(z, x)) - 0.3;
+    for (const f of spawned) {
+      if (SI.sightBlocked(f.x, f.z, eye, blockers, land)) hidden++;
+      const px = SI.projectedLength(f.length, f, lens, f.heading);
+      if (!SI.inFrame(lens, f.x, f.z)) frame++;
+      if (Math.hypot(f.x - RAFT[0], f.z - RAFT[1]) < f.keepOff + 0.4 - 1e-6) keep++;
+      if (px < need * SI.READ.floor - 1e-6) floor++;
+      if (px >= need) read++;
+      if (!(f.depth < 0.45) || !SIGHT_AREAS.has(f.area)) where++;
+    }
+    ok(spawned.length >= 4, `${W}x${H}: ${spawned.length} silhouettes in 10 min at dusk with a live camera`);
+    ok(frame === 0 && keep === 0 && floor === 0 && where === 0 && hidden === 0, `${W}x${H}: every one in the open frame and in sight (never behind a rock island, the bank or the raft), past its own distance off the raft, in clear shallow water, drawn ≥ the floor (${read} of ${spawned.length} at the ${need} px mark; the rest the most this camera draws them)`);
+  }
+  globalThis.innerWidth = was[0]; globalThis.innerHeight = was[1];
 }
 
 // a margin point at about 9 m from the raft, with room ahead

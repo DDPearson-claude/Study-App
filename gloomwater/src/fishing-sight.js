@@ -21,7 +21,7 @@ export const SIGHT = {
   alive: { high: 4, medium: 4, low: 3 },
   every: [12, 30],                   // a new one every 12–30 s while fewer are alive
   life: [40, 90],
-  bands: [[0.25, [6, 12]], [0.6, [8, 20]], [Infinity, [10, 28]]],   // spawn distance off the raft by length (m)
+  bands: [[0.3, [4.5, 8]], [0.6, [5, 11]], [1.0, [6, 15]], [Infinity, [7, 20]]],   // the fallback spawn distance off the raft by length (m), no camera
   raft: [3, 5],                      // its own distance off the raft, by fish (small nearer), jittered
   dusk: 0.75,                        // fainter at dusk
   lantern: { r: 8, stub: 1.5, perLevel: 0.15, min: 0.25 },
@@ -121,31 +121,178 @@ export function pickSight(entries, { light = 'day', area = null } = {}, rng = Ma
 /** A silhouette's true length (m): data.sizeLength (cm) at its z, the fish's own, never the class length. */
 export const sightLength = (D, sp, z, zone = null) => num(D?.sizeLength?.(sp, z, zone), 30) / 100;
 
-/** Spawn distance off the raft by length (§6.3): under 25 cm 6–12 m; 25–60 cm 8–20 m; over 60 cm 10–28 m. */
+/** The fallback spawn distance off the raft by length when no live camera is at hand (node tests, a headless page): §6.3 as revised
+ *  16 Nov 2026 (the user's word, the lead's call): a small fish near, on the camera's side, a big one farther. Measured on the desktop
+ *  play camera (960x540, the sail framing): under 30 cm 4.5–8 m, under 60 cm 5–11 m, under 1 m 6–15 m, bigger 7–20 m. */
 export function spawnBand(L, S = SIGHT) {
   for (const [lim, band] of S.bands) if (L < lim) return band;
   return S.bands[S.bands.length - 1][1];
 }
+/** How far either side of the camera's bearing (rad, from the raft) a fallback spawn may lie: small fish lean to the camera's side. */
+export const spawnSide = (L) => 0.9 + 0.6 * clamp(num(L, 0.3), 0, 1.2);
 /** Its own distance off the raft (3–5 m): a small fish nearer, a big one farther, a little jitter (seed 0..1). */
 export function keepOffFor(L, seed = 0.5, S = SIGHT) {
   const [a, b] = S.raft;
   const k = clamp((num(L, 0.3) - 0.12) / 0.6, 0, 1);
   return clamp(a + (b - a) * k + (seed - 0.5) * 0.6, a, b);
 }
-/** The distance band a new shape of length L may spawn in: the length band by day and dusk; at night inside the lantern's light. */
+/** The distance band a new shape of length L may spawn in without a camera: the length band by day and dusk; at night inside the
+ *  lantern's light. (With a live camera the spawn is chosen on the screen instead: readableSpot.) */
 export function spawnRange(L, { light = 'day', lanternR = 8, keepOff = 4 } = {}, S = SIGHT) {
   if (light === 'night') return [keepOff + 0.4, Math.max(keepOff + 0.5, lanternReach(lanternR, num(S.lantern.min, 0.25)))];
   const [a, b] = spawnBand(L, S);
-  return [Math.max(a, keepOff + 0.4), b];
+  return [Math.max(a, keepOff + 0.4), Math.max(b, keepOff + 0.9)];
 }
-/** Try up to `tries` points round the raft in a range; accept(x, z) → true takes it. {x, z, d} or null. */
-export function spawnPoint(raft, range, accept, rng = Math.random, tries = 6) {
+/** Try up to `tries` points round the raft in a range; accept(x, z) → true takes it. {x, z, d} or null. `side` = {a (the camera's
+ *  bearing from the raft, rad: x = cos a, z = sin a), w (how far either side)} leans the points to the camera's side. */
+export function spawnPoint(raft, range, accept, rng = Math.random, tries = 6, side = null) {
   for (let i = 0; i < tries; i++) {
-    const d = U(rng, range[0], range[1]), a = rng() * TAU;
+    const d = U(rng, range[0], range[1]), a = side && Number.isFinite(side.a) ? side.a + (rng() * 2 - 1) * num(side.w, Math.PI) : rng() * TAU;
     const x = raft.x + Math.cos(a) * d, z = raft.z + Math.sin(a) * d;
     if (accept(x, z)) return { x, z, d };
   }
   return null;
+}
+
+// ---- where a shape reads (16 Nov 2026: the user's word wins over §6.3's bands). Every silhouette is spawned where its TRUE length
+// draws at least READ.px on this screen through the live camera (about 24 px on a phone, 30 on a desktop), measured broadside, as it
+// is first seen; it is never drawn bigger than the fish. Where the camera cannot draw a fish that big anywhere in the open part of the
+// frame (a small perch on a phone: the play camera stands 18 m off and 11 m up there), it is put where it draws biggest, and a fish
+// that would still draw under READ.floor of the mark is not seen at all (the pick rolls again), as a real angler does not make out a
+// hand-long perch at that range. Pure maths on the camera's matrices (three.js's column-major elements), no three.js import.
+export const READ = {
+  px: { phone: 24, desk: 30 },
+  floor: 0.65,                          // a share of px: under it the fish is not seen on this screen
+  frame: { x: [0.08, 0.92], y: [0.18, 0.8] },               // the open part of the frame (the HUD's bands lie outside it)
+  framePortrait: { x: [0.1, 0.9], y: [0.2, 0.76] },
+  tries: 36, maxD: 24, jitter: 0.45,    // screen samples per search; the farthest off the raft (m); heading ± (rad) off broadside
+  inset: { x: 0.03, y: 0.05 },          // a spawn keeps this far inside the frame (it may swim to the frame's edge, then turns back)
+};
+/** The mark (px) a silhouette's drawn length must reach on a W×H screen: a phone held upright (or any screen under 480 px) 24, else 30. */
+export const readPx = (W, H, R = READ) => (num(W, 960) < num(H, 540) || Math.min(num(W, 960), num(H, 540)) < 480 ? R.px.phone : R.px.desk);
+/** A plain lens from a three.js camera (its world, view and projection matrices, kept by reference) and the screen in CSS px. */
+export function lensOf(cam, W, H) {
+  const m = cam?.matrixWorld?.elements, v = cam?.matrixWorldInverse?.elements, p = cam?.projectionMatrix?.elements;
+  if (!m || !v || !p || !(num(W, 0) > 0) || !(num(H, 0) > 0) || !(Math.abs(p[0]) > 1e-6)) return null;
+  return { m, v, p, W, H };
+}
+/** World (x, y, z) to screen px: {x, y, w (the clip w: > 0 in front)} or null behind the lens. */
+export function toScreen(lens, x, y, z) {
+  const v = lens.v, p = lens.p;
+  const vx = v[0] * x + v[4] * y + v[8] * z + v[12], vy = v[1] * x + v[5] * y + v[9] * z + v[13], vz = v[2] * x + v[6] * y + v[10] * z + v[14];
+  const cx = p[0] * vx + p[4] * vy + p[8] * vz + p[12], cy = p[1] * vx + p[5] * vy + p[9] * vz + p[13], cw = p[3] * vx + p[7] * vy + p[11] * vz + p[15];
+  if (!(cw > 1e-4)) return null;
+  return { x: (cx / cw + 1) * 0.5 * lens.W, y: (1 - cy / cw) * 0.5 * lens.H, w: cw };
+}
+/** Screen px (sx, sy) down to the water (y = y0): {x, z, t (the ray's length)} or null where the ray does not meet it. */
+export function fromScreen(lens, sx, sy, y0 = 0) {
+  const m = lens.m, p = lens.p;
+  const nx = (sx / lens.W) * 2 - 1, ny = 1 - (sy / lens.H) * 2;
+  const cx = (nx + p[8]) / p[0], cy = (ny + p[9]) / p[5];   // (the camera-space ray through it, at z = −1)
+  const dx = m[0] * cx + m[4] * cy - m[8], dy = m[1] * cx + m[5] * cy - m[9], dz = m[2] * cx + m[6] * cy - m[10];
+  const ox = m[12], oy = m[13], oz = m[14];
+  if (!(dy < -1e-6) || !(oy > y0)) return null;
+  const t = (y0 - oy) / dy;
+  return { x: ox + dx * t, z: oz + dz * t, t };
+}
+/** The heading (§6's convention: forward = (sin h, cos h)) that lies a fish across the view at (x, z): broadside to the lens. */
+export function broadside(lens, x, z) {
+  const dx = x - lens.m[12], dz = z - lens.m[14], n = Math.hypot(dx, dz) || 1;
+  return Math.atan2(dz / n, -dx / n);
+}
+/**
+ * A fish's drawn length on the screen (px): the segment of its true length lengthM lying on the water at `at` ({x, z, y?}) along
+ * `heading` (default: broadside to the lens), through the lens's real projection. 0 behind the lens.
+ */
+export function projectedLength(lengthM, at, lens, heading = null) {
+  if (!lens || !at) return 0;
+  const h = Number.isFinite(heading) ? heading : broadside(lens, at.x, at.z);
+  let hx = Math.sin(h) * num(lengthM, 0) * 0.5, hz = Math.cos(h) * num(lengthM, 0) * 0.5;
+  const y = num(at.y, 0), k = lookStretch(lens, at.x, y, at.z);
+  if (k.s > 1) { const along = hx * k.dx + hz * k.dz; hx += k.dx * along * (k.s - 1); hz += k.dz * along * (k.s - 1); }   // (as fishing-fx draws it)
+  const a = toScreen(lens, at.x - hx, y, at.z - hz), b = toScreen(lens, at.x + hx, y, at.z + hz);
+  return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
+}
+/** fishing-fx's look into the water (its SIGN_VS): a silhouette's footprint is eased out along the line of sight by (1 / sin of the
+ *  view's angle)^0.75, at most 2×, so the play camera's low angle does not press it flat; across the view its length is untouched,
+ *  end on it never draws longer than across. {s, dx, dz} (dx, dz: the level direction toward the lens). */
+export function lookStretch(lens, x, y, z) {
+  const tx = lens.m[12] - x, ty = lens.m[13] - num(y, 0), tz = lens.m[14] - z, hl = Math.hypot(tx, tz), l = Math.hypot(hl, ty);
+  const sg = clamp(ty / Math.max(l, 1e-3), 0.05, 1);
+  return { s: clamp(Math.pow(1 / sg, 0.75), 1, 2), dx: hl > 1e-3 ? tx / hl : 0, dz: hl > 1e-3 ? tz / hl : 1 };
+}
+/** Is (x, z) inside the open part of the frame (READ.frame; a phone held upright: framePortrait)? */
+export function inFrame(lens, x, z, R = READ, y = 0) {
+  const s = toScreen(lens, x, y, z);
+  if (!s) return false;
+  const F = lens.W < lens.H ? R.framePortrait : R.frame;
+  return s.x >= F.x[0] * lens.W && s.x <= F.x[1] * lens.W && s.y >= F.y[0] * lens.H && s.y <= F.y[1] * lens.H;
+}
+/**
+ * Where a fish of true length L reads on this screen. o = {lens, raft {x, z}, keepOff, accept(x, z) → it may spawn there, rng, need
+ * (px; default readPx), floor (px; default need × READ.floor), maxD, tries, heading (fixed, else broadside ± READ.jitter)}. Samples
+ * the open part of the frame, down to the water, past its own distance off the raft: a spot that draws ≥ need is taken at random
+ * among those found (so big fish spread over the whole frame, small ones keep to the near water, on the camera's side); with none, the
+ * spot that draws biggest if it reaches the floor. {x, z, d, px, heading, reads (≥ need)} or null (not seen on this screen).
+ */
+export function readableSpot(L, o = {}, R = READ) {
+  const lens = o.lens, raft = o.raft || { x: 0, z: 0 }, rng = o.rng || Math.random;
+  if (!lens) return null;
+  const need = num(o.need, readPx(lens.W, lens.H, R)), floor = num(o.floor, need * num(R.floor, 0.65));
+  const minD = num(o.keepOff, keepOffFor(L)) + 0.4, maxD = num(o.maxD, R.maxD), tries = num(o.tries, R.tries);
+  const F0 = lens.W < lens.H ? R.framePortrait : R.frame, ix = num(R.inset?.x, 0), iy = num(R.inset?.y, 0);
+  const F = { x: [F0.x[0] + ix, F0.x[1] - ix], y: [F0.y[0] + iy, F0.y[1] - iy] };   // (spawned a little inside the frame: room to swim)
+  const good = [], short = [];
+  const probe = (sx, sy) => {
+    const w = fromScreen(lens, sx * lens.W, sy * lens.H);
+    if (!w) return;
+    const d = Math.hypot(w.x - raft.x, w.z - raft.z);
+    if (d < minD || d > maxD) return;
+    const b = broadside(lens, w.x, w.z) + (rng() < 0.5 ? 0 : Math.PI);
+    let heading = Number.isFinite(o.heading) ? o.heading : b + (rng() * 2 - 1) * num(R.jitter, 0.45);
+    let px = projectedLength(L, w, lens, heading);
+    if (px < need && !Number.isFinite(o.heading)) { const pb = projectedLength(L, w, lens, b); if (pb > px) { px = pb; heading = b; } }   // (squarely across the view where a turn would lose the mark)
+    const c = { x: w.x, z: w.z, d, px, heading: wrap(heading), reads: px >= need };
+    (c.reads ? good : short).push(c);
+  };
+  for (let i = 0; i < tries; i++) probe(U(rng, F.x[0], F.x[1]), U(rng, F.y[0], F.y[1]));
+  // and along the frame's lower edge, where the camera draws a fish biggest (so a fish that can just make the mark finds where)
+  for (let i = 0; i < 11; i++) probe(F.x[0] + (F.x[1] - F.x[0]) * (i + 0.5 + (rng() - 0.5) * 0.5) / 11, F.y[1] - (F.y[1] - F.y[0]) * 0.05 * rng());
+  for (let i = good.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = good[i]; good[i] = good[j]; good[j] = t; }
+  for (const c of good) if (!o.accept || o.accept(c.x, c.z)) return c;
+  short.sort((a, b) => b.px - a.px);   // none reads in view: the biggest it draws, if that reaches the floor
+  for (const c of short) { if (c.px < floor) break; if (!o.accept || o.accept(c.x, c.z)) return c; }
+  return null;
+}
+/**
+ * Is the line of sight from the lens (eye {x, y, z}) down to the water at (x, z) blocked: by a blocker [{x, z, r, h}] (a rock island, a
+ * pillar, the raft and its Wick), or by the land (land(x, z) → true: the shore's boulders stand up to `bank` m there)? Sampled
+ * every 0.4 m along the ray. A shape put where it reads must also be in sight: never behind a foreground rock.
+ */
+export function sightBlocked(x, z, eye, blockers = [], land = null, bank = 3.6) {
+  if (!eye) return false;
+  const dx = num(eye.x, x) - x, dy = num(eye.y, 0), dz = num(eye.z, z) - z, len = Math.hypot(dx, dz);
+  const n = Math.max(2, Math.ceil(len / 0.4));
+  for (let i = 1; i < n; i++) {
+    const t = i / n, px = x + dx * t, pz = z + dz * t, py = dy * t;
+    for (const b of blockers) if (py < b.h && (px - b.x) * (px - b.x) + (pz - b.z) * (pz - b.z) < b.r * b.r) return true;
+    if (land && py < bank && land(px, pz)) return true;
+  }
+  return false;
+}
+/** The most a fish of length L can draw anywhere a spawn may go (the open frame, inset) past dMin off the raft (px; a fine scan, for tests). */
+export function bestReadPx(L, lens, raft = { x: 0, z: 0 }, dMin = 3.4, maxD = READ.maxD, R = READ, n = 48) {
+  const F0 = lens.W < lens.H ? R.framePortrait : R.frame, ix = num(R.inset?.x, 0), iy = num(R.inset?.y, 0);
+  const F = { x: [F0.x[0] + ix, F0.x[1] - ix], y: [F0.y[0] + iy, F0.y[1] - iy] };   // (where a spawn may go)
+  let best = 0;
+  for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) {
+    const w = fromScreen(lens, (F.x[0] + (F.x[1] - F.x[0]) * i / n) * lens.W, (F.y[0] + (F.y[1] - F.y[0]) * j / n) * lens.H);
+    if (!w) continue;
+    const d = Math.hypot(w.x - raft.x, w.z - raft.z);
+    if (d < dMin || d > maxD) continue;
+    best = Math.max(best, projectedLength(L, w, lens));
+  }
+  return best;
 }
 /** How many may live (§6.3): 4 on high and medium, 3 on low. */
 export const sightCap = (tier = 'high', S = SIGHT) => num(S.alive[tier], tier === 'low' ? 3 : 4);
@@ -164,7 +311,7 @@ export function createSight(o = {}) {
     id: o.id ?? `sight${++SEQ}`, kind: 'sight', sp: o.sp || null, zs: num(o.zScore, 0), length: L, outline,   // (zs: its size score; z is where it is)
     x: o.x, z: o.z, home: { x: o.x, z: o.z }, heading: num(o.heading, rng() * TAU), speed: 0, turn: 0,
     area: o.area || null, light: o.light || 'day', depth: num(o.depth, 0.3), seed,
-    keepOff: keepOffFor(L, seed), n: outline === 'shoal' ? 3 + Math.floor(rng() * 3) : 1,
+    keepOff: keepOffFor(L, seed), leash: clamp(3 + 5 * L, 4, 12), n: outline === 'shoal' ? 3 + Math.floor(rng() * 3) : 1,
     mode: 'cruise', modeT: 0, age: 0, life: U(rng, SIGHT.life[0], SIGHT.life[1]), alpha: 0, vis: 1,
     bait: null, tailT: 0, cloudAt: -1, gone: false, born: num(o.t, 0),
   };
@@ -262,7 +409,7 @@ export function stepSight(f, dt, env = {}) {
   if (f.speed > 0) {
     const nx = f.x + Math.sin(f.heading) * f.speed * dt, nz = f.z + Math.cos(f.heading) * f.speed * dt;
     const free = f.mode === 'bolt' || f.mode === 'take' || f.mode === 'nose' || f.mode === 'turn';
-    const homeOk = Math.hypot(nx - f.home.x, nz - f.home.z) < 12;
+    const homeOk = Math.hypot(nx - f.home.x, nz - f.home.z) < num(f.leash, 12);   // (it keeps near where it was first seen: a small fish a few metres)
     const raftOk = !raft || Math.hypot(nx - raft.x, nz - raft.z) >= f.keepOff + 0.3;
     if (free || (homeOk && raftOk && (!env.ok || env.ok(nx, nz)))) { f.x = nx; f.z = nz; }
     else {   // the edge of its water (or the raft's distance): it turns back
