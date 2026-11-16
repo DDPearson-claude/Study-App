@@ -51,6 +51,9 @@ export function gearName(D, id) {
   return D?.TEXT_LOOP?.gearItems?.[id] ?? arr(D?.LURES).find((x) => x?.id === id)?.name ?? arr(D?.BAITS).find((x) => x?.id === id)?.name ?? String(id ?? '');
 }
 const ROMAN = ['I', 'II', 'III', 'IV'];
+/** The shelf cards' drawings (ui-icons' names). */
+const ART = { feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', mireworm: 'worm', lumen_moss: 'moss',
+  oars: 'oar', keel: 'hull', lantern: 'lantern', orders: 'ledger' };
 function levelName(D, slot, lv) {
   const n = D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1];
   if (typeof n === 'string') return n;
@@ -61,7 +64,7 @@ function levelName(D, slot, lv) {
  * The shelf's step-4 cards (SPEC §8.4, M1.md §2.5), in shelfItems' shape: {id, tab, slot, level, name, goalName, line, price, bought, …}.
  * - Tackle: each lure of an owned, shipped water ({id: 'lure:<id>', slot: 'lure', lureId}); bought once and kept ("Yours." for good).
  * - Bait: each tin of an owned water ({id: 'tin:<id>', slot: 'tin', baitId, water, count, consumable: true}: always on the shelf, never
- *   "Yours.", never the goal), and Cut Strip's count when the bag holds some (no price: never bought; `cut: true`).
+ *   "Yours.", never the goal). Cut Strip is never on the shelf (never sold: the bait slot shows its count).
  * - Raft: Oars, Keel and Lantern, the next level whose `with` water is owned ({id: 'oars:1', slot: 'oars', level}); the last level this
  *   shelf offers, once owned, a bought card; a level bought while the shelf is open (`session`) reads bought in place.
  * - Home: Murk's Order Board the same way ({id: 'orders:1', slot: 'orders', level}).
@@ -74,24 +77,21 @@ export function gearItems(D, metaLoop, session = []) {
   // the lures (Tackle)
   for (const [id, L] of Object.entries(LP.lures)) {
     if (!isObj(L) || !waters.includes(L.water)) continue;
-    out.push({ id: `lure:${id}`, tab: 'tackle', slot: 'lure', level: null, lureId: id, water: L.water, name: gearName(D, id), goalName: gearName(D, id),
+    out.push({ id: `lure:${id}`, tab: 'tackle', slot: 'lure', level: null, lureId: id, water: L.water, art: ART[id] || 'lure', name: gearName(D, id), goalName: gearName(D, id),
       line: TL.shelf?.[id] ?? '', price: num(L.price, 0), bought: have.has(id) });
   }
   // the tins (Bait), each water's in its order; Cut Strip's count while the bag holds some
   for (const w of waters) {
     for (const id of arr(LP.tins?.[w])) {
-      out.push({ id: `tin:${id}`, tab: 'bait', slot: 'tin', level: null, baitId: id, water: w, name: gearName(D, id), goalName: gearName(D, id),
+      out.push({ id: `tin:${id}`, tab: 'bait', slot: 'tin', level: null, baitId: id, water: w, art: ART[id] || 'worm', name: gearName(D, id), goalName: gearName(D, id),
         line: TL.shelf?.[id] ?? '', price: tinPrice(D, w), count: Math.max(0, int(ml.bait?.[w]?.[id])), consumable: true, bought: false });
     }
-    const cut = Math.max(0, int(ml.bait?.[w]?.cut_strip));
-    if (cut > 0) out.push({ id: 'cut:cut_strip', tab: 'bait', slot: 'cut', level: null, baitId: 'cut_strip', water: w, name: gearName(D, 'cut_strip'),
-      goalName: gearName(D, 'cut_strip'), line: TL.shelf?.cut_strip ?? '', price: null, count: cut, consumable: true, cut: true, bought: false });
   }
   // the raft's parts (Raft) and Murk's Order Board (Home): the next level on the shelf, else the last one owned
   const ladder = (tab, slot, R, cur) => {
     const prices = arr(R?.prices), w = arr(R?.with), top = prices.length;
     const on = (lv) => lv >= 1 && lv <= top && withs.has(num(w[lv - 1], 1));
-    const card = (lv, bought) => ({ id: `${slot}:${lv}`, tab, slot, level: lv, name: levelName(D, slot, lv), goalName: levelName(D, slot, lv),
+    const card = (lv, bought) => ({ id: `${slot}:${lv}`, tab, slot, level: lv, art: ART[slot] || 'star', name: levelName(D, slot, lv), goalName: levelName(D, slot, lv),
       line: TL.shelf?.[slot] ?? '', price: num(prices[lv - 1], 0), bought });
     if (cur >= 1 && ses.has(`${slot}:${cur}`)) out.push(card(cur, true));
     else if (on(cur + 1)) out.push(card(cur + 1, false));

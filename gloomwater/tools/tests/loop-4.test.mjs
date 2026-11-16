@@ -296,7 +296,7 @@ section('Cut Strip (SPEC §3.2, §4.5): a held Let go on a Small or a Keeper');
   ok(L.fit('bait', 'cut_strip').ok && r.equippedBait === 'cut_strip', 'Cut Strip fits the bait slot');
   L.endTrip();
   eq(meta.loop.bait.mossmere.cut_strip, 3, 'the strips come home in the bag');
-  ok(PL.shelfItems(D, meta.loop).some((i) => i.id === 'cut:cut_strip' && i.count === 3 && i.price === null), 'the Bait tab shows the strips\' count (never sold)');
+  ok(!PL.shelfItems(D, meta.loop).some((i) => /cut_strip/.test(i.id)), 'Cut Strip is never on the shelf (never sold)');
 }
 
 section('the Matriarch a catfish (M1.md §2.3, §2.4): her plan, her land chance unchanged');
