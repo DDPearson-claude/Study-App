@@ -20,7 +20,7 @@
 //   sail({water, place})     the pick saved (loop.setPick); the glide out heads for an owned place's centre (sailPlan toward it);
 //                            with no `place` the Chart's saved pick of that water; open water keeps 1a's authored glide
 // Every neighbour is read through optional chaining (PLAN §3's stub rule): an absent one means the built behaviour, never a throw.
-import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath, placeGlide } from './loop-rules.js';
+import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath, placeGlide, glideClearance } from './loop-rules.js';
 
 const numOr = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 
@@ -321,10 +321,14 @@ export function createLoopHome(deps) {
     const owned = !!place && (safe(() => L?.state?.()?.maps?.places, null) || []).includes(place);
     const P = owned ? placeOf(place) : null;
     const dock = dockAt(), at = raftNow(), from = dock ? dock.position : at;
-    // (toward a place: its bearing turned the least that keeps the glide clear of every obstacle; none clear: open water's glide)
-    const obstacles = safe(() => ctx.world?.getObstacles?.(), null);
+    // (toward a place: the data's glide, data.loopSailPlan, which validate-data --loop proves clear of every island and pillar by the
+    // raft's radius + 0.3 m (the Lily Maze's own authored `out` bends round the statue off the Jetty); should the live obstacles ever
+    // disagree, its bearing turned the least that keeps it clear (placeGlide); none clear: open water's glide)
+    const obstacles = safe(() => ctx.world?.getObstacles?.(), null), obs = Array.isArray(obstacles) ? obstacles : [];
     const clear = numOr(data.BALANCE?.move?.raftRadius, 1.6) + 0.3;
-    const gp = P && Number.isFinite(P.x) && from ? placeGlide(data.sailPlan, from, { x: P.x, z: P.z }, TUT, Array.isArray(obstacles) ? obstacles : [], { clear }) : null;
+    const gd = P && Number.isFinite(P.x) && from && typeof data.loopSailPlan === 'function' ? safe(() => data.loopSailPlan(from, { water, place }, TUT), null) : null;
+    const gp = gd && glideClearance(gd.path, obs) >= clear ? gd
+      : P && Number.isFinite(P.x) && from ? placeGlide(data.sailPlan, from, { x: P.x, z: P.z }, TUT, obs, { clear }) : null;
     const g = gp || data.sailPlan(from, { x: 0, z: 0 }, TUT, water);
     S.sailPlace = gp ? place : null;
     S.sailing = true;

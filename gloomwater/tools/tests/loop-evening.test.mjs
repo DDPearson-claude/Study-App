@@ -355,11 +355,13 @@ section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
   const E = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
   ok(E.H.sail({ water: 'mossmere', place: 'lily_maze' }) === true, 'Sail({water, place})');
   eq(E.loop.s.chartPick, { water: 'mossmere', place: 'lily_maze' }, 'T129: the pick is saved (loop.setPick)');
-  const g = E.player.glides.at(-1), lm = D.loopPlace('lily_maze'), plan = D.sailPlan(dock, { x: lm.x, z: lm.z }, D.LOOP.tutorial, null);
-  eq(g.pts.at(-1), plan.to, 'T129: the glide out heads for the place (sailPlan toward its centre)');
+  // (the stage: the game's glide toward a place is the data's, data.loopSailPlan, which validate-data --loop proves clear (T118); the
+  // Lily Maze's is its authored `out`, bent south of the statue off the Jetty; a place with none glides outDist m toward its centre)
+  const g = E.player.glides.at(-1), lm = D.loopPlace('lily_maze'), plan = D.loopSailPlan(dock, { water: 'mossmere', place: 'lily_maze' });
+  eq(g.pts, plan.path, 'T129: the glide out heads for the place (data.loopSailPlan: the Lily Maze\'s authored glide)');
   const dir = (a, b) => Math.atan2(b.z - a.z, b.x - a.x);
-  near(dir(dock, g.pts.at(-1)), dir(dock, lm), 'T129: … on the line from the Jetty to the place', 1e-9);
-  near(Math.hypot(g.pts.at(-1).x - dock.x, g.pts.at(-1).z - dock.z), D.LOOP.tutorial.outDist, `T129: … ${D.LOOP.tutorial.outDist} m out`, 1e-6);
+  ok(Math.abs(dir(dock, g.pts.at(-1)) - dir(dock, lm)) < (30 * Math.PI) / 180, 'T129: … toward the place (its bearing within 30° of the line from the Jetty)');
+  near(Math.hypot(g.pts.at(-1).x - dock.x, g.pts.at(-1).z - dock.z), D.LOOP.tutorial.outDist, `T129: … about ${D.LOOP.tutorial.outDist} m out`, 0.5);
   ok(g.o.kind === 'sailOut' && g.o.duration === D.LOOP.tutorial.out, '… the same 3 s glide (kind sailOut)');
   await E.step(3.2);
   ok(E.ctx.flow === 'playing' && E.player.position.x === plan.to.x && E.H.sailPlace === 'lily_maze', 'T129: the trip starts where that glide ended');

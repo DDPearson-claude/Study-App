@@ -3050,7 +3050,9 @@ export function create(ctx) {
       emit('toast', { text: D().TEXT?.legendPoolToast || 'A golden stillness gathers far out…', kind: 'lore' });
     }
     S.legendK = damp(S.legendK, active ? 1 : 0, 1.5, Math.max(ctx.time?.dt || 0.016, 0.001));
-    fx.setLegendPool(true, lg.x, lg.z, lg.r, S.legendK, dim ? 0.35 : 1);
+    // (the loop: no still ring at all, never a ring round the raft while she is fished, the user's rule; the lifted Bell Pool is told by
+    // its own dressing, the bell and the moon's shaft. The stage, from lane D's look)
+    fx.setLegendPool(!LOOP(), lg.x, lg.z, lg.r, S.legendK, dim ? 0.35 : 1);
     if (S.legendK > 0.01 && !sm) fx.setSlot(LEGEND_SLOT, lg.x, lg.z, S.legendK, 2, 0, lg.r * 0.8, 13);   // v3: no column, a low glimmer
     else fx.clearSlot(LEGEND_SLOT);
     legendPoolInfo.position.set(lg.x, 0, lg.z); legendPoolInfo.radius = lg.r; legendPoolInfo.active = active; legendPoolInfo.dim = dim;

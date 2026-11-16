@@ -1117,7 +1117,7 @@ if (LOOP_ON && DEBUG) {
       if (trip && play && ids.length) loopHome?.beginLifts(ids);
       else {
         for (const p of ids) {
-          if (loopApi()?.markLifted?.(p) !== true && Array.isArray(ml.lifted) && !ml.lifted.includes(p)) ml.lifted.push(p);   // (the seam's stub)
+          loopApi()?.markLifted?.(p);
           safe(() => ctx.world.liftMist?.(p, 0), null);
         }
         game.save(); loopHome?.syncPlaces();
@@ -1133,10 +1133,7 @@ if (LOOP_ON && DEBUG) {
       ml.bait[zone] = { ...(ml.bait[zone] || {}), [id]: ((ml.bait[zone]?.[id]) | 0) + k };
       const r = ctx.state.run;
       if (r && r.outing === 'trip') { r.bait = r.bait || {}; r.bait[id] = (r.bait[id] | 0) + k; }
-      if (fit) {
-        if (loopApi()?.fit?.('bait', id)?.ok !== true) ml.fitted = { ...(ml.fitted || {}), bait: id };   // (the seam's stub)
-        if (r && r.outing === 'trip') r.equippedBait = id;
-      }
+      if (fit) loopApi()?.fit?.('bait', id);   // the ledger's fit (on a trip it puts the ball on the line too)
       game.save();
       return { bag: { ...ml.bait[zone] }, trip: r?.outing === 'trip' ? { ...(r.bait || {}) } : null, fitted: { ...(ml.fitted || {}) } };
     },
