@@ -535,6 +535,10 @@ if (process.argv.includes('--loop')) {
     ok4((CA?.live?.waters || []).every((w) => shipped.includes(w.water)) && (CA?.live?.pieces || []).every((pc) => pc.leg <= Math.max(...art.map((q) => q.n))), 'chart-art.js: no lamp, vignette or road leg of an unshipped sheet');
     ok4(typeof TL.comingSoon === 'string' && TL.comingSoon === 'Coming soon', 'TEXT_LOOP.comingSoon: "Coming soon" (SPEC §5.4)');
   }
+  // Murk's catalogue (16 November 2026): its two words, the name on the running head and the cover, the order line round the price
+  ok4(typeof TL.goods?.name === 'string' && TL.goods.name.length > 0 && TL.goods.name.length <= 18 && TL.goods.name.split(/\s+/).length <= 3,
+    `TEXT_LOOP.goods.name: the catalogue's name, at most three words and 18 characters ("${TL.goods?.name}")`);
+  ok4(typeof TL.goods?.buy === 'string' && /^[A-Z][a-z]+ · \{price\}$/.test(TL.goods.buy) && !/%/.test(JSON.stringify(TL.goods)), `TEXT_LOOP.goods.buy: one word and the price ("${TL.goods?.buy}"), no percentage`);
   // >>> M1 step 5b (LANE 5B-TOW; SPEC §6.5, OPENING §6.2 rev. 5): the tow's parts, each water's leg on the Chart's live layer, and the
   // opening untouched (the Landing's dip and arrive, the wake line, the leg, the dip, the glide in, the chart beat, the glide out)
   if (LP.tow) {

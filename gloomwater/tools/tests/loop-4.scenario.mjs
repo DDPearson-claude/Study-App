@@ -64,6 +64,8 @@ export default async function (api) {
     K.need(await K.tap('[data-modal=jetty] [data-tile=murk]'), 'the shelf again');
     await K.until("c.debug.ui().openModal === 'shelf'", 4);
     await K.settle(300);
+    // Murk's catalogue: his chalk slate is tipped into the book's cover (Home: the cover)
+    await K.key('Home'); await K.settle(700);
     const board = await g(() => { const T = window.__lp, el = T.one('[data-loop=orders]'); return el ? { rows: [...el.querySelectorAll('[data-order]')].filter(T.visible).map((b) => { const r = b.getBoundingClientRect(); return { id: b.dataset.order, text: b.textContent.trim(), h: r.height }; }) } : null; });
     K.check(board && board.rows.length === 1 && board.rows[0].text === 'a Dusk Minnow', 'Murk\'s chalk board on his shelf: "a Dusk Minnow"', board);
     K.check(board && board.rows.every((r) => r.h >= 44), 'each order is a tap target ≥ 44 px', board?.rows);

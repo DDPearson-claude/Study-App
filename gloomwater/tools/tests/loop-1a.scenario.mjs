@@ -512,11 +512,17 @@ export function makeKit(api, { label = 'loop' } = {}) {
   };
   /** The Home pill is live: canGoHome ok, a frame or two for the view to show it, its fade on the wall clock. */
   K.pillReady = async () => { const r = await K.until('c.game.canGoHome?.()?.ok === true', 6); await K.steps(2); await K.settle(350); return r.ok; };
-  /** A shelf card's buy button ([data-buy=id]); the shelf shows one tab at a time, so the tab that holds it is chosen first. */
+  /** A shelf item's buy ([data-buy=id]). Murk's catalogue (16 November 2026): the shelf is a book; the item's plate ([data-item=id]) is
+   *  found on its page (the fore-edge tab of its chapter first, then a leaf at a time), tapped to mark it, and its order line in the
+   *  book's foot ("Buy · <price>", [data-buy=id]) is the buy. A dear item has no order line (null). */
   K.buyBox = async (id, tabWord) => {
-    let b = await K.box(`[data-loop=shelf] [data-buy="${id}"]`) || await K.box(`[data-buy="${id}"]`);
-    if (!b && tabWord) { await K.tap('[data-loop=shelf] [role=tab]', tabWord); await K.settle(250); b = await K.box(`[data-buy="${id}"]`); }
-    for (let i = 0; i < 3 && !b; i++) { await K.key('ArrowRight'); await K.settle(200); b = await K.box(`[data-buy="${id}"]`); }
+    const plate = `[data-loop=shelf] [data-item="${id}"]`;
+    let p = await K.box(plate);
+    if (!p && tabWord) { await K.tap('[data-loop=shelf] [role=tab]', tabWord); await K.settle(650); p = await K.box(plate); }
+    for (let i = 0; i < 8 && !p; i++) { await K.key('ArrowRight'); await K.settle(650); p = await K.box(plate); }
+    if (!p) return null;
+    let b = await K.box(`[data-loop=shelf] [data-buy="${id}"]`);
+    if (!b) { await K.tapXY(p.x, p.y); await K.steps(1); await K.settle(250); b = await K.box(`[data-loop=shelf] [data-buy="${id}"]`); }
     return b;
   };
   K.noErrors = async (where) => { const e = await g(() => window.__gw.errors.slice()); K.check(e.length === 0, `ctx.errors stays empty (${where})`, e.slice(0, 6)); };

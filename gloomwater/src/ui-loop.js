@@ -32,6 +32,8 @@ export { murkLineFor };
 import { createGalleryView } from './ui-prints.js';
 import { shelfBare, waterGilded } from './home-shelf.js';
 import { shelfItems as shelfItems5b, listCount as listCount5b } from './progression-loop.js';
+// Murk's catalogue (the user's words of 16 November 2026): the shelf drawn as a printed book browsed page by page
+import { createMurkBook } from './ui-catalogue-murk.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -527,6 +529,13 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   // the goal line: "Next: {name} · {price}" with a known name (a hold step or a shelf item) and a number
   const m = /^Next: (.+) · (.+)$/.exec(t);
   if (m && NUM_RE.test(m[2]) && (W.has(m[1]) || /^Hold \d+$/.test(m[1]))) return true;
+  // Murk's catalogue: the order line "Buy · {price}" (TEXT_LOOP.goods.buy), whole or its words before the clam glyph
+  const bt = String(T_(D).goods?.buy || '');
+  if (bt.includes('{price}')) {
+    const [a, b = ''] = bt.split('{price}');
+    if (t === a.trim()) return true;
+    if (t.startsWith(a) && t.endsWith(b) && NUM_RE.test(t.slice(a.length, t.length - b.length).trim())) return true;
+  }
   return false;
 }
 
@@ -649,6 +658,11 @@ export function createLoopView(K) {
     setTimeout(() => idle(() => { chart.prepare(); }), 400);
   } catch (e) { report('chart.prepare', e); }
   const gallery = createGalleryView({ K, D, loop, report: (w, e) => report(w, e) });   // M1 step 5b: the cabin's gallery (wing I)
+  // Murk's catalogue: the shelf's modal draws this book (its pages, engravings, turns and the order line); every buy is the shelf's own
+  const book = createMurkBook({ K, L, D, TL, h, icon, clamTag, shelfCards, goalLine, mapArtSizes, drawFishInk, reducedMotion, gear,
+    report: (w, e) => report(w, e), sealRow: (...a) => sealRow(...a), buy: (entry, id) => buy(entry, id), wick: () => L('wick'),
+    tutorial: () => tut.isActive(), close: () => backToJetty('shelf'),
+    hasOdds: () => typeof K.screens?.openTackle === 'function' && !!D().AUTOFISH, openOdds: () => K.screens?.openTackle?.({ titleChild: true }) });
 
   // ------------------------------------------------------------------ the HUD on the water: the hold row and the Home pill
   const hudEl = K.layers.hud;
@@ -1100,8 +1114,11 @@ export function createLoopView(K) {
     const opt = isObj(o) ? o : {};
     if (K.has('shelf')) { const e = K.entry('shelf'); if (e) { if (opt.tab) e.state.tab = opt.tab; e.state.focus = opt.focus ?? null; e.state.focused = false; e.render(); } return; }
     const st = { tab: opt.tab ?? null, line: '', focus: opt.focus ?? null, focused: false };
-    K.openModal('shelf', renderShelf, { state: st, cls: 'gw-m-center gw-m-shelf', onEscape: () => backToJetty('shelf'),
+    // Murk's catalogue: the book in place of the cards (the cards are the fallback if the book cannot draw)
+    const renderAny = (entry, body) => { try { book.render(entry, body); } catch (e) { report('book', e); body.innerHTML = ''; renderShelf(entry, body); } };
+    K.openModal('shelf', renderAny, { state: st, cls: 'gw-m-center gw-m-shelf gw-m-book', onEscape: () => backToJetty('shelf'),
       onKey: (code) => {
+        if (book.onKey(code) === true) return true;
         if (!['BracketLeft', 'BracketRight', 'ArrowLeft', 'ArrowRight'].includes(code)) return false;
         const e = K.entry('shelf'); const ids = shelfCards(L('shelf'), { D: D() }).tabs.map((t) => t.id);
         if (!e || ids.length < 2) return false;
@@ -1562,6 +1579,7 @@ export function createLoopView(K) {
   }
 
   return {
+    murkBook: book,   // Murk's catalogue: debug() (its layout, page, chapters), go(page), pageOf(focus)
     update, handleKey, openJetty, openTally, openShelf, openChart, openHomePause, paintHold,
     /** M1 step 3a: the list Chart, the bait slot (its own piece, for either Chart's foot), the next water's seals as buttons */
     renderChartList, baitSlot, placeBaitSlot, sealRow,

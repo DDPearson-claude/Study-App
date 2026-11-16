@@ -48,7 +48,7 @@ export default async function (api) {
     K.step('4 look: the gear log at the shelf');
     K.need(await K.tap('[data-modal=jetty] [data-tile=murk]'), 'the shelf');
     await K.settle(400);
-    await g(() => document.querySelector('.gw-shelf-odds')?.scrollIntoView({ block: 'center' }));   // (under Tackle's seven cards)
+    await K.tap('[data-loop=shelf] [role=tab]', await g(() => window.__gw.data.TEXT_LOOP.odds)); await K.settle(700);   // (Murk's catalogue: the gear log's page, the book's last)
     await K.settle(300);
     const odds = await K.tap('.gw-shelf-odds');
     K.check(!!odds, 'the Tackle tab\'s Odds › opens the gear log');
