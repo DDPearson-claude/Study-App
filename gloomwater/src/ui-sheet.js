@@ -248,7 +248,7 @@ const CSS = `
 .gw-sh-art { grid-row: span 6; width: 120px; height: 90px; display: flex; align-items: center; justify-content: center; }
 .gw-sh-art .cat-eng { width: 120px; height: 90px; color: var(--cat-ink); }
 .gw-sh-pname { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font: 400 19px/1.1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--cat-ink); }
-.gw-sh-pname b { font-weight: 400; overflow-wrap: break-word; min-width: 0; }
+.gw-sh-pname b { font-weight: 400; min-width: 0; }
 .gw-sh-line { font: 400 17px/1.3 var(--f-body); color: var(--cat-ink); }
 .gw-sh-next { font: 400 17px/1.3 var(--f-body); color: var(--cat-ink-2); }
 .gw-sh-next .gw-sh-price { color: var(--cat-amber); font-weight: 700; font-variant-numeric: lining-nums tabular-nums; }
@@ -282,7 +282,7 @@ const CSS = `
 .gw-sh-ticks .gw-chalk-tick path { stroke: var(--cat-ink); stroke-width: 2; fill: none; }
 .gw-sh-dots { display: inline-flex; gap: 3px; align-items: center; } .gw-sh-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--cat-ink); display: block; }
 .gw-sh-tin { display: inline-flex; align-items: center; gap: 3px; } .gw-sh-tin .gw-ico { width: 20px; height: 20px; }
-.gw-sh-night .gw-ico { width: 18px; height: 18px; vertical-align: -3px; margin-right: 3px; }
+.gw-sh-night { display: inline-flex; vertical-align: -3px; } .gw-sh-night .gw-ico { display: inline-block; width: 18px; height: 18px; margin-right: 3px; }
 .gw-sh-drop { display: inline-block; width: 9px; height: 12px; vertical-align: 1px; } .gw-sh-drop path { fill: var(--sh-pink); }
 .gw-sh-small { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 0 18px; }
 .gw-sh-small .gw-sh-plate { grid-template-columns: 72px 1fr; border-top: 1px solid rgba(38, 29, 44, .22); }
@@ -338,8 +338,9 @@ const CSS = `
 .gw-sheet[data-layout=phone] .gw-sh-plate { grid-template-columns: 56px 1fr; gap: 0 10px; padding: 6px 0; cursor: pointer; }
 .gw-sheet[data-layout=phone] .gw-sh-art, .gw-sheet[data-layout=phone] .gw-sh-art .cat-eng { width: 56px; height: 56px; }
 .gw-sheet[data-layout=phone] .gw-sh-art { grid-row: span 1; }
-.gw-sheet[data-layout=phone] .gw-sh-fold { display: flex; align-items: center; gap: 8px; min-height: 56px; min-width: 0; }
-.gw-sheet[data-layout=phone] .gw-sh-fold .gw-sh-pname { flex: 1 1 auto; min-width: 0; font-size: 17px; }
+.gw-sheet[data-layout=phone] .gw-sh-fold { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; min-height: 56px; min-width: 0; }
+.gw-sheet[data-layout=phone] .gw-sh-fold .gw-sh-pname { flex: 1 1 9em; min-width: 0; font-size: 17px; letter-spacing: .06em; }
+.gw-sheet[data-layout=phone] .gw-sh-fold .gw-sh-fig { margin-left: auto; }   /* (a name keeps its words whole: the figure drops below it when they do not fit beside) */
 .gw-sheet[data-layout=phone] .gw-sh-fig { flex: none; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; font: 600 17px/1 var(--f-body); font-variant-numeric: tabular-nums; }
 .gw-sheet[data-layout=phone] .gw-sh-plate:not(.gw-open) .gw-sh-more { display: none; }
 .gw-sheet[data-layout=phone] .gw-sh-plate.gw-open .gw-sh-more { grid-column: 1 / -1; }

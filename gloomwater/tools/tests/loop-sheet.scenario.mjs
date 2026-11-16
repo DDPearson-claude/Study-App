@@ -287,6 +287,7 @@ export default async function (api) {
     if (!(e instanceof Abort)) K.check(false, `the scenario threw: ${String(e?.stack || e).slice(0, 400)}`);
   }
   await K.noErrors('the sheet');
+  await K.release().catch(() => {});   // (the frames let go, so the playtest's own summary can count them)
   log('SHEET', JSON.stringify({ size: `${width}x${height}`, failures: K.failures, notes: K.notes }));
   return { failures: K.failures };
 }
