@@ -478,17 +478,17 @@ void main() {
   // >>> WC-3: the drop-off's shade. Along the shelf's lip (depth 0.35-0.45) the pale margins end on a soft line and the mid water
   // beyond reads a little deeper; at the Bell Pool's rim (6-12 m from her bell) the pale lip falls to ink
   vec4 wcTex = vec4(0.0);
-  float wcRim = 0.0;
+  float wcRim = 0.0, wcPale = 0.0, wcLip = 0.0;
   if (uWc > 0.5) {
     if (uDepthOn > 0.5) {
       wcTex = texture2D(uDepthTex, xz * uDepthScale + 0.5);
       float lipN = (wNoise(xz * 0.31 + 4.7) - 0.5) * 0.06;
-      float lip = 1.0 - smoothstep(0.33 + lipN, 0.47 + lipN, wcTex.r);
-      shallow = mix(shallow * 0.8, max(shallow, 0.64), lip);
+      wcLip = 1.0 - smoothstep(0.33 + lipN, 0.47 + lipN, wcTex.r);
+      shallow = mix(shallow * 0.8, max(shallow, 0.64), wcLip);
     }
     float rd = length(xz - vec2(-4.0, -14.0)) + (wNoise(xz * 0.55 + 1.3) - 0.5) * 1.5;
     wcRim = 1.0 - smoothstep(6.2, 8.2, rd);
-    float wcPale = smoothstep(6.8, 8.4, rd) * (1.0 - smoothstep(9.5, 12.5, rd));
+    wcPale = smoothstep(6.8, 8.4, rd) * (1.0 - smoothstep(9.5, 12.5, rd));
     shallow = shallow * (1.0 - 0.92 * wcRim) + wcPale * 0.2;
   }
   // <<< WC-3
@@ -660,7 +660,8 @@ void main() {
         th = exp(-ac * ac / 0.09) + 0.55 * exp(-(ac - 1.3) * (ac - 1.3) / 0.05) + 0.4 * exp(-(ac + 1.15) * (ac + 1.15) / 0.045);
         th *= 0.25 + 0.75 * smoothstep(0.32, 0.66, wNoise(vec2(xz.x * 0.85 + uTime * 0.8, xz.y * 2.3)));
       }
-      foam += th * wcTex.b * 0.6;
+      foam += th * wcTex.b * 0.75;
+      lines += th * wcTex.b * 0.45;   // (the threads catch the sky as pale strokes)
     }
     if (uLane.w > 0.001) {
       vec2 ld = vec2(cos(uLane.z), sin(uLane.z));
@@ -673,7 +674,8 @@ void main() {
       float sc = (ac - 2.0) / 0.2;
       float scum = exp(-sc * sc) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0) * (0.3 + 0.7 * smoothstep(0.3, 0.7, wNoise(vec2(along * 0.85, across * 2.5))));
       g -= gChop * wcSlick * 0.85;
-      foam += scum * 0.3;
+      foam += scum * 0.4;
+      lines += scum * 0.35;
     }
   }
   // <<< WC-3
@@ -779,6 +781,9 @@ void main() {
   // blob or a ring
   vec3 Ng = normalize(vec3(N.x - gFine.x * 1.5, N.y, N.z - gFine.y * 1.5));
   float spark = smoothstep(0.3, 0.6, wNoise(xz * 1.7 + vec2(uTime * 0.45, -uTime * 0.3)) * (0.6 + 0.8 * wNoise(xz * 0.6 - vec2(uTime * 0.12, 0.0) + 9.0))) * fineK;
+#ifdef GW_WC
+  spark *= 1.0 - 0.9 * wcSlick;   // (WC-3: the slick has no ripples to glitter)
+#endif
   // swell crests catch the key light: thin pale strokes on the faces turned to the eye (never in cast shadow)
   float crest = smoothstep(0.62, 0.88, wNoise(xz * vec2(0.35, 0.9) + vGradH.z * 6.0 + uTime * 0.05));
   col += sheen * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.22 * near * wsh;
@@ -815,7 +820,11 @@ void main() {
 #endif
 #endif
 #ifdef GW_WC
-  col += sheen * wcSlick * 0.08;             // (WC-3: the wind lane's slick, a faint sheen where the ripple dies)
+  col += sheen * wcSlick * 0.2;              // (WC-3: the wind lane's slick, a sheen where the ripple dies)
+  // (WC-3: the drop-off's shade on what the eye sees, the mirror included: the Bell Pool's ink below its pale lip, and the margins
+  // a breath paler than the mid water beyond the shelf's lip)
+  col = mix(col, col * 0.42, wcRim * 0.62 * uWc);
+  col += (uShallow * 0.1 + sheen * 0.05) * (wcPale + wcLip * 0.5) * uWc;
 #endif
 
   // ---- lights: warm pools and dashed vertical streaks
@@ -932,6 +941,9 @@ void main() {
     float gd = length(fract(gc) - gp);
     float tw = pow(max(0.0, sin(uTime * (0.5 + gr * 1.5) + gr * 40.0)), 8.0);
     float gl = (1.0 - smoothstep(0.0, 0.06, gd)) * tw * near * 1.6;
+#ifdef GW_WC
+    gl *= 1.0 - wcSlick;
+#endif
     float pl = dot(pool, vec3(0.333));
     vec3 gcol = mix(uStarCol, uGlow, 0.35) * 0.55;   // star-like glints (never a Cinder's amber)
     col += mix(gcol, pool * 6.0 + uGlow * 0.2, clamp(pl * 4.0, 0.0, 1.0)) * gl;

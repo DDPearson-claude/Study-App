@@ -188,7 +188,7 @@ section('the water: GW_WC only in a loop build, RGBA only there, the masks only 
   ok(/#ifdef GW_WC[\s\S]*mix\(vec3\(0\.95, 0\.8, 0\.52\), uFoam, uWc\)/.test(WATER_FRAG), 'the Glowtide\'s gold glints water-white on the Mossmere (GW_WC)');
   const wsrc = src('water.js');
   ok((wsrc.match(/c\.copy\(wcWhite\(\) \? U\.uFoam\.value : GLOW_GOLD\)/g) || []).length === 2 && !/c\.copy\(GLOW_GOLD\)/.test(wsrc), 'water.js\'s gold droplets (emitDrops, slapDrops) water-white there');
-  ok(/#ifdef GW_WC[\s\S]*smoothstep\(6\.2, 8\.2, rd\)[\s\S]*#endif/.test(WATER_FRAG) && /lip = 1\.0 - smoothstep\(0\.33/.test(WATER_FRAG), 'the drop-off\'s shade: the Bell Pool\'s rim and the shelf\'s lip in the depth tint');
+  ok(/#ifdef GW_WC[\s\S]*smoothstep\(6\.2, 8\.2, rd\)[\s\S]*#endif/.test(WATER_FRAG) && /wcLip = 1\.0 - smoothstep\(0\.33/.test(WATER_FRAG), 'the drop-off\'s shade: the Bell Pool\'s rim and the shelf\'s lip in the depth tint');
   const low = WATER_FRAG.split('#ifndef GW_LOW');
   ok(/wcSlick = /.test(WATER_FRAG) && /th \* wcTex\.b/.test(WATER_FRAG) && !low.slice(1).some((part) => /wcSlick = |th \* wcTex\.b|wcRim = /.test(part.split('#endif')[0])), 'the low tier keeps the rim, the seam and the lane (only the fan\'s speckle drops)');
 }

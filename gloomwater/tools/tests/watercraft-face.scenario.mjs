@@ -30,7 +30,7 @@ export default async function (api) {
     await settle(1.2);
     await cam([12, 11, 2], [-4, 0, -14], 52); await settle(0.8);
     await K.shoot('rim-dusk');
-    await cam([36, 7.5, 13], [53, 0, 3], 54); await settle(0.8);
+    await cam([39, 5.5, 10], [52, 0, 3.5], 50); await settle(0.8);
     await K.shoot('seam-fan-dusk');
     await cam([10, 9, -33], [0, 0, -47], 52); await settle(0.8);
     await K.shoot('outflow-dusk');
