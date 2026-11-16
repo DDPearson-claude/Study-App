@@ -1720,6 +1720,14 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
     the anchor's plop spread a ring round the raft as the first cast charged. Under the loop's trip: no range ring, no band
     word, the reticle only from 5.5 m out (inked in by 7.5 m; nearer, the cast arc alone), the plop's drops with no ring,
     and a fish's ring in the play that would grow over the raft keeps its spray only. Off the loop as built.
+50. (the stage's review; for the lead) **`LOOP.time` is only partly measured** (T37, SPEC §13). The stage wrote the measured
+    `home` (2 s) and `sale` (5.8 s, a three-fish tally); `out` stays 14 (the measured glide is 3 s; the Chart and Sail took no
+    game time under the harness) and `shop` 16 (the harness cannot time a person at the shelf). The sim charges the sale flat,
+    so a hold of 6–8 is under-charged (about 9.5 s at the tally's own pace). To keep the map hours, Sporewood's lake price went
+    2,000 → 2,600 (lane A's knob). The lead rules on `out`, `shop`, a sale that scales with the hold, and the price.
+51. (the stage's review; for the lead) **A stranded trip sold by the flag-off boot pays no Wick bonus** (`sellStrandedTrip`
+    through `tallyBook` without `saleOf`), while the tally does (the Wick's ×1.4 for a kept first). Rare, and nothing shown is
+    taken away; the lead rules whether the bonus applies there too.
 
 ### 7.1 For the lead to confirm first, and for the user
 
