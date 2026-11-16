@@ -274,7 +274,8 @@ function liftEnv({ own = ['lily_maze', 'bell_pool'], lifted = [], reduced = fals
     placeAnchor: (id) => ({ ...D.loopPlace(id).landmark }),
     setPlaces: (p) => { C.push(`setPlaces:${p.owned.join('+')}|${p.lifted.join('+')}`); },
   });
-  E.ctx.render = { frameLandmark: (p, o = {}) => { C.push(`frame:${p ? `${p.x},${p.z}` : 'null'}:${o.dur ?? '-'}:${o.back ?? '-'}`); return true; } };
+  E.ctx.render = { frameLandmark: (p, o = {}) => { C.push(`frame:${p ? `${p.x},${p.z}` : 'null'}:${o.dur ?? '-'}:${o.back ?? '-'}`); if (p) E.framed.push({ ...p }); return true; } };
+  E.framed = [];
   if (reduced) E.ctx.state.meta.settings = { ...(E.ctx.state.meta.settings || {}), reducedMotion: true };
   /** the lift's clock: n seconds of main's frame at dt (and the fake world's events at their times) */
   E.run = (sec, dt = 1 / 30) => { const n = Math.round(sec / dt); for (let i = 0; i < n; i++) { E.ctx.time = { t: (E.ctx.time?.t || 0) + dt }; E.H.update(dt); } };
@@ -340,10 +341,22 @@ section('M1 step 3a: the lift at a trip\'s start (T128)');
   const N = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
   N.H.sail({ water: 'mossmere' }); await N.step(3.2);
   ok(N.lifts().length === 0 && N.ctx.cinematic === false && N.calls.some((c) => c === 'setPlaces:lily_maze|lily_maze'), 'T128: a place already lifted never lifts again (its dressing lit from run:start)');
-  // a Continue's run:start syncs the places and plays no lift (PLAN §2.2 item 5: at run:start, not continued)
+  // the anchor's radius, a path's broadside and a place's own crane reach the shot (the stage's bcb76be dropped none of them again: the
+  // Span was filmed down its length behind its first pier when loop-home passed only x, y, z)
+  const A2 = liftEnv({ own: ['under_the_span', 'bell_pool'] });
+  A2.ctx.world.placeAnchor = (id) => (id === 'under_the_span' ? { x: -29.5, y: 1.8, z: 0.5, r: 14.5, face: [-0.39, 0.92] } : { x: -3.4, y: 0, z: -15.9, r: 6, side: [0.93, 0.37], elev: 46, dist: 10.5 });
+  A2.H.sail({ water: 'mossmere' }); await A2.step(3.2); A2.run(4.4); A2.run(4.6);
+  const fs = Object.fromEntries(A2.framed.map((p) => [p.x, p]));
+  eq(fs[-29.5], { x: -29.5, y: 1.8, z: 0.5, r: 14.5, face: [-0.39, 0.92] }, 'T128: Under the Span\'s anchor reaches the shot whole (its radius and its broadside)');
+  eq(fs[-3.4], { x: -3.4, y: 0, z: -15.9, r: 6, side: [0.93, 0.37], elev: 46, dist: 10.5 }, 'T128: the Bell Pool\'s crane reaches the shot (its side, elevation and distance)');
+  // a Continue's run:start syncs the places; it replays only a lift the page closed on (owned, not lifted: PLAN CHOICE 8's "a reload
+  // mid-lift replays it"), and plays none when every owned place is lifted
   const Q = liftEnv({ own: ['buoy_lights'] }); Q.ctx.flow = 'playing'; Q.ctx.state.run = Q.loop.createTrip({});
   Q.bus = Q.ctx.bus; Q.ctx.bus.emit('run:start', { continued: true });
-  ok(Q.lifts().length === 0 && Q.calls.some((c) => c === 'setPlaces:buoy_lights|'), 'a Continue: the places synced, no lift');
+  ok(Q.lifts().includes('buoy_lights:start') && Q.calls.some((c) => c === 'setPlaces:buoy_lights|'), 'a Continue after a reload mid-lift: the places synced and the cut-short lift replayed', Q.lifts());
+  const Q2 = liftEnv({ own: ['buoy_lights'], lifted: ['buoy_lights'] }); Q2.ctx.flow = 'playing'; Q2.ctx.state.run = Q2.loop.createTrip({});
+  Q2.ctx.bus.emit('run:start', { continued: true });
+  ok(Q2.lifts().length === 0 && Q2.ctx.cinematic === false && Q2.calls.some((c) => c === 'setPlaces:buoy_lights|buoy_lights'), 'a Continue with every owned place lifted: the places synced, no lift');
   // home:enter and a buy sync the places too
   const H2 = liftEnv({ own: [] });
   H2.ctx.bus.emit('home:enter', { from: 'title' }); H2.loop.s.maps.places.push('lily_maze'); H2.ctx.bus.emit('loop:buy', { item: 'place:lily_maze', price: 60, clams: 0 });

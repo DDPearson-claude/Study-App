@@ -6,6 +6,7 @@
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-cat/dev.html --shots=tools/out/mvp-cat/desktop --script=tools/tests/murk-catalogue-look.scenario.mjs --width=960 --height=540
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-cat/dev.html --shots=tools/out/mvp-cat/phone --script=tools/tests/murk-catalogue-look.scenario.mjs --mobile
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-cat/dev.html --shots=tools/out/mvp-cat/land --script=tools/tests/murk-catalogue-look.scenario.mjs --mobile --width=844 --height=390
+//   (and --mobile --width=667 --height=375: a smaller phone turned to landscape, the narrow low spread)
 // Then every spread at that size is walked and audited (names never cut, the engravings large, the ribbon and the running head clear).
 // Prints `MURK_CAT {size, failures, notes}`; returns its failures.
 import { makeKit, Abort } from './loop-1a.scenario.mjs';
@@ -15,6 +16,18 @@ export default async function (api) {
   page.setDefaultTimeout(300000);
   const K = makeKit(api, { label: 'cat' });
   const book = () => g(() => window.__gw.ui?.loop?.murkBook?.debug?.() ?? null);
+  // the Murk target on the home view: placed each frame from the barge's projected bounds, so it can be hidden for a few frames while
+  // the camera settles (a busy machine draws slowly); waited for in game time, its layout noted when it never shows
+  const tapMurk = async () => {
+    for (let i = 0; i < 24; i++) {
+      const b = await K.tap('[data-modal=jetty] [data-tile=murk]');
+      if (b) return b;
+      await K.secs(0.4); await K.settle(150);
+    }
+    K.note('the Murk target never showed', await g(() => ({ modal: window.__gw.debug.ui().openModal, tiles: [...document.querySelectorAll('[data-modal=jetty] [data-tile]')].map((e) => ({ id: e.dataset.tile, vis: getComputedStyle(e).visibility, op: getComputedStyle(e).opacity, r: [e.getBoundingClientRect().left, e.getBoundingClientRect().top, e.getBoundingClientRect().width].map(Math.round) })) })));
+    await K.shoot('cat-no-murk');
+    return null;
+  };
   try {
     K.step('cat: a save past the tutorial, clams to spend, home');
     await K.load({ fresh: true });
@@ -30,7 +43,7 @@ export default async function (api) {
     await K.settle(400);
 
     K.step('cat: the book opens at the goal');
-    K.need(await K.tap('[data-modal=jetty] [data-tile=murk]'), 'the Murk target');
+    K.need(await tapMurk(), 'the Murk target');
     K.need((await K.until("c.debug.ui().openModal === 'shelf'", 4)).ok, 'the shelf (the book) is open');
     await K.settle(700);
     let b = await book();
@@ -114,6 +127,52 @@ export default async function (api) {
     await K.shoot('cat-home');
     await K.scan('the book: home');
 
+    // Murk speaks (the review of integration B: on a low spread his line sits in the side column, over the purse and the order line, and
+    // was never shown): clams to spend, the book opened again, the first place map bought ("It's in the mist. Go and look."), then
+    // another item marked so the order line stands under his line; the line, the purse and the order line apart and on the screen
+    K.step('cat: Murk speaks beside the book');
+    await K.key('Escape'); await K.settle(400);
+    await g(() => window.__gw.debug.loop.giveClams(600));
+    K.need(await tapMurk(), 'the Murk target again');
+    K.need((await K.until("c.debug.ui().openModal === 'shelf'", 4)).ok, 'the book is open again');
+    await K.settle(700);
+    K.check(!!(await K.tap('[data-loop=shelf] [role=tab]', TL.tabs.maps)), 'the fore-edge tab Maps');
+    await page.waitForTimeout(650);
+    const mapId = await g(() => [...document.querySelectorAll('[data-loop=shelf] .gw-plate--map:not(.gw-bought):not(.gw-dear)')].find(window.__lp.visible)?.dataset.item ?? null);
+    const mb = mapId ? await K.buyBox(mapId, TL.tabs.maps) : null;
+    K.need(mb && !mb.disabled, 'a place map to buy and its order line', { mapId, mb });
+    await K.tapXY(mb.x, mb.y);
+    await K.steps(3); await K.settle(800);
+    const said = await g(() => { const e = document.querySelector('[data-loop=shelf] .gw-murk-line'); return e ? { t: e.textContent.trim(), o: +getComputedStyle(e).opacity } : null; });
+    K.check(!!said?.t && said.o > 0.9, "Murk's line shows when the first map is bought", said);
+    for (let i = 0; i < 8; i++) {
+      const hitBox = await g(() => { const e = [...document.querySelectorAll('[data-loop=shelf] .gw-mb-slot .gw-plate:not(.gw-bought):not(.gw-dear):not(.gw-plate--sealed) .gw-plate-hit')].find(window.__lp.visible); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+      if (hitBox) { await K.tapXY(hitBox.x, hitBox.y); await K.steps(1); await K.settle(350); break; }
+      await K.key('ArrowRight'); await K.settle(650);
+    }
+    const side = await g(() => {
+      const q = (s) => [...document.querySelectorAll(`[data-loop=shelf] ${s}`)].find(window.__lp.visible);
+      const els = { line: q('.gw-murk-line'), purse: q('[data-purse]'), buy: q('[data-buy]') }, out = { missing: [], off: [], over: [], boxes: {} };
+      const R = {};
+      for (const [k, e] of Object.entries(els)) {
+        if (!e) { out.missing.push(k); continue; }
+        // (the line's own words, not its box: a wrapped line is as tall as its words)
+        const rg = document.createRange(); rg.selectNodeContents(e);
+        const r = k === 'line' && e.textContent.trim() ? rg.getBoundingClientRect() : e.getBoundingClientRect();
+        R[k] = r; out.boxes[k] = [r.left, r.top, r.right, r.bottom].map(Math.round);
+        if (r.left < -0.5 || r.top < -0.5 || r.right > innerWidth + 0.5 || r.bottom > innerHeight + 0.5) out.off.push(k);
+      }
+      const ks = Object.keys(R), hit = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+      for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) if (hit(R[ks[i]], R[ks[j]])) out.over.push(`${ks[i]} × ${ks[j]}`);
+      const pg = [...document.querySelectorAll('[data-loop=shelf] .gw-mb-slot, [data-loop=shelf] .gw-book-tab')].filter(window.__lp.visible).map((e) => e.getBoundingClientRect());
+      for (const k of ks) if (pg.some((p) => hit(p, R[k]))) out.over.push(`${k} × the book`);
+      return out;
+    });
+    K.check(side.missing.length === 0, "Murk's line, the purse and the order line all shown", side);
+    K.check(side.off.length === 0, "Murk's line, the purse and the order line on the screen", side);
+    K.check(side.over.length === 0, "Murk's line, the purse and the order line apart (and off the pages and the tabs)", side);
+    await K.shoot('cat-murk-line');
+
     // every spread at this size (the integration's review, 16 Nov: at 960 x 540 the engravings shrank to 40-60 px, tier numerals ran
     // into names, map kickers were cut with an ellipsis, the ribbon cut the chapter head; a phone's running head sat on the corner):
     // no name, kicker or place cut; no numeral on a name; the ribbon on no letter; the running head clear of the corners; an item's
@@ -122,18 +181,64 @@ export default async function (api) {
     K.step('cat: every spread');
     b = await book();
     const leaf = b.layout === 'desktop' ? 2 : 1, openings = new Set(b.chapters.map((c) => Math.floor(c.page / leaf) * leaf));
-    const bad = { cut: [], num: [], ribbon: [], head: [], art: [], spill: [], small: [], fit: [] };
+    const bad = { cut: [], num: [], ribbon: [], head: [], art: [], spill: [], small: [], fit: [], stamp: [] }, inkMin = { h: 1e9, k: 1e9, at: '' };
     for (let p = 0; p < b.count; p += leaf) {
       await g((p) => window.__gw.ui.loop.murkBook.go(p), p);
       await page.waitForTimeout(650);
       const a = await g(() => {
         const root = document.querySelector('[data-loop=shelf]'), vis = window.__lp.visible, R = (e) => e.getBoundingClientRect();
         const hit = (x, y) => x.left < y.right - 0.5 && y.left < x.right - 0.5 && x.top < y.bottom - 0.5 && y.top < x.bottom - 0.5;
-        const o = { cut: [], num: [], ribbon: [], head: [], art: [], spill: [], small: [], fit: [] };
+        const o = { cut: [], num: [], ribbon: [], head: [], art: [], spill: [], small: [], fit: [], stamp: [], ink: [] };
+        // the drawn ink of an engraving: its <svg>'s getBBox (the strokes, not the grid cell it sits in) mapped through the screen CTM
+        const inkOf = (svg) => {
+          try {
+            const bb = svg.getBBox(), m = svg.getScreenCTM();
+            if (!m || !(bb.width > 0)) return null;
+            const pts = [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]].map(([x, y]) => ({ x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f }));
+            const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y), A = R(svg);
+            // (the drawing is clipped by its box: the ink shown is the part inside it)
+            const left = Math.max(Math.min(...xs), A.left), right = Math.min(Math.max(...xs), A.right), top = Math.max(Math.min(...ys), A.top), bottom = Math.min(Math.max(...ys), A.bottom);
+            return { left, right, top, bottom, width: Math.max(0, right - left), height: Math.max(0, bottom - top) };
+          } catch { return null; }
+        };
+        // the words' own boxes (a line each), and a rotated stamp's quad against them (separating axes: the quad's two and the box's two)
+        const wordRects = (e) => { const r = document.createRange(); r.selectNodeContents(e); return [...r.getClientRects()].filter((q) => q.width > 1 && q.height > 1); };
+        const quadOf = (e) => {
+          const A = R(e), cx = (A.left + A.right) / 2, cy = (A.top + A.bottom) / 2, w = e.offsetWidth / 2, h = e.offsetHeight / 2;
+          const mt = getComputedStyle(e).transform, M = mt && mt !== 'none' ? new DOMMatrix(mt) : new DOMMatrix(), ang = Math.atan2(M.b, M.a), c = Math.cos(ang), s = Math.sin(ang);
+          return [[-w, -h], [w, -h], [w, h], [-w, h]].map(([x, y]) => ({ x: cx + x * c - y * s, y: cy + x * s + y * c }));
+        };
+        const quadHits = (Q, T) => {
+          const P = [{ x: T.left, y: T.top }, { x: T.right, y: T.top }, { x: T.right, y: T.bottom }, { x: T.left, y: T.bottom }];
+          for (const [a, b] of [[Q[0], Q[1]], [Q[1], Q[2]], [{ x: 0, y: 0 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }]]) {
+            const nx = -(b.y - a.y), ny = b.x - a.x, pr = (L) => L.map((q) => q.x * nx + q.y * ny);
+            const q = pr(Q), t = pr(P);
+            if (Math.max(...q) <= Math.min(...t) + 0.5 || Math.max(...t) <= Math.min(...q) + 0.5) return false;
+          }
+          return true;
+        };
         for (const e of root.querySelectorAll('.gw-mb-slot .gw-plate-kick, .gw-mb-slot .gw-plate-name')) if (vis(e) && (e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1)) o.cut.push(e.textContent.trim());
         for (const pl of root.querySelectorAll('.gw-mb-slot .gw-plate')) {
           const P = R(pl), art = pl.querySelector('.gw-plate-art'), n = pl.querySelector('.gw-plate-num');
-          if (art && !pl.matches('.gw-plate--map, .gw-plate--sealed')) { const A = R(art), k = (A.width * A.height) / Math.max(1, P.width * P.height); if (k < 0.33) o.art.push(`${pl.dataset.item} ${k.toFixed(2)}`); }
+          const svg = art?.querySelector('svg.cat-eng'), ink = svg && vis(pl) ? inkOf(svg) : null;
+          // (the review of integration B: the old check measured the .gw-plate-art cell, so 40-60 px drawings passed): the drawn ink is
+          // a third of its plate's area, or at least 90 px tall (at 960 x 540 a half-page row's plate is about 140 px), or a wide
+          // drawing (a keel, a rod) 120 px along its longer side; on a screen under 540 px tall the two bars scale with its height
+          if (art && !pl.matches('.gw-plate--map, .gw-plate--sealed') && vis(pl)) {
+            if (!ink) o.art.push(`${pl.dataset.item} no ink`);
+            else {
+              const k = (ink.width * ink.height) / Math.max(1, P.width * P.height);
+              o.ink.push({ id: pl.dataset.item, h: Math.round(ink.height), k: +k.toFixed(2) });
+              const sc = Math.min(1, innerHeight / 540);   // (the bars scale down on a screen under 540 px tall: 62 and 83 px at 375)
+              if (k < 1 / 3 && ink.height < Math.min(90 * sc, P.height * 0.62) && Math.max(ink.width, ink.height) < 120 * sc) o.art.push(`${pl.dataset.item} ink ${Math.round(ink.width)}x${Math.round(ink.height)} (${k.toFixed(2)} of the plate)`);
+            }
+          }
+          if (n && ink && vis(n) && hit(R(n), ink)) o.num.push(`${pl.dataset.item}: ${n.textContent} × its drawing`);
+          for (const st of pl.querySelectorAll('.gw-mb-stamp')) {
+            if (!vis(st)) continue;
+            const Q = quadOf(st);
+            for (const t of pl.querySelectorAll('.gw-plate-kick, .gw-plate-name, .gw-plate-line, .gw-plate-price')) if (vis(t) && wordRects(t).some((T) => quadHits(Q, T))) o.stamp.push(`${pl.dataset.item}: ${st.textContent.trim()} × ${t.textContent.trim().slice(0, 24)}`);
+          }
           for (const t of pl.querySelectorAll('.gw-plate-kick, .gw-plate-name, .gw-plate-line, .gw-plate-low')) {
             if (!vis(t)) continue;
             const T = R(t);
@@ -148,13 +253,16 @@ export default async function (api) {
         return o;
       });
       for (const k of Object.keys(bad)) for (const x of a[k]) bad[k].push(`p${p}: ${x}`);
+      for (const x of a.ink) if (x.h < inkMin.h) Object.assign(inkMin, { h: x.h, k: x.k, at: `p${p} ${x.id}` });
       if (openings.has(p)) { const d = await book(); await K.shoot(`cat-spread-${d.pages[Math.min(p + leaf - 1, d.count - 1)]?.chapter || d.pages[p]?.kind || p}`); }
     }
     K.check(bad.cut.length === 0, 'every spread: no name, kicker or place is cut', bad.cut);
-    K.check(bad.num.length === 0, 'every spread: no tier numeral on a name or a kicker', bad.num);
+    K.check(bad.num.length === 0, 'every spread: no tier numeral on a name, a kicker or its drawing', bad.num);
     K.check(bad.ribbon.length === 0, 'every spread: the ribbon covers no letter of a head', bad.ribbon);
     K.check(bad.head.length === 0, 'every spread: the running head clear of the corner ornaments', bad.head);
-    K.check(bad.art.length === 0, 'every spread: an item\'s engraving is a third of its plate or more', bad.art);
+    K.check(bad.art.length === 0, 'every spread: an item\'s drawn ink is a third of its plate, 90 px tall, or 120 px along its longer side', bad.art);
+    K.note?.(`the smallest drawing: ${inkMin.h} px tall (${inkMin.k} of its plate, ${inkMin.at})`);
+    K.check(bad.stamp.length === 0, 'every spread: the "Yours." stamp covers none of its plate\'s words', bad.stamp);
     K.check(bad.spill.length === 0, 'every spread: each plate\'s words stay inside it', bad.spill);
     K.check(bad.small.length === 0, 'every spread: every word 16 px or larger', bad.small.slice(0, 8));
     K.check(bad.fit.length === 0, 'every spread: the book, its tabs and its foot on the screen', bad.fit.slice(0, 8));

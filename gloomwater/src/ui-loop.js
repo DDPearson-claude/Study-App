@@ -265,7 +265,7 @@ export function chartNext(meta, D) {
  * M1 step 3a (M1.md §3.8): a water's places on the Chart, in the Chart's order (data.loopPlaceIds: day, old, night, crown), each
  * exactly {id, kind, owned, price, best, giantLanded, marked, wounds}: `price` mapCards' (null unless among Murk's three, null once
  * owned, null in the tutorial); `best` {speciesId, weight} from meta.loop.best's saved length (data.fishWeight: pounds, never a saved
- * weight) or null; `giantLanded` its giant's (or legend's) first landing; `marked` a Marked giant waiting there; `wounds` the legend's
+ * weight) or null; `giantLanded` its giant's (or legend's) first landing, kept or let go (the Journal's caught, or the ledger's sale); `marked` a Marked giant waiting there; `wounds` the legend's
  * (meta.legendWounds, at most LOOP's cap). Pure.
  */
 export function chartPlacesOf(meta, D, waterId, { tutorial = false } = {}) {
@@ -287,7 +287,10 @@ export function chartPlacesOf(meta, D, waterId, { tutorial = false } = {}) {
       if (Number.isFinite(w) && w > 0) best = { speciesId: bsp.id, weight: w };
     }
     const giant = typeof p.giant === 'string' ? p.giant : null, legend = typeof p.legend === 'string' ? p.legend : null;
-    const landed = giant ? num(Number(ml.giants?.[giant]?.landed), 0) > 0 : legend ? num(Number(ml.legends?.[legend]), 0) > 0 : false;
+    // landed = landed at all, kept or let go (M1 §2.4's ★): the Journal's caught (measure() writes it for every landed fish), as the
+    // giants' page and the catalogue read it; the ledger's sale counts (giants[id].landed, legends[id]) only count what was sold
+    const fid = giant || legend, jc = fid ? num(Number(meta?.journal?.[fid]?.caught), 0) > 0 : false;
+    const landed = jc || (giant ? num(Number(ml.giants?.[giant]?.landed), 0) > 0 : legend ? num(Number(ml.legends?.[legend]), 0) > 0 : false);
     // >>> WC-3 (WATERCRAFT §7.2): under the loop the Chart draws no Marked ripple and no wound nick (each would name the fish that got
     // away); the save keeps the mark and the wounds, and their Hold still applies
     const quiet = D?.LOOP_ENABLED === true;
@@ -806,6 +809,7 @@ export function createLoopView(K) {
     const el = h('div', `gw-lift-title${reducedMotion() ? ' gw-rm' : ''}`, `<span class="gw-lift-crest" aria-hidden="true">${ORN.crest}</span><b></b><span class="gw-lift-flourish" aria-hidden="true">${ORN.flourish}</span>`);
     el.querySelector('b').textContent = tc.name;
     el.dataset.loop = 'lifttitle';
+    murkStepAside();
     hudEl.appendChild(el);
     requestAnimationFrame(() => el.classList.add('gw-in'));
     LT.el = el; LT.t = 0; LT.dur = tc.dur;
@@ -820,8 +824,18 @@ export function createLoopView(K) {
   }
 
   // ------------------------------------------------------------------ Murk's lines on the water (one lore toast; never in a bite)
-  function murkToast(line) {
+  // A title card (a lift's, or a legend's name) owns the top of the screen: a Murk line waits until it has faded, and a line already
+  // up steps away when one rises (the two lines of type crowded each other in the discovery beat; the fix pass). titleClash() is the
+  // debug readout's check that the two are never visible together.
+  const murkEls = () => [...(K.layers?.toasts || document).querySelectorAll('.gw-toast--murk')];
+  const shown = (el) => !!el && el.isConnected && !el.classList.contains('gw-out') && !el.classList.contains('gw-held');
+  function legendCardUp() { return [...document.querySelectorAll('.gw-banner--legend')].some(shown); }
+  function titleUp() { return !!LT.el || !!G('lifting') || legendCardUp(); }
+  function titleClash() { return (!!LT.el && shown(LT.el) || legendCardUp()) && murkEls().some(shown); }
+  function murkStepAside() { for (const el of murkEls()) if (shown(el)) { el.classList.remove('gw-in'); el.classList.add('gw-out'); } }
+  function murkToast(line, n = 0) {
     if (!line) return;
+    if (titleUp()) { if (n < 60) setTimeout(() => { if (ctx.flow === 'playing' && onTrip()) murkToast(line, n + 1); }, 400); return; }
     K.toast(line, 'lore', { icon: 'lantern', cls: 'gw-toast--murk gw-toast--loop', dur: 4600 });
   }
   let quietSaid = false;
@@ -1394,6 +1408,9 @@ export function createLoopView(K) {
     const pick = chartPickOf(entry, model);
     const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}${tutorial ? '' : ' gw-p-chart--3a'}` });
     pn.dataset.loop = 'chart';
+    // (a re-render, a pick or a fitted ball, keeps the foot's drawn rule: it draws in once, on the open; the fix pass)
+    if (s.drawnOnce) pn.classList.add('gw-again');
+    s.drawnOnce = true;
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart"></div>`;
     if (line) content.querySelector('.gw-murk-line').textContent = line;
     const list = content.querySelector('.gw-chart');
@@ -1542,8 +1559,7 @@ export function createLoopView(K) {
       const line = L('sayOnce', 'sailOut');
       if (line) {
         // (after any lift: Murk's line never speaks over a place's title card)
-        const say = (n = 0) => { if (ctx.flow !== 'playing' || !onTrip()) return; if (G('lifting') && n < 40) { setTimeout(() => say(n + 1), 500); return; } murkToast(line); };
-        setTimeout(() => say(), 2200);
+        setTimeout(() => { if (ctx.flow === 'playing' && onTrip()) murkToast(line); }, 2200);
       }
     }
   });
@@ -1564,6 +1580,8 @@ export function createLoopView(K) {
     if (p.phase === 'title' && tc.show) showLiftTitle(tc);
     else if (p.phase === 'end' || p.phase === 'start') dropLiftTitle();
   });
+  // a legend's name card (the built banner at her hook): Murk's line steps away for it
+  on('fishing:hook', (p) => { if (onTrip() && p?.legendary === true) murkStepAside(); });
   on('fishing:cast', () => dropTip('castEl'));
   on('fishing:bite', () => {
     if (!onTrip() || TIP.firstBite) return;
@@ -1668,6 +1686,7 @@ export function createLoopView(K) {
       pill: { on: pill.classList.contains('gw-on'), pulse: pill.classList.contains('gw-pulse'), k: P.k, held: !!P.press },
       tips: { cast: !!TIP.castEl, strike: !!TIP.strikeEl },
       liftTitle: LT.el ? { name: LT.el.querySelector('b')?.textContent ?? null, t: LT.t, dur: LT.dur } : null,
+      titleClash: titleClash(),
       chartList: chartListForced,
       targets: TG.last ? { ok: TG.last.ok, faults: TG.last.faults.slice(), items: TG.last.items.map((it) => ({ ...it, box: { ...it.box } })) } : null,
     }),

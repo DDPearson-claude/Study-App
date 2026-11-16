@@ -180,7 +180,7 @@ export async function loopPerf(api) {
     window.__pl = {
       hold(on) { if (on) { held = held || []; return; } if (held) { const q = held; held = null; for (const cb of q) raf(cb); } },
       pump(sec) { let t = c.time.t; for (let i = 0, n = Math.max(1, Math.round(sec / 0.05)); i < n; i++) { t += 0.05; c.time.t = t; c.time.dt = 0.05; for (const name of ['actors', 'models', 'world', 'water', 'render']) { const m = c[name]; if (!m || m.isStub || typeof m.update !== 'function') continue; try { m.update(0.05, t); } catch { /* keep pumping */ } } } },
-      own(lifted) { const m = c.state.meta.loop; m.maps = m.maps || {}; m.maps.places = Object.keys(c.data.LOOP.places); m.lifted = lifted ? m.maps.places.slice() : []; c.world.setPlaces?.({ owned: m.maps.places, lifted: m.lifted }); },
+      own(lifted) { const m = c.state.meta.loop; m.maps = m.maps || {}; m.maps.places = Object.keys(c.data.LOOP.places || {});   /* (M, the baseline's build, has no places: the stage) */ m.lifted = lifted ? m.maps.places.slice() : []; c.world.setPlaces?.({ owned: m.maps.places, lifted: m.lifted }); },
       night() { const r = c.state.run; if (r.phase !== 'gloomtide') c.debug.setPhase?.('gloomtide'); const i = c.survival.getPhaseInfo?.(); if (i && i.duration > 0) r.phaseTime = i.duration * 0.35; },
       measure(N) {
         const R = c.render, rr = R.renderer, gl = rr.getContext(), px = new Uint8Array(4), t = [];

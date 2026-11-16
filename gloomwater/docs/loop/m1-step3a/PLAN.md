@@ -309,7 +309,7 @@ the one known fails of §7.1 and nothing else); the hand-off names each sim figu
 4. **The legend.** Her pool is the owned, lifted Bell Pool's water (PLAN CHOICE 4); with the ball fitted, her hour and a free slot
    (a full hold refuses the cast already), the built sure bite; a non-legend bite with the ball on is a bare-hook bite; her hook
    calls `loop.spendBait`, a pass `refundBait`.
-5. **The lift (main / `loop-home.js`).** At `run:start` (not `continued`), for each `loop.liftDue()` place in turn: `ctx.cinematic`
+5. **The lift (main / `loop-home.js`).** At `run:start` (a Continue replays only a lift the page closed on: §9.2), for each `loop.liftDue()` place in turn: `ctx.cinematic`
    on, `place:lift {placeId, phase: 'start', name}`, `world.liftMist(id, LOOP.lift.thin)`, `render.frameLandmark(landmark, {dur})`;
    at 3 s `{phase: 'title'}`; at 4.2 s `{phase: 'end'}`, `markLifted`, the camera back (0.6 s), `cinematic` off. A tap or a skip key
    ends the running lift; reduced motion skips the thinning. `world.setPlaces({lifted})` at `run:start`, `home:enter` and after a
@@ -682,8 +682,9 @@ Thousandcast's show with their sound, `show-sheet.mjs --video`).
    from there; open water keeps 1a's authored path. The sim already charges the sail between waters (`LOOP.time.between`).
 8. **The lift plays at the trip's start**, after the glide out, for each owned place not yet lifted, in price order, one after another
    (≤ 4.2 s each, a tap ends one); the evening's clock stands still (`ctx.cinematic`, as in the show); `lifted` is written at its end,
-   so a reload mid-lift replays it. "On the first evening there" is read as the first evening on its water, since a trip is the whole
-   water (SPEC §5.1 rule 10).
+   so a reload mid-lift replays it (on the Continue itself: a place left owned and not lifted plays its lift at the Continue's
+   `run:start`, §9.2; before, it stood in mist all evening). "On the first evening there" is read as the first evening on its water,
+   since a trip is the whole water (SPEC §5.1 rule 10).
 9. **The dressing is built for all four places from the first evening**, under their banks, with its emissive terms (the caps, the
    glow decals, the buds, the bell's glint) off until the lift; the banks are one merged mesh. The landmark's "dark shape" is the
    dressing seen through the bank, the lift reveals it without a pop, and the draw calls never depend on what is owned.
@@ -731,7 +732,9 @@ Thousandcast's show with their sound, `show-sheet.mjs --video`).
     the Thousandcast; the sim's `poolFor` gave none (its hours filter ran before its giant branch). S fixes the sim to SPEC rather
     than the game to the sim: a giant at its place always reaches the giant branch. The M1 gate's runs do not move (M's trial);
     the full game's `--quick` and `--wicks` do, after M1 (four fails and one, the facts above), which are the balancing job's to
-    re-tune.
+    re-tune. **As built (the fix pass, §9.2): the PLAN's other way**, with no ruling: the fix is scoped to the shipped waters
+    (`data.LOOP.shipped` and every water before it in the unlock order), so the Mossmere's giant has its day share, the shipped runs
+    are byte-identical, and `--quick` stays green; the later waters keep the hours-first rule until the balancing job re-tunes them.
 28. **The bait slot is C's own piece on either Chart** (M1 §3.6 puts it on 1a's list; M1 §4 needs it on whatever Chart the
     browser shows, and 3b's drawn foot has none): C inserts it into the drawn Chart's foot from `renderChart`, so 3b's files are
     not touched and 3b's tests are unchanged.
@@ -753,6 +756,8 @@ Thousandcast's show with their sound, `show-sheet.mjs --video`).
   mark, 6.2 min against "under 6"). The default: the fix lands with S, `--quick` and the full `--wicks` are printed but not gated
   (M1 §4's sim gate is the shipped run), and the five go to the next balancing job. The other way: lane A scopes the fix
   to `LOOP.shipped`'s waters until that job re-tunes the rest (`--quick` green, the later waters still off SPEC decision 7).
+  **Taken by the fix pass (§9.2), still for the lead to confirm**: the review found the default would merge four new red checks into
+  the dev branch's full-game run; the scoped fix is one line to widen when the balancing job lands.
 - PLAN CHOICE 15's suggestion: build the species page's reachable-seal rule in 3a (a small helper in S, the page in C).
 - PLAN CHOICE 10: the giant's back at night only (the docs' words); dusk is a one-word widening after the user's look.
 
@@ -829,3 +834,42 @@ and `=1`) were read frame by frame. Found and fixed on `gw-m1-s3a`:
 Tried and reverted: the drowned bell at 1.2× and a darker ink (it read as a dark plank). Left for the lead: the Bell Pool's dressing
 (the bell decal reads as a dark board under her glow; the far bank is still the palest shape on the lake), and the phone's portrait
 lift shot of Under the Span (the broadside does not fit a portrait frame; two piers fill it).
+
+### 9.2 The fix pass (16 November 2026): the three reviews of the staged step, what held and what changed
+
+Every finding was checked first (reproduced in node or in a capture). The musts and every should that held are fixed; the coulds
+are fixed where cheap and inside 3a, else recorded. The look was re-shot from the fixed tree.
+
+| # | sev | finding | held? | fixed |
+|---|---|---|---|---|
+| R1 | must | the Bell Pool shows nothing a player can name: the bell a dark wedge, then a plank under the raft | **held**; and a cause the stage missed: the decal lay at 0.02 m, so every swell crest (up to 0.19 m) hid it, and it came and went through the lift | the bell drawn as a bell (domed crown and its loop, waist, flare, a moonlit lip round a dark mouth, two cast bands, its crack's verdigris trace) at 0.2 m, in the pool's north half under its posts (the raft fishing the south side is never laid on it); the lift films it from its own crane (`placeAnchor` → `{side, elev 46, dist 10.5}`); her gold glimmer held under the bank and through the lift (`world-places` `openAt`) |
+| R2 | must | the catalogue's sticky head let scrolled fish draw over its seals (worst on a phone) | **held** (the reviewer's scrolled frames) | the head stands outside the list's scroll, a fixed band; the list scrolls under a hard edge and its 10 px feather; T136 now measures real layout at the top, middle and end (≥ 44 px, no overlap, 6 / 3 a row, a 358 px pass) |
+| R3 | should | the 4 `--quick` fails come from 3a's `poolFor` fix | **held** (the base passes) | CHOICE 27's other way: scoped to the shipped waters; `--quick` all pass; the shipped runs byte-identical |
+| R4 | should | T148's cpuMs never measured | **held** | measured on M and on 3a back to back, twice (M1 §6.2): draw calls inside every line; cpuMs on the desktop inside the line in four readings of six (±30% load swings), **on the phone over it at every tier** (+31% to +95%: the standing banks' fill); each bank layer's quad trimmed and an early discard (no visible change); **for the lead** |
+| R5 | should | the layout gate proven by CSS text | **held** | real-layout checks in `loop-3a` (R2) |
+| R6 | should | no regression test for the toll ring or the lift's broadside | **held** | `loop-water`: her whole play, no fx pulse centred on the raft on a trip, the built ring off the loop; `render-v3`: `landmarkShot` broadside, islands, portrait, crane; T128 records the anchor whole |
+| R7 | should | the walk's size scan counts a class word; the giant's strike scan never asserted | **held** | `hasSize` reads weights and lengths only (decision 62: the class estimate is a word); `hasClassWord` for her (no class); the giant's strike and play scans asserted |
+| R8 | should | `giantLanded` counts only a giant sold | **held** (a let-go giant: no ★ on its place) | landed = the Journal's caught, or the sale; a T133 case |
+| R9 | should | the Span's lift shot half boulder | **held** | the lens tests its line and its frame against the islands and steps round: a small turn, then the far broadside, then up; a portrait frame films a long place 38° off its broadside, further back |
+| R10 | should | a bank near the raft a pale stepped plate | **held** | each layer billows on its own seed (no stacked tiers), every layer breaks into wisps, a shaded foot, upper layers swell; the curtains in separate wisps; the cast's pose keeps water between raft and bank. (No camera-distance fade: CHOICE 29 and T145 forbid it) |
+| R11 | should | the giant's back reads as a hole | **held** | an arched back with a swept dorsal fin, rim light on its top only, a V-wake and a pair of ripples as it sinks, 3 s (`LOOP.giantBack.dur`) |
+| R12 | should | the re-dress shown at a disadvantage | **held** | the buoy-lantern hung high on a davit with the lamp-post's light; the Sluice Veil's aqueduct along the cliff on two arches and a broken one it spills from; no Murk line on either half |
+| R13 | should | day and dusk beds near-silent | **held** (−48.6 / −46.1 against −29.9 dBFS) | −34.5 / −35.9 against −29.9; `audio/evening.wav`, one evening in one file, for a listen |
+| R14 | should | Murk's lines stack on title cards | **held** | a line waits while a title card or a lift is up and steps away when one rises; `ui.loop.debug().titleClash`, checked in the walk |
+| R15 | should | the look sheet never showed the lower catalogue | **held** | sheet 3: two saves, top, middle, end, the giants' page, an enlarged silhouette, desktop and phone |
+| R16 | could | a lift cut short by a reload leaves its place in mist all evening | held | a Continue replays it (CHOICE 8) |
+| R17 | could | a lost giant also writes a dead built Marked Fish | held | on a trip a giant is the ledger's mark only |
+| R18 | could | the Gloam Eel listed but unable to bite | held | recorded: Lumen Moss is step 4's (CHOICE 16) |
+| R19 | could | the giants' page over the raft; its title jumps | held | every tab keeps the panel's height; a denser veil behind the giants |
+| R20 | could | the list Chart loses its frame when a place is picked | held (a pick style; the rule re-drew on every re-render) | Sail always wears its hooks; the foot's rule draws once |
+| R21 | could | the play camera under the Span looks through the deck | held | a cutaway: the Span's stone on the lens-to-Wick line dithers away while the raft is under the deck |
+| R22 | could | the touch stick drawn through a lift | held | hidden under the loop while `ctx.cinematic` |
+| R23 | could | hatch probe, Chart rows, book glyph, enlarged silhouette, dressing counts, T107's band | held | each now a real check (`loop-3a`, `world-places`, `loop-places`) |
+
+
+§9.1's two items left for the lead (the Bell Pool's dressing, the phone's portrait shot of Under the Span) are R1 and R9 here. The
+bell went through two looks: at the pool's middle (the first round) a show there was laid over its lip, so it lies a step further
+north, 4.0 × 2.9 m. Measured after the pass: the node gate, the sims (`--shipped=mossmere --step=3` byte-identical with and without
+`--wicks`; `--quick`, the full run and the full `--wicks` all pass), T148 on M and on the fixed tree back to back (M1 §6.2), the walk
+on both sizes and both Charts, loop-1a on the desktop, the flag-off runs, the look re-shot (desktop, phone, the re-dress both
+halves), the film re-shot.

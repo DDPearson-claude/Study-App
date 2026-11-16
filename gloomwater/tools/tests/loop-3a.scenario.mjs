@@ -55,10 +55,17 @@ export function poseSouthOf(place, back = 12, dx = 0) {
 }
 /** A text holds a percentage (a digit then %, or a lone %): T149's scan, SPEC decision 62's rule. */
 export function hasPercent(s) { return /%/.test(String(s ?? '')); }
-/** A size word or a weight before the card (decision 62): "lb", "pounds", "Small" … "Elder" are the card's, never the strike's or the play's. */
-export function hasSize(s, classes = ['Small', 'Keeper', 'Prize', 'Trophy', 'Elder', 'Ancient']) {
+/** A size before the card (SPEC decision 62: "the class estimate stays a word, the pounds stay on the card"): a weight or a length, a
+ *  number with lb, oz, kg or cm, or the word pounds. A class word ("Prize?") is the estimate, allowed before the card (the fix pass: the
+ *  scan counted it as a size, stricter than SPEC); hasClassWord is its own check, for the legend, who has no size class. */
+export function hasSize(s) {
   const t = String(s ?? '');
-  return /\d\s*(lb|lbs|pounds|kg|cm|in)\b/i.test(t) || classes.some((c) => new RegExp(`\\b${c}\\b`).test(t));
+  return /\d\s*(lb|lbs|oz|kg|cm)\b/i.test(t) || /\bpounds?\b/i.test(t);
+}
+/** A size-class word (the tell's estimate): never on the legend's strike or play (she has no class). */
+export function hasClassWord(s, classes = ['Small', 'Keeper', 'Prize', 'Trophy', 'Elder', 'Ancient']) {
+  const t = String(s ?? '');
+  return classes.some((c) => new RegExp(`\\b${c}\\b`).test(t));
 }
 
 // ================================================================== the in-page places helper (installed as window.__p3)
@@ -250,11 +257,18 @@ export default async function (api) {
       await g(() => { const c = window.__gw; c.ui?.loop?.openChart?.() ?? c.ui?.openChart?.() ?? c.debug.loop?.chart?.(); });
       await K.secs(0.6); await K.settle(400);
       const rows = await g(() => [...document.querySelectorAll('[data-loop=chart] [data-place]')].filter((e) => window.__lp.visible(e)).map((e) => e.dataset.place));
-      K.check(rows.length > 0, `T134 (${which}): the Chart shows a row per owned or priced place`, rows);
+      // (exactly the owned places and mapCards' priced ones, in the Chart's order: the fix pass; it passed on any non-empty set)
+      const want = await g((ids) => { const L = window.__gw.progression.loop, own = L.state().maps?.places || [], priced = (L.mapCards?.() || []).map((c) => c.placeId).filter(Boolean); return ids.filter((id) => own.includes(id) || priced.includes(id)); }, PLACE_IDS);
+      K.check(rows.length > 0 && JSON.stringify([...new Set(rows)]) === JSON.stringify(want), `T134 (${which}): the Chart shows a row per owned or priced place, exactly`, { rows, want });
       K.check(rows.every((r) => PLACE_IDS.includes(r)) && rows.join() === PLACE_IDS.filter((p) => rows.includes(p)).join(), `T134 (${which}): the rows in the Chart's order`, rows);
       const slot = await g(() => { const s = document.querySelector('[data-loop=chart] [data-slot=bait]'), sail = document.querySelector('[data-loop=chart] [data-action=sail]'); return { slot: !!s, before: !!(s && sail && s.compareDocumentPosition(sail) & Node.DOCUMENT_POSITION_FOLLOWING) }; });
       K.check(slot.slot && slot.before, `T134 (${which}): the bait slot sits in the foot before Sail`, slot);
       await K.shoot(`chart-${which}`);
+      // the book glyph on this Chart opens the catalogue (§3.6, M1 §2.17; the fix pass: the walk opened it by calling openJournal)
+      const tapped = await K.tap('[data-loop=chart] [data-action=catalogue]');
+      await K.secs(0.5); await K.settle(400);
+      const opened = await g(() => ({ open: !!document.querySelector('[data-loop=catalogue]'), from: window.__gw.debug.ui?.catalogue?.()?.from ?? null }));
+      K.check(!!tapped && opened.open, `T138 (${which}): the Chart's book glyph opens the Mossmere's catalogue`, { tapped: !!tapped, ...opened });
       await g(() => window.__gw.ui.closeAll?.());
       await K.steps(2);
     }
@@ -273,6 +287,9 @@ export default async function (api) {
     K.check(lb && lb.op < 0.95, 'the Lily Maze\'s bank thins during the lift', lb);
     await K.shoot('lift-thinning');
     await K.secs(2.2);
+    // (no Murk line over the place's title card: the fix pass; the debug readout's clash check)
+    const tc = await g(() => window.__gw.ui?.loop?.debug?.() ?? null);
+    K.check(tc && !tc.titleClash, 'the lift\'s title card: no Murk line on screen with it', tc ? { liftTitle: tc.liftTitle, titleClash: tc.titleClash } : null);
     await K.shoot('lift-title');
     await K.secs(1.6);
     const after = await K.places.readout();
@@ -346,11 +363,11 @@ export default async function (api) {
     await K.places.at('bell_pool', { dz: 4.5 });
     await K.secs(0.5);
     const scans = [];
-    const scan = async (where) => { const r = await K.uiText(); const bad = String(r).split(' | ').filter((t) => hasPercent(t) || hasSize(t)); scans.push({ where, pct: hasPercent(r), size: hasSize(r), ...(bad.length ? { bad: bad.slice(0, 4) } : {}) }); };
+    const scan = async (where, legendScan = true) => { const r = await K.uiText(); const bad = String(r).split(' | ').filter((t) => hasPercent(t) || hasSize(t) || (legendScan && hasClassWord(t))); scans.push({ where, pct: hasPercent(r), size: hasSize(r), cls: legendScan && hasClassWord(r), ...(bad.length ? { bad: bad.slice(0, 4) } : {}) }); };
     await scan('the HUD');
     let legend = null;
     try {
-      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onPlay: () => scan('the play'),
+      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onPlay: async () => { await scan('the play'); const tc = await g(() => window.__gw.ui?.loop?.debug?.()?.titleClash ?? null); K.check(tc === false, 'her name card: no Murk line on screen with it', tc); },
         onBite: async () => { await scan('the strike'); const f = await g(() => { const c = window.__gw, d = c.debug.fishing?.(); return { place: d?.place ?? null, legend: d?.legend ?? null, bait: c.state.run?.equippedBait ?? null, phase: c.state.run?.phase ?? null }; }); K.check(f.place === 'bell_pool' && f.legend === true, 'T149: the cast lands in the Bell Pool with the ball on the line in her hour (her sure bite)', f); } });
     } catch (e) { if (!(e instanceof Abort)) throw e; K.note('her bite did not come (lanes A and B: the ball, her pool and her hour)'); }
     if (legend) {
@@ -367,7 +384,7 @@ export default async function (api) {
         await K.until("c.debug.ui().openModal !== 'catch'", 3);
       } else K.check(false, 'T149: her card');
     }
-    K.check(scans.every((x) => !x.pct && !x.size), 'T149: no % and no size on the HUD, the strike, the play or the show (decision 62)', scans);
+    K.check(scans.every((x) => !x.pct && !x.size && !x.cls), 'T149: no %, no size and (she has no class) no class word on the HUD, her strike, her play or her show (decision 62)', scans);
 
     K.step('home: the tally pays 500, Murk\'s line');
     await K.toHomeVia({ tally: true });
@@ -383,7 +400,11 @@ export default async function (api) {
     await K.places.at('under_the_span', {});
     await K.secs(0.4);
     try {
-      await K.realCatch('thousandcast_pike', 1.4, { what: 'the Thousandcast', onBite: () => scan('the giant\'s strike') });
+      const s0 = scans.length;
+      await K.realCatch('thousandcast_pike', 1.4, { what: 'the Thousandcast', onBite: () => scan('the giant\'s strike', false), onPlay: () => scan('the giant\'s play', false) });
+      // (its strike and play scans asserted: before, they were pushed after the only check on `scans` had run; the fix pass)
+      const gs = scans.slice(s0);
+      K.check(gs.length >= 1 && gs.every((x) => !x.pct && !x.size), 'T149: no % and no size on the giant\'s strike or play (its class estimate may show: decision 62)', gs);
       const sh = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 25);
       if (sh.ok && (await K.state()).inShow) { await K.secs(0.8); await K.shoot('show-thousandcast'); await K.key('Space'); }
       const cd = await K.until("c.debug.ui().openModal === 'catch'", 20);
@@ -409,10 +430,71 @@ export default async function (api) {
     });
     K.check(cat && cat.cards.length === 17, 'T136/T149: the catalogue shows all 17 of the Mossmere\'s fish', cat?.cards?.length);
     K.check(cat && !cat.pct, 'T136/T149: no % in the catalogue', cat);
-    const probe = await g(() => window.__gw.debug.ui?.hatchProbe?.('kissmark_trout', 116, 62) ?? null);
-    K.check(probe && probe.offHue === 0, 'T137: the hatch probe (sepia ink only)', probe);
+    for (const [w, h] of [[116, 62], [100, 54], [240, 128]]) {
+      const probe = await g(([w, h]) => window.__gw.debug.ui?.hatchProbe?.('kissmark_trout', w, h) ?? null, [w, h]);
+      K.check(probe && probe.pixels > 0 && probe.offHue === 0 && probe.maxInk <= 0.55 + 0.02 && probe.inner === 0, `T137: the hatch probe at ${w}×${h} (sepia ink only, at most 55% ink, no eye or inner line)`, probe);
+    }
     await K.shoot('catalogue');
+    // T136's layout gate in real layout (the fix pass: it was proven by matching CSS text): every card and seal ≥ 44 px, none overlapping,
+    // six a row at 960 px and three at a phone's width; at the top, the middle and the end of the scroll no card reaches the fixed head;
+    // no digit and no % on any card
+    const layout = (stage) => g((stage) => {
+      const root = document.querySelector('[data-loop=catalogue]');
+      if (!root) return null;
+      const scroll = root.querySelector('.gw-cat-scroll'), head = root.querySelector('.gw-cat-head');
+      if (stage !== 'top' && scroll) scroll.scrollTop = stage === 'mid' ? (scroll.scrollHeight - scroll.clientHeight) / 2 : scroll.scrollHeight;
+      const sr = scroll?.getBoundingClientRect(), hr = head?.getBoundingClientRect();
+      const vis = (r) => sr && r.bottom > sr.top + 1 && r.top < sr.bottom - 1;
+      const cards = [...root.querySelectorAll('.gw-cat-card[data-species]')].map((e) => ({ id: e.dataset.species, r: e.getBoundingClientRect(), t: e.textContent }));
+      const seals = [...root.querySelectorAll('.gw-seal-btn')].map((e) => ({ id: e.dataset.seal || 'seal', r: e.getBoundingClientRect() }));
+      // (a card's rect clipped to the scroll's window: a card scrolled half out is drawn only inside it; a whole one is sized)
+      const clip = (r) => ({ left: r.left, right: r.right, top: Math.max(r.top, sr.top), bottom: Math.min(r.bottom, sr.bottom), width: r.width, height: r.height, whole: r.top >= sr.top - 1 && r.bottom <= sr.bottom + 1 });
+      const all = [...cards.filter((c) => vis(c.r)).map((c) => ({ ...c, r: clip(c.r) })), ...seals.map((c) => ({ ...c, r: { left: c.r.left, right: c.r.right, top: c.r.top, bottom: c.r.bottom, width: c.r.width, height: c.r.height, whole: true } }))];
+      const small = all.filter((c) => c.r.whole && (c.r.width < 44 || c.r.height < 44)).map((c) => `${c.id} ${Math.round(c.r.width)}×${Math.round(c.r.height)}`);
+      const over = [];
+      for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) { const a = all[i].r, b = all[j].r; if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1) over.push(`${all[i].id}/${all[j].id}`); }
+      // a card's visible part (clipped to the scroll) never meets the head
+      const underHead = hr ? cards.filter((c) => vis(c.r)).filter((c) => { const top = Math.max(c.r.top, sr.top), bot = Math.min(c.r.bottom, sr.bottom); return bot > top && top < hr.bottom - 1 && bot > hr.top + 1 && c.r.right > hr.left && c.r.left < hr.right; }).map((c) => c.id) : [];
+      const listCards = [...root.querySelectorAll('.gw-cat-list .gw-cat-card')].map((e) => Math.round(e.getBoundingClientRect().top));
+      const perRow = listCards.filter((t) => t === listCards[0]).length;
+      return { stage, small, over, underHead, perRow, headAbove: !!(hr && sr && hr.bottom <= sr.top + 1), numbers: cards.filter((c) => /[0-9%]/.test(c.t)).map((c) => c.id), vw: window.innerWidth };
+    }, stage);
+    const layoutGate = async (label) => {
+      for (const stage of ['top', 'mid', 'end']) {
+        const L = await layout(stage);
+        await K.steps(1);
+        if (!L) { K.check(false, `T136 (${label}): the catalogue is open`); return; }
+        K.check(!L.small.length && !L.over.length, `T136 (${label}, ${stage}): every card and seal ≥ 44 px, none overlapping`, L);
+        K.check(!L.underHead.length && L.headAbove, `T136 (${label}, ${stage}): the fixed head stands clear above the scrolled list (no card under its seals)`, L);
+        K.check(!L.numbers.length, `T136/§2.17 (${label}, ${stage}): no digit and no % on any fish card`, L.numbers);
+        if (stage === 'top') { const want = L.vw < 701 ? 3 : 6; K.check(L.perRow === want, `T136 (${label}): ${want} cards a row at ${L.vw} px`, L.perRow); }
+        if (stage !== 'top') await K.shoot(`catalogue-${label}-${stage}`);
+      }
+    };
+    await layoutGate(K.phone ? 'phone' : 'desktop');
+    // tap an uncaught card: its enlarged silhouette, glyphs only (no word, no digit); a tap closes it (T138; the fix pass: never tapped)
+    await layout('top');
+    const big = await g(() => { const root = document.querySelector('[data-loop=catalogue]'); const c = [...root.querySelectorAll('.gw-cat-card.gw-hatched[data-species]')].find((e) => window.__lp.visible(e)); if (!c) return null; c.click(); return c.dataset.species; });
+    await K.steps(2); await K.settle(300);
+    const bigV = await g(() => { const b = document.querySelector('[data-loop=catalogue] .gw-cat-big'); return b ? { text: b.textContent.replace(/\s+/g, ''), glyphs: b.querySelectorAll('.gw-cat-glyphs .gw-ico, .gw-cat-glyphs svg').length, art: !!b.querySelector('canvas') } : null; });
+    K.check(!!big && bigV && bigV.art && bigV.text === '' && bigV.glyphs > 0, 'T138: a tap on an uncaught fish enlarges its silhouette with its glyphs only (no word, no digit)', { big, bigV });
+    await K.shoot('catalogue-big');
+    await g(() => document.querySelector('[data-loop=catalogue] .gw-cat-big')?.click());
+    await K.steps(2); await K.settle(200);
+    K.check(await g(() => !document.querySelector('[data-loop=catalogue] .gw-cat-big') && !!document.querySelector('[data-loop=catalogue] .gw-cat-scroll')), 'T138: a tap on it closes it, back on the page');
     await g(() => window.__gw.ui.closeAll?.());
+    // a 358 px phone (SPEC §8.8's narrowest): three a row, the gate again (the walk's phone is 390 px)
+    if (K.phone) {
+      const vp = page.viewportSize();
+      await page.setViewportSize({ width: 358, height: vp?.height ?? 844 });
+      await K.steps(2); await K.settle(300);
+      await g(() => { const c = window.__gw; (c.ui?.screens?.openJournal ?? c.ui?.openJournal)?.({ from: 'chart', zone: 'mossmere' }); });
+      await K.secs(0.5); await K.settle(400);
+      await layoutGate('358');
+      await g(() => window.__gw.ui.closeAll?.());
+      if (vp) await page.setViewportSize(vp);
+      await K.steps(2); await K.settle(300);
+    }
 
     K.step('Hold 6 and the two-row hold on the phone (Tallow\'s 7)');
     await K.toHomeVia();
@@ -448,7 +530,8 @@ export async function dryRun() {
   if (sv.meta.loop.bait.mossmere.heartmoss !== 2) bad.push('seededSave fills the bag');
   if (sv.run !== null) bad.push('seededSave has no trip');
   if (!hasPercent('27%') || hasPercent('27 lb')) bad.push('hasPercent');
-  if (!hasSize('12.4 lb') || !hasSize('A Trophy') || hasSize('Keep · 500 clams')) bad.push('hasSize');
+  if (!hasSize('12.4 lb') || !hasSize('3 pounds') || hasSize('A Trophy') || hasSize('Prize?') || hasSize('Keep · 500 clams')) bad.push('hasSize');
+  if (!hasClassWord('A Trophy') || !hasClassWord('Elder?') || hasClassWord('Keep · 500 clams')) bad.push('hasClassWord');
   globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true;
   const D = await import('../../src/data.js?loop3a');
   for (const id of PLACE_IDS) {

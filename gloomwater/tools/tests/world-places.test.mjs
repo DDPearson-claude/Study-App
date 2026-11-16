@@ -146,6 +146,24 @@ W.world.setPlaces({ owned: [], lifted: [] }); step(2); ro = W.world.places();
 ok(ro.banks.every((b) => b.op === 1), 'setPlaces with nothing lifted: every bank stands');
 const anc = W.world.placeAnchor('under_the_span');
 ok(anc && Number.isFinite(anc.x) && anc.r > 0, 'placeAnchor gives the lift\'s shot a point and a radius');
+ok(Array.isArray(anc.face) && Math.abs(Math.hypot(anc.face[0], anc.face[1]) - 1) < 1e-6, '… and a path its broadside (face)');
+// each place's own dressing (M1 §2.2; the fix pass: asserted only through the halos before)
+{
+  const dr = W.world.places().dressing;
+  ok(dr.caps === 24, `the Buoy Lights' 24 float caps (${dr.caps})`);
+  ok(dr.piers === 4 && dr.chains >= 4, `Under the Span's arches over the Toppled Bridge's 4 piers, the chains hanging from the break (${dr.piers} piers, ${dr.chains} chains)`);
+  ok(dr.pads >= 16, `the Lily Maze's own pads (as many again as the built ones inside its disc: ${dr.pads})`);
+  // (under the loop the glow-buds under the Lily Maze's pads retire, WC-3, WATERCRAFT §5.7: the koi's own candle fins are the warm light)
+  ok(dr.decals === dr.caps + 3, `the decals: no bud under the pads under the loop (WC-3), a glow under each cap, the bell, its glint and the moon's shaft (${dr.decals})`);
+}
+// the Bell Pool: its bell lies in the pool's north half (the raft's south side is never laid on it); the lift films it from its own crane
+{
+  const a = D_LOOP.loopPlace('bell_pool').area, B = WP.bellSpot(a);
+  ok(B.z < a.z - 1.5 && Math.hypot(B.x - a.x, B.z - a.z) + 2.3 < a.r + 0.5, 'the drowned bell lies in the Bell Pool\'s north half, inside it');
+  const ba = W.world.placeAnchor('bell_pool');
+  ok(ba && ba.elev >= 35 && ba.elev <= 50 && ba.dist > 8 && Array.isArray(ba.side) && ba.side[1] > 0, 'the Bell Pool\'s anchor: a crane 35–50° up from its open-water side', ba);
+  ok(ba && Math.hypot(ba.x - B.x, ba.z - B.z) < 1.2, '… looking at the bell', ba);
+}
 ok(typeof W.ctx.debug.world?.places === 'function' && W.ctx.debug.world.places()?.banks?.length === 4, 'ctx.debug.world.places() reads the banks');
 
 section('T145: the giant\'s back: only in a standing bank, only at the gloomtide');

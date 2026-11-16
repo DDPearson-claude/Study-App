@@ -4887,7 +4887,7 @@ export const LOOP = {
   legendBait: { mossmere: { id: 'heartmoss', price: 60 } },   // a legend's bait, one try (SPEC §4.6); the built BAITS row keeps its own price
   lift: { thin: 3, title: 1.2, back: 0.6 },                    // the first evening's lift, in seconds (SPEC §5.1 rule 7)
   // the giant's back in a standing bank: every 25–45 s for 2 s, "on clear nights" (SPEC §5.1 rule 6; the loop has no weather: PLAN CHOICE 10)
-  giantBack: { every: [25, 45], dur: 2, phases: ['gloomtide'], places: ['under_the_span', 'buoy_lights'] },
+  giantBack: { every: [25, 45], dur: 3, phases: ['gloomtide'], places: ['under_the_span', 'buoy_lights'] },   // (3 s: the fix pass; 2 s read as a blink)
   mist: { inside: 0.35, ease: 0.8 },   // a bank's whole opacity while the raft is inside its footprint, and the ease (s): never a clearing
   // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches), built only behind this switch: false unless the dev
   // URL flag ?redress=1 (core.js, read once beside ?loop; PLAN CHOICE 13). The user's yes flips the data value in a commit of its own.

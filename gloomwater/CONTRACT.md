@@ -2181,10 +2181,15 @@ test opens.
   `baitSlotModel` · `mapArtSizes` · `MAP_ART` · `catalogueView` · `giantsView` · `liftTitle` · `saleLineId`. `ui-fishart.js`:
   `setLoopArt(on)` (the loop's 2D `trout`, `sturgeon`, `lamprey` plans), `drawFish(…, {hatch: true})`, `hatchProbe(sp, w, h)`.
 - **The world** (D): `src/world-places.js` (built only under the loop); `world.setPlaces({owned, lifted})`, `world.liftMist(id, s)`
-  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r, face?}` (the place's water centre and radius; a path's `face`, its unit normal, turns the lift's lens to its broadside: the stage), `world.places()`;
+  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r, face?, side?, elev?, dist?}` (the place's water centre and radius; a path's `face`, its unit normal, turns the lift's lens to its broadside: the stage; a place's own crane, the Bell Pool's: `side` [x, z] the lens's side, `elev` deg, `dist` m, looking at its bell: the fix pass), `world.places()`
+  (its `dressing` {pads, caps, decals, chains, piers, …} and `cut`, the Span's cutaway); under the loop world.js holds the legend pool's gold glimmer while
+  `placesVis.openAt(x, z)` is false (its place's bank standing or lifting);
   `world:giantBack {placeId, x, z}` (at `gloomtide`, in a standing Under the Span or Buoy Lights bank); `world-art.js` `opts.redress`
-  (W9's rest, only with `LOOP.redress`); `render.frameLandmark(p | null, {dur, back})` (null: ease back now; `render-camera.js`
-  `landmarkShot`, `landmarkWeight`); `models-fish.js` `lamprey`, `sturgeon`, `trout` (read only under the loop).
+  (W9's rest, only with `LOOP.redress`); `render.frameLandmark(p | null, {dur, back})` (null: ease back now; p carries the anchor's
+  `r`, `face`, `side`, `elev`, `dist`; `render-camera.js` `landmarkShot(raft, p, {yaw, aspect, obstacles})`, `shotBlocked(pos, look,
+  obstacles, {clear, cone, vhalf})`, `landmarkWeight`; render passes `world.getObstacles()`, and the lens steps round an island in its
+  line or frame: the fix pass); `models-fish.js` `lamprey`, `sturgeon`, `trout` (read only under the loop). `ctx.ui.loop.debug()` adds
+  `titleClash` (a Murk line on screen with a lift's title card or a legend's name card: never, the fix pass).
 - **Debug hooks** (debug builds, the loop only): `ctx.debug.loop.own(id | 'all')`, `.lift(id | 'all', {play})`, `.giveBait(id, n,
   {fit})`, `.at(placeId)`, `.places()`, `.chart(cmd, arg)` (3b), `.homeState()` (+ `sailPlace`, `lift`) · `ctx.debug.fishPoolRoll(n,
   {place, bait, rb})` · `ctx.debug.audioMoss()` · `ctx.debug.ui.chartList(on)`, `.hatchProbe(id, w, h) → {pixels, offHue, maxInk,
@@ -2281,7 +2286,7 @@ its leg on the Chart, one ink dip, the glide in to the water's mooring. In M1 on
 
 | module | what it owns |
 |---|---|
-| `murk-catalogue.js` (pure) | `bookLayout(vw, vh)` ('desktop' spread / 'phone' page) · `bookSizes(vw, vh, layout)` → `{pw, ph, size}` (the page's px and the spread's grid: `'full'`; `'short'` when a spread's page is under `BOOK.shortPage` 520 px tall, 960 × 540: an item to a half-page row, its engraving beside its words, a map plate a page; `'low'` under `BOOK.lowH` 480 px, a phone turned to landscape: an item a page, Murk's line and the purse in a column beside the book; the integration's review, 16 Nov) · `bookPages(tabs, {layout, size, odds, goal})` (the frontispiece and cover, one chapter per shelf tab in the shelf's order, `BOOK[layout].per` items a page (a desktop's Maps chapter two map plates a page, side by side and the page's full height), the gear log's page last, an end leaf to keep a desktop's spreads whole; the page count depends only on how many items each chapter holds) · `spreadOf` · `spreadPages` · `turnTo` · `focusPage` · `orderText` |
+| `murk-catalogue.js` (pure) | `bookLayout(vw, vh)` ('desktop' spread / 'phone' page; a landscape screen under `BOOK.lowH` tall, at least `BOOK.lowMinW` 600 px wide and wider than 1.5 : 1 is always a spread, 667 × 375 and 740 × 360 included) · `bookSizes(vw, vh, layout)` → `{pw, ph, size, narrow?}` (the page's px and the spread's grid: `'full'`; `'short'` when a spread's page is under `BOOK.shortPage` 520 px tall, 960 × 540: an item to a half-page row, its engraving beside its words, a map plate a page; `'low'` under `BOOK.lowH` 480 px, a phone turned to landscape: an item a page, Murk's line and the purse in a column beside the book; the integration's review, 16 Nov; `narrow: true` under `BOOK.lowNarrow` 800 px wide: the fore-edge tabs as glyphs and a 160 px side column, pages down to `BOOK.lowMinPage` 180 px) · `bookPages(tabs, {layout, size, odds, goal})` (the frontispiece and cover, one chapter per shelf tab in the shelf's order, `BOOK[layout].per` items a page (a desktop's Maps chapter two map plates a page, side by side and the page's full height), the gear log's page last, an end leaf to keep a desktop's spreads whole; the page count depends only on how many items each chapter holds) · `spreadOf` · `spreadPages` · `turnTo` · `focusPage` · `orderText` |
 | `murk-engrave.js` (pure strings) | `engrave(card)` (an engraved SVG plate for every item: ink line, hatching, cross-hatching, stipple; ink is `currentColor`, paper knock-outs `.cat-pp`), `plateKey`, `frontispiece` (Murk's barge), `ledgerPlate`, `endPlate`, `wickInk` |
 | `ui-catalogue-murk.js` | `createMurkBook(deps)` → `{render, onKey, debug, slow, go, pageOf}`; its CSS (`#gw-mb-css`, classes `gw-book*`, `gw-mb-*`, `gw-plate*`); the page's sound `book_page` added to the sfx table under the loop only |
 

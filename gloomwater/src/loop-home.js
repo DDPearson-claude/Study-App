@@ -11,7 +11,7 @@
 //   canGoHome / goHome       the Home pill and the pause's Home
 //   skipHomeGlide()          a tap or a skip key: the running home glide ends at its end and what follows runs at once
 // M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 items 5–6, PLAN CHOICEs 7, 8, 24; T128, T129):
-//   the lift                 at a trip's start (never a Continue), each owned place whose mist has not lifted (loop.liftDue(), price
+//   the lift                 at a trip's start (and on a Continue, only one the page closed on), each owned place whose mist has not lifted (loop.liftDue(), price
 //                            order) in turn: ctx.cinematic on, place:lift {placeId, phase: 'start', name}, world.liftMist(id, 3),
 //                            render.frameLandmark(landmark, {dur, back}); at 3 s {phase: 'title'}; at 4.2 s {phase: 'end'},
 //                            loop.markLifted(id), the places synced; cinematic off after the last. update(dt) runs its clock (main's
@@ -126,7 +126,9 @@ export function createLoopHome(deps) {
     return p;
   }
   if (ctx.bus?.on) {
-    ctx.bus.on('run:start', () => syncPlaces());
+    // a Continue syncs the places, and replays a lift the page closed on (its place owned, not lifted: PLAN CHOICE 8's "a reload
+    // mid-lift replays it"; else the place stood in mist all evening, every cast there a mist cast; the fix pass)
+    ctx.bus.on('run:start', (e) => { syncPlaces(); if (e?.continued === true) beginLifts(); });
     ctx.bus.on('home:enter', () => { S.lift = null; syncPlaces(); });
     ctx.bus.on('loop:buy', () => syncPlaces());
   }
@@ -135,7 +137,9 @@ export function createLoopHome(deps) {
     const a = safe(() => ctx.world?.placeAnchor?.(id), null);
     // (the anchor's radius and a path's broadside go to the shot too: without them every place was framed as an r 6 disc, and Under the
     // Span from 14.6 m down its own length behind its first pier; the stage)
-    if (a && Number.isFinite(a.x) && Number.isFinite(a.z)) return { x: a.x, y: numOr(a.y, 0), z: a.z, ...(Number.isFinite(a.r) ? { r: a.r } : {}), ...(Array.isArray(a.face) ? { face: a.face.slice(0, 2) } : {}) };
+    // (and a place's own crane, the Bell Pool's: its side, elevation and distance; the fix pass)
+    if (a && Number.isFinite(a.x) && Number.isFinite(a.z)) return { x: a.x, y: numOr(a.y, 0), z: a.z, ...(Number.isFinite(a.r) ? { r: a.r } : {}), ...(Array.isArray(a.face) ? { face: a.face.slice(0, 2) } : {}),
+      ...(Array.isArray(a.side) ? { side: a.side.slice(0, 2) } : {}), ...(Number.isFinite(a.elev) ? { elev: a.elev } : {}), ...(Number.isFinite(a.dist) ? { dist: a.dist } : {}) };
     const p = placeOf(id), m = p?.landmark;
     if (m && Number.isFinite(m.x)) return { x: m.x, y: numOr(m.y, 0), z: m.z };
     return p && Number.isFinite(p.x) ? { x: p.x, y: 0, z: p.z } : null;

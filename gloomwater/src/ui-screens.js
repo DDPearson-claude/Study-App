@@ -1764,7 +1764,7 @@ export function createScreens(K) {
     if (nm && /^The Wick(?=['’]s )/.test(jTitle)) jTitle = jTitle.replace(/^The Wick/, nm);
     const onSheet = s.tab === 'sheet' && !!sheetV();
     if (onSheet && K.vw < 700) jTitle = safe(() => sheetV().title(), jTitle);   // (a phone: the sheet's running head, SHEET §2.1, the user's answer 42)
-    const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, cls: `gw-p-wide gw-p-journal gw-p-journal--loop gw-p-catalogue${af() ? ' gw-p-af' : ''}${onSheet ? ' gw-p-sheet' : ''}` });
+    const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, cls: `gw-p-wide gw-p-journal gw-p-journal--loop gw-p-catalogue${s.tab === 'giants' && s.view !== 'species' ? ' gw-cat-on-giants' : ''}${af() ? ' gw-p-af' : ''}${onSheet ? ' gw-p-sheet' : ''}` });
     pn.dataset.loop = 'catalogue';
     // the tabs: each owned water (its name and its list's count) and the giants' ★ (no word: its accessible name, PLAN CHOICE 25)
     const W = D().LOOP?.waters || {};
@@ -1851,7 +1851,9 @@ export function createScreens(K) {
       if (!atHome) { const gb = row.querySelector('[data-seal=gear]'); if (gb) { gb.disabled = true; gb.setAttribute('aria-disabled', 'true'); } }
       head.querySelector('.gw-cat-seals').appendChild(row);
     } else head.querySelector('.gw-cat-seals').remove();
-    scroll.appendChild(head);
+    // the head is fixed above the list, outside its scroll (it was sticky inside it, and the cards scrolled under its fading veil and drew
+    // through the seals on a phone; the fix pass): the list scrolls under a hard edge with the scroll's 10 px feather
+    content.appendChild(head);
     for (const c of v.list) listEl.appendChild(catCard(entry, c));
     scroll.appendChild(listEl);
     if (v.groups.length) scroll.appendChild(h('div', 'gw-jr-rule gw-cat-rule', `<svg viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-brush)" d="M8 6 C120 4 280 8 392 6"/></svg>`));

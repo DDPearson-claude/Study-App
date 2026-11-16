@@ -2731,14 +2731,27 @@
 .gw-loop-on .gw-cc-giant .gw-cc-seal { filter: drop-shadow(0 0 6px rgba(232, 190, 119, .55)); color: var(--gold); }
 .gw-loop-on .gw-cc-giant .gw-cc-seal .gw-seal-ink { color: var(--gold); }
 .gw-loop-on .gw-cc-giant .gw-catch-name { color: #f3dca8; }
+/* the list Chart keeps its Drowned Filigree frame in every state (the fix pass): Sail always wears its hooks (it is the one action), and
+   the foot's rule, drawn in on the open, stays drawn through a pick or a fitted ball's re-render */
+.gw-loop-on .gw-p-chart--3a .gw-chart-sail .gw-hk { opacity: 1; }
+.gw-loop-on .gw-p-chart--3a .gw-chart-sail .gw-hk path { stroke-dashoffset: 0; }
+.gw-loop-on .gw-p-chart--3a .gw-chart-sail .gw-hk circle { opacity: 1; }
+.gw-loop-on .gw-modal.gw-in .gw-p-chart--3a.gw-again::after { animation: none; clip-path: none; }
+/* a lift (and the show): the touch stick and its breathing ring leave the picture with the HOME pill (ctx.cinematic; the fix pass) */
+.gw-loop-on .gw-hud.gw-v3.gw-cine .gw-joyzone { opacity: 0 !important; pointer-events: none !important; }
 /* the catalogue (SPEC §8.8): the head stays, the list's twelve notched, the rule, the places' groups, Odds › at the foot */
+/* every tab keeps the panel's full height, so its title never jumps between the water's page and the giants' (the fix pass); the giants'
+   three sit in the middle of it, over a denser veil (the lit raft showed through behind them) */
+.gw-loop-on .gw-p-catalogue { height: min(820px, calc(100vh - 32px - var(--sat) - var(--sab))); }
+.gw-loop-on .gw-p-catalogue.gw-cat-on-giants { --veil: rgba(var(--veil-rgb), .95); }
+.gw-loop-on .gw-cat-scroll--giants { display: flex; flex-direction: column; }
+.gw-loop-on .gw-cat-scroll--giants > .gw-cat-giants { margin: auto 0; }
 .gw-loop-on .gw-p-catalogue .gw-pc { display: flex; flex-direction: column; min-height: 0; }
 .gw-loop-on .gw-cat-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(174, 172, 208, .26) transparent; padding: 0 4px 10px;
   -webkit-mask: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 22px), transparent); mask: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 22px), transparent); }
-.gw-loop-on .gw-cat-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 4px 18px; flex-wrap: wrap; padding: 4px 10px 12px; }
-.gw-loop-on .gw-cat-head::before { content: ''; position: absolute; inset: -6px -4px -6px; z-index: -1; pointer-events: none;
-  background: linear-gradient(180deg, rgba(var(--veil-rgb), .97) 72%, rgba(var(--veil-rgb), 0));
-  -webkit-mask: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); mask: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+/* the head: fixed above the list's scroll (never sticky inside it: the scrolled cards drew through its veil and over the seals; the fix
+   pass); the list scrolls under the scroll's own hard top edge and 10 px feather */
+.gw-loop-on .gw-cat-head { position: relative; z-index: 2; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: 4px 18px; flex-wrap: wrap; padding: 4px 10px 8px; }
 .gw-loop-on .gw-cat-water { font: 400 24px/1.1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); text-shadow: var(--ink-shadow); }
 .gw-loop-on .gw-cat-count { font: 500 21px/1 var(--f-body); color: var(--ink-dim); }
 .gw-loop-on .gw-cat-seals { display: inline-flex; margin-left: 10px; }
@@ -2797,7 +2810,7 @@
 .gw-loop-on .gw-cat-gcard.gw-hatched .gw-cat-name { color: var(--ink-dim); }
 .gw-loop-on .gw-cat-gw { font: italic 400 17px/1 var(--f-body); color: var(--ink-faint); }
 @media (min-width: 701px) and (max-height: 640px) {
-  .gw-loop-on .gw-p-catalogue { padding-top: 2px; padding-bottom: 40px; max-height: calc(100vh - 12px); }
+  .gw-loop-on .gw-p-catalogue { padding-top: 2px; padding-bottom: 40px; max-height: calc(100vh - 12px); height: calc(100vh - 12px); }
   .gw-loop-on .gw-p-catalogue .gw-ph .gw-pdiv { display: none; }
   .gw-loop-on .gw-p-catalogue .gw-ph h2 { font-size: 26px; }
   .gw-loop-on .gw-p-catalogue .gw-tab { min-height: 44px; padding-bottom: 6px; }
