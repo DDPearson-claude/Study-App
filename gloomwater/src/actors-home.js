@@ -666,7 +666,7 @@ export function createHome(ctx) {
   const outline = addOutline(inkCarrier, { thickness: 0.03 });
   if (outline) { inkCarrier.remove(outline); outline.name = 'home:outline'; bob.add(outline); }
   mats.push(inkCarrier.material);
-  let variant = null;
+  let variant = null, lampPts = [];
   /** Rebuild the merged timber and glow for what is owned (V from homeVariants). */
   function setVariants(V) {
     const v = V && typeof V === 'object' ? V : homeVariants(null);
@@ -677,6 +677,7 @@ export function createHome(ctx) {
     const gg = mergeGeos([...base.glow, ...parts.glow]);
     timber.geometry.dispose(); glow.geometry.dispose();
     timber.geometry = tg; glow.geometry = gg;
+    lampPts = parts.lamps;   // (M1 step 5b: the moths' lanterns)
     return true;
   }
   setVariants(homeVariants(null));
@@ -705,7 +706,7 @@ export function createHome(ctx) {
   // ---------------------------------------------------------------- placement and life
   const mooring = { x: 0, z: 0, yaw: 0, set: false };
   const tmp = new THREE.Vector3(), q = new THREE.Vector3();
-  let t = 0, smokeT = 0, sigT = 0;
+  let t = 0, smokeT = 0, sigT = 0, sparkT = 3, mothT = 1;   // (sparkT, mothT: M1 step 5b's life aboard)
   const K = { window: 1, door: 1, lantern: 1, ember: 1 };
   const waterLight = { position: new THREE.Vector3(), color: new THREE.Color(0xffa95a), intensity: 0, distance: 6, streak: 0.75, radius: 4.5 };
   /** World point of a local barge point. */
@@ -771,6 +772,21 @@ export function createHome(ctx) {
         smokeT = 0.7 + Math.random() * 0.6;
         toWorld(A.pipe.x, A.pipe.y, A.pipe.z, tmp);
         ctx.models?.emitSmoke?.(tmp, { color: 0x7a7480, vy: 0.4, spread: 0.12, size: 0.34, sizeGrow: 0.9, lifeT: 3.6, alpha: 0.26, jitter: 0.04 });
+      }
+      // M1 step 5b (lane 5b-home): the life aboard, from the shared smoke pool (no draw call of its own): now and then a spark from
+      // the stove pipe, and moths at the rail lanterns while they burn
+      sparkT -= dt;
+      if (sparkT <= 0) {
+        sparkT = 2.5 + Math.random() * 4;
+        toWorld(A.pipe.x, A.pipe.y - 0.05, A.pipe.z, tmp);
+        ctx.models?.emitSmoke?.(tmp, { color: 0xffa040, vy: 0.9, spread: 0.05, size: 0.035, sizeGrow: -0.02, lifeT: 1.1, alpha: 0.95, jitter: 0.08 });
+      }
+      mothT -= dt;
+      if (mothT <= 0 && lampPts.length && K.lantern > 0.25) {
+        mothT = 0.35 + Math.random() * 0.5;
+        const L0 = lampPts[(Math.random() * lampPts.length) | 0];
+        toWorld(L0[0] + (Math.random() - 0.5) * 0.3, L0[1] + 0.05 + Math.random() * 0.2, L0[2] + (Math.random() - 0.5) * 0.3, tmp);
+        ctx.models?.emitSmoke?.(tmp, { color: 0xf4ecd8, vy: 0.05, spread: 0.18, size: 0.03, sizeGrow: 0, lifeT: 0.9, alpha: 0.8, jitter: 0.25 });
       }
       // the variant follows what is owned (meta.loop), read twice a second
       sigT -= dt;
