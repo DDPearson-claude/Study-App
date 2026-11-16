@@ -356,8 +356,8 @@ reach I's hand (whether it should be 3D instead is `M1.md` §8 question 6; defau
   of home at first light (the glide in showed it at late day). The barge's four targets carry the tiles' words under them, so nothing more needs teaching;
   no cue is drawn at home once the tutorial is done. A reload before the first Sail lands on the chart beat over the barge
   (the chart table's target breathes, as the Chart tile did). From M1 step 5d the first **Sold** is also the first step
-  aboard: one ink dip into the Wick's own eye on the stern deck, no words (`BARGE-INSIDE.md` §2.6); every beat above is
-  unchanged, since the tutorial is done before it.
+  aboard: one ink dip into the Wick's own eye on the stern deck, looking astern at the new porch and then turning slowly to
+  the cabin door, no words (`BARGE-INSIDE.md` §2.6); every beat above is unchanged, since the tutorial is done before it.
 - The First Evening's director (`first-evening.js`), its fishing lesson and the Quayling stay the v3 build's; the loop's
   tutorial does not teach fishing at home (§8). The title stays on the Mossmere. `INTRO.cove`'s unbuilt variant is not used:
   the film is the same film with the same line 3.
