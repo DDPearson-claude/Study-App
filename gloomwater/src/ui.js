@@ -968,7 +968,7 @@ export function create(ctx) {
     showVictory: (summary) => screens.showVictory(summary),
     openShop: () => screens.openShop(),
     openCreel: () => screens.openCreel(),
-    openJournal: () => screens.openJournal(),
+    openJournal: (o) => screens.openJournal(o),   // (M1 step 3a: {from: 'chart', zone} reaches the catalogue; no argument: as built)
     /** CONTRACT §13.7 ui: the Journal at a species' page (section 'odds' scrolls to Your odds); refused while a line is out */
     openLog: (o) => screens.openLog(o),
     /** automatic fishing: the gear log (P1–P2: Murk's Gear, Bait and Lure rows; refused while a line is out) */

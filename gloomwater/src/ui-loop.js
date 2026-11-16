@@ -9,6 +9,10 @@
 // Pure exports (node: tools/tests/ui-loop.test.mjs): slotCells · tallyPlan · goalLine · shelfCards · murkLineFor · clamTag ·
 // pillHold · chartModel · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
 // settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg
+// M1 step 3a (PLAN §2.3; node: ui-loop.test.mjs, ui-catalogue.test.mjs): chartNext · chartPlacesOf · chartRows · baitSlotModel ·
+// mapArtSizes · MAP_ART · catalogueView · giantsView · liftTitle · saleLineId. The view adds renderChartList, baitSlot and
+// placeBaitSlot (the bait slot in the foot of whichever Chart is drawn), the shelf's map, bait and sealed cards (openShelf({tab,
+// focus})), the next water's seals (sealRow), the lift's title card, Murk's home lines with the catch seal's press.
 import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
 import { fmtClams } from './core.js';

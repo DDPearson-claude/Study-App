@@ -1655,6 +1655,7 @@ export function createScreens(K) {
     const b = h('button', `gw-cat-card${c.caught ? ' gw-caught' : ' gw-hatched'}${c.listed ? ' gw-jr-listed' : ''}${c.star ? ' gw-star' : ''}${c.edge === 'gold' ? ' gw-cat-giant' : ''}${c.gold ? ' gw-cat-legend' : ''}`);
     b.type = 'button';
     b.dataset.fish = c.id;
+    b.dataset.species = c.id;
     b.setAttribute('aria-label', c.caught ? sp?.name || c.id : '· · ·');
     const art = h('span', 'gw-cat-art');
     const cv = h('canvas', 'gw-fishart');
