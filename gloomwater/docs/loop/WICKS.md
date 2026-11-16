@@ -14,6 +14,13 @@ values are carried into §1.1, §2, §3.2, §3.3 and §4 (the Wick ×1.4, Taper'
 good bite at every place and its 9 slots, Ashwick's `hold` range 2–4); `clams.mjs --wicks` checks them as ruled. Where §2
 still shows a range, the value in force is §3.5's.*
 
+*Revision 4 (16 November 2026), the user's words: "When choosing a wick, the passive bonus should be bigger in your view and
+more obvious what it does. Could they be accompanied with a small image indicating what they do?" On New Descent the lit Wick's
+passive is now a block of its own under the cards: a small ink picture of what it does, the passive's name and its one line,
+larger than before. Four lines are made plainer; Ashwick's stands. On the first version the user said, the same day: "Make it
+bigger on desktop and put icons on every portrait": the desktop block is larger again, and every portrait carries its passive's
+small picture under its name. No rule, number or hook changes (§7.4).*
+
 ## 1. The user's words
 
 > "You can choose any of the 5 wicks but each one has a powerful unique passive ability to help them catch fish or boost something else"
@@ -55,8 +62,11 @@ Giants home are Taper's domain among the passives (check 5, ×1.33 a trip): Ashw
 first sale skips giants, and Tallow's bigger trip and its extra good bites at every place bring more giants home as a side
 effect, accepted by the lead (15 November 2026; ×1.20 an hour, its own limit ≤ 1.25, check 5). **No Wick moves the
 clock:** every Wick's evening is SPEC §3.4's (day 40 s, dusk 20 s); Long Night is kept in §6.4. **The hold and the good
-bites are Tallow's alone:** no other passive changes a slot or a good-bite count. The passive names are design
-names and code ids. They are **never shown**: the New Descent screen shows only the one line.
+bites are Tallow's alone:** no other passive changes a slot or a good-bite count. **The passive names are shown on New
+Descent** (revision 4, the user's "more obvious what it does", 16 November 2026): the lit Wick's block shows its small ink
+picture, its name (Curious, Long Reach, Moth-Bright, Broad Back, Burns Back; `TEXT_LOOP.passives`) and its one line, and each
+card carries its own passive's small picture under the Wick's name (the user's "put icons on every portrait"). The code
+ids (`curious`, `broad_back` …) are never shown, and no name or picture is shown anywhere else.
 
 ### 1.2 The five questions, answered
 
@@ -82,7 +92,9 @@ with the flag off, as regression tests (the v1 golden trace goes through `rollBi
 
 ### 2.1 The Wick: A Small, Stubborn Flame
 
-- **Passive:** **Curious** (`curious`, the built quirk's name). **On screen:** "Firsts and new bests sell higher." (6 words, 33 characters)
+- **Passive:** **Curious** (`curious`, the built quirk's name). **On screen:** "New kinds and new bests sell higher." (7 words, 36
+  characters; revision 4, §7.4: was "Firsts and new bests sell higher.") **Picture:** a fish stamped with the first's star, the
+  arrow rising from it to a clam.
 - **Rule.** A **kept** fish that is a **first** in this New Descent sells for more at the tally. A first is any one of:
   a kind not yet caught; that kind's first **Prize, Trophy or Elder** (the built class seals, `sealsFor(sp)`), or its first
   Ancient; or a new **personal best** (longer than any of that kind caught before, the built `pb` record). The bonus is
@@ -122,7 +134,9 @@ with the flag off, as regression tests (the v1 golden trace goes through `rollBi
 
 ### 2.2 Taper: The Long Reach
 
-- **Passive:** **Long Reach** (`long_reach`). **On screen:** "First bites are never common fish." (6 words, 34 characters)
+- **Passive:** **Long Reach** (`long_reach`). **On screen:** "Evenings start with a rarer fish." (6 words, 33 characters;
+  revision 4, §7.4: was "First bites are never common fish.") **Picture:** a fish rising out of the water under the evening's
+  crescent, a spark over it.
 - **Rule.**
   - **(a) The first bite.** The first fish to bite **each evening** is drawn from that pool's **uncommon and rare** fish
     only (`firstBites` **1**, range 1–2; `perWater` **false**, the run's value, §3.5: once an evening, wherever it bites;
@@ -169,7 +183,9 @@ with the flag off, as regression tests (the v1 golden trace goes through `rollBi
 
 ### 2.3 Stub: The Bright Little One
 
-- **Passive:** **Moth-Bright** (`moth_bright`). **On screen:** "Quick bites, even on quiet water." (6 words, 33 characters)
+- **Passive:** **Moth-Bright** (`moth_bright`). **On screen:** "Fish bite sooner and keep biting." (6 words, 33 characters;
+  revision 4, §7.4: was "Quick bites, even on quiet water.") **Picture:** a float tugged under, the bite's marks over it,
+  ripples, and a moth come to the light.
 - **Rule.**
   - **(a) Quick bites.** The wait for a bite is ×**0.78** for Stub (`waitMul`, range 0.7–0.85; the run's value, §3.5). In
     the game the wait is `(waitBase 3 + Exp(5.5)) / mods`, mean about 8.5 s, so Stub's is about 6.6 s *(the sim's base is
@@ -201,7 +217,9 @@ with the flag off, as regression tests (the v1 golden trace goes through `rollBi
 *Revision 3: the user's answer to question 4, "Default for all except 4 which i want yes" (15 November 2026), and the lead's
 ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long Night is kept whole in §6.4.*
 
-- **Passive:** **Broad Back** (`broad_back`). **On screen:** "Stout enough for one more fish." (6 words, 31 characters)
+- **Passive:** **Broad Back** (`broad_back`). **On screen:** "One more slot in the hold." (6 words, 26 characters; revision
+  4, §7.4: was "Stout enough for one more fish.", the shelf's own "One more slot." words) **Picture:** a creel of
+  fish with one tail more, and a plus.
 - **Rule.** Tallow's hold is **one slot bigger than the hold bought, at every step**, its open water has **one more good
   bite than its slots give** (so two more than another Wick's at the same step), and **every place has one more good bite**
   than its built count (`everyWater`, the lead's ruling of 15 November 2026, §3.5 decision 4). Nothing else changes.
@@ -299,7 +317,9 @@ ruling that the carrier is Tallow, the thick, sturdy candle. Revision 2's Long N
 
 ### 2.5 Ashwick: Burned Once, Burns Back
 
-- **Passive:** **Burns Back** (`burns_back`). **On screen:** "A fish that gets away comes back." (7 words, 33 characters)
+- **Passive:** **Burns Back** (`burns_back`). **On screen:** "A fish that gets away comes back." (7 words, 33 characters;
+  unchanged in revision 4: it already says plainly what changes) **Picture:** a fish, and an ember-warm arrow curling back the
+  way it went.
 - **Rule.** When a hooked fish gets away from Ashwick, **the next bite at that same water this evening is that same fish**:
   the same species, the same size `z`. It is **tired**: +**4** Hold (`hold`, range 2–4: the run cap, `CATCH_V3.buffs.runCap` 4), through the built per-Wick buff
   (inside the run cap). It **spends a good bite like any bite** (so a let-go comeback refunds as built), and it still needs
@@ -638,8 +658,9 @@ docs commit):
 5. **Make a giant certain.** No passive gives a sure giant bite or catch. A giant's share is never above 12% of bites. A giant at
    Prize lands at most 50% of the time. No passive gives a giant a second try beyond the built Marked Fish.
 6. **Touch a legend.** Their bites, waits, Fight, wounds and crown price are the same for all five.
-7. **Show odds.** No passive adds a number, a percentage or a word on screen. No Wick term appears in `getOdds` or the gear log,
-   and no code id (such as `broad_back`) reaches the DOM. Tallow's "Four slots" replaces "Three slots"; it is not an added word.
+7. **Show odds.** No passive adds a number, a percentage or a word on screen (New Descent's block, guard 12, is the one place a
+   passive is named). No Wick term appears in `getOdds` or the gear log, and no code id (such as `broad_back`) reaches the DOM.
+   Tallow's "Four slots" replaces "Three slots"; it is not an added word. The pictures (revision 4) carry no digit.
 8. **Tell before the reveal.** No sign may reveal a fish's species or novelty before the reveal. Taper's rule tells only "not a
    common", and only where the uncommon-and-rare pool keeps ≥ 2 kinds and none above 80%. Ashwick's returning fish was already
    named by the got-away note.
@@ -652,8 +673,10 @@ docs commit):
 11. **Share a variable.** Each passive owns what §1.1 lists; no other Wick touches it. No Wick moves the clock; only Tallow
     changes the hold and the good bites; only Taper raises giants home as its domain (Tallow's extra good bites bring
     ×1.20 an hour as a side effect, accepted by the lead within its own limit of ×1.25, check 5).
-12. **Add words or buttons.** One line per Wick, **≤ 8 words and ≤ 36 characters** (the `validate-data --loop` limits), only
-    under the cards on New Descent. No passive has a button, a meter or a toggle.
+12. **Add words or buttons.** One name and one line per Wick, the line **≤ 8 words and ≤ 36 characters** (one row of SPEC
+    §8.10's budget; the `validate-data --loop` limits), with one small ink picture, all three only in the lit Wick's block under
+    the cards on New Descent, and the picture alone, small, under each card's name there (revision 4, the user's words of 16
+    November 2026). No passive has a button, a meter or a toggle.
 13. **Depend on save history.** The Wick's ledger is the loop's own; Tallow's slot is computed from the bought `holdSlots`,
     never stored; every passive is the same on a fresh save and a migrated one.
 14. **Run off the loop.** Every hook is gated, draws no RNG off the loop, and edits no v1 or v3 table or exported function
@@ -1125,3 +1148,37 @@ prototype of `clams.mjs` (its `trip()` and `freshOf`) and its report files. **Ac
 | 12 | could | the first ruling's table has no revision-3 marker | accepted | "(revision 3: kept in §6.4)" and "(revision 3: Tallow)" |
 
 `loopSlots` is kept as the save wrapper, since the hold row, `holdFull` and `computeStats` read a save.
+
+### 7.4 Revision 4 (the user's words, 16 November 2026)
+
+> "When choosing a wick, the passive bonus should be bigger in your view and more obvious what it does. Could they be
+> accompanied with a small image indicating what they do?"
+
+**What changed on screen.** New Descent keeps the five portraits, Back and Start. Under the cards, set apart on a deeper pool of
+night, the lit Wick's passive is one block: a small ink picture (`ui-icons.js` `passiveIcon`, 64-grid, pale ink with one
+candle-amber accent), the passive's name (`TEXT_LOOP.passives`) and its line, one row each. No other screen names a passive, so
+the pictures appear nowhere else (the Journal's title names the Wick, not its passive). **What did not change:** every rule,
+knob, hook and test of §2–§4; the code ids.
+
+**The user on the first version (16 November 2026):** "Make it bigger on desktop and put icons on every portrait".
+
+| on New Descent | first version | now |
+|---|---|---|
+| the lit Wick's block on a desktop (960 × 540) | picture 80 px, name 28 px, line 24 px | picture 112 px, name 36 px, line 30 px; a taller window grows them a little (at most 140, 46 and 38 px) |
+| the block on a phone (390 × 844) | picture 64 px, name 21 px, line 19 px | unchanged |
+| the cards | portrait and name | portrait, name and, under the name, the passive's picture (42 px; 32 on a phone): quiet on the unlit cards (dim ink at a little over half strength, a touch more on a phone), bright on the lit one |
+| room for it on a desktop | cards 128 × 164, portrait 92 × 110 | cards 128 × 206, portrait 88 × 105; the panel's top padding and the gaps a little tighter, so the panel still fits a 540 px window |
+
+The first version had set the card pictures aside as busier; drawn quiet (the unlit ones dim, the lit one bright) they let the
+eye compare the five before lighting one, and the lit block still says it in words. The pictures are the first version's, not
+redrawn. The panel is still five portraits, one block, Back and Start.
+
+**The lines, checked against "more obvious what it does"** (each one row, ≤ 8 words and ≤ 36 characters, SPEC §8.10):
+
+| Wick | was | now | why |
+|---|---|---|---|
+| the Wick | "Firsts and new bests sell higher." | "New kinds and new bests sell higher." | "Firsts" said first of what only to a player who knew; a new kind and a new best are what the card stamps (a first Prize, Trophy or Elder is almost always a new best too) |
+| Taper | "First bites are never common fish." | "Evenings start with a rarer fish." | "First bites" did not say whose or when; the rule is the first bite of each evening, and "rarer" says no more than "not a common" (guard 8) |
+| Stub | "Quick bites, even on quiet water." | "Fish bite sooner and keep biting." | "Quick bites" could read as bites that are quick to escape; the passive is the wait (sooner) and quiet water that keeps its pace (keep biting) |
+| Tallow | "Stout enough for one more fish." | "One more slot in the hold." | "stout enough" described Tallow, not what changes; now the slot in the hold, plainly, in the shelf's own words ("One more slot.") |
+| Ashwick | "A fish that gets away comes back." | unchanged | it already says what changes |

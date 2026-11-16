@@ -224,16 +224,17 @@ export function titleModel({ fresh = false, replay = false, D = null } = {}) {
   return { fresh: false, primary: TL.continue || 'Continue', words, prologue: !!replay };
 }
 
-/** New Descent under the loop (SPEC §8.5, PLAN CHOICEs 29, 42): the five Wicks in LOOP.wicks order, the lit Wick's one line, Back,
- *  Start. {cards: [{id, name, look}], sel, line, words}. */
+/** New Descent under the loop (SPEC §8.5, PLAN CHOICEs 29, 42): the five Wicks in LOOP.wicks order, the lit Wick's passive (its
+ *  picture, its name and its one line: the user's "more obvious what it does", 16 November 2026), Back, Start.
+ *  {cards: [{id, name, look}], sel, passive, line, words}. */
 export function descentModel(D, sel = 'wick') {
   const order = arr(D?.LOOP?.wicks?.order).length ? D.LOOP.wicks.order : ['wick', 'taper', 'stub', 'tallow', 'ashwick'];
   const by = (id) => D?.CHARACTER_BY_ID?.[id] || arr(D?.CHARACTERS).find((c) => c?.id === id) || null;
   const s = order.includes(sel) ? sel : order[0];
   const cards = order.map((id) => ({ id, name: by(id)?.name || id, look: by(id)?.look || {} }));
   const TL = T_(D);
-  const line = TL.wicks?.[s] || '';
-  return { cards, sel: s, line, words: [...cards.map((c) => c.name), line, TL.back || 'Back', TL.start || 'Start'] };
+  const passive = TL.passives?.[s] || '', line = TL.wicks?.[s] || '';
+  return { cards, sel: s, passive, line, words: [...cards.map((c) => c.name), ...(passive ? [passive] : []), line, TL.back || 'Back', TL.start || 'Start'] };
 }
 
 /** The catch card's foot on a trip (SPEC §8.2, PLAN §2.3 item 5, T54): exactly Keep (key 1, primary; its clams; dimmed with no

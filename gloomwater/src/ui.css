@@ -2405,17 +2405,54 @@
 .gw-title--loop .gw-title-menu { gap: 4px; }
 
 /* ---------------------------------------------------------------- New Descent under the loop: the five Wicks, one line, Back, Start */
-.gw-loop-descent { padding-top: 26px; }
-.gw-loop-descent .gw-pc { align-items: center; gap: 0; }
+.gw-loop-descent { padding-top: 12px; }
+.gw-loop-descent .gw-pc { align-items: center; gap: 0; margin-top: 4px; }
 .gw-loop-chars { flex-wrap: nowrap; gap: 16px; }
-.gw-loop-chars .gw-char { width: 128px; min-height: 164px; justify-content: flex-start; padding: 10px 4px 20px; }
-.gw-loop-chars .gw-char svg { width: 92px; height: 110px; }
-.gw-loop-chars .gw-char:not(.gw-on) svg { opacity: .7; filter: saturate(.75) brightness(.86); transition: opacity .3s, filter .3s; }
+.gw-loop-chars .gw-char { width: 128px; min-height: 0; justify-content: flex-start; padding: 6px 4px 22px; gap: 5px; }
+.gw-loop-chars .gw-char .gw-portrait { width: 88px; height: 105px; }
+.gw-loop-chars .gw-char:not(.gw-on) .gw-portrait { opacity: .7; filter: saturate(.75) brightness(.86); transition: opacity .3s, filter .3s; }
 .gw-loop-chars .gw-char.gw-on { transform: translateY(-4px); }
 .gw-loop-chars .gw-char-name { text-align: center; overflow-wrap: normal; word-break: normal; }
-.gw-loop-trait { margin: 16px auto 0; max-width: 36ch; min-height: 1.4em; text-align: center; font: italic 400 21px/1.35 var(--f-body); color: #e9e4fb; text-shadow: var(--ink-shadow); }
-.gw-loop-descent .gw-pf { gap: 4px 30px; margin-top: 22px; }
+/* each portrait's passive picture under its name (the user, 16 November 2026: "put icons on every portrait"): small and quiet on
+   the unlit Wicks, bright on the lit one */
+.gw-loop-chars .gw-char-pico { position: relative; flex: none; width: 42px; height: 42px; margin-top: 2px; color: var(--ink-dim); opacity: .56; filter: saturate(.55) drop-shadow(0 1px 1px rgba(4, 5, 12, .9)); transition: opacity .3s, color .3s, filter .3s; }
+.gw-loop-chars .gw-char .gw-pico { display: block; width: 100%; height: 100%; max-width: none; aspect-ratio: auto; }
+.gw-loop-chars .gw-char:hover .gw-char-pico, .gw-loop-chars .gw-char:focus-visible .gw-char-pico { opacity: .72; }
+.gw-loop-chars .gw-char.gw-on .gw-char-pico { color: var(--ink-hi); opacity: 1; filter: drop-shadow(0 1px 1.5px rgba(4, 5, 12, .95)) drop-shadow(0 0 8px rgba(4, 5, 12, .6)); }
+/* the lit Wick's passive (the user, 16 November 2026: "bigger in your view and more obvious what it does", with "a small image";
+   then "Make it bigger on desktop"): its ink picture beside its name and its line, set apart under the cards on a deeper pool of
+   night; never a box. On a desktop it grows a little with a taller window (112 px picture, 36 px name, 30 px line at 540 high) */
+.gw-loop-passive { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; gap: 24px; margin: 10px auto 0; padding: 2px 28px; max-width: 100%; }
+.gw-loop-passive::before { content: ''; position: absolute; inset: -12px -64px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(var(--veil-rgb), .8), rgba(var(--veil-rgb), .52) 60%, rgba(var(--veil-rgb), 0)); }
+.gw-loop-passive-ico { flex: none; width: clamp(112px, calc(64px + 9vh), 140px); aspect-ratio: 1; color: var(--ink); filter: drop-shadow(0 1px 1.5px rgba(4, 5, 12, .95)) drop-shadow(0 0 12px rgba(4, 5, 12, .6)); }
+.gw-loop-passive-ico .gw-pico { display: block; width: 100%; height: 100%; }
+.gw-loop-passive-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; font-size: clamp(30px, calc(17px + 2.4vh), 38px); }   /* (each Wick's picture and words centred as one: a short line never leaves the block off the panel's middle) */
+.gw-loop-passive-name { font: 400 1.2em/1.1 var(--f-display); letter-spacing: .07em; color: var(--ink-hi); text-shadow: 0 0 18px var(--glow-soft), var(--ink-shadow); }
+.gw-loop-trait { display: block; margin: 0; white-space: nowrap; font: italic 400 1em/1.3 var(--f-body); color: #e9e4fb; text-shadow: var(--ink-shadow); }
+.gw-loop-descent .gw-pf { gap: 4px 30px; margin-top: 12px; }
 .gw-loop-descent .gw-pf .gw-btn { min-height: 56px; font-size: 22px; }
+/* the passive block on a narrow window (a phone, a slim tablet) and on a short one (a phone on its side): the same block, smaller */
+@media (max-width: 860px) and (min-width: 621px) {
+  .gw-loop-passive-ico { width: 96px; }
+  .gw-loop-passive-txt { font-size: 26px; }
+}
+@media (max-width: 620px) {
+  .gw-loop-passive { gap: 12px; margin-top: 12px; padding: 2px 4px; }
+  .gw-loop-passive-ico { width: 64px; }
+  .gw-loop-passive-txt { min-width: 250px; font-size: 19px; }   /* (on a phone the block fills the width, left-aligned) */
+  .gw-loop-passive-name { font-size: 21px; }
+}
+@media (max-height: 500px) and (min-width: 621px) {
+  .gw-loop-descent { padding-top: 6px; padding-bottom: 46px; }
+  .gw-loop-chars .gw-char { padding: 2px 4px 17px; gap: 2px; }
+  .gw-loop-chars .gw-char .gw-portrait { width: 62px; height: 74px; }
+  .gw-loop-chars .gw-char-pico { width: 30px; height: 30px; margin-top: 0; }
+  .gw-loop-passive { margin-top: 4px; padding: 0 24px 0 14px; gap: 14px; }
+  .gw-loop-passive-ico { width: 58px; }
+  .gw-loop-passive-txt { font-size: 20px; gap: 1px; }
+  .gw-loop-passive-name { font-size: 23px; }
+  .gw-loop-descent .gw-pf { margin-top: 8px; }
+}
 
 /* ---------------------------------------------------------------- the catch card on a trip: Keep · clam · value, and Let go */
 .gw-cc-loop .gw-catch-actions--loop { gap: 2px 34px; }
@@ -2518,16 +2555,17 @@
    gaps, names wrapping to two lines and never truncated, the foot's two buttons ≥ 56 px above --sab */
 @media (max-width: 480px) {
   .gw-m-newdescent:has(.gw-loop-descent) { align-items: flex-end; padding-bottom: max(12px, var(--sab)); }
-  .gw-loop-descent { width: calc(100vw - 32px); max-height: calc(58vh); padding: 12px 0 40px; }
+  .gw-loop-descent { width: calc(100vw - 32px); max-height: calc(66vh); padding: 12px 0 40px; }
   .gw-loop-descent .gw-pc { overflow: visible; }
   .gw-loop-chars { display: grid; grid-template-columns: repeat(6, 46px); gap: 12px; justify-content: center; }   /* 3 × 104 + 2 × 12 = 336 */
-  .gw-loop-chars .gw-char { grid-column: span 2; width: 104px; min-height: 128px; padding: 4px 2px 14px; gap: 4px; }
+  .gw-loop-chars .gw-char { grid-column: span 2; width: 104px; min-height: 0; padding: 4px 2px 16px; gap: 4px; }
   .gw-loop-chars .gw-char:nth-child(4) { grid-column: 2 / span 2; }
-  .gw-loop-chars .gw-char svg { width: 66px; height: 79px; }
+  .gw-loop-chars .gw-char .gw-portrait { width: 66px; height: 79px; }
+  .gw-loop-chars .gw-char-pico { width: 32px; height: 32px; margin-top: 0; opacity: .64; }   /* (a touch stronger: the small ink on the lake's lighter water) */
   .gw-loop-chars .gw-char-name { font-size: 14.5px; letter-spacing: .1em; line-height: 1.2; white-space: normal; max-width: 100px; }
   .gw-loop-chars .gw-char::after { width: 70px; margin-left: -35px; }
   .gw-loop-chars .gw-char.gw-on::before { width: 98px; height: 92px; margin-left: -49px; }
-  .gw-loop-trait { margin-top: 12px; font-size: 18px; }
+  .gw-loop-passive::before { inset: -8px -16px; }
   .gw-loop-descent .gw-pf { display: grid; grid-template-columns: 1fr 1.6fr; gap: 0 8px; margin-top: 14px; }
   .gw-loop-descent .gw-pf .gw-btn { min-height: 56px; padding: 0 .6em; }
 }

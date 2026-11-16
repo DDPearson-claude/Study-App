@@ -208,9 +208,14 @@ if (process.argv.includes('--loop')) {
   ok4(L4.wickSlots(H.max, 'tallow') === 9 && L4.wickSlots(H.max, 'wick') === 8 && L4.loopSlots({ holdSlots: 3 }, 'tallow') === 4, 'Tallow: 4 slots at the start, 9 at Hold 8; every other Wick 3 to 8');
   ok4(W.ashwick.passive === 'burns_back' && Number.isInteger(W.ashwick.hold) && inR(W.ashwick.hold, 2, 4) && W.ashwick.hold <= (L4.CATCH_V3.buffs.runCap ?? L4.CATCH_V3.buffs.cap), `Ashwick: hold 2–4, inside the run cap (${W.ashwick.hold})`);
   ok4(same(L4.CATCH_V3.buffs.wicks.ashwick, { hold: W.ashwick.hold }) && !('tallow' in L4.CATCH_V3.buffs.wicks), "the apply block: Ashwick's tired comeback {hold} with no `on`; no Tallow buff");
-  // the Wicks' words (guard 12): one line each, ≤ 8 words and ≤ 36 characters; the first Chart's line per Wick
+  // the Wicks' words (guard 12): one name and one line each (the user, 16 November 2026: "more obvious what it does": WICKS §7.4),
+  // the line ≤ 8 words and ≤ 36 characters (one row of SPEC §8.10's budget), the name one or two words; the first Chart's line per Wick
   ok4(same(Object.keys(TL.wicks).sort(), W.order.slice().sort()), 'TEXT_LOOP.wicks has one line per Wick');
   for (const [id, line] of Object.entries(TL.wicks)) ok4(typeof line === 'string' && line.trim().split(/\s+/).length <= 8 && line.length <= 36, `TEXT_LOOP.wicks.${id}: ≤ 8 words and ≤ 36 characters ("${line}")`);
+  ok4(same(Object.keys(TL.passives || {}).sort(), W.order.slice().sort()), 'TEXT_LOOP.passives has one name per Wick');
+  { const P = TL.passives || {}, names = W.order.map((id) => P[id]);
+    ok4(names.every((x) => typeof x === 'string' && /^[A-Z][a-z]+(?:[ -][A-Z][a-z]+)?$/.test(x) && x.length <= 16) && new Set(names).size === 5, `TEXT_LOOP.passives: five different names of one or two words, ≤ 16 characters (${names.join(', ')})`);
+    ok4(W.order.every((id) => (P[id] || '').toLowerCase().replace(/[ -]/g, '_') === W[id].passive), 'TEXT_LOOP.passives: each Wick\'s name is its passive\'s (WICKS §2: curious → Curious, broad_back → Broad Back)'); }
   ok4(Object.keys(TL.murk.firstChartBy || {}).every((id) => W.order.includes(id) && typeof TL.murk.firstChartBy[id] === 'string'), 'TEXT_LOOP.murk.firstChartBy keys are Wick ids');
   ok4(L4.INTRO.text[2] === TL.introLine3 && L4.INTRO.cove.text[2] === TL.introLine3, "the film's line 3 under the loop is TEXT_LOOP.introLine3 (LORE §12)");
   { const I = L4.INTRO, l = I.lines[2], cps = I.text[2].length / Math.max(0.01, l.out - l.at - I.lineFade), below = I.beats.find((b) => b.id === 'below');

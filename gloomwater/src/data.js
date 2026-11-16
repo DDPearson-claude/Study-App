@@ -4856,10 +4856,12 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
     firstLetGo: 'Let one go and the water remembers.',
     firstTrophy: "Now that's a fish.",
     sailOut: ['Bring me something with a story.', 'The big ones come up at dusk. They always did.', 'Back already? Good. Out you go.'] },
-  // the opening (SPEC §8.5): the user's New Descent and Start; Back; the five passives' lines (WICKS §2, one line each)
+  // the opening (SPEC §8.5): the user's New Descent and Start; Back; the five passives' names and lines (WICKS §2, one line each;
+  // the names shown and four lines made plainer for the user's "more obvious what it does", 16 November 2026, WICKS §7.4)
   newDescent: 'New Descent', start: 'Start', back: 'Back',
-  wicks: { wick: 'Firsts and new bests sell higher.', taper: 'First bites are never common fish.', stub: 'Quick bites, even on quiet water.',
-    tallow: 'Stout enough for one more fish.', ashwick: 'A fish that gets away comes back.' },
+  passives: { wick: 'Curious', taper: 'Long Reach', stub: 'Moth-Bright', tallow: 'Broad Back', ashwick: 'Burns Back' },
+  wicks: { wick: 'New kinds and new bests sell higher.', taper: 'Evenings start with a rarer fish.', stub: 'Fish bite sooner and keep biting.',
+    tallow: 'One more slot in the hold.', ashwick: 'A fish that gets away comes back.' },
   comingSoon: 'Coming soon',   // the sealed sheet of a water past LOOP.shipped (SPEC §5.4; M1.md §3.3), on the drawn Chart
   introLine3: 'Its last candles fish from lamp to lamp.',   // the film's line 3 under the loop (LORE §12; the apply block sets it)
   // Settings under the loop (PLAN CHOICE 43, SPEC §8.5): the word itself, the strike ring's first option and the hurry row's line

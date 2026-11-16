@@ -719,10 +719,28 @@ export default async function (api) {
         };
         const tr = m?.querySelector('.gw-loop-trait');
         const rowsOf = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return new Set([...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1).map((q) => Math.round(q.bottom))).size; };
+        // the lit Wick's passive block (the user, 16 November 2026): its picture, its name and its line, clear of the cards and the
+        // foot, inside the window, nothing cut
+        const pv = m?.querySelector('.gw-loop-passive'), nm = pv?.querySelector('.gw-loop-passive-name'), pic = pv?.querySelector('.gw-loop-passive-ico svg.gw-pico');
+        const bx = (e) => { const r = e?.getBoundingClientRect(); return r ? { l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height } : null; };
+        const meet = (a, b) => !!a && !!b && a.l < b.r - 1 && b.l < a.r - 1 && a.t < b.b - 1 && b.t < a.b - 1;
+        const pb = bx(pic), tb = bx(tr), nb = bx(nm), cardB = cards.map((b) => bx(b.querySelector('.gw-char-name'))), footB = [...(m?.querySelectorAll('.gw-pf .gw-btn') || [])].map(bx);
+        const parts = [pb, nb, tb].filter(Boolean);
         return {
           top: window.__gw.debug.ui().openModal, ids: cards.map((b) => b.dataset.wick), enabled: cards.every((b) => !b.disabled), on: cards.filter((b) => b.classList.contains('gw-on')).map((b) => b.dataset.wick),
           boxes: cards.map((b) => { const r = b.getBoundingClientRect(); return { w: Math.round(r.width), t: Math.round(r.top), l: Math.round(r.left) }; }), fit: cards.map(fit),
           trait: tr ? tr.textContent.replace(/\s+/g, ' ').trim() : null, traitRows: tr ? rowsOf(tr) : null,
+          passive: nm ? nm.textContent.replace(/\s+/g, ' ').trim() : null, blocks: m ? m.querySelectorAll('.gw-loop-passive').length : 0, pic: pb ? Math.round(Math.min(pb.w, pb.h)) : 0,
+          clear: parts.length === 3 && !parts.some((p) => cardB.some((c) => meet(p, c)) || footB.some((f) => meet(p, f))) && !meet(pb, nb) && !meet(pb, tb)
+            && parts.every((p) => p.l >= 0 && p.r <= innerWidth && p.t >= 0 && p.b <= innerHeight) && (!tr || tr.scrollWidth <= tr.clientWidth + 1) && (!nm || nm.scrollWidth <= nm.clientWidth + 1),
+          // each card's passive picture (the user, 16 November 2026: "put icons on every portrait"): under its name, inside its card,
+          // whole on screen; quieter on the unlit cards than on the lit one
+          picos: cards.map((b) => {
+            const w = b.querySelector('.gw-char-pico'), sv = w?.querySelector('svg.gw-pico'), pb2 = bx(sv), cb = bx(b), nb2 = bx(b.querySelector('.gw-char-name'));
+            return { id: b.dataset.wick, size: pb2 ? Math.round(Math.min(pb2.w, pb2.h)) : 0, under: !!pb2 && !!nb2 && pb2.t >= nb2.b - 1 && !meet(pb2, nb2),
+              inside: !!pb2 && pb2.l >= cb.l - 1 && pb2.r <= cb.r + 1 && pb2.t >= 0 && pb2.b <= innerHeight, op: w ? Number(getComputedStyle(w).opacity) : 0, on: b.classList.contains('gw-on') };
+          }),
+          clearOfPicos: parts.length === 3 && !parts.some((p) => cards.some((b) => meet(p, bx(b.querySelector('.gw-char-pico'))))),
           forbidden: m ? ['.gw-locked', '.gw-mode', '.gw-ways', '.gw-cd-row', '.gw-chips', '.gw-rating', '.gw-lore'].filter((q) => m.querySelector(q)) : [],
           x: !!m?.querySelector('.gw-x'), phone,
         };
@@ -733,8 +751,13 @@ export default async function (api) {
       K.check(nd.forbidden.length === 0, 'T59: no locks, modes, waystones, night cards, chips, rating or lore', nd.forbidden);
       K.check(!nd.x, 'T59: the panel has no ✕ (close: false)');
       const panelWords = (await K.scanRaw({ roots: ['#ui > .gw-modal-layer [data-modal=newdescent]'], newDescentOk: true })).texts;
-      const wantWords = [...order.map((id) => D.names[id]), TL.wicks[nd.on[0] || 'wick'], TL.back, TL.start];
-      K.check(panelWords.length === wantWords.length && wantWords.every((w) => panelWords.includes(w)), 'T59: the words are the five names, the lit Wick\'s one line, Back and Start', { panelWords, wantWords });
+      const wantWords = [...order.map((id) => D.names[id]), ...(TL.passives ? [TL.passives[nd.on[0] || 'wick']] : []), TL.wicks[nd.on[0] || 'wick'], TL.back, TL.start];
+      K.check(panelWords.length === wantWords.length && wantWords.every((w) => panelWords.includes(w)), 'T59: the words are the five names, the lit Wick\'s passive name and one line, Back and Start', { panelWords, wantWords });
+      K.check(nd.blocks === 1 && nd.pic >= (K.phone ? 56 : 104), 'T59: one passive block, its ink picture at least 56 px on a phone, 104 on a desktop', { blocks: nd.blocks, pic: nd.pic });
+      { const lit = nd.picos.find((p) => p.on), dim = nd.picos.filter((p) => !p.on);
+        K.check(nd.picos.length === 5 && nd.picos.every((p) => p.size >= (K.phone ? 28 : 36) && p.under && p.inside) && nd.clearOfPicos,
+          'T59: every card carries its passive\'s picture under its name, inside the card and clear of the lit Wick\'s block', nd.picos);
+        K.check(!!lit && dim.length === 4 && dim.every((p) => p.op < lit.op), 'T59: the unlit cards\' pictures are quieter than the lit one\'s', nd.picos.map((p) => [p.id, p.op])); }
       if (K.phone) {
         // (rows by top within 12 px: the lit card stands a few px proud of its row)
         const rows = [];
@@ -755,8 +778,9 @@ export default async function (api) {
       for (let i = 0; i < order.length; i++) {
         await K.key(`Digit${i + 1}`);
         nd = await panel();
-        K.check(nd.on[0] === order[i] && nd.trait === TL.wicks[order[i]], `T59: Digit${i + 1} lights ${order[i]} and its line`, { on: nd.on, trait: nd.trait });
+        K.check(nd.on[0] === order[i] && nd.trait === TL.wicks[order[i]] && (!TL.passives || nd.passive === TL.passives[order[i]]), `T59: Digit${i + 1} lights ${order[i]}, its passive's name and its line`, { on: nd.on, passive: nd.passive, trait: nd.trait });
         K.check(nd.traitRows === 1, `WICKS §5: ${order[i]}'s line is one line high`, nd.traitRows);
+        K.check(nd.clear, `T59: ${order[i]}'s passive block (picture, name, line) overlaps no card name and no button, and nothing in it is cut`);
         if (K.phone) await K.shoot(`lit-${order[i]}`);
       }
       await K.tap(`[data-modal=newdescent] button.gw-char[data-wick=${wick}]`);
@@ -1573,8 +1597,8 @@ export async function dryRun() {
   ok(tallyFaults([{ uid: 'a', clams: 9 }], 10, { a: 9 }, 'stub').length > 0, 'tallyFaults: a wrong total');
   // T43's rules: what must pass and what must not
   const R = wordRules(D);
-  const yes = [[TL.holdFull], [TL.home], [TL.sold], [TL.yours], [TL.murk.wake], [`“${TL.murk.firstSale}”`], [TL.murk.firstChartBy.tallow], [TL.wicks.ashwick],
-    ['Next: Hold 4 · 30'], ['Next: Hold 4 ·'], ['Next: Ashwood · 50'], ['Hold 5'], ['Dusk Minnow'], ['Keeper'], ['The Mossmere'], ['Taper'], ['Prologue'],
+  const yes = [[TL.holdFull], [TL.home], [TL.sold], [TL.yours], [TL.murk.wake], [`“${TL.murk.firstSale}”`], [TL.murk.firstChartBy.tallow], [TL.wicks.ashwick], [TL.wicks.tallow],
+    ...Object.values(TL.passives || {}).map((n) => [n]), ['Next: Hold 4 · 30'], ['Next: Hold 4 ·'], ['Next: Ashwood · 50'], ['Hold 5'], ['Dusk Minnow'], ['Keeper'], ['The Mossmere'], ['Taper'], ['Prologue'],
     ['Hold on the water. Let go to cast.'], ['Now. Tap.'], ['Lidded Creel'], ['Ashwood'], ['Bellwether'], ['12.4k'], ['+43'], ['9,999'], ['3 / 6'],
     ['6 oz'], ['4 lb 12 oz'], ['¼ oz'], ['lb'], ['·'], ['Dusk Minnow · 6 oz'], ['length', { card: true }], ['23.4 cm', { card: true }], [TL.settings.label], [TL.resume]];
   for (const [t, wh] of yes) ok(classifyText(t, R, wh || {}) === 'ok', `T43 allows "${t}"`, classifyText(t, R, wh || {}));
