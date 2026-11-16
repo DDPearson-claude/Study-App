@@ -312,6 +312,16 @@ section('the Matriarch a catfish (M1.md §2.3, §2.4): her plan, her land chance
   near(p, 0.27, 'about 27% at T1 (the sim\'s)', 0.006);
 }
 
+section('the Chart\'s slots (ui-gear.js, pure): the bait slot cycles the bag, the lure slot the owned lures');
+{
+  const UG = await import('../../src/ui-gear.js');
+  const ml = { ...PL.freshLoop(D), lures: ['bone_jig', 'glimmer_spoon'], bait: { mossmere: { heartmoss: 1, lumen_moss: 4, cut_strip: 0 } }, fitted: { lure: null, bait: null } };
+  eq(UG.baitChoices(D, ml, 'mossmere').map((c) => [c.id, c.count]), [['heartmoss', 1], ['lumen_moss', 4]], 'the bait slot\'s choices: the bag\'s ball and tins (none at 0)');
+  eq(UG.lureChoices(D, ml).map((c) => c.id), ['glimmer_spoon', 'bone_jig'], 'the lure slot\'s: the owned lures in LOOP.lures\' order');
+  eq([UG.nextChoice(UG.baitChoices(D, ml), null), UG.nextChoice(UG.baitChoices(D, ml), 'heartmoss'), UG.nextChoice(UG.baitChoices(D, ml), 'lumen_moss')], ['heartmoss', 'lumen_moss', null], 'a tap takes the next, and after the last a bare hook');
+  ok(UG.baitChoices(D, { ...ml, fitted: { bait: 'mireworm' } }).some((c) => c.id === 'mireworm' && c.count === 0), 'the fitted one stays a choice at 0 (so it can be taken off)');
+}
+
 section('the words (SPEC §8.4, §8.6)');
 {
   const TL = D.TEXT_LOOP;
