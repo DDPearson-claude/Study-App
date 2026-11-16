@@ -17,6 +17,10 @@
 //                marked), show.json (every sound the module issued at its film time, the game's own list from the run laid on
 //                the steps beside it, the level per beat). With --film and --mux: the film with this sound (the picture copied,
 //                AAC 192k, the last 0.6 s faded), ffmpeg's volumedetect and a spectrogram strip beside it.
+//                Ends with the show's mix gates (slice-1a PLAN §2.2 item 25): the present the loudest beat of each show, no card sound
+//                above it, the master's peak ≤ -1.0 dBFS, the Small's cord ticks ≥ 6 dB over the bed, no hush rise on the card's
+//                first frame, the card's own unfold sound, no trial chime inside the show (exit code 1 when one fails). The committed
+//                log is tools/tests/fixtures/show-seq-sound.json (a Small and an Elder).
 //
 // Bundles src/audio-dsp.js + src/audio-sfx.js (+ audio-af.js) + src/audio-v3.js with esbuild, opens it in headless Chromium and
 // renders each case through an OfflineAudioContext with the game's own SFX bus shape (dry + the cavern convolver + the delay),
@@ -448,7 +452,43 @@ async function renderShow() {
   }
   console.log('\n  beat                                   film s          peak    mean (dBFS)');
   for (const b of beats) console.log(`  ${(b.take + ': ' + b.beat).padEnd(40)} ${b.from.toFixed(2).padStart(5)} – ${b.to.toFixed(2).padStart(5)}   ${String(b.peak).padStart(6)}  ${String(b.rms).padStart(6)}`);
-  const summary = { log: showLogPath, sr: SR, seconds: +filmLen.toFixed(3), options: o, raw, gainDb: +gainDb.toFixed(2), level: out, takes, beats, env50ms: env };
+  // ---- the show's mix gates (slice-1a PLAN §2.2 item 25; M1.md §2.13 (1)): on the levels above (one gain for the whole film, so
+  // every comparison is the module's own) and the module's own output before that gain (the master's peak)
+  const gates = [];
+  const gate = (ok, msg, extra) => { gates.push({ ok: !!ok, msg, extra: extra ?? null }); };
+  const ldS = o.lead * stepMs / 1000;
+  for (const t of takes) {
+    const pk = (label) => beats.find((b) => b.take === t.name && b.beat === label)?.peak ?? null;
+    const P = pk('the present and the hold'), showBeats = [['the reveal', pk('the reveal (T0 → the lift)')], ['the lift', pk('the lift')]];
+    const loud = showBeats.filter(([, v]) => v !== null && P !== null && v > P + 0.05);
+    gate(P !== null && !loud.length, `${t.name}: the present is the loudest beat of its show (present ${P} dBFS; ${showBeats.map(([k, v]) => `${k} ${v}`).join(', ')})`);
+    const card = [['the card opening', pk('the card (open → the count)')], ['the count', pk('the count')], ['the stamp and after', pk('the stamp and after')]];
+    const over = card.filter(([, v]) => v !== null && P !== null && v > P + 0.05);
+    gate(P !== null && !over.length, `${t.name}: no card sound above its show's present (${card.map(([k, v]) => `${k} ${v}`).join(', ')})`);
+    const M = t.marks, at = (k) => (M[k] === null || M[k] === undefined ? null : t.start + M[k] - ldS);
+    const open = at('cardOpen');
+    if (open !== null) {
+      const near = t.issued.filter((e) => t.start + e.x >= open - 0.001 && t.start + e.x <= open + 0.25);
+      gate(!near.some((e) => /^rise_/.test(e.name)), `${t.name}: no hush rise on the card's first frame`, near.map((e) => e.name));
+      gate(near.some((e) => e.name === 'ui_unfold') && !near.some((e) => e.name === 'ui_open'), `${t.name}: the card unfolds with its own sound (ui_unfold, not ui_open)`, near.map((e) => e.name));
+    }
+    const t0 = at('T0');
+    if (t0 !== null && open !== null) {
+      const trial = t.issued.filter((e) => /^(challenge_complete|unlock)$/.test(e.name) && t.start + e.x >= t0 && t.start + e.x < open);
+      gate(!trial.length, `${t.name}: no trial chime inside the show (T0 → the card)`, trial.map((e) => e.name));
+    }
+    if (t.cls === 'small' && at('count') !== null) {
+      // the cord's ticks over the bed: each tick's level (RMS, its first 25 ms) against the bed just before the count (100 ms)
+      const c0 = at('count'), bed = level(mix, SR, c0 - 0.12, c0 - 0.02).rms;
+      const ticks = t.issued.filter((e) => e.name === 'cord_tick').map((e) => level(mix, SR, t.start + e.x, t.start + e.x + 0.025).rms).sort((a, b) => a - b);
+      const med = ticks.length ? ticks[Math.floor(ticks.length / 2)] : null;
+      gate(med !== null && bed !== null && med - bed >= 6, `${t.name}: the cord's ticks stand ≥ 6 dB over the bed (median tick ${med} dBFS, bed ${bed} dBFS, ${ticks.length} ticks)`);
+    }
+  }
+  gate(raw.peak <= -1.0, `the master's peak ≤ -1.0 dBFS (the module's own output: ${raw.peak} dBFS)`);
+  console.log('\n  the show\'s mix gates (PLAN §2.2 item 25):');
+  for (const g of gates) console.log(`  ${g.ok ? 'ok  ' : 'FAIL'}  ${g.msg}${!g.ok && g.extra ? ` :: ${JSON.stringify(g.extra)}` : ''}`);
+  const summary = { log: showLogPath, sr: SR, seconds: +filmLen.toFixed(3), options: o, raw, gainDb: +gainDb.toFixed(2), level: out, takes, beats, env50ms: env, gates };
   // ---- the film with its sound
   if (args.film && args.mux) {
     const FF = '/usr/bin/ffmpeg', film = resolve(process.cwd(), String(args.film)), mux = resolve(process.cwd(), String(args.mux));
@@ -470,7 +510,9 @@ async function renderShow() {
   }
   writeFileSync(resolve(outDir, 'show.json'), JSON.stringify(summary));
   console.log(`\nshow.wav, show.png, show.json → ${outDir}`);
-  return 0;
+  const failed = gates.filter((g) => !g.ok).length;
+  console.log(failed ? `the show's mix: ${failed} of ${gates.length} gates FAILED` : `the show's mix: all ${gates.length} gates passed`);
+  return failed ? 1 : 0;
 }
 
 // ------------------------------------------------------------------ run

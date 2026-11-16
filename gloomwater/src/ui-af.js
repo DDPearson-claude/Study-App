@@ -230,7 +230,8 @@ export function oddsView(D, res, { speciesName = '', loadout = [], itemName = ''
   const per = num(D?.CATCH_V3?.legend?.woundPerEscape, 6);
   const wounds = w > 0 ? `Wounded ${w === 1 ? 'once' : w === 2 ? 'twice' : `${w} times`}: +${Math.min(num(D?.CATCH_V3?.legend?.woundCap, 18), w * per)}` : '';
   const notes = unseen ? [L.unseen || 'Land or lose one to learn its odds.'] : [L.strike || 'A clean strike adds a little; an early or late one costs a little.'];
-  if (!unseen && !legend && !cove) notes.push(L.gloomtide || 'Gloomtide: a hand slam that lands parts the line.');   // no Gloom at the Landing
+  // no Gloom at the Landing; none under the loop either (slice 1a: no Gloomtide and no hands on a trip, SPEC §9)
+  if (!unseen && !legend && !cove && D?.LOOP_ENABLED !== true) notes.push(L.gloomtide || 'Gloomtide: a hand slam that lands parts the line.');
   return {
     title: `${speciesName ? `${speciesName} — ` : ''}${(L.title || 'Your odds').toLowerCase()}`, heading: L.title || 'Your odds', known,
     loadout: arr(loadout).filter(Boolean).join(' · '), cells, unseen, legend, withBest, marked, wounds, notes, nightMode,

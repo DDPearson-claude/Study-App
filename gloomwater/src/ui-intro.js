@@ -64,6 +64,12 @@ export function createIntroView(K) {
     if (!e || !e.el) return false;
     try { globalThis.document?.activeElement?.blur?.(); } catch { /* ignore */ }   // (a held Enter or Space must not press Begin again)
     V.title = e.el; V.titleInked = false;
+    // the Full Hold (slice-1a PLAN §2.3 item 9, T71): New Descent's Start plays the film from the panel, which is held with the title,
+    // inert, until the opening ink is full. Under the loop only: off it this is exactly the built title hold
+    if (ctx.data?.LOOP_ENABLED === true) {
+      const nd = K.entry?.('newdescent');
+      if (nd && nd.el) { V.held = nd.el; K.closeModal('newdescent', { hold: true }); }
+    }
     K.closeModal('title', { hold: true });
     return true;
   }
@@ -71,6 +77,7 @@ export function createIntroView(K) {
     const el = V.title;
     V.title = null; V.titleInked = false;
     if (el) { try { el.remove(); } catch { /* ignore */ } }
+    if (V.held) { const nd = V.held; V.held = null; try { nd.remove(); } catch { /* ignore */ } }
   }
 
   function build() {
@@ -117,10 +124,10 @@ export function createIntroView(K) {
     V.lineK = V.veil = V.skip = 0;
   }
   function start() {
-    const title = V.title, inked = V.titleInked;
-    V.title = null;            // (the title taken at this press outlives the teardown of whatever was left of an earlier film)
+    const title = V.title, inked = V.titleInked, held = V.held;
+    V.title = null; V.held = null;   // (the title taken at this press outlives the teardown of whatever was left of an earlier film)
     teardown();
-    V.title = title; V.titleInked = inked;
+    V.title = title; V.titleInked = inked; V.held = held;
     build();
     V.on = true; V.snapshots = true; V.snapCount = 0; V.pokeUntil = 0;
     root.classList.add('gw-intro-on');

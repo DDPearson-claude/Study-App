@@ -41,6 +41,10 @@ export function createHudV3(K, el, R, w) {
   const { setText, setStyle, setVar, toggle, restartAnim } = w;
   const fishV = () => { const f = ctx.fishing; return f && !f.isStub ? f : null; };
   const settings = () => K.settings();
+  /** The Full Hold's trip (slice-1a): the water carries SPEC §8.1's words only. The bite tell keeps its glyph and its class
+   *  estimate (decision 62), the play its class stamp; the tell's word, the strike word, the stamp's "by the look of it" and the
+   *  hurry word go; the favour list opens on a press only (a hover after the aim opened it over the Wick). */
+  const trip = () => D().LOOP_ENABLED === true && run()?.outing === 'trip';
 
   // ------------------------------------------------------------------ elements
   const wf = h('div', 'gw-wf', `<span class="gw-wf-ico">${icon('wellfed')}</span><span class="gw-wf-t">Well-fed</span>`);
@@ -55,10 +59,11 @@ export function createHudV3(K, el, R, w) {
 
   // the float's favour
   const fav = h('div', 'gw-favour', `<svg class="gw-fav-ticks" viewBox="0 0 64 24" aria-hidden="true">${TICK_X.map((x, i) => `<path class="gw-tick-${i}" pathLength="100" d="M${x - 3.2} 20.5 C${x - 1.6} 15 ${x + 1.6} 9 ${x + 3.6} 3.5"/>`).join('')}</svg>
-    <div class="gw-fav-say"></div><div class="gw-fav-list"></div>`);
+    <span class="gw-fav-dots" aria-hidden="true"></span><div class="gw-fav-say"></div><div class="gw-fav-list"></div>`);
   fav.setAttribute('aria-label', "The water's favour (press and hold for details)");
   R.fishui.appendChild(fav);
   const favTicks = [...fav.querySelectorAll('.gw-fav-ticks path')], favSay = fav.querySelector('.gw-fav-say'), favList = fav.querySelector('.gw-fav-list');
+  const favDots = fav.querySelector('.gw-fav-dots');
   // the bite tell
   const tell = h('div', 'gw-tell', '<svg class="gw-tell-svg" viewBox="0 0 60 40" aria-hidden="true"></svg><div class="gw-tell-w"></div>');
   R.fishui.appendChild(tell);
@@ -107,6 +112,7 @@ export function createHudV3(K, el, R, w) {
   // ------------------------------------------------------------------ state
   let live = false, vis = null, hitAt = -1e9, swarmSeen = false, nightKey = '';
   let favN = -1, favQuiet = null, favSig = '', favOpen = false, favHover = false, favPress = null, favPinned = false;
+  let dotsLeft = -1, dotsMax = 0;   // the loop's good-bite dots (slice-1a PLAN §2.3 item 4)
   let tellId = '', clsShown = '', nmT0 = 0, nmQ = [], nmP = null, awayT0 = 0, awayP = null;
   let strikeT = 0, glimpsed = false, playSeen = false, ringOn = false;
   const strikeAt = { x: 0, y: 0, ok: false };
@@ -139,7 +145,7 @@ export function createHudV3(K, el, R, w) {
   fav.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { favHover = false; paintFavOpen(); } });
   fav.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { favHover = true; paintFavOpen(); } });
   fav.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
-  function paintFavOpen() { toggle(fav, 'fav', 'gw-open', favOpen || favHover || settings().favourDetails === true); }
+  function paintFavOpen() { toggle(fav, 'fav', 'gw-open', favOpen || (favHover && !trip()) || settings().favourDetails === true); }
 
   // ------------------------------------------------------------------ events
   const on = (evt, fn) => { try { ctx.bus.on(evt, (p) => { try { if (live) fn(p || {}); } catch (e) { K.report(`hudv3 ${evt}`, e); } }); } catch { /* bus optional */ } };
@@ -336,11 +342,28 @@ export function createHudV3(K, el, R, w) {
     paintPlay(st, v, dt, af);
   }
 
+  /** The loop's good-bite dots under the notches (PLAN §2.3 item 4): min(9, bitesLeft) ink dots; a spent dot fades to a ghost, a
+   *  re-lit one (a fish let go) inks in; none left → the row dims. No word: SPEC §8.1's float carries no text. */
+  function paintDots(F) {
+    const left = typeof F?.bitesLeft === 'number' && Number.isFinite(F.bitesLeft) ? Math.max(0, Math.min(9, Math.round(F.bitesLeft))) : -1;
+    if (left === dotsLeft) return;
+    const prev = dotsLeft;
+    dotsLeft = left;
+    if (left < 0) { favDots.innerHTML = ''; dotsMax = 0; toggle(fav, 'fav', 'gw-loopfav', false); return; }
+    toggle(fav, 'fav', 'gw-loopfav', true);
+    dotsMax = Math.max(dotsMax, left, 1);
+    let html = '';
+    for (let i = 0; i < dotsMax; i++) html += `<i class="${i < left ? 'gw-lit' : 'gw-spent'}${prev >= 0 && i < left && i >= prev ? ' gw-ink' : ''}${prev >= 0 && i >= left && i < prev ? ' gw-fade' : ''}"></i>`;
+    favDots.innerHTML = html;
+    toggle(favDots, 'favD', 'gw-dim', left === 0);
+  }
   function paintFavour(st, v) {
     const F = v.favour;
     const show = bobP.ok && st === 'waiting' && F && typeof F === 'object';
     toggle(fav, 'fav', 'gw-on', !!show);
     if (!show) { if (!favPinned) favOpen = false; return; }
+    const loopF = typeof F.bitesLeft === 'number';
+    paintDots(F);
     const n = Math.max(0, Math.min(5, Math.round(num(F.notches))));
     const quiet = !!F.quiet;
     if (n !== favN || quiet !== favQuiet) {
@@ -353,18 +376,21 @@ export function createHudV3(K, el, R, w) {
       favN = n; favQuiet = quiet;
       toggle(fav, 'fav', 'gw-quiet', quiet);
       toggle(fav, 'fav', 'gw-full', n >= 5);
-      favSay.textContent = V.favourBand(n, quiet, D());
-      if (grew) restartAnim(favSay, 'gw-fresh');
+      // (the loop: no band word, "gone quiet" included: the dots say it; SPEC §8.1)
+      favSay.textContent = loopF ? '' : V.favourBand(n, quiet, D());
+      if (grew && !loopF) restartAnim(favSay, 'gw-fresh');
     }
-    // the list (rebuilt only when the terms change: the hour, a sign, pressure)
-    const sig = arr(F.terms).map((t) => `${t?.family}:${t?.id}:${t?.value}`).join('|');
+    // the list (rebuilt only when the terms change: the hour, a sign, pressure). The loop's quiet water and its let-go favour are the
+    // dots' business, and pressure is parked: those families never reach the list, and an empty list says nothing
+    const terms = loopF ? arr(F.terms).filter((t) => !['pressure', 'quiet', 'letGo'].includes(t?.family)) : arr(F.terms);
+    const sig = `${loopF ? 'L' : ''}${terms.map((t) => `${t?.family}:${t?.id}:${t?.value}`).join('|')}`;
     if (sig !== favSig) {
       favSig = sig;
       const placeName = v.place ? (D().PLACE_BY_ID?.[v.place]?.name || '') : '';
-      const groups = V.favourGroups(F.terms, D(), { placeName });
+      const groups = V.favourGroups(terms, D(), { placeName });
       favList.innerHTML = groups.length
         ? groups.map((g) => `<p class="gw-fam-${g.family}"><b>${esc(g.label)}</b><span>${g.words.map((x) => `<span${x.neg ? ' class="gw-neg"' : ''}>${esc(x.text)}</span>`).join(', ')}</span></p>`).join('')
-        : '<p class="gw-fav-none">Nothing in your favour here. Try dusk, a place, or the right bait.</p>';
+        : loopF ? '' : '<p class="gw-fav-none">Nothing in your favour here. Try dusk, a place, or the right bait.</p>';
     }
     paintFavOpen();
     // dims while a tell plays beside it
@@ -386,7 +412,7 @@ export function createHudV3(K, el, R, w) {
       const n = tellCount(id);
       const ci = V.classInfo(D(), T.cls);
       const legend = !!v.legendary;   // legends are exempt (named by their pool and bait); consumers key on `legendary`, never on rarity
-      tellW.innerHTML = `<span>${esc(T.short)}</span>${n < 3 && ci && !legend ? `<em class="gw-cls-${ci.id}">${esc(ci.label)}?</em>` : ''}`;
+      tellW.innerHTML = `${trip() ? '' : `<span>${esc(T.short)}</span>`}${n < 3 && ci && !legend ? `<em class="gw-cls-${ci.id}">${esc(ci.label)}?</em>` : ''}`;
       if (n < 3) markSeen(`ui_tell_${id}_${n + 1}`);
       restartAnim(tell, 'gw-pop');
     }
@@ -415,10 +441,10 @@ export function createHudV3(K, el, R, w) {
       clsShown = ckey;
       if (ckey) {
         const ci = V.classInfo(D(), c, !!v.ancient) || { id: c, label: c, seal: null };
-        const words = String(D().AUTOFISH?.text?.estimate || 'by the look of it: {class}').split(/:\s*\{class\}/)[0];
+        const words = trip() ? '' : String(D().AUTOFISH?.text?.estimate || 'by the look of it: {class}').split(/:\s*\{class\}/)[0];
         estEl.className = `gw-play-est gw-on gw-cls-${c}${ci.ancient ? ' gw-ancient' : ''}`;
-        estEl.innerHTML = `<svg class="gw-pe-wash" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M16 14 C90 4 210 4 286 14 C296 30 294 46 282 56 C200 66 100 66 18 56 C6 44 6 28 16 14 Z"/></svg>${ci.seal ? sealSvg(ci.seal, { ancient: ci.ancient }) : ''}<span class="gw-pe-k">${esc(words)}</span><b>${esc(ci.label)}</b>`;
-        estEl.setAttribute('aria-label', `${words}: ${ci.label}`);
+        estEl.innerHTML = `<svg class="gw-pe-wash" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M16 14 C90 4 210 4 286 14 C296 30 294 46 282 56 C200 66 100 66 18 56 C6 44 6 28 16 14 Z"/></svg>${ci.seal ? sealSvg(ci.seal, { ancient: ci.ancient }) : ''}${words ? `<span class="gw-pe-k">${esc(words)}</span>` : ''}<b>${esc(ci.label)}</b>`;
+        estEl.setAttribute('aria-label', words ? `${words}: ${ci.label}` : ci.label);
         restartAnim(estEl, 'gw-stamp-in');
       } else { estEl.className = 'gw-play-est'; estEl.innerHTML = ''; estEl.removeAttribute('aria-label'); }
     }
@@ -461,7 +487,7 @@ export function createHudV3(K, el, R, w) {
     const m = K.meta();
     m.seenTips = m.seenTips || {};
     const n = num(m.seenTips.ui_struck, 0);
-    const word = AF.strikeWord(D(), grade, n);
+    const word = trip() ? null : AF.strikeWord(D(), grade, n);   // (a trip: the ring burst says it, no word)
     if (grade === 'struck' && word) m.seenTips.ui_struck = n + 1;   // "Struck" is printed for the first 20 strikes, then the ring says it
     const W = K.vw, H = K.vh;
     const x = strikeAt.ok ? strikeAt.x : W / 2, y = strikeAt.ok ? strikeAt.y : H * 0.55;
@@ -583,7 +609,7 @@ export function createHudV3(K, el, R, w) {
     get noteUp() { return nmT0 > 0 || awayT0 > 0; },
     debug: () => ({ strike: strike.classList.contains('gw-on') ? { grade: strike.dataset.grade, word: strikeW.textContent } : null, estimate: clsShown || null, ring: ringOn,
       note: nmT0 > 0 ? { mode: 'card', t: Math.round(nmT0 * 100) / 100, cls: nm.dataset.cls } : awayT0 > 0 ? { mode: 'toast', t: Math.round(awayT0 * 100) / 100, cls: away.dataset.cls } : null }),
-    reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; tellId = ''; clsShown = ''; estEl.className = 'gw-play-est'; estEl.innerHTML = ''; glimpsed = false; playSeen = false; strikeT = 0; strike.classList.remove('gw-on'); nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); awayT0 = 0; away.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); el.classList.remove('gw-sc-up'); },
+    reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; dotsLeft = -1; dotsMax = 0; favDots.innerHTML = ''; tellId = ''; clsShown = ''; estEl.className = 'gw-play-est'; estEl.innerHTML = ''; glimpsed = false; playSeen = false; strikeT = 0; strike.classList.remove('gw-on'); nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); awayT0 = 0; away.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); el.classList.remove('gw-sc-up'); },
     /** the clock's durations from survival (v3 phases: 210 / 20 / 90 / 10 on day 1) */
     durations(day) {
       if (!live) return null;

@@ -347,6 +347,8 @@ export function create(ctx) {
     const flow = ctx.flow;
     if (flow === 'dead') return 'death';
     if (flow === 'hub') return afPlayMood(fishState()) || 'hub';   // v3: the Landing (the First Evening's play is Small / Keeper)
+    const hm = V3.loopHomeMood(flow, ctx.data?.LOOP_ENABLED === true);   // the loop's Jetty: the built hub mood
+    if (hm) return hm;
     const run = ctx.state?.run;
     if (flow !== 'playing' || !run) return 'title';
     if (victoryHold > 0) return 'victory';
@@ -472,12 +474,13 @@ export function create(ctx) {
     const voices = [];
     const n = plan.ticks.length;
     const base = ac.currentTime + 0.01 + Math.max(0, t0);   // one clock for the whole cord
+    const card = info.card === true && ctx.data?.V3_ENABLED === true;   // (item 25's mix: the card's cord, under its show's present)
     for (const tk of plan.ticks) {
-      resetScratch(); scratch.at = base + tk.t; scratch.pitch = tk.pitch; scratch.volume = 0.8 + 0.2 * (tk.i / n); scratch.force = true;
+      resetScratch(); scratch.at = base + tk.t; scratch.pitch = tk.pitch; scratch.volume = (0.8 + 0.2 * (tk.i / n)) * (card ? V3.SHOW_MIX.cordTick : 1); scratch.force = true;
       const h = playV('cord_tick', scratch); if (h) voices.push(h);
     }
     for (const ch of plan.chimes) {
-      resetScratch(); scratch.at = base + ch.t; scratch.cls = ch.cls; scratch.force = true;
+      resetScratch(); scratch.at = base + ch.t; scratch.cls = ch.cls; scratch.force = true; if (card) scratch.volume = V3.SHOW_MIX.classChime;
       const h = playV('class_chime', scratch); if (h) voices.push(h);
     }
     cord = { voices, key: info.key ?? null, start: base, end: base + plan.dur, ticks: n, chimes: plan.chimes.map((c) => c.cls) };
@@ -500,6 +503,9 @@ export function create(ctx) {
     } else if (ph === null && cord && ac.currentTime < cord.end) cancelCord();   // the ceremony ended early
   }
   function riseSound(p) {
+    // the show's hush holds the lake's rises until the card has gone (slice-1a PLAN §2.2 item 25: a rise's gulp on the card's
+    // first frame broke the still; the signs' clocks run again on the frame the show ends)
+    if (ctx.data?.V3_ENABLED === true && (ctx.cinematic === true || !!fishView()?.show)) return;
     const now = ac.currentTime;
     if (p.id !== undefined && p.id !== null) {
       const last = signHeard.get(p.id);
@@ -645,22 +651,40 @@ export function create(ctx) {
     let special = p.legendary === true;
     try { special = special || !(num(ctx.state?.meta?.journal?.[p.speciesId]?.caught) > 0); } catch { /* ignore */ }
     resetScratch(); scratch.voicing = V3.landingVoicing(l.cls, { special }); scratch.force = true; scratch.why = l.cls + (special ? '+' : '');
+    if (ctx.data?.AUTOFISH?.show) scratch.volume = V3.SHOW_MIX.landChime;   // (item 25: under the present)
     play('land_chime', scratch);
   }
   // ---- the show (SPEC §2.8): the lift, the present, each flap and drip, the hush of the pause. By class only.
   let recordRung = null;        // the uid whose record figure rang at the present (so the card's stamp does not ring it again)
   const showLive = () => { const v = fishView()?.show; return ctx.data?.V3_ENABLED === true && !!v && typeof v === 'object' && v.phase !== 'card'; };
+  // ---- a trial completed on a catch (slice-1a PLAN §2.2 item 25): its chimes are held with their toasts from T0 until the card has
+  // gone, then rung in the order they came (v3; the loop parks the trials)
+  const heldChimes = [];
+  /** The show holds the screen: the landing (T0), ctx.cinematic (the lift to the card), the show's view, or the catch card itself (its
+   *  chimes wait until the card has gone: the show's view can clear as the card opens, which rang them on the card's first frame).
+   *  (…and fishing.inShow, true from T0 with the reveal included: an Elder's leap reveal runs before the lift's cinematic and the
+   *  show's view, so a trial completed by a first catch that was an Elder rang in the reveal; show-seq --only=elder on a phone) */
+  function showHolds() {
+    if (ctx.data?.V3_ENABLED !== true) return false;
+    return ctx.cinematic === true || fishState() === 'landing' || !!fishView()?.show || ctx.fishing?.inShow === true || ctx.ui?.isCatchOpen?.() === true;
+  }
+  function releaseChimes() {
+    if (!heldChimes.length || showHolds()) return;
+    let d = 0;
+    for (const n of heldChimes.splice(0)) { resetScratch(); scratch.delay = d; play(n, scratch); d += n === 'challenge_complete' ? 1.1 : 0.6; }
+  }
   function showSound(p) {
     if (ctx.data?.V3_ENABLED !== true) return;
     const cls = V3.showClass(p);
     if (p.phase === 'lift') {
       const L = V3.showLiftParams(cls, num(p.dur?.lift, 0.5) / (p.hurried ? num(ctx.data?.AUTOFISH?.show?.hurry?.liftRate, 2.5) : 1));
-      resetScratch(); scratch.k = L.k; scratch.dur = L.dur; scratch.creak = L.creak; scratch.force = true; scratch.why = cls;
+      resetScratch(); scratch.k = L.k; scratch.dur = L.dur; scratch.creak = L.creak; scratch.force = true; scratch.why = cls; scratch.volume = V3.SHOW_MIX.lift;
       play('show_lift', scratch);
     } else if (p.phase === 'hold') {
       // the present: the flourish (a new species, a legend or a record shimmers), and a record's own figure just behind it
       const recs = Array.isArray(p.records) ? p.records : [];
       resetScratch(); scratch.voicing = V3.showPresentVoicing(cls, { special: p.special === true || p.isNew === true }); scratch.force = true; scratch.why = cls + (p.isNew ? '+' : '');
+      scratch.volume = V3.SHOW_MIX.present;   // (item 25: the present is the loudest beat of every show)
       play('show_present', scratch);
       if (!p.isNew && recs.some((r) => r === 'pb' || r === 'classFirst' || r?.kind === 'pb' || r?.kind === 'classFirst')) {
         resetScratch(); scratch.delay = 0.32; scratch.force = true; play('record_chime', scratch);
@@ -926,19 +950,20 @@ export function create(ctx) {
 
     // --- water bed under the raft (always some lapping; louder when sailing)
     // v3: the Landing (flow hub) is a live world too: sailing, casting and the First Evening's play (no run there)
-    const liveW = live || (flow === 'hub' && ctx.paused !== true && num(ctx.time?.gameDt) > 0);
+    const homeW = flow === 'home' && ctx.data?.LOOP_ENABLED === true;   // the loop's Jetty: the water bed under the raft at its dock
+    const liveW = live || ((flow === 'hub' || homeW) && ctx.paused !== true && num(ctx.time?.gameDt) > 0);
     const sp = liveW ? num(ctx.player?.speed) : 0;
     const maxSp = Math.max(1, num(st?.moveSpeed, 6));
     const spFrac = clamp(sp / maxSp, 0, 1.2);
     const introWater = flow === 'intro' && intro.water;   // INTRO LANE B: the lake's water returns with the Wick's spark
-    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub' || introWater)) {
+    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub' || introWater || homeW)) {
       water = makeNoiseLoop('pink', 'bandpass', 620, 0.9, N.sfxDry);
       water.lfo = ac.createOscillator(); water.lfo.frequency.value = 0.13;
       water.lg = ac.createGain(); water.lg.gain.value = 240;
       water.lfo.connect(water.lg); water.lg.connect(water.flt.frequency); water.lfo.start();
     }
     if (water) {
-      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub' || introWater) ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
+      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub' || introWater || homeW) ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
       setT(water, 'g', water.g.gain, tgt, 0.4);
       setT(water, 'f', water.flt.frequency, 560 + 600 * Math.min(1, spFrac), 0.3, 0.01);
     }
@@ -1205,7 +1230,8 @@ export function create(ctx) {
     });
     on('fishing:caught', (p) => {
       afCaught(p);
-      resetScratch(); scratch.pan = bobberPan(); play('splash_big', scratch);
+      // (item 25's mix: in a show the caught instant's splash sits under the present, the show's loudest beat)
+      resetScratch(); scratch.pan = bobberPan(); if (ctx.data?.V3_ENABLED === true && ctx.data?.AUTOFISH?.show) scratch.volume = V3.SHOW_MIX.splash; play('splash_big', scratch);
       // v3: the Fish's final length for the measuring cord (fishing:caught + {fish, z, sizeClass, ancient, length, favours})
       if (typeof p.sizeClass === 'string' && num(p.length) > 0) {
         catchInfo = { speciesId: p.speciesId ?? null, sizeClass: p.sizeClass, ancient: !!p.ancient, length: num(p.length), zone: p.zone ?? ctx.state?.run?.zone ?? null,
@@ -1233,16 +1259,20 @@ export function create(ctx) {
     // the card: the cord's ticks rise under the length as it counts up; the seal lands when the stamp presses
     on('card:count', (p) => {
       if (ctx.data?.V3_ENABLED !== true || !(num(p.length) > 0)) return;
-      startCord({ speciesId: p.speciesId ?? null, sizeClass: p.sizeClass, length: num(p.length), zone: ctx.state?.run?.zone ?? null, key: p.uid ?? `${p.speciesId}:${p.length}` }, clamp(num(p.dur, 0.5), 0.2, 2));
+      if (ctx.flow !== 'playing' && !(ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true)) return;   // (item 25: never under the film)
+      startCord({ speciesId: p.speciesId ?? null, sizeClass: p.sizeClass, length: num(p.length), zone: ctx.state?.run?.zone ?? null, key: p.uid ?? `${p.speciesId}:${p.length}`, card: true }, clamp(num(p.dur, 0.5), 0.2, 2));
       if (cord) cord.compact = true;
     });
     on('card:stamp', (p) => {
       if (ctx.data?.V3_ENABLED !== true) return;
+      // (item 25: a card closed before its stamp still stamps a frame later; nothing of a card sounds under the film)
+      if (ctx.flow !== 'playing' && !(ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true)) return;
       const legendary = p.legendary === true || ctx.data?.SPECIES_BY_ID?.[p.speciesId]?.rarity === 'legendary';
       const seal = V3.sealOf(p.sizeClass, ctx.data, { legendary });
       if (cord && ac.currentTime < cord.end) cancelCord();   // any knot still due is silenced: the stamp lands now
       resetScratch(); scratch.seal = seal; scratch.ancient = V3.goldThread({ ancient: p.ancient, legendary }); scratch.force = true;
       if (!seal) scratch.why = p.sizeClass || null;
+      scratch.volume = V3.stampVolume(seal);   // (item 25: the heaviest wax sits under its show's present)
       play('seal_stamp', scratch);
       if (seal === 'blackWaxRibbon') duck(0.6, 0.9);
       stampAt = ac.currentTime;
@@ -1306,6 +1336,8 @@ export function create(ctx) {
     on('firstEvening:beat', (p) => { if (p.id === 'ember') playEmber(); });
     on('firstEvening:line', (p) => feLine(p));
     // an Elder's old trick (fishing:surge {trick} already plays the splash and strain) gets a low warning swell
+    // the loop, Ashwick's comeback settling on the float (WICKS §2.5): a short ember hiss beside the bobber
+    on('fishing:comeback', () => { resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });
     on('fishing:oldTrick', () => { resetScratch(); scratch.pan = bobberPan(); scratch.pitch = 0.72; scratch.volume = 0.9; play('surge_warn', scratch); });
     // a legend snag (Still / Lantern Grasping Dark): the 1 s telegraph, then the strain of the +0.2 spike
     on('fishing:snag', (p) => {
@@ -1383,8 +1415,9 @@ export function create(ctx) {
     on('lantern:lit', () => play('ignite'));
     on('resource:low', (p) => { if (p.resource === 'hp') return; resetScratch(); scratch.resource = p.resource; play('warn', scratch); });
     // progression / meta
-    on('challenge:complete', () => play('challenge_complete'));
-    on('unlock', () => { resetScratch(); scratch.delay = lastPlay.challenge_complete !== undefined && ac.currentTime - lastPlay.challenge_complete < 0.5 ? 1.1 : 0; play('unlock', scratch); });
+    // (item 25: a trial completed by a catch is told with its toast, after the card: its chimes wait through the show, in order)
+    on('challenge:complete', () => { if (showHolds()) heldChimes.push('challenge_complete'); else play('challenge_complete'); });
+    on('unlock', () => { if (showHolds()) { heldChimes.push('unlock'); return; } resetScratch(); scratch.delay = lastPlay.challenge_complete !== undefined && ac.currentTime - lastPlay.challenge_complete < 0.5 ? 1.1 : 0; play('unlock', scratch); });
     on('bounty:complete', () => { play('coin'); resetScratch(); scratch.volume = 0.6; scratch.delay = 0.1; play('challenge_complete', scratch); });
     on('gate:open', () => play('gate_open'));
     on('zone:change', (p) => {
@@ -1399,9 +1432,10 @@ export function create(ctx) {
       else play('descend');
     });
     on('victory', () => { victoryHold = 40; play('victory'); });
-    on('ui:modal', (p) => play(p.open ? 'ui_open' : 'ui_close'));
+    // (item 25: the catch card unfolds from the fish with its own sound, in place of the generic open)
+    on('ui:modal', (p) => play(p.open ? (p.id === 'catch' && ctx.data?.V3_ENABLED === true && SFX.ui_unfold ? 'ui_unfold' : 'ui_open') : 'ui_close'));
     on('run:start', () => { victoryHold = 0; stopContinuous(); });
-    on('run:end', () => stopContinuous());
+    on('run:end', () => { stopContinuous(); heldChimes.length = 0; });
     on('flow:change', (p) => { if (p.flow !== 'playing') stopContinuous(); moodTimer = 0.5; });
     // >>> INTRO LANE B: wire (v3 only: the director emits these; never with the flag off)
     on('intro:start', () => introStart());
@@ -1558,6 +1592,7 @@ export function create(ctx) {
         music.silent = curve(set.music) * curve(set.master) < 0.0005;
         continuous(dt);
         v3Tick();
+        releaseChimes();
         busGains();
       } catch (e) { report('update', e); }
       // >>> INTRO LANE B: cue (the film's clock plays the cue; its own try, so a fault in it never stops the score)

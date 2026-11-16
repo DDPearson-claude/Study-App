@@ -24,6 +24,9 @@ export function createMarket(S) {
   const flags = () => { const r = run(); if (!r) return null; r.flags = r.flags || {}; return r.flags; };
   const zoneIndex = () => S.zoneIndexOf(run()?.zone);
   const valueMult = () => S.zone(run()?.zone)?.valueMult ?? 1;
+  /** The Full Hold (slice-1a PLAN §2.1 item 9): Murk never moors in a lake (PARKED.murkInLake) and the bounties are parked
+   *  (PARKED.bounties); off the loop PARKED is {} and both are false. */
+  const parked = (k) => D().PARKED?.[k] === true;
 
   // ================================================================ schedule
   function arriveAt(r) {
@@ -33,6 +36,7 @@ export function createMarket(S) {
   }
 
   function arrive() {
+    if (parked('murkInLake')) return;
     const r = run();
     if (!r) return;
     const dock = S.real(ctx.world?.getMerchantDock?.(r.day));
@@ -81,6 +85,7 @@ export function createMarket(S) {
   }
 
   function update() {
+    if (parked('murkInLake')) return;
     const r = run();
     if (!r || ctx.flow !== 'playing') return;
     const pi = S.phaseInfo();
@@ -491,6 +496,7 @@ export function createMarket(S) {
   }
 
   function offerBounties() {
+    if (parked('bounties')) return [];
     const r = run();
     if (!r) return [];
     r.bounties = r.bounties || [];
@@ -535,6 +541,7 @@ export function createMarket(S) {
   }
 
   function expireBounties() {
+    if (parked('bounties')) return;
     const r = run();
     if (!r?.bounties?.length) return;
     const day = r.day || 1;
@@ -578,6 +585,7 @@ export function createMarket(S) {
 
   /** Route a gameplay event to every active bounty. */
   function bountyEvent(kind, e = {}) {
+    if (parked('bounties')) return;
     const r = run();
     if (!r?.bounties?.length) return;
     for (const b of r.bounties.slice()) {

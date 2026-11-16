@@ -23,6 +23,10 @@ export const ICONS = {
   scallop: P('M12 3.2C4.8 5.9 3 13 5.6 19.4h12.8C21 13 19.2 5.9 12 3.2z') + P('M12 3.2v16.2M7.9 6.2l1.3 13.2M16.1 6.2l-1.3 13.2', ' stroke-opacity=".8"'),
   book: P('M3.6 4.7C7.3 3.8 10.2 4.7 12 6.6c1.8-1.9 4.7-2.8 8.4-1.9v14.6c-3.7-.9-6.6 0-8.4 1.9-1.8-1.9-4.7-2.8-8.4-1.9z') + P('M12 6.6v14.6'),
   coin: C(12, 12, 7.5) + C(12, 12, 5, ' stroke-opacity=".5"') + P('M12 9v6'),
+  // the Full Hold's clam (slice-1a PLAN §2.3 item 6): a closed bivalve, two valves meeting at a seam and a hinge with its umbo on
+  // top; no radiating ribs, so it never reads as the Shells fan
+  clam: P('M3.4 12.6C4 8 7.6 5.3 12 5.3s8 2.7 8.6 7.3c-.6 4.1-4 6.7-8.6 6.7s-8-2.6-8.6-6.7z') + P('M3.6 12.7c3 1.9 13.8 1.9 16.8 0')
+    + P('M9.9 5.6c.5-1.5 3.7-1.5 4.2 0', ' stroke-opacity=".85"') + P('M7.2 9.4c2.8-1.7 6.8-1.7 9.6 0M8.6 16.6c2.2 1 4.6 1 6.8 0', ' stroke-opacity=".5"'),
   // ---------------------------------------------------------------- hud buttons
   creel: P('M5 9.5h14l-1.5 10h-11z') + P('M5.6 13.2h12.8M6.1 16.5h11.8M9.4 9.5l.5 10M14.6 9.5l-.5 10', ' stroke-opacity=".6"') + P('M8 9.5c0-3 1.8-4.8 4-4.8s4 1.8 4 4.8'),
   journal: P('M5 4.5h10.5a2 2 0 0 1 2 2V20H7a2 2 0 0 1-2-2z') + P('M5 18a2 2 0 0 1 2-2h10.5') + P('M8.5 8.5h5.5M8.5 11h4', ' stroke-opacity=".6"') + P('M14 4.5V9l1-.8 1 .8V4.5', ' stroke-opacity=".8"'),
@@ -298,7 +302,7 @@ export function sealSvg(seal, { ancient = false, cls = '' } = {}) {
 const hex = (n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));
 
 /** A small candle-creature portrait drawn from a character's `look`. */
-export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
+export function wickPortrait(look = {}, { locked = false, uid = 'w', loop = false } = {}) {
   const flame = hex(look.flame, '#ffb347'), cloak = hex(look.cloak, '#4a2e24'), eyes = hex(look.eyes, '#ffb347');
   const wax = hex(look.wax, '#e9dfc6');
   const s = Math.max(0.75, Math.min(1.2, Number(look.scale) || 1));
@@ -324,11 +328,27 @@ export function wickPortrait(look = {}, { locked = false, uid = 'w' } = {}) {
     <path d="M0 0v3" stroke="${ink}" stroke-width="1.6"/></g>`;
   const glow = locked ? '' : `<radialGradient id="${g}"><stop offset="0" stop-color="${flame}" stop-opacity=".55"/><stop offset="1" stop-color="${flame}" stop-opacity="0"/></radialGradient>`;
   const rim = locked ? `<path d="${cloakPath}" fill="none" stroke="rgba(214,214,228,.18)" stroke-width="1"/>` : `<path d="M${50 + 15 * wide} ${top + 24} C${50 + 20 * wide} 72 ${50 + 25 * wide} 90 ${50 + 26 * wide} 112" fill="none" stroke="rgba(214,214,228,.45)" stroke-width="1.2"/>`;
+  // the loop's New Descent (slice 1a): each Wick reads as itself at a glance. The figure stands at its own height from its feet (Stub
+  // small under its tall flame, Tallow stout; Taper's height is its hat), a hood's opening shows the wax inside it, and an ash wax
+  // (Ashwick: charred, burning back) carries an ember edge and embers in its cloak. Off the loop the built portrait.
+  let inner = `${candle}${fl}${hood}<path d="${cloakPath}" fill="${inkFill || cloak}" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>${rim}${face}`;
+  let feet = `<path d="M${50 - 9 * wide} 108 v6 M${50 + 9 * wide} 108 v6" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`;
+  if (loop && !locked) {
+    const n = typeof look.wax === 'number' ? look.wax : 0xe9dfc6;
+    const lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+    const charred = lum < 0.7;
+    const waxRing = hat === 'hood' ? `<ellipse cx="50" cy="${top + 19}" rx="${12.5 * wide}" ry="10.5" fill="none" stroke="${wax}" stroke-width="2.6" opacity=".9"/>` : '';
+    const ember = charred ? `<path d="M${50 - 19 * wide} ${top + 30} C${50 - 22 * wide} ${top + 4} ${50 - 10} ${top - 6} 50 ${top - 7} C${50 + 10} ${top - 6} ${50 + 22 * wide} ${top + 4} ${50 + 19 * wide} ${top + 30}" fill="none" stroke="${flame}" stroke-width="1.5" opacity=".85"/>
+      <g fill="${flame}" class="gw-pember"><circle cx="${50 - 12 * wide}" cy="96" r="1.6"/><circle cx="${50 + 7 * wide}" cy="88" r="1.3"/><circle cx="${50 + 15 * wide}" cy="103" r="1.7"/><circle cx="${50 - 3 * wide}" cy="105" r="1.1"/></g>` : '';
+    inner = `${candle}${fl}${hood}<path d="${cloakPath}" fill="${cloak}" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>${rim}${waxRing}${face}${ember}`;
+    const k = hat === 'tall' ? 1 : Math.max(0.78, Math.min(1.16, s));
+    if (Math.abs(k - 1) > 0.01) { inner = `<g transform="translate(50 114) scale(${k.toFixed(3)}) translate(-50 -114)">${inner}</g>`; feet = `<g transform="translate(50 114) scale(${k.toFixed(3)}) translate(-50 -114)">${feet}</g>`; }
+  }
   return `<svg class="gw-portrait" viewBox="0 0 100 120" aria-hidden="true"><defs>${glow}</defs>
     ${locked ? '' : `<circle cx="50" cy="${top - 14}" r="34" fill="url(#${g})" class="gw-pglow"/>`}
     <ellipse cx="50" cy="114" rx="${30 * wide}" ry="4" fill="rgba(0,0,0,.45)"/>
-    <path d="M${50 - 9 * wide} 108 v6 M${50 + 9 * wide} 108 v6" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>
-    ${candle}${fl}${hood}<path d="${cloakPath}" fill="${inkFill || cloak}" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>${rim}${face}
+    ${feet}
+    ${inner}
     ${locked ? '<text x="50" y="92" text-anchor="middle" class="gw-portrait-q">?</text>' : ''}</svg>`;
 }
 

@@ -121,7 +121,11 @@ export function createChallenges(S) {
   const COUNTER = new Set(['slayElite', 'boss', 'quality', 'weight', 'victory', 'nightNoDamage']);
 
   // ---------------------------------------------------------------- evaluation
+  /** The Full Hold (slice-1a PLAN §2.1 item 10): the trials are parked (PARKED.challenges): nothing is evaluated, completed or counted;
+   *  meta.challenges is kept as it is. Off the loop PARKED is {}. */
+  const parked = () => D().PARKED?.challenges === true;
   function evaluate(types = null) {
+    if (parked()) return [];
     const m = ensureMeta();
     if (!m) return [];
     const r = run();
@@ -143,6 +147,7 @@ export function createChallenges(S) {
   }
 
   function complete(id, { silent = false } = {}) {
+    if (parked()) return false;
     const c = challengeById(id);
     const m = ensureMeta();
     if (!c || !m || m.challenges[c.id]) return false;
@@ -208,6 +213,8 @@ export function createChallenges(S) {
     },
     victory() { for (const c of ofType('victory')) counterBump(c); evaluate(['victory']); },
   };
+  // the Full Hold: under PARKED.challenges every hook is a no-op (nothing counted, nothing evaluated)
+  for (const k of Object.keys(hooks)) { const fn = hooks[k]; hooks[k] = (...a) => (parked() ? undefined : fn(...a)); }
 
   // ---------------------------------------------------------------- unlock keys
   function isUnlocked(key) {

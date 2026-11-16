@@ -1143,7 +1143,7 @@ export function create(ctx) {
       packRipples(t);
       packWakes(t);
       packLights(realT);
-      if (ctx.flow === 'playing' || ctx.flow === 'title' || ctx.flow === 'intro') ambience(dt, px, pz);   // (INTRO LANE A: the lake stays alive under the opening cut scene, so nothing starts up at its hand-off)
+      if (ctx.flow === 'playing' || ctx.flow === 'title' || ctx.flow === 'intro' || (ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true)) ambience(dt, px, pz);   // (INTRO LANE A: the lake stays alive under the opening cut scene, so nothing starts up at its hand-off; the loop's Jetty too)
       stepSignFx(dt, t);
       updateParticles(dt);
 

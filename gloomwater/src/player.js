@@ -60,6 +60,10 @@ const wrap = (a) => { a = (a + Math.PI) % (Math.PI * 2); if (a < 0) a += Math.PI
 export function create(ctx) {
   const D = () => ctx.data || {};
   const V3 = () => D().V3_ENABLED === true;
+  // the Full Hold (slice-1a PLAN §2.2 items 15, 23): flow `home` (the Jetty) steps the loop's glides; on a trip the gate and Murk's
+  // barge are scenery (no pill, no E). Off the loop none of it is reached.
+  const LOOP_ON = () => D().LOOP_ENABLED === true;
+  const tripParked = () => LOOP_ON() && ctx.state?.run?.outing === 'trip' && D().PARKED?.tolls === true;
   const cfg = () => {
     const m = D().BALANCE?.move;
     return m && typeof m === 'object' ? m : MOVE_FALLBACK;
@@ -163,6 +167,9 @@ export function create(ctx) {
       // the anchor stone drops off the bow: a plop and a widening ring
       getForward(_f);
       const bx = position.x + _f.x * 1.3, bz = position.z + _f.z * 1.3;
+      // (the loop's trip: the plop's drops only; a ring born at the bow spreads round the raft as the first cast charges, and the
+      // user's rule is never a ring around the raft or the Wick)
+      if (LOOP_ON() && ctx.state?.run?.outing === 'trip') { splash(bx, bz, { size: 0.5, count: 8, ring: false }); return; }
       splash(bx, bz, { size: 0.5, count: 8 });
       ripple(bx, bz, 0.7);
     }
@@ -438,6 +445,7 @@ export function create(ctx) {
     }
     near.merchant = nearM; near.gate = nearG;
     const locked = LOCKED.has(fishingState());
+    if (tripParked()) { setInteract(null); return; }   // the loop: the gate and Murk's barge offer nothing on a trip (T46)
     setInteract(locked ? null : nearG ? GATE : nearM ? MERCHANT : null);
   }
 
@@ -576,7 +584,8 @@ export function create(ctx) {
 
     init() {
       const bus = ctx.bus;
-      bus.on('zone:change', (e = {}) => { coveMode = !!(e.hub && V3()); statsCache = null; spawn(); });
+      // (the loop's Sail, zone:change {sail: true}: the lake is on screen and the raft is where the glide out left it, so no respawn)
+      bus.on('zone:change', (e = {}) => { coveMode = !!(e.hub && V3()); statsCache = null; if (!(e.sail && LOOP_ON())) spawn(); });
       bus.on('run:start', () => { statsCache = null; spawn(); });
       bus.on('flow:change', ({ flow, prev } = {}) => {
         if (flow !== 'playing' && flow !== 'hub') setInteract(null);
@@ -592,6 +601,12 @@ export function create(ctx) {
         // the Landing (CONTRACT §13.1, §13.3): no run, no drains; a glide drives the raft, otherwise the closed cove's raft mode
         if (dt > 0) { if (glideS) glideStep(Math.min(dt, 0.25)); else if (coveMode) simulate(Math.min(dt, 0.5)); }
         updateInteractHub();
+        return;
+      }
+      if (LOOP_ON() && ctx.flow === 'home') {
+        // the loop's Jetty (no run): a glide (the hand-off, the sail home, the glide out) drives the raft; otherwise it lies tied up
+        if (dt > 0 && glideS) glideStep(Math.min(dt, 0.25));
+        setInteract(null);
         return;
       }
       const run = ctx.state.run;
@@ -621,6 +636,7 @@ export function create(ctx) {
         return false;
       }
       if (ctx.flow !== 'playing' || !ctx.state.run) return false;
+      if (tripParked()) return false;   // the loop: E does nothing on a trip (T46)
       const id = interactable?.id;
       if (id === 'merchant') { ctx.ui?.openShop?.(); return true; }
       if (id === 'gate') { ctx.ui?.openDescend?.(); return true; }
@@ -645,13 +661,14 @@ export function create(ctx) {
      * Scripted raft travel along waypoints [[x, z], …] for `duration` s (no input, no collision; the soft wall is passed only like
      * this). `onLine` {z, fn} (or a function: z = COVE.archLineZ) fires once when the raft crosses z heading north. -> Promise
      */
-    glide(path, { duration = 3, onLine = null, skippable = false, v0 = 0 } = {}) {
+    glide(path, { duration = 3, onLine = null, skippable = false, v0 = 0, kind = 'glide' } = {}) {
       const pts = (Array.isArray(path) ? path : []).map((p) => (Array.isArray(p) ? [p[0], p[1]] : [p.x, p.z]));
       if (pts.length < 2) return Promise.resolve(false);
       const ln = lineFor(onLine);
       const prof = hermite(pathLength(pts), Math.max(0.05, num(duration, 3)), Math.max(0, num(v0, 0)));
       position.set(pts[0][0], 0, pts[0][1]);
-      return startGlide([{ pts, prof }], { onLine: ln, skippable, kind: 'glide', crossAt: ln ? crossTime(pts, prof, ln.z) : null });
+      // `kind` (slice-1a PLAN §2.2 item 15): the loop's glides say 'home' or 'sailOut' on player:glide; every built caller passes none
+      return startGlide([{ pts, prof }], { onLine: ln, skippable, kind: typeof kind === 'string' && kind ? kind : 'glide', crossAt: ln ? crossTime(pts, prof, ln.z) : null });
     },
     /**
      * Set Out from the Map Table post (FIRST_EVENING.gate / setOut): an input-locked auto-sail at raft speed straight to each via

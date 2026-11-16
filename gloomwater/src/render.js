@@ -539,6 +539,8 @@ export function create(ctx) {
     if (flow === 'title' || flow === 'boot') return 'title';
     if (flow === 'dead') return 'death';
     if (trophyLive()) return 'trophy';
+    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return 'sail';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';
     const fs = fishingState();
@@ -616,6 +618,9 @@ export function create(ctx) {
       tgt.dist = lerp(11, 25, s);
       tgt.aimY = lerp(0.8, 0, s);
     }
+    // the loop's Jetty at rest (flow home, no glide running): the look target on the moored raft itself, not 6.5 m ahead of it, so
+    // the raft and the Wick's flame sit mid-frame above the Jetty's tile row; the home glides keep the sail framing
+    if (mode === 'sail' && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
     // portrait screens: widen, pull back and tilt down so the raft and its pool fit
     const a = W / H;
     if (a < 1.25) {
@@ -792,11 +797,19 @@ export function create(ctx) {
     if (row.rake > 0 && S.focus?.fish?.axis) yw = showRakeYaw(S.yaw0, S.focus.fish.axis, row.rake);
     // behind the card on a phone held upright the subject rides in the open top of the frame (the card rises from the foot)
     const BC = SHOWC.behindCard || {};
-    const shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    let shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    // (the loop's card on a phone held upright is taller (Keep · value / Let go under the weight): its top stands at about 0.62 of
+    // the frame, so the held fish is fitted into the open top instead of being pushed up whole: the foot keeps 30% clear and the
+    // subject rides a little higher, flame tip to fins above the card; the built shows keep their lift)
+    let mBottom = row.margin + row.footroom;
+    if (S.hold && BC.hold !== false && ctx.data?.LOOP_ENABLED === true && row.upright > 0.01 && !cardAtSide()) {
+      mBottom = lerp(mBottom, Math.max(mBottom, 0.3), clamp(row.upright, 0, 1));
+      shiftY = 0.08 * row.upright;
+    }
     // …and on a wide screen the card stands at the right (ui docks it there, by the same rule: not a phone, wider than 1.2 × its
     // height): the picture is fitted into the left of the frame
     const side = S.hold && BC.hold !== false && cardAtSide() ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
-    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: row.margin + row.footroom,
+    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: mBottom,
       marginRight: side > 0 ? side : null, minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
     if (!fit) return false;
     const T = S.tgt;
@@ -1156,7 +1169,9 @@ export function create(ctx) {
     const fk = fx.flashT < 1 ? fx.flashPeak * Math.pow(1 - fx.flashT, 2) : 0;
 
     const reel = mode === 'reel' ? 1 : 0;
-    trophyK = damp(trophyK, mode === 'trophy' || showCam.w > 0.5 ? 1 : 0, 2.4, dt);
+    // the film owns the grade as it owns the lens (slice-1a PLAN §2.2 item 25): while its camera is set no trophy grade is worn, from
+    // its first frame (a Prologue started from a show's card opened with the trophy vignette for about 2 s)
+    trophyK = introCam ? 0 : damp(trophyK, mode === 'trophy' || showCam.w > 0.5 ? 1 : 0, 2.4, dt);
     const heart = reducedFlashing() ? 0.6 : 0.5 + 0.5 * Math.sin(time * TAU * 1.1) * Math.sin(time * TAU * 1.1);
     renderer.toneMappingExposure = BASE_EXPOSURE * Math.max(0.05, gCur.exposure) * (1 - fx.death * 0.18) * (1 - fx.dark * 0.12);
     bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + BLOOM_PULSE_GAIN * fx.bloomPulse));
@@ -1219,7 +1234,7 @@ export function create(ctx) {
             pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
             focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
-            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H),
+            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H), trophyK: r1(trophyK),
             presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
             // the show camera (SPEC §2.6): its weight, the fitted target and what set its distance
             show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {
@@ -1241,8 +1256,9 @@ export function create(ctx) {
       const bus = ctx.bus;
       if (!bus) return;
       const on = (evt, fn) => bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { console.error('[render]', evt, e); } });
-      on('zone:change', ({ zone, prev, intro }) => {
+      on('zone:change', ({ zone, prev, intro, sail }) => {
         if (intro) return;   // INTRO LANE A: the cut scene hands over on the lake already on screen (no fade, no grade snap)
+        if (sail && ctx.data?.LOOP_ENABLED === true) return;   // the loop's Sail: the lake is already on screen (no flash)
         applyZoneDefaults(zone, !prev);
         flash(0x000000, prev ? 1 : 0.9, prev ? 1.4 : 0.9);
       });

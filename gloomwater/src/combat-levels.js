@@ -174,6 +174,7 @@ export function createLevels(C) {
   function addXp(n) {
     const run = C.run;
     if (!run || !(n > 0)) return;
+    if (C.levelsParked?.() === true) return;   // the loop: no levels on a trip (slice-1a PLAN §2.2 item 14)
     ensureRunFields(run);
     run.xp += n;
     let guard = 0;
@@ -390,6 +391,7 @@ export function createLevels(C) {
   function offerBanked({ ui = false } = {}) {
     const run = C.run;
     if (!run) return null;
+    if (C.levelsParked?.() === true) return null;   // the loop: nothing banked to offer
     if (ui) uiDriven = true;
     if (pendingOptions) return current?.banked ? pendingOptions : null;
     if (!((run.levelBank | 0) > 0)) return null;

@@ -304,6 +304,7 @@ export default async function (api) {
   async function fullCatch(name, sp, z, o = {}) {
     const info = await toT0(name, sp, z, { uiEvery: 2, ...o });
     if (!info) return;
+    const au0 = await g(() => window.__gw.debug.audio?.()?.time ?? 0);   // (the audio clock at T0: item 25's trial chimes check below)
     const P = SH.plan[info.cls].n;
     const rec = { case: name, species: sp, z, cls: info.cls, lengthCm: info.length, plan: P, step0: info.step0, frames: [] };
     const shoot = shootTo(rec, name);
@@ -328,6 +329,10 @@ export default async function (api) {
     }
     if (!check(carded, `${name}: the card opens`)) { await finish(name, rec); return; }
     rec.tCard = sec((await g(() => window.__show.step)) - info.step0);
+    // the catch show's leftovers (slice-1a PLAN §2.2 item 25; re-baselined for this fix alone): a trial this catch completed (the
+    // returning player here has none marked) rings with its toast after the card, never inside the show's window
+    const trialIn = await g((a) => (window.__gw.debug.audioLog?.(240) || []).filter((e) => e.at >= a - 0.005 && /^(challenge_complete|unlock)$/.test(e.name)).map((e) => `${e.name} at ${(+e.at).toFixed(2)} (T0 ${(+a).toFixed(2)})`), au0);
+    check(trialIn.length === 0, `${name}: item 25: no trial chime in the show's window (T0 → the card)`, trialIn);
     if (strip) {
       // the unfold itself (the card's entrance runs on the wall clock): its animations held at three moments
       if (args.unfold) {

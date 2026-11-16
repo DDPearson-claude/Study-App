@@ -7,6 +7,11 @@ import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from 
 import { drawFish, drawFishInk } from './ui-fishart.js';
 import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizers, weightHtml } from './ui-v3.js';
 import * as AF from './ui-af.js';
+// >>> LOOP 1a (lane C): the Full Hold's words and models (docs/loop/slice-1a/PLAN.md §2.3 item 5); read only under data.LOOP_ENABLED
+import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS } from './ui-loop.js';
+import { listFor as loopListFor } from './progression-loop.js';
+import { fmtClams } from './core.js';
+// <<< LOOP 1a
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -83,6 +88,9 @@ export function createScreens(K) {
   const af = () => AF.afOn(D());
   /** The v3 build: a fish's size is told in pounds and ounces (docs/v3/pounds/SPEC.md); flag off, every line reads as v1 wrote it. */
   const V3 = () => D().V3_ENABLED === true;
+  /** The Full Hold (PLAN §2.3 item 5): one switch, read from the data; a trip is `run.outing === 'trip'`. Off the loop: false. */
+  const loopOn = () => D().LOOP_ENABLED === true;
+  const TL = () => D().TEXT_LOOP || {};
   const lbs = (sp, fish) => fmtWeight(fishWeight(sp, fish));
   const prog = () => (ctx.progression && !K.isStub(ctx.progression) ? ctx.progression : null);
   const call = (name, ...a) => { const P = prog(); return typeof P?.[name] === 'function' ? safe(() => P[name](...a), null) : null; };
@@ -334,6 +342,38 @@ export function createScreens(K) {
       const nav = wrap.querySelector('.gw-title-menu');
       // quiet words in a column; only Continue keeps a line beneath it (the others say theirs on hover)
       const add = (label, sub, fn, opts = {}) => { const b = btn(label, { cls: 'gw-tbtn', onClick: fn, ...opts }); if (sub) b.title = sub.replace(/&amp;/g, '&'); nav.appendChild(b); return b; };
+      // >>> LOOP 1a: the title of SPEC §8.5 (PLAN §2.3 item 5, CHOICEs 12 and 33): the logotype and its words, nothing else; a fresh
+      // save New Descent · Settings, otherwise Continue · Settings (· Prologue). Never Begin, Journal, Shrine, Trials or a day
+      if (loopOn()) {
+        wrap.classList.add('gw-title--loop');
+        const tg = wrap.querySelector('.gw-tagline');
+        if (tg) { tg.textContent = ''; tg.hidden = true; }
+        wrap.querySelector('.gw-title-premise')?.remove();
+        wrap.querySelector('.gw-title-meta')?.remove();
+        const g = ctx.game || {};
+        const fresh = safe(() => g.loopFresh?.(), false) === true;
+        const replay = !fresh && safe(() => g.introReplayOffered?.(), false) === true;
+        const M = titleModel({ fresh, replay, D: D() });
+        const settings = () => openSettings({ titleChild: true });
+        if (fresh) {
+          wrap.classList.add('gw-title--fresh');
+          add(esc(M.words[0]), '', () => openNewDescent(), { autofocus: true, cls: 'gw-tbtn gw-tbtn--main' });
+          add(esc(M.words[1]), '', settings, { cls: 'gw-tbtn gw-tbtn--quiet' });
+          safe(() => g.prewarmIntro?.(), null);   // (the film's stage builds under this title, so Start costs nothing)
+          return;
+        }
+        add(esc(M.words[0]), '', () => { K.closeAll(); if (safe(() => g.hasSavedRun?.(), false) === true) g.continueRun?.(); else g.toHome?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main' });
+        add(esc(M.words[1]), '', settings, { cls: 'gw-tbtn gw-tbtn--quiet' });
+        if (M.prologue) {
+          const R = D().INTRO?.trigger?.replay || {};
+          const rb = h('button', 'gw-title-replay', `<span>${esc(R.word || 'Prologue')}</span>`);
+          rb.type = 'button';
+          rb.addEventListener('click', (e) => { e.stopPropagation(); sfx('ui_click'); g.replayIntro?.(); });
+          wrap.querySelector('.gw-title-lower')?.appendChild(rb);
+        }
+        return;
+      }
+      // <<< LOOP 1a
       if (hasRun) {
         const z = K.zoneData(saved?.zone);
         add('Continue', '', () => { K.closeAll(); ctx.game?.continueRun?.(); }, { autofocus: true, cls: 'gw-tbtn gw-tbtn--main', sub: saved ? `Day ${saved.day || 1} · ${esc(z?.name || '')}` : '' });
@@ -382,6 +422,7 @@ export function createScreens(K) {
 
   // ================================================================== NEW DESCENT
   function openNewDescent() {
+    if (loopOn()) return openLoopDescent();
     const m = meta();
     const chars = characters();
     const st = { sel: null, zone: 'mossmere', titleChild: true, mode: null, step: 'wick' };
@@ -511,6 +552,65 @@ export function createScreens(K) {
     } });
   }
 
+
+  // >>> LOOP 1a: New Descent under the loop (SPEC §8.5, PLAN §2.3 item 5, CHOICEs 29, 42; OPENING.md §3): the five Wicks (a
+  // portrait and a name each), the lit Wick's one line, Back and Start. No heading, no sub-line, no ✕, no night modes, waters,
+  // trials, locks, boons, kits or Shells. Start goes straight into the film (main's beginIntro); the panel is held under the ink
+  // (ui-intro takeTitle), so nothing closes it here.
+  function openLoopDescent() {
+    const sel0 = safe(() => ctx.progression?.loop?.wick?.(), null) || 'wick';
+    const pick = (t, id) => { const s = t.state; if (s.sel !== id) { s.sel = id; sfx('ui_hover', { volume: 0.35 }); t.render(); } };
+    const start = (s) => {
+      if (s.started) return;
+      s.started = true;
+      const ok = safe(() => ctx.game?.beginIntro?.({ character: s.sel }), null);
+      if (ok === false) s.started = false;
+    };
+    K.openModal('newdescent', (entry, body) => {
+      const s = entry.state;
+      const M = descentModel(D(), s.sel);
+      s.sel = M.sel;
+      const { panel: pn, content, foot } = panel(entry, body, { title: '', sub: '', cls: 'gw-p-wide gw-p-descent gw-loop-descent', close: false });
+      pn.dataset.loop = 'newdescent';
+      const grid = h('div', 'gw-chars gw-loop-chars');
+      M.cards.forEach((c, i) => {
+        const b = h('button', `gw-char${c.id === s.sel ? ' gw-on' : ''}`);
+        b.type = 'button';
+        b.dataset.wick = c.id;
+        b.innerHTML = `${wickPortrait(c.look, { uid: 'lw' + i + uid(), loop: true })}<span class="gw-char-name"></span>`;
+        b.querySelector('.gw-char-name').textContent = c.name;
+        b.addEventListener('click', () => pick(entry, c.id));
+        grid.appendChild(b);
+      });
+      content.appendChild(grid);
+      const line = h('p', 'gw-loop-trait');
+      line.textContent = M.line;
+      content.appendChild(line);
+      foot.appendChild(btn(esc(TL().back || 'Back'), { cls: 'gw-loop-back', onClick: () => K.closeModal('newdescent') }));
+      foot.appendChild(btn(esc(TL().start || 'Start'), { cls: 'gw-btn--primary gw-loop-start', icon: 'flame', autofocus: true, action: 'start', onClick: () => start(s) }));
+      // a new Wick lit: Start keeps the keyboard's focus (the panel was drawn again under it)
+      if (!K.isTouch) requestAnimationFrame(() => { const a = document.activeElement; if (!a || a === document.body || !a.isConnected) foot.querySelector('[data-action=start]')?.focus({ preventScroll: true }); });
+    }, { state: { sel: sel0, titleChild: true, started: false }, onEscape: () => K.closeModal('newdescent'), onKey: (code) => {
+      const t = K.top();
+      if (!t || t.id !== 'newdescent') return false;
+      const ids = descentModel(D(), t.state.sel).cards.map((c) => c.id);
+      const i = Math.max(0, ids.indexOf(t.state.sel));
+      if (code === 'ArrowLeft' || code === 'KeyA') { pick(t, ids[(i - 1 + ids.length) % ids.length]); return true; }
+      if (code === 'ArrowRight' || code === 'KeyD') { pick(t, ids[(i + 1) % ids.length]); return true; }
+      const dm = /^(?:Digit|Numpad)([1-5])$/.exec(code);
+      if (dm) { const id = ids[Number(dm[1]) - 1]; if (id) pick(t, id); return true; }
+      if (code === 'Enter' || code === 'NumpadEnter') {
+        const f = document.activeElement;
+        if (f?.classList?.contains('gw-loop-back')) return false;
+        const w = f?.dataset?.wick;
+        if (w && ids.includes(w)) t.state.sel = w;
+        start(t.state);
+        return true;
+      }
+      return false;
+    } });
+  }
+  // <<< LOOP 1a
 
   // ================================================================== CATCH CARD
   // Direction C, "Ink-Wash Field Journal" (DESIGN §21.6): a feathered patch of ink instead of a
@@ -700,6 +800,9 @@ export function createScreens(K) {
     // the Landing (DESIGN §25.4.8, CONTRACT §13.3): a cove catch has no run; the card offers Release only and no worth (sales refused)
     const cove = af() && (p.cove === true || fish.cove === true || sp.cove === true || sp.zone === COVE_ID || !run());
     const grade = af() ? (p.grade || fish.grade || lastStrike || null) : null;
+    // the Full Hold (PLAN §2.3 item 5, §5.2; SPEC §8.2): on a trip the card is the built card (name, class stamp, the weight as the
+    // hero, its one length line, the record kicker) with two buttons: Keep · clam · value, and Let go
+    const loopCard = loopOn() && run()?.outing === 'trip';
     K.openModal('catch', (entry, body) => {
       const r = run();
       const s = entry.state;
@@ -707,7 +810,7 @@ export function createScreens(K) {
       const y = fishYields(fish);
       const cs = Math.round(stat('creelSize'));
       const inCreel = arr(r?.creel).includes(fish);
-      const full = !inCreel && arr(r?.creel).length >= cs;
+      const full = loopCard ? (p.holdFull === true || safe(() => ctx.progression?.loop?.holdFull?.(), false) === true) : !inCreel && arr(r?.creel).length >= cs;
       const N = s.notes || (s.notes = catchNotes(p, sp, fish));
       const phone = K.vw < 700;
       // the show's card on a wide screen (docs/v3/show/SPEC.md §2.10): docked at the right like a photograph's caption, over
@@ -716,7 +819,7 @@ export function createScreens(K) {
       // the card across its middle
       const sideK = !phone && N.v3 && showCard() && K.vw >= K.vh * 1.2 && K.vh >= 480 ? Math.max(0, Math.min(0.6, num(D().AUTOFISH?.show?.camera?.behindCard?.landscapeSide, 0))) : 0;
       const sideW = sideK > 0 ? Math.round(Math.max(380, Math.min(560, K.vw * sideK - 34))) : 0, sideM = sideK > 0 ? Math.round(Math.max(0, Math.min(40, K.vw * 0.012))) : 0;
-      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}`, close: false });
+      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}${loopCard ? ` gw-cc-loop${fish.giant === true ? ' gw-cc-giant' : ''}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
       // the show: the card unfolds from where the fish is held (its centre on screen, from fishing:show {card}); a phone's card
       // still rises from the foot, and a re-render (more, make room, a boon picked) never replays the entrance
@@ -803,6 +906,15 @@ export function createScreens(K) {
             ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}
           </div>
         </div>`;
+      if (loopCard) {
+        // the loop's card keeps only SPEC §8.2's words: no note, lore, epithet, "more", worth or make-room; the kicker only for a record
+        for (const sel of ['.gw-cc-note', '.gw-cc-lore', '.gw-cc-epithet', '.gw-cc-more', '.gw-catch-full']) content.querySelector(sel)?.remove();
+        // the one length line: no worth, strike or favour row (the Strike line lives in the Journal, PLAN CHOICE 25)
+        for (const x of content.querySelectorAll('.gw-cc-stats > :not(.gw-cc-lenk):not(.gw-cc-len)')) x.remove();
+        const kick = content.querySelector('.gw-cc-kicker');
+        if (kick && (!N.special || / \u00b7 /.test(N.kicker))) kick.remove(); else kick?.classList.remove('gw-cc-xtra');
+        if (fish.giant === true) content.querySelector('.gw-catch-name')?.insertAdjacentHTML('afterbegin', '<i class="gw-cc-star" aria-hidden="true">\u2605</i>');
+      }
       const art = content.querySelector('.gw-cc-art');
       const aw = phone ? 300 : 400, ah = phone ? 120 : 170;
       const c = h('canvas', 'gw-fishart gw-fish-ink');
@@ -833,7 +945,7 @@ export function createScreens(K) {
         right.appendChild(list);
       }
       // v3 (DESIGN §25.5.4, §25.14.2 U14): a level-up banked while fishing is chosen here, at a still moment
-      if (N.v3) bankedPick(entry, pn, content);
+      if (N.v3 && !loopCard) bankedPick(entry, pn, content);
       const act = (a) => () => { if (s.locked) return; if (doFishAction(fish, a)) { s.locked = true; K.closeModal('catch'); } };
       foot.classList.add('gw-catch-actions');
       right.appendChild(foot);
@@ -850,10 +962,18 @@ export function createScreens(K) {
         } }));
         return;
       }
+      if (loopCard) {
+        // Keep · clam · the value (key 1; dimmed with no words when the hold is full) and Let go (key 2)
+        const [K1, K2] = cardActions({ clams: p.clams ?? safe(() => ctx.progression?.loop?.priceOf?.(fish), 0), holdFull: full, D: D() });
+        foot.classList.add('gw-catch-actions--loop');
+        foot.appendChild(btn(`${esc(K1.label)} <em data-to="${K1.clams}">${icon('clam')}<b style="min-width:${K1.clamsText.length}ch">${esc(fmtClams(s.loopCounted ? K1.clams : 0))}</b></em>`, { ...A, key: K1.key, action: K1.action, cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: K1.disabled, onClick: act('keep'), autofocus: K1.autofocus }));
+        foot.appendChild(btn(esc(K2.label), { ...A, key: K2.key, action: K2.action, cls: 'gw-cc-act gw-cc-letgo', onClick: act('letgo'), autofocus: K2.autofocus }));
+      } else {
       foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
       foot.appendChild(btn(`Render <em>+${fmt(y.oil)}</em>`, { ...A, key: '3', action: 'render', cls: 'gw-cc-act', title: `+${fmt(y.oil)} oil`, onClick: act('render') }));
       if (!legend) foot.appendChild(btn('Release', { ...A, key: '4', action: 'release', cls: 'gw-cc-act', title: af() ? 'A little luck with rarer fish until tomorrow' : '+2% rare-fish luck until tomorrow', onClick: act('release') }));
+      }
       // the show: the weight counts up beside the class stamp (the cord's ticks under it), the stamp presses after it (the
       // seal's sound, a small hit of the card: never of the camera), the knots light as the count passes them (once per card)
       if (live && !s.shown) {
@@ -873,10 +993,15 @@ export function createScreens(K) {
           let said = null;
           const write = (t) => { if (t !== said) { said = t; hero.innerHTML = weightHtml(t); } };   // (the units keep their own face)
           write(say(0));
-          // (a card closed, or drawn again, before its stamp has pressed still stamps: the seal is heard once for every fish)
+          // (a card drawn again before its stamp has pressed still stamps: the seal is heard once for every fish; a card that has
+          // left the play, closed or closing, drops its pending stamp, so no seal sounds under what follows: PLAN §2.2 item 25)
           const press = () => { if (pressed) return; pressed = true; if (s.stamped) return; s.stamped = true; pn.classList.add('gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); };
           const step = () => {
-            if (!pn.isConnected || pn.closest('.gw-out')) { press(); return; }
+            if (!pn.isConnected || pn.closest('.gw-out')) {
+              if (!pn.closest('.gw-out') && K.entry('catch') === entry) press();   // drawn again: the card is still open
+              else pressed = true;                                                  // left the play: the stamp is dropped
+              return;
+            }
             const t = performance.now() - t0;
             if (!started && t >= from) { started = true; emit('card:count', { dur: dur / 1000 }); }
             const k = Math.min(1, Math.max(0, (t - from) / dur)), e2 = 1 - (1 - k) * (1 - k) * (1 - k);
@@ -891,8 +1016,28 @@ export function createScreens(K) {
           requestAnimationFrame(step);
         } else { s.stamped = true; pn.classList.add('gw-cc-counted', 'gw-cc-pressed'); emit('card:stamp', { records: arr(p.records), isNew: !!p.isNew, seal: N.cls?.seal ?? null }); }
       }
+      // the loop: the clams on Keep count up from data-to after the stamp press (gw-show's live t0), with soft coin ticks (once per card)
+      if (loopCard && !s.loopCounted) {
+        s.loopCounted = true;
+        const em = foot.querySelector('.gw-cc-keep em[data-to]'), nb = em?.querySelector('b');
+        const to = Math.max(0, Math.round(num(Number(em?.dataset.to), 0)));
+        if (nb && to > 0 && typeof requestAnimationFrame === 'function') {
+          const t0 = performance.now() + (live ? 1100 : 820), dur = 560;
+          let last = -1;
+          const step = () => {
+            if (!pn.isConnected) return;
+            const k = Math.min(1, Math.max(0, (performance.now() - t0) / dur)), e2 = 1 - (1 - k) * (1 - k);
+            const txt = fmtClams(Math.round(to * e2));
+            if (nb.textContent !== txt) nb.textContent = txt;
+            const tick = k > 0 ? Math.min(5, Math.floor(e2 * 6)) : -1;
+            if (tick > last) { last = tick; sfx('coin', { volume: 0.16 + 0.04 * tick, pitch: 0.92 + 0.05 * tick }); }
+            if (k < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        } else if (nb) nb.textContent = fmtClams(to);
+      }
       // v3: what it is worth to you counts up as the card lands, with soft coin ticks (once per card)
-      if (N.v3 && !s.counted) {
+      if (N.v3 && !s.counted && !loopCard) {
         s.counted = true;
         const ems = [...foot.querySelectorAll('.gw-cc-act em')];
         const to = ems.map((e) => { const m = /\+(\d+)/.exec(e.textContent.replace(/[^\d+]/g, '')); return m ? Number(m[1]) : null; });
@@ -913,7 +1058,7 @@ export function createScreens(K) {
       }
     }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-catch',
       onKey: (code) => {
-        const map = cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
+        const map = loopCard ? CARD_KEYS : cove ? { Digit1: 'release', Numpad1: 'release' } : { Digit1: 'keep', Digit2: 'eat', Digit3: 'render', Digit4: 'release', Numpad1: 'keep', Numpad2: 'eat', Numpad3: 'render', Numpad4: 'release' };
         if (map[code]) { K.top()?.el.querySelector(`[data-action="${map[code]}"]:not([disabled])`)?.click(); return true; }
         const bm = /^(?:Digit|Numpad)([5-7])$/.exec(code);
         if (bm) {
@@ -1317,7 +1462,10 @@ export function createScreens(K) {
     if (K.refuseLocked?.(extra.from || 'journal')) return false;
     const zones = arr(D().ZONES);
     const cove = af() ? coveSpecies() : [];
-    const tabZones = cove.length ? [...zones, { id: COVE_ID, name: D().COVE?.name || 'The Landing' }] : zones;
+    let tabZones = cove.length ? [...zones, { id: COVE_ID, name: D().COVE?.name || 'The Landing' }] : zones;
+    // the loop (SPEC §5.4 rule 5, §8.8: one page per water you own; nothing unowned is drawn): only the owned lakes' tabs
+    const loopJ = loopOn();
+    if (loopJ) { const own = arr(meta().loop?.maps?.lakes); tabZones = zones.filter((z) => own.includes(z.id)); if (!tabZones.length) tabZones = zones.slice(0, 1); }
     const cur = run()?.zone || (ctx.flow === 'hub' && cove.length ? COVE_ID : 'mossmere');
     K.openModal('journal', (entry, body) => {
       const s = entry.state;
@@ -1329,20 +1477,39 @@ export function createScreens(K) {
       const glimpsedOf = (id) => !!J[id] && !!J[id].seen && !(num(J[id].caught) > 0);
       const inTab = (x, zid) => (zid === COVE_ID ? x.zone === COVE_ID || x.cove === true : x.zone === zid);
       const named = allSp.filter((x) => J[x.id]).length;
-      const { panel: pn, content, foot } = panel(entry, body, { title: T.journalTitle || 'Journal', sub: `${named} of ${allSp.length} names written`, cls: `gw-p-wide gw-p-journal${af() ? ' gw-p-af' : ''}` });
-      const tabList = tabZones.map((z) => { const sps = allSp.filter((x) => inTab(x, z.id)); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: `${n}/${sps.length}` }; });
+      // (the loop: the Journal is the chosen Wick's: "Taper's Journal"; the Wick's own reads as built)
+      let jTitle = T.journalTitle || 'Journal';
+      if (loopJ) {
+        const wid = safe(() => D().loopWickId?.(run()?.character || ctx.progression?.loop?.wick?.()), null);
+        const nm = wid ? arr(D().CHARACTERS).find((c) => c?.id === wid)?.name : null;
+        if (nm && /^The Wick(?=['’]s )/.test(jTitle)) jTitle = jTitle.replace(/^The Wick/, nm);
+      }
+      const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, sub: loopJ ? '' : `${named} of ${allSp.length} names written`, cls: `gw-p-wide gw-p-journal${af() ? ' gw-p-af' : ''}${loopJ ? ' gw-p-journal--loop' : ''}` });
+      // v8 (SPEC §5.5 (f), T83): under the loop a water's badge is its list's count (num(caught) > 0 only), "n/6"
+      const loopBadge = (zid) => {
+        const lc = safe(() => ctx.progression?.loop?.listCount?.(zid), null);
+        const jm = journalModel(m, D(), zid, { listFor: loopListFor });
+        return lc && Number.isFinite(Number(lc.have)) && Number.isFinite(Number(lc.need)) ? `${lc.have}/${lc.need}` : jm.badge;
+      };
+      const tabList = tabZones.map((z) => { const sps = allSp.filter((x) => inTab(x, z.id)); const n = sps.filter((x) => J[x.id]).length; return { id: z.id, label: z.name.replace(/^The /, ''), badge: loopJ ? loopBadge(z.id) : `${n}/${sps.length}` }; });
       const tb = tabs(tabList, s.zone, (id) => { s.zone = id; s.sel = null; s.hl = null; s.section = null; entry.render(); });
       if (tabList.length > 4) tb.classList.add('gw-tabs--many');   // the Landing's tab makes five: keep them all in reach
       pn.insertBefore(tb, content);
       // a scrolling tab strip (a phone) brings the open tab into view (openLog may land on the Landing's tab at the far end)
       if (tabList.length > 4) requestAnimationFrame(() => { const on = tb.querySelector('.gw-tab.gw-on'); if (on && tb.scrollWidth > tb.clientWidth) tb.scrollLeft = Math.max(0, on.offsetLeft - (tb.clientWidth - on.offsetWidth) / 2); });
-      const sps = allSp.filter((x) => inTab(x, s.zone));
+      let sps = allSp.filter((x) => inTab(x, s.zone));
+      // the loop: the list's cards first (each with its notch), the water's other fish after a thin rule, outside the count
+      const JM = loopJ ? journalModel(m, D(), s.zone, { listFor: loopListFor }) : null;
+      const listed = new Set(JM ? JM.list.map((x) => x.id) : []);
+      if (JM) sps = [...sps.filter((x) => listed.has(x.id)), ...sps.filter((x) => !listed.has(x.id))];
       const nZ = sps.filter((x) => J[x.id]).length;
       const perk = D().JOURNAL_PERKS?.[s.zone];
       const wrap = h('div', 'gw-jr');
       const grid = h('div', 'gw-jr-grid gw-scroll');
       if (!s.sel || !sps.some((x) => x.id === s.sel)) s.sel = (sps.find((x) => J[x.id]) || sps[0])?.id;
+      let ruled = false;
       for (const sp of sps) {
+        if (JM && !listed.has(sp.id) && !ruled && listed.size) { ruled = true; grid.appendChild(h('div', 'gw-jr-rule', `<svg viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-brush)" d="M8 6 C120 4 280 8 392 6"/></svg>`)); }
         const known = caughtOf(sp.id), glimpsed = glimpsedOf(sp.id);
         const mastery = known && num(J[sp.id].caught) >= num(D().BALANCE?.journal?.masteryAt, 10);
         const c = h('button', `gw-jr-card r-${sp.rarity}${known ? '' : ' gw-unknown'}${glimpsed ? ' gw-glimpsed' : ''}${sp.id === s.sel ? ' gw-on' : ''}${mastery ? ' gw-gold' : ''}`);
@@ -1350,6 +1517,16 @@ export function createScreens(K) {
         c.style.setProperty('--rc', K.rarityCss(sp.rarity));
         c.appendChild(fishCanvas(sp, 116, 62, { silhouette: !known }));
         c.insertAdjacentHTML('beforeend', `<span class="gw-jr-name">${known || glimpsed ? esc(sp.name) : '· · ·'}</span><span class="gw-jr-rar">${glimpsed ? 'Glimpsed' : esc(RARITY_LABEL[sp.rarity] || '')}</span>`);
+        if (JM && listed.has(sp.id)) {
+          // the list's card: a notch in its corner (an empty ring until landed, pressed after); a missing one its hour glyphs
+          const landed = num(J[sp.id]?.caught) > 0;
+          c.classList.add('gw-jr-listed');
+          c.insertAdjacentHTML('beforeend', `<i class="gw-jr-notch${landed ? ' gw-on' : ''}" aria-hidden="true"></i>`);
+          if (!landed) {
+            const hrs = sp.time === 'calm' ? [['sun', '']] : sp.time === 'gloom' ? [['moon', '']] : sp.time === 'dusk' ? [['sun', ' gw-half'], ['moon', ' gw-half']] : [['sun', ''], ['moon', '']];
+            c.insertAdjacentHTML('beforeend', `<span class="gw-jr-hours" aria-hidden="true">${hrs.map(([g, k]) => `<i class="gw-jr-hr${k}">${icon(g)}</i>`).join('')}</span>`);
+          }
+        }
         c.addEventListener('click', () => { s.sel = sp.id; s.hl = null; s.section = null; sfx('ui_click'); entry.render(); });
         grid.appendChild(c);
       }
@@ -1379,16 +1556,16 @@ export function createScreens(K) {
             <div class="gw-kicker" style="--rc:${K.rarityCss(sp.rarity)}">${esc(RARITY_LABEL[sp.rarity] || '')}</div>
             <p class="gw-lore">${esc(sp.lore || '')}</p>
             <dl class="gw-facts"><div><dt>Biggest</dt><dd>${jBig}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
-            <div><dt>First</dt><dd>${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}</dd></div><div><dt>Weight</dt><dd>${jRange}</dd></div></dl>
+            <div><dt>First</dt><dd>${loopJ ? esc(journalFirst(rec)) : `${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}`}</dd></div><div><dt>Weight</dt><dd>${jRange}</dd></div></dl>
             <p class="gw-jr-where">${icon('map_pin')}${esc(hintFor(sp, true))}</p>`);
         } else if (glimpsed) {
           const last = arr(rec.gotAway).slice(-1)[0] || rec.escape || null;
           const near = last ? AF.nearWeight(D(), sp, last.length) : '';
-          const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}${near ? `, ${near}` : ''}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
+          const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}${near ? `, ${near}` : ''}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day && !loopJ ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
           det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3><div class="gw-kicker gw-glimpse-k">Glimpsed</div>
-            <p class="gw-lore">${esc(line)}</p><p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`);
+            <p class="gw-lore">${esc(line)}</p>${JM && listed.has(sp.id) ? '' : `<p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`}`);
         } else {
-          det.insertAdjacentHTML('beforeend', `<h3 class="gw-dim">Unnamed</h3><p class="gw-lore">${esc(T.journalUnknown || '')}</p><p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`);
+          det.insertAdjacentHTML('beforeend', `<h3 class="gw-dim">Unnamed</h3><p class="gw-lore">${esc(T.journalUnknown || '')}</p>${JM && listed.has(sp.id) ? '' : `<p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`}`);
         }
         const ob = oddsBlock(sp, s.hl);
         if (ob) det.insertAdjacentHTML('beforeend', ob);
@@ -1402,7 +1579,7 @@ export function createScreens(K) {
       }
       wrap.appendChild(det);
       content.appendChild(wrap);
-      foot.insertAdjacentHTML('beforeend', `<div class="gw-jr-foot"><span>${esc(zoneName(s.zone))}: ${nZ} / ${sps.length} named</span>${perk ? `<span class="${nZ >= sps.length ? 'gw-earned' : ''}">${icon(nZ >= sps.length ? 'check' : 'lock')} ${esc(perk.label)} — ${esc(perk.desc)}</span>` : ''}</div>`);
+      if (!loopJ) foot.insertAdjacentHTML('beforeend', `<div class="gw-jr-foot"><span>${esc(zoneName(s.zone))}: ${nZ} / ${sps.length} named</span>${perk ? `<span class="${nZ >= sps.length ? 'gw-earned' : ''}">${icon(nZ >= sps.length ? 'check' : 'lock')} ${esc(perk.label)} — ${esc(perk.desc)}</span>` : ''}</div>`);
       foot.appendChild(btn('Close', { onClick: () => K.closeModal('journal'), autofocus: true }));
       // openLog({section: 'odds'}): bring the block into view (the detail column scrolls on a desktop, the whole page on a phone)
       if (s.section === 'odds') {
@@ -1546,6 +1723,8 @@ export function createScreens(K) {
 
   // ================================================================== SETTINGS
   function openSettings(extra = {}) {
+    // the loop (PLAN CHOICE 43, T74): no parked row and no "outing"; Forget everything with the loop's words. Off the loop: as built
+    const SW = loopOn() ? settingsWords(D(), true) : null;
     K.openModal('settings', (entry, body) => {
       const S = K.settings();
       const { content, foot } = panel(entry, body, { title: 'Settings', cls: 'gw-p-settings' });
@@ -1596,8 +1775,8 @@ export function createScreens(K) {
       qrow.appendChild(seg);
       content.appendChild(qrow);
       content.appendChild(toggleRow('screenShake', 'Screen shake', true));
-      content.appendChild(toggleRow('damageNumbers', 'Damage numbers', true));
-      content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, 'Softer flares and hit flashes'));
+      if (!SW) content.appendChild(toggleRow('damageNumbers', 'Damage numbers', true));
+      content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, SW ? SW.flashSub : 'Softer flares and hit flashes'));
       // INTRO LANE B (A8): the opening cut scene as still pictures, for players whose system does not ask for reduced motion
       if (D().V3_ENABLED && D().INTRO) content.appendChild(toggleRow('reducedMotion', 'Reduced motion', false, 'The opening plays as still pictures'));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">Fishing</div>');
@@ -1609,22 +1788,30 @@ export function createScreens(K) {
         const ringOpts = arr(D().AUTOFISH?.strike?.ring?.options).length ? D().AUTOFISH.strike.ring.options : ['always', 'firstExpedition', 'never'];
         const cur = ringOpts.includes(S.strikeRing) ? S.strikeRing : (D().AUTOFISH?.strike?.ring?.default || 'firstExpedition');
         for (const o of ringOpts) {
-          const b = h('button', `gw-seg-b${cur === o ? ' gw-on' : ''}`, o === 'firstExpedition' ? 'First outing' : cap(o));
+          const b = h('button', `gw-seg-b${cur === o ? ' gw-on' : ''}`, o === 'firstExpedition' ? (SW ? esc(SW.ringFirst) : 'First outing') : cap(o));
           b.type = 'button';
           b.addEventListener('click', () => { S.strikeRing = o; sfx('ui_click'); apply(); entry.render(); });
           seg2.appendChild(b);
         }
         rrow2.appendChild(seg2);
         content.appendChild(rrow2);
-        content.appendChild(toggleRow('hurry', 'Hold to hurry', true, 'From your second outing, hold anywhere to hurry a small fish in. It never changes the outcome'));
+        content.appendChild(toggleRow('hurry', 'Hold to hurry', true, SW ? SW.hurry : 'From your second outing, hold anywhere to hurry a small fish in. It never changes the outcome'));
       } else content.appendChild(toggleRow('reelToggle', 'Tap to reel', false, 'Tap once to start reeling, tap again to ease'));
       if (D().V3_ENABLED) content.appendChild(toggleRow('favourDetails', 'Favour details', false, "Always list what the water favours beside the float, not only on a long press"));
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">The Long Dark</div>');
       const rrow = h('div', 'gw-set-row');
-      rrow.innerHTML = '<span class="gw-set-label">Forget everything<small>Memories, relics, trials, the Journal. There is no undo.</small></span>';
-      rrow.appendChild(btn('Erase', { cls: 'gw-btn--danger gw-btn--sm', onClick: () => confirm('Forget everything?', { sub: 'Every Memory, relic, trial and name in the Journal will be lost.', yes: 'Forget', danger: true, onYes: () => confirm('Truly?', { sub: 'The water will not remember you.', yes: 'Erase it all', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.wipeAll?.(), null); } }) }) }));
+      rrow.innerHTML = `<span class="gw-set-label">Forget everything<small>${SW ? esc(SW.forgetRow) : 'Memories, relics, trials, the Journal. There is no undo.'}</small></span>`;
+      rrow.appendChild(btn('Erase', { cls: 'gw-btn--danger gw-btn--sm', onClick: () => confirm('Forget everything?', { sub: SW ? esc(SW.forgetConfirm) : 'Every Memory, relic, trial and name in the Journal will be lost.', yes: 'Forget', danger: true, onYes: () => confirm('Truly?', { sub: 'The water will not remember you.', yes: 'Erase it all', danger: true, onYes: () => { K.closeAll(); safe(() => ctx.game?.wipeAll?.(), null); } }) }) }));
       content.appendChild(rrow);
       foot.appendChild(btn('Done', { onClick: () => K.closeModal('settings'), autofocus: true }));
+      if (SW) {
+        // the loop: the rows run below the fold on a short window, so the list fades out at its foot while more lies below
+        // (Done stays in the footer)
+        const more = () => content.classList.toggle('gw-more', content.scrollTop + content.clientHeight < content.scrollHeight - 4);
+        content.addEventListener('scroll', more, { passive: true });
+        requestAnimationFrame(() => requestAnimationFrame(more));
+        setTimeout(more, 400);
+      }
     }, { state: { ...extra } });
   }
 
@@ -1633,6 +1820,7 @@ export function createScreens(K) {
   function openPause() {
     if (ctx.flow !== 'playing') return;
     if (K.has('pause')) return;
+    if (loopOn() && run()?.outing === 'trip') { openTripPause(); return; }
     K.openModal('pause', (entry, body) => {
       const r = run();
       const z = K.zoneData(r?.zone);
@@ -1673,8 +1861,31 @@ export function createScreens(K) {
     }, { dismissable: true, onEscape: resume, cls: 'gw-m-center', onKey: menuArrows });
   }
 
+  // >>> LOOP 1a: the pause on a trip (SPEC §8.5, PLAN §2.3 item 5, CHOICE 12): no title and no sub-line; Resume · Home (dimmed with no
+  // words while home is not allowed: the tally, as from the pill) · the built Settings. No Journal, Trials, Title, Abandon or boons
+  function openTripPause() {
+    K.openModal('pause', (entry, body) => {
+      const { content, foot } = panel(entry, body, { cls: 'gw-p-pause gw-p-trippause', close: false });
+      const menu = h('nav', 'gw-pause-menu');
+      menu.appendChild(btn(esc(TL().resume || 'Resume'), { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
+      const can = safe(() => ctx.game?.canGoHome?.({ fromPause: true }), null)?.ok === true;
+      // (main's goHome({fromPause}) clears the pause itself and ends the trip, whose run:end closes the screens; refused, the pause resumes)
+      const home = btn(esc(TL().home || 'Home'), { cls: 'gw-mbtn gw-loop-home', icon: 'hearth', disabled: !can, onClick: () => {
+        if (safe(() => ctx.game?.goHome?.({ fromPause: true }), false) === true) K.closeAll((m) => m.id === 'pause' || m.state?.pauseChild);
+        else resume();
+      } });
+      home.dataset.loop = 'home';
+      menu.appendChild(home);
+      menu.appendChild(btn(esc(TL().settings?.label || 'Settings'), { cls: 'gw-mbtn', icon: 'sun', onClick: () => openSettings({ pauseChild: true }) }));
+      content.appendChild(menu);
+      foot.remove();
+    }, { dismissable: true, onEscape: resume, cls: 'gw-m-center', onKey: menuArrows });
+  }
+  // <<< LOOP 1a
+
   // ================================================================== DESCEND
   function openDescend() {
+    if (loopOn()) return;   // the loop: the gate is scenery (T46)
     if (!run()) return;
     K.openModal('descend', (entry, body) => {
       const r = run();
@@ -1844,5 +2055,7 @@ export function createScreens(K) {
   return {
     showTitle, openNewDescent, showCatch, openLevelUp, openShop, openCreel, openJournal, openShrine,
     openChallenges, openSettings, openPause, openDescend, showDeath, showVictory, confirm, refreshIfOpen, openLog, openTackle,
+    /** the building blocks, for ui-loop (PLAN §2.3 item 5): additive */
+    parts: { panel, btn, tabs, fishCanvas, murkSay },
   };
 }

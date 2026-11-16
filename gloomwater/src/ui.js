@@ -13,6 +13,9 @@ import { afOn, logLocked as logLockedFor } from './ui-af.js';
 // >>> INTRO LANE B: import (the opening cut scene's words, Skip word and veil; docs/v3/intro/SPEC.md section 7)
 import { createIntroView } from './ui-intro.js';
 // <<< INTRO LANE B
+// >>> LOOP 1a (lane C): the Full Hold's screens (docs/loop/slice-1a/PLAN.md §2.3); built only when data.LOOP_ENABLED
+import { createLoopView } from './ui-loop.js';
+// <<< LOOP 1a
 
 export function create(ctx) {
   // ------------------------------------------------------------------ root & style
@@ -35,6 +38,9 @@ export function create(ctx) {
 
   // ------------------------------------------------------------------ kit (shared helpers)
   const D = () => ctx.data || {};
+  // the Full Hold (PLAN §2.3 item 1): one switch, read once; on the water every loop branch is a trip's (run.outing === 'trip')
+  const loopOn = D().LOOP_ENABLED === true;
+  const loopTrip = () => loopOn && ctx.state?.run?.outing === 'trip';
   const report = (where, e) => { try { console.error(`[ui] ${where}`, e); ctx.errors?.push?.(`ui.${where}: ${e?.message || e}`); } catch { /* ignore */ } };
   const isStub = (v) => !!(v && (typeof v === 'object' || typeof v === 'function') && v.isStub === true);
   const safe = (fn, d) => { try { const v = fn(); return v === undefined || v === null || isStub(v) ? d : v; } catch (e) { report('call', e); return d; } };
@@ -399,6 +405,7 @@ export function create(ctx) {
   const tipEvents = [...new Set([...tipsByTrigger.keys()].map((k) => k.split(':').slice(0, 2).join(':')))];
   function onTipEvent(evt, p = {}) {
     if (ctx.flow !== 'playing') return;
+    if (loopTrip()) return;   // the loop: SPEC §8 is the whole text (PLAN CHOICE 8); the first trip's two tips are ui-loop's
     const disc = p?.phase ?? p?.resource ?? p?.reason ?? p?.state ?? p?.id ?? (p?.enemy?.elite ? 'elite' : undefined);
     const keys = disc !== undefined && disc !== null ? [evt, `${evt}:${disc}`] : [evt];
     const seen = meta().seenTips || {};
@@ -411,6 +418,7 @@ export function create(ctx) {
   }
   function updateTips() {
     if (!tipQ.length || ctx.flow !== 'playing' || hasBlocking() || has('pause') || bannerBusy()) return;
+    if (loopTrip()) { tipQ.length = 0; return; }
     // automatic fishing: never over the bite, the strike, the play or the ceremony (the moment is the world's)
     if (afOn(D()) && (['bite', 'reeling', 'landing'].includes(ctx.fishing?.state) || ctx.cinematic || measure?.active?.())) return;
     if (showBusy()) return;
@@ -629,6 +637,11 @@ export function create(ctx) {
   let introView = null;
   if (D().V3_ENABLED === true && D().INTRO) { try { introView = createIntroView(K); } catch (e) { report('intro view', e); introView = null; } }
   // <<< INTRO LANE B
+  // >>> LOOP 1a: the hold row, the Home pill, the Jetty, the tally, the shelf, the Chart and the home pause (null off the loop)
+  let loopView = null;
+  if (loopOn) { try { loopView = createLoopView(K); } catch (e) { report('loop view', e); loopView = null; } }
+  K.loop = loopView;
+  // <<< LOOP 1a
 
   // ------------------------------------------------------------------ per-run trackers
   let zonesSeen = new Set();
@@ -689,6 +702,8 @@ export function create(ctx) {
     on('flow:change', ({ flow }) => {
       hud.setVisible(flow === 'playing');
       if (flow === 'playing') closeAll((m) => m.id === 'title' || m.id === 'newdescent' || m.id === 'death' || m.state?.titleChild);
+      // the loop: home's screens never outlive a Sail (PLAN §2.3 item 1)
+      if (flow === 'playing' && loopOn) closeAll((m) => ['jetty', 'tally', 'shelf', 'chart', 'homepause'].includes(m.id));
       if (flow !== 'playing') { catchQ.length = 0; levelQ.length = 0; }
     });
     on('run:start', ({ continued }) => {
@@ -700,10 +715,12 @@ export function create(ctx) {
       // (declutter: no "The descent continues." toast; the area banner says where you are)
     });
     on('run:end', () => { measure.reset(); closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; for (const t of [...toasts]) dropToast(t, true); hud.setVisible(false); });
-    on('zone:change', ({ zone, prev }) => {
+    on('zone:change', ({ zone, prev, sail }) => {
       closeModal('descend'); closeModal('shop');
       const z = zoneData(zone);
       if (!z) return;
+      // the loop: no area banner and no lake lore on a Sail or a trip (PLAN CHOICE 8: SPEC §8 is the whole text)
+      if (loopOn && (sail === true || loopTrip())) { hud.onZone(z); return; }
       banner(z.name, z.subtitle || '', { kind: 'area' });
       hud.onZone(z);
       // the lake's lore line: once per lake ever (declutter), not once per descent
@@ -716,7 +733,7 @@ export function create(ctx) {
     });
     on('phase:change', (p) => {
       const { phase, day } = p;
-      const pb = v3Run(D(), run()) ? v3PhaseBanner(p) : D().TEXT?.phaseBanner?.[phase];
+      const pb = loopTrip() ? null : v3Run(D(), run()) ? v3PhaseBanner(p) : D().TEXT?.phaseBanner?.[phase];   // (the loop: no phase banner)
       if (pb) banner(fill(pb[0], { day: day ?? run()?.day ?? 1 }), fill(pb[1] || '', { day }), { kind: pb[2] || (phase === 'gloomtide' ? 'gloom' : phase === 'dawn' ? 'dawn' : 'phase') });
       if (phase === 'dusk' && has('shop')) closeModal('shop');
       if (v3Run(D(), run())) { if (phase === 'dawn' && bankedLevels() > 0) dawnBell = true; else if (phase === 'dusk') dawnBell = false; }
@@ -819,6 +836,7 @@ export function create(ctx) {
     on('bait:change', () => hud.dirtyStats());
     on('enemy:hit', onEnemyHit);
     on('merchant:arrive', () => {
+      if (loopOn) return;   // the loop: Murk's greet is never said (PLAN CHOICE 8); he speaks only §8.6's lines
       const line = pick(D().MERCHANT_LINES?.arrive);
       // declutter: Murk's hello once a descent (after that the barge and its marker say he is here)
       if (line && tipSeen('merchant') && !murkGreeted) { murkGreeted = true; softToast(`“${line}”`, 'lore', { title: 'Old Murk' }, 'murk'); }
@@ -859,6 +877,8 @@ export function create(ctx) {
       return false;
     }
     if (ctx.flow === 'playing' && !ctx.paused) {
+      // the loop on a trip (T58): C, R and B are swallowed (no creel, no Burn, no bait cycle); H is the Home pill (PLAN CHOICE 9)
+      if (loopTrip() && loopView?.handleKey?.(code) === true) return true;
       if (code === 'KeyC') { if (!refuseLocked('KeyC')) screens.openCreel(); return true; }
       if (code === 'KeyJ') { if (!refuseLocked('KeyJ')) screens.openJournal(); return true; }
       if (code === 'KeyR') { burnFish(); return true; }
@@ -914,7 +934,7 @@ export function create(ctx) {
         const S = settings();
         root.classList.toggle('gw-calm-fx', S.reducedFlashing === true);
         // key hints (E / R / Space, the card's 1–4): the first descent only; after that they show on hover
-        root.classList.toggle('gw-hints', num(meta().runs, 0) <= 1);
+        root.classList.toggle('gw-hints', loopTrip() ? num(run()?.evening, 1) <= 1 : num(meta().runs, 0) <= 1);   // (the loop: the evening)
         root.classList.toggle('gw-no-dmg', S.damageNumbers === false);
         hud.update(dt);
         for (const m of stack) { m.t += dt; m.tick?.(dt); }
@@ -927,9 +947,12 @@ export function create(ctx) {
       // >>> INTRO LANE B: view (after everything else of the UI, on the frame's real time)
       if (introView) { try { introView.update(dt); } catch (e) { report('intro view', e); } }
       // <<< INTRO LANE B
+      if (loopView) { try { loopView.update(dt); } catch (e) { report('loop view', e); } }
     },
     isBlocking: () => hasBlocking(),
     isShopOpen: () => has('shop'),
+    /** the catch card is up (main's canGoHome reads it: PLAN §3.5) */
+    isCatchOpen: () => has('catch'),
     handleKey,
     showTitle: () => screens.showTitle(),
     showDeath: (summary) => screens.showDeath(summary),
@@ -961,6 +984,8 @@ export function create(ctx) {
     // >>> INTRO LANE B: view (main asks it for a curtain or a redraw; null with the flag off)
     intro: introView,
     // <<< INTRO LANE B
+    // the Full Hold's view (PLAN §3.6 ctx.ui.loop: its tutorial, the Jetty and the rest; null off the loop)
+    loop: loopView,
   };
   return api;
 }
