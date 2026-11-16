@@ -806,3 +806,26 @@ applied; the coulds are applied where cheap, or put to the lead.
 
 Unchanged by the review: the lanes and their files (no file moves between lanes), the seam's shape (S still lands first), the
 left-out list and the tests' numbering.
+
+### 9.1 The stage, part 2 (16 November 2026): what the browser and the look found, and what was fixed
+
+The merged tree's walk (T149, desktop and phone, the drawn Chart and the list) and the look (§6, desktop and phone, `?redress=0`
+and `=1`) were read frame by frame. Found and fixed on `gw-m1-s3a`:
+
+| # | found | fixed |
+|---|---|---|
+| 1 | the walk's cast into the Buoy Lights' bank was never seen (`fishing:mist` is not in 1a's `WATCH`), so T121 passed on nothing | `loop-3a` records 3a's own events (`WATCH_3A`) and the mist cast is a check |
+| 2 | the Matriarch never bit in the walk: from the Bell Pool's middle a cast carries past its r 6 into open water | the walk casts from the pool's south side and checks the cast's place, the ball and her hour at the bite |
+| 3 | the lift's shot framed every place as an r 6 disc: `loop-home` dropped the anchor's radius, so Under the Span was filmed from 14.6 m down its own length behind its first pier | the anchor's `r` and a path's `face` reach `frameLandmark`; `landmarkShot` films a path across its broadside (CONTRACT §14.11) |
+| 4 | a lifting bank read as a fading puck (its curtains a standing wall, its rim a clean oval); a far bank as a pale pancake | the bank breaks up from its edges in ragged wisps as it lifts (`uLift`), its curtains first; a finer billow rags every rim (inward only: T145 holds) |
+| 5 | **a ring round the raft**: the Matriarch's toll drew the built pale ring spreading 7 m from the raft at each toll, for her whole play (found by hiding the fx objects one at a time) | on a trip the toll moves the water where she is; off the loop as built |
+| 6 | the landing hush rose at 6/s, so the fresnel's first steps ringed the raft in a show's first frames, brightest on her still pool | under the loop the hush is whole from the show's first frame |
+| 7 | the chains under the break barred a giant's show | they dither away within 7 m of the lens (3.5 m gone) |
+| 8 | the giant's back read as a speck from the play camera | 1.5× |
+| 9 | her dome tell's first three read "Elder?" before her card on the phone (decision 62; T149's scan) | on a trip her tell names no class (`view.legendary` at her tell) |
+| 10 | on the phone the bait slot's own row cut the drawn Chart's sealed-sheet row | the bait slot sits beside Sail under the hold |
+| 11 | the look's "Elder" Thousandcast (z 2.6) was a Trophy; its hold-row frame was shot before the HUD returned | z 2.9; the frame waits for the lift's end |
+
+Tried and reverted: the drowned bell at 1.2× and a darker ink (it read as a dark plank). Left for the lead: the Bell Pool's dressing
+(the bell decal reads as a dark board under her glow; the far bank is still the palest shape on the lake), and the phone's portrait
+lift shot of Under the Span (the broadside does not fit a portrait frame; two piers fill it).
