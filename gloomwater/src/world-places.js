@@ -37,7 +37,7 @@ const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
 /** The banks' shape: the feather beyond the footprint (m; T145's "plus 1.5 m"), how far inside it the bank starts to thin. */
-export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4, curtain: { h: 2.6, inset: 0.8, w: 0.34 },
+export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4,
   // the curtains: soft rings of rising mist inside the bank's edge, [inset (m), height (m), alpha weight]: volume, never a wall
   curtains: [[0.9, 2.6, 0.34], [2.8, 1.9, 0.26]] });
 /** The layers of a bank, low to high: height (m), alpha weight, how far the layer is drawn in from the footprint (m: a low dome). */
@@ -159,7 +159,7 @@ void main() {
   gl_Position = op < 0.002 ? vec4(2.0, 2.0, 2.0, 1.0) : projectionMatrix * viewMatrix * vec4(position, 1.0);
 }`;
 export const BANK_FS = /* glsl */`
-uniform float uTime, uAmt, uFeather, uInner, uCurH;
+uniform float uTime, uAmt, uFeather, uInner;
 uniform vec3 uLit, uShade;
 varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY;
 ${NOISE}
@@ -324,7 +324,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const q = base + j * (n + 1) + i; ix.push(q, q + n + 1, q + 1, q + 1, q + n + 1, q + n + 2); }
         base += (n + 1) * (n + 1);
       }
-      // the curtain along the bank's edge (inset): quads from the water to BANK.curtain.h
+      // the curtains inside the bank's edge (BANK.curtains: inset, height, weight): quads from the water up
       const cc = footprintCentre(a);
       for (const [inset, H, wgt] of low ? BANK.curtains.slice(0, 1) : BANK.curtains) {
         // (a curtain wanders inward, never out: its own seeded jitter along the edge)
@@ -349,7 +349,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     g.setAttribute('aK', new THREE.Float32BufferAttribute(aK, 3));
     g.setIndex(ix);
     g.computeBoundingSphere();
-    const u = { uOp: { value: [1, 1, 1, 1] }, uTime: { value: 0 }, uAmt: { value: 1 }, uFeather: { value: BANK.feather }, uInner: { value: BANK.inner }, uCurH: { value: BANK.curtain.h },
+    const u = { uOp: { value: [1, 1, 1, 1] }, uTime: { value: 0 }, uAmt: { value: 1 }, uFeather: { value: BANK.feather }, uInner: { value: BANK.inner },
       uLit: { value: new THREE.Color(0xc8c0ec) }, uShade: { value: new THREE.Color(0x6e66a4) } };
     const m = M(new THREE.ShaderMaterial({ uniforms: u, vertexShader: BANK_VS, fragmentShader: BANK_FS, transparent: true, depthWrite: false, fog: false, side: THREE.DoubleSide }));
     const mesh = new THREE.Mesh(g, m);
@@ -637,12 +637,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     caps.name = 'placeCaps'; caps.frustumCulled = false;
     caps.userData.u = cu;
     group.add(caps);
-    const deepC = lin(0x3a3488);
     for (const q of capList) {
       addDecal({ x: q.x, z: q.z, y: 0.025, sx: 1.25, sz: 1.25, kind: 0, place: idx.get('buoy_lights'), g: lin(candle), depth: 0.35 + rng() * 0.45, night: 0.85 });
       if (arena?.halos) q.halo = arena.halos.add(q.x, 0.25, q.z, [0, 0, 0], 0.9, rng() * 10);
     }
-    void deepC;
   }
 
   // ---------------------------------------------------------- the Bell Pool: the drowned bell on its floor, and the moon's glint
@@ -692,15 +690,17 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   // ---------------------------------------------------------- per-frame
   const _m4 = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _s = new THREE.Vector3(), _p = new THREE.Vector3();
   const tmpC = new THREE.Color(), tmpC2 = new THREE.Color();
-  const LAV = new THREE.Color(0xd4ccf0), LAV_N = new THREE.Color(0x938bc8), SHADE = new THREE.Color(0x8077b6), SHADE_N = new THREE.Color(0x433d7c);
+  const LAV = new THREE.Color(0xc8bfea), LAV_N = new THREE.Color(0x8d85c4), SHADE = new THREE.Color(0x766cae), SHADE_N = new THREE.Color(0x403a78);
   const CANDLE3 = lin(candle);
-  function startBack(i, raft) {
+  function startBack(i, raft, near = null) {
     const s = S[i], a = s.area, c = footprintCentre(a), b = footprintBox(a, 0);
-    let x = c.x, z = c.z;
-    for (let t = 0; t < 24; t++) {
+    let x = c.x, z = c.z, best = Infinity;
+    for (let t = 0; t < (near ? 160 : 24); t++) {
       const qx = b.x0 + rng() * (b.x1 - b.x0), qz = b.z0 + rng() * (b.z1 - b.z0);
       if (footprintSdf(a, qx, qz) > -1.2) continue;
       if (raft && Math.hypot(qx - raft.x, qz - raft.z) < 5) continue;
+      // (a debug back asked to turn near a point: the nearest spot at least 6 m from it)
+      if (near) { const d = Math.hypot(qx - near.x, qz - near.z); if (d < 6 || d >= best) continue; best = d; x = qx; z = qz; continue; }
       x = qx; z = qz; break;
     }
     const heading = a.kind === 'path' ? Math.atan2(a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]) + (rng() < 0.5 ? 0 : Math.PI)
@@ -847,10 +847,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     return { calls, banks: S.length, decals: decals.length, pads: padList.length, caps: capList.length };
   }
   /** Debug: turn a giant's back now in a place's bank (the look scenario's frame). */
-  function forceBack(id) {
+  function forceBack(id, near = null) {
     const i = idx.get(id);
     if (i === undefined) return false;
-    startBack(i, null);
+    startBack(i, null, near && Number.isFinite(near.x) && Number.isFinite(near.z) ? near : null);
     return true;
   }
   function dispose() {

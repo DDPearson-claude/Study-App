@@ -133,7 +133,7 @@ export function installPlaces() {
     /** The world's readout of the banks (ctx.debug.world.places), and B's when present. */
     readout() { return { world: c.debug.world?.places?.() ?? c.world.places?.() ?? null, loop: B()?.places?.() ?? null }; },
     /** Debug: a giant's back now in a place's bank. */
-    back(id) { return c.debug.world?.giantBack?.(id) ?? false; },
+    back(id) { const q = c.player?.position; return c.debug.world?.giantBack?.(id, q ? { x: q.x, z: q.z - 4 } : null) ?? false; },
   };
   window.__p3 = P;
   return 'ok';

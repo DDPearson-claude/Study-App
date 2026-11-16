@@ -696,7 +696,7 @@ export function create(ctx) {
       if (ctx.debug && typeof ctx.debug === 'object' && loopOn()) {
         ctx.debug.world = Object.assign(ctx.debug.world && typeof ctx.debug.world === 'object' ? ctx.debug.world : {}, {
           places: () => placesReadout(),
-          giantBack: (id) => placesVis?.forceBack?.(id) ?? false,
+          giantBack: (id, near = null) => placesVis?.forceBack?.(id, near) ?? false,
         });
       }
       // v3 debug hooks (CONTRACT §13.11): world giantSpots(), plus the watch-lamps and the v3 visuals at a glance
