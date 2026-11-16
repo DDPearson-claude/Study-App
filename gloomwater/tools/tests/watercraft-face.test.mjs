@@ -8,7 +8,7 @@
 //     the masks filled only on the Mossmere, no new sampler, the Glowtide's and the droplets' gold water-white there
 //   - the Mossmere's water voices (the trickle, the stems' rustle, the Matriarch's toll; no comeback hiss there)
 //   - the gear log: Who bites names no unmet fish and reads the pike "<1%" on worms; the Hold line names no fish at all
-//   - the heron is not built in the MVP (WATERCRAFT §9.4 item 4: it waits on the world-call budget; §13)
+//   - the heron stands only at margin or reed spots of the top third for small fish, lifts at 8 m, is gone at dark, changes no odd
 //   node tools/tests/watercraft-face.test.mjs   (or node tools/check.mjs)
 import * as THREE from 'three';
 import { readFileSync } from 'node:fs';
@@ -254,10 +254,49 @@ section('the gear log: Who bites names no unmet fish; the pike "<1%" on worms; t
   function eq0(errs) { ok(!errs.length, 'no progression errors', errs); }
 }
 
-section('the heron (WATERCRAFT §9.4 item 4): not built in the MVP');
+section('the heron (WATERCRAFT §5.4, §9.4 item 4): margin or reed spots of the top third, lifts at 8 m, gone at dark, no odd changed');
 {
-  let has = true; try { src('actors-heron.js'); } catch { has = false; }
-  ok(!has && !/actors-heron/.test(src('main.js')), 'no heron module and no line in main.js (it waits on the world-call budget, §13)');
+  const HM = await import('../../src/actors-heron.js');
+  for (const ph of ['calm', 'dusk']) {
+    const ar = HM.heronAreas(ph);
+    const ranked = WC.AREAS.map((a) => [a, WC.areaWeight('dusk_minnow', a, ph)]).sort((x, y) => y[1] - x[1]);
+    const top = new Set(ranked.slice(0, Math.ceil(ranked.length / 3)).map(([a]) => a));
+    ok(ar.length > 0 && ar.every((a) => (a === 'margin' || a === 'reeds') && (top.has(a) || WC.areaWeight('dusk_minnow', a, ph) >= ranked[Math.ceil(ranked.length / 3) - 1][1] - 1e-9)), `${ph}: its areas are margin or reeds in the minnow's top third`, { ar, ranked });
+    const spots = HM.heronSpots(L, D, { phase: ph, probe });
+    ok(spots.length >= 12, `${ph}: ${spots.length} spots to stand at`);
+    ok(spots.every((s) => ar.includes(WC.areaAt(s.x, s.z, probe, { arena, hulls, docks: L.docks }))), `${ph}: every spot in one of those areas`);
+    const lm = D.loopPlaceIds('mossmere').map((id) => D.loopPlace(id)?.landmark).filter((q) => q && Number.isFinite(q.x));
+    ok(spots.every((s) => F.clearanceOf(avoid, s.x, s.z) >= 6 && lm.every((q) => Math.hypot(s.x - q.x, s.z - q.z) >= 6)), `${ph}: every spot ≥ 6 m from the mooring, the glide-in, the places and their landmarks`);
+  }
+  ok(HM.heronSpots(L, D, { phase: 'gloomtide', probe }).length === 0, 'no spot at night');
+  const spots = HM.heronSpots(L, D, { phase: 'dusk', probe });
+  const rng = F.faceRng(9);
+  const H = HM.createHeronState(spots, rng);
+  ok(H.mode === 'stand' && spots.some((s) => s.x === H.x && s.z === H.z), 'it starts standing at a spot');
+  let stabs = 0;
+  for (let i = 0; i < 900; i++) { HM.stepHeron(H, { dt: 1 / 30, raft: { x: H.x + 20, z: H.z }, phase: 'dusk', spots, rng }); if (H.events.includes('stab')) stabs++; }
+  ok(stabs >= 1 && H.mode !== 'fly' && H.lifts === 0, `it stands and stabs now and then (${stabs} in 30 s), the raft 20 m off`);
+  HM.stepHeron(H, { dt: 1 / 30, raft: { x: H.x + HM.HERON.lift + 0.2, z: H.z }, phase: 'dusk', spots, rng });
+  ok(H.mode !== 'fly' && !H.events.includes('lift'), 'the raft at 8.2 m: it stays');
+  const at = { x: H.x, z: H.z };
+  HM.stepHeron(H, { dt: 1 / 30, raft: { x: H.x + HM.HERON.lift - 0.3, z: H.z }, phase: 'dusk', spots, rng });
+  ok(H.mode === 'fly' && H.events.includes('lift'), 'the raft at 7.7 m: it lifts off (the croak)');
+  const raft = { x: at.x + 7.7, z: at.z };
+  for (let i = 0; i < 300 && H.mode === 'fly'; i++) HM.stepHeron(H, { dt: 1 / 30, raft, phase: 'dusk', spots, rng });
+  ok(H.mode === 'stand' && spots.some((s) => s.x === H.x && s.z === H.z) && Math.hypot(H.x - raft.x, H.z - raft.z) >= HM.HERON.landFar, 'it lands again elsewhere, far from the raft');
+  HM.stepHeron(H, { dt: 1 / 30, raft, phase: 'gloomtide', spots: [], rng });
+  ok(H.mode === 'fly' && H.events.includes('leave'), 'at dark it flies off');
+  for (let i = 0; i < 400 && H.mode !== 'gone'; i++) HM.stepHeron(H, { dt: 1 / 30, raft, phase: 'gloomtide', spots: [], rng });
+  ok(H.mode === 'gone', 'and is gone at night');
+  for (let i = 0; i < 60; i++) HM.stepHeron(H, { dt: 1 / 30, raft, phase: 'gloomtide', spots: [], rng });
+  ok(H.mode === 'gone', 'it stays gone through the night');
+  HM.stepHeron(H, { dt: 1 / 30, raft, phase: 'calm', spots, rng });
+  ok(H.mode === 'stand' && H.events.includes('arrive'), 'with the light back it comes in again');
+  const hs = src('actors-heron.js');
+  ok(!/fishing|castOdds|rollSpecies|progression|hookWeights|finishPool/.test(hs.replace(/^\/\/.*$/gm, '')), 'it reads no fishing, odds or progression (it changes no odd)');
+  ok(/q !== 'low'/.test(hs) && /setupSurface\(mesh, \{ cast: false, reflect: false \}\)/.test(hs) && (hs.match(/new THREE\.Mesh\(/g) || []).length === 1, 'one mesh (its poses swap geometry), no shadow or mirror pass, hidden on low');
+  ok(/attachHeron\(ctx\)/.test(src('main.js')), 'main attaches it under the loop');
+  ok(MOSS.croakGain({ x: 0, z: 0 }, 0, 5) === 1 && MOSS.croakGain({ x: 0, z: 0 }, 0, 80) === 0 && /on\('heron:lift'/.test(src('audio.js')), 'its croak by distance on heron:lift');
 }
 
 console.log(`\nwatercraft-face: ${pass} passed, ${fail} failed`);

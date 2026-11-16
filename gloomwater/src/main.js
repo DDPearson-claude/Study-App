@@ -13,6 +13,7 @@ import { create as createFirstEvening } from './first-evening.js';
 // the Full Hold (docs/loop/slice-1a/PLAN.md §3.5): main's pure guards, tested in node (tools/tests/loop-evening.test.mjs)
 import { startRoute, tripKeyAllowed, loopFreshSave } from './loop-rules.js';
 import { createLoopHome } from './loop-home.js';
+import { attachHeron } from './actors-heron.js';   // WC-3 (WATERCRAFT §5.4): the heron on the Mossmere under the loop
 // >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
 import { create as createIntro, markIntroSeen, replayOffered } from './intro.js';
 // <<< INTRO LANE B
@@ -546,6 +547,7 @@ Object.assign(game, {
 // src/loop-home.js (a factory node can drive with a fake player); progression's loop (ctx.progression.loop, lane A) owns every
 // number and record; the screens are ui's (lane C). Off the loop nothing here runs.
 const SKIP_KEYS = () => (Array.isArray(INTRO?.skip?.keys) ? INTRO.skip.keys : ['Escape', 'Enter', 'NumpadEnter', 'Space']);
+let heronW = null;   // WC-3: the heron (attached on the first frame under the loop; false if it cannot be)
 const loopHome = LOOP_ON ? createLoopHome({
   ctx, data, report, setFlow, resetBeats, showLake, save: () => game.save(), lockRunMode, lake: INTRO_LAKE,
   savedRun: { get: () => savedRun, set: (r) => { savedRun = r; } },
@@ -1225,6 +1227,7 @@ function frame(now) {
   }
   // the loop (M1 step 3a): a place's lift runs on the real clock while the game runs (a pause or a blocking screen holds it)
   if (loopHome) { try { loopHome.update(running ? realDt : 0); } catch (e) { const n = (errorCounts.get('loopHome') || 0) + 1; errorCounts.set('loopHome', n); if (n <= 3) report('update(loopHome)', e); } }
+  if (LOOP_ON && heronW !== false) { try { if (!heronW) { heronW = attachHeron(ctx) || false; if (heronW) ctx.debug.heron = heronW.state; } if (heronW) heronW.update(running ? realDt : 0); } catch (e) { heronW = false; report('update(heron)', e); } }   // WC-3: the heron
   if (FE_ON) {
     // the First Evening's clock (lines, beats) runs on the hub's game time (stopped by a pause or a blocking card); the hearth cut
     if (ctx.firstEvening) { try { ctx.firstEvening.update(inHub ? time.gameDt : 0); } catch (e) { const n = (errorCounts.get('firstEvening') || 0) + 1; errorCounts.set('firstEvening', n); if (n <= 3) report('update(firstEvening)', e); } }

@@ -1014,6 +1014,13 @@ export function create(ctx) {
     scratch.pitch = MOSS.TOLL.pitch; scratch.volume = MOSS.TOLL.volume; scratch.why = 'toll'; scratch.force = true;
     play(MOSS.TOLL.sfx, scratch);
   }
+  function wcCroak(p) {
+    if (!LOOP_ON()) return;
+    const pl = ctx.player?.position, g = MOSS.croakGain(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p?.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.CROAK.volume * g; scratch.why = 'heron'; play(MOSS.CROAK.sfx, scratch);
+  }
   // <<< WC-3
   // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): home's bed (audio-home.js)
   const homeS = { stove: null, idle: 0, timers: {}, reg: false };
@@ -1559,6 +1566,7 @@ export function create(ctx) {
     });
     on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); else if (p.kind === 'stems') wcStems(p); });   // (WC-3: the stems' rustle)
     on('fishing:bite', (p) => wcToll(p));   // WC-3: the Matriarch takes: a low toll from the Bell Pool's floor
+    on('heron:lift', (p) => wcCroak(p));     // WC-3: the heron lifts off with a croak
     on('sign:rise', (p) => riseSound(p));
     on('sign:end', (p) => { if (p.id !== undefined) signHeard.delete(p.id); });
     on('fish:measured', () => {

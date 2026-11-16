@@ -143,6 +143,12 @@ export function stemsRustle(p = {}, x = NaN, z = NaN) {
   if (!Number.isFinite(p.x) || !Number.isFinite(p.z) || !Number.isFinite(x) || !Number.isFinite(z)) return 1;
   return voiceGain(Math.hypot(p.x - x, p.z - z), STEMS.earshot);
 }
+export const CROAK = Object.freeze({ sfx: 'heron_croak', volume: 0.8, earshot: Object.freeze({ full: 12, gone: 50 }) });
+/** The heron's croak as it lifts (heron:lift {x, z}), by distance from the raft: 0..1. */
+export function croakGain(p = {}, x = NaN, z = NaN) {
+  if (!Number.isFinite(p?.x) || !Number.isFinite(p?.z) || !Number.isFinite(x) || !Number.isFinite(z)) return 1;
+  return voiceGain(Math.hypot(p.x - x, p.z - z), CROAK.earshot);
+}
 export const TOLL = Object.freeze({ sfx: 'moss_toll', pitch: 0.62, volume: 1, place: 'bell_pool', legend: 'belled_matriarch' });
 /** The low toll as she takes: a legend's bite of the Belled Matriarch (the only species fishing names at a bite: CONTRACT §13.5). */
 export function tollOn(p = {}) { return !!p && p.legendary === true && p.speciesId === TOLL.legend; }
@@ -156,6 +162,16 @@ export const SFX_WC = {
     v.burst(out, { kind: 'white', t, a: 0.05, hold: 0.12, d: 0.35, peak: 0.07, ft: 'bandpass', f: rr(2400, 3600) * p, f2: rr(1800, 2600) * p, glide: 0.4, q: 1.3 });
     const n = 2 + ((Math.random() * 2) | 0);
     for (let i = 0; i < n; i++) { const f = rr(1100, 2300) * p; v.tone(out, { type: 'sine', f, f2: f * 1.7, glide: 0.02, t: t + rr(0, 0.45), a: 0.001, d: 0.05, peak: 0.14 * rr(0.5, 1) }); }
+  } },
+  heron_croak: { gain: 0.55, gap: 1.5, max: 1, pri: 1, wet: 0.5, dly: 0.12, pj: 0.04, fn(v, out, t, p) {
+    // the heron lifting off: a harsh, dry 'fraank', and the slow first beats of its wings
+    const end = t + 0.32, f = 330 * p;
+    const src = v.osc('sawtooth', f, t, end), bp = v.filter('bandpass', 1150 * p, 2.4), env = v.gain(0);
+    env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(0.2, t + 0.03); env.gain.setTargetAtTime(0.12, t + 0.08, 0.05); env.gain.setTargetAtTime(0, t + 0.22, 0.04);
+    src.frequency.setValueAtTime(f, t); src.frequency.linearRampToValueAtTime(f * 0.72, end);
+    src.connect(bp); bp.connect(env); env.connect(out);
+    v.burst(out, { kind: 'white', t, a: 0.01, hold: 0.18, d: 0.12, peak: 0.05, ft: 'bandpass', f: 2600 * p, q: 1.4 });
+    for (let i = 0; i < 3; i++) v.burst(out, { kind: 'pink', t: t + 0.35 + i * 0.42, a: 0.06, d: 0.22, peak: 0.07 * (1 - i * 0.25), ft: 'lowpass', f: 700 * p, q: 0.8 });
   } },
   moss_rustle: { gain: 0.5, gap: 0.6, max: 2, pri: 0, wet: 0.3, vj: 0.2, fn(v, out, t, p) {
     // the stems: something big knocks the reed stems under water; their heads rattle dry against each other above it
