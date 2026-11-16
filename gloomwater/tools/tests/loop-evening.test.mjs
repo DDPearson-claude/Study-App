@@ -373,10 +373,33 @@ section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
   const S = liftEnv({ own: ['under_the_span'], pick: { water: 'mossmere', place: 'under_the_span' } });
   S.H.sail({ water: 'mossmere' });
   const us = D.loopPlace('under_the_span');
-  eq(S.player.glides.at(-1).pts.at(-1), D.sailPlan(dock, { x: us.x, z: us.z }, D.LOOP.tutorial, null).to, 'with no `place` the Chart\'s saved pick of that water is sailed to (3b writes it on a tap)');
+  const sp0 = S.player.glides.at(-1).pts.at(-1), sp1 = D.sailPlan(dock, { x: us.x, z: us.z }, D.LOOP.tutorial, null).to;
+  near(Math.hypot(sp0.x - sp1.x, sp0.z - sp1.z), 0, 'with no `place` the Chart\'s saved pick of that water is sailed to (3b writes it on a tap)', 1e-9);
   const W = liftEnv({ own: [] });
   W.H.sail({ water: 'mossmere' });
   eq(W.player.glides.at(-1).pts.at(-1), open.to, 'T66 unchanged: no pick, no place: open water\'s glide');
+  // the glide's clearance (T118's rule: the raft's radius + 0.3 m off every island and pillar): a bearing turned the least that clears
+  const clear = D.BALANCE.move.raftRadius + 0.3;
+  const blocker = [{ x: 24 - 9, z: 38, r: 1.2 }];
+  near(R.glideClearance([{ x: 0, z: 0 }, { x: 10, z: 0 }], [{ x: 5, z: 3, r: 1 }]), 2, 'glideClearance: the least distance to an obstacle\'s edge', 1e-9);
+  const bent = R.placeGlide(D.sailPlan, dock, { x: -10, z: 38 }, D.LOOP.tutorial, blocker, { clear });
+  const wrap = (a) => Math.abs(((a + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
+  ok(bent && R.glideClearance(bent.path, blocker) >= clear && wrap(Math.atan2(bent.to.z - 38, bent.to.x - 24) - Math.PI) <= (60 * Math.PI) / 180 + 1e-9 && wrap(Math.atan2(bent.to.z - 38, bent.to.x - 24) - Math.PI) > 0.01, `placeGlide: an obstacle on the line: the bearing turned (to ${bent?.to.x.toFixed(1)}, ${bent?.to.z.toFixed(1)}), clear by ${R.glideClearance(bent?.path, blocker).toFixed(2)} m`);
+  ok(R.placeGlide(D.sailPlan, dock, { x: -10, z: 38 }, D.LOOP.tutorial, [{ x: 24, z: 38, r: 30 }], { clear }) === null, 'placeGlide: nothing clear within 60°: null (open water\'s glide)');
+  // the Mossmere's own layout: each place's glide out from the Jetty clears every obstacle (a straight one to the Lily Maze would not)
+  const { buildLayout, isOpenWaterL } = await import('../../src/world-layout.js');
+  const LY = buildLayout(D.ZONES[0]);
+  for (const id of Object.keys(D.LOOP.places)) {
+    const p = D.loopPlace(id), straight = D.sailPlan(dock, { x: p.x, z: p.z }, D.LOOP.tutorial, null);
+    const g2 = R.placeGlide(D.sailPlan, dock, { x: p.x, z: p.z }, D.LOOP.tutorial, LY.obstacles, { clear });
+    const turn = g2 ? Math.abs(((Math.atan2(g2.to.z - 38, g2.to.x - 24) - Math.atan2(p.z - 38, p.x - 24) + 3 * Math.PI) % (2 * Math.PI)) - Math.PI) * 180 / Math.PI : null;
+    ok(g2 && R.glideClearance(g2.path, LY.obstacles) >= clear && isOpenWaterL(LY, LY.obstacles, g2.to.x, g2.to.z, D.BALANCE.move.raftRadius),
+      `T129/T118: the glide toward ${id} clears every obstacle by ≥ ${clear} m (${R.glideClearance(g2?.path, LY.obstacles).toFixed(2)} m; turned ${turn?.toFixed(0)}°; straight ${R.glideClearance(straight.path, LY.obstacles).toFixed(2)} m)`);
+  }
+  const Ob = liftEnv({ own: ['lily_maze'] });
+  Ob.ctx.world.getObstacles = () => LY.obstacles;
+  Ob.H.sail({ water: 'mossmere', place: 'lily_maze' });
+  ok(R.glideClearance(Ob.player.glides.at(-1).pts, LY.obstacles) >= clear && Ob.H.sailPlace === 'lily_maze', 'T129: Sail toward the Lily Maze with the world\'s obstacles: its glide clears the statue off the Jetty');
 }
 
 // =====================================================================================================================

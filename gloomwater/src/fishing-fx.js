@@ -1250,9 +1250,10 @@ export function createFishingFx(ctx) {
     get mistFloatVisible() { return !!mistPts?.visible; },
     /** The bank closing over the float (k 1) or giving it back (k < 1): slow lavender wisps curling up off the water at (x, z). */
     mistWisps(x, z, k = 1) {
-      const y = H(x, z) + 0.12, n = Math.max(3, Math.round(9 * k));
-      fx.burst(x, y, z, { color: 0x58507a, color2: 0x6c5f8c, count: n, spread: 0.32, up: 0.22, gravity: -0.18, drag: 1.1, size: 0.34 * (0.7 + 0.3 * k), life: 1.5, radius: 0.32 });
-      fx.burst(x, y + 0.05, z, { color: 0x7a6d9a, count: Math.max(2, Math.round(4 * k)), spread: 0.18, up: 0.12, gravity: -0.1, drag: 1.4, size: 0.2, life: 1.1, radius: 0.18 });
+      // (dim lavender, broad and slow: additive points, so a dark colour reads as a thin veil of mist, never a white puff)
+      const y = H(x, z) + 0.1, n = Math.max(3, Math.round(7 * k));
+      fx.burst(x, y, z, { color: 0x302a48, color2: 0x3c3358, count: n, spread: 0.4, up: 0.16, gravity: -0.12, drag: 1.2, size: 0.62 * (0.7 + 0.3 * k), life: 1.7, radius: 0.4 });
+      fx.burst(x, y + 0.04, z, { color: 0x463d66, count: Math.max(2, Math.round(3 * k)), spread: 0.2, up: 0.1, gravity: -0.08, drag: 1.4, size: 0.4, life: 1.3, radius: 0.22 });
     },
 
     update(dt, t) {
