@@ -41,7 +41,8 @@ const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t 
 export const BACK_SCALE = 1.5;
 export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4,
   // the curtains: soft rings of rising mist inside the bank's edge, [inset (m), height (m), alpha weight]: volume, never a wall
-  curtains: [[0.9, 2.6, 0.26], [2.8, 1.9, 0.16]] });
+  // (one curtain, faint: from the play camera's height a closed ring of standing mist read as a pale rim round a darker plate; the fix pass)
+  curtains: [[0.9, 2.2, 0.14]] });
 /** The layers of a bank, low to high: height (m), alpha weight, how far the layer is drawn in from the footprint (m: a low dome). */
 export const BANK_LAYERS = Object.freeze({
   high: [[0.08, 0.3, 0], [0.45, 0.3, 0.3], [0.9, 0.26, 0.7], [1.4, 0.2, 1.2], [2.0, 0.14, 1.8]],
@@ -135,8 +136,10 @@ export function bankKeep(area, docks = [], { feather = BANK.feather, clear = 0.9
 }
 /** The Bell Pool's drowned bell: where it lies in the pool `a` (its centre, its rotation, its mouth), shared by the decal and the lift's shot. */
 export function bellSpot(a) {
-  const x = num(a?.x) + 0.2, z = num(a?.z) - 2.4, dx = 0.4, dz = 0.92, l = Math.hypot(dx, dz);
-  return { x, z, rot: Math.atan2(dz / l, dx / l), mx: x + (dx / l) * 2.05, mz: z + (dz / l) * 2.05, dir: [dx / l, dz / l] };
+  // (its crown just under the two posts it hung between, its lip 1.8 m short of the pool's middle: a raft fishing the pool, its
+  // middle included, is never laid over it; the fix pass's second look)
+  const x = num(a?.x) + 0.2, z = num(a?.z) - 3.3, dx = 0.4, dz = 0.92, l = Math.hypot(dx, dz);
+  return { x, z, rot: Math.atan2(dz / l, dx / l), mx: x + (dx / l) * 1.8, mz: z + (dz / l) * 1.8, dir: [dx / l, dz / l], sx: 4.0, sz: 2.9 };
 }
 /** The bank's opacity after one step (s): toward `target` at a whole range per `ease` s (LOOP.mist.ease), never past it. */
 export function easeOpacity(op, target, dt, ease = 0.8) {
@@ -277,7 +280,7 @@ void main() {
     // the drowned harbour bell, lying on its side on the pool's floor and seen from above through the water: the bell's own profile (a
     // domed crown with its hanging loop, the waist, the flare to a beaded lip) and its mouth turned to the lens as an ellipse, dark inside
     // with a moonlit rim; two cast bands across it, its crack from the lip with a trace of verdigris. Crown at p.x = -1, mouth at +1;
-    // the quad is 4.6 × 3.4 m, so a unit across is 0.74 of a unit along. (The fix pass: the trapezoid it was read as a sunken plank.)
+    // the quad is 4.0 × 2.9 m, so a unit across is 0.73 of a unit along. (The fix pass: the trapezoid it was read as a sunken plank.)
     float u = p.x, v = abs(p.y), sy = p.y;
     float w;
     if (u < -0.5) w = 0.5 * sqrt(max(0.0, 1.0 - pow((u + 0.5) / 0.3, 2.0)));
@@ -761,10 +764,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const a = bell.area, B = bellSpot(a);
     // (the fix pass: the bell lies in the pool's north half, fallen from between its two posts, its crown toward them and its mouth
     // turned south-east to the open water the raft comes from; a raft fishing the pool's south side is never laid on it)
-    // (laid just above the swell's highest crest, 0.19 m: at 0.02 every passing crest hid it, so it came and went in a lift's shot and read
-    // as a board; seen from above the 0.2 m is no parallax at all)
-    addDecal({ x: B.x, z: B.z, y: 0.2, rot: B.rot, sx: 4.6, sz: 3.4, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.66, night: 0.6 });
-    addDecal({ x: B.mx + 0.5, z: B.mz + 0.7, y: 0.21, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
+    // (laid above the swell's crests (0.15 m; their rare full sum is 0.19): at 0.02 every passing crest hid it, so it came and went in a
+    // lift's shot and read as a board; seen from above the height is no parallax at all)
+    addDecal({ x: B.x, z: B.z, y: 0.15, rot: B.rot, sx: B.sx, sz: B.sz, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.66, night: 0.6 });
+    addDecal({ x: B.mx + 0.5, z: B.mz + 0.7, y: 0.16, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
     // "The moon looks in on the old bell": a pale shaft standing on the bell's lip once its mist has lifted (strongest at night)
     addDecal({ x: B.mx, z: B.mz, y: 0, sx: 3.0, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
   }
@@ -973,7 +976,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const y = id === 'under_the_span' ? 1.8 : id === 'lily_maze' ? 0.3 : 0.4;
     // (the Bell Pool: the shot looks down on its bell from the open water off its mouth's shoulder, 45° off its length (the profile and
     // the mouth both read), high and close, so the bell on the floor reads as a bell and not as a board at a grazing angle; the fix pass)
-    if (id === 'bell_pool' && p.area?.kind === 'disc') { const B = bellSpot(p.area); const sx = B.dir[0] + B.dir[1], sz = B.dir[1] - B.dir[0], sl = Math.hypot(sx, sz) || 1; return { x: B.x + B.dir[0] * 0.5, y: 0, z: B.z + B.dir[1] * 0.5, r: p.area.r, side: [sx / sl, sz / sl], elev: 46, dist: 10.5 }; }
+    if (id === 'bell_pool' && p.area?.kind === 'disc') { const B = bellSpot(p.area); const sx = B.dir[0] + B.dir[1], sz = B.dir[1] - B.dir[0], sl = Math.hypot(sx, sz) || 1; return { x: B.x + B.dir[0] * 0.5, y: 0, z: B.z + B.dir[1] * 0.5, r: p.area.r, side: [sx / sl, sz / sl], elev: 46, dist: 9.5 }; }
     // (a path's broadside: the lift's shot films a long place across it, never down its length behind its first pier; the stage)
     const a = p.area, q = a?.kind === 'path' && Array.isArray(a.pts) && a.pts.length >= 2 ? [a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]] : null;
     const ql = q ? Math.hypot(q[0], q[1]) : 0;
