@@ -387,6 +387,7 @@ export function create(ctx) {
   function waterKeyNow() {
     if (S.cast?.waterKey) return S.cast.waterKey;
     const r = raftPos();
+    if (LOOP()) return waterInfo(r.x, r.z).waterKey ?? loopKey(null);   // (M1 step 3a: night water before dark is open water's)
     return loopKey(placeAt(r.x, r.z)?.id ?? null);
   }
   /** Quiet water on a trip (SPEC §3.3): no good bites left where the line is (or the raft is). */
