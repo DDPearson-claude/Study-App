@@ -3178,12 +3178,14 @@ export const ROSTER_ART = {
   milkeye_perch:  { prefers: 'mist', model: { shape: 'perch', body: 0x6a707a, belly: 0xe2ddd0, fin: 0x4a4e58, glow: 0xd8d0ff, pattern: 'stripes', eyes: 'glow', scale: 1.1 } },
   // M1 step 3a (ROSTER §3.1, §4): the two giants and the Kissmark Trout, with the plan parameters models-fish.js builds them from (read
   // only under the loop, PLAN CHOICE 14): the pike's upright bars and amber eye rim; the lamprey's toothed disc mouth and its seven gill
-  // holes lit lavender; the trout's fatty fin, plain jaw, ivory star-spots and one pale round scar. No glow on any body.
+  // holes lit lavender; the trout's fatty fin, plain jaw, ivory star-spots and one pale round scar. No glow on any body. The lamprey's
+  // and the trout's bellies are a cool stone (lane A's look: a warm stone-white mixed into their flanks read gold-bronze under the
+  // show's candle light, where the Starlit palette wants ink and slate)
   thousandcast_pike: { prefers: 'mist', model: { shape: 'pike', body: 0xd4cec0, belly: 0xe8e2d4, fin: 0x8a4b3a, glow: null, pattern: 'stripes', eyes: 'normal', scale: 1.45,
     bars: 'upright', eyeRim: 'amber' } },
-  hullkiss_lamprey:  { prefers: 'drip', model: { shape: 'lamprey', body: 0x1c1a2a, belly: 0xd8d2c4, fin: 0x2a2838, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
+  hullkiss_lamprey:  { prefers: 'drip', model: { shape: 'lamprey', body: 0x1c1a2a, belly: 0xc6c2cc, fin: 0x2a2838, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
     mouth: 'disc', teeth: 'amber', gills: 7, gillGlow: 0xb8b0ee } },
-  kissmark_trout:    { prefers: 'hush', model: { shape: 'trout', body: 0x5a6270, belly: 0xdcd6c8, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.2,
+  kissmark_trout:    { prefers: 'hush', model: { shape: 'trout', body: 0x5a6270, belly: 0xd0d0d2, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.2,
     fattyFin: true, jaw: 'plain', spots: 'stars', scar: true } },
   // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
   // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
