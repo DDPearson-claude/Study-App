@@ -22,6 +22,7 @@ import { notePrint as notePrintOf, printsView, galleryModel } from './home-print
 import { uid } from './core.js';
 // M1 step 4 (lane 4): the tins and lures, the raft's parts and Murk's orders, pure (src/loop-gear.js)
 import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches } from './loop-gear.js';
+import { sheetModel, sheetKeys } from './loop-sheet.js';   // the Wick's sheet (SHEET.md §7): the pure model; the shelf comes in from here
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -57,6 +58,8 @@ export const LOOP_METHODS = Object.freeze([
   'barge', 'towBarge',
   // M1 step 4 (lane 4): Murk's orders (read, wipe one, the one a fish on the card fills) and Cut Strip (a held Let go)
   'orders', 'wipeOrder', 'orderFor', 'cutBait',
+  // the Wick's sheet (SHEET.md §7.3): the page's model on the live save and run, and the "new" marks seen
+  'sheet', 'markSheetSeen',
 ]);
 
 /** The water a fresh save owns: the one LOOP.waters puts first (the Mossmere). */
@@ -92,6 +95,7 @@ export function freshLoop(D) {
     lifted: [], best: {}, chartPick: null,
     // the home barge (SPEC §6.5, M1 §2.11): its own field, apart from `home` (the upgrades); the opening's tow writes `towed`
     barge: { water: firstWater(D), towed: [] },
+    sheetSeen: [],   // the Wick's sheet (SHEET.md §5.2): the owned keys the player has seen on the sheet (a fresh save owns nothing to mark)
   };
 }
 
@@ -110,6 +114,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   const topTier = Math.max(0, (D?.LOOP?.tackle?.price?.length ?? 7) - 1), first = firstWater(D);
   if (!isObj(meta.loop)) meta.loop = fresh;
   const L = meta.loop;
+  // the Wick's sheet (SHEET.md §5.2): an older save opens with no "new" marks, seeded here before the fill (which would copy [])
+  if (L.sheetSeen === undefined) { try { L.sheetSeen = sheetKeys(L, D); } catch { L.sheetSeen = []; } }
   const v0 = num(L.v);
   if (!(v0 >= LOOP_SCHEMA)) {
     // rule 1: a flat bait bag belongs to the only water a v4/v5 draft sold bait for
@@ -164,6 +170,7 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   for (const k of ['seen', 'seals']) if (!Array.isArray(L.firsts[k])) L.firsts[k] = [];
   if (!isObj(L.firsts.best)) L.firsts.best = {};
   fillFinds(L);   // M1 step 5c: meta.loop.finds {got, worn, share}, whole
+  L.sheetSeen = L.sheetSeen.filter((k, i, a) => typeof k === 'string' && a.indexOf(k) === i);
   L.lifted = L.lifted.filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i);
   if (L.chartPick !== null && !isObj(L.chartPick)) L.chartPick = null;
   if (L.lastTrip !== null && !isObj(L.lastTrip)) L.lastTrip = null;
@@ -1363,8 +1370,28 @@ export function createLoop(S) {
   const findSharesNow = (waterId = run()?.zone || 'mossmere') => (ensureLoop() ? findSharesOf(meta(), D(), waterId) : {});
   const findCatalogueNow = (waterId = 'mossmere') => (ensureLoop() ? findCatalogue(meta(), D(), waterId) : null);
 
+  // ---------------------------------------------------------------- the Wick's sheet (SHEET.md §7.1, §5.2)
+  /** The sheet's model on the live save and run (the trip's on a trip), with Murk's shelf passed in: view = the page's picks, live = the
+   *  raft's water and the hour on a trip, cast = the last cast's {area, place} (fishing.lastCastArea, the user's answer 41). */
+  function sheet(view = {}, live = null, cast = null) {
+    const L = ensureLoop(); if (!L) return null;
+    const r = run(), trip = onTrip(r);
+    let shelfNow = [];
+    try { shelfNow = shelfItems(D(), L, [], { meta: meta() }); } catch (e) { report('sheet.shelf', e); }
+    return sheetModel(meta(), D(), { run: trip ? r : null, view, live: trip ? live : null, cast, shelf: shelfNow, stats: trip ? r.stats || null : null });
+  }
+  /** The "new" marks the player has seen on the sheet (SHEET §5.2): owned keys only, each once; saved when the page closes. */
+  function markSheetSeen(keys = []) {
+    const L = ensureLoop(); if (!L) return false;
+    const own = new Set(sheetKeys(L, D())), before = L.sheetSeen.length;
+    for (const k of Array.isArray(keys) ? keys : []) if (typeof k === 'string' && own.has(k) && !L.sheetSeen.includes(k)) L.sheetSeen.push(k);
+    if (L.sheetSeen.length !== before) requestSave();
+    return true;
+  }
+
   const api = {
     state: () => ensureLoop(),
+    sheet, markSheetSeen,   // the Wick's sheet
     snagRoll, noteFound, restoreFind, keepFind, letGoFind, finds: findsState, findShares: findSharesNow, findCatalogue: findCatalogueNow,   // M1 step 5c
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
     isOpen, listCount: (waterId) => { ensureLoop(); return listCount(meta(), D(), waterId); },

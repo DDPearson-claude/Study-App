@@ -150,6 +150,7 @@ export function create(ctx) {
 
   // ---------------------------------------------------------------- internal state
   let state = 'idle';
+  let lastCast = null;   // the Wick's sheet (SHEET.md §8.3, the user's answer 41): the last landed cast's {area, place, water}, read-only
   const S = {
     clock: 0, stateT: 0,
     // aim & meter
@@ -1023,6 +1024,7 @@ export function create(ctx) {
     }
     if (v3on()) {
       S.cast = castInfo(x, z, S.depth);
+      if (LOOP()) lastCast = { area: S.cast.area ?? null, place: S.cast.place?.id ?? null, water: zoneData()?.id ?? null };   // (the sheet's "where you last cast")
       const sh = S.signHit?.rule;
       if (sh && !sh.spook) S.cast.sign = { kind: sh.kind, id: sh.id };   // nervous / strike / bubbles add their favour
       const LP = BAL('bite').letItPass || {};
@@ -4327,6 +4329,9 @@ export function create(ctx) {
     addSpots(n, opts) { try { return addSpots(n, opts || {}); } catch (e) { report(e); return 0; } },
     // v3 (CONTRACT §13.7)
     isHooked() { return state === 'reeling' || state === 'landing'; },
+    /** The Wick's sheet (SHEET.md §8.3, the user's answer 41): the last landed cast on a trip {area (the open water's area, null in a
+     *  place), place, water}, or null before one. Read-only; the sheet shows its odds and never names the area. */
+    lastCastArea() { return lastCast ? { ...lastCast } : null; },
     /** The loop's read of the water at a point (T30, the D scenario): {giant, waterKey, placeId}. Read-only. */
     waterAt(p) {
       try {
