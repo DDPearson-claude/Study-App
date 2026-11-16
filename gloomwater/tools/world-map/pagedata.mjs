@@ -49,6 +49,9 @@ function sheetFns(T) {
   return { alpha, bbox };
 }
 
+// The game export (build.mjs --game): sheet k's reveal alpha (0..1) and the sheets' boxes, the same function the page's masks use.
+export function sheetAlpha(T) { return sheetFns(T); }
+
 // The sheets as grey tiles in one atlas (tile 17 is the veil over the never-charted land), and the
 // inked edge of the charted country at each count of maps owned.
 export function buildMasks(T) {

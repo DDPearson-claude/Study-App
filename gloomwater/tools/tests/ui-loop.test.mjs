@@ -325,7 +325,7 @@ section('the Chart: chartModel (SPEC §5.4, M1.md §3.8)');
   const m = freshLoopMeta(D);
   const C = U.chartModel(m, D, {});
   ok(C.sheets.length === 1 && C.sheets[0].waterId === 'mossmere' && C.sheets[0].name === 'The Mossmere' && C.sheets[0].places.length === 0, 'a fresh save: one sheet, the Mossmere, no places');
-  ok(C.next === null && C.pick.water === 'mossmere' && C.pick.place === null, 'no next; open water chosen');
+  ok(C.next?.waterId === 'sporewood' && C.next.shipped === false && C.pick.water === 'mossmere' && C.pick.place === null, 'the next water sealed (M1 step 3b: Sporewood, "Coming soon"); open water chosen');
   ok(C.hold.slots === 3, 'three slots');
   ok(U.chartModel(m, D, { slots: 4 }).hold.slots === 4, 'hold.slots from loop.hold().slots');
   ok(U.chartModel({ loop: { ...m.loop, wick: 'tallow' } }, D).hold.slots === 4, 'without it, data.loopSlots (Tallow four)');

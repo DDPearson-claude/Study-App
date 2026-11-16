@@ -1086,6 +1086,9 @@ if (LOOP_ON && DEBUG) {
     },
     /** what main knows of home: the flow, the glide (kind) and the latch of a Sail */
     homeState: () => ({ flow: ctx.flow, glide: loopHome?.gliding() ?? null, sailing: !!loopHome?.sailing, atHome: game.atHome(), fresh: game.loopFresh() }),
+    /** the drawn Chart (M1 step 3b): chart() its state · chart('fixture', state | places) the M1 §2.4 places drawn before step 3a
+     *  ships them · chart('layout') the last layout and its targets · chart('clear') */
+    chart: (cmd, arg) => safe(() => ctx.ui?.loop?.chartDebug?.(cmd, arg), null),
   };
 }
 // <<< LOOP LANE B
