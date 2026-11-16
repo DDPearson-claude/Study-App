@@ -660,8 +660,8 @@ void main() {
         th = exp(-ac * ac / 0.09) + 0.55 * exp(-(ac - 1.3) * (ac - 1.3) / 0.05) + 0.4 * exp(-(ac + 1.15) * (ac + 1.15) / 0.045);
         th *= 0.25 + 0.75 * smoothstep(0.32, 0.66, wNoise(vec2(xz.x * 0.85 + uTime * 0.8, xz.y * 2.3)));
       }
-      foam += th * wcTex.b * 0.75;
-      lines += th * wcTex.b * 0.45;   // (the threads catch the sky as pale strokes)
+      foam += th * wcTex.b * 1.0;
+      lines += th * wcTex.b * 0.7;   // (the threads catch the sky as pale strokes)
     }
     if (uLane.w > 0.001) {
       vec2 ld = vec2(cos(uLane.z), sin(uLane.z));

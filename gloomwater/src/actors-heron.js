@@ -8,7 +8,7 @@
 //   attachHeron(ctx)          builds it under the loop (main's one line): its mesh in the scene, its own frame clock, 'heron:lift'
 import * as THREE from 'three';
 import { toonMaterial, setupSurface } from './toon.js';
-import { prep, merge, mat, taperTube, lin } from './world-geo.js';
+import { prep, merge, mat, taperTube, lin, mixArr } from './world-geo.js';
 import { buildLayout } from './world-layout.js';
 import { AREAS, areaAt, areaWeight, probeOf, lightOf } from './watercraft.js';
 import { faceOn, faceRng, avoidList, clearanceOf, reedPlan } from './watercraft-face.js';
@@ -130,10 +130,10 @@ function heronGeos() {
     parts.push(prep(bodyG, { matrix: mat(0, pose === 'fly' ? 0 : 0.62, 0, pose === 'fly' ? 0 : -0.35, 0, 0, [0.85, 0.8, 1.9]), colorFn: (x, y) => (y < (pose === 'fly' ? -0.04 : 0.58) ? pale : grey) }));
     // the neck: an S at rest, straight down and out in a stab, tucked back in flight
     const np = pose === 'stab' ? [V(0, 0.7, 0.22), V(0, 0.6, 0.42), V(0, 0.36, 0.58)] : pose === 'fly' ? [V(0, 0.05, 0.28), V(0, 0.14, 0.3), V(0, 0.12, 0.42)] : [V(0, 0.7, 0.22), V(0, 0.9, 0.18), V(0, 1.0, 0.3)];
-    parts.push(prep(taperTube(np, (t) => 0.05 * (1 - t * 0.35), 5, 6), { color: pale }));
+    parts.push(prep(taperTube(np, (t) => 0.034 * (1 - t * 0.3), 5, 6), { color: pale }));
     const head = np[2];
-    parts.push(prep(new THREE.SphereGeometry(0.055, 6, 4), { matrix: mat(head.x, head.y, head.z, 0, 0, 0, [0.9, 0.85, 1.2]), color: pale }));
-    const bk = new THREE.ConeGeometry(0.022, 0.2, 4); bk.rotateX(Math.PI / 2); bk.translate(0, 0, 0.1);
+    parts.push(prep(new THREE.SphereGeometry(0.045, 6, 4), { matrix: mat(head.x, head.y, head.z, 0, 0, 0, [0.85, 0.85, 1.3]), color: pale }));
+    const bk = new THREE.ConeGeometry(0.02, 0.24, 4); bk.rotateX(Math.PI / 2); bk.translate(0, 0, 0.12);
     parts.push(prep(bk, { matrix: mat(head.x, head.y - (pose === 'stab' ? 0.03 : 0.005), head.z + 0.03, pose === 'stab' ? 0.9 : 0.05, 0, 0), color: beak }));
     parts.push(prep(new THREE.BoxGeometry(0.03, 0.012, 0.14), { matrix: mat(head.x, head.y + 0.03, head.z - 0.07, -0.3, 0, 0), color: dark }));   // the crest
     if (pose === 'fly' || pose === 'flyUp') {
@@ -144,7 +144,7 @@ function heronGeos() {
       for (const s of [-1, 1]) parts.push(prep(new THREE.CylinderGeometry(0.008, 0.008, 0.5, 4), { matrix: mat(s * 0.03, -0.02, -0.5, Math.PI / 2, 0, 0), color: leg }));
     } else {
       for (const s of [-1, 1]) parts.push(prep(new THREE.CylinderGeometry(0.009, 0.011, 0.58, 4), { matrix: mat(s * 0.035, 0.26, -0.02, 0.05, 0, 0), color: leg }));
-      parts.push(prep(new THREE.BoxGeometry(0.2, 0.06, 0.32), { matrix: mat(0, 0.66, -0.12, -0.35, 0, 0), color: dark }));   // the folded wing's dark edge
+      for (const sd of [-1, 1]) parts.push(prep(new THREE.BoxGeometry(0.02, 0.07, 0.34), { matrix: mat(sd * 0.135, 0.63, -0.06, -0.35, 0, 0), color: mixArr(dark, grey, 0.35) }));   // the folded wings' dark edges
     }
     return merge(parts);
   };

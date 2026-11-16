@@ -56,7 +56,9 @@ export default async function (api) {
       await K.places.pose(hx + ux * 5, hz + uz * 5, 0); await settle(1.2);
       const her1 = await g(() => window.__gw.debug.heron?.() ?? null);
       K.check(her1 && her1.lifts >= 1, 'the raft within 8 m: it lifts off', her1);
-      await cam([hx + ux * 9, 3.5, hz + uz * 9], [hx, 2.5, hz], 55); await K.steps(4);
+      const her2 = await g(() => window.__gw.debug.heron?.() ?? null);
+      if (her2) await cam([her2.x + ux * 10, 4, her2.z + uz * 10], [her2.x, 2.5, her2.z], 55);
+      await K.steps(4);
       await K.shoot('heron-lifts');
     }
     await K.places.camera(null);
