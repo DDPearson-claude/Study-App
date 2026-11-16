@@ -669,11 +669,118 @@ export const SFX_V3 = {
     }
   } },
 };
+// ------------------------------------------------------------- the Mossmere under the loop (M1 step 3a; the rules: audio-mossmere.js)
+// Every voice takes o.muffle (Hz): a place's voice heard through its standing bank is low-passed there (and played quieter).
+function muffled(v, out, o) {
+  const m = num0(o?.muffle, 0);
+  if (!(m > 0)) return out;
+  const lp = v.filter('lowpass', m, 0.7); lp.connect(out);
+  return lp;
+}
+export const SFX_MOSS = {
+  moss_breeze: { gain: 0.5, gap: 2, max: 2, pri: 0, wet: 0.35, vj: 0.2, fn(v, out, t, p, o) {
+    // late day: a slow breath of air over the water, the reeds answering it, now and then a small lap at their foot
+    const dst = muffled(v, out, o);
+    v.burst(dst, { kind: 'pink', t, a: 1.1, hold: 0.4, d: 1.6, peak: 0.22, ft: 'bandpass', f: 1600 * p, f2: 3300 * p, glide: 1.4, q: 0.6 });
+    v.burst(dst, { kind: 'white', t: t + 0.7, a: 0.4, hold: 0.2, d: 0.7, peak: 0.045, ft: 'bandpass', f: 6200 * p, q: 1.8 });
+    if (Math.random() < 0.5) { const f = rnd(700, 1100); v.tone(dst, { type: 'sine', f, f2: f * 1.6, glide: 0.04, t: t + rnd(0.4, 1.6), a: 0.002, d: 0.07, peak: 0.06 }); }
+  } },
+  moss_dusk: { gain: 0.45, gap: 2, max: 2, pri: 0, wet: 0.55, vj: 0.2, fn(v, out, t, p, o) {
+    // dusk: the air thinner; one far frog tries its voice
+    const dst = muffled(v, out, o);
+    const f = rnd(115, 150) * p, end = t + 0.34;
+    const src = v.osc('triangle', f, t, end), bp = v.filter('bandpass', f * 2.4, 2.2), am = v.gain(0.5);
+    const lfo = v.osc('square', rnd(22, 30), t, end), lg = v.gain(0.5); lfo.connect(lg); lg.connect(am.gain);
+    const env = v.gain(0);
+    env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(0.2, t + 0.04); env.gain.setTargetAtTime(0, t + 0.16, 0.05);
+    src.connect(bp); bp.connect(am); am.connect(env); env.connect(dst);
+    v.burst(dst, { kind: 'pink', t: t + 0.2, a: 0.9, hold: 0.3, d: 1.2, peak: 0.07, ft: 'bandpass', f: 3600 * p, q: 0.9 });
+  } },
+  moss_night: { gain: 0.55, gap: 3, max: 1, pri: 0, wet: 0.6, dly: 0.15, vj: 0.15, fn(v, out, t, p, o) {
+    // night: the mere breathes, low and slow, and something drips far off
+    const dst = muffled(v, out, o);
+    v.burst(dst, { kind: 'brown', t, a: 1.4, hold: 0.3, d: 1.8, peak: 0.3, ft: 'lowpass', f: 90 * p, f2: 240 * p, glide: 1.5, q: 0.9 });
+    v.tone(dst, { type: 'sine', f: 41 * p, f2: 49 * p, glide: 1.6, t, a: 1.2, hold: 0.4, d: 1.6, peak: 0.16 });
+    if (Math.random() < 0.7) { const f = rnd(900, 1500); v.tone(dst, { type: 'sine', f, f2: f * 2.1, glide: 0.03, t: t + rnd(1.2, 2.4), a: 0.001, d: 0.09, peak: 0.08 }); }
+  } },
+  moss_lily: { gain: 0.55, gap: 0.8, max: 2, pri: 0, wet: 0.4, pj: 0.06, vj: 0.2, fn(v, out, t, p, o) {
+    // the Lily Maze: drips off the pads, and a koi's sip at the surface under one
+    const dst = muffled(v, out, o);
+    const n = 1 + ((Math.random() * 3) | 0);
+    for (let i = 0; i < n; i++) { const tt = t + i * rnd(0.18, 0.5), f = rnd(1500, 2900) * p; v.tone(dst, { type: 'sine', f, f2: f * 1.8, glide: 0.025, t: tt, a: 0.001, d: 0.06, peak: 0.3 * rnd(0.6, 1) }); }
+    if (Math.random() < 0.55) {
+      const tt = t + rnd(0.3, 1.1);
+      v.tone(dst, { type: 'sine', f: 320 * p, f2: 640 * p, glide: 0.05, t: tt, a: 0.004, d: 0.08, peak: 0.26 });
+      v.burst(dst, { kind: 'pink', t: tt, a: 0.003, d: 0.06, peak: 0.11, ft: 'bandpass', f: 1800 * p, q: 1.4 });
+      v.tone(dst, { type: 'sine', f: 140 * p, f2: 95 * p, glide: 0.1, t: tt + 0.04, a: 0.004, d: 0.14, peak: 0.15 });
+    }
+  } },
+  moss_chain: { gain: 0.45, gap: 1, max: 2, pri: 0, wet: 0.55, dly: 0.1, pj: 0.05, vj: 0.2, fn(v, out, t, p, o) {
+    // under the Span: the hanging chains touch (inharmonic iron, quick), and sometimes the old links take the weight again
+    const dst = muffled(v, out, o);
+    const n = 2 + ((Math.random() * 3) | 0);
+    let tt = t;
+    for (let i = 0; i < n; i++) {
+      const f = rnd(880, 1350) * p, k = rnd(0.6, 1);
+      for (const [r, d, a] of [[1, 0.35, 0.22], [2.76, 0.2, 0.12], [5.4, 0.12, 0.07], [8.93, 0.07, 0.04]]) v.tone(dst, { type: 'sine', f: f * r, t: tt, a: 0.001, d, peak: a * k });
+      v.burst(dst, { kind: 'white', t: tt, a: 0.001, d: 0.02, peak: 0.05 * k, ft: 'highpass', f: 4000, q: 0.7 });
+      tt += rnd(0.09, 0.32);
+    }
+    if (Math.random() < 0.45) {
+      const c0 = t + rnd(0.2, 0.6);
+      v.tone(dst, { type: 'sawtooth', f: 62 * p, f2: 74 * p, glide: 0.7, t: c0, a: 0.25, hold: 0.2, d: 0.4, peak: 0.07, ft: 'bandpass', ff: 520, fq: 3 });
+    }
+  } },
+  moss_buoy: { gain: 0.5, gap: 2, max: 1, pri: 0, wet: 0.5, pj: 0.05, fn(v, out, t, p, o) {
+    // the Buoy Lights: a drowned buoy's cap knocks, hollow, and the water glugs in it (over the row's low hum, a loop in audio.js)
+    const dst = muffled(v, out, o);
+    v.tone(dst, { type: 'sine', f: 210 * p, f2: 180 * p, glide: 0.2, t, a: 0.003, d: 0.35, peak: 0.3 });
+    v.tone(dst, { type: 'sine', f: 470 * p, t, a: 0.002, d: 0.15, peak: 0.12 });
+    v.burst(dst, { kind: 'brown', t: t + 0.05, a: 0.01, d: 0.25, peak: 0.18, ft: 'lowpass', f: 420 * p, q: 1.2 });
+  } },
+  moss_toll: { gain: 0.6, gap: 6, max: 1, pri: 1, wet: 0.8, dly: 0.2, pj: 0.01, fn(v, out, t, p, o) {
+    // the Bell Pool: the drowned harbour bell answers the water, far down (a bell's partials, low-passed by the deep)
+    const dst = muffled(v, out, o);
+    const lp = v.filter('lowpass', 1300, 0.5); lp.connect(dst);
+    const f = 98 * p;
+    for (const [r, d, a] of [[0.5, 5.5, 0.5], [1, 4.5, 0.7], [1.19, 3.2, 0.32], [1.5, 2.6, 0.22], [2.0, 2.0, 0.2], [2.52, 1.3, 0.12], [3.36, 0.8, 0.07]]) {
+      v.tone(lp, { type: 'sine', f: f * r, t, a: 0.004, d, peak: 0.34 * a });
+    }
+    v.burst(lp, { kind: 'pink', t, a: 0.002, d: 0.05, peak: 0.06, ft: 'bandpass', f: 1100, q: 1 });
+  } },
+  giant_roll: { gain: 0.75, gap: 4, max: 1, pri: 2, wet: 0.55, fn(v, out, t, p, o) {
+    // a giant's dark back turns in its bank: the water heaves, deep and slow, and slides off it
+    const dst = muffled(v, out, o);
+    v.burst(dst, { kind: 'brown', t, a: 0.9, hold: 0.3, d: 1.2, peak: 0.5, ft: 'lowpass', f: 70 * p, f2: 330 * p, glide: 1.0, q: 1.1 });
+    v.tone(dst, { type: 'sine', f: 34 * p, f2: 52 * p, glide: 1.1, t, a: 0.8, hold: 0.3, d: 1.2, peak: 0.4 });
+    v.burst(dst, { kind: 'pink', t: t + 0.85, a: 0.12, hold: 0.15, d: 0.7, peak: 0.18, ft: 'bandpass', f: 620 * p, f2: 300 * p, glide: 0.7, q: 0.9 });
+    droplets(v, dst, t + 1.0, 4, 0.5, 0.06, 700, 1800);
+  } },
+  mist_lift: { gain: 0.85, gap: 2, max: 1, pri: 3, wet: 0.7, dly: 0.25, fn(v, out, t, p, o) {
+    // a place's mist lifts: the air draws up off the water, slowly, and opens on a soft high shimmer (o.dur: the thinning's s)
+    const dst = muffled(v, out, o);
+    const dur = clamp(num0(o?.dur, 3), 0.6, 4);
+    v.burst(dst, { kind: 'pink', t, a: dur * 0.55, hold: dur * 0.15, d: dur * 0.6, peak: 0.24, ft: 'bandpass', f: 380 * p, f2: 2600 * p, glide: dur * 0.9, q: 0.8 });
+    v.burst(dst, { kind: 'brown', t, a: 0.4, d: dur * 0.5, peak: 0.15, ft: 'lowpass', f: 260 * p, f2: 120 * p, glide: dur * 0.5, q: 0.7 });
+    [88, 95, 100].forEach((m, i) => v.tone(dst, { type: 'sine', f: mtof(m) * p, t: t + dur * (0.45 + 0.12 * i), a: 0.5, hold: 0.2, d: 1.6, peak: 0.05 - 0.01 * i }));
+  } },
+  seal_press: { gain: 0.9, gap: 0.6, max: 1, pri: 3, wet: 0.45, dly: 0.15, pj: 0.01, fn(v, out, t, p, o) {
+    // the catch seal's own stamp (every fish of a water): a weighty press into wax, then two warm notes
+    const dst = muffled(v, out, o);
+    v.tone(dst, { type: 'sine', f: 120 * p, f2: 68 * p, glide: 0.09, t, a: 0.002, d: 0.24, peak: 0.55 });
+    v.burst(dst, { kind: 'brown', t, a: 0.002, d: 0.12, peak: 0.36, ft: 'lowpass', f: 700 * p, q: 0.8 });
+    v.burst(dst, { kind: 'white', t: t + 0.01, a: 0.004, d: 0.12, peak: 0.11, ft: 'bandpass', f: 1700 * p, q: 1.1 });
+    chime(v, dst, t + 0.22, mtof(79) * p, 0.15, 1.6);
+    chime(v, dst, t + 0.36, mtof(86) * p, 0.11, 1.9);
+  } },
+};
+export const MOSS_SFX = Object.keys(SFX_MOSS);
+
 // automatic fishing (Au2) and the First Evening (FE-Au1): audio-af.js
 export const AF_SFX = Object.keys(SFX_AF);
 export const FE_SFX = Object.keys(SFX_FE);
 export const V3_SFX = [...Object.keys(SFX_V3), ...AF_SFX, ...FE_SFX];
-Object.assign(SFX, SFX_V3, SFX_AF, SFX_FE);
+Object.assign(SFX, SFX_V3, SFX_AF, SFX_FE, SFX_MOSS);
 
 export const CONTRACT_SFX = ['ui_click', 'ui_hover', 'ui_open', 'ui_close', 'cast_whoosh', 'bobber_plop', 'nibble', 'bite',
   'hook', 'reel_tick', 'line_strain', 'line_snap', 'splash_small', 'splash_big', 'catch_fanfare', 'new_species', 'coin',
