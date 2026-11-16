@@ -23,6 +23,7 @@
 //         Wick's buff is Ashwick's tired comeback only (WICKS §2.5); the counters read the evening; a comeback is not also marked.
 import { uid } from './core.js';
 import { elderName } from './progression-v3.js';
+import { HOOK_ITEMS as WC_ITEMS, gradeTargets } from './watercraft.js';   // WC-3: a Mossmere tin's or lure's fish (WATERCRAFT §3.7)
 
 const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const SLOTS = ['rod', 'line', 'reel'];
@@ -337,6 +338,13 @@ export function createAutofish(S) {
   function targetsOf(itemId) {
     const it = C3()?.items?.[itemId];
     if (!it) return [];
+    // >>> WC-3 (WATERCRAFT §3.7): under the loop a Mossmere tin's or lure's Hold helps the fish it suits (watercraft.gradeTargets; the
+    // Spinner keeps its named giants); the log counts the ones met and names none
+    if (loopOn() && itemId !== 'bare' && WC_ITEMS.includes(itemId)) {
+      const suits = safe(() => gradeTargets(itemId, D()), []).filter((id) => S.species(id));
+      return { suits: true, fish: suits, met: suits.filter(met) };
+    }
+    // <<< WC-3
     if (it.all) return 'all';
     const helps = safe(() => D().catchItemTargets(itemId), []).filter((id) => S.species(id));
     if (it.species) return it.species.filter((id) => S.species(id));
@@ -354,6 +362,7 @@ export function createAutofish(S) {
     const hold = it.holdPerLevel ? `${it.holdPerLevel} per level` : it.hold;
     if (it.all) return (T.tackle || '+{hold} Hold on every fish').split(' · ')[0].replace('{hold}', hold).replace(/\.$/, '') + '.';
     const t = targetsOf(itemId);
+    if (t && t.suits === true) return String(D().TEXT_LOOP?.log?.gear || '+{n} Hold on the fish it suits ({m} you have met).').replace('{n}', hold).replace('{m}', t.met.length);   // (WC-3)
     let whom;
     if (it.family) whom = FAMILY_WORDS[it.family] || it.family;
     else if (it.night) whom = 'night fish, at night';

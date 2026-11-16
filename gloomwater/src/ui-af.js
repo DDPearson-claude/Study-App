@@ -19,6 +19,7 @@
 //   gotAwayNote(D, p, o)              the toast (Small–Prize) or the card (Trophy+) for a fish:escaped payload
 //   oddsView(D, res, o)               the Journal's Your odds block from progression.getOdds (floored %, "?" unseen, "—" unreachable)
 //   gearLine / gearHold / compareLine the gear log: an item's Hold, its ×1.6 styles, its targets; the pinned compare
+//   bitesBlock(D, rows, o)            WC-3: the gear log's Who bites from watercraft.bitesTable (met fish by name, whole %, "<1%")
 //   ratingLine(D, rating, o)          the Set Out card's tackle rating, in words only
 //   leakScan(text, o)                 the hidden-information scan the tests run over the DOM: species names, rarity words, "%", a weight
 import { fmtWeightNear, sizeWeight } from './data.js';   // pure, flag-free helpers (docs/v3/pounds/SPEC.md §2)
@@ -272,6 +273,12 @@ export function gearLine(D, e, { names = {} } = {}) {
   }
   const tg = e.targets;
   const met = (x) => (Array.isArray(x?.met) ? x.met.length : num(x?.met, -1));
+  // >>> WC-3 (WATERCRAFT §3.7, §3.9): a Mossmere tin's or lure's Hold helps the fish it suits (watercraft.gradeTargets); the line counts
+  // the ones the player has met and names none
+  if (tg && typeof tg === 'object' && tg.suits === true) {
+    return fill(D?.TEXT_LOOP?.log?.gear || '+{n} Hold on the fish it suits ({m} you have met).', { n: hold, m: Math.max(0, met(tg)) });
+  }
+  // <<< WC-3
   let targets = '';
   if (tg === 'all') targets = 'every fish';
   else if (Array.isArray(tg)) {
@@ -307,6 +314,26 @@ export function pinnedLabel(D, pinned, { speciesName = '' } = {}) {
   if (pinned.reason) return fill(T(D).gear?.lastAway || 'The {name} that {cause} ({class})', { name: name.replace(/^the\s/i, ''), cause: T(D).toastCause?.[pinned.reason] || 'got away', class: classLabel(D, pinned.sizeClass, pinned.ancient) });
   return `${name} (${classLabel(D, pinned.sizeClass, pinned.ancient)})`;
 }
+
+// >>> WC-3 (WATERCRAFT §2.6, §3.9): the gear log's Who bites
+/**
+ * The Who bites block for a tin or a lure: rows = watercraft.bitesTable(D, {lure} | {bait}) ([{id, share, bare}], each a share of open
+ * water's bites over an evening, 0..1). o = {met (a Set, an array or a function of an id: the fish the player has met), names (id →
+ * name), item (the column's name)}. Only met fish are named, each with its whole percent on the item and on the bare hook ("<1%" for
+ * anything under one); the others are counted, never named. → {heading, cols: [item, bare], rows: [{id, name, on, bare}], unmet, more}.
+ */
+export function bitesBlock(D, rows, { met = null, names = {}, item = '' } = {}) {
+  const W = D?.TEXT_LOOP?.log || {};
+  const under = W.under || '<1%';
+  const isMet = typeof met === 'function' ? met : met instanceof Set ? (id) => met.has(id) : Array.isArray(met) ? (id) => met.includes(id) : () => false;
+  const pctOf = (p) => { const v = num(p) * 100; return v < 1 ? under : `${Math.round(v)}%`; };
+  const list = arr(rows).filter((r) => r && typeof r.id === 'string' && (num(r.share) > 0 || num(r.bare) > 0));
+  const shown = list.filter((r) => isMet(r.id)).map((r) => ({ id: r.id, name: names[r.id] || cap(r.id.replace(/_/g, ' ')), on: pctOf(r.share), bare: pctOf(r.bare) }));
+  const unmet = list.length - shown.length;
+  return { heading: W.whoBites || 'Who bites', cols: [item || '', W.bare || 'Bare hook'], rows: shown, unmet,
+    more: unmet > 0 ? fill(W.unmet || 'and {n} you have not met', { n: unmet }) : '' };
+}
+// <<< WC-3
 
 // ------------------------------------------------------------------ the Set Out card's rating, in words (DESIGN §25.6.6)
 /** rating = progression.getTackleRating(zone) = {reference, held, next, word}. "Against the Reedjaw Pike: holds Keepers. Prizes are a

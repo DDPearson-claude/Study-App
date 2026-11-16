@@ -12,6 +12,8 @@
 import { icon } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
 import { gearName } from './loop-gear.js';
+import { bitesTable, HOOK_ITEMS as WC_ITEMS, LURE_IDS as WC_LURES } from './watercraft.js';   // WC-3: the gear log's Who bites
+import { bitesBlock } from './ui-af.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -72,6 +74,30 @@ const CSS_HUD = `
 .gw-loop-on .gw-gear-hud i { display: inline-flex; align-items: center; gap: 3px; font: 500 16px/1 var(--f-body); font-style: normal; color: var(--ink); text-shadow: var(--ink-shadow); }
 .gw-loop-on .gw-gear-hud .gw-ico { width: 22px; height: 22px; filter: drop-shadow(0 1px 2px #000); }
 `;
+// >>> WC-3 (WATERCRAFT §3.9): the gear log's Who bites, under a Mossmere tin's or lure's Hold line
+const CSS_WB = `
+.gw-wb { margin: 8px 0 2px; padding: 6px 10px 6px; border-radius: 4px; background: rgba(10, 9, 26, .35); box-shadow: inset 0 0 0 1px rgba(214, 214, 228, .1); }
+.gw-wb-h { font: 400 15px/1.2 var(--f-head, var(--f-body)); letter-spacing: .06em; color: var(--ink-dim); margin: 0 0 4px; }
+.gw-wb table { width: 100%; border-collapse: collapse; font: 400 15px/1.35 var(--f-body); color: var(--ink); font-variant-numeric: tabular-nums; }
+.gw-wb th { font-weight: 400; font-size: 13px; color: var(--ink-dim); text-align: right; padding: 0 0 2px 10px; }
+.gw-wb th:first-child, .gw-wb td:first-child { text-align: left; padding-left: 0; }
+.gw-wb td { text-align: right; padding: 1px 0 1px 10px; border-top: 1px solid rgba(214, 214, 228, .06); }
+.gw-wb td.gw-wb-b { color: var(--ink-dim); }
+.gw-wb-more { margin: 4px 0 0; font: italic 400 14px/1.3 var(--f-body); color: var(--ink-dim); }
+`;
+const wbCache = new Map();
+/** The Who bites block's HTML for a gear-log row (a Mossmere tin or lure under the loop), or '' for anything else. o = {met (Set, array
+ *  or function), names (id → name), esc}. The table is computed once per item (watercraft.bitesTable is pure on the data). */
+export function whoBitesHtml(D, e, { met = null, names = {}, esc = (s) => String(s ?? '') } = {}) {
+  if (!D || D.LOOP_ENABLED !== true || !e || !['bait', 'lure'].includes(e.kind) || e.id === 'bare' || !WC_ITEMS.includes(e.id)) return '';
+  let rows = wbCache.get(e.id);
+  if (!rows) { rows = bitesTable(D, WC_LURES.includes(e.id) ? { lure: e.id } : { bait: e.id }); wbCache.set(e.id, rows); }
+  const v = bitesBlock(D, rows, { met, names, item: gearName(D, e.id) || e.name || '' });
+  if (!v.rows.length && !v.more) return '';
+  return `<div class="gw-wb" data-loop="whobites"><div class="gw-wb-h">${esc(v.heading)}</div>${v.rows.length ? `<table><thead><tr><th></th><th>${esc(v.cols[0])}</th><th>${esc(v.cols[1])}</th></tr></thead><tbody>${
+    v.rows.map((r) => `<tr data-fish="${esc(r.id)}"><td>${esc(r.name)}</td><td>${esc(r.on)}</td><td class="gw-wb-b">${esc(r.bare)}</td></tr>`).join('')}</tbody></table>` : ''}${v.more ? `<p class="gw-wb-more">${esc(v.more)}</p>` : ''}</div>`;
+}
+// <<< WC-3
 const KNIFE = '<i class="gw-cut-knife" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 20.5 L13.5 10.5 M13.5 10.5 C16 8 18.5 5 20.5 3.5 C19.5 7 17 10 14.6 12.4 Z M5.6 16.2 L7.8 18.4"/></svg></i>';
 
 /**
@@ -82,7 +108,7 @@ export function createGearView({ K, L, D, report = () => {}, murkToast = null })
   const h = K.h;
   try {
     if (typeof document !== 'undefined' && !document.getElementById('gw-gear-css')) {
-      const st = document.createElement('style'); st.id = 'gw-gear-css'; st.textContent = CSS + CSS_HUD; document.head.appendChild(st);
+      const st = document.createElement('style'); st.id = 'gw-gear-css'; st.textContent = CSS + CSS_HUD + CSS_WB; document.head.appendChild(st);
     }
   } catch (e) { report('gear.css', e); }
 
