@@ -4890,6 +4890,11 @@ export const LOOP = {
   // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches), built only behind this switch: false unless the dev
   // URL flag ?redress=1 (core.js, read once beside ?loop; PLAN CHOICE 13). The user's yes flips the data value in a commit of its own.
   redress: LOOP_ENABLED && globalThis.GW_REDRESS === true,
+  // Murk's prices (the user, 16 Nov 2026: "The cost of items in murks shop should be way higher", then "For now just double the original
+  // costs ill playtest and tell you how it is"): every shelf price (tackle, hold, maps, lures, tins, raft, home) is its base × factor,
+  // applied once by progression-loop's mapCards and shelfItems; nothing earned changes. A preset GW_LOOP_COST (a positive number) sets
+  // it, so a build or a preview can play at ×2 while the tests keep base prices (WATERCRAFT.md §8, step P, settles the default).
+  cost: { factor: (Number(globalThis.GW_LOOP_COST) > 0 ? Number(globalThis.GW_LOOP_COST) : 1) },
   // ---- M1 step 5a, the home barge (SPEC §6.1, §6.5; M1.md §4 step 5): the Slow Hearth, about 12 × 3.6 m, its hull a row of keel
   // circles in the lake's obstacles (the raft's collision, the water's foam and the validator read them), Murk's barge its own
   barge: { length: 12, beam: 3.6, keel: { n: 5, r: 1.8, step: 2.4 }, murkR: 2.4,

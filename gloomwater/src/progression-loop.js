@@ -274,6 +274,9 @@ function tierName(D, slot, t) {
  * 'lake:<id>', slot: 'lake', waterId, sealed, seals, price (null while sealed)}. `opts.meta` (the save's meta) gives the sealed card's
  * catch seal its count.
  */
+/** Murk's price factor (data LOOP.cost.factor; 1 unless a build sets GW_LOOP_COST): applied once, in mapCards and at the end of shelfItems. */
+export function costFactor(D) { const f = Number(D?.LOOP?.cost?.factor); return Number.isFinite(f) && f > 0 ? f : 1; }
+const costed = (D, p) => (p == null || !Number.isFinite(Number(p)) ? p : Math.round(Number(p) * costFactor(D)));
 export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   const L = D?.LOOP; if (!L) return [];
   const ml = isObj(metaLoop) ? metaLoop : {}, T = L.tackle, TL = D.TEXT_LOOP || {}, ses = new Set(Array.isArray(session) ? session : []);
@@ -324,7 +327,9 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   // M1 step 4 (lane 4): the lures (Tackle), the tins and Cut Strip (Bait), Oars, Keel and Lantern (Raft), the Order Board (Home)
   out.push(...gearItems(D, ml, [...ses]));
   // M1 step 2 (decision 39): a lake map past LOOP.shipped is never offered (the sealed card is the next water's, never a lake map to buy)
-  return out.filter((it) => !(it.tab === 'maps' && it.water && !waterShipped(D, it.water)));
+  // Murk's price factor on every card but the Maps tab's (mapCards has priced those already)
+  return out.filter((it) => !(it.tab === 'maps' && it.water && !waterShipped(D, it.water)))
+    .map((it) => (it.tab === 'maps' || it.price == null ? it : { ...it, price: costed(D, it.price) }));
 }
 
 /** The goal line's item (SPEC §8.3, PLAN CHOICEs 6 and 11): the cheapest permanent card not bought (the first on a tie), or null when
@@ -432,13 +437,13 @@ export function mapCards(D, metaLoop, { meta = null } = {}) {
     .sort((a, b) => num(P[a].price, Infinity) - num(P[b].price, Infinity) || ids.indexOf(a) - ids.indexOf(b)).slice(0, 2)
     .map((id) => {
       const sp = D?.SPECIES_BY_ID?.[P[id].card] || null;
-      return { id: `place:${id}`, placeId: id, kind: P[id].kind, price: num(P[id].price, 0), fish: P[id].card ?? null,
+      return { id: `place:${id}`, placeId: id, kind: P[id].kind, price: costed(D, num(P[id].price, 0)), fish: P[id].card ?? null,
         line: D?.TEXT_LOOP?.maps?.[id] ?? '', hours: sp ? hourGlyphs(D, sp) : [] };
     });
   const { next } = frontierOf(ml, D);
   if (!next) return places;
   const seals = sealsOf(isObj(meta) ? { ...meta, loop: ml } : { loop: ml }, D, next);
-  return [...places, { id: `lake:${next}`, waterId: next, sealed: !seals.map.shipped, price: seals.map.shipped ? seals.map.price : null, seals }];
+  return [...places, { id: `lake:${next}`, waterId: next, sealed: !seals.map.shipped, price: seals.map.shipped ? costed(D, seals.map.price) : null, seals }];
 }
 /** The owned places whose mist has not lifted yet (maps.places not in `lifted`, LOOP.places only), in price order (the Chart's on a tie). */
 export function liftDue(D, metaLoop) {
