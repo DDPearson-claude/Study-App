@@ -117,3 +117,53 @@ export function voiceSchedule(every, dur, rng = Math.random, first = 0.35) {
   for (let t = first; t < dur; t += a + (b - a) * rng()) out.push(Math.round(t * 1000) / 1000);
   return out;
 }
+
+// >>> WC-3 (docs/loop/WATERCRAFT.md §5.4, §5.6, §5.7, §9.4 item 5): the water's own voices on the Mossmere under the loop. Pure rules
+// and recipes (audio-sfx.js's voice API, v.burst / v.tone, as audio-home.js's): audio.js registers SFX_WC the first time the
+// Mossmere sounds, and plays them. Night is read by ear: the inflow's trickle, the stems' rustle; the legend's toll from below.
+//   WATER_VOICES       the inflow's trickle under the Sluice Veil: a few small drips and a hiss of moving water, spatial, by distance
+//   stemsRustle(p)     a sign:spawn of the stems tell (WC-2's kind 'stems'): the reeds knock and rustle where it plays
+//   TOLL / tollOn(p)   the Belled Matriarch takes (fishing:bite {legendary, speciesId}): one low toll from the Bell Pool's floor
+//   comebackQuiet(o)   Ashwick's comeback settling on the float makes no sound on the Mossmere under the loop (a surprise, §7)
+export const WATER_VOICES = Object.freeze({
+  inflow: { x: 57, z: 4, sfx: 'moss_trickle', every: [0.5, 1.15], volume: 0.62, earshot: Object.freeze({ full: 7, gone: 34 }) },
+});
+/** The trickle carries further by ear at night (the air is still) and is a touch softer under the day's breeze. */
+export function trickleLight(light) { return light === 'night' ? 1 : light === 'dusk' ? 0.9 : 0.78; }
+/** A water voice at the raft: its gain (0 out of earshot) and its distance. */
+export function waterVoiceAt(V, x, z) {
+  if (!V || !Number.isFinite(x) || !Number.isFinite(z)) return { gain: 0, dist: Infinity };
+  const dist = Math.hypot(x - V.x, z - V.z);
+  return { gain: voiceGain(dist, V.earshot || EARSHOT), dist };
+}
+export const STEMS = Object.freeze({ sfx: 'moss_rustle', volume: 0.75, kind: 'stems', earshot: Object.freeze({ full: 14, gone: 40 }) });
+/** Does a sign:spawn play the stems' rustle (the stems tell's kind), and how loud at the raft? → gain 0..1 (0: no sound). */
+export function stemsRustle(p = {}, x = NaN, z = NaN) {
+  if (!p || p.kind !== STEMS.kind) return 0;
+  if (!Number.isFinite(p.x) || !Number.isFinite(p.z) || !Number.isFinite(x) || !Number.isFinite(z)) return 1;
+  return voiceGain(Math.hypot(p.x - x, p.z - z), STEMS.earshot);
+}
+export const TOLL = Object.freeze({ sfx: 'moss_toll', pitch: 0.62, volume: 1, place: 'bell_pool', legend: 'belled_matriarch' });
+/** The low toll as she takes: a legend's bite of the Belled Matriarch (the only species fishing names at a bite: CONTRACT §13.5). */
+export function tollOn(p = {}) { return !!p && p.legendary === true && p.speciesId === TOLL.legend; }
+/** Ashwick's comeback: no ember hiss on the Mossmere under the loop (the flag-off game and other waters keep it). */
+export function comebackQuiet({ loopOn = false, zone = null } = {}) { return loopOn === true && (zone == null || zone === 'mossmere'); }
+
+const rr = (a, b) => a + (b - a) * Math.random();
+export const SFX_WC = {
+  moss_trickle: { gain: 0.4, gap: 0.3, max: 2, pri: 0, wet: 0.35, pj: 0.08, vj: 0.25, fn(v, out, t, p) {
+    // the inflow: water running in over gravel under the Veil's spill: a short hiss of moving water and two or three small drips
+    v.burst(out, { kind: 'white', t, a: 0.05, hold: 0.12, d: 0.35, peak: 0.07, ft: 'bandpass', f: rr(2400, 3600) * p, f2: rr(1800, 2600) * p, glide: 0.4, q: 1.3 });
+    const n = 2 + ((Math.random() * 2) | 0);
+    for (let i = 0; i < n; i++) { const f = rr(1100, 2300) * p; v.tone(out, { type: 'sine', f, f2: f * 1.7, glide: 0.02, t: t + rr(0, 0.45), a: 0.001, d: 0.05, peak: 0.14 * rr(0.5, 1) }); }
+  } },
+  moss_rustle: { gain: 0.5, gap: 0.6, max: 2, pri: 0, wet: 0.3, vj: 0.2, fn(v, out, t, p) {
+    // the stems: something big knocks the reed stems under water; their heads rattle dry against each other above it
+    const n = 3 + ((Math.random() * 3) | 0);
+    for (let i = 0; i < n; i++) v.burst(out, { kind: 'white', t: t + i * rr(0.05, 0.12), a: 0.008, d: rr(0.06, 0.14), peak: 0.09 * rr(0.6, 1), ft: 'bandpass', f: rr(3800, 6400) * p, q: 2.2 });
+    v.burst(out, { kind: 'pink', t: t + 0.02, a: 0.05, hold: 0.08, d: 0.4, peak: 0.07, ft: 'bandpass', f: 1500 * p, q: 0.9 });
+    v.tone(out, { type: 'sine', f: 180 * p, f2: 140 * p, glide: 0.08, t, a: 0.004, d: 0.12, peak: 0.06 });
+  } },
+};
+export const WC_SFX = Object.keys(SFX_WC);
+// <<< WC-3
