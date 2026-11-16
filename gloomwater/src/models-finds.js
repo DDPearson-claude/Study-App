@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { toonMaterial, addOutline, INK } from './toon.js';
 import { xf, paint, mergeGeos } from './models-kit.js';
 
-const TIN = 0xa8a6b4, BRASS = 0xb8893a, BRASS_DK = 0x5c5a3c, GOLD = 0xd9b24a, RUST = 0x8a4a2e, IRON = 0x3c3844, LEATHER = 0x4e3322,
+const TIN = 0xa8a6b4, BRASS = 0xb8893a, BRASS_DK = 0x5c5a3c, GOLD = 0xd9b24a, RUST = 0x6a3f2e, IRON = 0x3c3844, LEATHER = 0x4e3322,
   GLASS = 0xd8dcea, AMBER = 0xd8963c, STONE = 0x8e8a98, STONE_DK = 0x6a6676, MOSS = 0x4f6e46, LILY = 0xece4f4, CORD = 0x8a3a3c, CORD2 = 0xc89a5a,
   LEAD = 0x2c2832, ROPE = 0x8c7552;
 const lit = (hex, k = 1.8) => new THREE.Color(hex).multiplyScalar(k);
@@ -126,7 +126,7 @@ export function createFindProp(id, D = null) {
   geo.scale(k, k, k);
   geo.computeBoundingBox(); geo.computeVertexNormals();
   const b = geo.boundingBox;
-  const mat = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.4, rimPower: 0.6, gloss: 0.4, shine: 30 });
+  const mat = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.25, rimPower: 0.68, gloss: 0.35, shine: 30 });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = `find:${id}`;
   try { addOutline(mesh, { thickness: 0.006 }); } catch { /* the ink line is optional */ }
@@ -149,8 +149,9 @@ export function createFindProp(id, D = null) {
       pivot.rotation.z = e * Math.PI * 2;
       pivot.position.y = Math.sin(t * 1.6) * 0.004;
       // the glint: the lantern runs over it as it turns (a brighter emissive for the jackpot's gold)
-      const g = Math.sin(Math.PI * turned) * (jackpot ? 0.55 : 0.3) * glowK;
-      mat.emissive.setRGB(g * 1.0, g * 0.8, g * 0.45);
+      // (a brief glint at the middle of the turn, never a wash: the object keeps its own colours under the lantern)
+      const gk = Math.max(0, Math.sin(Math.PI * turned)) ** 6, g = gk * (jackpot ? 0.2 : 0.1) * Math.min(1.5, glowK);
+      mat.emissive.setRGB(g * 1.0, g * 0.78, g * 0.4);
     },
     section(frac, out = {}) {
       const f = THREE.MathUtils.clamp(Number(frac) || 0, 0, 1);

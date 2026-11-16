@@ -69,7 +69,7 @@ const TINT = { treasure: 'rgba(232, 190, 119, .22)', part: 'rgba(174, 172, 208, 
  * (SPEC §8.8's hatch on the prop's outline: 0.75 px lines 3 px apart at 45°, the edge at 1 px and again at 2 px and 25% ink; gold for
  * the jackpot). Never breaks a screen over an illustration.
  */
-export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gold = false, pad = 0.12 } = {}) {
+export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gold = false, pad = 0.12, bold = h <= 30 } = {}) {
   try {
     const dpr = Math.min(2, (typeof devicePixelRatio === 'number' && devicePixelRatio) || 1);
     canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
@@ -99,8 +99,9 @@ export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gol
       path(); g.strokeStyle = rgba(HATCH.ink); g.lineWidth = HATCH.edge * dpr; g.stroke();
       path(); g.strokeStyle = rgba(HATCH.haloInk * HATCH.ink); g.lineWidth = HATCH.halo * dpr; g.stroke();
     } else {
-      path(); g.fillStyle = gold ? 'rgba(232, 190, 119, .28)' : TINT[it?.kind] || TINT.part; g.fill('evenodd');
-      path(); g.strokeStyle = rgba(0.95); g.lineWidth = 1.4 * dpr; g.stroke();
+      // (a small glyph, the hold's and the tally's, is filled solid in its ink so it reads at 22 px)
+      path(); g.fillStyle = bold ? rgba(gold ? 0.85 : 0.7) : gold ? 'rgba(232, 190, 119, .28)' : TINT[it?.kind] || TINT.part; g.fill('evenodd');
+      path(); g.strokeStyle = rgba(0.95); g.lineWidth = (bold ? 1.2 : 1.4) * dpr; g.stroke();
       g.beginPath(); findInkPath(P, id, { detail: true }); g.strokeStyle = rgba(0.6); g.lineWidth = 0.9 * dpr; g.stroke();
     }
   } catch { /* never break a screen over an illustration */ }

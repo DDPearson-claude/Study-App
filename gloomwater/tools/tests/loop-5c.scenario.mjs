@@ -138,7 +138,7 @@ export default async function (api) {
     await g(() => window.__gw.debug.finds.catalogue());
     await K.secs(0.4); await K.settle(400);
     const row = await g(() => { const T = window.__lp, s = T.one('[data-modal=journal] .gw-cat-finds'); if (!s) return null;
-      s.scrollIntoView({ block: 'start' });
+      s.scrollIntoView({ block: 'center' });
       const cards = [...s.querySelectorAll('.gw-cat-find')].map((b) => { const r = b.getBoundingClientRect(); return { id: b.dataset.find, name: b.querySelector('.gw-cat-name')?.textContent.trim(), rate: b.querySelector('.gw-cat-rate')?.textContent.trim(), tick: !!b.querySelector('.gw-cat-rate svg'), w: r.width, h: r.height, l: r.left, t: r.top, r: r.right, b: r.bottom }; });
       const sh = window.__gw.progression.loop.findShares('mossmere');
       const fmt = (x) => { const p = x * 100; if (!(p > 1e-9)) return ''; if (p >= 10 - 1e-9) return `${Math.round(p)}%`; const r = Math.round(p * 10) / 10; return `${r % 1 === 0 ? r.toFixed(0) : r.toFixed(1)}%`; };
@@ -152,7 +152,15 @@ export default async function (api) {
     K.check(row.cards.every((c) => c.w >= 43.5 && c.h >= 43.5), 'every card a ≥ 44 px target', row.cards.map((c) => [c.id, Math.round(c.w), Math.round(c.h)]));
     await K.secs(0.3);
     await K.shoot('catalogue-finds');
-    await K.scan('the catalogue');
+    // the finds row's own words (the Journal's built words around it are 3a's): a heading word, a find's name (× a count), "· · ·" or a rate
+    const words = await g(() => { const s = document.querySelector('[data-modal=journal] .gw-cat-finds'), T = window.__gw.data.TEXT_LOOP.finds, out = [];
+      const ok = new Set([T.snags, `· ${T.biteIn.replace('{n}', String(Math.round(1 / window.__gw.data.LOOP.finds.snag.perBite)))}`, '· · ·', ...Object.values(T.items).flatMap((x) => [x.name, x.line])]);
+      for (const e of s ? s.querySelectorAll('*') : []) { if (e.children.length) continue; const t = (e.textContent || '').trim(); if (!t) continue;
+        if (!(ok.has(t) || /^\d{1,2}(\.\d)?%$/.test(t) || (/ ×\d+$/.test(t) && ok.has(t.replace(/ ×\d+$/, ''))))) out.push(t); }
+      return out; });
+    K.check(words.length === 0, 'every word on the finds row is the finds\' own (a name, "· · ·", a rate, the heading)', words);
+    const fishPct = await g(() => [...document.querySelectorAll('[data-modal=journal] .gw-cat-card:not(.gw-cat-find)')].filter((b) => /%/.test(b.textContent)).length);
+    K.check(fishPct === 0, 'no percentage under any fish on the page', fishPct);
     await K.noErrors('the walk');
   } catch (e) {
     if (e instanceof Abort) K.note('the walk stopped', e.message);
