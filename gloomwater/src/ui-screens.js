@@ -1737,7 +1737,7 @@ export function createScreens(K) {
         st0.classList.add('gw-tab--sheet'); st0.dataset.tab = 'sheet'; st0.setAttribute('aria-label', SV.title());
         st0.insertAdjacentHTML('afterbegin', `<span class="gw-tab-wick" aria-hidden="true">${safe(() => SV.portrait('tab'), '')}</span>`);
         if (safe(() => SV.hasFresh(), false)) st0.insertAdjacentHTML('beforeend', SV.DROP);
-        if (K.vw < 700) { tb.classList.add('gw-tabs--many'); const nm = SV.title().replace(/['’]s .*$/, ''); requestAnimationFrame(() => { try { if (tb.scrollWidth > tb.clientWidth + 1) st0.querySelector('span:not(.gw-tab-wick)').textContent = nm; } catch { /* ignore */ } }); }
+        if (K.vw < 700) { tb.classList.add('gw-tabs--many'); const nm = SV.title().replace(/['’]s .*$/, ''); requestAnimationFrame(() => { try { const lab = st0.querySelector('span:not(.gw-tab-wick)'); if (tb.scrollWidth > tb.clientWidth + 1) lab.textContent = nm; if (tb.scrollWidth > tb.clientWidth + 1) lab.style.display = 'none'; } catch { /* ignore */ } }); }   // (the bare name, then the portrait alone; its accessible name stays whole)
       }
     }
     pn.insertBefore(tb, content);

@@ -89,7 +89,14 @@ export default async function (api) {
     return K.tap(sel, text);
   };
   /** Close the Journal with its Escape (the Jetty stays). */
-  const closeJournal = async () => { for (let i = 0; i < 3 && (await g(() => !!document.querySelector('[data-modal=journal]'))); i++) { await K.key('Escape'); await K.settle(300); } };
+  const closeJournal = async () => {
+    await g(() => document.querySelector('[data-modal=journal] .gw-x')?.click());
+    for (let i = 0; i < 20 && (await g(() => !!document.querySelector('[data-modal=journal]'))); i++) await K.settle(200);
+    await K.settle(300);
+    // (opened from the home pause: the pause under it closes too, so the Jetty is what is left)
+    if (await g(() => !!document.querySelector('[data-modal=homepause]') && !document.querySelector('[data-modal=journal]'))) { await K.key('Escape'); await K.settle(500); }
+  };
+  const modals = () => g(() => [...document.querySelectorAll('[data-modal]')].map((e) => e.dataset.modal));
   const shotTop = async (name, sel = null) => {
     if (sel) await g((s) => { const t = document.querySelector(`[data-modal=journal] ${s}`); try { t?.scrollIntoView({ block: 'start' }); } catch { /* ignore */ } }, sel);
     await K.settle(200);
@@ -199,6 +206,25 @@ export default async function (api) {
     const seen = await g(() => window.__gw.state.meta.loop.sheetSeen.length);
     K.check(seen > 0, 'the marks seen on the page are saved when it closes', seen);
 
+    for (const wh of String(args.also || '').split(',').filter(Boolean)) {
+      const [w2, h2] = wh.split('x').map(Number);
+      if (!(w2 > 0 && h2 > 0)) continue;
+      K.step(`sheet: the example at ${w2} × ${h2}`);
+      await page.setViewportSize({ width: w2, height: h2 });
+      await K.settle(900);
+      await g(() => window.__gw.ui.openSheet({ from: 'pause', view: { place: 'under_the_span', light: 'dusk', cls: 'trophy' } }));
+      await K.settle(900);
+      const sz = `${w2}x${h2}`;
+      await shotTop(`${sz}-head`);
+      await fitCheck(sz);
+      await scanSheet(sz);
+      if (w2 < 700) { await shotTop(`${sz}-buffs`, '[data-sec=buffs]'); await shotTop(`${sz}-tackle`, '[data-sec=tackle]'); await shotTop(`${sz}-raft`, '[data-sec=raft]'); }
+      await shotTop(`${sz}-odds`, '[data-sec=odds]');
+      await closeJournal();
+      await page.setViewportSize({ width, height });
+      await K.settle(900);
+    }
+
     if (!lookOnly) {
       K.step('sheet: every way in');
       // the catalogue's foot, Odds ›
@@ -219,6 +245,7 @@ export default async function (api) {
       await closeJournal();
       // the rack target at home (no word; its accessible name the full label)
       await K.settle(300);
+      log('modals before the rack', JSON.stringify(await modals()));
       const rack = await g(() => { const b = document.querySelector('[data-modal=jetty] [data-tile=rack]'); return b ? { label: b.getAttribute('aria-label'), word: b.textContent.trim(), vis: getComputedStyle(b).visibility } : null; });
       K.check(rack && rack.label === "Taper's Sheet" && rack.word === '', 'the rack target: no word, its accessible name "Taper\'s Sheet"', rack);
       if (rack && rack.vis !== 'hidden') {
@@ -237,14 +264,18 @@ export default async function (api) {
       const out = await K.until("c.flow === 'playing'", 12);
       if (out.ok) {
         await K.secs(2);
-        await g(() => window.__gw.ui.openPause?.());
+        await K.key('Escape');   // (the game's own pause: main pauses the trip and opens its menu)
         await K.settle(900);
+        if (!(await g(() => !!document.querySelector('[data-modal=pause]')))) { await g(() => window.__gw.game?.pause?.()); await K.settle(900); }
         const trip = await g(() => [...document.querySelectorAll('[data-modal=pause] .gw-mbtn')].map((b) => b.querySelector('span:not(.gw-sh-wick)')?.textContent.trim()));
         K.check(trip[1] === "Taper's Sheet", 'the trip pause: Resume · Taper\'s Sheet · Home · Settings', trip);
-        await K.tap('[data-modal=pause] [data-loop=sheet]');
+        log('trip: before the item', JSON.stringify({ modals: await modals(), locked: await g(() => window.__gw.ui.logLocked?.()), state: await g(() => window.__gw.fishing?.state ?? null) }));
+        await g(() => document.querySelector('[data-modal=pause] [data-loop=sheet]')?.click());
         await K.settle(700);
-        if (!(await sheetOpen())) { K.note('the tap on the pause item missed; its click'); await g(() => document.querySelector('[data-modal=pause] [data-loop=sheet]')?.click()); await K.settle(500); }
+        log('trip: after the item', JSON.stringify({ modals: await modals(), errors: await g(() => window.__gw.errors.slice(-3)) }));
         K.check(await sheetOpen(), 'the trip pause item opens the sheet');
+        await K.settle(600);
+        K.check(await sheetOpen(), 'the sheet stays open over the trip\'s pause');
         const chips = await g(() => [...document.querySelectorAll('[data-modal=journal] [data-fit]')].filter((b) => !b.disabled && !b.classList.contains('gw-on')).length);
         K.check(chips === 0, 'on a trip the hook\'s chips are read only', chips);
         await K.shoot('trip');

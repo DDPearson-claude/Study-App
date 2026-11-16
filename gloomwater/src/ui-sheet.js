@@ -305,14 +305,15 @@ const CSS = `
 .gw-sh-sline span { white-space: nowrap; font-variant-numeric: tabular-nums; } .gw-sh-sline span i { font-style: normal; color: var(--cat-ink-2); margin-right: 4px; }
 .gw-sh-table { width: 100%; border-collapse: collapse; font: 400 17px/1.25 var(--f-body); font-variant-numeric: tabular-nums; }
 .gw-sh-table th { position: sticky; top: -14px; z-index: 1; background: var(--cat-paper); font: italic 400 17px/1.15 var(--f-body);
-  color: var(--cat-ink-2); text-align: right; padding: 8px 4px 6px; border-bottom: 1.5px solid var(--cat-ink); white-space: nowrap; }
+  color: var(--cat-ink-2); text-align: right; padding: 8px 4px 6px; border-bottom: 1.5px solid var(--cat-ink); vertical-align: bottom; line-height: 1.2; }
+.gw-sh-table th span { display: block; white-space: nowrap; } .gw-sh-table th .gw-sh-dot { display: none; }
 .gw-sh-table td:nth-child(n+2) { white-space: nowrap; width: 1%; }
 .gw-sh-table th:first-child, .gw-sh-table td:first-child { text-align: left; }
 .gw-sh-table td { padding: 0 4px; text-align: right; border-bottom: 1px solid rgba(38, 29, 44, .14); }
 .gw-sh-table tr.gw-sh-row td { height: 44px; cursor: pointer; }
 .gw-sh-table tr.gw-sh-row:focus-visible td { outline: none; background: rgba(38, 29, 44, .07); }
 .gw-sh-table tr.gw-pinned td { font-weight: 700; }
-.gw-sh-table td .gw-ico { width: 18px; height: 18px; vertical-align: -3px; margin-left: 4px; }
+.gw-sh-table td .gw-ico { width: 18px; height: 18px; vertical-align: -3px; margin-right: 4px; }
 .gw-sh-table tr.gw-sh-open td { height: auto; padding: 2px 4px 8px; text-align: left; font-weight: 400; cursor: default; }
 .gw-sh-open-l { display: flex; flex-wrap: wrap; gap: 2px 12px; } .gw-sh-open-l span { white-space: nowrap; } .gw-sh-open-l i { font-style: normal; color: var(--cat-ink-2); margin-right: 4px; }
 .gw-sh-foot { margin: 8px 0 0; font: italic 400 17px/1.3 var(--f-body); color: var(--cat-ink-2); }
@@ -320,6 +321,7 @@ const CSS = `
 /* a phone: one column; plates fold to one row */
 .gw-sheet[data-layout=phone] { gap: 0; }
 .gw-sheet[data-layout=phone] .gw-sh-page { padding: 10px 14px 20px; }
+.gw-sheet[data-layout=phone] .gw-sh-corner--t .gw-mb-corner:first-child { left: -11px; } .gw-sheet[data-layout=phone] .gw-sh-corner--t .gw-mb-corner:last-child { right: -11px; }
 .gw-sheet[data-layout=phone] .gw-sh-head { grid-template-columns: 72px 1fr; }
 .gw-sheet[data-layout=phone] .gw-sh-portrait, .gw-sheet[data-layout=phone] .gw-sh-portrait svg { width: 72px; height: 82px; }
 .gw-sheet[data-layout=phone] .gw-sh-name { font-size: 29px; }
@@ -340,9 +342,9 @@ const CSS = `
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-plate, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-plate { grid-template-columns: 56px 1fr; }
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-art, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-art,
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-art .cat-eng, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-art .cat-eng { width: 56px; height: 56px; }
-.gw-sheet[data-layout=phone] .gw-sh-buff { grid-template-columns: 26px minmax(0, 7.2em) 1fr; gap: 0 8px; }
-.gw-sheet[data-layout=phone] .gw-sh-table th { white-space: normal; vertical-align: bottom; } .gw-sheet[data-layout=phone] .gw-sh-table th span { display: block; }
-.gw-sheet[data-layout=phone] .gw-sh-table th .gw-sh-dot { display: none; }
+.gw-sheet[data-layout=phone] .gw-sh-buff { grid-template-columns: 26px minmax(0, 1fr); gap: 0 10px; }
+.gw-sheet[data-layout=phone] .gw-sh-chip--txt { padding: 0 6px; } .gw-sheet[data-layout=phone] .gw-sh-chip--txt.gw-on { padding: 0 5px; }
+.gw-sheet[data-layout=phone] .gw-sh-buff .gw-sh-eff { grid-column: 2; }
 .gw-sheet[data-layout=phone] .gw-sh-table td:first-child { word-break: normal; overflow-wrap: anywhere; }
 .gw-sheet[data-layout=desktop] .gw-sh-fold { display: contents; }
 .gw-sheet[data-layout=desktop] .gw-sh-fig { display: none; }
@@ -351,6 +353,8 @@ const CSS = `
 .gw-tab .gw-tab-wick { display: inline-flex; width: 22px; height: 26px; } .gw-tab .gw-tab-wick svg { width: 22px; height: 26px; }
 .gw-tab .gw-sh-drop, .gw-mbtn .gw-sh-drop { margin-left: 2px; }
 .gw-mbtn .gw-sh-wick { display: inline-flex; width: 24px; height: 28px; margin-right: 2px; } .gw-mbtn .gw-sh-wick svg { width: 24px; height: 28px; }
+/* a phone: the Journal's own title gives its height to the page (the tab names it: the portrait and the Wick's name) */
+@media (max-width: 700px) { .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-ph { display: none; } .gw-loop-on .gw-p-catalogue.gw-p-sheet .gw-tabs { margin-top: 6px; } }
 @media (prefers-reduced-motion: reduce) { .gw-sheet * { transition: none !important; } }
 `;
 const DROP = '<i class="gw-sh-drop" aria-hidden="true"><svg viewBox="0 0 9 12"><path d="M4.5 0.6 C3 3.6 1 5.6 1 8 a3.5 3.5 0 0 0 7 0 C8 5.6 6 3.6 4.5 0.6Z"/></svg></i>';
@@ -567,8 +571,8 @@ export function createSheetView(K) {
         b.className = `gw-sh-chip${c.on ? ' gw-on' : ''}`;
         b.dataset.fit = `${kind}:${c.id ?? ''}`;
         b.setAttribute('aria-pressed', c.on ? 'true' : 'false');
-        b.setAttribute('aria-label', c.tipped ? `${c.name} · ${D().TEXT_LOOP?.sheet?.tipped || 'Tipped'}` : c.name);
-        b.innerHTML = c.glyph ? `${icon(c.glyph)}${c.count != null ? `<span>${esc(c.count)}</span>` : ''}${c.tipped ? BARB : ''}` : '<span>—</span>';
+        b.setAttribute('aria-label', c.name);
+        b.innerHTML = c.glyph ? `${icon(c.glyph)}${c.count != null ? `<span>${esc(c.count)}</span>` : ''}${c.tipped ? `<i role="img" aria-label="${esc(D().TEXT_LOOP?.sheet?.tipped || 'Tipped')}">${BARB}</i>` : ''}` : '<span>—</span>';
         if (!canFit) b.disabled = !c.on && true;
         if (canFit) b.addEventListener('click', (e) => { e.stopPropagation(); if (c.on) return; K.sfx?.('ui_click'); try { L()?.fit?.(kind, c.id); } catch (er) { report('fit', er); } entry.render(); });
         row.appendChild(b);
@@ -680,7 +684,7 @@ export function createSheetView(K) {
       const tbody = tb.querySelector('tbody');
       for (const r of v.odds.table.rows) {
         const tr = document.createElement('tr'); tr.className = `gw-sh-row${r.pinned ? ' gw-pinned' : ''}`; tr.dataset.fish = r.id; tr.tabIndex = 0;
-        tr.innerHTML = `<td><span></span>${r.pinned ? `<i role="img" aria-label="${esc(D().TEXT_LOOP?.sheet?.pinned || 'Pinned')}">${icon('hook')}</i>` : ''}</td><td></td><td></td>`;
+        tr.innerHTML = `<td>${r.pinned ? `<i role="img" aria-label="${esc(D().TEXT_LOOP?.sheet?.pinned || 'Pinned')}">${icon('hook')}</i>` : ''}<span></span></td><td></td><td></td>`;
         tr.querySelector('td span').textContent = `${r.star ? '★ ' : ''}${r.name}`;
         tr.children[1].textContent = r.share; tr.children[2].textContent = r.odds;
         const pin = (e) => {
