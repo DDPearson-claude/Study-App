@@ -214,7 +214,7 @@ export function createChartView(deps) {
       const stamps = S.seenGiants ? [...giants].filter((id) => !S.seenGiants.has(id)) : [];
       S.seenOwned = owned; S.seenGiants = giants;
       st.ink = opts.reduced ? null : { t0: null, sheet: first ? 0 : 1, places };
-      if (stamps.length) { try { K.sfx?.('stamp', { volume: 0.5 }); } catch { /* ignore */ } }
+      if (stamps.length) { try { K.sfx?.('seal_stamp', { volume: 0.5 }); } catch { /* ignore */ } }   // a giant landed: its ★ with one small stamp
       if (!S.pick) {
         const cp = ml?.chartPick;
         const ownedPick = isObj(cp) && m.sheets.some((s) => s.waterId === cp.water && (!cp.place || s.places.some((p) => p.id === cp.place && p.owned)));
@@ -243,8 +243,8 @@ export function createChartView(deps) {
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
         water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),
-        ink: { sheet: sheetK, places: placeK }, fmtWeight: (kg) => (typeof D()?.fmtWeight === 'function' ? D().fmtWeight(kg) : `${kg}`),
-        fishGlyph, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon' }, paperImage: S.art?.paper?.image || null,
+        ink: { sheet: sheetK, places: placeK }, fmtWeight: (w) => (typeof D()?.fmtWeight === 'function' ? D().fmtWeight(w) : ''),   // (pounds: data.fmtWeight, never a bare figure)
+        fishGlyph, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon', book: D()?.TEXT_LOOP?.jetty?.journal || 'Journal' }, paperImage: S.art?.paper?.image || null,
         measure: (text, font) => { g.save(); g.font = font; const x = g.measureText(text).width; g.restore(); return x; },
       };
       let L;
@@ -253,7 +253,10 @@ export function createChartView(deps) {
       if (!S.firstPaint) S.firstPaint = { at: now(), fonts: typeof document !== 'undefined' && document.fonts?.check ? FONT_FACES.every((f) => document.fonts.check(f)) : true, sheetInk: sheetK };
       placeHits(L);
       if (more) { if (!S.raf) S.raf = requestAnimationFrame((tt) => { S.raf = 0; if (cv.isConnected) paint(tt); }); }
-      else if (ink) st.ink = null;
+      else if (ink) {   // the ink-in done: chart:inked {sheet | place} (M1.md §3.8)
+        st.ink = null;
+        try { if (ink.sheet < 1) ctx.bus?.emit?.('chart:inked', { sheet: 1 }); for (const id of Object.keys(ink.places)) ctx.bus?.emit?.('chart:inked', { place: id }); } catch { /* ignore */ }
+      }
       return L;
     };
     // the hit layer: one DOM button for each tap target, in the drawing's order (the focus order), carrying the tests' selectors
@@ -355,7 +358,7 @@ export function createChartView(deps) {
     const off = document.createElement('canvas'); off.width = cv.width; off.height = cv.height;
     const g2 = off.getContext('2d'), dpr = cv.width / L.w;
     const view = { w: L.w, h: L.h, dpr, phone: L.phone, F: CHART_FONTS, layers: { first: false }, water: Object.fromEntries(arr(st?.model?.sheets).map((s) => [s.waterId, geometry(s.waterId)])),
-      sites: Object.assign({}, ...arr(st?.model?.sheets).map((s) => placeSites(D(), s.waterId))), paperImage: S.art?.paper?.image || null, words: {}, fishGlyph, fmtWeight: (k) => String(k) };
+      sites: Object.assign({}, ...arr(st?.model?.sheets).map((s) => placeSites(D(), s.waterId))), paperImage: S.art?.paper?.image || null, words: {}, fishGlyph, fmtWeight: () => '' };
     drawChart(g2, st?.model || {}, S.art, view, 0);
     const A = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, B = g2.getImageData(0, 0, cv.width, cv.height).data;
     const c = L.cont;

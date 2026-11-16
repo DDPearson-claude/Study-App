@@ -780,7 +780,7 @@ export function layoutChart(model, art, view) {
     }
     out.cards.push(card);
     out.targets.push({ id: `water:${sheet.waterId}`, kind: 'water', water: sheet.waterId, rect: [card.x, card.y + head - 4, card.w, card.h - head - foot], label: sheet.name, backdrop: true });
-    out.targets.push({ id: `book:${sheet.waterId}`, kind: 'book', water: sheet.waterId, rect: around(card.book.x, card.book.y, TARGET, TARGET), label: sheet.name });
+    out.targets.push({ id: `book:${sheet.waterId}`, kind: 'book', water: sheet.waterId, rect: around(card.book.x, card.book.y, TARGET, TARGET), label: view.words?.book || 'Journal' });
 
     // ---- its places, at their arena sites; where two would overlap they are pushed apart along the shore with a fine leader
     const T = phone ? 46 : 50, sizeV = phone ? 34 : 40;
@@ -828,12 +828,15 @@ export function layoutChart(model, art, view) {
         name.w = measure(name.text, name.font) + (A.p.giantLanded ? 16 : 0);
         lines.push(name);
         const showBest = A.p.best && (!phone || model?.pick?.place === A.id);
-        if (showBest) { const sub = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: `400 ${fs - 1.5}px ${F.body}` }; sub.w = 26 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(sub.weight) : String(sub.weight), sub.font); lines.push(sub); }
+        if (showBest) { const sub = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: `400 ${fs - 1.5}px ${F.body}` }; sub.w = 26 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(sub.weight) : '', sub.font); lines.push(sub); }
       } else if (A.price != null) { const pr = { text: String(A.price), font: `400 ${fs}px ${F.body}`, price: true }; pr.w = measure(pr.text, pr.font) + 16; lines.push(pr); }
       if (!lines.length) { out.places.push(A); continue; }
       const lh = fs + 3, bw = Math.max(...lines.map((l) => l.w)) + 6, bh = lines.length * lh + 2;
       const [x, y] = A.at, r = A.size / 2;
-      const spots = [[x, y + r + 2 + bh / 2], [x, y - r - 2 - bh / 2], [x + r + 4 + bw / 2, y], [x - r - 4 - bw / 2, y], [x + r + bw / 2, y + r], [x - r - bw / 2, y + r]];
+      // (a place by the west or east shore letters out on the paper first, as a surveyor would, clear of the water)
+      const side = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
+      const beside = (sg) => [x + sg * (r + 4 + bw / 2), y];
+      const spots = [...(side && !phone ? [beside(side)] : []), [x, y + r + 2 + bh / 2], [x, y - r - 2 - bh / 2], beside(1), beside(-1), [x + r + bw / 2, y + r], [x - r - bw / 2, y + r]];
       const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
       let best = null;
       for (const sp of spots) { const q = around(sp[0], sp[1], bw, bh); if (inCard(q) && !placed.some((o) => rectsMeet(q, o, 1))) { best = sp; break; } }
@@ -944,9 +947,10 @@ export function drawChart(ctx, model, art, view, t = 0) {
   for (const m of marks) { if (m.n === 0) hearth(ctx, m.lx, m.ly, u * 1.15, false); else lantern(ctx, m.lx, m.ly, u, true, false); }
   // the road's stones, arc I, at the Landing's corner, and the plain rose beside them (M1.md §3.3): drawn in the sea, pale on it
   if (live.stones) {
-    const st = live.stones, sx = V.sx(st.at[0]), sy = V.sy(st.at[1]), ss = clamp(k * 3.4, 6, 11);
+    // one stone for each of the reach's four waters, in road order: inked once its sheet is owned, gold once its legend is landed
+    const st = live.stones, sx = V.sx(st.at[0]), sy = V.sy(st.at[1]), ss = clamp(k * 3.4, 6, 11), shs = model?.sheets || [];
     for (let q = 0; q < 4; q++) {
-      const tt = (q - 1.5) / 1.5, w = (live.stoneStates || [])[q] || {};
+      const tt = (q - 1.5) / 1.5, w = { lit: !!shs[q], gold: shs[q]?.gilded === true };
       stone(ctx, sx + tt * ss * 2.2, sy + 1.4 * (1 - tt * tt) * ss * 0.3, ss, w.lit === true, w.gold === true);
     }
     if (st.rose) compass(ctx, V.sx(st.rose[0]), V.sy(st.rose[1]), clamp(k * 6.5, 10, 18), `rgba(${C.pale},.85)`, { lw: 1 });
@@ -1108,7 +1112,7 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
     L.texts.push('★');
   }
   if (A.sub && A.sub.kind === 'best') { // your best fish there: its glyph and its weight in pounds; never a number else
-    const txt = typeof view.fmtWeight === 'function' ? view.fmtWeight(A.sub.weight) : String(A.sub.weight);
+    const txt = typeof view.fmtWeight === 'function' ? view.fmtWeight(A.sub.weight) : '';
     ctx.save(); ctx.font = A.sub.font; const tw = ctx.measureText(txt).width; ctx.restore();
     const gw = 22, gx = A.sub.x - (tw + gw + 4) / 2;
     const glyph = typeof view.fishGlyph === 'function' ? view.fishGlyph(A.sub.speciesId) : null;
