@@ -15,7 +15,7 @@
 // card has no price and no buy button; the bare-paper test on the later sheet's ground; the hold's slots and Sail as T65 has them,
 // under the sheet and never on it; on a phone every word at 16 px or more; the chosen place checked again on every open (the
 // three-cards Chart, whose earlier choice is now a blot, chooses open water). The tutorial's ink-in is held half way for its shot
-// (ctx.debug.loop.chart('ink', 0.45)). The Chart's own paint is timed (its raster read back; M1.md §2.14: first paint ≤ 150 ms, a
+// (ctx.debug.loop.chart('ink', 0.5)). The Chart's own paint is timed (its raster read back; M1.md §2.14: first paint ≤ 150 ms, a
 // redraw ≤ 16 ms), reported, and advisory on this shared software box: the gate on real phones is step 6's.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -70,13 +70,15 @@ async function run(kind) {
   check(st0.fonts === true, `${kind}: the chart's faces are loaded with the art (IM Fell English, Cedarville Cursive)`, st0);
 
   // ---- the tutorial's Chart: the first sheet inks in under Murk's line; the slots ink in; Sail breathes
-  await g(() => { const d = window.__gw.debug.loop; d.chart('time'); d.chart('ink', 0.45); });   // (the ink-in held half way for its shot)
+  await g(() => { const d = window.__gw.debug.loop; d.chart('time'); d.chart('ink', 0.5); });   // (the ink-in held half way for its shot)
   check(await tap('[data-loop=jetty] [data-tile=chart]'), `${kind}: the Jetty's Chart tile`);
   check(await until(() => window.__gw.debug.ui().openModal === 'chart', null, 10000), `${kind}: the Chart opens`);
   await until(() => window.__gw.debug.loop.chart().draws > 0, null, 120000);
   const fp = await g(() => window.__gw.debug.loop.chart().firstPaint);
   check(fp && fp.fonts === true, `${kind}: the first paint letters in the chart's faces`, fp);
   check(fp && fp.sheetInk < 1, `${kind}: the first time the Chart opens its first sheet inks in`, fp);
+  await until(() => { const m = document.querySelector('[data-modal=chart]'); return !!m && m.classList.contains('gw-in') && Number(getComputedStyle(m).opacity) > 0.98; }, null, 30000);
+  await wait(900);   // (the panel's own ink-in: the ✕, Murk's line, the flourish)
   await shot('1-tutorial-inking');
   await g(() => window.__gw.debug.loop.chart('ink', null));
   await wait(2200);
@@ -88,7 +90,7 @@ async function run(kind) {
     const root = document.querySelector('[data-loop=chart]'), R = (e) => { const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; };
     const sheet = root?.querySelector('.gw-chart-sheet'), sail = root?.querySelector('[data-action=sail]'), slots = [...(root?.querySelectorAll('.gw-slot') || [])];
     if (!sheet || !sail) return null;
-    const s = R(sheet), below = [...slots, sail].map(R).every((r) => r[1] >= s[1] + s[3] - 0.5 && r[1] + r[3] <= innerHeight + 0.5);
+    const s = R(sheet), below = [...slots, sail].map(R).every((r) => r[1] >= s[1] + s[3] - 4 && r[1] + r[3] <= innerHeight + 0.5);   // (a button's box may graze the sheet's edge by its padding)
     return { sheet: s.map(Math.round), sail: R(sail).map(Math.round), below, hScroll: document.scrollingElement.scrollWidth > innerWidth, vh: innerHeight, fonts: window.__gw.debug.loop.chart('layout')?.fonts || [] };
   });
   const tut = await g(() => {
@@ -114,9 +116,10 @@ async function run(kind) {
   // the tutorial done (a later evening's Chart): the home's screens begin again as they do on a later home:enter
   await g(() => { const c = window.__gw, d = c.debug.loop; d.tutorial('done'); d.chart('fixture', 'later'); c.ui.closeAll?.(); c.bus.emit('home:enter', { from: null }); });
   await until(() => window.__gw.debug.ui().openModal === 'jetty', null, 20000);
+  let drawn = await g(() => window.__gw.debug.loop.chart().draws);
   check(await tap('[data-loop=jetty] [data-tile=chart]'), `${kind}: the Chart again`);
   await until(() => window.__gw.debug.ui().openModal === 'chart', null, 10000);
-  await until(() => window.__gw.debug.loop.chart().draws > 0, null, 120000);
+  await until((n) => window.__gw.debug.loop.chart().draws > n, drawn, 120000);   // (this open's own paint, not the last open's layout)
   await wait(1600);
   const tl = await g(() => window.__gw.debug.loop.chart('time'));
   times[kind].later = { openToPaint: tl.openToPaint, first: tl.paints[0]?.ms };
@@ -167,8 +170,10 @@ async function run(kind) {
   // ---- the three-cards state: one owned; only Murk's two cheapest blots priced, the Bell Pool's blot its glyph alone
   if ((await top()) === 'chart') { await page.keyboard.press('Escape'); await wait(400); }
   await g(() => { const d = window.__gw.debug.loop; d.chart('fixture', 'three'); });
+  drawn = await g(() => window.__gw.debug.loop.chart().draws);
   await tap('[data-loop=jetty] [data-tile=chart]');
   await until(() => window.__gw.debug.ui().openModal === 'chart', null, 10000);
+  await until((n) => window.__gw.debug.loop.chart().draws > n, drawn, 120000);
   await wait(1400);
   await until(() => !!window.__gw.debug.loop.chart('layout')?.places?.length, null, 120000);
   const three = await g(() => {

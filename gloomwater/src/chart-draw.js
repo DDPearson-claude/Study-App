@@ -849,10 +849,20 @@ export function layoutChart(model, art, view) {
     const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + q.x * lake.s - r, lake.cy + q.z * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
     const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
     const free = (q) => inCard(q) && !placed.some((o) => rectsMeet(q, o, 1));
+    // the nearest free spot (the spots come nearest first), slid along the line to stay on the sheet; lying on an isle costs it a
+    // little, so the words keep by their place rather than wander off to clear water
     const firstFree = (spots, bw, bh) => {
-      for (const sp of spots) { const q = around(sp[0], sp[1], bw, bh); if (free(q) && !isles.some((o) => rectsMeet(q, o, 0))) return sp; }
-      for (const sp of spots) if (free(around(sp[0], sp[1], bw, bh))) return sp;
-      return null;
+      const lo = card.x + 8 + bw / 2, hi = card.x + card.w - 8 - bw / 2;
+      let best = null, cost = Infinity;
+      spots.forEach((sp, i) => {
+        const cxx = lo <= hi ? clamp(sp[0], lo, hi) : sp[0];
+        if (Math.abs(cxx - sp[0]) > bw * 0.4) return;
+        const q = around(cxx, sp[1], bw, bh);
+        if (!free(q)) return;
+        const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0);
+        if (c < cost) { cost = c; best = [cxx, sp[1]]; }
+      });
+      return best;
     };
     const bestLine = (A) => { const s = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: font(`400 ${LS.sub}px ${fig}`), px: LS.sub }; s.w = Math.round(Math.round(LS.sub * 0.82) * 1.83) + 6 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(s.weight) : '', s.font); return s; };
     const order = items.slice().sort((a, b) => (b.owned - a.owned) || ((b.price != null) - (a.price != null)));

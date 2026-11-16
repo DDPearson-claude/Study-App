@@ -2,7 +2,9 @@
 // signature and keys; `next` the sealed sheet, null in the tutorial), the layout's tap targets (none overlapping at 358 px or on a
 // desktop, each at least 44 px), nothing unowned drawn (a mist blot is never named; the tutorial letters the water alone; no place,
 // card or seal stands on a later sheet's ground), the Chart's case of the three-cards rule (only Murk's three blots priced and
-// tappable), the sealed sheet ("Coming soon", no price), no percentage anywhere, the byte budget (M1.md §3.2's lines read from
+// tappable), the sealed sheet ("Coming soon", no price), no percentage anywhere, the phone (every word at 16 px or more in IM Fell
+// English or the margin hand at 358 px, at 390 x 844 and in Safari's 390 x 664; the lake kept; no two places' words meeting;
+// choosing a place moving no word), the byte budget (M1.md §3.2's lines read from
 // src/chart-art.js and from the game's bundle), the chart's faces, and the generated art's shape. A recording 2D context stands in
 // for the canvas, so drawChart runs in node and every word it letters is read back.
 //   node tools/tests/ui-chart.test.mjs   (or node tools/check.mjs)

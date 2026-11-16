@@ -262,6 +262,7 @@ export function createChartView(deps) {
     }
 
     const paint = (t) => {
+      const t0 = now();
       const r = sheetEl.getBoundingClientRect();
       const w = Math.round(r.width), hh = Math.round(r.height);
       if (w < 40 || hh < 40) return null;
@@ -278,7 +279,6 @@ export function createChartView(deps) {
           sheetK = ink.sheet >= 1 ? 1 : S.inkHold; for (const id of Object.keys(ink.places)) placeK[id] = S.inkHold; more = false;
         }
       }
-      const t0 = now();
       const g = cv.getContext('2d');
       const view = {
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
