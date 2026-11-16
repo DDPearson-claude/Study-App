@@ -448,8 +448,8 @@ function variantParts(V, A) {
       timber.push(paint(xf(g, { p: [-0.48 + i * 0.17, top + 0.42, z + ((i * 37) % 5 - 2) * 0.03] }), lit(i % 2 ? C.moss : C.mossDeep, 2.1)));
     }
   };
-  if (V.bed >= 1) planter(-2.3);
-  if (V.bed >= 2) planter(0.45);
+  if (V.bed >= 1) planter(0.45);   // (I on the roof's open aft half, in the home camera's sight; II forward, by the skylight)
+  if (V.bed >= 2) planter(-2.3);
   // Barge lights I: lanterns on the rail at the four quarters (II: the roof's edge, III: a beacon on the bow; after M1, hooks only)
   if (V.lights >= 1) {
     const RH = A.rails.RH;

@@ -136,7 +136,8 @@ export default async function (api) {
     await K.shoot('home-all');
     await K.tap('[data-modal=jetty] [data-tile=chart]');
     await K.settle(700); await K.steps(3);
-    await K.settle(900); await K.steps(3);
+    // (the re-inking runs 1.2 s on the page's clock, which the kit's driver advances only by the frames it steps: 1.5 s of them)
+    await K.secs(1.5); await K.settle(600); await K.steps(2);
     const gm = await g(() => { const c = window.__gw; return { gilt: (c.state.meta.loop.gilt || []).slice(), sheets: c.ui.loop.chartModel?.()?.sheets?.map((x) => [x.waterId, x.gilded]) ?? null }; });
     K.check(gm.gilt.includes('mossmere'), 'the Mossmere\'s sheet re-inked in gold on this open (once: meta.loop.gilt)', gm);
     await K.shoot('chart-gilded');
