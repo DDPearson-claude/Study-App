@@ -23,12 +23,12 @@ import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
+
+export { murkLineFor };
 // M1 step 5b (lane 5b-home): the cabin's gallery behind [data-tile=wall], the empty shelf's line and the Mossmere's gilding
 import { createGalleryView } from './ui-prints.js';
 import { shelfBare, waterGilded } from './home-shelf.js';
 import { shelfItems as shelfItems5b, listCount as listCount5b } from './progression-loop.js';
-
-export { murkLineFor };
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -617,11 +617,11 @@ export function createLoopView(K) {
   // the drawn Chart (M1 step 3b): its art decoded once in idle time after the title is up, with the chart's faces; until then, or
   // if it cannot decode, the Chart is 1a's list
   const chart = createChartView({ K, ctx, D, h, report: (w, e) => report(w, e) });
-  const gallery = createGalleryView({ K, D, loop, report: (w, e) => report(w, e) });   // M1 step 5b: the cabin's gallery (wing I)
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
     setTimeout(() => idle(() => { chart.prepare(); }), 400);
   } catch (e) { report('chart.prepare', e); }
+  const gallery = createGalleryView({ K, D, loop, report: (w, e) => report(w, e) });   // M1 step 5b: the cabin's gallery (wing I)
 
   // ------------------------------------------------------------------ the HUD on the water: the hold row and the Home pill
   const hudEl = K.layers.hud;
