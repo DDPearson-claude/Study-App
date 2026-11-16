@@ -350,7 +350,8 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   ok(lo.rod === 1 && lo.perRun === false && lo.runless === true && lo.item === null && lo.hold.rod === D.TACKLE.rod[1].hold, 'T25: at home, getLoadout reads meta.loop.tackle (perRun false)');
   const row = env.P.getGearLog().find((x) => x.kind === 'rod' && x.tier === 1);
   ok(row?.owned === true && row.fitted === true && row.price === 50 && row.proof === null, 'T25: the gear log shows the T1 rod owned, at its loop price');
-  ok(!env.P.getGearLog().some((x) => x.kind === 'bait'), 'no bait rows on the 1a shelf\'s gear log');
+  // (M1 step 4: the water's tins have their rows, loop-4.test.mjs's; no other bait has one)
+  ok(!env.P.getGearLog().some((x) => x.kind === 'bait' && !['mireworm', 'lumen_moss', 'cut_strip'].includes(x.id)), 'no bait rows on the 1a shelf\'s gear log (but the tins)');
   const r = startTrip(env);
   ok(env.P.getLoadout().rod === 1 && env.P.getLoadout().perRun === false, 'T25: on the trip too');
   const p0 = D.catchChance('reedjaw_pike', 'prize', { rod: 0, line: 0, reel: 0 }, { perRun: false });

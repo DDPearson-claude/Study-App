@@ -388,7 +388,9 @@ function hourGlyphs(D, sp) {
 function baitGlyph(D, sp) {
   const id = sp?.bait;
   if (!id) return null;
-  return Object.values(D?.LOOP?.legendBait || {}).some((b) => b?.id === id) ? id : null;
+  if (Object.values(D?.LOOP?.legendBait || {}).some((b) => b?.id === id)) return id;
+  // M1 step 4 (revision 5): a tin on the shelf (the Gloam Eel's Lumen Moss) is a bait glyph too, never a rate
+  return Object.values(D?.LOOP?.tins || {}).some((t) => Array.isArray(t) && t.includes(id)) ? id : null;
 }
 /**
  * The next water's three keys as the save stands (SPEC §5.5 (f)): {map: {held, price, shipped}, gear: {held, slot, tier, item},

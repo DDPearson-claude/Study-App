@@ -284,7 +284,7 @@ section('T115: catalogueFor (SPEC §8.8): the head, the list, the places\' group
   eq(G('bridgechain_sturgeon'), [[], null, null], 'the Bridgechain: none (any hour; the heading is its place)');
   eq(G('thousandcast_pike'), [['dusk', 'moon'], null, null], '★ the Thousandcast: dusk and moon');
   eq(G('hullkiss_lamprey'), [['moon'], null, null], '★ the Hullkiss: the moon');
-  eq(G('gloam_eel'), [['moon'], null, null], 'the Gloam Eel: the moon and no tin (Lumen Moss reaches the shelf in step 4)');
+  eq(G('gloam_eel'), [['moon'], null, 'lumen_moss'], 'the Gloam Eel: the moon and (M1 step 4) its tin, Lumen Moss');
   eq(G('belled_matriarch'), [['sun', 'dusk'], null, 'heartmoss'], '★ the Matriarch: day, dusk and the Heartmoss Ball');
   ok(by.thousandcast_pike.giant && by.hullkiss_lamprey.giant && by.belled_matriarch.legend && !by.gloam_eel.giant, 'the giants and the legend are marked');
   eq(all.filter((e) => e.caught).map((e) => e.id), ['dusk_minnow', 'thousandcast_pike'], 'caught: journal[id].caught > 0');

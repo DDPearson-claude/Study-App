@@ -106,6 +106,7 @@ import { createReel, rollZ, capZ, inGiantSpot, floatFavour, sumFavour, classInde
 import { planPlay, chooseLoss, applyLoss, partPlan, presentAt, drawStrike } from './fishing-play.js';
 import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
 import { KIND_ID, PREROLLED, aliveRange, maxAlive, pickKind, signTtl, createSign, stepSign, bestRule, kindRules } from './fishing-signs.js';
+import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
@@ -412,7 +413,13 @@ export function create(ctx) {
   function loopPool(baitId, phase, placeId) {
     const f = D().placePool;
     if (typeof f !== 'function') return null;
-    try { return f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(baitId) ? null : (baitId ?? null), wickId: wickId(), water: lakeId() }) || null; } catch (e) { report(e); return null; }
+    let pp = null;
+    try { pp = f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(baitId) ? null : (baitId ?? null), wickId: wickId(), water: lakeId() }) || null; } catch (e) { report(e); return null; }
+    // M1 step 4 (lane 4, SPEC §4.4): the fitted lure draws its family (×its built attract), or the fish its giants' lure names and its
+    // giants' share (×1.5); a family lure never draws a giant (src/loop-gear.js lurePool, the sim's poolFor)
+    const lure = typeof run()?.lure === 'string' ? run().lure : null;
+    if (pp && lure) { try { pp = lurePool(D(), pp, { lure, phase, wickId: wickId() }); } catch (e) { report(e); } }
+    return pp;
   }
   /** Her pool on a trip (PLAN CHOICE 4): the cast is in the owned, lifted place whose legend she is (the Bell Pool's whole water). */
   function loopLegendWater(lg) {
@@ -583,6 +590,8 @@ export function create(ctx) {
         if (q.favour) out.push({ family: 'quiet', id: 'quiet', value: q.favour });
         if (q.mercy) out.push({ family: 'letGo', id: 'letGo', value: q.mercy });
       }
+      // M1 step 4 (lane 4, SPEC §7): the Keel (+0.1 a level everywhere) and the Lantern (+0.1 a level after dark)
+      try { out.push(...raftTerms(D(), loopApi()?.state?.() || null, ph)); } catch (e) { report(e); }
       return out;
     }
     if (info.letPass > 0) out.push({ family: 'signs', id: 'letItPass', value: info.letPass });

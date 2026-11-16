@@ -23,6 +23,7 @@ import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
+import { orderPhraseOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
 
 export { murkLineFor };
 
@@ -369,7 +370,7 @@ export function journalModel(meta, D, waterId, { listFor = null } = {}) {
  * edge ('gold' for a giant), glyphs (icon names: a listed fish its place glyph and its hours; a fish under a heading its hours and its
  * one bait)}. No number and no rate in a card, ever (revision 7). Pure.
  */
-const BAIT_GLYPH = { heartmoss: 'mossball' };
+const BAIT_GLYPH = { heartmoss: 'mossball', lumen_moss: 'moss', mireworm: 'worm' };   // (M1 step 4: the tins' glyphs)
 export function catalogueView(cat, D) {
   if (!isObj(cat)) return null;
   const card = (e, listed) => {
@@ -484,6 +485,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/descent/i.test(t)) return t === (T_(D).newDescent || 'New Descent') && (screen === 'title' || screen === 'newdescent');
   if (/shells?|memories/i.test(t)) return false;
   if (W.has(t)) return true;
+  if (/^(?:\d+ |an? )/.test(t) && orderPhraseOk(t, D)) return true;   // M1 step 4: an order as Murk chalks it ("2 Dusk Minnows")
   if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★' || t === '· · ·') return true;
   if (CM_RE.test(t)) return screen === 'catch';
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;

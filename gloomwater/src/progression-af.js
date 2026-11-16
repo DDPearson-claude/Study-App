@@ -141,6 +141,15 @@ export function createAutofish(S) {
       const tk = loopBlock()?.tackle || {};
       const out = { rod: tk.rod | 0, line: tk.line | 0, reel: tk.reel | 0, hold: loopHold(tk), item: null, itemLevel: 1, perRun: false };
       if (!r) out.runless = true;
+      // M1 step 4 (lane 4, SPEC §4.5): a lure and a bait on the line together, the fish gets the larger Hold, never both: the lure is the
+      // item and the cast's bait (a tin or Cut Strip; a legend's bait gives none) rides as the never-stacked second (catchParts' max)
+      const L = loopBlock() || {}, items = C3()?.items || {};
+      const lureId = r ? (typeof r.lure === 'string' ? r.lure : null) : (typeof L.fitted?.lure === 'string' ? L.fitted.lure : null);
+      if (lureId && items[lureId]?.kind === 'lure' && Array.isArray(L.lures) && L.lures.includes(lureId)) out.item = lureId;
+      const baitId = r ? (lineOut() && castSnap?.runId === r.id ? castSnap.item : r.equippedBait) : (typeof L.fitted?.bait === 'string' ? L.fitted.bait : null);
+      if (typeof baitId === 'string' && items[baitId]?.kind === 'bait' && !S.bait?.(baitId)?.legend) {
+        if (out.item) out.upgrade = { id: baitId, level: 1 }; else out.item = baitId;
+      }
       return out;
     }
     if (!r) return { rod: 0, line: 0, reel: 0, item: null, itemLevel: 1, perRun: perRunOf(null), runless: true };
@@ -468,6 +477,30 @@ export function createAutofish(S) {
       : expeditions() && r?.outing !== 'descent'
         ? (D().LURES || []).filter((L) => lureLit(L, r) || meta()?.lures?.[L.id]).map((L) => ({ L, price: L.price, owned: !!meta()?.lures?.[L.id], onSale: lureLit(L, r) }))
         : [];
+    // M1 step 4 (lane 4): under the loop, at the shelf's Odds › and on a trip, the water's lures (owned or on the shelf) and its tins and
+    // Cut Strip (held), each with its Hold and the fish it helps; the log is the only place a fish's odds show (the pinned compare)
+    if (loopOn() && (!r || loopRun(r))) {
+      const LB = loopBlock() || {}, LL = D().LOOP?.lures || {}, own = new Set(Array.isArray(LB.lures) ? LB.lures : []);
+      const fit = LB.fitted || {}, onLine = r ? { lure: r.lure ?? null, bait: r.equippedBait ?? null } : fit;
+      for (const [id, row0] of Object.entries(LL)) {
+        const it = C.items[id];
+        if (!it || !(LB.maps?.lakes || ['mossmere']).includes(row0.water)) continue;
+        const row = { id, kind: 'lure', name: D().TEXT_LOOP?.gearItems?.[id] ?? lure(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: row0.price,
+          owned: own.has(id), onSale: !own.has(id), equipped: onLine.lure === id, giants: !!it.species };
+        if (pinSp) row.compare = compareWith({ ...base, item: id });
+        out.push(row);
+      }
+      const bag = r ? r.bait || {} : LB.bait?.[LB.barge?.water || 'mossmere'] || {};
+      for (const id of [...Object.values(D().LOOP?.tins || {}).flat(), 'cut_strip']) {
+        if (out.some((x) => x.id === id && x.kind === 'bait')) continue;
+        const it = C.items[id], held = bag[id] | 0;
+        if (!it || (id === 'cut_strip' && !held)) continue;
+        const row = { id, kind: 'bait', name: D().TEXT_LOOP?.gearItems?.[id] ?? S.bait?.(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: null, owned: held,
+          equipped: onLine.bait === id, onSale: id !== 'cut_strip' };
+        if (pinSp) row.compare = compareWith({ ...base, item: id });
+        out.push(row);
+      }
+    }
     for (const { L, price, owned, onSale } of lureRows) {
       const it = C.items[L.id];
       if (!it) continue;
