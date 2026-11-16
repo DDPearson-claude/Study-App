@@ -4905,12 +4905,13 @@ export const LOOP = {
   // one mooring per water (SPEC §6.5): the Mossmere's is the Jetty, docks[0]; the raft's tie-up at the stern IS docks[dock] (PLAN
   // CHOICE 44's place); hull {x, z, yaw} the Slow Hearth's centre and heading (yaw 0: the bow faces −Z), murk Murk's barge (his
   // facing in the docks' convention), lane the glide in's points before the tie-up (the glide out, reversed), cam the home camera
-  // (pos, look, fov; `portrait` for a screen taller than wide, its lens keeping its across angle from the aspect `across` on;
+  // (pos, look, fov; `portrait` for a screen taller than wide, its lens keeping its across angle from the aspect `across` on, and
+  // in the blend band closing by `tight` with its look `lift` m higher, eased in from `across` on;
   // `blend` the aspects W / H between which the two ease into each other, a tablet held sideways, a 4:3 or a square window:
   // homeCamAt)
   mooring: {
     mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
-      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75 }, blend: [0.85, 1.7] } },
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } },
   },
 };
 export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)
@@ -5368,7 +5369,14 @@ export function homeCamAt(cam, aspect, { pull = 0, tow = null } = {}) {
   // (the portrait pose's lens on a wider screen keeps its across angle from `P.across` (an aspect) on, so a square window frames the
   // barge as the phone does instead of widening round it)
   const pf = P ? Number(P.fov) || 45 : 0, ac = P && Number(P.across) > 0 && a > Number(P.across) ? Number(P.across) : 0;
-  const pfov = ac ? 2 * Math.atan(Math.tan(pf * Math.PI / 360) * ac / a) * 180 / Math.PI : pf;
+  // (in the blend band the portrait lens closes by `P.tight` and its look rises `P.lift` m, so a square or near-square window holds
+  // the group a little larger and lower, less empty water under it: the weight rises from `across` and goes with the
+  // landscape pose's own weight, so a phone held upright (under `across`) and a wide screen (from blend[1]) are exactly as before;
+  // eased in over 0.4 of an aspect from `across`, so the pose never jumps as a window is dragged wider)
+  const a0 = Number(P?.across) > 0 ? Number(P.across) : b0 - 0.1, v = P ? Math.min(1, Math.max(0, (a - a0) / 0.4)) : 0;
+  const wb = (v * v * (3 - 2 * v)) * (1 - k), tight = 1 - (1 - (Number(P?.tight) || 1)) * wb, lift = (Number(P?.lift) || 0) * wb;
+  if (lift) look[1] += lift;
+  const pfov = ac || tight !== 1 ? 2 * Math.atan(Math.tan(pf * Math.PI / 360) * (ac ? ac / a : 1) * tight) * 180 / Math.PI : pf;
   const fov = P ? pfov + ((Number(cam.fov) || 45) - pfov) * k : Number(cam.fov) || 45;
   const w = Math.min(1, Math.max(0, Number(pull) || 0));
   if (w > 0) {

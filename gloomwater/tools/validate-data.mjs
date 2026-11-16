@@ -436,9 +436,9 @@ if (process.argv.includes('--loop')) {
       ok4(cam && Array.isArray(cam.pos) && Array.isArray(cam.look) && num4(cam.fov) && cam.portrait && Array.isArray(cam.portrait.pos), `${water}: the home camera has its pose and its portrait pose`);
       ok4(typeof L4.homeCamAt === 'function' && (cam.blend === undefined || (Array.isArray(cam.blend) && cam.blend.length === 2 && cam.blend[0] >= 0.5 && cam.blend[0] < cam.blend[1] && cam.blend[1] <= 2.2)),
         `${water}: the home camera's blend (the aspects between the portrait and the landscape poses) is a range inside 0.5 … 2.2`);
-      for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [700, 760], [800, 800], [1024, 768], [1180, 820], [960, 540], [1280, 720], [1920, 1080], [844, 390]]) {
+      for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [690, 760], [700, 760], [800, 800], [900, 900], [900, 1000], [1024, 768], [1180, 820], [960, 540], [1280, 720], [1920, 1080], [844, 390]]) {
         const r = HT.frameCheck(M, L4.homeCamAt(cam, vw / vh), { vw, vh });
-        ok4(r.ok, `${water}: the home camera at ${vw} × ${vh} holds the barge, the raft and Murk, the chart table, the lectern and the doorway, each button ≥ 44 px, none overlapping${r.ok ? '' : `: ${r.faults.slice(0, 3).join('; ')}`}`);
+        ok4(r.ok, `${water}: the home camera at ${vw} × ${vh} holds the barge, the raft and Murk, the chart table, the lectern and the doorway, each button ≥ 44 px, none overlapping, each word ≥ 16 px from the others and the Wick${r.ok ? '' : `: ${r.faults.slice(0, 3).join('; ')}`}`);
       }
     }
     // self-tests: a hull laid over the Jetty's statue fails, and a camera turned away fails its frame

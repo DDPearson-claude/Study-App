@@ -294,14 +294,23 @@ section('the catch path: fishing:bite {sizeClass: \'find\'}, then fishing:found 
   const reeling = env.F.state === 'reeling';
   env.ctx.water.addWake = () => { marks.wake++; }; env.ctx.water.addRipple = () => { marks.ripple++; };
   const mesh = scene.getObjectByName('fishing-signs'), raft = env.ctx.player.position;
-  let silt = 0, nearRaft = 0;
+  let silt = 0, nearRaft = 0, maxR = 0, along = 0;
   for (let i = 0; i < 90 && env.F.state === 'reeling'; i++) {
     env.tick(1);
-    const B = mesh?.geometry?.attributes?.iB?.array, A = mesh?.geometry?.attributes?.iA?.array, n = mesh?.geometry?.instanceCount || 0;
-    for (let j = 0; j < n; j++) if (B && Math.abs(B[j * 4] - 9.1) < 0.01) { silt++; if (Math.hypot(A[j * 4] - raft.x, A[j * 4 + 2] - raft.z) < 2.4) nearRaft++; }
+    const B = mesh?.geometry?.attributes?.iB?.array, A = mesh?.geometry?.attributes?.iA?.array, C = mesh?.geometry?.attributes?.iC?.array, n = mesh?.geometry?.instanceCount || 0;
+    for (let j = 0; j < n; j++) if (B && Math.abs(B[j * 4] - 9.1) < 0.01) {
+      silt++;
+      // (the puff's bloom reaches 1.1 × its radius at most: no part of it within 2.4 m of the raft)
+      const dx = raft.x - A[j * 4], dz = raft.z - A[j * 4 + 2], R = C[j * 4 + 2];
+      if (Math.hypot(dx, dz) - 1.1 * R < 2.4) nearRaft++;
+      maxR = Math.max(maxR, R);
+      // its weed-line laid along the haul (the sign's heading toward the raft)
+      if (Math.abs(Math.atan2(Math.sin(A[j * 4 + 3] - Math.atan2(dx, dz)), Math.cos(A[j * 4 + 3] - Math.atan2(dx, dz)))) < 0.2) along++;
+    }
   }
   ok(reeling && marks.wake === 0 && marks.ripple === 0, 'a find\'s haul on the Mossmere: no foam wake and no rings behind it', marks);
-  ok(silt > 0 && nearRaft === 0, 'behind it a slow trail of silt puffs (the mud cloud), none within 2.4 m of the raft', { silt, nearRaft });
+  ok(silt > 0 && nearRaft === 0, 'behind it a slow trail of mud puffs (the mud cloud), no part of one within 2.4 m of the raft', { silt, nearRaft });
+  ok(maxR > 0.4 && maxR <= 2.0001 && along === silt, 'each puff blooms up to about 2 m, its weed-line along the haul', { maxR, along, silt });
   eq(env.ctx.errors.length, 0, `no fishing errors (${env.ctx.errors.join(' | ')})`);
 }
 {

@@ -244,11 +244,26 @@ section('the targets: the home camera\'s frame at 358 px and every size, each bu
 {
   const cam = M.cam;
   // (the portrait pose upright, the landscape wide, the two eased into each other between: a tablet held sideways, 4:3, square)
-  for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [700, 760], [800, 800], [1024, 768], [1180, 820], [960, 540], [1280, 720], [844, 390]]) {
+  for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [690, 760], [700, 760], [800, 800], [900, 900], [900, 1000], [1024, 768], [1180, 820], [960, 540], [1280, 720], [844, 390]]) {
     const r = HT.frameCheck(M, D.homeCamAt(cam, vw / vh), { vw, vh });
-    ok(r.ok, `${vw} × ${vh}: the barge, the raft and the four targets in frame, each ≥ 44 px, none overlapping${r.ok ? '' : `: ${r.faults.join('; ')}`}`);
+    ok(r.ok, `${vw} × ${vh}: the barge, the raft and the four targets in frame, each ≥ 44 px, none overlapping, every word ≥ 16 px from the others and the Wick${r.ok ? '' : `: ${r.faults.join('; ')}`}`);
     ok(r.layout.items.every((it) => it.w >= 44 && it.box.b - it.box.t >= 44), `${vw} × ${vh}: every button at least 44 × 44 px`);
+    // the words themselves (the owner's play-test on a near-square phone: CHART across the Wick, its hook into JOURNAL's J)
+    const W = r.layout.items.filter((it) => it.wordBox), wick = HT.rectOf(HT.wickCorners(M), (p) => HT.project(p, D.homeCamAt(cam, vw / vh), vw, vh));
+    let gapW = Infinity, gapWick = Infinity;
+    for (let i = 0; i < W.length; i++) { gapWick = Math.min(gapWick, HT.apart(W[i].wordBox, wick)); for (let j = i + 1; j < W.length; j++) gapW = Math.min(gapW, HT.apart(W[i].wordBox, W[j].wordBox)); }
+    ok(W.length === 3 && gapW >= 15.5 && gapWick >= 15.5, `${vw} × ${vh}: Murk, Chart and Journal each ≥ 16 px apart (${gapW.toFixed(0)} px) and off the Wick (${gapWick.toFixed(0)} px), the hooks counted where shown`);
   }
+  // the words measured as drawn: a wide word is kept apart all the same, its hooks dropped first, then nudged along its band
+  { const pose = D.homeCamAt(cam, 900 / 900), wide = { murk: { w: 150, h: 22, hook: 42 }, chart: { w: 150, h: 22, hook: 42 }, journal: { w: 190, h: 22, hook: 42 } };
+    const r = HT.frameCheck(M, pose, { vw: 900, vh: 900, wordSize: wide });
+    ok(r.ok && r.layout.items.filter((it) => it.wordBox).every((it) => !it.hooks || it.id === 'murk'), 'frameCheck with wider measured words: still apart, the close ones without their hooks', r.faults);
+    // self-test: the words laid over each other fail the check
+    const lay = HT.layoutTargets({ chart: { l: 100, t: 100, r: 160, b: 160 }, journal: { l: 172, t: 100, r: 232, b: 160 } }, { vw: 900, vh: 900, word: 34, wordSize: { chart: { w: 120, h: 22, hook: 0 }, journal: { w: 120, h: 22, hook: 0 } } });
+    const wa = lay.items.find((it) => it.id === 'chart').wordBox, wb = lay.items.find((it) => it.id === 'journal').wordBox;
+    ok(lay.ok && HT.apart(wa, wb) >= 15.5, 'layoutTargets: two wide words under close buttons are nudged ≥ 16 px apart', { wa, wb });
+    const wick = { l: 110, t: 140, r: 150, b: 200 }, lw = HT.layoutTargets({ chart: { l: 100, t: 100, r: 160, b: 160 } }, { vw: 900, vh: 900, word: 34, avoid: [wick] });
+    ok(lw.ok && HT.apart(lw.items[0].wordBox, wick) >= 15.5, 'layoutTargets: a word nudged off the Wick\'s figure', lw.items[0]); }
   // the integration's fix (the 5a review's must): every shape of screen between a phone held upright and a wide one keeps the
   // raft, the Wick, the barge and Murk in frame (the poses eased into each other between cam.blend's aspects, never a jump)
   { const bad = [];

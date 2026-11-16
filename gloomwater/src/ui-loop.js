@@ -23,7 +23,7 @@ import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
-import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
+import { targetCorners, wickCorners, rectOf, layoutTargets } from './home-targets.js';
 import { orderPhraseOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
 import { createGearView, CHALK_TICK } from './ui-gear.js';   // M1 step 4 (lane 4): the lure slot, the tins, the orders' board, the ticks
 
@@ -892,9 +892,32 @@ export function createLoopView(K) {
   function homeMooring() {
     try { const m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; return m && m.hull ? m : null; } catch { return null; }
   }
-  const TG = { sig: '', proj: { x: 0, y: 0 }, last: null };
+  const TG = { sig: '', proj: { x: 0, y: 0 }, last: null, mkey: '', metrics: null };
+  /** Each word's own box as drawn (its letters' width, its glyphs' height, its hooks' reach each side, 0 where the hooks are not
+   *  drawn), measured once a screen size and again once the fonts are in (the layout keeps the words apart by these). */
+  function wordMetricsOf(btns, vw, vh) {
+    const key = `${vw}x${vh}|${document.fonts?.status || ''}|${btns.length}`;
+    if (TG.mkey === key && TG.metrics) return TG.metrics;
+    const out = {};
+    for (const b of btns) {
+      const tw = b.querySelector('.gw-jetty-tword'), g = tw?.querySelector('b');
+      if (!tw || !g) continue;
+      const w = tw.offsetWidth, h = g.offsetHeight;
+      if (!(w > 0)) return null;   // (not laid out yet: the estimate this frame)
+      // (the hooks as the screen draws them: none on a phone; a word whose hooks are hidden this frame shows them for the measure)
+      const hid = b.classList.contains('gw-jetty-target--nohk');
+      if (hid) b.classList.remove('gw-jetty-target--nohk');
+      const r = tw.getBoundingClientRect(), hl = tw.querySelector('.gw-hk-l')?.getBoundingClientRect(), hr = tw.querySelector('.gw-hk-r')?.getBoundingClientRect();
+      const hook = Math.max(hl && hl.width > 0 ? r.left - hl.left : 0, hr && hr.width > 0 ? hr.right - r.right : 0);
+      if (hid) b.classList.add('gw-jetty-target--nohk');
+      out[b.dataset.tile] = { w, h, hook: Math.max(0, hook) };
+    }
+    TG.mkey = key; TG.metrics = out;
+    return out;
+  }
   /** Each target's button over its object's projected bounds, the word under it, kept ≥ 44 px, clear of the purse, the pause glyph
-   *  and the goal line, and never over another (home-targets.layoutTargets); called every frame while the Jetty is up. */
+   *  and the goal line, and never over another (home-targets.layoutTargets); each word ≥ 16 px from the others and from the Wick
+   *  (its hooks hidden when they would come close, the word nudged off the Wick's figure); called every frame while the Jetty is up. */
   function placeTargets(force = false, root = null) {
     const el = root || K.entry('jetty')?.el, layer = el?.querySelector('.gw-jetty-targets');
     const M = homeMooring(), R = ctx.render;
@@ -908,8 +931,9 @@ export function createLoopView(K) {
     const box = (sel) => { const q = el.querySelector(sel); if (!q) return null; const r = q.getBoundingClientRect(); return r.width > 0 ? { l: r.left - 4, t: r.top - 4, r: r.right + 4, b: r.bottom + 4 } : null; };
     const reserve = ['.gw-jetty-purse', '[data-loop=homepause]', '.gw-jetty-goal'].map(box).filter(Boolean);
     const word = phone ? 30 : 34;
-    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false }, reserve, margin: phone ? 6 : 10 });
-    const sig = lay.items.map((it) => `${it.id}:${Math.round(it.l)},${Math.round(it.t)},${Math.round(it.w)},${Math.round(it.h)}`).join('|');
+    const wick = rectOf(wickCorners(M), proj);
+    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false }, reserve, margin: phone ? 6 : 10, wordSize: wordMetricsOf(btns, vw, vh), avoid: wick ? [wick] : [] });
+    const sig = lay.items.map((it) => `${it.id}:${Math.round(it.l)},${Math.round(it.t)},${Math.round(it.w)},${Math.round(it.h)},${Math.round(it.dx)},${Math.round(it.dy)},${it.hooks ? 1 : 0}`).join('|');
     TG.last = lay;
     if (!force && sig === TG.sig) return lay;
     TG.sig = sig;
@@ -919,6 +943,9 @@ export function createLoopView(K) {
       if (!it) { b.style.visibility = 'hidden'; continue; }
       Object.assign(b.style, { visibility: '', left: `${it.l.toFixed(1)}px`, top: `${it.t.toFixed(1)}px`, width: `${it.w.toFixed(1)}px`, height: `${it.h.toFixed(1)}px` });
       b.style.setProperty('--box-h', `${(it.box.b - it.box.t).toFixed(1)}px`);
+      b.style.setProperty('--tw-dx', `${(it.dx || 0).toFixed(1)}px`);
+      b.style.setProperty('--tw-dy', `${(it.dy || 0).toFixed(1)}px`);
+      b.classList.toggle('gw-jetty-target--nohk', !!it.word && !it.hooks);
     }
     return lay;
   }

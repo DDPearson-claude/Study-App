@@ -130,17 +130,13 @@ export function createChartView(deps) {
   const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
   // ---- the images, decoded once in idle time after the title is up, and the chart's faces with them (M1.md §3.2)
-  // a data: URI decodes through an <img> first: a page host's Content-Security-Policy may block fetch() of data: (connect-src) while
-  // images stay allowed (img-src) — the user's phone in the app showed the Landing's sheet blank (16 Nov); fetch is the last resort
+  // a data: URI decodes through an <img> only, never fetch(): a page host's Content-Security-Policy may block fetch() of data:
+  // (connect-src) while images stay allowed (img-src) — the user's phone in the app showed the Landing's sheet blank (16 Nov). An
+  // <img> that fails throws: the status goes to 'failed' and the list Chart covers it
   const decode = async (uri) => {
-    try {
-      const img = new Image(); img.decoding = 'async'; img.src = uri; await img.decode();
-      if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
-      return img;
-    } catch (e1) {
-      if (typeof createImageBitmap === 'function' && typeof fetch === 'function') return createImageBitmap(await (await fetch(uri)).blob());
-      throw e1;
-    }
+    const img = new Image(); img.decoding = 'async'; img.src = uri; await img.decode();
+    if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
+    return img;
   };
   // the paper (M1's view of the bake's paper, a 167 x 125 px JPEG stretched about 11 times over the vellum): its signal is a slow
   // mottle of a level or two, under the JPEG's 8 x 8 blocks, so it is blurred once at its own size (a box of 3 px, twice each way)

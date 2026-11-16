@@ -747,17 +747,19 @@ void main() {
     float m = 1.0 - smoothstep(rc * 0.3, rc * (0.85 + 0.3 * n), d);
     float fresh = exp(-ev * 0.12);
     if (form > 0.5) {
-      // the haul of a find (form 1; the integration's fix): silt dragged off the bed, a slow murky swirl a shade paler than the
-      // night water and of its own colour, wound tighter at its heart; never gold, never a glint
-      float rs = min(1.5, 0.6 + 0.3 * ev) * (0.75 + 0.35 * L);
-      float ms = 1.0 - smoothstep(rs * 0.25, rs * (0.8 + 0.3 * n), d);
+      // the haul of a find (form 1; the integration's fixes): mud dragged off the bed, a slow swirl darker than the night water and
+      // of its own colour, wound darker at its heart, blooming to R0 m (at most about 2 m, less near the raft: none of it within
+      // 2.4 m of it), and behind it along the haul (local −y) a faint dark weed-line; never gold, never a glint, never a ring
+      float rs = min(max(R0, 0.4), (0.55 + 0.35 * ev) * (0.8 + 0.25 * L));
+      float ms = 1.0 - smoothstep(rs * 0.3, rs * (0.8 + 0.3 * n), d);
       float rot = ev * 0.3 + 1.2 / (0.5 + d), cr = cos(rot), sr = sin(rot);
       vec2 qr = vec2(cr * q.x - sr * q.y, sr * q.x + cr * q.y);
       float sw = n21(qr * vec2(3.2, 0.8) + vec2(seed * 7.0, 0.0)) * 0.65 + n * 0.35;
-      float haze = ms * smoothstep(0.2, 0.7, sw);
-      light += mix(vec3(0.34, 0.31, 0.27), WATERW, 0.45) * haze * 0.9 * (0.45 + 0.55 * fresh) * uSurf;
-      ink += ms * 0.26 * (0.4 + 0.6 * fresh);
-      inkCol = vec3(0.07, 0.065, 0.055);
+      ink += ms * (0.24 + 0.16 * smoothstep(0.2, 0.75, sw)) * (0.55 + 0.45 * fresh);
+      float wl = q.x - 0.07 * sin(q.y * 2.3 + seed * 9.0), ww = max(0.045, MPP * 1.2);
+      float streak = exp(-wl * wl / (ww * ww)) * smoothstep(0.1, -0.2, q.y) * smoothstep(-2.3, -1.1, q.y) * (0.6 + 0.4 * n21(vec2(q.y * 2.0, seed * 5.0)));
+      ink += streak * 0.2 * (0.5 + 0.5 * fresh);
+      inkCol = vec3(0.05, 0.045, 0.055);
     } else {
     ink += m * (0.16 + 0.22 * n) * (0.4 + 0.6 * fresh);
     inkCol = vec3(0.05, 0.047, 0.04);   // silt, not ink

@@ -10,7 +10,11 @@
 //   rectOf(corners, …)      the screen rect of a box's corners (null when any is behind the lens)
 //   layoutTargets(rects, o) the buttons' rects: at least `min` px each way, the word under each, inside the view and clear of the
 //                           reserved rects, and never overlapping (each pushed apart, never under `min`)
-//   frameCheck(M, cam, o)   the validator's check of a camera's frame at a screen size (the barge, the raft and every target)
+//   frameCheck(M, cam, o)   the validator's check of a camera's frame at a screen size (the barge, the raft, every target and
+//                           every word: ≥ 16 px from each other and from the Wick)
+//   wickCorners(M)          the Wick's figure on the raft at home (the words keep off it)
+//   wordMetrics(text, t)    a word's box (its width, its glyphs' height, its hooks' reach) estimated from its letters (the
+//                           validator's; the screen measures its own)
 
 /** The order of the targets: the tiles' focus order (Murk, Chart, Journal), then the wall. */
 export const TARGET_ORDER = ['murk', 'chart', 'journal', 'wall'];
@@ -32,6 +36,19 @@ export const TARGET_BOXES = {
   murk: { min: [-1.3, 0.15, -1.25], max: [1.3, 3.75, 1.45] },
 };
 
+// the Wick's figure on the raft at home, round the raft's centre (its cloak, its head and its flame): the words keep 16 px off it
+export const WICK_BOX = { min: [-0.42, 0.22, -0.42], max: [0.42, 1.6, 0.42] };
+// the words under the targets (ui.css .gw-jetty-tword: the display face, uppercase, tracked; the hooks either side only on desktop)
+export const HOME_WORDS = { murk: 'Murk', chart: 'Chart', journal: 'Journal' };
+export const WORD_TYPE = { desk: { size: 19, track: 0.2, hook: 42, band: 34 }, phone: { size: 17, track: 0.16, hook: 0, band: 30 } };
+/** A word's box at a type {size px, track em, hook px}: {w (the letters and their tracking), h (the glyphs), hook (each side)},
+ *  estimated a little wide (the display face's capitals: M and W the widest, I and J the narrowest). */
+export function wordMetrics(text, { size = 19, track = 0.2, hook = 42 } = {}) {
+  let w = 0;
+  for (const ch of String(text || '').toUpperCase()) w += (/[MW]/.test(ch) ? 0.95 : /[IJ1]/.test(ch) ? 0.5 : ch === ' ' ? 0.3 : 0.68) + track;
+  return { w: w * size, h: Math.round(size * 1.15), hook };
+}
+
 const corners = (b) => {
   const out = [];
   for (const x of [b.min[0], b.max[0]]) for (const y of [b.min[1], b.max[1]]) for (const z of [b.min[2], b.max[2]]) out.push([x, y, z]);
@@ -50,6 +67,11 @@ export function targetCorners(M) {
   // Murk's object turns by his facing + π (the merchant actor's arrive / moor convention: he faces (−sin y, −cos y))
   if (M.murk) out.murk = corners(TARGET_BOXES.murk).map((p) => place(p, M.murk, (Number(M.murk.yaw) || 0) + Math.PI));
   return out;
+}
+/** The Wick's figure's eight world corners at a mooring (on the raft at its tie-up), or null. */
+export function wickCorners(M) {
+  if (!M?.raft) return null;
+  return corners(WICK_BOX).map(([x, y, z]) => [M.raft.x + x, y, M.raft.z + z]);
 }
 /** The barge's own extremes and the raft at its stern (the frame must hold all of them). */
 export function bargePoints(M, { length = 12, beam = 3.6, top = 3.5 } = {}) {
@@ -87,15 +109,26 @@ export function rectOf(pts, proj) {
   return Number.isFinite(l) ? { l, t, r, b } : null;
 }
 const overlap = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > 0.5 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 0.5;
+/** The clear distance between two rects (the larger of the horizontal and the vertical gap; negative when they overlap). */
+export const apart = (a, b) => Math.max(a.l - b.r, b.l - a.r, a.t - b.b, b.t - a.b);
 
 /**
  * The buttons' rects. rects: {id: {l, t, r, b} | null} (the objects' projected bounds). o: {vw, vh, min (44), word (the word's
  * height under the box, px; 0 for a target with none), words: {id: bool}, max: [w, h] share of the view a box may take, margin
  * (px inside the view), reserve: [{l, t, r, b}] (the purse, the pause glyph, the goal line)}. Each box is grown round its centre
  * to `min`, shrunk to `max`, its word put under it, kept inside the view and off the reserved rects, then pushed apart from the
- * others (never under `min`). → {items: [{id, l, t, w, h, box: {l, t, r, b} (the object's part), word: bool}], ok, faults: []}
+ * others (never under `min`).
+ * Then the words (the owner's play-test, twice: words touching on a near-square phone): wordSize {id: {w, h, hook}} each word's
+ * own box (its width, its glyphs' height, its hooks' reach each side: measured on screen, wordMetrics's estimate without it), its
+ * glyphs at the foot of its button; every word ≥ `gap` px from every other word and from each rect of `avoid` (the Wick), clear of
+ * the other buttons by `boxGap`, of the reserved rects and of the view's edge. A word's hooks are hidden when the hooked word would
+ * come within those distances of anything; a word that would still touch is nudged the shortest way clear (along its band first,
+ * then a little down or up), left to right.
+ * → {items: [{id, l, t, w, h, box: {l, t, r, b} (the object's part), word: bool, wordBox: {l, t, r, b} | null (the glyphs, the
+ *   hooks' reach included when shown), hooks: bool, dx, dy (the word's nudge, px)}], ok, faults: []}
  */
-export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, words = {}, max = [0.42, 0.42], margin = 8, reserve = [] } = {}) {
+export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, words = {}, max = [0.42, 0.42], margin = 8, reserve = [],
+  wordSize = null, type = vw < 700 || vh < 500 ? WORD_TYPE.phone : WORD_TYPE.desk, avoid = [], gap = 16, boxGap = 8 } = {}) {
   const items = [];
   for (const id of TARGET_ORDER) {
     const r = rects?.[id];
@@ -137,6 +170,39 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
     }
     if (!moved) break;
   }
+  // the words, left to right by their buttons' centres
+  const boxOf = (it) => ({ l: it.l, t: it.t, r: it.l + it.w, b: it.t + it.bh });
+  const placed = [];
+  const inView = (r) => r.l >= margin - 0.5 && r.r <= vw - margin + 0.5 && r.t >= margin - 0.5 && r.b <= vh - margin + 0.5;
+  for (const it of [...items].sort((p, q) => (p.l + p.w / 2) - (q.l + q.w / 2))) {
+    it.wb = null; it.hooks = false; it.dx = 0; it.dy = 0;
+    if (!(it.wd > 0)) continue;
+    const m = wordSize?.[it.id] || wordMetrics(HOME_WORDS[it.id] || it.id, type);
+    const ww = Math.max(1, Number(m.w) || 1), wh = Math.max(1, Number(m.h) || 1), hk = Math.max(0, Number(m.hook) || 0);
+    const cx = it.l + it.w / 2, b = it.t + it.h;
+    const others = items.filter((o) => o !== it).map(boxOf);
+    const clear = (r) => inView(r) && placed.every((z) => apart(r, z) >= gap - 0.01) && avoid.every((z) => !z || apart(r, z) >= gap - 0.01)
+      && others.every((z) => apart(r, z) >= boxGap - 0.01) && reserve.every((z) => !overlap(r, z));
+    const at = (dx, dy, h) => ({ l: cx - ww / 2 - h + dx, r: cx + ww / 2 + h + dx, t: b - wh + dy, b: b + dy });
+    let best = null;
+    if (hk > 0 && clear(at(0, 0, hk))) best = { dx: 0, dy: 0, hooks: true };
+    else if (clear(at(0, 0, 0))) best = { dx: 0, dy: 0, hooks: false };
+    else {
+      // the shortest nudge clear: along the band (2 px steps), then a little below the band or above it
+      let cost = Infinity;
+      for (const dy of [0, 6, -6, 12, -12, 18, 24, -18, 30, 36, 42, 48]) {
+        const cy = Math.abs(dy) * 2.5;
+        if (cy >= cost) continue;
+        for (let s = 0; s <= vw; s += 2) {
+          if (cy + s >= cost) break;
+          for (const dx of s ? [s, -s] : [0]) if (clear(at(dx, dy, 0))) { cost = cy + s; best = { dx, dy, hooks: false }; break; }
+        }
+      }
+    }
+    if (best) Object.assign(it, best);
+    it.wb = at(it.dx, it.dy, it.hooks ? hk : 0);
+    placed.push(it.wb);
+  }
   const faults = [];
   for (let i = 0; i < items.length; i++) {
     const a = R(items[i]);
@@ -145,8 +211,21 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
     for (const z of reserve) if (overlap(a, z)) faults.push(`${items[i].id} over a reserved rect`);
     for (let j = i + 1; j < items.length; j++) if (overlap(a, R(items[j]))) faults.push(`${items[i].id} overlaps ${items[j].id}`);
   }
+  // the words' own check (the glyphs, and the hooks while shown)
+  for (let i = 0; i < items.length; i++) {
+    const w = items[i].wb, id = items[i].id;
+    if (!w) continue;
+    if (!inView(w)) faults.push(`${id}'s word outside the view`);
+    for (const z of reserve) if (overlap(w, z)) faults.push(`${id}'s word over a reserved rect`);
+    for (const z of avoid) if (z && apart(w, z) < gap - 0.5) faults.push(`${id}'s word within ${gap} px of the Wick (${apart(w, z).toFixed(0)} px)`);
+    for (let j = 0; j < items.length; j++) {
+      if (j === i) continue;
+      if (apart(w, boxOf(items[j])) < boxGap - 0.5) faults.push(`${id}'s word on ${items[j].id}'s button`);
+      if (j > i && items[j].wb && apart(w, items[j].wb) < gap - 0.5) faults.push(`${id}'s and ${items[j].id}'s words within ${gap} px (${apart(w, items[j].wb).toFixed(0)} px)`);
+    }
+  }
   return {
-    items: items.map((it) => ({ id: it.id, l: it.l, t: it.t, w: it.w, h: it.h, box: { l: it.l, t: it.t, r: it.l + it.w, b: it.t + it.bh }, word: it.wd > 0 })),
+    items: items.map((it) => ({ id: it.id, l: it.l, t: it.t, w: it.w, h: it.h, box: boxOf(it), word: it.wd > 0, wordBox: it.wb, hooks: it.hooks, dx: it.dx, dy: it.dy })),
     ok: faults.length === 0, faults,
   };
 }
@@ -154,10 +233,13 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
 /**
  * The validator's frame check (M1 §4 step 5a): through `cam` at vw × vh, every point of the barge and the raft inside the frame
  * (`margin` px), every target's projected bounds in front of the lens and inside it, their raw bounds not overlapping, and the
- * laid-out buttons at least `min` px with none overlapping. which: the targets to check (the wall only once wing I is owned:
+ * laid-out buttons at least `min` px with none overlapping, and their words (wordMetrics's boxes at the screen's type, or
+ * `wordSize`) ≥ 16 px from each other and from the Wick, off the other buttons and inside the view. which: the targets to check (the wall only once wing I is owned:
  * the check takes all four). → {ok, faults: [], rects, layout}
  */
-export function frameCheck(M, cam, { vw, vh, min = 44, word = 26, margin = 16, which = TARGET_ORDER, reserve = [] } = {}) {
+export function frameCheck(M, cam, { vw, vh, min = 44, word = null, margin = 16, which = TARGET_ORDER, reserve = [], wordSize = null } = {}) {
+  // (the screen's own type and word band: ui-loop's placeTargets, a phone under 700 px wide or 500 px tall)
+  const phone = vw < 700 || vh < 500, type = phone ? WORD_TYPE.phone : WORD_TYPE.desk;
   const faults = [];
   const proj = (p) => project(p, cam, vw, vh);
   for (const p of bargePoints(M)) {
@@ -178,7 +260,8 @@ export function frameCheck(M, cam, { vw, vh, min = 44, word = 26, margin = 16, w
   }
   const ids = Object.keys(rects);
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (overlap(rects[ids[i]], rects[ids[j]])) faults.push(`${ids[i]} and ${ids[j]} overlap on screen`);
-  const layout = layoutTargets(rects, { vw, vh, min, word, words: { wall: false }, reserve });
+  const wick = rectOf(wickCorners(M), proj);
+  const layout = layoutTargets(rects, { vw, vh, min, word: word ?? type.band, words: { wall: false }, reserve, margin: phone ? 6 : 10, type, wordSize, avoid: wick ? [wick] : [] });
   for (const f of layout.faults) faults.push(`the buttons: ${f}`);
   return { ok: faults.length === 0, faults, rects, layout };
 }

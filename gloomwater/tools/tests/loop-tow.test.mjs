@@ -528,5 +528,17 @@ section('it plays once: a second Sail, the sail home and a Continue never replay
   ok(E.T.phase === null && tows() === n0, 'Continue at home: no tow');
 }
 
+{
+  // the drawn sheets decode a data: URI through an <img> only (the lead's ruling, 16 Nov: never fetch() of a data: URI, which a page
+  // host's connect-src may block); an <img> that fails throws, the status goes to 'failed' and the list Chart covers it
+  const { readFileSync } = await import('node:fs');
+  for (const f of ['ui-tow.js', 'ui-chart.js']) {
+    const src = readFileSync(new URL(`../../src/${f}`, import.meta.url), 'utf8'), at = src.indexOf('const decode = async');
+    const body = at >= 0 ? src.slice(at, src.indexOf('\n  };', at)) : '';
+    ok(body.includes('new Image()') && body.includes('createImageBitmap(img)') && !/fetch\s*\(/.test(body), `${f}: decode() is the <img> then createImageBitmap path, no fetch() of a data: URI`);
+    ok(!/fetch\s*\(/.test(src.replace(/\/\/[^\n]*/g, '')), `${f}: no fetch() anywhere in it`);
+  }
+}
+
 console.log(`\nloop-tow: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
