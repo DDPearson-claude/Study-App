@@ -1006,7 +1006,7 @@ export default async function (api) {
               const fx = await g(() => { const sc = window.__gw.render?.scene, v = (n) => { const o = sc?.getObjectByName?.(n); return o ? !!o.visible : null; }; return { state: window.__gw.fishing.state, dist: window.__gw.fishing.view?.castDist ?? null, range: v('range-ring'), label: v('reticle-label'), reticle: v('reticle'), arc: v('cast-arc') }; });
               K.check(fx.state === 'charging', '(the real press charges a cast)', fx);
               K.check(fx.range === false && fx.label === false, 'the user\'s rule: no range ring round the raft and no band word while a trip\'s cast charges', fx);
-              K.check(!(fx.reticle && fx.dist !== null && fx.dist < 5.5), '… and no reticle while the aim is within 5.5 m of the raft', fx);
+              K.check(!(fx.reticle && fx.dist !== null && fx.dist < 7), '… and no reticle while the aim is within 7 m of the raft', fx);
               await K.scan('the water (a cast charging)');
               await K.shoot('charge');
             },

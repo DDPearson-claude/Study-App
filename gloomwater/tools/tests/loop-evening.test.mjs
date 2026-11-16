@@ -315,7 +315,7 @@ section('fishing: the cast draws no ring round the raft and no aim word on a tri
     return { near, far };
   };
   const T = charge({ outing: 'trip' });
-  ok(T.near.state === 'charging' && T.near.dist < 5.5, `(a trip: charging, the aim ${T.near.dist?.toFixed(1)} m out)`);
+  ok(T.near.state === 'charging' && T.near.dist < 7, `(a trip: charging, the aim ${T.near.dist?.toFixed(1)} m out)`);
   ok(!T.near.ring && !T.near.ret && !T.near.label, 'a trip: no range ring round the raft, and no reticle or band word while the aim is near the raft');
   ok(T.far && !T.far.ring && T.far.ret && !T.far.label && T.far.arc, 'a trip: further out the reticle and the cast arc show; never the range ring or a band word');
   const N = charge({ outing: 'normal' });
