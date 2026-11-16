@@ -9,6 +9,7 @@
 
 import { rosterSpecies, rosterItemNames, HOUR_WINDOWS } from './roster-species.js';
 import { ROSTER_SHIPPED } from './roster-shipped.js';
+import { findShares as findSharesOf } from './loop-finds.js';   // M1 step 5c (lane 5C): the finds' one draw, pure
 
 // =====================================================================================
 // STATS (DESIGN §6–§10) — every stat key the game reads. base = value before
@@ -5021,9 +5022,10 @@ export function wickSlots(holdSlots, wickId) { return (Number(holdSlots) || 0) +
 export function loopSlots(metaLoop, wickId = metaLoop?.wick) { return wickSlots(metaLoop?.holdSlots ?? LOOP.hold.start, wickId); }
 /** Good bites a water gives each evening (SPEC §3.3, WICKS §2.4): open water wickSlots × openPerSlot + openExtra + the Wick's `good`;
  *  a place LOOP.water.good[kind], plus the Wick's `good` where its `everyWater` (Tallow's). holdSlots is the bought count. */
-export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null } = {}) {
+export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null, extra = 0 } = {}) {
   const W = LOOP.water, K = LOOP.wicks[loopWickId(wickId)];
-  if (kind === 'open') return Math.round(wickSlots(holdSlots, wickId) * W.openPerSlot) + W.openExtra + (K?.good || 0);
+  // (M1 step 5c: `extra` is a bite part's +1 at its own water's open water, loop-finds.findBiteBonus; 0 elsewhere and by default)
+  if (kind === 'open') return Math.round(wickSlots(holdSlots, wickId) * W.openPerSlot) + W.openExtra + (K?.good || 0) + Math.max(0, Math.round(Number(extra) || 0));
   return (Number(W.good[kind]) || 0) + (K?.everyWater ? K.good || 0 : 0);
 }
 /** The quiet terms of a bite `over` bites past a water's good bites (SPEC §3.3; the caller counts over, PLAN CHOICE 17): favour
@@ -5033,6 +5035,56 @@ export function quietTerms(over, wickId = null) {
   const step = K.quietStep != null ? -K.quietStep : S.favour;
   return { over: n, favour: n > 0 ? Math.max(S.floor, step * n) : 0, waitMult: K.quietWait === false ? 1 : Math.min(S.waitMax, 1 + S.wait * n) };
 }
+// >>> M1 step 5c (lane 5C: the Mossmere's finds; docs/loop/FINDS.md §10, §5.1, §9; SPEC §4.10, decisions 49–57). Additive: a new LOOP
+// key and new TEXT_LOOP words, read only under data.LOOP_ENABLED (LOOP and TEXT_LOOP are not in the v3 fingerprint). The rules are
+// src/loop-finds.js's (pure); findShares below is the one function the snag roll draws from and the catalogue prints.
+LOOP.finds = {
+  snag: { perBite: 0.05, firstEvening: 0, legendCast: 0 },   // a snag in place of a fish: 1 bite in 20 (est.); never evening 1 or a legend's cast
+  kind: { share: 0.35, step: 0.15, cap: 0.8 },                // of snags, while the water has an unowned part or look (the soft guarantee)
+  parts: { bait: 1, order: 1, bite: 1 },                      // each kind's effect at its own water, capped at one (FINDS §3.2)
+  grades: { plain: { share: 0.54, x: 2 }, fine: { share: 0.29, x: 6 }, precious: { share: 0.12, x: 15 },   // shares of ALL the water's
+    rare: { share: 0.04, x: 50 }, jackpot: { share: 0.01, x: 250 } },                                     // snags (revision 3)
+  haul: { pinch: 2, both: 3, alongside: 4 },                  // s: the slow steady wind, never lost
+  hold: { pinch: 1.2, both: 1.5, alongside: 1.8, jackpot: 2.6 },   // the show's held beat, s (the jackpot a giant's longer beat)
+  tin: 10,                                                    // a tin's baits when LOOP.baitRule (step 4) is not in this build
+  // the Mossmere's eleven (FINDS §5.1): five treasures, three parts (one of each effect), three looks (one per wearer). `size` the
+  // prop's length in metres (the show holds it at its own size), `slot` where a part or a look goes, `bait` the bait part's tin
+  items: [
+    { id: 'tin_spoon', water: 'mossmere', kind: 'treasure', grade: 'plain', pose: 'pinch', size: 0.2 },
+    { id: 'door_ring', water: 'mossmere', kind: 'treasure', grade: 'fine', pose: 'both', size: 0.26 },
+    { id: 'salt_lens', water: 'mossmere', kind: 'treasure', grade: 'precious', pose: 'both', size: 0.2 },
+    { id: 'two_headed_coin', water: 'mossmere', kind: 'treasure', grade: 'rare', pose: 'pinch', size: 0.12 },
+    { id: 'toll_purse', water: 'mossmere', kind: 'treasure', grade: 'jackpot', pose: 'both', size: 0.28 },
+    { id: 'buoy_bell', water: 'mossmere', kind: 'part', effect: 'order', slot: 'bow_post', pose: 'both', size: 0.3 },
+    { id: 'gate_glass', water: 'mossmere', kind: 'part', effect: 'bite', slot: 'cabin_windows', pose: 'both', size: 0.3 },
+    { id: 'moat_bollard', water: 'mossmere', kind: 'part', effect: 'bait', slot: 'stern_deck', pose: 'alongside', size: 0.62, bait: 'mireworm' },
+    { id: 'rod_tassel', water: 'mossmere', kind: 'look', slot: 'wick_rod', wearer: 'wick', pose: 'pinch', size: 0.2 },
+    { id: 'toll_vane', water: 'mossmere', kind: 'look', slot: 'raft_stern_post', wearer: 'raft', pose: 'both', size: 0.4 },
+    { id: 'lily_boxes', water: 'mossmere', kind: 'look', slot: 'barge_window_boxes', wearer: 'barge', pose: 'both', size: 0.46 },
+  ],
+};
+// the words (FINDS §9): each find's name and one line, the catalogue row's heading, Murk's three once-lines
+TEXT_LOOP.finds = {
+  snags: 'Snags', biteIn: '1 bite in {n}',
+  items: {
+    tin_spoon: { name: 'Bent Tin Spoon', line: 'Someone ate every meal with this, slowly.' },
+    door_ring: { name: 'Brass Door-Ring', line: 'Off a door four Wicks tall.' },
+    salt_lens: { name: 'Salt-Glass Lens', line: 'Fitted to a lantern long since drowned.' },
+    two_headed_coin: { name: 'Two-Headed Coin', line: 'Lucky, they said. Heads every time.' },
+    toll_purse: { name: "The Toll-Keeper's Purse", line: 'Full. Nobody came to collect.' },
+    buoy_bell: { name: 'Rust Buoy-Bell', line: 'It rang the boats home once.' },
+    gate_glass: { name: 'Gate Lamp-Glass', line: "Amber, from the Gate's drowned lamps." },
+    moat_bollard: { name: 'Moat Bollard', line: 'Carved stone. Boats tied here for centuries.' },
+    rod_tassel: { name: 'Knotted Rod Tassel', line: 'Every knot, a fish someone was proud of.' },
+    toll_vane: { name: 'Toll-Tower Vane', line: 'It still points into the wind.' },
+    lily_boxes: { name: 'Night-Lily Window Boxes', line: 'A window box, still flowering.' },
+  },
+};
+Object.assign(TEXT_LOOP.murk, { firstTreasure: 'The water keeps what it takes. Mostly.', firstPart: "That'll fit her. I'll see to it by morning.",
+  firstJackpot: "Somebody's whole fortune. Now it's yours." });
+/** M1 step 5c (FINDS §10): the share of the water's next snag for each of its finds as the save stands (pure; loop-finds.js). */
+export function findShares(meta, D = { LOOP, TEXT_LOOP }, waterId = 'mossmere', opts = {}) { return findSharesOf(meta, D, waterId, opts); }
+// <<< M1 step 5c (lane 5C)
 /** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
  *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
  *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the

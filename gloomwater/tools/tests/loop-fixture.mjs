@@ -17,6 +17,7 @@
 //                         and tackle set and Journal entries caught: o = {own, lifted (= own), balls, holdSlots, tackle, caught}
 // Nothing here is used by the game. Run as a script it checks itself: node tools/tests/loop-fixture.mjs
 import { pathToFileURL } from 'node:url';
+import * as LF from '../../src/loop-finds.js';   // M1 step 5c (lane 5C): the finds' pure rules, for fakeLoop's finds methods
 import { defaultMeta } from '../../src/core.js';
 import { freshLoop, LOOP_METHODS, LOOP_SCHEMA, tallyLines, shelfItems, goalOf, listCount as listCountOf, mapCards as mapCardsOf, sealsOf, catalogueFor,
   liftDue as liftDueOf } from '../../src/progression-loop.js';
@@ -89,6 +90,7 @@ export function fakeLoop(over = {}) {
     // M1 step 3a
     fitted: { lure: null, bait: null }, bag: {}, lifted: [], marked: {}, best: {}, chartPick: null,
     barge: { water: 'mossmere', towed: [] },
+    finds: { got: {}, worn: {}, share: {} },   // M1 step 5c
     ...state, ...plain,
   };
   if (!Array.isArray(s.maps.places)) s.maps = { ...s.maps, places: [] };
@@ -116,7 +118,7 @@ export function fakeLoop(over = {}) {
   const metaLoop = () => ({ v: LOOP_SCHEMA, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
     wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, barge: { water: s.barge.water, towed: [...s.barge.towed] }, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}),
     fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
-    giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])) });
+    giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])), finds: s.finds });
   const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
   const items = () => (D ? shelfItems(D, metaLoop(), s.session, { meta: metaNow() }) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
@@ -125,6 +127,32 @@ export function fakeLoop(over = {}) {
 
   const api = {
     state: () => metaLoop(),
+    // M1 step 5c (lane 5C): the finds on the same state, through the real pure rules (they need `D`)
+    snagRoll({ legendCast = false, tutorial = false, rng = Math.random, force = null } = {}) {
+      if (!s.onTrip || !D) return null;
+      if (typeof force === 'string') { const it = LF.findById(D, force); return it && it.water === s.zone && !(it.kind !== 'treasure' && LF.owned(metaLoop(), force)) ? force : null; }
+      const p = LF.snagChance(D, { evening: s.evening, legendCast, tutorial });
+      if (!(p > 0) || !(rng() < p)) return null;
+      return LF.drawFind(LF.findShares(metaNow(), D, s.zone, { exclude: s.fish.filter((f) => f?.find).map((f) => f.find) }), rng());
+    },
+    noteFound({ findId, waterKey = null } = {}) {
+      if (!D || !LF.findById(D, findId)) return null;
+      LF.noteSnag(metaLoop(), D, s.zone, findId); s.openBite = null;
+      return LF.holdEntry(D, findId, { uid: `find_fake_${s.fish.length}_${calls.length}`, waterKey: waterKey || keyOf(null) });
+    },
+    restoreFind: () => null,
+    keepFind(e) {
+      if (!e || typeof e.find !== 'string') return { ok: false, msg: '', gained: { clams: 0 } };
+      if (api.holdFull()) return { ok: false, full: true, msg: T?.holdFull ?? "Hold's full.", gained: { clams: 0 } };
+      s.fish.push({ ...e }); s.saves++; return { ok: true, msg: '', gained: { clams: e.kind === 'treasure' ? e.clams : 0 } };
+    },
+    letGoFind(e) {
+      const key = e?.waterKey || keyOf(null), n = Math.max(0, s.bites[key] | 0), back = Math.min(1, n);
+      s.bites[key] = n - back; return { ok: true, msg: '', gained: { bite: back, favour: 0 } };
+    },
+    finds: () => s.finds,
+    findShares: (waterId = s.zone) => (D ? LF.findShares(metaNow(), D, waterId) : {}),
+    findCatalogue: (waterId = 'mossmere') => (D ? LF.findCatalogue(metaNow(), D, waterId) : null),
     hold: () => ({ slots: slots(), fish: s.onTrip ? s.fish : [], full: api.holdFull() }),
     holdFull: () => s.onTrip && s.fish.length >= slots(),
     priceOf: (f) => price(f),

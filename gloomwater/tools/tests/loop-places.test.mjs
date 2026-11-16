@@ -288,7 +288,7 @@ section('T115: catalogueFor (SPEC §8.8): the head, the list, the places\' group
   eq(G('belled_matriarch'), [['sun', 'dusk'], null, 'heartmoss'], '★ the Matriarch: day, dusk and the Heartmoss Ball');
   ok(by.thousandcast_pike.giant && by.hullkiss_lamprey.giant && by.belled_matriarch.legend && !by.gloam_eel.giant, 'the giants and the legend are marked');
   eq(all.filter((e) => e.caught).map((e) => e.id), ['dusk_minnow', 'thousandcast_pike'], 'caught: journal[id].caught > 0');
-  eq(c.finds, null, 'finds: null (M1 step 5c)');
+  eq(c.finds?.rows?.part?.length, 3, 'finds: the finds half (M1 step 5c)');
   // a deep scan: no number and no % in any entry
   const scan = (v, path, bad) => { if (typeof v === 'number') bad.push(path); else if (typeof v === 'string' && (/\d/.test(v) || v.includes('%'))) bad.push(`${path}: ${v}`); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) scan(x, `${path}.${k}`, bad); return bad; };
   eq(scan([...c.list, ...c.groups.flatMap((g) => g.entries)], 'entries', []), [], 'no number and no % anywhere in an entry');

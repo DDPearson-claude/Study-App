@@ -40,6 +40,7 @@ import { createCord } from './actors-measure.js';
 import { createShow, SHOW_IDS } from './actors-show.js';
 import { debugEnabled } from './core.js';
 import { MEASURE_POSES, measurePoseFor, cordEase, cordDurationFor } from './models-size.js';
+import { createFindLooks } from './actors-finds.js';   // M1 step 5c (lane 5C): the vane on the raft, the tassel on the rod (the loop only)
 import { setupSurface, REFLECT_LAYER } from './toon.js';
 
 const damp = THREE.MathUtils.damp;
@@ -70,6 +71,7 @@ export function create(ctx) {
   // the loop's home barge, the Slow Hearth (M1 step 5a): moored at the water's mooring through home and every evening; off the
   // loop it is never built
   const home = ctx.data?.LOOP_ENABLED === true ? createHome(ctx) : null;
+  const findLooks = createFindLooks(ctx, { raft, wick });   // M1 step 5c (lane 5C): null off the loop
   if (home) group.add(home.object3d);
   const looks = home ? createLooks({ raft, wick }) : null;   // (the loop only, as the barge)
   const lightHolder = new THREE.Group(); lightHolder.name = 'actorLights'; group.add(lightHolder);
@@ -576,6 +578,7 @@ export function create(ctx) {
       merchantR.update(dt, hasWater() ? H : null);
       // ---------------------------------------------------------- the home barge (the loop): moored at this water's mooring
       if (home) updateHome(dt);
+      findLooks?.update(dt);   // M1 step 5c (lane 5C): the vane and the tassel, when owned
       // the ceremony's candle fill: a soft warm light on the held fish's flank. No new light (the light count stays stable):
       // while Murk is away his lamp's PointLight (always in the scene, dark) is borrowed, then given back as it was
       // (the loop: moored Murk's lamp is dark too, so the ceremony borrows it at home as it does while he is away)

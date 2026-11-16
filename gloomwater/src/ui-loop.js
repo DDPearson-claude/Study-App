@@ -18,6 +18,7 @@
 // journal], then the cabin's doorway [data-tile=wall] from wing I, no word), re-placed every frame; without one, 1a's tile row.
 import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
+import { drawFindArt, findsRowView, FIND_GLYPHS, whereOf } from './ui-finds.js';   // M1 step 5c (lane 5C)
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
@@ -55,6 +56,8 @@ export function slotCells(hold, { D = null } = {}) {
   for (let i = 0; i < n; i++) {
     const f = fish[i];
     if (!f) { out.push({ i, filled: false }); continue; }
+    // M1 step 5c: a kept find in its slot (a coin, a hull or a ribbon in ink; the jackpot's slot gold-edged)
+    if (typeof f.find === 'string') { out.push({ i, filled: true, uid: f.uid ?? null, speciesId: null, find: f.find, kind: f.kind ?? null, sizeClass: null, scale: CLASS_SCALE.keeper, gild: f.grade === 'jackpot' }); continue; }
     const sp = spOf(D, f.speciesId);
     const r = sp?.rarity || f.rarity || null;
     out.push({ i, filled: true, uid: f.uid ?? null, speciesId: f.speciesId ?? null, sizeClass: f.sizeClass ?? null,
@@ -162,7 +165,11 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
     if (typeof D?.weightOz === 'function' && typeof D?.fishWeight === 'function') return D.weightOz(D.fishWeight(sp, l));
     return num(Number(l.length), 0);
   };
-  const keyed = lines.map((l, i) => ({ l, i, oz: wOz(l), g: l.giant === true ? 2 : l.legend === true ? 1 : 0 }));
+  // (M1 step 5c: a find after the fish: the treasures by value, the jackpot last and alone, then the parts and looks: FINDS §6.4)
+  const fg = (l) => (l.kind === 'treasure' ? (l.grade === 'jackpot' || l.jackpot === true ? 4 : 3) : 5);
+  // (the jackpot's row rides as a giant's for its pause, then the post-pass below names it: never a ★ or a giant's line)
+  const keyed = lines.map((l, i) => (typeof l.find === 'string' ? { l: { ...l, giant: l.kind === 'treasure' && (l.grade === 'jackpot' || l.jackpot === true) }, i, oz: num(Number(l.clams), 0), g: fg(l) }
+    : { l, i, oz: wOz(l), g: l.giant === true ? 2 : l.legend === true ? 1 : 0 }));
   keyed.sort((a, b) => a.g - b.g || a.oz - b.oz || num(a.l.clams) - num(b.l.clams) || a.i - b.i);
   let t = P.start;
   const rows = keyed.map(({ l, oz }) => {
@@ -180,6 +187,9 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
     t = at + (big ? P.giantCount + P.giantAfter + 0.25 : P.row) + (first ? P.firstExtra : 0);
     return row;
   });
+  // M1 step 5c (FINDS §6.4): a find's row: its name, no weight, its kind; the jackpot's gold (it paused as a giant, it is not one)
+  rows.forEach((r, i) => { const l = keyed[i].l; if (typeof l.find !== 'string') return;
+    Object.assign(r, { find: l.find, kind: l.kind ?? null, jackpot: r.giant === true, giant: false, name: T_(D).finds?.items?.[l.find]?.name || l.find, weight: '' }); });
   const total = rows.reduce((a, r) => a + r.clams, 0);
   const totalAt = rows.length ? t + P.total - 0.3 : P.start;
   return { rows, total, totalAt, end: totalAt + P.end, empty: rows.length === 0, line: rows.length ? null : (T_(D).murk?.empty || '') };
@@ -393,7 +403,7 @@ export function catalogueView(cat, D) {
     head: { waterId: h.waterId ?? null, name: h.name ?? '', count: `${Math.floor(num(Number(h.have), 0))}/${Math.floor(num(Number(h.need), 0))}`, have: num(Number(h.have), 0), need: num(Number(h.need), 0), seals: isObj(h.seals) ? h.seals : null },
     list: arr(cat.list).map((e) => card(e, true)),
     groups: arr(cat.groups).map((g) => ({ placeId: g.placeId ?? null, kind: g.kind ?? 'open', owned: g.owned === true, name: g.owned === true ? g.name ?? null : null, cards: arr(g.entries).map((e) => card(e, false)) })),
-    finds: null,
+    finds: findsRowView(cat.finds, D),   // M1 step 5c: the finds row (ui-finds.js; the page's only rates)
   };
 }
 /** M1 step 3a (PLAN CHOICEs 11, 25): the Journal's ★ page, the giants and the legend of the given waters (in M1 the Mossmere's three),
@@ -427,7 +437,10 @@ export function saleLineId({ rows = [], said = {}, listDone = false, empty = fal
   const R = arr(rows);
   if (R.some((r) => r.legend) && !S.legendFirst) return 'legendFirst';
   if (R.some((r) => r.giant) && !S.firstGiant) return 'firstGiant';
+  if (R.some((r) => r.jackpot) && !S.firstJackpot) return 'firstJackpot';   // (M1 step 5c: FINDS §9's three lines, each once)
   if (!S.firstSale) return 'firstSale';
+  if (R.some((r) => r.find && r.kind !== 'treasure') && !S.firstPart) return 'firstPart';
+  if (R.some((r) => r.find && r.kind === 'treasure') && !S.firstTreasure) return 'firstTreasure';
   if (R.some((r) => r.giant || r.legend || r.sizeClass === 'trophy' || r.sizeClass === 'elder') && !S.firstTrophy) return 'firstTrophy';
   return null;
 }
@@ -480,6 +493,9 @@ export function allowedWords(D) {
   for (const id of Object.keys(isObj(D?.LOOP?.places) ? D.LOOP.places : {})) { const n = typeof D?.loopPlace === 'function' ? D.loopPlace(id)?.name : null; if (n) out.add(n); }
   for (const lb of Object.values(isObj(D?.LOOP?.legendBait) ? D.LOOP.legendBait : {})) { const n = arr(D?.BAITS).find((b) => b?.id === lb?.id)?.name; if (n) out.add(n); }
   for (const k of ['A new personal best', 'A new name for the journal', 'Old Ledger beaten', 'Written in the Elder Log', 'A new record for this place', 'length']) out.add(k);
+  // M1 step 5c (FINDS §9): the finds row's heading as it is drawn ("Snags", "· 1 bite in 20"); the names and lines are TEXT_LOOP's
+  { const pb = Number(D?.LOOP?.finds?.snag?.perBite), bi = T_(D).finds?.biteIn;
+    if (pb > 0 && typeof bi === 'string') { const r = bi.replace('{n}', String(Math.round(1 / pb))); out.add(r); out.add(`· ${r}`); } }
   return out;
 }
 const NUM_RE = /^[+]?\d[\d,]*(\.\d+)?[km]?$/;
@@ -498,6 +514,9 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (CM_RE.test(t)) return screen === 'catch' || screen === 'prints' || screen === 'gallery' || screen === 'journal';   // (M1 step 5b: a print's small line, SPEC §6.4)
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
   if (/^Evening \d+$/.test(t)) return true;
+  // M1 step 5c (SPEC §8.8): a find's rate on the catalogue's finds row (the page's only rates); a treasure's count ("Bent Tin Spoon ×3")
+  if (/^\d{1,2}(?:\.\d)?%$/.test(t)) return screen === 'journal';
+  { const m2 = /^(.+) ×\d+$/.exec(t); if (m2 && W.has(m2[1])) return true; }
   // M1 step 3a: a list's count ("7/12", SPEC §8), and a giant's or the legend's name after its ★
   if (/^\d+\/\d+$/.test(t)) return true;
   if (/^★ /.test(t) && W.has(t.slice(2))) return true;
@@ -688,8 +707,9 @@ export function createLoopView(K) {
         cell.style.setProperty('--s', String(c.scale));
         let cv = fishArt.get(c.uid);
         if (!cv) {
-          cv = h('canvas', 'gw-slot-fish');
-          try { drawFishInk(cv, spOf(D(), c.speciesId), { w: 40, h: 22, pad: 0.04, gain: 7, color: c.gild ? '#f1d7a0' : '#ece8f4' }); } catch (e) { report('slot art', e); }
+          cv = h('canvas', c.find ? 'gw-slot-fish gw-slot-find' : 'gw-slot-fish');
+          if (c.find) drawFindArt(cv, D(), c.find, { w: 40, h: 22, pad: 0.06, gold: c.gild });   // (M1 step 5c: a find's own glyph)
+          else try { drawFishInk(cv, spOf(D(), c.speciesId), { w: 40, h: 22, pad: 0.04, gain: 7, color: c.gild ? '#f1d7a0' : '#ece8f4' }); } catch (e) { report('slot art', e); }
           if (c.uid) fishArt.set(c.uid, cv);
         }
         cell.appendChild(cv);
@@ -966,6 +986,12 @@ export function createLoopView(K) {
       li.insertAdjacentHTML('beforeend', `<span class="gw-trow-name"><b></b><small></small></span><span class="gw-trow-v">${r.order ? CHALK_TICK : r.first ? SEAL_GLYPH : ''}${icon('clam')}<b>0</b></span>`);
       li.querySelector('.gw-trow-name b').textContent = `${r.giant || r.legend ? '★ ' : ''}${r.name}`;
       li.querySelector('.gw-trow-name small').textContent = r.weight;
+      // M1 step 5c: a find's own drawing; a part or a look carried aboard with its where-it-goes glyph in the price's place
+      if (r.find) {
+        art.classList.add('gw-trow-find'); drawFindArt(art, D(), r.find, { w: 56, h: 28, pad: 0.06, gold: r.jackpot });
+        if (r.jackpot) li.classList.add('gw-trow--giant');
+        if (r.kind !== 'treasure') li.querySelector('.gw-trow-v').innerHTML = FIND_GLYPHS[whereOf(D()?.LOOP?.finds?.items?.find((x) => x.id === r.find))] || '';
+      }
       ol.appendChild(li);
     });
     const tot = content.querySelector('.gw-tally-total');
@@ -990,7 +1016,11 @@ export function createLoopView(K) {
       if (at.shown) onPans++;
       if (at.ticked >= 1) cl++;
       const prev = s.ticks.get(i) || 0;
-      if (!init && !s.done && at.ticked > prev) coin(r.first && at.ticked >= 2, { volume: 0.32, pitch: 0.95 + 0.05 * Math.min(6, i) });
+      if (!init && !s.done && at.ticked > prev) {
+        // (M1 step 5c: a part or a look carried aboard knocks softly on wood; the jackpot's clink is heavier)
+        if (r.find && r.kind !== 'treasure') audioPlay('creel', { volume: 0.4, pitch: 0.8 });
+        else coin(r.first && at.ticked >= 2 || r.jackpot, { volume: r.jackpot ? 0.5 : 0.32, pitch: r.jackpot ? 0.7 : 0.95 + 0.05 * Math.min(6, i) });
+      }
       s.ticks.set(i, at.ticked);
     });
     const shown = t >= plan.totalAt;

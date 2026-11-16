@@ -538,6 +538,17 @@ export function create(ctx) {
   function restorePendingTrip() {
     const r = run();
     try { loop.refundOpenBite(); } catch (e) { report('loop.refundOpenBite', e); }
+    // M1 step 5c (lane 5C): a find still on its card at the close reopens there (fishing:found {restored: true}, ui-finds), never lost
+    try {
+      const fe = loop.restoreFind?.() ?? null;
+      if (fe) {
+        const fRun = r.id;
+        Promise.resolve().then(() => {
+          const now = run();
+          if (now && now.id === fRun && now.active !== false) ctx.bus.emit('fishing:found', { findId: fe.find, waterKey: fe.waterKey ?? null, uid: fe.uid, kind: fe.kind ?? null, grade: fe.grade ?? null, entry: fe, restored: true });
+        });
+      }
+    } catch (e) { report('loop.restoreFind', e); }
     const list = Array.isArray(r?.flags?.pendingCatch) ? r.flags.pendingCatch : [];
     delete r.flags.pendingCatch;
     const back = [];

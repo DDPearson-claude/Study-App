@@ -103,7 +103,8 @@ import * as THREE from 'three';
 import { clamp, lerp, damp, smoothstep, TAU } from './core.js';
 import * as core from './core.js';
 import { createReel, rollZ, capZ, inGiantSpot, floatFavour, sumFavour, classIndex } from './fishing-reel.js';
-import { planPlay, chooseLoss, applyLoss, partPlan, presentAt, drawStrike } from './fishing-play.js';
+import { planPlay, chooseLoss, applyLoss, partPlan, presentAt, drawStrike, findPlan } from './fishing-play.js';
+import { createFindProp } from './models-finds.js';   // M1 step 5c (lane 5C): a find's prop for the reveal and the show
 import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
 import { KIND_ID, PREROLLED, aliveRange, maxAlive, pickKind, signTtl, createSign, stepSign, bestRule, kindRules } from './fishing-signs.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
@@ -718,7 +719,7 @@ export function create(ctx) {
     if (S.flee) { disposeFv(S.flee.fv); S.flee = null; }
     if (clearCatch) { releaseCatch(); view.measure = null; view.show = null; }
     S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
-    S.comeback = null; S.taperRule = false;
+    S.comeback = null; S.taperRule = false; S.find = null;
     if (S.mist) { S.mist = null; fx.setMistFloat(false); }
     S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     S.plan = null; S.plan0 = null; S.loss = null; S.reveal = null; S.lostInfo = null; S.p = null; S.draws = null; S.outcome = null; S.hurry = false; S.panFrom = null;
@@ -1149,6 +1150,15 @@ export function create(ctx) {
       }
     }
     S.species = sp;
+    // ---- M1 step 5c (lane 5C; FINDS §2, §4.1): THE SNAG ROLL, its own step, apart from the species roll above (which may change
+    // freely): on a trip a bite may be a snag that brings up a find instead of a fish (never on evening 1, the tutorial or a legend's
+    // cast; the ledger's snagRoll draws from data.findShares). The fish rolled above stays rolled and is never shown; S.find marks it.
+    S.find = null;
+    if (LOOP() && !S.legendCast && (!S.comeback || S.forceFind)) {   // (Ashwick's waiting comeback bites first: a snag never eats it)
+      const force = S.forceFind; S.forceFind = null;
+      try { S.find = loopApi()?.snagRoll?.({ legendCast: false, tutorial: !!S.tutorial, rng: S.findRng || Math.random, force }) ?? null; } catch (e) { report(e); S.find = null; }
+      if (typeof S.find !== 'string' || !S.find) S.find = null;
+    }
     S.zRolled = false; S.z = null; S.sizeClass = null; S.ancient = false; S.tell = null; S.hookTried = false; S.revealed = false;
     if (spV3(sp)) S.weight = 1;   // v3: the size score is rolled when the bite begins (rollSize), not here
     else S.weight = sp ? rollWeight(sp, baitId) : 1;
@@ -1211,6 +1221,7 @@ export function create(ctx) {
       if (num(tut.casts, 1) <= 1 && Array.isArray(nAt)) evs.push({ type: 'nibble', t: Math.min(U(nAt[0], nAt[1]), Math.max(0.3, W - lead)) });
       else for (let i = 0; i < retry; i++) evs.push({ type: 'nibble', t: Math.max(0.3, (W - lead) * (i + 1) / (retry + 1)) });
     }
+    if (S.find) evs.length = 0;   // (M1 step 5c: a snag slides under with no nibbles and no feint)
     S.events = evs; S.evIdx = 0; S.dipT = 0; S.dipKind = '';
     S.tells = tells;
   }
@@ -1257,7 +1268,7 @@ export function create(ctx) {
       if (LOOP()) {
         // the loop: the bite spends one at its water (progression counts it); Taper's first bite and Ashwick's comeback are spent here
         const cb = !!S.comeback;
-        if (S.taperRule) { S.taperRule = false; try { loopApi()?.spendTaperFirst?.(); } catch (e) { report(e); } }
+        if (S.taperRule && !S.find) { S.taperRule = false; try { loopApi()?.spendTaperFirst?.(); } catch (e) { report(e); } }   // (5c: a snag never uses Taper's first)
         if (cb) { try { loopApi()?.consumeComeback?.(); } catch (e) { report(e); } }
         emit('fishing:bite', { ...withLegend({ sizeClass: shownClass(), biteTell: S.tell }), waterKey: S.cast?.waterKey ?? null, ...(cb ? { comeback: true } : {}) });
       } else
@@ -1277,9 +1288,9 @@ export function create(ctx) {
   function beginTell() {
     rollSize();
     const sp = S.species;
-    S.tell = sp?.rarity === 'legendary' ? 'dome' : classOf(S.sizeClass)?.bite || 'plunge';
+    S.tell = S.find ? 'sinkUnder' : sp?.rarity === 'legendary' ? 'dome' : classOf(S.sizeClass)?.bite || 'plunge';   // (5c: a snag's own tell)
     const TL = BAL('bite').tells || {};   // the class tells' float animations (s), BALANCE.bite.tells
-    const dur = { doublePop: num(TL.doublePop, 0.36), plunge: 0, dragUnder: num(BAL('bite').dragUnder, 0.4), flatSlide: num(TL.flatSlide, 0.5), dome: num(TL.dome, 0.6) }[S.tell] ?? 0;
+    const dur = { doublePop: num(TL.doublePop, 0.36), plunge: 0, dragUnder: num(BAL('bite').dragUnder, 0.4), flatSlide: num(TL.flatSlide, 0.5), dome: num(TL.dome, 0.6), sinkUnder: 0.8 }[S.tell] ?? 0;
     S.tellStart = Math.max(S.stateT, S.waitDur - dur);
     S.tellPops = 0;
     if (afOn()) {
@@ -1295,7 +1306,7 @@ export function create(ctx) {
       // dome tell's first three read "Elder?" before the card: the stage, T149's scan on the phone; she is named by her pool and bait)
       if (LOOP() && sp?.rarity === 'legendary') view.legendary = true;
       emit('fishing:tell', withLegend({ sizeClass: shownClass(), biteTell: S.tell, lead: round2(Math.max(0, S.waitDur - S.stateT)), dur: round2(S.tellTotal), lastDip }));
-      if (!S.letPassTip && sp?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.letPassTip = true; emit('tip:show', { id: 'af_letpass' }); }
+      if (!S.letPassTip && !S.find && sp?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.letPassTip = true; emit('tip:show', { id: 'af_letpass' }); }
       return;
     }
     V.tmp.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
@@ -1344,6 +1355,8 @@ export function create(ctx) {
         if (S.tellPops < 2 && k > 0.55) { S.tellPops = 2; fx.pulse(x, z, { color: 0xd8d0ff, r0: 0.4, r1: 3.2, duration: 0.8, width: 0.05, alpha: 0.55 }); call(() => ctx.water?.addRipple?.(x, z, 2.2)); }
         return { dip: -0.18 * smoothstep(0, 0.8, k), slide: 0, state: 'floating' };
       }
+      case 'sinkUnder':     // M1 step 5c, a snag: the float slides under slowly and stays (no pop, no ring, no class)
+        return { dip: 0.3 * smoothstep(0, 1, k), slide: 0.06 * k, state: 'nibble' };
       default: return { dip: 0, slide: 0, state: 'floating' };
     }
   }
@@ -1372,7 +1385,7 @@ export function create(ctx) {
     return S.ancient ? 'ancient' : (S.sizeClass || 'keeper');
   }
   /** The class the player is told (view, events): small … elder (an Ancient is an Elder with ancient: true), 'legend' for legends. */
-  const shownClass = () => (isLegend() ? 'legend' : S.sizeClass || 'keeper');
+  const shownClass = () => (S.find ? 'find' : isLegend() ? 'legend' : S.sizeClass || 'keeper');   // (5c: a snag names no class)
   const lakeId = () => zoneData()?.id || run()?.zone || null;
   /** data.presentLength (m): the class length before the reveal, never the species' own. */
   function presentLen(z = S.z) {
@@ -1544,13 +1557,15 @@ export function create(ctx) {
     // giants, step 2's eight): by id they read null and landed at the floor; the record gives the loop's own Fight, the sim's)
     try { p = d.catchChance(trip ? sp : sp.id, cls, lo, mods); } catch (e) { report(e); }
     S.p = Number.isFinite(p) ? p : num(d.CATCH_V3?.floor, 0.01);
+    if (S.find) S.p = 1;   // M1 step 5c: a find is never lost (its land chance is 1)
     const dr = drawStrike(rnd);   // always all four, in this order: [planSeed, u, causeU, momentU]
     S.draws = dr;
     const u = S.forceOutcome === 'land' ? 0 : S.forceOutcome === 'lose' ? 1 : dr.u;   // debug fishOutcome overrides u only
-    S.outcome = u < S.p ? 'land' : 'lose';
+    S.outcome = S.find || u < S.p ? 'land' : 'lose';
     // ---- the plan: from class, z, the fitted tackle and the place, before the outcome is applied
     const style = legendary ? (d.CATCH_V3?.legend?.style?.[sp.id] || 'steady') : (sp.style || 'steady');
-    const plan = planPlay(legendary ? 'legend' : cls, num(S.z, 0), dr.planSeed, {
+    const plan = S.find ? findPlan(num(d.LOOP?.finds?.haul?.[d.LOOP?.finds?.items?.find((x) => x.id === S.find)?.pose], 3), dr.planSeed, { A })   // (5c: no runs)
+      : planPlay(legendary ? 'legend' : cls, num(S.z, 0), dr.planSeed, {
       leapChance: legendary ? 0 : num(A.leaps?.[sp.id], 0), tiers: meanTierOf(lo), place: S.cast?.place?.id || null, legendId: legendary ? sp.id : null, A });
     S.plan0 = plan;
     S.loss = null;
@@ -1560,7 +1575,7 @@ export function create(ctx) {
       S.plan = applyLoss(plan, S.loss);
     } else S.plan = plan;
     S.playT = 0; S.beatI = -1; S.evI = 0; S.towDone = 0; S.panYaw = 0; S.panFrom = null; S.holding = false; S.hurry = false; S.estimated = false;
-    S.playCls = cls;
+    S.playCls = S.find ? 'small' : cls;   // (5c: a hold hurries a haul, as a small fish)
     // ---- the line comes tight
     S.hookDist = Math.max(2.5, Math.hypot(V.bob.x - raftPos().x, V.bob.z - raftPos().z));
     V.lineDir.set(V.bob.x - V.raft.x, 0, V.bob.z - V.raft.z);
@@ -1570,6 +1585,7 @@ export function create(ctx) {
     view.favour = null; view.biteTell = null; view.pips = null; view.strike = grade; view.strikeRing = null;
     view.sizeClass = null; view.ancient = false; view.estimate = null;
     spawnHookedAF(sp);
+    if (S.find) S.fishLen = Math.max(0.15, num((d.LOOP?.finds?.items || []).find((x) => x.id === S.find)?.size, 0.3));   // (5c: the dark shape at its size)
     strikeFx(grade);
     setState('reeling');
     const sc = shownClass();
@@ -1578,7 +1594,7 @@ export function create(ctx) {
     // the Measuring Cord (L1) names the class at the bite; the First Evening shows the estimate on its first Small / Keeper plays
     const cord = num(ctx.state?.meta?.relics?.measuring_cord, 0) >= 1;
     const tut = S.tutorial?.estimate && S.tutorialPlays < num(d.FIRST_EVENING?.estimate?.plays, 2) && (d.FIRST_EVENING?.estimate?.classes || ['small', 'keeper']).includes(S.sizeClass);
-    if (!legendary && (cord || tut)) stampEstimate();
+    if (!legendary && !S.find && (cord || tut)) stampEstimate();
     if (S.tutorial) S.tutorialPlays++;
     if (!legendary && hurryAllowed() && !S.hurryTip) { S.hurryTip = true; emit('tip:show', { id: 'af_hurry' }); }
     if (legendary) {
@@ -1622,7 +1638,7 @@ export function create(ctx) {
     const p = { phase, kind: kind ?? undefined, sizeClass: shownClass(), t: Math.round(t * 100) / 100, dur: Math.round(dur * 100) / 100,
       strength: Math.round(num(strength, 0.5) * 100) / 100, tier: Math.round(num(S.plan?.tier, 0) * 100) / 100 };
     if (p.kind === undefined) delete p.kind;
-    if (S.ancient && !isLegend()) p.ancient = true;
+    if (S.ancient && !isLegend() && !S.find) p.ancient = true;
     if (length !== undefined) p.length = Math.round(length * 1000) / 1000;
     return withLegend(p);
   }
@@ -1908,11 +1924,13 @@ export function create(ctx) {
   function startRevealAF() {
     const sp = S.species;
     S.quality = qualityAF();
-    if (!isLegend()) { view.sizeClass = S.sizeClass; view.ancient = !!S.ancient; S.estimated = true; }
+    if (!isLegend() && !S.find) { view.sizeClass = S.sizeClass; view.ancient = !!S.ancient; S.estimated = true; }   // (5c: a find names no class)
     S.revealed = true;
     view.play = null;
-    const trueL = honestLength(sp) ?? S.fishLen;
-    let fv = F.fv;
+    const findProp = S.find ? call(() => createFindProp(S.find, D())) || null : null;   // M1 step 5c: the find's own prop, at its own size
+    const trueL = findProp ? findProp.length : honestLength(sp) ?? S.fishLen;
+    let fv = findProp || F.fv;
+    if (findProp) { call(() => findProp.setSilhouette?.(1)); fishHolder.add(findProp.object3d); F.fv = findProp; }
     if (!fv && !isLegend()) {
       try { fv = ctx.models?.createFish?.(sp.id, { z: S.z, zone: lakeId() }); } catch (e) { report(e); fv = null; }
       if (fv && (fv.isStub || !fv.object3d)) fv = null;
@@ -1923,7 +1941,7 @@ export function create(ctx) {
     // C: the raft toward the camera; the fish swings to the side its line runs on, half a metre toward us, nose to the raft.
     // T0 of the show (AUTOFISH.show): its record, the clean frame and the show camera start here; the camera answers with the yaw
     // it will settle at (the play's, plus a place's landmark swing), so the fish comes up broadside to the lens it will have
-    const show = showOn() ? beginShow({ sizeClass: S.sizeClass, ancient: !!S.ancient, legendary: isLegend(), reveal: true }) : null;
+    const show = showOn() ? beginShow(S.find ? { sizeClass: 'keeper', reveal: true } : { sizeClass: S.sizeClass, ancient: !!S.ancient, legendary: isLegend(), reveal: true }) : null;
     const camYaw = num(show?.yaw, num(call(() => ctx.render?.getYaw?.()), Math.atan2(-V.lineDir.x, -V.lineDir.z) + Math.PI));
     const Rx = Math.cos(camYaw), Rz = -Math.sin(camYaw), Cx = Math.sin(camYaw), Cz = Math.cos(camYaw);
     const side = Math.sign(V.lineDir.x * Rx + V.lineDir.z * Rz) || 1;
@@ -1953,7 +1971,7 @@ export function create(ctx) {
         call(() => ctx.render?.attention?.({ x: V.fish.x, z: V.fish.z }, 0.8 + S.reveal.dur * 2, 0.5));
         if (num(LF.push) > 0) call(() => ctx.render?.push?.(num(LF.push), S.reveal.dur, Math.min(0.3, S.reveal.dur * 0.5), 0.9));   // game seconds
       }   // (with the show camera the kick and the push are its own approach: one move in, from T0, no double zoom)
-      emit('fishing:landing', { sizeClass: S.sizeClass || null, ancient: !!S.ancient, legend: isLegend(), dur: round2(S.reveal.dur) });
+      emit('fishing:landing', S.find ? { sizeClass: 'find', ancient: false, legend: false, dur: round2(S.reveal.dur), find: true } : { sizeClass: S.sizeClass || null, ancient: !!S.ancient, legend: isLegend(), dur: round2(S.reveal.dur) });
     }
     // the show camera frames where the fish will lie when the wipe ends: beside the raft, broadside, at its class length
     if (show?.cam) {
@@ -1964,7 +1982,7 @@ export function create(ctx) {
   }
   // ---------------------------------------------------------------- the landing's payoff (AUTOFISH.landing)
   /** The payoff class: the size class, an Ancient (or any legend) on the top row. */
-  function landClass() { return isLegend() || S.ancient ? 'ancient' : (S.sizeClass || 'keeper'); }
+  function landClass() { return S.find ? 'keeper' : isLegend() || S.ancient ? 'ancient' : (S.sizeClass || 'keeper'); }
   function landFx(cls) { const T = AF().landing; return T && typeof T === 'object' ? (T[cls] || T.keeper || null) : null; }
   /** A small haptic on phones (navigator.vibrate; guarded, never with reduced motion or the setting off). */
   function haptic(pattern) {
@@ -2469,6 +2487,73 @@ export function create(ctx) {
     v.phase = c.phase; v.t = c.t; v.poseT = c.poseT; v.hurried = c.hurried; v.protected = c.protected; v.pose = c.pose;
   }
 
+  // ---------------------------------------------------------------- M1 step 5c (lane 5C): a find's landing (FINDS §6, CONTRACT §13)
+  /** A find breaks the surface: no progression.makeFish, no measure, no class-length wipe, no pressure. fishing:found {findId,
+   *  waterKey} in place of fishing:caught (no fish:measured, no fish:landed: the measure never opens, no Journal entry or record is
+   *  written); the ledger's noteFound gives the hold entry the card offers (ctx.ui.finds opens it at the show's card); then the show
+   *  holds the prop up in its pose (pinch, both, alongside) for its own beat, with no flaps. */
+  function caughtFind() {
+    const findId = S.find, waterKey = S.cast?.waterKey ?? null;
+    S.find = null;
+    let entry = null;
+    try { entry = loopApi()?.noteFound?.({ findId, waterKey }) ?? null; } catch (e) { report(e); }
+    const fv = F.fv; F.fv = null;
+    fx.setShadow(false);
+    const pos = V.fish.clone();
+    call(() => ctx.water?.splash?.(pos.x, pos.z, { size: 0.6, count: 14, ring: false }));   // beside the raft: no ring (art rule)
+    S.reel = null; S.holding = false;
+    api.bobberPos = null;
+    resetView();
+    aLine(false); aBob(false); aCall('setReel', 0, 0);
+    S.spot = null; S.rareSpot = false; S.perfect = false; S.signHit = null; S.prerollTook = false;
+    const fe = entry && typeof entry === 'object' ? entry : { uid: `find_${Date.now()}`, find: findId, kind: null, clams: 0, waterKey };
+    emit('fishing:found', { findId, waterKey, uid: fe.uid, kind: fe.kind ?? null, grade: fe.grade ?? null, entry: fe });
+    if (!showOn() || !fv) { if (S.show) abortShow(); if (fv) disposeFv(fv); setState('idle'); call(() => ctx.ui?.finds?.open?.()); return; }   // no show: the card at once
+    // the show with the prop: the find's pose and its own held beat (the jackpot a giant's longer one)
+    const it = (D().LOOP?.finds?.items || []).find((x) => x.id === findId) || {};
+    const c = S.show || beginShow({ sizeClass: 'keeper', reveal: false });
+    const H = D().LOOP?.finds?.hold || {};
+    c.dur.hold = num(it.grade === 'jackpot' ? H.jackpot : H[it.pose], c.dur.hold); c.dur.total = round3(c.dur.reveal + c.dur.lift + c.dur.hold + c.dur.pause);
+    c.find = findId;
+    const fish = { uid: fe.uid, find: findId, speciesId: null, length: Math.round(num(fv.length, 0.3) * 100), sizeClass: null, quality: 'normal', place: S.cast?.place?.id || null };
+    c.fish = fish; c.fv = fv; c.Lm = Math.max(0.02, num(fv.length, 0.3)); c.legendary = false; c.sizeClass = null; c.ancient = false;
+    c.isNew = false; c.special = it.grade === 'jackpot';
+    c.pose = it.pose === 'pinch' || it.pose === 'alongside' ? it.pose : 'both';
+    c.phase = 'lift'; c.lifted = true; c.poseT = 0;
+    ctx.cinematic = true;
+    if (state !== 'landing') setState('landing');
+    const A = ctx.actors, beats = { lift: c.dur.lift, hold: c.dur.hold, pause: c.dur.pause };
+    if (S.catchFv && S.catchFv !== fv) releaseCatch();
+    fv.object3d.scale.setScalar(1);
+    S.catchFv = fv; S.catchT = 0; S.catchSeenBlock = false; S.exitT = 0; S.exitAction = null; S.catchShown = false;
+    let got = null;
+    if (typeof A?.showFish === 'function') got = call(() => A.showFish(fv, { cls: c.cls, pose: c.pose, sizeClass: 'keeper', ancient: false, legend: false, beats, special: c.special, find: findId })) || null;
+    if (got && typeof got === 'object' && !got.isStub) { if (typeof got.id === 'string') c.pose = got.id; c.actors = true; S.catchShown = true; }
+    else { call(() => A?.setPose?.('catch')); call(() => A?.showCatch?.(fv)); }
+    const v = c.view;
+    v.sizeClass = null; v.ancient = false; v.legendary = false; v.speciesId = null; v.length = null; v.uid = fe.uid; v.find = findId;
+    syncShowView(c);
+    const R = ctx.render;
+    if (isReal(R) && typeof R.setShowTarget === 'function') call(() => R.setShowTarget({ cls: c.cls, pose: c.pose, length: c.Lm, swarm: false, landmark: c.landmark, place: c.place ?? null }));
+    emit('fishing:show', { phase: 'lift', cls: c.cls, pose: c.pose, dur: beats, sizeClass: null, ancient: false, legendary: false, speciesId: null, length: null, swarm: false, hurried: c.hurried, uid: fe.uid, find: findId });
+  }
+  /** Debug (M1 step 5c): the next bite a snag bringing up `id` (a valid find of this water, not an owned part or look). */
+  function debugForceFind(id, opts = {}) {
+    if (!playing() || !LOOP() || typeof id !== 'string') return false;
+    if (state === 'waiting' || state === 'bite') {
+      let ok = null;
+      try { ok = loopApi()?.snagRoll?.({ force: id }) ?? null; } catch (e) { report(e); }
+      if (!ok) return false;
+      S.find = ok; S.events.length = 0;
+      if (state === 'bite') { S.tell = 'sinkUnder'; view.biteTell = S.tell; S.stateT = 0; return true; }
+      return debugForceBite(opts);
+    }
+    S.forceFind = id;
+    const r = debugForceBite(opts);
+    if (!S.find) { S.forceFind = null; return false; }
+    return r;
+  }
+
   /** At the landing (v3): progression.makeFish → fishing:caught {fish, …} (informational) → the show (or, instant, the stamp now). */
   function caughtV3(opts = {}) {
     const sp = opts.species || S.species;
@@ -2623,7 +2708,7 @@ export function create(ctx) {
     if (c.measured) return;
     c.measured = true;
     let res = null;
-    try { res = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); }
+    if (!c.find) { try { res = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); } }   // (5c: a find writes no record)
     c.result = res;
     const recs = Array.isArray(res?.records) ? res.records : [];
     const isNew = typeof res?.isNew === 'boolean' ? res.isNew : c.isNew;
@@ -2675,7 +2760,7 @@ export function create(ctx) {
     const c = S.show;
     if (!c) return;
     S.show = null;
-    if (c.fish && !c.measured && playing()) {
+    if (c.fish && !c.measured && !c.find && playing()) {
       c.measured = true;
       try { c.result = prog()?.measure?.(c.fish) ?? null; } catch (e) { report(e); }
     }
@@ -2733,6 +2818,7 @@ export function create(ctx) {
   }
 
   function caught(opts = {}) {
+    if (S.find && LOOP() && !opts.species) { caughtFind(opts); return; }   // M1 step 5c: a find never becomes a Fish
     const sp = opts.species || S.species;
     if (!sp) { hardReset(); return; }
     if (!opts.legacy && handoffOk(sp)) { caughtV3(opts); return; }   // v3 (F5): makeFish now, the ceremony measures at the stamp
@@ -3800,6 +3886,8 @@ export function create(ctx) {
       } catch { /* optional */ }
       Object.assign(ctx.debug || (ctx.debug = {}), {
         forceBite: (opts) => { try { return debugForceBite(opts); } catch (e) { report(e); return false; } },
+        // M1 step 5c (debug builds): the next bite a snag that brings up this find (forceBite's options: {wait})
+        forceFind: (id, opts) => { if (!debugOn()) return false; try { return debugForceFind(id, opts); } catch (e) { report(e); return false; } },
         instantCatch: (id, opts) => { try { return debugInstantCatch(id, opts); } catch (e) { report(e); return false; } },
         fishHook: (id, opts) => { try { return debugHook(id, opts); } catch (e) { report(e); return false; } },
         // v3 (CONTRACT §13.11)

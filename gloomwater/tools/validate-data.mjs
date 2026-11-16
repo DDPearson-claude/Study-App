@@ -261,6 +261,50 @@ if (process.argv.includes('--loop')) {
       ok4(!!sp && bites, `T118: ${id}'s map card names ${p.card}, which bites there${sp?.rarity === 'legendary' ? ' (her sure bite on the ' + sp.bait + ')' : ''}`);
     }
   }
+  // ---- M1 step 5c (lane 5C; docs/loop/FINDS.md §10's checks): LOOP.finds, its words and the 1% rule's shape
+  {
+    const FD = LP.finds, its = Array.isArray(FD?.items) ? FD.items : [], zoneIds = L4.ZONES.map((z) => z.id);
+    ok4(!!FD && its.length > 0, 'LOOP.finds: a table of finds');
+    ok4(new Set(its.map((i) => i.id)).size === its.length, 'LOOP.finds: every id unique');
+    ok4(its.every((i) => zoneIds.includes(i.water)), 'LOOP.finds: every find\'s water is a water of the road');
+    const SLOTS = ['bow_post', 'cabin_windows', 'stern_deck', 'wick_rod', 'raft_stern_post', 'barge_window_boxes'];
+    for (const w of [...new Set(its.map((i) => i.water))]) {
+      const set = its.filter((i) => i.water === w);
+      ok4(JSON.stringify(set.filter((i) => i.kind === 'treasure').map((i) => i.grade).sort()) === JSON.stringify(['fine', 'jackpot', 'plain', 'precious', 'rare']), `LOOP.finds ${w}: five treasures, one per grade`);
+      ok4(JSON.stringify(set.filter((i) => i.kind === 'part').map((i) => i.effect).sort()) === JSON.stringify(['bait', 'bite', 'order']), `LOOP.finds ${w}: three parts, one of each effect`);
+      ok4(set.filter((i) => i.kind === 'look').length === 3 && new Set(set.filter((i) => i.kind === 'look').map((i) => i.wearer)).size === 3, `LOOP.finds ${w}: three looks, one per wearer`);
+      ok4(set.filter((i) => i.kind !== 'treasure').every((i) => SLOTS.includes(i.slot)), `LOOP.finds ${w}: every part's and look's slot is known`);
+      ok4(set.every((i) => ['pinch', 'both', 'alongside'].includes(i.pose) && Number(i.size) > 0), `LOOP.finds ${w}: every find has a built pose and a size`);
+      const unowned = set.filter((i) => i.kind !== 'treasure').length;
+      ok4(FD.kind.share / unowned >= 0.01 - 1e-12, `LOOP.finds ${w}: the kind share ÷ the set's parts and looks (${(FD.kind.share / unowned).toFixed(4)}) is ≥ the jackpot's 1%`);
+      const sums = [];
+      const meta = (got, share) => ({ loop: { maps: { lakes: [w] }, finds: { got, worn: {}, share: share == null ? {} : { [w]: share } } } });
+      const ids6 = set.filter((i) => i.kind !== 'treasure').map((i) => i.id);
+      for (const m of [meta({}, null), meta(Object.fromEntries(ids6.slice(1).map((id) => [id, 1])), null), meta({}, FD.kind.cap), meta(Object.fromEntries(ids6.map((id) => [id, 1])), null)]) {
+        const sh = L4.findShares(m, L4, w), s = Object.values(sh).reduce((a, b) => a + b, 0);
+        sums.push(s);
+        ok4(Object.values(sh).filter((x) => x > 0).every((x) => x >= 0.01 - 1e-12), `LOOP.finds ${w}: no find is rarer than the jackpot (a state of the set)`);
+        ok4(Math.abs(sh[set.find((i) => i.grade === 'jackpot').id] - 0.01) < 1e-12, `LOOP.finds ${w}: the jackpot is exactly 1% of the snags (a state of the set)`);
+      }
+      ok4(sums.every((s) => Math.abs(s - 1) < 1e-9), `LOOP.finds ${w}: findShares sums to 1 for a fresh set, one short, at the cap and finished (${sums.map((s) => s.toFixed(6)).join(', ')})`);
+    }
+    const gs = Object.values(FD.grades || {}).reduce((a, g) => a + g.share, 0);
+    ok4(Math.abs(gs - 1) < 1e-9 && FD.grades.jackpot.share === 0.01, 'LOOP.finds.grades: the shares sum to 1, the jackpot\'s exactly 0.01 (the user\'s 1%)');
+    const pf = FD.grades.plain.share + FD.grades.fine.share;
+    ok4(FD.grades.plain.share - FD.kind.cap * FD.grades.plain.share / pf >= 0.01 - 1e-12 && FD.grades.fine.share - FD.kind.cap * FD.grades.fine.share / pf >= 0.01 - 1e-12, 'LOOP.finds: at kind.cap the plain and fine each keep ≥ 1%');
+    ok4(FD.snag.perBite > 0 && FD.snag.perBite < 0.2 && FD.snag.firstEvening === 0 && FD.snag.legendCast === 0, 'LOOP.finds.snag: perBite in (0, 0.2), none on evening 1 or a legend\'s cast');
+    ok4(JSON.stringify(its.filter((i) => i.water === 'mossmere' && i.kind === 'treasure').map((i) => Math.round(LP.waters.mossmere.tier * FD.grades[i.grade].x * LP.priceFactor))) === JSON.stringify([14, 42, 105, 350, 1750]), 'LOOP.finds: the Mossmere\'s treasures sell for 14 · 42 · 105 · 350 · 1,750');
+    const FW = TL.finds?.items || {};
+    for (const i of its) {
+      const w = FW[i.id];
+      // (the lines are FINDS §5.1's verbatim: ≤ 8 words; four of them run past §10's 36 characters, so the length cap here is 44 until
+      // the lead rules on the doc's own lines)
+      ok4(!!w && typeof w.name === 'string' && w.name.length > 0 && typeof w.line === 'string' && w.line.trim().split(/\s+/).length <= 8 && w.line.length <= 44, `TEXT_LOOP.finds.${i.id}: a name and a line of ≤ 8 words ("${w?.line}")`);
+      ok4(!ORIGINALITY_BANNED.test(`${w?.name} ${w?.line}`), `TEXT_LOOP.finds.${i.id}: the names rule`);
+    }
+    ok4(typeof TL.finds?.snags === 'string' && typeof TL.finds?.biteIn === 'string' && TL.finds.biteIn.includes('{n}'), 'TEXT_LOOP.finds: the row\'s heading words (Snags · 1 bite in {n})');
+    ok4(['firstTreasure', 'firstPart', 'firstJackpot'].every((k) => typeof TL.murk[k] === 'string' && TL.murk[k].trim().split(/\s+/).length <= 9), "TEXT_LOOP.murk: Murk's three find lines (FINDS §9)");
+  }
   const T = LP.tutorial, rr = L4.BALANCE.move.raftRadius, pad = rr + 0.3;
   const clear = (Lay, a, b) => {
     const obs = [...Lay.obstacles.filter((o) => o.kind !== 'post'), ...(Lay.gateObstacles || [])];
