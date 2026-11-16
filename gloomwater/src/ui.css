@@ -2269,7 +2269,9 @@
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, .9)); }
 .gw-jetty-target:hover .gw-jetty-tbox, .gw-jetty-target:focus-visible .gw-jetty-tbox { opacity: .9; }
 .gw-jetty-target.gw-cue .gw-jetty-tbox { opacity: 1; --tk: rgba(246, 214, 160, .95); animation: gwLoopCueInk 1.6s ease-in-out infinite; }
-.gw-jetty-tword { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; white-space: nowrap; pointer-events: none; }
+/* (the word nudged off the Wick or another word by placeTargets: --tw-dx / --tw-dy; a tap on it is its target's) */
+.gw-jetty-tword { position: absolute; left: 50%; bottom: 0; transform: translate(calc(-50% + var(--tw-dx, 0px)), var(--tw-dy, 0px)); display: flex; align-items: center; gap: 4px; white-space: nowrap; pointer-events: auto; }
+.gw-jetty-target--nohk .gw-jetty-tword .gw-hk { display: none; }
 .gw-jetty-tword b { font: 500 19px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--ink); text-shadow: 0 0 10px rgba(8, 6, 20, .95), 0 1px 3px rgba(0, 0, 0, .95), var(--ink-shadow); }
 .gw-jetty-tword .gw-hk { opacity: 0; transition: opacity .25s; }
 .gw-jetty-target:hover .gw-jetty-tword .gw-hk, .gw-jetty-target:focus-visible .gw-jetty-tword .gw-hk, .gw-jetty-target.gw-cue .gw-jetty-tword .gw-hk { opacity: 1; }

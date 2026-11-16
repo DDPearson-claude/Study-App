@@ -5,6 +5,8 @@
 //   node build.mjs --dev --out=tools/out/mvp-cat/dev.html
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-cat/dev.html --shots=tools/out/mvp-cat/desktop --script=tools/tests/murk-catalogue-look.scenario.mjs --width=960 --height=540
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-cat/dev.html --shots=tools/out/mvp-cat/phone --script=tools/tests/murk-catalogue-look.scenario.mjs --mobile
+//   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-cat/dev.html --shots=tools/out/mvp-cat/land --script=tools/tests/murk-catalogue-look.scenario.mjs --mobile --width=844 --height=390
+// Then every spread at that size is walked and audited (names never cut, the engravings large, the ribbon and the running head clear).
 // Prints `MURK_CAT {size, failures, notes}`; returns its failures.
 import { makeKit, Abort } from './loop-1a.scenario.mjs';
 
@@ -19,7 +21,7 @@ export default async function (api) {
     await K.titleReady();
     await g(() => window.__gw.game.beginIntro({ character: 'wick' }));
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Start: flow home');
-    await g(() => { const c = window.__gw; c.debug.loop.tutorial('done'); c.debug.loop.giveClams(200); c.game.save(); });
+    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.debug.loop.giveClams(200); c.game.save(); });   // (the opening's tow cut first)
     await K.reload();
     const TL = await g(() => window.__gw.data.TEXT_LOOP);
     K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.continue), "the title's Continue");
@@ -111,6 +113,51 @@ export default async function (api) {
     await page.waitForTimeout(650);
     await K.shoot('cat-home');
     await K.scan('the book: home');
+
+    // every spread at this size (the integration's review, 16 Nov: at 960 x 540 the engravings shrank to 40-60 px, tier numerals ran
+    // into names, map kickers were cut with an ellipsis, the ribbon cut the chapter head; a phone's running head sat on the corner):
+    // no name, kicker or place cut; no numeral on a name; the ribbon on no letter; the running head clear of the corners; an item's
+    // engraving a third of its plate or more; every plate's words inside it; text 16 px or more; the book on the screen. Each chapter's
+    // opening spread is shot.
+    K.step('cat: every spread');
+    b = await book();
+    const leaf = b.layout === 'desktop' ? 2 : 1, openings = new Set(b.chapters.map((c) => Math.floor(c.page / leaf) * leaf));
+    const bad = { cut: [], num: [], ribbon: [], head: [], art: [], spill: [], small: [], fit: [] };
+    for (let p = 0; p < b.count; p += leaf) {
+      await g((p) => window.__gw.ui.loop.murkBook.go(p), p);
+      await page.waitForTimeout(650);
+      const a = await g(() => {
+        const root = document.querySelector('[data-loop=shelf]'), vis = window.__lp.visible, R = (e) => e.getBoundingClientRect();
+        const hit = (x, y) => x.left < y.right - 0.5 && y.left < x.right - 0.5 && x.top < y.bottom - 0.5 && y.top < x.bottom - 0.5;
+        const o = { cut: [], num: [], ribbon: [], head: [], art: [], spill: [], small: [], fit: [] };
+        for (const e of root.querySelectorAll('.gw-mb-slot .gw-plate-kick, .gw-mb-slot .gw-plate-name')) if (vis(e) && (e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1)) o.cut.push(e.textContent.trim());
+        for (const pl of root.querySelectorAll('.gw-mb-slot .gw-plate')) {
+          const P = R(pl), art = pl.querySelector('.gw-plate-art'), n = pl.querySelector('.gw-plate-num');
+          if (art && !pl.matches('.gw-plate--map, .gw-plate--sealed')) { const A = R(art), k = (A.width * A.height) / Math.max(1, P.width * P.height); if (k < 0.33) o.art.push(`${pl.dataset.item} ${k.toFixed(2)}`); }
+          for (const t of pl.querySelectorAll('.gw-plate-kick, .gw-plate-name, .gw-plate-line, .gw-plate-low')) {
+            if (!vis(t)) continue;
+            const T = R(t);
+            if (T.bottom > P.bottom + 1 || T.top < P.top - 1) o.spill.push(`${pl.dataset.item} ${t.className.split(' ')[0]}`);
+            if (n && t !== n && !t.matches('.gw-plate-line, .gw-plate-low') && hit(R(n), T)) o.num.push(`${pl.dataset.item}: ${n.textContent} × ${t.textContent.trim()}`);
+          }
+        }
+        for (const rb of root.querySelectorAll('.gw-mb-slot .gw-mb-ribbon')) for (const w of rb.parentElement.querySelectorAll('.gw-mb-head > span, .gw-mb-chap h3')) if (vis(w) && hit(R(w), R(rb))) o.ribbon.push(w.textContent.trim());
+        for (const pg of root.querySelectorAll('.gw-mb-slot .gw-mb-page')) for (const sp of pg.querySelectorAll('.gw-mb-head > span')) for (const c of pg.querySelectorAll('.gw-mb-corner.c-tl, .gw-mb-corner.c-tr')) if (vis(sp) && hit(R(sp), R(c))) o.head.push(sp.textContent.trim());
+        o.small = [...root.querySelectorAll('*')].filter((e) => [...e.childNodes].some((x) => x.nodeType === 3 && x.nodeValue.trim()) && vis(e)).map((e) => ({ t: e.textContent.trim().slice(0, 20), px: parseFloat(getComputedStyle(e).fontSize) })).filter((x) => x.px < 16).map((x) => `${x.t} ${x.px}`);
+        for (const e of root.querySelectorAll('.gw-mb-slot, .gw-book-foot, .gw-book-tab, .gw-book-close, [data-buy], [data-purse]')) { const r = R(e); if (vis(e) && (r.left < -0.5 || r.top < -0.5 || r.right > innerWidth + 0.5 || r.bottom > innerHeight + 0.5)) o.fit.push(e.className.split(' ')[0]); }
+        return o;
+      });
+      for (const k of Object.keys(bad)) for (const x of a[k]) bad[k].push(`p${p}: ${x}`);
+      if (openings.has(p)) { const d = await book(); await K.shoot(`cat-spread-${d.pages[Math.min(p + leaf - 1, d.count - 1)]?.chapter || d.pages[p]?.kind || p}`); }
+    }
+    K.check(bad.cut.length === 0, 'every spread: no name, kicker or place is cut', bad.cut);
+    K.check(bad.num.length === 0, 'every spread: no tier numeral on a name or a kicker', bad.num);
+    K.check(bad.ribbon.length === 0, 'every spread: the ribbon covers no letter of a head', bad.ribbon);
+    K.check(bad.head.length === 0, 'every spread: the running head clear of the corner ornaments', bad.head);
+    K.check(bad.art.length === 0, 'every spread: an item\'s engraving is a third of its plate or more', bad.art);
+    K.check(bad.spill.length === 0, 'every spread: each plate\'s words stay inside it', bad.spill);
+    K.check(bad.small.length === 0, 'every spread: every word 16 px or larger', bad.small.slice(0, 8));
+    K.check(bad.fit.length === 0, 'every spread: the book, its tabs and its foot on the screen', bad.fit.slice(0, 8));
     await K.key('Escape'); await K.settle(400);
     K.check((await g(() => window.__gw.debug.ui().openModal)) === 'jetty', 'Escape closes the book back home', await g(() => window.__gw.debug.ui().openModal));
     await K.noErrors('the book');

@@ -1297,7 +1297,7 @@ You sell what you keep, so nothing is mounted. Instead, at the measure (records 
 | a lost fish (v8.7) | none | the line goes slack, the float pops up, a splash and a wake by its size, the cause's sound, the sting for a Trophy or bigger. No note, no name, no class, no weight; no class stamp during the play, no class word and one neutral glyph in the bite's tell, no mark on the Chart, no ember on a comeback, on a trip (`WATERCRAFT.md` §7) |
 | a full hold | "Hold's full." | on a cast; the Home pill pulses |
 | mist | none | a cast into mist sinks the float into the bank and brings it back |
-| tackle | none (the lure glyph, the bait glyph with its count) | built selector |
+| tackle | the tackle tin's drawer: "Bait", "Lure", "Bare hook", "No lure" and the items' names; "After this fish." on a tap while a fish is on | the tackle tin (the user, 16 Nov 2026; §16 answer 43 superseded): an engraved tin under the hold row showing the bait's glyph with its count and the lure's; tap or B opens the drawer (a bottom sheet on a phone); a change while the float waits brings the line in quietly, its bait back in the bag; no odds on it (`src/ui-tackle.js`, CONTRACT §14.19) |
 | the Journal glyph | none | locked while a line is in the water (built) |
 | gone from the HUD | the oil gauge, satiety, Embers, the level bar, the day counter, the night-mode glyph, the flare button, Far Water | §9 |
 | evening 1 only | "Hold on the water. Let go to cast." and "Now. Tap." / "Now. Click.", once each per save | §8.5's opening table |
@@ -2133,6 +2133,15 @@ v4's rulings on the three proposals stand, the roster brought new ones, and v6 r
 ## 16. Questions only the user can answer (each with the default this spec builds)
 
 v4's five questions were answered on 13 November 2026 ("Yes to all five loop rules") and are decisions now. **v6's four questions below were answered by the user on 14 November 2026: "Yes to all four defaults and the let-go rule."** They are decisions now (§0 row 8).
+
+**Answer 43 superseded 2026-11-16: the user wants bait and lures changeable on the lake.** Question 43 (can you change your bait and lure
+on Taper's Sheet; its default "yes, at home"; on a trip the hook stayed as you sailed) is overtaken by the user's words while
+play-testing on 16 November 2026: "We should have an option to equip bait or change lures whilst out on the lake". The hook now changes
+at home and on the lake, through one call (`loop.changeHook`, CONTRACT §14.19): the tackle tin on the trip's HUD (§8.1's tackle row), and
+the sheet's tap at merge. Never while a fish is on (its tell and bite, the play, the show, the card: "After this fish."); a change while
+the float waits brings the line in quietly with its bait back in the bag (no miss, no favour or streak lost); the hook table and its 1%
+cap read the bait at the cast, unchanged. (When the sheet's questions 41–43 land here, answer 43's line gains: "superseded 2026-11-16:
+the user wants bait and lures changeable on the lake".)
 
 1. ~~Should each of the twelve new waters be a full 3D lake of its own?~~ **Answered: yes, all twelve are full 3D waters** (v7: six of them rivers, on the river layout).
 2. ~~Is about 48 hours to buy everything the right length?~~ **Answered: yes.** The pacing run ends at 47.6 h (v8, gated; 48.9 h in v7.1, §4.9).

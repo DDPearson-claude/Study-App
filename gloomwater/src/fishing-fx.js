@@ -450,6 +450,19 @@ void main() {
   float c = cos(iA.w), s = sin(iA.w);
   // local +y (forward) = world (sin h, cos h); local +x (side) = world (cos h, -sin h)
   vec3 p = vec3(iA.x + q.x * c + q.y * s, iA.y, iA.z - q.x * s + q.y * c);
+  // a silhouette is drawn as the eye reads it looking down into clear water, not as flat as the play camera's low angle presses a
+  // shape lying on the bed: its footprint is eased out along the line of sight by (1 / sin of the view's angle)^0.75, at most 2×, so a
+  // fish across the view keeps its true length and shows its body, fins and tail, and one end on never draws longer than it would
+  // across (WATERCRAFT §6.3, revision 3)
+  if (kind > 10.5 && kind < 11.5) {
+    vec3 tc = cameraPosition - iA.xyz;
+    float hl = length(tc.xz);
+    float sg = clamp(tc.y / max(length(tc), 1e-3), 0.05, 1.0);
+    float st = clamp(pow(1.0 / sg, 0.75), 1.0, 2.0);
+    vec2 dv = hl > 1e-3 ? tc.xz / hl : vec2(0.0, 1.0);
+    vec2 o2 = p.xz - iA.xz;
+    p.xz += dv * dot(o2, dv) * (st - 1.0);
+  }
   if (iB.z < 0.002) p = vec3(0.0, -60.0, 0.0);
   vQ = q; vB = iB; vC = iC; vD = iD;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
@@ -515,9 +528,13 @@ float sightSdf(vec2 u, float L, float asp, float wig, float fins) {
   float d = eSdf(v - vec2(0.0, 0.17), vec2(asp, 0.33));               // head and shoulders (asp: the half-width / length)
   d = min(d, eSdf(v + vec2(0.0, 0.1), vec2(asp * 0.68, 0.24)));       // the flank to the tail's wrist
   float ty = -(v.y + 0.3), ax = abs(v.x);
-  float tail = max(max(ax - asp * (0.28 + 3.2 * ty), -ty * 0.6), (ty - 0.12 - 0.09 * ax / max(asp, 0.05)) * 0.6);   // a forked tail
+  float tail = max(max(ax - asp * (0.3 + 3.6 * ty), -ty * 0.6), (ty - 0.13 - 0.1 * ax / max(asp, 0.05)) * 0.6);   // a forked tail, flared
   d = min(d, tail);
-  if (fins > 0.5) d = min(d, eSdf(vec2(ax - asp * 0.9, v.y - 0.2), vec2(asp * 0.42, 0.045)));
+  if (fins > 0.5) {   // the pectorals, swept back from the shoulders, and the smaller pelvic pair behind them
+    vec2 pf = vec2(ax - asp * 1.05, v.y - 0.15); pf = vec2(pf.x * 0.8 + pf.y * 0.6, -pf.x * 0.6 + pf.y * 0.8);
+    d = min(d, eSdf(pf, vec2(asp * 0.5, 0.06)));
+    d = min(d, eSdf(vec2(ax - asp * 0.72, v.y + 0.08), vec2(asp * 0.32, 0.04)));
+  }
   return d * L;
 }
 // WC-2: a crayfish (head toward +y): its carapace and tail, the tail fan, two claws ahead on their arms
@@ -542,6 +559,7 @@ void main() {
   float fine = clamp(0.035 / MPP, 0.5, 1.0);        // fine detail softens when it would crowd into a few pixels
   float far = 1.0 - smoothstep(0.5, 1.0, clamp(0.035 / MPP, 0.0, 1.0));   // 0 near … 1 far: a broader read takes over
   float ink = 0.0;           // alpha of the dark under-water shape
+  float cap = 0.8;           // its most (a silhouette's core may go darker: 0.95)
   vec3 light = vec3(0.0);    // additive light (premultiplied, alpha 0)
   vec3 inkCol = mix(INK, tint * 0.15, 0.3);
   float wig = sin(uTime * 6.0 + seed * 30.0);
@@ -619,22 +637,24 @@ void main() {
         vec2 pa = q - p1, ba = p0 - p1;
         float hs = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-5), 0.0, 1.0);
         sk += lineAA(length(pa - ba * hs), 0.016) * (0.5 + 0.5 * hs);
-      } else if (u < 0.8) {   // its landing ring
+      } else if (u < 0.8 && !moss) {   // its landing ring (none on the Mossmere: no small rings, no specks there)
         float t = u - 0.26;
         sk += lineAA(length(q - b - dir * 0.45) - (0.04 + t * 0.5), 0.012) * (1.0 - t / 0.54) * 0.55;
       }
     }
-    light += mix(STAR, GOLD, 0.2) * sk * fine * 1.7 * uSurf;
+    // (on the Mossmere the hops are dark flicks of fry against the film, not silver: no glitter on the water there)
+    light += mix(STAR, GOLD, 0.2) * sk * fine * (moss ? 0.25 : 1.7) * uSurf;
+    if (moss) ink += sk * fine * 0.3;
     float m = 1.0 - smoothstep(r * 0.6, r * 1.08, d);
     float wv = sin(q.x * 13.0 + age * 7.0 + seed * 9.0) * sin(q.y * 11.0 - age * 6.0);
-    light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
+    if (!moss) light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
     // from afar the patch reads as a darker, shivering disc full of twinkling fry, with a pale broken rim; up close the hops carry it
     if (!moss) light += mix(STAR, GOLD, 0.2) * glints(q, 0.5, age, seed, 0.65) * m * (0.6 + 1.6 * far) * uSurf;   // (never sparkle on the Mossmere)
     // the shiver of the skin (a textured shimmer, never a flat lens) and a few drifting arcs at its edge (never a whole ring)
     float shv = n21(q * 2.2 + vec2(age * 0.7, -age * 0.5) + seed * 13.0) * n21(q * 3.7 - vec2(age * 0.4, age * 0.9) - seed * 7.0);
     light += STAR * m * (0.04 + 0.3 * smoothstep(0.12, 0.5, shv)) * far * uSurf;
     float arcs = smoothstep(0.55, 0.85, n11(ang * 2.5 + seed * 17.0 + age * 0.5));
-    light += STAR * lineAA(d - r * 0.95, 0.03) * arcs * (0.08 + 0.45 * far) * uSurf;
+    light += STAR * lineAA(d - r * 0.95, 0.03) * arcs * (0.08 + 0.45 * far) * (moss ? 0.35 : 1.0) * uSurf;   // (quieter, broken, on the Mossmere)
     ink += m * 0.17 * (1.0 - 0.5 * far);
     float ca = age * 0.45 + seed * 6.0, cr = r * 0.32;
     vec2 cp = vec2(cos(ca), sin(ca)) * cr;
@@ -726,9 +746,25 @@ void main() {
     float n = n21(q * 1.6 + vec2(seed * 7.0, age * 0.15)) * 0.6 + n21(q * 3.3 - vec2(age * 0.1, seed * 3.0)) * 0.4;
     float m = 1.0 - smoothstep(rc * 0.3, rc * (0.85 + 0.3 * n), d);
     float fresh = exp(-ev * 0.12);
+    if (form > 0.5) {
+      // the haul of a find (form 1; the integration's fixes): mud dragged off the bed, a slow swirl darker than the night water and
+      // of its own colour, wound darker at its heart, blooming to R0 m (at most about 2 m, less near the raft: none of it within
+      // 2.4 m of it), and behind it along the haul (local −y) a faint dark weed-line; never gold, never a glint, never a ring
+      float rs = min(max(R0, 0.4), (0.55 + 0.35 * ev) * (0.8 + 0.25 * L));
+      float ms = 1.0 - smoothstep(rs * 0.3, rs * (0.8 + 0.3 * n), d);
+      float rot = ev * 0.3 + 1.2 / (0.5 + d), cr = cos(rot), sr = sin(rot);
+      vec2 qr = vec2(cr * q.x - sr * q.y, sr * q.x + cr * q.y);
+      float sw = n21(qr * vec2(3.2, 0.8) + vec2(seed * 7.0, 0.0)) * 0.65 + n * 0.35;
+      ink += ms * (0.24 + 0.16 * smoothstep(0.2, 0.75, sw)) * (0.55 + 0.45 * fresh);
+      float wl = q.x - 0.07 * sin(q.y * 2.3 + seed * 9.0), ww = max(0.045, MPP * 1.2);
+      float streak = exp(-wl * wl / (ww * ww)) * smoothstep(0.1, -0.2, q.y) * smoothstep(-2.3, -1.1, q.y) * (0.6 + 0.4 * n21(vec2(q.y * 2.0, seed * 5.0)));
+      ink += streak * 0.2 * (0.5 + 0.5 * fresh);
+      inkCol = vec3(0.05, 0.045, 0.055);
+    } else {
     ink += m * (0.16 + 0.22 * n) * (0.4 + 0.6 * fresh);
     inkCol = vec3(0.05, 0.047, 0.04);   // silt, not ink
     light += STAR * lineAA(d - rc * 0.92, 0.02) * smoothstep(0.55, 0.9, n) * 0.14 * fresh * uSurf;
+    }
   } else if (kind < 10.5) {
     // ---- WC-2 stems: a pad knocked from below, a reed stem twitching, in a short run (small rings from a few stems)
     for (int i = 0; i < 3; i++) {
@@ -742,12 +778,16 @@ void main() {
     }
   } else if (kind < 11.5) {
     // ---- WC-2 a silhouette (WATERCRAFT §6.8): one real fish under clear shallow water at its true length, with its fainter, blurrier
-    // shadow on the pale bed (offset by the light and the depth), or a shoal's 3–5 shapes, or a crayfish on the stones; softer deeper
+    // shadow on the pale bed (offset by the light and the depth), or a shoal's 3–5 shapes, or a crayfish on the stones; softer deeper.
+    // (16 Nov 2026: a darker, near-opaque core that softens to its edge, the dark back down its spine as a fish seen from above shows
+    // it; thin parts (the tail's wrist and fork, the fins) held to about a pixel so they survive at a small size; never an outline glow,
+    // a rim, a sparkle or a ring)
     float outl = vD.x, dep = clamp(vD.y, 0.0, 0.6), warm = vD.z, nsh = vD.w;
     vec2 sh = vec2(vC.y, vC.w);
     float spd = vC.z;
-    float soft = max(0.006 + dep * 0.05 * (0.4 + L), MPP * 0.75);   // (metres: crisper in shallow water, softer deeper)
-    float bodyA = 0.0, shadA = 0.0, finA = 0.0;
+    float soft = max(0.005 + dep * 0.04 * (0.4 + L), MPP * 0.85);   // (metres: crisper in shallow water, softer deeper)
+    float grow = MPP * 0.5;                                          // (half a pixel each side: a fin or a tail fork never thins to nothing)
+    float bodyA = 0.0, coreA = 0.0, shadA = 0.0, finA = 0.0;
     float sw = sin(uTime * (3.0 + 5.0 * spd) + seed * 30.0) * (0.25 + 0.9 * min(spd, 1.0));
     if (outl > 3.5 && outl < 4.5) {
       for (int i = 0; i < 5; i++) {
@@ -758,25 +798,34 @@ void main() {
         float hh = 0.3 * sin(age * 0.8 + fi * 1.7);
         vec2 u = q - c;
         u = vec2(u.x * cos(hh) - u.y * sin(hh), u.x * sin(hh) + u.y * cos(hh));
-        bodyA = max(bodyA, smoothstep(soft, -soft, sightSdf(u, L, 0.1, sw, 0.0)));
-        shadA = max(shadA, smoothstep(soft * 3.0 + 0.02, -soft * 2.0, sightSdf(u - sh, L * 1.05, 0.11, sw, 0.0)));
+        float b = sightSdf(u, L, 0.1, sw, 0.0) - grow;
+        bodyA = max(bodyA, smoothstep(soft, -soft, b));
+        coreA = max(coreA, smoothstep(-0.01 * L, -0.06 * L, b));
+        shadA = max(shadA, smoothstep(soft * 4.0 + 0.03, -soft * 2.0, sightSdf(u - sh, L * 1.05, 0.11, sw, 0.0)));
       }
     } else if (outl > 4.5) {
-      bodyA = smoothstep(soft, -soft, clawSdf(q, L));
-      shadA = smoothstep(soft * 3.0 + 0.03, -soft * 2.0, clawSdf(q - sh, L * 1.05));
+      float b = clawSdf(q, L) - grow;
+      bodyA = smoothstep(soft, -soft, b);
+      coreA = smoothstep(-0.01 * L, -0.08 * L, b);
+      shadA = smoothstep(soft * 4.0 + 0.04, -soft * 2.0, clawSdf(q - sh, L * 1.05));
     } else {
       float asp2 = outl < 1.5 ? 0.15 : outl < 2.5 ? 0.11 : 0.075;   // half-width / length: deep-bodied, torpedo, long
-      float b = sightSdf(q, L, asp2, sw, outl < 2.5 ? 1.0 : 0.0);
+      float b = sightSdf(q, L, asp2, sw, outl < 2.5 ? 1.0 : 0.0) - grow;
       bodyA = smoothstep(soft, -soft, b);
-      shadA = smoothstep(soft * 3.0 + 0.03, -soft * 2.5, sightSdf(q - sh, L * 1.04, asp2 * 1.1, sw, 0.0));
+      // the core: darkest down the back (seen from above the dorsal line is the darkest of a fish), easing out to the soft edge
+      float spine = 1.0 - smoothstep(0.0, asp2 * L * 0.8 + MPP, abs(q.x)) * 0.5;
+      coreA = smoothstep(-0.1 * asp2 * L, -0.55 * asp2 * L, b) * spine;
+      shadA = smoothstep(soft * 4.0 + 0.04, -soft * 2.5, sightSdf(q - sh, L * 1.04, asp2 * 1.1, sw, 0.0));
       if (warm > 0.0) finA = smoothstep(soft * 1.5, 0.0, abs(b + 0.004)) * warm;   // the koi's candle fins: a faint warm edge at dusk
     }
-    ink += bodyA * max(0.5, 0.98 - 0.7 * dep) * (1.0 + 0.35 * far) + shadA * (1.0 - bodyA) * 0.36 * (1.0 - dep);   // (a far shape keeps its ink)
-    inkCol = vec3(0.02, 0.024, 0.024);
+    float depK = max(0.6, 1.0 - 0.6 * dep);   // (deeper, softer and a little fainter, never smaller)
+    ink += (bodyA * 0.95 + coreA * 0.55) * depK * (1.0 + 0.2 * far) + shadA * (1.0 - bodyA) * 0.24 * (1.0 - dep);
+    inkCol = vec3(0.015, 0.02, 0.022);
+    cap = 0.95;
     light += vec3(0.95, 0.62, 0.32) * finA * 0.08;
     // the water over it, as an angler reads shallow water: a moving fish pushes a faint V and a low bulge ahead of its head; a rooting
     // one flicks its tail through the film now and then (tailing). Pale water lines, never a ring round it
-    float shallow = clamp((0.34 - dep) / 0.2, 0.0, 1.0);
+    float shallow = clamp((0.36 - dep) / 0.2, 0.0, 1.0);
     if (outl < 4.5 && !(outl > 3.5)) {
       float hy = L * 0.5;
       float mv = smoothstep(0.1, 0.35, spd) * shallow;
@@ -785,6 +834,16 @@ void main() {
         float vw = abs(abs(q.x) - behind * 0.32);
         float brk = 0.3 + 0.7 * n11(behind * 7.0 + seed * 13.0 - age * 2.0);   // broken, as the film breaks
         light += WATERW * lineAA(vw, 0.01 + 0.004 * L) * step(0.0, behind) * exp(-behind / (0.18 + 0.35 * L)) * brk * mv * 0.45 * (1.0 - bodyA) * uSurf;
+        // the push: the film lifted in a low bulge just ahead of the head (a short arc, never closed), a little darker under its lip
+        vec2 hq = q - vec2(0.0, hy - 0.02 * L);
+        float hr = length(hq), hang = atan(hq.x, hq.y);
+        // (wider than the head, open, and only where it spans enough pixels to read as a lift of the film: drawn a few pixels across
+        // it would close into a pale bead on the nose, a glint, so under about 4–8 px of radius it fades out)
+        float arcR = 0.06 + 0.16 * L + 0.04 * spd;
+        float arcK = smoothstep(4.0, 8.0, arcR / MPP);
+        float arc = lineAA(hr - arcR, 0.008 + 0.004 * L) * (1.0 - smoothstep(0.7, 1.2, abs(hang))) * smoothstep(0.15, 0.45, abs(hang));
+        light += WATERW * arc * mv * 0.2 * arcK * (0.6 + 0.4 * n11(hang * 5.0 + age * 3.0 + seed * 7.0)) * uSurf;
+        ink += smoothstep(arcR + 0.02, arcR * 0.4, hr) * (1.0 - smoothstep(0.5, 1.2, abs(hang))) * (1.0 - bodyA) * mv * 0.08 * arcK;
       }
       float still = (1.0 - smoothstep(0.03, 0.12, spd)) * shallow * step(outl, 1.5);   // (the deep-bodied root and tail)
       if (still > 0.0) {
@@ -804,7 +863,7 @@ void main() {
     float vw = abs(abs(q.x) - behind * 0.42);
     light += STAR * lineAA(vw, 0.016) * step(0.0, behind) * exp(-behind / (0.7 + 0.4 * L)) * k2 * 0.7 * uSurf;
   }
-  float a = clamp(ink * k, 0.0, 0.8);
+  float a = clamp(ink * k, 0.0, cap);
   light *= k * GAIN;
   if (a < 0.003 && dot(light, vec3(1.0)) < 0.004) discard;
   gl_FragColor = vec4(inkCol * a + light, a);

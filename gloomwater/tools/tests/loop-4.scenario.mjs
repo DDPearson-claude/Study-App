@@ -23,7 +23,7 @@ export default async function (api) {
     await g(() => { window.__lp.ev.length = 0; window.__gw.game.beginIntro({ character: 'stub' }); });
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Start: flow home');
     // the tutorial done (its own walk is loop-1a's) and clams to spend; a reload so the home view starts past the tutorial
-    await g(() => { const c = window.__gw; c.debug.loop.tutorial('done'); c.debug.loop.giveClams(2000); c.game.save(); });
+    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.debug.loop.giveClams(2000); c.game.save(); });   // (the opening's tow cut to the mooring first: loop-tow.scenario plays it)
     await K.reload();
     const TL0 = await g(() => window.__gw.data.TEXT_LOOP);
     K.need(await K.tap('[data-modal=title] .gw-tbtn', TL0.continue), 'the title\'s Continue');

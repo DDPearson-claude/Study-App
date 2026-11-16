@@ -1928,6 +1928,17 @@ the parked systems, the counters and WICKS' T76–T80), with lanes B's and C's l
 fixture (`loadLoopData`, `freshLoopMeta`, `tripRun`, `fakeLoop`). The economy is `node tools/sim/clams.mjs` (it reads `data.LOOP`'s
 moved tables and `data.quietTerms`, and fails if a moved key is drafted again, T42); M1's gate is `clams.mjs --shipped=mossmere --step=1`.
 
+**The CSP check (the full gate runs it).** The app the user plays in serves the page under a Content-Security-Policy that refuses
+`fetch()` of a `data:` URI (`connect-src`) while images stay allowed: an image decode must never fetch a `data:` URI (decode through an
+`<img>`; the user's phone, 16 Nov 2026, showed the Landing's sheet blank and the Chart as its list). `node tools/csp-copy.mjs
+--html=<built page>` writes the page's copy with `<meta http-equiv="Content-Security-Policy" content="connect-src 'self'
+https://fonts.googleapis.com https://fonts.gstatic.com">` before any script (`HOST_CSP`, `cspHtml`, `cspCopy`), and
+**`tools/tests/csp-art.scenario.mjs`** runs on it (it makes the copy itself when given a plain build): a fresh save through the opening
+(New Descent → Start → the film skipped) to the Landing, where the tow view's art must be `'ready'` and its sheet drawn, then the tow to the
+chart beat, where the drawn Chart's art must be `'ready'` and the Chart open drawn (never the list), with no policy violation in the page.
+`nice -n 10 node tools/playtest.mjs --html=<built page> --script=tools/tests/csp-art.scenario.mjs --width=960 --height=540`; it prints
+`CSP_ART {size, failures, notes}` and ends with page errors 0, console errors 0, ctx.errors 0.
+
 ### 14.16 (placed before 14.11 to merge cleanly beside the lanes' appended sections) Watercraft (the Mossmere; WC-1, `docs/loop/WATERCRAFT.md` rev. 2 §2–§4, §8.1, §9.2)
 
 Under the loop, on the Mossmere only, where a cast lands decides who is there (ten open-water areas) and what is on the hook decides who
@@ -1984,6 +1995,59 @@ and lure lines (SPEC §8.11) and `TEXT_LOOP.log` {`whoBites`, `bare`, `under` ("
 pre-rolls, the comeback, Cut Strip); `tools/tests/loop-watercraft.test.mjs` (through `fishing.js`); `validate-data --loop`'s WC-1 checks;
 `tools/sim/clams.mjs --shipped=mossmere --step=5` (the three players, the user's rule, every pool bites, every fish catchable, the areas
 add nothing, T104 extended).
+
+### 14.19 (placed before 14.11 to merge cleanly beside the sections appended after 14.15) The tackle tin: bait and lures changed on the lake
+
+The user's words (16 November 2026, play-testing): "We should have an option to equip bait or change lures whilst out on the lake". It
+supersedes SPEC §16 answer 43's "at home only" for the hook. The ledger already let `fit('bait', id)` and `fit('lure', id)` write the run's
+line on a trip; this adds the rule of *when*, the one call that changes the hook, fishing's quiet reel-in, and the tin on the trip's HUD.
+
+**The rule (pure, `progression-loop.js`)**: `HOOK_BUSY` (`['bite', 'reeling', 'landing']`) and `hookChangeable({trip, state, fishOn,
+card})`: at home always; on a trip unless a fish is on, from its class tell and the bite through the hook, the play, the show and its
+card (a catch's `flags.pendingCatch` or progression's pending card, a find's `flags.pendingFind`). Idle, charging, casting, waiting
+before the tell and the reel-in after a pass or a loss may change.
+
+**`ctx.progression.loop` (two methods, in `LOOP_METHODS` and the fixture's `fakeLoop`)**
+- `canChangeHook()` → boolean (`hookChangeable` on `fishing.hookLine()` and the card; false off the loop).
+- `changeHook({bait, lure})` → `{ok, changed, reeled, bait, lure, count}` or `{ok: false, reason: 'fish' | 'bait' | 'lure' | 'off'}`.
+  `bait`: a bait the bag holds (the legend's ball, a tin of the water, Cut Strip: what `fit('bait')` takes), `null` a bare hook, or
+  `undefined` to leave it; `lure`: an owned lure, `null` none, `undefined` to leave it. Every check runs before anything moves (the
+  cast's own bait counts whole). A line out with no fish on it comes in first through `fishing.reelInQuiet()`; then the existing paths
+  `fit('bait', …)` and `fitLure(…)` write `meta.loop.fitted` (saved at once: what the Chart shows at home) and the run's line
+  (`run.equippedBait`, `run.lure`), so the next cast carries the new choice. A bare hook takes the run's line bare even when the bag had
+  moved it onto another bait. Emits `loop:hook {bait, lure, reeled}` on a change (beside fit's `bait:change` and `loop:fit`). At home it is
+  the Chart's fit. **The one API for every view**: the Chart's slots may keep calling `fit`; Taper's Sheet (`gw-mvp-sheet`, its tap-to-fit
+  home only today) switches to `canChangeHook` / `changeHook` at merge, so a tap on the sheet on the lake changes the hook as the tin does.
+
+**`fishing.js` (two API methods; `debug.fishing()` adds `castInfoBait` and `castBait`)**
+- `hookLine()` → `{state, out, fishOn, castBait}`: `fishOn` from the class tell (`S.tell` while waiting) and the bite through the hook,
+  the play, the show and its card (`view.show.phase === 'card'`); `out` a line in the water with no fish on it (casting, or waiting
+  before the tell; never a mist cast); `castBait` the bait out on it (`S.castBait`).
+- `reelInQuiet()` → `{ok, refunded, baitId}`: only while `out`. The cast's bait goes back through `progression.refundBait` (once a cast,
+  its own guard; a legend's ball is spent only at her hook, so nothing comes back for it); the float reels in as after a pass
+  (`toLost(reelInTime)`); `fishing:reelIn {quiet: true, refunded, baitId}` for the sound. No `fishing:miss`, no `fishing:escaped`, no
+  lost-fish line, no bite counted (`noteBite` runs at the bite), no favour, mercy or streak touched; Taper's first bite and Ashwick's
+  comeback are spent only at a bite, so they wait for the next cast. The hook table and its 1% cap are untouched: they read the bait at
+  the cast (`castInfo`), and the next cast's `castInfo.baitId` is the new bait.
+
+**The view (`src/ui-tackle.js`, built by `ui-loop.js`'s `createLoopView`; its CSS `#gw-tackle-css`)**: `createTackleView({K, L, D})` →
+`{update, toggle, paint, isOpen, open, close, tin, debug}`; `ui.loop.tackle`. The tin sits in the HUD's top-left corner under the hold
+row (the old gear glyphs, `.gw-gear-hud`, make way: `.gw-hud.gw-tk-on`), on a trip once `loop.tutorial().done`; its compartments show
+the bait on the hook (the cast's while a line is out) with its count left and the lure (a bare hook and no lure drawn plainly). A tap, a
+click or **B** (ui-loop's `handleKey` gives B to the tin before `tripKeySwallow`) opens the drawer: modal `'tackle'` (blocking: the
+evening waits; quiet: no `ui:modal`), anchored under the tin on a desktop, a bottom sheet when the window is under 700 px wide or a touch
+screen under 560 px tall. Two rows, **Bait** and **Lure** (`tackleModel(D, {run, metaLoop, line})`, pure): each item a button with its
+engraving (`murk-engrave.engrave`, `artCard`), its name (the shelf's) and, for a bait, its count; the one on the hook `aria-pressed`.
+While a fish is on the tin's contents dim (`.gw-busy`) and a tap or B gives `denied` and one line, `TEXT_LOOP.tackle.after`. Sounds:
+`ui_click` (low) as the lid opens and on a change; `reel_ratchet` (light) as a reeled-in line comes in when the drawer closes. No odds,
+no percentage, no "likes" anywhere on it (those live in the logs).
+
+Selectors: `[data-loop=tin]` (the tin; `data-bait`, `data-lure` carry what it shows, `''` for none), `[data-loop=tackle]` (the drawer),
+`[data-row=bait|lure]`, `[data-bait=<id>]` / `[data-lure=<id>]` (an item; `''` the bare hook / no lure), `[data-action=close]`.
+**Words**: `TEXT_LOOP.tackle {tin, bait, lure, bare, none, after}`. **Tests**: `tools/tests/loop-tackle.test.mjs` (the rule across the
+states, a change mid-wait, refusals, the lure, the bare hook, the last bait out, the ball, home, the real `fishing.js` half, the model and
+its words); `tools/tests/loop-tackle.scenario.mjs` (the browser: desktop 960×540, 1280×720, 900×1000; `--mobile` 390×844, 358×664,
+844×390).
 
 ### 14.11 M1 step 3a's seam: the places, the giants, the legend, the catalogue (`docs/loop/m1-step3a/PLAN.md` §2.0, §3)
 
@@ -2157,6 +2221,8 @@ Under the loop only (`data.LOOP_ENABLED`); off it none of this is built or read.
 | where | what |
 |---|---|
 | `data.js` | `LOOP.barge = {length: 12, beam: 3.6, keel: {n: 5, r: 1.8, step: 2.4}, murkR, reach, arc}`; `LOOP.mooring[water] = {dock, hull: {x, z, yaw}, murk: {x, z, yaw}, lane: [[x, z]], cam: {pos, look, fov, portrait}}` (the raft's tie-up at the stern **is** `docks[dock]`); `loopMooring(water, docks)` → `{water, dock, raft, hull, murk, lane, cam, circles}` (the keel circles and Murk's, `{x, z, r, kind: 'hull' \| 'murk'}`); `TEXT_LOOP.jetty.wall` (the doorway's accessible name only) |
+| `data.js` (the home camera at any screen shape; the integration's lanes A and C) | `homeCamAt(cam, aspect, {pull, tow})` → `{pos, look, fov, k}` (pure; render's `homePose` and the validator's `frameCheck` share it): `k` 0 the portrait pose … 1 the landscape, eased (smoothstep) between `LOOP.mooring[water].cam.blend = [a0, a1]` (W / H; default `[0.85, 1.7]`); `cam.portrait.across` (an aspect: from it on the portrait lens keeps its across angle, so a square window frames the barge as the phone does); `cam.portrait.tight` (the lens's factor, 0.86) and `cam.portrait.lift` (m on the look's height, 0.8) eased in over 0.4 of an aspect from `across` and out with `k`, so a phone under `across` and a wide screen from `a1` are exactly as before; `pull` 0..1 the tow's glide in: the pose drawn back `LOOP_TOW.cam.pull` times and turned `LOOP_TOW.cam.turn`° round its look (`LOOP_TOW.cam.portrait.{pull, turn}` for the portrait pose, eased by the same `k`); null without a pose |
+| `home-targets.js` (the words; lane int-C) | `layoutTargets(rects, {…, wordSize, avoid, gap 16, boxGap 8})`: each word's own box (`wordSize[id] = {w, h, hook}`, ui-loop measures the drawn word and its hooks; `wordMetrics(text, WORD_TYPE.desk \| phone)` estimates it for the validator) ≥ 16 px from every other word and from each `avoid` rect (the Wick: `wickCorners(M)`, `WICK_BOX` round the raft), ≥ 8 px off the other buttons; the hooks dropped when the hooked word would come close, then the word nudged along its band (or a little below / above it) → each item's `wordBox`, `hooks`, `dx`, `dy`; ui-loop sets `--tw-dx` / `--tw-dy` and `.gw-jetty-target--nohk`, and a tap on the word is its target's. `frameCheck` checks the word boxes too (`apart(a, b)` the clear distance) |
 | `world` | `setLayout` pushes the mooring's circles into `layout.obstacles` (the raft's collision, the water's foam, `getObstacles()`); `getMooring()` → the resolved mooring or null; the barge's windows add one streak to the water's light list (no PointLight) |
 | `actors` | `actors.home` (`actors-home.js`, the Slow Hearth: `moor({x, z, yaw})`, `show(on)`, `setVariants(homeVariants(meta.loop))`, `targetBoxes()`, `levels`, `waterLight`, `calls()` → `{main: 3, mirror: 2, shadow: 1}`, `stats()`); `actors.merchant.moor(pos, yaw, {zone})` (the `moored` mode: the lamp's PointLight held at 0, no turning to the raft, the ledger's idle; `leave()` keeps him unless `{unmoor: true}`), `.mode`, `.lampLit`; at home the raft's heading eases to its tie-up |
 | `render` | camera mode `'home'` (flow home under the loop, a mooring with a `cam`, no glide running): the mooring's pose blended over the sail rig by one weight eased 1.2 s (in on the tie-up, out as the glide out begins), its fov through the rig; in flow home the rig's yaw is the pose's side of the raft (the sail home's glide, the rest, the glide out's first 0.6 s), turned to and from the north in one 2.4 s smoothstep orbit round the raft, the way that keeps the lens off the hull circles; `snapCamera()` puts both fully in; `debug.camera().homeW`, `.homeSwing` |
@@ -2209,17 +2275,17 @@ its leg on the Chart, one ink dip, the glide in to the water's mooring. In M1 on
 | events | `loop:tow {phase, water, opening}` at each phase; `loop:tutorial {step, prev, landing: true}` for the Landing's beats |
 | tools | `validate-data --loop`: the tow's parts, each leg's piece and crossings, the opening untouched within the tutorial's budget; `tools/tests/loop-tow.test.mjs`; `tools/tests/loop-tow.scenario.mjs` (`--only=film,taps,reload`); `loop-1a.scenario.mjs`'s opening path through the Landing and the tow (`--until=sail` stops the main pass after the first Sail) |
 
-### 14.15 Murk's catalogue: the shelf as a printed book (the user's words of 16 November 2026)
+### 14.17 Murk's catalogue: the shelf as a printed book (renumbered from a second 14.15 at the MVP merge) (the user's words of 16 November 2026)
 
 "Let's make buying things from murk look like an actual brochure we browse the pages of to buy items." The shelf's modal (`'shelf'`, `ui-loop.js` `openShelf({tab, focus})`) draws a book in place of its cards; what it sells, its prices (the price factor), its buy (`progression.loop.buy`), the session's "Yours.", the goal, the Maps tab's three cards, the Bait tab's counts, Murk's orders and the gear log are the shelf's, unchanged. The cards (`renderShelf`) stay as the fallback if the book throws.
 
 | module | what it owns |
 |---|---|
-| `murk-catalogue.js` (pure) | `bookLayout(vw, vh)` ('desktop' spread / 'phone' page) · `bookPages(tabs, {layout, odds, goal})` (the frontispiece and cover, one chapter per shelf tab in the shelf's order, `BOOK[layout].per` items a page (a desktop's Maps chapter two map plates a page, side by side and the page's full height), the gear log's page last, an end leaf to keep a desktop's spreads whole; the page count depends only on how many items each chapter holds) · `spreadOf` · `spreadPages` · `turnTo` · `focusPage` · `orderText` |
+| `murk-catalogue.js` (pure) | `bookLayout(vw, vh)` ('desktop' spread / 'phone' page) · `bookSizes(vw, vh, layout)` → `{pw, ph, size}` (the page's px and the spread's grid: `'full'`; `'short'` when a spread's page is under `BOOK.shortPage` 520 px tall, 960 × 540: an item to a half-page row, its engraving beside its words, a map plate a page; `'low'` under `BOOK.lowH` 480 px, a phone turned to landscape: an item a page, Murk's line and the purse in a column beside the book; the integration's review, 16 Nov) · `bookPages(tabs, {layout, size, odds, goal})` (the frontispiece and cover, one chapter per shelf tab in the shelf's order, `BOOK[layout].per` items a page (a desktop's Maps chapter two map plates a page, side by side and the page's full height), the gear log's page last, an end leaf to keep a desktop's spreads whole; the page count depends only on how many items each chapter holds) · `spreadOf` · `spreadPages` · `turnTo` · `focusPage` · `orderText` |
 | `murk-engrave.js` (pure strings) | `engrave(card)` (an engraved SVG plate for every item: ink line, hatching, cross-hatching, stipple; ink is `currentColor`, paper knock-outs `.cat-pp`), `plateKey`, `frontispiece` (Murk's barge), `ledgerPlate`, `endPlate`, `wickInk` |
 | `ui-catalogue-murk.js` | `createMurkBook(deps)` → `{render, onKey, debug, slow, go, pageOf}`; its CSS (`#gw-mb-css`, classes `gw-book*`, `gw-mb-*`, `gw-plate*`); the page's sound `book_page` added to the sfx table under the loop only |
 
-Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (a plate; its tap marks it), `[data-buy=<id>]` (the order line "Buy · <price>" in the book's foot, the buy), `[role=tab].gw-tab[data-chapter]` (the fore-edge tabs: the tab words and `Odds ›`), `.gw-murk-line`, `[data-loop=orders]` (lane 4's slate, on the cover), `.gw-shelf-odds` (on the gear log's page), `[data-seal]`, `[data-place]`, `[data-sealed]`, `[data-action=prev|next|close]`. Keys: ←/→ and PageUp/PageDown turn a leaf, Home/End the cover and the last page, `[`/`]` a chapter. `ctx.ui.loop.murkBook.debug()` → `{layout, page, spread, count, chapters, goalPage, marked, turning}`. Words: `TEXT_LOOP.goods` (`name`, `buy`), on `textAllowed` and checked by `validate-data --loop`. Tests: `tools/tests/murk-catalogue.test.mjs`; `tools/tests/murk-catalogue-look.scenario.mjs`; `loop-1a`'s `K.buyBox` (find the plate, tap it, return the order line), `loop-4`, `loop-5b`, `loop-4-look`.
+Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (a plate; its tap marks it), `[data-buy=<id>]` (the order line "Buy · <price>" in the book's foot, the buy), `[role=tab].gw-tab[data-chapter]` (the fore-edge tabs: the tab words and `Odds ›`), `.gw-murk-line`, `[data-loop=orders]` (lane 4's slate, on the cover), `.gw-shelf-odds` (on the gear log's page), `[data-seal]`, `[data-place]`, `[data-sealed]`, `[data-action=prev|next|close]`. Keys: ←/→ and PageUp/PageDown turn a leaf, Home/End the cover and the last page, `[`/`]` a chapter. `ctx.ui.loop.murkBook.debug()` → `{layout, page, spread, count, chapters, goalPage, marked, turning}`. Words: `TEXT_LOOP.goods` (`name`, `buy`), on `textAllowed` and checked by `validate-data --loop`. Tests: `tools/tests/murk-catalogue.test.mjs` (with `bookSizes` and the short and low grids); `tools/tests/murk-catalogue-look.scenario.mjs` (it also walks every spread at its size: no name, kicker or place cut, no numeral on a name, the ribbon on no letter, the running head clear of the corners, an engraving a third of its plate or more; run at 960 × 540, `--mobile` and `--mobile --width=844 --height=390`); `loop-1a`'s `K.buyBox` (find the plate, tap it, return the order line), `loop-4`, `loop-5b`, `loop-4-look`.
 
 ### 14.18 The Wick's sheet, "Taper's Sheet" (`docs/loop/SHEET.md` v2; SPEC v8.8 §8.12, decisions 105–110; the user's answers 41–43)
 

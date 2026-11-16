@@ -1890,9 +1890,13 @@ export function create(ctx) {
     fx.setShadow(under, px, pz, Math.max(0.05, L * 0.9), F.yaw, (g?.kind === 'pass' ? 0.9 : 0.62) * (pr.phase === 'still' ? 0.7 : 1), wig, 0.22 + 0.3 * thrash);
     const speed = dt > 0 ? Math.hypot(dx, dz) / dt : 0;
     F.wakeT -= dt;
-    if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
+    // (the integration's fix, M1 step 5c: a find hauled in on the Mossmere under the loop drags no foam wake, whose flecks the raft's
+    // lantern lit gold, and throws no rings: it stirs the bed, a slow trail of silt puffs behind it in the water's own dark (siltTrail))
+    const silt = !!S.find && mossLoop();
+    if (silt) { if (F.wakeT <= 0) { F.wakeT = 0.42; siltPuff(px, pz, L); } }
+    else if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
     F.rippleT -= dt;
-    if (!lp && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
+    if (!lp && !silt && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
     // the line, the rod, the reel and the Wick
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);
@@ -3563,7 +3567,24 @@ export function create(ctx) {
   // never a giant. Silhouettes (§6): a few real fish seen in clear shallow water, pre-rolled through the built pre-roll path (S.prerolls,
   // S.prerollSp, S.prerollZ), drawn at their true length. Obeyed tells get the water's answer (§5.3); nothing glows, nothing is gold.
   const mossLoop = () => signsOn() && LOOP() && lakeId() === 'mossmere';
-  const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null });
+  const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null, silt: [] });
+  // the haul of a find on the Mossmere (M1 step 5c; the integration's fix): the snag drags along the bed and the water behind it
+  // clouds with mud, puff after puff (the mud cloud's instance in its silt form, kind 9.1: darker than the water, never gold, never a
+  // glint), each blooming to at most SILT_R m and settling over SILT_LIFE s, a faint weed-line trailing it along the haul; no puff
+  // reaches within SILT_KEEP m of the raft (its bloom held short of it: never a disc round it), at most SILT_CAP alive
+  const SILT_LIFE = 6, SILT_KEEP = 2.4, SILT_CAP = 14, SILT_R = 2;
+  function siltPuff(x, z, L) {
+    const raft = raftPos();
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
+    const dx = raft.x - x, dz = raft.z - z, dist = Math.hypot(dx, dz);
+    // (the shader's bloom reaches 1.1 × its radius at most; the weed-line trails away from the raft)
+    const R = Math.min(SILT_R, (dist - SILT_KEEP - 0.1) / 1.1);
+    if (!(R >= 0.4)) return false;
+    const W2 = wc2(), list = W2.silt || (W2.silt = []);
+    list.push({ x, z, t0: S.clock, L: Math.max(0.3, Math.min(1.2, L)), seed: Math.random(), R, h: Math.atan2(dx, dz) });
+    if (list.length > SILT_CAP) list.shift();
+    return true;
+  }
   function wcProbe() {
     const W2 = wc2();
     if (W2.probeW !== ctx.world || !W2.probe) { W2.probeW = ctx.world; W2.probe = WCX.probeOf(ctx.world); }
@@ -3719,69 +3740,176 @@ export function create(ctx) {
   function lampGlow(x, z) { let k = 0; for (const l of buoyLamps()) k = Math.max(k, SI.lampAt(Math.hypot(l.x - x, l.z - z))); return k; }
   /** May a silhouette swim to (x, z): the same area, shallow enough (any depth over the lamps), 1 m off islands and pillars. */
   function sightOk(f, x, z) {
-    if (Number.isFinite(f.okX) && Math.hypot(x - f.okX, z - f.okZ) < 0.3) return true;   // (re-tested every 0.3 m it swims)
-    const ok = sightOk1(f, x, z);
+    if (Number.isFinite(f.okX) && Math.hypot(x - f.okX, z - f.okZ) < (SENV.lens ? 0.12 : 0.3)) return true;   // (re-tested every 0.3 m it swims; 0.12 m in view)
+    const ok = sightOk1(f, x, z) && sightInView(f, x, z);
     if (ok) { f.okX = x; f.okZ = z; }
     return ok;
   }
+  /** A shape put where it reads keeps to the open part of the frame (it turns back at the frame's edge as at its water's edge); one
+   *  out of view (the raft has moved on) swims free. */
+  function sightInView(f, x, z) {
+    const lens = SENV.lens;
+    if (!lens) return true;
+    // (in view, or just past the frame's edge: it keeps to the frame, or turns back into it; one well out of view swims free)
+    const R = SI.READ, loose = { ...R, frame: pad(R.frame, 0.06), framePortrait: { ...pad(R.framePortrait, 0.06), low: R.framePortrait.low ? pad(R.framePortrait.low, 0.06) : null } };
+    if (!SI.inFrame(lens, f.x, f.z, loose)) return true;
+    if (!SI.inFrame(lens, x, z)) {
+      if (SI.inFrame(lens, f.x, f.z)) return false;
+      const a = SI.toScreen(lens, f.x, 0, f.z), b = SI.toScreen(lens, x, 0, z);   // (outside a little: only back toward the middle)
+      if (!a || !b || Math.hypot(b.x / lens.W - 0.5, b.y / lens.H - 0.5) >= Math.hypot(a.x / lens.W - 0.5, a.y / lens.H - 0.5)) return false;
+    }
+    // (nor behind a rock, the bank or the raft: it turns back there too)
+    if (!SENV.blockers) { SENV.blockers = sightBlockers(SENV.raft || raftPos()); SENV.land = sightLand(); }
+    const eye = { x: lens.m[12], y: lens.m[13], z: lens.m[14] };
+    // (its head, tail and shadow too: no part of it behind a post)
+    return SI.shapeBlocked(f.length, f.x, f.z, f.heading, eye, SENV.blockers, SENV.land, lens) || !SI.shapeBlocked(f.length, x, z, f.heading, eye, SENV.blockers, SENV.land, lens);
+  }
+  const pad = (F, k) => ({ x: [F.x[0] - k, F.x[1] + k], y: [F.y[0] - k, F.y[1] + k] });
   function sightOk1(f, x, z) {
     const zd = zoneData()?.arena || {};
+    // (never against a post, a pillar or a hull: its drawn half-length and half a metre clear of one, so no part of it reads as a stick)
+    const keep = SI.drawnHalf(f.length, SENV.lens, x, z) + 0.5;
     for (const o of zd.islands || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + 1) return false;
-    for (const o of zd.pillars || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + 1) return false;
+    for (const o of zd.pillars || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + Math.max(1, keep)) return false;
+    for (const o of sightPosts()) if (Math.hypot(x - o.x, z - o.z) < o.r + keep) return false;
     if (f.area === 'buoy_lights') return placeAt(x, z)?.id === 'buoy_lights';
     const d = depthAt(x, z);
     if (!(d < SI.SIGHT.depth) || d < 0.05) return false;
+    if (f.area === 'reeds' && d < num(SI.SIGHT.reedOuter, 0.18)) return false;   // (§6.1: not into the reeds' own stems, where no shape shows)
     if (PLACE_IDS.has(f.area)) return placeAt(x, z)?.id === f.area;
     return wcAreaAt(x, z) === f.area;
   }
   const PLACE_IDS = new Set(['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']);
+  /** The world's standing things a shape keeps clear of (dock posts, pillars, moored hulls): the obstacles that are not islands. */
+  function sightPosts() {
+    const all = call(() => ctx.world?.getObstacles?.()) || [];
+    if (SENV.postsOf !== all) { SENV.postsOf = all; SENV.posts = all.filter((o) => o && Number.isFinite(o.x) && o.kind !== 'island').map((o) => ({ x: o.x, z: o.z, r: num(o.r, 0.3) })); }
+    return SENV.posts;
+  }
   function sightVis(f, light, raft, lanternR) {
     return SI.visibleAt({ area: f.area, depth: f.depth, light, raftDist: Math.hypot(f.x - raft.x, f.z - raft.z), lanternR, lamp: f.area === 'buoy_lights' ? lampGlow(f.x, f.z) : 0 });
   }
-  /** A new silhouette near the raft (§6.3): a point by the visible water's rules, a fish from the who-is-there pool there, its z as a
-   *  bite there, its true length; kept only if the point lies in its length's band (or the lantern's light at night). */
+  /** What stands between the lens and the water near the raft (SI.sightBlocked): the rock islands (their flared feet), pillars, dock
+   *  posts, a moored hull, the raft and its Wick; and a test for the land (the shore's boulders). */
+  function sightBlockers(raft) {
+    // (the raft: its deck low, ±0.97 × ±1.28 m, and the Wick and the lantern's post standing over its middle)
+    const out = [{ x: raft.x, z: raft.z, r: 1.6, h: 0.5 }, { x: raft.x, z: raft.z, r: 1.1, h: 2.4 }];
+    for (const o of call(() => ctx.world?.getObstacles?.()) || []) {
+      if (!o || !Number.isFinite(o.x)) continue;
+      if (o.kind === 'island') out.push({ x: o.x, z: o.z, r: num(o.r, 2) * 1.2, h: 3.6 });
+      else if (o.kind === 'post') out.push({ x: o.x, z: o.z, r: num(o.r, 0.2) + 0.3, h: 3.2 });   // (a dock post: never a shape just behind one)
+      else out.push({ x: o.x, z: o.z, r: num(o.r, 0.5) + 0.15, h: o.kind === 'hull' || o.kind === 'murk' ? 4 : 8 });
+    }
+    return out;
+  }
+  function sightLand() {
+    const W = ctx.world;
+    if (typeof W?.getShoreRadius !== 'function') return null;
+    return (x, z) => { const r = num(call(() => W.getShoreRadius(Math.atan2(z, x))), Infinity); return Math.hypot(x, z) > r - 0.3; };
+  }
+  /** The live lens: render's camera and the screen in CSS px (null in node tests or a headless page: §6.3's table then). */
+  function sightLens() {
+    const cam = call(() => ctx.render?.camera);
+    if (!cam) return null;
+    return SI.lensOf(cam, num(globalThis.innerWidth, 0), num(globalThis.innerHeight, 0));
+  }
+  /**
+   * A new silhouette near the raft (§6.3, revised 16 Nov 2026): a point by the visible water's rules, a fish from the who-is-there pool
+   * there, its z as a bite there, its true length; then placed, in that same water, where it reads through the live camera (its drawn
+   * length ≥ about 24 px on a phone, 30 on a desktop, broadside as it is first seen; SI.readableSpot), or where it draws biggest if the
+   * camera cannot draw it that big; a fish that would draw under the floor is not seen (the pick rolls again). Without a camera: its
+   * length's distance band, leaning to the camera's side of the raft. Never under its own 3–5 m off the raft.
+   */
   function spawnSight(o = {}) {
     const W2 = wc2();
     const phase = phaseNow(), light = SI.lightOf(phase), raft = raftPos(), lanternR = sightLanternR();
     const SZ = BAL('size');
     if (!SZ.z) return null;
-    for (let tries = 0; tries < (o.at ? 1 : 6); tries++) {
-      let x, z, area, w;
-      const lamps = light === 'night' ? buoyLamps() : [];
-      if (o.at) { x = o.at.x; z = o.at.z; }
-      else if (lamps.length && srnd() < 0.5) { const l = lamps[Math.floor(srnd() * lamps.length)]; x = l.x + (srnd() - 0.5) * 0.6; z = l.z + (srnd() - 0.5) * 1.2; }
-      else {
-        // (most on the camera's side of the raft, to either hand: a shape there is seen nearer and broadside, never under the Wick)
-        const cam = call(() => ctx.render?.camera), ca = cam?.position && Number.isFinite(cam.position.x) ? Math.atan2(cam.position.z - raft.z, cam.position.x - raft.x) : null;
-        const a = ca != null && srnd() < 0.7 ? ca + (srnd() < 0.5 ? -1 : 1) * (0.5 + srnd() * 1.3) : srnd() * TAU;
-        const dmax = light === 'night' ? SI.lanternReach(lanternR, SI.SIGHT.lantern.min) : 28, d = 3 + srnd() * (dmax - 3);
-        x = raft.x + Math.cos(a) * d; z = raft.z + Math.sin(a) * d;
-      }
-      w = waterInfo(x, z);
-      if (w.mist) continue;
-      area = wcAreaAt(x, z, w);
-      if (!area) continue;
-      if (!o.force && SI.quietAt(W2.quiet, x, z, S.clock)) continue;
+    const lens = o.at ? null : sightLens();
+    const lamps = light === 'night' ? buoyLamps() : [];
+    // (in sight of the lens: never behind a foreground rock, the bank, or the raft and its Wick)
+    const eye = lens ? { x: lens.m[12], y: lens.m[13], z: lens.m[14] } : null, blockers = lens ? sightBlockers(raft) : null, land = lens ? sightLand() : null;
+    const seen = (x, z) => !eye || !SI.sightBlocked(x, z, eye, blockers, land);
+    // (the camera's bearing from the raft, for the fallback's lean: render's yaw 0 stands the lens south of the raft, +z)
+    const cam = call(() => ctx.render?.camera);
+    const ca = cam?.position && Number.isFinite(cam.position.x) && Math.hypot(cam.position.x - raft.x, cam.position.z - raft.z) > 0.5
+      ? Math.atan2(cam.position.z - raft.z, cam.position.x - raft.x) : Math.PI / 2;
+    /** Can a shape be seen at (x, z) (§6.1)? {x, z, w, area, depth, rd} or null. */
+    const look = (x, z) => {
+      const w = waterInfo(x, z);
+      if (w.mist) return null;
+      const area = wcAreaAt(x, z, w);
+      if (!area) return null;
+      if (!o.force && SI.quietAt(W2.quiet, x, z, S.clock)) return null;
       const depth = depthAt(x, z), rd = Math.hypot(x - raft.x, z - raft.z);
-      const p = { area, depth, light, raftDist: rd, lanternR, lamp: area === 'buoy_lights' ? lampGlow(x, z) : 0 };
-      if (!o.force && !SI.canSpawnAt(p)) continue;
-      if (rd > signRange() && !o.at) continue;
-      const who = whoPool(area, phase, w.place?.id ?? null);
-      const sp = o.species || SI.pickSight((who?.entries || []).map((e) => ({ sp: e.sp, w: e.w })), { light, area }, srnd);
+      if (!o.force && !SI.canSpawnAt({ area, depth, light, raftDist: rd, lanternR, lamp: area === 'buoy_lights' ? lampGlow(x, z) : 0 })) return null;
+      if (rd > signRange() && !o.at) return null;
+      return { x, z, w, area, depth, rd };
+    };
+    for (let tries = 0; tries < (o.at ? 1 : 6); tries++) {
+      let c = null;
+      if (o.at) c = look(o.at.x, o.at.z);
+      else if (lamps.length && srnd() < 0.5) { const l = lamps[Math.floor(srnd() * lamps.length)]; c = look(l.x + (srnd() - 0.5) * 0.6, l.z + (srnd() - 0.5) * 1.2); }
+      else if (lens) {   // a point of visible water in the open part of the frame (its fish is rolled there, then placed where it reads)
+        const rects = SI.frameRects(lens);
+        for (let k = 0; k < 8 && !c; k++) {
+          const [fx, fy] = SI.framePoint(rects, srnd), g = SI.fromScreen(lens, fx * lens.W, fy * lens.H);
+          if (g && Math.hypot(g.x - raft.x, g.z - raft.z) >= 3.4 && seen(g.x, g.z)) c = look(g.x, g.z);
+        }
+      } else {
+        const dmax = light === 'night' ? SI.lanternReach(lanternR, SI.SIGHT.lantern.min) : 20, d = 3.4 + srnd() * (dmax - 3.4);
+        const an = ca + (srnd() * 2 - 1) * SI.spawnSide(1.2);
+        c = look(raft.x + Math.cos(an) * d, raft.z + Math.sin(an) * d);
+      }
+      if (!c) continue;
+      const placeId = c.w.place?.id ?? null;
+      const who = whoPool(c.area, phase, placeId);
+      const sp = o.species || SI.pickSight((who?.entries || []).map((e) => ({ sp: e.sp, w: e.w })), { light, area: c.area }, srnd);
       if (!sp) continue;
-      const info = { ...castInfo(x, z, depth, null, false), lure: null };
+      const info = { ...castInfo(c.x, c.z, c.depth, null, false), lure: null };
       const pre = preOf(sp, rollPreZ(sp, info, num(SZ.z.min, -2), o.z ?? null));
       const L = pre.lengthCm / 100;
-      const f = SI.createSight({ sp, zScore: pre.z, length: L, x, z, heading: o.heading ?? (area === 'buoy_lights' ? (srnd() < 0.5 ? 0 : Math.PI) : srnd() * TAU),
-        area, light, depth, t: S.clock, rng: srnd, outline: o.outline });
-      if (!o.at && area !== 'buoy_lights') { const band = SI.spawnRange(L, { light, lanternR, keepOff: f.keepOff }); if (rd < band[0] || rd > band[1]) continue; }
-      else if (!o.at && rd < f.keepOff + 0.4) continue;
+      let heading = o.heading ?? (lens ? SI.broadside(lens, c.x, c.z) + (srnd() * 2 - 1) * SI.READ.jitter + (srnd() < 0.5 ? 0 : Math.PI) : c.area === 'buoy_lights' ? (srnd() < 0.5 ? 0 : Math.PI) : srnd() * TAU);
+      const f = SI.createSight({ sp, zScore: pre.z, length: L, x: c.x, z: c.z, heading, area: c.area, light, depth: c.depth, t: S.clock, rng: srnd, outline: o.outline });
+      // (at the Buoy Lights by night: in a lamp's light, never under its flare: its drawn half-length and 0.6 m off the lamp)
+      const lampClear = (x, z, h) => c.area !== 'buoy_lights' || lamps.every((l) => Math.hypot(x - l.x, z - l.z) >= 0.6 + SI.drawnHalf(L, lens, x, z, h));
+      // the same water (its area and place), seen (§6.1), past its own distance off the raft; with the lens, the whole drawn shape in
+      // sight (its head, tail and shadow too: never half behind a post)
+      const shadow = (x, z) => SI.shadowOffset({ x, z, depth: c.depth }, { light, raft });
+      const same = (x, z, cand = null) => {
+        const q = look(x, z), h = cand ? cand.heading : heading;
+        return !!q && q.area === c.area && (q.w.place?.id ?? null) === placeId && q.rd >= f.keepOff + 0.4 && sightOk1(f, x, z) && lampClear(x, z, h)
+          && (!eye || !SI.shapeBlocked(L, x, z, h, eye, blockers, land, lens, shadow(x, z)));
+      };
+      if (!o.at && lens) {
+        const need = SI.readPx(lens.W, lens.H), px = c.rd >= f.keepOff + 0.4 ? SI.projectedLength(L, c, lens, heading) : 0;
+        if (!(px >= need) || !same(c.x, c.z) || !SI.inFrame(lens, c.x, c.z)) {
+          // (at night the lantern's stronger light first, nearer the raft, where a shape shows darkest; then anywhere it reaches 0.25;
+          // over the drowned lamps, where a lamp lights it)
+          const lit = (x, z, cand) => SI.lanternAt(Math.hypot(x - raft.x, z - raft.z), lanternR) >= 0.45 && same(x, z, cand);
+          const at = (light === 'night' && c.area !== 'buoy_lights' ? SI.readableSpot(L, { lens, raft, keepOff: f.keepOff, accept: lit, rng: srnd, need, heading: o.heading }) : null)
+            || SI.readableSpot(L, { lens, raft, keepOff: f.keepOff, accept: same, rng: srnd, need, heading: o.heading,
+              near: c.area === 'buoy_lights' ? lamps.map((l) => ({ x: l.x, z: l.z, r0: 0.6 + L * 0.5, r1: 0.6 + L * 0.5 + 0.7 })) : null });
+          if (!at) continue;   // (not seen on this screen: too small to make out anywhere in view; roll again)
+          const q = look(at.x, at.z);
+          c = { ...q }; heading = at.heading;
+        }
+      } else if (!o.at && c.area !== 'buoy_lights') {   // no camera: its length's band, on the camera's side
+        const band = SI.spawnRange(L, { light, lanternR, keepOff: f.keepOff });
+        const side = light === 'night' ? null : { a: ca, w: SI.spawnSide(L) };
+        const off = Math.abs(Math.atan2(Math.sin(Math.atan2(c.z - raft.z, c.x - raft.x) - ca), Math.cos(Math.atan2(c.z - raft.z, c.x - raft.x) - ca)));
+        if (c.rd < band[0] || c.rd > band[1] || (side && off > side.w)) {
+          const at = SI.spawnPoint(raft, band, same, srnd, 8, side);
+          if (!at) continue;
+          c = look(at.x, at.z);
+        }
+      } else if (!o.at && c.rd < f.keepOff + 0.4) continue;
+      f.x = c.x; f.z = c.z; f.home = { x: c.x, z: c.z }; f.heading = heading; f.depth = c.depth;
       if (o.mode) { f.mode = o.mode; f.modeT = 30; f.speed = o.mode === 'cruise' ? num(o.speed, 0.35) : 0; }
       if (o.life) f.life = o.life;
-      f.depth = depth;
       S.prerolls.set(f.id, pre);
       W2.sights.push(f);
-      emit('sign:spawn', { id: f.id, kind: 'sight', form: f.outline, x, z });
+      emit('sign:spawn', { id: f.id, kind: 'sight', form: f.outline, x: f.x, z: f.z });
       return f;
     }
     return null;
@@ -3863,13 +3991,15 @@ export function create(ctx) {
     view.proxy = { outline: h.outline, length: Math.round(h.length * 1000) / 1000 };
     return h.length;
   }
-  const SENV = { raft: null, rng: srnd, quiet: false, depth: depthAt, f: null, ok: (x, z) => sightOk(SENV.f, x, z) };
+  const SENV = { raft: null, rng: srnd, quiet: false, depth: depthAt, f: null, lens: null, blockers: null, land: null, ok: (x, z) => sightOk(SENV.f, x, z) };
   function updateMoss(dt) {
     const W2 = wc2();
     const on = mossLoop();
     fx.setWaterWhite?.(on);
+    view.waterWhite = on;   // (actors' float ripple reads it: water-white on the Mossmere under the loop)
     if (!on) { if (W2.sights.length || W2.answers.length) clearMoss(); return; }
     const raft = raftPos(), phase = phaseNow(), light = SI.lightOf(phase), quiet = loopQuietNow(), lanternR = sightLanternR();
+    SENV.lens = W2.sights.length ? sightLens() : null; SENV.blockers = null;
     for (let i = W2.answers.length - 1; i >= 0; i--) {
       const a = W2.answers[i];
       a.t += dt;
@@ -3901,6 +4031,7 @@ export function create(ctx) {
     const W2 = wc2();
     for (const f of W2.sights) { S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); }
     W2.sights.length = 0; W2.answers.length = 0; W2.quiet.length = 0; W2.cast = null; W2.hooked = null; W2.next = 3; W2.lamps = null;   // (no draw on the seeded sign RNG off the Mossmere)
+    if (W2.silt) W2.silt.length = 0;
   }
   const SIGHT_PUSH = { x: 0, z: 0, heading: 0, kind: 11, length: 0.3, strength: 0, seed: 0, age: 0, since: 0, radius: 1, toNext: 99, tint: 0xb7b0e8, aspect: 0.2, c: [0, 0, 0, 0], d: [0, 0, 0, 1] };
   const ANSWER_KIND = { rise: 1, splash: 1.1, bow: 12, spray: 3, ruffle: 3.1, fizz: 5, pinprick: 7.1, cloud: 9, stems: 10 };
@@ -3919,6 +4050,16 @@ export function create(ctx) {
       P.c[0] = f.age; P.c[1] = so.x * c - so.z * s; P.c[2] = f.speed; P.c[3] = so.x * s + so.z * c;
       P.d[0] = SI.OUTLINE_ID[f.outline] || 2; P.d[1] = f.depth; P.d[2] = f.sp?.id === 'candlefin_koi' && light === 'dusk' ? 1 : 0; P.d[3] = f.n;
       fx.pushSign(P);
+    }
+    if (W2.silt?.length) {   // the haul of a find: its silt trail (siltPuff), each puff blooming slowly and settling
+      for (let i = W2.silt.length - 1; i >= 0; i--) if (S.clock - W2.silt[i].t0 >= SILT_LIFE) W2.silt.splice(i, 1);
+      for (const m of W2.silt) {
+        const t = S.clock - m.t0;
+        PUSH.x = m.x; PUSH.z = m.z; PUSH.heading = m.h || 0; PUSH.kind = ANSWER_KIND.cloud + 0.1; PUSH.length = m.L;   // (the cloud's silt form, its weed-line along the haul)
+        PUSH.strength = clamp(t / 0.8, 0, 1) * (1 - smoothstep(SILT_LIFE * 0.5, SILT_LIFE, t)) * 1.15;
+        PUSH.seed = m.seed; PUSH.age = t; PUSH.since = t * 0.7; PUSH.radius = m.R || 1.2; PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
+        fx.pushSign(PUSH);
+      }
     }
     for (const a of W2.answers) {
       if (!a.started) continue;
@@ -4311,6 +4452,31 @@ export function create(ctx) {
     return state === 'reeling';
   }
 
+  // ---------------------------------------------------------------- TK: the tackle tin (the user, 16 Nov 2026; CONTRACT §14.19)
+  /** The line as a hook change reads it: `fishOn` from the class tell and the bite through the hook, the play, the show and its card;
+   *  `out` a line in the water with no fish on it (the float in flight, or waiting before any tell); `castBait` the bait out on it. */
+  function hookLine() {
+    const tell = state === 'waiting' && !!S.tell;
+    const fishOn = state === 'bite' || state === 'reeling' || state === 'landing' || tell || !!S.show || view.show?.phase === 'card';
+    const out = !fishOn && (state === 'casting' || state === 'waiting') && !S.mist;
+    return { state, out, fishOn, castBait: out && typeof S.castBait === 'string' ? S.castBait : null };
+  }
+  /** A line out with no fish on it comes in quietly (a hook change): the cast's bait back in the bag (progression.refundBait, once a
+   *  cast; a legend's ball is spent only at her hook), the float reels in as after a pass, and nothing else: no fishing:miss, no
+   *  fishing:escaped, no favour or streak touched, no bite counted (fishing:reelIn {quiet, refunded, baitId} for the sound). */
+  function reelInQuiet() {
+    if (!hookLine().out) return { ok: false, refunded: false, baitId: null };
+    const baitId = typeof S.castBait === 'string' ? S.castBait : null;
+    let refunded = false;
+    if (baitId && !legendBaitId(baitId)) { try { refunded = prog()?.refundBait?.(baitId) === true; } catch (e) { report(e); } }
+    if (state === 'casting') V.bob.set(V.bob.x, 0, V.bob.z);   // (the float in flight comes in from below where it was)
+    S.species = null; S.events = []; S.evIdx = 0; S.legendCast = false; S.signHit = null; S.castBait = null;
+    S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;   // (a sign's fish never took it: its sign stays)
+    toLost(num(BAL('cast').reelInTime, 0.6));
+    emit('fishing:reelIn', { quiet: true, refunded, baitId });
+    return { ok: true, refunded, baitId };
+  }
+
   // ---------------------------------------------------------------- api
   const api = {
     state: 'idle',
@@ -4387,6 +4553,9 @@ export function create(ctx) {
     startCeremony(fish, opts) { return api.startShow(fish, opts); },
     skipCeremony() { return api.hurryShow(); },
     get inCeremony() { return !!S.show && S.show.phase !== 'reveal'; },
+    /** TK (CONTRACT §14.19): the line as a hook change reads it {state, out, fishOn, castBait}; the quiet reel-in of a line with no fish. */
+    hookLine() { try { return hookLine(); } catch (e) { report(e); return { state, out: false, fishOn: true, castBait: null }; } },
+    reelInQuiet() { try { return reelInQuiet(); } catch (e) { report(e); return { ok: false, refunded: false, baitId: null }; } },
 
     init() {
       if (signsOn()) api.spots = api.signs = S.signs;
@@ -4452,6 +4621,8 @@ export function create(ctx) {
         // hidden fish); castAt(x, z) casts the float there; mossAnswers() the water's answers playing; mossSign(kind, form, {x, z}) a tell
         sight: (id = null, o = {}) => { try { return debugSight(id, o); } catch (e) { report(e); return null; } },
         fishSights: () => (S.wc2 ? S.wc2.sights.map(sightView) : []),
+        // (16 Nov 2026) sightClear(): every silhouette gone and no water quiet, for a look's clean frame
+        sightClear: () => { if (!S.wc2) return 0; const W2 = S.wc2, n = W2.sights.length; for (const f of W2.sights) { S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); } W2.sights.length = 0; W2.quiet.length = 0; W2.cast = null; return n; },
         castAt: (x, z, power) => { try { return debugCastAt(x, z, power); } catch (e) { report(e); return false; } },
         mossAnswers: () => (S.wc2 ? S.wc2.answers.map((a) => ({ type: a.type, t: Math.round(a.t * 100) / 100, started: !!a.started, x: a.x, z: a.z })) : []),
         mossHooked: () => (S.wc2?.hooked ? { ...S.wc2.hooked } : null),
@@ -4481,6 +4652,7 @@ export function create(ctx) {
           // v3
           z: S.z, sizeClass: S.sizeClass, ancient: S.ancient, length: S.lengthCm ? Math.round(S.lengthCm * 10) / 10 : null, mu: S.mu, terms: S.favourTerms, tell: S.tell,
           place: S.cast?.place?.id || null, giant: !!S.cast?.giant, pressureKey: S.cast?.pressureKey || null, letPass: S.letPass ? { ...S.letPass } : null,
+          castInfoBait: S.cast ? (S.cast.baitId ?? null) : undefined, castBait: S.castBait ?? null,   // (TK: the bait the cast's castInfo carries)
           extShift: { x: S.extShift.x, z: S.extShift.z }, hookSafe: hookSafe(), nightMode: nightMode(), v3: v3on(), clean: !!S.clean,
           // v3 visual half
           fishLen: S.fishLen, meshScale: F.fv?.object3d?.scale?.x ?? null, fvLength: F.fv?.length ?? null, revealed: !!S.revealed,

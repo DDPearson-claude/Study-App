@@ -298,6 +298,18 @@ export function fakeLoop(over = {}) {
     sheet: (view = {}, live = null, cast = null) => (D ? sheetModel(metaNow(), D, { run: s.run || null, view, live, cast, shelf: items() }) : null),
     markSheetSeen(keys = []) { const own = new Set(D ? sheetKeys(metaLoop(), D) : []); for (const k of keys || []) if (own.has(k) && !s.sheetSeen.includes(k)) s.sheetSeen.push(k); s.saves++; return true; },
     cutBait(fish) { if (!fish || !['small', 'keeper'].includes(fish.sizeClass)) return { ok: false, gained: { strips: 0 } }; s.bag.cut_strip = (s.bag.cut_strip | 0) + 3; return { ok: true, gained: { strips: 3 } }; },
+    // TK (the tackle tin, CONTRACT §14.19): may the hook change (refused while s.fishOn on a trip), and the change (the fit's rules)
+    canChangeHook: () => !(s.onTrip && s.fishOn === true),
+    changeHook({ bait, lure } = {}) {
+      if (s.onTrip && s.fishOn === true) return { ok: false, reason: 'fish' };
+      if (bait != null && !(s.bag[bait] > 0)) return { ok: false, reason: 'bait' };
+      const before = JSON.stringify(s.fitted);
+      if (bait !== undefined) s.fitted = { ...s.fitted, bait: bait ?? null };
+      if (lure !== undefined) s.fitted = { ...s.fitted, lure: lure ?? null };
+      const changed = JSON.stringify(s.fitted) !== before;
+      if (changed) s.saves++;
+      return { ok: true, changed, reeled: false, bait: s.fitted.bait, lure: s.fitted.lure, count: s.fitted.bait ? s.bag[s.fitted.bait] | 0 : 0 };
+    },
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {

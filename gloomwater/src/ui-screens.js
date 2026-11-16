@@ -19,6 +19,55 @@ import { createSheetView } from './ui-sheet.js';   // the Wick's sheet (SHEET.md
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
 
+// The catch card's name never runs past its column or the card (the user's play-test of 2026-11-16: "Bridgechain" cut at the
+// card's edge on a near-square phone). The name wraps at its spaces as before; a single word wider than its box, or reaching past
+// the card's inner edge (a column the card's own width cannot hold), steps the type down 2 px at a time to a 20 px floor, and only
+// past that floor may a word break. It is measured again once the web fonts are in, and whenever the card's width changes while it
+// is open (a turned phone, a resized window).
+const NAME_FLOOR = 20;
+/** How far the name runs past its own box or past the card's inner (content) edge, in px (<= 0: it fits). */
+export function nameOverflow(el, pn) {
+  let o = el.scrollWidth - el.clientWidth;
+  const doc = globalThis.document;
+  if (pn && typeof pn.getBoundingClientRect === 'function' && typeof doc?.createRange === 'function') {
+    const rg = doc.createRange(); rg.selectNodeContents(el);
+    let right = -Infinity;
+    for (const b of rg.getClientRects()) if (b.width > 0) right = Math.max(right, b.right);
+    const pr = pn.getBoundingClientRect();
+    const scale = pn.offsetWidth > 0 ? pr.width / pn.offsetWidth : 1;   // (the card may still be rising or unfolding: a transform)
+    const pad = (parseFloat(getComputedStyle(pn).paddingRight) || 0) * scale;
+    if (Number.isFinite(right)) o = Math.max(o, (right - (pr.right - pad)) / (scale || 1));
+  }
+  return o;
+}
+export function fitCatchName(content, pn) {
+  const fit = () => {
+    const el = content?.querySelector?.('.gw-catch-name');
+    if (!el || !el.isConnected || typeof getComputedStyle !== 'function') return;
+    el.style.fontSize = ''; el.style.overflowWrap = '';
+    if (!(el.clientWidth > 0)) return;
+    let fs = parseFloat(getComputedStyle(el).fontSize) || 0;
+    for (let i = 0; i < 40 && fs > NAME_FLOOR && nameOverflow(el, pn) > 1; i++) { fs = Math.max(NAME_FLOOR, fs - 2); el.style.fontSize = `${fs}px`; }
+    if (nameOverflow(el, pn) > 1) el.style.overflowWrap = 'anywhere';
+  };
+  fit();
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(fit);
+  globalThis.document?.fonts?.ready?.then?.(fit, () => {});
+  if (!pn) return;
+  pn.__gwFitName = fit;   // (a card drawn again keeps its one observer, which fits the newest name)
+  if (!pn.__gwFitRO && typeof ResizeObserver === 'function') {
+    let lastW = -1, seen = false;
+    const ro = new ResizeObserver(() => {
+      if (!pn.isConnected) { if (seen) { ro.disconnect(); pn.__gwFitRO = null; } return; }   // (closed: let go of it)
+      seen = true;
+      const w = Math.round(pn.clientWidth);
+      if (w !== lastW) { lastW = w; pn.__gwFitName?.(); }   // (only a change of width: the name's new size changes the card's height)
+    });
+    pn.__gwFitRO = ro;
+    ro.observe(pn);
+  }
+}
+
 export function createScreens(K) {
   const { ctx, h, esc, fill, fmt, fmtKg, num, arr, safe, D, stat, run, meta, icon, ORN, sfx } = K;
   let uidN = 0;
@@ -934,6 +983,7 @@ export function createScreens(K) {
       const c = h('canvas', 'gw-fishart gw-fish-ink');
       try { drawFishInk(c, sp, { w: aw, h: ah, pad: 0.05, color: legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { K.report('fishart', e); }
       art.appendChild(c);
+      fitCatchName(content, pn);
       content.querySelector('[data-room]')?.addEventListener('click', () => { s.room = !s.room; sfx('ui_click'); entry.render(); });
       pn.classList.toggle('gw-cc-open', !!s.more);
       content.querySelector('[data-more]')?.addEventListener('click', (e) => {

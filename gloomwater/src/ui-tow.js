@@ -46,17 +46,13 @@ export function createTowView(K) {
   const S = { art: null, status: 'idle', entry: null, cv: null, line: null, onTap: null, water: null, opening: false, dipEl: null, mask: null, sheet: null, paints: 0, last: null };
 
   // ---- the bake and its paper, decoded once in idle time (the drawn Chart decodes its own; this is the tow's copy)
-  // a data: URI decodes through an <img> first: a page host's Content-Security-Policy may block fetch() of data: (connect-src) while
-  // images stay allowed (img-src) — the user's phone in the app showed the Landing's sheet blank (16 Nov); fetch is the last resort
+  // a data: URI decodes through an <img> only, never fetch(): a page host's Content-Security-Policy may block fetch() of data:
+  // (connect-src) while images stay allowed (img-src) — the user's phone in the app showed the Landing's sheet blank (16 Nov). An
+  // <img> that fails throws: the status goes to 'failed' and the list Chart covers it
   const decode = async (uri) => {
-    try {
-      const img = new Image(); img.decoding = 'async'; img.src = uri; await img.decode();
-      if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
-      return img;
-    } catch (e1) {
-      if (typeof createImageBitmap === 'function' && typeof fetch === 'function') return createImageBitmap(await (await fetch(uri)).blob());
-      throw e1;
-    }
+    const img = new Image(); img.decoding = 'async'; img.src = uri; await img.decode();
+    if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
+    return img;
   };
   async function prepare() {
     if (S.status !== 'idle') return S.status;
@@ -71,9 +67,12 @@ export function createTowView(K) {
     } catch (e) { S.status = 'failed'; report('decode', e); }
     return S.status;
   }
+  // the sheet decoded ahead in an idle moment only while the opening's tow is still to play (a returning player never sees it again:
+  // no decode, no memory on their boots); open() prepares it lazily in every case
+  const due = () => { try { const d = D(); return typeof d.towOpeningDue === 'function' && d.towOpeningDue(ctx.state?.meta?.loop) === true; } catch { return false; } };
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 3000 }) : (f) => setTimeout(f, 0);
-    setTimeout(() => idle(() => { prepare(); }), 900);
+    setTimeout(() => idle(() => { if (due()) prepare(); }), 900);
   } catch (e) { report('prepare', e); }
 
   // ---- its own few styles (the screen, the line over the sheet, the dip), kept here so the tow is one module

@@ -72,7 +72,7 @@ export default async function (api) {
     await g(() => { window.__lp.ev.length = 0; window.__gw.game.beginIntro({ character: 'wick' }); });
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Start: flow home');
     // the tutorial done, an evening played (a snag never comes on evening 1), Hold 4
-    await g(() => { const c = window.__gw; c.debug.loop.tutorial('done'); const L = c.state.meta.loop; L.evenings = Math.max(1, L.evenings); L.holdSlots = 4; c.ui.closeAll?.(); c.ui.loop.openJetty(); });
+    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); const L = c.state.meta.loop; L.evenings = Math.max(1, L.evenings); L.holdSlots = 4; c.ui.closeAll?.(); c.ui.loop.openJetty(); });
     await K.secs(1.6); await K.settle(400);
     await K.shoot('home-before');
     K.step('5c: Sail');

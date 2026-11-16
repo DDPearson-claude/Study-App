@@ -59,6 +59,9 @@ function injectStyle() {
 .gw-gw{font-size:16px;color:#f1d9a4;text-shadow:0 1px 3px rgba(4,2,10,.9)}
 .gw-gname{font-size:16px;color:#ece8f4;text-shadow:0 1px 3px rgba(4,2,10,.9)}
 .gw-gbare{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(226,220,252,.0)}
+.gw-gframe--empty{cursor:default}
+.gw-gframe--empty .gw-gpaper{background:linear-gradient(180deg,rgba(233,225,212,.13),rgba(217,208,191,.05));box-shadow:0 0 0 5px #2a1f1c,0 0 0 6px rgba(141,131,153,.4),inset 0 0 18px rgba(8,4,14,.55),0 10px 22px rgba(4,2,10,.7)}
+.gw-gframe--empty .gw-gruler{opacity:.7}
 @media (max-width:700px){.gw-prints{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gw-gallery{height:min(58vh,420px)}.gw-gwall{padding:0 22px}}
 `;
   document.head.appendChild(st);
@@ -129,6 +132,22 @@ export function createGalleryView({ K, D, loop, report = () => {} } = {}) {
       fr.appendChild(ruler);
       fr.insertAdjacentHTML('beforeend', `<span class="gw-gname">${f.gold ? '★ ' : ''}${esc(f.name)}</span>${f.weight ? `<span class="gw-gw">${esc(f.weight)}</span>` : ''}<span class="gw-gcandle" aria-hidden="true"></span>`);
       fr.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); K.screens?.openJournal?.({ from: 'wall', sel: f.id }); });
+      row.appendChild(fr);
+    }
+    // the quiet first state (wing I owned, no print yet): one empty frame on its ruler, its candle lit under it; no word, nothing to
+    // open (the first fish measured hangs here)
+    if (!frames.length) {
+      const w = Math.round(40 * k), hh = Math.round(w * 0.42);
+      const fr = h('span', 'gw-gframe gw-gframe--empty');
+      fr.dataset.empty = '1';
+      fr.setAttribute('aria-hidden', 'true');
+      const paper = h('span', 'gw-gpaper');
+      paper.style.width = `${w}px`; paper.style.height = `${hh}px`; paper.style.boxSizing = 'content-box';
+      fr.appendChild(paper);
+      const ruler = h('span', 'gw-gruler');
+      ruler.style.width = `${w + 28}px`; ruler.style.setProperty('--cm10', `${(10 * k).toFixed(1)}px`);
+      fr.appendChild(ruler);
+      fr.insertAdjacentHTML('beforeend', '<span class="gw-gcandle" aria-hidden="true"></span>');
       row.appendChild(fr);
     }
     wall.appendChild(row);
