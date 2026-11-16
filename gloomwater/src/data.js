@@ -4852,7 +4852,7 @@ export const LOOP = {
   // (pos, look, fov; `portrait` for a screen taller than wide)
   mooring: {
     mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
-      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [28.15, 10, 32.03], look: [17.61, 1.3, 42.71], fov: 60 } } },
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62 } } },
   },
 };
 export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)

@@ -164,6 +164,11 @@ export function frameCheck(M, cam, { vw, vh, min = 44, word = 26, margin = 16, w
     const q = proj(p);
     if (!(q.depth > 0) || q.x < margin || q.x > vw - margin || q.y < margin || q.y > vh - margin) { faults.push(`the barge's point ${p.map((v) => v.toFixed(1)).join(',')} is out of frame (${Number.isFinite(q.x) ? `${q.x.toFixed(0)}, ${q.y.toFixed(0)}` : 'behind'})`); break; }
   }
+  // the raft's deck whole in the frame too (the player at home), a few px in from the edge
+  if (M.raft) for (const [dx, dz] of [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]]) {
+    const q = proj([M.raft.x + dx, 0.2, M.raft.z + dz]);
+    if (!(q.depth > 0) || q.x < 4 || q.x > vw - 4 || q.y < 4 || q.y > vh - 4) { faults.push('the raft\'s deck leaves the frame'); break; }
+  }
   const C = targetCorners(M) || {}, rects = {};
   for (const id of which) {
     const r = C[id] ? rectOf(C[id], proj) : null;
