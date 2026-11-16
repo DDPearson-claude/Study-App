@@ -161,7 +161,7 @@ export function createSight(o = {}) {
   const L = Math.max(0.05, num(o.length, 0.3));
   const seed = rng();
   return {
-    id: o.id ?? `sight${++SEQ}`, kind: 'sight', sp: o.sp || null, z: num(o.zScore, 0), length: L, outline,
+    id: o.id ?? `sight${++SEQ}`, kind: 'sight', sp: o.sp || null, zs: num(o.zScore, 0), length: L, outline,   // (zs: its size score; z is where it is)
     x: o.x, z: o.z, home: { x: o.x, z: o.z }, heading: num(o.heading, rng() * TAU), speed: 0, turn: 0,
     area: o.area || null, light: o.light || 'day', depth: num(o.depth, 0.3), seed,
     keepOff: keepOffFor(L, seed), n: outline === 'shoal' ? 3 + Math.floor(rng() * 3) : 1,

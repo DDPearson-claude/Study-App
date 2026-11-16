@@ -3633,15 +3633,15 @@ export function create(ctx) {
   function mossHit(x, z) {
     let best = bestRule(S.signs, x, z, S.clock, BAL('signs'));
     const score = (r) => (r.spook ? 0 : 1) + (r.preroll ? 10 + num(r.preroll.chance, 0) : 0) + num(r.favour, 0) + (r.waitMult ? 0.5 : 0);
-    let bs = best ? score(best.rule) : -1;
+    let bs = best ? score(best.rule) : -1, spooked = null;
     for (const f of wc2().sights) {
       const r = SI.sightRule(f, x, z);
       if (!r) continue;
-      if (r.spook) { SI.boltFrom(f, x, z); boltSight(f, 'cast'); }
+      if (r.spook) { SI.boltFrom(f, x, z); boltSight(f, 'cast'); spooked = spooked || { sign: f, rule: r }; continue; }
       const sc = score(r);
       if (sc > bs) { bs = sc; best = { sign: f, rule: r }; }
     }
-    return best;
+    return spooked || best;   // a fish the float landed on bolts and the spot goes quiet: that cast rolls the pool as anywhere, its wait × 1.5
   }
   /** After the landing's roll (rollBite): a led silhouette turns to the bait and takes or noses it; an obeyed tell is answered. */
   function mossLanded(x, z) {
@@ -3762,7 +3762,7 @@ export function create(ctx) {
     const f = spawnSight({ at, species: sp || undefined, z: oo.size ?? null, heading: oo.heading, mode: oo.mode, speed: oo.speed, life: oo.life, force: oo.force !== false, outline: oo.outline });
     return f ? sightView(f) : null;
   }
-  const sightView = (f) => ({ id: f.id, speciesId: f.sp?.id ?? null, outline: f.outline, length: Math.round(f.length * 1000) / 1000, x: f.x, z: f.z, heading: f.heading,
+  const sightView = (f) => ({ id: f.id, speciesId: f.sp?.id ?? null, zScore: f.zs, outline: f.outline, length: Math.round(f.length * 1000) / 1000, x: f.x, z: f.z, heading: f.heading,
     speed: f.speed, mode: f.mode, area: f.area, depth: f.depth, vis: f.vis, alpha: f.alpha, keepOff: f.keepOff, n: f.n });
   /** debug (WC-2): cast the float at (x, z) from where the raft is (a real flight; the landing runs as any cast's). */
   function debugCastAt(x, z, power = 0.6) {
