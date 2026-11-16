@@ -1523,7 +1523,10 @@ export function createScreens(K) {
           c.classList.add('gw-jr-listed');
           c.insertAdjacentHTML('beforeend', `<i class="gw-jr-notch${landed ? ' gw-on' : ''}" aria-hidden="true"></i>`);
           if (!landed) {
-            const hrs = sp.time === 'calm' ? [['sun', '']] : sp.time === 'gloom' ? [['moon', '']] : sp.time === 'dusk' ? [['sun', ' gw-half'], ['moon', ' gw-half']] : [['sun', ''], ['moon', '']];
+            // the built words (calm, gloom) and, from M1 step 2, the roster's (LOOP.hours keys: day, day,dusk, night, dusk, dusk,night, any)
+            const t = sp.time;
+            const hrs = t === 'calm' || t === 'day' || t === 'day,dusk' ? [['sun', '']] : t === 'gloom' || t === 'night' ? [['moon', '']] : t === 'dusk' ? [['sun', ' gw-half'], ['moon', ' gw-half']]
+              : t === 'dusk,night' ? [['sun', ' gw-half'], ['moon', '']] : [['sun', ''], ['moon', '']];
             c.insertAdjacentHTML('beforeend', `<span class="gw-jr-hours" aria-hidden="true">${hrs.map(([g, k]) => `<i class="gw-jr-hr${k}">${icon(g)}</i>`).join('')}</span>`);
           }
         }
