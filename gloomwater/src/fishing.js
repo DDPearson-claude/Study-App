@@ -1641,7 +1641,7 @@ export function create(ctx) {
     if (isLegend()) {
       if (b.kind === 'toll') {   // the Matriarch's toll: a bell beneath the raft (legends are named: exempt)
         call(() => ctx.audio?.play?.('dusk_toll', { volume: 0.55, pitch: 1.35 }));
-        fx.pulse(V.raft.x, V.raft.z, { color: 0xd8e0ff, r0: 0.6, r1: 7, duration: 1.4, width: 0.09, alpha: 0.8 });
+        tollRing();
       } else if (b.kind === 'graspingDark') {
         if (hookSafe()) {   // Still / Lantern: a staged beat (a hand silhouette under the water), no hands, no tension, no odds
           fx.pulse(V.fish.x, V.fish.z, { color: 0x14161e, r0: 0.3, r1: 2.4, duration: 1, width: 0.16, alpha: 0.9 });
@@ -2133,6 +2133,12 @@ export function create(ctx) {
     }
   }
 
+  /** The Matriarch's toll seen: off the loop the built pale ring spreading 7 m from the raft; on a trip (the loop) never a ring round
+   *  the raft (the user's rule): the toll moves the water where she is, a ripple from her (the stage, from the user's look). */
+  function tollRing() {
+    if (LOOP()) { call(() => ctx.water?.addRipple?.(V.fish.x, V.fish.z, 2.2)); return; }
+    fx.pulse(V.raft.x, V.raft.z, { color: 0xd8e0ff, r0: 0.6, r1: 7, duration: 1.4, width: 0.09, alpha: 0.8 });
+  }
   function onReelEvent(type, p) {
     const sp = S.species;
     switch (type) {
@@ -2140,7 +2146,7 @@ export function create(ctx) {
         if (sp?.boss && sp.id === 'belled_matriarch') {
           // a bell tolls beneath the raft before every surge
           call(() => ctx.audio?.play?.('dusk_toll', { volume: 0.55, pitch: 1.35 }));
-          fx.pulse(V.raft.x, V.raft.z, { color: 0xd8e0ff, r0: 0.6, r1: 7, duration: 1.4, width: 0.09, alpha: 0.8 });
+          tollRing();
         } else if (sp?.boss && sp.id === 'glass_sovereign') {
           call(() => ctx.audio?.play?.('charge_ping', { volume: 0.7, pitch: 0.55 }));
           fx.pulse(F.fv ? V.fish.x : V.bob.x, F.fv ? V.fish.z : V.bob.z, { color: 0x5cbcff, r0: 0.4, r1: 4, duration: 0.9, width: 0.05, alpha: 0.8 });

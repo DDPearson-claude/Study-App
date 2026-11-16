@@ -669,8 +669,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   const bell = P.find((p) => p.id === 'bell_pool');
   if (bell && bell.area.kind === 'disc') {
     const a = bell.area;
-    // (the stage's look: 1.2× and a deeper ink, so the bell reads from the play camera beside her pool's motes)
-    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 4.3, sz: 3.0, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.78, night: 0.6 });
+    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 3.6, sz: 2.5, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.62, night: 0.6 });
     addDecal({ x: a.x - 0.4, z: a.z + 0.6, y: 0.035, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
     // "The moon looks in on the old bell": a pale shaft standing on the pool once its mist has lifted (strongest at night)
     addDecal({ x: a.x + 0.3, z: a.z - 0.2, y: 0, sx: 3.4, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
