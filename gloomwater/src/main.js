@@ -563,6 +563,8 @@ Object.assign(game, {
   playTow: (water, o) => (loopTow ? loopTow.playTow(water, o) : false),
   /** The tow's phase while one plays ('arrive' | 'wake' | 'leg' | 'dip' | … | 'glide'), or null. */
   towing: () => (loopTow ? loopTow.phase : null),
+  /** The glide in's camera pull (render's home framing drawn back: 1 at the dip, 0 at the mooring). */
+  towCam: () => (loopTow ? loopTow.camPull() : 0),
 });
 // <<< M1 step 5b
 /** progression's loop API (null off the loop, or before lane A wires it). */

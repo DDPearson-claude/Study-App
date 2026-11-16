@@ -352,10 +352,18 @@ export function createLoopTow(deps) {
     }
   }
 
+  /** The glide in's camera (render's homePose): 1 drawn back along the mooring's framing from the dip, easing to 0 at the mooring. */
+  function camPull() {
+    const p = S.phase;
+    if (p === 'dip' || p === 'dipHold' || p === 'dipClear') return S.reduced ? 0 : 1;
+    if (p !== 'glide' || S.reduced) return 0;
+    const k = clamp01(S.t / Math.max(0.05, num(S.P?.glide, 3)));
+    return 1 - k * k * (3 - 2 * k);
+  }
   const state = () => ({ phase: S.phase, t: Math.round(S.t * 1000) / 1000, water: S.water, opening: S.opening, u: Math.round(S.u * 1000) / 1000, ink: Math.round(S.ink * 1000) / 1000,
     kindle: S.kindle, line: S.lineOn ? S.line : null, dip: Math.round(S.dipA * 1000) / 1000, reduced: S.reduced, begun: S.begun, parts: S.P ? { ...S.P } : null, marks: S.marks.slice() });
   return {
-    opening, playTow, update, tap, state,
+    opening, playTow, update, tap, state, camPull,
     active: () => !!S.phase,
     /** The tow's phase now, or null. */
     get phase() { return S.phase; },

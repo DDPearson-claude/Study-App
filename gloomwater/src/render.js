@@ -570,7 +570,16 @@ export function create(ctx) {
     try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
     const c = m?.cam;
     if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
-    return W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos) ? c.portrait : c;
+    const pose = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos) ? c.portrait : c;
+    // M1 step 5b (LANE 5B-TOW): a tow's glide in is seen from the same framing drawn back along its own line (LOOP.tow.cam.pull at
+    // its start), dollying in to the mooring's framing as the barge comes to rest (game.towCam(): 1 → 0)
+    let pull = 0;
+    try { pull = Number(ctx.game?.towCam?.()) || 0; } catch { pull = 0; }
+    if (pull > 0) {
+      const K = 1 + (Math.max(1, Number(ctx.data?.LOOP?.tow?.cam?.pull) || 2.2) - 1) * Math.min(1, pull), L = pose.look;
+      return { ...pose, pos: [L[0] + (pose.pos[0] - L[0]) * K, L[1] + (pose.pos[1] - L[1]) * K, L[2] + (pose.pos[2] - L[2]) * K] };
+    }
+    return pose;
   }
   // the home side (M1 step 5a): the mooring's camera looks at the raft from the far side of the sail framing's north yaw, so in
   // flow home the rig turns to that side of the raft (the sail home's glide, the rest, the glide out's first moments) and back to

@@ -416,5 +416,49 @@ section('never stranded: the flow leaving home drops the tow; the tutorial done 
   near(at('wake') - at('dipIn'), D.LOOP.tow.landing.dip, 'the marks on the tow\'s own clock: the dip 0.6 s', 0.05);
 }
 
+section('the glide in\'s camera: drawn back from the dip, dollying in to the mooring\'s framing');
+{
+  const E = towEnv();
+  E.H.enterHome('intro');
+  await E.until(() => E.T.phase === 'leg');
+  eq(E.T.camPull(), 0, 'on the Chart: no pull');
+  await E.until(() => E.T.phase === 'dipHold');
+  eq(E.T.camPull(), 1, 'at the dip: drawn back');
+  await E.until(() => E.T.phase === 'glide');
+  ok(E.T.camPull() > 0.95, 'the glide in begins drawn back', E.T.camPull());
+  await E.step(1.5);
+  const mid = E.T.camPull();
+  ok(mid > 0.2 && mid < 0.8, 'half way in, half way back', mid);
+  await E.until(() => E.T.phase === null, 3);
+  eq(E.T.camPull(), 0, 'at the mooring: its own framing');
+  eq(D.LOOP.tow.cam.pull, 2.2, 'LOOP.tow.cam.pull');
+  const R = towEnv({ reduced: true });
+  R.H.enterHome('intro');
+  await R.until(() => R.T.phase === 'dipHold');
+  eq(R.T.camPull(), 0, 'reduced motion: no dolly');
+}
+
+section('it plays once: a second Sail, the sail home and a Continue never replay it');
+{
+  const E = towEnv();
+  E.H.enterHome('intro');
+  await E.until(() => E.names().includes('home:enter'), 30);
+  const tows = () => E.ev.filter((x) => x.e === 'loop:tow').length;
+  const n0 = tows();
+  ok(n0 > 0 && E.T.phase === null, 'the opening\'s tow played');
+  ok(E.H.sail({ water: 'mossmere' }) === true, 'the first Sail');
+  await E.step(3.5);
+  ok(E.ctx.flow === 'playing' && E.T.phase === null && tows() === n0, 'the Sail and its glide out: no tow');
+  E.H.endTripHome('home');
+  await E.step(3);
+  ok(E.ctx.flow === 'home' && E.T.phase === null && tows() === n0, 'the sail home: no tow');
+  ok(E.H.sail({ water: 'mossmere' }) === true, 'a second Sail');
+  await E.step(3.5);
+  ok(E.T.phase === null && tows() === n0, 'a second Sail never replays the tow');
+  E.ctx.flow = 'title';
+  E.H.enterHome('title');
+  ok(E.T.phase === null && tows() === n0, 'Continue at home: no tow');
+}
+
 console.log(`\nloop-tow: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
