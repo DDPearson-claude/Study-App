@@ -130,6 +130,10 @@ export function createFindLooks(ctx, { raft = null, wick = null } = {}) {
       wick.rod.add(tas); made.tassel = tas;
       if (wick.stowed) { const s2 = build('rod_tassel', 0.16); s2.rotation.set(Math.PI / 2, 0, 0); s2.position.set(0, -0.06, 0); wick.stowed.add(s2); made.tasselStowed = s2; }
     }
+    // a fresh save or Forget everything in the same session: the old save's looks come off (the shared material stays)
+    const drop = (m) => { if (!m) return; m.removeFromParent?.(); m.geometry?.dispose?.(); };
+    if (!owned(L, 'toll_vane') && made.vane) { made.vane.post.traverse?.((o) => { if (o.isMesh) o.geometry?.dispose?.(); }); made.vane.post.removeFromParent?.(); made.vane = null; }
+    if (!owned(L, 'rod_tassel') && made.tassel) { drop(made.tassel); drop(made.tasselStowed); made.tassel = null; made.tasselStowed = null; }
   }
   return {
     sync,

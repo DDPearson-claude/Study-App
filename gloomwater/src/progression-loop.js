@@ -38,7 +38,7 @@ export const LOOP_METHODS = Object.freeze([
   'closeBite', 'refundOpenBite', 'debugGive', 'isOpen', 'listCount', 'createTrip', 'endTrip', 'lastTrip', 'markTallySeen',
   'shelf', 'goal', 'buy', 'sayOnce', 'parkRun',
   // M1 step 5c (lane 5C, FINDS §10): the snag roll, a find landed, kept or let go, the save's finds, the catalogue's finds half
-  'snagRoll', 'noteFound', 'keepFind', 'letGoFind', 'finds', 'findShares', 'findCatalogue',
+  'snagRoll', 'noteFound', 'keepFind', 'letGoFind', 'finds', 'findShares', 'findCatalogue', 'restoreFind',
   // the opening (docs/loop/OPENING.md)
   'wick', 'setWick', 'tutorial', 'beginTutorial', 'setTutorialStep', 'tutorialDone', 'resetTutorial',
   // the passives (WICKS §2.2, §2.5): Taper's flag, one per evening; Ashwick's comeback
@@ -851,6 +851,7 @@ export function createLoop(S) {
     const f = flags(r);
     f.openBite = null; f.openComeback = false;
     delete f.pendingCatch;
+    delete f.pendingFind;   // M1 step 5c (lane 5C): a find still on its card at dawn stays in the water
     r.comeback = null;
     r.active = false;
     S.invalidate?.();
@@ -1168,8 +1169,32 @@ export function createLoop(S) {
     try { noteSnag(L, D(), r.zone || 'mossmere', findId); } catch (e) { report('noteSnag', e); }
     closeBite();
     const key = typeof waterKey === 'string' && waterKey ? waterKey : keyOf(null, r.zone);
-    return holdEntry(D(), findId, { uid: uid('find'), waterKey: key });
+    const entry = holdEntry(D(), findId, { uid: uid('find'), waterKey: key });
+    // the card's find is saved with the run until Keep or Let go answers it (a reload with the card open: restoreFind)
+    if (isObj(entry)) { flags(r).pendingFind = { ...entry }; requestSave(); }
+    return entry;
   }
+  /** The find whose card was open when the page closed (run.flags.pendingFind; progression.restorePendingTrip on Continue): → a copy
+   *  of its hold entry, for its card to reopen (it stays saved until Keep or Let go), or null. One no longer valid (an unknown find,
+   *  or already kept) is dropped; an unknown one gives its bite back first, so a find is never lost with its bite spent. */
+  function restoreFind() {
+    const r = run();
+    if (!onTrip(r)) return null;
+    const f = flags(r), e = f.pendingFind;
+    if (!isObj(e)) { delete f.pendingFind; return null; }
+    if ((r.creel || []).some((x) => x?.uid === e.uid)) { delete f.pendingFind; return null; }
+    if (typeof e.find !== 'string' || !findById(D(), e.find)) {
+      delete f.pendingFind;
+      const key = typeof e.waterKey === 'string' && e.waterKey ? e.waterKey : keyOf(null, r.zone);
+      r.bites = isObj(r.bites) ? r.bites : {};
+      r.bites[key] = Math.max(0, int(r.bites[key]) - 1);
+      requestSave();
+      return null;
+    }
+    return { ...e };
+  }
+  /** The card answered (Keep or Let go): the saved find is no longer waiting. */
+  function clearPendingFind(entry) { const r = run(); if (!onTrip(r)) return; const f = flags(r); if (!isObj(f.pendingFind) || !entry || f.pendingFind.uid === entry.uid) delete f.pendingFind; }
   /** Keep a find: one slot like a fish (refused when full), its value stamped (a treasure), into the hold; fish:action keep. */
   function keepFind(entry) {
     const r = run();
@@ -1180,6 +1205,7 @@ export function createLoop(S) {
     if (holdFull()) { emit('loop:holdFull', { via: 'keep' }); return { ok: false, full: true, msg: D().TEXT_LOOP?.holdFull || '', gained: { clams: 0 } }; }
     const e = { ...entry };
     r.creel.push(e);
+    clearPendingFind(entry);
     const gained = { clams: e.kind === 'treasure' ? Math.max(0, int(e.clams)) : 0 };
     emit('fish:action', { action: 'keep', find: true, fish: e, gained });
     requestSave();
@@ -1195,6 +1221,7 @@ export function createLoop(S) {
     r.bites = isObj(r.bites) ? r.bites : {};
     const n = Math.max(0, int(r.bites[key])), back = Math.min(n, 1);
     r.bites[key] = n - back;
+    clearPendingFind(entry);
     const gained = { bite: back, favour: 0 };
     emit('fish:action', { action: 'release', letgo: true, find: true, fish: entry, gained });
     requestSave();
@@ -1206,7 +1233,7 @@ export function createLoop(S) {
 
   const api = {
     state: () => ensureLoop(),
-    snagRoll, noteFound, keepFind, letGoFind, finds: findsState, findShares: findSharesNow, findCatalogue: findCatalogueNow,   // M1 step 5c
+    snagRoll, noteFound, restoreFind, keepFind, letGoFind, finds: findsState, findShares: findSharesNow, findCatalogue: findCatalogueNow,   // M1 step 5c
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
     isOpen, listCount: (waterId) => { ensureLoop(); return listCount(meta(), D(), waterId); },
     createTrip, endTrip, lastTrip, markTallySeen, shelf, goal, buy, sayOnce, parkRun,

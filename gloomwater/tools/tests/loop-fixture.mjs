@@ -139,6 +139,7 @@ export function fakeLoop(over = {}) {
       LF.noteSnag(metaLoop(), D, s.zone, findId); s.openBite = null;
       return LF.holdEntry(D, findId, { uid: `find_fake_${s.fish.length}_${calls.length}`, waterKey: waterKey || keyOf(null) });
     },
+    restoreFind: () => null,
     keepFind(e) {
       if (!e || typeof e.find !== 'string') return { ok: false, msg: '', gained: { clams: 0 } };
       if (api.holdFull()) return { ok: false, full: true, msg: T?.holdFull ?? "Hold's full.", gained: { clams: 0 } };

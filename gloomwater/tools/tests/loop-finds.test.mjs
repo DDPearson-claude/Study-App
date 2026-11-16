@@ -303,6 +303,74 @@ section('the catch path: fishing:bite {sizeClass: \'find\'}, then fishing:found 
   eq([env.F.state, loop.calls.filter((c) => c.name === 'spendTaperFirst').length], ['bite', 0], "a snag's bite never spends Taper's first bite");
 }
 
+// ------------------------------------------------------------------ a reload with a find's card open (the fixer's must: never lost, its bite never stranded)
+section('a reload with the find card open: the find comes back on its card, its bite stays spent until answered');
+{
+  const { normalizeSave } = await import('../../src/core.js');
+  const { migrateSave } = await import('../../src/progression.js');
+  /** main's Continue from the last save: a new ctx (migrateSave, normalizeSave), zone:change, run:start {continued: true}. */
+  const reloadFrom = (E) => {
+    const raw = clone(E.saves[E.saves.length - 1]);
+    migrateSave(raw, D);
+    const { meta, run } = normalizeSave(raw);
+    const E2 = makeEnv(meta);
+    E2.ctx.state.run = run; E2.ctx.flow = 'playing';
+    E2.bus.emit('zone:change', { zone: run.zone, prev: null });
+    E2.bus.emit('run:start', { continued: true });
+    return E2;
+  };
+  const tick = () => new Promise((res) => setTimeout(res, 0));
+  // the Purse surfaces; the page closes with its card open
+  const E = makeEnv(played()); startTrip(E);
+  const spent0 = E.L.bitesSpent(OPEN);
+  E.bus.emit('fishing:bite', { sizeClass: 'find', biteTell: 'sinkUnder', waterKey: OPEN });
+  const purse = E.L.noteFound({ findId: 'toll_purse', waterKey: OPEN });
+  await tick();
+  const saved = E.saves[E.saves.length - 1];
+  ok(saved?.run?.flags?.pendingFind?.find === 'toll_purse' && saved.run.flags.pendingFind.uid === purse.uid, 'noteFound saves the find with the run (run.flags.pendingFind) at once');
+  const E2 = reloadFrom(E);
+  eq(E2.L.bitesSpent(OPEN), spent0 + 1, 'Continue: the find\'s bite is still spent (its card is back, so no refund)');
+  eq(E2.count('fishing:found'), 0, '… the card reopens after run:start\'s listeners (a microtask)');
+  await tick();
+  const back = E2.events.find((x) => x.e === 'fishing:found')?.p;
+  ok(back && back.restored === true && back.findId === 'toll_purse' && back.uid === purse.uid && back.entry?.clams === 1750, 'Continue: fishing:found {restored: true} offers the same Purse again (1,750)');
+  // a second close before answering: still there
+  E2.ctx.game.save();
+  const E3 = reloadFrom(E2); await tick();
+  ok(E3.events.some((x) => x.e === 'fishing:found' && x.p.restored && x.p.findId === 'toll_purse'), 'a second reload before Keep or Let go: the Purse is offered again');
+  // Keep: into the hold, no longer waiting; a later Continue offers nothing
+  const kp = E3.L.keepFind(back.entry);
+  ok(kp.ok && E3.ctx.state.run.creel.some((f) => f.find === 'toll_purse') && !('pendingFind' in E3.ctx.state.run.flags), 'Keep: the Purse in the hold, the saved card cleared');
+  E3.ctx.game.save();
+  const E4 = reloadFrom(E3); await tick();
+  eq(E4.count('fishing:found'), 0, 'after Keep, a Continue offers nothing again');
+  eq(E4.ctx.state.run.creel.filter((f) => f.find === 'toll_purse').length, 1, '… and the hold has the Purse once');
+  // Let go after a reload: the bite back once (never twice)
+  const F = makeEnv(played()); startTrip(F);
+  const s0 = F.L.bitesSpent(OPEN);
+  F.bus.emit('fishing:bite', { sizeClass: 'find', waterKey: OPEN });
+  F.L.noteFound({ findId: 'tin_spoon', waterKey: OPEN }); await tick();
+  const F2 = reloadFrom(F); await tick();
+  const fb = F2.events.find((x) => x.e === 'fishing:found' && x.p.restored)?.p;
+  const lg = F2.L.letGoFind(fb.entry);
+  ok(lg.ok && lg.gained.bite === 1 && F2.L.bitesSpent(OPEN) === s0 && !('pendingFind' in F2.ctx.state.run.flags), 'Let go after a reload: the bite back once, the saved card cleared');
+  // a saved find the data no longer knows: dropped, its bite given back
+  const G = makeEnv(played()); startTrip(G);
+  const g0 = G.L.bitesSpent(OPEN);
+  G.bus.emit('fishing:bite', { sizeClass: 'find', waterKey: OPEN });
+  G.L.noteFound({ findId: 'door_ring', waterKey: OPEN }); await tick();
+  G.saves[G.saves.length - 1].run.flags.pendingFind.find = 'no_such_find';
+  const G2 = reloadFrom(G); await tick();
+  ok(G2.count('fishing:found') === 0 && G2.L.bitesSpent(OPEN) === g0 && !('pendingFind' in G2.ctx.state.run.flags), 'an unknown saved find: no card, its bite given back');
+  // dawn with a card still open: the saved card goes with the trip
+  const Hh = makeEnv(played()); startTrip(Hh);
+  Hh.bus.emit('fishing:bite', { sizeClass: 'find', waterKey: OPEN });
+  Hh.L.noteFound({ findId: 'tin_spoon', waterKey: OPEN });
+  const run0 = Hh.ctx.state.run;
+  Hh.L.endTrip();
+  ok(!('pendingFind' in run0.flags), 'endTrip clears a saved card');
+}
+
 // ------------------------------------------------------------------ the screens' pure parts (ui-loop's tally plan, Murk's lines; ui-finds)
 section('the tally\'s rows and the card (pure)');
 {

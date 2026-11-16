@@ -31,7 +31,7 @@ export const FIND_GLYPHS = Object.freeze({
   wick: SV('<path d="M12 4c-1.5 2-2 3-0.5 4.5S13.5 11 12 12"/><path d="M8 21v-6a4 4 0 0 1 8 0v6"/>'),
   barge: SV('<path d="M2 15h20l-2.5 4h-15z"/><path d="M5 15V9h9v6M14 11h4v4"/><path d="M8 9V6h3v3"/>'),
   tin: SV('<rect x="5" y="8" width="14" height="10" rx="2"/><path d="M5 11h14"/>'),
-  chalk: SV('<path d="M5 13l4 4 10-10"/>'),
+  chalk: SV('<rect x="3.5" y="4.5" width="17" height="12" rx="1.5"/><path d="M7 9h7M7 12.5h4"/><path d="M14.5 20.5l5-3" stroke-width="2.6"/>'),   // a slate and its chalk
   float: SV('<path d="M12 3v5"/><ellipse cx="12" cy="13" rx="4" ry="5"/><path d="M8 13h8"/>'),
   tick: SV('<path d="M5 13l4 4 10-10"/>'),
 });
@@ -158,7 +158,7 @@ function style() {
 .gw-slot.gw-gild .gw-slot-find { filter: drop-shadow(0 0 4px rgba(232, 190, 119, .55)); }
 .gw-trow .gw-trow-find { width: 56px; height: 28px; }
 .gw-trow .gw-trow-v .gw-fd-glyph { width: 22px; height: 22px; color: var(--ink-dim); }
-.gw-cat-finds { margin-top: 14px; }
+.gw-cat-finds { margin-top: 14px; scroll-margin-top: 64px; }   /* scrolled to, its heading stops below the catalogue's sticky head band */
 .gw-cat-finds .gw-cat-gh b { margin-left: .4em; }
 .gw-cat-finds .gw-cat-gh small { margin-left: .6em; color: var(--ink-dim); font-size: 15px; }
 .gw-cat-finds .gw-cat-card .gw-cat-rate { font-size: 13px; color: var(--ink-dim); min-height: 16px; display: inline-flex; gap: .3em; align-items: center; }
@@ -166,7 +166,7 @@ function style() {
 .gw-cat-finds .gw-cat-card .gw-cat-rate .gw-fd-glyph { width: 15px; height: 15px; }
 .gw-cat-finds .gw-fd-big { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; text-align: center; }
 .gw-cat-finds .gw-fd-big p { font-size: 16px; color: var(--ink-dim); font-style: italic; margin: 0; }
-@media (max-width: 700px) { .gw-cat-finds .gw-cat-card .gw-cat-rate { font-size: 16px; } .gw-p-find .gw-fd-name { font-size: 20px; } }
+@media (max-width: 700px) { .gw-cat-finds { scroll-margin-top: 104px; } .gw-cat-finds .gw-cat-card .gw-cat-rate { font-size: 16px; } .gw-p-find .gw-fd-name { font-size: 20px; } }
 `;
   document.head.appendChild(s);
 }
@@ -247,7 +247,8 @@ export function createFindsView(K) {
   on('fishing:found', (p) => {
     const entry = isObj(p.entry) ? p.entry : null;
     if (!entry) return;
-    pending = { entry, at: (typeof performance !== 'undefined' ? performance.now() : Date.now()) };
+    pending = { entry, at: (typeof performance !== 'undefined' ? performance.now() : Date.now()), restored: p.restored === true };
+    if (pending.restored) return;   // Continue with the card open (progression.restorePendingTrip): no glint; update() reopens the card
     // the reveal's glint: a soft chime, warmer and longer for the jackpot (FINDS §8; the built bright coin until the find's own)
     if (entry.grade === 'jackpot') { if (!audio('coinBright', { volume: 0.5, pitch: 0.8 })) audio('coin', { volume: 0.5, pitch: 0.7 }); }
     else audio('coin', { volume: 0.28, pitch: 1.35 });
@@ -260,7 +261,8 @@ export function createFindsView(K) {
     audio('merchant_bell', { volume: 0.5, pitch: 0.62 });
     setTimeout(() => audio('merchant_bell', { volume: 0.35, pitch: 1.25 }), 1100);
   });
-  on('fishing:state', (p) => { if (p.state === 'casting' && pending && !K.has('catch')) pending = null; });
+  // a find never offered by a show (none, or a stuck one) is never dropped by the next cast: its card opens then (its bite is spent)
+  on('fishing:state', (p) => { if (p.state === 'casting' && pending && !K.has('catch')) openCard(); });
 
   function openCard() {
     const pd = pending;
@@ -324,6 +326,8 @@ export function createFindsView(K) {
   }
   return {
     update() {
+      // a restored find (Continue with its card open) reopens once the evening plays and no other screen is up
+      if (pending?.restored) { if (ctx.flow === 'playing' && !K.has('catch') && !K.hasBlocking?.()) openCard(); return; }
       // the valve: a find whose show never reached its card (no show in this build, a stuck one) opens its card after 9 s
       if (pending && !K.has('catch') && ((typeof performance !== 'undefined' ? performance.now() : Date.now()) - pending.at) > 9000 && ctx.fishing?.view?.show?.phase !== 'lift') openCard();
     },

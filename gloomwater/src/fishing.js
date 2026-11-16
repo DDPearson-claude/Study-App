@@ -2499,7 +2499,7 @@ export function create(ctx) {
     S.spot = null; S.rareSpot = false; S.perfect = false; S.signHit = null; S.prerollTook = false;
     const fe = entry && typeof entry === 'object' ? entry : { uid: `find_${Date.now()}`, find: findId, kind: null, clams: 0, waterKey };
     emit('fishing:found', { findId, waterKey, uid: fe.uid, kind: fe.kind ?? null, grade: fe.grade ?? null, entry: fe });
-    if (!showOn() || !fv) { if (S.show) abortShow(); if (fv) disposeFv(fv); setState('idle'); return; }
+    if (!showOn() || !fv) { if (S.show) abortShow(); if (fv) disposeFv(fv); setState('idle'); call(() => ctx.ui?.finds?.open?.()); return; }   // no show: the card at once
     // the show with the prop: the find's pose and its own held beat (the jackpot a giant's longer one)
     const it = (D().LOOP?.finds?.items || []).find((x) => x.id === findId) || {};
     const c = S.show || beginShow({ sizeClass: 'keeper', reveal: false });
