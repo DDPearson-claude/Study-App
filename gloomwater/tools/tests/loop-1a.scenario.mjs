@@ -514,7 +514,7 @@ export function makeKit(api, { label = 'loop' } = {}) {
   K.pillReady = async () => { const r = await K.until('c.game.canGoHome?.()?.ok === true', 6); await K.steps(2); await K.settle(350); return r.ok; };
   /** A shelf item's buy ([data-buy=id]). Murk's catalogue (16 November 2026): the shelf is a book; the item's plate ([data-item=id]) is
    *  found on its page (the fore-edge tab of its chapter first, then a leaf at a time), tapped to mark it, and its order line in the
-   *  book's foot ("Buy · <price>", [data-buy=id]) is the buy. A dear item's order line comes back disabled. */
+   *  book's foot ("Buy · <price>", [data-buy=id]) is the buy. A dear item has no order line (null). */
   K.buyBox = async (id, tabWord) => {
     const plate = `[data-loop=shelf] [data-item="${id}"]`;
     let p = await K.box(plate);

@@ -56,6 +56,8 @@ export default async function (api) {
       }
       return out;
     });
+    const fit = await g(() => { const out = []; for (const e of document.querySelectorAll('[data-loop=shelf] .gw-mb-slot, [data-loop=shelf] .gw-book-foot, [data-loop=shelf] .gw-book-tab, [data-loop=shelf] .gw-book-close')) { const r = e.getBoundingClientRect(); if (r.left < -0.5 || r.top < -0.5 || r.right > innerWidth + 0.5 || r.bottom > innerHeight + 0.5) out.push(`${e.className.split(' ')[0]} ${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.right)},${Math.round(r.bottom)}`); } return out; });
+    K.check(fit.length === 0, 'the book, its tabs and its foot fit the screen (no part cut off)', fit);
     K.check(over.length === 0, 'no tap target overlaps another (the corners, the tabs, the close mark, the order line and the plates)', over);
 
     K.step('cat: a leaf mid-turn, then the next spread');

@@ -153,9 +153,16 @@ section('the engravings: one for every item a save can see; ink line, hatching a
     ok(/<line|<path/.test(svg) && /cat-hatch|stroke-dasharray|<circle/.test(svg), `${c.id}: hatching or stipple`);
   }
   ok(seen.size >= 12, 'a dozen different plates or more across the two saves', seen.size);
+  ok(E.engrave({ id: 'tin:cut_strip', slot: 'tin', baitId: 'cut_strip' }, { uid: 'cs' }) !== E.engrave({ id: 'tin:mireworm', slot: 'tin', baitId: 'mireworm' }, { uid: 'cs' }), 'Cut Strip has its own drawing (never sold; its plate is ready)');
   ok(E.engrave({ id: 'x', slot: 'nope' }, { uid: 'z' }).startsWith('<svg'), 'an unknown item still gets a plate (the generic parcel)');
   eq(E.engrave({ id: 'rod:1', slot: 'rod', level: 1 }, { uid: 'a' }), E.engrave({ id: 'rod:1', slot: 'rod', level: 1 }, { uid: 'a' }), 'deterministic (the same plate twice)');
   ok(E.engrave({ id: 'rod:1', slot: 'rod', level: 1 }, { uid: 'a' }) !== E.engrave({ id: 'rod:2', slot: 'rod', level: 2 }, { uid: 'a' }), 'each rod tier its own drawing');
+  {
+    const pl = D.loopPlace('lily_maze'), A = D.ZONE_BY_ID.mossmere.arena;
+    const geo = { R: A.radius, isles: A.islands.map((q) => ({ x: q.x, z: q.z, r: q.r })), at: { x: pl.x, z: pl.z }, from: { x: A.docks[0].x, z: A.docks[0].z } };
+    const a = E.engrave({ id: 'place:lily_maze', slot: 'place', placeId: 'lily_maze' }, { uid: 'm', geo }), b = E.engrave({ id: 'place:lily_maze', slot: 'place', placeId: 'lily_maze' }, { uid: 'm' });
+    ok(a !== b && a.includes('stroke-dasharray') && !/Gradient/.test(a), "a place map draws its water: the Mossmere's rim and isles, the place's cross and the way from the mooring");
+  }
   ok(E.frontispiece({ uid: 'f' }).startsWith('<svg') && !/Gradient/i.test(E.frontispiece({ uid: 'f' })), "the frontispiece: Murk's barge, ink only");
 }
 

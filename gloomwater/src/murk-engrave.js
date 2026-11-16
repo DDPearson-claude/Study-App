@@ -274,6 +274,20 @@ function tin(P, kind) {
   }
   return P;
 }
+function cutStrip(P) {
+  // Cut Strip: three strips of a small fish on a board, the knife laid by them
+  P.ground(100, 132, 70, 6);
+  const board = 'M26 104 L166 92 L174 116 L34 128Z';
+  P.paper(board).shade(board, 1).shade('M34 128 L174 116 L174 120 L36 132Z', 3).ink(board, 1.3).ink('M34 128 L36 132 L174 120 L174 116', 1.1);
+  for (let i = 0; i < 3; i++) {
+    const y = 90 - i * 6, x = 46 + i * 30;
+    const st = `M${x} ${y + 8} C${x + 10} ${y - 4} ${x + 34} ${y - 6} ${x + 44} ${y + 2} C${x + 34} ${y + 8} ${x + 12} ${y + 14} ${x} ${y + 8}Z`;
+    P.paper(st).shade(st, 2).ink(st, 1.2);
+    for (let k = 0; k < 4; k++) P.ink(`M${x + 10 + k * 8} ${y + 1} q3 3 0 7`, 0.6);
+  }
+  P.ink('M110 120 L176 74', 2.2).paper('M150 92 L180 70 L184 76 L156 98Z').shade('M150 92 L180 70 L184 76 L156 98Z', 2).ink('M150 92 L180 70 L184 76 L156 98Z', 1.1);
+  return P;
+}
 function mossBall(P) {
   P.ground(100, 134, 46, 7);
   const cx = 100, cy = 82, R = 40;
@@ -437,17 +451,38 @@ function lookPlate(P, lookId) {
   return P;
 }
 // maps and the sealed next water
-function mapPlate(P, card) {
+function mapPlate(P, card, geo = null) {
   const rnd = P.rnd;
   // a sheet of chart, its corner turned; the shore inked, the water hatched, a compass rose; the fish is the view's own drawing
   const sheet = 'M12 14 L188 10 L184 132 L170 140 L16 136Z';
   P.paper(sheet).ink(sheet, 1.4).ink('M184 132 L170 128 L170 140', 1).shade('M184 132 L170 128 L170 140Z', 3);
-  let d = '';
-  for (let i = 0; i <= 28; i++) {
-    const a = (i / 28) * Math.PI * 2, r = 1 + 0.12 * Math.sin(3 * a + rnd() * 0.6) + 0.06 * Math.sin(7 * a);
-    d += `${i ? 'L' : 'M'}${f(100 + Math.cos(a) * 70 * r)} ${f(76 + Math.sin(a) * 44 * r)} `;
+  const G = isObj(geo) && Number(geo.R) > 0 ? geo : null;
+  if (G) {
+    // the water itself (its rim, its isles) at one scale, the place marked with an engraver's cross and the way to it dotted
+    const k = 52 / G.R, cx = 98, cy = 72, X = (x) => cx + x * k, Y = (z) => cy + z * k * 0.86;
+    let d = '';
+    for (let i = 0; i <= 40; i++) {
+      const a = (i / 40) * Math.PI * 2, r = G.R * (1 + 0.06 * Math.sin(3 * a + 1.3) + 0.035 * Math.sin(5 * a + 0.4) + 0.02 * Math.cos(9 * a));
+      d += `${i ? 'L' : 'M'}${f(X(Math.cos(a) * r))} ${f(Y(Math.sin(a) * r))} `;
+    }
+    P.shade(`${d}Z`, 'th', ' opacity=".55"').ink(`${d}Z`, 1.3).ink(`${d}Z`, 0.5, ` transform="translate(${f(cx * -0.04)} ${f(cy * -0.04)}) scale(1.04)"`);
+    for (const q of Array.isArray(G.isles) ? G.isles : []) {
+      const ir = Math.max(2.2, Number(q.r) * k), path = ell(X(q.x), Y(q.z), ir, ir * 0.8);
+      P.paper(path).shade(path, 3).ink(path, 1);
+    }
+    if (G.at) {
+      const ax = X(G.at.x), ay = Y(G.at.z);
+      if (G.from) P.ink(`M${f(X(G.from.x))} ${f(Y(G.from.z))} Q${f((X(G.from.x) + ax) / 2 + 8)} ${f((Y(G.from.z) + ay) / 2 - 8)} ${f(ax)} ${f(ay)}`, 1, ' stroke-dasharray="1.6 2.6"');
+      P.ink(`M${f(ax - 4)} ${f(ay - 4)} l8 8 M${f(ax + 4)} ${f(ay - 4)} l-8 8`, 2.2, ' class="cat-pp-stroke"').ink(`M${f(ax - 4)} ${f(ay - 4)} l8 8 M${f(ax + 4)} ${f(ay - 4)} l-8 8`, 1.4);
+    }
+  } else {
+    let d = '';
+    for (let i = 0; i <= 28; i++) {
+      const a = (i / 28) * Math.PI * 2, r = 1 + 0.12 * Math.sin(3 * a + rnd() * 0.6) + 0.06 * Math.sin(7 * a);
+      d += `${i ? 'L' : 'M'}${f(100 + Math.cos(a) * 70 * r)} ${f(76 + Math.sin(a) * 44 * r)} `;
+    }
+    P.shade(`${d}Z`, 'th', ' opacity=".5"').ink(`${d}Z`, 1.2);
   }
-  P.shade(`${d}Z`, 'th', ' opacity=".5"').ink(`${d}Z`, 1.2);
   // the place's own mark (its landmark, small, in the margin)
   const kind = String(card?.placeId || '');
   if (kind === 'under_the_span') P.ink('M24 120 C34 104 50 104 60 120 M20 120 H64', 1.4);
@@ -493,7 +528,7 @@ export function plateKey(card) {
   return 'parcel';
 }
 /** An item's engraving (viewBox 200 × 150), its pattern ids scoped by `uid` (unique in the page). */
-export function engrave(card, { uid = 'e' } = {}) {
+export function engrave(card, { uid = 'e', geo = null } = {}) {
   const key = plateKey(card), [kind, rest = ''] = key.split(':'), lv = Number(rest) || 1;
   const P = plate(String(uid).replace(/[^A-Za-z0-9_-]/g, ''), 200, 150, key);
   const zoom = ({ 'lure:bell_spinner': [1.12, 100, 80], 'lure:glimmer_spoon': [1.24, 100, 78], 'lure:bone_jig': [1.3, 104, 80] })[key]
@@ -504,6 +539,7 @@ export function engrave(card, { uid = 'e' } = {}) {
   else if (kind === 'reel') reel(P, lv);
   else if (kind === 'hold') creel(P, lv);
   else if (kind === 'lure') ({ feather_fly: lureFly, glimmer_spoon: lureSpoon, bone_jig: lureJig, bell_spinner: lureBell }[rest] || lureSpoon)(P);
+  else if (kind === 'tin' && rest === 'cut_strip') cutStrip(P);
   else if (kind === 'tin') tin(P, rest === 'lumen_moss' ? 'moss' : 'worm');
   else if (kind === 'bait') mossBall(P);
   else if (kind === 'oars') oars(P, lv);
@@ -514,7 +550,7 @@ export function engrave(card, { uid = 'e' } = {}) {
   else if (kind === 'wall') wallWing(P, lv);
   else if (kind === 'lights') bargeLights(P, lv);
   else if (kind === 'look') lookPlate(P, rest);
-  else if (kind === 'place') mapPlate(P, card);
+  else if (kind === 'place') mapPlate(P, card, geo);
   else if (kind === 'lake') sealedPlate(P);
   else parcel(P);
   if (zoom) P.add('</g>');

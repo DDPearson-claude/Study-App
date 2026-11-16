@@ -15,7 +15,8 @@
 //                 a chapter; a leaf turns in 0.45 s (a cut under reduced motion) with a soft paper sound; it opens at the goal's page, or
 //                 where it was left this visit
 //   buying        a tap marks an item (an ink ring round its price) and the order line "Buy · <price>" appears in the foot; its tap buys
-//                 through the ledger; a bought plate is stamped "Yours." in red-brown ink; a dear item stays readable in a lighter ink
+//                 through the ledger; a bought plate is stamped "Yours." in red-brown ink; a dear item stays readable in a lighter ink (marked,
+//                 its ring is faint and no order line comes: the price dimmed, nothing else)
 // Selectors kept for the scenarios: [data-loop=shelf], [data-item], [data-place], [data-sealed], [data-buy] (the order line), [role=tab]
 // (.gw-tab: the fore-edge), .gw-murk-line, [data-loop=orders] (lane 4's slate), .gw-shelf-odds (the gear log), [data-seal].
 import { engrave, frontispiece, ledgerPlate, endPlate, plateNumeral, wickInk } from './murk-engrave.js';
@@ -110,7 +111,8 @@ const CSS = `
 .gw-plate-price { position: relative; display: inline-flex; align-items: center; gap: 4px; font: 700 22px/1 var(--f-body); color: var(--cat-amber); font-variant-numeric: lining-nums; padding: 2px 4px; }
 .gw-plate-price .gw-price { color: inherit; font: inherit; gap: 4px; }
 .gw-plate-price .gw-ico { display: inline-block; width: 21px; height: 21px; color: var(--cat-amber); }
-.gw-plate.gw-dear .gw-plate-price { color: var(--cat-faint); } .gw-plate.gw-dear .gw-plate-price .gw-ico { color: var(--cat-faint); }
+.gw-plate.gw-dear .gw-plate-price { color: var(--cat-faint); }
+.gw-plate.gw-dear .gw-mb-ring { color: var(--cat-faint); } .gw-plate.gw-dear .gw-plate-price .gw-ico { color: var(--cat-faint); }
 .gw-mb-ring { position: absolute; left: -16px; right: -16px; top: -12px; bottom: -12px; width: calc(100% + 32px); height: calc(100% + 24px); color: var(--cat-ink); pointer-events: none; }
 .gw-mb-ring path { stroke-dasharray: 1; stroke-dashoffset: 0; animation: gwMbRing .5s ease-out both; }
 @keyframes gwMbRing { from { stroke-dashoffset: 1; } }
@@ -124,7 +126,8 @@ const CSS = `
 .gw-mb-stamp.gw-press { animation: gwMbStamp .42s cubic-bezier(.2, .9, .3, 1.2) both; }
 @keyframes gwMbStamp { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(1.7); } 60% { opacity: .95; } 100% { opacity: .86; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
 .gw-plate.gw-bought .gw-plate-art, .gw-plate.gw-bought .gw-plate-price { opacity: .78; }
-.gw-plate-map { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8%; pointer-events: none; }
+.gw-plate-map { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 4px; padding: 0 6% 2%; pointer-events: none; }
+.gw-plate-map canvas { filter: drop-shadow(0 0 1.5px var(--cat-paper)) drop-shadow(0 0 1.5px var(--cat-paper)); }
 .gw-plate-map .gw-map-wick { flex: none; display: block; }
 .gw-plate-map .gw-map-wick .cat-eng { width: 100%; height: 100%; display: block; color: var(--cat-ink); }
 .gw-plate-map canvas { flex: none; }
@@ -222,6 +225,11 @@ const CSS = `
 .gw-book[data-layout=phone] .gw-plate-low .gw-plate-price { align-self: flex-end; }
 .gw-book[data-layout=phone] .gw-mb-title { font-size: 34px; }
 .gw-book[data-layout=phone] .gw-mb-chap h3 { font-size: 24px; }
+/* a short spread (960 x 540): the plate's kicker is the chapter's head already; the line two rows; the name condensed further */
+.gw-book.gw-short .gw-kick-ch { display: none; }
+.gw-book.gw-short .gw-plate-line { -webkit-line-clamp: 2; line-height: 1.04; }
+.gw-book.gw-short .gw-plate-name { font-size: 19px; transform: scaleX(.8); width: 125%; margin: 0 -12.5%; }
+.gw-book.gw-short .gw-plate { padding-top: 4px; }
 /* a tall phone page (390 x 844): the drawing over its words, as on a desktop page, larger */
 .gw-book.gw-tall .gw-plate { display: flex; flex-direction: column; align-items: center; padding: 8px 6px 4px; }
 .gw-book.gw-tall .gw-plate-kick, .gw-book.gw-tall .gw-plate-name { text-align: center; }
@@ -269,7 +277,7 @@ export function createMurkBook(deps) {
   function sizes(layout) {
     const W = vw(), H = vh();
     if (layout === 'desktop') {
-      const ph = Math.max(300, Math.min(H - 116, 700));
+      const ph = Math.max(300, Math.min(H - 132, 700));
       const pw = Math.max(BOOK.minPage, Math.min((W - 220) / 2, ph * 0.76));
       return { pw: Math.floor(pw), ph: Math.floor(Math.min(ph, pw / 0.62)) };
     }
@@ -300,7 +308,7 @@ export function createMurkBook(deps) {
     else hit.tabIndex = -1;
     el.appendChild(hit);
     // the kicker: a hold step's own count ("Hold 4"), a map's place, else the chapter's word
-    const kick = h('small', 'gw-plate-kick');
+    const kick = h('small', `gw-plate-kick${c.slot === 'hold' || c.slot === 'place' ? '' : ' gw-kick-ch'}`);
     kick.textContent = c.slot === 'hold' ? String(TL().holdName || 'Hold {n}').replace('{n}', String(c.level)) : c.slot === 'place' ? (D().loopPlace?.(c.placeId)?.name || c.name || '') : c.slot === 'lake' ? (c.name || tab.label) : tab.label;
     if (c.slot === 'lake' && !kick.textContent) kick.textContent = tab.label;
     el.appendChild(kick);
@@ -311,7 +319,7 @@ export function createMurkBook(deps) {
       el.appendChild(name);
     }
     const art = h('div', 'gw-plate-art');
-    art.innerHTML = engrave(c, { uid: uid() });
+    art.innerHTML = engrave(c, { uid: uid(), geo: c.slot === 'place' ? placeGeo(c.placeId) : null });
     const nm = plateNumeral(c);
     if (nm && B.layout === 'desktop') { const n = h('i', 'gw-plate-num'); n.textContent = nm; n.setAttribute('aria-hidden', 'true'); el.appendChild(n); }
     if (c.slot === 'place') mapArt(art, c, B);
@@ -337,6 +345,16 @@ export function createMurkBook(deps) {
       el.appendChild(st);
     }
     return el;
+  }
+  /** A place map's geometry for its engraving: its water's rim radius and isles, the place, and the mooring the way starts from. */
+  function placeGeo(placeId) {
+    try {
+      const pl = D().loopPlace?.(placeId), z = D().ZONE_BY_ID?.[pl?.zone || 'mossmere'], A = z?.arena;
+      if (!pl || !A) return null;
+      const dock = arr(A.docks)[0];
+      return { R: num(A.radius, 60), isles: arr(A.islands).map((q) => ({ x: num(q.x), z: num(q.z), r: num(q.r, 4) })), at: { x: num(pl.x), z: num(pl.z) },
+        from: dock ? { x: num(dock.x), z: num(dock.z) } : null };
+    } catch { return null; }
   }
   /** A map plate's fish, drawn in the page's ink beside the Wick at one scale (SPEC §8.4, M1.md §2.4: "life-size beside the Wick"). */
   function mapArt(art, c, B) {
@@ -432,6 +450,7 @@ export function createMurkBook(deps) {
     root.dataset.layout = B.layout;
     root.style.setProperty('--pw', `${pw}px`); root.style.setProperty('--ph', `${ph}px`); root.style.setProperty('--turn', `${BOOK.turn}s`);
     if (B.layout === 'phone' && ph >= 600) root.classList.add('gw-tall');   // (a tall phone page: each drawing over its words, larger)
+    if (B.layout === 'desktop' && ph < 520) root.classList.add('gw-short');   // (a short spread, 960 x 540: the chapter's kicker left to its head, two lines)
     const line = h('p', `gw-murk-line${S.line ? ' gw-in' : ''}`);
     line.textContent = S.line || '';
     root.appendChild(line);
@@ -513,14 +532,13 @@ export function createMurkBook(deps) {
     purse.dataset.purse = '';
     foot.appendChild(purse);
     const f = S.marked ? cardOf(model, S.marked) : null;
-    if (!f || f.card.bought || f.card.price == null) return;
+    if (!f || f.card.bought || f.card.price == null || f.card.dear) return;   // (too dear: the price dimmed, nothing else, SPEC §8.4)
     const c = f.card, o = orderText(TL(), c.priceText);
     const b = h('button', 'gw-book-order', `${escT(o.before.trimEnd())} ${icon('clam')}<b>${escT(c.priceText)}</b>${escT(o.after)}`);
     b.type = 'button';
     b.dataset.buy = c.id;
     b.dataset.action = 'buy';
-    if (c.dear) { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
-    b.addEventListener('click', (e) => { e.stopPropagation(); if (c.dear) return; S.stamp = c.consumable ? null : c.id; deps.buy(entry, c.id); });
+    b.addEventListener('click', (e) => { e.stopPropagation(); S.stamp = c.consumable ? null : c.id; deps.buy(entry, c.id); });
     foot.appendChild(b);
   }
   function mark(entry, c) {
