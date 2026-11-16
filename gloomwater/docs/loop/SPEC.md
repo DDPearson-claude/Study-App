@@ -1725,6 +1725,8 @@ Before any UI, a **node-level trip harness** (`tools/tests/loop-trip.test.mjs`) 
 | built `cond` (§25.8 place conditions: deed, reflection, plumbBottom …) | — | ignored under the loop |
 | built `src: 'walk'` | — | the kept walk species the map cards name (the Wax-Bearer, the Clapper, the Unreflected, the Footnote, Hushcap Koi) are included under the loop |
 
+*As built (M1 step 2):* the allow-list also carries `favours`, the converter's bait input (the game's own item names only; it becomes `baits` and `bait`), and `sizeModel.body`, a fish's own body key where its cousin is more than ±30% off its plan (`slimperch`, `sucker`). The game imports `src/roster-shipped.js` (the shipped records, cut to the allow-list by `tools/roster-export.mjs`), never `roster.json`. A re-founded built species keeps its built record (model, lore, hint) and takes the roster's rarity, size, style, hours and family; a new fish takes its Journal line and haunt from the roster and its drawing from `data.js` `ROSTER_ART`. `M1.md` §4 step 2 lists the rest.
+
 ### M1 step 3 (QUEUE job 11, visual). Slice 2's Mossmere half: the mist lifts, and the drawn Chart (L+: 3a L, 3b M).
 
 | | |
