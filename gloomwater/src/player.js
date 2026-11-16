@@ -138,6 +138,8 @@ export function create(ctx) {
     return anchorStates().has(fishingState());
   }
   const feLocks = () => { try { return ctx.firstEvening?.locksMovement?.() === true; } catch { return false; } };
+  /** The loop's lift (M1 step 3a, PLAN §2.2 item 5): while a place's mist lifts the camera frames its landmark and the raft holds. */
+  const liftHolds = () => { try { const p = ctx.game?.lifting?.(); return typeof p === 'string' && !!p; } catch { return false; } };
 
   // ---------------------------------------------------------------- vectors
   function getForward(out) {
@@ -276,6 +278,7 @@ export function create(ctx) {
     // v3: the anchor (movement input is ignored and not buffered while a fish is on) and the First Evening's locked beats
     const anchorV3 = anchoredNow();
     if (anchorV3 || (coveMode && V3() && feLocks())) { mx = 0; my = 0; }
+    if (LOOP_ON() && ctx.state?.run?.outing === 'trip' && liftHolds()) { mx = 0; my = 0; }   // M1 step 3a: the raft holds for a place's lift
     if (anchorV3 && !wasAnchoredV3) { cv.set(0, 0, 0); ext.set(0, 0, 0); pullV.set(0, 0, 0); pullT = 0; pullOnce = false; }
     wasAnchoredV3 = anchorV3;
     let mag = Math.hypot(mx, my);
