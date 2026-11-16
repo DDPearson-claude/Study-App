@@ -593,6 +593,7 @@ export function createLoopView(K) {
     if (homeMooring()) {
       // the barge's own places (M1 step 5a): each tile's word under its object, the doorway (wing I) with none
       nav.remove();
+      wrap.classList.add('gw-jetty--barge');
       const layer = h('div', 'gw-jetty-targets');
       for (const id of homeTargetIds(K.meta?.()?.loop)) {
         const cue = c.tile === id, dim = c.dim && !cue;
