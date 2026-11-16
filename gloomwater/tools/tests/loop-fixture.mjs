@@ -13,7 +13,7 @@
 // Nothing here is used by the game. Run as a script it checks itself: node tools/tests/loop-fixture.mjs
 import { pathToFileURL } from 'node:url';
 import { defaultMeta } from '../../src/core.js';
-import { freshLoop, LOOP_METHODS, tallyLines, shelfItems, goalOf, listCount as listCountOf } from '../../src/progression-loop.js';
+import { freshLoop, LOOP_METHODS, LOOP_SCHEMA, tallyLines, shelfItems, goalOf, listCount as listCountOf } from '../../src/progression-loop.js';
 
 /** The loop's data module (GW_V3, GW_V3_PHASE 1, GW_LOOP), cached per query. */
 export async function loadLoopData({ query = 'loop' } = {}) {
@@ -65,6 +65,7 @@ export function fakeLoop(over = {}) {
     wick: null, tutorial: null, said: {}, lastTrip: null, parkedRun: null, journal: {},
     onTrip: true, runId: 'run_fake', zone: 'mossmere', evening: 1, fish: [], pending: [], bites: {}, mercy: {},
     openBite: null, openComeback: false, taperFirst: false, comeback: null, session: [], saves: 0,
+    barge: { water: 'mossmere', towed: [] },
     ...state, ...plain,
   };
   const calls = [];
@@ -88,8 +89,9 @@ export function fakeLoop(over = {}) {
     const sp = D?.SPECIES_BY_ID?.[f?.speciesId];
     return (sp && typeof D?.fishClams === 'function' ? D.fishClams(sp, f.z) : null) ?? 1;
   };
-  const metaLoop = () => ({ v: 3, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
-    wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}) });
+  const metaLoop = () => ({ v: LOOP_SCHEMA, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
+    wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, barge: { water: s.barge.water, towed: [...s.barge.towed] },
+    ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}) });
   const items = () => (D ? shelfItems(D, metaLoop(), s.session) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
     { id: 'hold:4', tab: 'raft', slot: 'hold', level: 4, name: 'Lidded Creel', goalName: 'Hold 4', line: '', price: 30, bought: s.session.includes('hold:4') },
@@ -192,6 +194,8 @@ export function fakeLoop(over = {}) {
     spendTaperFirst() { if (!api.taperFirstOpen()) return false; s.taperFirst = true; return true; },
     comeback: (key) => (s.onTrip && s.comeback && s.comeback.waterKey === key ? { ...s.comeback } : null),
     consumeComeback() { const c = s.comeback; s.comeback = null; return c ? { ...c } : null; },
+    barge: () => ({ water: s.barge.water, towed: [...s.barge.towed] }),
+    towBarge(w) { if (typeof w !== 'string' || !w) return null; s.barge.water = w; if (!s.barge.towed.includes(w)) s.barge.towed.push(w); s.saves++; return api.barge(); },
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {

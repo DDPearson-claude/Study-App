@@ -255,6 +255,48 @@ if (process.argv.includes('--loop')) {
   }
   { const Lay = WLY.buildLayout(intro); ok4(clear(Lay, { x: -50, z: 0 }, { x: 50, z: 0 }).worst < pad, 'T72 self-test: a glide straight across the lake fails the clearance check'); }
   for (const [lake, P] of Object.entries(T.outPath || {})) ok4(L4.ZONE_BY_ID[lake] && Array.isArray(P) && P.length >= 2 && P.every((q) => Array.isArray(q) && q.length === 2 && q.every(num4)), `LOOP.tutorial.outPath.${lake}: a lake's path of [x, z] points`);
+  // M1 step 5a, the home barge's mooring (M1 §4 step 5a; SPEC §6.5): every LOOP.mooring entry resolves on its lake's docks; both
+  // hulls and the raft clear of every island, pillar, post and gate stone, every place and its mist bank (LOOP.places' footprints +
+  // 1.5 m, from step 3a; none before it) and the shore; clear of the spawn; the glide in (the hand-off from the spawn, the sail home's
+  // approach, the sail home from each place) and the glide out clear of the hulls and the lake; the home camera's frame holding
+  // the barge, the raft and every target at 358 px (and the other sizes the game is played at), none overlapping, each ≥ 44 px
+  {
+    const LR = await import('../src/loop-rules.js'), HT = await import('../src/home-targets.js');
+    const B = LP.barge, rr2 = L4.BALANCE.move.raftRadius;
+    ok4(B && B.length === 12 && B.beam === 3.6 && B.keel?.n === 5 && B.keel?.r === 1.8 && num4(B.keel?.step) && num4(B.murkR) && num4(B.reach),
+      'LOOP.barge: the Slow Hearth 12 × 3.6 m, five keel circles of r 1.8 m, Murk\'s own, the sail home\'s reach');
+    ok4(B.reach <= 2 * LP.time.raftSpeed * LP.time.home + 1e-9, `LOOP.barge.reach (${B.reach} m) is at most twice the raft's speed over the sail home's ${LP.time.home} s`);
+    const moorings = Object.entries(LP.mooring || {});
+    ok4(moorings.length >= 1 && moorings.some(([w]) => w === 'mossmere'), 'LOOP.mooring: the Mossmere has its mooring (the Jetty)');
+    for (const [water, raw] of moorings) {
+      const Z = L4.ZONE_BY_ID[water];
+      if (!ok4(!!Z, `LOOP.mooring.${water}: a lake`)) continue;
+      const Lay = WLY.buildLayout(Z), M = L4.loopMooring(water, Lay.docks);
+      if (!ok4(!!M && M.circles.filter((c) => c.kind === 'hull').length === B.keel.n && M.circles.filter((c) => c.kind === 'murk').length === 1, `${water}: the mooring resolves (${B.keel.n} keel circles and Murk's)`)) continue;
+      const d0 = Lay.docks[raw.dock || 0];
+      ok4(Math.hypot(M.raft.x - d0.x, M.raft.z - d0.z) < 1e-9, `${water}: the raft's tie-up at the stern is docks[${raw.dock || 0}] (PLAN CHOICE 44's place)`);
+      const stern = { x: M.hull.x + Math.sin(M.hull.yaw) * B.length / 2, z: M.hull.z + Math.cos(M.hull.yaw) * B.length / 2 };
+      ok4(Math.hypot(stern.x - M.raft.x, stern.z - M.raft.z) <= 4, `${water}: the raft lies at the stern (${Math.hypot(stern.x - M.raft.x, stern.z - M.raft.z).toFixed(2)} m from it)`);
+      // the places and their banks: whatever LOOP.places holds for this water (step 3a's), through data's loopPlace when it has one
+      const LPL = LP.places && typeof LP.places === 'object' && !Array.isArray(LP.places) ? LP.places : {};
+      const places = Object.keys(LPL).filter((id) => LPL[id]?.water === water).map((id) => ({ id, area: typeof L4.loopPlace === 'function' ? L4.loopPlace(id)?.area : null })).filter((p) => p.area);
+      const out = L4.sailPlan(Lay.docks[0], { x: 0, z: 0 }, LP.tutorial, water).path;
+      const F = LR.mooringChecks(M, { obstacles: [...Lay.obstacles, ...(Lay.gateObstacles || [])], shoreR: Lay.shoreR, spawn: Lay.spawn, out, places, raftR: rr2, reach: B.reach });
+      ok4(F.length === 0, `${water}: the hulls, the raft and the glides clear the islands, pillars, posts, ${places.length} place(s) and their banks, the shore and the spawn${F.length ? `: ${F.slice(0, 4).join('; ')}` : ''}`);
+      // the home camera's frame (the portrait pose on a screen taller than wide, as render picks it)
+      const cam = raw.cam;
+      ok4(cam && Array.isArray(cam.pos) && Array.isArray(cam.look) && num4(cam.fov) && cam.portrait && Array.isArray(cam.portrait.pos), `${water}: the home camera has its pose and its portrait pose`);
+      for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [960, 540], [1280, 720], [1920, 1080], [844, 390]]) {
+        const r = HT.frameCheck(M, vw / vh < 0.85 ? cam.portrait : cam, { vw, vh });
+        ok4(r.ok, `${water}: the home camera at ${vw} × ${vh} holds the barge, the raft and Murk, the chart table, the lectern and the doorway, each button ≥ 44 px, none overlapping${r.ok ? '' : `: ${r.faults.slice(0, 3).join('; ')}`}`);
+      }
+    }
+    // self-tests: a hull laid over the Jetty's statue fails, and a camera turned away fails its frame
+    { const Lay = WLY.buildLayout(L4.ZONE_BY_ID.mossmere), M = L4.loopMooring('mossmere', Lay.docks);
+      const bad = { ...M, circles: [...M.circles, { x: 8, z: 36, r: 1.8, kind: 'hull' }] };
+      ok4(LR.mooringChecks(bad, { obstacles: Lay.obstacles, shoreR: Lay.shoreR }).length > 0, 'mooring self-test: a hull circle on the statue fails');
+      ok4(!HT.frameCheck(M, { pos: [18, 6, 60], look: [18, 1, 80], fov: 40 }, { vw: 358, vh: 664 }).ok, 'mooring self-test: a camera looking away fails its frame'); }
+  }
   // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
   const FL = L4.FIRST_EVENING?.lines || {};
   const depart = Math.max(murkHold(TL.murk.firstChart, FL), ...Object.values(TL.murk.firstChartBy || {}).map((x) => murkHold(x, FL)));

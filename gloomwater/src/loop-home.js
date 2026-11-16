@@ -11,7 +11,7 @@
 //   canGoHome / goHome       the Home pill and the pause's Home
 //   skipHomeGlide()          a tap or a skip key: the running home glide ends at its end and what follows runs at once
 // Every neighbour is read through optional chaining (PLAN §3's stub rule): an absent one means the built behaviour, never a throw.
-import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath } from './loop-rules.js';
+import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath, glideInPath } from './loop-rules.js';
 
 const numOr = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 
@@ -43,12 +43,20 @@ export function createLoopHome(deps) {
   }
   function teleport(p, yaw) { if (p) { try { ctx.player?.teleport?.(p, numOr(yaw, 0)); } catch (e) { report('player.teleport', e); } } }
   function teleportHome() { const d = dockAt(); if (d) teleport(d.position, d.yaw); }
-  /** Murk's barge moored at the Jetty: the next dock, else beside the first (R10). */
+  /** The water's mooring (M1 step 5a, SPEC §6.5: world.getMooring(), data.loopMooring on its docks), or null. */
+  const mooring = () => safe(() => ctx.world?.getMooring?.(), null);
+  /** Murk's barge moored at the Jetty: the mooring's murk slot (moored mode: lamp dark, no turning); else the next dock, else beside
+   *  the first (R10). */
   function moorMurk() {
+    const M = mooring(), V = ctx.THREE?.Vector3;
+    if (M?.murk && typeof ctx.actors?.merchant?.moor === 'function') {
+      const pos = V ? new V(M.murk.x, 0, M.murk.z) : { x: M.murk.x, y: 0, z: M.murk.z };
+      try { ctx.actors.merchant.moor(pos, M.murk.yaw, { zone: M.water }); } catch (e) { report('merchant.moor', e); }
+      return;
+    }
     const d1 = dockAt(1), d0 = dockAt();
     const m = d1 || (d0 ? { position: { x: d0.position.x + 6 * Math.cos(d0.yaw), z: d0.position.z - 6 * Math.sin(d0.yaw) }, yaw: d0.yaw } : null);
     if (!m) return;
-    const V = ctx.THREE?.Vector3;
     const pos = V ? new V(m.position.x, 0, m.position.z) : { x: m.position.x, y: 0, z: m.position.z };
     try { ctx.actors?.merchant?.arrive?.(pos, m.yaw, { instant: true }); } catch (e) { report('merchant.arrive', e); }
   }
@@ -106,8 +114,19 @@ export function createLoopHome(deps) {
       save();
     };
     if (from === 'trip') {
-      // the sail home: 2 s of raft speed toward the Jetty's dock; the clams were paid and saved before it started (R3: the snap to
-      // the dock lands in the task that opens the tally)
+      // the sail home: 2 s toward the Jetty; the clams were paid and saved before it started. With the home barge (M1 step 5a) the
+      // glide ends at its stern, the raft's tie-up (docks[0]): straight in or through the mooring's lane, at most LOOP.barge.reach
+      // m of it (a longer way begins that far out, the camera put there with the raft); the tally opens as it ties up
+      const M = mooring();
+      if (M && start) {
+        const g = glideInPath(start, M, { reach: numOr(LOOPD.barge?.reach, 24), pad: raftPad(), obstacles: obstacleList() });
+        if (g && g.len > 0.05) {
+          if (g.cut) teleport({ x: g.path[0][0], z: g.path[0][1] }, headingOf(g.path));
+          homeGlide(g.path, { duration: numOr(LOOPD.time?.home, 2), kind: 'home', to: M.raft, yaw: M.raft.yaw, done: () => arrive() });
+          if (g.cut) snapCamera();   // (the sail framing on the raft where the glide begins: the glide is running, so not the home's)
+        } else { teleportHome(); arrive(); }
+        return true;
+      }
       const path = dock && start ? homeGlidePath(start, dock.position, numOr(LOOPD.time?.raftSpeed, 6), 2) : null;
       if (path) homeGlide(path, { duration: 2, kind: 'home', to: dock.position, yaw: dock.yaw, done: () => arrive() });
       else { teleportHome(); arrive(); }
@@ -117,17 +136,28 @@ export function createLoopHome(deps) {
       // the hand-off (PLAN CHOICE 35): Murk moored and the save written at once (the seen film, the Wick and the tutorial reach the
       // disk before the glide), then 3 s from where the film left the raft to the first dock
       moorMurk();
+      towed();
       save();
       const d = start && dock ? Math.hypot(dock.position.x - start.x, dock.position.z - start.z) : 0;
-      if (d > 0.05) homeGlide([[start.x, start.z], [dock.position.x, dock.position.z]], { duration: numOr(TUT.arrive, 3), kind: 'home', to: dock.position, yaw: dock.yaw, done: () => arrive({ moored: true }) });
+      // (the home barge: the glide in reaches the stern through the mooring's lane when the straight way crosses a hull)
+      const M = mooring(), g = M && d > 0.05 ? glideInPath(start, M, { pad: raftPad(), obstacles: obstacleList() }) : null;
+      const path = g && !g.cut ? g.path : [[start?.x, start?.z], [dock?.position.x, dock?.position.z]];
+      if (d > 0.05) homeGlide(path, { duration: numOr(TUT.arrive, 3), kind: 'home', to: dock.position, yaw: dock.yaw, done: () => arrive({ moored: true }) });
       else { teleportHome(); arrive({ moored: true }); }
       return true;
     }
+    if (from === 'new') towed();
     teleportHome();
-    try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); }   // (no glide from the title: the Jetty on the cut)
+    snapCamera();   // (no glide from the title: the Jetty on the cut)
     arrive();
     return true;
   }
+  /** The opening's barge (M1 step 5a; step 5b's tow writes the same): the barge lies at the first water, its tow played. */
+  function towed() { try { loopApi()?.towBarge?.(LAKE); } catch (e) { report('loop.towBarge', e); } }
+  function snapCamera() { try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); } }
+  const raftPad = () => numOr(data?.BALANCE?.move?.raftRadius, 1.6);
+  const obstacleList = () => { const o = safe(() => ctx.world?.getObstacles?.(), null); return Array.isArray(o) ? o : null; };
+  const headingOf = (P) => (P.length >= 2 ? Math.atan2(-(P[1][0] - P[0][0]), -(P[1][1] - P[0][1])) : 0);
 
   /** A trip (PLAN §2.2 item 3): the evening on the water, created by progression's loop; on failure the Wick stays home. */
   function startTrip(opts = {}) {
@@ -149,8 +179,9 @@ export function createLoopHome(deps) {
     savedRun.set(null);
     ctx.paused = false;
     S.sailing = false; S.glide = null;
-    // Murk stays home (M1 step 5 drops this line: his barge is moored beside the home barge, PLAN rev. 9)
-    try { ctx.actors?.merchant?.leave?.({ instant: true }); } catch (e) { report('merchant.leave', e); }
+    // Murk stays moored beside the home barge through the evening (M1 step 5a: no merchant.leave; PLAN rev. 9's T29: no
+    // merchant:arrive and no Trade pill on a trip); moored again before the Sail's zone:change, so nothing unmoors him
+    moorMurk();
     closeScreens();
     setFlow('playing');
     // the lake is already on screen: render does not flash, audio plays `setout`, ui shows no banner (PLAN §3.6)
@@ -237,7 +268,7 @@ export function createLoopHome(deps) {
   }
 
   return {
-    enterHome, startTrip, endTripHome, beginIntro, sail, canGoHome, goHome, skipHomeGlide, loopApi,
+    enterHome, startTrip, endTripHome, beginIntro, sail, canGoHome, goHome, skipHomeGlide, loopApi, moorMurk,
     /** A home glide is running: its kind ('home' | 'sailOut') or null. */
     gliding: () => (S.glide ? S.glide.kind : null),
     get sailing() { return S.sailing; },

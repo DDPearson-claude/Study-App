@@ -533,14 +533,34 @@ export function create(ctx) {
   function setIntroCamera(p) { introCam = p && Array.isArray(p.pos) && Array.isArray(p.look) ? p : null; }
   // <<< INTRO LANE A
 
+  // the home camera (M1 step 5a; SPEC §6.1): the mooring's `cam` ({pos, look, fov}, `portrait` on a screen taller than wide),
+  // blended over the rig by one weight eased 1.2 s in from 'sail' and out again when the glide out begins; null without a mooring
+  const HOME_EASE = 1.2;
+  const homeCam = { k: 0, w: 0, pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 45 };
+  function homePose() {
+    if (ctx.data?.LOOP_ENABLED !== true) return null;
+    let m = null;
+    try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
+    const c = m?.cam;
+    if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
+    return W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos) ? c.portrait : c;
+  }
+  function updateHomeCam(dt) {
+    const pose = mode === 'home' ? homePose() : null;
+    if (pose) { homeCam.pos.fromArray(pose.pos); homeCam.look.fromArray(pose.look); homeCam.fov = Number(pose.fov) || 45; }
+    homeCam.k = clamp(homeCam.k + (pose ? dt : -dt) / HOME_EASE, 0, 1);
+    homeCam.w = homeCam.k * homeCam.k * (3 - 2 * homeCam.k);
+  }
+
   function pickMode() {
     const flow = ctx.flow;
     if (introCam) return 'sail';   // INTRO LANE A: cut-scene camera
     if (flow === 'title' || flow === 'boot') return 'title';
     if (flow === 'dead') return 'death';
     if (trophyLive()) return 'trophy';
-    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit)
-    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return 'sail';
+    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit); with
+    // the home barge (M1 step 5a) the raft tied at its stern is framed by the mooring's camera ('home', eased 1.2 s from 'sail')
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return homePose() && ctx.player?.gliding !== true ? 'home' : 'sail';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';
     const fs = fishingState();
@@ -569,11 +589,11 @@ export function create(ctx) {
   }
 
   function fillTargets(p) {
-    const base = P[mode];
+    const base = P[mode === 'home' ? 'sail' : mode];   // ('home' keeps the sail rig under its fixed pose)
     for (const k of PARAM_KEYS) tgt[k] = base[k];
     const nk = nightK;
     if (mode === 'trophy') { fillTrophy(); return; }   // its own portrait fit (the distance is the rule's)
-    if (mode === 'sail' || mode === 'night') {
+    if (mode === 'sail' || mode === 'night' || mode === 'home') {
       const s = P.sail, n = P.night;
       for (const k of PARAM_KEYS) tgt[k] = lerp(s[k], n[k], nk);
     } else if (mode === 'fish' || mode === 'reel') {
@@ -620,7 +640,7 @@ export function create(ctx) {
     }
     // the loop's Jetty at rest (flow home, no glide running): the look target on the moored raft itself, not 6.5 m ahead of it, so
     // the raft and the Wick's flame sit mid-frame above the Jetty's tile row; the home glides keep the sail framing
-    if (mode === 'sail' && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
+    if ((mode === 'sail' || mode === 'home') && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
     // portrait screens: widen, pull back and tilt down so the raft and its pool fit
     const a = W / H;
     if (a < 1.25) {
@@ -1004,7 +1024,16 @@ export function create(ctx) {
       camPos.lerp(tmpV, sw);
       lookTarget.lerp(S.look, sw);
     }
-    const rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
+    let rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
+    // the home camera over the rig (M1 step 5a): the mooring's framing, a slow breath at rest
+    updateHomeCam(dt);
+    if (homeCam.w > 0) {
+      const hw = homeCam.w, br = reducedMotion ? 0.01 : 0.05;
+      tmpV.copy(homeCam.pos); tmpV.x += Math.sin(time * 0.23) * br; tmpV.y += Math.sin(time * 0.31 + 0.7) * br * 0.6;
+      camPos.lerp(tmpV, hw);
+      lookTarget.lerp(homeCam.look, hw);
+      rigFov = lerp(rigFov, homeCam.fov, hw);
+    }
 
     // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
     let introW = 0, introFov = null;
@@ -1230,7 +1259,7 @@ export function create(ctx) {
           camera.getWorldDirection(tmpV2);
           const subj = trophyLive() ? trophy.subject : null;
           return {
-            v3: V3, mode, prevMode, modeT: r1(modeT), cur: prm(cur), tgt: prm(tgt), yawDeg: r1(yaw / DEG), fov: r1(camera.fov),
+            v3: V3, mode, prevMode, modeT: r1(modeT), homeW: r1(homeCam.w), cur: prm(cur), tgt: prm(tgt), yawDeg: r1(yaw / DEG), fov: r1(camera.fov),
             pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
             focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
@@ -1379,6 +1408,7 @@ export function create(ctx) {
       yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
       focusInit = true;
       if (showCam.on || showCam.hold) { showCam.p = 1; showCam.init = false; }   // the show camera too: at its fitted target, fully in
+      homeCam.k = mode === 'home' ? 1 : 0;   // (the home camera too: at the mooring's framing on the cut)
       updateCamera(0);
     },
     getYaw() { return yaw; },
