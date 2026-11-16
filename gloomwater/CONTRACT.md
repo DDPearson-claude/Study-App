@@ -2056,10 +2056,15 @@ test opens.
   `baitSlotModel` · `mapArtSizes` · `MAP_ART` · `catalogueView` · `giantsView` · `liftTitle` · `saleLineId`. `ui-fishart.js`:
   `setLoopArt(on)` (the loop's 2D `trout`, `sturgeon`, `lamprey` plans), `drawFish(…, {hatch: true})`, `hatchProbe(sp, w, h)`.
 - **The world** (D): `src/world-places.js` (built only under the loop); `world.setPlaces({owned, lifted})`, `world.liftMist(id, s)`
-  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r, face?}` (the place's water centre and radius; a path's `face`, its unit normal, turns the lift's lens to its broadside: the stage), `world.places()`;
+  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r, face?, side?, elev?, dist?}` (the place's water centre and radius; a path's `face`, its unit normal, turns the lift's lens to its broadside: the stage; a place's own crane, the Bell Pool's: `side` [x, z] the lens's side, `elev` deg, `dist` m, looking at its bell: the fix pass), `world.places()`
+  (its `dressing` {pads, caps, decals, chains, piers, …} and `cut`, the Span's cutaway); under the loop world.js holds the legend pool's gold glimmer while
+  `placesVis.openAt(x, z)` is false (its place's bank standing or lifting);
   `world:giantBack {placeId, x, z}` (at `gloomtide`, in a standing Under the Span or Buoy Lights bank); `world-art.js` `opts.redress`
-  (W9's rest, only with `LOOP.redress`); `render.frameLandmark(p | null, {dur, back})` (null: ease back now; `render-camera.js`
-  `landmarkShot`, `landmarkWeight`); `models-fish.js` `lamprey`, `sturgeon`, `trout` (read only under the loop).
+  (W9's rest, only with `LOOP.redress`); `render.frameLandmark(p | null, {dur, back})` (null: ease back now; p carries the anchor's
+  `r`, `face`, `side`, `elev`, `dist`; `render-camera.js` `landmarkShot(raft, p, {yaw, aspect, obstacles})`, `shotBlocked(pos, look,
+  obstacles, {clear, cone, vhalf})`, `landmarkWeight`; render passes `world.getObstacles()`, and the lens steps round an island in its
+  line or frame: the fix pass); `models-fish.js` `lamprey`, `sturgeon`, `trout` (read only under the loop). `ctx.ui.loop.debug()` adds
+  `titleClash` (a Murk line on screen with a lift's title card or a legend's name card: never, the fix pass).
 - **Debug hooks** (debug builds, the loop only): `ctx.debug.loop.own(id | 'all')`, `.lift(id | 'all', {play})`, `.giveBait(id, n,
   {fit})`, `.at(placeId)`, `.places()`, `.chart(cmd, arg)` (3b), `.homeState()` (+ `sailPlace`, `lift`) · `ctx.debug.fishPoolRoll(n,
   {place, bait, rb})` · `ctx.debug.audioMoss()` · `ctx.debug.ui.chartList(on)`, `.hatchProbe(id, w, h) → {pixels, offHue, maxInk,

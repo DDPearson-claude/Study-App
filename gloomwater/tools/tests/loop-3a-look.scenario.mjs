@@ -184,11 +184,45 @@ export default async function (api) {
       }
     }
     if (sheets.includes('catalogue')) {
-      K.step('sheet 3: the catalogue (lane C\'s screens)');
-      const opened = await g(() => { const s = window.__gw.ui?.screens ?? window.__gw.screens; try { (s?.openJournal ?? window.__gw.ui?.openJournal)?.({ from: 'chart', zone: 'mossmere' }); return true; } catch { return false; } });
-      await K.secs(0.5); await K.settle(400);
-      if (opened) await frame('catalogue', 'page', 'the Mossmere\'s catalogue');
-      await g(() => window.__gw.ui.closeAll?.());
+      K.step('sheet 3: the catalogue (lane C\'s screens), two saves, scrolled, the giants\' page, an enlarged silhouette');
+      // (the fix pass: the sheet showed only the unscrolled head; the places' groups, the giants' gold edges, the Matriarch's gold card,
+      // Odds ›, the giants' page and the enlarged silhouette are 3a's and were never looked at)
+      const open = () => g(() => { const s = window.__gw.ui?.screens ?? window.__gw.screens; try { (s?.openJournal ?? window.__gw.ui?.openJournal)?.({ from: 'chart', zone: 'mossmere' }); return true; } catch { return false; } });
+      const scrollTo = (f) => g((f) => { const sc = document.querySelector('[data-loop=catalogue] .gw-cat-scroll'); if (!sc) return null; sc.scrollTop = (sc.scrollHeight - sc.clientHeight) * f; return Math.round(sc.scrollTop); }, f);
+      const saved = await g(() => { const m = window.__gw.state.meta; return JSON.stringify({ places: m.loop?.maps?.places ?? [], journal: m.journal ?? {} }); });
+      for (const variant of ['bare', 'owned']) {
+        await g(([variant, saved]) => {
+          const m = window.__gw.state.meta, S0 = JSON.parse(saved);
+          m.loop.maps = m.loop.maps || {};
+          const J = JSON.parse(JSON.stringify(S0.journal));
+          if (variant === 'bare') {
+            m.loop.maps.places = [];
+            for (const id of ['thousandcast_pike', 'hullkiss_lamprey', 'belled_matriarch', 'bridgechain_sturgeon', 'candlefin_koi', 'weeping_carp', 'gloam_eel']) delete J[id];
+          } else {
+            m.loop.maps.places = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
+            for (const [id, len, w] of [['thousandcast_pike', 120, 4.5], ['belled_matriarch', 130, 127], ['bridgechain_sturgeon', 90, 9], ['candlefin_koi', 51, 4]]) J[id] = { ...(J[id] || {}), caught: Math.max(1, J[id]?.caught | 0), biggest: w, pbLength: len, seals: { prize: true, ...(J[id]?.seals || {}) } };
+          }
+          m.journal = J;
+        }, [variant, saved]);
+        if (!(await open())) { K.note('no catalogue'); break; }
+        await K.secs(0.5); await K.settle(400);
+        await frame('catalogue', `${variant}-top`, `the Mossmere's catalogue (${variant === 'bare' ? 'no place owned, no giant caught' : 'every place owned, a giant and the Matriarch caught'}): its head and the list`);
+        await scrollTo(0.5); await K.steps(1); await K.settle(250);
+        await frame('catalogue', `${variant}-mid`, `the catalogue scrolled to its middle (${variant}): the fixed head clear of the list`);
+        await scrollTo(1); await K.steps(1); await K.settle(250);
+        await frame('catalogue', `${variant}-end`, `the catalogue's end (${variant}): the places' groups, the giants' gold edges, the Matriarch's card, Odds ›`);
+        const tab = await g(() => { const t = document.querySelector('[data-loop=catalogue] .gw-tab--giants'); if (t) { t.click(); return true; } return false; });
+        if (tab) { await K.steps(2); await K.settle(350); await frame('catalogue', `${variant}-giants`, `the giants' page (${variant}): hatched until landed, then gold-framed`); }
+        await g(() => window.__gw.ui.closeAll?.()); await K.steps(1);
+        if (variant === 'bare') {
+          await open(); await K.secs(0.4); await K.settle(300);
+          const big = await g(() => { const c = [...document.querySelectorAll('[data-loop=catalogue] .gw-cat-card.gw-hatched[data-species]')].find((e) => /thousandcast|hullkiss|belled/.test(e.dataset.species)) || document.querySelector('[data-loop=catalogue] .gw-cat-card.gw-hatched[data-species]'); if (!c) return null; c.scrollIntoView({ block: 'center' }); c.click(); return c.dataset.species; });
+          await K.steps(2); await K.settle(350);
+          if (big) await frame('catalogue', 'bare-big', `an uncaught fish enlarged (${big}): its silhouette and glyphs, no word`);
+          await g(() => window.__gw.ui.closeAll?.()); await K.steps(1);
+        }
+      }
+      await g((saved) => { const m = window.__gw.state.meta, S0 = JSON.parse(saved); m.loop.maps.places = S0.places; m.journal = S0.journal; }, saved);
     }
     if (sheets.includes('hud')) {
       K.step('sheet 5: the HUD (the hold row, the title card)');

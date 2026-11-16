@@ -369,8 +369,10 @@ export function shotBlocked(pos, look, obstacles = [], { clear = LANDMARK_SHOT.c
     // (cone: an island nearer than the place and inside the frame's width fills a corner of the shot; `cone` is tan of the half-width)
     if (cone > 0) {
       const wx = o.x - ax, wz = o.z - az, along = (wx * ux + wz * uz) / L;
-      const nearAlong = along - num(o.r, 0);   // (its nearest rock, along the view; beside the lens it is in the frame's corner)
-      const below = vhalf > 0 && nearAlong > 1.5 && (ay - blockH(o)) / nearAlong > Math.tan(Math.atan2(ay - by, L) + vhalf);   // (under the frame's foot)
+      // (under the frame's foot only when it is low and well ahead of the lens: an island's rocks stand taller than its radius says, and
+      // a boulder the stage's walk met sat in the frame's corner, so the test is cautious: twice the height, 8 m clear)
+      const nearAlong = along - num(o.r, 0);
+      const below = vhalf > 0 && nearAlong > 8 && (ay - 2 * blockH(o)) / nearAlong > Math.tan(Math.atan2(ay - by, L) + vhalf);
       if (!below && along > 0 && along < L - num(o.r, 0) * 0.5 && (Math.abs(wx * uz - wz * ux) / L - num(o.r, 0) * 1.15) / along < cone) return o;
     }
     const t = clamp(((o.x - ax) * ux + (o.z - az) * uz) / L2, 0, 1);

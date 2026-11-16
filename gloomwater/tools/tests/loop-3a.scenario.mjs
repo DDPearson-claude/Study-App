@@ -287,6 +287,9 @@ export default async function (api) {
     K.check(lb && lb.op < 0.95, 'the Lily Maze\'s bank thins during the lift', lb);
     await K.shoot('lift-thinning');
     await K.secs(2.2);
+    // (no Murk line over the place's title card: the fix pass; the debug readout's clash check)
+    const tc = await g(() => window.__gw.ui?.loop?.debug?.() ?? null);
+    K.check(tc && !tc.titleClash, 'the lift\'s title card: no Murk line on screen with it', tc ? { liftTitle: tc.liftTitle, titleClash: tc.titleClash } : null);
     await K.shoot('lift-title');
     await K.secs(1.6);
     const after = await K.places.readout();
@@ -364,7 +367,7 @@ export default async function (api) {
     await scan('the HUD');
     let legend = null;
     try {
-      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onPlay: () => scan('the play'),
+      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onPlay: async () => { await scan('the play'); const tc = await g(() => window.__gw.ui?.loop?.debug?.()?.titleClash ?? null); K.check(tc === false, 'her name card: no Murk line on screen with it', tc); },
         onBite: async () => { await scan('the strike'); const f = await g(() => { const c = window.__gw, d = c.debug.fishing?.(); return { place: d?.place ?? null, legend: d?.legend ?? null, bait: c.state.run?.equippedBait ?? null, phase: c.state.run?.phase ?? null }; }); K.check(f.place === 'bell_pool' && f.legend === true, 'T149: the cast lands in the Bell Pool with the ball on the line in her hour (her sure bite)', f); } });
     } catch (e) { if (!(e instanceof Abort)) throw e; K.note('her bite did not come (lanes A and B: the ball, her pool and her hour)'); }
     if (legend) {
