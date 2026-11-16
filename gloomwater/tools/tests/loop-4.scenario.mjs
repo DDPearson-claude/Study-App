@@ -162,6 +162,26 @@ export default async function (api) {
     R = await run();
     K.check(R.creel === 2, 'the Gloam Eel in the hold', R);
 
+    // ------------------------------------------------------------------ the Belled Matriarch, a catfish (her play forced: the look)
+    if (!K.phone) {
+      K.step('4: the Matriarch on her catfish plan');
+      const before = await g(() => window.__gw.state.run.creel.length);
+      await K.realCatch('belled_matriarch', 0.2, { what: 'the Belled Matriarch', onPlay: async () => { await K.shoot('matriarch-play'); } });
+      const sh4 = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 40);
+      if (sh4.ok && (await K.state()).inShow) { await K.secs(1.2); await K.shoot('matriarch-show'); await K.key('Space'); }
+      const card4 = await K.until("c.debug.ui().openModal === 'catch'", 12);
+      if (K.check(card4.ok, 'her card opens')) {
+        await K.settle(300); await K.secs(1.5);
+        await K.shoot('card-matriarch');
+        const shape = await g(() => window.__gw.data.SPECIES_BY_ID.belled_matriarch.model.shape);
+        K.check(shape === 'catfish', 'the Matriarch is drawn on the catfish plan', shape);
+        await K.tap('[data-modal=catch] [data-action=keep]');
+        await K.until("c.debug.ui().openModal !== 'catch'", 3);
+        K.check((await g(() => window.__gw.state.run.creel.length)) === before + 1, 'she is in the hold');
+      }
+      await K.until("c.fishing.state === 'idle'", 6);
+    }
+
     // ------------------------------------------------------------------ home: the tally doubles the order's fish, with a chalk tick
     K.step('4: home, the tally');
     K.need(await g(() => window.__gw.game.goHome()), 'Home');
@@ -180,7 +200,16 @@ export default async function (api) {
     await K.until("c.debug.ui().openModal === 'jetty'", 6);
     L = await ml();
     K.check(!L.orders.some((o) => o.id === 'ord_walk') && L.orders.length === 1, 'the order is gone and Murk has chalked a new one', L.orders);
-    K.check(L.bait.mossmere.cut_strip === 3 && L.bait.mossmere.lumen_moss === 7, 'the bag came home: three Cut Strips, seven Lumen Moss (three casts)', L.bait.mossmere);
+    const casts = K.phone ? 3 : 4;   // (the Matriarch's cast on a desktop spends one too: the tin on the line)
+    K.check(L.bait.mossmere.cut_strip === 3 && L.bait.mossmere.lumen_moss === 10 - casts, `the bag came home: three Cut Strips, ${10 - casts} Lumen Moss (${casts} casts)`, L.bait.mossmere);
+    // the catalogue: the Gloam Eel's card in ink (its tin glyph), the Matriarch's catfish drawing (desktop) or her hatch
+    if (await K.tap('[data-modal=jetty] [data-tile=journal]')) {
+      await K.settle(600); await K.steps(3);
+      await g(() => document.querySelector('[data-species=gloam_eel]')?.scrollIntoView({ block: 'center' }));
+      await K.settle(300);
+      await K.shoot('catalogue');
+      await K.key('Escape'); await K.settle(200);
+    }
     await K.noErrors('the walk');
   } catch (e) {
     if (e instanceof Abort) K.note('the walk stopped', e.message);
