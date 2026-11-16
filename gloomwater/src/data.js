@@ -4863,7 +4863,10 @@ export const LOOP = {
   // kind, the map's price (LOOP.waters[water].prices[kind]), the fish its card names, its giant, its own fish, the open-water fish it
   // draws (× weight) and its crown's legend. Never in LOOP.waters[w].places (a lake map's places, migrateLoop rule 5; PLAN CHOICE 1).
   places: {
-    lily_maze:      { water: 'mossmere', kind: 'day',   price: 60,  card: 'candlefin_koi',     draws: { candlefin_koi: 3, weeping_carp: 1.5 } },
+    // `out`: a place's own glide out from the Jetty when the straight one toward its centre would graze a pillar (PLAN CHOICE 7; the
+    // Lily Maze's passes the statue at (8, 36) within 0.5 m of its collision, so it bends south of it: 15.3 m, 4.6 m clear; loopSailPlan)
+    lily_maze:      { water: 'mossmere', kind: 'day',   price: 60,  card: 'candlefin_koi',     draws: { candlefin_koi: 3, weeping_carp: 1.5 },
+      out: [[24, 38], [18, 32.5], [11, 31]] },
     under_the_span: { water: 'mossmere', kind: 'old',   price: 150, card: 'thousandcast_pike', giant: 'thousandcast_pike', own: ['bridgechain_sturgeon'] },
     buoy_lights:    { water: 'mossmere', kind: 'night', price: 260, card: 'hullkiss_lamprey',  giant: 'hullkiss_lamprey' },
     bell_pool:      { water: 'mossmere', kind: 'crown', price: 500, card: 'belled_matriarch',  legend: 'belled_matriarch' },
@@ -4981,6 +4984,16 @@ export function sailPlan(dock, centre = { x: 0, z: 0 }, T = LOOP.tutorial, lake 
   }
   const to = path[path.length - 1], a = path[path.length - 2];
   return { from, to, yaw: Math.atan2(-(to.x - a.x), -(to.z - a.z)), path };
+}
+/** M1 step 3a (PLAN CHOICE 7): the glide out of a Sail toward a water or a place of it, from the dock. A place: its own authored glide
+ *  (LOOP.places[id].out, [[x, z], …], the first point the dock) when it has one, else T.outDist m toward its centre; no place (or one
+ *  LOOP.places does not hold): the water's glide (sailPlan with the lake: its outPath, else toward the lake's centre). validate-data
+ *  --loop proves every one clears each island and pillar by the raft's radius + 0.3 m. */
+export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T = LOOP.tutorial) {
+  const P = place ? LOOP.places?.[place] : null, rec = P ? MOSSMERE_V3.places.find((q) => q.id === place) : null;
+  if (!P || !rec) return sailPlan(dock, { x: 0, z: 0 }, T, water);
+  if (Array.isArray(P.out) && P.out.length >= 2) return sailPlan(dock, { x: rec.x, z: rec.z }, { ...T, outPath: { [place]: P.out } }, place);
+  return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
 }
 
 // ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.1): the places, the place pool and the giants' share. Pure: each reads only LOOP,
@@ -5281,7 +5294,10 @@ export function upgradeHold(levels = {}) {
 // {wellFed, boons, relics, character, firstHookTonight}, marked?, wounds?, landings?, night?, perRun?}. Pure: no state, no RNG.
 const CATCH_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const CATCH_CLASS_MAX = { keeper: 1, prize: 2, trophy: 3, elder: 5 };
-const catchSp = (s) => (typeof s === 'string' ? SPECIES_V3_BY_ID[s] : s) || null;
+// Under the loop an id resolves to the loop's own record first (SPECIES_BY_ID: the converter's roster fish, which SPECIES_V3_BY_ID lacks,
+// such as the Likely Chub or the Thousandcast Pike, or holds as built), so fishing's catchChance(sp.id, …) is the sim's land chance;
+// off the loop the built v3 record, as before (M1 step 3a: four step-2 fish and the three new ones read null by id before).
+const catchSp = (s) => (typeof s === 'string' ? (LOOP_ENABLED ? SPECIES_BY_ID[s] ?? SPECIES_V3_BY_ID[s] : SPECIES_V3_BY_ID[s]) : s) || null;
 export function catchHomeLake(sp) { sp = catchSp(sp); return sp ? (sp.zone || sp.zones?.[0] || null) : null; }
 /** Can this species be this class at all (species caps: the Quayling at Keeper, the Lampwarden at Trophy)? Legends: 'legend' only. */
 export function catchClassAllowed(sp, cls) {

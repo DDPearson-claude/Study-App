@@ -128,7 +128,8 @@ section('LOOP.shipped: the Mossmere; Sporewood never offered (decision 39)');
   ok(PL.waterShipped({ ...DD, LOOP: { ...DD.LOOP, shipped: 'sporewood' } }, 'sporewood'), '… and ships once LOOP.shipped is Sporewood');
   for (const lakes of [['mossmere'], ['mossmere', 'sporewood']]) {
     const items = PL.shelfItems(DD, { ...PL.freshLoop(DD), clams: 1e9, maps: { lakes, places: [] } });
-    ok(!items.some((i) => i.tab === 'maps' || /sporewood/.test(i.id)), `the shelf offers no Sporewood map (lakes ${lakes.join(', ')})`);
+    // M1 step 3a: the Maps tab holds the place maps and the next water's card, always sealed past LOOP.shipped (no price, no buy)
+    ok(!items.some((i) => (i.tab === 'maps' && i.slot === 'lake' && (!i.sealed || i.price != null)) || (/sporewood/.test(i.id) && !i.sealed)), `the shelf offers no Sporewood map: a lake card past LOOP.shipped is sealed, with no price (lakes ${lakes.join(', ')})`);
   }
   const src = fs.readFileSync(new URL('../../src/progression-loop.js', import.meta.url), 'utf8');
   ok(src.includes("!(it.tab === 'maps' && it.water && !waterShipped(D, it.water))") && src.includes('waterShipped(D(), waterId) && (L.maps?.lakes'), 'the shelf drops a map past LOOP.shipped; no trip opens a water past it');

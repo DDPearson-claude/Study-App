@@ -151,7 +151,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
 /** The ounces a hold fish's weight reads on the card (data.weightOz of data.fishWeight; pounds, PLAN §3.3), or a stand-in with no data. */
 function weightKey(D, f) {
   if (typeof D?.weightOz === 'function' && typeof D?.fishWeight === 'function') {
-    const sp = D.SPECIES_V3_BY_ID?.[f.speciesId] ?? D.SPECIES_BY_ID?.[f.speciesId] ?? null;
+    // the loop's own record first (the card's: the converter's roster size), as ui-loop's tallyPlan reads it (M1 step 3a)
+    const sp = D.SPECIES_BY_ID?.[f.speciesId] ?? D.SPECIES_V3_BY_ID?.[f.speciesId] ?? null;
     return D.weightOz(D.fishWeight(sp, f));
   }
   return num(f.weight) > 0 ? num(f.weight) : num(f.length);   // the boot rule has no data: the stored kg, else the length

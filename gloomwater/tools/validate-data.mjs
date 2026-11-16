@@ -251,6 +251,56 @@ if (process.argv.includes('--loop')) {
     ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP');
     ok4(LP.redress === false && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
       'T118: LOOP.redress is false (no ?redress), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
+    // T118: each map card's fish bites at its place (its pool there in some light: the giant's share, a drawn or own fish; the legend
+    // on her water's legend bait, her place's crown)
+    const LIGHTS = ['calm', 'dusk', 'gloomtide'];
+    for (const id of ids) {
+      const p = PLC[id], sp = L4.SPECIES_BY_ID[p.card];
+      const bites = sp?.rarity === 'legendary' ? p.legend === sp.id && sp.bait === LP.legendBait[p.water]?.id
+        : LIGHTS.some((ph) => { const pool = L4.placePool(L4.SPECIES, { placeId: id, phase: ph, bait: sp?.bait ?? null }); return pool.place === id && (pool.giant?.sp.id === sp?.id || pool.list.some(([x]) => x.id === sp?.id)); });
+      ok4(!!sp && bites, `T118: ${id}'s map card names ${p.card}, which bites there${sp?.rarity === 'legendary' ? ' (her sure bite on the ' + sp.bait + ')' : ''}`);
+    }
+  }
+  const T = LP.tutorial, rr = L4.BALANCE.move.raftRadius, pad = rr + 0.3;
+  const clear = (Lay, a, b) => {
+    const obs = [...Lay.obstacles.filter((o) => o.kind !== 'post'), ...(Lay.gateObstacles || [])];
+    const len = Math.hypot(b.x - a.x, b.z - a.z), steps = Math.max(1, Math.ceil(len / 0.25));
+    let worst = Infinity, at = null;
+    for (let i = 0; i <= steps; i++) {
+      const x = a.x + (b.x - a.x) * (i / steps), z = a.z + (b.z - a.z) * (i / steps);
+      const shore = Lay.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+      let m = shore;
+      for (const o of obs) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
+      if (m < worst) { worst = m; at = { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 }; }
+    }
+    return { worst, at };
+  };
+  {
+    const PLC = LP.places, ids = L4.loopPlaceIds('mossmere');
+    // T118: each place's water is open in the loop's own layout (≥ 80%, the v3 place validator's rule), with no dock and not the spawn
+    // within its footprint + 1.5 m (a bank's feather); each glide out toward it (data.loopSailPlan, PLAN CHOICE 7) starts at docks[0]
+    // and clears every island and pillar by the raft's radius + 0.3 m
+    {
+      const Lay = WLY.buildLayout(L4.ZONES[0]), obsW = [...Lay.obstacles, ...(Lay.gateObstacles || [])], feather = 1.5;
+      for (const id of ids) {
+        const q = L4.PLACE_BY_ID[id], [x0, z0, x1, z1] = L4.walkShapeBounds(q.water, feather);
+        let n = 0, open = 0, dDock = Infinity, dSpawn = Infinity;
+        for (let zz = z0; zz <= z1; zz += 0.5) for (let x = x0; x <= x1; x += 0.5) if (L4.placeContains(q, x, zz)) {
+          n++; if (WLY.isOpenWaterL(Lay, obsW, x, zz, 0.3)) open++;
+          for (const d of Lay.docks) dDock = Math.min(dDock, Math.hypot(x - d.x, zz - d.z));
+          dSpawn = Math.min(dSpawn, Math.hypot(x - Lay.spawn.x, zz - Lay.spawn.z));
+        }
+        ok4(n > 0 && open / n >= 0.8 && dDock > feather && dSpawn > feather, `T118: ${id}'s water is ${n ? (100 * open / n).toFixed(0) : 0}% open in the loop's layout (≥ 80%), ${dDock.toFixed(1)} m from the nearest dock and ${dSpawn.toFixed(1)} m from the spawn (each > ${feather} m)`);
+        const g = L4.loopSailPlan(Lay.docks[0], { water: 'mossmere', place: id });
+        let worst = Infinity, at = null;
+        for (let i = 1; i < g.path.length; i++) { const c = clear(Lay, g.path[i - 1], g.path[i]); if (c.worst < worst) ({ worst, at } = c); }
+        const len = g.path.slice(1).reduce((a, b, i) => a + Math.hypot(b.x - g.path[i].x, b.z - g.path[i].z), 0);
+        ok4(Math.hypot(g.from.x - Lay.docks[0].x, g.from.z - Lay.docks[0].z) < 1e-9 && worst >= pad && len <= T.outDist * 1.15,
+          `T118 (PLAN CHOICE 7): the glide out toward ${id} (${PLC[id].out ? 'its own path' : `${T.outDist} m toward its centre`}, ${len.toFixed(1)} m) clears every island and pillar by ≥ ${pad.toFixed(1)} m (closest ${worst.toFixed(2)} m at ${JSON.stringify(at)})`);
+      }
+      const og = L4.loopSailPlan(Lay.docks[0], { water: 'mossmere' }), sg = L4.sailPlan(Lay.docks[0], { x: 0, z: 0 }, T, 'mossmere');
+      ok4(JSON.stringify(og) === JSON.stringify(sg), "loopSailPlan with no place is the water's own glide (1a's T66 unchanged)");
+    }
   }
   // the five Wicks (WICKS §2, §3.5, §5; T72)
   const W = LP.wicks, ids = L4.CHARACTERS.map((c) => c.id);
@@ -285,21 +335,7 @@ if (process.argv.includes('--loop')) {
   }
   ok4(Array.isArray(TL.murk.sailOut) && TL.murk.sailOut.length >= 1 && TL.murk.sailOut.every((x) => typeof x === 'string' && x), "Murk's sail-out lines rotate (at least one)");
   // the opening's paths (T72): the arrive glide (spawn → docks[0]) and every lake's glide out from docks[0] through data.sailPlan clear
-  // every island, pillar and gate stone by the raft's radius + 0.3 m and stay inside the shore by as much
-  const T = LP.tutorial, rr = L4.BALANCE.move.raftRadius, pad = rr + 0.3;
-  const clear = (Lay, a, b) => {
-    const obs = [...Lay.obstacles.filter((o) => o.kind !== 'post'), ...(Lay.gateObstacles || [])];
-    const len = Math.hypot(b.x - a.x, b.z - a.z), steps = Math.max(1, Math.ceil(len / 0.25));
-    let worst = Infinity, at = null;
-    for (let i = 0; i <= steps; i++) {
-      const x = a.x + (b.x - a.x) * (i / steps), z = a.z + (b.z - a.z) * (i / steps);
-      const shore = Lay.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
-      let m = shore;
-      for (const o of obs) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
-      if (m < worst) { worst = m; at = { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 }; }
-    }
-    return { worst, at };
-  };
+  // every island, pillar and gate stone by the raft's radius + 0.3 m and stay inside the shore by as much (T, pad and clear above)
   const intro = L4.ZONE_BY_ID[L4.INTRO?.lake || 'mossmere'] || L4.ZONES[0];
   { const Lay = WLY.buildLayout(intro), c = clear(Lay, Lay.spawn, Lay.docks[0]);
     ok4(c.worst >= pad, `T72: ${intro.id}'s arrive glide (spawn → docks[0]) clears every island and pillar by ≥ ${pad.toFixed(1)} m (closest ${c.worst.toFixed(2)} m at ${JSON.stringify(c.at)})`);

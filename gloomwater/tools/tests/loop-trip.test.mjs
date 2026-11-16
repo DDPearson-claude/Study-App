@@ -668,5 +668,232 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   eq(env.L.liftDue(), ['lily_maze', 'bell_pool'], 'liftDue: owned and not lifted, in price order');
 }
 
+// =====================================================================================
+// M1 step 3a's ledger (PLAN §2.1 items 4–5, §3.2, §3.3): T107, T110–T114, T117 through the real progression
+const { placesMeta } = await import('./loop-fixture.mjs');
+const SPAN = 'under_the_span', BUOY = 'buoy_lights', BELL = 'bell_pool', LILY = 'lily_maze';
+section('T110: the Heartmoss Ball in the ledger (buy, fit, the trip carries the bag, spent only by her hook, a pass gives it back, the tally)');
+{
+  const meta = placesMeta(D, { own: [BELL] });
+  meta.loop.clams = 200;
+  const env = makeEnv({ meta, debug: true });
+  env.ctx.flow = 'home';
+  eq(env.L.fit('bait', 'heartmoss'), { ok: false }, 'a fit with no ball in the bag is refused');
+  eq(env.L.fit('lure', 'bell_spinner'), { ok: false }, 'the lure slot is step 4\'s (refused)');
+  eq(env.L.fit('bait', 'lumen_moss'), { ok: false }, 'the bait slot holds only a legend\'s bait in 3a (PLAN CHOICE 16)');
+  const b = env.L.buy('bait:heartmoss');
+  ok(b.ok && b.clams === 140 && meta.loop.bait.mossmere.heartmoss === 1, 'buy the ball: 60 clams, one in the Mossmere\'s bag');
+  eq(env.last('loop:buy'), { item: 'bait:heartmoss', price: 60, clams: 140 }, 'loop:buy {item: bait:heartmoss}');
+  ok(env.L.buy('bait:heartmoss').ok && meta.loop.bait.mossmere.heartmoss === 2 && meta.loop.clams === 80, 'a second ball: two in the bag');
+  const shelfBall = env.L.shelf().tabs.find((t) => t.id === 'bait').items[0];
+  ok(shelfBall.count === 2 && shelfBall.bought === false, 'the Bait tab\'s card: its count, never "Yours."');
+  const n = env.calls.saves.length;
+  eq(env.L.fit('bait', 'heartmoss'), { ok: true, id: 'heartmoss', count: 2 }, 'fit the ball (two in the bag)');
+  ok(meta.loop.fitted.bait === 'heartmoss' && env.calls.saves.length === n + 1, 'saved in fitted.bait at once');
+  eq(env.last('loop:fit'), { slot: 'bait', id: 'heartmoss' }, 'loop:fit {slot, id}');
+  eq(env.L.fitted(), { lure: null, bait: 'heartmoss' }, 'fitted()');
+  const r = startTrip(env);
+  ok(r.bait.heartmoss === 2 && r.equippedBait === 'heartmoss' && r.equipped === 'heartmoss', 'the trip carries the bag and the fitted ball rides the line');
+  ok(env.L.spendBait('mireworm') === false && r.bait.heartmoss === 2, 'spendBait takes only a legend\'s bait');
+  // a cast: the built consumeBait keeps a legend's bait (spent only by her hook)
+  env.P.consumeBait?.();
+  eq(r.bait.heartmoss, 2, 'the cast keeps the ball');
+  // a non-legend bite and its landing never take it
+  const f = land(env, 'dusk_minnow', 0.2); env.P.fishAction(f, 'keep');
+  eq(r.bait.heartmoss, 2, 'another fish\'s bite and landing keep the ball');
+  // her bite: fishing:bite then fishing:hook {speciesId} (progression's onHook spends through spendBait); fishing's own call spends nothing more
+  bite(env, BELL);
+  env.ctx.bus.emit('fishing:hook', { speciesId: 'belled_matriarch', perfect: false });
+  eq(r.bait.heartmoss, 1, 'her hook spends one ball');
+  ok(env.L.spendBait('heartmoss') === true && r.bait.heartmoss === 1, 'fishing\'s own spendBait for the same bite spends nothing more');
+  ok(env.L.refundBait('heartmoss') === true && r.bait.heartmoss === 2 && env.L.refundBait('heartmoss') === false && r.bait.heartmoss === 2, 'a pass gives back that bite\'s ball, once');
+  bite(env, BELL);
+  ok(env.L.refundBait('heartmoss') === false, 'a new bite: nothing to give back before a spend');
+  ok(env.L.spendBait('heartmoss') && r.bait.heartmoss === 1, 'her next hook spends one');
+  env.ctx.bus.emit('fishing:hook', { speciesId: 'belled_matriarch', perfect: false });
+  eq(r.bait.heartmoss, 1, 'progression\'s fishing:hook on the same bite spends nothing more');
+  bite(env, BELL);
+  ok(env.L.spendBait('heartmoss') && r.bait.heartmoss === 0, 'the last ball spent');
+  bite(env, BELL);
+  ok(env.L.spendBait('heartmoss') === false, 'none left: spendBait false');
+  endTrip(env);
+  ok(meta.loop.bait.mossmere.heartmoss === undefined || meta.loop.bait.mossmere.heartmoss === 0, 'the tally writes the bag back (none left)');
+  eq(meta.loop.fitted.bait, null, 'a fitted ball with none left comes off the slot');
+  eq(env.L.fit('bait', 'heartmoss'), { ok: false }, 'a fit with none left is refused');
+  // unfit; a reload carries the fit
+  env.L.debugGive(200); env.L.buy('bait:heartmoss'); env.L.fit('bait', 'heartmoss');
+  eq(env.L.fit('bait', null), { ok: true, id: null, count: 0 }, 'unfit (null)');
+  ok(meta.loop.fitted.bait === null && env.last('loop:fit').id === null, 'unfit: saved, loop:fit {id: null}');
+  env.L.fit('bait', 'heartmoss');
+  const r2 = startTrip(env);
+  env.ctx.game.save();
+  const env2 = reload(env);
+  ok(env2.ctx.state.run.bait.heartmoss === 1 && env2.ctx.state.run.equippedBait === 'heartmoss' && env2.L.fitted().bait === 'heartmoss', 'a trip saved with a ball fitted continues with it');
+  ok(r2.id === env2.ctx.state.run.id, '… the same trip');
+  // flag-off and v3-without-loop: the built onHook spend is unchanged
+  for (const [name, data] of [['v3 without the loop', dataV3]]) {
+    const e3 = makeEnv({ data, meta: defaultMeta() });
+    const rr = e3.P.createRun({ startZone: 'mossmere' }); e3.ctx.state.run = rr; rr.bait = { heartmoss: 2 };
+    e3.ctx.bus.emit('fishing:hook', { speciesId: 'belled_matriarch', perfect: false });
+    eq(rr.bait.heartmoss, 1, `${name}: the built hook spends the legend's bait as before`);
+  }
+  eq(env.ctx.errors, [], 'no errors');
+}
+
+section('T107: the Matriarch\'s price (Keep · 500, then 200) and her wounds across trips');
+{
+  const meta = placesMeta(D, { own: [BELL], balls: 3 });
+  const env = makeEnv({ meta });
+  env.L.fit('bait', 'heartmoss');
+  startTrip(env);
+  const her = land(env, 'belled_matriarch', 0, { key: BELL, place: BELL });
+  eq(env.L.priceOf(her), 500, 'her first landing: Keep · 500 (the crown map\'s price)');
+  ok(env.P.fishAction(her, 'keep').ok && her.clams === 500, 'kept at 500');
+  const t = endTrip(env);
+  ok(t.total === 500 && meta.loop.legends.belled_matriarch === 1, 'the tally pays 500; legends counted');
+  startTrip(env);
+  const again = land(env, 'belled_matriarch', 0.4, { key: BELL, place: BELL });
+  eq(env.L.priceOf(again), 200, 'after: Keep · 200 (× legendRematch)');
+  env.P.fishAction(again, 'letgo');
+  // wounds: each escape +1 (×6 Hold), kept across trips, ≤ 3 counted (built)
+  for (let i = 0; i < 4; i++) env.ctx.bus.emit('fish:escaped', { speciesId: 'belled_matriarch', legendary: true, place: BELL, zone: 'mossmere', reason: 'thrown' });
+  const w = env.P.getCatchMods?.('belled_matriarch')?.wounds ?? null;
+  endTrip(env);
+  startTrip(env);
+  const w2 = env.P.getCatchMods?.('belled_matriarch')?.wounds ?? null;
+  ok(w !== null && w >= 3 && w2 === w, `four escapes wound her (+6 each, three counted for Hold); kept into the next trip (${w} then ${w2})`);
+  ok(D.catchChance('belled_matriarch', 'legend', { rod: 1, line: 1, reel: 1 }, { wounds: w2 }) <= 0.5, 'never above 50% with wounds');
+  eq(env.ctx.errors, [], 'no errors');
+}
+
+section('T111: an owned place\'s bite count (its key, its good bites by kind, Tallow +1, quiet terms per place)');
+{
+  const env = makeEnv({ meta: placesMeta(D, { own: [LILY, SPAN, BUOY, BELL] }) });
+  startTrip(env);
+  eq([LILY, SPAN, BUOY, BELL].map((k) => env.L.bitesLeft(k)), [2, 3, 2, 2], 'good bites: day 2, old 3, night 2, crown 2');
+  for (let i = 0; i < 3; i++) bite(env, SPAN);
+  ok(env.L.bitesSpent(SPAN) === 3 && env.L.bitesLeft(SPAN) === 0 && env.L.bitesSpent(OPEN) === 0 && env.L.bitesLeft(LILY) === 2, "a bite under the Span spends there only (its own key)");
+  const q = env.L.favour(SPAN);
+  ok(q.quiet === true && q.over === 1 && q.favour < 0 && q.waitMult > 1 && env.L.favour(LILY).quiet === false, 'the Span is quiet past its three; the Lily Maze still fresh (1a\'s rule, per place)');
+  const tal = placesMeta(D, { own: [SPAN] }); tal.loop.wick = 'tallow';
+  const e2 = makeEnv({ meta: tal });
+  startTrip(e2);
+  eq(e2.L.bitesLeft(SPAN), 4, "Tallow: +1 good bite at a place too (everyWater)");
+  eq(env.ctx.errors, [], 'no errors');
+}
+
+section('T112: the lift\'s ledger (liftDue in price order, markLifted once and saved, a reload replays it)');
+{
+  const meta = placesMeta(D, { own: [BELL, LILY, SPAN], lifted: [] });
+  const env = makeEnv({ meta });
+  eq(env.L.liftDue(), [LILY, SPAN, BELL], 'liftDue: the owned places not yet lifted, in price order');
+  startTrip(env);
+  env.ctx.game.save();
+  const env2 = reload(env);   // a reload before markLifted: the lift plays again on the trip
+  eq(env2.L.liftDue(), [LILY, SPAN, BELL], 'a reload before markLifted replays the lift');
+  const n = env.calls.saves.length;
+  ok(env.L.markLifted(LILY) === true && meta.loop.lifted.join() === LILY && env.calls.saves.length === n + 1, 'markLifted writes lifted once and saves at once');
+  ok(env.L.markLifted(LILY) === false && meta.loop.lifted.length === 1, 'a second markLifted of the same place: false, written once');
+  ok(env.L.markLifted(BUOY) === false && env.L.markLifted('cupped_hands') === false && env.L.markLifted(null) === false, 'a place not owned, not a loop place, or no id: refused');
+  eq(env.L.liftDue(), [SPAN, BELL], 'liftDue drops it');
+  eq(env.L.lifted(), [LILY], 'lifted()');
+  const env3 = reload(env);
+  eq(env3.L.lifted(), [LILY], 'lifted survives a reload');
+  eq(env.ctx.errors, [], 'no errors');
+}
+
+section('T113: a Marked giant (marked at its place for every Wick, at any class; +6 Hold on its next hook, once)');
+{
+  for (const wick of ['wick', 'ashwick']) {
+    const meta = placesMeta(D, { own: [SPAN, BUOY] }); meta.loop.wick = wick;
+    const env = makeEnv({ meta });
+    startTrip(env);
+    bite(env, SPAN);
+    env.ctx.bus.emit('fish:escaped', { speciesId: 'thousandcast_pike', sizeClass: 'keeper', z: 0.3, place: SPAN, zone: 'mossmere', reason: 'thrown', markedFish: true });
+    eq(meta.loop.giants.thousandcast_pike?.marked, 1, `${wick}: a Keeper Thousandcast lost under the Span is marked (any class)`);
+    ok(env.ctx.state.run.comeback === null, `${wick}: no comeback is queued for a giant (Ashwick's never takes a giant)`);
+    ok(env.L.takeGiantMark('thousandcast_pike') === true && meta.loop.giants.thousandcast_pike.marked === 0 && env.L.takeGiantMark('thousandcast_pike') === false, `${wick}: its next hook takes the mark once (+${D.LOOP.giant.markedHold} Hold), then it is gone`);
+    env.ctx.bus.emit('fish:escaped', { speciesId: 'hullkiss_lamprey', sizeClass: 'elder', z: 2.7, place: SPAN, zone: 'mossmere', reason: 'thrown' });
+    ok(!meta.loop.giants.hullkiss_lamprey?.marked, `${wick}: a giant lost away from its own place is not marked`);
+    env.ctx.bus.emit('fish:escaped', { speciesId: 'reedjaw_pike', sizeClass: 'trophy', z: 2.2, place: null, zone: 'mossmere', reason: 'thrown' });
+    ok(!meta.loop.giants.reedjaw_pike, `${wick}: a fish that is no giant is never a giant's mark`);
+    ok(env.L.markGiant('reedjaw_pike') === false && env.L.markGiant('belled_matriarch') === false && env.L.markGiant('hullkiss_lamprey') === true && meta.loop.giants.hullkiss_lamprey.marked === 1, `${wick}: markGiant takes a giant only`);
+    endTrip(env);
+    ok(meta.loop.giants.hullkiss_lamprey.marked === 1 && meta.loop.giants.thousandcast_pike.landed === 0, `${wick}: a mark is kept across trips`);
+    eq(env.ctx.errors, [], `${wick}: no errors`);
+  }
+  // Ashwick's comeback still works for a fish that is no giant (WICKS §2.5)
+  const ash = placesMeta(D, { own: [SPAN] }); ash.loop.wick = 'ashwick';
+  const env = makeEnv({ meta: ash });
+  startTrip(env);
+  bite(env, OPEN);
+  env.ctx.bus.emit('fish:escaped', { speciesId: 'reedjaw_pike', sizeClass: 'prize', z: 1.4, place: null, zone: 'mossmere', reason: 'thrown' });
+  ok(env.ctx.state.run.comeback?.speciesId === 'reedjaw_pike', 'Ashwick: a Reedjaw Pike still comes back');
+}
+
+section('T114: the best fish there (best[placeId] by fishWeight, open water under open:mossmere, a length saved, never a weight); a giant\'s fish');
+{
+  const meta = placesMeta(D, { own: [SPAN] });
+  const env = makeEnv({ meta });
+  startTrip(env);
+  const a = land(env, 'bridgechain_sturgeon', 0.2, { key: SPAN, place: SPAN });
+  eq(meta.loop.best[SPAN], { speciesId: 'bridgechain_sturgeon', length: a.length }, 'a measure under the Span writes best[under_the_span] = {speciesId, length}');
+  env.P.fishAction(a, 'letgo');
+  const small = land(env, 'mossback_perch', -0.5, { key: SPAN, place: SPAN });
+  eq(meta.loop.best[SPAN].speciesId, 'bridgechain_sturgeon', 'a lighter fish there keeps the best');
+  env.P.fishAction(small, 'letgo');
+  const g = land(env, 'thousandcast_pike', 1.4, { key: SPAN, place: SPAN });
+  ok(g.giant === true && meta.loop.best[SPAN].speciesId === 'thousandcast_pike', 'a Prize Thousandcast is heavier: the best there; its fish carries giant');
+  ok(D.fishWeight(D.SPECIES_BY_ID.thousandcast_pike, g) > D.fishWeight(D.SPECIES_BY_ID.bridgechain_sturgeon, a), '… by the weight the card shows (fishWeight)');
+  env.P.fishAction(g, 'keep');
+  const o = land(env, 'dusk_minnow', 0.5);
+  ok(meta.loop.best[OPEN]?.speciesId === 'dusk_minnow' && meta.loop.best[OPEN].length === o.length && !(LILY in meta.loop.best), 'open water: best[open:mossmere]');
+  ok(Object.values(meta.loop.best).every((b) => Object.keys(b).sort().join() === 'length,speciesId'), 'the save holds a length, never a weight');
+  env.P.fishAction(o, 'keep');
+  const t = endTrip(env);
+  ok(t.lines[t.lines.length - 1].speciesId === 'thousandcast_pike' && t.lines[t.lines.length - 1].giant === true, 'the tally weighs the giant last of all');
+  ok(meta.loop.giants.thousandcast_pike.landed === 1, 'giants[id].landed counts it');
+  eq(env.ctx.errors, [], 'no errors');
+}
+
+section('T117: saves (the step-2 save under 3a, a trip with a place and a ball, setPick and pick)');
+{
+  const fs = await import('node:fs');
+  const raw = JSON.parse(fs.readFileSync(new URL('./fixtures/loop-save-m1s2.json', import.meta.url), 'utf8'));
+  const before = clone(raw);
+  migrateSaveModule(raw, D);
+  const { meta } = normalizeSave(raw);
+  const env = makeEnv({ meta });
+  const L = env.L.state();
+  eq([L.clams, L.tackle, L.holdSlots, L.evenings, L.said, L.firsts, L.v], [before.meta.loop.clams, before.meta.loop.tackle, before.meta.loop.holdSlots, before.meta.loop.evenings, before.meta.loop.said, before.meta.loop.firsts, 3],
+    "the step-2 save: its clams, tackle, hold, evenings, said, firsts as saved; v still 3");
+  eq(meta.journal, before.meta.journal, 'its Journal byte-identical');
+  ok(L.chartPick === null && typeof L.chartPick !== 'object' || L.chartPick === null, 'chartPick === null (never an object)');
+  eq([L.lifted, L.best, L.maps.places], [[], {}, []], 'lifted [], best {}, no place owned');
+  // setPick: refused for a place not owned; writes {water, place}; read back through pick()
+  eq(env.L.setPick({ water: 'mossmere', place: SPAN }), { ok: false }, 'setPick refuses a place not owned');
+  eq(env.L.setPick({ water: 'sporewood', place: null }), { ok: false }, '… and a water not open');
+  eq(env.L.setPick(null), { ok: false }, '… and no pick');
+  L.clams = 999; env.L.buy(`place:${SPAN}`);
+  eq(env.L.setPick({ water: 'mossmere', place: SPAN }), { ok: true, pick: { water: 'mossmere', place: SPAN } }, 'an owned place: picked');
+  eq(L.chartPick, { water: 'mossmere', place: SPAN }, 'written as {water, place}');
+  eq(env.L.pick(), { water: 'mossmere', place: SPAN }, 'pick() reads it back');
+  eq(env.L.setPick({ water: 'mossmere', place: LILY }), { ok: false }, 'a place not owned is refused (the pick stays)');
+  eq(env.L.pick().place, SPAN, '… the pick stays');
+  L.chartPick = 'tutorial';
+  eq(env.L.pick(), null, 'a chartPick that is not an object reads as null');
+  // a trip saved with a place owned and a ball fitted continues with both (and the pick)
+  L.bait.mossmere = { heartmoss: 1 }; env.L.fit('bait', 'heartmoss'); env.L.setPick({ water: 'mossmere', place: SPAN });
+  const r = startTrip(env);
+  bite(env, SPAN); env.L.closeBite();   // the bite's play reached its card (an open bite is refunded on Continue: T48)
+  env.ctx.game.save();
+  const env2 = reload(env), L2 = env2.L.state();
+  ok(L2.maps.places.includes(SPAN) && L2.fitted.bait === 'heartmoss' && env2.ctx.state.run.equippedBait === 'heartmoss' && env2.ctx.state.run.id === r.id && env2.L.bitesSpent(SPAN) === 1, 'a trip saved with a place owned and a ball fitted continues with both (its bite there counted)');
+  eq(env2.L.pick(), { water: 'mossmere', place: SPAN }, '… and the pick');
+  const again = clone(meta.loop); PL.migrateLoop(meta, D);
+  eq(meta.loop, again, 'a second migrateLoop changes nothing');
+  eq(env.ctx.errors, [], 'no errors');
+}
+
 console.log(`\nloop-trip: ${pass} passed, ${fail} failed`);
 if (fail) { console.log(failures.map((f) => '  - ' + f).join('\n')); process.exit(1); }
