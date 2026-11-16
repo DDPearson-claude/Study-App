@@ -1183,6 +1183,7 @@ export function createLoopView(K) {
     if (!panel || !btn) return;
     const s = entry.state;
     const c = tut.cue();
+    const line = c.line;   // (the stage: 3b moved this line up into its drawn branch; the list keeps its own)
     const tutorial = model.tutorial === true;
     const pick = chartPickOf(entry, model);
     const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}${tutorial ? '' : ' gw-p-chart--3a'}` });
