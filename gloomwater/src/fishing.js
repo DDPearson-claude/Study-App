@@ -4461,9 +4461,6 @@ export function create(ctx) {
     addSpots(n, opts) { try { return addSpots(n, opts || {}); } catch (e) { report(e); return 0; } },
     // v3 (CONTRACT §13.7)
     isHooked() { return state === 'reeling' || state === 'landing'; },
-    /** TK (CONTRACT §14.19): the line as a hook change reads it {state, out, fishOn, castBait}; the quiet reel-in of a line with no fish. */
-    hookLine() { try { return hookLine(); } catch (e) { report(e); return { state, out: false, fishOn: true, castBait: null }; } },
-    reelInQuiet() { try { return reelInQuiet(); } catch (e) { report(e); return { ok: false, refunded: false, baitId: null }; } },
     /** The loop's read of the water at a point (T30, the D scenario): {giant, waterKey, placeId}. Read-only. */
     waterAt(p) {
       try {
@@ -4519,6 +4516,9 @@ export function create(ctx) {
     startCeremony(fish, opts) { return api.startShow(fish, opts); },
     skipCeremony() { return api.hurryShow(); },
     get inCeremony() { return !!S.show && S.show.phase !== 'reveal'; },
+    /** TK (CONTRACT §14.19): the line as a hook change reads it {state, out, fishOn, castBait}; the quiet reel-in of a line with no fish. */
+    hookLine() { try { return hookLine(); } catch (e) { report(e); return { state, out: false, fishOn: true, castBait: null }; } },
+    reelInQuiet() { try { return reelInQuiet(); } catch (e) { report(e); return { ok: false, refunded: false, baitId: null }; } },
 
     init() {
       if (signsOn()) api.spots = api.signs = S.signs;

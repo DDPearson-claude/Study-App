@@ -51,14 +51,14 @@ export const LOOP_METHODS = Object.freeze([
   // M1 step 3a (PLAN §3.2): the bait slot, the lift, the Marked giant, the best fish there, the Chart's pick, the cards, seals and catalogue
   'fit', 'fitted', 'spendBait', 'refundBait', 'liftDue', 'markLifted', 'lifted', 'markGiant', 'takeGiantMark', 'noteBest',
   'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
+  // the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake; CONTRACT §14.19): may the hook change now, and the change
+  'canChangeHook', 'changeHook',
   // M1 step 5b (lane 5b-home): the ink print at the measure, the Prints page and the cabin's gallery
   'notePrint', 'prints', 'gallery',
   // the home barge (M1 step 5a, SPEC §6.5): where it lies and the waters it has been towed to
   'barge', 'towBarge',
   // M1 step 4 (lane 4): Murk's orders (read, wipe one, the one a fish on the card fills) and Cut Strip (a held Let go)
   'orders', 'wipeOrder', 'orderFor', 'cutBait',
-  // the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake; CONTRACT §14.19): may the hook change now, and the change
-  'canChangeHook', 'changeHook',
 ]);
 
 // >>> TK (the tackle tin: the user's words of 16 November 2026, "We should have an option to equip bait or change lures whilst out on
