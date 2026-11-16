@@ -27,6 +27,7 @@ import {
   v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
   SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showOutEase, showArrival,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
+  landmarkShot, landmarkWeight,
 } from './render-camera.js';
 
 const DEG = Math.PI / 180;
@@ -533,6 +534,32 @@ export function create(ctx) {
   function setIntroCamera(p) { introCam = p && Array.isArray(p.pos) && Array.isArray(p.look) ? p : null; }
   // <<< INTRO LANE A
 
+  // the loop's lift (M1 step 3a, PLAN §2.4 item 4, CHOICE 21): frameLandmark(p, {dur, back}) frames a place from the raft's side while
+  // its mist lifts (render-camera landmarkShot), laid over the rig like the cut scene's pose and eased back to the sail camera in
+  // `back` s; frameLandmark(null, {back}) eases back now. Inert until called (the loop's main calls it; nothing else does).
+  const lmk = { on: false, t: 0, dur: 4.2, back: 0.6, p: null, pose: null, w: 0, rel: false, relT: 0, relW: 0 };
+  function frameLandmark(p, { dur = 4.2, back = 0.6 } = {}) {
+    const B = Number.isFinite(Number(back)) ? Math.max(0.05, Number(back)) : 0.6;
+    if (!p) {
+      if (lmk.on && !lmk.rel) { lmk.rel = true; lmk.relT = 0; lmk.relW = lmk.w; lmk.back = B; }
+      return lmk.on;
+    }
+    if (!Number.isFinite(Number(p.x)) || !Number.isFinite(Number(p.z))) return false;
+    Object.assign(lmk, { on: true, t: 0, dur: Number.isFinite(Number(dur)) ? Math.max(0.2, Number(dur)) : 4.2, back: B, rel: false, relT: 0, relW: 0, pose: null,
+      p: { x: Number(p.x), y: Number(p.y) || 0, z: Number(p.z), r: Number.isFinite(Number(p.r)) ? Number(p.r) : 6 } });
+    return true;
+  }
+  function landmarkW(dt) {
+    if (!lmk.on) { lmk.w = 0; return 0; }
+    lmk.t += dt;
+    if (!lmk.pose) lmk.pose = landmarkShot(playerPos(), lmk.p, { yaw, aspect: W / H });
+    if (!lmk.pose) { lmk.on = false; lmk.w = 0; return 0; }
+    if (lmk.rel) { lmk.relT += dt; lmk.w = lmk.relW * (1 - smoothstep(0, lmk.back, lmk.relT)); if (lmk.relT >= lmk.back) lmk.on = false; }
+    else { lmk.w = landmarkWeight(lmk.t, { dur: lmk.dur, back: lmk.back }); if (lmk.t >= lmk.dur + lmk.back) lmk.on = false; }
+    if (!lmk.on) lmk.w = 0;
+    return lmk.w;
+  }
+
   function pickMode() {
     const flow = ctx.flow;
     if (introCam) return 'sail';   // INTRO LANE A: cut-scene camera
@@ -1005,6 +1032,14 @@ export function create(ctx) {
       lookTarget.lerp(S.look, sw);
     }
     const rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
+    // the loop's lift: the place's framing over the rig (no cut: one eased weight for the lens's place, its look and its fov)
+    const lw = landmarkW(dt);
+    let lmkFov = rigFov;
+    if (lw > 0 && lmk.pose) {
+      camPos.lerp(tmpV.set(lmk.pose.pos[0], lmk.pose.pos[1], lmk.pose.pos[2]), lw);
+      lookTarget.lerp(tmpV.set(lmk.pose.look[0], lmk.pose.look[1], lmk.pose.look[2]), lw);
+      lmkFov = lerp(rigFov, lmk.pose.fov, lw);
+    }
 
     // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
     let introW = 0, introFov = null;
@@ -1042,6 +1077,7 @@ export function create(ctx) {
       if (Math.abs(fx.kickDue) < 1e-3 || !(showCam.w > 0)) fx.kickDue = 0;
     }
     fx.fovKick = damp(fx.fovKick, 0, 5, dt);
+    if (introFov === null && lw > 0) introFov = lmkFov;   // (the loop's lift: its lens's fov, when no film pose is set)
     const fov = clamp((introFov ?? rigFov) + fx.fovKick, 20, 95);   // (INTRO LANE A: the cut scene's lens wins while one is set; else the play's under the show's)
     if (Math.abs(camera.fov - fov) > 1e-3 || camera.aspect !== W / H) {
       camera.fov = fov;
@@ -1350,6 +1386,9 @@ export function create(ctx) {
     },
     shake, flash, pulse, kick, attention, push,
     setTrophyTarget, setShowTarget,
+    frameLandmark,
+    /** The lift's shot as it stands: {on, w, t, dur, pose} (debug and tests). */
+    landmarkState: () => ({ on: lmk.on, w: Math.round(lmk.w * 1000) / 1000, t: Math.round(lmk.t * 100) / 100, dur: lmk.dur, released: lmk.rel, pose: lmk.pose }),
     // >>> INTRO LANE A: cut-scene camera
     setIntroCamera,
     getIntroCamera() { return introCam; },
