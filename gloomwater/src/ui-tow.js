@@ -46,9 +46,17 @@ export function createTowView(K) {
   const S = { art: null, status: 'idle', entry: null, cv: null, line: null, onTap: null, water: null, opening: false, dipEl: null, mask: null, sheet: null, paints: 0, last: null };
 
   // ---- the bake and its paper, decoded once in idle time (the drawn Chart decodes its own; this is the tow's copy)
+  // a data: URI decodes through an <img> first: a page host's Content-Security-Policy may block fetch() of data: (connect-src) while
+  // images stay allowed (img-src) — the user's phone in the app showed the Landing's sheet blank (16 Nov); fetch is the last resort
   const decode = async (uri) => {
-    if (typeof createImageBitmap === 'function' && typeof fetch === 'function') return createImageBitmap(await (await fetch(uri)).blob());
-    const img = new Image(); img.src = uri; await img.decode(); return img;
+    try {
+      const img = new Image(); img.decoding = 'async'; img.src = uri; await img.decode();
+      if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
+      return img;
+    } catch (e1) {
+      if (typeof createImageBitmap === 'function' && typeof fetch === 'function') return createImageBitmap(await (await fetch(uri)).blob());
+      throw e1;
+    }
   };
   async function prepare() {
     if (S.status !== 'idle') return S.status;
