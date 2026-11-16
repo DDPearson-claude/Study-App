@@ -123,7 +123,7 @@ const CSS = `
 .gw-plate-count { position: absolute; right: 12%; bottom: 8%; min-width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
   border: 1.5px solid var(--cat-ink); background: var(--cat-paper); font: 700 16px/1 var(--f-body); color: var(--cat-ink); }
 .gw-mb-stamp { position: absolute; left: 50%; top: 50%; z-index: 2; pointer-events: none; transform: translate(-50%, -50%) rotate(-14deg); padding: 4px 16px 2px;
-  font: 400 min(30px, calc(var(--pw) / 13.5))/1 var(--f-fell); letter-spacing: .12em; text-transform: uppercase; color: var(--cat-stamp); border: 2.5px solid currentColor; border-radius: 4px;
+  font: 400 clamp(16px, calc(var(--pw) / 13.5), 30px)/1 var(--f-fell); letter-spacing: .12em; text-transform: uppercase; color: var(--cat-stamp); border: 2.5px solid currentColor; border-radius: 4px;
   box-shadow: inset 0 0 0 2px var(--cat-paper), inset 0 0 0 3.2px currentColor; opacity: .86; mix-blend-mode: multiply; white-space: nowrap; }
 .gw-mb-stamp.gw-press { animation: gwMbStamp .42s cubic-bezier(.2, .9, .3, 1.2) both; }
 @keyframes gwMbStamp { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(1.7); } 60% { opacity: .95; } 100% { opacity: .86; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
@@ -246,7 +246,9 @@ const CSS = `
 .gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-line { margin-top: 6px; -webkit-line-clamp: 4; line-height: 1.12; }
 .gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-low { grid-row: 4; align-self: end; }
 .gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-num { left: 6px; right: auto; top: 6px; }
-.gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-mb-stamp { left: 24%; }   /* ("Yours." on the drawing, the name left readable) */
+.gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-art { box-sizing: border-box; padding-top: 20px; }   /* (the drawing below the numeral) */
+/* ("Yours." on the drawing, set a size smaller and lower, the name and its line left readable) */
+.gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-mb-stamp { left: 21%; top: 56%; padding: 3px 10px 1px; font-size: 22px; letter-spacing: .08em; }
 .gw-book.gw-short .gw-mb-grid[data-cols="1"] .gw-plate:nth-child(2n) { border-left: 0; }
 .gw-book.gw-short .gw-mb-grid[data-cols="1"] .gw-plate:nth-child(n+2) { border-top: 1px solid var(--cat-ink-2); }
 /* a low spread (a phone turned to landscape, 844 x 390): an item a page at the book's full height; Murk's line and the foot (the purse
@@ -261,6 +263,17 @@ const CSS = `
 .gw-book.gw-low .gw-plate-num { top: auto; bottom: 8px; left: 8px; right: auto; }
 .gw-book.gw-low .gw-mb-page { padding: 10px 18px 10px; }   /* (the folio's 34 px and this keep the page corners' 44 px clear of the plate) */
 .gw-book.gw-low .gw-mb-chap h3 { font-size: 22px; }
+/* a narrow low spread (667 x 375, 740 x 360): the fore-edge tabs as glyphs (their words for a reader), the side column 160 px */
+.gw-book.gw-low.gw-narrow { grid-template-columns: auto minmax(0, 160px); }
+.gw-book.gw-low.gw-narrow .gw-book-frame { margin-right: 66px; }
+.gw-book.gw-low.gw-narrow .gw-murk-line { max-width: 160px; }
+.gw-book.gw-low.gw-narrow .gw-book-tabs { top: 40px; gap: 3px; }
+.gw-book.gw-low.gw-narrow .gw-book-tab { min-width: 50px; padding: 0 8px 0 10px; justify-content: center; }
+.gw-book.gw-low.gw-narrow .gw-book-tab .gw-ico { width: 22px; height: 22px; }
+.gw-book.gw-low.gw-narrow .gw-book-order { padding: 4px 14px 2px; }
+/* (the running head on one line between the corner ornaments, the cover's name clear of them) */
+.gw-book.gw-low.gw-narrow .gw-mb-head { margin: 0 4px; padding: 2px 4px 3px; letter-spacing: .05em; white-space: nowrap; }
+.gw-book.gw-low.gw-narrow .gw-mb-title { font-size: 32px; }
 /* the phone's running head clear of the corner ornaments */
 .gw-book[data-layout=phone] .gw-mb-head { margin: 0 18px; }
 /* a tall phone page (390 x 844): the drawing over its words, as on a desktop page, larger */
@@ -479,6 +492,8 @@ export function createMurkBook(deps) {
     if (B.layout === 'phone' && ph >= 600) root.classList.add('gw-tall');   // (a tall phone page: each drawing over its words, larger)
     if (B.size === 'short') root.classList.add('gw-short');   // (a short spread, 960 x 540: an item to a half-page row, its engraving beside its words)
     if (B.size === 'low') root.classList.add('gw-low');       // (a phone turned to landscape: an item a page, Murk's line and the purse beside the book)
+    const glyphTabs = B.layout === 'phone' || (B.size === 'low' && z.narrow === true);
+    if (glyphTabs && B.layout === 'desktop') root.classList.add('gw-narrow');   // (667 x 375, 740 x 360: the tabs as glyphs, a narrower side column)
     const line = h('p', `gw-murk-line${S.line ? ' gw-in' : ''}`);
     line.textContent = S.line || '';
     root.appendChild(line);
@@ -495,7 +510,7 @@ export function createMurkBook(deps) {
       b.setAttribute('role', 'tab');
       b.dataset.chapter = ch.id;
       const word = ch.id === 'odds' ? (TL().odds || 'Odds ›') : ch.label;
-      b.innerHTML = B.layout === 'phone' ? `<span class="gw-vh">${escT(word)}</span>${icon(TAB_ICON[ch.id] || 'star')}` : `<span>${escT(word)}</span>`;
+      b.innerHTML = glyphTabs ? `<span class="gw-vh">${escT(word)}</span>${icon(TAB_ICON[ch.id] || 'star')}` : `<span>${escT(word)}</span>`;
       b.setAttribute('aria-label', word);
       b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click', { volume: 0.4 }); go(entry, ch.page); });
       tabs.appendChild(b);
@@ -547,7 +562,7 @@ export function createMurkBook(deps) {
     const ch = (shown.slice().reverse().find((p) => p.chapter) || {}).chapter || (shown.some((p) => p.kind === 'cover') ? '' : '');
     root.dataset.tab = ch || '';
     for (const b of tabs.querySelectorAll('[role=tab]')) b.setAttribute('aria-selected', String(b.dataset.chapter === ch));
-    fitMaps(spread); fitRibbons(spread);
+    fitMaps(spread); fitRibbons(spread); fitInk(spread);
     const anchorPage = B.pages[pages[pages.length - 1]];
     S.anchor = anchorPage?.items?.[0] || anchorPage?.kind || null;
     memo = { anchor: S.anchor };
@@ -562,7 +577,9 @@ export function createMurkBook(deps) {
         const R0 = rb.getBoundingClientRect(), w = R0.width || 18;
         const words = [...pg.querySelectorAll('.gw-mb-head > span, .gw-mb-chap h3')].map((e) => e.getBoundingClientRect()).filter((r) => r.width && r.top < R0.bottom + 2 && r.bottom > R0.top - 2);
         let best = null;
-        for (const f of [0.26, 0.14, 0.4, 0.54, 0.68, 0.82]) {
+        // (a narrow low page, 201 px at 667 x 375: the running head spans it, so the ribbon may hang at the outer edge, over the corner)
+        const narrow = !!live?.root?.classList?.contains('gw-narrow');
+        for (const f of narrow ? [0.26, 0.14, 0.4, 0.54, 0.68, 0.9, 0.82] : [0.26, 0.14, 0.4, 0.54, 0.68, 0.82]) {
           const x1 = P.right - f * P.width, x0 = x1 - w;
           const cover = words.reduce((a, r) => a + Math.max(0, Math.min(x1 + 3, r.right) - Math.max(x0 - 3, r.left)), 0);
           if (!best || cover < best.cover) best = { f, cover };
@@ -572,6 +589,27 @@ export function createMurkBook(deps) {
       }
     };
     try { go(); requestAnimationFrame(go); } catch (e) { report('cat.ribbon', e); }
+  }
+  /** On a short or a low spread (960 x 540, a phone turned to landscape) an item's engraving is drawn to its ink: its viewBox cropped to
+   *  the drawn strokes (a small margin round them, never more than 1.6 times larger), so a squat tin or a flat keel fills its column
+   *  instead of floating small in the 200 x 150 plate (the review of integration B: drawings of 60 px in a 140 px row). */
+  function fitInk(scope) {
+    if (!live || (live.B.size !== 'short' && live.B.size !== 'low')) return;
+    const go = () => {
+      for (const svg of scope.querySelectorAll('.gw-plate:not(.gw-plate--map):not(.gw-plate--sealed) .gw-plate-art svg.cat-eng')) {
+        if (svg.dataset.ink) continue;
+        const vb = svg.viewBox?.baseVal, bb = svg.getBBox?.();
+        if (!vb || !vb.width || !bb || !(bb.width > 0) || !(bb.height > 0)) continue;
+        const pad = Math.max(bb.width, bb.height) * 0.05;
+        let x0 = Math.max(vb.x, bb.x - pad), y0 = Math.max(vb.y, bb.y - pad), x1 = Math.min(vb.x + vb.width, bb.x + bb.width + pad), y1 = Math.min(vb.y + vb.height, bb.y + bb.height + pad);
+        // (never more than 1.6 times larger: the crop at least 1 / 1.6 of the plate's width or height, grown about its middle)
+        const k = Math.max((x1 - x0) / vb.width, (y1 - y0) / vb.height), need = 1 / 1.6;
+        if (k < need) { const g = need / k, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, hw = ((x1 - x0) * g) / 2, hh = ((y1 - y0) * g) / 2; x0 = cx - hw; x1 = cx + hw; y0 = cy - hh; y1 = cy + hh; }
+        svg.setAttribute('viewBox', `${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1 - x0).toFixed(1)} ${(y1 - y0).toFixed(1)}`);
+        svg.dataset.ink = '1';
+      }
+    };
+    try { go(); } catch (e) { report('cat.fitInk', e); }
   }
   /** A map plate's Wick and fish at one scale, shrunk together to fit the drawing's box (never one without the other). */
   function fitMaps(scope) {
@@ -641,7 +679,7 @@ export function createMurkBook(deps) {
     const front = h('div', 'gw-mb-face gw-mb-face--front'), back = h('div', 'gw-mb-face gw-mb-face--back');
     leaf.appendChild(front); leaf.appendChild(back);
     const T = Math.round(BOOK.turn * 1000 * turnScale);
-    const page = (n) => { const el = pageEl(entry, model, B, n, goal); requestAnimationFrame(() => { fitMaps(el); fitRibbons(el); }); return el; };
+    const page = (n) => { const el = pageEl(entry, model, B, n, goal); requestAnimationFrame(() => { fitMaps(el); fitRibbons(el); fitInk(el); }); return el; };
     S.stamp = null;
     if (B.layout === 'desktop') {
       // forward: the right page lifts at the gutter and lays down on the left; under it the next right page, behind it the next left

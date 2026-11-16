@@ -4,7 +4,7 @@
 //
 //   bookLayout(vw, vh)                    'desktop' (a two-page spread) or 'phone' (one page at a time, full width)
 //   bookSizes(vw, vh, layout)             the page's px and the spread's grid: 'full', 'short' (960 × 540: an item to a half-page row)
-//                                         or 'low' (a phone turned to landscape: an item a page)
+//                                         or 'low' (a phone turned to landscape: an item a page; `narrow` under 800 px wide)
 //   bookPages(tabs, {layout, size, odds, goal}) the book: its pages in order (the frontispiece and the cover, one chapter per shelf tab in the
 //                                         shelf's order, each opening on a fresh page with its tab word, its items set in a ruled grid
 //                                         of BOOK[layout].per (a desktop's maps two a page), the gear log's page last), its chapters (the fore-edge tabs), the page of
@@ -32,13 +32,20 @@ export const BOOK = Object.freeze({
   low: Object.freeze({ per: 1, cols: 1, rows: 1, leaf: 2 }),
   // the spread needs room for two pages of at least `minPage` px and the fore-edge tabs; below it (or in portrait) one page at a time
   minPage: 300, edge: 64, turn: 0.45, shortPage: 520, lowH: 480, lowSide: 336,
+  // a narrow low screen (a smaller phone turned to landscape, 667 × 375 or 740 × 360: under `lowNarrow` px wide) keeps the low spread
+  // with a narrower side column (`lowSideNarrow`: the tabs as glyphs, the line and the foot in 160 px) and pages down to `lowMinPage`;
+  // a landscape screen under `lowH` tall and `lowMinW` wide or more is a low spread, never the one-page phone layout (its 420 px page
+  // ran off a 375 px screen)
+  lowNarrow: 800, lowSideNarrow: 264, lowMinPage: 180, lowMinW: 600, lowAspect: 1.5,
 });
 /** The chapters, in the shelf's order (SPEC §8.4: Tackle · Raft · Bait · Maps · Home); the gear log's page closes the book. */
 export const CHAPTERS = Object.freeze(['tackle', 'raft', 'bait', 'maps', 'home']);
 
-/** 'desktop' when two pages fit side by side in landscape, else 'phone'. Pure. */
+/** 'desktop' when two pages fit side by side in landscape, else 'phone'; a landscape screen under BOOK.lowH tall (a phone turned on
+ *  its side, 667 × 375 to 844 × 390) is always a spread, so bookSizes gives it the low treatment. Pure. */
 export function bookLayout(vw, vh) {
   const w = Number(vw) || 0, h = Number(vh) || 0;
+  if (h > 0 && h < BOOK.lowH && w >= BOOK.lowMinW && w > h * BOOK.lowAspect) return 'desktop';
   if (w < BOOK.minPage * 2 + BOOK.edge * 2 + 32) return 'phone';
   return w >= h * 1.05 ? 'desktop' : 'phone';
 }
@@ -54,6 +61,7 @@ export function bookSizes(vw, vh, layout = bookLayout(vw, vh)) {
   if (layout === 'desktop') {
     if (H < BOOK.lowH) {
       const ph = Math.max(240, H - 44);
+      if (W < BOOK.lowNarrow) return { pw: Math.floor(Math.max(BOOK.lowMinPage, Math.min((W - BOOK.lowSideNarrow) / 2, ph * 0.9))), ph: Math.floor(ph), size: 'low', narrow: true };
       return { pw: Math.floor(Math.max(220, Math.min((W - BOOK.lowSide) / 2, ph * 0.9))), ph: Math.floor(ph), size: 'low' };
     }
     const ph0 = Math.max(300, Math.min(H - 132, 700));
