@@ -661,10 +661,12 @@ export function create(ctx) {
   // gone, then rung in the order they came (v3; the loop parks the trials)
   const heldChimes = [];
   /** The show holds the screen: the landing (T0), ctx.cinematic (the lift to the card), the show's view, or the catch card itself (its
-   *  chimes wait until the card has gone: the show's view can clear as the card opens, which rang them on the card's first frame) */
+   *  chimes wait until the card has gone: the show's view can clear as the card opens, which rang them on the card's first frame).
+   *  (…and fishing.inShow, true from T0 with the reveal included: an Elder's leap reveal runs before the lift's cinematic and the
+   *  show's view, so a trial completed by a first catch that was an Elder rang in the reveal; show-seq --only=elder on a phone) */
   function showHolds() {
     if (ctx.data?.V3_ENABLED !== true) return false;
-    return ctx.cinematic === true || fishState() === 'landing' || !!fishView()?.show || ctx.ui?.isCatchOpen?.() === true;
+    return ctx.cinematic === true || fishState() === 'landing' || !!fishView()?.show || ctx.fishing?.inShow === true || ctx.ui?.isCatchOpen?.() === true;
   }
   function releaseChimes() {
     if (!heldChimes.length || showHolds()) return;
