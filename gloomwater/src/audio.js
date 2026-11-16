@@ -79,6 +79,7 @@ import { createMusic, ZONE_MUSIC } from './audio-music.js';
 import { SFX, CONTRACT_SFX, V3_SFX } from './audio-sfx.js';
 import * as V3 from './audio-v3.js';
 import * as MOSS from './audio-mossmere.js';   // M1 step 3a: the Mossmere's own sound under the loop (pure rules)
+import * as HOME from './audio-home.js';   // M1 step 5b (lane 5b-home): home's bed on the barge (pure rules and recipes)
 // >>> INTRO LANE B: import (the opening cut scene's sound cue; docs/v3/intro/SPEC.md section 7.7)
 import { createIntroCue } from './audio-intro.js';
 import { soundEvents, soundEventsBetween } from './intro.js';
@@ -980,6 +981,42 @@ export function create(ctx) {
       }
     }
   }
+  // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): home's bed (audio-home.js)
+  const homeS = { stove: null, idle: 0, timers: {}, reg: false };
+  /** Where a home voice sounds: the cabin door (the stove), the barge's side, Murk's barge, or nowhere (far: unpanned). */
+  function homeAt(at) {
+    let M = null;
+    try { M = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { M = null; }
+    if (!M?.hull) return null;
+    if (at === 'murk' && M.murk) return { x: M.murk.x, z: M.murk.z };
+    if (at === 'stove') return { x: M.hull.x - Math.sin(M.hull.yaw) * -2.3, z: M.hull.z - Math.cos(M.hull.yaw) * -2.3 };
+    if (at === 'hull') return { x: M.hull.x, z: M.hull.z };
+    return null;
+  }
+  function homeContinuous(dt, flow) {
+    if (!homeS.reg) { homeS.reg = true; Object.assign(SFX, HOME.SFX_HOME); }   // (registered under the loop only, the first time)
+    const on = HOME.homeOn({ loopOn: true, flow });
+    const k = HOME.homeLevel(on, { blocking: isBlocking(), paused: ctx.paused === true });
+    if (k <= 0) {
+      if (homeS.stove && !homeS.stove.dead) { setT(homeS.stove, 'g', homeS.stove.g.gain, 0, 0.8); homeS.idle += dt; if (homeS.idle > 3) homeS.stove = killLoop(homeS.stove); }
+      homeS.timers = {};
+      return;
+    }
+    homeS.idle = 0;
+    const B = HOME.HOME_BED.stove;
+    if (!homeS.stove || homeS.stove.dead) homeS.stove = makeNoiseLoop(B.kind, B.ft, B.f, B.q, N.sfxDry);
+    setT(homeS.stove, 'g', homeS.stove.g.gain, B.level * k, 2);
+    for (const [id, V] of Object.entries(HOME.HOME_VOICES)) {
+      if (homeS.timers[id] == null) homeS.timers[id] = V.first ?? V.every[0] * Math.random();
+      homeS.timers[id] -= dt;
+      if (homeS.timers[id] > 0) continue;
+      homeS.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch();
+      const pos = homeAt(V.at), g = pos ? spatial(pos, scratch) : 1;
+      scratch.volume = V.volume * k * Math.max(0.5, g); scratch.why = `home:${id}`;
+      play(V.sfx, scratch);
+    }
+  }
   const now0 = () => (ac ? ac.currentTime : 0);
   /** world:giantBack {placeId, x, z}: the deep roll at night, through the bank it turns in. */
   function mossGiantBack(p = {}) {
@@ -1192,6 +1229,7 @@ export function create(ctx) {
     afContinuous(dt, flow, fs, fv);
     coveContinuous(dt, flow);
     if (LOOP_ON()) mossContinuous(dt, flow);   // M1 step 3a: the Mossmere's bed and its places (never off the loop)
+    if (LOOP_ON()) homeContinuous(dt, flow);   // M1 step 5b: home's bed on the barge (the stove, the hulls, a far bell, Murk's hand bell)
 
     // --- heartbeat at hp ≤ 2 (DESIGN §6.6), quicker on the last Ember
     const hp = num(run?.hp, 99);

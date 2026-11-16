@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { toonMaterial, addOutline } from './toon.js';
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, smoothNormals } from './models-kit.js';
 import { BARGE_LOCAL, TARGET_BOXES } from './home-targets.js';
+import { drawToTexture, loadChartImage } from './chart-top.js';   // M1 step 5b (lane 5b-home): the chart table's top shows the Chart
 
 const clamp = THREE.MathUtils.clamp, damp = THREE.MathUtils.damp;
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
@@ -447,8 +448,8 @@ function variantParts(V, A) {
       timber.push(paint(xf(g, { p: [-0.48 + i * 0.17, top + 0.42, z + ((i * 37) % 5 - 2) * 0.03] }), lit(i % 2 ? C.moss : C.mossDeep, 2.1)));
     }
   };
-  if (V.bed >= 1) planter(-2.3);
-  if (V.bed >= 2) planter(0.45);
+  if (V.bed >= 1) planter(0.45);   // (I on the roof's open aft half, in the home camera's sight; II forward, by the skylight)
+  if (V.bed >= 2) planter(-2.3);
   // Barge lights I: lanterns on the rail at the four quarters (II: the roof's edge, III: a beacon on the bow; after M1, hooks only)
   if (V.lights >= 1) {
     const RH = A.rails.RH;
@@ -470,7 +471,76 @@ function variantParts(V, A) {
     timber.push(paint(tube([new THREE.Vector3(x + 0.06, y0 + 0.2, z + 0.05), new THREE.Vector3(x + 0.04, y0 + 1.0, z + 0.06), new THREE.Vector3(x + 0.01, y0 + 2.0, z + 0.05)], (u) => 0.022 - u * 0.014, 5, { capStart: true }), lit(tierCol, 1.8)));
     timber.push(cyl(0.035, 0.035, 0.09, 8, [x + 0.07, y0 + 0.62, z + 0.08], lit(C.iron), [0, 0, Math.PI / 2]));
   }
+  homeParts5b(V, A, timber, glow);   // M1 step 5b (lane 5b-home): the gallery's frames, the eave's print, the Order Board, the dozing Wicks
   return { timber, glow, lamps };
+}
+
+// ---------------------------------------------------------------- M1 step 5b (lane 5b-home; SPEC §6.2, §6.3; M1.md §2.6)
+/** A fish's side profile as a flat ink shape (an ellipse body, a forked tail, two barbels for a catfish), w m long, facing +x. */
+function fishShape(w, h, { barbels = false } = {}) {
+  const S = new THREE.Shape(), bw = w * 0.78, x0 = -w / 2;
+  S.moveTo(x0 + bw, 0);
+  S.bezierCurveTo(x0 + bw, h * 0.55, x0 + bw * 0.35, h * 0.62, x0 + w * 0.2, h * 0.18);
+  S.lineTo(x0, h * 0.5); S.lineTo(x0 + w * 0.07, 0); S.lineTo(x0, -h * 0.5); S.lineTo(x0 + w * 0.2, -h * 0.18);
+  S.bezierCurveTo(x0 + bw * 0.35, -h * 0.55, x0 + bw, -h * 0.48, x0 + bw, 0);
+  const g = [new THREE.ShapeGeometry(S, 6)];
+  if (barbels) for (const s of [1, -1]) g.push(xf(new THREE.PlaneGeometry(w * 0.2, h * 0.05), { p: [x0 + bw + w * 0.08, s * h * 0.12, 0], r: [0, 0, s * 0.35] }));
+  return mergeGeos(g.map((q) => { q.deleteAttribute?.('uv'); return q.toNonIndexed ? q.toNonIndexed() : q; }));
+}
+/** A face's geometry turned to look along +x (from a +z-facing plane) or kept facing +z. */
+const faceX = (g, sgn = 1) => xf(g, { r: [0, sgn * Math.PI / 2, 0] });
+function homeParts5b(V, A, timber, glow) {
+  const CB = HULL.cabin, top = CB.top, dy = HULL.deckY, cw = CB.w, WS = 0.44, WY = dy + 1.02;
+  // ---- the Long Wall, wing I (the cabin's port wall): seen across the cabin through the starboard windows (the side the home camera
+  // looks at) and the aft window by the door: the frames' dark edges and pale prints against the lit room, a candle under each
+  if (V.wall >= 1) {
+    const n = Math.max(2, V.prints | 0);
+    let k = 0;
+    const hang = (x, z, face, per) => {
+      for (let j = 0; j < per; j++) {
+        const off = per === 2 ? (j ? 0.1 : -0.1) : 0, fw = per === 2 ? 0.17 : 0.26;
+        if (face === 'x') {
+          timber.push(box(0.01, 0.2, fw, [x + 0.003, WY + 0.05, z + off], lit(C.frame, 1)));
+          timber.push(box(0.012, 0.14, fw - 0.05, [x + 0.005, WY + 0.05, z + off], lit(C.page, 1.25)));
+          glow.push(glowQuad(0.045, 0.075, [x + 0.006, WY - 0.13, z + off], 'x', GLOW.door));   // its candle
+        } else {
+          timber.push(box(fw, 0.2, 0.01, [x + off, WY + 0.05, z + 0.003], lit(C.frame, 1)));
+          timber.push(box(fw - 0.05, 0.14, 0.012, [x + off, WY + 0.05, z + 0.005], lit(C.page, 1.25)));
+          glow.push(glowQuad(0.045, 0.075, [x + off, WY - 0.13, z + 0.006], 'z', GLOW.door));
+        }
+      }
+    };
+    for (const z of [-2.55, -0.85]) { const per = k < n ? Math.min(2, n - k) : 1; hang(cw + 0.036, z, 'x', per); k += per; }
+    hang(0.78, CB.z1 + 0.036, 'z', 1);   // the aft window beside the door
+  }
+  // ---- the legend's print along the eave (SPEC §6.2: a legend's print hangs along one of the cabin's eaves; the Matriarch's along the
+  // starboard eave, the side the home camera sees): a long paper strip under the roof's edge, her ink on it at true size, a gold frame
+  if (V.eave >= 1) {
+    const L = 2.6, H = 0.3, y = top - 0.27, x = cw + 0.075, z = -1.0;
+    timber.push(box(0.02, H + 0.06, L + 0.08, [x, y, z], lit(C.stoneGilt, 1.4)));   // its gold frame (a legend's)
+    timber.push(box(0.024, H, L, [x + 0.004, y, z], lit(C.page, 1.5)));
+    const fish = paint(xf(fishShape(L * 0.92, H * 0.78, { barbels: true }), { r: [0, Math.PI / 2, 0] }), lit(C.ink, 1));
+    xf(fish, { p: [x + 0.018, y, z] });
+    timber.push(fish);
+    for (const zz of [z - L / 2 + 0.1, z + L / 2 - 0.1]) timber.push(cyl(0.02, 0.02, 0.06, 6, [x, y + H / 2 + 0.05, zz], lit(C.iron), [0, 0, Math.PI / 2]));
+  }
+  // ---- Murk's Order Board (SPEC §6.3): a chalk board hung on the starboard rail, facing his barge alongside; a bigger one at II
+  if (V.orders >= 1) {
+    const big = V.orders >= 2, w = big ? 0.92 : 0.62, h = big ? 0.56 : 0.42, z = -1.65, x = halfBeam(z) + 0.05, y = sheer(z) + (A.rails?.RH ?? 0.52) - h / 2 + 0.06;
+    timber.push(box(0.04, h + 0.06, w + 0.06, [x, y, z], lit(C.post)));
+    timber.push(box(0.045, h - 0.02, w - 0.04, [x + 0.004, y, z], lit(0x222630, 1.4)));
+    const rows = big ? 2 : 1;
+    for (let r = 0; r < rows; r++) {
+      const ry = y + h * 0.22 - r * h * 0.36;
+      // the chalked order: a fish's tally marks and a short scrawl (no words drawn)
+      for (let i = 0; i < 4; i++) timber.push(box(0.05, 0.012, 0.012 + (i === 3 ? 0.07 : 0), [x + 0.03, ry - 0.06, z - w * 0.3 + i * 0.05], lit(0xd8d2e0, 1.3)));
+      timber.push(box(0.05, 0.016, w * 0.55, [x + 0.03, ry + 0.02, z + w * 0.08], lit(0xd8d2e0, 1.2)));
+    }
+    for (const s of [-1, 1]) timber.push(paint(tube([new THREE.Vector3(x, y + h / 2, z + s * w * 0.4), new THREE.Vector3(x - 0.02, sheer(z) + (A.rails?.RH ?? 0.52) + 0.02, z + s * w * 0.35)], 0.01, 3), lit(C.rope)));
+  }
+  // ---- the life aboard: the dozing Wicks' small flames in the cabin's starboard aft window (SPEC §6.1: "dozing by the stove")
+  for (const [dz, hh] of [[-0.12, 0.055], [0.05, 0.045], [0.15, 0.05]]) glow.push(glowQuad(0.028, hh, [cw + 0.04, WY - 0.13, 0.95 + dz], 'x', GLOW.ember));
+  void WS; void faceX;
 }
 
 /**
@@ -567,7 +637,13 @@ export function homeVariants(metaLoop, waterOrder = ['mossmere']) {
   }
   const v = { bed: Math.max(0, Number(H.baitBed) | 0), lights: Math.max(0, Number(H.lights) | 0), wall: Math.max(0, Number(H.wall) | 0),
     rod: Math.max(0, Number(L.tackle?.rod) | 0), stones, looks: Array.isArray(L.looks) ? L.looks.filter((x) => typeof x === 'string').sort() : [] };
-  v.sig = JSON.stringify([v.bed, v.lights, v.wall, v.rod, v.stones, v.looks]);
+  // M1 step 5b (lane 5b-home): Murk's Order Board I–II (a chalk board on the rail facing his barge), the legend's print along the eave
+  // once she is home (SPEC §6.2), and how many prints wing I's frames hang (the cabin's port windows show them)
+  v.orders = Math.max(0, Number(H.orders) | 0);
+  const P = L.prints && typeof L.prints === 'object' ? L.prints : {};
+  v.eave = Object.values(legendOf).some((id) => (Number(legends[id]) || 0) >= 1 && Number(P[id]?.length) > 0) ? 1 : 0;
+  v.prints = v.wall > 0 ? Math.min(6, Object.keys(P).filter((id) => Number(P[id]?.length) > 0 && !Object.values(legendOf).includes(id)).length) : 0;
+  v.sig = JSON.stringify([v.bed, v.lights, v.wall, v.rod, v.stones, v.looks, v.orders, v.eave, v.prints]);
   return v;
 }
 
@@ -590,7 +666,7 @@ export function createHome(ctx) {
   const outline = addOutline(inkCarrier, { thickness: 0.03 });
   if (outline) { inkCarrier.remove(outline); outline.name = 'home:outline'; bob.add(outline); }
   mats.push(inkCarrier.material);
-  let variant = null;
+  let variant = null, lampPts = [];
   /** Rebuild the merged timber and glow for what is owned (V from homeVariants). */
   function setVariants(V) {
     const v = V && typeof V === 'object' ? V : homeVariants(null);
@@ -601,14 +677,36 @@ export function createHome(ctx) {
     const gg = mergeGeos([...base.glow, ...parts.glow]);
     timber.geometry.dispose(); glow.geometry.dispose();
     timber.geometry = tg; glow.geometry = gg;
+    lampPts = parts.lamps;   // (M1 step 5b: the moths' lanterns)
     return true;
   }
   setVariants(homeVariants(null));
 
+  // ---- M1 step 5b (lane 5b-home): the chart table's top shows the Chart (chart-top.js drawToTexture on one small canvas): one plane,
+  // its own textured material (the barge's fourth main-pass call), out of the mirror and the shadow; redrawn only when the stones change
+  const chartTop = (() => {
+    try {
+      if (typeof document === 'undefined' || !document.createElement) return null;
+      const cv = document.createElement('canvas');
+      const tex = new THREE.CanvasTexture(cv);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const mat = toonMaterial({ color: 0xffffff, map: tex, rim: 0.04 });
+      const T = A.chart.top;
+      const mesh = new THREE.Mesh(xf(new THREE.PlaneGeometry(T.w, T.d), { r: [-Math.PI / 2, 0, 0], p: [T.x, T.y + 0.004, T.z] }), mat);
+      mesh.name = 'home:chartTop'; mesh.userData.noReflect = true; mesh.userData.noCast = true;
+      bob.add(mesh); mats.push(mat, { dispose: () => tex.dispose() });
+      const st = { sig: null, image: null };
+      const draw = (stones) => { drawToTexture(cv, { image: st.image, stones }); tex.needsUpdate = true; };
+      loadChartImage().then((img) => { st.image = img; if (img) draw(variant?.stones || []); }).catch(() => {});
+      return { mesh, tex, refresh(stones) { const k = JSON.stringify([!!st.image, stones]); if (k === st.sig) return; st.sig = k; draw(stones); } };
+    } catch { return null; }
+  })();
+  if (chartTop) chartTop.refresh(variant?.stones || []);
+
   // ---------------------------------------------------------------- placement and life
   const mooring = { x: 0, z: 0, yaw: 0, set: false };
   const tmp = new THREE.Vector3(), q = new THREE.Vector3();
-  let t = 0, smokeT = 0, sigT = 0;
+  let t = 0, smokeT = 0, sigT = 0, sparkT = 3, mothT = 1;   // (sparkT, mothT: M1 step 5b's life aboard)
   const K = { window: 1, door: 1, lantern: 1, ember: 1 };
   const waterLight = { position: new THREE.Vector3(), color: new THREE.Color(0xffa95a), intensity: 0, distance: 6, streak: 0.75, radius: 4.5 };
   /** World point of a local barge point. */
@@ -675,13 +773,28 @@ export function createHome(ctx) {
         toWorld(A.pipe.x, A.pipe.y, A.pipe.z, tmp);
         ctx.models?.emitSmoke?.(tmp, { color: 0x7a7480, vy: 0.4, spread: 0.12, size: 0.34, sizeGrow: 0.9, lifeT: 3.6, alpha: 0.26, jitter: 0.04 });
       }
+      // M1 step 5b (lane 5b-home): the life aboard, from the shared smoke pool (no draw call of its own): now and then a spark from
+      // the stove pipe, and moths at the rail lanterns while they burn
+      sparkT -= dt;
+      if (sparkT <= 0) {
+        sparkT = 2.5 + Math.random() * 4;
+        toWorld(A.pipe.x, A.pipe.y - 0.05, A.pipe.z, tmp);
+        ctx.models?.emitSmoke?.(tmp, { color: 0xffa040, vy: 0.9, spread: 0.05, size: 0.035, sizeGrow: -0.02, lifeT: 1.1, alpha: 0.95, jitter: 0.08 });
+      }
+      mothT -= dt;
+      if (mothT <= 0 && lampPts.length && K.lantern > 0.25) {
+        mothT = 0.35 + Math.random() * 0.5;
+        const L0 = lampPts[(Math.random() * lampPts.length) | 0];
+        toWorld(L0[0] + (Math.random() - 0.5) * 0.3, L0[1] + 0.05 + Math.random() * 0.2, L0[2] + (Math.random() - 0.5) * 0.3, tmp);
+        ctx.models?.emitSmoke?.(tmp, { color: 0xf4ecd8, vy: 0.05, spread: 0.18, size: 0.03, sizeGrow: 0, lifeT: 0.9, alpha: 0.8, jitter: 0.25 });
+      }
       // the variant follows what is owned (meta.loop), read twice a second
       sigT -= dt;
-      if (sigT <= 0) { sigT = 0.5; try { setVariants(homeVariants(ctx.state?.meta?.loop, api.waterOrder)); } catch { /* keep the last */ } }
+      if (sigT <= 0) { sigT = 0.5; try { setVariants(homeVariants(ctx.state?.meta?.loop, api.waterOrder)); chartTop?.refresh(variant?.stones || []); } catch { /* keep the last */ } }
     },
     waterOrder: ['mossmere'],
     /** Draw calls this actor adds (main / mirror / shadow): the budget's own count (M1 §2.14). */
-    calls() { return { main: 2 + (outline ? 1 : 0), mirror: 2, shadow: 1 }; },
+    calls() { return { main: 2 + (outline ? 1 : 0) + (chartTop ? 1 : 0), mirror: 2, shadow: 1 }; },   // (M1 step 5b: + the chart table's top)
     stats() {
       return { visible: object3d.visible, moored: mooring.set, x: mooring.x, z: mooring.z, yaw: mooring.yaw, variant: variant ? JSON.parse(variant.sig) : null,
         verts: { timber: timber.geometry.attributes.position.count, glow: glow.geometry.attributes.position.count, ink: inkGeo.attributes.position.count },

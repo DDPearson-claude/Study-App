@@ -239,7 +239,7 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   const top = PL.shelfItems(D, { ...all4, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   ok(kit(top).length === 4 && kit(top).every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
   eq(top.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed]), [['lake:sporewood', true]], 'every place map owned: the Maps tab is the sealed card alone');
-  eq(PL.goalOf(no4(top)), null, 'an empty shelf: no goal line (the ball is a consumable, the sealed card has no price)');
+  eq(PL.goalOf(no4(top).filter((i) => i.tab !== 'home')), null, 'an empty shelf: no goal line (the ball is a consumable, the sealed card has no price)');
   // T81/T82: the list
   eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'], "T81: the Mossmere's list, computed (M1 step 3a: the twelve, with the Kissmark Trout)");
   const jm = { journal: { dusk_minnow: { caught: 1 }, weeping_carp: { seen: true, caught: 0 }, reedjaw_pike: {}, gloam_eel: { caught: 3 }, mossback_perch: { caught: '2' } } };

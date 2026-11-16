@@ -101,7 +101,7 @@ section('the shelf and the with gate (M1.md §2.5, SPEC §4.7, decision 38)');
   eq(top.filter((i) => /^(oars|keel|lantern|orders):/.test(i.id)).map((i) => [i.id, i.bought]), [['oars:2', true], ['keel:2', true], ['lantern:2', true], ['orders:2', true]], 'at II each reads Yours. for good');
   ok(top.filter((i) => i.slot === 'lure').every((i) => i.bought), 'the four lures owned: Yours.');
   ok(!top.some((i) => /moth_popper|lantern_lure|spore_cake|ember_roe|glass_larva|shimmerfly|sporelamp|mirror_shard|ferry_coin/.test(i.id)), 'no later water\'s lure or tin is offered (the Moth Popper, the Lantern Lure, Spore Cake …)');
-  const goal = PL.goalOf(top.filter((i) => !/^(bait|place|lake|hold|rod|line|reel):/.test(i.id)));
+  const goal = PL.goalOf(top.filter((i) => !/^(bait|place|lake|hold|rod|line|reel):/.test(i.id) && !(i.tab === 'home' && !/^orders:/.test(i.id))));   // (M1 step 5b's home cards aside: loop-5b.test.mjs's)
   eq(goal, null, 'every step-4 permanent owned: no goal among them (a tin is a consumable, never the goal)');
   ok(PL.goalOf(fresh)?.id === 'hold:4', 'the goal line is still Hold 4 · 30 first (the cheapest)');
 }

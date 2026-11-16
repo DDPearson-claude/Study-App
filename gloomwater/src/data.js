@@ -5171,6 +5171,37 @@ export function loopMooring(waterId, docks = [], B = LOOP.barge, M = LOOP.moorin
   };
 }
 
+// >>> M1 step 5b (lane 5b-home: the barge's side; docs/loop/M1.md §2.5, §2.6, §4 step 5b; SPEC §4.7, §6.3, §6.4, §8.4, §8.6).
+// Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; neither is in the v3 fingerprint, and
+// TEXT.loop is set only under the loop). `with` is the water (catalogue order) whose map puts a level on the shelf (SPEC §4.7,
+// decision 38): 1 the start; Glasswater 3, the Pallid Deep 4, the reaches' first lakes 5, 9 and 13. src/home-shelf.js reads them.
+LOOP.home = Object.assign(LOOP.home || {}, {
+  // the Bait Bed (SPEC §6.3): each evening you set out with at least `floor` of the water's plain bait (its first tin), free
+  baitBed: { prices: [120, 700, 9000], with: [1, 1, 4], floor: [3, 6, 10] },
+  // the Long Wall: one wing a reach (four waters each), the best print of every fish of its waters at true size (SPEC §6.4)
+  wall: { prices: [250, 30000, 80000, 150000], with: [1, 5, 9, 13] },
+  // Barge lights (was Landing lights): looks only (I lanterns on the rails; II the roof's edge; III a beacon on the bow)
+  lights: { prices: [200, 1200, 14000], with: [1, 3, 4] },
+});
+// the looks M1 sells (SPEC §6.3: COSMETICS_V3's first three, the start's), each worn where it says; the six dearer ones wait for their waters
+LOOP.looks = {
+  slate_dye:       { price: 300, with: 1, on: 'wick' },   // the Wick's cloak in slate
+  oxblood_pennant: { price: 400, with: 1, on: 'raft' },   // the raft's pennant dyed oxblood (undyed bone-grey cloth until then)
+  amber_glass:     { price: 600, with: 1, on: 'raft' },   // the raft lantern's glass in deep amber
+};
+// the gallery (SPEC §6.3, §6.4): wing N hangs the prints of the reach's four waters (catalogue order 4N−3 … 4N)
+LOOP.gallery = { perWing: 4 };
+Object.assign(TEXT_LOOP.shelf, { baitBed: 'Free bait every evening.', wall: 'Your best prints, on the wall.' });   // SPEC §8.4 (lights, looks: no line)
+TEXT_LOOP.homeNames = {   // the shelf's names for the home items (SPEC §4.7, M1.md §2.5: "Barge lights", not "Landing lights")
+  baitBed: ['Bait Bed I', 'Bait Bed II', 'Bait Bed III'],
+  wall: ['The Long Wall, wing I', 'The Long Wall, wing II', 'The Long Wall, wing III', 'The Long Wall, wing IV'],
+  lights: ['Barge lights I', 'Barge lights II', 'Barge lights III'],
+};
+TEXT_LOOP.lookNames = { slate_dye: 'Slate Cloak Dye', oxblood_pennant: 'Oxblood Pennant', amber_glass: 'Amber Lantern Glass' };   // COSMETICS_V3's names
+TEXT_LOOP.tabs.prints = 'Prints';   // the Journal's Prints page (SPEC §8.8's tab row)
+TEXT_LOOP.murk.shelfBare = "Shelf's bare. Keep the rest; the road goes on.";   // the last item of the shelf bought (SPEC §8.6; M1.md §2.5)
+// <<< M1 step 5b (lane 5b-home)
+
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
 /** L50 (cm) of a species in a lake (the Pilgrim Salmon grows each lake down). */

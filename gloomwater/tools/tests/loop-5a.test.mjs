@@ -264,14 +264,15 @@ section('the barge: three draw calls, the glow by the hour, the variants in the 
   home.show(true);
   const meshes = [], lights = [];
   home.object3d.traverse((o) => { if (o.isMesh && o.visible && o.material?.visible !== false) meshes.push(o); if (o.isLight) lights.push(o); });
-  eq(meshes.length, 3, 'three meshes drawn: the timber, its outline and the glow (≤ 6 main-pass calls)');
-  eq(home.calls(), { main: 3, mirror: 2, shadow: 1 }, 'its budget: 3 main-pass, 2 mirror, 1 shadow (M1 §2.14: ≤ 6, ≤ 2, ≤ 2)');
+  const top5b = home.object3d.getObjectByName('home:chartTop') ? 1 : 0;   // M1 step 5b: the chart table's top (its own textured plane)
+  eq(meshes.length, 3 + top5b, 'three meshes drawn: the timber, its outline and the glow (≤ 6 main-pass calls; 5b: + the chart table\'s top)');
+  eq(home.calls(), { main: 3 + top5b, mirror: 2, shadow: 1 }, 'its budget: 3 main-pass (5b: 4), 2 mirror, 1 shadow (M1 §2.14: ≤ 6, ≤ 2, ≤ 2)');
   eq(lights.length, 0, 'no PointLight (the windows and the stove are emissive only)');
   const g0 = home.glow.geometry.attributes.position.count, t0 = home.timber.geometry.attributes.position.count;
   const all = PL.freshLoop(D); all.home = { orders: 2, baitBed: 2, wall: 1, lights: 1 }; all.tackle.rod = 2; all.barge = { water: 'mossmere', towed: ['mossmere'] }; all.legends = { belled_matriarch: true };
   ok(home.setVariants(homeVariants(all)) === true, 'every M1 home object fitted (the Bait Bed\'s two planters, the rail lanterns, wing I, the rod, the sill\'s gilt stone)');
   let after = 0; home.object3d.traverse((o) => { if (o.isMesh && o.visible && o.material?.visible !== false) after++; });
-  ok(after === 3 && home.glow.geometry.attributes.position.count > g0 && home.timber.geometry.attributes.position.count > t0, '… still three meshes, the objects merged into them');
+  ok(after === 3 + top5b && home.glow.geometry.attributes.position.count > g0 && home.timber.geometry.attributes.position.count > t0, '… still three meshes, the objects merged into them');
   eq(homeVariants(all).stones, ['gilt', 'blank', 'blank', 'blank'], 'the sill\'s four stones of arc I: the Mossmere\'s gilded (towed, its legend home), the other three blank');
   eq(homeVariants({ barge: { towed: ['mossmere'] } }).stones[0], 'ink', '… inked by the tow alone');
   ok(home.setVariants(homeVariants(all)) === false, 'the same objects: no rebuild');

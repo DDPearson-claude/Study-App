@@ -16,6 +16,9 @@
 // createLoop(S) is the ledger itself (PLAN §3.3, §3.4): progression.js builds it under data.LOOP_ENABLED and exposes it as
 // `ctx.progression.loop` (null off the loop). LOOP_METHODS names its methods, for the fixture's fakeLoop and the tests; CONTRACT §14
 // is the seam in full. Its one import is core.js's uid (never data.js).
+// M1 step 5b (lane 5b-home): the home barge's shelf items and the Mossmere complete, the ink prints and the gallery (pure modules)
+import { homeItems, applyHome, applyBaitBed } from './home-shelf.js';
+import { notePrint as notePrintOf, printsView, galleryModel } from './home-prints.js';
 import { uid } from './core.js';
 // M1 step 4 (lane 4): the tins and lures, the raft's parts and Murk's orders, pure (src/loop-gear.js)
 import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches } from './loop-gear.js';
@@ -43,6 +46,8 @@ export const LOOP_METHODS = Object.freeze([
   // M1 step 3a (PLAN §3.2): the bait slot, the lift, the Marked giant, the best fish there, the Chart's pick, the cards, seals and catalogue
   'fit', 'fitted', 'spendBait', 'refundBait', 'liftDue', 'markLifted', 'lifted', 'markGiant', 'takeGiantMark', 'noteBest',
   'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
+  // M1 step 5b (lane 5b-home): the ink print at the measure, the Prints page and the cabin's gallery
+  'notePrint', 'prints', 'gallery',
   // the home barge (M1 step 5a, SPEC §6.5): where it lies and the waters it has been towed to
   'barge', 'towBarge',
   // M1 step 4 (lane 4): Murk's orders (read, wipe one, the one a fish on the card fills) and Cut Strip (a held Let go)
@@ -290,6 +295,8 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   if (h > H.start && ses.has(`hold:${h}`)) out.push(hold(h, true));
   else if (h + 1 <= H.shelfMax && step(h + 1)) out.push(hold(h + 1, false));
   else if (h > H.start && step(h)) out.push(hold(h, true));
+  // M1 step 5b (lane 5b-home): the Home tab's Bait Bed, the Long Wall's wing, Barge lights and the three looks (src/home-shelf.js)
+  out.push(...homeItems(D, ml, [...ses]));
   // M1 step 3a (SPEC §5.1 rule 8, M1.md §2.5; PLAN §2.1 item 4): the Bait tab's legend bait (a consumable: always on the shelf of its
   // water, never "Yours.", never the goal line; `count` the bag holds) and the Maps tab (mapCards: the two cheapest place maps not owned,
   // then the next lake's card). A place map bought while the shelf is open keeps its slot as {bought: true} ("Yours.") and the next card
@@ -819,6 +826,7 @@ export function createLoop(S) {
       outing: 'trip', nightMode: 'still', tally: { dawns: 0, stillNights: 0, swarmNights: 0 },
       lures: {}, equipped: null, bites: {}, mercy: {}, evening: Math.max(0, int(L.evenings)) + 1, comeback: null,
     };
+    try { applyBaitBed(d, L, r); } catch (e) { report('applyBaitBed', e); }   // M1 step 5b: the Bait Bed's free plain bait, topped up
     // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
     const fb = L.fitted?.bait;
     if (typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
@@ -893,6 +901,7 @@ export function createLoop(S) {
     if (!it || it.sealed === true || it.price == null || !Number.isFinite(Number(it.price)) || num(L.clams) < num(it.price)) return { ok: false, msg: '', clams: num(L.clams) };
     L.clams = num(L.clams) - num(it.price);
     if (it.slot === 'hold') L.holdSlots = it.level;
+    else if (applyHome(D(), L, it)) { /* M1 step 5b: a home level or a look (src/home-shelf.js) */ }
     else if (it.slot === 'place') { if (!L.maps.places.includes(it.placeId)) L.maps.places.push(it.placeId); }
     else if (it.slot === 'lake') { if (!L.maps.lakes.includes(it.waterId)) L.maps.lakes.push(it.waterId); }
     else if (it.slot === 'bait') {
@@ -1214,6 +1223,21 @@ export function createLoop(S) {
   const seals = (waterId) => { const L = ensureLoop(); return L ? sealsOf(meta(), D(), waterId ?? frontierOf(L, D()).next ?? 'sporewood') : null; };
   const catalogue = (waterId = 'mossmere') => (ensureLoop() ? catalogueFor(meta(), D(), waterId) : null);
 
+  // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): the prints and the gallery
+  /** The ink print at the measure (SPEC §6.4; progression's measure calls it on a trip, kept or let go alike): the best per species
+   *  by the weight the card shows. → {best, first}. Saved with the measure's own save. */
+  function notePrint(fish, sp = null, cls = null) {
+    const L = ensureLoop();
+    if (!L || !isObj(fish)) return { best: false, first: false };
+    const r = run();
+    try { return notePrintOf(L, D(), fish, { sp: sp || spOf(fish.speciesId), cls, evening: onTrip(r) ? r.evening : L.evenings, zone: r?.zone ?? null }); }
+    catch (e) { report('notePrint', e); return { best: false, first: false }; }
+  }
+  /** The Prints page's cards for the owned waters (home-prints.printsView). */
+  const prints = (waters = null) => { const L = ensureLoop(); return L ? printsView(meta(), D(), Array.isArray(waters) ? waters : (L.maps?.lakes || [])) : null; };
+  /** The cabin's gallery: the wings owned, their frames at true size, the eave's print (home-prints.galleryModel). */
+  const gallery = () => (ensureLoop() ? galleryModel(meta(), D()) : null);
+
   // ---------------------------------------------------------------- the home barge (M1 step 5a, SPEC §6.5)
   /** Where the barge lies and the waters it has been towed to: a copy of meta.loop.barge, or null. */
   function barge() { const L = ensureLoop(); return L && isObj(L.barge) ? { water: L.barge.water, towed: [...(L.barge.towed || [])] } : null; }
@@ -1238,6 +1262,7 @@ export function createLoop(S) {
     taperFirstOpen, spendTaperFirst, comeback, consumeComeback,
     fit, fitted, spendBait, refundBait, liftDue: liftDueNow, markLifted, lifted, markGiant, takeGiantMark, noteBest,
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
+    notePrint, prints, gallery,   // M1 step 5b (lane 5b-home)
     barge, towBarge,
     orders, wipeOrder, orderFor, cutBait,   // M1 step 4 (lane 4)
   };

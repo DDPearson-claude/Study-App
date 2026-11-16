@@ -20,6 +20,7 @@ import { pathToFileURL } from 'node:url';
 import { defaultMeta } from '../../src/core.js';
 import { freshLoop, LOOP_METHODS, LOOP_SCHEMA, tallyLines, shelfItems, goalOf, listCount as listCountOf, mapCards as mapCardsOf, sealsOf, catalogueFor,
   liftDue as liftDueOf } from '../../src/progression-loop.js';
+import { notePrint as notePrintOf, printsView, galleryModel } from '../../src/home-prints.js';   // M1 step 5b (lane 5b-home)
 
 /** The loop's data module (GW_V3, GW_V3_PHASE 1, GW_LOOP), cached per query. */
 export async function loadLoopData({ query = 'loop' } = {}) {
@@ -252,6 +253,10 @@ export function fakeLoop(over = {}) {
     mapCards: () => (D ? mapCardsOf(D, metaLoop(), { meta: metaNow() }) : []),
     seals: (waterId = 'sporewood') => (D ? sealsOf(metaNow(), D, waterId) : null),
     catalogue: (waterId = 'mossmere') => (D ? catalogueFor(metaNow(), D, waterId) : null),
+    // M1 step 5b (lane 5b-home): the print at the measure, the Prints page, the gallery (the real pure functions on the fake's meta)
+    notePrint(fish, sp = null, cls = null) { const L5 = { prints: s.prints5b || (s.prints5b = {}) }; return D ? notePrintOf(L5, D, fish, { sp, cls, evening: 1 }) : { best: false, first: false }; },
+    prints: () => (D ? printsView({ journal: s.journal, loop: { ...metaLoop(), prints: s.prints5b || {} } }, D, ['mossmere']) : { cards: [], count: 0, of: 0 }),
+    gallery: () => (D ? galleryModel({ journal: s.journal, loop: { ...metaLoop(), prints: s.prints5b || {}, home: { wall: s.wall5b | 0 } } }, D) : { wings: [], eave: null, owned: 0 }),
     barge: () => ({ water: s.barge.water, towed: [...s.barge.towed] }),
     towBarge(w) { if (typeof w !== 'string' || !w) return null; s.barge.water = w; if (!s.barge.towed.includes(w)) s.barge.towed.push(w); s.saves++; return api.barge(); },
     // M1 step 4 (lane 4): Murk's orders (s.orders: [{id, speciesId, kind, n, have, text?}]) and Cut Strip (s.bag.cut_strip)

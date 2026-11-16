@@ -34,6 +34,7 @@ import { createRaftGear } from './actors-raft-gear.js';   // M1 step 4 (lane 4):
 import { createWick, ONE_SHOT } from './actors-wick.js';
 import { createMerchant } from './actors-merchant.js';
 import { createHome } from './actors-home.js';
+import { createLooks } from './actors-looks.js';   // M1 step 5b (lane 5b-home): the looks M1 sells, on the Wick and the raft
 import { makeLightPool, makeLine, makeBobber } from './actors-fx.js';
 import { createCord } from './actors-measure.js';
 import { createShow, SHOW_IDS } from './actors-show.js';
@@ -70,6 +71,7 @@ export function create(ctx) {
   // loop it is never built
   const home = ctx.data?.LOOP_ENABLED === true ? createHome(ctx) : null;
   if (home) group.add(home.object3d);
+  const looks = home ? createLooks({ raft, wick }) : null;   // (the loop only, as the barge)
   const lightHolder = new THREE.Group(); lightHolder.name = 'actorLights'; group.add(lightHolder);
   lightHolder.add(merchantR.light); // keep the merchant light always in the scene graph (stable light count)
   const lanternLight = raft.light;
@@ -133,6 +135,7 @@ export function create(ctx) {
     raft.lflame.outerMat.uniforms.uColor.value.copy(lc);
     raft.halo.material.color.copy(lc);
     raft.glassMat.color.copy(lc).multiplyScalar(1.6);
+    looks?.dress(c, look);   // M1 step 5b: the looks owned (the Slate Cloak Dye, the Amber Lantern Glass, the Oxblood Pennant)
     // the pool fill leans gold: added over cold indigo water, a redder amber reads copper/rose
     // (no reach ring: the soft pool itself shows how far the light goes, DESIGN §19.1)
     pool.mat.uniforms.uColor.value.copy(lc).lerp(new THREE.Color(0xffc46a), 0.45);
@@ -204,6 +207,7 @@ export function create(ctx) {
     const zid = ctx.world?.getZone?.()?.id ?? null;
     home.show(!!m && (!where || where === zid) && ctx.flow !== 'boot');
     home.update(dt, hasWater() ? H : null);
+    looks?.update(ctx.state?.meta?.loop, applyCharacter);   // M1 step 5b: a look bought re-dresses the Wick and the raft
   }
   const api = {
     group, raft: raft.yawGroup, wick: wick.group, lanternLight, merchant, merchantLight: merchantR.light, lightPool: pool.mesh, home,
