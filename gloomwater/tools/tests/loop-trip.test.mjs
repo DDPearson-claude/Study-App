@@ -368,7 +368,9 @@ section('parked on a trip: Murk, the gate, the trials, the buffs (T29, T46, T53)
   const env = makeEnv({ meta });
   const r = startTrip(env);
   for (let t = 0; t < 300; t += 0.5) { env.phase.time = t; env.P.update(0.5); }
-  ok(env.count('merchant:arrive') === 0 && env.P.isMerchantPresent() === false, 'T29: no merchant:arrive over 300 s of calm on a trip');
+  // (PLAN rev. 9: from M1 step 5 Murk's barge is moored in view through the evening, the actor's moored mode; the market never
+  // brings him, and nothing offers his shelf on the water)
+  ok(env.count('merchant:arrive') === 0 && env.P.isMerchantPresent() === false && env.P.canShop?.() !== true, 'T29 (rev. 9): no merchant:arrive and no Trade pill over 300 s of calm on a trip');
   r.legendaries.belled_matriarch = true;
   for (let t = 0; t < 60; t += 0.5) env.P.update(0.5);
   ok(env.count('gate:open') === 0 && env.P.getGateInfo().open === false && !env.calls.gate.includes('open'), 'T46: the gate never opens on a trip, even with a legend landed');
@@ -592,7 +594,7 @@ section('the opening\'s records (T60, T67) and Murk\'s lines (§8.6)');
   const old = { meta: { ...defaultMeta(), runs: 4, journal: { dusk_minnow: { caught: 2 } }, relics: { seven_knots: 1 }, v3ids: true, firstEvening: { done: true } }, run: null };
   const keep = clone(old.meta);
   migrateSaveModule(old, D);
-  ok(PL.migrateLoop({ loop: clone(old.meta.loop) }, D).loop && old.meta.loop.v === 3, 'T33: an old save gains meta.loop');
+  ok(PL.migrateLoop({ loop: clone(old.meta.loop) }, D).loop && old.meta.loop.v === PL.LOOP_SCHEMA, 'T33: an old save gains meta.loop');
   eq(Object.fromEntries(Object.entries(old.meta).filter(([k]) => k !== 'loop')), keep, 'T33: every other meta key is unchanged');
   const trip = { meta: { ...defaultMeta(), loop: { v: 3 } }, run: { id: 'run_t', active: true, outing: 'trip' } };
   migrateSaveModule(trip, D);

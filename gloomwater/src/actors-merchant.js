@@ -228,6 +228,8 @@ export function createMerchant(ctx) {
     get mode() { return mode; },
     /** The lamp's own PointLight share this frame (0 while moored or hidden; the ceremony may borrow the light, which is not this). */
     get lampLit() { return lampLit; },
+    /** His body's turn on the pad and his head's (radians): the raft is tracked only outside the moored mode (tests). */
+    get facing() { return { bodyYaw, lookYaw }; },
     /**
      * The loop's moored mode (M1 step 5a): Murk at the mooring's murk slot at once, facing (−sin y, −cos y) (the docks' heading
      * convention), his lamp's PointLight held at 0, no turning toward the raft.

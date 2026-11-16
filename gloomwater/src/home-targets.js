@@ -19,9 +19,9 @@ export const TARGET_ORDER = ['murk', 'chart', 'journal', 'wall'];
 // z 2.25, the chart table under the awning, the lectern beside the door, the doorway itself
 export const BARGE_LOCAL = {
   deckY: 0.42, cabinAft: 2.25,
-  chart: { x: -0.7, z: 4.5, w: 0.95, d: 0.7, h: 0.8 },
-  lectern: { x: 1.2, z: 3.3 },
-  door: { x: -0.25, w: 0.8, h: 1.48 },
+  chart: { x: -1.0, z: 4.6, w: 0.95, d: 0.7, h: 0.8 },
+  lectern: { x: 1.25, z: 3.0 },
+  door: { x: -0.3, w: 0.8, h: 1.48 },
 };
 const B = BARGE_LOCAL;
 export const TARGET_BOXES = {
@@ -56,7 +56,9 @@ export function bargePoints(M, { length = 12, beam = 3.6, top = 3.5 } = {}) {
   if (!M?.hull) return [];
   const pts = [];
   for (const z of [-length / 2, 0, length / 2]) for (const x of [-beam / 2, beam / 2]) for (const y of [0, z === 0 ? top : 1.2]) pts.push(place([x, y, z], M.hull, M.hull.yaw));
-  if (M.raft) pts.push([M.raft.x, 0.2, M.raft.z], [M.raft.x, 2.4, M.raft.z]);
+  // the raft tied at the stern, its deck's corners and the Wick's flame over it (the player is always in the frame at home)
+  if (M.raft) for (const [dx, dz] of [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]]) pts.push([M.raft.x + dx, 0.2, M.raft.z + dz]);
+  if (M.raft) pts.push([M.raft.x, 2.6, M.raft.z]);
   return pts;
 }
 
@@ -156,7 +158,7 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
  * laid-out buttons at least `min` px with none overlapping. which: the targets to check (the wall only once wing I is owned:
  * the check takes all four). → {ok, faults: [], rects, layout}
  */
-export function frameCheck(M, cam, { vw, vh, min = 44, word = 26, margin = 6, which = TARGET_ORDER, reserve = [] } = {}) {
+export function frameCheck(M, cam, { vw, vh, min = 44, word = 26, margin = 16, which = TARGET_ORDER, reserve = [] } = {}) {
   const faults = [];
   const proj = (p) => project(p, cam, vw, vh);
   for (const p of bargePoints(M)) {

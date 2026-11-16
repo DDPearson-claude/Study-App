@@ -596,12 +596,12 @@ export function createLoopView(K) {
       const layer = h('div', 'gw-jetty-targets');
       for (const id of homeTargetIds(K.meta?.()?.loop)) {
         const cue = c.tile === id, dim = c.dim && !cue;
-        const b = h('button', `gw-tile gw-target gw-target--${id}${cue ? ' gw-cue' : ''}${dim ? ' gw-dim' : ''}`);
+        const b = h('button', `gw-tile gw-jetty-target gw-jetty-target--${id}${cue ? ' gw-cue' : ''}${dim ? ' gw-dim' : ''}`);
         b.type = 'button';
         b.dataset.tile = id;
         if (cue || (!c.tile && id === 'chart')) b.dataset.autofocus = '1';
         const word = id === 'wall' ? null : TL().jetty?.[id] || id;
-        b.innerHTML = `<span class="gw-target-box" aria-hidden="true"></span>${word ? `<span class="gw-target-word">${ORN.hookL}<b></b>${ORN.hookR}</span>` : ''}`;
+        b.innerHTML = `<span class="gw-jetty-tbox" aria-hidden="true"></span>${word ? `<span class="gw-jetty-tword">${ORN.hookL}<b></b>${ORN.hookR}</span>` : ''}`;
         if (word) b.querySelector('b').textContent = word; else b.setAttribute('aria-label', TL().jetty?.wall || 'The Long Wall');
         b.style.visibility = 'hidden';   // (until placeTargets puts it over its object, this frame)
         b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); onTile(id); });
@@ -653,7 +653,7 @@ export function createLoopView(K) {
     const vw = Math.max(1, innerWidth), vh = Math.max(1, innerHeight), phone = vw < 700 || vh < 500;
     const C = targetCorners(M) || {};
     const proj = (p) => { const o = R.projectToScreen({ x: p[0], y: p[1], z: p[2] }, TG.proj); return { x: o.x, y: o.y, depth: o.behind ? -1 : 1 }; };
-    const btns = [...layer.querySelectorAll('.gw-target')];
+    const btns = [...layer.querySelectorAll('.gw-jetty-target')];
     const rects = {};
     for (const b of btns) rects[b.dataset.tile] = C[b.dataset.tile] ? rectOf(C[b.dataset.tile], proj) : null;
     const box = (sel) => { const el = e.el.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return r.width > 0 ? { l: r.left - 4, t: r.top - 4, r: r.right + 4, b: r.bottom + 4 } : null; };

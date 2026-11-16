@@ -56,7 +56,7 @@ const C = {
   canvasA: 0x7d7196, canvasB: 0x93707e, canvasC: 0xa39bac, seamC: 0x4b4360, pole: 0x3a2b24,
   iron: 0x2a2830, rope: 0x8c7552, stone: 0x8a8498, stoneBlank: 0xa7a1b6, stoneInk: 0x2a2436, stoneGilt: 0xc9a25a,
   page: 0xd9d0bf, cover: 0x5a2a31, chart: 0xd0c5ab, chartEdge: 0x8f826a, ink: 0x2a2530, shutter: 0x6b5a7a,
-  door: 0x7a5262, doorB: 0x704a5a, fascia: 0x8d8399, pot: 0x6d4a3c,
+  door: 0x7a5262, doorB: 0x704a5a, fascia: 0x8d8399, pot: 0x6d4a3c, paint: 0x5d5476, paintDark: 0x4a4260,
 };
 // the glow's parts (gwK[part]): 0 the windows, 1 the door's stove glow, 2 the rail lanterns, 3 the pipe's ember
 const GLOW = { window: 0, door: 1, lantern: 2, ember: 3 };
@@ -97,18 +97,21 @@ function hullGeo() {
   // a section's points from port to starboard (outer skin)
   const section = (z) => {
     const w = halfBeam(z), g = sheer(z), b = bottom(z);
-    const ys = [g, g * 0.62, g * 0.28, 0.03, b * 0.55, b];
-    const xs = [w, w * 0.998, w * 0.99, w * 0.965, w * 0.88, w * 0.66];
+    const ys = [g, g - 0.06, g - 0.19, g * 0.42, g * 0.2, 0.03, b * 0.55, b];
+    const xs = [w, w * 0.999, w * 0.997, w * 0.992, w * 0.985, w * 0.965, w * 0.88, w * 0.66];
     const pts = [];
     for (let k = 0; k < ys.length; k++) pts.push(V(-xs[k], ys[k], z));
     for (let k = ys.length - 1; k >= 0; k--) pts.push(V(xs[k], ys[k], z));
     return pts;
   };
   // strakes: planks banded by height, a tarred band at the waterline, moss in patches just above it (the one living green)
+  // (a face's colour from its middle: crisp bands) the old barge-road's paint, a faded lavender band under the gunwale
+  const cP = lit(C.paint, 1.8), cPd = lit(C.paintDark, 1.8);
   const plankCol = (p) => {
-    const y = p.y, n = Math.sin(p.z * 1.7 + p.x * 3.1) * Math.sin(p.z * 0.63 + 1.7);
+    const y = p.y, n = Math.sin(p.z * 1.7 + p.x * 3.1) * Math.sin(p.z * 0.63 + 1.7), g = sheer(p.z);
     if (y < 0.06) return cT;
     if (y < 0.2 && n > 0.25) return n > 0.55 ? cMd : cM;
+    if (y > g - 0.2 && y < g - 0.05) return Math.sin(p.z * 2.3 + 0.5) > 0.82 ? cPd : cP;
     return Math.floor((y + 0.04) / 0.13) % 2 ? cA : cB;
   };
   const S = zs.map(section);
@@ -119,7 +122,8 @@ function hullGeo() {
       const mid = new THREE.Vector3().add(a).add(b).add(c).add(d).multiplyScalar(0.25);
       const out = V(mid.x, mid.y + 0.25, 0);
       if (Math.abs(mid.x) < 0.3) out.set(0, -1, 0);
-      quad(a, b, c, d, plankCol(a), plankCol(b), plankCol(c), plankCol(d), out);
+      const fc = plankCol(mid);
+      quad(a, b, c, d, fc, fc, fc, fc, out);
     }
   }
   // the inner bulwark (gunwale down to the deck) and the deck
@@ -143,7 +147,7 @@ function hullGeo() {
   // the stem (bow) and the transom (stern): fans across each end section
   for (const [zEnd, dir] of [[-6, -1], [6, 1]]) {
     const sec = section(zEnd), c = V(0, (sheer(zEnd) + bottom(zEnd)) * 0.5, zEnd);
-    for (let k = 0; k + 1 < sec.length; k++) tri(c, sec[k], sec[k + 1], dir > 0 ? cB : cA, plankCol(sec[k]), plankCol(sec[k + 1]), V(0, 0, dir));
+    for (let k = 0; k + 1 < sec.length; k++) { const fc = plankCol(new THREE.Vector3().addVectors(sec[k], sec[k + 1]).multiplyScalar(0.5)); tri(c, sec[k], sec[k + 1], fc, fc, fc, V(0, 0, dir)); }
     // close the deck at the ends
     const w = halfBeam(zEnd) - IN, g = sheer(zEnd);
     quad(V(-w, g, zEnd), V(w, g, zEnd), V(w, dy, zEnd), V(-w, dy, zEnd), cIn, cIn, cIn, cIn, V(0, 0, -dir));
@@ -386,6 +390,24 @@ function baseParts() {
     const b = [0.95, sheer(5.5) + 0.27, 5.5], r = [0.35, 0.28, 7.5];
     timber.push(paint(tube(bezierPts([b, [(b[0] + r[0]) / 2, 0.22, (b[2] + r[2]) / 2], r], 10).map((p) => new THREE.Vector3(...p)), 0.018, 4), lit(C.rope, 1.6)));
   }
+  // ---- the bow's rope button (a stout fender on the stem) and a skylight on the roof, its little panes lit from the cabin below
+  timber.push(paint(xf(new THREE.SphereGeometry(0.26, 10, 7), { p: [0, 0.38, -6.12], s: [1.1, 0.75, 0.8] }), lit(C.rope, 1.4)));
+  {
+    const sz = -1.0, sw = 0.62, sl = 1.1, sh = 0.34, sy = top + 0.12;
+    timber.push(box(sw + 0.08, 0.06, sl + 0.08, [0, sy + 0.03, sz], lit(C.post)));
+    for (const s2 of [-1, 1]) {
+      timber.push(box(0.05, sh, sl, [s2 * sw / 2, sy + sh / 2 + 0.06, sz], lit(C.wallA)));
+      glow.push(glowQuad(0.26, 0.17, [s2 * (sw / 2 + 0.028), sy + 0.24, sz - 0.27], s2 > 0 ? 'x' : '-x', GLOW.window));
+      glow.push(glowQuad(0.26, 0.17, [s2 * (sw / 2 + 0.028), sy + 0.24, sz + 0.27], s2 > 0 ? 'x' : '-x', GLOW.window));
+      for (const dz of [-0.27, 0.27]) timber.push(box(0.03, 0.03, 0.3, [s2 * (sw / 2 + 0.04), sy + 0.24, sz + dz], lit(C.frame)), box(0.03, 0.21, 0.03, [s2 * (sw / 2 + 0.04), sy + 0.24, sz + dz], lit(C.frame)));
+    }
+    timber.push(box(sw, sh, 0.05, [0, sy + sh / 2 + 0.06, sz - sl / 2], lit(C.wallB)), box(sw, sh, 0.05, [0, sy + sh / 2 + 0.06, sz + sl / 2], lit(C.wallB)));
+    // its little pitched cap
+    const cap = new THREE.CylinderGeometry(0.42, 0.42, sl + 0.14, 3, 1); cap.rotateX(Math.PI / 2); cap.rotateZ(Math.PI / 2);
+    cap.scale(1, 0.38, 1);
+    timber.push(paint(xf(cap, { p: [0, sy + sh + 0.12, sz] }), lit(C.roof, 1.8)));
+    ink.push(box(sw, sh + 0.2, sl, [0, sy + 0.25, sz], 0xffffff));
+  }
   // ---- fenders hung over both sides: old rope bundles
   for (const [s, z] of [[1, -1.6], [1, 1.9], [-1, 0.2], [1, -4.2]]) {
     const x = s * (halfBeam(z) + 0.1), y = sheer(z) - 0.42;
@@ -394,7 +416,7 @@ function baseParts() {
   }
   // ---- roof clutter: a coil of rope, a crate, an old oar laid along the roof's edge
   for (let i = 0; i < 3; i++) timber.push(paint(xf(new THREE.TorusGeometry(0.22 - i * 0.04, 0.035, 4, 14), { p: [0.6, top + 0.17 + i * 0.05, -2.9], r: [Math.PI / 2, 0, 0] }), lit(C.rope, 1.6)));
-  timber.push(box(0.45, 0.32, 0.4, [-0.62, top + 0.28, 1.5], lit(C.wallA)), box(0.47, 0.04, 0.42, [-0.62, top + 0.44, 1.5], lit(C.frame)));
+  timber.push(box(0.45, 0.32, 0.4, [0.55, top + 0.28, 1.35], lit(C.wallA)), box(0.47, 0.04, 0.42, [0.55, top + 0.44, 1.35], lit(C.frame)));
   timber.push(paint(xf(new THREE.CylinderGeometry(0.03, 0.03, 2.6, 6), { p: [1.12, top + 0.16, -0.6], r: [Math.PI / 2, 0, 0] }), lit(C.pole)), box(0.16, 0.035, 0.5, [1.12, top + 0.16, 0.85], lit(C.pole)));
   return { timber, ink, glow, anchors: A };
 }
@@ -405,7 +427,7 @@ function baseParts() {
  * 'ink' | 'gilt'), looks: [ids]}. → {timber: [geo], glow: [geo]}
  */
 function variantParts(V, A) {
-  const timber = [], glow = [];
+  const timber = [], glow = [], lamps = [];
   const CB = HULL.cabin, top = CB.top;
   // the sill's four stones of arc I (one per water of the reach, in road order): blank, inked by the tow, gilded by its legend
   {
@@ -426,7 +448,7 @@ function variantParts(V, A) {
     }
   };
   if (V.bed >= 1) planter(-2.3);
-  if (V.bed >= 2) planter(-0.3);
+  if (V.bed >= 2) planter(0.45);
   // Barge lights I: lanterns on the rail at the four quarters (II: the roof's edge, III: a beacon on the bow; after M1, hooks only)
   if (V.lights >= 1) {
     const RH = A.rails.RH;
@@ -437,6 +459,7 @@ function variantParts(V, A) {
       timber.push(cyl(0.06, 0.08, 0.03, 6, [lx, ly + 0.11, z], lit(C.iron)), cyl(0.08, 0.07, 0.025, 6, [lx, ly - 0.1, z], lit(C.iron)));
       for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + 0.4; timber.push(box(0.012, 0.2, 0.012, [lx + Math.cos(a) * 0.065, ly, z + Math.sin(a) * 0.065], lit(C.iron))); }
       glow.push(tagGlow(xf(new THREE.CylinderGeometry(0.05, 0.055, 0.17, 8), { p: [lx, ly, z] }), GLOW.lantern));
+      lamps.push([lx, ly, z]);
     }
   }
   // the rod you own, on its rack on the cabin's aft wall (port side of the door)
@@ -447,7 +470,53 @@ function variantParts(V, A) {
     timber.push(paint(tube([new THREE.Vector3(x + 0.06, y0 + 0.2, z + 0.05), new THREE.Vector3(x + 0.04, y0 + 1.0, z + 0.06), new THREE.Vector3(x + 0.01, y0 + 2.0, z + 0.05)], (u) => 0.022 - u * 0.014, 5, { capStart: true }), lit(tierCol, 1.8)));
     timber.push(cyl(0.035, 0.035, 0.09, 8, [x + 0.07, y0 + 0.62, z + 0.08], lit(C.iron), [0, 0, Math.PI / 2]));
   }
-  return { timber, glow };
+  return { timber, glow, lamps };
+}
+
+/**
+ * The light the glow throws on the timber, baked per vertex (gwWarm: x the stove's and the windows', y the rail lanterns'): the door's
+ * spill over the stern deck, the awning's underside, the chart table and the lectern; each window's on its frame and the wall round
+ * it; each lantern's on the rail. The material adds it as emissive, scaled by the glow's own levels (so the bake follows the hour).
+ */
+function bakeWarm(geo, A, lamps) {
+  const p = geo.attributes.position, n = p.count, w = new Float32Array(n * 2);
+  const CB = HULL.cabin, dy = HULL.deckY, D0 = BARGE_LOCAL.door;
+  const door = [D0.x, dy + 0.55, CB.z1 + 0.25];
+  const fall = (d, r) => (d >= r ? 0 : (1 - d / r) * (1 - d / r));
+  for (let i = 0; i < n; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    let a = 0, b = 0;
+    if (z > CB.z1 - 0.02) a += 0.95 * fall(Math.hypot(x - door[0], (y - door[1]) * 0.8, z - door[2]), 2.3);
+    for (const q of A.windows) {
+      const out = Math.sign(q[0]) || 1;
+      if ((x - q[0]) * out < -0.02) continue;
+      a += 0.6 * fall(Math.hypot(x - q[0], y - q[1], z - q[2]), 0.62);
+    }
+    for (const q of lamps) b += 0.85 * fall(Math.hypot(x - q[0], y - q[1], z - q[2]), 0.9);
+    w[i * 2] = Math.min(1, a); w[i * 2 + 1] = Math.min(1, b);
+  }
+  geo.setAttribute('gwWarm', new THREE.BufferAttribute(w, 2));
+  return geo;
+}
+/** The timber's toon material with the baked warm light as emissive (gwWarmA the stove's colour × level, gwWarmB the lanterns'). */
+function timberMaterial() {
+  const mat = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.16, rimPower: 0.78, detail: 'wood', detailAmount: 1.2, grain: [0, 0, 1], plank: 0.13, wet: 0.18, gloss: 0.14, shine: 12 });
+  const U = { gwWarmA: { value: new THREE.Color(0, 0, 0) }, gwWarmB: { value: new THREE.Color(0, 0, 0) } };
+  mat.userData.warm = U;
+  const base = mat.onBeforeCompile;
+  mat.onBeforeCompile = (shader, r) => {
+    base.call(mat, shader, r);
+    Object.assign(shader.uniforms, U);
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute vec2 gwWarm;\nvarying vec2 vGwWarm;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGwWarm = gwWarm;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vGwWarm;\nuniform vec3 gwWarmA;\nuniform vec3 gwWarmB;')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += gwWarmA * vGwWarm.x + gwWarmB * vGwWarm.y;');
+  };
+  const key = mat.customProgramCacheKey?.() || '';
+  mat.customProgramCacheKey = () => `${key}|gwHomeWarm`;
+  return mat;
 }
 
 /** The glow material: vertex colours times a per-part brightness (gwK), unlit, into the bloom. */
@@ -506,7 +575,7 @@ export function createHome(ctx) {
   const mats = [];
   const object3d = new THREE.Group(); object3d.name = 'home'; object3d.visible = false;
   const bob = new THREE.Group(); object3d.add(bob);
-  const timberMat = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.16, rimPower: 0.78, detail: 'wood', detailAmount: 1.2, grain: [0, 0, 1], plank: 0.13, wet: 0.18, gloss: 0.14, shine: 12 });
+  const timberMat = timberMaterial();
   const glowMat = glowMaterial();
   mats.push(timberMat, glowMat);
   const base = baseParts();
@@ -528,7 +597,7 @@ export function createHome(ctx) {
     if (variant && variant.sig === v.sig) return false;
     variant = v;
     const parts = variantParts(v, A);
-    const tg = mergeGeos([...base.timber.map((g) => g), ...parts.timber]);
+    const tg = bakeWarm(mergeGeos([...base.timber.map((g) => g), ...parts.timber]), A, parts.lamps);
     const gg = mergeGeos([...base.glow, ...parts.glow]);
     timber.geometry.dispose(); glow.geometry.dispose();
     timber.geometry = tg; glow.geometry = gg;
@@ -593,6 +662,9 @@ export function createHome(ctx) {
       const wallK = variant?.wall > 0 ? 1.12 : 1;   // wing I's candles warm the doorway (step 5b hangs the gallery)
       for (const k of Object.keys(L)) K[k] = damp(K[k], L[k], 2.5, dt);
       glowMat.userData.gwK.value.set(K.window * (0.97 + 0.03 * flick), K.door * flick * wallK, K.lantern * flick, K.ember * (0.85 + 0.15 * flick));
+      // the baked spill: the stove's and the windows' warmth (home's warmest light), the lanterns'
+      timberMat.userData.warm.gwWarmA.value.setRGB(0.62, 0.32, 0.12).multiplyScalar(Math.max(K.door, K.window * 0.8) * flick * wallK);
+      timberMat.userData.warm.gwWarmB.value.setRGB(0.55, 0.36, 0.16).multiplyScalar(K.lantern * flick);
       // the warm windows on the water: one streak under the cabin's lake-side windows (no PointLight, no pool round the barge)
       toWorld(0, 1.3, -0.8, waterLight.position);
       waterLight.intensity = 1.6 * K.window;

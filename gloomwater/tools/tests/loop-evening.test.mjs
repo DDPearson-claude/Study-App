@@ -216,7 +216,7 @@ section('the Chart\'s Sail: the glide out, then the trip (T66)');
   eq(zc?.p, { zone: 'mossmere', prev: null, sail: true }, 'T66: zone:change {prev: null, sail: true}');
   ok(E.names().indexOf('zone:change') < E.names().indexOf('run:start'), '… then run:start');
   eq(E.player.position, plan.to, 'T66: after run:start the raft is at the glide\'s end (no respawn jump)');
-  ok(E.ctx.state.run?.outing === 'trip' && E.calls.includes('merchant.leave'), 'the run is a trip; Murk stays home');
+  ok(E.ctx.state.run?.outing === 'trip' && !E.calls.includes('merchant.leave'), 'the run is a trip; Murk stays moored (M1 step 5a: startTrip never calls merchant.leave)');
   // a trip that ended near docks[2]: the sail home leaves the raft at docks[0], and the next Sail starts there
   E.player.position = { x: 33, z: -36 };
   E.ev.length = 0;

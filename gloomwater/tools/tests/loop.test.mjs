@@ -152,14 +152,14 @@ section('data.js: fishClams, loopWaterKey, loopWickId, the Wick helpers, sailPla
 section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 bookkeeping, T35, T38), the shelf (T23, T24), the list (T81, T82)');
 {
   const f = PL.freshLoop(D);
-  ok(f.v === 3 && f.holdSlots === 3 && f.clams === 0 && f.evenings === 0, 'freshLoop: 3 slots, no clams, no evening');
+  ok(f.v === PL.LOOP_SCHEMA && f.holdSlots === 3 && f.clams === 0 && f.evenings === 0, 'freshLoop: 3 slots, no clams, no evening');
   ok(f.wick === null && f.tutorial === null && f.lastTrip === null, 'freshLoop: no Wick, no tutorial (T67)');
   eq(f.maps, { lakes: ['mossmere'], places: [] }, 'freshLoop: the Mossmere owned');
   eq(f.firsts, { seen: [], seals: [], best: {} }, "freshLoop: the Wick's ledger, empty");
   // T51: a v2 block
   const m2 = { runs: 4, journal: { dusk_minnow: { caught: 2 } }, loop: { v: 2, clams: 5, bait: { mireworm: 4 }, hold: 2, raft: { hull: 2, oars: 1 }, maps: { lakes: ['mossmere'], places: ['lily_maze'] } } };
   PL.migrateLoop(m2, D);
-  ok(m2.loop.v === 3 && m2.loop.holdSlots === 5 && !('hold' in m2.loop), 'T51: hold 2 → holdSlots 5');
+  ok(m2.loop.v === PL.LOOP_SCHEMA && m2.loop.holdSlots === 5 && !('hold' in m2.loop), 'T51: hold 2 → holdSlots 5');
   eq(m2.loop.bait, { mossmere: { mireworm: 4 } }, 'T51: flat bait counts move under the Mossmere');
   ok(m2.loop.clams === 705 && !('hull' in m2.loop.raft) && m2.loop.raft.oars === 1, 'T51: the hull refunded (700) and removed');
   eq(m2.loop.maps.places, ['lily_maze'], 'T51: places kept');

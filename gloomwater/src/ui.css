@@ -2254,10 +2254,10 @@
 /* M1 step 5a: the home barge's own places, each a button over its object, its tile's word under it (no box, no ring: four ink
    corners only on hover, focus or the tutorial's cue) */
 .gw-jetty-targets { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.gw-jetty .gw-tile.gw-target { position: absolute; display: block; flex: none; min-height: 0; margin: 0; padding: 0; border: 0; background: none; pointer-events: auto;
+.gw-jetty .gw-tile.gw-jetty-target { position: absolute; display: block; flex: none; min-height: 0; margin: 0; padding: 0; border: 0; background: none; pointer-events: auto;
   color: var(--ink); -webkit-tap-highlight-color: transparent; transition: opacity .25s; }
-.gw-jetty .gw-tile.gw-target::before, .gw-jetty .gw-tile.gw-target::after { content: none; }
-.gw-target-box { position: absolute; left: 0; right: 0; top: 0; height: var(--box-h, 100%); pointer-events: none; opacity: 0; transition: opacity .25s;
+.gw-jetty .gw-tile.gw-jetty-target::before, .gw-jetty .gw-tile.gw-jetty-target::after { content: none; }
+.gw-jetty-tbox { position: absolute; left: 0; right: 0; top: 0; height: var(--box-h, 100%); pointer-events: none; opacity: 0; transition: opacity .25s;
   --tk: rgba(236, 226, 248, .85); --tl: 14px;
   background:
     linear-gradient(var(--tk), var(--tk)) left top / var(--tl) 1.5px no-repeat, linear-gradient(var(--tk), var(--tk)) left top / 1.5px var(--tl) no-repeat,
@@ -2265,19 +2265,19 @@
     linear-gradient(var(--tk), var(--tk)) left bottom / var(--tl) 1.5px no-repeat, linear-gradient(var(--tk), var(--tk)) left bottom / 1.5px var(--tl) no-repeat,
     linear-gradient(var(--tk), var(--tk)) right bottom / var(--tl) 1.5px no-repeat, linear-gradient(var(--tk), var(--tk)) right bottom / 1.5px var(--tl) no-repeat;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, .9)); }
-.gw-target:hover .gw-target-box, .gw-target:focus-visible .gw-target-box { opacity: .9; }
-.gw-target.gw-cue .gw-target-box { opacity: 1; --tk: rgba(246, 214, 160, .95); animation: gwLoopCueInk 1.6s ease-in-out infinite; }
-.gw-target-word { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; white-space: nowrap; pointer-events: none; }
-.gw-target-word b { font: 500 19px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--ink); text-shadow: 0 0 10px rgba(8, 6, 20, .95), 0 1px 3px rgba(0, 0, 0, .95), var(--ink-shadow); }
-.gw-target-word .gw-hk { opacity: 0; transition: opacity .25s; }
-.gw-target:hover .gw-target-word .gw-hk, .gw-target:focus-visible .gw-target-word .gw-hk, .gw-target.gw-cue .gw-target-word .gw-hk { opacity: 1; }
-.gw-target:hover .gw-target-word b, .gw-target:focus-visible .gw-target-word b { color: var(--ink-hi); }
-.gw-target:hover .gw-hk path, .gw-target:focus-visible .gw-hk path, .gw-target.gw-cue .gw-hk path { stroke-dashoffset: 0; }
-@media (max-width: 700px) { .gw-target-word b { font-size: 17px; letter-spacing: .16em; } .gw-target-box { --tl: 11px; } }
-.gw-target.gw-cue .gw-target-word b { color: var(--ink-hi); text-shadow: 0 0 16px var(--glow), 0 1px 3px rgba(0, 0, 0, .95), var(--ink-shadow); animation: gwLoopCueInk 1.6s ease-in-out infinite; }
-.gw-target.gw-dim { opacity: .6; }
-.gw-target:focus { outline: none; }
-.gw-rm .gw-target.gw-cue .gw-target-box, .gw-rm .gw-target.gw-cue .gw-target-word b { animation: none !important; }
+.gw-jetty-target:hover .gw-jetty-tbox, .gw-jetty-target:focus-visible .gw-jetty-tbox { opacity: .9; }
+.gw-jetty-target.gw-cue .gw-jetty-tbox { opacity: 1; --tk: rgba(246, 214, 160, .95); animation: gwLoopCueInk 1.6s ease-in-out infinite; }
+.gw-jetty-tword { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; white-space: nowrap; pointer-events: none; }
+.gw-jetty-tword b { font: 500 19px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--ink); text-shadow: 0 0 10px rgba(8, 6, 20, .95), 0 1px 3px rgba(0, 0, 0, .95), var(--ink-shadow); }
+.gw-jetty-tword .gw-hk { opacity: 0; transition: opacity .25s; }
+.gw-jetty-target:hover .gw-jetty-tword .gw-hk, .gw-jetty-target:focus-visible .gw-jetty-tword .gw-hk, .gw-jetty-target.gw-cue .gw-jetty-tword .gw-hk { opacity: 1; }
+.gw-jetty-target:hover .gw-jetty-tword b, .gw-jetty-target:focus-visible .gw-jetty-tword b { color: var(--ink-hi); }
+.gw-jetty-target:hover .gw-hk path, .gw-jetty-target:focus-visible .gw-hk path, .gw-jetty-target.gw-cue .gw-hk path { stroke-dashoffset: 0; }
+@media (max-width: 700px) { .gw-jetty-tword b { font-size: 17px; letter-spacing: .16em; } .gw-jetty-tbox { --tl: 11px; } }
+.gw-jetty-target.gw-cue .gw-jetty-tword b { color: var(--ink-hi); text-shadow: 0 0 16px var(--glow), 0 1px 3px rgba(0, 0, 0, .95), var(--ink-shadow); animation: gwLoopCueInk 1.6s ease-in-out infinite; }
+.gw-jetty-target.gw-dim { opacity: .6; }
+.gw-jetty-target:focus { outline: none; }
+.gw-rm .gw-jetty-target.gw-cue .gw-jetty-tbox, .gw-rm .gw-jetty-target.gw-cue .gw-jetty-tword b { animation: none !important; }
 .gw-jetty-goal { margin: 6px 0 0; display: flex; align-items: center; gap: 6px; font: 400 16px/1.2 var(--f-display); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-dim);
   text-shadow: 0 1px 2px #000, 0 0 10px rgba(4, 5, 12, .9); }
 .gw-jetty-goal .gw-ico { width: 18px; height: 18px; color: var(--clam); margin-left: 2px; }

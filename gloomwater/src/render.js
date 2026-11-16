@@ -649,6 +649,8 @@ export function create(ctx) {
       tgt.dist *= 1 + pf * 0.38;
       tgt.elev = Math.min(80, tgt.elev + pf * 7);
     }
+    // the home camera's lens (M1 step 5a): the mooring's pose's own fov (its portrait pose has its own)
+    if (mode === 'home') { const hp = homePose(); if (hp) tgt.fov = Number(hp.fov) || tgt.fov; }
   }
 
   /**
@@ -1024,15 +1026,15 @@ export function create(ctx) {
       camPos.lerp(tmpV, sw);
       lookTarget.lerp(S.look, sw);
     }
-    let rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
+    const rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
     // the home camera over the rig (M1 step 5a): the mooring's framing, a slow breath at rest
     updateHomeCam(dt);
+    // (its lens is the rig's own fov target in mode 'home', fillTargets: the rig eases it with the pose)
     if (homeCam.w > 0) {
       const hw = homeCam.w, br = reducedMotion ? 0.01 : 0.05;
       tmpV.copy(homeCam.pos); tmpV.x += Math.sin(time * 0.23) * br; tmpV.y += Math.sin(time * 0.31 + 0.7) * br * 0.6;
       camPos.lerp(tmpV, hw);
       lookTarget.lerp(homeCam.look, hw);
-      rigFov = lerp(rigFov, homeCam.fov, hw);
     }
 
     // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
