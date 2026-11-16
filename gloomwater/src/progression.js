@@ -27,6 +27,7 @@ import { createMarket } from './progression-market.js';
 import { createAutofish } from './progression-af.js';
 import * as V3H from './progression-v3.js';
 import { createLoop } from './progression-loop.js';
+import { raftStats } from './loop-gear.js';   // M1 step 4 (lane 4): the raft's parts on a trip's stats
 import * as DATA from './data.js';
 
 /**
@@ -194,6 +195,8 @@ export function create(ctx) {
     const wid = typeof d.loopWickId === 'function' ? d.loopWickId(r.character) : 'wick';
     const add = d.LOOP?.wicks?.[wid]?.stats || {};
     for (const k in add) { const v = add[k]; if (typeof v === 'number' && k in out) out[k] += v; }
+    // M1 step 4 (lane 4, SPEC §7): the Oars' speed (+1.5 m/s a level) and the Lantern's light (15% farther a level)
+    { const rs = raftStats(d, L); if ('moveSpeed' in out) out.moveSpeed += rs.speed; if ('lightRadius' in out) out.lightRadius *= rs.light; }
     for (const k in STATS) {
       const s = STATS[k];
       let v = Math.round(out[k] * 1e6) / 1e6;
@@ -791,7 +794,7 @@ export function create(ctx) {
     if (V3()) { r.flags.prevItem = null; r.equipped = r.equippedBait ?? null; }
     ctx.bus.emit('bait:change', { baitId: r.equippedBait });
     const b = bait(id);
-    if (b && !b.legend) toast(`Out of ${b.name}.${r.equippedBait ? ` ${bait(r.equippedBait)?.name} on the hook.` : ' A bare hook it is.'}`, 'info');
+    if (b && !b.legend && r.outing !== 'trip') toast(`Out of ${b.name}.${r.equippedBait ? ` ${bait(r.equippedBait)?.name} on the hook.` : ' A bare hook it is.'}`, 'info');
   }
   /** Called by fishing once per cast. Legend baits are spent only when their legend is hooked. */
   function consumeBait() {

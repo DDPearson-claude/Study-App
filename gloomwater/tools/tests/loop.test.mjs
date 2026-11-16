@@ -219,9 +219,11 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   ok(PL.sellStrandedTrip(v1save).sold === false && JSON.stringify(v1save) === before, 'T39: a non-trip envelope is returned untouched');
   // T23/T24: the shelf
   const shelf0 = PL.shelfItems(D, PL.freshLoop(D));
-  const kit = (items) => items.filter((i) => i.tab === 'tackle' || i.tab === 'raft');
+  // (M1 step 4's cards, the lures, tins, raft parts and Order Board, are tools/tests/loop-4.test.mjs's: these checks read the rest)
+  const step4 = (i) => /^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id), no4 = (items) => items.filter((i) => !step4(i));
+  const kit = (items) => no4(items).filter((i) => i.tab === 'tackle' || i.tab === 'raft');
   eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 30, false]], 'T23: the fresh shelf (Tackle and Raft)');
-  eq(shelf0.filter((i) => i.tab === 'bait' || i.tab === 'maps').map((i) => [i.id, i.price, i.bought]),
+  eq(no4(shelf0).filter((i) => i.tab === 'bait' || i.tab === 'maps').map((i) => [i.id, i.price, i.bought]),
     [['bait:heartmoss', 60, false], ['place:lily_maze', 60, false], ['place:under_the_span', 150, false], ['lake:sporewood', null, false]], 'M1 step 3a: the Bait tab and the Maps tab (two place maps and the sealed card)');
   eq(shelf0.find((i) => i.id === 'hold:4').name, 'Lidded Creel', "a hold card names the ladder's step");
   ok(!shelf0.some((i) => i.id === 'hold:5' || i.id === 'rod:2'), 'T24: Hold 5 and T2 wait for the step below');
@@ -237,7 +239,7 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   const top = PL.shelfItems(D, { ...all4, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   ok(kit(top).length === 4 && kit(top).every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
   eq(top.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed]), [['lake:sporewood', true]], 'every place map owned: the Maps tab is the sealed card alone');
-  eq(PL.goalOf(top), null, 'an empty shelf: no goal line (the ball is a consumable, the sealed card has no price)');
+  eq(PL.goalOf(no4(top)), null, 'an empty shelf: no goal line (the ball is a consumable, the sealed card has no price)');
   // T81/T82: the list
   eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'], "T81: the Mossmere's list, computed (M1 step 3a: the twelve, with the Kissmark Trout)");
   const jm = { journal: { dusk_minnow: { caught: 1 }, weeping_carp: { seen: true, caught: 0 }, reedjaw_pike: {}, gloam_eel: { caught: 3 }, mossback_perch: { caught: '2' } } };

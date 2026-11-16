@@ -81,7 +81,7 @@ section('T136: the catalogue\'s page (SPEC §8.8): the head, the list notched, t
   eq(G.bridgechain_sturgeon, [], 'the Bridgechain Sturgeon: none (any hour; its heading is its place)');
   eq(G.thousandcast_pike, ['dusk', 'moon'], '★ the Thousandcast Pike: dusk and moon');
   eq(G.hullkiss_lamprey, ['moon'], '★ the Hullkiss Lamprey: the moon');
-  eq(G.gloam_eel, ['moon'], 'the Gloam Eel: the moon, no tin (its bait reaches the shelf in step 4)');
+  eq(G.gloam_eel, ['moon', 'moss'], 'the Gloam Eel: the moon and (M1 step 4) its Lumen Moss tin glyph, no rate');
   eq(G.belled_matriarch, ['sun', 'dusk', 'mossball'], '★ the Belled Matriarch: day, dusk and the Heartmoss Ball');
   ok(all.filter((c) => c.star).map((c) => c.id).sort().join() === 'belled_matriarch,hullkiss_lamprey,thousandcast_pike', 'the giants and the legend carry ★');
   ok(all.filter((c) => c.edge === 'gold').map((c) => c.id).sort().join() === 'hullkiss_lamprey,thousandcast_pike' && all.filter((c) => c.gold).map((c) => c.id).join() === 'belled_matriarch', 'the giants gold-edged, the Matriarch\'s card gold');

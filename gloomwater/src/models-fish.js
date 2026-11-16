@@ -621,6 +621,45 @@ export const LOOP_SHAPES = {
   },
 };
 
+// >>> M1 step 4 (lane 4, ROSTER §4's catfish row; M1.md §2.3, §2.4): the catfish plan, from the pike's profile with a flattened head:
+// a broad flat head over a wide mouth, two long whiskers (bell-ropes, the Belled Matriarch's `whiskers: 2`) and four short chin barbels,
+// small eyes, a low body tapering to an eel tail with a long belly fin and a small rounded tail, a small dorsal; her `bell`: a tarnished
+// harbour bell sunk in the skull. Read only under the loop (LOOP_SHAPES); only the Matriarch rides on it in M1.
+LOOP_SHAPES.catfish = function catfish(M) {
+  const r = standard({
+    w: [[0, 0.034], [0.03, 0.062], [0.09, 0.078], [0.2, 0.074], [0.42, 0.06], [0.66, 0.042], [0.86, 0.022], [1, 0.008]],
+    ht: [[0, 0.012], [0.03, 0.026], [0.09, 0.042], [0.2, 0.058], [0.42, 0.06], [0.66, 0.048], [0.86, 0.03], [1, 0.012]],
+    hb: [[0, 0.014], [0.03, 0.03], [0.09, 0.046], [0.2, 0.062], [0.42, 0.064], [0.66, 0.05], [0.86, 0.03], [1, 0.012]],
+    yc: [[0, -0.012], [0.15, 0], [1, 0.004]],
+    fins: [['tail', 'round', { s: 0.975, len: 0.08, h: 0.11 }], ['dorsal', 'soft', { a: 0.26, b: 0.32, h: 0.05, rake: 0.3 }],
+      ['ventral', 'ribbon', { a: 0.4, b: 0.97, h: 0.05, rake: 0, segV: 26 }], ['pect', 'pect', { s: 0.13, len: 0.1, h: 0.05, yOff: -0.4 }],
+      ['pelvic', 'pect', { s: 0.38, len: 0.05, h: 0.03 }]],
+    eye: { s: 0.055, r: 0.007, up: 0.48, out: 0.86 }, gill: 0.15, R: 48, anim: { waveK: 7, amp: 0.075, freq: 4.6 },
+  }, M);
+  const f = r.f;
+  const n = Number.isFinite(M.whiskers) ? M.whiskers : 2;
+  if (n >= 2) {   // the two long whiskers from the mouth's corners, swept out and trailing back along her flanks like bell-ropes
+    const wc = C(hexColor(M.fin, 0x333333)).multiplyScalar(0.85);
+    for (const side of [1, -1]) {
+      const s0 = 0.025, x0 = side * f.w(s0) * 0.92, y0 = f.yc(s0) - f.hb(s0) * 0.25, z0 = 0.5 - s0;
+      const pts = bezierPts([[x0, y0, z0], [x0 + side * 0.07, y0 - 0.02, z0 - 0.06], [x0 + side * 0.11, y0 - 0.06, z0 - 0.2], [x0 + side * 0.09, y0 - 0.1, z0 - 0.4]], 14);
+      r.extras.push(paint(tube(pts, (u) => 0.007 * (1 - u * 0.85) + 0.0012, 4), wc));
+    }
+  }
+  r.extras.push(...barbels(f, M, 0.06, 0.03), ...barbels(f, M, 0.05, 0.045));   // four short chin barbels
+  // the mouth: a wide dark seam across the flat snout
+  r.extras.push(paint(tube(bezierPts([[-f.w(0.02) * 0.95, f.yc(0.02) - 0.004, 0.49], [0, f.yc(0.0) - 0.012, 0.503], [f.w(0.02) * 0.95, f.yc(0.02) - 0.004, 0.49]], 10), 0.0035, 4), 0x0a0806));
+  if (M.bell) {   // the bell in her skull: a bronze dome breaking the skin behind the eyes, a dark mouth-rim and a verdigris lip
+    const s = 0.11, top = f.top(s);
+    const bell = new THREE.LatheGeometry([[0, 0.028], [0.012, 0.027], [0.02, 0.02], [0.024, 0.008], [0.028, 0], [0.03, -0.004]].map(([x, y]) => new THREE.Vector2(x, y)), 12);
+    r.extras.push(paint(xf(bell, { p: [0, top - 0.004, 0.5 - s], r: [-0.25, 0, 0] }), 0x9a7a44));
+    r.extras.push(paint(xf(new THREE.TorusGeometry(0.029, 0.003, 4, 14), { p: [0, top - 0.007, 0.5 - s], r: [Math.PI / 2 - 0.25, 0, 0] }), 0x5f7a66));
+  }
+  r.opts.broadHead = true;
+  return r;
+};
+// <<< M1 step 4 (lane 4)
+
 // ------------------------------------------------------------------ skins
 function cssColor(c) { return '#' + c.getHexString(); }
 function bodyTexture(M, shape, parts) {

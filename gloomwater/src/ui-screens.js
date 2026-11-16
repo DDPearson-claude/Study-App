@@ -10,6 +10,7 @@ import * as AF from './ui-af.js';
 // >>> LOOP 1a (lane C): the Full Hold's words and models (docs/loop/slice-1a/PLAN.md §2.3 item 5); read only under data.LOOP_ENABLED
 import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS, catalogueView, giantsView } from './ui-loop.js';
 import { listFor as loopListFor, catalogueFor } from './progression-loop.js';
+import { cardHooks as gearCardHooks } from './ui-gear.js';   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
 // <<< LOOP 1a
 
@@ -976,6 +977,9 @@ export function createScreens(K) {
         foot.classList.add('gw-catch-actions--loop');
         foot.appendChild(btn(`${esc(K1.label)} <em data-to="${K1.clams}">${icon('clam')}<b style="min-width:${K1.clamsText.length}ch">${esc(fmtClams(s.loopCounted ? K1.clams : 0))}</b></em>`, { ...A, key: K1.key, action: K1.action, cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: K1.disabled, onClick: act('keep'), autofocus: K1.autofocus }));
         foot.appendChild(btn(esc(K2.label), { ...A, key: K2.key, action: K2.action, cls: 'gw-cc-act gw-cc-letgo', onClick: act('letgo'), autofocus: K2.autofocus }));
+        // M1 step 4 (lane 4): Keep's chalk tick when the fish fills an order; Let go held on a Small or a Keeper cuts it into Cut Strip
+        gearCardHooks({ ctx, fish, sp, keepBtn: foot.querySelector('.gw-cc-keep'), letBtn: foot.querySelector('.gw-cc-letgo'), state: s,
+          close: () => K.closeModal('catch'), report: (w, e) => K.report?.(w, e) });
       } else {
       foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));

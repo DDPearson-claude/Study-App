@@ -23,6 +23,8 @@ import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
+import { orderPhraseOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
+import { createGearView, CHALK_TICK } from './ui-gear.js';   // M1 step 4 (lane 4): the lure slot, the tins, the orders' board, the ticks
 
 export { murkLineFor };
 
@@ -110,7 +112,7 @@ export function shelfCards(shelf, { D = null, clams = 0 } = {}) {
         const consumable = it.consumable === true;
         const bought = !consumable && it.bought === true;
         const card = { id: String(it.id), name: String(it.name || ''), line: String(it.line || ''), price, priceText: price == null ? '' : fmtClams(price),
-          dear: !bought && price != null && num(Number(clams), 0) < price, bought, slot: it.slot ?? null, level: it.level ?? null, art: ART[it.slot] || 'star',
+          dear: !bought && price != null && num(Number(clams), 0) < price, bought, slot: it.slot ?? null, level: it.level ?? null, art: it.art || ART[it.slot] || 'star',
           buyWord: bought ? (TL.yours || 'Yours.') : null };
         // M1 step 3a (SPEC §8.4): a map card names its fish (★ for a giant or the legend), its hour glyphs and its line; the next
         // water's card is sealed ("Coming soon", its three seals, no button); a legend's bait is a consumable with its count
@@ -162,13 +164,13 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
     const sp = spOf(D, l.speciesId);
     const clams = Math.max(0, Math.round(num(Number(l.clams), 0)));
     const base = Number.isFinite(Number(l.base)) ? Math.max(0, Math.round(Number(l.base))) : clams;
-    const first = l.first === true && clams > base;
+    const first = (l.first === true || l.order === true) && clams > base;   // (M1 step 4: an order's double counts up as a first's does)
     const big = l.giant === true || l.legend === true;
     if (big) t += P.giantPause;
     const at = t, countAt = at + 0.25, countDur = big ? P.giantCount : P.count;
     const row = { uid: l.uid ?? null, speciesId: l.speciesId ?? null, name: sp?.name || String(l.speciesId || ''), sizeClass: l.sizeClass ?? null,
       weight: typeof D?.fmtWeight === 'function' && typeof D?.fishWeight === 'function' ? D.fmtWeight(D.fishWeight(sp, l)) : '', oz,
-      clams, base, first, giant: l.giant === true, legend: l.legend === true, at, countAt, countDur,
+      clams, base, first, giant: l.giant === true, legend: l.legend === true, at, countAt, countDur, ...(l.order === true ? { order: true } : {}),
       secondAt: first ? countAt + countDur + 0.12 : null, ticks: first ? [base, clams] : [clams] };
     t = at + (big ? P.giantCount + P.giantAfter + 0.25 : P.row) + (first ? P.firstExtra : 0);
     return row;
@@ -369,7 +371,7 @@ export function journalModel(meta, D, waterId, { listFor = null } = {}) {
  * edge ('gold' for a giant), glyphs (icon names: a listed fish its place glyph and its hours; a fish under a heading its hours and its
  * one bait)}. No number and no rate in a card, ever (revision 7). Pure.
  */
-const BAIT_GLYPH = { heartmoss: 'mossball' };
+const BAIT_GLYPH = { heartmoss: 'mossball', lumen_moss: 'moss', mireworm: 'worm' };   // (M1 step 4: the tins' glyphs)
 export function catalogueView(cat, D) {
   if (!isObj(cat)) return null;
   const card = (e, listed) => {
@@ -484,6 +486,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/descent/i.test(t)) return t === (T_(D).newDescent || 'New Descent') && (screen === 'title' || screen === 'newdescent');
   if (/shells?|memories/i.test(t)) return false;
   if (W.has(t)) return true;
+  if (/^(?:\d+ |an? )/.test(t) && orderPhraseOk(t, D)) return true;   // M1 step 4: an order as Murk chalks it ("2 Dusk Minnows")
   if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★' || t === '· · ·') return true;
   if (CM_RE.test(t)) return screen === 'catch';
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
@@ -610,6 +613,7 @@ export function createLoopView(K) {
   // the drawn Chart (M1 step 3b): its art decoded once in idle time after the title is up, with the chart's faces; until then, or
   // if it cannot decode, the Chart is 1a's list
   const chart = createChartView({ K, ctx, D, h, report: (w, e) => report(w, e) });
+  const gear = createGearView({ K, L, D, report: (w, e) => report(w, e), murkToast: (line) => murkToast(line) });   // M1 step 4 (lane 4)
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
     setTimeout(() => idle(() => { chart.prepare(); }), 400);
@@ -951,7 +955,7 @@ export function createLoopView(K) {
       const art = h('canvas', 'gw-trow-fish');
       try { drawFishInk(art, spOf(D(), r.speciesId), { w: 56, h: 28, pad: 0.04, gain: 6, color: r.giant || r.legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { report('tally art', e); }
       li.appendChild(art);
-      li.insertAdjacentHTML('beforeend', `<span class="gw-trow-name"><b></b><small></small></span><span class="gw-trow-v">${r.first ? SEAL_GLYPH : ''}${icon('clam')}<b>0</b></span>`);
+      li.insertAdjacentHTML('beforeend', `<span class="gw-trow-name"><b></b><small></small></span><span class="gw-trow-v">${r.order ? CHALK_TICK : r.first ? SEAL_GLYPH : ''}${icon('clam')}<b>0</b></span>`);
       li.querySelector('.gw-trow-name b').textContent = `${r.giant || r.legend ? '★ ' : ''}${r.name}`;
       li.querySelector('.gw-trow-name small').textContent = r.weight;
       ol.appendChild(li);
@@ -1078,6 +1082,8 @@ export function createLoopView(K) {
     const head = h('div', 'gw-shelf-head', `<span class="gw-shelf-murk">${murkPortrait()}</span><div class="gw-shelf-purse">${clamTag(clams)}</div><p class="gw-murk-line${s.line ? ' gw-in' : ''}"></p>`);
     head.querySelector('.gw-murk-line').textContent = s.line || '';
     pn.insertBefore(head, content);
+    gear.shelfBoard(pn, content, entry);   // M1 step 4 (lane 4): Murk's orders, chalked under his line
+    content.classList.add('gw-scroll');   // M1 step 4: a tab can hold more cards than a screen (Tackle's seven): they scroll under the tabs
     if (tabs && model.tabs.length > 1) pn.insertBefore(tabs(model.tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon })), s.tab, (id) => { s.tab = id; s.focus = null; entry.render(); }), content);
     const tab = model.tabs.find((t) => t.id === s.tab);
     const grid = h('div', `gw-shelf-cards gw-shelf-cards--${s.tab || 'none'}`);
@@ -1385,7 +1391,8 @@ export function createLoopView(K) {
     if (!sail || root.querySelector('[data-slot=bait]')) return null;
     const el = baitSlot(model, { onFit: () => entry?.render?.() });
     if (el) sail.parentNode.insertBefore(el, sail);
-    return el;
+    gear.placeSlots(root, model, entry, el, sail);   // M1 step 4 (lane 4): the tins in the bait slot, the lure slot beside it
+    return root.querySelector('[data-slot=bait]') || el;
   }
 
   // ------------------------------------------------------------------ events
