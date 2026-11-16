@@ -109,12 +109,31 @@ export default async function (api) {
       L.maps.places = Object.keys(d.LOOP.places); L.home = { ...L.home, baitBed: 2, wall: 1, lights: 1, orders: 2 };
       L.raft = { ...L.raft, oars: 2, keel: 2, lantern: 2 }; if (d.LOOP.lures) L.lures = Object.keys(d.LOOP.lures);
       for (const s of d.SPECIES.filter((x) => x.zone === 'mossmere' && !x.cove)) J[s.id] = { ...(J[s.id] || {}), caught: 1 };
+      L.home.lights = 0; L.clams = 500; delete L.gilt; if (L.said) delete L.said.shelfBare;   // (the last card left: Barge lights I)
       const items = c.progression.loop.shelf().tabs.flatMap((t) => t.items);
       const left = items.filter((i) => i.consumable !== true && i.sealed !== true && i.price != null && !i.bought).map((i) => i.id);
-      delete L.gilt;
       return { left };
     });
-    K.check(gi.left.length === 0, 'every permanent card owned: the empty shelf', gi.left);
+    K.check(gi.left.length === 1 && gi.left[0] === 'lights:1', 'one card left on the shelf: Barge lights I', gi.left);
+    // (a reload: the view's tutorial machine starts from the ledger's record, done, so the Chart is the player's own, not the tutorial's)
+    await g(() => window.__gw.game.save?.());
+    await K.reload();
+    const TLc = await g(() => window.__gw.data.TEXT_LOOP);
+    K.need(await K.tap('[data-modal=title] .gw-tbtn', TLc.continue), 'the title\'s Continue');
+    K.need((await K.until("c.flow === 'home'", 5)).ok, 'Continue: home');
+    await K.secs(1.4); await K.settle(300);
+    // the 32nd purchase: Murk's empty-shelf line, once (M1.md §2.5, SPEC §8.6)
+    await K.tap('[data-modal=jetty] [data-tile=murk]');
+    await K.settle(400); await K.steps(2);
+    await g(() => { const b = [...document.querySelectorAll('[data-modal=shelf] .gw-tab')].find((x) => /Home/.test(x.textContent)); b?.click(); });
+    await K.settle(300); await K.steps(2);
+    K.need(await K.tap('[data-buy="lights:1"]'), 'Barge lights I\'s buy');
+    await K.settle(400); await K.steps(2);
+    const bare = await g(() => ({ line: document.querySelector('[data-modal=shelf] .gw-murk-line')?.textContent || '', want: window.__gw.data.TEXT_LOOP.murk.shelfBare, goal: window.__gw.progression.loop.goal() }));
+    K.check(bare.line === bare.want && bare.goal === null, 'the last card bought: Murk\'s "Shelf\'s bare." line, and no goal line', bare);
+    await K.shoot('shelf-bare');
+    await K.key('Escape'); await K.settle(400); await K.steps(3);
+    await K.shoot('home-all');
     await K.tap('[data-modal=jetty] [data-tile=chart]');
     await K.settle(700); await K.steps(3);
     await K.settle(900); await K.steps(3);

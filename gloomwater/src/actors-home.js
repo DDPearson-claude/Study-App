@@ -498,15 +498,15 @@ function homeParts5b(V, A, timber, glow) {
     let k = 0;
     const hang = (x, z, face, per) => {
       for (let j = 0; j < per; j++) {
-        const off = per === 2 ? (j ? 0.1 : -0.1) : 0, fw = per === 2 ? 0.15 : 0.24;
+        const off = per === 2 ? (j ? 0.1 : -0.1) : 0, fw = per === 2 ? 0.17 : 0.26;
         if (face === 'x') {
-          timber.push(box(0.01, 0.15, fw, [x + 0.003, WY + 0.06, z + off], lit(C.frame, 1)));
-          timber.push(box(0.012, 0.1, fw - 0.05, [x + 0.005, WY + 0.06, z + off], lit(C.page, 1.1)));
-          glow.push(glowQuad(0.035, 0.06, [x + 0.006, WY - 0.12, z + off], 'x', GLOW.door));   // its candle
+          timber.push(box(0.01, 0.2, fw, [x + 0.003, WY + 0.05, z + off], lit(C.frame, 1)));
+          timber.push(box(0.012, 0.14, fw - 0.05, [x + 0.005, WY + 0.05, z + off], lit(C.page, 1.25)));
+          glow.push(glowQuad(0.045, 0.075, [x + 0.006, WY - 0.13, z + off], 'x', GLOW.door));   // its candle
         } else {
-          timber.push(box(fw, 0.15, 0.01, [x + off, WY + 0.06, z + 0.003], lit(C.frame, 1)));
-          timber.push(box(fw - 0.05, 0.1, 0.012, [x + off, WY + 0.06, z + 0.005], lit(C.page, 1.1)));
-          glow.push(glowQuad(0.035, 0.06, [x + off, WY - 0.12, z + 0.006], 'z', GLOW.door));
+          timber.push(box(fw, 0.2, 0.01, [x + off, WY + 0.05, z + 0.003], lit(C.frame, 1)));
+          timber.push(box(fw - 0.05, 0.14, 0.012, [x + off, WY + 0.05, z + 0.005], lit(C.page, 1.25)));
+          glow.push(glowQuad(0.045, 0.075, [x + off, WY - 0.13, z + 0.006], 'z', GLOW.door));
         }
       }
     };

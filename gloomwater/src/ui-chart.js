@@ -284,7 +284,7 @@ export function createChartView(deps) {
           sheetK = ink.sheet >= 1 ? 1 : S.inkHold; for (const id of Object.keys(ink.places)) placeK[id] = S.inkHold; more = false;
         }
       }
-      const G5 = gildStep(ml, m, t, st, opts.reduced); more ||= G5.more;   // M1 step 5b: the gilding's re-inking
+      const G5 = gildStep(ml, m, now(), st, opts.reduced); more ||= G5.more;   // M1 step 5b: the gilding's re-inking (on the page's own clock)
       const g = cv.getContext('2d');
       const view = {
         gild: (c, d, mm, a, v) => gildCard(c, d, mm, a * G5.k, v),

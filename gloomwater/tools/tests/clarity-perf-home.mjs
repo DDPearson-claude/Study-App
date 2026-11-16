@@ -40,6 +40,9 @@ export async function homePerf(api) {
     const L = c.state.meta.loop;
     L.home.baitBed = 2; L.home.lights = 1; L.home.wall = 1; L.home.orders = 2; L.tackle.rod = 2;
     L.barge = { water: 'mossmere', towed: ['mossmere'] }; L.legends = { ...(L.legends || {}), belled_matriarch: true };
+    // M1 step 5b (lane 5b-home): the rest of every M1 home object: wing I's prints, the Matriarch's print on the eave, the three looks
+    L.prints = { ...(L.prints || {}), belled_matriarch: { length: 262 }, thousandcast_pike: { length: 80 }, dusk_minnow: { length: 22 }, reedjaw_pike: { length: 66 } };
+    L.looks = ['slate_dye', 'oxblood_pennant', 'amber_glass'];
     c.ui.closeAll?.();
   });
   await page.waitForFunction(() => window.__gw.flow === 'home' && !window.__gw.game.homeGlide?.(), null, { timeout: 120000, polling: 300 });
