@@ -1013,10 +1013,11 @@ export function createFishingFx(ctx) {
       poolU.uR.value = r; poolU.uHalf.value = half; poolU.uActive.value = active; poolU.uDim.value = dim;
     },
 
-    /** band: 'shallow'|'mid'|'deep'|'anchoring'|'blocked' */
-    setReticle(visible, x = 0, z = 0, size = 1, band = 'shallow', clean = 0, alpha = 1, spin = 0) {
+    /** band: 'shallow'|'mid'|'deep'|'anchoring'|'blocked'; opts.label false: the ring without its band word (the loop) */
+    setReticle(visible, x = 0, z = 0, size = 1, band = 'shallow', clean = 0, alpha = 1, spin = 0, opts = null) {
       reticle.visible = label.visible = !!visible;
       if (!visible) return;
+      if (opts?.label === false) label.visible = false;
       const y = H(x, z) + 0.06;
       reticle.position.set(x, y, z);
       reticle.scale.set(size, 1, size);

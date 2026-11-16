@@ -1483,8 +1483,14 @@ export function create(ctx) {
   }
   /** The play's last stretch with the fish beside the raft: a ring there would spread round the raft under the landing's
    *  close-up (art rule: never a ring around the raft), so the water keeps its spray and drops but no ripple. */
-  function ringOk(x, z) {
+  function ringOk(x, z, s = 0.5) {
     const p = S.plan;
+    if (LOOP()) {
+      // the loop's trip: through the whole play, a ring that would grow over the raft before it fades (its half-life radius,
+      // ≈ 0.9 + 2.1 × strength m, plus the raft's 1.3 m) keeps its spray and drops but no ring (never a ring around the raft)
+      const r = raftPos();
+      if (Math.hypot(x - r.x, z - r.z) < 2.2 + 2.1 * Math.min(Math.max(num(s, 0.5), 0), 3)) return false;
+    }
     if (!p || !(S.playT >= p.end * 0.85)) return true;
     const r = raftPos();
     return Math.hypot(x - r.x, z - r.z) >= 2.5;
@@ -1495,9 +1501,9 @@ export function create(ctx) {
     const strain = b.phase === 'lastStand' || b.phase === 'surge' || (b.phase === 'run' && b.kind === 'long');
     if (strain !== S.strainPose) { S.strainPose = strain; call(() => ctx.actors?.setPose?.(strain ? 'strain' : 'reel')); }
     const x = V.fish.x, z = V.fish.z, L = S.fishLen;
-    if (b.phase === 'surge') { call(() => ctx.water?.splash?.(x, z, { size: 0.35 + L * 0.45, count: 12, ring: ringOk(x, z) })); F.dash = (S.beatI % 2 ? -1 : 1) * (0.8 + L * 0.5); }
+    if (b.phase === 'surge') { call(() => ctx.water?.splash?.(x, z, { size: 0.35 + L * 0.45, count: 12, ring: ringOk(x, z, 0.35 + L * 0.45) })); F.dash = (S.beatI % 2 ? -1 : 1) * (0.8 + L * 0.5); }
     else if (b.phase === 'run') F.dash = (S.beatI % 2 ? 1 : -1) * (1.4 + L * 0.7) * (b.kind === 'long' ? 1.5 : 1);
-    else if (b.phase === 'lastStand') { F.dash = (S.beatI % 2 ? -1 : 1) * (2 + L * 0.6); call(() => ctx.water?.splash?.(x, z, { size: 0.6 + L * 0.5, count: 18, ring: ringOk(x, z) })); }
+    else if (b.phase === 'lastStand') { F.dash = (S.beatI % 2 ? -1 : 1) * (2 + L * 0.6); call(() => ctx.water?.splash?.(x, z, { size: 0.6 + L * 0.5, count: 18, ring: ringOk(x, z, 0.6 + L * 0.5) })); }
     else if (b.phase === 'still') F.dash = 0;
     if (isLegend()) {
       if (b.kind === 'toll') {   // the Matriarch's toll: a bell beneath the raft (legends are named: exempt)
@@ -1517,17 +1523,17 @@ export function create(ctx) {
     const x = V.fish.x, z = V.fish.z;
     if (e.phase === 'glimpse') {
       if (e.first && (classIndex(S.sizeClass) >= classIndex('prize') || e.kind === 'skitter')) stampEstimate();
-      if (ringOk(x, z)) call(() => ctx.water?.addRipple?.(x, z, 0.4 + 0.35 * Math.min(L, 3)));
+      if (ringOk(x, z, 0.4 + 0.35 * Math.min(L, 3))) call(() => ctx.water?.addRipple?.(x, z, 0.4 + 0.35 * Math.min(L, 3)));
     } else if (e.phase === 'leap') {
-      call(() => ctx.water?.splash?.(x, z, { size: 0.5 + L * 0.6, count: Math.round(14 + 4 * Math.min(L, 3)), ring: ringOk(x, z) }));
+      call(() => ctx.water?.splash?.(x, z, { size: 0.5 + L * 0.6, count: Math.round(14 + 4 * Math.min(L, 3)), ring: ringOk(x, z, 0.5 + L * 0.6) }));
       fx.burst(x, 0.2, z, { color: 0xeae4d3, color2: 0xffb347, count: Math.round(8 + 4 * Math.min(L, 3)), spread: 1 + L * 0.4, up: 2.4, gravity: 6, size: 0.05, life: 0.6 });
       const SM = AF().leap?.slowmo || {};
       if (e.first && !S.slowmoDone && classIndex(S.sizeClass) >= classIndex(SM.fromClass || 'prize') && !isLegend()) {
         S.slowmoDone = true; call(() => ctx.game?.slowmo?.(num(SM.seconds, 0.25), num(SM.scale, 0.35)));
       }
     } else if (e.phase === 'scare') {
-      if (e.kind === 'shake') call(() => ctx.water?.splash?.(x, z, { size: 0.4 + L * 0.4, count: 10, ring: ringOk(x, z) }));
-      if (ringOk(x, z)) call(() => ctx.water?.addRipple?.(x, z, 0.5 + 0.2 * Math.min(L, 3)));
+      if (e.kind === 'shake') call(() => ctx.water?.splash?.(x, z, { size: 0.4 + L * 0.4, count: 10, ring: ringOk(x, z, 0.4 + L * 0.4) }));
+      if (ringOk(x, z, 0.5 + 0.2 * Math.min(L, 3))) call(() => ctx.water?.addRipple?.(x, z, 0.5 + 0.2 * Math.min(L, 3)));
     }
   }
   /** One frame of the play: the plan's beats and overlays up to the play clock (hurry speeds the clock, never the outcome). */
@@ -1631,7 +1637,7 @@ export function create(ctx) {
     F.wakeT -= dt;
     if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
     F.rippleT -= dt;
-    if (!lp && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
+    if (!lp && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
     // the line, the rod, the reel and the Wick
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);
@@ -3210,8 +3216,17 @@ export function create(ctx) {
     const clean = S.charge >= cAt ? 1 : 0;
     const key = view.anchoring ? 'anchoring' : S.blocked ? 'blocked' : S.band;
     const size = (1.05 + 0.045 * S.castDist) / 0.74;
-    fx.setReticle(true, V.target.x, V.target.z, size, key, clean, view.anchoring ? 0.55 : 1, S.clock * 0.6);
-    fx.setRange(true, raft.x, raft.z, castMax, V.aimDir.x, V.aimDir.z, 0.55);
+    if (LOOP()) {
+      // the loop (the user's rule: never a ring or disc around the raft or the Wick; SPEC §8.1: no aim words): no range ring
+      // round the raft, no band word, and the reticle only once the aim point is clear of the raft (it inks in from 5.5 m to
+      // 7.5 m out; nearer, the cast arc alone shows where the float will land)
+      const k = clamp((S.castDist - 5.5) / 2, 0, 1);
+      fx.setReticle(k > 0, V.target.x, V.target.z, size, key, clean, (view.anchoring ? 0.55 : 1) * k, S.clock * 0.6, { label: false });
+      fx.setRange(false);
+    } else {
+      fx.setReticle(true, V.target.x, V.target.z, size, key, clean, view.anchoring ? 0.55 : 1, S.clock * 0.6);
+      fx.setRange(true, raft.x, raft.z, castMax, V.aimDir.x, V.aimDir.z, 0.55);
+    }
     let tip = null;
     try { tip = ctx.actors?.getRodTip?.(); } catch { /* optional */ }
     if (!(tip && Number.isFinite(tip.x))) tip = V.tip.set(raft.x, 1.8, raft.z);

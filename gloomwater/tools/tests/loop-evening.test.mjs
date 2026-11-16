@@ -267,9 +267,9 @@ section('the trip\'s ends and refusals (T31, T45, PLAN CHOICE 5)');
 // =====================================================================================================================
 // fishing on a trip (fishing-env with the loop's data and a fake loop)
 const OPEN = 'open:mossmere';
-function tripEnv({ wick = 'wick', loopOver = {}, evening = 1, phase = 'calm', seed = 42, data = D, outing = 'trip' } = {}) {
+function tripEnv({ wick = 'wick', loopOver = {}, evening = 1, phase = 'calm', seed = 42, data = D, outing = 'trip', render = undefined } = {}) {
   const loop = fakeLoop({ D, wick, ...loopOver });
-  const env = makeFishingEnv({ data, mode: 'still', outing, phase, seed, loop,
+  const env = makeFishingEnv({ data, mode: 'still', outing, phase, seed, loop, render,
     runOver: { bait: {}, equippedBait: null, evening, character: wick, nightMode: 'still' } });
   env.ctx.bus.on('fishing:bite', (e) => loop.noteBite(e));
   env.ctx.bus.on('fishing:miss', (e) => { if (e.reason === 'spooked') loop.noteBite(e); });
@@ -300,6 +300,26 @@ section('fishing: the cast refused on a full hold (T3)');
   const O = tripEnv({ outing: 'normal', data: DV3, loopOver: { fish: [{}, {}, {}] } });
   O.F.onPointerDown({ input: 'mouse' });
   ok(O.F.state === 'charging' && O.count('loop:holdFull') === 0, 'off a trip the hold never refuses a cast');
+}
+section('fishing: the cast draws no ring round the raft and no aim word on a trip (the user\'s rule; SPEC §8.1)');
+{
+  const charge = (o) => {
+    const scene = new THREE.Scene();
+    const E = o.outing === 'trip' ? tripEnv({ render: { scene } }) : (() => { const e = makeFishingEnv({ data: DV3, mode: 'still', render: { scene }, runOver: { bait: {}, equippedBait: null } }); return e; })();
+    const by = (n) => scene.getObjectByName(n);
+    E.F.onPointerDown({ input: 'mouse' }); E.tick(2);
+    const near = { state: E.F.state, dist: E.F.view.castDist, ring: by('range-ring').visible, ret: by('reticle').visible, label: by('reticle-label').visible };
+    let far = null;
+    for (let i = 0; i < 90 && !far; i++) { E.tick(1); if (E.F.view.castDist >= 9) far = { ring: by('range-ring').visible, ret: by('reticle').visible, label: by('reticle-label').visible, arc: by('cast-arc').visible }; }
+    E.F.onPointerUp();
+    return { near, far };
+  };
+  const T = charge({ outing: 'trip' });
+  ok(T.near.state === 'charging' && T.near.dist < 5.5, `(a trip: charging, the aim ${T.near.dist?.toFixed(1)} m out)`);
+  ok(!T.near.ring && !T.near.ret && !T.near.label, 'a trip: no range ring round the raft, and no reticle or band word while the aim is near the raft');
+  ok(T.far && !T.far.ring && T.far.ret && !T.far.label && T.far.arc, 'a trip: further out the reticle and the cast arc show; never the range ring or a band word');
+  const N = charge({ outing: 'normal' });
+  ok(N.near.ring && N.near.ret && N.near.label, '(off a trip the built range ring, reticle and band word)');
 }
 section('fishing: every bite spends one at its water (T8, T9)');
 {
@@ -619,6 +639,16 @@ section('player: the gate and Murk are scenery on a trip (T46); the home flow st
   ok(Z.pl.position.x === 20 && Z.pl.position.z === 20, 'no respawn on zone:change {sail: true} under the loop');
   Z.bus.emit('zone:change', { zone: 'mossmere', prev: null });
   ok(Z.pl.position.z === 8 && Z.pl.position.x === 0, '(any other zone:change respawns as built)');
+  // the anchor's plop as the first cast charges: on a trip its drops only (never a ring around the raft); off a trip as built
+  const plop = (outing) => {
+    const A = mk(outing), w = { splashes: [], ripples: 0, splash(x, z, o) { this.splashes.push(o); }, addRipple() { this.ripples++; } };
+    A.ctx.water = w; A.ctx.fishing = { state: 'charging', isBusy: () => true, cancel() {} };
+    A.step(0.2);
+    return { anchored: A.pl.anchored, w };
+  };
+  const Pt = plop('trip'), Pn = plop('normal');
+  ok(Pt.anchored && Pt.w.splashes.length === 1 && Pt.w.splashes[0].ring === false && Pt.w.ripples === 0, 'on a trip the anchor drops with its spray and no ring');
+  ok(Pn.anchored && Pn.w.splashes.length === 1 && Pn.w.splashes[0].ring === undefined && Pn.w.ripples === 1, '(off a trip the built plop and ring)');
 }
 
 // =====================================================================================================================

@@ -8,7 +8,8 @@
 // The fake progression is a P1 one (getStats with the v3 fight stats, refundBait, measure), so fishing reads the stats it is given;
 // `progression: 'v1'` drops refundBait / measure (a pre-P1 progression). `lean: true` records neither events nor bobber poses (long runs).
 // The Full Hold (slice-1a PLAN §2.2, additive): `loop` puts an object where `ctx.progression.loop` goes (tools/tests/loop-fixture.mjs'
-// fakeLoop), `runOver` is merged into the run (outing 'trip', evening, character…), `buffs` is what getCatchBuffs returns.
+// fakeLoop), `runOver` is merged into the run (outing 'trip', evening, character…), `buffs` is what getCatchBuffs returns; `render`
+// ({scene}) lets a test look at fishing-fx's meshes.
 import * as THREE from 'three';
 import { createBus } from '../../src/core.js';
 
@@ -18,7 +19,7 @@ globalThis.document = globalThis.document || { createElement: () => ({ width: 0,
 const { create: createFishing } = await import('../../src/fishing.js');
 
 export function makeFishingEnv({ data, mode = 'lantern', outing = 'normal', phase = 'calm', stats = {}, raft = [30, 30], zoneId = 'mossmere',
-  seed = 42, lean = false, progression = 'p1', upgrades = {}, loop = null, runOver = null, buffs = undefined } = {}) {
+  seed = 42, lean = false, progression = 'p1', upgrades = {}, loop = null, runOver = null, buffs = undefined, render = undefined } = {}) {
   const bus = createBus();
   const events = [];
   const origEmit = bus.emit.bind(bus);
@@ -49,6 +50,7 @@ export function makeFishingEnv({ data, mode = 'lantern', outing = 'normal', phas
     progression: prog,
     player: { position: new THREE.Vector3(raft[0], 0, raft[1]), speed: 0 },
   };
+  if (render) ctx.render = render;   // ({scene}: fishing-fx's group joins it at init, so a test can find its meshes by name)
   const F = createFishing(ctx);
   ctx.fishing = F;
   F.init();

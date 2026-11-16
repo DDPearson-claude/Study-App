@@ -167,6 +167,9 @@ export function create(ctx) {
       // the anchor stone drops off the bow: a plop and a widening ring
       getForward(_f);
       const bx = position.x + _f.x * 1.3, bz = position.z + _f.z * 1.3;
+      // (the loop's trip: the plop's drops only; a ring born at the bow spreads round the raft as the first cast charges, and the
+      // user's rule is never a ring around the raft or the Wick)
+      if (LOOP_ON() && ctx.state?.run?.outing === 'trip') { splash(bx, bz, { size: 0.5, count: 8, ring: false }); return; }
       splash(bx, bz, { size: 0.5, count: 8 });
       ripple(bx, bz, 0.7);
     }
