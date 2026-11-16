@@ -612,7 +612,7 @@ export function createLoopView(K) {
       wrap.querySelector('[data-loop=homepause]').addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); openHomePause(); });
       wrap.addEventListener('click', () => { if (tut.tap()) { refreshJetty(true); return; } if (J.line) { J.line = null; refreshJetty(true); } });
       TG.sig = '';
-      placeTargets(true);
+      placeTargets(true, wrap);   // (placed in the same task: a press the moment the Jetty opens finds them)
       return;
     }
     for (const id of ['murk', 'chart', 'journal']) {
@@ -647,8 +647,8 @@ export function createLoopView(K) {
   const TG = { sig: '', proj: { x: 0, y: 0 }, last: null };
   /** Each target's button over its object's projected bounds, the word under it, kept ≥ 44 px, clear of the purse, the pause glyph
    *  and the goal line, and never over another (home-targets.layoutTargets); called every frame while the Jetty is up. */
-  function placeTargets(force = false) {
-    const e = K.entry('jetty'), layer = e?.el?.querySelector('.gw-jetty-targets');
+  function placeTargets(force = false, root = null) {
+    const el = root || K.entry('jetty')?.el, layer = el?.querySelector('.gw-jetty-targets');
     const M = homeMooring(), R = ctx.render;
     if (!layer || !M || !R || R.isStub || typeof R.projectToScreen !== 'function') return null;
     const vw = Math.max(1, innerWidth), vh = Math.max(1, innerHeight), phone = vw < 700 || vh < 500;
@@ -657,7 +657,7 @@ export function createLoopView(K) {
     const btns = [...layer.querySelectorAll('.gw-jetty-target')];
     const rects = {};
     for (const b of btns) rects[b.dataset.tile] = C[b.dataset.tile] ? rectOf(C[b.dataset.tile], proj) : null;
-    const box = (sel) => { const el = e.el.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return r.width > 0 ? { l: r.left - 4, t: r.top - 4, r: r.right + 4, b: r.bottom + 4 } : null; };
+    const box = (sel) => { const q = el.querySelector(sel); if (!q) return null; const r = q.getBoundingClientRect(); return r.width > 0 ? { l: r.left - 4, t: r.top - 4, r: r.right + 4, b: r.bottom + 4 } : null; };
     const reserve = ['.gw-jetty-purse', '[data-loop=homepause]', '.gw-jetty-goal'].map(box).filter(Boolean);
     const word = phone ? 30 : 34;
     const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false }, reserve, margin: phone ? 6 : 10 });
