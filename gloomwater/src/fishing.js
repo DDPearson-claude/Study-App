@@ -1282,6 +1282,9 @@ export function create(ctx) {
       if (V.tmp.lengthSq() > 1e-4) V.tmp.normalize(); else V.tmp.set(0, 0, -1);
       S.tellDir.set(-V.tmp.z, 0, V.tmp.x).multiplyScalar(Math.random() < 0.5 ? -1 : 1);
       view.biteTell = S.tell;
+      // (on a trip her tell names no class: the HUD's legend exemption reads view.legendary, which was set only at the hook, so her
+      // dome tell's first three read "Elder?" before the card: the stage, T149's scan on the phone; she is named by her pool and bait)
+      if (LOOP() && sp?.rarity === 'legendary') view.legendary = true;
       emit('fishing:tell', withLegend({ sizeClass: shownClass(), biteTell: S.tell, lead: round2(Math.max(0, S.waitDur - S.stateT)), dur: round2(S.tellTotal), lastDip }));
       if (!S.letPassTip && sp?.rarity !== 'legendary' && classIndex(S.sizeClass) >= classIndex('prize')) { S.letPassTip = true; emit('tip:show', { id: 'af_letpass' }); }
       return;

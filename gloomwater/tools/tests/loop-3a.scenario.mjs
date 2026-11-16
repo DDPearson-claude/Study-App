@@ -346,7 +346,7 @@ export default async function (api) {
     await K.places.at('bell_pool', { dz: 4.5 });
     await K.secs(0.5);
     const scans = [];
-    const scan = async (where) => { const r = await K.uiText(); scans.push({ where, pct: hasPercent(r), size: hasSize(r) }); };
+    const scan = async (where) => { const r = await K.uiText(); const bad = String(r).split(' | ').filter((t) => hasPercent(t) || hasSize(t)); scans.push({ where, pct: hasPercent(r), size: hasSize(r), ...(bad.length ? { bad: bad.slice(0, 4) } : {}) }); };
     await scan('the HUD');
     let legend = null;
     try {
