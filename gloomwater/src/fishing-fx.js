@@ -739,7 +739,7 @@ void main() {
     float outl = vD.x, dep = clamp(vD.y, 0.0, 0.6), warm = vD.z, nsh = vD.w;
     vec2 sh = vec2(vC.y, vC.w);
     float spd = vC.z;
-    float soft = max(0.006 + dep * 0.05 * (0.4 + L), MPP * 1.1);   // (metres: crisper in shallow water, softer deeper)
+    float soft = max(0.006 + dep * 0.05 * (0.4 + L), MPP * 0.75);   // (metres: crisper in shallow water, softer deeper)
     float bodyA = 0.0, shadA = 0.0, finA = 0.0;
     float sw = sin(uTime * (3.0 + 5.0 * spd) + seed * 30.0) * (0.25 + 0.9 * min(spd, 1.0));
     if (outl > 3.5 && outl < 4.5) {
@@ -764,7 +764,7 @@ void main() {
       shadA = smoothstep(soft * 3.0 + 0.03, -soft * 2.5, sightSdf(q - sh, L * 1.04, asp2 * 1.1, sw, 0.0));
       if (warm > 0.0) finA = smoothstep(soft * 1.5, 0.0, abs(b + 0.004)) * warm;   // the koi's candle fins: a faint warm edge at dusk
     }
-    ink += bodyA * max(0.5, 0.98 - 0.7 * dep) + shadA * (1.0 - bodyA) * 0.36 * (1.0 - dep);
+    ink += bodyA * max(0.5, 0.98 - 0.7 * dep) * (1.0 + 0.35 * far) + shadA * (1.0 - bodyA) * 0.36 * (1.0 - dep);   // (a far shape keeps its ink)
     inkCol = vec3(0.02, 0.024, 0.024);
     light += vec3(0.95, 0.62, 0.32) * finA * 0.08;
     // the water over it, as an angler reads shallow water: a moving fish pushes a faint V and a low bulge ahead of its head; a rooting
@@ -776,9 +776,8 @@ void main() {
       if (mv > 0.0) {
         float behind = hy - q.y;
         float vw = abs(abs(q.x) - behind * 0.32);
-        light += WATERW * lineAA(vw, 0.012 + 0.006 * L) * step(0.0, behind) * exp(-behind / (0.5 + 0.8 * L)) * mv * 0.55 * (1.0 - bodyA) * uSurf;
-        float bul = length(vec2(q.x / (0.12 + 0.25 * L), (q.y - hy - 0.04) / 0.06)) - 1.0;
-        light += WATERW * lineAA(bul * 0.06, 0.01) * step(hy, q.y) * mv * 0.45 * (1.0 - bodyA) * uSurf;
+        float brk = 0.3 + 0.7 * n11(behind * 7.0 + seed * 13.0 - age * 2.0);   // broken, as the film breaks
+        light += WATERW * lineAA(vw, 0.01 + 0.004 * L) * step(0.0, behind) * exp(-behind / (0.18 + 0.35 * L)) * brk * mv * 0.45 * (1.0 - bodyA) * uSurf;
       }
       float still = (1.0 - smoothstep(0.03, 0.12, spd)) * shallow * step(outl, 1.5);   // (the deep-bodied root and tail)
       if (still > 0.0) {

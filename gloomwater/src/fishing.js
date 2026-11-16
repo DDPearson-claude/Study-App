@@ -3416,8 +3416,9 @@ export function create(ctx) {
     if (w.place?.id) return w.place.id;
     if (typeof ctx.world?.getShoreRadius !== 'function') return 'open';   // (a world with no shore to measure from: open water, §9.1's fallback)
     try {
-      const zd = zoneData();
-      return WCX.areaAt(x, z, wcProbe(), { lane: WCX.laneFor(num(run()?.evening, 1), phaseNow()), arena: zd?.arena, hulls: wcHulls() }) || null;
+      const W2 = wc2(), ev = num(run()?.evening, 1), ph = phaseNow(), key = `${ev}|${SI.lightOf(ph)}`;
+      if (W2.laneKey !== key) { W2.laneKey = key; W2.lane = WCX.laneFor(ev, ph); W2.hulls = wcHulls(); }   // (once an evening and light)
+      return WCX.areaAt(x, z, wcProbe(), { lane: W2.lane, arena: zoneData()?.arena, hulls: W2.hulls }) || null;
     } catch (e) { report(e); return null; }
   }
   /** "Who is there" (§4 steps 3–5): data.placePool at that water, × the area's weight in open water or the hour's tilt in a place;
@@ -3551,6 +3552,12 @@ export function create(ctx) {
   function lampGlow(x, z) { let k = 0; for (const l of buoyLamps()) k = Math.max(k, SI.lampAt(Math.hypot(l.x - x, l.z - z))); return k; }
   /** May a silhouette swim to (x, z): the same area, shallow enough (any depth over the lamps), 1 m off islands and pillars. */
   function sightOk(f, x, z) {
+    if (Number.isFinite(f.okX) && Math.hypot(x - f.okX, z - f.okZ) < 0.3) return true;   // (re-tested every 0.3 m it swims)
+    const ok = sightOk1(f, x, z);
+    if (ok) { f.okX = x; f.okZ = z; }
+    return ok;
+  }
+  function sightOk1(f, x, z) {
     const zd = zoneData()?.arena || {};
     for (const o of zd.islands || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + 1) return false;
     for (const o of zd.pillars || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + 1) return false;
@@ -3617,7 +3624,7 @@ export function create(ctx) {
     const W2 = wc2(), painted = waterPaintsSigns(), L = f.length;
     const dx = Math.sin(f.heading), dz = Math.cos(f.heading);
     call(() => (painted ? ctx.water?.addWake?.(f.x, f.z, dx, dz, 0.5 + 0.3 * Math.min(L, 1.5), { kind: 'boil' }) : ctx.water?.addWake?.(f.x, f.z, dx, dz, 0.35)));
-    call(() => (painted ? ctx.water?.addRipple?.(f.x, f.z, 0.8, { kind: 'boil', size: L }) : ctx.water?.addRipple?.(f.x, f.z, 0.5 + 0.4 * Math.min(L, 2))));
+    call(() => ctx.water?.addRipple?.(f.x, f.z, 0.22 + 0.2 * Math.min(L, 1.5)));   // (a plain swirl: the water's own, never a painted ring)
     W2.quiet.push({ x: f.x, z: f.z, until: S.clock + SI.SIGHT.spook.quietT });
     emit('sign:show', { id: f.id, kind: 'sight', form: f.outline, x: f.x, z: f.z, bolt: cause });
   }
@@ -3685,10 +3692,11 @@ export function create(ctx) {
   /** fishing.js's hook-up reads this: a silhouette's true length when the hooked fish is the one that was seen, else null. */
   function sightProxyLen() {
     const W2 = wc2(), h = W2.hooked;
-    if (!h || !mossLoop()) return null;
+    if (!h || !mossLoop()) { if (S.wc2) view.proxy = null; return null; }
     view.proxy = { outline: h.outline, length: Math.round(h.length * 1000) / 1000 };
     return h.length;
   }
+  const SENV = { raft: null, rng: srnd, quiet: false, depth: depthAt, f: null, ok: (x, z) => sightOk(SENV.f, x, z) };
   function updateMoss(dt) {
     const W2 = wc2();
     const on = mossLoop();
@@ -3709,7 +3717,8 @@ export function create(ctx) {
       if (f === W2.cast && f.mode === 'take' && (state === 'bite' || state === 'reeling') && S.prerollTook && S.prerollSp === f.sp) {   // it took the bait
         hookSight(f); W2.sights.splice(i, 1); W2.cast = null; continue;
       }
-      const ev = SI.stepSight(f, dt, { raft, rng: srnd, quiet, depth: depthAt, ok: (x, z) => sightOk(f, x, z) });
+      SENV.raft = raft; SENV.quiet = quiet; SENV.f = f;
+      const ev = SI.stepSight(f, dt, SENV);
       f.depth = depthAt(f.x, f.z);
       f.vis = sightVis(f, light, raft, lanternR);
       for (const e of ev) onSightEvent(f, e);

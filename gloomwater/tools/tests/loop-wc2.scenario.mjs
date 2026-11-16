@@ -58,7 +58,7 @@ export default async function (api) {
     for (let k = 0; k < 5 && (!took || !nosed); k++) {
       await cancel(); await K.until("c.fishing.state === 'idle'", 8); await K.secs(0.3);
       await g((n) => window.__gw.debug.fishSeed(20261116 + n), k);
-      const f = await sight('weeping_carp', { x: MARGIN.still[0] - k * 1.3, z: MARGIN.still[1] + (k % 2) * 0.8, heading: Math.PI, mode: 'hold', life: 200, size: 0.6 });
+      const f = await sight('weeping_carp', { x: MARGIN.still[0] - (k % 2) * 2.8, z: MARGIN.still[1] + (k >= 2 ? 1.2 : 0), heading: Math.PI, mode: 'hold', life: 200, size: 0.6 });
       if (!f) { K.note('no still carp'); break; }
       await K.secs(1.4);
       const hx = f.x + Math.sin(f.heading) * f.length / 2, hz = f.z + Math.cos(f.heading) * f.length / 2;
@@ -115,12 +115,12 @@ export default async function (api) {
     let refused = null;
     for (let k = 0; k < 4 && !refused; k++) {
       await cancel(); await K.secs(0.3); await K.until("c.fishing.state === 'idle'", 6);
-      const pk = await sight('reedjaw_pike', { x: REEDS.fish[0] - (k % 2) * 1.0, z: REEDS.fish[1], heading: Math.PI, mode: 'hold', life: 200, size: 0.4 });
+      const pk = await sight('reedjaw_pike', { x: REEDS.fish[0] - (k % 2) * 2.2, z: REEDS.fish[1], heading: -Math.PI / 2, mode: 'hold', life: 200, size: 0.4 });
       if (!pk) { K.note('no pike silhouette here'); break; }
       await K.secs(2.2);
       const f = (await sights()).find((q) => q.id === pk.id);
       const hx = f.x + Math.sin(f.heading) * f.length / 2, hz = f.z + Math.cos(f.heading) * f.length / 2;
-      await castAt(hx + 1.3, hz - 0.2);
+      await castAt(hx + Math.cos(f.heading) * 1.3, hz - Math.sin(f.heading) * 1.3);
       const d = await landed();
       if (d.sign?.kind !== 'sight') { K.note('the still window missed', d); continue; }
       await K.secs(2.4);
@@ -145,7 +145,7 @@ export default async function (api) {
     await K.places.light('gloomtide', 0.4);
     await pose(BUOY.raft, 2);
     await clearAll();
-    const bz = await sight('reedjaw_pike', { x: BUOY.lamp[0], z: BUOY.lamp[1] + 1.5, heading: Math.PI, mode: 'cruise', speed: 0.5, life: 200 });
+    const bz = await sight('reedjaw_pike', { x: BUOY.lamp[0] - 1.4, z: BUOY.lamp[1], heading: Math.PI / 2, mode: 'cruise', speed: 0.4, life: 200 });
     K.check(!!bz && bz.area === 'buoy_lights', 'a shape over the lamps', bz);
     await K.secs(2.6);
     const b1 = (await sights()).find((q) => q.id === bz?.id);
