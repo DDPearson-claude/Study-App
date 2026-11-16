@@ -5,7 +5,7 @@
 //   bookLayout(vw, vh)                    'desktop' (a two-page spread) or 'phone' (one page at a time, full width)
 //   bookPages(tabs, {layout, odds, goal}) the book: its pages in order (the frontispiece and the cover, one chapter per shelf tab in the
 //                                         shelf's order, each opening on a fresh page with its tab word, its items set in a ruled grid
-//                                         of BOOK[layout].per, the gear log's page last), its chapters (the fore-edge tabs), the page of
+//                                         of BOOK[layout].per (a desktop's maps two a page), the gear log's page last), its chapters (the fore-edge tabs), the page of
 //                                         every item and of the goal item. The page count depends only on how many items each chapter
 //                                         holds, never on what is bought (a card bought on this visit keeps its place, "Yours.")
 //   spreadOf · spreadPages · turnTo       the desktop's spreads (pages 2k and 2k + 1) and a turn by one leaf (two pages on a desktop)
@@ -19,7 +19,8 @@ const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 
 /** The book's grids: a desktop page holds 2 × 2 items, a phone page 1 × 2 (text ≥ 16 px at 358 px wide). */
 export const BOOK = Object.freeze({
-  desktop: Object.freeze({ per: 4, cols: 2, rows: 2, leaf: 2 }),
+  // (a desktop's Maps chapter sets its map plates two to a page, side by side and the page's full height: a map is drawn large)
+  desktop: Object.freeze({ per: 4, cols: 2, rows: 2, leaf: 2, chapters: Object.freeze({ maps: Object.freeze({ per: 2, cols: 2, rows: 1 }) }) }),
   phone: Object.freeze({ per: 2, cols: 1, rows: 2, leaf: 1 }),
   // the spread needs room for two pages of at least `minPage` px and the fore-edge tabs; below it (or in portrait) one page at a time
   minPage: 300, edge: 64, turn: 0.45,
@@ -52,10 +53,11 @@ export function bookPages(tabs, { layout = 'desktop', odds = false, goal = null,
     const cards = arr(t?.cards).filter((c) => isObj(c) && c.id != null);
     if (!cards.length) continue;
     chapters.push({ id, label: String(t.label ?? id), page: pages.length });
-    for (let i = 0, part = 0; i < cards.length; i += per, part++) {
-      const items = cards.slice(i, i + per).map((c) => String(c.id));
+    const CG = G.chapters?.[id] || null, n = CG?.per || per, cols = CG?.cols || G.cols, rows = CG?.rows || G.rows;
+    for (let i = 0, part = 0; i < cards.length; i += n, part++) {
+      const items = cards.slice(i, i + n).map((c) => String(c.id));
       for (const it of items) if (!(it in itemPage)) itemPage[it] = pages.length;
-      pages.push({ kind: 'items', chapter: id, label: String(t.label ?? id), first: i === 0, items, part });
+      pages.push({ kind: 'items', chapter: id, label: String(t.label ?? id), first: i === 0, items, part, cols, rows });
     }
   }
   if (odds) { chapters.push({ id: 'odds', label: String(oddsLabel || 'Odds'), page: pages.length }); pages.push({ kind: 'odds', chapter: 'odds' }); }

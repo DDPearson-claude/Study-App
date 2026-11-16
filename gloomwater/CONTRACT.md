@@ -2139,7 +2139,7 @@ its leg on the Chart, one ink dip, the glide in to the water's mooring. In M1 on
 
 | module | what it owns |
 |---|---|
-| `murk-catalogue.js` (pure) | `bookLayout(vw, vh)` ('desktop' spread / 'phone' page) · `bookPages(tabs, {layout, odds, goal})` (the frontispiece and cover, one chapter per shelf tab in the shelf's order, `BOOK[layout].per` items a page, the gear log's page last, an end leaf to keep a desktop's spreads whole; the page count depends only on how many items each chapter holds) · `spreadOf` · `spreadPages` · `turnTo` · `focusPage` · `orderText` |
+| `murk-catalogue.js` (pure) | `bookLayout(vw, vh)` ('desktop' spread / 'phone' page) · `bookPages(tabs, {layout, odds, goal})` (the frontispiece and cover, one chapter per shelf tab in the shelf's order, `BOOK[layout].per` items a page (a desktop's Maps chapter two map plates a page, side by side and the page's full height), the gear log's page last, an end leaf to keep a desktop's spreads whole; the page count depends only on how many items each chapter holds) · `spreadOf` · `spreadPages` · `turnTo` · `focusPage` · `orderText` |
 | `murk-engrave.js` (pure strings) | `engrave(card)` (an engraved SVG plate for every item: ink line, hatching, cross-hatching, stipple; ink is `currentColor`, paper knock-outs `.cat-pp`), `plateKey`, `frontispiece` (Murk's barge), `ledgerPlate`, `endPlate`, `wickInk` |
 | `ui-catalogue-murk.js` | `createMurkBook(deps)` → `{render, onKey, debug, slow, go, pageOf}`; its CSS (`#gw-mb-css`, classes `gw-book*`, `gw-mb-*`, `gw-plate*`); the page's sound `book_page` added to the sfx table under the loop only |
 

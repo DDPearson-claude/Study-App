@@ -91,7 +91,7 @@ const CSS = `
 .gw-mb-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); grid-template-rows: repeat(var(--rows, 2), minmax(0, 1fr)); }
 .gw-plate { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 5px 8px 3px; box-sizing: border-box; }
 .gw-book[data-layout=desktop] .gw-plate:nth-child(2n) { border-left: 1px solid var(--cat-ink-2); }
-.gw-book[data-layout=desktop] .gw-plate:nth-child(n+3) { border-top: 1px solid var(--cat-ink-2); }
+.gw-book[data-layout=desktop] .gw-mb-grid[data-rows="2"] .gw-plate:nth-child(n+3) { border-top: 1px solid var(--cat-ink-2); }
 .gw-book[data-layout=phone] .gw-plate:nth-child(n+2) { border-top: 1px solid var(--cat-ink-2); }
 .gw-plate-hit { position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; margin: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 2px; }
 .gw-plate-hit:focus-visible { outline: 1.5px dashed var(--cat-ink-2); outline-offset: -5px; }
@@ -227,6 +227,9 @@ const CSS = `
 .gw-book[data-layout=phone] .gw-plate-low .gw-plate-price { align-self: flex-end; }
 .gw-book[data-layout=phone] .gw-mb-title { font-size: 34px; }
 .gw-book[data-layout=phone] .gw-mb-chap h3 { font-size: 24px; }
+/* a name with a long word (THOUSANDCAST) set a size smaller, so the word is never cut; a lone plate on a page of two takes its width */
+.gw-book .gw-plate-name.gw-long { font-size: 17px; }
+.gw-mb-grid[data-rows="1"] .gw-plate:only-child { grid-column: 1 / -1; }
 /* a short spread (960 x 540): the plate's kicker is the chapter's head already; the line two rows; the name condensed further */
 .gw-book.gw-short .gw-kick-ch { display: none; }
 .gw-book.gw-short .gw-plate-line { -webkit-line-clamp: 3; line-height: 1.04; letter-spacing: -.012em; }
@@ -315,7 +318,8 @@ export function createMurkBook(deps) {
     if (c.slot === 'lake' && !kick.textContent) kick.textContent = tab.label;
     el.appendChild(kick);
     if (c.slot !== 'lake') {
-      const name = h('b', 'gw-plate-name');
+      const nm0 = c.slot === 'place' ? c.fishName || '' : c.name || '';
+      const name = h('b', `gw-plate-name${Math.max(0, ...String(nm0).split(/\s+/).map((w) => w.length)) >= 11 ? ' gw-long' : ''}`);
       if (c.slot === 'place') { if (c.star) name.innerHTML = '<i class="gw-map-star" aria-hidden="true">★</i>'; name.appendChild(document.createTextNode(c.fishName || '')); }
       else name.textContent = c.name;
       el.appendChild(name);
@@ -364,7 +368,7 @@ export function createMurkBook(deps) {
       const sp = D().SPECIES_BY_ID?.[c.fish] || arr(D().SPECIES).find((s) => s?.id === c.fish);
       if (!sp) return;
       const wrap = h('div', 'gw-plate-map');
-      const A = deps.mapArtSizes(D(), sp, B.layout === 'phone' ? { w: 118, h: 56 } : { w: Math.max(96, Math.min(150, live?.pw ? live.pw / 2 - 40 : 130)), h: 50 });
+      const A = deps.mapArtSizes(D(), sp, B.layout === 'phone' ? { w: 118, h: 56 } : { w: Math.max(110, Math.min(170, (live?.pw || 340) / 2 - 30)), h: 64 });
       const wk = h('span', 'gw-map-wick', wickInk({ uid: uid() }));
       wk.style.width = `${A.wick.w.toFixed(1)}px`; wk.style.height = `${A.wick.h.toFixed(1)}px`;
       const cv = h('canvas', '');
@@ -414,7 +418,8 @@ export function createMurkBook(deps) {
         body.appendChild(ch);
       }
       const grid = h('div', 'gw-mb-grid');
-      grid.style.setProperty('--cols', String(B.cols)); grid.style.setProperty('--rows', String(B.rows));
+      grid.style.setProperty('--cols', String(p.cols || B.cols)); grid.style.setProperty('--rows', String(p.rows || B.rows));
+      grid.dataset.cols = String(p.cols || B.cols); grid.dataset.rows = String(p.rows || B.rows);
       for (const id of p.items) { const f = cardOf(model, id); if (f) grid.appendChild(plateEl(entry, model, f.card, f.tab, B)); }
       body.appendChild(grid);
       if (goal && p.items.includes(goal.id) && !deps.tutorial?.()) pg.appendChild(h('i', 'gw-mb-ribbon'));
