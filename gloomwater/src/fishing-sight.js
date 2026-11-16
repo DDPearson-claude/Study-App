@@ -164,7 +164,9 @@ export const READ = {
   px: { phone: 24, desk: 30 },
   floor: 0.65,                          // a share of px: under it the fish is not seen on this screen
   frame: { x: [0.08, 0.92], y: [0.18, 0.8] },               // the open part of the frame (the HUD's bands lie outside it)
-  framePortrait: { x: [0.1, 0.9], y: [0.2, 0.76] },
+  // a phone held upright: the touch stick's thumb ring sits low on the left (ui.css .gw-joyzone: 44vw × 46vh, its hint at about
+  // 0.2 W, 0.83 H) and the HOME band along the foot, so the open frame reaches lower on the right, away from the thumb (`low`)
+  framePortrait: { x: [0.1, 0.9], y: [0.2, 0.72], low: { x: [0.47, 0.9], y: [0.72, 0.87] } },
   tries: 36, maxD: 24, jitter: 0.45,    // screen samples per search; the farthest off the raft (m); heading ± (rad) off broadside
   inset: { x: 0.03, y: 0.05 },          // a spawn keeps this far inside the frame (it may swim to the frame's edge, then turns back)
 };
@@ -221,16 +223,36 @@ export function lookStretch(lens, x, y, z) {
   const sg = clamp(ty / Math.max(l, 1e-3), 0.05, 1);
   return { s: clamp(Math.pow(1 / sg, 0.75), 1, 2), dx: hl > 1e-3 ? tx / hl : 0, dz: hl > 1e-3 ? tz / hl : 1 };
 }
-/** Is (x, z) inside the open part of the frame (READ.frame; a phone held upright: framePortrait)? */
+/** The open part of the frame as rects of screen fractions [{x: [x0, x1], y: [y0, y1]}] (READ.frame; a phone held upright:
+ *  framePortrait and its `low` reach on the right). inset: kept that far inside (a spawn's room to swim), `low` joined to the main
+ *  rect's inset foot so the two stay one open area. */
+export function frameRects(lens, R = READ, inset = true) {
+  const F0 = lens.W < lens.H ? R.framePortrait : R.frame, ix = inset ? num(R.inset?.x, 0) : 0, iy = inset ? num(R.inset?.y, 0) : 0;
+  const out = [{ x: [F0.x[0] + ix, F0.x[1] - ix], y: [F0.y[0] + iy, F0.y[1] - iy] }];
+  if (F0.low) out.push({ x: [F0.low.x[0] + ix, F0.low.x[1] - ix], y: [F0.y[1] - iy, F0.low.y[1] - iy] });
+  return out;
+}
+/** A random point (screen fractions [sx, sy]) in the open frame's rects, by their areas. */
+export function framePoint(rects, rng = Math.random) {
+  let tot = 0;
+  for (const r of rects) tot += (r.x[1] - r.x[0]) * (r.y[1] - r.y[0]);
+  let k = rng() * tot, f = rects[0];
+  for (const r of rects) { const a = (r.x[1] - r.x[0]) * (r.y[1] - r.y[0]); if (k <= a) { f = r; break; } k -= a; }
+  return [U(rng, f.x[0], f.x[1]), U(rng, f.y[0], f.y[1])];
+}
+/** Is (x, z) inside the open part of the frame (READ.frame; a phone held upright: framePortrait with its `low` reach)? */
 export function inFrame(lens, x, z, R = READ, y = 0) {
   const s = toScreen(lens, x, y, z);
   if (!s) return false;
-  const F = lens.W < lens.H ? R.framePortrait : R.frame;
-  return s.x >= F.x[0] * lens.W && s.x <= F.x[1] * lens.W && s.y >= F.y[0] * lens.H && s.y <= F.y[1] * lens.H;
+  const fx = s.x / lens.W, fy = s.y / lens.H;
+  for (const F of frameRects(lens, R, false)) if (fx >= F.x[0] && fx <= F.x[1] && fy >= F.y[0] && fy <= F.y[1]) return true;
+  return false;
 }
 /**
  * Where a fish of true length L reads on this screen. o = {lens, raft {x, z}, keepOff, accept(x, z) → it may spawn there, rng, need
- * (px; default readPx), floor (px; default need × READ.floor), maxD, tries, heading (fixed, else broadside ± READ.jitter)}. Samples
+ * (px; default readPx), floor (px; default need × READ.floor), maxD, tries, heading (fixed, else broadside ± READ.jitter), near
+ * (rings [{x, z, r0, r1}] probed too)}; accept
+ * is handed the candidate too (x, z, {heading, px, …}: the shape as it would lie, for its head, tail and shadow). Samples
  * the open part of the frame, down to the water, past its own distance off the raft: a spot that draws ≥ need is taken at random
  * among those found (so big fish spread over the whole frame, small ones keep to the near water, on the camera's side); with none, the
  * spot that draws biggest if it reaches the floor. {x, z, d, px, heading, reads (≥ need)} or null (not seen on this screen).
@@ -240,8 +262,7 @@ export function readableSpot(L, o = {}, R = READ) {
   if (!lens) return null;
   const need = num(o.need, readPx(lens.W, lens.H, R)), floor = num(o.floor, need * num(R.floor, 0.65));
   const minD = num(o.keepOff, keepOffFor(L)) + 0.4, maxD = num(o.maxD, R.maxD), tries = num(o.tries, R.tries);
-  const F0 = lens.W < lens.H ? R.framePortrait : R.frame, ix = num(R.inset?.x, 0), iy = num(R.inset?.y, 0);
-  const F = { x: [F0.x[0] + ix, F0.x[1] - ix], y: [F0.y[0] + iy, F0.y[1] - iy] };   // (spawned a little inside the frame: room to swim)
+  const rects = frameRects(lens, R);   // (spawned a little inside the frame: room to swim)
   const good = [], short = [];
   const probe = (sx, sy) => {
     const w = fromScreen(lens, sx * lens.W, sy * lens.H);
@@ -255,13 +276,26 @@ export function readableSpot(L, o = {}, R = READ) {
     const c = { x: w.x, z: w.z, d, px, heading: wrap(heading), reads: px >= need };
     (c.reads ? good : short).push(c);
   };
-  for (let i = 0; i < tries; i++) probe(U(rng, F.x[0], F.x[1]), U(rng, F.y[0], F.y[1]));
-  // and along the frame's lower edge, where the camera draws a fish biggest (so a fish that can just make the mark finds where)
-  for (let i = 0; i < 11; i++) probe(F.x[0] + (F.x[1] - F.x[0]) * (i + 0.5 + (rng() - 0.5) * 0.5) / 11, F.y[1] - (F.y[1] - F.y[0]) * 0.05 * rng());
+  for (let i = 0; i < tries; i++) { const [sx, sy] = framePoint(rects, rng); probe(sx, sy); }
+  // and along each rect's lower edge, where the camera draws a fish biggest (so a fish that can just make the mark finds where)
+  for (const F of rects) for (let i = 0; i < 11; i++) probe(F.x[0] + (F.x[1] - F.x[0]) * (i + 0.5 + (rng() - 0.5) * 0.5) / 11, F.y[1] - (F.y[1] - F.y[0]) * 0.05 * rng());
+  // none reads yet (a big fish's own distance off the raft leaves little of a close framing's water): a jittered grid over the frame
+  if (!good.length) for (const F of rects) for (let i = 0; i < 12; i++) for (let j = 0; j < 12; j++) probe(F.x[0] + (F.x[1] - F.x[0]) * (i + rng()) / 12, F.y[0] + (F.y[1] - F.y[0]) * (j + rng()) / 12);
+  // (o.near: [{x, z, r0, r1}] rings round the things it lies by, as a lamp's light at the Buoy Lights: probed there as well)
+  for (const q of o.near || []) for (let k = 0; k < 6; k++) {
+    const a = rng() * TAU, r = U(rng, q.r0, q.r1), s2 = toScreen(lens, q.x + Math.cos(a) * r, 0, q.z + Math.sin(a) * r);
+    if (s2) probe(s2.x / lens.W, s2.y / lens.H);
+  }
   for (let i = good.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = good[i]; good[i] = good[j]; good[j] = t; }
-  for (const c of good) if (!o.accept || o.accept(c.x, c.z)) return c;
+  for (const c of good) if (!o.accept || o.accept(c.x, c.z, c)) return c;
+  // (none it may lie at among those that read: a jittered grid over the frame before it settles for less)
+  if (good.length && o.accept) {
+    const n0 = good.length;
+    for (const F of rects) for (let i = 0; i < 12; i++) for (let j = 0; j < 12; j++) probe(F.x[0] + (F.x[1] - F.x[0]) * (i + rng()) / 12, F.y[0] + (F.y[1] - F.y[0]) * (j + rng()) / 12);
+    for (const c of good.slice(n0)) if (o.accept(c.x, c.z, c)) return c;
+  }
   short.sort((a, b) => b.px - a.px);   // none reads in view: the biggest it draws, if that reaches the floor
-  for (const c of short) { if (c.px < floor) break; if (!o.accept || o.accept(c.x, c.z)) return c; }
+  for (const c of short) { if (c.px < floor) break; if (!o.accept || o.accept(c.x, c.z, c)) return c; }
   return null;
 }
 /**
@@ -280,12 +314,37 @@ export function sightBlocked(x, z, eye, blockers = [], land = null, bank = 3.6) 
   }
   return false;
 }
+/** A shape's drawn half-length (m) at (x, z) along `heading`: half its true length, eased out along the line of sight as fishing-fx
+ *  draws it (lookStretch); with no lens, the most the look can stretch it (2×). */
+export function drawnHalf(L, lens, x, z, heading = null) {
+  const half = num(L, 0.3) * 0.5;
+  if (!lens) return half * 2;
+  const k = lookStretch(lens, x, 0, z);
+  if (!Number.isFinite(heading)) return half * k.s;
+  const hx = Math.sin(heading), hz = Math.cos(heading), al = hx * k.dx + hz * k.dz;
+  return half * Math.hypot(hx + k.dx * al * (k.s - 1), hz + k.dz * al * (k.s - 1));
+}
+/**
+ * The points a drawn shape covers on the water: its centre, its head and its tail as drawn (the look's stretch), and the same three of
+ * its shadow (offset {x, z}, shadowOffset) — [[x, z], …]. The sight test runs on each, so no part of a fish lies behind a post.
+ */
+export function shapePoints(L, x, z, heading, lens = null, shadow = null) {
+  let hx = Math.sin(num(heading, 0)) * num(L, 0.3) * 0.5, hz = Math.cos(num(heading, 0)) * num(L, 0.3) * 0.5;
+  if (lens) { const k = lookStretch(lens, x, 0, z); if (k.s > 1) { const al = hx * k.dx + hz * k.dz; hx += k.dx * al * (k.s - 1); hz += k.dz * al * (k.s - 1); } }
+  const pts = [[x, z], [x + hx, z + hz], [x - hx, z - hz]];
+  if (shadow && (shadow.x || shadow.z)) for (const [px, pz] of pts.slice(0, 3)) pts.push([px + shadow.x, pz + shadow.z]);
+  return pts;
+}
+/** Is any part of a drawn shape (shapePoints) out of the lens's sight (sightBlocked)? */
+export function shapeBlocked(L, x, z, heading, eye, blockers = [], land = null, lens = null, shadow = null) {
+  if (!eye) return false;
+  for (const [px, pz] of shapePoints(L, x, z, heading, lens, shadow)) if (sightBlocked(px, pz, eye, blockers, land)) return true;
+  return false;
+}
 /** The most a fish of length L can draw anywhere a spawn may go (the open frame, inset) past dMin off the raft (px; a fine scan, for tests). */
 export function bestReadPx(L, lens, raft = { x: 0, z: 0 }, dMin = 3.4, maxD = READ.maxD, R = READ, n = 48) {
-  const F0 = lens.W < lens.H ? R.framePortrait : R.frame, ix = num(R.inset?.x, 0), iy = num(R.inset?.y, 0);
-  const F = { x: [F0.x[0] + ix, F0.x[1] - ix], y: [F0.y[0] + iy, F0.y[1] - iy] };   // (where a spawn may go)
   let best = 0;
-  for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) {
+  for (const F of frameRects(lens, R)) for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) {   // (where a spawn may go)
     const w = fromScreen(lens, (F.x[0] + (F.x[1] - F.x[0]) * i / n) * lens.W, (F.y[0] + (F.y[1] - F.y[0]) * j / n) * lens.H);
     if (!w) continue;
     const d = Math.hypot(w.x - raft.x, w.z - raft.z);

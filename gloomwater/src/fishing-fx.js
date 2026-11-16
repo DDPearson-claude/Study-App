@@ -637,22 +637,24 @@ void main() {
         vec2 pa = q - p1, ba = p0 - p1;
         float hs = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-5), 0.0, 1.0);
         sk += lineAA(length(pa - ba * hs), 0.016) * (0.5 + 0.5 * hs);
-      } else if (u < 0.8) {   // its landing ring
+      } else if (u < 0.8 && !moss) {   // its landing ring (none on the Mossmere: no small rings, no specks there)
         float t = u - 0.26;
         sk += lineAA(length(q - b - dir * 0.45) - (0.04 + t * 0.5), 0.012) * (1.0 - t / 0.54) * 0.55;
       }
     }
-    light += mix(STAR, GOLD, 0.2) * sk * fine * 1.7 * uSurf;
+    // (on the Mossmere the hops are dark flicks of fry against the film, not silver: no glitter on the water there)
+    light += mix(STAR, GOLD, 0.2) * sk * fine * (moss ? 0.25 : 1.7) * uSurf;
+    if (moss) ink += sk * fine * 0.3;
     float m = 1.0 - smoothstep(r * 0.6, r * 1.08, d);
     float wv = sin(q.x * 13.0 + age * 7.0 + seed * 9.0) * sin(q.y * 11.0 - age * 6.0);
-    light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
+    if (!moss) light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
     // from afar the patch reads as a darker, shivering disc full of twinkling fry, with a pale broken rim; up close the hops carry it
     if (!moss) light += mix(STAR, GOLD, 0.2) * glints(q, 0.5, age, seed, 0.65) * m * (0.6 + 1.6 * far) * uSurf;   // (never sparkle on the Mossmere)
     // the shiver of the skin (a textured shimmer, never a flat lens) and a few drifting arcs at its edge (never a whole ring)
     float shv = n21(q * 2.2 + vec2(age * 0.7, -age * 0.5) + seed * 13.0) * n21(q * 3.7 - vec2(age * 0.4, age * 0.9) - seed * 7.0);
     light += STAR * m * (0.04 + 0.3 * smoothstep(0.12, 0.5, shv)) * far * uSurf;
     float arcs = smoothstep(0.55, 0.85, n11(ang * 2.5 + seed * 17.0 + age * 0.5));
-    light += STAR * lineAA(d - r * 0.95, 0.03) * arcs * (0.08 + 0.45 * far) * uSurf;
+    light += STAR * lineAA(d - r * 0.95, 0.03) * arcs * (0.08 + 0.45 * far) * (moss ? 0.35 : 1.0) * uSurf;   // (quieter, broken, on the Mossmere)
     ink += m * 0.17 * (1.0 - 0.5 * far);
     float ca = age * 0.45 + seed * 6.0, cr = r * 0.32;
     vec2 cp = vec2(cos(ca), sin(ca)) * cr;
@@ -819,10 +821,13 @@ void main() {
         // the push: the film lifted in a low bulge just ahead of the head (a short arc, never closed), a little darker under its lip
         vec2 hq = q - vec2(0.0, hy - 0.02 * L);
         float hr = length(hq), hang = atan(hq.x, hq.y);
-        float arcR = 0.05 + 0.1 * L + 0.04 * spd;
-        float arc = lineAA(hr - arcR, 0.008 + 0.004 * L) * (1.0 - smoothstep(0.6, 1.15, abs(hang)));
-        light += WATERW * arc * mv * 0.32 * (0.6 + 0.4 * n11(hang * 5.0 + age * 3.0 + seed * 7.0)) * uSurf;
-        ink += smoothstep(arcR + 0.02, arcR * 0.4, hr) * (1.0 - smoothstep(0.5, 1.2, abs(hang))) * (1.0 - bodyA) * mv * 0.08;
+        // (wider than the head, open, and only where it spans enough pixels to read as a lift of the film: drawn a few pixels across
+        // it would close into a pale bead on the nose, a glint, so under about 4–8 px of radius it fades out)
+        float arcR = 0.06 + 0.16 * L + 0.04 * spd;
+        float arcK = smoothstep(4.0, 8.0, arcR / MPP);
+        float arc = lineAA(hr - arcR, 0.008 + 0.004 * L) * (1.0 - smoothstep(0.7, 1.2, abs(hang))) * smoothstep(0.15, 0.45, abs(hang));
+        light += WATERW * arc * mv * 0.2 * arcK * (0.6 + 0.4 * n11(hang * 5.0 + age * 3.0 + seed * 7.0)) * uSurf;
+        ink += smoothstep(arcR + 0.02, arcR * 0.4, hr) * (1.0 - smoothstep(0.5, 1.2, abs(hang))) * (1.0 - bodyA) * mv * 0.08 * arcK;
       }
       float still = (1.0 - smoothstep(0.03, 0.12, spd)) * shallow * step(outl, 1.5);   // (the deep-bodied root and tail)
       if (still > 0.0) {

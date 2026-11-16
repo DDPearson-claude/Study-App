@@ -27,7 +27,7 @@ import {
   v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
   SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showOutEase, showArrival,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
-  landmarkShot, landmarkWeight,
+  landmarkShot, landmarkWeight, WATCH, portraitFit,
 } from './render-camera.js';
 
 const DEG = Math.PI / 180;
@@ -663,6 +663,20 @@ export function create(ctx) {
     nightK = damp(nightK, k, 1.6, dt);
   }
 
+  // the watch (WATCH): on the Mossmere under the loop, the raft at rest a moment → the lens eases in over the near water; held while a
+  // cast is charged (moving the camera under a held pointer would drag the aim)
+  const watch = { still: 0, w: 0 };
+  function updateWatch(dt) {
+    const v = isReal(ctx.player) ? ctx.player.velocity : null, sp = v && typeof v.x === 'number' ? Math.hypot(v.x, Number(v.z) || 0) : 0;
+    const fs = fishingState();
+    const on = ctx.flow === 'playing' && ctx.data?.LOOP_ENABLED === true && ctx.fishing?.view?.waterWhite === true
+      && (mode === 'sail' || mode === 'night' || mode === 'fish') && sp < WATCH.still && ctx.player?.gliding !== true;
+    watch.still = on ? watch.still + dt : 0;
+    if (fs === 'charging') return;
+    const want = on && watch.still >= WATCH.after ? 1 : 0;
+    watch.w = want > watch.w ? Math.min(1, watch.w + dt * WATCH.rateIn) : Math.max(0, watch.w - dt * WATCH.rateOut);
+  }
+
   function fillTargets(p) {
     const base = P[mode === 'home' ? 'sail' : mode];   // ('home' keeps the sail rig under its fixed pose)
     for (const k of PARAM_KEYS) tgt[k] = base[k];
@@ -716,14 +730,9 @@ export function create(ctx) {
     // the loop's Jetty at rest (flow home, no glide running): the look target on the moored raft itself, not 6.5 m ahead of it, so
     // the raft and the Wick's flame sit mid-frame above the Jetty's tile row; the home glides keep the sail framing
     if ((mode === 'sail' || mode === 'home') && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
-    // portrait screens: widen, pull back and tilt down so the raft and its pool fit
-    const a = W / H;
-    if (a < 1.25) {
-      const pf = smoothstep(1.25, 0.5, a);
-      tgt.fov = Math.min(78, tgt.fov + pf * 22);
-      tgt.dist *= 1 + pf * 0.38;
-      tgt.elev = Math.min(80, tgt.elev + pf * 7);
-    }
+    // portrait screens: widen, pull back and tilt down so the raft and its pool fit; on the Mossmere under the loop, with the raft
+    // at rest, the watch eases in over it (render-camera.js portraitFit, WATCH: the near water close enough to see a fish in it)
+    portraitFit(tgt, W / H, mode, mode === 'sail' || mode === 'night' || mode === 'fish' ? watch.w : 0);
     // the home camera's lens (M1 step 5a): the mooring's pose's own fov (its portrait pose has its own)
     if (mode === 'home') { const hp = homePose(); if (hp) tgt.fov = Number(hp.fov) || tgt.fov; }
   }
@@ -1028,6 +1037,7 @@ export function create(ctx) {
     if (mode === 'title') titleYaw += dt * 0.065;
 
     const p = playerPos();
+    updateWatch(dt);
     fillTargets(p);
     const lam = prevMode === 'title' && modeT < 3 ? 1.5 : mode === 'death' ? 1.2 : 2.6;
     const trophyMove = mode === 'trophy' ? TROPHY_IN : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? TROPHY_OUT : 0;
@@ -1367,7 +1377,7 @@ export function create(ctx) {
             pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
             focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
             camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
-            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H), trophyK: r1(trophyK),
+            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H), trophyK: r1(trophyK), watch: r1(watch.w),
             presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
             // the show camera (SPEC §2.6): its weight, the fitted target and what set its distance
             show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {

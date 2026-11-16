@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { loadLoopData } from './loop-fixture.mjs';
 import * as SI from '../../src/fishing-sight.js';
+import { portraitFit, portraitK, WATCH } from '../../src/render-camera.js';
 
 const D = await loadLoopData();
 let pass = 0, fail = 0;
@@ -19,12 +20,12 @@ function mul(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t =
 const DEG = Math.PI / 180;
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
-/** The play camera as render.js places it (fillTargets: a screen narrower than 1.25 widens the fov up to +22°, steps back ×1.38 and
- *  tilts down 7°; the lens orbits the raft at elev / dist, yaw 0 (south of it), looking at aim metres ahead and aimY up). */
-function playCamera(W, H, preset, raft = { x: 0, z: 0 }) {
-  let { elev, dist, aim, aimY, fov } = preset;
-  const a = W / H;
-  if (a < 1.25) { const pf = smooth(1.25, 0.5, a); fov = Math.min(78, fov + pf * 22); dist *= 1 + pf * 0.38; elev = Math.min(80, elev + pf * 7); }
+/** The play camera as render.js places it (fillTargets → render-camera.js portraitFit: a screen narrower than 1.25 widens the fov
+ *  up to +22°, steps back ×1.38 and tilts down 7°; on the Mossmere under the loop, the raft at rest, the watch (w) eases in over it;
+ *  the lens orbits the raft at elev / dist, yaw 0 (south of it), looking at aim metres ahead and aimY up). */
+function playCamera(W, H, preset, raft = { x: 0, z: 0 }, mode = 'sail', w = 0) {
+  const t = portraitFit({ ...preset }, W / H, mode, w);
+  const { elev, dist, aim, aimY, fov } = t, a = W / H;
   const cam = new THREE.PerspectiveCamera(fov, a, 0.1, 400);
   cam.position.set(raft.x, dist * Math.sin(elev * DEG), raft.z + dist * Math.cos(elev * DEG));
   cam.lookAt(raft.x, aimY, raft.z - aim);
@@ -32,8 +33,11 @@ function playCamera(W, H, preset, raft = { x: 0, z: 0 }) {
   return cam;
 }
 const CAMS = D.BALANCE.cameras;
+const ROBUST = { ...SI.READ, inset: { x: SI.READ.inset.x + 0.02, y: SI.READ.inset.y + 0.02 } };
 const SCREENS = [[960, 540], [1280, 720], [390, 844], [358, 664]];
-const FRAMINGS = { sail: CAMS.sail, fish: CAMS.fish };
+// sail: sailing (or the first moment at rest); watch: at rest on the Mossmere (the sail framing under the watch); fish: the line out,
+// the first moment; fishW: the line out, at rest (on a phone, the fish framing under the watch's softer widening; landscape: = fish).
+const FRAMINGS = { sail: [CAMS.sail, 'sail', 0], watch: [CAMS.sail, 'sail', 1], fish: [CAMS.fish, 'fish', 0], fishW: [CAMS.fish, 'fish', 1] };
 const SP = (id) => D.SPECIES.find((s) => s.id === id);
 const LAKE1 = Object.keys(SI.OUTLINE_OF).filter((id) => SP(id)?.zone === 'mossmere');
 const zMin = D.BALANCE_V3.size.z.min;
@@ -72,13 +76,14 @@ const rows = [];
 {
   const raft = { x: 0, z: 0 };
   let n = 0, reads = 0, short = 0, unseen = 0, badFrame = 0, badKeep = 0, badReads = 0, badShort = 0, badUnseen = 0, badPx = 0;
-  for (const [W, H] of SCREENS) for (const [fr, preset] of Object.entries(FRAMINGS)) {
-    const cam = playCamera(W, H, preset, raft), lens = SI.lensOf(cam, W, H), need = SI.readPx(W, H), floor = need * SI.READ.floor;
+  for (const [W, H] of SCREENS) for (const [fr, [preset, md, ww]] of Object.entries(FRAMINGS)) {
+    const cam = playCamera(W, H, preset, raft, md, ww), lens = SI.lensOf(cam, W, H), need = SI.readPx(W, H), floor = need * SI.READ.floor;
     for (const id of LAKE1) for (const [end, z] of [['min', zMin], ['max', D.maxZFor(SP(id))]]) {
       const L = D.sizeLength(SP(id), z, 'mossmere') / 100;
       for (const seed of [1, 2, 3]) {
         const keepOff = SI.keepOffFor(L, seed / 4);
-        const best = SI.bestReadPx(L, lens, raft, keepOff + 0.4);
+        // (the most it can draw, 2% inside where a spawn may go: a sliver at the frame's very corner is no place to look for a fish)
+        const best = SI.bestReadPx(L, lens, raft, keepOff + 0.4, SI.READ.maxD, ROBUST);
         const at = SI.readableSpot(L, { lens, raft, keepOff, rng: mul(seed * 97 + W + L * 1000) });
         n++;
         const status = !at ? 'unseen' : at.reads ? 'reads' : 'short';
@@ -92,7 +97,7 @@ const rows = [];
         if (best >= need * 1.1 && status !== 'reads') { badReads++; if (process.env.SIGHT_DEBUG) console.log('   read?', W, H, fr, id, end, L.toFixed(2), 'best', best.toFixed(1), 'need', need, at && at.px.toFixed(1)); }
         if (status === 'short' && !(at.px >= Math.min(need, best * 0.9) && at.px >= floor)) badShort++;
         if (status === 'unseen' && best >= floor * 1.1) { badUnseen++; if (process.env.SIGHT_DEBUG) console.log('   seen?', W, H, fr, id, end, L.toFixed(2), 'best', best.toFixed(1), 'floor', floor); }
-        if (seed === 1) rows.push({ scr: `${W}x${H}`, fr, id, end, cm: Math.round(L * 100), need, best: Math.round(best), px: at ? Math.round(at.px) : 0, d: at ? at.d.toFixed(1) : '-', status });
+        rows.push({ scr: `${W}x${H}`, fr, id, end, cm: Math.round(L * 100), need, best: Math.round(best), px: at ? Math.round(at.px) : 0, d: at ? at.d.toFixed(1) : '-', status, seed, W, H });
       }
     }
   }
@@ -100,6 +105,28 @@ const rows = [];
   ok(badShort === 0, `where it cannot, it spawns where it draws biggest (≥ 90% of the best in view, ≥ the floor): ${short} such`);
   ok(badUnseen === 0, `a fish is left unseen only when nothing in view draws it at the floor (${unseen})`);
   ok(badFrame === 0 && badKeep === 0 && badPx === 0, 'every spawn in the open frame, past its own distance off the raft, its drawn length as measured');
+  // the framing the player watches from (16 Nov 2026, the review's bar): at rest on the Mossmere every screen sees every Lake 1
+  // silhouette species, its smallest at least at the floor, and its biggest at about the mark (at least 0.9 of it: 22 px on a phone,
+  // 27 on a desktop; most draw far past it), wherever it spawns. One exception, by the camera's reach: on the smallest desktop
+  // (960x540, a 30 px mark) the two hand-long species at their very smallest (the 16 cm crayfish, the 17 cm minnow shoal) draw at most
+  // 15–17 px, under the floor, and are not shown there (from about 18 cm they are); a nearer landscape watch would leave a big fish no
+  // water past its own distance off the raft
+  const watch = rows.filter((r) => r.fr === 'watch');
+  const unseenW = watch.filter((r) => r.status === 'unseen'), shortMax = watch.filter((r) => r.end === 'max' && !(r.px >= r.need * 0.9));
+  const unseenBad = unseenW.filter((r) => !(r.scr === '960x540' && r.end === 'min' && r.cm < 18));
+  ok(watch.length === 4 * 3 * LAKE1.length * 2 && unseenBad.length === 0, `every screen at rest (the watch): every species, smallest and biggest, is seen (${unseenBad.map((r) => `${r.scr} ${r.id} ${r.end} ${r.cm} cm ${r.best} px`).join('; ') || 'all'}; not shown, as written: ${[...new Set(unseenW.filter((r) => !unseenBad.includes(r)).map((r) => `${r.scr} ${r.id} ${r.cm} cm ${r.best} px`))].join(', ') || 'none'})`);
+  const nearMax = watch.filter((r) => r.end === 'max' && r.status !== 'reads');
+  ok(shortMax.length === 0, `every screen at rest: every species at its biggest draws at about the mark (${shortMax.map((r) => `${r.scr} ${r.id} ${r.cm} cm ${r.px} px`).join('; ') || 'all'}; just under the mark: ${nearMax.map((r) => `${r.scr} ${r.id} ${r.cm} cm ${r.px} px`).join(', ') || 'none'})`);
+  const minW = watch.filter((r) => r.end === 'min' && r.status === 'short');
+  ok(minW.every((r) => r.px >= Math.floor(r.need * SI.READ.floor)), `every screen at rest: a fish too small for the mark is still drawn past the floor (${minW.length} short, the least ${Math.min(...minW.map((r) => r.px / r.need), 9).toFixed(2)} of the mark)`);
+  // with the line out on a phone (the softer widening keeps the float framed) the medium and big fish read too
+  const fishP = rows.filter((r) => r.W < r.H && r.fr === 'fishW' && r.end === 'max' && r.cm >= 55);
+  ok(fishP.every((r) => r.status === 'reads'), `phones with the line out at rest: every species at its biggest from 55 cm reads (${fishP.filter((r) => r.status !== 'reads').map((r) => `${r.scr} ${r.id} ${r.px}`).join('; ') || 'all'})`);
+  // landscape screens keep their framings: the watch is a phone's only
+  ok(portraitK(960 / 540) === 0 && portraitK(1280 / 720) === 0 && portraitK(390 / 844) === 1 && WATCH.sail.dist < CAMS.sail.dist * 1.38 && WATCH.land.dist < CAMS.sail.dist,
+    'the watch stands nearer than the sail framing on every screen (a phone\'s own pose, a landscape one)');
+  const fw = portraitFit({ ...CAMS.fish }, 16 / 9, 'fish', 1), f0 = portraitFit({ ...CAMS.fish }, 16 / 9, 'fish', 0);
+  ok(['elev', 'dist', 'aim', 'aimY', 'fov'].every((k) => fw[k] === f0[k]), 'a landscape fish framing is the same under the watch (already near)');
   // the brief's examples: a Keeper perch on the camera's side, near; big fish may stand farther, as they read
   const cam = playCamera(1280, 720, CAMS.sail), lens = SI.lensOf(cam, 1280, 720);
   const perch = D.sizeLength(SP('mossback_perch'), 0.6, 'mossmere') / 100, carp = D.sizeLength(SP('weeping_carp'), 2.4, 'mossmere') / 100;
@@ -146,6 +173,25 @@ section('in sight: never behind a rock, the bank or the raft');
   }
   ok(got > 90 && bad === 0, `with a rock on the camera's side every spot is still in sight (${got} of 100 placed)`);
 }
+section('the whole drawn shape in sight, clear of posts and lamps; the phone frame clear of the thumb');
+{
+  const cam = playCamera(390, 844, CAMS.sail, { x: 0, z: 0 }, 'sail', 1), lens = SI.lensOf(cam, 390, 844);
+  const eye = { x: cam.position.x, y: cam.position.y, z: cam.position.z };
+  // a 1.5 m pike lying across the view with a dock post (its blocker: r 0.2 + 0.3, as fishing.js has it) on the line of sight to its
+  // head, not its centre: hidden
+  const L = 1.5, x = 0, z = 6, h = SI.broadside(lens, x, z), hp = SI.shapePoints(L, x, z, h, lens)[1];
+  const t = 0.1, post = [{ x: hp[0] + (eye.x - hp[0]) * t, z: hp[1] + (eye.z - hp[1]) * t, r: 0.5, h: 3.2 }];
+  ok(!SI.sightBlocked(x, z, eye, post) && SI.shapeBlocked(L, x, z, h, eye, post, null, lens), 'a post before the head hides the shape though its centre is in sight');
+  ok(SI.shapePoints(L, x, z, h, lens, { x: 0.1, z: -0.1 }).length === 6, 'the head, tail and centre, and the same of its shadow, are tested');
+  const across = SI.drawnHalf(L, lens, x, z, h), endOn = SI.drawnHalf(L, lens, x, z, h + Math.PI / 2);
+  ok(Math.abs(across - L / 2) < 1e-6 && endOn > L / 2 && endOn <= L + 1e-9 && SI.drawnHalf(L, null, x, z) === L, `the drawn half-length: across the view its own (${across.toFixed(2)} m), end on eased out (${endOn.toFixed(2)} m, at most 2×)`);
+  const rects = SI.frameRects(lens, SI.READ, false);
+  ok(rects.length === 2 && rects[1].x[0] >= 0.45 && rects[0].y[1] <= 0.72 + 1e-9 && SI.frameRects(SI.lensOf(playCamera(960, 540, CAMS.sail), 960, 540)).length === 1,
+    'a phone held upright: the open frame stops above the thumb\'s ring on the left and reaches lower on the right; a desktop frame is one rect');
+  let low = 0;
+  for (let i = 0; i < 200; i++) { const at = SI.readableSpot(0.5, { lens, raft: { x: 0, z: 0 }, keepOff: 4, rng: mul(800 + i) }); if (at) { const s2 = SI.toScreen(lens, at.x, 0, at.z); if (s2.y / 844 > 0.72 && s2.x / 390 < 0.45) low++; } }
+  ok(low === 0, 'no spawn in the thumb\'s corner');
+}
 section('the fallback (no camera): its length\'s band, on the camera\'s side');
 {
   const rng = mul(41);
@@ -161,9 +207,9 @@ section('the fallback (no camera): its length\'s band, on the camera\'s side');
 
 // the table: what each screen draws (the lead reads it; "short" = the camera cannot draw that fish at the mark anywhere in view)
 console.log('   screen    framing species           end   cm  need best spawn  d(m)  status');
-for (const r of rows) if (VERBOSE || r.status !== 'reads') console.log(`   ${r.scr.padEnd(9)} ${r.fr.padEnd(7)} ${r.id.padEnd(17)} ${r.end.padEnd(4)} ${String(r.cm).padStart(4)} ${String(r.need).padStart(5)} ${String(r.best).padStart(4)} ${String(r.px).padStart(5)} ${String(r.d).padStart(5)}  ${r.status}`);
+for (const r of rows) if (r.seed === 1 && (VERBOSE || r.status !== 'reads')) console.log(`   ${r.scr.padEnd(9)} ${r.fr.padEnd(7)} ${r.id.padEnd(17)} ${r.end.padEnd(4)} ${String(r.cm).padStart(4)} ${String(r.need).padStart(5)} ${String(r.best).padStart(4)} ${String(r.px).padStart(5)} ${String(r.d).padStart(5)}  ${r.status}`);
 const by = {};
-for (const r of rows) { const k = `${r.scr} ${r.fr}`; by[k] = by[k] || { reads: 0, short: 0, unseen: 0 }; by[k][r.status]++; }
+for (const r of rows) { if (r.seed !== 1) continue; const k = `${r.scr} ${r.fr}`; by[k] = by[k] || { reads: 0, short: 0, unseen: 0 }; by[k][r.status]++; }
 console.log('   per screen and framing (species × min/max):', Object.entries(by).map(([k, v]) => `${k}: ${v.reads} read, ${v.short} short, ${v.unseen} unseen`).join('; '));
 
 console.log(`\nfishing-sight-read: ${pass} passed, ${fail} failed`);

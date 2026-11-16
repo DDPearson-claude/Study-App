@@ -166,6 +166,77 @@ section('silhouettes placed where they read through the live camera (16 Nov 2026
   globalThis.innerWidth = was[0]; globalThis.innerHeight = was[1];
 }
 
+section('the watch (16 Nov 2026): at rest on the real Mossmere, shapes placed where they read, whole, clear of posts and lamps');
+{
+  // the look scenario's raft spots (tools/tests/loop-sight.scenario.mjs), the lens as render.js holds it at rest (render-camera.js
+  // portraitFit under the watch), a Keeper carp, a Keeper perch and a pike holding, by the game's own rule (force off)
+  const RC = await import('../../src/render-camera.js');
+  const DEG = Math.PI / 180, SPOTS = [[-13, -41], [-46, -18], [-45, -3], [-33, -38], [-30, -36]];
+  const watchCam = (W, H, raft) => {
+    const t = RC.portraitFit({ ...D.BALANCE.cameras.sail }, W / H, 'sail', 1);
+    const cam = new THREE.PerspectiveCamera(t.fov, W / H, 0.1, 400);
+    cam.position.set(raft[0], t.dist * Math.sin(t.elev * DEG), raft[1] + t.dist * Math.cos(t.elev * DEG));
+    cam.lookAt(raft[0], t.aimY, raft[1] - t.aim); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
+    return cam;
+  };
+  const posts = L.obstacles.filter((o) => o.kind !== 'island');
+  const was = [globalThis.innerWidth, globalThis.innerHeight];
+  for (const [W, H] of [[390, 844], [358, 664], [960, 540], [1280, 720]]) {
+    globalThis.innerWidth = W; globalThis.innerHeight = H;
+    const got = { weeping_carp: 0, mossback_perch: 0, reedjaw_pike: 0 };
+    let n = 0, bad = [];
+    for (const raft of SPOTS) {
+      const cam = watchCam(W, H, raft), lens = SI.lensOf(cam, W, H), need = SI.readPx(W, H);
+      const eye = { x: cam.position.x, y: cam.position.y, z: cam.position.z };
+      const blockers = [{ x: raft[0], z: raft[1], r: 1.6, h: 0.5 }, { x: raft[0], z: raft[1], r: 1.1, h: 2.4 }, ...L.obstacles.map((o) => ({ x: o.x, z: o.z, r: o.kind === 'island' ? o.r * 1.2 : o.kind === 'post' ? o.r + 0.3 : o.r + 0.15, h: o.kind === 'island' ? 3.6 : o.kind === 'post' ? 3.2 : 4 }))];
+      const E = env({ raft, seed: 31, scene: null });
+      E.ctx.render.camera = cam;
+      E.tick(3);
+      for (const [id, z, mode] of [['weeping_carp', 0.5, 'cruise'], ['mossback_perch', 0.6, 'cruise'], ['reedjaw_pike', 0.6, 'hold']]) {
+        let f = null;
+        for (let k = 0; k < 6 && !f; k++) f = E.ctx.debug.sight(id, { force: false, size: z, mode });
+        if (!f) continue;
+        got[id]++; n++;
+        const px = SI.projectedLength(f.length, f, lens, f.heading), half = SI.drawnHalf(f.length, lens, f.x, f.z, f.heading);
+        const why = [];
+        if (!SI.inFrame(lens, f.x, f.z)) why.push('off the frame');
+        if (px < need * SI.READ.floor - 1e-6) why.push(`${px.toFixed(1)} px`);
+        if (Math.hypot(f.x - raft[0], f.z - raft[1]) < f.keepOff + 0.4 - 1e-6) why.push('inside its distance off the raft');
+        if (SI.shapeBlocked(f.length, f.x, f.z, f.heading, eye, blockers, null, lens)) why.push('a part of it out of sight');
+        if (posts.some((o) => Math.hypot(f.x - o.x, f.z - o.z) < o.r + half + 0.5 - 1e-6)) why.push('against a post or a hull');
+        if (why.length) bad.push(`${id} at ${raft}: ${why.join(', ')}`);
+        E.ctx.debug.sightClear();
+      }
+    }
+    ok(got.weeping_carp >= 2 && got.mossback_perch >= 2 && got.reedjaw_pike >= 1, `${W}x${H} at rest: a Keeper carp (${got.weeping_carp} of 5 spots), a Keeper perch (${got.mossback_perch}) and a pike at its reeds (${got.reedjaw_pike}) are placed by the game's rule`);
+    ok(bad.length === 0, `${W}x${H} at rest: every one of the ${n} in the open frame, drawn past the floor, past its own distance off the raft, its head, tail and shadow in sight and clear of posts and hulls${bad.length ? ': ' + bad.join('; ') : ''}`);
+  }
+  // the Buoy Lights by night: a shape in a lamp's light, never under its flare
+  {
+    const area = Z0.arena.places.find((q) => q.id === 'buoy_lights')?.water;
+    let placed = 0, under = 0;
+    for (const [W, H, raft] of [[390, 844, [area.x + 1, area.z + 9]], [960, 540, [area.x + 3, area.z + 8]], [390, 844, [area.x + 4, area.z + 2]], [960, 540, [area.x + 5, area.z - 2]]]) {
+      globalThis.innerWidth = W; globalThis.innerHeight = H;
+      const cam = watchCam(W, H, raft), lens = SI.lensOf(cam, W, H);
+      const E = env({ raft, seed: 41, phase: 'gloomtide', scene: null, loopOver: { state: { maps: { lakes: ['mossmere'], places: ['buoy_lights'] }, lifted: ['buoy_lights'] } } });
+      E.ctx.render.camera = cam;
+      E.tick(3);
+      const rows = [area.x - area.w * 0.3, area.x + area.w * 0.3], lamps = [];
+      for (const rx of rows) for (let i = 0; i < 12; i++) lamps.push({ x: rx, z: area.z - area.d / 2 + 1 + i * (area.d - 2) / 11 });
+      for (let k = 0; k < 40; k++) {
+        const f = E.ctx.debug.sight('weeping_carp', { force: false, size: 0.8 });
+        if (!f || f.area !== 'buoy_lights') { E.ctx.debug.sightClear(); continue; }
+        placed++;
+        const half = SI.drawnHalf(f.length, lens, f.x, f.z, f.heading);
+        if (lamps.some((l) => Math.hypot(f.x - l.x, f.z - l.z) < 0.6 + half - 1e-6)) under++;
+        E.ctx.debug.sightClear();
+      }
+    }
+    ok(placed >= 4 && under === 0, `the Buoy Lights by night: every shape over the drowned lamps (${placed}) lies in a lamp's light, its drawn half-length and 0.6 m off the lamp, never under its flare`);
+  }
+  globalThis.innerWidth = was[0]; globalThis.innerHeight = was[1];
+}
+
 // a margin point at about 9 m from the raft, with room ahead
 function marginPoint() {
   for (let a = 0; a < 64; a++) {

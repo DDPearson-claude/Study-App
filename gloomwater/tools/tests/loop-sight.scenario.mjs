@@ -1,11 +1,12 @@
 // Silhouettes where they read (16 Nov 2026; the user: "You should be able to see the outline or silhouette of some fish under the lake
 // ... The silhouette should be proportionate to the size of the fish"). A look round on the Mossmere under the loop, from the step-2 save:
-// at dusk a carp, a perch (with the line out: the fish framing brings the lens nearer) and a pike at a reed edge, each spawned by the
+// at dusk a carp, a Keeper perch at rest and then with the line out, and a pike at a reed edge, each spawned by the
 // game's own rule (ctx.debug.sight with no point and force off: the who-is-there water, then placed where its true length reads through
 // the live camera, in sight), at night shapes in the lantern's light, and the float at rest (its own water-white ripple). Every shape's
 // drawn length is measured through the page's own camera (as fishing-fx draws it) and logged with its screen point (SIGHT_AT lines), so
 // the frames can be cropped and judged. One run looks at the page's own size, then (--phone-too) again at 390x844 (the viewport resized;
-// the camera, the lens and the rule follow the window).
+// the camera, the lens and the rule follow the window). Every shape is placed once the watch has eased in (render-camera.js WATCH:
+// the raft at rest on the Mossmere; WATCH lines log the lens).
 //   node build.mjs --dev --out=tools/out/mvp-sight/dev.html
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-sight/dev.html --shots=tools/out/mvp-sight/look --script=tools/tests/loop-sight.scenario.mjs --width=960 --height=540 --phone-too
 //   (or --mobile alone)
@@ -20,7 +21,17 @@ export default async function (api) {
   const { page, evalGame: g, log, args } = api;
   page.setDefaultTimeout(300000);
   const K = makeKit3a(api, { label: 'sight' });
-  const pose = async (p, sec = 1.6) => { await K.places.pose(p[0], p[1], 0); await K.secs(sec); };
+  /** The watch (render-camera.js WATCH): the lens eases in over the near water once the raft is at rest on the Mossmere; wait for it
+   *  (and the rig's ease after it) before a shape is placed by the live camera. With the line out a landscape fish framing is unchanged. */
+  const watchSettle = async () => {
+    const w = (await K.until('(c.debug.camera?.()?.watch ?? 0) >= 0.99', 8))?.ok === true;
+    await K.secs(1.6);
+    const cam = await g(() => { const d = window.__gw.debug.camera?.(); return d ? { watch: d.watch, dist: d.cur.dist, fov: d.cur.fov, elev: d.cur.elev, mode: d.mode } : null; });
+    log('WATCH', JSON.stringify(cam));
+    if (!w) K.note('the watch did not ease in', cam);
+    return cam;
+  };
+  const pose = async (p, sec = 1.6) => { await K.places.pose(p[0], p[1], 0); await K.secs(sec); await watchSettle(); };
   const sight = (id, o) => g(([id, o]) => window.__gw.debug.sight(id, o), [id, o]);
   const sights = () => g(() => window.__gw.debug.fishSights());
   const cancel = async () => { await g(() => { try { window.__gw.fishing.cancel?.('debug'); } catch { /* optional */ } }); await K.until("c.fishing.state === 'idle'", 8); };
@@ -67,17 +78,17 @@ export default async function (api) {
     await K.secs(2.6);
     if (carp) await shotWith(`${tag}-carp-dusk`, [carp.id]);
 
-    K.step(`${tag} dusk: a Keeper perch with the line out (the fish framing), and a Prize carp beside it`);
+    K.step(`${tag} dusk: a Keeper perch at rest (the watch), then the line out and a Prize carp beside it`);
     await clearAll(); await K.secs(0.4);
-    await pose(SPOTS.margin, 1.5);
-    await K.places.light('dusk', 0.3);
+    const perch = await natural('mossback_perch', ['margin', 'margin2', 'stones'], { size: 0.6, speed: 0.45, light: 'dusk' });
+    K.check(!!perch, 'a Keeper perch placed where it reads', perch);
+    await K.secs(2.4);
+    if (perch) await shotWith(`${tag}-perch-at-rest`, [perch.id]);
     const rp = await g(() => { const p = window.__gw.player.position; return [p.x, p.z]; });
     await g(([x, z]) => window.__gw.debug.castAt(x, z), [rp[0] + 2.5, rp[1] - 7]);
     await K.until("c.fishing.state === 'waiting'", 8);
     await K.secs(1.6);   // (the lens eases to the fish framing)
-    let perch = await natural('mossback_perch', [null], { size: 0.6, speed: 0.45 });
-    if (!perch) { K.note(`${tag}: a Keeper perch is not seen on this screen even with the line out: a Prize one`); perch = await natural('mossback_perch', [null], { size: 1.6, speed: 0.45 }); }
-    K.check(!!perch, 'a perch placed where it reads', perch);
+    await watchSettle();
     const carp2 = await sight('weeping_carp', { force: false, mode: 'cruise', speed: 0.25, life: 300, size: 1.2 });
     await K.secs(2.4);
     const both = [perch?.id, carp2?.id].filter(Boolean);
