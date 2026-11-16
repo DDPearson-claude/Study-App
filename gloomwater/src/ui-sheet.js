@@ -217,7 +217,9 @@ const CSS = `
 .gw-sh-page { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
   scrollbar-color: rgba(38, 29, 44, .3) transparent; background-color: var(--cat-paper);
   background-image: ${PAPER_NOISE}, ${FIBRE}, radial-gradient(ellipse 120% 100% at 50% 50%, rgba(0,0,0,0) 62%, rgba(120, 92, 70, .14) 100%);
-  border-radius: 4px; box-shadow: 0 1px 0 var(--cat-paper-2), 0 2px 0 rgb(214, 204, 190), 0 3px 0 var(--cat-paper-2), 0 12px 30px rgba(0,0,0,.45); padding: 14px 24px 22px; overflow-x: clip; }
+  border-radius: 4px; box-shadow: 0 1px 0 var(--cat-paper-2), 0 2px 0 rgb(214, 204, 190), 0 3px 0 var(--cat-paper-2), 0 12px 30px rgba(0,0,0,.45); padding: 14px 24px 40px; overflow-x: clip;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), rgba(0,0,0,.08) 100%); mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), rgba(0,0,0,.08) 100%); }
+.gw-sh-page.gw-sh-end { -webkit-mask-image: none; mask-image: none; }
 .gw-sh-corner { position: sticky; display: block; height: 0; z-index: 2; pointer-events: none; }
 .gw-sh-corner .gw-mb-corner { position: absolute; width: 26px; height: 26px; color: var(--cat-ink-2); }
 .gw-sh-corner--t .gw-mb-corner:first-child { left: -16px; top: -8px; } .gw-sh-corner--t .gw-mb-corner:last-child { right: -16px; top: -8px; transform: scaleX(-1); }
@@ -229,7 +231,7 @@ const CSS = `
 .gw-sh-head { display: grid; grid-template-columns: 92px 1fr; gap: 4px 14px; align-items: center; padding-top: 4px; }
 .gw-sh-portrait { grid-row: span 2; width: 92px; height: 104px; display: flex; align-items: center; justify-content: center; }
 .gw-sh-portrait svg { width: 92px; height: 104px; }
-.gw-sh-name { margin: 0; font: 400 36px/1 var(--f-display); letter-spacing: .16em; text-transform: uppercase; color: var(--cat-ink); }
+.gw-sh-name { margin: 0; font: 400 36px/1 var(--f-display); letter-spacing: .16em; text-transform: uppercase; color: var(--cat-ink); overflow-wrap: break-word; min-width: 0; }
 .gw-sh-passive { display: flex; align-items: center; gap: 10px; }
 .gw-sh-passive .gw-pico { width: 56px; height: 56px; flex: none; color: var(--cat-ink); }
 .gw-sh-passive b { display: block; font: 400 18px/1.05 var(--f-display); letter-spacing: .12em; text-transform: uppercase; }
@@ -244,7 +246,7 @@ const CSS = `
 .gw-sh-art { grid-row: span 6; width: 120px; height: 90px; display: flex; align-items: center; justify-content: center; }
 .gw-sh-art .cat-eng { width: 120px; height: 90px; color: var(--cat-ink); }
 .gw-sh-pname { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font: 400 19px/1.1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--cat-ink); }
-.gw-sh-pname b { font-weight: 400; }
+.gw-sh-pname b { font-weight: 400; overflow-wrap: break-word; min-width: 0; }
 .gw-sh-line { font: 400 17px/1.3 var(--f-body); color: var(--cat-ink); }
 .gw-sh-next { font: 400 17px/1.3 var(--f-body); color: var(--cat-ink-2); }
 .gw-sh-next .gw-sh-price { color: var(--cat-amber); font-weight: 700; font-variant-numeric: lining-nums tabular-nums; }
@@ -320,7 +322,7 @@ const CSS = `
 .gw-sh-jump { display: none; }
 /* a phone: one column; plates fold to one row */
 .gw-sheet[data-layout=phone] { gap: 0; }
-.gw-sheet[data-layout=phone] .gw-sh-page { padding: 10px 14px 20px; }
+.gw-sheet[data-layout=phone] .gw-sh-page { padding: 10px 14px 40px; }
 .gw-sheet[data-layout=phone] .gw-sh-corner--t .gw-mb-corner:first-child { left: -11px; } .gw-sheet[data-layout=phone] .gw-sh-corner--t .gw-mb-corner:last-child { right: -11px; }
 .gw-sheet[data-layout=phone] .gw-sh-head { grid-template-columns: 72px 1fr; }
 .gw-sheet[data-layout=phone] .gw-sh-portrait, .gw-sheet[data-layout=phone] .gw-sh-portrait svg { width: 72px; height: 82px; }
@@ -720,6 +722,15 @@ export function createSheetView(K) {
       } catch (e) { report('scroll', e); }
     });
     watch(root);
+    footFade(root);
+  }
+  /** The page's foot fades while there is more below, and lifts at the scroll's end (its last line whole). */
+  function footFade(root) {
+    for (const p of root.querySelectorAll('.gw-sh-page')) {
+      const upd = () => p.classList.toggle('gw-sh-end', p.scrollTop + p.clientHeight >= p.scrollHeight - 2);
+      p.addEventListener('scroll', upd, { passive: true });
+      requestAnimationFrame(upd);
+    }
   }
   const captureScroll = (root) => [...root.querySelectorAll('.gw-sh-page')].map((p) => p.scrollTop);
   const restoreScroll = (root, sc) => { [...root.querySelectorAll('.gw-sh-page')].forEach((p, i) => { p.scrollTop = num(sc[i]); }); };
