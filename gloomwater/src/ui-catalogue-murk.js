@@ -246,6 +246,7 @@ const CSS = `
 .gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-line { margin-top: 6px; -webkit-line-clamp: 4; line-height: 1.12; }
 .gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-low { grid-row: 4; align-self: end; }
 .gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-plate-num { left: 6px; right: auto; top: 6px; }
+.gw-book.gw-short .gw-mb-grid[data-rows="2"] .gw-mb-stamp { left: 24%; }   /* ("Yours." on the drawing, the name left readable) */
 .gw-book.gw-short .gw-mb-grid[data-cols="1"] .gw-plate:nth-child(2n) { border-left: 0; }
 .gw-book.gw-short .gw-mb-grid[data-cols="1"] .gw-plate:nth-child(n+2) { border-top: 1px solid var(--cat-ink-2); }
 /* a low spread (a phone turned to landscape, 844 x 390): an item a page at the book's full height; Murk's line and the foot (the purse
@@ -258,8 +259,7 @@ const CSS = `
 .gw-book.gw-low .gw-kick-ch, .gw-book.gw-low .gw-mb-head .gw-mb-ch { display: none; }
 .gw-book.gw-low .gw-mb-head { margin: 0 14px; justify-content: center; }
 .gw-book.gw-low .gw-plate-num { top: auto; bottom: 8px; left: 8px; right: auto; }
-.gw-book.gw-low .gw-mb-page { padding: 10px 18px 6px; }
-.gw-book.gw-low .gw-mb-foot { min-height: 28px; }
+.gw-book.gw-low .gw-mb-page { padding: 10px 18px 10px; }   /* (the folio's 34 px and this keep the page corners' 44 px clear of the plate) */
 .gw-book.gw-low .gw-mb-chap h3 { font-size: 22px; }
 /* the phone's running head clear of the corner ornaments */
 .gw-book[data-layout=phone] .gw-mb-head { margin: 0 18px; }
