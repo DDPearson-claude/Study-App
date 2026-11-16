@@ -9,10 +9,11 @@
 // Pure exports (node: tools/tests/ui-loop.test.mjs): slotCells · tallyPlan · goalLine · shelfCards · murkLineFor · clamTag ·
 // pillHold · chartModel · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
 // settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg
-import { icon, ORN, murkPortrait } from './ui-icons.js';
+import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
+import { mapCards, sealsOf, listCount as listCountOf } from './progression-loop.js';
 
 export { murkLineFor };
 
@@ -87,7 +88,7 @@ export function goalLine(goal, { D = null, wick = null } = {}) {
  * button reads "Yours."), slot, level, art (its glyph)}. The tab words are TEXT_LOOP.tabs'.
  */
 const TAB_ICON = { tackle: 'rod', raft: 'hull', bait: 'worm', maps: 'map', home: 'hearth' };
-const ART = { rod: 'rod', line: 'line', reel: 'reel', hold: 'creel' };
+const ART = { rod: 'rod', line: 'line', reel: 'reel', hold: 'creel', bait: 'mossball', place: 'map', lake: 'map' };
 export function shelfCards(shelf, { D = null, clams = 0 } = {}) {
   const TL = T_(D);
   const tabs = arr(shelf?.tabs).filter((t) => isObj(t) && arr(t.items).length);
@@ -95,14 +96,38 @@ export function shelfCards(shelf, { D = null, clams = 0 } = {}) {
     tabs: tabs.map((t) => ({
       id: t.id, label: TL.tabs?.[t.id] || t.id, icon: TAB_ICON[t.id] || 'star',
       cards: arr(t.items).filter(isObj).map((it) => {
-        const price = Math.max(0, Math.round(num(Number(it.price), 0)));
-        const bought = it.bought === true;
-        return { id: String(it.id), name: String(it.name || ''), line: String(it.line || ''), price, priceText: fmtClams(price),
-          dear: !bought && num(Number(clams), 0) < price, bought, slot: it.slot ?? null, level: it.level ?? null, art: ART[it.slot] || 'star',
+        const sealed = it.sealed === true;
+        const price = sealed || it.price == null ? null : Math.max(0, Math.round(num(Number(it.price), 0)));
+        const consumable = it.consumable === true;
+        const bought = !consumable && it.bought === true;
+        const card = { id: String(it.id), name: String(it.name || ''), line: String(it.line || ''), price, priceText: price == null ? '' : fmtClams(price),
+          dear: !bought && price != null && num(Number(clams), 0) < price, bought, slot: it.slot ?? null, level: it.level ?? null, art: ART[it.slot] || 'star',
           buyWord: bought ? (TL.yours || 'Yours.') : null };
+        // M1 step 3a (SPEC §8.4): a map card names its fish (★ for a giant or the legend), its hour glyphs and its line; the next
+        // water's card is sealed ("Coming soon", its three seals, no button); a legend's bait is a consumable with its count
+        if (it.slot === 'place') {
+          const sp = spOf(D, it.fish);
+          const star = sp && (sp.giant === true || sp.rarity === 'legendary');
+          Object.assign(card, { placeId: it.placeId ?? null, kind: it.kind ?? null, fish: it.fish ?? null, fishName: sp?.name || '', star: !!star, hours: arr(it.hours).slice() });
+        } else if (it.slot === 'lake') Object.assign(card, { waterId: it.waterId ?? null, sealed, seals: isObj(it.seals) ? it.seals : null, name: sealed ? '' : card.name });
+        else if (consumable) Object.assign(card, { consumable: true, baitId: it.baitId ?? null, count: Math.max(0, Math.floor(num(Number(it.count), 0))) });
+        return card;
       }),
     })),
   };
+}
+/**
+ * M1 step 3a (SPEC §8.4, M1.md §2.4): a map card's drawing, the fish "life-size beside the Wick": the Wick's portrait and the fish's
+ * ink drawing at one scale (k px a metre), the Wick at BALANCE_V3.ceremony.wickHeight, the fish at its typical length (size.L50),
+ * both inside w × h. → {k, wick: {w, h}, fish: {w, h, len}} (CSS px; the fish's canvas carries `pad` either side). Pure.
+ */
+export const MAP_ART = Object.freeze({ w: 214, h: 86, gap: 6, pad: 0.04, figure: 0.78, fishAspect: 0.56 });
+export function mapArtSizes(D, sp, { w = MAP_ART.w, h = MAP_ART.h } = {}) {
+  const wickM = num(D?.BALANCE_V3?.ceremony?.wickHeight, 0.85);
+  const L50 = num(Number(typeof sp?.size?.L50 === 'number' ? sp.size.L50 : sp?.size?.L50 && Math.min(...Object.values(sp.size.L50))), 40) / 100;
+  const P = MAP_ART, boxH = wickM / P.figure, boxW = boxH * (100 / 120), fishBoxW = L50 / (1 - 2 * P.pad);
+  const k = Math.min((w - P.gap) / (boxW + fishBoxW), h / Math.max(boxH, fishBoxW * P.fishAspect));
+  return { k, wick: { w: boxW * k, h: boxH * k, m: wickM }, fish: { w: fishBoxW * k, h: fishBoxW * P.fishAspect * k, len: L50 * k, m: L50 } };
 }
 
 /**
@@ -170,10 +195,94 @@ export function chartModel(meta, D, opts = {}) {
   if (!lakes.length && isObj(W.mossmere)) lakes.push('mossmere');
   lakes.sort((a, b) => num(W[a].order, 99) - num(W[b].order, 99));
   const zone = (id) => D?.ZONE_BY_ID?.[id] || arr(D?.ZONES).find((z) => z?.id === id) || null;
-  const sheets = lakes.map((id) => ({ waterId: id, name: zone(id)?.name || id, owned: true, gilded: false, places: [] }));
+  const tutorial = opts.tutorial === true;
+  const sheets = lakes.map((id) => ({ waterId: id, name: zone(id)?.name || id, owned: true, gilded: false, places: chartPlacesOf(meta, D, id, { tutorial }) }));
   const slots = Number.isFinite(Number(opts.slots)) ? Number(opts.slots) : typeof D?.loopSlots === 'function' ? D.loopSlots(ml) : num(ml.holdSlots, 3);
   const water = lakes.includes(opts.water) ? opts.water : lakes[0] ?? null;
-  return { sheets, next: null, hold: { slots }, fitted: { lure: ml.fitted?.lure ?? null, bait: ml.fitted?.bait ?? null }, pick: { water, place: null }, tutorial: opts.tutorial === true };
+  // M1 step 3a (M1.md §3.4: "the first open of a session chooses the place you sailed to last"): the saved pick while the Chart can
+  // still choose it (its water drawn and, for a place, that place owned there); open water otherwise, and always in the tutorial
+  const cp = isObj(ml.chartPick) ? ml.chartPick : null;
+  const canPick = !tutorial && cp && sheets.some((s) => s.waterId === cp.water && (!cp.place || s.places.some((p) => p.id === cp.place && p.owned)));
+  const pick = canPick && !(opts.water && opts.water !== cp.water) ? { water: cp.water, place: cp.place ?? null } : { water, place: null };
+  return { sheets, next: tutorial ? null : chartNext(meta, D), hold: { slots }, fitted: { lure: ml.fitted?.lure ?? null, bait: ml.fitted?.bait ?? null }, pick, tutorial };
+}
+/**
+ * The Chart's next water (M1.md §3.8 `next`, SPEC §5.4, §5.5 (f)): the first water of D.ZONES past the last water the Chart draws
+ * (owned and in LOOP.waters), {waterId, shipped, seals}, or null past the last. `shipped` is false for a water past LOOP.shipped
+ * (decision 39): in M1, Sporewood, "Coming soon". M1 step 3a: the seals are progression-loop's sealsOf (one source for the Chart, the
+ * shelf's sealed card and the catalogue's head): {map: {held, price, shipped}, gear: {held, slot, tier, item}, catch: {held, have,
+ * need}}, a superset of 3b's shape. Pure.
+ */
+export function chartNext(meta, D) {
+  const ml = isObj(meta?.loop) ? meta.loop : {};
+  const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {};
+  const zones = arr(D?.ZONES).filter((z) => z && typeof z.id === 'string').slice().sort((a, b) => num(a.index, 0) - num(b.index, 0));
+  const owned = arr(ml.maps?.lakes).filter((id) => typeof id === 'string');
+  if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
+  // the frontier is the last water the Chart draws (owned and in LOOP.waters): an old save's unshipped lake is the next sheet, its
+  // map seal pressed, never a water past it
+  const drawn = owned.filter((id) => isObj(W[id]));
+  const at = Math.max(-1, ...drawn.map((id) => zones.findIndex((z) => z.id === id)));
+  const nz = zones[at + 1];
+  if (!nz || at < 0) return null;
+  const sh = D?.LOOP?.shipped;
+  const order = (id) => num(W[id]?.order, 0);
+  const shipped = typeof sh === 'string' ? order(nz.id) > 0 && order(nz.id) <= order(sh) : Array.isArray(sh) ? sh.includes(nz.id) : isObj(W[nz.id]);
+  return { waterId: nz.id, shipped, seals: sealsOf(isObj(meta) ? meta : { loop: ml }, D, nz.id) };
+}
+/**
+ * M1 step 3a (M1.md §3.8): a water's places on the Chart, in the Chart's order (data.loopPlaceIds: day, old, night, crown), each
+ * exactly {id, kind, owned, price, best, giantLanded, marked, wounds}: `price` mapCards' (null unless among Murk's three, null once
+ * owned, null in the tutorial); `best` {speciesId, weight} from meta.loop.best's saved length (data.fishWeight: pounds, never a saved
+ * weight) or null; `giantLanded` its giant's (or legend's) first landing; `marked` a Marked giant waiting there; `wounds` the legend's
+ * (meta.legendWounds, at most LOOP's cap). Pure.
+ */
+export function chartPlacesOf(meta, D, waterId, { tutorial = false } = {}) {
+  const ml = isObj(meta?.loop) ? meta.loop : {};
+  const P = isObj(D?.LOOP?.places) ? D.LOOP.places : {};
+  const ids = typeof D?.loopPlaceIds === 'function' ? arr(D.loopPlaceIds(waterId)) : Object.keys(P).filter((id) => P[id]?.water === waterId);
+  if (!ids.length) return [];
+  const owned = new Set(arr(ml.maps?.places));
+  const priced = new Map();
+  if (!tutorial) { try { for (const c of arr(mapCards(D, ml, { meta }))) if (c?.placeId) priced.set(c.placeId, num(Number(c.price), 0)); } catch { /* no prices */ } }
+  const cap = Math.max(1, Math.round(num(D?.CATCH_V3?.legend?.woundCap, 18) / Math.max(1, num(D?.CATCH_V3?.legend?.woundPerEscape, 6))));
+  return ids.filter((id) => isObj(P[id])).map((id) => {
+    const p = P[id], own = owned.has(id);
+    const b = isObj(ml.best?.[id]) ? ml.best[id] : null, bsp = b ? spOf(D, b.speciesId) : null;
+    let best = null;
+    if (bsp && num(Number(b.length), 0) > 0) {
+      let w = null;
+      try { w = typeof D?.fishWeight === 'function' ? D.fishWeight(bsp, { length: Number(b.length) }) : null; } catch { w = null; }
+      if (Number.isFinite(w) && w > 0) best = { speciesId: bsp.id, weight: w };
+    }
+    const giant = typeof p.giant === 'string' ? p.giant : null, legend = typeof p.legend === 'string' ? p.legend : null;
+    const landed = giant ? num(Number(ml.giants?.[giant]?.landed), 0) > 0 : legend ? num(Number(ml.legends?.[legend]), 0) > 0 : false;
+    return { id, kind: p.kind ?? null, owned: own, price: !own && priced.has(id) ? priced.get(id) : null, best, giantLanded: landed,
+      marked: giant ? num(Number(ml.giants?.[giant]?.marked), 0) > 0 : false,
+      wounds: legend ? Math.max(0, Math.min(cap, Math.floor(num(Number(meta?.legendWounds?.[legend]), 0)))) : 0 };
+  });
+}
+/** M1 step 3a (M1.md §3.6, PLAN CHOICE 19): the list Chart's place rows, in the Chart's order: every owned place and every priced one
+ *  (among Murk's three), nothing else; none in the tutorial. Each row: the place ({id, kind, owned, price, best, giantLanded, …}) and
+ *  its `name` (an owned place's own name; a priced one is never named, as its blot). Pure. */
+export function chartRows(model, D) {
+  if (!isObj(model) || model.tutorial === true) return [];
+  const nameOf = (id) => (typeof D?.loopPlace === 'function' ? D.loopPlace(id)?.name : null) || D?.PLACE_BY_ID?.[id]?.name || id;
+  return arr(model.sheets).flatMap((s) => arr(s.places).filter((p) => p.owned === true || p.price != null)
+    .map((p) => ({ ...p, water: s.waterId, name: p.owned ? nameOf(p.id) : null })));
+}
+/** M1 step 3a (M1.md §3.3, §3.6): the bait slot under the Chart: the chosen water's legend bait (LOOP.legendBait; 3a's only item),
+ *  {id, name, count (the water's bag), fitted, can (one to fit, or one fitted)}; null in the tutorial or for a water with none. Pure. */
+export function baitSlotModel(model, metaLoop, D) {
+  if (!isObj(model) || model.tutorial === true) return null;
+  const water = model.pick?.water || model.sheets?.[0]?.waterId || null;
+  const lb = water ? D?.LOOP?.legendBait?.[water] : null;
+  if (!isObj(lb) || typeof lb.id !== 'string') return null;
+  const ml = isObj(metaLoop) ? metaLoop : {};
+  const count = Math.max(0, Math.floor(num(Number(ml.bait?.[water]?.[lb.id]), 0)));
+  const fitted = (model.fitted?.bait ?? ml.fitted?.bait ?? null) === lb.id;
+  const name = arr(D?.BAITS).find((b) => b?.id === lb.id)?.name || lb.id;
+  return { id: lb.id, water, name, count, fitted, can: fitted || count > 0 };
 }
 
 /** The title's words under the loop (SPEC §8.5, PLAN CHOICE 33): fresh → New Descent · Settings; else Continue · Settings (· Prologue). */
@@ -313,7 +422,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
 
 // ---------------------------------------------------------------- drawings (pure strings)
 /** The Chart's ink vignette of a water (1a: the Mossmere): its rim, its islands, the Jetty's warm lamp and the way out to open water. */
-export function chartVignette(D, waterId = 'mossmere', { uid = 'cv' } = {}) {
+export function chartVignette(D, waterId = 'mossmere', { uid = 'cv', places = [], pick = null } = {}) {
   const z = D?.ZONE_BY_ID?.[waterId] || arr(D?.ZONES).find((x) => x?.id === waterId) || null;
   const A = z?.arena || {};
   const R = Math.max(10, num(A.radius, 60));
@@ -343,8 +452,25 @@ export function chartVignette(D, waterId = 'mossmere', { uid = 'cv' } = {}) {
       + `<g class="gw-cv-float" transform="translate(${P(g.to.x, g.to.z).replace(' ', ' ')})"><circle r="2.6"/><path d="M0 -2.6 V-6.4"/></g>`;
   }
   if (dock) home = `<circle class="gw-cv-glow" cx="${(num(dock.x) * s).toFixed(1)}" cy="${(num(dock.z) * s).toFixed(1)}" r="9" fill="url(#${uid}g)"/><circle class="gw-cv-home" cx="${(num(dock.x) * s).toFixed(1)}" cy="${(num(dock.z) * s).toFixed(1)}" r="2.2"/>`;
-  return `<svg class="gw-cv" viewBox="-74 -74 148 148" aria-hidden="true"><defs><radialGradient id="${uid}g"><stop offset="0" stop-color="#ed9e3b" stop-opacity=".75"/><stop offset="1" stop-color="#ed9e3b" stop-opacity="0"/></radialGradient></defs>`
-    + `<path class="gw-cv-wash" d="${rim}"/><path class="gw-cv-rim" filter="url(#gw-brush)" d="${rim}"/>${isles}${way}${home}</svg>`;
+  // M1 step 3a (M1.md §3.3): the places at their arena sites: a place not yet owned is a soft lavender blot of mist; an owned one a
+  // small ink mark, a chosen one underlined in ink (never a ring round anything)
+  let marks = '', mist = '';
+  for (const q of arr(places)) {
+    const lp = typeof D?.loopPlace === 'function' ? D.loopPlace(q?.id) : null;
+    if (!lp || !Number.isFinite(lp.x) || !Number.isFinite(lp.z)) continue;
+    const a = lp.area || {};
+    const cx = (a.kind === 'path' && arr(a.pts).length >= 2 ? (a.pts[0][0] + a.pts[a.pts.length - 1][0]) / 2 : Number.isFinite(a.x) ? a.x : lp.x) * s;
+    const cy = (a.kind === 'path' && arr(a.pts).length >= 2 ? (a.pts[0][1] + a.pts[a.pts.length - 1][1]) / 2 : Number.isFinite(a.z) ? a.z : lp.z) * s;
+    const ext = a.kind === 'rect' ? Math.max(num(a.w), num(a.d)) / 2 : a.kind === 'path' && arr(a.pts).length >= 2 ? Math.hypot(a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]) / 2 : num(a.r, 7);
+    const rr = Math.max(4, Math.min(12, ext * s));
+    if (q.owned) {
+      const on = pick && pick.place === q.id;
+      marks += `<g class="gw-cv-place gw-cv-place--${escH(q.kind)}${on ? ' gw-on' : ''}"><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="2.3"/>${on ? `<path d="M${(cx - 5).toFixed(1)} ${(cy + 5).toFixed(1)} q5 2 10 0"/>` : ''}</g>`;
+    } else mist += `<ellipse class="gw-cv-mist" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(rr * 1.2).toFixed(1)}" ry="${(rr * 0.8).toFixed(1)}" fill="url(#${uid}m)"/>`;
+  }
+  return `<svg class="gw-cv" viewBox="-74 -74 148 148" aria-hidden="true"><defs><radialGradient id="${uid}g"><stop offset="0" stop-color="#ed9e3b" stop-opacity=".75"/><stop offset="1" stop-color="#ed9e3b" stop-opacity="0"/></radialGradient>`
+    + `${mist ? `<radialGradient id="${uid}m"><stop offset="0" stop-color="#c8c2f0" stop-opacity=".55"/><stop offset=".6" stop-color="#b8b0ee" stop-opacity=".22"/><stop offset="1" stop-color="#b8b0ee" stop-opacity="0"/></radialGradient>` : ''}</defs>`
+    + `<path class="gw-cv-wash" d="${rim}"/><path class="gw-cv-rim" filter="url(#gw-brush)" d="${rim}"/>${isles}${mist}${way}${home}${marks}</svg>`;
 }
 /** Murk's scale (the tally): a post, a beam and two pans in ink; the fish settle on the right pan, the clams on the left. */
 export function scaleSvg() {
@@ -730,8 +856,13 @@ export function createLoopView(K) {
   }
 
   // ------------------------------------------------------------------ the shelf (SPEC §8.4)
-  function openShelf() {
-    const st = { tab: null, line: '' };
+  /** openShelf({tab, focus}) (M1 step 3a, T138): `tab` 'tackle' | 'raft' | 'bait' | 'maps'; `focus` a place id or a card id ('rod:1'):
+   *  that card scrolled into view and its button focused (a card not on the shelf: the tab opens at its head). The Chart's priced row
+   *  and 3b's priced blot open it at their map's card; the sealed card's and the catalogue's gear seal at Rod T1's. */
+  function openShelf(o = {}) {
+    const opt = isObj(o) ? o : {};
+    if (K.has('shelf')) { const e = K.entry('shelf'); if (e) { if (opt.tab) e.state.tab = opt.tab; e.state.focus = opt.focus ?? null; e.state.focused = false; e.render(); } return; }
+    const st = { tab: opt.tab ?? null, line: '', focus: opt.focus ?? null, focused: false };
     K.openModal('shelf', renderShelf, { state: st, cls: 'gw-m-center gw-m-shelf', onEscape: () => backToJetty('shelf'),
       onKey: (code) => {
         if (!['BracketLeft', 'BracketRight', 'ArrowLeft', 'ArrowRight'].includes(code)) return false;
@@ -739,6 +870,7 @@ export function createLoopView(K) {
         if (!e || ids.length < 2) return false;
         const i = Math.max(0, ids.indexOf(e.state.tab));
         e.state.tab = ids[(i + (code === 'BracketLeft' || code === 'ArrowLeft' ? -1 : 1) + ids.length) % ids.length];
+        e.state.focus = null;
         e.render(); return true;
       } });
   }
@@ -751,16 +883,19 @@ export function createLoopView(K) {
     if (!model.tabs.some((t) => t.id === s.tab)) s.tab = model.tabs[0]?.id ?? null;
     const { panel: pn, content, foot } = panel(entry, body, { cls: 'gw-p-shelf' });
     pn.dataset.loop = 'shelf';
+    pn.dataset.tab = s.tab || '';
     const head = h('div', 'gw-shelf-head', `<span class="gw-shelf-murk">${murkPortrait()}</span><div class="gw-shelf-purse">${clamTag(clams)}</div><p class="gw-murk-line${s.line ? ' gw-in' : ''}"></p>`);
     head.querySelector('.gw-murk-line').textContent = s.line || '';
     pn.insertBefore(head, content);
-    if (tabs && model.tabs.length > 1) pn.insertBefore(tabs(model.tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon })), s.tab, (id) => { s.tab = id; entry.render(); }), content);
+    if (tabs && model.tabs.length > 1) pn.insertBefore(tabs(model.tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon })), s.tab, (id) => { s.tab = id; s.focus = null; entry.render(); }), content);
     const tab = model.tabs.find((t) => t.id === s.tab);
-    const grid = h('div', 'gw-shelf-cards');
+    const grid = h('div', `gw-shelf-cards gw-shelf-cards--${s.tab || 'none'}`);
     for (const c of tab?.cards || []) {
-      const card = h('div', `gw-shelf-card${c.bought ? ' gw-bought' : ''}${c.dear ? ' gw-dear' : ''}`);
+      if (c.slot === 'place') { grid.appendChild(mapCard(entry, c)); continue; }
+      if (c.slot === 'lake') { grid.appendChild(sealedCard(entry, c)); continue; }
+      const card = h('div', `gw-shelf-card${c.bought ? ' gw-bought' : ''}${c.dear ? ' gw-dear' : ''}${c.consumable ? ' gw-shelf-card--bait' : ''}`);
       card.dataset.item = c.id;
-      card.innerHTML = `<span class="gw-shelf-art">${icon(c.art)}</span><b class="gw-shelf-name"></b><span class="gw-shelf-line"></span>`;
+      card.innerHTML = `<span class="gw-shelf-art">${icon(c.art)}${c.consumable && c.count > 0 ? `<b class="gw-shelf-count">${c.count}</b>` : ''}</span><b class="gw-shelf-name"></b><span class="gw-shelf-line"></span>`;
       card.querySelector('.gw-shelf-name').textContent = c.name;
       card.querySelector('.gw-shelf-line').textContent = c.line;
       const b = btn(c.bought ? esc(c.buyWord) : clamTag(c.price), { cls: `gw-btn--sm gw-shelf-buy${c.dear ? ' gw-dear' : ''}`, hooks: !c.bought && !c.dear, disabled: c.bought || c.dear, onClick: () => buy(entry, c.id) });
@@ -777,6 +912,86 @@ export function createLoopView(K) {
       content.appendChild(odds);
     }
     foot.remove();
+    // the card asked for, in view and focused (once a render: a tab change or a buy keeps the page where it is)
+    if (s.focus && !s.focused) {
+      s.focused = true;
+      const want = [String(s.focus), `place:${s.focus}`];
+      const el = [...grid.querySelectorAll('[data-item]')].find((x) => want.includes(x.dataset.item));
+      if (el) {
+        el.classList.add('gw-focus');
+        requestAnimationFrame(() => {
+          try { el.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch { /* ignore */ }
+          const f = el.querySelector('.gw-shelf-buy:not([disabled]), button:not([disabled])');
+          try { (f || el).focus?.({ preventScroll: true }); } catch { /* ignore */ }
+        });
+      }
+    }
+  }
+  /** A map card (SPEC §8.4, M1.md §2.4): its fish drawn life-size beside the Wick (mapArtSizes), the fish's name (★ for a giant or the
+   *  legend), its hour glyphs, the map's line, the price button (dimmed when too dear, "Yours." once bought on this shelf). */
+  function mapCard(entry, c) {
+    const { btn } = parts();
+    const card = h('div', `gw-shelf-card gw-shelf-card--map gw-shelf-card--${c.kind}${c.bought ? ' gw-bought' : ''}${c.dear ? ' gw-dear' : ''}${c.star ? ' gw-gild' : ''}`);
+    card.dataset.item = c.id;
+    card.dataset.place = c.placeId || '';
+    const sp = spOf(D(), c.fish);
+    const A = mapArtSizes(D(), sp);
+    const art = h('span', 'gw-map-art');
+    art.setAttribute('aria-hidden', 'true');
+    const wick = h('span', 'gw-map-wick', wickPortrait(D().CHARACTER_BY_ID?.[L('wick') || 'wick']?.look || {}, { loop: true, uid: `mw${c.placeId}` }));
+    wick.style.width = `${A.wick.w.toFixed(1)}px`; wick.style.height = `${A.wick.h.toFixed(1)}px`;
+    const cv = h('canvas', 'gw-map-fish');
+    try { drawFishInk(cv, sp, { w: Math.max(8, Math.round(A.fish.w)), h: Math.max(6, Math.round(A.fish.h)), pad: MAP_ART.pad, gain: 6.5, color: c.star ? '#f1d7a0' : '#ece8f4' }); } catch (e) { report('map art', e); }
+    art.appendChild(wick); art.appendChild(cv);
+    card.appendChild(art);
+    const name = h('b', 'gw-shelf-name gw-map-name');
+    if (c.star) name.innerHTML = '<i class="gw-map-star" aria-hidden="true">★</i>';
+    name.appendChild(document.createTextNode(c.fishName || ''));
+    card.appendChild(name);
+    const hrs = h('span', 'gw-map-hours', `<i class="gw-cat-glyph" aria-hidden="true">${icon(`kind_${c.kind}`)}</i>${arr(c.hours).map((g) => `<i class="gw-cat-glyph gw-cat-hr" aria-hidden="true">${icon(g)}</i>`).join('')}`);
+    card.appendChild(hrs);
+    const line = h('span', 'gw-shelf-line');
+    line.textContent = c.line;
+    card.appendChild(line);
+    const b = btn(c.bought ? esc(c.buyWord) : clamTag(c.price), { cls: `gw-btn--sm gw-shelf-buy${c.dear ? ' gw-dear' : ''}`, hooks: !c.bought && !c.dear, disabled: c.bought || c.dear, onClick: () => buy(entry, c.id) });
+    b.dataset.buy = c.id;
+    card.appendChild(b);
+    return card;
+  }
+  /** The next water's sealed card (SPEC §5.5 (f), M1.md §3.4): its wax, the three seals (the gear seal opens Rod T1's card, the catch
+   *  seal the catalogue's list), "Coming soon" where the price would be; no name, no line, no button. */
+  function sealedCard(entry, c) {
+    const card = h('div', 'gw-shelf-card gw-shelf-card--sealed');
+    card.dataset.item = c.id;
+    card.dataset.sealed = c.waterId || '';
+    card.innerHTML = `<span class="gw-sealed-art">${sealedSheet()}</span><span class="gw-seal-row"></span><span class="gw-shelf-soon"></span>`;
+    card.querySelector('.gw-shelf-soon').textContent = TL().comingSoon || 'Coming soon';
+    card.querySelector('.gw-seal-row').appendChild(sealRow(c.seals, { from: 'shelf' }));
+    return card;
+  }
+  /** The next water's three seals as buttons (the shelf's sealed card, the catalogue's head): map (no tap), gear (the shelf at its
+   *  card), catch (the catalogue at its list; its count "n/12" under it). The catch seal presses once the list is complete. */
+  function sealRow(seals, { from = 'shelf', zone = 'mossmere', onCatch = null } = {}) {
+    const row = h('span', 'gw-seals');
+    const S = isObj(seals) ? seals : {};
+    for (const key of ['map', 'gear', 'catch']) {
+      const sl = isObj(S[key]) ? S[key] : {};
+      const b = h('button', `gw-seal-btn gw-seal-btn--${key}${sl.held ? ' gw-held' : ''}`, keySeal(key, { held: sl.held === true }));
+      b.type = 'button';
+      b.dataset.seal = key;
+      const count = key === 'catch' && Number.isFinite(Number(sl.need)) && Number(sl.need) > 0 ? `${Math.floor(num(Number(sl.have), 0))}/${Math.floor(Number(sl.need))}` : null;
+      if (count) b.insertAdjacentHTML('beforeend', `<small class="gw-seal-n">${count}</small>`);
+      b.setAttribute('aria-label', count || key);
+      if (key === 'map') { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
+      else b.addEventListener('click', (e) => {
+        e.stopPropagation(); K.sfx?.('ui_click');
+        if (key === 'gear') { if (from === 'shelf') { const en = K.entry('shelf'); if (en) { en.state.tab = 'tackle'; en.state.focus = sl.item || 'rod:1'; en.state.focused = false; en.render(); return; } } openShelf({ tab: 'tackle', focus: sl.item || 'rod:1' }); }
+        else if (onCatch) onCatch();
+        else K.screens?.openJournal?.({ from, zone, section: 'list' });
+      });
+      row.appendChild(b);
+    }
+    return row;
   }
   function buy(entry, id) {
     const res = L('buy', id);
@@ -784,35 +999,96 @@ export function createLoopView(K) {
       coin(true, { volume: 0.4 });
       K.sfx?.('shop_buy');
       K.hud?.dirtyStats?.();
+      // the first place map (SPEC §8.6, T144): "It's in the mist. Go and look." in the shelf's head, once a save
+      if (String(id).startsWith('place:')) { const line = L('sayOnce', 'firstMap'); if (line) entry.state.line = line; }
     } else K.sfx?.('denied', { volume: 0.5 });
     entry.render();
   }
 
-  // ------------------------------------------------------------------ the Chart (SPEC §5.4, slice 1a: a list from chartModel)
+  // ------------------------------------------------------------------ the Chart (SPEC §5.4; 1a's list, grown in M1 step 3a: M1.md §3.6)
+  // The list draws chartModel: the water's row (its vignette, its book glyph: the catalogue), a row per owned or priced place (PLAN
+  // CHOICE 19), the hold's slots; the foot holds the bait slot and Sail. Once M1 step 3b is in, its drawn Chart draws the same model and
+  // this list stays the fallback (and the debug build's forced list: chartList(true)); the bait slot is this view's own piece in the
+  // foot of whichever Chart is drawn (placeBaitSlot, PLAN §2.3 item 2).
+  let chartListForced = false;
   function openChart() {
     if (K.has('chart')) { K.entry('chart')?.render(); return; }
-    const st = { opened: performance.now(), sailing: false, inked: !tut.isActive() };
+    const st = { opened: performance.now(), sailing: false, inked: !tut.isActive(), pick: null };
     K.openModal('chart', renderChart, { state: st, cls: 'gw-m-center gw-m-chart', onEscape: () => { tut.onEscapeChart(); backToJetty('chart'); } });
+  }
+  function chartModelNow() {
+    const H = L('hold');
+    return chartModel(ctx.state?.meta, D(), { slots: Number.isFinite(Number(H?.slots)) ? Number(H.slots) : undefined, tutorial: tut.isActive() });
   }
   function renderChart(entry, body) {
     const { panel = null, btn = null } = parts();
     if (!panel || !btn) return;
+    const model = chartModelNow();
+    // (M1 step 3b's drawn branch sits here, read only while !chartListForced; then placeBaitSlot(body, model, entry) after it)
+    renderChartList(entry, body, model);
+  }
+  /** The chosen water and place on this open (M1.md §3.4): the model's (the saved pick, or open water) until a row is tapped. */
+  function chartPickOf(entry, model) {
+    const s = entry.state;
+    const ok = (p) => isObj(p) && model.sheets.some((sh) => sh.waterId === p.water && (!p.place || sh.places.some((q) => q.id === p.place && q.owned)));
+    if (!ok(s.pick)) s.pick = { ...model.pick };
+    return s.pick;
+  }
+  function choosePick(entry, pick) {
+    const s = entry.state;
+    if (s.sailing) return;
+    s.pick = { water: pick.water, place: pick.place ?? null };
+    L('setPick', { ...s.pick });
+    try { ctx.bus.emit('chart:pick', { water: s.pick.water, place: s.pick.place }); } catch (e) { report('chart:pick', e); }
+    K.sfx?.('ui_click');
+    entry.render();
+  }
+  /** The list Chart (M1.md §3.6): renderChartList(entry, body, model). In the tutorial exactly 1a's list (T65, T67). */
+  function renderChartList(entry, body, model) {
+    const { panel = null, btn = null } = parts();
+    if (!panel || !btn) return;
     const s = entry.state;
     const c = tut.cue();
-    const H = L('hold');
-    const model = chartModel(ctx.state?.meta, D(), { slots: Number.isFinite(Number(H?.slots)) ? Number(H.slots) : undefined, tutorial: tut.isActive() });
-    const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}` });
+    const tutorial = model.tutorial === true;
+    const pick = chartPickOf(entry, model);
+    const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}${tutorial ? '' : ' gw-p-chart--3a'}` });
     pn.dataset.loop = 'chart';
     const line = c.line;
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart"></div>`;
     if (line) content.querySelector('.gw-murk-line').textContent = line;
     const list = content.querySelector('.gw-chart');
+    const rows = chartRows(model, D());
     for (const sh of model.sheets) {
-      const row = h('div', `gw-chart-row${model.pick.water === sh.waterId ? ' gw-on' : ''}`);
+      const chosen = pick.water === sh.waterId && !pick.place;
+      const row = h('div', `gw-chart-row${chosen ? ' gw-on' : ''}`);
       row.dataset.water = sh.waterId;
-      row.innerHTML = `<span class="gw-chart-map">${chartVignette(D(), sh.waterId, { uid: `cv${sh.waterId}` })}</span><span class="gw-chart-name">${ORN.hookL}<b></b>${ORN.hookR}</span>`;
+      const marks = tutorial ? [] : sh.places;
+      row.innerHTML = `<span class="gw-chart-map">${chartVignette(D(), sh.waterId, { uid: `cv${sh.waterId}`, places: marks, pick })}</span><span class="gw-chart-name">${ORN.hookL}<b></b>${ORN.hookR}</span>`;
       row.querySelector('b').textContent = sh.name;
+      if (!tutorial) {
+        row.classList.add('gw-chart-row--pick');
+        row.setAttribute('role', 'button'); row.tabIndex = 0;
+        row.setAttribute('aria-pressed', String(chosen));
+        row.setAttribute('aria-label', sh.name);
+        const choose = (e) => { e.stopPropagation(); choosePick(entry, { water: sh.waterId, place: null }); };
+        row.addEventListener('click', choose);
+        row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(e); } });
+        // the catalogue's book glyph (SPEC §8.8: no word; the Journal at this water's page, Back returns here)
+        const book = h('button', 'gw-chart-book', icon('book'));
+        book.type = 'button';
+        book.dataset.action = 'catalogue';
+        book.dataset.book = sh.waterId;
+        book.setAttribute('aria-label', TL().jetty?.journal || 'Journal');
+        book.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); K.screens?.openJournal?.({ from: 'chart', zone: sh.waterId }); });
+        row.appendChild(book);
+      }
       list.appendChild(row);
+      const mine = rows.filter((r) => r.water === sh.waterId);
+      if (mine.length) {
+        const ul = h('div', 'gw-chart-places');
+        for (const r of mine) ul.appendChild(placeRow(entry, r, pick));
+        list.appendChild(ul);
+      }
     }
     const slots = h('div', 'gw-hold gw-chart-hold');
     const ink = !s.inked && !reducedMotion();
@@ -825,15 +1101,88 @@ export function createLoopView(K) {
     }
     s.inked = true;
     list.appendChild(slots);
+    foot.appendChild(sailButton(entry, c, () => chartPickOf(entry, chartModelNow())));
+    placeBaitSlot(pn, model, entry);
+  }
+  /** A place's row on the list (M1.md §3.6): an owned place (its kind glyph, its name, its giant's ★ once landed, its best fish there
+   *  in pounds) is chosen with a tap; a priced one (its kind glyph and its price, no name) opens Murk's map card. */
+  function placeRow(entry, r, pick) {
+    const chosen = r.owned && pick.water === r.water && pick.place === r.id;
+    const b = h('button', `gw-chart-place gw-chart-place--${r.kind}${r.owned ? ' gw-owned' : ' gw-priced'}${chosen ? ' gw-on' : ''}${r.giantLanded ? ' gw-gild' : ''}`);
+    b.type = 'button';
+    b.dataset.place = r.id;
+    b.dataset.water = r.water;
+    if (!r.owned) b.dataset.buy = '1';
+    const glyph = `<span class="gw-chart-kind" aria-hidden="true">${icon(`kind_${r.kind}`)}</span>`;
+    if (r.owned) {
+      b.setAttribute('aria-pressed', String(chosen));
+      b.innerHTML = `${glyph}<span class="gw-chart-pname">${ORN.hookL}<b></b>${ORN.hookR}</span>${r.giantLanded ? '<i class="gw-chart-star" aria-hidden="true">★</i>' : ''}<span class="gw-chart-best"></span>`;
+      b.querySelector('b').textContent = r.name || r.id;
+      b.setAttribute('aria-label', r.name || r.id);
+      const best = b.querySelector('.gw-chart-best');
+      if (r.best) {
+        const sp = spOf(D(), r.best.speciesId);
+        const cv = h('canvas', 'gw-chart-bestfish');
+        try { drawFishInk(cv, sp, { w: 46, h: 24, pad: 0.04, gain: 7, color: '#ece8f4' }); } catch (e) { report('best art', e); }
+        best.appendChild(cv);
+        const w = h('small', 'gw-chart-bestw');
+        w.textContent = typeof D().fmtWeight === 'function' ? D().fmtWeight(r.best.weight) : '';
+        best.appendChild(w);
+      } else best.remove();
+      b.addEventListener('click', (e) => { e.stopPropagation(); choosePick(entry, { water: r.water, place: r.id }); });
+    } else {
+      b.innerHTML = `${glyph}${clamTag(r.price, { cls: 'gw-chart-price' })}`;
+      b.setAttribute('aria-label', String(r.price));
+      b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); openShelf({ tab: 'maps', focus: r.id }); });
+    }
+    return b;
+  }
+  /** Sail (SPEC §5.4: one action): live from the first frame; it starts the trip at the chosen water and place (B's
+   *  game.sail({water, place}): the glide out heads for an owned place, PLAN CHOICE 7). */
+  function sailButton(entry, c, pick) {
+    const { btn } = parts();
+    const s = entry.state;
     const b = btn(TL().sail || 'Sail', { cls: `gw-btn--primary gw-chart-sail${c.sail ? ' gw-cue' : ''}`, action: 'sail', icon: 'flame', autofocus: true, disabled: s.sailing, onClick: () => {
       if (s.sailing) return;
       s.sailing = true;
       b.disabled = true;
       tut.onSail();
-      const ok = G('sail', { water: model.pick.water || 'mossmere', place: null });
+      const p = pick() || {};
+      const ok = G('sail', { water: p.water || 'mossmere', place: p.place ?? null });
       if (ok === false || ok === null) { s.sailing = false; b.disabled = false; }
     } });
-    foot.appendChild(b);
+    return b;
+  }
+  /** The bait slot (M1.md §3.3, §3.6; PLAN §2.3 item 2): its own piece, [data-slot=bait], the water's legend bait and its count; a tap
+   *  fits it (loop.fit('bait', id)) or takes it off; empty with none in the bag. None in the tutorial. → the element, or null. */
+  function baitSlot(model, { onFit = null } = {}) {
+    const bm = baitSlotModel(model, L('state'), D());
+    if (!bm) return null;
+    const empty = !bm.fitted && bm.count <= 0;
+    const b = h('button', `gw-bait-slot${bm.fitted ? ' gw-fitted' : ''}${empty ? ' gw-empty' : ''}`);
+    b.type = 'button';
+    b.dataset.slot = 'bait';
+    b.dataset.bait = bm.id;
+    b.setAttribute('aria-label', bm.name);
+    b.setAttribute('aria-pressed', String(bm.fitted));
+    if (empty) b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = `<span class="gw-bait-cradle" aria-hidden="true"></span>${empty ? '' : `<span class="gw-bait-ball" aria-hidden="true">${icon('mossball')}</span><b class="gw-bait-n">${bm.count}</b>`}`;
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (empty) { K.sfx?.('denied', { volume: 0.4 }); return; }
+      const res = L('fit', 'bait', bm.fitted ? null : bm.id);
+      if (res?.ok === true) { K.sfx?.('ui_click', { volume: 0.5 }); onFit?.(res); }
+      else K.sfx?.('denied', { volume: 0.4 });
+    });
+    return b;
+  }
+  /** Put the bait slot in the foot of the drawn panel, before Sail (the list's foot on M; 3b's drawn foot once it is in). */
+  function placeBaitSlot(root, model, entry) {
+    const sail = root?.querySelector?.('[data-action=sail]');
+    if (!sail || root.querySelector('[data-slot=bait]')) return null;
+    const el = baitSlot(model, { onFit: () => entry?.render?.() });
+    if (el) sail.parentNode.insertBefore(el, sail);
+    return el;
   }
 
   // ------------------------------------------------------------------ events
@@ -880,7 +1229,11 @@ export function createLoopView(K) {
   on('flow:change', ({ flow }) => {
     if (flow !== 'playing') { pressEnd('pointer', { cancel: true }); pressEnd('key', { cancel: true }); dropTip('castEl'); dropTip('strikeEl'); }
   });
-  on('ui:modal', (p) => { if (p.id === 'journal' && p.open === false && ctx.flow === 'home') refreshJetty(true); });
+  on('ui:modal', (p) => {
+    if (p.id === 'journal' && p.open === false && ctx.flow === 'home') refreshJetty(true);
+    // M1 step 3a: a map bought from the Chart's card shows on the Chart as the shelf closes (its row owned, the next card priced)
+    if ((p.id === 'shelf' || p.id === 'journal') && p.open === false && K.has('chart')) K.entry('chart')?.render();
+  });
 
   // ------------------------------------------------------------------ per frame
   function update(dt) {
@@ -940,6 +1293,10 @@ export function createLoopView(K) {
 
   return {
     update, handleKey, openJetty, openTally, openShelf, openChart, openHomePause, paintHold,
+    /** M1 step 3a: the list Chart, the bait slot (its own piece, for either Chart's foot), the next water's seals as buttons */
+    renderChartList, baitSlot, placeBaitSlot, sealRow,
+    /** debug builds (ctx.debug.ui.chartList): draw the list even when 3b's drawn Chart is ready (T134, T149's list runs) */
+    chartList: (on) => { if (on !== undefined) { chartListForced = on === true; if (K.has('chart')) K.entry('chart')?.render(); } return chartListForced; },
     /** the tutorial's machine (its state, step and cue(): PLAN §3.6) */
     tutorial: tut,
     pill, holdRow,
