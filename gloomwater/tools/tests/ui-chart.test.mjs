@@ -61,7 +61,9 @@ section('the seam: chartModel(meta, D, opts) as M1.md §3.8 has it; next is the 
   ok(JSON.stringify(Object.keys(m)) === JSON.stringify(['sheets', 'next', 'hold', 'fitted', 'pick', 'tutorial']), 'its keys are 1a\'s (sheets, next, hold, fitted, pick, tutorial): no field the plan does not name', Object.keys(m));
   const n = m.next;
   ok(n && n.waterId === 'sporewood' && n.shipped === false && JSON.stringify(Object.keys(n.seals)) === JSON.stringify(['map', 'gear', 'catch']), 'next: {waterId, shipped: false, seals: {map, gear, catch}} (M1.md §3.8): Sporewood, past the last shipped water', n);
-  ok(n.seals.map.held === false && n.seals.gear.held === false && n.seals.gear.tier === 1 && n.seals.catch.held === false && n.seals.catch.need === 6 && n.seals.catch.have === 0, 'a fresh save: three hollow seals; the gear is Rod T1, the catch the Mossmere\'s list (0/6)', n.seals);
+  // the catch seal's need is the Mossmere's list as the data has it (listCount): 6 in slice 1a's fixture, 11 since step 2's roster fish
+  const listNeed = (await import('../../src/progression-loop.js')).listCount(freshLoopMeta(D), D, 'mossmere').need;
+  ok(n.seals.map.held === false && n.seals.gear.held === false && n.seals.gear.tier === 1 && n.seals.catch.held === false && listNeed > 0 && n.seals.catch.need === listNeed && n.seals.catch.have === 0, `a fresh save: three hollow seals; the gear is Rod T1, the catch the Mossmere's list (0/${listNeed})`, n.seals);
   const meta = freshLoopMeta(D); meta.loop.tackle.rod = 1;
   for (const id of U.journalModel(meta, D, 'mossmere', { listFor: (await import('../../src/progression-loop.js')).listFor }).list.map((x) => x.id)) meta.journal = { ...meta.journal, [id]: { caught: 1 } };
   const s2 = U.chartNext(meta, D).seals;
