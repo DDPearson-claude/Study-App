@@ -1037,7 +1037,7 @@ export function createLoopView(K) {
     card.dataset.item = c.id;
     card.dataset.place = c.placeId || '';
     const sp = spOf(D(), c.fish);
-    const A = mapArtSizes(D(), sp);
+    const A = mapArtSizes(D(), sp, K.vw < 700 ? { w: 132, h: 66 } : {});
     const art = h('span', 'gw-map-art');
     art.setAttribute('aria-hidden', 'true');
     const wick = h('span', 'gw-map-wick', wickPortrait(D().CHARACTER_BY_ID?.[L('wick') || 'wick']?.look || {}, { loop: true, uid: `mw${c.placeId}` }));
@@ -1050,8 +1050,7 @@ export function createLoopView(K) {
     if (c.star) name.innerHTML = '<i class="gw-map-star" aria-hidden="true">★</i>';
     name.appendChild(document.createTextNode(c.fishName || ''));
     card.appendChild(name);
-    const hrs = h('span', 'gw-map-hours', `<i class="gw-cat-glyph" aria-hidden="true">${icon(`kind_${c.kind}`)}</i>${arr(c.hours).map((g) => `<i class="gw-cat-glyph gw-cat-hr" aria-hidden="true">${icon(g)}</i>`).join('')}`);
-    card.appendChild(hrs);
+    if (arr(c.hours).length) card.appendChild(h('span', 'gw-map-hours', arr(c.hours).map((g) => `<i class="gw-cat-glyph gw-cat-hr" aria-hidden="true">${icon(g)}</i>`).join('')));
     const line = h('span', 'gw-shelf-line');
     line.textContent = c.line;
     card.appendChild(line);
@@ -1218,7 +1217,7 @@ export function createLoopView(K) {
     const glyph = `<span class="gw-chart-kind" aria-hidden="true">${icon(`kind_${r.kind}`)}</span>`;
     if (r.owned) {
       b.setAttribute('aria-pressed', String(chosen));
-      b.innerHTML = `${glyph}<span class="gw-chart-pname">${ORN.hookL}<b></b>${ORN.hookR}</span>${r.giantLanded ? '<i class="gw-chart-star" aria-hidden="true">★</i>' : ''}<span class="gw-chart-best"></span>`;
+      b.innerHTML = `${glyph}<span class="gw-chart-pname"><b></b></span>${r.giantLanded ? '<i class="gw-chart-star" aria-hidden="true">★</i>' : ''}<span class="gw-chart-best"></span>`;
       b.querySelector('b').textContent = r.name || r.id;
       b.setAttribute('aria-label', r.name || r.id);
       const best = b.querySelector('.gw-chart-best');
@@ -1268,7 +1267,7 @@ export function createLoopView(K) {
     b.setAttribute('aria-label', bm.name);
     b.setAttribute('aria-pressed', String(bm.fitted));
     if (empty) b.setAttribute('aria-disabled', 'true');
-    b.innerHTML = `<span class="gw-bait-cradle" aria-hidden="true"></span>${empty ? '' : `<span class="gw-bait-ball" aria-hidden="true">${icon('mossball')}</span><b class="gw-bait-n">${bm.count}</b>`}`;
+    b.innerHTML = `<span class="gw-bait-cradle" aria-hidden="true"></span><span class="gw-bait-ball" aria-hidden="true">${icon('mossball')}</span>${empty ? '' : `<b class="gw-bait-n">${bm.count}</b>`}`;
     b.addEventListener('click', (e) => {
       e.stopPropagation();
       if (empty) { K.sfx?.('denied', { volume: 0.4 }); return; }
@@ -1302,7 +1301,11 @@ export function createLoopView(K) {
     TIP.since = 0; TIP.firstBite = false; dropTip('castEl'); dropTip('strikeEl');
     if (!p.continued && onTrip() && num(run()?.evening, 1) >= 2) {
       const line = L('sayOnce', 'sailOut');
-      if (line) setTimeout(() => { if (ctx.flow === 'playing' && onTrip()) murkToast(line); }, 2200);
+      if (line) {
+        // (after any lift: Murk's line never speaks over a place's title card)
+        const say = (n = 0) => { if (ctx.flow !== 'playing' || !onTrip()) return; if (G('lifting') && n < 40) { setTimeout(() => say(n + 1), 500); return; } murkToast(line); };
+        setTimeout(() => say(), 2200);
+      }
     }
   });
   on('fish:action', (p) => {
@@ -1378,6 +1381,8 @@ export function createLoopView(K) {
     // the first trip's two words
     const fs = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : 'idle';
     TIP.since += d;
+    // (M1 step 3a: a place's lift holds the evening still: the tip's clock waits for it, as it waits for the glide)
+    if (G('lifting')) TIP.since = 0;
     if (castTipDue({ evening: num(run()?.evening, 0), seen: seenTip('fe_cast'), state: fs, since: TIP.since, after: num(D().LOOP?.tutorial?.castTipAfter, 1.5), shown: !!TIP.castEl })
       && !K.hasBlocking()) {
       const text = D().FIRST_EVENING?.tips?.fe_cast;

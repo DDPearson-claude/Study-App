@@ -385,10 +385,10 @@ function drawEel(g, col, U, sil, rng, m) {
  *  eye, lit lavender (ROSTER §3.1: ink back, stone belly). */
 function drawLamprey(g, col, U, sil, rng, m) {
   const N = 60, pts = [], top = [], bot = [];
-  const A = 0.05, k = 2.8;
+  const A = 0.075, k = 2.6;
   for (let i = 0; i <= N; i++) {
     const u = i / N, x = 1.02 - u * 2.08;
-    const y = A * Math.sin(k * (1 - u) * Math.PI * 0.62 + 0.9) * (0.3 + u);
+    const y = A * Math.sin(k * (1 - u) * Math.PI * 0.62 + 0.9) * (0.25 + u);
     const dy = A * Math.cos(k * (1 - u) * Math.PI * 0.62 + 0.9) * k * Math.PI * 0.62 * -1 / 2.08;
     const nl = Math.hypot(1, dy); const nx = -dy / nl, ny = 1 / nl;
     const h = 0.1 * Math.pow(Math.sin(Math.PI * Math.min(1, (u * 0.9 + 0.1))), 0.3) * (1 - u * 0.7) + 0.01;
@@ -397,16 +397,17 @@ function drawLamprey(g, col, U, sil, rng, m) {
   const body = new Path2D(); smoothPath(body, [...top, ...bot.reverse()], true);
   // the fins: two low lobes on the back's rear half running into the tail's fringe
   const fin = new Path2D(); const ft = [], fb = [];
-  for (let i = 30; i <= N; i++) { const t = top[i], b = bot[N - i]; const w = (i < 40 ? 0.03 : i < 44 ? 0.012 : 0.038) + 0.006 * Math.sin(i * 1.3); ft.push([t[0], t[1] - w]); fb.push([b[0], b[1] + (i > 48 ? w * 0.8 : 0.004)]); }
+  for (let i = 28; i <= N; i++) { const t = top[i], b = bot[N - i]; const w = (i < 38 ? 0.05 * Math.sin(Math.PI * (i - 28) / 10) : i < 42 ? 0.014 : 0.055 * (0.6 + 0.4 * Math.sin(Math.PI * (i - 42) / 18))) + 0.006; ft.push([t[0], t[1] - w]); fb.push([b[0], b[1] + (i > 47 ? w * 0.85 : 0.004)]); }
   smoothPath(fin, [...ft, ...fb.reverse()], true);
   finFill(g, fin, col, U, sil, 0.6);
   bodyShade(g, body, col, [-1.06, 1.02, -0.12, 0.12], U, sil);
   rimLight(g, body, U, sil); outline(g, body, U, sil);
   const hx = pts[0][0], hy = pts[0][1];
+  // the oral disc: a round lip at the head (part of its shape: the hatch shows it), its rows of small teeth amber on the loop's model
+  const disc = new Path2D(); disc.ellipse(hx + 0.012, hy + 0.012, 0.05, 0.085, 0, 0, 7);
+  bodyShade(g, disc, { ...col, body: mix(col.body, '#000000', 0.35) }, [hx - 0.05, hx + 0.07, hy - 0.08, hy + 0.1], U, sil);
+  outline(g, disc, U, sil, 1.6);
   if (!sil) {
-    // the oral disc: a round lip at the head with its rows of small teeth (amber on the loop's model)
-    g.fillStyle = mix(col.body, '#000000', 0.35); g.beginPath(); g.ellipse(hx + 0.01, hy + 0.012, 0.045, 0.075, 0, 0, 7); g.fill();
-    g.strokeStyle = INK; g.lineWidth = 1.5 * U; g.stroke();
     g.fillStyle = m.teeth === 'amber' ? 'rgba(232,180,98,.95)' : '#e9e2cf';
     for (let i = 0; i < 9; i++) { const a = -1.2 + (i / 8) * 2.4, r = 0.032; g.beginPath(); g.arc(hx + 0.012 + Math.cos(a) * r * 0.55, hy + 0.012 + Math.sin(a) * r * 1.6, 0.007, 0, 7); g.fill(); }
     // seven gill holes in a row behind the eye, lit lavender
@@ -676,9 +677,10 @@ function paintHatch(off, species, pad, dpr) {
         if (e <= (HATCH.edge * U) / 2) a = Math.max(0, Math.min(1, (HATCH.edge * U) / 2 - e + 0.5));
         else if (e <= (HATCH.halo * U) / 2) a = HATCH.haloInk;
       }
-      if (a <= 0) continue;
+      const A8 = Math.round(255 * HATCH.ink * Math.min(1, a));
+      if (A8 < 10) continue;   // (a whisper of a line's antialias carries no colour worth the name: left blank)
       const j = i * 4;
-      o[j] = r; o[j + 1] = gg; o[j + 2] = b; o[j + 3] = Math.round(255 * HATCH.ink * Math.min(1, a));
+      o[j] = r; o[j + 1] = gg; o[j + 2] = b; o[j + 3] = A8;
     }
   }
   g.clearRect(0, 0, W, H);
@@ -726,7 +728,9 @@ export function hatchProbe(species, w = 116, h = 62) {
     if (!a) continue;
     pixels++;
     maxA = Math.max(maxA, a);
-    if (Math.abs(d[i * 4] - R) > 2 || Math.abs(d[i * 4 + 1] - G) > 2 || Math.abs(d[i * 4 + 2] - B) > 2) offHue++;
+    // (a canvas keeps colour premultiplied: a faint pixel reads back a few levels off; the band widens as the alpha falls)
+    const tol = a >= 100 ? 4 : a >= 40 ? 9 : 24;
+    if (Math.abs(d[i * 4] - R) > tol || Math.abs(d[i * 4 + 1] - G) > tol || Math.abs(d[i * 4 + 2] - B) > tol) offHue++;
     if (inside[i] && dIn[i] > HATCH.halo * dpr + 1.5) {
       const t = (x + y + 1) % period, onLine = Math.abs(t - period / 2) / Math.SQRT2 > period / 2 / Math.SQRT2 - (HATCH.line * dpr) / 2 - 1;
       if (!onLine) inner++;

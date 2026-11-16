@@ -2399,7 +2399,7 @@
 .gw-cc-loop .gw-cc-keep em .gw-ico { width: 1.02em; height: 1.02em; color: var(--clam); filter: drop-shadow(0 0 5px var(--clam-glow)); }
 .gw-cc-loop .gw-cc-keep em b { display: inline-block; text-align: left; font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
 .gw-cc-loop .gw-cc-keep:disabled { opacity: .32; }
-.gw-cc-star { font-style: normal; color: var(--gold); margin-right: .3em; text-shadow: 0 0 12px rgba(232, 190, 119, .7); }
+.gw-cc-star { font-style: normal; color: var(--gold); white-space: pre; text-shadow: 0 0 12px rgba(232, 190, 119, .7); }
 .gw-cc-giant .gw-cc-stamp > span { color: var(--gold) !important; border-color: var(--gold) !important; text-shadow: 0 0 10px rgba(232, 190, 119, .45); }
 
 /* ---------------------------------------------------------------- the Journal under the loop: the list first, its notches, a rule */
@@ -2506,7 +2506,7 @@
 .gw-loop-on .gw-chart-row--pick { cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 40px; }
 .gw-loop-on .gw-chart-row--pick:focus-visible { outline: 1.5px dashed var(--ink-line); outline-offset: 2px; }
 .gw-loop-on .gw-chart-row--pick:not(.gw-on) .gw-chart-name b { color: var(--ink-dim); text-shadow: var(--ink-shadow); }
-.gw-loop-on .gw-chart-book { flex: none; width: 48px; height: 48px; margin-left: -8px; display: inline-flex; align-items: center; justify-content: center; border: none; background: none;
+.gw-loop-on .gw-chart-book { flex: none; width: 48px; height: 48px; margin-left: 10px; display: inline-flex; align-items: center; justify-content: center; border: none; background: none;
   color: var(--ink-dim); cursor: pointer; border-radius: 50%; -webkit-tap-highlight-color: transparent; transition: color .25s, transform .3s var(--ease-ink); }
 .gw-loop-on .gw-chart-book .gw-ico { width: 30px; height: 30px; filter: drop-shadow(0 1px 2px #000); }
 .gw-loop-on .gw-chart-book:hover, .gw-loop-on .gw-chart-book:focus-visible { color: var(--ink-hi); transform: translateY(-1px); outline: none; }
@@ -2524,16 +2524,17 @@
 .gw-loop-on .gw-chart-kind { display: inline-flex; color: var(--ink-dim); }
 .gw-loop-on .gw-chart-kind .gw-ico { width: 21px; height: 21px; filter: drop-shadow(0 1px 2px #000); }
 .gw-loop-on .gw-chart-pname { position: relative; display: inline-flex; align-items: center; }
-.gw-loop-on .gw-chart-pname b { font-weight: 400; text-shadow: var(--ink-shadow); }
+.gw-loop-on .gw-chart-pname b { font-weight: 400; text-shadow: var(--ink-shadow); white-space: nowrap; }
 .gw-loop-on .gw-chart-place.gw-owned:not(.gw-on) .gw-chart-pname b { color: var(--ink-dim); }
-.gw-loop-on .gw-chart-place.gw-on .gw-hk { opacity: 1; }
-.gw-loop-on .gw-chart-place.gw-on .gw-hk path { stroke-dashoffset: 0; }
-.gw-loop-on .gw-chart-place.gw-on .gw-hk circle { opacity: 1; }
+.gw-loop-on .gw-chart-pname::after { content: ''; position: absolute; left: -4%; right: -4%; bottom: -7px; height: 9px; background: currentColor; opacity: 0; clip-path: inset(0 50%);
+  -webkit-mask: var(--orn-brush) center / 100% 100% no-repeat; mask: var(--orn-brush) center / 100% 100% no-repeat; transition: opacity .3s, clip-path .55s var(--ease-ink); }
+.gw-loop-on .gw-chart-place.gw-on .gw-chart-pname::after { opacity: .85; clip-path: inset(0); }
+.gw-loop-on .gw-chart-place.gw-on .gw-chart-pname b { color: var(--ink-hi); text-shadow: 0 0 14px var(--glow), var(--ink-shadow); }
 .gw-loop-on .gw-chart-place.gw-on .gw-chart-kind { color: var(--ink); }
 .gw-loop-on .gw-chart-star { font-style: normal; color: var(--gold); text-shadow: 0 0 10px rgba(232, 190, 119, .7); margin-left: -4px; }
 .gw-loop-on .gw-chart-best { display: inline-flex; align-items: center; gap: 4px; text-transform: none; letter-spacing: 0; }
 .gw-loop-on .gw-chart-bestfish { width: 46px; height: 24px; opacity: .82; }
-.gw-loop-on .gw-chart-bestw { font: italic 400 16px/1 var(--f-body); color: var(--ink-faint); }
+.gw-loop-on .gw-chart-bestw { font: italic 400 16px/1 var(--f-body); color: var(--ink-faint); white-space: nowrap; }
 .gw-loop-on .gw-chart-place.gw-priced .gw-chart-kind { color: #c8c2f0; opacity: .9; }
 .gw-loop-on .gw-chart-place.gw-priced .gw-price { font: 500 19px/1 var(--f-body); color: var(--clam); text-shadow: 0 1px 2px #000; }
 .gw-loop-on .gw-chart-place.gw-priced .gw-price .gw-ico { color: var(--clam); width: 19px; height: 19px; }
@@ -2551,7 +2552,9 @@
 .gw-loop-on .gw-bait-slot.gw-fitted .gw-bait-ball { color: #f3d9a6; transform: translateY(-2px); }
 .gw-loop-on .gw-bait-slot.gw-fitted .gw-bait-ball .gw-ico { filter: drop-shadow(0 0 7px rgba(236, 198, 129, .55)) drop-shadow(0 1px 2px #000); }
 .gw-loop-on .gw-bait-slot.gw-fitted .gw-bait-cradle { opacity: .95; }
-.gw-loop-on .gw-bait-slot.gw-empty { cursor: default; opacity: .55; }
+.gw-loop-on .gw-bait-slot.gw-empty { cursor: default; }
+.gw-loop-on .gw-bait-slot.gw-empty .gw-bait-ball { opacity: .26; }
+.gw-loop-on .gw-bait-slot.gw-empty .gw-bait-cradle { opacity: .4; }
 .gw-loop-on .gw-bait-slot:focus-visible { outline: 1.5px dashed var(--ink-line); outline-offset: 0; border-radius: 12px; }
 .gw-loop-on .gw-p-chart .gw-pf { display: flex; align-items: center; justify-content: center; }
 /* the shelf's cards (SPEC §8.4): a map card draws its fish life-size beside the Wick; the bait's count; the sealed card */
@@ -2590,7 +2593,8 @@
 .gw-loop-on .gw-key-tick { stroke: #f3d9a6; }
 .gw-loop-on .gw-seal-n { display: block; margin-top: 1px; font: 500 15px/1 var(--f-body); color: var(--ink-dim); text-shadow: var(--ink-shadow); }
 /* the catch seal's press at home (T144, PLAN CHOICE 12): Murk's line with the seal stamped beside it, once */
-.gw-loop-on .gw-jetty-press { display: flex; flex-direction: column; align-items: center; margin: 0 auto 6px; color: var(--ink); }
+.gw-loop-on .gw-jetty-say:has(.gw-jetty-press) { flex-direction: column; align-items: center; }
+.gw-loop-on .gw-jetty-press { display: flex; flex-direction: column; align-items: center; margin: 0 0 2px; color: var(--ink); }
 .gw-loop-on .gw-jetty-press .gw-key { width: 76px; height: 76px; }
 .gw-loop-on .gw-jetty-press .gw-seal-n { font-size: 18px; color: var(--ink); }
 .gw-loop-on .gw-jetty-press.gw-press .gw-key { animation: gwSealPress .62s cubic-bezier(.2, .8, .3, 1.15) .3s both; }
@@ -2615,8 +2619,9 @@
 /* the catalogue (SPEC §8.8): the head stays, the list's twelve notched, the rule, the places' groups, Odds › at the foot */
 .gw-loop-on .gw-p-catalogue .gw-pc { display: flex; flex-direction: column; min-height: 0; }
 .gw-loop-on .gw-cat-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(174, 172, 208, .26) transparent; padding: 0 4px 10px; }
-.gw-loop-on .gw-cat-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 4px 18px; flex-wrap: wrap; padding: 4px 10px 8px;
-  background: linear-gradient(180deg, rgba(var(--veil-rgb), .96) 70%, rgba(var(--veil-rgb), 0)); }
+.gw-loop-on .gw-cat-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 4px 18px; flex-wrap: wrap; padding: 4px 10px 12px; }
+.gw-loop-on .gw-cat-head::before { content: ''; position: absolute; inset: -6px -10% -4px; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 50% 60% at 50% 40%, rgba(var(--veil-rgb), .97), rgba(var(--veil-rgb), .9) 62%, rgba(var(--veil-rgb), 0) 100%); }
 .gw-loop-on .gw-cat-water { font: 400 24px/1.1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); text-shadow: var(--ink-shadow); }
 .gw-loop-on .gw-cat-count { font: 500 21px/1 var(--f-body); color: var(--ink-dim); }
 .gw-loop-on .gw-cat-seals { display: inline-flex; margin-left: 10px; }
@@ -2653,29 +2658,51 @@
 .gw-loop-on .gw-tab--giants { min-width: 64px; }
 .gw-loop-on .gw-tab--giants .gw-ico { width: 22px; height: 22px; color: var(--gold); }
 /* the enlarged silhouette: drawn large in place, with its glyphs; no word */
-.gw-loop-on .gw-cat-big { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
-  background: radial-gradient(ellipse 60% 56% at 50% 48%, rgba(var(--veil-rgb), .96), rgba(var(--veil-rgb), .86) 70%, rgba(var(--veil-rgb), .6)); animation: gwFade .3s ease both; }
+.gw-loop-on .gw-cat-big { position: absolute; inset: -40px -60px; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(var(--veil-rgb), .98), rgba(var(--veil-rgb), .95) 66%, rgba(var(--veil-rgb), 0) 100%); animation: gwFade .3s ease both; }
 .gw-loop-on .gw-cat-big-art { display: flex; filter: drop-shadow(0 0 18px rgba(160, 150, 240, .18)); }
 .gw-loop-on .gw-cat-big .gw-cat-glyphs { gap: 8px; }
 .gw-loop-on .gw-cat-big .gw-cat-glyphs .gw-ico { width: 24px; height: 24px; }
 /* the giants' page: the three, larger, each in a gold frame once landed, its best weight under its name */
-.gw-loop-on .gw-cat-giants { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 26px; padding: 18px 6px; }
+.gw-loop-on .gw-cat-giants { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; padding: 14px 4px; }
 .gw-loop-on .gw-cat-gcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 10px 14px; border: none; background: none; cursor: pointer; color: var(--ink-dim);
   -webkit-tap-highlight-color: transparent; transition: transform .35s var(--ease-ink); }
 .gw-loop-on .gw-cat-gcard:hover, .gw-loop-on .gw-cat-gcard:focus-visible { transform: translateY(-2px); outline: none; }
 .gw-loop-on .gw-cat-gframe { position: relative; display: flex; padding: 10px 14px; }
-.gw-loop-on .gw-cat-gcard.gw-caught .gw-cat-gframe::before { content: ''; position: absolute; inset: 0; border-radius: 46% / 40%; pointer-events: none;
-  box-shadow: inset 0 0 0 1.3px rgba(232, 190, 119, .7), 0 0 16px rgba(232, 190, 119, .2); }
+.gw-loop-on .gw-cat-gframe { flex-direction: column; align-items: center; }
+.gw-loop-on .gw-cat-gfil { display: block; font-style: normal; color: var(--gold); opacity: .8; filter: drop-shadow(0 0 6px rgba(232, 190, 119, .35)); line-height: 0; }
+.gw-loop-on .gw-cat-gfil .gw-orn { width: 170px; height: auto; }
+.gw-loop-on .gw-cat-gfil--top { margin-bottom: 4px; }
+.gw-loop-on .gw-cat-gfil--bot { margin-top: 2px; }
+.gw-loop-on .gw-cat-gfil--bot .gw-orn { width: 130px; }
 .gw-loop-on .gw-cat-gframe canvas { display: block; max-width: 100%; height: auto !important; }
 .gw-loop-on .gw-cat-gcard .gw-cat-name { color: #f3dca8; font-size: 16px; }
 .gw-loop-on .gw-cat-gcard.gw-hatched .gw-cat-name { color: var(--ink-dim); }
 .gw-loop-on .gw-cat-gw { font: italic 400 17px/1 var(--f-body); color: var(--ink-faint); }
+@media (min-width: 701px) and (max-height: 640px) {
+  .gw-loop-on .gw-p-catalogue { padding-top: 2px; padding-bottom: 40px; max-height: calc(100vh - 12px); }
+  .gw-loop-on .gw-p-catalogue .gw-ph .gw-pdiv { display: none; }
+  .gw-loop-on .gw-p-catalogue .gw-ph h2 { font-size: 26px; }
+  .gw-loop-on .gw-p-catalogue .gw-tab { min-height: 44px; padding-bottom: 6px; }
+  .gw-loop-on .gw-p-catalogue .gw-pc { margin-top: 4px; }
+  .gw-loop-on .gw-p-catalogue .gw-pf { margin-top: 2px; }
+  .gw-loop-on .gw-p-catalogue .gw-pf .gw-btn { min-height: 44px; }
+  .gw-loop-on .gw-cat-head { padding-bottom: 4px; }
+}
 @media (max-width: 700px) {
   /* the hold row's wrap on a phone: two rows past six cells (Tallow's seven: four and three), beside the right cluster */
   .gw-hud.gw-loop .gw-hold.gw-hold--wrap { flex-wrap: wrap; width: 196px; row-gap: 0; }
   .gw-loop-on .gw-p-chart--3a { padding: 8px 10px 46px; }
   .gw-loop-on .gw-chart-places { gap: 0 4px; }
-  .gw-loop-on .gw-chart-place { padding: 4px 8px; font-size: 16px; }
+  .gw-loop-on .gw-chart-place { padding: 4px 6px; font-size: 15px; letter-spacing: .06em; gap: 6px; }
+  .gw-loop-on .gw-chart-bestfish { width: 38px; height: 20px; }
+  .gw-loop-on .gw-p-catalogue .gw-tab--giants .gw-ico { display: block; }
+  /* the map card on a phone: its drawing (the fish beside the Wick) beside its words; the sealed card a column */
+  .gw-loop-on .gw-shelf-card--map { grid-template-columns: 136px minmax(0, 1fr); grid-template-rows: auto auto auto auto; gap: 0 10px; width: 100%; }
+  .gw-loop-on .gw-shelf-card--map .gw-map-art { grid-row: 1 / span 4; width: 136px; height: 70px; align-self: center; }
+  .gw-loop-on .gw-shelf-card--map .gw-map-hours { margin: 0; }
+  .gw-loop-on .gw-shelf-card--sealed { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; padding-left: 18px; }
+  .gw-loop-on .gw-shelf-soon { font-size: 22px; }
   .gw-loop-on .gw-bait-slot { margin-right: 10px; }
   .gw-loop-on .gw-p-chart--3a .gw-pf { flex-direction: row; }
   .gw-loop-on .gw-cat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2px; }

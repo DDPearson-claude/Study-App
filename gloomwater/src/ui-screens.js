@@ -1670,6 +1670,7 @@ export function createScreens(K) {
     if (c.listed) b.insertAdjacentHTML('beforeend', `<i class="gw-jr-notch${c.caught ? ' gw-on' : ''}" aria-hidden="true"></i>`);
     b.addEventListener('click', (e) => {
       e.stopPropagation(); sfx('ui_click');
+      s.pageScroll = b.closest('.gw-cat-scroll')?.scrollTop ?? 0;
       if (c.caught) { s.view = 'species'; s.sel = c.id; s.hl = null; s.big = null; }
       else s.big = { id: c.id, glyphs: c.glyphs.slice(), star: c.star };
       entry.render();
@@ -1695,7 +1696,7 @@ export function createScreens(K) {
     const tabList = zones.map((zid) => { const v = catalogueView(cat(zid), D()); return { id: zid, label: zoneName(zid).replace(/^The /, ''), badge: v ? v.head.count : '' }; });
     tabList.push({ id: 'giants', label: '', icon: 'star' });
     const curTab = s.tab === 'giants' ? 'giants' : s.zone;
-    const tb = tabs(tabList, curTab, (id) => { if (id === 'giants') s.tab = 'giants'; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; entry.render(); });
+    const tb = tabs(tabList, curTab, (id) => { if (id === 'giants') s.tab = 'giants'; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; s.pageScroll = null; entry.render(); });
     const gt = [...tb.querySelectorAll('.gw-tab')].pop();
     if (gt) { gt.classList.add('gw-tab--giants'); gt.setAttribute('aria-label', TLs.tabs?.giants || 'Giants'); }
     pn.insertBefore(tb, content);
@@ -1705,7 +1706,7 @@ export function createScreens(K) {
       const sp = K.speciesData(s.sel);
       const caughtOf = (id) => !!J[id] && (num(J[id].caught) > 0 || !(J[id].seen && !num(J[id].caught)));
       const glimpsedOf = (id) => !!J[id] && !!J[id].seen && !(num(J[id].caught) > 0);
-      const page = h('div', 'gw-cat-species gw-scroll');
+      const page = h('div', 'gw-cat-species');
       page.appendChild(btn(esc(backWord), { cls: 'gw-btn--sm gw-cat-back', icon: 'close', hooks: false, onClick: () => catalogueBack(entry) }));
       page.appendChild(speciesDetail(sp, s, { J, caughtOf, glimpsedOf, JM: null, listed: new Set(), loopJ: true }));
       content.appendChild(page);
@@ -1735,7 +1736,8 @@ export function createScreens(K) {
   }
   function renderCataloguePage(entry, content, v) {
     const s = entry.state;
-    const scroll = h('div', 'gw-cat-scroll gw-scroll');
+    const scroll = h('div', 'gw-cat-scroll');
+    scroll.addEventListener('scroll', () => { if (!s.big && s.view === 'page') s.pageScroll = scroll.scrollTop; }, { passive: true });
     if (!v) { content.appendChild(scroll); return; }
     const head = h('div', 'gw-cat-head');
     head.innerHTML = `<b class="gw-cat-water"></b><span class="gw-cat-count"></span><span class="gw-cat-seals"></span>`;
@@ -1771,15 +1773,17 @@ export function createScreens(K) {
       scroll.appendChild(odds);
     }
     content.appendChild(scroll);
+    // (the page's place is kept across a species page or an enlarged silhouette: Back returns to it)
+    if (Number.isFinite(s.pageScroll)) { const y = s.pageScroll; scroll.scrollTop = y; requestAnimationFrame(() => { scroll.scrollTop = y; }); }
     if (s.section === 'list') { s.section = null; requestAnimationFrame(() => { try { listEl.scrollIntoView({ block: 'start' }); } catch { /* ignore */ } }); }
   }
   /** The giants' page (the ★ tab; PLAN CHOICE 11): the owned waters' giants and legend, hatched until landed, then each gold-framed ink
    *  drawing with its name and its best weight; a tap opens a landed one's page, a missing one's silhouette. */
   function renderGiants(entry, content, zones) {
     const s = entry.state;
-    const scroll = h('div', 'gw-cat-scroll gw-scroll');
+    const scroll = h('div', 'gw-cat-scroll gw-cat-scroll--giants');
     const grid = h('div', 'gw-cat-giants');
-    const phone = K.vw < 700, w = phone ? 150 : 220, hh = phone ? 80 : 118;
+    const phone = K.vw < 700, w = phone ? 150 : 196, hh = phone ? 80 : 104;
     for (const g of giantsView(meta(), D(), zones)) {
       const sp = K.speciesData(g.id);
       const b = h('button', `gw-cat-gcard${g.caught ? ' gw-caught' : ' gw-hatched'}${g.legend ? ' gw-cat-legend' : ''}`);
@@ -1789,12 +1793,17 @@ export function createScreens(K) {
       const cv = h('canvas', 'gw-fishart');
       cv.style.width = `${w}px`; cv.style.height = `${hh}px`;
       try { if (g.caught) drawFishInk(cv, sp, { w, h: hh, pad: 0.07, gain: 6.2, color: '#f1d9a4' }); else drawFish(cv, sp, { w, h: hh, hatch: true }); } catch (e) { K.report('giants art', e); }
-      const art = h('span', 'gw-cat-gframe'); art.appendChild(cv); b.appendChild(art);
+      const art = h('span', 'gw-cat-gframe');
+      if (g.caught) art.insertAdjacentHTML('beforeend', `<i class="gw-cat-gfil gw-cat-gfil--top" aria-hidden="true">${ORN.crest}</i>`);
+      art.appendChild(cv);
+      if (g.caught) art.insertAdjacentHTML('beforeend', `<i class="gw-cat-gfil gw-cat-gfil--bot" aria-hidden="true">${ORN.flourish}</i>`);
+      b.appendChild(art);
       b.insertAdjacentHTML('beforeend', `<span class="gw-cat-name"><i class="gw-cat-star" aria-hidden="true">★</i><span></span></span>${g.weight ? '<small class="gw-cat-gw"></small>' : ''}`);
       b.querySelector('.gw-cat-name > span').textContent = g.name;
       if (g.weight) b.querySelector('.gw-cat-gw').textContent = g.weight;
       b.addEventListener('click', (e) => {
         e.stopPropagation(); sfx('ui_click');
+        s.pageScroll = null;
         if (g.caught) { s.view = 'species'; s.sel = g.id; s.big = null; }
         else { const ce = catalogueView(safe(() => catalogueFor(meta(), D(), sp?.zone || s.zone), null), D()); const card = ce ? [...ce.list, ...ce.groups.flatMap((q) => q.cards)].find((x) => x.id === g.id) : null; s.big = { id: g.id, glyphs: card?.glyphs || [], star: true }; }
         entry.render();
