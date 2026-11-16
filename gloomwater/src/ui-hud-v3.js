@@ -41,6 +41,10 @@ export function createHudV3(K, el, R, w) {
   const { setText, setStyle, setVar, toggle, restartAnim } = w;
   const fishV = () => { const f = ctx.fishing; return f && !f.isStub ? f : null; };
   const settings = () => K.settings();
+  /** The Full Hold's trip (slice-1a): the water carries SPEC §8.1's words only. The bite tell keeps its glyph and its class
+   *  estimate (decision 62), the play its class stamp; the tell's word, the strike word, the stamp's "by the look of it" and the
+   *  hurry word go; the favour list opens on a press only (a hover after the aim opened it over the Wick). */
+  const trip = () => D().LOOP_ENABLED === true && run()?.outing === 'trip';
 
   // ------------------------------------------------------------------ elements
   const wf = h('div', 'gw-wf', `<span class="gw-wf-ico">${icon('wellfed')}</span><span class="gw-wf-t">Well-fed</span>`);
@@ -141,7 +145,7 @@ export function createHudV3(K, el, R, w) {
   fav.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { favHover = false; paintFavOpen(); } });
   fav.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { favHover = true; paintFavOpen(); } });
   fav.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
-  function paintFavOpen() { toggle(fav, 'fav', 'gw-open', favOpen || favHover || settings().favourDetails === true); }
+  function paintFavOpen() { toggle(fav, 'fav', 'gw-open', favOpen || (favHover && !trip()) || settings().favourDetails === true); }
 
   // ------------------------------------------------------------------ events
   const on = (evt, fn) => { try { ctx.bus.on(evt, (p) => { try { if (live) fn(p || {}); } catch (e) { K.report(`hudv3 ${evt}`, e); } }); } catch { /* bus optional */ } };
@@ -408,7 +412,7 @@ export function createHudV3(K, el, R, w) {
       const n = tellCount(id);
       const ci = V.classInfo(D(), T.cls);
       const legend = !!v.legendary;   // legends are exempt (named by their pool and bait); consumers key on `legendary`, never on rarity
-      tellW.innerHTML = `<span>${esc(T.short)}</span>${n < 3 && ci && !legend ? `<em class="gw-cls-${ci.id}">${esc(ci.label)}?</em>` : ''}`;
+      tellW.innerHTML = `${trip() ? '' : `<span>${esc(T.short)}</span>`}${n < 3 && ci && !legend ? `<em class="gw-cls-${ci.id}">${esc(ci.label)}?</em>` : ''}`;
       if (n < 3) markSeen(`ui_tell_${id}_${n + 1}`);
       restartAnim(tell, 'gw-pop');
     }
@@ -437,10 +441,10 @@ export function createHudV3(K, el, R, w) {
       clsShown = ckey;
       if (ckey) {
         const ci = V.classInfo(D(), c, !!v.ancient) || { id: c, label: c, seal: null };
-        const words = String(D().AUTOFISH?.text?.estimate || 'by the look of it: {class}').split(/:\s*\{class\}/)[0];
+        const words = trip() ? '' : String(D().AUTOFISH?.text?.estimate || 'by the look of it: {class}').split(/:\s*\{class\}/)[0];
         estEl.className = `gw-play-est gw-on gw-cls-${c}${ci.ancient ? ' gw-ancient' : ''}`;
-        estEl.innerHTML = `<svg class="gw-pe-wash" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M16 14 C90 4 210 4 286 14 C296 30 294 46 282 56 C200 66 100 66 18 56 C6 44 6 28 16 14 Z"/></svg>${ci.seal ? sealSvg(ci.seal, { ancient: ci.ancient }) : ''}<span class="gw-pe-k">${esc(words)}</span><b>${esc(ci.label)}</b>`;
-        estEl.setAttribute('aria-label', `${words}: ${ci.label}`);
+        estEl.innerHTML = `<svg class="gw-pe-wash" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M16 14 C90 4 210 4 286 14 C296 30 294 46 282 56 C200 66 100 66 18 56 C6 44 6 28 16 14 Z"/></svg>${ci.seal ? sealSvg(ci.seal, { ancient: ci.ancient }) : ''}${words ? `<span class="gw-pe-k">${esc(words)}</span>` : ''}<b>${esc(ci.label)}</b>`;
+        estEl.setAttribute('aria-label', words ? `${words}: ${ci.label}` : ci.label);
         restartAnim(estEl, 'gw-stamp-in');
       } else { estEl.className = 'gw-play-est'; estEl.innerHTML = ''; estEl.removeAttribute('aria-label'); }
     }
@@ -483,7 +487,7 @@ export function createHudV3(K, el, R, w) {
     const m = K.meta();
     m.seenTips = m.seenTips || {};
     const n = num(m.seenTips.ui_struck, 0);
-    const word = AF.strikeWord(D(), grade, n);
+    const word = trip() ? null : AF.strikeWord(D(), grade, n);   // (a trip: the ring burst says it, no word)
     if (grade === 'struck' && word) m.seenTips.ui_struck = n + 1;   // "Struck" is printed for the first 20 strikes, then the ring says it
     const W = K.vw, H = K.vh;
     const x = strikeAt.ok ? strikeAt.x : W / 2, y = strikeAt.ok ? strikeAt.y : H * 0.55;

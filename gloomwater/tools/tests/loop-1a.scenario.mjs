@@ -138,7 +138,7 @@ export function wordRules(D) {
   const T = (D && D.TEXT_LOOP) || {};
   for (const [k, v] of Object.entries(T)) if (k !== 'newDescent') walk(v);
   for (const sp of D.SPECIES || []) if (sp && sp.name) exact.add(norm(sp.name));
-  for (const c of D.SIZE_CLASSES || []) if (c && c.label) exact.add(norm(c.label));
+  for (const c of D.SIZE_CLASSES || []) if (c && c.label) { exact.add(norm(c.label)); exact.add(norm(c.label) + '?'); }   // (the bite tell's class estimate, "Keeper?": decision 62)
   exact.add('Ancient');
   for (const z of D.ZONES || []) if (z && z.name) exact.add(norm(z.name));
   for (const c of D.CHARACTERS || []) if (c && c.name) exact.add(norm(c.name));
@@ -539,15 +539,17 @@ export function makeKit(api, { label = 'loop' } = {}) {
   };
   let cdp = null;
   const touch = async (type, x, y) => { cdp = cdp || await page.context().newCDPSession(page); await cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] }); };
-  /** A real press held `sec` of both clocks (game frames stepped meanwhile); `probe` (an expression) is sampled every frame. */
-  K.pressHold = async (x, y, sec, probe = null) => {
+  /** A real press held `sec` of both clocks (game frames stepped meanwhile); `probe` (an expression) is sampled every frame;
+   *  `mid` (async) runs once, while the press is still held, from `midAt` s of it. */
+  K.pressHold = async (x, y, sec, probe = null, { mid = null, midAt = 0 } = {}) => {
     if (phone) await touch('touchStart', x, y); else { await page.mouse.move(x, y); await page.mouse.down(); }
     const w0 = Date.now(), seen = [];
-    let sim = 0;
+    let sim = 0, midDone = !mid;
     while (sim < sec - 1e-6) {
       const r = await g(async ([src]) => { await window.__lp.step(1, 1 / 30); if (!src) return null; try { return new Function('c', 'T', `return (${src})`)(window.__gw, window.__lp); } catch { return null; } }, [probe]);
       if (probe) seen.push(r);
       sim += STEP;
+      if (!midDone && sim >= midAt - 1e-6) { midDone = true; await mid(); }
     }
     while (Date.now() - w0 < sec * 1000) await wait(10);
     const wall = (Date.now() - w0) / 1000;
@@ -593,9 +595,9 @@ export function makeKit(api, { label = 'loop' } = {}) {
     return cd;
   };
   /** A fish caught through the real path (a real press to cast, the bite forced, the strike, the play hurried to its end). */
-  K.realCatch = async (speciesId, z, { what, onBite = null, outcome = 'land', natural = false } = {}) => {
+  K.realCatch = async (speciesId, z, { what, onBite = null, outcome = 'land', natural = false, onCharge = null, onStrike = null, onPlay = null, hold = 0.5 } = {}) => {
     const pt = await K.waterPoint();
-    const pr = await K.pressHold(pt.x, pt.y, 0.5, 'c.fishing.state');
+    const pr = await K.pressHold(pt.x, pt.y, hold, 'c.fishing.state', onCharge ? { mid: onCharge, midAt: Math.min(0.25, hold / 2) } : {});
     const cast = await K.until("c.fishing.state === 'waiting' || c.fishing.state === 'bite'", 8);
     if (!cast.ok) K.note(`${what}: the real press did not cast (${JSON.stringify(pr.seen.slice(-3))}); forceBite casts instead`);
     await g(([sp, z, o, nat]) => {
@@ -610,7 +612,9 @@ export function makeKit(api, { label = 'loop' } = {}) {
     await g(() => window.__gw.debug.fishStrike?.('struck'));
     const reel = await K.until("c.fishing.state === 'reeling' || c.fishing.state === 'landing'", 3);
     K.need(reel.ok, `${what}: the strike hooks it`, reel);
+    if (onStrike) { await K.steps(1); await K.settle(300); await onStrike(); }
     await K.steps(3);
+    if (onPlay) { await g(() => window.__gw.debug.fishPlayTo?.(0.5)); await K.steps(2); await K.settle(300); await onPlay(); }
     await g(() => window.__gw.debug.fishPlayTo?.(0.97));
     return bit;
   };
@@ -997,6 +1001,17 @@ export default async function (api) {
         } else {
           await realCatch(speciesId, z, {
             what,
+            onCharge: async () => {
+              await K.settle(250);
+              const fx = await g(() => { const sc = window.__gw.render?.scene, v = (n) => { const o = sc?.getObjectByName?.(n); return o ? !!o.visible : null; }; return { state: window.__gw.fishing.state, dist: window.__gw.fishing.view?.castDist ?? null, range: v('range-ring'), label: v('reticle-label'), reticle: v('reticle'), arc: v('cast-arc') }; });
+              K.check(fx.state === 'charging', '(the real press charges a cast)', fx);
+              K.check(fx.range === false && fx.label === false, 'the user\'s rule: no range ring round the raft and no band word while a trip\'s cast charges', fx);
+              K.check(!(fx.reticle && fx.dist !== null && fx.dist < 5.5), '… and no reticle while the aim is within 5.5 m of the raft', fx);
+              await K.scan('the water (a cast charging)');
+              await K.shoot('charge');
+            },
+            onStrike: async () => { await K.scan('the water (the strike)'); },
+            onPlay: async () => { await K.scan('the water (the play)'); },
             onBite: async () => {
               const bites = (await K.events()).filter((e) => e.e === 'fishing:bite');
               K.check(bites.length === 1 && typeof bites[0].p?.waterKey === 'string', 'T8: the first real bite of the evening carries its waterKey', bites.map((b) => b.p));
@@ -1004,6 +1019,7 @@ export default async function (api) {
               await K.settle(450);   // (frames held: the bite's window does not run meanwhile)
               K.check(await g((t) => window.__lp.seen(t), strikeTip), 'T68: fe_strike in the first bite\'s window', strikeTip);
               K.check(!(await g((t) => window.__lp.seen(t), castTip)), 'T68: fe_cast is gone once the line is cast');
+              await K.scan('the water (a bite)');
               await K.shoot('first-bite');
             },
           });
