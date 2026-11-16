@@ -4905,10 +4905,12 @@ export const LOOP = {
   // one mooring per water (SPEC §6.5): the Mossmere's is the Jetty, docks[0]; the raft's tie-up at the stern IS docks[dock] (PLAN
   // CHOICE 44's place); hull {x, z, yaw} the Slow Hearth's centre and heading (yaw 0: the bow faces −Z), murk Murk's barge (his
   // facing in the docks' convention), lane the glide in's points before the tie-up (the glide out, reversed), cam the home camera
-  // (pos, look, fov; `portrait` for a screen taller than wide)
+  // (pos, look, fov; `portrait` for a screen taller than wide, its lens keeping its across angle from the aspect `across` on;
+  // `blend` the aspects W / H between which the two ease into each other, a tablet held sideways, a 4:3 or a square window:
+  // homeCamAt)
   mooring: {
     mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
-      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62 } } },
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75 }, blend: [0.85, 1.7] } },
   },
 };
 export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)
@@ -5182,8 +5184,10 @@ export const LOOP_TOW = {
   // on a short line, Murk's barge alongside, all moving as one), eased to rest in `glide` s
   glideIn: { mossmere: { d: 14, line: 3 } },   // (the raft leads on a `line` m tow line ahead of the bow: loop-tow.towLeadPose)
   // the glide in's camera: the mooring's own framing drawn back `pull` times its distance at the dip, dollying in as they arrive
-  // (the portrait pose drawn back 1.9 times, turned 30° west round its look point: its straight line back crosses an island)
-  cam: { pull: 2.2, portrait: { pull: 1.9, turn: -30 } },
+  // (the portrait pose drawn back 1.9 times, turned 30° west round its look point: its straight line back crosses an island; the
+  // landscape's turned 40° west, so Murk's moored barge no longer stands between the lens and the raft leading on its line: east,
+  // the island at (34, 20) blocks the view and the barge's own hull hides the raft)
+  cam: { pull: 2.2, turn: -40, portrait: { pull: 1.9, turn: -30 } },
 };
 LOOP.tow = LOOP_TOW;
 /** The leg's seconds (SPEC §6.5): base + crossing a crossing, at most max; reduced motion its hold. Pure. */
@@ -5343,6 +5347,37 @@ export function loopMooring(waterId, docks = [], B = LOOP.barge, M = LOOP.moorin
     water: waterId, dock: Number(m.dock) || 0, raft: { x: dx, z: dz, yaw: Number(d?.yaw) || 0 }, hull, murk,
     lane: (Array.isArray(m.lane) ? m.lane : []).map((q) => ({ x: Number(q[0]), z: Number(q[1]) })), cam: m.cam || null, circles,
   };
+}
+
+/**
+ * The home camera at a screen's aspect W / H (M1 step 5a; the integration's fix for a tablet held sideways, a 4:3 or a square
+ * window): the mooring's `portrait` pose below `blend[0]`, its landscape pose from `blend[1]`, and between them the two eased into
+ * each other (pos, look and fov together), so the raft, the Wick, the barge and Murk stay in frame at every shape of screen.
+ * pull 0..1 (a tow's glide in): the pose drawn back `pull` times its distance and turned `turn`° round its look point, the tow's
+ * landscape and portrait settings (LOOP.tow.cam) eased by the same weight. → {pos, look, fov, k} (k 0 the portrait pose … 1 the
+ * landscape); null without a pose. Pure: render's homePose and the validator's frame check share it.
+ */
+export function homeCamAt(cam, aspect, { pull = 0, tow = null } = {}) {
+  if (!cam || !Array.isArray(cam.pos) || !Array.isArray(cam.look)) return null;
+  const P = cam.portrait && Array.isArray(cam.portrait.pos) && Array.isArray(cam.portrait.look) ? cam.portrait : null;
+  const [b0, b1] = Array.isArray(cam.blend) ? cam.blend.map(Number) : [0.85, 1.7];
+  const a = Number(aspect), u = !P ? 1 : !(a > b0) ? 0 : a >= b1 ? 1 : (a - b0) / (b1 - b0);
+  const k = u * u * (3 - 2 * u);
+  const mix = (p, q) => p.map((v, i) => Number(q[i]) + (Number(v) - Number(q[i])) * k);
+  const pos = P ? mix(cam.pos, P.pos) : cam.pos.map(Number), look = P ? mix(cam.look, P.look) : cam.look.map(Number);
+  // (the portrait pose's lens on a wider screen keeps its across angle from `P.across` (an aspect) on, so a square window frames the
+  // barge as the phone does instead of widening round it)
+  const pf = P ? Number(P.fov) || 45 : 0, ac = P && Number(P.across) > 0 && a > Number(P.across) ? Number(P.across) : 0;
+  const pfov = ac ? 2 * Math.atan(Math.tan(pf * Math.PI / 360) * ac / a) * 180 / Math.PI : pf;
+  const fov = P ? pfov + ((Number(cam.fov) || 45) - pfov) * k : Number(cam.fov) || 45;
+  const w = Math.min(1, Math.max(0, Number(pull) || 0));
+  if (w > 0) {
+    const TL = tow || {}, TP = TL.portrait || TL, by = (f, d) => (Number(TP[f]) || d) + ((Number(TL[f]) || d) - (Number(TP[f]) || d)) * k;
+    const K = 1 + (Math.max(1, by('pull', 2.2)) - 1) * w, r = (by('turn', 0) * Math.PI / 180) * w;
+    const ox = pos[0] - look[0], oz = pos[2] - look[2];
+    return { pos: [look[0] + (ox * Math.cos(r) - oz * Math.sin(r)) * K, look[1] + (pos[1] - look[1]) * K, look[2] + (ox * Math.sin(r) + oz * Math.cos(r)) * K], look, fov, k };
+  }
+  return { pos, look, fov, k };
 }
 
 // >>> M1 step 5b (lane 5b-home: the barge's side; docs/loop/M1.md §2.5, §2.6, §4 step 5b; SPEC §4.7, §6.3, §6.4, §8.4, §8.6).

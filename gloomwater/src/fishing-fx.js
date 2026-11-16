@@ -746,9 +746,23 @@ void main() {
     float n = n21(q * 1.6 + vec2(seed * 7.0, age * 0.15)) * 0.6 + n21(q * 3.3 - vec2(age * 0.1, seed * 3.0)) * 0.4;
     float m = 1.0 - smoothstep(rc * 0.3, rc * (0.85 + 0.3 * n), d);
     float fresh = exp(-ev * 0.12);
+    if (form > 0.5) {
+      // the haul of a find (form 1; the integration's fix): silt dragged off the bed, a slow murky swirl a shade paler than the
+      // night water and of its own colour, wound tighter at its heart; never gold, never a glint
+      float rs = min(1.5, 0.6 + 0.3 * ev) * (0.75 + 0.35 * L);
+      float ms = 1.0 - smoothstep(rs * 0.25, rs * (0.8 + 0.3 * n), d);
+      float rot = ev * 0.3 + 1.2 / (0.5 + d), cr = cos(rot), sr = sin(rot);
+      vec2 qr = vec2(cr * q.x - sr * q.y, sr * q.x + cr * q.y);
+      float sw = n21(qr * vec2(3.2, 0.8) + vec2(seed * 7.0, 0.0)) * 0.65 + n * 0.35;
+      float haze = ms * smoothstep(0.2, 0.7, sw);
+      light += mix(vec3(0.34, 0.31, 0.27), WATERW, 0.45) * haze * 0.9 * (0.45 + 0.55 * fresh) * uSurf;
+      ink += ms * 0.26 * (0.4 + 0.6 * fresh);
+      inkCol = vec3(0.07, 0.065, 0.055);
+    } else {
     ink += m * (0.16 + 0.22 * n) * (0.4 + 0.6 * fresh);
     inkCol = vec3(0.05, 0.047, 0.04);   // silt, not ink
     light += STAR * lineAA(d - rc * 0.92, 0.02) * smoothstep(0.55, 0.9, n) * 0.14 * fresh * uSurf;
+    }
   } else if (kind < 10.5) {
     // ---- WC-2 stems: a pad knocked from below, a reed stem twitching, in a short run (small rings from a few stems)
     for (int i = 0; i < 3; i++) {

@@ -71,9 +71,12 @@ export function createTowView(K) {
     } catch (e) { S.status = 'failed'; report('decode', e); }
     return S.status;
   }
+  // the sheet decoded ahead in an idle moment only while the opening's tow is still to play (a returning player never sees it again:
+  // no decode, no memory on their boots); open() prepares it lazily in every case
+  const due = () => { try { const d = D(); return typeof d.towOpeningDue === 'function' && d.towOpeningDue(ctx.state?.meta?.loop) === true; } catch { return false; } };
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 3000 }) : (f) => setTimeout(f, 0);
-    setTimeout(() => idle(() => { prepare(); }), 900);
+    setTimeout(() => idle(() => { if (due()) prepare(); }), 900);
   } catch (e) { report('prepare', e); }
 
   // ---- its own few styles (the screen, the line over the sheet, the dip), kept here so the tow is one module

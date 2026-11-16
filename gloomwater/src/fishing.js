@@ -1888,9 +1888,13 @@ export function create(ctx) {
     fx.setShadow(under, px, pz, Math.max(0.05, L * 0.9), F.yaw, (g?.kind === 'pass' ? 0.9 : 0.62) * (pr.phase === 'still' ? 0.7 : 1), wig, 0.22 + 0.3 * thrash);
     const speed = dt > 0 ? Math.hypot(dx, dz) / dt : 0;
     F.wakeT -= dt;
-    if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
+    // (the integration's fix, M1 step 5c: a find hauled in on the Mossmere under the loop drags no foam wake, whose flecks the raft's
+    // lantern lit gold, and throws no rings: it stirs the bed, a slow trail of silt puffs behind it in the water's own dark (siltTrail))
+    const silt = !!S.find && mossLoop();
+    if (silt) { if (F.wakeT <= 0) { F.wakeT = 0.32; siltPuff(px, pz, L); } }
+    else if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
     F.rippleT -= dt;
-    if (!lp && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
+    if (!lp && !silt && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
     // the line, the rod, the reel and the Wick
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);
@@ -3561,7 +3565,19 @@ export function create(ctx) {
   // never a giant. Silhouettes (§6): a few real fish seen in clear shallow water, pre-rolled through the built pre-roll path (S.prerolls,
   // S.prerollSp, S.prerollZ), drawn at their true length. Obeyed tells get the water's answer (§5.3); nothing glows, nothing is gold.
   const mossLoop = () => signsOn() && LOOP() && lakeId() === 'mossmere';
-  const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null });
+  const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null, silt: [] });
+  // the haul of a find on the Mossmere (M1 step 5c; the integration's fix): the snag drags along the bed and the water behind it
+  // clouds with silt, puff after puff (the mud cloud's instance in its silt form, kind 9.1: murky, never gold, never a glint), each blooming and
+  // settling over SILT_LIFE s; none within SILT_KEEP m of the raft (never a disc round it), at most SILT_CAP alive
+  const SILT_LIFE = 4.5, SILT_KEEP = 2.4, SILT_CAP = 12;
+  function siltPuff(x, z, L) {
+    const raft = raftPos();
+    if (!Number.isFinite(x) || !Number.isFinite(z) || Math.hypot(x - raft.x, z - raft.z) < SILT_KEEP + 0.4 * L) return false;
+    const W2 = wc2(), list = W2.silt || (W2.silt = []);
+    list.push({ x, z, t0: S.clock, L: Math.max(0.3, Math.min(1.2, L)), seed: Math.random() });
+    if (list.length > SILT_CAP) list.shift();
+    return true;
+  }
   function wcProbe() {
     const W2 = wc2();
     if (W2.probeW !== ctx.world || !W2.probe) { W2.probeW = ctx.world; W2.probe = WCX.probeOf(ctx.world); }
@@ -4008,6 +4024,7 @@ export function create(ctx) {
     const W2 = wc2();
     for (const f of W2.sights) { S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); }
     W2.sights.length = 0; W2.answers.length = 0; W2.quiet.length = 0; W2.cast = null; W2.hooked = null; W2.next = 3; W2.lamps = null;   // (no draw on the seeded sign RNG off the Mossmere)
+    if (W2.silt) W2.silt.length = 0;
   }
   const SIGHT_PUSH = { x: 0, z: 0, heading: 0, kind: 11, length: 0.3, strength: 0, seed: 0, age: 0, since: 0, radius: 1, toNext: 99, tint: 0xb7b0e8, aspect: 0.2, c: [0, 0, 0, 0], d: [0, 0, 0, 1] };
   const ANSWER_KIND = { rise: 1, splash: 1.1, bow: 12, spray: 3, ruffle: 3.1, fizz: 5, pinprick: 7.1, cloud: 9, stems: 10 };
@@ -4026,6 +4043,16 @@ export function create(ctx) {
       P.c[0] = f.age; P.c[1] = so.x * c - so.z * s; P.c[2] = f.speed; P.c[3] = so.x * s + so.z * c;
       P.d[0] = SI.OUTLINE_ID[f.outline] || 2; P.d[1] = f.depth; P.d[2] = f.sp?.id === 'candlefin_koi' && light === 'dusk' ? 1 : 0; P.d[3] = f.n;
       fx.pushSign(P);
+    }
+    if (W2.silt?.length) {   // the haul of a find: its silt trail (siltPuff), each puff blooming slowly and settling
+      for (let i = W2.silt.length - 1; i >= 0; i--) if (S.clock - W2.silt[i].t0 >= SILT_LIFE) W2.silt.splice(i, 1);
+      for (const m of W2.silt) {
+        const t = S.clock - m.t0;
+        PUSH.x = m.x; PUSH.z = m.z; PUSH.heading = 0; PUSH.kind = ANSWER_KIND.cloud + 0.1; PUSH.length = m.L;   // (the cloud's silt form)
+        PUSH.strength = clamp(t / 0.6, 0, 1) * (1 - smoothstep(SILT_LIFE * 0.45, SILT_LIFE, t)) * 1.2;
+        PUSH.seed = m.seed; PUSH.age = t; PUSH.since = t * 0.7; PUSH.radius = 1.2; PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
+        fx.pushSign(PUSH);
+      }
     }
     for (const a of W2.answers) {
       if (!a.started) continue;
