@@ -434,7 +434,14 @@ void main() {
   else if (kind < 3.5) hs = iC.z + 1.4;
   else if (kind < 4.5) hs = 2.2 + 1.6 * L;
   else if (kind < 5.5) { hs = 2.4; off = vec2(0.0, -1.4); }
-  else { hs = 1.6 + 1.0 * L + 1.4; off = vec2(0.0, -1.0); }
+  else if (kind < 6.5) { hs = 1.6 + 1.0 * L + 1.4; off = vec2(0.0, -1.0); }
+  // WC-2 (WATERCRAFT §5.2, §6.8): pin-pricks, bed gas, the mud cloud, stems, a silhouette (its shadow and a shoal inside), a bow wave
+  else if (kind < 7.5) hs = iC.z + 0.4;
+  else if (kind < 8.5) hs = 1.0;
+  else if (kind < 9.5) hs = 2.4;
+  else if (kind < 10.5) hs = iC.z + 1.2;
+  else if (kind < 11.5) hs = (iD.x > 3.5 && iD.x < 4.5 ? 1.1 + L : (iD.x > 4.5 ? L * 0.8 : L * 0.62) + 0.3) + length(vec2(iC.y, iC.w));
+  else { hs = 1.9 + 0.8 * L; off = vec2(0.0, -0.8); }
   vec2 q = aCorner * hs + off;
   float c = cos(iA.w), s = sin(iA.w);
   // local +y (forward) = world (sin h, cos h); local +x (side) = world (cos h, -sin h)
@@ -446,10 +453,12 @@ void main() {
 const SIGN_FS = /* glsl */`
 uniform float uSurf;       // the surface linework's weight (lower when water paints the sign marks itself)
 uniform float uTime;
+uniform float uWhite;      // WC-2: 1 on the Mossmere under the loop: water-white marks, never gold, orange or lilac (WATERCRAFT §5.7)
 varying vec2 vQ; varying vec4 vB; varying vec4 vC; varying vec4 vD;
 // starlit palette: lavender-white crests, pale gold for a kiss of light, an indigo ink for troughs and backs
-const vec3 STAR = vec3(0.78, 0.76, 0.95);
-const vec3 GOLD = vec3(0.93, 0.80, 0.55);
+const vec3 STAR0 = vec3(0.78, 0.76, 0.95);
+const vec3 GOLD0 = vec3(0.93, 0.80, 0.55);
+const vec3 WATERW = vec3(0.82, 0.85, 0.90);
 const vec3 INK = vec3(0.03, 0.025, 0.08);
 const float GAIN = 0.5;    // the linework sits ON the water, it does not glow (no bloom halos)
 float h11(float n) { return fract(sin(n * 127.1) * 43758.5453); }
@@ -468,9 +477,10 @@ float lineAA(float d, float w) {
   return (1.0 - smoothstep(ww, ww + aa * 1.2, abs(d))) * min(1.0, w / ww + 0.3);
 }
 // one water ring: a pale crest and the darker trough just inside it, broken along its length like a real ripple
+vec3 RIPC = STAR0;   // the crest's colour (main sets it: water-white under uWhite)
 void ripple(float d, float ang, float r, float w, float a, float seed, inout vec3 light, inout float ink) {
   float brk = 0.35 + 0.65 * n11(ang * 2.2 + seed * 17.0 + r * 1.3);
-  light += STAR * lineAA(d - r, w) * a * brk;
+  light += RIPC * lineAA(d - r, w) * a * brk;
   ink += lineAA(d - r + w * 2.4, w * 1.3) * a * (0.25 + 0.2 * brk);
 }
 // twinkling glints on a grid of cells cs (m) wide: each lit cell flashes now and then, never smaller than ~1.3 px
@@ -492,6 +502,17 @@ float fishSdf(vec2 u, float L, float asp, float wig) {
   float tail = max(t.y - 0.1 - t.x * 0.55, -t.y + t.x * 1.05 - 0.015);
   return min(body * asp * 2.4, tail * 0.55);
 }
+// WC-2: a crayfish (head toward +y): its carapace and tail, the tail fan, two claws ahead on their arms
+float clawSdf(vec2 u, float L) {
+  vec2 v = u / max(L, 0.03);
+  float body = (length(vec2(v.x / 0.15, (v.y + 0.05) / 0.34)) - 1.0) * 0.15;
+  float fan = (length(vec2(v.x / 0.14, (v.y + 0.42) / 0.07)) - 1.0) * 0.07;
+  float claw = (length(vec2((abs(v.x) - 0.17) / 0.07, (v.y - 0.44) / 0.13)) - 1.0) * 0.07;
+  vec2 pa = vec2(abs(v.x), v.y) - vec2(0.06, 0.22), ba = vec2(0.1, 0.13);
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  float arm = length(pa - ba * h) - 0.022;
+  return min(min(body, fan), min(claw, arm)) * L;
+}
 void main() {
   float kind = vB.x, L = max(vB.y, 0.03), k = vB.z, seed = vB.w;
   float age = vC.x, ev = vC.y, R0 = vC.z, toNext = vC.w;
@@ -506,10 +527,16 @@ void main() {
   vec3 light = vec3(0.0);    // additive light (premultiplied, alpha 0)
   vec3 inkCol = mix(INK, tint * 0.15, 0.3);
   float wig = sin(uTime * 6.0 + seed * 30.0);
+  // WC-2: on the Mossmere under the loop the linework is the water's own cool white (below the hue report's chroma floor)
+  vec3 STAR = mix(STAR0, WATERW, uWhite), GOLD = mix(GOLD0, WATERW, uWhite);
+  float form = floor(fract(kind + 0.02) * 10.0 + 0.5);   // a tell's form (rise: 0 sip, 1 splash, 2 roll; nervous: 0 spray, 1 ruffle)
+  RIPC = STAR;
 
   if (kind < 1.5) {
     // ---- rise ring: three rings ∝ the fish's length spread from each rise; a kiss of light where the lips broke the skin
     float R = clamp(0.7 + 2.0 * L, 0.8, 5.0);
+    bool moss = uWhite > 0.5;
+    if (moss && form < 0.5) R *= 0.55;   // WC-2: a sip, a small quiet ring
     for (int i = 0; i < 3; i++) {
       float fi = float(i);
       float t = ev - fi * 0.38;
@@ -519,8 +546,24 @@ void main() {
       ripple(d, ang, r, 0.022 + 0.008 * L + 0.006 * t, a * uSurf, seed + fi, light, ink);
     }
     float kiss = smoothstep(0.6, 0.0, ev) * smoothstep(0.0, 0.04, ev);
+    if (moss && form > 1.5) kiss = 0.0;   // a roll breaks no lips on the film
     light += mix(STAR, GOLD, 0.45) * smoothstep(0.07 + 0.04 * L, 0.0, d) * kiss * 1.4;
     ink += smoothstep(0.18 + 0.12 * L, 0.04, d) * kiss * 0.3;
+    if (moss && form > 0.5 && form < 1.5) {   // WC-2: a splash, the film slapped: white water thrown for a moment
+      float sp = 0.0;
+      for (int i = 0; i < 10; i++) {
+        float fi = float(i) + seed * 29.0;
+        float a2 = h11(fi) * 6.2832, rr = (0.08 + 0.32 * h11(fi + 1.1)) * (0.6 + 0.8 * smoothstep(0.0, 0.5, ev)) * (0.6 + L);
+        sp += smoothstep(max(0.025, 1.3 * MPP), 0.0, length(q - vec2(cos(a2), sin(a2)) * rr)) * (1.0 - smoothstep(0.15, 0.7, ev));
+      }
+      light += STAR * sp * 1.2;
+    }
+    if (moss && form > 1.5) {   // WC-2: a roll, a back and a dorsal breaking the surface, then nothing
+      float back = smoothstep(1.3, 0.0, ev) * smoothstep(-0.1, 0.2, ev);
+      vec2 qb = q - vec2(0.0, (ev - 0.6) * 0.35 * L);
+      ink += smoothstep(0.02, -0.03, fishSdf(qb, L, 0.22, 0.0)) * back * 0.55;
+      light += STAR * smoothstep(0.025, 0.0, abs(qb.x)) * step(abs(qb.y + 0.05 * L), L * 0.22) * back * 0.6;
+    }
     // the fish just under the surface as it comes up, and as it goes down again
     float vis = max(smoothstep(0.8, 0.0, toNext), smoothstep(0.9, 0.0, ev)) * 0.5;
     ink += smoothstep(0.02, -0.03, fishSdf(q, L, asp, wig)) * vis;
@@ -544,7 +587,9 @@ void main() {
   } else if (kind < 3.5) {
     // ---- nervous water: fry skitter out of a darkened patch; a predator circles under the bait ball
     float r = R0, sk = 0.0;
+    bool moss = uWhite > 0.5, ruffle = moss && form > 0.5;   // WC-2: a ruffle has no spray, only the film shivering from under
     for (int i = 0; i < 16; i++) {
+      if (ruffle) break;
       float fi = float(i) + seed * 37.0;
       float a = h11(fi) * 6.2832, rr = r * sqrt(h11(fi + 1.3)) * 0.92;
       float P = 0.9 + 1.2 * h11(fi + 2.1), u = mod(age + h11(fi + 3.3) * P, P);
@@ -566,7 +611,7 @@ void main() {
     float wv = sin(q.x * 13.0 + age * 7.0 + seed * 9.0) * sin(q.y * 11.0 - age * 6.0);
     light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
     // from afar the patch reads as a darker, shivering disc full of twinkling fry, with a pale broken rim; up close the hops carry it
-    light += mix(STAR, GOLD, 0.2) * glints(q, 0.5, age, seed, 0.65) * m * (0.6 + 1.6 * far) * uSurf;
+    if (!moss) light += mix(STAR, GOLD, 0.2) * glints(q, 0.5, age, seed, 0.65) * m * (0.6 + 1.6 * far) * uSurf;   // (never sparkle on the Mossmere)
     // the shiver of the skin (a textured shimmer, never a flat lens) and a few drifting arcs at its edge (never a whole ring)
     float shv = n21(q * 2.2 + vec2(age * 0.7, -age * 0.5) + seed * 13.0) * n21(q * 3.7 - vec2(age * 0.4, age * 0.9) - seed * 7.0);
     light += STAR * m * (0.04 + 0.3 * smoothstep(0.12, 0.5, shv)) * far * uSurf;
@@ -577,7 +622,8 @@ void main() {
     vec2 cp = vec2(cos(ca), sin(ca)) * cr;
     float hh = ca + 1.5708;
     vec2 u2 = q - cp; u2 = vec2(u2.x * cos(hh) + u2.y * sin(hh), -u2.x * sin(hh) + u2.y * cos(hh));
-    ink += smoothstep(0.02, -0.04, fishSdf(u2, max(L, 0.7), 0.17, wig)) * 0.32;
+    if (!ruffle) ink += smoothstep(0.02, -0.04, fishSdf(u2, max(L, 0.7), 0.17, wig)) * 0.32;
+    if (ruffle) light += STAR * m * smoothstep(0.35, 0.75, shv) * 0.18 * uSurf;   // the ruffle reads by its texture alone
   } else if (kind < 4.5) {
     // ---- strike: one heavy slap (a bright crown ring, quick), then a foam slick that lasts the 10 s window
     float rb = (1.0 + 0.9 * L) * (1.0 - exp(-ev * 4.0));
@@ -612,7 +658,7 @@ void main() {
     ink += smoothstep(0.25, -0.3, fishSdf(q + vec2(0.0, L * 0.3), L, asp, wig * 0.2)) * 0.24;
     float lane = smoothstep(0.35, 0.0, abs(q.x - 0.28 * sin(-q.y * 1.6 + seed * 6.0))) * step(q.y, 0.0) * smoothstep(-trail, -0.2, q.y);
     ink += lane * 0.1;
-  } else {
+  } else if (kind < 6.5) {
     // ---- glow trail: a light moving under the surface; brightness ∝ length; a comet's wake behind it
     float br = clamp(0.3 + 0.55 * L, 0.35, 1.2);
     vec2 u = q;
@@ -632,6 +678,90 @@ void main() {
     float vfade = step(0.0, behind) * exp(-behind / (0.8 + 0.4 * L)) * smoothstep(-(hsG + 1.0), -(hsG - 0.4), q.y);
     light += STAR * lineAA(vw, 0.018 + 0.006 * L) * vfade * (0.25 + 0.75 * n11(behind * 4.0 + seed * 9.0 - uTime * 2.0)) * 0.45 * uSurf;
     ink += smoothstep(0.02, -0.03, fishSdf(q, L * 0.9, asp, wig)) * 0.22;
+  } else if (kind < 7.5) {
+    // ---- WC-2 pin-pricks: a tight patch of tiny bubbles that stays in one gap between pads (a koi on the bottom); thicker as an answer
+    float thick = form > 0.5 ? 1.0 : 0.0, rp = 0.3 + 0.25 * thick, bub = 0.0;
+    for (int i = 0; i < 18; i++) {
+      if (thick < 0.5 && i > 10) break;
+      float fi = float(i) + seed * 41.0;
+      float a2 = h11(fi) * 6.2832, rr = rp * sqrt(h11(fi + 1.7));
+      vec2 c = vec2(cos(a2), sin(a2)) * rr;
+      float P = 0.6 + 0.9 * h11(fi + 2.3), u = mod(age + h11(fi + 3.1) * P, P) / P;
+      bub += lineAA(length(q - c) - (0.006 + 0.014 * u), 0.004) * (1.0 - u) * smoothstep(0.0, 0.15, u);
+    }
+    light += STAR * bub * 1.6 * uSurf;
+    light += STAR * exp(-d * d / (rp * rp)) * 0.03 * far * uSurf;   // from afar a faint pale freckle on the film
+  } else if (kind < 8.5) {
+    // ---- WC-2 bed gas: one big bubble breaks the film in one fixed spot, its ring spreads and is gone (the false tell)
+    float dome = smoothstep(0.0, 0.1, ev) * (1.0 - smoothstep(0.18, 0.28, ev));
+    float rb = 0.05 + 0.07 * smoothstep(0.0, 0.2, ev);
+    light += STAR * lineAA(d - rb, 0.008) * dome * 1.3 * uSurf;
+    light += STAR * smoothstep(rb, 0.0, d) * dome * 0.2 * uSurf;
+    float tr = ev - 0.25;
+    if (tr > 0.0) ripple(d, ang, 0.12 + 0.55 * (1.0 - exp(-tr * 1.6)), 0.012, exp(-tr * 1.2) * 0.9 * uSurf, seed, light, ink);
+  } else if (kind < 9.5) {
+    // ---- WC-2 the mud cloud: a soft dark plume blooming off the bottom and drifting (a carp or a sucker rooting under it)
+    float rc = min(1.7, 0.45 + 0.22 * ev);
+    float n = n21(q * 1.6 + vec2(seed * 7.0, age * 0.15)) * 0.6 + n21(q * 3.3 - vec2(age * 0.1, seed * 3.0)) * 0.4;
+    float m = 1.0 - smoothstep(rc * 0.3, rc * (0.85 + 0.3 * n), d);
+    float fresh = exp(-ev * 0.12);
+    ink += m * (0.16 + 0.22 * n) * (0.4 + 0.6 * fresh);
+    inkCol = vec3(0.05, 0.047, 0.04);   // silt, not ink
+    light += STAR * lineAA(d - rc * 0.92, 0.02) * smoothstep(0.55, 0.9, n) * 0.14 * fresh * uSurf;
+  } else if (kind < 10.5) {
+    // ---- WC-2 stems: a pad knocked from below, a reed stem twitching, in a short run (small rings from a few stems)
+    for (int i = 0; i < 3; i++) {
+      float fi = float(i);
+      float t = ev - fi * 0.3;
+      if (t <= 0.0) continue;
+      float a2 = h11(fi + seed * 23.0) * 6.2832, rr = R0 * 0.7 * sqrt(h11(fi + seed * 7.0 + 1.3));
+      float dd = length(q - vec2(cos(a2), sin(a2)) * rr);
+      ripple(dd, ang, 0.05 + 0.4 * (1.0 - exp(-t * 1.8)), 0.012, exp(-t * 1.1) * 0.9 * uSurf, seed + fi, light, ink);
+      ink += smoothstep(0.08, 0.0, dd) * exp(-t * 3.0) * 0.15;
+    }
+  } else if (kind < 11.5) {
+    // ---- WC-2 a silhouette (WATERCRAFT §6.8): one real fish under clear shallow water at its true length, with its fainter, blurrier
+    // shadow on the pale bed (offset by the light and the depth), or a shoal's 3–5 shapes, or a crayfish on the stones; softer deeper
+    float outl = vD.x, dep = clamp(vD.y, 0.0, 0.6), warm = vD.z, nsh = vD.w;
+    vec2 sh = vec2(vC.y, vC.w);
+    float spd = vC.z;
+    float soft = max(0.012 + dep * 0.09 * (0.5 + L), MPP * 1.3);
+    float bodyA = 0.0, shadA = 0.0, finA = 0.0;
+    float sw = sin(uTime * (3.0 + 5.0 * spd) + seed * 30.0) * (0.25 + 0.9 * min(spd, 1.0));
+    if (outl > 3.5 && outl < 4.5) {
+      for (int i = 0; i < 5; i++) {
+        float fi = float(i);
+        if (fi >= nsh) break;
+        float a0 = fi * 2.399 + seed * 6.0 + age * 0.35;
+        vec2 c = vec2(cos(a0), sin(a0)) * (0.22 + 0.3 * h11(fi + seed * 13.0));
+        float hh = 0.3 * sin(age * 0.8 + fi * 1.7);
+        vec2 u = q - c;
+        u = vec2(u.x * cos(hh) - u.y * sin(hh), u.x * sin(hh) + u.y * cos(hh));
+        bodyA = max(bodyA, smoothstep(soft, -soft, fishSdf(u, L, 0.17, sw)));
+        shadA = max(shadA, smoothstep(soft * 3.0 + 0.03, -soft * 2.0, fishSdf(u - sh, L * 1.05, 0.19, sw)));
+      }
+    } else if (outl > 4.5) {
+      bodyA = smoothstep(soft, -soft, clawSdf(q, L));
+      shadA = smoothstep(soft * 3.0 + 0.03, -soft * 2.0, clawSdf(q - sh, L * 1.05));
+    } else {
+      float asp2 = outl < 1.5 ? 0.30 : outl < 2.5 ? 0.19 : 0.12;
+      float b = fishSdf(q, L, asp2, sw);
+      bodyA = smoothstep(soft, -soft, b);
+      shadA = smoothstep(soft * 3.0 + 0.04, -soft * 2.5, fishSdf(q - sh, L * 1.06, asp2 * 1.1, sw));
+      if (warm > 0.0) finA = smoothstep(soft * 1.5, 0.0, abs(b + 0.004)) * warm;   // the koi's candle fins: a faint warm edge at dusk
+    }
+    ink += bodyA * (0.62 - 0.5 * dep) + shadA * (1.0 - bodyA) * 0.22 * (1.0 - dep);
+    inkCol = vec3(0.025, 0.03, 0.028);
+    light += vec3(0.95, 0.62, 0.32) * finA * 0.08;
+  } else {
+    // ---- WC-2 a bow wave: the water lifted ahead of a big fish coming fast toward the float (heading +y), the answer to a swirl or a strike
+    float t = age, k2 = smoothstep(0.0, 0.2, t) * (1.0 - smoothstep(1.2, 1.6, t));
+    float crest = length(vec2(q.x / (0.35 + 0.25 * L), (q.y - 0.1) / 0.18)) - 1.0;
+    light += STAR * lineAA(crest * 0.18, 0.02) * step(0.0, q.y - 0.05) * k2 * 0.9 * uSurf;
+    ink += (1.0 - smoothstep(-0.2, 0.25, crest)) * 0.22 * k2;
+    float behind = -q.y + 0.1;
+    float vw = abs(abs(q.x) - behind * 0.42);
+    light += STAR * lineAA(vw, 0.016) * step(0.0, behind) * exp(-behind / (0.7 + 0.4 * L)) * k2 * 0.7 * uSurf;
   }
   float a = clamp(ink * k, 0.0, 0.8);
   light *= k * GAIN;
@@ -961,7 +1091,8 @@ export function createFishingFx(ctx) {
 
   // ---------------------------------------------------------------- v3 signs (built on first use: the flag-off build never has it)
   let signs = null;   // {mesh, geo, A, B, C, D, n}
-  const signU = { uSurf: { value: 1 }, uTime: time };
+  const signU = { uSurf: { value: 1 }, uTime: time, uWhite: { value: 0 } };
+  let signOn = false;   // WC-2: sign mode (endSigns no longer reads it from the legend pool's glimmer)
   function buildSigns() {
     if (signs) return signs;
     const geo = new THREE.InstancedBufferGeometry();
@@ -1153,8 +1284,16 @@ export function createFishingFx(ctx) {
       const S = on ? buildSigns() : signs;
       for (const m of spotMeshes()) m.visible = !on;
       if (S) { S.mesh.visible = !!on && S.n > 0; signU.uSurf.value = surf; }
-      poolU.uGlim.value = on ? 1 : 0;
+      signOn = !!on;
+      poolU.uGlim.value = on && signU.uWhite.value < 0.5 ? 1 : 0;
     },
+    /** WC-2 (WATERCRAFT §5.7): the Mossmere under the loop: the signs' marks in the water's own white, never gold, orange or lilac, and
+     *  the legend pool's gold glimmer off. Off: as built. */
+    setWaterWhite(on) {
+      signU.uWhite.value = on ? 1 : 0;
+      poolU.uGlim.value = signOn && !on ? 1 : 0;
+    },
+    get waterWhite() { return signU.uWhite.value > 0.5; },
     beginSigns() { if (signs) signs.n = 0; },
     /** One sign / pre-rolled fish instance: {x, z, heading, kind (1–6), length (m), strength, seed, age, since, radius, toNext, tint, aspect}. */
     pushSign(o) {
@@ -1167,12 +1306,14 @@ export function createFishingFx(ctx) {
       C[j] = o.age || 0; C[j + 1] = o.since ?? 99; C[j + 2] = o.radius || 2.4; C[j + 3] = o.toNext ?? 99;
       try { tintTmp.set(o.tint ?? 0xb7b0e8); } catch { tintTmp.set(0xb7b0e8); }
       Dd[j] = tintTmp.r; Dd[j + 1] = tintTmp.g; Dd[j + 2] = tintTmp.b; Dd[j + 3] = o.aspect || 0.16;
+      if (o.c) { C[j] = o.c[0]; C[j + 1] = o.c[1]; C[j + 2] = o.c[2]; C[j + 3] = o.c[3]; }      // WC-2: a silhouette's raw data
+      if (o.d) { Dd[j] = o.d[0]; Dd[j + 1] = o.d[1]; Dd[j + 2] = o.d[2]; Dd[j + 3] = o.d[3]; }  // (outline, depth, fin warmth, shoal count)
       return true;
     },
     endSigns() {
       if (!signs) return;
       signs.geo.instanceCount = signs.n;
-      signs.mesh.visible = signs.n > 0 && poolU.uGlim.value > 0;
+      signs.mesh.visible = signs.n > 0 && (signOn || poolU.uGlim.value > 0);
       if (signs.n) { signs.A.needsUpdate = true; signs.B.needsUpdate = true; signs.C.needsUpdate = true; signs.D.needsUpdate = true; }
     },
     get signCount() { return signs ? signs.n : 0; },

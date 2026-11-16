@@ -295,7 +295,7 @@ export const glowBrightness = (L) => clamp(0.3 + 0.55 * num(L, 0.5), 0.35, 1.2);
 // makers' tilt on takers, the take and the waits); a cast into a tell's middle spooks it where §5.3 says. Glow never shows here.
 // WATERCRAFT.mossmere.tells (watercraft.js, WC-1) wins over this table when it is passed in (normTells); this is §5.3 as written.
 const MINNOW = 'dusk_minnow', LAMP = 'lampsipper', CARP = 'weeping_carp', KOI = 'candlefin_koi', SUCKER = 'rustfin_sucker';
-const PIKE = 'reedjaw_pike', BASS = 'overbold_bass', ZANDER = 'milkeye_perch', PERCH = 'mossback_perch', CHUB = 'likely_chub';
+const PIKE = 'reedjaw_pike', BASS = 'overbold_bass', MILKEYE = 'milkeye_perch', PERCH = 'mossback_perch', CHUB = 'likely_chub';
 const TROUT = 'kissmark_trout', STURGEON = 'bridgechain_sturgeon', OLDPIKE = 'thousandcast_pike';
 const PLACES4 = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
 /** §5.3: per kind its forms (each with makers, areas and, where it differs, its hour weights), its hour weights and its cap. */
@@ -305,13 +305,13 @@ export const MOSS_TELLS = {
     splash: { makers: [CHUB, BASS, TROUT], areas: ['stones', 'reeds', 'pads', 'inflow', 'outflow'] },
     roll:   { makers: [CARP, SUCKER], areas: ['margin', 'pads', 'open'], lights: ['dusk'] } } },
   boil: { light: { day: 1.3, dusk: 1.6, night: 1.1 }, cap: 2, forms: {
-    swirl: { makers: [PIKE, ZANDER, TROUT, BASS, CARP, CHUB], areas: ['reeds', 'pads', 'stones', 'dropoff', 'deep', ...PLACES4] } } },
+    swirl: { makers: [PIKE, MILKEYE, TROUT, BASS, CARP, CHUB], areas: ['reeds', 'pads', 'stones', 'dropoff', 'deep', ...PLACES4] } } },
   nervous: { light: { day: 1.2, dusk: 1.4, night: 0.8 }, cap: 2, forms: {
     ruffle: { makers: [MINNOW], night: [LAMP], areas: ['margin', 'reeds', 'pads', 'lane', 'open'] },
-    spray:  { makers: [PIKE, BASS, ZANDER, PERCH, OLDPIKE], light: { day: 1.8, dusk: 1.4, night: 0.4 }, minnowRaw: 1,
+    spray:  { makers: [PIKE, BASS, MILKEYE, PERCH, OLDPIKE], light: { day: 1.8, dusk: 1.4, night: 0.4 }, minnowRaw: 1,
       areas: ['margin', 'reeds', 'pads', 'lane', 'open', 'inflow', 'outflow', 'under_the_span'] } } },
   strike: { light: { day: 1, dusk: 1.2, night: 0.8 }, cap: 1, forms: {
-    strike: { makers: [PIKE, BASS, ZANDER, PERCH, OLDPIKE], areas: ['reeds', 'pads', 'stones', 'dropoff', 'outflow', 'under_the_span'] } } },
+    strike: { makers: [PIKE, BASS, MILKEYE, PERCH, OLDPIKE], areas: ['reeds', 'pads', 'stones', 'dropoff', 'outflow', 'under_the_span'] } } },
   bubbles: { light: { day: 1.6, dusk: 1.2, night: 0.6 }, cap: 2, forms: {
     fizz: { makers: [CARP], areas: ['margin', 'reeds', 'pads', 'lane', 'open', 'lily_maze'] } } },
   pinprick: { light: { day: 1.2, dusk: 1.4, night: 0 }, cap: 2, forms: {

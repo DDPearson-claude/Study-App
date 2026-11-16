@@ -89,7 +89,7 @@ export function canSpawnAt(p = {}, S = SIGHT) {
   return lanternAt(num(p.raftDist, 1e9), num(p.lanternR, lanternRadius({}, S))) >= num(S.lantern.min, 0.25);
 }
 
-/** The outline a species shows at this light and area (null: never seen here). The crayfish only at night on the stones; the zander
+/** The outline a species shows at this light and area (null: never seen here). The crayfish only at night on the stones; the Milkeye Perch
  *  only at night (in the lantern's light); the Lampsipper (a night fish) as a shoal. */
 export function outlineOf(id, light = 'day', area = null) {
   if (!id || NEVER.has(id)) return null;

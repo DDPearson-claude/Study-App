@@ -69,12 +69,12 @@ section('which fish (§6.2)');
   const rng = mul(11), n = {};
   for (let i = 0; i < 20000; i++) { const sp = SI.pickSight(entries, { light: 'dusk', area: 'margin' }, rng); if (sp) n[sp.id] = (n[sp.id] || 0) + 1; }
   ok(!['thousandcast_pike', 'hullkiss_lamprey', 'belled_matriarch', 'bridgechain_sturgeon', 'kissmark_trout', 'gloam_eel'].some((id) => n[id]), `never a giant, the legend, the sturgeon, the trout or the eel (${Object.keys(n).join(', ')})`);
-  ok(!n.gutter_crayfish && !n.milkeye_perch, 'no crayfish or zander shape by dusk');
+  ok(!n.gutter_crayfish && !n.milkeye_perch, 'no crayfish or Milkeye Perch shape by dusk');
   const night = { stones: {}, margin: {} };
   const np = D.placePool(D.SPECIES, { phase: 'gloomtide' }).list.map(([sp, w]) => ({ sp, w }));
   for (const a of ['stones', 'margin']) for (let i = 0; i < 5000; i++) { const sp = SI.pickSight(np, { light: 'night', area: a }, rng); if (sp) night[a][sp.id] = (night[a][sp.id] || 0) + 1; }
   ok(night.stones.gutter_crayfish > 0 && !night.margin.gutter_crayfish, 'the crayfish only at night on the stones');
-  ok(night.margin.milkeye_perch > 0 || night.stones.milkeye_perch > 0, 'the zander at night');
+  ok(night.margin.milkeye_perch > 0 || night.stones.milkeye_perch > 0, 'the Milkeye Perch at night');
   // deep-bodied and long ×1.5
   const two = [{ sp: SP('weeping_carp'), w: 1 }, { sp: SP('mossback_perch'), w: 1 }];
   let carp = 0;

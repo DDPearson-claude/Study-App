@@ -106,6 +106,10 @@ import { createReel, rollZ, capZ, inGiantSpot, floatFavour, sumFavour, classInde
 import { planPlay, chooseLoss, applyLoss, partPlan, presentAt, drawStrike } from './fishing-play.js';
 import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
 import { KIND_ID, PREROLLED, aliveRange, maxAlive, pickKind, signTtl, createSign, stepSign, bestRule, kindRules } from './fishing-signs.js';
+// WC-2 (WATERCRAFT §5–§6): the Mossmere's tells, honest spawning and the answers; the silhouettes; watercraft's areas and pools (WC-1's)
+import { tellOptions, pickTell, answerFor, normTells, formMakers, lightOf as tellLight } from './fishing-signs.js';
+import * as SI from './fishing-sight.js';
+import * as WCX from './watercraft.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
@@ -942,13 +946,17 @@ export function create(ctx) {
       // v3 (F6): which sign's cast rule this landing meets (Murk's Chum makes its own nervous sign here first)
       S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
       if (S.chumArmed) { S.chumArmed = false; const c = spawnChum(x, z); if (c) S.signHit = { sign: c, rule: { kind: 'nervous', id: c.id, inSign: true, predators: num(kindRules('nervous', BAL('signs')).predators, 3), favour: num(kindRules('nervous', BAL('signs')).favour, 0.3) } }; }
-      if (!S.signHit) S.signHit = bestRule(S.signs, x, z, S.clock, BAL('signs'));
+      const moss = mossLoop();   // WC-2: the Mossmere under the loop (the silhouettes, the answers, no gold, no words)
+      if (!S.signHit) S.signHit = moss ? mossHit(x, z) : bestRule(S.signs, x, z, S.clock, BAL('signs'));
       const hit = S.signHit;
-      if (hit?.rule?.spook) {   // straight into the bait ball: the fry scatter and the sign is gone
+      if (hit?.rule?.spook && moss) {   // WC-2: the ruffle goes flat, the fry scatter, the cloud and the stems are gone; a silhouette bolted
+        if (hit.rule.kind !== 'sight') hit.sign.ttl = Math.min(hit.sign.ttl, 0.9);
+        if (hit.rule.form === 'spray') fx.burst(x, 0.12, z, { color: 0xdfe3ea, color2: 0xc9ced8, count: 16, spread: 2.6, up: 1.8, gravity: 7, size: 0.04, life: 0.6, radius: 0.6 });
+      } else if (hit?.rule?.spook) {   // straight into the bait ball: the fry scatter and the sign is gone
         hit.sign.ttl = Math.min(hit.sign.ttl, 0.9);
         fx.burst(x, 0.12, z, { color: 0xdcd8f6, color2: 0xe8c98a, count: 16, spread: 2.6, up: 1.8, gravity: 7, size: 0.04, life: 0.6, radius: 0.6 });
         call(() => ctx.ui?.floatText?.(V.bob.clone().setY(0.6), 'The fry scatter', 'info'));
-      } else if (hit) {
+      } else if (hit && !moss) {   // (on the Mossmere no pulse: the water answers instead, §5.3)
         fx.pulse(x, z, { color: hit.rule.preroll ? 0xf0d79a : 0xd6d0f6, r0: 0.3, r1: 2.6, duration: 1.2, alpha: 0.9, width: 0.1 });
       }
       emit('fishing:land', { position: V.bob.clone(), sign: hit && !hit.rule.spook ? hit.rule.kind : null, inSign: !!hit?.rule?.inSign });
@@ -987,10 +995,14 @@ export function create(ctx) {
     rollBite();
     if (S.comeback) {
       // Ashwick's comeback settles in: an ember glow on the float (unlike any built sign) and its hiss (audio)
-      fx.pulse(x, z, { color: 0xd0643a, r0: 0.2, r1: 1.6, duration: 1.1, width: 0.08, alpha: 0.85 });
-      fx.burst(x, 0.15, z, { color: 0xd0643a, color2: 0xf0a060, count: 8, spread: 0.7, up: 1.2, gravity: -0.6, size: 0.05, life: 0.9, radius: 0.2 });
+      // (WC-2, WATERCRAFT §7.2: on the Mossmere under the loop nothing shows: the returning fish is a surprise; the event still fires)
+      if (!mossLoop()) {
+        fx.pulse(x, z, { color: 0xd0643a, r0: 0.2, r1: 1.6, duration: 1.1, width: 0.08, alpha: 0.85 });
+        fx.burst(x, 0.15, z, { color: 0xd0643a, color2: 0xf0a060, count: 8, spread: 0.7, up: 1.2, gravity: -0.6, size: 0.05, life: 0.9, radius: 0.2 });
+      }
       emit('fishing:comeback', { phase: 'float', waterKey: S.comeback.waterKey });
     }
+    if (mossLoop()) mossLanded(x, z);   // WC-2: a led silhouette turns to the bait; an obeyed tell is answered
     setState('waiting');
   }
 
@@ -1247,8 +1259,10 @@ export function create(ctx) {
     const x = V.bob.x, z = V.bob.z;
     call(() => ctx.water?.splash?.(x, z, { size: v3 ? 0.5 + 0.12 * Math.max(0, classIndex(S.sizeClass) - 1) : 0.5, count: 12 }));
     call(() => ctx.water?.addRipple?.(x, z, 1.2));
-    fx.pulse(x, z, { color: 0xff8a5a, r0: 0.2, r1: 1.2, duration: 0.45, width: 0.07, alpha: 1 });
-    fx.pulse(x, z, { color: 0xffc27a, r0: 0.4, r1: 2.0, duration: 0.8, width: 0.05, alpha: 0.6 });
+    if (!mossLoop()) {   // (WC-2, §5.7: on the Mossmere under the loop the float's own water-white ripple alone)
+      fx.pulse(x, z, { color: 0xff8a5a, r0: 0.2, r1: 1.2, duration: 0.45, width: 0.07, alpha: 1 });
+      fx.pulse(x, z, { color: 0xffc27a, r0: 0.4, r1: 2.0, duration: 0.8, width: 0.05, alpha: 0.6 });
+    }
     view.tell = null;
     // v3 (F6): a sign's pre-rolled fish has taken the bait: its sign is spent
     if (S.prerollSign && S.prerollSp === sp) { endSign(S.prerollSign, 0.8); S.prerollSign = null; }
@@ -1606,7 +1620,7 @@ export function create(ctx) {
       try { fv = ctx.models?.createFish?.(sp.id, trueL != null ? { z: S.z, zone: lakeId() } : S.weight); } catch (e) { report(e); }
       if (fv && !fv.isStub && fv.object3d) { F.fv = fv; fv.object3d.scale.setScalar(1); fishHolder.add(fv.object3d); S.fishLen = trueL ?? clamp(num(fv.length, 2), 0.12, 12); }
       else { F.fv = null; S.fishLen = trueL ?? 2; }
-    } else { F.fv = null; S.fishLen = presentLen(); }
+    } else { F.fv = null; S.fishLen = sightProxyLen() ?? presentLen(); }   // (WC-2, §6.7: a fish you saw stays the size you saw)
     V.fish.copy(V.bob);
   }
   const PRES = {};
@@ -2173,7 +2187,7 @@ export function create(ctx) {
       case 'phase':
         view.phaseName = p.name || '';
         if (p.index > 0) {
-          emit('toast', { text: `${sp?.name || 'It'}: ${p.name}`, kind: 'bad' });
+          if (!LOOP()) emit('toast', { text: `${sp?.name || 'It'}: ${p.name}`, kind: 'bad' });   // (WC-2, §7.2: none on a trip: it names the fish)
           call(() => ctx.render?.shake?.(0.18, 0.4));
           fx.pulse(V.fish.x, V.fish.z, { color: 0xffd27a, r0: 0.5, r1: 5, duration: 1.2, width: 0.1, alpha: 0.9 });
         }
@@ -3093,6 +3107,7 @@ export function create(ctx) {
    * water: Elders only where giants live). {sp, z, sizeClass, ancient, lengthCm, lengthM} or null.
    */
   function prerollAt(kind, x, z, opts = {}) {
+    if (Array.isArray(opts.makers) && !opts.species && mossLoop()) return mossPreroll(kind, x, z, opts);   // WC-2: the tell's makers (§5.5)
     const SZ = BAL('size');
     if (!SZ.z) return null;
     const depth = depthAt(x, z), phase = phaseNow(), baitId = equippedBaitId();
@@ -3137,6 +3152,7 @@ export function create(ctx) {
   /** Each sign's public face (CONTRACT §13.7 signs): {id, kind, position, ttl, radius, strength, rare, prerolled?: {sizeClass, length}}.
    *  The species stays hidden until the bite (the float never reveals it either). */
   function spawnSign(kind = null, o = {}) {
+    if (mossLoop() && !o.chum) return spawnMossSign(kind, o);   // WC-2: honest spawning on the Mossmere under the loop (§5.5)
     if (!isReal(ctx.world) && !o.at) return null;
     if (!o.force && loopQuietNow()) return null;   // the loop: quiet water shows no signs (SPEC §3.3, T52)
     const SB = BAL('signs');
@@ -3196,6 +3212,7 @@ export function create(ctx) {
   function clearSigns() {
     for (const s of S.signs) emit('sign:end', { id: s.id, kind: s.kind, x: s.position.x, z: s.position.z });
     S.signs.length = 0; S.signTimers.length = 0; S.prerolls.clear();
+    if (S.wc2) clearMoss();   // WC-2: the silhouettes and the answers go with the signs
     fx.beginSigns(); fx.endSigns();
   }
   function pickSignDesired() { const r = aliveRange(phaseNow(), BAL('signs'), BAL('spots')); S.signDesired = Math.round(SU(num(r[0], 2), num(r[1], 4))); }
@@ -3213,10 +3230,13 @@ export function create(ctx) {
     const painted = waterPaintsSigns();
     const k = clamp(s.strength, 0.3, 1);
     const ripple = (x, z, plain, opts) => call(() => (painted ? ctx.water?.addRipple?.(x, z, k, { kind: s.kind, size: L, ...(opts || {}) }) : ctx.water?.addRipple?.(x, z, plain)));
+    // WC-2 (§5.2): on the Mossmere the spray is water-white, never gold; a sip throws none, a roll none, a splash more
+    const moss = !!s.moss, W1 = moss ? 0xdfe3ea : 0xdcd8f6, W2c = moss ? 0xc9ced8 : 0xe8c98a;
     switch (sh.type) {
       case 'rise':
         ripple(sh.x, sh.z, 0.3 + 0.45 * Math.min(L, 2));
-        fx.burst(sh.x, 0.06, sh.z, { color: 0xdcd8f6, color2: 0xe8c98a, count: Math.round(3 + 4 * Math.min(L, 2)), spread: 0.5 + 0.4 * Math.min(L, 2), up: 1 + Math.min(L, 2), gravity: 7, size: 0.035 + 0.02 * Math.min(L, 2), life: 0.5, radius: 0.08 });
+        if (!moss || s.form === 'splash') fx.burst(sh.x, 0.06, sh.z, { color: W1, color2: W2c, count: Math.round((moss ? 5 : 3) + 4 * Math.min(L, 2)), spread: 0.5 + 0.4 * Math.min(L, 2), up: 1 + Math.min(L, 2), gravity: 7, size: 0.035 + 0.02 * Math.min(L, 2), life: 0.5, radius: 0.08 });
+        if (moss && s.form === 'splash') splashNear(sh.x, sh.z);
         emit('sign:rise', { id: s.id, kind: 'rise', x: sh.x, z: sh.z, sizeClass: pre?.sizeClass ?? null });
         break;
       case 'boil':
@@ -3226,8 +3246,26 @@ export function create(ctx) {
       case 'strike':
         ripple(sh.x, sh.z, 1.4);
         if (!painted) call(() => ctx.water?.splash?.(sh.x, sh.z, { size: 1.1 + 0.4 * Math.min(L, 3), count: 26 }));
-        fx.burst(sh.x, 0.15, sh.z, { color: 0xe9e4f6, color2: 0xf0d79a, count: 14, spread: 2.2, up: 3.2, gravity: 8, size: 0.06, life: 0.8, radius: 0.25 });
+        fx.burst(sh.x, 0.15, sh.z, { color: moss ? 0xe6e9ee : 0xe9e4f6, color2: moss ? 0xc9ced8 : 0xf0d79a, count: 14, spread: 2.2, up: 3.2, gravity: 8, size: 0.06, life: 0.8, radius: 0.25 });
         emit('sign:show', { id: s.id, kind: 'strike', x: sh.x, z: sh.z });
+        if (moss) splashNear(sh.x, sh.z);
+        break;
+      // WC-2 (§5.2; water-signs: no new ids): a pin-prick as a small-bucket rise; bed gas, the cloud and the stems as plain ripples
+      case 'pinprick':
+        call(() => (painted ? ctx.water?.addRipple?.(sh.x, sh.z, k * 0.35, { kind: 'rise', size: 0.03 }) : ctx.water?.addRipple?.(sh.x, sh.z, 0.06)));
+        break;
+      case 'gas':
+        call(() => ctx.water?.addRipple?.(sh.x, sh.z, 0.28));
+        emit('sign:show', { id: s.id, kind: 'gas', x: sh.x, z: sh.z });
+        break;
+      case 'cloud':
+        call(() => ctx.water?.addRipple?.(sh.x, sh.z, 0.12));
+        emit('sign:show', { id: s.id, kind: 'cloud', x: sh.x, z: sh.z });
+        break;
+      case 'stems':
+        call(() => ctx.world?.stems?.nudge?.(sh.x, sh.z, k));
+        call(() => ctx.water?.addRipple?.(sh.x, sh.z, 0.2));
+        emit('sign:show', { id: s.id, kind: 'stems', x: sh.x, z: sh.z });
         break;
       case 'fry':
         if (painted) ripple(sh.x, sh.z, 0);
@@ -3287,6 +3325,7 @@ export function create(ctx) {
       if (S.signTimers[i] <= 0) { S.signTimers.splice(i, 1); if (liveSigns() < S.signDesired && total() < hi) spawnSign(); }
     }
     if (liveSigns() + S.signTimers.length < S.signDesired) S.signTimers.push(SU(num(BAL('spots').respawn?.[0], 8), num(BAL('spots').respawn?.[1], 16)) * 0.5);
+    updateMoss(dt);   // WC-2: the silhouettes and the answers (the Mossmere under the loop; off elsewhere)
   }
   /** fishing-fx's per-fish instance buffer: every sign (with its pre-rolled fish), then the free pre-rolled fish (preroll()). */
   const SIGN_DEF_L = { nervous: 0.8, bubbles: 0.4, strike: 0.9, rise: 0.3, boil: 0.9, glow: 0.6 };
@@ -3300,7 +3339,7 @@ export function create(ctx) {
       const since = S.clock - s.lastAt;
       const atLast = s.kind === 'boil' || s.kind === 'strike' || (s.kind === 'rise' && since < 3.6);
       PUSH.x = atLast ? s.lastX : s.position.x; PUSH.z = atLast ? s.lastZ : s.position.z;
-      PUSH.heading = s.heading; PUSH.kind = KIND_ID[s.kind] || 1;
+      PUSH.heading = s.heading; PUSH.kind = (KIND_ID[s.kind] || 1) + (s.moss ? num(SIGN_FORM_F[s.form], 0) : 0);   // (WC-2: the form)
       PUSH.length = pre ? pre.lengthM : SIGN_DEF_L[s.kind] ?? 0.5;
       let k = s.strength;
       if (s.kind === 'glow') {   // a night fish's light is seen only so far (Night Eyes: 50% farther)
@@ -3312,6 +3351,7 @@ export function create(ctx) {
       PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;   // one ink and one body for every fish: a sign shows size, never the species
       fx.pushSign(PUSH);
     }
+    drawMoss();   // WC-2: the silhouettes and the answers
     for (const h of S.handles) {   // free pre-rolled fish (residents, sight places, Moonfall …): a slow silhouette on its path
       PUSH.x = h.pos.x; PUSH.z = h.pos.z; PUSH.heading = h.heading; PUSH.kind = 2; PUSH.length = h.lengthM; PUSH.strength = h.k;
       PUSH.seed = h.seed; PUSH.age = h.age; PUSH.since = 0.2; PUSH.radius = 2; PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
@@ -3348,6 +3388,393 @@ export function create(ctx) {
       } else { h.heading += dt * 0.35; h.pos.x += Math.sin(h.heading) * 0.25 * dt; h.pos.z += Math.cos(h.heading) * 0.25 * dt; }
     }
   }
+
+  // ================================================================ WC-2: the Mossmere's tells and silhouettes (WATERCRAFT §5–§6)
+  // Under the loop on the Mossmere only (mossLoop()); the flag-off game and every other water keep the built signs above as they are.
+  // Honest spawning (§5.5): a tell is placed as built, then its kind is drawn by the hour × its makers' share in the "who is there"
+  // pool at that point (watercraft.hookWeights with hook: false); a rise's or a swirl's fish is pre-rolled from its form's makers,
+  // never a giant. Silhouettes (§6): a few real fish seen in clear shallow water, pre-rolled through the built pre-roll path (S.prerolls,
+  // S.prerollSp, S.prerollZ), drawn at their true length. Obeyed tells get the water's answer (§5.3); nothing glows, nothing is gold.
+  const mossLoop = () => signsOn() && LOOP() && lakeId() === 'mossmere';
+  const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null });
+  function wcProbe() {
+    const W2 = wc2();
+    if (W2.probeW !== ctx.world || !W2.probe) { W2.probeW = ctx.world; W2.probe = WCX.probeOf(ctx.world); }
+    return W2.probe;
+  }
+  function wcHulls() {
+    try {
+      const m = ctx.world?.getMooring?.();
+      if (m && !m.isStub && Array.isArray(m.circles)) return m.circles;
+      const zd = zoneData();
+      return D().loopMooring?.(zd?.id, zd?.arena?.docks || [])?.circles || null;
+    } catch { return null; }
+  }
+  /** The area at (x, z): an owned, lifted place's id, else watercraft.areaAt's (null: not water, or mist). */
+  function wcAreaAt(x, z, w = waterInfo(x, z)) {
+    if (w.mist) return null;
+    if (w.place?.id) return w.place.id;
+    if (typeof ctx.world?.getShoreRadius !== 'function') return 'open';   // (a world with no shore to measure from: open water, §9.1's fallback)
+    try {
+      const zd = zoneData();
+      return WCX.areaAt(x, z, wcProbe(), { lane: WCX.laneFor(num(run()?.evening, 1), phaseNow()), arena: zd?.arena, hulls: wcHulls() }) || null;
+    } catch (e) { report(e); return null; }
+  }
+  /** "Who is there" (§4 steps 3–5): data.placePool at that water, × the area's weight in open water or the hour's tilt in a place;
+   *  no hook, no rarity bonus, no tell. {entries: [{sp, w}], giant} or null. */
+  function whoPool(area, phase, placeId) {
+    const f = D().placePool;
+    if (typeof f !== 'function') return null;
+    const bait = equippedBaitId();
+    let pp = null;
+    try { pp = f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(bait) ? null : (bait ?? null), wickId: wickId(), water: lakeId() }); } catch (e) { report(e); return null; }
+    if (!pp) return null;
+    return { entries: WCX.hookWeights(pp.list, { area: placeId ? null : area, place: placeId ?? null, phase, hook: false }), giant: pp.giant || null };
+  }
+  /** Each species' share of the who-is-there pool (the giant's share in), for honest spawning's makers. */
+  function whoShare(who) {
+    const m = new Map();
+    let tot = 0;
+    for (const e of who?.entries || []) if (e.w > 0) { m.set(e.sp.id, (m.get(e.sp.id) || 0) + e.w); tot += e.w; }
+    const sh = num(who?.giant?.share, 0);
+    if (who?.giant?.sp && tot > 0 && sh > 0 && sh < 1) { const g = tot * sh / (1 - sh); m.set(who.giant.sp.id, (m.get(who.giant.sp.id) || 0) + g); tot += g; }
+    if (tot > 0) for (const [k, v] of m) m.set(k, v / tot);
+    return m;
+  }
+  const mossTells = () => WCX.WATERCRAFT?.mossmere?.tells || null;
+  const SIGN_FORM_F = { sip: 0, splash: 0.1, roll: 0.2, spray: 0, ruffle: 0.1 };
+  /** A placement as built: a water point 6 m to cast range + 15 m from the raft, depth ≥ 0.2, ≥ 7 m from the others, never in mist,
+   *  nor by the legend's pool. */
+  function mossSignPoint(raft, range) {
+    let p = null;
+    try { p = ctx.world.randomWaterPoint?.({ from: raft, minDist: 6, maxDist: range, depthMin: num(BAL('spots').depthMin, 0.2), clearance: 3 }); } catch (e) { report(e); }
+    if (!p || p.isStub || !Number.isFinite(p.x)) return null;
+    if (S.signs.some((s) => Math.hypot(s.position.x - p.x, s.position.z - p.z) < 7)) return null;
+    const lg = legendInfo();
+    if (lg && Math.hypot(lg.x - p.x, lg.z - p.z) < lg.r + 3) return null;
+    return { x: p.x, z: p.z };
+  }
+  /** spawnSign on the Mossmere under the loop (§5.5): up to 4 points, each kind by the hour × its makers' share there. */
+  function spawnMossSign(kind, o = {}) {
+    if (!isReal(ctx.world) && !o.at) return null;
+    if (!o.force && loopQuietNow()) return null;
+    const SB = BAL('signs');
+    if (S.signs.length >= maxAlive(SB) && !o.force) return null;
+    const phase = phaseNow(), light = tellLight(phase), raft = raftPos(), range = signRange() - 2;
+    const alive = S.signs.map((s) => s.kind);
+    let pos = null, pick = null, area = null;
+    for (let tries = 0; tries < (o.at ? 1 : 4) && !pick; tries++) {
+      const p = o.at && Number.isFinite(o.at.x) ? { x: o.at.x, z: o.at.z } : mossSignPoint(raft, range);
+      if (!p) continue;
+      const w = waterInfo(p.x, p.z);
+      if (w.mist) continue;
+      const a = wcAreaAt(p.x, p.z, w);
+      if (!a) continue;
+      const share = whoShare(whoPool(a, phase, w.place?.id ?? null));
+      let opts = tellOptions(a, light, share, { alive: o.force ? [] : alive, tells: mossTells() });
+      if (kind) opts = opts.filter((q) => q.kind === kind && (!o.form || q.form === o.form));
+      if (kind && !opts.length && o.force) {   // debug: the kind asked for, here, with the makers its table names
+        const T = normTells(mossTells())[kind], fname = o.form || Object.keys(T?.forms || {})[0];
+        if (T && fname) opts = [{ kind, form: fname, makers: formMakers(T.forms[fname], a, light), w: 1 }];
+      }
+      pick = pickTell(opts, srnd);
+      if (pick) { pos = p; area = a; }
+    }
+    if (!pick) return null;
+    kind = pick.kind;
+    let pre = null;
+    if (PREROLLED.has(kind)) {
+      pre = o.preroll || prerollAt(kind, pos.x, pos.z, { ...o, makers: pick.makers, area });
+      if (!pre) return null;   // no maker of that size here (a swirl needs a Prize+): nothing this time
+    }
+    const ttl = o.ttl ?? signTtl(kind, srnd, BAL('spots'), SB, {});
+    const s = createSign(kind, pos.x, pos.z, S.clock, { rng: srnd, B: SB, ttl, heading: o.heading, form: pick.form, makers: pick.makers, moss: true });
+    s.area = area;
+    if (pre) { S.prerolls.set(s.id, pre); s.prerolled = { sizeClass: pre.sizeClass, length: Math.round(pre.lengthM * 1000) / 10 }; }
+    S.signs.push(s);
+    emit('sign:spawn', { id: s.id, kind, form: pick.form, x: pos.x, z: pos.z, ...(pre ? { sizeClass: pre.sizeClass } : {}) });
+    return s;
+  }
+  /** A size score for a fish at (x, z) as a bite there would roll it (the place's and the evening's favour; no tackle for a silhouette). */
+  function rollPreZ(sp, info, minZ, z0 = null) {
+    const SZ = BAL('size');
+    const capOf = (q) => capZ({ species: q, place: info.place, giantWater: info.giant, size: SZ, loop: true });
+    const f = favourAt(info, sp);
+    let zz = z0 != null ? z0 : rollZ(f.mu, srnd, { min: giantMinZ(sp, minZ, true), max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap: capOf(sp) });
+    return Math.round(zz * 1e4) / 1e4;
+  }
+  function preOf(sp, zz) {
+    const cls = D().sizeClassOf(zz), lengthCm = D().sizeLength(sp, zz, lakeId());
+    return { sp, z: zz, sizeClass: cls, ancient: cls === 'elder' && !!D().isAncient?.(zz), lengthCm, lengthM: afOn() ? presentLen(zz) : lengthCm / 100 };
+  }
+  /** prerollAt on the Mossmere (§5.5): drawn from the tell's makers in the who-is-there pool by weight, never a giant. */
+  function mossPreroll(kind, x, z, opts = {}) {
+    const SZ = BAL('size');
+    if (!SZ.z) return null;
+    const w = waterInfo(x, z);
+    if (w.mist) return null;
+    const phase = phaseNow(), area = opts.area ?? wcAreaAt(x, z, w), who = whoPool(area, phase, w.place?.id ?? null);
+    if (!who) return null;
+    const mk = new Set(opts.makers || []);
+    const info = castInfo(x, z, depthAt(x, z), equippedBaitId(), false);
+    const minZ = kind === 'boil' ? num(SZ.classMaxZ?.keeper, 1.039) + 0.002 : num(SZ.z.min, -2);
+    const capOf = (q) => capZ({ species: q, place: info.place, giantWater: info.giant, size: SZ, loop: true });
+    let es = who.entries.filter((e) => e.w > 0 && mk.has(e.sp.id) && e.sp.size && !e.sp.giant && e.sp.rarity !== 'legendary');
+    if (kind === 'boil') es = es.filter((e) => capOf(e.sp) > minZ);
+    if (!es.length) return null;
+    let tot = 0;
+    for (const e of es) tot += e.w;
+    let r = srnd() * tot, sp = es[es.length - 1].sp;
+    for (const e of es) { r -= e.w; if (r <= 0) { sp = e.sp; break; } }
+    return preOf(sp, rollPreZ(sp, info, minZ, opts.z ?? null));
+  }
+  // ---- the silhouettes (§6)
+  const sightTier = () => { const q = call(() => ctx.render?.getQuality?.()); return q === 'low' || q === 'medium' ? q : 'high'; };
+  function sightLanternR() {
+    let lv = 0;
+    try { lv = num(loopApi()?.state?.()?.raft?.lantern, 0); } catch { lv = 0; }
+    return SI.lanternRadius({ stub: wickId() === 'stub', level: lv });
+  }
+  /** The Buoy Lights' drowned lamps (world-places' rows, without their jitter) when the place is in this build. */
+  function buoyLamps() {
+    const W2 = wc2();
+    if (W2.lamps) return W2.lamps;
+    const p = (zoneData()?.arena?.places || []).find((q) => q.id === 'buoy_lights');
+    const a = p?.water || p?.area;
+    W2.lamps = [];
+    if (a && a.kind === 'rect') {
+      const rows = [a.x - a.w * 0.3, a.x + a.w * 0.3], n = 12, z0 = a.z - a.d / 2 + 1, dz = (a.d - 2) / (n - 1);
+      for (const rx of rows) for (let i = 0; i < n; i++) W2.lamps.push({ x: rx, z: z0 + i * dz });
+    }
+    return W2.lamps;
+  }
+  function lampGlow(x, z) { let k = 0; for (const l of buoyLamps()) k = Math.max(k, SI.lampAt(Math.hypot(l.x - x, l.z - z))); return k; }
+  /** May a silhouette swim to (x, z): the same area, shallow enough (any depth over the lamps), 1 m off islands and pillars. */
+  function sightOk(f, x, z) {
+    const zd = zoneData()?.arena || {};
+    for (const o of zd.islands || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + 1) return false;
+    for (const o of zd.pillars || []) if (Math.hypot(x - o.x, z - o.z) < num(o.r, 0) + 1) return false;
+    if (f.area === 'buoy_lights') return placeAt(x, z)?.id === 'buoy_lights';
+    const d = depthAt(x, z);
+    if (!(d < SI.SIGHT.depth) || d < 0.05) return false;
+    if (PLACE_IDS.has(f.area)) return placeAt(x, z)?.id === f.area;
+    return wcAreaAt(x, z) === f.area;
+  }
+  const PLACE_IDS = new Set(['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']);
+  function sightVis(f, light, raft, lanternR) {
+    return SI.visibleAt({ area: f.area, depth: f.depth, light, raftDist: Math.hypot(f.x - raft.x, f.z - raft.z), lanternR, lamp: f.area === 'buoy_lights' ? lampGlow(f.x, f.z) : 0 });
+  }
+  /** A new silhouette near the raft (§6.3): a point by the visible water's rules, a fish from the who-is-there pool there, its z as a
+   *  bite there, its true length; kept only if the point lies in its length's band (or the lantern's light at night). */
+  function spawnSight(o = {}) {
+    const W2 = wc2();
+    const phase = phaseNow(), light = SI.lightOf(phase), raft = raftPos(), lanternR = sightLanternR();
+    const SZ = BAL('size');
+    if (!SZ.z) return null;
+    for (let tries = 0; tries < (o.at ? 1 : 6); tries++) {
+      let x, z, area, w;
+      const lamps = light === 'night' ? buoyLamps() : [];
+      if (o.at) { x = o.at.x; z = o.at.z; }
+      else if (lamps.length && srnd() < 0.5) { const l = lamps[Math.floor(srnd() * lamps.length)]; x = l.x + (srnd() - 0.5) * 0.6; z = l.z + (srnd() - 0.5) * 1.2; }
+      else {
+        const dmax = light === 'night' ? SI.lanternReach(lanternR, SI.SIGHT.lantern.min) : 28, a = srnd() * TAU, d = 3 + srnd() * (dmax - 3);
+        x = raft.x + Math.cos(a) * d; z = raft.z + Math.sin(a) * d;
+      }
+      w = waterInfo(x, z);
+      if (w.mist) continue;
+      area = wcAreaAt(x, z, w);
+      if (!area) continue;
+      if (SI.quietAt(W2.quiet, x, z, S.clock)) continue;
+      const depth = depthAt(x, z), rd = Math.hypot(x - raft.x, z - raft.z);
+      const p = { area, depth, light, raftDist: rd, lanternR, lamp: area === 'buoy_lights' ? lampGlow(x, z) : 0 };
+      if (!o.force && !SI.canSpawnAt(p)) continue;
+      if (rd > signRange() && !o.at) continue;
+      const who = whoPool(area, phase, w.place?.id ?? null);
+      const sp = o.species || SI.pickSight((who?.entries || []).map((e) => ({ sp: e.sp, w: e.w })), { light, area }, srnd);
+      if (!sp) continue;
+      const info = { ...castInfo(x, z, depth, null, false), lure: null };
+      const pre = preOf(sp, rollPreZ(sp, info, num(SZ.z.min, -2), o.z ?? null));
+      const L = pre.lengthCm / 100;
+      const f = SI.createSight({ sp, zScore: pre.z, length: L, x, z, heading: o.heading ?? (area === 'buoy_lights' ? (srnd() < 0.5 ? 0 : Math.PI) : srnd() * TAU),
+        area, light, depth, t: S.clock, rng: srnd, outline: o.outline });
+      if (!o.at && area !== 'buoy_lights') { const band = SI.spawnRange(L, { light, lanternR, keepOff: f.keepOff }); if (rd < band[0] || rd > band[1]) continue; }
+      else if (!o.at && rd < f.keepOff + 0.4) continue;
+      if (o.mode) { f.mode = o.mode; f.modeT = 30; f.speed = o.mode === 'cruise' ? num(o.speed, 0.35) : 0; }
+      if (o.life) f.life = o.life;
+      f.depth = depth;
+      S.prerolls.set(f.id, pre);
+      W2.sights.push(f);
+      emit('sign:spawn', { id: f.id, kind: 'sight', form: f.outline, x, z });
+      return f;
+    }
+    return null;
+  }
+  /** A silhouette bolts (§6.5): a short V-wake and a swirl (the boil's tagged wake), then it fades; the spot goes quiet for 30 s. */
+  function boltSight(f, cause = 'cast') {
+    const W2 = wc2(), painted = waterPaintsSigns(), L = f.length;
+    const dx = Math.sin(f.heading), dz = Math.cos(f.heading);
+    call(() => (painted ? ctx.water?.addWake?.(f.x, f.z, dx, dz, 0.5 + 0.3 * Math.min(L, 1.5), { kind: 'boil' }) : ctx.water?.addWake?.(f.x, f.z, dx, dz, 0.35)));
+    call(() => (painted ? ctx.water?.addRipple?.(f.x, f.z, 0.8, { kind: 'boil', size: L }) : ctx.water?.addRipple?.(f.x, f.z, 0.5 + 0.4 * Math.min(L, 2))));
+    W2.quiet.push({ x: f.x, z: f.z, until: S.clock + SI.SIGHT.spook.quietT });
+    emit('sign:show', { id: f.id, kind: 'sight', form: f.outline, x: f.x, z: f.z, bolt: cause });
+  }
+  function onSightEvent(f, e) {
+    if (e.type === 'bolt') boltSight(f, e.cause || 'raft');
+    else if (e.type === 'tail') {   // tailing: the tail breaks the film, head down; a mud cloud where it digs (once a rooting)
+      call(() => ctx.water?.addRipple?.(e.x, e.z, 0.22));
+      if (S.clock - num(f.cloudAt, -99) > 20) { f.cloudAt = S.clock; spawnMossSign('cloud', { at: { x: e.x, z: e.z }, heading: f.heading }); }
+    }
+  }
+  /** A splash by a still fish (a strike's slap, a tell's splash) spooks it. */
+  function splashNear(x, z) {
+    for (const f of wc2().sights) if (SI.spookTest(f, { splash: { x, z } })) { SI.boltFrom(f, x, z); boltSight(f, 'splash'); }
+  }
+  /** The best rule at a landing among the live tells and the silhouettes (a cast on a silhouette bolts it whatever else it meets). */
+  function mossHit(x, z) {
+    let best = bestRule(S.signs, x, z, S.clock, BAL('signs'));
+    const score = (r) => (r.spook ? 0 : 1) + (r.preroll ? 10 + num(r.preroll.chance, 0) : 0) + num(r.favour, 0) + (r.waitMult ? 0.5 : 0);
+    let bs = best ? score(best.rule) : -1;
+    for (const f of wc2().sights) {
+      const r = SI.sightRule(f, x, z);
+      if (!r) continue;
+      if (r.spook) { SI.boltFrom(f, x, z); boltSight(f, 'cast'); }
+      const sc = score(r);
+      if (sc > bs) { bs = sc; best = { sign: f, rule: r }; }
+    }
+    return best;
+  }
+  /** After the landing's roll (rollBite): a led silhouette turns to the bait and takes or noses it; an obeyed tell is answered. */
+  function mossLanded(x, z) {
+    const W2 = wc2(), hit = S.signHit;
+    W2.cast = null;
+    if (!hit?.rule || hit.rule.spook) return;
+    if (hit.rule.kind === 'sight') {
+      const f = hit.sign, took = !!S.prerollTook && S.prerollSp === f.sp;
+      SI.approach(f, { x, z }, took, srnd);
+      W2.cast = f;
+      return;
+    }
+    const a = answerFor(hit.rule, hit.sign, { x, z }, srnd);
+    if (a) { a.t = 0; a.L = S.prerolls.get(hit.sign.id)?.lengthM ?? 0.5; a.seed = srnd(); W2.answers.push(a); if (W2.answers.length > 2) W2.answers.shift(); }
+  }
+  /** An answer starts (§5.3): the water's own mark for it (the instance is drawn by drawSigns), 1–2 s. */
+  function answerWater(a) {
+    const painted = waterPaintsSigns();
+    const rip = (k, plain, opts) => call(() => (painted && opts ? ctx.water?.addRipple?.(a.x, a.z, k, opts) : ctx.water?.addRipple?.(a.x, a.z, plain)));
+    switch (a.type) {
+      case 'rise': rip(0.7, 0.3, { kind: 'rise', size: Math.min(a.L, 0.6) }); break;
+      case 'splash': rip(0.9, 0.5, { kind: 'rise', size: a.L }); fx.burst(a.x, 0.08, a.z, { color: 0xdfe3ea, color2: 0xc9ced8, count: 6, spread: 0.6, up: 1.4, gravity: 7, size: 0.04, life: 0.5, radius: 0.1 }); splashNear(a.x, a.z); break;
+      case 'bow': call(() => (painted ? ctx.water?.addWake?.(a.x, a.z, Math.sin(a.heading), Math.cos(a.heading), 0.6, { kind: 'boil' }) : ctx.water?.addWake?.(a.x, a.z, Math.sin(a.heading), Math.cos(a.heading), 0.35))); break;
+      case 'spray': rip(0.6, 0.18, { kind: 'nervous', size: 0.5 }); fx.burst(a.x, 0.06, a.z, { color: 0xdfe3ea, color2: 0xc9ced8, count: 7, spread: 1.0, up: 1.2, gravity: 7, size: 0.03, life: 0.45, radius: 0.5 }); break;
+      case 'ruffle': rip(0.5, 0.15, { kind: 'nervous', size: 0.5 }); break;
+      case 'pinprick': rip(0.4, 0.06, { kind: 'rise', size: 0.03 }); break;
+      case 'stems': call(() => ctx.world?.stems?.nudge?.(a.x, a.z, 1)); rip(0.2, 0.2, null); break;
+      default: rip(0.15, 0.15, null); break;   // the fizz, a fresh puff of mud: plain water
+    }
+  }
+  /** The hooked silhouette (§6.7): its outline and true length stay through the play. */
+  function hookSight(f) {
+    const W2 = wc2();
+    W2.hooked = { outline: f.outline, length: f.length, id: f.id };
+    S.prerolls.delete(f.id);
+    emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z });
+  }
+  /** fishing.js's hook-up reads this: a silhouette's true length when the hooked fish is the one that was seen, else null. */
+  function sightProxyLen() {
+    const W2 = wc2(), h = W2.hooked;
+    if (!h || !mossLoop()) return null;
+    view.proxy = { outline: h.outline, length: Math.round(h.length * 1000) / 1000 };
+    return h.length;
+  }
+  function updateMoss(dt) {
+    const W2 = wc2();
+    const on = mossLoop();
+    fx.setWaterWhite?.(on);
+    if (!on) { if (W2.sights.length || W2.answers.length) clearMoss(); return; }
+    const raft = raftPos(), phase = phaseNow(), light = SI.lightOf(phase), quiet = loopQuietNow(), lanternR = sightLanternR();
+    for (let i = W2.answers.length - 1; i >= 0; i--) {
+      const a = W2.answers[i];
+      a.t += dt;
+      if (!a.started && a.t >= a.delay) { a.started = true; answerWater(a); }
+      if (a.t >= a.delay + a.life) W2.answers.splice(i, 1);
+    }
+    if (W2.quiet.length) W2.quiet = W2.quiet.filter((q) => S.clock < q.until);
+    if (state === 'idle' || state === 'charging') W2.hooked = null;
+    for (let i = W2.sights.length - 1; i >= 0; i--) {
+      const f = W2.sights[i];
+      if (f === W2.cast && (f.mode === 'take' || f.mode === 'nose') && (state === 'idle' || state === 'charging')) { f.mode = 'turn'; f.modeT = 1.2; f.bait = null; W2.cast = null; }
+      if (f === W2.cast && f.mode === 'take' && (state === 'bite' || state === 'reeling') && S.prerollTook && S.prerollSp === f.sp) {   // it took the bait
+        hookSight(f); W2.sights.splice(i, 1); W2.cast = null; continue;
+      }
+      const ev = SI.stepSight(f, dt, { raft, rng: srnd, quiet, depth: depthAt, ok: (x, z) => sightOk(f, x, z) });
+      f.depth = depthAt(f.x, f.z);
+      f.vis = sightVis(f, light, raft, lanternR);
+      for (const e of ev) onSightEvent(f, e);
+      if (f.gone) { W2.sights.splice(i, 1); S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); }
+    }
+    W2.next -= dt;
+    if (W2.next <= 0) {
+      W2.next = SU(SI.SIGHT.every[0], SI.SIGHT.every[1]);
+      if (!quiet && W2.sights.length < SI.sightCap(sightTier()) && !ctx.cinematic) { if (!spawnSight()) W2.next = SU(2, 5); }
+    }
+  }
+  function clearMoss() {
+    const W2 = wc2();
+    for (const f of W2.sights) { S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); }
+    W2.sights.length = 0; W2.answers.length = 0; W2.quiet.length = 0; W2.cast = null; W2.hooked = null; W2.next = SU(2, 6); W2.lamps = null;
+  }
+  const SIGHT_PUSH = { x: 0, z: 0, heading: 0, kind: 11, length: 0.3, strength: 0, seed: 0, age: 0, since: 0, radius: 1, toNext: 99, tint: 0xb7b0e8, aspect: 0.2, c: [0, 0, 0, 0], d: [0, 0, 0, 1] };
+  const ANSWER_KIND = { rise: 1, splash: 1.1, bow: 12, spray: 3, ruffle: 3.1, fizz: 5, pinprick: 7.1, cloud: 9, stems: 10 };
+  /** The silhouettes and the answers into fishing-fx's instance buffer (one instance each). */
+  function drawMoss() {
+    const W2 = wc2();
+    if (!mossLoop()) return;
+    const raft = raftPos(), light = SI.lightOf(phaseNow());
+    const P = SIGHT_PUSH;
+    for (const f of W2.sights) {
+      const k = f.alpha * f.vis;
+      if (k < 0.01) continue;
+      const so = SI.shadowOffset(f, { light, raft });
+      const c = Math.cos(f.heading), s = Math.sin(f.heading);
+      P.x = f.x; P.z = f.z; P.heading = f.heading; P.kind = 11; P.length = f.length; P.strength = k; P.seed = f.seed;
+      P.c[0] = f.age; P.c[1] = so.x * c - so.z * s; P.c[2] = f.speed; P.c[3] = so.x * s + so.z * c;
+      P.d[0] = SI.OUTLINE_ID[f.outline] || 2; P.d[1] = f.depth; P.d[2] = f.sp?.id === 'candlefin_koi' && light === 'dusk' ? 1 : 0; P.d[3] = f.n;
+      fx.pushSign(P);
+    }
+    for (const a of W2.answers) {
+      if (!a.started) continue;
+      const t = a.t - a.delay, u = clamp(t / a.life, 0, 1);
+      const k = clamp(t / 0.15, 0, 1) * (1 - smoothstep(0.65, 1, u));
+      let x = a.x, z = a.z;
+      if (a.type === 'bow') { x = a.x + (a.x1 - a.x) * smoothstep(0, 1, u); z = a.z + (a.z1 - a.z) * smoothstep(0, 1, u); }
+      PUSH.x = x; PUSH.z = z; PUSH.heading = a.heading; PUSH.kind = ANSWER_KIND[a.type] ?? 1; PUSH.length = a.L ?? 0.5; PUSH.strength = k;
+      PUSH.seed = a.seed ?? 0.3; PUSH.age = t; PUSH.since = t; PUSH.radius = a.type === 'spray' || a.type === 'ruffle' ? 1.1 : a.type === 'stems' ? 1.0 : 1.5;
+      PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
+      fx.pushSign(PUSH);
+    }
+  }
+  /** debug (CONTRACT §13.11, WC-2): a silhouette at a point. */
+  function debugSight(speciesId = null, o = {}) {
+    if (!mossLoop()) return null;
+    const oo = o && typeof o === 'object' ? o : {};
+    const sp = speciesId ? speciesById(speciesId) : null;
+    const at = Number.isFinite(oo.x) ? { x: oo.x, z: oo.z } : null;
+    const f = spawnSight({ at, species: sp || undefined, z: oo.size ?? null, heading: oo.heading, mode: oo.mode, speed: oo.speed, life: oo.life, force: oo.force !== false, outline: oo.outline });
+    return f ? sightView(f) : null;
+  }
+  const sightView = (f) => ({ id: f.id, speciesId: f.sp?.id ?? null, outline: f.outline, length: Math.round(f.length * 1000) / 1000, x: f.x, z: f.z, heading: f.heading,
+    speed: f.speed, mode: f.mode, area: f.area, depth: f.depth, vis: f.vis, alpha: f.alpha, keepOff: f.keepOff, n: f.n });
+  /** debug (WC-2): cast the float at (x, z) from where the raft is (a real flight; the landing runs as any cast's). */
+  function debugCastAt(x, z, power = 0.6) {
+    if (state !== 'idle' || !Number.isFinite(x) || !Number.isFinite(z)) return false;
+    const raft = raftPos(), d = Math.hypot(x - raft.x, z - raft.z);
+    if (d < 1) return false;
+    V.aimDir.set((x - raft.x) / d, 0, (z - raft.z) / d);
+    V.target.set(x, 0, z);
+    beginCast(d, power);
+    return state === 'casting';
+  }
+  // ================================================================ (end WC-2)
 
   // ---------------------------------------------------------------- per-state updates
   function updateCharging(dt) {
@@ -3435,8 +3862,11 @@ export function create(ctx) {
       } else if (ev.type === 'tell') {
         S.dipKind = 'tell'; S.dipT = 0.56;   // gold double-dip
         view.tell = 'gold';
-        fx.pulse(x, z, { color: 0xffd27a, r0: 0.15, r1: 0.9, duration: 0.45, alpha: 1 });
-        fx.pulse(x, z, { color: 0xffd27a, r0: 0.15, r1: 1.3, duration: 0.7, alpha: 0.8 });
+        if (mossLoop()) call(() => ctx.water?.addRipple?.(x, z, 0.55));   // WC-2 (§5.7): the same double dip, a pale water ring
+        else {
+          fx.pulse(x, z, { color: 0xffd27a, r0: 0.15, r1: 0.9, duration: 0.45, alpha: 1 });
+          fx.pulse(x, z, { color: 0xffd27a, r0: 0.15, r1: 1.3, duration: 0.7, alpha: 0.8 });
+        }
         emit('fishing:nibble', { tell: true });
       } else {
         S.dipKind = 'nibble'; S.dipT = num(Bt.nibbleDur, 0.22);
@@ -3830,10 +4260,17 @@ export function create(ctx) {
             const oo = o && typeof o === 'object' ? o : {};
             const at = Number.isFinite(oo.x) ? { x: oo.x, z: oo.z } : null;
             const sp = oo.speciesId ? speciesById(oo.speciesId) : null;
-            const s = spawnSign(kind, { at, force: true, kindOnly: !!kind, species: sp || undefined, z: oo.size ?? oo.sizeZ, ttl: oo.ttl, heading: oo.heading });
-            return s ? { id: s.id, kind: s.kind, x: s.position.x, z: s.position.z, prerolled: s.prerolled || null } : null;
+            const s = spawnSign(kind, { at, force: true, kindOnly: !!kind, species: sp || undefined, z: oo.size ?? oo.sizeZ, ttl: oo.ttl, heading: oo.heading, form: oo.form });
+            return s ? { id: s.id, kind: s.kind, form: s.form ?? null, area: s.area ?? null, makers: s.makers ?? null, x: s.position.x, z: s.position.z, prerolled: s.prerolled || null } : null;
           } catch (e) { report(e); return null; }
         },
+        // WC-2: sight(speciesId, {x, z, heading, size, mode, speed, life, force}) puts a silhouette there; fishSights() lists them (with their
+        // hidden fish); castAt(x, z) casts the float there; mossAnswers() the water's answers playing; mossSign(kind, form, {x, z}) a tell
+        sight: (id = null, o = {}) => { try { return debugSight(id, o); } catch (e) { report(e); return null; } },
+        fishSights: () => (S.wc2 ? S.wc2.sights.map(sightView) : []),
+        castAt: (x, z, power) => { try { return debugCastAt(x, z, power); } catch (e) { report(e); return false; } },
+        mossAnswers: () => (S.wc2 ? S.wc2.answers.map((a) => ({ type: a.type, t: Math.round(a.t * 100) / 100, started: !!a.started, x: a.x, z: a.z })) : []),
+        mossHooked: () => (S.wc2?.hooked ? { ...S.wc2.hooked } : null),
         preroll: (speciesId, z = null) => {
           const r0 = raftPos();
           const cy = num(call(() => ctx.render?.getYaw?.()), 0);
