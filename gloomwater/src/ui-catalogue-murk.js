@@ -245,8 +245,8 @@ const CSS = `
 
 /**
  * The book (ui-loop's createLoopView builds it once): `deps` are ui-loop's own pieces ({K, L, D, TL, h, report, icon, clamTag, shelfCards,
- * goalLine, sealRow, gear, buy, mapArtSizes, drawFishInk, wickPortrait, reducedMotion, openOdds, hasOdds, wick}). → {render(entry, body),
- * onKey(code), reset()}.
+ * goalLine, sealRow, gear, buy, mapArtSizes, drawFishInk, reducedMotion, openOdds, hasOdds, wick, tutorial, close}). → {render(entry, body),
+ * onKey(code), debug(), slow(k), go(page), pageOf(focus)}.
  */
 export function createMurkBook(deps) {
   const { K, L, D, TL, h, report = () => {}, icon, clamTag } = deps;

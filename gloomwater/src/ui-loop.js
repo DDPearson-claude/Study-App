@@ -636,7 +636,7 @@ export function createLoopView(K) {
   } catch (e) { report('chart.prepare', e); }
   const gallery = createGalleryView({ K, D, loop, report: (w, e) => report(w, e) });   // M1 step 5b: the cabin's gallery (wing I)
   // Murk's catalogue: the shelf's modal draws this book (its pages, engravings, turns and the order line); every buy is the shelf's own
-  const book = createMurkBook({ K, L, D, TL, h, icon, clamTag, shelfCards, goalLine, mapArtSizes, drawFishInk, wickPortrait, reducedMotion, gear,
+  const book = createMurkBook({ K, L, D, TL, h, icon, clamTag, shelfCards, goalLine, mapArtSizes, drawFishInk, reducedMotion, gear,
     report: (w, e) => report(w, e), sealRow: (...a) => sealRow(...a), buy: (entry, id) => buy(entry, id), wick: () => L('wick'),
     tutorial: () => tut.isActive(), close: () => backToJetty('shelf'),
     hasOdds: () => typeof K.screens?.openTackle === 'function' && !!D().AUTOFISH, openOdds: () => K.screens?.openTackle?.({ titleChild: true }) });
