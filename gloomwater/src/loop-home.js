@@ -11,7 +11,7 @@
 //   canGoHome / goHome       the Home pill and the pause's Home
 //   skipHomeGlide()          a tap or a skip key: the running home glide ends at its end and what follows runs at once
 // M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 items 5–6, PLAN CHOICEs 7, 8, 24; T128, T129):
-//   the lift                 at a trip's start (never a Continue), each owned place whose mist has not lifted (loop.liftDue(), price
+//   the lift                 at a trip's start (and on a Continue, only one the page closed on), each owned place whose mist has not lifted (loop.liftDue(), price
 //                            order) in turn: ctx.cinematic on, place:lift {placeId, phase: 'start', name}, world.liftMist(id, 3),
 //                            render.frameLandmark(landmark, {dur, back}); at 3 s {phase: 'title'}; at 4.2 s {phase: 'end'},
 //                            loop.markLifted(id), the places synced; cinematic off after the last. update(dt) runs its clock (main's
@@ -118,7 +118,9 @@ export function createLoopHome(deps) {
     return p;
   }
   if (ctx.bus?.on) {
-    ctx.bus.on('run:start', () => syncPlaces());
+    // a Continue syncs the places, and replays a lift the page closed on (its place owned, not lifted: PLAN CHOICE 8's "a reload
+    // mid-lift replays it"; else the place stood in mist all evening, every cast there a mist cast; the fix pass)
+    ctx.bus.on('run:start', (e) => { syncPlaces(); if (e?.continued === true) beginLifts(); });
     ctx.bus.on('home:enter', () => { S.lift = null; syncPlaces(); });
     ctx.bus.on('loop:buy', () => syncPlaces());
   }

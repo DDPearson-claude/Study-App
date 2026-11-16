@@ -340,10 +340,14 @@ section('M1 step 3a: the lift at a trip\'s start (T128)');
   const N = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
   N.H.sail({ water: 'mossmere' }); await N.step(3.2);
   ok(N.lifts().length === 0 && N.ctx.cinematic === false && N.calls.some((c) => c === 'setPlaces:lily_maze|lily_maze'), 'T128: a place already lifted never lifts again (its dressing lit from run:start)');
-  // a Continue's run:start syncs the places and plays no lift (PLAN §2.2 item 5: at run:start, not continued)
+  // a Continue's run:start syncs the places; it replays only a lift the page closed on (owned, not lifted: PLAN CHOICE 8's "a reload
+  // mid-lift replays it"), and plays none when every owned place is lifted
   const Q = liftEnv({ own: ['buoy_lights'] }); Q.ctx.flow = 'playing'; Q.ctx.state.run = Q.loop.createTrip({});
   Q.bus = Q.ctx.bus; Q.ctx.bus.emit('run:start', { continued: true });
-  ok(Q.lifts().length === 0 && Q.calls.some((c) => c === 'setPlaces:buoy_lights|'), 'a Continue: the places synced, no lift');
+  ok(Q.lifts().includes('buoy_lights:start') && Q.calls.some((c) => c === 'setPlaces:buoy_lights|'), 'a Continue after a reload mid-lift: the places synced and the cut-short lift replayed', Q.lifts());
+  const Q2 = liftEnv({ own: ['buoy_lights'], lifted: ['buoy_lights'] }); Q2.ctx.flow = 'playing'; Q2.ctx.state.run = Q2.loop.createTrip({});
+  Q2.ctx.bus.emit('run:start', { continued: true });
+  ok(Q2.lifts().length === 0 && Q2.ctx.cinematic === false && Q2.calls.some((c) => c === 'setPlaces:buoy_lights|buoy_lights'), 'a Continue with every owned place lifted: the places synced, no lift');
   // home:enter and a buy sync the places too
   const H2 = liftEnv({ own: [] });
   H2.ctx.bus.emit('home:enter', { from: 'title' }); H2.loop.s.maps.places.push('lily_maze'); H2.ctx.bus.emit('loop:buy', { item: 'place:lily_maze', price: 60, clams: 0 });

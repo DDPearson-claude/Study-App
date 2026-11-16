@@ -237,6 +237,11 @@ const DRAFT = {
 /** The sim's tables: the draft above with the moved keys read from data.js (the binding copy: PLAN §6.4). */
 export const LOOP = { ...DRAFT, ...Object.fromEntries(MOVED.map((k) => [k, D.LOOP[k]])) };
 const WATER = Object.fromEntries(LOOP.waters.map((w) => [w.id, w]));
+// the waters the game ships (data.LOOP.shipped and every water before it in the unlock order): PLAN CHOICE 27's giant-by-day fix is
+// scoped to them until the balancing job re-tunes the later waters (the fix pass, the PLAN's other way: the fix on every water failed four
+// --quick checks and one full --wicks check, all on waters after M1, with no ruling yet; the shipped runs do not move either way)
+const SHIP_I = Math.max(0, LOOP.waters.findIndex((w) => w.id === D.LOOP.shipped));
+const SHIPPED_WATERS = new Set(LOOP.waters.slice(0, SHIP_I + 1).map((w) => w.id));
 
 // ---- the Wicks' pure helpers (WICKS.md §2.2–§2.4, §3.1): `wickSlots`, `goodBitesFor`, `quietTerms`, `wickPoolWeights`. Slice 1a exports
 // them from data.js; where data.js has one, the sim calls it (the same function the game calls), and until then it uses the stand-in
@@ -465,7 +470,8 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
     // M1 step 3a's seam (PLAN CHOICE 27): a giant at its place reaches the giant branch whatever the hour (its offHour share outside its
     // hours, SPEC decision 7: "more in its hour, never none"); the hours filter applies to the rest. Before, the hours ran first, so a
     // giant had no share outside its hours (the Thousandcast none by day). data.placePool is the same rule on the game's records.
-    if (s.giant) { if (P && s.placeId === P.id) giant = s; continue; }
+    // (scoped to the shipped waters: after them the hours still run first, as before 3a, until the balancing job)
+    if (s.giant && (SHIPPED_WATERS.has(water) || s.hours.includes(phase))) { if (P && s.placeId === P.id) giant = s; continue; }
     if (!s.hours.includes(phase)) continue;
     let w;
     const PW = LOOP.place;                                 // data.LOOP.place (M1 step 3a)

@@ -581,7 +581,9 @@ export function createAutofish(S) {
     // legends: wounded (+6 Hold on the next attempt, ≤ 3 counted); Marked Fish: a re-hooked one stays out there, a new one is marked
     if (legend) addLegendWound(sp.id);
     else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
-    else if (e.markedFish && !comeback) addMarkedFish({ ...e, name, zone: lake });   // the Full Hold: Ashwick's comeback is not also marked
+    // the Full Hold: Ashwick's comeback is not also marked; a giant lost on a trip is the ledger's Marked giant (meta.loop.giants, M1
+    // step 3a), never also a built Marked Fish (nothing on a trip would ever clear it)
+    else if (e.markedFish && !comeback && !(loopRun(r) && sp.giant === true)) addMarkedFish({ ...e, name, zone: lake });
     // the gear log pins the last fish that got away (not the Landing's Quayling: the gear log is about the lakes)
     if (!S.isCove(sp.id)) m.lastAway = { speciesId: sp.id, sizeClass: cls, reason: e.reason || null, name, approxLength: len, zone: lake };
     if (r) {

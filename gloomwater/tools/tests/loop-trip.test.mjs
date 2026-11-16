@@ -811,6 +811,7 @@ section('T113: a Marked giant (marked at its place for every Wick, at any class;
     bite(env, SPAN);
     env.ctx.bus.emit('fish:escaped', { speciesId: 'thousandcast_pike', sizeClass: 'keeper', z: 0.3, place: SPAN, zone: 'mossmere', reason: 'thrown', markedFish: true });
     eq(meta.loop.giants.thousandcast_pike?.marked, 1, `${wick}: a Keeper Thousandcast lost under the Span is marked (any class)`);
+    ok(!(meta.markedFish || []).some((x) => x?.speciesId === 'thousandcast_pike'), `${wick}: … by the ledger only, never also a built Marked Fish (meta.markedFish)`, meta.markedFish);
     ok(env.ctx.state.run.comeback === null, `${wick}: no comeback is queued for a giant (Ashwick's never takes a giant)`);
     ok(env.L.takeGiantMark('thousandcast_pike') === true && meta.loop.giants.thousandcast_pike.marked === 0 && env.L.takeGiantMark('thousandcast_pike') === false, `${wick}: its next hook takes the mark once (+${D.LOOP.giant.markedHold} Hold), then it is gone`);
     env.ctx.bus.emit('fish:escaped', { speciesId: 'hullkiss_lamprey', sizeClass: 'elder', z: 2.7, place: SPAN, zone: 'mossmere', reason: 'thrown' });
