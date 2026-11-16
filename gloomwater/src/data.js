@@ -4994,9 +4994,23 @@ TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoo
 // >>> WC-1 (docs/loop/WATERCRAFT.md rev. 2 §3.9, §8.1; SPEC v8.7 §8.11, decisions 93–104). Additive: LOOP.cost (Murk's price factor, read
 // by the sim now and applied in the game by the integrator's step P), loopCost and nice, loopLight's export, and the watercraft words.
 // None of these is in the v3 fingerprint (LOOP and TEXT_LOOP are read only under data.LOOP_ENABLED).
-// Murk's price = nice(base × factor); a consumable (a tin, a legend's bait) × consumables. A LOOP.cost the build already holds (the
-// integration's, GW_LOOP_COST) keeps its own keys: these fill only what is missing (WATERCRAFT.md §8.4: the factor is fitted at step P)
-LOOP.cost = Object.assign({ factor: Number(globalThis.GW_LOOP_COST) > 0 ? Number(globalThis.GW_LOOP_COST) : 3, consumables: 1 }, LOOP.cost || {});
+// Murk's price = nice(base × factor); a consumable (a tin, a legend's bait) × consumables. The factor the game ships at is `shipped`:
+// the user, 16 Nov 2026, "For now just double the original costs ill playtest and tell you how it is" (×2; WATERCRAFT.md §8 designed
+// ×3 and the sim fits ×4: the lead's step P may change this one number). Which factor a load plays at (loopCostFactor): a preset
+// GW_LOOP_COST (a positive number) wins; else a browser page plays at its ?cost=N or at `shipped`; node tools and tests keep the base
+// prices (×1) unless they preset GW_LOOP_COST, and the sim's M1 view reads `shipped`. Other keys of a LOOP.cost the build holds stay.
+export const LOOP_COST_SHIPPED = 2;
+/** Pure: the price factor a load plays at, from its globals ({GW_LOOP_COST, document, location}). */
+export function loopCostFactor(g = globalThis) {
+  const preset = Number(g?.GW_LOOP_COST);
+  if (preset > 0) return preset;
+  if (typeof g?.document === 'undefined' || typeof g?.location?.search !== 'string') return 1;
+  let q = null;
+  try { q = new URLSearchParams(g.location.search); } catch { q = null; }
+  const n = q && q.has('cost') ? Number(q.get('cost')) : NaN;
+  return n > 0 ? n : LOOP_COST_SHIPPED;
+}
+LOOP.cost = Object.assign({ consumables: 1 }, LOOP.cost || {}, { factor: loopCostFactor(), shipped: LOOP_COST_SHIPPED });
 // the shelf's one line for each tin and lure (SPEC §8.11, replacing lane 4's family lines; the Spinner's as built)
 Object.assign(TEXT_LOOP.shelf, {
   mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'Sweet. The Gloam Eel bites on nothing else.', cut_strip: 'Meat, for the hunters.',

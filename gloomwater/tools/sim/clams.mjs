@@ -65,8 +65,11 @@ const A = D.AUTOFISH, SZ = D.BALANCE_V3.size, RW = D.RARITY_WEIGHTS, C = D.CATCH
 const args = process.argv.slice(2), QUICK = args.includes('--quick'), MD = args.includes('--md') || args.includes('--fish');
 const argOf = (name) => args.find((a) => a.startsWith(`--${name}=`))?.split('=')[1] ?? null;
 const SHIPPED = argOf('shipped'), STEP = +(argOf('step') ?? 5);   // --shipped=mossmere --step=1…6: M1's own arc (M1.md §6.4)
-// WC-1 (WATERCRAFT.md §8.1): Murk's price factor, data.LOOP.cost.factor; --factor=F overrides it for a run (the full road pins it to 1)
+// WC-1 (WATERCRAFT.md §8.1): Murk's price factor. The sim prices M1 at the factor the game ships at (data.LOOP.cost.shipped, which a
+// browser page plays at; node's LOOP.cost.factor is ×1 for the tests) unless GW_LOOP_COST is preset; --factor=F overrides it for a run
+// (the full road pins it to 1)
 if (argOf('factor') != null && Number.isFinite(+argOf('factor'))) D.LOOP.cost.factor = +argOf('factor');
+else if (!(Number(globalThis.GW_LOOP_COST) > 0) && Number(D.LOOP.cost.shipped) > 0) D.LOOP.cost.factor = Number(D.LOOP.cost.shipped);
 const N = QUICK ? 1200 : 4000;                            // trips per row
 const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const CI = Object.fromEntries(CLASSES.map((c, i) => [c, i]));

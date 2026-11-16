@@ -1965,10 +1965,15 @@ hook})`**: on the Mossmere `{...placePool, list (the step's weights), entries ([
 `S.comeback` (so `consumeComeback` runs only when the comeback's entry is drawn) and `S.taperRule` from the drawn entry. LANE 5C's snag
 block after `S.species = sp` is untouched. Debug: `fishOdds()` (the last cast's odds, never on screen) and `fishPoolRoll`'s `shares`.
 
-**`src/data.js`**: `LOOP.cost = {factor: 3, consumables: 1}`; **`loopCost(base, {consumable})`** = `nice(base × factor)` (a consumable
-× `consumables`; a factor of 1 gives the base); **`nice(x)`** (to 5 under 100, 10 under 1,000, 50 under 10,000, 100 above);
-**`loopLight(phase)`**. The game applies `loopCost` at step P (progression-loop's `mapCards`, the end of `shelfItems`, the legend's
-pay); the sim reads it now (`clams.mjs --factor=F` overrides; the full road keeps the prices before v8.7). `TEXT_LOOP.shelf`'s seven tin
+**`src/data.js`**: `LOOP.cost = {factor, shipped: LOOP_COST_SHIPPED (2), consumables: 1}`. `shipped` is the factor the game plays
+at (the user, 16 Nov 2026: "For now just double the original costs"; WATERCRAFT.md §8 designed ×3, the sim fits ×4: the lead's one
+number to change). **`loopCostFactor(g)`** (pure) gives `factor` for a load: a preset `GW_LOOP_COST` (a positive number) wins; else a
+browser page (a `document` and a `location`) plays at its `?cost=N` (a positive number) or at `shipped`; node tools and tests play at
+×1 (base prices) unless they preset `GW_LOOP_COST`. Old browser scenarios that buy with given clams load with `?cost=1`.
+**`loopCost(base, {consumable})`** = `nice(base × factor)` (a consumable × `consumables`; a factor of 1 gives the base); **`nice(x)`**
+(to 5 under 100, 10 under 1,000, 50 under 10,000, 100 above); **`loopLight(phase)`**. The game applies the factor at step P
+(progression-loop's `mapCards`, the end of `shelfItems`, the legend's pay); the sim prices M1 at `shipped` (`clams.mjs --factor=F`
+overrides; a preset `GW_LOOP_COST` is kept; the full road keeps the prices before v8.7). `TEXT_LOOP.shelf`'s seven tin
 and lure lines (SPEC §8.11) and `TEXT_LOOP.log` {`whoBites`, `bare`, `under` ("<1%", the gear log's one share word), `unmet`, `gear`}.
 
 **Tests**: `tools/tests/watercraft.test.mjs` (the areas, the bake, the fit, the user's rule over every pool and cast type, the tip,

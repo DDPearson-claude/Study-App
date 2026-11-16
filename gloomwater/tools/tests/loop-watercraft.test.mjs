@@ -122,5 +122,17 @@ section('(h) T104 extended: the game\'s pool (castOdds on data.placePool, as fis
   ok(!bad.length && n === 14 * 3 * 12 * 2, `T104 extended: ${n} pools, every share the same (worst ${worst.toExponential(1)})${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}`);
 }
 
+section('Murk\'s price factor: the game ships at LOOP.cost.shipped (the user\'s ×2) in a page; node keeps ×1; GW_LOOP_COST, then ?cost=N, replace it');
+{
+  const f = D.loopCostFactor, page = (search, extra = {}) => ({ document: {}, location: { search }, ...extra });
+  eq(D.LOOP_COST_SHIPPED, 2, 'the shipped factor is the user\'s "double the original costs"');
+  eq([D.LOOP.cost.factor, D.LOOP.cost.shipped, D.LOOP.cost.consumables], [1, 2, 1], 'node (no page): LOOP.cost plays at ×1, ships at ×2, consumables 1');
+  eq([f({}), f({ document: {} }), f(page('?loop=1')), f(page('')), f(page('?loop=1&cost=1')), f(page('?cost=4')), f(page('?cost=2.5'))],
+    [1, 1, 2, 2, 1, 4, 2.5], 'loopCostFactor: node 1, a fake document without a location 1, a page 2, ?cost=N its N');
+  eq([f(page('?cost=0')), f(page('?cost=-3')), f(page('?cost=abc')), f(page('?cost='))], [2, 2, 2, 2], 'loopCostFactor: a ?cost that is not a positive number keeps the shipped ×2');
+  eq([f({ GW_LOOP_COST: 3 }), f(page('?cost=4', { GW_LOOP_COST: 1 })), f(page('', { GW_LOOP_COST: '5' })), f(page('', { GW_LOOP_COST: 0 }))], [3, 1, 5, 2], 'loopCostFactor: a preset GW_LOOP_COST wins over ?cost and the page');
+  eq([D.loopCost(30), D.loopCost(10, { consumable: true })], [30, 10], 'node loopCost: base prices (the tests\' prices)');
+}
+
 console.log(`\nloop-watercraft: ${pass} passed, ${fail} failed`);
 if (fail) { console.log(failures.slice(0, 20).join('\n')); process.exit(1); }
