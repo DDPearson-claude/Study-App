@@ -3,7 +3,7 @@
 // Shrine of Drowned Lanterns, trials (challenges), settings, pause, Descend, death and
 // victory. Built on the modal stack in ui.js. Imported only by ui.js.
 import { loadSave } from './core.js';
-import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette } from './ui-icons.js';
+import { wickPortrait, murkPortrait, relicLantern, sealSvg, modeVignette, passiveIcon } from './ui-icons.js';
 import { drawFish, drawFishInk } from './ui-fishart.js';
 import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizers, weightHtml } from './ui-v3.js';
 import * as AF from './ui-af.js';
@@ -583,9 +583,14 @@ export function createScreens(K) {
         grid.appendChild(b);
       });
       content.appendChild(grid);
-      const line = h('p', 'gw-loop-trait');
-      line.textContent = M.line;
-      content.appendChild(line);
+      // the lit Wick's passive, set apart under the cards (the user, 16 November 2026: "bigger in your view and more obvious what it
+      // does", "a small image indicating what they do"): its ink picture, its name and its one line
+      const pv = h('div', 'gw-loop-passive');
+      pv.setAttribute('aria-live', 'polite');
+      pv.innerHTML = `<span class="gw-loop-passive-ico">${passiveIcon(M.sel)}</span><span class="gw-loop-passive-txt"><b class="gw-loop-passive-name"></b><span class="gw-loop-trait"></span></span>`;
+      pv.querySelector('.gw-loop-passive-name').textContent = M.passive;
+      pv.querySelector('.gw-loop-trait').textContent = M.line;
+      content.appendChild(pv);
       foot.appendChild(btn(esc(TL().back || 'Back'), { cls: 'gw-loop-back', onClick: () => K.closeModal('newdescent') }));
       foot.appendChild(btn(esc(TL().start || 'Start'), { cls: 'gw-btn--primary gw-loop-start', icon: 'flame', autofocus: true, action: 'start', onClick: () => start(s) }));
       // a new Wick lit: Start keeps the keyboard's focus (the panel was drawn again under it)

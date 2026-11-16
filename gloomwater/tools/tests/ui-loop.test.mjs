@@ -167,6 +167,7 @@ section('T43: the allow-list helper');
   ok(U.textAllowed(TL.newDescent, { D, words: W, screen: 'title' }) && U.textAllowed(TL.newDescent, { D, words: W, screen: 'newdescent' }), '"New Descent" on the fresh title and the panel');
   ok(!U.textAllowed(TL.newDescent, { D, words: W, screen: 'jetty' }) && !U.textAllowed(TL.newDescent, { D, words: W, screen: 'pause' }), '… and nowhere else');
   for (const w of Object.values(TL.wicks)) ok(U.textAllowed(w, { D, words: W }) && w.split(/\s+/).length <= 8 && w.length <= 36, `the Wick line "${w}" (≤ 8 words, ≤ 36 characters)`);
+  for (const n of Object.values(TL.passives)) ok(U.textAllowed(n, { D, words: W, screen: 'newdescent' }) && n.split(/\s+/).length <= 2, `the passive's name "${n}" (on the allow-list, one or two words)`);
   for (const t of [D.FIRST_EVENING.tips.fe_cast, D.FIRST_EVENING.tips.fe_strike.touch, D.FIRST_EVENING.tips.fe_strike.desktop]) ok(U.textAllowed(t, { D, words: W }), `the tip: ${t}`);
 }
 
@@ -235,17 +236,37 @@ section('T62: the title (titleModel)');
   ok(scr.includes("const fresh = safe(() => g.loopFresh?.(), false) === true;"), 'it keys on game.loopFresh, never on introPending');
 }
 
-section('T59: New Descent (descentModel): five Wicks, one line, Back, Start');
+section('T59: New Descent (descentModel): five Wicks, the lit Wick\'s passive (its picture, name and line), Back, Start');
 {
   const M = U.descentModel(D, 'wick');
   eq(M.cards.map((c) => c.id), D.LOOP.wicks.order, 'the five in LOOP.wicks order');
   eq(M.cards.map((c) => c.name), ['The Wick', 'Taper', 'Stub', 'Tallow', 'Ashwick'], 'their CHARACTERS names');
-  ok(M.line === TL.wicks.wick && M.words.length === 8 && M.words.includes(TL.back) && M.words.includes(TL.start), 'its words: five names, one trait line, Back, Start', M.words);
-  for (const id of D.LOOP.wicks.order) ok(U.descentModel(D, id).line === TL.wicks[id] && U.descentModel(D, id).sel === id, `${id}: its own line`);
+  ok(M.passive === TL.passives.wick && M.line === TL.wicks.wick && M.words.length === 9 && M.words.includes(TL.back) && M.words.includes(TL.start),
+    'its words: five names, the lit Wick\'s passive name and one line, Back, Start', M.words);
+  for (const id of D.LOOP.wicks.order) {
+    const m = U.descentModel(D, id);
+    ok(m.passive === TL.passives[id] && m.line === TL.wicks[id] && m.sel === id && m.words.filter((w) => w === m.passive || w === m.line).length === 2, `${id}: its own name and line`);
+  }
   ok(U.descentModel(D, 'nobody').sel === 'wick', 'an unknown id lights the Wick');
+  // (the user, 16 November 2026: "more obvious what it does": WICKS.md's passive names are shown, and four lines say plainly what changes)
+  eq(D.LOOP.wicks.order.map((id) => TL.passives[id]), ['Curious', 'Long Reach', 'Moth-Bright', 'Broad Back', 'Burns Back'], 'the passives\' names are WICKS.md\'s');
+  ok(/\bslot\b/.test(TL.wicks.tallow) && /\bhold\b/.test(TL.wicks.tallow), 'Tallow\'s line says one more slot in the hold', TL.wicks.tallow);
+  ok(/\bsooner\b/.test(TL.wicks.stub) && /\bevening/i.test(TL.wicks.taper) && !/^Firsts\b/.test(TL.wicks.wick), 'Stub\'s says sooner, Taper\'s says each evening, the Wick\'s no bare "Firsts"', [TL.wicks.stub, TL.wicks.taper, TL.wicks.wick]);
+  { const T2 = { ...TL }; delete T2.passives; ok(U.descentModel({ ...D, TEXT_LOOP: T2 }, 'stub').words.length === 8, 'without TEXT_LOOP.passives: no empty word'); }
+  // the five ink pictures (ui-icons passiveIcon): one a Wick, all different, ink in currentColor with the candle amber at most
+  const I = await import('../../src/ui-icons.js');
+  const pics = D.LOOP.wicks.order.map((id) => I.passiveIcon(id));
+  ok(pics.every((p) => /^<svg class="gw-pico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">/.test(p) && p.endsWith('</svg>') && p.includes('currentColor')), 'passiveIcon: an inline 64-grid SVG for each Wick, hidden from the reader, drawn in currentColor');
+  ok(new Set(pics).size === 5 && I.passiveIcon('nobody') === '' && I.passiveIcon('curious') === '', 'five different pictures; an unknown id (or a passive\'s code id) draws nothing');
+  const colours = [...new Set(pics.flatMap((p) => p.match(/#[0-9a-f]{3,8}\b/gi) || []))];
+  ok(colours.every((c) => c.toLowerCase() === '#ed9e3b') && pics.every((p) => p.includes('var(--amber, #ed9e3b)')), 'no colour but ink (currentColor) and the Starlit candle amber (var(--amber))', colours);
+  ok(pics.every((p) => !/\b(curious|long_reach|moth_bright|broad_back|burns_back)\b/.test(p)), 'no passive\'s code id in a picture (WICKS §4 guard 7)');
   const scr = src('ui-screens.js');
   ok(scr.includes('if (loopOn()) return openLoopDescent();'), 'openNewDescent\'s first line under the loop');
   const body = scr.slice(scr.indexOf('function openLoopDescent()'), scr.indexOf('// <<< LOOP 1a', scr.indexOf('function openLoopDescent()')));
+  ok(/h\('div', 'gw-loop-passive'\)/.test(body) && body.includes('${passiveIcon(M.sel)}') && body.includes('gw-loop-passive-name') && body.includes('class="gw-loop-trait"') && body.includes('M.passive') && body.includes('M.line'),
+    'the panel draws one passive block for the lit Wick: its picture, its name and its line (.gw-loop-trait)');
+  ok(!/passiveIcon\(c\.id/.test(body), 'no picture on the cards (the panel stays calm: five portraits, one passive block)');
   ok(body.includes("close: false") && body.includes("title: '', sub: ''"), 'no ✕, no heading, no sub-line');
   ok(!/characters\(\)|challenges\(\)|modeCards|nightsStep|ratingFor|getWaystones|gw-locked/.test(body), 'never characters(), challenges(), the mode cards, the nights, the rating, the waystones or a lock');
   ok(/ArrowLeft[\s\S]*ArrowRight[\s\S]*\(\?:Digit\|Numpad\)\(\[1-5\]\)[\s\S]*Enter/.test(body), '← → and 1–5 move the selection; Enter presses Start');
