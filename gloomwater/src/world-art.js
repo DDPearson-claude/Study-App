@@ -359,6 +359,27 @@ export function buildArena(ctx, L, opts = {}) {
     return Number.isFinite(best) ? best - 0.15 : 0;
   };
 
+  // M1 step 3a: what the loop's places read of the built art (pure records, no geometry): the Toppled Bridge's piers as drawn
+  // (their height and whether the top is broken) and every street lamp-post; opts.redress (LOOP.redress, W9's rest) swaps the
+  // posts for rust bollards and buoy-lanterns
+  const piers = [], lampPosts = [];
+  const redressOn = opts.redress === true && theme === 'mossmere';
+  const RUST = lin(0x8a4b3a);
+  function bollard(x, y, z, ry, light) {
+    // a squat rust bollard (a mooring post with a domed head and a collar), a buoy-lantern hung on a short chain from its arm
+    const b = latheGeo([[0.2, -0.3], [0.22, 0.0], [0.19, 0.5], [0.16, 0.62], [0.24, 0.66], [0.24, 0.74], [0.16, 0.78], [0.12, 0.9], [0.01, 0.95]], 10);
+    kit.org.push(prep(b, { matrix: mat(x, y, z, 0, ry, 0), colorFn: (px, py) => mixArr(RUST, K.iron, py - y < 0.25 ? 0.55 : 0.15) }));
+    const lx = x + Math.cos(-ry) * 0.42, lz = z + Math.sin(-ry) * 0.42, ly = y + 0.62;
+    kit.org.push(prep(taperTube([V(0, 0.82, 0), V(0.22, 0.9, 0), V(0.42, 0.86, 0)], () => 0.035, 4, 6), { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
+    const body = latheGeo([[0.01, -0.2], [0.14, -0.14], [0.16, 0.0], [0.12, 0.08], [0.04, 0.1], [0.03, 0.22], [0.01, 0.24]], 8);
+    kit.org.push(prep(body, { matrix: mat(lx, ly - 0.1, lz), colorFn: (px, py) => (py < ly - 0.04 ? mixArr(RUST, K.wood, 0.4) : K.iron) }));
+    if (light) {
+      kit.glow.push(prep(new THREE.OctahedronGeometry(0.09, 0), { matrix: mat(lx, ly + 0.04, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.candle, 2.4) }));
+      halos.add(lx, ly + 0.04, lz, scaleArr(PL.candle, 1.0), 1.8);
+      addAnchor(lx, ly + 0.1, lz, candleLight, 2.6, 10);
+    }
+  }
+
   // ---------------- theme prop builders
   const P = {
     column(x, z, r, h, broken = true, baseY = 0) {
@@ -377,10 +398,15 @@ export function buildArena(ctx, L, opts = {}) {
       if (!broken) kit.rock.push(prep(new THREE.BoxGeometry(r * 2.3, r * 0.5, r * 2.3), { matrix: mat(x, baseY + hh - 0.2, z, 0, rng() * TAU, 0), color: K.stone }));
     },
     lamp(x, y, z, h = 3.2, light = true) {
+      // M1 step 3a (W9 behind LOOP.redress, PLAN §2.4 item 3): with opts.redress the street lamp-post becomes a rust bollard with a
+      // buoy-lantern on its head, merged into the same statics (0 net calls). The rng is drawn exactly as the post draws it, so
+      // every other piece of the lake is placed as built; off the switch nothing here changes.
+      if (redressOn) { const ry = rng() * TAU; lampPosts.push({ x, y, z, h, ry }); bollard(x, y, z, ry, light); return; }
       const post = new THREE.CylinderGeometry(0.07, 0.11, h, 6);
       kit.org.push(prep(post, { matrix: mat(x, y + h / 2, z), color: K.iron }));
       const arm = taperTube([V(0, h - 0.1, 0), V(0.35, h + 0.25, 0), V(0.75, h + 0.1, 0)], () => 0.045, 5, 8);
       const ry = rng() * TAU;
+      lampPosts.push({ x, y, z, h, ry });
       kit.org.push(prep(arm, { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
       const lx = x + Math.cos(-ry) * 0.75, lz = z + Math.sin(-ry) * 0.75, ly = y + h - 0.35;
       kit.org.push(prep(new THREE.ConeGeometry(0.26, 0.22, 6), { matrix: mat(lx, ly + 0.3, lz), color: K.iron }));
@@ -618,7 +644,12 @@ export function buildArena(ctx, L, opts = {}) {
   for (const p of L.pillars) {
     const s = p.h;
     switch (p.kind) {
-      case 'column': P.column(p.x, p.z, p.r * 0.95, rng.range(4, 9) * s, rng() < 0.7); break;
+      case 'column': {
+        const h = rng.range(4, 9) * s, broken = rng() < 0.7;   // (the same draws, in the same order, as the built call)
+        P.column(p.x, p.z, p.r * 0.95, h, broken);
+        if (p.dataKind === 'pier') piers.push({ x: p.x, z: p.z, r: p.r * 0.95, h, broken });
+        break;
+      }
       case 'pilings': P.pilings(p.x, p.z, p.r); break;
       case 'wreck': P.wreck(p.x, p.z, p.r * 0.85, p.rot); break;
       case 'lamp':
@@ -1186,6 +1217,7 @@ export function buildArena(ctx, L, opts = {}) {
   return {
     group, anchors, update, applyMood, dispose, rings, statics, sky, keyDir,
     crackTop, crackBottom, dockBuoys, halos,
+    piers, lampPosts, redress: redressOn,   // M1 step 3a: the Toppled Bridge's piers and the street lamp-posts as drawn (records)
     setGate: (s, instant) => gate.set(s, instant),
     get gateState() { return gate.state; },
     get gateOpenK() { return gate.openK; },

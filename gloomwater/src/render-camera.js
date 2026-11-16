@@ -341,3 +341,40 @@ export function showArrival(view, liftRate = 2.5) {
   if (view.phase === 'lift') return Math.max(0, num(D.lift, 0.5) - num(view.poseT, 0)) / rate;
   return 0;
 }
+
+// ------------------------------------------------------------------ the lift's shot (the loop, M1 step 3a; PLAN §2.4 item 4, CHOICE 21)
+// When a place's mist lifts, the lens leaves the sail framing and frames the place from the raft's side: it stands on the line from
+// the place to the raft, far enough back to hold the place's water (its anchor's r) and a little up, looking at the anchor; then eases
+// back to the sail camera. Pure: render.js lays the pose over the rig with landmarkWeight's weight (no cut, no pop).
+export const LANDMARK_SHOT = Object.freeze({ elev: 21, fov: 50, fovPortrait: 64, near: 11, far: 30, perR: 1.35, base: 6.5, minRaft: 3, ease: 0.9 });
+/**
+ * The pose that frames a place: raft {x, z} (or null: the lens's own side, `yaw`), p {x, y, z, r}. → {pos: [x, y, z], look: [x, y, z],
+ * fov, dist}. The distance is base + perR·r (clamped near … far); the lens never stands further from the place than the raft does plus
+ * minRaft (a raft near the place is filmed from just behind it). p.face ([x, z], optional: a path's normal) turns the lens to the
+ * place's broadside on the raft's side.
+ */
+export function landmarkShot(raft, p, { yaw = 0, aspect = 16 / 9, S = LANDMARK_SHOT } = {}) {
+  if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) return null;
+  const r = Math.max(0, num(p.r, 6));
+  let dx = 0, dz = 0, dRaft = Infinity;
+  if (raft && Number.isFinite(raft.x) && Number.isFinite(raft.z)) { dx = raft.x - p.x; dz = raft.z - p.z; dRaft = Math.hypot(dx, dz); }
+  if (!(dRaft > 0.5) || !Number.isFinite(dRaft)) { dx = Math.sin(num(yaw, 0)); dz = Math.cos(num(yaw, 0)); dRaft = Infinity; }
+  // (a long place gives its broadside, p.face: the lens stands across it on the raft's side, not down its length)
+  const f = Array.isArray(p.face) && Number.isFinite(p.face[0]) && Number.isFinite(p.face[1]) && Math.hypot(p.face[0], p.face[1]) > 1e-6 ? p.face : null;
+  if (f) { const fl = Math.hypot(f[0], f[1]), sd = dx * f[0] + dz * f[1] < 0 ? -1 : 1; dx = sd * f[0] / fl; dz = sd * f[1] / fl; }
+  const l = Math.hypot(dx, dz) || 1, ux = dx / l, uz = dz / l;
+  let dist = clamp(num(S.base, 6.5) + num(S.perR, 1.35) * r, num(S.near, 11), num(S.far, 30));
+  if (Number.isFinite(dRaft)) dist = Math.max(num(S.near, 11) * 0.7, Math.min(dist, dRaft + num(S.minRaft, 3)));
+  const e = num(S.elev, 21) * DEG, y0 = num(p.y, 0);
+  const pos = [p.x + ux * dist * Math.cos(e), y0 + dist * Math.sin(e), p.z + uz * dist * Math.cos(e)];
+  const up = showUpright(aspect);
+  return { pos, look: [p.x, y0, p.z], fov: lerp(num(S.fov, 50), num(S.fovPortrait, 64), up), dist };
+}
+/** The shot's weight at t s: eased in over `ease` s, held until `dur`, eased back over `back` s; 0 before and after. */
+export function landmarkWeight(t, { dur = 4.2, back = 0.6, ease = LANDMARK_SHOT.ease } = {}) {
+  const T = num(t, 0), D = Math.max(0, num(dur, 4.2)), B = Math.max(0.05, num(back, 0.6)), E = Math.max(0.05, Math.min(num(ease, 0.9), D || 0.9));
+  if (T <= 0) return 0;
+  if (T < E) return smooth01(T / E);
+  if (T < D) return 1;
+  return 1 - smooth01((T - D) / B);
+}

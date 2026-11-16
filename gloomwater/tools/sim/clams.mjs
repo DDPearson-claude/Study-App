@@ -141,20 +141,21 @@ function makeWaters() {
 
 export const baitTin = (id, water) => Math.max(5, Math.round(LOOP.baitRule.grade * WATER[water].base / 5) * 5);
 /** The keys slice 1a moved into data.js (PLAN §6.4): read from data.LOOP, never drafted here (T42 fails if one comes back). */
-export const MOVED = ['value', 'hold', 'water', 'letGo', 'evening', 'tackle', 'time'];
+// M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.1 item 6): + `place` (the place pool's weights and the place favour: data.LOOP.place
+// {common, dayDraw, kindWeight, kept, favour: {base, window}}) and `giant` (the rare giants' share, favour, floor and Fight: data.LOOP.giant)
+export const MOVED = ['value', 'hold', 'water', 'letGo', 'evening', 'tackle', 'time', 'place', 'giant'];
 const DRAFT = {
   // ---- sale value (data.LOOP.value): clams = max(1, round(base[water] × rarity × body × clamp(e^(perZ·z)) × classBonus)). body =
   // clamp(√(L50 / 45 cm)). A legend is not sold: her first landing pays her crown map's price, later landings 40% of it.
-  // ---- the rare giants (roster: the descendant of each episode's main fish; epic, or legendary for a water's crown)
-  giant: { share: { inHour: 0.06, offHour: 0.025 }, favour: 0.3, minZ: -0.25, fight: 10, elderFight: 2 },   // its share of the bites at its own place; never Small; +10 Fight over a rare
-  kindWeight: 2.5,                                        // a fish of a kind of place (a "night water" rare) at a place of that kind
-  dayDraw: 1.5,                                             // a day water draws its water's open uncommon and rare fish (× weight)
-  placeCommon: 0.5,                                         // a common's weight at any place (the place's own fish crowd out the small fry)
+  // ---- the rare giants (data.LOOP.giant since M1 step 3a: its share of the bites at its own place, inHour in its hours and offHour
+  // outside them; never Small; +10 Fight over a rare). The place pool (data.LOOP.place since M1 step 3a): a common ×common at a place,
+  // a day water's open uncommon and rare ×dayDraw, a fish of a kind of place ×kindWeight, a built place's own species a rare's weight
+  // × kept.weight × kept.live, the place favour base + its kind's window.
   // ---- the hold (data.LOOP.hold): 3 slots at the start; each step is bought once, in order. The water goes quiet (data.LOOP.water):
   // good bites per evening by kind (open water: one per slot of the hold, plus openExtra); EVERY bite spends one. Let go
   // (data.LOOP.letGo): the bite back, and +favour at that water to its cap. The evening (data.LOOP.evening): 40 s of day, 20 of dusk.
-  favour: { place: 0.15, window: { day: 0.4, old: 0.4, night: 0.3, crown: 0.2 }, dusk: 0.2, night: 0.25, perLantern: 0.1, perKeel: 0.1, setup: 0.15 },
-  kept: { weight: 3, live: 0.5 },                         // a built place's own species (not a giant): a rare's weight × 3, half the time
+  // The favour terms still drafted here: dusk, night, the lantern and keel, the setup (the place's own are data.LOOP.place.favour).
+  favour: { dusk: 0.2, night: 0.25, perLantern: 0.1, perKeel: 0.1, setup: 0.15 },
   // ---- tackle (data.LOOP.tackle): one price per tier per slot (Rod, Line, Reel bought separately); T5 and T6 are new; no proof
   // catches; shelfAt: the water whose map puts a tier on the shelf (v8: T6 with the slot-9 map, so Rod T6, the Thunder Stair's gear
   // key, can be bought before its map)
@@ -459,13 +460,18 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   if (cache.has(key)) return cache.get(key);
   const P = placeId ? PLACE[placeId] : null, list = []; let giant = null;
   for (const s of WATER[water].species) {
-    if (s.legend || s.never || !s.hours.includes(phase)) continue;
+    if (s.legend || s.never) continue;
     if (s.bait && s.bait !== bait) continue;
-    let w;
+    // M1 step 3a's seam (PLAN CHOICE 27): a giant at its place reaches the giant branch whatever the hour (its offHour share outside its
+    // hours, SPEC decision 7: "more in its hour, never none"); the hours filter applies to the rest. Before, the hours ran first, so a
+    // giant had no share outside its hours (the Thousandcast none by day). data.placePool is the same rule on the game's records.
     if (s.giant) { if (P && s.placeId === P.id) giant = s; continue; }
-    else if (s.ownPlace) { if (!P || s.ownPlace !== P.id) continue; w = (RW.rare ?? 6) * LOOP.kept.weight * LOOP.kept.live; }
-    else if (s.kind !== 'open') { if (!P || P.kind !== s.kind) continue; w = (RW[s.rarity] ?? 6) * (s.rarity === 'common' ? LOOP.placeCommon : LOOP.kindWeight); }
-    else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? LOOP.dayDraw : 1)) * (P && s.rarity === 'common' ? LOOP.placeCommon : 1);
+    if (!s.hours.includes(phase)) continue;
+    let w;
+    const PW = LOOP.place;                                 // data.LOOP.place (M1 step 3a)
+    if (s.ownPlace) { if (!P || s.ownPlace !== P.id) continue; w = (RW.rare ?? 6) * PW.kept.weight * PW.kept.live; }
+    else if (s.kind !== 'open') { if (!P || P.kind !== s.kind) continue; w = (RW[s.rarity] ?? 6) * (s.rarity === 'common' ? PW.common : PW.kindWeight); }
+    else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? PW.dayDraw : 1)) * (P && s.rarity === 'common' ? PW.common : 1);
     if (s.bestNight && phase === 'night') w *= 1.5;
     if (bait && s.bait === bait) w *= 1.5;               // a bait changes which fish bite only for a fish that bites on nothing else
     if (lureMatch(lure, s)) w *= lureAttract(lure, s);
@@ -621,7 +627,7 @@ export function trip(kit, policy, r, opts = {}) {
       const pulled = !!PULL && nEv >= PULL.floorFrom && miss.has(sp.id);
       const atOwn = sp.giant;                              // a giant only bites at its own place
       const q = quietTerms(qOver, wid);
-      let mu = (W.id ? F.place + F.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
+      let mu = (W.id ? L.place.favour.base + L.place.favour.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
         + baitFav + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (kit.keel | 0) + mercy;
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
       inQuiet = qOver > 0;
@@ -1071,20 +1077,48 @@ const sg = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
     if (clamsFor(like, zz) !== D.fishClams(s, zz)) off.push(`${s.id} z ${zz}: ${clamsFor(like, zz)} vs ${D.fishClams(s, zz)}`);
   }
   check(built.length >= 6 && !off.length, `the sim's clamsFor equals data.fishClams for all ${built.length} built Mossmere species on their L50 (data.sizeL50: the roster's from M1 step 2), at six sizes${off.length ? `: ${off.slice(0, 4).join('; ')}` : ''}`);
-  // M1 step 2 (SPEC §13): the converter's output (data.js SPECIES_LOOP, the game's) equals the sim's species table for the 11
+  // M1 steps 2 and 3a (SPEC §13): the converter's output (data.js SPECIES_LOOP, the game's) equals the sim's species table for every fish
+  // it ships: the open water's twelve, then the places' own fish and giants (15; the Gloam Eel and the Matriarch stay built records)
   {
-    const sim = step2Pool(), game = D.SPECIES_LOOP, G = Object.fromEntries(game.map((g) => [g.id, g])), bad = [];
+    const sim = MW.species.filter((s) => !s.legend && !s.never && (s.kind === 'open' || s.ownPlace || s.giant)), game = D.SPECIES_LOOP, G = Object.fromEntries(game.map((g) => [g.id, g])), bad = [];
     const win = (g) => RS.HOUR_WINDOWS[g.time] || BUILT_TIME[g.time] || HOURS.any;
     for (const s of sim) {
       const g = G[s.id];
       if (!g) { bad.push(`${s.id} not in SPECIES_LOOP`); continue; }
       const diffs = [['rarity', s.rarity, g.rarity], ['style', s.style, g.style], ['family', s.family, g.family], ['L50', s.L50, D.sizeL50(g, 'mossmere')],
-        ['hours', JSON.stringify(s.hours), JSON.stringify(win(g))], ['bait', s.bait ?? null, g.bait ?? null]].filter(([, a, b]) => a !== b);
+        ['hours', JSON.stringify(s.hours), JSON.stringify(win(g))], ['bait', s.bait ?? null, g.bait ?? null], ['giant', !!s.giant, !!g.giant],
+        ['place', s.placeId || s.ownPlace || null, g.place || null]].filter(([, a, b]) => a !== b);
       for (const zz of [-1.2, 0, 0.4, 1.4, 2.2, 2.95]) if (clamsFor(s, zz) !== D.fishClams(g, zz)) diffs.push([`clams z ${zz}`, clamsFor(s, zz), D.fishClams(g, zz)]);
       if (diffs.length) bad.push(`${s.id}: ${diffs.map(([k, a, b]) => `${k} ${a} vs ${b}`).join(', ')}`);
     }
     const same = sim.length === game.length && sim.every((s) => G[s.id]);
-    check(same && !bad.length && game.length === 11, `M1 step 2: the converter's output (data.js SPECIES_LOOP, ${game.length} fish) equals the sim's species table for the Mossmere's ${sim.length} (rarity, style, family, L50, hours, bait, clams at six sizes)${bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''}${same ? '' : ` (sim: ${sim.map((s) => s.id).join(', ')})`}`);
+    check(same && !bad.length && game.length === 15, `M1 steps 2 and 3a: the converter's output (data.js SPECIES_LOOP, ${game.length} fish) equals the sim's species table for the Mossmere's ${sim.length} (rarity, style, family, L50, hours, bait, giant, place, clams at six sizes)${bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''}${same ? '' : ` (sim: ${sim.map((s) => s.id).join(', ')})`}`);
+  }
+  // M1 step 3a (PLAN T104): the game's pool is the sim's. data.placePool (on the game's records, D.SPECIES) gives each species the share
+  // the sim's poolFor gives it (within 1e-9) and the giant its share exactly, in open water and at each place in each light where the place
+  // is a place (night water before dark is open water: PLAN CHOICE 3), with no bait, the Heartmoss Ball and Lumen Moss, no Wick and Taper;
+  // the Gloam Eel bites only at the Buoy Lights after dark on Lumen Moss
+  {
+    const LIGHTS = { day: 'calm', dusk: 'dusk', night: 'gloomtide' }, places = [null, ...D.loopPlaceIds('mossmere')], bad = [];
+    let n = 0, worst = 0, shares = 0, eelAt = [];
+    for (const pid of places) for (const [ph, gph] of Object.entries(LIGHTS)) for (const bait of [null, 'heartmoss', 'lumen_moss']) for (const wick of [null, 'taper']) {
+      const dark = ph === 'night', simPid = pid && !(PLACE[pid]?.kind === 'night' && !dark) ? pid : null;
+      const sim = poolFor('mossmere', simPid, ph, null, bait, null, 1, wick), game = D.placePool(D.SPECIES, { placeId: pid, phase: gph, bait, wickId: wick });
+      const gl = [...game.list, ...(game.giant ? [[game.giant.sp, game.giant.weight]] : [])];
+      const sh = (list, tot) => new Map(list.map(([s, w]) => [s.id, w / tot]));
+      const a = sh(sim.list, sim.tot), b = sh(gl, game.tot), ids = new Set([...a.keys(), ...b.keys()]);
+      for (const id of ids) {
+        const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); worst = Math.max(worst, d); shares++;
+        if (!a.has(id) || !b.has(id) || d > 1e-9) bad.push(`${pid || 'open'} ${ph} ${bait || 'no bait'} ${wick || 'none'}: ${id} ${a.get(id) ?? '—'} vs ${b.get(id) ?? '—'}`);
+      }
+      const sg = sim.list.find(([s]) => s.giant);
+      if (!!sg !== !!game.giant || (sg && Math.abs(sg[1] / sim.tot - game.giant.share) > 1e-12)) bad.push(`${pid} ${ph} ${wick || 'none'}: the giant's share ${sg ? sg[1] / sim.tot : '—'} vs ${game.giant?.share ?? '—'}`);
+      if (b.has('gloam_eel')) eelAt.push(`${pid || 'open'} ${ph} ${bait || 'no bait'}`);
+      n++;
+    }
+    const eelOk = eelAt.length && eelAt.every((x) => x.startsWith('buoy_lights night lumen_moss'));
+    const span = (ph) => `${((D.placePool(D.SPECIES, { placeId: 'under_the_span', phase: ph }).giant?.share ?? 0) * 100).toFixed(1)}%`;
+    check(!bad.length && eelOk, `T104: the game's pool is the sim's (data.placePool against poolFor, ${n} pools: open water and each place in each light it is a place, no bait, the Heartmoss Ball and Lumen Moss, no Wick and Taper; ${shares} shares, worst ${worst.toExponential(1)}): the Thousandcast ${span('calm')} by day, ${span('dusk')} at dusk; the Gloam Eel only at the Buoy Lights after dark on Lumen Moss${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}${eelOk ? '' : ` (the eel: ${eelAt.join(', ') || 'nowhere'})`}`);
   }
   const wk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, LOOP.wicks[w]]))), dk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, D.LOOP.wicks[w]])));
   check(wk === dk && JSON.stringify(LOOP.wicks.order) === JSON.stringify(D.LOOP.wicks.order), "the sim's Wick table is data.LOOP.wicks (the balancing job's values, as ruled)");

@@ -22,8 +22,11 @@ const D = await import('../../src/data.js?rs-loop');
 delete globalThis.GW_LOOP; globalThis.GW_V3_PHASE = 4;
 const V3P4 = await import('../../src/data.js?rs-v3p4');
 delete globalThis.GW_V3; delete globalThis.GW_V3_PHASE;
+// M1 step 3a: the open water's twelve (the list, with the Kissmark Trout), then the places' own fish and giants (Under the Span's
+// Bridgechain and Thousandcast, the Buoy Lights' Hullkiss)
 const MOSS = ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp',
-  'candlefin_koi', 'milkeye_perch', 'reedjaw_pike'];
+  'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'];
+const PLACE_FISH = ['bridgechain_sturgeon', 'thousandcast_pike', 'hullkiss_lamprey'];
 
 section('the converter\'s rules (SPEC §13)');
 {
@@ -44,25 +47,32 @@ section('the converter\'s rules (SPEC §13)');
 section('the export (src/roster-shipped.js) and the converter on it');
 {
   eq(fs.readFileSync(new URL('../../src/roster-shipped.js', import.meta.url), 'utf8'), exportText(ROSTER), 'src/roster-shipped.js is a fresh export (node tools/roster-export.mjs)');
-  eq(SHIPPED, ['dusk_minnow', 'mossback_perch', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'milkeye_perch', 'weeping_carp', 'reedjaw_pike'], 'the eight roster fish on built plans');
+  eq(SHIPPED, ['dusk_minnow', 'mossback_perch', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'milkeye_perch', 'weeping_carp', 'reedjaw_pike',
+    'kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'], 'the eight roster fish on built plans, and M1 step 3a\'s three on theirs');
   const text = fs.readFileSync(new URL('../../src/roster-shipped.js', import.meta.url), 'utf8');
   ok(!/inspiredBy|giantOf|gotAwayOf|refWeight|scientific|episodes|Sander|Esox|Perca|Cyprinus/.test(text), 'the export holds no research field or research name');
 }
 
-section('SPECIES_LOOP: the Mossmere\'s 11 under the loop (M1.md §2.3)');
+section('SPECIES_LOOP: the Mossmere\'s 15 under the loop (M1.md §2.3; M1 step 3a)');
 {
-  eq(D.SPECIES_LOOP.map((s) => s.id), MOSS, 'eleven, in the Journal\'s order');
-  eq(D.SPECIES.filter((s) => s.zone === 'mossmere').map((s) => s.id), [...MOSS, 'gloam_eel', 'belled_matriarch'], 'the Mossmere\'s SPECIES: the eleven, then the Gloam Eel and the Matriarch (left out until steps 3–4)');
-  eq(PL.listFor(D, 'mossmere'), MOSS, 'the list page counts 11 at this step');
-  eq(PL.listCount({ journal: {} }, D, 'mossmere'), { have: 0, need: 11 }, 'a fresh save: 0 of 11');
-  ok(!D.SPECIES.some((s) => ['kissmark_trout', 'bridgechain_sturgeon', 'thousandcast_pike', 'hullkiss_lamprey'].includes(s.id)), 'left out: the Kissmark Trout, the Bridgechain Sturgeon, the giants');
-  ok(D.SPECIES_BY_ID.gloam_eel.bait === 'lumen_moss' && D.SPECIES_BY_ID.gloam_eel.size.L50 === 72, 'the Gloam Eel stays its built record, on its one tin (step 3\'s water, step 4\'s bait)');
+  eq(D.SPECIES_LOOP.map((s) => s.id), [...MOSS, ...PLACE_FISH], 'the twelve in the Journal\'s order, then the places\' own fish and giants');
+  eq(D.SPECIES.filter((s) => s.zone === 'mossmere').map((s) => s.id), [...MOSS, ...PLACE_FISH, 'gloam_eel', 'belled_matriarch'], 'the Mossmere\'s SPECIES: the fifteen, then the Gloam Eel and the Matriarch (17)');
+  eq(PL.listFor(D, 'mossmere'), MOSS, 'the list page counts 12 from step 3a');
+  eq(PL.listCount({ journal: {} }, D, 'mossmere'), { have: 0, need: 12 }, 'a fresh save: 0 of 12');
+  ok(!V3.SPECIES.some((s) => ['kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'].includes(s.id)) && !V3P4.SPECIES.some((s) => ['kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'].includes(s.id)), 'off the loop: no Kissmark Trout and no giant');
+  for (const id of ['thousandcast_pike', 'hullkiss_lamprey']) {
+    const g = D.SPECIES_BY_ID[id], f = ROSTER.fish.find((x) => x.id === id);
+    ok(g.rarity === 'epic' && g.giant === true && g.place === RS.placeIdOf(f.placeName) && g.kind === f.place, `${id}: an epic giant whose place is its placeName's (${g.place})`);
+  }
+  ok(RS.placeIdOf('Under the Span') === 'under_the_span' && RS.placeIdOf('the Buoy Lights') === 'buoy_lights', 'placeIdOf: a roster place name as its place id');
+  ok(D.SPECIES_BY_ID.gloam_eel.bait === 'lumen_moss' && D.SPECIES_BY_ID.gloam_eel.size.L50 === 72 && D.SPECIES_BY_ID.gloam_eel.kind === 'night' && !('kind' in D.SPECIES_V3_BY_ID.gloam_eel),
+    'the Gloam Eel stays its built record, on its one tin, in night water (step 3a\'s water, step 4\'s bait)');
   const R = Object.fromEntries(ROSTER.fish.map((f) => [f.id, f]));
   for (const s of D.SPECIES_LOOP) {
     const f = R[s.id];
     if (f) {
       ok(s.size.L50 === f.sizeModel.L50 && s.size.sigma === f.sizeModel.sigma && s.rarity === f.rarity && s.family === f.family && s.time === RS.hourKey(f.hours) && s.style === RS.styleOf(f), `${s.id}: the roster's size, rarity, family, hours and style`);
-      ok(D.FISH_SHAPES.includes(s.model.shape) && s.model.shape === (D.SPECIES_V3_BY_ID[s.id]?.model.shape ?? f.bodyPlan), `${s.id}: drawn on its built plan (${s.model.shape})`);
+      ok(D.FISH_SHAPES.includes(s.model.shape) && s.model.shape === (D.SPECIES_V3_BY_ID[s.id]?.model.shape ?? f.bodyPlan), `${s.id}: drawn on its plan (${s.model.shape})`);
     } else ok(D.LOOP.kept.includes(s.id) && s.size.L50 === D.SPECIES_V3_BY_ID[s.id].size.L50, `${s.id}: a built species the roster keeps, at its built size`);
     ok(s.size.k === D.BALANCE_V3.size.k[s.size.body], `${s.id}: k is its body's (${s.size.body})`);
     eq(s.depth, [0, 1], `${s.id}: any depth under the loop (the converter's rule; the sim has no cast depth)`);
@@ -86,7 +96,10 @@ section('the worked values on roster sizes (SPEC §4.1)');
 section('the phase pin: the Lampsipper lifted, no other phase-2 record (M1.md §2.3)');
 {
   eq(D.V3_PHASE, 1, 'the loop pins GW_V3_PHASE 1');
-  eq(D.SPECIES.filter((s) => (s.phase ?? 1) > 1).map((s) => s.id), ['lampsipper'], 'the Lampsipper is the one phase-2 record in loop SPECIES');
+  eq(D.SPECIES.filter((s) => (s.phase ?? 1) > 1).map((s) => s.id), ['lampsipper', 'bridgechain_sturgeon'], 'the Lampsipper and (M1 step 3a) the Bridgechain are the phase-2 records in loop SPECIES');
+  const bc = D.SPECIES_BY_ID.bridgechain_sturgeon;
+  ok(bc.loopLift === true && !('weather' in bc) && bc.place === 'under_the_span' && bc.model.shape === 'sturgeon' && bc.model.scutes === 'rust' && bc.model.snout === 'shovel' && !('scutes' in D.SPECIES_V3_BY_ID.bridgechain_sturgeon.model),
+    'the Bridgechain lifted: its place, no weather, its sturgeon plan\'s scutes and snout (the built record untouched)');
   ok(D.SPECIES_BY_ID.lampsipper.loopLift === true && D.SPECIES_BY_ID.lampsipper.time === 'gloom', 'its record lifted as built (night only)');
   ok(!V3.SPECIES.some((s) => s.id === 'lampsipper'), 'v3 phase 1 without the loop: no Lampsipper (unchanged)');
 }
@@ -115,7 +128,8 @@ section('LOOP.shipped: the Mossmere; Sporewood never offered (decision 39)');
   ok(PL.waterShipped({ ...DD, LOOP: { ...DD.LOOP, shipped: 'sporewood' } }, 'sporewood'), '… and ships once LOOP.shipped is Sporewood');
   for (const lakes of [['mossmere'], ['mossmere', 'sporewood']]) {
     const items = PL.shelfItems(DD, { ...PL.freshLoop(DD), clams: 1e9, maps: { lakes, places: [] } });
-    ok(!items.some((i) => i.tab === 'maps' || /sporewood/.test(i.id)), `the shelf offers no Sporewood map (lakes ${lakes.join(', ')})`);
+    // M1 step 3a: the Maps tab holds the place maps and the next water's card, always sealed past LOOP.shipped (no price, no buy)
+    ok(!items.some((i) => (i.tab === 'maps' && i.slot === 'lake' && (!i.sealed || i.price != null)) || (/sporewood/.test(i.id) && !i.sealed)), `the shelf offers no Sporewood map: a lake card past LOOP.shipped is sealed, with no price (lakes ${lakes.join(', ')})`);
   }
   const src = fs.readFileSync(new URL('../../src/progression-loop.js', import.meta.url), 'utf8');
   ok(src.includes("!(it.tab === 'maps' && it.water && !waterShipped(D, it.water))") && src.includes('waterShipped(D(), waterId) && (L.maps?.lakes'), 'the shelf drops a map past LOOP.shipped; no trip opens a water past it');

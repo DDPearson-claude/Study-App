@@ -15,6 +15,7 @@ import { createIntroView } from './ui-intro.js';
 // <<< INTRO LANE B
 // >>> LOOP 1a (lane C): the Full Hold's screens (docs/loop/slice-1a/PLAN.md §2.3); built only when data.LOOP_ENABLED
 import { createLoopView } from './ui-loop.js';
+import { setLoopArt, hatchProbe } from './ui-fishart.js';
 // <<< LOOP 1a
 
 export function create(ctx) {
@@ -639,6 +640,8 @@ export function create(ctx) {
   // <<< INTRO LANE B
   // >>> LOOP 1a: the hold row, the Home pill, the Jetty, the tally, the shelf, the Chart and the home pause (null off the loop)
   let loopView = null;
+  // (M1 step 3a: the loop's fish plans and the hatch are drawn only under the loop: PLAN CHOICE 14)
+  if (loopOn) setLoopArt(true);
   if (loopOn) { try { loopView = createLoopView(K); } catch (e) { report('loop view', e); loopView = null; } }
   K.loop = loopView;
   // <<< LOOP 1a
@@ -703,7 +706,7 @@ export function create(ctx) {
       hud.setVisible(flow === 'playing');
       if (flow === 'playing') closeAll((m) => m.id === 'title' || m.id === 'newdescent' || m.id === 'death' || m.state?.titleChild);
       // the loop: home's screens never outlive a Sail (PLAN §2.3 item 1)
-      if (flow === 'playing' && loopOn) closeAll((m) => ['jetty', 'tally', 'shelf', 'chart', 'chartsealed', 'homepause'].includes(m.id));
+      if (flow === 'playing' && loopOn) closeAll((m) => ['jetty', 'tally', 'shelf', 'chart', 'chartsealed', 'homepause', 'journal'].includes(m.id));
       if (flow !== 'playing') { catchQ.length = 0; levelQ.length = 0; }
     });
     on('run:start', ({ continued }) => {
@@ -904,6 +907,12 @@ export function create(ctx) {
         hub: ctx.flow === 'hub', screen: top()?.id ?? null,
         ...(afOn(D()) ? { logLocked: logLocked(), awaitingNote, af: hud.afDebug?.() ?? null } : {}),
       });
+      // M1 step 3a (PLAN §3.4, under the loop only): the forced list Chart (T134, T149) and the hatch's probe (T137)
+      if (loopOn) {
+        ctx.debug.ui.chartList = (on) => safe(() => loopView?.chartList?.(on), null);
+        ctx.debug.ui.hatchProbe = (id, w, h) => safe(() => hatchProbe(speciesData(id), w, h), null);
+        ctx.debug.ui.catalogue = () => safe(() => screens.catalogueDebug?.(), null);
+      }
     },
     update(frameDt) {
       const nowMs = performance.now();
@@ -959,7 +968,7 @@ export function create(ctx) {
     showVictory: (summary) => screens.showVictory(summary),
     openShop: () => screens.openShop(),
     openCreel: () => screens.openCreel(),
-    openJournal: () => screens.openJournal(),
+    openJournal: (o) => screens.openJournal(o),   // (M1 step 3a: {from: 'chart', zone} reaches the catalogue; no argument: as built)
     /** CONTRACT §13.7 ui: the Journal at a species' page (section 'odds' scrolls to Your odds); refused while a line is out */
     openLog: (o) => screens.openLog(o),
     /** automatic fishing: the gear log (P1–P2: Murk's Gear, Bait and Lure rows; refused while a line is out) */

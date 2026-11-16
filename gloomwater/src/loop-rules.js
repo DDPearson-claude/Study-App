@@ -74,3 +74,39 @@ export function homeGlidePath(from, dock, speed = 6, secs = 2) {
   if (!(s > 0)) return null;
   return [[fx, fz], [fx + (dx - fx) * s, fz + (dz - fz) * s]];
 }
+
+// ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md PLAN CHOICE 7; T118's clearance rule): the glide out toward a place.
+/** The least distance (m) from a glide's path ([{x, z}, …]) to the edge of any obstacle ({x, z, r}); Infinity with none. */
+export function glideClearance(path, obstacles = []) {
+  let best = Infinity;
+  const P = Array.isArray(path) ? path : [];
+  for (const o of Array.isArray(obstacles) ? obstacles : []) {
+    if (!o || !Number.isFinite(o.x) || !Number.isFinite(o.z)) continue;
+    for (let i = 0; i + 1 < P.length; i++) {
+      const a = P[i], b = P[i + 1], vx = b.x - a.x, vz = b.z - a.z, l2 = vx * vx + vz * vz;
+      const t = l2 > 0 ? Math.max(0, Math.min(1, ((o.x - a.x) * vx + (o.z - a.z) * vz) / l2)) : 0;
+      best = Math.min(best, Math.hypot(o.x - (a.x + vx * t), o.z - (a.z + vz * t)) - (Number(o.r) || 0));
+    }
+  }
+  return best;
+}
+/**
+ * The glide out of a Sail toward a place: `sailPlan` (data.sailPlan) from the dock toward the place's centre, its bearing turned by
+ * the least angle (`step`° either side, up to `max`°) that keeps the whole glide `clear` m (the raft's radius + 0.3) off every
+ * obstacle, so the raft never grazes a statue or a pillar on its way (a straight line toward the Lily Maze passes 0.5 m from the
+ * statue off the Jetty). → the plan ({from, to, yaw, path}), or null when no bearing within `max`° is clear (open water's glide then).
+ */
+export function placeGlide(sailPlan, dock, centre, T, obstacles = [], { clear = 1.9, step = 5, max = 60 } = {}) {
+  if (typeof sailPlan !== 'function' || !dock || !centre) return null;
+  const dx = Number(centre.x) - Number(dock.x), dz = Number(centre.z) - Number(dock.z), d = Math.hypot(dx, dz);
+  if (!(d > 0)) return null;
+  const a0 = Math.atan2(dz, dx);
+  for (let k = 0; k * step <= max; k++) {
+    for (const s of k ? [1, -1] : [1]) {
+      const a = a0 + s * k * step * Math.PI / 180;
+      const g = sailPlan(dock, { x: dock.x + Math.cos(a) * d, z: dock.z + Math.sin(a) * d }, T, null);
+      if (g && glideClearance(g.path, obstacles) >= clear) return g;
+    }
+  }
+  return null;
+}
