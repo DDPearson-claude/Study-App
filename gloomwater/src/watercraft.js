@@ -91,17 +91,22 @@ export const WATERCRAFT = {
     },
     // areaAt's order (first match wins; a point inside an owned, lifted place is that place, decided before areaAt is called):
     // inflow → outflow → rim (dropoff) → pads → stones → reeds → lip (dropoff) → margin → lane → deep → open
-    // laneFor's centre keeps off the islands (ZONES[0].arena.islands, r + 3) and the Bell Pool (its 6 m disc + 2): the test checks the copy
-    laneAvoid: [[22, -12, 11], [-30, 14, 9], [34, 20, 8], [-14, 28, 7], [-30, -24, 8], [-18, -34, 7], [-4, -14, 8]],
+    // laneFor's centre keeps to deep or open water (WC-3's lane lies there): off the islands, their stones and their lip (ZONES[0].arena.
+    // islands, r + 7), the Bell Pool and its rim (12 m + 2), the pillars and their stones (r + 5) and Under the Span's channel (its path,
+    // 8 m wide: four discs of r 6); the test checks the copy against the arena. laneFallback: a deep point, if 24 tries all fall inside
+    laneAvoid: [[22, -12, 15], [-30, 14, 13], [34, 20, 12], [-14, 28, 11], [-30, -24, 12], [-18, -34, 11], [-4, -14, 14],
+      [-40, -4, 6.4], [-33, -1, 6.4], [-26, 2, 6.4], [-19, 5, 6.4], [12, -5, 6.2], [10, -18, 6.2], [30, -25, 6.2], [40, -20, 6.5], [-46, 22, 6.5], [8, 36, 6.2],
+      [-40, -4, 6], [-33, -1, 6], [-26, 2, 6], [-19, 5, 6]],
+    laneFallback: { x: 0, z: 10 },
     // >>> baked by `node tools/tests/watercraft.test.mjs --bake` (the layout of ZONES[0], data.loopMooring's hulls, 100 seeded evenings)
     shares: {
-      day: { margin: 0.2417, reeds: 0.0621, pads: 0.0302, stones: 0.1339, dropoff: 0.1001, lane: 0.0123, open: 0.1953, deep: 0.1743, inflow: 0.0188, outflow: 0.0312 },
-      dusk: { margin: 0.2417, reeds: 0.0621, pads: 0.0302, stones: 0.1339, dropoff: 0.1001, lane: 0.0123, open: 0.1953, deep: 0.1743, inflow: 0.0188, outflow: 0.0312 },
+      day: { margin: 0.2417, reeds: 0.0621, pads: 0.0302, stones: 0.1339, dropoff: 0.1001, lane: 0.0147, open: 0.1955, deep: 0.1717, inflow: 0.0188, outflow: 0.0312 },
+      dusk: { margin: 0.2417, reeds: 0.0621, pads: 0.0302, stones: 0.1339, dropoff: 0.1001, lane: 0.0147, open: 0.1955, deep: 0.1717, inflow: 0.0188, outflow: 0.0312 },
       night: { margin: 0.2417, reeds: 0.0621, pads: 0.0302, stones: 0.1339, dropoff: 0.1001, lane: 0, open: 0.1969, deep: 0.185, inflow: 0.0188, outflow: 0.0312 },
     },
     factors: {
-      day: { candlefin_koi: 1.3683, dusk_minnow: 0.8393, gutter_crayfish: 0.8105, kissmark_trout: 0.5063, likely_chub: 1.2216, mossback_perch: 0.9626, overbold_bass: 1.0308, reedjaw_pike: 1.2812, rustfin_sucker: 0.9647, weeping_carp: 0.7223 },
-      dusk: { candlefin_koi: 1.0987, dusk_minnow: 1.0501, gutter_crayfish: 1.0821, kissmark_trout: 0.6085, likely_chub: 1.1735, milkeye_perch: 0.5309, mossback_perch: 0.7757, overbold_bass: 1.0773, reedjaw_pike: 0.9453, rustfin_sucker: 0.7839, weeping_carp: 0.9118 },
+      day: { candlefin_koi: 1.3645, dusk_minnow: 0.8354, gutter_crayfish: 0.8102, kissmark_trout: 0.5098, likely_chub: 1.2171, mossback_perch: 0.9629, overbold_bass: 1.0307, reedjaw_pike: 1.2823, rustfin_sucker: 0.9664, weeping_carp: 0.7213 },
+      dusk: { candlefin_koi: 1.0955, dusk_minnow: 1.0452, gutter_crayfish: 1.0817, kissmark_trout: 0.6127, likely_chub: 1.1691, milkeye_perch: 0.5337, mossback_perch: 0.7759, overbold_bass: 1.0772, reedjaw_pike: 0.9461, rustfin_sucker: 0.7853, weeping_carp: 0.9104 },
       night: { dusk_minnow: 0.6185, gutter_crayfish: 1.6142, kissmark_trout: 0.4469, lampsipper: 0.8341, milkeye_perch: 0.6635, mossback_perch: 0.77, reedjaw_pike: 0.4911, rustfin_sucker: 0.7869, weeping_carp: 0.6535 },
     },
     // <<< baked
@@ -271,11 +276,12 @@ export function laneFor(evening, phase = null) {
   const Lg = W.geometry.lane;
   if (phase != null && !Lg.phases.includes(lightOf(phase))) return null;
   const e = Math.trunc(num(evening, 1));
-  let x = Lg.cx, z = Lg.cz, h = 0;
+  let x = W.laneFallback.x, z = W.laneFallback.z, h = Math.PI * hash01(e, 999);
   for (let k = 0; k < 24; k++) {
     const r = Lg.within * Math.sqrt(hash01(e, 3 * k)), a = 2 * Math.PI * hash01(e, 3 * k + 1);
-    x = Lg.cx + r * Math.cos(a); z = Lg.cz + r * Math.sin(a); h = Math.PI * hash01(e, 3 * k + 2);
-    if (!W.laneAvoid.some(([cx, cz, cr]) => hyp(x - cx, z - cz) < cr)) break;
+    const cx = Lg.cx + r * Math.cos(a), cz = Lg.cz + r * Math.sin(a);
+    if (W.laneAvoid.some(([ax, az, ar]) => hyp(cx - ax, cz - az) < ar)) continue;
+    x = cx; z = cz; h = Math.PI * hash01(e, 3 * k + 2); break;
   }
   return { x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100, h: Math.round(h * 1e4) / 1e4, w: Lg.w, len: Lg.len, evening: e };
 }
