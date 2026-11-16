@@ -136,10 +136,10 @@ export function bankKeep(area, docks = [], { feather = BANK.feather, clear = 0.9
 }
 /** The Bell Pool's drowned bell: where it lies in the pool `a` (its centre, its rotation, its mouth), shared by the decal and the lift's shot. */
 export function bellSpot(a) {
-  // (its crown just under the two posts it hung between, its lip 1.8 m short of the pool's middle: a raft fishing the pool, its
-  // middle included, is never laid over it; the fix pass's second look)
-  const x = num(a?.x) + 0.2, z = num(a?.z) - 3.3, dx = 0.4, dz = 0.92, l = Math.hypot(dx, dz);
-  return { x, z, rot: Math.atan2(dz / l, dx / l), mx: x + (dx / l) * 1.8, mz: z + (dz / l) * 1.8, dir: [dx / l, dz / l], sx: 4.0, sz: 2.9 };
+  // (its crown just under the two posts it hung between, its lip 2.1 m short of the pool's middle: a raft fishing the pool, its
+  // middle included, is never laid over it, nor its show framed across it; the fix pass's second and third looks)
+  const x = num(a?.x) + 0.2, z = num(a?.z) - 3.7, dx = 0.4, dz = 0.92, l = Math.hypot(dx, dz);
+  return { x, z, rot: Math.atan2(dz / l, dx / l), mx: x + (dx / l) * 1.6, mz: z + (dz / l) * 1.6, dir: [dx / l, dz / l], sx: 3.6, sz: 2.6 };
 }
 /** The bank's opacity after one step (s): toward `target` at a whole range per `ease` s (LOOP.mist.ease), never past it. */
 export function easeOpacity(op, target, dt, ease = 0.8) {
@@ -280,7 +280,7 @@ void main() {
     // the drowned harbour bell, lying on its side on the pool's floor and seen from above through the water: the bell's own profile (a
     // domed crown with its hanging loop, the waist, the flare to a beaded lip) and its mouth turned to the lens as an ellipse, dark inside
     // with a moonlit rim; two cast bands across it, its crack from the lip with a trace of verdigris. Crown at p.x = -1, mouth at +1;
-    // the quad is 4.0 × 2.9 m, so a unit across is 0.73 of a unit along. (The fix pass: the trapezoid it was read as a sunken plank.)
+    // the quad is 3.6 × 2.6 m, so a unit across is 0.72 of a unit along. (The fix pass: the trapezoid it was read as a sunken plank.)
     float u = p.x, v = abs(p.y), sy = p.y;
     float w;
     if (u < -0.5) w = 0.5 * sqrt(max(0.0, 1.0 - pow((u + 0.5) / 0.3, 2.0)));
@@ -976,7 +976,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const y = id === 'under_the_span' ? 1.8 : id === 'lily_maze' ? 0.3 : 0.4;
     // (the Bell Pool: the shot looks down on its bell from the open water off its mouth's shoulder, 45° off its length (the profile and
     // the mouth both read), high and close, so the bell on the floor reads as a bell and not as a board at a grazing angle; the fix pass)
-    if (id === 'bell_pool' && p.area?.kind === 'disc') { const B = bellSpot(p.area); const sx = B.dir[0] + B.dir[1], sz = B.dir[1] - B.dir[0], sl = Math.hypot(sx, sz) || 1; return { x: B.x + B.dir[0] * 0.5, y: 0, z: B.z + B.dir[1] * 0.5, r: p.area.r, side: [sx / sl, sz / sl], elev: 46, dist: 9.5 }; }
+    if (id === 'bell_pool' && p.area?.kind === 'disc') { const B = bellSpot(p.area); const sx = B.dir[0] + B.dir[1], sz = B.dir[1] - B.dir[0], sl = Math.hypot(sx, sz) || 1; return { x: B.x + B.dir[0] * 0.5, y: 0, z: B.z + B.dir[1] * 0.5, r: p.area.r, side: [sx / sl, sz / sl], elev: 46, dist: 8.8 }; }
     // (a path's broadside: the lift's shot films a long place across it, never down its length behind its first pier; the stage)
     const a = p.area, q = a?.kind === 'path' && Array.isArray(a.pts) && a.pts.length >= 2 ? [a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]] : null;
     const ql = q ? Math.hypot(q[0], q[1]) : 0;

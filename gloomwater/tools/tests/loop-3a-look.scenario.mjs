@@ -45,7 +45,7 @@ export const POSE_B = {
   lily_maze: { pos: [-28, 5.5, 34], look: [-41, 0.2, 23.5], fov: 50 },
   under_the_span: { pos: [-22, 4.2, -9], look: [-31, 1.8, 1.5], fov: 52 },
   buoy_lights: { pos: [-41, 4.5, -18], look: [-48, 0.2, -1], fov: 52 },
-  bell_pool: { pos: [4, 6.5, -11.5], look: [-3.5, 0, -16.6], fov: 50 },   // (on its drowned bell, which lies in the pool's north half: the fix pass)
+  bell_pool: { pos: [3.5, 6.2, -12.5], look: [-3.4, 0, -17.2], fov: 50 },   // (on its drowned bell, which lies in the pool's north half: the fix pass)
 };
 /** Sheet 4's poses: the same four poses with LOOP.redress off and on. */
 export const REDRESS_POSES = [
