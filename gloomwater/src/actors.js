@@ -30,6 +30,7 @@
 // prop). The measuring poses and the knotted cord stay for their own callers (setPose, showCord); the show uses neither.
 import * as THREE from 'three';
 import { createRaft, DECK_Y } from './actors-raft.js';
+import { createRaftGear } from './actors-raft-gear.js';   // M1 step 4 (lane 4): the raft's parts seen on the raft (the loop only)
 import { createWick, ONE_SHOT } from './actors-wick.js';
 import { createMerchant } from './actors-merchant.js';
 import { createHome } from './actors-home.js';
@@ -53,6 +54,7 @@ export function create(ctx) {
   const group = new THREE.Group(); group.name = 'actors';
   const raft = createRaft(ctx);
   group.add(raft.yawGroup);
+  const raftGear = createRaftGear(ctx, raft);   // M1 step 4 (lane 4): null off the loop
   const wick = createWick(ctx, { raftDeck: raft.deck, deckY: DECK_Y });
   wick.group.position.set(0.1, DECK_Y, 0.16);
   wick.group.scale.setScalar(1.22);
@@ -504,6 +506,7 @@ export function create(ctx) {
       raft.halo.material.opacity = 0.26 * Math.min(1.6, glow) * (1 - 0.85 * lck);
       raft.lflame.outerMat.uniforms.uI.value = LFLAME_I * (1 - 0.45 * lck);
       raft.halo.scale.setScalar(2.2 * (0.6 + 0.4 * Math.min(1.5, glow)) * (1 + st.boost * 0.8));
+      if (raftGear) { const ll = raftGear.levels.lantern; raft.glassMat.opacity = Math.min(0.92, raft.glassMat.opacity * (1 + 0.22 * ll)); raft.halo.scale.multiplyScalar(1 + 0.12 * ll); }   // M1 step 4: the Lantern's clearer glass
       raft.lflame.group.visible = lit && !poleSeen.hidden;   // (stepped aside with the pole in a measuring close-up)
       raft.lflame.group.scale.setScalar(0.45 + 0.55 * lv * (1 + st.boost * 0.5));
       raft.lflame.outerMat.uniforms.uT.value = t * 1.1; raft.lflame.innerMat.uniforms.uT.value = t * 1.3;
@@ -556,6 +559,7 @@ export function create(ctx) {
         if (n !== st.lastCreel) { st.lastCreel = n; raft.setCreelCount(n); }
         const lg = ctx.state?.run?.legendaries; raft.setTrophies(lg ? Object.keys(lg).filter((k) => lg[k]).length : 0);
         autoRaftLevel();
+        raftGear?.sync();   // M1 step 4 (lane 4): Oars, Keel and Lantern from meta.loop.raft
       }
 
       // ---------------------------------------------------------- merchant
@@ -749,6 +753,7 @@ export function create(ctx) {
       return raycaster.intersectObject(merchantR.proxy, false).length > 0;
     },
     setRaftLevel(n) { st.raftLevelExplicit = true; raft.setLevel(n); },
+    raftGear,   // M1 step 4 (lane 4): {sync, levels, debug} under the loop, else null
     // >>> INTRO LANE A: the opening cut scene's kindling (CONTRACT §13.13)
     /**
      * setIntroKindle({wick, lantern} | null): straight multipliers (0 … 1) on the Wick's head flame (size, light, halo, eyes) and

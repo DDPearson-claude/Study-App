@@ -35,7 +35,7 @@ if (MODE === 'loop') {
   section('the loop\'s three plans join the factory');
   ok(data.LOOP_ENABLED === true, 'a loop build');
   for (const s of ['lamprey', 'sturgeon', 'trout']) ok(F.shapes.includes(s), `the factory knows ${s}`);
-  ok(Object.keys(LOOP_SHAPES).sort().join() === 'lamprey,sturgeon,trout', 'LOOP_SHAPES holds the three plans');
+  ok(Object.keys(LOOP_SHAPES).sort().join() === 'catfish,lamprey,sturgeon,trout', 'LOOP_SHAPES holds the three plans (M1 step 4: and the catfish)');
 
   const cases = [['hullkiss_lamprey', 'lamprey'], ['bridgechain_sturgeon', 'sturgeon'], ['kissmark_trout', 'trout'], ['thousandcast_pike', 'pike']];
   for (const [id, shape] of cases) {
@@ -53,6 +53,21 @@ if (MODE === 'loop') {
       ok(Math.abs(d - L) / L <= 0.02, `${id} z ${z}: the drawn length within 2% of the size model (${d.toFixed(4)} vs ${L.toFixed(4)})`);
     }
   }
+
+  // M1 step 4 (lane 4): the Belled Matriarch on the catfish plan (a flat head, two long whiskers, the bell in her skull), at her size
+  section('the Matriarch: the catfish plan, her true length');
+  { const sp = data.SPECIES_BY_ID.belled_matriarch;
+    ok(sp?.model?.shape === 'catfish' && F.shapes.includes('catfish'), 'the Belled Matriarch is drawn on the catfish plan');
+    const cf = LOOP_SHAPES.catfish({ ...sp.model });
+    ok(cf.f.w(0.05) / Math.max(1e-6, cf.f.ht(0.05)) > 1.6, 'a broad flat head');
+    ok(cf.extras.length >= 8, 'whiskers, chin barbels, the mouth and the bell');
+    for (const z of [0, 1]) {
+      const fish = F.createFish(sp, { z });
+      ok(fish.shape === 'catfish', `z ${z}: createFish builds the catfish (got ${fish.shape})`);
+      const L = trueLengthM(sp, { z }, { data, zone: 'mossmere' });
+      const d = drawnLength(fish);
+      ok(L > 1 && Math.abs(d - L) / L <= 0.02, `z ${z}: the drawn length within 2% of the size model (${d.toFixed(3)} vs ${L.toFixed(3)})`);
+    } }
 
   section('the lamprey: a disc mouth, no jaw, no paired fins, seven gill holes lit lavender');
   const M = { ...data.SPECIES_BY_ID.hullkiss_lamprey.model };

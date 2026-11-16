@@ -39,6 +39,9 @@ const SHAPES_LOOP = {
   trout: { top: 0.21, bot: 0.18, hx: 0.16, ped: 0.06, nose: 0.62, tail: 'fork', tailLen: 0.3, spread: 0.26, dorsal: { x0: -0.06, x1: 0.26, h: 0.15, type: 'soft' }, anal: { x0: -0.42, x1: -0.2, h: 0.09 }, pelvic: { x: 0.0, h: 0.09 }, pect: { x: 0.5, len: 0.2 }, eye: { x: 0.76, y: -0.03, r: 0.05 }, jaw: true, adipose: { x: -0.44, h: 0.07 }, plan: 'trout' },
   sturgeon: { top: 0.14, bot: 0.11, hx: 0.32, ped: 0.045, nose: 1.25, tail: 'hetero', tailLen: 0.36, spread: 0.3, dorsal: { x0: -0.56, x1: -0.4, h: 0.11, type: 'soft' }, anal: { x0: -0.54, x1: -0.42, h: 0.08 }, pelvic: { x: -0.2, h: 0.07 }, pect: { x: 0.52, len: 0.2 }, eye: { x: 0.72, y: -0.05, r: 0.032 }, plan: 'sturgeon' },
 };
+// M1 step 4 (lane 4): the catfish (the Belled Matriarch): a broad flat head, a low body to an eel's tail with a long belly fin and a
+// small round tail, a small dorsal, tiny eyes; two long whiskers and short chin barbels (planDetails 'catfish')
+SHAPES_LOOP.catfish = { top: 0.15, bot: 0.15, hx: 0.5, ped: 0.035, nose: 0.3, tail: 'round', tailLen: 0.14, spread: 0.13, dorsal: { x0: 0.26, x1: 0.38, h: 0.08, type: 'soft' }, anal: { x0: -0.6, x1: 0.14, h: 0.07 }, pelvic: { x: 0.08, h: 0.05 }, pect: { x: 0.72, len: 0.15 }, eye: { x: 0.86, y: -0.06, r: 0.022 }, plan: 'catfish' };
 const BOUNDS_LOOP = { lamprey: [-1.08, 1.12, -0.3, 0.3] };
 let LOOP_ART = false;
 /** ui.js calls it once under data.LOOP_ENABLED: the loop's plans (trout, sturgeon, lamprey) and the plan details of its roster fish
@@ -319,6 +322,13 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     const x = p.pect.x, y = profile(p, x, 1) * 0.25, L = p.pect.len;
     const pc = new Path2D(); pc.moveTo(x, y - 0.02); pc.bezierCurveTo(x - L * 0.4, y - 0.05, x - L, y + 0.02, x - L * 0.95, y + L * 0.35); pc.bezierCurveTo(x - L * 0.6, y + L * 0.25, x - L * 0.2, y + 0.08, x, y + 0.03); pc.closePath();
     finFill(g, pc, col, U, sil, p.ghost ? 0.4 : 0.72);
+  }
+  if (!sil && p.plan === 'catfish') {   // M1 step 4: two long whiskers swept back from the mouth's corners, four short chin barbels
+    g.strokeStyle = rgba(col.fin, 0.95); g.lineCap = 'round';
+    g.lineWidth = 1.5 * U; g.beginPath(); g.moveTo(0.97, 0.02); g.bezierCurveTo(0.9, 0.22, 0.62, 0.3, 0.38, 0.36); g.moveTo(0.97, 0.0); g.bezierCurveTo(0.92, -0.16, 0.7, -0.26, 0.46, -0.3); g.stroke();
+    g.lineWidth = 1.0 * U; g.beginPath();
+    for (let i = 0; i < 4; i++) { const x = 0.9 + i * 0.022; g.moveTo(x, profile(p, x, 1) * 0.7); g.quadraticCurveTo(x - 0.01, 0.15, x - 0.035, 0.19 + (i % 2) * 0.012); }
+    g.stroke();
   }
   if (!sil && p.plan === 'sturgeon') {   // four barbels hanging under the shovel snout
     g.strokeStyle = rgba(col.fin, 0.95); g.lineWidth = 1.1 * U; g.lineCap = 'round';
