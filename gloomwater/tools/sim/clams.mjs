@@ -56,6 +56,8 @@ import { pathToFileURL } from 'node:url';
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true;   // the loop's data: v3 at phase 1 (data.js reads the flags once, at import)
 const D = await import('../../src/data.js');
 const RS = await import('../../src/roster-species.js');   // the roster's converter, shared with data.js (SPEC §13, M1 step 2)
+const WC = await import('../../src/watercraft.js');       // WC-1: the Mossmere's areas and hook table, the game's own parts (WATERCRAFT.md §4)
+const WLY = await import('../../src/world-layout.js');    // WC-1: the Mossmere's layout, for the silhouettes' visible water (the stalker)
 const ROSTER = JSON.parse(fs.readFileSync(new URL('../../docs/loop/roster.json', import.meta.url), 'utf8'));
 const IS_MAIN = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 
@@ -63,6 +65,8 @@ const A = D.AUTOFISH, SZ = D.BALANCE_V3.size, RW = D.RARITY_WEIGHTS, C = D.CATCH
 const args = process.argv.slice(2), QUICK = args.includes('--quick'), MD = args.includes('--md') || args.includes('--fish');
 const argOf = (name) => args.find((a) => a.startsWith(`--${name}=`))?.split('=')[1] ?? null;
 const SHIPPED = argOf('shipped'), STEP = +(argOf('step') ?? 5);   // --shipped=mossmere --step=1…6: M1's own arc (M1.md §6.4)
+// WC-1 (WATERCRAFT.md §8.1): Murk's price factor, data.LOOP.cost.factor; --factor=F overrides it for a run (the full road pins it to 1)
+if (argOf('factor') != null && Number.isFinite(+argOf('factor'))) D.LOOP.cost.factor = +argOf('factor');
 const N = QUICK ? 1200 : 4000;                            // trips per row
 const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const CI = Object.fromEntries(CLASSES.map((c, i) => [c, i]));
@@ -390,6 +394,8 @@ const ITEM = (id) => C.items[id] || (LOOP.bait[id] ? { kind: 'bait', hold: LOOP.
 /** The Hold one fitted bait or lure gives this fish (the larger of lure and bait counts, never both: the built rule). */
 function itemHold(id, sp, night) {
   const it = id && ITEM(id); if (!it || sp.legend) return 0;
+  // WC-1 (WATERCRAFT.md §3.7): on the Mossmere a tin's or lure's Hold helps the fish that like it or better (watercraft.gradeTargets)
+  if (sp.water === 'mossmere' && WC.HOOK_ITEMS.includes(id) && WC.gradeOf(sp.id, {}) !== undefined) return WC.gradeTargets(id, D).includes(sp.id) ? it.hold : 0;
   if (LOOP.giantsLures[id]) return LOOP.giantsLures[id].includes(sp.id) ? it.hold : 0;
   if (it.all) return it.hold;
   if (it.night) return sp.hours.length === 1 && sp.hours[0] === 'night' && night ? it.hold : 0;
@@ -449,14 +455,24 @@ const gauss = (r) => { let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math
 const truncZ = (r, mu, min, max) => { for (let i = 0; i < 200; i++) { const z = mu + gauss(r); if (z >= min && z <= max) return z; } return Math.min(max, Math.max(min, mu)); };
 
 const POOLS = new Map(), PULLED = new Map();
+// ---- WC-1 (WATERCRAFT.md §4, §9.2): the Mossmere's pool is watercraft.js's (hookWeights, finishPool) on the sim's records, through this
+// thin adapter: the sim's species carry {id, rarity, giant, hours}; the giant's share is the sim's rule (in or off its hours), Taper's and
+// the giants' lure's as data.LOOP's. A fish with a hook row has no family lure (lureAttract / lureMatch); the pull multiplies only a fish
+// graded 1 or more, and its sure bite waits for one.
+const WCM = WC.WATERCRAFT.mossmere;
+const WCD = { LOOP: D.LOOP, AUTOFISH: D.AUTOFISH, loopWickId: (w) => simWick(w),
+  giantShare: (sp, phase) => (sp.hours.includes(WC.lightOf(phase)) ? LOOP.giant.share.inHour : LOOP.giant.share.offHour) };
+const wcRow = (s) => s.water === 'mossmere' && WC.gradeOf(s.id, {}) !== undefined;
 /** The fish that can bite in a water at a phase: open-water fish everywhere; a place adds the fish of its kind, its giant and its own
- *  built species; the lure and the bait tilt the pool; a fish that bites on one bait only needs it. */
-function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick = null) {
+ *  built species; the lure and the bait tilt the pool; a fish that bites on one bait only needs it. On the Mossmere (WC-1) the area (open
+ *  water: `area`, areaAt's id; none: the hour tilt) and the hook table, then the giant and the strays' cap (watercraft.js). */
+function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick = null, area = null, hook = true) {
+  const wc = water === 'mossmere';
   // the pull (SPEC §5.5 (d)): a listed fish not yet landed (`miss`) bites at weight × pull, after the hours, place and bait filters; a giant's
   // share is unchanged. `pool.sure` is the missing fish alone, for the sure bite. The missing set and the factor are part of the cache key.
   // Taper (WICKS §2.2 (b)): a giant's share × giantShare, never above giantCap; no other Wick changes a pool here.
   const GW = LOOP.wicks[simWick(wick)]?.giantShare ? LOOP.wicks[wick] : null, gk = GW ? `|g${GW.giantShare}/${GW.giantCap}` : '';
-  const cache = miss ? PULLED : POOLS, key = (miss ? `${water}|${placeId}|${phase}|${lure}|${bait}|${pull}|${[...miss].sort().join(',')}` : `${water}|${placeId}|${phase}|${lure}|${bait}`) + gk;
+  const cache = miss ? PULLED : POOLS, key = (miss ? `${water}|${placeId}|${phase}|${lure}|${bait}|${pull}|${[...miss].sort().join(',')}` : `${water}|${placeId}|${phase}|${lure}|${bait}`) + gk + (wc ? `|a${placeId ? '' : area}${hook ? '' : '|who'}` : '');
   if (cache.has(key)) return cache.get(key);
   const P = placeId ? PLACE[placeId] : null, list = []; let giant = null;
   for (const s of WATER[water].species) {
@@ -474,15 +490,25 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
     else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? PW.dayDraw : 1)) * (P && s.rarity === 'common' ? PW.common : 1);
     if (s.bestNight && phase === 'night') w *= 1.5;
     if (bait && s.bait === bait) w *= 1.5;               // a bait changes which fish bite only for a fish that bites on nothing else
-    if (lureMatch(lure, s)) w *= lureAttract(lure, s);
-    if (miss && miss.has(s.id)) w *= pull;
+    if (lureMatch(lure, s) && !(wc && wcRow(s))) w *= lureAttract(lure, s);   // (WC-1: the hook table replaces the family lure)
+    if (miss && miss.has(s.id) && !wc) w *= pull;                            // (WC-1: on the Mossmere after the hook, on takers only)
     list.push([s, w]);
   }
   const sure = miss ? list.filter(([s]) => miss.has(s.id)) : null;
   let others = list.reduce((a, [, w]) => a + w, 0);
   if (others < (RW.common ?? 70)) for (const s of WATER[water].species) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
     if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait)) continue;
-    const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) ? lureAttract(lure, s) : 1); list.push([s, w]); others += w;
+    const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) && !(wc && wcRow(s)) ? lureAttract(lure, s) : 1); list.push([s, w]); others += w;
+  }
+  if (wc) {   // WC-1: the area or the tilt, the hook (§4 steps 4–6), the pull on takers, the giant and the strays' cap (steps 10–11)
+    const es = WC.hookWeights(list, { area: P ? null : area, place: P ? P.id : null, phase, lure, bait, hook });
+    if (!hook) { const wl = es.map((e) => [e.sp, e.w]), pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: null }; cache.set(key, pool); return pool; }   // who is there
+    if (miss) for (const e of es) if (miss.has(e.sp.id) && e.g !== 0) e.w *= pull;
+    const fin = WC.finishPool(es, { giant: giant && others > 0 ? { sp: giant, share: null } : null, lure, bait, phase, wickId: wick, D: WCD });
+    const wl = fin.filter((e) => e.w > 0).map((e) => [e.sp, e.w]), sw = miss ? fin.filter((e) => !e.giant && e.w > 0 && e.g !== 0 && miss.has(e.sp.id)).map((e) => [e.sp, e.w]) : null;
+    const pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: sw && sw.length ? { list: sw, tot: sw.reduce((a, [, w]) => a + w, 0) } : null, grades: new Map(fin.map((e) => [e.sp.id, e.g])) };
+    if (miss && PULLED.size > 60000) PULLED.clear();
+    cache.set(key, pool); return pool;
   }
   if (giant && others > 0) {                             // a giant is a fixed share of the bites at its place: more in its hour, never none
     const share = giant.hours.includes(phase) ? LOOP.giant.share.inHour : LOOP.giant.share.offHour, gl = LOOP.giantsLures[lure]?.includes(giant.id) ? lureAttract(lure, giant) : 1;   // only its own giants' lure draws it
@@ -492,6 +518,76 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   const pool = { list, tot: list.reduce((a, [, w]) => a + w, 0), sure: sure && sure.length ? { list: sure, tot: sure.reduce((a, [, w]) => a + w, 0) } : null };
   if (miss && PULLED.size > 60000) PULLED.clear();
   cache.set(key, pool); return pool;
+}
+// ---- WC-1 (WATERCRAFT.md §8.3, §9.2): the three players' casts on the Mossmere. The blind caster lands in an area by the baked shares;
+// the reader casts in the best area for its kit and light (the highest expected clams a bite there) and obeys a tell on a quarter of its
+// casts (wait ×0.65); the stalker-reader also leads a silhouette when one is in range (§6.3's rates × the area's visible share)
+const READ = { tellShare: 0.25 }, CAST_R = 16, CUT_FAVOUR = D.BALANCE_V3?.favour?.tackle?.cutStrip ?? 0.3;
+function blindArea(r, ph) { const sh = WCM.shares[ph]; let x = r(); for (const a of WC.AREAS) { x -= sh[a] || 0; if (x < 0) return a; } return 'open'; }
+const BEST_AREA = new Map();
+/** The reader's area for a kit in a light: the area whose bite is worth the most clams, on average (a Keeper's value × its land chance). */
+function bestArea(kit, ph) {
+  const key = `${kit.lure}|${kit.bait}|${ph}|${kit.rod}${kit.line}${kit.reel}`;
+  if (BEST_AREA.has(key)) return BEST_AREA.get(key);
+  let best = 'open', bv = -1;
+  for (const a of WC.AREAS) {
+    if (!(WCM.shares[ph]?.[a] > 0)) continue;
+    const pool = poolFor('mossmere', null, ph, kit.lure, kit.bait, null, 1, null, a);
+    const v = pool.list.reduce((acc, [s, w]) => acc + (w / pool.tot) * clamsFor(s, 0.3) * landP(s, 'keeper', kit, 'struck', ph === 'night'), 0);
+    if (v > bv) { bv = v; best = a; }
+  }
+  BEST_AREA.set(key, best); return best;
+}
+const castAreaSim = (r, kit, ph, who) => (who === 'reader' || who === 'stalker' ? bestArea(kit, ph) : blindArea(r, ph));
+let VIS = null;
+/** Each area's visible water (the share of it shallower than WCM.sight.depth; 0 where silhouettes never show), on the layout's grid. */
+function visShare(area) {
+  if (!VIS) {
+    const Z = D.ZONES[0], L = WLY.buildLayout(Z), probe = { depth: (x, z) => WLY.depthAt(L, x, z), fromShore: (x, z) => L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z) };
+    const geo = { arena: Z.arena, hulls: D.loopMooring('mossmere', L.docks)?.circles ?? [], docks: L.docks }, n = {}, v = {};
+    for (let x = -60; x <= 60; x += 1.5) for (let z = -60; z <= 60; z += 1.5) {
+      if (D.placeAtV3?.('mossmere', x, z)) continue;
+      const a = WC.areaAt(x, z, probe, geo); if (!a) continue;
+      n[a] = (n[a] || 0) + 1; if (probe.depth(x, z) < WCM.sight.depth) v[a] = (v[a] || 0) + 1;
+    }
+    VIS = Object.fromEntries(WC.AREAS.map((a) => [a, WCM.sight.areas.includes(a) && n[a] ? (v[a] || 0) / n[a] : 0]));
+  }
+  return VIS[area] ?? 0;
+}
+const SIGHT_BODY = Object.fromEntries(Object.entries(WCM.sight.bodies).flatMap(([b, ids]) => ids.map((id) => [id, b])));
+/** A silhouette in range for the stalker's cast, led: {sp, z, g, took} or null (none in range). §6.3: at most 4 alive, a new one every
+ *  12–30 s, each 40–90 s (so at least one alive with probability 1 − e^(−life/spawn)), times the area's visible share (at night the
+ *  lantern's pool of light over the cast's reach); it leads the largest of 1–2 shapes from the who-is-there pool (×1.5 deep-bodied and
+ *  long; never a giant, the legend, the sturgeon, the trout or the eel), z rolled as a bite there, and it takes with takeChance(0.45, g). */
+function sightCast(r, kit, placeId, ph, area) {
+  const Sg = WCM.sight, F = LOOP.favour, night = ph === 'night';
+  const vis = placeId ? (placeId === 'lily_maze' ? 0.5 : 0) : visShare(area);
+  if (!(vis > 0)) return null;
+  const lit = night ? Math.min(1, (Sg.lantern.r * (1 + Sg.lantern.perLevel * (kit.lantern | 0))) ** 2 / CAST_R ** 2) : 1;
+  const alive = 1 - Math.exp(-((Sg.life[0] + Sg.life[1]) / 2) / ((Sg.spawn[0] + Sg.spawn[1]) / 2));
+  if (!(r() < alive * vis * lit)) return null;
+  const who = poolFor('mossmere', placeId, ph, null, kit.bait, null, 1, null, area, false).list
+    .filter(([s]) => !Sg.exclude.includes(s.id) && !s.giant && !s.legend && (night || !Sg.nightOnly.includes(s.id)))
+    .map(([s, w]) => [s, w * (Sg.show[SIGHT_BODY[s.id]] ?? 1)]);
+  if (!who.length) return null;
+  const tot = who.reduce((a, [, w]) => a + w, 0), P = placeId ? PLACE[placeId] : null;
+  const mu = (P ? L_PLACE_FAV(P) : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0) + F.perKeel * (kit.keel | 0);
+  let best = null;
+  for (let i = 0, n = r() < 0.5 ? 1 : 2; i < n; i++) {
+    let x = r() * tot, sp = who[who.length - 1][0];
+    for (const [s, w] of who) { x -= w; if (x <= 0) { sp = s; break; } }
+    const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, P?.kind === 'old' ? SZ.z.max : SZ.elsewhereMaxZ);
+    const z = truncZ(r, mu, SZ.z.min, maxZ), len = sp.L50 * Math.exp((SZ.k ?? 0.2) * z);
+    if (!best || len > best.len) best = { sp, z, len };
+  }
+  const g = WC.gradeOf(best.sp.id, { lure: kit.lure, bait: kit.bait });
+  return { sp: best.sp, z: best.z, g, took: r() < WC.takeChance(WCM.take.sight, g) };
+}
+const L_PLACE_FAV = (P) => LOOP.place.favour.base + LOOP.place.favour.window[P.kind];
+/** A pool without one species (a led stray that turned away: §3.6). */
+function dropSp(pool, id) {
+  const list = pool.list.filter(([s]) => s.id !== id), sure = pool.sure ? pool.sure.list.filter(([s]) => s.id !== id) : null;
+  return { list, tot: list.reduce((a, [, w]) => a + w, 0), sure: sure && sure.length ? { list: sure, tot: sure.reduce((a, [, w]) => a + w, 0) } : null };
 }
 const pick = (r, pool) => { let x = r() * pool.tot; for (const [s, w] of pool.list) { x -= w; if (x <= 0) return s; } return pool.list[pool.list.length - 1][0]; };
 const STRIKES = Object.entries(A.player.strike);
@@ -572,10 +668,15 @@ export function trip(kit, policy, r, opts = {}) {
   if (miss && opts.journal) ({ stops: waters, home } = journalRoute(kit, waters, miss));
   // the missing fish of a stop that bite in a light (the Journal's place and hour glyphs)
   const missAt = (W, ph) => { for (const [id, h] of home) if (h === W.id && miss.has(id) && SP[id + '@' + kit.water].hours.includes(ph)) return true; return false; };
-  const baitFav = kit.bait && L.bait[kit.bait] ? L.baitRule.favour : 0;
+  // WC-1: the Mossmere's casts land in areas (the blind caster by the baked shares; --readers / --stalkers the best area for the kit);
+  // Cut Strip is the trip's own (a Small or Keeper let go and cut into LOOP.cut.strips; with none left, the cast fishes the bare hook)
+  const wcW = kit.water === 'mossmere', who = opts.player || 'blind', reads = wcW && (who === 'reader' || who === 'stalker');
+  const STRIP = kit.bait === 'cut_strip', CUT = D.LOOP.cut || { strips: 3, classes: ['small', 'keeper'] };
+  let strips = 0;
+  const baitFavOf = (b) => (b && L.bait[b] ? L.baitRule.favour : 0);
   let clock = 0, real = 0, inQuiet = false;
   const out = { clams: 0, kept: 0, bites: 0, hooks: 0, landed: 0, letGo: 0, lost: 0, prize: 0, trophy: 0, elder: 0, elderBites: 0, nightBites: 0, baitUsed: 0, stale: 0,
-    giantBites: 0, giantLanded: 0, giantKept: 0, giantClams: 0, giantRefused: 0, landedIds: [],
+    giantBites: 0, giantLanded: 0, giantKept: 0, giantClams: 0, giantRefused: 0, landedIds: [], sightTakes: 0, stripsUsed: 0,
     slots, nonCommon: 0, waitSec: 0, quietSec: 0, quietClams: 0, firsts: 0, firstBonus: 0, newThings: 0, taperFirsts: 0, comebacks: 0, comebackLanded: 0 };
   const adv = (s, frozen = false) => { real += s; if (!frozen) clock += s; if (inQuiet) out.quietSec += s; };
   const phase = () => (clock < E.day ? 'day' : clock < E.day + E.dusk ? 'dusk' : 'night');
@@ -607,40 +708,51 @@ export function trip(kit, policy, r, opts = {}) {
     for (;;) {
       inQuiet = false;
       if (hold.length >= slots || out.bites >= 400) break outer;
-      const cbHere = !!comeback && comeback.at === W.id;            // Ashwick's policy always takes a waiting comeback: no leaving
+      const cbHere = !!comeback && comeback.at === W.id              // Ashwick's policy always takes a waiting comeback: no leaving
+        && !(wcW && WC.gradeOf(comeback.sp.id, { lure: kit.lure, bait: STRIP ? (strips > 0 ? 'cut_strip' : null) : kit.bait }) === 0);   // (WC-1: it waits on a stray)
       if (!cbHere && W.early && !missAt(W, phase())) break;          // open water's missing fish are landed or their light is gone: on to the places; open water tops up last
       const over = Math.max(0, here - fresh);                        // the policies' count: quiet bites already taken here
       const qOver = Math.max(0, here + 1 - fresh);                   // this bite's quiet terms (PLAN CHOICE 17, the game's loop.favour): at 4 good bites the 5th is quiet
       const ctx = { slots: slots - hold.length, hold: slots, here, freshHere: Math.max(0, fresh - here), over, last, watersLeft: waters.length - 1 - wi, phase: phase(), kind: W.kind, giantHere: !!(W.id && PLACE[W.id].giants.length) };
       if (!cbHere && policy.leave(ctx)) { if (last) break outer; break; }
       const ph = phase(), night = ph === 'night';
-      let sp, isCb = false;
+      const castBait = STRIP ? (strips > 0 ? 'cut_strip' : null) : kit.bait, ckit = castBait === kit.bait ? kit : { ...kit, bait: castBait };
+      const area = wcW && W.id === null ? castAreaSim(r, ckit, ph, who) : null;
+      let sp, isCb = false, sight = null, waitK = 1;
+      if (reads && r() < READ.tellShare) waitK *= WCM.waits.tell;       // an obeyed tell's quicker bite (§5.3), on a quarter of the casts
       if (cbHere) { sp = comeback.sp; isCb = true; out.comebacks++; }   // the same fish, the next bite at this water: served (and so spent) now
       else {
-        const pool = PULL && miss.size ? poolFor(kit.water, W.id, ph, kit.lure, kit.bait, miss, pullBy, wid) : poolFor(kit.water, W.id, ph, kit.lure, kit.bait, null, 1, wid);
+        if (who === 'stalker' && wcW) sight = sightCast(r, ckit, W.id, ph, area);   // a silhouette in range, led: {sp, z, took}
+        if (sight?.took) { sp = sight.sp; waitK *= WCM.waits.sightTake; out.sightTakes++; }
+        const pool = sight?.took ? null : PULL && miss.size ? poolFor(kit.water, W.id, ph, kit.lure, castBait, miss, pullBy, wid, area) : poolFor(kit.water, W.id, ph, kit.lure, castBait, null, 1, wid, area);
+        if (sight?.took) { /* the silhouette's fish */ } else {
         if (!pool.tot) { if (last) break outer; break; }
+        // a led silhouette that turned away: the cast keeps its pool, without that species if it will not take the hook (§3.6)
+        const pl = sight && sight.g === 0 ? dropSp(pool, sight.sp.id) : pool;
         const tLeft = taperN ? taperLeft.get(tKey) ?? taperN : 0;
-        if (sureDone && pool.sure && !sureDone.has(W.id)) { sp = pick(r, pool.sure); sureDone.add(W.id); if (tLeft) taperLeft.set(tKey, tLeft - 1); }   // the sure bite: the first bite here in a light where a missing fish bites
-        else if (tLeft) { const tp = taperPool(pool); if (tp) { sp = pick(r, tp); taperLeft.set(tKey, tLeft - 1); out.taperFirsts++; } else sp = pick(r, pool); }
-        else sp = pick(r, pool);
+        if (sureDone && pl.sure && !sureDone.has(W.id)) { sp = pick(r, pl.sure); sureDone.add(W.id); if (tLeft) taperLeft.set(tKey, tLeft - 1); }   // the sure bite: the first bite here in a light where a missing fish bites
+        else if (tLeft) { const tp = taperPool(pl); if (tp) { sp = pick(r, tp); taperLeft.set(tKey, tLeft - 1); out.taperFirsts++; } else sp = pick(r, pl); }
+        else sp = pick(r, pl);
+        }
       }
       const pulled = !!PULL && nEv >= PULL.floorFrom && miss.has(sp.id);
       const atOwn = sp.giant;                              // a giant only bites at its own place
       const q = quietTerms(qOver, wid);
       let mu = (W.id ? L.place.favour.base + L.place.favour.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
-        + baitFav + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (kit.keel | 0) + mercy;
+        + baitFavOf(castBait) + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (kit.keel | 0) + mercy
+        + (castBait === 'cut_strip' && sp.family === 'predator' ? CUT_FAVOUR : 0);   // (the game's cutStrip term, fishing.js speciesTerms)
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
       inQuiet = qOver > 0;
-      const wait = T.wait * waitMul * q.waitMult; out.waitSec += wait;
+      const wait = T.wait * waitMul * q.waitMult * waitK; out.waitSec += wait;
       adv(T.cast + wait);
       const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, W.kind === 'old' || atOwn ? SZ.z.max : SZ.elsewhereMaxZ);   // Elders: old water, and a giant at its own place
-      const z = isCb ? comeback.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
+      const z = isCb ? comeback.z : sight?.took ? sight.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
       if (isCb) comeback = null;
       const cls = D.isAncient(z) ? 'ancient' : D.sizeClassOf(z);
       here++; out.bites++; if (qOver > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++; if (sp.rarity !== 'common') out.nonCommon++;
       if (!isCb && !policy.strike(cls, ctx)) { adv(L.time.pass); continue; }
-      out.hooks++; if (kit.bait) out.baitUsed++;
-      const p = landP(sp, cls, kit, pickStrike(r), night, isCb ? Math.min(C.buffs.runCap ?? C.buffs.cap, WK.hold) : 0);
+      out.hooks++; if (castBait && L.bait[castBait]) out.baitUsed++; if (castBait === 'cut_strip') { strips--; out.stripsUsed++; }
+      const p = landP(sp, cls, ckit, pickStrike(r), night, isCb ? Math.min(C.buffs.runCap ?? C.buffs.cap, WK.hold) : 0);
       const quick = cls === 'small' || cls === 'keeper' ? 1 - A.player.hurry + A.player.hurry / A.play.inputs.hurry.mult : 1;
       adv(T.strike);
       if (r() < p) {
@@ -651,7 +763,9 @@ export function trip(kit, policy, r, opts = {}) {
         const fish = { sp, z, cls, value: clamsFor(sp, z) };
         const first = led ? stampFirst(led, sp, z, cls) : null;   // the measure: the ledger keeps a let-go fish's records too
         if (first && (first.kind || first.seal)) out.newThings++;
-        const kept = policy.keep(fish, ctx);
+        const cut = STRIP && strips <= 0 && CUT.classes.includes(cls) && !sp.giant;   // WC-1: no strip left: this one is let go and cut
+        if (cut) strips += CUT.strips;
+        const kept = !cut && policy.keep(fish, ctx);
         if (kept) { hold.push(fish); if (CI[cls] >= 2) out.prize++; if (CI[cls] >= 3) out.trophy++; if (CI[cls] >= 4) out.elder++; if (sp.giant) { out.giantKept++; out.giantClams += fish.value; } } else { out.letGo++; mercy = Math.min(L.letGo.cap, mercy + L.letGo.favour); if (L.letGo.refund) here = Math.max(0, here - 1); }
         if (kept && inQuiet) out.quietClams += fish.value;
         if (kept && first?.any && pas === 'curious' && !sp.giant && !sp.legend) { out.firsts++; out.firstBonus += firstBonus(sp, fish.value, WK); }   // one bonus per fish, however many firsts
@@ -665,7 +779,7 @@ export function trip(kit, policy, r, opts = {}) {
   inQuiet = false;
   adv(L.time.home + L.time.sale + L.time.shop, true);
   out.kept = hold.length; out.gross = hold.reduce((a, f) => a + f.value, 0);
-  out.baitCost = kit.bait ? out.baitUsed * (baitTin(kit.bait, kit.water) / L.tinSize) : 0;
+  out.baitCost = kit.bait && L.bait[kit.bait] ? out.baitUsed * (baitTin(kit.bait, kit.water) / L.tinSize) : 0;   // (Cut Strip is free)
   out.clams = out.gross - out.baitCost + out.firstBonus; out.sec = real; out.sawNight = clock >= E.day + E.dusk;
   out.lostForGood = out.lost - out.comebacks;                       // each comeback answers one loss: landed, that fish is home; lost again, it is gone
   return out;
@@ -736,6 +850,16 @@ export function listToLand(waterId) {
   return listFor(waterId).filter((id) => !seen.has(id));
 }
 const asc = (a, b) => a - b, quant = (a, q) => a[Math.min(a.length - 1, Math.floor(a.length * q))];
+/** WC-1: the list player's hook on the Mossmere for evening n: its kit's while that brings every missing fish; else an evening each, in
+ *  turn, of the hooks that bring one (Cut Strip first while a hunter is missing that the kit will not bring, the kit, the bare hook). */
+function listHook(kit, missing, n) {
+  const miss = [...missing], takes = (k, id) => WC.gradeOf(id, { lure: k.lure, bait: k.bait }) !== 0;
+  if (miss.every((id) => takes(kit, id))) return kit;
+  const strip = { ...kit, lure: null, bait: 'cut_strip' }, bare = { ...kit, lure: null, bait: null };
+  const hunt = miss.some((id) => WC.HUNTERS.includes(id) && !takes(kit, id));
+  const seen = new Set(), useful = (hunt ? [strip, kit, bare] : [kit, bare]).filter((k) => { const key = `${k.lure}|${k.bait}`; if (seen.has(key)) return false; seen.add(key); return miss.some((id) => takes(k, id)); });
+  return useful.length ? useful[n % useful.length] : kit;
+}
 /** `players` players fish one water on `kit`, evening after evening, until every fish of its list is landed (kept or let go), on the
  *  natural rule. mode: {journal: the Journal route, pull: false for no mercy}. Times are pacing minutes (the visit home and the
  *  pacing player's 25% of looking around included). `open` is the share of players not done after `maxEv` evenings. */
@@ -743,7 +867,13 @@ export function listStudy(W, kit, players, mode = { journal: true }, seed = 7000
   const r = rng(seed), start = listToLand(W.id), times = [], evs = []; let clams = 0, sec = 0, open = 0;
   for (let i = 0; i < players; i++) {
     const missing = new Set(start); let n = 0, t = 0;
-    while (missing.size && n < maxEv) { const x = trip(kit, POL.natural(), r, { missing, n, ...mode }); t += x.sec; clams += x.clams; for (const id of x.landedIds) missing.delete(id); n++; }
+    while (missing.size && n < maxEv) {
+      // WC-1 (WATERCRAFT.md §3.3, §9.2): on the Mossmere the list player fishes Cut Strip while a hunter on its list is missing that its
+      // own hook will not bring (none takes a bare hook); a missing fish its hook will not bring either (a perch on Lumen Moss, the koi on
+      // the strip) gets its evenings too: the list player turns through the hooks that bring a missing fish (the strip first), an evening each
+      const k = W.id === 'mossmere' ? listHook(kit, missing, n) : kit;
+      const x = trip(k, POL.natural(), r, { missing, n, ...mode }); t += x.sec; clams += x.clams; for (const id of x.landedIds) missing.delete(id); n++;
+    }
     if (missing.size) open++;
     times.push(t * LOOP.player.time / 60); evs.push(n); sec += t;
   }
@@ -866,24 +996,35 @@ export const WICK_PLAYERS = 16;                            // the Wick's sampled
  *  does, since its sale is paid on them)}. Every Wick buys the same order at the same prices (WICKS §2.4). */
 export function pacing(o = {}) {
   const wid = simWick(o.wick), m1 = o.shipped === 'mossmere', step = o.step ?? 5, ek = wid === 'wick' ? null : wid;   // the Wick fishes as the no-passive player: its passive is the sale
+  const who = o.player || 'blind', po = who === 'blind' ? {} : { player: who };   // WC-1: the blind caster, the reader or the stalker-reader
   const KEYS = { list: {}, kit: {}, boughtAt: {}, openedAt: { mossmere: 0 }, gearAt: {}, era: {}, sealed: {}, doneH: 0 };
   const P = LOOP.player, state = { clams: 0, sec: 0, trips: 0, earned: 0, spent: 0, rod: 0, line: 0, reel: 0, hold: LOOP.hold.start, maps: ['mossmere'], open: [], places: new Set(), lures: new Set(), oars: 0, keel: 0, lantern: 0, orders: 0, baitBed: 0, wall: 0, lights: 0, legends: new Set() };
-  const kitFor = (w, lure = bestLureOf(w, [...state.lures])) => ({ water: w, rod: state.rod, line: state.line, reel: state.reel, hold: state.hold, lure,
-    bait: state.sec > 1800 && (!m1 || step >= 4) ? WATER[w].plainBait : null, places: WATER[w].places.filter((p) => state.places.has(p.id) && !p.legend).map((p) => p.id), oars: state.oars, keel: state.keel, lantern: state.lantern });
+  const kitFor = (w, lure = bestLureOf(w, [...state.lures]), bait) => ({ water: w, rod: state.rod, line: state.line, reel: state.reel, hold: state.hold, lure,
+    bait: bait !== undefined ? bait : state.sec > 1800 && (!m1 || step >= 4) ? WATER[w].plainBait : null, places: WATER[w].places.filter((p) => state.places.has(p.id) && !p.legend).map((p) => p.id), oars: state.oars, keel: state.keel, lantern: state.lantern });
   const evalCache = new Map(), kitIdx = new Map();
   // the player fits the lure that pays best here, measured (v7.1): the giants' lure by its giants, or the best family lure owned. A kit's
   // seed is fixed by when the kit is first met, whichever Wick meets it (so the no-passive row and a Wick's row share their seeds there)
-  const evalOne = (kit, w2 = ek) => {
-    const kk = JSON.stringify(kit), key = `${w2}|${kk}`;
+  const evalOne = (kit, w2 = ek, n = QUICK ? 1000 : 1500) => {
+    const kk = JSON.stringify(kit), key = `${w2}|${n}|${kk}`;
     if (!kitIdx.has(kk)) kitIdx.set(kk, kitIdx.size);
     if (!evalCache.has(key)) {
-      const w = kit.water, x = run(kit, POL.natural(), QUICK ? 1000 : 1500, 9000 + kitIdx.get(kk), w2 ? { wick: w2 } : {});
-      const bedFree = kit.bait ? Math.min(x.baitUsed, [0, 3, 6, 10][state.baitBed]) * (baitTin(kit.bait, w) / LOOP.tinSize) : 0;
-      evalCache.set(key, { water: w, lure: kit.lure, clams: (x.clams + bedFree) * P.clams * (1 + P.orderGain * state.orders), min: x.min * P.time, kept: x.kept, elder: x.elder, giant: x.giantKept, slots: x.slots });
+      const w = kit.water, x = run(kit, POL.natural(), n, 9000 + kitIdx.get(kk), { ...(w2 ? { wick: w2 } : {}), ...po });
+      const bedFree = kit.bait && LOOP.bait[kit.bait] ? Math.min(x.baitUsed, [0, 3, 6, 10][state.baitBed]) * (baitTin(kit.bait, w) / LOOP.tinSize) : 0;
+      evalCache.set(key, { water: w, lure: kit.lure, bait: kit.bait, clams: (x.clams + bedFree) * P.clams * (1 + P.orderGain * state.orders), min: x.min * P.time, kept: x.kept, elder: x.elder, giant: x.giantKept, slots: x.slots });
     }
     return evalCache.get(key);
   };
+  const rate = (e) => e.clams / e.min;
   const evalWater = (w) => {
+    if (w === 'mossmere' && m1) {
+      // WC-1 (WATERCRAFT.md §9.2; M1's arc: the full road keeps its own rule, the best lure and the plain bait from minute 30): the best hook here, measured: the bare hook, each tin on the shelf, Cut Strip, each owned lure and each
+      // lure with each of those baits (screened on a short run, the best two on the full one)
+      const lures = [null, ...[...state.lures].filter((id) => WC.LURE_IDS.includes(id))];
+      const baits = [null, 'cut_strip', ...((!m1 || step >= 4) && state.sec > 1800 ? D.LOOP.tins?.mossmere ?? [] : [])];   // (a tin from minute 30, as the plain bait was)
+      const cands = lures.flatMap((l) => baits.map((b) => kitFor(w, l, b)));
+      const top = cands.map((k) => [k, evalOne(k, ek, QUICK ? 200 : 300)]).sort((a, b) => rate(b[1]) - rate(a[1])).slice(0, 2);
+      return top.map(([k]) => evalOne(k)).sort((a, b) => rate(b) - rate(a))[0];
+    }
     const lures = [...new Set([bestLureOf(w, [...state.lures]), bestLureOf(w, [...state.lures].filter((id) => LOOP.familyLures[id] != null))])];
     return lures.map((l) => evalOne(kitFor(w, l))).sort((a, b) => b.clams / b.min - a.clams / a.min)[0];
   };
@@ -895,14 +1036,18 @@ export function pacing(o = {}) {
   const ownsGear = (w) => { const g = gearKey(w); return !g || (g.slot === 'hold' ? state.hold : state[g.slot]) >= g.level; };
   const listDone = (w) => (fishedAt[w] || 0) >= KEYS.list[w].p95 * 60;
   const ledgerAt = {};                                      // the sampled player's firsts ledger on the day each water opens
-  const openWater = (w) => { state.open.push(w); KEYS.openedAt[w] = state.sec / 3600; KEYS.kit[w] = kitFor(w, evalWater(w).lure); KEYS.list[w] = listStudy(WATER[w], KEYS.kit[w], NL, wid ? { journal: true, wick: ek } : { journal: true }); if (ledger) ledgerAt[w] = ledgers.map(copyLedger); };
+  const openWater = (w) => { state.open.push(w); KEYS.openedAt[w] = state.sec / 3600; KEYS.kit[w] = (() => { const e = evalWater(w); return kitFor(w, e.lure, e.bait); })(); KEYS.list[w] = listStudy(WATER[w], KEYS.kit[w], NL, wid ? { journal: true, wick: ek } : { journal: true }); if (ledger) ledgerAt[w] = ledgers.map(copyLedger); };
   function legendCost(id) {
     const kit = { rod: state.rod, line: state.line, reel: state.reel }; let alive = 1, tries = 0;
     for (let k = 0; k < 12 && alive > 0.02; k++) { tries += alive; alive *= 1 - legendP(id, kit, k); }
-    const W = LOOP.waters.find((w) => w.legend === id);
-    return { cost: Math.round(tries * W.legendBait[1]), tries, prize: W.places.find((p) => p.legend).price };
+    const W = LOOP.waters.find((w) => w.legend === id), crown = W.places.find((p) => p.legend).price;
+    // WC-1: her first landing pays her crown map's price as Murk asks it (D.loopCost on M1; the full road's prices are before v8.7)
+    return { cost: Math.round(tries * W.legendBait[1]), tries, prize: m1 ? D.loopCost(crown) : crown };
   }
-  const price = (id) => {
+  // WC-1 (WATERCRAFT.md §8.1): on M1 every price is Murk's, D.loopCost (×LOOP.cost.factor, made nice; a consumable at its base); the
+  // full road (sections 5 and 7) keeps the prices before v8.7 (the factor pinned to 1)
+  const price = (id) => { const b = basePrice(id); return m1 && !id.startsWith('legend:') ? D.loopCost(b) : b; };
+  const basePrice = (id) => {
     const [kind, a, b] = id.split(':');
     if (kind === 'hold') return LOOP.hold.ladder.find((h) => h.slots === +a).price;
     if (kind === 'rod' || kind === 'line' || kind === 'reel') return LOOP.tackle.price[+a];
@@ -944,7 +1089,7 @@ export function pacing(o = {}) {
     const e = at ? evalWater(at) : bestWater();
     let bonus = 0;
     if (sample) {
-      const kitE = kitFor(e.water, e.lure), xs = rSs.map((r, i) => trip(kitE, POL.natural(), r, { wick: wid, firsts: ledgers[i], track: true })), sx = xs[0];
+      const kitE = kitFor(e.water, e.lure, e.bait), xs = rSs.map((r, i) => trip(kitE, POL.natural(), r, { wick: wid, firsts: ledgers[i], track: true, ...po })), sx = xs[0];
       bonus = wid === 'wick' ? xs.reduce((a, x) => a + x.firstBonus, 0) / nS * P.clams : 0; bonusAll += bonus;
       recentBonus.push(bonus); if (recentBonus.length > 10) recentBonus.shift();
       for (const id of sx.landedIds) { const sp = SP[id + '@' + e.water]; if (sp?.giant && !sp.legend && giantHome[id] == null) giantHome[id] = (state.sec + e.min * 60) / 3600; if (e.water === 'mossmere') listMiss.delete(id); }
@@ -952,7 +1097,7 @@ export function pacing(o = {}) {
       if (sx.newThings > 0 || bought) { streak = 0; streakMin = 0; bought = false; } else { streak++; streakMin += e.min; if (streak > dull.trips) dull = { trips: streak, min: streakMin, at: state.sec / 3600 }; }
     }
     if (wid) {                                              // the per-era gain over the no-passive player, on the kits this Wick fishes
-      const n0 = ek ? evalOne(kitFor(e.water, e.lure), null) : e, A0 = (era[state.open[state.open.length - 1]] ||= { cw: 0, tw: 0, cn: 0, tn: 0, trips: 0 });
+      const n0 = ek ? evalOne(kitFor(e.water, e.lure, e.bait), null) : e, A0 = (era[state.open[state.open.length - 1]] ||= { cw: 0, tw: 0, cn: 0, tn: 0, trips: 0 });
       A0.cw += e.clams + bonus; A0.tw += e.min; A0.cn += n0.clams; A0.tn += n0.min; A0.trips++;
     }
     if (first25.length < 25) first25.push({ clams: e.clams + bonus, min: e.min });
@@ -962,15 +1107,15 @@ export function pacing(o = {}) {
     while (mi < marks.length && state.sec / 3600 >= marks[mi][0]) snapshot(marks[mi++][1]);
     return e;
   };
-  const gains = [], nG = QUICK ? 3000 : 6000, gOpt = ek ? { wick: ek } : {};
+  const gains = [], nG = QUICK ? 3000 : 6000, gOpt = { ...(ek ? { wick: ek } : {}), ...po };
   const queue = [...ORDER];
   const buy = (id) => {
     const cost = price(id); let guard = 0;
     while (state.clams < cost && guard++ < 20000) playTrip();
     const kindOf = id.split(':')[0], measure = kindOf === 'hold' || kindOf === 'raft';
-    const b0 = measure ? bestWater() : null, w0 = b0?.water, x0 = measure ? run(kitFor(w0, b0.lure), POL.natural(), nG, 606, gOpt) : null, trip0 = measure ? b0.clams : 0;
+    const b0 = measure ? bestWater() : null, w0 = b0?.water, x0 = measure ? run(kitFor(w0, b0.lure, b0.bait), POL.natural(), nG, 606, gOpt) : null, trip0 = measure ? b0.clams : 0;
     state.clams -= cost; state.spent += cost; apply(id); bought = true;
-    if (measure) { const x1 = run(kitFor(w0, b0.lure), POL.natural(), nG, 606, gOpt); gains.push({ id, name: itemName(id), h: state.sec / 3600, g: x1.perMin / x0.perMin - 1, gt: x1.clams / x0.clams - 1, trips: cost / trip0 }); }
+    if (measure) { const x1 = run(kitFor(w0, b0.lure, b0.bait), POL.natural(), nG, 606, gOpt); gains.push({ id, name: itemName(id), h: state.sec / 3600, g: x1.perMin / x0.perMin - 1, gt: x1.clams / x0.clams - 1, trips: cost / trip0 }); }
     const [kind, a] = id.split(':'), hBuy = state.sec / 3600;
     for (const W of LOOP.waters) if (KEYS.gearAt[W.id] == null && gearOrderId(W.id) === id) KEYS.gearAt[W.id] = hBuy;
     const entry = { id, name: itemName(id), cost, h: hBuy, trips: state.trips, waited: state.trips - lastBuyTrips, clamsLeft: state.clams };
@@ -1103,16 +1248,17 @@ const sg = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
     let n = 0, worst = 0, shares = 0, eelAt = [];
     for (const pid of places) for (const [ph, gph] of Object.entries(LIGHTS)) for (const bait of [null, 'heartmoss', 'lumen_moss']) for (const wick of [null, 'taper']) {
       const dark = ph === 'night', simPid = pid && !(PLACE[pid]?.kind === 'night' && !dark) ? pid : null;
-      const sim = poolFor('mossmere', simPid, ph, null, bait, null, 1, wick), game = D.placePool(D.SPECIES, { placeId: pid, phase: gph, bait, wickId: wick });
-      const gl = [...game.list, ...(game.giant ? [[game.giant.sp, game.giant.weight]] : [])];
+      // (WC-1: the game's cast draws from watercraft.castOdds on placePool, with the open water's area: 'open' here; the sim's poolFor the same)
+      const ar = simPid ? null : 'open', sim = poolFor('mossmere', simPid, ph, null, bait, null, 1, wick, ar), game = D.placePool(D.SPECIES, { placeId: pid, phase: gph, bait, wickId: wick });
+      const odds = WC.castOdds(D, { pool: game, area: game.place ? null : ar, phase: gph, bait: bait === 'heartmoss' ? null : bait, wickId: wick });
       const sh = (list, tot) => new Map(list.map(([s, w]) => [s.id, w / tot]));
-      const a = sh(sim.list, sim.tot), b = sh(gl, game.tot), ids = new Set([...a.keys(), ...b.keys()]);
+      const a = sh(sim.list, sim.tot), b = new Map(odds.entries.map((e) => [e.sp.id, e.p])), ids = new Set([...a.keys(), ...b.keys()]);
       for (const id of ids) {
         const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); worst = Math.max(worst, d); shares++;
         if (!a.has(id) || !b.has(id) || d > 1e-9) bad.push(`${pid || 'open'} ${ph} ${bait || 'no bait'} ${wick || 'none'}: ${id} ${a.get(id) ?? '—'} vs ${b.get(id) ?? '—'}`);
       }
-      const sg = sim.list.find(([s]) => s.giant);
-      if (!!sg !== !!game.giant || (sg && Math.abs(sg[1] / sim.tot - game.giant.share) > 1e-12)) bad.push(`${pid} ${ph} ${wick || 'none'}: the giant's share ${sg ? sg[1] / sim.tot : '—'} vs ${game.giant?.share ?? '—'}`);
+      const sg = sim.list.find(([s]) => s.giant), gg = odds.entries.find((e) => e.giant);
+      if (!!sg !== !!gg || (sg && Math.abs(sg[1] / sim.tot - gg.p) > 1e-12)) bad.push(`${pid} ${ph} ${wick || 'none'}: the giant's share ${sg ? sg[1] / sim.tot : '—'} vs ${gg?.p ?? '—'}`);
       if (b.has('gloam_eel')) eelAt.push(`${pid || 'open'} ${ph} ${bait || 'no bait'}`);
       n++;
     }
@@ -1222,6 +1368,59 @@ if (args.includes('--fish')) {
 if (SHIPPED) return shippedReport();
 if (args.includes('--wicks')) return wicksReport();
 // ---------------------------------------------------------------- --shipped=mossmere: M1's arc, per step and (--wicks) per Wick
+// ---- WC-1 (WATERCRAFT.md §8.3, §9.2): the watercraft's proof, from the game's own castOdds and the sim's poolFor
+function watercraftProof() {
+  const WC_HOOKS = [{}, { bait: 'mireworm' }, { bait: 'lumen_moss' }, { bait: 'cut_strip' }, { bait: 'heartmoss' },
+    { lure: 'feather_fly' }, { lure: 'glimmer_spoon' }, { lure: 'bone_jig' }, { lure: 'bell_spinner' },
+    { lure: 'glimmer_spoon', bait: 'mireworm' }, { lure: 'feather_fly', bait: 'lumen_moss' }, { lure: 'bone_jig', bait: 'cut_strip' }];
+  const hookName = (h) => [h.lure && LURE_NAME[h.lure], h.bait && (LOOP.bait[h.bait]?.name ?? D.TEXT_LOOP?.gearItems?.[h.bait] ?? h.bait)].filter(Boolean).join(' + ') || 'the bare hook';
+  title('M1 (v8.7): the watercraft (WATERCRAFT.md §2–§4): the user\'s rule, every pool bites, every fish can be caught, the areas add nothing, T104');
+  const LIGHTS = { day: 'calm', dusk: 'dusk', night: 'gloomtide' }, places = D.loopPlaceIds('mossmere'), legendBall = D.LOOP.legendBait.mossmere.id;
+  const gBait = (b) => (b === legendBall ? null : b ?? null);   // fishing.js: the ball is a bare hook to the pool
+  const waters = [...WC.AREAS.map((a) => ({ area: a, place: null })), ...places.map((p) => ({ area: null, place: p }))];
+  const tellRules = [null, ...Object.entries(WCM.tells).flatMap(([kind, T]) => (T.retired || T.noRule || !T.cap ? [] : (T.forms ? Object.entries(T.forms) : [[null, T]]).map(([form, f]) => ({
+    kind, form, id: 1, inSign: true, tilt: 3, makers: Array.isArray(f.makers) ? f.makers : [...new Set(Object.values(f.makers || {}).flat())] })))),
+  { kind: 'nervous', id: 2, inSign: true, predators: 3 }, { kind: 'bubbles', id: 3, inSign: true, bottom: 2 }];
+  const FISH = D.SPECIES.filter((x) => x.zone === 'mossmere').map((x) => x.id), SPB = D.SPECIES_BY_ID;
+  let n = 0, worst = 0, worstAt = '', minS = Infinity, minSAt = '', bad = [];
+  for (const { area, place } of waters) for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of WC_HOOKS) for (const wick of [null, 'taper']) {
+    const pool = D.placePool(D.SPECIES, { placeId: place, phase: gph, bait: gBait(h.bait), wickId: wick, water: 'mossmere' });
+    const ar = pool.place ? null : area ?? 'open', strays = FISH.filter((id) => WC.gradeOf(id, h) === 0);
+    const base = { pool, area: ar, phase: gph, lure: h.lure ?? null, bait: gBait(h.bait), wickId: wick };
+    const look = (o, what) => {
+      n++;
+      if (o.S < minS) { minS = o.S; minSAt = `${place ?? area}, ${ph}, ${hookName(h)}`; }
+      for (const id of strays) { const p = WC.castShare(o, id); if (p > worst) { worst = p; worstAt = `${SPB[id].name}, ${place ?? area}, ${ph}, ${hookName(h)}${wick ? ', Taper' : ''}${what}`; } if (p > 0.01 + 1e-12) bad.push(`${id} ${(p * 100).toFixed(3)}% (${place ?? area} ${ph} ${hookName(h)}${what})`); }
+    };
+    for (const taperFirst of wick ? [false, true] : [false]) for (const rb of [0, 0.5]) for (const rule of tellRules) look(WC.castOdds(D, { ...base, rb, rule, taperFirst }), `${taperFirst ? ', first bite' : ''}${rb ? ', rb 0.5' : ''}${rule ? `, ${rule.kind}${rule.form ? ' ' + rule.form : ''}` : ''}`);
+    for (const src of [WCM.take.rise, WCM.take.swirl, WCM.take.sight]) for (const [sp] of pool.list) look(WC.castOdds(D, { ...base, preroll: { sp, z: 0.5, base: src } }), `, ${sp.id} pre-rolled at ${src}`);
+    for (const id of strays) { const o = WC.castOdds(D, { ...base, comeback: { sp: SPB[id], z: 0.4 } }); if (!o.waited) bad.push(`the comeback of ${id} did not wait on ${hookName(h)}`); look(o, `, ${id}'s comeback`); }
+  }
+  check(!bad.length, `the user's rule (exact, from castOdds): every fish that will not take the hook is at most 1.00% of the cast, in all ${n} pools and cast types (each area and place × light × the 12 hooks × no Wick and Taper × Taper's first bite × the rarity bonus 0 and 0.5 × each tell's tilt × each pre-roll source with each fish × the comeback); worst ${(worst * 100).toFixed(3)}% (${worstAt})${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}`);
+  check(minS > 0, `every pool bites: S > 0 in every one of them (smallest ${minS.toFixed(2)}, ${minSAt})`);
+  // every fish can be caught: a hook the player can fit by step 5 (the bare hook, Cut Strip or an M1 item) that brings it somewhere
+  const no = FISH.filter((id) => id !== 'belled_matriarch' && !WC_HOOKS.some((h) => WC.gradeOf(id, h) >= 1 && waters.some(({ area, place }) => Object.values(LIGHTS).some((gph) => {
+    const pool = D.placePool(D.SPECIES, { placeId: place, phase: gph, bait: gBait(h.bait), water: 'mossmere' });
+    return WC.castShare(WC.castOdds(D, { pool, area: pool.place ? null : area, phase: gph, lure: h.lure ?? null, bait: gBait(h.bait) }), id) > 0.01;
+  }))));
+  check(!no.length, `every Mossmere fish can be caught: each has a hook (the bare hook, Cut Strip or an M1 item) it takes, and a water where it is more than 1% of the bites there${no.length ? ': not ' + no.join(', ') : ''}`);
+  // the areas add nothing before the hook: the blind caster's mix is the built mix × the hour tilt
+  let aw = 0, awAt = '';
+  for (const l of ['day', 'dusk', 'night']) { const b = WC.blindMix(D, WCM.shares, l), t = WC.tiltedTarget(D, l); for (const id of Object.keys(t)) { const d = Math.abs((b[id] || 0) - t[id]) * 100; if (d > aw) { aw = d; awAt = `${SPB[id].name}, ${l}`; } } }
+  check(aw <= 0.5, `the areas add nothing before the hook: the blind caster's open-water mix is the built mix × the hour tilt within ±0.5 points, every fish and light (worst ${aw.toFixed(3)}, ${awAt})`);
+  // T104 extended: the game's pool (data.placePool → hookWeights → finishPool, as fishing.js builds it) is poolFor's
+  let m = 0, tw = 0, tshares = 0; const tbad = [];
+  for (const { area, place } of waters) for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of WC_HOOKS) for (const wick of [null, 'taper']) {
+    const dark = ph === 'night', simPid = place && !(PLACE[place]?.kind === 'night' && !dark) ? place : null, ar = simPid ? null : area ?? 'open';
+    const game = WC.castOdds(D, { pool: D.placePool(D.SPECIES, { placeId: place, phase: gph, bait: gBait(h.bait), wickId: wick, water: 'mossmere' }), area: ar, phase: gph, lure: h.lure ?? null, bait: gBait(h.bait), wickId: wick });
+    const sim = poolFor('mossmere', simPid, ph, h.lure ?? null, h.bait ?? null, null, 1, wick, ar);
+    const a = new Map(); for (const [sp, w] of sim.list) a.set(sp.id, (a.get(sp.id) || 0) + w / sim.tot);
+    const b = new Map(); for (const e of game.entries) b.set(e.sp.id, (b.get(e.sp.id) || 0) + e.p);
+    for (const id of new Set([...a.keys(), ...b.keys()])) { const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); tw = Math.max(tw, d); tshares++; if (d > 1e-9) tbad.push(`${place ?? area} ${ph} ${hookName(h)} ${wick || 'none'}: ${id} ${a.get(id) ?? '—'} vs ${b.get(id) ?? '—'}`); }
+    m++;
+  }
+  check(!tbad.length, `T104 (extended, WC-1): the game's pool is the sim's (watercraft.castOdds on data.placePool against poolFor, ${m} pools: every area and place × light × the 12 hooks × no Wick and Taper; ${tshares} shares, worst ${tw.toExponential(1)})${tbad.length ? ': ' + tbad.slice(0, 3).join('; ') : ''}`);
+}
 function shippedReport() {
   if (SHIPPED !== 'mossmere') { console.error(`--shipped=${SHIPPED}: only the Mossmere ships today (M1)`); return 1; }
   if (!(STEP >= 1 && STEP <= 6)) { console.error(`--step=${STEP}: M1's steps are 1–6`); return 1; }
@@ -1262,15 +1461,31 @@ function shippedReport() {
     console.log(`The class seals M1 can earn (the Journal draws only these): ${n}, of them ${nElder} Elder seals. ${seals.map((x) => `${x.s.name} ${x.cls.map((c) => c[0].toUpperCase()).join('')}`).join(' · ')}${step >= 4 ? ' (the Gloam Eel only on Lumen Moss)' : ''}.\n`);
   }
   const ck = (tag, ok, label) => check(ok, (tag ? `[${tag}] ` : '') + label);
+  // WC-1 (WATERCRAFT.md §8.3, SPEC v8.7 §4.9): the three players, at Murk's prices (D.loopCost, ×LOOP.cost.factor; --factor=F overrides)
+  const FAC = D.LOOP.cost.factor, PL3 = { reader: pacing({ shipped: 'mossmere', step, player: 'reader' }), stalker: pacing({ shipped: 'mossmere', step, player: 'stalker' }) };
+  title(`M1 (v8.7): the three players at ×${FAC} (Murk's price: D.loopCost; the 32 items ${f0(total)} clams)`);
+  const firstOf = (Rp) => Rp.log[0], markOf = (Rp, l) => Rp.markRows.find((m) => m.label === l), pm = (m) => (m ? m.clams / m.min : NaN);
+  table(['player', 'first purchase', 'bought by 10 min', 'by 1 h', 'the empty shelf (h)', 'trips', 'longest wait (min)', 'first giant (h)', 'clams a minute at 1 h', 'at 2 h'],
+    [['the blind caster', R], ['the reader', PL3.reader], ['the stalker-reader', PL3.stalker]].map(([n, Rp]) => [n, `${firstOf(Rp).name} after trip ${firstOf(Rp).trips} (${firstOf(Rp).h.toFixed(2)} h)`,
+      markOf(Rp, '10 min')?.bought ?? '—', markOf(Rp, '1 h')?.bought ?? '—', Rp.doneH.toFixed(2), Rp.trips, f0(Rp.longest.w), Rp.giantAt == null ? '—' : Rp.giantAt.toFixed(1), f1(pm(markOf(Rp, '1 h'))), f1(pm(markOf(Rp, '2 h')))]));
+  for (const [n, Rp] of [['the reader', PL3.reader], ['the stalker-reader', PL3.stalker]]) {
+    if (step === 5) check(Rp.doneH >= 4.5 && Rp.doneH <= 7.5, `M1 (v8.7): ${n}'s empty shelf at ${Rp.doneH.toFixed(2)} h, ${Rp.trips} trips (target 4.5–7.5 h; fitted at step P)`);
+  }
+  const rel = (Rp, l) => pm(markOf(Rp, l)) / pm(markOf(R, l)) - 1;
+  warn(['1 h', '2 h'].every((l) => within(rel(PL3.reader, l), 0.05, 0.4)), `M1 (v8.7) report: reading pays: the reader earns ${pc1(rel(PL3.reader, '1 h'))} a minute over the blind caster at 1 h and ${pc1(rel(PL3.reader, '2 h'))} at 2 h (aim +5% to +40%)`);
+  warn(['1 h', '2 h'].every((l) => rel(PL3.stalker, l) <= 0.4), `M1 (v8.7) report: stalking stays fair: the stalker-reader earns ${pc1(rel(PL3.stalker, '1 h'))} at 1 h and ${pc1(rel(PL3.stalker, '2 h'))} at 2 h over the blind caster (aim at most +40%)`);
   for (const w of ALL) {
     const Rw = runs[w ?? 'none'], tag = w ? wickName(w) : '', ends = [...Rw.markRows.map((m) => m.min), Rw.log[Rw.log.length - 1].min], tLong = Math.max(...ends), slots = wickSlots(Rw.state.hold, w);
-    if (step === 5) ck(tag, Rw.doneH >= 1.5 && Rw.doneH <= 4, `M1: the empty shelf at ${Rw.doneH.toFixed(2)} h (target 1.5–4 h: the measured length is M1's default, M1 §6.2)`);
-    ck(tag, Rw.longest.w <= 30, `M1: no purchase is more than 30 min away (longest ${f0(Rw.longest.w)} min, ${Rw.longest.l.name})`);
-    if (step >= 3) ck(tag, Rw.giantAt != null && Rw.giantAt >= 0.4 && Rw.giantAt <= 3, `M1: the first giant comes home at about hour ${Rw.giantAt == null ? '—' : Rw.giantAt.toFixed(1)} (target 0.4–3)`);
+    const f1st = firstOf(Rw);
+    ck(tag, within(f1st.trips, 3, 5), `M1 (v8.7): the first purchase (${f1st.name}) after trip ${f1st.trips} (target trip 3–5: on an average evening two trips buy nothing; fitted at step P)`);
+    if (!w) { const a = markOf(Rw, '10 min')?.bought, b = markOf(Rw, '1 h')?.bought; ck(tag, within(a, 0, 1) && within(b, 4, 9), `M1 (v8.7): the blind caster has bought ${a} by 10 min and ${b} by 1 h (target 0–1 and 4–9; fitted at step P)`); }
+    if (step === 5) ck(tag, Rw.doneH >= 4.5 && Rw.doneH <= 7.5, `M1 (v8.7): ${w ? 'its' : 'the blind caster\'s'} empty shelf at ${Rw.doneH.toFixed(2)} h, ${Rw.trips} trips (target 4.5–7.5 h; fitted at step P)`);
+    ck(tag, Rw.longest.w <= 40, `M1 (v8.7): no purchase is more than 40 min away (longest ${f0(Rw.longest.w)} min, ${Rw.longest.l.name})`);
+    if (step >= 3) ck(tag, Rw.giantAt != null && Rw.giantAt >= 0.5 && Rw.giantAt <= 3.5, `M1 (v8.7): the first giant comes home at about hour ${Rw.giantAt == null ? '—' : Rw.giantAt.toFixed(1)} (target 0.5–3.5)`);
     ck(tag, w ? +tLong.toFixed(1) < 6 : tLong <= 6, `M1: trips stay short at every mark and at the empty shelf, the visit home included: at most ${f1(tLong)} min at ${slots} slots (target ${w ? 'under 6: a printed 6.0 fails' : '≤ 6'})`);
-    const bad = Rw.gains.filter((x) => !(x.g >= 0.03 || (x.g >= -0.03 && x.trips <= 2)));
+    const bad = Rw.gains.filter((x) => !(x.g >= 0.03 || (x.g >= -0.03 && x.trips <= 2 * FAC)));
     // "pays its way" fails at step 5 (the shipped M1); at steps 1–4, a build stage, it is a warning (the lead, M1 §6.2)
-    (step === 5 ? (ok, label) => ck(tag, ok, label) : (ok, label) => warn(ok, (tag ? `[${tag}] ` : '') + label))(!bad.length, `M1${step < 5 ? ` (step ${step}, a build stage: a warning)` : ''}: every hold step and raft part raises clams a minute by at least 3% when bought, or is priced as a look (at most 2 trips' income, no more than 3% a minute lost)${bad.length ? ': ' + bad.map((x) => `${x.name} ${pc1(x.g)}/min, ${x.trips.toFixed(1)} trips`).join('; ') : ''}`);
+    (step === 5 ? (ok, label) => ck(tag, ok, label) : (ok, label) => warn(ok, (tag ? `[${tag}] ` : '') + label))(!bad.length, `M1${step < 5 ? ` (step ${step}, a build stage: a warning)` : ''}: every hold step and raft part raises clams a minute by at least 3% when bought, or is priced as a look (at most 2 × ${FAC} trips' income, no more than 3% a minute lost)${bad.length ? ': ' + bad.map((x) => `${x.name} ${pc1(x.g)}/min, ${x.trips.toFixed(1)} trips`).join('; ') : ''}`);
     const Lw = Rw.KEYS.list.mossmere;
     ck(tag, Lw.p95 <= LOOP.access.target.p95 && Lw.p99 <= LOOP.access.target.p99 && Lw.open === 0, `M1: the Mossmere's list (${Lw.toLand} fish) is landed by the slow player in twenty in ${f0(Lw.p95)} min, the slowest in a hundred in ${f0(Lw.p99)} (target ≤ ${LOOP.access.target.p95} and ≤ ${LOOP.access.target.p99})`);
   }
@@ -1285,6 +1500,7 @@ function shippedReport() {
       ck(w ? wickName(w) : '', worst.g >= LADDER.place - 0.005, `M1: every place map raises clams a minute by at least 5% on the Mossmere alone (${steps.map((x) => `${x.P.name} ${pc1(x.g)}`).join(' · ')})`);
     }
   }
+  if (step >= 3) watercraftProof();
   if (ALL.length > 1) {
     title('M1 per Wick: the empty shelf, the marks and the first trip');
     const mean = WICK_IDS.reduce((a, w) => a + runs[w].doneH, 0) / WICK_IDS.length, k0 = { water: 'mossmere', rod: 0, line: 0, reel: 0, hold: 3, lure: null, bait: null, places: [], oars: 0, keel: 0, lantern: 0 };
@@ -1700,6 +1916,7 @@ title("4b. The giants a map promises: how often they bite and land (the natural 
 
 // ---------------------------------------------------------------- 5. the pacing run
 title('5. Pacing: an average player along a sensible buying order, all 16 waters, each opened by its three keys');
+console.log(`prices before v8.7 (the factor pinned to 1 on the full road; the Mossmere's factor ×${D.LOOP.cost.factor} applies in --shipped, WATERCRAFT.md §8.5)\n`);
 const MAIN = pacing();                                     // the no-passive player (the reference row of --wicks)
 const KEYS = MAIN.KEYS;                                    // what section 7 reads back
 pacingReport(MAIN);

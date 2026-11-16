@@ -1924,6 +1924,58 @@ the parked systems, the counters and WICKS' T76–T80), with lanes B's and C's l
 fixture (`loadLoopData`, `freshLoopMeta`, `tripRun`, `fakeLoop`). The economy is `node tools/sim/clams.mjs` (it reads `data.LOOP`'s
 moved tables and `data.quietTerms`, and fails if a moved key is drafted again, T42); M1's gate is `clams.mjs --shipped=mossmere --step=1`.
 
+### 14.16 (placed before 14.11 to merge cleanly beside the lanes' appended sections) Watercraft (the Mossmere; WC-1, `docs/loop/WATERCRAFT.md` rev. 2 §2–§4, §8.1, §9.2)
+
+Under the loop, on the Mossmere only, where a cast lands decides who is there (ten open-water areas) and what is on the hook decides who
+takes it (the hook table); every other water keeps the built family rule. Odds stay hidden: no area name, weight or share is ever on
+screen (the gear log's **Who bites** is the one place a share shows).
+
+**`src/watercraft.js`** (new, pure: no three.js, no `data.js` import; `D`, the data module, is passed in where a rule needs it). WC-2 and
+WC-3 read it and never edit it.
+
+| export | contract |
+|---|---|
+| `WATERCRAFT.mossmere` | `geometry` (§2.2's block), `laneAvoid`, `shares[light][area]` and `factors[light][fishId]` (baked by `node tools/tests/watercraft.test.mjs --bake`), `raw`, `night`, `tilts`, `hook` (`table[fishId][itemId]`, items `bare`, `mireworm`, `lumen_moss`, `cut_strip`, `feather_fly`, `glimmer_spoon`, `bone_jig`, `bell_spinner`; grades 0–3, `null` for the legend and the eel's bare cell; `mult` [0.1, 1, 1.6, 2.5]; `cap` 0.01), `take` {rise 1, swirl 0.6, sight 0.45, stray 0.01}, `waits` {rise 0.5, tell 0.65, sightTake 0.3, spook 1.5}, `tells` (§5.3: per kind and form the makers, areas, hours, caps, cast rule, `respond`), `sight` (§6; `inRange` null) |
+| `AREAS`, `HUNTERS`, `HOOK_ITEMS`, `LURE_IDS`, `BAIT_IDS` | the ten area ids (`margin`, `reeds`, `pads`, `stones`, `dropoff`, `lane`, `open`, `deep`, `inflow`, `outflow`); the five hunters; the hook's item ids |
+| `lightOf(phase)` | `'day'` (calm, day, dawn) · `'dusk'` · `'night'` (gloomtide, night) |
+| `areaAt(x, z, probe, {lane, arena, hulls, docks})` | the area of an open-water point in §2.2's order (inflow → outflow → rim → pads → stones → reeds → lip → margin → lane → deep → open), or `null` where it is not water. A place is decided before it is called. `probe = {depth(x, z), fromShore(x, z)}` (`probeOf(ctx.world)`: `getDepth`, `getShoreRadius(atan2(z, x)) − hypot(x, z)`; never a second `buildLayout`); `arena` `ZONES[0].arena`; `hulls` `data.loopMooring`'s circles (`world.getMooring().circles`); `docks` `world.getDocks()` (a dock's stones are its two mooring posts) |
+| `laneFor(evening, phase?)` | this evening's wind lane `{x, z, h, w: 4, len: 50, evening}`, seeded and deterministic, its centre within 25 m of (0, −5) clear of `laneAvoid`; `null` when `phase` is night. `inLane(lane, x, z)` |
+| `areaShares(probe, opts)`, `fitFactors(D, shares)`, `blindMix`, `tiltedTarget` | offline helpers (the test's recompute, `--bake`, the sim's and the validator's proofs) |
+| `areaWeight(fishId, area, phase)` · `rawWeight` · `tilt(fishId, phase)` | the open-water weight (factor × raw, the night rows; 1 for a fish with no row) · the hour tilt |
+| `gradeOf(fishId, {lure, bait})` | §3.3–§3.4: no lure → the bait's (an unknown bait or the legend's ball: the bare hook's); a lure → its grade, one step up when the lure's is ≥ 1 and the bait's ≥ 2 (3 at most); `undefined` for a species with no row (the caller keeps the built family rule) |
+| `takeChance(base, g)` | 0 → 0.01; 1 → base; 2 → max(base, min(0.9, base + 0.1)); 3 → max(base, min(0.9, base + 0.2)); no grade → base |
+| `gradeTargets(itemId, D?)` | the fish an item alone grades 2–3 (the Hold it helps); the Harbour-Bell Spinner keeps `LOOP.lures.bell_spinner.giants` |
+| `hookWeights(list, {area, place, phase, lure, bait, hook = true})` | §4 steps 4–6 on a `placePool` list → `[{sp, w, g}]`: open water × `areaWeight` (no area: the tilt), a place × the tilt, × `hook.mult[g]`; `hook: false` stops before the hook (**who is there**) |
+| `finishPool(entries, {giant, lure, bait, phase, wickId, D})` | §4 steps 10–11: the giant's share drawn last from the rest (in or off its hour; ×`LOOP.lures[lure].share` with the giants' lure that names it; Taper ×`giantShare` under `giantCap`: LANE 4's `lurePool` rule moved here; a grade-0 giant ×0.1), then every grade-0 entry `min(w, 0.01 × S)`, S the takers' (grade ≥ 1, or no row) summed weight. `takersSum(entries)` |
+| `castOdds(D, {pool, area, phase, lure, bait, wickId, rb, rule, taperFirst, preroll, comeback})` | the cast's whole distribution → `{entries: [{sp, p, from: 'comeback' \| 'preroll' \| 'pool', z?, g, giant?}], S, taper, waited}`, the `p` summing to 1. The comeback `{sp, z}`: p 1 when its grade is ≥ 1 and its bait fits, else it waits (`waited`). The pre-roll `{sp, z, base}`: the bait-only gate, Taper's refusal of a common, then `takeChance(base, g)`; the pool gets the rest, without that species when its grade is 0 (a stray's whole cast is exactly 1%). The pool: `hookWeights`, the rarity bonus (uncommon ×(1 + 2rb), rare ×(1 + 4rb)), the rule's makers ×`tilt` on takers only (a rule without makers: the flag-off `predators` / `bottom` family tilt), F17 judged on the takers, Taper's first bite judged on the takers (`taper`: the rule served), `finishPool`. `drawOdds(odds, r)` draws one entry; `castShare(odds, id)` |
+| `bitesTable(D, {lure, bait})` | `[{id, share, bare}]`: each fish's share of open water's bites over an evening (the lights weighted by `LOOP.evening`) on that item alone, beside the bare hook's; WC-3 renders it |
+
+**The rule object** (pinned for WC-2; a sign's or a silhouette's cast rule, `S.signHit.rule`): `{kind, id, inSign, form?, waitMult?,
+takeWaitMult?, preroll?: {chance}, makers?: string[], tilt?: number, favour?, spook?, respond?: string, predators?, bottom?}`. `makers`
+and `tilt` (3) are the tell's species tilt on the Mossmere under the loop; `predators` / `bottom` the flag-off game's family tilt.
+`waitMult` multiplies the wait of every cast that met the rule (a rise 0.5, the other tells 0.65, a silhouette's spook 1.5);
+`takeWaitMult` (a silhouette's 0.3) when its pre-rolled fish took. A pre-roll is `S.prerolls.get(sign.id)` = `{sp, z, base?}` (`base`
+falls back to `rule.preroll.chance`).
+
+**`src/fishing.js`** (WC-1's regions): `castInfo` stores **`S.cast.area`** (the open water's `areaAt`, with the world's probe, docks,
+hulls and `laneFor(run.evening, phase)`; `null` in a place, the mist or another water). **`loopPool(baitId, phase, placeId, {area,
+hook})`**: on the Mossmere `{...placePool, list (the step's weights), entries ([{sp, w, g}]), area, hook}`: `hook: false` is who is there
+(steps 3–5), else what this hook brings (steps 3–6, the fitted lure); omitted `area`, the tilt alone; every other water keeps
+`lurePool`. `rollSpeciesLoop` draws once from `castOdds` with the seeded `rnd` and sets `S.prerollSp`, `S.prerollZ`, `S.prerollTook`,
+`S.comeback` (so `consumeComeback` runs only when the comeback's entry is drawn) and `S.taperRule` from the drawn entry. LANE 5C's snag
+block after `S.species = sp` is untouched. Debug: `fishOdds()` (the last cast's odds, never on screen) and `fishPoolRoll`'s `shares`.
+
+**`src/data.js`**: `LOOP.cost = {factor: 3, consumables: 1}`; **`loopCost(base, {consumable})`** = `nice(base × factor)` (a consumable
+× `consumables`; a factor of 1 gives the base); **`nice(x)`** (to 5 under 100, 10 under 1,000, 50 under 10,000, 100 above);
+**`loopLight(phase)`**. The game applies `loopCost` at step P (progression-loop's `mapCards`, the end of `shelfItems`, the legend's
+pay); the sim reads it now (`clams.mjs --factor=F` overrides; the full road keeps the prices before v8.7). `TEXT_LOOP.shelf`'s seven tin
+and lure lines (SPEC §8.11) and `TEXT_LOOP.log` {`whoBites`, `bare`, `under` ("<1%", the gear log's one share word), `unmet`, `gear`}.
+
+**Tests**: `tools/tests/watercraft.test.mjs` (the areas, the bake, the fit, the user's rule over every pool and cast type, the tip,
+pre-rolls, the comeback, Cut Strip); `tools/tests/loop-watercraft.test.mjs` (through `fishing.js`); `validate-data --loop`'s WC-1 checks;
+`tools/sim/clams.mjs --shipped=mossmere --step=5` (the three players, the user's rule, every pool bites, every fish catchable, the areas
+add nothing, T104 extended).
+
 ### 14.11 M1 step 3a's seam: the places, the giants, the legend, the catalogue (`docs/loop/m1-step3a/PLAN.md` §2.0, §3)
 
 The seam commit's names, so lanes B, C and D code against names that exist (PLAN §3's stub rule: data and pure helpers are imported
