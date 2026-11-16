@@ -66,6 +66,12 @@ const CSS = `
 .gw-loop-on .gw-cc-letgo .gw-cut-fill { position: absolute; left: 10%; right: 10%; bottom: 6px; height: 2px; background: var(--ink-dim); transform: scaleX(0); transform-origin: left; pointer-events: none; }
 .gw-loop-on .gw-cc-letgo.gw-cutting .gw-cut-fill { transform: scaleX(1); transition: transform var(--cut, .6s) linear; }
 `;
+const CSS_HUD = `
+.gw-loop-on .gw-gear-hud { display: flex; align-items: center; gap: 10px; margin-top: 6px; min-height: 26px; pointer-events: none; color: var(--ink-dim); }
+.gw-loop-on .gw-gear-hud[hidden] { display: none; }
+.gw-loop-on .gw-gear-hud i { display: inline-flex; align-items: center; gap: 3px; font: 500 16px/1 var(--f-body); font-style: normal; color: var(--ink); text-shadow: var(--ink-shadow); }
+.gw-loop-on .gw-gear-hud .gw-ico { width: 22px; height: 22px; filter: drop-shadow(0 1px 2px #000); }
+`;
 const KNIFE = '<i class="gw-cut-knife" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 20.5 L13.5 10.5 M13.5 10.5 C16 8 18.5 5 20.5 3.5 C19.5 7 17 10 14.6 12.4 Z M5.6 16.2 L7.8 18.4"/></svg></i>';
 
 /**
@@ -76,7 +82,7 @@ export function createGearView({ K, L, D, report = () => {}, murkToast = null })
   const h = K.h;
   try {
     if (typeof document !== 'undefined' && !document.getElementById('gw-gear-css')) {
-      const st = document.createElement('style'); st.id = 'gw-gear-css'; st.textContent = CSS; document.head.appendChild(st);
+      const st = document.createElement('style'); st.id = 'gw-gear-css'; st.textContent = CSS + CSS_HUD; document.head.appendChild(st);
     }
   } catch (e) { report('gear.css', e); }
 
@@ -165,6 +171,30 @@ export function createGearView({ K, L, D, report = () => {}, murkToast = null })
     } catch (e) { report('gear.shelfBoard', e); return null; }
   }
 
+  // the HUD on the water (SPEC §8.1 "tackle: the lure glyph, the bait glyph with its count"): the line's lure and bait under the hold
+  // row, on a trip only; no word, no tap (the slots are the Chart's)
+  const hud = h('div', 'gw-gear-hud');
+  hud.dataset.loop = 'gear';
+  hud.hidden = true;
+  try { const host = K.layers?.hud; (host?.querySelector('.gw-tl') || host)?.appendChild(hud); } catch (e) { report('gear.hud', e); }
+  let hudKey = '';
+  function paintHud() {
+    try {
+      const r = K.ctx?.state?.run;
+      const trip = !!r && r.outing === 'trip' && r.active !== false && K.ctx?.flow === 'playing';
+      const lure = trip && typeof r.lure === 'string' ? r.lure : null, bait = trip && typeof r.equippedBait === 'string' ? r.equippedBait : null;
+      const n = bait ? Math.max(0, Math.floor(num(r.bait?.[bait]))) : 0;
+      const key = `${trip}|${lure}|${bait}|${n}`;
+      if (key === hudKey) return;
+      hudKey = key;
+      const hr = hud.parentNode?.querySelector?.('.gw-hold');   // (under the hold row, which the loop's view adds after this view)
+      if (hr && hud.previousElementSibling !== hr) hr.after(hud);
+      hud.hidden = !trip || (!lure && !(bait && n > 0));
+      hud.innerHTML = `${lure ? `<i data-lure="${lure}">${icon(GEAR_GLYPH[lure] || 'hook')}</i>` : ''}${bait && n > 0 ? `<i data-bait="${bait}">${icon(GEAR_GLYPH[bait] || 'worm')}<b>${n}</b></i>` : ''}`;
+    } catch (e) { report('gear.paintHud', e); }
+  }
+  try { for (const ev of ['run:start', 'run:end', 'bait:change', 'fishing:cast', 'fishing:bite', 'fish:action', 'flow:change', 'home:enter', 'loop:fit']) K.ctx?.bus?.on?.(ev, () => { hudKey = ''; paintHud(); }); } catch (e) { report('gear.hudBus', e); }
+
   // Murk's first-Small line (SPEC §8.6: "Small ones make good bait. Hold Let go."), once a save, when the first Small is kept
   try {
     K.ctx?.bus?.on?.('fish:action', (p) => {
@@ -174,7 +204,7 @@ export function createGearView({ K, L, D, report = () => {}, murkToast = null })
     });
   } catch (e) { report('gear.firstSmall', e); }
 
-  return { placeSlots, shelfBoard };
+  return { placeSlots, shelfBoard, paintHud };
 }
 
 /**

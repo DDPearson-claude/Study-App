@@ -648,7 +648,7 @@ LOOP_SHAPES.catfish = function catfish(M) {
     r.extras.push(paint(xf(bell, { p: [0, top - 0.004, 0.5 - s], r: [-0.25, 0, 0] }), 0x9a7a44));
     r.extras.push(paint(xf(new THREE.TorusGeometry(0.029, 0.003, 4, 14), { p: [0, top - 0.007, 0.5 - s], r: [Math.PI / 2 - 0.25, 0, 0] }), 0x5f7a66));
   }
-  r.opts.flatHead = true;
+  r.opts.broadHead = true;
   return r;
 };
 // <<< M1 step 4 (lane 4)
