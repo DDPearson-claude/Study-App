@@ -498,7 +498,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     // Hands are after M1)
     const ang = Math.atan2(4, 58), rS = (a) => (typeof L?.shoreR === 'function' ? L.shoreR(a) : 60);
     const r0 = rS(ang), cx = Math.cos(ang), cz = Math.sin(ang);
-    const yA = 15.5;
+    const yA = 18;
     const segs = [[r0 + 16, r0 + 6], [r0 + 6, r0 - 0.2]];
     for (let k = 0; k < segs.length; k++) {
       const [ra, rb] = segs[k], len = ra - rb, rm = (ra + rb) / 2, yawA = Math.atan2(-cz, cx);
@@ -517,7 +517,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const vx = cx * (r0 - 0.8), vz = cz * (r0 - 0.8), vh = yA + 0.2;
     const vg = G(new THREE.PlaneGeometry(2.6, vh, 1, 8));
     vg.translate(0, vh / 2, 0);
-    const vu = { uTime: { value: 0 }, uCol: { value: new THREE.Color(light).lerp(new THREE.Color(0xb8b0ee), 0.5) }, uK: { value: 1 } };
+    const vu = { uTime: { value: 0 }, uCol: { value: new THREE.Color(light).lerp(new THREE.Color(0xa8a0e0), 0.6) }, uK: { value: 1 } };
     const vm = M(new THREE.ShaderMaterial({
       uniforms: vu, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false,
       vertexShader: /* glsl */`varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
@@ -527,9 +527,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
           float x = vUv.x, y = vUv.y;
           float edge = smoothstep(0.0, 0.18, x) * smoothstep(1.0, 0.82, x);
           float s = wpN(vec2(x * 11.0, y * 3.0 + uTime * 1.6)) * 0.6 + wpN(vec2(x * 23.0, y * 6.0 + uTime * 2.3)) * 0.4;
-          float a = edge * (0.18 + 0.5 * smoothstep(0.45, 0.85, s)) * (0.55 + 0.45 * y) * uK;
-          float foot = smoothstep(0.12, 0.0, y) * 0.35;
-          gl_FragColor = vec4(uCol, clamp(a + foot * edge, 0.0, 0.8));
+          float a = edge * (0.08 + 0.36 * smoothstep(0.5, 0.88, s)) * (0.45 + 0.55 * y) * uK;
+          float foot = smoothstep(0.12, 0.0, y) * 0.3;
+          gl_FragColor = vec4(uCol, clamp(a + foot * edge, 0.0, 0.6));
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }`,
@@ -541,7 +541,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     // the leaning toll-tower on the Sunken Gate (beyond the cliffs, a hero landmark's stone)
     if (hero && Number.isFinite(hero.x)) {
       const face = num(hero.face, 0), fx = Math.cos(face), fz = -Math.sin(face);
-      const tx = hero.x + fx * 21, tz = hero.z + fz * 21;
+      // (clear of the gate's right-hand tower (13 m out, r 5): a separate silhouette, a step nearer the lake)
+      const wx = Math.sin(face), wz = Math.cos(face);
+      const tx = hero.x + fx * 28 + wx * 3, tz = hero.z + fz * 28 + wz * 3;
       const parts = [];
       const body = new THREE.BoxGeometry(5.2, 30, 5.2, 2, 6, 2);
       wobble(body, 0.12, 0.6, 3);
@@ -552,7 +554,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       const tg = G(merge(parts));
       const tm = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: far, rimPower: 0.5, steps: 3, detail: 'stone', detailAmount: 0.8, gloss: 0.05, floor: 1.7 }, { fogScale: 0.5, fogMax: 0.72 }));
       tower = new THREE.Mesh(tg, tm);
-      tower.position.set(tx, 0, tz); tower.rotation.set(0.1, face, 0.06);
+      tower.position.set(tx, 0, tz); tower.rotation.set(0.05, face, -0.11);   // (it leans away from the gate)
       tower.name = 'tollTower';
       setupSurface(tower, { cast: false });
       group.add(tower);
