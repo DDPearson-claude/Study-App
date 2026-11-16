@@ -78,7 +78,7 @@ export function createLoopTow(deps) {
 
   const S = { phase: null, t: 0, water: null, opening: false, from: null, arrive: null, onDone: null, P: null, reduced: false,
     u: 0, ink: 0, kindle: 0, line: null, lineOn: false, dipA: 0, frames: 0, M: null, glide: null, mesh: null, sound: { oar: 0, creak: 0, crossed: 0 },
-    marks: [], begun: false };
+    marks: [], begun: false, resume: false };
   const mark = (what) => { S.marks.push({ what, phase: S.phase, sim: Math.round((ctx.time?.elapsed ?? 0) * 1000) / 1000 }); if (S.marks.length > 40) S.marks.shift(); };
 
   function go(phase) {
@@ -94,6 +94,8 @@ export function createLoopTow(deps) {
     if (S.phase || !safe(() => D.towOpeningDue?.(ml, 'mossmere'), false) || !view()) return false;
     S.from = from; S.arrive = arrive; S.onDone = null;
     begin('mossmere', { opening: true });
+    // (Continue before the tow began: OPENING §6.2 resumes at the wake, the Landing on the Chart and the line again; no arrive beat)
+    S.resume = from === 'title';
     return true;
   }
   /** A water's first tow (SPEC §6.5; every later water's first Sail): its leg on the Chart, the dip, the glide in. → whether it began. */
@@ -104,7 +106,7 @@ export function createLoopTow(deps) {
     return true;
   }
   function begin(water, { opening: op }) {
-    S.water = water; S.opening = op; S.reduced = reduced() === true; S.begun = false;
+    S.water = water; S.opening = op; S.reduced = reduced() === true; S.begun = false; S.resume = false; S.M = null;
     S.P = towPhases(D, water, { opening: op, reduced: S.reduced });
     S.u = 0; S.ink = op ? 0 : 1; S.kindle = op ? 0 : 1; S.line = null; S.lineOn = false; S.dipA = 0;
     S.sound = { oar: 0, creak: 0, crossed: 0 };
@@ -234,6 +236,31 @@ export function createLoopTow(deps) {
     if (onDone) { try { onDone(); } catch (e) { report('tow onDone', e); } }
   }
 
+  /** The tow dropped (the flow left home): its screen, its dip and its line gone; nothing written, nothing called. */
+  function cancel() {
+    safe(() => view()?.close?.()); safe(() => view()?.dip?.(0));
+    lineMesh(false);
+    S.glide = null; S.dipA = 0; S.arrive = null; S.onDone = null;
+    mark('cancel');
+    S.phase = null;
+  }
+  /** The tow cut short to its end (its Chart closed under it, or the tutorial done): written as begun, everything at its mooring. */
+  function cut() {
+    if (!S.begun) {
+      const L = loop();
+      safe(() => L?.towBarge?.(S.water));
+      safe(() => save());
+      S.begun = true;
+    }
+    safe(() => view()?.close?.()); safe(() => view()?.dip?.(0));
+    const M = S.M || safe(() => ctx.world?.getMooring?.(), null);
+    if (M?.raft) { try { ctx.player?.teleport?.({ x: M.raft.x, z: M.raft.z }, M.raft.yaw); } catch (e) { report('player.teleport', e); } }
+    if (S.phase === 'glide') { safe(() => home()?.skipHomeGlide?.()); if (!S.phase) return; }
+    mark('cut');
+    S.M = M && M.hull ? M : null;
+    finish();
+  }
+
   // ---- sound: the oars and the tow line through the leg and the glide in; each crossing its own (the locks, the fall)
   function sounds(dt) {
     const s = S.sound;
@@ -253,6 +280,11 @@ export function createLoopTow(deps) {
     if (!S.phase) return;
     const d = Math.max(0, Math.min(0.25, num(dt, 0)));
     const V = view();
+    // never stranded (SPEC §6.5: no way to fail): the flow left home (Settings' Forget everything, the title) → the tow is dropped;
+    // the opening's tutorial marked done under it (a debug build's shortcut) or its Chart closed by something else → cut to the mooring
+    if (ctx.flow !== 'home') { cancel(); return; }
+    if (S.opening && safe(() => loop()?.tutorial?.()?.done === true, false)) { cut(); return; }
+    if (['arrive', 'wake', 'leg'].includes(S.phase) && V && typeof V.isOpen === 'function' && !V.isOpen()) { cut(); return; }
     const onChart = ['arrive', 'wake', 'leg'].includes(S.phase);
     if (onChart && V && V.isTop && !V.isTop()) return;
     S.t += d; S.frames++;
@@ -268,7 +300,7 @@ export function createLoopTow(deps) {
         const half = Math.max(0.01, P.landingDip / 2);
         S.dipA = 1 - clamp01(S.t / half); safe(() => V?.dip?.(S.dipA));
         paint();
-        if (S.t >= half) { S.dipA = 0; safe(() => V?.dip?.(0)); go('arrive'); }
+        if (S.t >= half) { S.dipA = 0; safe(() => V?.dip?.(0)); if (S.resume) toWake(); else go('arrive'); }
         break;
       }
       case 'arrive':

@@ -110,6 +110,8 @@ export function createTowView(K) {
     S.entry = null; S.cv = null;
   }
   const isTop = () => K.top?.()?.id === 'tow';
+  /** The tow's screen is on the stack (under a pause or Settings too). */
+  const isOpen = () => !!S.entry && (typeof K.has === 'function' ? K.has('tow') : true);
   function dip(a) {
     if (typeof document === 'undefined') return;
     if (!S.dipEl) { styles(); S.dipEl = h('div', 'gw-tow-dip'); S.dipEl.setAttribute('aria-hidden', 'true'); (K.root || document.body).appendChild(S.dipEl); }
@@ -288,7 +290,7 @@ export function createTowView(K) {
   }
 
   return {
-    open, close, paint, dip, isTop, prepare,
+    open, close, paint, dip, isTop, isOpen, prepare,
     debug: () => ({ status: S.status, open: !!S.entry, paints: S.paints, last: S.last, line: S.line, dip: S.dipEl ? Number(S.dipEl.style.opacity || 0) : 0 }),
   };
 }
