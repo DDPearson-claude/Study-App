@@ -58,7 +58,8 @@ export function heronSpots(L, D, { phase = 'calm', probe = null } = {}) {
     for (const off of [1.4, 2.4]) take(Math.cos(a) * (sr - off), Math.sin(a) * (sr - off));
   }
   // the reed beds' clumps (a heron stands at their edge, in the open water beside the stems)
-  for (const c of reedPlan(L, faceRng(0x4e7a), { avoid })) take(c.x + 0.8, c.z + 0.4);
+  // (the same plan world-art draws on high and medium: the arena's seed)
+  for (const c of reedPlan(L, faceRng(((L.artSeed | 0) ^ 0x5eed5) >>> 0), { avoid: avoidList(L, D) })) take(c.x + 0.8, c.z + 0.4);
   return out;
 }
 
