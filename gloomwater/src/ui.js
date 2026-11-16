@@ -16,6 +16,7 @@ import { createIntroView } from './ui-intro.js';
 // >>> LOOP 1a (lane C): the Full Hold's screens (docs/loop/slice-1a/PLAN.md §2.3); built only when data.LOOP_ENABLED
 import { createLoopView } from './ui-loop.js';
 import { setLoopArt, hatchProbe } from './ui-fishart.js';
+import { createFindsView } from './ui-finds.js';   // M1 step 5c (lane 5C): the find card, the finds row, the glyphs
 // <<< LOOP 1a
 
 export function create(ctx) {
@@ -645,6 +646,10 @@ export function create(ctx) {
   if (loopOn) { try { loopView = createLoopView(K); } catch (e) { report('loop view', e); loopView = null; } }
   K.loop = loopView;
   // <<< LOOP 1a
+  // M1 step 5c (lane 5C): the finds' view (the find card at the show's card; null off the loop)
+  let findsView = null;
+  if (loopOn) { try { findsView = createFindsView(K); } catch (e) { report('finds view', e); findsView = null; } }
+  K.finds = findsView;
 
   // ------------------------------------------------------------------ per-run trackers
   let zonesSeen = new Set();
@@ -957,6 +962,7 @@ export function create(ctx) {
       if (introView) { try { introView.update(dt); } catch (e) { report('intro view', e); } }
       // <<< INTRO LANE B
       if (loopView) { try { loopView.update(dt); } catch (e) { report('loop view', e); } }
+      if (findsView) { try { findsView.update(dt); } catch (e) { report('finds view', e); } }   // (M1 step 5c)
     },
     isBlocking: () => hasBlocking(),
     isShopOpen: () => has('shop'),
@@ -995,6 +1001,7 @@ export function create(ctx) {
     // <<< INTRO LANE B
     // the Full Hold's view (PLAN §3.6 ctx.ui.loop: its tutorial, the Jetty and the rest; null off the loop)
     loop: loopView,
+    finds: findsView,   // M1 step 5c (lane 5C): the finds' view (null off the loop)
   };
   return api;
 }

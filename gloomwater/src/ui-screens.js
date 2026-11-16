@@ -1773,6 +1773,7 @@ export function createScreens(K) {
       sec.appendChild(grid);
       scroll.appendChild(sec);
     }
+    if (v.finds && K.finds?.renderRow) { try { scroll.appendChild(K.finds.renderRow(entry, v.finds, { phone: K.vw < 700 })); } catch (e) { K.report('finds row', e); } }   // M1 step 5c
     if (af()) {
       const odds = h('button', 'gw-link gw-cat-odds');
       odds.type = 'button';
