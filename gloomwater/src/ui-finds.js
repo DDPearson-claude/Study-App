@@ -69,7 +69,7 @@ const TINT = { treasure: 'rgba(232, 190, 119, .22)', part: 'rgba(174, 172, 208, 
  * (SPEC §8.8's hatch on the prop's outline: 0.75 px lines 3 px apart at 45°, the edge at 1 px and again at 2 px and 25% ink; gold for
  * the jackpot). Never breaks a screen over an illustration.
  */
-export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gold = false, pad = 0.12, bold = h <= 30 } = {}) {
+export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gold = false, pad = 0.12, bold = h <= 30, ink: inkRgb = null } = {}) {
   try {
     const dpr = Math.min(2, (typeof devicePixelRatio === 'number' && devicePixelRatio) || 1);
     canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
@@ -80,7 +80,8 @@ export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gol
     const a = ASPECT(id), W = canvas.width, H = canvas.height;
     const bh = Math.min(H * (1 - pad * 2), (W * (1 - pad * 2)) / a), bw = bh * a;
     const ox = (W - bw) / 2, oy = (H - bh) / 2;
-    const it = itemOf(D, id), ink = gold ? [232, 190, 119] : hatch ? HATCH.rgb : [236, 235, 246];
+    // (`ink` [r, g, b]: the Wick's sheet draws a found part on paper in its own ink, SHEET.md §7.3)
+    const it = itemOf(D, id), ink = Array.isArray(inkRgb) ? inkRgb : gold ? [232, 190, 119] : hatch ? HATCH.rgb : [236, 235, 246];
     const rgba = (k) => `rgba(${ink[0]}, ${ink[1]}, ${ink[2]}, ${k})`;
     // the outline is laid out in a unit box a wide and 1 tall; a proxy maps it to device px (so every line keeps its own width)
     const X = (x) => ox + x * bw, Y = (y) => oy + y * bh;
@@ -100,7 +101,7 @@ export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gol
       path(); g.strokeStyle = rgba(HATCH.haloInk * HATCH.ink); g.lineWidth = HATCH.halo * dpr; g.stroke();
     } else {
       // (a small glyph, the hold's and the tally's, is filled solid in its ink so it reads at 22 px)
-      path(); g.fillStyle = bold ? rgba(gold ? 0.85 : 0.7) : gold ? 'rgba(232, 190, 119, .28)' : TINT[it?.kind] || TINT.part; g.fill('evenodd');
+      path(); g.fillStyle = bold ? rgba(gold ? 0.85 : 0.7) : gold ? 'rgba(232, 190, 119, .28)' : Array.isArray(inkRgb) ? rgba(0.16) : TINT[it?.kind] || TINT.part; g.fill('evenodd');
       path(); g.strokeStyle = rgba(0.95); g.lineWidth = (bold ? 1.2 : 1.4) * dpr; g.stroke();
       g.beginPath(); findInkPath(P, id, { detail: true }); g.strokeStyle = rgba(0.6); g.lineWidth = 0.9 * dpr; g.stroke();
     }

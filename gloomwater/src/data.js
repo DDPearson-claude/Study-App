@@ -5398,6 +5398,7 @@ TEXT_LOOP.sheet = {
   move: '{what} {from} → {to}', moveNext: '{what} {from} → {to} with this.',
   family: { predator: 'Predators:', bottom: 'Bottom feeders:' },
   lastCast: 'Where you last cast',
+  quiet: 'Quiet water',   // a buff's source on a trip (the float's quiet term)
   hours: { day: 'Day', dusk: 'Dusk', night: 'Night' }, fresh: 'New', pinned: 'Pinned', tipped: 'Tipped', notches: '{n} of {of}',
 };
 // <<< the Wick's sheet

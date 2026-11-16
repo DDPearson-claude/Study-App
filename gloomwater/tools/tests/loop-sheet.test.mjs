@@ -56,6 +56,7 @@ section('S3 the Hold rule: the land roll gives a tin\'s or lure\'s Hold to the f
 
 // ================================================================================================ the model (SHEET §7)
 const SM = await import('../../src/loop-sheet.js');
+const fs0 = await import('node:fs');
 const PL = await import('../../src/progression-loop.js');
 const FX = await import('./loop-fixture.mjs');
 const pc = (p) => (p == null ? null : Math.round(p * 100));
@@ -320,6 +321,35 @@ section('S13 no cycle: loop-sheet.js imports no progression-loop, data, DOM or t
   ok(!imps.some((x) => /progression-loop|data\.js|three/.test(x)) && !/\bdocument\.|\bwindow\./.test(src), `S13 its imports: ${imps.join(', ')}`);
   ok(!/\d\s*%/.test(src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '')), 'S11 no digit before a percent sign in loop-sheet.js\'s code');
   ok(!Object.values(D.TEXT_LOOP.sheet).flatMap((v) => (typeof v === 'string' ? [v] : Object.values(v))).some((t) => /\d\s*%/.test(t) || /(^|[^+\d{])Hold \d/.test(t)), 'S11 TEXT_LOOP.sheet: no typed percentage, no "Hold {n}" form');
+}
+
+section('S11 words: every string the view draws passes textAllowed (screen \'sheet\'); no area word; no "Hold {n}"; no unmet fish named');
+{
+  const UL = await import('../../src/ui-loop.js');
+  const SV = await import('../../src/ui-sheet.js');
+  const W = UL.allowedWords(D);
+  const areaRe = new RegExp(`\\b(${WC.AREAS.join('|')}|drop-off|wind lane)\\b`, 'i');
+  let n = 0;
+  const cases = [
+    [example(), SPAN], [example({ lure: 'glimmer_spoon' }), SPAN], [example({ bait: 'cut_strip' }), { place: null, light: 'night', cls: 'prize' }],
+    [example({ bait: 'lumen_moss' }), { place: 'lily_maze', light: 'day', cls: 'keeper' }], [FX.freshLoopMeta(D), {}],
+  ];
+  for (const [m, view] of cases) for (const phone of [false, true]) {
+    if (!m.loop.wick) m.loop.wick = 'wick';
+    const v = SV.sheetView(model(m, { view }), D, { phone });
+    const strs = SV.sheetStrings(v);
+    n += strs.length;
+    const bad = strs.filter((t) => !UL.textAllowed(t, { D, screen: 'sheet', words: W }));
+    ok(bad.length === 0, `S11 ${view.place || 'open'} ${view.light || ''} ${phone ? 'phone' : 'desktop'}: every string passes (${bad.slice(0, 4).join(' | ')})`);
+    ok(!strs.some((t) => areaRe.test(t)), 'S11 no area word');
+    ok(!strs.some((t) => /(^|[^+\d])Hold \d/.test(t)), 'S11 no "Hold {n}"');
+  }
+  const met2 = example({ met: ['dusk_minnow'] });
+  const v2 = SV.sheetView(model(met2, { view: SPAN }), D, {});
+  const unmetNames = D.SPECIES.filter((s) => s.zone === 'mossmere' && s.id !== 'dusk_minnow').map((s) => s.name);
+  ok(!SV.sheetStrings(v2).some((t) => unmetNames.some((nm) => t.includes(nm))), 'S11 a fish not met is never named');
+  ok(!/\d\s*%/.test(fs0.readFileSync(new URL('../../src/ui-sheet.js', import.meta.url), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/`[^`]*`/g, '``')), 'S11 no typed percentage in ui-sheet.js\'s code (its CSS and its `${n}%` slots aside)');
+  ok(n > 600, `S11 ${n} strings checked`);
 }
 
 section('S14 flag off: no sheet words, no sheet method');

@@ -13,7 +13,7 @@
 //   frameCheck(M, cam, o)   the validator's check of a camera's frame at a screen size (the barge, the raft and every target)
 
 /** The order of the targets: the tiles' focus order (Murk, Chart, Journal), then the wall. */
-export const TARGET_ORDER = ['murk', 'chart', 'journal', 'wall'];
+export const TARGET_ORDER = ['murk', 'chart', 'journal', 'rack', 'wall'];   // (the rod rack: the Wick's sheet at Tackle, SHEET.md §2.3)
 
 // the barge's local frame (actors-home.js builds the objects at these places): deck 0.42 m over the water, the cabin's aft wall at
 // z 2.25, the chart table under the awning, the lectern beside the door, the doorway itself
@@ -28,6 +28,9 @@ export const TARGET_BOXES = {
   chart: { min: [B.chart.x - B.chart.w / 2 - 0.05, B.deckY, B.chart.z - B.chart.d / 2 - 0.05], max: [B.chart.x + B.chart.w / 2 + 0.05, B.deckY + B.chart.h + 0.15, B.chart.z + B.chart.d / 2 + 0.05] },
   journal: { min: [B.lectern.x - 0.3, B.deckY, B.lectern.z - 0.25], max: [B.lectern.x + 0.3, B.deckY + 1.3, B.lectern.z + 0.25] },
   wall: { min: [B.door.x - B.door.w / 2 - 0.04, B.deckY, B.cabinAft - 0.05], max: [B.door.x + B.door.w / 2 + 0.04, B.deckY + B.door.h + 0.08, B.cabinAft + 0.1] },
+  // the rod rack on the cabin's aft wall, port of the door: its upper half, where the rod hangs (from deck + 1.0: below it the chart table
+  // sits in front of it from the portrait pose; SHEET.md §2.3, measured clear at all eight validator sizes)
+  rack: { min: [-1.12, B.deckY + 1.0, B.cabinAft], max: [-0.88, B.deckY + 2.05, B.cabinAft + 0.2] },
   // Murk on his pad (his own frame: he faces +z), the pack to its top
   murk: { min: [-1.3, 0.15, -1.25], max: [1.3, 3.75, 1.45] },
 };
@@ -46,7 +49,7 @@ function place([x, y, z], { x: ox = 0, z: oz = 0 }, rot) {
 export function targetCorners(M) {
   if (!M?.hull) return null;
   const out = {};
-  for (const id of ['chart', 'journal', 'wall']) out[id] = corners(TARGET_BOXES[id]).map((p) => place(p, M.hull, M.hull.yaw));
+  for (const id of ['chart', 'journal', 'rack', 'wall']) out[id] = corners(TARGET_BOXES[id]).map((p) => place(p, M.hull, M.hull.yaw));
   // Murk's object turns by his facing + π (the merchant actor's arrive / moor convention: he faces (−sin y, −cos y))
   if (M.murk) out.murk = corners(TARGET_BOXES.murk).map((p) => place(p, M.murk, (Number(M.murk.yaw) || 0) + Math.PI));
   return out;
@@ -178,7 +181,7 @@ export function frameCheck(M, cam, { vw, vh, min = 44, word = 26, margin = 16, w
   }
   const ids = Object.keys(rects);
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (overlap(rects[ids[i]], rects[ids[j]])) faults.push(`${ids[i]} and ${ids[j]} overlap on screen`);
-  const layout = layoutTargets(rects, { vw, vh, min, word, words: { wall: false }, reserve });
+  const layout = layoutTargets(rects, { vw, vh, min, word, words: { wall: false, rack: false }, reserve });
   for (const f of layout.faults) faults.push(`the buttons: ${f}`);
   return { ok: faults.length === 0, faults, rects, layout };
 }

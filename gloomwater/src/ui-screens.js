@@ -13,6 +13,7 @@ import { renderPrintsPage } from './ui-prints.js';   // M1 step 5b (lane 5b-home
 import { listFor as loopListFor, catalogueFor } from './progression-loop.js';
 import { cardHooks as gearCardHooks, whoBitesHtml } from './ui-gear.js';   // (WC-3: the gear log's Who bites)   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
+import { createSheetView } from './ui-sheet.js';   // the Wick's sheet (SHEET.md): the Journal's first tab under the loop
 // <<< LOOP 1a
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -92,6 +93,9 @@ export function createScreens(K) {
   const V3 = () => D().V3_ENABLED === true;
   /** The Full Hold (PLAN §2.3 item 5): one switch, read from the data; a trip is `run.outing === 'trip'`. Off the loop: false. */
   const loopOn = () => D().LOOP_ENABLED === true;
+  // the Wick's sheet (SHEET.md): one view, made on first use under the loop with automatic fishing (null otherwise)
+  let sheetInst = null;
+  const sheetV = () => { if (!sheetInst && loopOn() && D().AUTOFISH && ctx.progression?.loop) { try { sheetInst = createSheetView(K); } catch (e) { K.report?.('sheet view', e); sheetInst = null; } } return sheetInst; };
   const TL = () => D().TEXT_LOOP || {};
   const lbs = (sp, fish) => fmtWeight(fishWeight(sp, fish));
   const prog = () => (ctx.progression && !K.isStub(ctx.progression) ? ctx.progression : null);
@@ -1508,7 +1512,14 @@ export function createScreens(K) {
       const ob = oddsBlock(sp, s.hl);
       if (ob) det.insertAdjacentHTML('beforeend', ob);
       if (af() && !loopOn()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));   // (WC-3, WATERCRAFT §7.2: no Got away list under the loop)
-      if (ob && ctx.flow === 'playing') {
+      if (ob && loopOn() && sheetV()) {
+        // the Wick's sheet (SHEET.md §2.4): "Odds ›" at home and on a trip; it pins this fish at the class the page lights (else Trophy)
+        const gl = h('button', 'gw-link gw-odds-gear gw-odds-sheet');
+        gl.type = 'button';
+        gl.textContent = TL().odds || 'Odds ›';
+        gl.addEventListener('click', () => { sfx('ui_click'); safe(() => ctx.progression?.pinGear?.(sp.id, s.hl || 'trophy'), null); openSheet({ from: 'species', section: 'odds', pauseChild: !!s.pauseChild, view: { cls: s.hl || 'trophy' } }); });
+        det.appendChild(gl);
+      } else if (ob && ctx.flow === 'playing') {
         const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
         gl.type = 'button';
         gl.addEventListener('click', () => { sfx('ui_click'); openTackle({ pauseChild: !!s.pauseChild }); });
@@ -1631,18 +1642,20 @@ export function createScreens(K) {
     const cur = run()?.zone;
     const sp0 = extra.sel ? K.speciesData(extra.sel) : null;
     const zone = zones.includes(extra.zone) ? extra.zone : sp0 && zones.includes(sp0.zone) ? sp0.zone : zones.includes(cur) ? cur : zones[0];
-    const st = { zone, tab: extra.tab === 'giants' || extra.tab === 'prints' ? extra.tab : 'water', view: sp0 ? 'species' : 'page', sel: sp0?.id || null, hl: extra.hl || null,
+    const st = { zone, tab: extra.tab === 'giants' || extra.tab === 'prints' || (extra.tab === 'sheet' && sheetV()) ? extra.tab : 'water', view: sp0 ? 'species' : 'page', sel: sp0?.id || null, hl: extra.hl || null,
       section: extra.section || null, big: null, from: extra.from || null, titleChild: ctx.flow !== 'playing', pauseChild: !!extra.pauseChild };
+    if (extra.view && typeof extra.view === 'object') st.sheetView = { ...extra.view };   // (the Wick's sheet: a pick to open on)
     const open = K.entry?.('journal');
     if (open) { Object.assign(open.state, st); open.render(); return true; }
-    K.openModal('journal', renderCatalogue, { state: st, cls: 'gw-m-catalogue', onEscape: (e) => catalogueBack(e),
+    K.openModal('journal', renderCatalogue, { state: st, cls: 'gw-m-catalogue', onEscape: (e) => catalogueBack(e), onClose: () => { safe(() => sheetV()?.flushSeen(), null); },
       onKey: (code) => {
         const t = K.top();
         if (!t || t.id !== 'journal') return false;
         if (t.state.view !== 'page' || t.state.big) return false;
-        const ids = [...zones, 'prints', 'giants'];   // (M1 step 5b: the Prints page before the giants')
-        const curId = t.state.tab === 'giants' || t.state.tab === 'prints' ? t.state.tab : t.state.zone;
-        return tabKeys(t, ids, () => curId, (v) => { if (v === 'giants' || v === 'prints') t.state.tab = v; else { t.state.tab = 'water'; t.state.zone = v; } t.state.section = null; })(code);
+        const ids = [...(sheetV() ? ['sheet'] : []), ...zones, 'prints', 'giants'];   // (M1 step 5b: the Prints page before the giants'; the sheet first)
+        const tabbed = (id) => id === 'giants' || id === 'prints' || id === 'sheet';
+        const curId = tabbed(t.state.tab) ? t.state.tab : t.state.zone;
+        return tabKeys(t, ids, () => curId, (v) => { if (tabbed(v)) t.state.tab = v; else { t.state.tab = 'water'; t.state.zone = v; } t.state.section = null; })(code);
       } });
     return true;
   }
@@ -1699,7 +1712,8 @@ export function createScreens(K) {
     const wid = safe(() => D().loopWickId?.(run()?.character || ctx.progression?.loop?.wick?.()), null);
     const nm = wid ? arr(D().CHARACTERS).find((c) => c?.id === wid)?.name : null;
     if (nm && /^The Wick(?=['’]s )/.test(jTitle)) jTitle = jTitle.replace(/^The Wick/, nm);
-    const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, cls: `gw-p-wide gw-p-journal gw-p-journal--loop gw-p-catalogue${af() ? ' gw-p-af' : ''}` });
+    const onSheet = s.tab === 'sheet' && !!sheetV();
+    const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, cls: `gw-p-wide gw-p-journal gw-p-journal--loop gw-p-catalogue${af() ? ' gw-p-af' : ''}${onSheet ? ' gw-p-sheet' : ''}` });
     pn.dataset.loop = 'catalogue';
     // the tabs: each owned water (its name and its list's count) and the giants' ★ (no word: its accessible name, PLAN CHOICE 25)
     const W = D().LOOP?.waters || {};
@@ -1709,10 +1723,23 @@ export function createScreens(K) {
     const tabList = zones.map((zid) => { const v = catalogueView(cat(zid), D()); return { id: zid, label: zoneName(zid).replace(/^The /, ''), badge: v ? v.head.count : '' }; });
     tabList.push({ id: 'prints', label: TLs.tabs?.prints || 'Prints' });   // M1 step 5b (lane 5b-home): the Prints page (SPEC §8.8's tab row)
     tabList.push({ id: 'giants', label: '', icon: 'star' });
-    const curTab = s.tab === 'giants' || s.tab === 'prints' ? s.tab : s.zone;
-    const tb = tabs(tabList, curTab, (id) => { if (id === 'giants' || id === 'prints') s.tab = id; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; s.pageScroll = null; entry.render(); });
+    // the Wick's sheet (SHEET.md §2.1): the first tab, its flyleaf: the Wick's portrait and "{name}'s Sheet" (the bare name if a phone's row is full)
+    const SV = sheetV();
+    if (SV) tabList.unshift({ id: 'sheet', label: SV.title() });
+    const tabbed = (id) => id === 'giants' || id === 'prints' || id === 'sheet';
+    const curTab = tabbed(s.tab) ? s.tab : s.zone;
+    const tb = tabs(tabList, curTab, (id) => { if (tabbed(id)) s.tab = id; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; s.pageScroll = null; entry.render(); });
     const gt = [...tb.querySelectorAll('.gw-tab')].pop();
     if (gt) { gt.classList.add('gw-tab--giants'); gt.setAttribute('aria-label', TLs.tabs?.giants || 'Giants'); }
+    if (SV) {
+      const st0 = tb.querySelector('.gw-tab');
+      if (st0) {
+        st0.classList.add('gw-tab--sheet'); st0.dataset.tab = 'sheet'; st0.setAttribute('aria-label', SV.title());
+        st0.insertAdjacentHTML('afterbegin', `<span class="gw-tab-wick" aria-hidden="true">${safe(() => SV.portrait('tab'), '')}</span>`);
+        if (safe(() => SV.hasFresh(), false)) st0.insertAdjacentHTML('beforeend', SV.DROP);
+        if (K.vw < 700) { tb.classList.add('gw-tabs--many'); const nm = SV.title().replace(/['’]s .*$/, ''); requestAnimationFrame(() => { try { if (tb.scrollWidth > tb.clientWidth + 1) st0.querySelector('span:not(.gw-tab-wick)').textContent = nm; } catch { /* ignore */ } }); }
+      }
+    }
     pn.insertBefore(tb, content);
     const backWord = TLs.back || 'Back';
     if (s.view === 'species' && s.sel) {
@@ -1728,6 +1755,9 @@ export function createScreens(K) {
         const sec = page.querySelector('.gw-odds');
         if (sec) { sec.classList.add('gw-odds-focus'); requestAnimationFrame(() => { try { sec.scrollIntoView({ block: 'start', inline: 'nearest' }); } catch { /* ignore */ } }); }
       }
+    } else if (s.tab === 'sheet' && SV) {
+      if (s.sheetView) { entry.state.picks = { ...(entry.state.picks || {}), ...s.sheetView }; s.sheetView = null; }
+      safe(() => SV.render(entry, content), null);
     } else if (s.tab === 'giants') renderGiants(entry, content, zones);
     else if (s.tab === 'prints') {   // M1 step 5b: each printed fish's best print; a tap opens its page (Back returns here)
       const pv = safe(() => ctx.progression?.loop?.prints?.(zones), null);
@@ -1852,8 +1882,24 @@ export function createScreens(K) {
   // The Gear Bench's Tackle screen in P3; in P1–P2 a read-only page of the run's tackle, baits and lures: each item's Hold, the
   // styles its slot counts ×1.6 against, the fish it helps, and the compare pinned to the last fish that got away. Words and % only
   // from progression (getGearLog / compareOdds); refused while a line is out.
+  /** The Wick's sheet (SHEET.md §2): the Journal opened (or re-pointed) on its first tab. o.from: 'pause' | 'ledger' | 'rack' | 'odds' |
+   *  'species' | 'book'; o.section: 'odds' | 'tackle' (the head by default); o.pin {speciesId, sizeClass}; refused while a line is out.
+   *  The seam with the barge's interiors (BARGE-INSIDE §4.3): openSheet({from: 'ledger'}) and openSheet({from: 'rack', section: 'tackle'}). */
+  function openSheet(o = {}) {
+    if (!loopOn() || !sheetV()) return false;
+    if (K.refuseLocked?.('sheet')) return false;
+    if (o.pin?.speciesId) safe(() => ctx.progression?.pinGear?.(o.pin.speciesId, o.pin.sizeClass || 'trophy'), null);
+    const section = o.section || (o.from === 'rack' ? 'tackle' : null);
+    const st = { tab: 'sheet', view: 'page', sel: null, big: null, section, from: o.from || null, ...(o.view ? { sheetView: { ...o.view } } : {}) };
+    const open = K.entry?.('journal');
+    if (open) { Object.assign(open.state, st); open.render(); return true; }
+    if (K.has('pause') && o.pauseChild !== false) st.pauseChild = true;
+    return openCatalogue({ ...st, tab: 'sheet', pauseChild: !!(o.pauseChild || st.pauseChild), view: o.view }) !== false;
+  }
   function openTackle(extra = {}) {
     if (!af()) return false;
+    // the Wick's sheet (SHEET.md §2.4): under the loop the gear log is the sheet's Odds, so every Odds › follows with no change of its own
+    if (loopOn() && sheetV()) return openSheet({ from: 'odds', section: 'odds', pauseChild: !!extra.pauseChild });
     if (K.refuseLocked?.('gearBench')) return false;
     K.openModal('gear', (entry, body) => {
       const r = run();
@@ -2109,11 +2155,29 @@ export function createScreens(K) {
 
   // >>> LOOP 1a: the pause on a trip (SPEC §8.5, PLAN §2.3 item 5, CHOICE 12): no title and no sub-line; Resume · Home (dimmed with no
   // words while home is not allowed: the tally, as from the pill) · the built Settings. No Journal, Trials, Title, Abandon or boons
+  /** The pause menu's "{name}'s Sheet" (SHEET.md §2.2): the Wick's portrait, the drop while something is new; refused (dimmed, "Reel in
+   *  first.") while a line is out; none during the opening's tutorial. → the button, or null. */
+  function sheetItem(o = {}) {
+    const SV = sheetV();
+    if (!SV) return null;
+    const tut = safe(() => ctx.progression?.loop?.tutorial?.(), null);
+    if (!tut || tut.done !== true) return null;
+    const locked = !!K.logLocked?.();
+    const lockW = D().AUTOFISH?.text?.logLocked || 'Reel in first.';
+    const b = btn(esc(SV.title()), { cls: `gw-mbtn gw-loop-sheet${locked ? ' gw-locked' : ''}`, onClick: () => { if (K.logLocked?.()) { K.refuseLocked?.('sheet'); return; } openSheet({ from: 'pause', ...o }); } });
+    b.dataset.loop = 'sheet';
+    b.insertAdjacentHTML('afterbegin', `<span class="gw-sh-wick" aria-hidden="true">${safe(() => SV.portrait('pz'), '')}</span>`);
+    if (safe(() => SV.hasFresh(), false)) b.querySelector('span:not(.gw-sh-wick)')?.insertAdjacentHTML('beforeend', SV.DROP);
+    if (locked) { b.setAttribute('aria-label', `${SV.title()}: ${lockW}`); b.insertAdjacentHTML('beforeend', `<small class="gw-lock-w">${esc(lockW)}</small>`); }
+    else b.setAttribute('aria-label', SV.title());
+    return b;
+  }
   function openTripPause() {
     K.openModal('pause', (entry, body) => {
       const { content, foot } = panel(entry, body, { cls: 'gw-p-pause gw-p-trippause', close: false });
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn(esc(TL().resume || 'Resume'), { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
+      { const it = sheetItem({ pauseChild: true }); if (it) menu.appendChild(it); }   // the Wick's sheet (SHEET.md §2.2), after the tutorial
       const can = safe(() => ctx.game?.canGoHome?.({ fromPause: true }), null)?.ok === true;
       // (main's goHome({fromPause}) clears the pause itself and ends the trip, whose run:end closes the screens; refused, the pause resumes)
       const home = btn(esc(TL().home || 'Home'), { cls: 'gw-mbtn gw-loop-home', icon: 'hearth', disabled: !can, onClick: () => {
@@ -2303,6 +2367,7 @@ export function createScreens(K) {
   return {
     showTitle, openNewDescent, showCatch, openLevelUp, openShop, openCreel, openJournal, openShrine,
     openChallenges, openSettings, openPause, openDescend, showDeath, showVictory, confirm, refreshIfOpen, openLog, openTackle,
+    openSheet, sheetItem, sheetModel: (view) => safe(() => sheetV()?.model(view) || null, null),   // the Wick's sheet (SHEET.md §2)
     /** M1 step 3a: the open catalogue's state (debug builds, ctx.debug.ui.catalogue) */
     catalogueDebug,
     /** the building blocks, for ui-loop (PLAN §2.3 item 5): additive */

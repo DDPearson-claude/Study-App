@@ -504,6 +504,17 @@ function sealedPlate(P) {
   P.ink('M100 92 C96 110 92 118 84 124 M112 92 C118 108 124 116 132 120', 1.6);
   return P;
 }
+/** The bare hook (the Wick's sheet): an eyed hook on a short snell, its barb and its shadow. */
+function bareHook(P) {
+  P.ground(100, 134, 40, 6);
+  P.ink('M100 14 C99 30 101 44 100 58', 0.8);
+  P.ink(ell(100, 62, 5, 5), 1.6);
+  const shank = 'M98 66 L98 108 C98 128 128 128 128 106 L128 96', shankIn = 'M102 66 L102 107 C102 122 124 122 124 106 L124 98';
+  P.ink(shank, 2.6).ink(shankIn, 0.7);
+  P.ink('M128 96 L134 104 M128 96 L122 103', 1.6);
+  P.shade('M98 90 L102 90 L102 108 C102 116 110 120 116 119 L112 124 C104 124 98 118 98 108Z', 3);
+  return P;
+}
 function parcel(P) {
   P.ground(100, 134, 56, 6);
   const top = 'M54 62 L100 44 L148 60 L102 80Z', left = 'M54 62 L102 80 L102 126 L54 108Z', right = 'M102 80 L148 60 L148 106 L102 126Z';
@@ -525,11 +536,13 @@ export function plateKey(card) {
   if (slot === 'look') return `look:${c.lookId || id.slice(5)}`;
   if (slot === 'place') return `place:${c.placeId || id.slice(6)}`;
   if (slot === 'lake') return 'lake';
+  if (slot === 'hook') return 'hook:bare';   // the Wick's sheet: the bare hook (never sold)
   return 'parcel';
 }
 /** An item's engraving (viewBox 200 × 150), its pattern ids scoped by `uid` (unique in the page). */
 export function engrave(card, { uid = 'e', geo = null } = {}) {
-  const key = plateKey(card), [kind, rest = ''] = key.split(':'), lv = Number(rest) || 1;
+  // (level 0, the Willow Switch, Twine and the Wooden Winch, is drawn as itself: the Wick's sheet shows the tackle you start with)
+  const key = plateKey(card), [kind, rest = ''] = key.split(':'), lv = rest !== '' && Number.isFinite(Number(rest)) ? Number(rest) : 1;
   const P = plate(String(uid).replace(/[^A-Za-z0-9_-]/g, ''), 200, 150, key);
   const zoom = ({ 'lure:bell_spinner': [1.12, 100, 80], 'lure:glimmer_spoon': [1.24, 100, 78], 'lure:bone_jig': [1.3, 104, 80] })[key]
     || { lure: [1.4, 100, 84], lantern: [1.22, 100, 84], bait: [1.12, 100, 90], look: [1.12, 100, 90] }[kind];
@@ -552,6 +565,7 @@ export function engrave(card, { uid = 'e', geo = null } = {}) {
   else if (kind === 'look') lookPlate(P, rest);
   else if (kind === 'place') mapPlate(P, card, geo);
   else if (kind === 'lake') sealedPlate(P);
+  else if (kind === 'hook') bareHook(P);
   else parcel(P);
   if (zoom) P.add('</g>');
   return P.svg(`cat-eng cat-eng--${kind}`);

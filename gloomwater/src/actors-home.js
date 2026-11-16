@@ -739,7 +739,7 @@ export function createHome(ctx) {
         for (const p of pts) b.expandByPoint(toWorld(p[0], p[1], p[2], q));
         return b;
       };
-      for (const id of ['chart', 'journal', 'wall']) box3(id, [TARGET_BOXES[id].min, TARGET_BOXES[id].max]);
+      for (const id of ['chart', 'journal', 'rack', 'wall']) box3(id, [TARGET_BOXES[id].min, TARGET_BOXES[id].max]);   // (rack: the Wick's sheet's)
       return out;
     },
     update(dt, heightFn) {
