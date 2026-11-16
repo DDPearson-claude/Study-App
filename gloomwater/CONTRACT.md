@@ -2056,7 +2056,7 @@ test opens.
   `baitSlotModel` · `mapArtSizes` · `MAP_ART` · `catalogueView` · `giantsView` · `liftTitle` · `saleLineId`. `ui-fishart.js`:
   `setLoopArt(on)` (the loop's 2D `trout`, `sturgeon`, `lamprey` plans), `drawFish(…, {hatch: true})`, `hatchProbe(sp, w, h)`.
 - **The world** (D): `src/world-places.js` (built only under the loop); `world.setPlaces({owned, lifted})`, `world.liftMist(id, s)`
-  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r}` (the place's water centre and radius), `world.places()`;
+  (`s` 0: at once), `world.placeAnchor(id) → {x, y, z, r, face?}` (the place's water centre and radius; a path's `face`, its unit normal, turns the lift's lens to its broadside: the stage), `world.places()`;
   `world:giantBack {placeId, x, z}` (at `gloomtide`, in a standing Under the Span or Buoy Lights bank); `world-art.js` `opts.redress`
   (W9's rest, only with `LOOP.redress`); `render.frameLandmark(p | null, {dur, back})` (null: ease back now; `render-camera.js`
   `landmarkShot`, `landmarkWeight`); `models-fish.js` `lamprey`, `sturgeon`, `trout` (read only under the loop).

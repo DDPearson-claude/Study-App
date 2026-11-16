@@ -1130,6 +1130,9 @@ export function create(ctx) {
         const fs = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : null;
         const want = ctx.cinematic || fs === 'landing' ? 1 : 0;
         hush += (want - hush) * (1 - Math.exp(-(want > hush ? 6 : 0.8) * dt));
+        // (the loop: the hush is whole from the show's first frame, which cuts to the close-up at once; at 6/s the banded fresnel's
+        // first steps still ringed the raft for a few frames, brightest on her still pool: the stage's look)
+        if (want > hush && ctx.data?.LOOP_ENABLED === true) hush = want;
         if (hush > 0.002) U.uRaft.value.w = -Math.min(1, hush);
       }
 

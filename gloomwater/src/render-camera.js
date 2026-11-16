@@ -350,7 +350,8 @@ export const LANDMARK_SHOT = Object.freeze({ elev: 21, fov: 50, fovPortrait: 64,
 /**
  * The pose that frames a place: raft {x, z} (or null: the lens's own side, `yaw`), p {x, y, z, r}. → {pos: [x, y, z], look: [x, y, z],
  * fov, dist}. The distance is base + perR·r (clamped near … far); the lens never stands further from the place than the raft does plus
- * minRaft (a raft near the place is filmed from just behind it).
+ * minRaft (a raft near the place is filmed from just behind it). p.face ([x, z], optional: a path's normal) turns the lens to the
+ * place's broadside on the raft's side.
  */
 export function landmarkShot(raft, p, { yaw = 0, aspect = 16 / 9, S = LANDMARK_SHOT } = {}) {
   if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) return null;
@@ -358,6 +359,9 @@ export function landmarkShot(raft, p, { yaw = 0, aspect = 16 / 9, S = LANDMARK_S
   let dx = 0, dz = 0, dRaft = Infinity;
   if (raft && Number.isFinite(raft.x) && Number.isFinite(raft.z)) { dx = raft.x - p.x; dz = raft.z - p.z; dRaft = Math.hypot(dx, dz); }
   if (!(dRaft > 0.5) || !Number.isFinite(dRaft)) { dx = Math.sin(num(yaw, 0)); dz = Math.cos(num(yaw, 0)); dRaft = Infinity; }
+  // (a long place gives its broadside, p.face: the lens stands across it on the raft's side, not down its length)
+  const f = Array.isArray(p.face) && Number.isFinite(p.face[0]) && Number.isFinite(p.face[1]) && Math.hypot(p.face[0], p.face[1]) > 1e-6 ? p.face : null;
+  if (f) { const fl = Math.hypot(f[0], f[1]), sd = dx * f[0] + dz * f[1] < 0 ? -1 : 1; dx = sd * f[0] / fl; dz = sd * f[1] / fl; }
   const l = Math.hypot(dx, dz) || 1, ux = dx / l, uz = dz / l;
   let dist = clamp(num(S.base, 6.5) + num(S.perR, 1.35) * r, num(S.near, 11), num(S.far, 30));
   if (Number.isFinite(dRaft)) dist = Math.max(num(S.near, 11) * 0.7, Math.min(dist, dRaft + num(S.minRaft, 3)));

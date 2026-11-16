@@ -125,7 +125,9 @@ export function createLoopHome(deps) {
   /** Where the lift's shot looks: world.placeAnchor(id), else the place's landmark, else its centre. */
   function landmarkOf(id) {
     const a = safe(() => ctx.world?.placeAnchor?.(id), null);
-    if (a && Number.isFinite(a.x) && Number.isFinite(a.z)) return { x: a.x, y: numOr(a.y, 0), z: a.z };
+    // (the anchor's radius and a path's broadside go to the shot too: without them every place was framed as an r 6 disc, and Under the
+    // Span from 14.6 m down its own length behind its first pier; the stage)
+    if (a && Number.isFinite(a.x) && Number.isFinite(a.z)) return { x: a.x, y: numOr(a.y, 0), z: a.z, ...(Number.isFinite(a.r) ? { r: a.r } : {}), ...(Array.isArray(a.face) ? { face: a.face.slice(0, 2) } : {}) };
     const p = placeOf(id), m = p?.landmark;
     if (m && Number.isFinite(m.x)) return { x: m.x, y: numOr(m.y, 0), z: m.z };
     return p && Number.isFinite(p.x) ? { x: p.x, y: 0, z: p.z } : null;

@@ -546,7 +546,7 @@ export function create(ctx) {
     }
     if (!Number.isFinite(Number(p.x)) || !Number.isFinite(Number(p.z))) return false;
     Object.assign(lmk, { on: true, t: 0, dur: Number.isFinite(Number(dur)) ? Math.max(0.2, Number(dur)) : 4.2, back: B, rel: false, relT: 0, relW: 0, pose: null,
-      p: { x: Number(p.x), y: Number(p.y) || 0, z: Number(p.z), r: Number.isFinite(Number(p.r)) ? Number(p.r) : 6 } });
+      p: { x: Number(p.x), y: Number(p.y) || 0, z: Number(p.z), r: Number.isFinite(Number(p.r)) ? Number(p.r) : 6, ...(Array.isArray(p.face) ? { face: p.face.slice(0, 2) } : {}) } });
     return true;
   }
   function landmarkW(dt) {

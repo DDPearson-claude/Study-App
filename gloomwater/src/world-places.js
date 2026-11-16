@@ -37,6 +37,8 @@ const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
 /** The banks' shape: the feather beyond the footprint (m; T145's "plus 1.5 m"), how far inside it the bank starts to thin. */
+/** The giant's back's size against its built shape (0.72 m across, 2.7 m long at 1). */
+export const BACK_SCALE = 1.5;
 export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4,
   // the curtains: soft rings of rising mist inside the bank's edge, [inset (m), height (m), alpha weight]: volume, never a wall
   curtains: [[0.9, 2.6, 0.34], [2.8, 1.9, 0.26]] });
@@ -149,19 +151,19 @@ float wpN(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f)
 // opacity. (Nothing here reads where the camera or the raft is.)
 export const BANK_VS = /* glsl */`
 attribute float aBank; attribute vec4 aS1; attribute vec4 aS2; attribute vec3 aL; attribute vec3 aK;
-uniform float uOp[4];
-varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY;
+uniform float uOp[4]; uniform float uLift[4];
+varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY; varying float vLift;
 void main() {
   vXZ = position.xz; vS1 = aS1; vS2 = aS2; vL = aL; vK = aK; vY = position.y;
-  float op = uOp[0];
-  if (aBank > 2.5) op = uOp[3]; else if (aBank > 1.5) op = uOp[2]; else if (aBank > 0.5) op = uOp[1];
-  vOp = op;
+  float op = uOp[0], lf = uLift[0];
+  if (aBank > 2.5) { op = uOp[3]; lf = uLift[3]; } else if (aBank > 1.5) { op = uOp[2]; lf = uLift[2]; } else if (aBank > 0.5) { op = uOp[1]; lf = uLift[1]; }
+  vOp = op; vLift = lf;
   gl_Position = op < 0.002 ? vec4(2.0, 2.0, 2.0, 1.0) : projectionMatrix * viewMatrix * vec4(position, 1.0);
 }`;
 export const BANK_FS = /* glsl */`
 uniform float uTime, uAmt, uFeather, uInner;
 uniform vec3 uLit, uShade;
-varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY;
+varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY; varying float vLift;
 ${NOISE}
 float footSdf(vec2 p) {
   if (vS1.x < 0.5) return length(p - vS1.yz) - vS1.w;
@@ -173,6 +175,10 @@ void main() {
   float d = footSdf(vXZ) + (vL.x < 0.0 ? 0.0 : vL.z);
   // (the bank's edge billows: slow noise draws it in by up to 1.6 m, never out, so it stays inside its footprint plus the feather)
   d += wpN(vXZ * 0.19 + vec2(vS1.y * 0.07, uTime * 0.012)) * 1.6;
+  // (a finer billow, scaled to the place's own width, so a far bank's rim is ragged mist and never a clean pale oval; the stage)
+  d += wpN(vXZ * 0.62 + vec2(uTime * 0.03, vS1.z * 0.05)) * 0.9 * clamp(vS1.w / 4.0, 0.4, 1.0);
+  // (the lift: the bank breaks up from its edges inward in ragged wisps as it thins, rather than fading as one disc; the stage)
+  if (vLift > 0.0) d += vLift * (1.5 + 5.0 * wpN(vXZ * 0.33 + vec2(uTime * 0.05, 3.7)));
   if (vK.z > 0.0) d = max(d, vK.z - length(vXZ - vK.xy));   // (a dock's keep-out: no bank over a dock)
   float cover = 1.0 - smoothstep(-uInner, uFeather, d);
   if (cover < 0.002) discard;
@@ -184,7 +190,7 @@ void main() {
     float top = mix(0.25, 1.0, wpN(vec2(along * 0.7 + 11.0, uTime * 0.03)));
     float hk = clamp(vY / max(0.5, vL.z), 0.0, 1.0);
     float gaps = smoothstep(0.22, 0.7, nc);   // (it drifts in wisps and gaps along its length: never a solid wall)
-    float ac = cover * vL.y * (1.0 - smoothstep(0.0, top, hk)) * pow(1.0 - hk, 0.6) * gaps * 1.4 * vOp * uAmt;
+    float ac = cover * vL.y * (1.0 - smoothstep(0.0, top, hk)) * pow(1.0 - hk, 0.6) * gaps * 1.4 * vOp * uAmt * (1.0 - vLift) * (1.0 - vLift);   // (the curtains go first in a lift: never a standing wall)
     if (ac < 0.003) discard;
     gl_FragColor = vec4(mix(uShade, uLit, clamp(0.35 + hk * 0.5 + nc * 0.3, 0.0, 1.0)), min(ac, 0.85));
     #include <tonemapping_fragment>
@@ -349,7 +355,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     g.setAttribute('aK', new THREE.Float32BufferAttribute(aK, 3));
     g.setIndex(ix);
     g.computeBoundingSphere();
-    const u = { uOp: { value: [1, 1, 1, 1] }, uTime: { value: 0 }, uAmt: { value: 1 }, uFeather: { value: BANK.feather }, uInner: { value: BANK.inner },
+    const u = { uOp: { value: [1, 1, 1, 1] }, uLift: { value: [0, 0, 0, 0] }, uTime: { value: 0 }, uAmt: { value: 1 }, uFeather: { value: BANK.feather }, uInner: { value: BANK.inner },
       uLit: { value: new THREE.Color(0xc8c0ec) }, uShade: { value: new THREE.Color(0x6e66a4) } };
     const m = M(new THREE.ShaderMaterial({ uniforms: u, vertexShader: BANK_VS, fragmentShader: BANK_FS, transparent: true, depthWrite: false, fog: false, side: THREE.DoubleSide }));
     const mesh = new THREE.Mesh(g, m);
@@ -575,14 +581,15 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     group.add(stone);
   }
   if (chainKit.length) {
-    // the chains' own material: the stone's, dithered away within a few metres of the lens, so a show filmed under the break (the
-    // lens a step from the Wick) is never barred by a strand in front of it
+    // the chains' own material: the stone's, dithered away within a few metres of the lens (gone inside 3.5 m, whole past 7: the stage
+    // widened it after a Thousandcast's show under the break was barred by the strands round the raft), so a show filmed there (the
+    // lens a step from the Wick) is never barred by a strand in front of it; the play camera, further back, keeps them
     const chainMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: mixHex(far, light, 0.45), rimPower: 0.56, steps: 3, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
     const base = chainMat.onBeforeCompile;
     chainMat.onBeforeCompile = (sh, r) => {
       base?.call(chainMat, sh, r);
       sh.fragmentShader = sh.fragmentShader.replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>
-        { float gwD = length(vViewPosition); if (gwD < 3.2) { float gwH = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453); if (gwH > smoothstep(1.2, 3.2, gwD)) discard; } }`);
+        { float gwD = length(vViewPosition); if (gwD < 7.0) { float gwH = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453); if (gwH > smoothstep(3.5, 7.0, gwD)) discard; } }`);
     };
     chainMat.customProgramCacheKey = () => 'gwPlaceChains';
     const cm = new THREE.Mesh(G(merge(chainKit)), chainMat);
@@ -662,7 +669,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   const bell = P.find((p) => p.id === 'bell_pool');
   if (bell && bell.area.kind === 'disc') {
     const a = bell.area;
-    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 3.6, sz: 2.5, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.62, night: 0.6 });
+    // (the stage's look: 1.2× and a deeper ink, so the bell reads from the play camera beside her pool's motes)
+    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 4.3, sz: 3.0, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.78, night: 0.6 });
     addDecal({ x: a.x - 0.4, z: a.z + 0.6, y: 0.035, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
     // "The moon looks in on the old bell": a pale shaft standing on the pool once its mist has lifted (strongest at night)
     addDecal({ x: a.x + 0.3, z: a.z - 0.2, y: 0, sx: 3.4, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
@@ -744,7 +752,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const rise = Math.sin(Math.PI * k);
     const fwd = (k - 0.5) * 2.4;
     back.visible = true;
-    back.position.set(c.x + Math.sin(c.heading) * fwd, -0.36 + 0.58 * rise, c.z + Math.cos(c.heading) * fwd);
+    // (1.5×: at 1× the back read as a speck from the play camera; the stage's look)
+    back.scale.setScalar(BACK_SCALE);
+    back.position.set(c.x + Math.sin(c.heading) * fwd, (-0.36 + 0.58 * rise) * BACK_SCALE, c.z + Math.cos(c.heading) * fwd);
     back.rotation.set(0.32 - 0.64 * k, c.heading, 0);
     if (k > 0.55 && !c.rippled) { c.rippled = true; try { ctx.water?.addRipple?.(back.position.x, back.position.z, 0.5); } catch { /* optional */ } }
   }
@@ -769,6 +779,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         s.glow = s.lifted ? Math.min(1, s.glow + dt / 0.6) : 0;
       }
       bank.u.uOp.value[i] = s.op;
+      bank.u.uLift.value[i] = s.lift ? clamp01(s.lift.dur > 0 ? s.lift.t / s.lift.dur : 1) : 0;
       if (decalMesh) decalMesh.material.uniforms.uK.value[i] = s.glow;
     }
     bank.mesh.visible = S.some((s) => s.op > 0.002);
@@ -844,7 +855,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const c = footprintCentre(p.area), b = footprintBox(p.area, 0);
     const r = Math.max(b.x1 - b.x0, b.z1 - b.z0) / 2;
     const y = id === 'under_the_span' ? 1.8 : id === 'lily_maze' ? 0.3 : 0.4;
-    return { x: c.x, y, z: c.z, r };
+    // (a path's broadside: the lift's shot films a long place across it, never down its length behind its first pier; the stage)
+    const a = p.area, q = a?.kind === 'path' && Array.isArray(a.pts) && a.pts.length >= 2 ? [a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]] : null;
+    const ql = q ? Math.hypot(q[0], q[1]) : 0;
+    return ql > 0 ? { x: c.x, y, z: c.z, r, face: [-q[1] / ql, q[0] / ql] } : { x: c.x, y, z: c.z, r };
   }
   function readout() {
     const r3 = (x) => Math.round(x * 1000) / 1000;

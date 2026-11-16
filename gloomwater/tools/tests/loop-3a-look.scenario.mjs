@@ -157,8 +157,9 @@ export default async function (api) {
     // ------------------------------------------------------------ sheets 2, 3, 5 need lanes B and C (the show, the card, the screens)
     if (sheets.includes('giants')) {
       K.step('sheet 2: the giants\' shows (a forced bite at each place)');
+      // (the Thousandcast twice: a Prize, z 1.2, and an Elder, z 2.9: the Elder starts at z 2.65, so the first run's 2.6 was a Trophy; the stage)
       await K.places.lift('all', { play: false });
-      for (const [sp, id, light, z] of [['thousandcast_pike', 'under_the_span', 'dusk', 1.2], ['thousandcast_pike', 'under_the_span', 'dusk', 2.6], ['hullkiss_lamprey', 'buoy_lights', 'gloomtide', 1.2], ['belled_matriarch', 'bell_pool', 'calm', 1.0]]) {
+      for (const [sp, id, light, z] of [['thousandcast_pike', 'under_the_span', 'dusk', 1.2], ['thousandcast_pike', 'under_the_span', 'dusk', 2.9], ['hullkiss_lamprey', 'buoy_lights', 'gloomtide', 1.2], ['belled_matriarch', 'bell_pool', 'calm', 1.0]]) {
         await K.places.light(light, 0.45); await K.places.at(id, {}); await settle(1.5);
         const ok = await g(([sp, z]) => { const d = window.__gw.debug; try { window.__gw.fishing.cancel?.('debug'); d.fishOutcome?.('land'); d.forceBite?.({ speciesId: sp, z, wait: 0.2 }); return true; } catch { return false; } }, [sp, z]);
         if (!ok) { K.note(`no forceBite for ${sp}`); continue; }
@@ -189,7 +190,7 @@ export default async function (api) {
       await K.places.unlift(); await K.places.light('dusk', 0.4); await K.places.at('lily_maze', { back: 14 }); await settle(1.5);
       await K.places.lift('lily_maze', { play: true }); await K.secs(3.3);
       await frame('hud', 'title-card', 'the lift\'s title card');
-      await K.secs(2);
+      await K.until('!c.game.lifting?.() && !c.cinematic', 6); await K.secs(2.5);   // (the HUD back after the lift: the stage)
       await frame('hud', 'hold-row-6', 'the hold row at Hold 6 (the Wick: six cells)');
       // Tallow's seven: one row on the desktop, two on the phone (T141)
       await K.toHomeVia();
