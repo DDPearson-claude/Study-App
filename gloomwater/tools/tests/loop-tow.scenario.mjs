@@ -57,6 +57,7 @@ export default async function (api) {
       await K.settle();
       K.need((await K.until("c.debug.ui().openModal === 'newdescent'", 2)).ok, 'the New Descent panel');
       await K.tap('[data-modal=newdescent] button.gw-char[data-wick=taper]');
+      for (let i = 0; i < 12 && !(await g(() => !!window.__lp.one('[data-modal=newdescent] [data-action=start]'))); i++) await K.settle(300);   // (the panel's fade, on the wall clock)
       const st = await g(() => { const c = window.__gw, T = window.__lp; T.ev.length = 0; T.sim = 0; const b = T.one('[data-modal=newdescent] [data-action=start]'); if (!b) return null; b.click(); return { flow: c.flow }; });
       K.need(st && st.flow === 'intro', 'Start plays the film at once', st);
       await g(() => window.__lp.runTo(0.6));

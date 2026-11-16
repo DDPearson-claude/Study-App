@@ -376,5 +376,45 @@ section('playTow(water): the same component for a later water (no Landing beats)
   ok(E.T.playTow('sporewood') === false, 'no leg, no tow');
 }
 
+section('never stranded: the flow leaving home drops the tow; the tutorial done or its screen closed cuts it to the mooring');
+{
+  // the flow leaves home mid-leg (Settings' Forget everything, the title): dropped, nothing called
+  const A = towEnv();
+  A.H.enterHome('intro');
+  await A.until(() => A.T.phase === 'leg');
+  A.ctx.flow = 'title';
+  await A.step(0.1);
+  ok(A.T.phase === null && A.view.on === false && !A.names().includes('home:enter'), 'the flow left home: the tow dropped, its screen closed, no home:enter');
+  // the tutorial marked done under the Landing (a debug build's shortcut): cut to the mooring, written as begun, home:enter
+  const B = towEnv();
+  B.H.enterHome('intro');
+  await B.until(() => B.T.phase === 'arrive');
+  B.loop.s.tutorial = { done: true, step: null };
+  await B.step(0.1);
+  ok(B.T.phase === null && B.loop.s.barge.towed.includes('mossmere') && B.names().includes('home:enter'), 'the tutorial done: cut to the mooring (barge.towed, home:enter)');
+  eq([B.player.position.x, B.player.position.z], [MOOR.raft.x, MOOR.raft.z], '… the raft at the stern');
+  ok(B.ctx.actors.home.poses.at(-1).x === MOOR.hull.x, '… the barge at its mooring');
+  // its screen closed by another (ui.closeAll) during the wake: cut, the save written first
+  const C = towEnv();
+  C.view.isOpen = function () { return this.on; };
+  C.H.enterHome('intro');
+  await C.until(() => C.T.phase === 'wake');
+  C.view.on = false;
+  await C.step(0.1);
+  ok(C.T.phase === null && C.loop.s.barge.towed.includes('mossmere') && C.saves.some((x) => x.towed.includes('mossmere')) && C.names().includes('home:enter'), 'its screen closed under it: cut (towed and saved), home:enter');
+  // the debug build's cut, and Continue before the tow resuming at the wake with no arrive beat
+  const E = towEnv();
+  E.H.enterHome('intro');
+  await E.until(() => E.T.phase === 'leg');
+  ok(E.T.debug('cut') === true && E.T.phase === null && E.names().includes('home:enter'), 'debug(\'cut\'): the tow at its end at once');
+  ok(E.T.debug('cut') === false, '… and nothing to cut after');
+  const R = towEnv({ flow: 'title' });
+  R.H.enterHome('title');
+  await R.until(() => R.T.phase === 'wake');
+  ok(!R.T.state().marks.some((m) => m.what === 'arrive'), 'Continue before the tow: the dip, then the wake (no arrive beat)');
+  const M = R.T.state().marks, at = (w) => M.find((m) => m.what === w)?.sim;
+  near(at('wake') - at('dipIn'), D.LOOP.tow.landing.dip, 'the marks on the tow\'s own clock: the dip 0.6 s', 0.05);
+}
+
 console.log(`\nloop-tow: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
