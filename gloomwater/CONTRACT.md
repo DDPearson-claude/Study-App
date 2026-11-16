@@ -2220,3 +2220,31 @@ its leg on the Chart, one ink dip, the glide in to the water's mooring. In M1 on
 | `ui-catalogue-murk.js` | `createMurkBook(deps)` → `{render, onKey, debug, slow, go, pageOf}`; its CSS (`#gw-mb-css`, classes `gw-book*`, `gw-mb-*`, `gw-plate*`); the page's sound `book_page` added to the sfx table under the loop only |
 
 Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (a plate; its tap marks it), `[data-buy=<id>]` (the order line "Buy · <price>" in the book's foot, the buy), `[role=tab].gw-tab[data-chapter]` (the fore-edge tabs: the tab words and `Odds ›`), `.gw-murk-line`, `[data-loop=orders]` (lane 4's slate, on the cover), `.gw-shelf-odds` (on the gear log's page), `[data-seal]`, `[data-place]`, `[data-sealed]`, `[data-action=prev|next|close]`. Keys: ←/→ and PageUp/PageDown turn a leaf, Home/End the cover and the last page, `[`/`]` a chapter. `ctx.ui.loop.murkBook.debug()` → `{layout, page, spread, count, chapters, goalPage, marked, turning}`. Words: `TEXT_LOOP.goods` (`name`, `buy`), on `textAllowed` and checked by `validate-data --loop`. Tests: `tools/tests/murk-catalogue.test.mjs`; `tools/tests/murk-catalogue-look.scenario.mjs`; `loop-1a`'s `K.buyBox` (find the plate, tap it, return the order line), `loop-4`, `loop-5b`, `loop-4-look`.
+
+### 14.18 The Wick's sheet, "Taper's Sheet" (`docs/loop/SHEET.md` v2; SPEC v8.8 §8.12, decisions 105–110; the user's answers 41–43)
+
+- **`src/loop-sheet.js`** (pure; imports `watercraft.js`, `fishing-reel.js`, `loop-gear.js`, `loop-finds.js`, `home-shelf.js` only):
+  `sheetModel(meta, D, {run, view, live, cast, shelf, stats})` → the page in ids and numbers (§7.1's `Sheet`); `sheetKeys(metaLoop, D)`;
+  `sizeOdds(mu, {min, cap, classes, ancient})` (the size roll's truncated normal; `classOdds` at the floor −2); `favourHere(D, metaLoop,
+  {place, light, bait, lure, quiet, mercy})`; `moveOf`; `passiveExact(D, wickId, waterId)`; `whoBites(D, {place, area, light, lure, bait,
+  wickId, rb})`; `plainRb`; `LIGHT_PHASE` (day → `'calm'`, dusk → `'dusk'`, night → `'gloomtide'`: every call takes the game's phase).
+- **`watercraft.openMix(D, {light, lure, bait, wickId, rb})`**: the blind caster's open-water mix at one hour with the rarity bonus;
+  the private `eveningMix` sums it at rb 0, so `bitesTable` is unchanged.
+- **`ctx.progression.loop.sheet(view, live, cast)`** (the model on the live save and run, Murk's shelf passed in) and
+  **`loop.markSheetSeen(keys)`** (owned keys only, each once); both in `LOOP_METHODS` and `fakeLoop`. **`meta.loop.sheetSeen`**:
+  `[]` on a fresh save; `migrateLoop` seeds it at its top with `sheetKeys` (an older save opens with no marks).
+- **The Hold rule** (SHEET §8.1): a loop-only data patch in `data.js`'s loop apply block gives each hook item's `CATCH_V3.items` record a
+  `species` list (its `watercraft.gradeTargets`, then every species with no hook row by the built rule); `catchItemHold`'s text is
+  untouched; `family` and `attract` stay for the sim's fallback. `catchParts` equals the sim's `landP` (S3).
+- **`fishing.lastCastArea()`** (read-only, the user's answer 41: "where you last cast"): the last landed cast on a trip
+  `{area, place, water}` or null. The sheet opens its Odds there once a spot has been fished and never names the area.
+- **`ctx.ui.openSheet({from, section, pin, view})`** (`screens.openSheet`): `from` ∈ `pause`, `ledger`, `rack`, `odds`, `species`,
+  `book`; `section` `'odds'` | `'tackle'`; refused while a line is out. The interiors' seam (BARGE-INSIDE §4.3): the ledger calls
+  `openSheet({from: 'ledger'})`, the rod rack `openSheet({from: 'rack', section: 'tackle'})`. `ctx.ui.sheet.model(view)` (debug and
+  scenarios). `screens.openTackle` under the loop opens the sheet's Odds; `screens.sheetItem(o)` the pause menus' item.
+- **The home target `rack`** (`home-targets.TARGET_ORDER` after `journal`; `TARGET_BOXES.rack` from deck + 1.0; no word slot in
+  `frameCheck` or `placeTargets`; `actors-home.targetBoxes`; `ui-loop.homeTargetIds` → `['murk', 'chart', 'journal', 'rack', …wall]`).
+- **Words**: `TEXT_LOOP.sheet` (the title, two heads, five exact lines, the cast line, the effect words, the moves, the size labels,
+  "Where you last cast", "Quiet water", accessible names); `ui-loop.textAllowed(t, {screen: 'sheet'})` passes its number forms and its
+  filled templates. Odds live on this page and nowhere else.
+- **Files**: `src/loop-sheet.js`, `src/ui-sheet.js`, `tools/tests/loop-sheet.test.mjs` (S1–S14), `tools/tests/loop-sheet.scenario.mjs`.

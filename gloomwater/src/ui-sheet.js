@@ -136,7 +136,8 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
       if (p.slot === 'baitBed') nx.tin = p.next.n;
     }
     out.lines = out.lines.filter(Boolean);
-    out.next = nx;
+    out.next = p.owned || p.slot === 'hold' ? nx : null;
+    out.shelfId = !p.owned && p.slot !== 'hold' && p.next ? p.next.id : null;   // (not owned yet: no line, no number; a tap at home opens the book there)
     return out;
   };
   const raft = { head: T.tabs?.raft || 'Raft', plates: arr(M.raft).map(raftPlate), looks: arr(M.raftLooks).map((l) => ({ key: l.key, name: l.found ? findName(l.id) : lookName(l.id), fresh: !!l.fresh })) };
@@ -198,7 +199,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
 export function sheetStrings(v) {
   const out = [];
   const walk = (x, k = '') => {
-    if (typeof x === 'string') { if (!['id', 'key', 'slot', 'kind', 'glyph', 'cls', 'hour', 'fresh'].includes(k)) out.push(x); }
+    if (typeof x === 'string') { if (!['id', 'key', 'slot', 'kind', 'glyph', 'cls', 'hour', 'fresh', 'shelfId'].includes(k)) out.push(x); }
     else if (Array.isArray(x)) x.forEach((y) => walk(y, k));
     else if (isObj(x)) for (const [kk, y] of Object.entries(x)) if (!['art', 'effect', 'jump'].includes(kk) || kk === 'effect') walk(y, kk);
   };
@@ -533,6 +534,13 @@ export function createSheetView(K) {
         more.appendChild(d);
         if (n.extra) { const x = document.createElement('div'); x.className = 'gw-sh-cmp'; if (n.night) x.innerHTML = `<span class="gw-sh-night">${icon('moon')}</span>`; x.appendChild(document.createTextNode(n.extra)); more.appendChild(x); }
         if (n.compare) { const x = document.createElement('div'); x.className = 'gw-sh-cmp'; x.textContent = n.compare; more.appendChild(x); }
+      }
+      if (p.shelfId && ctx.flow === 'home' && !trip()) {
+        el.setAttribute('role', 'button'); el.tabIndex = 0; el.setAttribute('aria-label', p.name);
+        const go = (e) => { e.stopPropagation(); K.sfx?.('ui_click'); try { K.loop?.openShelf?.({ focus: p.shelfId }); } catch (er) { report('shelf', er); } };
+        el.addEventListener('click', go);
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(e); } });
+        return el;
       }
       if (lay === 'phone') {
         el.setAttribute('role', 'button'); el.tabIndex = 0;
