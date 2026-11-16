@@ -182,6 +182,7 @@ export function create(ctx) {
     playT: 0, beatI: -1, evI: 0, playCls: null, towDone: 0, panYaw: 0, panFrom: null, hurry: false, estimated: false,
     reveal: null, lostT: 0, noteSent: false, lostInfo: null, forceOutcome: null, forceCause: null, strikeT: -1,
     hookedNight: null, letPassTip: false, hurryTip: false, tutorial: null, tutorialPlays: 0, lastInput: null,
+    mist: null,   // the loop (M1 step 3a): a cast into a bank, {placeId, x, z, wisps} while its float is under
   };
   const V = {
     raft: new THREE.Vector3(), aimDir: new THREE.Vector3(0, 0, -1), aimPoint: new THREE.Vector3(), target: new THREE.Vector3(),
@@ -390,6 +391,42 @@ export function create(ctx) {
   }
   /** Quiet water on a trip (SPEC §3.3): no good bites left where the line is (or the raft is). */
   function loopQuietNow() { const n = loopBitesLeft(waterKeyNow()); return n !== null && n <= 0; }
+  // ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 items 1–4): the pool by place, the places' rules, the mist, the legend's pool.
+  // Every branch is a trip's (LOOP()); off a trip placeAt, speciesPool, capZ and legendInfo are as built (T132).
+  /** The ledger's place maps as sets {owned, lifted}, or null (no ledger in this build: the places as built, PLAN §3's stub rule). */
+  function loopPlaceSets() {
+    const L = loopApi();
+    if (!L) return null;
+    let ml = null, lifted = null;
+    try { ml = L.state?.(); lifted = L.lifted?.(); } catch (e) { report(e); return null; }
+    const owned = ml?.maps?.places;
+    if (!Array.isArray(owned)) return null;
+    return { owned: new Set(owned), lifted: new Set(Array.isArray(lifted) ? lifted : Array.isArray(ml.lifted) ? ml.lifted : []) };
+  }
+  /** On a trip a place is mist until its map is owned and its lift has played (PLAN §2.2 items 2–3): a cast there is a mist cast. */
+  function placeMist(p, sets = loopPlaceSets()) { return !!p && LOOP() && !!sets && (!sets.owned.has(p.id) || !sets.lifted.has(p.id)); }
+  /** A legend's bait (the Heartmoss Ball): on the line it is a bare hook to every fish but hers (PLAN CHOICE 5). */
+  const legendBaitId = (id) => !!id && !!baitById(id)?.legend;
+  /** data.placePool (the sim's pool rule) for this trip's water: at a place (null: open water), in this light, on this bait; or null. */
+  function loopPool(baitId, phase, placeId) {
+    const f = D().placePool;
+    if (typeof f !== 'function') return null;
+    try { return f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(baitId) ? null : (baitId ?? null), wickId: wickId(), water: lakeId() }) || null; } catch (e) { report(e); return null; }
+  }
+  /** Her pool on a trip (PLAN CHOICE 4): the cast is in the owned, lifted place whose legend she is (the Bell Pool's whole water). */
+  function loopLegendWater(lg) {
+    const p = S.cast?.place;
+    return !!p && !S.cast.mist && D().LOOP?.places?.[p.id]?.legend === lg?.species?.id;
+  }
+  /** Her pool is open on this trip: the place that holds her is owned and lifted (until then her water is a bank). */
+  function loopLegendOpen(lg) {
+    const sets = loopPlaceSets(), P = D().LOOP?.places || {};
+    if (!sets) return true;
+    for (const id of Object.keys(P)) if (P[id]?.legend === lg?.species?.id) return sets.owned.has(id) && sets.lifted.has(id);
+    return true;
+  }
+  /** main's game.lifting(): a place's lift is playing (no cast while it does, T128). */
+  function liftingNow() { try { const p = ctx.game?.lifting?.(); return typeof p === 'string' && !!p; } catch { return false; } }
   const round2 = (v) => Math.round(v * 100) / 100;
   function nightMode() {
     const m = run()?.nightMode;
@@ -464,6 +501,12 @@ export function create(ctx) {
     if (!place) for (const g of giantSpots()) if (inGiantSpot(g, x, z)) { gs = g; break; }
     const out = { place, giantSpot: gs, giant: place ? placeHoldsGiants(place) : !!gs, pressureKey: place?.id || gs?.id || null };
     if (LOOP_DATA) out.waterKey = loopKey(place?.id ?? null);   // the loop's bite count key (castInfo copies it into S.cast)
+    if (place && LOOP()) {
+      // M1 step 3a: a place not owned, or not lifted yet, is mist (its key is kept: no bite is ever spent there); night water
+      // before the gloomtide is open water (PLAN CHOICE 3: its key, pool, good bites and favour are open water's until dark)
+      if (placeMist(place)) out.mist = place.id;
+      else if (place.kind === 'night' && phaseNow() !== 'gloomtide') { out.place = null; out.giant = false; out.pressureKey = null; out.waterKey = loopKey(null); }
+    }
     return out;
   }
   /** Pressure at a place (or stopgap giant water): −0.12 per catch there today, floor −0.6. Progression owns the count (it
@@ -502,15 +545,18 @@ export function create(ctx) {
    *  clear water, signs, let it pass, pressure. */
   function baseTerms(info) {
     const Fv = BAL('favour'), T = Fv.tackle || {}, H = Fv.hour || {}, out = [];
+    const trip = LOOP();
     if (info.place) {
-      out.push(placeAstir(info.place.id) ? { family: 'place', id: 'astir', value: num(Fv.place?.astir, 0.35) }
+      // the loop (M1 step 3a): a place's favour by its kind, LOOP.place.favour (base + its window: day +0.55 … crown +0.35, SPEC §3.3)
+      const LF = trip ? D().LOOP?.place?.favour : null;
+      if (LF) out.push({ family: 'place', id: info.place.kind || 'inside', value: round2(num(LF.base, 0.15) + num(LF.window?.[info.place.kind], 0)) });
+      else out.push(placeAstir(info.place.id) ? { family: 'place', id: 'astir', value: num(Fv.place?.astir, 0.35) }
         : { family: 'place', id: 'inside', value: num(Fv.place?.inside, 0.15) });
     }
     const ph = info.phase;
     if (ph === 'dusk') out.push({ family: 'hour', id: 'dusk', value: num(H.dusk, 0.2) });
     else if (ph === 'dawn') out.push({ family: 'hour', id: 'dawn', value: num(H.dawn, 0.2) });
     else if (ph === 'gloomtide') out.push({ family: 'hour', id: 'nightRise', value: num(H.nightRise, 0.25) });   // every night mode
-    const trip = LOOP();
     if (info.condition === 'hush' && !trip) out.push({ family: 'hour', id: 'hush', value: num(H.hush, 0.2) });
     let fw = null;
     try { fw = prog()?.getFarWater?.(); } catch { /* optional (P3) */ }
@@ -558,11 +604,13 @@ export function create(ctx) {
     if (tr?.speciesId === sp.id && (!tr.place || tr.place === info.place?.id) && (!tr.zone || tr.zone === zoneData()?.id)) {
       out.push({ family: 'match', id: 'rumour', value: num(Fv.match?.rumour, 0.3) });
     }
+    if (sp?.giant && LOOP()) out.push({ family: 'place', id: 'giant', value: num(D().LOOP?.giant?.favour, 0.3) });   // M1 step 3a: a giant runs big
     return out.filter((t) => t.value);
   }
   /** Cast context for the favour formula at the bobber (refreshed: the hour, the condition and the rumour can change). */
   function castInfo(x, z, depth, baitId = S.castBait, clean = !!S.clean) {
     const w = waterInfo(x, z);
+    if (LOOP() && legendBaitId(baitId)) baitId = null;   // M1 step 3a: the ball is a bare hook to every fish but her (no bait favour)
     return { x, z, depth, ...w, baitId, clean, lure: equippedLure(), sign: null, letPass: 0,
       phase: phaseNow(), condition: condition(), rumour: todaysRumour() };
   }
@@ -573,7 +621,7 @@ export function create(ctx) {
     if (S.favourOverride != null) return { mu: S.favourOverride, terms: [{ family: 'debug', id: 'setFavour', value: S.favourOverride }] };
     const base = baseTerms(info);
     if (sp) { const terms = [...base, ...speciesTerms(sp, info)]; return { mu: sumFavour(terms, cap), terms }; }
-    const pool = speciesPool(info.depth, info.baitId, info.phase).filter((q) => q.size);
+    const pool = speciesPool(info.depth, info.baitId, info.phase, info.place?.id ?? null).filter((q) => q.size);
     const pref = info.rumour?.speciesId ? pool.find((q) => q.id === info.rumour.speciesId) : null;
     return floatFavour(base, pool.map((q) => speciesTerms(q, info)), cap, pref ? speciesTerms(pref, info) : null);
   }
@@ -601,9 +649,9 @@ export function create(ctx) {
       z = S.forceZ != null ? S.forceZ : rollZ(0, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1) });
       S.mu = 0; S.favourTerms = [];
     } else {
-      const f = favourAt(info, sp);
-      const cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ });
-      z = S.forceZ != null ? S.forceZ : pre != null ? pre : rollZ(f.mu, rnd, { min: num(SZ.z?.min, -2), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
+      const f = favourAt(info, sp), trip = LOOP();
+      const cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ, loop: trip });
+      z = S.forceZ != null ? S.forceZ : pre != null ? pre : rollZ(f.mu, rnd, { min: giantMinZ(sp, num(SZ.z?.min, -2), trip), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
       S.mu = f.mu; S.favourTerms = f.terms.filter((t) => t.value);
     }
     S.forceZ = null; S.prerollZ = null;
@@ -615,6 +663,8 @@ export function create(ctx) {
     S.weight = kg < 1 ? Math.round(kg * 1000) / 1000 : Math.round(kg * 100) / 100;
   }
   const classOf = (id) => (D().SIZE_CLASSES || []).find((c) => c.id === id) || null;
+  /** The lowest z a species may roll: a giant on a trip is never Small (LOOP.giant.minZ, M1 step 3a); every other fish the built min. */
+  function giantMinZ(sp, min, trip = LOOP()) { return trip && sp?.giant ? Math.max(min, num(D().LOOP?.giant?.minZ, -0.25)) : min; }
 
   let legendCache = { zone: undefined, info: null };
   function legendInfo() {
@@ -659,6 +709,7 @@ export function create(ctx) {
     if (clearCatch) { releaseCatch(); view.measure = null; view.show = null; }
     S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
     S.comeback = null; S.taperRule = false;
+    if (S.mist) { S.mist = null; fx.setMistFloat(false); }
     S.reel = null; S.holding = false; S.summons.length = 0; S.snags.length = 0; S.bannerT = -1;
     S.plan = null; S.plan0 = null; S.loss = null; S.reveal = null; S.lostInfo = null; S.p = null; S.draws = null; S.outcome = null; S.hurry = false; S.panFrom = null;
     if (S.glowIgnite) { try { S.glowIgnite.fv.setRevealLight?.(0); } catch { /* disposed */ } }
@@ -776,9 +827,11 @@ export function create(ctx) {
     return full;
   }
   function startCharge() {
+    if (LOOP() && liftingNow()) return;   // (M1 step 3a: no cast while a place's mist lifts, T128)
     if (holdRefuses()) return;
     if (S.catchFv) releaseCatch();
     if (state === 'lost') {   // a new cast interrupts the reel-in
+      if (S.mist) { S.mist = null; fx.setMistFloat(false); }
       api.bobberPos = null;
       aBob(false);
       aLine(false);
@@ -871,6 +924,10 @@ export function create(ctx) {
     call(() => ctx.water?.addRipple?.(x, z, 0.9));
     fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.15, r1: 1.3, duration: 0.8, alpha: 0.7 });
     S.spot = null; S.rareSpot = false;
+    if (LOOP()) {   // M1 step 3a: a cast into a bank (a place not owned, or not lifted yet) bites nothing (PLAN §2.2 item 3, T121)
+      const mist = waterInfo(x, z).mist;
+      if (mist) { emit('fishing:land', signsOn() ? { position: V.bob.clone(), sign: null, inSign: false } : { position: V.bob.clone() }); mistCast(mist, x, z); return; }
+    }
     if (signsOn()) {
       // v3 (F6): which sign's cast rule this landing meets (Murk's Chum makes its own nervous sign here first)
       S.signHit = null; S.prerollSp = null; S.prerollZ = null; S.prerollSign = null; S.prerollTook = false;
@@ -927,8 +984,45 @@ export function create(ctx) {
     setState('waiting');
   }
 
-  /** The species that can bite here (zone, hour, depth band, bait), with today's fallbacks. */
-  function speciesPool(depth, baitId, phase) {
+  // ---- M1 step 3a: a cast into a bank (PLAN §2.2 item 3, T121). The float settles, sinks into the bank and comes back (fishing-fx's
+  // float glow and wisps: the actor's float hides while it is under), then the line comes in as after any pass: back to idle in
+  // under 2.5 s. No bite and nothing spent: no fishing:bite, the cast's general bait goes back to the bag, no favour, no sign.
+  const MIST_T = { settle: 0.18, sink: 0.45, under: 0.3, rise: 0.45 };
+  function mistCast(placeId, x, z) {
+    if (S.castBait && !legendBaitId(S.castBait)) { try { prog()?.refundBait?.(S.castBait); } catch (e) { report(e); } }
+    S.species = null; S.events = []; S.evIdx = 0; S.legendCast = false; S.signHit = null;
+    S.depth = depthAt(x, z); view.depth = S.depth;
+    toLost(num(BAL('cast').reelInTime, 0.6));   // (resetView: no cast, no float favour, no place)
+    S.mist = { placeId, x, z, wisps: 0 };
+    emit('fishing:mist', { placeId });
+  }
+  function updateMist(dt) {
+    const M = S.mist, T = MIST_T, t = S.stateT, h = waterH(M.x, M.z);
+    const a = T.settle, b = a + T.sink, c = b + T.under, d = c + T.rise;
+    if (t < a) { V.tmp.set(M.x, h, M.z); aBob(true, V.tmp, 'floating'); aLine(true, V.tmp, 0.05, 0.7); return; }
+    if (t < d) {
+      // under: 0 (on the water) → 1 (gone into the bank), and back
+      const u = t < b ? (t - a) / T.sink : t < c ? 1 : 1 - (t - c) / T.rise, e = u * u * (3 - 2 * u);
+      if (M.wisps === 0) { M.wisps = 1; fx.mistWisps(M.x, M.z, 1); call(() => ctx.water?.addRipple?.(M.x, M.z, 0.45)); }
+      if (M.wisps === 1 && t >= c) { M.wisps = 2; fx.mistWisps(M.x, M.z, 0.55); }
+      aBob(false);
+      V.tmp.set(M.x, h - 0.42 * e, M.z);
+      aLine(true, V.tmp, 0.08, 0.5);
+      fx.setMistFloat(true, M.x, h - 0.42 * e, M.z, 1 - e);
+      return;
+    }
+    // back on the water: the line comes in (updateLost's reel-in from the float)
+    fx.setMistFloat(false);
+    S.mist = null;
+    V.bob.set(M.x, 0, M.z);
+    S.lostDur = num(BAL('cast').reelInTime, 0.6); S.lostLine = true; S.stateT = 0;
+    V.tmp.set(M.x, h, M.z); aBob(true, V.tmp, 'floating');
+  }
+
+  /** The species that can bite here (zone, hour, depth band, bait), with today's fallbacks. On a trip (M1 step 3a): the place pool's
+   *  species at `placeId` (undefined: the cast's place), the giant left out (its share is drawn apart, never in a float or a sign). */
+  function speciesPool(depth, baitId, phase, placeId) {
+    if (LOOP()) { const pp = loopPool(baitId, phase, placeId === undefined ? (S.cast?.place?.id ?? null) : placeId); if (pp) return pp.list.map(([s]) => s); }
     const z = zoneData();
     const zoneId = z?.id || run()?.zone;
     const all = (D().SPECIES || []).filter((s) => s.zone === zoneId && s.rarity !== 'legendary');
@@ -937,7 +1031,36 @@ export function create(ctx) {
     if (!pool.length) pool = all.length ? all : (D().SPECIES || []).filter((s) => s.rarity !== 'legendary');
     return pool;
   }
+  /**
+   * The pool by place (M1 step 3a, PLAN §2.2 item 1): data.placePool at the cast's place in this light on this bait (the sim's rule),
+   * with the built multipliers that apply on a trip on the rest (the rarity bonus, a sign's family tilt, Taper's first bite), then the
+   * giant's weight last from its fixed share of that rest (its offHour share outside its hours), so the share stays exact. One draw.
+   * undefined when this data has no placePool (the built roll).
+   */
+  function rollSpeciesLoop(rb, baitId, famMult, rng) {
+    const pp = loopPool(baitId, phaseNow(), S.cast?.place?.id ?? null);
+    if (!pp) return undefined;
+    const pool = pp.list.map(([s]) => s);
+    const w = pp.list.map(([s, w0]) => {
+      let v = num(w0, 0);
+      if (s.rarity === 'uncommon') v *= 1 + 2 * rb;
+      else if (s.rarity === 'rare') v *= 1 + 4 * rb;
+      if (famMult && s.family && famMult[s.family]) v *= famMult[s.family];   // v3 signs: predators × 3, bottom feeders × 2
+      return v;
+    });
+    // Taper's first bite of the evening (WICKS §2.2): the commons zeroed where the rest passes the sign rule; the giant keeps its share
+    const tw = taperWeights(pool, w);
+    if (tw !== w) { for (let i = 0; i < w.length; i++) w[i] = tw[i]; S.taperRule = w.reduce((a, b) => a + b, 0) > 0; }
+    const rest = w.reduce((a, b) => a + b, 0);
+    if (pp.giant && rest > 0) { const sh = num(pp.giant.share, 0); if (sh > 0 && sh < 1) { pool.push(pp.giant.sp); w.push(rest * sh / (1 - sh)); } }
+    const total = w.reduce((a, b) => a + b, 0);
+    if (!pool.length || !(total > 0)) return null;
+    let r = rng() * total;
+    for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
+    return pool[pool.length - 1];
+  }
   function rollSpecies(depth, rb, baitId, famMult = null, rng = Math.random, trip = false) {
+    if (LOOP()) { const sp = rollSpeciesLoop(rb, baitId, famMult, rng); if (sp !== undefined) return sp; }
     const phase = phaseNow();
     const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
     const attract = baitById(baitId)?.bonus?.attract || [];
@@ -982,8 +1105,9 @@ export function create(ctx) {
     S.legendCast = false;
     S.taperRule = false; S.comeback = null;   // (the loop's per-cast marks: Taper's rule served, Ashwick's comeback)
     const lg = legendInfo();
+    // (a trip, M1 step 3a: her pool is the owned, lifted place that holds her, PLAN CHOICE 4)
     if (lg && baitId && baitId === lg.baitId && timeOk(lg.species, phase) && S.clock >= S.legendDimUntil
-      && Math.hypot(V.bob.x - lg.x, V.bob.z - lg.z) <= lg.r) S.legendCast = true;
+      && (LOOP() ? loopLegendWater(lg) : Math.hypot(V.bob.x - lg.x, V.bob.z - lg.z) <= lg.r)) S.legendCast = true;
     let sp;
     const rule = signsOn() ? S.signHit?.rule : null;   // v3 (F6): the sign this cast landed in
     if (S.forceSpecies) { sp = S.forceSpecies; S.forceSpecies = null; S.legendCast = sp.rarity === 'legendary'; }   // debug forceBite({speciesId})
@@ -1395,7 +1519,13 @@ export function create(ctx) {
     const lo = S.castLoadout || loadoutNow();
     const buffs = catchBuffsNow(cls);
     const ls = legendary ? legendState(sp.id) : { wounds: 0, landings: 0 };
-    const mods = { lake: lakeId(), strike: grade, buffs, marked: false, wounds: ls.wounds, landings: ls.landings, night: phaseNow() === 'gloomtide', perRun: lo.perRun ?? !!lo.hold };
+    // the loop (M1 step 3a): a Marked giant's next hook remembers the last one (+6 Hold, once: the ledger's takeGiantMark); her hook
+    // spends the ball (loop.spendBait: the one place it is spent, PLAN CHOICE 5)
+    const trip = LOOP();
+    let marked = false;
+    if (trip && sp.giant && !legendary) { try { marked = loopApi()?.takeGiantMark?.(sp.id) === true; } catch (e) { report(e); } }
+    if (trip && legendary) { try { loopApi()?.spendBait?.(S.castBait || sp.bait); } catch (e) { report(e); } }
+    const mods = { lake: lakeId(), strike: grade, buffs, marked, wounds: ls.wounds, landings: ls.landings, night: phaseNow() === 'gloomtide', perRun: lo.perRun ?? !!lo.hold };
     let p = null;
     try { p = d.catchChance(sp.id, cls, lo, mods); } catch (e) { report(e); }
     S.p = Number.isFinite(p) ? p : num(d.CATCH_V3?.floor, 0.01);
@@ -1730,7 +1860,8 @@ export function create(ctx) {
     cm = Math.max(step, Math.round(cm / step) * step);
     const place = S.cast?.place?.id || null;
     const mf = G.markedFrom || { openWater: 'elder', place: 'trophy' };
-    const markedFish = !legendary && classIndex(S.sizeClass) >= classIndex(place ? mf.place : mf.openWater);
+    // (the loop, M1 step 3a, PLAN CHOICE 22: a lost giant is a Marked Fish at any class; the ledger marks it for every Wick)
+    const markedFish = !legendary && ((!!sp.giant && LOOP()) || classIndex(S.sizeClass) >= classIndex(place ? mf.place : mf.openWater));
     emit('fish:escaped', { speciesId: sp.id, sizeClass: legendary ? null : S.sizeClass, ancient: !!S.ancient, z: S.z, approxLength: cm, reason: I.cause,
       place, x: Math.round(I.x * 100) / 100, zPos: Math.round(I.z * 100) / 100, markedFish, grade: S.grade, legendary, zone: lakeId() });
   }
@@ -2905,12 +3036,13 @@ export function create(ctx) {
     }
     // legend pool: always a faint ring of still water; a golden column when it is listening
     const lg = legendInfo();
-    if (!lg) { fx.setLegendPool(false); fx.clearSlot(LEGEND_SLOT); legendPoolInfo.active = false; api.legendPool = null; return; }
+    // (a trip, M1 step 3a: her water is a bank until the place that holds her is owned and lifted: no still ring in the mist)
+    if (!lg || (LOOP() && !loopLegendOpen(lg))) { fx.setLegendPool(false); fx.clearSlot(LEGEND_SLOT); legendPoolInfo.active = false; api.legendPool = null; return; }
     const r = run();
     const own = !!lg.baitId && num(r?.bait?.[lg.baitId], 0) > 0;
     const dim = S.clock < S.legendDimUntil;
     const active = own && timeOk(lg.species, phaseNow()) && !dim;
-    if (active && S.legendToastDay !== (r?.day ?? 0)) {
+    if (active && S.legendToastDay !== (r?.day ?? 0) && !LOOP()) {   // (the loop has no such toast: SPEC §8's words only)
       S.legendToastDay = r?.day ?? 0;
       emit('toast', { text: D().TEXT?.legendPoolToast || 'A golden stillness gathers far out…', kind: 'lore' });
     }
@@ -2941,7 +3073,13 @@ export function create(ctx) {
     const SZ = BAL('size');
     if (!SZ.z) return null;
     const depth = depthAt(x, z), phase = phaseNow(), baitId = equippedBaitId();
-    let pool = opts.species ? [opts.species] : speciesPool(depth, baitId, phase).filter((q) => q.size);
+    // a trip (M1 step 3a): the place pool at the sign's own water (never a bank's), its weights for the draw, and never a giant (a
+    // sign that carried one would lift its share past the fixed share the pool draws it at)
+    const trip = LOOP(), info0 = trip ? castInfo(x, z, depth, baitId, false) : null;
+    if (info0?.mist) return null;
+    const lw = trip ? loopPool(baitId, phase, info0.place?.id ?? null) : null;
+    const loopW = lw ? new Map(lw.list) : null;
+    let pool = opts.species ? [opts.species] : speciesPool(depth, baitId, phase, trip ? (info0.place?.id ?? null) : undefined).filter((q) => q.size && !(trip && q.giant));
     if (!pool.length) return null;
     if (!opts.species) {
       const pref = kind === 'rise' ? pool.filter((q) => num(q.depth?.[0], 0) <= 0.35)
@@ -2950,20 +3088,20 @@ export function create(ctx) {
       // keeps its look and cast effect but pre-rolls from the blind pool
       if (pref.length && (!afOn() || pref === pool || signTiltOk(pref))) pool = pref;
     }
-    const info = castInfo(x, z, depth, baitId, false);
+    const info = info0 || castInfo(x, z, depth, baitId, false);
     const minZ = kind === 'boil' ? num(SZ.classMaxZ?.keeper, 1.039) + 0.002 : num(SZ.z.min, -2);
-    const capOf = (q) => capZ({ species: q, place: info.place, giantWater: info.giant, size: SZ });
+    const capOf = (q) => capZ({ species: q, place: info.place, giantWater: info.giant, size: SZ, loop: trip });
     if (kind === 'boil') pool = pool.filter((q) => capOf(q) > minZ);
     if (!pool.length) return null;
     let sp = pool[0];
     if (pool.length > 1 && !opts.species) {
       const W = D().RARITY_WEIGHTS || { common: 70, uncommon: 24, rare: 6 };
-      let tot = 0; const w = pool.map((q) => { const v = num(W[q.rarity], 10); tot += v; return v; });
+      let tot = 0; const w = pool.map((q) => { const v = loopW ? num(loopW.get(q), 0) : num(W[q.rarity], 10); tot += v; return v; });
       let r = srnd() * tot;
       for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) { sp = pool[i]; break; } }
     }
     const f = favourAt(info, sp);
-    let zz = opts.z != null ? opts.z : rollZ(f.mu, srnd, { min: minZ, max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap: capOf(sp) });
+    let zz = opts.z != null ? opts.z : rollZ(f.mu, srnd, { min: giantMinZ(sp, minZ, trip), max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap: capOf(sp) });
     zz = Math.round(zz * 1e4) / 1e4;
     const cls = D().sizeClassOf(zz);
     const zone = zoneData()?.id || run()?.zone || null;
@@ -2987,10 +3125,13 @@ export function create(ctx) {
     const range = (kind === 'glow' ? signRange() * glowRangeMult() : signRange()) - 2;
     let pos = null;
     if (o.at && Number.isFinite(o.at.x)) pos = { x: o.at.x, z: o.at.z };
+    const sets = LOOP() ? loopPlaceSets() : null, inBank = (q) => !!sets && placeMist(placeAt(q.x, q.z), sets);   // M1 step 3a: no sign in a bank
+    if (pos && inBank(pos)) return null;
     for (let tries = 0; tries < 8 && !pos; tries++) {
       let p = null;
       try { p = ctx.world.randomWaterPoint?.({ from: raft, minDist: 6, maxDist: range, depthMin: num(BAL('spots').depthMin, 0.2), clearance: 3 }); } catch (e) { report(e); }
       if (!p || p.isStub || !Number.isFinite(p.x)) continue;
+      if (inBank(p)) continue;
       const clash = S.signs.some((s) => Math.hypot(s.position.x - p.x, s.position.z - p.z) < 7);
       const lg = legendInfo();
       const nearLegend = lg && Math.hypot(lg.x - p.x, lg.z - p.z) < lg.r + 3;
@@ -3561,7 +3702,9 @@ export function create(ctx) {
       try {
         if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) return null;
         const w = waterInfo(p.x, p.z);
-        return { giant: !!w.giant, waterKey: w.waterKey ?? loopKey(w.place?.id ?? null), placeId: w.place?.id ?? null };
+        const out = { giant: !!w.giant, waterKey: w.waterKey ?? loopKey(w.place?.id ?? null), placeId: w.place?.id ?? null };
+        if (w.mist) out.mist = true;   // (a trip, M1 step 3a: a place in its bank)
+        return out;
       } catch (e) { report(e); return null; }
     },
     /** Automatic fishing: the anchor (CONTRACT §13.7a) holds from the strike until the card or the got-away note: player ignores
@@ -3579,9 +3722,10 @@ export function create(ctx) {
         const sp = typeof species === 'string' ? speciesById(species) : species;
         const SZ = BAL('size');
         if (!sp || !SZ.z) return null;
-        let cap = capZ({ species: sp, place, giantWater: giant, size: SZ });
+        const trip = LOOP();   // (a trip, M1 step 3a: Elders by the place's loop kind; a giant never Small)
+        let cap = capZ({ species: sp, place, giantWater: giant, size: SZ, loop: trip });
         if (maxClass && SZ.classMaxZ?.[maxClass] != null) cap = Math.min(cap, SZ.classMaxZ[maxClass]);
-        return rollZ(num(mu, 0), rnd, { min: num(SZ.z.min, -2), max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap });
+        return rollZ(num(mu, 0), rnd, { min: giantMinZ(sp, num(SZ.z.min, -2), trip), max: num(SZ.z.max, 3.6), sd: num(SZ.z.sd, 1), cap });
       } catch (e) { report(e); return null; }
     },
     /** favourAt({x, z}, species?) -> {mu, terms}: with a species its full μ, without it the float's μ (CONTRACT §13.7). */
@@ -3726,6 +3870,21 @@ export function create(ctx) {
           fishReveal: () => (S.reveal ? { t: round2(S.reveal.t), dur: S.reveal.dur, k: round2(Math.min(1, S.reveal.t / Math.max(0.05, S.reveal.dur))), glory: fx.gloryState } : { glory: fx.gloryState }),
           fishPlay: () => (S.plan ? { t: S.playT, cls: S.playCls, outcome: S.outcome, p: S.p, draws: S.draws ? { ...S.draws } : null, end: S.plan.end, dur: S.plan.dur, loss: S.loss ? { ...S.loss } : null, grade: S.grade } : null),
           fishLinger: () => null,   // F16 (a passed Prize+ bite lingers) is not in this build
+          /** M1 step 3a (T122): n draws of the real rollSpecies at a place (null: open water) on a bait, as a cast there rolls them
+           *  (no sign, no Clean Cast; rb the rarity bonus): {place, mist, counts: {speciesId: n}}. A trip only. */
+          fishPoolRoll: (n = 1000, { place = null, bait = null, rb = 0 } = {}) => {
+            if (!LOOP()) return null;
+            const prevCast = S.cast, prevForce = S.forcePlace, prevTaper = S.taperRule;
+            try {
+              S.forcePlace = place || null;
+              const p = raftPos();
+              S.cast = castInfo(p.x, p.z, depthAt(p.x, p.z), bait, false);
+              if (S.cast.mist) return { place: null, mist: S.cast.mist, counts: {} };
+              const counts = {};
+              for (let i = 0; i < Math.max(0, n | 0); i++) { const sp = rollSpecies(S.depth, num(rb, 0), bait, null, rnd, true); const k = sp?.id ?? 'none'; counts[k] = (counts[k] | 0) + 1; }
+              return { place: S.cast.place?.id ?? null, mist: null, counts };
+            } catch (e) { report(e); return null; } finally { S.cast = prevCast; S.forcePlace = prevForce; S.taperRule = prevTaper; }
+          },
         });
       } else for (const k of ['fishSeed', 'fishing', 'fishSigns', 'preroll']) delete ctx.debug[k];
     },
@@ -3785,7 +3944,7 @@ export function create(ctx) {
             case 'bite': updateBite(dt); break;
             case 'reeling': if (afOn() && S.plan) stepPlay(dt, t); else updateReeling(dt, t); break;
             case 'landing': if (!S.show || S.show.phase === 'reveal') { if (S.reveal) updateRevealAF(dt); else if (!S.show) updateLanding(dt, t); } break;
-            case 'lost': if (S.lostInfo) updateLostAF(dt); else updateLost(dt); break;
+            case 'lost': if (S.lostInfo) updateLostAF(dt); else if (S.mist) updateMist(dt); else updateLost(dt); break;
             default: break;
           }
         } catch (e) { report(e); hardReset(); }

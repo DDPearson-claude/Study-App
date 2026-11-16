@@ -985,6 +985,27 @@ export function createFishingFx(ctx) {
     signs = { mesh, geo, A, B, C, D: Dt, n: 0 };
     return signs;
   }
+  // ---------------------------------------------------------------- the loop's cast into a bank (M1 step 3a; built on first use)
+  // The float's lit tip going down into the mist and coming back: two soft points (the tip and its halo, the actor float's amber),
+  // depth-tested so the lake's surface takes it as it sinks. Never a ring: what the bank does is the wisps' (mistWisps).
+  let mistPts = null;
+  const mistPos = new Float32Array(6), mistA = new Float32Array(2);
+  function buildMistFloat() {
+    if (mistPts) return mistPts;
+    const geo = new THREE.BufferGeometry();
+    const col = new Float32Array(6), size = new Float32Array([0.09, 0.42]);
+    tmpCol.set(0xffb066).multiplyScalar(2.0); col.set([tmpCol.r, tmpCol.g, tmpCol.b, tmpCol.r * 0.7, tmpCol.g * 0.6, tmpCol.b * 0.5]);
+    geo.setAttribute('position', new THREE.BufferAttribute(mistPos, 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute('aCol', new THREE.BufferAttribute(col, 3));
+    geo.setAttribute('aA', new THREE.BufferAttribute(mistA, 1).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute('aS', new THREE.BufferAttribute(size, 1));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+    const mat = additive({ uniforms: { uScale: scale }, vertexShader: PART_VS, fragmentShader: PART_FS });
+    mistPts = new THREE.Points(geo, mat);
+    mistPts.frustumCulled = false; mistPts.renderOrder = 7; mistPts.name = 'mist-float'; mistPts.visible = false;
+    group.add(mistPts); disposables.push(geo, mat);
+    return mistPts;
+  }
   const spotMeshes = () => group.children.filter((o) => o.name === 'spot-motes' || o.name === 'spot-shafts' || o.name === 'spot-rings' || o.name === 'spot-fish');
   const tintTmp = new THREE.Color();
 
@@ -1212,6 +1233,26 @@ export function createFishingFx(ctx) {
       const k = Math.max(1, Math.round(n / 3));
       fx.burst(x, y, z, { color: 0xece6d6, color2: 0xc9b8f0, count: k * 2, spread: 0.7 + L * 0.5, up: 2.4 + L * 0.6, gravity: 8, size: 0.04 + 0.015 * Math.min(L, 3), life: 0.8, drag: 0.8, radius: 0.1 + L * 0.3 });
       fx.burst(x, y + 0.05, z, { color: 0xffc27a, color2: 0xf3dca4, count: Math.max(1, n - k * 2), spread: 0.5 + L * 0.4, up: 1.9 + L * 0.5, gravity: 7, size: 0.035 + 0.012 * Math.min(L, 3), life: 0.75, drag: 0.8, radius: 0.08 + L * 0.25 });
+    },
+
+    /** The loop's cast into a bank (M1 step 3a): the float's lit tip at (x, y, z) going down into the mist; `alpha` its light (1 on
+     *  the water, 0 gone under). false hides it. */
+    setMistFloat(visible, x = 0, y = 0, z = 0, alpha = 1) {
+      if (!visible) { if (mistPts) mistPts.visible = false; return; }
+      const m = buildMistFloat();
+      m.visible = true;
+      const a = Math.max(0, Math.min(1, alpha));
+      mistPos[0] = x; mistPos[1] = y + 0.2; mistPos[2] = z;          // the tip, as the actor float carries it (0.2 m up)
+      mistPos[3] = x; mistPos[4] = y + 0.2; mistPos[5] = z;          // its halo
+      mistA[0] = a; mistA[1] = 0.55 * a;
+      m.geometry.attributes.position.needsUpdate = true; m.geometry.attributes.aA.needsUpdate = true;
+    },
+    get mistFloatVisible() { return !!mistPts?.visible; },
+    /** The bank closing over the float (k 1) or giving it back (k < 1): slow lavender wisps curling up off the water at (x, z). */
+    mistWisps(x, z, k = 1) {
+      const y = H(x, z) + 0.12, n = Math.max(3, Math.round(9 * k));
+      fx.burst(x, y, z, { color: 0x58507a, color2: 0x6c5f8c, count: n, spread: 0.32, up: 0.22, gravity: -0.18, drag: 1.1, size: 0.34 * (0.7 + 0.3 * k), life: 1.5, radius: 0.32 });
+      fx.burst(x, y + 0.05, z, { color: 0x7a6d9a, count: Math.max(2, Math.round(4 * k)), spread: 0.18, up: 0.12, gravity: -0.1, drag: 1.4, size: 0.2, life: 1.1, radius: 0.18 });
     },
 
     update(dt, t) {

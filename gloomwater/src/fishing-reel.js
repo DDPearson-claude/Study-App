@@ -347,10 +347,14 @@ export function inGiantSpot(g, x, z) {
 /**
  * The highest z a cast may roll (DESIGN §25.7.1): the species' maxClass; a place's maxClass (fry water); outside giant water a top
  * Trophy (size.elsewhereMaxZ). A `giantsKept` place lifts the elsewhere clamp and its own maxClass for its kept species only.
+ * `loop` (a trip on the loop's data): an Elder only in old water (place.kind 'old') or for a giant at its own place.
  */
-export function capZ({ species, place = null, giantWater = false, size }) {
+export function capZ({ species, place = null, giantWater = false, size, loop = false }) {
   const CM = size?.classMaxZ || {}, top = num(size?.z?.max, 3.6);
   let cap = Math.min(top, num(CM[species?.maxClass], num(size?.reachZ, top)));
+  // the loop (M1 step 3a, PLAN §2.2 item 2): Elders by the place's loop kind, in old water and for a giant at its own place, nowhere
+  // else (a loop place carries no maxClass or holdsGiants; giant water is never passed on a trip)
+  if (loop) return place?.kind === 'old' || (!!species?.giant && !!place && species.place === place.id) ? cap : Math.min(cap, num(size?.elsewhereMaxZ, 2.64));
   const kept = !!place && (place.kept?.includes?.(species?.id) || (species?.place && species.place === place.id));
   const keptLift = !!place?.giantsKept && kept;
   if (place?.maxClass && !keptLift) cap = Math.min(cap, num(CM[place.maxClass], cap));
