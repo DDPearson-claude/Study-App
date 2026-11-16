@@ -1891,7 +1891,7 @@ export function create(ctx) {
     // (the integration's fix, M1 step 5c: a find hauled in on the Mossmere under the loop drags no foam wake, whose flecks the raft's
     // lantern lit gold, and throws no rings: it stirs the bed, a slow trail of silt puffs behind it in the water's own dark (siltTrail))
     const silt = !!S.find && mossLoop();
-    if (silt) { if (F.wakeT <= 0) { F.wakeT = 0.32; siltPuff(px, pz, L); } }
+    if (silt) { if (F.wakeT <= 0) { F.wakeT = 0.42; siltPuff(px, pz, L); } }
     else if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
     F.rippleT -= dt;
     if (!lp && !silt && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
@@ -3567,14 +3567,19 @@ export function create(ctx) {
   const mossLoop = () => signsOn() && LOOP() && lakeId() === 'mossmere';
   const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null, silt: [] });
   // the haul of a find on the Mossmere (M1 step 5c; the integration's fix): the snag drags along the bed and the water behind it
-  // clouds with silt, puff after puff (the mud cloud's instance in its silt form, kind 9.1: murky, never gold, never a glint), each blooming and
-  // settling over SILT_LIFE s; none within SILT_KEEP m of the raft (never a disc round it), at most SILT_CAP alive
-  const SILT_LIFE = 4.5, SILT_KEEP = 2.4, SILT_CAP = 12;
+  // clouds with mud, puff after puff (the mud cloud's instance in its silt form, kind 9.1: darker than the water, never gold, never a
+  // glint), each blooming to at most SILT_R m and settling over SILT_LIFE s, a faint weed-line trailing it along the haul; no puff
+  // reaches within SILT_KEEP m of the raft (its bloom held short of it: never a disc round it), at most SILT_CAP alive
+  const SILT_LIFE = 6, SILT_KEEP = 2.4, SILT_CAP = 14, SILT_R = 2;
   function siltPuff(x, z, L) {
     const raft = raftPos();
-    if (!Number.isFinite(x) || !Number.isFinite(z) || Math.hypot(x - raft.x, z - raft.z) < SILT_KEEP + 0.4 * L) return false;
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
+    const dx = raft.x - x, dz = raft.z - z, dist = Math.hypot(dx, dz);
+    // (the shader's bloom reaches 1.1 × its radius at most; the weed-line trails away from the raft)
+    const R = Math.min(SILT_R, (dist - SILT_KEEP - 0.1) / 1.1);
+    if (!(R >= 0.4)) return false;
     const W2 = wc2(), list = W2.silt || (W2.silt = []);
-    list.push({ x, z, t0: S.clock, L: Math.max(0.3, Math.min(1.2, L)), seed: Math.random() });
+    list.push({ x, z, t0: S.clock, L: Math.max(0.3, Math.min(1.2, L)), seed: Math.random(), R, h: Math.atan2(dx, dz) });
     if (list.length > SILT_CAP) list.shift();
     return true;
   }
@@ -4048,9 +4053,9 @@ export function create(ctx) {
       for (let i = W2.silt.length - 1; i >= 0; i--) if (S.clock - W2.silt[i].t0 >= SILT_LIFE) W2.silt.splice(i, 1);
       for (const m of W2.silt) {
         const t = S.clock - m.t0;
-        PUSH.x = m.x; PUSH.z = m.z; PUSH.heading = 0; PUSH.kind = ANSWER_KIND.cloud + 0.1; PUSH.length = m.L;   // (the cloud's silt form)
-        PUSH.strength = clamp(t / 0.6, 0, 1) * (1 - smoothstep(SILT_LIFE * 0.45, SILT_LIFE, t)) * 1.2;
-        PUSH.seed = m.seed; PUSH.age = t; PUSH.since = t * 0.7; PUSH.radius = 1.2; PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
+        PUSH.x = m.x; PUSH.z = m.z; PUSH.heading = m.h || 0; PUSH.kind = ANSWER_KIND.cloud + 0.1; PUSH.length = m.L;   // (the cloud's silt form, its weed-line along the haul)
+        PUSH.strength = clamp(t / 0.8, 0, 1) * (1 - smoothstep(SILT_LIFE * 0.5, SILT_LIFE, t)) * 1.15;
+        PUSH.seed = m.seed; PUSH.age = t; PUSH.since = t * 0.7; PUSH.radius = m.R || 1.2; PUSH.toNext = 99; PUSH.tint = SIGN_TINT; PUSH.aspect = SIGN_ASPECT;
         fx.pushSign(PUSH);
       }
     }
