@@ -5270,6 +5270,10 @@ TEXT_LOOP.lookNames = { slate_dye: 'Slate Cloak Dye', oxblood_pennant: 'Oxblood 
 TEXT_LOOP.tabs.prints = 'Prints';   // the Journal's Prints page (SPEC §8.8's tab row)
 TEXT_LOOP.murk.shelfBare = "Shelf's bare. Keep the rest; the road goes on.";   // the last item of the shelf bought (SPEC §8.6; M1.md §2.5)
 // <<< M1 step 5b (lane 5b-home)
+// >>> Murk's catalogue (the user's words of 16 November 2026: the shelf as a printed brochure browsed page by page; src/ui-catalogue-murk.js):
+// its name on the running head and the cover, and the order line under a marked item. Every other word in the book is the shelf's.
+TEXT_LOOP.goods = { name: "Murk's Goods", buy: 'Buy · {price}' };
+// <<< Murk's catalogue
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
