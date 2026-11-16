@@ -203,7 +203,7 @@ export default async function (api) {
     await fitCheck('the example');
     // the page-open budget (SHEET §9: 50 ms): a warm opening from the pause, timed in the page (a note: the machine's load moves it)
     { const ms = await g(() => Number(document.querySelector('[data-modal=journal] .gw-sheet')?.dataset.ms ?? NaN));
-      K.note(`the sheet's page built in ${ms} ms (budget 50 ms; software GL on a busy machine)`); }
+      K.note(ms > 0 ? `the sheet's page built in ${ms} ms (budget 50 ms)` : 'the page\'s build time reads 0 here: the playtest\'s clock does not move inside a script, so the 50 ms budget is not measured by this run'); }
     // the picks: Under the Span at dusk, Trophy
     K.need(await tapIn('[data-modal=journal] [data-where=under_the_span]'), 'the Under the Span chip');
     await K.settle(400);
