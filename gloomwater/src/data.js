@@ -4941,6 +4941,56 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
   forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm: 'Every clam, every piece of gear and every name in the Journal will be lost.' },
 };   // no tagline: §8.5 gives none, so the loop's title draws none (the lead's ruling, PLAN §7.2)
 
+// >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
+// Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; LOOP and TEXT_LOOP are not in the v3
+// fingerprint). The values are the sim's draft tables (tools/sim/clams.mjs: familyLures, giantsLures, baitRule, bait, tinSize, raft,
+// home.orders); tools/tests/loop-4.test.mjs checks they agree. `with` is the water (catalogue order) whose map puts a level on the
+// shelf (SPEC §4.7's "on the shelf with", decision 38): 1 the start; Keel III the Pallid Deep's (4), Order Board III Glasswater's (3).
+LOOP.lures = {
+  // the Mossmere's four (SPEC §4.4): three family lures (+5 / +6 Hold on their family, drawn × their built `attract`) and its giants'
+  // lure, re-aimed at its giants (+10 Hold on the fish named, its giants' share × `share`); bought once and kept for good
+  feather_fly:   { water: 'mossmere', price: 50,  family: 'insect' },
+  glimmer_spoon: { water: 'mossmere', price: 90,  family: 'predator' },
+  bone_jig:      { water: 'mossmere', price: 110, family: 'bottom' },
+  bell_spinner:  { water: 'mossmere', price: 180, giants: ['thousandcast_pike', 'hullkiss_lamprey', 'reedjaw_pike'], share: 1.5, hold: 10 },
+};
+// every tin of a water costs grade × its value tier, rounded to 5 (the Mossmere's 10); a tin holds `tin` baits; every tin gives `favour`
+// (every fish runs bigger) and +Hold on the fish that favour it (the larger of the lure's and the bait's, never both)
+LOOP.baitRule = { grade: 1.5, favour: 0.3, tin: 10 };
+LOOP.tins = { mossmere: ['mireworm', 'lumen_moss'] };   // the Mossmere's tins, in the shelf's order (SPEC §4.5: both "first on the shelf with the Mossmere")
+// Cut Strip (SPEC §3.2, §4.5): holding Let go on a Small or a Keeper cuts it into `strips` (free; +0.3 favour and +4 Hold on predators)
+LOOP.cut = { strips: 3, classes: ['small', 'keeper'], hold: 0.6 };
+LOOP.raft = {
+  oars:    { prices: [60, 300], with: [1, 1], speed: 1.5 },               // raft speed +1.5 m/s a level (6 → 9)
+  keel:    { prices: [100, 600, 3000], with: [1, 1, 4], favour: 0.1 },   // every fish runs a little bigger: favour +0.1 everywhere a level
+  lantern: { prices: [100, 500], with: [1, 1], favour: 0.1, light: 0.15 },   // night fish bigger (+0.1 after dark a level); the light 15% farther a level
+};
+LOOP.home = Object.assign(LOOP.home || {}, {
+  // Murk's Order Board (SPEC §6.3): 1 / 2 / 3 orders on the bounty engine's shape (progression-loop's orders; src/loop-gear.js)
+  orders: { prices: [70, 400, 4000], with: [1, 1, 3], count: [1, 2, 3] },
+});
+// the orders' rules (SPEC §6.3): two in three ask for a common or uncommon fish; never a giant or the legend; never expiring; every fish
+// that fills one sells for `double` × at the tally. Kinds: `count` ("2 Dusk Minnows"), `class` ("a Prize Weeping Carp"), `heavy` ("a
+// Reedjaw Pike over 9 lb 0 oz": data.weightTarget of the fish's weight at z `heavyZ`, checked on the ounces the card shows)
+LOOP.orders = { common: 2 / 3, double: 2, count: { common: [2, 3], uncommon: [1, 2], rare: [1, 1] }, kinds: { count: 0.6, class: 0.2, heavy: 0.2 },
+  rareKinds: { count: 0.6, heavy: 0.4 }, cls: 'prize', heavyZ: 0.35 };
+// the words (SPEC §8.4's lines, §8.6's line; the names the shelf's cards carry, SPEC §4.7's table). The order phrases are composed of
+// these, the species' names and data.fmtWeight's figures (ui-gear.js orderPhrase; ui-loop's textAllowed reads them)
+Object.assign(TEXT_LOOP.shelf, {
+  feather_fly: '+5 Hold against insect eaters.', glimmer_spoon: '+6 Hold against predators.', bone_jig: '+6 Hold against bottom feeders.',
+  bell_spinner: 'For the Thousandcast Pike.',
+  mireworm: 'For the Mossmere.', lumen_moss: 'The Gloam Eel bites on nothing else.', cut_strip: 'Holds predators better.',
+  oars: 'Faster.', keel: 'Bigger fish.', lantern: 'Bigger fish at night.', orders: 'Orders pay double.',
+});
+TEXT_LOOP.gearNames = { oars: ['Oars I', 'Oars II'], keel: ['Keel I', 'Keel II', 'Keel III'], lantern: ['Lantern I', 'Lantern II'],
+  orders: ["Murk's Order Board I", "Murk's Order Board II", "Murk's Order Board III"] };
+TEXT_LOOP.murk.firstSmall = 'Small ones make good bait. Hold Let go.';
+TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
+// the items' names as the shelf, the slots and the gear log show them (the built LURES / BAITS names, SPEC §4.4, §4.5)
+TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
+  mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip' };
+// <<< M1 step 4 (lane 4)
+
 // ---- The loop's pure helpers (PLAN §3.1, WICKS §5). Each reads only LOOP and the built size model; the sim calls the same ones.
 /** A fish's clams (SPEC §4.1) on the built size: max(1, round(tier × rarity × body(sizeL50) × clamp(e^(perZ·z)) × classBonus ×
  *  priceFactor)). No quality, no streak, no lake normaliser. A legend returns null (she is priced by her crown, progression-loop). */
@@ -5592,6 +5642,25 @@ if (V3_ENABLED) {
     INTRO.text[2] = INTRO.cove.text[2] = TEXT_LOOP.introLine3;
     INTRO.lines[2].out = 15.2;   // line 3's longer words stay ≤ the A5 reading rate (17.4 a second; the gap to line 4 stays 0.5 s)
   }
+  if (LOOP_ENABLED) {   // >>> M1 step 4 (lane 4; SPEC §4.4, §4.5, M1.md §2.3, §2.4): under the loop only, so no v3 table moves off it
+    // Cut Strip is a bait in the bag (free, never sold): a BAITS row of the loop's own, so the built cast spends it and a pass refunds it
+    if (!BAITS.some((b) => b.id === 'cut_strip')) BAITS.push({ id: 'cut_strip', name: 'Cut Strip', price: 0, count: LOOP.cut.strips, zoneMin: 0, unlock: null, legend: false, icon: 'strip', bonus: {} });
+    // every tin gives the same favour (SPEC §4.5: every fish runs bigger), read by fishing's cast terms as a bait's own term
+    for (const id of Object.values(LOOP.tins).flat()) BALANCE_V3.favour.tackle.bait[id] = LOOP.baitRule.favour;
+    // a tin's Hold goes to the fish that favour it: the roster's `favours` (the converter's `baits`), as the sim's itemHold reads them
+    for (const sp of SPECIES_LOOP) for (const id of sp.baits || []) {
+      const b = BAITS.find((x) => x.id === id && !x.legend);
+      if (b) { b.bonus = { ...b.bonus, attract: [...new Set([...(b.bonus?.attract || []), sp.id])] }; }
+    }
+    // the Harbour-Bell Spinner re-aimed at the Mossmere's giants (SPEC §4.4: +10 Hold on the fish named)
+    CATCH_V3.items.bell_spinner = { ...CATCH_V3.items.bell_spinner, species: LOOP.lures.bell_spinner.giants.slice() };
+    { const l = LURES.find((x) => x.id === 'bell_spinner'); if (l) l.species = LOOP.lures.bell_spinner.giants.slice(); }
+    // the Belled Matriarch a catfish (ROSTER §3.1, M1.md §2.3): her plan only (models-fish.js `catfish`, read under the loop); her size,
+    // her Fight, her authored play (AUTOFISH.legend's take, toll, run, toll, circle, last stand, lift) and so her land chance as built
+    if (!FISH_SHAPES.includes('catfish')) FISH_SHAPES.push('catfish');
+    const mi = SPECIES.findIndex((x) => x.id === 'belled_matriarch');
+    if (mi >= 0) SPECIES[mi] = { ...v3clone(SPECIES[mi]), model: { ...SPECIES[mi].model, shape: 'catfish', whiskers: 2, head: 'shovel', tail: 'eel', bell: true } };
+  }   // <<< M1 step 4 (lane 4)
   // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
   const moss = ZONES[0];
   Object.assign(moss.palette, MOSSMERE_V3.palette);

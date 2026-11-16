@@ -93,9 +93,11 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
 {
   const L = fakeLoop({ D, clams: 40 });
   let m = U.shelfCards(L.shelf(), { D, clams: 40 });
-  eq(m.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps)');
-  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps], 'one word each, TEXT_LOOP.tabs');
-  const tack = m.tabs[0].cards, raft = m.tabs[1].cards;
+  eq(m.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps', 'home'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps; M1 step 4: Home)');
+  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps, TL.tabs.home], 'one word each, TEXT_LOOP.tabs');
+  // (M1 step 4's cards, the lures, tins, raft parts and the Order Board, are tools/tests/loop-4.test.mjs's: these checks read the rest)
+  const no4 = (cards) => cards.filter((c) => !/^(lure|tin|cut|oars|keel|lantern|orders):/.test(c.id));
+  const tack = no4(m.tabs[0].cards), raft = no4(m.tabs[1].cards);
   eq(tack.map((c) => c.id), ['rod:1', 'line:1', 'reel:1'], 'Tackle: the next tier of each slot');
   eq(tack.map((c) => c.name), ['Ashwood', 'Braided Gut', 'Brass Spool'], 'the TACKLE names');
   eq(tack.map((c) => c.line), [TL.shelf.rod, TL.shelf.line, TL.shelf.reel], 'the one line each');
@@ -114,8 +116,8 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
   const L2 = fakeLoop({ D, clams: 0, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   m = U.shelfCards(L2.shelf(), { D, clams: 0 });
   const kitTabs = m.tabs.filter((t) => t.id === 'tackle' || t.id === 'raft');   // M1 step 3a: the Bait and Maps tabs are lane C's T133–T135
-  ok(kitTabs.length === 2 && kitTabs.every((t) => t.cards.every((c) => c.bought && c.buyWord === TL.yours)), 'Hold 6 and the T2s: permanent "Yours." cards', kitTabs.map((t) => t.cards.map((c) => c.id)));
-  eq(m.tabs[0].cards.map((c) => c.id), ['rod:2', 'line:2', 'reel:2'], 'the T2s in place');
+  ok(kitTabs.length === 2 && kitTabs.every((t) => no4(t.cards).every((c) => c.bought && c.buyWord === TL.yours)), 'Hold 6 and the T2s: permanent "Yours." cards', kitTabs.map((t) => t.cards.map((c) => c.id)));
+  eq(no4(m.tabs[0].cards).map((c) => c.id), ['rod:2', 'line:2', 'reel:2'], 'the T2s in place');
   ok(U.shelfCards(null, { D }).tabs.length === 0 && U.shelfCards({ tabs: [{ id: 'bait', items: [] }] }, { D }).tabs.length === 0, 'an empty shelf: no tabs');
   for (const t of U.shelfCards(L.shelf(), { D }).tabs) for (const c of t.cards) ok(U.textAllowed(c.name, { D }) && U.textAllowed(c.line, { D }), `allow-list: ${c.name} and its line`);
 }

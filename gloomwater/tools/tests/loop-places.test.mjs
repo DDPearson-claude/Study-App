@@ -89,7 +89,8 @@ section('T102: the Mossmere\'s 17 under the loop (SPECIES, the converter, the Br
   ok(ge.kind === 'night' && ge.bait === geV3.bait && ge.bait === 'lumen_moss' && ge.time === geV3.time && JSON.stringify(ge.size) === JSON.stringify(geV3.size) && !('kind' in geV3) && !ge.place,
     "the Gloam Eel as built but for kind 'night' (its bait, hour and size as built)");
   const bm = SP('belled_matriarch');
-  ok(bm.rarity === 'legendary' && bm.bait === 'heartmoss' && JSON.stringify(bm) === JSON.stringify(D.SPECIES_V3_BY_ID.belled_matriarch), 'the Matriarch as built');
+  // (M1 step 4: her plan is the catfish, loop-4.test.mjs's; every other field as built)
+  ok(bm.rarity === 'legendary' && bm.bait === 'heartmoss' && JSON.stringify({ ...bm, model: null }) === JSON.stringify({ ...D.SPECIES_V3_BY_ID.belled_matriarch, model: null }), 'the Matriarch as built (but her plan)');
   eq(D.SPECIES.filter((s) => (s.phase ?? 1) > 1).map((s) => s.id), ['lampsipper', 'bridgechain_sturgeon'], 'no other phase-2 record (the Lampsipper and the Bridgechain lifted)');
   eq(D.SPECIES_LOOP.map((s) => s.id), [...D.LOOP.species.mossmere, 'bridgechain_sturgeon', 'thousandcast_pike', 'hullkiss_lamprey'], 'SPECIES_LOOP: the twelve, then the places\' own fish and giants in the Chart\'s order');
   ok(D.FISH_SHAPES.includes('lamprey') && D.FISH_SHAPES.includes('sturgeon') && D.FISH_SHAPES.includes('trout'), 'FISH_SHAPES: the three new plans under the loop');
@@ -219,12 +220,13 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
   ok(orders >= 2 && refused >= 1, `the walk: ${orders} buying orders allowed, ${refused} refused (a dearer map before it is offered)`);
   // Hold 6 after Hold 5; the ball; the sealed card
   const L = fakeLoop({ D, state: { clams: 1000, holdSlots: 5 } });
-  const raft = () => L.shelf().tabs.find((t) => t.id === 'raft').items;
+  const no4 = (items) => items.filter((i) => !(/^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id)));   // (M1 step 4's cards: loop-4.test.mjs's)
+  const raft = () => no4(L.shelf().tabs.find((t) => t.id === 'raft').items);
   eq(raft().map((i) => [i.id, i.price, i.name]), [['hold:6', 450, 'Wellbox']], 'Hold 6, the Wellbox, at 450 after Hold 5');
   ok(L.buy('hold:6').ok && L.s.holdSlots === 6 && L.s.clams === 550, 'buy Hold 6');
   L.s.session = [];
   eq(raft().map((i) => [i.id, i.bought]), [['hold:6', true]], 'Hold 6 is the shelf\'s last hold step: a permanent Yours. (shelfMax 6)');
-  const bait = () => L.shelf().tabs.find((t) => t.id === 'bait').items;
+  const bait = () => no4(L.shelf().tabs.find((t) => t.id === 'bait').items);
   eq(bait().map((i) => [i.id, i.price, i.name, i.line, i.count, i.consumable, i.bought]), [['bait:heartmoss', 60, 'Heartmoss Ball', D.TEXT_LOOP.shelf.heartmoss, 0, true, false]], 'the Bait tab: the Heartmoss Ball, 60, its line, a consumable with its count');
   ok(L.buy('bait:heartmoss').ok && L.buy('bait:heartmoss').ok && L.s.bag.heartmoss === 2, 'two balls bought: two in the bag');
   ok(bait()[0].bought === false && bait()[0].count === 2 && !L.s.session.includes('bait:heartmoss'), 'a consumable never reads Yours. (its count grows)');
@@ -232,7 +234,7 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
   const g = L.goal();
   ok(g && g.id !== 'bait:heartmoss' && g.id !== 'lake:sporewood', 'the goal line never names the ball or the sealed card', g);
   const all = placesMeta(D, { own: FOUR, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
-  eq(PL.goalOf(PL.shelfItems(D, all.loop)), null, 'the empty shelf (step 3\'s): no goal line, though the ball and the sealed card are still there');
+  eq(PL.goalOf(no4(PL.shelfItems(D, all.loop))), null, 'the empty shelf (step 3\'s): no goal line, though the ball and the sealed card are still there');
   ok(PL.shelfItems(D, all.loop).some((i) => i.id === 'bait:heartmoss') && PL.shelfItems(D, all.loop).some((i) => i.id === 'lake:sporewood'), '… the ball is always on the shelf, and Sporewood\'s card reads "Coming soon"');
   // the shelf's ids for 3b's priced blots: a place card names its place and its fish
   const fresh = PL.shelfItems(D, PL.freshLoop(D)).filter((i) => i.slot === 'place');

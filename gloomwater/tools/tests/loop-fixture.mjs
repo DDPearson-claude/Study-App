@@ -254,6 +254,11 @@ export function fakeLoop(over = {}) {
     catalogue: (waterId = 'mossmere') => (D ? catalogueFor(metaNow(), D, waterId) : null),
     barge: () => ({ water: s.barge.water, towed: [...s.barge.towed] }),
     towBarge(w) { if (typeof w !== 'string' || !w) return null; s.barge.water = w; if (!s.barge.towed.includes(w)) s.barge.towed.push(w); s.saves++; return api.barge(); },
+    // M1 step 4 (lane 4): Murk's orders (s.orders: [{id, speciesId, kind, n, have, text?}]) and Cut Strip (s.bag.cut_strip)
+    orders: () => (Array.isArray(s.orders) ? s.orders.map((o) => ({ ...o })) : []),
+    wipeOrder(id) { const before = (s.orders || []).length; s.orders = (s.orders || []).filter((o) => o.id !== id); return { ok: s.orders.length < before, orders: api.orders() }; },
+    orderFor: (fish) => (Array.isArray(s.orders) ? s.orders.find((o) => o.speciesId === fish?.speciesId)?.id ?? null : null),
+    cutBait(fish) { if (!fish || !['small', 'keeper'].includes(fish.sizeClass)) return { ok: false, gained: { strips: 0 } }; s.bag.cut_strip = (s.bag.cut_strip | 0) + 3; return { ok: true, gained: { strips: 3 } }; },
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {

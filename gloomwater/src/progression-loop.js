@@ -17,6 +17,8 @@
 // `ctx.progression.loop` (null off the loop). LOOP_METHODS names its methods, for the fixture's fakeLoop and the tests; CONTRACT §14
 // is the seam in full. Its one import is core.js's uid (never data.js).
 import { uid } from './core.js';
+// M1 step 4 (lane 4): the tins and lures, the raft's parts and Murk's orders, pure (src/loop-gear.js)
+import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches } from './loop-gear.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -43,6 +45,8 @@ export const LOOP_METHODS = Object.freeze([
   'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
   // the home barge (M1 step 5a, SPEC §6.5): where it lies and the waters it has been towed to
   'barge', 'towBarge',
+  // M1 step 4 (lane 4): Murk's orders (read, wipe one, the one a fish on the card fills) and Cut Strip (a held Let go)
+  'orders', 'wipeOrder', 'orderFor', 'cutBait',
 ]);
 
 /** The water a fresh save owns: the one LOOP.waters puts first (the Mossmere). */
@@ -310,6 +314,8 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
     out.push({ id: c.id, tab: 'maps', slot: 'place', level: null, placeId: c.placeId, kind: c.kind, name, goalName: name, line: c.line, price: c.price,
       fish: c.fish, hours: c.hours, bought: ses.has(c.id) && ownedPlaces.includes(c.placeId) });
   }
+  // M1 step 4 (lane 4): the lures (Tackle), the tins and Cut Strip (Bait), Oars, Keel and Lantern (Raft), the Order Board (Home)
+  out.push(...gearItems(D, ml, [...ses]));
   // M1 step 2 (decision 39): a lake map past LOOP.shipped is never offered (the sealed card is the next water's, never a lake map to buy)
   return out.filter((it) => !(it.tab === 'maps' && it.water && !waterShipped(D, it.water)));
 }
@@ -575,6 +581,8 @@ export function createLoop(S) {
   function saleOf(fish) {
     const base = priceOf(fish);
     const out = { base, clams: base, first: false };
+    // M1 step 4 (SPEC §6.3): a fish that fills one of Murk's orders sells for double (endTrip marks it: fish.order)
+    if (isObj(fish) && fish.first !== true && orderAdd(fish, base) > 0) { out.clams = base + orderAdd(fish, base); return out; }
     if (!isObj(fish) || fish.first !== true || fish.giant === true || fish.legendary === true) return out;
     const r = run(), w = r ? wickIdOf(r.character) : wickNow(), K = LOOP().wicks?.[w];
     if (K?.passive !== 'curious') return out;
@@ -582,10 +590,16 @@ export function createLoop(S) {
     if (!sp || sp.rarity === 'legendary') return out;
     const tier = num(LOOP().waters?.[r?.zone || sp.zone]?.tier, 0);
     const bonus = Math.max(Math.round(num(K.firstFloor) * tier), Math.round((num(K.firstMult, 1) - 1) * base));
-    const order = 0;   // Murk's orders and the Old Ledger's double arrive in later slices: the larger of the three applies
+    const order = orderAdd(fish, base);   // M1 step 4: an order's double (the Old Ledger's arrives later): the larger applies
     const add = Math.max(bonus, order);
     if (add > 0) { out.clams = base + add; out.first = bonus >= order; }
     return out;
+  }
+
+  /** M1 step 4: what an order adds to a fish's sale (LOOP.orders.double − 1 times its base), 0 for a fish that fills none. */
+  function orderAdd(fish, base) {
+    if (!isObj(fish) || typeof fish.order !== 'string' || fish.giant === true || fish.legendary === true) return 0;
+    return Math.max(0, Math.round((num(LOOP().orders?.double, 2) - 1) * num(base)));
   }
 
   // ---------------------------------------------------------------- the hold (SPEC §3.1, §3.2)
@@ -806,6 +820,9 @@ export function createLoop(S) {
     // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
     const fb = L.fitted?.bait;
     if (typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
+    // M1 step 4: the lure slot's fit rides beside the bait (fishing reads run.lure; progression-af's loadout gives the larger Hold)
+    const fl = L.fitted?.lure;
+    if (typeof fl === 'string' && Array.isArray(L.lures) && L.lures.includes(fl)) r.lure = fl;
     try {
       const st = S.computeStats?.({}, r);
       if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
@@ -821,10 +838,14 @@ export function createLoop(S) {
     if (isObj(L.lastTrip) && r.id != null && L.lastTrip.id === r.id) return { ...L.lastTrip, already: true };
     const creel = Array.isArray(r.creel) ? r.creel : [];
     for (const f of creel) if (isObj(f) && !Number.isFinite(Number(f.clams))) f.clams = priceOf(f);
+    // M1 step 4 (SPEC §6.3, §8.3): Murk's orders, filled in the tally's order (lightest first); each fish that fills one sells double
+    const ord = settleOrders(L, creel);
     const { lines, total } = tallyBook(L, creel, r, { D: D(), saleOf });
+    if (ord) for (const l of lines) if (ord.fills.has(l.uid)) l.order = true;
     // the bag comes home (tallyBook); a fitted ball with none left comes off the slot (a fit needs one in the bag)
     if (typeof L.fitted?.bait === 'string' && !(int(L.bait?.[r.zone]?.[L.fitted.bait]) > 0)) L.fitted.bait = null;
     L.lastTrip = { id: r.id ?? null, evening: int(r.evening) || L.evenings, zone: r.zone ?? null, total, lines, seen: false };
+    if (ord) { L.orders = ord.orders; try { refillOrders(D(), L, { listFor }); } catch (e) { report('refillOrders', e); } }   // new at each visit home
     r.creel = [];
     try { S.pending?.clear?.(); } catch { /* optional */ }
     S.syncPending?.();
@@ -876,6 +897,8 @@ export function createLoop(S) {
       if (!isObj(L.bait)) L.bait = {};
       const bag = isObj(L.bait[it.water]) ? L.bait[it.water] : (L.bait[it.water] = {});
       bag[it.baitId] = Math.max(0, int(bag[it.baitId])) + 1;   // a legend's bait is one try a ball (SPEC §4.6)
+    } else if (applyGear(D(), L, it)) {   // M1 step 4: a lure, a tin, a raft part, the Order Board (Murk chalks its orders at once)
+      if (it.slot === 'orders') { try { refillOrders(D(), L, { listFor }); } catch (e) { report('refillOrders', e); } }
     } else L.tackle[it.slot] = it.level;
     if (it.consumable !== true && !session.includes(id)) session.push(id);
     try { S.invalidate?.(); } catch { /* optional */ }
@@ -982,10 +1005,13 @@ export function createLoop(S) {
    *  lure slot is step 4's (refused). */
   function fit(slot, id = null) {
     const L = ensureLoop();
+    if (L && slot === 'lure') return fitLure(id);   // M1 step 4: the lure slot beside the bait slot
     if (!L || slot !== 'bait') return { ok: false };
     const r = run(), trip = onTrip(r);
     if (id != null) {
-      if (typeof id !== 'string' || !ballWater(id) || bagCount(id, L) <= 0) return { ok: false };
+      // M1 step 4: the bait slot also takes a tin of the water (Mire Worms, Lumen Moss) or Cut Strip, while the bag holds one
+      const gearBait = typeof id === 'string' && (tinWater(D(), id) != null || id === 'cut_strip');
+      if (typeof id !== 'string' || (!ballWater(id) && !gearBait) || bagCount(id, L) <= 0) return { ok: false };
     }
     const next = id == null ? null : id, prev = L.fitted.bait ?? null;
     L.fitted.bait = next;
@@ -1028,6 +1054,81 @@ export function createLoop(S) {
     requestSave();
     return true;
   }
+  // ---------------------------------------------------------------- M1 step 4 (lane 4): the lure slot, Cut Strip, Murk's orders
+  /** fit('lure', id | null): an owned lure (meta.loop.lures), or null to take it off; saved at once; on a trip the line carries it
+   *  (run.lure: fishing's draw and favour; progression-af's loadout Hold, the larger of the lure's and the bait's); loop:fit. */
+  function fitLure(id = null) {
+    const L = ensureLoop();
+    if (!L) return { ok: false };
+    if (id != null && (typeof id !== 'string' || !lureOf(D(), id) || !(Array.isArray(L.lures) && L.lures.includes(id)))) return { ok: false };
+    L.fitted.lure = id == null ? null : id;
+    const r = run();
+    if (onTrip(r)) { r.lure = L.fitted.lure; emit('bait:change', { baitId: r.equippedBait ?? null, lureId: r.lure }); }
+    saveNow();
+    emit('loop:fit', { slot: 'lure', id: L.fitted.lure });
+    return { ok: true, id: L.fitted.lure };
+  }
+  /** Cut Strip (SPEC §3.2, §4.5): a Small or a Keeper on the card is cut into LOOP.cut.strips baits instead of let go: into the trip's
+   *  bag (it comes home with it), no bite back and no favour; never a giant or a legend. → {ok, gained: {strips}}. */
+  function cutBait(fish) {
+    const r = run();
+    ensureLoop();
+    const C = LOOP().cut || { strips: 3, classes: ['small', 'keeper'] };
+    if (!onTrip(r) || !isObj(fish) || fish.giant === true || fish.legendary === true) return { ok: false, gained: { strips: 0 } };
+    if ((r.creel || []).some((f) => f?.uid === fish.uid) || !(C.classes || []).includes(fish.sizeClass)) return { ok: false, gained: { strips: 0 } };
+    const sp = spOf(fish.speciesId);
+    if (!sp || sp.giant === true || sp.rarity === 'legendary') return { ok: false, gained: { strips: 0 } };
+    const n = Math.max(1, int(C.strips, 3));
+    if (!isObj(r.bait)) r.bait = {};
+    r.bait.cut_strip = Math.max(0, int(r.bait.cut_strip)) + n;
+    if (fish.uid) S.gone?.add?.(fish.uid);
+    S.pending?.delete?.(fish.uid);
+    S.syncPending?.();
+    const gained = { bite: 0, favour: 0, strips: n };
+    emit('fish:action', { action: 'release', cut: true, fish, gained });
+    requestSave();
+    return { ok: true, gained };
+  }
+  /** The orders' pure list rule: listFor on this save's data (the water's list). */
+  const listForD = (d, w) => listFor(d, w);
+  /** endTrip's part (internal): the orders the hold fills, in the tally's order; marks each filling fish (fish.order = its id) so
+   *  saleOf doubles it. → {fills, orders, filled} or null with no order open. */
+  function settleOrders(L, creel) {
+    if (!Array.isArray(L.orders) || !L.orders.length) return null;
+    const order = tallyLines(creel, { D: D() }).map((l) => l.uid);
+    const byUid = new Map((creel || []).filter(isObj).map((f) => [f.uid, f]));
+    const res = assignOrders(D(), L.orders, order.map((u) => byUid.get(u)).filter(Boolean));
+    for (const f of creel || []) if (isObj(f)) { if (res.fills.has(f.uid)) f.order = res.fills.get(f.uid); else delete f.order; }
+    return res;
+  }
+  /** Murk's orders now (SPEC §6.3): [{id, speciesId, kind, n, have, cls?, oz?, text}] (text: the order as chalked). */
+  function orders() {
+    const L = ensureLoop();
+    if (!L) return [];
+    if (!Array.isArray(L.orders)) L.orders = [];
+    if (L.orders.length < 1 && int(L.home?.orders) > 0) { try { refillOrders(D(), L, { listFor: listForD }); requestSave(); } catch (e) { report('refillOrders', e); } }
+    return L.orders.filter(isObj).map((o) => ({ ...o, text: orderPhrase(D(), o) }));
+  }
+  /** Tap an order to wipe it, and Murk chalks a new one (SPEC §6.3). → {ok, orders}. */
+  function wipeOrder(id) {
+    const L = ensureLoop();
+    if (!L || !Array.isArray(L.orders) || !L.orders.some((o) => o?.id === id)) return { ok: false, orders: orders() };
+    L.orders = L.orders.filter((o) => o?.id !== id);
+    try { refillOrders(D(), L, { listFor: listForD, }); } catch (e) { report('refillOrders', e); }
+    saveNow();
+    emit('loop:order', { action: 'wipe', id });
+    return { ok: true, orders: orders() };
+  }
+  /** The order a fish on the card would fill (the card's chalk tick, SPEC §8.2): counting the fish already in the hold first. */
+  function orderFor(fish) {
+    const L = ensureLoop(), r = run();
+    if (!L || !isObj(fish) || !Array.isArray(L.orders) || !L.orders.length) return null;
+    if (!L.orders.some((o) => orderMatches(D(), o, fish))) return null;
+    const hold = onTrip(r) ? (r.creel || []).filter((f) => isObj(f) && f.uid !== fish.uid) : [];
+    const res = assignOrders(D(), L.orders, [...hold, { ...fish, uid: fish.uid ?? '__card' }]);
+    return res.fills.get(fish.uid ?? '__card') ?? null;
+  }
+
   const liftDueNow = () => { const L = ensureLoop(); return L ? liftDue(D(), L) : []; };
   /** The lift has played (SPEC §5.1 rule 7, PLAN CHOICE 8): `lifted` gains an owned place once, saved at once; false otherwise (a place
    *  not owned, not a place, or already lifted). A reload before it replays the lift on the next trip. */
@@ -1136,6 +1237,7 @@ export function createLoop(S) {
     fit, fitted, spendBait, refundBait, liftDue: liftDueNow, markLifted, lifted, markGiant, takeGiantMark, noteBest,
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
     barge, towBarge,
+    orders, wipeOrder, orderFor, cutBait,   // M1 step 4 (lane 4)
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {
