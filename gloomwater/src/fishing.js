@@ -3577,14 +3577,17 @@ export function create(ctx) {
       if (o.at) { x = o.at.x; z = o.at.z; }
       else if (lamps.length && srnd() < 0.5) { const l = lamps[Math.floor(srnd() * lamps.length)]; x = l.x + (srnd() - 0.5) * 0.6; z = l.z + (srnd() - 0.5) * 1.2; }
       else {
-        const dmax = light === 'night' ? SI.lanternReach(lanternR, SI.SIGHT.lantern.min) : 28, a = srnd() * TAU, d = 3 + srnd() * (dmax - 3);
+        // (most on the camera's side of the raft, to either hand: a shape there is seen nearer and broadside, never under the Wick)
+        const cam = call(() => ctx.render?.camera), ca = cam?.position && Number.isFinite(cam.position.x) ? Math.atan2(cam.position.z - raft.z, cam.position.x - raft.x) : null;
+        const a = ca != null && srnd() < 0.7 ? ca + (srnd() < 0.5 ? -1 : 1) * (0.5 + srnd() * 1.3) : srnd() * TAU;
+        const dmax = light === 'night' ? SI.lanternReach(lanternR, SI.SIGHT.lantern.min) : 28, d = 3 + srnd() * (dmax - 3);
         x = raft.x + Math.cos(a) * d; z = raft.z + Math.sin(a) * d;
       }
       w = waterInfo(x, z);
       if (w.mist) continue;
       area = wcAreaAt(x, z, w);
       if (!area) continue;
-      if (SI.quietAt(W2.quiet, x, z, S.clock)) continue;
+      if (!o.force && SI.quietAt(W2.quiet, x, z, S.clock)) continue;
       const depth = depthAt(x, z), rd = Math.hypot(x - raft.x, z - raft.z);
       const p = { area, depth, light, raftDist: rd, lanternR, lamp: area === 'buoy_lights' ? lampGlow(x, z) : 0 };
       if (!o.force && !SI.canSpawnAt(p)) continue;

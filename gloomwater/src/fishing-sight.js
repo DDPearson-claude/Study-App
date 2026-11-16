@@ -33,7 +33,7 @@ export const SIGHT = {
 /** The five outlines (§6.2) and their ids in fishing-fx's SDF branch. */
 export const OUTLINE_ID = { deep: 1, torpedo: 2, long: 3, shoal: 4, claw: 5 };
 /** Body width / length by outline (the drawn proportion). */
-export const OUTLINE_ASPECT = { deep: 0.3, torpedo: 0.19, long: 0.12, shoal: 0.18, claw: 0.34 };
+export const OUTLINE_ASPECT = { deep: 0.15, torpedo: 0.11, long: 0.075, shoal: 0.1, claw: 0.17 };   // half-width / length (fishing-fx's sightSdf)
 export const OUTLINE_OF = {
   weeping_carp: 'deep', candlefin_koi: 'deep', rustfin_sucker: 'deep',
   mossback_perch: 'torpedo', overbold_bass: 'torpedo', likely_chub: 'torpedo', milkeye_perch: 'torpedo',
@@ -351,7 +351,7 @@ export function quietAt(quiet, x, z, t, S = SIGHT) {
 }
 /** The drawn shadow's offset (m, world): by the light (the low sun late in the day, the sky at dusk, the lantern at night) and depth. */
 export function shadowOffset(f, { light = 'day', raft = null, sunDir = { x: 0.6, z: -0.8 } } = {}) {
-  const k = 0.12 + 1.4 * clamp(num(f.depth, 0.3), 0, 0.5);
+  const k = 0.06 + 0.7 * clamp(num(f.depth, 0.3), 0, 0.5);   // (a little off the body: never read as a second fish)
   let dx = sunDir.x, dz = sunDir.z;
   if (light === 'dusk') { dx = 0.35; dz = -0.5; }
   if (light === 'night' && raft) { const d = Math.hypot(f.x - raft.x, f.z - raft.z) || 1; dx = (f.x - raft.x) / d; dz = (f.z - raft.z) / d; }

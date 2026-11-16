@@ -502,6 +502,20 @@ float fishSdf(vec2 u, float L, float asp, float wig) {
   float tail = max(t.y - 0.1 - t.x * 0.55, -t.y + t.x * 1.05 - 0.015);
   return min(body * asp * 2.4, tail * 0.55);
 }
+// WC-2: a silhouette seen from above (head toward +y; u in metres): a head and shoulders, the flank narrowing to the tail's wrist, a
+// forked tail, two pectoral fins (fins 1); spans its true length L. An approximate distance in metres (negative inside)
+float eSdf(vec2 p, vec2 r) { return (length(p / r) - 1.0) * min(r.x, r.y); }
+float sightSdf(vec2 u, float L, float asp, float wig, float fins) {
+  vec2 v = u / max(L, 0.03);
+  v.x += wig * 0.06 * smoothstep(0.15, -0.6, v.y) * (0.6 - v.y);   // the tail sways, the head holds its line
+  float d = eSdf(v - vec2(0.0, 0.17), vec2(asp, 0.33));               // head and shoulders (asp: the half-width / length)
+  d = min(d, eSdf(v + vec2(0.0, 0.1), vec2(asp * 0.68, 0.24)));       // the flank to the tail's wrist
+  float ty = -(v.y + 0.3), ax = abs(v.x);
+  float tail = max(max(ax - asp * (0.28 + 3.2 * ty), -ty * 0.6), (ty - 0.12 - 0.09 * ax / max(asp, 0.05)) * 0.6);   // a forked tail
+  d = min(d, tail);
+  if (fins > 0.5) d = min(d, eSdf(vec2(ax - asp * 0.9, v.y - 0.2), vec2(asp * 0.42, 0.045)));
+  return d * L;
+}
 // WC-2: a crayfish (head toward +y): its carapace and tail, the tail fan, two claws ahead on their arms
 float clawSdf(vec2 u, float L) {
   vec2 v = u / max(L, 0.03);
@@ -725,7 +739,7 @@ void main() {
     float outl = vD.x, dep = clamp(vD.y, 0.0, 0.6), warm = vD.z, nsh = vD.w;
     vec2 sh = vec2(vC.y, vC.w);
     float spd = vC.z;
-    float soft = max(0.012 + dep * 0.09 * (0.5 + L), MPP * 1.3);
+    float soft = max(0.006 + dep * 0.05 * (0.4 + L), MPP * 1.1);   // (metres: crisper in shallow water, softer deeper)
     float bodyA = 0.0, shadA = 0.0, finA = 0.0;
     float sw = sin(uTime * (3.0 + 5.0 * spd) + seed * 30.0) * (0.25 + 0.9 * min(spd, 1.0));
     if (outl > 3.5 && outl < 4.5) {
@@ -737,22 +751,43 @@ void main() {
         float hh = 0.3 * sin(age * 0.8 + fi * 1.7);
         vec2 u = q - c;
         u = vec2(u.x * cos(hh) - u.y * sin(hh), u.x * sin(hh) + u.y * cos(hh));
-        bodyA = max(bodyA, smoothstep(soft, -soft, fishSdf(u, L, 0.17, sw)));
-        shadA = max(shadA, smoothstep(soft * 3.0 + 0.03, -soft * 2.0, fishSdf(u - sh, L * 1.05, 0.19, sw)));
+        bodyA = max(bodyA, smoothstep(soft, -soft, sightSdf(u, L, 0.1, sw, 0.0)));
+        shadA = max(shadA, smoothstep(soft * 3.0 + 0.02, -soft * 2.0, sightSdf(u - sh, L * 1.05, 0.11, sw, 0.0)));
       }
     } else if (outl > 4.5) {
       bodyA = smoothstep(soft, -soft, clawSdf(q, L));
       shadA = smoothstep(soft * 3.0 + 0.03, -soft * 2.0, clawSdf(q - sh, L * 1.05));
     } else {
-      float asp2 = outl < 1.5 ? 0.30 : outl < 2.5 ? 0.19 : 0.12;
-      float b = fishSdf(q, L, asp2, sw);
+      float asp2 = outl < 1.5 ? 0.15 : outl < 2.5 ? 0.11 : 0.075;   // half-width / length: deep-bodied, torpedo, long
+      float b = sightSdf(q, L, asp2, sw, outl < 2.5 ? 1.0 : 0.0);
       bodyA = smoothstep(soft, -soft, b);
-      shadA = smoothstep(soft * 3.0 + 0.04, -soft * 2.5, fishSdf(q - sh, L * 1.06, asp2 * 1.1, sw));
+      shadA = smoothstep(soft * 3.0 + 0.03, -soft * 2.5, sightSdf(q - sh, L * 1.04, asp2 * 1.1, sw, 0.0));
       if (warm > 0.0) finA = smoothstep(soft * 1.5, 0.0, abs(b + 0.004)) * warm;   // the koi's candle fins: a faint warm edge at dusk
     }
-    ink += bodyA * (0.62 - 0.5 * dep) + shadA * (1.0 - bodyA) * 0.22 * (1.0 - dep);
-    inkCol = vec3(0.025, 0.03, 0.028);
+    ink += bodyA * max(0.5, 0.98 - 0.7 * dep) + shadA * (1.0 - bodyA) * 0.36 * (1.0 - dep);
+    inkCol = vec3(0.02, 0.024, 0.024);
     light += vec3(0.95, 0.62, 0.32) * finA * 0.08;
+    // the water over it, as an angler reads shallow water: a moving fish pushes a faint V and a low bulge ahead of its head; a rooting
+    // one flicks its tail through the film now and then (tailing). Pale water lines, never a ring round it
+    float shallow = clamp((0.34 - dep) / 0.2, 0.0, 1.0);
+    if (outl < 4.5 && !(outl > 3.5)) {
+      float hy = L * 0.5;
+      float mv = smoothstep(0.1, 0.35, spd) * shallow;
+      if (mv > 0.0) {
+        float behind = hy - q.y;
+        float vw = abs(abs(q.x) - behind * 0.32);
+        light += WATERW * lineAA(vw, 0.012 + 0.006 * L) * step(0.0, behind) * exp(-behind / (0.5 + 0.8 * L)) * mv * 0.55 * (1.0 - bodyA) * uSurf;
+        float bul = length(vec2(q.x / (0.12 + 0.25 * L), (q.y - hy - 0.04) / 0.06)) - 1.0;
+        light += WATERW * lineAA(bul * 0.06, 0.01) * step(hy, q.y) * mv * 0.45 * (1.0 - bodyA) * uSurf;
+      }
+      float still = (1.0 - smoothstep(0.03, 0.12, spd)) * shallow * step(outl, 1.5);   // (the deep-bodied root and tail)
+      if (still > 0.0) {
+        float fl = pow(max(0.0, sin(age * 1.9 + seed * 11.0)), 24.0);
+        vec2 tq = q - vec2(0.05 * sin(age * 7.0), -0.52 * L);
+        light += WATERW * smoothstep(0.02 + 0.06 * L, 0.0, length(vec2(tq.x * 2.2, tq.y))) * fl * still * 0.8 * uSurf;
+        ripple(length(tq), ang, 0.05 + 0.25 * fract(age * 0.31 + seed), 0.008, (1.0 - fract(age * 0.31 + seed)) * still * 0.5 * uSurf, seed, light, ink);
+      }
+    }
   } else {
     // ---- WC-2 a bow wave: the water lifted ahead of a big fish coming fast toward the float (heading +y), the answer to a swirl or a strike
     float t = age, k2 = smoothstep(0.0, 0.2, t) * (1.0 - smoothstep(1.2, 1.6, t));
