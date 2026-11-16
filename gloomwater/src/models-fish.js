@@ -279,7 +279,7 @@ const SHAPES = {
         ['pelvic', 'pect', { s: 0.45, len: 0.08, h: 0.05 }]],
       eye: { s: 0.1, r: 0.024, up: 0.34 }, gill: 0.22, anim: { waveK: 3.4, amp: 0.065, freq: 6 },
     }, M);
-    r.extras.push(...barbels(r.f, M, 0.09));
+    if (M.barbels !== 'none') r.extras.push(...barbels(r.f, M, 0.09));   // (a carp-plan fish with no barbels: the Rustfin Sucker)
     return r;
   },
   koi(M) {

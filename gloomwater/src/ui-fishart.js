@@ -285,7 +285,7 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     g.strokeStyle = INK; g.lineWidth = 1.4 * U; g.beginPath();
     if (p.jaw) { g.moveTo(1.0, 0.0); g.lineTo(0.7, 0.025); } else { g.moveTo(0.995, profile(p, 0.99, 1) * 0.3 + 0.01); g.quadraticCurveTo(0.94, 0.03, 0.9, 0.025); }
     g.stroke();
-    if (p.barbels) { g.strokeStyle = rgba(col.fin, 0.9); g.lineWidth = 1.1 * U; g.beginPath(); g.moveTo(0.95, 0.04); g.quadraticCurveTo(0.98, 0.12, 0.9, 0.16); g.moveTo(0.9, 0.05); g.quadraticCurveTo(0.9, 0.14, 0.82, 0.17); g.stroke(); }
+    if (p.barbels && m?.barbels !== 'none') { g.strokeStyle = rgba(col.fin, 0.9); g.lineWidth = 1.1 * U; g.beginPath(); g.moveTo(0.95, 0.04); g.quadraticCurveTo(0.98, 0.12, 0.9, 0.16); g.moveTo(0.9, 0.05); g.quadraticCurveTo(0.9, 0.14, 0.82, 0.17); g.stroke(); }
   }
   // pectoral fin on top of the body
   if (p.pect) {

@@ -38,6 +38,14 @@ export const LOOP_METHODS = Object.freeze([
 ]);
 
 /** The water a fresh save owns: the one LOOP.waters puts first (the Mossmere). */
+/** M1 step 2 (SPEC §13 rule 3, decision 39): is a water inside what ships (its order ≤ LOOP.shipped's)? No LOOP.shipped: every water of
+ *  LOOP.waters ships (the slice-1a shape). A water past it is sealed: no lake map for it is offered and no trip sails there. */
+export function waterShipped(D, waterId) {
+  const W = D?.LOOP?.waters, o = num(W?.[waterId]?.order, NaN);
+  if (!Number.isFinite(o)) return false;
+  const last = D?.LOOP?.shipped, lo = num(W?.[last]?.order, NaN);
+  return !last || !Number.isFinite(lo) || o <= lo;
+}
 function firstWater(D) {
   const W = D?.LOOP?.waters;
   if (isObj(W)) {
@@ -250,7 +258,8 @@ export function shelfItems(D, metaLoop, session = []) {
   if (h > H.start && ses.has(`hold:${h}`)) out.push(hold(h, true));
   else if (h + 1 <= H.shelfMax && step(h + 1)) out.push(hold(h + 1, false));
   else if (h > H.start && step(h)) out.push(hold(h, true));
-  return out;
+  // M1 step 2 (decision 39): a lake map past LOOP.shipped is never offered (the shelf has no map cards before step 3; the guard holds for every later one)
+  return out.filter((it) => !(it.tab === 'maps' && it.water && !waterShipped(D, it.water)));
 }
 
 /** The goal line's item (SPEC §8.3, PLAN CHOICE 11): the cheapest card not bought (the first on a tie), or null when none is left. */
@@ -586,7 +595,7 @@ export function createLoop(S) {
   function isOpen(waterId) {
     const L = ensureLoop();
     if (!L || typeof waterId !== 'string') return false;
-    return !!LOOP().waters?.[waterId] && (L.maps?.lakes || []).includes(waterId);
+    return !!LOOP().waters?.[waterId] && waterShipped(D(), waterId) && (L.maps?.lakes || []).includes(waterId);
   }
   function createTrip({ startZone = 'mossmere', character = null } = {}) {
     const L = ensureLoop();

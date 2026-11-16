@@ -1,10 +1,14 @@
 // data.js — GLOOMWATER content & balance tables (design team).
-// Pure ES module, no imports. Implements CONTRACT.md §8; every rule that reads these
+// Pure ES module; its only imports are the loop's roster converter and the roster records it ships (src/roster-species.js,
+// src/roster-shipped.js: pure data, read only under LOOP_ENABLED). Implements CONTRACT.md §8; every rule that reads these
 // numbers is specified in DESIGN.md (section numbers in the table headers below).
 // Conventions: colours are hex NUMBERS; times in seconds; distances in metres; speeds
 // in m/s. Optional/extra fields beyond the contract are read with `?.` / `??`.
 // Vocabulary: Embers = health (hearts), Cinders = XP dropped by gloomlings, Shells =
 // run currency, Memories = meta currency, Relics = permanent upgrades.
+
+import { rosterSpecies, rosterItemNames } from './roster-species.js';
+import { ROSTER_SHIPPED } from './roster-shipped.js';
 
 // =====================================================================================
 // STATS (DESIGN §6–§10) — every stat key the game reads. base = value before
@@ -3164,6 +3168,23 @@ export const SPECIES_V3 = [
     lore: 'A quayside minnow with rust-flecked fins and one curious eye. It lives in Murk\'s front yard and has opinions about him.' },
 ].map(v3fin);
 export const SPECIES_V3_BY_ID = Object.fromEntries(SPECIES_V3.map((s) => [s.id, s]));
+// ---- The Full Hold's roster fish (docs/loop/SPEC.md §13, M1 step 2): the drawing and the weather word of each roster fish that is new to
+// the game (a re-founded built species keeps its built model, SPEC §13 rule 1). Slate, pewter, rust and ivory (ROSTER §3.1); no glow
+// but the Milkeye's eyes. Read only by the loop's converter (src/roster-species.js), so the v1 and v3 builds never see them.
+export const ROSTER_ART = {
+  likely_chub:    { prefers: 'drip', model: { shape: 'minnow', body: 0x6e7684, belly: 0xe2ddd0, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.8 } },
+  overbold_bass:  { prefers: 'mist', model: { shape: 'perch', body: 0x5f5a4c, belly: 0xc9c2ad, fin: 0x3a3c40, glow: null, pattern: 'stripes', eyes: 'normal', scale: 0.85 } },
+  rustfin_sucker: { prefers: 'hush', model: { shape: 'carp', body: 0x646a74, belly: 0xd6d2c6, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 1.0, barbels: 'none' } },
+  milkeye_perch:  { prefers: 'mist', model: { shape: 'perch', body: 0x6a707a, belly: 0xe2ddd0, fin: 0x4a4e58, glow: 0xd8d0ff, pattern: 'stripes', eyes: 'glow', scale: 1.1 } },
+};
+// The loop's own body keys (pounds SPEC §6.4 rule 2): a roster fish whose cousin is more than ±30% off its plan's k gets a key of its own,
+// a plain build word, never a species' name. The Milkeye Perch (a slim, pike-built perch: perch 0.013 would be +37%) and the Rustfin
+// Sucker (a slimmer bottom fish than a carp: carp 0.016 would be +45%). Each value is the cousin's weight at the fish's L50 (roster.json's
+// docs-only reference, checked ±30% by tools/sim/roster-check.mjs). Merged into BALANCE_V3.size.k under the loop only.
+export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011 };
+/** The loop's species table for the shipped waters (M1 step 2: the Mossmere's 11 open-water fish), built by the converter in the apply
+ *  block; empty off the loop. SPECIES under the loop holds these in place of the built records of the same ids. */
+export const SPECIES_LOOP = [];
 // Elder names (brief §5.8): "Old Ninefin". A name is pre + core + suffix, seeded by the fish; lakes lend the core.
 export const ELDER_NAMES = {
   pre: ['Old', 'Grey', 'Widow', 'Mother', 'Father', 'Parson', 'Captain', 'Granny', 'Uncle', 'Lady'],
@@ -4796,6 +4817,14 @@ export const LOOP = {
     pull: { perEvening: 1, cap: 6, keeperFloor: -0.25, floorFrom: 1, sureFrom: 8 },   // the pull (SPEC §5.5 (d)); read from slice 1b
   },
   waters: { mossmere: { order: 1, tier: 7, prices: { day: 60, old: 150, night: 260, crown: 500 } } },
+  // ---- M1 step 2 (SPEC §13, decision 39): the last water that ships. No lake map past it is offered and no sheet past it is drawn.
+  shipped: 'mossmere',
+  // the Mossmere's open water as SPECIES_LOOP ships it (M1.md §2.3), in the Journal's order: the roster's eight on built plans and the
+  // three built species the roster keeps (`kept`; the Lampsipper's phase-2 record lifted past the loop's phase pin)
+  species: { mossmere: ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper',
+    'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'reedjaw_pike'] },
+  kept: ['gutter_crayfish', 'candlefin_koi', 'lampsipper'],
+  leaps: { overbold_bass: 0.3 },     // a roster fish's leap chance (AUTOFISH.leaps under the loop): the bass "jumps on the first run"
   // the visit home and the trip's fixed times (the sim's; T37 measures them). show 0: AUTOFISH.time.ceremony holds the show (PLAN CHOICE 15)
   time: { out: 14, between: 8, raftSpeed: 6, home: 2, sale: 5.8, shop: 16, pass: 0.9, show: 0 },
   // ---- the five Wicks (docs/loop/WICKS.md §2, §5; the values of the balancing run as the lead ruled them, §3.5): one passive each,
@@ -4853,6 +4882,10 @@ export function fishClams(sp, z, { zone = sp?.zone, tier = LOOP.waters[zone]?.ti
 export function loopWaterKey(placeId, zoneId) { return placeId ? String(placeId) : `open:${zoneId}`; }
 /** A Wick id of LOOP.wicks.order, else 'wick' (the one implementation: main, loop-rules and progression read it). */
 export function loopWickId(id) { return LOOP.wicks.order.includes(id) ? id : 'wick'; }
+/** M1 step 2 (SPEC §13 rule 3, decision 39): the catalogue order of the last water that ships (LOOP.shipped; 1 = the Mossmere). */
+export function loopShippedOrder() { return Number(LOOP.waters[LOOP.shipped]?.order) || 1; }
+/** Is a water inside what ships? A water past LOOP.shipped is sealed: no lake map for it is offered, no sheet drawn, no trip sails there. */
+export function loopShipped(waterId) { const o = Number(LOOP.waters[waterId]?.order); return Number.isFinite(o) && o <= loopShippedOrder(); }
 /** A Wick's slots for a bought hold (WICKS §2.4): holdSlots + the Wick's `slots` (Tallow 1, the rest 0). Numbers only. */
 export function wickSlots(holdSlots, wickId) { return (Number(holdSlots) || 0) + (LOOP.wicks[loopWickId(wickId)]?.slots || 0); }
 /** wickSlots on a save's meta.loop (its bought holdSlots); the Wick defaults to the save's own. */
@@ -5317,6 +5350,24 @@ if (V3_ENABLED) {
   { const mt = TIPS.find((t) => t.id === 'merchant'); if (mt) mt.text = `A bell across the water. Old Murk has moored. ${COVE.murkLook.tip}.`; }   // A10: his lamp is candle-warm now, not green
   Object.assign(MERCHANT_LINES, MERCHANT_LINES_V3);
   TEXT.v3 = TEXT_V3; TEXT.premise = TEXT_V3.premise; TEXT.challengeTabs = CHALLENGE_TABS_V3;
+  if (LOOP_ENABLED) {   // M1 step 2 (SPEC §13): the Mossmere's roster fish. The converter (src/roster-species.js) on the shipped roster
+    // records; the kept built species cloned (the Lampsipper lifted past the phase pin); every one at any depth (the converter's rule:
+    // the sim has no cast depth); SPECIES holds them in place of the built records of the same ids, ahead of the rest
+    Object.assign(BALANCE_V3.size.k, LOOP_BODY_K);
+    const ids = LOOP.species.mossmere, kept = new Set(LOOP.kept);
+    const conv = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
+      diff, art: ROSTER_ART, waters: ['mossmere'] });
+    const byId = new Map(conv.map((x) => [x.id, x]));
+    for (const id of ids) {
+      const x = kept.has(id) ? { ...v3clone(SPECIES_V3_BY_ID[id]), depth: [0, 1], roster: false, ...(SPECIES_V3_BY_ID[id].phase > 1 ? { loopLift: true } : {}) } : byId.get(id);
+      if (x) SPECIES_LOOP.push(v3fin(x));
+    }
+    const lifted = new Set(SPECIES_LOOP.map((x) => x.id));
+    const rest = SPECIES.filter((x) => !lifted.has(x.id));
+    SPECIES.length = 0;
+    SPECIES.push(...SPECIES_LOOP, ...rest);
+    Object.assign(AUTOFISH.leaps, LOOP.leaps);
+  }
   if (LOOP_ENABLED) {   // the Full Hold's words, Ashwick's tired comeback (no `on`: getCatchBuffs names Ashwick only while a comeback
     // bite is open; catchBuffHold is not edited, WICKS §2.5) and the film's line 3 under the loop (LORE §12, PLAN §2.2 item 26)
     TEXT.loop = TEXT_LOOP;

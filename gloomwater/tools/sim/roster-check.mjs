@@ -20,6 +20,9 @@
 //              holds at most one giant
 //   sizes      a legend is at least 1.4 times the record of anything else in its water (the built legend rule);
 //              a giant outgrows every ordinary fish of its own body plan in its water
+//   weights    (M1 step 2, docs/v3/pounds/SPEC.md §6.4 rule 4) every fish with a docs-only refWeight {cm, kg, source} weighs, at its
+//              L50, within ±30% of its cousin's reference (k·L50³ with k its body's: sizeModel.body, else its bodyPlan, from data.js's
+//              BALANCE_V3.size.k under the loop); a body key of its own is a plain word, never a real species' own name
 //
 // Every regular episode (it has a target and at least one fish landed) must appear in MAIN below, either with
 // its main fish or with the reason it has none. MAIN is the editor's reading of each episode's target.
@@ -166,7 +169,7 @@ export function descendantsOf(a, list) {
   return list.filter((f) => (f.inspiredBy || []).some((e) => overlaps(keysOf(e), ka)));
 }
 
-export function check({ research, roster }, { list = false } = {}) {
+export function check({ research, roster }, { list = false, k = null } = {}) {
   const fails = [], warns = [], info = [];
   const fail = (m) => fails.push(m), warn = (m) => warns.push(m);
   const fish = roster.fish || [], curios = roster.curiosities || [], waters = roster.waters || [];
@@ -301,13 +304,31 @@ export function check({ research, roster }, { list = false } = {}) {
       fail(`${f.id}: a giant has the widest size spread of its water`);
   }
 
+  // weights (pounds SPEC §6.4 rule 4): the cousin's reference at L50, ±30%
+  let refs = 0;
+  for (const f of fish) {
+    const body = f.sizeModel?.body || f.bodyPlan;
+    if (f.sizeModel?.body && (REAL_NAMES.includes(f.sizeModel.body) || !/^[a-z]+$/.test(f.sizeModel.body))) fail(`${f.id}: its body key "${f.sizeModel.body}" must be a plain word, never a real species' own name`);
+    if (f.refWeight === undefined || f.refWeight === null) continue;
+    const R = f.refWeight;
+    if (!(R.cm > 0 && R.kg > 0 && typeof R.source === 'string' && R.source)) { fail(`${f.id}: refWeight must be {cm, kg, source}`); continue; }
+    refs++;
+    if (!k) continue;
+    if (!(k[body] > 0)) { warn(`${f.id}: refWeight set but its body "${body}" has no k yet (its plan is not built)`); continue; }
+    const L = f.sizeModel.L50, w = k[body] * L ** 3 / 1000, ref = R.kg * (L / R.cm) ** 3, off = w / ref - 1;
+    if (Math.abs(off) > 0.3) fail(`${f.id}: ${w.toFixed(3)} kg at its L50 ${L} cm is ${Math.round(off * 100)}% off its cousin's ${ref.toFixed(3)} kg (±30%; a body key of its own, pounds SPEC §6.4 rule 2)`);
+    else info.push(`${f.id.padEnd(20)} ${body.padEnd(10)} ${w.toFixed(3)} kg at ${L} cm, cousin ${ref.toFixed(3)} kg (${off >= 0 ? '+' : ''}${Math.round(off * 100)}%)`);
+  }
+  info.push(`weights: ${refs} of ${fish.length} fish carry a refWeight (each water's fish gain theirs as their sheet ships)`);
   return { fails, warns, info, rows, giantSources };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
   const list = process.argv.includes('--list');
   const data = load();
-  const { fails, warns, info, rows, giantSources } = check(data, { list });
+  globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true;   // the loop's k table (its own body keys merged in)
+  const D = await import('../../src/data.js');
+  const { fails, warns, info, rows, giantSources } = check(data, { list, k: D.BALANCE_V3.size.k });
   const fish = data.roster.fish;
   const caughtFish = new Set(animals(data.research).filter((a) => a.status === 'caught' && a.isFish).map((a) => [...keysOf(a)].find((k) => k.startsWith('sci:')) || [...keysOf(a)][0]));
   if (list) for (const r of rows) console.log(r.join(' | '));
