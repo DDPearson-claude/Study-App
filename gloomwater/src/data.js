@@ -5379,6 +5379,11 @@ TEXT_LOOP.murk.shelfBare = "Shelf's bare. Keep the rest; the road goes on.";   /
 // its name on the running head and the cover, and the order line under a marked item. Every other word in the book is the shelf's.
 TEXT_LOOP.goods = { name: "Murk's Goods", buy: 'Buy · {price}' };
 // <<< Murk's catalogue
+// >>> TK, the tackle tin (the user's words of 16 November 2026: "We should have an option to equip bait or change lures whilst out on the
+// lake"; src/ui-tackle.js, CONTRACT §14.19). Few words: the tin's name, the drawer's two rows, its two empties, the one line while a fish
+// is on. The items' names are TEXT_LOOP.gearItems' (and the built BAITS' for the legend's ball); no odds, no likes, no percentage.
+TEXT_LOOP.tackle = { tin: 'Tackle', bait: 'Bait', lure: 'Lure', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' };
+// <<< TK
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;

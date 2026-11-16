@@ -1985,6 +1985,59 @@ pre-rolls, the comeback, Cut Strip); `tools/tests/loop-watercraft.test.mjs` (thr
 `tools/sim/clams.mjs --shipped=mossmere --step=5` (the three players, the user's rule, every pool bites, every fish catchable, the areas
 add nothing, T104 extended).
 
+### 14.19 (placed before 14.11 to merge cleanly beside the sections appended after 14.15) The tackle tin: bait and lures changed on the lake
+
+The user's words (16 November 2026, play-testing): "We should have an option to equip bait or change lures whilst out on the lake". It
+supersedes SPEC §16 answer 43's "at home only" for the hook. The ledger already let `fit('bait', id)` and `fit('lure', id)` write the run's
+line on a trip; this adds the rule of *when*, the one call that changes the hook, fishing's quiet reel-in, and the tin on the trip's HUD.
+
+**The rule (pure, `progression-loop.js`)**: `HOOK_BUSY` (`['bite', 'reeling', 'landing']`) and `hookChangeable({trip, state, fishOn,
+card})`: at home always; on a trip unless a fish is on, from its class tell and the bite through the hook, the play, the show and its
+card (a catch's `flags.pendingCatch` or progression's pending card, a find's `flags.pendingFind`). Idle, charging, casting, waiting
+before the tell and the reel-in after a pass or a loss may change.
+
+**`ctx.progression.loop` (two methods, in `LOOP_METHODS` and the fixture's `fakeLoop`)**
+- `canChangeHook()` → boolean (`hookChangeable` on `fishing.hookLine()` and the card; false off the loop).
+- `changeHook({bait, lure})` → `{ok, changed, reeled, bait, lure, count}` or `{ok: false, reason: 'fish' | 'bait' | 'lure' | 'off'}`.
+  `bait`: a bait the bag holds (the legend's ball, a tin of the water, Cut Strip: what `fit('bait')` takes), `null` a bare hook, or
+  `undefined` to leave it; `lure`: an owned lure, `null` none, `undefined` to leave it. Every check runs before anything moves (the
+  cast's own bait counts whole). A line out with no fish on it comes in first through `fishing.reelInQuiet()`; then the existing paths
+  `fit('bait', …)` and `fitLure(…)` write `meta.loop.fitted` (saved at once: what the Chart shows at home) and the run's line
+  (`run.equippedBait`, `run.lure`), so the next cast carries the new choice. A bare hook takes the run's line bare even when the bag had
+  moved it onto another bait. Emits `loop:hook {bait, lure, reeled}` on a change (beside fit's `bait:change` and `loop:fit`). At home it is
+  the Chart's fit. **The one API for every view**: the Chart's slots may keep calling `fit`; Taper's Sheet (`gw-mvp-sheet`, its tap-to-fit
+  home only today) switches to `canChangeHook` / `changeHook` at merge, so a tap on the sheet on the lake changes the hook as the tin does.
+
+**`fishing.js` (two API methods; `debug.fishing()` adds `castInfoBait` and `castBait`)**
+- `hookLine()` → `{state, out, fishOn, castBait}`: `fishOn` from the class tell (`S.tell` while waiting) and the bite through the hook,
+  the play, the show and its card (`view.show.phase === 'card'`); `out` a line in the water with no fish on it (casting, or waiting
+  before the tell; never a mist cast); `castBait` the bait out on it (`S.castBait`).
+- `reelInQuiet()` → `{ok, refunded, baitId}`: only while `out`. The cast's bait goes back through `progression.refundBait` (once a cast,
+  its own guard; a legend's ball is spent only at her hook, so nothing comes back for it); the float reels in as after a pass
+  (`toLost(reelInTime)`); `fishing:reelIn {quiet: true, refunded, baitId}` for the sound. No `fishing:miss`, no `fishing:escaped`, no
+  lost-fish line, no bite counted (`noteBite` runs at the bite), no favour, mercy or streak touched; Taper's first bite and Ashwick's
+  comeback are spent only at a bite, so they wait for the next cast. The hook table and its 1% cap are untouched: they read the bait at
+  the cast (`castInfo`), and the next cast's `castInfo.baitId` is the new bait.
+
+**The view (`src/ui-tackle.js`, built by `ui-loop.js`'s `createLoopView`; its CSS `#gw-tackle-css`)**: `createTackleView({K, L, D})` →
+`{update, toggle, paint, isOpen, open, close, tin, debug}`; `ui.loop.tackle`. The tin sits in the HUD's top-left corner under the hold
+row (the old gear glyphs, `.gw-gear-hud`, make way: `.gw-hud.gw-tk-on`), on a trip once `loop.tutorial().done`; its compartments show
+the bait on the hook (the cast's while a line is out) with its count left and the lure (a bare hook and no lure drawn plainly). A tap, a
+click or **B** (ui-loop's `handleKey` gives B to the tin before `tripKeySwallow`) opens the drawer: modal `'tackle'` (blocking: the
+evening waits; quiet: no `ui:modal`), anchored under the tin on a desktop, a bottom sheet when the window is under 700 px wide or a touch
+screen under 560 px tall. Two rows, **Bait** and **Lure** (`tackleModel(D, {run, metaLoop, line})`, pure): each item a button with its
+engraving (`murk-engrave.engrave`, `artCard`), its name (the shelf's) and, for a bait, its count; the one on the hook `aria-pressed`.
+While a fish is on the tin's contents dim (`.gw-busy`) and a tap or B gives `denied` and one line, `TEXT_LOOP.tackle.after`. Sounds:
+`ui_click` (low) as the lid opens and on a change; `reel_ratchet` (light) as a reeled-in line comes in when the drawer closes. No odds,
+no percentage, no "likes" anywhere on it (those live in the logs).
+
+Selectors: `[data-loop=tin]` (the tin; `data-bait`, `data-lure` carry what it shows, `''` for none), `[data-loop=tackle]` (the drawer),
+`[data-row=bait|lure]`, `[data-bait=<id>]` / `[data-lure=<id>]` (an item; `''` the bare hook / no lure), `[data-action=close]`.
+**Words**: `TEXT_LOOP.tackle {tin, bait, lure, bare, none, after}`. **Tests**: `tools/tests/loop-tackle.test.mjs` (the rule across the
+states, a change mid-wait, refusals, the lure, the bare hook, the last bait out, the ball, home, the real `fishing.js` half, the model and
+its words); `tools/tests/loop-tackle.scenario.mjs` (the browser: desktop 960×540, 1280×720, 900×1000; `--mobile` 390×844, 358×664,
+844×390).
+
 ### 14.11 M1 step 3a's seam: the places, the giants, the legend, the catalogue (`docs/loop/m1-step3a/PLAN.md` §2.0, §3)
 
 The seam commit's names, so lanes B, C and D code against names that exist (PLAN §3's stub rule: data and pure helpers are imported
