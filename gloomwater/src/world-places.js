@@ -186,6 +186,7 @@ float footSdf(vec2 p) {
 }
 void main() {
   float d = footSdf(vXZ) + (vL.x < 0.0 ? 0.0 : vL.z);
+  if (d > uFeather + 0.05) discard;   // (past the feather before any noise: the noise only draws the edge in)
   // (the bank's edge billows: slow noise draws it in by up to 1.6 m (2.4 m for an upper layer), never out, so it stays inside its
   // footprint plus the feather; each layer billows on its own seed, so the layers' rims never stack as concentric tiers: the fix pass)
   float lseed = vL.x < 0.0 ? 0.0 : vL.x * 2.9 + 1.3;
@@ -363,8 +364,11 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       const a = p.area;
       const s1 = a.kind === 'disc' ? [0, a.x, a.z, a.r] : a.kind === 'path' ? [1, a.pts[0][0], a.pts[0][1], a.w / 2] : [2, a.x, a.z, a.w / 2];
       const s2 = a.kind === 'path' ? [a.pts[a.pts.length - 1][0], a.pts[a.pts.length - 1][1], 0, 0] : a.kind === 'rect' ? [a.d / 2, 0, 0, 0] : [0, 0, 0, 0];
-      const b = footprintBox(a, BANK.feather + 0.2), k = keeps[bi];
+      const k = keeps[bi];
       for (const [hy, wgt, shrink] of layers) {
+        // (each layer's quad only as large as its own drawn-in footprint can reach: the billow draws in, never out, so a fragment past
+        // footprint + feather − shrink is never drawn; the fix pass, for T148's fill on software GL)
+        const b = footprintBox(a, Math.max(0.2, BANK.feather + 0.2 - shrink));
         const n = low ? 4 : 8;   // a grid per layer (the fragment does the shape; the finer grid lets an upper layer swell)
         for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) {
           pos.push(b.x0 + (b.x1 - b.x0) * (i / n), hy, b.z0 + (b.z1 - b.z0) * (j / n));
