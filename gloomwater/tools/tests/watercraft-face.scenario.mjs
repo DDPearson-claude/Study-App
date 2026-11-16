@@ -45,6 +45,22 @@ export default async function (api) {
     { const p = lanePose(lane2); await cam(p.pos, p.look, 58); await settle(0.8); await K.shoot(`lane-dusk-e${face.evening + 1}`); }
     await g(() => { window.__gw.state.run.evening -= 1; });
 
+    K.step('the heron: it stands at a margin or reed spot, and lifts as the raft comes');
+    const her0 = await g(() => window.__gw.debug.heron?.() ?? null);
+    K.check(her0 && her0.spots > 0 && ['stand', 'stab'].includes(her0.mode), 'the heron stands at a spot at dusk', her0);
+    if (her0) {
+      const hx = her0.x, hz = her0.z, d = Math.hypot(hx, hz) || 1, ux = -hx / d, uz = -hz / d;
+      await K.places.pose(hx + ux * 14, hz + uz * 14, 0); await settle(0.4);
+      await cam([hx + ux * 4.5 + uz * 1.5, 1.6, hz + uz * 4.5 - ux * 1.5], [hx, 0.6, hz], 40); await settle(0.5);
+      await K.shoot('heron-stands');
+      await K.places.pose(hx + ux * 5, hz + uz * 5, 0); await settle(1.2);
+      const her1 = await g(() => window.__gw.debug.heron?.() ?? null);
+      K.check(her1 && her1.lifts >= 1, 'the raft within 8 m: it lifts off', her1);
+      await cam([hx + ux * 9, 3.5, hz + uz * 9], [hx, 2.5, hz], 55); await K.steps(4);
+      await K.shoot('heron-lifts');
+    }
+    await K.places.camera(null);
+
     K.step('the reed beds and the lily beds; a stems nudge');
     await cam([-24, 6, 26], [-30, 0, 15], 50); await settle(0.6);
     await K.shoot('reeds-mossbell');

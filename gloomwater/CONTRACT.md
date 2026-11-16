@@ -790,6 +790,7 @@ getFlow(x, z, layer, out) -> out (unit dir) | null    // layer 'land' (foot) or 
 waterComponent(x, z) -> id; distToOpenWater(x, z) -> m
 randomGroundPoint({from, minDist, maxDist, clearance, reachable, pathMax}); randomWaterPoint({…, nearWalk?, castable?, component?, pathMax?})
 getSpawn() -> {position, yaw, mode}; getGate() -> {position, radius, access}; getMerchantDock(day) -> {position, yaw, stand|null}   // CHANGED (+fields)
+stems -> {nudge(x, z, k), points()} | null   // WC-3 (WATERCRAFT §5.4): the reeds' and lily pads' twitch on the Mossmere under the loop (WC-2's stems tell calls it; ≤ 4 points, the oldest replaced); null elsewhere
 getMoorings(); getLamps(); getPlaces(); placeAt(x, z); getDeeds(); getShortcuts(); getVigils(); getVariant(); getShoreRadius(a) (= R on walking lakes)
 isOpenWater / getDepth: honour land, pools, raftPass and place depth (§24.4)
 setLampState(id, 'unlit'|'lit'|'snuffed'); setDeedState(id, state); setWayside(state)   // visuals only; progression owns the state
@@ -1039,6 +1040,7 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 | `farwater:dawn` | `{day, favour, murk, oilPrice, render, nightBurn}` | progression → ui (HUD gauge), survival, fishing |
 | `condition:change` | `{zone, day, archetype, tomorrow}` (each calm start; `tomorrow` at dawn) | progression → world, water, fishing, audio, ui |
 | `moonfall` | `{state: 'start'\|'end', place: 'ferry_market', reveal: ['bell_pool']}` | progression (owns the schedule: 25% and 70% of the calm, 20 s, 30 s in Moonmist; the Tuning Fork's extra one) → world (renders: shaft swing, `water.setClear`), fishing (sight fish), audio |
+| `heron:lift` | `{x, z}` — WC-3 (WATERCRAFT §5.4): the Mossmere's heron lifts off (the raft within 8 m) or leaves at dark, from where it stood; under the loop only. No species, no odd (the heron changes nothing in the roll) | actors-heron (main) → audio (the croak) |
 | `sign:spawn` / `sign:end` | `{id, kind: 'rise'\|'boil'\|'nervous'\|'strike'\|'bubbles'\|'glow', x, z, sizeClass?}` — informational (audio, tips, ui); fishing-fx draws signs and pre-rolled fish itself and asks water only for ripples and wakes (`addRipple` / `addWake`) | fishing → audio, ui |
 | `lampwatch:start` / `lampwatch:end` | `{lampId, zone, forced}` | survival → combat (no swarm tonight), ui, audio |
 | `player:scorched` | `{night, x, z}` (Lantern, Embers at 0) | survival → combat, ui, audio, progression |
