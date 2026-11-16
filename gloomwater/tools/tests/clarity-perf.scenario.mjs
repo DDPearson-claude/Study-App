@@ -186,11 +186,18 @@ export async function loopPerf(api) {
         const every = Math.max(1, (R.clarity && R.clarity.shadowEvery) | 0);
         let calls = 0, worldOff = 0;
         for (let i = 0; i < N; i++) { if (key) key.shadow.needsUpdate = i % every === 0; const a = performance.now(); R.render(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); t.push(performance.now() - a); calls = Math.max(calls, rr.info.render.calls); }
-        // the world's own calls: the same frames with the world's group hidden (its reflection and shadow passes go with it)
-        const wg = c.world.group; wg.visible = false;
+        // the world's own calls, as DESIGN §25.8.8 counts them (the in-lake draw calls of the scene pass): the scene drawn once straight
+        // through the renderer (no mirror, no shadow refresh, no post), then again with the world's group hidden; and the whole frame's
+        // calls with the world hidden (its mirror and shadow draws go with it) for reference
+        const wg = c.world.group, ar = rr.info.autoReset; rr.info.autoReset = true;
+        if (key) key.shadow.needsUpdate = false;
+        rr.render(R.scene, R.camera); const sceneAll = rr.info.render.calls;
+        wg.visible = false;
+        rr.render(R.scene, R.camera); const sceneOff = rr.info.render.calls;
+        rr.info.autoReset = ar;   // (render.js resets the counters once per frame itself: every pass of a frame is counted)
         for (let i = 0; i < every; i++) { if (key) key.shadow.needsUpdate = i % every === 0; R.render(); worldOff = Math.max(worldOff, rr.info.render.calls); }
         wg.visible = true;
-        return { calls, world: calls - worldOff, wallMs: Math.round(Math.min(...t)), places: c.debug.world?.places?.()?.calls ?? null };
+        return { calls, world: sceneAll - sceneOff, worldAllPasses: calls - worldOff, wallMs: Math.round(Math.min(...t)), places: c.debug.world?.places?.()?.calls ?? null };
       },
     };
   });

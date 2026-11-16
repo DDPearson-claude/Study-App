@@ -569,7 +569,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const g = G(merge(allStone));
     stone = new THREE.Mesh(g, stoneMat);
     stone.name = 'placeStone';
-    const o = new THREE.Mesh(g, stoneOl); o.name = 'placeStone:outline'; o.renderOrder = -1; stone.add(o);
+    // (its ink line on medium and high; on low the place's stone goes without, inside the low line of DESIGN §25.8.8's 42)
+    if (!low) { const o = new THREE.Mesh(g, stoneOl); o.name = 'placeStone:outline'; o.renderOrder = -1; stone.add(o); }
     setupSurface(stone, { cast: true });
     group.add(stone);
   }
