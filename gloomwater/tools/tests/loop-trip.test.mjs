@@ -610,13 +610,16 @@ section('the list counts the shared Journal (T82)');
   meta.journal = { candlefin_koi: { caught: 0, seen: true }, reedjaw_pike: { caught: 0 } };
   const env = makeEnv({ meta });
   startTrip(env);
-  eq(env.L.listCount('mossmere'), { have: 0, need: 6 }, 'T82: Glimpsed and caught-0 entries do not count');
+  eq(env.L.listCount('mossmere'), { have: 0, need: 11 }, 'T82: Glimpsed and caught-0 entries do not count');
   env.P.fishAction(land(env, 'dusk_minnow', 0), 'letgo');
   env.P.fishAction(land(env, 'gutter_crayfish', 0), 'keep');
-  eq(env.L.listCount('mossmere'), { have: 2, need: 6 }, 'T82: a fish let go counts (its measure writes the entry), as a kept one');
+  eq(env.L.listCount('mossmere'), { have: 2, need: 11 }, 'T82: a fish let go counts (its measure writes the entry), as a kept one');
   const old = freshLoopMeta(D);
   old.journal = Object.fromEntries(PL.listFor(D, 'mossmere').map((id) => [id, { caught: 3 }]));
-  eq(makeEnv({ meta: old }).L.listCount('mossmere'), { have: 6, need: 6 }, "T82: a v3 save that landed the six opens at 6/6");
+  eq(makeEnv({ meta: old }).L.listCount('mossmere'), { have: 11, need: 11 }, "T82: a save that landed the eleven opens at 11/11 (M1 step 2)");
+  const six = freshLoopMeta(D);
+  six.journal = Object.fromEntries(['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike'].map((id) => [id, { caught: 3 }]));
+  eq(makeEnv({ meta: six }).L.listCount('mossmere'), { have: 6, need: 11 }, "T82: a step-1 save that landed the six built fish opens at 6/11 (its catches count)");
   eq(env.ctx.errors, [], 'no errors');
 }
 

@@ -55,6 +55,7 @@ import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true;   // the loop's data: v3 at phase 1 (data.js reads the flags once, at import)
 const D = await import('../../src/data.js');
+const RS = await import('../../src/roster-species.js');   // the roster's converter, shared with data.js (SPEC §13, M1 step 2)
 const ROSTER = JSON.parse(fs.readFileSync(new URL('../../docs/loop/roster.json', import.meta.url), 'utf8'));
 const IS_MAIN = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 
@@ -286,8 +287,7 @@ const NAME = Object.fromEntries(LOOP.waters.map((w) => [w.id, w.name]));
 const HOURS = { any: ['day', 'dusk', 'night'], 'any, best at night': ['day', 'dusk', 'night'], day: ['day', 'dusk'], dusk: ['dusk', 'night'],
   night: ['night'], 'day, dusk': ['day', 'dusk'], 'dusk, night': ['dusk', 'night'] };   // an hour opens a window that runs into the next phase
 const BUILT_TIME = { any: HOURS.any, calm: ['day', 'dusk'], gloom: ['night'], dawn: ['day'] };
-const ITEM_NAMES = [...D.LURES.map((l) => [l.id, l.name]), ...D.BAITS.map((b) => [b.id, b.name]), ['cut_strip', 'Cut Strip'], ['ferry_coin', "Ferryman"],
-  ['windfall_plum', 'Windfall Plum'], ['tallow_soap', 'Tallow Soap'], ['lumen_moss', 'Lumen Moss']];
+const ITEM_NAMES = RS.rosterItemNames(D);   // LURES, BAITS and the roster's own tins (src/roster-species.js, the converter's list)
 const builtIds = new Set(D.SPECIES_V3.map((s) => s.id));
 export const SPECIES = [];
 export const PLACES = [];
@@ -306,19 +306,16 @@ for (const [wi, rw] of ROSTER.waters.entries()) {
   }
 }
 const PLACE = Object.fromEntries(PLACES.map((p) => [p.id, p]));
+// the converter (src/roster-species.js, the game's own: style, hours, bait and baits, L50 from the roster's words by SPEC §13's rules), one
+// record per fish per water; the sim adds what is its own (places, giants, the moves of §5.2, the record length)
+export const CONVERTED = RS.rosterSpecies(ROSTER, D.SPECIES_V3, { k: D.BALANCE_V3.size.k, legendStyle: C.legend.style, items: ITEM_NAMES, waterIds: WATER_OF_NAME });
 for (const f of ROSTER.fish) {
   for (const wn of f.water) {
-    const water = WATER_OF_NAME[wn];
-    const style = f.rarity === 'legendary' ? (C.legend.style[f.id] || (f.play.match(/a (steady|darter|sinker|leaper|thrasher|runner|sulker)/i)?.[1] || f.play.split('.')[0]).toLowerCase()) : f.play.split('.')[0].toLowerCase();
-    const fav = f.favours || '', baits = new Set();
-    for (const [id, n] of ITEM_NAMES) if (fav.includes(n)) baits.add(id);
-    const only = fav.match(/bites on ([A-Z][A-Za-z' -]+?) only/);
-    const built = builtIds.has(f.id) ? D.SPECIES_V3_BY_ID[f.id] : null;
+    const water = WATER_OF_NAME[wn], c = CONVERTED.find((x) => x.id === f.id && x.zone === water);
     const placeId = f.giant && f.rarity !== 'legendary' ? placeIdOf(f.placeName) : null;
-    SPECIES.push({ id: f.id, name: f.name, water, rarity: f.rarity, giant: !!f.giant, legend: f.rarity === 'legendary', kind: OWN_MOVE[f.id] ? 'old' : KIND_MOVE[f.id] ?? f.place, ownPlace: OWN_MOVE[f.id] || undefined, moved: !!(KIND_MOVE[f.id] || OWN_MOVE[f.id]), placeId,
-      hours: HOURS[f.hours] || HOURS.any, hoursText: f.hours, bestNight: /best at night/.test(f.hours), style, family: f.family, L50: f.sizeModel.L50,
-      record: f.lengthCm[2], bait: only ? ITEM_NAMES.find(([, n]) => n === only[1])?.[0] : (built?.bait && !built.bait.includes('heart') ? built.bait : null),
-      baits, plan: f.bodyPlan, never: f.family === 'none', roster: true });
+    SPECIES.push({ id: f.id, name: f.name, water, rarity: c.rarity, giant: c.giant, legend: c.rarity === 'legendary', kind: OWN_MOVE[f.id] ? 'old' : KIND_MOVE[f.id] ?? c.kind, ownPlace: OWN_MOVE[f.id] || undefined, moved: !!(KIND_MOVE[f.id] || OWN_MOVE[f.id]), placeId,
+      hours: RS.HOUR_WINDOWS[c.time], hoursText: f.hours, bestNight: c.bestNight, style: c.style, family: c.family, L50: f.sizeModel.L50,
+      record: f.lengthCm[2], bait: c.bait, baits: new Set(c.baits), plan: c.bodyPlan, never: c.family === 'none', roster: true });
   }
 }
 const rosterIds = new Set(ROSTER.fish.map((f) => f.id));
@@ -1026,13 +1023,15 @@ export function firstsGain(kit, from, trips, players, seed) {
 /** The Mossmere as M1 ships it at a step (M1.md §2.3, §6.4): step 1 slice 1a's six built kinds at their built sizes in open water; step 2
  *  the roster's open-water fish but the Kissmark Trout (11); from step 3 every Mossmere fish, its four places, two giants and legend (the
  *  Gloam Eel bites on Lumen Moss only, a step-4 tin). Call before any pool is drawn: it edits the water in place and empties the caches. */
+/** M1 step 2's Mossmere (M1.md §2.3): its open-water fish but the Kissmark Trout (its plan ships in step 3), 11 (no edit, no cache). */
+export function step2Pool(W = WATER.mossmere) { return W.species.filter((s) => s.kind === 'open' && !s.ownPlace && !s.giant && !s.legend && s.id !== 'kissmark_trout'); }
 export function shipMossmere(step) {
   const W = WATER.mossmere;
   if (step <= 1) {
     const ids = ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike'];
     for (const id of ids) { const sp = SP[id + '@mossmere'], b = D.SPECIES_V3_BY_ID[id]; Object.assign(sp, { rarity: b.rarity, L50: b.size.L50, style: b.style, family: b.family, hours: BUILT_TIME[b.time] || HOURS.any, kind: 'open', ownPlace: undefined, bait: null }); }
     W.species = W.species.filter((s) => ids.includes(s.id));
-  } else if (step === 2) W.species = W.species.filter((s) => s.kind === 'open' && !s.ownPlace && !s.giant && !s.legend && s.id !== 'kissmark_trout');
+  } else if (step === 2) W.species = step2Pool(W);
   for (const c of [POOLS, PULLED, LISTS, P_CACHE]) c.clear();
   return W.species;
 }
@@ -1071,7 +1070,22 @@ const sg = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
     const like = { water: 'mossmere', rarity: s.rarity, L50: D.sizeL50(s, 'mossmere') };
     if (clamsFor(like, zz) !== D.fishClams(s, zz)) off.push(`${s.id} z ${zz}: ${clamsFor(like, zz)} vs ${D.fishClams(s, zz)}`);
   }
-  check(built.length >= 6 && !off.length, `the sim's clamsFor equals data.fishClams for all ${built.length} built Mossmere species on their built L50, at six sizes${off.length ? `: ${off.slice(0, 4).join('; ')}` : ''}`);
+  check(built.length >= 6 && !off.length, `the sim's clamsFor equals data.fishClams for all ${built.length} built Mossmere species on their L50 (data.sizeL50: the roster's from M1 step 2), at six sizes${off.length ? `: ${off.slice(0, 4).join('; ')}` : ''}`);
+  // M1 step 2 (SPEC §13): the converter's output (data.js SPECIES_LOOP, the game's) equals the sim's species table for the 11
+  {
+    const sim = step2Pool(), game = D.SPECIES_LOOP, G = Object.fromEntries(game.map((g) => [g.id, g])), bad = [];
+    const win = (g) => RS.HOUR_WINDOWS[g.time] || BUILT_TIME[g.time] || HOURS.any;
+    for (const s of sim) {
+      const g = G[s.id];
+      if (!g) { bad.push(`${s.id} not in SPECIES_LOOP`); continue; }
+      const diffs = [['rarity', s.rarity, g.rarity], ['style', s.style, g.style], ['family', s.family, g.family], ['L50', s.L50, D.sizeL50(g, 'mossmere')],
+        ['hours', JSON.stringify(s.hours), JSON.stringify(win(g))], ['bait', s.bait ?? null, g.bait ?? null]].filter(([, a, b]) => a !== b);
+      for (const zz of [-1.2, 0, 0.4, 1.4, 2.2, 2.95]) if (clamsFor(s, zz) !== D.fishClams(g, zz)) diffs.push([`clams z ${zz}`, clamsFor(s, zz), D.fishClams(g, zz)]);
+      if (diffs.length) bad.push(`${s.id}: ${diffs.map(([k, a, b]) => `${k} ${a} vs ${b}`).join(', ')}`);
+    }
+    const same = sim.length === game.length && sim.every((s) => G[s.id]);
+    check(same && !bad.length && game.length === 11, `M1 step 2: the converter's output (data.js SPECIES_LOOP, ${game.length} fish) equals the sim's species table for the Mossmere's ${sim.length} (rarity, style, family, L50, hours, bait, clams at six sizes)${bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''}${same ? '' : ` (sim: ${sim.map((s) => s.id).join(', ')})`}`);
+  }
   const wk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, LOOP.wicks[w]]))), dk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, D.LOOP.wicks[w]])));
   check(wk === dk && JSON.stringify(LOOP.wicks.order) === JSON.stringify(D.LOOP.wicks.order), "the sim's Wick table is data.LOOP.wicks (the balancing job's values, as ruled)");
   check(STAND_INS.length === 0, `the Wicks' helpers are data.js's own (${['wickSlots', 'goodBitesFor', 'quietTerms', 'wickPoolWeights'].join(', ')})${STAND_INS.length ? `: stand-ins for ${STAND_INS.join(', ')}` : ''}`);

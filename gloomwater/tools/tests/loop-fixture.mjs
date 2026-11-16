@@ -136,7 +136,7 @@ export function fakeLoop(over = {}) {
     },
     debugGive(n) { s.clams += Math.max(0, Number(n) || 0); return s.clams; },
     isOpen: (waterId) => (s.maps.lakes || []).includes(waterId),
-    listCount: (waterId) => (D ? listCountOf({ journal: s.journal }, D, waterId) : { have: 0, need: 6 }),
+    listCount: (waterId) => (D ? listCountOf({ journal: s.journal }, D, waterId) : { have: 0, need: 11 }),
     createTrip({ startZone = 'mossmere', character = null } = {}) {
       s.onTrip = true; s.zone = (s.maps.lakes || []).includes(startZone) ? startZone : s.maps.lakes[0];
       s.fish = []; s.pending = []; s.bites = {}; s.mercy = {}; s.openBite = null; s.openComeback = false; s.taperFirst = false; s.comeback = null;

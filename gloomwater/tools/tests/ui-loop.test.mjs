@@ -343,8 +343,8 @@ section('v8 T83: the Journal\'s Mossmere tab under the loop: the list first, its
   const ids = listFor(D, 'mossmere');
   m.journal = { [ids[0]]: { caught: 2 }, [ids[1]]: { caught: 0, seen: true }, [ids[2]]: { caught: 0 }, gloam_eel: { caught: 4 } };
   const J = U.journalModel(m, D, 'mossmere', { listFor });
-  ok(J.need === 6 && J.list.length === 6, 'six on the list', J.list.map((x) => x.id));
-  ok(J.have === 1 && J.badge === '1/6', 'counted by num(caught) > 0 only: a Glimpsed entry and a caught-0 entry do not count, a fish off the list neither', J.badge);
+  ok(J.need === 11 && J.list.length === 11, 'eleven on the list (M1 step 2)', J.list.map((x) => x.id));
+  ok(J.have === 1 && J.badge === '1/11', 'counted by num(caught) > 0 only: a Glimpsed entry and a caught-0 entry do not count, a fish off the list neither', J.badge);
   ok(J.rest.map((x) => x.id).includes('gloam_eel') && J.rest.map((x) => x.id).includes('belled_matriarch') && !J.rest.some((x) => ids.includes(x.id)), 'the Eel and the Matriarch follow, outside the count');
   ok(J.list[0].landed && !J.list[1].landed, 'each listed card knows its notch');
   ok(U.journalModel(m, D, 'mossmere', {}).need === 0, 'no listFor: an empty list (the built grid)');

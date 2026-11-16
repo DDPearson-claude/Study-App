@@ -222,9 +222,9 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   ok(top.length === 4 && top.every((i) => i.bought), 'CHOICE 26: Hold 5 and T2 keep a permanent Yours. card');
   eq(PL.goalOf(top), null, 'an empty shelf: no goal line');
   // T81/T82: the list
-  eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike'], "T81: the Mossmere's list, computed");
+  eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'reedjaw_pike'], "T81: the Mossmere's list, computed (M1 step 2: the eleven)");
   const jm = { journal: { dusk_minnow: { caught: 1 }, weeping_carp: { seen: true, caught: 0 }, reedjaw_pike: {}, gloam_eel: { caught: 3 }, mossback_perch: { caught: '2' } } };
-  eq(PL.listCount(jm, D, 'mossmere'), { have: 2, need: 6 }, 'T82: caught > 0 only (Glimpsed and off-list entries do not count)');
+  eq(PL.listCount(jm, D, 'mossmere'), { have: 2, need: 11 }, 'T82: caught > 0 only (Glimpsed and off-list entries do not count)');
 }
 
 // ------------------------------------------------------------------ the method set: createLoop (inert in S) and the fixture

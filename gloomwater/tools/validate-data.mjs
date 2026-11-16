@@ -107,7 +107,7 @@ if (process.argv.includes('--loop')) {
   ok4(Object.values(LP.hours).every((v) => Array.isArray(v) && v.length && v.every((p) => PH.includes(p))) && ['calm', 'gloom', 'dawn'].every((b) => !(b in LP.hours)), "LOOP.hours: the roster's strings only, each a list of built phases");
   // value (§4.1)
   const SPX = (id) => L4.SPECIES_BY_ID[id];
-  ok4(L4.fishClams(SPX('dusk_minnow'), 0.4) === 7, `fishClams(dusk_minnow, 0.4) === 7 on the built L50 (got ${L4.fishClams(SPX('dusk_minnow'), 0.4)})`);
+  ok4(L4.fishClams(SPX('dusk_minnow'), 0.4) === 7, `fishClams(dusk_minnow, 0.4) === 7 on its roster L50 (got ${L4.fishClams(SPX('dusk_minnow'), 0.4)})`);
   ok4(L4.fishClams(SPX('belled_matriarch'), 0) === null, 'a legend is never priced by size');
   ok4(LP.waters.mossmere.tier === 7 && LP.waters.mossmere.prices.crown === 500 && LP.value.legendRematch === 0.4, "the Mossmere: tier 7, the Matriarch's crown 500, later ×0.4");
   ok4(num4(LP.priceFactor) && LP.priceFactor > 0, 'LOOP.priceFactor is a positive number (1 in 1a)');
@@ -121,7 +121,79 @@ if (process.argv.includes('--loop')) {
   }
   ok4(items.length >= 0 && same(Object.keys(LP.access.pull).sort(), ['cap', 'floorFrom', 'keeperFloor', 'perEvening', 'sureFrom']), 'v8 (T84): LOOP.access.pull has perEvening, cap, keeperFloor, floorFrom, sureFrom');
   ok4(same(LP.access.list, { kinds: ['open', 'day', 'old'], plainBaitOnly: true }), 'v8: the list rule (SPEC §5.5 (c))');
-  ok4(same(PLM.listFor(L4, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike']), "v8 (T81): the Mossmere's list is the six built open-water fish, computed");
+  ok4(same(PLM.listFor(L4, 'mossmere'), LP.species.mossmere), `v8 (T81): the Mossmere's list is its ${LP.species.mossmere.length} open-water fish of M1 step 2, computed (got ${PLM.listFor(L4, 'mossmere').length})`);
+  ok4(LP.species.mossmere.length === 11, "M1 step 2: the Mossmere's list page counts 11 (M1.md §2.3)");
+  // ---- M1 step 2 (SPEC §13, M1.md §4 step 2): the converter, the allow-list, SPECIES_LOOP, LOOP.shipped, the names rule
+  {
+    const fs = await import('node:fs');
+    const RS = await import('../src/roster-species.js');
+    const { exportText, SHIPPED } = await import('./roster-export.mjs');
+    const { REAL_NAMES } = await import('./sim/roster-check.mjs');
+    const ROSTER = JSON.parse(fs.readFileSync(new URL('../docs/loop/roster.json', import.meta.url), 'utf8'));
+    const SL = L4.SPECIES_LOOP, ids = SL.map((x) => x.id), SZK = L4.BALANCE_V3.size.k;
+    ok4(same(ids, LP.species.mossmere), `SPECIES_LOOP is LOOP.species.mossmere, in order (${ids.join(', ')})`);
+    ok4(same(L4.SPECIES.slice(0, SL.length).map((x) => x.id), ids) && SL.every((x) => L4.SPECIES_BY_ID[x.id] === x), 'SPECIES holds SPECIES_LOOP in place of the built records, ahead of the rest');
+    ok4(L4.SPECIES.filter((x) => x.zone === 'mossmere' && !ids.includes(x.id)).every((x) => x.rarity === 'legendary' || (x.bait && x.bait !== LP.waters.mossmere.plainBait)), 'the Mossmere\'s other fish (the Gloam Eel, the Matriarch) are a one-tin fish or the legend: off the list (M1.md §2.3)');
+    ok4(same(SHIPPED.slice().sort(), ids.filter((id) => !LP.kept.includes(id)).sort()) && LP.kept.every((id) => L4.SPECIES_V3_BY_ID[id] && !ROSTER.fish.some((f) => f.id === id)),
+      'the roster ships its eight (tools/roster-export.mjs SHIPPED) and the three built species the roster keeps (LOOP.kept)');
+    // the worked values of SPEC §4.1 on the roster sizes
+    const SPX = (id) => L4.SPECIES_BY_ID[id];
+    ok4(L4.fishClams(SPX('weeping_carp'), 0.4) === 26, `a Keeper Weeping Carp (z 0.4) sells for 26 on its roster L50 (got ${L4.fishClams(SPX('weeping_carp'), 0.4)})`);
+    ok4(same([1.4, 2.2, 2.95].map((z) => L4.fishClams(SPX('reedjaw_pike'), z)), [158, 406, 1022]), `a Reedjaw Pike sells for 158 / 406 / 1,022 at Prize, Trophy, Elder (got ${[1.4, 2.2, 2.95].map((z) => L4.fishClams(SPX('reedjaw_pike'), z)).join(' / ')})`);
+    // the phase pin: the Lampsipper lifted, no other phase-2 record
+    ok4(L4.V3_PHASE === 1 && same(L4.SPECIES.filter((x) => (x.phase ?? 1) > 1).map((x) => x.id), ['lampsipper']) && SPX('lampsipper')?.loopLift === true,
+      'under GW_V3_PHASE 1 the Lampsipper is in loop SPECIES (lifted past the phase pin) and no other phase-2 record is');
+    // the allow-list: src/roster-shipped.js is a fresh export, cut to ROSTER_KEYS; the converter on it equals the converter on roster.json
+    ok4(fs.readFileSync(new URL('../src/roster-shipped.js', import.meta.url), 'utf8') === exportText(ROSTER), 'src/roster-shipped.js is a fresh export of roster.json (node tools/roster-export.mjs)');
+    const { ROSTER_SHIPPED } = await import('../src/roster-shipped.js');
+    ok4(ROSTER_SHIPPED.fish.every((f) => Object.keys(f).every((k) => RS.ROSTER_KEYS.includes(k))), 'every shipped roster record holds only the allow-list\'s fields');
+    const opts = { k: SZK, legendStyle: L4.CATCH_V3.legend.style, items: RS.rosterItemNames(L4), art: L4.ROSTER_ART, waters: ['mossmere'] };
+    const strip = (x) => { const { difficulty, weight, night, ...r } = x; return r; };
+    const full = RS.rosterSpecies(ROSTER, L4.SPECIES_V3, { ...opts, ids: SHIPPED }), cut = RS.rosterSpecies(ROSTER_SHIPPED, L4.SPECIES_V3, { ...opts, ids: SHIPPED });
+    ok4(same(full.map(strip), cut.map(strip)), 'the converter gives the same fish from roster.json and from the allow-listed export (nothing it reads is cut)');
+    // every shipped fish on its plan; k is its body's; weights within ±30% of the cousin (pounds SPEC §6.4)
+    const KEPT_REF = { gutter_crayfish: { kg: 0.03 * 19 ** 3 / 1000, cm: 19, source: 'signal crayfish (pounds SPEC §6.2: 0%)' }, lampsipper: { kg: 0.0105 * 26 ** 3.08 / 1000, cm: 26, source: 'roach (pounds SPEC §6.2)' },
+      candlefin_koi: { kg: (3 * 16 + 10) * 0.0283495, cm: 46, source: 'koi 3 lb 10 oz (pounds SPEC §6.2)' } };
+    for (const x of SL) {
+      const body = x.size?.body, k = SZK[body];
+      ok4(L4.FISH_SHAPES.includes(x.model?.shape) && typeof k === 'number' && x.size.k === k, `${x.id}: on a built plan (${x.model?.shape}) and its k is its body's (${body} ${k})`);
+      ok4(!REAL_NAMES.includes(body) && /^[a-z]+$/.test(body), `${x.id}: its body key "${body}" is a plain word, never a species' own name (roster-check REAL_NAMES)`);
+      ok4(inR(x.size.sigma, L4.BALANCE_V3.size.sigma[0], L4.BALANCE_V3.size.sigma[1]) && x.weight[0] < x.weight[1] && same(x.depth, [0, 1]), `${x.id}: σ in range, a weight range, any depth`);
+      ok4(L4.FISH_STYLES.includes(x.style) && L4.FISH_FAMILIES.includes(x.family) && L4.WEATHER.includes(x.prefers) && (x.time in LP.hours || ['calm', 'gloom', 'any'].includes(x.time)), `${x.id}: style, family, weather and hours are known words`);
+      const rf = ROSTER.fish.find((f) => f.id === x.id), ref = rf ? rf.refWeight : KEPT_REF[x.id];
+      const w = ref ? k * x.size.L50 ** 3 / 1000 : NaN, r = ref ? ref.kg * (x.size.L50 / ref.cm) ** 3 : NaN;
+      ok4(ref && Math.abs(w / r - 1) <= 0.3, `${x.id}: ${w.toFixed(3)} kg at its L50 ${x.size.L50} cm is within ±30% of its cousin's ${r.toFixed(3)} kg (${ref ? Math.round((w / r - 1) * 100) : '—'}%)`);
+    }
+    // LOOP.shipped (decision 39): the Mossmere; no lake map past it is offered, no sheet past it is drawn
+    ok4(LP.shipped === 'mossmere' && L4.loopShippedOrder() === 1 && L4.loopShipped('mossmere') && !L4.loopShipped('sporewood'), "LOOP.shipped is the Mossmere (order 1): Sporewood is sealed");
+    // the names rule (SPEC §0 row 17, §13 allow-list): no research field, episode title, research name, series or presenter in src/ or
+    // the built file (index.html); plain family words that are also a research row's whole name (carp, catfish) are the game's own
+    const R = JSON.parse(fs.readFileSync(new URL('../docs/loop/research/river-monsters-fish.json', import.meta.url), 'utf8'));
+    const GENERIC = new Set(['carp', 'catfish', 'unidentified fish', 'small fish', 'lost fish', 'small one', 'the giants']);   // plain words a research row uses as its whole name, never a name of its own
+    const terms = new Map(), add = (kind, t) => { t = String(t || '').trim().toLowerCase(); if (t.length >= 4 && !GENERIC.has(t)) terms.set(t, kind); };
+    const shortT = (t) => String(t).replace(/^River Monsters:? /, '').replace(/ \((?:international title|Extended Cut|two-hour)[^)]*\)$/i, '').trim();
+    for (const e of R.episodes) {
+      add('an episode title', e.title); add('an episode title', shortT(e.title));
+      for (const a of e.animals || []) { add('a research name', String(a.common || '').replace(/\s*\(.*?\)\s*/g, ' ')); const b = String(a.scientific || '').match(/\b([A-Z][a-z]+ [a-z]{3,})\b/); if (b) add('a scientific name', b[1]); }
+    }
+    for (const f of ROSTER.fish) for (const i of f.inspiredBy || []) add('a research name', String(i.common || '').replace(/\s*\(.*?\)\s*/g, ' '));
+    const files = fs.readdirSync(new URL('../src/', import.meta.url)).map((f) => ['src/' + f, new URL('../src/' + f, import.meta.url)]);
+    const idx = new URL('../index.html', import.meta.url);
+    if (fs.existsSync(idx)) files.push(['index.html', idx]);
+    const escR = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const FIELDS = ['giantOf', 'gotAwayOf', 'inspiredBy', 'refWeight'];
+    const res = [...terms].map(([t, kind]) => [new RegExp(`(^|[^a-z])${escR(t)}($|[^a-z])`), t, kind]);
+    let scanned = 0;
+    for (const [name, url] of files) {
+      const text = fs.readFileSync(url, 'utf8'), low = text.toLowerCase(); scanned++;
+      for (const fld of FIELDS) ok4(!new RegExp(`\\b${fld}\\b`).test(text), `${name}: no ${fld} field (it stays in docs/)`);
+      const m = text.match(/River Monsters|Jeremy|\bWade\b/);
+      ok4(!m, `${name}: names neither the series nor its presenter${m ? ` ("${m[0]}")` : ''}`);
+      const hit = res.find(([re]) => re.test(low));
+      ok4(!hit, `${name}: no research name or episode title${hit ? ` (${hit[2]}: "${hit[1]}")` : ''}`);
+    }
+    ok4(scanned > 50 && terms.size > 300, `the names rule scanned ${scanned} files for ${terms.size} research names and titles`);
+  }
   // the five Wicks (WICKS §2, §3.5, §5; T72)
   const W = LP.wicks, ids = L4.CHARACTERS.map((c) => c.id);
   ok4(same(W.order, ['wick', 'taper', 'stub', 'tallow', 'ashwick']) && W.order.every((id) => ids.includes(id)) && W.order.length === 5, 'LOOP.wicks.order is the five CHARACTERS ids');
