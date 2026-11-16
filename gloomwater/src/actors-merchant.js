@@ -13,7 +13,7 @@
 // only, so home keeps "no PointLight"); no turning to track the raft (his breath, blink and the ledger's idle only: a page of his
 // ledger turned now and then); leave() keeps him moored unless {unmoor: true}. Off the loop nothing calls moor().
 import * as THREE from 'three';
-import { toonMaterial, addOutline, glowSprite, glowMaterial, canvasTexture } from './toon.js';
+import { toonMaterial, addOutline, glowSprite, glowMaterial, canvasTexture, REFLECT_LAYER } from './toon.js';
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, blob, spike, lumpy, smoothNormals, shadowTexture } from './models-kit.js';
 
 const damp = THREE.MathUtils.damp;
@@ -201,6 +201,24 @@ export function createMerchant(ctx) {
   const page = new THREE.Mesh(xf(new THREE.PlaneGeometry(0.17, 0.25), { p: [0.09, 0.001, 0], r: [-Math.PI / 2, 0, 0] }), M(toonMaterial({ color: 0xd8ccb4, rim: 0.2, side: THREE.DoubleSide })));
   pageHinge.add(page);
   let pageT = 6, pageK = 0;
+  /**
+   * Moored (the home frame, M1 §2.14): his small parts (the lids, the sac, the bell and its post, the chime, the lamp's iron, the
+   * ledger, the lotus lamps' glows) leave the shadow and mirror passes, which cannot show them at home's distance; the large ones
+   * (the pad, the body, the pack, the head) keep both. Put back as built when he leaves the moored mode.
+   */
+  function trimPasses(on) {
+    object3d.traverse((o) => {
+      if (!(o.isMesh || o.isSprite) || o.userData?.isOutline) return;
+      const u = o.userData;
+      if (u.gwPass0 === undefined) u.gwPass0 = { cast: !!o.castShadow, refl: o.layers.isEnabled(REFLECT_LAYER) };
+      let r = Infinity;
+      if (o.isSprite) r = Math.max(o.scale.x, o.scale.y) * 0.5;
+      else if (o.geometry) { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); r = (o.geometry.boundingSphere?.radius ?? Infinity) * Math.max(o.scale.x, o.scale.y, o.scale.z); }
+      const small = on && r < 0.45;
+      o.castShadow = small ? false : u.gwPass0.cast;
+      if (small || !u.gwPass0.refl) o.layers.disable(REFLECT_LAYER); else o.layers.enable(REFLECT_LAYER);
+    });
+  }
 
   // ---------------------------------------------------------------- shadow + pick proxy
   const shMat = M(new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, opacity: 0.45, depthWrite: false, fog: true }));
@@ -247,8 +265,10 @@ export function createMerchant(ctx) {
       tongue.visible = false; tongueK = 0;
       ledger.visible = true;
       light.intensity = 0; lampLit = 0;
+      trimPasses(true);
     },
     arrive(pos, y = 0, { instant = false } = {}) {
+      if (mode === 'moored') trimPasses(false);
       ledger.visible = false;
       if (pos) position.set(pos.x || 0, 0, pos.z || 0);
       yaw = Number.isFinite(y) ? y + Math.PI : Math.PI;
@@ -266,6 +286,7 @@ export function createMerchant(ctx) {
     },
     leave({ instant = false, unmoor = false } = {}) {
       if (mode === 'moored' && !unmoor) return;   // (the loop: moored Murk stays at home; only a new water unmoors him)
+      if (mode === 'moored') trimPasses(false);
       ledger.visible = false;
       present = false;
       if (!object3d.visible) { mode = 'hidden'; return; }

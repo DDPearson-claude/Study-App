@@ -127,6 +127,16 @@ section('Murk moored: his lamp dark, no turning to the raft, leave() keeps him (
   }
   eq(lit, 0, 'his lamp\'s PointLight held at 0 through 300 s (its glow mesh and halo only)');
   ok(maxTurn < 1e-9 && maxLook <= 0.22 && yawDrift <= 0.05, `no turning toward the raft (body ${maxTurn.toFixed(3)}, head ${maxLook.toFixed(3)} rad at most: his idle only)`);
+  const passes = (o3) => { let cast = 0, refl = 0; o3.traverse((o) => { if ((o.isMesh || o.isSprite) && !o.userData?.isOutline) { if (o.castShadow) cast++; if (o.layers.isEnabled(1)) refl++; } }); return { cast, refl }; };
+  const builtM = createMerchant(mkCtx());
+  const { setupSurface } = await import('../../src/toon.js');
+  setupSurface(builtM.object3d, { minReflect: 0.4 });
+  const before = passes(builtM.object3d);
+  builtM.moor(new THREE.Vector3(M.murk.x, 0, M.murk.z), M.murk.yaw);
+  const moored = passes(builtM.object3d);
+  ok(moored.cast <= 8 && moored.cast < before.cast && moored.refl < before.refl, `moored, his small parts leave the shadow and mirror passes (casters ${before.cast} → ${moored.cast}, mirrored ${before.refl} → ${moored.refl})`);
+  builtM.leave({ instant: true, unmoor: true });
+  eq(passes(builtM.object3d), before, '… and are put back as built when he is unmoored');
   m.leave({ instant: true });
   ok(m.mode === 'moored' && m.present, 'leave() keeps him moored (the market\'s reset, the title)');
   m.leave({ instant: true, unmoor: true });
