@@ -37,7 +37,9 @@ const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
 /** The banks' shape: the feather beyond the footprint (m; T145's "plus 1.5 m"), how far inside it the bank starts to thin. */
-export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4, curtain: { h: 2.6, inset: 0.8, w: 0.5 } });
+export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4, curtain: { h: 2.6, inset: 0.8, w: 0.34 },
+  // the curtains: soft rings of rising mist inside the bank's edge, [inset (m), height (m), alpha weight]: volume, never a wall
+  curtains: [[0.9, 2.6, 0.34], [2.8, 1.9, 0.26]] });
 /** The layers of a bank, low to high: height (m), alpha weight, how far the layer is drawn in from the footprint (m: a low dome). */
 export const BANK_LAYERS = Object.freeze({
   high: [[0.08, 0.36, 0], [0.45, 0.3, 0.3], [0.9, 0.24, 0.7], [1.4, 0.18, 1.2], [2.0, 0.12, 1.8]],
@@ -168,7 +170,9 @@ float footSdf(vec2 p) {
   return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
 }
 void main() {
-  float d = footSdf(vXZ) + max(vL.z, 0.0);
+  float d = footSdf(vXZ) + (vL.x < 0.0 ? 0.0 : vL.z);
+  // (the bank's edge billows: slow noise draws it in by up to 1.6 m, never out, so it stays inside its footprint plus the feather)
+  d += wpN(vXZ * 0.19 + vec2(vS1.y * 0.07, uTime * 0.012)) * 1.6;
   if (vK.z > 0.0) d = max(d, vK.z - length(vXZ - vK.xy));   // (a dock's keep-out: no bank over a dock)
   float cover = 1.0 - smoothstep(-uInner, uFeather, d);
   if (cover < 0.002) discard;
@@ -177,9 +181,10 @@ void main() {
     // the bank's curtain: a soft wall of mist along its own edge, dense at the water and breaking into a billowed top
     float along = vXZ.x * 0.43 + vXZ.y * 0.37;
     float nc = wpN(vec2(along + uTime * 0.06, vY * 0.8 - uTime * 0.05)) * 0.6 + wpN(vec2(along * 2.3 - uTime * 0.04, vY * 1.9 + 3.0)) * 0.4;
-    float top = mix(0.35, 1.0, wpN(vec2(along * 0.7 + 11.0, uTime * 0.03)));
-    float hk = clamp(vY / uCurH, 0.0, 1.0);
-    float ac = cover * vL.y * (1.0 - smoothstep(0.0, top, hk)) * mix(0.45, 1.25, nc) * vOp * uAmt;
+    float top = mix(0.25, 1.0, wpN(vec2(along * 0.7 + 11.0, uTime * 0.03)));
+    float hk = clamp(vY / max(0.5, vL.z), 0.0, 1.0);
+    float gaps = smoothstep(0.22, 0.7, nc);   // (it drifts in wisps and gaps along its length: never a solid wall)
+    float ac = cover * vL.y * (1.0 - smoothstep(0.0, top, hk)) * pow(1.0 - hk, 0.6) * gaps * 1.4 * vOp * uAmt;
     if (ac < 0.003) discard;
     gl_FragColor = vec4(mix(uShade, uLit, clamp(0.35 + hk * 0.5 + nc * 0.3, 0.0, 1.0)), min(ac, 0.85));
     #include <tonemapping_fragment>
@@ -189,9 +194,11 @@ void main() {
   float seed = vL.x * 7.3 + vS1.y * 0.13;
   float n = wpN(vXZ * 0.21 + drift + seed) * 0.6 + wpN(vXZ * 0.53 - drift * 1.7 + seed * 1.9) * 0.4;
   float wisp = mix(1.0, smoothstep(0.28, 0.72, n), smoothstep(0.3, 1.2, vL.x));   // the upper layers break into wisps
-  float a = cover * vL.y * mix(0.5, 1.3, n) * wisp * vOp * uAmt;
+  // (clumps, not a sheet: the mist gathers and thins across the bank, so a bank seen from far is never a flat pale disc)
+  float clump = smoothstep(0.18, 0.82, wpN(vXZ * 0.11 - drift * 0.6 + seed * 0.3) * 0.55 + n * 0.45);
+  float a = cover * vL.y * mix(0.5, 1.25, clump) * wisp * vOp * uAmt;
   if (a < 0.003) discard;
-  vec3 col = mix(uShade, uLit, clamp(vL.x * 0.45 + n * 0.55, 0.0, 1.0));
+  vec3 col = mix(uShade, uLit, clamp(vL.x * 0.35 + clump * 0.45 + n * 0.2, 0.0, 1.0));
   gl_FragColor = vec4(col, min(a, 0.92));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -318,14 +325,19 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         base += (n + 1) * (n + 1);
       }
       // the curtain along the bank's edge (inset): quads from the water to BANK.curtain.h
-      const C = BANK.curtain, loop = footprintLoop(a, C.inset, low ? 2 : 1.2), H = C.h;
-      for (let i = 0; i < loop.length; i++) {
-        const [x0, z0] = loop[i], [x1, z1] = loop[(i + 1) % loop.length];
-        for (const [x, y, z] of [[x0, 0, z0], [x1, 0, z1], [x1, H, z1], [x0, H, z0]]) {
-          pos.push(x, y, z); aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(-1, C.w, 0); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
+      const cc = footprintCentre(a);
+      for (const [inset, H, wgt] of low ? BANK.curtains.slice(0, 1) : BANK.curtains) {
+        // (a curtain wanders inward, never out: its own seeded jitter along the edge)
+        const loop0 = footprintLoop(a, inset, low ? 2 : 1.2);
+        const loop = loop0.map(([x, z], j) => { const t = 0.55 + 0.45 * Math.sin(j * 0.9 + bi * 2.1 + inset) * Math.sin(j * 0.37 + 1.3); const k2 = Math.min(1.2, 0.9 * t); const dx = cc.x - x, dz = cc.z - z, l = Math.hypot(dx, dz) || 1; return a.kind === 'disc' ? [x + dx / l * k2, z + dz / l * k2] : [x, z]; });
+        for (let i = 0; i < loop.length; i++) {
+          const [x0, z0] = loop[i], [x1, z1] = loop[(i + 1) % loop.length];
+          for (const [x, y, z] of [[x0, 0, z0], [x1, 0, z1], [x1, H, z1], [x0, H, z0]]) {
+            pos.push(x, y, z); aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(-1, wgt, H); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
+          }
+          ix.push(base, base + 1, base + 2, base, base + 2, base + 3);
+          base += 4;
         }
-        ix.push(base, base + 1, base + 2, base, base + 2, base + 3);
-        base += 4;
       }
     });
     const g = G(new THREE.BufferGeometry());
@@ -665,10 +677,11 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   arena?.halos?.commit?.();
 
   // ---------------------------------------------------------- the giant's back (one mesh, shown 2 s at a time)
-  const backG = G(new THREE.SphereGeometry(1, 20, 8, 0, TAU, 0, Math.PI / 2));
-  backG.scale(0.4, 0.34, 1.3);
+  // a long smooth back with a low keel along its spine (it reads as a back turning, never as a hole in the water); no fin, no species
+  const backG = G(new THREE.SphereGeometry(1, 24, 10, 0, TAU, 0, Math.PI / 2));
+  { const pp = backG.attributes.position; for (let i = 0; i < pp.count; i++) { const x = pp.getX(i), y = pp.getY(i), z = pp.getZ(i); const ridge = Math.exp(-x * x * 40) * 0.18 * y; pp.setXYZ(i, x * 0.36, (y + ridge) * 0.42, z * 1.35 * (1 - 0.18 * Math.max(0, z))); } backG.computeVertexNormals(); }
   // (drawn after the bank, a little veiled: a dark back seen in the mist, not a stone under it)
-  const backM = M(inkToon({ color: BACK_COL, rim: 0.7, rimColor: 0xa49ce0, rimPower: 0.5, steps: 3, transparent: true, opacity: 0.82 }, { fogScale: 0.9 }));
+  const backM = M(inkToon({ color: BACK_COL, rim: 0.95, rimColor: 0xb4acec, rimPower: 0.42, steps: 3, transparent: true, opacity: 0.85, gloss: 0.4, shine: 30, wet: 0.6 }, { fogScale: 0.9 }));
   backM.depthWrite = false;
   const back = new THREE.Mesh(backG, backM);
   back.name = 'giantBack'; back.visible = false; back.renderOrder = 7;
@@ -679,7 +692,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   // ---------------------------------------------------------- per-frame
   const _m4 = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _s = new THREE.Vector3(), _p = new THREE.Vector3();
   const tmpC = new THREE.Color(), tmpC2 = new THREE.Color();
-  const LAV = new THREE.Color(0xe0d8f6), LAV_N = new THREE.Color(0x9890cc), SHADE = new THREE.Color(0x9088c4), SHADE_N = new THREE.Color(0x4a4486);
+  const LAV = new THREE.Color(0xd4ccf0), LAV_N = new THREE.Color(0x938bc8), SHADE = new THREE.Color(0x8077b6), SHADE_N = new THREE.Color(0x433d7c);
   const CANDLE3 = lin(candle);
   function startBack(i, raft) {
     const s = S[i], a = s.area, c = footprintCentre(a), b = footprintBox(a, 0);

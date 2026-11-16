@@ -37,7 +37,7 @@ export function placeFrames(id) {
 export const POSE_A = {
   lily_maze: { x: -36, z: 38 },
   under_the_span: { x: -20, z: 16 },
-  buoy_lights: { x: -38, z: 7 },
+  buoy_lights: { x: -45, z: 13 },
   bell_pool: { x: -4, z: 0 },
 };
 /** Pose b for each place: a still lens {pos, look, fov} laid over the rig (the other side of the place from the raft's pose a). */
