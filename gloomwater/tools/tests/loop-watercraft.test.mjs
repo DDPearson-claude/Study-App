@@ -97,5 +97,30 @@ section('(f) through fishing.js: a stray\'s comeback waits (no ember, no fishing
   ok(b?.comeback === true && !('speciesId' in (b || {})), '… fishing:bite {comeback: true} names no fish');
 }
 
+// =====================================================================================
+section('(h) T104 extended: the game\'s pool (castOdds on data.placePool, as fishing.js builds it) is the sim\'s poolFor, every place and area × light × the 12 hooks × no Wick and Taper');
+{
+  const SIM = await import('../sim/clams.mjs');
+  const HOOKS = [{}, { bait: 'mireworm' }, { bait: 'lumen_moss' }, { bait: 'cut_strip' }, { bait: 'heartmoss' },
+    { lure: 'feather_fly' }, { lure: 'glimmer_spoon' }, { lure: 'bone_jig' }, { lure: 'bell_spinner' },
+    { lure: 'glimmer_spoon', bait: 'mireworm' }, { lure: 'feather_fly', bait: 'lumen_moss' }, { lure: 'bone_jig', bait: 'cut_strip' }];
+  const LIGHTS = { day: 'calm', dusk: 'dusk', night: 'gloomtide' }, ball = D.LOOP.legendBait.mossmere.id, gb = (b) => (b === ball ? null : b ?? null);
+  let n = 0, worst = 0; const bad = [];
+  for (const where of [...WC.AREAS.map((a) => ({ area: a, place: null })), ...Object.keys(D.LOOP.places).map((p) => ({ area: null, place: p }))]) {
+    for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of HOOKS) for (const wick of [null, 'taper']) {
+      const pool = D.placePool(D.SPECIES, { placeId: where.place, phase: gph, bait: gb(h.bait), wickId: wick, water: 'mossmere' });
+      const ar = pool.place ? null : where.area ?? 'open';
+      const game = WC.castOdds(D, { pool, area: ar, phase: gph, lure: h.lure ?? null, bait: gb(h.bait), wickId: wick });
+      const sim = SIM.poolFor('mossmere', pool.place, ph, h.lure ?? null, h.bait ?? null, null, 1, wick, ar);
+      const a = new Map(), b = new Map();
+      for (const [sp, w] of sim.list) a.set(sp.id, (a.get(sp.id) || 0) + w / sim.tot);
+      for (const e of game.entries) b.set(e.sp.id, (b.get(e.sp.id) || 0) + e.p);
+      for (const id of new Set([...a.keys(), ...b.keys()])) { const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); worst = Math.max(worst, d); if (d > 1e-9) bad.push(`${where.place ?? where.area} ${ph} ${JSON.stringify(h)} ${wick}: ${id}`); }
+      n++;
+    }
+  }
+  ok(!bad.length && n === 14 * 3 * 12 * 2, `T104 extended: ${n} pools, every share the same (worst ${worst.toExponential(1)})${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}`);
+}
+
 console.log(`\nloop-watercraft: ${pass} passed, ${fail} failed`);
 if (fail) { console.log(failures.slice(0, 20).join('\n')); process.exit(1); }

@@ -589,6 +589,7 @@ function dropSp(pool, id) {
   const list = pool.list.filter(([s]) => s.id !== id), sure = pool.sure ? pool.sure.list.filter(([s]) => s.id !== id) : null;
   return { list, tot: list.reduce((a, [, w]) => a + w, 0), sure: sure && sure.length ? { list: sure, tot: sure.reduce((a, [, w]) => a + w, 0) } : null };
 }
+export { poolFor };   // (WC-1: tools/tests/loop-watercraft.test.mjs's T104)
 const pick = (r, pool) => { let x = r() * pool.tot; for (const [s, w] of pool.list) { x -= w; if (x <= 0) return s; } return pool.list[pool.list.length - 1][0]; };
 const STRIKES = Object.entries(A.player.strike);
 const pickStrike = (r) => { let x = r(); for (const [g, f] of STRIKES) { x -= f; if (x <= 0) return g; } return 'struck'; };
@@ -1079,7 +1080,7 @@ export function pacing(o = {}) {
   const snapshot = (label) => {
     const e = bestWater(), recent = sinceBuy.slice(-6), tpp = recent.length ? recent.reduce((a, b) => a + b, 0) / recent.length : 1;
     const rb = recentBonus.length ? recentBonus.reduce((a, b) => a + b, 0) / recentBonus.length : 0;
-    markRows.push({ label, owned: state.maps.length, clams: e.clams + rb, min: e.min, tpp, bought: log.length, water: e.water, hold: state.hold, slots: wickSlots(state.hold, wid), h: state.sec / 3600,
+    markRows.push({ label, owned: state.maps.length, clams: e.clams + rb, min: e.min, tpp, bought: log.length, water: e.water, hold: state.hold, slots: wickSlots(state.hold, wid), h: state.sec / 3600, kit: kitFor(e.water, e.lure, e.bait),
       state: `T${state.rod}/${state.line}/${state.reel}, hold ${state.hold}${wickSlots(state.hold, wid) !== state.hold ? ` (${wickSlots(state.hold, wid)} slots)` : ''}, ${state.maps.length} water${state.maps.length > 1 ? 's' : ''}, ${state.places.size} place${state.places.size === 1 ? '' : 's'}`, giants, ledgers: ledger ? ledgers.map(copyLedger) : null });
   };
   const firstFished = {};
@@ -1433,7 +1434,10 @@ function shippedReport() {
   console.log(`Its fish: ${sp.filter((s) => !s.never).map((s) => s.name + (s.legend ? ' (legend)' : s.giant ? ' (giant)' : '')).join(', ')}.`);
   console.log(`Its places: ${step >= 3 ? W.places.map((p) => `${p.name} ${f0(p.price)}`).join(' · ') : 'none yet (step 3)'}. Its list (the catch seal on Sporewood's sheet): ${listFor('mossmere').length} fish.`);
   console.log(`The visit home is the Jetty's (LOOP.time: home ${LOOP.time.home} s, sale ${LOOP.time.sale} s, shop ${LOOP.time.shop} s); step 5's barge re-measures it. Plain bait (Mire Worms) from minute 30 from step 4.\n`);
-  const runs = {}; for (const w of ALL) runs[w ?? 'none'] = w ? pacing({ shipped: 'mossmere', step, wick: w, track: true }) : pacing({ shipped: 'mossmere', step, track: true });
+  // WC-1: --readers / --stalkers make the reader or the stalker-reader the main player of the runs below (the three are compared anyway)
+  const PLAYER = args.includes('--stalkers') ? 'stalker' : args.includes('--readers') ? 'reader' : 'blind';
+  if (PLAYER !== 'blind') console.log(`(--${PLAYER}s: the runs below are the ${PLAYER === 'reader' ? 'reader' : 'stalker-reader'}'s)\n`);
+  const runs = {}; for (const w of ALL) runs[w ?? 'none'] = w ? pacing({ shipped: 'mossmere', step, wick: w, track: true, player: PLAYER }) : pacing({ shipped: 'mossmere', step, track: true, player: PLAYER });
   const R = runs.none;
   table(['#', 'hour', 'trips', 'waited', 'buys', 'clams', 'clams/trip', 'min/trip'], R.log.map((l, i) => [i + 1, l.h.toFixed(2), l.trips, l.waited, l.name, f0(l.cost), f0(l.perTrip), f1(l.min)]));
   const endTrip = R.log[R.log.length - 1];
@@ -1462,7 +1466,7 @@ function shippedReport() {
   }
   const ck = (tag, ok, label) => check(ok, (tag ? `[${tag}] ` : '') + label);
   // WC-1 (WATERCRAFT.md §8.3, SPEC v8.7 §4.9): the three players, at Murk's prices (D.loopCost, ×LOOP.cost.factor; --factor=F overrides)
-  const FAC = D.LOOP.cost.factor, PL3 = { reader: pacing({ shipped: 'mossmere', step, player: 'reader' }), stalker: pacing({ shipped: 'mossmere', step, player: 'stalker' }) };
+  const FAC = D.LOOP.cost.factor, PL3 = { reader: PLAYER === 'reader' ? R : pacing({ shipped: 'mossmere', step, player: 'reader' }), stalker: PLAYER === 'stalker' ? R : pacing({ shipped: 'mossmere', step, player: 'stalker' }) };
   title(`M1 (v8.7): the three players at ×${FAC} (Murk's price: D.loopCost; the 32 items ${f0(total)} clams)`);
   const firstOf = (Rp) => Rp.log[0], markOf = (Rp, l) => Rp.markRows.find((m) => m.label === l), pm = (m) => (m ? m.clams / m.min : NaN);
   table(['player', 'first purchase', 'bought by 10 min', 'by 1 h', 'the empty shelf (h)', 'trips', 'longest wait (min)', 'first giant (h)', 'clams a minute at 1 h', 'at 2 h'],
@@ -1472,6 +1476,15 @@ function shippedReport() {
     if (step === 5) check(Rp.doneH >= 4.5 && Rp.doneH <= 7.5, `M1 (v8.7): ${n}'s empty shelf at ${Rp.doneH.toFixed(2)} h, ${Rp.trips} trips (target 4.5–7.5 h; fitted at step P)`);
   }
   const rel = (Rp, l) => pm(markOf(Rp, l)) / pm(markOf(R, l)) - 1;
+  // a tin is worth fitting (Mire Worms on the pacing kit at the 1 h mark, against that kit with no bait; SPEC §4.5, §8.3: unchanged)
+  if (step >= 4) {
+    const k1 = markOf(R, '1 h')?.kit;
+    if (k1) {
+      const nB = Math.max(N * 2, 8000), a = run({ ...k1, bait: null }, POL.natural(), nB, 501), b = run({ ...k1, bait: 'mireworm' }, POL.natural(), nB, 501);
+      const gain = b.gross - a.gross, cost = b.baitCost, gg = b.perMin / a.perMin - 1;
+      check(cost > 0 && gain / cost >= 1.3 && gg >= 0.03 && gg <= 0.25, `M1 (v8.7): a tin is worth fitting: Mire Worms on the pacing kit at 1 h (${[k1.lure && LURE_NAME[k1.lure], `T${k1.rod}/${k1.line}/${k1.reel}`, `hold ${k1.hold}`].filter(Boolean).join(', ')}) ${pc1(gg)} clams a minute net of the tins, a tin earns ${(gain / Math.max(1e-9, cost)).toFixed(1)}× its price (target +3–25% and ≥ 1.3×)`);
+    }
+  }
   warn(['1 h', '2 h'].every((l) => within(rel(PL3.reader, l), 0.05, 0.4)), `M1 (v8.7) report: reading pays: the reader earns ${pc1(rel(PL3.reader, '1 h'))} a minute over the blind caster at 1 h and ${pc1(rel(PL3.reader, '2 h'))} at 2 h (aim +5% to +40%)`);
   warn(['1 h', '2 h'].every((l) => rel(PL3.stalker, l) <= 0.4), `M1 (v8.7) report: stalking stays fair: the stalker-reader earns ${pc1(rel(PL3.stalker, '1 h'))} at 1 h and ${pc1(rel(PL3.stalker, '2 h'))} at 2 h over the blind caster (aim at most +40%)`);
   for (const w of ALL) {
