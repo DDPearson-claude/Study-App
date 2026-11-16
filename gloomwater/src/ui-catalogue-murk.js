@@ -89,7 +89,7 @@ const CSS = `
 .gw-mb-chap h3 { margin: 0; font: 400 24px/1 var(--f-fell); letter-spacing: .14em; text-transform: uppercase; color: var(--cat-ink); }
 .gw-mb-rule { display: block; width: 64%; height: 8px; color: var(--cat-ink-2); margin-top: 2px; }
 .gw-mb-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); grid-template-rows: repeat(var(--rows, 2), minmax(0, 1fr)); }
-.gw-plate { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 5px 8px 3px; box-sizing: border-box; overflow: hidden; }
+.gw-plate { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 5px 8px 3px; box-sizing: border-box; }
 .gw-book[data-layout=desktop] .gw-plate:nth-child(2n) { border-left: 1px solid var(--cat-ink-2); }
 .gw-book[data-layout=desktop] .gw-plate:nth-child(n+3) { border-top: 1px solid var(--cat-ink-2); }
 .gw-book[data-layout=phone] .gw-plate:nth-child(n+2) { border-top: 1px solid var(--cat-ink-2); }
@@ -121,12 +121,14 @@ const CSS = `
 .gw-plate-count { position: absolute; right: 12%; bottom: 8%; min-width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
   border: 1.5px solid var(--cat-ink); background: var(--cat-paper); font: 700 16px/1 var(--f-body); color: var(--cat-ink); }
 .gw-mb-stamp { position: absolute; left: 50%; top: 50%; z-index: 2; pointer-events: none; transform: translate(-50%, -50%) rotate(-14deg); padding: 4px 16px 2px;
-  font: 400 30px/1 var(--f-fell); letter-spacing: .12em; text-transform: uppercase; color: var(--cat-stamp); border: 2.5px solid currentColor; border-radius: 4px;
+  font: 400 min(30px, calc(var(--pw) / 13.5))/1 var(--f-fell); letter-spacing: .12em; text-transform: uppercase; color: var(--cat-stamp); border: 2.5px solid currentColor; border-radius: 4px;
   box-shadow: inset 0 0 0 2px var(--cat-paper), inset 0 0 0 3.2px currentColor; opacity: .86; mix-blend-mode: multiply; white-space: nowrap; }
 .gw-mb-stamp.gw-press { animation: gwMbStamp .42s cubic-bezier(.2, .9, .3, 1.2) both; }
 @keyframes gwMbStamp { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(1.7); } 60% { opacity: .95; } 100% { opacity: .86; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
 .gw-plate.gw-bought .gw-plate-art, .gw-plate.gw-bought .gw-plate-price { opacity: .78; }
-.gw-plate-map { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 4px; padding: 0 6% 2%; pointer-events: none; }
+.gw-plate-art { overflow: hidden; }
+.gw-plate-map { position: absolute; left: 50%; bottom: 3%; display: flex; align-items: flex-end; gap: 4px; pointer-events: none; transform: translateX(-50%) scale(var(--k, 1)); transform-origin: 50% 100%; }
+.gw-book[data-layout=desktop] .gw-plate-art > .gw-plate-hours { position: absolute; top: 0; left: 2px; flex-direction: column; gap: 2px; }
 .gw-plate-map canvas { filter: drop-shadow(0 0 1.5px var(--cat-paper)) drop-shadow(0 0 1.5px var(--cat-paper)); }
 .gw-plate-map .gw-map-wick { flex: none; display: block; }
 .gw-plate-map .gw-map-wick .cat-eng { width: 100%; height: 100%; display: block; color: var(--cat-ink); }
@@ -213,7 +215,7 @@ const CSS = `
 .gw-book-close:hover, .gw-book-close:focus-visible { color: #fff; outline: none; box-shadow: 0 0 0 1.5px rgba(255, 200, 130, .7); }
 .gw-book[data-layout=desktop] .gw-book-close { right: -58px; top: -10px; }
 /* the phone's plate: the drawing beside its words */
-.gw-book[data-layout=phone] .gw-mb-page { padding: 10px 12px 8px; }
+.gw-book[data-layout=phone] .gw-mb-page { padding: 10px 12px 10px; }
 .gw-book[data-layout=phone] .gw-plate { display: grid; grid-template-columns: minmax(0, 44%) minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; column-gap: 8px; align-items: start; padding: 8px 4px 4px; }
 .gw-book[data-layout=phone] .gw-plate-art { grid-column: 1; grid-row: 1 / span 4; height: 100%; }
 .gw-book[data-layout=phone] .gw-plate-kick, .gw-book[data-layout=phone] .gw-plate-name, .gw-book[data-layout=phone] .gw-plate-line, .gw-book[data-layout=phone] .gw-plate-hours,
@@ -227,9 +229,9 @@ const CSS = `
 .gw-book[data-layout=phone] .gw-mb-chap h3 { font-size: 24px; }
 /* a short spread (960 x 540): the plate's kicker is the chapter's head already; the line two rows; the name condensed further */
 .gw-book.gw-short .gw-kick-ch { display: none; }
-.gw-book.gw-short .gw-plate-line { -webkit-line-clamp: 2; line-height: 1.04; }
+.gw-book.gw-short .gw-plate-line { -webkit-line-clamp: 3; line-height: 1.04; letter-spacing: -.012em; }
 .gw-book.gw-short .gw-plate-name { font-size: 19px; transform: scaleX(.8); width: 125%; margin: 0 -12.5%; }
-.gw-book.gw-short .gw-plate { padding-top: 4px; }
+.gw-book.gw-short .gw-plate { padding: 4px 3px 3px; }
 /* a tall phone page (390 x 844): the drawing over its words, as on a desktop page, larger */
 .gw-book.gw-tall .gw-plate { display: flex; flex-direction: column; align-items: center; padding: 8px 6px 4px; }
 .gw-book.gw-tall .gw-plate-kick, .gw-book.gw-tall .gw-plate-name { text-align: center; }
@@ -325,7 +327,7 @@ export function createMurkBook(deps) {
     if (c.slot === 'place') mapArt(art, c, B);
     if (c.consumable && c.count > 0) { const n = h('b', 'gw-plate-count'); n.textContent = String(c.count); art.appendChild(n); }
     el.appendChild(art);
-    if (c.slot === 'place' && arr(c.hours).length) el.appendChild(h('span', 'gw-plate-hours', arr(c.hours).map((g) => `<i aria-hidden="true">${icon(g)}</i>`).join('')));
+    if (c.slot === 'place' && arr(c.hours).length) (B.layout === 'desktop' ? art : el).appendChild(h('span', 'gw-plate-hours', arr(c.hours).map((g) => `<i aria-hidden="true">${icon(g)}</i>`).join('')));
     if (c.slot === 'lake') {
       try { const row = deps.sealRow(c.seals, { from: 'shelf' }); row.classList.add('gw-seal-row'); el.appendChild(row); } catch (e) { report('cat.seals', e); }
       const soon = h('span', 'gw-plate-soon'); soon.textContent = TL().comingSoon || 'Coming soon'; el.appendChild(soon);
@@ -519,9 +521,21 @@ export function createMurkBook(deps) {
     const ch = (shown.slice().reverse().find((p) => p.chapter) || {}).chapter || (shown.some((p) => p.kind === 'cover') ? '' : '');
     root.dataset.tab = ch || '';
     for (const b of tabs.querySelectorAll('[role=tab]')) b.setAttribute('aria-selected', String(b.dataset.chapter === ch));
+    fitMaps(spread);
     const anchorPage = B.pages[pages[pages.length - 1]];
     S.anchor = anchorPage?.items?.[0] || anchorPage?.kind || null;
     memo = { anchor: S.anchor };
+  }
+  /** A map plate's Wick and fish at one scale, shrunk together to fit the drawing's box (never one without the other). */
+  function fitMaps(scope) {
+    const go = () => {
+      for (const m of scope.querySelectorAll('.gw-plate-map')) {
+        const box = m.parentElement?.getBoundingClientRect(), w = m.offsetWidth, hh = m.offsetHeight;
+        if (!box || !w || !hh) continue;
+        m.style.setProperty('--k', String(Math.min(1, (box.height * 0.94) / hh, (box.width * 0.92) / w).toFixed(3)));
+      }
+    };
+    try { go(); requestAnimationFrame(go); } catch (e) { report('cat.fitMaps', e); }
   }
   /** The foot: the purse, and the order line for the marked item. */
   function paintFoot() {
@@ -580,7 +594,7 @@ export function createMurkBook(deps) {
     const front = h('div', 'gw-mb-face gw-mb-face--front'), back = h('div', 'gw-mb-face gw-mb-face--back');
     leaf.appendChild(front); leaf.appendChild(back);
     const T = Math.round(BOOK.turn * 1000 * turnScale);
-    const page = (n) => pageEl(entry, model, B, n, goal);
+    const page = (n) => { const el = pageEl(entry, model, B, n, goal); requestAnimationFrame(() => fitMaps(el)); return el; };
     S.stamp = null;
     if (B.layout === 'desktop') {
       // forward: the right page lifts at the gutter and lays down on the left; under it the next right page, behind it the next left
