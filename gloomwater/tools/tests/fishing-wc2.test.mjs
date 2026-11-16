@@ -39,9 +39,9 @@ function world(rng) {
     },
   };
 }
-function env({ phase = 'dusk', raft = [0, 46], seed = 7, loopOver = {}, quality = 'high' } = {}) {
+function env({ phase = 'dusk', raft = [0, 46], seed = 7, loopOver = {}, quality = 'high', scene = null } = {}) {
   const loop = fakeLoop({ D, wick: 'wick', ...loopOver });
-  const E = makeFishingEnv({ data: D, mode: 'still', outing: 'trip', phase, seed, loop, raft, render: { getQuality: () => quality },
+  const E = makeFishingEnv({ data: D, mode: 'still', outing: 'trip', phase, seed, loop, raft, render: { getQuality: () => quality, ...(scene ? { scene } : {}) },
     runOver: { bait: { mireworm: 99 }, equippedBait: 'mireworm', evening: 2, character: 'wick', nightMode: 'still' } });
   E.ctx.world = world(mul(seed * 7 + 1));
   E.ctx.bus.on('fishing:bite', (e) => loop.noteBite(e));
@@ -156,6 +156,25 @@ section('a cast on a silhouette bolts it; the spot goes quiet (§6.5)');
   ok(!near, 'no new silhouette within 10 m of it for 30 s');
   E.reset();
   ok(E.events.filter((x) => x.e === 'sign:spawn' && x.p.kind === 'sight').length === before, '(none spawned there)');
+}
+
+section('no drawn ring round the float where it lands by a silhouette, and no pulse quad\'s edge on the water (§6.9)');
+{
+  const scene = new THREE.Scene();
+  const E = env({ raft: RAFT, seed: 23, scene });
+  const pm = scene.getObjectByName('fishing-pulses');
+  ok(!!pm && pm.material.uniforms.uEdge?.value === 1, 'on the Mossmere under the loop the pulses\' glow fades out inside their quad (uEdge 1)');
+  ok(/uEdge \* smoothstep\(vR \+ vW, vHs - 0\.02, d\)/.test(pm?.material.fragmentShader || ''), '(the glow reaches zero before the quad\'s inscribed circle)');
+  const p = marginPoint();
+  const f = E.ctx.debug.sight('weeping_carp', { x: p.x, z: p.z, heading: p.h, mode: 'cruise', speed: 0.35, life: 120 });
+  E.tick(3);
+  const g = E.ctx.debug.fishSights().find((q) => q.id === f.id);
+  E.ctx.debug.castAt(g.x, g.z);
+  let lit = 0, landed = false;
+  for (let i = 0; i < 90 && !landed; i++) { E.tick(1); landed = E.F.state !== 'casting'; }
+  for (let i = 0; i < 12; i++) { E.tick(1); for (const q of pm.material.uniforms.uQ.value) if (q.w > 0.003) lit++; }
+  ok(landed && E.dbg().sign?.spook === true, 'the float lands on the carp and it bolts');
+  ok(lit === 0, `no pulse ring at the landing: the float's own ripple alone (${lit} lit pulse frames)`);
 }
 
 section('a cast ahead of a silhouette hands the bite its fish (§6.6)');

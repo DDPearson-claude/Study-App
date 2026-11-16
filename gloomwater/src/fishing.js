@@ -936,7 +936,8 @@ export function create(ctx) {
     const x = V.bob.x, z = V.bob.z;
     call(() => ctx.water?.splash?.(x, z, { size: 0.45, count: 10 }));
     call(() => ctx.water?.addRipple?.(x, z, 0.9));
-    fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.15, r1: 1.3, duration: 0.8, alpha: 0.7 });
+    // (WC-2, WATERCRAFT §6.9: on the Mossmere under the loop the float's own ripple alone: a drawn ring would frame the fish it lands by)
+    if (!mossLoop()) fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.15, r1: 1.3, duration: 0.8, alpha: 0.7 });
     S.spot = null; S.rareSpot = false;
     if (LOOP()) {   // M1 step 3a: a cast into a bank (a place not owned, or not lifted yet) bites nothing (PLAN §2.2 item 3, T121)
       const mist = waterInfo(x, z).mist;
@@ -2189,7 +2190,8 @@ export function create(ctx) {
         if (p.index > 0) {
           if (!LOOP()) emit('toast', { text: `${sp?.name || 'It'}: ${p.name}`, kind: 'bad' });   // (WC-2, §7.2: none on a trip: it names the fish)
           call(() => ctx.render?.shake?.(0.18, 0.4));
-          fx.pulse(V.fish.x, V.fish.z, { color: 0xffd27a, r0: 0.5, r1: 5, duration: 1.2, width: 0.1, alpha: 0.9 });
+          if (mossLoop()) call(() => ctx.water?.addRipple?.(V.fish.x, V.fish.z, 1.6));   // (WC-2, §5.7: the water moves where it is; no gold ring)
+          else fx.pulse(V.fish.x, V.fish.z, { color: 0xffd27a, r0: 0.5, r1: 5, duration: 1.2, width: 0.1, alpha: 0.9 });
         }
         if (p.mechanic === 'summon') {
           const ph = p.phase || {};
@@ -3733,7 +3735,7 @@ export function create(ctx) {
   function clearMoss() {
     const W2 = wc2();
     for (const f of W2.sights) { S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); }
-    W2.sights.length = 0; W2.answers.length = 0; W2.quiet.length = 0; W2.cast = null; W2.hooked = null; W2.next = SU(2, 6); W2.lamps = null;
+    W2.sights.length = 0; W2.answers.length = 0; W2.quiet.length = 0; W2.cast = null; W2.hooked = null; W2.next = 3; W2.lamps = null;   // (no draw on the seeded sign RNG off the Mossmere)
   }
   const SIGHT_PUSH = { x: 0, z: 0, heading: 0, kind: 11, length: 0.3, strength: 0, seed: 0, age: 0, since: 0, radius: 1, toNext: 99, tint: 0xb7b0e8, aspect: 0.2, c: [0, 0, 0, 0], d: [0, 0, 0, 1] };
   const ANSWER_KIND = { rise: 1, splash: 1.1, bow: 12, spray: 3, ruffle: 3.1, fizz: 5, pinprick: 7.1, cloud: 9, stems: 10 };

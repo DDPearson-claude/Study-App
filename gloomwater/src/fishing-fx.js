@@ -266,22 +266,26 @@ uniform vec4 uP[${PULSES}];   // x, y, z, radius
 uniform vec4 uQ[${PULSES}];   // r, g, b, alpha
 uniform float uW[${PULSES}];
 attribute float aIdx; attribute vec2 aCorner;
-varying vec2 vUv; varying float vR; varying vec4 vQ; varying float vW;
+varying vec2 vUv; varying float vR; varying vec4 vQ; varying float vW; varying float vHs;
 void main() {
   int i = int(aIdx + 0.5);
   vec4 P = uP[i];
   float hs = P.w + uW[i] * 3.0 + 0.1;
   vec3 p = vec3(P.x + aCorner.x * hs, P.y, P.z + aCorner.y * hs);
   if (uQ[i].a < 0.003) p = vec3(0.0, -60.0, 0.0);
-  vUv = aCorner * hs; vR = P.w; vQ = uQ[i]; vW = uW[i];
+  vUv = aCorner * hs; vR = P.w; vQ = uQ[i]; vW = uW[i]; vHs = hs;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
 }`;
 const PULSE_FS = /* glsl */`
-varying vec2 vUv; varying float vR; varying vec4 vQ; varying float vW;
+uniform float uEdge;
+varying vec2 vUv; varying float vR; varying vec4 vQ; varying float vW; varying float vHs;
 void main() {
   float d = length(vUv);
   float ring = smoothstep(vW, 0.0, abs(d - vR));
   float glow = exp(-abs(d - vR) / max(0.02, vW * 2.5)) * 0.35;
+  // WC-2 (the Mossmere under the loop): the glow's tail reaches zero inside the quad's inscribed circle; built, it is cut by the
+  // quad's edge and the discard, a pale square with rounded corners round the float (never a box on the water)
+  glow *= 1.0 - uEdge * smoothstep(vR + vW, vHs - 0.02, d);
   float a = (ring + glow) * vQ.a;
   if (a < 0.003) discard;
   gl_FragColor = vec4(vQ.rgb * 1.8, min(1.0, a));
@@ -1038,6 +1042,7 @@ export function createFishingFx(ctx) {
     uP: { value: Array.from({ length: PULSES }, () => new THREE.Vector4()) },
     uQ: { value: Array.from({ length: PULSES }, () => new THREE.Vector4()) },
     uW: { value: new Array(PULSES).fill(0.06) },
+    uEdge: { value: 0 },   // WC-2: 1 on the Mossmere under the loop (setWaterWhite): the glow fades out before the quad's edge
   };
   {
     const geo = quadIndexGeometry(PULSES, (g) => {
@@ -1325,6 +1330,7 @@ export function createFishingFx(ctx) {
      *  the legend pool's gold glimmer off. Off: as built. */
     setWaterWhite(on) {
       signU.uWhite.value = on ? 1 : 0;
+      pulseU.uEdge.value = on ? 1 : 0;
       poolU.uGlim.value = signOn && !on ? 1 : 0;
     },
     get waterWhite() { return signU.uWhite.value > 0.5; },
