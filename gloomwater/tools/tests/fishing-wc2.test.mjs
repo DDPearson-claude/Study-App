@@ -183,6 +183,33 @@ section('a cast ahead of a silhouette hands the bite its fish (§6.6)');
   ok(took > 0 && nosed > 0 && wrong === 0, `it swims to the bait and takes it (${took}) or noses it and turns away (${nosed}); the bite is that fish`);
 }
 
+section('a silhouetted pike and a worm: the whole cast (WC-1\'s castOdds, once merged)');
+{
+  const E0 = env({ raft: RAFT, seed: 51 });
+  if (typeof E0.ctx.debug.fishOdds !== 'function') console.log('  (the game draws through castOdds once WC-1 is merged: this block checks it then)');
+  else {
+    let n = 0, okP = 0, refusedSeen = 0;
+    for (let k = 0; k < 6; k++) {
+      const E = env({ raft: RAFT, seed: 51 + k });
+      const p = marginPoint();
+      const f = E.ctx.debug.sight('reedjaw_pike', { x: p.x, z: p.z, heading: p.h, mode: 'hold', life: 200 });
+      if (!f) continue;
+      E.tick(2);
+      const hx = f.x + Math.sin(f.heading) * f.length / 2, hz = f.z + Math.cos(f.heading) * f.length / 2;
+      E.ctx.debug.castAt(hx + Math.cos(f.heading) * 1.3, hz - Math.sin(f.heading) * 1.3);
+      for (let i = 0; i < 90 && E.F.state === 'casting'; i++) E.tick(1);
+      if (E.dbg().sign?.kind !== 'sight') continue;
+      n++;
+      const o = E.ctx.debug.fishOdds();
+      const pike = (o?.entries || []).filter((e) => e.id === 'reedjaw_pike').reduce((a, e) => a + e.p, 0);
+      if (Math.abs(pike - 0.01) < 1e-6) okP++;
+      if (!E.dbg().prerollTook) refusedSeen++;
+    }
+    ok(n >= 3 && okP === n, `on worms a led pike's whole cast is exactly 1% (${okP} of ${n} casts)`);
+    ok(refusedSeen >= n - 1, `it noses the worm and turns away (${refusedSeen} of ${n})`);
+  }
+}
+
 section('an obeyed tell is answered by the water (§5.3)');
 {
   const E = env({ raft: RAFT, seed: 31 });
