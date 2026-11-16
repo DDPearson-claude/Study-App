@@ -405,31 +405,30 @@ export function landmarkShot(raft, p, { yaw = 0, aspect = 16 / 9, S = LANDMARK_S
   const f = Array.isArray(p.face) && Number.isFinite(p.face[0]) && Number.isFinite(p.face[1]) && Math.hypot(p.face[0], p.face[1]) > 1e-6 ? p.face : null;
   if (f) { const fl = Math.hypot(f[0], f[1]), sd = dx * f[0] + dz * f[1] < 0 ? -1 : 1; dx = sd * f[0] / fl; dz = sd * f[1] / fl; }
   const l = Math.hypot(dx, dz) || 1;
-  let ux = dx / l, uz = dz / l;
+  const ux = dx / l, uz = dz / l;
   const up = showUpright(aspect);
   let dist = Number.isFinite(p.dist) && p.dist > 0 ? p.dist : clamp(num(S.base, 6.5) + num(S.perR, 1.35) * r, num(S.near, 11), num(S.far, 30));
   if (Number.isFinite(dRaft) && !side && !(Number.isFinite(p.dist) && p.dist > 0)) dist = Math.max(num(S.near, 11) * 0.7, Math.min(dist, dRaft + num(S.minRaft, 3)));
   // (a portrait frame: a long place filmed off its broadside and a little further back, so all of it fits across the narrow frame)
-  if (f && up > 0.5) {
-    const off = num(S.portraitOff, 38) * DEG * (raft && Number.isFinite(raft.x) ? (((raft.x - p.x) * -uz + (raft.z - p.z) * ux) < 0 ? -1 : 1) : 1);
-    const c = Math.cos(off), s = Math.sin(off);
-    [ux, uz] = [ux * c - uz * s, ux * s + uz * c];
-    dist = Math.min(num(S.far, 30), dist * num(S.portraitBack, 1.18));
-  }
+  const portrait = !!f && up > 0.5;
+  const pOff = portrait ? num(S.portraitOff, 38) * (raft && Number.isFinite(raft.x) ? (((raft.x - p.x) * -uz + (raft.z - p.z) * ux) < 0 ? -1 : 1) : 1) : 0;
+  if (portrait) dist = Math.min(num(S.far, 30), dist * num(S.portraitBack, 1.18));
   const y0 = num(p.y, 0), look = [p.x, y0, p.z];
   const e0 = num(p.elev, num(S.elev, 21));
   const poseAt = (rot, lift) => {
     const c = Math.cos(rot * DEG), s = Math.sin(rot * DEG), vx = ux * c - uz * s, vz = ux * s + uz * c, e = Math.min(70, e0 + lift) * DEG;
     return [p.x + vx * dist * Math.cos(e), y0 + dist * Math.sin(e), p.z + vz * dist * Math.cos(e)];
   };
-  let pos = poseAt(0, 0);
+  let pos = poseAt(pOff, 0);
   const fov = lerp(num(S.fov, 50), num(S.fovPortrait, 64), up);
   if (Array.isArray(obstacles) && obstacles.length) {
     // first a clear line (and a lens not over an island); then, among those, one with no island in the frame's near part
     const half = Math.atan(Math.tan(fov * DEG / 2) * Math.max(0.3, num(aspect, 16 / 9))), cone = Math.tan(half);
     // (a broadside first: small turns on the raft's side, then the far side's, each low before raised; a wide turn, which films a long
     // place down its length, last)
-    const tries = [], steps = S.steps || [0], small = steps.filter((r) => Math.abs(r) <= 36), wide = steps.filter((r) => Math.abs(r) > 36 && Math.abs(r) < 180);
+    // (a portrait frame keeps its oblique: either end, either side, never further round)
+    const tries = [], steps = S.steps || [0];
+    const small = portrait ? [pOff, -pOff] : steps.filter((r) => Math.abs(r) <= 36), wide = portrait ? [] : steps.filter((r) => Math.abs(r) > 36 && Math.abs(r) < 180);
     for (const lift of S.raise || [0]) { for (const rot of small) tries.push(poseAt(rot, lift)); for (const rot of small) tries.push(poseAt(180 + rot, lift)); }
     for (const lift of S.raise || [0]) for (const rot of wide) tries.push(poseAt(rot, lift));
     const o = { clear: S.clear, cone, vhalf: fov * DEG / 2 };
