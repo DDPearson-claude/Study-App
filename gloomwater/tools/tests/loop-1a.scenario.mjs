@@ -184,7 +184,7 @@ export function classifyText(text, rules, where) {
   const one = (x) => {
     if (!x) return true;
     if (rules._set.has(x)) return true;
-    if (/^[\s·•\-–—:|/,.()[\]…›‹«»+×✕★☆]+$/.test(x)) return true;                     // a separator or a glyph character
+    if (/^[\s·•\-–—:|/,.()[\]…›‹«»+×✕★☆!]+$/.test(x)) return true;                     // a separator or a glyph character
     if (/^[+\-−]?\d[\d,]*(\.\d+)?[km]?$/.test(x)) return true;                             // a number (clams as fmtClams writes them)
     if (/^\d+\s?\/\s?\d+$/.test(x)) return true;                                           // a count ("2 / 6")
     if (/^(\d[\d,]*\s?lb(\s\d+\s?oz)?|\d+\s?oz|[¼½¾]\s?oz|\d+\s?[¼½¾]\s?oz|lb|oz)$/.test(x)) return true;   // a weight as fmtWeight prints it
