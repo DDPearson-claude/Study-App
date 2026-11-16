@@ -657,7 +657,9 @@ void main() {
   } else if (kind < 5.5) {
     // ---- bubble trail: beads of bubbles behind the head along the bottom; the head breathes a little cluster
     float trail = 3.2, bub = 0.0;
+    bool froth = uWhite > 0.5;   // WC-2: the Mossmere's carp fizz: fewer, larger, softer froth blobs (never pin-point glints)
     for (int i = 0; i < 16; i++) {
+      if (froth && i >= 8) break;
       float fi = float(i) + seed * 51.0;
       float s = trail * pow(h11(fi), 1.6);
       float lat = 0.28 * sin(s * 1.6 + seed * 6.0) + (h11(fi + 1.7) - 0.5) * 0.25;
@@ -665,7 +667,8 @@ void main() {
       float P = 0.8 + 1.3 * h11(fi + 2.9), u = mod(age + h11(fi + 4.1) * P, P) / P;
       float rr = 0.02 + 0.045 * u * (0.6 + 0.6 * h11(fi + 5.3));
       float hk = 1.0 - s / trail;
-      bub += lineAA(length(q - c) - rr, 0.01) * (1.0 - u) * (0.3 + 0.7 * hk);
+      if (froth) { float R = max(rr * 1.8 + 0.03, 2.5 * MPP); bub += smoothstep(R, R * 0.15, length(q - c)) * (1.0 - u) * (0.3 + 0.7 * hk) * 0.22; }
+      else bub += lineAA(length(q - c) - rr, 0.01) * (1.0 - u) * (0.3 + 0.7 * hk);
     }
     light += STAR * bub * fine * 1.5 * uSurf;
     light += mix(STAR, GOLD, 0.2) * exp(-dot(q, q) * 4.0) * (0.1 + 0.25 * far) * uSurf;

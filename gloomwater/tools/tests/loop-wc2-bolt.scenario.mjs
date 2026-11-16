@@ -76,6 +76,24 @@ export default async function (api) {
     } else K.note('no second carp (quiet water)');
     await pulses(true);
     await idle();
+
+    K.step('carp fizz and its answer (froth, never pin-point glints)');
+    await clearAll();
+    const fz = await g(([x, z]) => window.__gw.debug.sign('bubbles', { x, z, heading: -Math.PI / 2, ttl: 60 }), MARGIN.fish);
+    await K.secs(3);
+    await K.shoot('fizz');
+    const live = await g((id) => { const s = window.__gw.fishing.signs.find((q) => q.id === id); return s ? { x: s.head.x, z: s.head.z, h: s.heading } : null; }, fz?.id);
+    if (live) {
+      await castAt(live.x + Math.sin(live.h) * 0.8, live.z + Math.cos(live.h) * 0.8);
+      await landed();
+      let a = null;
+      for (let i = 0; i < 20 && !a; i++) { await K.secs(0.1); a = (await g(() => window.__gw.debug.mossAnswers())).find((q) => q.type === 'fizz' && q.started); }
+      K.check(!!a, 'the trail turns onto the float', a);
+      await K.secs(0.3);
+      float.fizz = await bobScr();
+      await K.shoot('fizz-answer');
+    } else K.note('no fizz');
+    await idle();
     await K.noErrors('the bolt look');
   } catch (e) {
     if (e instanceof Abort) K.note('the look stopped', e.message);
