@@ -845,7 +845,7 @@ are fixed where cheap and inside 3a, else recorded. The look was re-shot from th
 | R1 | must | the Bell Pool shows nothing a player can name: the bell a dark wedge, then a plank under the raft | **held**; and a cause the stage missed: the decal lay at 0.02 m, so every swell crest (up to 0.19 m) hid it, and it came and went through the lift | the bell drawn as a bell (domed crown and its loop, waist, flare, a moonlit lip round a dark mouth, two cast bands, its crack's verdigris trace) at 0.2 m, in the pool's north half under its posts (the raft fishing the south side is never laid on it); the lift films it from its own crane (`placeAnchor` → `{side, elev 46, dist 10.5}`); her gold glimmer held under the bank and through the lift (`world-places` `openAt`) |
 | R2 | must | the catalogue's sticky head let scrolled fish draw over its seals (worst on a phone) | **held** (the reviewer's scrolled frames) | the head stands outside the list's scroll, a fixed band; the list scrolls under a hard edge and its 10 px feather; T136 now measures real layout at the top, middle and end (≥ 44 px, no overlap, 6 / 3 a row, a 358 px pass) |
 | R3 | should | the 4 `--quick` fails come from 3a's `poolFor` fix | **held** (the base passes) | CHOICE 27's other way: scoped to the shipped waters; `--quick` all pass; the shipped runs byte-identical |
-| R4 | should | T148's cpuMs never measured | **held** | measured on M and on 3a back to back (M1 §6.2, advisory on this machine) |
+| R4 | should | T148's cpuMs never measured | **held** | measured on M and on 3a back to back, twice (M1 §6.2): draw calls inside every line; cpuMs on the desktop inside the line in four readings of six (±30% load swings), **on the phone over it at every tier** (+31% to +95%: the standing banks' fill); each bank layer's quad trimmed and an early discard (no visible change); **for the lead** |
 | R5 | should | the layout gate proven by CSS text | **held** | real-layout checks in `loop-3a` (R2) |
 | R6 | should | no regression test for the toll ring or the lift's broadside | **held** | `loop-water`: her whole play, no fx pulse centred on the raft on a trip, the built ring off the loop; `render-v3`: `landmarkShot` broadside, islands, portrait, crane; T128 records the anchor whole |
 | R7 | should | the walk's size scan counts a class word; the giant's strike scan never asserted | **held** | `hasSize` reads weights and lengths only (decision 62: the class estimate is a word); `hasClassWord` for her (no class); the giant's strike and play scans asserted |
@@ -866,3 +866,10 @@ are fixed where cheap and inside 3a, else recorded. The look was re-shot from th
 | R22 | could | the touch stick drawn through a lift | held | hidden under the loop while `ctx.cinematic` |
 | R23 | could | hatch probe, Chart rows, book glyph, enlarged silhouette, dressing counts, T107's band | held | each now a real check (`loop-3a`, `world-places`, `loop-places`) |
 
+
+§9.1's two items left for the lead (the Bell Pool's dressing, the phone's portrait shot of Under the Span) are R1 and R9 here. The
+bell went through two looks: at the pool's middle (the first round) a show there was laid over its lip, so it lies a step further
+north, 4.0 × 2.9 m. Measured after the pass: the node gate, the sims (`--shipped=mossmere --step=3` byte-identical with and without
+`--wicks`; `--quick`, the full run and the full `--wicks` all pass), T148 on M and on the fixed tree back to back (M1 §6.2), the walk
+on both sizes and both Charts, loop-1a on the desktop, the flag-off runs, the look re-shot (desktop, phone, the re-dress both
+halves), the film re-shot.
