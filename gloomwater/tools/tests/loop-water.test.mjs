@@ -315,6 +315,19 @@ section('a lost giant and its mark (T127)');
 }
 
 // =====================================================================================================================
+section('no cast while a place\'s mist lifts (T128\'s fishing half)');
+{
+  const E = waterEnv({ own: ['lily_maze'], lifted: [] });
+  E.ctx.game = { lifting: () => 'lily_maze' };
+  E.F.onPointerDown({ input: 'mouse' }); E.tick(3);
+  ok(E.F.state === 'idle' && E.count('loop:holdFull') === 0, 'T128: a press during the lift charges no cast');
+  E.ctx.game.lifting = () => null;
+  E.F.onPointerDown({ input: 'mouse' }); E.tick(2);
+  ok(E.F.state === 'charging', '… and after it, it does');
+  E.F.onPointerUp(); E.reset();
+}
+
+// =====================================================================================================================
 section('flag-off and off a trip: the built fishing (T132)');
 {
   const c = centre('lily_maze');

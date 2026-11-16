@@ -1006,8 +1006,8 @@ export function create(ctx) {
       if (M.wisps === 0) { M.wisps = 1; fx.mistWisps(M.x, M.z, 1); call(() => ctx.water?.addRipple?.(M.x, M.z, 0.45)); }
       if (M.wisps === 1 && t >= c) { M.wisps = 2; fx.mistWisps(M.x, M.z, 0.55); }
       aBob(false);
-      V.tmp.set(M.x, h - 0.42 * e, M.z);
-      aLine(true, V.tmp, 0.08, 0.5);
+      V.tmp.set(M.x, h - 0.03, M.z);   // the line enters the water where the float went under (a line drawn to the float below the
+      aLine(true, V.tmp, 0.08, 0.5);   // surface read as a white stick standing out of the water on the capture)
       fx.setMistFloat(true, M.x, h - 0.42 * e, M.z, 1 - e);
       return;
     }
