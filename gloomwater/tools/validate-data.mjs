@@ -383,6 +383,10 @@ if (process.argv.includes('--loop')) {
     ok4(!/\b(curious|long_reach|moth_bright|broad_back|burns_back)\b/.test(w), `${path}: no passive's code id reaches a word (guard 7)`);
   }
   ok4(Array.isArray(TL.murk.sailOut) && TL.murk.sailOut.length >= 1 && TL.murk.sailOut.every((x) => typeof x === 'string' && x), "Murk's sail-out lines rotate (at least one)");
+  // MVP teach: the float's two marks taught once (src/ui-teach.js): two plain captions of at most 6 words, no number; Murk's quiet line
+  ok4(['notches', 'dots'].every((k) => typeof TL.teach?.[k] === 'string' && TL.teach[k].trim().split(/\s+/).length <= 6 && !/\d|%/.test(TL.teach[k])),
+    `TEXT_LOOP.teach: the notches' and the dots' captions, each ≤ 6 words and no number ("${TL.teach?.notches}" · "${TL.teach?.dots}")`);
+  ok4(typeof TL.murk.firstQuiet === 'string' && TL.murk.firstQuiet.trim().split(/\s+/).length <= 9, "TEXT_LOOP.murk.firstQuiet: Murk's first quiet-water line teaches the quiet water (SPEC §8.6)");
   // the opening's paths (T72): the arrive glide (spawn → docks[0]) and every lake's glide out from docks[0] through data.sailPlan clear
   // every island, pillar and gate stone by the raft's radius + 0.3 m and stay inside the shore by as much (T, pad and clear above)
   const intro = L4.ZONE_BY_ID[L4.INTRO?.lake || 'mossmere'] || L4.ZONES[0];
