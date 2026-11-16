@@ -17,7 +17,9 @@ still shows a range, the value in force is §3.5's.*
 *Revision 4 (16 November 2026), the user's words: "When choosing a wick, the passive bonus should be bigger in your view and
 more obvious what it does. Could they be accompanied with a small image indicating what they do?" On New Descent the lit Wick's
 passive is now a block of its own under the cards: a small ink picture of what it does, the passive's name and its one line,
-larger than before. Four lines are made plainer; Ashwick's stands. No rule, number or hook changes (§7.4).*
+larger than before. Four lines are made plainer; Ashwick's stands. On the first version the user said, the same day: "Make it
+bigger on desktop and put icons on every portrait": the desktop block is larger again, and every portrait carries its passive's
+small picture under its name. No rule, number or hook changes (§7.4).*
 
 ## 1. The user's words
 
@@ -62,8 +64,9 @@ effect, accepted by the lead (15 November 2026; ×1.20 an hour, its own limit �
 clock:** every Wick's evening is SPEC §3.4's (day 40 s, dusk 20 s); Long Night is kept in §6.4. **The hold and the good
 bites are Tallow's alone:** no other passive changes a slot or a good-bite count. **The passive names are shown on New
 Descent** (revision 4, the user's "more obvious what it does", 16 November 2026): the lit Wick's block shows its small ink
-picture, its name (Curious, Long Reach, Moth-Bright, Broad Back, Burns Back; `TEXT_LOOP.passives`) and its one line. The code
-ids (`curious`, `broad_back` …) are never shown, and no name is shown anywhere else.
+picture, its name (Curious, Long Reach, Moth-Bright, Broad Back, Burns Back; `TEXT_LOOP.passives`) and its one line, and each
+card carries its own passive's small picture under the Wick's name (the user's "put icons on every portrait"). The code
+ids (`curious`, `broad_back` …) are never shown, and no name or picture is shown anywhere else.
 
 ### 1.2 The five questions, answered
 
@@ -672,7 +675,8 @@ docs commit):
     ×1.20 an hour as a side effect, accepted by the lead within its own limit of ×1.25, check 5).
 12. **Add words or buttons.** One name and one line per Wick, the line **≤ 8 words and ≤ 36 characters** (one row of SPEC
     §8.10's budget; the `validate-data --loop` limits), with one small ink picture, all three only in the lit Wick's block under
-    the cards on New Descent (revision 4, the user's words of 16 November 2026). No passive has a button, a meter or a toggle.
+    the cards on New Descent, and the picture alone, small, under each card's name there (revision 4, the user's words of 16
+    November 2026). No passive has a button, a meter or a toggle.
 13. **Depend on save history.** The Wick's ledger is the loop's own; Tallow's slot is computed from the bought `holdSlots`,
     never stored; every passive is the same on a fresh save and a migrated one.
 14. **Run off the loop.** Every hook is gated, draws no RNG off the loop, and edits no v1 or v3 table or exported function
@@ -1152,11 +1156,22 @@ prototype of `clams.mjs` (its `trip()` and `freshOf`) and its report files. **Ac
 
 **What changed on screen.** New Descent keeps the five portraits, Back and Start. Under the cards, set apart on a deeper pool of
 night, the lit Wick's passive is one block: a small ink picture (`ui-icons.js` `passiveIcon`, 64-grid, pale ink with one
-candle-amber accent, 80 px on a desktop and 64 px on a phone), the passive's name (`TEXT_LOOP.passives`, 28 px; 21 px on a
-phone) and its line (24 px; 19 px on a phone; it was 21 and 18), one row each. No portrait carries a picture: a small one under
-every name was tried and read busier, and the lit block already shows it, so the panel stays five portraits, one block, Back and
-Start. No other screen names a passive, so the pictures appear nowhere else (the Journal's
-title names the Wick, not its passive). **What did not change:** every rule, knob, hook and test of §2–§4; the code ids.
+candle-amber accent), the passive's name (`TEXT_LOOP.passives`) and its line, one row each. No other screen names a passive, so
+the pictures appear nowhere else (the Journal's title names the Wick, not its passive). **What did not change:** every rule,
+knob, hook and test of §2–§4; the code ids.
+
+**The user on the first version (16 November 2026):** "Make it bigger on desktop and put icons on every portrait".
+
+| on New Descent | first version | now |
+|---|---|---|
+| the lit Wick's block on a desktop (960 × 540) | picture 80 px, name 28 px, line 24 px | picture 112 px, name 36 px, line 30 px; a taller window grows them a little (at most 140, 46 and 38 px) |
+| the block on a phone (390 × 844) | picture 64 px, name 21 px, line 19 px | unchanged |
+| the cards | portrait and name | portrait, name and, under the name, the passive's picture (42 px; 32 on a phone): quiet on the unlit cards (dim ink at a little over half strength, a touch more on a phone), bright on the lit one |
+| room for it on a desktop | cards 128 × 164, portrait 92 × 110 | cards 128 × 206, portrait 88 × 105; the panel's top padding and the gaps a little tighter, so the panel still fits a 540 px window |
+
+The first version had set the card pictures aside as busier; drawn quiet (the unlit ones dim, the lit one bright) they let the
+eye compare the five before lighting one, and the lit block still says it in words. The pictures are the first version's, not
+redrawn. The panel is still five portraits, one block, Back and Start.
 
 **The lines, checked against "more obvious what it does"** (each one row, ≤ 8 words and ≤ 36 characters, SPEC §8.10):
 

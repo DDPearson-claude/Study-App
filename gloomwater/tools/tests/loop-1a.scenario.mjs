@@ -733,6 +733,14 @@ export default async function (api) {
           passive: nm ? nm.textContent.replace(/\s+/g, ' ').trim() : null, blocks: m ? m.querySelectorAll('.gw-loop-passive').length : 0, pic: pb ? Math.round(Math.min(pb.w, pb.h)) : 0,
           clear: parts.length === 3 && !parts.some((p) => cardB.some((c) => meet(p, c)) || footB.some((f) => meet(p, f))) && !meet(pb, nb) && !meet(pb, tb)
             && parts.every((p) => p.l >= 0 && p.r <= innerWidth && p.t >= 0 && p.b <= innerHeight) && (!tr || tr.scrollWidth <= tr.clientWidth + 1) && (!nm || nm.scrollWidth <= nm.clientWidth + 1),
+          // each card's passive picture (the user, 16 November 2026: "put icons on every portrait"): under its name, inside its card,
+          // whole on screen; quieter on the unlit cards than on the lit one
+          picos: cards.map((b) => {
+            const w = b.querySelector('.gw-char-pico'), sv = w?.querySelector('svg.gw-pico'), pb2 = bx(sv), cb = bx(b), nb2 = bx(b.querySelector('.gw-char-name'));
+            return { id: b.dataset.wick, size: pb2 ? Math.round(Math.min(pb2.w, pb2.h)) : 0, under: !!pb2 && !!nb2 && pb2.t >= nb2.b - 1 && !meet(pb2, nb2),
+              inside: !!pb2 && pb2.l >= cb.l - 1 && pb2.r <= cb.r + 1 && pb2.t >= 0 && pb2.b <= innerHeight, op: w ? Number(getComputedStyle(w).opacity) : 0, on: b.classList.contains('gw-on') };
+          }),
+          clearOfPicos: parts.length === 3 && !parts.some((p) => cards.some((b) => meet(p, bx(b.querySelector('.gw-char-pico'))))),
           forbidden: m ? ['.gw-locked', '.gw-mode', '.gw-ways', '.gw-cd-row', '.gw-chips', '.gw-rating', '.gw-lore'].filter((q) => m.querySelector(q)) : [],
           x: !!m?.querySelector('.gw-x'), phone,
         };
@@ -745,7 +753,11 @@ export default async function (api) {
       const panelWords = (await K.scanRaw({ roots: ['#ui > .gw-modal-layer [data-modal=newdescent]'], newDescentOk: true })).texts;
       const wantWords = [...order.map((id) => D.names[id]), ...(TL.passives ? [TL.passives[nd.on[0] || 'wick']] : []), TL.wicks[nd.on[0] || 'wick'], TL.back, TL.start];
       K.check(panelWords.length === wantWords.length && wantWords.every((w) => panelWords.includes(w)), 'T59: the words are the five names, the lit Wick\'s passive name and one line, Back and Start', { panelWords, wantWords });
-      K.check(nd.blocks === 1 && nd.pic >= (K.phone ? 56 : 64), 'T59: one passive block, its ink picture at least 56 px on a phone, 64 on a desktop', { blocks: nd.blocks, pic: nd.pic });
+      K.check(nd.blocks === 1 && nd.pic >= (K.phone ? 56 : 104), 'T59: one passive block, its ink picture at least 56 px on a phone, 104 on a desktop', { blocks: nd.blocks, pic: nd.pic });
+      { const lit = nd.picos.find((p) => p.on), dim = nd.picos.filter((p) => !p.on);
+        K.check(nd.picos.length === 5 && nd.picos.every((p) => p.size >= (K.phone ? 28 : 36) && p.under && p.inside) && nd.clearOfPicos,
+          'T59: every card carries its passive\'s picture under its name, inside the card and clear of the lit Wick\'s block', nd.picos);
+        K.check(!!lit && dim.length === 4 && dim.every((p) => p.op < lit.op), 'T59: the unlit cards\' pictures are quieter than the lit one\'s', nd.picos.map((p) => [p.id, p.op])); }
       if (K.phone) {
         // (rows by top within 12 px: the lit card stands a few px proud of its row)
         const rows = [];

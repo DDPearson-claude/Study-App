@@ -577,14 +577,16 @@ export function createScreens(K) {
         const b = h('button', `gw-char${c.id === s.sel ? ' gw-on' : ''}`);
         b.type = 'button';
         b.dataset.wick = c.id;
-        b.innerHTML = `${wickPortrait(c.look, { uid: 'lw' + i + uid(), loop: true })}<span class="gw-char-name"></span>`;
+        // under each name its passive's small ink picture (the user, 16 November 2026: "put icons on every portrait"): quiet on the
+        // unlit Wicks, bright on the lit one
+        b.innerHTML = `${wickPortrait(c.look, { uid: 'lw' + i + uid(), loop: true })}<span class="gw-char-name"></span><span class="gw-char-pico">${passiveIcon(c.id)}</span>`;
         b.querySelector('.gw-char-name').textContent = c.name;
         b.addEventListener('click', () => pick(entry, c.id));
         grid.appendChild(b);
       });
       content.appendChild(grid);
       // the lit Wick's passive, set apart under the cards (the user, 16 November 2026: "bigger in your view and more obvious what it
-      // does", "a small image indicating what they do"): its ink picture, its name and its one line
+      // does", "a small image indicating what they do"; then "Make it bigger on desktop"): its ink picture, its name and its line
       const pv = h('div', 'gw-loop-passive');
       pv.setAttribute('aria-live', 'polite');
       pv.innerHTML = `<span class="gw-loop-passive-ico">${passiveIcon(M.sel)}</span><span class="gw-loop-passive-txt"><b class="gw-loop-passive-name"></b><span class="gw-loop-trait"></span></span>`;

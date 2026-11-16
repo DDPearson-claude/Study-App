@@ -236,7 +236,7 @@ section('T62: the title (titleModel)');
   ok(scr.includes("const fresh = safe(() => g.loopFresh?.(), false) === true;"), 'it keys on game.loopFresh, never on introPending');
 }
 
-section('T59: New Descent (descentModel): five Wicks, the lit Wick\'s passive (its picture, name and line), Back, Start');
+section('T59: New Descent (descentModel): five Wicks (each with its passive\'s picture), the lit Wick\'s passive (its picture, name and line), Back, Start');
 {
   const M = U.descentModel(D, 'wick');
   eq(M.cards.map((c) => c.id), D.LOOP.wicks.order, 'the five in LOOP.wicks order');
@@ -266,7 +266,16 @@ section('T59: New Descent (descentModel): five Wicks, the lit Wick\'s passive (i
   const body = scr.slice(scr.indexOf('function openLoopDescent()'), scr.indexOf('// <<< LOOP 1a', scr.indexOf('function openLoopDescent()')));
   ok(/h\('div', 'gw-loop-passive'\)/.test(body) && body.includes('${passiveIcon(M.sel)}') && body.includes('gw-loop-passive-name') && body.includes('class="gw-loop-trait"') && body.includes('M.passive') && body.includes('M.line'),
     'the panel draws one passive block for the lit Wick: its picture, its name and its line (.gw-loop-trait)');
-  ok(!/passiveIcon\(c\.id/.test(body), 'no picture on the cards (the panel stays calm: five portraits, one passive block)');
+  // (the user, 16 November 2026: "Make it bigger on desktop and put icons on every portrait")
+  ok(/<span class="gw-char-name"><\/span><span class="gw-char-pico">\$\{passiveIcon\(c\.id\)\}<\/span>/.test(body), 'every card carries its own passive\'s picture under its name (.gw-char-pico)');
+  { const css = src('ui.css'), rule = (sel) => { const i = css.indexOf(`${sel} {`); return i < 0 ? '' : css.slice(i, css.indexOf('}', i)); };
+    const op = (r) => Number((/opacity:\s*([\d.]+)/.exec(r) || [])[1]);
+    const dim = rule('.gw-loop-chars .gw-char-pico'), lit = rule('.gw-loop-chars .gw-char.gw-on .gw-char-pico');
+    ok(op(dim) > 0.3 && op(dim) < 0.75 && op(lit) === 1 && /var\(--ink-dim\)/.test(dim) && /var\(--ink-hi\)/.test(lit), 'the cards\' pictures: quiet on the unlit Wicks (dim ink, opacity under .75), bright on the lit one', [op(dim), op(lit)]);
+    ok(/\.gw-loop-chars \.gw-char \.gw-portrait \{/.test(css) && !/\.gw-loop-chars \.gw-char(?::not\(\.gw-on\))? svg \{/.test(css), 'the portrait rules name .gw-portrait, so no card picture is sized or dimmed as a portrait');
+    const px = (r, k) => Number((new RegExp(`${k}:\\s*clamp\\((\\d+)px`).exec(r) || [])[1]);
+    const ico = rule('.gw-loop-passive-ico'), txt = rule('.gw-loop-passive-txt');
+    ok(px(ico, 'width') >= 104 && px(txt, 'font-size') >= 28, 'the lit Wick\'s block on a desktop: a picture ≥ 104 px and a line ≥ 28 px at the least (it was 80 and 24)', [px(ico, 'width'), px(txt, 'font-size')]); }
   ok(body.includes("close: false") && body.includes("title: '', sub: ''"), 'no ✕, no heading, no sub-line');
   ok(!/characters\(\)|challenges\(\)|modeCards|nightsStep|ratingFor|getWaystones|gw-locked/.test(body), 'never characters(), challenges(), the mode cards, the nights, the rating, the waystones or a lock');
   ok(/ArrowLeft[\s\S]*ArrowRight[\s\S]*\(\?:Digit\|Numpad\)\(\[1-5\]\)[\s\S]*Enter/.test(body), '← → and 1–5 move the selection; Enter presses Start');

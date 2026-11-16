@@ -104,15 +104,18 @@ sub-line and no ✕** (the built panel's close button is off: Back and Escape cl
 Still, Lantern or Gloomtide cards), no waystone or start-water row, no trials or locks, no start boon, kit, quirk, Shells,
 lore or tackle rating. All five Wicks are free (the lead's default).
 
-**A card** (`button.gw-char[data-wick=<id>]`): the Wick's ink portrait (`wickPortrait(look)`, built) and its name. The lit
+**A card** (`button.gw-char[data-wick=<id>]`): the Wick's ink portrait (`wickPortrait(look)`, built), its name and, under the
+name, its passive's small ink picture (`passiveIcon`, 42 px; 32 on a phone; the user's "put icons on every portrait", 16
+November 2026), quiet on the unlit cards and bright on the lit one. The lit
 card is raised, its flame lit and its ink full; the others are a shade dimmer. **Under the cards, the lit Wick's passive**
 (SPEC §10.1, `WICKS.md` §2; revision 3). This amends the lead's reading, which put the trait on each card: five trait lines at
 once would be five lines of text on one screen, against "too much text on screen", so only the lit Wick's passive shows and
 moving the selection changes it (PLAN CHOICE 42). **(16 November 2026, the user: "the passive bonus should be bigger in your
 view and more obvious what it does. Could they be accompanied with a small image indicating what they do?"; SPEC §0 row 35,
-`WICKS.md` §7.4.)** The passive is one block, set apart under the cards on a deeper pool of night: its small ink picture
-(`passiveIcon`, 80 px; 64 on a phone), its name (28 px; 21) and its line (24 px; 19), never a box. No card carries a
-picture. Names wrap onto a second line when they must; they are never truncated or shrunk below the panel's body size.
+`WICKS.md` §7.4.)** The passive is one block, set apart under the cards on a deeper pool of night: its ink picture
+(`passiveIcon`), its name and its line, never a box. **(Then, the same day: "Make it bigger on desktop and put icons on every
+portrait"; SPEC §0 row 35.)** On a desktop the picture is 112 px, the name 36 px and the line 30 px at 540 px high, growing a
+little with a taller window (to 140, 46 and 38 px); on a phone 64, 21 and 19 px, as first built. Names wrap onto a second line when they must; they are never truncated or shrunk below the panel's body size.
 
 | Wick (`CHARACTERS[].name`) | the line (`TEXT_LOOP.wicks[id]`; `WICKS.md` §2 and §7.4, 16 November 2026) | the passive (its name `TEXT_LOOP.passives[id]`, shown; `LOOP.wicks[id]`, fishing only) |
 |---|---|---|
@@ -148,15 +151,18 @@ changeable later without starting over is a question for the user (PLAN §7.1, w
 |     | portrait |  || portrait|  | portrait |  | portrait |  | portrait |     |
 |     |          |  ||        ||  |          |  |          |  |          |     |
 |     | The Wick |  ||  Taper ||  |   Stub   |  |  Tallow  |  | Ashwick  |     |
+|     |  (pic)   |  ||  (pic) ||  |  (pic)   |  |  (pic)   |  |  (pic)   |     |
 |     +----------+  +==========+  +----------+  +----------+  +----------+     |
 |                                                                              |
-|                  (picture)   LONG REACH                                      |
-|                  ( 80 px )   Evenings start with a rarer fish.               |
+|              (picture)   LONG REACH                                          |
+|              ( 112 px)   Evenings start with a rarer fish.                   |
 |                                                                              |
 |      Back                                                  [ (flame) Start ] |
 +------------------------------------------------------------------------------+
-  cards 128 x 164, gap 16, the row centred (5 x 128 + 4 x 16 = 704 px); the passive block 18 px under it (92 px tall, its
-  text column at least 330 px so the picture keeps its place as the Wicks change); the foot in the lower 72 px
+  cards 128 x 206 (the portrait 88 x 105, the name, the picture 42 px), gap 16, the row centred (5 x 128 + 4 x 16 = 704 px);
+  the passive block 10 px under it (about 116 px tall; each Wick's picture and words centred as one, so a short line never
+  leaves the block off the panel's middle); the foot 12 px under the block; the panel's top padding 12 px so the whole fits a
+  540 px window
 ```
 
 **Phone 390×844** (the lower half, in thumb reach; 16 px gutter, so 358 px of width; the foot above `--sab`). The cards are
@@ -169,13 +175,14 @@ a 3 + 2 grid so each portrait reads as a look (a row of five would leave 62 px p
 |                                      |
 |                                      |
 |  +--------+ +========+ +--------+    |   3 x 104 px + 2 x 12 px gap = 336 px
-|  |portrait| ||portrait|| |portrait|  |   cards 104 x 128
-|  |  The   | || Taper  || |  Stub  |  |   ("The Wick" wraps to two lines)
-|  |  Wick  | |+========+| +--------+  |
-|  +--------+                          |
+|  |portrait| ||portrait|| |portrait|  |   cards 104 x 157
+|  |The Wick| || Taper  || |  Stub  |  |   (a name may wrap to two lines)
+|  | (pic)  | || (pic)  || | (pic)  |  |   the picture 32 px
+|  +--------+ +========+ +--------+    |
 |       +--------+ +--------+          |   the second row centred
 |       |portrait| |portrait|          |
 |       | Tallow | | Ashwick|          |
+|       | (pic)  | | (pic)  |          |
 |       +--------+ +--------+          |
 |                                      |
 |  (picture) LONG REACH                |   the picture 64 px
@@ -185,7 +192,7 @@ a 3 + 2 grid so each portrait reads as a look (a row of five would leave 62 px p
 +--------------------------------------+
 ```
 
-Height: 2 × 128 + 12 + 66 (the passive block) + 14 + 56 (the foot) + 52 of padding ≈ 456 px, the panel at most 66% of the
+Height: 2 × 157 + 12 + 68 (the passive block) + 14 + 56 (the foot) + 52 of padding ≈ 516 px, the panel at most 66% of the
 window, in the lower part (the lake above it).
 The words on this screen are exactly: the five names, the lit Wick's passive name and its one line, **Back**, **Start**.
 
