@@ -15,6 +15,7 @@ import { createIntroView } from './ui-intro.js';
 // <<< INTRO LANE B
 // >>> LOOP 1a (lane C): the Full Hold's screens (docs/loop/slice-1a/PLAN.md §2.3); built only when data.LOOP_ENABLED
 import { createLoopView } from './ui-loop.js';
+import { createTowView } from './ui-tow.js';   // M1 step 5b (LANE 5B-TOW)
 import { setLoopArt, hatchProbe } from './ui-fishart.js';
 // <<< LOOP 1a
 
@@ -644,6 +645,8 @@ export function create(ctx) {
   if (loopOn) setLoopArt(true);
   if (loopOn) { try { loopView = createLoopView(K); } catch (e) { report('loop view', e); loopView = null; } }
   K.loop = loopView;
+  // M1 step 5b (LANE 5B-TOW): the tow's Chart (src/ui-tow.js), ctx.ui.loop.tow (the opening's Landing and every water's first tow)
+  if (loopView) { try { loopView.tow = createTowView(K); } catch (e) { report('tow view', e); } }
   // <<< LOOP 1a
 
   // ------------------------------------------------------------------ per-run trackers

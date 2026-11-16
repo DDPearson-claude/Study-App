@@ -205,7 +205,13 @@ export function create(ctx) {
     if (m !== homeMooring) { homeMooring = m; if (m?.hull) home.moor(m.hull); }
     const where = ctx.state?.meta?.loop?.barge?.water;
     const zid = ctx.world?.getZone?.()?.id ?? null;
-    home.show(!!m && (!where || where === zid) && ctx.flow !== 'boot');
+    // >>> M1 step 5b (LANE 5B-TOW; OPENING §6.2): the barge lies at the Landing until the opening's tow brings it: shown here only once
+    // meta.loop.barge.towed holds this water, or while a tow plays (its glide in owns where the hull is)
+    const towedL = ctx.state?.meta?.loop?.barge?.towed;
+    const towing = (() => { try { return ctx.game?.towing?.() ?? null; } catch { return null; } })();
+    const brought = !Array.isArray(towedL) || towedL.includes(zid) || ['dip', 'dipHold', 'dipClear', 'glide'].includes(towing);
+    // <<< M1 step 5b
+    home.show(!!m && (!where || where === zid) && brought && ctx.flow !== 'boot');
     home.update(dt, hasWater() ? H : null);
     looks?.update(ctx.state?.meta?.loop, applyCharacter);   // M1 step 5b: a look bought re-dresses the Wick and the raft
   }

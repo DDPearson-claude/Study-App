@@ -816,9 +816,93 @@ export default async function (api) {
       let w = await K.until("c.flow === 'home'", 4);
       K.need(w.ok, 'T64: intro:done → flow home', await K.state());
 
+      // >>> M1 step 5b (LANE 5B-TOW; OPENING §6.2 rev. 5): from step 5 the film hands off through one ink dip to the Landing on the
+      // Chart, Murk's wake line there (T44, T65), a reload in the wake resumes at the Landing's wake (T67), then the first tow (its
+      // leg, the dip, the glide in to the mooring) and the chart beat over the moored barge; Escape on it leaves the Jetty with the
+      // chart table's cue. Without the tow (LOOP.tow.opening false, or a tree without it) the built hand-off below, as it was.
+      let ev, docks, checkWake, e0;
+      const TOW = await g(() => window.__gw.data.LOOP?.tow?.opening === true && typeof window.__gw.debug.loop?.tow === 'function');
+      if (TOW) {
+        K.step('main: the Landing (the tow\'s opening)');
+        const tw = () => g(() => window.__gw.debug.loop.tow());
+        const sayLine = () => g(() => (document.querySelector('[data-loop=tow] .gw-murk-line')?.textContent || '').trim());
+        ev = await K.events();
+        K.check(ev.some((e) => e.e === 'intro:done'), 'T64: intro:done');
+        K.check(!ev.some((e) => e.e === 'player:glide' && e.p?.kind === 'home'), 'T64 (step 5): no hand-off glide to the Jetty; the Landing');
+        w = await K.until("c.debug.loop.tow().phase === 'wake'", 4);
+        K.need(w.ok, 'T64 (step 5): one ink dip → the Landing on the Chart → the wake', await tw());
+        await K.secs(0.8);
+        await K.settle(400);
+        K.check((await sayLine()) === TL.murk.wake, 'T44 (step 5): Murk\'s wake line at the Landing', await sayLine());
+        s = await K.state();
+        K.check(s.tut?.step === 'wake' && s.loop?.tutorial?.done === false, 'T65 (step 5): the tutorial at the wake (a Landing beat)', s.tut);
+        const sv0 = await g(() => window.__lp.stored());
+        K.check(sv0?.meta?.intro?.seen === true && sv0?.meta?.loop?.wick === wick && sv0?.meta?.loop?.tutorial?.done === false, 'T64: the save at the hand-off holds meta.intro.seen, the Wick and the tutorial', { intro: sv0?.meta?.intro, wick: sv0?.meta?.loop?.wick, tutorial: sv0?.meta?.loop?.tutorial });
+        await K.scan('the Landing (the wake)');
+        await K.shoot('landing-wake');
+        await K.noErrors('the Landing');
+
+        K.step('main: a reload in the wake (the Landing)');
+        await K.reload();
+        words = await K.titleWords();
+        K.check(words.includes(TL.continue) && words.includes(TL.settings.label) && !words.includes(TL.newDescent), 'T67/T62: after a reload the title says Continue · Settings, no New Descent', words);
+        K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.continue), 'the title\'s Continue');
+        w = await K.until("c.debug.loop.tow().phase === 'wake'", 4);
+        K.check(w.ok, 'T67 (step 5): Continue before the tow → the Landing, at the wake', await tw());
+        await K.secs(0.5);
+        K.check((await sayLine()) === TL.murk.wake, 'T67 (step 5): the wake line again', await sayLine());
+
+        K.step('main: the tow');
+        w = await K.until("c.debug.loop.tow().phase === 'leg'", 9);
+        K.need(w.ok, 'T65 (step 5): the wake → the tow\'s leg', await tw());
+        const st0 = await g(() => window.__lp.stored());
+        K.check(st0?.meta?.loop?.barge?.towed?.includes('mossmere') === true, 'T67 (step 5): the tow\'s begin saves barge.towed before it plays', st0?.meta?.loop?.barge);
+        await K.secs(2.5);
+        await K.shoot('tow-leg');
+        w = await K.until("c.debug.loop.tow().phase === 'glide'", 6);
+        K.check(w.ok, 'T65 (step 5): the leg → one ink dip → the glide in', await tw());
+        await K.secs(1.2);
+        await K.shoot('tow-glide-in');
+        w = await K.until("window.__lp.ev.some((e) => e.e === 'home:enter')", 12);
+        K.need(w.ok, 'T65 (step 5): the leg, the dip and the glide in end at home:enter', await tw());
+        const tl = await tw();
+        const at = (k) => tl.marks.find((m) => m.what === k)?.sim ?? null;
+        K.check(Math.abs(at('dip') - at('leg') - 5) <= 0.15 && Math.abs(at('glide') - at('dip') - 0.6) <= 0.2 && Math.abs(at('done') - at('glide') - 3) <= 0.2, 'T65 (step 5): the leg 5 s, the dip 0.6 s, the glide in 3 s', tl.marks.map((m) => [m.what, m.sim]));
+        ev = await K.events();
+        K.check(ev.find((e) => e.e === 'home:enter')?.p?.from === 'title', 'home:enter {from: title} (the Continue\'s tow)', ev.filter((e) => e.e === 'home:enter').map((e) => e.p));
+        docks = await g(() => window.__lp.docks());
+        s = await K.state();
+        K.check(near(s.pos, docks[0]) <= 0.6, 'T44/T64: the raft at the barge\'s stern (docks[0])', { pos: s.pos, dock: docks[0] });
+
+        K.step('main: the chart beat over the moored barge, then Escape');
+        w = await K.until("c.debug.ui().openModal === 'chart'", 3);
+        K.need(w.ok, 'T65 (step 5): the Chart opens at once over the moored barge', await top());
+        await K.secs(1.4);
+        await K.settle(600);
+        s = await K.state();
+        K.check(s.tut?.step === 'chart', 'T65 (step 5): the tutorial at the chart beat', s.tut);
+        await K.shoot('chart-moored');
+        checkWake = async (what) => {
+          for (let i = 0; i < 12 && !(await g(() => !!window.__lp.one('[data-loop=jetty]'))); i++) await K.settle(300);
+          const j = await jetty(), st2 = await K.state();
+          K.check(j.root, `${what}: [data-loop=jetty] is on screen`);
+          K.check(j.tiles.chart?.cue === true && j.tiles.chart?.dim !== true, `${what}: the chart table's target .gw-cue`, j.tiles);
+          K.check(!j.text.includes(TL.next.split('{')[0].trim()), `${what}: no goal line during the tutorial`);
+          K.check(st2.tut?.step === 'wake', `${what}: the tutorial waits on the Chart (step wake)`, st2.tut);
+          return j;
+        };
+        await K.key('Escape');
+        await K.settle();
+        K.check((await top()) === 'jetty', 'T57/T65: Escape on the chart beat → home at the barge', await top());
+        await checkWake('T65 (step 5)');
+        await K.scan('home at the barge (the tutorial)');
+        await K.shoot('jetty-wake');
+      }
+      // <<< M1 step 5b
+      if (!TOW) {
       // ---------------------------------------------------------- the hand-off glide to the Jetty (T64, T56)
       K.step('main: the glide to the Jetty');
-      let ev = await K.events();
+      ev = await K.events();
       const done = ev.find((e) => e.e === 'intro:done');
       K.check(done && done.mode === 'sail', 'T56/T64: the camera is the sail framing at intro:done', done?.mode);
       const gs = ev.find((e) => e.e === 'player:glide' && e.p?.state === 'start' && e.p?.kind === 'home');
@@ -835,7 +919,7 @@ export default async function (api) {
       const he = ev.find((e) => e.e === 'home:enter'), ge = ev.find((e) => e.e === 'player:glide' && e.p?.state === 'end' && e.p?.kind === 'home');
       K.check(he?.p?.from === 'intro', 'T64: home:enter {from: intro}', he?.p);
       K.check(ge && he && ge.sim <= he.sim + 1e-6 && he.sim - (gs?.sim ?? 0) <= (D.LOOP.tutorial?.arrive ?? 3) + 0.2, 'T64: the glide ends at the dock in about 3 s, then home:enter', { start: gs?.sim, end: ge?.sim, enter: he?.sim });
-      const docks = await g(() => window.__lp.docks());
+      docks = await g(() => window.__lp.docks());
       s = await K.state();
       K.check(near(s.pos, docks[0]) <= 0.6, 'T44/T64: the raft at the first dock', { pos: s.pos, dock: docks[0] });
       // (M1 step 5a: with the home barge the raft tied at its stern is framed by the mooring's own camera, 'home', eased from 'sail')
@@ -849,7 +933,7 @@ export default async function (api) {
       w = await K.until("c.debug.ui().openModal === 'jetty'", 3);
       K.need(w.ok, 'T44: the Jetty opens on home:enter (modal jetty)', await K.state());
       await K.settle();
-      const checkWake = async (what) => {
+      checkWake = async (what) => {
         // (the Jetty's screen fades in on the wall clock; under load it can still be below the visible threshold after a short settle)
         for (let i = 0; i < 12 && !(await g(() => !!window.__lp.one('[data-loop=jetty]'))); i++) await K.settle(300);
         const j = await jetty(), st2 = await K.state();
@@ -871,7 +955,7 @@ export default async function (api) {
       words = await K.titleWords();
       K.check(words.includes(TL.continue) && words.includes(TL.settings.label) && !words.includes(TL.newDescent), 'T67/T62: after a reload the title says Continue · Settings, no New Descent', words);
       await K.scan('the returning title');
-      let e0 = await K.evCount();
+      e0 = await K.evCount();
       K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.continue), 'the title\'s Continue');
       w = await K.until("c.debug.ui().openModal === 'jetty'", 4);
       K.need(w.ok, 'T67: Continue → the Jetty', await K.state());
@@ -880,6 +964,8 @@ export default async function (api) {
       K.check(!ev.some((e) => e.e === 'player:glide' && e.p?.kind === 'home' && e.p?.state === 'start'), 'T67: Continue at home: the Jetty with no glide');
       K.check(ev.some((e) => e.e === 'home:enter' && e.p?.from === 'title'), 'home:enter {from: title}', ev.filter((e) => e.e === 'home:enter').map((e) => e.p));
       await checkWake('T67');
+
+      }   // (M1 step 5b: the end of the built hand-off's block)
 
       // ---------------------------------------------------------- the home pause and Settings (T73, T74, T57)
       K.step('main: the home pause');
@@ -954,11 +1040,20 @@ export default async function (api) {
       K.step('main: a reload in the chart beat');
       await K.reload();
       K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.continue), 'the title\'s Continue');
+      if (TOW) {   // M1 step 5b: after the tow a reload resumes at the chart beat over the moored barge: the Chart at once (T67)
+        w = await K.until("c.debug.ui().openModal === 'chart'", 5);
+        K.need(w.ok, 'T67 (step 5): Continue → the chart beat (the Chart at once over the barge)', await top());
+        K.check((await g(() => window.__gw.debug.loop.tow().phase)) === null, 'T67 (step 5): the tow never plays again');
+        await K.secs(1.4);
+        await K.settle(900);
+        ch = await chart();
+      } else {
       w = await K.until("c.debug.ui().openModal === 'jetty'", 4);
       K.need(w.ok, 'T67: Continue → the Jetty', await top());
       await K.settle();
       await checkWake('T67 (chart beat)');
       ch = await openChart();
+      }
       checkChart(ch, 'T67: the Chart again after a reload');
 
       // ---------------------------------------------------------- Escape on the Chart: it never opens itself again (T65, T57)
@@ -1000,6 +1095,8 @@ export default async function (api) {
       K.check(s.run?.outing === 'trip' && s.run?.character === wick && s.run?.evening === 1, `T60/T66: a trip as ${wick}, evening 1`, s.run);
       K.check(plan && near(s.pos, plan.to) <= 0.5, 'T66: after run:start the raft is at the glide\'s end (no respawn jump)', { pos: s.pos, to: plan?.to });
 
+      // M1 step 5b (LANE 5B-TOW): --until=sail stops the main pass here (the opening's path only: a short run for a lane's gate)
+      if (args.until === 'sail') throw new Abort('the main pass stops after the first Sail (--until=sail)');
       // ---------------------------------------------------------- the first trip (T68, T50, T3, the HUD)
       K.step('main: the first trip');
       const castTip = tipText(D, 'fe_cast'), strikeTip = tipText(D, 'fe_strike');
@@ -1533,6 +1630,23 @@ export default async function (api) {
       const st = await g(() => { const c = window.__gw, b = window.__lp.one('[data-modal=newdescent] [data-action=start]'); if (!b) return null; window.__lp.ev.length = 0; b.click(); return { flow: c.flow, intro: c.intro?.isActive?.() ?? null }; });
       K.need(st, 'Start');
       K.check(st.flow === 'home' && st.intro !== true, 'T63: with no film Start goes to flow home in the same task', st);
+      // >>> M1 step 5b (LANE 5B-TOW): from step 5 Start with no film opens on the Landing too (OPENING §6.2): the wake there
+      if (await g(() => window.__gw.data.LOOP?.tow?.opening === true && typeof window.__gw.debug.loop?.tow === 'function')) {
+        const wt = await K.until("c.debug.loop.tow().phase === 'wake'", 4);
+        K.check(wt.ok, 'T63 (step 5): Start with no film → one ink dip → the Landing → the wake', await g(() => window.__gw.debug.loop.tow()));
+        await K.secs(0.5);
+        const s5 = await K.state(), ev5 = await K.events();
+        const say5 = await g(() => (document.querySelector('[data-loop=tow] .gw-murk-line')?.textContent || '').trim());
+        K.check(say5 === TL.murk.wake, 'T63 (step 5): the wake line at the Landing', say5);
+        K.check(s5.tut?.step === 'wake', 'T63: the tutorial at the wake', s5.tut);
+        K.check(JSON.stringify(s5.intro) === JSON.stringify(intro0) && s5.intro?.seen !== true, 'T63: meta.intro untouched', { before: intro0, after: s5.intro });
+        K.check(!ev5.some((e) => e.e === 'intro:start'), 'no film started');
+        await K.scan('the Landing (no film)');
+        await K.shoot('nofilm-landing');
+        await K.noErrors('nofilm');
+        throw new Abort('(step 5: the no-film Start checked at the Landing)');
+      }
+      // <<< M1 step 5b
       const w = await K.until("window.__lp.ev.some((e) => e.e === 'home:enter')", 4);
       K.check(w.ok, 'home:enter {from: new}');
       await K.until("c.debug.ui().openModal === 'jetty'", 2);

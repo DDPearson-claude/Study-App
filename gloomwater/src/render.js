@@ -570,7 +570,19 @@ export function create(ctx) {
     try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
     const c = m?.cam;
     if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
-    return W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos) ? c.portrait : c;
+    const tall = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos), pose = tall ? c.portrait : c;
+    // M1 step 5b (LANE 5B-TOW): a tow's glide in is seen from the same framing drawn back (LOOP.tow.cam: `pull` times its distance,
+    // turned `turn` degrees round the look point; the portrait pose its own, clear of the islands), dollying in to the mooring's
+    // framing as the barge comes to rest (game.towCam(): 1 → 0)
+    let pull = 0;
+    try { pull = Math.min(1, Number(ctx.game?.towCam?.()) || 0); } catch { pull = 0; }
+    if (pull > 0) {
+      const TC = ctx.data?.LOOP?.tow?.cam || {}, cfg = tall && TC.portrait ? TC.portrait : TC, L = pose.look;
+      const K = 1 + (Math.max(1, Number(cfg.pull) || 2.2) - 1) * pull, a = ((Number(cfg.turn) || 0) * Math.PI / 180) * pull;
+      const ox = pose.pos[0] - L[0], oz = pose.pos[2] - L[2], rx = ox * Math.cos(a) - oz * Math.sin(a), rz = ox * Math.sin(a) + oz * Math.cos(a);
+      return { ...pose, pos: [L[0] + rx * K, L[1] + (pose.pos[1] - L[1]) * K, L[2] + rz * K] };
+    }
+    return pose;
   }
   // the home side (M1 step 5a): the mooring's camera looks at the raft from the far side of the sail framing's north yaw, so in
   // flow home the rig turns to that side of the raft (the sail home's glide, the rest, the glide out's first moments) and back to
@@ -608,6 +620,9 @@ export function create(ctx) {
     homeCam.w = homeCam.k * homeCam.k * (3 - 2 * homeCam.k);
   }
 
+  // M1 step 5b (LANE 5B-TOW): the tow's phases in the water (src/loop-tow.js; game.towing())
+  const TOW_WATER = ['dip', 'dipHold', 'dipClear', 'glide'], TOW_CHART = ['dipIn', 'dipOut', 'arrive', 'wake', 'leg'];
+  const towPhase = () => { try { return ctx.game?.towing?.() ?? null; } catch { return null; } };
   function pickMode() {
     const flow = ctx.flow;
     if (introCam) return 'sail';   // INTRO LANE A: cut-scene camera
@@ -616,6 +631,10 @@ export function create(ctx) {
     if (trophyLive()) return 'trophy';
     // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit); with
     // the home barge (M1 step 5a) the raft tied at its stern is framed by the mooring's camera ('home', eased 1.2 s from 'sail')
+    // (M1 step 5b, LANE 5B-TOW: a tow's glide in is seen from the mooring's own framing, the barge brought in to it from its first frame)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true && homePose() && TOW_WATER.includes(towPhase())) return 'home';
+    // (… and before it, while the tow's Chart is up, the film's own sail framing holds: no cut under the opening's first ink dip)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true && TOW_CHART.includes(towPhase())) return 'sail';
     if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return homePose() && ctx.player?.gliding !== true ? 'home' : 'sail';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';

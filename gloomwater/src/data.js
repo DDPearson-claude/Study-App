@@ -5064,6 +5064,70 @@ export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T 
   return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
 }
 
+// >>> M1 step 5b (LANE 5B-TOW): the opening at the Landing and the tow (OPENING.md §6.2 rev. 5, SPEC §6.5, M1.md §2.1, §2.13).
+// The tow is one Chart component every water's first tow reuses (src/loop-tow.js, src/ui-tow.js): its leg on the drawn Chart (the
+// road's piece, the raft's mark towing the barge's on a line, Murk's alongside), one ink dip into the water, then the glide in to the
+// mooring in the water. Seconds and metres; no word of its own (it is felt, never read). Read only under the loop.
+export const LOOP_TOW = {
+  opening: true,                     // the opening starts at the Landing and plays the first tow (false: 5a's hand-off glide)
+  // the leg: `base` s, plus `crossing` s for each lock flight, fall or sea passage on it, never more than `max`; reduced motion inks
+  // it at once and holds `reducedHold` s
+  leg: { base: 4, crossing: 0.5, max: 6, reducedHold: 1.5 },
+  dip: 0.6,                          // the ink dip into the water (in and out; held at full until the water's first frame is drawn)
+  glide: 3,                          // the glide in, the raft at the barge's stern, Murk alongside
+  // the opening's two beats before the tow, on the Chart at the Landing: `dip` the film's last frame into the sheet; `arrive` the
+  // picture alone (a tap ends it early); the wake: the Wick's mark kindles over `kindle` s with Murk's line; `wakeAfter` s after the
+  // line ends (or a tap once it shows) the tow begins
+  landing: { dip: 0.6, arrive: 1.5, kindle: 0.8, wakeAfter: 1 },
+  // each water's leg of the Lamp Road, as the Chart's live layer draws it (CHART_ART.live.pieces): the piece, its direction (the
+  // Sluice Run runs down to the Landing, so the tow goes up it, `reverse`), and the crossings on it as fractions of the way
+  legs: {
+    mossmere: { from: 'landing', piece: 'sluiceRun', reverse: true, crossings: [{ kind: 'locks', at: 0.3 }, { kind: 'fall', at: 0.78 }] },
+  },
+  // the glide in on each water: `d` m out along the barge's own line from its mooring (it comes in bow first, the raft at its stern
+  // on a short line, Murk's barge alongside, all moving as one), eased to rest in `glide` s
+  glideIn: { mossmere: { d: 14, line: 3 } },   // (the raft leads on a `line` m tow line ahead of the bow: loop-tow.towLeadPose)
+  // the glide in's camera: the mooring's own framing drawn back `pull` times its distance at the dip, dollying in as they arrive
+  // (the portrait pose drawn back 1.9 times, turned 30° west round its look point: its straight line back crosses an island)
+  cam: { pull: 2.2, portrait: { pull: 1.9, turn: -30 } },
+};
+LOOP.tow = LOOP_TOW;
+/** The leg's seconds (SPEC §6.5): base + crossing a crossing, at most max; reduced motion its hold. Pure. */
+export function towLegSeconds(leg, { reduced = false } = {}, T = LOOP_TOW) {
+  if (reduced) return Number(T.leg.reducedHold) || 1.5;
+  const n = Array.isArray(leg?.crossings) ? leg.crossings.length : 0;
+  return Math.min(Number(T.leg.max) || 6, (Number(T.leg.base) || 4) + n * (Number(T.leg.crossing) || 0.5));
+}
+/** A water's tow: {water, leg (LOOP_TOW.legs[water]) | null, legS, dip, glide, total}; null for a water with no leg. Pure. */
+export function towPlan(waterId, { reduced = false } = {}, T = LOOP_TOW) {
+  const leg = T.legs?.[waterId] || null;
+  if (!leg) return null;
+  const legS = towLegSeconds(leg, { reduced }, T), dip = Number(T.dip) || 0.6, glide = reduced ? 0 : Number(T.glide) || 3;
+  return { water: waterId, leg, legS, dip, glide, total: legS + dip + glide };
+}
+/**
+ * The glide in's poses (SPEC §6.5): the mooring M (loopMooring's) moved `d` m back along the barge's line, eased to rest. u 0..1 →
+ * {hull: {x, z, yaw}, murk: {x, z, yaw} | null, raft: {x, z, yaw}, stern: {x, z}} (the raft travels the way the barge's bow faces,
+ * so its heading is the barge's yaw). `ease` false: u is already the way travelled (the raft's own glide eases it). Pure.
+ */
+export function towGlidePose(M, u, { d = 14, ease = true } = {}, B = LOOP.barge) {
+  if (!M?.hull || !M?.raft) return null;
+  const k = Math.min(1, Math.max(0, Number(u) || 0)), e = ease ? 1 - (1 - k) * (1 - k) * (1 - k) : k;   // (ease out: it slows into its berth)
+  const yaw = M.hull.yaw, fx = -Math.sin(yaw), fz = -Math.cos(yaw), back = (1 - e) * (Number(d) || 0);
+  const at = (p) => ({ x: p.x - fx * back, z: p.z - fz * back });
+  const half = (Number(B?.length) || 12) / 2;
+  const hull = { ...at(M.hull), yaw };
+  return { hull, murk: M.murk ? { ...at(M.murk), yaw: M.murk.yaw } : null, raft: { ...at(M.raft), yaw }, stern: { x: hull.x - fx * half, z: hull.z - fz * half } };
+}
+/** Is the opening's tow still to play? (a loop block whose tutorial is not done and whose barge has not been towed to its first water) */
+export function towOpeningDue(metaLoop, waterId = 'mossmere', T = LOOP_TOW) {
+  if (!LOOP_ENABLED || T?.opening !== true || !metaLoop || typeof metaLoop !== 'object') return false;
+  if (metaLoop.tutorial && metaLoop.tutorial.done === true) return false;
+  const towed = Array.isArray(metaLoop.barge?.towed) ? metaLoop.barge.towed : [];
+  return !towed.includes(waterId) && !!T.legs?.[waterId];
+}
+// <<< M1 step 5b (LANE 5B-TOW)
+
 // ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.1): the places, the place pool and the giants' share. Pure: each reads only LOOP,
 // MOSSMERE_V3's place records and RARITY_WEIGHTS; the sim's poolFor (tools/sim/clams.mjs, fixed in the seam) is the same rule.
 /** The fields a loop place keeps of its MOSSMERE_V3 record (PLAN §2.1 item 3): its geometry and its look, never a v3 rule (`rule`,

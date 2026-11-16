@@ -423,6 +423,23 @@ if (process.argv.includes('--loop')) {
     ok4((CA?.live?.waters || []).every((w) => shipped.includes(w.water)) && (CA?.live?.pieces || []).every((pc) => pc.leg <= Math.max(...art.map((q) => q.n))), 'chart-art.js: no lamp, vignette or road leg of an unshipped sheet');
     ok4(typeof TL.comingSoon === 'string' && TL.comingSoon === 'Coming soon', 'TEXT_LOOP.comingSoon: "Coming soon" (SPEC §5.4)');
   }
+  // >>> M1 step 5b (LANE 5B-TOW; SPEC §6.5, OPENING §6.2 rev. 5): the tow's parts, each water's leg on the Chart's live layer, and the
+  // opening untouched (the Landing's dip and arrive, the wake line, the leg, the dip, the glide in, the chart beat, the glide out)
+  if (LP.tow) {
+    const TW = LP.tow, { CHART_ART: CA } = await import('../src/chart-art.js');
+    ok4(TW.leg?.base === 4 && TW.leg?.crossing === 0.5 && TW.leg?.max === 6 && TW.dip === 0.6 && TW.glide === 3, 'LOOP.tow: the leg 4 s + 0.5 s a crossing, at most 6 s; the dip 0.6 s; the glide in 3 s (SPEC §6.5)');
+    const pieces = new Set((CA?.live?.pieces || []).map((p) => p.id));
+    for (const [water, leg] of Object.entries(TW.legs || {})) {
+      ok4(pieces.has(leg.piece) && (leg.crossings || []).every((c) => ['locks', 'fall', 'sea'].includes(c.kind) && c.at > 0 && c.at < 1), `LOOP.tow.legs.${water}: its piece (${leg.piece}) on the Chart's live layer, each crossing a lock flight, fall or sea passage on the way`);
+      ok4(L4.towLegSeconds(leg) <= TW.leg.max && L4.towPlan(water).total <= 10, `LOOP.tow.legs.${water}: the leg ${L4.towLegSeconds(leg)} s, the tow ${L4.towPlan(water).total.toFixed(1)} s ≤ 10 s`);
+    }
+    if (TW.opening === true && TW.legs?.mossmere) {
+      const P = L4.towPlan('mossmere'), Ld = TW.landing || {};
+      const open = Ld.dip + Ld.arrive + murkHold(TL.murk.wake, FL) + Ld.wakeAfter + P.total + depart + T.out;
+      ok4(L4.towLegSeconds(TW.legs.mossmere) === 5 && open <= T.budget.max, `the opening (OPENING §6.2): the Sluice Run's leg 5 s; untouched ${open.toFixed(2)} s from the film's end to the first trip ≤ ${T.budget.max} s`);
+    }
+  }
+  // <<< M1 step 5b
   for (const w of warns) console.log('  warn:', w);
   if (errs.length) {
     for (const e of errs.slice(0, 80)) console.log('  FAIL:', e);
