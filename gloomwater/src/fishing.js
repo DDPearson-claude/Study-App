@@ -1527,7 +1527,9 @@ export function create(ctx) {
     if (trip && legendary) { try { loopApi()?.spendBait?.(S.castBait || sp.bait); } catch (e) { report(e); } }
     const mods = { lake: lakeId(), strike: grade, buffs, marked, wounds: ls.wounds, landings: ls.landings, night: phaseNow() === 'gloomtide', perRun: lo.perRun ?? !!lo.hold };
     let p = null;
-    try { p = d.catchChance(sp.id, cls, lo, mods); } catch (e) { report(e); }
+    // (a trip: the fish's own record, for catchChance by id knows only SPECIES_V3's, never a roster fish's (the Kissmark Trout, the
+    // giants, step 2's eight): by id they read null and landed at the floor; the record gives the loop's own Fight, the sim's)
+    try { p = d.catchChance(trip ? sp : sp.id, cls, lo, mods); } catch (e) { report(e); }
     S.p = Number.isFinite(p) ? p : num(d.CATCH_V3?.floor, 0.01);
     const dr = drawStrike(rnd);   // always all four, in this order: [planSeed, u, causeU, momentU]
     S.draws = dr;
