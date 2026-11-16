@@ -668,9 +668,10 @@ void main() {
       float along = dot(lo, ld), across = dot(lo, vec2(-ld.y, ld.x));
       float ac = across + (wNoise(vec2(along * 0.07, 3.1)) - 0.5) * 1.6;
       float endK = 1.0 - smoothstep(18.0, 25.0, abs(along) + (wNoise(vec2(across * 0.3, along * 0.05)) - 0.5) * 4.0);
-      wcSlick = (1.0 - smoothstep(1.3, 2.2, abs(ac))) * endK * uLane.w;
+      // (the lane is open water's: its slick fades out over the margins, as WATERCRAFT's areas carve it, depth ≥ 0.35)
+      wcSlick = (1.0 - smoothstep(1.3, 2.2, abs(ac))) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0);
       float sc = (ac - 2.0) / 0.2;
-      float scum = exp(-sc * sc) * endK * uLane.w * (0.3 + 0.7 * smoothstep(0.3, 0.7, wNoise(vec2(along * 0.85, across * 2.5))));
+      float scum = exp(-sc * sc) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0) * (0.3 + 0.7 * smoothstep(0.3, 0.7, wNoise(vec2(along * 0.85, across * 2.5))));
       g -= gChop * wcSlick * 0.85;
       foam += scum * 0.3;
     }
