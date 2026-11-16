@@ -218,136 +218,138 @@ const dot = (x, y, r, col) => { if (vg.halo) return; X.beginPath(); X.arc(x, y, 
 const rect = (x, y, w, h) => () => X.rect(x, y, w, h);
 const poly = (pts, close) => () => { X.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) X.lineTo(pts[i], pts[i + 1]); if (close !== false) X.closePath(); };
 const wave = (x0, x1, y, amp) => () => { X.moveTo(x0, y); for (let x = x0; x < x1; x += 3) X.quadraticCurveTo(x + 0.75, y - (amp || 0.9), x + 1.5, y), X.quadraticCurveTo(x + 2.25, y + (amp || 0.9), Math.min(x1, x + 3), y); };
-  // (the vignettes, one per water, in the order of the road: the Landing first)
-const VIGNETTES = [
-  function landing() { // the cove arch, the hearth, and Murk's lily-pad barge with his towering pack and green lamp
-    P(rect(-9.2, -2, 1.9, 8.4), STONE); P(rect(-3.2, 0.5, 1.9, 5.9), STONE);
-    P(() => { X.arc(-5.3, -2, 3.9, Math.PI, Math.PI * 1.42); }, null, 1.5); P(() => { X.arc(-5.3, -2, 3.9, Math.PI * 1.62, Math.PI * 1.9); }, null, 1.5);
-    if (!vg.halo) { X.beginPath(); X.moveTo(-5.3, 1.6); X.bezierCurveTo(-3.9, 3.6, -4.2, 5.8, -5.3, 5.8); X.bezierCurveTo(-6.4, 5.8, -6.7, 3.6, -5.3, 1.6); X.fillStyle = AMBER; X.fill(); }
-    P(() => X.ellipse(4.6, 6.6, 5.2, 1.5, 0, 0, 6.3), 'rgb(116,132,100)');
-    P(() => { X.moveTo(1.2, 6.1); X.quadraticCurveTo(0.4, 3.2, 2.6, 3.2); X.quadraticCurveTo(4.4, 3.4, 4.2, 6.1); X.closePath(); }, 'rgb(116,92,76)'); // the old toad
-    P(poly([4.4, 6, 4.1, -5.6, 5.6, -7.2, 7.4, -5.6, 7.3, 6]), 'rgb(196,176,150)'); // his pack
-    P(poly([4.2, -2, 7.4, -2], false), null, 0.8); P(poly([4.3, 2, 7.3, 2], false), null, 0.8);
-    P(poly([5.7, -7.2, 6.6, -9.6, 8.4, -8.2], false), null, 0.8);
-    P(poly([8.6, 6.2, 9.2, 0.4], false), null, 0.8); dot(9.3, -0.4, 1.05, `rgb(${C.sage})`);
-  },
-  function mossmere() { // the Sunken Gate's towers, the Toppled Bridge and its hanging chain
-    P(rect(-7.6, -7, 3, 11.4), STONE); P(rect(4.6, -7, 3, 11.4), STONE);
-    P(poly([-8.2, -7, -4, -7], false), null, 1.5); P(poly([4, -7, 8.2, -7], false), null, 1.5);
-    P(() => { X.moveTo(-4.6, 4.4); X.lineTo(-4.6, -0.6); X.arc(0, -0.6, 4.6, Math.PI, 0); X.lineTo(4.6, 4.4); }, null, 1.3);
-    dot(-6.1, -3.6, 0.7); dot(6.1, -1.4, 0.7); dot(-6.1, 0.6, 0.6);
-    P(poly([-9.6, 7.4, -1.6, 7.4], false), null, 1.9); P(poly([2.6, 8.6, 9.4, 7.2], false), null, 1.9);
-    P(poly([-1.6, 7.4, -1.6, 8.3, -1.2, 9, -1.6, 9.8], false), null, 0.7);
-  },
-  function sporewood() { // three giant mushroom caps
-    const cap = (x, y, rx, ry, base, col) => { P(poly([x, y, x + 0.3, base], false), null, 1.4); P(() => { X.ellipse(x, y, rx, ry, 0, Math.PI, 0); X.closePath(); }, col); };
-    cap(-6.2, 1.2, 3.3, 2.1, 7, '#c79ab8'); cap(6.2, -0.4, 3.7, 2.3, 7, '#d6a4ba'); cap(0, -3.4, 5.6, 3.4, 7, '#b98cc0');
-    P(poly([-9, 7, 9, 7], false), null, 0.8);
-  },
-  function glasswater() { // crystal monoliths and the fallen chandelier
-    P(poly([-5.2, 6, -6.4, -3, -4.6, -6.4, -2.9, -3, -3.4, 6]), '#d5dafb'); P(poly([5, 6, 4, -1, 5.7, -4.4, 7.3, -1, 6.7, 6]), '#d5dafb');
-    P(poly([-0.9, 6, -1.9, -5, 0.2, -9.4, 2.2, -5, 1.4, 6]), '#e2e5fd'); P(poly([0.2, -9.4, 0.2, 6], false), null, 0.6);
-    P(() => X.arc(-0.2, 7, 3.4, 0.15, Math.PI - 0.15), null, 0.9); dot(-2.7, 8.6, 0.6); dot(-0.2, 9.9, 0.7); dot(2.4, 8.6, 0.6);
-  },
-  function pallid() { // the bone-white ribs and the two Kneeling statues with their dark lantern
-    const rib = (x, h, lean) => { P(() => { X.moveTo(x, 6); X.quadraticCurveTo(x - 1.4, -h * 0.55, x + lean, -h); }, null, 2.6); if (!vg.halo) { X.beginPath(); X.moveTo(x, 6); X.quadraticCurveTo(x - 1.4, -h * 0.55, x + lean, -h); X.strokeStyle = '#f6f3fa'; X.lineWidth = 0.95; X.stroke(); } };
-    rib(-8, 4.5, 2.6); rib(-4.8, 8.4, 3.4); rib(-1.4, 6.4, 3); rib(1.6, 3, 2);
-    P(poly([3.6, 6.4, 3.8, 3.4, 5, 2.2, 5.8, 3.6, 5.6, 6.4]), STONE); P(poly([8.2, 6.4, 8, 3.4, 6.9, 2.2, 6.2, 3.6, 6.4, 6.4].map((v, i) => (i % 2 ? v : v + 1.4))), STONE);
-    P(poly([6.6, 3.4, 7.3, 4.3, 6.6, 5.2, 5.9, 4.3]), 'rgb(52,42,62)', 0.7);
-    P(wave(-9.5, 9.6, 6.6, 0.5), null, 0.7);
-  },
-  function rime() { // the glacier front, floe ice and the lantern by the one hole
-    P(poly([-9.4, 1.6, -9.4, -2.6, -6, -6.4, -1.6, -7.4, 2.4, -5.2, 4.6, -1.8, 4.6, 1.6]), '#f7f7fd');
-    P(poly([-6.5, 1.6, -6.2, -1.2], false), null, 0.7); P(poly([-3.2, 1.6, -3.4, -2.4], false), null, 0.7); P(poly([0, 1.6, 0.3, -1.6], false), null, 0.7); P(poly([2.6, 1.6, 2.5, -0.6], false), null, 0.7);
-    P(poly([-8.4, 5, -5.6, 3.9, -4.2, 5.4, -7, 6.6]), '#f7f7fd', 0.8); P(poly([5.4, 4.4, 8.6, 4.8, 8, 6.8, 5, 6.2]), '#f7f7fd', 0.8);
-    P(poly([-3.2, 7.4, 3.6, 7, 4.2, 9.2, -2.6, 9.6]), '#f7f7fd', 0.8);
-    P(() => X.ellipse(0, 8.3, 1.3, 0.55, 0, 0, 6.3), 'rgb(44,40,90)', 0.6); dot(2.3, 7.5, 0.85);
-  },
-  function thin() { // the broken weir under its sluice lamp
-    P(rect(-9.4, 0.6, 6.4, 2.4), STONE); P(rect(2.4, 0.6, 7, 2.4), STONE);
-    P(poly([-2.4, 1, -1.9, 2.6, -1.2, 3.4], false), null, 0.9); P(poly([1.4, 1.2, 0.8, 2.8], false), null, 0.9);
-    for (const x of [-1.6, 0, 1.4]) P(() => { X.moveTo(x, 4); X.quadraticCurveTo(x + 0.7, 5.6, x - 0.2, 7.4); }, null, 0.7, `rgb(${C.water})`);
-    P(wave(-8, 8, 8.8, 0.6), null, 0.7, `rgb(${C.water})`);
-    P(poly([-6.6, 0.6, -6.6, -5.2], false), null, 1.1); P(poly([-7.6, -5.2, -5.6, -5.2], false), null, 1.1); dot(-6.6, -6.6, 1.1);
-  },
-  function lastLight() { // the lighthouse on the Lamp Rock, its beam drawn as two fine rays
-    if (!vg.halo) { X.beginPath(); X.moveTo(1.2, -8); X.lineTo(9.6, -10.4); X.moveTo(1.2, -7.6); X.lineTo(9.6, -5.6); X.strokeStyle = `rgb(${C.flame})`; X.lineWidth = 0.6; X.stroke(); }
-    P(poly([-7.4, 7, -5.2, 2.8, -2, 1, 2.8, 1.6, 5.4, 4, 7.2, 7]), 'rgb(176,166,178)');
-    P(poly([-1.8, 1.4, -1.1, -6.6, 1.1, -6.6, 1.8, 1.4]), STONE); P(poly([-1.5, -2.6, 1.5, -2.6], false), null, 0.7);
-    P(rect(-1.5, -9, 3, 2.4), STONE, 0.9); P(poly([-1.9, -9, 0, -10.6, 1.9, -9], false), null, 0.9); dot(0, -7.8, 0.9);
-    P(wave(-9.4, 9.4, 8, 0.6), null, 0.7, `rgb(${C.pale})`);
-  },
-  function pyrefall() { // the temple stairs into the river and the snow peaks behind
-    P(poly([-9.6, 1.4, -4.6, -8.4, -0.4, 1.4]), STONE); P(poly([-1.6, 1.4, 4, -6.2, 9.6, 1.4]), STONE);
-    P(poly([-6.3, -5, -5.2, -4, -4.4, -5.2, -3.4, -4], false), null, 0.7); P(poly([2.6, -4.2, 3.6, -3.2, 4.6, -4.4, 5.6, -3.4], false), null, 0.7);
-    for (let i = 0; i < 4; i++) P(poly([-5.4 + i * 0.9, 2.6 + i * 1.6, 5.4 - i * 0.9, 2.6 + i * 1.6], false), null, 1.1);
-    dot(-3.4, 1.9, 0.75); dot(2.6, 3.5, 0.75); dot(-1.2, 5.1, 0.75); dot(1.4, 6.7, 0.7);
-    P(wave(-7, 7, 9.2, 0.6), null, 0.7, `rgb(${C.water})`);
-  },
-  function reef() { // the spire and chimneys of the drowned town above the reef, the wreck on the drop-off
-    P(poly([-5.2, 1, -3.8, -9.4, -2.4, 1]), STONE); P(rect(0.6, -3.4, 1.8, 4.4), STONE); P(rect(4.6, -1.8, 1.8, 2.8), STONE);
-    P(poly([-2.4, -1, 0.6, -2.4], false), null, 0.8); P(poly([2.4, -1.8, 4.6, -0.8], false), null, 0.8);
-    P(wave(-9.4, 9.4, 1.2, 0.7), null, 0.8, vg.halo ? null : `rgb(${C.pale})`);
-    P(() => { X.moveTo(-3.6, 5.2); X.quadraticCurveTo(1.4, 10.6, 7.6, 6.2); X.lineTo(6.2, 5); X.quadraticCurveTo(1.4, 7.4, -2.4, 4.2); X.closePath(); }, 'rgb(206,190,186)', 0.9);
-    P(poly([1.6, 6.4, 3, 2.6], false), null, 0.9);
-  },
-  function stair() { // the broken lock stair between its two towers
-    P(rect(-9.2, -8, 2.9, 12), STONE); P(rect(6.3, -2.6, 2.9, 10.6), STONE);
-    P(poly([-9.8, -8, -5.7, -8], false), null, 1.4); P(poly([5.7, -2.6, 9.8, -2.6], false), null, 1.4); dot(-7.75, -9.6, 0.95); dot(7.75, -4.2, 0.95);
-    P(poly([-6.3, -3, -3.6, -3, -3.6, -0.4, -0.9, -0.4, -0.9, 2.2, 0.6, 2.2], false), null, 1.4); P(poly([2.2, 3.4, 3.6, 3.4, 3.6, 5.6, 6.3, 5.6], false), null, 1.4);
-    for (const [x, y] of [[-3.6, -0.2], [-0.9, 2.4], [1.4, 3.2], [3.6, 5.8]]) P(poly([x + 0.6, y + 0.4, x + 0.6, y + 2.2], false), null, 0.7, `rgb(${C.water})`);
-  },
-  function fen() { // the great dam on the Step's lip with its one lamp, papyrus behind
-    const tuft = (x) => { for (const d of [-1.3, -0.4, 0.5, 1.4]) P(poly([x + d * 0.4, 1.6, x + d * 1.3, -4.6 - (d * d) * 0.4 + 1], false), null, 1, LEAF(10)); dot(x - 1.7, -4.2, 0.55); dot(x + 1.8, -4.4, 0.55); };
-    tuft(-6.4); tuft(-2.4); tuft(5.6);
-    P(poly([-9.6, 1.6, 9.6, 1.6, 8.4, 5.6, -8.4, 5.6]), STONE);
-    for (const x of [-5.6, -1.9, 1.9, 5.6]) P(poly([x, 1.6, x, 5.6], false), null, 0.7);
-    P(poly([1.8, 1.6, 1.8, -2.6], false), null, 1.1); dot(1.8, -3.8, 1.1);
-    P(() => X.ellipse(0, 8, 5.4, 1.1, 0, 0, 6.3), 'rgb(44,38,70)', 0.6);
-  },
-  function saltGate() { // the two gate towers, left open, and the unfinished hulls on the slipway
-    P(rect(-9.4, -6.6, 2.8, 12), STONE); P(rect(-3.4, -6.6, 2.8, 12), STONE);
-    P(poly([-10, -6.6, -6, -6.6], false), null, 1.4); P(poly([-4, -6.6, 0, -6.6], false), null, 1.4);
-    P(wave(-9.6, 1, 6.8, 0.6), null, 0.7, `rgb(${C.water})`);
-    P(poly([1.2, 7, 9.8, 2.8], false), null, 1);
-    const hull = (x, y) => { P(() => { X.moveTo(x - 2.6, y + 1.3); X.lineTo(x + 2.6, y - 1.3); }, null, 1.1); for (const t of [-0.8, -0.3, 0.2, 0.7]) P(() => { const px = x + t * 3, py = y - t * 1.5; X.moveTo(px - 1.1, py - 2.6); X.quadraticCurveTo(px - 1.4, py - 0.2, px, py); }, null, 0.8); };
-    hull(4.2, 4.2); hull(7.4, 0.4);
-  },
-  function slough() { // the canal's lock gate under swamp trees
-    P(() => { X.moveTo(-8.8, 6.4); X.quadraticCurveTo(-7.4, 2, -7.6, -2.4); X.lineTo(-6.4, -2.4); X.quadraticCurveTo(-6.4, 2, -5, 6.4); }, 'rgb(150,136,128)', 0.9);
-    P(() => { X.ellipse(-3.4, -5.2, 6.8, 3.7, 0, 0, 6.3); }, LEAF(12));
-    for (const x of [-7.8, -4.6, -1.4, 1.6]) P(poly([x, -2.2, x, 0.4 + ((x * 7) % 2)], false), null, 0.7, 'rgb(112,132,112)');
-    P(rect(-3.2, 2, 1.7, 5.4), STONE); P(rect(7.2, 2, 1.7, 5.4), STONE);
-    P(poly([-1.5, 3.2, 3.7, 5.6, 7.2, 3.2], false), null, 1.9);
-    P(wave(-1.2, 7, 8, 0.5), null, 0.7, `rgb(${C.water})`);
-  },
-  function siltway() { // two mile-posts along the bank, and the sunk barge's mast at the great bend
-    P(() => { X.moveTo(-9.6, 2.8); X.quadraticCurveTo(-3, 1.4, 2.6, 3.6); }, null, 1);
-    const post = (x, y) => P(() => { X.moveTo(x - 1, y); X.lineTo(x - 1, y - 4.6); X.arc(x, y - 4.6, 1, Math.PI, 0); X.lineTo(x + 1, y); X.closePath(); }, '#f6f3fa');
-    post(-7.2, 2.6); post(-2.4, 2.4);
-    P(poly([4.2, 8, 6.9, -8.4], false), null, 1.4); P(poly([3.9, -4.2, 9, -3.2], false), null, 1.1); P(poly([6.9, -8.4, 9.2, -7.4, 7, -6.2], true), 'rgb(196,176,150)', 0.7);
-    P(() => X.ellipse(4.3, 8, 3.2, 0.9, 0, 0, 6.3), null, 0.7, 'rgb(112,92,84)'); P(wave(-9, 0.6, 7.2, 0.5), null, 0.7, 'rgb(112,92,84)');
-  },
-  function lagoon() { // the stilt village with its lanterns, one of them green
-    const hut = (x, y, w, h) => { for (const d of [0.14, 0.86]) P(poly([x + w * d, y + h, x + w * d, 7.6], false), null, 0.9); P(rect(x, y, w, h), STONE); P(poly([x - 0.9, y, x + w / 2, y - h * 1.05, x + w + 0.9, y]), 'rgb(196,176,150)'); };
-    hut(-8.6, -2.8, 6, 3.8); hut(1.6, -0.6, 6, 3.4);
-    P(poly([-2.6, -1.6, -1.2, -0.2], false), null, 0.6); dot(-1, 0.6, 0.85); P(poly([1.6, 0.6, 0.6, 1.8], false), null, 0.6); dot(0.5, 2.6, 0.8);
-    P(poly([7.6, 0.6, 8.8, 1.8], false), null, 0.6); dot(9, 2.7, 0.95, `rgb(${C.sage})`);
-    P(wave(-9.6, 9.6, 8, 0.6), null, 0.7, `rgb(${C.water})`);
-  },
-  function inkwood() { // the Kitchen Stair's hearth under the canopy, and the orchard rows' dikes
-    const g = LEAF(15);
-    P(() => { X.arc(-5.4, -4.4, 4.2, 0, 6.3); }, g); P(() => { X.arc(5.8, -4, 3.9, 0, 6.3); }, g); P(() => { X.arc(0.2, -6, 4.8, 0, 6.3); }, g);
-    P(poly([-5.6, -0.2, -5.2, 6], false), null, 1.2); P(poly([5.8, -0.1, 5.4, 6], false), null, 1.2);
-    P(poly([-2.6, 6, -2.6, 2.6, 0, 0.9, 2.6, 2.6, 2.6, 6]), STONE); P(() => { X.moveTo(-1.3, 6); X.lineTo(-1.3, 4.4); X.arc(0, 4.4, 1.3, Math.PI, 0); X.lineTo(1.3, 6); }, 'rgb(52,42,62)', 0.7); dot(0, 5.2, 0.55);
-    for (const y of [7.6, 9.2]) P(poly([-9.2, y, 9.2, y + 0.2], false), null, 0.7);
-  },
-];
+// (the vignettes, one per water, in the order of the road: the Landing first)
+export function vignetteLanding() { // the cove arch, the hearth, and Murk's lily-pad barge with his towering pack and green lamp
+  P(rect(-9.2, -2, 1.9, 8.4), STONE); P(rect(-3.2, 0.5, 1.9, 5.9), STONE);
+  P(() => { X.arc(-5.3, -2, 3.9, Math.PI, Math.PI * 1.42); }, null, 1.5); P(() => { X.arc(-5.3, -2, 3.9, Math.PI * 1.62, Math.PI * 1.9); }, null, 1.5);
+  if (!vg.halo) { X.beginPath(); X.moveTo(-5.3, 1.6); X.bezierCurveTo(-3.9, 3.6, -4.2, 5.8, -5.3, 5.8); X.bezierCurveTo(-6.4, 5.8, -6.7, 3.6, -5.3, 1.6); X.fillStyle = AMBER; X.fill(); }
+  P(() => X.ellipse(4.6, 6.6, 5.2, 1.5, 0, 0, 6.3), 'rgb(116,132,100)');
+  P(() => { X.moveTo(1.2, 6.1); X.quadraticCurveTo(0.4, 3.2, 2.6, 3.2); X.quadraticCurveTo(4.4, 3.4, 4.2, 6.1); X.closePath(); }, 'rgb(116,92,76)'); // the old toad
+  P(poly([4.4, 6, 4.1, -5.6, 5.6, -7.2, 7.4, -5.6, 7.3, 6]), 'rgb(196,176,150)'); // his pack
+  P(poly([4.2, -2, 7.4, -2], false), null, 0.8); P(poly([4.3, 2, 7.3, 2], false), null, 0.8);
+  P(poly([5.7, -7.2, 6.6, -9.6, 8.4, -8.2], false), null, 0.8);
+  P(poly([8.6, 6.2, 9.2, 0.4], false), null, 0.8); dot(9.3, -0.4, 1.05, `rgb(${C.sage})`);
+}
+export function vignetteMossmere() { // the Sunken Gate's towers, the Toppled Bridge and its hanging chain
+  P(rect(-7.6, -7, 3, 11.4), STONE); P(rect(4.6, -7, 3, 11.4), STONE);
+  P(poly([-8.2, -7, -4, -7], false), null, 1.5); P(poly([4, -7, 8.2, -7], false), null, 1.5);
+  P(() => { X.moveTo(-4.6, 4.4); X.lineTo(-4.6, -0.6); X.arc(0, -0.6, 4.6, Math.PI, 0); X.lineTo(4.6, 4.4); }, null, 1.3);
+  dot(-6.1, -3.6, 0.7); dot(6.1, -1.4, 0.7); dot(-6.1, 0.6, 0.6);
+  P(poly([-9.6, 7.4, -1.6, 7.4], false), null, 1.9); P(poly([2.6, 8.6, 9.4, 7.2], false), null, 1.9);
+  P(poly([-1.6, 7.4, -1.6, 8.3, -1.2, 9, -1.6, 9.8], false), null, 0.7);
+}
+export function vignetteSporewood() { // three giant mushroom caps
+  const cap = (x, y, rx, ry, base, col) => { P(poly([x, y, x + 0.3, base], false), null, 1.4); P(() => { X.ellipse(x, y, rx, ry, 0, Math.PI, 0); X.closePath(); }, col); };
+  cap(-6.2, 1.2, 3.3, 2.1, 7, '#c79ab8'); cap(6.2, -0.4, 3.7, 2.3, 7, '#d6a4ba'); cap(0, -3.4, 5.6, 3.4, 7, '#b98cc0');
+  P(poly([-9, 7, 9, 7], false), null, 0.8);
+}
+export function vignetteGlasswater() { // crystal monoliths and the fallen chandelier
+  P(poly([-5.2, 6, -6.4, -3, -4.6, -6.4, -2.9, -3, -3.4, 6]), '#d5dafb'); P(poly([5, 6, 4, -1, 5.7, -4.4, 7.3, -1, 6.7, 6]), '#d5dafb');
+  P(poly([-0.9, 6, -1.9, -5, 0.2, -9.4, 2.2, -5, 1.4, 6]), '#e2e5fd'); P(poly([0.2, -9.4, 0.2, 6], false), null, 0.6);
+  P(() => X.arc(-0.2, 7, 3.4, 0.15, Math.PI - 0.15), null, 0.9); dot(-2.7, 8.6, 0.6); dot(-0.2, 9.9, 0.7); dot(2.4, 8.6, 0.6);
+}
+export function vignettePallid() { // the bone-white ribs and the two Kneeling statues with their dark lantern
+  const rib = (x, h, lean) => { P(() => { X.moveTo(x, 6); X.quadraticCurveTo(x - 1.4, -h * 0.55, x + lean, -h); }, null, 2.6); if (!vg.halo) { X.beginPath(); X.moveTo(x, 6); X.quadraticCurveTo(x - 1.4, -h * 0.55, x + lean, -h); X.strokeStyle = '#f6f3fa'; X.lineWidth = 0.95; X.stroke(); } };
+  rib(-8, 4.5, 2.6); rib(-4.8, 8.4, 3.4); rib(-1.4, 6.4, 3); rib(1.6, 3, 2);
+  P(poly([3.6, 6.4, 3.8, 3.4, 5, 2.2, 5.8, 3.6, 5.6, 6.4]), STONE); P(poly([8.2, 6.4, 8, 3.4, 6.9, 2.2, 6.2, 3.6, 6.4, 6.4].map((v, i) => (i % 2 ? v : v + 1.4))), STONE);
+  P(poly([6.6, 3.4, 7.3, 4.3, 6.6, 5.2, 5.9, 4.3]), 'rgb(52,42,62)', 0.7);
+  P(wave(-9.5, 9.6, 6.6, 0.5), null, 0.7);
+}
+export function vignetteRime() { // the glacier front, floe ice and the lantern by the one hole
+  P(poly([-9.4, 1.6, -9.4, -2.6, -6, -6.4, -1.6, -7.4, 2.4, -5.2, 4.6, -1.8, 4.6, 1.6]), '#f7f7fd');
+  P(poly([-6.5, 1.6, -6.2, -1.2], false), null, 0.7); P(poly([-3.2, 1.6, -3.4, -2.4], false), null, 0.7); P(poly([0, 1.6, 0.3, -1.6], false), null, 0.7); P(poly([2.6, 1.6, 2.5, -0.6], false), null, 0.7);
+  P(poly([-8.4, 5, -5.6, 3.9, -4.2, 5.4, -7, 6.6]), '#f7f7fd', 0.8); P(poly([5.4, 4.4, 8.6, 4.8, 8, 6.8, 5, 6.2]), '#f7f7fd', 0.8);
+  P(poly([-3.2, 7.4, 3.6, 7, 4.2, 9.2, -2.6, 9.6]), '#f7f7fd', 0.8);
+  P(() => X.ellipse(0, 8.3, 1.3, 0.55, 0, 0, 6.3), 'rgb(44,40,90)', 0.6); dot(2.3, 7.5, 0.85);
+}
+export function vignetteThin() { // the broken weir under its sluice lamp
+  P(rect(-9.4, 0.6, 6.4, 2.4), STONE); P(rect(2.4, 0.6, 7, 2.4), STONE);
+  P(poly([-2.4, 1, -1.9, 2.6, -1.2, 3.4], false), null, 0.9); P(poly([1.4, 1.2, 0.8, 2.8], false), null, 0.9);
+  for (const x of [-1.6, 0, 1.4]) P(() => { X.moveTo(x, 4); X.quadraticCurveTo(x + 0.7, 5.6, x - 0.2, 7.4); }, null, 0.7, `rgb(${C.water})`);
+  P(wave(-8, 8, 8.8, 0.6), null, 0.7, `rgb(${C.water})`);
+  P(poly([-6.6, 0.6, -6.6, -5.2], false), null, 1.1); P(poly([-7.6, -5.2, -5.6, -5.2], false), null, 1.1); dot(-6.6, -6.6, 1.1);
+}
+export function vignetteLastLight() { // the lighthouse on the Lamp Rock, its beam drawn as two fine rays
+  if (!vg.halo) { X.beginPath(); X.moveTo(1.2, -8); X.lineTo(9.6, -10.4); X.moveTo(1.2, -7.6); X.lineTo(9.6, -5.6); X.strokeStyle = `rgb(${C.flame})`; X.lineWidth = 0.6; X.stroke(); }
+  P(poly([-7.4, 7, -5.2, 2.8, -2, 1, 2.8, 1.6, 5.4, 4, 7.2, 7]), 'rgb(176,166,178)');
+  P(poly([-1.8, 1.4, -1.1, -6.6, 1.1, -6.6, 1.8, 1.4]), STONE); P(poly([-1.5, -2.6, 1.5, -2.6], false), null, 0.7);
+  P(rect(-1.5, -9, 3, 2.4), STONE, 0.9); P(poly([-1.9, -9, 0, -10.6, 1.9, -9], false), null, 0.9); dot(0, -7.8, 0.9);
+  P(wave(-9.4, 9.4, 8, 0.6), null, 0.7, `rgb(${C.pale})`);
+}
+export function vignettePyrefall() { // the temple stairs into the river and the snow peaks behind
+  P(poly([-9.6, 1.4, -4.6, -8.4, -0.4, 1.4]), STONE); P(poly([-1.6, 1.4, 4, -6.2, 9.6, 1.4]), STONE);
+  P(poly([-6.3, -5, -5.2, -4, -4.4, -5.2, -3.4, -4], false), null, 0.7); P(poly([2.6, -4.2, 3.6, -3.2, 4.6, -4.4, 5.6, -3.4], false), null, 0.7);
+  for (let i = 0; i < 4; i++) P(poly([-5.4 + i * 0.9, 2.6 + i * 1.6, 5.4 - i * 0.9, 2.6 + i * 1.6], false), null, 1.1);
+  dot(-3.4, 1.9, 0.75); dot(2.6, 3.5, 0.75); dot(-1.2, 5.1, 0.75); dot(1.4, 6.7, 0.7);
+  P(wave(-7, 7, 9.2, 0.6), null, 0.7, `rgb(${C.water})`);
+}
+export function vignetteReef() { // the spire and chimneys of the drowned town above the reef, the wreck on the drop-off
+  P(poly([-5.2, 1, -3.8, -9.4, -2.4, 1]), STONE); P(rect(0.6, -3.4, 1.8, 4.4), STONE); P(rect(4.6, -1.8, 1.8, 2.8), STONE);
+  P(poly([-2.4, -1, 0.6, -2.4], false), null, 0.8); P(poly([2.4, -1.8, 4.6, -0.8], false), null, 0.8);
+  P(wave(-9.4, 9.4, 1.2, 0.7), null, 0.8, vg.halo ? null : `rgb(${C.pale})`);
+  P(() => { X.moveTo(-3.6, 5.2); X.quadraticCurveTo(1.4, 10.6, 7.6, 6.2); X.lineTo(6.2, 5); X.quadraticCurveTo(1.4, 7.4, -2.4, 4.2); X.closePath(); }, 'rgb(206,190,186)', 0.9);
+  P(poly([1.6, 6.4, 3, 2.6], false), null, 0.9);
+}
+export function vignetteStair() { // the broken lock stair between its two towers
+  P(rect(-9.2, -8, 2.9, 12), STONE); P(rect(6.3, -2.6, 2.9, 10.6), STONE);
+  P(poly([-9.8, -8, -5.7, -8], false), null, 1.4); P(poly([5.7, -2.6, 9.8, -2.6], false), null, 1.4); dot(-7.75, -9.6, 0.95); dot(7.75, -4.2, 0.95);
+  P(poly([-6.3, -3, -3.6, -3, -3.6, -0.4, -0.9, -0.4, -0.9, 2.2, 0.6, 2.2], false), null, 1.4); P(poly([2.2, 3.4, 3.6, 3.4, 3.6, 5.6, 6.3, 5.6], false), null, 1.4);
+  for (const [x, y] of [[-3.6, -0.2], [-0.9, 2.4], [1.4, 3.2], [3.6, 5.8]]) P(poly([x + 0.6, y + 0.4, x + 0.6, y + 2.2], false), null, 0.7, `rgb(${C.water})`);
+}
+export function vignetteFen() { // the great dam on the Step's lip with its one lamp, papyrus behind
+  const tuft = (x) => { for (const d of [-1.3, -0.4, 0.5, 1.4]) P(poly([x + d * 0.4, 1.6, x + d * 1.3, -4.6 - (d * d) * 0.4 + 1], false), null, 1, LEAF(10)); dot(x - 1.7, -4.2, 0.55); dot(x + 1.8, -4.4, 0.55); };
+  tuft(-6.4); tuft(-2.4); tuft(5.6);
+  P(poly([-9.6, 1.6, 9.6, 1.6, 8.4, 5.6, -8.4, 5.6]), STONE);
+  for (const x of [-5.6, -1.9, 1.9, 5.6]) P(poly([x, 1.6, x, 5.6], false), null, 0.7);
+  P(poly([1.8, 1.6, 1.8, -2.6], false), null, 1.1); dot(1.8, -3.8, 1.1);
+  P(() => X.ellipse(0, 8, 5.4, 1.1, 0, 0, 6.3), 'rgb(44,38,70)', 0.6);
+}
+export function vignetteSaltGate() { // the two gate towers, left open, and the unfinished hulls on the slipway
+  P(rect(-9.4, -6.6, 2.8, 12), STONE); P(rect(-3.4, -6.6, 2.8, 12), STONE);
+  P(poly([-10, -6.6, -6, -6.6], false), null, 1.4); P(poly([-4, -6.6, 0, -6.6], false), null, 1.4);
+  P(wave(-9.6, 1, 6.8, 0.6), null, 0.7, `rgb(${C.water})`);
+  P(poly([1.2, 7, 9.8, 2.8], false), null, 1);
+  const hull = (x, y) => { P(() => { X.moveTo(x - 2.6, y + 1.3); X.lineTo(x + 2.6, y - 1.3); }, null, 1.1); for (const t of [-0.8, -0.3, 0.2, 0.7]) P(() => { const px = x + t * 3, py = y - t * 1.5; X.moveTo(px - 1.1, py - 2.6); X.quadraticCurveTo(px - 1.4, py - 0.2, px, py); }, null, 0.8); };
+  hull(4.2, 4.2); hull(7.4, 0.4);
+}
+export function vignetteSlough() { // the canal's lock gate under swamp trees
+  P(() => { X.moveTo(-8.8, 6.4); X.quadraticCurveTo(-7.4, 2, -7.6, -2.4); X.lineTo(-6.4, -2.4); X.quadraticCurveTo(-6.4, 2, -5, 6.4); }, 'rgb(150,136,128)', 0.9);
+  P(() => { X.ellipse(-3.4, -5.2, 6.8, 3.7, 0, 0, 6.3); }, LEAF(12));
+  for (const x of [-7.8, -4.6, -1.4, 1.6]) P(poly([x, -2.2, x, 0.4 + ((x * 7) % 2)], false), null, 0.7, 'rgb(112,132,112)');
+  P(rect(-3.2, 2, 1.7, 5.4), STONE); P(rect(7.2, 2, 1.7, 5.4), STONE);
+  P(poly([-1.5, 3.2, 3.7, 5.6, 7.2, 3.2], false), null, 1.9);
+  P(wave(-1.2, 7, 8, 0.5), null, 0.7, `rgb(${C.water})`);
+}
+export function vignetteSiltway() { // two mile-posts along the bank, and the sunk barge's mast at the great bend
+  P(() => { X.moveTo(-9.6, 2.8); X.quadraticCurveTo(-3, 1.4, 2.6, 3.6); }, null, 1);
+  const post = (x, y) => P(() => { X.moveTo(x - 1, y); X.lineTo(x - 1, y - 4.6); X.arc(x, y - 4.6, 1, Math.PI, 0); X.lineTo(x + 1, y); X.closePath(); }, '#f6f3fa');
+  post(-7.2, 2.6); post(-2.4, 2.4);
+  P(poly([4.2, 8, 6.9, -8.4], false), null, 1.4); P(poly([3.9, -4.2, 9, -3.2], false), null, 1.1); P(poly([6.9, -8.4, 9.2, -7.4, 7, -6.2], true), 'rgb(196,176,150)', 0.7);
+  P(() => X.ellipse(4.3, 8, 3.2, 0.9, 0, 0, 6.3), null, 0.7, 'rgb(112,92,84)'); P(wave(-9, 0.6, 7.2, 0.5), null, 0.7, 'rgb(112,92,84)');
+}
+export function vignetteLagoon() { // the stilt village with its lanterns, one of them green
+  const hut = (x, y, w, h) => { for (const d of [0.14, 0.86]) P(poly([x + w * d, y + h, x + w * d, 7.6], false), null, 0.9); P(rect(x, y, w, h), STONE); P(poly([x - 0.9, y, x + w / 2, y - h * 1.05, x + w + 0.9, y]), 'rgb(196,176,150)'); };
+  hut(-8.6, -2.8, 6, 3.8); hut(1.6, -0.6, 6, 3.4);
+  P(poly([-2.6, -1.6, -1.2, -0.2], false), null, 0.6); dot(-1, 0.6, 0.85); P(poly([1.6, 0.6, 0.6, 1.8], false), null, 0.6); dot(0.5, 2.6, 0.8);
+  P(poly([7.6, 0.6, 8.8, 1.8], false), null, 0.6); dot(9, 2.7, 0.95, `rgb(${C.sage})`);
+  P(wave(-9.6, 9.6, 8, 0.6), null, 0.7, `rgb(${C.water})`);
+}
+export function vignetteInkwood() { // the Kitchen Stair's hearth under the canopy, and the orchard rows' dikes
+  const g = LEAF(15);
+  P(() => { X.arc(-5.4, -4.4, 4.2, 0, 6.3); }, g); P(() => { X.arc(5.8, -4, 3.9, 0, 6.3); }, g); P(() => { X.arc(0.2, -6, 4.8, 0, 6.3); }, g);
+  P(poly([-5.6, -0.2, -5.2, 6], false), null, 1.2); P(poly([5.8, -0.1, 5.4, 6], false), null, 1.2);
+  P(poly([-2.6, 6, -2.6, 2.6, 0, 0.9, 2.6, 2.6, 2.6, 6]), STONE); P(() => { X.moveTo(-1.3, 6); X.lineTo(-1.3, 4.4); X.arc(0, 4.4, 1.3, Math.PI, 0); X.lineTo(1.3, 6); }, 'rgb(52,42,62)', 0.7); dot(0, 5.2, 0.55);
+  for (const y of [7.6, 9.2]) P(poly([-9.2, y, 9.2, y + 0.2], false), null, 0.7);
+}
+/** The vignettes in the road's order (n 0 the Landing, 1 the Mossmere … 16 the Inkwood): the page draws from all of them; the
+ *  game imports only its shipped sheets' (src/ui-chart.js SHIPPED_VIGNETTES), so its bundle carries no other water's. */
+export const VIGNETTES = [vignetteLanding, vignetteMossmere, vignetteSporewood, vignetteGlasswater, vignettePallid, vignetteRime, vignetteThin, vignetteLastLight, vignettePyrefall, vignetteReef, vignetteStair, vignetteFen, vignetteSaltGate, vignetteSlough, vignetteSiltway, vignetteLagoon, vignetteInkwood];
 /** A water's landmark vignette (n 0 the Landing, 1 the Mossmere … 16 the Inkwood) centred at x, y, `vs` px across. Owned marks
  *  ink fully; an unowned one (the design view only) at 55%. */
-export function vignette(ctx, n, x, y, vs, { owned = true, alpha = 1 } = {}) {
-  const draw = VIGNETTES[n];
-  if (!draw) return;
+export function vignette(ctx, n, x, y, vs, opts) { inkVignette(ctx, VIGNETTES[n], x, y, vs, opts); }
+/** One vignette's drawing (one of VIGNETTES) inked centred at x, y, `vs` px across (the game passes its shipped sheets' own). */
+export function inkVignette(ctx, draw, x, y, vs, { owned = true, alpha = 1 } = {}) {
+  if (typeof draw !== 'function') return;
   const u = vs / 20;
   ctx.save(); ctx.translate(x, y); ctx.scale(u, u);
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -725,66 +727,89 @@ export const TARGET = 44;
  * Where everything on the game's Chart goes, in CSS px, and its tap targets (M1.md §3.4). Pure: tests call it in node.
  * model: chartModel's. art: {sheets: [{n, box}], live}. view: {w, h, phone, water: {<waterId>: {R, shore, islands, piers, deep,
  * gate, docks}}, sites: {<placeId>: {x, z}}, measure(text, font) → px (optional; a fixed estimate without it), fonts F}.
- * Returns {phone, cont: {x, y, w, h, k, view}, cards: [{waterId, x, y, w, h, lake: {cx, cy, s, rect}, name: {x, y, font,
- * text}, book, pin}], places: [{id, kind, owned, price, at, site, leader, size, label, sub}], sealed, targets: [{id, kind, rect,
- * water, place, label, backdrop}]}.
+ * Returns {phone, short, cont: {x, y, w, h, k, view}, cards: [{waterId, x, y, w, h, lake: {cx, cy, s, rect}, name: {x, y, font,
+ * text}, book, pin}], places: [{id, kind, owned, price, at, site, leader, size, label, sub}], sealed: {…, trail}, fonts (every
+ * font it letters in), targets: [{id, kind, rect, water, place, label, backdrop}]}.
+ * On a phone every word is lettered at 16 px or more (M1.md §2.12). A phone sheet too short for the first sheet across the top
+ * and the water's lake under it (Safari with its bars: a 390 x 844 iPhone shows about 664 px) narrows the first sheet; the sealed
+ * sheet then stands at the water's sheet's left, so its wisp runs straight on from the first sheet's edge.
  */
+export const LETTER = Object.freeze({
+  phone: Object.freeze({ name: 19, place: 16, sub: 16, price: 16, count: 16, soon: 17 }),
+  desk: Object.freeze({ name: 21, place: 15, sub: 14, price: 15, count: 15, soon: 17 }),
+});
+const SIDE_W = 118, CH_MIN = 120;   // (a short phone: the sealed sheet's column beside the water's sheet; the first sheet's least height)
 export function layoutChart(model, art, view) {
   const Wd = Math.max(200, view.w | 0), Ht = Math.max(200, view.h | 0), phone = view.phone ?? Wd < 560;
-  const F = view.F || { chart: 'serif', hand: 'cursive', display: 'serif', body: 'serif' };
-  const measure = view.measure || ((t, font) => String(t).length * (parseFloat(/(\d+(?:\.\d+)?)px/.exec(font)?.[1] || 13) * 0.5));
+  const F = view.F || { chart: 'serif', hand: 'cursive', display: 'serif' };
+  const fig = F.figure || F.chart;   // the figures (prices, weights, the catch count) in the same court hand, roman (M1.md §3.1)
+  const measure = view.measure || ((t, f) => String(t).length * (parseFloat(/(\d+(?:\.\d+)?)px/.exec(f)?.[1] || 13) * 0.5));
+  const LS = phone ? LETTER.phone : LETTER.desk;
   const pad = phone ? 4 : 10, gap = phone ? 12 : 22;
   const first = (art?.sheets || [])[0] || { box: [496, 151, 214, 129] };
-  const box = first.box;
+  const box = first.box, aspect = box[2] / box[3];
   const tutorial = model?.tutorial === true;
   const next = tutorial ? null : model?.next || null;
-  const out = { phone, w: Wd, h: Ht, targets: [], places: [], cards: [], sealed: null };
+  const sealedOn = !!(next && next.shipped === false);
+  const sheet = (model?.sheets || [])[0] || null;
+  const geo = sheet ? view.water?.[sheet.waterId] || null : null;
+  const out = { phone, short: false, w: Wd, h: Ht, targets: [], places: [], cards: [], sealed: null, fonts: [] };
+  const font = (f) => { if (!out.fonts.includes(f)) out.fonts.push(f); return f; };
+  const sealR = phone ? 12 : 13, strip = phone ? { w: 206, h: 64 } : { w: 206, h: 90 };
+  const head = LS.name + 16;
 
-  // ---- the first sheet's window: across the top on a phone, the left column on a wide screen
-  let cw = phone ? Wd - 2 * pad : Math.min(Wd * 0.45, ((Ht - 2 * pad) * 0.66 * box[2]) / box[3]);
+  // ---- the first sheet's window: across the top on a phone (narrowed on a short one), the left column on a wide screen
+  let cw, side = false;
+  const full = Wd - 2 * pad;
+  if (phone) {
+    cw = full;
+    const avail = Ht - pad - gap - pad - 2, natCh = full / aspect;
+    const hasPlaces = !!sheet && (sheet.places || []).some((p) => view.sites?.[p.id]);
+    const lakeMin = tutorial || !hasPlaces ? 132 : 212;
+    if (sheet && avail - natCh - (sealedOn ? strip.h + 6 : 0) - head - 8 < lakeMin) {
+      out.short = true; side = sealedOn;
+      const want = side ? Math.min(full - 4 - SIDE_W - 12, 236) : lakeMin;
+      cw = Math.min(full, clamp(avail - head - 8 - want, CH_MIN, natCh) * aspect);
+    }
+  } else cw = Math.min(Wd * 0.45, ((Ht - 2 * pad) * 0.66 * box[2]) / box[3]);
   const k = cw / box[2], ch = box[3] * k;
-  const cont = { x: pad, y: pad, w: cw, h: ch, k };
+  const cont = { x: phone ? pad + (full - cw) / 2 : pad, y: pad, w: cw, h: ch, k };
   cont.view = { x: box[0], y: box[1], k, ox: cont.x, oy: cont.y };
   out.cont = cont;
   const cx = (x) => cont.x + (x - box[0]) * k, cy = (y) => cont.y + (y - box[1]) * k;
 
-  // ---- the next water's sealed sheet (never in the tutorial): its rolled sheet, three seals, "Coming soon"
-  const sealedSize = phone ? { w: 196, h: 58 } : { w: 196, h: 86 };
   // ---- each owned water's own sheet, pinned beside its true place
-  const sheet = (model?.sheets || [])[0] || null;
-  const geo = sheet ? view.water?.[sheet.waterId] || null : null;
   let card = null;
   if (sheet) {
-    const nameSize = phone ? 19 : 21;
-    if (phone) card = { x: pad + 2, y: cont.y + cont.h + gap, w: Wd - 2 * pad - 4 };
+    if (phone) card = { x: pad + 2 + (side ? SIDE_W : 0), y: cont.y + cont.h + gap, w: full - 4 - (side ? SIDE_W : 0) };
     else card = { x: cont.x + cont.w + gap + 6, y: pad + 2, w: Wd - (cont.x + cont.w + gap + 6) - pad - 2 };
-    // (a phone keeps a strip under the water's sheet for the sealed sheet, at its lower left)
-    card.h = Ht - card.y - pad - 2 - (phone && next ? sealedSize.h + 6 : 0);
-    const nameFont = `italic 400 ${nameSize}px ${F.chart}`;
-    const head = nameSize + 16;
-    const foot = 0;
-    const lake = { rect: [card.x + 6, card.y + head, card.w - 12, card.h - head - foot - 8] };
+    // (a tall phone keeps a strip under the water's sheet for the sealed sheet, at its lower left)
+    card.h = Ht - card.y - pad - 2 - (phone && sealedOn && !side ? strip.h + 6 : 0);
+    const nameFont = font(`italic 400 ${LS.name}px ${F.chart}`);
+    const lake = { rect: [card.x + 6, card.y + head, card.w - 12, card.h - head - 8] };
     const R = Math.max(10, geo?.Rmax || geo?.R || 60);
     lake.s = Math.min(lake.rect[2], lake.rect[3]) / (2 * R * 1.06);
     lake.cx = lake.rect[0] + lake.rect[2] / 2; lake.cy = lake.rect[1] + lake.rect[3] / 2;
     card.lake = lake;
     const nameW = measure(sheet.name, nameFont);
     card.name = { text: sheet.name, font: nameFont, x: card.x + 16, y: card.y + head / 2 + 2, w: nameW };
-    card.book = { x: card.name.x + nameW + 22, y: card.name.y, s: phone ? 20 : 22 };
+    // the catalogue's book beside the name (SPEC §8.8); not in the tutorial, where there is nothing to read but Murk's (M1.md §3.5)
+    card.book = tutorial ? null : { x: card.name.x + nameW + 22, y: card.name.y, s: phone ? 20 : 22 };
     card.waterId = sheet.waterId;
     // the pin: the water's mark on the first sheet, and where its short ink stroke meets this sheet
     const at = (art?.live?.waters || []).find((w) => w.water === sheet.waterId)?.at || null;
     if (at) {
       const from = [cx(at[0]), cy(at[1])];
-      card.pin = { from, to: phone ? [from[0], card.y] : [card.x, Math.max(card.y + 14, Math.min(card.y + card.h - 14, from[1]))] };
+      card.pin = { from, to: phone ? [clamp(from[0], card.x + 14, card.x + card.w - 14), card.y] : [card.x, Math.max(card.y + 14, Math.min(card.y + card.h - 14, from[1]))] };
     }
     out.cards.push(card);
-    out.targets.push({ id: `water:${sheet.waterId}`, kind: 'water', water: sheet.waterId, rect: [card.x, card.y + head - 4, card.w, card.h - head - foot], label: sheet.name, backdrop: true });
-    out.targets.push({ id: `book:${sheet.waterId}`, kind: 'book', water: sheet.waterId, rect: around(card.book.x, card.book.y, TARGET, TARGET), label: view.words?.book || 'Journal' });
+    out.targets.push({ id: `water:${sheet.waterId}`, kind: 'water', water: sheet.waterId, rect: [card.x, card.y + head - 4, card.w, card.h - head], label: sheet.name, backdrop: true });
+    if (card.book) out.targets.push({ id: `book:${sheet.waterId}`, kind: 'book', water: sheet.waterId, rect: around(card.book.x, card.book.y, TARGET, TARGET), label: view.words?.book || 'Journal' });
 
     // ---- its places, at their arena sites; where two would overlap they are pushed apart along the shore with a fine leader
     const T = phone ? 46 : 50, sizeV = phone ? 34 : 40;
-    const fixed = [around(card.book.x, card.book.y, TARGET, TARGET), [card.name.x - 4, card.name.y - nameSize / 2 - 4, nameW + 8, nameSize + 8]];
+    const fixed = [[card.name.x - 4, card.name.y - LS.name / 2 - 4, nameW + 8, LS.name + 8]];
+    if (card.book) fixed.unshift(around(card.book.x, card.book.y, TARGET, TARGET));
     const items = [];
     for (const p of sheet.places || []) {
       const site = view.sites?.[p.id];
@@ -792,7 +817,7 @@ export function layoutChart(model, art, view) {
       const sx = lake.cx + site.x * lake.s, sy = lake.cy + site.z * lake.s;
       items.push({ id: p.id, kind: p.kind || null, owned: p.owned === true, price: !tutorial && p.owned !== true && Number.isFinite(p.price) ? p.price : null, p, site: [sx, sy], at: [sx, sy], size: sizeV, T });
     }
-    const inner = [card.x + T / 2 + 4, card.y + head + T / 2, card.x + card.w - T / 2 - 4, card.y + card.h - foot - T / 2 - 6];
+    const inner = [card.x + T / 2 + 4, card.y + head + T / 2, card.x + card.w - T / 2 - 4, card.y + card.h - T / 2 - 6];
     const need = T + 8;
     for (let it = 0; it < 80; it++) {
       let moved = false;
@@ -816,56 +841,105 @@ export function layoutChart(model, art, view) {
       }
       if (!moved) break;
     }
-    // the lettering: each place's words where they meet nothing else (its name and best fish under it, else above, beside it)
-    const fs = phone ? 12.5 : 13.5, placed = fixed.slice();
+    // the lettering: each place's words where they meet nothing else (under it, else above, beside it), clear of the isles where
+    // they can be. On a phone only the chosen place shows its best fish, but every owned place keeps its line's room, so choosing
+    // never moves a word.
+    const placed = fixed.slice();
     for (const A of items) placed.push(around(A.at[0], A.at[1], A.size, A.size));
+    const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + q.x * lake.s - r, lake.cy + q.z * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
+    const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
+    const free = (q) => inCard(q) && !placed.some((o) => rectsMeet(q, o, 1));
+    const firstFree = (spots, bw, bh) => {
+      for (const sp of spots) { const q = around(sp[0], sp[1], bw, bh); if (free(q) && !isles.some((o) => rectsMeet(q, o, 0))) return sp; }
+      for (const sp of spots) if (free(around(sp[0], sp[1], bw, bh))) return sp;
+      return null;
+    };
+    const bestLine = (A) => { const s = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: font(`400 ${LS.sub}px ${fig}`), px: LS.sub }; s.w = Math.round(Math.round(LS.sub * 0.82) * 1.83) + 6 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(s.weight) : '', s.font); return s; };
     const order = items.slice().sort((a, b) => (b.owned - a.owned) || ((b.price != null) - (a.price != null)));
     for (const A of order) {
       A.leader = Math.hypot(A.at[0] - A.site[0], A.at[1] - A.site[1]) > 5;
-      let lines = [];
+      // the ways its words may stand, in order: its name on one line, else stacked on two as a surveyor letters a crowded water; each
+      // first with room kept for its best fish under it (an owned place), then without
+      const sets = [];
       if (A.owned) {
-        const name = { text: A.p.name || A.id, font: `italic 400 ${fs}px ${F.chart}` };
-        name.w = measure(name.text, name.font) + (A.p.giantLanded ? 16 : 0);
-        lines.push(name);
-        const showBest = A.p.best && (!phone || model?.pick?.place === A.id);
-        if (showBest) { const sub = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: `400 ${fs - 1.5}px ${F.body}` }; sub.w = 26 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(sub.weight) : '', sub.font); lines.push(sub); }
-      } else if (A.price != null) { const pr = { text: String(A.price), font: `400 ${fs}px ${F.body}`, price: true }; pr.w = measure(pr.text, pr.font) + 16; lines.push(pr); }
-      if (!lines.length) { out.places.push(A); continue; }
-      const lh = fs + 3, bw = Math.max(...lines.map((l) => l.w)) + 6, bh = lines.length * lh + 2;
+        const nf = font(`italic 400 ${LS.place}px ${F.chart}`), text = A.p.name || A.id, star = A.p.giantLanded ? 16 : 0;
+        const nm = (t, last) => ({ text: t, font: nf, px: LS.place, w: measure(t, nf) + (last ? star : 0) });
+        const words = text.split(' ');
+        let cut = 0, gapD = Infinity;
+        for (let i = 1; i < words.length; i++) { const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length); if (d < gapD) { gapD = d; cut = i; } }
+        const one = [nm(text, true)], two = cut ? [nm(words.slice(0, cut).join(' '), false), nm(words.slice(cut).join(' '), true)] : null;
+        const sub = A.p.best ? bestLine(A) : null;
+        if (sub) sets.push([...one, sub]);
+        if (sub && two) sets.push([...two, sub]);
+        sets.push(one);
+        if (two) sets.push(two);
+      } else if (A.price != null) { const pr = { text: String(A.price), font: font(`400 ${LS.price}px ${fig}`), px: LS.price, price: true }; pr.w = measure(pr.text, pr.font) + Math.round(LS.price * 0.78) + 5; sets.push([pr]); }
+      if (!sets.length) { out.places.push(A); continue; }
       const [x, y] = A.at, r = A.size / 2;
       // (a place by the west or east shore letters out on the paper first, as a surveyor would, clear of the water)
-      const side = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
-      const beside = (sg) => [x + sg * (r + 4 + bw / 2), y];
-      const spots = [...(side && !phone ? [beside(side)] : []), [x, y + r + 2 + bh / 2], [x, y - r - 2 - bh / 2], beside(1), beside(-1), [x + r + bw / 2, y + r], [x - r - bw / 2, y + r]];
-      const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
-      let best = null;
-      for (const sp of spots) { const q = around(sp[0], sp[1], bw, bh); if (inCard(q) && !placed.some((o) => rectsMeet(q, o, 1))) { best = sp; break; } }
-      if (!best) best = spots[0];
+      const sd = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
+      const spotsFor = (bw, bh) => { // under it, above it, beside it, at its corners, a little further out each round
+        const S = sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : [];
+        for (const d of [0, 10, 22, 36]) {
+          const below = y + r + 2 + d + bh / 2, above = y - r - 2 - d - bh / 2, right = x + r + 4 + d + bw / 2, left = x - r - 4 - d - bw / 2;
+          S.push([x, below], [x, above], [right, y], [left, y], [x + bw * 0.3, below], [x - bw * 0.3, below], [x + bw * 0.3, above], [x - bw * 0.3, above],
+            [right, y + r + bh / 2 - 6], [left, y + r + bh / 2 - 6], [right, y - r - bh / 2 + 6], [left, y - r - bh / 2 + 6]);
+        }
+        return S;
+      };
+      const size = (ls) => { const lh = Math.max(...ls.map((l) => l.px)) + 3; return [Math.max(...ls.map((l) => l.w)) + 6, ls.length * lh + 2, lh]; };
+      let use = null, best = null, bw = 0, bh = 0, lh = 0;
+      for (const s of sets) { const [w0, h0, l0] = size(s), b = firstFree(spotsFor(w0, h0), w0, h0); if (b) { use = s; best = b; [bw, bh, lh] = [w0, h0, l0]; break; } }
+      if (!best) { use = sets[sets.length - 1]; [bw, bh, lh] = size(use); best = spotsFor(bw, bh)[0]; }
       const q = around(best[0], best[1], bw, bh);
       placed.push(q);
-      lines.forEach((l, i) => { l.x = best[0]; l.y = q[1] + 1 + lh * (i + 0.5); });
-      A.label = lines[0].kind === 'best' ? null : { ...lines[0] };
-      if (lines[1]) A.sub = lines[1];
+      use.forEach((l, i) => { l.x = best[0]; l.y = q[1] + 1 + lh * (i + 0.5); });
+      const names = use.filter((l) => l.kind !== 'best'), sub = use.find((l) => l.kind === 'best');
+      A.label = { ...names[0] };
+      if (names[1]) A.label2 = { ...names[1] };
+      A.box = q;
+      const show = !phone || model?.pick?.place === A.id;
+      if (sub && show) A.sub = sub;
+      else if (!sub && A.owned && A.p.best && show) A.fitSub = bestLine(A);   // (no room kept for it: fitted below, moving no word)
       out.places.push(A);
     }
+    // a chosen place whose best fish had no room kept for it: fitted last beside its name, moving no other word
+    for (const A of out.places) {
+      if (!A.fitSub) continue;
+      const s = A.fitSub, q = A.box, lh = s.px + 3, r = A.size / 2, [x, y] = A.at;
+      const spots = [[q[0] + q[2] / 2, q[1] + q[3] + 1.5 + lh / 2], [q[0] + q[2] / 2, q[1] - 1.5 - lh / 2], [x + r + 4 + s.w / 2, y], [x - r - 4 - s.w / 2, y], [x, y + r + 2 + lh / 2]];
+      const sp = firstFree(spots, s.w + 6, lh) || spots[0];
+      placed.push(around(sp[0], sp[1], s.w + 6, lh));
+      s.x = sp[0]; s.y = sp[1]; A.sub = s; delete A.fitSub;
+    }
     for (const A of items) {
-      if (A.owned) out.targets.push({ id: `place:${A.id}`, kind: 'place', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: A.label?.text || A.id });
+      if (A.owned) out.targets.push({ id: `place:${A.id}`, kind: 'place', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: A.p.name || A.id });
       else if (A.price != null) out.targets.push({ id: `buy:${A.id}`, kind: 'buy', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: String(A.price) });
     }
   }
-  // ---- the sealed sheet: under the first sheet on a wide screen; at the water's sheet's lower left on a phone
-  if (next && next.shipped === false) {
-    const w = sealedSize.w, h = sealedSize.h;
-    const x = phone && card ? card.x + 2 : cont.x + Math.max(0, (cont.w - w) / 2) * 0.35;
-    const y = phone && card ? card.y + card.h + 6 : Math.min(Ht - pad - h, cont.y + cont.h + gap);
-    const r = phone ? 10.5 : 12.5;
-    const roll = { x: x + (phone ? 48 : 38), y: y + h * 0.32, w: phone ? 52 : 66, h: phone ? 24 : 30 };
-    const seals = ['map', 'gear', 'catch'].map((key, i) => ({ key, x: roll.x + roll.w / 2 + 14 + r + i * (2 * r + (phone ? 7 : 9)), y: roll.y, r }));
-    const soon = phone ? { x: seals[2].x + r + 14, y: roll.y + 1, font: `400 15px ${F.hand}`, align: 'left' } : { x: roll.x + roll.w / 2 + 14 + r * 3 + 9, y: y + h - 16, font: `400 17px ${F.hand}` };
-    const wispFrom = art?.live?.wisp ? [cx(art.live.wisp[0]), cy(art.live.wisp[1])] : null;
-    out.sealed = { water: next.waterId, x, y, w, h, roll, seals, soon, wispFrom };
-    const rect = [x, y, w, h];
-    out.targets.push({ id: `sealed:${next.waterId}`, kind: 'sealed', water: next.waterId, rect, label: 'Coming soon' });
+  // ---- the sealed sheet: under the first sheet on a wide screen; at the water's sheet's lower left on a tall phone, at its left on a
+  // short one; the wisp's trail runs on from the first sheet's edge under the owned road's end (never across another sheet's ground)
+  if (sealedOn) {
+    const r = sealR, wispAt = art?.live?.wisp ? [cx(art.live.wisp[0]), cont.y + cont.h] : null;
+    let x, y, w, h, roll, seals, soon;
+    const countFont = font(`400 ${LS.count}px ${fig}`), soonFont = font(`400 ${LS.soon}px ${F.hand}`);
+    if (side && card) {
+      x = pad + 2; y = card.y; w = SIDE_W - 8; h = Math.min(card.h, 112);
+      roll = { x: x + w / 2, y: y + 16, w: 52, h: 24 };
+      seals = ['map', 'gear', 'catch'].map((key, i) => ({ key, x: roll.x + (i - 1) * (2 * r + 6), y: roll.y + 32, r }));
+      soon = { x: roll.x, y: seals[0].y + r + LS.count + 16, font: soonFont };
+    } else {
+      w = strip.w; h = strip.h;
+      x = phone && card ? card.x + 2 : cont.x + Math.max(0, (cont.w - w) / 2) * 0.35;
+      y = phone && card ? card.y + card.h + 6 : Math.min(Ht - pad - h, cont.y + cont.h + gap);
+      roll = { x: x + (phone ? 48 : 38), y: y + h * 0.32, w: phone ? 52 : 66, h: phone ? 24 : 30 };
+      seals = ['map', 'gear', 'catch'].map((key, i) => ({ key, x: roll.x + roll.w / 2 + 14 + r + i * (2 * r + (phone ? 7 : 9)), y: roll.y, r }));
+      soon = phone ? { x: seals[2].x + r + 14, y: roll.y + 1, font: soonFont, align: 'left' } : { x: roll.x + roll.w / 2 + 14 + r * 3 + 9, y: y + h - 16, font: soonFont };
+    }
+    // the trail: from the first sheet's edge to the rolled sheet's end; on a tall phone it runs on under the water's sheet laid over it
+    const trail = wispAt ? { from: wispAt, to: phone ? [roll.x + roll.w / 2 + 3, roll.y] : [roll.x - roll.w / 2 - 4, roll.y], under: phone && !side && card ? card.y + card.h - 3 : null } : null;
+    out.sealed = { water: next.waterId, x, y, w, h, roll, seals, soon, countFont, trail, side, wispFrom: wispAt };
+    out.targets.push({ id: `sealed:${next.waterId}`, kind: 'sealed', water: next.waterId, rect: [x, y, w, h], label: 'Coming soon' });
   }
   return out;
 }
@@ -881,9 +955,9 @@ export const deckle = (ctx, x, y, w, h, seed, amp = 1.2) => { // a hand-cut edge
   ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const p of pts) ctx.lineTo(p[0], p[1]); ctx.closePath();
 };
 /** Lettering the game's Chart records as it draws (the tests read `layout.texts`: names, prices, weights, counts, "Coming soon"). */
-function letter(ctx, L, text, x, y, font, { colour = null, align = 'center', alpha = 0.95, reserve = 0.9, dpr = 1 } = {}) {
+function letter(ctx, L, text, x, y, font, { colour = null, align = 'center', alpha = 0.95, reserve = 0.9, dpr = 1, record = true } = {}) {
   const s = String(text);
-  L.texts.push(s);
+  if (record) L.texts.push(s);
   ctx.save();
   ctx.font = font;
   const w = ctx.measureText(s).width;
@@ -943,7 +1017,7 @@ export function drawChart(ctx, model, art, view, t = 0) {
   if (live.home) marks.push({ n: 0, at: live.home.at, vg: live.home.vg });
   for (const w of live.waters || []) marks.push({ n: w.n, at: w.at, vg: w.vg });
   layoutMarks(V, marks, { fitK: k * 0.6, small: L.phone });
-  for (const m of marks) { m.u = u; m.vs = vs; vignette(ctx, m.n, m.vx, m.vy, vs); }
+  for (const m of marks) { m.u = u; m.vs = vs; inkVignette(ctx, view.vignettes?.[m.n], m.vx, m.vy, vs); }
   for (const m of marks) { if (m.n === 0) hearth(ctx, m.lx, m.ly, u * 1.15, false); else lantern(ctx, m.lx, m.ly, u, true, false); }
   // the road's stones, arc I, at the Landing's corner, and the plain rose beside them (M1.md §3.3): drawn in the sea, pale on it
   if (live.stones) {
@@ -957,7 +1031,8 @@ export function drawChart(ctx, model, art, view, t = 0) {
   }
   ctx.restore();
 
-  // ---- each owned water's own sheet, pinned beside its true place with a short ink stroke
+  // ---- each owned water's own sheet, pinned beside its true place with a short ink stroke (the wisp's trail laid under it)
+  if (L.sealed) { ctx.save(); ctx.globalAlpha = inkSheet; drawTrail(ctx, L, 'under'); ctx.restore(); }
   for (const card of L.cards) drawWaterCard(ctx, L, card, model, view, dpr, F, inkSheet, t);
   // ---- the next water: a wisp from the owned road to the rolled, sealed sheet; its three seals; "Coming soon"
   if (L.sealed) drawSealed(ctx, L, model, view, dpr, F, inkSheet);
@@ -988,7 +1063,7 @@ function drawWaterCard(ctx, L, card, model, view, dpr, F, a, t) {
   const pick = model?.pick || {};
   const nw = letter(ctx, L, card.name.text, card.name.x, card.name.y, card.name.font, { align: 'left', dpr, reserve: 0.7 });
   if (pick.water === card.waterId && !pick.place) underline(ctx, card.name.x, card.name.y + 12, nw);
-  bookGlyph(ctx, card.book.x, card.book.y, card.book.s);
+  if (card.book) bookGlyph(ctx, card.book.x, card.book.y, card.book.s);
   // the places
   for (const A of L.places) drawPlace(ctx, L, A, pick, view, dpr, F, a);
   ctx.restore();
@@ -1004,23 +1079,43 @@ function drawLake(ctx, lake, geo, t) {
   const shore = geo.shore || [];
   if (shore.length < 3) return;
   const pathOf = (pts, k = 1) => { ctx.beginPath(); pts.forEach((p, i) => { const q = at(p[0] * k, p[1] * k); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); };
-  // the bank's hachures, falling away from the water
-  ctx.save(); ctx.strokeStyle = ink(0.38); ctx.lineWidth = 0.7;
-  ctx.beginPath();
-  for (let i = 0; i < shore.length; i += 1) {
-    const p = shore[i], r = Math.hypot(p[0], p[1]) || 1, wob = Math.sin(i * 12.9898) * 0.5, nx = p[0] / r, nz = p[1] / r;
-    const len = (i % 3 === 0 ? 6.5 : 3.6) + (Math.sin(i * 78.233) * 0.5 + 0.5) * 2.2, tx = -nz * wob * 0.35, tz = nx * wob * 0.35;
-    const a = at(p[0] + nx * 1.6, p[1] + nz * 1.6); ctx.moveTo(a[0], a[1]); ctx.lineTo(a[0] + (nx + tx) * len, a[1] + (nz + tz) * len);
+  const n = shore.length, R = geo.Rmax || 60, h1 = (q) => { const s = Math.sin(q * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+  // the bank's hachures, falling away from the water: in broken clusters where the bank is steep, each stroke its own length and
+  // slant, as a pen lays them (never an even ring of ticks round the shore)
+  const steep = (a) => Math.sin(a * 3 + 1.3) * 0.55 + Math.sin(a * 7 + 0.4) * 0.3 + Math.sin(a * 11 + 2.1) * 0.2;
+  ctx.save(); ctx.strokeStyle = ink(0.44); ctx.lineCap = 'round';
+  const fine = [], bold = [];
+  for (let i = 0; i < n * 3; i++) {
+    const f = i / 3, i0 = Math.floor(f) % n, i1 = (i0 + 1) % n, u = f - Math.floor(f);
+    const px = lerp(shore[i0][0], shore[i1][0], u), pz = lerp(shore[i0][1], shore[i1][1], u);
+    const st = steep(Math.atan2(pz, px));
+    if (st < 0.08 || h1(i) > 0.3 + st * 0.62) continue;   // a gentle bank bare; gaps inside each cluster
+    const r = Math.hypot(px, pz) || 1, nx = px / r, nz = pz / r, sl = (h1(i + 13) - 0.5) * 0.75;
+    const len = (2.4 + st * 5.5) * (0.5 + h1(i + 7) * 0.85), dx = nx - nz * sl, dz = nz + nx * sl;
+    const a = at(px + nx * 1.2, pz + nz * 1.2), P = h1(i + 21) > 0.62 ? bold : fine;
+    P.push(a[0], a[1], a[0] + dx * len, a[1] + dz * len);
   }
-  ctx.stroke(); ctx.restore();
-  // the water: a violet wash, deeper in the middle, a pale lining inside the shore
+  for (const [P, lw] of [[fine, 0.6], [bold, 0.95]]) { ctx.lineWidth = lw; ctx.beginPath(); for (let q = 0; q < P.length; q += 4) { ctx.moveTo(P[q], P[q + 1]); ctx.lineTo(P[q + 2], P[q + 3]); } ctx.stroke(); }
+  ctx.restore();
+  // the water: a flat violet wash, paler in a band that follows the shore as the bake's lakes are (never a dial's gradient from the
+  // middle), a slow mottle, its deep pools darker; one broken pale lining inside the shore
   pathOf(shore);
-  const g = ctx.createRadialGradient(X0, Y0, 0, X0, Y0, (geo.Rmax || 60) * S);
-  g.addColorStop(0, 'rgb(120,116,192)'); g.addColorStop(0.75, 'rgb(150,146,212)'); g.addColorStop(1, 'rgb(186,182,234)');
-  ctx.fillStyle = g; ctx.fill();
-  for (const d of geo.deep || []) { const c = at(d.x, d.z), r = d.r * S; const gg = ctx.createRadialGradient(c[0], c[1], 0, c[0], c[1], r); gg.addColorStop(0, 'rgba(58,52,118,.42)'); gg.addColorStop(1, 'rgba(58,52,118,0)'); ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(c[0], c[1], r, 0, 6.3); ctx.fill(); }
-  ctx.save(); ctx.strokeStyle = 'rgba(232,226,252,.5)'; ctx.lineWidth = 0.8;
-  for (const k of [0.955, 0.91, 0.86]) { pathOf(shore, k); ctx.globalAlpha = (1 - k) * 6; ctx.stroke(); }
+  ctx.fillStyle = 'rgb(124,120,196)'; ctx.fill();
+  ctx.save(); pathOf(shore); ctx.clip();
+  const band = Math.max(8, R * S * 0.3);
+  ctx.strokeStyle = 'rgba(194,190,240,.075)'; ctx.lineJoin = 'round';   // (many faint strokes, so the band has no step to read as a ring)
+  for (let q = 0; q < 16; q++) { ctx.lineWidth = band * 2 * Math.pow(1 - q / 16, 1.4); pathOf(shore); ctx.stroke(); }
+  for (let q = 0; q < 7; q++) { // the mottle: broad soft patches, lighter and darker, as the bake's sea carries
+    const a = h1(q + 40) * 6.283, d = R * S * 0.62 * Math.sqrt(h1(q + 50)), rr = R * S * (0.22 + 0.2 * h1(q + 60)), c = [X0 + Math.cos(a) * d, Y0 + Math.sin(a) * d];
+    const gg = ctx.createRadialGradient(c[0], c[1], 0, c[0], c[1], rr), col = q % 2 ? '84,78,156' : '176,172,232';
+    gg.addColorStop(0, `rgba(${col},.16)`); gg.addColorStop(1, `rgba(${col},0)`);
+    ctx.fillStyle = gg; ctx.beginPath(); ctx.ellipse(c[0], c[1], rr * 1.3, rr * 0.8, h1(q + 70) * 3, 0, 6.3); ctx.fill();
+  }
+  for (const d of geo.deep || []) { const c = at(d.x, d.z), r = d.r * S; const gg = ctx.createRadialGradient(c[0], c[1], 0, c[0], c[1], r); gg.addColorStop(0, 'rgba(58,52,118,.38)'); gg.addColorStop(1, 'rgba(58,52,118,0)'); ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(c[0], c[1], r, 0, 6.3); ctx.fill(); }
+  ctx.restore();
+  ctx.save(); ctx.strokeStyle = 'rgba(234,230,252,.55)'; ctx.lineWidth = 0.8; ctx.lineCap = 'round';
+  ctx.setLineDash([R * S * 0.5, 5, R * S * 0.18, 9, R * S * 0.34, 4, R * S * 0.1, 12]);
+  pathOf(shore, 1 - Math.min(0.08, 3.2 / (R * S))); ctx.stroke();
   ctx.restore();
   // the shore: a feathered under-line, then the pen
   ctx.save(); pathOf(shore); ctx.strokeStyle = ink(0.3); ctx.lineWidth = 2.6; ctx.filter = 'blur(1.6px)'; ctx.stroke(); ctx.restore();
@@ -1050,14 +1145,18 @@ function drawLake(ctx, lake, geo, t) {
     ctx.beginPath(); piers.forEach((p, i) => { const c = at(p.x, p.z); i ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); }); ctx.stroke(); ctx.restore();
     for (const p of piers) { const c = at(p.x, p.z), r = Math.max(2.2, p.r * S * 0.9); ctx.beginPath(); ctx.rect(c[0] - r, c[1] - r, 2 * r, 2 * r); ctx.fillStyle = STONE; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.9; ctx.stroke(); }
   }
-  // the docks: a short timber jetty from the shore out to the dock, two posts at its end
+  // the docks: a short jetty in the pen, two fine rails from the bank out to the dock, a few planks across, two posts at its end
   for (const d of geo.docks || []) {
     const r = Math.hypot(d.x, d.z) || 1, nx = d.x / r, nz = d.z / r, c = at(d.x, d.z);
     const sr = geo.shoreAt ? geo.shoreAt(Math.atan2(d.z, d.x)) : (geo.Rmax || r + 6), e = at(nx * sr, nz * sr);
-    const px = -nz, pz = nx, wd = Math.max(1.6, 0.9 * S);
+    const px = -nz, pz = nx, wd = Math.max(1.1, 0.55 * S);
     ctx.beginPath(); ctx.moveTo(e[0] + px * wd, e[1] + pz * wd); ctx.lineTo(c[0] + px * wd, c[1] + pz * wd); ctx.lineTo(c[0] - px * wd, c[1] - pz * wd); ctx.lineTo(e[0] - px * wd, e[1] - pz * wd); ctx.closePath();
-    ctx.fillStyle = 'rgb(176,146,118)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.9; ctx.stroke();
-    ctx.fillStyle = INK; for (const o of [-1, 1]) { ctx.beginPath(); ctx.arc(c[0] + px * wd * o * 1.1, c[1] + pz * wd * o * 1.1, Math.max(1, 0.45 * S), 0, 6.3); ctx.fill(); }
+    ctx.fillStyle = 'rgba(214,196,176,.55)'; ctx.fill();
+    ctx.strokeStyle = ink(0.8); ctx.lineWidth = 0.7; ctx.lineCap = 'round'; ctx.beginPath();
+    for (const o of [-1, 1]) { ctx.moveTo(e[0] + px * wd * o, e[1] + pz * wd * o); ctx.lineTo(c[0] + px * wd * o, c[1] + pz * wd * o); }
+    for (const q of [0.3, 0.62, 0.9]) { const m = [lerp(e[0], c[0], q), lerp(e[1], c[1], q)]; ctx.moveTo(m[0] + px * wd, m[1] + pz * wd); ctx.lineTo(m[0] - px * wd, m[1] - pz * wd); }
+    ctx.stroke();
+    ctx.fillStyle = ink(0.9); for (const o of [-1, 1]) { ctx.beginPath(); ctx.arc(c[0] + px * wd * o * 1.15, c[1] + pz * wd * o * 1.15, Math.max(0.8, 0.32 * S), 0, 6.3); ctx.fill(); }
   }
   // Murk's barge alone at the Jetty (M1.md §3.3; the home barge joins it from step 5): his towering pack and his sage-green lamp
   if (geo.jetty) {
@@ -1095,18 +1194,24 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   }
   if (!A.label) return;
   const lab = A.label;
+  const px = lab.px || 13;
   if (lab.price) { // only Murk's three blots carry a price
     ctx.save(); ctx.font = lab.font; const w = ctx.measureText(lab.text).width; ctx.restore();
-    const gx = lab.x - (w + 14) / 2 + 6;
-    clamGlyph(ctx, gx, lab.y, 11);
-    letter(ctx, L, lab.text, gx + 9, lab.y, lab.font, { align: 'left', dpr, reserve: 0.8 });
+    const cs = Math.round(px * 0.78), gx = lab.x - (w + cs + 3) / 2 + cs / 2;
+    clamGlyph(ctx, gx, lab.y, cs);
+    letter(ctx, L, lab.text, gx + cs / 2 + 3, lab.y, lab.font, { align: 'left', dpr, reserve: 0.8 });
     return;
   }
-  const lx = lab.x - (A.p.giantLanded ? 8 : 0);
-  const w = letter(ctx, L, lab.text, lx, lab.y, lab.font, { dpr, alpha: 0.96 * k, reserve: 0.85 });
-  if (pick.place === A.id) underline(ctx, lx - w / 2, lab.y + 8, w);
+  // its name (stacked on two lines where the water is crowded: the whole name is recorded once), underlined when chosen
+  const l2 = A.label2 || null, star = A.p.giantLanded ? 8 : 0;
+  if (l2) L.texts.push(A.p.name || `${lab.text} ${l2.text}`);
+  const lx = lab.x - (l2 ? 0 : star);
+  let w = letter(ctx, L, lab.text, lx, lab.y, lab.font, { dpr, alpha: 0.96 * k, reserve: 0.85, record: !l2 });
+  let ex = lx, ey = lab.y;
+  if (l2) { ex = l2.x - star; ey = l2.y; const w1 = w; w = letter(ctx, L, l2.text, ex, ey, l2.font, { dpr, alpha: 0.96 * k, reserve: 0.85, record: false }); if (pick.place === A.id) underline(ctx, lx - w1 / 2, lab.y + px * 0.62, w1); }
+  if (pick.place === A.id) underline(ctx, ex - w / 2, ey + px * 0.62, w);
   if (A.p.giantLanded) { // its giant landed: a gold star
-    const sx = lx + w / 2 + 9, sy = lab.y - 1;
+    const sx = ex + w / 2 + 9, sy = ey - 1;
     ctx.save(); ctx.beginPath(); for (let q = 0; q < 10; q++) { const an = -Math.PI / 2 + (q * Math.PI) / 5, r = q % 2 ? 2.4 : 5.6; ctx.lineTo(sx + Math.cos(an) * r, sy + Math.sin(an) * r); } ctx.closePath();
     ctx.fillStyle = GOLD; ctx.fill(); ctx.strokeStyle = GOLD_INK; ctx.lineWidth = 0.8; ctx.stroke(); ctx.restore();
     L.texts.push('★');
@@ -1114,29 +1219,44 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   if (A.sub && A.sub.kind === 'best') { // your best fish there: its glyph and its weight in pounds; never a number else
     const txt = typeof view.fmtWeight === 'function' ? view.fmtWeight(A.sub.weight) : '';
     ctx.save(); ctx.font = A.sub.font; const tw = ctx.measureText(txt).width; ctx.restore();
-    const gw = 22, gx = A.sub.x - (tw + gw + 4) / 2;
+    const gh = Math.round((A.sub.px || 12) * 0.82), gw = Math.round(gh * 1.83), gx = A.sub.x - (tw + gw + 4) / 2;
     const glyph = typeof view.fishGlyph === 'function' ? view.fishGlyph(A.sub.speciesId) : null;
-    if (glyph) { ctx.save(); ctx.globalAlpha *= 0.95; ctx.drawImage(glyph, gx, A.sub.y - 6, gw, 12); ctx.restore(); }
+    if (glyph) { ctx.save(); ctx.globalAlpha *= 0.95; ctx.drawImage(glyph, gx, A.sub.y - gh / 2, gw, gh); ctx.restore(); }
     letter(ctx, L, txt, gx + gw + 4, A.sub.y, A.sub.font, { align: 'left', dpr, alpha: 0.9, reserve: 0.8 });
   }
+}
+
+/** The wisp's dotted trail (its part under a laid-on sheet drawn first, so that sheet covers it), and the wisp itself. */
+function drawTrail(ctx, L, part) {
+  const tr = L.sealed?.trail;
+  if (!tr) return;
+  const [sx, sy] = tr.from, [ex, ey] = tr.to;
+  ctx.save(); ctx.strokeStyle = 'rgba(150,138,214,.65)'; ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.setLineDash([1, 5]);
+  ctx.beginPath();
+  if (tr.under != null) { // (a tall phone: down under the water's sheet, then out from its foot to the rolled sheet's end)
+    if (part === 'under') { ctx.moveTo(sx, sy); ctx.lineTo(sx, tr.under + 8); ctx.stroke(); ctx.restore(); return; }
+    const by = tr.under;
+    ctx.moveTo(sx, by); ctx.bezierCurveTo(sx, by + (ey - by) * 0.7, ex + 26, ey, ex, ey); ctx.stroke(); ctx.restore();
+    wisp(ctx, (sx + ex) / 2 + 4, (by + ey) / 2 + 4, 7);
+    return;
+  }
+  if (part === 'under') { ctx.restore(); return; }
+  // (it meets the rolled sheet's end from outside: its left end on a wide screen, its right end on a phone)
+  if (L.phone) { ctx.moveTo(sx, sy); ctx.bezierCurveTo(sx, sy + (ey - sy) * 0.6, ex + 26, ey, ex, ey); } else { ctx.moveTo(sx, sy); ctx.bezierCurveTo(sx, sy + 26, ex - 30, ey - 4, ex, ey); }
+  ctx.stroke(); ctx.restore();
+  wisp(ctx, (sx + ex) / 2 + (L.phone ? 0 : 8), (sy + ey) / 2 + (L.phone ? 2 : 6), L.phone ? 7 : 8);
 }
 
 function drawSealed(ctx, L, model, view, dpr, F, a) {
   const S = L.sealed, next = model?.next || {}, seals = next.seals || {};
   ctx.save(); ctx.globalAlpha = a;
-  // the wisp runs on from the owned road (it leaves the first sheet under the water's mark, never across another sheet's ground)
-  if (S.wispFrom && !L.phone) {
-    const c = L.cont, sx = S.wispFrom[0], sy = c.y + c.h, ex = S.roll.x - S.roll.w / 2 - 4, ey = S.roll.y;
-    ctx.save(); ctx.strokeStyle = 'rgba(150,138,214,.65)'; ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.setLineDash([1, 5]);
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.bezierCurveTo(sx, sy + 26, ex - 30, ey - 4, ex, ey); ctx.stroke(); ctx.restore();
-    wisp(ctx, (sx + ex) / 2 + 8, (sy + ey) / 2 + 6, 8);
-  } else if (L.phone) wisp(ctx, S.roll.x - S.roll.w / 2 - 14, S.roll.y - 2, 7);
+  // the wisp runs on from the owned road (it leaves the first sheet under the road's end, never across another sheet's ground)
+  drawTrail(ctx, L, 'over');
   rolledSheet(ctx, S.roll.x, S.roll.y, S.roll.w, S.roll.h);
-  const font = `400 ${L.phone ? 10.5 : 11.5}px ${F.body || 'serif'}`;
   for (const sl of S.seals) {
     const st = seals[sl.key] || {};
     const count = sl.key === 'catch' && Number.isFinite(st.need) ? `${st.have | 0}/${st.need | 0}` : null;
-    seal(ctx, sl.key, sl.x, sl.y, sl.r, { held: st.held === true, tier: st.tier || 1, count, font });
+    seal(ctx, sl.key, sl.x, sl.y, sl.r, { held: st.held === true, tier: st.tier || 1, count, font: S.countFont });
     if (count) L.texts.push(count);
   }
   letter(ctx, L, view.words?.soon || 'Coming soon', S.soon.x, S.soon.y, S.soon.font, { dpr, alpha: 0.9, reserve: 0.6, align: S.soon.align || 'center' });

@@ -46,7 +46,11 @@ const ctx = fakeCtx();
 const viewFor = (w, h) => ({ w, h, dpr: 1, phone: w < 560, F: C.CHART_FONTS, water, sites, fmtWeight: D.fmtWeight, fishGlyph: () => null, words: { soon: D.TEXT_LOOP.comingSoon },
   measure: (t, f) => { ctx.font = f; return ctx.measureText(t).width; } });
 const draw = (m, w, h) => CD.drawChart(fakeCtx(), m, art, viewFor(w, h), 0);
-const SIZES = [[358, 560, 'a phone at 358 px'], [378, 576, 'a 390 px phone'], [892, 326, 'the 960 x 540 desktop'], [920, 420, 'a tall desktop']];
+// (the phone sheets: 358 px; a 390 x 844 phone's full layout height (612, 552 with Murk's line); Safari with its bars at 390 x 664
+// (432, 372 with the line); the CSS floor (364, under which the panel scrolls))
+const SIZES = [[358, 560, 'a phone at 358 px'], [354, 612, 'a 390 x 844 phone'], [354, 552, 'a 390 x 844 phone, Murk\'s line over the sheet'],
+  [354, 432, 'a 390 x 664 phone (Safari\'s bars)'], [354, 372, 'a 390 x 664 phone, Murk\'s line'], [358, 364, 'a phone at the sheet\'s floor'],
+  [892, 326, 'the 960 x 540 desktop'], [920, 420, 'a tall desktop']];
 
 section('the seam: chartModel(meta, D, opts) as M1.md §3.8 has it; next is the sealed sheet');
 {
@@ -77,6 +81,43 @@ for (const [w, h, what] of SIZES) for (const state of ['later', 'three', 'none',
   ok(L.targets.every((t) => t.rect[0] >= 0 && t.rect[1] >= 0 && t.rect[0] + t.rect[2] <= w + 0.5 && t.rect[1] + t.rect[3] <= h + 0.5), `${what}, ${state}: every target inside the sheet`);
   const water = L.targets.find((t) => t.kind === 'water');
   ok(water?.backdrop && L.targets.filter((t) => t.kind === 'place' || t.kind === 'buy').every((t) => meet(t.rect, water.rect)), `${what}, ${state}: the places sit on their water (the backdrop target)`);
+}
+
+section('the phone: every word at 16 px or more (M1.md §2.12); a short phone keeps its lake; choosing moves no other word');
+{
+  const px = (f) => parseFloat(/(\d+(?:\.\d+)?)px/.exec(f)?.[1] || 0);
+  for (const [w, h, what] of SIZES.filter(([w]) => w < 560)) for (const state of ['later', 'three', 'all']) {
+    const L = CD.layoutChart(modelFor(state, { pick: { water: 'mossmere', place: 'under_the_span' } }), art, viewFor(w, h));
+    const small = L.fonts.filter((f) => px(f) < 16);
+    ok(L.fonts.length >= 4 && small.length === 0, `${what}, ${state}: every font the layout letters in is at least 16 px`, small);
+    ok([...L.places.flatMap((p) => [p.label?.font, p.sub?.font]), L.sealed?.countFont, L.sealed?.soon?.font, L.cards[0]?.name?.font].filter(Boolean).every((f) => L.fonts.includes(f)), `${what}, ${state}: the layout's font list holds every word's font`);
+    ok(!L.fonts.some((f) => /Alegreya/.test(f)), `${what}, ${state}: no word in Alegreya (M1.md §3.1)`, L.fonts);
+    const lake = L.cards[0].lake.rect;
+    ok(lake[3] >= (h >= 420 ? 200 : 175) && L.cont.h >= 110, `${what}, ${state}: the water's lake keeps its room (${Math.round(lake[3])} px) and the first sheet its (${Math.round(L.cont.h)} px)`);
+    ok(L.cont.x >= 0 && L.cont.x + L.cont.w <= w + 0.5 && L.cards.every((c) => c.x >= 0 && c.x + c.w <= w + 0.5 && c.y + c.h <= h + 0.5) && (!L.sealed || (L.sealed.x >= 0 && L.sealed.x + L.sealed.w <= w + 0.5 && L.sealed.y + L.sealed.h <= h + 0.5)), `${what}, ${state}: the first sheet, the water's sheet and the sealed sheet inside the sheet`);
+    ok(!L.sealed || !meet([L.sealed.x, L.sealed.y, L.sealed.w, L.sealed.h], [L.cards[0].x, L.cards[0].y, L.cards[0].w, L.cards[0].h]), `${what}, ${state}: the sealed sheet beside the water's sheet, never on it`);
+    ok(!L.sealed?.trail || (Math.abs(L.sealed.trail.from[1] - (L.cont.y + L.cont.h)) < 0.5 && L.sealed.trail.from[0] >= L.cont.x && L.sealed.trail.from[0] <= L.cont.x + L.cont.w), `${what}, ${state}: the wisp's trail leaves the first sheet's edge under the road's end`);
+    // the chosen place's best-fish line is fitted last: no other word moves when a place is chosen
+    const L0 = CD.layoutChart(modelFor(state), art, viewFor(w, h));
+    const pos = (X) => X.places.filter((p) => p.id !== 'under_the_span' && p.label).map((p) => [p.id, Math.round(p.label.x), Math.round(p.label.y)]);
+    ok(JSON.stringify(pos(L0)) === JSON.stringify(pos(L)), `${what}, ${state}: choosing a place moves no other place's words`, [pos(L0), pos(L)]);
+    const boxes = L.places.filter((p) => p.box).map((p) => [p.id, p.box]), clash = [];
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) if (meet(boxes[i][1], boxes[j][1])) clash.push([boxes[i][0], boxes[j][0]]);
+    ok(clash.length === 0, `${what}, ${state}: no two places' words meet`, clash);
+    const ch = L.places.find((p) => p.id === 'under_the_span');
+    ok(!ch?.owned || !ch.p.best || (ch.sub?.kind === 'best' && px(ch.sub.font) >= 16), `${what}, ${state}: the chosen place shows its best fish (16 px)`);
+  }
+  for (const [w, h, what] of SIZES.filter(([w]) => w >= 560)) {
+    const L = CD.layoutChart(modelFor('later'), art, viewFor(w, h));
+    ok(!L.fonts.some((f) => /Alegreya/.test(f)) && L.fonts.every((f) => px(f) >= 14), `${what}: every word in IM Fell English or the margin hand, at 14 px or more`, L.fonts);
+  }
+  const tut = CD.layoutChart(modelFor('none', { tutorial: true }), art, viewFor(354, 372));
+  ok(tut.short && !tut.sealed && tut.cont.h >= 150 && tut.cards[0].lake.rect[3] >= 130, 'the tutorial on a 390 x 664 phone: the first sheet stays large (its ink-in is the beat), the lake under it', { cont: tut.cont.h, lake: tut.cards[0].lake.rect[3] });
+  ok(!tut.targets.some((t) => t.kind === 'book') && !tut.cards[0].book, 'the tutorial: no book (nothing to read but Murk\'s, M1.md §3.5)');
+  ok(CD.layoutChart(modelFor('later'), art, viewFor(354, 612)).targets.some((t) => t.kind === 'book'), 'after the tutorial the catalogue\'s book is on the sheet');
+  const marks = [CHART_ART.live.home?.n ?? 0, ...(CHART_ART.live.waters || []).map((x) => x.n)];
+  ok(marks.every((n) => typeof C.SHIPPED_VIGNETTES[n] === 'function') && Object.keys(C.SHIPPED_VIGNETTES).length === marks.length, 'every mark the art carries has its vignette, and the game bundles no other (SHIPPED_VIGNETTES)', marks);
+  ok(/font: `400 \$\{Math\.max\(17, /.test(src('src/ui-chart.js')) && /CHART_FONTS\.figure/.test(src('src/ui-chart.js')), 'the sealed card\'s catch count: at least 17 px, in the Chart\'s figures');
 }
 
 section('nothing unowned drawn; few words; no percentage');
@@ -151,7 +192,7 @@ section('the byte budget (M1.md §3.2, the spike\'s lines)');
 section('the chart\'s faces before the first paint; the generated art');
 {
   ok(/IM\+Fell\+English:ital@0;1/.test(src('src/template.html')), 'the template loads IM Fell English, roman and italic (M1.md §3.1)');
-  ok(C.CHART_FONTS.chart.startsWith("'IM Fell English'") && C.FONT_FACES.some((f) => /IM Fell English/.test(f)) && !/Alegreya/.test(C.CHART_FONTS.chart), 'the Chart letters in IM Fell English, never in Alegreya');
+  ok(C.CHART_FONTS.chart.startsWith("'IM Fell English'") && C.CHART_FONTS.figure.startsWith("'IM Fell English'") && C.FONT_FACES.some((f) => /IM Fell English/.test(f)) && !/Alegreya/.test(JSON.stringify([C.CHART_FONTS, C.FONT_FACES])), 'the Chart letters in IM Fell English (its names italic, its figures roman), never in Alegreya', C.CHART_FONTS);
   const u = src('src/ui-chart.js');
   ok(/await Promise\.all\(\[Promise\.all\(A\.sheets\.map[\s\S]*?fonts\]\)/.test(u) && /S\.status = 'ready'/.test(u), 'the art and the faces are both awaited before the Chart is ready (its first paint)');
   ok(/^\/\/ src\/chart-art\.js — generated by `node tools\/world-map\/build\.mjs --game`; never edited by hand/.test(src('src/chart-art.js')) && /Baked in Chromium [\d.]+/.test(src('src/chart-art.js')), 'chart-art.js: generated, never edited by hand; its header records the Chromium version');

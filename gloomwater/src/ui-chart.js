@@ -12,7 +12,7 @@
 // ([data-water]), each owned or priced place ([data-place]), the catalogue's book ([data-action=catalogue]), the sealed sheet
 // ([data-sealed]); the hold's slots (.gw-slot) and Sail ([data-action=sail]) sit under the sheet, as on 1a's list. The Chart
 // writes nothing but the chosen place (meta.loop.chartPick). Never a ring or a disc round the raft or the player.
-import { drawChart, seal, rolledSheet, deckle, ease } from './chart-draw.js';
+import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
 import { buildLayout } from './world-layout.js';
 import { drawFishInk } from './ui-fishart.js';
@@ -20,17 +20,23 @@ import { drawFishInk } from './ui-fishart.js';
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const arr = (v) => (Array.isArray(v) ? v : []);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+const clamp01 = (v) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
 
-/** The chart's faces (M1.md §3.1): it letters in 'IM Fell English' (the court surveyors' hand), never in Alegreya. */
+/** The chart's faces (M1.md §3.1): it letters in 'IM Fell English' (the court surveyors' hand), never in Alegreya: the names in
+ *  its italic, the figures (prices, weights, the catch count) in its roman, with their old-style figures; "Coming soon" in the
+ *  margin hand. */
 export const CHART_FONTS = Object.freeze({
   chart: "'IM Fell English', 'IM Fell English SC', Georgia, serif",
+  figure: "'IM Fell English', Georgia, serif",
   hand: "'Cedarville Cursive', 'Segoe Script', 'Bradley Hand', cursive",
   display: "'Marcellus SC', 'Palatino Linotype', Georgia, serif",
-  body: "'Alegreya', 'Palatino Linotype', Georgia, serif",
 });
 /** The faces loaded with the images in idle time, so the Chart's first paint letters in them (M1.md §3.1). */
-export const FONT_FACES = Object.freeze(['italic 16px "IM Fell English"', '16px "IM Fell English"', '16px "Cedarville Cursive"', '12px Alegreya']);
+export const FONT_FACES = Object.freeze(['italic 16px "IM Fell English"', '16px "IM Fell English"', '16px "Cedarville Cursive"']);
 const INK_SHEET = 1.2, INK_PLACE = 0.8;   // s: the first sheet's ink-in (WORLD.md §10's reveal), a bought place's (M1.md §3.4)
+/** The landmark vignettes of the shipped sheets' marks (n: chart-art.js's live marks), the only ones the game bundles (M1.md §3.2):
+ *  each slice adds its waters' (the node test checks every mark the art carries has its vignette here). */
+export const SHIPPED_VIGNETTES = Object.freeze({ 0: vignetteLanding, 1: vignetteMossmere });
 
 /**
  * A water's own sheet as the Chart draws it, from the game's arena data (M1.md §3.1 item 3): its shore (world-layout's shore
@@ -131,6 +137,30 @@ export function createChartView(deps) {
     }
     const img = new Image(); img.src = uri; await img.decode(); return img;
   };
+  // the paper (M1's view of the bake's paper, a 167 x 125 px JPEG stretched about 11 times over the vellum): its signal is a slow
+  // mottle of a level or two, under the JPEG's 8 x 8 blocks, so it is blurred once at its own size (a box of 3 px, twice each way)
+  // before it is ever stretched: the mottle stays, the blocks never show as patches on the bare paper
+  function softPaper(img) {
+    try {
+      if (typeof document === 'undefined' || !img?.width) return img;
+      const w = img.width, hh = img.height, c = document.createElement('canvas'); c.width = w; c.height = hh;
+      const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, w, hh), px = d.data, f = new Float32Array(w * hh * 3), tmp = new Float32Array(w * hh * 3);
+      for (let i = 0; i < w * hh; i++) for (let ch = 0; ch < 3; ch++) f[i * 3 + ch] = px[i * 4 + ch];
+      const R = 3, box = (src, dst, horiz) => {
+        const n = horiz ? w : hh, m = horiz ? hh : w;
+        for (let a = 0; a < m; a++) for (let ch = 0; ch < 3; ch++) for (let b = 0; b < n; b++) {
+          let s = 0;
+          for (let q = -R; q <= R; q++) { const bb = Math.min(n - 1, Math.max(0, b + q)); s += src[((horiz ? a * w + bb : bb * w + a) * 3) + ch]; }
+          dst[((horiz ? a * w + b : b * w + a) * 3) + ch] = s / (2 * R + 1);
+        }
+      };
+      for (let it = 0; it < 2; it++) { box(f, tmp, true); box(tmp, f, false); }
+      for (let i = 0; i < w * hh; i++) for (let ch = 0; ch < 3; ch++) px[i * 4 + ch] = Math.round(f[i * 3 + ch]);
+      g.putImageData(d, 0, 0);
+      return c;
+    } catch { return img; }
+  }
   async function prepare() {
     if (S.status !== 'idle') return S.status;
     S.status = 'loading';
@@ -142,7 +172,7 @@ export function createChartView(deps) {
         : Promise.resolve();
       const [sheets, paper] = await Promise.all([Promise.all(A.sheets.map(async (s) => ({ ...s, image: await decode(s.uri) }))), A.paper ? decode(A.paper.uri) : null, fonts]);
       S.fonts = typeof document !== 'undefined' && document.fonts?.check ? FONT_FACES.every((f) => document.fonts.check(f)) : true;
-      S.art = { sheets, paper: paper ? { ...A.paper, image: paper } : null, live: A.live };
+      S.art = { sheets, paper: paper ? { ...A.paper, image: softPaper(paper) } : null, live: A.live };
       S.status = 'ready';
     } catch (e) {
       S.status = 'failed'; S.error = String(e?.message || e);
@@ -154,12 +184,19 @@ export function createChartView(deps) {
 
   // ---- the model as the drawing reads it
   const meta = () => ctx.state?.meta || null;
+  /** A chosen place the Chart can still choose: its water drawn and, for a place, that place owned there. */
+  const pickable = (m, p) => isObj(p) && m.sheets.some((s) => s.waterId === p.water && (!p.place || arr(s.places).some((q) => q.id === p.place && q.owned === true)));
   function drawModel(model) {
+    // the view's memory of the save (the chosen place, the places and giants seen) belongs to one save: Erase or a load starts it again
+    if (S.meta !== meta()) { S.meta = meta(); S.pick = null; S.seenOwned = null; S.seenGiants = null; }
     const m = { ...model, sheets: arr(model?.sheets).map((s) => ({ ...s })) };
     if (S.fixture && m.sheets[0]) m.sheets[0].places = S.fixture.places;   // (debug builds only: the M1 §2.4 fixture, ctx.debug.loop.chart)
     for (const s of m.sheets) s.places = chartPlaces(D(), s.places);
     if (S.fixture?.next !== undefined && !m.tutorial) m.next = S.fixture.next;
-    m.pick = S.pick || m.pick || { water: m.sheets[0]?.waterId ?? null, place: null };
+    const open = pickable(m, model?.pick) ? { ...model.pick } : { water: m.sheets[0]?.waterId ?? null, place: null };
+    // the chosen place, checked on every render against what the Chart draws now; else the model's own (open water)
+    if (S.pick && !pickable(m, S.pick)) S.pick = open;
+    m.pick = S.pick || open;
     return m;
   }
   const fishCache = new Map();
@@ -206,6 +243,7 @@ export function createChartView(deps) {
     const ml = meta()?.loop;
     if (!st.inkPlanned) {
       st.inkPlanned = true;
+      if (S.timing) { S.timing.opened = now(); S.timing.paints = []; S.timing.openToPaint = null; }
       const first = m.tutorial === true && !isObj(ml?.chartPick);
       const owned = new Set(), giants = new Set();
       for (const s of m.sheets) for (const p of s.places) { if (p.owned) owned.add(p.id); if (p.giantLanded) giants.add(p.id); }
@@ -215,10 +253,9 @@ export function createChartView(deps) {
       S.seenOwned = owned; S.seenGiants = giants;
       st.ink = opts.reduced ? null : { t0: null, sheet: first ? 0 : 1, places };
       if (stamps.length) { try { K.sfx?.('seal_stamp', { volume: 0.5 }); } catch { /* ignore */ } }   // a giant landed: its ★ with one small stamp
-      if (!S.pick) {
+      if (!S.pick) {   // the first open of a session (or of a save) chooses the place sailed to last, if the Chart can still choose it
         const cp = ml?.chartPick;
-        const ownedPick = isObj(cp) && m.sheets.some((s) => s.waterId === cp.water && (!cp.place || s.places.some((p) => p.id === cp.place && p.owned)));
-        S.pick = ownedPick ? { water: cp.water, place: cp.place || null } : { ...m.pick };
+        S.pick = !m.tutorial && pickable(m, cp) ? { water: cp.water, place: cp.place || null } : { ...m.pick };
       }
       m.pick = S.pick;
       if (ml && !isObj(ml.chartPick)) ml.chartPick = { ...S.pick };
@@ -237,23 +274,29 @@ export function createChartView(deps) {
         const el = (t - ink.t0) / 1000;
         sheetK = ink.sheet >= 1 ? 1 : Math.min(1, el / INK_SHEET); if (sheetK < 1) more = true;
         for (const id of Object.keys(ink.places)) { placeK[id] = Math.min(1, Math.max(0, (el - (ink.sheet < 1 ? INK_SHEET : 0)) / INK_PLACE)); if (placeK[id] < 1) more = true; }
+        if (S.inkHold != null) { // (debug builds: the ink-in held at one point of its way, for the look's capture)
+          sheetK = ink.sheet >= 1 ? 1 : S.inkHold; for (const id of Object.keys(ink.places)) placeK[id] = S.inkHold; more = false;
+        }
       }
+      const t0 = now();
       const g = cv.getContext('2d');
       const view = {
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
         water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),
         ink: { sheet: sheetK, places: placeK }, fmtWeight: (w) => (typeof D()?.fmtWeight === 'function' ? D().fmtWeight(w) : ''),   // (pounds: data.fmtWeight, never a bare figure)
-        fishGlyph, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon', book: D()?.TEXT_LOOP?.jetty?.journal || 'Journal' }, paperImage: S.art?.paper?.image || null,
+        fishGlyph, vignettes: SHIPPED_VIGNETTES, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon', book: D()?.TEXT_LOOP?.jetty?.journal || 'Journal' }, paperImage: S.art?.paper?.image || null,
         measure: (text, font) => { g.save(); g.font = font; const x = g.measureText(text).width; g.restore(); return x; },
       };
       let L;
       try { L = drawChart(g, m, S.art, view, t); } catch (e) { S.paintErr = String(e?.stack || e); report('chart.paint', e); return null; }
+      // (debug builds, ctx.debug.loop.chart('time'): one pixel read back, so the time is the raster's, not only the recording's)
+      if (S.timing) { try { g.getImageData(0, 0, 1, 1); } catch { /* ignore */ } const ms = now() - t0; S.timing.paints.push({ ms: Math.round(ms * 10) / 10, inking: sheetK < 1 || Object.values(placeK).some((v) => v < 1), w, h: hh, dpr }); if (S.timing.paints.length === 1) S.timing.openToPaint = Math.round((now() - S.timing.opened) * 10) / 10; }
       S.lastLayout = L; S.lastCanvas = cv; S.draws++;
       if (!S.firstPaint) S.firstPaint = { at: now(), fonts: typeof document !== 'undefined' && document.fonts?.check ? FONT_FACES.every((f) => document.fonts.check(f)) : true, sheetInk: sheetK };
       placeHits(L);
       if (more) { if (!S.raf) S.raf = requestAnimationFrame((tt) => { S.raf = 0; if (cv.isConnected) paint(tt); }); }
-      else if (ink) {   // the ink-in done: chart:inked {sheet | place} (M1.md §3.8)
+      else if (ink && S.inkHold == null) {   // the ink-in done: chart:inked {sheet | place} (M1.md §3.8)
         st.ink = null;
         try { if (ink.sheet < 1) ctx.bus?.emit?.('chart:inked', { sheet: 1 }); for (const id of Object.keys(ink.places)) ctx.bus?.emit?.('chart:inked', { place: id }); } catch { /* ignore */ }
       }
@@ -261,18 +304,25 @@ export function createChartView(deps) {
     };
     // the hit layer: one DOM button for each tap target, in the drawing's order (the focus order), carrying the tests' selectors
     let hitSig = '';
+    const pressed = (t) => (t.kind === 'water' ? m.pick.water === t.water && !m.pick.place : m.pick.place === t.place);
     function placeHits(L) {
-      const sig = JSON.stringify(L.targets.map((t) => [t.id, t.rect.map((v) => Math.round(v))]).concat([[m.pick.water, m.pick.place]]));
-      if (sig === hitSig) return;
+      // (a pick alone changes no target: the buttons stay, so the one just pressed keeps its focus; only aria-pressed moves)
+      const sig = JSON.stringify(L.targets.map((t) => [t.id, t.rect.map((v) => Math.round(v))]));
+      if (sig === hitSig) {
+        for (const b of hits.children) { const t = L.targets.find((q) => q.id === b.dataset.id); if (t && (t.kind === 'water' || t.kind === 'place')) b.setAttribute('aria-pressed', String(pressed(t))); }
+        return;
+      }
       hitSig = sig;
+      const focused = hits.contains(document.activeElement) ? document.activeElement.dataset.id : null;
       hits.textContent = '';
       for (const t of L.targets) {
         const b = h('button', `gw-chart-hit gw-chart-hit--${t.kind}`);
         b.type = 'button';
+        b.dataset.id = t.id;
         b.style.left = `${t.rect[0]}px`; b.style.top = `${t.rect[1]}px`; b.style.width = `${t.rect[2]}px`; b.style.height = `${t.rect[3]}px`;
         b.setAttribute('aria-label', t.label || t.id);
-        if (t.kind === 'water') { b.dataset.water = t.water; b.setAttribute('aria-pressed', String(m.pick.water === t.water && !m.pick.place)); }
-        if (t.kind === 'place' || t.kind === 'buy') { b.dataset.place = t.place; if (t.kind === 'buy') b.dataset.buy = '1'; else b.setAttribute('aria-pressed', String(m.pick.place === t.place)); }
+        if (t.kind === 'water') { b.dataset.water = t.water; b.setAttribute('aria-pressed', String(pressed(t))); }
+        if (t.kind === 'place' || t.kind === 'buy') { b.dataset.place = t.place; if (t.kind === 'buy') b.dataset.buy = '1'; else b.setAttribute('aria-pressed', String(pressed(t))); }
         if (t.kind === 'book') { b.dataset.action = 'catalogue'; b.dataset.water = t.water; b.removeAttribute('data-water'); b.dataset.book = t.water; }
         if (t.kind === 'sealed') b.dataset.sealed = t.water;
         b.addEventListener('click', (e) => {
@@ -290,6 +340,7 @@ export function createChartView(deps) {
           else if (t.kind === 'sealed') onSealed?.(t.water, m.next);
         });
         hits.appendChild(b);
+        if (focused && focused === t.id) { try { b.focus({ preventScroll: true }); } catch { /* ignore */ } }
       }
     }
     // the first paint once the panel is in the page (the images and the faces are already in: no decode, no fallback face)
@@ -298,6 +349,7 @@ export function createChartView(deps) {
     requestAnimationFrame(go);
     if (typeof ResizeObserver === 'function') { st.ro?.disconnect?.(); const ro = new ResizeObserver(() => { if (!cv.isConnected) { ro.disconnect(); return; } paint(now()); }); ro.observe(sheetEl); st.ro = ro; }
     st.model = m;
+    S.repaint = () => { if (cv.isConnected) paint(now()); };
     return { model: m };
   }
 
@@ -339,7 +391,7 @@ export function createChartView(deps) {
           const br = b.getBoundingClientRect(), x = br.left - r.left + br.width / 2, y = br.top - r.top + br.height / 2 - 6;
           const sl = seals[keys[i]] || {};
           const count = keys[i] === 'catch' && Number.isFinite(sl.need) ? `${sl.have | 0}/${sl.need | 0}` : null;
-          seal(g, keys[i], x, y, rr, { held: sl.held === true, tier: sl.tier || 1, count, font: `400 ${Math.round(rr * 0.62)}px ${CHART_FONTS.body}` });
+          seal(g, keys[i], x, y, rr, { held: sl.held === true, tier: sl.tier || 1, count, font: `400 ${Math.max(17, Math.round(rr * 0.66))}px ${CHART_FONTS.figure}` });
         });
       };
       requestAnimationFrame(draw);
@@ -379,8 +431,11 @@ export function createChartView(deps) {
   }
 
   /** ctx.debug.loop.chart(cmd, arg) (debug builds only): 'fixture' (a CHART_FIXTURE state or an array of places, with or without
-   *  `next`), 'clear', 'state', 'layout', 'redraw'. */
+   *  `next`), 'clear', 'reset', 'state', 'layout', 'veil', 'ink' (hold every ink-in at `arg` 0..1, or null to let it run), 'time'
+   *  (time each paint from the next open: its raster, read back; and the open's render to its first paint). */
   function debug(cmd, arg) {
+    if (cmd === 'ink') { S.inkHold = arg == null ? null : clamp01(Number(arg)); if (S.inkHold == null) S.repaint?.(); return S.inkHold; }
+    if (cmd === 'time') { S.timing = arg === false ? null : S.timing || { opened: null, openToPaint: null, paints: [] }; return S.timing ? { ...S.timing, paints: S.timing.paints.slice() } : null; }
     if (cmd === 'fixture') {
       const places = Array.isArray(arg) ? arg : Array.isArray(arg?.places) ? arg.places : CHART_FIXTURE(D(), typeof arg === 'string' ? arg : arg?.state || 'later');
       S.fixture = { places, ...(isObj(arg) && 'next' in arg ? { next: arg.next } : {}) };
@@ -390,7 +445,7 @@ export function createChartView(deps) {
     if (cmd === 'reset') { S.seenOwned = null; S.seenGiants = null; S.pick = null; return true; }
     if (cmd === 'layout') return S.lastLayout ? { ...S.lastLayout, cont: { ...S.lastLayout.cont } } : null;
     if (cmd === 'veil') return veilCheck(arg);
-    return { status: S.status, error: S.error, fonts: S.fonts, firstPaint: S.firstPaint, draws: S.draws, renders: S.renders || 0, paintErr: S.paintErr || null, fixture: !!S.fixture, pick: S.pick,
+    return { status: S.status, error: S.error, fonts: S.fonts, firstPaint: S.firstPaint, draws: S.draws, renders: S.renders || 0, paintErr: S.paintErr || null, fixture: !!S.fixture, pick: S.pick, inkHold: S.inkHold ?? null,
       art: S.art ? { sheets: S.art.sheets.map((s) => ({ n: s.n, box: s.box, w: s.image?.width, h: s.image?.height })), paper: !!S.art.paper } : null };
   }
   return { prepare, pick: () => (S.pick ? { ...S.pick } : null), ready: () => S.status === 'ready', failed: () => S.status === 'failed', status: () => S.status, render, openSealed, debug, ease };

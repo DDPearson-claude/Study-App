@@ -2,16 +2,21 @@
 // The drawn Chart's captures and browser checks (docs/loop/M1.md §3, M1 step 3b's gate and look).
 //
 //   node build.mjs --dev --out=tools/out/m1-s3b/dev.html
-//   nice -n 5 node tools/chart-shots.mjs [--html=tools/out/m1-s3b/dev.html] [--out=tools/out/m1-s3b] [--only=desk|phone]
+//   nice -n 5 node tools/chart-shots.mjs [--html=tools/out/m1-s3b/dev.html] [--out=tools/out/m1-s3b] [--only=desk|phone|short]
 //
-// For each viewport (desktop 960 x 540, phone 390 x 844, at DPR 2 so the shots show the ink as a phone does): a fresh save on
+// For each viewport (desktop 960 x 540 and phone 390 x 844 at DPR 2, so the shots show the ink as a phone does; and 'short', a
+// 390 x 844 iPhone in Safari with its bars, which leave it 390 x 664, at its own DPR 3; M1.md §2.12): a fresh save on
 // the loop (?loop=1, GW_DEBUG); New Descent → Start → the film skipped → the Jetty; the tutorial's Chart (mid ink-in and inked);
 // then, the tutorial done, the M1 §2.4 fixture of the Mossmere's four places through ctx.debug.loop.chart: a later Chart (two
 // owned, one with its giant landed, two priced), a place chosen, the sealed sheet's card, and the three-cards state (one owned:
 // only Murk's two cheapest blots priced). Unlike the scenarios, the web fonts are not blocked: the Chart is shot as it letters.
 // Checks: the art decodes and the faces are in before the first paint; the tutorial's Chart has no wisp, sealed sheet or price;
 // no two tap targets overlap (the backdrop water aside) and each is at least 44 px; only priced blots open a card; the sealed
-// card has no price and no buy button; the bare-paper test on the later sheet's ground; the hold's slots and Sail as T65 has them.
+// card has no price and no buy button; the bare-paper test on the later sheet's ground; the hold's slots and Sail as T65 has them,
+// under the sheet and never on it; on a phone every word at 16 px or more; the chosen place checked again on every open (the
+// three-cards Chart, whose earlier choice is now a blot, chooses open water). The tutorial's ink-in is held half way for its shot
+// (ctx.debug.loop.chart('ink', 0.45)). The Chart's own paint is timed (its raster read back; M1.md §2.14: first paint ≤ 150 ms, a
+// redraw ≤ 16 ms), reported, and advisory on this shared software box: the gate on real phones is step 6's.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -27,14 +32,16 @@ const html = path.resolve(root, String(args.html || 'tools/out/m1-s3b/dev.html')
 const out = path.resolve(root, String(args.out || 'tools/out/m1-s3b'));
 fs.mkdirSync(out, { recursive: true });
 const veil = JSON.parse(fs.readFileSync(path.join(root, 'tools/tests/fixtures/chart-veil.json'), 'utf8')).veil;
-const fails = [];
+const fails = [], times = {};
 const log = (...a) => console.log(...a);
 const check = (ok, what, extra) => { log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}${!ok && extra !== undefined ? ` :: ${JSON.stringify(extra)}` : ''}`); if (!ok) fails.push(what); return ok; };
+const advise = (ok, what) => log(`  ${ok ? 'ok  ' : 'over'} ${what}${ok ? '' : ' (advisory on this shared box; step 6 reads it on the real phones)'}`);
+const VIEW = { desk: { vp: { width: 960, height: 540 }, dpr: 2 }, phone: { vp: { width: 390, height: 844 }, dpr: 2 }, short: { vp: { width: 390, height: 664 }, dpr: 3 } };
 
 async function run(kind) {
-  const phone = kind === 'phone';
+  const phone = kind !== 'desk';
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-webgl'] });
-  const context = await browser.newContext({ viewport: phone ? { width: 390, height: 844 } : { width: 960, height: 540 }, deviceScaleFactor: 2, hasTouch: phone, isMobile: phone });
+  const context = await browser.newContext({ viewport: VIEW[kind].vp, deviceScaleFactor: VIEW[kind].dpr, hasTouch: phone, isMobile: phone });
   await context.addInitScript(() => { globalThis.GW_DEBUG = true; });
   const page = await context.newPage();
   const errors = [];
@@ -63,6 +70,7 @@ async function run(kind) {
   check(st0.fonts === true, `${kind}: the chart's faces are loaded with the art (IM Fell English, Cedarville Cursive)`, st0);
 
   // ---- the tutorial's Chart: the first sheet inks in under Murk's line; the slots ink in; Sail breathes
+  await g(() => { const d = window.__gw.debug.loop; d.chart('time'); d.chart('ink', 0.45); });   // (the ink-in held half way for its shot)
   check(await tap('[data-loop=jetty] [data-tile=chart]'), `${kind}: the Jetty's Chart tile`);
   check(await until(() => window.__gw.debug.ui().openModal === 'chart', null, 10000), `${kind}: the Chart opens`);
   await until(() => window.__gw.debug.loop.chart().draws > 0, null, 120000);
@@ -70,14 +78,28 @@ async function run(kind) {
   check(fp && fp.fonts === true, `${kind}: the first paint letters in the chart's faces`, fp);
   check(fp && fp.sheetInk < 1, `${kind}: the first time the Chart opens its first sheet inks in`, fp);
   await shot('1-tutorial-inking');
+  await g(() => window.__gw.debug.loop.chart('ink', null));
   await wait(2200);
+  const tt = await g(() => window.__gw.debug.loop.chart('time'));
+  times[kind] = { tutorial: { openToPaint: tt.openToPaint, first: tt.paints[0]?.ms, paints: tt.paints.length } };
   await until(() => !document.querySelector('[data-loop=chart] .gw-slot.gw-ink') || [...document.querySelectorAll('[data-loop=chart] .gw-slot')].every((c) => getComputedStyle(c).opacity > 0.95), null, 60000);
+  // the sheet, the hold's slots and Sail: the slots and Sail under the sheet, never on it; nothing past the screen's edge
+  const frame = () => g(() => {
+    const root = document.querySelector('[data-loop=chart]'), R = (e) => { const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; };
+    const sheet = root?.querySelector('.gw-chart-sheet'), sail = root?.querySelector('[data-action=sail]'), slots = [...(root?.querySelectorAll('.gw-slot') || [])];
+    if (!sheet || !sail) return null;
+    const s = R(sheet), below = [...slots, sail].map(R).every((r) => r[1] >= s[1] + s[3] - 0.5 && r[1] + r[3] <= innerHeight + 0.5);
+    return { sheet: s.map(Math.round), sail: R(sail).map(Math.round), below, hScroll: document.scrollingElement.scrollWidth > innerWidth, vh: innerHeight, fonts: window.__gw.debug.loop.chart('layout')?.fonts || [] };
+  });
   const tut = await g(() => {
     const L = window.__gw.debug.loop.chart('layout'), root = document.querySelector('[data-loop=chart]');
     const sail = root?.querySelector('[data-action=sail]');
     return { texts: L?.texts, sealed: !!L?.sealed, targets: L?.targets?.map((t) => t.kind), line: root?.querySelector('.gw-murk-line')?.textContent || '',
       slots: root ? root.querySelectorAll('.gw-slot').length : 0, sailCue: !!sail?.classList.contains('gw-cue'), sailLive: !!sail && !sail.disabled, water: !!root?.querySelector('[data-water=mossmere]') };
   });
+  const f1 = await frame();
+  check(f1 && f1.below && !f1.hScroll, `${kind}: the hold's slots and Sail under the sheet, on the screen; no sideways scroll (${VIEW[kind].vp.width} x ${f1?.vh})`, f1);
+  check(!tut.targets.includes('book'), `${kind}: the tutorial's Chart has no book (nothing to read but Murk's)`, tut.targets);
   check(tut.water && tut.slots >= 3 && tut.sailLive && tut.sailCue, `${kind}: T65 on the drawn Chart: [data-water=mossmere], the .gw-slot cells, Sail live and breathing`, tut);
   check(/slots in that hold/.test(tut.line), `${kind}: Murk's departure line over the Chart`, tut.line);
   check(!tut.sealed && !tut.targets.includes('sealed'), `${kind}: no wisp and no sealed sheet in the tutorial`, tut.targets);
@@ -96,6 +118,12 @@ async function run(kind) {
   await until(() => window.__gw.debug.ui().openModal === 'chart', null, 10000);
   await until(() => window.__gw.debug.loop.chart().draws > 0, null, 120000);
   await wait(1600);
+  const tl = await g(() => window.__gw.debug.loop.chart('time'));
+  times[kind].later = { openToPaint: tl.openToPaint, first: tl.paints[0]?.ms };
+  const f2 = await frame();
+  check(f2 && f2.below && !f2.hScroll, `${kind}: a later Chart: the slots and Sail under the sheet; no sideways scroll`, f2);
+  if (phone) { const px = (f) => parseFloat(/(\d+(?:\.\d+)?)px/.exec(f)?.[1] || 0); check(f2.fonts.length >= 4 && f2.fonts.every((f) => px(f) >= 16), `${kind}: every word on the phone's Chart at 16 px or more (M1.md §2.12)`, f2.fonts); }
+  check(!f2.fonts.some((f) => /Alegreya/.test(f)), `${kind}: no word in Alegreya (M1.md §3.1)`, f2.fonts);
   const later = await g(() => {
     const L = window.__gw.debug.loop.chart('layout');
     const hits = [...document.querySelectorAll('[data-loop=chart] .gw-chart-hit')].map((b) => { const r = b.getBoundingClientRect(); return { kind: [...b.classList].find((c) => c.startsWith('gw-chart-hit--')).slice(14), place: b.dataset.place || null, buy: b.dataset.buy === '1', r: [r.left, r.top, r.width, r.height] }; });
@@ -115,8 +143,10 @@ async function run(kind) {
   // a place chosen: its name underlined (on a phone its best fish shows under it)
   check(await tap('[data-loop=chart] [data-place=under_the_span]:not([data-buy])'), `${kind}: tap Under the Span`);
   await wait(500);
-  const pk = await g(() => ({ pick: window.__gw.state.meta.loop.chartPick, pressed: document.querySelector('[data-place=under_the_span]')?.getAttribute('aria-pressed') }));
+  const pk = await g(() => ({ pick: window.__gw.state.meta.loop.chartPick, pressed: document.querySelector('[data-place=under_the_span]')?.getAttribute('aria-pressed'), focus: document.activeElement?.dataset?.place || null }));
   check(pk.pick?.place === 'under_the_span' && pk.pressed === 'true', `${kind}: the chosen place (chartPick, aria-pressed)`, pk);
+  const tp = await g(() => window.__gw.debug.loop.chart('time'));
+  times[kind].redraw = tp.paints[tp.paints.length - 1]?.ms;
   await shot('4-chosen');
 
   // ---- the sealed sheet's card: the wax, three seals, "Coming soon"; no price and no buy button
@@ -147,6 +177,8 @@ async function run(kind) {
       bell: !!document.querySelector('[data-loop=chart] [data-place=bell_pool]') };
   });
   check(JSON.stringify(three.buy.sort()) === JSON.stringify(['buoy_lights', 'under_the_span']) && !three.bell, `${kind}: the Chart's three-cards case: only Murk's blots carry a price or open a card (the Bell Pool's opens nothing)`, three);
+  const re = await g(() => ({ pick: window.__gw.debug.loop.chart().pick, water: document.querySelector('[data-loop=chart] .gw-chart-hit--water')?.getAttribute('aria-pressed') }));
+  check(re.pick && re.pick.place === null && re.water === 'true', `${kind}: the chosen place checked again on this open: Under the Span is a blot now, so open water is chosen`, re);
   await shot('6-three');
   check(await tap('[data-loop=chart] [data-place=under_the_span][data-buy]'), `${kind}: a priced blot`);
   await wait(500);
@@ -158,6 +190,14 @@ async function run(kind) {
   await browser.close();
 }
 
-for (const kind of ['desk', 'phone']) if (!args.only || args.only === kind) await run(kind);
+for (const kind of ['desk', 'phone', 'short']) if (!args.only || String(args.only).split(',').includes(kind)) await run(kind);
+// the Chart's own paint (M1.md §2.14): drawChart and its raster read back, at each viewport's DPR; the open's render to its first paint
+log('\nthe Chart\'s paint, ms (drawChart + the raster read back):');
+for (const [kind, t] of Object.entries(times)) {
+  log(`  ${kind} (${VIEW[kind].vp.width} x ${VIEW[kind].vp.height}, DPR ${VIEW[kind].dpr}): tutorial first paint ${t.tutorial?.first} (render to paint ${t.tutorial?.openToPaint}, ${t.tutorial?.paints} paints), later first paint ${t.later?.first} (render to paint ${t.later?.openToPaint}), a redraw (a place chosen) ${t.redraw}`);
+  advise(Math.max(t.tutorial?.first ?? 0, t.later?.first ?? 0) <= 150, `${kind}: the first paint ≤ 150 ms`);
+  advise((t.redraw ?? 0) <= 16, `${kind}: a redraw ≤ 16 ms`);
+}
+fs.writeFileSync(path.join(out, 'chart-times.json'), JSON.stringify(times, null, 1));
 log(fails.length ? `\n${fails.length} check(s) failed` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

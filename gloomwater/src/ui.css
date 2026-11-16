@@ -2502,8 +2502,12 @@
   .gw-p-chart--drawn { padding: 4px 6px 40px; }
   .gw-p-chart--drawn .gw-pc { padding-top: 30px; }
   .gw-p-chart--drawn .gw-pc > .gw-murk-line { margin-top: -6px; }
-  .gw-chart-sheet { height: clamp(470px, calc(100dvh - 232px), 660px); }
-  .gw-p-chart--line .gw-chart-sheet { height: clamp(440px, calc(100dvh - 292px), 620px); }
+  /* the sheet takes what the screen leaves (Safari with its bars shows a 390 x 844 iPhone about 664 px: the sheet is then 432 px,
+     372 with Murk's line, and the drawing narrows its first sheet to keep the lake); under its floor (364 px, where four places'
+     words still stand clear) the panel scrolls and Sail stays */
+  .gw-chart-sheet { height: clamp(364px, calc(100vh - 232px), 660px); height: clamp(364px, calc(100dvh - 232px), 660px); }
+  .gw-p-chart--line .gw-chart-sheet { height: clamp(364px, calc(100vh - 292px), 620px); height: clamp(364px, calc(100dvh - 292px), 620px); }
+  .gw-p-chart--drawn .gw-pc { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
   .gw-p-chart--drawn .gw-pf { flex-direction: column; gap: 4px; margin-top: 2px; }
   /* Settings under the loop on a phone: a segmented row (the strike ring) takes its own line under its words */
   .gw-loop-on .gw-p-settings .gw-set-row:has(> .gw-seg) { flex-wrap: wrap; row-gap: 6px; }
