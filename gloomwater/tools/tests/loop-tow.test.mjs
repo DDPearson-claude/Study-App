@@ -469,16 +469,41 @@ section('the glide in\'s drawn-back cameras see the mooring past every island an
   const WL = await import('../../src/world-layout.js');
   const Lay = WL.buildLayout(ZONE), A = ZONE.arena, cam = D.LOOP.mooring.mossmere.cam, TC = D.LOOP.tow.cam;
   const solids = [...A.islands.map((q) => ({ x: q.x, z: q.z, r: q.r ?? 4 })), ...A.pillars.map((q) => ({ x: q.x, z: q.z, r: q.r ?? 1.2 })), ...(Lay.obstacles || []).map((o) => ({ x: o.x, z: o.z, r: o.r }))];
-  for (const [name, P, cfg] of [['landscape', cam, TC], ['portrait', cam.portrait, TC.portrait || TC]]) {
-    for (const pull of [1, 0.5]) {   // (render.homePose's drawn-back pose: the offset turned and scaled round the look point)
-      const L = P.look, K = 1 + (cfg.pull - 1) * pull, a = ((cfg.turn || 0) * Math.PI / 180) * pull, ox = P.pos[0] - L[0], oz = P.pos[2] - L[2];
-      const pos = [L[0] + (ox * Math.cos(a) - oz * Math.sin(a)) * K, L[2] + (ox * Math.sin(a) + oz * Math.cos(a)) * K];
+  // (render.homePose's drawn-back pose, data.homeCamAt: the offset turned and scaled round the look point; the phone held upright,
+  // a square window, a 4:3 tablet held sideways and the wide screen, the poses and the tow's settings eased between)
+  for (const [name, aspect] of [['landscape', 16 / 9], ['portrait', 358 / 664], ['square', 1], ['4:3', 4 / 3]]) {
+    for (const pull of [1, 0.5]) {
+      const Q = D.homeCamAt(cam, aspect, { pull, tow: TC }), L = Q.look, pos = [Q.pos[0], Q.pos[2]];
       let worst = Infinity;
       for (const o of solids) for (let t = 0; t <= 1.0001; t += 0.05) worst = Math.min(worst, Math.hypot(pos[0] + (L[0] - pos[0]) * t - o.x, pos[1] + (L[2] - pos[1]) * t - o.z) - o.r);
       const shore = Lay.shoreR(Math.atan2(pos[1], pos[0])) - Math.hypot(pos[0], pos[1]);
       ok(worst > 1.5 && shore > 5, `${name}, pull ${pull}: the sight line clears every island, pillar and post by 1.5 m; the camera inside the shore`, { worst, shore });
     }
   }
+  ok(D.homeCamAt(cam, 16 / 9).pos.every((v, i) => v === cam.pos[i]) && D.homeCamAt(cam, 358 / 664).pos.every((v, i) => v === cam.portrait.pos[i]), 'homeCamAt: the landscape pose on a wide screen, the portrait pose on a phone held upright');
+  // the integration's fix (the lane's review): on a wide screen the raft leading on its line is seen past Murk's moored barge (his
+  // pad and his pack, 3.75 m) and the Slow Hearth's hull through the glide in's first part, the camera turned west (LOOP.tow.cam.turn)
+  const { towLeadPose } = await import('../../src/loop-tow.js');
+  const G = D.LOOP.tow.glideIn.mossmere, ss = (k) => k * k * (3 - 2 * k);
+  const seen = (tow, aspect) => {
+    let hid = 0, n = 0;
+    for (const k of [0, 0.1, 0.2, 0.3]) {   // (the raft's way and the camera's pull on one eased clock)
+      const P = towLeadPose(MOOR, ss(k), { d: G.d, line: G.line, length: D.LOOP.barge.length }), c = D.homeCamAt(cam, aspect, { pull: 1 - ss(k), tow }).pos;
+      const fx = -Math.sin(P.hull.yaw), fz = -Math.cos(P.hull.yaw), keel = [-2, -1, 0, 1, 2].map((i) => ({ x: P.hull.x + fx * i * 2.4, z: P.hull.z + fz * i * 2.4 }));
+      const pts = [];
+      for (const y of [0.3, 1, 1.8]) for (const [dx, dz] of [[0, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]) pts.push([P.raft.x + dx, y, P.raft.z + dz]);
+      for (const t of [0.25, 0.5, 0.75]) pts.push([P.raft.x + (P.bow.x - P.raft.x) * t, 0.5, P.raft.z + (P.bow.z - P.raft.z) * t]);   // (the line)
+      for (const q of pts) {
+        n++;
+        const under = (o, r, h) => { for (let t = 0; t <= 1.0001; t += 0.01) { const y = c[1] + (q[1] - c[1]) * t; if (y <= h && Math.hypot(c[0] + (q[0] - c[0]) * t - o.x, c[2] + (q[2] - c[2]) * t - o.z) < r) return true; } return false; };
+        if (under(P.murk, 1.4, 3.75) || under(P.murk, 2.4, 0.35) || keel.some((o) => under(o, 1.6, 2.6))) hid++;
+      }
+    }
+    return 1 - hid / n;
+  };
+  const wide = seen(TC, 16 / 9), straight = seen({ ...TC, turn: 0 }, 16 / 9);
+  ok(TC.turn < 0 && wide >= 0.9, `the wide screen's glide in: the raft and its line seen past Murk and the hull (${(wide * 100).toFixed(0)}% of their points through the first part)`, { wide });
+  ok(straight < 0.5, `… and the check means something: drawn straight back, Murk's barge hides them (${(straight * 100).toFixed(0)}%)`, { straight });
 }
 
 section('it plays once: a second Sail, the sail home and a Continue never replay it');

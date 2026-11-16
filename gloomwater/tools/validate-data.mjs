@@ -430,11 +430,14 @@ if (process.argv.includes('--loop')) {
       const out = L4.sailPlan(Lay.docks[0], { x: 0, z: 0 }, LP.tutorial, water).path;
       const F = LR.mooringChecks(M, { obstacles: [...Lay.obstacles, ...(Lay.gateObstacles || [])], shoreR: Lay.shoreR, spawn: Lay.spawn, out, places, raftR: rr2, reach: B.reach });
       ok4(F.length === 0, `${water}: the hulls, the raft and the glides clear the islands, pillars, posts, ${places.length} place(s) and their banks, the shore and the spawn${F.length ? `: ${F.slice(0, 4).join('; ')}` : ''}`);
-      // the home camera's frame (the portrait pose on a screen taller than wide, as render picks it)
+      // the home camera's frame (the portrait pose on a screen taller than wide, the landscape on a wide one, the two eased into each
+      // other between them: data.homeCamAt, as render picks it; a tablet held sideways, a 4:3 and a square window among the sizes)
       const cam = raw.cam;
       ok4(cam && Array.isArray(cam.pos) && Array.isArray(cam.look) && num4(cam.fov) && cam.portrait && Array.isArray(cam.portrait.pos), `${water}: the home camera has its pose and its portrait pose`);
-      for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [960, 540], [1280, 720], [1920, 1080], [844, 390]]) {
-        const r = HT.frameCheck(M, vw / vh < 0.85 ? cam.portrait : cam, { vw, vh });
+      ok4(typeof L4.homeCamAt === 'function' && (cam.blend === undefined || (Array.isArray(cam.blend) && cam.blend.length === 2 && cam.blend[0] >= 0.5 && cam.blend[0] < cam.blend[1] && cam.blend[1] <= 2.2)),
+        `${water}: the home camera's blend (the aspects between the portrait and the landscape poses) is a range inside 0.5 … 2.2`);
+      for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [700, 760], [800, 800], [1024, 768], [1180, 820], [960, 540], [1280, 720], [1920, 1080], [844, 390]]) {
+        const r = HT.frameCheck(M, L4.homeCamAt(cam, vw / vh), { vw, vh });
         ok4(r.ok, `${water}: the home camera at ${vw} × ${vh} holds the barge, the raft and Murk, the chart table, the lectern and the doorway, each button ≥ 44 px, none overlapping${r.ok ? '' : `: ${r.faults.slice(0, 3).join('; ')}`}`);
       }
     }

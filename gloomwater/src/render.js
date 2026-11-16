@@ -560,7 +560,8 @@ export function create(ctx) {
     return lmk.w;
   }
 
-  // the home camera (M1 step 5a; SPEC §6.1): the mooring's `cam` ({pos, look, fov}, `portrait` on a screen taller than wide),
+  // the home camera (M1 step 5a; SPEC §6.1): the mooring's `cam` ({pos, look, fov}, `portrait` on a screen taller than wide, the
+  // two eased into each other between them: data.homeCamAt),
   // blended over the rig by one weight eased 1.2 s in from 'sail' and out again when the glide out begins; null without a mooring
   const HOME_EASE = 1.2;
   const homeCam = { k: 0, w: 0, pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 45 };
@@ -570,12 +571,15 @@ export function create(ctx) {
     try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
     const c = m?.cam;
     if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
-    const tall = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos), pose = tall ? c.portrait : c;
     // M1 step 5b (LANE 5B-TOW): a tow's glide in is seen from the same framing drawn back (LOOP.tow.cam: `pull` times its distance,
     // turned `turn` degrees round the look point; the portrait pose its own, clear of the islands), dollying in to the mooring's
     // framing as the barge comes to rest (game.towCam(): 1 → 0)
     let pull = 0;
     try { pull = Math.min(1, Number(ctx.game?.towCam?.()) || 0); } catch { pull = 0; }
+    // (the integration's fix: between a phone held upright and a wide screen, a tablet held sideways, a 4:3 or a square window,
+    // the landscape and portrait poses eased into each other, the tow's pull and turn with them: data.homeCamAt, the validator's own)
+    if (typeof ctx.data?.homeCamAt === 'function') return ctx.data.homeCamAt(c, W / H, { pull, tow: ctx.data?.LOOP?.tow?.cam || null });
+    const tall = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos), pose = tall ? c.portrait : c;
     if (pull > 0) {
       const TC = ctx.data?.LOOP?.tow?.cam || {}, cfg = tall && TC.portrait ? TC.portrait : TC, L = pose.look;
       const K = 1 + (Math.max(1, Number(cfg.pull) || 2.2) - 1) * pull, a = ((Number(cfg.turn) || 0) * Math.PI / 180) * pull;

@@ -278,6 +278,33 @@ section('the catch path: fishing:bite {sizeClass: \'find\'}, then fishing:found 
   eq(env.ctx.errors.length, 0, `no fishing errors (${env.ctx.errors.join(' | ')})`);
 }
 {
+  // the integration's fix (the lead's look at desk-5c-02-haul): a find hauled in on the Mossmere under the loop drags no foam wake
+  // (its flecks lit gold by the raft's lantern) and throws no rings; behind it the bed clouds with silt (the mud cloud's instance,
+  // kind 9), never within a couple of metres of the raft
+  const { makeFishingEnv } = await import('./fishing-env.mjs');
+  const scene = new (await import('three')).Scene();
+  const loop = fakeLoop({ D, holdSlots: 4, evening: 2, wick: 'wick' });
+  const env = makeFishingEnv({ data: D, mode: 'still', outing: 'trip', phase: 'calm', seed: 14, loop, render: { scene },
+    runOver: { bait: {}, equippedBait: null, evening: 2, character: 'wick', nightMode: 'still', outing: 'trip' } });
+  const marks = { wake: 0, ripple: 0 };
+  env.ctx.debug.forceFind('tin_spoon', { wait: 2 });
+  for (let i = 0; i < 400 && env.F.state === 'waiting'; i++) env.tick(1);
+  env.F.onPointerDown({ input: 'mouse' }); env.F.onPointerUp?.();
+  env.tick(2);
+  const reeling = env.F.state === 'reeling';
+  env.ctx.water.addWake = () => { marks.wake++; }; env.ctx.water.addRipple = () => { marks.ripple++; };
+  const mesh = scene.getObjectByName('fishing-signs'), raft = env.ctx.player.position;
+  let silt = 0, nearRaft = 0;
+  for (let i = 0; i < 90 && env.F.state === 'reeling'; i++) {
+    env.tick(1);
+    const B = mesh?.geometry?.attributes?.iB?.array, A = mesh?.geometry?.attributes?.iA?.array, n = mesh?.geometry?.instanceCount || 0;
+    for (let j = 0; j < n; j++) if (B && Math.abs(B[j * 4] - 9.1) < 0.01) { silt++; if (Math.hypot(A[j * 4] - raft.x, A[j * 4 + 2] - raft.z) < 2.4) nearRaft++; }
+  }
+  ok(reeling && marks.wake === 0 && marks.ripple === 0, 'a find\'s haul on the Mossmere: no foam wake and no rings behind it', marks);
+  ok(silt > 0 && nearRaft === 0, 'behind it a slow trail of silt puffs (the mud cloud), none within 2.4 m of the raft', { silt, nearRaft });
+  eq(env.ctx.errors.length, 0, `no fishing errors (${env.ctx.errors.join(' | ')})`);
+}
+{
   // a find is never lost: a forced loss still lands
   const { makeFishingEnv } = await import('./fishing-env.mjs');
   const loop = fakeLoop({ D, holdSlots: 4, evening: 2, wick: 'wick' });

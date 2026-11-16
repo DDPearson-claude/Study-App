@@ -495,6 +495,9 @@ export function create(ctx) {
       // the water's lit pool follows the gameplay light radius, not the PointLight falloff (no reach ring)
       const lr = ctx.survival && !ctx.survival.isStub ? Number(ctx.survival.lightRadius) : NaN;
       s.radius = Number.isFinite(lr) && lr > 0 ? lr : undefined; s.ring = 0;
+      // (the integration's fix: on the Mossmere under the loop the lantern lays its warm pool and no glitter path, whose gold flecks
+      // strung toward the lens through every haul; its true image stays in the mirror: "no glitter on the water")
+      if (ctx.data?.LOOP_ENABLED === true && zone?.id === 'mossmere') s.streak = 0;
       waterLights.push(s);
     }
     // >>> INTRO LANE A: stage hooks (the great lantern's light on the water)

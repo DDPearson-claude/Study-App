@@ -243,11 +243,24 @@ section('the save: meta.loop.barge = {water, towed}, LOOP_SCHEMA 4, migrateLoop 
 section('the targets: the home camera\'s frame at 358 px and every size, each button ≥ 44 px, none overlapping');
 {
   const cam = M.cam;
-  for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [960, 540], [1280, 720], [844, 390]]) {
-    const r = HT.frameCheck(M, vw / vh < 0.85 ? cam.portrait : cam, { vw, vh });
+  // (the portrait pose upright, the landscape wide, the two eased into each other between: a tablet held sideways, 4:3, square)
+  for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [700, 760], [800, 800], [1024, 768], [1180, 820], [960, 540], [1280, 720], [844, 390]]) {
+    const r = HT.frameCheck(M, D.homeCamAt(cam, vw / vh), { vw, vh });
     ok(r.ok, `${vw} × ${vh}: the barge, the raft and the four targets in frame, each ≥ 44 px, none overlapping${r.ok ? '' : `: ${r.faults.join('; ')}`}`);
     ok(r.layout.items.every((it) => it.w >= 44 && it.box.b - it.box.t >= 44), `${vw} × ${vh}: every button at least 44 × 44 px`);
   }
+  // the integration's fix (the 5a review's must): every shape of screen between a phone held upright and a wide one keeps the
+  // raft, the Wick, the barge and Murk in frame (the poses eased into each other between cam.blend's aspects, never a jump)
+  { const bad = [];
+    let last = null, jump = 0;
+    for (let a = 0.5; a <= 2.2001; a += 0.025) for (const vh of [600, 768, 1024]) {
+      const vw = Math.round(vh * a), pose = D.homeCamAt(cam, vw / vh), r = HT.frameCheck(M, pose, { vw, vh });
+      if (!r.ok) bad.push(`${vw} × ${vh}: ${r.faults[0]}`);
+      if (vh === 768) { if (last) jump = Math.max(jump, Math.hypot(...pose.pos.map((v, i) => v - last.pos[i])), Math.abs(pose.fov - last.fov)); last = pose; }
+    }
+    ok(bad.length === 0, `every aspect from 0.5 to 2.2: the frame holds${bad.length ? `: ${bad.slice(0, 3).join('; ')}` : ''}`);
+    ok(jump < 2, `… and the pose moves smoothly with the aspect (at most ${jump.toFixed(2)} m or ° a 0.025 step)`);
+    eq([D.homeCamAt(cam, 0.6).k, D.homeCamAt(cam, 1.8).k], [0, 1], 'homeCamAt: the portrait pose upright, the landscape pose wide'); }
   // the layout pushes two objects that overlap on screen apart and keeps them ≥ 44 px, clear of a reserved rect
   const lay = HT.layoutTargets({ murk: { l: 100, t: 100, r: 130, b: 130 }, chart: { l: 110, t: 110, r: 150, b: 150 } }, { vw: 358, vh: 664, reserve: [{ l: 0, t: 0, r: 358, b: 60 }] });
   ok(lay.ok && lay.items.every((it) => it.w >= 44 && it.box.b - it.box.t >= 44 && it.t >= 60), 'layoutTargets: overlapping objects become two ≥ 44 px buttons, apart, off the reserved band');
