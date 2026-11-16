@@ -352,6 +352,53 @@ section('S11 words: every string the view draws passes textAllowed (screen \'she
   ok(n > 600, `S11 ${n} strings checked`);
 }
 
+section('S15 the picks\' stretch: Where and the hour picked at home do not follow the player onto the lake or past a new cast (answer 41)');
+{
+  const UI = await import('../../src/ui-sheet.js');
+  const P = UI.pickSession();
+  // at home: open, pick Under the Span at night with the Prize class; a re-opening at home keeps them (the session's picks)
+  const home1 = {}; P.forEntry(home1);
+  P.pick(home1, { place: 'under_the_span' }); P.pick(home1, { light: 'night' }); P.pick(home1, { cls: 'prize' });
+  const home2 = {}; eq(JSON.stringify(P.forEntry(home2)), JSON.stringify({ place: 'under_the_span', light: 'night', cls: 'prize' }), 'S15 at home the picks hold between openings');
+  // sail (run:start), cast in the open water (fishing:land), reel in, open the sheet on the trip
+  P.bump(); P.bump();
+  const tripOpen = {}; const v = P.forEntry(tripOpen);
+  ok(v.place === undefined && v.light === undefined && v.cls === 'prize', `S15 on the trip after a cast the Where and hour picks are gone, the class stays (${JSON.stringify(v)})`);
+  const m = example(), run = FX.tripRun(D, { metaLoop: m.loop, character: 'taper', equippedBait: 'mireworm' });
+  m.loop.lifted = ['under_the_span']; m.loop.maps.places = ['under_the_span'];
+  const T = SM.sheetModel(m, D, { run, view: v, live: { waterKey: 'open:mossmere', place: null, light: 'day' }, cast: { area: 'reeds', place: null, water: 'mossmere' }, shelf: [] });
+  ok(T.picks.place === 'last' && T.picks.light === 'day', `S15 … so the page opens where you last cast, at the trip's hour (${T.picks.place}, ${T.picks.light})`);
+  const stale = SM.sheetModel(m, D, { run, view: { place: 'under_the_span', light: 'night', cls: 'prize' }, live: { waterKey: 'open:mossmere', place: null, light: 'day' }, cast: { area: 'reeds', place: null }, shelf: [] });
+  ok(stale.picks.place === 'under_the_span', 'S15 (the carried picks would have opened on the home pick: the case the stretch guards)');
+  // a pick on the trip holds while no new cast lands; the next cast drops it again
+  P.pick(tripOpen, { place: null }); const again = {}; eq(P.forEntry(again).place, null, 'S15 a pick on the trip holds until the next cast');
+  P.bump(); ok(P.forEntry({}).place === undefined, 'S15 … and the next cast drops it');
+  // an opening's own view (openSheet({view}) from the book or a species page) holds over the stretch
+  P.bump(); const own = { picks: { place: 'under_the_span' } }; eq(P.forEntry(own).place, 'under_the_span', 'S15 an opening\'s own view is its pick');
+  // a page left open across a stretch (a re-draw on run:end) drops its carried picks
+  P.pick(own, { light: 'dusk' }); P.bump(); const re = P.forEntry(own);
+  ok(re.place === undefined && re.light === undefined, `S15 a re-draw after a new stretch drops the carried Where and hour (${JSON.stringify(re)})`);
+}
+
+section('S16 the hook\'s chips on a trip (the user, 16 Nov 2026, superseding answer 43): live through loop.changeHook unless a fish is on');
+{
+  const m = example(), run = FX.tripRun(D, { metaLoop: m.loop, character: 'taper', equippedBait: 'mireworm' });
+  run.bait = { mireworm: 4, cut_strip: 2 };
+  ok(SM.sheetModel(m, D, { run, shelf: [] }).tackle.hook.canFit === true, 'S16 on a trip the chips are live (canChange defaults true)');
+  ok(SM.sheetModel(m, D, { run, shelf: [], canChange: false }).tackle.hook.canFit === false, 'S16 … dead while a fish is on (canChange false)');
+  ok(SM.sheetModel(m, D, { shelf: [] }).tackle.hook.canFit === true, 'S16 at home the chips are live');
+  run.equippedBait = 'cut_strip'; run.lure = 'glimmer_spoon';
+  const after = SM.sheetModel(m, D, { run, shelf: [] });
+  ok(after.tackle.hook.bait === 'cut_strip' && after.tackle.hook.lure === 'glimmer_spoon', 'S16 on a trip the hook reads run.equippedBait and run.lure after a change');
+  const f = FX.fakeLoop({ D, wick: 'taper', bag: { mireworm: 5, cut_strip: 3 }, journal: Object.fromEntries(MET.map((id) => [id, { caught: 1 }])) });
+  f.s.onTrip = true; f.s.fishOn = true;
+  ok(f.sheet({}).tackle.hook.canFit === false && f.canChangeHook() === false, 'S16 fakeLoop: a fish on, the chips dead');
+  f.s.fishOn = false;
+  ok(f.sheet({}).tackle.hook.canFit === true && f.changeHook({ bait: 'cut_strip' }).ok === true, 'S16 fakeLoop: no fish on, a chip\'s change goes through');
+  const src = (await import('node:fs')).readFileSync(new URL('../../src/ui-sheet.js', import.meta.url), 'utf8');
+  ok(/changeHook\(kind === 'bait' \? \{ bait: id \} : \{ lure: id \}\)/.test(src) && /canChangeHook\?\.\(\) === false/.test(src), 'S16 ui-sheet\'s chip tap calls loop.changeHook, after loop.canChangeHook');
+}
+
 section('S14 flag off: no sheet words, no sheet method');
 {
   globalThis.GW_LOOP = false; globalThis.GW_V3 = true;

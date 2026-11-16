@@ -2296,6 +2296,10 @@ Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (
   wickId, rb})`; `plainRb`; `LIGHT_PHASE` (day → `'calm'`, dusk → `'dusk'`, night → `'gloomtide'`: every call takes the game's phase).
 - **`watercraft.openMix(D, {light, lure, bait, wickId, rb})`**: the blind caster's open-water mix at one hour with the rarity bonus;
   the private `eveningMix` sums it at rb 0, so `bitesTable` is unchanged.
+- **The hook's chips** (`[data-fit=lure:<id>]`, `[data-fit=bait:<id>]`, an empty id the bare hook or no lure) tap
+  `loop.changeHook({bait} | {lure})` (§14.19) at home and on a trip: the user's answer 43 ("at home only") superseded on 16 Nov 2026.
+  `sheetModel`'s `canChange` option (the ledger passes `loop.canChangeHook()`) sets `tackle.hook.canFit`; the chips are dead only while a
+  fish is on. On a trip the hook's plates read `run.lure` and `run.equippedBait` after the change.
 - **`ctx.progression.loop.sheet(view, live, cast)`** (the model on the live save and run, Murk's shelf passed in) and
   **`loop.markSheetSeen(keys)`** (owned keys only, each once); both in `LOOP_METHODS` and `fakeLoop`. **`meta.loop.sheetSeen`**:
   `[]` on a fresh save; `migrateLoop` seeds it at its top with `sheetKeys` (an older save opens with no marks).

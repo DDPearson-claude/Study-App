@@ -2138,10 +2138,9 @@ v4's five questions were answered on 13 November 2026 ("Yes to all five loop rul
 on Taper's Sheet; its default "yes, at home"; on a trip the hook stayed as you sailed) is overtaken by the user's words while
 play-testing on 16 November 2026: "We should have an option to equip bait or change lures whilst out on the lake". The hook now changes
 at home and on the lake, through one call (`loop.changeHook`, CONTRACT §14.19): the tackle tin on the trip's HUD (§8.1's tackle row), and
-the sheet's tap at merge. Never while a fish is on (its tell and bite, the play, the show, the card: "After this fish."); a change while
+the sheet's tap on its bait and lure chips. Never while a fish is on (its tell and bite, the play, the show, the card: "After this fish."); a change while
 the float waits brings the line in quietly with its bait back in the bag (no miss, no favour or streak lost); the hook table and its 1%
-cap read the bait at the cast, unchanged. (When the sheet's questions 41–43 land here, answer 43's line gains: "superseded 2026-11-16:
-the user wants bait and lures changeable on the lake".)
+cap read the bait at the cast, unchanged. (Answer 43's own line below carries the same note.)
 
 1. ~~Should each of the twelve new waters be a full 3D lake of its own?~~ **Answered: yes, all twelve are full 3D waters** (v7: six of them rivers, on the river layout).
 2. ~~Is about 48 hours to buy everything the right length?~~ **Answered: yes.** The pacing run ends at 47.6 h (v8, gated; 48.9 h in v7.1, §4.9).
@@ -2219,7 +2218,7 @@ the user wants bait and lures changeable on the lake".)
 
 **v8.8** (the Wick's sheet, `SHEET.md` §11):
 
-**Answered by the user, 16 November 2026, and built by the sheet's lane (`gw-mvp-sheet`):** 41 **the middle way**, "Where you last cast": once a spot has been fished, the sheet's Odds open on the odds where the player last cast (`castOdds` at that cast's area, read through the read-only `fishing.lastCastArea()`), the area never named (its Where chip reads "Where you last cast"); 42 **"Taper's Sheet"** (the Wick's name and "Sheet"); 43 **at home only**: a tap on a bait or lure on the sheet fits it at home; on a trip the sheet is read only. They are decisions now.
+**Answered by the user, 16 November 2026, and built by the sheet's lane (`gw-mvp-sheet`):** 41 **the middle way**, "Where you last cast": once a spot has been fished, the sheet's Odds open on the odds where the player last cast (`castOdds` at that cast's area, read through the read-only `fishing.lastCastArea()`), the area never named (its Where chip reads "Where you last cast"); 42 **"Taper's Sheet"** (the Wick's name and "Sheet"); 43 **at home only**: a tap on a bait or lure on the sheet fits it at home; on a trip the sheet is read only (**superseded 2026-11-16: the user wants bait and lures changeable on the lake**: the sheet's tap goes through `loop.canChangeHook()`/`loop.changeHook({bait, lure})` at home and on a trip, CONTRACT §14.18–§14.19). They are decisions now.
 
 41. **Should the sheet show the chances for a part of the lake?** The user said different areas should have different chances, and they do (`castOdds` uses the area). Three ways, put to the user evenly (`SHEET.md` §11): **not yet** (the default until the user answers: the open water as a whole and each place owned, at the hour and on the hook picked; which part is better is learned by fishing it, `WATERCRAFT.md` §2.6); **all of it** (each area named with its chances, as a place is; you would know where to cast before you cast); or **a middle way** (once you have fished a spot, the chances "where you last cast", the area unnamed).
 42. **What is the page called on the pause menu and the tab?** **Default: "Taper's Sheet"** (the Wick's name and "Sheet", with its portrait), as the Journal is already "Taper's Journal". The other way: the Wick's name alone, "Taper".

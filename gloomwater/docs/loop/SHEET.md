@@ -262,7 +262,9 @@ Two plates side by side on a desktop (stacked on a phone): **the lure on the hoo
 the owned others as small glyph chips beneath it (the Chart's slot glyphs, `ui-gear.GEAR_GLYPH`, the bait's count on its
 chip, and a **—** chip for none). **At home a tap on a chip fits it** through the same call the Chart's slots make
 (`ctx.progression.loop.fit('lure' | 'bait', id)`), and the whole page re-reads (§5.1); **on a trip the chips are read only**
-(the hook is the run's).
+(the hook is the run's). (Superseded 16 Nov 2026, the user: "We should have an option to equip bait or change lures whilst out on
+the lake". A chip's tap goes through `loop.changeHook({bait, lure})` at home and on a trip, and the chips are dead only while
+`loop.canChangeHook()` is false, a fish on; CONTRACT §14.19, §14 below.)
 
 **A lure tipped with a bait.** When both are on, the lure's chip carries the fitted mark and the bait's chip carries a small
 **tipped** glyph (a barb under the count; accessible name "Tipped", no visible word): the lure decides who bites (`gradeOf`:

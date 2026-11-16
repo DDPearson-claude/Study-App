@@ -295,7 +295,7 @@ export function fakeLoop(over = {}) {
     wipeOrder(id) { const before = (s.orders || []).length; s.orders = (s.orders || []).filter((o) => o.id !== id); return { ok: s.orders.length < before, orders: api.orders() }; },
     orderFor: (fish) => (Array.isArray(s.orders) ? s.orders.find((o) => o.speciesId === fish?.speciesId)?.id ?? null : null),
     // the Wick's sheet (SHEET.md §7.3): the real model on the fake's meta (a trip's run when s.run is set), the marks seen
-    sheet: (view = {}, live = null, cast = null) => (D ? sheetModel(metaNow(), D, { run: s.run || null, view, live, cast, shelf: items() }) : null),
+    sheet: (view = {}, live = null, cast = null) => (D ? sheetModel(metaNow(), D, { run: s.run || null, view, live, cast, shelf: items(), canChange: !(s.onTrip && s.fishOn === true) }) : null),
     markSheetSeen(keys = []) { const own = new Set(D ? sheetKeys(metaLoop(), D) : []); for (const k of keys || []) if (own.has(k) && !s.sheetSeen.includes(k)) s.sheetSeen.push(k); s.saves++; return true; },
     cutBait(fish) { if (!fish || !['small', 'keeper'].includes(fish.sizeClass)) return { ok: false, gained: { strips: 0 } }; s.bag.cut_strip = (s.bag.cut_strip | 0) + 3; return { ok: true, gained: { strips: 3 } }; },
     // TK (the tackle tin, CONTRACT §14.19): may the hook change (refused while s.fishOn on a trip), and the change (the fit's rules)

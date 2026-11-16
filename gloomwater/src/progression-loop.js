@@ -1457,7 +1457,9 @@ export function createLoop(S) {
     const r = run(), trip = onTrip(r);
     let shelfNow = [];
     try { shelfNow = shelfItems(D(), L, [], { meta: meta() }); } catch (e) { report('sheet.shelf', e); }
-    return sheetModel(meta(), D(), { run: trip ? r : null, view, live: trip ? live : null, cast, shelf: shelfNow, stats: trip ? r.stats || null : null });
+    let canChange = true;
+    try { canChange = canChangeHook() !== false; } catch (e) { report('sheet.canChange', e); }
+    return sheetModel(meta(), D(), { run: trip ? r : null, view, live: trip ? live : null, cast, shelf: shelfNow, stats: trip ? r.stats || null : null, canChange });
   }
   /** The "new" marks the player has seen on the sheet (SHEET §5.2): owned keys only, each once; saved when the page closes. */
   function markSheetSeen(keys = []) {

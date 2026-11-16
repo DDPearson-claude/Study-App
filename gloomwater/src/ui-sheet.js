@@ -396,6 +396,33 @@ function artSvg(a, uid) {
 }
 
 /**
+ * The page's picks (SHEET §3.5, §5.1): they persist for the session (never in the save but the pin), but Where and the hour belong to
+ * one stretch of play. bump() begins a new stretch (a trip's start, its end, home, each landed cast: ui-sheet's bus), and a new
+ * stretch drops the Where and hour picks so the defaults hold again: on a trip where the raft is and the hour it is; once a spot
+ * has been fished, where you last cast (the user's answer 41). The class stays. Pure (node-tested, S15).
+ *   view()             the session's picks now
+ *   forEntry(state)    the picks a drawing uses: the session's with this opening's own view on top (state.picks set by openSheet)
+ *   pick(state, o)     a tap on a pick
+ */
+export function pickSession() {
+  const SPOT = ['place', 'light'];
+  const unspot = (o) => { const out = { ...(isObj(o) ? o : {}) }; for (const k of SPOT) delete out[k]; return out; };
+  let view = {}, at = 0, epoch = 0;
+  const now = () => { if (at !== epoch) { view = unspot(view); at = epoch; } return view; };
+  return {
+    bump() { epoch += 1; },
+    view: now,
+    forEntry(st) {
+      now();
+      if (isObj(st.picks)) view = { ...view, ...(st.picksAt === undefined || st.picksAt === epoch ? st.picks : unspot(st.picks)) };
+      st.picks = view; st.picksAt = epoch;
+      return view;
+    },
+    pick(st, o) { now(); view = { ...view, ...(isObj(o) ? o : {}) }; st.picks = view; st.picksAt = epoch; return view; },
+  };
+}
+
+/**
  * The view (DOM). K: the screens kit (ctx, h, esc, D, meta, run, sfx, entry, loop …). One instance in createScreens; render(entry,
  * content) draws the sheet tab into the Journal's content with the entry's state (state.view: the picks; state.section: where to open).
  */
@@ -409,7 +436,9 @@ export function createSheetView(K) {
     }
   } catch (e) { report('css', e); }
   const L = () => ctx.progression?.loop || null;
-  let session = { view: {} };   // the picks persist for the session (never in the save but the pin)
+  // the picks: the session's, Where and the hour for one stretch of play (pickSession; the user's answer 41)
+  const pickS = pickSession();
+  try { for (const ev of ['run:start', 'run:end', 'home:enter', 'fishing:land']) ctx.bus?.on?.(ev, () => pickS.bump()); } catch (e) { report('epoch', e); }
   let uidN = 0;
   const uid = () => `sh${(uidN = (uidN + 1) % 1e6)}`;
   const phone = () => num(K.vw, typeof innerWidth === 'number' ? innerWidth : 960) < 700;
@@ -429,7 +458,15 @@ export function createSheetView(K) {
     } catch (e) { report('live', e); return null; }
   }
   const lastCast = () => { try { return ctx.fishing?.lastCastArea?.() || null; } catch { return null; } };
-  function model(view = session.view) {
+  /** A chip's tap: loop.changeHook at home and on a trip (refused while a fish is on); the bare fit where the ledger has no changeHook. */
+  function fitHook(kind, id) {
+    try {
+      const lp = L();
+      if (typeof lp?.changeHook === 'function') { if (lp.canChangeHook?.() === false) return false; return lp.changeHook(kind === 'bait' ? { bait: id } : { lure: id })?.ok === true; }
+      return lp?.fit?.(kind, id)?.ok === true;
+    } catch (er) { report('fit', er); return false; }
+  }
+  function model(view = pickS.view()) {
     try { return L()?.sheet?.(view, live(), lastCast()) || null; } catch (e) { report('model', e); return null; }
   }
   /** The Wick's small portrait in the dye it wears. */
@@ -471,9 +508,7 @@ export function createSheetView(K) {
   // ---------------------------------------------------------------- the DOM
   function render(entry, content) {
     const s = entry.state;
-    if (s.picks) session.view = { ...session.view, ...s.picks };
-    s.picks = session.view;
-    const m = model(s.picks);
+    const m = model(pickS.forEntry(s));
     const lay = phone() ? 'phone' : 'desktop';
     const root = document.createElement('div');
     root.className = 'gw-sheet';
@@ -572,7 +607,8 @@ export function createSheetView(K) {
     const opened = (k, dflt = false) => (lay === 'desktop' ? true : (s.opened && k in s.opened ? s.opened[k] : dflt));
     const chipRow = (list, kind) => {
       const row = document.createElement('div'); row.className = 'gw-sh-chips'; row.dataset.chips = kind;
-      const canFit = v.tackle.hook.canFit && ctx.flow === 'home';
+      // (the user, 16 Nov 2026, superseding answer 43: the hook changes on the lake too; loop.canChangeHook decides, CONTRACT §14.19)
+      const canFit = v.tackle.hook.canFit && (ctx.flow === 'home' || trip());
       for (const c of list) {
         const b = document.createElement('button'); b.type = 'button';
         b.className = `gw-sh-chip${c.on ? ' gw-on' : ''}`;
@@ -581,7 +617,7 @@ export function createSheetView(K) {
         b.setAttribute('aria-label', c.name);
         b.innerHTML = c.glyph ? `${icon(c.glyph)}${c.count != null ? `<span>${esc(c.count)}</span>` : ''}${c.tipped ? `<i role="img" aria-label="${esc(D().TEXT_LOOP?.sheet?.tipped || 'Tipped')}">${BARB}</i>` : ''}` : '<span>—</span>';
         if (!canFit) b.disabled = !c.on && true;
-        if (canFit) b.addEventListener('click', (e) => { e.stopPropagation(); if (c.on) return; K.sfx?.('ui_click'); try { L()?.fit?.(kind, c.id); } catch (er) { report('fit', er); } entry.render(); });
+        if (canFit) b.addEventListener('click', (e) => { e.stopPropagation(); if (c.on) return; K.sfx?.('ui_click'); fitHook(kind, c.id ?? null); s.scroll = captureScroll(root); entry.render(); });
         row.appendChild(b);
       }
       return row;
@@ -628,7 +664,7 @@ export function createSheetView(K) {
       b.addEventListener('click', (e) => { e.stopPropagation(); if (on || dim) return; K.sfx?.('ui_click'); onPick(); });
       return b;
     };
-    const repick = (o) => { session.view = { ...session.view, ...o }; s.picks = session.view; s.scroll = captureScroll(root); entry.render(); };
+    const repick = (o) => { pickS.pick(s, o); s.scroll = captureScroll(root); entry.render(); };
     { const r = document.createElement('div'); r.className = 'gw-sh-pickrow';
       for (const c of v.odds.choices) { const b = pickBtn('gw-sh-chip--where', c.name, c.on, { where: c.id ?? 'open' }, () => repick({ place: c.id }), { html: `${icon(c.glyph)}<span>${esc(c.name)}</span>` }); r.appendChild(b); }
       picks.appendChild(r); }
@@ -742,7 +778,7 @@ export function createSheetView(K) {
 
   // ---- live: the page re-reads the save on every change while it is open (SHEET §5.1)
   try {
-    for (const ev of ['loop:fit', 'loop:buy', 'bait:change', 'fishing:found', 'home:enter', 'run:start', 'run:end', 'shelf:buy']) {
+    for (const ev of ['loop:fit', 'loop:buy', 'loop:hook', 'bait:change', 'fishing:found', 'home:enter', 'run:start', 'run:end', 'shelf:buy']) {
       ctx.bus?.on?.(ev, () => {
         const e = K.entry?.('journal');
         if (e && e.state?.tab === 'sheet') { e.state.scroll = (() => { try { return captureScroll(e.el); } catch { return null; } })(); e.render(); }

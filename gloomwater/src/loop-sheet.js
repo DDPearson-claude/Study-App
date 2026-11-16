@@ -173,21 +173,23 @@ export function moveOf(D, { mu = 0, min = -2, cap = 2.64, cls = 'trophy' } = {},
  *   live   on a trip {waterKey, place, light, quiet, mercy} (ui-sheet reads the raft's water and the hour), else null
  *   cast   the last cast {area, place} (fishing.lastCastArea, the user's answer 41), else null
  *   shelf  progression-loop.shelfItems(D, meta.loop) (prices with Murk's factor in)
+ *   canChange  loop.canChangeHook() (the chips' taps: at home and on a trip, never while a fish is on); default true
  */
-export function sheetModel(meta, D, { run = null, view = {}, live = null, cast = null, shelf = [], stats = null } = {}) {
+export function sheetModel(meta, D, { run = null, view = {}, live = null, cast = null, shelf = [], stats = null, canChange = true } = {}) {
   const ml = isObj(meta?.loop) ? meta.loop : {}, water = ml.barge?.water || arr(ml.maps?.lakes)[0] || 'mossmere';
   const trip = !!run && run.outing === 'trip';
   const wickId = typeof D?.loopWickId === 'function' ? D.loopWickId(trip ? run.character : ml.wick) : (ml.wick || 'wick');
   const tackle = { rod: int(ml.tackle?.rod), line: int(ml.tackle?.line), reel: int(ml.tackle?.reel) };
   const v = isObj(view) ? view : {};
-  // ---- the hook: the run's on a trip, the save's fitted at home (SHEET §3.2.1; the user's answer 43: fitted at home only)
+  // ---- the hook: the run's on a trip, the save's fitted at home (SHEET §3.2.1). The user's answer 43 ("at home only") was superseded on
+  //      16 Nov 2026: the hook changes on the lake too, so canFit is loop.canChangeHook() (false only while a fish is on), CONTRACT §14.19
   const hookLure = trip ? (typeof run.lure === 'string' ? run.lure : null) : (ml.fitted?.lure ?? null);
   const hookBait = trip ? (run.equippedBait ?? null) : (ml.fitted?.bait ?? null);
   const bag = trip ? (isObj(run.bait) ? run.bait : {}) : (isObj(ml.bait?.[water]) ? ml.bait[water] : {});
   const lures = arr(ml.lures).filter((id) => typeof id === 'string' && isObj(D?.LOOP?.lures?.[id]));
   const baitIds = [...arr(D?.LOOP?.tins?.[water]), 'cut_strip', legendBaitOf(D, water)].filter(Boolean);
   const baits = baitIds.map((id) => ({ id, count: Math.max(0, int(bag[id])) })).filter((b) => b.count > 0 || b.id === hookBait);
-  const hook = { lure: hookLure, bait: hookBait, tipped: !!hookLure && !!hookBait, lures, baits, canFit: !trip };
+  const hook = { lure: hookLure, bait: hookBait, tipped: !!hookLure && !!hookBait, lures, baits, canFit: canChange !== false };
   const kit = kitOf(tackle, hook);
   // ---- the picks (§3.5): where, the hour, the class
   const lifted = new Set(arr(ml.lifted)), places = arr(ml.maps?.places).filter((id) => lifted.has(id) && placeRec(D, id));
