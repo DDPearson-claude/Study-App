@@ -86,7 +86,7 @@ if (process.argv.includes('--loop')) {
   for (const z of L4.ZONES) ok4(!(z.arena.giantSpots || []).length && !(z.arena.watchLamps || []).length, `${z.id}: no giantSpots and no watchLamps under the loop (T30)`);
   // the hold ladder (SPEC §4.2) and the 1a shelf
   const H = LP.hold;
-  ok4(H.start === 3 && H.max === 8 && H.shelfMax === 5 && H.startName === 'Wicker Creel', 'LOOP.hold: 3 to 8, the 1a shelf to Hold 5');
+  ok4(H.start === 3 && H.max === 8 && H.shelfMax === 6 && H.startName === 'Wicker Creel', 'LOOP.hold: 3 to 8, the shelf to Hold 6 (M1 step 3a: the Wellbox, M1 §2.5)');
   ok4(same(H.ladder.map((s) => s.slots), [4, 5, 6, 7, 8]) && same(H.ladder.map((s) => s.price), [30, 120, 450, 2000, 3500]) && H.ladder.every((s) => typeof s.name === 'string' && s.name),
     'LOOP.hold.ladder: slots 4..8 in order, prices 30 · 120 · 450 · 2,000 · 3,500, each named');
   // tackle (SPEC §4.3): the prices and TACKLE T0–T4's Hold as the table states it
@@ -121,8 +121,8 @@ if (process.argv.includes('--loop')) {
   }
   ok4(items.length >= 0 && same(Object.keys(LP.access.pull).sort(), ['cap', 'floorFrom', 'keeperFloor', 'perEvening', 'sureFrom']), 'v8 (T84): LOOP.access.pull has perEvening, cap, keeperFloor, floorFrom, sureFrom');
   ok4(same(LP.access.list, { kinds: ['open', 'day', 'old'], plainBaitOnly: true }), 'v8: the list rule (SPEC §5.5 (c))');
-  ok4(same(PLM.listFor(L4, 'mossmere'), LP.species.mossmere), `v8 (T81): the Mossmere's list is its ${LP.species.mossmere.length} open-water fish of M1 step 2, computed (got ${PLM.listFor(L4, 'mossmere').length})`);
-  ok4(LP.species.mossmere.length === 11, "M1 step 2: the Mossmere's list page counts 11 (M1.md §2.3)");
+  ok4(same(PLM.listFor(L4, 'mossmere'), LP.species.mossmere), `v8 (T81): the Mossmere's list is its ${LP.species.mossmere.length} open-water fish, computed (got ${PLM.listFor(L4, 'mossmere').length})`);
+  ok4(LP.species.mossmere.length === 12, "M1 step 3a: the Mossmere's list page counts 12 with the Kissmark Trout (M1.md §2.3, SPEC §5.5 (c))");
   // ---- M1 step 2 (SPEC §13, M1.md §4 step 2): the converter, the allow-list, SPECIES_LOOP, LOOP.shipped, the names rule
   {
     const fs = await import('node:fs');
@@ -131,7 +131,9 @@ if (process.argv.includes('--loop')) {
     const { REAL_NAMES } = await import('./sim/roster-check.mjs');
     const ROSTER = JSON.parse(fs.readFileSync(new URL('../docs/loop/roster.json', import.meta.url), 'utf8'));
     const SL = L4.SPECIES_LOOP, ids = SL.map((x) => x.id), SZK = L4.BALANCE_V3.size.k;
-    ok4(same(ids, LP.species.mossmere), `SPECIES_LOOP is LOOP.species.mossmere, in order (${ids.join(', ')})`);
+    // M1 step 3a: the open water's twelve, then each place's own fish and its giant in the Chart's order (LOOP.places' own, giant)
+    const placeFish = L4.loopPlaceIds('mossmere').flatMap((p) => [...(LP.places[p].own || []), ...(LP.places[p].giant ? [LP.places[p].giant] : [])]);
+    ok4(same(ids, [...LP.species.mossmere, ...placeFish]), `SPECIES_LOOP is LOOP.species.mossmere, then the places' own fish and giants, in order (${ids.join(', ')})`);
     ok4(same(L4.SPECIES.slice(0, SL.length).map((x) => x.id), ids) && SL.every((x) => L4.SPECIES_BY_ID[x.id] === x), 'SPECIES holds SPECIES_LOOP in place of the built records, ahead of the rest');
     ok4(L4.SPECIES.filter((x) => x.zone === 'mossmere' && !ids.includes(x.id)).every((x) => x.rarity === 'legendary' || (x.bait && x.bait !== LP.waters.mossmere.plainBait)), 'the Mossmere\'s other fish (the Gloam Eel, the Matriarch) are a one-tin fish or the legend: off the list (M1.md §2.3)');
     ok4(same(SHIPPED.slice().sort(), ids.filter((id) => !LP.kept.includes(id)).sort()) && LP.kept.every((id) => L4.SPECIES_V3_BY_ID[id] && !ROSTER.fish.some((f) => f.id === id)),
@@ -141,19 +143,22 @@ if (process.argv.includes('--loop')) {
     ok4(L4.fishClams(SPX('weeping_carp'), 0.4) === 26, `a Keeper Weeping Carp (z 0.4) sells for 26 on its roster L50 (got ${L4.fishClams(SPX('weeping_carp'), 0.4)})`);
     ok4(same([1.4, 2.2, 2.95].map((z) => L4.fishClams(SPX('reedjaw_pike'), z)), [158, 406, 1022]), `a Reedjaw Pike sells for 158 / 406 / 1,022 at Prize, Trophy, Elder (got ${[1.4, 2.2, 2.95].map((z) => L4.fishClams(SPX('reedjaw_pike'), z)).join(' / ')})`);
     // the phase pin: the Lampsipper lifted, no other phase-2 record
-    ok4(L4.V3_PHASE === 1 && same(L4.SPECIES.filter((x) => (x.phase ?? 1) > 1).map((x) => x.id), ['lampsipper']) && SPX('lampsipper')?.loopLift === true,
-      'under GW_V3_PHASE 1 the Lampsipper is in loop SPECIES (lifted past the phase pin) and no other phase-2 record is');
+    ok4(L4.V3_PHASE === 1 && same(L4.SPECIES.filter((x) => (x.phase ?? 1) > 1).map((x) => x.id), ['lampsipper', 'bridgechain_sturgeon']) && SPX('lampsipper')?.loopLift === true
+      && SPX('bridgechain_sturgeon')?.loopLift === true && !('weather' in SPX('bridgechain_sturgeon')),
+      'under GW_V3_PHASE 1 the Lampsipper and (M1 step 3a) the Bridgechain are in loop SPECIES (lifted past the phase pin, no weather), and no other phase-2 record is');
     // the allow-list: src/roster-shipped.js is a fresh export, cut to ROSTER_KEYS; the converter on it equals the converter on roster.json
     ok4(fs.readFileSync(new URL('../src/roster-shipped.js', import.meta.url), 'utf8') === exportText(ROSTER), 'src/roster-shipped.js is a fresh export of roster.json (node tools/roster-export.mjs)');
     const { ROSTER_SHIPPED } = await import('../src/roster-shipped.js');
     ok4(ROSTER_SHIPPED.fish.every((f) => Object.keys(f).every((k) => RS.ROSTER_KEYS.includes(k))), 'every shipped roster record holds only the allow-list\'s fields');
     const opts = { k: SZK, legendStyle: L4.CATCH_V3.legend.style, items: RS.rosterItemNames(L4), art: L4.ROSTER_ART, waters: ['mossmere'] };
     const strip = (x) => { const { difficulty, weight, night, ...r } = x; return r; };
-    const full = RS.rosterSpecies(ROSTER, L4.SPECIES_V3, { ...opts, ids: SHIPPED }), cut = RS.rosterSpecies(ROSTER_SHIPPED, L4.SPECIES_V3, { ...opts, ids: SHIPPED });
+    const byIdOrder = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);   // roster.json's order is not SHIPPED's (the giants come first there)
+    const full = RS.rosterSpecies(ROSTER, L4.SPECIES_V3, { ...opts, ids: SHIPPED }).sort(byIdOrder), cut = RS.rosterSpecies(ROSTER_SHIPPED, L4.SPECIES_V3, { ...opts, ids: SHIPPED }).sort(byIdOrder);
     ok4(same(full.map(strip), cut.map(strip)), 'the converter gives the same fish from roster.json and from the allow-listed export (nothing it reads is cut)');
     // every shipped fish on its plan; k is its body's; weights within ±30% of the cousin (pounds SPEC §6.4)
     const KEPT_REF = { gutter_crayfish: { kg: 0.03 * 19 ** 3 / 1000, cm: 19, source: 'signal crayfish (pounds SPEC §6.2: 0%)' }, lampsipper: { kg: 0.0105 * 26 ** 3.08 / 1000, cm: 26, source: 'roach (pounds SPEC §6.2)' },
-      candlefin_koi: { kg: (3 * 16 + 10) * 0.0283495, cm: 46, source: 'koi 3 lb 10 oz (pounds SPEC §6.2)' } };
+      candlefin_koi: { kg: (3 * 16 + 10) * 0.0283495, cm: 46, source: 'koi 3 lb 10 oz (pounds SPEC §6.2)' },
+      bridgechain_sturgeon: { kg: (5 * 16 + 5) * 0.0283495, cm: 70, source: 'white sturgeon 5 lb 5 oz (pounds SPEC §6.2: −14%)' } };
     for (const x of SL) {
       const body = x.size?.body, k = SZK[body];
       ok4(L4.FISH_SHAPES.includes(x.model?.shape) && typeof k === 'number' && x.size.k === k, `${x.id}: on a built plan (${x.model?.shape}) and its k is its body's (${body} ${k})`);
@@ -193,6 +198,59 @@ if (process.argv.includes('--loop')) {
       ok4(!hit, `${name}: no research name or episode title${hit ? ` (${hit[2]}: "${hit[1]}")` : ''}`);
     }
     ok4(scanned > 50 && terms.size > 300, `the names rule scanned ${scanned} files for ${terms.size} research names and titles`);
+  }
+  // ---- M1 step 3a's seam (docs/loop/m1-step3a/PLAN.md §2.0, §3.1; T101–T103 and T118's shapes): the places, the giants, the words
+  {
+    const PLC = LP.places, ids = L4.loopPlaceIds('mossmere'), M3 = L4.MOSSMERE_V3.places;
+    ok4(same(ids, ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']) && same(ids.map((id) => PLC[id].kind), ['day', 'old', 'night', 'crown']),
+      'T101: LOOP.places holds the four, in the Chart\'s order (day, old, night, crown)');
+    ok4(ids.every((id) => PLC[id].price === LP.waters.mossmere.prices[PLC[id].kind]) && same(ids.map((id) => PLC[id].price), [60, 150, 260, 500]),
+      'T101: each place map\'s price is LOOP.waters.mossmere.prices[kind] (60, 150, 260, 500)');
+    ok4(ids.every((id) => { const p = L4.loopPlace(id), r = M3.find((x) => x.id === id); return p && r && p.name === r.name && same(p.landmark, r.landmark) && same(p.area, r.water) && p.water === 'mossmere'; }),
+      'T101: loopPlace merges MOSSMERE_V3\'s geometry, name and landmark under LOOP.places\' fields');
+    ok4(L4.loopPlace('nowhere') === null && !('places' in LP.waters.mossmere), 'T101: loopPlace(unknown) is null; LOOP.waters.mossmere has no places (migrateLoop rule 5 stays a no-op)');
+    const arena = L4.ZONES[0].arena.places || [], KEYS = [...L4.LOOP_PLACE_KEYS, 'kind', 'zone'];
+    const DROPPED = ['rule', 'attract', 'maxClass', 'giantsKept', 'holdsGiants', 'giantsWhile', 'giantsDuring', 'reveal', 'tally', 'tallyAt', 'legend', 'night', 'phase'];
+    ok4(same(arena.map((p) => p.id), ids) && same(L4.PLACES.map((p) => p.id), ids) && ids.every((id) => L4.PLACE_BY_ID[id]?.kind === PLC[id].kind),
+      'T101: under the loop the arena\'s places and PLACES are the four, with their kinds');
+    ok4(arena.every((p) => Object.keys(p).every((k) => KEYS.includes(k)) && DROPPED.every((k) => !(k in p))), `T101: no arena place carries a v3 rule (${DROPPED.join(', ')})`);
+    for (const id of ids) {
+      const p = PLC[id], card = L4.SPECIES_BY_ID[p.card];
+      ok4(card && card.zone === 'mossmere', `${id}: its card's fish (${p.card}) is a loop species of the Mossmere`);
+      if (p.giant) ok4(L4.SPECIES_BY_ID[p.giant]?.giant === true && L4.SPECIES_BY_ID[p.giant].place === id && L4.SPECIES_BY_ID[p.giant].rarity === 'epic', `${id}: its giant ${p.giant} is an epic giant whose place is ${id}`);
+      for (const o of p.own || []) ok4(L4.SPECIES_BY_ID[o]?.place === id && !L4.SPECIES_BY_ID[o].giant, `${id}: its own fish ${o} has that place`);
+      if (p.legend) ok4(L4.SPECIES_BY_ID[p.legend]?.rarity === 'legendary', `${id}: its legend ${p.legend}`);
+      for (const d of Object.keys(p.draws || {})) ok4(L4.SPECIES_BY_ID[d] && !L4.SPECIES_BY_ID[d].place && (L4.SPECIES_BY_ID[d].kind ?? 'open') === 'open', `${id}: it draws ${d}, an open-water fish`);
+    }
+    // T102: the Mossmere's 17 once each; the Gloam Eel as built but for its night water
+    const MS = L4.SPECIES.filter((x) => x.zone === 'mossmere');
+    ok4(MS.length === 17 && new Set(MS.map((x) => x.id)).size === 17, `T102: loop SPECIES holds the Mossmere's 17 once each (got ${MS.length})`);
+    const GE = L4.SPECIES_BY_ID.gloam_eel, GB = L4.SPECIES_V3_BY_ID.gloam_eel;
+    ok4(GE.kind === 'night' && GE.bait === GB.bait && GE.time === GB.time && same(GE.size, GB.size) && !('kind' in GB), 'T102: the Gloam Eel bites in night water (kind night), its bait, hours and size as built; the built record untouched');
+    ok4(L4.FISH_SHAPES.includes('lamprey') && L4.FISH_SHAPES.includes('sturgeon') && L4.FISH_SHAPES.includes('trout') && L4.AUTOFISH.show.poseRules.thin.includes('lamprey'), 'the three plans are FISH_SHAPES under the loop; the lamprey hangs (poseRules.thin)');
+    ok4(L4.CATCH_V3.rarity.epic === L4.CATCH_V3.rarity.rare + LP.giant.fight - L4.CATCH_V3.kept && L4.CATCH_V3.elderRarity.epic === L4.CATCH_V3.elderRarity.rare + LP.giant.elderFight,
+      'an epic giant fights LOOP.giant.fight over a rare, net of the place-kept term (+elderFight as an Elder)');
+    // T103: the list is the twelve; nothing of a place counts
+    const list = PLM.listFor(L4, 'mossmere');
+    ok4(list.length === 12 && list.includes('kissmark_trout') && !list.some((id) => ['bridgechain_sturgeon', 'gloam_eel', 'thousandcast_pike', 'hullkiss_lamprey', 'belled_matriarch'].includes(id)),
+      'T103: listFor(mossmere) is the twelve, with the places in PLACES: never a giant, the legend, the Bridgechain or the Gloam Eel');
+    // the giants' share and the pool helpers
+    const span = L4.placePool(L4.SPECIES, { placeId: 'under_the_span', phase: 'calm' }), spanDusk = L4.placePool(L4.SPECIES, { placeId: 'under_the_span', phase: 'dusk' });
+    ok4(span.giant?.sp.id === 'thousandcast_pike' && span.giant.share === LP.giant.share.offHour && spanDusk.giant.share === LP.giant.share.inHour, 'placePool: the Thousandcast by day at its offHour share, at dusk its inHour share');
+    const buoyDay = L4.placePool(L4.SPECIES, { placeId: 'buoy_lights', phase: 'dusk' }), openDusk = L4.placePool(L4.SPECIES, { placeId: null, phase: 'dusk' });
+    ok4(buoyDay.place === null && !buoyDay.giant && same(buoyDay.list.map(([x, w]) => [x.id, w]), openDusk.list.map(([x, w]) => [x.id, w])), 'placePool: night water before dark is open water (PLAN CHOICE 3)');
+    ok4(L4.giantShare(L4.SPECIES_BY_ID.thousandcast_pike, 'dusk', 'taper') <= LP.wicks.taper.giantCap, 'giantShare: Taper ×1.3, never above its cap');
+    // T118's shapes: the words and the switches
+    const words = (t) => String(t).trim().split(/\s+/).length;
+    ok4(ids.every((id) => typeof TL.maps?.[id] === 'string' && words(TL.maps[id]) <= 8) && words(TL.shelf.heartmoss) <= 8, 'T118: the four map lines and the ball\'s shelf line, each ≤ 8 words');
+    ok4(same(['firstMap', 'firstGiant', 'legendFirst', 'listComplete'].map((k) => TL.murk[k]), ["It's in the mist. Go and look.", 'That one had a name before you met it.',
+      "Her. You brought me her. Sit down, I'll count it twice.", "Every fish in this water. I'll write that down."]), "T118: Murk's four new lines are SPEC §8.6's strings exactly");
+    ok4([...ids.map((id) => TL.maps[id]), TL.shelf.heartmoss, TL.murk.firstMap, TL.murk.firstGiant, TL.murk.legendFirst, TL.murk.listComplete, TL.tabs.giants].every((t) => !/\d/.test(t)), 'T118: no new line carries a digit');
+    const strings = []; const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) walk(x); };
+    walk(TL); walk(LP);
+    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP');
+    ok4(LP.redress === false && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
+      'T118: LOOP.redress is false (no ?redress), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
   }
   // the five Wicks (WICKS §2, §3.5, §5; T72)
   const W = LP.wicks, ids = L4.CHARACTERS.map((c) => c.id);

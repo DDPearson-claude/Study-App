@@ -417,9 +417,14 @@ section('fishing: the hours (T15), the counters (T55), no giant water (T30)');
   const W = tripEnv();
   const G = DV3.RAFT_FALLBACK_V3?.mossmere?.giants || [];
   ok(G.length > 0 && G.every((g) => W.F.waterAt({ x: g.x, z: g.z })?.giant === false), 'T30: no giant water at the old stopgap centres');
-  let pts = 0;
-  for (let i = 0; i < 20; i++) { const a = i * 2.39996, r = 6 + 40 * ((i * 0.618) % 1); const w = W.F.waterAt({ x: Math.cos(a) * r, z: Math.sin(a) * r }); if (w?.giant === false && w.waterKey === OPEN && w.placeId === null) pts++; }
-  eq(pts, 20, 'T30: 20 open-water points: no giant, the open key');
+  // (M1 step 3a's seam: the four places are in the arena under the loop, so a point inside one keeps that place's key; no giant water)
+  let pts = 0, inPlace = 0;
+  for (let i = 0; i < 20; i++) {
+    const a = i * 2.39996, r = 6 + 40 * ((i * 0.618) % 1), x = Math.cos(a) * r, z = Math.sin(a) * r, w = W.F.waterAt({ x, z }), pl = D.placeAtV3('mossmere', x, z);
+    if (pl) inPlace++;
+    if (w?.giant === false && (pl ? w.waterKey === pl.id && w.placeId === pl.id : w.waterKey === OPEN && w.placeId === null)) pts++;
+  }
+  eq(pts, 20, `T30: 20 points: no giant water; the open key in open water (${20 - inPlace}), a place's own key inside it (${inPlace})`);
   const cap = D.BALANCE.size.classMaxZ.trophy;
   let worst = -9, elder = 0;
   for (const id of ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike']) {
@@ -461,7 +466,7 @@ section('the Wicks on the water: Taper (WICKS §2.2)');
   const pool = (phase, d) => D.SPECIES.filter((s) => s.zone === 'mossmere' && s.rarity !== 'legendary' && !s.bait && d >= (s.depth?.[0] ?? 0) && d <= (s.depth?.[1] ?? 1)
     && (s.time === 'calm' ? phase !== 'gloomtide' : s.time === 'gloom' ? phase === 'gloomtide' : true));
   const wait = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95].map((d) => ['gloomtide', d]).concat([0.05, 0.15, 0.25].map((d) => ['calm', d]))
-    .find(([ph, d]) => { const p = pool(ph, d), w = p.map((s) => D.RARITY_WEIGHTS[s.rarity]); return D.wickPoolWeights('taper', p, w, { firstBite: true, signRule: D.AUTOFISH.signRule }) === w && p.some((s) => s.rarity === 'common'); });
+    .find(([ph, d]) => { const p = pool(ph, d), w = p.map((s) => D.RARITY_WEIGHTS[s.rarity] ?? 10); return D.wickPoolWeights('taper', p, w, { firstBite: true, signRule: D.AUTOFISH.signRule }) === w && p.some((s) => s.rarity === 'common'); });
   if (wait) {
     const N = tripEnv({ wick: 'taper', phase: wait[0] }); N.ctx._depth = wait[1];
     let c = 0, sp = 0;

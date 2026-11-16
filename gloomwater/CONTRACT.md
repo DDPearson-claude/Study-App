@@ -1712,7 +1712,7 @@ built (§14.0).
 | export | what |
 |---|---|
 | `LOOP_ENABLED`, `PARKED` | §14.0 |
-| `LOOP` | the tables (SPEC §3, §4): `value` (perZ 0.9, clamp 0.4–30, classBonus Trophy 1.25 · Elder 1.6, rarity 1 · 2.4 · 5.5 · 12, body √(L50/45) clamped 0.6–1.6, legendRematch 0.4), `priceFactor` (1), `hold` (start 3, max 8, shelfMax 5, the ladder 4–8 at 30 · 120 · 450 · 2,000 · 3,500 with its names), `water` (good bites day 2 · old 3 · night 2 · crown 2; open water one per slot + 1; quiet −0.15 a bite to −1.2, waits ×(1 + 0.3·over) to ×2.2), `letGo` (+0.2 to +0.4, the bite back), `evening` (day 40, dusk 20, night `null` = no end, never read through `num()`; nightLook 90), `hours` (the roster's hour strings only), `tackle` (price per tier 0 · 50 · 300 · 1,200 · 6,000 · 32,000 · 100,000; T5–T6 Hold and names; `shelfAt`), `access` (v8: `gear`, `list`, `pull`; inert in 1a), `waters` (the Mossmere: order 1, tier 7, place prices, crown 500), `time` (the sim's trip legs; `show` 0), `wicks` (§14.8), `tutorial` (§14.8) |
+| `LOOP` | the tables (SPEC §3, §4): `value` (perZ 0.9, clamp 0.4–30, classBonus Trophy 1.25 · Elder 1.6, rarity 1 · 2.4 · 5.5 · 12, body √(L50/45) clamped 0.6–1.6, legendRematch 0.4), `priceFactor` (1), `hold` (start 3, max 8, shelfMax 6 (1a: 5; M1 step 3a: Hold 6, §14.11), the ladder 4–8 at 30 · 120 · 450 · 2,000 · 3,500 with its names), `water` (good bites day 2 · old 3 · night 2 · crown 2; open water one per slot + 1; quiet −0.15 a bite to −1.2, waits ×(1 + 0.3·over) to ×2.2), `letGo` (+0.2 to +0.4, the bite back), `evening` (day 40, dusk 20, night `null` = no end, never read through `num()`; nightLook 90), `hours` (the roster's hour strings only), `tackle` (price per tier 0 · 50 · 300 · 1,200 · 6,000 · 32,000 · 100,000; T5–T6 Hold and names; `shelfAt`), `access` (v8: `gear`, `list`, `pull`; inert in 1a), `waters` (the Mossmere: order 1, tier 7, place prices, crown 500), `time` (the sim's trip legs; `show` 0), `wicks` (§14.8), `tutorial` (§14.8) |
 | `TEXT_LOOP` | every word the loop shows (SPEC §8; the opening's are §8.5's table); `TEXT.loop === TEXT_LOOP` under the loop. `settings` is `{label: 'Settings', ringFirst, hurry}` |
 | `fishClams(sp, z, {zone, tier})` | SPEC §4.1 on the built size model: `max(1, round(tier × rarity × body(L50) × clamp(e^(0.9·z)) × classBonus × priceFactor))`; a legend → `null` |
 | `loopWaterKey(placeId, zoneId)` | the bite-count key: a place's id, or `open:<zoneId>` |
@@ -1923,3 +1923,75 @@ progression on the loop's data: the hold, keep, let go, quiet water, the tally p
 the parked systems, the counters and WICKS' T76–T80), with lanes B's and C's loop tests. `tools/tests/loop-fixture.mjs` is the shared
 fixture (`loadLoopData`, `freshLoopMeta`, `tripRun`, `fakeLoop`). The economy is `node tools/sim/clams.mjs` (it reads `data.LOOP`'s
 moved tables and `data.quietTerms`, and fails if a moved key is drafted again, T42); M1's gate is `clams.mjs --shipped=mossmere --step=1`.
+
+### 14.11 M1 step 3a's seam: the places, the giants, the legend, the catalogue (`docs/loop/m1-step3a/PLAN.md` §2.0, §3)
+
+The seam commit's names, so lanes B, C and D code against names that exist (PLAN §3's stub rule: data and pure helpers are imported
+directly; a neighbour's runtime object is read through optional chaining, an absent one meaning the built behaviour).
+
+**data.js** (always exported; read by built code only under the loop):
+
+| export | what |
+|---|---|
+| `LOOP.places` | the Mossmere's four in the Chart's order, `{water, kind, price, card, giant?, own?, draws?, legend?}`: `lily_maze` (day, 60, the Candlefin Koi; draws koi ×3, carp ×1.5), `under_the_span` (old, 150, the Thousandcast Pike, its giant; its own the Bridgechain), `buoy_lights` (night, 260, the Hullkiss Lamprey, its giant), `bell_pool` (crown, 500, the Belled Matriarch, its legend). Never `LOOP.waters[w].places` (a lake map's, migrateLoop rule 5) |
+| `LOOP.place` | the place pool's weights (the sim's): `common` 0.5, `dayDraw` 1.5, `kindWeight` 2.5, `kept {weight 3, live 0.5}`, `favour {base 0.15, window {day 0.4, old 0.4, night 0.3, crown 0.2}}` |
+| `LOOP.giant` | `share {inHour 0.06, offHour 0.025}`, `favour` 0.3, `minZ` −0.25, `fight` 10, `elderFight` 2, `markedHold` 6 |
+| `LOOP.legendBait`, `LOOP.lift`, `LOOP.giantBack`, `LOOP.mist`, `LOOP.redress` | `{mossmere: {id: 'heartmoss', price: 60}}`; `{thin 3, title 1.2, back 0.6}` s; `{every [25, 45], dur 2, phases ['gloomtide'], places [under_the_span, buoy_lights]}`; `{inside 0.35, ease 0.8}` (a bank's whole opacity while the raft is inside it); `LOOP_ENABLED && GW_REDRESS === true` (false unless `?redress=1`) |
+| `LOOP.hold.shelfMax`, `LOOP.species.mossmere`, `LOOP.kept` | 6 (Hold 6, the Wellbox, 450); the open water's twelve (+ the Kissmark Trout); + `bridgechain_sturgeon` |
+| `TEXT_LOOP` | + `maps.{lily_maze, under_the_span, buoy_lights, bell_pool}` (SPEC §5.2's lines), `shelf.heartmoss`, `comingSoon`, `murk.{firstMap, firstGiant, legendFirst, listComplete}` (SPEC §8.6's strings), `tabs.giants` (the ★ tab's accessible name) |
+| `LOOP_PLACE_KEYS` | the fields a loop place keeps of its `MOSSMERE_V3` record: `id name x z access stand water landmark look build` |
+| `loopPlace(id)` | `LOOP.places[id]` over its `MOSSMERE_V3` record, a fresh object: the geometry fields, `area` (the record's `water` footprint), `zone` and `water` (the water's id), and LOOP's fields; `null` for an unknown id |
+| `loopPlaceIds(waterId = 'mossmere')` | the water's places in the Chart's order |
+| `loopHours(sp)` | a species' window in the sim's words (`['day', 'dusk']` …): a roster `time` by `HOUR_WINDOWS`, a built one (calm, gloom, dawn) by the built words |
+| `giantShare(sp, phase, wickId)` | inHour in its hours, offHour outside; a Wick's `giantShare` (Taper ×1.3) never above its `giantCap` (0.12) |
+| `placePool(species, {placeId, phase, bait, wickId, water})` | the sim's pool rule (the fixed `poolFor`) on the game's records: `{list: [[sp, w]] (every fish but the giant), giant: {sp, share, weight} \| null, tot, place}`; a night place before `gloomtide` is open water |
+| `ROSTER_ART` | + the Thousandcast Pike (`bars: 'upright', eyeRim: 'amber'`), the Hullkiss Lamprey (`mouth: 'disc', teeth: 'amber', gills: 7, gillGlow`), the Kissmark Trout (`fattyFin, jaw: 'plain', spots: 'stars', scar`), each in its `model`; `bridgechain_sturgeon.model` `{scutes: 'rust', snout: 'shovel'}`, merged over its built model under the loop |
+| `LOOP_BODY_K` | + `lamprey` 0.0022 |
+
+The apply block, under `if (LOOP_ENABLED)` only: `SPECIES_LOOP` is the twelve, then each place's own fish and giant (the Bridgechain
+lifted, its `weather` dropped; the Thousandcast and the Hullkiss, epic, `giant: true`, `place` from the converter's `placeIdOf`); the
+Gloam Eel's SPECIES record is a copy in its slot with `kind: 'night'`; `FISH_SHAPES` += `lamprey`, `sturgeon`, `trout`;
+`CATCH_V3.rarity.epic = rare + LOOP.giant.fight − CATCH_V3.kept` (a giant is not a place-kept fish: its net Fight is the sim's rare +
+10) and `elderRarity.epic = rare's + elderFight`; `AUTOFISH.show.poseRules.thin` += `lamprey`; `ZONES[0].arena.places` (and so
+`PLACES`, `PLACE_BY_ID`) are the four through `LOOP_PLACE_KEYS` plus `kind` and `zone`: no `rule`, `attract`, `maxClass`,
+`holdsGiants`, `giantsKept`, `reveal`, `tally` or `tallyAt` reaches a built reader. `BAITS`' Heartmoss Ball keeps its built price.
+
+**core.js**: `resolveRedressFlag({preset, search}) → {on, source, apply}`, `applyRedressFlag(g)` (a page only: `?redress=1` writes
+`GW_REDRESS = true`), `REDRESS_FLAGS` (declared beside `LOOP_FLAGS`, before data.js evaluates).
+
+**roster-species.js**: `placeIdOf(name)`; a rare giant's record carries `place`. **roster-shipped.js**: + `kissmark_trout`,
+`thousandcast_pike`, `hullkiss_lamprey` (`tools/roster-export.mjs` `SHIPPED`).
+
+**progression-loop.js** (pure): `listFor` (a fish of a place, or of a non-open `kind`, counts only when its water's lake map opens that
+place or kind: the Mossmere's list is its twelve) · `mapCards(D, metaLoop, {meta}) → [{id: 'place:<id>', placeId, kind, price, fish,
+line, hours}, …(≤ 2), {id: 'lake:<id>', waterId, sealed, price, seals}]` · `sealsOf(meta, D, waterId = 'sporewood') → {map: {held,
+price, shipped}, gear: {held, slot, tier, item}, catch: {held, have, need}}` (a superset of 3b's `chartNext` seals) · `liftDue(D,
+metaLoop) → placeId[]` (owned, not lifted, in price order) · `catalogueFor(meta, D, waterId) → {head: {waterId, name, have, need,
+seals | null}, list: Entry[], groups: [{placeId, kind, owned, name | null, entries}], finds: null}`, Entry `{id, caught, giant, legend,
+hours: ('sun' | 'dusk' | 'moon')[], place: 'open' | 'day' | 'old' | 'night' | 'crown' | null, bait}` (never a number).
+
+**`ctx.progression.loop`** (`LOOP_METHODS` += these): `fit(slot, id) → {ok}` · `fitted() → {lure, bait}` · `spendBait(id) → bool` ·
+`refundBait(id) → bool` · `liftDue() → string[]` · `markLifted(id)` · `lifted() → string[]` · `markGiant(id)` · `takeGiantMark(id) →
+bool` · `noteBest(fish, key)` · `setPick({water, place})` · `pick() → {water, place} | null` · `mapCards()` · `seals(waterId)` ·
+`catalogue(waterId)`. In the seam commit the reads are real (`fitted`, `liftDue`, `lifted`, `pick`, `mapCards`, `seals`,
+`catalogue`) and the writers inert stubs (`fit` and `setPick` `{ok: false}`, the rest `false`); the ledger's delivery makes them real.
+
+**The save** (`LOOP_SCHEMA` stays 3; the fill gives every block the new keys): `meta.loop.lifted: []` (place ids whose lift has played),
+`best: {}` (`<placeId | open:<water>>` → `{speciesId, length}`, never a weight), `chartPick: null` (`{water, place}` once picked; filled
+as `null`, never an object, and a non-object is read as `null`). `maps.places`, `bait.mossmere.heartmoss`, `fitted.bait`,
+`giants[id].marked` and `said` are 1a's fields, now used. `tools/tests/fixtures/loop-save-m1s2.json` is the step-2 save every 3a save
+test opens.
+
+**Events and APIs** (PLAN §3.4): `place:lift {placeId, phase: 'start' | 'title' | 'end', name}` (B) · `fishing:mist {placeId}` (B) ·
+`world:giantBack {placeId, x, z}` (D) · `chart:pick {water, place}` (C) · `loop:fit {slot, id}` (A) · `loop:buy` items `place:<id>`,
+`hold:6`, `bait:heartmoss` · `loop:seal {seal: 'catch'}` (C) · `world.setPlaces({lifted, owned})`, `world.liftMist(id, s) → bool`,
+`world.placeAnchor(id) → {x, y, z}` (D) · `render.frameLandmark(p, {dur, back}) → bool` (D) · `game.sail({water, place})`,
+`game.lifting() → placeId | null` (B) · `ui.loop.openShelf({tab, focus})`, `screens.openJournal({from: 'chart', zone})` (C) ·
+`ctx.debug.ui.chartList(on)`, `ctx.debug.ui.hatchProbe(id, w, h)` (C) · `ctx.debug.world.places()` (D).
+
+**The sim** (`tools/sim/clams.mjs`): `poolFor` gives a giant at its place its share whatever the hour (its offHour share outside its
+hours; PLAN CHOICE 27), and `data.placePool` is the same rule; its data check compares `SPECIES_LOOP`'s fifteen with its own table.
+
+**The fixture** (`tools/tests/loop-fixture.mjs`): `placesMeta(D, {own, lifted, balls, holdSlots, tackle, caught})`; `fakeLoop` carries
+every new method on its own state (`fitted`, `bag`, `lifted`, `marked`, `best`, `chartPick`; `mapCards`, `seals`, `catalogue` through
+the real pure functions).

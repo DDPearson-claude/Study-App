@@ -459,11 +459,15 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   if (cache.has(key)) return cache.get(key);
   const P = placeId ? PLACE[placeId] : null, list = []; let giant = null;
   for (const s of WATER[water].species) {
-    if (s.legend || s.never || !s.hours.includes(phase)) continue;
+    if (s.legend || s.never) continue;
     if (s.bait && s.bait !== bait) continue;
-    let w;
+    // M1 step 3a's seam (PLAN CHOICE 27): a giant at its place reaches the giant branch whatever the hour (its offHour share outside its
+    // hours, SPEC decision 7: "more in its hour, never none"); the hours filter applies to the rest. Before, the hours ran first, so a
+    // giant had no share outside its hours (the Thousandcast none by day). data.placePool is the same rule on the game's records.
     if (s.giant) { if (P && s.placeId === P.id) giant = s; continue; }
-    else if (s.ownPlace) { if (!P || s.ownPlace !== P.id) continue; w = (RW.rare ?? 6) * LOOP.kept.weight * LOOP.kept.live; }
+    if (!s.hours.includes(phase)) continue;
+    let w;
+    if (s.ownPlace) { if (!P || s.ownPlace !== P.id) continue; w = (RW.rare ?? 6) * LOOP.kept.weight * LOOP.kept.live; }
     else if (s.kind !== 'open') { if (!P || P.kind !== s.kind) continue; w = (RW[s.rarity] ?? 6) * (s.rarity === 'common' ? LOOP.placeCommon : LOOP.kindWeight); }
     else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? LOOP.dayDraw : 1)) * (P && s.rarity === 'common' ? LOOP.placeCommon : 1);
     if (s.bestNight && phase === 'night') w *= 1.5;
@@ -1071,20 +1075,22 @@ const sg = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
     if (clamsFor(like, zz) !== D.fishClams(s, zz)) off.push(`${s.id} z ${zz}: ${clamsFor(like, zz)} vs ${D.fishClams(s, zz)}`);
   }
   check(built.length >= 6 && !off.length, `the sim's clamsFor equals data.fishClams for all ${built.length} built Mossmere species on their L50 (data.sizeL50: the roster's from M1 step 2), at six sizes${off.length ? `: ${off.slice(0, 4).join('; ')}` : ''}`);
-  // M1 step 2 (SPEC §13): the converter's output (data.js SPECIES_LOOP, the game's) equals the sim's species table for the 11
+  // M1 steps 2 and 3a (SPEC §13): the converter's output (data.js SPECIES_LOOP, the game's) equals the sim's species table for every fish
+  // it ships: the open water's twelve, then the places' own fish and giants (15; the Gloam Eel and the Matriarch stay built records)
   {
-    const sim = step2Pool(), game = D.SPECIES_LOOP, G = Object.fromEntries(game.map((g) => [g.id, g])), bad = [];
+    const sim = MW.species.filter((s) => !s.legend && !s.never && (s.kind === 'open' || s.ownPlace || s.giant)), game = D.SPECIES_LOOP, G = Object.fromEntries(game.map((g) => [g.id, g])), bad = [];
     const win = (g) => RS.HOUR_WINDOWS[g.time] || BUILT_TIME[g.time] || HOURS.any;
     for (const s of sim) {
       const g = G[s.id];
       if (!g) { bad.push(`${s.id} not in SPECIES_LOOP`); continue; }
       const diffs = [['rarity', s.rarity, g.rarity], ['style', s.style, g.style], ['family', s.family, g.family], ['L50', s.L50, D.sizeL50(g, 'mossmere')],
-        ['hours', JSON.stringify(s.hours), JSON.stringify(win(g))], ['bait', s.bait ?? null, g.bait ?? null]].filter(([, a, b]) => a !== b);
+        ['hours', JSON.stringify(s.hours), JSON.stringify(win(g))], ['bait', s.bait ?? null, g.bait ?? null], ['giant', !!s.giant, !!g.giant],
+        ['place', s.placeId || s.ownPlace || null, g.place || null]].filter(([, a, b]) => a !== b);
       for (const zz of [-1.2, 0, 0.4, 1.4, 2.2, 2.95]) if (clamsFor(s, zz) !== D.fishClams(g, zz)) diffs.push([`clams z ${zz}`, clamsFor(s, zz), D.fishClams(g, zz)]);
       if (diffs.length) bad.push(`${s.id}: ${diffs.map(([k, a, b]) => `${k} ${a} vs ${b}`).join(', ')}`);
     }
     const same = sim.length === game.length && sim.every((s) => G[s.id]);
-    check(same && !bad.length && game.length === 11, `M1 step 2: the converter's output (data.js SPECIES_LOOP, ${game.length} fish) equals the sim's species table for the Mossmere's ${sim.length} (rarity, style, family, L50, hours, bait, clams at six sizes)${bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''}${same ? '' : ` (sim: ${sim.map((s) => s.id).join(', ')})`}`);
+    check(same && !bad.length && game.length === 15, `M1 steps 2 and 3a: the converter's output (data.js SPECIES_LOOP, ${game.length} fish) equals the sim's species table for the Mossmere's ${sim.length} (rarity, style, family, L50, hours, bait, giant, place, clams at six sizes)${bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''}${same ? '' : ` (sim: ${sim.map((s) => s.id).join(', ')})`}`);
   }
   const wk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, LOOP.wicks[w]]))), dk = JSON.stringify(Object.fromEntries(WICK_IDS.map((w) => [w, D.LOOP.wicks[w]])));
   check(wk === dk && JSON.stringify(LOOP.wicks.order) === JSON.stringify(D.LOOP.wicks.order), "the sim's Wick table is data.LOOP.wicks (the balancing job's values, as ruled)");

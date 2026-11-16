@@ -610,16 +610,16 @@ section('the list counts the shared Journal (T82)');
   meta.journal = { candlefin_koi: { caught: 0, seen: true }, reedjaw_pike: { caught: 0 } };
   const env = makeEnv({ meta });
   startTrip(env);
-  eq(env.L.listCount('mossmere'), { have: 0, need: 11 }, 'T82: Glimpsed and caught-0 entries do not count');
+  eq(env.L.listCount('mossmere'), { have: 0, need: 12 }, 'T82: Glimpsed and caught-0 entries do not count');
   env.P.fishAction(land(env, 'dusk_minnow', 0), 'letgo');
   env.P.fishAction(land(env, 'gutter_crayfish', 0), 'keep');
-  eq(env.L.listCount('mossmere'), { have: 2, need: 11 }, 'T82: a fish let go counts (its measure writes the entry), as a kept one');
+  eq(env.L.listCount('mossmere'), { have: 2, need: 12 }, 'T82: a fish let go counts (its measure writes the entry), as a kept one');
   const old = freshLoopMeta(D);
   old.journal = Object.fromEntries(PL.listFor(D, 'mossmere').map((id) => [id, { caught: 3 }]));
-  eq(makeEnv({ meta: old }).L.listCount('mossmere'), { have: 11, need: 11 }, "T82: a save that landed the eleven opens at 11/11 (M1 step 2)");
+  eq(makeEnv({ meta: old }).L.listCount('mossmere'), { have: 12, need: 12 }, "T82: a save that landed the twelve opens at 12/12 (M1 step 3a)");
   const six = freshLoopMeta(D);
   six.journal = Object.fromEntries(['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike'].map((id) => [id, { caught: 3 }]));
-  eq(makeEnv({ meta: six }).L.listCount('mossmere'), { have: 6, need: 11 }, "T82: a step-1 save that landed the six built fish opens at 6/11 (its catches count)");
+  eq(makeEnv({ meta: six }).L.listCount('mossmere'), { have: 6, need: 12 }, "T82: a step-1 save that landed the six built fish opens at 6/12 (its catches count)");
   eq(env.ctx.errors, [], 'no errors');
 }
 
@@ -634,6 +634,37 @@ section('the flag-off boot rule from a real trip save (T35)');
   const save = clone(env.lastSave());
   const res = sellStrandedTrip(save);
   ok(res.sold && save.run === null && save.meta.loop.clams === a.clams && save.meta.loop.lastTrip.lines.length === 1, 'T35: sold at the stamped price; the open card is not sold');
+}
+
+// =====================================================================================
+section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, the new keys, the pure helpers through the ledger');
+{
+  const fs = await import('node:fs');
+  const raw = JSON.parse(fs.readFileSync(new URL('./fixtures/loop-save-m1s2.json', import.meta.url), 'utf8'));
+  const before = clone(raw.meta.loop);
+  migrateSaveModule(raw, D);
+  const { meta } = normalizeSave(raw);
+  const env = makeEnv({ meta }), L = env.L.state();
+  const keep = ['clams', 'tackle', 'holdSlots', 'evenings', 'said', 'firsts', 'lastTrip', 'maps', 'v'];
+  eq(keep.map((k) => L[k]), keep.map((k) => before[k]), 'T117: the step-2 save opens with its clams, tackle, hold, evenings, said, firsts, lastTrip and maps as saved, v 3');
+  eq([L.lifted, L.best, L.chartPick], [[], {}, null], 'T117: lifted [], best {}, chartPick null (never an object)');
+  ok(L.clams === 412 && L.holdSlots === 5 && env.L.listCount('mossmere').have === 8 && env.L.listCount('mossmere').need === 12, 'T117: 412 clams, Hold 5, eight of the twelve caught');
+  const again = clone(meta.loop); PL.migrateLoop(meta, D);
+  eq(meta.loop, again, 'T117: a second migrateLoop changes nothing');
+  eq(env.L.liftDue(), [], 'no place owned: nothing to lift');
+  eq(env.L.mapCards().map((c) => c.id), ['place:lily_maze', 'place:under_the_span', 'lake:sporewood'], 'mapCards: the two cheapest place maps, then Sporewood\'s sealed card');
+  const sw = env.L.mapCards()[2];
+  ok(sw.sealed === true && sw.price === null && sw.seals.gear.held === true && sw.seals.catch.have === 8 && sw.seals.map.shipped === false, "Sporewood's card: sealed, no price; Rod T1 held, 8 of 12");
+  eq(env.L.seals(), sw.seals, 'seals(): the next water\'s three keys');
+  const cat = env.L.catalogue('mossmere');
+  ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds === null, 'catalogue: the twelve, then the three places with fish');
+  ok(env.L.fitted().bait === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: nothing fitted, no pick, nothing lifted');
+  ok(env.L.fit('bait', 'heartmoss').ok === false && env.L.setPick({ water: 'mossmere', place: null }).ok === false && env.L.markLifted('lily_maze') === false
+    && env.L.spendBait('heartmoss') === false && env.L.takeGiantMark('thousandcast_pike') === false, 'the seam\'s writers are inert stubs (real in the ledger\'s delivery)');
+  meta.loop.chartPick = { water: 'mossmere', place: 'lily_maze' };   // 3b's direct write of the same shape
+  eq(env.L.pick(), { water: 'mossmere', place: 'lily_maze' }, 'pick() reads a chartPick written directly');
+  meta.loop.maps.places = ['bell_pool', 'lily_maze'];
+  eq(env.L.liftDue(), ['lily_maze', 'bell_pool'], 'liftDue: owned and not lifted, in price order');
 }
 
 console.log(`\nloop-trip: ${pass} passed, ${fail} failed`);

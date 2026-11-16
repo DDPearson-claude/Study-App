@@ -8,6 +8,7 @@
 //   hourKey(hours) · HOUR_WINDOWS         the roster's hour strings as LOOP.hours keys, and each one's window in the sim's words
 //   styleOf(fish, legendStyle) · baitsOf(favours, items)   the play's style word; the tins a fish favours (and its one bait, if any)
 //   rosterItemNames(D)                    the item names the favours text is read against: LURES, BAITS and the roster's own tins
+//   placeIdOf(name)                       a roster place name as its place id ("Under the Span" → under_the_span; M1 step 3a)
 //
 // The allow-list (SPEC §13, the names rule of §0 row 17): only the fields below are ever copied out of docs/loop/roster.json. Every
 // research field stays in docs/; validate-data fails if one of them (as a word), an episode title or a research name appears anywhere
@@ -54,6 +55,11 @@ export const ROSTER_EXTRA_ITEMS = Object.freeze([['cut_strip', 'Cut Strip'], ['f
 export function rosterItemNames(D) {
   return [...(D?.LURES || []).map((l) => [l.id, l.name]), ...(D?.BAITS || []).map((b) => [b.id, b.name]), ...ROSTER_EXTRA_ITEMS];
 }
+/** M1 step 3a: a roster place name as its place id (the sim's slug: "the" dropped, lower case, words joined by "_"):
+ *  "Under the Span" → under_the_span, "the Buoy Lights" → buoy_lights. A giant's `placeName` becomes its record's `place`. */
+export function placeIdOf(name) {
+  return String(name ?? '').replace(/^the /i, '').toLowerCase().replace(/'s\b/g, 's').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
 /** The water a roster water name means: a built lake's id (roster.waters[].existingLake), else the name as a slug. */
 export function waterIdsOf(roster) {
   const out = {};
@@ -73,7 +79,8 @@ const clone = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
  *   ids         only these fish (default all) · waters: only these zone ids (default all)
  * Returns game species records: a re-founded built species (its id in `built`) keeps its built record (model, lore, hint, set pieces)
  * and takes the roster's rarity, size, style, hours, family and the loop's any depth; a new fish is built from the roster's words and
- * its `art`. Every record carries {roster: true, bodyPlan, baits, bait, time, bestNight, kind, giant}; nothing research-only is copied.
+ * its `art`. Every record carries {roster: true, bodyPlan, baits, bait, time, bestNight, kind, giant}; a rare giant (epic, `giant`, its
+ * `placeName`) also its `place` (placeIdOf: where it bites, M1 step 3a); nothing research-only is copied.
  * A fish whose body has no k (its plan not built yet) comes back with `size.k` undefined: the caller ships only fish whose plan exists.
  */
 export function rosterSpecies(roster, built = [], opts = {}) {
@@ -95,6 +102,7 @@ export function rosterSpecies(roster, built = [], opts = {}) {
       if (wantW && !wantW.has(zone)) continue;
       const common = { rarity: f.rarity, size: clone(size), style, behavior: style, time, bestNight, depth: [0, 1], family: f.family,
         bodyPlan: f.bodyPlan, baits: baits.slice(), bait, kind: f.place, giant: !!f.giant, roster: true };
+      if (f.giant && !legend && f.placeName) common.place = placeIdOf(f.placeName);
       if (zones.length > 1) common.zones = zones.slice();
       if (b) {
         const s = clone(b);
