@@ -6,6 +6,8 @@
 //   node tools/world-map/build.mjs --no-shots   skip the Playwright renders
 //   node tools/world-map/build.mjs --bake-only  bake and report, write no page
 //   node tools/world-map/road.mjs               only the route rule on canon.mjs's courses (no bake, a second)
+//   node tools/world-map/build.mjs --game [--sheets=1] [--spike]
+//                                               the game export: the shipped sheets into src/chart-art.js (game.mjs)
 //
 // Reads tools/world-map/canon.mjs (the world as data, from docs/loop/WORLD.md and LORE.md) and writes,
 // all under tools/out/world/ (untracked):
@@ -136,6 +138,14 @@ const t0 = Date.now();
 if (!reportRoad(checkRoad(canonLegs(), { reach: 6, stated: true }), 'the route rule (WORLD.md §6.1), on the canon courses', log)) {
   console.error('the build stops: the Lamp Road in canon.mjs breaks the route rule');
   process.exit(1);
+}
+// the game export (docs/loop/M1.md §3.7): the shipped sheets' crops and live data into src/chart-art.js, and nothing else
+if (args.has('--game')) {
+  const { gameExport } = await import('./game.mjs');
+  const res = await gameExport({ chromium, args, log });
+  log(`done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+  if (!res.ok) { console.error('the game export stops: ' + (res.error || 'a check failed')); process.exit(1); }
+  process.exit(failures.length ? 1 : 0);
 }
 if (!args.has('--page') || !fs.existsSync(path.join(cacheDir, 'data.json'))) await bake();
 // and then on the road as the chart draws it (the meandered rivers, the finished coast): no page is written
