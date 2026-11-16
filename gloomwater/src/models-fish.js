@@ -638,7 +638,14 @@ LOOP_SHAPES.catfish = function catfish(M) {
   }, M);
   const f = r.f;
   const n = Number.isFinite(M.whiskers) ? M.whiskers : 2;
-  if (n >= 2) r.extras.push(...barbels(f, M, 0.42, 0.012));   // the two long whiskers from the mouth's corners, trailing back
+  if (n >= 2) {   // the two long whiskers from the mouth's corners, swept out and trailing back along her flanks like bell-ropes
+    const wc = C(hexColor(M.fin, 0x333333)).multiplyScalar(0.85);
+    for (const side of [1, -1]) {
+      const s0 = 0.025, x0 = side * f.w(s0) * 0.92, y0 = f.yc(s0) - f.hb(s0) * 0.25, z0 = 0.5 - s0;
+      const pts = bezierPts([[x0, y0, z0], [x0 + side * 0.07, y0 - 0.02, z0 - 0.06], [x0 + side * 0.11, y0 - 0.06, z0 - 0.2], [x0 + side * 0.09, y0 - 0.1, z0 - 0.4]], 14);
+      r.extras.push(paint(tube(pts, (u) => 0.007 * (1 - u * 0.85) + 0.0012, 4), wc));
+    }
+  }
   r.extras.push(...barbels(f, M, 0.06, 0.03), ...barbels(f, M, 0.05, 0.045));   // four short chin barbels
   // the mouth: a wide dark seam across the flat snout
   r.extras.push(paint(tube(bezierPts([[-f.w(0.02) * 0.95, f.yc(0.02) - 0.004, 0.49], [0, f.yc(0.0) - 0.012, 0.503], [f.w(0.02) * 0.95, f.yc(0.02) - 0.004, 0.49]], 10), 0.0035, 4), 0x0a0806));
