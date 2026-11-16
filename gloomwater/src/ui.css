@@ -2618,10 +2618,12 @@
 .gw-loop-on .gw-cc-giant .gw-catch-name { color: #f3dca8; }
 /* the catalogue (SPEC §8.8): the head stays, the list's twelve notched, the rule, the places' groups, Odds › at the foot */
 .gw-loop-on .gw-p-catalogue .gw-pc { display: flex; flex-direction: column; min-height: 0; }
-.gw-loop-on .gw-cat-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(174, 172, 208, .26) transparent; padding: 0 4px 10px; }
+.gw-loop-on .gw-cat-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(174, 172, 208, .26) transparent; padding: 0 4px 10px;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 22px), transparent); mask: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 22px), transparent); }
 .gw-loop-on .gw-cat-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 4px 18px; flex-wrap: wrap; padding: 4px 10px 12px; }
-.gw-loop-on .gw-cat-head::before { content: ''; position: absolute; inset: -6px -10% -4px; z-index: -1; pointer-events: none;
-  background: radial-gradient(ellipse 50% 60% at 50% 40%, rgba(var(--veil-rgb), .97), rgba(var(--veil-rgb), .9) 62%, rgba(var(--veil-rgb), 0) 100%); }
+.gw-loop-on .gw-cat-head::before { content: ''; position: absolute; inset: -6px -4px -6px; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(var(--veil-rgb), .97) 72%, rgba(var(--veil-rgb), 0));
+  -webkit-mask: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); mask: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
 .gw-loop-on .gw-cat-water { font: 400 24px/1.1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); text-shadow: var(--ink-shadow); }
 .gw-loop-on .gw-cat-count { font: 500 21px/1 var(--f-body); color: var(--ink-dim); }
 .gw-loop-on .gw-cat-seals { display: inline-flex; margin-left: 10px; }

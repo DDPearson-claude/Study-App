@@ -13,7 +13,7 @@ import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './u
 import { drawFishInk } from './ui-fishart.js';
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
-import { mapCards, sealsOf, listCount as listCountOf } from './progression-loop.js';
+import { mapCards, sealsOf } from './progression-loop.js';
 
 export { murkLineFor };
 
@@ -1208,7 +1208,7 @@ export function createLoopView(K) {
     }
     s.inked = true;
     list.appendChild(slots);
-    foot.appendChild(sailButton(entry, c, () => chartPickOf(entry, chartModelNow())));
+    foot.appendChild(sailButton(s, c, () => chartPickOf(entry, chartModelNow())));
     placeBaitSlot(pn, model, entry);
   }
   /** A place's row on the list (M1.md §3.6): an owned place (its kind glyph, its name, its giant's ★ once landed, its best fish there
@@ -1244,17 +1244,16 @@ export function createLoopView(K) {
     }
     return b;
   }
-  /** Sail (SPEC §5.4: one action): live from the first frame; it starts the trip at the chosen water and place (B's
-   *  game.sail({water, place}): the glide out heads for an owned place, PLAN CHOICE 7). */
-  function sailButton(entry, c, pick) {
+  /** Sail (SPEC §5.4: one action): live from the first frame; it starts the trip at the chosen water (and place: the dock nearest
+   *  it, SPEC §5.1 rule 10). */
+  function sailButton(s, c, pick) {
     const { btn } = parts();
-    const s = entry.state;
     const b = btn(TL().sail || 'Sail', { cls: `gw-btn--primary gw-chart-sail${c.sail ? ' gw-cue' : ''}`, action: 'sail', icon: 'flame', autofocus: true, disabled: s.sailing, onClick: () => {
       if (s.sailing) return;
       s.sailing = true;
       b.disabled = true;
       tut.onSail();
-      const p = pick() || {};
+      const p = pick();
       const ok = G('sail', { water: p.water || 'mossmere', place: p.place ?? null });
       if (ok === false || ok === null) { s.sailing = false; b.disabled = false; }
     } });

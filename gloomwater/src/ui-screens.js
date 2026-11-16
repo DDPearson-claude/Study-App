@@ -1821,6 +1821,7 @@ export function createScreens(K) {
     const sp = K.speciesData(o.speciesId);
     const zone = sp ? (sp.zone === COVE_ID || sp.cove ? COVE_ID : sp.zone || (arr(sp.zones)[0]) || null) : null;
     const st = { sel: sp?.id || null, section: o.section || 'odds', hl: o.sizeClass || null };
+    if (loopOn() && sp) Object.assign(st, { view: 'species', tab: 'water', big: null });   // (M1 step 3a: the catalogue's species page)
     if (zone) st.zone = zone;
     const open = K.entry?.('journal');
     if (open) { Object.assign(open.state, st); open.render(); return true; }
