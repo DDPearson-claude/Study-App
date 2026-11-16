@@ -10,6 +10,15 @@
 //   beginIntro(opts)         New Descent's Start: the Wick, then the film (main's startIntro) or the Jetty with no film
 //   canGoHome / goHome       the Home pill and the pause's Home
 //   skipHomeGlide()          a tap or a skip key: the running home glide ends at its end and what follows runs at once
+// M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 items 5–6, PLAN CHOICEs 7, 8, 24; T128, T129):
+//   the lift                 at a trip's start (never a Continue), each owned place whose mist has not lifted (loop.liftDue(), price
+//                            order) in turn: ctx.cinematic on, place:lift {placeId, phase: 'start', name}, world.liftMist(id, 3),
+//                            render.frameLandmark(landmark, {dur, back}); at 3 s {phase: 'title'}; at 4.2 s {phase: 'end'},
+//                            loop.markLifted(id), the places synced; cinematic off after the last. update(dt) runs its clock (main's
+//                            frame); skipLift() (a tap or a skip key) ends the running one at once; reduced motion skips the thinning
+//   the places               world.setPlaces({owned, lifted}) at run:start, home:enter and after a buy (loop:buy)
+//   sail({water, place})     the pick saved (loop.setPick); the glide out heads for an owned place's centre (sailPlan toward it);
+//                            with no `place` the Chart's saved pick of that water; open water keeps 1a's authored glide
 // Every neighbour is read through optional chaining (PLAN §3's stub rule): an absent one means the built behaviour, never a throw.
 import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath } from './loop-rules.js';
 
@@ -34,7 +43,14 @@ export function createLoopHome(deps) {
     const l = p.loop;
     return l && typeof l === 'object' && !l.isStub ? l : null;
   }
-  const S = { glide: null, sailing: false };   // never saved: a reload during a glide is a reload at the Jetty
+  const S = { glide: null, sailing: false, lift: null };   // never saved: a reload during a glide is a reload at the Jetty (a lift
+  // is marked only at its end, so a reload mid-lift plays it again on the next trip: T112)
+  const LIFT = { thin: numOr(LOOPD.lift?.thin, 3), title: numOr(LOOPD.lift?.title, 1.2), back: numOr(LOOPD.lift?.back, 0.6) };
+  const reducedMotion = typeof deps.reduced === 'function' ? deps.reduced : () => {
+    if (ctx.state?.meta?.settings?.reducedMotion === true) return true;
+    try { return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true; } catch { return false; }
+  };
+  const emit = (e, p) => { try { ctx.bus?.emit?.(e, p); } catch (err) { report(`emit ${e}`, err); } };
   /** The Jetty's dock (CHOICE 44: home is always docks[0]) as {position: {x, z}, yaw}, or null without a world. */
   function dockAt(i = 0) {
     const ds = safe(() => ctx.world?.getDocks?.(), null);
@@ -83,6 +99,92 @@ export function createLoopHome(deps) {
     return true;
   }
 
+  // ---------------------------------------------------------------- M1 step 3a: the places and their lift
+  /** A loop place ({id, name, x, z, landmark, area, kind, …}: data.loopPlace), or null. */
+  const placeOf = (id) => safe(() => data.loopPlace?.(id), null);
+  /** The ledger's places as plain arrays: {owned, lifted}. */
+  function placesNow() {
+    const L = loopApi();
+    const ml = safe(() => L?.state?.(), null);
+    const owned = Array.isArray(ml?.maps?.places) ? ml.maps.places.slice() : [];
+    const lf = safe(() => L?.lifted?.(), null);
+    const lifted = Array.isArray(lf) ? lf.slice() : Array.isArray(ml?.lifted) ? ml.lifted.slice() : [];
+    return { owned, lifted };
+  }
+  /** world.setPlaces({owned, lifted}): the banks over what is not lifted, each place's dressing lit once it is. */
+  function syncPlaces() {
+    const p = placesNow();
+    try { ctx.world?.setPlaces?.(p); } catch (e) { report('world.setPlaces', e); }
+    return p;
+  }
+  if (ctx.bus?.on) {
+    ctx.bus.on('run:start', () => syncPlaces());
+    ctx.bus.on('home:enter', () => { S.lift = null; syncPlaces(); });
+    ctx.bus.on('loop:buy', () => syncPlaces());
+  }
+  /** Where the lift's shot looks: world.placeAnchor(id), else the place's landmark, else its centre. */
+  function landmarkOf(id) {
+    const a = safe(() => ctx.world?.placeAnchor?.(id), null);
+    if (a && Number.isFinite(a.x) && Number.isFinite(a.z)) return { x: a.x, y: numOr(a.y, 0), z: a.z };
+    const p = placeOf(id), m = p?.landmark;
+    if (m && Number.isFinite(m.x)) return { x: m.x, y: numOr(m.y, 0), z: m.z };
+    return p && Number.isFinite(p.x) ? { x: p.x, y: 0, z: p.z } : null;
+  }
+  /** The lifts due at a trip's start (loop.liftDue(): owned, not lifted, in price order), one after another. → whether one began. */
+  function beginLifts(ids = null) {
+    if (ctx.flow !== 'playing' || ctx.state.run?.outing !== 'trip') return false;
+    const due = Array.isArray(ids) ? ids : safe(() => loopApi()?.liftDue?.(), []);
+    const q = (Array.isArray(due) ? due : []).filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i && !!placeOf(id));
+    if (!q.length) return false;
+    if (S.lift) { for (const id of q) if (S.lift.cur?.id !== id && !S.lift.queue.includes(id)) S.lift.queue.push(id); return true; }
+    S.lift = { queue: q, cur: null };
+    nextLift();
+    return true;
+  }
+  function nextLift() {
+    const L = S.lift;
+    const id = L?.queue.shift();
+    if (!id) { endLifts(); return; }
+    const reduced = reducedMotion() === true;
+    const c = { id, name: placeOf(id)?.name ?? id, t: 0, phase: 'start', thin: reduced ? 0 : LIFT.thin, reduced };
+    L.cur = c;
+    ctx.cinematic = false; ctx.cinematic = true;   // (each lift a fresh valve; the evening's clock stands still, T14's rule)
+    emit('place:lift', { placeId: id, phase: 'start', name: c.name });
+    try { ctx.world?.liftMist?.(id, c.thin); } catch (e) { report('world.liftMist', e); }
+    const p = landmarkOf(id);
+    if (p) { try { ctx.render?.frameLandmark?.(p, { dur: c.thin + LIFT.title, back: LIFT.back }); } catch (e) { report('render.frameLandmark', e); } }
+    if (c.thin <= 0) toTitle(c);   // reduced motion: no thinning, the title still shows
+  }
+  function toTitle(c) { c.phase = 'title'; emit('place:lift', { placeId: c.id, phase: 'title', name: c.name }); }
+  /** The running lift's end: {phase: 'end'}, markLifted (written only now: a reload mid-lift replays it), the places synced. */
+  function endLift(skipped = false) {
+    const c = S.lift?.cur;
+    if (!c) return;
+    S.lift.cur = null;
+    if (skipped) {   // a tap or a skip key: the bank gone at once and the camera back
+      try { ctx.world?.liftMist?.(c.id, 0); } catch (e) { report('world.liftMist', e); }
+      try { ctx.render?.frameLandmark?.(null, { back: LIFT.back }); } catch (e) { report('render.frameLandmark', e); }
+    }
+    c.phase = 'end';
+    emit('place:lift', { placeId: c.id, phase: 'end', name: c.name });
+    try { loopApi()?.markLifted?.(c.id); } catch (e) { report('loop.markLifted', e); }
+    syncPlaces();
+    if (S.lift?.queue.length) nextLift(); else endLifts();
+  }
+  function endLifts() { S.lift = null; ctx.cinematic = false; }
+  /** The lift's clock (main's frame, real seconds while the game runs). */
+  function update(dt) {
+    const c = S.lift?.cur;
+    if (!c) return;
+    if (ctx.flow !== 'playing' || !ctx.state.run) { S.lift = null; return; }   // (a lift never outlives its trip)
+    if (ctx.paused || !(dt > 0)) return;
+    c.t += Math.min(dt, 0.25);
+    if (c.phase === 'start' && c.t >= c.thin) toTitle(c);
+    if (c.phase === 'title' && c.t >= c.thin + LIFT.title) endLift(false);
+  }
+  /** A tap or a skip key during a lift: it ends at once (marked); the next due one follows. */
+  function skipLift() { if (!S.lift?.cur) return false; endLift(true); return true; }
+
   /** Flow `home`, the Jetty (PLAN §2.2 item 7). */
   function enterHome(from = 'title', tally = null) {
     const start = raftNow();
@@ -90,6 +192,7 @@ export function createLoopHome(deps) {
     ctx.state.run = null;
     ctx.paused = false;
     S.sailing = false;
+    S.lift = null;
     if (S.glide) { S.glide.over = true; S.glide = null; }
     closeScreens();
     const L = loopApi();
@@ -159,6 +262,7 @@ export function createLoopHome(deps) {
     // the player's run:start listener put the raft at the lake's spawn: back where the glide out ended, before any frame (R16)
     if (opts.at?.position) teleport(opts.at.position, opts.at.yaw);
     save();
+    beginLifts();   // M1 step 3a: the mist lifts over each place bought since the last evening (PLAN CHOICE 8)
     return true;
   }
 
@@ -206,8 +310,20 @@ export function createLoopHome(deps) {
     if (L?.tutorial?.()?.done !== true) { try { L?.tutorialDone?.(); } catch (e) { report('loop.tutorialDone', e); } }
     closeScreens();   // (a blocking Chart would freeze the glide, R17)
     if (ctx.flow !== 'home') { showLake(water); resetBeats(); ctx.state.run = null; ctx.paused = false; setFlow('home'); teleportHome(); }
+    // M1 step 3a (PLAN CHOICE 7): Sail toward a place. `place` given (a string, or null for open water) is saved as the pick; with no
+    // `place` the Chart's saved pick of this water is read. An owned place's glide heads for its centre (sailPlan toward it); open
+    // water keeps 1a's authored glide (T66)
+    const given = !!plan && typeof plan === 'object' && Object.prototype.hasOwnProperty.call(plan, 'place');
+    let place = given ? plan.place : null;
+    if (!given) { const pk = safe(() => L?.pick?.(), null); if (pk && pk.water === water) place = pk.place; }
+    if (typeof place !== 'string' || !place) place = null;
+    if (given) safe(() => L?.setPick?.({ water, place }), null);
+    const owned = !!place && (safe(() => L?.state?.()?.maps?.places, null) || []).includes(place);
+    const P = owned ? placeOf(place) : null;
     const dock = dockAt(), at = raftNow();
-    const g = data.sailPlan(dock ? dock.position : at, { x: 0, z: 0 }, TUT, water);
+    const g = P && Number.isFinite(P.x) ? data.sailPlan(dock ? dock.position : at, { x: P.x, z: P.z }, TUT, null)
+      : data.sailPlan(dock ? dock.position : at, { x: 0, z: 0 }, TUT, water);
+    S.sailPlace = P ? place : null;
     S.sailing = true;
     const go = () => {
       if (!S.sailing) return;
@@ -241,5 +357,15 @@ export function createLoopHome(deps) {
     /** A home glide is running: its kind ('home' | 'sailOut') or null. */
     gliding: () => (S.glide ? S.glide.kind : null),
     get sailing() { return S.sailing; },
+    // M1 step 3a
+    update, skipLift, syncPlaces, placesNow,
+    /** Play the lifts of these places now (a trip only; the debug hook's): → whether one began or was queued. */
+    beginLifts: (ids) => beginLifts(ids),
+    /** The place whose lift is playing, or null (game.lifting()). */
+    lifting: () => S.lift?.cur?.id ?? null,
+    /** The running lift's readout {placeId, phase, t, queue} (debug), or null. */
+    liftState: () => (S.lift?.cur ? { placeId: S.lift.cur.id, phase: S.lift.cur.phase, t: Math.round(S.lift.cur.t * 100) / 100, queue: S.lift.queue.slice() } : null),
+    /** The place the last Sail headed for (null: open water). */
+    get sailPlace() { return S.sailPlace ?? null; },
   };
 }

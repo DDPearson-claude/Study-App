@@ -265,6 +265,121 @@ section('the trip\'s ends and refusals (T31, T45, PLAN CHOICE 5)');
 }
 
 // =====================================================================================================================
+// M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 item 5, PLAN CHOICEs 7, 8, 24): the lift at a trip's start, Sail toward a place
+function liftEnv({ own = ['lily_maze', 'bell_pool'], lifted = [], reduced = false, pick = null } = {}) {
+  const E = homeEnv({ flow: 'home', loopOver: { maps: { lakes: ['mossmere'], places: own.slice() }, lifted: lifted.slice(), tutorial: { done: true, step: null }, chartPick: pick } });
+  const C = E.calls;
+  Object.assign(E.ctx.world, {
+    liftMist: (id, s) => { C.push(`liftMist:${id}:${s}`); return true; },
+    placeAnchor: (id) => ({ ...D.loopPlace(id).landmark }),
+    setPlaces: (p) => { C.push(`setPlaces:${p.owned.join('+')}|${p.lifted.join('+')}`); },
+  });
+  E.ctx.render = { frameLandmark: (p, o = {}) => { C.push(`frame:${p ? `${p.x},${p.z}` : 'null'}:${o.dur ?? '-'}:${o.back ?? '-'}`); return true; } };
+  if (reduced) E.ctx.state.meta.settings = { ...(E.ctx.state.meta.settings || {}), reducedMotion: true };
+  /** the lift's clock: n seconds of main's frame at dt (and the fake world's events at their times) */
+  E.run = (sec, dt = 1 / 30) => { const n = Math.round(sec / dt); for (let i = 0; i < n; i++) { E.ctx.time = { t: (E.ctx.time?.t || 0) + dt }; E.H.update(dt); } };
+  E.lifts = () => E.ev.filter((x) => x.e === 'place:lift').map((x) => `${x.p.placeId}:${x.p.phase}`);
+  return E;
+}
+section('M1 step 3a: the lift at a trip\'s start (T128)');
+{
+  const E = liftEnv();
+  ok(E.H.sail({ water: 'mossmere' }) === true, '(Sail with two places owned and not lifted)');
+  await E.step(3.2);
+  eq(E.ctx.flow, 'playing', '(the trip)');
+  ok(E.calls.some((c) => c === 'setPlaces:lily_maze+bell_pool|'), 'T128: world.setPlaces({owned, lifted}) at run:start (nothing lifted yet)');
+  eq(E.lifts(), ['lily_maze:start'], 'T128: after the glide out and run:start the first due place\'s lift begins (price order: the Lily Maze)');
+  ok(E.names().indexOf('run:start') < E.names().indexOf('place:lift'), '… after run:start');
+  const st = E.ev.find((x) => x.e === 'place:lift').p;
+  eq(st, { placeId: 'lily_maze', phase: 'start', name: 'The Lily Maze' }, 'T128: place:lift {placeId, phase: start, name}');
+  ok(E.calls.includes(`liftMist:lily_maze:${D.LOOP.lift.thin}`), `T128: world.liftMist(id, ${D.LOOP.lift.thin})`);
+  const lm = D.loopPlace('lily_maze').landmark;
+  ok(E.calls.includes(`frame:${lm.x},${lm.z}:${D.LOOP.lift.thin + D.LOOP.lift.title}:${D.LOOP.lift.back}`), 'T128: render.frameLandmark(the landmark, {dur: thin + title, back})');
+  ok(E.ctx.cinematic === true && E.H.lifting() === 'lily_maze', 'T128: ctx.cinematic on; lifting() names the place');
+  eq(E.H.canGoHome(), { ok: false, why: 'show' }, 'T128: no Home press during it');
+  E.run(2.9);
+  eq(E.lifts(), ['lily_maze:start'], '… still thinning at 2.9 s');
+  E.run(0.15);
+  eq(E.lifts(), ['lily_maze:start', 'lily_maze:title'], `T128: {phase: title} at ${D.LOOP.lift.thin} s`);
+  eq(E.ev.filter((x) => x.e === 'place:lift').at(-1).p.name, 'The Lily Maze', '… with the place\'s name');
+  ok(!E.loop.s.lifted.includes('lily_maze'), 'T112: not marked before its end (a reload here replays it)');
+  E.run(1.1);
+  ok(!E.lifts().includes('lily_maze:end') && E.ctx.cinematic, '… the title holds to 4.2 s');
+  E.run(0.15);
+  ok(E.lifts().includes('lily_maze:end') && E.loop.s.lifted.includes('lily_maze'), `T128: {phase: end} and markLifted at ${D.LOOP.lift.thin + D.LOOP.lift.title} s`);
+  ok(E.calls.some((c) => c === 'setPlaces:lily_maze+bell_pool|lily_maze'), '… the places synced with it lifted');
+  eq(E.lifts().at(-1), 'bell_pool:start', 'PLAN CHOICE 24: the next due lift follows (the Bell Pool)');
+  ok(E.ctx.cinematic === true, 'T128: ctx.cinematic true throughout');
+  E.run(4.3);
+  ok(E.lifts().includes('bell_pool:end') && E.ctx.cinematic === false && E.H.lifting() === null, 'T128: after the last, cinematic off and nothing lifting');
+  eq(E.loop.s.lifted, ['lily_maze', 'bell_pool'], '… both lifted, in price order');
+  eq(E.H.canGoHome(), { ok: true, why: null }, '… and Home is open again');
+  // a tap (or a skip key: main routes both to skipLift) ends the running lift at once
+  const K = liftEnv();
+  K.H.sail({ water: 'mossmere' }); await K.step(3.2); K.run(1);
+  ok(K.H.skipLift() === true, 'T128: a tap or a skip key ends the running lift');
+  ok(K.lifts().includes('lily_maze:end') && K.loop.s.lifted.includes('lily_maze'), '… at once, marked');
+  ok(K.calls.includes('liftMist:lily_maze:0') && K.calls.some((c) => c.startsWith('frame:null')), '… the bank gone (liftMist(id, 0)) and the camera sent back');
+  eq(K.lifts().at(-1), 'bell_pool:start', '… then the next due lift');
+  K.H.skipLift();
+  ok(K.H.skipLift() === false && K.ctx.cinematic === false, '… with none running a skip does nothing');
+  // reduced motion: no thinning, the title still shows
+  const R = liftEnv({ own: ['under_the_span'], reduced: true });
+  R.H.sail({ water: 'mossmere' }); await R.step(3.2);
+  ok(R.calls.includes('liftMist:under_the_span:0'), 'T128: reduced motion skips the thinning (liftMist(id, 0))');
+  eq(R.lifts(), ['under_the_span:start', 'under_the_span:title'], '… the title shows at once');
+  R.run(D.LOOP.lift.title + 0.1);
+  ok(R.lifts().includes('under_the_span:end') && R.loop.s.lifted.includes('under_the_span'), '… and ends after it');
+  // the pause holds a lift; nothing due: no lift; a lifted place never lifts again
+  const P = liftEnv({ own: ['lily_maze'] });
+  P.H.sail({ water: 'mossmere' }); await P.step(3.2);
+  P.ctx.paused = true; P.run(6);
+  ok(P.H.lifting() === 'lily_maze' && !P.lifts().includes('lily_maze:title'), 'the pause holds the lift');
+  P.ctx.paused = false; P.run(4.4);
+  ok(P.lifts().includes('lily_maze:end'), '… and it goes on after');
+  const N = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
+  N.H.sail({ water: 'mossmere' }); await N.step(3.2);
+  ok(N.lifts().length === 0 && N.ctx.cinematic === false && N.calls.some((c) => c === 'setPlaces:lily_maze|lily_maze'), 'T128: a place already lifted never lifts again (its dressing lit from run:start)');
+  // a Continue's run:start syncs the places and plays no lift (PLAN §2.2 item 5: at run:start, not continued)
+  const Q = liftEnv({ own: ['buoy_lights'] }); Q.ctx.flow = 'playing'; Q.ctx.state.run = Q.loop.createTrip({});
+  Q.bus = Q.ctx.bus; Q.ctx.bus.emit('run:start', { continued: true });
+  ok(Q.lifts().length === 0 && Q.calls.some((c) => c === 'setPlaces:buoy_lights|'), 'a Continue: the places synced, no lift');
+  // home:enter and a buy sync the places too
+  const H2 = liftEnv({ own: [] });
+  H2.ctx.bus.emit('home:enter', { from: 'title' }); H2.loop.s.maps.places.push('lily_maze'); H2.ctx.bus.emit('loop:buy', { item: 'place:lily_maze', price: 60, clams: 0 });
+  ok(H2.calls.includes('setPlaces:|') && H2.calls.includes('setPlaces:lily_maze|'), 'world.setPlaces at home:enter and after loop:buy');
+}
+section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
+{
+  const dock = { x: 24, z: 38 };
+  const E = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
+  ok(E.H.sail({ water: 'mossmere', place: 'lily_maze' }) === true, 'Sail({water, place})');
+  eq(E.loop.s.chartPick, { water: 'mossmere', place: 'lily_maze' }, 'T129: the pick is saved (loop.setPick)');
+  const g = E.player.glides.at(-1), lm = D.loopPlace('lily_maze'), plan = D.sailPlan(dock, { x: lm.x, z: lm.z }, D.LOOP.tutorial, null);
+  eq(g.pts.at(-1), plan.to, 'T129: the glide out heads for the place (sailPlan toward its centre)');
+  const dir = (a, b) => Math.atan2(b.z - a.z, b.x - a.x);
+  near(dir(dock, g.pts.at(-1)), dir(dock, lm), 'T129: … on the line from the Jetty to the place', 1e-9);
+  near(Math.hypot(g.pts.at(-1).x - dock.x, g.pts.at(-1).z - dock.z), D.LOOP.tutorial.outDist, `T129: … ${D.LOOP.tutorial.outDist} m out`, 1e-6);
+  ok(g.o.kind === 'sailOut' && g.o.duration === D.LOOP.tutorial.out, '… the same 3 s glide (kind sailOut)');
+  await E.step(3.2);
+  ok(E.ctx.flow === 'playing' && E.player.position.x === plan.to.x && E.H.sailPlace === 'lily_maze', 'T129: the trip starts where that glide ended');
+  const open = D.sailPlan(dock, { x: 0, z: 0 }, D.LOOP.tutorial, 'mossmere');
+  const U = liftEnv({ own: [] });
+  U.H.sail({ water: 'mossmere', place: 'bell_pool' });
+  ok(U.loop.s.chartPick === null && JSON.stringify(U.player.glides.at(-1).pts.at(-1)) === JSON.stringify(open.to), 'T129: a place not owned: the pick refused, open water\'s glide');
+  const O = liftEnv({ own: ['lily_maze'] });
+  O.H.sail({ water: 'mossmere', place: null });
+  ok(JSON.stringify(O.player.glides.at(-1).pts) === JSON.stringify(open.path) && O.loop.s.chartPick?.place === null, 'T129: open water (place null): 1a\'s authored glide (T66), the pick {place: null}');
+  const S = liftEnv({ own: ['under_the_span'], pick: { water: 'mossmere', place: 'under_the_span' } });
+  S.H.sail({ water: 'mossmere' });
+  const us = D.loopPlace('under_the_span');
+  eq(S.player.glides.at(-1).pts.at(-1), D.sailPlan(dock, { x: us.x, z: us.z }, D.LOOP.tutorial, null).to, 'with no `place` the Chart\'s saved pick of that water is sailed to (3b writes it on a tap)');
+  const W = liftEnv({ own: [] });
+  W.H.sail({ water: 'mossmere' });
+  eq(W.player.glides.at(-1).pts.at(-1), open.to, 'T66 unchanged: no pick, no place: open water\'s glide');
+}
+
+// =====================================================================================================================
 // fishing on a trip (fishing-env with the loop's data and a fake loop)
 const OPEN = 'open:mossmere';
 function tripEnv({ wick = 'wick', loopOver = {}, evening = 1, phase = 'calm', seed = 42, data = D, outing = 'trip', render = undefined } = {}) {

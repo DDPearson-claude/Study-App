@@ -575,7 +575,11 @@ Object.assign(game, {
   loopFresh: () => LOOP_ON && loopFreshSave(ctx.state.meta, game.hasSavedRun()),
   /** A home glide is running (the hand-off, the sail home or the glide out): its kind, or null. */
   homeGlide: () => (loopHome ? loopHome.gliding() : null),
+  /** M1 step 3a: the place whose mist is lifting at a trip's start (its few seconds hold the evening still), or null. */
+  lifting: () => (loopHome ? loopHome.lifting() : null),
 });
+/** M1 step 3a: a tap or a skip key while a place's mist lifts ends that lift at once (marked; the next due one follows). */
+const loopLifting = () => !!loopHome && ctx.flow === 'playing' && loopHome.lifting() !== null;
 // <<< LOOP LANE B
 
 // ------------------------------------------------------------------ v3: the Landing (CONTRACT §13.1, §13.3, §13.12)
@@ -803,6 +807,7 @@ function pressAction(e) {
   // the loop's home (PLAN §2.2 items 8, 22): a tap during a home glide skips it; nothing reaches fishing or combat (the Jetty's taps
   // are the ui's). gameAcceptsInput is false in flow home, so this comes first.
   if (LOOP_ON && ctx.flow === 'home') { if (!safe(() => ctx.ui.isBlocking?.(), false) && homeGliding()) skipHomeGlide(); return; }
+  if (LOOP_ON && loopLifting()) { if (!ctx.paused && !safe(() => ctx.ui.isBlocking?.(), false)) loopHome.skipLift(); return; }   // (no cast during a lift)
   if (!gameAcceptsInput()) return;
   if (V3) {
     const kind = e.pointerType === 'touch' || e.pointerType === 'pen' ? 'touch' : 'mouse';
@@ -905,6 +910,10 @@ window.addEventListener('keydown', (e) => {
   // Escape that skipped the film was swallowed above); otherwise the keys at home are the ui's (the Jetty's home pause)
   if (LOOP_ON && ctx.flow === 'home' && homeGliding() && !e.repeat && SKIP_KEYS().includes(e.code) && !safe(() => ctx.ui.isBlocking?.(), false)) {
     skipHomeGlide(); e.preventDefault(); return;
+  }
+  // M1 step 3a: a skip key while a place's mist lifts ends that lift (the pause waits for it: Escape skips the lift first)
+  if (LOOP_ON && loopLifting() && !ctx.paused && !e.repeat && SKIP_KEYS().includes(e.code) && !safe(() => ctx.ui.isBlocking?.(), false)) {
+    loopHome.skipLift(); e.preventDefault(); return;
   }
   if (e.repeat && e.code === 'Space') { e.preventDefault(); return; }
   input.keys.add(e.code);
@@ -1085,8 +1094,74 @@ if (LOOP_ON && DEBUG) {
       return L.wick?.() ?? null;
     },
     /** what main knows of home: the flow, the glide (kind) and the latch of a Sail */
-    homeState: () => ({ flow: ctx.flow, glide: loopHome?.gliding() ?? null, sailing: !!loopHome?.sailing, atHome: game.atHome(), fresh: game.loopFresh() }),
+    homeState: () => ({ flow: ctx.flow, glide: loopHome?.gliding() ?? null, sailing: !!loopHome?.sailing, atHome: game.atHome(), fresh: game.loopFresh(),
+      sailPlace: loopHome?.sailPlace ?? null, lift: loopHome?.liftState?.() ?? null }),
+    // M1 step 3a (PLAN §2.2 item 6): the places for the scenarios. They write meta.loop directly (a debug build's shortcut past the shelf)
+    /** own(id | 'all') owns a place map (or every place of the Mossmere) and saves; its lift plays on the next trip. → the owned ids */
+    own(id = 'all') {
+      const ml = loopApi()?.state?.();
+      if (!ml || typeof ml !== 'object') return null;
+      if (!Array.isArray(ml.maps?.places)) { ml.maps = { ...(ml.maps || {}), places: [] }; }
+      for (const p of debugPlaceIds(id)) if (!ml.maps.places.includes(p)) ml.maps.places.push(p);
+      game.save(); loopHome?.syncPlaces();
+      return ml.maps.places.slice();
+    },
+    /** lift(id | 'all', {play}) lifts a place's mist (owning it first): on a trip its lift beat plays now (play: false lifts it at
+     *  once, no beat); at home it is marked lifted. → {lifting, lifted} */
+    lift(id = 'all', { play = true } = {}) {
+      const ml = loopApi()?.state?.();
+      if (!ml || typeof ml !== 'object') return null;
+      ctx.debug.loop.own(id);
+      const ids = debugPlaceIds(id).filter((p) => !(ml.lifted || []).includes(p));
+      const trip = ctx.flow === 'playing' && ctx.state.run?.outing === 'trip';
+      if (trip && play && ids.length) loopHome?.beginLifts(ids);
+      else {
+        for (const p of ids) {
+          if (loopApi()?.markLifted?.(p) !== true && Array.isArray(ml.lifted) && !ml.lifted.includes(p)) ml.lifted.push(p);   // (the seam's stub)
+          safe(() => ctx.world.liftMist?.(p, 0), null);
+        }
+        game.save(); loopHome?.syncPlaces();
+      }
+      return { lifting: loopHome?.lifting() ?? null, lifted: (ml.lifted || []).slice() };
+    },
+    /** giveBait(id, n, {fit}): n of a bait (the Heartmoss Ball) into the Mossmere's bag (and the trip's, on a trip); fit: on the line. */
+    giveBait(id = 'heartmoss', n = 1, { fit = false } = {}) {
+      const ml = loopApi()?.state?.();
+      if (!ml || typeof ml !== 'object') return null;
+      const k = Math.max(0, Math.round(Number(n) || 0)), zone = ctx.state.run?.zone || 'mossmere';
+      ml.bait = ml.bait && typeof ml.bait === 'object' ? ml.bait : {};
+      ml.bait[zone] = { ...(ml.bait[zone] || {}), [id]: ((ml.bait[zone]?.[id]) | 0) + k };
+      const r = ctx.state.run;
+      if (r && r.outing === 'trip') { r.bait = r.bait || {}; r.bait[id] = (r.bait[id] | 0) + k; }
+      if (fit) {
+        if (loopApi()?.fit?.('bait', id)?.ok !== true) ml.fitted = { ...(ml.fitted || {}), bait: id };   // (the seam's stub)
+        if (r && r.outing === 'trip') r.equippedBait = id;
+      }
+      game.save();
+      return { bag: { ...ml.bait[zone] }, trip: r?.outing === 'trip' ? { ...(r.bait || {}) } : null, fitted: { ...(ml.fitted || {}) } };
+    },
+    /** at(placeId): the raft put into a place's water (its centre; a path's middle), facing on. → {x, z} */
+    at(placeId) {
+      const p = data.loopPlace?.(placeId);
+      if (!p) return null;
+      const a = p.area || {}, pt = a.kind === 'path' && Array.isArray(a.pts) && a.pts.length >= 2
+        ? { x: (a.pts[0][0] + a.pts[a.pts.length - 1][0]) / 2, z: (a.pts[0][1] + a.pts[a.pts.length - 1][1]) / 2 }
+        : { x: Number.isFinite(a.x) ? a.x : p.x, z: Number.isFinite(a.z) ? a.z : p.z };
+      safe(() => ctx.player.teleport?.(pt, ctx.player.heading ?? 0), null);
+      return pt;
+    },
+    /** places() → {owned, lifted, due, lifting, banks} (banks: the world's readout, ctx.debug.world.places(), when it has one) */
+    places: () => {
+      const p = loopHome?.placesNow?.() ?? { owned: [], lifted: [] };
+      return { ...p, due: peek(() => loopApi()?.liftDue?.(), []), lifting: loopHome?.lifting() ?? null, lift: loopHome?.liftState?.() ?? null,
+        banks: peek(() => ctx.debug.world?.places?.()) ?? peek(() => ctx.world.places?.()) ?? null };
+    },
   };
+}
+/** debug: a place id, or 'all' (the Mossmere's places in the Chart's order), as the ids LOOP.places holds. */
+function debugPlaceIds(id) {
+  const all = Object.keys(data.LOOP?.places || {});
+  return id === 'all' ? (data.loopPlaceIds?.('mossmere') ?? all) : (all.includes(id) ? [id] : []);
 }
 // <<< LOOP LANE B
 // M2 (CONTRACT §13.1, §13.11): a release build (v3, debug off) exposes no species, roll, plan or pre-roll on window.__gw
@@ -1147,6 +1222,8 @@ function frame(now) {
       if (n <= 3 || n % 300 === 0) report(`update(${name}) [x${n}]`, e);
     }
   }
+  // the loop (M1 step 3a): a place's lift runs on the real clock while the game runs (a pause or a blocking screen holds it)
+  if (loopHome) { try { loopHome.update(running ? realDt : 0); } catch (e) { const n = (errorCounts.get('loopHome') || 0) + 1; errorCounts.set('loopHome', n); if (n <= 3) report('update(loopHome)', e); } }
   if (FE_ON) {
     // the First Evening's clock (lines, beats) runs on the hub's game time (stopped by a pause or a blocking card); the hearth cut
     if (ctx.firstEvening) { try { ctx.firstEvening.update(inHub ? time.gameDt : 0); } catch (e) { const n = (errorCounts.get('firstEvening') || 0) + 1; errorCounts.set('firstEvening', n); if (n <= 3) report('update(firstEvening)', e); } }
