@@ -552,6 +552,7 @@ function sheetTextOk(t, D, W) {
   // the built words the sheet shows beside TEXT_LOOP's: the log's head and strike line, the lock, the float's hour terms (ui-v3's)
   if ([AT.log?.title, AT.log?.strike, AT.logLocked, 'Last Light', 'Night Rise'].includes(t)) return true;
   { const m = /^(\S+) ((?:\d{1,3}%|<1%))$/.exec(t); if (m && W.has(m[1])) return true; }   // a folded figure ("Trophy 19%")
+  { const m = /^Next: (.+) ·$/.exec(t); if (m && W.has(m[1])) return true; }   // the goal line's words, its price set apart in amber
   let tpls = D && sheetTpls.get(D);
   if (!tpls) {
     const list = [];

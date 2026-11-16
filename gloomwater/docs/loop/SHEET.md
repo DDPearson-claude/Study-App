@@ -1060,3 +1060,22 @@ minor, but where noted.
 **Added by v2, not asked by either review**: Mire Worms' quicker bites (`bonus.biteSpeed` 0.3, applied in the bite's wait under
 the loop) were missing from Buffs; they are now "Bites sooner ×1.3", and Stub's exact line speaks in the same words. The stern
 line (BARGE-INSIDE §5) is the open water at Day on the sheet (§8.8).
+
+---
+
+## 14. The build (`gw-mvp-sheet`, 16 November 2026)
+
+Built as §9 says, in its order (the Hold rule's commit first and alone), with the user's answers 41–43 (SPEC §16):
+
+- **41, the middle way.** `fishing.js` gains one read-only method, `lastCastArea()` (the last landed cast's `{area, place, water}`, kept
+  beside the cast's own `S.cast.area`): the one edit of `fishing.js`, the seam §8.3 names. The Odds' Where row gains a chip "Where you
+  last cast" (`TEXT_LOOP.sheet.lastCast`) once the player has cast in the open water this session, and the picks open on it; its rows
+  are `castOdds` at that area. The area is never named, in the words or in the model.
+- **The templates carry no "%".** `ui-loop.test.mjs` bans a "%" anywhere in `TEXT_LOOP` (but "<1%"), so the cast line and Taper's exact
+  line put the percent sign in the slot's value: "Casts {m} m · {n} longer to strike" filled with "4%", "… to {cap}." with "12%".
+- **"Quiet water"** (a buff's source on a trip) is one more `TEXT_LOOP.sheet` word: no built string holds it alone.
+- **The rack** is the barge's own rod rack (`actors-home.js` already hangs the rod there): the target is laid over its upper half and
+  draws no word; its accessible name is the full label.
+- **The paper** is Murk's book's (`ui-catalogue-murk.js` exports `PAPER_NOISE`, `FIBRE`, `CORNER`, `RULE`); the tokens are the sheet's
+  own copy of the book's (the book's rule was left whole, so the catalogue's own lane keeps its file).
+- **Prices** are the shelf's (`shelfItems`, Murk's factor in): a node test checks the Next card at ×1 and ×2.

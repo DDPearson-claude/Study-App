@@ -341,6 +341,9 @@ const CSS = `
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-art, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-art,
 .gw-sheet[data-layout=phone] .gw-sh-hookrow .gw-sh-art .cat-eng, .gw-sheet[data-layout=phone] .gw-sh-small .gw-sh-art .cat-eng { width: 56px; height: 56px; }
 .gw-sheet[data-layout=phone] .gw-sh-buff { grid-template-columns: 26px minmax(0, 7.2em) 1fr; gap: 0 8px; }
+.gw-sheet[data-layout=phone] .gw-sh-table th { white-space: normal; vertical-align: bottom; } .gw-sheet[data-layout=phone] .gw-sh-table th span { display: block; }
+.gw-sheet[data-layout=phone] .gw-sh-table th .gw-sh-dot { display: none; }
+.gw-sheet[data-layout=phone] .gw-sh-table td:first-child { word-break: normal; overflow-wrap: anywhere; }
 .gw-sheet[data-layout=desktop] .gw-sh-fold { display: contents; }
 .gw-sheet[data-layout=desktop] .gw-sh-fig { display: none; }
 .gw-sheet[data-layout=desktop] .gw-sh-more { display: contents; }
@@ -527,7 +530,11 @@ export function createSheetView(K) {
         const t = document.createElement(atHome ? 'button' : 'span');
         if (atHome) { t.type = 'button'; t.className = 'gw-link gw-sh-nextbtn'; t.style.cssText = 'background:none;border:none;padding:0;min-height:44px;color:inherit;font:inherit;cursor:pointer;text-align:left';
           t.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); try { K.loop?.openShelf?.({ focus: n.id }); } catch (er) { report('shelf', er); } }); }
-        t.textContent = n.text; d.appendChild(t);
+        // (candle amber only on a price: the goal line's figure set apart, SHEET §4.3)
+        const mm = /^(.*· )(\S+)$/.exec(n.text);
+        if (mm) { t.appendChild(document.createTextNode(mm[1].trimEnd())); const pr = document.createElement('span'); pr.className = 'gw-sh-price'; pr.textContent = mm[2]; t.append(' ', pr); }
+        else t.textContent = n.text;
+        d.appendChild(t);
         if (n.ticks) d.insertAdjacentHTML('beforeend', ` <span class="gw-sh-ticks" aria-hidden="true">${ticksHtml(typeof n.ticks === 'number' && p.slot === 'orders' ? { n: n.ticks, chalk: true } : { n: n.ticks, extra: p.ticks?.extra || 0 })}</span>`);
         if (n.dots) d.insertAdjacentHTML('beforeend', ` <span class="gw-sh-dots" aria-hidden="true">${dotsHtml(n.dots)}</span>`);
         if (n.tin) { const q = document.createElement('span'); q.className = 'gw-sh-tin'; q.innerHTML = ` ${icon('worm')}<span></span>`; q.querySelector('span').textContent = String(n.tin); d.appendChild(q); }
@@ -669,7 +676,7 @@ export function createSheetView(K) {
       tb.innerHTML = '<thead><tr><th scope="col"><span class="gw-sh-sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></span></th><th scope="col"></th><th scope="col"></th></tr></thead><tbody></tbody>';
       const th = tb.querySelectorAll('th');
       th[1].textContent = v.odds.table.whoBites;
-      th[2].innerHTML = '<span></span> · <span></span>'; th[2].querySelectorAll('span')[0].textContent = v.odds.table.yourOdds; th[2].querySelectorAll('span')[1].textContent = v.odds.table.cls;
+      th[2].innerHTML = '<span></span><span class="gw-sh-dot"> · </span><span></span>'; th[2].querySelectorAll('span')[0].textContent = v.odds.table.yourOdds; th[2].querySelectorAll('span')[2].textContent = v.odds.table.cls;
       const tbody = tb.querySelector('tbody');
       for (const r of v.odds.table.rows) {
         const tr = document.createElement('tr'); tr.className = `gw-sh-row${r.pinned ? ' gw-pinned' : ''}`; tr.dataset.fish = r.id; tr.tabIndex = 0;
