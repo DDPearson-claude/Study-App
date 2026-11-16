@@ -542,6 +542,18 @@ if (process.argv.includes('--loop')) {
   ok4(typeof TL.goods?.name === 'string' && TL.goods.name.length > 0 && TL.goods.name.length <= 18 && TL.goods.name.split(/\s+/).length <= 3,
     `TEXT_LOOP.goods.name: the catalogue's name, at most three words and 18 characters ("${TL.goods?.name}")`);
   ok4(typeof TL.goods?.buy === 'string' && /^[A-Z][a-z]+ · \{price\}$/.test(TL.goods.buy) && !/%/.test(JSON.stringify(TL.goods)), `TEXT_LOOP.goods.buy: one word and the price ("${TL.goods?.buy}"), no percentage`);
+  // the Wick's sheet (SHEET.md §6): its few words, each row ≤ 36 characters (an exact line two rows, ≤ 72), no typed percentage, no
+  // "Hold {n}" form (on the sheet "Hold" is the grip only), and the title a template on the Wick's name
+  if (TL.sheet) {
+    const SW = [];
+    const walkS = (v, k) => { if (typeof v === 'string') SW.push([k, v]); else if (v && typeof v === 'object') for (const [kk, x] of Object.entries(v)) walkS(x, `${k}.${kk}`); };
+    walkS(TL.sheet, 'sheet');
+    const filled = (v) => v.replace(/\{\w+\}/g, '0.00');   // (a slot as wide as the widest figure it takes)
+    const longS = SW.filter(([k, v]) => filled(v).length > (k.startsWith('sheet.exact.') ? 76 : 36));
+    ok4(longS.length === 0, `TEXT_LOOP.sheet: every row ≤ 36 characters filled, an exact line ≤ 76 (two rows at 18 px in a 358 px column)${longS.length ? `: ${longS.map(([k]) => k).join(', ')}` : ''}`);
+    ok4(!SW.some(([, v]) => /\d\s*%/.test(v)) && !SW.some(([, v]) => /(^|[^+\d{])Hold \d/.test(v)), 'TEXT_LOOP.sheet: no typed percentage and no "Hold {n}"');
+    ok4(TL.sheet.title === "{name}'s Sheet" && Object.keys(TL.sheet.exact || {}).sort().join() === [...LP.wicks.order].sort().join(), 'TEXT_LOOP.sheet: "{name}\'s Sheet" and one exact line for each Wick');
+  }
   // >>> M1 step 5b (LANE 5B-TOW; SPEC §6.5, OPENING §6.2 rev. 5): the tow's parts, each water's leg on the Chart's live layer, and the
   // opening untouched (the Landing's dip and arrive, the wake line, the leg, the dip, the glide in, the chart beat, the glide out)
   if (LP.tow) {

@@ -987,6 +987,10 @@ export function create(ctx) {
     openLog: (o) => screens.openLog(o),
     /** automatic fishing: the gear log (P1–P2: Murk's Gear, Bait and Lure rows; refused while a line is out) */
     openTackle: () => screens.openTackle(),
+    /** the Wick's sheet (SHEET.md §2): the Journal on its first tab; {from: 'pause' | 'ledger' | 'rack' | 'odds' | 'species' | 'book', section,
+     *  pin}; refused while a line is out (the interiors' seam: openSheet({from: 'ledger'}), openSheet({from: 'rack', section: 'tackle'})) */
+    openSheet: (o) => screens.openSheet?.(o) ?? false,
+    sheet: { model: (view) => screens.sheetModel?.(view) ?? null },
     showGotAway: (p) => hud.showGotAway?.(p),
     logLocked: () => logLocked(),
     openShrine: () => screens.openShrine(),

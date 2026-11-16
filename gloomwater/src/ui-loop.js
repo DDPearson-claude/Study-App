@@ -525,7 +525,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
   if (/^Evening \d+$/.test(t)) return true;
   // M1 step 5c (SPEC §8.8): a find's rate on the catalogue's finds row (the page's only rates); a treasure's count ("Bent Tin Spoon ×3")
-  if (/^\d{1,2}(?:\.\d)?%$/.test(t)) return screen === 'journal';
+  if (/^\d{1,2}(?:\.\d)?%$/.test(t)) return screen === 'journal' || screen === 'sheet';   // (the Wick's sheet: the logs' page, SHEET.md §6)
   { const m2 = /^(.+) ×\d+$/.exec(t); if (m2 && W.has(m2[1])) return true; }
   // M1 step 3a: a list's count ("7/12", SPEC §8), and a giant's or the legend's name after its ★
   if (/^\d+\/\d+$/.test(t)) return true;
@@ -534,12 +534,45 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   const m = /^Next: (.+) · (.+)$/.exec(t);
   if (m && NUM_RE.test(m[2]) && (W.has(m[1]) || /^Hold \d+$/.test(m[1]))) return true;
   // Murk's catalogue: the order line "Buy · {price}" (TEXT_LOOP.goods.buy), whole or its words before the clam glyph
+  // the Wick's sheet (SHEET.md §6): its numbers, and a TEXT_LOOP.sheet template or a built template it fills, with its slots filled by
+  // numbers and allowed names
+  if (screen === 'sheet' && sheetTextOk(t, D, W)) return true;
   const bt = String(T_(D).goods?.buy || '');
   if (bt.includes('{price}')) {
     const [a, b = ''] = bt.split('{price}');
     if (t === a.trim()) return true;
     if (t.startsWith(a) && t.endsWith(b) && NUM_RE.test(t.slice(a.length, t.length - b.length).trim())) return true;
   }
+  return false;
+}
+
+/** The sheet's text rules (SHEET.md §6): a number form the sheet uses, or a template it fills (TEXT_LOOP.sheet, the goal line, the gear
+ *  lines, the compare, the rating, WC-3's unmet line) with each slot a number, a percentage or an allowed name. */
+const SHEET_NUM = [/^(?:\d{1,3}%|<1%)$/, /^[+−-]?\d+(?:\.\d+)?$/, /^= \d+(?:\.\d+)?$/, /^×\d+(?:\.\d+)?$/, /^\d+(?:\.\d+)? m$/, /^\+\d+(?:\.\d+)? m\/s$/, /^\+\d+(?:\.\d+)? Hold$/];
+const sheetTpls = new WeakMap();
+function sheetTextOk(t, D, W) {
+  if (SHEET_NUM.some((re) => re.test(t))) return true;
+  const AT = D?.AUTOFISH?.text || {}, TS = T_(D).sheet || {};
+  // the built words the sheet shows beside TEXT_LOOP's: the log's head and strike line, the lock, the float's hour terms (ui-v3's)
+  if ([AT.log?.title, AT.log?.strike, AT.logLocked, 'Last Light', 'Night Rise'].includes(t)) return true;
+  { const m = /^(\S+) ((?:\d{1,3}%|<1%))$/.exec(t); if (m && W.has(m[1])) return true; }   // a folded figure ("Trophy 19%")
+  { const m = /^Next: (.+) ·$/.exec(t); if (m && W.has(m[1])) return true; }   // the goal line's words, its price set apart in amber
+  let tpls = D && sheetTpls.get(D);
+  if (!tpls) {
+    const list = [];
+    const walk = (v) => { if (typeof v === 'string') { if (v.includes('{')) list.push(v); } else if (isObj(v)) Object.values(v).forEach(walk); };
+    walk(TS);
+    for (const x of [T_(D).next, T_(D).log?.gear, T_(D).log?.unmet, AT.gear?.tackle, AT.gear?.compare, AT.rating, AT.ratingNone]) if (typeof x === 'string') list.push(x);
+    if (typeof AT.rating === 'string') list.push(AT.rating.split(/(?<=\.)\s+/)[0]);
+    // a number's slot is one token; a name's may be several words
+    const NUMS = new Set(['from', 'to', 'n', 'm', 'k', 'price', 'hold', 'cap', 'mult', 'floor', 'share', 'sooner', 'quiet', 'good', 'of']);
+    tpls = list.map((x) => new RegExp(`^${x.split(/(\{\w+\}s?)/).map((q, i) => (i % 2 ? (NUMS.has(q.replace(/[{}]|s$/g, '').replace(/\}$/, '')) ? '(\\S+)' : '(.+?)') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('')}$`));
+    if (D) sheetTpls.set(D, tpls);
+  }
+  const words = arr(D?.AUTOFISH?.rating?.words).map((w) => w?.[1]);
+  const slotOk = (v) => SHEET_NUM.some((re) => re.test(v)) || /^[+−-]?\d[\d,.]*%?$/.test(v) || W.has(v) || W.has(v.replace(/ies$/, 'y')) || W.has(v.replace(/s$/, ''))
+    || words.includes(v) || /^[a-z]+(?:(?:, | and )[a-z]+)*(?: fish)?$/.test(v) || (/^\d/.test(v) === false && /^[A-Z][\w'’ -]+$/.test(v) && W.has(v));
+  for (const re of tpls) { const m = re.exec(t); if (m && m.slice(1).every((g) => slotOk(g.trim()))) return true; }
   return false;
 }
 
@@ -605,7 +638,7 @@ export function scaleSvg() {
     + `${pan(46, 'gw-scale-pan--clams')}${pan(214, 'gw-scale-pan--fish')}</svg>`;
 }
 /** The home barge's targets in their focus order (M1 step 5a): Murk, Chart, Journal, then the doorway once wing I is owned. */
-export function homeTargetIds(metaLoop) { return ['murk', 'chart', 'journal', ...((Number(metaLoop?.home?.wall) || 0) >= 1 ? ['wall'] : [])]; }
+export function homeTargetIds(metaLoop) { return ['murk', 'chart', 'journal', 'rack', ...((Number(metaLoop?.home?.wall) || 0) >= 1 ? ['wall'] : [])]; }   // (rack: the Wick's sheet at Tackle, no word)
 
 /** The three Jetty tiles' small ink drawings: Murk (his barge-lamp, the UI's one sage trace), the Chart (a rolled sheet), the Journal. */
 function tileArt(id) {
@@ -866,9 +899,9 @@ export function createLoopView(K) {
         b.type = 'button';
         b.dataset.tile = id;
         if (cue || (!c.tile && id === 'chart')) b.dataset.autofocus = '1';
-        const word = id === 'wall' ? null : TL().jetty?.[id] || id;
+        const word = id === 'wall' || id === 'rack' ? null : TL().jetty?.[id] || id;
         b.innerHTML = `<span class="gw-jetty-tbox" aria-hidden="true"></span>${word ? `<span class="gw-jetty-tword">${ORN.hookL}<b></b>${ORN.hookR}</span>` : ''}`;
-        if (word) b.querySelector('b').textContent = word; else b.setAttribute('aria-label', TL().jetty?.wall || 'The Long Wall');
+        if (word) b.querySelector('b').textContent = word; else b.setAttribute('aria-label', id === 'rack' ? sheetTitle() : TL().jetty?.wall || 'The Long Wall');
         b.style.visibility = 'hidden';   // (until placeTargets puts it over its object, this frame)
         b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); onTile(id); });
         layer.appendChild(b);
@@ -949,7 +982,7 @@ export function createLoopView(K) {
     const reserve = ['.gw-jetty-purse', '[data-loop=homepause]', '.gw-jetty-goal'].map(box).filter(Boolean);
     const word = phone ? 30 : 34;
     const wick = rectOf(wickCorners(M), proj);
-    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false }, reserve, margin: phone ? 6 : 10, wordSize: wordMetricsOf(btns, vw, vh), avoid: wick ? [wick] : [] });
+    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false, rack: false }, reserve, margin: phone ? 6 : 10, wordSize: wordMetricsOf(btns, vw, vh), avoid: wick ? [wick] : [] });
     const sig = lay.items.map((it) => `${it.id}:${Math.round(it.l)},${Math.round(it.t)},${Math.round(it.w)},${Math.round(it.h)},${Math.round(it.dx)},${Math.round(it.dy)},${it.hooks ? 1 : 0}`).join('|');
     TG.last = lay;
     if (!force && sig === TG.sig) return lay;
@@ -967,11 +1000,15 @@ export function createLoopView(K) {
     return lay;
   }
 
+  /** The Wick's sheet's label, "{name}'s Sheet" (the rack target's accessible name). */
+  const sheetTitle = () => { const wid = D().loopWickId?.(L('wick')) || 'wick'; const nm = arr(D().CHARACTERS).find((c) => c?.id === wid)?.name || 'The Wick'; return String(TL().sheet?.title || "{name}'s Sheet").replace('{name}', nm); };
   function onTile(id) {
     if (id === 'murk') { openShelf(); return; }
     if (id === 'journal') { K.screens?.openJournal?.({ from: 'jetty' }); return; }
     // the cabin's doorway (wing I): the gallery, wing I's prints at true size round you (M1 step 5b)
     if (id === 'wall') { gallery.open(); return; }
+    // the rod rack by the cabin's door: the Wick's sheet at Tackle (SHEET.md §2.3)
+    if (id === 'rack') { K.screens?.openSheet?.({ from: 'rack', section: 'tackle' }); return; }
     if (id === 'chart') { tut.onTile('chart'); openChart(); }
   }
   function jettyKeys(code) {
@@ -998,6 +1035,8 @@ export function createLoopView(K) {
       const { content, foot } = panel(entry, body, { cls: 'gw-p-pause gw-p-homepause', close: false });
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn(TL().resume || 'Resume', { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: () => K.closeModal('homepause') }));
+      // the Wick's sheet (SHEET.md §2.2): once the opening's tutorial is done (during it the home pause stays Resume · Settings, T73)
+      { const it = K.screens?.sheetItem?.({ pauseChild: true, homeChild: true }); if (it) menu.appendChild(it); }
       menu.appendChild(btn(TL().settings?.label || 'Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => K.screens?.openSettings?.({ pauseChild: true, homeChild: true }) }));
       content.appendChild(menu);
       foot.remove();

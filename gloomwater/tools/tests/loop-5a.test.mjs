@@ -280,8 +280,8 @@ section('the targets: the home camera\'s frame at 358 px and every size, each bu
   const lay = HT.layoutTargets({ murk: { l: 100, t: 100, r: 130, b: 130 }, chart: { l: 110, t: 110, r: 150, b: 150 } }, { vw: 358, vh: 664, reserve: [{ l: 0, t: 0, r: 358, b: 60 }] });
   ok(lay.ok && lay.items.every((it) => it.w >= 44 && it.box.b - it.box.t >= 44 && it.t >= 60), 'layoutTargets: overlapping objects become two ≥ 44 px buttons, apart, off the reserved band');
   ok(!HT.frameCheck(M, { pos: [M.hull.x, 40, M.hull.z], look: [M.hull.x, 0, M.hull.z - 60], fov: 30 }, { vw: 358, vh: 664 }).ok, 'self-test: a frame that loses the barge fails');
-  eq(homeTargetIds({ home: { wall: 0 } }), ['murk', 'chart', 'journal'], 'the tiles\' order: Murk, Chart, Journal');
-  eq(homeTargetIds({ home: { wall: 1 } }), ['murk', 'chart', 'journal', 'wall'], '… and the doorway from wing I');
+  eq(homeTargetIds({ home: { wall: 0 } }), ['murk', 'chart', 'journal', 'rack'], 'the tiles\' order: Murk, Chart, Journal, the rod rack (the Wick\'s sheet, SHEET.md §2.3)');
+  eq(homeTargetIds({ home: { wall: 1 } }), ['murk', 'chart', 'journal', 'rack', 'wall'], '… and the doorway from wing I');
 }
 
 // =====================================================================================

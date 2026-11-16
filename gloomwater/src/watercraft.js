@@ -17,6 +17,7 @@
 //   finishPool(entries, o)       §4 steps 10–11: the giant's share (LANE 4's giants' lure rule inside), then the strays' cap
 //   castOdds(D, o)               §4 whole: {entries: [{sp, p, from, z?}], S, taper}; p sums to 1
 //   drawOdds(odds, r)            one draw over castOdds' entries with r in [0, 1)
+//   openMix(D, {light, …, rb})   the blind caster's open-water mix at one hour, with the rarity bonus (the sheet's Odds, SHEET.md §7.3)
 //   bitesTable(D, {lure, bait})  the gear log's Who bites: each fish's share of the blind open-water bites over an evening, beside the bare hook's
 
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -552,21 +553,38 @@ export function drawOdds(odds, r) {
 /** A species' whole-cast probability in castOdds' result (every entry of it summed). */
 export function castShare(odds, id) { return arr(odds?.entries).reduce((a, e) => a + (e.sp?.id === id ? e.p : 0), 0); }
 
-/** The blind open-water mix on one hook over an evening (the lights weighted by LOOP.evening: day, dusk, night null → 0): {id: share}. */
-function eveningMix(D, { lure = null, bait = null } = {}) {
-  const E = D?.LOOP?.evening || {}, wts = { day: num(E.day, 1), dusk: num(E.dusk, 1), night: num(E.night, 0) };
+/** The blind caster's open-water mix at one hour (SHEET.md §7.3; WATERCRAFT §4 on the areas' shares at that light): each area's pool on
+ *  this hook, castOdds' step 7 (the rarity bonus: uncommon ×(1 + 2rb), rare ×(1 + 4rb)) before finishPool, weighted by the area's share.
+ *  `light` 'day' | 'dusk' | 'night' (or a game phase); a legend's bait is a bare hook here. → {id: share} (sums to 1; {} with no water). */
+export function openMix(D, { light = 'day', lure = null, bait = null, wickId = null, rb = 0 } = {}) {
+  const L = lightOf(light), b = num(rb, 0);
   const legend = !!bait && Object.values(D?.LOOP?.legendBait || {}).some((x) => x?.id === bait);
   const pb = legend ? null : bait, acc = {}; let wsum = 0;
+  const pool = openPool(D, L, pb);
+  for (const a of AREAS) {
+    const s = num(W.shares[L]?.[a], 0); if (!(s > 0)) continue;
+    const ws = hookWeights(pool.list, { area: a, place: null, phase: L, lure, bait: pb });
+    if (b) for (const e of ws) { if (e.sp?.rarity === 'uncommon') e.w *= 1 + 2 * b; else if (e.sp?.rarity === 'rare') e.w *= 1 + 4 * b; }
+    const es = finishPool(ws, { lure, bait: pb, phase: L, wickId, D });
+    const tot = es.reduce((x, e) => x + e.w, 0); if (!(tot > 0)) continue;
+    for (const e of es) acc[e.sp.id] = (acc[e.sp.id] || 0) + s * e.w / tot;
+    wsum += s;
+  }
+  for (const id of Object.keys(acc)) acc[id] /= wsum || 1;
+  return acc;
+}
+/** The blind open-water mix on one hook over an evening (the lights weighted by LOOP.evening: day, dusk, night null → 0): {id: share}.
+ *  openMix at rb 0, each light weighted by LOOP.evening × its summed area shares (WC-3's Who bites: no rarity bonus). */
+function eveningMix(D, { lure = null, bait = null } = {}) {
+  const E = D?.LOOP?.evening || {}, wts = { day: num(E.day, 1), dusk: num(E.dusk, 1), night: num(E.night, 0) };
+  const acc = {}; let wsum = 0;
   for (const light of LIGHTS) {
     const wt = wts[light]; if (!(wt > 0)) continue;
-    const pool = openPool(D, light, pb);
-    for (const a of AREAS) {
-      const s = num(W.shares[light]?.[a], 0); if (!(s > 0)) continue;
-      const es = finishPool(hookWeights(pool.list, { area: a, place: null, phase: light, lure, bait: pb }), { lure, bait: pb, phase: light, D });
-      const tot = es.reduce((x, e) => x + e.w, 0); if (!(tot > 0)) continue;
-      for (const e of es) acc[e.sp.id] = (acc[e.sp.id] || 0) + wt * s * e.w / tot;
-      wsum += wt * s;
-    }
+    const s = AREAS.reduce((x, a) => x + num(W.shares[light]?.[a], 0), 0); if (!(s > 0)) continue;
+    const mix = openMix(D, { light, lure, bait });
+    if (!Object.keys(mix).length) continue;
+    for (const [id, p] of Object.entries(mix)) acc[id] = (acc[id] || 0) + wt * s * p;
+    wsum += wt * s;
   }
   for (const id of Object.keys(acc)) acc[id] /= wsum || 1;
   return acc;

@@ -22,6 +22,7 @@ import { defaultMeta } from '../../src/core.js';
 import { freshLoop, LOOP_METHODS, LOOP_SCHEMA, tallyLines, shelfItems, goalOf, listCount as listCountOf, mapCards as mapCardsOf, sealsOf, catalogueFor,
   liftDue as liftDueOf } from '../../src/progression-loop.js';
 import { notePrint as notePrintOf, printsView, galleryModel } from '../../src/home-prints.js';   // M1 step 5b (lane 5b-home)
+import { sheetModel, sheetKeys } from '../../src/loop-sheet.js';   // the Wick's sheet (SHEET.md §7): the real pure model on the fake's state
 
 /** The loop's data module (GW_V3, GW_V3_PHASE 1, GW_LOOP), cached per query. */
 export async function loadLoopData({ query = 'loop' } = {}) {
@@ -91,6 +92,7 @@ export function fakeLoop(over = {}) {
     fitted: { lure: null, bait: null }, bag: {}, lifted: [], marked: {}, best: {}, chartPick: null,
     barge: { water: 'mossmere', towed: [] },
     finds: { got: {}, worn: {}, share: {} },   // M1 step 5c
+    sheetSeen: [], lures: [], raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 }, looks: [],   // the Wick's sheet
     ...state, ...plain,
   };
   if (!Array.isArray(s.maps.places)) s.maps = { ...s.maps, places: [] };
@@ -118,7 +120,8 @@ export function fakeLoop(over = {}) {
   const metaLoop = () => ({ v: LOOP_SCHEMA, clams: s.clams, evenings: s.evenings, holdSlots: s.holdSlots, tackle: { ...s.tackle }, maps: s.maps,
     wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, barge: { water: s.barge.water, towed: [...s.barge.towed] }, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}),
     fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
-    giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])), finds: s.finds });
+    giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])), finds: s.finds,
+    sheetSeen: s.sheetSeen.slice(), lures: s.lures.slice(), raft: { ...s.raft }, home: { ...s.home }, looks: s.looks.slice() });
   const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
   const items = () => (D ? shelfItems(D, metaLoop(), s.session, { meta: metaNow() }) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
@@ -291,6 +294,9 @@ export function fakeLoop(over = {}) {
     orders: () => (Array.isArray(s.orders) ? s.orders.map((o) => ({ ...o })) : []),
     wipeOrder(id) { const before = (s.orders || []).length; s.orders = (s.orders || []).filter((o) => o.id !== id); return { ok: s.orders.length < before, orders: api.orders() }; },
     orderFor: (fish) => (Array.isArray(s.orders) ? s.orders.find((o) => o.speciesId === fish?.speciesId)?.id ?? null : null),
+    // the Wick's sheet (SHEET.md §7.3): the real model on the fake's meta (a trip's run when s.run is set), the marks seen
+    sheet: (view = {}, live = null, cast = null) => (D ? sheetModel(metaNow(), D, { run: s.run || null, view, live, cast, shelf: items(), canChange: !(s.onTrip && s.fishOn === true) }) : null),
+    markSheetSeen(keys = []) { const own = new Set(D ? sheetKeys(metaLoop(), D) : []); for (const k of keys || []) if (own.has(k) && !s.sheetSeen.includes(k)) s.sheetSeen.push(k); s.saves++; return true; },
     cutBait(fish) { if (!fish || !['small', 'keeper'].includes(fish.sizeClass)) return { ok: false, gained: { strips: 0 } }; s.bag.cut_strip = (s.bag.cut_strip | 0) + 3; return { ok: true, gained: { strips: 3 } }; },
     // TK (the tackle tin, CONTRACT §14.19): may the hook change (refused while s.fishOn on a trip), and the change (the fit's rules)
     canChangeHook: () => !(s.onTrip && s.fishOn === true),

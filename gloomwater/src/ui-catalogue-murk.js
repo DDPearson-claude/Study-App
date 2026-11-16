@@ -756,3 +756,5 @@ export function createMurkBook(deps) {
   }
   return { render, onKey, debug, slow: (k) => { turnScale = Math.max(0.1, Number(k) || 1); }, go: (page) => { const e = K.entry?.('shelf'); if (e) go(e, page); }, pageOf: (focus) => (live ? focusPage(live.B, focus) : null) };
 }
+// the Wick's sheet (SHEET.md §7.3): the flyleaf is this book's paper (its noise, fibre, corner ornament and rule)
+export { PAPER_NOISE, FIBRE, CORNER, RULE };

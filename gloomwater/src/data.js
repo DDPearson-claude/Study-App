@@ -10,6 +10,7 @@
 import { rosterSpecies, rosterItemNames, HOUR_WINDOWS } from './roster-species.js';
 import { ROSTER_SHIPPED } from './roster-shipped.js';
 import { findShares as findSharesOf } from './loop-finds.js';   // M1 step 5c (lane 5C): the finds' one draw, pure
+import { HOOK_ITEMS as WC_HOOK_ITEMS, gradeTargets as wcGradeTargets, gradeOf as wcGradeOf } from './watercraft.js';   // the sheet (SHEET.md §8.1): the Hold rule's targets, pure
 
 // =====================================================================================
 // STATS (DESIGN §6–§10) — every stat key the game reads. base = value before
@@ -5427,6 +5428,28 @@ TEXT_LOOP.murk.shelfBare = "Shelf's bare. Keep the rest; the road goes on.";   /
 // its name on the running head and the cover, and the order line under a marked item. Every other word in the book is the shelf's.
 TEXT_LOOP.goods = { name: "Murk's Goods", buy: 'Buy · {price}' };
 // <<< Murk's catalogue
+// >>> the Wick's sheet (docs/loop/SHEET.md v2 §6; SPEC §8.12, the user's answers 41–43): "{name}'s Sheet" on the pause menu and the
+// Journal's first tab; two heads; the passives' exact numbers (templates filled from LOOP.wicks, never typed); the few effect words; the
+// moves; the size lines' labels; the user's "where you last cast" (Q41: the area never named); accessible names only for the rest.
+TEXT_LOOP.sheet = {
+  title: "{name}'s Sheet", buffs: 'Buffs', odds: 'Odds',
+  exact: {
+    wick: 'Each sells ×{mult}, at least {floor} more. Never a giant.',
+    taper: 'First bite never a common fish. Giants ×{share} as often, to {cap}.',   // ({cap} is filled as a percentage)
+    stub: 'Bites sooner ×{sooner}. Quiet water costs ×{quiet} as much, and never slows them.',
+    tallow: '+{good} good bite at every water and place, too.',
+    ashwick: 'Once, tired: +{hold} Hold when it bites again. Never a giant.',
+  },
+  cast: 'Casts {m} m · {n} longer to strike',   // ({n} is filled as a percentage)
+  bigger: { predator: 'Bigger predators.', bottom: 'Bigger bottom feeders.' },
+  giants: 'Giants ×{k}.', rarer: 'Rarer fish.', sooner: 'Bites sooner ×{k}.', good: 'Good bites',
+  move: '{what} {from} → {to}', moveNext: '{what} {from} → {to} with this.',
+  family: { predator: 'Predators:', bottom: 'Bottom feeders:' },
+  lastCast: 'Where you last cast',
+  quiet: 'Quiet water',   // a buff's source on a trip (the float's quiet term)
+  hours: { day: 'Day', dusk: 'Dusk', night: 'Night' }, fresh: 'New', pinned: 'Pinned', tipped: 'Tipped', notches: '{n} of {of}',
+};
+// <<< the Wick's sheet
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
@@ -5918,6 +5941,18 @@ if (V3_ENABLED) {
     const mi = SPECIES.findIndex((x) => x.id === 'belled_matriarch');
     if (mi >= 0) SPECIES[mi] = { ...v3clone(SPECIES[mi]), model: { ...SPECIES[mi].model, shape: 'catfish', whiskers: 2, head: 'shovel', tail: 'eel', bell: true } };
   }   // <<< M1 step 4 (lane 4)
+  if (LOOP_ENABLED) {   // >>> the Wick's sheet (SHEET.md §8.1, SPEC decision 108): on the Mossmere under the loop a tin's or lure's Hold helps
+    // the fish that like it or better (WATERCRAFT.md §3.7: watercraft.gradeTargets), as the sim's itemHold and WC-3's gear line already
+    // say. A loop-only data patch: catchItemHold's text is untouched (the v3 fingerprint hashes it); `species` is read before `family`,
+    // `night` and `attract`, which stay on the record for the sim's fallback. Every species with no hook row keeps the built rule (read
+    // here, before the patch). The Harbour-Bell Spinner keeps lane 4's named giants (set above).
+    for (const id of WC_HOOK_ITEMS) {
+      if (id === 'bare' || id === 'bell_spinner' || !CATCH_V3.items[id]) continue;
+      const rows = wcGradeTargets(id);
+      const rest = SPECIES.filter((s) => s.rarity !== 'legendary' && wcGradeOf(s.id, {}) === undefined && catchItemHold(id, s) > 0).map((s) => s.id);
+      CATCH_V3.items[id] = { ...CATCH_V3.items[id], species: [...rows, ...rest] };
+    }
+  }   // <<< the Wick's sheet
   // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
   const moss = ZONES[0];
   Object.assign(moss.palette, MOSSMERE_V3.palette);
