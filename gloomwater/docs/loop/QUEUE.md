@@ -35,7 +35,7 @@ The user, 15 November 2026: "Once this visual job has ran, focus on all code bas
 
 M1.md §8 question 2 (the harbour re-dress), asked before step 3: the user chose **"Behind a switch, then your yes"** (15 November 2026): Under the Span's arches ship with step 3a; the rest of the re-dress is built behind `LOOP.redress`, shown side by side with today's look, and switched on only after the user's yes.
 
-9. Slice 1a: the core loop at the Jetty (the opening with the five Wicks, the tutorial, three slots, the tally, the tackle shelf, saves), its PLAN amended by 3–8; the cut scene's new line 3 put in and re-timed; the catch show's backlog below.
+9. ~~Slice 1a~~ *(DONE 16 November: merged at d4bfe43 and pushed; the full pipeline (seam, four lanes, two-part stage, three reviews with 5 musts / 12 shoulds / 9 coulds, a fix) took about 12 hours; the node gate and every browser pass green on the merge; the sheet, the Wicks' sheet and a 99 s video sent; the lead's rulings on PLAN CHOICEs 47–51 written into the PLAN; the preview republished with the loop on)*: the core loop at the Jetty (the opening with the five Wicks, the tutorial, three slots, the tally, the tackle shelf, saves), its PLAN amended by 3–8; the cut scene's new line 3 put in and re-timed; the catch show's backlog below.
 10. The Mossmere's roster fish (slice 1b's Mossmere half): the eight at roster sizes, the converter, the allow-list.
 11. *(visual)* The Mossmere's places, giants and legend (slice 2's Mossmere half): the four places in mist, the Thousandcast Pike and the Hullkiss Lamprey, the Belled Matriarch, Elders in old water, Kissmark Trout, Gloam Eel, Bridgechain Sturgeon, the lamprey / sturgeon / trout plans, the drawn Chart.
 12. Bait, lures, the raft parts and Murk's orders (slice 3 without Sporewood's fish), and the catfish plan so the Matriarch is a catfish.
@@ -54,7 +54,8 @@ M1.md §8 question 2 (the harbour re-dress), asked before step 3: the user chose
 
 The user, 15 November 2026: "Can we run anything else in parallel without slowing the process down?" The lead's rule since: **one machine-heavy job at a time** (any job that runs the game's browser tests or long sims: the code builds, the sim re-tunes, the balancing); **design and writing jobs may run beside it**, because their work happens off this machine, and any bake or render they do runs under `nice -n 15` so it yields to the heavy job. More agents at once spends the usage allowance faster; if a limit is hit, the heavy job keeps priority.
 
-- **Slice 1a** (job 9, LARGE, the heavy job; the slice branch `gw-1a`, lanes `gw-1a-ledger` (A), `gw-1a-evening` (B), `gw-1a-screens` (C), `gw-1a-scenario` (D)): the seam S, four lanes, a two-part stage, three reviews, a fix; then the preview with the loop on.
+- **Track "fish and water": job 10, the Mossmere's roster fish** (M1 step 2, SMALL; branch `gw-m1-s2`, run `wf_19d91bf5-700`).
+- **Track "home and map": M1 step 3b, the drawn Chart** (MEDIUM, visual; branch `gw-m1-s3b`, run `wf_41f58fc2-41a`).
 - ~~Five characters to meet~~ (merged).
 - ~~The far-water Wicks' design~~ (merged).
 - ~~**The lore brief**~~ (done, sent; writing, beside it): one standalone Markdown file of the lore so far, for the user to give another agent that will design characters (the user: "Give me an MD file of the lore so far. Im going to use another agent to come up with characters for our game whilst you're working").

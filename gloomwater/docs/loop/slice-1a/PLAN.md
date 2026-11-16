@@ -1708,27 +1708,27 @@ Numbers are kept from revision 1 so references stay valid; a withdrawn choice sa
     the move of line 3's `out` at 0.15 s (14.85 → ≤ 15.0), but its arithmetic left out `INTRO.lineFade`: the A5 rule (≤ 17.5
     characters a second over the line's time on screen, its fades out) cannot be met for "Its last candles fish from lamp to
     lamp." within that cap. The build moves it 0.35 s (`INTRO.lines[2].out = 15.2` in the apply block, loop only; the v3
-    film keeps 14.85); the gap to line 4 stays 0.5 s. A code-vs-PLAN deviation, recorded here and re-shown on the phone.
+    film keeps 14.85); the gap to line 4 stays 0.5 s. A code-vs-PLAN deviation, recorded here and re-shown on the phone. **Ruling (the lead, 16 November 2026): accepted.** The fading line's half second over the raft's deck at the cut is left for M1 step 6, which re-cuts the film and its video.
 48. (the stage's review; for the lead) **The trip's water carries SPEC §8.1's words only** (T43; decision 62 keeps the class
     estimate a word). Under the loop's trip the bite tell keeps its glyph and its class estimate ("Keeper?") but not its
     motion word ("a plunge"); the strike shows its ring burst with no word ("Clean", "Struck", "Early", "Late"); the play's
     stamp keeps its seal and class without "by the look of it"; the hurry mark keeps its chevrons only; and the float's
     favour list opens on a press, never on a hover. Off the loop the built words stay. The got-away note ("A Mossback Perch
-    spat the hook.") is kept as SPEC §2 and §10 keep it, though it is no `TEXT_LOOP` string: T43 does not scan it.
+    spat the hook.") is kept as SPEC §2 and §10 keep it, though it is no `TEXT_LOOP` string: T43 does not scan it. **Ruling (the lead, 16 November 2026): accepted** (fewer words on the water, the user's taste); the got-away note stays.
 49. (the stage's review; the user's rule) **No ring round the raft or the Wick on a trip's cast.** The built cast UI drew a
     castMax range ring round the raft and the depth reticle with its SHALLOW / MID / DEEP word 3 m out, over the Wick, and
     the anchor's plop spread a ring round the raft as the first cast charged. Under the loop's trip: no range ring, no band
     word and no reticle (from the trip camera even a reticle 7–9 m out floats just over the Wick's flame; the cast arc's dots
     show the aim), the plop's drops with no ring,
-    and a fish's ring in the play that would grow over the raft keeps its spray only. Off the loop as built.
+    and a fish's ring in the play that would grow over the raft keeps its spray only. Off the loop as built. **Ruling (the lead, 16 November 2026): accepted** (the user's rule: never a ring round the raft or the player). The charge gauge, a short curved bar beside the Wick, is not a ring and stays; M1 step 6 looks at it again on a phone.
 50. (the stage's review; for the lead) **`LOOP.time` is only partly measured** (T37, SPEC §13). The stage wrote the measured
     `home` (2 s) and `sale` (5.8 s, a three-fish tally); `out` stays 14 (the measured glide is 3 s; the Chart and Sail took no
     game time under the harness) and `shop` 16 (the harness cannot time a person at the shelf). The sim charges the sale flat,
     so a hold of 6–8 is under-charged (about 9.5 s at the tally's own pace). To keep the map hours, Sporewood's lake price went
-    2,000 → 2,600 (lane A's knob). The lead rules on `out`, `shop`, a sale that scales with the hold, and the price.
+    2,000 → 2,600 (lane A's knob). The lead rules on `out`, `shop`, a sale that scales with the hold, and the price. **Ruling (the lead, 16 November 2026):** keep `out` 14, `shop` 16 and the flat sale for now, and Sporewood at 2,600 (a later water's price; M1 never sells it). M1 step 6's playthrough at real speed measures `out`, `shop` and the sale per fish, and the sim re-tunes then (a sale that scales with the hold, and Sporewood's price back toward 2,000 if the map hours allow).
 51. (the stage's review; for the lead) **A stranded trip sold by the flag-off boot pays no Wick bonus** (`sellStrandedTrip`
     through `tallyBook` without `saleOf`), while the tally does (the Wick's ×1.4 for a kept first). Rare, and nothing shown is
-    taken away; the lead rules whether the bonus applies there too.
+    taken away; the lead rules whether the bonus applies there too. **Ruling (the lead, 16 November 2026): accepted as built** (no bonus on that rare recovery path; the fish still sell at their price).
 
 ### 7.1 For the lead to confirm first, and for the user
 
