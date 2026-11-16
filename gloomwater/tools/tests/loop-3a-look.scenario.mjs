@@ -51,7 +51,7 @@ export const POSE_B = {
 export const REDRESS_POSES = [
   { what: 'gate', note: 'the Sunken Gate and its tower', pos: [0, 9, -18], look: [0, 18, -80], fov: 55 },
   { what: 'veil', note: 'the east cliff and the Sluice Veil', pos: [30, 6, 8], look: [62, 8, 4], fov: 55 },
-  { what: 'lamp', note: 'an island\'s lamp-post or bollard', pos: [-22, 4.5, 22], look: [-30, 2, 14], fov: 50 },
+  { what: 'lamp', note: 'a lamp pylon\'s post, or its bollard and buoy-lantern', pos: [18.5, 3.6, 2.5], look: [12, 2.2, -5], fov: 50 },
   { what: 'bridge', note: 'the Toppled Bridge for reference', pos: [-24, 5, 12], look: [-30, 2, 0], fov: 55 },
 ];
 
@@ -143,6 +143,7 @@ export default async function (api) {
     // ------------------------------------------------------------ sheet 4: the re-dress (both halves: today, then --redress)
     if (sheets.includes('redress') || (sheets.includes('places') && !redress && !args.noredress)) {
       K.step(`sheet 4: the harbour ${redress ? 're-dressed' : 'today'}`);
+      await K.places.lift('all', { play: false });   // (the harbour, not the mist: every place lifted on both sides)
       for (const light of ['dusk', 'gloomtide']) {
         await K.places.light(light, 0.45); await K.places.pose(-6, 30, 0); await settle(3);
         for (const p of REDRESS_POSES) {

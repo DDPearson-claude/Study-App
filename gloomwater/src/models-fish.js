@@ -633,7 +633,8 @@ function bodyTexture(M, shape, parts) {
   const tmp = new THREE.Color();
   for (let y = 0; y < H; y++) {
     const v = 1 - (y + 0.5) / H, th = -Math.PI / 2 + v * TAU, up = Math.sin(th);
-    const t = THREE.MathUtils.smoothstep(up, -0.5, 0.45);
+    // (the loop's lamprey keeps its ink over the whole flank: only the belly's last band pales)
+    const t = shape === 'lamprey' ? THREE.MathUtils.smoothstep(up, -0.85, -0.35) : THREE.MathUtils.smoothstep(up, -0.5, 0.45);
     tmp.copy(belly).lerp(body, t).multiplyScalar(1 - 0.32 * Math.max(0, up) ** 2);
     g.fillStyle = cssColor(tmp); g.fillRect(0, y, W, 1);
   }

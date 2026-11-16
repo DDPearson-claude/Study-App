@@ -263,7 +263,7 @@ void main() {
     float lip = smoothstep(0.7, 0.9, u) * body;
     float crack = smoothstep(0.035, 0.0, abs(p.y + 0.06 - 0.09 * sin(u * 9.0) - 0.05 * u)) * smoothstep(0.1, 0.55, u) * body;
     ink = shape * vI.x * (1.0 - 0.35 * edge);
-    glow = (uRust * lip * 0.16 + uVerd * crack * 0.22) * (0.35 + 0.65 * vK) + uMoon * edge * (p.y > 0.0 ? 1.0 : 0.25) * 0.3 * vK;
+    glow = (uRust * lip * 0.2 + uVerd * crack * 0.22) * (0.35 + 0.65 * vK) + uMoon * edge * (p.y > 0.0 ? 1.0 : 0.3) * 0.55 * vK;
   } else if (vKind < 2.5) {
     if (r > 1.0) discard;
     float sh = 0.75 + 0.25 * wpN(p * 3.0 + vec2(uTime * 0.25, -uTime * 0.18));
@@ -426,15 +426,17 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         if (broken) {
           const endU = u1 < half ? u1 : u0;
           const c = Math.cos(sYaw), s = Math.sin(sYaw);
-          for (const vOff of [-1.1, 0.15, 1.05]) {
+          // (along the deck's two edges, clear of the passage under the break: a raft fishing there keeps its show's lens clear; the outer
+          // strands reach the water, the inner ones stop above a Wick's flame)
+          for (const [vOff, len] of [[-1.5, 3.5], [-0.95, 1.2], [0.95, 1.4], [1.5, 3.5]]) {
             const vx = s * vOff, vz = c * vOff;
-            chainTips.push({ x: mx + c * endU + vx, y: DECK - 0.1, z: mz - s * endU + vz, len: 2.6 + rng() * 1.4, sway: rng() * TAU, side: Math.sign(endU) });
+            chainTips.push({ x: mx + c * endU + vx, y: DECK - 0.1, z: mz - s * endU + vz, len: len * (0.9 + rng() * 0.2), sway: rng() * TAU, side: Math.sign(endU) });
           }
         }
       }
     }
     // rubble: a few fallen blocks on the deck by the break and against the piers' feet (inside the piers' own collision)
-    for (const ch of chainTips.filter((_, k) => k % 3 === 1)) {
+    for (const ch of chainTips.filter((_, k) => k % 4 === 1)) {
       for (let k = 0; k < 3; k++) {
         const s2 = 0.25 + rng() * 0.3, ox = (rng() - 0.5) * 1.2, oz = (rng() - 0.5) * 1.6;
         kit.push(prep(rockGeoLite(s2), { matrix: mat(ch.x - ch.side * (0.8 + rng() * 0.8) + ox * 0.3, DECK + THICK + s2 * 0.3, ch.z + oz, rng() * 0.6, rng() * TAU, rng() * 0.6), colorFn: colorStone(0) }));
@@ -451,11 +453,11 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       const pts = [];
       const nL = 9;
       for (let k = 0; k <= nL; k++) {
-        const t = k / nL, y = ch.y - (ch.y + 0.4) * t;
+        const t = k / nL, y = ch.y - Math.min(ch.len, ch.y + 0.4) * t;
         const sway = Math.sin(ch.sway + t * 2.2) * 0.12 * t + ch.side * 0.18 * t * t;
         pts.push(V(ch.x + sway * 0.6, y, ch.z + sway));
       }
-      chainKit.push(prep(taperTube(pts, (t) => 0.026 + 0.012 * Math.max(0, Math.cos(t * 70)), 5, 60), { colorFn: (x, y) => mixArr(scaleArr(K.rust, 1.25), K.iron, y < 0.3 ? 0.55 : 0.12 + 0.18 * Math.max(0, Math.sin(y * 11))) }));
+      chainKit.push(prep(taperTube(pts, (t) => 0.02 + 0.01 * Math.max(0, Math.cos(t * 70)), 5, 60), { colorFn: (x, y) => mixArr(K.rust, K.iron, y < 0.3 ? 0.6 : 0.3 + 0.2 * Math.max(0, Math.sin(y * 11))) }));
     }
   }
 
@@ -570,7 +572,17 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     group.add(stone);
   }
   if (chainKit.length) {
-    const cm = new THREE.Mesh(G(merge(chainKit)), stoneMat);
+    // the chains' own material: the stone's, dithered away within a few metres of the lens, so a show filmed under the break (the
+    // lens a step from the Wick) is never barred by a strand in front of it
+    const chainMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: mixHex(far, light, 0.45), rimPower: 0.56, steps: 3, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
+    const base = chainMat.onBeforeCompile;
+    chainMat.onBeforeCompile = (sh, r) => {
+      base?.call(chainMat, sh, r);
+      sh.fragmentShader = sh.fragmentShader.replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>
+        { float gwD = length(vViewPosition); if (gwD < 3.2) { float gwH = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453); if (gwH > smoothstep(1.2, 3.2, gwD)) discard; } }`);
+    };
+    chainMat.customProgramCacheKey = () => 'gwPlaceChains';
+    const cm = new THREE.Mesh(G(merge(chainKit)), chainMat);
     cm.name = 'placeChains';
     setupSurface(cm, { cast: false });
     group.add(cm);
@@ -647,7 +659,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   const bell = P.find((p) => p.id === 'bell_pool');
   if (bell && bell.area.kind === 'disc') {
     const a = bell.area;
-    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 2.3, sz: 1.6, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.5, night: 0.6 });
+    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 3.6, sz: 2.5, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.62, night: 0.6 });
     addDecal({ x: a.x - 0.4, z: a.z + 0.6, y: 0.035, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
     // "The moon looks in on the old bell": a pale shaft standing on the pool once its mist has lifted (strongest at night)
     addDecal({ x: a.x + 0.3, z: a.z - 0.2, y: 0, sx: 3.4, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
