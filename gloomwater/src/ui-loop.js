@@ -352,6 +352,67 @@ export function journalModel(meta, D, waterId, { listFor = null } = {}) {
   return { list, rest, have, need: list.length, badge: `${have}/${list.length}` };
 }
 
+/**
+ * M1 step 3a (SPEC §8.8, M1.md §2.17): the catalogue's page as the view draws it, from progression-loop's catalogueFor: {head: {waterId,
+ * name, count ("n/12"), seals}, list: Card[], groups: [{placeId, kind, owned, name (null while unowned), cards}], finds: null}. A
+ * Card: {id, caught, listed, name (its own once caught, "· · ·" until then), star (a giant or the legend), gold (the legend's card),
+ * edge ('gold' for a giant), glyphs (icon names: a listed fish its place glyph and its hours; a fish under a heading its hours and its
+ * one bait)}. No number and no rate in a card, ever (revision 7). Pure.
+ */
+const BAIT_GLYPH = { heartmoss: 'mossball' };
+export function catalogueView(cat, D) {
+  if (!isObj(cat)) return null;
+  const card = (e, listed) => {
+    const sp = spOf(D, e.id);
+    const caught = e.caught === true;
+    const glyphs = listed ? [e.place ? `kind_${e.place}` : 'kind_open', ...arr(e.hours)] : [...arr(e.hours), ...(e.bait ? [BAIT_GLYPH[e.bait] || 'worm'] : [])];
+    return { id: e.id, caught, listed, name: caught ? sp?.name || e.id : '· · ·', star: e.giant === true || e.legend === true, gold: e.legend === true,
+      edge: e.giant === true ? 'gold' : null, glyphs };
+  };
+  const h = isObj(cat.head) ? cat.head : {};
+  return {
+    head: { waterId: h.waterId ?? null, name: h.name ?? '', count: `${Math.floor(num(Number(h.have), 0))}/${Math.floor(num(Number(h.need), 0))}`, have: num(Number(h.have), 0), need: num(Number(h.need), 0), seals: isObj(h.seals) ? h.seals : null },
+    list: arr(cat.list).map((e) => card(e, true)),
+    groups: arr(cat.groups).map((g) => ({ placeId: g.placeId ?? null, kind: g.kind ?? 'open', owned: g.owned === true, name: g.owned === true ? g.name ?? null : null, cards: arr(g.entries).map((e) => card(e, false)) })),
+    finds: null,
+  };
+}
+/** M1 step 3a (PLAN CHOICEs 11, 25): the Journal's ★ page, the giants and the legend of the given waters (in M1 the Mossmere's three),
+ *  each {id, caught, name ("· · ·" until landed), legend, weight (its best, fmtWeight of its best length) | null}. Pure. */
+export function giantsView(meta, D, waterIds = ['mossmere']) {
+  const J = isObj(meta?.journal) ? meta.journal : {};
+  const ws = arr(waterIds);
+  return arr(D?.SPECIES).filter((s) => isObj(s) && ws.includes(s.zone) && (s.giant === true || s.rarity === 'legendary')).map((s) => {
+    const rec = J[s.id], caught = num(Number(rec?.caught), 0) > 0, len = num(Number(rec?.pbLength), 0);
+    let weight = null;
+    if (caught && len > 0 && typeof D?.fmtWeight === 'function' && typeof D?.fishWeight === 'function') { try { weight = D.fmtWeight(D.fishWeight(s, { length: len })); } catch { weight = null; } }
+    return { id: s.id, caught, name: caught ? s.name : '· · ·', legend: s.rarity === 'legendary', weight };
+  });
+}
+/** M1 step 3a (T142): the lift's title card for a place:lift event: {show, name, dur} (the 'title' phase only; LOOP.lift.title s). */
+export function liftTitle(p, D) {
+  const dur = num(D?.LOOP?.lift?.title, 1.2);
+  if (!isObj(p) || p.phase !== 'title') return { show: false, name: null, dur };
+  const name = (typeof p.name === 'string' && p.name) || (typeof D?.loopPlace === 'function' ? D.loopPlace(p.placeId)?.name : null) || null;
+  return { show: !!name, name, dur };
+}
+/**
+ * M1 step 3a (T144, SPEC §8.6): Murk's one line after a sale, by its order: a water's list complete (with the catch seal's press), a
+ * legend's first landing, the first giant sold, the first sale, the first Trophy or bigger. `rows` the tally's (tallyPlan), `said`
+ * meta.loop.said, `listDone` the list complete on this save. → the sayOnce id, or null.
+ */
+export function saleLineId({ rows = [], said = {}, listDone = false, empty = false } = {}) {
+  const S = isObj(said) ? said : {};
+  if (listDone && !S.listComplete) return 'listComplete';
+  if (empty) return null;
+  const R = arr(rows);
+  if (R.some((r) => r.legend) && !S.legendFirst) return 'legendFirst';
+  if (R.some((r) => r.giant) && !S.firstGiant) return 'firstGiant';
+  if (!S.firstSale) return 'firstSale';
+  if (R.some((r) => r.giant || r.legend || r.sizeClass === 'trophy' || r.sizeClass === 'elder') && !S.firstTrophy) return 'firstTrophy';
+  return null;
+}
+
 /** Settings' words under the loop (PLAN CHOICE 43, T74, T69); off the loop the built words. */
 export function settingsWords(D, loopOn) {
   const S = T_(D).settings || {}, F = T_(D).forget || {};
@@ -599,6 +660,9 @@ export function createLoopView(K) {
       holdRow.appendChild(cell);
     }
     holdRow.classList.toggle('gw-full', cells.length > 0 && filled >= cells.length);
+    // M1 step 3a (T141, SPEC §8.1): past six cells the row wraps to two on a phone (Tallow's 7 at Hold 6); one row on a desktop
+    holdRow.dataset.n = String(cells.length);
+    holdRow.classList.toggle('gw-hold--wrap', cells.length > 6);
     if (fishArt.size > 24) for (const k of fishArt.keys()) { if (!cells.some((c) => c.uid === k)) fishArt.delete(k); }
   }
 
@@ -623,6 +687,26 @@ export function createLoopView(K) {
     setTimeout(() => el.remove(), 420);
   }
 
+  // ------------------------------------------------------------------ the lift's title card (M1 step 3a; T142, PLAN CHOICE 21)
+  const LT = { el: null, t: 0, dur: 0 };
+  function showLiftTitle(tc) {
+    dropLiftTitle(true);
+    const el = h('div', `gw-lift-title${reducedMotion() ? ' gw-rm' : ''}`, `<span class="gw-lift-crest" aria-hidden="true">${ORN.crest}</span><b></b><span class="gw-lift-flourish" aria-hidden="true">${ORN.flourish}</span>`);
+    el.querySelector('b').textContent = tc.name;
+    el.dataset.loop = 'lifttitle';
+    hudEl.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('gw-in'));
+    LT.el = el; LT.t = 0; LT.dur = tc.dur;
+  }
+  function dropLiftTitle(now = false) {
+    const el = LT.el;
+    if (!el) return;
+    LT.el = null;
+    if (now) { el.remove(); return; }
+    el.classList.remove('gw-in'); el.classList.add('gw-out');
+    setTimeout(() => el.remove(), 380);
+  }
+
   // ------------------------------------------------------------------ Murk's lines on the water (one lore toast; never in a bite)
   function murkToast(line) {
     if (!line) return;
@@ -631,15 +715,18 @@ export function createLoopView(K) {
   let quietSaid = false;
 
   // ------------------------------------------------------------------ the Jetty
-  const J = { line: null, lineT: 0, lineHold: 0 };
+  const J = { line: null, lineT: 0, lineHold: 0, press: null, count: null };
   function jettyLine() {
     const c = tut.cue();
     if (tut.isActive()) return c.line || null;
     return J.line;
   }
-  function openJetty({ line = null } = {}) {
+  function openJetty({ line = null, press = null } = {}) {
     J.line = line || null; J.lineT = 0;
     J.lineHold = line ? 4.5 + 0.05 * String(line).length : 0;
+    // M1 step 3a (T144, PLAN CHOICE 12): the catch seal presses with Murk's line, once (its own stamp; loop:seal for its sound)
+    J.press = press || null; J.pressed = false;
+    if (J.press) { const lc = L('listCount', 'mossmere'); J.count = lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null; }
     if (K.has('jetty')) { K.entry('jetty')?.render(); return; }
     const o = LOOP_MODALS.jetty;
     K.openModal('jetty', renderJetty, { screen: o.screen, blocking: o.blocking, dismissable: false, cls: 'gw-m-jetty', onEscape: () => openHomePause(), onKey: jettyKeys });
@@ -663,6 +750,16 @@ export function createLoopView(K) {
       </div>`;
     body.appendChild(wrap);
     if (line) wrap.querySelector('.gw-murk-line').textContent = line;
+    if (J.press && line === J.line) {
+      // the seal stays pressed beside Murk's line while it shows; it presses (and is heard) on the first drawing only
+      const which = J.press, first = !J.pressed;
+      J.pressed = true;
+      const seal = h('div', `gw-jetty-press${first && !reducedMotion() ? ' gw-press' : ''}`, `${keySeal(which, { held: true })}${J.count ? `<small class="gw-seal-n"></small>` : ''}`);
+      seal.dataset.seal = which;
+      if (J.count) seal.querySelector('.gw-seal-n').textContent = J.count;
+      wrap.querySelector('.gw-jetty-say')?.prepend(seal);
+      if (first) setTimeout(() => { try { ctx.bus.emit('loop:seal', { seal: which }); } catch (e) { report('loop:seal', e); } K.sfx?.('seal_stamp', { volume: 0.6 }); }, reducedMotion() ? 0 : 520);
+    }
     if (goal) wrap.querySelector('.gw-jetty-goal').innerHTML = goal.html; else wrap.querySelector('.gw-jetty-goal').remove();
     const nav = wrap.querySelector('.gw-jetty-tiles');
     for (const id of ['murk', 'chart', 'journal']) {
@@ -678,7 +775,7 @@ export function createLoopView(K) {
     }
     wrap.querySelector('[data-loop=homepause]').addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); openHomePause(); });
     // a tap on the sheet outside a tile only ends Murk's line (the tutorial's, or a once-line)
-    wrap.addEventListener('click', () => { if (tut.tap()) { refreshJetty(true); return; } if (J.line) { J.line = null; refreshJetty(true); } });
+    wrap.addEventListener('click', () => { if (tut.tap()) { refreshJetty(true); return; } if (J.line) { J.line = null; J.press = null; refreshJetty(true); } });
   }
   function refreshJetty(force = false) {
     const e = K.entry('jetty');
@@ -843,16 +940,21 @@ export function createLoopView(K) {
     s.soldAt = Date.now();
     const id = s.tally?.id ?? null;
     if (id != null) L('markTallySeen', id);
-    // Murk's one line after a sale (SPEC §8.6): the first sale, else the first Trophy or bigger; one at a time
-    let line = null;
-    if (!s.plan.empty) {
-      const said = L('state')?.said || {};
-      const big = s.plan.rows.some((r) => r.giant || r.legend || r.sizeClass === 'trophy' || r.sizeClass === 'elder');
-      if (!said.firstSale) line = L('sayOnce', 'firstSale');
-      else if (big && !said.firstTrophy) line = L('sayOnce', 'firstTrophy');
-    }
+    // Murk's one line after a sale (SPEC §8.6; M1 step 3a, T144): the list complete (the catch seal presses), else a legend's first
+    // landing, the first giant sold, the first sale, the first Trophy or bigger; one at a time
+    const { line, press } = homeLine({ rows: s.plan.rows, empty: s.plan.empty, zone: s.tally?.zone });
     K.closeModal('tally');
-    if (ctx.flow === 'home') openJetty({ line });
+    if (ctx.flow === 'home') openJetty({ line, press });
+  }
+  /** Murk's line at home (saleLineId's order) and the catch seal's press with it: {line, press: 'catch' | null}. */
+  function homeLine({ rows = [], empty = true, zone = null } = {}) {
+    const said = L('state')?.said || {};
+    const w = typeof zone === 'string' && zone ? zone : run()?.zone || 'mossmere';
+    const lc = L('listCount', w);
+    const listDone = !!lc && num(Number(lc.need), 0) > 0 && num(Number(lc.have), 0) >= num(Number(lc.need), 0);
+    const id = saleLineId({ rows, said, listDone, empty });
+    const line = id ? L('sayOnce', id) : null;
+    return { line: line || null, press: line && id === 'listComplete' ? 'catch' : null, count: lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null };
   }
 
   // ------------------------------------------------------------------ the shelf (SPEC §8.4)
@@ -1190,7 +1292,9 @@ export function createLoopView(K) {
   on('home:enter', (p) => {
     tut.start({ from: p.from ?? null });
     const unseen = isObj(p.tally) && p.tally.seen !== true ? p.tally : (() => { const lt = L('lastTrip'); return isObj(lt) && lt.seen !== true ? lt : null; })();
-    if (unseen) openTally(unseen); else openJetty();
+    if (unseen) openTally(unseen);
+    else if (tut.isActive()) openJetty();
+    else { const hl = homeLine({ rows: [], empty: true }); openJetty({ line: hl.line, press: hl.press }); }
   });
   on('run:start', (p) => {
     holdSig = ''; paintHold(true);
@@ -1211,6 +1315,12 @@ export function createLoopView(K) {
     K.sfx?.('denied', { volume: 0.5 });
     pill.classList.remove('gw-pulse'); void pill.offsetWidth; pill.classList.add('gw-pulse');
     holdRow.classList.remove('gw-shake'); void holdRow.offsetWidth; holdRow.classList.add('gw-shake');
+  });
+  // M1 step 3a (T142): the lift's title card: the place's name in ink for LOOP.lift.title s, in the HUD layer (never in world space)
+  on('place:lift', (p) => {
+    const tc = liftTitle(p, D());
+    if (p.phase === 'title' && tc.show) showLiftTitle(tc);
+    else if (p.phase === 'end' || p.phase === 'start') dropLiftTitle();
   });
   on('fishing:cast', () => dropTip('castEl'));
   on('fishing:bite', () => {
@@ -1238,12 +1348,13 @@ export function createLoopView(K) {
   // ------------------------------------------------------------------ per frame
   function update(dt) {
     const d = Math.max(0, Math.min(0.25, num(dt)));
+    if (LT.el) { LT.t += d; if (LT.t >= LT.dur) dropLiftTitle(); }
     // the tutorial's clock (real time; it runs only under the Jetty or the Chart)
     const topId = K.top()?.id ?? null;
     if (ctx.flow === 'home') {
       tut.update(d, { top: topId });
       if (tut.wantsChart && topId === 'jetty') { tut.onTile('chart'); openChart(); }
-      if (J.line && topId === 'jetty') { J.lineT += d; if (J.lineT > J.lineHold) J.line = null; }
+      if (J.line && topId === 'jetty') { J.lineT += d; if (J.lineT > J.lineHold) { J.line = null; J.press = null; } }
       if (topId === 'jetty') refreshJetty();
     }
     if (!onTrip() || ctx.flow !== 'playing') return;
@@ -1305,6 +1416,8 @@ export function createLoopView(K) {
       hold: [...holdRow.querySelectorAll('.gw-slot')].map((c) => c.dataset.filled),
       pill: { on: pill.classList.contains('gw-on'), pulse: pill.classList.contains('gw-pulse'), k: P.k, held: !!P.press },
       tips: { cast: !!TIP.castEl, strike: !!TIP.strikeEl },
+      liftTitle: LT.el ? { name: LT.el.querySelector('b')?.textContent ?? null, t: LT.t, dur: LT.dur } : null,
+      chartList: chartListForced,
     }),
   };
 }
