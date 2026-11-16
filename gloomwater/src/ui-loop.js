@@ -275,9 +275,13 @@ export function chartPlacesOf(meta, D, waterId, { tutorial = false } = {}) {
     }
     const giant = typeof p.giant === 'string' ? p.giant : null, legend = typeof p.legend === 'string' ? p.legend : null;
     const landed = giant ? num(Number(ml.giants?.[giant]?.landed), 0) > 0 : legend ? num(Number(ml.legends?.[legend]), 0) > 0 : false;
+    // >>> WC-3 (WATERCRAFT §7.2): under the loop the Chart draws no Marked ripple and no wound nick (each would name the fish that got
+    // away); the save keeps the mark and the wounds, and their Hold still applies
+    const quiet = D?.LOOP_ENABLED === true;
+    // <<< WC-3
     return { id, kind: p.kind ?? null, owned: own, price: !own && priced.has(id) ? priced.get(id) : null, best, giantLanded: landed,
-      marked: giant ? num(Number(ml.giants?.[giant]?.marked), 0) > 0 : false,
-      wounds: legend ? Math.max(0, Math.min(cap, Math.floor(num(Number(meta?.legendWounds?.[legend]), 0)))) : 0 };
+      marked: giant && !quiet ? num(Number(ml.giants?.[giant]?.marked), 0) > 0 : false,
+      wounds: legend && !quiet ? Math.max(0, Math.min(cap, Math.floor(num(Number(meta?.legendWounds?.[legend]), 0)))) : 0 };
   });
 }
 /** M1 step 3a (M1.md §3.6, PLAN CHOICE 19): the list Chart's place rows, in the Chart's order: every owned place and every priced one

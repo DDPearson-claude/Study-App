@@ -1507,7 +1507,7 @@ export function createScreens(K) {
       }
       const ob = oddsBlock(sp, s.hl);
       if (ob) det.insertAdjacentHTML('beforeend', ob);
-      if (af()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));
+      if (af() && !loopOn()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));   // (WC-3, WATERCRAFT §7.2: no Got away list under the loop)
       if (ob && ctx.flow === 'playing') {
         const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
         gl.type = 'button';

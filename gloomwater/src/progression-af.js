@@ -590,6 +590,19 @@ export function createAutofish(S) {
     const cls = legend ? 'legend' : e.sizeClass || (z != null ? (D().isAncient?.(z) ? 'ancient' : D().sizeClassOf?.(z)) : null);
     const elder = !legend && (cls === 'elder' || cls === 'ancient');
     let name = e.name || null;
+    // >>> WC-3 (WATERCRAFT §7.2-§7.3, the lost fish): on a trip the loss writes nothing a screen could show: no Glimpsed page, no Got
+    // away list, no escape, no Elder name or Elder Log line, no gear-log pin, no run got-away line, no journal:seen. Only what the
+    // water silently remembers: the legend's wound and the Marked Fish (as built; progression-loop marks the giant and stores
+    // Ashwick's comeback). The flag-off game and the expeditions keep the whole of the built path below.
+    if (loopRun(r)) {
+      const lake = r?.zone || S.hubZone() || sp.zone || null;
+      if (legend) addLegendWound(sp.id);
+      else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
+      else if (e.markedFish && !comeback) addMarkedFish({ ...e, name: null, zone: lake });
+      S.requestSave();
+      return;
+    }
+    // <<< WC-3
     if (elder && !name) { name = nameElder(sp.id, `${e.reason || 'lost'}:${z}:${m.runs | 0}:${r?.day ?? 0}:${frame()}`); if (name) e.name = name; }
     const len = Number(e.approxLength) > 0 ? Number(e.approxLength) : null;
     const lake = r?.zone || S.hubZone() || sp.zone || null;

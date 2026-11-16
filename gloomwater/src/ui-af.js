@@ -220,7 +220,10 @@ export function oddsView(D, res, { speciesName = '', loadout = [], itemName = ''
     const label = fill(L.with || 'With the {item}:', { item: itemName || String(res.withBest.item).replace(/_/g, ' ') }).replace(/^With the The /, 'With the ');
     withBest = { label, item: res.withBest.item, cells: show.map((c) => cell(c, res.withBest.odds, false)) };
   }
-  const marked = unseen ? [] : arr(res?.marked).map((m) => {
+  // >>> WC-3 (WATERCRAFT §7.2): under the loop the logs name no lost fish: no Marked line and no wound line (the cells stay true)
+  const quiet = D?.LOOP_ENABLED === true;
+  // <<< WC-3
+  const marked = unseen || quiet ? [] : arr(res?.marked).map((m) => {
     const size = nearWeight(D, species, m.approxLength).replace(/^\S+\s/, '');
     const vars = { name: m.name || speciesName, class: classLabel(D, m.sizeClass, m.ancient), size };
     const head = size ? fill(L.marked || '{name}, {class}, near {size}', vars) : `${vars.name}, ${vars.class}`;   // no estimate kept: no "near"
@@ -228,7 +231,7 @@ export function oddsView(D, res, { speciesName = '', loadout = [], itemName = ''
   });
   const w = Math.max(0, Math.round(num(res?.wounds)));
   const per = num(D?.CATCH_V3?.legend?.woundPerEscape, 6);
-  const wounds = w > 0 ? `Wounded ${w === 1 ? 'once' : w === 2 ? 'twice' : `${w} times`}: +${Math.min(num(D?.CATCH_V3?.legend?.woundCap, 18), w * per)}` : '';
+  const wounds = w > 0 && !quiet ? `Wounded ${w === 1 ? 'once' : w === 2 ? 'twice' : `${w} times`}: +${Math.min(num(D?.CATCH_V3?.legend?.woundCap, 18), w * per)}` : '';
   const notes = unseen ? [L.unseen || 'Land or lose one to learn its odds.'] : [L.strike || 'A clean strike adds a little; an early or late one costs a little.'];
   // no Gloom at the Landing; none under the loop either (slice 1a: no Gloomtide and no hands on a trip, SPEC §9)
   if (!unseen && !legend && !cove && D?.LOOP_ENABLED !== true) notes.push(L.gloomtide || 'Gloomtide: a hand slam that lands parts the line.');
