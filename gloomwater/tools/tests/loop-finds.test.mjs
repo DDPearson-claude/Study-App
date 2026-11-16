@@ -292,5 +292,30 @@ section('the catch path: fishing:bite {sizeClass: \'find\'}, then fishing:found 
   void pl;
 }
 
+// ------------------------------------------------------------------ the screens' pure parts (ui-loop's tally plan, Murk's lines; ui-finds)
+section('the tally\'s rows and the card (pure)');
+{
+  const U = await import('../../src/ui-loop.js');
+  const UF = await import('../../src/ui-finds.js');
+  const lines = PL.tallyLines([LF.holdEntry(D, 'gate_glass', { uid: 'a' }), LF.holdEntry(D, 'toll_purse', { uid: 'b' }), LF.holdEntry(D, 'tin_spoon', { uid: 'c' })], { D });
+  const plan = U.tallyPlan({ lines }, { D });
+  eq(plan.rows.map((r) => r.name), ['Bent Tin Spoon', "The Toll-Keeper's Purse", 'Gate Lamp-Glass'], 'the tally plan: the spoon, the Purse, then the part');
+  ok(plan.rows[1].jackpot === true && plan.rows[1].giant === false && plan.rows.every((r) => r.weight === ''), 'the Purse is the jackpot (never a giant), no weight under a find');
+  ok(plan.rows[1].at - plan.rows[0].at > plan.rows[0].countDur, 'the Purse waits a giant\'s pause, alone');
+  eq(plan.total, 1764, 'the tally\'s total: 14 + 1,750');
+  eq(U.saleLineId({ rows: plan.rows, said: { firstSale: true } }), 'firstJackpot', 'Murk\'s line for the first jackpot sold');
+  eq(U.saleLineId({ rows: plan.rows.slice(2), said: { firstSale: true } }), 'firstPart', 'Murk\'s line for the first part brought aboard');
+  eq(U.saleLineId({ rows: plan.rows.slice(0, 1), said: { firstSale: true } }), 'firstTreasure', 'Murk\'s line for the first treasure sold');
+  const cells = U.slotCells({ slots: 4, fish: [LF.holdEntry(D, 'toll_purse', { uid: 'x' })] }, { D });
+  ok(cells[0].find === 'toll_purse' && cells[0].gild === true && cells.length === 4, 'the hold row: the Purse\'s slot gold-edged');
+  const cv = UF.findCardView(LF.holdEntry(D, 'two_headed_coin', { uid: 'y' }), D);
+  ok(cv.name === 'Two-Headed Coin' && cv.keep.clams === 350 && cv.keep.clamsText === '350' && cv.letGo.label === 'Let go', 'the card: Keep with its value, Let go');
+  const cv2 = UF.findCardView(LF.holdEntry(D, 'toll_vane', { uid: 'z' }), D, { full: true });
+  ok(cv2.keep.clams === null && cv2.keep.glyph === 'raft' && cv2.keep.disabled === true, 'a look\'s Keep shows where it goes (the raft), dimmed with the hold full');
+  const row = UF.findsRowView(PL.catalogueFor(freshLoopMeta(D), D, 'mossmere').finds, D);
+  ok(row.rate === '1 bite in 20' && row.rows[0].cards.map((c) => c.rateText).join() === '31%,17%,12%,4%,1%' && row.rows[1].cards.every((c) => c.rateText === '5.8%' && c.name === '· · ·'), 'the finds row\'s view: the heading and every rate formatted from findShares');
+  ok(U.textAllowed('31%', { D, screen: 'journal' }) && !U.textAllowed('31%', { D }) && U.textAllowed('· 1 bite in 20', { D }), 'the allow-list: a rate only on the Journal; the row\'s heading');
+}
+
 console.log(`\nloop-finds: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
