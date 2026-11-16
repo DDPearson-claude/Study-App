@@ -146,7 +146,7 @@ export function createTowView(K) {
     const u = clamp(num(st.u, 0), 0, 1), ink = clamp(num(st.ink, 1), 0, 1), kin = clamp(num(st.kindle, 1), 0, 1), t = num(st.t, 0) * 1000;
     const eu = ease(u);
     // the view: closed in on the Landing, opening out down the leg to the water
-    const k0 = Math.min(F.w / 74, F.h / 50), k = lerp(k0, k0 * 0.62, eu);
+    const k0 = Math.min(F.w / 74, F.h / 50), k = lerp(k0 * 1.3, k0 * 0.62, eu);   // (closed in on the Landing, out to the water)
     const cx = lerp(LANDING.view[0], LANDING.end[0], eu), cy = lerp(LANDING.view[1], LANDING.end[1], eu);
     const V = chartView({ x: cx, y: cy, k, vw: W, vh: H, dpr, ox: F.x + F.w / 2, oy: F.y + F.h / 2 });
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -177,7 +177,7 @@ export function createTowView(K) {
     // the arch over the cove (the opening's Landing)
     if (st.opening || S.opening) archMark(g, V.sx(LANDING.arch[0]), V.sy(LANDING.arch[1]), clamp(k / 6.5, 0.8, 2.2));
     if (M) {
-      const z = clamp(k / 7, 0.85, 1.7);
+      const z = clamp(k / 5.5, 0.9, 2);
       const bx = V.sx(M.barge.x), by = V.sy(M.barge.y), rx = V.sx(M.raft.x), ry = V.sy(M.raft.y);
       // the tow line: from the raft's stern to the barge's bow, a little slack in it
       const ba = M.barge.ang, bowX = bx + Math.cos(ba) * 21 * z, bowY = by + Math.sin(ba) * 21 * z;

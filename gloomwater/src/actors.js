@@ -204,7 +204,7 @@ export function create(ctx) {
     // meta.loop.barge.towed holds this water, or while a tow plays (its glide in owns where the hull is)
     const towedL = ctx.state?.meta?.loop?.barge?.towed;
     const towing = (() => { try { return ctx.game?.towing?.() ?? null; } catch { return null; } })();
-    const brought = !Array.isArray(towedL) || towedL.includes(zid) || !!towing;
+    const brought = !Array.isArray(towedL) || towedL.includes(zid) || ['dip', 'dipHold', 'dipClear', 'glide'].includes(towing);
     // <<< M1 step 5b
     home.show(!!m && (!where || where === zid) && brought && ctx.flow !== 'boot');
     home.update(dt, hasWater() ? H : null);

@@ -78,8 +78,9 @@ export function createLoopTow(deps) {
 
   const S = { phase: null, t: 0, water: null, opening: false, from: null, arrive: null, onDone: null, P: null, reduced: false,
     u: 0, ink: 0, kindle: 0, line: null, lineOn: false, dipA: 0, frames: 0, M: null, glide: null, mesh: null, sound: { oar: 0, creak: 0, crossed: 0 },
-    marks: [], begun: false, resume: false };
-  const mark = (what) => { S.marks.push({ what, phase: S.phase, sim: Math.round((ctx.time?.elapsed ?? 0) * 1000) / 1000 }); if (S.marks.length > 40) S.marks.shift(); };
+    marks: [], begun: false, resume: false, clock: 0 };
+  // (each mark on the tow's own real clock, S.clock: the seconds its update ran, the waits under a pause left out)
+  const mark = (what) => { S.marks.push({ what, phase: S.phase, sim: Math.round(S.clock * 1000) / 1000 }); if (S.marks.length > 40) S.marks.shift(); };
 
   function go(phase) {
     S.phase = phase; S.t = 0; S.frames = 0;
@@ -287,7 +288,7 @@ export function createLoopTow(deps) {
     if (['arrive', 'wake', 'leg'].includes(S.phase) && V && typeof V.isOpen === 'function' && !V.isOpen()) { cut(); return; }
     const onChart = ['arrive', 'wake', 'leg'].includes(S.phase);
     if (onChart && V && V.isTop && !V.isTop()) return;
-    S.t += d; S.frames++;
+    S.t += d; S.frames++; S.clock += d;
     const T0 = T(), P = S.P;
     switch (S.phase) {
       case 'dipIn': {   // the film's last frame → ink
@@ -358,7 +359,7 @@ export function createLoopTow(deps) {
     active: () => !!S.phase,
     /** The tow's phase now, or null. */
     get phase() { return S.phase; },
-    /** debug builds (ctx.debug.loop.tow): 'state' (the readout), 'tap' */
-    debug: (cmd) => (cmd === 'tap' ? tap() : state()),
+    /** debug builds (ctx.debug.loop.tow): 'state' (the readout), 'tap', 'cut' (the tow to its end at once: a scenario's shortcut) */
+    debug: (cmd) => (cmd === 'tap' ? tap() : cmd === 'cut' ? (S.phase ? (cut(), true) : false) : state()),
   };
 }
