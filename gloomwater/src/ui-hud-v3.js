@@ -498,6 +498,9 @@ export function createHudV3(K, el, R, w) {
     const word = trip() ? null : AF.strikeWord(D(), grade, n);   // (a trip: the ring burst says it, no word)
     if (grade === 'struck' && word) m.seenTips.ui_struck = n + 1;   // "Struck" is printed for the first 20 strikes, then the ring says it
     const W = K.vw, H = K.vh;
+    // (WC-3: on a trip a strike whose float is not on screen bursts nowhere: the frame's middle is where the Wick sits, and a ring
+    // there would ring the player)
+    if (!strikeAt.ok && trip()) return;
     const x = strikeAt.ok ? strikeAt.x : W / 2, y = strikeAt.ok ? strikeAt.y : H * 0.55;
     strike.style.transform = `translate3d(${Math.max(70, Math.min(W - 70, x)).toFixed(0)}px,${Math.max(80, Math.min(H - 200, y)).toFixed(0)}px,0)`;
     strike.dataset.grade = grade;
