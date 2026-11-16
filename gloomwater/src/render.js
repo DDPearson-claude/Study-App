@@ -570,14 +570,17 @@ export function create(ctx) {
     try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
     const c = m?.cam;
     if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
-    const pose = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos) ? c.portrait : c;
-    // M1 step 5b (LANE 5B-TOW): a tow's glide in is seen from the same framing drawn back along its own line (LOOP.tow.cam.pull at
-    // its start), dollying in to the mooring's framing as the barge comes to rest (game.towCam(): 1 → 0)
+    const tall = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos), pose = tall ? c.portrait : c;
+    // M1 step 5b (LANE 5B-TOW): a tow's glide in is seen from the same framing drawn back (LOOP.tow.cam: `pull` times its distance,
+    // turned `turn` degrees round the look point; the portrait pose its own, clear of the islands), dollying in to the mooring's
+    // framing as the barge comes to rest (game.towCam(): 1 → 0)
     let pull = 0;
-    try { pull = Number(ctx.game?.towCam?.()) || 0; } catch { pull = 0; }
+    try { pull = Math.min(1, Number(ctx.game?.towCam?.()) || 0); } catch { pull = 0; }
     if (pull > 0) {
-      const K = 1 + (Math.max(1, Number(ctx.data?.LOOP?.tow?.cam?.pull) || 2.2) - 1) * Math.min(1, pull), L = pose.look;
-      return { ...pose, pos: [L[0] + (pose.pos[0] - L[0]) * K, L[1] + (pose.pos[1] - L[1]) * K, L[2] + (pose.pos[2] - L[2]) * K] };
+      const TC = ctx.data?.LOOP?.tow?.cam || {}, cfg = tall && TC.portrait ? TC.portrait : TC, L = pose.look;
+      const K = 1 + (Math.max(1, Number(cfg.pull) || 2.2) - 1) * pull, a = ((Number(cfg.turn) || 0) * Math.PI / 180) * pull;
+      const ox = pose.pos[0] - L[0], oz = pose.pos[2] - L[2], rx = ox * Math.cos(a) - oz * Math.sin(a), rz = ox * Math.sin(a) + oz * Math.cos(a);
+      return { ...pose, pos: [L[0] + rx * K, L[1] + (pose.pos[1] - L[1]) * K, L[2] + rz * K] };
     }
     return pose;
   }

@@ -5038,7 +5038,8 @@ export const LOOP_TOW = {
   // on a short line, Murk's barge alongside, all moving as one), eased to rest in `glide` s
   glideIn: { mossmere: { d: 14, line: 3 } },   // (the raft leads on a `line` m tow line ahead of the bow: loop-tow.towLeadPose)
   // the glide in's camera: the mooring's own framing drawn back `pull` times its distance at the dip, dollying in as they arrive
-  cam: { pull: 2.2 },
+  // (the portrait pose drawn back 1.9 times, turned 30° west round its look point: its straight line back crosses an island)
+  cam: { pull: 2.2, portrait: { pull: 1.9, turn: -30 } },
 };
 LOOP.tow = LOOP_TOW;
 /** The leg's seconds (SPEC §6.5): base + crossing a crossing, at most max; reduced motion its hold. Pure. */

@@ -464,6 +464,23 @@ section('the glide in\'s camera: drawn back from the dip, dollying in to the moo
   eq(R.T.camPull(), 0, 'reduced motion: no dolly');
 }
 
+section('the glide in\'s drawn-back cameras see the mooring past every island and pillar, inside the shore');
+{
+  const WL = await import('../../src/world-layout.js');
+  const Lay = WL.buildLayout(ZONE), A = ZONE.arena, cam = D.LOOP.mooring.mossmere.cam, TC = D.LOOP.tow.cam;
+  const solids = [...A.islands.map((q) => ({ x: q.x, z: q.z, r: q.r ?? 4 })), ...A.pillars.map((q) => ({ x: q.x, z: q.z, r: q.r ?? 1.2 })), ...(Lay.obstacles || []).map((o) => ({ x: o.x, z: o.z, r: o.r }))];
+  for (const [name, P, cfg] of [['landscape', cam, TC], ['portrait', cam.portrait, TC.portrait || TC]]) {
+    for (const pull of [1, 0.5]) {   // (render.homePose's drawn-back pose: the offset turned and scaled round the look point)
+      const L = P.look, K = 1 + (cfg.pull - 1) * pull, a = ((cfg.turn || 0) * Math.PI / 180) * pull, ox = P.pos[0] - L[0], oz = P.pos[2] - L[2];
+      const pos = [L[0] + (ox * Math.cos(a) - oz * Math.sin(a)) * K, L[2] + (ox * Math.sin(a) + oz * Math.cos(a)) * K];
+      let worst = Infinity;
+      for (const o of solids) for (let t = 0; t <= 1.0001; t += 0.05) worst = Math.min(worst, Math.hypot(pos[0] + (L[0] - pos[0]) * t - o.x, pos[1] + (L[2] - pos[1]) * t - o.z) - o.r);
+      const shore = Lay.shoreR(Math.atan2(pos[1], pos[0])) - Math.hypot(pos[0], pos[1]);
+      ok(worst > 1.5 && shore > 5, `${name}, pull ${pull}: the sight line clears every island, pillar and post by 1.5 m; the camera inside the shore`, { worst, shore });
+    }
+  }
+}
+
 section('it plays once: a second Sail, the sail home and a Continue never replay it');
 {
   const E = towEnv();
