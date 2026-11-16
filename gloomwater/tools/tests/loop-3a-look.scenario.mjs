@@ -33,6 +33,13 @@ export function placeFrames(id) {
   if (id === 'lily_maze' || id === 'bell_pool') out.push({ light: 'calm', what: 'day-a', note: 'lifted, late day (pose a)' }, { light: 'calm', what: 'day-b', note: 'lifted, late day (pose b)' });
   return out;
 }
+/** Pose a for each place: where the raft sits to look at it (the play camera looks north), clear of every other bank and island. */
+export const POSE_A = {
+  lily_maze: { x: -36, z: 38 },
+  under_the_span: { x: -20, z: 16 },
+  buoy_lights: { x: -38, z: 7 },
+  bell_pool: { x: -4, z: 0 },
+};
 /** Pose b for each place: a still lens {pos, look, fov} laid over the rig (the other side of the place from the raft's pose a). */
 export const POSE_B = {
   lily_maze: { pos: [-28, 5.5, 34], look: [-41, 0.2, 23.5], fov: 50 },
@@ -91,7 +98,7 @@ export default async function (api) {
     if (sheets.includes('places')) {
       K.step('sheet 1: the backs at night and the banks at dusk (before any lift)');
       for (const id of ['under_the_span', 'buoy_lights']) {
-        await K.places.light('dusk', 0.5); await K.places.at(id, { back: 11 }); await settle(3);
+        await K.places.light('dusk', 0.5); await K.places.pose(POSE_A[id].x, POSE_A[id].z); await settle(3);
         await frame('places', `${id}-bank-dusk`, `${id}: the bank at dusk, no back (PLAN CHOICE 10)`, { place: id, light: 'dusk' });
         await K.places.light('gloomtide', 0.35); await settle(3);
         await K.places.back(id); await K.secs(0.95);
@@ -108,11 +115,11 @@ export default async function (api) {
         K.step(`sheet 1: ${id}`);
         for (const f of placeFrames(id)) {
           await K.places.light(f.light, f.light === 'calm' ? 0.55 : 0.45);
-          if (f.what === 'bank') { await K.places.unlift(); await K.places.at(id, { back: 12 }); await settle(3); }
+          if (f.what === 'bank') { await K.places.unlift(); await K.places.pose(POSE_A[id].x, POSE_A[id].z); await settle(3); }
           if (f.what === 'lift-thin') { await K.places.own(id); await K.places.lift(id, { play: true }); await K.secs(1.3); }
           if (f.what === 'lift-framed') await K.secs(1.5);
           if (f.what === 'lift-title') await K.secs(0.6);
-          if (f.what === 'lifted-a' || f.what === 'night-a' || f.what === 'day-a') { await K.secs(2); await K.places.camera(null); await K.places.at(id, { back: 9 }); await settle(f.what === 'lifted-a' ? 2 : 3.5); }
+          if (f.what === 'lifted-a' || f.what === 'night-a' || f.what === 'day-a') { await K.secs(2); await K.places.camera(null); await K.places.pose(POSE_A[id].x, POSE_A[id].z); await settle(f.what === 'lifted-a' ? 2 : 3.5); }
           if (f.what.endsWith('-b')) { await K.places.camera(POSE_B[id]); await settle(0.6); }
           await frame('places', `${id}-${f.what}`, `${id}: ${f.note}`, { place: id, light: f.light });
           if (f.what.endsWith('-b')) await K.places.camera(null);
@@ -120,9 +127,13 @@ export default async function (api) {
       }
       K.step('sheet 1: the cast into a bank (lane B\'s mist cast)');
       await K.places.unlift();
-      await K.places.light('dusk', 0.5); await K.places.at('bell_pool', { back: 6 }); await settle(2);
-      const cast = await g(() => { const c = window.__gw, p = c.data.loopPlace('bell_pool'); const f = c.debug.castAt ?? c.fishing.castAt; return typeof f === 'function' ? (f({ x: p.area.x, z: p.area.z }), true) : false; });
-      if (!cast) K.note('no castAt hook on this tree: the cast frames wait for the stage');
+      await K.places.light('dusk', 0.5); await K.places.at('bell_pool', { back: 2.5 }); await settle(2);
+      // (a forced cast from just outside the bank lands in it: lane B's mist cast sinks the float into the bank and brings it back)
+      const ev0 = await K.evCount();
+      await g(() => { const d = window.__gw.debug; try { window.__gw.fishing.cancel?.('debug'); d.forceBite?.({ wait: 2 }); } catch { /* optional */ } });
+      await K.secs(0.5);
+      const cast = (await K.events(ev0)).some((e) => e.e === 'fishing:mist') || await g(() => window.__lp.ev.some((e) => e.e === 'fishing:mist'));
+      if (!cast) K.note('no fishing:mist: the cast into a bank is lane B\'s (the frames wait for the stage)');
       else {
         await K.secs(0.9); await frame('places', 'cast-sinking', 'the cast into a bank: the float sinking into it', { place: 'bell_pool' });
         await K.secs(1.2); await frame('places', 'cast-rising', 'the cast into a bank: the float back', { place: 'bell_pool' });
@@ -196,6 +207,7 @@ export function dryRun() {
     if (f.length < 8) bad.push(`${id}: sheet 1 has every beat`);
     if ((id === 'lily_maze' || id === 'bell_pool') !== f.some((x) => x.light === 'calm')) bad.push(`${id}: late day only for the Lily Maze and the Bell Pool`);
     if (!POSE_B[id] || POSE_B[id].pos.length !== 3) bad.push(`${id}: pose b`);
+    if (!POSE_A[id]) bad.push(`${id}: pose a`);
   }
   if (REDRESS_POSES.length !== 4) bad.push('sheet 4 has four poses');
   return bad;

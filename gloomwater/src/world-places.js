@@ -37,11 +37,11 @@ const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
 /** The banks' shape: the feather beyond the footprint (m; T145's "plus 1.5 m"), how far inside it the bank starts to thin. */
-export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4 });
+export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4, curtain: { h: 2.6, inset: 0.8, w: 0.5 } });
 /** The layers of a bank, low to high: height (m), alpha weight, how far the layer is drawn in from the footprint (m: a low dome). */
 export const BANK_LAYERS = Object.freeze({
-  high: [[0.08, 0.42, 0], [0.42, 0.36, 0.25], [0.82, 0.3, 0.6], [1.26, 0.24, 1.0], [1.76, 0.18, 1.5], [2.32, 0.12, 2.1]],
-  low: [[0.1, 0.55, 0], [0.85, 0.42, 0.6], [1.75, 0.26, 1.6]],
+  high: [[0.08, 0.36, 0], [0.45, 0.3, 0.3], [0.9, 0.24, 0.7], [1.4, 0.18, 1.2], [2.0, 0.12, 1.8]],
+  low: [[0.1, 0.46, 0], [0.85, 0.34, 0.6], [1.75, 0.2, 1.6]],
 });
 
 // ------------------------------------------------------------------ footprints (pure; the tests and the game share them)
@@ -76,6 +76,31 @@ export function footprintBox(area, pad = 0) {
     return { x0: Math.min(...xs) - h, x1: Math.max(...xs) + h, z0: Math.min(...zs) - h, z1: Math.max(...zs) + h };
   }
   return null;
+}
+/** The footprint's outline drawn `inset` m inside it, as a closed loop of points about `step` m apart ([[x, z], …]): the bank's curtain. */
+export function footprintLoop(area, inset = 0.8, step = 1.2) {
+  const out = [];
+  if (area?.kind === 'disc') {
+    const r = Math.max(0.5, area.r - inset), n = Math.max(12, Math.ceil(TAU * r / step));
+    for (let i = 0; i < n; i++) { const a = (i / n) * TAU; out.push([area.x + Math.cos(a) * r, area.z + Math.sin(a) * r]); }
+  } else if (area?.kind === 'rect') {
+    const hw = Math.max(0.3, area.w / 2 - inset), hd = Math.max(0.3, area.d / 2 - inset);
+    const corners = [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]];
+    for (let k = 0; k < 4; k++) {
+      const [ax, az] = corners[k], [bx, bz] = corners[(k + 1) % 4], n = Math.max(1, Math.ceil(Math.hypot(bx - ax, bz - az) / step));
+      for (let i = 0; i < n; i++) out.push([area.x + ax + (bx - ax) * (i / n), area.z + az + (bz - az) * (i / n)]);
+    }
+  } else if (area?.kind === 'path') {
+    const [a, b] = [area.pts[0], area.pts[area.pts.length - 1]], r = Math.max(0.3, area.w / 2 - inset);
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]), L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const nL = Math.max(2, Math.ceil(L / step)), nC = Math.max(6, Math.ceil(Math.PI * r / step));
+    const P = (cx, cz, t) => [cx + Math.cos(t) * r, cz + Math.sin(t) * r];
+    for (let i = 0; i < nL; i++) { const f = i / nL; out.push(P(a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, ang - Math.PI / 2)); }
+    for (let i = 0; i < nC; i++) out.push(P(b[0], b[1], ang - Math.PI / 2 + Math.PI * (i / nC)));
+    for (let i = 0; i < nL; i++) { const f = i / nL; out.push(P(b[0] + (a[0] - b[0]) * f, b[1] + (a[1] - b[1]) * f, ang + Math.PI / 2)); }
+    for (let i = 0; i < nC; i++) out.push(P(a[0], a[1], ang + Math.PI / 2 + Math.PI * (i / nC)));
+  }
+  return out;
 }
 /** The footprint's centre (a path's middle). */
 export function footprintCentre(area) {
@@ -123,18 +148,18 @@ float wpN(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f)
 export const BANK_VS = /* glsl */`
 attribute float aBank; attribute vec4 aS1; attribute vec4 aS2; attribute vec3 aL; attribute vec3 aK;
 uniform float uOp[4];
-varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK;
+varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY;
 void main() {
-  vXZ = position.xz; vS1 = aS1; vS2 = aS2; vL = aL; vK = aK;
+  vXZ = position.xz; vS1 = aS1; vS2 = aS2; vL = aL; vK = aK; vY = position.y;
   float op = uOp[0];
   if (aBank > 2.5) op = uOp[3]; else if (aBank > 1.5) op = uOp[2]; else if (aBank > 0.5) op = uOp[1];
   vOp = op;
   gl_Position = op < 0.002 ? vec4(2.0, 2.0, 2.0, 1.0) : projectionMatrix * viewMatrix * vec4(position, 1.0);
 }`;
 export const BANK_FS = /* glsl */`
-uniform float uTime, uAmt, uFeather, uInner;
+uniform float uTime, uAmt, uFeather, uInner, uCurH;
 uniform vec3 uLit, uShade;
-varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK;
+varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY;
 ${NOISE}
 float footSdf(vec2 p) {
   if (vS1.x < 0.5) return length(p - vS1.yz) - vS1.w;
@@ -143,11 +168,24 @@ float footSdf(vec2 p) {
   return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
 }
 void main() {
-  float d = footSdf(vXZ) + vL.z;
+  float d = footSdf(vXZ) + max(vL.z, 0.0);
   if (vK.z > 0.0) d = max(d, vK.z - length(vXZ - vK.xy));   // (a dock's keep-out: no bank over a dock)
   float cover = 1.0 - smoothstep(-uInner, uFeather, d);
   if (cover < 0.002) discard;
   vec2 drift = vec2(uTime * 0.035, -uTime * 0.022);
+  if (vL.x < 0.0) {
+    // the bank's curtain: a soft wall of mist along its own edge, dense at the water and breaking into a billowed top
+    float along = vXZ.x * 0.43 + vXZ.y * 0.37;
+    float nc = wpN(vec2(along + uTime * 0.06, vY * 0.8 - uTime * 0.05)) * 0.6 + wpN(vec2(along * 2.3 - uTime * 0.04, vY * 1.9 + 3.0)) * 0.4;
+    float top = mix(0.35, 1.0, wpN(vec2(along * 0.7 + 11.0, uTime * 0.03)));
+    float hk = clamp(vY / uCurH, 0.0, 1.0);
+    float ac = cover * vL.y * (1.0 - smoothstep(0.0, top, hk)) * mix(0.45, 1.25, nc) * vOp * uAmt;
+    if (ac < 0.003) discard;
+    gl_FragColor = vec4(mix(uShade, uLit, clamp(0.35 + hk * 0.5 + nc * 0.3, 0.0, 1.0)), min(ac, 0.85));
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+    return;
+  }
   float seed = vL.x * 7.3 + vS1.y * 0.13;
   float n = wpN(vXZ * 0.21 + drift + seed) * 0.6 + wpN(vXZ * 0.53 - drift * 1.7 + seed * 1.9) * 0.4;
   float wisp = mix(1.0, smoothstep(0.28, 0.72, n), smoothstep(0.3, 1.2, vL.x));   // the upper layers break into wisps
@@ -266,6 +304,16 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const q = base + j * (n + 1) + i; ix.push(q, q + n + 1, q + 1, q + 1, q + n + 1, q + n + 2); }
         base += (n + 1) * (n + 1);
       }
+      // the curtain along the bank's edge (inset): quads from the water to BANK.curtain.h
+      const C = BANK.curtain, loop = footprintLoop(a, C.inset, low ? 2 : 1.2), H = C.h;
+      for (let i = 0; i < loop.length; i++) {
+        const [x0, z0] = loop[i], [x1, z1] = loop[(i + 1) % loop.length];
+        for (const [x, y, z] of [[x0, 0, z0], [x1, 0, z1], [x1, H, z1], [x0, H, z0]]) {
+          pos.push(x, y, z); aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(-1, C.w, 0); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
+        }
+        ix.push(base, base + 1, base + 2, base, base + 2, base + 3);
+        base += 4;
+      }
     });
     const g = G(new THREE.BufferGeometry());
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -276,7 +324,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     g.setAttribute('aK', new THREE.Float32BufferAttribute(aK, 3));
     g.setIndex(ix);
     g.computeBoundingSphere();
-    const u = { uOp: { value: [1, 1, 1, 1] }, uTime: { value: 0 }, uAmt: { value: 1 }, uFeather: { value: BANK.feather }, uInner: { value: BANK.inner },
+    const u = { uOp: { value: [1, 1, 1, 1] }, uTime: { value: 0 }, uAmt: { value: 1 }, uFeather: { value: BANK.feather }, uInner: { value: BANK.inner }, uCurH: { value: BANK.curtain.h },
       uLit: { value: new THREE.Color(0xc8c0ec) }, uShade: { value: new THREE.Color(0x6e66a4) } };
     const m = M(new THREE.ShaderMaterial({ uniforms: u, vertexShader: BANK_VS, fragmentShader: BANK_FS, transparent: true, depthWrite: false, fog: false, side: THREE.DoubleSide }));
     const mesh = new THREE.Mesh(g, m);
@@ -336,9 +384,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         sh.lineTo(u1, Math.min(yIn(u1), DECK - 0.3));
         for (let k = 1; k <= steps; k++) { const u = u1 + (u0 - u1) * (k / steps); sh.lineTo(u, Math.min(yIn(u), DECK - 0.3)); }
         if (broken && u0 > -half) { sh.lineTo(u0 - 0.15, yIn(u0) + 0.25); sh.lineTo(u0 + 0.06, DECK - 0.4); sh.lineTo(u0 - 0.2, DECK + 0.05); }
-        const g = new THREE.ExtrudeGeometry(sh, { depth: WIDTH, bevelEnabled: false, curveSegments: 4 });
+        const g = new THREE.ExtrudeGeometry(sh, { depth: WIDTH, bevelEnabled: false, curveSegments: 4, steps: 3 });
         g.translate(0, 0, -WIDTH / 2);
-        wobble(g, 0.035, 2.6, i * 3.1 + u0);
+        wobble(g, 0.06, 1.8, i * 3.1 + u0);
         kit.push(prep(g, { matrix: mat(mx, 0, mz, 0, sYaw, tilt), colorFn: colorStone(SPRING) }));
         // a low parapet on each edge of the deck
         for (const side of [-1, 1]) {
@@ -357,6 +405,19 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
             chainTips.push({ x: mx + c * endU + vx, y: DECK - 0.1, z: mz - s * endU + vz, len: 2.6 + rng() * 1.4, sway: rng() * TAU, side: Math.sign(endU) });
           }
         }
+      }
+    }
+    // rubble: a few fallen blocks on the deck by the break and against the piers' feet (inside the piers' own collision)
+    for (const ch of chainTips.filter((_, k) => k % 3 === 1)) {
+      for (let k = 0; k < 3; k++) {
+        const s2 = 0.25 + rng() * 0.3, ox = (rng() - 0.5) * 1.2, oz = (rng() - 0.5) * 1.6;
+        kit.push(prep(rockGeoLite(s2), { matrix: mat(ch.x - ch.side * (0.8 + rng() * 0.8) + ox * 0.3, DECK + THICK + s2 * 0.3, ch.z + oz, rng() * 0.6, rng() * TAU, rng() * 0.6), colorFn: colorStone(0) }));
+      }
+    }
+    for (const p of piers) {
+      for (let k = 0; k < 2; k++) {
+        const a = rng() * TAU, s2 = 0.35 + rng() * 0.35, d = p.r * (0.7 + rng() * 0.3);
+        kit.push(prep(rockGeoLite(s2), { matrix: mat(p.x + Math.cos(a) * d, s2 * 0.15, p.z + Math.sin(a) * d, rng() * 0.5, rng() * TAU, rng() * 0.5), colorFn: colorStone(0) }));
       }
     }
     // the chains: rust links as a beaded strand (a tube with a bead every link), one merged piece each
@@ -742,5 +803,11 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   return { group, update, setPlaces, liftMist, placeAnchor, readout, stats, forceBack, dispose, banks: bank.mesh, ids: P.map((p) => p.id) };
 }
 
+/** A small chipped block (a fallen stone): a box with its corners knocked off. */
+function rockGeoLite(s) {
+  const g = new THREE.BoxGeometry(s * 1.6, s, s * 1.1, 2, 1, 2);
+  wobble(g, s * 0.12, 3.1, s * 97);
+  return g;
+}
 function lin3(hex) { const c = lin(hex); return new THREE.Color(c[0], c[1], c[2]); }
 function mixHex(a, b, t) { return new THREE.Color(a).lerp(new THREE.Color(b), t).getHex(); }

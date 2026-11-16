@@ -172,6 +172,39 @@ export function makeKit3a(api, { label = '3a' } = {}) {
     await K.secs(1.2);
     return r;
   };
+  /** Home from a trip (the pause's Home path, game.goHome), the tally run to its end (Escape, Sold), the Jetty. */
+  K.toHomeVia = async ({ tally = false } = {}) => {
+    if ((await K.state()).flow === 'playing') {
+      await g(() => { const c = window.__gw; try { c.fishing.cancel?.('debug'); } catch { /* optional */ } return c.game.goHome?.(); });
+      const t = await K.until("c.debug.ui().openModal === 'tally' || (c.flow === 'home' && !c.game.homeGlide?.())", 40);
+      if (!t.ok) K.note('home: no tally and no Jetty in 40 s', await K.state());
+      if ((await K.state()).modal === 'tally') {
+        if (tally) await K.shoot('tally');
+        await K.key('Escape'); await K.secs(0.3); await K.settle(400);
+        await K.tap('[data-loop=tally] [data-action=sold]') || await K.tap('[data-action=sold]');
+        await K.until("c.debug.ui().openModal === 'jetty'", 3);
+        if (tally) await K.shoot('jetty-after-tally');
+      }
+    }
+    await K.until("c.flow === 'home'", 10);
+    await K.secs(0.5);
+  };
+  /** A real buy: the shelf's card (its tab first), else the ledger's buy (noted). → {ok, via} */
+  K.buyReal = async (id, tabWord) => {
+    const before = await g(() => window.__gw.progression.loop.state().clams);
+    await g(() => { const c = window.__gw; try { c.ui.closeAll?.(); } catch { /* optional */ } c.ui?.loop?.openShelf?.(); });
+    await K.secs(0.4); await K.settle(350);
+    const b = await K.buyBox(id, tabWord);
+    let via = 'card';
+    if (b && !b.disabled) { await K.tapXY(b.x, b.y); await K.steps(3); }
+    else { via = 'ledger'; await g((id) => window.__gw.progression.loop.buy?.(id), id); }
+    const after = await g(() => window.__gw.progression.loop.state().clams);
+    await g(() => window.__gw.ui.closeAll?.());
+    await K.steps(2);
+    return { ok: after < before, via, before, after };
+  };
+  /** Every visible word in the UI's layers but the catch card's (T149's % and size scan). */
+  K.uiText = () => g(() => { const T = window.__lp; return [...document.querySelectorAll('#ui *')].filter((e) => !e.children.length && T.visible(e) && !e.closest('[data-modal=catch]')).map((e) => e.textContent).join(' | '); });
   /** Sail (from the Jetty): game.sail({water, place}) and the glide out, to the trip. */
   K.sail = async (place = null, { water = 'mossmere' } = {}) => {
     await g(([w, p]) => { const c = window.__gw; try { c.ui.closeAll?.(); } catch { /* optional */ } c.game.sail(p ? { water: w, place: p } : { water: w }); }, [water, place]);
@@ -237,11 +270,12 @@ export default async function (api) {
 
     K.step('a cast into the Buoy Lights\' bank');
     await K.places.light('gloomtide', 0.3);
-    await K.places.at('buoy_lights', { back: 7 });
+    await K.places.at('buoy_lights', { back: 1.5 });
     await K.secs(0.5);
     const ev0 = await K.evCount();
     const bag0 = await g(() => ({ bites: { ...(window.__gw.state.run?.bites || {}) } }));
-    await g(() => { const c = window.__gw, p = c.data.loopPlace('buoy_lights'); c.debug.castAt?.({ x: p.area.x, z: p.area.z }) ?? c.fishing.castAt?.({ x: p.area.x, z: p.area.z }); });
+    // (a forced cast from the bank's edge lands in it, as lane B's tests cast: forceBite's cast with no species named)
+    await g(() => { const d = window.__gw.debug; try { window.__gw.fishing.cancel?.('debug'); d.forceBite?.({ wait: 2 }); } catch { /* optional */ } });
     const mist = await K.until("window.__lp.ev.some((e) => e.e === 'fishing:mist')", 4);
     if (!mist.ok) K.note('no fishing:mist on this tree (lane B\'s cast into mist absent)');
     await K.secs(2.6);
@@ -249,6 +283,135 @@ export default async function (api) {
     K.check(JSON.stringify(bag0) === JSON.stringify(bag1), 'T121: a cast into a bank spends no bite', { bag0, bag1 });
     const evs = await K.events(ev0);
     K.check(!evs.some((e) => e.e === 'fishing:bite'), 'T121: no bite in the bank', evs.map((e) => e.e));
+
+    // ---------------------------------------------------------------- home, the other maps, two balls, Hold 6
+    K.step('home: the other maps, two balls, Hold 6');
+    await K.toHomeVia();
+    const T = D.T;
+    for (const [id, tab] of [['place:under_the_span', T.tabs?.maps], ['place:buoy_lights', T.tabs?.maps], ['place:bell_pool', T.tabs?.maps], ['bait:heartmoss', T.tabs?.bait], ['bait:heartmoss', T.tabs?.bait], ['hold:6', T.tabs?.raft]]) {
+      const r = await K.buyReal(id, tab);
+      K.check(r.ok, `T149: ${id} bought from the shelf${r.via === 'ledger' ? ' (through the ledger: no card on this tree)' : ''}`, r);
+    }
+    const st = await g(() => { const m = window.__gw.progression.loop.state(); return { places: m.maps?.places, balls: m.bait?.mossmere?.heartmoss ?? 0, hold: m.holdSlots }; });
+    K.check(PLACE_IDS.every((p) => st.places?.includes(p)), 'T149: the four place maps owned', st.places);
+    K.check(st.balls === 2, 'T149: two Heartmoss Balls in the bag', st.balls);
+    K.check(st.hold === 6, 'T149: Hold 6', st.hold);
+
+    K.step('fit a ball on the Chart\'s foot, Sail to the Bell Pool by day');
+    await g(() => { const c = window.__gw; c.ui?.loop?.openChart?.(); });
+    await K.secs(0.5); await K.settle(400);
+    const slotTap = await K.tap('[data-loop=chart] [data-slot=bait]');
+    await K.steps(3);
+    let fitted = await g(() => window.__gw.progression.loop.fitted?.()?.bait ?? null);
+    K.check(!!slotTap && fitted === 'heartmoss', 'T134/T149: the foot\'s bait slot fits the Heartmoss Ball', { tapped: !!slotTap, fitted });
+    if (fitted !== 'heartmoss') await g(() => window.__gw.progression.loop.fit?.('bait', 'heartmoss'));
+    await K.shoot('chart-ball-fitted');
+    const rowTap = await K.tap('[data-loop=chart] [data-place=bell_pool]');
+    await K.steps(2);
+    const pk = await g(() => window.__gw.progression.loop.pick?.() ?? null);
+    K.check(!!rowTap && pk?.place === 'bell_pool', 'T134: the Bell Pool\'s row chosen (the pick saved)', pk);
+    const sailTap = await K.tap('[data-loop=chart] [data-action=sail]', null, { settle: 0 });
+    if (!sailTap) await g(() => window.__gw.game.sail({ water: 'mossmere', place: 'bell_pool' }));
+    const tr = await K.until("c.flow === 'playing' && c.state.run?.outing === 'trip' && !c.game.homeGlide?.()", 30);
+    K.need(tr.ok, 'T149: Sail starts the trip toward the Bell Pool', tr);
+    K.check((await K.state()).stack.length === 0, 'after the Sail debug.ui().stack is empty');
+    // the three lifts due play in price order; a skip key ends each
+    for (let i = 0; i < 4; i++) {
+      const l = await g(() => window.__gw.game.lifting?.() ?? null);
+      if (!l) break;
+      await K.secs(1.2);
+      if (i === 0) await K.shoot('lift-span');
+      await K.key('Space');
+      await K.steps(3);
+    }
+    const ro = await K.places.readout();
+    K.check(['under_the_span', 'buoy_lights', 'bell_pool'].every((id) => ro.world?.banks?.find((b) => b.id === id)?.op === 0), 'T149: every bought place lifted', ro.world?.banks);
+
+    K.step('her sure bite at the Bell Pool by day');
+    await K.places.light('calm', 0.5);
+    await K.places.at('bell_pool', {});
+    await K.secs(0.5);
+    const scans = [];
+    const scan = async (where) => { const r = await K.uiText(); scans.push({ where, pct: hasPercent(r), size: hasSize(r) }); };
+    await scan('the HUD');
+    let legend = null;
+    try {
+      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onBite: () => scan('the strike'), onPlay: () => scan('the play') });
+    } catch (e) { if (!(e instanceof Abort)) throw e; K.note('her bite did not come (lanes A and B: the ball, her pool and her hour)'); }
+    if (legend) {
+      const sh = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 25);
+      if (sh.ok && (await K.state()).inShow) { await scan('the show'); await K.key('Space'); }
+      const cd = await K.until("c.debug.ui().openModal === 'catch'", 20);
+      if (cd.ok) {
+        await K.settle(300); await K.secs(1.6);
+        const card = await K.card();
+        K.check(card.fish?.speciesId === 'belled_matriarch', 'T149: the bite was hers', card.fish);
+        K.check(card.keep?.to === 500, 'T139/T149: her card Keep · 500', card.keep);
+        await K.shoot('card-matriarch');
+        await K.tap('[data-modal=catch] [data-action=keep]');
+        await K.until("c.debug.ui().openModal !== 'catch'", 3);
+      } else K.check(false, 'T149: her card');
+    }
+    K.check(scans.every((x) => !x.pct && !x.size), 'T149: no % and no size on the HUD, the strike, the play or the show (decision 62)', scans);
+
+    K.step('home: the tally pays 500, Murk\'s line');
+    await K.toHomeVia({ tally: true });
+    const last = await g(() => window.__gw.progression.loop.lastTrip?.() ?? window.__gw.progression.loop.state().lastTrip);
+    K.check((last?.lines || []).some((l) => l.speciesId === 'belled_matriarch' && l.clams === 500), 'T149: the tally pays 500 for her', last?.lines);
+    const murk = await g((s) => window.__lp.seen(s), T.murk?.legendFirst);
+    K.check(murk, 'T144: Murk\'s line for her', T.murk?.legendFirst);
+
+    K.step('a forced Thousandcast at Under the Span at dusk: the gold card');
+    await K.sail('under_the_span');
+    for (let i = 0; i < 3 && await g(() => !!window.__gw.game.lifting?.()); i++) { await K.key('Space'); await K.steps(2); }
+    await K.places.light('dusk', 0.5);
+    await K.places.at('under_the_span', {});
+    await K.secs(0.4);
+    try {
+      await K.realCatch('thousandcast_pike', 1.4, { what: 'the Thousandcast', onBite: () => scan('the giant\'s strike') });
+      const sh = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 25);
+      if (sh.ok && (await K.state()).inShow) { await K.secs(0.8); await K.shoot('show-thousandcast'); await K.key('Space'); }
+      const cd = await K.until("c.debug.ui().openModal === 'catch'", 20);
+      if (cd.ok) {
+        await K.settle(300); await K.secs(1.6);
+        const star = await g(() => { const m = document.querySelector('[data-modal=catch]'); return m ? /★\s*Thousandcast Pike/.test(m.textContent) : null; });
+        K.check(star === true, 'T139: the gold card: ★ before its name', star);
+        await K.shoot('card-thousandcast');
+        await K.tap('[data-modal=catch] [data-action=keep]');
+        await K.until("c.debug.ui().openModal !== 'catch'", 3);
+      } else K.check(false, 'T149: the Thousandcast\'s card');
+    } catch (e) { if (!(e instanceof Abort)) throw e; }
+
+    K.step('the catalogue');
+    await g(() => { const c = window.__gw; const o = { from: 'chart', zone: 'mossmere' }; try { (c.ui?.screens?.openJournal ?? c.ui?.openJournal)?.(o); } catch { /* optional */ } });
+    await K.secs(0.5); await K.settle(400);
+    const cat = await g(() => {
+      const T2 = window.__lp, root = document.querySelector('[data-modal=journal]') || document.querySelector('.gw-p-journal');
+      if (!root) return null;
+      const cards = [...root.querySelectorAll('[data-species]')].filter(T2.visible).map((e) => e.dataset.species);
+      const texts = [...root.querySelectorAll('[data-species]')].map((e) => e.textContent);
+      return { cards: [...new Set(cards)], pct: texts.some((t) => /%/.test(t)) || /%/.test(root.textContent.replace(/Odds ›/g, '')) };
+    });
+    K.check(cat && cat.cards.length === 17, 'T136/T149: the catalogue shows all 17 of the Mossmere\'s fish', cat?.cards?.length);
+    K.check(cat && !cat.pct, 'T136/T149: no % in the catalogue', cat);
+    const probe = await g(() => window.__gw.debug.ui?.hatchProbe?.('kissmark_trout', 116, 62) ?? null);
+    K.check(probe && probe.offHue === 0, 'T137: the hatch probe (sepia ink only)', probe);
+    await K.shoot('catalogue');
+    await g(() => window.__gw.ui.closeAll?.());
+
+    K.step('Hold 6 and the two-row hold on the phone (Tallow\'s 7)');
+    await K.toHomeVia();
+    await g(() => window.__gw.progression.loop.setWick?.('tallow'));
+    await K.sail(null);
+    await K.secs(0.5); await K.settle(700);
+    const hold = await g(() => {
+      const row = document.querySelector('.gw-hud .gw-hold') || document.querySelector('[data-loop=hold]');
+      const cells = row ? [...row.querySelectorAll('.gw-slot')] : [];
+      return { cells: cells.length, rows: new Set(cells.map((e) => Math.round(e.getBoundingClientRect().top))).size };
+    });
+    K.check(hold.cells === 7, 'T141: Tallow at Hold 6 has seven cells', hold);
+    K.check(K.phone ? hold.rows === 2 : hold.rows === 1, `T141: ${K.phone ? 'two rows on the phone' : 'one row on the desktop'}`, hold);
+    await K.shoot('hold-tallow');
 
     K.step('the readout and the errors');
     log('places', JSON.stringify(await K.places.readout()));
