@@ -328,6 +328,41 @@ section('no cast while a place\'s mist lifts (T128\'s fishing half)');
 }
 
 // =====================================================================================================================
+section('the Matriarch\'s toll: never a ring round the raft on a trip (the user\'s rule; the stage\'s fix, bd6fad9); the built ring off the loop');
+{
+  // her whole play, each frame's fishing-fx pulses read from the scene: none centred on the raft wider than 2.5 m on a trip; each toll a
+  // ripple where she is. Off the loop (v3, a normal outing) the built pale ring still spreads from the raft (flag-off unchanged).
+  const ball = D.LOOP.legendBait.mossmere.id;
+  const tollRun = (loopOn) => {
+    const scene = new THREE.Scene();
+    const loop = loopOn ? fakeLoop({ D, wick: 'wick', maps: { lakes: ['mossmere'], places: ALL.slice() }, lifted: ALL.slice(), bag: { [ball]: 2 }, fish: [], holdSlots: 5 }) : null;
+    const env = makeFishingEnv({ data: loopOn ? D : DV3, mode: 'still', outing: loopOn ? 'trip' : 'normal', phase: 'calm', seed: 7, loop, raft: [-4, -14 + CAST], render: { scene },
+      runOver: loopOn ? { bait: { [ball]: 2 }, equippedBait: ball, evening: 2, character: 'wick', nightMode: 'still' } : { bait: { heartmoss: 3 }, equippedBait: 'heartmoss' } });
+    const out = { tolls: 0, raftRing: 0, ripplesAtHer: 0, legend: false };
+    env.ctx.audio = { play: (id) => { if (id === 'dusk_toll') out.tolls++; } };
+    const ripple0 = env.ctx.water.addRipple;
+    env.ctx.water.addRipple = (x, z, s) => { const rp = env.ctx.player.position; if (s >= 2 && Math.hypot(x - rp.x, z - rp.z) > 0.6) out.ripplesAtHer++; return ripple0(x, z, s); };
+    let mesh = null; scene.traverse((o) => { if (o.name === 'fishing-pulses') mesh = o; });
+    env.ctx.debug.forceBite({ wait: 0.5, speciesId: 'belled_matriarch' });
+    for (let i = 0; i < 400 && env.F.state === 'waiting'; i++) env.tick(1);
+    out.legend = env.dbg().legend === true && env.dbg().species === 'belled_matriarch';
+    env.ctx.debug.fishOutcome('land'); env.tick(2);
+    env.F.onPointerDown({ input: 'mouse' }); env.F.onPointerUp();
+    for (let i = 0; i < 6000 && env.F.state === 'reeling'; i++) {
+      env.tick(1);
+      const P = mesh.material.uniforms.uP.value, Q = mesh.material.uniforms.uQ.value, rp = env.ctx.player.position;
+      for (let k = 0; k < P.length; k++) if (Q[k].w > 0.02 && P[k].w > 2.5 && Math.hypot(P[k].x - rp.x, P[k].z - rp.z) < 0.6) { out.raftRing++; break; }
+    }
+    return out;
+  };
+  const On = tollRun(true), Off = tollRun(false);
+  ok(On.legend && On.tolls >= 1, `on a trip her play tolls (${On.tolls} tolls)`, On);
+  eq(On.raftRing, 0, 'on a trip: no frame of her play has a ring round the raft (no fishing-fx pulse centred on it past 2.5 m)');
+  ok(On.ripplesAtHer >= On.tolls, `on a trip each toll moves the water where she is (${On.ripplesAtHer} ripples off the raft for ${On.tolls} tolls)`);
+  ok(Off.legend && Off.tolls >= 1 && Off.raftRing > 0, `off the loop the built ring still spreads from the raft at her toll (${Off.raftRing} frames; flag-off unchanged)`);
+}
+
+// =====================================================================================================================
 section('flag-off and off a trip: the built fishing (T132)');
 {
   const c = centre('lily_maze');

@@ -366,17 +366,22 @@ export function buildArena(ctx, L, opts = {}) {
   const redressOn = opts.redress === true && theme === 'mossmere';
   const RUST = lin(0x8a4b3a);
   function bollard(x, y, z, ry, light) {
-    // a squat rust bollard (a mooring post with a domed head and a collar), a buoy-lantern hung on a short chain from its arm
-    const b = latheGeo([[0.2, -0.3], [0.22, 0.0], [0.19, 0.5], [0.16, 0.62], [0.24, 0.66], [0.24, 0.74], [0.16, 0.78], [0.12, 0.9], [0.01, 0.95]], 10);
-    kit.org.push(prep(b, { matrix: mat(x, y, z, 0, ry, 0), colorFn: (px, py) => mixArr(RUST, K.iron, py - y < 0.25 ? 0.55 : 0.15) }));
-    const lx = x + Math.cos(-ry) * 0.42, lz = z + Math.sin(-ry) * 0.42, ly = y + 0.62;
-    kit.org.push(prep(taperTube([V(0, 0.82, 0), V(0.22, 0.9, 0), V(0.42, 0.86, 0)], () => 0.035, 4, 6), { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
-    const body = latheGeo([[0.01, -0.2], [0.14, -0.14], [0.16, 0.0], [0.12, 0.08], [0.04, 0.1], [0.03, 0.22], [0.01, 0.24]], 8);
-    kit.org.push(prep(body, { matrix: mat(lx, ly - 0.1, lz), colorFn: (px, py) => (py < ly - 0.04 ? mixArr(RUST, K.wood, 0.4) : K.iron) }));
+    // a rust mooring bollard with a tall iron davit, a buoy-lantern hung on a short chain from its crook (the fix pass: the squat bollard
+    // read as a brown lump and hid its low lantern; the lantern now hangs at the old lamp's height, clear of the bollard on every side,
+    // and lights the same amber pool the lamp-post did)
+    const b = latheGeo([[0.19, -0.3], [0.21, 0.0], [0.17, 0.95], [0.22, 1.0], [0.22, 1.08], [0.13, 1.12], [0.1, 1.17], [0.01, 1.19]], 10);
+    kit.org.push(prep(b, { matrix: mat(x, y, z, 0, ry, 0), colorFn: (px, py) => mixArr(RUST, K.iron, py - y < 0.25 ? 0.6 : py - y > 0.94 ? 0.1 : 0.3) }));
+    // the davit: up from the bollard's head and over in a shepherd's crook
+    kit.org.push(prep(taperTube([V(0, 1.05, 0), V(0.02, 2.2, 0), V(0.08, 2.85, 0), V(0.32, 3.1, 0), V(0.6, 3.02, 0), V(0.68, 2.86, 0)], (t) => 0.055 - 0.02 * t, 5, 14), { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
+    const lx = x + Math.cos(-ry) * 0.68, lz = z + Math.sin(-ry) * 0.68, ly = y + 2.42;
+    kit.org.push(prep(taperTube([V(0, 2.86, 0), V(0, 2.62, 0)], () => 0.018, 4, 3), { matrix: mat(lx, y, lz), color: K.iron }));
+    // the buoy-lantern: a rust float-body with its glass cage and a hood
+    const body = latheGeo([[0.01, -0.24], [0.16, -0.17], [0.19, -0.02], [0.15, 0.06], [0.06, 0.08], [0.06, 0.3], [0.16, 0.34], [0.03, 0.44], [0.01, 0.45]], 8);
+    kit.org.push(prep(body, { matrix: mat(lx, ly - 0.24, lz), colorFn: (px, py) => (py < ly - 0.2 ? mixArr(RUST, K.wood, 0.3) : K.iron) }));
     if (light) {
-      kit.glow.push(prep(new THREE.OctahedronGeometry(0.09, 0), { matrix: mat(lx, ly + 0.04, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.candle, 2.4) }));
-      halos.add(lx, ly + 0.04, lz, scaleArr(PL.candle, 1.0), 1.8);
-      addAnchor(lx, ly + 0.1, lz, candleLight, 2.6, 10);
+      kit.glow.push(prep(new THREE.OctahedronGeometry(0.15, 0), { matrix: mat(lx, ly - 0.02, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.candle, 2.4) }));
+      halos.add(lx, ly - 0.02, lz, scaleArr(PL.candle, 1.1), 2.4);
+      addAnchor(lx, ly, lz, candleLight, 3.0, 12);
     }
   }
 

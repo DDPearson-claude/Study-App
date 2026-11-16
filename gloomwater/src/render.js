@@ -546,13 +546,14 @@ export function create(ctx) {
     }
     if (!Number.isFinite(Number(p.x)) || !Number.isFinite(Number(p.z))) return false;
     Object.assign(lmk, { on: true, t: 0, dur: Number.isFinite(Number(dur)) ? Math.max(0.2, Number(dur)) : 4.2, back: B, rel: false, relT: 0, relW: 0, pose: null,
-      p: { x: Number(p.x), y: Number(p.y) || 0, z: Number(p.z), r: Number.isFinite(Number(p.r)) ? Number(p.r) : 6, ...(Array.isArray(p.face) ? { face: p.face.slice(0, 2) } : {}) } });
+      p: { x: Number(p.x), y: Number(p.y) || 0, z: Number(p.z), r: Number.isFinite(Number(p.r)) ? Number(p.r) : 6, ...(Array.isArray(p.face) ? { face: p.face.slice(0, 2) } : {}),
+        ...(Array.isArray(p.side) ? { side: p.side.slice(0, 2) } : {}), ...(Number.isFinite(Number(p.elev)) ? { elev: Number(p.elev) } : {}), ...(Number.isFinite(Number(p.dist)) ? { dist: Number(p.dist) } : {}) } });
     return true;
   }
   function landmarkW(dt) {
     if (!lmk.on) { lmk.w = 0; return 0; }
     lmk.t += dt;
-    if (!lmk.pose) lmk.pose = landmarkShot(playerPos(), lmk.p, { yaw, aspect: W / H });
+    if (!lmk.pose) { let obs = null; try { obs = ctx.world?.getObstacles?.() || null; } catch { obs = null; } lmk.pose = landmarkShot(playerPos(), lmk.p, { yaw, aspect: W / H, obstacles: obs }); }
     if (!lmk.pose) { lmk.on = false; lmk.w = 0; return 0; }
     if (lmk.rel) { lmk.relT += dt; lmk.w = lmk.relW * (1 - smoothstep(0, lmk.back, lmk.relT)); if (lmk.relT >= lmk.back) lmk.on = false; }
     else { lmk.w = landmarkWeight(lmk.t, { dur: lmk.dur, back: lmk.back }); if (lmk.t >= lmk.dur + lmk.back) lmk.on = false; }

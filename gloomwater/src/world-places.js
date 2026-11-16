@@ -41,11 +41,11 @@ const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t 
 export const BACK_SCALE = 1.5;
 export const BANK = Object.freeze({ feather: 1.5, inner: 1.0, maxBanks: 4,
   // the curtains: soft rings of rising mist inside the bank's edge, [inset (m), height (m), alpha weight]: volume, never a wall
-  curtains: [[0.9, 2.6, 0.34], [2.8, 1.9, 0.26]] });
+  curtains: [[0.9, 2.6, 0.26], [2.8, 1.9, 0.16]] });
 /** The layers of a bank, low to high: height (m), alpha weight, how far the layer is drawn in from the footprint (m: a low dome). */
 export const BANK_LAYERS = Object.freeze({
-  high: [[0.08, 0.36, 0], [0.45, 0.3, 0.3], [0.9, 0.24, 0.7], [1.4, 0.18, 1.2], [2.0, 0.12, 1.8]],
-  low: [[0.1, 0.46, 0], [0.85, 0.34, 0.6], [1.75, 0.2, 1.6]],
+  high: [[0.08, 0.3, 0], [0.45, 0.3, 0.3], [0.9, 0.26, 0.7], [1.4, 0.2, 1.2], [2.0, 0.14, 1.8]],
+  low: [[0.1, 0.4, 0], [0.85, 0.36, 0.6], [1.75, 0.22, 1.6]],
 });
 
 // ------------------------------------------------------------------ footprints (pure; the tests and the game share them)
@@ -133,6 +133,11 @@ export function bankKeep(area, docks = [], { feather = BANK.feather, clear = 0.9
   const far = Math.max(...pts.map((q) => Math.hypot(q.x - x, q.z - z) + (q.r || 0)));
   return { x, z, r: far + clear + feather };
 }
+/** The Bell Pool's drowned bell: where it lies in the pool `a` (its centre, its rotation, its mouth), shared by the decal and the lift's shot. */
+export function bellSpot(a) {
+  const x = num(a?.x) + 0.2, z = num(a?.z) - 2.4, dx = 0.4, dz = 0.92, l = Math.hypot(dx, dz);
+  return { x, z, rot: Math.atan2(dz / l, dx / l), mx: x + (dx / l) * 2.05, mz: z + (dz / l) * 2.05, dir: [dx / l, dz / l] };
+}
 /** The bank's opacity after one step (s): toward `target` at a whole range per `ease` s (LOOP.mist.ease), never past it. */
 export function easeOpacity(op, target, dt, ease = 0.8) {
   const step = Math.max(0, dt) / Math.max(1e-3, ease);
@@ -151,14 +156,19 @@ float wpN(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f)
 // opacity. (Nothing here reads where the camera or the raft is.)
 export const BANK_VS = /* glsl */`
 attribute float aBank; attribute vec4 aS1; attribute vec4 aS2; attribute vec3 aL; attribute vec3 aK;
-uniform float uOp[4]; uniform float uLift[4];
+uniform float uOp[4]; uniform float uLift[4]; uniform float uTime;
 varying vec2 vXZ; varying vec4 vS1; varying vec4 vS2; varying vec3 vL; varying float vOp; varying vec3 vK; varying float vY; varying float vLift;
+${NOISE}
 void main() {
   vXZ = position.xz; vS1 = aS1; vS2 = aS2; vL = aL; vK = aK; vY = position.y;
   float op = uOp[0], lf = uLift[0];
   if (aBank > 2.5) { op = uOp[3]; lf = uLift[3]; } else if (aBank > 1.5) { op = uOp[2]; lf = uLift[2]; } else if (aBank > 0.5) { op = uOp[1]; lf = uLift[1]; }
   vOp = op; vLift = lf;
-  gl_Position = op < 0.002 ? vec4(2.0, 2.0, 2.0, 1.0) : projectionMatrix * viewMatrix * vec4(position, 1.0);
+  vec3 pp = position;
+  // (an upper layer swells and sags with its own slow billow, so the bank has height and never reads as stacked flat plates; the
+  // water-level layer and the curtains stay where they are; the fix pass)
+  if (aL.x > 0.3) pp.y += (wpN(position.xz * 0.14 + vec2(aL.x * 3.7, uTime * 0.02)) - 0.35) * (0.35 + 0.5 * aL.x);
+  gl_Position = op < 0.002 ? vec4(2.0, 2.0, 2.0, 1.0) : projectionMatrix * viewMatrix * vec4(pp, 1.0);
 }`;
 export const BANK_FS = /* glsl */`
 uniform float uTime, uAmt, uFeather, uInner;
@@ -173,8 +183,10 @@ float footSdf(vec2 p) {
 }
 void main() {
   float d = footSdf(vXZ) + (vL.x < 0.0 ? 0.0 : vL.z);
-  // (the bank's edge billows: slow noise draws it in by up to 1.6 m, never out, so it stays inside its footprint plus the feather)
-  d += wpN(vXZ * 0.19 + vec2(vS1.y * 0.07, uTime * 0.012)) * 1.6;
+  // (the bank's edge billows: slow noise draws it in by up to 1.6 m (2.4 m for an upper layer), never out, so it stays inside its
+  // footprint plus the feather; each layer billows on its own seed, so the layers' rims never stack as concentric tiers: the fix pass)
+  float lseed = vL.x < 0.0 ? 0.0 : vL.x * 2.9 + 1.3;
+  d += wpN(vXZ * 0.19 + vec2(vS1.y * 0.07 + lseed, uTime * 0.012 - lseed * 0.6)) * mix(1.6, 2.4, clamp(vL.x, 0.0, 1.0));
   // (a finer billow, scaled to the place's own width, so a far bank's rim is ragged mist and never a clean pale oval; the stage)
   d += wpN(vXZ * 0.62 + vec2(uTime * 0.03, vS1.z * 0.05)) * 0.9 * clamp(vS1.w / 4.0, 0.4, 1.0);
   // (the lift: the bank breaks up from its edges inward in ragged wisps as it thins, rather than fading as one disc; the stage)
@@ -189,7 +201,9 @@ void main() {
     float nc = wpN(vec2(along + uTime * 0.06, vY * 0.8 - uTime * 0.05)) * 0.6 + wpN(vec2(along * 2.3 - uTime * 0.04, vY * 1.9 + 3.0)) * 0.4;
     float top = mix(0.25, 1.0, wpN(vec2(along * 0.7 + 11.0, uTime * 0.03)));
     float hk = clamp(vY / max(0.5, vL.z), 0.0, 1.0);
-    float gaps = smoothstep(0.22, 0.7, nc);   // (it drifts in wisps and gaps along its length: never a solid wall)
+    // (it drifts in separate wisps with wide gaps along its length: never a solid wall, and never a continuous pale ring round the bank
+    // seen from above, which read as the rim of a plate; the fix pass)
+    float gaps = smoothstep(0.42, 0.8, nc) * smoothstep(0.25, 0.6, wpN(vec2(along * 0.35 + 7.0, uTime * 0.02)));
     float ac = cover * vL.y * (1.0 - smoothstep(0.0, top, hk)) * pow(1.0 - hk, 0.6) * gaps * 1.4 * vOp * uAmt * (1.0 - vLift) * (1.0 - vLift);   // (the curtains go first in a lift: never a standing wall)
     if (ac < 0.003) discard;
     gl_FragColor = vec4(mix(uShade, uLit, clamp(0.35 + hk * 0.5 + nc * 0.3, 0.0, 1.0)), min(ac, 0.85));
@@ -199,13 +213,15 @@ void main() {
   }
   float seed = vL.x * 7.3 + vS1.y * 0.13;
   float n = wpN(vXZ * 0.21 + drift + seed) * 0.6 + wpN(vXZ * 0.53 - drift * 1.7 + seed * 1.9) * 0.4;
-  float wisp = mix(1.0, smoothstep(0.28, 0.72, n), smoothstep(0.3, 1.2, vL.x));   // the upper layers break into wisps
+  // the upper layers break into wisps; the water-level layer too, a little (a solid low sheet read as a pale plate: the fix pass)
+  float wisp = mix(1.0, smoothstep(0.24, 0.74, n), mix(0.5, 1.0, smoothstep(0.3, 1.2, vL.x)));
   // (clumps, not a sheet: the mist gathers and thins across the bank, so a bank seen from far is never a flat pale disc)
   float clump = smoothstep(0.18, 0.82, wpN(vXZ * 0.11 - drift * 0.6 + seed * 0.3) * 0.55 + n * 0.45);
   float a = cover * vL.y * mix(0.5, 1.25, clump) * wisp * vOp * uAmt;
   if (a < 0.003) discard;
-  vec3 col = mix(uShade, uLit, clamp(vL.x * 0.35 + clump * 0.45 + n * 0.2, 0.0, 1.0));
-  gl_FragColor = vec4(col, min(a, 0.92));
+  // (its foot in shade, its tops lit: a lit pale foot on the water was the plate)
+  vec3 col = mix(uShade, uLit, clamp(vL.x * 0.42 + clump * 0.38 + n * 0.2 - 0.12, 0.0, 1.0));
+  gl_FragColor = vec4(col, min(a, 0.84));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
@@ -258,18 +274,42 @@ void main() {
     glow = (c * halo * 0.7 + vG * core * (1.1 - depth * 0.6)) * vK * fl;
     ink = 0.0;
   } else if (vKind < 1.5) {
-    // the bell, lying on its side, seen from above through the water: crown at p.x = -1, mouth at +1
-    float u = p.x, v = abs(p.y);
-    float w = 0.26 + 0.3 * pow(smoothstep(-0.85, 0.95, u), 1.6) + 0.07 * smoothstep(0.78, 0.95, u);
-    float body = smoothstep(0.04, -0.02, v - w) * smoothstep(-1.0, -0.86, u) * smoothstep(1.0, 0.94, u);
-    float crown = smoothstep(0.05, -0.01, length(vec2((u + 0.92) * 1.4, p.y)) - 0.16);
-    float shape = max(body, crown);
+    // the drowned harbour bell, lying on its side on the pool's floor and seen from above through the water: the bell's own profile (a
+    // domed crown with its hanging loop, the waist, the flare to a beaded lip) and its mouth turned to the lens as an ellipse, dark inside
+    // with a moonlit rim; two cast bands across it, its crack from the lip with a trace of verdigris. Crown at p.x = -1, mouth at +1;
+    // the quad is 4.6 × 3.4 m, so a unit across is 0.74 of a unit along. (The fix pass: the trapezoid it was read as a sunken plank.)
+    float u = p.x, v = abs(p.y), sy = p.y;
+    float w;
+    if (u < -0.5) w = 0.5 * sqrt(max(0.0, 1.0 - pow((u + 0.5) / 0.3, 2.0)));
+    else if (u < 0.35) w = 0.5 + 0.05 * (u + 0.5) - 0.035 * sin(3.14159 * (u + 0.5) / 0.85);
+    else w = 0.5 + 0.0425 + 0.41 * pow(clamp((u - 0.35) / 0.52, 0.0, 1.0), 2.1);
+    w = min(w, 0.95);
+    float bodyD = v - w;                                   // < 0 inside the body
+    float inBody = smoothstep(0.02, -0.02, bodyD) * step(-0.8, u) * step(u, 0.9);
+    // the mouth: an ellipse at the lip (its near half rounds the bell's end), across the whole flare
+    vec2 me = vec2((u - 0.88) / 0.11, sy / 0.95);
+    float mr = length(me);
+    float inMouth = smoothstep(1.02, 0.96, mr);
+    // the crown's hanging loop (the canon): a small ring beyond the dome
+    vec2 cp = vec2((u + 0.9) * 1.0, sy * 0.74);
+    float cr = length(cp);
+    float canon = smoothstep(0.035, 0.0, abs(cr - 0.09)) * step(u, -0.78);
+    float shape = max(max(inBody, inMouth), canon);
     if (shape < 0.003) discard;
-    float edge = smoothstep(w - 0.1, w - 0.01, v) * body;
-    float lip = smoothstep(0.7, 0.9, u) * body;
-    float crack = smoothstep(0.035, 0.0, abs(p.y + 0.06 - 0.09 * sin(u * 9.0) - 0.05 * u)) * smoothstep(0.1, 0.55, u) * body;
-    ink = shape * vI.x * (1.0 - 0.35 * edge);
-    glow = (uRust * lip * 0.2 + uVerd * crack * 0.22) * (0.35 + 0.65 * vK) + uMoon * edge * (p.y > 0.0 ? 1.0 : 0.3) * 0.55 * vK;
+    // the moonlit rim: a fine line round the silhouette (brighter on the lit side), the lip's ring brightest
+    float rimB = smoothstep(0.06, 0.0, abs(bodyD)) * step(-0.8, u) * step(u, 0.84);
+    float dome = smoothstep(0.05, 0.0, abs(length(vec2((u + 0.5) / 0.3, sy / 0.5)) - 1.0)) * step(u, -0.5);
+    float lipRing = smoothstep(0.16, 0.0, abs(mr - 0.98));
+    float bands = (smoothstep(0.022, 0.0, abs(u + 0.4)) + smoothstep(0.022, 0.0, abs(u - 0.62)) * 0.8) * inBody;
+    // its crack: from the lip up the flare toward the waist, jagged, with the one trace of verdigris along it
+    float crack = smoothstep(0.03, 0.0, abs(sy - 0.32 + 0.05 * sin(u * 23.0) + 0.18 * (0.86 - u))) * smoothstep(0.05, 0.3, u) * step(u, 0.84) * inBody;
+    // volume: the shoulder toward the moon catches a soft sheen; the mouth is the darkest thing in the pool
+    float sheen = smoothstep(0.1, 0.9, sy / max(0.05, w)) * inBody * (1.0 - inMouth);
+    ink = vI.x * (inBody * (1.0 - 0.3 * sheen) * (1.0 - inMouth) + inMouth * 1.3 + canon * 0.7);
+    ink = min(ink * (1.0 - 0.6 * max(rimB, max(dome, lipRing * inMouth))), 0.95);
+    float lit = 0.35 + 0.65 * vK;
+    glow = uMoon * (max(rimB, dome) * (sy > 0.0 ? 0.62 : 0.34) + lipRing * 0.75 + canon * 0.4 + bands * 0.22 + sheen * 0.07) * lit
+      + uRust * smoothstep(0.7, 0.86, u) * inBody * 0.12 * lit + uVerd * crack * 0.9 * lit;
   } else if (vKind < 2.5) {
     if (r > 1.0) discard;
     float sh = 0.75 + 0.25 * wpN(p * 3.0 + vec2(uTime * 0.25, -uTime * 0.18));
@@ -322,7 +362,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       const s2 = a.kind === 'path' ? [a.pts[a.pts.length - 1][0], a.pts[a.pts.length - 1][1], 0, 0] : a.kind === 'rect' ? [a.d / 2, 0, 0, 0] : [0, 0, 0, 0];
       const b = footprintBox(a, BANK.feather + 0.2), k = keeps[bi];
       for (const [hy, wgt, shrink] of layers) {
-        const n = 4;   // a 4×4 grid per layer (the fragment does the shape)
+        const n = low ? 4 : 8;   // a grid per layer (the fragment does the shape; the finer grid lets an upper layer swell)
         for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) {
           pos.push(b.x0 + (b.x1 - b.x0) * (i / n), hy, b.z0 + (b.z1 - b.z0) * (j / n));
           aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(hy, wgt, shrink); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
@@ -500,27 +540,48 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   let tower = null, veil = null;
   const aqueduct = [];
   if (redress) {
-    // the Sluice Veil's aqueduct: two segments over the east cliff, the near one broken off at the cliff's edge (no spout: the Cupped
-    // Hands are after M1)
+    // the Sluice Veil's aqueduct over the east cliff (no spout: the Cupped Hands are after M1). (The fix pass: it ran out from the lake, so
+    // only its end showed, a pale box on the face of the spire behind it.) It now runs along the cliff's edge, across the view from the
+    // water: two round arches on their piers, and a third broken off above the notch, where the Sluice Veil spills from the open trough.
     const ang = Math.atan2(4, 58), rS = (a) => (typeof L?.shoreR === 'function' ? L.shoreR(a) : 60);
     const r0 = rS(ang), cx = Math.cos(ang), cz = Math.sin(ang);
-    const yA = 18;
-    const segs = [[r0 + 16, r0 + 6], [r0 + 6, r0 - 0.2]];
-    for (let k = 0; k < segs.length; k++) {
-      const [ra, rb] = segs[k], len = ra - rb, rm = (ra + rb) / 2, yawA = Math.atan2(-cz, cx);
-      // a channel on two round arches: the trough (a U section) and its piers
-      const trough = new THREE.BoxGeometry(len, 1.2, 2.2, 4, 1, 1);
-      wobble(trough, 0.06, 1.4, k * 7);
-      aqueduct.push(prep(trough, { matrix: mat(cx * rm, yA, cz * rm, 0, yawA, 0), colorFn: colorStone(yA - 1) }));
-      for (const f of k === 0 ? [0.15, 0.85] : [0.2]) {
-        const rr = ra - len * f, ph = yA - 0.6 + 4;
-        const pg = new THREE.BoxGeometry(1.3, ph, 1.6, 1, 2, 1);
-        wobble(pg, 0.05, 1.6, rr);
-        aqueduct.push(prep(pg, { matrix: mat(cx * rr, yA - 0.6 - ph / 2, cz * rr, 0, yawA, 0), colorFn: colorStone(0) }));
+    const yA = 16, ySpring = yA - 3.4, yFoot = yA - 11, TW = 2.1;
+    const bx = cx * (r0 + 0.6), bz = cz * (r0 + 0.6), ryA = Math.atan2(-cx, -cz);   // local +x along the cliff (the tangent)
+    const piersU = [0.9, 6.1, 11.3];
+    const arch = (u0, u1, broken) => {
+      const R = (u1 - u0) / 2, mu = (u0 + u1) / 2, sh = new THREE.Shape();
+      const yIn = (u) => ySpring + Math.sqrt(Math.max(0, R * R - (u - mu) * (u - mu)));
+      const uS = broken ? u0 + R * 0.55 : u0;   // a broken arch keeps only its far haunch, its end a jagged face
+      sh.moveTo(u1, ySpring); sh.lineTo(u1, yA); sh.lineTo(uS, yA);
+      if (broken) { sh.lineTo(uS - 0.25, yA - 0.5); sh.lineTo(uS + 0.15, yA - 1.1); sh.lineTo(uS - 0.1, yIn(uS) + 0.3); }
+      sh.lineTo(uS, Math.min(yIn(uS), yA - 0.3));
+      for (let k = 1; k <= 12; k++) { const u = uS + (u1 - uS) * (k / 12); sh.lineTo(u, Math.min(yIn(u), yA - 0.3)); }
+      const g = new THREE.ExtrudeGeometry(sh, { depth: TW, bevelEnabled: false, curveSegments: 4, steps: 2 });
+      g.translate(0, 0, -TW / 2);
+      wobble(g, 0.05, 1.6, u0 * 3.3);
+      aqueduct.push(prep(g, { matrix: mat(bx, 0, bz, 0, ryA, 0), colorFn: colorStone(ySpring) }));
+      // the trough's two low walls along its top (an aqueduct, not a bridge)
+      for (const side of [-1, 1]) {
+        const wg = new THREE.BoxGeometry(u1 - uS, 0.55, 0.22, 3, 1, 1);
+        wobble(wg, 0.03, 3, u0 + side);
+        const c = Math.cos(ryA), s2 = Math.sin(ryA), um = (uS + u1) / 2, vz = side * (TW / 2 - 0.11);
+        aqueduct.push(prep(wg, { matrix: mat(bx + c * um + s2 * vz, yA + 0.27, bz - s2 * um + c * vz, 0, ryA, 0), colorFn: colorStone(yA) }));
       }
+      return uS;
+    };
+    const lip = arch(-4.3, piersU[0], true);
+    arch(piersU[0], piersU[1], false);
+    arch(piersU[1], piersU[2], false);
+    for (const u of piersU) {
+      const pg = new THREE.BoxGeometry(1.1, ySpring - yFoot, TW + 0.3, 1, 3, 1);
+      wobble(pg, 0.05, 1.6, u);
+      const c = Math.cos(ryA), s2 = Math.sin(ryA);
+      aqueduct.push(prep(pg, { matrix: mat(bx + c * u, (ySpring + yFoot) / 2, bz - s2 * u, 0, ryA, 0), colorFn: colorStone(0) }));
     }
+    const lipX = bx + Math.cos(ryA) * (lip + 0.4), lipZ = bz - Math.sin(ryA) * (lip + 0.4);
     // the veil: a scrolling water curtain from the broken end down to the lake
-    const vx = cx * (r0 - 0.8), vz = cz * (r0 - 0.8), vh = yA + 0.2;
+    // (it falls from the broken trough's lip, just out from the cliff's face)
+    const vx = lipX - cx * 1.2, vz = lipZ - cz * 1.2, vh = yA + 0.2;
     const vg = G(new THREE.PlaneGeometry(2.6, vh, 1, 8));
     vg.translate(0, vh / 2, 0);
     const vu = { uTime: { value: 0 }, uCol: { value: new THREE.Color(light).lerp(new THREE.Color(0xa8a0e0), 0.6) }, uK: { value: 1 } };
@@ -570,13 +631,42 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   let stone = null;
   const stoneMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: mixHex(far, light, 0.45), rimPower: 0.56, steps: 3, detail: 'stone', wet: 0.6, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
   const stoneOl = M(evenOutline(outlineMat(0.09, INK)));
+  // the cutaway (the fix pass): while the raft fishes under Under the Span's deck, the stone on the line from the lens to the Wick dithers
+  // away (gone within 0.9 m of the line, whole past 1.5 m), so the play camera and the show see the float, the tell and the fight through
+  // the deck and piers; off everywhere else and during a lift. The focus is set per frame in view space (onBeforeRender).
+  const cut = { uCutF: { value: new THREE.Vector3() }, uCutK: { value: 0 } };
+  const cutFocus = new THREE.Vector3();
+  const CUT_GLSL = `{ if (uCutK > 0.0) { vec3 gwP = -gwCutVP; float gwT = dot(gwP, uCutF) / max(1e-3, dot(uCutF, uCutF));
+      if (gwT > 0.04 && gwT < 0.93) { float gwD = length(gwP - uCutF * gwT); float gwH = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
+        if (gwH < uCutK * (1.0 - smoothstep(0.9, 1.5, gwD))) discard; } } }`;
+  const addCut = (m, viewVar) => {
+    const base = m.onBeforeCompile;
+    m.onBeforeCompile = (sh, r) => {
+      base?.call(m, sh, r);
+      Object.assign(sh.uniforms, cut);
+      if (viewVar) {
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uCutF; uniform float uCutK;')
+          .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n#define gwCutVP vViewPosition\n${CUT_GLSL}`);
+      } else {
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 gwCutV;')
+          .replace('#include <project_vertex>', '#include <project_vertex>\ngwCutV = -mvPosition.xyz;');
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uCutF; uniform float uCutK; varying vec3 gwCutV;')
+          .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n#define gwCutVP gwCutV\n${CUT_GLSL}`);
+      }
+    };
+    const key = m.customProgramCacheKey?.bind(m);
+    m.customProgramCacheKey = () => `${key ? key() : ''}|gwPlaceCut${viewVar ? 'V' : 'B'}`;
+  };
+  addCut(stoneMat, true); addCut(stoneOl, false);
+  const setCut = (renderer, scene, camera) => { if (cut.uCutK.value > 0) cut.uCutF.value.copy(cutFocus).applyMatrix4(camera.matrixWorldInverse); };
   const allStone = kit.concat(aqueduct);
   if (allStone.length) {
     const g = G(merge(allStone));
     stone = new THREE.Mesh(g, stoneMat);
     stone.name = 'placeStone';
+    stone.onBeforeRender = setCut;
     // (its ink line on medium and high; on low the place's stone goes without, inside the low line of DESIGN §25.8.8's 42)
-    if (!low) { const o = new THREE.Mesh(g, stoneOl); o.name = 'placeStone:outline'; o.renderOrder = -1; stone.add(o); }
+    if (!low) { const o = new THREE.Mesh(g, stoneOl); o.name = 'placeStone:outline'; o.renderOrder = -1; o.onBeforeRender = setCut; stone.add(o); }
     setupSurface(stone, { cast: true });
     group.add(stone);
   }
@@ -668,11 +758,15 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   // ---------------------------------------------------------- the Bell Pool: the drowned bell on its floor, and the moon's glint
   const bell = P.find((p) => p.id === 'bell_pool');
   if (bell && bell.area.kind === 'disc') {
-    const a = bell.area;
-    addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 3.6, sz: 2.5, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.62, night: 0.6 });
-    addDecal({ x: a.x - 0.4, z: a.z + 0.6, y: 0.035, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
-    // "The moon looks in on the old bell": a pale shaft standing on the pool once its mist has lifted (strongest at night)
-    addDecal({ x: a.x + 0.3, z: a.z - 0.2, y: 0, sx: 3.4, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
+    const a = bell.area, B = bellSpot(a);
+    // (the fix pass: the bell lies in the pool's north half, fallen from between its two posts, its crown toward them and its mouth
+    // turned south-east to the open water the raft comes from; a raft fishing the pool's south side is never laid on it)
+    // (laid just above the swell's highest crest, 0.19 m: at 0.02 every passing crest hid it, so it came and went in a lift's shot and read
+    // as a board; seen from above the 0.2 m is no parallax at all)
+    addDecal({ x: B.x, z: B.z, y: 0.2, rot: B.rot, sx: 4.6, sz: 3.4, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.66, night: 0.6 });
+    addDecal({ x: B.mx + 0.5, z: B.mz + 0.7, y: 0.21, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
+    // "The moon looks in on the old bell": a pale shaft standing on the bell's lip once its mist has lifted (strongest at night)
+    addDecal({ x: B.mx, z: B.mz, y: 0, sx: 3.0, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
   }
 
   let decalMesh = null;
@@ -696,12 +790,20 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   }
   arena?.halos?.commit?.();
 
-  // ---------------------------------------------------------- the giant's back (one mesh, shown 2 s at a time)
-  // a long smooth back with a low keel along its spine (it reads as a back turning, never as a hole in the water); no fin, no species
-  const backG = G(new THREE.SphereGeometry(1, 24, 10, 0, TAU, 0, Math.PI / 2));
-  { const pp = backG.attributes.position; for (let i = 0; i < pp.count; i++) { const x = pp.getX(i), y = pp.getY(i), z = pp.getZ(i); const ridge = Math.exp(-x * x * 40) * 0.18 * y; pp.setXYZ(i, x * 0.36, (y + ridge) * 0.42, z * 1.35 * (1 - 0.18 * Math.max(0, z))); } backG.computeVertexNormals(); }
+  // ---------------------------------------------------------- the giant's back (one mesh, shown a few seconds at a time)
+  // a long arched back with a keel along its spine and a swept dorsal fin breaking the water behind its crown (the fix pass: the smooth dome
+  // with a rim all round read as a hole in the water, a pit with a pale lip); no species shape, no face. Its rim light catches the fin and
+  // the spine from above, never a ring round its outline.
+  const backDome = new THREE.SphereGeometry(1, 24, 10, 0, TAU, 0, Math.PI / 2);
+  { const pp = backDome.attributes.position; for (let i = 0; i < pp.count; i++) { const x = pp.getX(i), y = pp.getY(i), z = pp.getZ(i); const ridge = Math.exp(-x * x * 30) * 0.3 * y; pp.setXYZ(i, x * 0.3, (y + ridge) * 0.4 * (1 - 0.25 * Math.max(0, -z)), z * 1.4 * (1 - 0.18 * Math.max(0, z))); } }
+  const finSh = new THREE.Shape();
+  finSh.moveTo(0.28, 0); finSh.quadraticCurveTo(0.1, 0.32, -0.42, 0.62); finSh.quadraticCurveTo(-0.3, 0.3, -0.5, 0);
+  const finG = new THREE.ExtrudeGeometry(finSh, { depth: 0.05, bevelEnabled: false, curveSegments: 6 });
+  finG.translate(0, 0, -0.025);
+  const backG = G(merge([prep(backDome, { color: [1, 1, 1] }), prep(finG, { matrix: mat(0, 0.36, -0.15, 0, -Math.PI / 2, 0), color: [1, 1, 1] })]));
+  backG.computeVertexNormals();
   // (drawn after the bank, a little veiled: a dark back seen in the mist, not a stone under it)
-  const backM = M(inkToon({ color: BACK_COL, rim: 0.95, rimColor: 0xb4acec, rimPower: 0.42, steps: 3, transparent: true, opacity: 0.85, gloss: 0.4, shine: 30, wet: 0.6 }, { fogScale: 0.9 }));
+  const backM = M(inkToon({ color: BACK_COL, rim: 0.5, rimColor: 0xb4acec, rimPower: 0.9, steps: 3, transparent: true, opacity: 0.88, gloss: 0.55, shine: 24, wet: 0.7 }, { fogScale: 0.9 }));
   backM.depthWrite = false;
   const back = new THREE.Mesh(backG, backM);
   back.name = 'giantBack'; back.visible = false; back.renderOrder = 7;
@@ -748,14 +850,22 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     c.t += dt;
     const k = c.t / BK.dur;
     if (k >= 1 || S[c.i].op < 0.05) { BK.cur = null; back.visible = false; return; }
-    const rise = Math.sin(Math.PI * k);
-    const fwd = (k - 0.5) * 2.4;
+    // it rolls up, holds a moment at the top of its turn, and sinks (a slow roll, not a bob)
+    const rise = Math.min(1, Math.sin(Math.PI * k) * 1.35);
+    const fwd = (k - 0.5) * 3.2;
     back.visible = true;
     // (1.5×: at 1× the back read as a speck from the play camera; the stage's look)
     back.scale.setScalar(BACK_SCALE);
-    back.position.set(c.x + Math.sin(c.heading) * fwd, (-0.36 + 0.58 * rise) * BACK_SCALE, c.z + Math.cos(c.heading) * fwd);
-    back.rotation.set(0.32 - 0.64 * k, c.heading, 0);
-    if (k > 0.55 && !c.rippled) { c.rippled = true; try { ctx.water?.addRipple?.(back.position.x, back.position.z, 0.5); } catch { /* optional */ } }
+    back.position.set(c.x + Math.sin(c.heading) * fwd, (-0.4 + 0.56 * rise) * BACK_SCALE, c.z + Math.cos(c.heading) * fwd);
+    back.rotation.set(0.26 - 0.52 * k, c.heading, 0);
+    // a slow V-wake: soft ripples left behind its crown as it moves, and a pair as it sinks (rings on the fish, metres from any raft)
+    const wakeEvery = 0.45, wk = Math.floor(c.t / wakeEvery);
+    if (rise > 0.3 && wk !== c.wk) {
+      c.wk = wk;
+      const bx = back.position.x - Math.sin(c.heading) * 1.4 * BACK_SCALE, bz = back.position.z - Math.cos(c.heading) * 1.4 * BACK_SCALE;
+      try { ctx.water?.addRipple?.(bx + Math.cos(c.heading) * 0.5, bz - Math.sin(c.heading) * 0.5, 0.32); ctx.water?.addRipple?.(bx - Math.cos(c.heading) * 0.5, bz + Math.sin(c.heading) * 0.5, 0.32); } catch { /* optional */ }
+    }
+    if (k > 0.72 && !c.rippled) { c.rippled = true; try { ctx.water?.addRipple?.(back.position.x, back.position.z, 0.55); ctx.water?.addRipple?.(back.position.x - Math.sin(c.heading) * 1.2, back.position.z - Math.cos(c.heading) * 1.2, 0.4); } catch { /* optional */ } }
   }
 
   /** info: {raft: {x, z} | null, phase, night 0..1, fog: Color, fogDensity, glowK} */
@@ -821,6 +931,13 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       for (const m of markerLamps) if (m.halo >= 0) { const hk = k * 1.3; arena.halos.setColor(m.halo, CANDLE3[0] * hk, CANDLE3[1] * hk, CANDLE3[2] * hk); touched = true; }
       if (touched) arena.halos.touchColors();
     }
+    // the cutaway: only while the raft is under Under the Span's deck (its footprint plus 2 m) and no lift is playing
+    {
+      const si = idx.get('under_the_span');
+      const under = !!raft && si !== undefined && footprintSdf(S[si].area, raft.x, raft.z) < 2 && !S.some((q) => q.lift);
+      cut.uCutK.value = easeOpacity(cut.uCutK.value, under ? 1 : 0, dt, 0.5);
+      if (raft) cutFocus.set(raft.x, 0.9, raft.z);
+    }
     if (veil) veil.material.uniforms.uTime.value = t;
     if (stone) { const ol = stone.children[0]?.material; if (ol?.color) { ol.color.set(INK); if (fog) ol.color.lerp(fog, 0.1 + 0.2 * n); } }
     updateBack(dt, info.phase || null, raft);
@@ -854,10 +971,18 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const c = footprintCentre(p.area), b = footprintBox(p.area, 0);
     const r = Math.max(b.x1 - b.x0, b.z1 - b.z0) / 2;
     const y = id === 'under_the_span' ? 1.8 : id === 'lily_maze' ? 0.3 : 0.4;
+    // (the Bell Pool: the shot looks down on its bell from the open water off its mouth's shoulder, 45° off its length (the profile and
+    // the mouth both read), high and close, so the bell on the floor reads as a bell and not as a board at a grazing angle; the fix pass)
+    if (id === 'bell_pool' && p.area?.kind === 'disc') { const B = bellSpot(p.area); const sx = B.dir[0] + B.dir[1], sz = B.dir[1] - B.dir[0], sl = Math.hypot(sx, sz) || 1; return { x: B.x + B.dir[0] * 0.5, y: 0, z: B.z + B.dir[1] * 0.5, r: p.area.r, side: [sx / sl, sz / sl], elev: 46, dist: 10.5 }; }
     // (a path's broadside: the lift's shot films a long place across it, never down its length behind its first pier; the stage)
     const a = p.area, q = a?.kind === 'path' && Array.isArray(a.pts) && a.pts.length >= 2 ? [a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]] : null;
     const ql = q ? Math.hypot(q[0], q[1]) : 0;
     return ql > 0 ? { x: c.x, y, z: c.z, r, face: [-q[1] / ql, q[0] / ql] } : { x: c.x, y, z: c.z, r };
+  }
+  /** Whether the water at (x, z) is open: no place's footprint holds it, or that place's mist has lifted and its lift is over. */
+  function openAt(x, z) {
+    for (const s of S) if (insideFootprint(s.area, x, z)) return s.lifted && !s.lift;
+    return true;
   }
   function readout() {
     const r3 = (x) => Math.round(x * 1000) / 1000;
@@ -866,6 +991,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       lifted: S.filter((s) => s.lifted).map((s) => s.id),
       back: BK.cur ? { placeId: BK.cur.id, t: r3(BK.cur.t), x: r3(BK.cur.x), z: r3(BK.cur.z) } : null, backs: BK.count,
       dressing: { pads: padList.length, caps: capList.length, decals: decals.length, chains: chainTips.length, piers: piers.length, redress: !!redress, tower: !!tower, veil: !!veil },
+      cut: r3(cut.uCutK.value),
       calls: stats().calls,
     };
   }
@@ -887,7 +1013,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     for (const g of geos) g.dispose();
     for (const m of mats) m.dispose();
   }
-  return { group, update, setPlaces, liftMist, placeAnchor, readout, stats, forceBack, dispose, banks: bank.mesh, ids: P.map((p) => p.id) };
+  return { group, update, setPlaces, liftMist, placeAnchor, openAt, readout, stats, forceBack, dispose, banks: bank.mesh, ids: P.map((p) => p.id) };
 }
 
 /** A small chipped block (a fallen stone): a box with its corners knocked off. */

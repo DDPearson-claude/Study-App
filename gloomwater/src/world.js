@@ -574,6 +574,9 @@ export function create(ctx) {
       const legId = zone?.legendary;
       const landed = !!(legId && run?.legendaries?.[legId]);
       legendK = (landed ? 0.14 : lp?.active ? 1 : lp?.dim ? 0.25 : 0.55) * (0.85 + 0.3 * n);
+      // the loop (M1 step 3a): her pool's gold glimmer waits under its standing bank and through its lift (the motes washed the bell out of
+      // the lift's shot; the fix pass); placesVis is built only under the loop, so the flag-off glimmer is as built
+      if (placesVis && layout?.legendPool && !placesVis.openAt(layout.legendPool.x, layout.legendPool.z)) legendK = 0;
     }
     v3Info.night = n; v3Info.fogDensity = env.fogDensity; v3Info.legendK = legendK;
     v3vis.update(dt, t, v3Info);

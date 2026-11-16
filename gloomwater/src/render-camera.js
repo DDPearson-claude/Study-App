@@ -346,29 +346,95 @@ export function showArrival(view, liftRate = 2.5) {
 // When a place's mist lifts, the lens leaves the sail framing and frames the place from the raft's side: it stands on the line from
 // the place to the raft, far enough back to hold the place's water (its anchor's r) and a little up, looking at the anchor; then eases
 // back to the sail camera. Pure: render.js lays the pose over the rig with landmarkWeight's weight (no cut, no pop).
-export const LANDMARK_SHOT = Object.freeze({ elev: 21, fov: 50, fovPortrait: 64, near: 11, far: 30, perR: 1.35, base: 6.5, minRaft: 3, ease: 0.9 });
+export const LANDMARK_SHOT = Object.freeze({ elev: 21, fov: 50, fovPortrait: 64, near: 11, far: 30, perR: 1.35, base: 6.5, minRaft: 3, ease: 0.9,
+  // the fix pass: a lens whose line to the place crosses an island steps round the place (and then up) until it is clear; a long place
+  // on a portrait frame is filmed this far off its broadside, a little further back, so its whole length fits
+  clear: 0.6, steps: [0, 18, -18, 36, -36, 54, -54, 72, -72], raise: [0, 10, 20, 30], portraitOff: 38, portraitBack: 1.18 });
+/** An obstacle the lift's lens must see past: a big one (an island, a statue), never the place's own small stones (its piers). */
+const blocks = (o) => o && Number.isFinite(o.x) && Number.isFinite(o.z) && num(o.r, 0) >= 1.5 && o.kind !== 'column';
+/** The height an obstacle stands to (m), from its radius: an island's rock about 5 m at r 6.7, a statue about 2 m. */
+const blockH = (o) => 1.2 + 0.55 * num(o.r, 0);
+/**
+ * Whether the line from the lens `pos` to the look point `look` clears every obstacle: the lens stands at least r + 3 m from its centre in
+ * plan, and the line passes further than r + clear from it, or over it higher than it stands. → the first obstacle in the way, or null.
+ */
+export function shotBlocked(pos, look, obstacles = [], { clear = LANDMARK_SHOT.clear, cone = 0, vhalf = 0 } = {}) {
+  if (!Array.isArray(obstacles) || !obstacles.length) return null;
+  const ax = pos[0], ay = pos[1], az = pos[2], bx = look[0], by = look[1], bz = look[2];
+  const ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz || 1, L = Math.sqrt(L2);
+  for (const o of obstacles) {
+    if (!blocks(o)) continue;
+    // (a lens standing over an island, or close beside it, has its rock across the foot of the frame whatever its height)
+    if (Math.hypot(ax - o.x, az - o.z) < num(o.r, 0) + 3) return o;
+    // (cone: an island nearer than the place and inside the frame's width fills a corner of the shot; `cone` is tan of the half-width)
+    if (cone > 0) {
+      const wx = o.x - ax, wz = o.z - az, along = (wx * ux + wz * uz) / L;
+      const nearAlong = along - num(o.r, 0);   // (its nearest rock, along the view; beside the lens it is in the frame's corner)
+      const below = vhalf > 0 && nearAlong > 1.5 && (ay - blockH(o)) / nearAlong > Math.tan(Math.atan2(ay - by, L) + vhalf);   // (under the frame's foot)
+      if (!below && along > 0 && along < L - num(o.r, 0) * 0.5 && (Math.abs(wx * uz - wz * ux) / L - num(o.r, 0) * 1.15) / along < cone) return o;
+    }
+    const t = clamp(((o.x - ax) * ux + (o.z - az) * uz) / L2, 0, 1);
+    if (t >= 0.97) continue;   // (the look point's own ground)
+    const d = Math.hypot(ax + ux * t - o.x, az + uz * t - o.z);
+    if (d >= num(o.r, 0) + clear) continue;
+    if (ay + (by - ay) * t > blockH(o) + 0.4) continue;
+    return o;
+  }
+  return null;
+}
 /**
  * The pose that frames a place: raft {x, z} (or null: the lens's own side, `yaw`), p {x, y, z, r}. → {pos: [x, y, z], look: [x, y, z],
  * fov, dist}. The distance is base + perR·r (clamped near … far); the lens never stands further from the place than the raft does plus
  * minRaft (a raft near the place is filmed from just behind it). p.face ([x, z], optional: a path's normal) turns the lens to the
- * place's broadside on the raft's side.
+ * place's broadside on the raft's side. Optional: p.side ([x, z]) the side the lens stands on whatever the raft's (a place framed from
+ * its open water), p.elev (deg) and p.dist (m) a place's own crane (the Bell Pool: high, looking down on its bell); `obstacles`
+ * (world.getObstacles()) turns the lens round the place, then raises it, until its line clears every island (the fix pass: Under the
+ * Span's shot stood behind a shore boulder). On a portrait frame a long place is filmed obliquely so its length fits.
  */
-export function landmarkShot(raft, p, { yaw = 0, aspect = 16 / 9, S = LANDMARK_SHOT } = {}) {
+export function landmarkShot(raft, p, { yaw = 0, aspect = 16 / 9, S = LANDMARK_SHOT, obstacles = null } = {}) {
   if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) return null;
   const r = Math.max(0, num(p.r, 6));
   let dx = 0, dz = 0, dRaft = Infinity;
   if (raft && Number.isFinite(raft.x) && Number.isFinite(raft.z)) { dx = raft.x - p.x; dz = raft.z - p.z; dRaft = Math.hypot(dx, dz); }
   if (!(dRaft > 0.5) || !Number.isFinite(dRaft)) { dx = Math.sin(num(yaw, 0)); dz = Math.cos(num(yaw, 0)); dRaft = Infinity; }
+  const side = Array.isArray(p.side) && Number.isFinite(p.side[0]) && Number.isFinite(p.side[1]) && Math.hypot(p.side[0], p.side[1]) > 1e-6 ? p.side : null;
+  if (side) { dx = side[0]; dz = side[1]; }
   // (a long place gives its broadside, p.face: the lens stands across it on the raft's side, not down its length)
   const f = Array.isArray(p.face) && Number.isFinite(p.face[0]) && Number.isFinite(p.face[1]) && Math.hypot(p.face[0], p.face[1]) > 1e-6 ? p.face : null;
   if (f) { const fl = Math.hypot(f[0], f[1]), sd = dx * f[0] + dz * f[1] < 0 ? -1 : 1; dx = sd * f[0] / fl; dz = sd * f[1] / fl; }
-  const l = Math.hypot(dx, dz) || 1, ux = dx / l, uz = dz / l;
-  let dist = clamp(num(S.base, 6.5) + num(S.perR, 1.35) * r, num(S.near, 11), num(S.far, 30));
-  if (Number.isFinite(dRaft)) dist = Math.max(num(S.near, 11) * 0.7, Math.min(dist, dRaft + num(S.minRaft, 3)));
-  const e = num(S.elev, 21) * DEG, y0 = num(p.y, 0);
-  const pos = [p.x + ux * dist * Math.cos(e), y0 + dist * Math.sin(e), p.z + uz * dist * Math.cos(e)];
+  const l = Math.hypot(dx, dz) || 1;
+  let ux = dx / l, uz = dz / l;
   const up = showUpright(aspect);
-  return { pos, look: [p.x, y0, p.z], fov: lerp(num(S.fov, 50), num(S.fovPortrait, 64), up), dist };
+  let dist = Number.isFinite(p.dist) && p.dist > 0 ? p.dist : clamp(num(S.base, 6.5) + num(S.perR, 1.35) * r, num(S.near, 11), num(S.far, 30));
+  if (Number.isFinite(dRaft) && !side && !(Number.isFinite(p.dist) && p.dist > 0)) dist = Math.max(num(S.near, 11) * 0.7, Math.min(dist, dRaft + num(S.minRaft, 3)));
+  // (a portrait frame: a long place filmed off its broadside and a little further back, so all of it fits across the narrow frame)
+  if (f && up > 0.5) {
+    const off = num(S.portraitOff, 38) * DEG * (raft && Number.isFinite(raft.x) ? (((raft.x - p.x) * -uz + (raft.z - p.z) * ux) < 0 ? -1 : 1) : 1);
+    const c = Math.cos(off), s = Math.sin(off);
+    [ux, uz] = [ux * c - uz * s, ux * s + uz * c];
+    dist = Math.min(num(S.far, 30), dist * num(S.portraitBack, 1.18));
+  }
+  const y0 = num(p.y, 0), look = [p.x, y0, p.z];
+  const e0 = num(p.elev, num(S.elev, 21));
+  const poseAt = (rot, lift) => {
+    const c = Math.cos(rot * DEG), s = Math.sin(rot * DEG), vx = ux * c - uz * s, vz = ux * s + uz * c, e = Math.min(70, e0 + lift) * DEG;
+    return [p.x + vx * dist * Math.cos(e), y0 + dist * Math.sin(e), p.z + vz * dist * Math.cos(e)];
+  };
+  let pos = poseAt(0, 0);
+  const fov = lerp(num(S.fov, 50), num(S.fovPortrait, 64), up);
+  if (Array.isArray(obstacles) && obstacles.length) {
+    // first a clear line (and a lens not over an island); then, among those, one with no island in the frame's near part
+    const half = Math.atan(Math.tan(fov * DEG / 2) * Math.max(0.3, num(aspect, 16 / 9))), cone = Math.tan(half);
+    // (a broadside first: small turns on the raft's side, then the far side's, each low before raised; a wide turn, which films a long
+    // place down its length, last)
+    const tries = [], steps = S.steps || [0], small = steps.filter((r) => Math.abs(r) <= 36), wide = steps.filter((r) => Math.abs(r) > 36 && Math.abs(r) < 180);
+    for (const lift of S.raise || [0]) { for (const rot of small) tries.push(poseAt(rot, lift)); for (const rot of small) tries.push(poseAt(180 + rot, lift)); }
+    for (const lift of S.raise || [0]) for (const rot of wide) tries.push(poseAt(rot, lift));
+    const o = { clear: S.clear, cone, vhalf: fov * DEG / 2 };
+    const best = tries.find((q) => !shotBlocked(q, look, obstacles, o)) || tries.find((q) => !shotBlocked(q, look, obstacles, S));
+    if (best && shotBlocked(pos, look, obstacles, o)) pos = best;
+  }
+  return { pos, look, fov, dist };
 }
 /** The shot's weight at t s: eased in over `ease` s, held until `dur`, eased back over `back` s; 0 before and after. */
 export function landmarkWeight(t, { dur = 4.2, back = 0.6, ease = LANDMARK_SHOT.ease } = {}) {

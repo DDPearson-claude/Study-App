@@ -45,7 +45,7 @@ export const POSE_B = {
   lily_maze: { pos: [-28, 5.5, 34], look: [-41, 0.2, 23.5], fov: 50 },
   under_the_span: { pos: [-22, 4.2, -9], look: [-31, 1.8, 1.5], fov: 52 },
   buoy_lights: { pos: [-41, 4.5, -18], look: [-48, 0.2, -1], fov: 52 },
-  bell_pool: { pos: [3, 5.5, -6], look: [-4.5, 0, -14.5], fov: 50 },
+  bell_pool: { pos: [4, 6.5, -11], look: [-3.4, 0, -15.6], fov: 50 },   // (on its drowned bell, which lies in the pool's north half: the fix pass)
 };
 /** Sheet 4's poses: the same four poses with LOOP.redress off and on. */
 export const REDRESS_POSES = [
@@ -127,7 +127,8 @@ export default async function (api) {
       }
       K.step('sheet 1: the cast into a bank (lane B\'s mist cast)');
       await K.places.unlift();
-      await K.places.light('dusk', 0.5); await K.places.at('bell_pool', { back: 2.5 }); await settle(2);
+      // (a clear gap of water between the raft and the bank's feathered edge, so the float lands inside the mist: the fix pass)
+      await K.places.light('dusk', 0.5); await K.places.at('bell_pool', { back: 4 }); await settle(2);
       // (a forced cast from just outside the bank lands in it: lane B's mist cast sinks the float into the bank and brings it back)
       const ev0 = await K.evCount();
       await g(() => { const d = window.__gw.debug; try { window.__gw.fishing.cancel?.('debug'); d.forceBite?.({ wait: 2 }); } catch { /* optional */ } });
@@ -144,8 +145,12 @@ export default async function (api) {
     if (sheets.includes('redress') || (sheets.includes('places') && !redress && !args.noredress)) {
       K.step(`sheet 4: the harbour ${redress ? 're-dressed' : 'today'}`);
       await K.places.lift('all', { play: false });   // (the harbour, not the mist: every place lifted on both sides)
+      // (both halves at the same moment: no Murk line on either; the re-dressed run, shot straight after its sail out, waited for none and
+      // caught his sail-out line on the phone: the fix pass)
+      await K.until("!document.querySelector('.gw-toast--murk.gw-in')", 12);
       for (const light of ['dusk', 'gloomtide']) {
         await K.places.light(light, 0.45); await K.places.pose(-6, 30, 0); await settle(3);
+        await g(() => { for (const el of document.querySelectorAll('.gw-toast--murk')) { el.classList.remove('gw-in'); el.classList.add('gw-out'); } });
         for (const p of REDRESS_POSES) {
           await K.places.camera({ pos: p.pos, look: p.look, fov: p.fov }); await settle(0.5);
           await frame('redress', `${p.what}-${light}-${redress ? 'on' : 'off'}`, `${p.note}, ${light}, ${redress ? 're-dressed' : 'today'}`, { side: redress ? 'right' : 'left', light });

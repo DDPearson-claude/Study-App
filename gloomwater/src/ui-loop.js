@@ -1202,6 +1202,9 @@ export function createLoopView(K) {
     const pick = chartPickOf(entry, model);
     const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}${tutorial ? '' : ' gw-p-chart--3a'}` });
     pn.dataset.loop = 'chart';
+    // (a re-render, a pick or a fitted ball, keeps the foot's drawn rule: it draws in once, on the open; the fix pass)
+    if (s.drawnOnce) pn.classList.add('gw-again');
+    s.drawnOnce = true;
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart"></div>`;
     if (line) content.querySelector('.gw-murk-line').textContent = line;
     const list = content.querySelector('.gw-chart');
