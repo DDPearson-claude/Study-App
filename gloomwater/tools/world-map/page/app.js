@@ -7,7 +7,6 @@
   const $ = (id) => document.getElementById(id);
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const lerp = (a, b, t) => a + (b - a) * t;
-  const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
   const css = getComputedStyle(document.documentElement);
   const F = {
@@ -16,9 +15,9 @@
     body: css.getPropertyValue('--f-body').trim() || 'Georgia, serif',
     hand: css.getPropertyValue('--f-hand').trim() || 'cursive',
   };
-  // the chart's own colours: it is vellum and ink whatever the page's theme
-  const C = { ink: '59,46,68', paper: '238,232,236', amber: '240,162,60', flame: '255,206,128', pale: '226,220,252', water: '58,54,118', sage: '166,212,160', stone: '236,232,241' };
-  const INK = `rgb(${C.ink})`, STONE = `rgb(${C.stone})`, AMBER = `rgb(${C.amber})`;
+  // the drawing is chart-draw.js's (src/chart-draw.js, bundled in as ChartDraw): one code for this page and the game's Chart
+  const CD = ChartDraw, C = CD.C;
+  const INK = `rgb(${C.ink})`, AMBER = `rgb(${C.amber})`;
 
   const mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   let reduced = mq.matches;
@@ -37,12 +36,7 @@
   const FURNITURE = [[2, 1352, 234, 1430], [SILL[0] - 22, SILL[1] - 28, SILL[0] + 22, SILL[1] + 46], [976, -14, 1024, 38]];
 
   // ------------------------------------------------------------------ geometry of the road
-  PC.forEach((pc) => {
-    pc.pts = []; for (let i = 0; i < pc.p.length; i += 2) pc.pts.push([pc.p[i], pc.p[i + 1]]);
-    pc.s = [0]; for (let i = 1; i < pc.pts.length; i++) pc.s.push(pc.s[i - 1] + Math.hypot(pc.pts[i][0] - pc.pts[i - 1][0], pc.pts[i][1] - pc.pts[i - 1][1]));
-    pc.len = pc.s[pc.s.length - 1];
-    pc.path = new Path2D(); pc.path.moveTo(pc.pts[0][0], pc.pts[0][1]); for (let i = 1; i < pc.pts.length; i++) pc.path.lineTo(pc.pts[i][0], pc.pts[i][1]);
-  });
+  CD.prepPieces(PC);
   const legs = D.legs.map((leg) => {
     const pts = []; // [x, y, kind]
     for (const [idx, dir] of leg.via) {
@@ -62,11 +56,7 @@
     const t = s[hi] > s[lo] ? (d - s[lo]) / (s[hi] - s[lo]) : 0, a = leg.pts[lo], b = leg.pts[hi];
     return { x: lerp(a[0], b[0], t), y: lerp(a[1], b[1], t), i: lo, kind: b[2] };
   };
-  const pointOnPiece = (pc, d) => {
-    let j = 0; while (j < pc.pts.length - 2 && pc.s[j + 1] < d) j++;
-    const t = (d - pc.s[j]) / (pc.s[j + 1] - pc.s[j] || 1), a = pc.pts[j], b = pc.pts[j + 1];
-    return { x: lerp(a[0], b[0], t), y: lerp(a[1], b[1], t), ang: Math.atan2(b[1] - a[1], b[0] - a[0]) };
-  };
+  const pointOnPiece = CD.pointOnPiece;
   // where a sea piece crosses the line y: the Long Coast's two ticks at the Fold's pleats
   const crossing = (id, y) => { const pc = PC.find((q) => q.id === id); if (!pc) return null; for (let i = 1; i < pc.pts.length; i++) { const a = pc.pts[i - 1], b = pc.pts[i]; if ((a[1] - y) * (b[1] - y) <= 0 && a[1] !== b[1]) return lerp(a[0], b[0], (y - a[1]) / (b[1] - a[1])); } return null; };
   const FOLD_TICKS = [D.fold.y0, D.fold.y1].map((y) => [crossing('longCoast', y), y]).filter((q) => q[0] != null);
@@ -173,8 +163,8 @@
     for (let i = S.world.length - 1; i >= 0; i--) if (S.world[i].bs >= need * 0.92) return S.world[i].img;
     return S.world[0].img;
   }
-  const chartSpace = () => { const k = S.view.k, d = S.dpr; ctx.setTransform(d * k, 0, 0, d * k, d * (S.vw / 2 - S.view.x * k), d * (S.vh / 2 - S.view.y * k)); };
   const screenSpace = () => ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+  const V = () => CD.chartView({ x: S.view.x, y: S.view.y, k: S.view.k, vw: S.vw, vh: S.vh, dpr: S.dpr });
   const inked = () => S.mode === 'world';
   // a name shows when its sheet is owned; the never-charted names (sheet 99) only in the design view
   const shown = (sheet) => inked() || (sheet > 0 && sheet <= S.owned);
@@ -220,319 +210,40 @@
   // ---- where the charted country stops: a feathered ink edge and a thin rim of mist
   function drawSheetEdge() {
     if (inked() || S.reveal) return;
-    const lines = D.edges[S.owned - 1]; if (!lines) return;
-    const whole = S.owned >= 16; // then the only edge left is where the charted land meets the never-charted
-    chartSpace();
-    const k = S.view.k, p = new Path2D();
-    for (const a of lines) { p.moveTo(a[0], a[1]); for (let i = 2; i < a.length; i += 2) p.lineTo(a[i], a[i + 1]); }
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    if (!whole) { ctx.strokeStyle = 'rgba(190,180,240,.3)'; ctx.lineWidth = 7 / k + 2.5; ctx.stroke(p); }
-    ctx.strokeStyle = `rgba(${C.ink},.5)`; ctx.lineWidth = 0.9 / k; ctx.setLineDash([7 / k, 2.2 / k, 1.2 / k, 2.2 / k]); ctx.stroke(p); ctx.setLineDash([]);
+    CD.sheetEdge(ctx, V(), D.edges[S.owned - 1], { whole: S.owned >= 16 });
   }
 
   // ---- the road: the water first, then a fine amber line inside it
   function drawRoad() {
-    const k = S.view.k;
-    chartSpace();
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    const aw = clamp(1.2 + 0.3 * Math.log2(k / 0.6 + 0.001), 1.15, 2.3); // the amber line, in screen px
-    const casing = 1 - sstep(1.7, 3.4, k);
     const own = [], rest = [];
     PC.forEach((pc, i) => { if (pc.leg <= S.owned) own.push(i); else if (inked()) rest.push(i); });
-    // the design view shows the road still to come, faintly
-    if (rest.length) {
-      ctx.strokeStyle = `rgba(${C.amber},.42)`; ctx.lineWidth = 1.2 / k; ctx.setLineDash([0.1 / k, 4.5 / k]);
-      for (const i of rest) ctx.stroke(PC[i].path);
-      ctx.setLineDash([]);
-    }
-    // 1. water under every river and canal leg, so the road is never the only sign of it
-    if (casing > 0.01) {
-      ctx.strokeStyle = `rgba(${C.water},${0.92 * casing})`; ctx.lineWidth = (aw + 2.5) / k;
-      for (const i of own) { const pc = PC[i]; if ((pc.k === 'river' || pc.k === 'canal' || pc.k === 'haul') && !pc.wide) ctx.stroke(pc.path); }
-      ctx.strokeStyle = `rgba(${C.pale},${0.55 * casing})`; ctx.lineWidth = (aw + 1.1) / k;
-      for (const i of own) { const pc = PC[i]; if (pc.k === 'canal') ctx.stroke(pc.path); }
-    }
-    // 2. the amber line: solid on rivers, canals and lakes, hatched steps on the haul-way, dotted at sea
-    for (const i of own) {
-      const pc = PC[i];
-      if (pc.k === 'sea') {
-        ctx.setLineDash([0.1 / k, (aw * 3.1) / k]); ctx.lineWidth = (aw * 1.45) / k;
-        ctx.strokeStyle = 'rgba(40,24,30,.5)'; ctx.lineWidth = (aw * 1.45 + 1.1) / k; ctx.stroke(pc.path);
-        ctx.strokeStyle = AMBER; ctx.lineWidth = (aw * 1.45) / k; ctx.stroke(pc.path); ctx.setLineDash([]);
-      } else {
-        ctx.strokeStyle = 'rgba(40,24,30,.55)'; ctx.lineWidth = (aw + 1.0) / k; ctx.stroke(pc.path);
-        ctx.strokeStyle = AMBER; ctx.lineWidth = aw / k; ctx.stroke(pc.path);
-        if (pc.k === 'haul') { // the lock stair: small hatched steps across the line
-          ctx.lineCap = 'butt'; ctx.setLineDash([1.1 / k, 3.2 / k]); ctx.strokeStyle = `rgba(${C.ink},.9)`; ctx.lineWidth = (aw + 5) / k; ctx.stroke(pc.path); ctx.setLineDash([]); ctx.lineCap = 'round';
-        }
-      }
-    }
-    // 3. which way the water runs, and the return mark on an out-and-back
-    screenSpace();
-    for (const i of own) {
-      const pc = PC[i], Lpx = pc.len * k;
-      if (pc.flow && Lpx > 26) {
-        const n = Math.max(1, Math.floor(Lpx / 58));
-        for (let q = 0; q < n; q++) { const p = pointOnPiece(pc, pc.len * ((q + 0.62) / n)); chevron(sx(p.x), sy(p.y), p.ang, aw * 2.3 + 1.4); }
-      }
-      if (Lpx > 30 && pc.k !== 'sea' && bothWays(i)) { const p = pointOnPiece(pc, pc.len * (Lpx > 54 ? 0.3 : 0.5)); returnMark(sx(p.x), sy(p.y), p.ang, Lpx > 54 ? aw * 2.2 + 2.2 : aw * 1.7 + 1.6); }
-    }
     // where the owned road runs on into a water not yet bought: a small wisp, no name and no shape
     const j = S.journey;
-    if (!inked() && S.owned < 16 && D.wisps[S.owned - 1] && !(j && j.phase !== 'done')) {
-      const w = D.wisps[S.owned - 1];
-      const x = sx(w[0]), y = sy(w[1]), r = clamp(11 * Math.sqrt(k), 10, 24);
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, 'rgba(214,204,250,.95)'); g.addColorStop(0.5, 'rgba(200,190,244,.6)'); g.addColorStop(1, 'rgba(196,186,240,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, r * 1.5, r, 0, 0, 6.3); ctx.fill();
-      ctx.strokeStyle = 'rgba(116,104,176,.7)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
-      for (const [dx, dy, s] of [[-0.5, -0.25, 0.5], [0.25, 0.05, 0.62], [-0.2, 0.36, 0.42]]) { ctx.beginPath(); ctx.moveTo(x + (dx - s) * r, y + dy * r); ctx.bezierCurveTo(x + (dx - s * 0.4) * r, y + (dy - 0.22) * r, x + (dx + s * 0.4) * r, y + (dy + 0.22) * r, x + (dx + s) * r, y + dy * r); ctx.stroke(); }
-    }
-  }
-  function chevron(x, y, ang, s) {
-    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
-    ctx.beginPath(); ctx.moveTo(-s * 0.45, -s * 0.62); ctx.lineTo(s * 0.5, 0); ctx.lineTo(-s * 0.45, s * 0.62);
-    ctx.lineJoin = 'miter'; ctx.strokeStyle = `rgba(${C.paper},.9)`; ctx.lineWidth = 2.6; ctx.stroke();
-    ctx.strokeStyle = `rgb(${C.ink})`; ctx.lineWidth = 1.15; ctx.stroke();
-    ctx.restore();
-  }
-  function returnMark(x, y, ang, s) { // two small arrows, out and back, set beside the line
-    ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.translate(0, -s * 1.5);
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    for (const pass of [0, 1]) {
-      ctx.beginPath();
-      ctx.moveTo(-s, -s * 0.3); ctx.lineTo(s, -s * 0.3); ctx.lineTo(s * 0.5, -s * 0.75);
-      ctx.moveTo(s, s * 0.3); ctx.lineTo(-s, s * 0.3); ctx.lineTo(-s * 0.5, s * 0.75);
-      if (!pass) { ctx.strokeStyle = `rgba(${C.paper},.9)`; ctx.lineWidth = 2.8; } else { ctx.strokeStyle = 'rgb(150,84,14)'; ctx.lineWidth = 1.15; }
-      ctx.stroke();
-    }
-    ctx.restore();
+    const wisp = !inked() && S.owned < 16 && D.wisps[S.owned - 1] && !(j && j.phase !== 'done') ? D.wisps[S.owned - 1] : null;
+    CD.road(ctx, V(), PC, { own, rest, bothWays, wisp });
   }
 
   // ------------------------------------------------------------------ marks: a lamp and a landmark vignette for each water
-  // Laid out afresh each frame, in screen px. A vignette stands at its landmark's true place; where
-  // that would crowd its own lamp or a neighbour (zoomed out), it steps aside.
+  // Laid out afresh each frame, in screen px (CD.layoutMarks): a vignette stands at its landmark's true place, stepping aside
+  // where it would crowd its own lamp or a neighbour.
   function layoutMarks() {
-    const k = S.view.k;
-    const lampU = clamp(4.6 + 1.5 * Math.log2(k / S.fitK + 1), 5.2, 9.5);
-    const small = S.vw < 700, vs = clamp(k * 13, small ? 13 : 18, 68);
     const list = [{ n: 0, at: HOME.at, vg: HOME.vg, name: 'The Landing', owned: true }];
     for (const w of W) if (w.n <= S.owned || inked()) list.push({ n: w.n, at: w.at, vg: w.vg, name: w.name, owned: w.n <= S.owned, act: w.act });
-    for (const m of list) {
-      m.lx = sx(m.at[0]); m.ly = sy(m.at[1]); m.u = lampU; m.vs = vs;
-      let vx = sx(m.vg[0]), vy = sy(m.vg[1]);
-      const need = vs * 0.56 + lampU * 1.2;
-      let dx = vx - m.lx, dy = vy - m.ly; const d = Math.hypot(dx, dy);
-      if (d < need) { if (d < 0.01) { dx = 0; dy = -1; } else { dx /= d; dy /= d; } vx = m.lx + dx * need; vy = m.ly + dy * need; }
-      m.vx = vx; m.vy = vy;
-    }
-    // neighbours' vignettes part a little; lamps keep their place
-    for (let it = 0; it < 4; it++) for (let a = 0; a < list.length; a++) for (let b = a + 1; b < list.length; b++) {
-      const A = list[a], B = list[b], dx = B.vx - A.vx, dy = B.vy - A.vy, d = Math.hypot(dx, dy), need = vs * 1.02;
-      if (d < need && d > 0.01) { const push = (need - d) / 2; A.vx -= (dx / d) * push; A.vy -= (dy / d) * push; B.vx += (dx / d) * push; B.vy += (dy / d) * push; }
-    }
-    for (const A of list) for (const B of list) {
-      const dx = A.vx - B.lx, dy = A.vy - B.ly, d = Math.hypot(dx, dy), need = vs * 0.5 + lampU;
-      if (d < need && d > 0.01) { A.vx = B.lx + (dx / d) * need; A.vy = B.ly + (dy / d) * need; }
-    }
-    return list;
-  }
-
-  // ---- lamps: each its own small lantern, a flame-shaped point of amber and a soft glow. Never a ring.
-  function lantern(x, y, u, lit, strong) {
-    if (lit) {
-      const gr = u * (strong ? 4.6 : 3.1), g = ctx.createRadialGradient(x, y - u * 0.3, 0, x, y - u * 0.3, gr);
-      g.addColorStop(0, `rgba(${C.flame},${strong ? 0.8 : 0.62})`); g.addColorStop(0.3, `rgba(${C.amber},.26)`); g.addColorStop(1, `rgba(${C.amber},0)`);
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y - u * 0.3, gr, 0, 6.3); ctx.fill();
-    }
-    // the hook and the cap
-    ctx.strokeStyle = INK; ctx.lineWidth = Math.max(0.9, u * 0.16); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(x, y - u * 1.72, u * 0.32, Math.PI * 0.9, Math.PI * 2.1); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x - u * 0.62, y - u * 1.28); ctx.lineTo(x + u * 0.62, y - u * 1.28); ctx.stroke();
-    // the flame
-    const fl = () => { ctx.beginPath(); ctx.moveTo(x, y - u * 1.16); ctx.bezierCurveTo(x + u * 0.85, y - u * 0.3, x + u * 0.62, y + u * 0.62, x, y + u * 0.62); ctx.bezierCurveTo(x - u * 0.62, y + u * 0.62, x - u * 0.85, y - u * 0.3, x, y - u * 1.16); };
-    fl();
-    if (lit) { ctx.fillStyle = AMBER; ctx.fill(); ctx.strokeStyle = 'rgba(96,44,10,.85)'; ctx.lineWidth = Math.max(0.7, u * 0.11); ctx.stroke(); ctx.fillStyle = 'rgba(255,244,214,.95)'; ctx.beginPath(); ctx.ellipse(x, y + u * 0.12, u * 0.24, u * 0.36, 0, 0, 6.3); ctx.fill(); }
-    else { ctx.fillStyle = `rgba(${C.paper},.85)`; ctx.fill(); ctx.strokeStyle = `rgba(${C.ink},.7)`; ctx.lineWidth = Math.max(0.8, u * 0.13); ctx.stroke(); }
-    ctx.strokeStyle = INK; ctx.lineWidth = Math.max(0.9, u * 0.16);
-    ctx.beginPath(); ctx.moveTo(x - u * 0.5, y + u * 0.84); ctx.lineTo(x + u * 0.5, y + u * 0.84); ctx.stroke();
+    return CD.layoutMarks(V(), list, { fitK: S.fitK, small: S.vw < 700 });
   }
   function drawLamps() {
     screenSpace();
     for (const m of S.marks) {
       if (m.lx < -40 || m.ly < -40 || m.lx > S.vw + 40 || m.ly > S.vh + 40) continue;
-      if (m.n === 0) { hearth(m.lx, m.ly, m.u * 1.15, S.hearthFull); continue; }
-      lantern(m.lx, m.ly, m.u * (S.sel === m.n ? 1.18 : 1), m.owned, S.sel === m.n);
+      if (m.n === 0) { CD.hearth(ctx, m.lx, m.ly, m.u * 1.15, S.hearthFull); continue; }
+      CD.lantern(ctx, m.lx, m.ly, m.u * (S.sel === m.n ? 1.18 : 1), m.owned, S.sel === m.n);
     }
   }
-  // home: the Landing's hearth, the warmest point on the sheet; banked low until the road comes home
-  function hearth(x, y, u, full) {
-    const gr = u * (full ? 6.5 : 3.8), g = ctx.createRadialGradient(x, y, 0, x, y, gr);
-    g.addColorStop(0, `rgba(255,214,150,${full ? 0.95 : 0.78})`); g.addColorStop(0.3, `rgba(250,170,70,${full ? 0.42 : 0.3})`); g.addColorStop(1, 'rgba(250,170,70,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, gr, 0, 6.3); ctx.fill();
-    const f = full ? 1.5 : 1;
-    ctx.beginPath(); ctx.moveTo(x, y - u * 1.5 * f); ctx.bezierCurveTo(x + u * 1.0 * f, y - u * 0.4, x + u * 0.8, y + u * 0.6, x, y + u * 0.6); ctx.bezierCurveTo(x - u * 0.8, y + u * 0.6, x - u * 1.0 * f, y - u * 0.4, x, y - u * 1.5 * f);
-    ctx.fillStyle = full ? 'rgb(252,190,92)' : 'rgb(246,168,70)'; ctx.fill(); ctx.strokeStyle = 'rgba(96,44,10,.85)'; ctx.lineWidth = Math.max(0.7, u * 0.11); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,246,220,.95)'; ctx.beginPath(); ctx.ellipse(x, y + u * 0.05, u * 0.3 * f, u * 0.44 * f, 0, 0, 6.3); ctx.fill();
-    ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, u * 0.2); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(x - u * 1.1, y + u * 0.86); ctx.lineTo(x + u * 1.1, y + u * 0.86); ctx.stroke();
-  }
-
-  // ---- landmark vignettes (WORLD.md §10): one small ink drawing for each water, drawn in a 20-unit box
-  const vg = { halo: false, u: 1 };
-  // the foliage track of WATERS.md: olive at step 1, deep green at step 15
-  const LEAF = (st) => {
-    const hue = 84 + 2.9 * st, cap = Math.min(0.62, 0.25 + 0.04 * st), sat = Math.min(cap - 0.04, 0.24 + 0.02 * st), val = 0.43 + 0.01 * st;
-    const f = (n) => { const q = (n + hue / 60) % 6; return Math.round(255 * (val - val * sat * Math.max(0, Math.min(q, 4 - q, 1)))); };
-    return `rgb(${f(5)},${f(3)},${f(1)})`;
-  };
-  // P: one inked shape. In the halo pass it is only a vellum outline, so every mark reads on sea and forest alike.
-  function P(build, fill, lw, stroke) {
-    ctx.beginPath(); build();
-    const w = Math.max((lw || 1) * 0.7, 0.95 / vg.u); // local units: never thinner than a pixel on screen
-    if (vg.halo) { ctx.strokeStyle = `rgba(${C.paper},.86)`; ctx.lineWidth = w + 2.4 / vg.u; ctx.stroke(); return; }
-    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-    if (stroke !== null) { ctx.strokeStyle = stroke || INK; ctx.lineWidth = w; ctx.stroke(); }
-  }
-  const dot = (x, y, r, col) => { if (vg.halo) return; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.3); ctx.fillStyle = col || AMBER; ctx.fill(); };
-  const rect = (x, y, w, h) => () => ctx.rect(x, y, w, h);
-  const poly = (pts, close) => () => { ctx.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]); if (close !== false) ctx.closePath(); };
-  const wave = (x0, x1, y, amp) => () => { ctx.moveTo(x0, y); for (let x = x0; x < x1; x += 3) ctx.quadraticCurveTo(x + 0.75, y - (amp || 0.9), x + 1.5, y), ctx.quadraticCurveTo(x + 2.25, y + (amp || 0.9), Math.min(x1, x + 3), y); };
-  const VIGNETTES = [
-    function landing() { // the cove arch, the hearth, and Murk's lily-pad barge with his towering pack and green lamp
-      P(rect(-9.2, -2, 1.9, 8.4), STONE); P(rect(-3.2, 0.5, 1.9, 5.9), STONE);
-      P(() => { ctx.arc(-5.3, -2, 3.9, Math.PI, Math.PI * 1.42); }, null, 1.5); P(() => { ctx.arc(-5.3, -2, 3.9, Math.PI * 1.62, Math.PI * 1.9); }, null, 1.5);
-      if (!vg.halo) { ctx.beginPath(); ctx.moveTo(-5.3, 1.6); ctx.bezierCurveTo(-3.9, 3.6, -4.2, 5.8, -5.3, 5.8); ctx.bezierCurveTo(-6.4, 5.8, -6.7, 3.6, -5.3, 1.6); ctx.fillStyle = AMBER; ctx.fill(); }
-      P(() => ctx.ellipse(4.6, 6.6, 5.2, 1.5, 0, 0, 6.3), 'rgb(116,132,100)');
-      P(() => { ctx.moveTo(1.2, 6.1); ctx.quadraticCurveTo(0.4, 3.2, 2.6, 3.2); ctx.quadraticCurveTo(4.4, 3.4, 4.2, 6.1); ctx.closePath(); }, 'rgb(116,92,76)'); // the old toad
-      P(poly([4.4, 6, 4.1, -5.6, 5.6, -7.2, 7.4, -5.6, 7.3, 6]), 'rgb(196,176,150)'); // his pack
-      P(poly([4.2, -2, 7.4, -2], false), null, 0.8); P(poly([4.3, 2, 7.3, 2], false), null, 0.8);
-      P(poly([5.7, -7.2, 6.6, -9.6, 8.4, -8.2], false), null, 0.8);
-      P(poly([8.6, 6.2, 9.2, 0.4], false), null, 0.8); dot(9.3, -0.4, 1.05, `rgb(${C.sage})`);
-    },
-    function mossmere() { // the Sunken Gate's towers, the Toppled Bridge and its hanging chain
-      P(rect(-7.6, -7, 3, 11.4), STONE); P(rect(4.6, -7, 3, 11.4), STONE);
-      P(poly([-8.2, -7, -4, -7], false), null, 1.5); P(poly([4, -7, 8.2, -7], false), null, 1.5);
-      P(() => { ctx.moveTo(-4.6, 4.4); ctx.lineTo(-4.6, -0.6); ctx.arc(0, -0.6, 4.6, Math.PI, 0); ctx.lineTo(4.6, 4.4); }, null, 1.3);
-      dot(-6.1, -3.6, 0.7); dot(6.1, -1.4, 0.7); dot(-6.1, 0.6, 0.6);
-      P(poly([-9.6, 7.4, -1.6, 7.4], false), null, 1.9); P(poly([2.6, 8.6, 9.4, 7.2], false), null, 1.9);
-      P(poly([-1.6, 7.4, -1.6, 8.3, -1.2, 9, -1.6, 9.8], false), null, 0.7);
-    },
-    function sporewood() { // three giant mushroom caps
-      const cap = (x, y, rx, ry, base, col) => { P(poly([x, y, x + 0.3, base], false), null, 1.4); P(() => { ctx.ellipse(x, y, rx, ry, 0, Math.PI, 0); ctx.closePath(); }, col); };
-      cap(-6.2, 1.2, 3.3, 2.1, 7, '#c79ab8'); cap(6.2, -0.4, 3.7, 2.3, 7, '#d6a4ba'); cap(0, -3.4, 5.6, 3.4, 7, '#b98cc0');
-      P(poly([-9, 7, 9, 7], false), null, 0.8);
-    },
-    function glasswater() { // crystal monoliths and the fallen chandelier
-      P(poly([-5.2, 6, -6.4, -3, -4.6, -6.4, -2.9, -3, -3.4, 6]), '#d5dafb'); P(poly([5, 6, 4, -1, 5.7, -4.4, 7.3, -1, 6.7, 6]), '#d5dafb');
-      P(poly([-0.9, 6, -1.9, -5, 0.2, -9.4, 2.2, -5, 1.4, 6]), '#e2e5fd'); P(poly([0.2, -9.4, 0.2, 6], false), null, 0.6);
-      P(() => ctx.arc(-0.2, 7, 3.4, 0.15, Math.PI - 0.15), null, 0.9); dot(-2.7, 8.6, 0.6); dot(-0.2, 9.9, 0.7); dot(2.4, 8.6, 0.6);
-    },
-    function pallid() { // the bone-white ribs and the two Kneeling statues with their dark lantern
-      const rib = (x, h, lean) => { P(() => { ctx.moveTo(x, 6); ctx.quadraticCurveTo(x - 1.4, -h * 0.55, x + lean, -h); }, null, 2.6); if (!vg.halo) { ctx.beginPath(); ctx.moveTo(x, 6); ctx.quadraticCurveTo(x - 1.4, -h * 0.55, x + lean, -h); ctx.strokeStyle = '#f6f3fa'; ctx.lineWidth = 0.95; ctx.stroke(); } };
-      rib(-8, 4.5, 2.6); rib(-4.8, 8.4, 3.4); rib(-1.4, 6.4, 3); rib(1.6, 3, 2);
-      P(poly([3.6, 6.4, 3.8, 3.4, 5, 2.2, 5.8, 3.6, 5.6, 6.4]), STONE); P(poly([8.2, 6.4, 8, 3.4, 6.9, 2.2, 6.2, 3.6, 6.4, 6.4].map((v, i) => (i % 2 ? v : v + 1.4))), STONE);
-      P(poly([6.6, 3.4, 7.3, 4.3, 6.6, 5.2, 5.9, 4.3]), 'rgb(52,42,62)', 0.7);
-      P(wave(-9.5, 9.6, 6.6, 0.5), null, 0.7);
-    },
-    function rime() { // the glacier front, floe ice and the lantern by the one hole
-      P(poly([-9.4, 1.6, -9.4, -2.6, -6, -6.4, -1.6, -7.4, 2.4, -5.2, 4.6, -1.8, 4.6, 1.6]), '#f7f7fd');
-      P(poly([-6.5, 1.6, -6.2, -1.2], false), null, 0.7); P(poly([-3.2, 1.6, -3.4, -2.4], false), null, 0.7); P(poly([0, 1.6, 0.3, -1.6], false), null, 0.7); P(poly([2.6, 1.6, 2.5, -0.6], false), null, 0.7);
-      P(poly([-8.4, 5, -5.6, 3.9, -4.2, 5.4, -7, 6.6]), '#f7f7fd', 0.8); P(poly([5.4, 4.4, 8.6, 4.8, 8, 6.8, 5, 6.2]), '#f7f7fd', 0.8);
-      P(poly([-3.2, 7.4, 3.6, 7, 4.2, 9.2, -2.6, 9.6]), '#f7f7fd', 0.8);
-      P(() => ctx.ellipse(0, 8.3, 1.3, 0.55, 0, 0, 6.3), 'rgb(44,40,90)', 0.6); dot(2.3, 7.5, 0.85);
-    },
-    function thin() { // the broken weir under its sluice lamp
-      P(rect(-9.4, 0.6, 6.4, 2.4), STONE); P(rect(2.4, 0.6, 7, 2.4), STONE);
-      P(poly([-2.4, 1, -1.9, 2.6, -1.2, 3.4], false), null, 0.9); P(poly([1.4, 1.2, 0.8, 2.8], false), null, 0.9);
-      for (const x of [-1.6, 0, 1.4]) P(() => { ctx.moveTo(x, 4); ctx.quadraticCurveTo(x + 0.7, 5.6, x - 0.2, 7.4); }, null, 0.7, `rgb(${C.water})`);
-      P(wave(-8, 8, 8.8, 0.6), null, 0.7, `rgb(${C.water})`);
-      P(poly([-6.6, 0.6, -6.6, -5.2], false), null, 1.1); P(poly([-7.6, -5.2, -5.6, -5.2], false), null, 1.1); dot(-6.6, -6.6, 1.1);
-    },
-    function lastLight() { // the lighthouse on the Lamp Rock, its beam drawn as two fine rays
-      if (!vg.halo) { ctx.beginPath(); ctx.moveTo(1.2, -8); ctx.lineTo(9.6, -10.4); ctx.moveTo(1.2, -7.6); ctx.lineTo(9.6, -5.6); ctx.strokeStyle = `rgb(${C.flame})`; ctx.lineWidth = 0.6; ctx.stroke(); }
-      P(poly([-7.4, 7, -5.2, 2.8, -2, 1, 2.8, 1.6, 5.4, 4, 7.2, 7]), 'rgb(176,166,178)');
-      P(poly([-1.8, 1.4, -1.1, -6.6, 1.1, -6.6, 1.8, 1.4]), STONE); P(poly([-1.5, -2.6, 1.5, -2.6], false), null, 0.7);
-      P(rect(-1.5, -9, 3, 2.4), STONE, 0.9); P(poly([-1.9, -9, 0, -10.6, 1.9, -9], false), null, 0.9); dot(0, -7.8, 0.9);
-      P(wave(-9.4, 9.4, 8, 0.6), null, 0.7, `rgb(${C.pale})`);
-    },
-    function pyrefall() { // the temple stairs into the river and the snow peaks behind
-      P(poly([-9.6, 1.4, -4.6, -8.4, -0.4, 1.4]), STONE); P(poly([-1.6, 1.4, 4, -6.2, 9.6, 1.4]), STONE);
-      P(poly([-6.3, -5, -5.2, -4, -4.4, -5.2, -3.4, -4], false), null, 0.7); P(poly([2.6, -4.2, 3.6, -3.2, 4.6, -4.4, 5.6, -3.4], false), null, 0.7);
-      for (let i = 0; i < 4; i++) P(poly([-5.4 + i * 0.9, 2.6 + i * 1.6, 5.4 - i * 0.9, 2.6 + i * 1.6], false), null, 1.1);
-      dot(-3.4, 1.9, 0.75); dot(2.6, 3.5, 0.75); dot(-1.2, 5.1, 0.75); dot(1.4, 6.7, 0.7);
-      P(wave(-7, 7, 9.2, 0.6), null, 0.7, `rgb(${C.water})`);
-    },
-    function reef() { // the spire and chimneys of the drowned town above the reef, the wreck on the drop-off
-      P(poly([-5.2, 1, -3.8, -9.4, -2.4, 1]), STONE); P(rect(0.6, -3.4, 1.8, 4.4), STONE); P(rect(4.6, -1.8, 1.8, 2.8), STONE);
-      P(poly([-2.4, -1, 0.6, -2.4], false), null, 0.8); P(poly([2.4, -1.8, 4.6, -0.8], false), null, 0.8);
-      P(wave(-9.4, 9.4, 1.2, 0.7), null, 0.8, vg.halo ? null : `rgb(${C.pale})`);
-      P(() => { ctx.moveTo(-3.6, 5.2); ctx.quadraticCurveTo(1.4, 10.6, 7.6, 6.2); ctx.lineTo(6.2, 5); ctx.quadraticCurveTo(1.4, 7.4, -2.4, 4.2); ctx.closePath(); }, 'rgb(206,190,186)', 0.9);
-      P(poly([1.6, 6.4, 3, 2.6], false), null, 0.9);
-    },
-    function stair() { // the broken lock stair between its two towers
-      P(rect(-9.2, -8, 2.9, 12), STONE); P(rect(6.3, -2.6, 2.9, 10.6), STONE);
-      P(poly([-9.8, -8, -5.7, -8], false), null, 1.4); P(poly([5.7, -2.6, 9.8, -2.6], false), null, 1.4); dot(-7.75, -9.6, 0.95); dot(7.75, -4.2, 0.95);
-      P(poly([-6.3, -3, -3.6, -3, -3.6, -0.4, -0.9, -0.4, -0.9, 2.2, 0.6, 2.2], false), null, 1.4); P(poly([2.2, 3.4, 3.6, 3.4, 3.6, 5.6, 6.3, 5.6], false), null, 1.4);
-      for (const [x, y] of [[-3.6, -0.2], [-0.9, 2.4], [1.4, 3.2], [3.6, 5.8]]) P(poly([x + 0.6, y + 0.4, x + 0.6, y + 2.2], false), null, 0.7, `rgb(${C.water})`);
-    },
-    function fen() { // the great dam on the Step's lip with its one lamp, papyrus behind
-      const tuft = (x) => { for (const d of [-1.3, -0.4, 0.5, 1.4]) P(poly([x + d * 0.4, 1.6, x + d * 1.3, -4.6 - (d * d) * 0.4 + 1], false), null, 1, LEAF(10)); dot(x - 1.7, -4.2, 0.55); dot(x + 1.8, -4.4, 0.55); };
-      tuft(-6.4); tuft(-2.4); tuft(5.6);
-      P(poly([-9.6, 1.6, 9.6, 1.6, 8.4, 5.6, -8.4, 5.6]), STONE);
-      for (const x of [-5.6, -1.9, 1.9, 5.6]) P(poly([x, 1.6, x, 5.6], false), null, 0.7);
-      P(poly([1.8, 1.6, 1.8, -2.6], false), null, 1.1); dot(1.8, -3.8, 1.1);
-      P(() => ctx.ellipse(0, 8, 5.4, 1.1, 0, 0, 6.3), 'rgb(44,38,70)', 0.6);
-    },
-    function saltGate() { // the two gate towers, left open, and the unfinished hulls on the slipway
-      P(rect(-9.4, -6.6, 2.8, 12), STONE); P(rect(-3.4, -6.6, 2.8, 12), STONE);
-      P(poly([-10, -6.6, -6, -6.6], false), null, 1.4); P(poly([-4, -6.6, 0, -6.6], false), null, 1.4);
-      P(wave(-9.6, 1, 6.8, 0.6), null, 0.7, `rgb(${C.water})`);
-      P(poly([1.2, 7, 9.8, 2.8], false), null, 1);
-      const hull = (x, y) => { P(() => { ctx.moveTo(x - 2.6, y + 1.3); ctx.lineTo(x + 2.6, y - 1.3); }, null, 1.1); for (const t of [-0.8, -0.3, 0.2, 0.7]) P(() => { const px = x + t * 3, py = y - t * 1.5; ctx.moveTo(px - 1.1, py - 2.6); ctx.quadraticCurveTo(px - 1.4, py - 0.2, px, py); }, null, 0.8); };
-      hull(4.2, 4.2); hull(7.4, 0.4);
-    },
-    function slough() { // the canal's lock gate under swamp trees
-      P(() => { ctx.moveTo(-8.8, 6.4); ctx.quadraticCurveTo(-7.4, 2, -7.6, -2.4); ctx.lineTo(-6.4, -2.4); ctx.quadraticCurveTo(-6.4, 2, -5, 6.4); }, 'rgb(150,136,128)', 0.9);
-      P(() => { ctx.ellipse(-3.4, -5.2, 6.8, 3.7, 0, 0, 6.3); }, LEAF(12));
-      for (const x of [-7.8, -4.6, -1.4, 1.6]) P(poly([x, -2.2, x, 0.4 + ((x * 7) % 2)], false), null, 0.7, 'rgb(112,132,112)');
-      P(rect(-3.2, 2, 1.7, 5.4), STONE); P(rect(7.2, 2, 1.7, 5.4), STONE);
-      P(poly([-1.5, 3.2, 3.7, 5.6, 7.2, 3.2], false), null, 1.9);
-      P(wave(-1.2, 7, 8, 0.5), null, 0.7, `rgb(${C.water})`);
-    },
-    function siltway() { // two mile-posts along the bank, and the sunk barge's mast at the great bend
-      P(() => { ctx.moveTo(-9.6, 2.8); ctx.quadraticCurveTo(-3, 1.4, 2.6, 3.6); }, null, 1);
-      const post = (x, y) => P(() => { ctx.moveTo(x - 1, y); ctx.lineTo(x - 1, y - 4.6); ctx.arc(x, y - 4.6, 1, Math.PI, 0); ctx.lineTo(x + 1, y); ctx.closePath(); }, '#f6f3fa');
-      post(-7.2, 2.6); post(-2.4, 2.4);
-      P(poly([4.2, 8, 6.9, -8.4], false), null, 1.4); P(poly([3.9, -4.2, 9, -3.2], false), null, 1.1); P(poly([6.9, -8.4, 9.2, -7.4, 7, -6.2], true), 'rgb(196,176,150)', 0.7);
-      P(() => ctx.ellipse(4.3, 8, 3.2, 0.9, 0, 0, 6.3), null, 0.7, 'rgb(112,92,84)'); P(wave(-9, 0.6, 7.2, 0.5), null, 0.7, 'rgb(112,92,84)');
-    },
-    function lagoon() { // the stilt village with its lanterns, one of them green
-      const hut = (x, y, w, h) => { for (const d of [0.14, 0.86]) P(poly([x + w * d, y + h, x + w * d, 7.6], false), null, 0.9); P(rect(x, y, w, h), STONE); P(poly([x - 0.9, y, x + w / 2, y - h * 1.05, x + w + 0.9, y]), 'rgb(196,176,150)'); };
-      hut(-8.6, -2.8, 6, 3.8); hut(1.6, -0.6, 6, 3.4);
-      P(poly([-2.6, -1.6, -1.2, -0.2], false), null, 0.6); dot(-1, 0.6, 0.85); P(poly([1.6, 0.6, 0.6, 1.8], false), null, 0.6); dot(0.5, 2.6, 0.8);
-      P(poly([7.6, 0.6, 8.8, 1.8], false), null, 0.6); dot(9, 2.7, 0.95, `rgb(${C.sage})`);
-      P(wave(-9.6, 9.6, 8, 0.6), null, 0.7, `rgb(${C.water})`);
-    },
-    function inkwood() { // the Kitchen Stair's hearth under the canopy, and the orchard rows' dikes
-      const g = LEAF(15);
-      P(() => { ctx.arc(-5.4, -4.4, 4.2, 0, 6.3); }, g); P(() => { ctx.arc(5.8, -4, 3.9, 0, 6.3); }, g); P(() => { ctx.arc(0.2, -6, 4.8, 0, 6.3); }, g);
-      P(poly([-5.6, -0.2, -5.2, 6], false), null, 1.2); P(poly([5.8, -0.1, 5.4, 6], false), null, 1.2);
-      P(poly([-2.6, 6, -2.6, 2.6, 0, 0.9, 2.6, 2.6, 2.6, 6]), STONE); P(() => { ctx.moveTo(-1.3, 6); ctx.lineTo(-1.3, 4.4); ctx.arc(0, 4.4, 1.3, Math.PI, 0); ctx.lineTo(1.3, 6); }, 'rgb(52,42,62)', 0.7); dot(0, 5.2, 0.55);
-      for (const y of [7.6, 9.2]) P(poly([-9.2, y, 9.2, y + 0.2], false), null, 0.7);
-    },
-  ];
   function drawVignettes() {
     screenSpace();
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     for (const m of S.marks) {
       if (m.vx < -60 || m.vy < -60 || m.vx > S.vw + 60 || m.vy > S.vh + 60) continue;
-      const u = m.vs / 20;
-      ctx.save(); ctx.translate(m.vx, m.vy); ctx.scale(u, u);
-      if (!m.owned) ctx.globalAlpha = 0.55;
-      const draw = VIGNETTES[m.n];
-      vg.u = u; vg.halo = true; draw(); vg.halo = false; draw();
-      ctx.restore();
+      CD.vignette(ctx, m.n, m.vx, m.vy, m.vs, { owned: m.owned });
     }
   }
 
@@ -541,29 +252,9 @@
   // important first, never on top of each other, the road, a mark, the page's buttons or the sheet's edge.
   const widths = new Map();
   let fontsReady = false;
-  function spacedWidth(text, font, sp) {
-    const key = font + '|' + text;
-    let w = widths.get(key);
-    if (w == null) { ctx.font = font; w = ctx.measureText(text).width; if (fontsReady) widths.set(key, w); }
-    return w + sp * (Array.from(text).length - 1);
-  }
-  function inkText(text, x, y, font, sp, alpha, colour) { // centred on x, y
-    ctx.font = font; ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.lineJoin = 'round';
-    const chars = sp ? Array.from(text) : [text];
-    const start = x - spacedWidth(text, font, sp) / 2;
-    const each = (fn) => { let cx = start; for (const ch of chars) { fn(ch, cx); cx += ctx.measureText(ch).width + sp; } };
-    // the vellum reserve: soft, as if the wash had been lifted where the pen would go
-    ctx.save(); ctx.shadowColor = `rgb(${C.paper})`; ctx.shadowBlur = 5 * S.dpr;
-    ctx.strokeStyle = `rgba(${C.paper},.62)`; ctx.lineWidth = 2.8; each((ch, cx) => ctx.strokeText(ch, cx, y)); each((ch, cx) => ctx.strokeText(ch, cx, y));
-    ctx.restore();
-    ctx.fillStyle = colour || `rgba(${C.ink},${alpha == null ? 0.96 : alpha})`; each((ch, cx) => ctx.fillText(ch, cx, y));
-  }
-  // each reach's sheets are lettered in their own hand (WORLD.md §10); the Inkwood's old plan in a plainer one
-  const handFont = (n, px) => {
-    if (n === 16) return `400 ${Math.round(px * 1.02)}px ${F.hand}`;
-    const act = n === 0 ? 0 : Math.floor((n - 1) / 4);
-    return [`italic 400 ${px}px ${F.chart}`, `400 ${px}px ${F.chart}`, `italic 500 ${px}px ${F.body}`, `500 ${px}px ${F.body}`][act];
-  };
+  const spacedWidth = (text, font, sp) => CD.spacedWidth(ctx, text, font, sp, fontsReady ? widths : null);
+  const inkText = (text, x, y, font, sp, alpha, colour) => CD.inkText(ctx, text, x, y, font, sp, alpha, colour, { dpr: S.dpr, cache: fontsReady ? widths : null }); // centred on x, y
+  const handFont = (n, px) => CD.handFont(F, n, px);
   function drawLabels() {
     screenSpace();
     const k = S.view.k, zoom = k / S.fitK, sheetPx = SH.w * k;
@@ -708,112 +399,8 @@
   }
 
   // ------------------------------------------------------------------ the sheet's own furniture, in chart units
-  function chartText(text, x, y, size, font, fill, sp, align, least) {
-    if (size * S.view.k < (least || 6.4)) return false;
-    ctx.font = `${font.style || '400'} ${size}px ${font.fam}`; ctx.textBaseline = 'middle'; ctx.fillStyle = fill;
-    const chars = Array.from(text); let w = 0;
-    for (const ch of chars) w += ctx.measureText(ch).width + (sp || 0);
-    w -= sp || 0;
-    let cx = align === 'left' ? x : align === 'right' ? x - w : x - w / 2;
-    ctx.textAlign = 'left';
-    for (const ch of chars) { ctx.fillText(ch, cx, y); cx += ctx.measureText(ch).width + (sp || 0); }
-    return true;
-  }
-  const stone = (x, y, s, lit) => { // a Waystone: a small standing stone, with a point of amber when its map is owned
-    ctx.beginPath(); ctx.moveTo(x - s * 0.5, y + s * 0.7); ctx.lineTo(x - s * 0.5, y - s * 0.3); ctx.arc(x, y - s * 0.3, s * 0.5, Math.PI, 0); ctx.lineTo(x + s * 0.5, y + s * 0.7); ctx.closePath();
-    ctx.fillStyle = lit ? 'rgb(244,238,230)' : 'rgb(164,158,186)'; ctx.fill(); ctx.strokeStyle = `rgba(${C.ink},.85)`; ctx.lineWidth = s * 0.11; ctx.stroke();
-    if (lit) { ctx.beginPath(); ctx.moveTo(x, y - s * 0.52); ctx.quadraticCurveTo(x + s * 0.36, y + s * 0.1, x, y + s * 0.34); ctx.quadraticCurveTo(x - s * 0.36, y + s * 0.1, x, y - s * 0.52); ctx.fillStyle = AMBER; ctx.fill(); }
-  };
   function drawFrame() {
-    chartSpace();
-    const ink = (a) => `rgba(${C.ink},${a})`, pale = (a) => `rgba(${C.pale},${a})`;
-    const disp = { fam: F.display }, ital = { fam: F.chart, style: 'italic 400' };
-    ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
-    const X0 = SH.x0, Y0 = SH.y0, X1 = SH.x0 + SH.w, Y1 = SH.y0 + SH.h, e = SH.edge;
-    // the neatline: a heavy rule and a fine one; the border band beyond it; a fine rule at the sheet's edge
-    ctx.strokeStyle = ink(0.86); ctx.lineWidth = 1.1; ctx.strokeRect(WIN[0], WIN[1], WIN[2] - WIN[0], WIN[3] - WIN[1]);
-    ctx.lineWidth = 0.3; ctx.strokeRect(WIN[0] - 2.6, WIN[1] - 2.6, WIN[2] - WIN[0] + 5.2, WIN[3] - WIN[1] + 5.2);
-    ctx.strokeStyle = ink(0.6); ctx.strokeRect(X0 + e, Y0 + e, SH.w - 2 * e, SH.h - 2 * e);
-    // ticks along the band, as on a ruled border
-    ctx.beginPath(); ctx.strokeStyle = ink(0.55); ctx.lineWidth = 0.3;
-    for (let x = 0; x <= 1000; x += 50) { ctx.moveTo(x, WIN[1] - 2.6); ctx.lineTo(x, WIN[1] - 6.2); ctx.moveTo(x, WIN[3] + 2.6); ctx.lineTo(x, WIN[3] + 6.2); }
-    for (let y = 0; y <= 1400; y += 50) { ctx.moveTo(WIN[0] - 2.6, y); ctx.lineTo(WIN[0] - 6.2, y); ctx.moveTo(WIN[2] + 2.6, y); ctx.lineTo(WIN[2] + 6.2, y); }
-    ctx.stroke();
-    // true latitudes down the right band (the Fold swallows forty degrees)
-    for (const [y, t] of [[190, '51°N'], [580, '49°N'], [758, '6°N'], [1100, '0°'], [1336, '4°S']]) { ctx.save(); ctx.translate(WIN[2] + 14, y); ctx.rotate(Math.PI / 2); chartText(t, 0, 0, 8.4, ital, ink(0.78), 0.3); ctx.restore(); }
-    // the four cartouches, one for each reach: empty until its fourth map is owned, then its Waystones and its act
-    const bandMid = (SH.neat + e) / 2;
-    const cart = (i, cx, cy, rot) => {
-      ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot);
-      const full = S.owned >= (i + 1) * 4 || inked(), L = 316, Hh = 27;
-      ctx.beginPath(); ctx.moveTo(-L / 2 + 9, -Hh / 2); ctx.lineTo(L / 2 - 9, -Hh / 2); ctx.lineTo(L / 2, 0); ctx.lineTo(L / 2 - 9, Hh / 2); ctx.lineTo(-L / 2 + 9, Hh / 2); ctx.lineTo(-L / 2, 0); ctx.closePath();
-      ctx.fillStyle = 'rgba(244,240,236,.7)'; ctx.fill(); ctx.strokeStyle = ink(0.75); ctx.lineWidth = 0.45; ctx.stroke();
-      if (full) {
-        const a = ACTS[i], font = [{ fam: F.chart, style: 'italic 400' }, { fam: F.chart }, { fam: F.body, style: 'italic 500' }, { fam: F.body, style: '500' }][i];
-        chartText(a.n, -L / 2 + 28, 0.8, 14, disp, ink(0.9), 0.8, null, 5.6);
-        chartText(a.title, -L / 2 + 50, 0.4, 17.5, font, ink(0.96), 0.7, 'left', 5.6);
-        for (let q = 0; q < 4; q++) stone(L / 2 - 68 + q * 14.6, 0.8, 10.5, true);
-        if (i === 0) pilgrim(L / 2 + 16, 0);
-      }
-      ctx.restore();
-    };
-    cart(0, 590, Y0 + bandMid, 0);
-    cart(1, X0 + bandMid, 372, -Math.PI / 2);
-    cart(2, X0 + bandMid, 884, -Math.PI / 2);
-    cart(3, 640, Y1 - bandMid, 0);
-    // the title cartouche: a vellum label laid on the Warm Sea
-    const tx = 118, ty = 1392;
-    ctx.fillStyle = 'rgba(238,232,230,.95)'; ctx.fillRect(tx - 116, ty - 40, 232, 78);
-    ctx.strokeStyle = ink(0.8); ctx.lineWidth = 0.8; ctx.strokeRect(tx - 116, ty - 40, 232, 78); ctx.lineWidth = 0.25; ctx.strokeRect(tx - 112.5, ty - 36.5, 225, 71);
-    chartText('GLOOMWATER', tx, ty - 25, 7.4, disp, ink(0.66), 3.6);
-    chartText('THE WAXWOLD', tx, ty - 3, 23, disp, ink(0.94), 5);
-    ctx.strokeStyle = ink(0.6); ctx.lineWidth = 0.35;
-    ctx.beginPath(); ctx.moveTo(tx - 86, ty + 13); ctx.lineTo(tx - 8, ty + 13); ctx.moveTo(tx + 8, ty + 13); ctx.lineTo(tx + 86, ty + 13); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(tx, ty + 9.6); ctx.lineTo(tx + 3.4, ty + 13); ctx.lineTo(tx, ty + 16.4); ctx.lineTo(tx - 3.4, ty + 13); ctx.closePath(); ctx.stroke();
-    chartText('a road chart of the Lamp Road', tx, ty + 26, 10.6, ital, ink(0.86), 0.3, null, 8.2);
-    // one small, plain compass rose, in the corner by the Waystones. It and the sill stand in the Cold
-    // Sea, which is blank vellum until the whole road is charted: pale ink on the sea, dark on the vellum.
-    const onSea = inked() || (S.owned >= 16 && !S.reveal), fur = (a) => (onSea ? pale(a) : ink(a * 0.9));
-    const rx = 1000, ry = 14, R = 21;
-    ctx.lineJoin = 'round'; ctx.strokeStyle = fur(0.85); ctx.fillStyle = fur(0.85); ctx.lineWidth = 0.4;
-    ctx.beginPath(); ctx.arc(rx, ry, R * 0.6, 0, 6.3); ctx.stroke();
-    for (let q = 0; q < 8; q++) {
-      const a = (q * Math.PI) / 4, long = q % 2 === 0 ? R : R * 0.5, wd = q % 2 === 0 ? 2.3 : 1.4;
-      ctx.beginPath(); ctx.moveTo(rx + Math.sin(a) * long, ry - Math.cos(a) * long);
-      ctx.lineTo(rx + Math.sin(a + 1.57) * wd, ry - Math.cos(a + 1.57) * wd); ctx.lineTo(rx + Math.sin(a - 1.57) * wd, ry - Math.cos(a - 1.57) * wd); ctx.closePath();
-      ctx.stroke(); if (q === 0) ctx.fill();
-    }
-    chartText('N', rx, ry - R - 7, 9, disp, fur(0.92), 0);
-    // the Waystones: the sill under the Landing's arch, sixteen stones in four arcs, one arc for each
-    // reach (WORLD.md §7), drawn in the Cold Sea just off the Landing's cove
-    const wx = SILL[0], wy = SILL[1];
-    ctx.setLineDash([0.4, 2.4]); ctx.lineCap = 'round'; ctx.strokeStyle = fur(0.6); ctx.lineWidth = 0.4;
-    ctx.beginPath(); ctx.moveTo(wx - 12, wy + 46); ctx.quadraticCurveTo(626, 158, 603, 171); ctx.stroke();
-    ctx.setLineDash([]); ctx.lineCap = 'butt';
-    ctx.fillStyle = STONE; ctx.strokeStyle = ink(0.9); ctx.lineWidth = 0.5;
-    for (const sgn of [-1, 1]) { ctx.beginPath(); ctx.rect(wx + sgn * 16 - 2.6, wy - 9, 5.2, 13); ctx.fill(); ctx.stroke(); }
-    for (const [lw, col] of [[2.8, ink(0.9)], [1.6, STONE]]) { ctx.lineWidth = lw; ctx.strokeStyle = col; ctx.beginPath(); ctx.arc(wx, wy - 9, 16, Math.PI, Math.PI * 1.36); ctx.stroke(); ctx.beginPath(); ctx.arc(wx, wy - 9, 16, Math.PI * 1.52, Math.PI * 2); ctx.stroke(); }
-    for (let arc = 0; arc < 4; arc++) for (let st = 0; st < 4; st++) {
-      const n = arc * 4 + st + 1, t = (st - 1.5) / 1.5;
-      stone(wx + t * 12.4, wy + 13 + arc * 8.6 + 1.7 * (1 - t * t), 5.8, n <= S.owned);
-    }
-    chartText('the Waystones', wx + 26, wy + 18, 9.2, ital, fur(0.95), 0.2, 'left');
-    chartText('one lights for each map bought', wx + 26, wy + 29, 7.2, ital, fur(0.85), 0.15, 'left');
-    // the Long Coast's sailing line is broken by the Fold: a tick at each pleat
-    if (shown(9)) {
-      ctx.strokeStyle = `rgba(${C.paper},.9)`; ctx.lineWidth = 0.6; ctx.beginPath();
-      for (const [x, y] of FOLD_TICKS) { ctx.moveTo(x - 5, y + 1.4); ctx.lineTo(x + 5, y - 1.4); ctx.moveTo(x - 5, y + 3.2); ctx.lineTo(x + 5, y + 0.4); }
-      ctx.stroke();
-    }
-  }
-  // the court surveyors' little Pilgrim Salmon, always swimming down the road
-  function pilgrim(x, y) {
-    if (10 * S.view.k < 6) return;
-    ctx.save(); ctx.translate(x, y);
-    ctx.beginPath(); ctx.moveTo(-8, 0); ctx.quadraticCurveTo(-2, -4.2, 6, -0.6); ctx.lineTo(10.4, -3.4); ctx.lineTo(9.4, 0); ctx.lineTo(10.4, 3.4); ctx.lineTo(6, 0.6); ctx.quadraticCurveTo(-2, 4.2, -8, 0); ctx.closePath();
-    ctx.strokeStyle = `rgba(${C.ink},.85)`; ctx.lineWidth = 0.5; ctx.lineJoin = 'round'; ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-1, -2.6); ctx.lineTo(1.4, -4.6); ctx.lineTo(2.6, -2); ctx.moveTo(-4.8, -0.6); ctx.arc(-5.2, -0.6, 0.4, 0, 6.3); ctx.stroke();
-    ctx.restore();
+    CD.frame(ctx, V(), { SH, WIN, SILL, ACTS, owned: S.owned, inked: inked(), reveal: S.reveal, foldTicks: shown(9) ? FOLD_TICKS : null, F });
   }
 
   // ---- the raft: a small hull, the Wick and its flame. Never a ring.
@@ -821,25 +408,7 @@
     const r = S.raft; if (!r) return;
     screenSpace();
     const z = clamp(0.9 + 0.2 * Math.log2(S.view.k / S.fitK + 1), 1, 1.5) * 1.25;
-    const x = sx(r.x), y = sy(r.y) + (reduced ? 0 : Math.sin(t / 420) * 1.1);
-    const fl = reduced ? 1 : 0.92 + 0.08 * Math.sin(t / 97) + 0.05 * Math.sin(t / 41);
-    ctx.save(); ctx.translate(x, y); ctx.scale(z, z);
-    const g = ctx.createRadialGradient(0, -9, 0, 0, -9, 26 * fl);
-    g.addColorStop(0, 'rgba(255,214,150,.9)'); g.addColorStop(0.25, 'rgba(250,170,70,.42)'); g.addColorStop(1, 'rgba(250,170,70,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -9, 26 * fl, 0, 6.3); ctx.fill();
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    // the raft
-    ctx.beginPath(); ctx.moveTo(-8.5, -0.5); ctx.lineTo(8.5, -0.5); ctx.lineTo(6.6, 3); ctx.lineTo(-6.6, 3); ctx.closePath();
-    ctx.strokeStyle = `rgba(${C.paper},.9)`; ctx.lineWidth = 2.6; ctx.stroke(); ctx.fillStyle = 'rgb(96,72,60)'; ctx.fill(); ctx.strokeStyle = 'rgb(34,24,36)'; ctx.lineWidth = 1; ctx.stroke();
-    // its lantern on a pole
-    ctx.beginPath(); ctx.moveTo(5.2, -0.5); ctx.lineTo(5.2, -9.5); ctx.strokeStyle = 'rgb(34,24,36)'; ctx.lineWidth = 1.1; ctx.stroke();
-    ctx.beginPath(); ctx.arc(5.2, -10.6, 1.7, 0, 6.3); ctx.fillStyle = 'rgb(255,190,100)'; ctx.fill(); ctx.strokeStyle = 'rgb(96,44,10)'; ctx.lineWidth = 0.6; ctx.stroke();
-    // the Wick: a small candle with a candle-flame head
-    ctx.beginPath(); ctx.rect(-3.6, -6.2, 3.6, 5.7); ctx.fillStyle = 'rgb(248,240,226)'; ctx.fill(); ctx.strokeStyle = 'rgb(34,24,36)'; ctx.lineWidth = 0.8; ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-1.8, -13.4 * fl); ctx.bezierCurveTo(0.9, -10, 0.4, -6.6, -1.8, -6.6); ctx.bezierCurveTo(-4, -6.6, -4.5, -10, -1.8, -13.4 * fl);
-    ctx.fillStyle = 'rgb(255,186,84)'; ctx.fill(); ctx.strokeStyle = 'rgb(120,56,8)'; ctx.lineWidth = 0.6; ctx.stroke();
-    ctx.beginPath(); ctx.ellipse(-1.8, -8.4, 0.9, 1.4, 0, 0, 6.3); ctx.fillStyle = 'rgba(255,246,220,.95)'; ctx.fill();
-    ctx.restore();
+    CD.raft(ctx, sx(r.x), sy(r.y), z, t, reduced);
   }
 
   // ---- a small locator: where this view lies on the whole sheet

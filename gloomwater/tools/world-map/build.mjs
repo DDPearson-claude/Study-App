@@ -110,7 +110,17 @@ async function bake() {
   log(back.length ? `  FAIL the ramp steps back at water ${back.join(', ')}` : '  ok   every water is at least as green as the one before');
 }
 
-function assemble() {
+// The bundling step (docs/loop/M1.md §3.1): the page's drawing is the game's src/chart-draw.js, an ES module; the page is one
+// classic script, so the module is bundled into it as the global ChartDraw ahead of page/app.js. One code draws both.
+export async function chartDrawBundle() {
+  const esbuild = await import('esbuild');
+  const r = await esbuild.build({ entryPoints: [path.resolve(here, '../../src/chart-draw.js')], bundle: true, format: 'iife', globalName: 'ChartDraw', target: ['es2020'], write: false, legalComments: 'none', logLevel: 'silent' });
+  const js = r.outputFiles[0].text;
+  if (js.includes('</script')) throw new Error('src/chart-draw.js must not contain a closing script tag');
+  return js;
+}
+
+async function assemble() {
   const data = JSON.parse(fs.readFileSync(path.join(cacheDir, 'data.json'), 'utf8'));
   for (const k of ['strays', 'checks']) delete data[k]; // build-time reports, not page data
   const uri = (file, type) => `data:${type};base64,${fs.readFileSync(path.join(cacheDir, file)).toString('base64')}`;
@@ -118,7 +128,7 @@ function assemble() {
   const js = fs.readFileSync(path.join(here, 'page/app.js'), 'utf8');
   if (js.includes('</script')) throw new Error('page/app.js must not contain a closing script tag');
   const sub = (key, value) => { if (!html.includes(key)) throw new Error('template is missing ' + key); html = html.split(key).join(value); };
-  sub('/*__APP__*/', js);
+  sub('/*__APP__*/', `${await chartDrawBundle()}\n${js}`);
   sub('"__DATA__"', JSON.stringify(data).replace(/</g, '\\u003c'));
   sub('__WORLD_URI__', uri('world.webp', 'image/webp'));
   sub('__PAPER_URI__', uri('paper.jpg', 'image/jpeg'));
@@ -158,7 +168,7 @@ if (!args.has('--page') || !fs.existsSync(path.join(cacheDir, 'data.json'))) awa
   }
 }
 if (!args.has('--bake-only')) {
-  assemble();
+  await assemble();
   if (!args.has('--no-shots')) await renderShots(chromium, outDir, log);
 }
 log(`done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
