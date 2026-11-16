@@ -22,6 +22,8 @@ const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const val = (x) => (typeof x === 'function' ? x() : x);
 /** The screens the tutorial's clock runs under. */
 export const TUTORIAL_TOPS = Object.freeze(['jetty', 'chart']);
+/** M1 step 5b (LANE 5B-TOW): the opening's beats at the Landing and in the tow, before home (landingBeat). */
+export const LANDING_BEATS = Object.freeze(['arrive', 'wake', 'tow', 'glideIn']);
 
 /**
  * Murk's line for a moment (SPEC §8.6): `firstChart` is the Wick's own count (TEXT_LOOP.murk.firstChartBy[wick], Tallow's "Four
@@ -58,6 +60,12 @@ export function createLoopTutorial({ bus = null, loop = null, data = null, now =
     chartOpens: 0,
   };
   const wickNow = () => call('wick') || 'wick';
+  // M1 step 5b (LANE 5B-TOW): the opening's tow has played when the barge has been towed to the first water and the build plays it
+  const towPlayed = () => {
+    if (D().LOOP?.tow?.opening !== true) return false;
+    const first = D().LOOP?.barge?.arc?.[0] || 'mossmere', b = call('barge');
+    return Array.isArray(b?.towed) && b.towed.includes(first);
+  };
   const wakeText = () => D().TEXT_LOOP?.murk?.wake || '';
   const chartText = () => murkLineFor('firstChart', wickNow(), { D: D() });
   function go(step) {
@@ -93,9 +101,32 @@ export function createLoopTutorial({ bus = null, loop = null, data = null, now =
       }
       S.active = true; S.autoOpened = false; S.escaped = false; S.wantsChart = false; S.chartOpens = 0;
       go('wake');
+      // >>> M1 step 5b (LANE 5B-TOW; OPENING §6.2, M1 §3.5): once the opening's tow has played (meta.loop.barge.towed holds the first
+      // water) the wake was the Landing's: home opens on the chart beat over the moored barge (the Chart at once, its line), and
+      // after an Escape only the chart table's cue remains. A reload mid-tow lands here too.
+      if (towPlayed()) { S.moored = true; showWake({ line: false }); S.autoOpened = true; S.wantsChart = true; return true; }
+      S.moored = false;
+      // <<< M1 step 5b
       showWake();
       return true;
     },
+    // >>> M1 step 5b (LANE 5B-TOW): the opening's beats before home, at the Landing on the Chart (loop-tow.js drives them; the tow's
+    // view draws them): 'arrive', 'wake' (Murk's wake line, said here: firstEvening:line, his grumble), 'tow' (the leg begins: the
+    // save's readout), 'glideIn'. → whether the beat was taken.
+    landingBeat(step) {
+      if (!LANDING_BEATS.includes(step)) return false;
+      if (call('tutorial')?.done === true) return false;
+      S.active = true; S.wantsChart = false; S.lineOn = false;
+      const prev = S.step;
+      S.step = step; S.t = 0;
+      emit('loop:tutorial', { step, prev, landing: true });
+      call('setTutorialStep', step);
+      if (step === 'wake') say('wake', wakeText());
+      return true;
+    },
+    /** M1 step 5b: home opened on the chart beat after the tow (no wake line at home). */
+    get moored() { return S.moored === true; },
+    // <<< M1 step 5b
     /** Real time, from the view's update. `top` is the top modal's id; the clock waits under anything but the Jetty or the Chart. */
     update(dt, { top = null } = {}) {
       if (!S.active) return;

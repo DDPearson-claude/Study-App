@@ -13,6 +13,7 @@ import { create as createFirstEvening } from './first-evening.js';
 // the Full Hold (docs/loop/slice-1a/PLAN.md §3.5): main's pure guards, tested in node (tools/tests/loop-evening.test.mjs)
 import { startRoute, tripKeyAllowed, loopFreshSave } from './loop-rules.js';
 import { createLoopHome } from './loop-home.js';
+import { createLoopTow } from './loop-tow.js';   // M1 step 5b (LANE 5B-TOW): the opening at the Landing and the tow
 // >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
 import { create as createIntro, markIntroSeen, replayOffered } from './intro.js';
 // <<< INTRO LANE B
@@ -552,7 +553,18 @@ const loopHome = LOOP_ON ? createLoopHome({
   hasSavedRun: () => game.hasSavedRun(),
   startIntro: (o) => startIntro(o),
   introOn: () => ({ intro: !!ctx.intro && !!INTRO, debug: DEBUG, optIn: safe(() => ctx.intro.state?.optIn, false) === true }),
+  tow: () => loopTow,   // M1 step 5b (LANE 5B-TOW): the opening's Landing and first tow take the hand-off while the tow is due
 }) : null;
+// >>> M1 step 5b (LANE 5B-TOW; SPEC §6.5, OPENING §6.2 rev. 5): the tow, one component (src/loop-tow.js + src/ui-tow.js): the opening
+// at the Landing (enterHome's hook) and playTow(water), every later water's first tow; its clock is main's frame (loop below)
+const loopTow = LOOP_ON ? createLoopTow({ ctx, data, report, home: () => loopHome, save: () => game.save() }) : null;
+Object.assign(game, {
+  /** A water's first tow (SPEC §6.5): its leg on the Chart, the ink dip, the glide in to its mooring. → whether it began. */
+  playTow: (water, o) => (loopTow ? loopTow.playTow(water, o) : false),
+  /** The tow's phase while one plays ('arrive' | 'wake' | 'leg' | 'dip' | … | 'glide'), or null. */
+  towing: () => (loopTow ? loopTow.phase : null),
+});
+// <<< M1 step 5b
 /** progression's loop API (null off the loop, or before lane A wires it). */
 function loopApi() { return loopHome ? loopHome.loopApi() : null; }
 function enterHome(from, tally = null) { return loopHome ? loopHome.enterHome(from, tally) : false; }
@@ -1095,6 +1107,8 @@ if (LOOP_ON && DEBUG) {
       return L.wick?.() ?? null;
     },
     /** what main knows of home: the flow, the glide (kind) and the latch of a Sail */
+    /** M1 step 5b (LANE 5B-TOW): tow() the tow's readout · tow('tap') a tap on it */
+    tow: (cmd) => loopTow?.debug?.(cmd) ?? null,
     homeState: () => ({ flow: ctx.flow, glide: loopHome?.gliding() ?? null, sailing: !!loopHome?.sailing, atHome: game.atHome(), fresh: game.loopFresh(),
       sailPlace: loopHome?.sailPlace ?? null, lift: loopHome?.liftState?.() ?? null }),
     // M1 step 3a (PLAN §2.2 item 6): the places for the scenarios. They write meta.loop directly (a debug build's shortcut past the shelf)
@@ -1225,6 +1239,8 @@ function frame(now) {
   }
   // the loop (M1 step 3a): a place's lift runs on the real clock while the game runs (a pause or a blocking screen holds it)
   if (loopHome) { try { loopHome.update(running ? realDt : 0); } catch (e) { const n = (errorCounts.get('loopHome') || 0) + 1; errorCounts.set('loopHome', n); if (n <= 3) report('update(loopHome)', e); } }
+  // M1 step 5b (LANE 5B-TOW): the tow's clock (real time; it waits by itself while another screen is over its Chart)
+  if (loopTow) { try { loopTow.update(realDt); } catch (e) { const n = (errorCounts.get('loopTow') || 0) + 1; errorCounts.set('loopTow', n); if (n <= 3) report('update(loopTow)', e); } }
   if (FE_ON) {
     // the First Evening's clock (lines, beats) runs on the hub's game time (stopped by a pause or a blocking card); the hearth cut
     if (ctx.firstEvening) { try { ctx.firstEvening.update(inHub ? time.gameDt : 0); } catch (e) { const n = (errorCounts.get('firstEvening') || 0) + 1; errorCounts.set('firstEvening', n); if (n <= 3) report('update(firstEvening)', e); } }

@@ -218,6 +218,15 @@ export function createLoopHome(deps) {
       ctx.bus.emit('home:enter', { from, tally });
       save();
     };
+    // >>> M1 step 5b (LANE 5B-TOW; OPENING §6.2 rev. 5): while the opening's tow is still to play (a fresh save's film hand-off, Start
+    // with no film, or Continue before the tow began) the opening starts at the Landing on the Chart and plays the first tow
+    // (src/loop-tow.js); its glide in ends here, at `arrive` (Murk moored, home:enter, the save). Without the tow: 5a's hand-off below.
+    if ((from === 'intro' || from === 'new' || from === 'title') && typeof deps.tow === 'function') {
+      if (from === 'intro') moorMurk();
+      const T = safe(() => deps.tow(), null);
+      if (T && safe(() => T.opening({ from, arrive: () => arrive() }), false) === true) { save(); return true; }
+    }
+    // <<< M1 step 5b
     if (from === 'trip') {
       // the sail home: 2 s toward the Jetty; the clams were paid and saved before it started. With the home barge (M1 step 5a) the
       // glide ends at its stern, the raft's tie-up (docks[0]): straight in or through the mooring's lane, at most LOOP.barge.reach
@@ -394,6 +403,8 @@ export function createLoopHome(deps) {
 
   return {
     enterHome, startTrip, endTripHome, beginIntro, sail, canGoHome, goHome, skipHomeGlide, loopApi, moorMurk,
+    /** M1 step 5b (LANE 5B-TOW): a home glide for the tow's glide in (a tap or a skip key ends it at its end, as every home glide). */
+    glideHome: (path, o) => homeGlide(path, o),
     /** A home glide is running: its kind ('home' | 'sailOut') or null. */
     gliding: () => (S.glide ? S.glide.kind : null),
     get sailing() { return S.sailing; },
