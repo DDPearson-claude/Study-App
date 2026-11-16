@@ -618,7 +618,7 @@ export function create(ctx) {
   }
 
   // M1 step 5b (LANE 5B-TOW): the tow's phases in the water (src/loop-tow.js; game.towing())
-  const TOW_WATER = ['dip', 'dipHold', 'dipClear', 'glide'];
+  const TOW_WATER = ['dip', 'dipHold', 'dipClear', 'glide'], TOW_CHART = ['dipIn', 'dipOut', 'arrive', 'wake', 'leg'];
   const towPhase = () => { try { return ctx.game?.towing?.() ?? null; } catch { return null; } };
   function pickMode() {
     const flow = ctx.flow;
@@ -630,6 +630,8 @@ export function create(ctx) {
     // the home barge (M1 step 5a) the raft tied at its stern is framed by the mooring's camera ('home', eased 1.2 s from 'sail')
     // (M1 step 5b, LANE 5B-TOW: a tow's glide in is seen from the mooring's own framing, the barge brought in to it from its first frame)
     if (flow === 'home' && ctx.data?.LOOP_ENABLED === true && homePose() && TOW_WATER.includes(towPhase())) return 'home';
+    // (… and before it, while the tow's Chart is up, the film's own sail framing holds: no cut under the opening's first ink dip)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true && TOW_CHART.includes(towPhase())) return 'sail';
     if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return homePose() && ctx.player?.gliding !== true ? 'home' : 'sail';
     if (!ctx.state?.run) return 'title';
     if (shopOpen() && merchantPos()) return 'shop';

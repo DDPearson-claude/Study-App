@@ -16,7 +16,7 @@ import { icon } from './ui-icons.js';
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const lerp = (a, b, t) => a + (b - a) * t;
 const INK_RGB = '10,12,25';   // the opening's ink (INTRO.colors.ink), the dip's colour
-const LANDING = { at: [600, 190], arch: [600.5, 181.5], view: [599.5, 199], end: [588, 236] };
+const LANDING = { at: [600, 190], arch: [600.5, 181.5], view: [599.5, 195], end: [588, 236] };
 
 /** The sheet's rectangle on the screen (CSS px): the vellum laid on the dark, Murk's line above it. Pure. */
 export function towFrame(W, H, phone = W < 560 || W < H) {

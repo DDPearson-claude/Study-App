@@ -17,6 +17,7 @@ export default async function (api) {
   check(t0.loop === true && t0.fresh === true, 'a fresh loop save on the title', t0);
   const s = await g(() => { const c = window.__gw; const ok = c.game.beginIntro({ character: 'stub' }); return { ok, flow: c.flow, wick: c.debug.loop?.wick?.() ?? null }; });
   check(s.ok && s.flow === 'home', 'Start with no film: flow home at once', s);
+  await g(() => window.__gw.debug.loop?.tow?.('cut'));   // (M1 step 5b: the opening's Landing and tow cut to the mooring; loop-tow.scenario plays them)
   await api.wait(1500);
   const h = await g(() => { const c = window.__gw, d = c.world.getDocks?.()[0], p = c.player.position; return { flow: c.flow, mode: c.render.getCameraMode?.() ?? c.debug.camera?.()?.mode, mood: c.audio.getMood?.() ?? null, dock: d ? Math.hypot(d.position.x - p.x, d.position.z - p.z) : null, fresh: c.game.loopFresh(), errs: c.errors.slice() }; });
   check(h.mode === 'sail' && h.dock !== null && h.dock < 0.6, 'the Jetty: the sail camera, the raft at the first dock', h);
