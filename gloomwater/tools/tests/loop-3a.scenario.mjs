@@ -28,6 +28,8 @@ import { makeKit, Abort } from './loop-1a.scenario.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 export const SAVE_FIXTURE = resolve(here, 'fixtures/loop-save-m1s2.json');
 export const PLACE_IDS = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
+/** 3a's events, recorded into window.__lp.ev beside loop-1a's WATCH. */
+export const WATCH_3A = ['fishing:mist', 'place:lift', 'loop:fit', 'loop:seal', 'chart:pick', 'world:giantBack'];
 
 // ================================================================== pure helpers (node; the dry run checks them)
 /** The step-2 save (the fixture), with `over` merged into meta.loop (deep for maps, bait, fitted) and the hold set. */
@@ -157,7 +159,12 @@ export function makeKit3a(api, { label = '3a' } = {}) {
     viaB: () => g(() => window.__p3.viaB()),
   };
   const install0 = K.install;
-  K.install = async () => { await install0(); await api.page.evaluate(`(${installPlaces.toString()})()`); };
+  K.install = async () => {
+    await install0();
+    await api.page.evaluate(`(${installPlaces.toString()})()`);
+    // 3a's own events beside 1a's WATCH (the stage: without them the cast into a bank's fishing:mist was never seen)
+    await g((names) => { const c = window.__gw, T = window.__lp; for (const e of names) c.bus.on(e, (p) => { let q = null; try { q = JSON.parse(JSON.stringify(p ?? null)); } catch { /* unclonable */ } T.ev.push({ e, sim: +T.sim.toFixed(4), flow: c.flow, p: q }); }); }, WATCH_3A);
+  };
   /** Boot the loop page on a seeded save (the fixture, tweaked): the fresh page, the save written, a reload, the title. */
   K.boot = async (save, { query = '' } = {}) => {
     await K.load({ fresh: true, query });
@@ -282,7 +289,7 @@ export default async function (api) {
     // (a forced cast from the bank's edge lands in it, as lane B's tests cast: forceBite's cast with no species named)
     await g(() => { const d = window.__gw.debug; try { window.__gw.fishing.cancel?.('debug'); d.forceBite?.({ wait: 2 }); } catch { /* optional */ } });
     const mist = await K.until("window.__lp.ev.some((e) => e.e === 'fishing:mist')", 4);
-    if (!mist.ok) K.note('no fishing:mist on this tree (lane B\'s cast into mist absent)');
+    K.check(mist.ok, 'T121: the cast from the bank\'s edge lands in the Buoy Lights\' bank (fishing:mist)', mist);
     await K.secs(2.6);
     const bag1 = await g(() => ({ bites: { ...(window.__gw.state.run?.bites || {}) } }));
     K.check(JSON.stringify(bag0) === JSON.stringify(bag1), 'T121: a cast into a bank spends no bite', { bag0, bag1 });
@@ -334,14 +341,17 @@ export default async function (api) {
 
     K.step('her sure bite at the Bell Pool by day');
     await K.places.light('calm', 0.5);
-    await K.places.at('bell_pool', {});
+    // (inside her water's south side, facing on: the cast lands in the pool, as a player casts into the place they bought; from its
+    //  middle a cast carries past its r 6 into open water, the stage's first run)
+    await K.places.at('bell_pool', { dz: 4.5 });
     await K.secs(0.5);
     const scans = [];
     const scan = async (where) => { const r = await K.uiText(); scans.push({ where, pct: hasPercent(r), size: hasSize(r) }); };
     await scan('the HUD');
     let legend = null;
     try {
-      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onBite: () => scan('the strike'), onPlay: () => scan('the play') });
+      legend = await K.realCatch(null, null, { what: 'the Matriarch', natural: true, onPlay: () => scan('the play'),
+        onBite: async () => { await scan('the strike'); const f = await g(() => { const c = window.__gw, d = c.debug.fishing?.(); return { place: d?.place ?? null, legend: d?.legend ?? null, bait: c.state.run?.equippedBait ?? null, phase: c.state.run?.phase ?? null }; }); K.check(f.place === 'bell_pool' && f.legend === true, 'T149: the cast lands in the Bell Pool with the ball on the line in her hour (her sure bite)', f); } });
     } catch (e) { if (!(e instanceof Abort)) throw e; K.note('her bite did not come (lanes A and B: the ball, her pool and her hour)'); }
     if (legend) {
       const sh = await K.until("c.fishing?.inShow === true || c.debug.ui().openModal === 'catch'", 25);
