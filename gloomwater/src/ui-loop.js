@@ -7,12 +7,14 @@
 // light (the clam's gold, the Jetty's lamp) in a cold world. Nothing is ever drawn in world space, and never round the raft.
 //
 // Pure exports (node: tools/tests/ui-loop.test.mjs): slotCells · tallyPlan · goalLine · shelfCards · murkLineFor · clamTag ·
-// pillHold · chartModel · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
+// pillHold · chartModel · chartNext · titleModel · descentModel · cardActions · CARD_KEYS · LOOP_MODALS · tripKeySwallow · journalFirst · journalModel ·
 // settingsWords · castTipDue · strikeTipText · allowedWords · textAllowed · chartVignette · scaleSvg
 import { icon, ORN, murkPortrait } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
+import { createChartView } from './ui-chart.js';
+import { listCount } from './progression-loop.js';
 
 export { murkLineFor };
 
@@ -173,7 +175,39 @@ export function chartModel(meta, D, opts = {}) {
   const sheets = lakes.map((id) => ({ waterId: id, name: zone(id)?.name || id, owned: true, gilded: false, places: [] }));
   const slots = Number.isFinite(Number(opts.slots)) ? Number(opts.slots) : typeof D?.loopSlots === 'function' ? D.loopSlots(ml) : num(ml.holdSlots, 3);
   const water = lakes.includes(opts.water) ? opts.water : lakes[0] ?? null;
-  return { sheets, next: null, hold: { slots }, fitted: { lure: ml.fitted?.lure ?? null, bait: ml.fitted?.bait ?? null }, pick: { water, place: null }, tutorial: opts.tutorial === true };
+  return { sheets, next: opts.tutorial === true ? null : chartNext(meta, D), hold: { slots }, fitted: { lure: ml.fitted?.lure ?? null, bait: ml.fitted?.bait ?? null }, pick: { water, place: null }, tutorial: opts.tutorial === true };
+}
+/**
+ * The Chart's next water (M1.md §3.8 `next`, SPEC §5.4, §5.5 (f)): the first water of D.ZONES past the owned lakes, {waterId,
+ * shipped, seals: {map: {held}, gear: {held, slot, tier}, catch: {held, have, need}}}, or null past the last. `shipped` is false
+ * for a water past LOOP.shipped (decision 39; with no LOOP.shipped, a water LOOP.waters does not hold): in M1, Sporewood, "Coming
+ * soon". The gear seal reads LOOP.access.gear ('rod:1'); the catch seal the frontier water's list (listCount). Pure.
+ */
+export function chartNext(meta, D) {
+  const ml = isObj(meta?.loop) ? meta.loop : {};
+  const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {};
+  const zones = arr(D?.ZONES).filter((z) => z && typeof z.id === 'string').slice().sort((a, b) => num(a.index, 0) - num(b.index, 0));
+  const owned = arr(ml.maps?.lakes).filter((id) => typeof id === 'string');
+  if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
+  const at = Math.max(-1, ...owned.map((id) => zones.findIndex((z) => z.id === id)));
+  const nz = zones[at + 1];
+  if (!nz || at < 0) return null;
+  const frontier = zones[at].id;
+  const sh = D?.LOOP?.shipped;
+  const order = (id) => num(W[id]?.order, 0);
+  const shipped = typeof sh === 'string' ? order(nz.id) > 0 && order(nz.id) <= order(sh) : Array.isArray(sh) ? sh.includes(nz.id) : isObj(W[nz.id]);
+  const gk = String(D?.LOOP?.access?.gear?.[nz.id] || '');
+  const [slot, t] = gk.split(':'), tier = Math.max(0, Math.floor(Number(t) || 0));
+  const gearHeld = !!slot && num(Number(ml.tackle?.[slot]), 0) >= tier && tier > 0;
+  const lc = listCount(meta, D, frontier);
+  return {
+    waterId: nz.id, shipped,
+    seals: {
+      map: { held: owned.includes(nz.id) },
+      gear: { held: gearHeld, slot: slot || null, tier: tier || 1 },
+      catch: { held: lc.need > 0 && lc.have >= lc.need, have: lc.have, need: lc.need },
+    },
+  };
 }
 
 /** The title's words under the loop (SPEC §8.5, PLAN CHOICE 33): fresh → New Descent · Settings; else Continue · Settings (· Prologue). */
@@ -401,6 +435,13 @@ export function createLoopView(K) {
   const tut = createLoopTutorial({ bus: ctx.bus, loop, data: D, now: () => (typeof performance !== 'undefined' ? performance.now() / 1000 : 0) });
   const reducedMotion = () => K.settings?.().reducedMotion === true || (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
   K.root.classList.add('gw-loop-on');
+  // the drawn Chart (M1 step 3b): its art decoded once in idle time after the title is up, with the chart's faces; until then, or
+  // if it cannot decode, the Chart is 1a's list
+  const chart = createChartView({ K, ctx, D, h, report: (w, e) => report(w, e) });
+  try {
+    const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
+    setTimeout(() => idle(() => { chart.prepare(); }), 400);
+  } catch (e) { report('chart.prepare', e); }
 
   // ------------------------------------------------------------------ the HUD on the water: the hold row and the Home pill
   const hudEl = K.layers.hud;
@@ -730,8 +771,8 @@ export function createLoopView(K) {
   }
 
   // ------------------------------------------------------------------ the shelf (SPEC §8.4)
-  function openShelf() {
-    const st = { tab: null, line: '' };
+  function openShelf(o = {}) {
+    const st = { tab: o.tab ?? null, line: '', focus: o.focus ?? null };
     K.openModal('shelf', renderShelf, { state: st, cls: 'gw-m-center gw-m-shelf', onEscape: () => backToJetty('shelf'),
       onKey: (code) => {
         if (!['BracketLeft', 'BracketRight', 'ArrowLeft', 'ArrowRight'].includes(code)) return false;
@@ -801,9 +842,22 @@ export function createLoopView(K) {
     const c = tut.cue();
     const H = L('hold');
     const model = chartModel(ctx.state?.meta, D(), { slots: Number.isFinite(Number(H?.slots)) ? Number(H.slots) : undefined, tutorial: tut.isActive() });
+    const line = c.line;
+    // the drawn Chart (M1 step 3b), once its art is decoded; 1a's list below is the fallback where the drawing cannot load
+    if (chart.ready()) {
+      const ink = !s.inked && !reducedMotion();
+      s.inked = true;
+      const sail = sailButton(s, c, () => chart.pick() || { water: model.pick.water || 'mossmere', place: null });
+      chart.render(entry, body, model, {
+        panel, btn, line, sail, reduced: reducedMotion(), slotsInk: ink, slotStep: num(D().LOOP?.tutorial?.slotInk, 0.25),
+        onBuy: (place) => openShelf({ tab: 'maps', focus: place }),
+        onCatalogue: (water) => K.screens?.openJournal?.({ from: 'chart', zone: water }),
+        onSealed: (water, next) => chart.openSealed(next, { panel, onGear: () => openShelf({ tab: 'tackle' }), onCatch: () => K.screens?.openJournal?.({ from: 'chart', zone: model.pick.water || 'mossmere' }) }),
+      });
+      return;
+    }
     const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart${reducedMotion() ? ' gw-rm' : ''}` });
     pn.dataset.loop = 'chart';
-    const line = c.line;
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart"></div>`;
     if (line) content.querySelector('.gw-murk-line').textContent = line;
     const list = content.querySelector('.gw-chart');
@@ -825,15 +879,22 @@ export function createLoopView(K) {
     }
     s.inked = true;
     list.appendChild(slots);
+    foot.appendChild(sailButton(s, c, () => ({ water: model.pick.water || 'mossmere', place: null })));
+  }
+  /** Sail (SPEC §5.4: one action): live from the first frame; it starts the trip at the chosen water (and place: the dock nearest
+   *  it, SPEC §5.1 rule 10). */
+  function sailButton(s, c, pick) {
+    const { btn } = parts();
     const b = btn(TL().sail || 'Sail', { cls: `gw-btn--primary gw-chart-sail${c.sail ? ' gw-cue' : ''}`, action: 'sail', icon: 'flame', autofocus: true, disabled: s.sailing, onClick: () => {
       if (s.sailing) return;
       s.sailing = true;
       b.disabled = true;
       tut.onSail();
-      const ok = G('sail', { water: model.pick.water || 'mossmere', place: null });
+      const p = pick();
+      const ok = G('sail', { water: p.water || 'mossmere', place: p.place ?? null });
       if (ok === false || ok === null) { s.sailing = false; b.disabled = false; }
     } });
-    foot.appendChild(b);
+    return b;
   }
 
   // ------------------------------------------------------------------ events
@@ -940,6 +1001,8 @@ export function createLoopView(K) {
 
   return {
     update, handleKey, openJetty, openTally, openShelf, openChart, openHomePause, paintHold,
+    /** the drawn Chart (M1 step 3b): its readout and, in debug builds, its fixture (main's ctx.debug.loop.chart) */
+    chart, chartDebug: (cmd, arg) => chart.debug(cmd, arg),
     /** the tutorial's machine (its state, step and cue(): PLAN §3.6) */
     tutorial: tut,
     pill, holdRow,

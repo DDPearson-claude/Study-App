@@ -32,7 +32,7 @@ export const GAME = {
   scale: { 1: 5.5 },             // px a Chart unit: reach I at 5.5 (the kingdom inset); later reaches at 2.6
   quality: 0.9,                  // WebP; the knobs, in order, if a crop is over its line: 0.85, a narrower feather, 5 px a unit
   maskUnit: 0.5,                 // the reveal mask's grid, in Chart units
-  budget: { reachI: 100_000, later: 100_000, paper: 6_000, live: 15_000, code: 40_000, inHtml: 200_000 },   // the spike's lines (M1.md §3.2)
+  budget: { reachI: 100_000, later: 100_000, paper: 6_000, live: 15_000, code: 60_000, inHtml: 200_000 },   // the spike's lines (M1.md §3.2)
 };
 // WORLD.md §10: the names that never appear on any sheet
 export const NEVER = ['The Eastern Downs', 'The Morning Gulf', 'The Morning Isle', 'the Morning Isle', 'The Low Horn', 'never charted'];

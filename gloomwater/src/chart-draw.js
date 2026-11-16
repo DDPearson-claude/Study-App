@@ -634,11 +634,11 @@ export function blot(ctx, x, y, r, { seed = 1, alpha = 1 } = {}) {
     const a = h(q) * 6.3, d = r * 0.32 * h(q + 9), rr = r * (0.55 + 0.25 * h(q + 4));
     const cx = x + Math.cos(a) * d, cy = y + Math.sin(a) * d * 0.7;
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
-    g.addColorStop(0, `rgba(${MIST},.78)`); g.addColorStop(0.6, `rgba(${MIST},.42)`); g.addColorStop(1, `rgba(${MIST},0)`);
+    g.addColorStop(0, `rgba(${MIST},.92)`); g.addColorStop(0.55, `rgba(${MIST},.6)`); g.addColorStop(1, `rgba(${MIST},0)`);
     ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(cx, cy, rr * 1.25, rr * 0.85, 0, 0, 6.3); ctx.fill();
   }
-  ctx.strokeStyle = 'rgba(110,100,170,.45)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
-  for (const [dx, dy, s] of [[-0.45, -0.32, 0.42], [0.2, 0.28, 0.5]]) { ctx.beginPath(); ctx.moveTo(x + (dx - s) * r, y + dy * r); ctx.bezierCurveTo(x + (dx - s * 0.4) * r, y + (dy - 0.18) * r, x + (dx + s * 0.4) * r, y + (dy + 0.18) * r, x + (dx + s) * r, y + dy * r); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(104,94,166,.6)'; ctx.lineWidth = 1.1; ctx.lineCap = 'round';
+  for (const [dx, dy, s] of [[-0.45, -0.38, 0.42], [0.22, 0.36, 0.5]]) { ctx.beginPath(); ctx.moveTo(x + (dx - s) * r, y + dy * r); ctx.bezierCurveTo(x + (dx - s * 0.4) * r, y + (dy - 0.18) * r, x + (dx + s * 0.4) * r, y + (dy + 0.18) * r, x + (dx + s) * r, y + dy * r); ctx.stroke(); }
   ctx.restore();
 }
 /**
@@ -659,7 +659,7 @@ const KIND_LOOK = { day: 'pads', old: 'span', night: 'buoys', crown: 'bell' };
 const PLACE_DRAW = {
   pads() { // notched lily pads, a koi glowing under them
     if (!vg.halo) { const g = X.createRadialGradient(1.5, 1.5, 0, 1.5, 1.5, 7); g.addColorStop(0, 'rgba(255,190,110,.85)'); g.addColorStop(1, 'rgba(255,190,110,0)'); X.fillStyle = g; X.beginPath(); X.arc(1.5, 1.5, 7, 0, 6.3); X.fill(); }
-    const pad = (x, y, r, a) => P(() => { X.moveTo(x, y); X.arc(x, y, r, a + 0.35, a + 6.0); X.closePath(); }, 'rgb(150,160,130)', 0.9);
+    const pad = (x, y, r, a) => P(() => { X.moveTo(x, y); X.arc(x, y, r, a + 0.35, a + 6.0); X.closePath(); }, LEAF(1), 0.9);
     pad(-4.6, -2.2, 4.1, 0.4); pad(4.4, -3.8, 3.4, 2.4); pad(-1.2, 5.2, 3.6, 4.2); pad(6.2, 4.6, 2.6, 1.2);
     P(() => { X.moveTo(-0.8, 1.2); X.quadraticCurveTo(2, -0.6, 4.2, 1.6); X.quadraticCurveTo(2, 2.8, -0.8, 1.2); X.moveTo(4.2, 1.6); X.lineTo(5.6, 0.6); X.lineTo(5.4, 2.6); X.closePath(); }, 'rgb(240,150,80)', 0.6);
   },
@@ -681,7 +681,7 @@ const PLACE_DRAW = {
   },
   bell(wounds) { // the harbour bell on the pool's floor, the moon over it; a nick in its rim for each wound
     if (!vg.halo) { X.beginPath(); X.arc(5.4, -7.2, 2.1, 0, 6.3); X.fillStyle = 'rgba(246,242,226,.95)'; X.fill(); X.beginPath(); X.arc(6.3, -7.6, 1.7, 0, 6.3); X.fillStyle = 'rgba(206,196,226,.95)'; X.fill(); }
-    P(() => { X.moveTo(-5.6, 5); X.quadraticCurveTo(-5.4, -4.8, 0, -5.2); X.quadraticCurveTo(5.4, -4.8, 5.6, 5); X.closePath(); }, 'rgb(118,150,140)', 1.1);
+    P(() => { X.moveTo(-5.6, 5); X.quadraticCurveTo(-5.4, -4.8, 0, -5.2); X.quadraticCurveTo(5.4, -4.8, 5.6, 5); X.closePath(); }, 'rgb(164,132,96)', 1.1);
     P(() => { X.moveTo(-6.8, 5); X.lineTo(6.8, 5); }, null, 1.4);
     P(() => { X.arc(0, -5.6, 1.1, Math.PI, 0); }, null, 0.9);
     dot(0, 6.4, 0.9, INK);
@@ -749,7 +749,7 @@ export function layoutChart(model, art, view) {
   const cx = (x) => cont.x + (x - box[0]) * k, cy = (y) => cont.y + (y - box[1]) * k;
 
   // ---- the next water's sealed sheet (never in the tutorial): its rolled sheet, three seals, "Coming soon"
-  const sealedSize = phone ? { w: 150, h: 70 } : { w: 196, h: 86 };
+  const sealedSize = phone ? { w: 196, h: 58 } : { w: 196, h: 86 };
   // ---- each owned water's own sheet, pinned beside its true place
   const sheet = (model?.sheets || [])[0] || null;
   const geo = sheet ? view.water?.[sheet.waterId] || null : null;
@@ -758,10 +758,11 @@ export function layoutChart(model, art, view) {
     const nameSize = phone ? 19 : 21;
     if (phone) card = { x: pad + 2, y: cont.y + cont.h + gap, w: Wd - 2 * pad - 4 };
     else card = { x: cont.x + cont.w + gap + 6, y: pad + 2, w: Wd - (cont.x + cont.w + gap + 6) - pad - 2 };
-    card.h = Ht - card.y - pad - 2;
+    // (a phone keeps a strip under the water's sheet for the sealed sheet, at its lower left)
+    card.h = Ht - card.y - pad - 2 - (phone && next ? sealedSize.h + 6 : 0);
     const nameFont = `italic 400 ${nameSize}px ${F.chart}`;
     const head = nameSize + 16;
-    const foot = phone && next ? sealedSize.h + 8 : 0;
+    const foot = 0;
     const lake = { rect: [card.x + 6, card.y + head, card.w - 12, card.h - head - foot - 8] };
     const R = Math.max(10, geo?.Rmax || geo?.R || 60);
     lake.s = Math.min(lake.rect[2], lake.rect[3]) / (2 * R * 1.06);
@@ -797,14 +798,15 @@ export function layoutChart(model, art, view) {
       let moved = false;
       for (let a = 0; a < items.length; a++) for (let b = a + 1; b < items.length; b++) {
         const A = items[a], B = items[b];
-        let dx = B.at[0] - A.at[0], dy = B.at[1] - A.at[1]; const d = Math.hypot(dx, dy);
-        if (d >= need) continue;
-        // along the shore: the tangent at their mean bearing from the lake's centre
+        let dx = B.at[0] - A.at[0], dy = B.at[1] - A.at[1];
+        if (Math.abs(dx) >= need || Math.abs(dy) >= need) continue;   // (square targets: apart on either axis is apart)
+        // along the shore: the tangent at their mean bearing from the lake's centre, until they clear on one axis
         const mx = (A.at[0] + B.at[0]) / 2 - lake.cx, my = (A.at[1] + B.at[1]) / 2 - lake.cy, ml = Math.hypot(mx, my) || 1;
         let tx = -my / ml, ty = mx / ml;
         if (tx * dx + ty * dy < 0) { tx = -tx; ty = -ty; }
-        if (d < 0.01) { dx = tx; dy = ty; }
-        const push = (need - d) / 2 + 0.5;
+        if (Math.hypot(dx, dy) < 0.01) { dx = tx; dy = ty; }
+        const gapX = Math.abs(tx) > 0.05 ? (need - Math.abs(dx)) / Math.abs(tx) : Infinity, gapY = Math.abs(ty) > 0.05 ? (need - Math.abs(dy)) / Math.abs(ty) : Infinity;
+        const push = Math.min(gapX, gapY) / 2 + 0.5;
         A.at[0] -= tx * push; A.at[1] -= ty * push; B.at[0] += tx * push; B.at[1] += ty * push;
         moved = true;
       }
@@ -814,15 +816,36 @@ export function layoutChart(model, art, view) {
       }
       if (!moved) break;
     }
-    for (const A of items) {
+    // the lettering: each place's words where they meet nothing else (its name and best fish under it, else above, beside it)
+    const fs = phone ? 12.5 : 13.5, placed = fixed.slice();
+    for (const A of items) placed.push(around(A.at[0], A.at[1], A.size, A.size));
+    const order = items.slice().sort((a, b) => (b.owned - a.owned) || ((b.price != null) - (a.price != null)));
+    for (const A of order) {
       A.leader = Math.hypot(A.at[0] - A.site[0], A.at[1] - A.site[1]) > 5;
-      const fs = phone ? 12.5 : 13.5;
+      let lines = [];
       if (A.owned) {
-        A.label = { text: A.p.name || A.id, font: `italic 400 ${fs}px ${F.chart}`, y: A.at[1] + A.size / 2 + fs * 0.7 };
+        const name = { text: A.p.name || A.id, font: `italic 400 ${fs}px ${F.chart}` };
+        name.w = measure(name.text, name.font) + (A.p.giantLanded ? 16 : 0);
+        lines.push(name);
         const showBest = A.p.best && (!phone || model?.pick?.place === A.id);
-        if (showBest) A.sub = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: `400 ${fs - 1.5}px ${F.body}`, y: A.label.y + fs + 2 };
-      } else if (A.price != null) A.label = { text: String(A.price), font: `400 ${fs}px ${F.body}`, y: A.at[1] + A.size / 2 + fs * 0.65, price: true };
+        if (showBest) { const sub = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: `400 ${fs - 1.5}px ${F.body}` }; sub.w = 26 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(sub.weight) : String(sub.weight), sub.font); lines.push(sub); }
+      } else if (A.price != null) { const pr = { text: String(A.price), font: `400 ${fs}px ${F.body}`, price: true }; pr.w = measure(pr.text, pr.font) + 16; lines.push(pr); }
+      if (!lines.length) { out.places.push(A); continue; }
+      const lh = fs + 3, bw = Math.max(...lines.map((l) => l.w)) + 6, bh = lines.length * lh + 2;
+      const [x, y] = A.at, r = A.size / 2;
+      const spots = [[x, y + r + 2 + bh / 2], [x, y - r - 2 - bh / 2], [x + r + 4 + bw / 2, y], [x - r - 4 - bw / 2, y], [x + r + bw / 2, y + r], [x - r - bw / 2, y + r]];
+      const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
+      let best = null;
+      for (const sp of spots) { const q = around(sp[0], sp[1], bw, bh); if (inCard(q) && !placed.some((o) => rectsMeet(q, o, 1))) { best = sp; break; } }
+      if (!best) best = spots[0];
+      const q = around(best[0], best[1], bw, bh);
+      placed.push(q);
+      lines.forEach((l, i) => { l.x = best[0]; l.y = q[1] + 1 + lh * (i + 0.5); });
+      A.label = lines[0].kind === 'best' ? null : { ...lines[0] };
+      if (lines[1]) A.sub = lines[1];
       out.places.push(A);
+    }
+    for (const A of items) {
       if (A.owned) out.targets.push({ id: `place:${A.id}`, kind: 'place', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: A.label?.text || A.id });
       else if (A.price != null) out.targets.push({ id: `buy:${A.id}`, kind: 'buy', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: String(A.price) });
     }
@@ -830,12 +853,12 @@ export function layoutChart(model, art, view) {
   // ---- the sealed sheet: under the first sheet on a wide screen; at the water's sheet's lower left on a phone
   if (next && next.shipped === false) {
     const w = sealedSize.w, h = sealedSize.h;
-    const x = phone && card ? card.x + 8 : cont.x + Math.max(0, (cont.w - w) / 2) * 0.35;
-    const y = phone && card ? card.y + card.h - h - 4 : Math.min(Ht - pad - h, cont.y + cont.h + gap);
+    const x = phone && card ? card.x + 2 : cont.x + Math.max(0, (cont.w - w) / 2) * 0.35;
+    const y = phone && card ? card.y + card.h + 6 : Math.min(Ht - pad - h, cont.y + cont.h + gap);
     const r = phone ? 10.5 : 12.5;
-    const roll = { x: x + (phone ? 30 : 38), y: y + h * 0.32, w: phone ? 52 : 66, h: phone ? 24 : 30 };
+    const roll = { x: x + (phone ? 48 : 38), y: y + h * 0.32, w: phone ? 52 : 66, h: phone ? 24 : 30 };
     const seals = ['map', 'gear', 'catch'].map((key, i) => ({ key, x: roll.x + roll.w / 2 + 14 + r + i * (2 * r + (phone ? 7 : 9)), y: roll.y, r }));
-    const soon = { x: roll.x + roll.w / 2 + 14 + r * 3 + (phone ? 7 : 9), y: y + h - (phone ? 13 : 16), font: `400 ${phone ? 15 : 17}px ${F.hand}` };
+    const soon = phone ? { x: seals[2].x + r + 14, y: roll.y + 1, font: `400 15px ${F.hand}`, align: 'left' } : { x: roll.x + roll.w / 2 + 14 + r * 3 + 9, y: y + h - 16, font: `400 17px ${F.hand}` };
     const wispFrom = art?.live?.wisp ? [cx(art.live.wisp[0]), cy(art.live.wisp[1])] : null;
     out.sealed = { water: next.waterId, x, y, w, h, roll, seals, soon, wispFrom };
     const rect = [x, y, w, h];
@@ -845,7 +868,7 @@ export function layoutChart(model, art, view) {
 }
 
 // ------------------------------------------------------------------ the game's drawing
-const deckle = (ctx, x, y, w, h, seed, amp = 1.2) => { // a hand-cut edge: a rectangle whose sides wander a little
+export const deckle = (ctx, x, y, w, h, seed, amp = 1.2) => { // a hand-cut edge: a rectangle whose sides wander a little
   const h1 = (q) => { const s = Math.sin(seed * 31.7 + q * 12.9898) * 43758.5453; return s - Math.floor(s); };
   const pts = [], n = 18;
   for (let i = 0; i < n; i++) pts.push([x + (w * i) / n, y + (h1(i) - 0.5) * amp]);
@@ -898,10 +921,10 @@ export function drawChart(ctx, model, art, view, t = 0) {
   ctx.fillStyle = wash; ctx.fillRect(0, 0, Wd, Ht);
   ctx.restore();
 
-  // ---- the first sheet
-  const cont = L.cont, first = (art?.sheets || [])[0];
+  // ---- the first sheet (view.layers.first false: the paper alone, for the bare-paper test)
+  const cont = L.cont, first = view.layers?.first === false ? null : (art?.sheets || [])[0];
   const V = chartView({ ...cont.view, vw: Wd, vh: Ht, dpr });
-  const live = art?.live || {};
+  const live = view.layers?.first === false ? {} : art?.live || {};
   ctx.save();
   ctx.beginPath(); ctx.rect(cont.x, cont.y, cont.w, cont.h); ctx.clip();
   ctx.globalAlpha = inkSheet;
@@ -978,11 +1001,12 @@ function drawLake(ctx, lake, geo, t) {
   if (shore.length < 3) return;
   const pathOf = (pts, k = 1) => { ctx.beginPath(); pts.forEach((p, i) => { const q = at(p[0] * k, p[1] * k); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); };
   // the bank's hachures, falling away from the water
-  ctx.save(); ctx.strokeStyle = ink(0.42); ctx.lineWidth = 0.75;
+  ctx.save(); ctx.strokeStyle = ink(0.38); ctx.lineWidth = 0.7;
   ctx.beginPath();
   for (let i = 0; i < shore.length; i += 1) {
-    const p = shore[i], r = Math.hypot(p[0], p[1]) || 1, nx = p[0] / r, nz = p[1] / r, len = (i % 3 === 0 ? 7 : 4.2) + (i % 5) * 0.6;
-    const a = at(p[0] + nx * 1.6, p[1] + nz * 1.6); ctx.moveTo(a[0], a[1]); ctx.lineTo(a[0] + nx * len, a[1] + nz * len);
+    const p = shore[i], r = Math.hypot(p[0], p[1]) || 1, wob = Math.sin(i * 12.9898) * 0.5, nx = p[0] / r, nz = p[1] / r;
+    const len = (i % 3 === 0 ? 6.5 : 3.6) + (Math.sin(i * 78.233) * 0.5 + 0.5) * 2.2, tx = -nz * wob * 0.35, tz = nx * wob * 0.35;
+    const a = at(p[0] + nx * 1.6, p[1] + nz * 1.6); ctx.moveTo(a[0], a[1]); ctx.lineTo(a[0] + (nx + tx) * len, a[1] + (nz + tz) * len);
   }
   ctx.stroke(); ctx.restore();
   // the water: a violet wash, deeper in the middle, a pale lining inside the shore
@@ -1022,12 +1046,14 @@ function drawLake(ctx, lake, geo, t) {
     ctx.beginPath(); piers.forEach((p, i) => { const c = at(p.x, p.z); i ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); }); ctx.stroke(); ctx.restore();
     for (const p of piers) { const c = at(p.x, p.z), r = Math.max(2.2, p.r * S * 0.9); ctx.beginPath(); ctx.rect(c[0] - r, c[1] - r, 2 * r, 2 * r); ctx.fillStyle = STONE; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.9; ctx.stroke(); }
   }
-  // the docks: a short jetty of two ruled lines out from the shore
+  // the docks: a short timber jetty from the shore out to the dock, two posts at its end
   for (const d of geo.docks || []) {
     const r = Math.hypot(d.x, d.z) || 1, nx = d.x / r, nz = d.z / r, c = at(d.x, d.z);
-    ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.beginPath();
-    for (const o of [-1.6, 1.6]) { ctx.moveTo(c[0] - nz * o, c[1] + nx * o); ctx.lineTo(c[0] - nz * o - nx * 7, c[1] + nx * o - nz * 7); }
-    ctx.stroke();
+    const sr = geo.shoreAt ? geo.shoreAt(Math.atan2(d.z, d.x)) : (geo.Rmax || r + 6), e = at(nx * sr, nz * sr);
+    const px = -nz, pz = nx, wd = Math.max(1.6, 0.9 * S);
+    ctx.beginPath(); ctx.moveTo(e[0] + px * wd, e[1] + pz * wd); ctx.lineTo(c[0] + px * wd, c[1] + pz * wd); ctx.lineTo(c[0] - px * wd, c[1] - pz * wd); ctx.lineTo(e[0] - px * wd, e[1] - pz * wd); ctx.closePath();
+    ctx.fillStyle = 'rgb(176,146,118)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.9; ctx.stroke();
+    ctx.fillStyle = INK; for (const o of [-1, 1]) { ctx.beginPath(); ctx.arc(c[0] + px * wd * o * 1.1, c[1] + pz * wd * o * 1.1, Math.max(1, 0.45 * S), 0, 6.3); ctx.fill(); }
   }
   // Murk's barge alone at the Jetty (M1.md §3.3; the home barge joins it from step 5): his towering pack and his sage-green lamp
   if (geo.jetty) {
@@ -1053,10 +1079,10 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
     ctx.restore();
   }
   if (!A.owned || k < 1) blot(ctx, x, y, s * 0.62, { seed: A.id.length * 3.7 + A.site[0] * 0.01, alpha: A.owned ? 1 - k : 1 });
-  if (A.owned) placeVignette(ctx, A.id, A.kind, x, y, s, { wounds: A.p.wounds || 0, alpha: k });
+  if (A.owned) placeVignette(ctx, A.id, A.kind, x, y, s * (A.kind === 'old' ? 0.82 : 1), { wounds: A.p.wounds || 0, alpha: k });
   // its kind's glyph: in the blot's heart when it is mist, at the vignette's shoulder when owned
-  const gs = L.phone ? 11 : 12.5;
-  kindGlyph(ctx, A.kind, A.owned ? x - s * 0.5 : x, A.owned ? y - s * 0.46 : y, gs, { colour: A.owned ? ink(0.85) : 'rgba(84,74,140,.9)' });
+  const gs = A.owned ? (L.phone ? 11 : 12.5) : (L.phone ? 14 : 16);
+  kindGlyph(ctx, A.kind, A.owned ? x - s * 0.5 : x, A.owned ? y - s * 0.46 : y, gs, { colour: A.owned ? ink(0.85) : 'rgba(70,60,128,.95)', lw: A.owned ? 1.1 : 1.4 });
   // a Marked Fish waits here: a small ink ripple beside it (two broken arcs, never a ring)
   if (A.p.marked) {
     ctx.save(); ctx.strokeStyle = ink(0.7); ctx.lineWidth = 0.9;
@@ -1067,15 +1093,16 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   const lab = A.label;
   if (lab.price) { // only Murk's three blots carry a price
     ctx.save(); ctx.font = lab.font; const w = ctx.measureText(lab.text).width; ctx.restore();
-    const gx = x - (w + 14) / 2 + 6;
+    const gx = lab.x - (w + 14) / 2 + 6;
     clamGlyph(ctx, gx, lab.y, 11);
     letter(ctx, L, lab.text, gx + 9, lab.y, lab.font, { align: 'left', dpr, reserve: 0.8 });
     return;
   }
-  const w = letter(ctx, L, lab.text, x, lab.y, lab.font, { dpr, alpha: 0.96 * k, reserve: 0.85 });
-  if (pick.place === A.id) underline(ctx, x - w / 2, lab.y + 9, w);
+  const lx = lab.x - (A.p.giantLanded ? 8 : 0);
+  const w = letter(ctx, L, lab.text, lx, lab.y, lab.font, { dpr, alpha: 0.96 * k, reserve: 0.85 });
+  if (pick.place === A.id) underline(ctx, lx - w / 2, lab.y + 8, w);
   if (A.p.giantLanded) { // its giant landed: a gold star
-    const sx = x + w / 2 + 8, sy = lab.y - 1;
+    const sx = lx + w / 2 + 9, sy = lab.y - 1;
     ctx.save(); ctx.beginPath(); for (let q = 0; q < 10; q++) { const an = -Math.PI / 2 + (q * Math.PI) / 5, r = q % 2 ? 2.4 : 5.6; ctx.lineTo(sx + Math.cos(an) * r, sy + Math.sin(an) * r); } ctx.closePath();
     ctx.fillStyle = GOLD; ctx.fill(); ctx.strokeStyle = GOLD_INK; ctx.lineWidth = 0.8; ctx.stroke(); ctx.restore();
     L.texts.push('★');
@@ -1083,7 +1110,7 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   if (A.sub && A.sub.kind === 'best') { // your best fish there: its glyph and its weight in pounds; never a number else
     const txt = typeof view.fmtWeight === 'function' ? view.fmtWeight(A.sub.weight) : String(A.sub.weight);
     ctx.save(); ctx.font = A.sub.font; const tw = ctx.measureText(txt).width; ctx.restore();
-    const gw = 22, gx = x - (tw + gw + 4) / 2;
+    const gw = 22, gx = A.sub.x - (tw + gw + 4) / 2;
     const glyph = typeof view.fishGlyph === 'function' ? view.fishGlyph(A.sub.speciesId) : null;
     if (glyph) { ctx.save(); ctx.globalAlpha *= 0.95; ctx.drawImage(glyph, gx, A.sub.y - 6, gw, 12); ctx.restore(); }
     letter(ctx, L, txt, gx + gw + 4, A.sub.y, A.sub.font, { align: 'left', dpr, alpha: 0.9, reserve: 0.8 });
@@ -1099,7 +1126,7 @@ function drawSealed(ctx, L, model, view, dpr, F, a) {
     ctx.save(); ctx.strokeStyle = 'rgba(150,138,214,.65)'; ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.setLineDash([1, 5]);
     ctx.beginPath(); ctx.moveTo(sx, sy); ctx.bezierCurveTo(sx, sy + 26, ex - 30, ey - 4, ex, ey); ctx.stroke(); ctx.restore();
     wisp(ctx, (sx + ex) / 2 + 8, (sy + ey) / 2 + 6, 8);
-  } else if (L.phone) wisp(ctx, S.roll.x - S.roll.w / 2 - 12, S.roll.y - 6, 7);
+  } else if (L.phone) wisp(ctx, S.roll.x - S.roll.w / 2 - 14, S.roll.y - 2, 7);
   rolledSheet(ctx, S.roll.x, S.roll.y, S.roll.w, S.roll.h);
   const font = `400 ${L.phone ? 10.5 : 11.5}px ${F.body || 'serif'}`;
   for (const sl of S.seals) {
@@ -1108,6 +1135,6 @@ function drawSealed(ctx, L, model, view, dpr, F, a) {
     seal(ctx, sl.key, sl.x, sl.y, sl.r, { held: st.held === true, tier: st.tier || 1, count, font });
     if (count) L.texts.push(count);
   }
-  letter(ctx, L, view.words?.soon || 'Coming soon', S.soon.x, S.soon.y, S.soon.font, { dpr, alpha: 0.9, reserve: 0.6 });
+  letter(ctx, L, view.words?.soon || 'Coming soon', S.soon.x, S.soon.y, S.soon.font, { dpr, alpha: 0.9, reserve: 0.6, align: S.soon.align || 'center' });
   ctx.restore();
 }

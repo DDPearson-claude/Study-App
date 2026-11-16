@@ -4831,6 +4831,7 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
   newDescent: 'New Descent', start: 'Start', back: 'Back',
   wicks: { wick: 'Firsts and new bests sell higher.', taper: 'First bites are never common fish.', stub: 'Quick bites, even on quiet water.',
     tallow: 'Stout enough for one more fish.', ashwick: 'A fish that gets away comes back.' },
+  comingSoon: 'Coming soon',   // the sealed sheet of a water past LOOP.shipped (SPEC §5.4; M1.md §3.3), on the drawn Chart
   introLine3: 'Its last candles fish from lamp to lamp.',   // the film's line 3 under the loop (LORE §12; the apply block sets it)
   // Settings under the loop (PLAN CHOICE 43, SPEC §8.5): the word itself, the strike ring's first option and the hurry row's line
   settings: { label: 'Settings', ringFirst: 'First evening',

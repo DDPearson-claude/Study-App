@@ -190,6 +190,26 @@ if (process.argv.includes('--loop')) {
   ok4(['arrive', 'out', 'chartWait', 'slotInk', 'castTipAfter', 'outDist'].every((k) => num4(T[k]) && T[k] > 0), 'LOOP.tutorial: every time and distance positive');
   ok4(T.budget.tapThrough <= T.budget.reference && T.budget.reference <= T.budget.max && sum <= T.budget.max, `T72: the tutorial's budget: ${sum.toFixed(2)} s ≤ ${T.budget.max} s (reference ≤ ${T.budget.reference}, tap-through ≤ ${T.budget.tapThrough})`);
   if (!(sum <= T.budget.reference + 0.5)) warns.push(`the tutorial's no-tap time ${sum.toFixed(2)} s is past its ${T.budget.reference} s reference`);
+  // M1 step 3b (M1.md §3.7): the drawn Chart's art. src/chart-art.js holds exactly the shipped waters' sheets (LOOP.shipped; with
+  // none set, the waters LOOP.waters holds), every place a sheet names exists in LOOP.places, and nothing of an unshipped water
+  // (its name, a never-charted name) is in it
+  {
+    const { CHART_ART: CA } = await import('../src/chart-art.js');
+    const ord = (id) => Number(LP.waters?.[id]?.order) || 0;
+    const sh = LP.shipped;
+    const shipped = Object.keys(LP.waters || {}).filter((id) => ord(id) > 0 && (typeof sh === 'string' ? ord(id) <= ord(sh) : Array.isArray(sh) ? sh.includes(id) : true)).sort((a, b) => ord(a) - ord(b));
+    const art = Array.isArray(CA?.sheets) ? CA.sheets : [];
+    ok4(same(art.map((q) => q.water), shipped), `chart-art.js: its sheets are exactly the shipped waters' (${art.map((q) => q.water).join(', ')} against ${shipped.join(', ')})`);
+    ok4(art.every((q) => q.n === ord(q.water) && Array.isArray(q.box) && q.box.length === 4 && typeof q.uri === 'string' && q.uri.startsWith('data:image/webp;base64,') && /^[0-9a-f]{8}$/.test(q.hash)), 'chart-art.js: each sheet is its water\'s (n = LOOP.waters order), a box, a WebP crop and its decoded pixels\' hash');
+    const LPL = LP.places, placeIds = new Set(Array.isArray(LPL) ? LPL.map((q) => q?.id) : LPL && typeof LPL === 'object' ? Object.keys(LPL) : []);
+    const named = art.flatMap((q) => Array.isArray(q.places) ? q.places : []).concat(Array.isArray(CA?.live?.places) ? CA.live.places : []);
+    ok4(named.every((id) => placeIds.has(typeof id === 'string' ? id : id?.id)), `chart-art.js: every place on a sheet exists in LOOP.places (${named.length} named)`);
+    const text = JSON.stringify(CA?.live || {});
+    const later = L4.ZONES.filter((z) => !shipped.includes(z.id)).map((z) => z.name.replace(/^The /, ''));
+    ok4(![...later, 'Eastern Downs', 'Morning Gulf', 'Morning Isle', 'Low Horn'].some((nm) => text.includes(nm)), 'chart-art.js: no name of an unshipped water, and none of WORLD §10\'s never list');
+    ok4((CA?.live?.waters || []).every((w) => shipped.includes(w.water)) && (CA?.live?.pieces || []).every((pc) => pc.leg <= Math.max(...art.map((q) => q.n))), 'chart-art.js: no lamp, vignette or road leg of an unshipped sheet');
+    ok4(typeof TL.comingSoon === 'string' && TL.comingSoon === 'Coming soon', 'TEXT_LOOP.comingSoon: "Coming soon" (SPEC §5.4)');
+  }
   for (const w of warns) console.log('  warn:', w);
   if (errs.length) {
     for (const e of errs.slice(0, 80)) console.log('  FAIL:', e);

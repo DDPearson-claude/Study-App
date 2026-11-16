@@ -703,7 +703,7 @@ export function create(ctx) {
       hud.setVisible(flow === 'playing');
       if (flow === 'playing') closeAll((m) => m.id === 'title' || m.id === 'newdescent' || m.id === 'death' || m.state?.titleChild);
       // the loop: home's screens never outlive a Sail (PLAN §2.3 item 1)
-      if (flow === 'playing' && loopOn) closeAll((m) => ['jetty', 'tally', 'shelf', 'chart', 'homepause'].includes(m.id));
+      if (flow === 'playing' && loopOn) closeAll((m) => ['jetty', 'tally', 'shelf', 'chart', 'chartsealed', 'homepause'].includes(m.id));
       if (flow !== 'playing') { catchQ.length = 0; levelQ.length = 0; }
     });
     on('run:start', ({ continued }) => {
