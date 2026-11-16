@@ -29,7 +29,6 @@ export const CHART_FONTS = Object.freeze({
   chart: "'IM Fell English', 'IM Fell English SC', Georgia, serif",
   figure: "'IM Fell English', Georgia, serif",
   hand: "'Cedarville Cursive', 'Segoe Script', 'Bradley Hand', cursive",
-  display: "'Marcellus SC', 'Palatino Linotype', Georgia, serif",
 });
 /** The faces loaded with the images in idle time, so the Chart's first paint letters in them (M1.md §3.1). */
 export const FONT_FACES = Object.freeze(['italic 16px "IM Fell English"', '16px "IM Fell English"', '16px "Cedarville Cursive"']);
@@ -142,21 +141,18 @@ export function createChartView(deps) {
   // before it is ever stretched: the mottle stays, the blocks never show as patches on the bare paper
   function softPaper(img) {
     try {
-      if (typeof document === 'undefined' || !img?.width) return img;
       const w = img.width, hh = img.height, c = document.createElement('canvas'); c.width = w; c.height = hh;
       const g = c.getContext('2d'); g.drawImage(img, 0, 0);
-      const d = g.getImageData(0, 0, w, hh), px = d.data, f = new Float32Array(w * hh * 3), tmp = new Float32Array(w * hh * 3);
-      for (let i = 0; i < w * hh; i++) for (let ch = 0; ch < 3; ch++) f[i * 3 + ch] = px[i * 4 + ch];
-      const R = 3, box = (src, dst, horiz) => {
-        const n = horiz ? w : hh, m = horiz ? hh : w;
-        for (let a = 0; a < m; a++) for (let ch = 0; ch < 3; ch++) for (let b = 0; b < n; b++) {
-          let s = 0;
-          for (let q = -R; q <= R; q++) { const bb = Math.min(n - 1, Math.max(0, b + q)); s += src[((horiz ? a * w + bb : bb * w + a) * 3) + ch]; }
-          dst[((horiz ? a * w + b : b * w + a) * 3) + ch] = s / (2 * R + 1);
+      const d = g.getImageData(0, 0, w, hh), A = Float32Array.from(d.data), B = new Float32Array(A.length);
+      const pass = (s, t, hz) => {
+        for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) for (let ch = 0; ch < 3; ch++) {
+          let v = 0;
+          for (let q = -3; q <= 3; q++) v += s[((hz ? y : Math.min(hh - 1, Math.max(0, y + q))) * w + (hz ? Math.min(w - 1, Math.max(0, x + q)) : x)) * 4 + ch];
+          t[(y * w + x) * 4 + ch] = v / 7;
         }
       };
-      for (let it = 0; it < 2; it++) { box(f, tmp, true); box(tmp, f, false); }
-      for (let i = 0; i < w * hh; i++) for (let ch = 0; ch < 3; ch++) px[i * 4 + ch] = Math.round(f[i * 3 + ch]);
+      for (let i = 0; i < 2; i++) { pass(A, B, true); pass(B, A, false); }
+      for (let i = 0; i < A.length; i++) if (i % 4 < 3) d.data[i] = A[i];
       g.putImageData(d, 0, 0);
       return c;
     } catch { return img; }
@@ -214,6 +210,14 @@ export function createChartView(deps) {
     fishCache.set(id, c);
     return c;
   }
+  // the Chart's still part, drawn once and kept (chart-draw.js drawChart: the vellum, the first sheet, each water's sheet and lake):
+  // one frame's worth only (at DPR 3 a phone's is about 8 MB), drawn again on a resize
+  const baseCache = {
+    map: new Map(),
+    get(k) { return this.map.get(k) || null; },
+    set(k, c) { this.map.clear(); this.map.set(k, c); },
+    canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; },
+  };
   const geoCache = new Map();
   const geometry = (id) => { if (!geoCache.has(id)) geoCache.set(id, waterGeometry(D(), id)); return geoCache.get(id); };
 
@@ -285,21 +289,16 @@ export function createChartView(deps) {
         water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),
         ink: { sheet: sheetK, places: placeK }, fmtWeight: (w) => (typeof D()?.fmtWeight === 'function' ? D().fmtWeight(w) : ''),   // (pounds: data.fmtWeight, never a bare figure)
-        fishGlyph, vignettes: SHIPPED_VIGNETTES, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon', book: D()?.TEXT_LOOP?.jetty?.journal || 'Journal' }, paperImage: S.art?.paper?.image || null,
+        fishGlyph, vignettes: SHIPPED_VIGNETTES, cache: baseCache, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon', book: D()?.TEXT_LOOP?.jetty?.journal || 'Journal' }, paperImage: S.art?.paper?.image || null,
         measure: (text, font) => { g.save(); g.font = font; const x = g.measureText(text).width; g.restore(); return x; },
       };
       let L;
       try { L = drawChart(g, m, S.art, view, t); } catch (e) { S.paintErr = String(e?.stack || e); report('chart.paint', e); return null; }
-      // (debug builds, ctx.debug.loop.chart('time'): the paint's own call, and the same frame drawn again on a CPU canvas of the same
-      // size with one pixel read back, so the time is the raster's and never waits on the GPU process's queue of 3D frames)
+      // (debug builds, ctx.debug.loop.chart('time'): the paint's own call, and the open's render to its first paint; the raster alone
+      // is timed by tools/chart-time.mjs, away from the 3D frames a shared software-GL box queues in front of every canvas readback)
       if (S.timing) {
-        const r1 = (v) => Math.round(v * 10) / 10, rec = { recordMs: r1(now() - t0), cpuMs: null, inking: sheetK < 1 || Object.values(placeK).some((v) => v < 1), w, h: hh, dpr };
-        try {
-          const off = document.createElement('canvas'); off.width = cv.width; off.height = cv.height;
-          const g2 = off.getContext('2d', { willReadFrequently: true }), t1 = now();
-          drawChart(g2, m, S.art, view, t); g2.getImageData(0, 0, 1, 1); rec.cpuMs = r1(now() - t1);
-        } catch { /* ignore */ }
-        S.timing.paints.push(rec);
+        const r1 = (v) => Math.round(v * 10) / 10;
+        S.timing.paints.push({ ms: r1(now() - t0), w, h: hh, dpr });
         if (S.timing.paints.length === 1) S.timing.openToPaint = r1(now() - S.timing.opened);
       }
       S.lastLayout = L; S.lastCanvas = cv; S.draws++;

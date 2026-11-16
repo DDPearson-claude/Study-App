@@ -138,6 +138,23 @@ section('the phone: every word at 16 px or more (M1.md §2.12); a short phone ke
   ok(/font: `400 \$\{Math\.max\(17, /.test(src('src/ui-chart.js')) && /CHART_FONTS\.figure/.test(src('src/ui-chart.js')), 'the sealed card\'s catch count: at least 17 px, in the Chart\'s figures');
 }
 
+section('the kept base (M1.md §2.14: a redraw ≤ 16 ms; tools/chart-time.mjs times it in a browser)');
+{
+  const made = [];
+  const cache = { map: new Map(), get(k) { return this.map.get(k) || null; }, set(k, c) { this.map.clear(); this.map.set(k, c); }, canvas(w, h) { const c = { width: w, height: h, getContext: () => fakeCtx() }; made.push(c); return c; } };
+  const v = (w, h, ink) => ({ ...viewFor(w, h), cache, ...(ink ? { ink } : {}) });
+  const a = CD.drawChart(fakeCtx(), modelFor('later'), art, v(354, 432), 0);
+  const b = CD.drawChart(fakeCtx(), modelFor('later', { pick: { water: 'mossmere', place: 'under_the_span' } }), art, v(354, 432), 0);
+  ok(made.length === 1 && made[0].width === 354 && made[0].height === 432, 'the still part is drawn once and laid down again for a redraw (a place chosen)', made.length);
+  ok(a.texts.every((t) => b.texts.includes(t)) && b.texts.length === a.texts.length + 1, 'the redraw letters every word again, and the chosen place\'s best fish', [a.texts, b.texts]);
+  CD.drawChart(fakeCtx(), modelFor('none', { tutorial: true }), art, v(354, 432, { sheet: 0.5, places: {} }), 0);
+  ok(made.length === 1, 'an ink-in frame of the first sheet is drawn whole (nothing kept while it inks in)');
+  CD.drawChart(fakeCtx(), modelFor('later'), art, v(354, 612), 0);
+  ok(made.length === 2 && cache.map.size === 1, 'a new size draws the still part again and keeps only it (one frame of memory)');
+  CD.drawChart(fakeCtx(), modelFor('none', { tutorial: true }), art, v(354, 612), 0);
+  ok(made.length === 3, 'the tutorial\'s Chart (no wisp on the first sheet) is a still part of its own');
+}
+
 section('nothing unowned drawn; few words; no percentage');
 {
   const tut = draw(modelFor('none', { tutorial: true }), 378, 576);

@@ -15,9 +15,8 @@
 // card has no price and no buy button; the bare-paper test on the later sheet's ground; the hold's slots and Sail as T65 has them,
 // under the sheet and never on it; on a phone every word at 16 px or more; the chosen place checked again on every open (the
 // three-cards Chart, whose earlier choice is now a blot, chooses open water). The tutorial's ink-in is held half way for its shot
-// (ctx.debug.loop.chart('ink', 0.5)). The Chart's own paint is timed (ctx.debug.loop.chart('time'): the frame drawn again on a CPU
-// canvas and read back, so the figure is the Chart's raster and not the GPU process's queue of software-GL 3D frames; M1.md §2.14:
-// first paint ≤ 150 ms, a redraw ≤ 16 ms), reported, and advisory on this shared box: the gate on real phones is step 6's.
+// (ctx.debug.loop.chart('ink', 0.5)). The paint's own call is reported (ctx.debug.loop.chart('time')); M1.md §2.14's lines (first
+// paint ≤ 150 ms, a redraw ≤ 16 ms) are read by tools/chart-time.mjs, which times the Chart alone, and on real phones in step 6.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -36,7 +35,6 @@ const veil = JSON.parse(fs.readFileSync(path.join(root, 'tools/tests/fixtures/ch
 const fails = [], times = {};
 const log = (...a) => console.log(...a);
 const check = (ok, what, extra) => { log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}${!ok && extra !== undefined ? ` :: ${JSON.stringify(extra)}` : ''}`); if (!ok) fails.push(what); return ok; };
-const advise = (ok, what) => log(`  ${ok ? 'ok  ' : 'over'} ${what}${ok ? '' : ' (advisory on this shared box; step 6 reads it on the real phones)'}`);
 const VIEW = { desk: { vp: { width: 960, height: 540 }, dpr: 2 }, phone: { vp: { width: 390, height: 844 }, dpr: 2 }, short: { vp: { width: 390, height: 664 }, dpr: 3 } };
 
 async function run(kind) {
@@ -84,7 +82,7 @@ async function run(kind) {
   await g(() => window.__gw.debug.loop.chart('ink', null));
   await wait(2200);
   const tt = await g(() => window.__gw.debug.loop.chart('time'));
-  times[kind] = { tutorial: { openToPaint: tt.openToPaint, first: tt.paints[0]?.cpuMs, record: tt.paints[0]?.recordMs, paints: tt.paints.length } };
+  times[kind] = { tutorial: { openToPaint: tt.openToPaint, first: tt.paints[0]?.ms, paints: tt.paints.length } };
   await until(() => !document.querySelector('[data-loop=chart] .gw-slot.gw-ink') || [...document.querySelectorAll('[data-loop=chart] .gw-slot')].every((c) => getComputedStyle(c).opacity > 0.95), null, 60000);
   // the sheet, the hold's slots and Sail: the slots and Sail under the sheet, never on it; nothing past the screen's edge
   const frame = () => g(() => {
@@ -123,7 +121,7 @@ async function run(kind) {
   await until((n) => window.__gw.debug.loop.chart().draws > n, drawn, 120000);   // (this open's own paint, not the last open's layout)
   await wait(1600);
   const tl = await g(() => window.__gw.debug.loop.chart('time'));
-  times[kind].later = { openToPaint: tl.openToPaint, first: tl.paints[0]?.cpuMs, record: tl.paints[0]?.recordMs };
+  times[kind].later = { openToPaint: tl.openToPaint, first: tl.paints[0]?.ms };
   const f2 = await frame();
   check(f2 && f2.below && !f2.hScroll, `${kind}: a later Chart: the slots and Sail under the sheet; no sideways scroll`, f2);
   if (phone) { const px = (f) => parseFloat(/(\d+(?:\.\d+)?)px/.exec(f)?.[1] || 0); check(f2.fonts.length >= 4 && f2.fonts.every((f) => px(f) >= 16), `${kind}: every word on the phone's Chart at 16 px or more (M1.md §2.12)`, f2.fonts); }
@@ -150,8 +148,7 @@ async function run(kind) {
   const pk = await g(() => ({ pick: window.__gw.state.meta.loop.chartPick, pressed: document.querySelector('[data-place=under_the_span]')?.getAttribute('aria-pressed'), focus: document.activeElement?.dataset?.place || null }));
   check(pk.pick?.place === 'under_the_span' && pk.pressed === 'true', `${kind}: the chosen place (chartPick, aria-pressed)`, pk);
   const tp = await g(() => window.__gw.debug.loop.chart('time'));
-  times[kind].redraw = tp.paints[tp.paints.length - 1]?.cpuMs;
-  times[kind].redrawRecord = tp.paints[tp.paints.length - 1]?.recordMs;
+  times[kind].redraw = tp.paints[tp.paints.length - 1]?.ms;
   await shot('4-chosen');
 
   // ---- the sealed sheet's card: the wax, three seals, "Coming soon"; no price and no buy button
@@ -198,14 +195,10 @@ async function run(kind) {
 }
 
 for (const kind of ['desk', 'phone', 'short']) if (!args.only || String(args.only).split(',').includes(kind)) await run(kind);
-// the Chart's own paint (M1.md §2.14): drawChart rastered on a CPU canvas of the frame's size at each viewport's DPR, one pixel read
-// back (the onscreen call's recording time beside it); the open's render to its first paint waits on the next 3D frame here
-log('\nthe Chart\'s paint, ms (drawChart rastered on a CPU canvas at the frame\'s size, read back; the onscreen call\'s own time in brackets):');
-for (const [kind, t] of Object.entries(times)) {
-  log(`  ${kind} (${VIEW[kind].vp.width} x ${VIEW[kind].vp.height}, DPR ${VIEW[kind].dpr}): tutorial first paint ${t.tutorial?.first} [${t.tutorial?.record}], later first paint ${t.later?.first} [${t.later?.record}], a redraw (a place chosen) ${t.redraw} [${t.redrawRecord}]; the open's render to its first paint ${t.tutorial?.openToPaint} and ${t.later?.openToPaint} (a 3D frame of this software-GL box between)`);
-  advise(Math.max(t.tutorial?.first ?? 0, t.later?.first ?? 0) <= 150, `${kind}: the first paint ≤ 150 ms`);
-  advise((t.redraw ?? 0) <= 16, `${kind}: a redraw ≤ 16 ms`);
-}
+// the Chart's paint in the game page (M1.md §2.14), reported only: on a shared software-GL box every canvas call that syncs with the GPU
+// process waits behind the 3D frames, so the gate's figures come from tools/chart-time.mjs, which times the Chart's raster alone
+log('\nthe Chart\'s paint in the game page, ms (the paint call; the open\'s render to its first paint): reported only, see tools/chart-time.mjs');
+for (const [kind, t] of Object.entries(times)) log(`  ${kind} (${VIEW[kind].vp.width} x ${VIEW[kind].vp.height}, DPR ${VIEW[kind].dpr}): tutorial ${t.tutorial?.first} (${t.tutorial?.openToPaint}), later ${t.later?.first} (${t.later?.openToPaint}), a redraw (a place chosen) ${t.redraw}`);
 fs.writeFileSync(path.join(out, 'chart-times.json'), JSON.stringify(times, null, 1));
 log(fails.length ? `\n${fails.length} check(s) failed` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

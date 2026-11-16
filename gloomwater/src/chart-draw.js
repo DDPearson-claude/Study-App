@@ -1012,6 +1012,37 @@ export function drawChart(ctx, model, art, view, t = 0) {
   const inkSheet = view.ink?.sheet == null ? 1 : ease(clamp(view.ink.sheet, 0, 1));
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, Wd, Ht);
+  // ---- what stands still (the vellum, the first sheet, each water's sheet and its lake) is drawn once and kept (view.cache, the
+  // game's: M1.md §2.14, a redraw ≤ 16 ms); what a choice or a purchase changes is drawn over it on every paint
+  const cache = inkSheet >= 1 && !view.layers && view.cache ? view.cache : null;
+  const key = cache ? baseKey(L, model, art, view, dpr) : null;
+  let base = cache ? cache.get(key) : null;
+  if (!base && cache) {
+    base = cache.canvas(Math.round(Wd * dpr), Math.round(Ht * dpr));
+    const g = base.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawBase(g, L, model, art, view, dpr, F, inkSheet, t);
+    cache.set(key, base);
+  }
+  if (base) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(base, 0, 0); ctx.restore(); }
+  else drawBase(ctx, L, model, art, view, dpr, F, inkSheet, t);
+  for (const card of L.cards) drawCardTop(ctx, L, card, model, view, dpr, F, inkSheet);
+  // ---- the next water: a wisp from the owned road to the rolled, sealed sheet; its three seals; "Coming soon"
+  if (L.sealed) drawSealed(ctx, L, model, view, dpr, F, inkSheet);
+  return L;
+}
+/** What the kept base depends on: the frame's size and the layout's sheets, the art, what the first sheet shows of the model. */
+function baseKey(L, model, art, view, dpr) {
+  const r = (v) => Math.round(v * 10) / 10, c = L.cont;
+  return JSON.stringify([dpr, L.w, L.h, [c.x, c.y, c.w, c.h].map(r), L.cards.map((k) => [k.waterId, k.x, k.y, k.w, k.h, k.lake.s].map((v) => (typeof v === 'number' ? r(v) : v))),
+    L.sealed?.trail ? [L.sealed.trail.from, L.sealed.trail.to, L.sealed.trail.under].flat().map((v) => (v == null ? null : r(v))) : null,
+    !!(model?.tutorial || !model?.next), (model?.sheets || []).map((s) => [s.waterId, s.gilded === true]), (art?.sheets || []).map((s) => s.hash || s.n), !!art?.paper?.image, !!view.paperImage]);
+}
+
+/** The still part of the Chart: the vellum, the first sheet with its road, marks and stones, the wisp's trail under the water's sheet,
+ *  and each water's sheet with its lake. */
+function drawBase(ctx, L, model, art, view, dpr, F, inkSheet, t) {
+  const Wd = L.w, Ht = L.h;
   // ---- the vellum the sheets are laid on
   ctx.save();
   ctx.shadowColor = 'rgba(4,2,12,.55)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4;
@@ -1019,9 +1050,9 @@ export function drawChart(ctx, model, art, view, t = 0) {
   ctx.restore();
   ctx.save(); deckle(ctx, 3, 3, Wd - 6, Ht - 6, 7, 1.6); ctx.clip();
   const paper = art?.paper?.image;
-  if (paper) { // the bake's own paper, laid over the whole vellum (its mottle is slow: stretching it never shows)
+  if (paper) { // the bake's own paper, laid over the whole vellum (blurred once at its own size: its mottle is slow, its blocks gone)
     const iw = paper.width, ih = paper.height, sc = Math.max(Wd / iw, Ht / ih);
-    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'low';   // (already soft: the plain filter is enough, and cheap)
     ctx.drawImage(paper, (Wd - iw * sc) / 2, (Ht - ih * sc) / 2, iw * sc, ih * sc);
   }
   // a soft lavender wash, deepest at the top (WORLD.md §10: deepest over the north and over unknown paper)
@@ -1064,16 +1095,11 @@ export function drawChart(ctx, model, art, view, t = 0) {
 
   // ---- each owned water's own sheet, pinned beside its true place with a short ink stroke (the wisp's trail laid under it)
   if (L.sealed) { ctx.save(); ctx.globalAlpha = inkSheet; drawTrail(ctx, L, 'under'); ctx.restore(); }
-  for (const card of L.cards) drawWaterCard(ctx, L, card, model, view, dpr, F, inkSheet, t);
-  // ---- the next water: a wisp from the owned road to the rolled, sealed sheet; its three seals; "Coming soon"
-  if (L.sealed) drawSealed(ctx, L, model, view, dpr, F, inkSheet);
-  return L;
+  for (const card of L.cards) drawCardBase(ctx, L, card, view, inkSheet, t);
 }
 
-function drawWaterCard(ctx, L, card, model, view, dpr, F, a, t) {
-  const sheet = (model?.sheets || []).find((s) => s.waterId === card.waterId) || {};
+function drawCardBase(ctx, L, card, view, a, t) {
   const geo = view.water?.[card.waterId] || null;
-  const lake = card.lake;
   ctx.save(); ctx.globalAlpha = a;
   // the pin's short ink stroke, from the water's mark on the first sheet to its own sheet
   if (card.pin) {
@@ -1089,7 +1115,15 @@ function drawWaterCard(ctx, L, card, model, view, dpr, F, a, t) {
   if (paper) { ctx.globalAlpha = a * 0.55; ctx.drawImage(paper, card.x, card.y, card.w, card.h); ctx.globalAlpha = a; }
   ctx.strokeStyle = ink(0.45); ctx.lineWidth = 0.8; ctx.strokeRect(card.x + 5.5, card.y + 5.5, card.w - 11, card.h - 11); // the surveyors' fine neatline
   if (card.pin) { const q = card.pin.to; ctx.beginPath(); ctx.arc(q[0], q[1], 2.6, 0, 6.3); ctx.fillStyle = 'rgb(150,108,60)'; ctx.fill(); ctx.strokeStyle = ink(0.8); ctx.lineWidth = 0.8; ctx.stroke(); }
-  if (geo) drawLake(ctx, lake, geo, t);
+  if (geo) drawLake(ctx, card.lake, geo, t);
+  ctx.restore();
+  ctx.restore();
+}
+/** What a choice or a purchase changes on a water's sheet: its name (underlined when its open water is chosen), the catalogue's book,
+ *  its places (their ink-in, their words, the chosen one underlined). */
+function drawCardTop(ctx, L, card, model, view, dpr, F, a) {
+  ctx.save(); ctx.globalAlpha = a;
+  deckle(ctx, card.x, card.y, card.w, card.h, 3, 1.4); ctx.clip();
   // the water's name and the catalogue's book beside it (SPEC §8.8: no word)
   const pick = model?.pick || {};
   const nw = letter(ctx, L, card.name.text, card.name.x, card.name.y, card.name.font, { align: 'left', dpr, reserve: 0.7 });
@@ -1097,7 +1131,6 @@ function drawWaterCard(ctx, L, card, model, view, dpr, F, a, t) {
   if (card.book) bookGlyph(ctx, card.book.x, card.book.y, card.book.s);
   // the places
   for (const A of L.places) drawPlace(ctx, L, A, pick, view, dpr, F, a);
-  ctx.restore();
   ctx.restore();
 }
 const underline = (ctx, x, y, w) => { // the chosen word underlined in ink, as a pen would: a little uneven
