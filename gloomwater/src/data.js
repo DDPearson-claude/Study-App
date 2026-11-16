@@ -4946,6 +4946,10 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
     hurry: 'From your second evening, hold anywhere to hurry a small fish in. It never changes the outcome' },
   forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm: 'Every clam, every piece of gear and every name in the Journal will be lost.' },
 };   // no tagline: §8.5 gives none, so the loop's title draws none (the lead's ruling, PLAN §7.2)
+// >>> MVP teach (the user's play-test, 16 November 2026: "add a one-time teaching moment for both"): the float's two marks, each
+// explained once by an ink caption with a leader to it (src/ui-teach.js; ≤ 6 words, no number). The quiet water is Murk's firstQuiet.
+TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
+// <<< MVP teach
 
 // >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
 // Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; LOOP and TEXT_LOOP are not in the v3
