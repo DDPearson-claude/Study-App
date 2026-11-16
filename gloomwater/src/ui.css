@@ -2584,7 +2584,11 @@
    gaps, names wrapping to two lines and never truncated, the foot's two buttons ≥ 56 px above --sab */
 @media (max-width: 480px) {
   .gw-m-newdescent:has(.gw-loop-descent) { align-items: flex-end; padding-bottom: max(12px, var(--sab)); }
-  .gw-loop-descent { width: calc(100vw - 32px); max-height: calc(66vh); padding: 12px 0 40px; }
+  /* (the user, 16 Nov, on a phone in the app: "The wicks need moved up so the text does not overlap": the panel takes the height it
+     needs, anchored at the foot, so the cards ride up and the lit Wick's block sits clear above Back and Start; never capped at 66vh,
+     which let the block spill over the foot) */
+  .gw-loop-descent { width: calc(100vw - 32px); max-height: none; padding: 8px 0 max(14px, var(--sab)); }
+  .gw-loop-descent .gw-loop-passive { margin-bottom: 6px; }
   .gw-loop-descent .gw-pc { overflow: visible; }
   .gw-loop-chars { display: grid; grid-template-columns: repeat(6, 46px); gap: 12px; justify-content: center; }   /* 3 × 104 + 2 × 12 = 336 */
   .gw-loop-chars .gw-char { grid-column: span 2; width: 104px; min-height: 0; padding: 4px 2px 16px; gap: 4px; }
@@ -2597,6 +2601,12 @@
   .gw-loop-passive::before { inset: -8px -16px; }
   .gw-loop-descent .gw-pf { display: grid; grid-template-columns: 1fr 1.6fr; gap: 0 8px; margin-top: 14px; }
   .gw-loop-descent .gw-pf .gw-btn { min-height: 56px; padding: 0 .6em; }
+}
+/* a short phone (a window under ~600 px tall): the panel fills the height and its cards scroll, so the foot is never covered */
+@media (max-width: 480px) and (max-height: 600px) {
+  .gw-loop-descent { max-height: calc(100vh - 12px); max-height: calc(100dvh - 12px); display: flex; flex-direction: column; }
+  .gw-loop-descent .gw-pc { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-top: 6px; }
+  .gw-loop-descent .gw-pf { flex: none; }
 }
 /* ---------------------------------------------------------------- M1 step 3a (lane C): the places, giants and legend on the screens.
    Every rule under .gw-loop-on (or a HUD .gw-loop rule): the list Chart's place rows, the bait slot (either Chart's foot), the shelf's
