@@ -457,6 +457,9 @@ export function allowedWords(D) {
   const tips = D?.FIRST_EVENING?.tips || {};
   walk(tips.fe_cast); walk(tips.fe_strike);
   out.add(D?.INTRO?.trigger?.replay?.word || 'Prologue');
+  // M1 step 3a (T143): the places' names (an owned place's row, its catalogue heading, the lift's title card) and a legend's bait
+  for (const id of Object.keys(isObj(D?.LOOP?.places) ? D.LOOP.places : {})) { const n = typeof D?.loopPlace === 'function' ? D.loopPlace(id)?.name : null; if (n) out.add(n); }
+  for (const lb of Object.values(isObj(D?.LOOP?.legendBait) ? D.LOOP.legendBait : {})) { const n = arr(D?.BAITS).find((b) => b?.id === lb?.id)?.name; if (n) out.add(n); }
   for (const k of ['A new personal best', 'A new name for the journal', 'Old Ledger beaten', 'Written in the Elder Log', 'A new record for this place', 'length']) out.add(k);
   return out;
 }
@@ -471,10 +474,13 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/descent/i.test(t)) return t === (T_(D).newDescent || 'New Descent') && (screen === 'title' || screen === 'newdescent');
   if (/shells?|memories/i.test(t)) return false;
   if (W.has(t)) return true;
-  if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★') return true;
+  if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★' || t === '· · ·') return true;
   if (CM_RE.test(t)) return screen === 'catch';
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
   if (/^Evening \d+$/.test(t)) return true;
+  // M1 step 3a: a list's count ("7/12", SPEC §8), and a giant's or the legend's name after its ★
+  if (/^\d+\/\d+$/.test(t)) return true;
+  if (/^★ /.test(t) && W.has(t.slice(2))) return true;
   // the goal line: "Next: {name} · {price}" with a known name (a hold step or a shelf item) and a number
   const m = /^Next: (.+) · (.+)$/.exec(t);
   if (m && NUM_RE.test(m[2]) && (W.has(m[1]) || /^Hold \d+$/.test(m[1]))) return true;
