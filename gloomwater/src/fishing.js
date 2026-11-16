@@ -107,6 +107,7 @@ import { planPlay, chooseLoss, applyLoss, partPlan, presentAt, drawStrike } from
 import { createFishingFx, MAX_SLOTS } from './fishing-fx.js';
 import { KIND_ID, PREROLLED, aliveRange, maxAlive, pickKind, signTtl, createSign, stepSign, bestRule, kindRules } from './fishing-signs.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
+import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
@@ -175,7 +176,7 @@ export function create(ctx) {
     extShift: new THREE.Vector3(), lastRaft: new THREE.Vector3(), lastRaftOk: false, snags: [],
     // v3 visual half: signs (F6), the ceremony (F5), the leap reveal (F3)
     signs: [], signTimers: [], signDesired: 3, signRng: null, prerolls: new Map(), chumArmed: false, signHit: null,
-    prerollSp: null, prerollZ: null, prerollSign: null, prerollTook: false, handles: [], handleSeq: 0,
+    prerollSp: null, prerollZ: null, prerollSign: null, prerollTook: false, handles: [], handleSeq: 0, lastOdds: null,   // (lastOdds: WC-1's last castOdds, debug)
     show: null, exitT: 0, exitAction: null, catchShown: false, forceSwarm: null, rimT: 0,   // the show (AUTOFISH.show): its record from T0 to the card; the exit gesture after the card
     // automatic fishing (F4′, F2′): the loadout on the line at the cast, the strike, the roll (memory only: never on the view, an
     // event or the save), the plan and its playback, the reveal, the loss
@@ -410,17 +411,52 @@ export function create(ctx) {
   /** A legend's bait (the Heartmoss Ball): on the line it is a bare hook to every fish but hers (PLAN CHOICE 5). */
   const legendBaitId = (id) => !!id && !!baitById(id)?.legend;
   /** data.placePool (the sim's pool rule) for this trip's water: at a place (null: open water), in this light, on this bait; or null. */
-  function loopPool(baitId, phase, placeId) {
+  function placePoolNow(baitId, phase, placeId) {
     const f = D().placePool;
     if (typeof f !== 'function') return null;
-    let pp = null;
-    try { pp = f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(baitId) ? null : (baitId ?? null), wickId: wickId(), water: lakeId() }) || null; } catch (e) { report(e); return null; }
+    try { return f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(baitId) ? null : (baitId ?? null), wickId: wickId(), water: lakeId() }) || null; } catch (e) { report(e); return null; }
+  }
+  // >>> WC-1 (docs/loop/WATERCRAFT.md §4, CONTRACT §14 "Watercraft"): on the Mossmere under the loop the pool is watercraft's: the area
+  // in open water (or the hour tilt in a place) and the hook table, and a cast is drawn once from watercraft.castOdds
+  const wcOn = () => LOOP() && lakeId() === 'mossmere';
+  const fittedLure = () => (typeof run()?.lure === 'string' ? run().lure : null);
+  /**
+   * The pool on a trip (or null). opts {area, hook}: on the Mossmere, hook: false is "who is there" (§4 steps 3–5: the area or the tilt,
+   * no hook; WC-2's honest spawning and the silhouettes' pick); else "what this hook brings" (steps 3–6, the fitted lure and `baitId`).
+   * `area` is the water's area (areaAt's) in open water; omitted, none (the hour tilt alone). The list's weights are the step's; `entries`
+   * carries each one's grade. Every other water keeps LANE 4's family lure (src/loop-gear.js lurePool).
+   */
+  function loopPool(baitId, phase, placeId, opts = {}) {
+    let pp = placePoolNow(baitId, phase, placeId);
+    if (!pp) return null;
+    const lure = fittedLure();
+    if (wcOn()) {
+      const hook = opts?.hook !== false, area = pp.place ? null : (opts?.area ?? null);
+      let es;
+      try { es = hookWeights(pp.list, { area, place: pp.place, phase, lure: hook ? lure : null, bait: legendBaitId(baitId) ? null : (baitId ?? null), hook }); } catch (e) { report(e); return pp; }
+      const list = es.map((e) => [e.sp, e.w]), rest = list.reduce((a, [, w]) => a + w, 0);
+      const giant = pp.giant ? { ...pp.giant, weight: rest > 0 && pp.giant.share < 1 ? rest * pp.giant.share / (1 - pp.giant.share) : 0 } : null;
+      return { ...pp, list, giant, tot: rest + (giant ? giant.weight : 0), entries: es, area, hook };
+    }
     // M1 step 4 (lane 4, SPEC §4.4): the fitted lure draws its family (×its built attract), or the fish its giants' lure names and its
-    // giants' share (×1.5); a family lure never draws a giant (src/loop-gear.js lurePool, the sim's poolFor)
-    const lure = typeof run()?.lure === 'string' ? run().lure : null;
-    if (pp && lure) { try { pp = lurePool(D(), pp, { lure, phase, wickId: wickId() }); } catch (e) { report(e); } }
+    // giants' share (×1.5); a family lure never draws a giant (src/loop-gear.js lurePool, the sim's poolFor) — every water but the Mossmere
+    if (lure) { try { pp = lurePool(D(), pp, { lure, phase, wickId: wickId() }); } catch (e) { report(e); } }
     return pp;
   }
+  /** The area of an open-water point on the Mossmere (watercraft.areaAt, with the world's probe, arena, docks, hulls and this evening's
+   *  lane), or null (another water, no world, not water). */
+  function castArea(x, z) {
+    if (!wcOn()) return null;
+    try {
+      const w = ctx.world;
+      if (typeof w?.getDepth !== 'function' || typeof w?.getShoreRadius !== 'function') return null;
+      let hulls = null, docks = null;
+      try { hulls = w.getMooring?.()?.circles ?? null; } catch { /* optional */ }
+      try { docks = w.getDocks?.() ?? null; } catch { /* optional */ }
+      return areaAt(x, z, probeOf(w), { lane: laneFor(num(run()?.evening, 1), phaseNow()), arena: zoneData()?.arena || null, hulls, docks });
+    } catch (e) { report(e); return null; }
+  }
+  // <<< WC-1
   /** Her pool on a trip (PLAN CHOICE 4): the cast is in the owned, lifted place whose legend she is (the Bell Pool's whole water). */
   function loopLegendWater(lg) {
     const p = S.cast?.place;
@@ -621,8 +657,10 @@ export function create(ctx) {
   function castInfo(x, z, depth, baitId = S.castBait, clean = !!S.clean) {
     const w = waterInfo(x, z);
     if (LOOP() && legendBaitId(baitId)) baitId = null;   // M1 step 3a: the ball is a bare hook to every fish but her (no bait favour)
-    return { x, z, depth, ...w, baitId, clean, lure: equippedLure(), sign: null, letPass: 0,
+    const out = { x, z, depth, ...w, baitId, clean, lure: equippedLure(), sign: null, letPass: 0,
       phase: phaseNow(), condition: condition(), rumour: todaysRumour() };
+    if (LOOP()) out.area = out.place || out.mist ? null : castArea(x, z);   // WC-1: the open water's area (S.cast.area), none in a place or the mist
+    return out;
   }
   function refreshInfo(info) { info.phase = phaseNow(); info.condition = condition(); info.rumour = todaysRumour(); return info; }
   /** favourAt (CONTRACT §13.7): with a species its full μ (the roll); without, the float's μ. */
@@ -1047,7 +1085,8 @@ export function create(ctx) {
    * giant's weight last from its fixed share of that rest (its offHour share outside its hours), so the share stays exact. One draw.
    * undefined when this data has no placePool (the built roll).
    */
-  function rollSpeciesLoop(rb, baitId, famMult, rng) {
+  function rollSpeciesLoop(rb, baitId, famMult, rng, cast = null) {
+    if (wcOn()) return rollCastWC(rb, baitId, rng, cast);   // WC-1: the Mossmere's one draw over castOdds
     const pp = loopPool(baitId, phaseNow(), S.cast?.place?.id ?? null);
     if (!pp) return undefined;
     const pool = pp.list.map(([s]) => s);
@@ -1069,6 +1108,31 @@ export function create(ctx) {
     for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
     return pool[pool.length - 1];
   }
+  // >>> WC-1 (WATERCRAFT.md §4): the cast's whole distribution (watercraft.castOdds: the comeback, the pre-rolled fish, the pool with its
+  // area, hook, rarity bonus, the tell's tilt, Taper's first bite, the giant and the strays' cap), drawn ONCE with the seeded rng; the
+  // drawn entry sets the per-cast marks (a comeback's S.comeback, a pre-roll's S.prerollSp/Z/Took, Taper's S.taperRule). cast = {rule,
+  // preroll: {sp, z, base}, comeback: {sp, z}} (rollBite's; none for a plain draw). → the species, or null (nothing bites).
+  function castOddsNow(rb, baitId, cast = null) {
+    const phase = phaseNow(), pp = placePoolNow(baitId, phase, S.cast?.place?.id ?? null);
+    if (!pp) return null;
+    return castOdds(D(), { pool: pp, area: pp.place ? null : (S.cast?.area ?? null), phase, lure: fittedLure(), bait: legendBaitId(baitId) ? null : (baitId ?? null),
+      wickId: wickId(), rb, rule: cast?.rule ?? null, taperFirst: taperOpen(), preroll: cast?.preroll ?? null, comeback: cast?.comeback ?? null });
+  }
+  function rollCastWC(rb, baitId, rng, cast = null) {
+    const odds = castOddsNow(rb, baitId, cast);
+    S.lastOdds = odds;
+    const e = odds ? drawOdds(odds, rng()) : null;
+    if (!e) return null;
+    S.taperRule = !!odds.taper && e.from !== 'comeback';
+    if (e.from === 'comeback') {
+      S.prerollSp = e.sp; S.prerollZ = Number(e.z); S.prerollSign = null; S.prerollTook = false;
+      S.comeback = { speciesId: e.sp.id, z: Number(e.z), waterKey: S.cast?.waterKey ?? null };
+    } else if (e.from === 'preroll') {
+      S.prerollSp = e.sp; S.prerollZ = e.z; S.prerollSign = S.signHit?.sign ?? null; S.prerollTook = true;
+    }
+    return e.sp;
+  }
+  // <<< WC-1
   function rollSpecies(depth, rb, baitId, famMult = null, rng = Math.random, trip = false) {
     if (LOOP()) { const sp = rollSpeciesLoop(rb, baitId, famMult, rng); if (sp !== undefined) return sp; }
     const phase = phaseNow();
@@ -1126,10 +1190,21 @@ export function create(ctx) {
       const rb = num(st.rarityBonus, 0) + baitBonus(baitId, 'rarityBonus')
         + (S.spot ? (S.rareSpot ? num(SP.rareRarity, 0.25) : num(SP.rarity, 0.1)) : 0)
         + (S.clean ? num(C.cleanRarity, 0.05) : 0) + (isPity ? num(Bt.pity?.rarity, 0.1) : 0);
+      const trip = LOOP();
+      if (trip && wcOn()) {
+        // WC-1 (WATERCRAFT.md §4): the Mossmere: the pre-roll's take and Ashwick's comeback are entries of castOdds (the bait-only gate and
+        // Taper's refusal of a pre-rolled common inside), the tell's makers tilt with F17 judged on the takers; one seeded draw
+        const pre = rule?.preroll && S.signHit?.sign ? S.prerolls.get(S.signHit.sign.id) : null;
+        const preroll = pre?.sp && timeOk(pre.sp, phase) ? { sp: pre.sp, z: pre.z, base: num(pre.base, num(rule.preroll.chance, 1)) } : null;
+        let cb = null;
+        try { cb = loopApi()?.comeback?.(S.cast?.waterKey); } catch (e) { report(e); }
+        const csp = cb && typeof cb === 'object' ? speciesById(cb.speciesId) : null;
+        const comeback = csp && csp.rarity !== 'legendary' && Number.isFinite(Number(cb.z)) ? { sp: csp, z: Number(cb.z) } : null;
+        sp = rollSpeciesLoop(rb, baitId, null, rnd, { rule: rule && !rule.spook ? rule : null, preroll, comeback });
+      } else {
       let fam = rule && !rule.spook && (rule.predators || rule.bottom) ? { predator: rule.predators || 1, bottom: rule.bottom || 1 } : null;
       // the sign rule (F17): a tilt that would name a fish (< 2 species, or one above 80%) is dropped here: the blind pool bites
       if (fam && afOn() && !signTiltOk(speciesPool(S.depth, baitId, phase), (q) => fam[q.family] || 1)) fam = null;
-      const trip = LOOP();
       sp = signsOn() ? rollSpecies(S.depth, rb, baitId, fam, rnd, trip) : rollSpecies(S.depth, rb, baitId);   // v3: seeded with the fight (debug fishSeed)
       // a rise / boil / glow carries a pre-rolled fish: it takes the bait (always / 60% / 70%) when the bait suits it
       const pre = rule?.preroll && S.signHit?.sign ? S.prerolls.get(S.signHit.sign.id) : null;
@@ -1146,6 +1221,7 @@ export function create(ctx) {
           sp = csp; S.prerollSp = csp; S.prerollZ = Number(cb.z); S.prerollSign = null; S.prerollTook = false; S.taperRule = false;
           S.comeback = { speciesId: csp.id, z: Number(cb.z), waterKey: S.cast?.waterKey ?? null };
         }
+      }
       }
     }
     S.species = sp;
@@ -1166,7 +1242,8 @@ export function create(ctx) {
     W = clamp(W, num(Bt.waitMin, 2), num(Bt.waitMax, 25));
     if (S.legendCast) W *= num(SP.legend?.waitMult, 0.7);
     const lead0 = afOn() ? TELL_LEAD_AF : TELL_LEAD;
-    if (rule?.waitMult && !S.legendCast) W = Math.max(lead0 + 0.5, W * rule.waitMult);   // a rise: wait × 0.5
+    if (rule?.waitMult && !S.legendCast) W = Math.max(lead0 + 0.5, W * rule.waitMult);   // an obeyed tell: × its waitMult (a rise 0.5, the others 0.65; a spook 1.5)
+    if (rule?.takeWaitMult && S.prerollTook && !S.legendCast) W = Math.max(lead0 + 0.5, W * rule.takeWaitMult);   // WC-1: a silhouette's take × 0.3
     const tut = afOn() && S.tutorial ? S.tutorial : null;   // the First Evening: its waits (never the fish, its size or the odds)
     if (tut) { const r = num(tut.casts, 1) <= 1 ? tut.biteAt : (tut.retryBiteAt || tut.biteAt); if (Array.isArray(r)) W = Math.max(lead0 + 0.3, U(r[0], r[1])); }
     S.waitDur = W;
@@ -3905,8 +3982,19 @@ export function create(ctx) {
               if (S.cast.mist) return { place: null, mist: S.cast.mist, counts: {} };
               const counts = {};
               for (let i = 0; i < Math.max(0, n | 0); i++) { const sp = rollSpecies(S.depth, num(rb, 0), bait, null, rnd, true); const k = sp?.id ?? 'none'; counts[k] = (counts[k] | 0) + 1; }
-              return { place: S.cast.place?.id ?? null, mist: null, counts };
+              // WC-1: on the Mossmere the draw is castOdds' (its shares and the cast's area beside the counts)
+              const odds = wcOn() ? castOddsNow(num(rb, 0), bait) : null, shares = odds ? {} : undefined;
+              if (odds) for (const e of odds.entries) shares[e.sp.id] = (shares[e.sp.id] || 0) + e.p;
+              return { place: S.cast.place?.id ?? null, mist: null, counts, ...(odds ? { area: S.cast.area ?? null, shares } : {}) };
             } catch (e) { report(e); return null; } finally { S.cast = prevCast; S.forcePlace = prevForce; S.taperRule = prevTaper; }
+          },
+          /** WC-1: the last cast's odds on the Mossmere (watercraft.castOdds as drawn): {area, place, S, taper, entries: [{id, p, from}]}, or null.
+           *  Debug only: odds are never on screen (the gear log's Who bites is the one place a share shows). */
+          fishOdds: () => {
+            const o = S.lastOdds;
+            if (!o) return null;
+            return { area: S.cast?.area ?? null, place: S.cast?.place?.id ?? null, S: round2(o.S), taper: !!o.taper, waited: !!o.waited,
+              entries: o.entries.map((e) => ({ id: e.sp.id, p: Math.round(e.p * 1e6) / 1e6, from: e.from })) };
           },
         });
       } else for (const k of ['fishSeed', 'fishing', 'fishSigns', 'preroll']) delete ctx.debug[k];

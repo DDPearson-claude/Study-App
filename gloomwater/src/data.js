@@ -4991,6 +4991,23 @@ TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoo
   mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip' };
 // <<< M1 step 4 (lane 4)
 
+// >>> WC-1 (docs/loop/WATERCRAFT.md rev. 2 §3.9, §8.1; SPEC v8.7 §8.11, decisions 93–104). Additive: LOOP.cost (Murk's price factor, read
+// by the sim now and applied in the game by the integrator's step P), loopCost and nice, loopLight's export, and the watercraft words.
+// None of these is in the v3 fingerprint (LOOP and TEXT_LOOP are read only under data.LOOP_ENABLED).
+LOOP.cost = { factor: 3, consumables: 1 };   // Murk's price = nice(base × factor); a consumable (a tin, a legend's bait) × consumables
+// the shelf's one line for each tin and lure (SPEC §8.11, replacing lane 4's family lines; the Spinner's as built)
+Object.assign(TEXT_LOOP.shelf, {
+  mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'Sweet. The Gloam Eel bites on nothing else.', cut_strip: 'Meat, for the hunters.',
+  feather_fly: 'For the fish that rise.', glimmer_spoon: 'Flash, for the hunters.', bone_jig: 'Hopped on the bottom, for the hunters.',
+  bell_spinner: 'For the Thousandcast Pike.',
+});
+// the gear log's words (SPEC §8.11): the Who bites block and a tin's or lure's Hold line (WC-3 renders them)
+TEXT_LOOP.log = Object.assign(TEXT_LOOP.log || {}, {
+  whoBites: 'Who bites', bare: 'Bare hook', under: '<1%', unmet: 'and {n} you have not met',
+  gear: '+{n} Hold on the fish it suits ({m} you have met).',
+});
+// <<< WC-1
+
 // ---- The loop's pure helpers (PLAN §3.1, WICKS §5). Each reads only LOOP and the built size model; the sim calls the same ones.
 /** A fish's clams (SPEC §4.1) on the built size: max(1, round(tier × rarity × body(sizeL50) × clamp(e^(perZ·z)) × classBonus ×
  *  priceFactor)). No quality, no streak, no lake normaliser. A legend returns null (she is priced by her crown, progression-loop). */
@@ -5090,6 +5107,22 @@ export function loopPlace(id) {
 export function loopPlaceIds(waterId = 'mossmere') { return Object.keys(LOOP.places || {}).filter((id) => LOOP.places[id]?.water === waterId); }
 // a game phase in the sim's words (the evening's calm is its day; a night place is a place from the gloomtide)
 const LOOP_LIGHT = { calm: 'day', dawn: 'day', day: 'day', dusk: 'dusk', gloomtide: 'night', night: 'night' };
+// >>> WC-1: the light a phase is in the sim's (and watercraft's) words, and Murk's price (WATERCRAFT.md §8.1)
+/** A game phase as the loop's light: 'day' | 'dusk' | 'night' (calm, dawn, day → day; gloomtide, night → night). */
+export function loopLight(phase) { return LOOP_LIGHT[phase] ?? 'day'; }
+/** A price made nice (WATERCRAFT.md §8.1): to 5 under 100, to 10 under 1,000, to 50 under 10,000, to 100 above. */
+export function nice(x) {
+  const v = Math.max(0, Number(x) || 0), step = v < 100 ? 5 : v < 1000 ? 10 : v < 10000 ? 50 : 100;
+  return Math.round(v / step) * step;
+}
+/** Murk's price of a base price (SPEC §4.2–§4.8, M1 §2.5): nice(base × LOOP.cost.factor); a consumable (a tin, a legend's bait)
+ *  nice(base × LOOP.cost.consumables) (its base at 1). The game applies it once, where a price is made (step P); the sim reads it now. */
+export function loopCost(base, { consumable = false } = {}) {
+  const C = LOOP.cost || { factor: 1, consumables: 1 }, b = Number(base) || 0;
+  const f = consumable ? Number(C.consumables ?? 1) : Number(C.factor ?? 1);
+  return f === 1 ? b : nice(b * f);
+}
+// <<< WC-1
 // the built species' hour words (the sim's BUILT_TIME): calm is day and dusk, gloom night, dawn day; the roster's are HOUR_WINDOWS
 const LOOP_BUILT_HOURS = { calm: ['day', 'dusk'], gloom: ['night'], dawn: ['day'] };
 /** A species' hour window in the sim's words (['day', 'dusk'], ['dusk', 'night'], ['day', 'dusk', 'night'] …): a roster `time` (a

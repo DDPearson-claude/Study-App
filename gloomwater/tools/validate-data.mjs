@@ -247,8 +247,8 @@ if (process.argv.includes('--loop')) {
       "Her. You brought me her. Sit down, I'll count it twice.", "Every fish in this water. I'll write that down."]), "T118: Murk's four new lines are SPEC §8.6's strings exactly");
     ok4([...ids.map((id) => TL.maps[id]), TL.shelf.heartmoss, TL.murk.firstMap, TL.murk.firstGiant, TL.murk.legendFirst, TL.murk.listComplete, TL.tabs.giants].every((t) => !/\d/.test(t)), 'T118: no new line carries a digit');
     const strings = []; const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) walk(x); };
-    walk(TL); walk(LP);
-    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP');
+    walk({ ...TL, log: { ...(TL.log || {}), under: '' } }); walk(LP);   // (WC-1: the gear log's "<1%" is SPEC §8.11's one share word, the log's only)
+    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP (but the gear log\'s "<1%", SPEC §8.11)');
     ok4(LP.redress === false && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
       'T118: LOOP.redress is false (no ?redress), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
     // T118: each map card's fish bites at its place (its pool there in some light: the giant's share, a drawn or own fish; the legend
