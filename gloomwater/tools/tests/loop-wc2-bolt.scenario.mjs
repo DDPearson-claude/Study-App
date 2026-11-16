@@ -1,6 +1,6 @@
 // WC-2 fix round: the frames round a cast's landing on the Mossmere under the loop at dusk (the review's "pale box round a bolting
-// silhouette"). A plain cast on open margin water, a cast on a cruising carp (it bolts), the same with the pulse rings hidden (to
-// tell the pulse quad from the bolt's wake and the silhouette's quad), and the quiet spot after. Each shot 0.35 s after the landing.
+// silhouette"). A plain cast on open margin water, a cast on a cruising carp (it bolts), the quiet spot after, the carp fizz and its
+// answer. Each landing shot 0.35 s after the landing (the pulse rings' lifetime; `pulses(false)` hides them for a comparison).
 //   node build.mjs --dev --out=tools/out/mvp-wc2-fix/dev.html
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/mvp-wc2-fix/dev.html --shots=tools/out/mvp-wc2-fix/shots --script=tools/tests/loop-wc2-bolt.scenario.mjs --width=960 --height=540
 //   (and the same with --mobile)
@@ -8,7 +8,7 @@
 import { makeKit3a, seededSave } from './loop-3a.scenario.mjs';
 import { Abort } from './loop-1a.scenario.mjs';
 
-const MARGIN = { raft: [-13, -41], fish: [-11.3, -36.3], plain: [-15.2, -36.6] };   // as loop-wc2.scenario.mjs
+const MARGIN = { raft: [-13, -41], fish: [-11.3, -36.3], plain: [-9.5, -35.9] };   // as loop-wc2.scenario.mjs (plain: open margin water in view)
 
 export default async function (api) {
   const { page, evalGame: g, log } = api;
@@ -60,21 +60,6 @@ export default async function (api) {
     K.check(d.sign?.spook === true && (await sights()).some((q) => q.mode === 'bolt'), 'it bolts; the cast keeps a spook rule', d.sign);
     await K.secs(1.2);
     await K.shoot('spot-quiet');
-    await idle();
-
-    K.step('the same with the pulse rings hidden (which mark draws round the float)');
-    await pulses(false);
-    const c2 = await sight('weeping_carp', { x: MARGIN.fish[0] - 3.2, z: MARGIN.fish[1] + 0.6, heading: -Math.PI / 2, mode: 'cruise', speed: 0.25, life: 200, size: 0.6, force: true });
-    if (c2) {
-      await K.secs(2.4);
-      f = (await sights()).find((q) => q.id === c2.id) || c2;
-      await castAt(f.x, f.z);
-      await landed();
-      await K.secs(0.35);
-      float.noPulse = await bobScr();
-      await K.shoot('carp-bolt-nopulse-035');
-    } else K.note('no second carp (quiet water)');
-    await pulses(true);
     await idle();
 
     K.step('carp fizz and its answer (froth, never pin-point glints)');
