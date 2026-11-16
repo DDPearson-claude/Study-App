@@ -189,7 +189,10 @@ export function chartNext(meta, D) {
   const zones = arr(D?.ZONES).filter((z) => z && typeof z.id === 'string').slice().sort((a, b) => num(a.index, 0) - num(b.index, 0));
   const owned = arr(ml.maps?.lakes).filter((id) => typeof id === 'string');
   if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
-  const at = Math.max(-1, ...owned.map((id) => zones.findIndex((z) => z.id === id)));
+  // the frontier is the last water the Chart draws (owned and in LOOP.waters): an old save's unshipped lake is the next sheet, its
+  // map seal pressed, never a water past it
+  const drawn = owned.filter((id) => isObj(W[id]));
+  const at = Math.max(-1, ...drawn.map((id) => zones.findIndex((z) => z.id === id)));
   const nz = zones[at + 1];
   if (!nz || at < 0) return null;
   const frontier = zones[at].id;

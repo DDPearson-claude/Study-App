@@ -61,6 +61,9 @@ section('the seam: chartModel(meta, D, opts) as M1.md §3.8 has it; next is the 
   const s2 = U.chartNext(meta, D).seals;
   ok(s2.gear.held === true && s2.catch.held === true && s2.catch.have === s2.catch.need && s2.map.held === false, 'the Ashwood bought and the list landed: the gear and catch seals pressed, the map seal still hollow (M1)', s2);
   ok(U.chartModel(freshLoopMeta(D), D, { tutorial: true }).next === null, 'the tutorial\'s Chart: next is null (no wisp, no sealed sheet)');
+  const old = freshLoopMeta(D); old.loop.maps.lakes = ['mossmere', 'sporewood'];
+  const on = U.chartNext(old, D);
+  ok(on?.waterId === 'sporewood' && on.shipped === false && on.seals.map.held === true, 'an old save that owns Sporewood\'s map: Sporewood is still the next sheet, its map seal pressed, "Coming soon"', on);
   ok(U.chartNext({ loop: { maps: { lakes: ['mossmere'] } } }, { ...D, LOOP: { ...D.LOOP, shipped: 'sporewood', waters: { ...D.LOOP.waters, sporewood: { order: 2 } } } })?.shipped === true, 'a water within LOOP.shipped is shipped (no "Coming soon")');
 }
 

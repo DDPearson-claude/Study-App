@@ -296,7 +296,7 @@ export function createChartView(deps) {
     let tries = 0;
     const go = () => { if (cv.isConnected) { try { paint(now()); } catch (e) { S.paintErr = String(e?.stack || e); report('chart.paint', e); } } else if (++tries < 120) requestAnimationFrame(go); };
     requestAnimationFrame(go);
-    if (typeof ResizeObserver === 'function') { const ro = new ResizeObserver(() => { if (!cv.isConnected) { ro.disconnect(); return; } paint(now()); }); ro.observe(sheetEl); }
+    if (typeof ResizeObserver === 'function') { st.ro?.disconnect?.(); const ro = new ResizeObserver(() => { if (!cv.isConnected) { ro.disconnect(); return; } paint(now()); }); ro.observe(sheetEl); st.ro = ro; }
     st.model = m;
     return { model: m };
   }
