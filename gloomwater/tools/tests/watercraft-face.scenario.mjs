@@ -151,9 +151,11 @@ export default async function (api) {
     await K.shoot('night-water');
     const glow = await g(() => window.__gw.water.glowtide);
     K.note('the Glowtide at night', glow);
+    await K.noErrors?.('the look');
   } catch (e) {
     if (!(e instanceof Abort)) { K.check(false, `scenario threw: ${e?.message || e}`); log(String(e?.stack || e)); }
   }
+  await K.release().catch(() => {});
   const out = { size: K.tag, failures: K.failures, notes: K.notes };
   log('WC3_LOOK', JSON.stringify(out));
   return out;
