@@ -544,13 +544,13 @@ function glowMaterial() {
 export function glowLevels({ night = 0, warm = 0 } = {}, { home = false } = {}) {
   const n = clamp(Number(night) || 0, 0, 1), w = clamp(Number(warm) || 0, 0, 1);
   // the windows: low by day, coming up through the first lights (dusk), full at night; still lit at first light
-  const window = clamp(0.32 + 0.68 * smooth(0.05, 0.6, n) + 0.3 * w, 0, 1);
+  const win = clamp(0.32 + 0.68 * smooth(0.05, 0.6, n) + 0.3 * w, 0, 1);
   // the stove is banked all day: home's warmest light, a little brighter in the dark
   const door = clamp(0.72 + 0.28 * smooth(0.1, 0.7, n), 0, 1);
   // the rail lanterns burn through the night and fade as the sky pales
   const lantern = clamp(smooth(0.12, 0.55, n) * (1 - 0.35 * w) + (home ? 0.1 : 0), 0, 1);
   const ember = clamp(0.6 + 0.4 * smooth(0.1, 0.8, n), 0, 1);
-  return { window, door, lantern, ember };
+  return { window: win, door, lantern, ember };
 }
 
 /** What is owned, read from meta.loop (pure): → the variant record setVariants takes, and its signature. */
