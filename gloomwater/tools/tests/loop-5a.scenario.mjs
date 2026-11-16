@@ -216,6 +216,7 @@ export default async function (api) {
     if (e instanceof Abort) K.note('the walk stopped', e.message);
     else K.check(false, 'the walk threw', String(e?.stack || e).split('\n').slice(0, 4).join(' | '));
   }
+  await K.release().catch(() => {});   // (the page's frames back: the runner's closing fps probe needs them)
   log('LOOP_5A', JSON.stringify({ size: K.tag, failures: K.failures, notes: K.notes }));
   return { failures: K.failures };
 }
