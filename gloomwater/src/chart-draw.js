@@ -845,7 +845,8 @@ export function layoutChart(model, art, view) {
     // they can be. On a phone only the chosen place shows its best fish, but every owned place keeps its line's room where it can,
     // so choosing moves no word; only where the chosen place's best fish then finds no room at all (all four owned on a short phone)
     // is the chosen place lettered first (layout.relettered).
-    const base = fixed.slice();
+    // (the words keep clear of the water's name and of the book as drawn; a place's mark keeps clear of the book's whole target)
+    const base = [fixed[fixed.length - 1], ...(card.book ? [around(card.book.x, card.book.y, card.book.s + 4, card.book.s * 0.8 + 4)] : [])];
     for (const A of items) base.push(around(A.at[0], A.at[1], A.size, A.size));
     let placed = base.slice();
     const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + q.x * lake.s - r, lake.cy + q.z * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
