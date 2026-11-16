@@ -22,9 +22,9 @@
 // object's rotation.y is the mooring's yaw (yaw 0: the bow faces −Z, the heading convention of the raft and the docks).
 import * as THREE from 'three';
 import { toonMaterial, addOutline } from './toon.js';
+import { findHomeParts, findHomeSig } from './actors-finds.js';   // M1 step 5c (lane 5C): the finds' parts and look on the barge
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, smoothNormals } from './models-kit.js';
 import { BARGE_LOCAL, TARGET_BOXES } from './home-targets.js';
-import { findHomeParts, findHomeSig } from './actors-finds.js';   // M1 step 5c (lane 5C): the finds' parts and look on the barge
 
 const clamp = THREE.MathUtils.clamp, damp = THREE.MathUtils.damp;
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };

@@ -11,10 +11,12 @@ import * as THREE from 'three';
 import { toonMaterial, addOutline, INK } from './toon.js';
 import { xf, paint, mergeGeos } from './models-kit.js';
 
-const TIN = 0xa8a6b4, BRASS = 0xb8893a, BRASS_DK = 0x5c5a3c, GOLD = 0xd9b24a, RUST = 0x6a3f2e, IRON = 0x3c3844, LEATHER = 0x4e3322,
+const TIN = 0xa8a6b4, BRASS = 0xb8893a, BRASS_DK = 0x5c5a3c, GOLD = 0xd9b24a, RUST = 0x6a3f2e, IRON = 0x3c3844, LEATHER = 0x3c2a20,
   GLASS = 0xd8dcea, AMBER = 0xd8963c, STONE = 0x8e8a98, STONE_DK = 0x6a6676, MOSS = 0x4f6e46, LILY = 0xece4f4, CORD = 0x8a3a3c, CORD2 = 0xc89a5a,
   LEAD = 0x2c2832, ROPE = 0x8c7552;
-const lit = (hex, k = 1.8) => new THREE.Color(hex).multiplyScalar(k);
+// (the toon light gives back about half: dark metals and leather are lifted ×1.8, pale stone, glass, tin and lilies only ×1.2, so they
+// read as stone and glass under the lantern, never as white)
+const lit = (hex, k = null) => { const c = new THREE.Color(hex), L = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b; return c.multiplyScalar(k ?? (L > 0.4 ? 1.2 : 1.8)); };
 const P = (g, c, o) => paint(xf(g, o || {}), lit(c));
 const RX = [0, 0, Math.PI / 2];   // a cylinder's axis along x (a disc facing the lens)
 const RZ = [Math.PI / 2, 0, 0];   // a cylinder's axis along z

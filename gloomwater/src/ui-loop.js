@@ -18,12 +18,12 @@
 // journal], then the cabin's doorway [data-tile=wall] from wing I, no word), re-placed every frame; without one, 1a's tile row.
 import { icon, ORN, murkPortrait, wickPortrait, keySeal, sealedSheet } from './ui-icons.js';
 import { drawFishInk } from './ui-fishart.js';
+import { drawFindArt, findsRowView, FIND_GLYPHS, whereOf } from './ui-finds.js';   // M1 step 5c (lane 5C)
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, rectOf, layoutTargets } from './home-targets.js';
-import { drawFindArt, findsRowView, FIND_GLYPHS, whereOf } from './ui-finds.js';   // M1 step 5c (lane 5C)
 
 export { murkLineFor };
 
@@ -160,7 +160,9 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
   };
   // (M1 step 5c: a find after the fish: the treasures by value, the jackpot last and alone, then the parts and looks: FINDS §6.4)
   const fg = (l) => (l.kind === 'treasure' ? (l.grade === 'jackpot' || l.jackpot === true ? 4 : 3) : 5);
-  const keyed = lines.map((l, i) => ({ l, i, oz: typeof l.find === 'string' ? num(Number(l.clams), 0) : wOz(l), g: typeof l.find === 'string' ? fg(l) : l.giant === true ? 2 : l.legend === true ? 1 : 0 }));
+  // (the jackpot's row rides as a giant's for its pause, then the post-pass below names it: never a ★ or a giant's line)
+  const keyed = lines.map((l, i) => (typeof l.find === 'string' ? { l: { ...l, giant: l.kind === 'treasure' && (l.grade === 'jackpot' || l.jackpot === true) }, i, oz: num(Number(l.clams), 0), g: fg(l) }
+    : { l, i, oz: wOz(l), g: l.giant === true ? 2 : l.legend === true ? 1 : 0 }));
   keyed.sort((a, b) => a.g - b.g || a.oz - b.oz || num(a.l.clams) - num(b.l.clams) || a.i - b.i);
   let t = P.start;
   const rows = keyed.map(({ l, oz }) => {
@@ -168,18 +170,19 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
     const clams = Math.max(0, Math.round(num(Number(l.clams), 0)));
     const base = Number.isFinite(Number(l.base)) ? Math.max(0, Math.round(Number(l.base))) : clams;
     const first = l.first === true && clams > base;
-    const fd = typeof l.find === 'string' ? l.find : null;   // (M1 step 5c)
-    const big = l.giant === true || l.legend === true || (fd && (l.grade === 'jackpot' || l.jackpot === true));
+    const big = l.giant === true || l.legend === true;
     if (big) t += P.giantPause;
     const at = t, countAt = at + 0.25, countDur = big ? P.giantCount : P.count;
-    const row = { uid: l.uid ?? null, speciesId: l.speciesId ?? null, name: fd ? T_(D).finds?.items?.[fd]?.name || fd : sp?.name || String(l.speciesId || ''), sizeClass: l.sizeClass ?? null,
-      find: fd, kind: fd ? l.kind ?? null : null, jackpot: !!fd && (l.grade === 'jackpot' || l.jackpot === true),
-      weight: fd ? '' : typeof D?.fmtWeight === 'function' && typeof D?.fishWeight === 'function' ? D.fmtWeight(D.fishWeight(sp, l)) : '', oz,
+    const row = { uid: l.uid ?? null, speciesId: l.speciesId ?? null, name: sp?.name || String(l.speciesId || ''), sizeClass: l.sizeClass ?? null,
+      weight: typeof D?.fmtWeight === 'function' && typeof D?.fishWeight === 'function' ? D.fmtWeight(D.fishWeight(sp, l)) : '', oz,
       clams, base, first, giant: l.giant === true, legend: l.legend === true, at, countAt, countDur,
       secondAt: first ? countAt + countDur + 0.12 : null, ticks: first ? [base, clams] : [clams] };
     t = at + (big ? P.giantCount + P.giantAfter + 0.25 : P.row) + (first ? P.firstExtra : 0);
     return row;
   });
+  // M1 step 5c (FINDS §6.4): a find's row: its name, no weight, its kind; the jackpot's gold (it paused as a giant, it is not one)
+  rows.forEach((r, i) => { const l = keyed[i].l; if (typeof l.find !== 'string') return;
+    Object.assign(r, { find: l.find, kind: l.kind ?? null, jackpot: r.giant === true, giant: false, name: T_(D).finds?.items?.[l.find]?.name || l.find, weight: '' }); });
   const total = rows.reduce((a, r) => a + r.clams, 0);
   const totalAt = rows.length ? t + P.total - 0.3 : P.start;
   return { rows, total, totalAt, end: totalAt + P.end, empty: rows.length === 0, line: rows.length ? null : (T_(D).murk?.empty || '') };
@@ -965,16 +968,18 @@ export function createLoopView(K) {
       const li = h('li', `gw-trow${r.first ? ' gw-trow--first' : ''}${r.giant || r.legend ? ' gw-trow--giant' : ''}`);
       li.dataset.i = String(i);
       if (r.uid) li.dataset.uid = r.uid;
-      const art = h('canvas', r.find ? 'gw-trow-fish gw-trow-find' : 'gw-trow-fish');
-      if (r.find) drawFindArt(art, D(), r.find, { w: 56, h: 28, pad: 0.06, gold: r.jackpot });   // (M1 step 5c: a find's own drawing)
-      else try { drawFishInk(art, spOf(D(), r.speciesId), { w: 56, h: 28, pad: 0.04, gain: 6, color: r.giant || r.legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { report('tally art', e); }
+      const art = h('canvas', 'gw-trow-fish');
+      try { drawFishInk(art, spOf(D(), r.speciesId), { w: 56, h: 28, pad: 0.04, gain: 6, color: r.giant || r.legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { report('tally art', e); }
       li.appendChild(art);
-      // (a part or a look is carried aboard with no price: its where-it-goes glyph in the price's place)
-      const vHtml = r.find && r.kind !== 'treasure' ? (FIND_GLYPHS[whereOf(D()?.LOOP?.finds?.items?.find((x) => x.id === r.find))] || '') : `${r.first ? SEAL_GLYPH : ''}${icon('clam')}<b>0</b>`;
-      li.insertAdjacentHTML('beforeend', `<span class="gw-trow-name"><b></b><small></small></span><span class="gw-trow-v">${vHtml}</span>`);
-      if (r.jackpot) li.classList.add('gw-trow--giant');
+      li.insertAdjacentHTML('beforeend', `<span class="gw-trow-name"><b></b><small></small></span><span class="gw-trow-v">${r.first ? SEAL_GLYPH : ''}${icon('clam')}<b>0</b></span>`);
       li.querySelector('.gw-trow-name b').textContent = `${r.giant || r.legend ? '★ ' : ''}${r.name}`;
       li.querySelector('.gw-trow-name small').textContent = r.weight;
+      // M1 step 5c: a find's own drawing; a part or a look carried aboard with its where-it-goes glyph in the price's place
+      if (r.find) {
+        art.classList.add('gw-trow-find'); drawFindArt(art, D(), r.find, { w: 56, h: 28, pad: 0.06, gold: r.jackpot });
+        if (r.jackpot) li.classList.add('gw-trow--giant');
+        if (r.kind !== 'treasure') li.querySelector('.gw-trow-v').innerHTML = FIND_GLYPHS[whereOf(D()?.LOOP?.finds?.items?.find((x) => x.id === r.find))] || '';
+      }
       ol.appendChild(li);
     });
     const tot = content.querySelector('.gw-tally-total');

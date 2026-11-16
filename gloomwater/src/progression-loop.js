@@ -17,15 +17,15 @@
 // `ctx.progression.loop` (null off the loop). LOOP_METHODS names its methods, for the fixture's fakeLoop and the tests; CONTRACT §14
 // is the seam in full. Its one import is core.js's uid (never data.js).
 import { uid } from './core.js';
-// M1 step 5c (lane 5C): the finds, pure (src/loop-finds.js)
-import { fillFinds, findTallyLine, findTallyGroup, bookFinds, findCatalogue, findBiteBonus, findBaitFloor, findShares as findSharesOf, snagChance,
-  drawFind, noteSnag, holdEntry, findById, owned as findOwned } from './loop-finds.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
 const int = (v, d = 0) => Math.trunc(num(v, d));
 const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, int(v, lo)));
 const SLOTS = ['rod', 'line', 'reel'];
+// M1 step 5c (lane 5C): the finds, pure (src/loop-finds.js)
+import { fillFinds, findTallyLine, findTallyGroup, bookFinds, findCatalogue, findBiteBonus, findBaitFloor, findShares as findSharesOf, snagChance,
+  drawFind, noteSnag, holdEntry, findById, owned as findOwned } from './loop-finds.js';
 /** The schema of meta.loop this module writes (v1 and v2 were drafts' blocks, migrated by migrateLoop's five rules; v4, M1 step 5a,
  *  adds the home barge's own field `barge = {water, towed}`, SPEC §6.5). */
 export const LOOP_SCHEMA = 4;
@@ -819,6 +819,10 @@ export function createLoop(S) {
     // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
     const fb = L.fitted?.bait;
     if (typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
+    try {
+      const st = S.computeStats?.({}, r);
+      if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
+    } catch (e) { report('computeStats', e); }
     // M1 step 5c (FINDS §3.2): the bait part tops the bag of its water's plain bait up to the Bait Bed's floor + one tin (lane 5B's
     // Bed floor in baits: LOOP.home.baitBed.floor[level − 1] when that table exists, else 0); it never piles up
     try {
@@ -826,10 +830,6 @@ export function createLoop(S) {
       const fl = findBaitFloor(L, d, zone, bf);
       if (fl.baitId && int(r.bait[fl.baitId]) < fl.floor) r.bait[fl.baitId] = fl.floor;
     } catch (e) { report('findBaitFloor', e); }
-    try {
-      const st = S.computeStats?.({}, r);
-      if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
-    } catch (e) { report('computeStats', e); }
     session = [];
     return r;
   }
@@ -1206,6 +1206,7 @@ export function createLoop(S) {
 
   const api = {
     state: () => ensureLoop(),
+    snagRoll, noteFound, keepFind, letGoFind, finds: findsState, findShares: findSharesNow, findCatalogue: findCatalogueNow,   // M1 step 5c
     hold, holdFull, priceOf, saleOf, keep, letGo, noteBite, bitesSpent, bitesLeft, favour, closeBite, refundOpenBite, debugGive,
     isOpen, listCount: (waterId) => { ensureLoop(); return listCount(meta(), D(), waterId); },
     createTrip, endTrip, lastTrip, markTallySeen, shelf, goal, buy, sayOnce, parkRun,
@@ -1214,7 +1215,6 @@ export function createLoop(S) {
     fit, fitted, spendBait, refundBait, liftDue: liftDueNow, markLifted, lifted, markGiant, takeGiantMark, noteBest,
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
     barge, towBarge,
-    snagRoll, noteFound, keepFind, letGoFind, finds: findsState, findShares: findSharesNow, findCatalogue: findCatalogueNow,   // M1 step 5c
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {

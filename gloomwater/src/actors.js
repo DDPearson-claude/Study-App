@@ -33,12 +33,12 @@ import { createRaft, DECK_Y } from './actors-raft.js';
 import { createWick, ONE_SHOT } from './actors-wick.js';
 import { createMerchant } from './actors-merchant.js';
 import { createHome } from './actors-home.js';
-import { createFindLooks } from './actors-finds.js';   // M1 step 5c (lane 5C): the vane on the raft, the tassel on the rod (the loop only)
 import { makeLightPool, makeLine, makeBobber } from './actors-fx.js';
 import { createCord } from './actors-measure.js';
 import { createShow, SHOW_IDS } from './actors-show.js';
 import { debugEnabled } from './core.js';
 import { MEASURE_POSES, measurePoseFor, cordEase, cordDurationFor } from './models-size.js';
+import { createFindLooks } from './actors-finds.js';   // M1 step 5c (lane 5C): the vane on the raft, the tassel on the rod (the loop only)
 import { setupSurface, REFLECT_LAYER } from './toon.js';
 
 const damp = THREE.MathUtils.damp;
@@ -204,7 +204,6 @@ export function create(ctx) {
     const zid = ctx.world?.getZone?.()?.id ?? null;
     home.show(!!m && (!where || where === zid) && ctx.flow !== 'boot');
     home.update(dt, hasWater() ? H : null);
-    findLooks?.update(dt);   // M1 step 5c
   }
   const api = {
     group, raft: raft.yawGroup, wick: wick.group, lanternLight, merchant, merchantLight: merchantR.light, lightPool: pool.mesh, home,
@@ -565,6 +564,7 @@ export function create(ctx) {
       merchantR.update(dt, hasWater() ? H : null);
       // ---------------------------------------------------------- the home barge (the loop): moored at this water's mooring
       if (home) updateHome(dt);
+      findLooks?.update(dt);   // M1 step 5c (lane 5C): the vane and the tassel, when owned
       // the ceremony's candle fill: a soft warm light on the held fish's flank. No new light (the light count stays stable):
       // while Murk is away his lamp's PointLight (always in the scene, dark) is borrowed, then given back as it was
       // (the loop: moored Murk's lamp is dark too, so the ceremony borrows it at home as it does while he is away)
