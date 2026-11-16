@@ -55,6 +55,12 @@ section('bookLayout: a spread where two pages fit in landscape, else one page at
   eq(M.bookLayout(358, 640), 'phone', '358 px wide: a page');
   eq(M.bookLayout(844, 390), 'desktop', 'a phone turned to landscape (844 × 390): a spread');
   eq(M.bookLayout(700, 900), 'phone', 'a tall tablet: a page');
+  // (the review of integration B: a smaller phone turned to landscape fell back to the one-page layout, its 420 px page off a 375 px screen)
+  eq(M.bookLayout(667, 375), 'desktop', 'a smaller phone turned to landscape (667 × 375): a spread');
+  eq(M.bookLayout(740, 360), 'desktop', '740 × 360: a spread');
+  eq(M.bookLayout(812, 375), 'desktop', '812 × 375: a spread');
+  eq(M.bookLayout(560, 315), 'phone', 'under 600 px wide: a page, as before');
+  eq(M.bookLayout(640, 470), 'phone', 'a near-square low window (640 × 470, under 1.5 : 1): a page, as before');
 }
 
 section('bookPages: the fresh save (desktop and phone)');
@@ -115,6 +121,19 @@ section('bookSizes and the short and low spreads (the integration review: 960 ×
   const s = M.bookSizes(960, 540), l = M.bookSizes(844, 390);
   ok(s.pw * 2 + 220 <= 960 && s.ph + 132 <= 540, '960 × 540: two pages, the tabs, Murk\'s line and the foot fit', s);
   ok(l.pw * 2 + M.BOOK.lowSide <= 844 && l.ph + 44 <= 390, '844 × 390: two pages, the tabs and the side column (the line, the purse) fit; the page the screen\'s height', l);
+  // every landscape screen under BOOK.lowH: the low treatment (an item a page at the screen's height, the line and the foot beside the book)
+  for (const [w, h] of [[667, 375], [740, 360], [812, 375], [844, 390]]) {
+    const z = M.bookSizes(w, h);
+    const side = z.narrow ? M.BOOK.lowSideNarrow : M.BOOK.lowSide;
+    eq(z.size, 'low', `${w} × ${h}: a low spread`);
+    ok(z.pw * 2 + side <= w && z.ph + 44 <= h && z.ph >= h - 44 - 0.5, `${w} × ${h}: two pages, the tabs and the side column fit; the page the screen's height`, z);
+    ok(z.pw >= M.BOOK.lowMinPage, `${w} × ${h}: a page ${M.BOOK.lowMinPage} px wide or more`, z);
+    ok(!!z.narrow === w < M.BOOK.lowNarrow, `${w} × ${h}: ${w < M.BOOK.lowNarrow ? 'the narrow side column' : 'the full side column'}`, z);
+  }
+  eq(M.bookSizes(844, 390), { pw: 254, ph: 346, size: 'low' }, '844 × 390: the low spread exactly as before');
+  eq(M.bookSizes(960, 540), { pw: 370, ph: 408, size: 'short' }, '960 × 540: the short spread exactly as before');
+  eq(M.bookSizes(1280, 720), { pw: 446, ph: 588, size: 'full' }, '1280 × 720: the full spread exactly as before');
+  eq(M.bookSizes(390, 844), { pw: 370, ph: 668, size: 'full' }, '390 × 844: the phone page exactly as before');
   const tabs = cardsOf(fake());
   const full = M.bookPages(tabs, { layout: 'desktop', odds: true }), sh = M.bookPages(tabs, { layout: 'desktop', size: 'short', odds: true }), lo = M.bookPages(tabs, { layout: 'desktop', size: 'low', odds: true });
   eq([full.size, sh.size, lo.size], ['full', 'short', 'low'], 'the book says its grid');
