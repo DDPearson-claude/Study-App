@@ -47,13 +47,16 @@ function shareAt(area, light) {
   return m;
 }
 
-section('honest spawning: 10,000 spawns per area and light');
+const TABLES = [['§5.3', null], ...(WC?.WATERCRAFT?.mossmere?.tells ? [['watercraft', WC.WATERCRAFT.mossmere.tells]] : [])];
+for (const [tname, tells] of TABLES) {
+section(`honest spawning: 10,000 spawns per area and light (${tname}'s table)`);
 {
   const rng = mul(5150);
   let checked = 0;
+  if (tells) ok(SG.normTells(tells) !== SG.MOSS_TELLS && !SG.normTells(tells).glow && SG.normTells(tells).nervous.forms.spray.minnowRaw === 1, 'watercraft\'s tells convert (no glow; spray needs the minnow)');
   for (const area of [...AREAS, ...PLACES]) for (const light of ['day', 'dusk', 'night']) {
     const share = shareAt(area, light);
-    const opts = SG.tellOptions(area, light, share, {});
+    const opts = SG.tellOptions(area, light, share, { tells });
     const seen = {};
     let bad = 0, glow = 0, makerless = 0;
     for (let i = 0; i < 10000; i++) {
@@ -89,6 +92,7 @@ section('honest spawning: 10,000 spawns per area and light');
   ok(SG.formMakers(SG.MOSS_TELLS.nervous.forms.ruffle, 'open', 'night').join() === 'lampsipper', 'the ruffle at night: the Lampsipper');
   ok(SG.formMakers(SG.MOSS_TELLS.stems.forms.stems, 'reeds', 'dusk').join() === 'weeping_carp', 'stems in reeds: the carp');
   ok(SG.normTells(null) === SG.MOSS_TELLS && SG.normTells({ x: 1 }) === SG.MOSS_TELLS, 'normTells falls back to §5.3');
+}
 }
 
 section('glow: never on the Mossmere, kept in the flag-off phase table');

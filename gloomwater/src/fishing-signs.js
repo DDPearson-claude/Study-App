@@ -332,16 +332,43 @@ export const WAITS = { rise: 0.5, tell: 0.65 };
 /** The light of a phase (watercraft.lightOf's rule): calm, day, dawn → day; dusk → dusk; gloomtide, night → night. */
 export const lightOf = (phase) => (phase === 'dusk' ? 'dusk' : phase === 'gloomtide' || phase === 'night' ? 'night' : 'day');
 
-/** The tells table in use: WATERCRAFT.mossmere.tells when it has this shape (kinds → {light, cap, forms}), else MOSS_TELLS. */
+/** The form a kind without forms is drawn as (watercraft's tables keep makers on the kind for these). */
+const ONE_FORM = { boil: 'swirl', strike: 'strike', bubbles: 'fizz', pinprick: 'pinprick', cloud: 'cloud', stems: 'stems', gas: 'gas' };
+const TELLS_CACHE = new WeakMap();
+/**
+ * The tells table in use, in MOSS_TELLS' shape: WATERCRAFT.mossmere.tells (WC-1's: {hours, cap, makers?, areas?, forms?: {name:
+ * {hours?, makers (a list, or by light), areas, phases?, minnowRaw?}}, glow: {retired}}) converted, else MOSS_TELLS itself.
+ */
 export function normTells(t) {
-  if (!t || typeof t !== 'object') return MOSS_TELLS;
-  const ok = Object.values(t).every((k) => k && typeof k === 'object' && k.forms && typeof k.forms === 'object');
-  return ok ? t : MOSS_TELLS;
+  if (!t || typeof t !== 'object' || t === MOSS_TELLS) return MOSS_TELLS;
+  if (TELLS_CACHE.has(t)) return TELLS_CACHE.get(t);
+  const out = {};
+  for (const [kind, K] of Object.entries(t)) {
+    if (!K || typeof K !== 'object' || K.retired || kind === 'glow' || kind === 'alive') continue;
+    const forms = K.forms && typeof K.forms === 'object' ? K.forms : ONE_FORM[kind] ? { [ONE_FORM[kind]]: K } : null;
+    if (!forms) continue;
+    const fo = {};
+    for (const [fname, f] of Object.entries(forms)) {
+      const mk = f.makers ?? K.makers, mine = MOSS_TELLS[kind]?.forms?.[fname] || {};
+      const areas = f.areas ?? K.areas;
+      if (!Array.isArray(areas)) continue;
+      fo[fname] = {
+        makers: Array.isArray(mk) ? mk : Array.isArray(mk?.day) ? mk.day : Array.isArray(mk?.dusk) ? mk.dusk : [],
+        byLight: !Array.isArray(mk) && mk && typeof mk === 'object' ? mk : undefined,
+        byArea: f.byArea ?? mine.byArea, areas, lights: f.phases ?? f.lights, light: f.hours ?? f.light, minnowRaw: f.minnowRaw ?? mine.minnowRaw,
+      };
+    }
+    if (Object.keys(fo).length) out[kind] = { light: K.hours ?? K.light, cap: K.cap, forms: fo };
+  }
+  const res = Object.keys(out).length ? out : MOSS_TELLS;
+  TELLS_CACHE.set(t, res);
+  return res;
 }
 /** The makers of one form at an area and light (the ruffle's Lampsipper at night; the stems in reeds: the carp alone). */
 export function formMakers(f, area, light) {
   if (!f) return [];
   if (f.byArea && f.byArea[area]) return f.byArea[area];
+  if (f.byLight && Array.isArray(f.byLight[light])) return f.byLight[light];
   if (light === 'night' && Array.isArray(f.night)) return f.night;
   return Array.isArray(f.makers) ? f.makers : [];
 }

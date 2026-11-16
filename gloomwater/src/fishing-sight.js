@@ -173,7 +173,7 @@ export function createSight(o = {}) {
 const PACE = {
   deep:    { speed: [0.25, 0.45], cruise: [6, 14], stop: [4, 10] },
   torpedo: { speed: [0.4, 0.8], cruise: [3, 8], stop: [2, 5] },
-  long:    { speed: [1.5, 1.5], cruise: [1, 2], stop: [2.5, 5] },     // holds 70% of the time, darts 1.5 m/s for 1–2 s
+  long:    { speed: [1.5, 1.5], cruise: [1, 2], stop: [2.2, 4.4] },     // holds 70% of the time, darts 1.5 m/s for 1–2 s
   shoal:   { speed: [0.5, 0.5], cruise: [4, 8], stop: [0, 0] },
   claw:    { speed: [0.1, 0.1], cruise: [2, 5], stop: [2, 6] },
 };
@@ -332,8 +332,9 @@ export function sightRule(f, x, z, S = SIGHT) {
   if (spookTest(f, { cast: { x, z } }, S)) return { kind: 'sight', id: f.id, inSign: false, form: f.outline, spook: true, waitMult: num(S.spook.waitMult, 1.5) };
   const l = leadTest(f, x, z, S);
   if (!l) return null;
+  // (makers name the fish for the logs; tilt 1: the pool behind a refusal is not tilted, §6.6)
   return { kind: 'sight', id: f.id, inSign: true, form: f.outline, lead: l, preroll: { chance: num(S.take.base, 0.45) }, takeWaitMult: num(S.take.waitMult, 0.3),
-    makers: f.sp?.id ? [f.sp.id] : [], respond: 'take' };
+    makers: f.sp?.id ? [f.sp.id] : [], tilt: 1, respond: 'take' };
 }
 /** A led fish turns to the bait after the bob settles (0.5–1.5 s): take (it will bite) or nose (it refuses and turns away). */
 export function approach(f, bob, took, rng = Math.random, S = SIGHT) {
