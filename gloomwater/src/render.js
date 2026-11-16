@@ -1031,13 +1031,14 @@ export function create(ctx) {
       camPos.lerp(tmpV, sw);
       lookTarget.lerp(S.look, sw);
     }
-    let rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
+    const rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
     // the loop's lift: the place's framing over the rig (no cut: one eased weight for the lens's place, its look and its fov)
     const lw = landmarkW(dt);
+    let lmkFov = rigFov;
     if (lw > 0 && lmk.pose) {
       camPos.lerp(tmpV.set(lmk.pose.pos[0], lmk.pose.pos[1], lmk.pose.pos[2]), lw);
       lookTarget.lerp(tmpV.set(lmk.pose.look[0], lmk.pose.look[1], lmk.pose.look[2]), lw);
-      rigFov = lerp(rigFov, lmk.pose.fov, lw);
+      lmkFov = lerp(rigFov, lmk.pose.fov, lw);
     }
 
     // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
@@ -1076,6 +1077,7 @@ export function create(ctx) {
       if (Math.abs(fx.kickDue) < 1e-3 || !(showCam.w > 0)) fx.kickDue = 0;
     }
     fx.fovKick = damp(fx.fovKick, 0, 5, dt);
+    if (introFov === null && lw > 0) introFov = lmkFov;   // (the loop's lift: its lens's fov, when no film pose is set)
     const fov = clamp((introFov ?? rigFov) + fx.fovKick, 20, 95);   // (INTRO LANE A: the cut scene's lens wins while one is set; else the play's under the show's)
     if (Math.abs(camera.fov - fov) > 1e-3 || camera.aspect !== W / H) {
       camera.fov = fov;

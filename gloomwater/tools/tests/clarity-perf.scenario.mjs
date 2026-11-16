@@ -216,12 +216,42 @@ export async function loopPerf(api) {
       await g(() => window.__pl.hold(false)).catch(() => {});
       await api.frames(1);
     }
+    // a giant's show at night (the four banks up but Under the Span's, where the Thousandcast is landed): the play's frames run until
+    // the fish is presented, then the frame is held and measured as the others
+    try {
+      const ok = await g(() => {
+        const c = window.__gw, P = window.__pl, m = c.state.meta.loop;
+        P.own(false); m.lifted = ['under_the_span']; c.world.setPlaces?.({ owned: m.maps.places, lifted: m.lifted });
+        P.night(); const p = c.data.loopPlace?.('under_the_span'); if (p) c.player.teleport?.({ x: -29.5, z: 0.5 }, 0);
+        try { c.fishing.cancel?.('debug'); c.debug.fishOutcome?.('land'); c.debug.forceBite?.({ speciesId: 'thousandcast_pike', z: 1.2, wait: 0.2 }); return true; } catch { return false; }
+      });
+      if (!ok) throw new Error('no forced bite');
+      await page.waitForFunction(() => window.__gw.fishing.state === 'bite', null, { timeout: 120000, polling: 200 });
+      await g(() => { window.__gw.debug.fishStrike?.('struck'); });
+      await page.waitForFunction(() => ['reeling', 'landing'].includes(window.__gw.fishing.state), null, { timeout: 60000, polling: 200 });
+      await g(() => window.__gw.debug.fishPlayTo?.(0.97));
+      await page.waitForFunction(() => window.__gw.fishing.inShow === true, null, { timeout: 240000, polling: 300 });
+      await api.frames(12);
+      await g(() => { const P = window.__pl; P.hold(true); P.pump(0.2); window.__gw.render.render(); });
+      const c0 = await cpu();
+      const r = await g((N) => window.__pl.measure(N), N);
+      r.cpuMs = Math.round((await cpu() - c0) * 1000 / (N + 2));
+      const line = LOOP_LINES[tier] || LOOP_LINES.high;
+      r.okFrame = r.calls <= line.frame; r.okWorld = r.world <= line.world;
+      if (!r.okFrame) failures.push(`T148 ${tier}-show: the frame's ${r.calls} calls over ${line.frame}`);
+      if (!r.okWorld) failures.push(`T148 ${tier}-show: the world's ${r.world} calls over ${line.world}`);
+      perf[`${tier}-show`] = r;
+      log(`perf-loop ${tier}-show ${JSON.stringify(r)}`);
+    } catch (e) { log(`perf-loop ${tier}-show: not measured (${String(e?.message || e).split('\n')[0]})`); }
+    await g(() => { const c = window.__gw; window.__pl.hold(false); try { c.ui.closeAll?.(); c.fishing.cancel?.('debug'); } catch { /* optional */ } }).catch(() => {});
+    await api.frames(2);
   }
   if (typeof args.base === 'string') {
     try {
       const B = JSON.parse(readFileSync(resolve(process.cwd(), args.base), 'utf8')).perf || {};
       for (const tier of tiers) {
-        const b = B[`${tier}-gloomtide`]?.cpuMs, m = perf[`${tier}-banks`]?.cpuMs;
+        // (the baseline is this --loop run on a build of M, where there are no places: its `banks` case is the step-2 scene)
+        const b = B[`${tier}-banks`]?.cpuMs ?? B[`${tier}-gloomtide`]?.cpuMs, m = perf[`${tier}-banks`]?.cpuMs;
         if (Number.isFinite(b) && Number.isFinite(m) && m > b * 1.15) failures.push(`T148 ${tier}: cpuMs ${m} over +15% of the baseline's ${b}`);
         log(`perf-loop ${tier} cpuMs ${m} against the baseline's ${b}`);
       }

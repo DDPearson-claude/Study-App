@@ -189,7 +189,18 @@ export default async function (api) {
       await K.places.lift('lily_maze', { play: true }); await K.secs(3.3);
       await frame('hud', 'title-card', 'the lift\'s title card');
       await K.secs(2);
-      await frame('hud', 'hold-row', 'the hold row');
+      await frame('hud', 'hold-row-6', 'the hold row at Hold 6 (the Wick: six cells)');
+      // Tallow's seven: one row on the desktop, two on the phone (T141)
+      await K.toHomeVia();
+      await g(() => { const L = window.__gw.progression.loop; L.setWick?.('tallow') ?? (L.state().wick = 'tallow'); });
+      // the ball fitted on the Chart's foot (its count on the slot)
+      await g(() => { const c = window.__gw, m = c.progression.loop.state(); m.bait = m.bait || {}; m.bait.mossmere = { ...(m.bait.mossmere || {}), heartmoss: 2 }; if (c.progression.loop.fit?.('bait', 'heartmoss')?.ok !== true) m.fitted = { ...(m.fitted || {}), bait: 'heartmoss' }; c.ui?.loop?.openChart?.(); });
+      await K.secs(0.6); await K.settle(500);
+      await frame('hud', 'chart-ball', 'the Chart: its places and the bait slot with the ball fitted, its count');
+      await g(() => window.__gw.ui.closeAll?.());
+      await K.sail(null);
+      await K.secs(0.6); await K.settle(700);
+      await frame('hud', 'hold-row-7', `Tallow's seven cells (${K.phone ? 'two rows on the phone' : 'one row on the desktop'})`);
     }
     await K.noErrors('the look');
   } catch (e) {

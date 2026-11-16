@@ -215,6 +215,13 @@ void main() {
   float c = cos(aC.w), s = sin(aC.w);
   vec2 q = vec2(position.x * aS.x, position.z * aS.y);
   vec3 wp = vec3(aC.x + q.x * c - q.y * s, aC.y, aC.z + q.x * s + q.y * c);
+  if (aS.z > 2.5) {
+    // kind 3: the moon's shaft standing on the place, turned to face the lens about its own upright (x across, z up)
+    vec2 toCam = normalize(cameraPosition.xz - aC.xz + vec2(1e-4, 0.0));
+    vec2 rt = vec2(toCam.y, -toCam.x);
+    float h = (1.0 - position.z) * 0.5;
+    wp = vec3(aC.x + rt.x * q.x, aC.y + h * aS.y * 2.0, aC.z + rt.y * q.x);
+  }
   vec4 mv = viewMatrix * vec4(wp, 1.0);
   float dd = -mv.z;
   vFog = exp(-uFogD * uFogD * dd * dd * 0.5);
@@ -250,10 +257,16 @@ void main() {
     float crack = smoothstep(0.035, 0.0, abs(p.y + 0.06 - 0.09 * sin(u * 9.0) - 0.05 * u)) * smoothstep(0.1, 0.55, u) * body;
     ink = shape * vI.x * (1.0 - 0.35 * edge);
     glow = (uRust * lip * 0.16 + uVerd * crack * 0.22) * (0.35 + 0.65 * vK) + uMoon * edge * (p.y > 0.0 ? 1.0 : 0.25) * 0.3 * vK;
-  } else {
+  } else if (vKind < 2.5) {
     if (r > 1.0) discard;
     float sh = 0.75 + 0.25 * wpN(p * 3.0 + vec2(uTime * 0.25, -uTime * 0.18));
     glow = uMoon * exp(-r * r * 3.2) * sh * 0.5 * vK;
+  } else {
+    // the moon's shaft: soft across, gone at the water's skin and fading as it rises; motes of light drift down it
+    float h = (1.0 - p.y) * 0.5, x = p.x;
+    float across = pow(max(0.0, 1.0 - x * x), 2.0);
+    float motes = 0.8 + 0.2 * wpN(vec2(x * 4.0, h * 9.0 + uTime * 0.35));
+    glow = uMoon * across * smoothstep(0.0, 0.08, h) * pow(1.0 - h, 1.6) * motes * 0.22 * vK;
   }
   float a = ink * vFog;
   gl_FragColor = vec4(glow * vFog, a);
@@ -348,6 +361,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     return c;
   };
   const span = P.find((p) => p.id === 'under_the_span');
+  const buoysPlace = () => P.find((p) => p.id === 'buoy_lights');
   const piers = (Array.isArray(arena?.piers) ? arena.piers : []).slice();
   const chainTips = [], chainKit = [];   // where the chains hang from (the break); their strands (no ink line: a chain is too fine for one)
   if (span && piers.length >= 2) {
@@ -431,6 +445,35 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       }
       chainKit.push(prep(taperTube(pts, (t) => 0.026 + 0.012 * Math.max(0, Math.cos(t * 70)), 5, 60), { colorFn: (x, y) => mixArr(scaleArr(K.rust, 1.25), K.iron, y < 0.3 ? 0.55 : 0.12 + 0.18 * Math.max(0, Math.sin(y * 11))) }));
     }
+  }
+
+  // ---------------------------------------------------------- the other landmarks' dark shapes (what rises out of their banks)
+  // the Buoy Lights: two leaning channel-marker posts at its north end, "showing the way to a harbour mouth that is not there", their
+  // lamps lit with the place; the Bell Pool: the two leaning posts its bell hung between, a rust chain sagging from one to the other
+  const markerLamps = [];
+  const post = (x, z, h, lean, yaw, col) => {
+    const g = new THREE.CylinderGeometry(0.09, 0.13, h, 6, 3);
+    g.translate(0, h / 2 - 0.6, 0);
+    wobble(g, 0.02, 3, x);
+    kit.push(prep(g, { matrix: mat(x, 0, z, lean, yaw, 0), colorFn: (px, py) => (py < 0.35 ? mixArr(col, K.moss, 0.4) : col) }));
+    const tip = new THREE.Vector3(0, h - 0.6, 0).applyMatrix4(mat(0, 0, 0, lean, yaw, 0));
+    return { x: x + tip.x, y: tip.y, z: z + tip.z };
+  };
+  if (buoysPlace()?.area?.kind === 'rect') {
+    const a = buoysPlace().area, zN = a.z - a.d / 2 - 1.1;
+    for (const [dx, lean, yaw] of [[-1.5, 0.12, 0.4], [1.5, -0.09, 2.2]]) {
+      const tip = post(a.x + dx, zN, 3.4, lean, yaw, mixArr(K.rust, K.iron, 0.5));
+      kit.push(prep(new THREE.CylinderGeometry(0.16, 0.12, 0.3, 6), { matrix: mat(tip.x, tip.y + 0.1, tip.z), color: K.iron }));
+      markerLamps.push({ ...tip, halo: arena?.halos ? arena.halos.add(tip.x, tip.y + 0.32, tip.z, [0, 0, 0], 1.6, rng() * 10) : -1 });
+    }
+  }
+  const bellP = P.find((p) => p.id === 'bell_pool');
+  if (bellP?.area?.kind === 'disc') {
+    const a = bellP.area, zN = a.z - a.r - 0.6;
+    const t1 = post(a.x - 2.3, zN, 3.6, 0.1, 0.3, K.wood), t2 = post(a.x + 2.1, zN + 0.3, 2.6, -0.16, 1.9, K.wood);
+    const sag = [];
+    for (let k = 0; k <= 10; k++) { const t = k / 10; sag.push(V(t1.x + (t2.x - t1.x) * t, t1.y + (t2.y - t1.y) * t - Math.sin(Math.PI * t) * 1.1, t1.z + (t2.z - t1.z) * t)); }
+    chainKit.push(prep(taperTube(sag, (t) => 0.024 + 0.01 * Math.max(0, Math.cos(t * 90)), 5, 50), { color: scaleArr(K.rust, 1.1) }));
   }
 
   // ---------------------------------------------------------- W9's rest behind LOOP.redress (off by default)
@@ -596,6 +639,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const a = bell.area;
     addDecal({ x: a.x + 0.6, z: a.z - 0.4, y: 0.02, rot: 0.55, sx: 2.3, sz: 1.6, kind: 1, place: idx.get('bell_pool'), g: lin(light), ink: 0.5, night: 0.6 });
     addDecal({ x: a.x - 0.4, z: a.z + 0.6, y: 0.035, rot: 0.3, sx: 2.6, sz: 1.1, kind: 2, place: idx.get('bell_pool'), g: lin(light), night: 1 });
+    // "The moon looks in on the old bell": a pale shaft standing on the pool once its mist has lifted (strongest at night)
+    addDecal({ x: a.x + 0.3, z: a.z - 0.2, y: 0, sx: 3.4, sz: 16, kind: 3, place: idx.get('bell_pool'), g: lin(light), night: 1 });
   }
 
   let decalMesh = null;
@@ -735,6 +780,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         if (q.halo >= 0 && arena?.halos) { const hk = k * (0.85 + 0.15 * Math.sin(t * 1.7 + q.ph * 3)); arena.halos.setColor(q.halo, CANDLE3[0] * hk, CANDLE3[1] * hk, CANDLE3[2] * hk); touched = true; }
       }
       caps.instanceMatrix.needsUpdate = true;
+      for (const m of markerLamps) if (m.halo >= 0) { const hk = k * 1.3; arena.halos.setColor(m.halo, CANDLE3[0] * hk, CANDLE3[1] * hk, CANDLE3[2] * hk); touched = true; }
       if (touched) arena.halos.touchColors();
     }
     if (veil) veil.material.uniforms.uTime.value = t;

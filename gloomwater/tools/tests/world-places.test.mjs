@@ -190,7 +190,7 @@ const halo0 = on.arena.halos.count;
 const vis = buildPlaces({ data: D_LOOP, bus: createBus() }, on.layout, on.arena, { places, quality: 'high', mist: D_LOOP.LOOP.mist, giantBack: D_LOOP.LOOP.giantBack });
 const after = arenaHash(D_LOOP);
 ok(after.all === on.all, 'building the places changes nothing the arena built (a fresh build hashes the same)');
-ok(on.arena.halos.count - halo0 === 24, 'the places add only the Buoy Lights\' 24 cap glows to the shared halos');
+ok(on.arena.halos.count - halo0 === 26, 'the places add only the Buoy Lights\' lamps (24 caps, 2 channel markers) to the shared halos');
 let w9 = 0; vis.group.traverse((o) => { if (o.name === 'tollTower' || o.name === 'sluiceVeil') w9++; });
 ok(w9 === 0, 'LOOP.redress off: no W9 mesh');
 ok(D_LOOP.LOOP.redress === false && on.arena.redress === false, 'LOOP.redress is false by default and the lamp-posts stay');

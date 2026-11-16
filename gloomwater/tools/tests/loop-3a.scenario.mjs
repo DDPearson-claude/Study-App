@@ -230,7 +230,11 @@ export default async function (api) {
     K.need(D.loop, 'a loop build');
     K.check(JSON.stringify(D.places) === JSON.stringify(PLACE_IDS), 'LOOP.places holds the four in the Chart\'s order', D.places);
     await K.toJetty();
-    const drawn = await g(() => window.__gw.ui?.loop?.chart?.ready?.() === true || !!document.querySelector('.gw-p-chart--drawn'));
+    // (3b's drawn Chart replaces the list once its art has decoded: open it once, idle a moment, and look)
+    await g(() => window.__gw.ui?.loop?.openChart?.());
+    await K.secs(0.6); await K.settle(900);
+    const drawn = await g(() => !!document.querySelector('.gw-p-chart--drawn'));
+    await g(() => window.__gw.ui.closeAll?.()); await K.steps(2);
     const charts = typeof args.charts === 'string' ? args.charts.split(',') : drawn ? ['drawn', 'list'] : ['list'];
     for (const which of charts) {
       K.step(`the Chart (${which})`);
@@ -249,9 +253,10 @@ export default async function (api) {
     }
 
     K.step('buy the Lily Maze, Sail toward it, its lift');
-    const bought = await g(() => { const L = window.__gw.progression?.loop; try { return L?.buy?.('place:lily_maze') ?? null; } catch (e) { return String(e); } });
-    K.check(bought && bought.ok !== false, 'buy("place:lily_maze") owns it', bought);
-    if (!(bought && bought.ok !== false)) await K.places.own('lily_maze');
+    const bought = await K.buyReal('place:lily_maze', D.T.tabs?.maps);
+    K.check(bought.ok && bought.via === 'card', 'T149: the Lily Maze bought from its map card (60)', bought);
+    const ownsLily = await g(() => (window.__gw.progression.loop.state().maps?.places || []).includes('lily_maze'));
+    if (!ownsLily) await K.places.own('lily_maze');
     await K.sail('lily_maze');
     const liftPlays = await K.until("(c.game.lifting?.() ?? null) === 'lily_maze'", 2);
     if (!liftPlays.ok) { K.note('no lift beat on this tree (lane B absent): driving D\'s APIs directly'); await K.places.lift('lily_maze', { play: true }); }
