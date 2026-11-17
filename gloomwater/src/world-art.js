@@ -426,7 +426,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
   // M1 step 3a: what the loop's places read of the built art (pure records, no geometry): the Toppled Bridge's piers as drawn
   // (their height and whether the top is broken) and every street lamp-post; opts.redress (LOOP.redress, W9's rest) swaps the
   // posts for rust bollards and buoy-lanterns
-  const piers = [], lampPosts = [];
+  const piers = [], lampPosts = [], slits = [];   // (slits: the gate towers' low candle slits, for the wildlife's moths)
   const redressOn = opts.redress === true && theme === 'mossmere';
   const RUST = lin(0x8a4b3a);
   function bollard(x, y, z, ry, light) {
@@ -470,12 +470,12 @@ vec2 gwTwitch(vec2 p, float hgt) {
       // M1 step 3a (W9 behind LOOP.redress, PLAN §2.4 item 3): with opts.redress the street lamp-post becomes a rust bollard with a
       // buoy-lantern on its head, merged into the same statics (0 net calls). The rng is drawn exactly as the post draws it, so
       // every other piece of the lake is placed as built; off the switch nothing here changes.
-      if (redressOn) { const ry = rng() * TAU; lampPosts.push({ x, y, z, h, ry }); bollard(x, y, z, ry, light); return; }
+      if (redressOn) { const ry = rng() * TAU; lampPosts.push({ x, y, z, h, ry, light }); bollard(x, y, z, ry, light); return; }
       const post = new THREE.CylinderGeometry(0.07, 0.11, h, 6);
       kit.org.push(prep(post, { matrix: mat(x, y + h / 2, z), color: K.iron }));
       const arm = taperTube([V(0, h - 0.1, 0), V(0.35, h + 0.25, 0), V(0.75, h + 0.1, 0)], () => 0.045, 5, 8);
       const ry = rng() * TAU;
-      lampPosts.push({ x, y, z, h, ry });
+      lampPosts.push({ x, y, z, h, ry, light });
       kit.org.push(prep(arm, { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
       const lx = x + Math.cos(-ry) * 0.75, lz = z + Math.sin(-ry) * 0.75, ly = y + h - 0.35;
       kit.org.push(prep(new THREE.ConeGeometry(0.26, 0.22, 6), { matrix: mat(lx, ly + 0.3, lz), color: K.iron }));
@@ -797,6 +797,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
           const px = tx + wx * r0 + fx * off, pz = tz + wz * r0 + fz * off;
           hero.glow.push(prep(new THREE.BoxGeometry(0.7, wh, 0.3), { matrix: mat(px, wy, pz, 0, face, 0), color: scaleArr(PL.candle, 1.8) }));
           halos.add(px + wx * 0.6, wy, pz + wz * 0.6, scaleArr(PL.candle, 0.55), 4.5);
+          if (wy <= 13) slits.push({ x: px + wx * 0.6, y: wy, z: pz + wz * 0.6 });
         }
       }
       // braziers on the broken arch's crown
@@ -1350,6 +1351,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     group, anchors, update, applyMood, dispose, rings, statics, sky, keyDir,
     crackTop, crackBottom, dockBuoys, halos,
     piers, lampPosts, redress: redressOn,   // M1 step 3a: the Toppled Bridge's piers and the street lamp-posts as drawn (records)
+    slits,   // the wildlife's moths: the gate towers' low candle slits (records)
     // >>> WC-3: the stems tell's nudge (WC-2 calls world.stems.nudge(x, z, k)): the reeds and pads within a few metres twitch, then
     // settle (one of four points, the oldest replaced). null off the Mossmere's loop
     stems: twU ? {

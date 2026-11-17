@@ -6,6 +6,9 @@
 //   heronSpots(L, D, o)       the spots it may stand at this phase ([{x, z, area}]), pure
 //   createHeronState / stepHeron(H, o)   the pure state machine (stand · stab · fly · gone); the tests drive it
 //   attachHeron(ctx)          builds it under the loop (main's one line): its mesh in the scene, its own frame clock, 'heron:lift'
+// With the wildlife on (LOOP.wildlife.on, ?wild=0 off; the user, 18 Nov 2026) it is made to count (LOOP.wildlife.heron): 1.3x with a darker
+// back, its spots in the north half of the view and on the south faces of the islands the raft sails past, and at night it roosts
+// still, head sunk, at the Drowned Gatehouse's foot (heronRoost) instead of leaving; the raft at 8 m sends it to the other roost.
 import * as THREE from 'three';
 import { toonMaterial, setupSurface } from './toon.js';
 import { prep, merge, mat, taperTube, lin, mixArr } from './world-geo.js';
@@ -30,6 +33,8 @@ export function heronAreas(phase) {
  */
 export function heronSpots(L, D, { phase = 'calm', probe = null } = {}) {
   if (lightOf(phase) === 'night') return [];
+  const W = D?.LOOP?.wildlife?.on === true ? D.LOOP.wildlife.heron || null : null;   // (made to count: north and the islands' shores)
+  const north = (z) => !W || z <= num(W.northZ, 0);
   const ok = new Set(heronAreas(phase));
   const P = probe || { depth: () => 0.2, fromShore: (x, z) => (typeof L.shoreR === 'function' ? L.shoreR(Math.atan2(z, x)) : 60) - Math.hypot(x, z) };
   const avoid = avoidList(L, D);
@@ -41,16 +46,17 @@ export function heronSpots(L, D, { phase = 'calm', probe = null } = {}) {
   try { hulls = D.loopMooring?.('mossmere', L.docks)?.circles || null; } catch { hulls = null; }
   const opt = { arena: D?.ZONES?.find?.((z) => z.id === 'mossmere')?.arena, hulls, docks: L.docks };
   const out = [];
-  const take = (x, z) => {
+  const take = (x, z, isle = null) => {
+    if (!isle && !north(z)) return;
     if (clearanceOf(avoid, x, z) < HERON.keep) return;
     const fs = P.fromShore(x, z);
     if (!(fs > 0.6)) return;
     if ((L.islands || []).some((o) => Math.hypot(x - o.x, z - o.z) < o.r + 0.6)) return;
     if ((L.obstacles || []).some((o) => Math.hypot(x - o.x, z - o.z) < o.r + 0.5)) return;
     const a = areaAt(x, z, P, opt);
-    if (!ok.has(a)) return;
+    if (!isle && !ok.has(a)) return;   // (an island's shore: it stands where the raft sails past, whatever swims there)
     if (out.some((s) => Math.hypot(s.x - x, s.z - z) < 4)) return;
-    out.push({ x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100, area: a });
+    out.push({ x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100, area: a, ...(isle ? { isle } : {}) });
   };
   // the margins by the shore, every few degrees, 1.2–2.6 m out
   for (let deg = 0; deg < 360; deg += 4) {
@@ -60,7 +66,18 @@ export function heronSpots(L, D, { phase = 'calm', probe = null } = {}) {
   // the reed beds' clumps (a heron stands at their edge, in the open water beside the stems)
   // (the same plan world-art draws on high and medium: the arena's seed)
   for (const c of reedPlan(L, faceRng(((L.artSeed | 0) ^ 0x5eed5) >>> 0), { avoid: avoidList(L, D) })) take(c.x + 0.8, c.z + 0.4);
+  // the named islands' south faces (toward the north-looking play camera), just off the rock
+  for (const o of W ? (L.islands || []).filter((q) => (W.isles || []).includes(q.name)) : []) {
+    for (let deg = -10; deg <= 190; deg += 12) for (const off of W.isleOff || [1.2]) take(o.x + Math.cos((deg * Math.PI) / 180) * (o.r + off), o.z + Math.sin((deg * Math.PI) / 180) * (o.r + off), o.name);
+  }
   return out;
+}
+
+/** The night roosts with the wildlife on (LOOP.wildlife.heron.roost: spots in the shallows). → [{x, z, yaw}] or null. */
+export function heronRoost(D) {
+  const r = D?.LOOP?.wildlife?.on === true ? D.LOOP.wildlife.heron?.roost : null;
+  const list = (Array.isArray(r) ? r : r ? [r] : []).filter((q) => Number.isFinite(q?.x) && Number.isFinite(q?.z)).map((q) => ({ x: q.x, z: q.z, yaw: num(q.yaw, 0) }));
+  return list.length ? list : null;
 }
 
 // ------------------------------------------------------------------ the state machine (pure)
@@ -80,20 +97,33 @@ const pickSpot = (spots, raft, H, rng) => {
  * it ('lift' event) to another spot ≥ HERON.landFar m from the raft; at night it flies off and is gone ('leave'); with day or dusk back
  * and spots to stand at, it comes in again ('arrive'). Returns H (its `events` list holds this step's events).
  */
-export function stepHeron(H, { dt = 0.016, raft = null, phase = 'calm', spots = [], rng = Math.random } = {}) {
+export function stepHeron(H, { dt = 0.016, raft = null, phase = 'calm', spots = [], rng = Math.random, roost = null } = {}) {
   H.events = [];
   H.t += dt;
   const night = lightOf(phase) === 'night';
-  const fly = (to, away = false) => {
-    H.from = { x: H.x, z: H.z }; H.to = to; H.mode = 'fly'; H.t = 0; H.away = away;
+  const fly = (to, away = false, toRoost = false) => {
+    H.from = { x: H.x, z: H.z }; H.to = to; H.mode = 'fly'; H.t = 0; H.away = away; H.toRoost = toRoost;
     H.flyDur = HERON.fly[0] + rng() * (HERON.fly[1] - HERON.fly[0]);
     H.yaw = Math.atan2(to.x - H.x, to.z - H.z);
   };
+  // (the roost to go to: the first one, or the other, farther from the raft, when the raft is at this one)
+  const roostFor = () => { const R = roost || []; if (!raft || R.length < 2) return R[0] || null; return R.slice().sort((a, b) => Math.hypot(b.x - raft.x, b.z - raft.z) - Math.hypot(a.x - raft.x, a.z - raft.z))[0]; };
+  if (H.mode === 'roost') {   // still, head sunk, through the night; the raft at 8 m sends it to the other roost; off to a spot with the light back
+    if (!night && spots.length) { const s = pickSpot(spots, raft || { x: 1e3, z: 1e3 }, H, rng); if (s) { fly(s); H.events.push('arrive'); } return H; }
+    if (night && raft && Math.hypot(raft.x - H.x, raft.z - H.z) < HERON.lift) {
+      const r = roostFor();
+      if (r && Math.hypot(r.x - H.x, r.z - H.z) > 1) { fly({ x: r.x, z: r.z, yaw: r.yaw }, false, true); H.lifts++; H.events.push('lift'); }
+    }
+    return H;
+  }
   if (H.mode === 'gone') {
+    const r = night ? roostFor() : null;
+    if (r) { H.x = r.x; H.z = r.z; H.y = 0; H.yaw = r.yaw; H.mode = 'roost'; H.events.push('roost'); return H; }
     if (!night && spots.length) { const s = pickSpot(spots, raft || { x: 1e3, z: 1e3 }, H, rng); if (s) { H.x = s.x; H.z = s.z; H.mode = 'stand'; H.t = 0; H.y = 0; H.events.push('arrive'); } }
     return H;
   }
   if (H.mode === 'stand' || H.mode === 'stab') {
+    if (night && roost?.length) { const r = roostFor(); fly({ x: r.x, z: r.z, yaw: r.yaw }, false, true); H.events.push('leave'); return H; }   // dark: to its roost
     if (night) {   // dark: off over the shore, gone
       const a = Math.atan2(H.z, H.x);
       fly({ x: Math.cos(a) * (Math.hypot(H.x, H.z) + HERON.flyAway), z: Math.sin(a) * (Math.hypot(H.x, H.z) + HERON.flyAway) }, true);
@@ -116,26 +146,30 @@ export function stepHeron(H, { dt = 0.016, raft = null, phase = 'calm', spots = 
   H.y = Math.sin(Math.PI * k) * HERON.flyH * (H.away ? 1.6 : 1);
   if (k >= 1) {
     if (H.away) { H.mode = 'gone'; H.y = 0; H.events.push('gone'); }
+    else if (H.toRoost) { H.mode = 'roost'; H.x = H.to.x; H.z = H.to.z; H.y = 0; H.t = 0; H.yaw = num(H.to.yaw, H.yaw); H.events.push('land'); }
     else { H.mode = 'stand'; H.x = H.to.x; H.z = H.to.z; H.y = 0; H.t = 0; H.events.push('land'); }
   }
   return H;
 }
 
 // ------------------------------------------------------------------ the model (one mesh; its poses are geometries)
-function heronGeos() {
+function heronGeos(backHex = null) {
   const grey = lin(0x8a87a3), dark = lin(0x34324a), pale = lin(0xc9c7d9), beak = lin(0x8e8460), leg = lin(0x5a5468);
+  const back = backHex != null ? lin(backHex) : grey;   // (made to count: a darker back reads against the pale water)
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
   const body = (pose) => {
     const parts = [];
     const bodyG = new THREE.SphereGeometry(0.17, 7, 5);
-    parts.push(prep(bodyG, { matrix: mat(0, pose === 'fly' ? 0 : 0.62, 0, pose === 'fly' ? 0 : -0.35, 0, 0, [0.85, 0.8, 1.9]), colorFn: (x, y) => (y < (pose === 'fly' ? -0.04 : 0.58) ? pale : grey) }));
-    // the neck: an S at rest, straight down and out in a stab, tucked back in flight
-    const np = pose === 'stab' ? [V(0, 0.7, 0.22), V(0, 0.6, 0.42), V(0, 0.36, 0.58)] : pose === 'fly' ? [V(0, 0.05, 0.28), V(0, 0.14, 0.3), V(0, 0.12, 0.42)] : [V(0, 0.7, 0.22), V(0, 0.9, 0.18), V(0, 1.0, 0.3)];
+    const by = pose === 'fly' ? -0.04 : 0.58, bt = pose === 'fly' ? 0.06 : 0.68;
+    parts.push(prep(bodyG, { matrix: mat(0, pose === 'fly' ? 0 : 0.62, 0, pose === 'fly' ? 0 : pose === 'sleep' ? -0.2 : -0.35, 0, 0, [0.85, 0.8, 1.9]), colorFn: (x, y) => (y < by ? pale : y > bt ? back : grey) }));
+    // the neck: an S at rest, straight down and out in a stab, tucked back in flight, sunk into the shoulders asleep
+    const np = pose === 'stab' ? [V(0, 0.7, 0.22), V(0, 0.6, 0.42), V(0, 0.36, 0.58)] : pose === 'fly' ? [V(0, 0.05, 0.28), V(0, 0.14, 0.3), V(0, 0.12, 0.42)]
+      : pose === 'sleep' ? [V(0, 0.68, 0.18), V(0, 0.76, 0.16), V(0, 0.8, 0.2)] : [V(0, 0.7, 0.22), V(0, 0.9, 0.18), V(0, 1.0, 0.3)];
     parts.push(prep(taperTube(np, (t) => 0.034 * (1 - t * 0.3), 5, 6), { color: pale }));
     const head = np[2];
     parts.push(prep(new THREE.SphereGeometry(0.045, 6, 4), { matrix: mat(head.x, head.y, head.z, 0, 0, 0, [0.85, 0.85, 1.3]), color: pale }));
     const bk = new THREE.ConeGeometry(0.02, 0.24, 4); bk.rotateX(Math.PI / 2); bk.translate(0, 0, 0.12);
-    parts.push(prep(bk, { matrix: mat(head.x, head.y - (pose === 'stab' ? 0.03 : 0.005), head.z + 0.03, pose === 'stab' ? 0.9 : 0.05, 0, 0), color: beak }));
+    parts.push(prep(bk, { matrix: mat(head.x, head.y - (pose === 'stab' ? 0.03 : 0.005), head.z + 0.03, pose === 'stab' ? 0.9 : pose === 'sleep' ? 0.75 : 0.05, 0, 0), color: beak }));
     parts.push(prep(new THREE.BoxGeometry(0.03, 0.012, 0.14), { matrix: mat(head.x, head.y + 0.03, head.z - 0.07, -0.3, 0, 0), color: dark }));   // the crest
     if (pose === 'fly' || pose === 'flyUp') {
       for (const s of [-1, 1]) {
@@ -145,11 +179,11 @@ function heronGeos() {
       for (const s of [-1, 1]) parts.push(prep(new THREE.CylinderGeometry(0.008, 0.008, 0.5, 4), { matrix: mat(s * 0.03, -0.02, -0.5, Math.PI / 2, 0, 0), color: leg }));
     } else {
       for (const s of [-1, 1]) parts.push(prep(new THREE.CylinderGeometry(0.009, 0.011, 0.58, 4), { matrix: mat(s * 0.035, 0.26, -0.02, 0.05, 0, 0), color: leg }));
-      for (const sd of [-1, 1]) parts.push(prep(new THREE.BoxGeometry(0.02, 0.07, 0.34), { matrix: mat(sd * 0.135, 0.63, -0.06, -0.35, 0, 0), color: mixArr(dark, grey, 0.35) }));   // the folded wings' dark edges
+      for (const sd of [-1, 1]) parts.push(prep(new THREE.BoxGeometry(0.02, 0.07, 0.34), { matrix: mat(sd * 0.135, 0.63, -0.06, -0.35, 0, 0), color: mixArr(dark, back, 0.35) }));   // the folded wings' dark edges
     }
     return merge(parts);
   };
-  return { stand: body('stand'), stab: body('stab'), fly: body('fly'), flyUp: body('flyUp') };
+  return { stand: body('stand'), stab: body('stab'), fly: body('fly'), flyUp: body('flyUp'), sleep: body('sleep') };
 }
 
 /** main's line: under the loop, the heron on the Mossmere (high and medium; hidden on low). → {mesh, update(dt), state(), dispose()} or null. */
@@ -160,19 +194,22 @@ export function attachHeron(ctx) {
   const Z = (ctx.data.ZONES || []).find((z) => z.id === 'mossmere');
   if (!Z) return null;
   const L = buildLayout(Z);   // (once: the spots are found from the same seeded layout the world draws)
-  const G = heronGeos();
+  const W = ctx.data.LOOP?.wildlife?.on === true ? ctx.data.LOOP.wildlife.heron || null : null;
+  const G = heronGeos(W ? W.back : null);
   const material = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.35, rimColor: 0xd4d0f2, steps: 3 });
   const mesh = new THREE.Mesh(G.stand, material);
   mesh.name = 'heron'; mesh.visible = false;
   setupSurface(mesh, { cast: false, reflect: false });
+  if (W) mesh.scale.setScalar(num(W.scale, 1));
   scene.add(mesh);
   const rng = faceRng(0x4e7a11);
-  const S = { H: null, spots: [], key: '' };
+  const S = { H: null, spots: [], key: '', roost: null };
   const zoneId = () => { try { return ctx.world?.getZone?.()?.id ?? ctx.state?.run?.zone ?? null; } catch { return null; } };
   const phaseNow = () => { try { return ctx.survival?.getPhaseInfo?.()?.phase || ctx.state?.run?.phase || 'calm'; } catch { return 'calm'; } };
-  function update(dt = 0.016) {
+  function update(dt = 0.016, { show = false } = {}) {
     const q = ctx.render?.quality || 'high';
-    const on = q !== 'low' && faceOn(ctx.data, zoneId()) && (ctx.flow === 'playing' || ctx.flow === 'home') && !ctx.cinematic;
+    // (with the wildlife on it also keeps out of the catch show's reveal close-up, main's `show`; off, as built)
+    const on = q !== 'low' && faceOn(ctx.data, zoneId()) && (ctx.flow === 'playing' || ctx.flow === 'home') && !ctx.cinematic && !(W && show);
     if (!on) { mesh.visible = false; return; }
     const phase = phaseNow(), light = lightOf(phase);
     if (light !== S.key) {
@@ -180,22 +217,23 @@ export function attachHeron(ctx) {
       let probe = null;
       try { probe = ctx.world && !ctx.world.isStub ? probeOf(ctx.world) : null; } catch { probe = null; }
       S.spots = heronSpots(L, ctx.data, { phase, probe });
+      if (W && !S.roost) S.roost = heronRoost(ctx.data);
       if (!S.H) S.H = createHeronState(S.spots, rng);
     }
     const p = ctx.player?.position;
-    stepHeron(S.H, { dt: Math.min(0.1, Math.max(0, num(dt, 0))), raft: p ? { x: p.x, z: p.z } : null, phase, spots: S.spots, rng });
+    stepHeron(S.H, { dt: Math.min(0.1, Math.max(0, num(dt, 0))), raft: p ? { x: p.x, z: p.z } : null, phase, spots: S.spots, rng, roost: S.roost });
     const H = S.H;
     for (const e of H.events) if (e === 'lift' || e === 'leave') { try { ctx.bus?.emit?.('heron:lift', { x: H.from?.x ?? H.x, z: H.from?.z ?? H.z }); } catch { /* optional */ } }
     mesh.visible = H.mode !== 'gone';
     if (!mesh.visible) return;
     const flap = H.mode === 'fly' && Math.sin(H.t * 9) > 0;
-    const want = H.mode === 'fly' ? (flap ? G.flyUp : G.fly) : H.mode === 'stab' ? G.stab : G.stand;
+    const want = H.mode === 'fly' ? (flap ? G.flyUp : G.fly) : H.mode === 'stab' ? G.stab : H.mode === 'roost' ? G.sleep : G.stand;
     if (mesh.geometry !== want) mesh.geometry = want;
     let wy = 0;
     try { wy = ctx.water && !ctx.water.isStub ? num(ctx.water.getHeight?.(H.x, H.z), 0) : 0; } catch { wy = 0; }
     mesh.position.set(H.x, (H.mode === 'fly' ? 0.4 : -0.12) + H.y + wy * 0.3, H.z);
     mesh.rotation.y = H.yaw;
   }
-  return { mesh, update, state: () => (S.H ? { mode: S.H.mode, x: S.H.x, z: S.H.z, lifts: S.H.lifts, spots: S.spots.length } : null),
+  return { mesh, update, state: () => (S.H ? { mode: S.H.mode, x: S.H.x, y: +num(mesh.position.y).toFixed(2), z: S.H.z, lifts: S.H.lifts, spots: S.spots.length, isles: S.spots.filter((q) => q.isle).length } : null),
     dispose() { scene.remove(mesh); for (const g of Object.values(G)) g.dispose(); material.dispose(); } };
 }

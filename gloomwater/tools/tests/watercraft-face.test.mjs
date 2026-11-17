@@ -265,7 +265,7 @@ section('the heron (WATERCRAFT §5.4, §9.4 item 4): margin or reed spots of the
     ok(ar.length > 0 && ar.every((a) => (a === 'margin' || a === 'reeds') && (top.has(a) || WC.areaWeight('dusk_minnow', a, ph) >= ranked[Math.ceil(ranked.length / 3) - 1][1] - 1e-9)), `${ph}: its areas are margin or reeds in the minnow's top third`, { ar, ranked });
     const spots = HM.heronSpots(L, D, { phase: ph, probe });
     ok(spots.length >= 12, `${ph}: ${spots.length} spots to stand at`);
-    ok(spots.every((s) => ar.includes(WC.areaAt(s.x, s.z, probe, { arena, hulls, docks: L.docks }))), `${ph}: every spot in one of those areas`);
+    ok(spots.filter((s) => !s.isle).every((s) => ar.includes(WC.areaAt(s.x, s.z, probe, { arena, hulls, docks: L.docks }))), `${ph}: every spot in one of those areas (but the islands' shores of LOOP.wildlife.heron)`);
     const lm = D.loopPlaceIds('mossmere').map((id) => D.loopPlace(id)?.landmark).filter((q) => q && Number.isFinite(q.x));
     ok(spots.every((s) => F.clearanceOf(avoid, s.x, s.z) >= 6 && lm.every((q) => Math.hypot(s.x - q.x, s.z - q.z) >= 6)), `${ph}: every spot ≥ 6 m from the mooring, the glide-in, the places and their landmarks`);
   }

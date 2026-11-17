@@ -1019,7 +1019,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     for (const g of geos) g.dispose();
     for (const m of mats) m.dispose();
   }
-  return { group, update, setPlaces, liftMist, placeAnchor, openAt, readout, stats, forceBack, dispose, banks: bank.mesh, ids: P.map((p) => p.id) };
+  // the wildlife's moths (actors-wildlife.js): every third float cap of the Buoy Lights, lit as the caps burn
+  const capLamps = capList.filter((q, i) => i % 3 === 1).map((q, i) => ({ key: `cap${i}`, kind: 'cap', x: q.x, y: 0.2, z: q.z, k: 0 }));
+  const lamps = () => { const k = caps ? caps.userData.u.uK.value : 0; for (const l of capLamps) l.k = k; return caps ? capLamps : []; };
+  return { group, update, setPlaces, liftMist, placeAnchor, openAt, readout, stats, forceBack, dispose, lamps, banks: bank.mesh, ids: P.map((p) => p.id) };
 }
 
 /** A small chipped block (a fallen stone): a box with its corners knocked off. */
