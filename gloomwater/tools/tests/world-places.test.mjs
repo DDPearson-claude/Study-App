@@ -207,7 +207,8 @@ ok(off.all === on.all, `the arena hashes the same off and on the loop (${off.all
 const faceH = arenaHash(D_LOOP);
 {
   const diff = Object.keys({ ...faceH.parts, ...on.parts }).filter((k) => faceH.parts[k] !== on.parts[k]);
-  ok(JSON.stringify(diff) === JSON.stringify(['fine']), 'WC-3: the face changes only the \'fine\' static among the statics', diff);
+  // (and the loop's drowned debris, LOOP.ambient.debris: its four rooftops ride in the stone static, its rowboat in the timber one)
+  ok(JSON.stringify(diff) === JSON.stringify(['rocks', 'organics', 'fine']), 'WC-3: the face changes only the \'fine\' static among the statics, and the debris the stone and timber ones', diff);
   ok(faceH.arena.halos.count === on.arena.halos.count && faceH.floaters.length === on.floaters.length, 'WC-3: the face adds no halo and no instanced mesh (the bed pads ride in the pads\' own)', [faceH.floaters, on.floaters]);
   ok(faceH.floaters.filter((f, i) => f !== on.floaters[i]).every((f) => /^lilypads:/.test(f)), 'WC-3: only the pads\' count grows', faceH.floaters);
 }

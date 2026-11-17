@@ -7,6 +7,7 @@ import { glowMaterial, INK, setupSurface, evenOutline, REFLECT_LAYER } from './t
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, rockGeo, taperTube, latheGeo, crystalGeo, wobble, lin, mixArr, scaleArr, fbm3, vnoise3, makeRingNoise, ringNoise } from './world-geo.js';
 import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's reed beds and lily beds (pure plans)
+import { ambientOn, debrisPieces, debrisGeos, createSlits, stepSlits } from './world-ambient.js';   // the loop's ambient (LOOP.ambient)
 import { inkToon, outlineMat, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
 
@@ -772,6 +773,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
 
   // ---------------- hero landmarks just beyond the cliffs (real 3D parallax against the rings)
   const hero = { ink: [], glow: [] };
+  const gateSlits = [];   // the Sunken Gate's eight candle slits: their glow boxes' vertices and halos (the loop's ambient flickers them)
   {
     // landmarks rise behind the Descent Gate (north, i.e. up-screen, for a gate at the lake centre)
     const ga = Math.hypot(L.gate.x, L.gate.z) < L.R * 0.2 ? -Math.PI / 2 : Math.atan2(L.gate.z, L.gate.x);
@@ -795,9 +797,13 @@ vec2 gwTwitch(vec2 p, float hgt) {
         for (const [off, wy, wh] of wins) {
           const r0 = 5.2 - (wy / 38) * 1.0 + 0.15;
           const px = tx + wx * r0 + fx * off, pz = tz + wz * r0 + fz * off;
-          hero.glow.push(prep(new THREE.BoxGeometry(0.7, wh, 0.3), { matrix: mat(px, wy, pz, 0, face, 0), color: scaleArr(PL.candle, 1.8) }));
-          halos.add(px + wx * 0.6, wy, pz + wz * 0.6, scaleArr(PL.candle, 0.55), 4.5);
-          if (wy <= 13) slits.push({ x: px + wx * 0.6, y: wy, z: pz + wz * 0.6 });
+          const box = prep(new THREE.BoxGeometry(0.7, wh, 0.3), { matrix: mat(px, wy, pz, 0, face, 0), color: scaleArr(PL.candle, 1.8) });
+          const v0 = hero.glow.reduce((a, q) => a + q.attributes.position.count, 0);
+          hero.glow.push(box);
+          const halo = halos.add(px + wx * 0.6, wy, pz + wz * 0.6, scaleArr(PL.candle, 0.55), 4.5);
+          const rec = wy <= 13 ? { x: px + wx * 0.6, y: wy, z: pz + wz * 0.6, k: 1 } : null;
+          if (rec) slits.push(rec);
+          gateSlits.push({ v0, n: box.attributes.position.count, halo, rec });   // (the loop's ambient: each slit's light, world-ambient's stepSlits)
         }
       }
       // braziers on the broken arch's crown
@@ -878,6 +884,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
     prof.wcReeds = plan.length;
   }
   // <<< WC-3
+  // the loop's drowned debris (LOOP.ambient.debris: a half-sunk rowboat, four rooftops; world.js puts them in the lake's obstacles),
+  // merged into the stone and timber statics: no draw call of its own
+  if (wcOn) { const dg = debrisGeos(debrisPieces(ctx?.data, zone.id || 'mossmere'), K); kit.rock.push(...dg.rock); kit.org.push(...dg.org); }
   // ---------------- merge statics
   const statics = [];
   const addStatic = (list, material, outline, name, cast = true) => {
@@ -900,7 +909,35 @@ vec2 gwTwitch(vec2 p, float hgt) {
   addStatic(kit.glow, glowMat, null, 'glows');
   const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', detailAmount: 0.8, gloss: 0.05, floor: 1.7 }, { fogScale: 0.5, fogMax: 0.72 }));
   addStatic(hero.ink, heroMat, null, 'landmarks');
-  addStatic(hero.glow, glowMat, null, 'landmarkGlows');
+  const heroGlows = addStatic(hero.glow, glowMat, null, 'landmarkGlows');
+  // the loop's ambient (with ?wild on): the gate's slits flicker, and now and then one goes out and is lit again; written into the
+  // landmark glows' colours and the slits' halos (base colours kept), 24 times a second on desktop, 12 on a phone
+  const slitFx = wcOn && ambientOn(ctx?.data) && heroGlows && gateSlits.length ? (() => {
+    const col = heroGlows.geometry.attributes.color, hc = halos.geo.attributes.aColor;
+    const base = gateSlits.map((q) => ({ box: col.array.slice(q.v0 * 3, (q.v0 + q.n) * 3), halo: hc.array.slice(q.halo * 3, q.halo * 3 + 3) }));
+    const v0 = Math.min(...gateSlits.map((q) => q.v0)), v1 = Math.max(...gateSlits.map((q) => q.v0 + q.n));
+    const h0 = Math.min(...gateSlits.map((q) => q.halo)), h1 = Math.max(...gateSlits.map((q) => q.halo)) + 1;
+    const C = ctx.data.LOOP.ambient.slits || {}, rng = WF.faceRng(0x5117a5);
+    const S = createSlits(gateSlits.length, rng, C);
+    let acc = 1;
+    return {
+      S,
+      step(dt) {
+        stepSlits(S, dt, rng, C);
+        acc += dt;
+        if (acc < (low ? 1 / 12 : 1 / 24)) return;
+        acc = 0;
+        gateSlits.forEach((q, i) => {
+          const k = S.k[i], b = base[i];
+          for (let j = 0; j < b.box.length; j++) col.array[q.v0 * 3 + j] = b.box[j] * k;
+          for (let j = 0; j < 3; j++) hc.array[q.halo * 3 + j] = b.halo[j] * k;
+          if (q.rec) q.rec.k = k;
+        });
+        col.clearUpdateRanges(); col.addUpdateRange(v0 * 3, (v1 - v0) * 3); col.needsUpdate = true;
+        hc.clearUpdateRanges(); hc.addUpdateRange(h0 * 3, (h1 - h0) * 3); hc.needsUpdate = true;
+      },
+    };
+  })() : null;
 
   mark('merge');
   // ==================================================================== FLOATERS
@@ -1304,6 +1341,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     }
     gate.viewH(viewH);
     gate.update(dt, t, env);
+    if (slitFx) slitFx.step(dt);   // the loop's ambient: the gate's candle slits
     // floaters bob on the water
     let touched = false;
     for (let i = 0; i < floaters.length; i++) {
@@ -1351,7 +1389,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     group, anchors, update, applyMood, dispose, rings, statics, sky, keyDir,
     crackTop, crackBottom, dockBuoys, halos,
     piers, lampPosts, redress: redressOn,   // M1 step 3a: the Toppled Bridge's piers and the street lamp-posts as drawn (records)
-    slits,   // the wildlife's moths: the gate towers' low candle slits (records)
+    slits,   // the wildlife's moths: the gate towers' low candle slits (records; k how lit, the loop's ambient)
+    slitFx,  // the loop's ambient: the gate's eight slits' flicker ({S}: k each, the one out) or null
     // >>> WC-3: the stems tell's nudge (WC-2 calls world.stems.nudge(x, z, k)): the reeds and pads within a few metres twitch, then
     // settle (one of four points, the oldest replaced). null off the Mossmere's loop
     stems: twU ? {

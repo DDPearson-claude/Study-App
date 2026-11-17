@@ -10,6 +10,7 @@ import { buildArena } from './world-art.js';
 import { AIR } from './world-fx.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
 import { buildPlaces } from './world-places.js';
+import { debrisObstacles } from './world-ambient.js';   // the loop's drowned debris (LOOP.ambient.debris): the raft sails round it
 import { setToonFloor } from './toon.js';   // CLARITY LANE B: key light
 
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
@@ -211,6 +212,8 @@ export function create(ctx) {
       }
       for (const c of mooring.circles) layout.obstacles.push({ x: c.x, z: c.z, r: c.r, kind: c.kind });
     }
+    // the Mossmere's drowned debris under the loop (a half-sunk rowboat, four rooftops; world-art draws them): the raft sails round
+    for (const o of debrisObstacles(ctx.data, z.id)) layout.obstacles.push(o);
     bounds.radius = layout.R;
     gateInfo.position.set(layout.gate.x, 0, layout.gate.z);
     gateInfo.radius = layout.gate.radius;
@@ -587,8 +590,9 @@ export function create(ctx) {
       const red = arena.redress === true;
       (arena.lampPosts || []).forEach((p, i) => { if (p.light !== false) lampSpots.push({ key: `post${i}`, kind: 'post', x: p.x + Math.cos(-p.ry) * (red ? 0.68 : 0.75), y: p.y + (red ? 2.4 : p.h - 0.35), z: p.z + Math.sin(-p.ry) * (red ? 0.68 : 0.75), k: 1 }); });
       (arena.dockBuoys || []).forEach((f, i) => lampSpots.push({ key: `buoy${i}`, kind: 'buoy', x: f.x, y: 1.0 * (f.s || 1), z: f.z, k: 1, dock: i, watch: !!f.watch }));
-      (arena.slits || []).forEach((q, i) => lampSpots.push({ key: `slit${i}`, kind: 'slit', x: q.x, y: q.y, z: q.z, k: 1 }));
+      (arena.slits || []).forEach((q, i) => lampSpots.push({ key: `slit${i}`, kind: 'slit', x: q.x, y: q.y, z: q.z, k: 1, slit: q }));
     }
+    for (const l of lampSpots) if (l.slit) l.k = Number.isFinite(l.slit.k) ? l.slit.k : 1;   // (a slit gone out: its moths drift off)
     for (const l of lampSpots) if (l.watch) { const li = watchLamps.findIndex((w) => w.dock === l.dock); l.k = li >= 0 ? Math.min(1, Number(v3Info.lamps[li]?.k) || 0) : 1; }
     let caps = [];
     try { caps = placesVis?.lamps?.() || []; } catch { caps = []; }
@@ -798,6 +802,8 @@ export function create(ctx) {
     /** The lake's two watch-lamps [{id, name, position, x, z, radius, lit, dock, kind}] (the same array each call). */
     getWatchLamps,
     getLampSpots,   // (the loop's wildlife: the lamps the moths fly)
+    /** The loop's ambient as drawn (world-ambient.js): the gate's slits (k each, the one out) or null; {out: true} lets the next go out now (a look scenario's). */
+    ambient: (o) => { const F = arena?.slitFx; if (F && o?.out === true && F.S.out < 0) F.S.next = 0; return F ? { k: Array.from(F.S.k, (v) => +v.toFixed(2)), out: F.S.out, outs: F.S.outs } : null; },
     /** The stopgap's holdsGiants water [{id, kind: 'ring'|'disc', x, z, r}] in a lake whose places are not in the build. */
     getGiantSpots: () => giantSpots,
     // ---- the loop's places (M1 step 3a, PLAN §3.4; inert with the loop off or on a lake with no places)

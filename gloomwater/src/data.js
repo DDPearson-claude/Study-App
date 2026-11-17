@@ -4923,6 +4923,30 @@ export const LOOP = {
     heron: { scale: 1.3, back: 0x6c6886, northZ: 0, isles: ['Mossbell Isle', 'Stair Isle', 'Drowned Gatehouse', 'Root Isle'], isleOff: [1.2, 2.0],
       roost: [{ x: 15.3, z: -7.4, yaw: -1.75 }, { x: 28.8, z: -7.1, yaw: 1.6 }] },
   },
+  // the Mossmere's ambient (the look audit's §3 additions; src/world-ambient.js): art only, as the wildlife, under the loop on the
+  // Mossmere. ?wild=0 (GW_WILD) turns the moving ones off (the candle-boats and the slits' flicker); the drowned debris is the lake's own
+  ambient: {
+    on: LOOP_ENABLED && globalThis.GW_WILD !== false,
+    // candle-boats: paper boats each carrying a candle, drifting slowly on the outflow to the Moss Sluice along `lines` (x, z points; the
+    // last one at the gate's broken stone ring, its lip); each gutters out over its last `gutter` m, sinks, and after `wait` s another is
+    // launched at its line's head (`off` m to either side). The raft within `keep` m pushes a boat aside. Every line point is 6 m and
+    // more off the places, the mooring, the glide-in and the gate's lane (Sluice Run). The flame a soft warm point, never in the mirror
+    boats: { count: { high: 6, medium: 4, low: 0 }, order: [0, 1, 2, 0, 1, 0], speed: [0.17, 0.25], off: 1.1, gutter: 3.5, sink: 3, wait: [3, 9],
+      keep: 5, len: 0.6, flame: 0xffbf78, size: 0.65, paper: 0xd6cbb6, wax: 0xeee4cc,
+      lines: [[[40, -26], [28, -33], [17, -40], [8, -45.5]], [[22, -51], [13, -49.5], [7.6, -47.4]], [[-28, -43], [-17, -43.5], [-8, -46.6]]] },
+    // the gate towers' eight candle slits flicker, and every `every` s one goes out and is lit again `out` s later (nobody keeps them)
+    slits: { flicker: 0.24, every: [16, 36], out: [3, 6] },
+    // drowned debris in the empty middle-east water (the audit's #11): a half-sunk rowboat and four rooftops breaking the surface, a
+    // drowned street. In the lake's obstacles under the loop (the raft sails round them; no foam ring), 8 m and more off every place,
+    // every gap between them, the islands, pillars and docks 4 m and more (the raft is 3.2 m across). r: the collision circle
+    debris: [
+      { kind: 'roof', x: 38, z: -8, yaw: 0.35, w: 3.6, l: 3.4, top: 0.7, r: 2.2 },
+      { kind: 'roof', x: 40, z: 0.5, yaw: 0.2, w: 3.8, l: 4.2, top: 1.0, r: 2.4, chimney: true },
+      { kind: 'roof', x: 38, z: 9, yaw: -0.15, w: 3.2, l: 3.4, top: 0.55, r: 2.0, broken: true },
+      { kind: 'roof', x: 31, z: 3, yaw: 1.75, w: 2.4, l: 2.6, top: 0.4, r: 1.6 },
+      { kind: 'rowboat', x: 46, z: -7, yaw: 2.4, len: 3, r: 1.5 },
+    ],
+  },
   // Murk's prices (the user, 16 Nov 2026: "The cost of items in murks shop should be way higher", then "For now just double the original
   // costs ill playtest and tell you how it is"): every shelf price (tackle, hold, maps, lures, tins, raft, home) is its base × factor,
   // applied once by progression-loop's mapCards and shelfItems; nothing earned changes. A preset GW_LOOP_COST (a positive number) sets
