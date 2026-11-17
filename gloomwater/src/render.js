@@ -912,7 +912,9 @@ export function create(ctx) {
   /** …and a near-square or upright screen that is not a phone's (700 px wide or more, narrower than 1.2 × its height, at least
    *  480 px high) has the card at its foot (ui-screens' gw-cc-low): the subject keeps the frame's top above LOOP.showCard.lowFoot. */
   const lowFoot = () => (ctx.data?.LOOP_ENABLED === true ? Number(ctx.data?.LOOP?.showCard?.lowFoot) || 0 : 0);
-  const cardLow = () => lowFoot() > 0 && W >= 700 && W < H * 1.2 && H >= 480;
+  // (wave 2, audit #13: a near-square phone under 700 px wide (no narrower than 0.8 × its height) has its card at the foot too, about
+  // the same share of the frame: the same fit, so the card's top edge no longer cuts the fish's fins or the Wick's hands)
+  const cardLow = () => lowFoot() > 0 && W < H * 1.2 && H >= 480 && (W >= 700 || W >= H * 0.8);
   /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
   function fitShow(v) {
     const S = showCam, a = W / H;

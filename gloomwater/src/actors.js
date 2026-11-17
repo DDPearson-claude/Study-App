@@ -843,7 +843,9 @@ export function create(ctx) {
     const camD = camPos.distanceTo(g.position), far = clamp(camD / 14, 0.8, 2.2);
     bobber.halo.scale.setScalar(0.8 * far * (1 + (B.state === 'bite' ? Math.max(0, Math.sin(t * 16)) * 0.7 : 0)));
     // expanding ripple ring on the water around the float
-    if (B.state !== 'flying') {
+    // (wave 2: on the Mossmere under the loop the hooked float draws no ring through the play: fishing's soft swirl at the fish shows
+    // the pull instead; the bite's red ring is kept)
+    if (B.state !== 'flying' && !(B.state === 'hooked' && ctx.fishing?.view?.waterWhite === true)) {
       const rate = B.state === 'bite' ? 2.6 : B.state === 'nibble' ? 1.6 : B.state === 'hooked' ? 2.0 : 0.7;
       const ph = (t * rate) % 1;
       bobRing.visible = true;

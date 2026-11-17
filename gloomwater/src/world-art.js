@@ -7,7 +7,7 @@ import { glowMaterial, INK, setupSurface, evenOutline, REFLECT_LAYER } from './t
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, rockGeo, taperTube, latheGeo, crystalGeo, wobble, lin, mixArr, scaleArr, fbm3, vnoise3, makeRingNoise, ringNoise } from './world-geo.js';
 import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's reed beds and lily beds (pure plans)
-import { inkToon, outlineMat, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
+import { inkToon, outlineMat, makeSeeCut, cutBlocked, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -125,6 +125,11 @@ export function buildArena(ctx, L, opts = {}) {
     gwWaveA: { value: new Float32Array(16) }, gwWaveB: { value: new Float32Array(8) }, gwWaveT: { value: 0 },
   } : null;
   const twState = { i: 0, t: 0, linked: false };
+  // (wave 2, audit #3 and #7: on the Mossmere under the loop the islands', pillars' and posts' stone and timber dither off the lens's line
+  // to the Wick while one of the lake's obstacles stands on it (update); the places' stone shares the cut. Off the loop nothing changes)
+  const seeCut = wcOn ? makeSeeCut() : null;
+  if (seeCut) { seeCut.add(rockMat, true); seeCut.add(olRock, false); seeCut.add(orgMat, true); seeCut.add(olOrg, false); }
+  const cutHook = (mesh) => { if (seeCut && (mesh.material === rockMat || mesh.material === orgMat || mesh.material === olRock || mesh.material === olOrg)) mesh.onBeforeRender = seeCut.setCut; };
   const TW_PARS = `
 uniform vec4 gwTw[${WF.FACE.twitch.max}]; uniform float gwTwT; uniform vec3 gwRaft;
 vec2 gwTwitch(vec2 p, float hgt) {
@@ -164,6 +169,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     transformed.y += (h * 0.4 + length(tw) * 0.05 * sin(gwTwT * 9.0)) / sc;
     transformed.xz += tw * 0.05 / sc;
   }
+  // (wave 2, audit #16: a pad within about 3 m of the lens shrinks away into the water: never a big flat blob over the frame)
+  transformed *= smoothstep(1.4, 3.0, distance((modelMatrix * vec4(instanceMatrix[3].xyz, 1.0)).xyz, cameraPosition));
 #endif`;
       shader.vertexShader = shader.vertexShader
         .replace('#include <common>', `#include <common>${TW_PARS}${kind === 'pads' ? '\nattribute float aBed; uniform vec4 gwWaveA[4]; uniform vec2 gwWaveB[4]; uniform float gwWaveT;' : ''}`)
@@ -886,7 +893,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     G(g);
     const mesh = new THREE.Mesh(g, material);
     mesh.name = name;
-    if (outline) { const o = new THREE.Mesh(g, outline); o.name = name + ':outline'; o.renderOrder = -1; mesh.add(o); }
+    if (outline) { const o = new THREE.Mesh(g, outline); o.name = name + ':outline'; o.renderOrder = -1; mesh.add(o); cutHook(o); }
+    cutHook(mesh);
     setupSurface(mesh, { cast });   // the key light's shadow and the lake's reflection (outlines take neither)
     group.add(mesh);
     statics.push(mesh);
@@ -1098,6 +1106,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     const stoneMesh = new THREE.Mesh(G(merge(stones)), rockMat);
     stoneMesh.name = 'gateStones';
     const sol = new THREE.Mesh(stoneMesh.geometry, olRock); sol.renderOrder = -1; stoneMesh.add(sol);
+    cutHook(stoneMesh); cutHook(sol);
     const glyphHex = mixHex(pal.glow, pal.accent, 0.5);   // gate filigree leans to the lake's accent
     const glyphMat = M(new THREE.MeshBasicMaterial({ color: new THREE.Color(glyphHex), fog: true, toneMapped: false }));
     const glyphMesh = new THREE.Mesh(G(merge(glyphs)), glyphMat);
@@ -1284,6 +1293,19 @@ vec2 gwTwitch(vec2 p, float hgt) {
       if (focus && Number.isFinite(focus.x)) twU.gwRaft.value.set(focus.x, focus.z, 1);
     }
     // <<< WC-3
+    // (wave 2: the see-through cut eases in while an obstacle stands on the lens's line to the raft, or a place asks (want), and out
+    // during a lift (hold); the test runs ten times a second over the lake's obstacle circles, with no allocation)
+    if (seeCut && focus && Number.isFinite(focus.x)) {
+      seeCut.focus.set(focus.x, 0.9, focus.z);
+      const cam = ctx.render && !ctx.render.isStub ? ctx.render.camera : null;
+      if ((seeCut.tick -= dt) <= 0) {
+        seeCut.tick = 0.1;
+        const e = cam?.matrixWorld?.elements;
+        seeCut.block = !!e && (cutBlocked(L.obstacles, e[12], e[14], focus.x, focus.z) || cutBlocked(L.gate?.none ? null : L.gateObstacles, e[12], e[14], focus.x, focus.z));
+      }
+      const target = seeCut.hold ? 0 : Math.max(seeCut.block ? 1 : 0, seeCut.want || 0), k = seeCut.u.uCutK.value, st = Math.max(0, dt) / 0.35;
+      seeCut.u.uCutK.value = k < target ? Math.min(target, k + st) : Math.max(target, k - st);
+    }
     const wh = ctx.water?.getHeight;
     const hasWater = typeof wh === 'function' && !ctx.water.isStub;
     domeMat.uniforms.uTime.value = t;
@@ -1352,6 +1374,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     crackTop, crackBottom, dockBuoys, halos,
     piers, lampPosts, redress: redressOn,   // M1 step 3a: the Toppled Bridge's piers and the street lamp-posts as drawn (records)
     slits,   // the wildlife's moths: the gate towers' low candle slits (records)
+    seeCut,   // (wave 2) the see-through cut the places' stone shares; null off the Mossmere's loop
     // >>> WC-3: the stems tell's nudge (WC-2 calls world.stems.nudge(x, z, k)): the reeds and pads within a few metres twitch, then
     // settle (one of four points, the oldest replaced). null off the Mossmere's loop
     stems: twU ? {
