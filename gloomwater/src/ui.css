@@ -2284,6 +2284,10 @@
 .gw-jetty-targets { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 /* on the barge the tiles' row is gone: the veil keeps only Murk's line's band and the goal line's, the home in the clear */
 .gw-jetty--barge .gw-jetty-veil { background: linear-gradient(180deg, rgba(var(--veil-rgb), .5), rgba(var(--veil-rgb), .12) 16%, transparent 30%, transparent 80%, rgba(var(--veil-rgb), .42) 93%, rgba(var(--veil-rgb), .6)); }
+/* the goal line's band runs the screen's whole width over the targets' layer: on the barge it holds no control, so presses go through
+   it to the words under it (a play-test on a 16:10 touch screen, 17 Nov 2026: CHART's word under the raft lay in the band and a tap
+   on it did nothing) */
+.gw-jetty--barge .gw-jetty-low { pointer-events: none; }
 .gw-jetty .gw-tile.gw-jetty-target { position: absolute; display: block; flex: none; min-height: 0; margin: 0; padding: 0; border: 0; background: none; pointer-events: auto;
   color: var(--ink); -webkit-tap-highlight-color: transparent; transition: opacity .25s; }
 .gw-jetty .gw-tile.gw-jetty-target::before, .gw-jetty .gw-tile.gw-jetty-target::after { content: none; }

@@ -246,7 +246,7 @@ section('the targets: the home camera\'s frame at 358 px and every size, each bu
 {
   const cam = M.cam;
   // (the portrait pose upright, the landscape wide, the two eased into each other between: a tablet held sideways, 4:3, square)
-  for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [690, 760], [700, 760], [800, 800], [900, 900], [900, 1000], [1024, 768], [1180, 820], [960, 540], [1280, 720], [844, 390]]) {
+  for (const [vw, vh] of [[358, 664], [358, 775], [390, 844], [390, 664], [690, 760], [700, 760], [800, 800], [900, 900], [900, 1000], [1024, 768], [1180, 820], [960, 540], [1280, 720], [844, 390], [1280, 800], [1440, 900], [1706, 1066], [1920, 1200]]) {
     const r = HT.frameCheck(M, D.homeCamAt(cam, vw / vh), { vw, vh });
     ok(r.ok, `${vw} × ${vh}: the barge, the raft and the four targets in frame, each ≥ 44 px, none overlapping, every word ≥ 16 px from the others and the Wick${r.ok ? '' : `: ${r.faults.join('; ')}`}`);
     ok(r.layout.items.every((it) => it.w >= 44 && it.box.b - it.box.t >= 44), `${vw} × ${vh}: every button at least 44 × 44 px`);
@@ -319,6 +319,26 @@ section('the barge: three draw calls, the glow by the hour, the variants in the 
   ok(day.lantern < 0.05 && night.lantern > 0.9 && dawn.lantern < night.lantern, 'the rail lanterns burn through the night and fade as the sky pales');
   home.update(0.1, () => 0);
   ok(home.waterLight.intensity > 0 && home.waterLight.streak <= 1, 'the warm windows on the water: one streak in the water\'s light list (no PointLight)');
+}
+
+// =====================================================================================
+section('the targets take presses all the way down: nothing laid over them at the foot of the screen');
+{
+  // (a play-test on a 16:10 touch screen, 17 Nov 2026: CHART's word under the raft lay inside the goal line's full-width band, which
+  // sits over the targets' layer (z-index 1, later in the page), so a tap on the word reached the band, not the button: nothing happened)
+  const { readFileSync } = await import('node:fs');
+  const css = readFileSync(new URL('../../src/ui.css', import.meta.url), 'utf8'), uiv = readFileSync(new URL('../../src/ui-loop.js', import.meta.url), 'utf8');
+  const rule = (sel) => { const i = css.indexOf(`${sel} {`); return i < 0 ? '' : css.slice(i, css.indexOf('}', i)); };
+  ok(/pointer-events:\s*none/.test(rule('.gw-jetty--barge .gw-jetty-low')), 'on the barge the goal line\'s band lets presses through to the targets under it (.gw-jetty--barge .gw-jetty-low: pointer-events none)');
+  ok(/z-index:\s*1/.test(rule('.gw-jetty-low')) && /z-index:\s*1/.test(rule('.gw-jetty-targets')) && /wrap\.insertBefore\(layer, wrap\.querySelector\('\.gw-jetty-low'\)\)/.test(uiv),
+    '(the stacking the rule answers: the band and the targets\' layer both at z-index 1, the band later in the page, so over the layer)');
+  ok(!/<(button|a|input)\b/.test((/<div class="gw-jetty-low">([\s\S]*?)<\/div>/.exec(uiv) || [])[1] || 'x') , 'the band holds no control of its own on the barge (the tiles\' row is removed there; the goal line is words)');
+  // and at the 16:10 sizes the words and their buttons sit inside the view (the frame check above holds them there)
+  for (const [vw, vh] of [[1280, 800], [1706, 1066], [1920, 1200]]) {
+    const r = HT.frameCheck(M, D.homeCamAt(M.cam, vw / vh), { vw, vh });
+    const ins = (q) => q && q.l >= 0 && q.t >= 0 && q.r <= vw && q.b <= vh;
+    ok(r.ok && ['murk', 'chart', 'journal'].every((id) => { const it = r.layout.items.find((x) => x.id === id); return it && ins(it.box) && ins(it.wordBox); }), `${vw} × ${vh} (16:10): MURK, CHART and JOURNAL and their buttons wholly inside the view`);
+  }
 }
 
 console.log(`\nloop-5a: ${pass} passed, ${fail} failed`);
