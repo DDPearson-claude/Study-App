@@ -328,6 +328,9 @@ with Sporewood's makers: sip (Fry, Barb), splash (Mackerel, Cindertail), roll (D
 
 ### 3.1 The outline, the banks and the depth (for the world lane)
 
+*(As built by lane W1, §9.2: the Veil inlet is a real backwater, 49 points; the Mother's Foot at (59, 12); the banks are the ground
+built from the field, whose iso-lines are the outline's offsets.)*
+
 **The shore is an authored outline** (`ZONES[1].arena.outline`, read by world-layout only under the loop; the flag-off game keeps
 its own Sporewood): 45 control points of a closed centripetal Catmull-Rom curve, sampled every 1 m, turned once at build into a
 signed-distance grid (1 m cells over 184 × 104 m: about 19k floats, under 1 ms). Points, clockwise from the neck's north bank:
@@ -858,6 +861,64 @@ and the Mossmere plays as before (the readers of a shared table keep to the ship
   `tools/roster-export.mjs` `NEXT` exports Sporewood's ten beside the Nightbloom.
 - **Checks**: validate-data `--loop`'s "LAKE2 D1" block (every key above, the list rule, the repeats rule, the hook table, `lineAt`, the
   words, nothing on a fresh save's shelf or map cards).
+
+### 9.2 Lane W1 as built (gw-l2-w1): the outline shore
+
+Grey-box; `LOOP.shipped` stays `'mossmere'`. **The Mossmere does not move**: `tools/tests/outline-shore.test.mjs` part 1 (the lane's first
+commit, before any builder moved) pins its layout (the polar shore at 720 bearings, depth, shore distance and open water on a 1 m grid,
+the obstacles, the docks, the cut), the world module's collision and shore queries, the Chart's water geometry and the built arena (high
+and low) in the flag-off, v3, loop and `?redress=0` builds, and Sporewood off the loop: every hash as at gw-lake2's 87408ff.
+
+- **The engine** (`src/world-outline.js`, pure): the shore a closed centripetal Catmull-Rom curve sampled every metre, each island its
+  own curve; one signed-distance grid (1 m nodes over the basin and 28 m round it: 233 × 150; even-odd fill, the exact distance to the
+  nearest segment within 3 cells, the nearest segment passed on to the rest, both ways twice), bilinear; each node's bank top, shelf
+  and island-ness softened by about 3 m, so the ground behind two banks of different heights and the shallows between two shelves meet
+  without a seam. Built with the layout: about 11 ms warm and 60–100 ms the first time (node, a machine shared with another lane).
+  `sdfAt`, `sdfGrad`, `nearestAt`, `bankAt`, `groundAt`, `shoreAt` (by arc length), `arcAt`/`alongAt` (a control point's arc, the
+  nearest shore point's control parameter), `polarShore`.
+- **`world-layout.js`**: `layout: 'outline'` (`buildLayout` builds the field; R the farthest water from the centre, 105; `L.shoreR` the
+  farthest water along a bearing, a fallback for the polar readers only, never the collision or the water); **`shoreDist(L, x, z)`**
+  the one seam (the field, the islands in it); `fromShore` (the lake's own shore: radial on a polar one, as built), `groundAt`,
+  `shoreAt`, `shoreArc`, `shoreAlong`, `sheetOf` (the Chart's). `isOpenWaterL`, `insideShore`, the docks' push and the light shafts read
+  the field; an outline island's collision circle is its inscribed one (the field does the rest); an outline water with no gate has no
+  standing stones. **Depth** (`outlineDepth`): the shore's distance through each bank's shelf, a floor, the bowls (the West Pool 0.8 at
+  (−46, 4), the East Pool 0.85 at (40, −4), the neck's channel 0.6), the Mother's Cup blended to 1.0 (only deepening on the way in),
+  remapped to `depthShare` 30 / 42 / 28.
+- **The arena** (`data.js` `SPOREWOOD_ARENA`, under the loop `ZONES[1].arena`; the flag-off game keeps its twoBasins Sporewood): the
+  design's 45 points with **the Veil inlet drawn as a real backwater** (its three points become seven: a mouth 12 m wide, a pocket that
+  holds the Veilwater; 49 points), a bank profile [top, shelf] at each point, six islands each its own outline (**the Mother's Foot set at
+  (59, 12)**, 3 m east of the design's, so the Mother's Cup is all water), the bowls, the Cup the legend's water, no gate, the spawn, one
+  dock (Rootfoot's jetty). Measured: 9,137 m² inside the shore (8,869 of water, the islands out), 569 m round, isoperimetric 0.36,
+  x −94…80, z −46…46, the neck 10.95 m at x = 0.
+- **The places fitted** (`SPOREWOOD_LOOP.places`): the Lullaby (−51.5, −35) r 7, the Gill Harp (0, 6.5) **r 4.5** (it fills the neck:
+  0.5 m off each bank; its bank's feather lies over the banks), the Veilwater (−86, 38) r 5 in the inlet's pocket, the Mother's Cup
+  (48, 6) r 6; each ≥ 80% open water. **Their glides** (`LOOP.places[id].out`) leave Rootfoot along the mooring's lane, round Murk's
+  barge, through the neck (every West Pool place), clear of every bank and island by the raft's radius + 0.3 m (the Veilwater's 157 m,
+  the Lullaby's 126 m, the Gill Harp's 61 m, the Cup's 27 m); `LOOP.tutorial.outPath.sporewood` the open water's.
+- **The mooring fitted** (`LOOP.mooring.sporewood`): the Mossmere's own (its raft, Murk, lane and both camera poses) turned and set
+  down in Rootfoot cove with the barge's bow north-west into the East Pool (hull (32, 25), yaw 0.55): every one of validate-data's
+  mooring checks (now on the field: `mooringChecks({shoreDist})`, the bodies 2 m off the bank, every glide off it by 1.9 m) and its
+  frame checks at the 18 sizes pass. The home view looks across the barge toward the neck's mouth; the Mother Cap (§3.4) stands to the
+  right, outside the landscape lens (the design's figures could not hold both the barge and the cap).
+- **The readers**: `world.js` (the collision held off every bank up the field's slope; `getShoreDist`, `getFromShore`, `getGround`,
+  `getShoreAlong`, `getOutline`; no gate and no gate ring on an outline water; W9's toll-tower and Sluice Veil the Mossmere's only);
+  the water's bake reads `getShoreDist` as built (its half R + 8 = 113 m: about 1.4 m a texel); `watercraft.probeOf` (`getFromShore`,
+  `along`), `areaAt({geo})` (a water's own geometry; reed runs `[u0, u1]` along the curve); `watercraft-face.reedPlan({geo})` (clumps by
+  arc length); `actors-heron` (its margins by arc length); `fishing`'s sight (the field); `loop-rules.mooringChecks({shoreDist})`,
+  `pathShore`; `ui-chart.waterGeometry` (the sheet is the world's outline every 2 m, each island its own, `shoreDist`); `chart-draw`'s
+  `sideOf`. **The banks** (`world-art.js`, `buildBanks`): one mesh, the ground on a 2 m grid (3 m on low) out to R + 20 under the first
+  ring, the waterline through its vertices (on the shore within 0.1 m), the deep bed left out, earth and moss in the kit's dark tones,
+  smooth normals: 21.7k triangles on high, 9.7k on low; the shore's mist a band 1.5 m back along the curve.
+- **`WATERCRAFT.sporewood.geometry`**: the inflow under the Seep, the outflow by the Root Weir, the drop-off round the Cup, three lily
+  beds, reed runs (the Reed Flats, Lily Cove's head, the East Pool's south bank), the reed and root islands, the lane in the West Pool and
+  its avoid list. The shares and factors wait for the water's threading through `laneFor`, `areaShares` and `fitFactors` (D2 or the gate).
+- **Measured in the browser** (`tools/tests/lake2-w1.scenario.mjs`, the world put on Sporewood by `zone:change`): the raft driven at
+  six banks stays 1.6 m off each; no error; at night on the West Pool 164 calls and 242k triangles in all passes at 1280 × 720 (high),
+  155 and 203k at 390 × 844 (medium). `tools/outline-map.mjs` draws the basin top-down (the field, depth, ground, places, docks,
+  mooring and glides).
+- **Left for W2 and C**: the greenery and the landmarks (the hero caps are still the built Sporewood's, placed on the polar fallback;
+  the places' dressing is world-places' generic one); the Chart's sheet 2 (the polygon is ready in `waterGeometry`; chart-draw's
+  hachures and docks are still radial).
 
 ---
 

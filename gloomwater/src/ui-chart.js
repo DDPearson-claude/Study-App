@@ -15,7 +15,7 @@
 import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
 import { gildStep, gildCard, brookStep, brookCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home); the brook behind the Veil (LOST-TACKLE §5.2)
-import { buildLayout } from './world-layout.js';
+import { buildLayout, sheetOf } from './world-layout.js';
 import { drawFishInk } from './ui-fishart.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
@@ -47,12 +47,15 @@ export function waterGeometry(D, waterId) {
   const zone = D?.ZONE_BY_ID?.[waterId] || arr(D?.ZONES).find((z) => z?.id === waterId) || null;
   if (!zone) return null;
   const A = zone.arena || {};
-  let shoreR = null, N = null;
-  try { const Ly = buildLayout(zone); shoreR = Ly.shoreR; N = Ly.notch ? { ...Ly.notch, ray: null } : null; } catch { shoreR = null; }
+  let shoreR = null, N = null, Ly = null;
+  try { Ly = buildLayout(zone); shoreR = Ly.shoreR; N = Ly.notch ? { ...Ly.notch, ray: null } : null; } catch { shoreR = null; Ly = null; }
   const R = num(A.radius, 60);
   const shore = [];
   let Rmax = 0;
-  for (let i = 0; i < 120; i++) {
+  // LAKE2 §3.1 (lane W1): an outline water's sheet is the world's own outline (world-layout.sheetOf: its shore every 2 m, each island's
+  // own, `shoreDist` (x, z) → m, + in the water, the side of the shore for the pen)
+  const S = Ly && sheetOf(Ly);
+  if (S) { shore.push(...S.shore); Rmax = S.Rmax; } else for (let i = 0; i < 120; i++) {
     const a = (i / 120) * Math.PI * 2, r = shoreR ? shoreR(a) : R;
     Rmax = Math.max(Rmax, r);
     shore.push([Math.round(Math.cos(a) * r * 100) / 100, Math.round(Math.sin(a) * r * 100) / 100]);
@@ -60,8 +63,8 @@ export function waterGeometry(D, waterId) {
   const pts = (list) => arr(list).filter((p) => isObj(p) && Number.isFinite(p.x) && Number.isFinite(p.z));
   const docks = pts(A.docks).map((d) => ({ x: d.x, z: d.z }));
   return {
-    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N,
-    islands: pts(A.islands).map((q) => ({ x: q.x, z: q.z, r: num(q.r, 4), kind: q.kind || 'rock' })),
+    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N, ...(S && S.extra),
+    islands: pts(A.islands).map((q) => ({ x: q.x, z: q.z, r: num(q.r, 4), kind: q.kind || 'rock', ...(S && S.isle(q)) })),
     piers: pts(A.pillars).filter((p) => p.kind === 'pier').map((p) => ({ x: p.x, z: p.z, r: num(p.r, 1.4) })),
     deep: pts(A.deepPools).map((p) => ({ x: p.x, z: p.z, r: num(p.r, 10) })),
     gate: A.gate && Number.isFinite(A.gate.x) ? { x: A.gate.x, z: A.gate.z } : null,

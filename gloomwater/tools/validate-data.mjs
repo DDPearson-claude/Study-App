@@ -376,7 +376,7 @@ if (process.argv.includes('--loop')) {
     let worst = Infinity, at = null;
     for (let i = 0; i <= steps; i++) {
       const x = a.x + (b.x - a.x) * (i / steps), z = a.z + (b.z - a.z) * (i / steps);
-      const shore = Lay.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+      const shore = WLY.fromShore(Lay, x, z);   // (the lake's own shore: radial on a polar one, an outline's field, LAKE2 §3.1)
       let m = shore;
       for (const o of obs) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
       if (m < worst) { worst = m; at = { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 }; }
@@ -521,7 +521,7 @@ if (process.argv.includes('--loop')) {
       const LPL = LP.places && typeof LP.places === 'object' && !Array.isArray(LP.places) ? LP.places : {};
       const places = Object.keys(LPL).filter((id) => LPL[id]?.water === water).map((id) => ({ id, area: typeof L4.loopPlace === 'function' ? L4.loopPlace(id)?.area : null })).filter((p) => p.area);
       const out = L4.sailPlan(Lay.docks[0], { x: 0, z: 0 }, LP.tutorial, water).path;
-      const F = LR.mooringChecks(M, { obstacles: [...Lay.obstacles, ...(Lay.gateObstacles || [])], shoreR: Lay.shoreR, spawn: Lay.spawn, out, places, raftR: rr2, reach: B.reach });
+      const F = LR.mooringChecks(M, { obstacles: [...Lay.obstacles, ...(Lay.gateObstacles || [])], shoreR: Lay.shoreR, ...(Lay.outline ? { shoreDist: (x, z) => WLY.shoreDist(Lay, x, z) } : {}), spawn: Lay.spawn, out, places, raftR: rr2, reach: B.reach });
       ok4(F.length === 0, `${water}: the hulls, the raft and the glides clear the islands, pillars, posts, ${places.length} place(s) and their banks, the shore and the spawn${F.length ? `: ${F.slice(0, 4).join('; ')}` : ''}`);
       // the home camera's frame (the portrait pose on a screen taller than wide, the landscape on a wide one, the two eased into each
       // other between them: data.homeCamAt, as render picks it; a tablet held sideways, a 4:3 and a square window among the sizes)
@@ -737,6 +737,66 @@ if (process.argv.includes('--loop')) {
     ok4(PLM.mapCards(L4, fresh).every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood' && c.sealed === true), 'LAKE2 D1: the map cards are the Mossmere\'s and Sporewood\'s sealed card');
   }
   // <<< LAKE 2, lane D1
+  // >>> LAKE 2, lane W1 (docs/loop/LAKE2.md §1A (2), §3.1, §3.2, §3.5): Sporewood's outline shore. The basin natural (a closed curve that
+  // never crosses itself, two pools and a neck 11 m wide, an isoperimetric ratio far from a circle's), six islands each its own land in
+  // the shore's field, the depth (the shares, the Cup the deepest and monotone to its middle), every place's water open and its glide out
+  // clear of the banks and the islands by the raft's radius + 0.3 m, open water ≥ 70% of the basin, the water's bake covering it, the
+  // areas' geometry on the water; the mooring's checks above run on it (LOOP.mooring.sporewood, fitted)
+  {
+    const Z = L4.ZONE_BY_ID.sporewood, A = Z?.arena || {}, WO = await import('../src/world-outline.js'), LR = await import('../src/loop-rules.js');
+    ok4(A.layout === 'outline' && same(A.outline, L4.SPOREWOOD_ARENA.outline), 'LAKE2 W1: under the loop Sporewood\'s arena is its outline basin (SPOREWOOD_ARENA)');
+    const Lay = WLY.buildLayout(Z), O = Lay.outline, sd = (x, z) => WLY.shoreDist(Lay, x, z), raftR = L4.BALANCE.move.raftRadius, pad = raftR + 0.3;
+    ok4(!!O && Array.isArray(A.banks) && A.banks.length === A.outline.length && A.banks.every((b) => Array.isArray(b) && b.length === 2 && b.every(num4) && b[0] > 0 && b[1] > 0), 'LAKE2 W1: a bank profile [top, shelf] at every control point');
+    if (O) {
+      const S = O.shore, segX = (a, b, c, d) => { const o = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]); return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0; };
+      let cross = 0;
+      for (let i = 0; i < S.n; i += 1) for (let j = i + 2; j < S.n; j++) { if (i === 0 && j === S.n - 1) continue; if (segX([S.x[i], S.z[i]], [S.x[(i + 1) % S.n], S.z[(i + 1) % S.n]], [S.x[j], S.z[j]], [S.x[(j + 1) % S.n], S.z[(j + 1) % S.n]])) cross++; }
+      const iso = (4 * Math.PI * O.area) / (O.len * O.len);
+      ok4(cross === 0 && inR(O.area, 8500, 9800) && inR(O.len, 520, 620) && iso <= 0.45, `LAKE2 W1: the shore never crosses itself; ${O.area.toFixed(0)} m² inside it, ${O.len.toFixed(0)} m round, isoperimetric ${iso.toFixed(2)} (a circle 1)`);
+      let lo = null, hi = null; for (let z = -6; z <= 18; z += 0.05) { if (sd(0, z) > 0) { if (lo === null) lo = z; hi = z; } }
+      ok4(lo !== null && inR(hi - lo, 10.5, 11.5), `LAKE2 W1: the neck ${lo === null ? '?' : (hi - lo).toFixed(1)} m wide at x = 0 (11 m)`);
+      ok4(O.islands.length === 6 && O.islands.every((o) => sd(o.x, o.z) < 0) && A.islands.every((o) => Lay.islands.some((q) => q.x === o.x && q.outline === true)), 'LAKE2 W1: six islands, each its own land in the shore\'s field');
+      ok4(Lay.obstacles.filter((o) => o.kind === 'island').every((o) => sd(o.x, o.z) + o.r <= 0.05), 'LAKE2 W1: each island\'s collision circle lies inside its own bank (the field does the rest)');
+      // the depth: the shares by DEPTH_BANDS, the Cup the deepest and only deepening on the way in
+      const c = [0, 0, 0]; let nw = 0;
+      for (let x = Math.floor(O.bbox.x0); x <= O.bbox.x1; x += 1.5) for (let z = Math.floor(O.bbox.z0); z <= O.bbox.z1; z += 1.5) { if (!WLY.isOpenWaterL(Lay, Lay.obstacles, x, z, 0.5)) continue; nw++; const d = WLY.depthAt(Lay, x, z); c[d < 0.35 ? 0 : d < 0.75 ? 1 : 2]++; }
+      const share = c.map((v) => (100 * v) / Math.max(1, nw));
+      ok4(share.every((v, i) => Math.abs(v - A.depthShare[i]) <= 4), `LAKE2 W1: depth shares ${share.map((v) => v.toFixed(0)).join('/')} ~ ${A.depthShare.join('/')}`);
+      const Cp = A.deepPools[0];
+      let mono = true;
+      for (let k = 0; k < 48 && mono; k++) { const t = (k / 48) * Math.PI * 2; let prev = Infinity; for (let r = 0; r <= Cp.r + 2; r += 0.25) { const d = WLY.depthAt(Lay, Cp.x + Math.cos(t) * r, Cp.z + Math.sin(t) * r); if (d > prev + 1e-9) { mono = false; break; } prev = d; } }
+      ok4(mono && WLY.depthAt(Lay, Cp.x, Cp.z) >= 0.99 && A.legendPool.x === Cp.x && A.legendPool.z === Cp.z, `LAKE2 W1: ${Cp.name} the deepest water (1.0), monotone from its lip to its middle, the legend's water`);
+      // the places: open water, clear of the docks and the spawn; each glide out clear of the banks and the islands
+      const PLC = LP.places, ids = L4.loopPlaceIds('sporewood');
+      let fp = 0;
+      for (const id of ids) {
+        const q = L4.loopPlace(id), a = q.area;
+        let n = 0, open = 0;
+        for (let x = a.x - a.r; x <= a.x + a.r; x += 0.5) for (let z = a.z - a.r; z <= a.z + a.r; z += 0.5) if (Math.hypot(x - a.x, z - a.z) <= a.r) { n++; if (WLY.isOpenWaterL(Lay, Lay.obstacles, x, z, 0.3)) open++; }
+        fp += Math.PI * (a.r + 1.5) ** 2;
+        const dDock = Math.min(...Lay.docks.map((d) => Math.hypot(d.x - a.x, d.z - a.z) - a.r)), dSpawn = Math.hypot(Lay.spawn.x - a.x, Lay.spawn.z - a.z) - a.r;
+        ok4(n > 0 && open / n >= 0.8 && dDock > 1.5 && dSpawn > 1.5, `LAKE2 W1: ${id}'s water ${(100 * open / Math.max(1, n)).toFixed(0)}% open (≥ 80%), ${dDock.toFixed(1)} m from the dock and ${dSpawn.toFixed(1)} m from the spawn (> 1.5)`);
+        const g = L4.loopSailPlan(Lay.docks[0], { water: 'sporewood', place: id }), pts = g.path.map((p) => [p.x, p.z]);
+        const sh = LR.pathShore(pts, sd), ob = LR.pathClearance(pts, Lay.obstacles.filter((o) => o.kind !== 'post'));
+        ok4(Math.hypot(g.from.x - Lay.docks[0].x, g.from.z - Lay.docks[0].z) < 1e-9 && sh >= pad && ob >= pad && Math.hypot(g.to.x - a.x, g.to.z - a.z) <= a.r,
+          `LAKE2 W1: the glide out to ${id} starts at docks[0], ends in its water and clears the banks by ${sh.toFixed(2)} m and the islands by ${ob.toFixed(2)} m (≥ ${pad.toFixed(1)})`);
+      }
+      { const g = L4.sailPlan(Lay.docks[0], { x: 0, z: 0 }, LP.tutorial, 'sporewood'), pts = g.path.map((p) => [p.x, p.z]);
+        ok4(LR.pathShore(pts, sd) >= pad, `LAKE2 W1: the open water's glide out (LOOP.tutorial.outPath.sporewood) clears the banks by ${LR.pathShore(pts, sd).toFixed(2)} m`); }
+      const water = nw * 1.5 * 1.5;
+      ok4(1 - fp / water >= 0.7, `LAKE2 W1: open water ${(100 * (1 - fp / water)).toFixed(0)}% of the basin (the places' footprints and their banks aside: ≥ 70%)`);
+      ok4(Lay.R + 8 >= Math.max(-O.bbox.x0, O.bbox.x1, -O.bbox.z0, O.bbox.z1) + 2, `LAKE2 W1: the water's bake (R + 8 = ${Lay.R + 8} m about the centre) covers the basin`);
+      ok4(sd(Lay.spawn.x, Lay.spawn.z) >= 4 && Lay.docks.every((d) => sd(d.x, d.z) >= raftR + 0.5), 'LAKE2 W1: the spawn and the docks in open water');
+      // the areas' geometry (WATERCRAFT.sporewood.geometry): beds and reed runs on the water, the inflow and outflow by the shore, the rim
+      // round the legend's water
+      const WC = await import('../src/watercraft.js'), GE = WC.WATERCRAFT.sporewood.geometry;
+      ok4(!!GE && GE.beds.every((b) => sd(b.x, b.z) >= b.r * 0.6) && GE.reedRuns.every(([u0, u1]) => u0 < u1 && u1 - u0 <= 6 && u1 <= A.outline.length) && Math.hypot(GE.rim.x - Cp.x, GE.rim.z - Cp.z) < 1e-9 && GE.rim.r0 === Cp.r,
+        'LAKE2 W1: Sporewood\'s areas: its lily beds on the water, its reed runs spans of the shore, its drop-off round the Mother\'s Cup');
+      ok4(sd(GE.inflow.x, GE.inflow.z) > 0 && sd(GE.inflow.x, GE.inflow.z) < GE.inflow.r && sd(GE.outflow.x, GE.outflow.z) > 0 && sd(GE.outflow.x, GE.outflow.z) < GE.outflow.r1, 'LAKE2 W1: the inflow under the Seep and the outflow by the Root Weir lie on the water by the shore');
+      ok4(GE.reedRuns.every(([u0, u1]) => [u0, (u0 + u1) / 2, u1].every((u) => { const q = WO.shoreAt(O, WO.arcAt(O, u)); return q.h <= 2.2; })), 'LAKE2 W1: the reed runs lie on low banks (≤ 2.2 m)');
+    }
+  }
+  // <<< LAKE 2, lane W1
   // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
   const FL = L4.FIRST_EVENING?.lines || {};
   const depart = Math.max(murkHold(TL.murk.firstChart, FL), ...Object.values(TL.murk.firstChartBy || {}).map((x) => murkHold(x, FL)));

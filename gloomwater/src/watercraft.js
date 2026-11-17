@@ -265,6 +265,8 @@ WATERCRAFT.sporewood = {
   hookItems: SW_HOOK_ITEMS,
   // the areas' geometry, their baked shares and the factors that keep the blind mix tilted (§2.4): lane W1 authors the geometry on the
   // outline shore (LAKE2.md §3.1) and `watercraft.test.mjs --bake` bakes the rest on Sporewood's layout, as for the Mossmere
+  // (lane W1 authored the geometry, below; the shares and the factors wait for the water's threading through laneFor, areaShares and
+  // fitFactors: the integration gate's bake)
   geometry: null, shares: null, factors: null, laneAvoid: [], laneFallback: null,
   raw: Object.fromEntries(Object.entries(SW_RAW_ROWS).map(([id, c]) => [id, rowOf(c)])),
   night: {}, tilts: {},
@@ -281,6 +283,27 @@ WATERCRAFT.sporewood = {
   tells: null, sight: null,
 };
 // <<< LAKE 2, lane D1
+// >>> LAKE 2, lane W1 (LAKE2.md §1A, §3.1): Sporewood's areas on its outline shore (world metres; the reed beds are runs of the shore
+// curve, [u0, u1] in its control points, SPOREWOOD_ARENA.outline's: the Reed Flats from the Veil inlet's mouth to the neck's south bank,
+// Lily Cove's head, the East Pool's south bank west of Rootfoot). The inflow under the Seep's fall, the outflow drawn to the Root Weir
+// on the Reed Flats, the drop-off round the Mother's Cup, the lily rafts in the Reed Flats' shallows and the inlet's mouth; reeds round
+// the Tussock and the Two Stools, roots and stumps round Rootknot, the Mother's Foot and Mossback Isle (the 'stones' kind)
+WATERCRAFT.sporewood.geometry = {
+  inflow:  { x: 74.5, z: -24, r: 8 },
+  outflow: { x: -66, z: 37, r0: 0, r1: 8 },
+  rim:     { x: 48, z: 6, r0: 6, r1: 10 },
+  lip:     { depth: [0.35, 0.45], shore: 14, island: 6 },
+  beds: [{ x: -54, z: 32, r: 4.5 }, { x: -40, z: 34.5, r: 4 }, { x: -76.5, z: 34, r: 3.5 }],
+  reedRuns: [[20.4, 24.6], [5.2, 6.4], [29.1, 30.4]], reedOff: [0.5, 6],
+  reedIslands: ['tussock', 'stool'], stoneIslands: ['roots', 'cap', 'moss'],
+  stones: { pillar: 4, dock: 4, hull: 4, island: 3.5 },
+  reedReach: { k: 1.35, plus: 1.5 },
+  margin: 0.35, deep: 0.75,
+  lane: { w: 4, len: 40, within: 14, cx: -40, cz: 10, phases: ['day', 'dusk'] },   // the dusk's drifting line of spores, the West Pool's open water
+};
+WATERCRAFT.sporewood.laneAvoid = [[-50, -6, 13], [-28, 14, 9.5], [-24, 19.5, 8.5], [-62, 22, 8.5], [0, 6.5, 10]];
+WATERCRAFT.sporewood.laneFallback = { x: -38, z: 12 };
+// <<< LAKE 2, lane W1
 
 /** A game phase (calm, day, dawn, dusk, gloomtide, night) as the light the tables are keyed by. */
 export function lightOf(phase) {
@@ -301,11 +324,15 @@ function dockPts(d) {
   return [{ x: p.x + lx * 3.1 - fx * 1.2, z: p.z + lz * 3.1 - fz * 1.2 }, { x: p.x + lx * 3.0 + fx * 1.6, z: p.z + lz * 3.0 + fz * 1.6 }];
 }
 const degOf = (x, z) => { const a = Math.atan2(z, x) * 180 / Math.PI; return a < 0 ? a + 360 : a; };
-/** A world's probe: {depth(x, z), fromShore(x, z)} (getDepth; getShoreRadius(angle) − the distance from the centre). */
+/** A world's probe: {depth(x, z), fromShore(x, z)} (getDepth; the world's getFromShore when it has one (LAKE2 §3.1: an outline shore's
+ *  field, the islands in it), else getShoreRadius(angle) − the distance from the centre, the same figure on a polar shore). */
 export function probeOf(world) {
+  const fs = typeof world?.getFromShore === 'function' ? world.getFromShore : null;
   return {
     depth: (x, z) => num(world?.getDepth?.(x, z), 0),
-    fromShore: (x, z) => num(world?.getShoreRadius?.(Math.atan2(z, x)), 0) - hyp(x, z),
+    fromShore: fs ? (x, z) => num(fs(x, z), 0) : (x, z) => num(world?.getShoreRadius?.(Math.atan2(z, x)), 0) - hyp(x, z),
+    // (an outline shore's reed runs are spans of its curve: where along it the nearest shore point lies, or null on a polar shore)
+    along: (x, z) => { const u = world?.getShoreAlong?.(x, z); return Number.isFinite(u) ? u : null; },
   };
 }
 /** Is (x, z) inside this lane's strip? */
@@ -321,8 +348,8 @@ export function inLane(lane, x, z) {
  * (ZONES[0].arena: islands, pillars, docks, gate), hulls (data.loopMooring's circles), docks ([{x, z}] or [{position}]: the world's, else
  * the arena's)}.
  */
-export function areaAt(x, z, probe, { lane = null, arena = null, hulls = null, docks = null } = {}) {
-  const G = W.geometry, A = arena || {};
+export function areaAt(x, z, probe, { lane = null, arena = null, hulls = null, docks = null, geo = null } = {}) {
+  const G = geo || W.geometry, A = arena || {};   // (geo: another water's geometry, WATERCRAFT[water].geometry; the Mossmere's by default)
   if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
   const fromShore = num(probe?.fromShore?.(x, z), NaN);
   if (!(fromShore > 0)) return null;
@@ -345,8 +372,9 @@ export function areaAt(x, z, probe, { lane = null, arena = null, hulls = null, d
     if (d >= num(o.r) && d <= G.reedReach.k * num(o.r) + G.reedReach.plus) return 'reeds';
   }
   if (fromShore >= G.reedOff[0] && fromShore <= G.reedOff[1]) {
-    const a = degOf(x, z);
-    for (const [a0, a1] of G.reedArcs) if (a >= a0 && a <= a1) return 'reeds';
+    // (LAKE2 §3.1: an outline shore's reed beds are runs along its curve, [u0, u1] in its control points; a polar one's arcs of bearing)
+    if (G.reedRuns) { const u = probe?.along?.(x, z); if (Number.isFinite(u) && G.reedRuns.some(([u0, u1]) => u >= u0 && u <= u1)) return 'reeds'; }
+    else { const a = degOf(x, z); for (const [a0, a1] of G.reedArcs) if (a >= a0 && a <= a1) return 'reeds'; }
   }
   if (depth >= G.lip.depth[0] && depth <= G.lip.depth[1]) {
     if (fromShore <= G.lip.shore) return 'dropoff';

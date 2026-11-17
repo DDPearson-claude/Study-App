@@ -12,7 +12,7 @@
 import * as THREE from 'three';
 import { toonMaterial, setupSurface } from './toon.js';
 import { prep, merge, mat, taperTube, lin, mixArr } from './world-geo.js';
-import { buildLayout } from './world-layout.js';
+import { buildLayout, fromShore, shoreAt } from './world-layout.js';
 import { AREAS, areaAt, areaWeight, probeOf, lightOf } from './watercraft.js';
 import { faceOn, faceRng, avoidList, clearanceOf, reedPlan } from './watercraft-face.js';
 
@@ -36,7 +36,7 @@ export function heronSpots(L, D, { phase = 'calm', probe = null } = {}) {
   const W = D?.LOOP?.wildlife?.on === true ? D.LOOP.wildlife.heron || null : null;   // (made to count: north and the islands' shores)
   const north = (z) => !W || z <= num(W.northZ, 0);
   const ok = new Set(heronAreas(phase));
-  const P = probe || { depth: () => 0.2, fromShore: (x, z) => (typeof L.shoreR === 'function' ? L.shoreR(Math.atan2(z, x)) : 60) - Math.hypot(x, z) };
+  const P = probe || { depth: () => 0.2, fromShore: (x, z) => (L.outline ? fromShore(L, x, z) : (typeof L.shoreR === 'function' ? L.shoreR(Math.atan2(z, x)) : 60) - Math.hypot(x, z)) };
   const avoid = avoidList(L, D);
   for (const id of typeof D?.loopPlaceIds === 'function' ? D.loopPlaceIds('mossmere') : []) {
     const lm = D.loopPlace(id)?.landmark;
@@ -58,8 +58,9 @@ export function heronSpots(L, D, { phase = 'calm', probe = null } = {}) {
     if (out.some((s) => Math.hypot(s.x - x, s.z - z) < 4)) return;
     out.push({ x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100, area: a, ...(isle ? { isle } : {}) });
   };
-  // the margins by the shore, every few degrees, 1.2–2.6 m out
-  for (let deg = 0; deg < 360; deg += 4) {
+  // the margins by the shore, every few degrees, 1.2–2.6 m out (LAKE2 §3.1: on an outline shore, every 4 m along it)
+  if (L.outline) { const q = {}; for (let s = 0; s < L.outline.len; s += 4) { shoreAt(L, s, q); for (const off of [1.4, 2.4]) take(q.x - q.nx * off, q.z - q.nz * off); } }
+  else for (let deg = 0; deg < 360; deg += 4) {
     const a = (deg * Math.PI) / 180, sr = typeof L.shoreR === 'function' ? L.shoreR(a) : 60;
     for (const off of [1.4, 2.4]) take(Math.cos(a) * (sr - off), Math.sin(a) * (sr - off));
   }
