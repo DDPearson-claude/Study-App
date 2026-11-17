@@ -14,7 +14,7 @@
 //                    broken deck and hanging chains over the Toppled Bridge's piers (one merged mesh and its ink line); the Lily
 //                    Maze's pads at twice the local density (their own seeded stream, after every builder: the built pads are untouched,
 //                    PLAN CHOICE 26) with glow-buds under them; the Buoy Lights' 24 float caps (one InstancedMesh) over two rows of
-//                    depth-tinted glow decals; the Bell Pool's drowned bell, an ink decal on its floor with its crack's verdigris (a trace)
+//                    depth-tinted glow decals; the Bell Pool's drowned bell, an ink decal on its floor with its crack a dark line
 //                    and the moon's glint on it. The decals are this file's own premultiplied surface-decal material (ink darkens
 //                    through alpha, glow adds through rgb), one InstancedMesh for every decal of every place
 //   the giant's back the built night-ink silhouette's family (a smooth dark back, no species shape) turning in Under the Span's and the
@@ -24,7 +24,7 @@
 //                    card and two aqueduct segments with no spout (+2); the bollards that replace the lamp-posts are world-art's (0 net)
 //
 // No gameplay state lives here: world.js feeds update() with the raft, the phase and the air, and keeps {owned, lifted} (setPlaces).
-// Colours are the Starlit palette's: lavender, pale stone, candle amber, rust; green only as the bell's verdigris trace.
+// Colours are the Starlit palette's: lavender, pale stone, candle amber, rust (no green).
 import * as THREE from 'three';
 import { INK, setupSurface, evenOutline } from './toon.js';
 import { makeRng } from './core.js';
@@ -231,7 +231,7 @@ void main() {
 }`;
 
 // the decals: a flat quad on (or just above) the water per instance; kind 0 a depth-tinted glow (a bud, a drowned lantern), 1 the drowned
-// bell (ink, its rust lip, its crack's verdigris trace, the moon's rim on its shoulder), 2 the moon's glint. Premultiplied: rgb is what
+// bell (ink, its rust lip, its crack a dark line, the moon's rim on its shoulder), 2 the moon's glint. Premultiplied: rgb is what
 // the decal adds (glow), alpha how much it darkens what is under it (ink). k: the place's glow (0 until its mist lifts) and the night.
 const DECAL_VS = /* glsl */`
 attribute vec4 aC;   // x, y, z, rotation
@@ -304,9 +304,10 @@ void main() {
     if (shape < 0.003) discard;
     // the moon's side of the bell (+sy) catches a soft sheen inside its edge, fading into the body; two cast bands as darker grooves
     float side = clamp(sy / max(0.05, w), -1.0, 1.0);
-    float shoulder = smoothstep(0.25, 0.95, side) * smoothstep(-0.24, -0.05, bodyD) * inBody * (1.0 - inMouth);
+    // (the review: a thin moonlit shoulder at the very edge, never a lit plane over the crown)
+    float shoulder = smoothstep(0.55, 0.98, side) * smoothstep(-0.1, -0.03, bodyD) * inBody * (1.0 - inMouth);
     float bands = (smoothstep(0.03, 0.0, abs(u + 0.4)) + smoothstep(0.03, 0.0, abs(u - 0.62)) * 0.8) * inBody;
-    // its crack: from the lip up the flare toward the waist, jagged, with the one trace of verdigris along it
+    // its crack: from the lip up the flare toward the waist, jagged: a dark line in the bronze (no colour of its own)
     float crack = smoothstep(0.03, 0.0, abs(sy - 0.32 + 0.05 * sin(u * 23.0) + 0.18 * (0.86 - u))) * smoothstep(0.05, 0.3, u) * step(u, 0.84) * inBody;
     float lipLit = smoothstep(0.72, 0.98, mr) * inMouth * smoothstep(-0.1, 0.7, sy);
     float clip = uPool.z > 0.0 ? 1.0 - smoothstep(uPool.z - 0.9, uPool.z - 0.15, length(vW - uPool.xy)) : 1.0;
@@ -314,8 +315,8 @@ void main() {
     float lit = 0.35 + 0.65 * vK;
     vec3 bronze = mix(vec3(0.06, 0.034, 0.014), uDeep * 0.4, 0.25);
     vec3 bronzeLit = mix(vec3(0.25, 0.15, 0.05), uMoon, 0.3);
-    ink = see * min(0.92, vI.x * 1.2 * (inBody * (1.0 - inMouth) * (1.0 + 0.3 * bands) + inMouth * 1.15 + canon * 0.6));
-    glow = bronze * ink + see * lit * (bronzeLit * (0.07 * shoulder + 0.04 * lipLit) + uRust * smoothstep(0.66, 0.86, u) * inBody * 0.04 + uVerd * crack * 0.2);
+    ink = see * min(0.92, vI.x * 1.2 * (inBody * (1.0 - inMouth) * (1.0 + 0.3 * bands + 0.35 * crack) + inMouth * 1.15 + canon * 0.6));
+    glow = bronze * ink * (1.0 - 0.6 * crack) + see * lit * (mix(bronze, bronzeLit, 0.6) * (0.05 * shoulder + 0.04 * lipLit) + uRust * smoothstep(0.66, 0.86, u) * inBody * 0.04);
   } else if (vKind < 2.5) {
     if (r > 1.0) discard;
     float sh = 0.75 + 0.25 * wpN(p * 3.0 + vec2(uTime * 0.25, -uTime * 0.18));

@@ -1628,8 +1628,11 @@ export function create(ctx) {
     } else {
       fx.pulse(x, z, { color: 0x9d98bf, r0: 0.3, r1: 1.0, duration: 0.6, width: 0.05, alpha: 0.5 });
     }
-    call(() => ctx.water?.splash?.(x, z, { size: (grade === 'clean' ? 0.7 : 0.45) + 0.25 * S.fishLen, count: grade === 'clean' ? 26 : 10 }));
-    if (grade === 'clean') call(() => ctx.water?.addRipple?.(x, z, 1.6));
+    // (on the Mossmere under the loop the splash keeps its drops but throws no rings: a ring set at the float with the line running
+    // in reads as a target, the review's must)
+    const moss = mossLoop();
+    call(() => ctx.water?.splash?.(x, z, { size: (grade === 'clean' ? 0.7 : 0.45) + 0.25 * S.fishLen, count: grade === 'clean' ? 26 : 10, ring: !moss }));
+    if (grade === 'clean' && !moss) call(() => ctx.water?.addRipple?.(x, z, 1.6));
     haptic(AF().strike?.haptic?.[grade]);
   }
   /** The strike: graded, the one roll (p from the fish that bit), the four draws, the plan, the play begins. */
@@ -1748,6 +1751,7 @@ export function create(ctx) {
    *  close-up (art rule: never a ring around the raft), so the water keeps its spray and drops but no ripple. */
   function ringOk(x, z, s = 0.5) {
     const p = S.plan;
+    if (mossLoop()) return false;   // (on the Mossmere under the loop the play throws no ring at all: spray, drops, wake and swirl)
     if (LOOP()) {
       // the loop's trip: through the whole play, a ring that would grow over the raft before it fades (its half-life radius,
       // ≈ 0.9 + 2.1 × strength m, plus the raft's 1.3 m) keeps its spray and drops but no ring (never a ring around the raft)
@@ -1867,7 +1871,7 @@ export function create(ctx) {
         fx.burst(tx, y - 0.05 * L, tz, { color: 0xeae4d3, color2: 0xffb347, count: 2 + Math.round(Math.min(3, L * 1.5)), spread: 0.25 + 0.15 * L, up: 0.2, gravity: 7, size: 0.035 + 0.015 * Math.min(L, 3), life: 0.55, radius: 0.06 + 0.05 * L });
       }
     } else {
-      if (F.leap) { F.leap = false; call(() => ctx.water?.splash?.(px, pz, { size: 0.55 + L * 0.6, count: 16 })); fx.burst(px, 0.15, pz, { color: 0xeae4d3, color2: 0xffb347, count: 10, spread: 1 + L * 0.3, up: 1.8, gravity: 7, size: 0.05, life: 0.5 }); }
+      if (F.leap) { F.leap = false; call(() => ctx.water?.splash?.(px, pz, { size: 0.55 + L * 0.6, count: 16, ring: ringOk(px, pz, 0.55 + L * 0.6) })); fx.burst(px, 0.15, pz, { color: 0xeae4d3, color2: 0xffb347, count: 10, spread: 1 + L * 0.3, up: 1.8, gravity: 7, size: 0.05, life: 0.5 }); }
       if (g && g.kind !== 'pass') {   // a glimpse: the proxy rolls at the surface, a tail slaps, a swirl near the raft, the Small's skitter
         const u = clamp((S.playT - g.at) / Math.max(0.05, g.dur), 0, 1);
         y = wy - 0.02 * L + (g.kind === 'skitter' ? Math.abs(Math.sin(u * Math.PI * 5)) * 0.12 : 0.05 * Math.sin(u * Math.PI));
@@ -1908,8 +1912,10 @@ export function create(ctx) {
     // 2.4 m of the raft); the first at the strike itself)
     F.swirlT -= dt;
     if (!silt && !lp && F.swirlT <= 0 && mossLoop()) { F.swirlT = 0.5; siltPuff(px, pz, L * 0.8, Math.atan2(-hx, -hz)); }
+    // (and there the fish throws no rings: a stack of pale rings round it with the line running in read as a target; the swirl and
+    // the wake say where it is)
     F.rippleT -= dt;
-    if (!lp && !silt && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
+    if (!lp && !silt && F.rippleT <= 0 && !mossLoop()) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
     // the line, the rod, the reel and the Wick
     const fwdX = Math.sin(F.yaw), fwdZ = Math.cos(F.yaw);
     V.mouth.set(px + fwdX * L * 0.45, y + 0.04, pz + fwdZ * L * 0.45);

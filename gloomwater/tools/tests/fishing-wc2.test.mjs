@@ -375,5 +375,24 @@ section('no gold, no words on a trip (§5.7, §7.2)');
   ok(!E.events.some((x) => x.e === 'toast'), 'no toast from the cast to the bite');
 }
 
+section('the strike and the play throw no ring at the float or the fish (wave 2 review: a ring round the target)');
+{
+  const E = env({ raft: RAFT, seed: 43 });
+  let on = false, near = 0, splashes = 0, ringed = 0, wakes = 0;
+  const at = () => E.F.bobberPos || { x: 1e9, z: 1e9 };
+  E.ctx.water.addRipple = (x, z) => { if (on && Math.hypot(x - at().x, z - at().z) < 3) near++; };
+  E.ctx.water.splash = (x, z, o = {}) => { if (on) { splashes++; if (o.ring !== false) ringed++; } };
+  E.ctx.water.addWake = () => { if (on) wakes++; };
+  E.ctx.debug.fishOutcome('land');
+  E.ctx.debug.forceBite({ wait: 2 });
+  for (let i = 0; i < 200 && E.F.state !== 'bite'; i++) E.tick(1);
+  on = true;
+  const hooked = E.ctx.debug.fishStrike('clean');
+  for (let i = 0; i < 40 * 30 && E.F.state === 'reeling'; i++) E.tick(1);
+  ok(hooked && E.F.state !== 'reeling', `a clean strike and its play to the end (${E.F.state})`);
+  ok(splashes > 0 && ringed === 0, `the strike's and the play's splashes keep their drops, never a ring (${splashes} splashes, ${ringed} ringed)`);
+  ok(near === 0, `no ripple ring at the float or the fish from the strike to the landing (${near})`);
+}
+
 console.log(`\nfishing-wc2: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
