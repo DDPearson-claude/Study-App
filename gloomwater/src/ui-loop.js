@@ -502,7 +502,7 @@ export function allowedWords(D) {
   // M1 step 3a (T143): the places' names (an owned place's row, its catalogue heading, the lift's title card) and a legend's bait
   for (const id of Object.keys(isObj(D?.LOOP?.places) ? D.LOOP.places : {})) { const n = typeof D?.loopPlace === 'function' ? D.loopPlace(id)?.name : null; if (n) out.add(n); }
   for (const lb of Object.values(isObj(D?.LOOP?.legendBait) ? D.LOOP.legendBait : {})) { const n = arr(D?.BAITS).find((b) => b?.id === lb?.id)?.name; if (n) out.add(n); }
-  for (const k of ['A new personal best', 'A new name for the journal', 'Old Ledger beaten', 'Written in the Elder Log', 'A new record for this place', 'length']) out.add(k);
+  for (const k of ['A new personal best', 'A new name for the\u00a0Journal', 'A new name for the Journal', 'Old Ledger beaten', 'Written in the Elder Log', 'A new record for this place', 'length']) out.add(k);
   // M1 step 5c (FINDS §9): the finds row's heading as it is drawn ("Snags", "· 1 bite in 20"); the names and lines are TEXT_LOOP's
   { const pb = Number(D?.LOOP?.finds?.snag?.perBite), bi = T_(D).finds?.biteIn;
     if (pb > 0 && typeof bi === 'string') { const r = bi.replace('{n}', String(Math.round(1 / pb))); out.add(r); out.add(`· ${r}`); } }
@@ -837,7 +837,7 @@ export function createLoopView(K) {
   function murkStepAside() { for (const el of murkEls()) if (shown(el)) { el.classList.remove('gw-in'); el.classList.add('gw-out'); } }
   function murkToast(line, n = 0) {
     if (!line) return;
-    if (titleUp()) { if (n < 60) setTimeout(() => { if (ctx.flow === 'playing' && onTrip()) murkToast(line, n + 1); }, 400); return; }
+    if (titleUp() || K.hasBlocking?.()) { if (n < 60) setTimeout(() => { if (ctx.flow === 'playing' && onTrip()) murkToast(line, n + 1); }, 400); return; }
     K.toast(line, 'lore', { icon: 'lantern', cls: 'gw-toast--murk gw-toast--loop', dur: 4600 });
   }
   let quietSaid = false;

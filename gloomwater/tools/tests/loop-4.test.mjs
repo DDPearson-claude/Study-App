@@ -331,7 +331,7 @@ section('the words (SPEC §8.4, §8.6)');
   eq(TL.shelf.lumen_moss, 'Sweet. The Gloam Eel bites on nothing else.', 'Lumen Moss: the one-tin line (SPEC v8.7 §8.11, WC-1)');
   eq(['mireworm', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig'].map((id) => TL.shelf[id]), ['Nearly every fish takes a worm.', 'Meat, for the hunters.',
     'For the fish that rise.', 'Flash, for the hunters.', 'Hopped on the bottom, for the hunters.'], 'the tins\' and lures\' lines, SPEC v8.7 §8.11 (WC-1)');
-  eq(TL.murk.firstSmall, 'Small ones make good bait. Hold Let go.', "Murk's first-Small line, SPEC §8.6");
+  eq(TL.murk.firstSmall, 'Small ones make good bait. Press and hold \u201cLet go\u201d.', "Murk's first-Small line, SPEC §8.6");
   const strings = [];
   const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };
   walk(TL.shelf); walk(TL.gearNames); walk(TL.gearItems); walk(TL.orderWords);

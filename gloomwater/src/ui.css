@@ -1020,7 +1020,9 @@
 .gw-cc .gw-pc::-webkit-scrollbar { display: none; }
 .gw-cc-grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 40px; align-items: center; }
 .gw-cc-left { position: relative; display: grid; gap: 8px; }
-.gw-cc-art { display: flex; justify-content: center; }
+.gw-cc-art { display: flex; justify-content: center; min-width: 0; }
+/* the fish's ink is never cut by a narrow column: it shrinks to fit, snout and tail (polish; a 820 px phone's two columns) */
+.gw-cc:not(.gw-cc-side) .gw-cc-art canvas { max-width: 100%; min-width: 0; height: auto !important; }
 .gw-fish-ink { display: block; max-width: 100%; height: auto !important; filter: url(#gw-brush-fx) drop-shadow(0 0 6px rgba(160, 150, 240, .18)); clip-path: inset(0 100% 0 0); animation: gwInkIn 1.5s .2s ease-out forwards; }
 .gw-cc-measure { display: block; width: 100%; height: 30px; overflow: visible; }
 .gw-cc-measure path { fill: none; stroke: #ece8f4; stroke-linecap: round; }
@@ -2216,6 +2218,8 @@
 .gw-toast--loop { flex-wrap: nowrap; }
 .gw-toast--loop > span { max-width: min(80vw, 600px); }
 .gw-loop-tip { font-size: 21px; letter-spacing: .01em; }
+/* a trip's tips and Murk's lines never show through a modal or the catch card (ui.js sets .gw-tipless; they wait under it) */
+.gw-loop-on.gw-tipless .gw-loop-tip, .gw-loop-on.gw-tipless .gw-toast--murk { opacity: 0 !important; visibility: hidden; }
 @media (max-width: 400px) { .gw-loop-tip { font-size: 19px; padding: 10px 26px; } }
 /* fe_strike: in the lower part of the screen, under the raft (the bite's camera puts the float, its glyph and the strike ring up top) */
 .gw-hud > .gw-loop-tip--low { position: absolute; left: 50%; bottom: calc(var(--sab) + 96px); translate: -50% 0; width: max-content; max-width: min(80vw, 600px); z-index: 3; pointer-events: none; }
@@ -2526,7 +2530,12 @@
 
 /* ---------------------------------------------------------------- Settings under the loop: a fade at the list's foot while more
    lies below (the rows run past a 540 px window), and a tighter rhythm on a short window so the Picture rows begin above the fold */
-.gw-loop-on .gw-p-settings .gw-pc.gw-more { -webkit-mask: linear-gradient(180deg, #000 calc(100% - 56px), rgba(0, 0, 0, .12)); mask: linear-gradient(180deg, #000 calc(100% - 56px), rgba(0, 0, 0, .12)); }
+/* (polish: the fade is short, on the cut edge only, never a whole row; a thin chevron over Done says the list goes on) */
+.gw-loop-on .gw-p-settings .gw-pc.gw-more { -webkit-mask: linear-gradient(180deg, #000 calc(100% - 18px), rgba(0, 0, 0, .3)); mask: linear-gradient(180deg, #000 calc(100% - 18px), rgba(0, 0, 0, .3)); }
+.gw-loop-on .gw-p-settings.gw-set-more .gw-pf::before { content: ''; position: absolute; left: 50%; top: -15px; width: 9px; height: 9px; margin-left: -5px;
+  border: solid rgba(200, 194, 232, .78); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); pointer-events: none; animation: gwSetMore 1.8s ease-in-out infinite; }
+@keyframes gwSetMore { 0%, 100% { translate: 0 0; opacity: .65; } 50% { translate: 0 3px; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .gw-loop-on .gw-p-settings.gw-set-more .gw-pf::before { animation: none; } }
 @media (max-height: 620px) {
   .gw-loop-on .gw-p-settings .gw-set-row { min-height: 48px; padding: 1px 0; }
   .gw-loop-on .gw-p-settings .gw-group { margin: 14px 0 4px; }

@@ -1342,7 +1342,7 @@ You sell what you keep, so nothing is mounted. Instead, at the measure (records 
 | tackle | the tackle tin's drawer: "Bait", "Lure", "Bare hook", "No lure" and the items' names; "After this fish." on a tap while a fish is on | the tackle tin (the user, 16 Nov 2026; §16 answer 43 superseded): an engraved tin under the hold row showing the bait's glyph with its count and the lure's; tap or B opens the drawer (a bottom sheet on a phone); a change while the float waits brings the line in quietly, its bait back in the bag; no odds on it (`src/ui-tackle.js`, CONTRACT §14.19) |
 | the Journal glyph | none | locked while a line is in the water (built) |
 | gone from the HUD | the oil gauge, satiety, Embers, the level bar, the day counter, the night-mode glyph, the flare button, Far Water | §9 |
-| evening 1 only | "Hold on the water. Let go to cast." and "Now. Tap." / "Now. Click.", once each per save | §8.5's opening table |
+| evening 1 only | "Press on the water. Let go to cast." and "Now. Tap." / "Now. Click.", once each per save | §8.5's opening table |
 | a far-water Wick's lantern (after M1; v8.5) | none | on a meeting evening, as dusk falls, a pinpoint lantern lifts across the water at an authored spot, its reflection a thread; never a ring, disc or outline; tap it to sail alongside, only with the line in; the meeting's lines are §8.9's; a small knot inks beside the Journal glyph as a tale is told (`FARWICKS.md` §3) |
 | a visitor (after M1; v8.6) | its line or lines (§8.10) | on its evening, from its hour (dusk or night) until you turn for home, in a quiet moment (nothing biting, playing, showing or on the card: the float waiting, the moment after a card closes, or the raft gliding between places), one of the five comes to the raft (the lantern pole, the lantern's cap, alongside); the clock and the bites wait while it speaks; no tap, target, ring or marker; never more than one beat on the water an evening, shared with the far-water lanterns (§8.10, `CHARACTERS.md` §3) |
 
@@ -1424,7 +1424,7 @@ Five tabs, a glyph and one word each: **Tackle** · **Raft** · **Bait** · **Ma
 | the title, a trip out | **Continue** · **Settings** (quiet) · the quiet **Prologue** word (replays the cut scene). *New Descent* is not offered while a trip is out. *(14 November 2026, the user's ruling as the lead read it: Settings by the lead's ruling that it is reachable everywhere, Prologue kept by the lead; v6 said "Continue only".)* |
 | the title, at home | **Continue** (home: the Jetty, from M1 step 5 the barge) · **Settings** · **Prologue**. *New Descent* is not offered once the loop has begun; starting over is Settings' **Forget everything** (two in-page confirms). *(14 November 2026, the user's ruling as the lead read it; no New Descent at home is PLAN CHOICE 33; v6 said "Continue".)* |
 | Escape at home *(the lead's ruling)* | **Resume** · **Settings**. On a phone the same panel opens from a quiet pause glyph (no word) in the corner at home. *v8.8*: **Resume** · **Taper's Sheet** (the sheet) · **Settings**, once the opening's tutorial is done (during it, exactly **Resume** · **Settings**) |
-| Settings, under the loop *(the plan's wording, PLAN CHOICE 43, for the lead's sign-off)* | as built, but no **Damage numbers** row and no flare line under Reduced flashing; the strike ring's first option reads "First evening" and the hurry row's line "From your second evening, hold anywhere to hurry a small fish in. It never changes the outcome"; Forget everything's line reads "Clams, gear, the Journal. There is no undo." and its first confirm "Every clam, every piece of gear and every name in the Journal will be lost." |
+| Settings, under the loop *(the plan's wording, PLAN CHOICE 43, for the lead's sign-off)* | as built, but no **Damage numbers** row and no flare line under Reduced flashing; the strike ring's first option reads "First evening" and the hurry row's line "From your second evening, press anywhere to hurry a small fish in." (the polish pass); Forget everything's line reads "Clams, gear, the Journal. There is no undo." and its first confirm "Every clam, every piece of gear and every name in the Journal will be lost." |
 
 The passives' names and lines *(`WICKS.md` §2; the user said yes to the lines as written on 15 November 2026, §0 row 12; on 16 November 2026, §0 row 35, the user asked that the passive be "more obvious what it does": the names are shown and four lines say plainer what changes, `WICKS.md` §7.4)*:
 The Wick **Curious** "New kinds and new bests sell higher." · Taper **Long Reach** "Evenings start with a rarer fish." · Stub **Moth-Bright** "Fish bite sooner and keep biting." · Tallow **Broad Back** "One more slot in the hold." · Ashwick **Burns Back** "A fish that gets away comes back." (each line ≤ 8 words and ≤ 36 characters: one row of §8.10's budget on a 358 px phone; each name one or two words)
@@ -1440,7 +1440,7 @@ The Wick **Curious** "New kinds and new bests sell higher." · Taper **Long Reac
 | the tutorial's Chart, every time before the first Sail | the Chart | Murk: "Three slots in that hold. Fill them and come home." (§8.6's first line; Tallow: "Four slots in that hold. Fill them and come home.") |
 | the first tow (from M1 step 5, after the wake: the Landing to the Mossmere, §6.5) | the Chart, then the water (its glide in to the Jetty) | none |
 | the sail out (every Sail, a 3 s glide from the dock to open water; from M1 step 5 from the barge's stern) | the water | none |
-| evening 1, once per save, the line idle | the water | "Hold on the water. Let go to cast." (built tip `fe_cast`) |
+| evening 1, once per save, the line idle | the water | "Press on the water. Let go to cast." (built tip `fe_cast`, set by the loop's apply block from `TEXT_LOOP.castTip`) |
 | evening 1, once per save, the first bite's strike window | the water | "Now. Tap." on touch, "Now. Click." with a mouse (built tip `fe_strike`) |
 
 The opening, step by step, is `docs/loop/OPENING.md`.
@@ -1453,7 +1453,7 @@ The opening, step by step, is `docs/loop/OPENING.md`.
 | the first sale | "Clams. Spend them here. I'm the only shop left." |
 | the first quiet water | "Quiet water. Move on, or go home." |
 | the first fish let go | "Let one go and the water remembers." |
-| the first Small kept (from slice 3) | "Small ones make good bait. Hold Let go." |
+| the first Small kept (from slice 3) | "Small ones make good bait. Press and hold “Let go”." (the polish pass: "Hold" is the stat's word) |
 | the first Trophy sold | "Now that's a fish." |
 | the first map bought (v8: a place map, or a lake map whose water opens at once) | "It's in the mist. Go and look." |
 | v8: the first lake map bought while a key is still missing (at the shelf; one of the two lines about the keys, §16) | "One of every fish here first. And the right gear." |

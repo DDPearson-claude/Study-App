@@ -952,6 +952,8 @@ export function create(ctx) {
         if (showing !== showHid) { showHid = showing; for (const k of ['world', 'hud', 'fx', 'banner', 'toasts']) layers[k].classList.toggle('gw-showhide', showing); }
         layers.toasts.classList.toggle('gw-low', hasBlocking() && ctx.flow === 'playing');
         layers.toasts.classList.toggle('gw-dead', ctx.flow === 'dead');
+        // a trip's tips and Murk's lines never show through a modal or the catch card (they wait under it)
+        root.classList.toggle('gw-tipless', loopTrip() && ctx.flow === 'playing' && stack.some((m) => !m.quiet));
         const S = settings();
         root.classList.toggle('gw-calm-fx', S.reducedFlashing === true);
         // key hints (E / R / Space, the card's 1–4): the first descent only; after that they show on hover

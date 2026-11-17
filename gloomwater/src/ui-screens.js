@@ -711,12 +711,14 @@ export function createScreens(K) {
     // the kicker names the same record the measuring banner did (its best line), in a few words: the hero weight says the rest
     const W = fishWeight(sp, fish);
     const best = recordLines(D(), { records: recs, isNew: !!p.isNew, species: sp, length: fish.length, weight: W, max: 1 })[0] || null;
-    const REC_KICK = { oldLedger: 'Old Ledger beaten', pb: 'A new personal best', isNew: 'A new name for the journal', elderLog: 'Written in the Elder Log',
+    const NEW_NAME = 'A new name for the\u00a0Journal';   // (the nbsp: a narrow card never leaves "Journal" alone on a line)
+    const REC_KICK = { oldLedger: 'Old Ledger beaten', pb: 'A new personal best', isNew: NEW_NAME, elderLog: 'Written in the Elder Log',
       place: 'A new record for this place', resident: 'A resident giant, landed' };
+    if (loopOn()) { delete REC_KICK.oldLedger; delete REC_KICK.elderLog; }   // (no Old Ledger or Elder Log under the loop)
     const recKick = !best ? null : best.kind === 'classFirst'
       ? `Your first ${(classInfo(D(), recs.find((x) => x?.kind === 'classFirst')?.sizeClass, !!recs.find((x) => x?.kind === 'classFirst')?.ancient) || ci).label}`
       : REC_KICK[best.kind] || best.text;
-    const kicker = legend ? `A legend of ${zn || 'the deep'}` : recKick || (p.isRecord ? 'A new personal best' : p.isNew ? 'A new name for the journal'
+    const kicker = legend ? `A legend of ${zn || 'the deep'}` : recKick || (p.isRecord ? 'A new personal best' : p.isNew ? NEW_NAME
       : classFirst ? `Your first ${ci.label}` : `${RARITY_LABEL[sp.rarity] || 'Common'} · ${z?.name || ''}`);
     const wt = fmtWeight(W), cm = fmtCm(fish.length);
     const phrase = legend ? 'the legend itself!' : ci.ancient ? 'an Ancient, older than the lake!' : ci.id === 'elder' ? CLASS_PHRASE.elder
@@ -979,7 +981,9 @@ export function createScreens(K) {
         if (fish.giant === true || sp.giant === true) content.querySelector('.gw-catch-name')?.insertAdjacentHTML('afterbegin', '<i class="gw-cc-star">\u2605 </i>');
       }
       const art = content.querySelector('.gw-cc-art');
-      const aw = phone ? 300 : 400, ah = phone ? 120 : 170;
+      // (on the phone the ink is drawn to its box: a narrow column never cuts the snout)
+      const cw = phone ? Math.floor(art.clientWidth || 0) : 0;
+      const aw = phone ? (cw > 120 ? Math.min(300, cw) : 300) : 400, ah = phone ? Math.round(aw * 0.4) : 170;
       const c = h('canvas', 'gw-fishart gw-fish-ink');
       try { drawFishInk(c, sp, { w: aw, h: ah, pad: 0.05, color: legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { K.report('fishart', e); }
       art.appendChild(c);
@@ -1714,7 +1718,7 @@ export function createScreens(K) {
     const s = entry?.state;
     if (!s) return;
     if (s.big) { s.big = null; entry.render(); return; }
-    if (s.view === 'species') { s.view = 'page'; s.sel = null; s.hl = null; entry.render(); return; }
+    if (s.view === 'species') { s.view = 'page'; s.sel = null; s.hl = null; s.section = null; entry.render(); return; }
     K.closeModal('journal');
   }
   /** The catalogue's card size (SPEC §8.8: 116 × 62 on a desktop, 100 × 54 on a phone) and the enlarged silhouette's (240 × 128; 2×
@@ -1747,7 +1751,7 @@ export function createScreens(K) {
     b.addEventListener('click', (e) => {
       e.stopPropagation(); sfx('ui_click');
       s.pageScroll = b.closest('.gw-cat-scroll')?.scrollTop ?? 0;
-      if (c.caught) { s.view = 'species'; s.sel = c.id; s.hl = null; s.big = null; }
+      if (c.caught) { s.view = 'species'; s.sel = c.id; s.hl = null; s.big = null; s.section = null; }   // (opens at its top: name, drawing)
       else s.big = { id: c.id, glyphs: c.glyphs.slice(), star: c.star };
       entry.render();
     });
@@ -1814,7 +1818,7 @@ export function createScreens(K) {
     } else if (s.tab === 'giants') renderGiants(entry, content, zones);
     else if (s.tab === 'prints') {   // M1 step 5b: each printed fish's best print; a tap opens its page (Back returns here)
       const pv = safe(() => ctx.progression?.loop?.prints?.(zones), null);
-      renderPrintsPage({ h, content, view: pv, phone: K.vw < 700, D: D(), onPick: (id) => { sfx('ui_click'); s.view = 'species'; s.sel = id; s.big = null; entry.render(); } });
+      renderPrintsPage({ h, content, view: pv, phone: K.vw < 700, D: D(), onPick: (id) => { sfx('ui_click'); s.view = 'species'; s.sel = id; s.big = null; s.section = null; entry.render(); } });
     }
     else renderCataloguePage(entry, content, catalogueView(cat(s.zone), D()));
     if (s.big) {
@@ -1878,7 +1882,8 @@ export function createScreens(K) {
     }
     content.appendChild(scroll);
     // (the page's place is kept across a species page or an enlarged silhouette: Back returns to it)
-    if (Number.isFinite(s.pageScroll)) { const y = s.pageScroll; scroll.scrollTop = y; requestAnimationFrame(() => { scroll.scrollTop = y; }); }
+    if (s.view === 'page' && Number.isFinite(s.pageScroll)) { const y = s.pageScroll; scroll.scrollTop = y; requestAnimationFrame(() => { scroll.scrollTop = y; }); }
+    else if (s.view !== 'page') { scroll.scrollTop = 0; requestAnimationFrame(() => { scroll.scrollTop = 0; }); }   // (a species page opens at its top)
     if (s.section === 'list') { s.section = null; requestAnimationFrame(() => { try { listEl.scrollIntoView({ block: 'start' }); } catch { /* ignore */ } }); }
   }
   /** The giants' page (the ★ tab; PLAN CHOICE 11): the owned waters' giants and legend, hatched until landed, then each gold-framed ink
@@ -1908,7 +1913,7 @@ export function createScreens(K) {
       b.addEventListener('click', (e) => {
         e.stopPropagation(); sfx('ui_click');
         s.pageScroll = null;
-        if (g.caught) { s.view = 'species'; s.sel = g.id; s.big = null; }
+        if (g.caught) { s.view = 'species'; s.sel = g.id; s.big = null; s.section = null; }
         else { const ce = catalogueView(safe(() => catalogueFor(meta(), D(), sp?.zone || s.zone), null), D()); const card = ce ? [...ce.list, ...ce.groups.flatMap((q) => q.cards)].find((x) => x.id === g.id) : null; s.big = { id: g.id, glyphs: card?.glyphs || [], star: true }; }
         entry.render();
       });
@@ -1924,7 +1929,8 @@ export function createScreens(K) {
     if (K.refuseLocked?.(o.from || 'openLog')) return false;
     const sp = K.speciesData(o.speciesId);
     const zone = sp ? (sp.zone === COVE_ID || sp.cove ? COVE_ID : sp.zone || (arr(sp.zones)[0]) || null) : null;
-    const st = { sel: sp?.id || null, section: o.section || 'odds', hl: o.sizeClass || null };
+    // (under the loop a species page opens at its top unless the caller asks for the odds, as the got-away link does)
+    const st = { sel: sp?.id || null, section: o.section || (loopOn() ? null : 'odds'), hl: o.sizeClass || null };
     if (loopOn() && sp) Object.assign(st, { view: 'species', tab: 'water', big: null });   // (M1 step 3a: the catalogue's species page)
     if (zone) st.zone = zone;
     const open = K.entry?.('journal');
@@ -2074,7 +2080,7 @@ export function createScreens(K) {
     const SW = loopOn() ? settingsWords(D(), true) : null;
     K.openModal('settings', (entry, body) => {
       const S = K.settings();
-      const { content, foot } = panel(entry, body, { title: 'Settings', cls: 'gw-p-settings' });
+      const { panel: pn, content, foot } = panel(entry, body, { title: 'Settings', cls: 'gw-p-settings' });
       content.classList.add('gw-scroll');
       const apply = () => { safe(() => ctx.audio?.applySettings?.(), null); safe(() => ctx.game?.save?.(), null); };
       const slider = (key, label, def) => {
@@ -2154,7 +2160,7 @@ export function createScreens(K) {
       if (SW) {
         // the loop: the rows run below the fold on a short window, so the list fades out at its foot while more lies below
         // (Done stays in the footer)
-        const more = () => content.classList.toggle('gw-more', content.scrollTop + content.clientHeight < content.scrollHeight - 4);
+        const more = () => { const m = content.scrollTop + content.clientHeight < content.scrollHeight - 4; content.classList.toggle('gw-more', m); pn.classList.toggle('gw-set-more', m); };
         content.addEventListener('scroll', more, { passive: true });
         requestAnimationFrame(() => requestAnimationFrame(more));
         setTimeout(more, 400);
