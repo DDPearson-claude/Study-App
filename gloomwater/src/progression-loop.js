@@ -21,7 +21,7 @@ import { homeItems, applyHome, applyBaitBed } from './home-shelf.js';
 import { notePrint as notePrintOf, printsView, galleryModel } from './home-prints.js';
 import { uid } from './core.js';
 // M1 step 4 (lane 4): the tins and lures, the raft's parts and Murk's orders, pure (src/loop-gear.js)
-import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches, tinPrice } from './loop-gear.js';
+import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches, tinPrice, orderSayLine } from './loop-gear.js';
 import { gradeOf as wcGradeOf, gearCap as wcGearCap } from './watercraft.js';   // GEAR-GATES §5.1: the Journal's gate line
 import { sheetModel, sheetKeys } from './loop-sheet.js';   // the Wick's sheet (SHEET.md §7): the pure model; the shelf comes in from here
 
@@ -63,6 +63,8 @@ export const LOOP_METHODS = Object.freeze([
   'barge', 'towBarge',
   // M1 step 4 (lane 4): Murk's orders (read, wipe one, the one a fish on the card fills) and Cut Strip (a held Let go)
   'orders', 'wipeOrder', 'orderFor', 'cutBait',
+  // Murk says each new order once (the user, 17 Nov 2026): his line for the orders not yet said, marked said and saved
+  'sayOrders',
   // the Wick's sheet (SHEET.md §7.3): the page's model on the live save and run, and the "new" marks seen
   'sheet', 'markSheetSeen',
 ]);
@@ -1365,12 +1367,24 @@ export function createLoop(S) {
     if (L.orders.length < 1 && int(L.home?.orders) > 0) { try { refillOrders(D(), L, { listFor: listForD }); requestSave(); } catch (e) { report('refillOrders', e); } }
     return L.orders.filter(isObj).map((o) => ({ ...o, text: orderPhrase(D(), o) }));
   }
+  /** Murk's line for the orders he has not said yet ("Bring me a Weeping Carp."), each order once: they are marked said and saved.
+   *  → the line, or null when every open order is said (or no board). */
+  function sayOrders() {
+    const L = ensureLoop();
+    if (!L || !(int(L.home?.orders) > 0)) return null;
+    const open = orders();
+    const { line, ids } = orderSayLine(D(), open);
+    if (!line) return null;
+    for (const o of L.orders) if (isObj(o) && ids.includes(o.id)) o.said = true;
+    saveNow();
+    return line;
+  }
   /** Tap an order to wipe it, and Murk chalks a new one (SPEC §6.3). → {ok, orders}. */
   function wipeOrder(id) {
     const L = ensureLoop();
     if (!L || !Array.isArray(L.orders) || !L.orders.some((o) => o?.id === id)) return { ok: false, orders: orders() };
     L.orders = L.orders.filter((o) => o?.id !== id);
-    try { refillOrders(D(), L, { listFor: listForD, }); } catch (e) { report('refillOrders', e); }
+    try { for (const o of refillOrders(D(), L, { listFor: listForD, })) o.said = true; } catch (e) { report('refillOrders', e); }   // (chalked before the player's eyes)
     saveNow();
     emit('loop:order', { action: 'wipe', id });
     return { ok: true, orders: orders() };
@@ -1618,7 +1632,7 @@ export function createLoop(S) {
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
     notePrint, prints, gallery,   // M1 step 5b (lane 5b-home)
     barge, towBarge,
-    orders, wipeOrder, orderFor, cutBait,   // M1 step 4 (lane 4)
+    orders, wipeOrder, orderFor, cutBait, sayOrders,   // M1 step 4 (lane 4); sayOrders: the user's 17 Nov 2026
     canChangeHook, changeHook,   // TK: the tackle tin (CONTRACT §14.19)
     fitFound, unfitFound,   // lost tackle (LOST-TACKLE §2.1): the tin's Kit row
   };

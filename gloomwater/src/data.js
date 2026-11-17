@@ -5108,6 +5108,9 @@ TEXT_LOOP.murk.firstSmall = 'Small ones make good bait. Press and hold \u201cLet
 // the first trip's cast word under the loop (the polish pass: "Hold" is the Hold stat's word, so the gesture says press)
 TEXT_LOOP.castTip = 'Press on the water. Let go to cast.';
 TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
+// Murk says a new order once (the user, 17 Nov 2026: the board never said what he wants): on buying the board and at a visit home;
+// the Journal's word on a species page an open order names (src/loop-gear.js orderSayLine; ui-loop's textAllowed reads `line`)
+TEXT_LOOP.orderSay = { line: 'Bring me {order}.', and: 'and', wants: 'Murk wants one.' };
 // the items' names as the shelf, the slots and the gear log show them (the built LURES / BAITS names, SPEC §4.4, §4.5)
 TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
   mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip', bent_spoon: 'Bent Spoon' };

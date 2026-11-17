@@ -227,7 +227,7 @@ section('Murk\'s orders (SPEC §6.3, §8.2, §8.3): never a giant, never expirin
   eq(G.orderPhrase(D, { id: 'b', speciesId: 'weeping_carp', kind: 'class', cls: 'prize', n: 1, have: 0 }), 'a Prize Weeping Carp', 'a class order: "a Prize Weeping Carp"');
   eq(G.orderPhrase(D, { id: 'c', speciesId: 'overbold_bass', kind: 'count', n: 1, have: 0 }), 'an Overbold Bass', '"an Overbold Bass"');
   const heavy = { id: 'd', speciesId: 'reedjaw_pike', kind: 'heavy', n: 1, have: 0, oz: 144 };
-  eq(G.orderPhrase(D, heavy), 'a Reedjaw Pike over 9\u00a0lb\u00a00\u00a0oz', 'a weight order: "a Reedjaw Pike over 9 lb 0 oz" (the figure held together by non-breaking spaces)');
+  eq(G.orderPhrase(D, heavy), 'a Reedjaw Pike over 9\u00a0lb', 'a weight order: "a Reedjaw Pike over 9 lb" (no "0 oz" on a whole pound) (the figure held together by non-breaking spaces)');
   ok(U.textAllowed(G.orderPhrase(D, heavy), { D }), 'the allow-list takes the weight order as drawn (non-breaking spaces)');
   for (const t of ['2 Dusk Minnows', 'a Dusk Minnow', 'a Prize Weeping Carp', 'an Overbold Bass', 'a Reedjaw Pike over 9 lb 0 oz', '3 Mossback Perch'])
     ok(U.textAllowed(t, { D }), `the allow-list takes "${t}"`);

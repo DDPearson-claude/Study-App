@@ -297,7 +297,7 @@ const CSS = `
 /**
  * The book (ui-loop's createLoopView builds it once): `deps` are ui-loop's own pieces ({K, L, D, TL, h, report, icon, clamTag, shelfCards,
  * goalLine, sealRow, gear, buy, mapArtSizes, drawFishInk, reducedMotion, openOdds, hasOdds, wick, tutorial, close}). → {render(entry, body),
- * onKey(code), debug(), slow(k), go(page), pageOf(focus)}.
+ * onKey(code), debug(), slow(k), go(page), cover() (the cover's spread: the orders' slate), pageOf(focus)}.
  */
 export function createMurkBook(deps) {
   const { K, L, D, TL, h, report = () => {}, icon, clamTag } = deps;
@@ -764,7 +764,7 @@ export function createMurkBook(deps) {
     return { layout: B.layout, page: entry.state.page, spread: spreadOf(B, entry.state.page), count: B.count, chapters: B.chapters.map((c) => ({ ...c })), goalPage: B.goalPage,
       marked: entry.state.marked ?? null, turning: !!turning, pages: B.pages.map((p) => ({ kind: p.kind, chapter: p.chapter ?? null, items: p.items.slice() })) };
   }
-  return { render, onKey, debug, slow: (k) => { turnScale = Math.max(0.1, Number(k) || 1); }, go: (page) => { const e = K.entry?.('shelf'); if (e) go(e, page); }, pageOf: (focus) => (live ? focusPage(live.B, focus) : null) };
+  return { render, onKey, debug, slow: (k) => { turnScale = Math.max(0.1, Number(k) || 1); }, go: (page) => { const e = K.entry?.('shelf'); if (e) go(e, page); }, cover: () => { const e = K.entry?.('shelf'); const n = live?.B?.pages?.findIndex((p) => p.kind === 'cover') ?? -1; if (e && n >= 0) go(e, n); }, pageOf: (focus) => (live ? focusPage(live.B, focus) : null) };
 }
 // the Wick's sheet (SHEET.md §7.3): the flyleaf is this book's paper (its noise, fibre, corner ornament and rule)
 export { PAPER_NOISE, FIBRE, CORNER, RULE };
