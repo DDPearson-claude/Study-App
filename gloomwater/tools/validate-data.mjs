@@ -87,8 +87,8 @@ if (process.argv.includes('--loop')) {
   // the hold ladder (SPEC §4.2) and the 1a shelf
   const H = LP.hold;
   ok4(H.start === 3 && H.max === 8 && H.shelfMax === 6 && H.startName === 'Wicker Creel', 'LOOP.hold: 3 to 8, the shelf to Hold 6 (M1 step 3a: the Wellbox, M1 §2.5)');
-  ok4(same(H.ladder.map((s) => s.slots), [4, 5, 6, 7, 8]) && same(H.ladder.map((s) => s.price), [20, 120, 450, 2000, 3500]) && H.ladder.every((s) => typeof s.name === 'string' && s.name),
-    'LOOP.hold.ladder: slots 4..8 in order, prices 20 · 120 · 450 · 2,000 · 3,500, each named (Hold 4 at 20: the user\'s yes, 17 Nov 2026)');
+  ok4(same(H.ladder.map((s) => s.slots), [4, 5, 6, 7, 8]) && same(H.ladder.map((s) => s.price), [200, 500, 1000, 2000, 3500]) && H.ladder.every((s) => typeof s.name === 'string' && s.name),
+    'LOOP.hold.ladder: slots 4..8 in order, prices 200 · 500 · 1,000 · 2,000 · 3,500, each named (the user, 17 Nov 2026: "Make it 400 to start": Hold 4 at 200, shown 400)');
   // tackle (SPEC §4.3): the prices and TACKLE T0–T4's Hold as the table states it
   const TK = LP.tackle;
   ok4(same(TK.price, [0, 50, 300, 1200, 6000, 32000, 100000]), 'LOOP.tackle.price: 0 · 50 · 300 · 1,200 · 6,000 · 32,000 · 100,000');

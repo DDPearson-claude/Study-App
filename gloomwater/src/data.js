@@ -4817,8 +4817,9 @@ export const LOOP = {
   // ---- the hold (SPEC §3.1, §4.2): holdSlots is the bought count (3–8) for every Wick; a Wick's slots are wickSlots / loopSlots
   // (Hold 4 at 20, the user's yes of 17 Nov 2026, SPEC §16: doubled by LOOP.cost.shipped it is 40, within the first trip's ~41)
   hold: { start: 3, max: 8, shelfMax: 6,             // shelfMax: the shelf's last hold step (1a: Hold 5, PLAN CHOICE 11; M1 step 3a: Hold 6, the Wellbox, M1 §2.5)
-    ladder: [{ slots: 4, price: 20, name: 'Lidded Creel' }, { slots: 5, price: 120, name: 'Double Creel' },
-      { slots: 6, price: 450, name: 'Wellbox' }, { slots: 7, price: 2000, name: 'Ferry Hamper' },
+    // (the user, 17 Nov 2026: "I want buying more fish slots to be really expensive. Make it 400 to start": the shelf shows base × 2)
+    ladder: [{ slots: 4, price: 200, name: 'Lidded Creel' }, { slots: 5, price: 500, name: 'Double Creel' },
+      { slots: 6, price: 1000, name: 'Wellbox' }, { slots: 7, price: 2000, name: 'Ferry Hamper' },
       { slots: 8, price: 3500, name: 'Harbour Chest' }], startName: 'Wicker Creel' },
   // ---- the water goes quiet (SPEC §3.3): good bites an evening; open water one per slot of the hold, plus openExtra
   water: { good: { day: 2, old: 3, night: 2, crown: 2 }, openPerSlot: 1, openExtra: 1,

@@ -219,10 +219,10 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
   console.log(`  the walk: ${orders} buying orders of the four maps allowed, ${refused} refused`);
   ok(orders >= 2 && refused >= 1, `the walk: ${orders} buying orders allowed, ${refused} refused (a dearer map before it is offered)`);
   // Hold 6 after Hold 5; the ball; the sealed card
-  const L = fakeLoop({ D, state: { clams: 1000, holdSlots: 5 } });
+  const L = fakeLoop({ D, state: { clams: 1550, holdSlots: 5 } });
   const no4 = (items) => items.filter((i) => !(/^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id)));   // (M1 step 4's cards: loop-4.test.mjs's)
   const raft = () => no4(L.shelf().tabs.find((t) => t.id === 'raft').items);
-  eq(raft().map((i) => [i.id, i.price, i.name]), [['hold:6', 450, 'Wellbox']], 'Hold 6, the Wellbox, at 450 after Hold 5');
+  eq(raft().map((i) => [i.id, i.price, i.name]), [['hold:6', 1000, 'Wellbox']], 'Hold 6, the Wellbox, at 1,000 after Hold 5');
   ok(L.buy('hold:6').ok && L.s.holdSlots === 6 && L.s.clams === 550, 'buy Hold 6');
   L.s.session = [];
   eq(raft().map((i) => [i.id, i.bought]), [['hold:6', true]], 'Hold 6 is the shelf\'s last hold step: a permanent Yours. (shelfMax 6)');

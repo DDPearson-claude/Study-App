@@ -91,7 +91,7 @@ section('goalLine (SPEC §8.3): "Next: Hold 4 · 30"; Tallow names the slots the
 
 section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a card per slot, the bought rule');
 {
-  const L = fakeLoop({ D, clams: 40 });
+  const L = fakeLoop({ D, clams: 240 });   // (Hold 4 at 200: the user, 17 Nov 2026)
   let m = U.shelfCards(L.shelf(), { D, clams: 40 });
   eq(m.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps', 'home'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps; M1 step 4: Home)');
   eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps, TL.tabs.home], 'one word each, TEXT_LOOP.tabs');
@@ -102,7 +102,8 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
   eq(tack.map((c) => c.name), ['Ashwood', 'Braided Gut', 'Brass Spool'], 'the TACKLE names');
   eq(tack.map((c) => c.line), [TL.shelf.rod, TL.shelf.line, TL.shelf.reel], 'the one line each');
   ok(tack.every((c) => c.price === 50 && c.dear === true && !c.bought), 'T1 50 each: too dear with 40 clams (the price dimmed, no other words)');
-  ok(raft.length === 1 && raft[0].id === 'hold:4' && raft[0].name === 'Lidded Creel' && raft[0].line === TL.shelf.hold && raft[0].price === 20 && !raft[0].dear, 'Raft: Hold 4, the Lidded Creel, 20, affordable');
+  ok(raft.length === 1 && raft[0].id === 'hold:4' && raft[0].name === 'Lidded Creel' && raft[0].line === TL.shelf.hold && raft[0].price === 200 && raft[0].dear, 'Raft: Hold 4, the Lidded Creel, 200, too dear with 40');
+  ok(no4(U.shelfCards(L.shelf(), { D, clams: 200 }).tabs[1].cards)[0].dear === false, 'Hold 4 at 200: affordable with 200');
   // a buy while the shelf is open: the card stays in place reading "Yours." until the shelf closes; the next step on the next open
   ok(L.buy('hold:4').ok === true, 'buy Hold 4');
   m = U.shelfCards(L.shelf(), { D, clams: 10 });
@@ -111,7 +112,7 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
   L.s.session = [];
   m = U.shelfCards(L.shelf(), { D, clams: 10 });
   const h5 = m.tabs.find((t) => t.id === 'raft').cards[0];
-  ok(h5.id === 'hold:5' && h5.price === 120 && h5.name === 'Double Creel' && h5.dear, 'the next open: Hold 5 · 120, the Double Creel');
+  ok(h5.id === 'hold:5' && h5.price === 500 && h5.name === 'Double Creel' && h5.dear, 'the next open: Hold 5 · 500, the Double Creel');
   // Hold 6 and T2 keep a permanent "Yours." card (the last steps the shelf offers; M1 step 3a: LOOP.hold.shelfMax 6)
   const L2 = fakeLoop({ D, clams: 0, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   m = U.shelfCards(L2.shelf(), { D, clams: 0 });
@@ -344,7 +345,7 @@ section('T65/T67 (the view side): a done tutorial draws no cue and the goal line
   tut.start({ from: 'title' });
   const c = tut.cue();
   ok(c.tile === null && c.sail === false && c.line === null, 'no .gw-cue anywhere once done');
-  ok(U.goalLine(L.goal(), { D, wick: L.wick() })?.text === 'Next: Hold 4 · 20', 'and the goal line drawn');
+  ok(U.goalLine(L.goal(), { D, wick: L.wick() })?.text === 'Next: Ashwood · 50', 'and the goal line drawn (the cheapest: Hold 4 at 200 is dearer)');
   const L2 = fakeLoop({ D, tutorial: { done: false, step: 'chart' }, wick: 'tallow' });
   const t2 = createLoopTutorial({ bus: core.createBus(), loop: L2, data: D });
   t2.start({ from: 'title' });
