@@ -14,6 +14,7 @@ import { drawFishInk } from './ui-fishart.js';
 import { gearName } from './loop-gear.js';
 import { bitesTable, HOOK_ITEMS as WC_ITEMS, LURE_IDS as WC_LURES } from './watercraft.js';   // WC-3: the gear log's Who bites
 import { bitesBlock } from './ui-af.js';
+import { lureHere } from './loop-carry.js';   // LAKE 2, lane D2 (LAKE2.md §5.7): a water's lures are its own (found ones travel)
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -34,10 +35,10 @@ export function baitChoices(D, metaLoop, water = 'mossmere') {
   return ids.filter((id, i, a) => a.indexOf(id) === i && (Math.max(0, Math.floor(num(bag[id]))) > 0 || id === fitted))
     .map((id) => ({ id, count: Math.max(0, Math.floor(num(bag[id]))), glyph: GEAR_GLYPH[id] || 'worm' }));
 }
-/** The lure slot's choices (pure): the owned lures of LOOP.lures, in their order: [{id, glyph}]. */
-export function lureChoices(D, metaLoop) {
+/** The lure slot's choices (pure): the owned lures of LOOP.lures usable at `water` (default: where the barge lies), in their order: [{id, glyph}]. */
+export function lureChoices(D, metaLoop, water = metaLoop?.barge?.water ?? null) {
   const own = new Set(arr(metaLoop?.lures));
-  return Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => own.has(id)).map((id) => ({ id, glyph: GEAR_GLYPH[id] || 'hook' }));
+  return Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => own.has(id) && lureHere(D, id, water)).map((id) => ({ id, glyph: GEAR_GLYPH[id] || 'hook' }));
 }
 /** The next choice when a slot is tapped: the one after the fitted one, and after the last none (a bare hook). Pure. */
 export function nextChoice(choices, fitted) {

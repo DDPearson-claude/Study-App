@@ -25,6 +25,7 @@ import { uid } from './core.js';
 import { elderName } from './progression-v3.js';
 import { HOOK_ITEMS as WC_ITEMS, gradeTargets } from './watercraft.js';   // WC-3: a Mossmere tin's or lure's fish (WATERCRAFT §3.7)
 import { foundKit } from './loop-finds.js';   // LOST-TACKLE §3.2, §8: a found rod, line or reel fitted in place of its tier
+import { tackleHold, fittedTier } from './loop-carry.js';   // LAKE 2, lane D2: each water's tiers and the carried share (LAKE2 §5.3)
 
 const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const SLOTS = ['rod', 'line', 'reel'];
@@ -140,8 +141,10 @@ export function createAutofish(S) {
   function getLoadout() {
     const r = run();
     if (loopOn() && (!r || loopRun(r))) {   // the Full Hold: meta.loop.tackle, on a trip and at home (the shelf's Odds ›); no item in 1a
-      const tk = loopBlock()?.tackle || {}, fk = safe(() => foundKit(loopBlock(), D()), null);
-      const out = { rod: tk.rod | 0, line: tk.line | 0, reel: tk.reel | 0, hold: loopHold(tk, fk?.hold), item: null, itemLevel: 1, perRun: false };
+      const LB0 = loopBlock(), fk = safe(() => foundKit(LB0, D()), null);
+      // (LAKE 2, lane D2: the fitted tier of the gear water and the carry + the fitted piece's Hold, loop-carry.js; the Mossmere's as before)
+      const tier = (s) => safe(() => fittedTier(D(), LB0 || {}, s), 0) | 0;
+      const out = { rod: tier('rod'), line: tier('line'), reel: tier('reel'), hold: safe(() => tackleHold(D(), LB0 || {}, fk?.hold), null) || loopHold(LB0?.tackle || {}, fk?.hold), item: null, itemLevel: 1, perRun: false };
       // LOST-TACKLE §3.2, §8: a fitted found piece (the slot keeps its tier; the piece's Hold above, its play, wait and line cap here)
       if (fk && (fk.rod || fk.line || fk.reel)) Object.assign(out, { found: { rod: fk.rod, line: fk.line, reel: fk.reel }, playMult: fk.playMult, waitMult: fk.waitMult, lineCap: fk.lineCap });
       if (!r) out.runless = true;

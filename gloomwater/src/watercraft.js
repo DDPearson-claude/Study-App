@@ -281,6 +281,14 @@ WATERCRAFT.sporewood = {
   tells: null, sight: null,
 };
 // <<< LAKE 2, lane D1
+// >>> LAKE 2, lane D2 (LAKE2.md §2.4, §5.6): the water threaded through the hook's readers. Every reader below takes an optional `water`
+// ('mossmere' when it is left out, so the Mossmere's every call reads exactly what it read before); a water with no tables of its own
+// (no WATERCRAFT entry) reads the Mossmere's. Its areas stay the Mossmere's until a later water's geometry is authored and baked (W1).
+/** A water's watercraft tables (WATERCRAFT[water], else the Mossmere's). */
+export const tablesOf = (water) => (water && WATERCRAFT[water]?.hook ? WATERCRAFT[water] : W);
+/** A fish's hook row at a water (the water's table, then its guests'), or undefined. */
+const rowAt = (fishId, water) => { const T = tablesOf(water).hook; return T.table[fishId] || T.guests?.[fishId]; };
+// <<< LAKE 2, lane D2
 
 /** A game phase (calm, day, dawn, dusk, gloomtide, night) as the light the tables are keyed by. */
 export function lightOf(phase) {
@@ -414,18 +422,19 @@ export function areaShares(probe, { arena = null, hulls = null, docks = null, in
 }
 
 /** The raw weight of a fish in an area by light (the night rows after dark); 1 for a fish with no row or an unknown area. */
-export function rawWeight(fishId, area, phase) {
-  const row = W.raw[fishId];
+export function rawWeight(fishId, area, phase, water) {
+  const X = tablesOf(water), row = X.raw?.[fishId];
   if (!row || !(area in row)) return 1;
-  const nt = lightOf(phase) === 'night' ? W.night[fishId] : null;
+  const nt = lightOf(phase) === 'night' ? X.night?.[fishId] : null;
   return num(nt && area in nt ? nt[area] : row[area], 1);
 }
 /** The hour tilt of a fish in a phase (§2.4; 1 outside the table). */
-export function tilt(fishId, phase) { return num(W.tilts[fishId]?.[lightOf(phase)], 1); }
+export function tilt(fishId, phase, water) { return num(tablesOf(water).tilts?.[fishId]?.[lightOf(phase)], 1); }
 /** A fish's open-water weight in an area: the baked factor (the hour tilt inside it) × its raw weight; 1 for a fish with no row. */
-export function areaWeight(fishId, area, phase) {
-  if (!W.raw[fishId]) return 1;
-  return num(W.factors[lightOf(phase)]?.[fishId], tilt(fishId, phase)) * rawWeight(fishId, area, phase);
+export function areaWeight(fishId, area, phase, water) {
+  const X = tablesOf(water);
+  if (!X.raw?.[fishId]) return 1;
+  return num(X.factors?.[lightOf(phase)]?.[fishId], tilt(fishId, phase, water)) * rawWeight(fishId, area, phase, water);
 }
 
 /** The open-water pool of a light on the bare hook (the fit's and the blind mix's), data.placePool on the game's records. */
@@ -480,8 +489,8 @@ const baitCol = (row, bait) => (bait && bait !== 'bare' && Object.prototype.hasO
  * the lure's column alone; else the bait's (none: the bare hook's). undefined for a species with no row (the caller keeps the built family
  * rule); null where the table has null (the legend; the eel's bare cell).
  */
-export function gradeOf(fishId, { lure = null, bait = null } = {}) {
-  const row = W.hook.table[fishId] || W.hook.guests[fishId];
+export function gradeOf(fishId, { lure = null, bait = null, water = null } = {}) {
+  const row = rowAt(fishId, water);   // (LAKE 2, lane D2: the water's own table; none given, the Mossmere's)
   if (!row) return undefined;
   if (lure && lure !== 'bare' && Object.prototype.hasOwnProperty.call(row, lure)) return row[lure];
   return row[baitCol(row, bait)];
@@ -489,19 +498,23 @@ export function gradeOf(fishId, { lure = null, bait = null } = {}) {
 const taker = (g) => g !== 0;   // grade ≥ 1, or no row (the built rule), or null
 /** A pre-rolled fish's take (§3.6): grade 0 → 0.01; 1 → base; 2 → max(base, min(0.9, base + 0.1)); 3 → max(base, min(0.9, base + 0.2));
  *  no grade (no row) → base. */
-export function takeChance(base, g) {
+export function takeChance(base, g, water) {
   const b = num(base, 1);
-  if (g === 0) return W.take.stray;
+  if (g === 0) return num(tablesOf(water).take?.stray, W.take.stray);
   if (g === 2) return Math.max(b, Math.min(0.9, b + 0.1));
   if (g === 3) return Math.max(b, Math.min(0.9, b + 0.2));
   return b;
 }
 /** The fish an item helps (§3.7): every fish it alone grades 2 or 3, in the table's order; the Harbour-Bell Spinner keeps LANE 4's named
  *  list (D.LOOP.lures.bell_spinner.giants when D is given). */
-export function gradeTargets(itemId, D = null) {
+export function gradeTargets(itemId, D = null, water = null) {
   if (itemId === 'bell_spinner') return arr(D?.LOOP?.lures?.bell_spinner?.giants).length ? D.LOOP.lures.bell_spinner.giants.slice() : W.hook.spinner.slice();
-  const o = LURE_IDS.includes(itemId) ? { lure: itemId } : { bait: itemId };
-  return Object.keys(W.hook.table).filter((id) => { const g = gradeOf(id, o); return g === 2 || g === 3; });
+  // (LAKE 2, lane D2: a later water's giants' lure names its giants, as the Spinner does; the water's own table and columns)
+  const X = tablesOf(water);
+  if (X !== W && arr(X.hook.giants).length && arr(D?.LOOP?.lures?.[itemId]?.giants).length) return D.LOOP.lures[itemId].giants.slice();
+  const lures = X === W ? LURE_IDS : arr(LURE_IDS_AT[water]);
+  const o = lures.includes(itemId) ? { lure: itemId, water } : { bait: itemId, water };
+  return Object.keys(X.hook.table).filter((id) => { const g = gradeOf(id, o); return g === 2 || g === 3; });
 }
 
 /**
@@ -509,14 +522,14 @@ export function gradeTargets(itemId, D = null) {
  * no area: the hour tilt alone); in a place × the hour tilt; then × hook.mult[grade] (hook: false stops before the hook: "who is there").
  * → [{sp, w, g}] (g undefined for a species with no row, or with hook false).
  */
-export function hookWeights(list, { area = null, place = null, phase = 'calm', lure = null, bait = null, hook = true, boost = null } = {}) {
-  const M = W.hook.mult;
+export function hookWeights(list, { area = null, place = null, phase = 'calm', lure = null, bait = null, hook = true, boost = null, water = null } = {}) {
+  const M = tablesOf(water).hook.mult;
   return arr(list).map((it) => {
     const sp = Array.isArray(it) ? it[0] : it.sp, w0 = Array.isArray(it) ? it[1] : it.w, id = sp?.id;
     let w = num(w0);
-    w *= !place && area ? areaWeight(id, area, phase) : tilt(id, phase);
+    w *= !place && area ? areaWeight(id, area, phase, water) : tilt(id, phase, water);
     if (boost && id && boost[id] > 0) w *= boost[id];   // LOST-TACKLE §4.1: a notebook's fish, where it already lives (0 stays 0)
-    const g = hook ? gradeOf(id, { lure, bait }) : undefined;
+    const g = hook ? gradeOf(id, { lure, bait, water }) : undefined;
     if (hook && g != null) w *= M[g];
     return { sp, w, g };
   });
@@ -531,8 +544,8 @@ export function takersSum(entries) { return arr(entries).reduce((a, e) => a + (t
  * S), S the takers' summed weight. opts {giant, lure, bait, phase, wickId, D, guests}. → a fresh entries array (the giant, then each guest
  * marked guest: true).
  */
-export function finishPool(entries, { giant = null, lure = null, bait = null, phase = 'calm', wickId = null, D = null, guests = null } = {}) {
-  const out = arr(entries).map((e) => ({ ...e }));
+export function finishPool(entries, { giant = null, lure = null, bait = null, phase = 'calm', wickId = null, D = null, guests = null, water = null } = {}) {
+  const out = arr(entries).map((e) => ({ ...e })), H = tablesOf(water).hook;
   const rest = out.reduce((a, e) => a + num(e.w), 0);
   if (giant?.sp && rest > 0) {
     const L = lure ? D?.LOOP?.lures?.[lure] : null, named = arr(L?.giants).includes(giant.sp.id), gl = named ? num(L.share, 1.5) : 1;
@@ -542,17 +555,17 @@ export function finishPool(entries, { giant = null, lure = null, bait = null, ph
       const base = D.giantShare(giant.sp, phase, null);
       share = K?.giantShare ? Math.min(num(K.giantCap, 1), base * gl * K.giantShare) : base * gl;
     } else share = Math.min(0.99, num(giant.share, 0) * gl);   // (no data module: placePool's share as given)
-    const g = gradeOf(giant.sp.id, { lure, bait });
+    const g = gradeOf(giant.sp.id, { lure, bait, water });
     let w = share > 0 && share < 1 ? rest * share / (1 - share) : 0;
-    if (g === 0) w *= W.hook.mult[0];
+    if (g === 0) w *= H.mult[0];
     out.push({ sp: giant.sp, w, g, giant: true });
   }
   for (const q of arr(guests)) {
     if (!q?.sp || out.some((e) => e.sp?.id === q.sp.id)) continue;
-    const g = gradeOf(q.sp.id, { lure, bait }), p = num(q.share, 0) * (GUEST_F[g] ?? 0), all = out.reduce((a, e) => a + num(e.w), 0);
+    const g = gradeOf(q.sp.id, { lure, bait, water }), p = num(q.share, 0) * (GUEST_F[g] ?? 0), all = out.reduce((a, e) => a + num(e.w), 0);
     if (p > 0 && p < 1 && all > 0) out.push({ sp: q.sp, w: all * p / (1 - p), g, guest: true });
   }
-  const S = takersSum(out), cap = W.hook.cap * S;
+  const S = takersSum(out), cap = H.cap * S;
   for (const e of out) if (e.g === 0) e.w = Math.min(num(e.w), cap);
   return out;
 }
@@ -610,11 +623,11 @@ function taperOn(entries, SR) {
  *   pre-roll takes 1% and is left out of the pool behind it; the pool's strays are capped last.
  */
 export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = null, bait = null, wickId = null, rb = 0, rule = null,
-  taperFirst = false, preroll = null, comeback = null, notes = null } = {}) {
+  taperFirst = false, preroll = null, comeback = null, notes = null, water = null } = {}) {
   const place = pool?.place ?? null, SR = D?.AUTOFISH?.signRule || { minSpecies: 2, maxShare: 0.8 };
   const NT = notes ? noteTerms(D, notes, { area, place, phase }) : null;   // LOST-TACKLE §4: the owned notebooks' boosts and guests
   // 3–6: the pool, the area or the tilt, the hook
-  let es = hookWeights(pool?.list, { area, place, phase, lure, bait, boost: NT?.boost });
+  let es = hookWeights(pool?.list, { area, place, phase, lure, bait, boost: NT?.boost, water });
   // 7: the rarity bonus
   const b = num(rb, 0);
   if (b) for (const e of es) { if (e.sp?.rarity === 'uncommon') e.w *= 1 + 2 * b; else if (e.sp?.rarity === 'rare') e.w *= 1 + 4 * b; }
@@ -634,12 +647,12 @@ export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = n
   let taper = false;
   if (taperFirst && isTaper(D, wickId)) { const tw = taperOn(es, SR); if (tw) { es = es.map((e, i) => ({ ...e, w: tw[i] })); taper = true; } }
   // 10–11: the giant, the strays' cap
-  es = finishPool(es, { giant: pool?.giant ?? null, lure, bait, phase, wickId, D, guests: NT?.guests });
+  es = finishPool(es, { giant: pool?.giant ?? null, lure, bait, phase, wickId, D, guests: NT?.guests, water });
   const S = takersSum(es);
   // 1: the comeback (the bait-only gate kept): its grade ≥ 1 → this cast is that fish; 0 → it waits
   let waited = false;
   if (comeback?.sp) {
-    const sp = comeback.sp, g = gradeOf(sp.id, { lure, bait });
+    const sp = comeback.sp, g = gradeOf(sp.id, { lure, bait, water });
     if (g !== 0 && (!sp.bait || sp.bait === bait)) return { entries: [{ sp, p: 1, from: 'comeback', z: comeback.z, g }], S, taper: false, waited: false };
     waited = true;
   }
@@ -648,8 +661,8 @@ export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = n
   if (preroll?.sp) {
     const sp = preroll.sp;
     if ((!sp.bait || sp.bait === bait) && !(taper && sp.rarity === 'common')) {
-      const g = gradeOf(sp.id, { lure, bait });
-      pre = { sp, p: takeChance(num(preroll.base, 1), g), from: 'preroll', z: preroll.z, g };
+      const g = gradeOf(sp.id, { lure, bait, water });
+      pre = { sp, p: takeChance(num(preroll.base, 1), g, water), from: 'preroll', z: preroll.z, g };
     }
   }
   // the pool gets the rest, without a pre-rolled stray's species
@@ -663,9 +676,9 @@ export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = n
 }
 /** A lure's strike roll (one a second while it comes back): one draw over castOdds' entries (r1), then that fish takes it at
  *  takeChance(base, its grade) (r2). → the entry that struck, or null (no strike this second). */
-export function lureStrike(odds, r1, r2, base = 0.1) {
+export function lureStrike(odds, r1, r2, base = 0.1, water) {
   const e = drawOdds(odds, r1);
-  return e && num(r2, 1) < takeChance(base, e.g) ? e : null;
+  return e && num(r2, 1) < takeChance(base, e.g, water) ? e : null;
 }
 /** One draw over castOdds' entries with r in [0, 1) (the game passes its seeded rnd()). → the entry, or null for an empty cast. */
 export function drawOdds(odds, r) {
@@ -733,15 +746,19 @@ const CAP_ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
  * or null: no D.LOOP.gearCap, a fish with no row (another water's), or a null grade (the legend). capZ still applies on top (Elders stay
  * old water's and a giant's own place's).
  */
-export function gearCap(D, fishId, { lure = null, bait = null, line = 0, lineCap = null } = {}) {
+export function gearCap(D, fishId, { lure = null, bait = null, line = 0, lineCap = null, lineHold = null, water = null } = {}) {
   const G = D?.LOOP?.gearCap;
   if (!G) return null;
-  const g = gradeOf(fishId, { lure, bait });
+  const g = gradeOf(fishId, { lure, bait, water });
   if (g === undefined || g === null) return null;
-  const row = W.hook.table[fishId] || W.hook.guests[fishId];
+  const row = rowAt(fishId, water);
   const item = lure && lure !== 'bare' && Object.prototype.hasOwnProperty.call(row, lure) ? lure : baitCol(row, bait);
   const lines = arr(G.line), t = Math.max(0, Math.min(lines.length - 1, Math.trunc(num(line, 0))));
-  const terms = [['item', G.item?.[item] ?? null], ['line', (typeof lineCap === 'string' && lineCap) || (lines[t] ?? null)], ['grade', g === 0 ? 'keeper' : arr(G.grade)[g] ?? null]];
+  // LAKE 2, lane D2 (LAKE2.md §5.6): with the line's total Hold (its piece and the carry) the line term is the water's LOOP.gearCap.lineAt
+  // (Prize below `trophy`, Trophy below `elder`, else Elder; the Mossmere's {2, 5} reads Twine · T1 · T2 exactly as the tier did)
+  const LA = G.lineAt?.[water || 'mossmere'], lh = Number(lineHold);
+  const byHold = LA && lineHold != null && Number.isFinite(lh) ? (lh < num(LA.trophy, Infinity) ? 'prize' : lh < num(LA.elder, Infinity) ? 'trophy' : 'elder') : null;
+  const terms = [['item', G.item?.[item] ?? null], ['line', (typeof lineCap === 'string' && lineCap) || byHold || (lines[t] ?? null)], ['grade', g === 0 ? 'keeper' : arr(G.grade)[g] ?? null]];
   let best = null;
   for (const [by, cls] of terms) {
     const i = CAP_ORDER.indexOf(cls);

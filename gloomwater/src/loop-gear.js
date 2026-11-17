@@ -13,6 +13,7 @@
 //           orderSayLine · orderSayOk · slateOrders · slateShown · speciesWanted (Murk says a new order once; the HUD's chalk slate)
 import { uid } from './core.js';
 import { findOrderBonus } from './loop-finds.js';   // M1 step 5c: the Rust Buoy-Bell's one more order (the integration's seam)
+import { gearWaterOf, firstWaterOf, raftLevels } from './loop-carry.js';   // LAKE 2, lane D2: each water's gear, the carried raft
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -30,6 +31,8 @@ const shippedWater = (D, w) => {
   return Number.isFinite(o) && (!Number.isFinite(last) || o <= last);
 };
 const ownedWaters = (D, ml) => arr(ml?.maps?.lakes).filter((w) => typeof w === 'string' && isObj(D?.LOOP?.waters?.[w]) && shippedWater(D, w));
+/** LAKE 2, lane D2 (LAKE2.md §5.7): the water Murk's shelf is at (the barge's), whose lures and tins it sells: each map's are its own. */
+export const shelfWater = (D, ml) => (typeof ml?.barge?.water === 'string' && isObj(D?.LOOP?.waters?.[ml.barge.water]) ? ml.barge.water : firstWaterOf(D));
 
 /** A tin's price in a water (SPEC §4.5): max(5, round(grade × the water's value tier / 5) × 5); the Mossmere's is 10. */
 export function tinPrice(D, water) {
@@ -75,7 +78,7 @@ function levelName(D, slot, lv) {
 export function gearItems(D, metaLoop, session = []) {
   const LP = D?.LOOP; if (!LP?.lures) return [];
   const ml = isObj(metaLoop) ? metaLoop : {}, TL = D.TEXT_LOOP || {}, ses = new Set(arr(session)), out = [];
-  const waters = ownedWaters(D, ml), have = new Set(arr(ml.lures)), withs = ownedOrders(D, ml);
+  const here = shelfWater(D, ml), waters = ownedWaters(D, ml).filter((w) => w === here), have = new Set(arr(ml.lures)), withs = ownedOrders(D, ml);   // (LAKE 2: the barge's water's)
   // the lures (Tackle)
   for (const [id, L] of Object.entries(LP.lures)) {
     if (!isObj(L) || !waters.includes(L.water) || L.start === true || L.found === true) continue;   // (GEAR-GATES §2.1: the start kit's lure is never on the shelf; nor a found one, LOST-TACKLE §3.2)
@@ -90,16 +93,19 @@ export function gearItems(D, metaLoop, session = []) {
     }
   }
   // the raft's parts (Raft) and Murk's Order Board (Home): the next level on the shelf, else the last one owned
+  const gw = gearWaterOf(D, ml), GR = gw === firstWaterOf(D) ? null : D?.LOOP?.gear?.[gw]?.raft;   // (LAKE 2: a later water's raft parts, its own)
   const ladder = (tab, slot, R, cur) => {
     const prices = arr(R?.prices), w = arr(R?.with), top = prices.length;
     const on = (lv) => lv >= 1 && lv <= top && withs.has(num(w[lv - 1], 1));
-    const card = (lv, bought) => ({ id: `${slot}:${lv}`, tab, slot, level: lv, art: ART[slot] || 'star', name: levelName(D, slot, lv), goalName: levelName(D, slot, lv),
-      line: TL.shelf?.[slot] ?? '', price: num(prices[lv - 1], 0), bought });
+    const name = (lv) => (GR && tab === 'raft' ? D?.TEXT_LOOP?.gearNamesAt?.[gw]?.[slot]?.[lv - 1] ?? levelName(D, slot, lv) : levelName(D, slot, lv));
+    const line = GR && tab === 'raft' ? D?.TEXT_LOOP?.shelfAt?.[gw]?.[slot] ?? TL.shelf?.[slot] ?? '' : TL.shelf?.[slot] ?? '';
+    const card = (lv, bought) => ({ id: `${slot}:${lv}`, tab, slot, level: lv, art: ART[slot] || 'star', name: name(lv), goalName: name(lv),
+      line, price: num(prices[lv - 1], 0), bought, ...(GR && tab === 'raft' ? { gearWater: gw } : {}) });
     if (cur >= 1 && ses.has(`${slot}:${cur}`)) out.push(card(cur, true));
     else if (on(cur + 1)) out.push(card(cur + 1, false));
     else if (cur >= 1) out.push(card(cur, true));
   };
-  for (const slot of ['oars', 'keel', 'lantern']) ladder('raft', slot, LP.raft?.[slot], Math.max(0, int(ml.raft?.[slot])));
+  for (const slot of ['oars', 'keel', 'lantern']) ladder('raft', slot, GR?.[slot] ?? LP.raft?.[slot], Math.max(0, int(ml.raft?.[slot])));
   ladder('home', 'orders', LP.home?.orders, Math.max(0, int(ml.home?.orders)));
   return out;
 }
@@ -149,16 +155,16 @@ export function lurePool(D, pool, { lure = null, phase = 'calm', wickId = null }
 /** The Keel's and the Lantern's favour on a cast (SPEC §7): the Keel +favour a level everywhere; the Lantern +favour a level after dark
  *  (the gloomtide). → [{family: 'tackle', id: 'keel' | 'lantern', value}], each only when it adds something. */
 export function raftTerms(D, metaLoop, phase) {
-  const R = D?.LOOP?.raft || {}, r = isObj(metaLoop?.raft) ? metaLoop.raft : {}, out = [];
-  const keel = Math.max(0, int(r.keel)) * num(R.keel?.favour, 0.1), lantern = Math.max(0, int(r.lantern)) * num(R.lantern?.favour, 0.1);
+  const R = D?.LOOP?.raft || {}, r = raftLevels(metaLoop), out = [];   // (LAKE 2, lane D2: the levels bought at the gear water and the carried part)
+  const keel = r.keel * num(R.keel?.favour, 0.1), lantern = r.lantern * num(R.lantern?.favour, 0.1);
   if (keel > 0) out.push({ family: 'tackle', id: 'keel', value: Math.round(keel * 100) / 100 });
   if (lantern > 0 && phase === 'gloomtide') out.push({ family: 'tackle', id: 'lantern', value: Math.round(lantern * 100) / 100 });
   return out;
 }
 /** The raft's parts on its stats (SPEC §7): {speed: +m/s from the Oars, light: × the light's radius from the Lantern}. */
 export function raftStats(D, metaLoop) {
-  const R = D?.LOOP?.raft || {}, r = isObj(metaLoop?.raft) ? metaLoop.raft : {};
-  return { speed: Math.max(0, int(r.oars)) * num(R.oars?.speed, 1.5), light: 1 + Math.max(0, int(r.lantern)) * num(R.lantern?.light, 0.15) };
+  const R = D?.LOOP?.raft || {}, r = raftLevels(metaLoop);   // (LAKE 2, lane D2: bought here plus carried)
+  return { speed: r.oars * num(R.oars?.speed, 1.5), light: 1 + r.lantern * num(R.lantern?.light, 0.15) };
 }
 
 // ---------------------------------------------------------------- Murk's orders (SPEC §6.3; the bounty engine's shape: one record a request)
@@ -205,6 +211,7 @@ export function newOrder(D, metaLoop, { rng = Math.random, taken = [], listFor =
   const sp = pickOf(rng, list), rare = sp.rarity === 'rare';
   const kind = pickKind(rng, rare ? O.rareKinds : O.kinds);
   const o = { id: uid('ord'), speciesId: sp.id, kind, n: 1, have: 0 };
+  { const w = water || metaLoop?.barge?.water; if (typeof w === 'string' && w !== firstWaterOf(D)) o.water = w; }   // (LAKE 2: a later water's order says whose it is)
   if (kind === 'count') { const [lo, hi] = arr(O.count?.[sp.rarity]).length ? O.count[sp.rarity] : [1, 1]; o.n = Math.max(1, lo + Math.floor(rng() * (hi - lo + 1))); }
   else if (kind === 'class') o.cls = O.cls || 'prize';
   else if (kind === 'heavy') {
@@ -215,14 +222,18 @@ export function newOrder(D, metaLoop, { rng = Math.random, taken = [], listFor =
   }
   return o;
 }
-/** Murk chalks orders up to the board's count (in place on metaLoop.orders); → the orders added. */
+/** LAKE 2, lane D2 (LAKE2.md §7.2): the water an order is of (its `water`; an order without one is the first water's). */
+export const orderWater = (D, o) => (typeof o?.water === 'string' ? o.water : firstWaterOf(D));
+/** Murk chalks orders up to the board's count (in place on metaLoop.orders); → the orders added. LAKE 2, lane D2: each water's orders are
+ *  its own (opts.water, else where the barge lies): the count is per water, and another water's open orders wait for the way back. */
 export function refillOrders(D, metaLoop, opts = {}) {
   if (!isObj(metaLoop)) return [];
   if (!Array.isArray(metaLoop.orders)) metaLoop.orders = [];
-  const want = orderCount(D, metaLoop), added = [];
+  const want = orderCount(D, metaLoop), added = [], water = opts.water || shelfWater(D, metaLoop);
   metaLoop.orders = metaLoop.orders.filter((o) => isObj(o) && typeof o.speciesId === 'string');
-  while (metaLoop.orders.length < want) {
-    const o = newOrder(D, metaLoop, { ...opts, taken: metaLoop.orders.map((x) => x.speciesId) });
+  const here = () => metaLoop.orders.filter((o) => orderWater(D, o) === water);
+  while (here().length < want) {
+    const o = newOrder(D, metaLoop, { ...opts, water, taken: here().map((x) => x.speciesId) });
     if (!o) break;
     metaLoop.orders.push(o); added.push(o);
   }

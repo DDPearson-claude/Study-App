@@ -26,7 +26,7 @@ figures.*
 | # | the answer | what changes |
 |---|---|---|
 | 1 | The raft's parts (oars, keel, lantern) and the hold's slots **are bought gear**: they are left behind at the tow, with a share of their stats kept like the rest. The barge's own home items (the Order Board, the lights, the Bait Bed…) stay with the home | **§5's default is overridden** (§5.2's row "the raft's parts and the hold travel" and §11 question 2's "No"): at the first tow the bought Oars, Keel and Lantern levels and the bought hold slots stay at the water left; a third of each is carried (§5.3). Sporewood's shelf sells its own creels (Hold 4 to 7) and its own raft parts (§7.1), doing the same jobs in its own materials |
-| 2 | Sporewood's first evenings must not punish: on the first evening at Sporewood at most about one hooked fish in five gets away, and a trip earns at least about 60% of the Mossmere's last pace; the carried share, Sporewood's early prices and values, its caps for the start kit and its first buys are the knobs | the first evenings at a water reached by a tow (`LOOP.arrival`): over the first three a fish over the gear's cap lands at the cap (GEAR-GATES' first-evening rule) and the water's Fight term is eased (−10, −6, −3 off its 7), then whole; the creels and the raft parts priced so the empty shelf stays inside 3–5 h. *Measured (D1)*: evening 1 loses **20%** of hooked fish and earns **73%** of the Mossmere's last trip (**119%** of its clams a minute) (§8.3). The carried share stays a third |
+| 2 | Sporewood's first evenings must not punish: on the first evening at Sporewood at most about one hooked fish in five gets away, and a trip earns at least about 60% of the Mossmere's last pace; the carried share, Sporewood's early prices and values, its caps for the start kit and its first buys are the knobs | the first evenings at a water reached by a tow (`LOOP.arrival`): over the first three a fish over the gear's cap lands at the cap (GEAR-GATES' first-evening rule) and the water's Fight term is eased (−10, −6, −3 off its 7), then whole; the creels and the raft parts priced so the empty shelf stays inside 3–5 h. *Measured (D1)*: evening 1 loses **20%** of hooked fish and earns **73%** of the Mossmere's last trip (**119%** of its clams a minute) (§8.3). The carried share stays a third. *Measured on the game's tables (D2, §8.4)*: evening 1 loses **15%** of hooked fish and earns **65%** of the Mossmere's last trip (**102%** of its clams a minute), with Sporewood's value tier raised **11 → 12** (at 11: 57%) |
 | 3 | The design's other defaults stand: about 12% green by day; Cut Strip at every water; on the way back the Mossmere's lures wait; the three repeating kept species left out; a third carried; the map at 2,800; Hold 7 on Sporewood's shelf; and no swapping fish, ever | as designed (§1A, §5.7, §6.3, §2.2, §5.3, §6.1, §7.1) |
 
 Lane D1's renames (the names rule and the originality scan, which every word in `src/` passes): the plan written **tuna** here is
@@ -646,8 +646,8 @@ at Murk's."** Nothing else; the leaving card and Murk's line carry the rest.
 | item | kind | base · **shown** | what it does | its look | its motion | shelf line (≤ 8 words, no odds) |
 |---|---|---|---|---|---|---|
 | Seedpod Twirl | start lure | free | grade 1–2 on the small fish; lands up to Keeper | a dried winged seedpod, cream and brown, a hook through its seed | spins down slowly like a falling key | (never on the shelf) |
-| Spore Cake, a tin of 10 | plain bait | 15 · **30** (as Amber Larvae's) | the right bait of the barb, the crayfish, the Downcast; the Threadling takes nothing else | a crumbly plum-brown cake studded with gold spores | dissolves in a slow gold cloud | "Nearly everything here eats it." |
-| Amber Larvae (written Amber Grubs before D1, §0A), a tin of 10 | glow bait | 15 · **30** (the game's tin price: tier 11 × 1.5, to 5, ×2) | the right bait of the night carp and the angler; the Sleepspore Jelly takes nothing else | fat cream larvae with softly lit amber segments | curl and uncurl on the hook | "For the Jelly and the night carp." |
+| Spore Cake, a tin of 10 | plain bait | 20 · **40** (as Amber Larvae's; 15 · 30 before D2's tier 12) | the right bait of the barb, the crayfish, the Downcast; the Threadling takes nothing else | a crumbly plum-brown cake studded with gold spores | dissolves in a slow gold cloud | "Nearly everything here eats it." |
+| Amber Larvae (written Amber Grubs before D1, §0A), a tin of 10 | glow bait | 20 · **40** (the game's tin price: tier 12 × 1.5, to 5, ×2; D2, §8.4) | the right bait of the night carp and the angler; the Sleepspore Jelly takes nothing else | fat cream larvae with softly lit amber segments | curl and uncurl on the hook | "For the Jelly and the night carp." |
 | Rootthread | Line I | 300 · **600** | +3 Hold; lifts the cap to Trophy | brown line of twisted root hair | — | "Lands bigger fish." |
 | Stalkwood | Rod I | 300 · **600** | +3 Hold, casts +2 m | a pale fungus-stalk rod ringed like a mushroom stem, a bark grip | — | "Light, and springs back." |
 | Capwheel | Reel I | 300 · **600** | +3 Hold | a reel turned from a dried shelf-fungus cap, gills on its face | — | "Turned from a shelf cap." |
@@ -796,6 +796,49 @@ node sw-pace2.mjs --share=0.3333 --ease=-10,-6,-3 --fen=3 --h5=500 --h6=1000 --o
 node sw-pace2.mjs --walk=0 --share=0.5 | --share=1 | --df=-7 …      # the other rows
 ```
 
+### 8.4 Measured on the game's tables (lane D2: `clams.mjs --shipped=sporewood`)
+
+`tools/sim/clams.mjs --shipped=sporewood` (the arc in `tools/sim/sporewood.mjs`) runs the Mossmere's shipped arc (§8.2's, unchanged:
+the M1 run is byte-identical), the Sporewood map, **the tow by the game's own code** (`src/loop-carry.js` on the Mossmere's end), then
+Sporewood as lane D1's data ships it: its fourteen fish (the sim's records checked equal to the game's), **the game's pools** (T104 on
+Sporewood: `data.placePool` and `watercraft.castOdds` against the sim's `poolFor`, 300 pools, every share the same), its hook table
+(§2.4; no areas until W1's geometry is baked: the hour tilt alone, as the game now draws it), the line's cap by its total Hold
+(`lineAt`), its items' Hold the fish their row helps, and the first evenings' rule as `fishing.rollSize` has it (the size roll truncated
+at the cap, so a fish over it lands at or under it; the Fight term eased). The pacing player (0.9 clams, 1.25 time), the Order Board
+and the Bait Bed carried over as home items, tins at Murk's factor. Full run, ×2:
+
+| the first evenings at Sporewood (best hook: Spore Cake) | lost of hooked (over the cap) | clams a trip (of the Mossmere's 325) | clams a minute (of its 73) |
+|---|---|---|---|
+| **evening 1: the cap lands, Fight 7 − 10** | **15% (0%)** | **210 (65%)** | **74 (102%)** |
+| evening 2: Fight 7 − 6 | 18% (0%) | 205 (63%) | 70 (96%) |
+| evening 3: Fight 7 − 3 | 23% (0%) | 203 (62%) | 67 (92%) |
+| from evening 4: Fight 7, the caps as GEAR-GATES' (on the start line) | 43% (23%) | 175 (54%) | 48 (65%) |
+
+**The knob that moved: Sporewood's value tier 11 → 12** (`LOOP.waters.sporewood.tier`; the user's answer 2's "Sporewood's early prices
+and values"). The rows that chose it (`--quick`, the first evening): tier 11 **57%** a trip (16% lost); the Fight eased −14 · −8 · −4 at
+tier 11, 58% (13% lost: the losses were never the limit, the Prize cap of the carried +2 is); `lineAt.trophy` 2 in place of 4 (the
+carried line alone at Trophy), 71%, but then Rootthread lifts no cap and Murk's line "Rootthread holds them" is wrong, so not taken;
+tier 12, **62%** (`--quick`) and **65%** (full). The carried share stays a third, `LOOP.arrival` −10 · −6 · −3, the shelf's prices as
+§7.1; tins are 20 (40 shown) at tier 12. The walk (§8.3's order): the first buy (Rootthread) after **trip 3** (0.15 h), then Hold 5 at
+0.44 h, Stalkwood 0.57, Capwheel 0.70, the Ember Minnow 0.89 (clams a trip 304 → 585: the hunting lure is the big step), Hold 6 1.14,
+the Veilwater 1.58, Mothsilk 2.17, Amberheart 2.80, the Mother's Cup 3.21 and the Grove's hunt (2.5 tries of the Glowcap Bulb, 613
+clams; her first landing pays 4,400), Hold 7 at **3.28 h, the empty shelf** (49 trips); the longest wait **18 min**; back to the
+Mossmere's clams a trip at trip 16 (0.96 h); the first giant at about hour 1.6; trips ≤ 4.5 min. The whole arc: the Mossmere 5.26 h, the
+map 0.57 h, Sporewood 3.28 h, **about 9.1 h**.
+
+§8.1's targets: the map 34 min (≤ 40) · the first evening 65% (50–70%) · the first purchase after trip 3 (2–4) · the longest wait 18 min
+(≤ 40) · the empty shelf 3.28 h (3–5) · the first giant hour 1.6 (0.5–2) · trips ≤ 6 min: **pass**. Two warnings: **the list** p95 105
+min, p99 124 on the arrival kit (≤ 60 / 75; it is Glasswater's catch key, so it gates nothing until Glasswater ships: the Lostsea
+Mackerel, a rare hunter that takes no Spore Cake and lands on Cut Strip about one trip in fifty, and the night's Mildew Angler are the
+slow two; giving the mackerel Spore Cake at grade 1 makes it worse, since grade 1 caps it at Keeper), and **back to the Mossmere's
+pace within 6 trips** (trip 16: with the hold and the raft left behind too, the user's answer 1, it comes after Hold 5 and the Ember
+Minnow, by design).
+
+```
+node tools/sim/clams.mjs --shipped=sporewood [--quick]              # the shipped figures (about 25 s; --quick about 15)
+node tools/sim/clams.mjs --shipped=sporewood --quick --walk=0 --tier=11 | --ease=-14,-8,-4 | --lt=2 | --share=0.5 …   # the rows
+```
+
 ---
 
 ## 9. The build plan (lanes, two at a time)
@@ -859,6 +902,39 @@ and the Mossmere plays as before (the readers of a shared table keep to the ship
 - **Checks**: validate-data `--loop`'s "LAKE2 D1" block (every key above, the list rule, the repeats rule, the hook table, `lineAt`, the
   words, nothing on a fresh save's shelf or map cards).
 
+### 9.2 Lane D2 as built (gw-l2-d2)
+
+Logic and the sim; `LOOP.shipped` stays `'mossmere'` and the Mossmere's every figure is unchanged (its sim runs byte-identical; the
+Mossmere's line caps by its total Hold equal its caps by tier for every fish, hook and tier).
+
+- **`src/loop-carry.js`** (new, pure): `carryAdd` (ceil(H × ⅓) a slot from the best bought tier, the cast beyond 16 m, the hold's slots
+  bought there, the raft parts' levels × ⅓ unrounded), `applyTow` (the carry grows; the tackle to the start pieces, a fitted tier off, the
+  hold to its start + the carried slots, the raft to none, `gearWater` the new water; its start kit once: the Seedpod Twirl owned, a tin of
+  Spore Cake, fitted; found pieces stay fitted), `leaveTerms` (the leaving card's figures and its carried line, nothing written),
+  `tackleHold` / `castMaxOf` / `hookWindowOf` (the carry + the fitted piece), `raftLevels`, `lureHere` (a water's own lures, found ones
+  everywhere), `arrivalOf` (the first evenings' rule by evenings fished at a towed water), `lineCapAt`.
+- **The save** (additive; LOOP_SCHEMA stays 4): `carry {rod, line, reel, cast, slots, raft}`, `gearWater`, `fit {rod, line, reel}` (from
+  `found` once; fitFound keeps them in step), `eveningsAt {water: n}` (from `evenings` for an older block; the tally counts each).
+- **`progression-loop`**: `towTo(water)` (a first tow: the carry and the reset, written before one save; a towed water: the way back,
+  only the barge moves); `towBarge` routes a later water's first tow to it (loop-tow's one call); `leaveTerms`, `carried`, `holdOf`,
+  `fitTackle` (lane G's: a lower tier, a found piece, the best bought). The shelf is the gear water's tiers and hold ladder; lures and
+  tins the barge's water's; the gate line and the Journal's hint read the fish's own water; a trip carries `run.arrival` on its first
+  evenings; `fit('lure')` and `changeHook` refuse another water's lure.
+- **`loop-gear`**: lures and tins by the barge's water; a later water's raft parts (prices, names, lines); `raftStats` / `raftTerms` with
+  the carried fraction; Murk's orders keyed by water (an order without one is the first water's; each water fills its own board).
+- **`watercraft`**: `water` threaded through `gradeOf`, `gradeTargets`, `hookWeights`, `finishPool`, `castOdds`, `lureStrike`, `gearCap`
+  (left out: the Mossmere, as before); `gearCap`'s line term by `lineHold` against `LOOP.gearCap.lineAt[water]`.
+- **`fishing`**: a water with its own hook table draws on it (`wcWater`; the areas stay the Mossmere's until W1's geometry is baked);
+  the line's total Hold to the cap; on the first evenings the cap lands and the Fight term is eased (`catchParts` re-read, loop only).
+- **`progression`, `progression-af`, `loop-sheet`, `ui-tackle`, `ui-gear`**: the stats, the loadout and the sheet read the carry and the
+  gear water's tiers (the sheet's model carries `tackle.carried`, the carried line, for G); the tin and the lure slot show this water's.
+- **`data.js`**: Sporewood's value tier 12 (§8.4), the one value moved.
+- **The sim**: `clams.mjs --shipped=sporewood` (`shipSporewood` reshapes the draft Sporewood to the game's; small seams gated on a later
+  water's kit: `kitHold`, the soft cap, the eased Fight, fractional raft parts, the list player's hooks) and `tools/sim/sporewood.mjs`.
+- **Tests**: `loop-carry.test.mjs` (the arithmetic, stacking over two waters, nothing lost without the card, a reload mid-tow, the save
+  fixture `fixtures/loop-save-m1-end.json` → +2 / +2 / +2, the shelf, the way back, the caps, the arrival rule, orders by water,
+  fitTackle, T104 on Sporewood's pools); the fixture's `fakeLoop` carries the five new methods.
+
 ---
 
 ## 10. Left for later (named, not built)
@@ -910,6 +986,6 @@ ships); WATERS' re-stepping of waters 3–16 after Sporewood's new figure.
 | the outline shore touches every shore reader (W1) and could move the Mossmere | the Mossmere keeps `shoreR`; the geometry hash test lands first; `shoreDist` falls back to the polar shore when no outline is authored |
 | the green costs too much on phones | merged cells, opaque, compiled out at lush 0; budgets in §1A; knobs: strands and reeds out of the mirror first, then counts ×0.7 on medium |
 | the reset feels like a loss | told twice, plainly; the carried line on the sheet; Murk's line; the first line on trip 3 restores the pace (§8) |
-| the sim's Sporewood is the family rule, not §2.4's hook table | D2's `--shipped=sporewood` re-measures with the table before the gate; the knobs are the tier prices and `lineAt` |
+| the sim's Sporewood is the family rule, not §2.4's hook table | done (D2, §8.4): `--shipped=sporewood` measures on the game's pools and tables; the knob moved was the value tier (11 → 12); W1's areas, once baked, move the figures again (re-run it at the gate) |
 | Chart bytes (index.html already over 3.3 MB) | measure at C; the polish pass's byte work |
 | the neck place's bank hides the way through | its footprint lifts inside (0.35, as built) and the raft's glide threads it; checked in W1's sail-path test |

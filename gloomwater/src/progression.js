@@ -29,6 +29,7 @@ import * as V3H from './progression-v3.js';
 import { createLoop } from './progression-loop.js';
 import { raftStats } from './loop-gear.js';   // M1 step 4 (lane 4): the raft's parts on a trip's stats
 import { foundKit } from './loop-finds.js';   // LOST-TACKLE §3.2, §8: a found rod, line or reel fitted in place of its tier
+import { tackleHold, castMaxOf, hookWindowOf } from './loop-carry.js';   // LAKE 2, lane D2: each water's tiers and the carried share
 import * as DATA from './data.js';
 
 /**
@@ -191,8 +192,9 @@ export function create(ctx) {
     const rods = d.TACKLE?.rod || [];
     const t = Math.max(0, Math.min(Math.max(0, rods.length - 1), Math.trunc(Number(L.tackle?.rod) || 0)));
     const rod = rods[t], fk = foundKit(L, d);   // (LOST-TACKLE §3.2: a found rod's cast and strike window in place of its tier's)
-    if (rod && 'castMax' in out) out.castMax = fk.castMax ?? rod.castMax;
-    if (rod && 'hookWindow' in out) out.hookWindow = fk.hookWindow ?? rod.hookWindow;
+    // (LAKE 2, lane D2: the gear water's fitted tier and the carried metres, loop-carry.js; the Mossmere's are TACKLE's as before)
+    if (rod && 'castMax' in out) out.castMax = castMaxOf(d, L, fk.castMax);
+    if (rod && 'hookWindow' in out) out.hookWindow = hookWindowOf(d, L, fk.hookWindow);
     const wid = typeof d.loopWickId === 'function' ? d.loopWickId(r.character) : 'wick';
     const add = d.LOOP?.wicks?.[wid]?.stats || {};
     for (const k in add) { const v = add[k]; if (typeof v === 'number' && k in out) out[k] += v; }
@@ -206,17 +208,7 @@ export function create(ctx) {
       out[k] = v;
     }
     out.creelSize = typeof d.loopSlots === 'function' ? d.loopSlots(L, wid) : (L.holdSlots ?? 3);
-    out.hold = loopTackleHold(L.tackle, fk.hold);
-    return out;
-  }
-  /** The Hold of the loop's tackle per slot: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6; a fitted found
-   *  piece's own Hold in its place (`found`: foundKit's hold). */
-  function loopTackleHold(tk = {}, found = {}) {
-    const d = D(), X = d.LOOP?.tackle?.extraHold || {}, out = {};
-    for (const s of ['rod', 'line', 'reel']) {
-      const t = Math.max(0, Math.trunc(Number(tk?.[s]) || 0));
-      out[s] = Number.isFinite(found?.[s]) ? found[s] : t <= 4 ? (typeof d.tackleHoldAt === 'function' ? d.tackleHoldAt(s, t) : 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
-    }
+    out.hold = tackleHold(d, L, fk.hold);   // (LAKE 2, lane D2: the carry + the fitted piece, LAKE2 §5.3)
     return out;
   }
   /** Cached once per frame for the live run (invalidated on every change we make or hear of). */

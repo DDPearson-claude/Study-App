@@ -18,6 +18,8 @@ import { normCdf, capZ, sumFavour } from './fishing-reel.js';
 import { raftStats, raftTerms, orderCount } from './loop-gear.js';
 import { owned as findOwned, findsOf, findBiteBonus, findBaitFloor, foundKit, ownedNotes } from './loop-finds.js';
 import { baitBedFloor } from './home-shelf.js';
+// LAKE 2, lane D2 (LAKE2.md §5): each water's tiers, the carried share, a water's own lures
+import { tackleHold, castMaxOf, hookWindowOf, gearWaterOf, firstWaterOf, carryOf, carriedLine, tiersOf, fittedTier, raftLevels, lureHere } from './loop-carry.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -151,7 +153,7 @@ export function whoBites(D, { place = null, area = null, light = 'dusk', lure = 
   const P = typeof place === 'string' ? placeRec(D, place) : place;
   if (!P && !area) return WC.openMix(D, { light, lure, bait, wickId, rb, notes });
   const pool = D.placePool(arr(D.SPECIES), { placeId: P?.id ?? null, phase, bait, wickId, water });
-  const odds = WC.castOdds(D, { pool, area: P ? null : area, phase, lure, bait, wickId, rb, notes });
+  const odds = WC.castOdds(D, { pool, area: P ? null : area, phase, lure, bait, wickId, rb, notes, water });
   const out = {};
   for (const e of arr(odds.entries)) if (e.sp?.id) out[e.sp.id] = (out[e.sp.id] || 0) + num(e.p);
   return out;
@@ -187,14 +189,18 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   const hookLure = trip ? (typeof run.lure === 'string' ? run.lure : null) : (ml.fitted?.lure ?? null);
   const hookBait = trip ? (run.equippedBait ?? null) : (ml.fitted?.bait ?? null);
   const bag = trip ? (isObj(run.bait) ? run.bait : {}) : (isObj(ml.bait?.[water]) ? ml.bait[water] : {});
-  const lures = arr(ml.lures).filter((id) => typeof id === 'string' && isObj(D?.LOOP?.lures?.[id]));
+  const lures = arr(ml.lures).filter((id) => typeof id === 'string' && isObj(D?.LOOP?.lures?.[id]) && lureHere(D, id, trip ? run.zone || water : water));
   const baitIds = [...arr(D?.LOOP?.tins?.[water]), 'cut_strip', legendBaitOf(D, water)].filter(Boolean);
   const baits = baitIds.map((id) => ({ id, count: Math.max(0, int(bag[id])) })).filter((b) => b.count > 0 || b.id === hookBait);
   const hook = { lure: hookLure, bait: hookBait, tipped: !!hookLure && !!hookBait, lures, baits, canFit: canChange !== false };
   const kit = kitOf(tackle, hook);
   // LOST-TACKLE §3.2, §4: a fitted found piece's Hold in its slot's place, its line's cap, and the owned notebooks on Who bites
   const fk = foundKit(ml, D), notes = ownedNotes(ml, D);
-  if (Object.keys(fk.hold).length) kit.hold = Object.fromEntries(SLOTS.map((s) => [s, fk.hold[s] ?? (typeof D?.tackleHoldAt === 'function' ? D.tackleHoldAt(s, tackle[s]) : 0)]));
+  // LAKE 2, lane D2: the gear water's fitted tiers and the carry (loop-carry.tackleHold); the Mossmere's first age reads its tiers as before
+  const gw = gearWaterOf(D, ml), cy = carryOf(ml), firstAge = gw === firstWaterOf(D) && !(cy.rod || cy.line || cy.reel || cy.cast);
+  const th = tackleHold(D, ml, fk.hold);
+  for (const s of SLOTS) { tackle[s] = fittedTier(D, ml, s); kit[s] = tackle[s]; }
+  if (Object.keys(fk.hold).length || !firstAge) kit.hold = { ...th };
   // ---- the picks (§3.5): where, the hour, the class
   const lifted = new Set(arr(ml.lifted)), places = arr(ml.maps?.places).filter((id) => lifted.has(id) && placeRec(D, id));
   const lastArea = cast && !cast.place && typeof cast.area === 'string' && WC.AREAS.includes(cast.area) ? cast.area : null;
@@ -234,18 +240,24 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   const tierOf = arr(TT.shelfAt).map((w, t) => (t >= 1 && t <= Math.min(4, tierTop) && ownedOrd.has(num(w, 99)) ? t : 0)).filter(Boolean);
   const slots = SLOTS.map((slot) => {
     const t = tackle[slot], fid = fk[slot], LT = fid ? D?.LOOP?.lostTackle?.[fid] || {} : null, nx = shelfOf(slot);
-    // (a fitted found piece stands in for the tier: its name and its own values, LOST-TACKLE §3.2)
-    const rec = LT ? { ...LT, name: D?.TEXT_LOOP?.finds?.items?.[fid]?.name || fid, hold: fk.hold[slot] } : D?.TACKLE?.[slot]?.[t] || {};
+    // (a fitted found piece stands in for the tier: its name and its own values, LOST-TACKLE §3.2; LAKE 2: a later water's tier its own
+    // name and Hold, every value with the carry)
+    const tier = tiersOf(D, gw, slot)[t];
+    const rec = LT ? { ...LT, name: D?.TEXT_LOOP?.finds?.items?.[fid]?.name || fid, hold: th[slot], ...(firstAge ? {} : { castMax: castMaxOf(D, ml, fk.castMax) }) }
+      : firstAge ? D?.TACKLE?.[slot]?.[t] || {}
+      : { name: (gw === firstWaterOf(D) ? D?.TACKLE?.[slot]?.[t]?.name : D?.TEXT_LOOP?.gearItems?.[tier?.id]) || tier?.id || '', hold: th[slot], castMax: castMaxOf(D, ml), hookWindow: hookWindowOf(D, ml) };
     const values = { hold: num(rec.hold) };
     if (slot === 'rod') { values.castMax = num(rec.castMax); values.strike = Math.round((num(rec.hookWindow, 1) - 1) * 100); }
-    const next = nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, compare: cmp(refLand(kit), refLand({ ...kit, [slot]: int(nx.level) })) } : null;
-    return { key: `${slot}:${t}`, slot, level: t, name: rec.name || '', owned: true, found: fid || null, notches: { on: Math.min(t, tierOf.length), of: tierOf.length },
+    const nkit = kit.hold ? { ...kit, [slot]: int(nx?.level), hold: { ...kit.hold, [slot]: cy[slot] + num(tiersOf(D, gw, slot)[int(nx?.level)]?.hold) } } : { ...kit, [slot]: int(nx?.level) };
+    const next = nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, compare: cmp(refLand(kit), refLand(nkit)) } : null;
+    const of = firstAge ? tierOf.length : Math.max(0, tiersOf(D, gw, slot).length - 1);
+    return { key: `${slot}:${t}`, slot, level: t, name: rec.name || '', owned: true, found: fid || null, notches: { on: Math.min(t, of), of },
       values, figure: slot === 'rod' ? { m: values.castMax } : { hold: values.hold }, next, fresh: t >= 1 && isFresh(`${slot}:${t}`) };
   });
   const rating = D?.TACKLE?.reference?.[water] && metOf(meta, D.TACKLE.reference[water]) && typeof D.catchRating === 'function'
     ? D.catchRating(water, kit) : null;
   // the hook's two plates: each with the fish it suits (gradeTargets, the met ones counted) and its compare for the reference fish
-  const suits = (id) => { const t = WC.gradeTargets(id, D); return { n: t.length, met: t.filter((x) => metOf(meta, x)).length }; };
+  const suits = (id) => { const t = WC.gradeTargets(id, D, water); return { n: t.length, met: t.filter((x) => metOf(meta, x)).length }; };
   const hookPlate = (kind, id) => {
     if (!id) return { kind, id: null };
     const legend = id === legendBaitOf(D, water);
@@ -257,12 +269,13 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   hook.plates = { lure: hookPlate('lure', hookLure), bait: hookPlate('bait', hookBait) };
   // ---- Raft and Home (§3.3)
   const H = D?.LOOP?.hold || {}, start = int(H.start, 3), hs = int(ml.holdSlots, start);
-  const ladder = arr(H.ladder).filter((s) => int(s.slots) <= int(H.shelfMax, 6));
+  const GH = gw === firstWaterOf(D) ? H : D?.LOOP?.gear?.[gw]?.hold || H;   // (LAKE 2, lane D2: the gear water's own steps)
+  const ladder = arr(GH.ladder).filter((s) => int(s.slots) <= int(GH.shelfMax, 6));
   const wickSlots = (n) => (typeof D?.wickSlots === 'function' ? D.wickSlots(n, wickId) : n);
   const goodOpen = (n) => (typeof D?.goodBitesFor === 'function' ? D.goodBitesFor({ kind: 'open', holdSlots: n, wickId, extra: findBiteBonus(ml, D, water) }) : 0);
   const creelNx = shelfOf('hold');
   const raft = [{
-    key: `hold:${hs}`, slot: 'hold', level: hs, name: hs <= start ? (H.startName || '') : (arr(H.ladder).find((s) => int(s.slots) === hs)?.name || ''), owned: true,
+    key: `hold:${hs}`, slot: 'hold', level: hs, name: hs <= start ? (H.startName || '') : (arr(GH.ladder).find((s) => int(s.slots) === hs)?.name || arr(H.ladder).find((s) => int(s.slots) === hs)?.name || ''), owned: true,
     notches: { on: Math.max(0, Math.min(ladder.length, hs - start)), of: ladder.length }, values: { slots: wickSlots(hs), extra: wickSlots(hs) - hs, good: goodOpen(hs) },
     figure: { slots: wickSlots(hs) },
     next: creelNx ? { key: creelNx.id, id: creelNx.id, name: creelNx.name, price: creelNx.price, slots: wickSlots(int(creelNx.level)), good: goodOpen(int(creelNx.level)) } : null,
@@ -274,21 +287,22 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     return { key: `${slot}:${cur}`, slot, level: cur, name: cur >= 1 ? nameOf(cur) : nameOf(1), owned: cur >= 1, notches: { on: Math.min(cur, of), of },
       values: {}, figure: null, next: nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, level: int(nx.level) } : null, fresh: cur >= 1 && isFresh(`${slot}:${cur}`) };
   };
-  const gearName = (slot) => (lv) => D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1] ?? `${slot} ${lv}`;
+  const gearName = (slot) => (lv) => (gw !== firstWaterOf(D) ? D?.TEXT_LOOP?.gearNamesAt?.[gw]?.[slot]?.[lv - 1] : null) ?? D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1] ?? `${slot} ${lv}`;
   const homeName = (slot) => (lv) => D?.TEXT_LOOP?.homeNames?.[slot]?.[lv - 1] ?? `${slot} ${lv}`;
-  const R = D?.LOOP?.raft || {}, cap = (sp) => capOf(D, sp, P);
+  const R = D?.LOOP?.raft || {}, cap = (sp) => capOf(D, sp, P), RL = raftLevels(ml);
+  const GR = gw === firstWaterOf(D) ? R : { ...R, ...Object.fromEntries(Object.entries(D?.LOOP?.gear?.[gw]?.raft || {}).map(([k, v]) => [k, { ...R[k], ...v }])) };   // (LAKE 2: its own prices)
   const plainCap = cap({}), plainMin = num(sizeCfg(D).z?.min, -2);
-  const oars = ladderPlate('raft', 'oars', R.oars, int(ml.raft?.oars), gearName('oars'));
+  const oars = ladderPlate('raft', 'oars', GR.oars, int(ml.raft?.oars), gearName('oars'));
   oars.values = { speed: raftStats(D, ml).speed }; oars.figure = oars.owned ? { speed: oars.values.speed } : null;
   if (oars.next) oars.next.speed = r2(int(oars.next.level) * num(R.oars?.speed, 1.5));
-  const keel = ladderPlate('raft', 'keel', R.keel, int(ml.raft?.keel), gearName('keel'));
-  const keelV = int(ml.raft?.keel) * num(R.keel?.favour, 0.1);
+  const keel = ladderPlate('raft', 'keel', GR.keel, int(ml.raft?.keel), gearName('keel'));
+  const keelV = RL.keel * num(R.keel?.favour, 0.1);
   keel.move = keel.owned ? moveOf(D, { mu: here.mu, min: plainMin, cap: plainCap, cls }, keelV) : null;
   keel.figure = keel.move ? { what: cls, to: keel.move.to } : null;
   if (keel.next) keel.next.move = nextMove(D, ml, { place: P, light, hook, cls, slot: 'keel', level: keel.next.level, quiet, mercy });
-  const lantern = ladderPlate('raft', 'lantern', R.lantern, int(ml.raft?.lantern), gearName('lantern'));
+  const lantern = ladderPlate('raft', 'lantern', GR.lantern, int(ml.raft?.lantern), gearName('lantern'));
   {
-    const night = favourHere(D, ml, { place: P, light: 'night', bait: hookBait, lure: hookLure }), lv = int(ml.raft?.lantern) * num(R.lantern?.favour, 0.1);
+    const night = favourHere(D, ml, { place: P, light: 'night', bait: hookBait, lure: hookLure }), lv = RL.lantern * num(R.lantern?.favour, 0.1);
     const ncap = capOf(D, {}, P);
     lantern.move = lantern.owned ? moveOf(D, { mu: night.mu, min: plainMin, cap: ncap, cls }, lv, { night: true }) : null;
     lantern.figure = lantern.move ? { what: cls, to: lantern.move.to, night: true } : null;
@@ -328,7 +342,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     if (sp?.rarity === 'legendary') { rows.push({ id, giant: false, legend: true, pinned: pin?.speciesId === id, share, land: { legend: landOf(D, id, 'legend', kit) } }); continue; }
     const mu = fishMu(D, here, sp, { bait: hookBait, lure: hookLure }), so = shares(D, mu, floorOf(D, sp), capOf(D, sp, P));
     // GEAR-GATES §5.1: a class over the hook's and the line's size cap lands never (it gets away): its cell reads "—", as a class it cannot roll
-    const gc = WC.gearCap(D, id, { lure: hookLure, bait: hookBait === ball ? null : hookBait, line: tackle.line, lineCap: fk.lineCap }), top = gc ? SHEET_CLASSES.indexOf(gc.cls) : SHEET_CLASSES.length - 1;
+    const gc = WC.gearCap(D, id, { lure: hookLure, bait: hookBait === ball ? null : hookBait, line: tackle.line, lineCap: fk.lineCap, lineHold: th.line, water }), top = gc ? SHEET_CLASSES.indexOf(gc.cls) : SHEET_CLASSES.length - 1;
     const land = {};
     for (const c of SHEET_CLASSES) {
       if (SHEET_CLASSES.indexOf(c) > top) { land[c] = null; continue; }
@@ -338,7 +352,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
         land.elder = pe == null ? null : (1 - a) * pe + a * (pa ?? pe);
       } else land[c] = so[c] > 1e-9 ? landOf(D, id, c, kit) : null;
     }
-    rows.push({ id, giant: !!sp?.giant, legend: false, pinned: pin?.speciesId === id, share, land, grade: WC.gradeOf(id, { lure: hookLure, bait: hookBait }), cap: gc ? gc.cls : null,
+    rows.push({ id, giant: !!sp?.giant, legend: false, pinned: pin?.speciesId === id, share, land, grade: WC.gradeOf(id, { lure: hookLure, bait: hookBait, water }), cap: gc ? gc.cls : null,
       ...(sp?.guestOf ? { guest: true } : {}) });   // (LOST-TACKLE §6.2: a notebook's guest, its row marked with the notebook glyph)
   }
   rows.sort((a, b) => b.share - a.share || (a.id < b.id ? -1 : 1));
@@ -392,7 +406,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     }
   }
   if (keel.owned) buffs.push({ key: keel.key, source: { kind: 'raft', id: 'keel', level: keel.level }, effect: { kind: 'keel', value: r2(keelV) }, move: keel.move });
-  if (lantern.owned) buffs.push({ key: lantern.key, source: { kind: 'raft', id: 'lantern', level: lantern.level }, effect: { kind: 'lantern', value: r2(int(ml.raft?.lantern) * num(R.lantern?.favour, 0.1)) }, move: lantern.move, night: true });
+  if (lantern.owned) buffs.push({ key: lantern.key, source: { kind: 'raft', id: 'lantern', level: lantern.level }, effect: { kind: 'lantern', value: r2(RL.lantern * num(R.lantern?.favour, 0.1)) }, move: lantern.move, night: true });
   buffs.push({ key: raft[0].key, source: { kind: 'creel', id: 'hold', level: hs }, effect: { kind: 'creel', value: raft[0].values.slots }, move: null });
   {
     const good = [{ id: null, n: goodOpen(hs) }];
@@ -412,7 +426,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     water, trip, wickId,
     picks: { place, light, phase, cls, choices, nightOnly, live: !!atLive },
     wick: { id: wickId, look: arr(ml.looks).filter((id) => D?.LOOP?.looks?.[id]?.on === 'wick'), passive: wickId, exact: passiveExact(D, wickId, water), worn: looks.wick },
-    tackle: { rating, slots, hook, notes },   // (LOST-TACKLE §4: the owned notebooks, under the tackle)
+    tackle: { rating, slots, hook, notes, carried: carriedLine(D, ml) },   // (LOST-TACKLE §4: the owned notebooks, under the tackle; LAKE 2: the carried line, logs only)
     raft, raftLooks: looks.raft, home, parts, homeLooks: looks.barge,
     buffs,
     odds: { hook, here, size, rows, unmet, ref, legend: legendOn ? legendId : null },

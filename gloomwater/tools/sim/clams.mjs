@@ -50,9 +50,13 @@
 //   node tools/sim/clams.mjs --calibrate --wicks   each Wick's own value tiers, and the highest of the five per water (printed, not adopted)
 //   node tools/sim/clams.mjs --shipped=mossmere [--step=1…6] [--wicks]   M1's own arc (docs/loop/M1.md §6.4): the Mossmere's shelf, fish
 //                                       and places as that step ships them, to the empty shelf (step 5, the default, is M1's end), per Wick
+//   node tools/sim/clams.mjs --shipped=sporewood [--quick]   LAKE 2 (docs/loop/LAKE2.md §8): the Mossmere's arc, its map, the tow (the
+//                                       game's own carry, loop-carry.js), Sporewood's first evenings and its shelf to the empty shelf
+//                                       (tools/sim/sporewood.mjs; knobs --share --ease --fight --h5 --h6 --o1 … for the tuning rows)
 // Deterministic: every row has its own fixed seed. Exits 1 if a pacing target, a ladder rule or the anti-grind check fails.
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { sporewoodReport } from './sporewood.mjs';   // LAKE 2, lane D2: --shipped=sporewood (no data import of its own: this module hands its in)
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true;   // the loop's data: v3 at phase 1 (data.js reads the flags once, at import)
 const D = await import('../../src/data.js');
 const RS = await import('../../src/roster-species.js');   // the roster's converter, shared with data.js (SPEC §13, M1 step 2)
@@ -409,12 +413,21 @@ export function clamsFor(sp, z, V = LOOP.value) {
   return Math.max(1, Math.round(WATER[sp.water].base * V.rarity[sp.rarity] * bodyOf(sp) * m * (V.classBonus[cls] ?? 1)));
 }
 const tierHold = (slot, t) => (t <= 4 ? D.tackleHoldAt(slot, t) : LOOP.tackle.extraHold[slot][t - 5]);
+// >>> LAKE 2, lane D2 (LAKE2.md §5.3, §8): a kit of a later water's gear (`gear`: the water whose tiers its rod, line and reel index,
+// data.LOOP.gear) adds the carried Hold (`carry` {rod, line, reel}); a kit without `gear` reads the tiers as before (the full road, M1)
+const kitHold = (kit, slot) => (kit.gear ? Number(kit.carry?.[slot] || 0) + Number(D.LOOP.gear[kit.gear][slot][kit[slot] | 0]?.hold ?? 0) : tierHold(slot, kit[slot]));
+const kitKey = (kit) => (kit.gear ? `|g${kit.gear}${kit.carry?.rod | 0}/${kit.carry?.line | 0}/${kit.carry?.reel | 0}|e${kit.ease || 0}` : '');
+/** Sporewood under the loop (--shipped=sporewood, shipSporewood): its hook table, caps and items as the game's. Off: the full road's draft. */
+let SW_ON = false;
+const swOn = (water) => SW_ON && water === 'sporewood';
+// <<< LAKE 2, lane D2
 const ITEM = (id) => C.items[id] || (LOOP.bait[id] ? { kind: 'bait', hold: LOOP.bait[id].hold ?? 5, attract: true } : LOOP.giantsLures[id] ? { kind: 'lure', hold: 10 } : null);
 /** The Hold one fitted bait or lure gives this fish (the larger of lure and bait counts, never both: the built rule). */
 function itemHold(id, sp, night) {
   const it = id && ITEM(id); if (!it || sp.legend) return 0;
   // WC-1 (WATERCRAFT.md §3.7): on the Mossmere a tin's or lure's Hold helps the fish that like it or better (watercraft.gradeTargets)
   if (sp.water === 'mossmere' && WC.HOOK_ITEMS.includes(id) && WC.gradeOf(sp.id, {}) !== undefined) return WC.gradeTargets(id, D).includes(sp.id) ? it.hold : 0;
+  if (swOn(sp.water)) return WC.HOOK_ITEMS_AT.sporewood.includes(id) && WC.gradeOf(sp.id, { water: 'sporewood' }) !== undefined && WC.gradeTargets(id, D, 'sporewood').includes(sp.id) ? it.hold : 0;   // (LAKE 2: its own hook table)
   if (LOOP.giantsLures[id]) return LOOP.giantsLures[id].includes(sp.id) ? it.hold : 0;
   if (it.all) return it.hold;
   if (it.night) return sp.hours.length === 1 && sp.hours[0] === 'night' && night ? it.hold : 0;
@@ -453,10 +466,14 @@ const BARE_WAIT = (() => {
 })();
 /** A lure's retrieve against a bait's wait (the sim treats a lure as a bait): the Bent Spoon strikes 4.9–5.1 a minute, ×1.3 slower than the
  *  bought lures' 6.2–8.4 (GEAR-GATES §1.3, §2.1, measured from castOdds' strike rates); the bought lures as fitted (×1). */
-const LURE_WAIT = { bent_spoon: 1.3 };
+const LURE_WAIT = { bent_spoon: 1.3, seedpod_twirl: 1.3 };   // (LAKE 2: the free Seedpod Twirl does the Bent Spoon's job)
 /** The gear's cap on a Mossmere fish (watercraft.gearCap: its grade on the hook, the free hook's own ceiling, the line): the top z it lands,
  *  Infinity for a legend, another water's fish or no cap. */
 const gearCapZ = (sp, kit, bait) => {
+  if (D.LOOP.gearCap && !sp.legend && swOn(sp.water)) {   // (LAKE 2, lane D2: Sporewood's table, the line's total Hold against its lineAt)
+    const g = WC.gearCap(D, sp.id, { lure: kit.lure || null, bait: bait || null, line: kit.line | 0, lineHold: kitHold(kit, 'line'), water: 'sporewood' });
+    return g ? g.z : Infinity;
+  }
   if (!D.LOOP.gearCap || sp.legend || sp.water !== 'mossmere') return Infinity;
   const g = WC.gearCap(D, sp.id, { lure: kit.lure || null, bait: bait || null, line: kit.line | 0, lineCap: kit.thread ? LT.ferry_thread?.cap ?? null : null });
   return g ? g.z : Infinity;
@@ -467,24 +484,25 @@ const P_CACHE = new Map();
  *  new waters' Fight term, a giant's Fight and the item Hold for fish data.js does not know yet. Same formula, same caps, same floor.
  *  `extraHold`: a run buff's Hold (Ashwick's tired comeback, WICKS §2.5), passed to catchParts as its buffs (inside its caps). */
 export function landP(sp, cls, kit, strike, night, extraHold = 0) {
-  const key = `${sp.id}|${sp.water}|${cls}|${kit.rod}|${kit.line}|${kit.reel}|${kit.lure}|${kit.bait}|${strike}|${night}|${extraHold}|${kit.thread ? 't' : ''}${kit.winch ? 'w' : ''}`;
+  const key = `${sp.id}|${sp.water}|${cls}|${kit.rod}|${kit.line}|${kit.reel}|${kit.lure}|${kit.bait}|${strike}|${night}|${extraHold}|${kit.thread ? 't' : ''}${kit.winch ? 'w' : ''}${kitKey(kit)}`;
   let p = P_CACHE.get(key); if (p !== undefined) return p;
   const builtLake = BUILT.includes(sp.water) ? sp.water : 'mossmere', W = WATER[sp.water];
   const like = { id: sp.id, rarity: sp.rarity === 'epic' ? 'rare' : sp.rarity, style: sp.style, family: sp.family, place: sp.ownPlace || undefined, zone: builtLake, maxClass: sp.maxClass || undefined };
-  const hold = { rod: tierHold('rod', kit.rod), line: kit.thread ? Number(LT.ferry_thread.hold) : tierHold('line', kit.line), reel: kit.winch ? Number(LT.belfry_winch.hold) : tierHold('reel', kit.reel) };   // (LOST-TACKLE §3.2)
+  const hold = { rod: kitHold(kit, 'rod'), line: kit.thread ? Number(LT.ferry_thread.hold) : kitHold(kit, 'line'), reel: kit.winch ? Number(LT.belfry_winch.hold) : kitHold(kit, 'reel') };   // (LOST-TACKLE §3.2)
   const parts = D.catchParts(like, cls, { hold }, extraHold ? { strike, lake: builtLake, night, buffs: extraHold } : { strike, lake: builtLake, night });
   if (!parts) { P_CACHE.set(key, 0); return 0; }
   const elderish = cls === 'elder' || cls === 'ancient';
   let fight = parts.fight + (W.fight != null ? W.fight - (C.lake.mossmere ?? 0) : 0);
   if (W.fight != null && elderish) fight += 2 - (C.elderStep.mossmere ?? 0);   // a new water's Elder step is 2 (the deep lakes' value)
   if (sp.rarity === 'epic') fight += LOOP.giant.fight + (elderish ? LOOP.giant.elderFight : 0);
+  if (kit.ease && !sp.legend) fight += Number(kit.ease);   // (LAKE 2, lane D2: the first evenings' eased Fight term, LOOP.arrival)
   const h = parts.hold + Math.max(itemHold(kit.lure, sp, night), itemHold(kit.bait, sp, night));
   p = Math.max(C.floor, parts.cap / (1 + Math.exp(-C.scale * (h - fight))));
   P_CACHE.set(key, p); return p;
 }
 /** A legend's land chance on a try: data.js for the four built legends; the new ones in the same formula with the draft Fight. */
 export function legendP(id, kit, wounds = 0) {
-  const hold = { rod: tierHold('rod', kit.rod), line: tierHold('line', kit.line), reel: tierHold('reel', kit.reel) };
+  const hold = { rod: kitHold(kit, 'rod'), line: kitHold(kit, 'line'), reel: kitHold(kit, 'reel') };
   if (C.legend.fight[id] != null) return D.catchChance(id, 'legend', { hold }, { wounds });
   const sp = SPECIES.find((s) => s.id === id), W = WATER[sp.water], w = C.emphasis[sp.style] || C.emphasis.steady;
   const h = C.wick + hold.rod * w.rod + hold.line * w.line + hold.reel * w.reel + C.strike.struck + Math.min(C.legend.woundCap, wounds * C.legend.woundPerEscape);
@@ -503,12 +521,13 @@ const POOLS = new Map(), PULLED = new Map();
 const WCM = WC.WATERCRAFT.mossmere;
 const WCD = { LOOP: D.LOOP, AUTOFISH: D.AUTOFISH, loopWickId: (w) => simWick(w),
   giantShare: (sp, phase) => (sp.hours.includes(WC.lightOf(phase)) ? LOOP.giant.share.inHour : LOOP.giant.share.offHour) };
-const wcRow = (s) => s.water === 'mossmere' && WC.gradeOf(s.id, {}) !== undefined;
+const wcRow = (s) => (s.water === 'mossmere' && WC.gradeOf(s.id, {}) !== undefined) || (swOn(s.water) && WC.gradeOf(s.id, { water: 'sporewood' }) !== undefined);
 /** The fish that can bite in a water at a phase: open-water fish everywhere; a place adds the fish of its kind, its giant and its own
  *  built species; the lure and the bait tilt the pool; a fish that bites on one bait only needs it. On the Mossmere (WC-1) the area (open
  *  water: `area`, areaAt's id; none: the hour tilt) and the hook table, then the giant and the strays' cap (watercraft.js). */
 function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick = null, area = null, hook = true, notes = null) {
-  const wc = water === 'mossmere', NB = wc && Array.isArray(notes) && notes.length ? notes : null;   // (LOST-TACKLE §4: the owned notebooks)
+  const wc = water === 'mossmere' || swOn(water), NB = water === 'mossmere' && Array.isArray(notes) && notes.length ? notes : null;   // (LOST-TACKLE §4: the owned notebooks; LAKE 2: Sporewood's table)
+  const WTR = water === 'mossmere' ? undefined : water;   // (the Mossmere's calls exactly as before)
   // the pull (SPEC §5.5 (d)): a listed fish not yet landed (`miss`) bites at weight × pull, after the hours, place and bait filters; a giant's
   // share is unchanged. `pool.sure` is the missing fish alone, for the sure bite. The missing set and the factor are part of the cache key.
   // Taper (WICKS §2.2 (b)): a giant's share × giantShare, never above giantCap; no other Wick changes a pool here.
@@ -551,11 +570,11 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   if (wc) {   // WC-1: the area or the tilt, the hook (§4 steps 4–6), the pull on takers, the giant and the strays' cap (steps 10–11)
     // LOST-TACKLE §4: a notebook's boosts (hookWeights) and its guest in its area and light (finishPool), the game's own noteTerms on the sim's records
     const NT = NB ? WC.noteTerms(D, NB, { area: P ? null : area, place: P ? P.id : null, phase }) : null;
-    const es = WC.hookWeights(list, { area: P ? null : area, place: P ? P.id : null, phase, lure, bait, hook, boost: NT?.boost });
+    const es = WC.hookWeights(list, { area: P || WTR ? null : area, place: P ? P.id : null, phase, lure, bait, hook, boost: NT?.boost, ...(WTR ? { water: WTR } : {}) });
     if (!hook) { const wl = es.map((e) => [e.sp, e.w]), pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: null }; cache.set(key, pool); return pool; }   // who is there
     if (miss) for (const e of es) if (miss.has(e.sp.id) && e.g !== 0) e.w *= pull;
     const fin = WC.finishPool(es, { giant: giant && others > 0 ? { sp: giant, share: null } : null, lure, bait, phase, wickId: wick, D: WCD,
-      guests: NT ? NT.guests.map((q) => ({ sp: GUEST[q.sp.id], share: q.share })).filter((q) => q.sp) : null });
+      guests: NT ? NT.guests.map((q) => ({ sp: GUEST[q.sp.id], share: q.share })).filter((q) => q.sp) : null, ...(WTR ? { water: WTR } : {}) });
     const wl = fin.filter((e) => e.w > 0).map((e) => [e.sp, e.w]), sw = miss ? fin.filter((e) => !e.giant && e.w > 0 && e.g !== 0 && miss.has(e.sp.id)).map((e) => [e.sp, e.w]) : null;
     const pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: sw && sw.length ? { list: sw, tot: sw.reduce((a, [, w]) => a + w, 0) } : null, grades: new Map(fin.map((e) => [e.sp.id, e.g])) };
     if (miss && PULLED.size > 60000) PULLED.clear();
@@ -614,7 +633,7 @@ function sightCast(r, kit, placeId, ph, area) {
   const Sg = WCM.sight, F = LOOP.favour, night = ph === 'night';
   const vis = placeId ? (placeId === 'lily_maze' ? 0.5 : 0) : visShare(area);
   if (!(vis > 0)) return null;
-  const lit = night ? Math.min(1, (Sg.lantern.r * (1 + Sg.lantern.perLevel * (kit.lantern | 0))) ** 2 / CAST_R ** 2) : 1;
+  const lit = night ? Math.min(1, (Sg.lantern.r * (1 + Sg.lantern.perLevel * (+kit.lantern || 0))) ** 2 / CAST_R ** 2) : 1;
   const alive = 1 - Math.exp(-((Sg.life[0] + Sg.life[1]) / 2) / ((Sg.spawn[0] + Sg.spawn[1]) / 2));
   if (!(r() < alive * vis * lit)) return null;
   const who = poolFor('mossmere', placeId, ph, null, kit.bait, null, 1, null, area, false).list
@@ -622,7 +641,7 @@ function sightCast(r, kit, placeId, ph, area) {
     .map(([s, w]) => [s, w * (Sg.show[SIGHT_BODY[s.id]] ?? 1)]);
   if (!who.length) return null;
   const tot = who.reduce((a, [, w]) => a + w, 0), P = placeId ? PLACE[placeId] : null;
-  const mu = (P ? L_PLACE_FAV(P) : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0) + F.perKeel * (kit.keel | 0);
+  const mu = (P ? L_PLACE_FAV(P) : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (+kit.lantern || 0) : 0) + F.perKeel * (+kit.keel || 0);
   let best = null;
   for (let i = 0, n = r() < 0.5 ? 1 : 2; i < n; i++) {
     let x = r() * tot, sp = who[who.length - 1][0];
@@ -713,7 +732,7 @@ export function trip(kit, policy, r, opts = {}) {
   const waitMul = pas === 'moth_bright' ? WK.waitMul : 1;           // Stub: every wait × waitMul (the sim has no legend cast inside a trip)
   const taperN = pas === 'long_reach' ? WK.firstBites ?? 1 : 0, taperLeft = new Map();   // Taper: first bites left under the rule, per water (or per evening)
   const led = pas === 'curious' ? opts.firsts || null : opts.firsts && opts.track ? opts.firsts : null;   // the Wick's ledger (or any Wick's, tracked for a report)
-  const sail = (base) => base * L.time.raftSpeed / (L.time.raftSpeed + L.raft.oars.speed * (kit.oars | 0));
+  const sail = (base) => base * L.time.raftSpeed / (L.time.raftSpeed + L.raft.oars.speed * (+kit.oars || 0));   // (LAKE 2: a carried part's fraction of a level)
   let waters = [{ id: null, kind: 'open' }, ...kit.places.map((id) => ({ id, kind: PLACE[id].kind, route: routeKind(PLACE[id]) }))].sort((a, b) => KIND_ORDER[a.route || a.kind] - KIND_ORDER[b.route || b.kind]);
   const miss = opts.missing && opts.missing.size ? new Set(opts.missing) : null;          // a fish landed on this trip leaves the set at once
   const PULL = miss && opts.pull !== false ? L.access.pull : null, nEv = opts.n | 0;
@@ -725,6 +744,7 @@ export function trip(kit, policy, r, opts = {}) {
   // WC-1: the Mossmere's casts land in areas (the blind caster by the baked shares; --readers / --stalkers the best area for the kit);
   // Cut Strip is the trip's own (a Small or Keeper let go and cut into LOOP.cut.strips; with none left, the cast fishes the bare hook)
   const wcW = kit.water === 'mossmere', who = opts.player || 'blind', reads = wcW && (who === 'reader' || who === 'stalker');
+  const wcH = wcW || swOn(kit.water), GW = wcW ? undefined : kit.water;   // (LAKE 2, lane D2: a water with a hook table of its own; its areas wait for W1's geometry)
   const STRIP = kit.bait === 'cut_strip', CUT = D.LOOP.cut || { strips: 3, classes: ['small', 'keeper'] };
   let strips = 0;
   const baitFavOf = (b) => (b && L.bait[b] ? L.baitRule.favour : 0);
@@ -763,7 +783,7 @@ export function trip(kit, policy, r, opts = {}) {
       inQuiet = false;
       if (hold.length >= slots || out.bites >= 400) break outer;
       const cbHere = !!comeback && comeback.at === W.id              // Ashwick's policy always takes a waiting comeback: no leaving
-        && !(wcW && WC.gradeOf(comeback.sp.id, { lure: kit.lure, bait: STRIP ? (strips > 0 ? 'cut_strip' : null) : kit.bait }) === 0);   // (WC-1: it waits on a stray)
+        && !(wcH && WC.gradeOf(comeback.sp.id, { lure: kit.lure, bait: STRIP ? (strips > 0 ? 'cut_strip' : null) : kit.bait, ...(GW ? { water: GW } : {}) }) === 0);   // (WC-1: it waits on a stray)
       if (!cbHere && W.early && !missAt(W, phase())) break;          // open water's missing fish are landed or their light is gone: on to the places; open water tops up last
       const over = Math.max(0, here - fresh);                        // the policies' count: quiet bites already taken here
       const qOver = Math.max(0, here + 1 - fresh);                   // this bite's quiet terms (PLAN CHOICE 17, the game's loop.favour): at 4 good bites the 5th is quiet
@@ -792,17 +812,21 @@ export function trip(kit, policy, r, opts = {}) {
       const pulled = !!PULL && nEv >= PULL.floorFrom && miss.has(sp.id);
       const atOwn = sp.giant;                              // a giant only bites at its own place
       const q = quietTerms(qOver, wid);
-      let mu = (W.id ? L.place.favour.base + L.place.favour.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (kit.lantern | 0) : 0)
-        + baitFavOf(castBait) + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (kit.keel | 0) + mercy
+      let mu = (W.id ? L.place.favour.base + L.place.favour.window[W.kind] : 0) + F.setup + (ph === 'dusk' ? F.dusk : night ? F.night + F.perLantern * (+kit.lantern || 0) : 0)
+        + baitFavOf(castBait) + lureFavour(kit.lure, sp) + (sp.giant ? LOOP.giant.favour : 0) + q.favour + F.perKeel * (+kit.keel || 0) + mercy
         + (castBait === 'cut_strip' && sp.family === 'predator' ? CUT_FAVOUR : 0)   // (the game's cutStrip term, fishing.js speciesTerms)
-        + (wcW && !kit.lure && !castBait ? Number(D.LOOP.bare?.favour) || 0 : 0) + baseLureFav(kit.lure);   // GEAR-GATES §2.1–§2.2 (fishing.baseTerms)
+        + (wcH && !kit.lure && !castBait ? Number(D.LOOP.bare?.favour) || 0 : 0) + baseLureFav(kit.lure);   // GEAR-GATES §2.1–§2.2 (fishing.baseTerms)
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
       inQuiet = qOver > 0;
-      const wait = T.wait * waitMul * q.waitMult * waitK * (wcW && !kit.lure && !castBait ? BARE_WAIT : 1) * (kit.lure ? LURE_WAIT[kit.lure] ?? 1 : 1)
+      const wait = T.wait * waitMul * q.waitMult * waitK * (wcH && !kit.lure && !castBait ? BARE_WAIT : 1) * (kit.lure ? LURE_WAIT[kit.lure] ?? 1 : 1)
         * (kit.thread ? Number(LT.ferry_thread.waitMult) || 1 : 1); out.waitSec += wait;   // (GEAR-GATES §2.2; LOST-TACKLE §3.2: the Thread's quicker bites)
       adv(T.cast + wait);
       const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, W.kind === 'old' || atOwn ? SZ.z.max : SZ.elsewhereMaxZ);   // Elders: old water, and a giant at its own place
-      const z = isCb ? comeback.z : sight?.took ? sight.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
+      // (LAKE 2, lane D2: on the first evenings at a water reached by a tow (`kit.soft`, LOOP.arrival) the size roll is truncated at the gear's
+      // cap, as fishing.rollSize's soft cap: a fish over it lands at it, never gets away)
+      const softZ = kit.soft ? gearCapZ(sp, kit, castBait) : Infinity;
+      let z = isCb ? comeback.z : sight?.took ? sight.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, Math.min(maxZ, softZ));   // a missing listed fish never bites Small
+      if (z > softZ) z = softZ;
       if (isCb) comeback = null;
       const cls = D.isAncient(z) ? 'ancient' : D.sizeClassOf(z);
       here++; out.bites++; if (qOver > 0) out.stale++; if (night) out.nightBites++; if (CI[cls] >= 4) out.elderBites++; if (sp.giant) out.giantBites++; if (sp.rarity !== 'common') out.nonCommon++;
@@ -912,10 +936,11 @@ const asc = (a, b) => a - b, quant = (a, q) => a[Math.min(a.length - 1, Math.flo
 /** WC-1: the list player's hook on the Mossmere for evening n: its kit's while that brings every missing fish; else an evening each, in
  *  turn, of the hooks that bring one (Cut Strip first while a hunter is missing that the kit will not bring, the kit, the bare hook). */
 function listHook(kit, missing, n) {
-  const miss = [...missing], takes = (k, id) => WC.gradeOf(id, { lure: k.lure, bait: k.bait }) !== 0;
+  const Wx = kit.water === 'mossmere' ? {} : { water: kit.water };   // (LAKE 2, lane D2: Sporewood's own table; its hunter the one the strip brings)
+  const miss = [...missing], takes = (k, id) => WC.gradeOf(id, { lure: k.lure, bait: k.bait, ...Wx }) !== 0;
   if (miss.every((id) => takes(kit, id))) return kit;
   const strip = { ...kit, lure: null, bait: 'cut_strip' }, bare = { ...kit, lure: null, bait: null };
-  const hunt = miss.some((id) => WC.HUNTERS.includes(id) && !takes(kit, id));
+  const hunt = miss.some((id) => (kit.water === 'mossmere' ? WC.HUNTERS.includes(id) : takes(strip, id)) && !takes(kit, id));
   const seen = new Set(), useful = (hunt ? [strip, kit, bare] : [kit, bare]).filter((k) => { const key = `${k.lure}|${k.bait}`; if (seen.has(key)) return false; seen.add(key); return miss.some((id) => takes(k, id)); });
   return useful.length ? useful[n % useful.length] : kit;
 }
@@ -930,7 +955,7 @@ export function listStudy(W, kit, players, mode = { journal: true }, seed = 7000
       // WC-1 (WATERCRAFT.md §3.3, §9.2): on the Mossmere the list player fishes Cut Strip while a hunter on its list is missing that its
       // own hook will not bring (none takes a bare hook); a missing fish its hook will not bring either (a perch on Lumen Moss, the koi on
       // the strip) gets its evenings too: the list player turns through the hooks that bring a missing fish (the strip first), an evening each
-      const k = W.id === 'mossmere' ? listHook(kit, missing, n) : kit;
+      const k = W.id === 'mossmere' || swOn(W.id) ? listHook(kit, missing, n) : kit;
       const x = trip(k, POL.natural(), r, { missing, n, ...mode }); t += x.sec; clams += x.clams; for (const id of x.landedIds) missing.delete(id); n++;
     }
     if (missing.size) open++;
@@ -1254,6 +1279,41 @@ export function firstsGain(kit, from, trips, players, seed) {
  *  Gloam Eel bites on Lumen Moss only, a step-4 tin). Call before any pool is drawn: it edits the water in place and empties the caches. */
 /** M1 step 2's Mossmere (M1.md §2.3): its open-water fish but the Kissmark Trout (its plan ships in step 3), 11 (no edit, no cache). */
 export function step2Pool(W = WATER.mossmere) { return W.species.filter((s) => s.kind === 'open' && !s.ownPlace && !s.giant && !s.legend && s.id !== 'kissmark_trout'); }
+/**
+ * LAKE 2, lane D2 (LAKE2.md §2, §3.2, §7.1, §9): Sporewood Pools as the game ships it under the loop (lane D1's data), in place of the
+ * full road's draft water: its fish are the game's records (the three repeating kept species and the Emberbrood left out; the Sleepspore
+ * Jelly the Lullaby's own on Amber Larvae), its four places with the game's prices, giants, own fish and draws (the Puffball Vent waits), its
+ * lake map, legend bait and giants' lure as data.LOOP's; from here on its pools read its own hook table (watercraft.WATERCRAFT.sporewood: no
+ * areas yet, the hour tilt alone), its items' Hold the fish they help, its caps the line's total Hold against lineAt. Once, for the run.
+ */
+export function shipSporewood() {
+  const W = WATER.sporewood;
+  if (SW_ON) return W;
+  SW_ON = true;
+  const GL = D.LOOP, ids = new Set(D.SPECIES.filter((s) => s.zone === 'sporewood').map((s) => s.id));
+  W.species = W.species.filter((s) => ids.has(s.id));
+  for (const [id, as] of Object.entries(GL.keptAs || {})) {
+    const s = W.species.find((x) => x.id === id), P = as.place ? PLACE[as.place] : null; if (!s) continue;
+    if (P) { Object.assign(s, { ownPlace: P.id, kind: P.kind }); if (!P.own.includes(id)) P.own.push(id); }
+    if (as.bait) Object.assign(s, { bait: as.bait, baits: new Set([as.bait]) });
+  }
+  W.places = W.places.filter((p) => GL.places[p.id]?.water === 'sporewood');
+  for (const P of W.places) {
+    const g = GL.places[P.id];
+    Object.assign(P, { kind: g.kind, inLake: g.lake === true, price: g.lake ? 0 : Number(g.price) || 0, giants: g.giant ? [g.giant] : [], legend: g.legend || null,
+      draws: g.draws ? { ...g.draws } : null });
+    P.own = [...new Set([...(g.own || []), ...P.own.filter((id) => ids.has(id))])];
+  }
+  W.lake = GL.waters.sporewood.lake; W.base = GL.waters.sporewood.tier; W.plainBait = GL.waters.sporewood.plainBait;
+  Object.assign(W.prices, GL.waters.sporewood.prices);
+  W.legendBait = [GL.legendBait.sporewood.id, GL.legendBait.sporewood.price, W.legendBait[2]];
+  LOOP.giantsLures.sporelamp_fly = GL.lures.sporelamp_fly.giants.slice();
+  if (!LOOP.bait.amber_larvae) LOOP.bait.amber_larvae = { at: 2, name: GL.TEXT_LOOP?.gearItems?.amber_larvae || 'Amber Larvae' };
+  for (const c of [POOLS, PULLED, LISTS, P_CACHE, BEST_AREA]) c.clear();
+  return W;
+}
+export { WATER, PLACE, SP, kitHold };   // (tools/sim/sporewood.mjs, tools/tests/loop-carry.test.mjs's T104 on Sporewood's pools)
+
 export function shipMossmere(step) {
   const W = WATER.mossmere;
   if (step <= 1) {
@@ -1443,6 +1503,7 @@ if (args.includes('--fish')) {
   return 0;
 }
 
+if (SHIPPED === 'sporewood') return sporewoodReport({ D, run, POL, pacing, shipSporewood, WATER, SP, listStudy, listFor, legendP, clamsFor, baitTin, LOOP, QUICK, argOf });
 if (SHIPPED) return shippedReport();
 if (args.includes('--wicks')) return wicksReport();
 // ---------------------------------------------------------------- --shipped=mossmere: M1's arc, per step and (--wicks) per Wick

@@ -5697,7 +5697,9 @@ TEXT_LOOP.sheet = {
 // Sporewood's water: catalogue order 2, its value tier (the sim's draft 11; the Mossmere's 7), its place maps' prices by kind, its lake
 // map (1,400 base, 2,800 as Murk asks: LAKE2 §8), its plain bait (its first tin; the list's bait rule) and the two places its lake map
 // opens (the day water and the old water: migrateLoop rule 5's list, listFor's `opens`)
-LOOP.waters.sporewood = { order: 2, tier: 11, prices: { night: 1200, crown: 2200 }, lake: 1400, plainBait: 'spore_cake',
+// (LAKE 2, lane D2: the value tier 12, not the draft's 11: the user's answer 2's knob "Sporewood's early prices and values". Measured on
+// clams.mjs --shipped=sporewood, the first evening earns 62% of the Mossmere's last trip at 12, 57% at 11; LAKE2 §8.4)
+LOOP.waters.sporewood = { order: 2, tier: 12, prices: { night: 1200, crown: 2200 }, lake: 1400, plainBait: 'spore_cake',
   places: [{ id: 'lullaby', kind: 'day' }, { id: 'gill_harp', kind: 'old' }] };
 // its four places (§3.2), in the Chart's order (day, old, night, crown). `lake`: opened by the lake map (no map of its own, never a map
 // card: price 0); `out` the glide out from the mooring (LOOP.mooring.sporewood's raft first), every West Pool place through the neck.
