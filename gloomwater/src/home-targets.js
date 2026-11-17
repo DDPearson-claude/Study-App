@@ -13,6 +13,7 @@
 //   frameCheck(M, cam, o)   the validator's check of a camera's frame at a screen size (the barge, the raft, every target and
 //                           every word: ≥ 16 px from each other and from the Wick)
 //   wickCorners(M)          the Wick's figure on the raft at home (the words keep off it)
+//   raftCorners(M)          the raft's deck at its tie-up (CHART's word sits under it: UNDER_WORD)
 //   wordMetrics(text, t)    a word's box (its width, its glyphs' height, its hooks' reach) estimated from its letters (the
 //                           validator's; the screen measures its own)
 
@@ -44,6 +45,13 @@ export const WICK_BOX = { min: [-0.42, 0.22, -0.42], max: [0.42, 1.6, 0.42] };
 // the words under the targets (ui.css .gw-jetty-tword: the display face, uppercase, tracked; the hooks either side only on desktop)
 /** A word's cost (px of nudge) for sitting above its button or to its left: past it, the word leaves its band for its button's side. */
 export const SIDE_COST = 80;
+/** The words laid under the raft rather than under their own buttons (the user, 17 Nov 2026: "Put the word chart below the raft
+ *  not to the right of the raft so it looks less cluttered"): centred under the raft's screen footprint, UNDER_GAP px below its
+ *  lowest point (and ≥ 16 px under the Wick); the button stays over the chart table, the word still its tap. */
+export const UNDER_WORD = { chart: 'raft' };
+export const UNDER_GAP = 8;
+/** The touch stick's resting hint on a phone (ui.css .gw-joy-hint: 96 px round 0.2 W, 0.83 H of the 44vw × 46vh zone). */
+export const stickHint = (vw, vh) => ({ l: 0.198 * vw - 48, t: vh * (0.54 + 0.46 * 0.62) - 48, r: 0.198 * vw + 48, b: vh * (0.54 + 0.46 * 0.62) + 48 });
 export const HOME_WORDS = { murk: 'Murk', chart: 'Chart', journal: 'Journal' };
 export const WORD_TYPE = { desk: { size: 19, track: 0.2, hook: 42, band: 34 }, phone: { size: 17, track: 0.16, hook: 0, band: 30 } };
 /** A word's box at a type {size px, track em, hook px}: {w (the letters and their tracking), h (the glyphs), hook (each side)},
@@ -77,6 +85,11 @@ export function targetCorners(M) {
 export function wickCorners(M) {
   if (!M?.raft) return null;
   return corners(WICK_BOX).map(([x, y, z]) => [M.raft.x + x, y, M.raft.z + z]);
+}
+/** The raft's deck's four corners at its tie-up (the frame check's deck, ±1.3 m at 0.2 m), or null. */
+export function raftCorners(M) {
+  if (!M?.raft) return null;
+  return [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]].map(([dx, dz]) => [M.raft.x + dx, 0.2, M.raft.z + dz]);
 }
 /** The barge's own extremes and the raft at its stern (the frame must hold all of them). */
 export function bargePoints(M, { length = 12, beam = 3.6, top = 3.5 } = {}) {
@@ -128,12 +141,15 @@ export const apart = (a, b) => Math.max(a.l - b.r, b.l - a.r, a.t - b.b, b.t - a
  * glyphs at the foot of its button; every word ≥ `gap` px from every other word and from each rect of `avoid` (the Wick), clear of
  * the other buttons by `boxGap`, of the reserved rects and of the view's edge. A word's hooks are hidden when the hooked word would
  * come within those distances of anything; a word that would still touch is nudged the shortest way clear (along its band first,
- * then a little down or up), left to right.
+ * then a little down or up), left to right. under: {id: {l, t, r, b}} a word laid under that rect instead (UNDER_WORD: CHART under
+ * the raft), centred under it UNDER_GAP px below its foot and ≥ gap under each `avoid` rect, nudged the shortest way when that spot
+ * is taken, its centre always below the rect's foot, and off each rect of underOff (the touch stick's ring on a phone held upright);
+ * placed before the other words, which keep clear of it.
  * → {items: [{id, l, t, w, h, box: {l, t, r, b} (the object's part), word: bool, wordBox: {l, t, r, b} | null (the glyphs, the
  *   hooks' reach included when shown), hooks: bool, dx, dy (the word's nudge, px)}], ok, faults: []}
  */
 export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, words = {}, max = [0.42, 0.42], margin = 8, reserve = [],
-  wordSize = null, type = vw < 700 || vh < 500 ? WORD_TYPE.phone : WORD_TYPE.desk, avoid = [], gap = 16, boxGap = 8 } = {}) {
+  wordSize = null, type = vw < 700 || vh < 500 ? WORD_TYPE.phone : WORD_TYPE.desk, avoid = [], gap = 16, boxGap = 8, under = {}, underOff = [] } = {}) {
   const items = [];
   for (const id of TARGET_ORDER) {
     const r = rects?.[id];
@@ -175,11 +191,11 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
     }
     if (!moved) break;
   }
-  // the words, left to right by their buttons' centres
+  // the words: those laid under a rect first (the raft's CHART), then left to right by their buttons' centres
   const boxOf = (it) => ({ l: it.l, t: it.t, r: it.l + it.w, b: it.t + it.bh });
   const placed = [];
   const inView = (r) => r.l >= margin - 0.5 && r.r <= vw - margin + 0.5 && r.t >= margin - 0.5 && r.b <= vh - margin + 0.5;
-  for (const it of [...items].sort((p, q) => (p.l + p.w / 2) - (q.l + q.w / 2))) {
+  for (const it of [...items].sort((p, q) => (under?.[q.id] ? 1 : 0) - (under?.[p.id] ? 1 : 0) || (p.l + p.w / 2) - (q.l + q.w / 2))) {
     it.wb = null; it.hooks = false; it.dx = 0; it.dy = 0;
     if (!(it.wd > 0)) continue;
     const m = wordSize?.[it.id] || wordMetrics(HOME_WORDS[it.id] || it.id, type);
@@ -190,7 +206,27 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
       && others.every((z) => apart(r, z) >= boxGap - 0.01) && reserve.every((z) => !overlap(r, z));
     const at = (dx, dy, h) => ({ l: cx - ww / 2 - h + dx, r: cx + ww / 2 + h + dx, t: b - wh + dy, b: b + dy });
     let best = null;
-    if (hk > 0 && clear(at(0, 0, hk))) best = { dx: 0, dy: 0, hooks: true };
+    const U = under?.[it.id];
+    if (U) {
+      // centred under the rect, UNDER_GAP below its foot and gap under the Wick, kept in the view (its centre still below the foot)
+      const top = Math.min(Math.max(U.b + UNDER_GAP, ...avoid.filter(Boolean).map((z) => z.b + gap)), vh - margin - wh);
+      const dx0 = (U.l + U.r) / 2 - cx, dy0 = top - (b - wh), lowest = U.b + 1 - wh / 2 - (b - wh);
+      const clearU = (r) => clear(r) && underOff.every((z) => !z || !overlap(r, z));
+      if (hk > 0 && clearU(at(dx0, dy0, hk))) best = { dx: dx0, dy: dy0, hooks: true };
+      else {
+        let cost = Infinity;
+        for (let d = 0; d <= 48; d += 2) for (const dd of d ? [d, -d] : [0]) {
+          const dy = dy0 + dd;
+          if (dy < lowest || d * 1.5 >= cost) continue;
+          for (let s = 0; s <= 80 && d * 1.5 + s < cost; s += 2) {
+            const hit = (s ? [s, -s] : [0]).find((x) => clearU(at(dx0 + x, dy, 0)));
+            if (hit !== undefined) { cost = d * 1.5 + s; best = { dx: dx0 + hit, dy, hooks: false }; break; }
+          }
+        }
+      }
+    }
+    if (best) { /* under its rect */ }
+    else if (hk > 0 && clear(at(0, 0, hk))) best = { dx: 0, dy: 0, hooks: true };
     else if (clear(at(0, 0, 0))) best = { dx: 0, dy: 0, hooks: false };
     else {
       // the shortest nudge clear: along the band (2 px steps), then a little below the band or above it
@@ -254,6 +290,7 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
  * the check takes all four). → {ok, faults: [], rects, layout}
  */
 export function frameCheck(M, cam, { vw, vh, min = 44, word = null, margin = 16, which = TARGET_ORDER, reserve = [], wordSize = null } = {}) {
+  // (and CHART's word under the raft: UNDER_WORD)
   // (the screen's own type and word band: ui-loop's placeTargets, a phone under 700 px wide or 500 px tall)
   const phone = vw < 700 || vh < 500, type = phone ? WORD_TYPE.phone : WORD_TYPE.desk;
   const faults = [];
@@ -277,7 +314,18 @@ export function frameCheck(M, cam, { vw, vh, min = 44, word = null, margin = 16,
   const ids = Object.keys(rects);
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (overlap(rects[ids[i]], rects[ids[j]])) faults.push(`${ids[i]} and ${ids[j]} overlap on screen`);
   const wick = rectOf(wickCorners(M), proj);
-  const layout = layoutTargets(rects, { vw, vh, min, word: word ?? type.band, words: { wall: false, rack: false }, reserve, margin: phone ? 6 : 10, type, wordSize, avoid: wick ? [wick] : [] });
+  const raft = rectOf(raftCorners(M), proj), under = {};
+  for (const [id, of] of Object.entries(UNDER_WORD)) if (of === 'raft' && raft) under[id] = raft;
+  const layout = layoutTargets(rects, { vw, vh, min, word: word ?? type.band, words: { wall: false, rack: false }, reserve, margin: phone ? 6 : 10, type, wordSize, avoid: wick ? [wick] : [], under, underOff: phone && vw < vh ? [stickHint(vw, vh)] : [] });
   for (const f of layout.faults) faults.push(`the buttons: ${f}`);
+  // CHART's word under the raft (the user's 17 Nov 2026): its centre below the raft's lowest projected point, inside its width,
+  // and on a phone off the touch stick's resting ring
+  for (const id of Object.keys(UNDER_WORD)) {
+    const w = layout.items.find((it) => it.id === id)?.wordBox, U = under[id];
+    if (!w || !U) continue;
+    const cx = (w.l + w.r) / 2, cy = (w.t + w.b) / 2;
+    if (!(cy > U.b) || cx < U.l || cx > U.r) faults.push(`${id}'s word is not under the raft (its centre ${cx.toFixed(0)}, ${cy.toFixed(0)}; the raft ${U.l.toFixed(0)}–${U.r.toFixed(0)}, foot ${U.b.toFixed(0)})`);
+    if (phone && vw < vh && overlap(w, stickHint(vw, vh))) faults.push(`${id}'s word on the touch stick's ring`);
+  }
   return { ok: faults.length === 0, faults, rects, layout };
 }
