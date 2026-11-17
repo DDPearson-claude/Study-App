@@ -681,11 +681,12 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         ${NOISE}
         void main(){
           float x = vUv.x, y = vUv.y;
-          float edge = smoothstep(0.0, 0.18, x) * smoothstep(1.0, 0.82, x);
+          // (the review: a lit glass box with hard edges; its sides, top and foot are feathered, the foot's line broken by the fall)
+          float edge = smoothstep(0.0, 0.3, x) * smoothstep(1.0, 0.7, x) * smoothstep(1.0, 0.86, y);
           float s = wpN(vec2(x * 11.0, y * 3.0 + uTime * 1.6)) * 0.6 + wpN(vec2(x * 23.0, y * 6.0 + uTime * 2.3)) * 0.4;
           float a = edge * (0.08 + 0.36 * smoothstep(0.5, 0.88, s)) * (0.45 + 0.55 * y) * uK;
-          float foot = smoothstep(0.12, 0.0, y) * 0.3;
-          gl_FragColor = vec4(uCol, clamp(a + foot * edge, 0.0, 0.6) * smoothstep(1.2, 4.5, vD));
+          float foot = smoothstep(0.05 + 0.12 * s, 0.0, y) * 0.22;
+          gl_FragColor = vec4(uCol, clamp(a + foot * edge, 0.0, 0.6) * smoothstep(2.0, 8.0, vD));
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }`,
@@ -1110,7 +1111,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       vu2.uTime.value = t;
       // (LOST-TACKLE §5.3: with the raft in the cut behind it, the Veil thins: the lens looks back through falling water, never a wall)
       const Nv = L?.notch, inCut = !!Nv && !!raft && raft.x * Nv.ca + raft.z * Nv.sa > Nv.r0 + 0.5;
-      vu2.uK.value = easeOpacity(vu2.uK.value, inCut ? 0.45 : Nv && !Nv.open ? 1.4 : 1, dt, 0.8);   // (denser while the cut is shut)
+      // (the review: the play lens in the cut stands at the mouth, so the curtain lay across the brook's near water, a milky sheet in every
+      // light; in the cut it all but goes, and it thins from 8 m before the lens)
+      vu2.uK.value = easeOpacity(vu2.uK.value, inCut ? 0.12 : Nv && !Nv.open ? 1.4 : 1, dt, 0.8);   // (denser while the cut is shut)
     }
     if (stone) { const ol = stone.children[0]?.material; if (ol?.color) { ol.color.set(INK); if (fog) ol.color.lerp(fog, 0.1 + 0.2 * n); } }
     updateBack(dt, info.phase || null, raft);

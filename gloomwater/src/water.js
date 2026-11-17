@@ -11,6 +11,7 @@
 // into a reduced half-float target that the shader looks up (GW_REFL); setKeyLight(light) hands over the key light,
 // whose direction drives the glitter and whose shadow map the water samples (GW_SHADOW). Low keeps the analytic water.
 import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's face (pure)
+import { notchFrame, notchHalfW } from './world-layout.js';   // the cut behind the Sluice Veil (LOST-TACKLE §5.3)
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
 import { WATER_VERT, WATER_FRAG, SPLASH_VERT, SPLASH_FRAG } from './water-shader.js';
@@ -733,6 +734,7 @@ export function create(ctx) {
     const S = depthJob.half;
     const end = Math.min(DEPTH_RES, depthJob.row + 24);
     if (depthJob.row === 0) depthJob.face = WCW && wcFaceNow();   // (WC-3: the face's masks for the lake being baked)
+    if (depthJob.row === 0) { const N = typeof w.getNotch === 'function' ? w.getNotch() : null; depthJob.notch = N && Number.isFinite(N.r0) ? N : null; }
     try {
       for (let r = depthJob.row; r < end; r++) {
         const z = ((r + 0.5) / DEPTH_RES) * 2 * S - S;
@@ -747,6 +749,15 @@ export function create(ctx) {
           // (the shore's signed distance: the world's own where it draws a cut behind the shore (LOST-TACKLE §5.3), else radial)
           let sd = typeof w.getShoreDist === 'function' ? Number(w.getShoreDist(x, z)) : NaN;
           if (!isFinite(sd)) sd = sr - Math.hypot(x, z);
+          // (LOST-TACKLE §5.1: the cut is 6 m wide, so all of it lay in the shore's pale band and its shallow tone: a milky sheet in every
+          // light. Inside it the bake reads deep, dark water well off a shore (the lake's mid water), the foam kept to the last half metre
+          // at its banks)
+          const Nb = depthJob.notch;
+          if (Nb) {
+            const f = notchFrame(Nb, x, z), hw = notchHalfW(Nb, f.t);
+            const k = clamp((f.along - Nb.r0 + 1.5) / 3, 0, 1) * clamp((hw - Math.abs(f.lc)) / 0.6, 0, 1);
+            if (k > 0) { sd += (Math.max(sd, 10) - sd) * k; depthData[i] = Math.round(clamp(d + (Math.max(d, 0.9) - d) * k, 0, 1) * 255); }
+          }
           depthData[i + 1] = Math.round(clamp((sd + 16) / 32, 0, 1) * 255);
           if (WCW) {
             const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sd, notch: typeof w.getNotch === 'function' ? w.getNotch() : null }) : null;

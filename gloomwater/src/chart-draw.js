@@ -854,12 +854,32 @@ export function layoutChart(model, art, view) {
     // (the words keep clear of the water's name and of the book as drawn; a place's mark keeps clear of the book's whole target)
     const base = [fixed[fixed.length - 1], ...(card.book ? [around(card.book.x, card.book.y, card.book.s + 4, card.book.s * 0.8 + 4)] : [])];
     for (const A of items) base.push(around(A.at[0], A.at[1], A.size, A.size));
+    // (a cut drawn into the hill, the brook behind the Veil once owned (chart-gild.brookCard): its banks and reeds keep every word off)
+    const NC = geo?.notch;
+    if (NC && Number.isFinite(NC.r0) && (sheet.places || []).some((p) => p.id === NC.place && p.owned === true)) {
+      const S = lake.s, a = NC.r0 - 3, b = NC.end + 1, hh = 4.4 * S + 9, y0 = lake.cy + a * NC.sa * S, y1 = lake.cy + b * NC.sa * S;
+      base.push([lake.cx + a * NC.ca * S, Math.min(y0, y1) - hh, (b - a) * NC.ca * S, Math.abs(y1 - y0) + 2 * hh]);
+    }
     let placed = base.slice();
     const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + q.x * lake.s - r, lake.cy + q.z * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
     const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
+    // the shore's pen: a place's words stand wholly on the water or wholly on the paper, 3 px clear of the line (the brook behind the
+    // Veil lies on the sheet's east edge, where its name once ran across the shore). → 'wet', 'dry' or 'cross'
+    const shoreR = (a) => (typeof geo?.shoreAt === 'function' ? geo.shoreAt(a) : geo?.R || 60);
+    const sideOf = (q) => {
+      let wet = 0, dry = 0;
+      const m = 3 / Math.max(1e-3, lake.s);
+      for (let i = 0; i <= 6; i++) for (let j = 0; j <= 2; j++) {
+        const x = (q[0] + (q[2] * i) / 6 - lake.cx) / lake.s, z = (q[1] + (q[3] * j) / 2 - lake.cy) / lake.s, d = Math.hypot(x, z) - shoreR(Math.atan2(z, x));
+        if (d < m) wet++;
+        if (d > -m) dry++;
+      }
+      return wet && dry ? 'cross' : wet ? 'wet' : 'dry';
+    };
     const free = (q) => inCard(q) && !placed.some((o) => rectsMeet(q, o, 1));
     // the nearest free spot (the spots come nearest first), slid along the line to stay on the sheet; lying on an isle costs it a
     // little, so the words keep by their place rather than wander off to clear water
+    let shoreKeep = false;   // (set per place: only a place whose site lies behind the shore, the brook, keeps its words off the pen)
     const nearest = (spots, bw, bh) => {
       const lo = card.x + 8 + bw / 2, hi = card.x + card.w - 8 - bw / 2;
       let best = null, cost = Infinity;
@@ -868,7 +888,7 @@ export function layoutChart(model, art, view) {
         if (Math.abs(cxx - sp[0]) > bw * 0.4) return;
         const q = around(cxx, sp[1], bw, bh);
         if (!free(q)) return;
-        const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0);
+        const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0) + (shoreKeep && sideOf(q) === 'cross' ? 60 : 0);
         if (c < cost) { cost = c; best = [cxx, sp[1]]; }
       });
       return best ? { at: best, cost } : null;
@@ -890,7 +910,7 @@ export function layoutChart(model, art, view) {
       const done = [];
       let ok = true;
       for (const A of order) {
-        delete A.label; delete A.label2; delete A.box; delete A.sub; delete A.fitSub;
+        delete A.label; delete A.label2; delete A.box; delete A.sub; delete A.fitSub; delete A.side; delete A.lead;
         A.leader = Math.hypot(A.at[0] - A.site[0], A.at[1] - A.site[1]) > 5;
         // the ways its words may stand, in order: its name on one line, else stacked on two as a surveyor letters a crowded water; each
         // first with room kept for its best fish under it (an owned place), then without
@@ -910,9 +930,12 @@ export function layoutChart(model, art, view) {
         } else if (A.price != null) { const pr = { text: String(A.price), font: font(`400 ${LS.price}px ${fig}`), px: LS.price, price: true }; pr.w = measure(pr.text, pr.font) + Math.round(LS.price * 0.78) + 5; sets.push(Object.assign([pr], { cost: 0 })); }
         if (!sets.length) { done.push(A); continue; }
         const [x, y] = A.at, r = A.size / 2;
+        shoreKeep = sideOf([A.site[0] - 1, A.site[1] - 1, 2, 2]) !== 'wet';
         // (a place by the west or east shore letters out on the paper first, as a surveyor would, clear of the water)
         const sd = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
-        const spotsFor = (bw, bh) => [...(sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : []), ...ring(x, y, r, bw, bh)];
+        const spotsFor = (bw, bh) => [...(sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : []), ...ring(x, y, r, bw, bh),
+          // (a place behind the shore: farther in on the water, toward the lake's middle, where the ring finds no room off the pen)
+          ...(shoreKeep ? [30, 60, 90].flatMap((d) => [0, 1, -1, 2, -2].map((j) => [x + Math.sign(lake.cx - x) * (r + 4 + d + bw / 2), y + j * (bh + 4) + Math.sign(j) * r])) : [])];
         const size = (ls) => { const lh = Math.max(...ls.map((l) => l.px)) + 3; return [Math.max(...ls.map((l) => l.w)) + 6, ls.length * lh + 2, lh]; };
         // the words stand nearest their place: a farther spot costs more than stacking the name or keeping no room for the best fish
         let use = null, best = null, bw = 0, bh = 0, lh = 0, cost = Infinity;
@@ -927,7 +950,7 @@ export function layoutChart(model, art, view) {
         const names = use.filter((l) => l.kind !== 'best'), sub = use.find((l) => l.kind === 'best');
         A.label = { ...names[0] };
         if (names[1]) A.label2 = { ...names[1] };
-        A.box = q;
+        A.box = q; if (shoreKeep) { A.side = sideOf(q); A.lead = !rectsMeet(q, around(x, y, A.size, A.size), 8); }
         const show = !phone || model?.pick?.place === A.id;
         if (sub && show) A.sub = sub;
         else if (!sub && A.owned && A.p.best && show) A.fitSub = bestLine(A);   // (no room kept for it: fitted below, moving no word)
@@ -1268,6 +1291,11 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   if (!A.label) return;
   const lab = A.label;
   const px = lab.px || 13;
+  if (A.lead && A.box) { // its words stand off on the water: a fine ink leader from them to its mark
+    const q = A.box, u = clamp(x, q[0], q[0] + q[2]), v = clamp(y, q[1], q[1] + q[3]), d = Math.hypot(x - u, y - v) || 1, e = 1 - (s * 0.44) / d;
+    ctx.save(); ctx.strokeStyle = ink(0.55 * k); ctx.lineWidth = 0.8; ctx.setLineDash([2.2, 2]);
+    ctx.beginPath(); ctx.moveTo(u, v); ctx.lineTo(u + (x - u) * e, v + (y - v) * e); ctx.stroke(); ctx.restore();
+  }
   if (lab.price) { // only Murk's three blots carry a price
     ctx.save(); ctx.font = lab.font; const w = ctx.measureText(lab.text).width; ctx.restore();
     const cs = Math.round(px * 0.78), gx = lab.x - (w + cs + 3) / 2 + cs / 2;
@@ -1279,9 +1307,11 @@ function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   const l2 = A.label2 || null, star = A.p.giantLanded ? 8 : 0;
   if (l2) L.texts.push(A.p.name || `${lab.text} ${l2.text}`);
   const lx = lab.x - (l2 ? 0 : star);
-  let w = letter(ctx, L, lab.text, lx, lab.y, lab.font, { dpr, alpha: 0.96 * k, reserve: 0.85, record: !l2 });
+  // (on the water the words are the sheet's ink alone: the paper's reserve round them read as a pale glow on the lake)
+  const rsv = A.side === 'wet' ? 0 : 0.85;
+  let w = letter(ctx, L, lab.text, lx, lab.y, lab.font, { dpr, alpha: 0.96 * k, reserve: rsv, record: !l2 });
   let ex = lx, ey = lab.y;
-  if (l2) { ex = l2.x - star; ey = l2.y; const w1 = w; w = letter(ctx, L, l2.text, ex, ey, l2.font, { dpr, alpha: 0.96 * k, reserve: 0.85, record: false }); if (pick.place === A.id) underline(ctx, lx - w1 / 2, lab.y + px * 0.62, w1); }
+  if (l2) { ex = l2.x - star; ey = l2.y; const w1 = w; w = letter(ctx, L, l2.text, ex, ey, l2.font, { dpr, alpha: 0.96 * k, reserve: rsv, record: false }); if (pick.place === A.id) underline(ctx, lx - w1 / 2, lab.y + px * 0.62, w1); }
   if (pick.place === A.id) underline(ctx, ex - w / 2, ey + px * 0.62, w);
   if (A.p.giantLanded) { // its giant landed: a gold star
     const sx = ex + w / 2 + 9, sy = ey - 1;

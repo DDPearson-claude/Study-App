@@ -174,6 +174,22 @@ section('lane C: the Chart: the sheet knows the cut; the brook inks in once, 1.2
   ok(CG.brookCard(fake, card, model, 1, { water: { mossmere: geo } }) === true && calls.includes('stroke') && calls.includes('fill'), 'the sheet draws it once owned: its water, its banks, the reeds, the Veil');
   ok(CG.brookCard(fake, card, { sheets: [{ waterId: 'mossmere', places: [] }] }, 1, { water: { mossmere: geo } }) === false, '… and not before');
   ok(UC.placeSites(D, 'mossmere')[ID] && UC.placeSites(D, 'mossmere')[ID].x > N.r0, 'its site on the sheet is the brook\'s, behind the shore (a place mark and its name, as the other four)');
+  // its name on the sheet's east edge: wholly on the water or the paper (never across the shore's pen), on the sheet, meeting no other
+  // word or target, at a 390 x 844 phone, the 960 x 540 desktop and 1280 x 720 (the sheets' canvases there)
+  const CD = await import('../../src/chart-draw.js'), { CHART_ART } = await import('../../src/chart-art.js');
+  const t = { measureText(s) { const px = parseFloat(/(\d+(?:\.\d+)?)px/.exec(t.font || '')?.[1] || 13); return { width: String(s).length * px * 0.52 }; }, font: '13px serif' };
+  const art = { sheets: CHART_ART.sheets.map((q) => ({ ...q, image: null })), paper: { ...CHART_ART.paper, image: null }, live: CHART_ART.live };
+  const meet = (a, b) => a[0] < b[0] + b[2] && a[0] + a[2] > b[0] && a[1] < b[1] + b[3] && a[1] + a[3] > b[1];
+  for (const [w, h, name] of [[354, 612, '390 x 844'], [892, 326, '960 x 540'], [1212, 470, '1280 x 720']]) for (const state of ['three', 'all']) {
+    const m = UL.chartModel(freshLoopMeta(D), D, { slots: 3 });
+    m.sheets[0].places = UC.chartPlaces(D, [...UC.CHART_FIXTURE(D, state), { id: ID, kind: 'day', owned: true }]);
+    const view = { w, h, dpr: 1, phone: w < 560, F: UC.CHART_FONTS, water: { mossmere: geo }, sites: UC.placeSites(D, 'mossmere'), fmtWeight: D.fmtWeight, fishGlyph: () => null, words: {},
+      measure: (s, f) => { t.font = f; return t.measureText(s).width; } };
+    const L = CD.layoutChart(m, art, view), A = L.places.find((p) => p.id === ID), card = L.cards[0];
+    const others = [...L.places.filter((p) => p !== A && p.box).map((p) => p.box), ...L.targets.filter((q) => !q.backdrop && q.place !== ID).map((q) => q.rect)];
+    ok(A && A.box && A.label && (A.side === 'wet' || A.side === 'dry') && A.box[0] >= card.x + 8 && A.box[0] + A.box[2] <= card.x + card.w - 8 && !others.some((o) => meet(A.box, o)),
+      `${name}, ${state}: the brook's name stands clear of the shore's pen, inside the sheet, meeting no other word or target`, A && { box: A.box, side: A.side, card: [card.x, card.w] });
+  }
 }
 
 console.log(`veilback-brook: ${pass} passed, ${fail} failed`);

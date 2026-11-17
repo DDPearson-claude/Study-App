@@ -245,7 +245,7 @@ export function faceMasks(x, z, probe = null) {
   if (N && Number.isFinite(N.r0)) {
     const along = x * N.ca + z * N.sa, t = clamp01((along - N.r0) / Math.max(1, N.end - N.r0));
     const lc = Math.abs(-x * N.sa + z * N.ca - 0.7 * Math.sin(Math.PI * t) * (t > 0 ? 1 : 0)), h = N.hw;
-    if (along > N.r0 - 3 && along < N.end) seam = Math.max(seam, (1 - smooth(h * 0.3, h * 0.85, lc)) * smooth(N.end - 0.4, N.end - 3.5, along) * smooth(N.r0 - 3, N.r0, along) * (0.5 + 0.4 * (1 - t)));
+    if (along > N.r0 - 3 && along < N.end) seam = Math.max(seam, (1 - smooth(h * 0.3, h * 0.85, lc)) * smooth(N.end - 0.4, N.end - 3.5, along) * smooth(N.r0 - 3, N.r0, along) * (0.28 + 0.2 * (1 - t)));   // (thin: still water)
   }
   // the gravel fan: a sector opening west from under the spill
   const fx = x - F.x, fz = z - F.z, fr = Math.hypot(fx, fz);

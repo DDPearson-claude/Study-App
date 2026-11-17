@@ -450,5 +450,14 @@ gate. The Hold-step check (Hold 4 −5.9% a minute) fails as it did before this 
 | lane C | `TEXT_LOOP.murk.brook`, said before any other first; `render.holdChart(1.2)` then the Jetty; `waterGeometry().notch`; `chart-gild.brookStep`/`brookCard` (the shore opens, the double line runs off the sheet, the reeds hatched, the Veil's strokes; 1.2 s once, kept in `meta.loop.places.inked`); the brook's own mark on the Chart |
 | tests | `tools/tests/veilback-brook.test.mjs` (51, the glide in clear of every obstacle among them); the Sail's refusal and glide in `loop-evening`; the validator's secret-place checks; `tools/tests/loop-brook.scenario.mjs` (the browser half) |
 
-Open: no lasting wisp at the culvert beyond its spill. (With lanes L3–L6 merged in, the brook bites its own two guests; the sim's
+**Review fixes (17 November).** The water: inside the cut the bake reads deep water well off a shore (no foam band, no shallow tone,
+the seam's threads thinned), and the Veil's curtain, which stood across the brook's near water in front of the play lens, all but goes
+while the raft is in the cut and thins from 8 m before the lens (the one browser run, 390 × 844, shot the bake alone; the curtain's change
+is not yet seen in a frame). The Chart: a place behind the shore keeps its name wholly on the water or the paper, off the cut's drawn
+banks, in the sheet's ink with no paper reserve on the water, with a fine leader when it stands off (`veilback-brook.test.mjs` at
+390 × 844, 960 × 540 and 1280 × 720; the scenario at its own size). The Veil card's sides, top and foot are feathered. `notchFrame`
+writes a scratch object. Murk's brook line comes once the brook is revealed, before the list's line.
+
+Open: no lasting wisp at the culvert beyond its spill; the mist bank behind the shut Veil still lets the culvert and reeds show up
+close; the aqueduct's deck slabs and the mouth's flat faces (the review's shoulds). (With lanes L3–L6 merged in, the brook bites its own two guests; the sim's
 `BROOK` is `only` too, so T104 holds on the brook, §11.2.)

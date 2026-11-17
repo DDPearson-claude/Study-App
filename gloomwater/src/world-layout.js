@@ -256,11 +256,14 @@ function makeNotch(A, L) {
   return N;
 }
 /** (x, z) in the cut's frame: `along` from the lake's centre down its bearing, `lat` across it (+ to the bearing's right, toward +z at
- *  a = 0), `t` 0 at the shore to 1 at its head, `lc` across it from its own (gently bending) centre line. */
-export function notchFrame(N, x, z) {
+ *  a = 0), `t` 0 at the shore to 1 at its head, `lc` across it from its own (gently bending) centre line. Written into `out` (a
+ *  shared scratch by default: read it before the next call). */
+const FRAME = { along: 0, lat: 0, t: 0, lc: 0 };   // (notchFrame's scratch: it runs several times a frame while the cut is open)
+export function notchFrame(N, x, z, out = FRAME) {
   const along = x * N.ca + z * N.sa, lat = -x * N.sa + z * N.ca;
   const t = clamp((along - N.r0) / Math.max(1, N.end - N.r0), 0, 1);
-  return { along, lat, t, lc: lat - notchBend(N, t) };
+  out.along = along; out.lat = lat; out.t = t; out.lc = lat - notchBend(N, t);
+  return out;
 }
 /** The centre line's offset at t (m): a slow bend, none at the mouth or the head. */
 export const notchBend = (N, t) => 0.7 * Math.sin(Math.PI * t) * (t > 0 ? 1 : 0);

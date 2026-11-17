@@ -443,11 +443,12 @@ export function liftTitle(p, D) {
  */
 /** LOST-TACKLE §5.2: the lens's hold on the chart table as home opens after the Veil Angler's Notebook's tally (s). */
 const BROOK_HOLD = 1.2;
-export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false } = {}) {
+export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false, brook = false } = {}) {
   const S = isObj(said) ? said : {};
+  // (LOST-TACKLE §5.2: the notebook home shows the brook: its line, and the hold on the chart table, before any other first; `brook`
+  // the brook revealed, so a list done the same evening, or a save that brought the notebook home before the brook was built, waits)
+  if ((brook === true || arr(rows).some((r) => r.find === 'veil_notebook')) && !S.brook) return 'brook';
   if (listDone && !S.listComplete) return 'listComplete';
-  // (LOST-TACKLE §5.2: the notebook home shows the brook: its line, and the hold on the chart table, before any other first)
-  if (arr(rows).some((r) => r.find === 'veil_notebook') && !S.brook) return 'brook';
   const gearAway = away === true && !S.firstAway ? 'firstAway' : null;   // GEAR-GATES §4.3: the first trip a fish got away over the gear's cap
   if (empty) return gearAway;
   const R = arr(rows);
@@ -1212,7 +1213,8 @@ export function createLoopView(K) {
     const lc = L('listCount', w);
     const listDone = !!lc && num(Number(lc.need), 0) > 0 && num(Number(lc.have), 0) >= num(Number(lc.need), 0);
     const away = L('lastTrip')?.away === true;
-    const id = saleLineId({ rows, said, listDone, empty, away });
+    const brook = arr(L('state')?.places?.revealed).includes('veilback_brook');
+    const id = saleLineId({ rows, said, listDone, empty, away, brook });
     const line = id ? L('sayOnce', id) : null;
     return { line: line || null, id: line ? id : null, press: line && id === 'listComplete' ? 'catch' : null, count: lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null };
   }

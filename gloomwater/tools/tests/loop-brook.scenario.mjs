@@ -79,6 +79,12 @@ export default async function (api) {
     K.check(ch.place, 'the Chart: the brook\'s mark, a place to pick', ch);
     const ov = await overlaps('[data-place], [data-action=catalogue], [data-action=sail]');
     K.check(ov.length === 0, 'the Chart\'s targets do not overlap', ov);
+    // its name: wholly on the water or the paper (never across the shore's pen), inside the sheet, meeting no other word or target
+    const nm = await g(() => { const L = window.__gw.debug.loop.chart('layout'), A = L?.places?.find((p) => p.id === 'veilback_brook'), c = L?.cards?.find((k) => k.waterId === 'mossmere');
+      const meet = (a, b) => a[0] < b[0] + b[2] && a[0] + a[2] > b[0] && a[1] < b[1] + b[3] && a[1] + a[3] > b[1];
+      const others = [...(L?.places || []).filter((p) => p !== A && p.box).map((p) => p.box), ...(L?.targets || []).filter((q) => !q.backdrop && q.place !== 'veilback_brook').map((q) => q.rect)];
+      return A && c ? { box: A.box, side: A.side, lead: !!A.lead, inCard: A.box[0] >= c.x && A.box[0] + A.box[2] <= c.x + c.w && A.box[1] >= c.y && A.box[1] + A.box[3] <= c.y + c.h, hits: others.filter((o) => meet(A.box, o)).length } : null; });
+    K.check(!!nm && nm.side !== 'cross' && nm.inCard && nm.hits === 0, 'the Chart: the brook\'s name clear of the shore\'s pen, on the sheet, meeting no other word or target', nm);
     await K.shoot('chart-brook');
     await K.scan('the Chart with the brook');
     await g(() => window.__gw.debug.loop.chart('ink', null));
