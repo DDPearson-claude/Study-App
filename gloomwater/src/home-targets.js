@@ -50,6 +50,8 @@ export const SIDE_COST = 80;
  *  lowest point (and ≥ 16 px under the Wick); the button stays over the chart table, the word still its tap. */
 export const UNDER_WORD = { chart: 'raft' };
 export const UNDER_GAP = 8;
+/** The Wick's figure keeps this many px off each barge target's bounds (frameCheck), so the raft never covers one. */
+export const WICK_CLEAR = 4;
 /** The touch stick's resting hint on a phone (ui.css .gw-joy-hint: 96 px round 0.2 W, 0.83 H of the 44vw × 46vh zone). */
 export const stickHint = (vw, vh) => ({ l: 0.198 * vw - 48, t: vh * (0.54 + 0.46 * 0.62) - 48, r: 0.198 * vw + 48, b: vh * (0.54 + 0.46 * 0.62) + 48 });
 export const HOME_WORDS = { murk: 'Murk', chart: 'Chart', journal: 'Journal' };
@@ -314,6 +316,8 @@ export function frameCheck(M, cam, { vw, vh, min = 44, word = null, margin = 16,
   const ids = Object.keys(rects);
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (overlap(rects[ids[i]], rects[ids[j]])) faults.push(`${ids[i]} and ${ids[j]} overlap on screen`);
   const wick = rectOf(wickCorners(M), proj);
+  // the Wick on the raft never stands over a barge target (the polish audit: on a near-square phone the Wick hid the chart table)
+  if (wick) for (const id of ids) if (id !== 'murk' && apart(rects[id], wick) < WICK_CLEAR) faults.push(`the Wick covers ${id} (${apart(rects[id], wick).toFixed(0)} px)`);
   const raft = rectOf(raftCorners(M), proj), under = {};
   for (const [id, of] of Object.entries(UNDER_WORD)) if (of === 'raft' && raft) under[id] = raft;
   const layout = layoutTargets(rects, { vw, vh, min, word: word ?? type.band, words: { wall: false, rack: false }, reserve, margin: phone ? 6 : 10, type, wordSize, avoid: wick ? [wick] : [], under, underOff: phone && vw < vh ? [stickHint(vw, vh)] : [] });

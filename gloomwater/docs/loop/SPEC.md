@@ -1396,7 +1396,8 @@ Five tabs, a glyph and one word each: **Tackle** · **Raft** · **Bait** · **Ma
 |---|---|
 | Hold 4 … 8 | "One more slot." |
 | a rod | "Holds every fish better. Casts farther." |
-| a line, a reel | "Holds every fish better." |
+| a line | "Holds the long runs." (the polish audit, batch 3) |
+| a reel | "More line for the big ones." (the polish audit, batch 3) |
 | a family lure | "+6 Hold against predators." (built gear line); *v8.7, the Mossmere*: §8.11's line |
 | a giants' lure | "For the Packtooth." (its first-named giant) |
 | Oars | "Faster." |
@@ -1599,12 +1600,12 @@ A far-water Wick speaks only when you have pulled alongside its lantern (§8.1),
 | where | words |
 |---|---|
 | the shelf's one line, Mire Worms | "Nearly every fish takes a worm." |
-| Lumen Moss | "Sweet. The Gloam Eel bites on nothing else." |
+| Lumen Moss | "For the Gloam Eel and the Candlefin Koi." (batch 3: the fish it is for) |
 | Cut Strip (its bait slot) | "Meat, for the hunters." |
-| the Feather Fly | "For the fish that rise." |
+| the Feather Fly | "For Dusk Minnows, Chub, Lampsippers and Koi." (batch 3: the fish it is for) |
 | the Glimmer Spoon | "Flash, for the hunters." |
-| the Bone Jig | "Hopped on the bottom, for the hunters." |
-| the Harbour-Bell Spinner | "For the Thousandcast Pike." (as built) |
+| the Bone Jig | "Hopped on the bottom, for bottom feeders." (batch 3) |
+| the Harbour-Bell Spinner | "For the Mossmere's giants." (batch 3) |
 | the gear log, a tin's or lure's line | "+{n} Hold on the fish it suits ({m} you have met)." |
 | the gear log's block | **Who bites** · each met fish's name and its share of open water's bites on that item ("12%", "<1%") · **Bare hook** (the column beside it) · "and {n} you have not met"; *v8.8*: the same words head the Wick's sheet's Odds table (§8.12), at the place, hour and hook picked; the **Bare hook** column is the hook's own chip there |
 | removed on a trip | every word of the got-away note (its kicker, size, cause, "It's still out there", hint, "Odds in your log"); the play's class stamp; the bite's tell's class word (its glyph one neutral picture); the boss-phase toast; "The fry scatter" |

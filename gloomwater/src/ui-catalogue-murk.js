@@ -352,9 +352,11 @@ export function createMurkBook(deps) {
     if (c.slot !== 'lake') hit.addEventListener('click', (e) => { e.stopPropagation(); if (performance.now() - lastSwipe > 350) mark(entry, c); });
     else hit.tabIndex = -1;
     el.appendChild(hit);
-    // the kicker: a hold step's own count ("Hold 4"), a map's place, else the chapter's word
+    // the kicker: a hold step's count as this Wick has it (data.wickSlots: Tallow's "Hold 5", as the goal line names it), a map's
+    // place, else the chapter's word
     const kick = h('small', `gw-plate-kick${c.slot === 'hold' || c.slot === 'place' ? '' : ' gw-kick-ch'}`);
-    kick.textContent = c.slot === 'hold' ? String(TL().holdName || 'Hold {n}').replace('{n}', String(c.level)) : c.slot === 'place' ? (D().loopPlace?.(c.placeId)?.name || c.name || '') : c.slot === 'lake' ? (c.name || tab.label) : tab.label;
+    const holdN = c.slot === 'hold' ? (typeof D().wickSlots === 'function' ? D().wickSlots(c.level, deps.wick?.()) : c.level) : 0;
+    kick.textContent = c.slot === 'hold' ? String(TL().holdName || 'Hold {n}').replace('{n}', String(holdN)) : c.slot === 'place' ? (D().loopPlace?.(c.placeId)?.name || c.name || '') : c.slot === 'lake' ? (c.name || tab.label) : tab.label;
     if (c.slot === 'lake' && !kick.textContent) kick.textContent = tab.label;
     el.appendChild(kick);
     if (c.slot !== 'lake') {

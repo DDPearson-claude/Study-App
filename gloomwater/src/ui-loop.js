@@ -897,7 +897,8 @@ export function createLoopView(K) {
       const layer = h('div', 'gw-jetty-targets');
       for (const id of homeTargetIds(K.meta?.()?.loop)) {
         const cue = c.tile === id, dim = c.dim && !cue;
-        const b = h('button', `gw-tile gw-jetty-target gw-jetty-target--${id}${cue ? ' gw-cue' : ''}${dim ? ' gw-dim' : ''}`);
+        // (a word laid under the raft (UNDER_WORD: CHART) draws no bracket over its far object: one bracket per word, at its word)
+        const b = h('button', `gw-tile gw-jetty-target gw-jetty-target--${id}${UNDER_WORD[id] ? ' gw-jetty-target--under' : ''}${cue ? ' gw-cue' : ''}${dim ? ' gw-dim' : ''}`);
         b.type = 'button';
         b.dataset.tile = id;
         if (cue || (!c.tile && id === 'chart')) b.dataset.autofocus = '1';

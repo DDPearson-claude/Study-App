@@ -327,15 +327,19 @@ section('the words (SPEC §8.4, §8.6)');
 {
   const TL = D.TEXT_LOOP;
   eq([TL.shelf.oars, TL.shelf.keel, TL.shelf.lantern, TL.shelf.orders], ['Faster.', 'Bigger fish.', 'Bigger fish at night.', 'Orders pay double.'], 'the raft\'s and the board\'s lines, SPEC §8.4');
-  eq(TL.shelf.bell_spinner, 'For the Thousandcast Pike.', 'a giants\' lure: "For the {first giant}."');
-  eq(TL.shelf.lumen_moss, 'Sweet. The Gloam Eel bites on nothing else.', 'Lumen Moss: the one-tin line (SPEC v8.7 §8.11, WC-1)');
+  eq(TL.shelf.bell_spinner, "For the Mossmere's giants.", 'a giants\' lure: its water\'s giants (the polish audit, batch 3)');
+  eq(TL.shelf.lumen_moss, 'For the Gloam Eel and the Candlefin Koi.', 'Lumen Moss: the fish it is for (SPEC §8.11, batch 3)');
   eq(['mireworm', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig'].map((id) => TL.shelf[id]), ['Nearly every fish takes a worm.', 'Meat, for the hunters.',
-    'For the fish that rise.', 'Flash, for the hunters.', 'Hopped on the bottom, for the hunters.'], 'the tins\' and lures\' lines, SPEC v8.7 §8.11 (WC-1)');
+    'For Dusk Minnows, Chub, Lampsippers and Koi.', 'Flash, for the hunters.', 'Hopped on the bottom, for bottom feeders.'], 'the tins\' and lures\' lines, SPEC §8.11 (WC-1, batch 3)');
   eq(TL.murk.firstSmall, 'Small ones make good bait. Press and hold \u201cLet go\u201d.', "Murk's first-Small line, SPEC §8.6");
   const strings = [];
   const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };
   walk(TL.shelf); walk(TL.gearNames); walk(TL.gearItems); walk(TL.orderWords);
   ok(strings.every((s) => !s.includes('%')), 'no percentage in the new words');
+  // the polish audit (batch 3): every shelf line is 8 words or fewer, and no line repeats another
+  const lines = Object.values(TL.shelf).filter((v) => typeof v === 'string');
+  ok(lines.every((l) => l.split(/\s+/).filter(Boolean).length <= 8), 'every shelf line ≤ 8 words', lines.filter((l) => l.split(/\s+/).length > 8));
+  ok(new Set(lines).size === lines.length, 'no shelf line repeats another', lines.filter((l, i) => lines.indexOf(l) !== i));
 }
 
 console.log(`\nloop-4: ${pass} passed, ${fail} failed`);

@@ -887,6 +887,9 @@ export function createScreens(K) {
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
       // the show: the card unfolds from where the fish is held (its centre on screen, from fishing:show {card}); a phone's card
       // still rises from the foot, and a re-render (more, make room, a boon picked) never replays the entrance
+      // (a near-square or upright screen that is not a phone's: the card sits at the foot, the Wick and the fish above it; render's
+      // cardLow is the same rule)
+      if (!phone && sideW === 0 && N.v3 && showCard() && K.vh >= 480 && K.vw < K.vh * 1.2 && loopOn() && num(D().LOOP?.showCard?.lowFoot, 0) > 0) pn.classList.add('gw-cc-low');
       if (sideW > 0) { pn.classList.add('gw-cc-side'); pn.style.setProperty('--side-w', `${sideW}px`); pn.style.setProperty('--side-m', `${sideM}px`); }
       if (N.v3 && showCard()) {
         pn.classList.add('gw-cc-live');
