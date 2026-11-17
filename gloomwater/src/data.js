@@ -5708,25 +5708,27 @@ LOOP.waters.sporewood = { order: 2, tier: 12, prices: { night: 1200, crown: 2200
 // Veilwater by LOOP.place.kindWeight, as the Gloam Eel the Buoy Lights
 Object.assign(LOOP.places, {
   lullaby:     { water: 'sporewood', kind: 'day', price: 0, lake: true, card: 'sleepspore_jelly', own: ['sleepspore_jelly'], draws: { velvet_ray: 3 },
-    out: [[30, 28], [12, 8], [0, 6], [-14, 0], [-32, -20], [-46, -32]] },
+    out: [[36.59, 32.5], [42.4, 30.8], [44, 18], [24, 10], [8, 7.5], [0, 6.5], [-12, 4], [-30, -14], [-46, -31]] },
   gill_harp:   { water: 'sporewood', kind: 'old', price: 0, lake: true, card: 'harpstring_eel', giant: 'harpstring_eel', draws: { cindertail_catfish: 2 },
-    out: [[30, 28], [12, 8]] },
+    out: [[36.59, 32.5], [42.4, 30.8], [44, 18], [24, 10], [8, 7.5], [3.5, 6.8]] },
   veilwater:   { water: 'sporewood', kind: 'night', price: 1200, card: 'festival_puffer', giant: 'festival_puffer',
-    out: [[30, 28], [12, 8], [0, 6], [-16, 18], [-44, 24], [-72, 32]] },
-  mothers_cup: { water: 'sporewood', kind: 'crown', price: 2200, card: 'drifting_grove', legend: 'drifting_grove', out: [[34, 24], [44, 12]] },
+    out: [[36.59, 32.5], [42.4, 30.8], [44, 18], [24, 10], [8, 7.5], [0, 6.5], [-14, 9], [-34, 8], [-52, 24], [-68, 30], [-84, 36.5]] },
+  mothers_cup: { water: 'sporewood', kind: 'crown', price: 2200, card: 'drifting_grove', legend: 'drifting_grove', out: [[36.59, 32.5], [42.4, 30.8], [46, 18], [47.5, 11]] },
 });
 /** Sporewood's place records under the loop (LAKE2 §3.2, §3.4): the geometry loopPlace merges under LOOP.places' fields (LOOP_PLACE_KEYS),
- *  as MOSSMERE_V3.places' for the Mossmere. Placed on the design's outline; lane W1 fits them to the built shore. Never in a v3 build. */
+ *  as MOSSMERE_V3.places' for the Mossmere. Fitted to the built outline shore by lane W1 (each disc in open water, its bank's feather clear
+ *  of the banks but the Gill Harp's, which fills the neck); the landmarks the Lily Cove's head, the Veil across the inlet's mouth, the
+ *  Mother Cap on the Mother's Foot. Never in a v3 build. */
 export const SPOREWOOD_LOOP = Object.freeze({
   places: Object.freeze([
-    { id: 'lullaby', name: 'The Lullaby', access: 'raft', stand: null, x: -50, z: -36, water: { kind: 'disc', x: -50, z: -36, r: 7, depth: [0.3, 0.55] },
-      landmark: { x: -52, y: 1.5, z: -40 }, look: 'lily rafts over a sleeping cove' },
-    { id: 'gill_harp', name: 'The Gill Harp', access: 'raft', stand: null, x: 0, z: 6, water: { kind: 'disc', x: 0, z: 6, r: 5, depth: [0.5, 0.65] },
-      landmark: { x: 0, y: 6, z: 6 }, look: 'cap gills hanging over the neck like strings' },
-    { id: 'veilwater', name: 'The Veilwater', access: 'raft', stand: null, x: -82, z: 33, water: { kind: 'disc', x: -82, z: 33, r: 5, depth: [0.4, 0.7] },
-      landmark: { x: -80, y: 2.5, z: 30 }, look: 'a backwater behind a curtain of moss' },
+    { id: 'lullaby', name: 'The Lullaby', access: 'raft', stand: null, x: -51.5, z: -35, water: { kind: 'disc', x: -51.5, z: -35, r: 7, depth: [0.3, 0.55] },
+      landmark: { x: -53, y: 1.5, z: -40 }, look: 'lily rafts over a sleeping cove' },
+    { id: 'gill_harp', name: 'The Gill Harp', access: 'raft', stand: null, x: 0, z: 6.5, water: { kind: 'disc', x: 0, z: 6.5, r: 4.5, depth: [0.5, 0.65] },
+      landmark: { x: 0, y: 6, z: 6.5 }, look: 'cap gills hanging over the neck like strings' },
+    { id: 'veilwater', name: 'The Veilwater', access: 'raft', stand: null, x: -86, z: 38, water: { kind: 'disc', x: -86, z: 38, r: 5, depth: [0.4, 0.7] },
+      landmark: { x: -80, y: 2.5, z: 35 }, look: 'a backwater behind a curtain of moss' },
     { id: 'mothers_cup', name: "The Mother's Cup", access: 'raft', stand: null, x: 48, z: 6, water: { kind: 'disc', x: 48, z: 6, r: 6, depth: [0.8, 1] },
-      landmark: { x: 56, y: 18, z: 10 }, look: 'a deep well under the Mother Cap' },
+      landmark: { x: 59, y: 18, z: 12 }, look: 'a deep well under the Mother Cap' },
   ].map((p) => Object.freeze(p))),
 });
 // the open water's nine (§2.1, the list: open water and the Lullaby's and the Gill Harp's fish on Spore Cake, computed by listFor), in the
@@ -5801,8 +5803,11 @@ LOOP.gearCap.item.seedpod_twirl = 'keeper';   // the free Twirl lands up to Keep
 // jetty (the lake's docks[dock], which lane W1 builds there), Murk's barge east of it; the home camera looks north-west across the East
 // Pool, the Mother Cap on the right and the neck's mouth on the left. The design's figures: lane W1 fits them to the built shore and
 // validate-data's mooring checks run on them once Sporewood's arena has its outline
-LOOP.mooring.sporewood = { dock: 0, hull: { x: 36, z: 34, yaw: Math.PI / 2 }, murk: { x: 44, z: 30, yaw: -2.2 }, lane: [[30, 28]],
-  cam: { pos: [46, 6, 44], look: [37, 1.3, 32], fov: 40, portrait: { pos: [50, 9, 46], look: [38, 1.3, 31], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } };
+// (lane W1 fitted it to the built shore: the Mossmere's own mooring, its raft, Murk, lane and both camera poses, turned and set down with
+// the barge's bow north-west into the East Pool, so every frame check it passes there holds here; the home view looks across the barge
+// toward the neck's mouth)
+LOOP.mooring.sporewood = { dock: 0, hull: { x: 32, z: 25, yaw: 0.55 }, murk: { x: 34.96, z: 20.82, yaw: -3.196 }, lane: [[42.37, 30.81]],
+  cam: { pos: [47.18, 5.5, 34.46], look: [34.85, 1.3, 26.77], fov: 38, portrait: { pos: [48.46, 8.5, 40.81], look: [35.63, 1.3, 28.05], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } };
 // the words (§5.2, §5.6, §6.4, §6.5, §7.1): the items' names, the shelf's lines (each ≤ 8 words, no odds), the place maps' lines, Murk's
 // three lines at Sporewood, the leaving card, the map card's line, the carried line (logs only) and the new water's guide box
 Object.assign(TEXT_LOOP.gearItems, {
@@ -5832,6 +5837,57 @@ TEXT_LOOP.mapLeaves = 'Moving on leaves bought gear behind.';   // under the lak
 TEXT_LOOP.carry = 'Carried {r} · {l} · {c}';   // rod · line · reel (the Wick's sheet at Tackle, the Tackle screen's head; logs only)
 TEXT_LOOP.guide.newWater = "New water: new gear, lures and bait at Murk's.";   // one box, at the first cast at a new water (ui-guide.js)
 // <<< LAKE 2, lane D1
+
+// >>> LAKE 2, lane W1 (docs/loop/LAKE2.md §1A (2), §3.1, §3.5): Sporewood Pools' natural basin, the arena the loop builds it from. Under the
+// loop only (the apply block puts it in ZONES[1].arena; the flag-off game keeps its own Sporewood, twoBasins and its round Cap Reefs).
+// `outline`: the shore, a closed centripetal Catmull-Rom curve through these 49 points (world metres, x east, z toward the camera at the
+// spawn; clockwise from the neck's north bank): two pools of different size joined by a bent neck 11 m wide at x = 0, Lily Cove, the
+// Fern Bluff, the West Point, the Veil inlet, the Reed Flats, Harp Point, the Tongue (a spit from the East Pool's north shore), the Seep,
+// Rootfoot cove. (The design's 45, the Veil inlet drawn as a real backwater: a mouth 12 m wide behind which a pocket holds the
+// Veilwater, its three points become seven.) `banks`: the bank's [top (m above the water), shelf (m of shallows off it)] at each control point, eased between them:
+// the Fern Bluff 5–7 m, the West Point 2, the Veil inlet's sides 3, the Reed Flats 0.3–0.8 over a 14 m shelf, the neck 2–3 over 3 m,
+// the East Pool's north shore 4–6 with the Tongue low at its tip, the Seep's ravine 3, Rootfoot Landing 0.8. `islands`: six, of six
+// sizes, each its own irregular outline, its top and its shelf (the Mother's Foot set 3 m east of the design's so the Mother's Cup, the
+// sinkhole under the Mother Cap, is all water). `bowls` the two pools' floors and the neck's channel; the Cup a deep pool, its lip
+// under the water (never a ring drawn on it); `gate` null: no gate here, the legend's water its hidden one (no standing stones)
+export const SPOREWOOD_ARENA = Object.freeze({
+  layout: 'outline', seed: 2711, noise: 0.05, baseDepth: 0.42, depthShare: [30, 42, 28],
+  outline: [[-6, -2], [-12, -10], [-18, -22], [-28, -30], [-40, -33], [-46, -42], [-58, -46], [-66, -38], [-70, -28], [-82, -24], [-86, -12], [-80, -2],
+    [-84, 8], [-78, 20], [-82, 29], [-88, 30], [-93, 34], [-94, 40], [-89, 45], [-82, 45], [-77, 40], [-64, 40], [-50, 37], [-40, 42], [-30, 33], [-18, 26], [-10, 14], [0, 12], [10, 15],
+    [16, 24], [26, 30], [34, 38], [46, 34], [56, 30], [68, 22], [76, 10], [78, -4], [74, -18], [80, -28], [70, -34], [58, -32], [46, -30], [45, -14],
+    [40, -28], [32, -32], [22, -26], [12, -14], [6, -4], [0, 1]],
+  banks: [[2.5, 3], [3, 4], [3.5, 6], [3, 7], [2, 6], [1.2, 5], [1.5, 5], [3, 5], [5, 5], [7, 4], [6, 4], [2, 4],
+    [2.5, 6], [2, 6], [3, 3], [3, 3], [3, 3], [3, 3], [2.5, 3], [2, 4], [1.5, 6], [0.4, 14], [0.5, 14], [0.3, 14], [0.6, 12], [0.8, 8], [2, 4], [2.5, 3], [2.5, 3],
+    [1.6, 5], [1.2, 6], [0.8, 5], [1, 6], [1.6, 6], [2.5, 6], [3, 6], [3.5, 6], [3, 5], [3, 3], [4.5, 4], [5.5, 4], [5, 4], [0.8, 3],
+    [5, 4], [6, 4], [4.5, 5], [3.5, 4], [3, 3], [2.5, 3]],
+  islands: [
+    { name: 'Mossback Isle', kind: 'moss', x: -50, z: -6, r: 6.5, h: 4, shelf: 4,
+      outline: [[-58, -7], [-56, -10.5], [-51, -11.5], [-46, -10], [-42.5, -7.5], [-42, -4], [-45, -1.5], [-50, -0.5], [-54.5, -2], [-57.5, -4]] },
+    { name: "The Mother's Foot", kind: 'cap', x: 59, z: 12, r: 4.2, h: 2.2, shelf: 3,
+      outline: [[55, 9.5], [58, 8], [61.5, 8.5], [63.5, 11.5], [62.5, 15], [59, 16.5], [55.5, 15.5], [54, 12.5]] },
+    { name: 'Rootknot', kind: 'roots', x: 22, z: -12, r: 2.6, h: 1.1, shelf: 2.5,
+      outline: [[19.5, -12.5], [20.5, -14.8], [23.2, -15], [25, -12.6], [24.4, -10], [22, -9.2], [20, -10.2]] },
+    { name: 'The Two Stools', kind: 'stool', x: -28, z: 14, r: 2.3, h: 0.8, shelf: 2.5,
+      outline: [[-30.4, 13.6], [-29.2, 11.7], [-26.8, 11.6], [-25.6, 13.8], [-26.6, 16.2], [-29, 16.4]] },
+    { name: 'The Two Stools', kind: 'stool', x: -24, z: 19.5, r: 1.8, h: 0.7, shelf: 2.5,
+      outline: [[-25.8, 19.3], [-24.8, 17.8], [-22.8, 18.1], [-22.2, 20], [-23.4, 21.4], [-25.2, 21]] },
+    { name: 'The Tussock', kind: 'tussock', x: -62, z: 22, r: 1.4, h: 0.6, shelf: 2,
+      outline: [[-63.4, 21.8], [-62.6, 20.6], [-61, 20.9], [-60.6, 22.4], [-61.6, 23.4], [-63, 23.2]] },
+  ],
+  bowls: [{ name: 'West Pool', x: -46, z: 4, r: 32, depth: 0.8 }, { name: 'East Pool', x: 40, z: -4, r: 26, depth: 0.85 }, { name: 'the neck', x: 0, z: 6, r: 10, depth: 0.6 }],
+  deepPools: [{ name: "The Mother's Cup", x: 48, z: 6, r: 6, depth: 1 }],
+  legendPool: { x: 48, z: 6, r: 3.2, name: "The Mother's Cup" },
+  pillars: [],
+  gate: null,
+  spawn: { x: 44, z: 17, yaw: 0.9 },
+  // docks[0]: Rootfoot Landing's root-post jetty, the raft's tie-up at the Slow Hearth's stern (LOOP.mooring.sporewood); `pad` the m it
+  // keeps off the bank (the jetty is near the bank, as the Mossmere's Jetty)
+  docks: [{ x: 36.59, z: 32.5, yaw: -1.2827, pad: 3 }],
+});
+// the open water's glide out of a Sail from Rootfoot Landing (the places' own are LOOP.places[id].out): out along the mooring's lane and
+// north round Murk's barge into the East Pool
+LOOP.tutorial.outPath.sporewood = [[36.59, 32.5], [42.4, 30.8], [42, 20]];
+// <<< LAKE 2, lane W1
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
@@ -6460,6 +6516,9 @@ if (V3_ENABLED) {
     if (P >= 3) z.homeward = { ...((z.id !== 'mossmere' && !WALK_ENABLED) ? F.homeward : EXPEDITION.homeward.stones[z.id]), radius: EXPEDITION.homeward.radius };
     if (z.legendary === 'pale_leviathan') z.legendary = 'lantern_swallower';
   }
+  // LAKE 2, lane W1 (LAKE2 §3.1): under the loop Sporewood is its natural basin (SPOREWOOD_ARENA, the outline shore), a fresh arena: no
+  // stopgap giant water, no raft watch-lamps (its places hold its giants); its name, palette, grade and words as built
+  if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena = v3clone(SPOREWOOD_ARENA); }
   // §24's lakes (walking builds): place sync ▲, watch lamps, renames
   for (const [zid, a] of Object.entries(ARENA_V2)) {
     for (const p of a.places || []) v3syncPlace(p);

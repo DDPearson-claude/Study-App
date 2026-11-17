@@ -15,6 +15,7 @@
 //   heronSpots(...)            (the heron is after the MVP: WATERCRAFT §13; kept out of this lane by the time box)
 
 import { WATERCRAFT, laneFor, lightOf as wcLight } from './watercraft.js';
+import { sdfAt, shoreAt, arcAt } from './world-outline.js';   // LAKE2 §3.1 (lane W1): an outline shore's reed runs (pure, as this file)
 
 const TAU = Math.PI * 2;
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -151,19 +152,35 @@ const inArc = (deg, [a, b]) => deg >= a && deg <= b;
 const degOf = (x, z) => { const d = (Math.atan2(z, x) * 180) / Math.PI; return d < 0 ? d + 360 : d; };
 /** Where (x, z) is clear of land and solid things for a reed (it may stand in the shallows, never on an island or a post). */
 function reedClear(L, x, z, pad) {
-  const sr = typeof L.shoreR === 'function' ? L.shoreR(Math.atan2(z, x)) : 60;
-  if (Math.hypot(x, z) > sr - 0.3) return false;
+  if (L.outline) { if (sdfAt(L.outline, x, z) < 0.3) return false; }   // (an outline shore: its field, the islands' banks in it)
+  else if (Math.hypot(x, z) > (typeof L.shoreR === 'function' ? L.shoreR(Math.atan2(z, x)) : 60) - 0.3) return false;
   for (const o of L.obstacles || []) if (Math.hypot(x - o.x, z - o.z) < o.r + pad) return false;
   return true;
 }
 /** The reed clumps {x, z, n, h, where: 'shore' | 'rock' | 'stone', bed?} for the Mossmere: each shore bed reedOff m off the shore
  *  inside its arc, thicker reeds round the rock islands (out to k·r + plus from the centre), thinner round the masonry ones. Every
  *  clump keeps `FACE.reeds.keep` m clear of the avoid list. */
-export function reedPlan(L, rng, { low = false, avoid = null } = {}) {
-  const R = FACE.reeds, out = [];
+export function reedPlan(L, rng, { low = false, avoid = null, geo = null } = {}) {
+  const R = FACE.reeds, out = [], G = geo || GEO;
   const keepOk = (x, z) => !avoid || clearanceOf(avoid, x, z) >= R.keep;
+  // (LAKE2 §3.1: an outline shore's beds are runs along its curve, G.reedRuns [u0, u1]: clumps by arc length, reedOff m in off the bank)
+  if (L.outline && Array.isArray(G.reedRuns)) {
+    const q = {};
+    G.reedRuns.forEach(([u0, u1], bi) => {
+      const s0 = arcAt(L.outline, u0), s1 = arcAt(L.outline, u1), span = s1 >= s0 ? s1 - s0 : s1 + L.outline.len - s0;
+      const n = Math.round(span * (low ? R.shoreLow : R.shorePerM) * (G.reedOff[1] - G.reedOff[0]) / 3);
+      for (let t = 0, k = 0; t < n * 6 && k < n; t++) {
+        const off = G.reedOff[0] + Math.pow(rng(), 1.6) * (G.reedOff[1] - G.reedOff[0] - 0.3);
+        shoreAt(L.outline, s0 + rng() * span, q);
+        const x = q.x - q.nx * off, z = q.z - q.nz * off;
+        if (!reedClear(L, x, z, 0.4) || !keepOk(x, z)) continue;
+        out.push({ x, z, n: 4 + ((rng() * 5) | 0), h: rng.range(1.1, 2.1) * (1.08 - off / 12), where: 'shore', bed: bi });
+        k++;
+      }
+    });
+  }
   // the four shore beds
-  GEO.reedArcs.forEach((arc, bi) => {
+  if (!L.outline) GEO.reedArcs.forEach((arc, bi) => {
     const mid = ((arc[0] + arc[1]) / 2) * (Math.PI / 180);
     const sr = typeof L.shoreR === 'function' ? L.shoreR(mid) : 60;
     const span = ((arc[1] - arc[0]) * Math.PI / 180) * sr;
@@ -181,10 +198,10 @@ export function reedPlan(L, rng, { low = false, avoid = null } = {}) {
   });
   // the islands: thick reeds round the rock ones, a thin fringe round the masonry ones
   for (const o of L.islands || []) {
-    const rock = GEO.reedIslands.includes(o.kind), stone = GEO.stoneIslands.includes(o.kind);
+    const rock = G.reedIslands.includes(o.kind), stone = G.stoneIslands.includes(o.kind);
     if (!rock && !stone) continue;
     const per = rock ? (low ? R.rockLow : R.rockPerM) : (low ? R.stoneLow : R.stonePerM);
-    const reach = rock ? GEO.reedReach.k * o.r + GEO.reedReach.plus : o.r * 1.25;
+    const reach = rock ? G.reedReach.k * o.r + G.reedReach.plus : o.r * 1.25;
     const n = Math.max(rock ? 6 : 2, Math.round(TAU * o.r * per * (rock ? 2.2 : 1)));
     for (let t = 0, k = 0; t < n * 8 && k < n; t++) {
       const a = rng() * TAU, d = o.r * 1.04 + Math.pow(rng(), 1.4) * Math.max(0.3, reach - o.r * 1.04);

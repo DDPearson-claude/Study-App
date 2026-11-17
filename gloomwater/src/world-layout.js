@@ -3,6 +3,7 @@
 // queries that depend on them (shore radius, depth field, open water). No THREE objects.
 import { makeRng, clamp, smoothstep } from './core.js';
 import { makeRingNoise, ringNoise, TAU } from './world-geo.js';
+import { buildOutline, sdfAt, sdfGrad, bankAt, groundAt as outlineGround, shoreAt as outlineShoreAt, polarShore, arcAt, alongAt } from './world-outline.js';   // LAKE2 §3.1 (lane W1)
 
 /** Pillar/prop kinds per zone theme with weights. */
 const PILLAR_KINDS = {
@@ -29,7 +30,10 @@ export function themeOf(zone) {
 
 export function buildLayout(zone) {
   const A = zone?.arena || {};
-  const R = A.radius || 60;
+  // LAKE2 §3.1 (lane W1): an authored outline shore (layout 'outline'): its distance field is the shore every reader asks; R is the
+  // farthest of its water from the centre (the vault, the rings and the bake are sized by it); shoreR stays as a polar fallback only
+  const O = A.layout === 'outline' && Array.isArray(A.outline) ? buildOutline(A) : null;
+  const R = O ? Math.ceil(Math.max(...Array.from(O.shore.x, (x, k) => Math.hypot(x, O.shore.z[k])))) + 2 : A.radius || 60;
   const seed = (A.seed || 1307) >>> 0;
   const theme = themeOf(zone);
   const rng = makeRng(seed);
@@ -42,6 +46,11 @@ export function buildLayout(zone) {
   };
   const shoreR = (a) => R * (1 + ringNoise(L.shore, a));
   L.shoreR = shoreR;
+  if (O) {
+    L.outline = O;
+    const tab = polarShore(O, 0, 0, 360), n = tab.length;
+    L.shoreR = (a) => { const u = ((((a / TAU) % 1) + 1) % 1) * n, i = Math.floor(u) % n, k = u - Math.floor(u); return tab[i] + (tab[(i + 1) % n] - tab[i]) * k; };
+  }
 
   // Authored arena data (data.js ZONES[].arena, DESIGN §4.4) wins; every field falls back to
   // the procedural placement below when it is missing (a number count, null or absent).
@@ -63,7 +72,7 @@ export function buildLayout(zone) {
   }
 
   const dist = (ax, az, bx, bz) => Math.hypot(ax - bx, az - bz);
-  const insideShore = (x, z, pad) => Math.hypot(x, z) + pad <= shoreR(Math.atan2(z, x));
+  const insideShore = O ? (x, z, pad) => sdfAt(O, x, z) >= pad : (x, z, pad) => Math.hypot(x, z) + pad <= shoreR(Math.atan2(z, x));
 
   // islands: authored circles {x, z, r, kind, name}, else procedural count
   if (Array.isArray(A.islands)) {
@@ -74,6 +83,8 @@ export function buildLayout(zone) {
       const flat = o.kind === 'wreck' || o.kind === 'cap' || o.kind === 'lily';
       const h = (rng.range(1.6, 3.2) * (big ? 1.5 : 1) + o.r * 0.25) * (flat ? 0.6 : 1);
       L.islands.push({ x: o.x, z: o.z, r: o.r, h, rot: rng() * TAU, shelf: 5, seed: rng() * 1000, big, kind: o.kind || null, name: o.name || null });
+      // (an outline island is land in the shore's own field: its top and shelf as authored, no circle in the collision)
+      if (O && Array.isArray(o.outline)) Object.assign(L.islands[L.islands.length - 1], { h: Number(o.h) || h, shelf: Number(o.shelf) || 3, outline: true });
     }
   }
   const nIsl = Array.isArray(A.islands) ? 0 : (Number.isFinite(A.islands) ? A.islands : 6);
@@ -102,7 +113,8 @@ export function buildLayout(zone) {
       if (!isPt(d)) continue;
       // keep the barge (and its posts) clear of the noisy cliff line
       let x = d.x, z = d.z;
-      for (let k = 0; k < 30 && !insideShore(x, z, 5.5); k++) { x *= 0.97; z *= 0.97; }
+      if (O) { const g = { x: 0, z: 0 }; for (let k = 0; k < 30 && !insideShore(x, z, d.pad ?? 5.5); k++) { sdfGrad(O, x, z, g); x += g.x * 0.25; z += g.z * 0.25; } }   // (up the field's slope)
+      else for (let k = 0; k < 30 && !insideShore(x, z, 5.5); k++) { x *= 0.97; z *= 0.97; }
       L.docks.push({ x, z, yaw: Number.isFinite(d.yaw) ? d.yaw : Math.atan2(x, z) });
     }
   } else {
@@ -182,10 +194,13 @@ export function buildLayout(zone) {
   }
 
   // collision circles (islands slightly inset so outlines/boulders overlap the raft a touch less)
-  for (const o of L.islands) L.obstacles.push({ x: o.x, z: o.z, r: o.r * 1.08 + 0.2, kind: 'island' });
+  // (an outline island's circle is its inscribed one, inside its own bank: the field does its collision; the circle keeps the glides'
+  // and the planners' circle checks off it)
+  for (const o of L.islands) L.obstacles.push(o.outline ? { x: o.x, z: o.z, r: Math.max(0.3, -sdfAt(O, o.x, o.z)), kind: 'island' } : { x: o.x, z: o.z, r: o.r * 1.08 + 0.2, kind: 'island' });
   for (const p of L.pillars) L.obstacles.push({ x: p.x, z: p.z, r: p.r, kind: p.kind });
   for (const d of L.docks) for (const p of d.posts) L.obstacles.push({ x: p.x, z: p.z, r: p.r, kind: 'post' });
-  placeGateStones(L, rng);
+  if (O && L.gate.none) L.gate.stones = [];   // (an outline water with no gate: no standing stones round its legend's water)
+  else placeGateStones(L, rng);
   L.gateObstacles = L.gate.stones.map((s) => ({ x: s.x, z: s.z, r: s.r, kind: 'gatestone' }));
 
   if (L.authored) {
@@ -199,6 +214,8 @@ export function buildLayout(zone) {
     L.plateau = A.plateau || null;
     L.trench = A.trench || null;
     L.legendPool = isPt(A.legendPool) ? { x: A.legendPool.x, z: A.legendPool.z, r: Number(A.legendPool.r) || 3.2 } : null;
+    L.bowls = (Array.isArray(A.bowls) ? A.bowls : []).filter(isPt).map((b) => ({ x: b.x, z: b.z, r: Number(b.r) || 20, depth: Number(b.depth) || 0.8 }));
+    L.baseDepth = Number.isFinite(A.baseDepth) ? A.baseDepth : 0.4;
     L.depthScale = null;
     calibrateDepth(L, Array.isArray(A.depthShare) ? A.depthShare : null);
   } else {
@@ -217,7 +234,8 @@ export function buildLayout(zone) {
     for (let tries = 0; tries < 200 && pts.length < 4; tries++) {
       const a = rng() * TAU, d = Math.sqrt(rng()) * R * 0.8;
       const x = Math.cos(a) * d, z = Math.sin(a) * d;
-      if (pts.some((p) => dist(x, z, p.x, p.z) < R * 0.45)) continue;
+      if (O && sdfAt(O, x, z) < 6) continue;   // (an outline water's shafts fall on its water, never its banks)
+      if (pts.some((p) => dist(x, z, p.x, p.z) < R * (O ? 0.3 : 0.45))) continue;
       pts.push({ x, z });
     }
     const leanA = rng() * TAU;
@@ -289,10 +307,42 @@ export function notchShoreR(N, angle, base) {
   const i = Math.min(R.n - 1, Math.floor(u)), k = u - i;
   return Math.max(base, R.r[i] + (R.r[i + 1] - R.r[i]) * k);
 }
-/** The water's signed distance to its shore at (x, z), the cut drawn in (the water's bake: the shore foam and the cliff's mirror). */
+/** The water's signed distance to its shore at (x, z), the cut drawn in (the water's bake: the shore foam and the cliff's mirror). On an
+ *  outline shore (LAKE2 §3.1) its distance field, islands and all: the one seam every shore reader asks (CONTRACT §14). */
 export function shoreDist(L, x, z) {
+  if (L.outline) return sdfAt(L.outline, x, z);
   const b = L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
   return L.notch ? Math.max(b, notchSdf(L.notch, x, z)) : b;
+}
+/** The signed distance (m) to the lake's own shore, no cut: the outline's field, else the polar shore's radial distance (exactly as the
+ *  polar readers always measured it, so a water with a polar shore reads as built). */
+export function fromShore(L, x, z) {
+  return L.outline ? sdfAt(L.outline, x, z) : L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+}
+/** The ground's height (m) at (x, z) on an outline water (its banks, the land behind them, its islands; below 0 in the water), else null. */
+export function groundAt(L, x, z) { return L.outline ? outlineGround(L.outline, x, z) : null; }
+/** The outline shore at arc length s (m, wrapping): {x, z, nx, nz (into the land), h, shelf}; null on a polar shore. */
+export function shoreAt(L, s, out) { return L.outline ? outlineShoreAt(L.outline, s, out) : null; }
+/** The outline shore's arc length (m) at a control parameter u; null on a polar shore. */
+export function shoreArc(L, u) { return L.outline ? arcAt(L.outline, u) : null; }
+/** The control parameter u of the nearest shore point (−1 nearer an island's bank); null on a polar shore. */
+export function shoreAlong(L, x, z) { return L.outline ? alongAt(L.outline, x, z) : null; }
+/** An outline water's sheet for the Chart (ui-chart.waterGeometry): {shore: its curve every `step` m, [[x, z]], Rmax, extra: {outline,
+ *  shoreDist (x, z) → m, bbox}, isle(q): {outline: [[x, z]]} for an authored island's {x, z}, else {}}; null on a polar shore. */
+export function sheetOf(L, step = 2) {
+  const O = L.outline;
+  if (!O) return null;
+  const r2 = (v) => Math.round(v * 100) / 100, q = {}, n = Math.max(60, Math.round(O.len / step)), shore = [];
+  let Rmax = 0;
+  for (let i = 0; i < n; i++) { outlineShoreAt(O, (i / n) * O.len, q); Rmax = Math.max(Rmax, Math.hypot(q.x, q.z)); shore.push([r2(q.x), r2(q.z)]); }
+  const isle = (p) => {
+    const C = O.curves[O.islands.find((o) => o.x === p.x && o.z === p.z)?.curve];
+    if (!C) return {};
+    const pts = [];
+    for (let k = 0; k < C.n; k += 2) pts.push([r2(C.x[k]), r2(C.z[k])]);
+    return { outline: pts };
+  };
+  return { shore, Rmax, isle, extra: { outline: true, shoreDist: (x, z) => sdfAt(O, x, z), bbox: { ...O.bbox } } };
 }
 /** The cut's depth beyond the lake's own shore (0 at that shore, its full depth 3 m in, falling to its banks); null elsewhere. */
 function notchDepth(L, x, z) {
@@ -325,7 +375,7 @@ function placeGateStones(L, rng) {
     return st;
   };
   const clearAt = (x, z, st) => {
-    let m = L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+    let m = fromShore(L, x, z);
     for (const o of near) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
     for (const o of st) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
     return m;
@@ -361,8 +411,28 @@ function strip(S, x, z) {
   const along = smoothstep(S.zFrom - 4, S.zFrom, z) * (1 - smoothstep(S.zTo, S.zTo + 4, z));
   return along * (1 - smoothstep(w, w + 3, Math.abs(x - (S.x || 0))));
 }
+/** LAKE2 §3.1: an outline water's depth: the shore's distance through its shelf (its width from the bank's profile: 14 m off the Reed
+ *  Flats, 3 m in the neck and round an island), a mid floor, the bowls (the two pools, the neck's channel) and the deep pools (the
+ *  Mother's Cup: a natural sinkhole, its lip under the water). */
+function outlineDepth(L, x, z) {
+  const O = L.outline, s = sdfAt(O, x, z);
+  if (s <= 0) return 0;
+  let base = L.baseDepth + 0.05 * lowNoise(L, x, z);
+  for (let i = 0; i < L.bowls.length; i++) {
+    const b = L.bowls[i], q = Math.hypot(x - b.x, z - b.z) / b.r;
+    if (q < 1 && b.depth > base) base += (b.depth - base) * (1 - smoothstep(0.15, 1, q));
+  }
+  let d = clamp(base * smoothstep(0, bankAt(O, x, z).shelf, s) + L.noiseAmp * lowNoise(L, x * 1.7, z * 1.7) * smoothstep(0, 4, s), 0, 1);
+  // (a deep pool blends the floor toward its own depth, so the water only deepens on the way in: monotone to its middle)
+  for (let i = 0; i < L.pools.length; i++) {
+    const p = L.pools[i], q = Math.hypot(x - p.x, z - p.z);
+    if (q < p.r + 3 && p.depth > d) d += (p.depth - d) * smoothstep(p.r + 3, p.r * 0.5, q);
+  }
+  return d;
+}
 /** DESIGN §4.3 depth recipe for an authored arena (before calibration). */
 function recipeDepth(L, x, z) {
+  if (L.outline) return outlineDepth(L, x, z);
   const r = Math.hypot(x, z);
   const fromShore = L.shoreR(Math.atan2(z, x)) - r;
   if (fromShore <= 0) return 0;
@@ -470,8 +540,8 @@ export function depthAt(L, x, z) {
 }
 
 export function isOpenWaterL(L, obstacles, x, z, r = 1) {
-  const d = Math.hypot(x, z);
-  if (d > L.shoreR(Math.atan2(z, x)) - r && !(L.notch?.open && notchSdf(L.notch, x, z) >= r)) return false;   // (an open cut is water)
+  if (L.outline) { if (sdfAt(L.outline, x, z) < r) return false; }   // (an outline shore: its field, the islands in it)
+  else if (Math.hypot(x, z) > L.shoreR(Math.atan2(z, x)) - r && !(L.notch?.open && notchSdf(L.notch, x, z) >= r)) return false;   // (an open cut is water)
   for (let i = 0; i < obstacles.length; i++) {
     const o = obstacles[i];
     const m = o.r + r, dx = x - o.x, dz = z - o.z;

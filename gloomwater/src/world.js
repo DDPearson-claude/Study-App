@@ -5,7 +5,8 @@
 // functions of the layout and work before init and between runs.
 import * as THREE from 'three';
 import { clamp, damp, smoothstep, TAU } from './core.js';
-import { buildLayout, depthAt, isOpenWaterL, notchFrame, notchHalfW, notchShoreR, shoreDist } from './world-layout.js';
+import { buildLayout, depthAt, isOpenWaterL, notchFrame, notchHalfW, notchShoreR, shoreDist, fromShore, groundAt, shoreAlong } from './world-layout.js';
+import { sdfAt, sdfGrad } from './world-outline.js';   // LAKE2 §3.1 (lane W1): an outline shore's collision
 import { buildArena } from './world-art.js';
 import { AIR } from './world-fx.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
@@ -188,7 +189,8 @@ export function create(ctx) {
 
   function defaultGateState(z) {
     const Z = zones();
-    const final = z && (z.gateName === null || (z.index ?? Z.indexOf(z)) >= Z.length - 1);
+    // (an outline water with no gate of its own, LAKE2 §3.1: its hidden gate is its legend's water, never drawn)
+    const final = z && (z.gateName === null || (z.index ?? Z.indexOf(z)) >= Z.length - 1 || (layout?.outline && layout.gate?.none === true));
     if (final) return 'hidden';
     const run = ctx.state?.run;
     if (run && run.zone === z.id && run.gateOpen) return 'open';
@@ -264,7 +266,7 @@ export function create(ctx) {
       if (lp.length) {
         try {
           placesVis = buildPlaces(ctx, layout, arena, { places: lp, pal: Object.assign({}, FALLBACK_ZONE.palette, zone.palette || {}), quality: quality(),
-            mist: ctx.data?.LOOP?.mist, giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true, hero: getHeroAnchor(),
+            mist: ctx.data?.LOOP?.mist, giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true && zone.id === 'mossmere', hero: getHeroAnchor(),   // (W9's toll-tower and Sluice Veil are the Mossmere's)
             liteMist: liteMist() });
           group.add(placesVis.group);
           placesVis.setPlaces(placeState);
@@ -663,12 +665,18 @@ export function create(ctx) {
         }
       }
       if (layout?.notch?.open && collideNotch(layout.notch, p, r)) continue;
+      // (an outline shore, LAKE2 §3.1: held off every bank, the islands' too, up the field's slope by what it lacks of r)
+      if (layout?.outline) {
+        for (let k = 0; k < 4; k++) { const s = sdfAt(layout.outline, p.x, p.z); if (s >= r - 1e-3) break; sdfGrad(layout.outline, p.x, p.z, GRAD); p.x += GRAD.x * (r - s); p.z += GRAD.z * (r - s); }
+        continue;
+      }
       const d = Math.hypot(p.x, p.z);
       const lim = (layout ? layout.shoreR(Math.atan2(p.z, p.x)) : bounds.radius) - r;
       if (d > lim && d > 1e-5) { const k = Math.max(0, lim) / d; p.x *= k; p.z *= k; }
     }
     return p;
   }
+  const GRAD = { x: 0, z: 0 };   // (collide's scratch: it runs every frame)
   /** An open cut's banks (LOST-TACKLE §5.3): a point behind the lake's shore inside the cut is held off its banks and its head; one at its
    *  mouth is held off the mouth's two corners. → true when the cut took the point (the lake's shore is then not applied). */
   function collideNotch(N, p, r) {
@@ -863,6 +871,15 @@ export function create(ctx) {
     // ---- the shore notch (LOST-TACKLE §5.3): its water drawn whatever its place (the bake), its view while the raft is in it
     /** The water's signed distance to its shore at (x, z), any cut drawn in (water.js's bake). */
     getShoreDist: (x, z) => (layout ? shoreDist(layout, x, z) : bounds.radius - Math.hypot(x, z)),
+    /** The signed distance (m) to the water's edge as the raft meets it (LAKE2 §3.1: an outline shore's field; else the shore radius along
+     *  the bearing less the distance, an open cut's water counted as the collision counts it): the probes of watercraft and the sight. */
+    getFromShore: (x, z) => (layout ? (layout.outline ? fromShore(layout, x, z) : shoreR(Math.atan2(z, x)) - Math.hypot(x, z)) : bounds.radius - Math.hypot(x, z)),
+    /** The ground's height (m) at (x, z) on an outline water (its banks and islands; below 0 in the water), or null on a polar one. */
+    getGround: (x, z) => (layout ? groundAt(layout, x, z) : null),
+    /** The nearest shore point's control parameter u on an outline shore (−1 nearer an island; null on a polar shore): the reed runs. */
+    getShoreAlong: (x, z) => (layout ? shoreAlong(layout, x, z) : null),
+    /** The outline shore's record ({grid, shore, islands, len, bbox, …}: world-outline.js) or null (a polar shore). */
+    getOutline: () => layout?.outline || null,
     /** The half-size (m) the water's bake must cover: the lake and its cut. */
     getBakeHalf: () => Math.max(bounds.radius + 8, layout?.notch ? layout.notch.end + 3 : 0),
     /** The cut ({a, ca, sa, hw, r0, end, depth, pool, endHw, place, open}) or null. */

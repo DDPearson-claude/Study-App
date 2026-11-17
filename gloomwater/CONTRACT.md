@@ -2420,3 +2420,22 @@ there and a third of it is kept for good; found things travel; each water's lure
   without one is the first water's).
 - **The sim**: `node tools/sim/clams.mjs --shipped=sporewood` (`tools/sim/sporewood.mjs`); `clams.mjs` exports `shipSporewood`, `WATER`,
   `PLACE`, `SP`, `kitHold` for it and for T104 on Sporewood (`tools/tests/loop-carry.test.mjs`).
+
+### 14.24 The outline shore: a natural basin (LAKE 2, lane W1; `docs/loop/LAKE2.md` §3.1, §9.3)
+- **Where**: `src/world-outline.js` (pure: the curve, the signed-distance field, the bank profile, the ground, arc length), read through
+  `src/world-layout.js`. An arena with `layout: 'outline'` and `outline: [[x, z], …]` (Sporewood under the loop: `data.js`
+  `SPOREWOOD_ARENA`) has `L.outline`; every other arena is as built (`L.outline` undefined) and every function below answers for it
+  exactly as the polar shore did (`tools/tests/outline-shore.test.mjs` part 1 pins the Mossmere).
+- **The seam**: `shoreDist(L, x, z)` (m, + in the water; on an outline water the field, its islands land in it). `fromShore(L, x, z)`
+  the lake's own shore without a cut; `groundAt(L, x, z)` the ground's height (null on a polar shore); `shoreAt(L, s)` the shore at arc
+  length s ({x, z, nx, nz into the land, h, shelf}); `shoreArc(L, u)`, `shoreAlong(L, x, z)` (a control parameter's arc; the nearest
+  shore point's control parameter, −1 nearer an island); `sheetOf(L)` the Chart's. `L.shoreR(a)` stays on an outline water as the
+  farthest water along a bearing: a fallback for the polar readers only, never a collision or a water test.
+- **world**: `collide` holds a point off every bank up the field's slope; `getShoreDist`, `getFromShore`, `getGround`, `getShoreAlong`,
+  `getOutline` (null on a polar shore); an outline water with no gate (`arena.gate: null`) has its gate hidden, no stones and no ring.
+- **Readers that take a water's own geometry**: `watercraft.areaAt(x, z, probe, {geo})` (reed runs `[u0, u1]` in control points, read
+  through `probe.along`), `watercraft-face.reedPlan(L, rng, {geo})`; `watercraft.probeOf(world)` reads `getFromShore` and `getShoreAlong`;
+  `loop-rules.mooringChecks(M, {shoreDist})` and `pathShore(pts, shoreDist)`; `ui-chart.waterGeometry` (on an outline water `outline:
+  true`, `shoreDist`, `bbox`, the shore every 2 m and each island's `outline`).
+- **Debug and tools**: `tools/outline-map.mjs` (a top-down PNG of an outline water), `tools/tests/lake2-w1.scenario.mjs` (the world put
+  on Sporewood in the browser, the raft driven at its banks, frames by day, dusk and night).

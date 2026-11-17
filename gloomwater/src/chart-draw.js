@@ -870,7 +870,8 @@ export function layoutChart(model, art, view) {
       let wet = 0, dry = 0;
       const m = 3 / Math.max(1e-3, lake.s);
       for (let i = 0; i <= 6; i++) for (let j = 0; j <= 2; j++) {
-        const x = (q[0] + (q[2] * i) / 6 - lake.cx) / lake.s, z = (q[1] + (q[3] * j) / 2 - lake.cy) / lake.s, d = Math.hypot(x, z) - shoreR(Math.atan2(z, x));
+        // (LAKE2 §3.1: an outline water's sheet asks its own shore's distance, + in the water; a polar one the radius along the bearing)
+        const x = (q[0] + (q[2] * i) / 6 - lake.cx) / lake.s, z = (q[1] + (q[3] * j) / 2 - lake.cy) / lake.s, d = geo?.shoreDist ? -geo.shoreDist(x, z) : Math.hypot(x, z) - shoreR(Math.atan2(z, x));
         if (d < m) wet++;
         if (d > -m) dry++;
       }

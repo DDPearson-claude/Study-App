@@ -15,13 +15,14 @@
 import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
 import { gildStep, gildCard, brookStep, brookCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home); the brook behind the Veil (LOST-TACKLE §5.2)
-import { buildLayout } from './world-layout.js';
+import { buildLayout, sheetOf } from './world-layout.js';
 import { drawFishInk } from './ui-fishart.js';
 
+const fin = Number.isFinite;   // (one name for it: the Chart's code line, M1.md §3.2)
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const arr = (v) => (Array.isArray(v) ? v : []);
-const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
-const clamp01 = (v) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
+const num = (v, d = 0) => (typeof v === 'number' && fin(v) ? v : d);
+const clamp01 = (v) => (fin(v) ? Math.min(1, Math.max(0, v)) : 0);
 
 /** The chart's faces (M1.md §3.1): it letters in 'IM Fell English' (the court surveyors' hand), never in Alegreya: the names in
  *  its italic, the figures (prices, weights, the catch count) in its roman, with their old-style figures; "Coming soon" in the
@@ -47,24 +48,28 @@ export function waterGeometry(D, waterId) {
   const zone = D?.ZONE_BY_ID?.[waterId] || arr(D?.ZONES).find((z) => z?.id === waterId) || null;
   if (!zone) return null;
   const A = zone.arena || {};
-  let shoreR = null, N = null;
-  try { const Ly = buildLayout(zone); shoreR = Ly.shoreR; N = Ly.notch ? { ...Ly.notch, ray: null } : null; } catch { shoreR = null; }
+  let Ly = null;
+  try { Ly = buildLayout(zone); } catch { /* the sheet drawn from the arena's radius */ }
+  const shoreR = Ly?.shoreR || null, N = Ly?.notch ? { ...Ly.notch, ray: null } : null;
   const R = num(A.radius, 60);
   const shore = [];
   let Rmax = 0;
-  for (let i = 0; i < 120; i++) {
+  // LAKE2 §3.1 (lane W1): an outline water's sheet is the world's own outline (world-layout.sheetOf: its shore every 2 m, each island's
+  // own, `shoreDist` (x, z) → m, + in the water, the side of the shore for the pen)
+  const S = Ly && sheetOf(Ly);
+  if (S) { shore.push(...S.shore); Rmax = S.Rmax; } else for (let i = 0; i < 120; i++) {
     const a = (i / 120) * Math.PI * 2, r = shoreR ? shoreR(a) : R;
     Rmax = Math.max(Rmax, r);
     shore.push([Math.round(Math.cos(a) * r * 100) / 100, Math.round(Math.sin(a) * r * 100) / 100]);
   }
-  const pts = (list) => arr(list).filter((p) => isObj(p) && Number.isFinite(p.x) && Number.isFinite(p.z));
+  const pts = (list) => arr(list).filter((p) => isObj(p) && fin(p.x) && fin(p.z));
   const docks = pts(A.docks).map((d) => ({ x: d.x, z: d.z }));
   return {
-    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N,
-    islands: pts(A.islands).map((q) => ({ x: q.x, z: q.z, r: num(q.r, 4), kind: q.kind || 'rock' })),
+    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N, ...(S && S.extra),
+    islands: pts(A.islands).map((q) => ({ x: q.x, z: q.z, r: num(q.r, 4), kind: q.kind || 'rock', ...(S && S.isle(q)) })),
     piers: pts(A.pillars).filter((p) => p.kind === 'pier').map((p) => ({ x: p.x, z: p.z, r: num(p.r, 1.4) })),
     deep: pts(A.deepPools).map((p) => ({ x: p.x, z: p.z, r: num(p.r, 10) })),
-    gate: A.gate && Number.isFinite(A.gate.x) ? { x: A.gate.x, z: A.gate.z } : null,
+    gate: A.gate && fin(A.gate.x) ? { x: A.gate.x, z: A.gate.z } : null,
     docks, jetty: docks[0] || null,
   };
 }
@@ -73,7 +78,7 @@ export function waterGeometry(D, waterId) {
  *  v3 places (MOSSMERE_V3), then the built places. {placeId: {x, z}}. Pure. */
 export function placeSites(D, waterId) {
   const out = {};
-  const put = (p) => { if (isObj(p) && typeof p.id === 'string' && Number.isFinite(p.x) && Number.isFinite(p.z) && !out[p.id]) out[p.id] = { x: p.x, z: p.z }; };
+  const put = (p) => { if (isObj(p) && typeof p.id === 'string' && fin(p.x) && fin(p.z) && !out[p.id]) out[p.id] = { x: p.x, z: p.z }; };
   const LP = D?.LOOP?.places;
   for (const p of Array.isArray(LP) ? LP : isObj(LP) ? Object.entries(LP).map(([id, v]) => ({ id, ...v })) : []) if (!p.zone || p.zone === waterId || p.water === waterId) put(p);
   if (waterId === 'mossmere') arr(D?.MOSSMERE_V3?.places).forEach(put);
@@ -386,7 +391,7 @@ export function createChartView(deps) {
         const b = h('button', `gw-chart-sealed-seal gw-chart-sealed-seal--${key}${sl.held ? ' gw-held' : ''}`);
         b.type = 'button';
         b.dataset.seal = key;
-        b.setAttribute('aria-label', key === 'catch' && Number.isFinite(sl.need) ? `${sl.have | 0}/${sl.need | 0}` : key);
+        b.setAttribute('aria-label', key === 'catch' && fin(sl.need) ? `${sl.have | 0}/${sl.need | 0}` : key);
         if (key === 'map') { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
         else b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); K.closeModal('chartsealed'); (key === 'gear' ? onGear : onCatch)?.(next); });
         row.appendChild(b);
@@ -404,7 +409,7 @@ export function createChartView(deps) {
         bs.forEach((b, i) => {
           const br = b.getBoundingClientRect(), x = br.left - r.left + br.width / 2, y = br.top - r.top + br.height / 2 - 6;
           const sl = seals[keys[i]] || {};
-          const count = keys[i] === 'catch' && Number.isFinite(sl.need) ? `${sl.have | 0}/${sl.need | 0}` : null;
+          const count = keys[i] === 'catch' && fin(sl.need) ? `${sl.have | 0}/${sl.need | 0}` : null;
           seal(g, keys[i], x, y, rr, { held: sl.held === true, tier: sl.tier || 1, count, font: `400 ${Math.max(17, Math.round(rr * 0.66))}px ${CHART_FONTS.figure}` });
         });
       };

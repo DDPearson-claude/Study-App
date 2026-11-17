@@ -7,7 +7,8 @@ import { glowMaterial, INK, setupSurface, evenOutline, REFLECT_LAYER } from './t
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, rockGeo, taperTube, latheGeo, crystalGeo, wobble, lin, mixArr, scaleArr, fbm3, vnoise3, makeRingNoise, ringNoise } from './world-geo.js';
 import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's reed beds and lily beds (pure plans)
-import { notchFrame, notchHalfW, notchSdf, notchBend } from './world-layout.js';   // the cut behind the Sluice Veil (LOST-TACKLE §5.3)
+import { notchFrame, notchHalfW, notchSdf, notchBend, fromShore } from './world-layout.js';   // the cut behind the Sluice Veil (LOST-TACKLE §5.3)
+import { sdfAt, sdfGrad, groundAt as outlineGround, shoreAt as outlineShoreAt } from './world-outline.js';   // LAKE2 §3.1: an outline shore's banks
 import { ambientOn, debrisPieces, debrisGeos, createSlits, stepSlits } from './world-ambient.js';   // the loop's ambient (LOOP.ambient)
 import { inkToon, outlineMat, makeSeeCut, cutBlocked, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
@@ -49,6 +50,24 @@ const SKY = {
   glasswater: { az1: -0.5, el1: 0.2, w1: 0.95, az2: 0.8, el2: 0.52, w2: 0.85 },
   paleabyss: { az1: -0.45, el1: 0.13, w1: 0.5, az2: 0.9, el2: 0.5, w2: 0.0 },
 };
+
+/** A vertical band following an outline shore `off` m back from the waterline (into the land), `h` m tall and centred on y 0, sampled
+ *  every `step` m of the shore: the cylinder's u (round the shore) and v (up), open, for the shore's mist. */
+function shoreBand(O, off, h, step) {
+  const n = Math.max(8, Math.round(O.len / step)), pos = [], uv = [], idx = [], q = { x: 0, z: 0, nx: 0, nz: 0, h: 0, shelf: 0 };
+  for (let k = 0; k <= n; k++) {
+    outlineShoreAt(O, (k / n) * O.len, q);
+    const x = q.x + q.nx * off, z = q.z + q.nz * off;
+    pos.push(x, -h / 2, z, x, h / 2, z); uv.push(k / n, 0, k / n, 1);
+    if (k < n) { const a = 2 * k; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
 
 export function domeY(L, r) {
   const A = L.domeA, B = L.domeB;
@@ -197,7 +216,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
   };
 
   // ==================================================================== CLIFFS
-  {
+  // (LAKE2 §3.1, lane W1: an outline water's banks are its ground, built from the shore's own distance field in place of the polar ring)
+  if (L.outline) buildBanks();
+  else {
     const segA = low ? 150 : 210, segY = 13;
     const crest = makeRingNoise(rng, [3, 5, 8, 13, 21, 34, 55], (k) => 1 / Math.pow(k, 0.65));
     const saddles = [];
@@ -369,6 +390,62 @@ vec2 gwTwitch(vec2 p, float hgt) {
     }
   }
 
+  /**
+   * LAKE2 §3.1 (lane W1): an outline water's banks, one mesh: the ground (world-outline.groundAt: each bank's face rising to its top,
+   * the land behind it rolling up toward the rim, the islands their own low mounds) on a grid of `c` m over the basin and out under the
+   * first ring, the waterline set through the grid's vertices (a vertex within half a cell of the shore is moved onto it), the deep bed
+   * left out (the water hides it). Earth, root and moss in the kit's tones (lane W2 greens it); no cut stone. Its own stream.
+   */
+  function buildBanks() {
+    const O = L.outline, c = low ? 3 : 2, Rt = R + 20, n = Math.ceil((2 * Rt) / c) + 1, x0 = -((n - 1) * c) / 2;
+    const br = makeRng(((L.artSeed | 0) ^ 0xba4c5) >>> 0), ox = br() * 40, oz = br() * 40;
+    const nv = n * n, pos = new Float32Array(nv * 3), col = new Float32Array(nv * 3), sv = new Float32Array(nv), g = { x: 0, z: 0 };
+    const wetC = scaleArr(mixArr(K.rock, K.wood, 0.4), 0.55), earthC = mixArr(K.wood, K.rockHi, 0.35), rootC = mixArr(K.wood, K.rock, 0.5);
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      const v = j * n + i;
+      let x = x0 + i * c, z = x0 + j * c;
+      // (the ground's far edge a clean circle under the first ring: a vertex past it is set on it, so no cell's corner shows as a step)
+      const rr = Math.hypot(x, z);
+      if (rr > Rt) { x *= Rt / rr; z *= Rt / rr; }
+      const s = sdfAt(O, x, z), onShore = Math.abs(s) < c * 0.45;
+      if (onShore) { sdfGrad(O, x, z, g); x -= g.x * s; z -= g.z * s; }
+      const y = onShore ? 0 : outlineGround(O, x, z);
+      pos[v * 3] = x; pos[v * 3 + 1] = y; pos[v * 3 + 2] = z; sv[v] = onShore ? 0 : s;
+      const n1 = fbm3(x * 0.12 + ox, y * 0.2, z * 0.12 + oz, 3), n2 = vnoise3(x * 0.45 + oz, y * 0.5, z * 0.45 + ox);
+      let cc;
+      if (y < 0.35) cc = mixArr(wetC, earthC, Math.max(0, y / 0.35) * 0.4);
+      else {
+        // (the face of a bank earth and root; the tops and the land behind them moss, in drifts)
+        const top = Math.min(1, Math.max(0, -s - 2) / 4);
+        cc = mixArr(mixArr(earthC, rootC, n2), mixArr(K.moss, K.mossHi, n1 * 0.8), Math.min(1, top * (0.55 + 0.6 * n1)));
+      }
+      cc = scaleArr(cc, 0.5 + 0.22 * n1);   // (earth under the vault: dark, as the Mossmere's banks; lane W2's moss and ferns light it)
+      col[v * 3] = cc[0]; col[v * 3 + 1] = cc[1]; col[v * 3 + 2] = cc[2];
+    }
+    const idx = [];
+    for (let j = 0; j + 1 < n; j++) for (let i = 0; i + 1 < n; i++) {
+      const a = j * n + i, b = a + 1, d = a + n, e = d + 1;
+      if (sv[a] > 3 && sv[b] > 3 && sv[d] > 3 && sv[e] > 3) continue;   // (deep bed: under the water)
+      const cx = x0 + i * c, cz = x0 + j * c;   // (a cell with any corner inside the circle: its outer corners lie on it)
+      if (Math.min(Math.hypot(cx, cz), Math.hypot(cx + c, cz), Math.hypot(cx, cz + c), Math.hypot(cx + c, cz + c)) > Rt) continue;
+      // (the diagonal that bends least)
+      if (Math.abs(pos[a * 3 + 1] - pos[e * 3 + 1]) <= Math.abs(pos[b * 3 + 1] - pos[d * 3 + 1])) idx.push(a, d, e, a, e, b);
+      else idx.push(a, d, b, b, d, e);
+    }
+    const geo = G(new THREE.BufferGeometry());
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    // (smooth normals: the ground rolls; a flat-shaded grid zig-zags in the toon's steps. A low rim: seen at a grazing angle, a wide
+    // ground takes the rim all over and reads as snow)
+    const bankMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.14, rimColor: rimC, rimPower: 0.8, steps: 3, detail: 'stone', detailAmount: 0.3, wet: 0.5, gloss: 0.06, shine: 48, floor: 1 }, { fogScale: 0.8, fogMax: 0.95 }));
+    const mesh = new THREE.Mesh(geo, bankMat);
+    mesh.name = 'banks';
+    setupSurface(mesh);
+    group.add(mesh);
+  }
+
   mark('cliffs');
   // ==================================================================== VAULT DOME
   let domeMat, starK = 1, starDen = 1;
@@ -532,6 +609,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
   const topOf = (o, f = 0.55) => o.h * f + 0.2; // approximate surface height near island centre
   // actual rock surface height under (x,z): highest main-rock vertex nearby
   const surf = (o, x, z) => {
+    if (o.outline && L.outline) return Math.max(0, outlineGround(L.outline, x, z) - 0.1);   // (an outline island is the banks' own ground)
     const a = o._pos; if (!a) return topOf(o);
     const rr = Math.max(0.9, o.r * 0.2), r2 = rr * rr;
     let best = -Infinity;
@@ -772,7 +850,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
 
   // ---------------- islands per theme
   for (const o of L.islands) {
-    islandRock(o, theme === 'paleabyss' ? 0.6 : 1);
+    if (!o.outline) islandRock(o, theme === 'paleabyss' ? 0.6 : 1);
     if (theme === 'mossmere') {
       if (o.big) {
         const c1x = o.x + o.r * 0.25, c1z = o.z - o.r * 0.1, c2x = o.x - o.r * 0.3, c2z = o.z + o.r * 0.2;
@@ -1146,7 +1224,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     return out;
   };
   const clearOf = (x, z, pad) => {
-    if (Math.hypot(x, z) > L.shoreR(Math.atan2(z, x)) - pad) return false;
+    if (fromShore(L, x, z) < pad) return false;
     for (const o of L.obstacles) if (Math.hypot(x - o.x, z - o.z) < o.r + pad) return false;
     if (Math.hypot(x - L.gate.x, z - L.gate.z) < L.gate.radius + 3 + pad) return false;
     return true;
@@ -1246,7 +1324,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     // worn stones with gaps, some sunk lower, so the gate never reads as a closed circle round a raft that drifts into it
     const stoneCol = (x, y, z) => mixArr(K.stone, K.rock, 0.4 + 0.3 * vnoise3(x, y, z));
     const arcs = [];
-    if (opts.loop === true) {
+    if (L.outline && L.gate.none) { /* (an outline water with no gate draws no ring at all) */ }
+    else if (opts.loop === true) {
       let a0 = rng() * TAU;
       for (let n = 0; n < 9; n++) {
         const len = 0.28 + rng() * 0.42, gap = 0.18 + rng() * 0.32;
@@ -1283,13 +1362,14 @@ vec2 gwTwitch(vec2 p, float hgt) {
         glyphs.push(prep(new THREE.BoxGeometry(k === 1 ? 0.42 : 0.1, k === 1 ? 0.07 : 0.32, 0.03), { matrix: mat(lx + fx * 0.47, yy, lz + fz * 0.47, 0, face, k === 2 ? 0.6 : 0), color: [1, 1, 1] }));
       }
     }
-    const stoneMesh = new THREE.Mesh(G(merge(stones)), rockMat);
+    const none = () => new THREE.BufferGeometry();   // (an outline water with no gate: no stones, no glyphs; the gate stays hidden)
+    const stoneMesh = new THREE.Mesh(G(merge(stones) || none()), rockMat);
     stoneMesh.name = 'gateStones';
     const sol = new THREE.Mesh(stoneMesh.geometry, olRock); sol.renderOrder = -1; stoneMesh.add(sol);
     cutHook(stoneMesh); cutHook(sol);
     const glyphHex = mixHex(pal.glow, pal.accent, 0.5);   // gate filigree leans to the lake's accent
     const glyphMat = M(new THREE.MeshBasicMaterial({ color: new THREE.Color(glyphHex), fog: true, toneMapped: false }));
-    const glyphMesh = new THREE.Mesh(G(merge(glyphs)), glyphMat);
+    const glyphMesh = new THREE.Mesh(G(merge(glyphs) || none()), glyphMat);
     const vort = M(vortexMaterial());
     vort.uniforms.uGlow.value.set(pal.glow); vort.uniforms.uFoam.value.set(pal.foam); vort.uniforms.uDeep.value.set(pal.waterDeep);
     const disc = new THREE.Mesh(G(new THREE.CircleGeometry(rad + 0.2, 64).rotateX(-Math.PI / 2)), vort);
@@ -1348,16 +1428,18 @@ vec2 gwTwitch(vec2 p, float hgt) {
   // ==================================================================== MIST + PARTICLES
   const mist = M(mistMaterial());
   {
-    const g = G(new THREE.CylinderGeometry(R + 1.5, R + 1.5, 11, low ? 64 : 128, 1, true));
+    // (an outline water's mist band follows its shore, 1.5 m back from the waterline, round the curve; a polar one is a ring)
+    const g = G(L.outline ? shoreBand(L.outline, 1.5, 11, low ? 4 : 2) : new THREE.CylinderGeometry(R + 1.5, R + 1.5, 11, low ? 64 : 128, 1, true));
     g.translate(0, 4.5, 0);
     const m = new THREE.Mesh(g, mist);
     m.renderOrder = -2; m.frustumCulled = false; m.name = 'shoreMist';
     mist.uniforms.uRep.value = Math.round(R / 3);
+    if (L.outline) { mist.side = THREE.DoubleSide; mist.uniforms.uRep.value = Math.round(L.outline.len / 19); }   // (the band's grain as the ring's: about 3 m)
     group.add(m);
   }
   // foam/ripple rings hugging every island, pillar and gate stone
   const ringSrc = [];
-  for (const o of L.islands) ringSrc.push({ x: o.x, z: o.z, r: o.r * 1.08 + 0.1, seed: o.seed });
+  for (const o of L.islands) if (!o.outline) ringSrc.push({ x: o.x, z: o.z, r: o.r * 1.08 + 0.1, seed: o.seed });   // (an outline island's shore is in the water's bake)
   for (const p of L.pillars) ringSrc.push({ x: p.x, z: p.z, r: p.r * 0.9, seed: p.seed });
   if (!L.gate.none) for (const s of L.gate.stones) ringSrc.push({ x: s.x, z: s.z, r: s.r * 0.9, seed: s.a * 10 });   // no foam round the final lake's absent stones
   for (const d of L.docks) for (const p of d.posts) ringSrc.push({ x: p.x, z: p.z, r: 0.25, seed: p.x });

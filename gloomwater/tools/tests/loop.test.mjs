@@ -153,9 +153,12 @@ section('data.js: fishClams, loopWaterKey, loopWickId, the Wick helpers, sailPla
   const g = D.sailPlan({ x: 24, z: 38 }, { x: 0, z: 0 }, D.LOOP.tutorial, 'mossmere');
   eq([g.from, g.to], [{ x: 24, z: 38 }, { x: 16, z: 25.3 }], "the Mossmere's outPath");
   near(g.yaw, Math.atan2(8, 12.7), 'yaw faces the way the raft travels (player.heading)');
-  const r = D.sailPlan({ x: 24, z: 38 }, { x: 0, z: 0 }, D.LOOP.tutorial, 'sporewood');
+  // (a water with no outPath of its own: Glasswater; Sporewood has its own since LAKE 2 lane W1, below)
+  const r = D.sailPlan({ x: 24, z: 38 }, { x: 0, z: 0 }, D.LOOP.tutorial, 'glasswater');
   near(Math.hypot(r.to.x - 24, r.to.z - 38), 15, 'no outPath: outDist m toward the centre', 1e-9);
   near(Math.atan2(r.to.x, r.to.z), Math.atan2(24, 38), '… along the line to the centre', 1e-9);
+  const sw = D.sailPlan({ x: 36.59, z: 32.5 }, { x: 0, z: 0 }, D.LOOP.tutorial, 'sporewood'), P = D.LOOP.tutorial.outPath.sporewood;
+  eq([sw.from, sw.to], [{ x: 36.59, z: 32.5 }, { x: P[P.length - 1][0], z: P[P.length - 1][1] }], "Sporewood's outPath (LAKE2 W1: out along the mooring's lane, round Murk's barge)");
 }
 
 // ------------------------------------------------------------------ progression-loop's pure exports (§3.3)

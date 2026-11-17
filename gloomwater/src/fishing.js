@@ -3880,6 +3880,7 @@ export function create(ctx) {
   }
   function sightLand() {
     const W = ctx.world;
+    if (typeof W?.getFromShore === 'function' && W.getOutline?.()) return (x, z) => num(call(() => W.getFromShore(x, z)), Infinity) < 0.3;   // (LAKE2 §3.1: an outline shore's field)
     if (typeof W?.getShoreRadius !== 'function') return null;
     return (x, z) => { const r = num(call(() => W.getShoreRadius(Math.atan2(z, x))), Infinity); return Math.hypot(x, z) > r - 0.3; };
   }

@@ -125,6 +125,16 @@ export function pathClearance(pts, circles = [], step = 0.25) {
   }
   return worst;
 }
+/** The least of `shoreDist(x, z)` along a polyline (the water's own clearance of the bank: negative where it crosses land). */
+export function pathShore(pts, shoreDist, step = 0.25) {
+  const P = (Array.isArray(pts) ? pts : []).map((q) => (Array.isArray(q) ? { x: Number(q[0]), z: Number(q[1]) } : { x: Number(q?.x), z: Number(q?.z) }));
+  let worst = Infinity;
+  for (let i = 0; i + 1 < P.length; i++) {
+    const a = P[i], b = P[i + 1], n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / step));
+    for (let k = 0; k <= n; k++) worst = Math.min(worst, shoreDist(a.x + (b.x - a.x) * (k / n), a.z + (b.z - a.z) * (k / n)));
+  }
+  return worst;
+}
 const polyLen = (P) => { let s = 0; for (let i = 0; i + 1 < P.length; i++) s += Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]); return s; };
 /**
  * The glide in to the barge's stern (the sail home, the film's hand-off; M1 §4 step 5a): it ends at the tie-up (docks[dock]) and
@@ -178,16 +188,19 @@ export function footprintDistance(px, pz, a) {
  * pillar, post and gate stone (`obstacles`, the lake's own: not the hulls), every place's footprint and its mist bank (footprint +
  * `bank` m) and the shore (shoreR(angle)); clear of the spawn; the glide in (from the spawn, the film's hand-off, and the sail
  * home's canonical approach) and the glide out (`out`: its points) clear of the hulls by the raft's radius and of the lake by it
- * + 0.3 m. M: data.loopMooring(...). → [fault strings] (empty: all clear)
+ * + 0.3 m. On an outline shore (LAKE2 §3.1) `shoreDist(x, z)` (world-layout's: + in the water, the islands its land too) is the shore:
+ * the bodies clear it as they clear shoreR, and every glide stays inside it by the raft's radius + 0.3 m.
+ * M: data.loopMooring(...). → [fault strings] (empty: all clear)
  */
-export function mooringChecks(M, { obstacles = [], shoreR = null, spawn = null, out = null, places = [], bank = 1.5, raftR = 1.6, reach = 24,
+export function mooringChecks(M, { obstacles = [], shoreR = null, shoreDist = null, spawn = null, out = null, places = [], bank = 1.5, raftR = 1.6, reach = 24,
   clearObs = 0.5, clearPlace = 1.0, clearShore = 2.0, clearSpawn = 1.0 } = {}) {
   const F = [];
   if (!M?.raft || !Array.isArray(M.circles) || !M.circles.length) return ['no mooring'];
   const bodies = [...M.circles, { x: M.raft.x, z: M.raft.z, r: raftR, kind: 'raft' }];
   for (const c of bodies) {
     for (const o of obstacles) { const d = Math.hypot(c.x - o.x, c.z - o.z) - o.r - c.r; if (d < clearObs) F.push(`${c.kind} at (${c.x.toFixed(1)}, ${c.z.toFixed(1)}) within ${d.toFixed(2)} m of the ${o.kind || 'obstacle'} at (${o.x.toFixed(1)}, ${o.z.toFixed(1)})`); }
-    if (typeof shoreR === 'function') { const d = shoreR(Math.atan2(c.z, c.x)) - Math.hypot(c.x, c.z) - c.r; if (d < clearShore) F.push(`${c.kind} at (${c.x.toFixed(1)}, ${c.z.toFixed(1)}) within ${d.toFixed(2)} m of the shore`); }
+    if (typeof shoreDist === 'function') { const d = shoreDist(c.x, c.z) - c.r; if (d < clearShore) F.push(`${c.kind} at (${c.x.toFixed(1)}, ${c.z.toFixed(1)}) within ${d.toFixed(2)} m of the shore`); }
+    else if (typeof shoreR === 'function') { const d = shoreR(Math.atan2(c.z, c.x)) - Math.hypot(c.x, c.z) - c.r; if (d < clearShore) F.push(`${c.kind} at (${c.x.toFixed(1)}, ${c.z.toFixed(1)}) within ${d.toFixed(2)} m of the shore`); }
     for (const p of places) { const d = footprintDistance(c.x, c.z, p.area) - c.r - bank; if (d < clearPlace) F.push(`${c.kind} within ${d.toFixed(2)} m of ${p.id}'s mist bank`); }
     if (spawn && c.kind !== 'raft') { const d = Math.hypot(c.x - spawn.x, c.z - spawn.z) - c.r - raftR; if (d < clearSpawn) F.push(`${c.kind} within ${d.toFixed(2)} m of the spawn`); }
   }
@@ -197,6 +210,7 @@ export function mooringChecks(M, { obstacles = [], shoreR = null, spawn = null, 
     const h = pathClearance(pts, hulls), l = pathClearance(pts, lake);
     if (h < raftR - 1e-6) F.push(`${name} passes ${h.toFixed(2)} m from a hull (needs ${raftR})`);
     if (l < raftR + 0.3 - 1e-6) F.push(`${name} passes ${l.toFixed(2)} m from the lake's islands and pillars (needs ${(raftR + 0.3).toFixed(1)})`);
+    if (typeof shoreDist === 'function') { const s = pathShore(pts, shoreDist); if (s < raftR + 0.3 - 1e-6) F.push(`${name} passes ${s.toFixed(2)} m from the shore (needs ${(raftR + 0.3).toFixed(1)})`); }
   };
   if (spawn) { const g = glideInPath(spawn, M, { pad: raftR, obstacles: [...hulls, ...lake] }); if (!g || g.cut) F.push('the glide in from the spawn (the hand-off) has no clear way'); else glide('the glide in from the spawn', g.path); }
   const far = glideInPath({ x: M.raft.x + 500, z: M.raft.z + 500 }, M, { reach, pad: raftR, obstacles: [] });
