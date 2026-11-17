@@ -251,5 +251,46 @@ const W0 = makeWorld(D_P1);
 ok(!W0.world.group.getObjectByName('world:places') && W0.world.places() === null && W0.world.setPlaces({}) === false && W0.world.liftMist('lily_maze', 1) === false, 'off the loop: no places, and their API inert');
 ok(W0.ctx.debug.world === undefined, 'off the loop: no ctx.debug.world');
 
+section('wave 2: the see-through cut, the bell, the bridge and the drowned south shore');
+{
+  const { cutBlocked, makeSeeCut } = await import('../../src/world-fx.js');
+  const isle = [{ x: 0, z: -5, r: 3 }];
+  ok(cutBlocked(isle, 0, 0, 0, -12) === true, 'an island on the lens\'s line to the raft blocks it');
+  ok(cutBlocked(isle, 0, 0, 9, 0) === false && cutBlocked(isle, 0, 0, 0, 12) === false, '… one off the line, or behind the lens, does not');
+  ok(cutBlocked([{ x: 0, z: -20, r: 1 }], 0, 0, 0, -12) === false, '… nor one beyond the raft');
+  ok(cutBlocked([{ x: 0, z: -11.8, r: 0.35 }], 0, 0, 0, -12) === false, '… nor a post at the raft\'s own side');
+  ok(cutBlocked(null, 0, 0, 0, -12) === false && cutBlocked(isle, 0, 0, 0, -0.5) === false, '… and no list, or no line, blocks nothing');
+  // the cut in a lit material and an outline: an ordered dither inside the cone, nothing else
+  const sc = makeSeeCut(), m = new THREE.MeshToonMaterial(), o = new THREE.MeshBasicMaterial();
+  sc.add(m, true); sc.add(o, false);
+  const sh = (mat) => { const x = { uniforms: {}, vertexShader: '#include <common>\n#include <project_vertex>', fragmentShader: '#include <common>\n#include <clipping_planes_fragment>' }; mat.onBeforeCompile(x); return x; };
+  const sm = sh(m), so = sh(o);
+  ok(/discard/.test(sm.fragmentShader) && /mod\(floor\(gl_FragCoord\.xy\), 4\.0\)/.test(sm.fragmentShader) && !/43758/.test(sm.fragmentShader), 'the cut is an ordered 4x4 dither (no hashed sparkle)');
+  ok(sm.uniforms.uCutK === sc.u.uCutK && so.uniforms.uCutF === sc.u.uCutF && /gwCutV = -mvPosition/.test(so.vertexShader), 'one pair of uniforms for the lit stone and its ink line');
+  ok(m.customProgramCacheKey() !== o.customProgramCacheKey() && /gwSeeCut/.test(m.customProgramCacheKey()), 'its own program keys');
+  // on the Mossmere under the loop the arena's stone and timber carry it and the places' stone shares it; off the face, none
+  ok(faceH.arena.seeCut && on.arena.seeCut === null, 'the arena\'s cut only with the loop\'s face', [!!faceH.arena.seeCut, on.arena.seeCut]);
+  const visF = buildPlaces({ data: D_LOOP, bus: createBus() }, faceH.layout, faceH.arena, { places, quality: 'high', mist: D_LOOP.LOOP.mist });
+  faceH.arena.seeCut.u.uCutK.value = 0.4;
+  ok(visF.readout().cut === 0.4, 'the places\' stone shares the arena\'s cut', visF.readout().cut);
+  const rocks = faceH.arena.statics.find((q) => q.name === 'rocks'), orgs = faceH.arena.statics.find((q) => q.name === 'organics');
+  ok(rocks.onBeforeRender === faceH.arena.seeCut.setCut && orgs.onBeforeRender === faceH.arena.seeCut.setCut && rocks.children[0].onBeforeRender === faceH.arena.seeCut.setCut, 'the rocks, the timber and their ink lines set the cut\'s focus before they draw');
+  // the bell: no pale line round it; clipped to its pool
+  let dec = null; visF.group.traverse((q) => { if (q.name === 'placeDecals') dec = q; });
+  const bp = D_LOOP.loopPlace('bell_pool').area, fs = dec.material.fragmentShader;
+  ok(!/rimB|lipRing/.test(fs) && /uPool/.test(fs) && /vCos/.test(fs), 'the drowned bell: a dark body with no rim line, faded by the look\'s angle and clipped to its pool');
+  ok(near(dec.material.uniforms.uPool.value.x, bp.x) && near(dec.material.uniforms.uPool.value.y, bp.z) && near(dec.material.uniforms.uPool.value.z, bp.r), '… the pool\'s disc in its uniform');
+  visF.dispose();
+  // the drowned south shore (under LOOP.redress): stone past the south and south-west rim, none without the switch; one stone mesh
+  const southOf = (v) => { let s = null; v.group.traverse((q) => { if (q.name === 'placeStone') s = q; }); const pp = s.geometry.attributes.position; let n = 0;
+    for (let i = 0; i < pp.count; i++) { const x = pp.getX(i), z = pp.getZ(i), a = Math.atan2(z, x) * 180 / Math.PI; if (a > 68 && a < 168 && Math.hypot(x, z) > red.layout.shoreR(Math.atan2(z, x)) + 0.4) n++; } return n; };
+  const visR2 = buildPlaces({ data: D_RED, bus: createBus() }, red.layout, red.arena, { places, quality: 'high', redress: true, hero: { x: 0, z: -78, face: 0 } });
+  const visN2 = buildPlaces({ data: D_LOOP, bus: createBus() }, on.layout, on.arena, { places, quality: 'high' });
+  ok(southOf(visR2) > 200 && southOf(visN2) === 0, `the drowned roofs and arches stand past the south rim under the re-dress (${southOf(visR2)} vertices), none without it`);
+  let nStone = 0; visR2.group.traverse((q) => { if (q.name === 'placeStone') nStone++; });
+  ok(nStone === 1, 'in the one merged place stone (no new draw call)');
+  visR2.dispose(); visN2.dispose();
+}
+
 console.log(`world-places: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
