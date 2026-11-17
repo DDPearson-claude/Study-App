@@ -121,11 +121,12 @@ export function buildArena(ctx, L, opts = {}) {
   const wcOn = theme === 'mossmere' && opts.face !== false && WF.faceOn(ctx?.data, zone.id || 'mossmere');   // (opts.face false: the built arena, for tests)
   const twU = wcOn ? {
     gwTw: { value: Array.from({ length: WF.FACE.twitch.max }, () => new THREE.Vector4(0, 0, -99, 0)) }, gwTwT: { value: 0 },
+    gwRaft: { value: new THREE.Vector3(0, 0, 0) },   // (Lake 1 polish) the raft's x, z and 1 once it is known: the reeds part round it
     gwWaveA: { value: new Float32Array(16) }, gwWaveB: { value: new Float32Array(8) }, gwWaveT: { value: 0 },
   } : null;
   const twState = { i: 0, t: 0, linked: false };
   const TW_PARS = `
-uniform vec4 gwTw[${WF.FACE.twitch.max}]; uniform float gwTwT;
+uniform vec4 gwTw[${WF.FACE.twitch.max}]; uniform float gwTwT; uniform vec3 gwRaft;
 vec2 gwTwitch(vec2 p, float hgt) {
   vec2 s = vec2(0.0);
   for (int i = 0; i < ${WF.FACE.twitch.max}; i++) {
@@ -149,7 +150,10 @@ vec2 gwTwitch(vec2 p, float hgt) {
       const body = kind === 'reeds'
         ? `{ float hgt = clamp(transformed.y + 0.1, 0.0, 2.4);
   vec2 sway = vec2(sin(gwTwT * 1.1 + transformed.x * 0.37 + transformed.z * 0.21), cos(gwTwT * 0.93 + transformed.z * 0.41 + transformed.x * 0.13)) * 0.016 * hgt;
-  transformed.xz += sway + gwTwitch(transformed.xz, hgt) * 0.12; }`
+  transformed.xz += sway + gwTwitch(transformed.xz, hgt) * 0.12;
+  // (Lake 1 polish: the reeds part round the raft, bent out from their foot to 1.6 m or more, so none pierces its deck)
+  vec2 rd = transformed.xz - gwRaft.xy; float rr = length(rd);
+  transformed.xz += rd / max(rr, 0.05) * 2.2 * (1.0 - smoothstep(0.0, 2.2, rr)) * clamp(hgt * 2.5, 0.0, 1.0) * gwRaft.z; }`
         : `#ifdef USE_INSTANCING
   if (aBed > 0.5) {
     vec2 ip = vec2(instanceMatrix[3].x, instanceMatrix[3].z);
@@ -251,7 +255,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
 
   mark('cliffs');
   // ==================================================================== VAULT DOME
-  let domeMat, starK = 1;
+  let domeMat, starK = 1, starDen = 1;
   {
     const prof = [];
     const n = 40;
@@ -269,8 +273,12 @@ vec2 gwTwitch(vec2 p, float hgt) {
     dome.layers.enable(REFLECT_LAYER);   // the lake mirrors the vault
     // in the lake's smaller reflection target a star covers more of the picture and is drawn dimmer for it (the dome
     // keeps a star's energy, not its brightness): give the mirrored vault that brightness back, so stars show in the water
+    // (Lake 1 polish, "no glitter on the water": on the loop's Mossmere the mirror's stars are dimmer and thinner than the vault's (the
+    // fine layers drop out), so the high tier's water no longer reads as snow; off the loop as built)
     dome.onBeforeRender = (renderer, scene, camera) => {
-      domeMat.uniforms.uStars.value = starK * (camera.layers.mask === (1 << REFLECT_LAYER) ? 1.8 : 1);
+      const mir = camera.layers.mask === (1 << REFLECT_LAYER);
+      domeMat.uniforms.uStars.value = starK * (mir ? (wcOn ? 0.5 : 1.8) : 1);
+      domeMat.uniforms.uStarDen.value = starDen * (mir && wcOn ? 0.4 : 1);
     };
     group.add(dome);
   }
@@ -1243,7 +1251,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     du.uMid.value.copy(env.fog).lerp(base.ink, 0.35);
     du.uZenith.value.copy(base.ink).lerp(env.fog, 0.18);
     starK = env.starK; du.uStars.value = starK;
-    du.uStarDen.value = env.starDen;
+    starDen = env.starDen; du.uStarDen.value = starDen;
     du.uNebK.value = env.nebK;
     du.uBandCol.value.copy(env.fog).lerp(farLum, 0.5).multiplyScalar(0.35);
     du.uCrack.value.copy(base.light).lerp(base.warm, w * 0.5).multiplyScalar(0.8 * env.shaftK + 0.1);
@@ -1272,6 +1280,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
       const WU = ctx.water && !ctx.water.isStub ? ctx.water.material?.uniforms : null;
       if (WU?.uWaveA && !twState.linked) { twU.gwWaveA.value = WU.uWaveA.value; twU.gwWaveB.value = WU.uWaveB.value; twState.linked = true; }
       if (WU?.uWaveT) twU.gwWaveT.value = WU.uWaveT.value;
+      if (focus && Number.isFinite(focus.x)) twU.gwRaft.value.set(focus.x, focus.z, 1);
     }
     // <<< WC-3
     const wh = ctx.water?.getHeight;
