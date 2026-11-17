@@ -592,7 +592,7 @@ export function makeKit(api, { label = 'loop' } = {}) {
     // (the polish pass: the shot waits for Keep's count to land, so the card's figure is the one the tally pays)
     const keepShown = () => g(() => { const em = document.querySelector('[data-modal=catch] [data-action=keep] em[data-to]'); return em ? { to: Number(em.dataset.to), shown: Number((em.querySelector('b')?.textContent || '').replace(/[^0-9]/g, '')) } : null; });
     let landed = await keepShown();
-    for (let i = 0; i < 20 && landed && landed.shown !== landed.to; i++) { await K.settle(200); landed = await keepShown(); }   // (wall time: the count runs on performance.now)
+    for (let i = 0; i < 20 && landed && landed.shown !== landed.to; i++) { await K.secs(0.2); landed = await keepShown(); }   // (the count runs on performance.now but rides the held frame loop: step it, wall time passes with the steps)
     landed = { ok: !landed || landed.shown === landed.to, ...landed };
     const cd = await K.card();
     K.check(landed.ok, `${what}: Keep's count lands on its data-to`, landed);
