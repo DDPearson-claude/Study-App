@@ -390,7 +390,10 @@ if (process.argv.includes('--loop')) {
   // the first-play guide (src/ui-guide.js): ten plain boxes, each at most 30 words, no number
   { const B = TL.guide?.boxes || {}, ids = ['welcome', 'chart', 'cast', 'bite', 'fight', 'card', 'tackle', 'home', 'murk', 'away'];
     ok4(ids.every((k) => typeof B[k] === 'string' && B[k] && B[k].trim().split(/\s+/).length <= 30 && !/\d|%/.test(B[k])) && Object.keys(B).length === ids.length,
-      'TEXT_LOOP.guide.boxes: the ten guide boxes, each ≤ 30 words and no number'); }
+      'TEXT_LOOP.guide.boxes: the ten guide boxes, each ≤ 30 words and no number');
+    const Tc = TL.guide?.touch || {};
+    ok4(Object.entries(Tc).every(([k, v]) => ids.includes(k) && typeof v === 'string' && v.trim().split(/\s+/).length <= 30 && !/\d|%/.test(v)),
+      'TEXT_LOOP.guide.touch: a box\'s touch words, each ≤ 30 words and no number'); }
   // the opening's paths (T72): the arrive glide (spawn → docks[0]) and every lake's glide out from docks[0] through data.sailPlan clear
   // every island, pillar and gate stone by the raft's radius + 0.3 m and stay inside the shore by as much (T, pad and clear above)
   const intro = L4.ZONE_BY_ID[L4.INTRO?.lake || 'mossmere'] || L4.ZONES[0];

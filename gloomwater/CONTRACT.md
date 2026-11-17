@@ -2358,13 +2358,16 @@ Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (
 - **The view** (`src/ui-guide.js`, `ctx.ui.loop.guide`; built by ui.js beside the loop view, so never off the loop): ten boxes in
   `GUIDE_ORDER` (welcome, chart, cast, bite, fight, card, tackle, home, murk, away), each shown once a save at its moment
   (`guideCond`: the Landing's arrive or home; the Chart; the water before the first cast; the settled float; the first hook; the
-  catch card after its count; the line back after a cast; the hold full; the Jetty after a trip; idle after `fish:escaped`, the lost
+  catch card after its count; the line back after a cast, once the save owns a lure and a bait (`ownsKit`); the hold full; the Jetty after a trip; idle after `fish:escaped`, the lost
   fish's event, which GEAR-GATES' got-away also emits). Never in a bite, the strike gauge, the show, a lift or a pause; two due together
   queue in `GUIDE_ORDER`, each after `GUIDE_WAIT[id]` calm seconds. A box is a **blocking, quiet modal** `'guide'` (the game, the
   tutorial's and the tow's clocks wait; every tap and key goes to it; no `ui:modal`), placed beside its `GUIDE_TARGETS` target with a
-  small arrow, never over it; while one is up `.gw-guide-on` hides the in-world lines (`.gw-loop-tip`, `.gw-teach`, `.gw-murk-line`).
+  small arrow, never over it (the catch card's box also keeps off the card's words, and may sit free of it); while one is up
+  `.gw-guide-on` hides the in-world lines (`.gw-loop-tip`, `.gw-teach`, `.gw-murk-line`) and, for home and tackle, lifts the HUD's
+  dimming so the target is in plain view.
   Emits `loop:guide {id}`. Debug: `debug()`, `show(id)`, `close(how)`.
-- **Words**: `TEXT_LOOP.guide` (`tag`, `ok`, `skip`, `boxes[id]` ≤ 30 words each, `settings`); `tackle` and `away` are GEAR-GATES'.
+- **Words**: `TEXT_LOOP.guide` (`tag`, `ok`, `skip`, `boxes[id]` ≤ 30 words each, `touch[id]` a box's touch words where they differ
+  (the cast box's sailing), `settings`); `tackle` and `away` are GEAR-GATES'.
 - **The save**: `meta.guide = {on, seen: {id: true}}`, made on its first read (`guideRecord`): on for a new save, off for one that has
   landed a fish (`landedAny`). Settings (under the loop) adds "Guide tips" (on/off) and "Replay guide" (clears `seen`, turns it on).
 - **The switch**: `?guide=0|1` (wins), else a preset `GW_GUIDE` boolean; `tools/playtest.mjs` and `tools/chart-shots.mjs` preset it

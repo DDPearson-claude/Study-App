@@ -4993,21 +4993,23 @@ TEXT_LOOP.hookSet = 'Hook set';   // the word under the float on a Clean strike 
 // >>> the first-play guide (the user's ask, 17 Nov 2026: "some nice text boxes that appear to walk you through what you're doing and
 // why ... breaking the 4th wall and just talking to you like a person"): src/ui-guide.js shows each box once, at its moment. Plain
 // words, not the game's voice; each at most 30 words. `tackle` and `away` are written for the start kit of docs/loop/GEAR-GATES.md
-// (worms and the Bent Spoon; a fish over the gear's cap gets away), so they match at that merge.
+// (worms and the Bent Spoon; a fish over the gear's cap gets away), so they match at that merge (the tackle box waits for a save
+// that owns a lure and a bait). `touch` holds a box's words on a touch screen where they differ (the cast box's sailing).
 TEXT_LOOP.guide = {
   tag: 'Guide', ok: 'Got it', skip: 'Skip the guide',
   boxes: {
     welcome: "Welcome! This is a calm fishing game, and you can't lose. Catch fish, sell them for clams, and spend clams on better gear to catch bigger, rarer fish.",
     chart: 'This is your chart of the lake. Press SAIL to head out and fish. Later, Murk sells maps to new spots, each with its own fish.',
-    cast: 'Press and hold on the water to aim. The cast swings out and back, so let go when it reaches your spot. Fish like reeds, lily pads and stones.',
-    bite: 'When the float dips, press straight away. Stop the swinging needle in the bright notch for a clean strike: the fish is less likely to get away.',
+    cast: 'Sail with WASD to reeds, lily pads or stones, where fish gather. To cast, press on the water and let go as the swinging aim reaches your spot.',
+    bite: 'Wait through small twitches. When the float goes right under, press once: stop the swinging needle in the bright notch for a clean strike, and the fish holds better.',
     fight: 'Hooked! The fight plays out by itself, so just watch. Better rods and lines land big fish more often.',
     card: "Keep it to sell to Murk at home (the number is what he'll pay), or let it go. Your hold only fits a few fish.",
-    tackle: 'Use your tackle tin to change the hook. Worms are bait: cast and wait. The spoon is a lure: it swims back by itself, and hunting fish chase it.',
-    home: 'Your hold is full. Press HOME to sail back and sell your catch to Murk.',
-    murk: 'Murk bought your catch. Press MURK to spend clams on better gear for bigger fish. The line at the bottom shows what to save for next.',
+    tackle: "This tin changes what's on your hook. Worms are bait: cast and wait. The spoon is a lure: it swims back by itself, and hunting fish chase it.",
+    home: 'Your hold is full. Press HOME to sail back and sell your catch to Murk. Next time, hold HOME to head back early.',
+    murk: 'Murk buys the fish you bring home. Press MURK to spend clams on better gear for bigger fish. The line at the bottom shows what to save for next.',
     away: 'That one got away! Big fish can break free, and some are too big for your gear. Better line and lures will hold them.',
   },
+  touch: { cast: 'Sail with the stick, bottom left, to reeds, lilies or stones, where fish gather. To cast, press on the water and let go as the swinging aim reaches your spot.' },
   settings: { group: 'Guide', tips: 'Guide tips', tipsSub: 'Short notes for your first play', replay: 'Replay guide', replaySub: 'Show every note again', replayBtn: 'Replay' },
 };
 // <<< the first-play guide

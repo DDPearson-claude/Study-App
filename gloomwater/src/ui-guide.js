@@ -12,7 +12,7 @@
 // a fish. Settings (under the loop) has "Guide tips" (on/off) and "Replay guide" (clears seen). ?guide=0 / ?guide=1 (or a preset
 // GW_GUIDE boolean; the URL wins) turns it off or on for a page load whatever the save says: the scenario runner presets it off.
 //
-// Pure exports (node: tools/tests/ui-guide.test.mjs): GUIDE_ORDER · GUIDE_WAIT · GUIDE_TARGETS · guideSwitch · landedAny ·
+// Pure exports (node: tools/tests/ui-guide.test.mjs): GUIDE_ORDER · GUIDE_WAIT · GUIDE_TARGETS · guideSwitch · landedAny · ownsKit ·
 // guideRecord · guideWords · guideCond · createGuide · guidePlace · GUIDE_CSS
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -43,6 +43,12 @@ export function landedAny(meta) {
   return Object.values(J).some((j) => num(Number(j?.caught), 0) > 0) || num(Number(meta?.totalFish), 0) > 0;
 }
 
+/** Does meta.loop own a lure and a bait (any water's bag)? The tin's box waits for it (GEAR-GATES' start kit). Pure. */
+export function ownsKit(L) {
+  const pos = (o, d = 0) => isObj(o) && d < 3 && Object.values(o).some((v) => (typeof v === 'number' ? v > 0 : pos(v, d + 1)));
+  return isObj(L) && Array.isArray(L.lures) && L.lures.length > 0 && pos(L.bait);
+}
+
 /** The save's record, made on its first read: on for a new save, off for one that has landed a fish. Writes meta.guide. */
 export function guideRecord(meta) {
   if (!isObj(meta)) return { on: false, seen: {} };
@@ -53,10 +59,11 @@ export function guideRecord(meta) {
   return g;
 }
 
-/** A box's words (TEXT_LOOP.guide), with the card's own: {text, tag, ok, skip}; text '' for an unknown id. Pure. */
-export function guideWords(D, id) {
+/** A box's words (TEXT_LOOP.guide; `touch`: its touch words where they differ), with the card's own: {text, tag, ok, skip}; text ''
+ *  for an unknown id. Pure. */
+export function guideWords(D, id, { touch = false } = {}) {
   const G = isObj(D?.TEXT_LOOP?.guide) ? D.TEXT_LOOP.guide : {};
-  const text = typeof G.boxes?.[id] === 'string' ? G.boxes[id] : '';
+  const text = touch && typeof G.touch?.[id] === 'string' ? G.touch[id] : typeof G.boxes?.[id] === 'string' ? G.boxes[id] : '';
   return { text, tag: G.tag || 'Guide', ok: G.ok || 'Got it', skip: G.skip || 'Skip the guide' };
 }
 
@@ -67,7 +74,8 @@ const water = (s) => s.trip === true && s.flow === 'playing' && !s.paused && !s.
 /**
  * Is box `id`'s moment here? `s` is the frame's snapshot: {flow, top (the top modal's id or null), trip, paused, fish (the fishing
  * state), tell, gauge, inShow, measuring, cinematic, lifting, casts (this session's casts), holdFull, evenings (meta.loop's), towPhase,
- * away (a fish has got away since the last box), tin (the tackle tin is on screen)}. Pure.
+ * away (a fish has got away since the last box), tin (the tackle tin is on screen), kit (the save owns a lure and a bait: the tin's
+ * box names worms and a spoon, GEAR-GATES' start kit)}. Pure.
  */
 export function guideCond(id, s = {}) {
   switch (id) {
@@ -77,7 +85,7 @@ export function guideCond(id, s = {}) {
     case 'bite': return water(s) && s.fish === 'waiting';
     case 'fight': return s.trip === true && s.flow === 'playing' && !s.paused && !s.top && s.fish === 'reeling' && !s.gauge && !s.inShow && !s.cinematic && !s.lifting;
     case 'card': return s.trip === true && s.top === 'catch' && !s.measuring;
-    case 'tackle': return water(s) && s.fish === 'idle' && num(s.casts) >= 1 && s.tin === true;
+    case 'tackle': return water(s) && s.fish === 'idle' && num(s.casts) >= 1 && s.tin === true && s.kit === true;
     case 'home': return water(s) && s.fish === 'idle' && s.holdFull === true;
     case 'murk': return s.flow === 'home' && s.top === 'jetty' && num(s.evenings) >= 1;
     case 'away': return water(s) && s.fish === 'idle' && s.away === true;
@@ -125,10 +133,12 @@ const area = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left,
  * Where a card of `w` × `h` goes on a `W` × `H` screen. With a `target` rect it sits beside it (above or below first, the side with
  * the room, centred or flush with one of its edges; then left or right), `gap` + the arrow's reach away, so it never covers it, and its arrow sits on the facing edge
  * toward the target's middle. Without one: high or low (`low` first), else the middle, centred. Always inside the `gutter`; the candidate that covers
- * the least of `avoid` (the raft, the float, the HUD) wins. → {left, top, side ('above'|'below'|'left'|'right'|null), ax, ay
- * (the arrow's middle along its edge, card px), ok (inside, clear of the target and of everything avoided)}. Pure.
+ * the least of `avoid` (the raft, the float, the HUD) wins. `free` (with a target): the free places (high, low, middle, no arrow) may
+ * win too, at a small cost, when every place beside the target covers something avoided (the catch card's words on a phone).
+ * → {left, top, side ('above'|'below'|'left'|'right'|null), ax, ay (the arrow's middle along its edge, card px), ok (inside, clear of
+ * the target and of everything avoided)}. Pure.
  */
-export function guidePlace({ W, H, w, h, target = null, avoid = [], gutter = 16, gap = 10, reach = 10, low = false } = {}) {
+export function guidePlace({ W, H, w, h, target = null, avoid = [], gutter = 16, gap = 10, reach = 10, low = false, free = false } = {}) {
   const cx0 = (x) => Math.max(gutter, Math.min(W - gutter - w, x)), cy0 = (y) => Math.max(gutter, Math.min(H - gutter - h, y));
   const R = (x, y) => ({ left: x, top: y, right: x + w, bottom: y + h });
   const inside = (r) => r.left >= gutter - 0.5 && r.top >= gutter - 0.5 && r.right <= W - gutter + 0.5 && r.bottom <= H - gutter + 0.5;
@@ -140,17 +150,19 @@ export function guidePlace({ W, H, w, h, target = null, avoid = [], gutter = 16,
     const above = xs.map((x) => ({ side: 'above', x, y: target.top - off - h })), below = xs.map((x) => ({ side: 'below', x, y: target.bottom + off }));
     const left = { side: 'left', x: target.left - off - w, y: cy0(cy - h / 2) }, right = { side: 'right', x: target.right + off, y: cy0(cy - h / 2) };
     list.push(...(cy > H / 2 ? [...above, ...below] : [...below, ...above]), ...(cx > W / 2 ? [left, right] : [right, left]));
-  } else {
-    const x = cx0((W - w) / 2), hi = { side: null, x, y: cy0(Math.round(H * 0.14)) }, lo = { side: null, x, y: cy0(H - h - Math.round(H * 0.14)) };
-    list.push(...(low ? [lo, hi] : [hi, lo]), { side: null, x, y: cy0((H - h) / 2) });
+  }
+  if (!target || free) {
+    const x = cx0((W - w) / 2), pen = target ? 2500 : 0, hi = { side: null, x, y: cy0(Math.round(H * 0.14)), pen }, lo = { side: null, x, y: cy0(H - h - Math.round(H * 0.14)), pen };
+    list.push(...(low ? [lo, hi] : [hi, lo]), { side: null, x, y: cy0((H - h) / 2), pen });
   }
   let best = null;
   for (const c of list) {
     const r = R(c.x, c.y);
-    const cost = (inside(r) ? 0 : 1e9) + (target && hit(r, target, 4) ? 1e8 : 0) + avoid.filter(Boolean).reduce((a, b) => a + area(r, b), 0);
-    if (!best || cost < best.cost) best = { ...c, cost, r };
+    const bad = (inside(r) ? 0 : 1e9) + (target && hit(r, target, 4) ? 1e8 : 0) + avoid.filter(Boolean).reduce((a, b) => a + area(r, b), 0);
+    const cost = bad + num(c.pen);
+    if (!best || cost < best.cost) best = { ...c, cost, bad, r };
   }
-  const { x, y, side, cost } = best;
+  const { x, y, side, bad: cost } = best;
   let ax = null, ay = null;
   if (target && side) {
     const cx = (target.left + target.right) / 2, cy = (target.top + target.bottom) / 2, m = Math.min(22, w / 2, h / 2);
@@ -174,7 +186,10 @@ export const GUIDE_CSS = `
   box-shadow: 0 12px 36px rgba(4, 5, 12, .72), 0 0 42px rgba(126, 129, 180, .16); animation: gwGuideIn .3s ease-out both; }
 @keyframes gwGuideIn { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gw-guide { animation: none; } }
-/* the thing a box points at stays in view under it (the Home pill hides itself while any screen is up) */
+/* the thing a box points at stays in view under it: the HUD fades to .2 under any screen and hides its actions (the Home pill's
+   row), and a child is never clearer than its parents, so the HUD and the row are lifted too (their taps stay off) */
+.gw-ui:is([data-guide=home], [data-guide=tackle]) .gw-hud.gw-visible.gw-live.gw-blocked { opacity: 1; }
+.gw-ui[data-guide=home] .gw-hud.gw-blocked .gw-actions { opacity: 1; }
 .gw-ui[data-guide=home] .gw-pill.gw-home { opacity: 1 !important; transform: none !important; }
 .gw-guide-arrow { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; background: rgb(19, 22, 50); transform: rotate(45deg); border-radius: 2px; }
 .gw-guide-tag { display: flex; align-items: center; gap: 6px; font: 400 13px/1 var(--f-display); letter-spacing: .24em; text-transform: uppercase; color: var(--lavender); }
@@ -222,7 +237,7 @@ export function createGuideView(K) {
       fish: typeof f?.state === 'string' ? f.state : 'idle', tell: !!v.biteTell, gauge: !!v.strikeGauge, inShow: f?.inShow === true,
       measuring: call(() => K.measure?.holding?.() === true, false), cinematic: ctx.cinematic === true, lifting: call(() => ctx.game?.lifting?.() === true, false),
       casts: S.casts, holdFull: call(() => loop()?.holdFull?.() === true, false), evenings: num(Number(m.loop?.evenings), 0),
-      towPhase: S.towPhase, away: S.away, tin: !!visible('[data-loop=tin]'),
+      towPhase: S.towPhase, away: S.away, tin: !!visible('[data-loop=tin]'), kit: ownsKit(m.loop),
     };
   }
   function place() {
@@ -235,13 +250,16 @@ export function createGuideView(K) {
       for (const e of document.querySelectorAll('[data-modal=jetty] .gw-jetty-tword, [data-modal=jetty] .gw-jetty-goal, [data-modal=jetty] .gw-jetty-purse')) {
         if (!e.closest(GUIDE_TARGETS[S.id] || '#none')) avoid.push(rectOf(e.getBoundingClientRect()));
       }
+    } else if (S.id === 'card') {   // the card's own words stay clear: the name, the length line, the ruler and the drawing
+      for (const e of document.querySelectorAll('[data-modal=catch] :is(.gw-cc-kicker, .gw-catch-name, .gw-cc-stats, .gw-cc-measure, .gw-cc-art)')) avoid.push(rectOf(e.getBoundingClientRect()));
     } else if (S.id !== 'chart') {
-      avoid.push(projected(ctx.player?.position, 0.3, [60, 56, 34]), projected(fishing()?.bobberPos, 0.35, [24, 20, 40]));
+      // the raft and the Wick, the lamp post and its flag above them, and the float
+      avoid.push(projected(ctx.player?.position, 0.3, [60, 56, 34]), projected(ctx.player?.position, 1.5, [44, 40, 30]), projected(fishing()?.bobberPos, 0.35, [24, 20, 40]));
       for (const sel of ['.gw-hold', '[data-loop=tin]', '[data-loop=home]', '.gw-hb-pause']) if (sel !== GUIDE_TARGETS[S.id]) avoid.push(rectOf(visible(sel)));
     }
     // (the welcome over the Landing sits low: the barge-house, the candles and the arch are the sheet's upper half)
     const low = S.id === 'welcome' && K.has?.('tow') === true;
-    const P = guidePlace({ W, H, w: el.offsetWidth, h: el.offsetHeight, target, avoid, low });
+    const P = guidePlace({ W, H, w: el.offsetWidth, h: el.offsetHeight, target, avoid, low, free: S.id === 'card' });
     el.style.transform = `translate3d(${P.left}px,${P.top}px,0)`;
     const a = el.querySelector('.gw-guide-arrow');
     if (a) {
@@ -252,7 +270,7 @@ export function createGuideView(K) {
         s.top = P.ay != null ? `${P.ay}px` : P.side === 'above' ? '100%' : '0';
       }
     }
-    S.placed = { ...P, id: S.id, w: el.offsetWidth, h: el.offsetHeight, target };
+    S.placed = { ...P, id: S.id, w: el.offsetWidth, h: el.offsetHeight, target, sel: target ? GUIDE_TARGETS[S.id] : null };
   }
   function save() { try { ctx.game?.save?.(); } catch (e) { report('save', e); } }
   function close(how = 'ok') {
@@ -265,7 +283,7 @@ export function createGuideView(K) {
     save();
   }
   function show(id) {
-    const w = guideWords(D(), id);
+    const w = guideWords(D(), id, { touch: K.isTouch === true });
     if (!w.text) { machine.open(id); machine.close(); return false; }
     machine.open(id);
     if (id === 'away') S.away = false;

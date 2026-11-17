@@ -15,7 +15,7 @@ const G = await import('../../src/ui-guide.js');
 const U = await import('../../src/ui-loop.js');
 const here = dirname(fileURLToPath(import.meta.url));
 const src = (f) => readFileSync(resolve(here, '../../src', f), 'utf8');
-const { GUIDE_ORDER, GUIDE_WAIT, GUIDE_TARGETS, guideSwitch, landedAny, guideRecord, guideWords, guideCond, createGuide, guidePlace, GUIDE_CSS } = G;
+const { GUIDE_ORDER, GUIDE_WAIT, GUIDE_TARGETS, guideSwitch, landedAny, ownsKit, guideRecord, guideWords, guideCond, createGuide, guidePlace, GUIDE_CSS } = G;
 
 let pass = 0, fail = 0;
 function ok(cond, msg, extra) { if (cond) pass++; else { fail++; console.log('  FAIL:', msg, extra !== undefined ? JSON.stringify(extra) : ''); } }
@@ -35,6 +35,16 @@ section('the words: ten boxes in plain English, short');
     ok(U.textAllowed(t, { D, words: allowed }), `${id}: on the screens' allow-list`, t);
     ok(!/shells?|memories|descent/i.test(t), `${id}: none of the old run's words`, t);
   }
+  for (const [id, t] of Object.entries(TG.touch || {})) {
+    ok(GUIDE_ORDER.includes(id) && t.trim().split(/\s+/).length <= 30 && !/\d|%/.test(t) && (t.match(/[.!?](\s|$)/g) || []).length <= 3 && U.textAllowed(t, { D, words: allowed }),
+      `touch.${id}: a box's touch words, the same rules`, t);
+    ok(guideWords(D, id, { touch: true }).text === t && guideWords(D, id).text === TG.boxes[id], `touch.${id}: shown on a touch screen only`);
+  }
+  ok(/WASD/.test(TG.boxes.cast) && /stick/.test(TG.touch?.cast || '') && !/WASD/.test(TG.touch?.cast || ''), 'cast: how to sail, by keys on a desktop and the stick on a touch screen');
+  ok(guideWords(D, 'bite', { touch: true }).text === TG.boxes.bite, 'a box with no touch words: the same words on a touch screen');
+  ok(/twitch/i.test(TG.boxes.bite) && /once/.test(TG.boxes.bite) && !/straight away/.test(TG.boxes.bite), 'bite: wait through the nibbles (a tap then spooks the fish), then one press, timed by the needle');
+  ok(/what's on your hook/.test(TG.boxes.tackle) && !/change the hook/i.test(TG.boxes.tackle), 'tackle: plain words for the hook\'s change');
+  ok(!/bought/.test(TG.boxes.murk), 'murk: true even when nothing was sold');
   for (const [k, v] of Object.entries(TG.settings)) ok(typeof v === 'string' && v.length > 0 && U.textAllowed(v, { D, words: allowed }), `settings.${k}: a word on the allow-list`, v);
   ok(guideWords(D, 'nope').text === '' && guideWords({}, 'welcome').ok === 'Got it', 'an unknown id has no words; the card\'s own words fall back');
   ok(/HOME/.test(TG.boxes.home) && /SAIL/.test(TG.boxes.chart) && /MURK/.test(TG.boxes.murk), 'the boxes name the buttons as the screen shows them (HOME, SAIL, MURK)');
@@ -73,7 +83,7 @@ section('the page switch: ?guide=0|1 wins over a preset GW_GUIDE');
 
 // a first play, as the frames would see it
 const base = { flow: 'home', top: null, trip: false, paused: false, fish: 'idle', tell: false, gauge: false, inShow: false, measuring: false,
-  cinematic: false, lifting: false, casts: 0, holdFull: false, evenings: 0, towPhase: null, away: false, tin: true };
+  cinematic: false, lifting: false, casts: 0, holdFull: false, evenings: 0, towPhase: null, away: false, tin: true, kit: true };
 const at = (o) => ({ ...base, ...o });
 const water = (o) => at({ flow: 'playing', trip: true, ...o });
 /** Hold `s` for `secs` in 0.05 s frames; → the first id the machine shows (opened at once), or null. */
@@ -143,6 +153,10 @@ section('never in a bite, the strike, the show, a lift, a pause or under another
   ok(!guideCond('card', water({ top: 'catch', measuring: true })), 'card: not while the show holds the screen');
   ok(!guideCond('welcome', at({ flow: 'title', top: 'title' })) && !guideCond('welcome', at({ flow: 'intro', top: null })), 'welcome: not on the title or in the film');
   ok(!guideCond('tackle', water({ fish: 'idle', casts: 1, tin: false })), 'tackle: only once the tin is on screen');
+  ok(!guideCond('tackle', water({ fish: 'idle', casts: 1, kit: false })), 'tackle: only once the save owns a lure and a bait (the words name them)');
+  ok(!ownsKit({ lures: [], fitted: { lure: null, bait: null }, bait: {} }) && !ownsKit(null), 'ownsKit: today\'s fresh save (no lures, no bait) → no');
+  ok(ownsKit({ lures: ['bent_spoon'], bait: { mossmere: { mireworm: 10 } } }), 'ownsKit: GEAR-GATES\' start kit (the Bent Spoon, a bag of Mire Worms) → yes');
+  ok(!ownsKit({ lures: ['bent_spoon'], bait: { mossmere: { mireworm: 0 } } }) && !ownsKit({ lures: [], bait: { mossmere: { mireworm: 3 } } }), 'ownsKit: a lure and a bait, both');
   ok(!guideCond('murk', at({ top: 'jetty', evenings: 0 })), 'murk: only after a trip');
 }
 
@@ -221,6 +235,15 @@ section('the card\'s place: inside the screen, beside its target, never over it'
   ok(L.side === null && L.top + 200 >= 720 * 0.7 && L.ok, 'low: the card sits in the lower part (the welcome over the Landing)', L);
   const Q = guidePlace({ W: 390, H: 844, w: 358, h: 230, target: box(390, 844, 16, 70, 96, 48) });
   ok(Q.side === 'below' && Q.top >= 118, 'a target high on a phone: the card below it', Q);
+  // the catch card's box: clear of the card's words; beside the card over the scene on a desktop, free of it on a phone
+  const keepD = box(1280, 720, 740, 510, 235, 36), wordsD = [box(1280, 720, 750, 180, 200, 90), box(1280, 720, 750, 290, 440, 14), box(1280, 720, 750, 350, 320, 44), box(1280, 720, 750, 460, 220, 30)];
+  const CD = guidePlace({ W: 1280, H: 720, w: 400, h: 175, target: keepD, avoid: wordsD, free: true });
+  ok(CD.ok && CD.side === 'left', 'card, desktop: beside the card over the scene, its arrow to Keep and Let go, never over its words', CD);
+  const keepP = box(820, 900, 440, 810, 220, 36), wordsP = [box(820, 900, 120, 615, 240, 100), box(820, 900, 85, 735, 520, 20), box(820, 900, 445, 550, 230, 55), box(820, 900, 445, 630, 260, 40)];
+  const CP = guidePlace({ W: 820, H: 900, w: 400, h: 177, target: keepP, avoid: wordsP, free: true });
+  ok(CP.ok && CP.side === null && CP.top + 177 <= 550, 'card, phone: every place beside Keep covers the card\'s words, so it sits free above the card', CP);
+  const CF = guidePlace({ W: 1280, H: 720, w: 400, h: 175, target: keepD, free: true });
+  ok(CF.side !== null, 'free places cost a little: a clean place beside the target still wins', CF);
 }
 
 section('the look: the frame\'s palette and fonts, 16 px or more on a phone, no ring');
@@ -230,6 +253,9 @@ section('the look: the frame\'s palette and fonts, 16 px or more on a phone, no 
   ok(!/outline: (?!none)/.test(GUIDE_CSS) && !/border: (?!0)/.test(GUIDE_CSS), 'no outline and no border drawn (never a ring round anything)');
   ok(/\.gw-ui\.gw-guide-on \.gw-loop-tip/.test(GUIDE_CSS) && /gw-guide-on \.gw-teach/.test(GUIDE_CSS) && /gw-guide-on \.gw-murk-line/.test(GUIDE_CSS), 'the in-world lines wait while a box is up');
   ok(Object.keys(GUIDE_TARGETS).every((k) => GUIDE_ORDER.includes(k)), 'every target belongs to a box');
+  ok(/\.gw-ui:is\(\[data-guide=home\], \[data-guide=tackle\]\) \.gw-hud\.gw-visible\.gw-live\.gw-blocked \{ opacity: 1; \}/.test(GUIDE_CSS)
+    && /\.gw-ui\[data-guide=home\] \.gw-hud\.gw-blocked \.gw-actions \{ opacity: 1; \}/.test(GUIDE_CSS),
+    'home and tackle: the HUD (and the Home pill\'s row) lifted from its dimming while their box is up (a child is never clearer than its parent)');
 }
 
 section('the seams: under the loop only');

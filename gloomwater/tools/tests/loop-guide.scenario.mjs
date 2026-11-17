@@ -11,6 +11,8 @@
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/guide/dev.html --shots=tools/out/guide/phone --script=tools/tests/loop-guide.scenario.mjs --mobile --width=820 --height=900
 import { makeKit, Abort } from './loop-1a.scenario.mjs';
 
+const GUIDE_WAIT_TACKLE = 0.8;   // (src/ui-guide.js GUIDE_WAIT.tackle)
+
 function readGuide() {
   const c = window.__gw, d = c.ui?.loop?.guide?.debug?.() || null, el = document.querySelector('.gw-guide');
   const R = (r) => (r ? { left: Math.round(r.left), top: Math.round(r.top), right: Math.round(r.right), bottom: Math.round(r.bottom) } : null);
@@ -20,10 +22,14 @@ function readGuide() {
   const under = [...document.querySelectorAll('.gw-modal:not(.gw-m-guide):not(.gw-out)')].slice(-1).map((m) => ({ id: m.dataset.modal, op: Number(getComputedStyle(m).opacity),
     body: Number(getComputedStyle(m.querySelector('.gw-modal-body') || m).opacity) }));
   const r = el.getBoundingClientRect(), mid = document.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2);
+  // the target as the eye sees it: its opacity multiplied up its parents (a child is never clearer than its parent)
+  const te = d?.placed?.sel ? document.querySelector(d.placed.sel) : null;
+  let seen = te ? 1 : null;
+  for (let e = te; e; e = e.parentElement) seen *= Number(getComputedStyle(e).opacity);
   return { on: true, id: el.dataset.guide, text: tx.textContent, fs: parseFloat(s.fontSize), family: s.fontFamily.split(',')[0], r: R(r), btns,
     arrow: a && !a.hidden ? R(a.getBoundingClientRect()) : null, target: d?.placed?.target ? R(d.placed.target) : null,
     cut: tx.scrollWidth > tx.clientWidth + 1 || tx.scrollHeight > tx.clientHeight + 1 || tx.getBoundingClientRect().bottom > r.bottom, takesTap: !!mid && el.contains(mid),
-    W: innerWidth, H: innerHeight, debug: d, blocking: c.ui.isBlocking?.() === true, under,
+    W: innerWidth, H: innerHeight, debug: d, blocking: c.ui.isBlocking?.() === true, under, seen,
     hidden: [...document.querySelectorAll('.gw-loop-tip, .gw-teach, .gw-murk-line')].filter((e) => e.getBoundingClientRect().width > 0 && getComputedStyle(e).visibility !== 'hidden').length };
 }
 const hit = (a, b) => !!a && !!b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
@@ -41,7 +47,7 @@ export default async function (api) {
     K.need(w.ok, `the ${id} box shows`, await g(() => window.__gw.ui.loop.guide.debug()));
     await K.settle(350);
     const t = await g(readGuide), words = await TL();
-    K.check(t.on && t.id === id && t.text === words?.boxes?.[id], `${id}: its words (TEXT_LOOP.guide.boxes.${id})`, t.text);
+    K.check(t.on && t.id === id && [words?.boxes?.[id], words?.touch?.[id]].includes(t.text), `${id}: its words (TEXT_LOOP.guide.boxes.${id})`, t.text);
     K.check(t.fs >= 16, `${id}: the words ≥ 16 px (${t.fs})`, t.fs);
     K.check(t.r.left >= 15 && t.r.top >= 15 && t.r.right <= t.W - 15 && t.r.bottom <= t.H - 15, `${id}: inside the screen's 16 px gutters`, { r: t.r, W: t.W, H: t.H });
     K.check(!t.cut, `${id}: no word cut`, t.r);
@@ -50,7 +56,12 @@ export default async function (api) {
     K.check(t.takesTap && t.blocking, `${id}: the box takes the taps (a blocking screen)`, { takesTap: t.takesTap, blocking: t.blocking });
     K.check(t.hidden === 0, `${id}: no in-world line beside it`, t.hidden);
     if (target) {
-      K.check(!!t.target && !hit(t.r, t.target) && !!t.arrow, `${id}: beside its target, never over it, an arrow toward it`, { r: t.r, target: t.target, arrow: t.arrow });
+      K.check(!!t.target && !hit(t.r, t.target) && (!!t.arrow || id === 'card'), `${id}: beside its target, never over it, an arrow toward it`, { r: t.r, target: t.target, arrow: t.arrow });
+      K.check(t.seen >= 0.9, `${id}: its target in plain view under it (opacity up its parents ${t.seen})`, t.seen);
+    }
+    if (id === 'card') {
+      const cw = await g(() => [...document.querySelectorAll('[data-modal=catch] :is(.gw-catch-name, .gw-cc-stats, .gw-cc-measure)')].map((e) => { const r = e.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; }));
+      K.check(cw.length > 0 && cw.every((w) => !hit(t.r, w)), 'card: clear of the fish\'s name, its length line and the ruler', { r: t.r, cw });
     }
     const bad = t.under.filter((u) => u.op < 0.99 || u.body < 0.99);
     K.check(bad.length === 0, `${id}: the screen under it stays in view`, t.under);
@@ -60,7 +71,7 @@ export default async function (api) {
       const t1 = await g(() => ({ gt: window.__gw.time.gameT, fs: window.__gw.fishing.state, tow: window.__gw.debug.loop.tow?.()?.phase ?? null }));
       K.check(t1.gt === t0.gt && t1.fs === t0.fs && t1.tow === t0.tow, `${id}: the game waits while it is up`, { t0, t1 });
     }
-    log('guide', JSON.stringify({ id, W: t.W, H: t.H, r: t.r, fs: t.fs, f: t.family, target: t.target, arrow: t.arrow, side: t.debug?.placed?.side }));
+    log('guide', JSON.stringify({ id, W: t.W, H: t.H, r: t.r, fs: t.fs, f: t.family, target: t.target, arrow: t.arrow, side: t.debug?.placed?.side, seen: t.seen }));
     await K.shoot(`${String(++n).padStart(2, '0')}-${id}`);
     return t;
   }
@@ -123,6 +134,13 @@ export default async function (api) {
     await K.keepCard('the first fish', { dwell: 0 });
 
     K.step('guide: the tackle tin; a fish gets away; the hold full');
+    if (!(await g(() => window.__gw.ui.loop.guide.debug().snapshot.kit))) {
+      // before GEAR-GATES' start kit (a fresh save owns no lure and no bait): the tin's box, which names worms and a spoon, waits
+      await K.secs(GUIDE_WAIT_TACKLE + 0.6);
+      K.check((await open()) === null, 'tackle: no box while the save owns no lure and no bait');
+      K.note('the save has no start kit yet (before gw-gear): a lure and worms given here');
+      await g(() => { const c = window.__gw, L = c.state.meta.loop; L.lures = [...(L.lures || []), Object.keys(c.data.LOOP.lures)[0]]; c.debug.loop.giveBait('mireworm', 6); });
+    }
     await look('tackle');
     await gotIt('tackle');
     await g(() => window.__gw.bus.emit('fish:escaped', { speciesId: 'mossback_perch', sizeClass: 'prize', reason: 'thrown' }));   // (the lost fish's own event; the real loss is node-tested)
