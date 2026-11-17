@@ -21,11 +21,15 @@ import { homeItems, applyHome, applyBaitBed } from './home-shelf.js';
 import { notePrint as notePrintOf, printsView, galleryModel } from './home-prints.js';
 import { uid } from './core.js';
 // M1 step 4 (lane 4): the tins and lures, the raft's parts and Murk's orders, pure (src/loop-gear.js)
-import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches, tinPrice, orderSayLine } from './loop-gear.js';
+import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches, tinPrice, orderSayLine, orderWater } from './loop-gear.js';
 import { gradeOf as wcGradeOf, gearCap as wcGearCap } from './watercraft.js';   // GEAR-GATES §5.1: the Journal's gate line
 import { sheetModel, sheetKeys } from './loop-sheet.js';   // the Wick's sheet (SHEET.md §7): the pure model; the shelf comes in from here
+// LAKE 2, lane D2 (LAKE2.md §5): the gear loop across waters, pure (src/loop-carry.js): the carry, the first tow's reset, each water's gear
+import { freshCarry, carryOf, gearWaterOf, tiersOf, fittedTier, tackleHold, castMaxOf, applyTow, leaveTerms as leaveTermsOf, carriedLine, lureHere,
+  arrivalOf, lineCapAt, RAFT_PARTS } from './loop-carry.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
+const arr = (v) => (Array.isArray(v) ? v : []);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
 const int = (v, d = 0) => Math.trunc(num(v, d));
 const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, int(v, lo)));
@@ -67,6 +71,9 @@ export const LOOP_METHODS = Object.freeze([
   'sayOrders',
   // the Wick's sheet (SHEET.md §7.3): the page's model on the live save and run, and the "new" marks seen
   'sheet', 'markSheetSeen',
+  // LAKE 2, lane D2 (LAKE2.md §5): the first tow to a new water (the carry and the reset) and the way back, the leaving card's terms, the
+  // carry, the tackle's Hold and cast as they work, a piece fitted per slot (the Tackle screen's, lane G)
+  'towTo', 'leaveTerms', 'carried', 'holdOf', 'fitTackle',
 ]);
 
 // >>> TK (the tackle tin: the user's words of 16 November 2026, "We should have an option to equip bait or change lures whilst out on
@@ -130,6 +137,9 @@ export function freshLoop(D) {
     barge: { water: firstWater(D), towed: [] },
     sheetSeen: kit.lures.map((id) => `lure:${id}`),   // the Wick's sheet (SHEET.md §5.2): the owned keys the player has seen on the sheet (a fresh save marks nothing: its start kit is seen)
     startKit: true,   // GEAR-GATES §2.1: the start kit is given (migrateLoop gives an older save its kit once, then sets this)
+    // LAKE 2, lane D2 (LAKE2.md §5, src/loop-carry.js): what earlier tows kept for good, the water whose shelf the bought gear is of, the
+    // piece fitted per slot (a found piece's or a tier's id; null the best bought) and the evenings fished at each water
+    carry: freshCarry(), gearWater: firstWater(D), fit: { rod: null, line: null, reel: null }, eveningsAt: { [firstWater(D)]: 0 },
   };
 }
 
@@ -184,6 +194,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
     L.v = LOOP_SCHEMA;
   }
   const kitDue = L.startKit !== true;   // read before the fill (which would copy the fresh block's true)
+  // LAKE 2, lane D2: an older block's found pieces become its fit (once, LAKE2 §5.5), and its evenings were all at its first water
+  const fitDue = !isObj(L.fit), atDue = !isObj(L.eveningsAt);
   // fill and normalise (every block, every boot)
   for (const [k, v] of Object.entries(fresh)) {
     if (L[k] === undefined) { L[k] = v; continue; }
@@ -224,6 +236,13 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   if (!isObj(L.firsts.best)) L.firsts.best = {};
   fillFinds(L);   // M1 step 5c: meta.loop.finds {got, worn, share}, whole (and LOST-TACKLE §8's found and places)
   for (const s of FOUND_SLOTS) if (L.found[s] != null && !foundOf(L, D, s)) L.found[s] = null;   // (a fitted piece is owned and of its slot)
+  // LAKE 2, lane D2 (LAKE2.md §5): the carry whole, a known gear water, the fit (from `found` once), the evenings at each water
+  L.carry = carryOf(L);
+  L.gearWater = gearWaterOf(D, L);
+  if (fitDue) L.fit = { rod: L.found?.rod ?? null, line: L.found?.line ?? null, reel: L.found?.reel ?? null };
+  for (const s of SLOTS) { const f = L.fit[s]; if (f != null && typeof f !== 'string') L.fit[s] = null; if (L.fit[s] === undefined) L.fit[s] = null; }
+  if (atDue) L.eveningsAt = { [first]: L.evenings };
+  for (const [w, n] of Object.entries(L.eveningsAt)) L.eveningsAt[w] = Math.max(0, int(n));
   for (const [id, x] of Object.entries(D?.LOOP?.lostTackle || {})) if (x?.slot === 'lure' && findOwned(L, id) && !L.lures.includes(id)) L.lures.push(id);   // (an owned found lure is in the tin)
   L.sheetSeen = L.sheetSeen.filter((k, i, a) => typeof k === 'string' && a.indexOf(k) === i);
   L.lifted = L.lifted.filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i);
@@ -296,6 +315,9 @@ export function tallyBook(metaLoop, creel, run, opts = {}) {
     if (run?.zone) {
       if (!isObj(metaLoop.bait)) metaLoop.bait = {};
       metaLoop.bait[run.zone] = isObj(run.bait) ? { ...run.bait } : {};
+      // LAKE 2, lane D2: an evening at this water (the first evenings' rule after a tow counts them, LOOP.arrival)
+      if (!isObj(metaLoop.eveningsAt)) metaLoop.eveningsAt = {};
+      metaLoop.eveningsAt[run.zone] = Math.max(0, int(metaLoop.eveningsAt[run.zone])) + 1;
     }
   }
   return { lines, total };
@@ -352,23 +374,28 @@ const costed = (D, p) => (p == null || !Number.isFinite(Number(p)) ? p : Math.ro
 export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   const L = D?.LOOP; if (!L) return [];
   const ml = isObj(metaLoop) ? metaLoop : {}, T = L.tackle, TL = D.TEXT_LOOP || {}, ses = new Set(Array.isArray(session) ? session : []);
-  const owned = new Set([1]);   // shelfAt 1 = the start
-  for (const id of ml.maps?.lakes || []) { const o = num(L.waters?.[id]?.order, NaN); if (Number.isFinite(o)) owned.add(o); }
-  const top = T.price.length - 1, onShelf = (t) => t >= 1 && t <= top && owned.has(T.shelfAt[t]);
   const out = [];
-  const tier = (slot, t, bought) => ({ id: `${slot}:${t}`, tab: 'tackle', slot, level: t, name: tierName(D, slot, t), goalName: tierName(D, slot, t),
-    line: TL.shelf?.[slot] ?? '', price: T.price[t], bought });
+  // LAKE 2, lane D2 (LAKE2.md §5.6): each water's own tackle tiers and hold ladder (LOOP.gear), the gear water's: the Mossmere's are
+  // TACKLE T1–T2 at LOOP.tackle's prices and LOOP.hold's steps to its shelfMax, as before; a later water's are its own materials'
+  const gw = gearWaterOf(D, ml), G = isObj(L.gear?.[gw]) ? L.gear[gw] : null, first = gw === firstWater(D);
+  const tierLabel = (slot, t) => (first ? tierName(D, slot, t) : TL.gearItems?.[tiersOf(D, gw, slot)[t]?.id] ?? tierName(D, slot, t));
+  const tierLine = (slot, t) => (first ? TL.shelf?.[slot] ?? '' : TL.shelf?.[tiersOf(D, gw, slot)[t]?.id] ?? TL.shelf?.[slot] ?? '');
+  const tier = (slot, t, bought) => ({ id: `${slot}:${t}`, tab: 'tackle', slot, level: t, name: tierLabel(slot, t), goalName: tierLabel(slot, t),
+    line: tierLine(slot, t), price: G ? num(tiersOf(D, gw, slot)[t]?.price, T.price[t]) : T.price[t], bought });
   for (const slot of SLOTS) {
-    const cur = clampInt(ml.tackle?.[slot], 0, top);
+    const top = G ? tiersOf(D, gw, slot).length - 1 : T.price.length - 1, onShelf = (t) => t >= 1 && t <= top;
+    const cur = clampInt(ml.tackle?.[slot], 0, T.price.length - 1);
     if (cur >= 1 && ses.has(`${slot}:${cur}`)) out.push(tier(slot, cur, true));
     else if (onShelf(cur + 1)) out.push(tier(slot, cur + 1, false));
     else if (cur >= 1) out.push(tier(slot, cur, true));
   }
-  const H = L.hold, h = clampInt(ml.holdSlots, H.start, H.max), step = (n) => H.ladder.find((s) => s.slots === n);
+  const H = L.hold, GH = isObj(G?.hold) ? G.hold : H, h = clampInt(ml.holdSlots, H.start, H.max), step = (n) => arr(GH.ladder).find((s) => s.slots === n);
+  const holdLine = first ? TL.shelf?.hold ?? '' : TL.shelfAt?.[gw]?.hold ?? TL.shelf?.hold ?? '';
   const hold = (n, bought) => ({ id: `hold:${n}`, tab: 'raft', slot: 'hold', level: n, name: step(n)?.name ?? '',
-    goalName: String(TL.holdName ?? 'Hold {n}').replace('{n}', n), line: TL.shelf?.hold ?? '', price: step(n)?.price ?? 0, bought });
+    goalName: String(TL.holdName ?? 'Hold {n}').replace('{n}', n), line: holdLine, price: step(n)?.price ?? 0, bought });
+  const shelfMax = num(GH.shelfMax, H.shelfMax);
   if (h > H.start && ses.has(`hold:${h}`)) out.push(hold(h, true));
-  else if (h + 1 <= H.shelfMax && step(h + 1)) out.push(hold(h + 1, false));
+  else if (h + 1 <= shelfMax && step(h + 1)) out.push(hold(h + 1, false));
   else if (h > H.start && step(h)) out.push(hold(h, true));
   // M1 step 5b (lane 5b-home): the Home tab's Bait Bed, the Long Wall's wing, Barge lights and the three looks (src/home-shelf.js)
   out.push(...homeItems(D, ml, [...ses]));
@@ -588,17 +615,19 @@ export function guestEntries(meta, D, waterId) {
 export function gateLine(D, metaLoop, fishId) {
   const T = D?.TEXT_LOOP?.gate, LP = D?.LOOP;
   if (!isObj(T) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
-  const g0 = wcGradeOf(fishId, {});
-  if (g0 === undefined || !wcGearCap(D, fishId, { bait: 'mireworm' })) return null;
-  const ml = isObj(metaLoop) ? metaLoop : {}, water = firstWater(D), line = int(ml.tackle?.line), lineCap = foundKit(ml, D).lineCap;
+  // (LAKE 2, lane D2: the fish's own water: its hook table, its tins, its lures, the line's total Hold against its lineAt)
+  const water = fishWater(D, fishId), plain = LP.waters?.[water]?.plainBait ?? 'mireworm';
+  const g0 = wcGradeOf(fishId, { water });
+  if (g0 === undefined || !wcGearCap(D, fishId, { bait: plain, water })) return null;
+  const ml = isObj(metaLoop) ? metaLoop : {}, line = int(ml.tackle?.line), fk = foundKit(ml, D), lineCap = fk.lineCap, lineHold = tackleHold(D, ml, fk.hold).line;
   const bag = isObj(ml.bait?.[water]) ? ml.bait[water] : {};
   const ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
-  const hooks = [{}, { bait: 'cut_strip' }, ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id])).map((lure) => ({ lure })),
-    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).filter((id) => int(bag[id]) > 0).map((bait) => ({ bait }))];
+  const hooks = [{}, { bait: 'cut_strip' }, ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id]) && lureHere(D, id, water)).map((lure) => ({ lure })),
+    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).filter((id) => int(bag[id]) > 0).map((bait) => ({ bait }))].map((h) => ({ ...h, water }));
   let best = null;
   for (const h of hooks) {
     if (!(num(wcGradeOf(fishId, h)) >= 1)) continue;
-    const c = wcGearCap(D, fishId, { ...h, line, lineCap });
+    const c = wcGearCap(D, fishId, { ...h, line, lineCap, lineHold });
     if (c && (!best || ORDER.indexOf(c.cls) > ORDER.indexOf(best.cls))) best = c;
   }
   const label = (cls) => (Array.isArray(D?.SIZE_CLASSES) ? D.SIZE_CLASSES.find((c) => c?.id === cls)?.label : null) || cls;
@@ -606,13 +635,15 @@ export function gateLine(D, metaLoop, fishId) {
   const it = shelfNeed(D, fishId, water);
   return it ? { kind: 'needs', item: it.id, text: needsText(D, it) } : null;
 }
+/** LAKE 2, lane D2: a fish's water (its record's zone), else the first water. */
+const fishWater = (D, fishId) => { const z = (D?.SPECIES_BY_ID?.[fishId] || (D?.SPECIES || []).find((s) => s?.id === fishId))?.zone; return typeof z === 'string' && isObj(D?.LOOP?.waters?.[z]) ? z : firstWater(D); };
 /** The cheapest item of a water's shelf (its bought lures, its tins) that takes a fish: {id, lure, price}, or null. */
 function shelfNeed(D, fishId, water, lands = () => true) {
   const LP = D?.LOOP || {};
   const items = [
     ...Object.entries(isObj(LP.lures) ? LP.lures : {}).filter(([, L]) => isObj(L) && L.water === water && L.start !== true && L.found !== true).map(([id, L]) => ({ id, lure: true, price: num(L.price) })),
     ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).map((id) => ({ id, lure: false, price: tinPrice(D, water) })),
-  ].filter((it) => { const o = it.lure ? { lure: it.id } : { bait: it.id }; return num(wcGradeOf(fishId, o)) >= 1 && lands(o); }).sort((a, b) => a.price - b.price);
+  ].filter((it) => { const o = it.lure ? { lure: it.id, water } : { bait: it.id, water }; return num(wcGradeOf(fishId, o)) >= 1 && lands(o); }).sort((a, b) => a.price - b.price);
   return items[0] || null;
 }
 /** "Needs the Glimmer Spoon." (a lure with "the"), "Needs Lumen Moss." (a tin without): TEXT_LOOP.gate.needs. */
@@ -631,22 +662,26 @@ const needsText = (D, it) => { const n = D?.TEXT_LOOP?.gearItems?.[it.id] || it.
 export function needsHint(D, meta, fishId) {
   const T = D?.TEXT_LOOP?.gate, LP = D?.LOOP;
   if (D?.LOOP_ENABLED !== true || !isObj(T) || !isObj(T.hint) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
-  if (wcGradeOf(fishId, {}) === undefined || !wcGearCap(D, fishId, { bait: 'mireworm' })) return null;
-  const J = isObj(meta?.journal) ? meta.journal : {}, ml = isObj(meta?.loop) ? meta.loop : {}, water = firstWater(D);
+  const water = fishWater(D, fishId), plain = LP.waters?.[water]?.plainBait ?? 'mireworm';   // (LAKE 2, lane D2: the fish's own water)
+  if (wcGradeOf(fishId, { water }) === undefined || !wcGearCap(D, fishId, { bait: plain, water })) return null;
+  const J = isObj(meta?.journal) ? meta.journal : {}, ml = isObj(meta?.loop) ? meta.loop : {};
   const bag = isObj(ml.bait?.[water]) ? ml.bait[water] : {}, has = (id) => Object.prototype.hasOwnProperty.call(bag, id);
   const spOf = (id) => D?.SPECIES_BY_ID?.[id] || (D?.SPECIES || []).find((s) => s?.id === id) || null;
   const cuttable = (id) => { const s = spOf(id); return !!s && s.giant !== true && s.rarity !== 'legendary'; };
   const cut = has('cut_strip') || Object.entries(J).some(([id, r]) => num(r?.caught) > 0 && cuttable(id));
-  const hooks = [{}, ...(cut ? [{ bait: 'cut_strip' }] : []), ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id])).map((lure) => ({ lure })),
-    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).filter(has).map((bait) => ({ bait }))].filter((h) => num(wcGradeOf(fishId, h)) >= 1);
+  const hooks = [{}, ...(cut ? [{ bait: 'cut_strip' }] : []), ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id]) && lureHere(D, id, water)).map((lure) => ({ lure })),
+    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).filter(has).map((bait) => ({ bait }))].map((h) => ({ ...h, water })).filter((h) => num(wcGradeOf(fishId, h)) >= 1);
   const SZ = D?.BALANCE_V3?.size || {}, sp = spOf(fishId);
   const lowZ = Math.max(num(SZ.z?.min, -2), sp?.giant === true ? num(LP.giant?.minZ, -Infinity) : -Infinity);
-  const line = int(ml.tackle?.line), lineCap = foundKit(ml, D).lineCap;
-  const caps = hooks.map((h) => wcGearCap(D, fishId, { ...h, line, lineCap }));
+  const line = int(ml.tackle?.line), fk = foundKit(ml, D), lineCap = fk.lineCap, lineHold = tackleHold(D, ml, fk.hold).line;
+  const caps = hooks.map((h) => wcGearCap(D, fishId, { ...h, line, lineCap, lineHold }));
   if (caps.some((c) => !c || c.z > lowZ)) return null;
   const topLine = Math.max(0, (Array.isArray(LP.gearCap.line) ? LP.gearCap.line.length : 1) - 1);
-  if (hooks.some((h) => { const c = wcGearCap(D, fishId, { ...h, line: topLine }); return !c || c.z > lowZ; })) return { kind: 'line', item: null, text: T.hint.line };
-  const it = shelfNeed(D, fishId, water, (o) => { const c = wcGearCap(D, fishId, { ...o, line: topLine }); return !c || c.z > lowZ; });   // (with the line it would need)
+  // (LAKE 2: the best line the gear water sells, at its total Hold with the carry; on the Mossmere's first age its top tier, as before)
+  const gw = gearWaterOf(D, ml), topKit = gw === firstWater(D) ? { line: topLine }
+    : { line: topLine, lineHold: carryOf(ml).line + Math.max(0, ...tiersOf(D, gw, 'line').map((t) => num(t?.hold))) };
+  if (hooks.some((h) => { const c = wcGearCap(D, fishId, { ...h, ...topKit }); return !c || c.z > lowZ; })) return { kind: 'line', item: null, text: T.hint.line };
+  const it = shelfNeed(D, fishId, water, (o) => { const c = wcGearCap(D, fishId, { ...o, ...topKit }); return !c || c.z > lowZ; });   // (with the line it would need)
   if (!it) return null;
   const kind = it.lure ? 'lure' : 'bait';
   return { kind, item: it.id, text: isObj(J[fishId]) ? needsText(D, it) : T.hint[kind] };
@@ -713,6 +748,8 @@ export function createLoop(S) {
     seen = { meta: m, loop: m.loop };
     return m.loop;
   }
+  /** LAKE 2, lane D2: the water the Wick is at: the trip's, else where the barge lies (its lures and tins are the ones that work). */
+  const hereWater = () => { const r = run(); return onTrip(r) && typeof r.zone === 'string' ? r.zone : (ensureLoop()?.barge?.water || firstWater(D())); };
   /** The Wick that fishes now: the trip's (run.character) or, at home, the save's (meta.loop.wick). */
   const wickNow = () => { const r = run(); return onTrip(r) ? wickIdOf(r.character) : wickIdOf(ensureLoop()?.wick); };
   const passive = (w = wickNow()) => LOOP().wicks?.[w]?.passive ?? null;
@@ -1006,7 +1043,9 @@ export function createLoop(S) {
     // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
     // M1 step 4: or the lure slot's fit (one thing on the hook: a lure, else the bait; fishing reads run.lure)
     const fl = L.fitted?.lure;
-    if (typeof fl === 'string' && Array.isArray(L.lures) && L.lures.includes(fl)) r.lure = fl;
+    if (typeof fl === 'string' && Array.isArray(L.lures) && L.lures.includes(fl) && lureHere(d, fl, zone)) r.lure = fl;   // (LAKE 2: a lure works at its own water)
+    // LAKE 2, lane D2 (LAKE2.md §8.3, the user's answer 2): the first evenings at a water reached by a tow: {k, cap, fight} or none
+    { const a = arrivalOf(d, L, zone); if (a) r.arrival = a; }
     const fb = L.fitted?.bait;
     if (!r.lure && typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
     try {
@@ -1260,7 +1299,7 @@ export function createLoop(S) {
   function fitLure(id = null) {
     const L = ensureLoop();
     if (!L) return { ok: false };
-    if (id != null && (typeof id !== 'string' || !lureOf(D(), id) || !(Array.isArray(L.lures) && L.lures.includes(id)))) return { ok: false };
+    if (id != null && (typeof id !== 'string' || !lureOf(D(), id) || !(Array.isArray(L.lures) && L.lures.includes(id)) || !lureHere(D(), id, hereWater()))) return { ok: false };
     L.fitted.lure = id == null ? null : id;
     const r = run();
     if (id != null) {   // one thing on the hook: a lure takes the bait off (it stays in the bag)
@@ -1344,7 +1383,7 @@ export function createLoop(S) {
       const n = kind ? bagCount(wantBait, L) + (cast === wantBait && !ballWater(cast) ? 1 : 0) : 0;
       if (n <= 0) return { ok: false, reason: 'bait' };
     }
-    if (wantLure != null && wantLure !== nowLure && !(typeof wantLure === 'string' && lureOf(D(), wantLure) && Array.isArray(L.lures) && L.lures.includes(wantLure))) {
+    if (wantLure != null && wantLure !== nowLure && !(typeof wantLure === 'string' && lureOf(D(), wantLure) && Array.isArray(L.lures) && L.lures.includes(wantLure) && lureHere(D(), wantLure, hereWater()))) {
       return { ok: false, reason: 'lure' };
     }
     if (wantBait === nowBait && wantLure === nowLure) return { ok: true, changed: false, reeled: false, bait: nowBait, lure: nowLure, count: wantBait ? bagCount(wantBait, L) : 0 };
@@ -1381,6 +1420,8 @@ export function createLoop(S) {
     let reeled = false;
     if (line?.out === true) { try { reeled = ctx.fishing?.reelInQuiet?.()?.ok === true; } catch (e) { report('reelInQuiet', e); } }
     L.found[slot] = next;
+    if (!isObj(L.fit)) L.fit = { rod: null, line: null, reel: null };
+    L.fit[slot] = next;   // (LAKE 2, lane D2: the fit follows the found piece; off, the best bought)
     saveNow();
     emit('loop:found', { slot, id: next, reeled });
     return { ok: true, changed: true, slot, id: next, reeled };
@@ -1403,8 +1444,9 @@ export function createLoop(S) {
     const L = ensureLoop();
     if (!L) return [];
     if (!Array.isArray(L.orders)) L.orders = [];
-    if (L.orders.length < 1 && int(L.home?.orders) > 0) { try { refillOrders(D(), L, { listFor: listForD }); requestSave(); } catch (e) { report('refillOrders', e); } }
-    return L.orders.filter(isObj).map((o) => ({ ...o, text: orderPhrase(D(), o) }));
+    const w = hereWater(), mine = () => L.orders.filter((o) => isObj(o) && orderWater(D(), o) === w);   // (LAKE 2, lane D2: this water's orders)
+    if (mine().length < 1 && int(L.home?.orders) > 0) { try { refillOrders(D(), L, { listFor: listForD, water: w }); requestSave(); } catch (e) { report('refillOrders', e); } }
+    return mine().map((o) => ({ ...o, text: orderPhrase(D(), o) }));
   }
   /** Murk's line for the orders he has not said yet ("Bring me a Weeping Carp."), each order once: they are marked said and saved.
    *  → the line, or null when every open order is said (or no board). */
@@ -1539,16 +1581,83 @@ export function createLoop(S) {
   // ---------------------------------------------------------------- the home barge (M1 step 5a, SPEC §6.5)
   /** Where the barge lies and the waters it has been towed to: a copy of meta.loop.barge, or null. */
   function barge() { const L = ensureLoop(); return L && isObj(L.barge) ? { water: L.barge.water, towed: [...(L.barge.towed || [])] } : null; }
-  /** A water's tow played (the opening's, in 5a its hand-off; step 5b's playTow): the barge lies there and the water is in `towed`. */
+  /** A water's tow played (the opening's, in 5a its hand-off; step 5b's playTow): the barge lies there and the water is in `towed`.
+   *  LAKE 2, lane D2: a first tow to a later water is towTo's (the carry and the reset, in the same save). */
   function towBarge(waterId) {
     const L = ensureLoop();
     if (!L || typeof waterId !== 'string' || !waterId) return null;
+    if (waterId !== firstWater(D()) && isObj(LOOP().waters?.[waterId]) && !(Array.isArray(L.barge?.towed) && L.barge.towed.includes(waterId))) return towTo(waterId) ? barge() : null;
     if (!isObj(L.barge)) L.barge = { water: waterId, towed: [] };
     if (!Array.isArray(L.barge.towed)) L.barge.towed = [];
     L.barge.water = waterId;
     if (!L.barge.towed.includes(waterId)) L.barge.towed.push(waterId);
     requestSave();
     return barge();
+  }
+  /**
+   * towTo(water) (LAKE2.md §5.2, §6.3; CONTRACT §14): the home goes to a water. A first tow to a later water (its lake map owned; never the
+   * first water, whose tow is the opening's) leaves everything bought at the water left there and keeps a share for good (loop-carry
+   * applyTow: the carry, the tackle, the hold and the raft reset, the new water's start kit), then the barge lies there and the water is in
+   * `towed`: all of it written before the save, so a reload lands at the new mooring with all of it (SPEC §6.5). A water already towed to
+   * (the way back by the lamps) only moves the barge: the gear travels as it is, the water's own lures and tins wait there. → {ok, first,
+   * add, carry, water} or {ok: false, reason: 'water' | 'map'}; loop:tow {water, first, add}.
+   */
+  function towTo(waterId) {
+    const L = ensureLoop();
+    if (!L || typeof waterId !== 'string' || !isObj(LOOP().waters?.[waterId])) return { ok: false, reason: 'water' };
+    if (!isObj(L.barge)) L.barge = { water: firstWater(D()), towed: [] };
+    if (!Array.isArray(L.barge.towed)) L.barge.towed = [];
+    const first = waterId !== firstWater(D()) && !L.barge.towed.includes(waterId);
+    if (first && !(L.maps?.lakes || []).includes(waterId)) return { ok: false, reason: 'map' };
+    let res = null;
+    if (first) { try { res = applyTow(D(), L, waterId); } catch (e) { report('applyTow', e); return { ok: false, reason: 'water' }; } }
+    L.barge.water = waterId;
+    if (!L.barge.towed.includes(waterId)) L.barge.towed.push(waterId);
+    session = [];
+    try { S.invalidate?.(); } catch { /* optional */ }
+    saveNow();
+    const out = { ok: true, first, water: waterId, add: res?.add ?? null, carry: carryOf(L) };
+    emit('loop:tow', { water: waterId, first, add: out.add });
+    return out;
+  }
+  /** The leaving card's terms for a water (LAKE2 §5.2; loop-carry.leaveTerms, nothing written): {to, from, first, add, carry, line}. */
+  const leaveTerms = (waterId) => { const L = ensureLoop(); return L && typeof waterId === 'string' ? leaveTermsOf(D(), L, waterId) : null; };
+  /** What earlier tows kept for good, and its line for the logs ("Carried +2 · +2 · +2", null with nothing carried). */
+  const carried = () => { const L = ensureLoop(); return L ? { ...carryOf(L), line: carriedLine(D(), L), gearWater: gearWaterOf(D(), L) } : null; };
+  /** The tackle as it works (LAKE2 §5.3): {rod, line, reel} Hold (the carry + the fitted piece), cast (m), carry {rod, line, reel, cast}. */
+  function holdOf() {
+    const L = ensureLoop();
+    if (!L) return null;
+    const fk = foundKit(L, D()), c = carryOf(L);
+    return { ...tackleHold(D(), L, fk.hold), cast: castMaxOf(D(), L, fk.castMax), carry: { rod: c.rod, line: c.line, reel: c.reel, cast: c.cast } };
+  }
+  /**
+   * fitTackle(slot, id) (LAKE2 §5.5, the Tackle screen's): a rod, line or reel fitted at leisure: a found piece the save owns (fitFound), a
+   * tier of the gear water at or below the one bought (a lower tier may be fitted), or null for the best bought. The rules are changeHook's
+   * (refused while a fish is on). Saved at once; loop:found {slot, id}. → {ok, changed, slot, id} or {ok: false, reason}.
+   */
+  function fitTackle(slot, id = null) {
+    const L = ensureLoop();
+    if (!L) return { ok: false, reason: 'off' };
+    if (!SLOTS.includes(slot)) return { ok: false, reason: 'slot' };
+    if (typeof id === 'string' && LOOP()?.lostTackle?.[id]) return fitFound(slot, id);
+    if (id != null) {
+      const i = tiersOf(D(), gearWaterOf(D(), L), slot).findIndex((t) => t?.id === id);
+      if (typeof id !== 'string' || i < 0 || i > int(L.tackle?.[slot])) return { ok: false, reason: 'piece' };
+    }
+    if (!canChangeHook()) return { ok: false, reason: 'fish' };
+    if (!isObj(L.fit)) L.fit = { rod: null, line: null, reel: null };
+    const prevFound = L.found?.[slot] ?? null;
+    if ((L.fit[slot] ?? null) === id && prevFound == null) return { ok: true, changed: false, slot, id };
+    const r = run(), line = onTrip(r) ? lineNow() : null;
+    let reeled = false;
+    if (line?.out === true) { try { reeled = ctx.fishing?.reelInQuiet?.()?.ok === true; } catch (e) { report('reelInQuiet', e); } }
+    if (isObj(L.found)) L.found[slot] = null;
+    L.fit[slot] = id;
+    try { S.invalidate?.(); } catch { /* optional */ }
+    saveNow();
+    emit('loop:found', { slot, id, reeled });
+    return { ok: true, changed: true, slot, id, reeled };
   }
 
   // ---------------------------------------------------------------- M1 step 5c (lane 5C): the finds (FINDS §2, §4.1, §6, §10)
@@ -1671,6 +1780,7 @@ export function createLoop(S) {
     setPick, pick, mapCards: mapCardsNow, seals, catalogue,
     notePrint, prints, gallery,   // M1 step 5b (lane 5b-home)
     barge, towBarge,
+    towTo, leaveTerms, carried, holdOf, fitTackle,   // LAKE 2, lane D2 (LAKE2.md §5)
     orders, wipeOrder, orderFor, cutBait, sayOrders,   // M1 step 4 (lane 4); sayOrders: the user's 17 Nov 2026
     canChangeHook, changeHook,   // TK: the tackle tin (CONTRACT §14.19)
     fitFound, unfitFound,   // lost tackle (LOST-TACKLE §2.1): the tin's Kit row

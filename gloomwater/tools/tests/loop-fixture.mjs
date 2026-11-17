@@ -23,6 +23,7 @@ import { freshLoop, LOOP_METHODS, LOOP_SCHEMA, tallyLines, shelfItems, goalOf, l
   liftDue as liftDueOf } from '../../src/progression-loop.js';
 import { notePrint as notePrintOf, printsView, galleryModel } from '../../src/home-prints.js';   // M1 step 5b (lane 5b-home)
 import { sheetModel, sheetKeys } from '../../src/loop-sheet.js';   // the Wick's sheet (SHEET.md §7): the real pure model on the fake's state
+import { applyTow, leaveTerms as leaveTermsOf, carryOf, carriedLine, tackleHold, castMaxOf, freshCarry } from '../../src/loop-carry.js';   // LAKE 2, lane D2
 
 /** The loop's data module (GW_V3, GW_V3_PHASE 1, GW_LOOP), cached per query. */
 export async function loadLoopData({ query = 'loop' } = {}) {
@@ -93,6 +94,7 @@ export function fakeLoop(over = {}) {
     barge: { water: 'mossmere', towed: [] },
     finds: { got: {}, worn: {}, share: {} },   // M1 step 5c
     sheetSeen: [], lures: [], raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 }, looks: [],   // the Wick's sheet
+    carry: freshCarry(), gearWater: 'mossmere', fit: { rod: null, line: null, reel: null },   // LAKE 2, lane D2
     ...state, ...plain,
   };
   if (!Array.isArray(s.maps.places)) s.maps = { ...s.maps, places: [] };
@@ -122,7 +124,7 @@ export function fakeLoop(over = {}) {
     fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
     giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])), finds: s.finds,
     sheetSeen: s.sheetSeen.slice(), lures: s.lures.slice(), raft: { ...s.raft }, home: { ...s.home }, looks: s.looks.slice(),
-    found: { rod: null, line: null, reel: null, ...(s.found || {}) } });
+    found: { rod: null, line: null, reel: null, ...(s.found || {}) }, carry: carryOf(s), gearWater: s.gearWater, fit: { ...s.fit } });
   const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
   const items = () => (D ? shelfItems(D, metaLoop(), s.session, { meta: metaNow() }) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
@@ -322,6 +324,29 @@ export function fakeLoop(over = {}) {
       return { ok: true, changed, slot, id: next, reeled: false };
     },
     unfitFound(slot) { return this.fitFound(slot, null); },
+    // LAKE 2, lane D2 (LAKE2.md §5): the first tow's carry and reset (the real loop-carry.applyTow on the fake's block), the leaving card's
+    // terms, the carry, the tackle's Hold and cast, a piece fitted per slot
+    towTo(w) {
+      if (typeof w !== 'string' || !w) return { ok: false, reason: 'water' };
+      const first = w !== 'mossmere' && !s.barge.towed.includes(w);
+      let add = null;
+      if (first && D) {
+        const ml = metaLoop(); ({ add } = applyTow(D, ml, w));
+        Object.assign(s, { tackle: ml.tackle, holdSlots: ml.holdSlots, raft: ml.raft, carry: ml.carry, gearWater: ml.gearWater, fit: ml.fit, lures: ml.lures, fitted: ml.fitted });
+        if (s.zone === w) s.bag = { ...(ml.bait?.[w] || {}) };
+      }
+      s.barge.water = w; if (!s.barge.towed.includes(w)) s.barge.towed.push(w); s.saves++;
+      return { ok: true, first, water: w, add, carry: carryOf(s) };
+    },
+    leaveTerms: (w) => (D && typeof w === 'string' ? leaveTermsOf(D, metaLoop(), w) : null),
+    carried: () => ({ ...carryOf(s), line: D ? carriedLine(D, s) : null, gearWater: s.gearWater }),
+    holdOf: () => (D ? { ...tackleHold(D, metaLoop(), {}), cast: castMaxOf(D, metaLoop()), carry: (({ rod, line, reel, cast }) => ({ rod, line, reel, cast }))(carryOf(s)) } : null),
+    fitTackle(slot, id = null) {
+      if (s.onTrip && s.fishOn === true) return { ok: false, reason: 'fish' };
+      const changed = (s.fit[slot] ?? null) !== id;
+      s.fit = { ...s.fit, [slot]: id }; if (changed) s.saves++;
+      return { ok: true, changed, slot, id, reeled: false };
+    },
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {

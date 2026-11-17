@@ -112,7 +112,7 @@ import { tellOptions, pickTell, answerFor, normTells, formMakers, lightOf as tel
 import * as SI from './fishing-sight.js';
 import * as WCX from './watercraft.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
-import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds, lureStrike, gearCap } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
+import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds, lureStrike, gearCap, WATERCRAFT } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
 import { ownedNotes } from './loop-finds.js';   // LOST-TACKLE §4: the owned notebooks' boosts and guests on the cast's odds
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
@@ -425,7 +425,10 @@ export function create(ctx) {
   }
   // >>> WC-1 (docs/loop/WATERCRAFT.md §4, CONTRACT §14 "Watercraft"): on the Mossmere under the loop the pool is watercraft's: the area
   // in open water (or the hour tilt in a place) and the hook table, and a cast is drawn once from watercraft.castOdds
-  const wcOn = () => LOOP() && lakeId() === 'mossmere';
+  // (LAKE 2, lane D2: every water with a hook table of its own, Sporewood's beside the Mossmere's, draws on it; its areas stay the
+  // Mossmere's alone until a later water's geometry is authored and baked, so there a cast in open water has none: the hour tilt alone)
+  const wcWater = () => { const w = lakeId(); return w && WATERCRAFT[w]?.hook ? w : null; };
+  const wcOn = () => LOOP() && !!wcWater();
   const fittedLure = () => (typeof run()?.lure === 'string' ? run().lure : null);
   /**
    * The pool on a trip (or null). opts {area, hook}: on the Mossmere, hook: false is "who is there" (§4 steps 3–5: the area or the tilt,
@@ -440,7 +443,7 @@ export function create(ctx) {
     if (wcOn()) {
       const hook = opts?.hook !== false, area = pp.place ? null : (opts?.area ?? null);
       let es;
-      try { es = hookWeights(pp.list, { area, place: pp.place, phase, lure: hook ? lure : null, bait: legendBaitId(baitId) ? null : (baitId ?? null), hook }); } catch (e) { report(e); return pp; }
+      try { es = hookWeights(pp.list, { area, place: pp.place, phase, lure: hook ? lure : null, bait: legendBaitId(baitId) ? null : (baitId ?? null), hook, water: wcWater() }); } catch (e) { report(e); return pp; }
       const list = es.map((e) => [e.sp, e.w]), rest = list.reduce((a, [, w]) => a + w, 0);
       const giant = pp.giant ? { ...pp.giant, weight: rest > 0 && pp.giant.share < 1 ? rest * pp.giant.share / (1 - pp.giant.share) : 0 } : null;
       return { ...pp, list, giant, tot: rest + (giant ? giant.weight : 0), entries: es, area, hook };
@@ -453,7 +456,7 @@ export function create(ctx) {
   /** The area of an open-water point on the Mossmere (watercraft.areaAt, with the world's probe, arena, docks, hulls and this evening's
    *  lane), or null (another water, no world, not water). */
   function castArea(x, z) {
-    if (!wcOn()) return null;
+    if (!wcOn() || lakeId() !== 'mossmere') return null;   // (LAKE 2, lane D2: areaAt reads the Mossmere's geometry; another water has none yet)
     try {
       const w = ctx.world;
       if (typeof w?.getDepth !== 'function' || typeof w?.getShoreRadius !== 'function') return null;
@@ -705,7 +708,10 @@ export function create(ctx) {
     if (!Number.isFinite(line)) { try { line = num(loadoutNow()?.line, 0); } catch { line = 0; } }
     let g = null, lineCap = S.castLoadout ? S.castLoadout.lineCap ?? null : undefined;   // (LOST-TACKLE §3.2: a found line's own cap)
     if (lineCap === undefined) { try { lineCap = loadoutNow()?.lineCap ?? null; } catch { lineCap = null; } }
-    try { g = gearCap(D(), sp.id, { lure, bait, line, lineCap }); } catch (e) { report(e); return null; }
+    // LAKE 2, lane D2 (LAKE2.md §5.6): the line's total Hold (its piece and the carry) against the water's LOOP.gearCap.lineAt
+    let lineHold = num(S.castLoadout?.hold?.line, NaN);
+    if (!Number.isFinite(lineHold)) { try { lineHold = num(loadoutNow()?.hold?.line, NaN); } catch { lineHold = NaN; } }
+    try { g = gearCap(D(), sp.id, { lure, bait, line, lineCap, lineHold: Number.isFinite(lineHold) ? lineHold : null, water: wcWater() }); } catch (e) { report(e); return null; }
     if (!g) return null;
     const key = g.by === 'line' ? 'line' : g.by === 'item' ? (lure || bait || 'bare') : (lure ? 'lure' : 'bait');
     return { ...g, key };
@@ -729,7 +735,8 @@ export function create(ctx) {
       let cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ, loop: trip });
       // GEAR-GATES §4.2: the gear's size cap (watercraft.gearCap on the cast's hook and the fitted line). Evening 1 and the tutorial land an
       // over-cap fish at the cap (no loss); after that a fish over it hooks, then gets away at the strike (S.overCap)
-      const g = gearCapNow(sp), soft = !!g && (num(run()?.evening, 0) <= 1 || !!S.tutorial) && D().LOOP?.gearCap?.firstEvening === 'cap';
+      // (LAKE 2, lane D2: and the first evenings at a water reached by a tow, LOOP.arrival: the ledger's run.arrival)
+      const g = gearCapNow(sp), soft = !!g && (((num(run()?.evening, 0) <= 1 || !!S.tutorial) && D().LOOP?.gearCap?.firstEvening === 'cap') || (trip && run()?.arrival?.cap === true));
       if (soft && g.z < cap) cap = g.z;
       z = S.forceZ != null ? S.forceZ : pre != null ? pre : rollZ(f.mu, rnd, { min: giantMinZ(sp, num(SZ.z?.min, -2), trip), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
       if (soft && z > g.z) z = g.z;
@@ -1168,7 +1175,7 @@ export function create(ctx) {
     const phase = phaseNow(), pp = placePoolNow(baitId, phase, S.cast?.place?.id ?? null);
     if (!pp) return null;
     return castOdds(D(), { pool: pp, area: pp.place ? null : (S.cast?.area ?? null), phase, lure: fittedLure(), bait: legendBaitId(baitId) ? null : (baitId ?? null),
-      wickId: wickId(), rb, rule: cast?.rule ?? null, taperFirst: taperOpen(), preroll: cast?.preroll ?? null, comeback: cast?.comeback ?? null, notes: notesNow() });
+      wickId: wickId(), rb, rule: cast?.rule ?? null, taperFirst: taperOpen(), preroll: cast?.preroll ?? null, comeback: cast?.comeback ?? null, notes: notesNow(), water: wcWater() });
   }
   /** LOST-TACKLE §4: the notebooks the save owns (each works while owned), or null (none, or no ledger). */
   function notesNow() {
@@ -1700,6 +1707,11 @@ export function create(ctx) {
     // (a trip: the fish's own record, for catchChance by id knows only SPECIES_V3's, never a roster fish's (the Kissmark Trout, the
     // giants, step 2's eight): by id they read null and landed at the floor; the record gives the loop's own Fight, the sim's)
     try { p = d.catchChance(trip ? sp : sp.id, cls, lo, mods); } catch (e) { report(e); }
+    // LAKE 2, lane D2 (LAKE2.md §8.3, the user's answer 2): the first evenings at a water reached by a tow ease its Fight term (run.arrival)
+    const ease = trip && !legendary ? num(run()?.arrival?.fight, 0) : 0;
+    if (ease && Number.isFinite(p) && typeof d.catchParts === 'function') {
+      try { const cp = d.catchParts(sp, cls, lo, mods); if (cp) p = Math.max(num(d.CATCH_V3?.floor, 0.01), cp.cap / (1 + Math.exp(-num(d.CATCH_V3?.scale, 1) * (cp.hold - cp.fight - ease)))); } catch (e) { report(e); }
+    }
     S.p = Number.isFinite(p) ? p : num(d.CATCH_V3?.floor, 0.01);
     if (S.find) S.p = 1;   // M1 step 5c: a find is never lost (its land chance is 1)
     else if (S.overCap) S.p = 0;   // GEAR-GATES §4.2: a fish over the gear's cap hooks, then gets away (the four draws below as ever)
@@ -4241,7 +4253,7 @@ export function create(ctx) {
     if (S.cast) { S.cast.x = V.bob.x; S.cast.z = V.bob.z; if (!S.cast.place && !S.cast.mist) S.cast.area = castArea(V.bob.x, V.bob.z); }
     const odds = castOddsNow(num(stats().rarityBonus, 0), null, null);
     S.lastOdds = odds;
-    const e = odds ? lureStrike(odds, rnd(), rnd(), num(LC.strike, 0.1)) : null;
+    const e = odds ? lureStrike(odds, rnd(), rnd(), num(LC.strike, 0.1), wcWater()) : null;
     if (!e) return;
     S.retrieve = null;
     S.forceSpecies = e.sp;

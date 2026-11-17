@@ -18,6 +18,7 @@ import { gearName } from './loop-gear.js';
 import { GEAR_GLYPH } from './ui-gear.js';
 import { drawFindArt } from './ui-finds.js';   // LOST-TACKLE §2.1: a found piece's drawing in the Kit and Lure rows
 import { ownedPieces, foundOf } from './loop-finds.js';
+import { lureHere } from './loop-carry.js';   // LAKE 2, lane D2 (LAKE2.md §5.7): a water's lures are its own (found ones travel)
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -57,7 +58,7 @@ export function tackleModel(D, { run = null, metaLoop = null, line = null } = {}
     .map((id) => ({ id, name: nameOf(D, id), count: int(bag[id]), glyph: GEAR_GLYPH[id] || 'worm', on: id === baitOn }));
   bait.push({ id: null, name: W.bare, count: null, glyph: 'hook', on: baitOn == null && lureOn == null });   // (one thing on the hook: one pressed)
   const own = new Set(arr(ml.lures));
-  const lure = Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => own.has(id) || id === lureOn)
+  const lure = Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => (own.has(id) && lureHere(D, id, zone)) || id === lureOn)
     .map((id) => ({ id, name: nameOf(D, id), glyph: GEAR_GLYPH[id] || 'spoon', on: id === lureOn, ...(D?.LOOP?.lures?.[id]?.found ? { found: true } : {}) }));
   lure.push({ id: null, name: W.none, glyph: null, on: false });
   const kit = ownedPieces(ml, D).map((id) => { const slot = D?.LOOP?.lostTackle?.[id]?.slot; return { id, slot, name: D?.TEXT_LOOP?.finds?.items?.[id]?.name || id, on: foundOf(ml, D, slot) === id }; });
