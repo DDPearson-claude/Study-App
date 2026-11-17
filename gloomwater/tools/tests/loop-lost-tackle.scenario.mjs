@@ -204,6 +204,13 @@ export default async function (api) {
     await K.secs(0.6); await K.settle(300);
     const gc = await g(() => { const m = document.querySelector('[data-modal=catch]'); return m ? { text: m.textContent.replace(/\s+/g, ' ').trim().slice(0, 160), pct: /%/.test(m.textContent) } : null; });
     K.check(gc && /Rosefleck Trout/.test(gc.text) && !gc.pct, 'the guest\'s card: its name, no odds', gc);
+    // (the review: the shot caught the ink's 1.5 s reveal part-way, its head cut off flat; the shot waits for the whole drawing, and its
+    // canvas lies wholly inside its box)
+    await K.settle(1900);
+    const ink = await g(() => { const c = document.querySelector('[data-modal=catch] .gw-fish-ink'); if (!c || !c.offsetParent) return { shown: false };
+      const r = c.getBoundingClientRect(), q = c.parentElement.getBoundingClientRect(), cs = getComputedStyle(c).clipPath;
+      return { shown: true, inBox: r.left >= q.left - 1 && r.right <= q.right + 1 && r.top >= q.top - 1 && r.bottom <= q.bottom + 1 && r.right <= innerWidth, whole: cs === 'none' || /inset\(0(px)? 0(%|px)?( 0(px)? 0(px)?)?\)/.test(cs), cs }; });
+    K.check(!ink.shown || (ink.inBox && ink.whole), 'the guest\'s ink drawing: whole, inside its box', ink);
     await K.shoot('card-guest');
     const cgf = await fits('[data-modal=catch]');
     K.check(cgf.length === 0, 'the guest\'s card: no word cut, off screen or overlapping', cgf);

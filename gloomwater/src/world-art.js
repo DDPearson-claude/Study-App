@@ -62,6 +62,7 @@ export function domeY(L, r) {
  */
 export function buildArena(ctx, L, opts = {}) {
   const zone = L.zone || {};
+  let cutPlug = null, plugN = null;   // (LOST-TACKLE §5.2: the cliff's rock across the cut's mouth while the cut is shut)
   const pal = Object.assign({ fog: 0x3a3070, fogDensity: 0.016, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6, glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2, nebula: 0xd296ae, stars: 1.0 }, zone.palette || {});
   // optional `lamp` key: cold light for island lamps, buoys, statue orbs and the rings' lit windows
   // (falls back to `glow`), so lamps never compete with the Wick's lantern or the Cinders
@@ -242,14 +243,18 @@ vec2 gwTwitch(vec2 p, float hgt) {
         let r = base + (n1 - 0.5) * 7 + (n2 - 0.5) * 1.6 + 1.5 - Math.pow(v, 2) * H * 0.18;
         if (j === segY) { y += (n2 - 0.4) * 3.5; r += 1.2; }
         if (j === 0) r += 1.5;
+        if (cutOn && inCut(i)) r = Math.max(r, N.r0 + 3.4);   // (the plug's columns stand well behind the Veil's fall: below)
         if (edge) { const al = r * Math.cos(a - N.a); pos.push(al * N.ca - edge * N.sa, y, al * N.sa + edge * N.ca); }   // (the mouth's edge)
         else pos.push(ca * r, y, sa * r);
         const c = rockCol(y, v, n1, n2);
         col.push(c[0], c[1], c[2]);
       }
     }
+    // (the review, §5.2: before the notebook the cut is hidden; up close its culvert and reeds showed through the Veil. The ring's own
+    // rock across the mouth stays drawn as the plug, its own mesh in the cliff's material, shown only while the cut is shut)
+    const plugIdx = [];
     for (let i = 0; i < segA; i++) for (let j = 0; j < segY; j++) {
-      if (cutOn && (inCut(i) || inCut(i + 1))) continue;   // (the mouth)
+      if (cutOn && (inCut(i) || inCut(i + 1))) { const A = i * (segY + 1) + j, B = (i + 1) * (segY + 1) + j; plugIdx.push(A, B, A + 1, B, B + 1, A + 1); continue; }   // (the mouth)
       const A = i * (segY + 1) + j, B = (i + 1) * (segY + 1) + j, C = A + 1, D = B + 1;
       idx.push(A, B, C, B, D, C);
     }
@@ -278,8 +283,10 @@ vec2 gwTwitch(vec2 p, float hgt) {
         const nx = tz, nz = -tx;   // (right of the way travelled: away from the water, which lies on its left as the ring's own winding has it)
         const u = Math.max(0, Math.min(1, (c.al - a0) / Math.max(1, aH - a0))), H = Hm + (Hh - Hm) * u * u * (3 - 2 * u);
         const colV = [];
+        // (the review: from the Sail's glide the sky showed over the head's low crest as a pale bar; the hill rises on behind the culvert)
+        const hill = c.s === 0 ? 1 : Math.max(0, (u - 0.6) / 0.4);
         for (let j = 0; j <= segY; j++) {
-          const [o, f] = PROF[j], y0 = crestRow(j) ? f * H : f;
+          const o = PROF[j][0] + (j === segY ? 10 * hill : 0), f = PROF[j][1] + (j === segY ? 0.9 * hill : 0), y0 = crestRow(j) ? f * H : f;
           const n1 = fbm3(p0[0] * 0.16 + ox, y0 * 0.11, p0[1] * 0.16 + oz, 3), n2 = vnoise3(p0[0] * 0.55 + oz, y0 * 0.3, p0[1] * 0.55 + ox);
           // (the bank's lip and ledge wander in and out and up and down, so it reads as mud and stone, never a kerb)
           const nl = vnoise3(c.al * 0.42 + (c.s || 0) * 7.3, j * 0.6, c.lc * 0.3);
@@ -322,6 +329,16 @@ vec2 gwTwitch(vec2 p, float hgt) {
     cliffs.name = 'cliffs';
     setupSurface(cliffs);
     group.add(cliffs);
+    if (cutOn && plugIdx.length) {
+      const pg = G(new THREE.BufferGeometry());
+      pg.setAttribute('position', g.getAttribute('position')); pg.setAttribute('color', g.getAttribute('color'));
+      pg.setIndex(plugIdx); pg.computeVertexNormals();
+      cutPlug = new THREE.Mesh(pg, cliffMat);
+      cutPlug.name = 'cutPlug'; cutPlug.visible = !N.open;
+      setupSurface(cutPlug);
+      group.add(cutPlug);
+      plugN = N;
+    }
     // boulders along the base + spires on the crest (merged into the rock mesh)
     const nB = Math.round(R * (low ? 0.6 : 0.95));
     // (none in the cut or its mouth: each still draws its numbers, so every other boulder and spire stands where it stood)
@@ -987,7 +1004,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
       const br = makeRng(((L.artSeed | 0) ^ 0x4eed5) >>> 0);
       let stems = 0;
       for (let k = 0; k < (low ? 9 : 16); k++) {
-        const t = 0.1 + (k / (low ? 9 : 16)) * 0.74 + br() * 0.04, side = k % 2 ? 1 : -1;
+        const t = 0.22 + (k / (low ? 9 : 16)) * 0.62 + br() * 0.04, side = k % 2 ? 1 : -1;   // (from 4 m in: none between the Veil and the plug)
         if (side < 0 && N.pool && t > N.pool.t0 && t < N.pool.t1 && br() < 0.7) continue;
         const hw = notchHalfW(N, t), lc = side * (hw - 0.25 - br() * 0.7), al = N.r0 + t * (N.end - N.r0) + br.range(-0.4, 0.4);
         const lat = lc + notchBend(N, t), cx = al * N.ca - lat * N.sa, cz = al * N.sa + lat * N.ca, n = 4 + ((br() * 4) | 0);
@@ -1447,6 +1464,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
   const _v = new THREE.Vector3();
   let viewH = 720;
   function update(dt, t, focus, env) {
+    if (cutPlug) cutPlug.visible = !plugN.open;
     // >>> WC-3: the twitch's clock and the bed pads' swell (the water's own uniforms, by reference)
     if (twU) {
       twState.t = t; twU.gwTwT.value = t;
