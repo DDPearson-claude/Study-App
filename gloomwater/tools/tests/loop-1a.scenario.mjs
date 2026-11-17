@@ -80,9 +80,10 @@ export function looseRe(s) {
   return new RegExp(String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*'));
 }
 /** What the main pass expects of a Wick at the start (PLAN §2.4 as WICKS §5 rewrites it: counts from the hold, not "three"). */
-export function expectFor(L, T, wick) {
+export function expectFor(L, T, wick, cost = (b) => b) {
   const W = L.wicks, H = L.hold, s0 = slotsFor(W, H.start, wick);
-  const step = (n) => H.ladder.find((x) => x.slots === n);
+  // (`cost(base, step)` the page's Murk price of a step's base price, data.loopCost: the shipped game doubles PLAN's prices, LOOP.cost.shipped)
+  const step = (n) => { const x = H.ladder.find((y) => y.slots === n); return x ? { ...x, price: cost(x.price, x) } : x; };
   return {
     slots0: s0, slots4: slotsFor(W, 4, wick), slots5: slotsFor(W, 5, wick), firstChart: firstChartLine(T, wick),
     goal0: goalText(T, W, { id: 'hold:4', level: 4, price: step(4)?.price }, wick),
@@ -649,7 +650,10 @@ export default async function (api) {
   // ---------------------------------------------------------------- shared readers
   const data = () => g(() => {
     const d = window.__gw.data;
+    // (the page's Murk price of each hold step: data.loopCost over the ladder's base price, LOOP.cost.factor ×2 in the shipped game)
+    const cost = (b) => (typeof d.loopCost === 'function' ? d.loopCost(b) : b);
     return { loop: d.LOOP_ENABLED === true, phase: d.V3_PHASE, LOOP: { wicks: d.LOOP?.wicks, hold: d.LOOP?.hold, tutorial: d.LOOP?.tutorial }, T: d.TEXT_LOOP,
+      prices: Object.fromEntries((d.LOOP?.hold?.ladder || []).map((x) => [x.slots, cost(x.price)])), factor: d.LOOP?.cost?.factor ?? 1,
       names: Object.fromEntries((d.CHARACTERS || []).map((c) => [c.id, c.name])), tips: d.FIRST_EVENING?.tips || {},
       rarity: Object.fromEntries((d.SPECIES || []).map((s) => [s.id, s.rarity])), cer: d.AUTOFISH?.time?.ceremony || {} };
   });
@@ -691,7 +695,8 @@ export default async function (api) {
       const D = await data();
       K.need(D.loop, 'a loop build: data.LOOP_ENABLED at ?loop=1', D.phase);
       K.need((D.LOOP.wicks?.order || []).includes(wick), `--wick=${wick} names a Wick of LOOP.wicks.order`, D.LOOP.wicks?.order);
-      const TL = D.T, E = expectFor(D.LOOP, TL, wick), order = D.LOOP.wicks.order;
+      const TL = D.T, E = expectFor(D.LOOP, TL, wick, (b, st) => D.prices[st?.slots] ?? b), order = D.LOOP.wicks.order;
+      const p4 = D.prices[4] ?? D.LOOP.hold.ladder[0].price;   // Hold 4 at Murk's price on this page
       log('expect', JSON.stringify(E));
       await g(() => { window.__gw.debug.intro?.('auto', true); window.__gw.ui.showTitle(); });
       await K.titleReady();
@@ -1212,7 +1217,7 @@ export default async function (api) {
       const lt = s.loop?.lastTrip;
       K.check(lt && Array.isArray(lt.lines) && lt.lines.length === E.slots0, `T21: the tally holds ${E.slots0} rows`, lt);
       K.check(purse0 !== null && s.loop.clams - purse0 === lt?.total, 'T21: the clams delta equals the tally\'s total (paid once, at endTrip)', { before: purse0, after: s.loop?.clams, total: lt?.total });
-      K.check(lt?.total >= (D.LOOP.hold.ladder[0]?.price ?? 30), 'the first trip pays for Hold 4', lt?.total);
+      K.check(lt?.total >= (D.LOOP.hold.ladder[0]?.price ?? 30), 'the first trip pays for Hold 4 at PLAN\'s base price (×1; the shipped game doubles it, below)', lt?.total);
       const tf = tallyFaults(lt?.lines, lt?.total, stamped, wick);
       K.check(tf.length === 0, 'T21/WICKS §2.1: every row pays what its card said (the Wick: its base, then its first)', tf);
       if (wick === 'wick') {
@@ -1266,9 +1271,27 @@ export default async function (api) {
       w = await K.until("c.debug.ui().openModal === 'shelf'", 2);
       K.need(w.ok, 'the Murk tile opens the shelf (modal shelf)', await top());
       await K.secs(0.5);
-      const b4 = await K.buyBox('hold:4', TL.tabs?.raft);
+      let b4 = await K.buyBox('hold:4', TL.tabs?.raft);
+      const purseAt = (await K.state()).loop?.clams ?? 0;
+      if (purseAt < p4) {
+        // Murk's prices are doubled in the shipped game (LOOP.cost.shipped, the user's 16 Nov 2026 call): the first tally no longer
+        // pays for Hold 4. Too dear, its plate shows the price, dimmed, and no order line (SPEC §8.4); then the purse is topped up
+        // to the price and the shelf opened again, so the real buy below runs on the real card.
+        const plate = await K.box('[data-loop=shelf] [data-item="hold:4"]');
+        K.check(!!plate && !b4, `SPEC §8.4: Hold 4 too dear at ${purseAt} (its price ${p4}): its plate, no order line`, { plate: !!plate, order: b4 });
+        await K.key('Escape');
+        await K.settle();
+        await g((n) => window.__gw.debug.loop?.giveClams?.(n), p4 - purseAt);
+        K.need(await K.tap('[data-loop=jetty] [data-tile=murk]'), 'the Jetty\'s Murk tile (again, the purse topped up)');
+        await K.settle();
+        w = await K.until("c.debug.ui().openModal === 'shelf'", 2);
+        K.need(w.ok, 'the Murk tile opens the shelf again', await top());
+        await K.secs(0.5);
+        b4 = await K.buyBox('hold:4', TL.tabs?.raft);
+      }
+      const purse4 = (await K.state()).loop?.clams ?? 0;
       K.need(b4 && !b4.disabled, 'the shelf offers [data-buy="hold:4"]', b4);
-      K.check(b4.text.includes(clamText(D.LOOP.hold.ladder[0].price)) || (await g(() => window.__lp.text('[data-loop=shelf]') || '')).includes(clamText(D.LOOP.hold.ladder[0].price)), 'Hold 4\'s price on its card', b4.text);
+      K.check(b4.text.includes(clamText(p4)) || (await g(() => window.__lp.text('[data-loop=shelf]') || '')).includes(clamText(p4)), `Hold 4's price on its card (${p4})`, b4.text);
       await K.scan('the shelf');
       await K.shoot('shelf');
       e0 = await K.evCount();
@@ -1276,7 +1299,7 @@ export default async function (api) {
       await K.steps(3);
       s = await K.state();
       K.check(s.loop?.holdSlots === 4, 'T23: the buy: holdSlots 4', s.loop?.holdSlots);
-      K.check(s.loop?.clams === (lt?.total ?? 0) - D.LOOP.hold.ladder[0].price, 'the buy spends Hold 4\'s price', s.loop?.clams);
+      K.check(s.loop?.clams === purse4 - p4, `the buy spends Hold 4's price (${p4})`, { before: purse4, after: s.loop?.clams });
       K.check((await K.events(e0)).some((e) => e.e === 'loop:buy'), 'loop:buy');
       K.check((await g(() => window.__lp.text('[data-loop=shelf]') || '')).includes(TL.yours), `PLAN CHOICE 26: the bought card reads "${TL.yours}" until the shelf closes`);
       await K.shoot('shelf-bought');
