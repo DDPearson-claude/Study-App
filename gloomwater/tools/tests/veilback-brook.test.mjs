@@ -94,6 +94,12 @@ section('LT6: the world: the raft cannot pass the Veil before, can after; the vi
   w.setPlaces({ owned: [ID], lifted: [] });
   const b = go([50, 3.5], [72, 5]);
   ok(b.x * N.ca + b.z * N.sa > 70, `after: it sails in (along ${(b.x * N.ca + b.z * N.sa).toFixed(1)} m)`);
+  { // the Sail's glide in clears every obstacle the world holds (the dock posts, wave 2's drowned roofs and rowboat) by the raft's radius
+    const G = D.LOOP.places[ID].glide; let worst = Infinity, at = null;
+    for (let i = 0; i < G.length - 1; i++) for (let k = 0; k <= 24; k++) { const x = G[i][0] + (G[i + 1][0] - G[i][0]) * k / 24, z = G[i][1] + (G[i + 1][1] - G[i][1]) * k / 24;
+      for (const o of w.getObstacles()) { const d = Math.hypot(x - o.x, z - o.z) - o.r; if (d < worst) { worst = d; at = o.kind; } } }
+    ok(worst >= 1.6, `the glide in clears every obstacle by the raft's 1.6 m (closest ${worst.toFixed(2)} m, a ${at})`);
+  }
   const c = go([66, 4.6], [66, 14]);
   const f = WL.notchFrame(N, c.x, c.z);
   ok(Math.abs(f.lc) <= WL.notchHalfW(N, f.t) - 1.6 + 1e-6, 'its banks hold the raft off by its radius');

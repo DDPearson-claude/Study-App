@@ -77,6 +77,69 @@ export function outlineMat(thickness = 0.08, color = 0x07080d) {
   return mat;
 }
 
+// ------------------------------------------------------------------ the see-through cut (wave 2, audit #3 and #7)
+/**
+ * The lens's line to the Wick kept clear: world stone and timber inside the cone from the lens to an oval round the focus (the
+ * Wick, 0.9 m up) fade away by k (an ordered 4x4 screen dither). The fade is a long gradient every way (across, 0.7 m clear to 2.6 m
+ * whole; 1.6x that above the focus, following the Wick, and 0.9x below it, so the raft's light pool on the water stays hidden; along
+ * the line from 0.7 m to 1.6 m short of the focus and at the lens's end), and the stone that stays is dimmed with it: no band, no
+ * rim, no ring or sparkle. (The review's 0.85 cap put a dot screen over the Wick's face: the core is clear.) One shared pair of
+ * uniforms; a mesh sets the focus in its camera's view space just before it draws (setCut).
+ * want: a place's own ask (the raft under Under the Span's deck); hold: a lift is playing (the shot's landmark stays whole).
+ */
+export function makeSeeCut() {
+  const u = { uCutF: { value: new THREE.Vector3() }, uCutK: { value: 0 } };
+  const focus = new THREE.Vector3();
+  const GLSL = `float gwCutW = 0.0; { if (uCutK > 0.0) { vec3 gwP = -gwCutVP; float gwF = sqrt(max(dot(uCutF, uCutF), 1e-3)); float gwT = dot(gwP, uCutF) / (gwF * gwF);
+      float gwR = (1.0 - gwT) * gwF;
+      if (gwT > 0.02 && gwR > 0.7) { vec3 gwO = gwP - uCutF * gwT; float gwD = length(vec2(gwO.x, gwO.y * (gwO.y > 0.0 ? 0.62 : 1.1))) / gwT;
+        gwCutW = uCutK * (1.0 - smoothstep(0.7, 2.6, gwD)) * smoothstep(0.7, 1.6, gwR) * smoothstep(0.02, 0.12, gwT);
+        vec2 gwA = mod(floor(gl_FragCoord.xy), 4.0), gwA1 = mod(gwA, 2.0), gwA2 = floor(gwA * 0.5);
+        float gwH = fract(dot(gwA2, vec2(0.5, gwA2.y * 0.75))) * 0.25 + fract(dot(gwA1, vec2(0.5, gwA1.y * 0.75))) + 0.03;
+        if (gwH < gwCutW) discard; } } }`;
+  /** Give a material the cut: viewVar true for a lit material (vViewPosition), false for an outline hull (its own varying). */
+  const add = (m, viewVar) => {
+    const base = m.onBeforeCompile;
+    m.onBeforeCompile = (sh, r) => {
+      base?.call(m, sh, r);
+      Object.assign(sh.uniforms, u);
+      if (viewVar) {
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uCutF; uniform float uCutK;')
+          .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n#define gwCutVP vViewPosition\n${GLSL}`)
+          .replace('#include <opaque_fragment>', 'outgoingLight *= 1.0 - 0.4 * gwCutW;\n#include <opaque_fragment>');
+      } else {
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 gwCutV;')
+          .replace('#include <project_vertex>', '#include <project_vertex>\ngwCutV = -mvPosition.xyz;');
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uCutF; uniform float uCutK; varying vec3 gwCutV;')
+          .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n#define gwCutVP gwCutV\n${GLSL}`);
+      }
+    };
+    const key = m.customProgramCacheKey?.bind(m);
+    m.customProgramCacheKey = () => `${key ? key() : ''}|gwSeeCut${viewVar ? 'V' : 'B'}`;
+    return m;
+  };
+  const setCut = (renderer, scene, camera) => { if (u.uCutK.value > 0) u.uCutF.value.copy(focus).applyMatrix4(camera.matrixWorldInverse); };
+  return { u, focus, add, setCut, want: 0, hold: false, block: false, tick: 0 };
+}
+/**
+ * Whether an obstacle circle ({x, z, r}) stands on the line from the lens (cx, cz) to the focus (fx, fz), short of the focus:
+ * its circle (plus `pad` m) crosses the line and its nearest point lies 0.5 m or more before the focus. Pure; no allocation.
+ */
+export function cutBlocked(list, cx, cz, fx, fz, pad = 2) {
+  const dx = fx - cx, dz = fz - cz, L2 = dx * dx + dz * dz;
+  if (!Array.isArray(list) || L2 < 1) return false;
+  const len = Math.sqrt(L2);
+  for (let i = 0; i < list.length; i++) {
+    const o = list[i];
+    if (!o || !(o.r > 0)) continue;
+    const t = ((o.x - cx) * dx + (o.z - cz) * dz) / L2;
+    if (t <= 0 || t >= 1) continue;
+    const ex = cx + dx * t - o.x, ez = cz + dz * t - o.z;
+    if (ex * ex + ez * ez < (o.r + pad) * (o.r + pad) && (1 - t) * len > 0.5 + o.r * 0.5) return true;
+  }
+  return false;
+}
+
 // ------------------------------------------------------------------ parallax ring
 export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } = {}) {
   return new THREE.ShaderMaterial({
@@ -583,8 +646,9 @@ export function createShoreRings(list) {
         float rip = max(0.0, sin((e - uTime * 0.55) * 4.2)) * exp(-max(e, 0.0) * 0.9) * step(-0.2, e) * 0.35;
         float brk = 0.55 + 0.45 * gwN(vec3(cos(ang) * 6.0, sin(ang) * 6.0, vS + uTime * 0.2));
         float a = (band + rip) * brk * smoothstep(3.4, 2.0, e) * uAmt * smoothstep(2.0, 6.0, vDist);
-        // (Lake 1 polish: round a post (r < 0.5) the ring keeps within 0.6 m of it, at half strength: never a target circle)
-        if (vR < 0.5) a *= 0.5 * (1.0 - smoothstep(0.25, 0.6, d - vR));
+        // (Lake 1 polish: round a post (r < 0.5) the ring keeps within 0.6 m of it, at half strength: never a target circle; wave 2:
+        // a faint lap within 0.3 m of it, so a near post stands in the water with no pale pool at its foot)
+        if (vR < 0.5) a *= 0.22 * (1.0 - smoothstep(0.08, 0.3, d - vR));
         if (a < 0.004) discard;
         gl_FragColor = vec4(uColor, a);
       }`,

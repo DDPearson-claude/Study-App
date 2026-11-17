@@ -181,7 +181,11 @@ export function create(ctx) {
     hp.fragmentShader = hp.fragmentShader
       .replace('uniform float smoothWidth;', 'uniform float smoothWidth;\nuniform float uBloomClamp;')
       .replace('gl_FragColor = mix( outputColor, texel, alpha );',
-        'float lum = max(luminance( texel.xyz ), 1e-4);\n\t\t\ttexel.rgb *= min(1.0, uBloomClamp / lum);\n\t\t\tgl_FragColor = mix( outputColor, texel, alpha );');
+        // (a NaN or an Inf, e.g. a half-float overflow on some AMD GPUs, is dropped before the clamp: Inf × 0 is NaN, and one
+        // NaN texel spreads through the mips into a black square at the flame; a player saw it on a Legion Go, 17 Nov 2026)
+        'if (any(isnan(texel.rgb)) || any(isinf(texel.rgb))) texel.rgb = vec3(0.0);\n\t\t\t'
+        + 'texel.rgb = clamp(texel.rgb, 0.0, 6.0e4);\n\t\t\t'
+        + 'float lum = max(luminance( texel.xyz ), 1e-4);\n\t\t\ttexel.rgb *= min(1.0, uBloomClamp / lum);\n\t\t\tgl_FragColor = mix( outputColor, texel, alpha );');
     hp.needsUpdate = true;
   }
   const gradePass = new ShaderPass(GradeShader);
@@ -947,7 +951,9 @@ export function create(ctx) {
   /** …and a near-square or upright screen that is not a phone's (700 px wide or more, narrower than 1.2 × its height, at least
    *  480 px high) has the card at its foot (ui-screens' gw-cc-low): the subject keeps the frame's top above LOOP.showCard.lowFoot. */
   const lowFoot = () => (ctx.data?.LOOP_ENABLED === true ? Number(ctx.data?.LOOP?.showCard?.lowFoot) || 0 : 0);
-  const cardLow = () => lowFoot() > 0 && W >= 700 && W < H * 1.2 && H >= 480;
+  // (wave 2, audit #13: a near-square phone under 700 px wide (no narrower than 0.8 × its height) has its card at the foot too, about
+  // the same share of the frame: the same fit, so the card's top edge no longer cuts the fish's fins or the Wick's hands)
+  const cardLow = () => lowFoot() > 0 && W < H * 1.2 && H >= 480 && (W >= 700 || W >= H * 0.8);
   /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
   function fitShow(v) {
     const S = showCam, a = W / H;

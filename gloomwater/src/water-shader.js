@@ -523,10 +523,11 @@ void main() {
 #endif
     if (dd > (o.z + 5.0) * (o.z + 5.0)) continue;
     float d = sqrt(dd) - o.z;
-    // (Lake 1 polish: a post's (r < 0.5) shallows and foam keep within 0.6 m of it, fainter: a wide pale ring read as a target circle)
+    // (Lake 1 polish: a post's (r < 0.5) shallows and foam keep within 0.6 m of it, fainter: a wide pale ring read as a target circle;
+    // wave 2: within 0.3 m and fainter still, so a near post stands in the water with no pale pool at its foot)
     float post = 1.0 - step(0.5, o.z);
-    shallow = max(shallow, (1.0 - smoothstep(-0.5, mix(4.5, 0.6, post), d)) * (1.0 - 0.5 * post));
-    foam += edgeFoam(d, xz, float(i) * 1.37 + 2.0) * smoothstep(-1.6, -0.4, d) * mix(1.0, 0.45 * (1.0 - smoothstep(0.25, 0.6, d)), post);
+    shallow = max(shallow, (1.0 - smoothstep(-0.5, mix(4.5, 0.3, post), d)) * (1.0 - 0.8 * post));
+    foam += edgeFoam(d, xz, float(i) * 1.37 + 2.0) * smoothstep(-1.6, -0.4, d) * mix(1.0, 0.3 * (1.0 - smoothstep(0.1, 0.3, d)), post);
   }
 #ifndef GW_REFL
   // the cliffs ringing the lake mirror as a dark band along the far shore

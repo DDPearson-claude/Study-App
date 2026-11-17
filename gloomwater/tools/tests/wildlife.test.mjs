@@ -195,8 +195,8 @@ section('nothing to do with the catch; drawn cheaply; hooked by main');
   ok(!/fishing|castOdds|rollSpecies|progression|hookWeights|finishPool|bait/i.test(ws.replace(/^\/\/.*$/gm, '')), 'it reads no fishing, odds, bait or progression (it changes no odd and takes no bait)');
   ok((ws.match(/new THREE\.InstancedMesh\(/g) || []).length === 2 && /q0 !== 'low'/.test(ws) && /!ctx\.cinematic && !show;/.test(ws), 'one InstancedMesh a creature (2 draw calls), hidden on low and in a cinematic');
   const ms = src('main.js');
-  ok(/const wildShow = LOOP_ON && safe\(\(\) => ctx\.fishing\.inShow, false\) === true;/.test(ms) && (ms.match(/\.update\(running \? realDt : 0, \{ show: wildShow \}\)/g) || []).length === 2
-    && /!ctx\.cinematic && !\(W && show\);/.test(src('actors-heron.js')), 'and through the whole catch show: main hands the moths, the lampbills and (with the wildlife on) the heron the show from its reveal close-up at T0, not only the lift\'s cinematic');
+  ok(/const wildShow = LOOP_ON && safe\(\(\) => ctx\.fishing\.inShow, false\) === true;/.test(ms) && (ms.match(/\.update\(running \? realDt : 0, \{ show: wildShow \}\)/g) || []).length === 3
+    && /!ctx\.cinematic && !\(W && show\);/.test(src('actors-heron.js')), 'and through the whole catch show: main hands the moths, the lampbills, the candle-boats and (with the wildlife on) the heron the show from its reveal close-up at T0, not only the lift\'s cinematic');
   ok(/setupSurface\(mesh, \{ cast: false, reflect: false \}\)/.test(ws) && /frustumCulled = false/.test(ws), 'no shadow or mirror pass');
   ok(/attachWildlife\(ctx\)/.test(src('main.js')) && /faceOn\(ctx\.data, zoneId\(\)\)/.test(ws), 'main attaches it under the loop; the Mossmere only');
   ok(/!wildMoths\(\)/.test(src('actors-home.js')), 'the barge\'s smoke-pool specks give way to the moths');

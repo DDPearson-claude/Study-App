@@ -14,7 +14,7 @@
 //                    broken deck and hanging chains over the Toppled Bridge's piers (one merged mesh and its ink line); the Lily
 //                    Maze's pads at twice the local density (their own seeded stream, after every builder: the built pads are untouched,
 //                    PLAN CHOICE 26) with glow-buds under them; the Buoy Lights' 24 float caps (one InstancedMesh) over two rows of
-//                    depth-tinted glow decals; the Bell Pool's drowned bell, an ink decal on its floor with its crack's verdigris (a trace)
+//                    depth-tinted glow decals; the Bell Pool's drowned bell, an ink decal on its floor with its crack a dark line
 //                    and the moon's glint on it. The decals are this file's own premultiplied surface-decal material (ink darkens
 //                    through alpha, glow adds through rgb), one InstancedMesh for every decal of every place
 //   the giant's back the built night-ink silhouette's family (a smooth dark back, no species shape) turning in Under the Span's and the
@@ -24,12 +24,12 @@
 //                    card and two aqueduct segments with no spout (+2); the bollards that replace the lamp-posts are world-art's (0 net)
 //
 // No gameplay state lives here: world.js feeds update() with the raft, the phase and the air, and keeps {owned, lifted} (setPlaces).
-// Colours are the Starlit palette's: lavender, pale stone, candle amber, rust; green only as the bell's verdigris trace.
+// Colours are the Starlit palette's: lavender, pale stone, candle amber, rust (no green).
 import * as THREE from 'three';
 import { INK, setupSurface, evenOutline } from './toon.js';
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, taperTube, latheGeo, wobble, lin, mixArr, scaleArr, vnoise3 } from './world-geo.js';
-import { inkToon, outlineMat } from './world-fx.js';
+import { inkToon, outlineMat, makeSeeCut } from './world-fx.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -231,7 +231,7 @@ void main() {
 }`;
 
 // the decals: a flat quad on (or just above) the water per instance; kind 0 a depth-tinted glow (a bud, a drowned lantern), 1 the drowned
-// bell (ink, its rust lip, its crack's verdigris trace, the moon's rim on its shoulder), 2 the moon's glint. Premultiplied: rgb is what
+// bell (ink, its rust lip, its crack a dark line, the moon's rim on its shoulder), 2 the moon's glint. Premultiplied: rgb is what
 // the decal adds (glow), alpha how much it darkens what is under it (ink). k: the place's glow (0 until its mist lifts) and the night.
 const DECAL_VS = /* glsl */`
 attribute vec4 aC;   // x, y, z, rotation
@@ -239,7 +239,7 @@ attribute vec4 aS;   // size x, size z, kind, place
 attribute vec3 aG;   // glow colour
 attribute vec4 aI;   // ink, depth, seed, night share
 uniform float uK[5]; uniform float uNight; uniform float uFogD;
-varying vec2 vP; varying vec3 vG; varying vec4 vI; varying float vKind; varying float vK; varying float vFog;
+varying vec2 vP; varying vec3 vG; varying vec4 vI; varying float vKind; varying float vK; varying float vFog; varying vec2 vW; varying float vCos;
 void main() {
   vP = position.xz; vG = aG; vI = aI; vKind = aS.z;
   float k = uK[0];
@@ -255,14 +255,16 @@ void main() {
     float h = (1.0 - position.z) * 0.5;
     wp = vec3(aC.x + rt.x * q.x, aC.y + h * aS.y * 2.0, aC.z + rt.y * q.x);
   }
+  vW = wp.xz;
+  vec3 vd = cameraPosition - wp; vCos = vd.y / max(length(vd), 1e-3);   // (the bell: how steeply the lens looks down through the water)
   vec4 mv = viewMatrix * vec4(wp, 1.0);
   float dd = -mv.z;
   vFog = exp(-uFogD * uFogD * dd * dd * 0.5);
   gl_Position = projectionMatrix * mv;
 }`;
 const DECAL_FS = /* glsl */`
-uniform float uTime; uniform vec3 uDeep; uniform vec3 uRust; uniform vec3 uVerd; uniform vec3 uMoon;
-varying vec2 vP; varying vec3 vG; varying vec4 vI; varying float vKind; varying float vK; varying float vFog;
+uniform float uTime; uniform vec3 uDeep; uniform vec3 uRust; uniform vec3 uVerd; uniform vec3 uMoon; uniform vec3 uPool;
+varying vec2 vP; varying vec3 vG; varying vec4 vI; varying float vKind; varying float vK; varying float vFog; varying vec2 vW; varying float vCos;
 ${NOISE}
 void main() {
   vec2 p = vP;
@@ -289,31 +291,32 @@ void main() {
     else w = 0.5 + 0.0425 + 0.41 * pow(clamp((u - 0.35) / 0.52, 0.0, 1.0), 2.1);
     w = min(w, 0.95);
     float bodyD = v - w;                                   // < 0 inside the body
-    float inBody = smoothstep(0.02, -0.02, bodyD) * step(-0.8, u) * step(u, 0.9);
-    // the mouth: an ellipse at the lip (its near half rounds the bell's end), across the whole flare
+    // (wave 2, audit #4: a dark bronze body seen through the water, with a soft moonlit shoulder: no line round it, its silhouette
+    // feathered into the water; it fades as the lens drops toward the water's skin, and it never shows outside the pool's disc)
+    float inBody = smoothstep(0.05, -0.1, bodyD) * smoothstep(-0.86, -0.74, u) * smoothstep(0.95, 0.85, u);
+    // the mouth: an ellipse at the lip (its near half rounds the bell's end), across the whole flare, the darkest thing in the pool
     vec2 me = vec2((u - 0.88) / 0.11, sy / 0.95);
     float mr = length(me);
-    float inMouth = smoothstep(1.02, 0.96, mr);
-    // the crown's hanging loop (the canon): a small ring beyond the dome
-    vec2 cp = vec2((u + 0.9) * 1.0, sy * 0.74);
-    float cr = length(cp);
-    float canon = smoothstep(0.035, 0.0, abs(cr - 0.09)) * step(u, -0.78);
+    float inMouth = smoothstep(1.08, 0.9, mr);
+    // the crown's hanging loop (the canon): a small dark ring beyond the dome
+    float canon = smoothstep(0.05, 0.0, abs(length(vec2(u + 0.9, sy * 0.74)) - 0.09)) * step(u, -0.78);
     float shape = max(max(inBody, inMouth), canon);
     if (shape < 0.003) discard;
-    // the moonlit rim: a fine line round the silhouette (brighter on the lit side), the lip's ring brightest
-    float rimB = smoothstep(0.06, 0.0, abs(bodyD)) * step(-0.8, u) * step(u, 0.84);
-    float dome = smoothstep(0.05, 0.0, abs(length(vec2((u + 0.5) / 0.3, sy / 0.5)) - 1.0)) * step(u, -0.5);
-    float lipRing = smoothstep(0.16, 0.0, abs(mr - 0.98));
-    float bands = (smoothstep(0.022, 0.0, abs(u + 0.4)) + smoothstep(0.022, 0.0, abs(u - 0.62)) * 0.8) * inBody;
-    // its crack: from the lip up the flare toward the waist, jagged, with the one trace of verdigris along it
+    // the moon's side of the bell (+sy) catches a soft sheen inside its edge, fading into the body; two cast bands as darker grooves
+    float side = clamp(sy / max(0.05, w), -1.0, 1.0);
+    // (the review: a thin moonlit shoulder at the very edge, never a lit plane over the crown)
+    float shoulder = smoothstep(0.55, 0.98, side) * smoothstep(-0.1, -0.03, bodyD) * inBody * (1.0 - inMouth);
+    float bands = (smoothstep(0.03, 0.0, abs(u + 0.4)) + smoothstep(0.03, 0.0, abs(u - 0.62)) * 0.8) * inBody;
+    // its crack: from the lip up the flare toward the waist, jagged: a dark line in the bronze (no colour of its own)
     float crack = smoothstep(0.03, 0.0, abs(sy - 0.32 + 0.05 * sin(u * 23.0) + 0.18 * (0.86 - u))) * smoothstep(0.05, 0.3, u) * step(u, 0.84) * inBody;
-    // volume: the shoulder toward the moon catches a soft sheen; the mouth is the darkest thing in the pool
-    float sheen = smoothstep(0.1, 0.9, sy / max(0.05, w)) * inBody * (1.0 - inMouth);
-    ink = vI.x * (inBody * (1.0 - 0.3 * sheen) * (1.0 - inMouth) + inMouth * 1.3 + canon * 0.7);
-    ink = min(ink * (1.0 - 0.6 * max(rimB, max(dome, lipRing * inMouth))), 0.95);
+    float lipLit = smoothstep(0.72, 0.98, mr) * inMouth * smoothstep(-0.1, 0.7, sy);
+    float clip = uPool.z > 0.0 ? 1.0 - smoothstep(uPool.z - 0.9, uPool.z - 0.15, length(vW - uPool.xy)) : 1.0;
+    float see = smoothstep(0.1, 0.5, vCos) * clip;
     float lit = 0.35 + 0.65 * vK;
-    glow = uMoon * (max(rimB, dome) * (sy > 0.0 ? 0.62 : 0.34) + lipRing * 0.75 + canon * 0.4 + bands * 0.22 + sheen * 0.07) * lit
-      + uRust * smoothstep(0.7, 0.86, u) * inBody * 0.12 * lit + uVerd * crack * 0.9 * lit;
+    vec3 bronze = mix(vec3(0.06, 0.034, 0.014), uDeep * 0.4, 0.25);
+    vec3 bronzeLit = mix(vec3(0.25, 0.15, 0.05), uMoon, 0.3);
+    ink = see * min(0.92, vI.x * 1.2 * (inBody * (1.0 - inMouth) * (1.0 + 0.3 * bands + 0.35 * crack) + inMouth * 1.15 + canon * 0.6));
+    glow = bronze * ink * (1.0 - 0.6 * crack) + see * lit * (mix(bronze, bronzeLit, 0.6) * (0.05 * shoulder + 0.04 * lipLit) + uRust * smoothstep(0.66, 0.86, u) * inBody * 0.04);
   } else if (vKind < 2.5) {
     if (r > 1.0) discard;
     float sh = 0.75 + 0.25 * wpN(p * 3.0 + vec2(uTime * 0.25, -uTime * 0.18));
@@ -434,6 +437,26 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   const buoysPlace = () => P.find((p) => p.id === 'buoy_lights');
   const piers = (Array.isArray(arena?.piers) ? arena.piers : []).slice();
   const chainTips = [], chainKit = [];   // where the chains hang from (the break); their strands (no ink line: a chain is too fine for one)
+  const tipsMore = [];   // (wave 2: more strands and moss tails at the break, out of the stream: the rubble keeps to chainTips)
+  // (wave 2, audit #9: the bridge's stone jitters by its position alone, so a corner shared by two faces moves as one and no face lifts
+  // off its block (wobble pushed each face out along its own normal: the hovering slabs and open joins); blocks get chamfered edges;
+  // the new pieces draw nothing from the places' stream, so every later dressing lies where it lay)
+  const jitter = (g, amp, freq, seed) => {
+    const pp = g.attributes.position;
+    for (let i = 0; i < pp.count; i++) {
+      const x = pp.getX(i) * freq, y = pp.getY(i) * freq, z = pp.getZ(i) * freq;
+      pp.setXYZ(i, pp.getX(i) + (vnoise3(x + seed, y, z) - 0.5) * 2 * amp, pp.getY(i) + (vnoise3(x, y + seed, z + 7.1) - 0.5) * 2 * amp, pp.getZ(i) + (vnoise3(x - 3.3, y, z + seed) - 0.5) * 2 * amp);
+    }
+    g.computeVertexNormals();
+    return g;
+  };
+  const chamferBox = (w, h, d, c) => {
+    const hx = w / 2 - c, hy = h / 2 - c, k = Math.min(c, hx * 0.5, hy * 0.5), sh = new THREE.Shape();
+    sh.moveTo(-hx + k, -hy); sh.lineTo(hx - k, -hy); sh.lineTo(hx, -hy + k); sh.lineTo(hx, hy - k); sh.lineTo(hx - k, hy); sh.lineTo(-hx + k, hy); sh.lineTo(-hx, hy - k); sh.lineTo(-hx, -hy + k); sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: Math.max(0.01, d - 2 * c), bevelEnabled: true, bevelThickness: c, bevelSize: c, bevelSegments: 1, curveSegments: 1 });
+    return g.translate(0, 0, -Math.max(0.01, d - 2 * c) / 2);
+  };
+  const hsh = (a, b = 0) => { const v = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return v - Math.floor(v); };
   if (span && piers.length >= 2) {
     // the piers in order along the bridge, then the deck over them: three arch spans, the middle one broken at its crown
     const a0 = span.area.pts[0], a1 = span.area.pts[span.area.pts.length - 1];
@@ -443,9 +466,17 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const DECK = 3.3, THICK = 0.42, WIDTH = 3.4, SPRING = 0.35;
     for (const p of piers) {
       // a pier head: the pier carried up to the deck (a short one meets it, a tall one rises through as a broken tower)
-      const g = new THREE.BoxGeometry(p.r * 2.1, DECK + THICK - 2.2, WIDTH + 0.4, 2, 2, 2);
-      wobble(g, 0.04, 2.2, p.x);
+      const g = jitter(chamferBox(p.r * 2.1, DECK + THICK - 2.2, WIDTH + 0.4, 0.1), 0.04, 2.2, p.x);
       kit.push(prep(g, { matrix: mat(p.x, 2.2 + (DECK + THICK - 2.2) / 2, p.z, 0, yaw, 0), colorFn: colorStone(2.2) }));
+      // (wave 2: a chamfered capstone over each pier head, a little proud of it, closing the deck's joins over the pier)
+      kit.push(prep(jitter(chamferBox(p.r * 2.1 + 0.34, 0.26, WIDTH + 0.72, 0.07), 0.025, 2.6, p.z), { matrix: mat(p.x, DECK + THICK + 0.1, p.z, 0, yaw, 0), color: mixArr(K.stone, K.stoneHi, 0.4) }));
+    }
+    // (wave 2: the tall piers that rise whole through the deck wear an octagonal capital and coping over their flat cap)
+    for (const p of piers) {
+      if (p.broken || !(p.h > DECK + 1.5)) continue;
+      const r = p.r, y = p.h - 0.2;
+      kit.push(prep(jitter(new THREE.CylinderGeometry(r * 1.8, r * 1.72, r * 0.62, 8, 1), 0.04, 2, p.x), { matrix: mat(p.x, y, p.z, 0, hsh(p.x, p.z) * TAU, 0), colorFn: colorStone(0) }));
+      kit.push(prep(jitter(new THREE.CylinderGeometry(r * 0.95, r * 1.62, r * 0.42, 8, 1), 0.04, 2, p.z), { matrix: mat(p.x, y + r * 0.52, p.z, 0, hsh(p.x, p.z) * TAU, 0), color: K.stone }));
     }
     for (let i = 0; i + 1 < piers.length; i++) {
       const A = piers[i], B = piers[i + 1];
@@ -462,23 +493,51 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         const top = (u) => DECK + THICK + (broken ? -0.25 * Math.max(0, 1 - Math.abs(Math.abs(u) - 0.7) / 1.2) * (Math.abs(u) < 1.4 ? 1 : 0) : 0);
         const steps = 14;
         sh.moveTo(u0, top(u0));
-        sh.lineTo(u1, top(u1));
+        const nTop = Math.max(2, Math.round((u1 - u0) / 0.55));   // (wave 2: points along the deck's top, for its chipped edges)
+        for (let k = 1; k <= nTop; k++) { const u = u0 + (u1 - u0) * (k / nTop); sh.lineTo(u, top(u)); }
         // the broken end: a jagged face down to the intrados
         if (broken && u1 < half) { sh.lineTo(u1 + 0.18, DECK + 0.1); sh.lineTo(u1 - 0.05, DECK - 0.35); sh.lineTo(u1 + 0.12, yIn(u1) + 0.2); }
         sh.lineTo(u1, Math.min(yIn(u1), DECK - 0.3));
         for (let k = 1; k <= steps; k++) { const u = u1 + (u0 - u1) * (k / steps); sh.lineTo(u, Math.min(yIn(u), DECK - 0.3)); }
         if (broken && u0 > -half) { sh.lineTo(u0 - 0.15, yIn(u0) + 0.25); sh.lineTo(u0 + 0.06, DECK - 0.4); sh.lineTo(u0 - 0.2, DECK + 0.05); }
-        const g = new THREE.ExtrudeGeometry(sh, { depth: WIDTH, bevelEnabled: false, curveSegments: 4, steps: 3 });
-        g.translate(0, 0, -WIDTH / 2);
-        wobble(g, 0.06, 1.8, i * 3.1 + u0);
+        // (wave 2: bevelled, the deck's two long edges chipped here and there, and jittered whole)
+        const BV = 0.07;
+        const g = new THREE.ExtrudeGeometry(sh, { depth: WIDTH - 2 * BV, bevelEnabled: true, bevelThickness: BV, bevelSize: BV, bevelSegments: 1, curveSegments: 4, steps: 3 });
+        g.translate(0, 0, -(WIDTH - 2 * BV) / 2);
+        {
+          const pp = g.attributes.position;
+          for (let k = 0; k < pp.count; k++) {
+            const x = pp.getX(k), y = pp.getY(k), z = pp.getZ(k);
+            if (Math.abs(z) < WIDTH / 2 - BV - 0.01 || y < top(x) - 0.05 || Math.abs(x) > half - 0.2) continue;
+            const hc = hsh(Math.round((x - u0) * nTop / (u1 - u0)) + i * 31, Math.sign(z) * 3 + u0);
+            if (hc > 0.55) pp.setY(k, y - 0.05 - 0.17 * (hc - 0.55) / 0.45);
+          }
+        }
+        jitter(g, 0.05, 1.8, i * 3.1 + u0);
         kit.push(prep(g, { matrix: mat(mx, 0, mz, 0, sYaw, tilt), colorFn: colorStone(SPRING) }));
-        // a low parapet on each edge of the deck
+        // a low parapet on each edge of the deck (wave 2: chamfered, seated on the deck, and stopped short of the broken end's sag, where
+        // it hovered over the dipping deck)
         for (const side of [-1, 1]) {
-          const pl = u1 - u0 - (broken ? 0.3 : 0), pc = (u0 + u1) / 2;
-          const pg = new THREE.BoxGeometry(pl, 0.42, 0.26, 3, 1, 1);
-          wobble(pg, 0.03, 3, side + i);
+          const pa = broken && u1 < half ? u0 : broken ? Math.max(u0, 1.45) : u0, pb = broken && u1 < half ? Math.min(u1, -1.45) : u1;
+          const pl = pb - pa, pc = (pa + pb) / 2;
+          if (pl < 0.5) continue;
+          const pg = jitter(chamferBox(pl, 0.42, 0.26, 0.04), 0.03, 3, side + i);
           const c = Math.cos(sYaw), s = Math.sin(sYaw), vx = s * side * (WIDTH / 2 - 0.13), vz = c * side * (WIDTH / 2 - 0.13);
-          kit.push(prep(pg, { matrix: mat(mx + c * pc + vx, top(pc) + 0.2, mz - s * pc + vz, 0, sYaw, tilt), colorFn: colorStone(SPRING) }));
+          kit.push(prep(pg, { matrix: mat(mx + c * pc + vx, top(pc) + BV + 0.17, mz - s * pc + vz, 0, sYaw, tilt), colorFn: colorStone(SPRING) }));
+          // moss draped over the deck's edge, down the spandrel: two ragged sheets a side, clear of the pier heads
+          for (let m = 0; m < 2; m++) {
+            const hm = hsh(i * 7 + m * 3 + side, u0), um = pa + pl * (0.22 + 0.56 * hm), dw = 0.55 + 0.6 * hsh(m + side * 5, i), dh = 0.45 + 0.7 * hsh(i + m, side);
+            if (um - dw / 2 < u0 + 0.2 || um + dw / 2 > u1 - 0.2) continue;
+            const ms = new THREE.Shape(), teeth = 5;
+            ms.moveTo(-dw / 2, 0.06); ms.lineTo(dw / 2, 0.06);
+            for (let q = teeth; q >= 0; q--) { const tx = -dw / 2 + dw * (q / teeth); ms.lineTo(tx, -dh * (q % 2 ? 0.55 + 0.45 * hsh(q, hm) : 0.25 + 0.2 * hsh(q + 9, hm))); }
+            ms.closePath();
+            const mg = new THREE.ExtrudeGeometry(ms, { depth: 0.035, bevelEnabled: false, curveSegments: 1 });
+            mg.translate(0, 0, side > 0 ? 0.0 : -0.035);
+            const ty = top(um) + BV * 0.5;
+            const lm = new THREE.Matrix4().makeTranslation(um, ty, side * (WIDTH / 2 + 0.015));
+            kit.push(prep(mg, { matrix: mat(mx, 0, mz, 0, sYaw, tilt).multiply(lm), color: mixArr(K.moss, scaleArr(K.moss, 0.6), hm) }));
+          }
         }
         // the chains hang from the break: three strands from each broken end, down into the water
         if (broken) {
@@ -489,6 +548,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
           for (const [vOff, len] of [[-1.5, 3.5], [-0.95, 1.2], [0.95, 1.4], [1.5, 3.5]]) {
             const vx = s * vOff, vz = c * vOff;
             chainTips.push({ x: mx + c * endU + vx, y: DECK - 0.1, z: mz - s * endU + vz, len: len * (0.9 + rng() * 0.2), sway: rng() * TAU, side: Math.sign(endU) });
+          }
+          for (const [vOff, len, moss] of [[-1.25, 2.3, 0], [-0.45, 0.6, 0], [0.45, 0.75, 0], [1.25, 2.1, 0], [-1.05, 0.9, 1], [-0.2, 0.55, 1], [0.7, 0.8, 1], [1.5, 1.0, 1]]) {
+            const vx = s * vOff, vz = c * vOff, e = endU - Math.sign(endU) * (moss ? 0.25 : 0);
+            tipsMore.push({ x: mx + c * e + vx, y: DECK - (moss ? 0.3 : 0.1), z: mz - s * e + vz, len: len * (0.9 + hsh(vOff, endU) * 0.2), sway: hsh(endU, vOff) * TAU, side: Math.sign(endU), moss });
           }
         }
       }
@@ -507,15 +570,17 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       }
     }
     // the chains: rust links as a beaded strand (a tube with a bead every link), one merged piece each
-    for (const ch of chainTips) {
+    for (const ch of chainTips.concat(tipsMore)) {
       const pts = [];
-      const nL = 9;
+      const nL = ch.moss ? 4 : 9;
       for (let k = 0; k <= nL; k++) {
         const t = k / nL, y = ch.y - Math.min(ch.len, ch.y + 0.4) * t;
         const sway = Math.sin(ch.sway + t * 2.2) * 0.12 * t + ch.side * 0.18 * t * t;
         pts.push(V(ch.x + sway * 0.6, y, ch.z + sway));
       }
-      chainKit.push(prep(taperTube(pts, (t) => 0.02 + 0.01 * Math.max(0, Math.cos(t * 70)), 5, 60), { colorFn: (x, y) => mixArr(K.rust, K.iron, y < 0.3 ? 0.6 : 0.3 + 0.2 * Math.max(0, Math.sin(y * 11))) }));
+      // (wave 2: the links a little heavier, so the strands read from the raft; the moss tails hang in the stone's own merged mesh)
+      if (ch.moss) kit.push(prep(taperTube(pts, (t) => 0.06 * (1 - t * 0.75), 4, 6), { colorFn: (x, y) => mixArr(K.moss, scaleArr(K.moss, 0.55), Math.min(1, Math.max(0, (ch.y - y) / Math.max(0.3, ch.len)))) }));
+      else chainKit.push(prep(taperTube(pts, (t) => 0.027 + 0.012 * Math.max(0, Math.cos(t * 70)), 5, 60), { colorFn: (x, y) => mixArr(K.rust, K.iron, y < 0.3 ? 0.6 : 0.3 + 0.2 * Math.max(0, Math.sin(y * 11))) }));
     }
   }
 
@@ -680,38 +745,89 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       group.add(tower);
       arena?.halos?.add(tx + Math.sin(face) * 3.4, 24, tz + Math.cos(face) * 3.4, scaleArr(lin(candle), 0.55), 4.5, 1.7);
     }
+    // the dead south and south-west shore (wave 2, audit #12), seen on the glide out and in: the drowned town's last houses against the
+    // cliff, gable roofs sunk to their eaves or ridges, a doorway arch and a broken arcade with roots hanging from them, and two lamps
+    // still lit (low-poly ink silhouettes in the place stone's one merged mesh: no new draw call; two halos; no roots on the low tier)
+    {
+      // (the roofs slate, the arches the bridge's stone a shade down, so their dark doorways read against the cliff)
+      const inkQ = mixArr(mixArr(lin(0x08061a), mixArr(lin(0x181a2e), lin(0x30345a), 0.45), 0.62), K.stone, 0.3), archC = scaleArr(K.stone, 0.72), voidC = lin(0x08061a);
+      const rootC = scaleArr(lin(0x2e241b), 1.1), glassC = scaleArr(lin(candle), 1.8), ironC = lin(0x111222), halo = scaleArr(lin(candle), 0.6);
+      const put = (deg, out) => { const a = deg * Math.PI / 180, r = rS(a) + out; return { x: Math.cos(a) * r, z: Math.sin(a) * r, ry: Math.atan2(-Math.cos(a), -Math.sin(a)) }; };
+      const at = (M4, x, y, z) => new THREE.Vector3(x, y, z).applyMatrix4(M4);
+      const roots = (M4, x0, x1, y, z, n, seed, lenK = 1) => {
+        if (low) return;
+        for (let k = 0; k < n; k++) {
+          const x = x0 + (x1 - x0) * hsh(k + 1, seed), len = (0.8 + 1.7 * hsh(seed, k + 2)) * lenK, pts = [];
+          for (let j = 0; j <= 4; j++) { const t = j / 4; pts.push(V(x + Math.sin(seed + k + t * 2.6) * 0.14 * t, y - len * t, z + 0.04 + 0.12 * t * t)); }
+          aqueduct.push(prep(taperTube(pts, (t) => 0.055 * (1 - t * 0.8), 4, 6), { matrix: M4, color: rootC }));
+        }
+      };
+      const lantern = (M4, x, y, z, size) => {
+        aqueduct.push(prep(new THREE.CylinderGeometry(0.15, 0.12, 0.34, 6), { matrix: M4.clone().multiply(mat(x, y, z)), color: ironC }));
+        aqueduct.push(prep(new THREE.CylinderGeometry(0.09, 0.09, 0.2, 6), { matrix: M4.clone().multiply(mat(x, y, z + 0.06)), color: glassC }));
+        const w = at(M4, x, y, z + 0.12);
+        arena?.halos?.add(w.x, w.y, w.z, halo, size, hsh(x, z) * 10);
+      };
+      const roof = (deg, out, { w, l, rh, y0, tz = 0, tx = 0, broken = false, chim = false, ox = 0, lit = false }) => {
+        const P = put(deg, out), M4 = mat(P.x, y0, P.z, tx, P.ry, tz).multiply(new THREE.Matrix4().makeTranslation(ox, 0, 0));
+        const sh = new THREE.Shape();
+        sh.moveTo(-w / 2 - 0.3, 0); sh.lineTo(w / 2 + 0.3, 0);
+        if (broken) { sh.lineTo(w * 0.14, rh * 0.84); sh.lineTo(w * 0.03, rh * 0.6); sh.lineTo(-w * 0.07, rh * 0.95); } else sh.lineTo(0, rh);
+        sh.closePath();
+        const g = new THREE.ExtrudeGeometry(sh, { depth: l, bevelEnabled: false, curveSegments: 1 });
+        g.translate(0, -0.1, -l / 2);
+        aqueduct.push(prep(jitter(g, 0.05, 1.3, P.x + ox), { matrix: M4, color: inkQ }));
+        aqueduct.push(prep(new THREE.BoxGeometry(w * 0.92, 1.5, l * 0.86).translate(0, -0.85, 0), { matrix: M4, color: inkQ }));
+        if (chim && !low) aqueduct.push(prep(new THREE.BoxGeometry(0.42, 1.2, 0.42).translate(w * 0.22, rh * 0.55 + 0.25, -l * 0.15), { matrix: M4, color: inkQ }));
+        if (lit) {   // a candle left in the attic window of the gable toward the lake
+          aqueduct.push(prep(new THREE.BoxGeometry(0.34, 0.42, 0.06).translate(0, rh * 0.38, l / 2 + 0.02), { matrix: M4, color: glassC }));
+          const wv = at(M4, 0, rh * 0.38, l / 2 + 0.2);
+          arena?.halos?.add(wv.x, wv.y, wv.z, halo, 1.7, hsh(deg) * 10);
+        }
+        roots(M4, -w / 2, w / 2, 0.05, l / 2, 3, deg + ox, 0.35);   // (weed trailing from the eaves)
+      };
+      const arch = (deg, out, { W, H, ow, sy, y0, broken = false, ox = 0, lamp = false }) => {
+        const P = put(deg, out), M4 = mat(P.x, y0, P.z, 0, P.ry, 0).multiply(new THREE.Matrix4().makeTranslation(ox, 0, 0));
+        const sh = new THREE.Shape();
+        sh.moveTo(-W / 2, -1.4); sh.lineTo(W / 2, -1.4);
+        if (broken) { sh.lineTo(W / 2, H * 0.62); sh.lineTo(W * 0.3, H * 0.8); sh.lineTo(W * 0.12, H * 0.68); sh.lineTo(-W * 0.12, H); sh.lineTo(-W / 2, H * 0.9); }
+        else { sh.lineTo(W / 2, H); sh.lineTo(-W / 2, H); }
+        sh.closePath();
+        const hole = new THREE.Path();
+        hole.moveTo(-ow / 2, -1.2); hole.lineTo(ow / 2, -1.2); hole.lineTo(ow / 2, sy); hole.absarc(0, sy, ow / 2, 0, Math.PI, false); hole.lineTo(-ow / 2, -1.2);
+        sh.holes.push(hole);
+        const g = new THREE.ExtrudeGeometry(sh, { depth: 0.9, bevelEnabled: false, curveSegments: 5 });
+        g.translate(0, 0, -0.45);
+        aqueduct.push(prep(jitter(g, 0.05, 1.2, P.z + ox), { matrix: M4, colorFn: (x, y) => (y < 0.5 ? mixArr(archC, K.moss, 0.5) : archC) }));
+        aqueduct.push(prep(new THREE.BoxGeometry(ow + 0.3, sy + ow / 2 + 1.4, 0.12).translate(0, (sy + ow / 2 - 1.4) / 2, -0.62), { matrix: M4, color: voidC }));   // (the dark beyond the doorway)
+        if (lamp) {
+          const cy = sy + ow / 2;
+          aqueduct.push(prep(taperTube([V(0, cy, 0.25), V(0.02, cy - 0.3, 0.27), V(0, cy - 0.55, 0.28)], () => 0.018, 4, 4), { matrix: M4, color: ironC }));
+          lantern(M4, 0, cy - 0.75, 0.28, 2.2);
+        }
+        roots(M4, -W / 2 + 0.2, W / 2 - 0.2, broken ? H * 0.6 : H - 0.05, 0.45, 5, deg + ox);
+      };
+      roof(74, 2.0, { w: 3.4, l: 3.0, rh: 1.7, y0: 0.25, tz: 0.1, tx: -0.06, chim: true });
+      roof(74, 2.4, { w: 2.6, l: 2.6, rh: 1.3, y0: -0.25, tz: -0.14, broken: true, ox: 3.7 });
+      arch(92, 2.8, { W: 4.2, H: 5.2, ow: 2.2, sy: 1.8, y0: 0, lamp: true });
+      roof(106, 2.0, { w: 3.8, l: 3.2, rh: 1.9, y0: 0.4, tz: -0.05, chim: true, lit: true });
+      arch(121, 2.9, { W: 3.4, H: 4.6, ow: 1.9, sy: 1.5, y0: -0.3, ox: -1.75 });
+      arch(121, 2.9, { W: 3.4, H: 4.6, ow: 1.9, sy: 1.5, y0: -0.3, ox: 1.75, broken: true });
+      roof(136, 2.0, { w: 3.0, l: 2.8, rh: 1.5, y0: 0.0, tz: 0.12, broken: true });
+      roof(136, 2.5, { w: 2.4, l: 2.4, rh: 1.2, y0: -0.4, tz: -0.1, ox: -3.4 });
+      arch(151, 2.9, { W: 3.6, H: 5.6, ow: 2.0, sy: 2.0, y0: -0.6, broken: true });
+      roof(164, 2.1, { w: 3.2, l: 2.8, rh: 1.6, y0: -0.9, tz: 0.08, tx: 0.05 });
+    }
   }
   let stone = null;
   const stoneMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: mixHex(far, light, 0.45), rimPower: 0.56, steps: 3, detail: 'stone', wet: 0.6, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
   const stoneOl = M(evenOutline(outlineMat(0.09, INK)));
   // the cutaway (the fix pass): while the raft fishes under Under the Span's deck, the stone on the line from the lens to the Wick dithers
-  // away (gone within 0.9 m of the line, whole past 1.5 m), so the play camera and the show see the float, the tell and the fight through
-  // the deck and piers; off everywhere else and during a lift. The focus is set per frame in view space (onBeforeRender).
-  const cut = { uCutF: { value: new THREE.Vector3() }, uCutK: { value: 0 } };
-  const cutFocus = new THREE.Vector3();
-  const CUT_GLSL = `{ if (uCutK > 0.0) { vec3 gwP = -gwCutVP; float gwT = dot(gwP, uCutF) / max(1e-3, dot(uCutF, uCutF));
-      if (gwT > 0.04 && gwT < 0.93) { float gwD = length(gwP - uCutF * gwT); float gwH = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
-        if (gwH < uCutK * (1.0 - smoothstep(0.9, 1.5, gwD))) discard; } } }`;
-  const addCut = (m, viewVar) => {
-    const base = m.onBeforeCompile;
-    m.onBeforeCompile = (sh, r) => {
-      base?.call(m, sh, r);
-      Object.assign(sh.uniforms, cut);
-      if (viewVar) {
-        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uCutF; uniform float uCutK;')
-          .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n#define gwCutVP vViewPosition\n${CUT_GLSL}`);
-      } else {
-        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 gwCutV;')
-          .replace('#include <project_vertex>', '#include <project_vertex>\ngwCutV = -mvPosition.xyz;');
-        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uCutF; uniform float uCutK; varying vec3 gwCutV;')
-          .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n#define gwCutVP gwCutV\n${CUT_GLSL}`);
-      }
-    };
-    const key = m.customProgramCacheKey?.bind(m);
-    m.customProgramCacheKey = () => `${key ? key() : ''}|gwPlaceCut${viewVar ? 'V' : 'B'}`;
-  };
-  addCut(stoneMat, true); addCut(stoneOl, false);
-  const setCut = (renderer, scene, camera) => { if (cut.uCutK.value > 0) cut.uCutF.value.copy(cutFocus).applyMatrix4(camera.matrixWorldInverse); };
+  // away, so the play camera and the show see the float, the tell and the fight through the deck and piers; off during a lift. (Wave 2:
+  // the arena's see-through cut, shared with the islands, pillars and posts: a cone from the lens to the Wick; makeSeeCut)
+  const sc = arena?.seeCut || makeSeeCut();
+  sc.add(stoneMat, true); sc.add(stoneOl, false);
+  const setCut = sc.setCut;
   const allStone = kit.concat(aqueduct);
   if (allStone.length) {
     const g = G(merge(allStone));
@@ -830,7 +946,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     g.instanceCount = n;
     G(base);
     const u = { uK: { value: Array.from({ length: BANK.maxBanks }, () => 0) }, uNight: { value: 0 }, uFogD: { value: 0.0055 }, uTime: { value: 0 },
-      uDeep: { value: lin3(0x3a3488) }, uRust: { value: lin3(0x8a4b3a) }, uVerd: { value: lin3(0x5f9a86) }, uMoon: { value: lin3(0xdcd8f4) } };
+      uDeep: { value: lin3(0x3a3488) }, uRust: { value: lin3(0x8a4b3a) }, uVerd: { value: lin3(0x5f9a86) }, uMoon: { value: lin3(0xdcd8f4) },
+      uPool: { value: bell && bell.area.kind === 'disc' ? new THREE.Vector3(bell.area.x, bell.area.z, bell.area.r) : new THREE.Vector3() } };   // (wave 2: the bell clipped to its pool)
     const m = M(new THREE.ShaderMaterial({ uniforms: u, vertexShader: DECAL_VS, fragmentShader: DECAL_FS, transparent: true, depthWrite: false, fog: false, toneMapped: false,
       blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendEquation: THREE.AddEquation }));
     decalMesh = new THREE.Mesh(g, m);
@@ -983,9 +1100,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     // the cutaway: only while the raft is under Under the Span's deck (its footprint plus 2 m) and no lift is playing
     {
       const si = idx.get('under_the_span');
-      const under = !!raft && si !== undefined && footprintSdf(S[si].area, raft.x, raft.z) < 2 && !S.some((q) => q.lift);
-      cut.uCutK.value = easeOpacity(cut.uCutK.value, under ? 1 : 0, dt, 0.5);
-      if (raft) cutFocus.set(raft.x, 0.9, raft.z);
+      const lift = S.some((q) => q.lift), under = !!raft && si !== undefined && footprintSdf(S[si].area, raft.x, raft.z) < 2;
+      sc.want = under ? 1 : 0; sc.hold = lift;
+      // (the arena eases the shared cut; a places build with no arena's cut eases its own)
+      if (!arena?.seeCut) { sc.u.uCutK.value = easeOpacity(sc.u.uCutK.value, under && !lift ? 1 : 0, dt, 0.5); if (raft) sc.focus.set(raft.x, 0.9, raft.z); }
     }
     if (veil) {
       const vu2 = veil.material.uniforms;
@@ -1048,7 +1166,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       lifted: S.filter((s) => s.lifted).map((s) => s.id),
       back: BK.cur ? { placeId: BK.cur.id, t: r3(BK.cur.t), x: r3(BK.cur.x), z: r3(BK.cur.z) } : null, backs: BK.count,
       dressing: { pads: padList.length, caps: capList.length, decals: decals.length, chains: chainTips.length, piers: piers.length, redress: !!redress, tower: !!tower, veil: !!veil, layers: layers.length },
-      cut: r3(cut.uCutK.value),
+      cut: r3(sc.u.uCutK.value),
       calls: stats().calls,
     };
   }

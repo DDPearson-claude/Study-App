@@ -540,6 +540,9 @@ export function createHudV3(K, el, R, w) {
     const x = strikeAt.ok ? strikeAt.x : W / 2, y = strikeAt.ok ? strikeAt.y : H * 0.55;
     strike.style.transform = `translate3d(${Math.max(70, Math.min(W - 70, x)).toFixed(0)}px,${Math.max(80, Math.min(H - 200, y)).toFixed(0)}px,0)`;
     strike.dataset.grade = grade;
+    // (wave 2, the owner's choice: on the Mossmere under the loop no white ring bursts on the water at the strike: fishing's soft swirl
+    // at the fish says it there; the word and a Clean's glints are kept)
+    strike.classList.toggle('gw-sb-water', trip() && fishV()?.view?.waterWhite === true);
     strikeW.textContent = word ? word.text : '';
     strikeW.className = `gw-strike-w${word ? ` gw-tone-${word.tone}` : ''}`;
     restartAnim(strike, 'gw-on');
