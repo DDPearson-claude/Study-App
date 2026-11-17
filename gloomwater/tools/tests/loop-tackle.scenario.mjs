@@ -182,7 +182,9 @@ export default async function (api) {
     await K.secs(1.2);
     const db = await lureD();
     const fsL = await g(() => window.__gw.fishing.state);
-    K.check(fsL !== 'waiting' || (da != null && db != null && da - db > 1.5), 'the lure comes in by itself (about 2.5 m a second)', { da, db, fsL });
+    // (the pace is the data's, LOOP.lureCast.pace: 1.2 m/s since the user asked for it slower; loop-lure.test.mjs's rule, ±20%)
+    const pace = await g(() => Number(window.__gw.data?.LOOP?.lureCast?.pace) || 1.2);
+    K.check(fsL !== 'waiting' || (da != null && db != null && da - db > 0.8 * pace * 1.2), `the lure comes in by itself (about ${pace} m a second)`, { da, db, fsL, pace });
     await K.shoot(`lure-coming-in-${width}x${height}`);
     const inL = await K.until("c.fishing.state === 'idle' || c.fishing.state === 'bite' || c.fishing.state === 'reeling'", 14);
     K.check(inL.ok, 'the lure reaches the raft quietly, or a fish strikes', inL);

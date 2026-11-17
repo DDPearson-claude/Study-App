@@ -616,7 +616,7 @@ export function gateLine(D, metaLoop, fishId) {
   const T = D?.TEXT_LOOP?.gate, LP = D?.LOOP;
   if (!isObj(T) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
   // (LAKE 2, lane D2: the fish's own water: its hook table, its tins, its lures, the line's total Hold against its lineAt)
-  const water = fishWater(D, fishId), plain = LP.waters?.[water]?.plainBait ?? 'mireworm';
+  const water = fishWater(D, fishId, metaLoop), plain = LP.waters?.[water]?.plainBait ?? 'mireworm';
   const g0 = wcGradeOf(fishId, { water });
   if (g0 === undefined || !wcGearCap(D, fishId, { bait: plain, water })) return null;
   const ml = isObj(metaLoop) ? metaLoop : {}, line = int(ml.tackle?.line), fk = foundKit(ml, D), lineCap = fk.lineCap, lineHold = tackleHold(D, ml, fk.hold).line;
@@ -635,8 +635,13 @@ export function gateLine(D, metaLoop, fishId) {
   const it = shelfNeed(D, fishId, water);
   return it ? { kind: 'needs', item: it.id, text: needsText(D, it) } : null;
 }
-/** LAKE 2, lane D2: a fish's water (its record's zone), else the first water. */
-const fishWater = (D, fishId) => { const z = (D?.SPECIES_BY_ID?.[fishId] || (D?.SPECIES || []).find((s) => s?.id === fishId))?.zone; return typeof z === 'string' && isObj(D?.LOOP?.waters?.[z]) ? z : firstWater(D); };
+/** LAKE 2, lane D2: the water a fish is fished at: a guest's host water (LOST-TACKLE §4.2: the Nightbloom Carp at the Mossmere) while the
+ *  barge lies there or its own water does not ship, else its record's zone; else the first water. */
+const fishWater = (D, fishId, ml = null) => {
+  const sp = D?.SPECIES_BY_ID?.[fishId] || (D?.SPECIES || []).find((s) => s?.id === fishId), z = sp?.zone, g = sp?.guestOf;
+  if (typeof g === 'string' && isObj(D?.LOOP?.waters?.[g]) && ((ml?.barge?.water ?? firstWater(D)) === g || !waterShipped(D, z))) return g;
+  return typeof z === 'string' && isObj(D?.LOOP?.waters?.[z]) ? z : firstWater(D);
+};
 /** The cheapest item of a water's shelf (its bought lures, its tins) that takes a fish: {id, lure, price}, or null. */
 function shelfNeed(D, fishId, water, lands = () => true) {
   const LP = D?.LOOP || {};
@@ -662,7 +667,7 @@ const needsText = (D, it) => { const n = D?.TEXT_LOOP?.gearItems?.[it.id] || it.
 export function needsHint(D, meta, fishId) {
   const T = D?.TEXT_LOOP?.gate, LP = D?.LOOP;
   if (D?.LOOP_ENABLED !== true || !isObj(T) || !isObj(T.hint) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
-  const water = fishWater(D, fishId), plain = LP.waters?.[water]?.plainBait ?? 'mireworm';   // (LAKE 2, lane D2: the fish's own water)
+  const water = fishWater(D, fishId, meta?.loop), plain = LP.waters?.[water]?.plainBait ?? 'mireworm';   // (LAKE 2, lane D2: the fish's own water)
   if (wcGradeOf(fishId, { water }) === undefined || !wcGearCap(D, fishId, { bait: plain, water })) return null;
   const J = isObj(meta?.journal) ? meta.journal : {}, ml = isObj(meta?.loop) ? meta.loop : {};
   const bag = isObj(ml.bait?.[water]) ? ml.bait[water] : {}, has = (id) => Object.prototype.hasOwnProperty.call(bag, id);

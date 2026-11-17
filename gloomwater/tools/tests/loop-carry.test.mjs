@@ -7,15 +7,16 @@
 //   node tools/tests/loop-carry.test.mjs   (or node tools/check.mjs)
 import fs from 'node:fs';
 import * as THREE from 'three';
-import { createBus } from '../../src/core.js';
-import { create } from '../../src/progression.js';
-import * as PL from '../../src/progression-loop.js';
-import * as LC from '../../src/loop-carry.js';
-import * as WC from '../../src/watercraft.js';
-import { gearItems, raftStats, refillOrders, orderWater } from '../../src/loop-gear.js';
 
+// (every module that reads data.js comes in after the loop's flags are set, so the sim's data.js instance is the loop's too)
 const { loadLoopData, freshLoopMeta, fakeLoop } = await import('./loop-fixture.mjs');
 const D = await loadLoopData({ query: 'loop-carry' });
+const { createBus } = await import('../../src/core.js');
+const { create } = await import('../../src/progression.js');
+const PL = await import('../../src/progression-loop.js');
+const LC = await import('../../src/loop-carry.js');
+const WC = await import('../../src/watercraft.js');
+const { gearItems, raftStats, refillOrders, orderWater } = await import('../../src/loop-gear.js');
 
 let pass = 0, fail = 0;
 function ok(cond, msg) { if (cond) pass++; else { fail++; console.log('  FAIL:', msg); } }
@@ -293,6 +294,16 @@ section('the line\'s cap by its total Hold (LAKE2 §5.6): the Mossmere\'s caps u
   eq(WC.gradeTargets('sporelamp_fly', D, 'sporewood'), ['harpstring_eel', 'festival_puffer'], 'the Spore-Lamp Fly helps its giants (as the Spinner its)');
 }
 
+section('the Journal\'s gate line and hint read the fish\'s own water; a guest (the Nightbloom Carp) is read at its host water, the Mossmere');
+{
+  const L = freshLoopMeta(D).loop; L.bait.mossmere = { lumen_moss: 5, mireworm: 3 };
+  eq(PL.gateLine(D, L, 'nightbloom_carp')?.text, 'Lands up to Prize.', 'the guest at the Mossmere: the Mossmere\'s guest row and its line (as before)');
+  eq(PL.gateLine(D, L, 'weeping_carp')?.kind, 'upTo', 'a Mossmere fish: its line, as before');
+  const S = clone(L); S.barge = { water: 'sporewood', towed: ['mossmere', 'sporewood'] }; S.gearWater = 'sporewood'; S.carry = { ...LC.freshCarry(), line: 2 };
+  S.bait.sporewood = { spore_cake: 10 };
+  eq(PL.gateLine(D, S, 'velvet_ray')?.text, 'Lands up to Prize.', 'a Sporewood fish at Sporewood: its own table, its tins, the carried line (Prize)');
+}
+
 section('the first evenings at a water reached by a tow (LOOP.arrival; the user\'s answer 2): over-cap fish land at the cap, Fight −10 · −6 · −3');
 {
   eq(LC.arrivalOf(D, freshLoopMeta(D).loop, 'mossmere'), null, 'the first water (the opening\'s) has none');
@@ -335,6 +346,33 @@ section('fitTackle (the Tackle screen\'s, lane G): a lower tier, a found piece, 
   ok(L.fitTackle('reel', null).ok && L.state().found.reel === null && L.holdOf().reel === 5, 'the Winch off: the best bought (Clockwork\'s 5)');
   ok(L.fitTackle('reel', 'belfry_winch').ok && L.state().fit.reel === 'belfry_winch' && L.holdOf().reel === 2, 'the found Winch back on (fitFound): fit and found agree');
   ok(L.fitTackle('line', null).ok && L.holdOf().line === 5, 'the line back to the best bought');
+}
+
+section('T104 on Sporewood\'s pools: the game\'s pool (castOdds on data.placePool with water \'sporewood\', as fishing.js builds it) is the sim\'s');
+{
+  const SIM = await import('../sim/clams.mjs');
+  SIM.shipSporewood();
+  const HOOKS = [{}, { bait: 'spore_cake' }, { bait: 'amber_larvae' }, { bait: 'cut_strip' }, { bait: 'glowcap_bulb' },
+    { lure: 'spore_moth' }, { lure: 'ember_minnow' }, { lure: 'root_jig' }, { lure: 'sporelamp_fly' }, { lure: 'seedpod_twirl' }];
+  const LIGHTS = { day: 'calm', dusk: 'dusk', night: 'gloomtide' }, ball = D.LOOP.legendBait.sporewood.id, gb = (b) => (b === ball ? null : b ?? null);
+  let n = 0, worst = 0; const bad = [];
+  for (const place of [null, ...D.loopPlaceIds('sporewood')]) {
+    for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of HOOKS) for (const wick of [null, 'taper']) {
+      const pool = D.placePool(D.SPECIES, { placeId: place, phase: gph, bait: gb(h.bait), wickId: wick, water: 'sporewood' });
+      const game = WC.castOdds(D, { pool, area: null, phase: gph, lure: h.lure ?? null, bait: gb(h.bait), wickId: wick, water: 'sporewood' });
+      const sim = SIM.poolFor('sporewood', pool.place, ph, h.lure ?? null, h.bait ?? null, null, 1, wick, null);
+      const a = new Map(), b = new Map();
+      for (const [sp, w] of sim.list) a.set(sp.id, (a.get(sp.id) || 0) + w / sim.tot);
+      for (const e of game.entries) b.set(e.sp.id, (b.get(e.sp.id) || 0) + e.p);
+      for (const id of new Set([...a.keys(), ...b.keys()])) { const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); worst = Math.max(worst, d); if (d > 1e-9) bad.push(`${place ?? "open"} ${ph} ${JSON.stringify(h)} ${wick}: ${id} sim ${(a.get(id) ?? 0).toFixed(3)} game ${(b.get(id) ?? 0).toFixed(3)}`); }
+      n++;
+    }
+  }
+  ok(!bad.length && n === 5 * 3 * 10 * 2, `T104 on Sporewood: ${n} pools, every share the same (worst ${worst.toExponential(1)})${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}`);
+  const bare = WC.castOdds(D, { pool: D.placePool(D.SPECIES, { placeId: null, phase: 'calm', bait: null, water: 'sporewood' }), area: null, phase: 'calm', water: 'sporewood' });
+  const strays = bare.entries.filter((e) => e.g === 0), takers = bare.entries.filter((e) => e.g >= 1).map((e) => e.sp.id).sort();
+  eq(takers, ['capshell_crayfish', 'falsesmile_barb', 'netcloud_fry'], 'the bare hook at Sporewood brings its three commons');
+  ok(strays.length > 0 && strays.every((e) => e.p <= 0.0101), `every other fish a stray, at most 1 cast in 100 (the user's 1% rule; the largest ${(Math.max(...strays.map((e) => e.p)) * 100).toFixed(2)}%)`);
 }
 
 console.log(`\nloop-carry: ${pass} passed, ${fail} failed`);

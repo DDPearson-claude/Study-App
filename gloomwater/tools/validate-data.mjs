@@ -629,8 +629,8 @@ if (process.argv.includes('--loop')) {
     const WC = await import('../src/watercraft.js'), SW = WC.WATERCRAFT.sporewood, W2 = LP.waters.sporewood, PLC = LP.places;
     const words = (t) => String(t).trim().split(/\s+/).length, noDigit = (t) => typeof t === 'string' && !/\d/.test(t);
     ok4(LP.shipped === 'mossmere' && !PLM.waterShipped(L4, 'sporewood'), 'LAKE2 D1: LOOP.shipped stays the Mossmere (Sporewood ships at the integration gate)');
-    ok4(W2 && W2.order === 2 && W2.tier === 11 && same(W2.prices, { night: 1200, crown: 2200 }) && W2.lake === 1400 && W2.plainBait === LP.tins.sporewood?.[0],
-      'LAKE2 D1: LOOP.waters.sporewood: order 2, tier 11, the Veilwater 1,200 and the Mother\'s Cup 2,200, the lake map 1,400, its plain bait its first tin');
+    ok4(W2 && W2.order === 2 && W2.tier === 12 && same(W2.prices, { night: 1200, crown: 2200 }) && W2.lake === 1400 && W2.plainBait === LP.tins.sporewood?.[0],
+      'LAKE2 D1: LOOP.waters.sporewood: order 2, tier 12 (lane D2\'s tuning, LAKE2 §8.4), the Veilwater 1,200 and the Mother\'s Cup 2,200, the lake map 1,400, its plain bait its first tin');
     // the places (§3.2)
     const SPL = L4.loopPlaceIds('sporewood');
     ok4(same(SPL, ['lullaby', 'gill_harp', 'veilwater', 'mothers_cup']) && same(SPL.map((id) => PLC[id].kind), ['day', 'old', 'night', 'crown']), 'LAKE2 D1: Sporewood\'s four places in the Chart\'s order (day, old, night, crown)');

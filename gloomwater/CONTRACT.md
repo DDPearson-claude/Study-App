@@ -2398,3 +2398,25 @@ Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (
 - **Rumble**: `vibrationActuator.playEffect('dual-rumble')`, guarded: soft at `fishing:strike`, the heart's beats (`heartBeats`) at a
   `fishing:hookset` on an Elder / Ancient; none with reduced motion or `haptics` / `vibration` / `screenShake` off.
 - **Debug**: `ctx.debug.pad()`. **Files**: `src/input-pad.js`, `tools/tests/input-pad.test.mjs`, `tools/tests/loop-pad.scenario.mjs`.
+
+### 14.23 The gear loop across waters (LAKE 2, lane D2; `docs/loop/LAKE2.md` §5, §8.4, §9.2)
+
+The user's rule from Lake 2 on: at the first tow to a new water everything bought at the water left (tackle, raft parts, creels) stays
+there and a third of it is kept for good; found things travel; each water's lures and tins are its own.
+- **Pure** (`src/loop-carry.js`, no imports): `carryAdd(D, ml)`, `applyTow(D, ml, water)`, `leaveTerms(D, ml, water)` → `{to, from,
+  first, add, carry, line}`, `tackleHold(D, ml, found)`, `castMaxOf`, `hookWindowOf`, `fittedTier`, `raftLevels(ml)`, `lureHere(D, id,
+  water)`, `arrivalOf(D, ml, water)` → `{k, cap, fight}` or null, `lineCapAt(D, water, lineHold)`, `startKitAt(D, water)`.
+- **The ledger** (`ctx.progression.loop`, LOOP_METHODS): `towTo(water)` → `{ok, first, water, add, carry}` or `{ok: false, reason: 'water'
+  | 'map'}` (a first tow writes the carry and the reset before one save; a towed water only moves the barge; `loop:tow {water, first, add}`);
+  `towBarge(water)` (loop-tow's call) is `towTo` for a later water's first tow; `leaveTerms(water)` (the leaving card: nothing written);
+  `carried()` → the carry with its log line (`TEXT_LOOP.carry`, null with nothing carried) and `gearWater`; `holdOf()` → `{rod, line,
+  reel, cast, carry}`; `fitTackle(slot, id | null)` (a found piece, a tier of the gear water at or below the bought one, or the best bought;
+  refused while a fish is on; `loop:found`).
+- **The save** (additive, LOOP_SCHEMA 4): `meta.loop.carry`, `gearWater`, `fit`, `eveningsAt`; a trip's `run.arrival` on a towed
+  water's first `LOOP.arrival.evenings` evenings (fishing reads it: the cap lands, the Fight term eased).
+- **Readers take a water**: `watercraft.gradeOf / gradeTargets / hookWeights / finishPool / castOdds / lureStrike / gearCap` take an
+  optional `water` (left out: the Mossmere); `gearCap` takes `lineHold` (the line's total Hold) against `LOOP.gearCap.lineAt[water]`.
+  The shelf is the gear water's tiers, hold ladder and raft parts and the barge's water's lures and tins; orders carry `water` (an order
+  without one is the first water's).
+- **The sim**: `node tools/sim/clams.mjs --shipped=sporewood` (`tools/sim/sporewood.mjs`); `clams.mjs` exports `shipSporewood`, `WATER`,
+  `PLACE`, `SP`, `kitHold` for it and for T104 on Sporewood (`tools/tests/loop-carry.test.mjs`).
