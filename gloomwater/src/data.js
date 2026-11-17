@@ -4990,6 +4990,20 @@ LOOP.showCard = { lowFoot: 0.45 };
 TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
 TEXT_LOOP.hookSet = 'Hook set';   // the word under the float on a Clean strike (the user's yes, 17 Nov 2026; SPEC §16)
 // <<< MVP teach
+// >>> heart (the user's ask, 17 Nov 2026: "if an elder or an ancient takes your bait ... it makes your heart race"): the moment the
+// hook is set on an Elder or an Ancient, once per fish (src/ui-heart.js; fishing:hookset). A few words low on the screen (≤ 3 words,
+// the class's own label), a soft low double thump (sfx heart_hook) fast at first and slowing, the frame's edges darkening on each
+// beat (off with reduced motion), a short double buzz on phones. Nothing for Small, Keeper, Prize or Trophy; nothing changes the catch.
+// `beats`: the gap (s) from one beat to the next, `first` → `last` over `n` beats; `gap` the lub-dub's spacing (s); `pitch`, `volume`
+// the thump's; `edge` the vignette's darkest (0–1) on a beat, `decay` its fade (s); `words` the words' hold and fade (s).
+LOOP.heart = {
+  elder:   { n: 6, first: 0.5, last: 0.95, gap: 0.19, pitch: 1, volume: 0.5, edge: 0.5, decay: 0.42 },
+  ancient: { n: 6, first: 0.66, last: 1.25, gap: 0.25, pitch: 0.74, volume: 0.58, edge: 0.6, decay: 0.55 },
+  words: { hold: 2, fade: 0.6 },
+  buzz: [30, 80, 45],
+};
+TEXT_LOOP.heart = { elder: 'An Elder.', ancient: 'Something ancient.' };
+// <<< heart
 
 // >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
 // Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; LOOP and TEXT_LOOP are not in the v3
