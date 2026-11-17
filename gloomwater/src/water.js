@@ -672,6 +672,7 @@ export function create(ctx) {
       for (const o of list) {
         if (!o) continue;
         if (hullsAway && (o.kind === 'hull' || o.kind === 'murk')) continue;
+        if (o.kind === 'debris') continue;   // (the loop's drowned debris: no foam ring or pale shallows round it, it only breaks the surface)
         const x = Number(o.x ?? o.position?.x), z = Number(o.z ?? o.position?.z), r = Number(o.r ?? o.radius);
         if (isFinite(x) && isFinite(z) && isFinite(r) && r > 0.2) obsTmp.push({ x, z, r, d: Math.hypot(x - px, z - pz) - r });
       }
