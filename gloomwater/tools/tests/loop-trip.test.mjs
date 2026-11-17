@@ -330,21 +330,21 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   const meta = freshLoopMeta(D);
   const env = makeEnv({ meta, debug: true });
   env.ctx.flow = 'home';
-  eq(env.L.goal(), { id: 'hold:4', name: 'Hold 4', price: 20, slot: 'hold', level: 4 }, 'the goal: Hold 4 · 20');
+  eq(env.L.goal(), { id: 'rod:1', name: 'Ashwood', price: 50, slot: 'rod', level: 1 }, 'the goal: the cheapest, Ashwood · 50 (Hold 4 at 200 is dearer)');
   eq(env.L.buy('hold').ok, false, 'no clams: refused');
   eq(env.L.debugGive(400), 400, 'debugGive (a debug build)');
   eq(env.L.buy('hold:5').ok, false, 'T24: Hold 5 is refused before Hold 4');
   eq(env.L.buy('rod:2').ok, false, 'T24: T2 is refused before T1');
   const n = env.calls.saves.length;
   const b = env.L.buy('hold:4');
-  ok(b.ok && b.clams === 380 && meta.loop.holdSlots === 4 && env.calls.saves.length === n + 1, 'T23: Hold 4 for 20, saved at once');
-  eq(env.last('loop:buy'), { item: 'hold:4', price: 20, clams: 380 }, 'loop:buy');
+  ok(b.ok && b.clams === 200 && meta.loop.holdSlots === 4 && env.calls.saves.length === n + 1, 'T23: Hold 4 for 200, saved at once');
+  eq(env.last('loop:buy'), { item: 'hold:4', price: 200, clams: 200 }, 'loop:buy');
   const sh = env.L.shelf();
   const no4 = (items) => items.filter((i) => !(/^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id)));   // (M1 step 4's cards: loop-4.test.mjs's)
   eq(sh.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps', 'home'], 'CHOICE 11 (M1 step 3a): Tackle, Raft, Bait and Maps (M1 step 4: Home, the Order Board)');
   eq(no4(sh.tabs[1].items).map((i) => [i.id, i.bought]), [['hold:4', true]], "CHOICE 26: the bought card reads Yours. while the shelf is open");
   env.ctx.bus.emit('ui:modal', { open: false, id: 'shelf' });
-  eq(no4(env.L.shelf().tabs[1].items).map((i) => [i.id, i.price]), [['hold:5', 120]], 'the next open: Hold 5 · 120');
+  eq(no4(env.L.shelf().tabs[1].items).map((i) => [i.id, i.price]), [['hold:5', 500]], 'the next open: Hold 5 · 500');
   ok(env.L.buy('rod:1').ok && meta.loop.tackle.rod === 1, 'T23: Rod T1 for 50');
   const lo = env.P.getLoadout();
   ok(lo.rod === 1 && lo.perRun === false && lo.runless === true && lo.item === null && lo.hold.rod === D.TACKLE.rod[1].hold, 'T25: at home, getLoadout reads meta.loop.tackle (perRun false)');

@@ -1217,7 +1217,7 @@ export default async function (api) {
       const lt = s.loop?.lastTrip;
       K.check(lt && Array.isArray(lt.lines) && lt.lines.length === E.slots0, `T21: the tally holds ${E.slots0} rows`, lt);
       K.check(purse0 !== null && s.loop.clams - purse0 === lt?.total, 'T21: the clams delta equals the tally\'s total (paid once, at endTrip)', { before: purse0, after: s.loop?.clams, total: lt?.total });
-      K.check(lt?.total >= (D.LOOP.hold.ladder[0]?.price ?? 30), 'the first trip pays for Hold 4 at PLAN\'s base price (×1; the shipped game doubles it, below)', lt?.total);
+      K.check(lt?.total > 0 && lt.total < D.LOOP.hold.ladder[0].price, 'the first trip pays, but not for Hold 4 even at its base price (the user, 17 Nov 2026: "Make it 400 to start"; the purse is topped up below)', lt?.total);
       const tf = tallyFaults(lt?.lines, lt?.total, stamped, wick);
       K.check(tf.length === 0, 'T21/WICKS §2.1: every row pays what its card said (the Wick: its base, then its first)', tf);
       if (wick === 'wick') {
@@ -1526,7 +1526,7 @@ export default async function (api) {
       // ---------------------------------------------------------- Tallow at Hold 5: six cells on the water (R11, WICKS §5)
       if (wick === 'tallow' && w.ok) {
         K.step('main: Tallow at Hold 5');
-        await g(() => window.__gw.debug.loop?.giveClams?.(200));
+        await g((n) => window.__gw.debug.loop?.giveClams?.(n), D.prices[5] ?? 2 * D.LOOP.hold.ladder[1].price);   // Hold 5 at Murk's price on this page (the user, 17 Nov 2026: really expensive)
         await K.tap('[data-loop=jetty] [data-tile=murk]');
         await K.settle();
         await K.until("c.debug.ui().openModal === 'shelf'", 2);
@@ -1724,7 +1724,7 @@ export async function dryRun() {
     const plan = catchPlan(E.slots0);
     ok(plan.length === E.slots0 && plan.at(-1).via === 'real' && new Set(plan.map((p) => p.speciesId)).size === plan.length, `${id}: the first trip's catches`, plan);
     const sum = plan.reduce((a, p) => a + D.fishClams(D.SPECIES.find((s) => s.id === p.speciesId), p.z), 0);
-    ok(sum >= L.hold.ladder[0].price, `${id}: the first trip pays for Hold 4 at card prices (${sum})`, sum);
+    ok(sum > 0 && sum < L.hold.ladder[0].price, `${id}: the first trip pays (${sum}), but Hold 4 (${L.hold.ladder[0].price}) is more trips away (the user, 17 Nov 2026: "Make it 400 to start")`, sum);
     ok(plan.every((p) => listed(D, p.speciesId)), `${id}: every planned fish is on the Mossmere's list`, plan.map((p) => p.speciesId));
     ok(plan.every((p) => D.sizeClassOf(p.z) === 'keeper'), `${id}: every planned fish is a Keeper`);
   }

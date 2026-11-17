@@ -89,7 +89,7 @@ section('data.js: LOOP_ENABLED, PARKED, V3_PHASE, the apply block');
 section('data.js: the LOOP tables');
 {
   const L = D.LOOP;
-  eq(L.hold.ladder.map((s) => [s.slots, s.price]), [[4, 20], [5, 120], [6, 450], [7, 2000], [8, 3500]], 'the hold ladder (SPEC §4.2)');
+  eq(L.hold.ladder.map((s) => [s.slots, s.price]), [[4, 200], [5, 500], [6, 1000], [7, 2000], [8, 3500]], 'the hold ladder (SPEC §4.2; the user, 17 Nov 2026: "Make it 400 to start")');
   ok(L.hold.start === 3 && L.hold.max === 8 && L.hold.shelfMax === 6, 'the hold: 3 to 8, the shelf to Hold 6 (M1 step 3a; 1a stopped at 5)');
   eq(L.tackle.price, [0, 50, 300, 1200, 6000, 32000, 100000], 'tackle prices');
   eq(L.tackle.shelfAt, [1, 1, 1, 2, 3, 4, 9], 'v8: shelfAt[6] = 9');
@@ -223,19 +223,19 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   // (M1 step 4's cards, the lures, tins, raft parts and Order Board, are tools/tests/loop-4.test.mjs's: these checks read the rest)
   const step4 = (i) => /^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id), no4 = (items) => items.filter((i) => !step4(i));
   const kit = (items) => no4(items).filter((i) => i.tab === 'tackle' || i.tab === 'raft');
-  eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 20, false]], 'T23: the fresh shelf (Tackle and Raft)');
+  eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 200, false]], 'T23: the fresh shelf (Tackle and Raft)');
   eq(no4(shelf0).filter((i) => i.tab === 'bait' || i.tab === 'maps').map((i) => [i.id, i.price, i.bought]),
     [['bait:heartmoss', 60, false], ['place:lily_maze', 60, false], ['place:under_the_span', 150, false], ['lake:sporewood', null, false]], 'M1 step 3a: the Bait tab and the Maps tab (two place maps and the sealed card)');
   eq(shelf0.find((i) => i.id === 'hold:4').name, 'Lidded Creel', "a hold card names the ladder's step");
   ok(!shelf0.some((i) => i.id === 'hold:5' || i.id === 'rod:2'), 'T24: Hold 5 and T2 wait for the step below');
-  eq(PL.goalOf(shelf0), { id: 'hold:4', name: 'Hold 4', price: 20, slot: 'hold', level: 4 }, 'the goal line: the cheapest, "Hold 4 · 20"');
+  eq(PL.goalOf(shelf0), { id: 'rod:1', name: 'Ashwood', price: 50, slot: 'rod', level: 1 }, 'the goal line: the cheapest, "Ashwood · 50" (Hold 4 at 200 is dearer)');
   const after = { ...PL.freshLoop(D), holdSlots: 4, tackle: { rod: 1, line: 0, reel: 0 } };
   const ses = PL.shelfItems(D, after, ['hold:4', 'rod:1']);
   eq(ses.filter((i) => i.bought).map((i) => i.id), ['rod:1', 'hold:4'], 'CHOICE 26: bought while open, the card reads Yours. in place');
-  eq(PL.shelfItems(D, after).filter((i) => ['rod', 'hold'].includes(i.slot)).map((i) => [i.id, i.price]), [['rod:2', 300], ['hold:5', 120]], 'T23: the next steps on the next open');
-  // M1 step 3a: the shelf's last hold step is Hold 6 (LOOP.hold.shelfMax), so Hold 5 is followed by the Wellbox at 450
+  eq(PL.shelfItems(D, after).filter((i) => ['rod', 'hold'].includes(i.slot)).map((i) => [i.id, i.price]), [['rod:2', 300], ['hold:5', 500]], 'T23: the next steps on the next open');
+  // M1 step 3a: the shelf's last hold step is Hold 6 (LOOP.hold.shelfMax), so Hold 5 is followed by the Wellbox at 1,000
   const five = PL.shelfItems(D, { ...PL.freshLoop(D), holdSlots: 5, tackle: { rod: 2, line: 2, reel: 2 } });
-  eq(kit(five).map((i) => [i.id, i.price, i.bought]), [['rod:2', 300, true], ['line:2', 300, true], ['reel:2', 300, true], ['hold:6', 450, false]], 'M1 step 3a: after Hold 5, Hold 6 at 450 (shelfMax 6)');
+  eq(kit(five).map((i) => [i.id, i.price, i.bought]), [['rod:2', 300, true], ['line:2', 300, true], ['reel:2', 300, true], ['hold:6', 1000, false]], 'M1 step 3a: after Hold 5, Hold 6 at 1,000 (shelfMax 6)');
   const all4 = PL.freshLoop(D); all4.maps.places = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
   const top = PL.shelfItems(D, { ...all4, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   ok(kit(top).length === 4 && kit(top).every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
