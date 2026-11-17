@@ -4917,7 +4917,7 @@ export const LOOP = {
   // homeCamAt)
   mooring: {
     mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
-      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } },
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [28.77, 8.5, 24.32], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } },
   },
 };
 export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)
@@ -4925,7 +4925,7 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
   sail: 'Sail', resume: 'Resume', continue: 'Continue', next: 'Next: {name} · {price}', holdName: 'Hold {n}',
   tabs: { tackle: 'Tackle', raft: 'Raft', bait: 'Bait', maps: 'Maps', home: 'Home', giants: 'Giants' },   // giants: the ★ tab's accessible name only (PLAN CHOICE 25)
   jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal', wall: 'The Long Wall' },   // (wall: the doorway's accessible name only, SPEC §6.3's; no word is drawn under it)
-  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Holds every fish better.', reel: 'Holds every fish better.',
+  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Holds the long runs.', reel: 'More line for the big ones.',
     heartmoss: 'For the Belled Matriarch. One try.' },   // a legend's bait (SPEC §8.4)
   // the place maps' lines (SPEC §5.2's table), one per place, each ≤ 8 words
   maps: { lily_maze: 'Koi glow under the pads like lanterns.', under_the_span: 'The bridge kept its chain. Something kept it.',
@@ -4955,6 +4955,10 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
     hurry: 'From your second evening, press anywhere to hurry a small fish in.' },
   forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm: 'Every clam, every piece of gear and every name in the Journal will be lost.' },
 };   // no tagline: §8.5 gives none, so the loop's title draws none (the lead's ruling, PLAN §7.2)
+// the polish audit (batch 3): the catch card on a near-square or upright screen that is not a phone's (700 px wide or more, narrower
+// than 1.2 × its height, 480 px high or more) sits at the foot, over `lowFoot` of the frame's height; the show fits the Wick's face
+// and the fish into the open top above it (ui-screens' gw-cc-low, render's cardLow)
+LOOP.showCard = { lowFoot: 0.45 };
 // >>> MVP teach (the user's play-test, 16 November 2026: "add a one-time teaching moment for both"): the float's two marks, each
 // explained once by an ink caption with a leader to it (src/ui-teach.js; ≤ 6 words, no number). The quiet water is Murk's firstQuiet.
 TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
@@ -5040,10 +5044,10 @@ export function loopCostFactor(g = globalThis) {
 LOOP.cost = Object.assign({ consumables: 1 }, LOOP.cost || {}, { factor: loopCostFactor(), shipped: LOOP_COST_SHIPPED });
 // the shelf's one line for each tin and lure (SPEC §8.11, replacing lane 4's family lines; the Spinner's as built)
 Object.assign(TEXT_LOOP.shelf, {
-  mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'Sweet. The Gloam Eel bites on nothing else.', cut_strip: 'Meat, for the hunters.',
-  feather_fly: 'For the fish that rise.', glimmer_spoon: 'Flash, for the hunters.', bone_jig: 'Hopped on the bottom, for the hunters.',
-  bell_spinner: 'For the Thousandcast Pike.',
-});
+  mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'For the Gloam Eel and the Candlefin Koi.', cut_strip: 'Meat, for the hunters.',
+  feather_fly: 'For Dusk Minnows, Chub, Lampsippers and Koi.', glimmer_spoon: 'Flash, for the hunters.', bone_jig: 'Hopped on the bottom, for bottom feeders.',
+  bell_spinner: "For the Mossmere's giants.",
+});   // (the polish audit, batch 3: each ≤ 8 words, none repeats another; the Fly's and the Moss's fish are LOOP.items' own)
 // the gear log's words (SPEC §8.11): the Who bites block and a tin's or lure's Hold line (WC-3 renders them)
 TEXT_LOOP.log = Object.assign(TEXT_LOOP.log || {}, {
   whoBites: 'Who bites', bare: 'Bare hook', under: '<1%', unmet: 'and {n} you have not met',

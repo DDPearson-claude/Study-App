@@ -428,7 +428,9 @@ export function createHud(K) {
       setAttr(R.chargeDepth, 'chgDc', 'data-depth', depth);
     }
     // bite prompt at the bobber
-    const biting = st === 'bite';
+    // (one cue at a bite: once the strike gauge shows, it and the float's ring are the cue and the "!" stays down)
+    const gaugeOn = !!(v.strikeGauge && num(v.strikeGauge.end) > 0);
+    const biting = st === 'bite' && !gaugeOn;
     const af = afOn(D());
     toggle(R.bite, 'bite', 'gw-on', biting);
     if (biting && f.bobberPos) {

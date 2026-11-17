@@ -1106,6 +1106,11 @@
 /* …and on a wide screen it is docked at the right like a photograph's caption (ui-screens sets --side-w / --side-m; render fits the
    Wick and its fish into the left of the frame): one column of ink, the veil thin over the picture */
 @media (min-width: 701px) {
+  /* (a near-square screen's card at the foot, no taller than the half under the picture: ui-screens' gw-cc-low, render's cardLow) */
+  .gw-modal.gw-m-catch:has(.gw-cc-low) { align-items: flex-end; }
+  .gw-modal.gw-m-catch:has(.gw-cc-low) .gw-scrim { background: linear-gradient(180deg, rgba(var(--veil-rgb), 0) 0%, rgba(var(--veil-rgb), .1) 40%, rgba(5, 6, 14, .66) 100%); }
+  .gw-cc-v3.gw-p-catch.gw-cc.gw-cc-low { min-height: 0; max-height: calc(50vh - 8px); padding: 34px 60px 28px; }
+  .gw-cc-low .gw-fish-ink { max-height: 110px; width: auto !important; }
   .gw-modal.gw-m-catch:has(.gw-cc-side) { justify-content: flex-end; }
   .gw-modal.gw-m-catch:has(.gw-cc-side) .gw-scrim { background: linear-gradient(90deg, rgba(var(--veil-rgb), 0) 0%, rgba(var(--veil-rgb), .1) 40%, rgba(5, 6, 14, .66) 100%); }
   .gw-cc-v3.gw-p-catch.gw-cc.gw-cc-side { width: var(--side-w, 46vw); min-height: 0; padding: 44px 44px 34px 50px; margin-right: var(--side-m, 10px); }
@@ -2284,6 +2289,7 @@
     linear-gradient(var(--tk), var(--tk)) right bottom / var(--tl) 1.5px no-repeat, linear-gradient(var(--tk), var(--tk)) right bottom / 1.5px var(--tl) no-repeat;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, .9)); }
 .gw-jetty-target:hover .gw-jetty-tbox, .gw-jetty-target:focus-visible .gw-jetty-tbox { opacity: .9; }
+.gw-jetty-target--under .gw-jetty-tbox { display: none; }
 .gw-jetty-target.gw-cue .gw-jetty-tbox { opacity: 1; --tk: rgba(246, 214, 160, .95); animation: gwLoopCueInk 1.6s ease-in-out infinite; }
 /* (the word nudged off the Wick or another word by placeTargets: --tw-dx / --tw-dy; a tap on it is its target's) */
 .gw-jetty-tword { position: absolute; left: 50%; bottom: 0; transform: translate(calc(-50% + var(--tw-dx, 0px)), var(--tw-dy, 0px)); display: flex; align-items: center; gap: 4px; white-space: nowrap; pointer-events: auto; }

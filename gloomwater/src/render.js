@@ -909,6 +909,10 @@ export function create(ctx) {
   /** A show's card is docked at the right of this screen (ui-screens' rule: 700 px wide or more, wider than 1.2 × its height,
    *  and at least 480 px high: a phone on its side keeps the card across its middle). */
   const cardAtSide = () => (Number(SHOWC?.behindCard?.landscapeSide) || 0) > 0 && W >= 700 && W >= H * 1.2 && H >= 480;
+  /** …and a near-square or upright screen that is not a phone's (700 px wide or more, narrower than 1.2 × its height, at least
+   *  480 px high) has the card at its foot (ui-screens' gw-cc-low): the subject keeps the frame's top above LOOP.showCard.lowFoot. */
+  const lowFoot = () => (ctx.data?.LOOP_ENABLED === true ? Number(ctx.data?.LOOP?.showCard?.lowFoot) || 0 : 0);
+  const cardLow = () => lowFoot() > 0 && W >= 700 && W < H * 1.2 && H >= 480;
   /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
   function fitShow(v) {
     const S = showCam, a = W / H;
@@ -931,10 +935,17 @@ export function create(ctx) {
       mBottom = lerp(mBottom, Math.max(mBottom, 0.3), clamp(row.upright, 0, 1));
       shiftY = 0.08 * row.upright;
     }
+    // (the card at the foot of a near-square screen: the Wick's face and the fish are fitted into the open top above it: the band
+    // from the top margin to lowFoot over the foot, as even margins (showFit keeps each under 0.3) and the band's lift)
+    let mTop = row.margin + row.headroom;
+    if (S.hold && BC.hold !== false && cardLow()) {
+      const lf = clamp(lowFoot(), 0, 0.55), m2 = clamp((mTop + lf) / 2, 0, 0.3);
+      shiftY = Math.max(0, (lf - mTop) / 2 - (m2 - (mTop + lf) / 2)); mTop = m2; mBottom = m2;
+    }
     // …and on a wide screen the card stands at the right (ui docks it there, by the same rule: not a phone, wider than 1.2 × its
     // height): the picture is fitted into the left of the frame
     const side = S.hold && BC.hold !== false && cardAtSide() ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
-    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: row.margin + row.headroom, marginBottom: mBottom,
+    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: mTop, marginBottom: mBottom,
       marginRight: side > 0 ? side : null, minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
     if (!fit) return false;
     const T = S.tgt;

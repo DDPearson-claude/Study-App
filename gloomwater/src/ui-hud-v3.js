@@ -416,7 +416,8 @@ export function createHudV3(K, el, R, w) {
 
   function tellCount(id) { let n = 0; for (let i = 1; i <= 3; i++) if (seen(`ui_tell_${id}_${i}`)) n = i; return n; }
   function paintTell(st, v) {
-    const id = (st === 'waiting' || st === 'bite') && bobP.ok ? v.biteTell : null;
+    // (the tell plays while waiting only: in the bite window the strike gauge is the one cue)
+    const id = st === 'waiting' && bobP.ok ? v.biteTell : null;
     const T = id ? V.tellInfo(id, D()) : null;
     toggle(tell, 'tell', 'gw-on', !!T);
     if (!T) { tellId = ''; return; }
