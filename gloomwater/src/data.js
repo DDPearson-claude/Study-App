@@ -4813,7 +4813,7 @@ export const LOOP = {
   priceFactor: 1,                    // the balancing job's one common price factor (WICKS §3.2): ×1.0 in 1a, tuned in 1b
   // ---- a lure's cast (the user, 17 Nov 2026): the line comes back by itself at `pace` m/s; each second the hook table's odds at the area
   // under the lure are drawn and the fish strikes at takeChance(strike, its grade); at `inAt` m from the raft it comes in quietly
-  lureCast: { pace: 2.5, strike: 0.1, inAt: 2.4 },
+  lureCast: { pace: 1.2, strike: 0.05, inAt: 2.4 },   // (the user: "auto reels in slowly": about 12 s for a 14 m cast; the strike halved so a cast's chance stays as fitted)
   // ---- the hold (SPEC §3.1, §4.2): holdSlots is the bought count (3–8) for every Wick; a Wick's slots are wickSlots / loopSlots
   hold: { start: 3, max: 8, shelfMax: 6,             // shelfMax: the shelf's last hold step (1a: Hold 5, PLAN CHOICE 11; M1 step 3a: Hold 6, the Wellbox, M1 §2.5)
     ladder: [{ slots: 4, price: 30, name: 'Lidded Creel' }, { slots: 5, price: 120, name: 'Double Creel' },

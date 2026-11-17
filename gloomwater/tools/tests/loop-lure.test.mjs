@@ -60,7 +60,8 @@ section('a lure\'s cast: no wait, the line comes back toward the raft at the pac
   let t = 1;
   for (; t < 30 && E.F.state === 'waiting'; t += 1 / 30) E.tick(1);
   ok(E.F.state === 'lost' || E.F.state === 'idle', 'at the raft the line comes in', E.F.state);
-  ok(t > 3 && t < 7, `a 14 m cast comes in within a few seconds (${t.toFixed(1)} s)`);
+  const want = (d0 - D.LOOP.lureCast.inAt) / D.LOOP.lureCast.pace;   // (slow, as the user asked: about 10 s for this cast at 1.2 m/s)
+  ok(t > want * 0.7 && t < want * 1.3, `a 14 m cast comes in at the pace, slowly (${t.toFixed(1)} s, about ${want.toFixed(1)} s)`);
   const evs = E.events.slice(ev0).map((e) => e.e);
   for (const e of ['fishing:miss', 'fishing:escaped', 'fishing:bite', 'fishing:hook']) ok(!evs.includes(e), `no ${e}`);
   ok(evs.includes('fishing:reelIn'), 'fishing:reelIn {quiet}');
