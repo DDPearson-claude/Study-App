@@ -14,6 +14,7 @@ import { listFor as loopListFor, catalogueFor, gateLine } from './progression-lo
 import { cardHooks as gearCardHooks, whoBitesHtml } from './ui-gear.js';   // (WC-3: the gear log's Who bites)   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
 import { createSheetView } from './ui-sheet.js';   // the Wick's sheet (SHEET.md): the Journal's first tab under the loop
+import { ownedNotes } from './loop-finds.js';   // LOST-TACKLE §4: the notebooks on the gear log's Who bites
 // <<< LOOP 1a
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -1880,6 +1881,14 @@ export function createScreens(K) {
       sec.appendChild(grid);
       scroll.appendChild(sec);
     }
+    if (v.guests?.length) {   // LOST-TACKLE §4.2: the guests after the water's own fish, each with a small notebook glyph in its corner, no words
+      const sec = h('section', 'gw-cat-group gw-cat-group--guest gw-owned');
+      sec.dataset.loop = 'guests';
+      const grid = h('div', 'gw-cat-grid');
+      for (const c of v.guests) { const b = catCard(entry, c); b.classList.add('gw-cat-guest'); b.insertAdjacentHTML('beforeend', `<i class="gw-cat-note" aria-hidden="true">${icon('book')}</i>`); grid.appendChild(b); }
+      sec.appendChild(grid);
+      scroll.appendChild(sec);
+    }
     if (v.finds && K.finds?.renderRow) { try { scroll.appendChild(K.finds.renderRow(entry, v.finds, { phone: K.vw < 700 })); } catch (e) { K.report('finds row', e); } }   // M1 step 5c
     if (af()) {
       const odds = h('button', 'gw-link gw-cat-odds');
@@ -1982,7 +1991,7 @@ export function createScreens(K) {
       if (G.pinned?.speciesId) content.insertAdjacentHTML('beforeend', `<p class="gw-gear-pin">${icon('hook')}<span><small>Pinned</small> ${esc(AF.pinnedLabel(D(), G.pinned, { speciesName: names[G.pinned.speciesId] || '' }))}</span></p>`);
       const kit = loadoutNames(A);
       if (kit.length) content.insertAdjacentHTML('beforeend', `<p class="gw-gear-kit">${esc(kit.join(' \u00b7 '))}</p>`);
-      const groups = [['Tackle', ['rod', 'line', 'reel']], ['Bait', ['bait']], ['Lures', ['lure']]];
+      const groups = [['Tackle', ['rod', 'line', 'reel', 'notebook']], ['Bait', ['bait']], ['Lures', ['lure']]];   // (LOST-TACKLE §2.1: a notebook under the tackle)
       const equipped = A?.item ?? safe(() => { const e = prog()?.getEquippedBait?.(); return typeof e === 'object' && e ? e.id : e; }, null);
       for (const [label, kinds] of groups) {
         const list = arr(G.entries).filter((e) => kinds.includes(e.kind));
@@ -1990,13 +1999,13 @@ export function createScreens(K) {
         content.insertAdjacentHTML('beforeend', `<div class="gw-group">${esc(label)}</div>`);
         for (const e of list) {
           const L = gearLines(e, G, A, names);
-          const ic = e.kind === 'bait' ? (K.baitData(e.id)?.icon || 'worm') : e.kind === 'lure' ? 'hook' : e.kind === 'reel' ? 'reel' : e.kind === 'line' ? 'line' : 'rod';
-          const own = e.id === equipped ? '<span class="gw-own">on the line</span>' : num(e.owned) > 0 && e.max ? pips(num(e.owned), num(e.max)) : e.owned === true ? '<span class="gw-own">owned</span>' : '';
+          const ic = e.kind === 'bait' ? (K.baitData(e.id)?.icon || 'worm') : e.kind === 'lure' ? 'hook' : e.kind === 'reel' ? 'reel' : e.kind === 'line' ? 'line' : e.kind === 'notebook' ? 'book' : 'rod';
+          const own = e.id === equipped || (e.found && e.fitted) ? '<span class="gw-own">on the line</span>' : num(e.owned) > 0 && e.max ? pips(num(e.owned), num(e.max)) : e.owned === true ? '<span class="gw-own">owned</span>' : '';
           const row = h('div', `gw-item gw-gear-row${e.id === equipped ? ' gw-equipped' : ''}`);
           row.innerHTML = `<span class="gw-item-ico">${icon(ic)}</span><div class="gw-item-text"><div class="gw-item-name">${esc(e.name || itemName(e.id))}${own}</div>
             <div class="gw-item-hold">${esc(L.hold)}</div>${L.compare ? `<div class="gw-item-cmp">${esc(L.compare)}</div>` : ''}</div>`;
           // (WC-3, WATERCRAFT §3.9: a Mossmere tin's or lure's Who bites under its line: the fish met by name, the rest counted)
-          if (loopOn()) row.querySelector('.gw-item-text')?.insertAdjacentHTML('beforeend', safe(() => whoBitesHtml(D(), e, { met: (id) => !!meta()?.journal?.[id], names, esc }), ''));
+          if (loopOn()) row.querySelector('.gw-item-text')?.insertAdjacentHTML('beforeend', safe(() => whoBitesHtml(D(), e, { met: (id) => !!meta()?.journal?.[id], names, esc, notes: ownedNotes(meta()?.loop, D()) }), ''));
           content.appendChild(row);
         }
       }

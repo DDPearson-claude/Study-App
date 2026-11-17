@@ -8,8 +8,9 @@
 //   node tools/playtest.mjs --html=tools/out/lost-tackle/dev.html --shots=tools/out/lost-tackle/desktop --script=tools/tests/loop-lost-tackle.scenario.mjs
 //   node tools/playtest.mjs --html=tools/out/lost-tackle/dev.html --shots=tools/out/lost-tackle/phone --script=tools/tests/loop-lost-tackle.scenario.mjs --mobile --width=820 --height=900
 //
-// Prints `LOOP_TACKLE {size, failures, notes}`; returns its failures. Lanes L3–L6 and W extend it (the Kit row, the gear log, the
-// Chart's ink-in and the sail through the Veil).
+// Lanes L3–L5 (its second half): the catalogue's guests and the tap's log line, the gear log's effect lines, the tin's Kit row on the
+// lake (the three found pieces fitted and the button on the hook: the four stats), a guest's bite, its card and its Journal page.
+// Prints `LOOP_TACKLE {size, failures, notes}`; returns its failures. Lane W extends it (the Chart's ink-in and the sail through the Veil).
 import { makeKit, Abort } from './loop-1a.scenario.mjs';
 
 export default async function (api) {
@@ -145,11 +146,79 @@ export default async function (api) {
     await K.settle(300); await K.secs(0.3);
     const big = await g(() => { const b = document.querySelector('[data-modal=journal] .gw-fd-big'); if (!b) return null; b.scrollIntoView({ block: 'center' }); return { id: b.dataset.find, text: [...b.querySelectorAll('b, p')].map((e) => e.textContent.trim()) }; });
     const Wp = await g(() => window.__gw.data.TEXT_LOOP.finds.items.lamp_pole);
-    K.check(big && big.id === 'lamp_pole' && big.text.join('|') === [Wp.name, Wp.line, Wp.does].join('|'), 'the tap: its drawing, its name, the owner\'s line, what it does', big);
+    K.check(big && big.id === 'lamp_pole' && big.text.join('|') === [Wp.name, Wp.line, 'Casts 26 m.'].join('|'), 'the tap: its drawing, its name, the owner\'s line, its log line (L5: "Casts 26 m.")', big);
     await K.secs(0.3);
     await K.shoot('catalogue-tackle');
     const bf = await fits('[data-modal=journal] .gw-fd-big');
     K.check(bf.length === 0, 'the tap: no word cut, off screen or overlapping', bf);
+    // >>> lanes L3–L5: the guests in the catalogue, the gear log's lines, the tin's Kit row, fitting, a guest's card and its Journal page
+    const gu = await g(() => [...document.querySelectorAll('[data-modal=journal] [data-loop=guests] .gw-cat-card')].map((b) => ({ id: b.dataset.fish, note: !!b.querySelector('.gw-cat-note svg'), name: b.querySelector('.gw-cat-name')?.textContent.trim() })));
+    K.check(gu.map((x) => x.id).join('|') === 'rosefleck_trout|nightbloom_carp' && gu.every((x) => x.note && x.name === '· · ·'), 'the catalogue: both notebooks\' guests after the water\'s own fish, hatched, each with its notebook glyph', gu);
+    await g(() => document.querySelector('[data-modal=journal] [data-loop=guests]')?.scrollIntoView({ block: 'center' }));
+    await K.secs(0.3); await K.shoot('catalogue-guests');
+    await g(() => window.__gw.ui.closeAll?.()); await K.secs(0.4);
+    K.step('tackle: Sail; the tin\'s Kit row; fitting');
+    await g(() => window.__gw.ui.loop.openJetty?.()); await K.secs(0.6);
+    K.need(await g(() => window.__gw.game.sail({ water: 'mossmere' })), 'Sail');
+    K.need((await K.until("c.flow === 'playing' && c.fishing.state === 'idle'", 12)).ok, 'on the water');
+    await K.until("c.flow === 'playing' && !c.loopHome?.gliding?.()", 14);
+    await K.secs(3);
+    K.need((await K.until("!!document.querySelector('[data-loop=tackle-tin]') && !document.querySelector('[data-loop=tackle-tin]').hidden", 10)).ok, 'the tin shows on the lake');
+    const cast0 = await g(() => window.__gw.progression.getStats().castMax);
+    K.need(await K.tap('[data-loop=tin]'), 'tap the tin');
+    await K.secs(0.5); await K.settle(300);
+    const kit0 = await g(() => [...document.querySelectorAll('[data-loop=tackle] [data-row=kit] .gw-tk-it')].map((b) => ({ id: b.dataset.kit, on: b.getAttribute('aria-pressed') === 'true', name: b.querySelector('.gw-tk-name')?.textContent, art: !!b.querySelector('canvas'), w: b.getBoundingClientRect().width, h: b.getBoundingClientRect().height })));
+    K.check(kit0.map((k) => k.id).join('|') === 'lamp_pole|belfry_winch|ferry_thread' && kit0.every((k) => !k.on && k.art && k.w >= 43.5 && k.h >= 43.5), 'the Kit row: the pole, the winch and the thread, drawn, none fitted, every target ≥ 44 px', kit0);
+    for (const id of ['lamp_pole', 'belfry_winch', 'ferry_thread']) { K.check(await K.tap(`[data-loop=tackle] [data-kit=${id}]`), `fit the ${id}`); await K.secs(0.35); }
+    await g(() => document.querySelector('[data-loop=tackle] [data-lure=guard_button]')?.scrollIntoView({ block: 'center' }));
+    K.check(await K.tap('[data-loop=tackle] [data-lure=guard_button]'), 'put the button on the hook');
+    await K.secs(0.4); await K.settle(300);
+    const fit = await g(() => { const c = window.__gw; c.time.frame++; return { found: c.state.meta.loop.found, lure: c.state.run?.lure, cast: c.progression.getStats().castMax, lo: (({ hold, waitMult, playMult, lineCap }) => ({ hold, waitMult, playMult, lineCap }))(c.progression.getLoadout()),
+      pressed: [...document.querySelectorAll('[data-loop=tackle] [aria-pressed=true]')].map((b) => b.dataset.kit || b.dataset.lure || b.dataset.bait) }; });
+    K.check(fit.found.rod === 'lamp_pole' && fit.found.reel === 'belfry_winch' && fit.found.line === 'ferry_thread' && fit.lure === 'guard_button', 'fitted: the three pieces and the button (meta.loop.found, run.lure)', fit);
+    K.check(fit.cast === 26 && cast0 < 26 && fit.lo.waitMult === 0.8 && fit.lo.playMult === 0.6 && fit.lo.lineCap === 'trophy' && fit.lo.hold.rod === 0, 'the four stats: casts 26 m, bites ×0.8, plays ×0.6, the Thread\'s Trophy cap, the Pole\'s +0 Hold', { cast0, ...fit });
+    await K.shoot('tin-kit');
+    const kf = await fits('[data-loop=tackle]');
+    K.check(kf.length === 0, 'the tin with its Kit row: no word cut, off screen or overlapping', kf);
+    const nums = await g(() => /\d|%/.test([...document.querySelectorAll('[data-loop=tackle] .gw-tk-name')].map((e) => e.textContent).join(' ')));
+    K.check(!nums, 'the tin carries names only, no number');
+    await K.tap('[data-loop=tackle] [data-action=close]'); await K.secs(0.5);
+    K.step('tackle: the sheet (the loop\'s gear log)');
+    await g(() => window.__gw.ui.openTackle());
+    await K.secs(0.8); await K.settle(300);
+    const plates = await g(() => [...document.querySelectorAll('.gw-sh-plate')].map((p) => ({ key: p.dataset.plate, name: p.querySelector('.gw-sh-pname b')?.textContent, lines: [...p.querySelectorAll('.gw-sh-line')].map((l) => l.textContent.trim()), art: !!p.querySelector('.gw-sh-art canvas, .gw-sh-art svg') })));
+    const want = { "Lamplighter's Pole": 'Casts 26 m.', 'Belfry Winch': 'Plays 0.6× as long.', "Ferrywife's Thread": 'Bites come 20% sooner.', "The Veil Angler's Notebook": 'Shows the way to Veilback Brook.', "The Lily Gardener's Notebook": 'Nightbloom Carp bite at the lily beds, night.' };
+    K.check(Object.entries(want).every(([n, t]) => plates.some((p) => p.name === n && p.art && p.lines.some((l) => l.includes(t)))), 'the sheet: the fitted pieces stand in for their tiers, the notebooks under the tackle, each drawn with its effect lines', plates.filter((p) => /Pole|Winch|Thread|Notebook/.test(p.name || '')));
+    const btn = await g(() => [...document.querySelectorAll('.gw-sheet *')].some((e) => e.children.length === 0 && e.textContent.trim() === 'Liked by 13 fish here.'));
+    K.check(btn, 'the button on the hook: "Liked by 13 fish here."');
+    await g(() => document.querySelector('.gw-sh-plate[data-plate^="note:"]')?.scrollIntoView({ block: 'center' }));
+    await K.secs(0.4); await K.shoot('sheet-tackle');
+    const sf = await fits('.gw-sheet');
+    K.check(sf.filter((f) => f[0] !== 'off').length === 0, 'the sheet: no word cut or overlapping', sf.slice(0, 6));
+    await g(() => window.__gw.ui.closeAll?.()); await K.secs(0.5);
+    K.step('tackle: a guest on the hook, its card, its Journal page');
+    await g(() => { const c = window.__gw; c.debug.fishOutcome('land'); c.debug.forceBite({ speciesId: 'rosefleck_trout', z: 0.5 }); });
+    K.need((await K.until("c.fishing.state === 'bite'", 10)).ok, 'the Rosefleck bites');
+    await g(() => { const f = window.__gw.fishing; f.onPointerDown?.({ input: 'mouse' }); f.onPointerUp?.(); });
+    K.need((await K.until("c.debug.ui().openModal === 'catch'", 30)).ok, 'its card opens');
+    await K.secs(0.6); await K.settle(300);
+    const gc = await g(() => { const m = document.querySelector('[data-modal=catch]'); return m ? { text: m.textContent.replace(/\s+/g, ' ').trim().slice(0, 160), pct: /%/.test(m.textContent) } : null; });
+    K.check(gc && /Rosefleck Trout/.test(gc.text) && !gc.pct, 'the guest\'s card: its name, no odds', gc);
+    await K.shoot('card-guest');
+    const cgf = await fits('[data-modal=catch]');
+    K.check(cgf.length === 0, 'the guest\'s card: no word cut, off screen or overlapping', cgf);
+    await g(() => window.__gw.debug.fishOutcome(null));
+    await K.tap('[data-modal=catch] [data-action=keep]') || await K.tap('[data-modal=catch] .gw-btn');
+    await K.secs(1); await K.settle(300);
+    await g(() => window.__gw.debug.finds.catalogue()); await K.secs(0.5); await K.settle(300);
+    await g(() => document.querySelector('[data-modal=journal] [data-loop=guests] [data-fish=rosefleck_trout]')?.scrollIntoView({ block: 'center' })); await K.secs(0.3);
+    K.need(await K.tap('[data-modal=journal] [data-loop=guests] [data-fish=rosefleck_trout]'), 'tap the Rosefleck in the catalogue');
+    await K.secs(0.5); await K.settle(300);
+    const pg = await g(() => { const p = document.querySelector('[data-modal=journal] .gw-cat-species'); return p ? { text: p.textContent.replace(/\s+/g, ' ').trim().slice(0, 200) } : null; });
+    K.check(pg && /Rosefleck Trout/.test(pg.text), 'the guest\'s Journal page opens from the catalogue', pg);
+    await K.shoot('journal-guest');
+    const jf = await fits('[data-modal=journal] .gw-cat-species');
+    K.check(jf.filter((f) => f[0] !== 'off').length === 0, 'its page: no word cut or overlapping', jf.slice(0, 6));
     await K.noErrors('the walk');
   } catch (e) {
     if (e instanceof Abort) K.note('the walk stopped', e.message);

@@ -400,6 +400,37 @@ night. Run it at 1280 × 720, 960 × 540, 390 × 844 and 358 × 664, with two lo
 | at home | `actors-finds.tackleHomeParts` merged into the barge's timber (rack: the pole, the winch, the thread, the button; chart table: the Veil Angler's open at its map, the Lily Gardener's shut); `findHomeSig` appends `:` and six flags once one is owned |
 | tests | `tools/tests/lost-tackle.test.mjs` (LT1, LT2, LT3's tally and reveal, LT7's node half, the views, the props, the barge); `tools/tests/loop-lost-tackle.scenario.mjs` (the browser half) |
 
-Not built here: fitting (L3: when a fitted piece leaves the rack is L3's call), the notebooks' boosts and guests (L4), the logs' effect
-lines (L5; the catalogue's tap shows `does` until then), the sim (L6), the brook, its Chart line and the camera's hold on the chart
-table at the reveal (W, C).
+Not built in L1–L2: fitting, the notebooks' boosts and guests, the logs' effect lines and the sim (L3–L6, below); the brook, its Chart
+line and the camera's hold on the chart table at the reveal (W, C).
+
+### 11.1 Lanes L3–L6 (branch gw-tackle)
+
+| what | where |
+|---|---|
+| fitting (L3) | `meta.loop.found = {rod, line, reel}` (freshLoop; `migrateLoop` clears a piece the save no longer owns); `loop.fitFound(slot, id)` / `unfitFound(slot)` (changeHook's rules: at home, or on the lake with no fish on; a waiting line comes in quietly; `loop:found`). The slot keeps its bought tier. A fitted piece stays drawn on the rack (L2's merge is unchanged: no new mesh) |
+| the four stats (L3) | `loop-finds.foundKit(metaLoop, D)` → the trip's `castMax` and `hookWindow` (progression `tripStats`), each slot's Hold (`loopTackleHold`, `getLoadout().hold`, so `catchParts`), `playMult` (fishing-play `planPlay`: `min(tier factor, playMult)`), `waitMult` (fishing `rollBite`, before the 2–25 s clamp, never a legend's cast), `lineCap` (`watercraft.gearCap`'s new `lineCap` kit term: the fishing cap, the sheet's "—" cells, the Journal's gate line) |
+| the button (L3) | the hook table's 10th column (`HOOK_ITEMS`, `LURE_IDS`); `LURES` and `CATCH_V3.items.guard_button` (+0 Hold) in the loop's apply block; `LOOP.lures.guard_button = {found: true}` (the shelf and the gate line skip it); `bookFinds` (and `debug.finds.give`, and `migrateLoop` for a save that owns it) put it in `meta.loop.lures` |
+| the Kit row (L3) | `ui-tackle.tackleModel(...).kit` and the drawer's third row (`TEXT_LOOP.tackle.kit`), each owned found rod, line or reel drawn with its find art (`drawFindArt`), pressed while fitted; the button in the Lure row drawn the same way |
+| notebooks (L4) | `watercraft.noteTerms(D, notes, {area, place, phase})` → `boost` (`hookWeights`, before `finishPool`; 0 stays 0) and `guests` (`finishPool`: `share × [0, 0.5, 1, 1.5][grade]`, the rest scaled by 1 − p; grade 0 absent, never a stray); `castOdds`, `openMix`, `bitesTable` take `notes`; the game (`fishing.castOddsNow`), the sheet (`whoBites`) and the gear log's Who bites pass the owned notebooks (`loop-finds.ownedNotes`) |
+| guests (L4) | `W.hook.guests` (their own rows, so `gradeTargets` and every "the water's fish" reader keep to the water's own); `LOOP.guests.mossmere`; the converter's records (`tools/roster-export.mjs` `GUESTS`, `src/roster-shipped.js`) on their home water with `guestOf: 'mossmere'`, never in `SPECIES_LOOP` or the list; `priceOf` sells a guest at the water it visits; the trout plan's `spots: 'rose'` and `sail` (the darter), the carp plan's lavender glow (`ROSTER_ART`); the catalogue's guests (`catalogueFor().guests`, a notebook glyph in the cell's corner, shown once its notebook is owned or once met) |
+| words (L5) | `TEXT_LOOP.lost.log` (+ `where`, `lights`, `places`), `TEXT_LOOP.tackle.kit`, `TEXT_LOOP.murk.brook` (the word only: W/C say it); `loop-finds.lostLogLines` (pure; `ui-af.lostLogLines` with the class words): the sheet's plates (a fitted piece stands in for its tier, each owned notebook a plate of its own, the button's line on the hook plate), the gear log's rows (found rows under their slot, notebooks under the tackle), the catalogue's tap (the log lines in `does`' place); the sheet's guest rows carry the notebook glyph |
+| the sim (L6) | `clams.mjs`: `poolFor(…, notes)` (the game's `noteTerms` on the sim's records, the guests re-homed on the Mossmere), Veilback Brook (`BROOK`: a free day place, `good: 1`, its two guests its own fish), the Thread (wait × 0.8, its Hold and Trophy cap) and the Winch (play × min(tier, 0.6)) fitted when better (Line and Reel T0–T1); `pacing({finds})`; `lostTackleReport` at step 5 (the draw's Monte Carlo on the run's own trips, the 1% rule over 100,000 snags in four states, the ±10% gate); T104 with both notebooks |
+| tests | `lost-tackle.test.mjs` (LT3's lure, LT4 fitting and the four stats, LT5 boosts, guests and the stray sweep, L5's words, the Kit row; 565 checks); `validate-data --loop` (each piece's stats in range, the found lure, the guests); `loop-lost-tackle.scenario.mjs`'s second half (the Kit row, fitting, the sheet, a guest's card and page) |
+
+### 11.2 The pacing, measured (L6; `clams.mjs --shipped=mossmere --quick`)
+
+| | figure |
+|---|---|
+| the first piece | p10 0.35 h · **p50 1.02 h** · p90 2.11 h · p99 3.26 h; by 1 h 48%, by 2 h 87%, by the empty shelf 100% |
+| the Veil Angler's Notebook | p50 1.24 h; **100% by the empty shelf** (6,000 players) |
+| pieces owned at the empty shelf | 2.14 (one 27% · two 41% · three 23% · four 7% · five 1%); each other piece 22–24% |
+| the empty shelf, finds off | 5.20 h (82 trips) |
+| **finds on** (the notebook at 1.24 h: the brook, the boost, the guest) | **4.71 h, −9.3%** (gate ±10%: passes) |
+| a lucky player (notebook at 0.49 h, the other notebook, the Thread and the Winch from 3 h) | 4.70 h, −9.7% (a warning past ±10%; it holds) |
+| the terms alone | the Kissmark ×1.6 boost −6.3% · the brook (draws only) −3.5% · the Rosefleck at the Veil −2.1%; a ×1.3 boost would make the whole −6.7% |
+
+**Read.** §7.2's scratch put the design under 2%; with the boosts and the guest modelled it is −9.3%, inside the ±10% gate but with no
+room for the finds' own treasure sales (FINDS §4.4's −4 to −7%, still unmodelled: `clams.mjs` sells no treasure). The knob is the
+Kissmark Trout's boost: it is an uncommon, high-value fish, so ×1.6 moves more clams than §4.1 expected. Before FINDS' sim lands, the
+boost wants ×1.2–1.3 (question for the user; the default ×1.6 is built). The Hold-step check (Hold 4 −5.9% a minute) fails as it did
+before this lane (GEAR-GATES' open item).

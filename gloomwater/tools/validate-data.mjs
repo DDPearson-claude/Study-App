@@ -247,8 +247,9 @@ if (process.argv.includes('--loop')) {
       "Her. You brought me her. Sit down, I'll count it twice.", "Every fish in this water. I'll write that down."]), "T118: Murk's four new lines are SPEC §8.6's strings exactly");
     ok4([...ids.map((id) => TL.maps[id]), TL.shelf.heartmoss, TL.murk.firstMap, TL.murk.firstGiant, TL.murk.legendFirst, TL.murk.listComplete, TL.tabs.giants].every((t) => !/\d/.test(t)), 'T118: no new line carries a digit');
     const strings = []; const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) walk(x); };
-    walk({ ...TL, log: { ...(TL.log || {}), under: '' } }); walk(LP);   // (WC-1: the gear log's "<1%" is SPEC §8.11's one share word, the log's only)
-    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP (but the gear log\'s "<1%", SPEC §8.11)');
+    // (WC-1: the gear log's "<1%" is SPEC §8.11's one share word; LOST-TACKLE §6.2: the gear log's "Bites come {p}% sooner." the other, both the log's only)
+    walk({ ...TL, log: { ...(TL.log || {}), under: '' }, lost: { ...(TL.lost || {}), log: { ...(TL.lost?.log || {}), wait: '' } } }); walk(LP);
+    ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP (but the gear log\'s "<1%", SPEC §8.11, and "Bites come {p}% sooner.", LOST-TACKLE §6.2)');
     ok4(LP.redress === true && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
       'T118: LOOP.redress is true (on by default in the loop, the user\'s yes of 17 Nov 2026), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
     // T118: each map card's fish bites at its place (its pool there in some light: the giant's share, a drawn or own fish; the legend
@@ -306,6 +307,23 @@ if (process.argv.includes('--loop')) {
         ok4(GU.item == null || Math.abs(capd[GU.item] - GU.cap) < 1e-12, `LOOP.finds ${w}: the guaranteed piece climbs to its cap (${GU.cap * 100}%)`);
         for (const id of tk) ok4(LP.lostTackle?.[id]?.slot === its.find((i) => i.id === id)?.slot, `LOOP.lostTackle.${id}: its stats, under the find's own slot`);
         for (const [id, v] of Object.entries(LP.lostTackle || {})) if (v?.reveals != null) ok4(typeof v.reveals === 'string' && tk.includes(id), `LOOP.lostTackle.${id}.reveals: a place id on a piece of this water`);
+        // lanes L3–L4 (LOST-TACKLE §3.2, §4): a found lure is a loop lure that is never sold; a found rod, line or reel's stats in range; a
+        // notebook's boosts name its water's fish and its guest is a guest record of another water with a hook row, one area and light
+        const WCx = await import('../src/watercraft.js'), HT = WCx.WATERCRAFT.mossmere.hook;
+        for (const id of tk) {
+          const v = LP.lostTackle[id] || {};
+          if (v.slot === 'lure') ok4(LP.lures?.[id]?.found === true && L4.LURES.some((l) => l.id === id) && L4.CATCH_V3.items?.[id]?.kind === 'lure' && WCx.LURE_IDS.includes(id), `LOOP.lostTackle.${id}: a found lure (LOOP.lures found, LURES, CATCH_V3, the hook table's column)`);
+          if (v.slot === 'rod') ok4(v.castMax > L4.TACKLE.rod.at(-1).castMax && v.castMax <= L4.STATS.castMax.max && v.hookWindow >= 1, `LOOP.lostTackle.${id}: casts past the shop's best (${v.castMax} m) inside the stat's range`);
+          if (v.slot === 'reel') ok4(v.playMult > 0 && v.playMult < 1 - 0.05 * 6, `LOOP.lostTackle.${id}: a play under the best bought reel's (${v.playMult})`);
+          if (v.slot === 'line') ok4(v.waitMult > 0 && v.waitMult < 1 && ['keeper', 'prize', 'trophy', 'elder'].includes(v.cap), `LOOP.lostTackle.${id}: a quicker wait and a class cap`);
+          if (v.slot === 'notebook') {
+            ok4(Object.keys(v.boost || {}).every((f) => HT.table[f] && LP.species?.[w]?.includes(f)) && Object.values(v.boost || {}).every((x) => x > 1 && x <= 2), `LOOP.lostTackle.${id}: its boosts name ${w}'s own fish, ×1–2`);
+            const g = v.guest, gs = g ? L4.SPECIES_BY_ID[g.id] : null;
+            if (g) ok4(gs && gs.guestOf === w && gs.zone === g.from && HT.guests?.[g.id] && g.areas.length === 1 && WCx.AREAS.includes(g.areas[0]) && g.lights.every((l) => ['day', 'dusk', 'night'].includes(l)) && g.share > 0 && g.share <= 0.05 && (LP.guests?.[w] || []).includes(g.id),
+              `LOOP.lostTackle.${id}.guest: ${g.id}, a guest record of ${g.from} with a hook row, one area, its lights and a share ≤ 5%`);
+          }
+        }
+        for (const id of LP.guests?.[w] || []) ok4(!L4.SPECIES_LOOP.some((x) => x.id === id) && L4.SPECIES_BY_ID[id]?.guestOf === w && L4.SPECIES_BY_ID[id]?.zone !== w, `LOOP.guests.${w}: ${id} is a guest (never in SPECIES_LOOP or ${w}'s own fish)`);
       }
     }
     const gs = Object.values(FD.grades || {}).reduce((a, g) => a + g.share, 0);

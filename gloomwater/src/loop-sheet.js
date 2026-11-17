@@ -16,7 +16,7 @@
 import * as WC from './watercraft.js';
 import { normCdf, capZ, sumFavour } from './fishing-reel.js';
 import { raftStats, raftTerms, orderCount } from './loop-gear.js';
-import { owned as findOwned, findsOf, findBiteBonus, findBaitFloor } from './loop-finds.js';
+import { owned as findOwned, findsOf, findBiteBonus, findBaitFloor, foundKit, ownedNotes } from './loop-finds.js';
 import { baitBedFloor } from './home-shelf.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
@@ -146,12 +146,12 @@ const landOf = (D, id, cls, kit) => { const p = D?.catchParts?.(id, cls, kit, { 
  * area (the user's answer 41: "where you last cast", the area never named), on this hook with the roll's rarity bonus. A plain cast: no
  * sign, no pre-roll, no comeback, no Taper's first bite. → {id: share} (sums to 1) or {} with no water.
  */
-export function whoBites(D, { place = null, area = null, light = 'dusk', lure = null, bait = null, wickId = null, rb = 0, water = 'mossmere' } = {}) {
+export function whoBites(D, { place = null, area = null, light = 'dusk', lure = null, bait = null, wickId = null, rb = 0, water = 'mossmere', notes = null } = {}) {
   const phase = LIGHT_PHASE[light] || 'calm';
   const P = typeof place === 'string' ? placeRec(D, place) : place;
-  if (!P && !area) return WC.openMix(D, { light, lure, bait, wickId, rb });
+  if (!P && !area) return WC.openMix(D, { light, lure, bait, wickId, rb, notes });
   const pool = D.placePool(arr(D.SPECIES), { placeId: P?.id ?? null, phase, bait, wickId, water });
-  const odds = WC.castOdds(D, { pool, area: P ? null : area, phase, lure, bait, wickId, rb });
+  const odds = WC.castOdds(D, { pool, area: P ? null : area, phase, lure, bait, wickId, rb, notes });
   const out = {};
   for (const e of arr(odds.entries)) if (e.sp?.id) out[e.sp.id] = (out[e.sp.id] || 0) + num(e.p);
   return out;
@@ -192,6 +192,9 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   const baits = baitIds.map((id) => ({ id, count: Math.max(0, int(bag[id])) })).filter((b) => b.count > 0 || b.id === hookBait);
   const hook = { lure: hookLure, bait: hookBait, tipped: !!hookLure && !!hookBait, lures, baits, canFit: canChange !== false };
   const kit = kitOf(tackle, hook);
+  // LOST-TACKLE §3.2, §4: a fitted found piece's Hold in its slot's place, its line's cap, and the owned notebooks on Who bites
+  const fk = foundKit(ml, D), notes = ownedNotes(ml, D);
+  if (Object.keys(fk.hold).length) kit.hold = Object.fromEntries(SLOTS.map((s) => [s, fk.hold[s] ?? (typeof D?.tackleHoldAt === 'function' ? D.tackleHoldAt(s, tackle[s]) : 0)]));
   // ---- the picks (§3.5): where, the hour, the class
   const lifted = new Set(arr(ml.lifted)), places = arr(ml.maps?.places).filter((id) => lifted.has(id) && placeRec(D, id));
   const lastArea = cast && !cast.place && typeof cast.area === 'string' && WC.AREAS.includes(cast.area) ? cast.area : null;
@@ -230,11 +233,13 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   const TT = D?.LOOP?.tackle || {}, tierTop = Math.max(0, arr(TT.price).length - 1);
   const tierOf = arr(TT.shelfAt).map((w, t) => (t >= 1 && t <= Math.min(4, tierTop) && ownedOrd.has(num(w, 99)) ? t : 0)).filter(Boolean);
   const slots = SLOTS.map((slot) => {
-    const t = tackle[slot], rec = D?.TACKLE?.[slot]?.[t] || {}, nx = shelfOf(slot);
+    const t = tackle[slot], fid = fk[slot], LT = fid ? D?.LOOP?.lostTackle?.[fid] || {} : null, nx = shelfOf(slot);
+    // (a fitted found piece stands in for the tier: its name and its own values, LOST-TACKLE §3.2)
+    const rec = LT ? { ...LT, name: D?.TEXT_LOOP?.finds?.items?.[fid]?.name || fid, hold: fk.hold[slot] } : D?.TACKLE?.[slot]?.[t] || {};
     const values = { hold: num(rec.hold) };
     if (slot === 'rod') { values.castMax = num(rec.castMax); values.strike = Math.round((num(rec.hookWindow, 1) - 1) * 100); }
     const next = nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, compare: cmp(refLand(kit), refLand({ ...kit, [slot]: int(nx.level) })) } : null;
-    return { key: `${slot}:${t}`, slot, level: t, name: rec.name || '', owned: true, notches: { on: Math.min(t, tierOf.length), of: tierOf.length },
+    return { key: `${slot}:${t}`, slot, level: t, name: rec.name || '', owned: true, found: fid || null, notches: { on: Math.min(t, tierOf.length), of: tierOf.length },
       values, figure: slot === 'rod' ? { m: values.castMax } : { hold: values.hold }, next, fresh: t >= 1 && isFresh(`${slot}:${t}`) };
   });
   const rating = D?.TACKLE?.reference?.[water] && metOf(meta, D.TACKLE.reference[water]) && typeof D.catchRating === 'function'
@@ -313,7 +318,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   // ---- Who bites and your odds (§3.5)
   const legendId = P?.legend || D?.LOOP?.places?.[P?.id]?.legend || null, ball = legendBaitOf(D, water);
   const legendOn = !!legendId && hookBait === ball && (() => { const sp = spOf(D, legendId); const hrs = typeof D?.loopHours === 'function' ? D.loopHours(sp) : LIGHTS; return hrs.includes(light); })();
-  const mix = legendOn ? { [legendId]: 1 } : whoBites(D, { place: P, area: place === 'last' ? lastArea : null, light, lure: hookLure, bait: hookBait, wickId, rb, water });
+  const mix = legendOn ? { [legendId]: 1 } : whoBites(D, { place: P, area: place === 'last' ? lastArea : null, light, lure: hookLure, bait: hookBait, wickId, rb, water, notes });
   const rows = [];
   let unmet = 0;
   for (const [id, share] of Object.entries(mix)) {
@@ -323,7 +328,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     if (sp?.rarity === 'legendary') { rows.push({ id, giant: false, legend: true, pinned: pin?.speciesId === id, share, land: { legend: landOf(D, id, 'legend', kit) } }); continue; }
     const mu = fishMu(D, here, sp, { bait: hookBait, lure: hookLure }), so = shares(D, mu, floorOf(D, sp), capOf(D, sp, P));
     // GEAR-GATES §5.1: a class over the hook's and the line's size cap lands never (it gets away): its cell reads "—", as a class it cannot roll
-    const gc = WC.gearCap(D, id, { lure: hookLure, bait: hookBait === ball ? null : hookBait, line: tackle.line }), top = gc ? SHEET_CLASSES.indexOf(gc.cls) : SHEET_CLASSES.length - 1;
+    const gc = WC.gearCap(D, id, { lure: hookLure, bait: hookBait === ball ? null : hookBait, line: tackle.line, lineCap: fk.lineCap }), top = gc ? SHEET_CLASSES.indexOf(gc.cls) : SHEET_CLASSES.length - 1;
     const land = {};
     for (const c of SHEET_CLASSES) {
       if (SHEET_CLASSES.indexOf(c) > top) { land[c] = null; continue; }
@@ -333,7 +338,8 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
         land.elder = pe == null ? null : (1 - a) * pe + a * (pa ?? pe);
       } else land[c] = so[c] > 1e-9 ? landOf(D, id, c, kit) : null;
     }
-    rows.push({ id, giant: !!sp?.giant, legend: false, pinned: pin?.speciesId === id, share, land, grade: WC.gradeOf(id, { lure: hookLure, bait: hookBait }), cap: gc ? gc.cls : null });
+    rows.push({ id, giant: !!sp?.giant, legend: false, pinned: pin?.speciesId === id, share, land, grade: WC.gradeOf(id, { lure: hookLure, bait: hookBait }), cap: gc ? gc.cls : null,
+      ...(sp?.guestOf ? { guest: true } : {}) });   // (LOST-TACKLE §6.2: a notebook's guest, its row marked with the notebook glyph)
   }
   rows.sort((a, b) => b.share - a.share || (a.id < b.id ? -1 : 1));
   // the size lines: the plain cast's, each favoured family's, the pinned fish's own where its terms differ
@@ -357,7 +363,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     if (bs > 0) buffs.push({ key: `bait:${hookBait}:sooner`, source: { kind: 'bait', id: hookBait }, effect: { kind: 'sooner', value: r2(1 + bs) }, move: null });
     const rbb = num(baitRec(D, hookBait)?.bonus?.rarityBonus);
     if (rbb > 0) {
-      const base = legendOn ? {} : whoBites(D, { place: P, area: place === 'last' ? lastArea : null, light, lure: hookLure, bait: hookBait, wickId, rb: rb - rbb, water });
+      const base = legendOn ? {} : whoBites(D, { place: P, area: place === 'last' ? lastArea : null, light, lure: hookLure, bait: hookBait, wickId, rb: rb - rbb, water, notes });
       let best = null;
       for (const r of rows) { const d = r.share - num(base[r.id]); if (!best || d > best.d) best = { id: r.id, d, from: num(base[r.id]), to: r.share }; }
       buffs.push({ key: `bait:${hookBait}:rarer`, source: { kind: 'bait', id: hookBait }, effect: { kind: 'rarer', value: rbb },
@@ -378,8 +384,8 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
       let move = null;
       const g = pin && arr(LL.giants).includes(pin.speciesId) ? spOf(D, pin.speciesId) : null;
       if (g?.place) {
-        const at = whoBites(D, { place: g.place, light, lure: hookLure, bait: hookBait, wickId, rb, water })[g.id] ?? 0;
-        const off = whoBites(D, { place: g.place, light, lure: null, bait: hookBait, wickId, rb, water })[g.id] ?? 0;
+        const at = whoBites(D, { place: g.place, light, lure: hookLure, bait: hookBait, wickId, rb, water, notes })[g.id] ?? 0;
+        const off = whoBites(D, { place: g.place, light, lure: null, bait: hookBait, wickId, rb, water, notes })[g.id] ?? 0;
         if (Math.round(at * 100) !== Math.round(off * 100)) move = { what: g.id, from: off, to: at };
       }
       buffs.push({ key: `lure:${hookLure}`, source: { kind: 'lure', id: hookLure }, effect: { kind: 'giants', value: num(LL.share, 1.5) }, move });
@@ -406,7 +412,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     water, trip, wickId,
     picks: { place, light, phase, cls, choices, nightOnly, live: !!atLive },
     wick: { id: wickId, look: arr(ml.looks).filter((id) => D?.LOOP?.looks?.[id]?.on === 'wick'), passive: wickId, exact: passiveExact(D, wickId, water), worn: looks.wick },
-    tackle: { rating, slots, hook },
+    tackle: { rating, slots, hook, notes },   // (LOST-TACKLE §4: the owned notebooks, under the tackle)
     raft, raftLooks: looks.raft, home, parts, homeLooks: looks.barge,
     buffs,
     odds: { hook, here, size, rows, unmet, ref, legend: legendOn ? legendId : null },

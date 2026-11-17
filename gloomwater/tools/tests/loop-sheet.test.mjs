@@ -38,7 +38,8 @@ section('S3 the Hold rule: the land roll gives a tin\'s or lure\'s Hold to the f
   ok(diffs.size === 0, `S3 catchParts equals the sim's landP on every Mossmere fish × class × hook × kit (worst ${worst.toExponential(2)}; differ: ${[...diffs].map(([k, v]) => `${k} ×${v}`).join(', ') || 'none'})`);
   for (const id of WC.HOOK_ITEMS.filter((x) => x !== 'bare')) {
     const helped = MOSS.filter((sp) => WC.gradeOf(sp.id, {}) !== undefined && D.catchItemHold(id, sp) > 0).map((s) => s.id).sort();
-    eq(helped, WC.gradeTargets(id, D).filter((x) => MOSS.some((s) => s.id === x)).sort(), `S3 ${id} helps exactly its gradeTargets`);
+    // (the found Gate-Guard's Button: +0 Hold, LOST-TACKLE §3.2, so it helps no fish's Hold whatever it grades)
+    eq(helped, id === 'guard_button' ? [] : WC.gradeTargets(id, D).filter((x) => MOSS.some((s) => s.id === x)).sort(), `S3 ${id} helps exactly its gradeTargets${id === 'guard_button' ? ' (none: +0 Hold)' : ''}`);
   }
   // the counts the gear line prints (SHEET §8.1's measured audit, now true in the roll): Mire Worms 8, Lumen Moss 6, Cut Strip 8 (GEAR-GATES
   // §3: no longer the giants'), the Feather Fly 5

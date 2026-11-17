@@ -8,7 +8,10 @@
 //   (the parts' three effects, each capped at one and only at the part's own water, FINDS §3.2) · findLine (the hold entry) ·
 //   findTallyLine(entry) · findCatalogue(meta, D, waterId) (catalogueFor's finds half) · fmtRate(share) (SPEC §8.8's format) ·
 //   snagHeading(D) ("Snags · 1 bite in 20") · findDoes(D, id) (a lost-tackle piece's one plain line) · revealedPlaces(metaLoop) /
-//   placeRevealed(metaLoop, placeId) (the places a lost notebook has shown: meta.loop.places.revealed; LOST-TACKLE §5.2, §8)
+//   placeRevealed(metaLoop, placeId) (the places a lost notebook has shown: meta.loop.places.revealed; LOST-TACKLE §5.2, §8) ·
+//   FOUND_SLOTS · foundOf(metaLoop, D, slot) / foundKit(metaLoop, D) (a fitted found rod, line or reel and its stats; LOST-TACKLE §3, §8) ·
+//   ownedPieces(metaLoop, D, slots) · ownedNotes(metaLoop, D) (the notebooks that work while owned, §4) · lostLogLines(D, id, o) (the
+//   logs' effect lines, §6.2)
 //
 // A find in the hold is run.creel[i] = {uid, find: findId, kind, grade, clams, waterKey} beside the fish (FINDS §10's run.hold[i]);
 // meta.loop.finds = {got: {findId: n}, worn: {slot: findId}, share: {waterId: kindShare}, tackleMiss: {waterId: n}}; a part, a look or
@@ -19,6 +22,7 @@
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
 const arr = (v) => (Array.isArray(v) ? v : []);
+const fill = (tpl, vars = {}) => String(tpl ?? '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined && vars[k] !== null ? vars[k] : m));
 export const FIND_KINDS = Object.freeze(['treasure', 'part', 'look', 'tackle']);
 export const TACKLE_SLOTS = Object.freeze(['rod', 'line', 'reel', 'lure', 'notebook']);
 export const FIND_GRADES = Object.freeze(['plain', 'fine', 'precious', 'rare', 'jackpot']);
@@ -57,6 +61,9 @@ export function fillFinds(L) {
   for (const k of ['got', 'worn', 'share', 'tackleMiss']) if (!isObj(f[k])) f[k] = {};
   for (const [id, n] of Object.entries(f.got)) { const c = Math.max(0, Math.floor(num(n))); if (c > 0) f.got[id] = c; else delete f.got[id]; }
   for (const [w, n] of Object.entries(f.tackleMiss)) { const c = Math.max(0, Math.floor(num(n))); if (c > 0) f.tackleMiss[w] = c; else delete f.tackleMiss[w]; }
+  // LOST-TACKLE §8: the fitted found piece per slot (a string or null; foundOf checks it is owned and of that slot)
+  if (!isObj(L.found)) L.found = {};
+  for (const s of FOUND_SLOTS) if (typeof L.found[s] !== 'string' || !L.found[s]) L.found[s] = null;
   // LOST-TACKLE §8: the places a lost notebook has shown (meta.loop.places.revealed, each id once)
   if (!isObj(L.places)) L.places = { revealed: [] };
   L.places.revealed = arr(L.places.revealed).filter((id, i, a) => typeof id === 'string' && id && a.indexOf(id) === i);
@@ -68,6 +75,71 @@ export function revealedPlaces(metaLoop) { return arr(metaLoop?.places?.revealed
 export function placeRevealed(metaLoop, placeId) { return typeof placeId === 'string' && revealedPlaces(metaLoop).includes(placeId); }
 /** A part, a look or a lost-tackle piece owned (got ≥ 1); a treasure is never "owned" (it sells and may come again). */
 export function owned(metaLoop, id) { return num(metaLoop?.finds?.got?.[id], 0) >= 1; }
+
+// ---------------------------------------------------------------- lost tackle in use (LOST-TACKLE §2.1, §3, §4, §8)
+/**
+ * LOST-TACKLE §6.2 (the loop only; the logs alone carry numbers): a found piece's effect lines, TEXT_LOOP.lost.log's, from its stats in
+ * LOOP.lostTackle: the rod "Casts 26 m.", the reel "Plays 0.6× as long.", the line "Bites come 20% sooner." (and gearCapLine's "Lands up to
+ * Trophy."), the lure "Liked by 13 fish here." (the water's own fish it grades 2 or 3), a notebook "{Fish} come more often." for each
+ * boosted fish, "{Fish} bite at {where}, {lights}." for its guest and "Shows the way to {place}." for a place it reveals. o = {names
+ * (id → species name), likes (the lure's count, the caller's watercraft.gradeTargets), classWord (cls → its word)}. → string[] ([] for
+ * anything else). Pure.
+ */
+export function lostLogLines(D, id, { names = {}, likes = null, classWord = null } = {}) {
+  const X = D?.LOOP?.lostTackle?.[id], TL = D?.TEXT_LOOP?.lost || {}, L = TL.log || {};
+  if (!X || !D?.LOOP_ENABLED) return [];
+  const cap = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : '');
+  const nm = (f) => names[f] || D?.SPECIES_BY_ID?.[f]?.name || String(f).split('_').map(cap).join(' ');
+  const classLabel = (_D, c) => (typeof classWord === 'function' ? classWord(c) : D?.TEXT_V3?.classes?.[c] || cap(c));
+  const r2 = (v) => String(Math.round(num(v) * 100) / 100);
+  const out = [];
+  if (X.slot === 'rod' && num(X.castMax) > 0 && L.cast) out.push(fill(L.cast, { m: r2(X.castMax) }));
+  if (X.slot === 'reel' && num(X.playMult) > 0 && L.play) out.push(fill(L.play, { x: r2(X.playMult) }));
+  if (X.slot === 'line' && num(X.waitMult) > 0 && L.wait) out.push(fill(L.wait, { p: String(Math.round((1 - num(X.waitMult)) * 100)) }));
+  if (X.slot === 'line' && typeof X.cap === 'string' && D?.TEXT_LOOP?.gate?.upTo) out.push(fill(D.TEXT_LOOP.gate.upTo, { class: classLabel(D, X.cap) }));
+  if (X.slot === 'lure' && Number.isFinite(likes) && L.likes) out.push(fill(L.likes, { n: likes }));
+  if (X.slot === 'notebook') {
+    for (const f of Object.keys(X.boost || {})) if (L.boost) out.push(fill(L.boost, { fish: nm(f) }));
+    const g = X.guest;
+    if (g && L.guest) {
+      const where = arr(g.areas).map((a) => TL.where?.[a] || a).join(', '), lw = arr(g.lights).map((l) => TL.lights?.[l] || l);
+      out.push(fill(L.guest, { fish: nm(g.id), where, lights: lw.length > 1 ? `${lw.slice(0, -1).join(', ')} ${TL.lights?.and || 'and'} ${lw.at(-1)}` : lw[0] || '' }));
+    }
+    if (typeof X.reveals === 'string' && L.reveals) out.push(fill(L.reveals, { place: TL.places?.[X.reveals] || X.reveals }));
+  }
+  return out;
+}
+
+/** The slots a found piece is fitted in, standing in for the bought tier (which the slot keeps). */
+export const FOUND_SLOTS = Object.freeze(['rod', 'line', 'reel']);
+/** The owned lost-tackle pieces of these slots, in LOOP.finds.items' order (ids). */
+export function ownedPieces(metaLoop, D, slots = FOUND_SLOTS) {
+  return arr(F_(D)?.items).filter((it) => isObj(it) && it.kind === 'tackle' && slots.includes(it.slot) && owned(metaLoop, it.id)).map((it) => it.id);
+}
+/** The notebooks the save owns (each works while owned, everywhere its fish are: §4). */
+export const ownedNotes = (metaLoop, D) => ownedPieces(metaLoop, D, ['notebook']);
+/** The found piece fitted in a slot (meta.loop.found[slot]) when it is owned and of that slot, else null. */
+export function foundOf(metaLoop, D, slot) {
+  const id = metaLoop?.found?.[slot];
+  return typeof id === 'string' && FOUND_SLOTS.includes(slot) && D?.LOOP?.lostTackle?.[id]?.slot === slot && owned(metaLoop, id) ? id : null;
+}
+/**
+ * The fitted found pieces' stats (§3.2; pure): {rod, line, reel} (the ids or null), hold {slot: n} (each fitted piece's Hold in place of
+ * its tier's), castMax and hookWindow (the rod's, or null), playMult (the reel's, or null: planPlay takes the smaller of it and the tier's
+ * factor), waitMult (the line's, or 1: before the wait's clamp), lineCap (the line's class, or null: gearCap's line term).
+ */
+export function foundKit(metaLoop, D) {
+  const LT = D?.LOOP?.lostTackle || {}, out = { rod: null, line: null, reel: null, hold: {}, castMax: null, hookWindow: null, playMult: null, waitMult: 1, lineCap: null };
+  for (const s of FOUND_SLOTS) {
+    const id = foundOf(metaLoop, D, s); if (!id) continue;
+    const x = LT[id]; out[s] = id;
+    if (Number.isFinite(Number(x.hold))) out.hold[s] = Number(x.hold);
+    if (s === 'rod') { if (num(x.castMax, 0) > 0) out.castMax = num(x.castMax); if (num(x.hookWindow, 0) > 0) out.hookWindow = num(x.hookWindow); }
+    if (s === 'reel' && num(x.playMult, 0) > 0) out.playMult = num(x.playMult);
+    if (s === 'line') { if (num(x.waitMult, 0) > 0) out.waitMult = num(x.waitMult); if (typeof x.cap === 'string') out.lineCap = x.cap; }
+  }
+  return out;
+}
 
 /**
  * The share of the water's NEXT snag for each of its finds, as the save stands (FINDS §4.1, §4.1a, §10; revision 3): the kind share
@@ -209,6 +281,8 @@ export function bookFinds(metaLoop, lines, D = null) {
     if (it?.kind === 'look' && it.slot && !metaLoop.finds.worn[it.slot]) metaLoop.finds.worn[it.slot] = it.id;
     if (it?.kind === 'tackle') {
       if (F_(D)?.tackle?.guarantee?.item === it.id) delete metaLoop.finds.tackleMiss[it.water];
+      // a found lure is owned as a bought one is, and goes on the hook from the tin's Lure row (§2.1, §8)
+      if (it.slot === 'lure') { if (!Array.isArray(metaLoop.lures)) metaLoop.lures = []; if (!metaLoop.lures.includes(it.id)) metaLoop.lures.push(it.id); }
       const rv = D?.LOOP?.lostTackle?.[it.id]?.reveals;
       if (typeof rv === 'string' && rv && !metaLoop.places.revealed.includes(rv)) metaLoop.places.revealed.push(rv);
     }

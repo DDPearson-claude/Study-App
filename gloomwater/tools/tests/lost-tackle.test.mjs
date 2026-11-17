@@ -272,5 +272,153 @@ section('L2: the props, the rack and the chart table');
   h0.dispose?.(); h1.dispose?.();
 }
 
+// ------------------------------------------------------------------ lanes L3–L5 (§3, §4, §6.2, §8)
+const WC = await import('../../src/watercraft.js');
+const { planPlay } = await import('../../src/fishing-play.js');
+const AF = await import('../../src/ui-af.js');
+const UT = await import('../../src/ui-tackle.js');
+const LS = await import('../../src/loop-sheet.js');
+const owning = (ids, extra = {}) => { const m = played(); m.loop.finds.got = gotAll(ids); Object.assign(m.loop, extra); return m; };
+
+section('LT3: the found lure joins the lures and never the shelf');
+{
+  const ml = { finds: { got: {}, worn: {}, share: {}, tackleMiss: {} }, lures: ['bent_spoon'], places: { revealed: [] } };
+  LF.bookFinds(ml, [{ find: 'guard_button' }], D);
+  eq(ml.lures, ['bent_spoon', 'guard_button'], 'the tally adds the Gate-Guard\'s Button to meta.loop.lures');
+  LF.bookFinds(ml, [{ find: 'guard_button' }], D);
+  eq(ml.lures.filter((x) => x === 'guard_button').length, 1, '… once');
+  ok(D.LOOP.lures.guard_button?.found === true && D.LOOP.lures.guard_button.price === 0, 'LOOP.lures.guard_button: found, free');
+  const shelf = PL.shelfItems(D, freshLoopMeta(D).loop).map((it) => it.id);
+  ok(!shelf.some((id) => String(id).includes('guard_button')) && shelf.some((id) => String(id).includes('feather_fly')), 'the shelf sells the Feather Fly, never the button (owned or not)');
+  ok(D.LURES.some((l) => l.id === 'guard_button' && l.attract === 1) && D.CATCH_V3.items.guard_button?.hold === 0, 'LURES and CATCH_V3 carry it: attract 1 (the Bent Spoon\'s strike), +0 Hold');
+}
+
+section('LT4: fitting a found rod, line or reel; the four stats');
+{
+  // fitFound on a real progression: owned pieces only, of their slot; the stats and the loadout read them; unfit gives the tier back
+  const E = makeEnv(owning(['lamp_pole', 'ferry_thread', 'belfry_winch'], { tackle: { rod: 2, line: 0, reel: 1 } })), r = startTrip(E);
+  const T0 = E.P.getStats();
+  eq([T0.castMax, T0.hookWindow], [D.TACKLE.rod[2].castMax, D.TACKLE.rod[2].hookWindow], 'the Whalebone bought: 19 m');
+  eq(E.L.fitFound('rod', 'lily_notebook').ok, false, 'a notebook is no rod');
+  eq(E.L.fitFound('rod', 'guard_button').ok, false, 'the button is no rod');
+  ok(E.L.fitFound('rod', 'lamp_pole').ok && E.L.state().found.rod === 'lamp_pole', 'the Lamplighter\'s Pole fitted (meta.loop.found.rod)');
+  E.ctx.time.frame++;
+  const T1 = E.P.getStats(), lo1 = E.P.getLoadout();
+  eq([T1.castMax, T1.hookWindow, lo1.hold.rod, lo1.rod], [26, 1, 0, 2], 'the Pole: casts 26 m, the T0 strike window, +0 Hold; the slot keeps its tier (T2)');
+  ok(E.L.fitFound('line', 'ferry_thread').ok && E.L.fitFound('reel', 'belfry_winch').ok, 'the Thread and the Winch fitted');
+  const lo2 = E.P.getLoadout();
+  eq([lo2.hold.line, lo2.hold.reel, lo2.waitMult, lo2.playMult, lo2.lineCap], [2, 2, 0.8, 0.6, 'trophy'], 'the loadout: +2 Hold each, the wait ×0.8, the play ×0.6, the line\'s Trophy cap');
+  E.ctx.fishing.state = 'reeling';
+  eq(E.L.fitFound('rod', null).reason, 'fish', 'a fish on: "After this fish." (changeHook\'s rule)');
+  E.ctx.fishing.state = 'idle';
+  ok(E.L.unfitFound('rod').ok && E.L.state().found.rod === null, 'taken off: the bought tier is back');
+  E.ctx.time.frame++;
+  eq(E.P.getStats().castMax, D.TACKLE.rod[2].castMax, '… and its cast');
+  E.ctx.state.run = null;
+  ok(E.L.fitFound('rod', 'lamp_pole').ok, 'at home a piece is fitted too');
+  const m = clone(E.ctx.state.meta); m.loop.finds.got = {}; PL.migrateLoop(m, D);
+  eq(m.loop.found, { rod: null, line: null, reel: null }, 'a fitted piece the save no longer owns is not fitted (migrateLoop)');
+  void r;
+}
+{
+  // the Winch: a play's length × min(the tiers' factor, 0.6) (seeded planPlay)
+  const a = planPlay('trophy', 2.2, 4242, { tiers: 2 }), b = planPlay('trophy', 2.2, 4242, { tiers: 2, playMult: 0.6 }), c = planPlay('trophy', 2.2, 4242, { tiers: 2, playMult: 0.95 });
+  near(b.dur / a.dur, 0.6 / 0.9, 'the Winch plays a trophy at 0.6 of its length where the tiers give 0.9', 1e-3);
+  near(c.dur, a.dur, 'a playMult above the tiers\' factor changes nothing', 1e-9);
+  // the Thread: Trophy by its own cap, never Elder (gearCap's line term)
+  eq([WC.gearCap(D, 'kissmark_trout', { lure: 'glimmer_spoon', line: 2 })?.cls, WC.gearCap(D, 'kissmark_trout', { lure: 'glimmer_spoon', line: 2, lineCap: 'trophy' })?.cls], ['elder', 'trophy'], 'the Thread caps an Elder-capable hook at Trophy');
+  // the button's column
+  const G = Object.fromEntries(Object.keys(WC.WATERCRAFT.mossmere.hook.table).map((id) => [id, WC.gradeOf(id, { lure: 'guard_button' })]));
+  eq(Object.entries(G).filter(([, g]) => g === 2).length, 13, 'the button: liked (grade 2) by 13 Mossmere fish');
+  eq([G.thousandcast_pike, G.hullkiss_lamprey, G.gloam_eel, G.belled_matriarch], [0, 0, 0, null], '… never the giants, the eel or the legend');
+  ok(!Object.values(G).includes(3), 'it is no fish\'s right lure');
+  eq(WC.gearCap(D, 'mossback_perch', { lure: 'guard_button', line: 2 })?.cls, 'prize', 'its grade caps it at Prize');
+  const pool = D.placePool(D.SPECIES, { placeId: 'under_the_span', phase: 'dusk', water: 'mossmere' });
+  ok(WC.castShare(WC.castOdds(D, { pool, phase: 'dusk', lure: 'guard_button' }), 'thousandcast_pike') <= 0.01 + 1e-9, 'it never brings a giant: the Thousandcast a stray (≤ 1%) at its own place');
+}
+
+section('LT5: the notebooks: boosts where a fish lives, a guest in its area and light');
+{
+  const NBS = ['veil_notebook', 'lily_notebook'];
+  const at = (light, area, hook = {}) => { const ph = light === 'night' ? 'gloomtide' : light; return WC.castOdds(D, { pool: D.placePool(D.SPECIES, { phase: ph, bait: hook.bait ?? null, water: 'mossmere' }), area, phase: ph, ...hook }); };
+  const at2 = (light, area, hook = {}) => { const ph = light === 'night' ? 'gloomtide' : light; return WC.castOdds(D, { pool: D.placePool(D.SPECIES, { phase: ph, bait: hook.bait ?? null, water: 'mossmere' }), area, phase: ph, ...hook, notes: NBS }); };
+  const k0 = WC.castShare(at('day', 'deep', { lure: 'glimmer_spoon' }), 'kissmark_trout'), k1 = WC.castShare(at2('day', 'deep', { lure: 'glimmer_spoon' }), 'kissmark_trout');
+  ok(k1 > k0 + 0.05, `the Veil Angler's: the Kissmark Trout comes more often where it lives (${(k0 * 100).toFixed(1)}% → ${(k1 * 100).toFixed(1)}%)`);
+  { const list = D.placePool(D.SPECIES, { phase: 'day', water: 'mossmere' }).list, a0 = WC.hookWeights(list, { area: 'deep', phase: 'day' }), a1 = WC.hookWeights(list, { area: 'deep', phase: 'day', boost: { kissmark_trout: 1.6 } });
+    const w = (es) => es.find((e) => e.sp.id === 'kissmark_trout').w;
+    near(w(a1) / w(a0), 1.6, 'its weight ×1.6 in hookWeights, before finishPool', 1e-9);
+    ok(a0.every((e, i) => e.sp.id === 'kissmark_trout' || e.w === a1[i].w), '… and no other fish\'s'); }
+  eq(WC.castShare(at2('night', 'margin', {}), 'candlefin_koi'), WC.castShare(at('night', 'margin', {}), 'candlefin_koi'), 'a boost never puts a fish where it does not live (the koi off its hours)');
+  near(WC.castShare(at2('day', 'inflow', { lure: 'feather_fly' }), 'rosefleck_trout'), 0.06, 'the Rosefleck at the Sluice Veil by day: 6% on the Feather Fly (grade 3)', 2e-3);
+  near(WC.castShare(at2('dusk', 'inflow', { bait: 'mireworm' }), 'rosefleck_trout'), 0.02, '… 2% on worms (grade 1)', 2e-3);
+  eq(WC.castShare(at2('night', 'inflow', { lure: 'feather_fly' }), 'rosefleck_trout'), 0, '… never at night');
+  eq(WC.castShare(at2('day', 'deep', { lure: 'feather_fly' }), 'rosefleck_trout'), 0, '… never out of its area');
+  eq(WC.castShare(at2('day', 'inflow', {}), 'rosefleck_trout'), 0, '… absent on a hook it will not take (grade 0: never a stray)');
+  near(WC.castShare(at2('night', 'pads', { bait: 'lumen_moss' }), 'nightbloom_carp'), 0.045, 'the Nightbloom in the lily beds at night: 4.5% on Lumen Moss', 2e-3);
+  eq(WC.castShare(at2('day', 'pads', { bait: 'lumen_moss' }), 'nightbloom_carp'), 0, '… never by day');
+  // every stray ≤ 1% in every open-water pool with both notebooks (a castOdds sweep)
+  let worst = 0, n = 0;
+  for (const area of WC.AREAS) for (const light of ['day', 'dusk', 'night']) for (const it of WC.HOOK_ITEMS) {
+    const hook = it === 'bare' ? {} : WC.LURE_IDS.includes(it) ? { lure: it } : { bait: it };
+    const o = at2(light, area, hook); n++;
+    for (const e of o.entries) if (e.g === 0) worst = Math.max(worst, WC.castShare(o, e.sp.id));
+    ok(Math.abs(o.entries.reduce((a2, e) => a2 + e.p, 0) - 1) < 1e-9 || !o.entries.length, `p sums to 1 (${area} ${light} ${it})`);
+  }
+  ok(worst <= 0.01 + 1e-9, `every stray ≤ 1.00% in all ${n} open-water pools with both notebooks (worst ${(worst * 100).toFixed(3)}%)`);
+  // the guests' records: their home water's, guestOf the Mossmere; never its list, its catch seal; sold at its tier
+  for (const id of WC.GUESTS) { const sp = D.SPECIES_BY_ID[id]; ok(sp && sp.guestOf === 'mossmere' && sp.zone !== 'mossmere' && sp.roster === true, `${id}: a guest record on its home water (${sp?.zone})`); }
+  ok(!PL.listFor(D, 'mossmere').some((id) => WC.GUESTS.includes(id)) && !D.SPECIES_LOOP.some((s) => WC.GUESTS.includes(s.id)), 'no guest in the Mossmere\'s list or SPECIES_LOOP');
+  const rf = D.SPECIES_BY_ID.rosefleck_trout;
+  eq(D.fishClams(rf, 0.4, { zone: rf.guestOf }), D.fishClams({ ...rf, zone: 'mossmere' }, 0.4), 'a guest sells at the Mossmere\'s tier');
+  eq([rf.model.shape, D.SPECIES_BY_ID.rainglass_darter.model.shape, D.SPECIES_BY_ID.rainglass_darter.model.sail, D.SPECIES_BY_ID.nightbloom_carp.model.shape], ['trout', 'trout', true, 'carp'], 'the models: the trout plan (the darter\'s sail), the carp plan');
+  // the catalogue: a guest shows once its notebook is owned (or once met), with no words
+  const m0 = played(), c0 = PL.catalogueFor(m0, D, 'mossmere');
+  eq(c0.guests, [], 'no notebook, never met: no guest in the catalogue');
+  const m1 = owning(['veil_notebook']), c1 = PL.catalogueFor(m1, D, 'mossmere');
+  eq(c1.guests.map((g) => g.id), ['rosefleck_trout'], 'the Veil Angler\'s owned: its guest shows (hatched until caught)');
+  const v1 = U.catalogueView(c1, D);
+  ok(v1.guests.length === 1 && v1.guests[0].guest === true && v1.guests[0].name === '· · ·', 'the view: a guest card, no name until caught');
+  eq(c1.head.need, c0.head.need, 'the list\'s count is unchanged');
+  m1.journal = { rosefleck_trout: { caught: 1 } };
+  const v2 = U.catalogueView(PL.catalogueFor(m1, D, 'mossmere'), D);
+  ok(v2.guests[0].caught === true && v2.guests[0].name === 'Rosefleck Trout', 'met: its card inked and named (a tap opens its Journal page)');
+  const m3 = owning(['nightbloom_carp'].length ? [] : []); m3.journal = { nightbloom_carp: { caught: 1 } };
+  eq(PL.catalogueFor(m3, D, 'mossmere').guests.map((g) => g.id), ['nightbloom_carp'], 'a guest met shows without its notebook');
+  const m4 = owning(['guard_button']); m4.loop.lures = ['bent_spoon']; PL.migrateLoop(m4, D);
+  ok(m4.loop.lures.includes('guard_button'), 'migrateLoop: an owned found lure is in the tin\'s lures');
+}
+
+section('LT5 + L5: the sheet, the gear log and the catalogue\'s words');
+{
+  const lines = Object.fromEntries(Object.keys(D.LOOP.lostTackle).map((id) => [id, AF.lostLogLines(D, id, { likes: id === 'guard_button' ? WC.gradeTargets(id, D).length : null })]));
+  eq(lines.lamp_pole, ['Casts 26 m.'], 'the Pole\'s log line');
+  eq(lines.belfry_winch, ['Plays 0.6× as long.'], 'the Winch\'s');
+  eq(lines.ferry_thread, ['Bites come 20% sooner.', 'Lands up to Trophy.'], 'the Thread\'s');
+  eq(lines.guard_button, ['Liked by 13 fish here.'], 'the button\'s');
+  eq(lines.veil_notebook, ['Kissmark Trout come more often.', 'Rosefleck Trout bite at the Sluice Veil, day and dusk.', 'Shows the way to Veilback Brook.'], 'the Veil Angler\'s');
+  eq(lines.lily_notebook, ['Weeping Carp come more often.', 'Candlefin Koi come more often.', 'Nightbloom Carp bite at the lily beds, night.'], 'the Lily Gardener\'s');
+  ok(AF.gearLine(D, { id: 'lamp_pole', kind: 'rod', found: true, hold: 0 }).startsWith('+0 Hold') && AF.gearLine(D, { id: 'lamp_pole', kind: 'rod', found: true, hold: 0 }).endsWith('Casts 26 m.'), 'the gear log\'s row: its Hold, then its lines');
+  for (const T of [D.TEXT_LOOP.tackle.kit, D.TEXT_LOOP.murk.brook]) ok(typeof T === 'string' && T.split(/\s+/).length <= 8 && T.length <= 40 && !/\d/.test(T), `"${T}": few words, no digits`);
+  // the sheet: a fitted Pole stands in for the rod; a guest's row carries its mark; the notebooks on Who bites
+  const m = owning(['lamp_pole', 'veil_notebook'], { found: { rod: 'lamp_pole', line: null, reel: null } });
+  m.journal = { rosefleck_trout: { caught: 1 } };
+  const sm = LS.sheetModel(m, D, { view: { light: 'day' } });
+  const rod = sm.tackle?.slots?.find?.((x) => x.slot === 'rod') || sm.slots?.find?.((x) => x.slot === 'rod');
+  ok(!!rod && (rod.found === 'lamp_pole' && rod.values.castMax === 26 && rod.values.hold === 0), 'the sheet\'s rod: the Pole, 26 m, +0 Hold');
+  const who = LS.whoBites(D, { area: 'inflow', light: 'day', lure: 'feather_fly', notes: ['veil_notebook'] });
+  near(who.rosefleck_trout || 0, 0.06, 'the sheet\'s Who bites reads the notebook (the Rosefleck at the Veil)', 2e-3);
+}
+
+section('L3: the tin\'s Kit row');
+{
+  const ml = owning(['lamp_pole', 'ferry_thread', 'guard_button', 'veil_notebook'], { found: { rod: 'lamp_pole', line: null, reel: null }, lures: ['bent_spoon', 'guard_button'] }).loop;
+  const run0 = { outing: 'trip', zone: 'mossmere', bait: { mireworm: 4 }, equippedBait: 'mireworm', lure: null };
+  const t = UT.tackleModel(D, { run: run0, metaLoop: ml });
+  eq(t.kit.map((k) => [k.id, k.slot, k.on]), [['lamp_pole', 'rod', true], ['ferry_thread', 'line', false]], 'the Kit row: the found rod and line, the fitted one pressed (no notebook, no lure)');
+  ok(t.lure.some((l) => l.id === 'guard_button' && l.found === true), 'the button in the Lure row, drawn as a found piece');
+  eq(UT.tackleModel(D, { run: run0, metaLoop: owning(['guard_button', 'veil_notebook']).loop }).kit, [], 'no found rod, line or reel: no Kit row');
+  eq(UT.tackleWords(D).kit, 'Kit', 'its heading');
+}
+
 console.log(`\nlost-tackle: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

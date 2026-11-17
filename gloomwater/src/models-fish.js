@@ -600,7 +600,7 @@ export const LOOP_SHAPES = {
       ht: [[0, 0.006], [0.03, 0.034], [0.14, 0.08], [0.34, 0.1], [0.6, 0.076], [0.84, 0.034], [0.94, 0.022], [1, 0.018]],
       hb: [[0, 0.006], [0.03, 0.03], [0.16, 0.066], [0.38, 0.082], [0.62, 0.056], [0.84, 0.026], [1, 0.015]],
       yc: [[0, -0.008], [0.25, 0], [1, 0]],
-      fins: [['tail', 'fork', { s: 0.97, len: 0.21, h: 0.27 }], ['dorsal', 'soft', { a: 0.36, b: 0.52, h: 0.1 }],
+      fins: [['tail', 'fork', { s: 0.97, len: 0.21, h: 0.27 }], ['dorsal', 'soft', M.sail ? { a: 0.3, b: 0.6, h: 0.24 } : { a: 0.36, b: 0.52, h: 0.1 }],
         ['ventral', 'soft', { a: 0.64, b: 0.75, h: 0.06 }], ['pect', 'pect', { s: 0.2, len: 0.12, h: 0.06 }],
         ['pelvic', 'pect', { s: 0.47, len: 0.075, h: 0.045 }]],
       eye: { s: 0.085, r: 0.023, up: 0.32 }, gill: 0.22, anim: { waveK: 5, amp: 0.09, freq: 9 },
@@ -616,6 +616,7 @@ export const LOOP_SHAPES = {
       r.extras.push(paint(tube(bezierPts([[side * f.w(0.006) * 0.9, f.yc(0.02) - 0.006, 0.497], [side * f.w(0.05) * 1.0, f.yc(0.05) - f.hb(0.05) * 0.32, 0.45], [side * f.w(0.11) * 0.98, f.yc(0.11) - f.hb(0.11) * 0.28, 0.39]], 8), 0.0032, 4), 0x0a0806));
     }
     if (M.spots === 'stars') r.opts.stars = true;
+    if (M.spots === 'rose') r.opts.rose = true;   // (LOST-TACKLE §4.2: the Rosefleck's rose flecks)
     if (M.scar) r.opts.scar = true;
     return r;
   },
@@ -710,6 +711,9 @@ function bodyTexture(M, shape, parts) {
       g.strokeStyle = 'rgba(0,0,0,0.26)'; g.beginPath(); g.arc(x, y, 3.4, -Math.PI / 2, Math.PI / 2); g.stroke();
       g.strokeStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.arc(x - 1, y, 2.4, -Math.PI / 2, Math.PI / 2); g.stroke();
     }
+  } else if (pat === 'spots' && parts.opts.rose) {
+    // (the loop's Rosefleck Trout: small rust-rose flecks, thicker along the flank, a few pale ones on the back)
+    for (let k = 0; k < 40; k++) { const x = W * (0.14 + rnd() * 0.8), a = -0.04 + rnd() * 0.26, r = 1.3 + rnd() * 2; const col = rnd() < 0.78 ? 'rgba(176,96,104,0.78)' : 'rgba(236,226,220,0.55)'; dot(g, x, yP(a), r, col); dot(g, x, yM(a), r, col); }
   } else if (pat === 'spots' && parts.opts.stars) {
     // (the loop's Kissmark Trout: ivory star-spots on slate, thicker on the back)
     const star = (x, y, r) => { g.beginPath(); for (let i = 0; i < 10; i++) { const a = i / 10 * TAU - Math.PI / 2, rr = i % 2 ? r * 0.42 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.fill(); };

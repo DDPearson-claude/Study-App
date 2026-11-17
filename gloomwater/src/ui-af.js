@@ -23,6 +23,7 @@
 //   ratingLine(D, rating, o)          the Set Out card's tackle rating, in words only
 //   leakScan(text, o)                 the hidden-information scan the tests run over the DOM: species names, rarity words, "%", a weight
 import { fmtWeightNear, sizeWeight } from './data.js';   // pure, flag-free helpers (docs/v3/pounds/SPEC.md §2)
+import { lostLogLines as lostLines0 } from './loop-finds.js';   // LOST-TACKLE §6.2: a found piece's effect lines
 
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -260,6 +261,12 @@ const holdText = (h) => { h = num(h); return Math.abs(h - Math.round(h)) < 0.05 
  */
 export function gearLine(D, e, { names = {} } = {}) {
   if (!e) return '';
+  // LOST-TACKLE §6.2: a found piece's row, its Hold (a rod, line or reel) then its effect lines; a notebook its lines alone
+  if (e.found === true || e.kind === 'notebook') {
+    const lines = lostLogLines(D, e.id, { names, likes: e.likes ?? null });
+    if (['rod', 'line', 'reel'].includes(e.kind)) lines.unshift(gearLine0(D, { kind: e.kind, hold: e.hold, emphasis: e.emphasis }, { names }));
+    return lines.join(' ');
+  }
   const line = gearLine0(D, e, { names }), cap = gearCapLine(D, e);
   return cap ? `${line} ${cap}` : line;
 }
@@ -273,6 +280,8 @@ export function gearCapLine(D, e) {
   else if ((e.kind === 'bait' || e.kind === 'lure') && typeof e.id === 'string') cls = G.item?.[e.id] ?? null;
   return cls ? fill(tpl, { class: classLabel(D, cls) }) : '';
 }
+/** LOST-TACKLE §6.2: a found piece's effect lines (loop-finds.lostLogLines, with this module's class words). */
+export function lostLogLines(D, id, o = {}) { return lostLines0(D, id, { ...o, classWord: (cls) => classLabel(D, cls) }); }
 function gearLine0(D, e, { names = {} } = {}) {
   const G = T(D).gear || {};
   // a per-run level (P1–P2 rows carry the slot's Hold now and the gain of the next level): the line says what buying it adds

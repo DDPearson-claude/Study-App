@@ -286,7 +286,7 @@ section('the tin\'s and the drawer\'s model (ui-tackle.tackleModel), its words a
   const U = await import('../../src/ui-loop.js');
   const E = await import('../../src/murk-engrave.js');
   const W = T.tackleWords(D);
-  eq(W, { tin: 'Tackle', bait: 'Bait', lure: 'Lure', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' }, 'TEXT_LOOP.tackle: six words');
+  eq(W, { tin: 'Tackle', bait: 'Bait', lure: 'Lure', kit: 'Kit', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' }, 'TEXT_LOOP.tackle: seven words (LOST-TACKLE §6.1: the Kit row)');
   ok(Object.values(D.TEXT_LOOP.tackle).every((t) => !/%/.test(t) && U.textAllowed(t, { D })), 'every word on the allow-list, no percentage');
   const all = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner'];
   const run = { zone: 'mossmere', bait: { mireworm: 9, lumen_moss: 3, heartmoss: 1, cut_strip: 2 }, equippedBait: 'mireworm', lure: 'bell_spinner' };

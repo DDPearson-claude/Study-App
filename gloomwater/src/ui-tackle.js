@@ -16,6 +16,8 @@ import { icon } from './ui-icons.js';
 import { engrave } from './murk-engrave.js';
 import { gearName } from './loop-gear.js';
 import { GEAR_GLYPH } from './ui-gear.js';
+import { drawFindArt } from './ui-finds.js';   // LOST-TACKLE §2.1: a found piece's drawing in the Kit and Lure rows
+import { ownedPieces, foundOf } from './loop-finds.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -24,7 +26,7 @@ const int = (v) => { const n = Math.floor(Number(v)); return Number.isFinite(n) 
 /** The words (TEXT_LOOP.tackle), with their fallbacks. */
 export function tackleWords(D) {
   const T = isObj(D?.TEXT_LOOP?.tackle) ? D.TEXT_LOOP.tackle : {};
-  return { tin: T.tin || 'Tackle', bait: T.bait || 'Bait', lure: T.lure || 'Lure', bare: T.bare || 'Bare hook', none: T.none || 'No lure', after: T.after || 'After this fish.' };
+  return { tin: T.tin || 'Tackle', bait: T.bait || 'Bait', lure: T.lure || 'Lure', kit: T.kit || 'Kit', bare: T.bare || 'Bare hook', none: T.none || 'No lure', after: T.after || 'After this fish.' };
 }
 /** A bait's or a lure's name as the shelf names it (TEXT_LOOP.gearItems, else the built record's). */
 const nameOf = (D, id) => gearName(D, id) || arr(D?.BAITS).find((b) => b?.id === id)?.name || String(id);
@@ -39,9 +41,10 @@ export function artCard(D, kind, id) {
 /**
  * The tin's and the drawer's model (pure). run: the trip's run (its bag run.bait, run.equippedBait, run.lure, run.zone); metaLoop: the
  * save's block (its owned lures); line: fishing.hookLine() ({out, castBait}: while a line is out the hook carries the cast's bait).
- * → {bait: [{id, name, count, glyph, on}], lure: [{id, name, glyph, on}], baitOn, lureOn, count}: the bait row is the legend's ball,
- * the water's tins and Cut Strip the bag holds (or the one on the hook), then the bare hook (id null); the lure row every owned lure in
- * LOOP.lures' order, then none (id null). No odds, no likes: names, counts and glyphs only.
+ * → {bait: [{id, name, count, glyph, on}], lure: [{id, name, glyph, on, found}], kit: [{id, slot, name, on}], baitOn, lureOn, count}: the
+ * bait row is the legend's ball, the water's tins and Cut Strip the bag holds (or the one on the hook), then the bare hook (id null); the
+ * lure row every owned lure in LOOP.lures' order, then none (id null); the Kit row (LOST-TACKLE §2.1) each owned found rod, line or reel,
+ * pressed while fitted ([] until one is owned: the row is not drawn). No odds, no likes: names, counts and glyphs only.
  */
 export function tackleModel(D, { run = null, metaLoop = null, line = null } = {}) {
   const r = isObj(run) ? run : {}, ml = isObj(metaLoop) ? metaLoop : {}, W = tackleWords(D);
@@ -55,9 +58,10 @@ export function tackleModel(D, { run = null, metaLoop = null, line = null } = {}
   bait.push({ id: null, name: W.bare, count: null, glyph: 'hook', on: baitOn == null && lureOn == null });   // (one thing on the hook: one pressed)
   const own = new Set(arr(ml.lures));
   const lure = Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => own.has(id) || id === lureOn)
-    .map((id) => ({ id, name: nameOf(D, id), glyph: GEAR_GLYPH[id] || 'spoon', on: id === lureOn }));
+    .map((id) => ({ id, name: nameOf(D, id), glyph: GEAR_GLYPH[id] || 'spoon', on: id === lureOn, ...(D?.LOOP?.lures?.[id]?.found ? { found: true } : {}) }));
   lure.push({ id: null, name: W.none, glyph: null, on: false });
-  return { bait, lure, baitOn, lureOn, count: baitOn ? int(bag[baitOn]) : null };
+  const kit = ownedPieces(ml, D).map((id) => { const slot = D?.LOOP?.lostTackle?.[id]?.slot; return { id, slot, name: D?.TEXT_LOOP?.finds?.items?.[id]?.name || id, on: foundOf(ml, D, slot) === id }; });
+  return { bait, lure, kit, baitOn, lureOn, count: baitOn ? int(bag[baitOn]) : null };
 }
 
 // ------------------------------------------------------------------ drawings
@@ -129,7 +133,7 @@ const CSS = `
 .gw-tk-it { position: relative; flex: none; width: 108px; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px;
   padding: 6px 4px 6px; border: none; border-radius: 10px; background: none; color: var(--ink-dim); cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent; transition: color .2s; }
 .gw-tk-art { position: relative; display: block; width: 80px; height: 60px; flex: none; color: var(--ink); opacity: .74; transition: opacity .2s, filter .2s; }
-.gw-tk-art .cat-eng { display: block; width: 100%; height: 100%; }
+.gw-tk-art .cat-eng, .gw-tk-art .gw-tk-find { display: block; width: 100%; height: 100%; }
 .gw-tk-art .cat-pp { fill: #0d0f21; }
 .gw-tk-art .gw-tk-plain { opacity: .9; }
 .gw-tk-name { display: block; max-width: 100%; font: 400 16px/1.15 var(--f-body); color: inherit; overflow-wrap: normal; word-break: normal; hyphens: manual; text-shadow: var(--ink-shadow); }
@@ -247,7 +251,7 @@ export function createTackleView({ K, L, D, report = () => {} }) {
   }
   tin.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
   tin.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); tapTin(); });
-  try { for (const ev of ['run:start', 'run:end', 'bait:change', 'loop:fit', 'loop:hook', 'fishing:cast', 'fishing:bite', 'fishing:state', 'fish:action', 'flow:change', 'home:enter', 'loop:tutorial']) ctx.bus?.on?.(ev, () => paint()); } catch (e) { report('tackle.bus', e); }
+  try { for (const ev of ['run:start', 'run:end', 'bait:change', 'loop:fit', 'loop:hook', 'loop:found', 'fishing:cast', 'fishing:bite', 'fishing:state', 'fish:action', 'flow:change', 'home:enter', 'loop:tutorial']) ctx.bus?.on?.(ev, () => paint()); } catch (e) { report('tackle.bus', e); }
 
   // ---------------------------------------------------------------- the drawer
   let reeled = false;
@@ -276,10 +280,15 @@ export function createTackleView({ K, L, D, report = () => {} }) {
     b.dataset[kind] = it.id ?? '';
     b.setAttribute('aria-pressed', String(!!it.on));
     let art = '';
-    try { art = it.id ? engrave(artCard(D(), kind, it.id), { uid }) : PLAIN[kind === 'bait' ? 'bare' : 'none']; } catch (e) { report('tackle.art', e); art = glyphOf(it.glyph); }
+    const drawn = kind === 'kit' || it.found === true;   // (a found piece: its own ink drawing, the card's, LOST-TACKLE §2.1)
+    try { art = drawn ? '' : it.id ? engrave(artCard(D(), kind, it.id), { uid }) : PLAIN[kind === 'bait' ? 'bare' : 'none']; } catch (e) { report('tackle.art', e); art = glyphOf(it.glyph); }
     b.innerHTML = `<span class="gw-tk-art">${art}</span><span class="gw-tk-name"></span>${kind === 'bait' && it.id ? `<span class="gw-tk-n">${it.count}</span>` : ''}`;
     b.querySelector('.gw-tk-name').textContent = it.name;
-    b.addEventListener('click', (e) => { e.stopPropagation(); pick(kind, it.id); });
+    if (drawn) {
+      try { const cv = document.createElement('canvas'); cv.className = 'gw-tk-find'; drawFindArt(cv, D(), it.id, { w: 80, h: 60, pad: 0.1 }); cv.style.width = '100%'; cv.style.height = '100%'; b.querySelector('.gw-tk-art').appendChild(cv); } catch (e) { report('tackle.find', e); }
+    }
+    if (kind === 'kit') b.dataset.slot = it.slot || '';
+    b.addEventListener('click', (e) => { e.stopPropagation(); if (kind === 'kit') pickKit(it); else pick(kind, it.id); });
     return b;
   }
   function renderDrawer(entry, body) {
@@ -293,7 +302,8 @@ export function createTackleView({ K, L, D, report = () => {} }) {
     x.setAttribute('aria-label', 'Close');
     x.addEventListener('click', (e) => { e.stopPropagation(); closeDrawer(); });
     const rowsEl = h('div', 'gw-tk-rows');
-    for (const kind of ['bait', 'lure']) {
+    for (const kind of ['bait', 'lure', 'kit']) {
+      if (!m[kind].length) continue;   // (the Kit row only once a found rod, line or reel is owned)
       const sec = h('section', 'gw-tk-row');
       sec.dataset.row = kind;
       const hd = h('h3', 'gw-tk-h');
@@ -345,6 +355,15 @@ export function createTackleView({ K, L, D, report = () => {} }) {
     paint(true);
   }
 
+  /** A tap on a Kit chip (LOST-TACKLE §2.1): fit the piece in its slot, or take a pressed one off (the bought tier comes back). The rules
+   *  are changeHook's (loop.fitFound: at home, or on the lake when no fish is on). */
+  function pickKit(it) {
+    const res = it.on ? L('unfitFound', it.slot) : L('fitFound', it.slot, it.id);
+    if (res?.ok !== true) { sfx('denied', { volume: 0.35 }); if (res?.reason === 'fish') { closeDrawer(); sayAfter(); } return; }
+    if (res.changed) { sfx('ui_click', { volume: 0.5, pitch: 0.7 }); if (res.reeled) reeled = true; }
+    try { K.entry?.('tackle')?.render?.(); layoutClass(K.entry?.('tackle')); } catch (e) { report('tackle.rerender', e); }
+    paint(true);
+  }
   function update(dt = 0) {
     if (noteT > 0) { noteT -= Math.max(0, Math.min(0.25, Number(dt) || 0)); if (noteT <= 0) note.classList.remove('gw-in'); }
     paint();
@@ -357,6 +376,7 @@ export function createTackleView({ K, L, D, report = () => {} }) {
   return {
     update, toggle, paint, isOpen, open: openDrawer, close: closeDrawer, tin,
     debug: () => ({ shown: !wrap.hidden, busy: tin.classList.contains('gw-busy'), bait: tin.dataset.bait ?? null, lure: tin.dataset.lure ?? null,
-      open: isOpen(), note: note.classList.contains('gw-in') ? note.textContent : null }),
+      open: isOpen(), note: note.classList.contains('gw-in') ? note.textContent : null,
+      kit: (() => { try { return [...(K.entry?.('tackle')?.el?.querySelectorAll?.('[data-row=kit] .gw-tk-it') || [])].map((b) => ({ id: b.dataset.kit, on: b.getAttribute('aria-pressed') === 'true' })); } catch { return []; } })() }),
   };
 }
