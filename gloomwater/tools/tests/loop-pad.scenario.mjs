@@ -37,7 +37,12 @@ export default async function (api) {
         for (let n = tw.nextNode(); n; n = tw.nextNode()) {
           if (!n.nodeValue.trim() || !n.parentElement?.checkVisibility?.({ checkOpacity: true, checkVisibilityCSS: true })) continue;
           rg.selectNodeContents(n);
-          for (const r of rg.getClientRects()) for (const c of chips) if (r.width > 0 && c.left < r.right - 0.5 && c.right > r.left + 0.5 && c.top < r.bottom - 0.5 && c.bottom > r.top + 0.5) bad.push(`over "${n.nodeValue.trim().slice(0, 24)}"`);
+          let k = null;   // (text scrolled out of its scroller's view is not under a glyph)
+          for (let a = n.parentElement; a && a !== top && !k; a = a.parentElement) { const cs = getComputedStyle(a); if (/auto|scroll|hidden/.test(cs.overflowY) && a.scrollHeight > a.clientHeight + 1) k = a.getBoundingClientRect(); }
+          for (const r0 of rg.getClientRects()) for (const c of chips) {
+            const r = k ? { left: Math.max(r0.left, k.left), right: Math.min(r0.right, k.right), top: Math.max(r0.top, k.top), bottom: Math.min(r0.bottom, k.bottom), width: Math.min(r0.right, k.right) - Math.max(r0.left, k.left) } : r0;
+            if (r.width > 0 && r.bottom > r.top && c.left < r.right - 0.5 && c.right > r.left + 0.5 && c.top < r.bottom - 0.5 && c.bottom > r.top + 0.5) bad.push(`over "${n.nodeValue.trim().slice(0, 24)}"`);
+          }
         }
       }
       const f = document.querySelector('.gw-padfocus');

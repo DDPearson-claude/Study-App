@@ -1,6 +1,6 @@
 // Unit tests for the game controller (src/input-pad.js; the user's ask, 17 Nov 2026): the standard mapping, the dead zone, the edge
 // detection, the spatial focus order (the home's targets, a grid, a row over a wide button), the held direction's repeat, the hint
-// glyph's place, and the pad attached to a fake page with a fake getGamepads: the stick sails, A held aims ahead of the raft and its
+// glyph's place (beside its label, never over it: clearAt), several pads at once, a slider by the pad (no key left held), and the pad attached to a fake page with a fake getGamepads: the stick sails, A held aims ahead of the raft and its
 // release casts, the right stick turns the aim, Start / Y / X are the P / J / B keys, the intro's skip, the hints on with the pad
 // and off at a real pointer or key (never at the pad's own synthetic keys), a lost pad lets go, the rumble guarded by the settings.
 //   node tools/tests/input-pad.test.mjs   (or node tools/check.mjs)
@@ -18,7 +18,7 @@ let pass = 0, fail = 0;
 function ok(cond, msg, extra) { if (cond) pass++; else { fail++; console.log('  FAIL:', msg, extra !== undefined ? JSON.stringify(extra) : ''); } }
 const section = (s) => console.log(`- ${s}`);
 const near = (a, b, e = 1e-6) => Math.abs(a - b) <= e;
-const { PAD, DEAD, deadZone, firstPad, readPad, edges, stickDir, navPick, createRepeat, chipPlace, attachPad } = P;
+const { PAD, DEAD, deadZone, firstPad, readPads, edges, stickDir, navPick, createRepeat, chipPlace, clearAt, attachPad } = P;
 
 section('the standard mapping');
 ok(PAD.A === 0 && PAD.B === 1 && PAD.X === 2 && PAD.Y === 3 && PAD.LB === 4 && PAD.RB === 5 && PAD.LT === 6 && PAD.RT === 7, 'A B X Y LB RB LT RT = 0–7');
@@ -41,14 +41,23 @@ section('the pad, its buttons, the edges');
   const odd = { connected: true, mapping: '', buttons: new Array(12).fill({ pressed: false }), axes: [] }, std = { connected: true, mapping: 'standard', buttons: new Array(17).fill({ pressed: false }), axes: [] };
   ok(firstPad([odd, std]) === std && firstPad([odd]) === odd && firstPad([{ ...std, connected: false }]) === null, 'the standard pad first, any pad else, never a disconnected one');
   const cur = new Uint8Array(16), prev = new Uint8Array(16), dn = new Uint8Array(16), up = new Uint8Array(16), ax = new Float32Array(4);
-  const gp = { buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 })), axes: [0.5, -0.25, 0, 1] };
+  const gp = { mapping: 'standard', buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 })), axes: [0.5, -0.25, 0, 1] };
   gp.buttons[0].pressed = true; gp.buttons[7].value = 0.8;
-  readPad(gp, cur, ax);
+  readPads([gp], cur, ax);
   ok(cur[0] === 1 && cur[7] === 1 && cur[1] === 0 && near(ax[0], 0.5) && near(ax[3], 1), 'pressed or a trigger past half is down; the axes read', { cur: [...cur], ax: [...ax] });
   ok(edges(cur, prev, dn, up) === true && dn[0] === 1 && dn[7] === 1 && up[0] === 0, 'a press is one down edge');
   ok(edges(cur, prev, dn, up) === false && dn[0] === 0, 'held: no second edge');
   cur[0] = 0; edges(cur, prev, dn, up);
   ok(up[0] === 1 && dn[0] === 0, 'let go: one up edge');
+  // a handheld's maker or Steam adds an idle virtual copy (often first): any pad's press counts, each axis from the pad pushing it furthest
+  const pad = (mapping, ts) => ({ connected: true, mapping, timestamp: ts, buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 })), axes: [0, 0, 0, 0] });
+  const idle = pad('standard', 5), real = pad('standard', 9), odd2 = pad('', 12);
+  real.buttons[0].pressed = true; real.axes[0] = -0.7; idle.axes[0] = 0.1; odd2.buttons[9].pressed = true; odd2.axes[2] = -1;
+  const li = readPads([idle, real, odd2], cur, ax);
+  ok(cur[0] === 1 && cur[9] === 0 && near(ax[0], -0.7) && ax[2] === 0 && li === 1, 'two standard pads: the idle copy hides nothing; a non-standard pad beside them is not read; the rumble goes to the one that changed last', { cur: [...cur], ax: [...ax], li });
+  const lo = readPads([null, odd2], cur, ax);
+  ok(lo === 1 && cur[9] === 1 && ax[2] === 0, "a non-standard pad alone: its buttons, never its axes (a trigger resting at -1 is not a held stick)");
+  ok(readPads([null, null], cur, ax) === -1 && cur[9] === 0, 'no pad: -1, all let go');
 }
 
 section('a stick as a direction; the held direction repeats');
@@ -87,17 +96,37 @@ section('the hint glyph beside a button, never over a word, never cut');
 {
   const r = { l: 400, t: 300, r: 520, b: 344 };
   const a = chipPlace(r, 20, 1280, 800);
-  ok(!a.inside && a.x + 20 <= r.l && a.y > r.t && a.y + 20 < r.b, 'left of it, centred on its height', a);
+  ok(a && a.x + 20 <= r.l && a.y > r.t && a.y + 20 < r.b, 'left of it, centred on its height', a);
   const edge = chipPlace({ l: 4, t: 300, r: 120, b: 344 }, 20, 1280, 800);
-  ok(!edge.inside && edge.x >= 120, 'at the screen edge: right of it (never cut)', edge);
+  ok(edge && edge.x >= 120, 'at the screen edge: right of it (never cut)', edge);
   const blocked = chipPlace(r, 20, 1280, 800, (x) => x > 520);
   ok(blocked.x >= 520, 'a word on its left: right of it', blocked);
   const b = chipPlace(r, 20, 1280, 800, () => true, 6, true);
-  ok(!b.inside && b.x >= r.r && b.x - r.r <= 8, 'the way back (B): right of its button, after its word', b);
-  const none = chipPlace(r, 20, 1280, 800, () => false);
-  ok(none.inside && none.x >= r.l && none.y >= r.t, 'nowhere clear: just inside its corner', none);
-  const corner = chipPlace({ l: 1250, t: 2, r: 1279, b: 30 }, 20, 1280, 800, () => false);
-  ok(corner.x + 20 <= 1278 && corner.y >= 2, 'inside the screen even at its corner', corner);
+  ok(b && b.x >= r.r && b.x - r.r <= 8, 'the way back (B): right of its button, after its word', b);
+  ok(chipPlace(r, 20, 1280, 800, () => false, 6, false, { l: 380, t: 290, r: 540, b: 354 }) === null, 'nowhere clear: no glyph (never one over its word)');
+  const corner = chipPlace({ l: 1250, t: 2, r: 1279, b: 30 }, 20, 1280, 800);
+  ok(corner && corner.x + 20 <= 1278 && corner.y >= 2, 'inside the screen even at its corner', corner);
+  // clearAt on a fake page: a button with a bare text label (Murk's "Buy · 400"); the purse, a pill, close on its left
+  const R = (l, t, r2, b2) => ({ left: l, top: t, right: r2, bottom: b2, width: r2 - l, height: b2 - t });
+  const txt = (v) => ({ nodeType: 3, nodeValue: v, nextSibling: null });
+  const el = (tag, rect, kids, btn) => { const e = { tagName: tag, rect, firstChild: kids, getBoundingClientRect: () => rect, closest: () => (btn ? e : null) }; return e; };
+  const page = (els) => ({ elementFromPoint: (x, y) => els.find((e) => x >= e.rect.left && x < e.rect.right && y >= e.rect.top && y < e.rect.bottom) || null });
+  const near2 = (q, lab) => q && !(q.x < lab.right && q.x + 20 > lab.left && q.y < lab.bottom && q.y + 20 > lab.top);
+  {
+    const lab = R(642, 734, 752, 754), buy = el('BUTTON', R(620, 720, 774, 768), txt('Buy · '), true);
+    const purse = el('DIV', R(505, 724, 606, 764), { nodeType: 1, nextSibling: null }), foot = el('DIV', R(0, 716, 1280, 772), null);
+    const doc = page([purse, buy, foot]);
+    const L = { l: lab.left, t: lab.top, r: lab.right, b: lab.bottom }, O = { l: 620, t: 720, r: 774, b: 768 };
+    const q = chipPlace(L, 20, 1280, 800, clearAt(doc, buy, lab), 6, false, O);
+    ok(near2(q, lab) && q.x >= O.r, 'a bare-text button, its padding too narrow and a pill on its left: the glyph goes right of the button, never over its word', q);
+    const wide = el('BUTTON', R(560, 720, 834, 768), txt('Buy · '), true), lab2 = R(642, 734, 752, 754);
+    const q2 = chipPlace({ l: lab2.left, t: lab2.top, r: lab2.right, b: lab2.bottom }, 20, 1280, 800, clearAt(page([wide, foot]), wide, lab2), 6, false, { l: 560, t: 720, r: 834, b: 768 });
+    ok(near2(q2, lab2) && q2.x >= 560 && q2.x + 20 <= lab2.left, "a bare-text button with room: in its own padding, left of its word", q2);
+    const tight = el('BUTTON', lab2, txt('Buy · '), true), left = el('BUTTON', R(560, 734, 632, 754), txt('Back'), true);
+    const T3 = { l: lab2.left, t: lab2.top, r: lab2.right, b: lab2.bottom };
+    const q3 = chipPlace(T3, 20, 1280, 800, clearAt(page([left, tight, foot]), tight, lab2), 6, false, T3);
+    ok(near2(q3, lab2) && q3.x >= lab2.right, 'a button close on its left: right of its word, never over it', q3);
+  }
 }
 
 section('attached to a fake page: the water');
@@ -181,6 +210,38 @@ function rig({ flow = 'playing', settings = {} } = {}) {
   ok(T.keys[0] === 'Escape' && T.calls.press === 0, 'the intro: A is a skip key (Escape), no press');
 }
 
+section('a slider by the pad: its value moves, no arrow key is left held in the game');
+{
+  const win = new EventTarget();
+  win.Event = Event;
+  win.KeyboardEvent = class extends Event { constructor(t, i = {}) { super(t, i); this.code = i.code; this.key = i.key; } };
+  win.innerWidth = 1280; win.innerHeight = 800; win.getComputedStyle = () => ({ pointerEvents: 'auto' });
+  const held = new Set();   // main's input.keys: down adds, up deletes
+  win.addEventListener('keydown', (e) => held.add(e.code)); win.addEventListener('keyup', (e) => held.delete(e.code));
+  const cl = () => { const c = new Set(); return { add: (x) => c.add(x), remove: (x) => c.delete(x), contains: (x) => c.has(x), toggle: (x, on) => (on ? c.add(x) : c.delete(x)) }; };
+  const doc = { activeElement: null, documentElement: { classList: cl() }, head: { appendChild() {} }, body: { appendChild() {} }, styleSheets: [],
+    createElement: () => ({ className: '', setAttribute() {}, dataset: {}, style: {}, classList: cl() }) };
+  const slider = { tagName: 'INPUT', value: 50, dataset: {}, isConnected: true, textContent: '', classList: cl(), getAttribute: () => null, closest: () => null,
+    matches: (q) => q.includes('range') && !q.includes('gw-x'), getBoundingClientRect: () => ({ left: 500, top: 300, right: 700, bottom: 324, width: 200, height: 24 }),
+    focus() { doc.activeElement = slider; },
+    dispatchEvent(e) {   // its own key handler (ui-screens: ±5), then the event bubbles to the window (main's key set)
+      if (e.type === 'keydown') slider.value += e.code === 'ArrowRight' ? 5 : e.code === 'ArrowLeft' ? -5 : 0;
+      win.dispatchEvent(new win.KeyboardEvent(e.type, { code: e.code, key: e.key })); return true;
+    } };
+  const scope = { dataset: { modal: 'settings' }, classList: { contains: (c) => c === 'gw-modal' }, previousElementSibling: null,
+    querySelectorAll: (q) => (q.includes('range') ? [slider] : []), querySelector: () => null, contains: (x) => x === slider };
+  doc.querySelector = (q) => (q === '.gw-modal-layer' ? { lastElementChild: scope } : null);
+  const gp = { mapping: 'standard', connected: true, buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 })), axes: [0, 0, 0, 0] };
+  const ctx = { flow: 'home', paused: false, input: { keys: held }, ui: { isBlocking: () => true }, state: { meta: { settings: {} } } };
+  const pad = attachPad(ctx, { win, doc, nav: { getGamepads: () => [gp] } });
+  gp.buttons[PAD.RIGHT].pressed = true; pad.poll(1 / 60);
+  gp.buttons[PAD.RIGHT].pressed = false; pad.poll(1 / 60);
+  ok(slider.value === 55, 'RIGHT on a focused slider: +5', slider.value);
+  ok(held.size === 0, 'no arrow key left held in the game (the raft would steer by itself on the next trip)', [...held]);
+  gp.buttons[PAD.LEFT].pressed = true; pad.poll(1 / 60);
+  ok(slider.value === 50 && held.size === 0, 'LEFT: back, and none held', { v: slider.value, held: [...held] });
+}
+
 section('rumble: soft at the strike, the heart for an Elder / Ancient; off with the settings');
 {
   const T = rig();
@@ -221,7 +282,7 @@ section('the seams: under the loop only, nothing for mouse, keys or touch');
   ok(/const pa = ctx\.input\?\.padAim;\n    if \(pa && pa\.on === true/.test(f), "fishing's aim reads the pad's only while its A is held");
   ok(/SW && ctx\.input\?\.padSeen === true\) content\.appendChild\(toggleRow\('padHints', 'Controller hints', true\)\)/.test(s), 'Settings: "Controller hints" once a pad is seen, under the loop');
   ok(!/\bring\b.*raft|outline.*player/i.test(p.replace(/never a ring[^\n]*/gi, '')), 'no ring round the raft or the player');
-  ok(/if \(!gp\) \{/.test(p) && /setActive\(true\)/.test(p), 'without a pad (or one at rest) the page is untouched');
+  ok(/if \(li < 0\) \{/.test(p) && /setActive\(true\)/.test(p), 'without a pad (or one at rest) the page is untouched');
 }
 
 console.log(`\ninput-pad: ${pass} passed, ${fail} failed`);

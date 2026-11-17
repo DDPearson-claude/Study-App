@@ -1,8 +1,9 @@
 // input-pad.js — a game controller (the user's ask, 17 Nov 2026: play on a Windows handheld whose detachable controllers show to
 // Chrome / Edge as one standard Xbox-style pad through the Gamepad API). Under the loop only: main attaches it when GW_LOOP is on, and
 // nothing changes for a mouse, keyboard or touch player (no DOM and no CSS until a pad is used).
-// Polled once a frame from main's loop, after the keys' move: navigator.getGamepads(), the first pad, its buttons edge-detected into
-// fixed arrays (nothing allocated per frame while nobody touches it).
+// Polled once a frame from main's loop, after the keys' move: navigator.getGamepads(), every connected pad (a handheld's maker or
+// Steam may add an idle virtual copy: a button pressed on any counts, each stick from the pad pushing it furthest), edge-detected
+// into fixed arrays (nothing allocated per frame while nobody touches it).
 //   On the water: the left stick (or the D-pad) sails, as WASD and the touch stick do; A held aims the cast and its release casts
 //   (main's own press and release, as a mouse or a finger makes them: the swing-out-and-back aim, the strike gauge, the show's hurry and
 //   a lure's retrieve are all as today); the right stick turns the aim (camera-relative; ahead of the raft until it is pushed).
@@ -16,8 +17,8 @@
 //   the touch stick hidden; a mouse, a touch or a key puts all of it back.
 //   Rumble ('dual-rumble', guarded; off with reduced motion or the haptics / vibration / screen-shake setting off): a short soft one at
 //   the strike, and the heart's beats (ui-heart.js) when an Elder or an Ancient is hooked. Never a ring in the world.
-// Pure exports (node: tools/tests/input-pad.test.mjs): PAD · DEAD · deadZone · firstPad · readPad · edges · stickDir · navPick ·
-// createRepeat · chipPlace · attachPad
+// Pure exports (node: tools/tests/input-pad.test.mjs): PAD · DEAD · deadZone · firstPad · readPads · edges · stickDir · navPick ·
+// createRepeat · chipPlace · clearAt · attachPad
 import { heartFor, heartBeats } from './ui-heart.js';
 
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -38,23 +39,36 @@ export function deadZone(ax, ay, dz = DEAD, out = { x: 0, y: 0 }) {
   out.x = x * k; out.y = y * k;
   return out;
 }
+const live = (p) => !!p && p.connected !== false && !!p.buttons && p.buttons.length >= 4;
 /** The first connected pad of a getGamepads() list (a standard one first), or null. */
 export function firstPad(list) {
   if (!list) return null;
   let any = null;
   for (let i = 0; i < list.length; i++) {
     const p = list[i];
-    if (!p || p.connected === false || !p.buttons || p.buttons.length < 4) continue;
+    if (!live(p)) continue;
     if (p.mapping === 'standard') return p;
     any = any || p;
   }
   return any;
 }
-/** A pad's buttons into cur (0/1) and its axes into axes. */
-export function readPad(gp, cur, axes) {
-  const b = gp?.buttons || [], a = gp?.axes || [];
-  for (let i = 0; i < cur.length; i++) { const q = b[i]; cur[i] = q && (q.pressed === true || num(q.value) > 0.5) ? 1 : 0; }
-  for (let i = 0; i < axes.length; i++) axes[i] = num(a[i]);
+/** Every connected pad into cur (0/1: pressed on any pad) and axes (each from the pad pushing it furthest). With a standard pad
+ *  connected only standard pads count; with none, the others' buttons only (their triggers may rest at -1 on axes 2 and 3).
+ *  → the list index of the pad that changed last (the one to rumble), or -1 with no pad. */
+export function readPads(list, cur, axes) {
+  cur.fill(0); axes.fill(0);
+  const n = list?.length || 0;
+  let std = false, last = -1, lt = -Infinity;
+  for (let i = 0; i < n; i++) if (live(list[i]) && list[i].mapping === 'standard') std = true;
+  for (let i = 0; i < n; i++) {
+    const p = list[i];
+    if (!live(p) || (std && p.mapping !== 'standard')) continue;
+    const b = p.buttons, a = std ? p.axes : null;
+    for (let k = 0; k < cur.length; k++) { const q = b[k]; if (q && (q.pressed === true || num(q.value) > 0.5)) cur[k] = 1; }
+    if (a) for (let k = 0; k < axes.length && k < a.length; k++) { const v = num(a[k]); if (Math.abs(v) > Math.abs(axes[k])) axes[k] = v; }
+    if (num(p.timestamp) >= lt) { lt = num(p.timestamp); last = i; }
+  }
+  return last;
 }
 /** Edges since the last read: down / up (0/1); prev becomes cur. → whether any button went down. */
 export function edges(cur, prev, down, up) {
@@ -101,17 +115,43 @@ export function createRepeat(first = 0.36, every = 0.13) {
     return dir;
   };
 }
-/** Where a glyph of size s goes beside a rect {l, t, r, b} in a vw × vh screen: left of it (right first when `right`), the other
- *  side, above, below (the first in the screen whose box clear(x, y, s) passes), else just inside its top-left corner. → {x, y, inside}. */
-export function chipPlace(r, s, vw, vh, clear = () => true, gap = 6, right = false) {
-  const my = Math.round((r.t + r.b) / 2 - s / 2);
-  const L = [r.l - gap - s, my], Rt = [r.r + gap, my];
-  const spots = [right ? Rt : L, right ? L : Rt, [r.l, r.t - gap - s], [r.l, r.b + gap]];
-  for (const [x, y] of spots) if (x >= 2 && y >= 2 && x + s <= vw - 2 && y + s <= vh - 2 && clear(x, y, s)) return { x, y, inside: false };
-  return { x: Math.min(Math.max(2, r.l + 3), vw - s - 2), y: Math.min(Math.max(2, r.t + 3), vh - s - 2), inside: true };
+/** Where a glyph of size s goes beside a label's rect {l, t, r, b} in a vw × vh screen: left of it (right first when `right`), the
+ *  other side, above, below; then the same round its button's outer box o (clear's 4th argument true there); the first in the
+ *  screen whose box clear(x, y, s, outer) passes. → {x, y}, or null (nowhere clear: no glyph, never one over a word). */
+export function chipPlace(r, s, vw, vh, clear = () => true, gap = 6, right = false, o = null) {
+  const two = o && (o.l !== r.l || o.t !== r.t || o.r !== r.r || o.b !== r.b);
+  for (const q of two ? [r, o] : [r]) {
+    const my = Math.round((q.t + q.b) / 2 - s / 2);
+    const L = [q.l - gap - s, my], Rt = [q.r + gap, my];
+    for (const [x, y] of [right ? Rt : L, right ? L : Rt, [q.l, q.t - gap - s], [q.l, q.b + gap]]) {
+      if (x >= 2 && y >= 2 && x + s <= vw - 2 && y + s <= vh - 2 && clear(x, y, s, q === o)) return { x, y };
+    }
+  }
+  return null;
 }
 
 const CAND = 'button, [role=button], [role=tab], [role=switch], a[href], input[type=range], [tabindex="0"]';
+/** A glyph's box (x, y, s) beside el is clear when it is off el's label (lab, a rect) and not astride el's own edge, and no word,
+ *  no drawing (of scope) and no other button is under its corners and centre (el's padding beside its label is clear); outer (beside
+ *  el's outer box): all five on one surface, never astride a neighbour's pill. */
+export function clearAt(doc, el, lab, scope = null) {
+  const o = el.getBoundingClientRect();
+  return (x, y, s, outer = false) => {
+    if (x < lab.right + 2 && x + s > lab.left - 2 && y < lab.bottom + 2 && y + s > lab.top - 2) return false;
+    if (x < o.right && x + s > o.left && y < o.bottom && y + s > o.top && !(x >= o.left && x + s <= o.right && y >= o.top && y + s <= o.bottom)) return false;
+    let one = null;
+    for (const [px, py] of [[x + 1, y + 1], [x + s - 1, y + 1], [x + 1, y + s - 1], [x + s - 1, y + s - 1], [x + s / 2, y + s / 2]]) {
+      const e = doc.elementFromPoint?.(px, py);
+      if (!e) continue;
+      if (outer && (one = one || e) !== e) return false;
+      const c = e.closest?.(CAND);
+      if (c && c !== el) return false;   // another button
+      if (/^(CANVAS|IMG|SVG|PATH|USE|CIRCLE|LINE|POLYLINE|INPUT)$/i.test(e.tagName) && scope?.contains(e)) return false;   // the screen's own art (the world's canvas is not)
+      if (e !== el) for (let n = e.firstChild; n; n = n.nextSibling) if (n.nodeType === 3 && n.nodeValue.trim()) return false;
+    }
+    return true;
+  };
+}
 const BACKS = '.gw-x, .gw-book-close, .gw-loop-back';
 const LETGO = '.gw-cc-letgo, [data-action=letgo]';
 const KEYS = { Escape: 'Escape', KeyP: 'p', KeyJ: 'j', KeyB: 'b', Enter: 'Enter', ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown' };
@@ -123,6 +163,12 @@ const CSS = `
   box-shadow: 0 0 0 1px rgba(174, 172, 208, .62), 0 0 10px rgba(160, 150, 240, .34); text-shadow: none; }
 .gw-padg.gw-on { opacity: 1; }
 .gw-padg[data-b] { color: var(--ink-dim, #aeacd0); }
+html.gw-pad-on :is(.gw-pf, .gw-lu-foot, .gw-death-btns, .gw-pause-menu, .gw-fish-acts, .gw-title-menu):has(.gw-btn:hover) .gw-btn.gw-padfocus { color: var(--ink-hi); text-shadow: 0 0 18px var(--glow), 0 0 2px rgba(160, 150, 240, .35), var(--ink-shadow); }
+html.gw-pad-on :is(.gw-pf, .gw-lu-foot, .gw-death-btns, .gw-pause-menu, .gw-fish-acts, .gw-title-menu):has(.gw-btn:hover) .gw-btn.gw-padfocus .gw-hk { opacity: 1; }
+html.gw-pad-on :is(.gw-pf, .gw-lu-foot, .gw-death-btns, .gw-pause-menu, .gw-fish-acts, .gw-title-menu):has(.gw-btn:hover) .gw-btn.gw-padfocus .gw-hk path { stroke-dashoffset: 0; }
+html.gw-pad-on :is(.gw-pf, .gw-lu-foot, .gw-death-btns, .gw-pause-menu, .gw-fish-acts, .gw-title-menu):has(.gw-btn.gw-padfocus) .gw-btn:not(.gw-padfocus):hover { color: var(--ink-dim); text-shadow: var(--ink-shadow); }
+html.gw-pad-on :is(.gw-pf, .gw-lu-foot, .gw-death-btns, .gw-pause-menu, .gw-fish-acts, .gw-title-menu):has(.gw-btn.gw-padfocus) .gw-btn:not(.gw-padfocus) .gw-hk { opacity: 0; }
+html.gw-pad-on :is(.gw-pf, .gw-lu-foot, .gw-death-btns, .gw-pause-menu, .gw-fish-acts, .gw-title-menu):has(.gw-btn.gw-padfocus) .gw-btn:not(.gw-padfocus) .gw-hk path { stroke-dashoffset: 100; }
 `;
 
 /**
@@ -136,7 +182,7 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
   const L = { x: 0, y: 0 }, R = { x: 0, y: 0 };
   const rep = createRepeat();
   const S = { seen: false, active: false, mode: 'none', scope: null, focus: null, fsig: '', frect: null, aWater: false, letgo: null,
-    css: null, chips: null, scopeT: 0, done: new WeakSet(), sheetN: -1, tick: 0, back: null, chipKey: '', synth: false, lastPad: null, rumbles: 0 };
+    css: null, chips: null, scopeT: 0, done: new WeakSet(), sheetN: -1, tick: 0, back: null, chipKey: '', synth: false, lastPad: false, rIdx: 0, rumbles: 0 };
   const settings = () => ctx.state?.meta?.settings || {};
   const root = () => doc?.documentElement || null;
 
@@ -180,13 +226,13 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
   }
 
   // ---- keys and clicks (the game's own handlers; a synthetic event never counts as the player's key)
-  function key(code) {
+  function key(code, at = win) {
     const KE = win.KeyboardEvent;
     S.synth = true;
     try {
       for (const type of ['keydown', 'keyup']) {
         const init = { code, key: KEYS[code] || code, bubbles: true, cancelable: true };
-        win.dispatchEvent(KE ? new KE(type, init) : Object.assign(new win.Event(type, init), init));
+        at.dispatchEvent(KE ? new KE(type, init) : Object.assign(new win.Event(type, init), init));
       }
     } catch (e) { report('key', e); } finally { S.synth = false; }
   }
@@ -253,12 +299,7 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
   }
   function move(scope, dir) {
     const f = S.focus;
-    if (f && f.matches?.('input[type=range]') && (dir === LEFT || dir === RIGHT)) {   // a slider: its own keys
-      S.synth = true;
-      try { f.dispatchEvent(new win.KeyboardEvent('keydown', { code: dir === LEFT ? 'ArrowLeft' : 'ArrowRight', key: dir === LEFT ? 'ArrowLeft' : 'ArrowRight', bubbles: true, cancelable: true })); }
-      catch (e) { report('slider', e); } finally { S.synth = false; }
-      return;
-    }
+    if (f && f.matches?.('input[type=range]') && (dir === LEFT || dir === RIGHT)) { key(dir === LEFT ? 'ArrowLeft' : 'ArrowRight', f); return; }   // a slider: its own key, down and up (none left held in the game)
     const T = targets(scope);
     if (!T.els.length) return;
     const i = f ? T.els.indexOf(f) : -1;
@@ -286,20 +327,6 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
     return c;
   }
   function showChips(on) { if (S.chips) for (const c of S.chips) c.classList.toggle('gw-on', !!on && c.dataset.placed === '1'); }
-  /** A glyph's box is clear when no word, no drawing and no other button is under its corners and centre (its own button's padding is). */
-  function clearAt(el) {
-    return (x, y, s) => {
-      for (const [px, py] of [[x + 1, y + 1], [x + s - 1, y + 1], [x + 1, y + s - 1], [x + s - 1, y + s - 1], [x + s / 2, y + s / 2]]) {
-        const e = doc.elementFromPoint?.(px, py);
-        if (!e) continue;
-        const c = e.closest?.(CAND);
-        if (c && c !== el) return false;   // another button
-        if (/^(CANVAS|IMG|SVG|PATH|USE|CIRCLE|LINE|POLYLINE|INPUT)$/i.test(e.tagName) && S.scope?.contains(e)) return false;   // the screen's own art (the world's canvas is not)
-        for (let n = e.firstChild; n; n = n.nextSibling) if (n.nodeType === 3 && n.nodeValue.trim()) return false;
-      }
-      return true;
-    };
-  }
   /** What a glyph sits beside: a home target's word, else the button's own label (its contents' box, not its padding). */
   function anchorRect(el) {
     const w = el.querySelector?.('.gw-jetty-tword');
@@ -310,9 +337,9 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
     return r;
   }
   function placeChip(c, el, right = false) {
-    if (!el) { c.dataset.placed = ''; c.classList.remove('gw-on'); return; }
-    const r = anchorRect(el);
-    const p = chipPlace({ l: r.left, t: r.top, r: r.right, b: r.bottom }, 20, win.innerWidth, win.innerHeight, clearAt(el), 6, right);
+    const r = el && anchorRect(el), o = el?.getBoundingClientRect();
+    const p = r && chipPlace({ l: r.left, t: r.top, r: r.right, b: r.bottom }, 20, win.innerWidth, win.innerHeight, clearAt(doc, el, r, S.scope), 6, right, { l: o.left, t: o.top, r: o.right, b: o.bottom });
+    if (!p) { c.dataset.placed = ''; c.classList.remove('gw-on'); return; }
     c.style.transform = `translate(${Math.round(p.x)}px,${Math.round(p.y)}px)`;
     c.dataset.placed = '1';
   }
@@ -338,7 +365,7 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
     const st = settings();
     if (!S.active || reduced() || st.haptics === false || st.vibration === false || st.screenShake === false) return false;
     let gp = null;
-    try { gp = firstPad(nav?.getGamepads?.()); } catch { gp = null; }
+    try { const list = nav?.getGamepads?.(); gp = list?.[S.rIdx] || firstPad(list); } catch { gp = null; }
     const va = gp?.vibrationActuator;
     if (!va || typeof va.playEffect !== 'function') return false;
     try { const p = va.playEffect('dual-rumble', { startDelay: 0, duration: ms, strongMagnitude: strong, weakMagnitude: weak }); p?.catch?.(() => {}); S.rumbles++; return true; } catch { return false; }
@@ -437,14 +464,13 @@ export function attachPad(ctx, { press = () => {}, release = () => {}, busy = ()
   function poll(dt = 1 / 60) {
     let list = null;
     try { list = nav?.getGamepads?.() || null; } catch { list = null; }
-    const gp = firstPad(list);
-    if (!gp) {
-      if (S.lastPad) { S.lastPad = null; cur.fill(0); edges(cur, prev, dn, upE); endWater(); setActive(false); }
+    const li = readPads(list, cur, axes);
+    if (li < 0) {
+      if (S.lastPad) { S.lastPad = false; edges(cur, prev, dn, upE); endWater(); setActive(false); }
       return;
     }
-    S.lastPad = gp;
+    S.lastPad = true; S.rIdx = li;
     if (!S.seen) { S.seen = true; input.padSeen = true; }
-    readPad(gp, cur, axes);
     const any = edges(cur, prev, dn, upE);
     deadZone(axes[0], axes[1], DEAD, L);
     deadZone(axes[2], axes[3], DEAD, R);
