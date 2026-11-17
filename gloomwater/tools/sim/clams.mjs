@@ -352,7 +352,7 @@ const SP = Object.fromEntries(SPECIES.map((s) => [s.id + '@' + s.water, s]));
 // fitted when better (their Hold never below the bought tier's: Line and Reel T0–T1), with their trade-offs (the Thread's Trophy cap)
 const LT = D.LOOP.lostTackle || {};
 const GUEST = Object.fromEntries(WC.GUESTS.map((id) => { const h = SPECIES.find((x) => x.id === id && x.water !== 'mossmere'); return [id, h ? { ...h, water: 'mossmere', home: h.water, kind: 'open', ownPlace: undefined, guest: true } : null]; }).filter(([, x]) => x));
-export const BROOK = { id: 'veilback_brook', water: 'mossmere', kind: 'day', extra: false, inLake: true, name: 'Veilback Brook', price: 0, giants: [], legend: null, good: 1, secret: true,
+export const BROOK = { id: 'veilback_brook', water: 'mossmere', kind: 'day', extra: false, inLake: true, name: 'Veilback Brook', price: 0, giants: [], legend: null, good: 1, secret: true, only: true,
   own: ['rosefleck_trout', 'rainglass_darter'].filter((id) => GUEST[id]), draws: { dusk_minnow: 1.5, kissmark_trout: 1 } };
 PLACE[BROOK.id] = BROOK;   // (in PLACE for the trip, never in the shelf's W.places: no map, no price)
 // <<< LOST-TACKLE
@@ -516,8 +516,10 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   const cache = miss ? PULLED : POOLS, key = (miss ? `${water}|${placeId}|${phase}|${lure}|${bait}|${pull}|${[...miss].sort().join(',')}` : `${water}|${placeId}|${phase}|${lure}|${bait}`) + gk + (wc ? `|a${placeId ? '' : area}${hook ? '' : '|who'}` : '') + (NB ? `|n${NB.join(',')}` : '');
   if (cache.has(key)) return cache.get(key);
   const P = placeId ? PLACE[placeId] : null, list = []; let giant = null;
+  // (LOST-TACKLE §5.1, data.placePool's `only`: Veilback Brook bites its own fish and its draws, nothing else of the open water)
+  const only = P?.only ? (s) => !!P.draws?.[s.id] : null;
   for (const s of WATER[water].species) {
-    if (s.legend || s.never) continue;
+    if (s.legend || s.never || (only && !only(s))) continue;
     if (s.bait && s.bait !== bait) continue;
     // M1 step 3a's seam (PLAN CHOICE 27): a giant at its place reaches the giant branch whatever the hour (its offHour share outside its
     // hours, SPEC decision 7: "more in its hour, never none"); the hours filter applies to the rest. Before, the hours ran first, so a
@@ -541,7 +543,7 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   const sure = miss ? list.filter(([s]) => miss.has(s.id)) : null;
   let others = list.reduce((a, [, w]) => a + w, 0);
   if (others < (RW.common ?? 70)) for (const s of WATER[water].species) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
-    if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait)) continue;
+    if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait) || (only && !only(s))) continue;
     const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) && !(wc && wcRow(s)) ? lureAttract(lure, s) : 1); list.push([s, w]); others += w;
   }
   if (wc) {   // WC-1: the area or the tilt, the hook (§4 steps 4–6), the pull on takers, the giant and the strays' cap (steps 10–11)

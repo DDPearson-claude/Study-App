@@ -5261,7 +5261,7 @@ LOOP.lostTackle = {
   belfry_winch: { slot: 'reel', playMult: 0.6, hold: 2 },
   ferry_thread: { slot: 'line', waitMult: 0.8, hold: 2, cap: 'trophy' },
   guard_button: { slot: 'lure' },
-  veil_notebook: { slot: 'notebook', boost: { kissmark_trout: 1.6 },
+  veil_notebook: { slot: 'notebook', boost: { kissmark_trout: 1.2 },   // (×1.2, not the design's ×1.6: the pacing gate's room, §11.2; the user's knob)
     guest: { id: 'rosefleck_trout', from: 'glasswater', areas: ['inflow'], lights: ['day', 'dusk'], share: 0.04 }, reveals: 'veilback_brook' },
   lily_notebook: { slot: 'notebook', boost: { weeping_carp: 1.5, candlefin_koi: 1.5 },
     guest: { id: 'nightbloom_carp', from: 'sporewood', areas: ['pads'], lights: ['night'], share: 0.03 } },

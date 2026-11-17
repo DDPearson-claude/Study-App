@@ -425,12 +425,14 @@ line and the camera's hold on the chart table at the reveal (W, C).
 | the Veil Angler's Notebook | p50 1.24 h; **100% by the empty shelf** (6,000 players) |
 | pieces owned at the empty shelf | 2.14 (one 27% · two 41% · three 23% · four 7% · five 1%); each other piece 22–24% |
 | the empty shelf, finds off | 5.20 h (82 trips) |
-| **finds on** (the notebook at 1.24 h: the brook, the boost, the guest) | **4.71 h, −9.3%** (gate ±10%: passes) |
-| a lucky player (notebook at 0.49 h, the other notebook, the Thread and the Winch from 3 h) | 4.70 h, −9.7% (a warning past ±10%; it holds) |
-| the terms alone | the Kissmark ×1.6 boost −6.3% · the brook (draws only) −3.5% · the Rosefleck at the Veil −2.1%; a ×1.3 boost would make the whole −6.7% |
+| **finds on** (the notebook at 1.24 h: the brook, the boost, the guest) | **4.68 h, −10.0%** (gate ±10%: passes, at its edge) |
+| a lucky player (notebook at 0.49 h, the other notebook, the Thread and the Winch from 3 h) | 4.71 h, −9.3% |
+| the terms | the brook and the Rosefleck at the Veil, no boost: −8.0% · the Kissmark boost ×1.1 −8.1%, **×1.2 −10.0% (built)**, ×1.3 −10.8% (fails) |
 
-**Read.** §7.2's scratch put the design under 2%; with the boosts and the guest modelled it is −9.3%, inside the ±10% gate but with no
-room for the finds' own treasure sales (FINDS §4.4's −4 to −7%, still unmodelled: `clams.mjs` sells no treasure). The knob is the
-Kissmark Trout's boost: it is an uncommon, high-value fish, so ×1.6 moves more clams than §4.1 expected. Before FINDS' sim lands, the
-boost wants ×1.2–1.3 (question for the user; the default ×1.6 is built). The Hold-step check (Hold 4 −5.9% a minute) fails as it did
-before this lane (GEAR-GATES' open item).
+**Re-measured after the review (the sim's brook made the game's).** The first figures (−9.3% with ×1.6) were taken on a sim brook that
+was an ordinary day place with the guests on top: every open-water fish bit there. The game's brook is `only` (its own fish and its
+draws, data.placePool), and the sim's `BROOK` now is too (T104 holds on the merged tree). With no commons to thin it, the brook's one
+good bite is mostly the Rosefleck, the Darter and the Kissmark, so the brook alone is −8.0%, four times §7.2's scratch. The boost is
+built at **×1.2** (§4.2's ×1.6 fails the gate); FINDS' treasure sales (−4 to −7%, unmodelled: `clams.mjs` sells no treasure) would
+push any of these past ±10%. **Question for the user**: a quieter brook (no Kissmark among its draws), a smaller boost, or a wider
+gate. The Hold-step check (Hold 4 −5.9% a minute) fails as it did before this lane (GEAR-GATES' open item).

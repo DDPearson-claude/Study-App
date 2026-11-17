@@ -195,7 +195,8 @@ export function snagChance(D, { evening = 2, legendCast = false, tutorial = fals
 /** The soft guarantees (FINDS §4.1; LOST-TACKLE §2.2), on metaLoop in place, after a snag brought up `findId` at the water: a treasure
  *  while some part or look is unowned raises the kind share by kind.step (to kind.cap); a part or a look sets it back to kind.share (a
  *  lost-tackle piece leaves it be). While the water's guaranteed piece (tackle.guarantee.item) is unowned, every snag that is not it
- *  counts one miss (meta.loop.finds.tackleMiss[water], to the count that reaches its cap) and bringing it up deletes the count.
+ *  counts one miss (meta.loop.finds.tackleMiss[water], to the count that reaches its cap); bringing it up leaves the count, which goes
+ *  only at the tally that carries it home (bookFinds).
  *  → the new kind share. */
 export function noteSnag(metaLoop, D, waterId, findId) {
   const F = F_(D), it = findById(D, findId);
@@ -204,8 +205,8 @@ export function noteSnag(metaLoop, D, waterId, findId) {
   const GU = isObj(F.tackle?.guarantee) ? F.tackle.guarantee : null, gi = GU?.item ? findById(D, GU.item) : null;
   if (gi && gi.water === waterId && !owned(metaLoop, gi.id)) {
     const top = Math.max(0, Math.ceil((num(GU.cap, 0.4) - num(F.tackle.each, 0.01)) / Math.max(1e-6, num(GU.step, 0.05)) - 1e-9));
-    if (it.id === gi.id) delete metaLoop.finds.tackleMiss[waterId];
-    else metaLoop.finds.tackleMiss[waterId] = Math.min(top, Math.max(0, Math.floor(num(metaLoop.finds.tackleMiss[waterId]))) + 1);
+    // (bringing it up keeps the count: it goes only when the piece comes home, bookFinds; a piece let go leaves the guarantee climbing)
+    if (it.id !== gi.id) metaLoop.finds.tackleMiss[waterId] = Math.min(top, Math.max(0, Math.floor(num(metaLoop.finds.tackleMiss[waterId]))) + 1);
   }
   const K = F.kind || {}, base = num(K.share, 0.35);
   const unowned = findsOf(D, waterId).some((x) => (x.kind === 'part' || x.kind === 'look') && !owned(metaLoop, x.id));

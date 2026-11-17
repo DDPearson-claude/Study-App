@@ -711,7 +711,7 @@ export function createLoop(S) {
       const first = int(L.legends?.[sp.id]) === 0 && !inHold;
       return Math.max(1, Math.round(first ? crown : crown * num(LP.value?.legendRematch, 0.4)));
     }
-    const zone = (typeof sp.guestOf === 'string' && sp.guestOf) || run()?.zone || sp.zone;   // (LOST-TACKLE §4.2: a guest sells at the water it visits)
+    const zone = run()?.zone || sp.zone;   // (LOST-TACKLE §4.2: a guest sells at the water it visits, this trip's)
     let v = null;
     try { v = D().fishClams?.(sp, num(fish.z), { zone }); } catch (e) { report('fishClams', e); }
     return Math.max(1, Math.round(num(v, 1)));
@@ -1510,6 +1510,8 @@ export function createLoop(S) {
     const p = snagChance(D(), { evening: int(r.evening, 2), legendCast, tutorial });
     if (!(p > 0) || !(rng() < p)) return null;
     const exclude = (r.creel || []).filter((f) => isObj(f) && typeof f.find === 'string').map((f) => f.find);
+    // (LOST-TACKLE §2.1, no swapping: a full hold could only let a piece go, so while it is full no piece is offered)
+    if (holdFull()) for (const it of D().LOOP?.finds?.items || []) if (it?.kind === 'tackle' && it.water === water) exclude.push(it.id);
     return drawFind(findSharesOf(meta(), D(), water, { exclude }), rng());
   }
   /** fishing:found's ledger side: the soft guarantee moves (a treasure while some are unowned +step, a part or a look back to share),

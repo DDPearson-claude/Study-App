@@ -89,7 +89,9 @@ section('LT2: noteSnag counts the misses; the 1% rule over 100,000 snags');
   for (let i = 0; i < 20; i++) LF.noteSnag(L, D, 'mossmere', 'door_ring');
   eq(L.finds.tackleMiss.mossmere, 8, 'the count stops where the share reaches its cap (8: 1% + 40 points)');
   LF.noteSnag(L, D, 'mossmere', NB);
-  eq(L.finds.tackleMiss.mossmere, undefined, 'bringing the notebook up deletes the count');
+  eq(L.finds.tackleMiss.mossmere, 8, 'bringing the notebook up keeps the count (let go, the guarantee still stands)');
+  LF.bookFinds(L, [{ find: NB }], D);
+  eq(L.finds.tackleMiss.mossmere, undefined, 'carried home at the tally, the count goes');
   const O = metaWith({ got: { [NB]: 1 } }).loop;
   LF.noteSnag(O, D, 'mossmere', 'tin_spoon');
   eq(O.finds.tackleMiss?.mossmere, undefined, 'with the notebook owned no miss is counted');
@@ -147,7 +149,7 @@ const played = () => { const m = freshLoopMeta(D); Object.assign(m.loop, { wick:
     if (id === NB) { at = snags; E.L.keepFind(e); } else E.L.letGoFind(e);
   }
   ok(at != null && at <= 12, `the seeded run brings the notebook up by its ${at}th snag (the guarantee climbs to 40% by the 9th)`);
-  eq(E.L.state().finds.tackleMiss?.mossmere, undefined, 'its coming deleted the miss count');
+  ok(E.L.state().finds.tackleMiss?.mossmere > 0, 'kept, its miss count stays until the tally');
   ok(r.creel.some((f) => f.find === NB && f.kind === 'tackle' && f.clams === 0), 'kept: the notebook takes a slot, worth nothing');
   { let again = 0; for (let i = 0; i < 4000; i++) if (E.L.snagRoll({ rng }) === NB) again++; eq(again, 0, 'a piece in this trip\'s hold is never drawn again (4,000 bites)'); }
   const pole = E.L.noteFound({ findId: 'lamp_pole', waterKey: OPEN });
@@ -157,6 +159,7 @@ const played = () => { const m = freshLoopMeta(D); Object.assign(m.loop, { wick:
   eq(t.lines.filter((l) => l.find).map((l) => [l.find, l.clams]), [[NB, 0], ['lamp_pole', 0]], 'the tally: both carried aboard for nothing, after every other find');
   eq(E.L.state().clams - clams0, t.total, 'the tally pays only its own total');
   eq(E.L.state().finds.got[NB], 1, 'the notebook is owned');
+  eq(E.L.state().finds.tackleMiss?.mossmere, undefined, 'its tally deleted the miss count');
   eq(E.L.state().places.revealed, ['veilback_brook'], 'the notebook\'s tally shows Veilback Brook (meta.loop.places.revealed)');
   ok(LF.placeRevealed(E.L.state(), 'veilback_brook') && !LF.placeRevealed(E.L.state(), 'under_the_span'), 'placeRevealed reads it');
   const again = E.L.endTrip();
@@ -165,6 +168,19 @@ const played = () => { const m = freshLoopMeta(D); Object.assign(m.loop, { wick:
   ok(E.L.findShares('mossmere')[NB] === 0 && E.L.findShares('mossmere').lamp_pole === 0, 'the next evening: the owned pieces leave the draw');
   eq(E.L.snagRoll({ force: NB }), null, 'debug force refuses an owned piece');
   eq(E.L.snagRoll({ force: 'lily_notebook' }), 'lily_notebook', 'debug force names an unowned piece');
+}
+{
+  // a full hold (no swapping): no piece is offered while it could only be let go, and the notebook's count keeps climbing
+  const E = makeEnv(played()), r = startTrip(E), rng = mulberry32(5), slots = E.L.hold().slots;
+  for (let i = 0; i < slots; i++) r.creel.push({ uid: 'x' + i, find: 'tin_spoon', kind: 'treasure', clams: 1 });
+  ok(E.L.hold().full, 'the hold is full');
+  let tk = 0, snags = 0;
+  for (let i = 0; i < 40000; i++) { const id = E.L.snagRoll({ rng }); if (!id) continue; snags++; if (TACKLE.includes(id)) tk++; else E.L.noteFound({ findId: id, waterKey: OPEN }); }
+  ok(snags > 1000 && tk === 0, `a full hold: no piece in ${snags} snags`);
+  eq(E.L.state().finds.tackleMiss?.mossmere, 8, '… and the notebook\'s guarantee climbed to its cap all the same');
+  r.creel.pop();
+  let back = 0; for (let i = 0; i < 4000; i++) if (E.L.snagRoll({ rng }) === NB) back++;
+  ok(back > 0, `a slot free: the notebook can come again (${back} of 4,000 bites)`);
 }
 {
   // a let-go piece goes back to the water and may come again (no swapping: kept stays kept)
@@ -343,7 +359,8 @@ section('LT5: the notebooks: boosts where a fish lives, a guest in its area and 
   const at = (light, area, hook = {}) => { const ph = light === 'night' ? 'gloomtide' : light; return WC.castOdds(D, { pool: D.placePool(D.SPECIES, { phase: ph, bait: hook.bait ?? null, water: 'mossmere' }), area, phase: ph, ...hook }); };
   const at2 = (light, area, hook = {}) => { const ph = light === 'night' ? 'gloomtide' : light; return WC.castOdds(D, { pool: D.placePool(D.SPECIES, { phase: ph, bait: hook.bait ?? null, water: 'mossmere' }), area, phase: ph, ...hook, notes: NBS }); };
   const k0 = WC.castShare(at('day', 'deep', { lure: 'glimmer_spoon' }), 'kissmark_trout'), k1 = WC.castShare(at2('day', 'deep', { lure: 'glimmer_spoon' }), 'kissmark_trout');
-  ok(k1 > k0 + 0.05, `the Veil Angler's: the Kissmark Trout comes more often where it lives (${(k0 * 100).toFixed(1)}% → ${(k1 * 100).toFixed(1)}%)`);
+  const kb = D.LOOP.lostTackle.veil_notebook.boost.kissmark_trout, kx = kb * k0 / (kb * k0 + 1 - k0);   // (its weight × the boost, the rest as it was)
+  ok(kb > 1 && k1 > k0 + 0.03 && Math.abs(k1 - kx) < 0.005, `the Veil Angler's: the Kissmark Trout comes more often where it lives, ×${kb} (${(k0 * 100).toFixed(1)}% → ${(k1 * 100).toFixed(1)}%, want ${(kx * 100).toFixed(1)}%)`);
   { const list = D.placePool(D.SPECIES, { phase: 'day', water: 'mossmere' }).list, a0 = WC.hookWeights(list, { area: 'deep', phase: 'day' }), a1 = WC.hookWeights(list, { area: 'deep', phase: 'day', boost: { kissmark_trout: 1.6 } });
     const w = (es) => es.find((e) => e.sp.id === 'kissmark_trout').w;
     near(w(a1) / w(a0), 1.6, 'its weight ×1.6 in hookWeights, before finishPool', 1e-9);
