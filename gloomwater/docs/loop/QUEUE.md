@@ -95,6 +95,17 @@ The merge review (15 November) found no regression a player would see; these are
 | The three keys to a new water | `wf_1c95633f-092` | `gw-loop-access` | the sim re-tune |
 | The Wicks' passives | `wf_91d42619-6b9` | `gw-loop-wicks` | the proposals |
 
+## Parked by the user (17 November 2026: "Park these for now and finish what you're working on")
+
+From a friend's lore review (the lead's picks, none started):
+- a separate "Make bait" choice on the catch card (today holding "Let go" cuts the fish), and the first-play guide's words to match;
+- a Journal hint for a listed fish that needs certain gear ("Needs a lure");
+- the stale in-game lines the lore file found (the Mossmere's "The dark, for now, only watches.", "The Pale Leviathan", "fish to stay lit", the Pallid Deep's "veiled giants", "royal" wording, the Old Portcullis on the Mossmere);
+- a firm (not soft) guarantee of the Veil Angler's Notebook in the first few evenings;
+- the two lore contradictions (when Murk gathered the candles; Glasswater's chandelier on the night of the fall) and the review's story ideas (Murk warming over the acts, the banked fire shown early, "Sit awhile" before the ending, Supper and Flinch guaranteed, revisiting discoveries) into LORE.md, marked planned.
+
+**Binding (the user, 17 November 2026): no swapping fish.** "One thing I especially dislike is being able to swap fish out, once you make your choice its done until you return home and come again another night." A kept fish stays in the hold and a let-go fish is gone until the trip ends; a full hold never offers a swap.
+
 ## Queued, with the user's decision
 
 - *(BUILT 17 November 2026 on `gw-lure`, the simple version: one thing on the hook, the lure retrieved automatically with a strike rolled each second from the hook table at the area under it, in at the raft quietly; WATERCRAFT §3.4. Not built: a silhouette's follow, the lure's own look, the sim re-fit, the stern line)* **Bait or lure, and lure fishing as its own mechanic.** The user: "You can either equip bait or a lure. If its bait, its a cast and wait job. If its a lure you cast out and the wick auto reels in slowly as to simulate spinning. We need the mechanic to work for predators and casting around their environment." What it reverses: SPEC decision 5 and WATERCRAFT §3.4 (today one lure and one bait ride together, a lure tipped with a bait); the tackle tin's two rows and Taper's Sheet's hook chips become one choice. What it needs (a MEDIUM design first, then a build): the bait cast as today (the float, the wait); the lure cast with no float, the Wick retrieving it slowly and automatically back to the raft along the cast's line, each stretch of the retrieve fished at its own area's odds (the reed edge, the drop-off, the lily bed: castOdds sampled along the path), the predators (the pike, the Milkeye, the trout, the giants) striking the moving lure with a hit on the rod tip, a follow by a silhouette, the play from where it struck; no strike by the raft, so cast again; the lure's own look in the water (a spoon's flash, a spinner's wake, a fly's twitch; no glitter on the water); the hook table, the 1% rule and the sim (casts per minute) re-fitted; the stern line (BARGE-INSIDE §5) follows the same rule.
