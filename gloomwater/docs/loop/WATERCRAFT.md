@@ -64,7 +64,7 @@ SPEC §8's and `TEXT_LOOP`'s only. Sizes in pounds and ounces. The player learns
 2. **What is on the hook decides who takes it** (§3). Each Lake 1 fish grades the bare hook and each bait and lure: won't
    take it, takes it, likes it, the right bait. A fish that won't take it is a stray, **never more than 1 cast in 100**. A
    worm never brings a pike past that; a spoon never brings a carp or a crayfish; a bare hook never brings a hunter. A lure
-   tipped with a bait is fished as the lure; a bait its taker also likes makes it keener.
+   is fished on its own (one thing on the hook, §3.4).
 3. **The water shows where the fish are, honestly** (§5). Every tell is made by a fish that is really there at that spot and
    hour. Casting by its rule brings its fish more often, and the water answers: the fizz turns onto the float, a bow wave
    comes, the stems knock. Nothing glows, nothing sparkles; one tell lies (bed gas), as the real water does.
@@ -311,21 +311,16 @@ every pool the game can draw has S > 0 (a fail check, §8.3; measured on the tab
   now also changes who bites.
 - **The rarity bonus** (Lumen Moss's built +0.1, a clean cast, the pity) applies as built, before the cap.
 
-### 3.4 A lure tipped with a bait
+### 3.4 Bait or a lure, never both (the user, 17 November 2026; replaces the tipped rule)
 
-Both slots stay (SPEC decision 5: one lure and one bait at once). Anglers tip a jig or a spoon with a worm or a strip; the
-lure's action decides who strikes, the tip adds scent.
-
-```
-no lure:          the grade is the bait's (none: the bare hook's)
-a lure, no bait:  the grade is the lure's
-a lure and a bait: the grade is the lure's; where the lure's grade is 1 or more and the bait's is 2 or more, one step up (to 3 at most);
-                  a lure's 0 stays 0 whatever the bait (a carp never takes a spoon, tipped or not); the bait never blocks a lure's taker
-```
-
-Examples: Glimmer Spoon + Mire Worms: perch 2→3, bass 2→3, chub 1→2, the pike 3 (the worm does not keep it off a spoon),
-the carp a stray. Feather Fly + Lumen Moss: the minnow 2→3, the koi 1→2. Bone Jig + Cut Strip: the pike 2→3, the zander 3,
-the trout 2→3. To fish for the Gloam Eel, fit Lumen Moss and take the lure off (`fit('lure', null)`, built by LANE 4).
+One thing is on the hook: fitting a lure takes the bait off (it stays in the bag), fitting a bait takes the lure off, and a save
+that held both keeps the lure. A bait's grade is the bait's column (none: the bare hook's); a lure's is the lure's column alone, no
+tipped step. A bait cast is the float and the wait, as built. A lure cast is cast by hand as ever; once it lands there is no float
+and no wait: the line comes back toward the raft by itself at `LOOP.lureCast.pace` (2.5 m/s, a 14 m cast in about 5 s), and each
+second a strike is rolled from `castOdds` at the area now under the lure (`watercraft.lureStrike`: one draw, then that fish takes
+at `takeChance(LOOP.lureCast.strike, its grade)`, so a stray stays at 1% a roll and the predators the lures grade 2–3 strike most).
+A strike goes into the built class tell, bite, hook and play from where the lure is. At `inAt` (2.4 m) from the raft with no strike
+the line comes in quietly (no miss, nothing spent) and the player casts again.
 
 ### 3.5 Giants
 
@@ -425,7 +420,7 @@ On a trip on the Mossmere, `rollBite`'s species path calls `rollSpeciesLoop`, wh
 | 3 | the pool, built | built | `data.placePool`: the hour window, the place's rules (commons ×0.5, draws, own fish, kind fish), the bait-only fish, "best at night", the giant set apart |
 | 4 | **the area** | WC-1 | open water only: × `factors[phase][fish] × raw[fish][area]` (§2.4; the tilt inside the factor) |
 | 5 | **the hour tilt** | WC-1 | in a place only: × the fish's tilt for this phase (in open water step 4 holds it) |
-| 6 | **the hook** | WC-1 | × `hook.mult[grade]` (§3.3), the tipped rule (§3.4); grade 0 marked a stray |
+| 6 | **the hook** | WC-1 | × `hook.mult[grade]` (§3.3), one thing on the hook (§3.4); grade 0 marked a stray |
 | 7 | the rarity bonus | built | uncommon ×(1 + 2rb), rare ×(1 + 4rb) |
 | 8 | **the tell's tilt** | WC-2 (makes `rule.makers`, `rule.tilt`), WC-1 (applies it) | the makers of the tell the cast obeyed ×3 (§5.3), **only those whose grade is 1 or more**; the sign rule F17 is judged on the takers and drops a tilt that would name a fish (built rule) |
 | 9 | Taper's first bite | built | judged on the takers: the commons zeroed where at least two takers that are not commons remain and none is above 80% (the built sign rule); else the rule waits |

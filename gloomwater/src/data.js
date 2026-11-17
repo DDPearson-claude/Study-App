@@ -4811,6 +4811,9 @@ export const LOOP = {
   value: { perZ: 0.9, clamp: [0.4, 30], classBonus: { trophy: 1.25, elder: 1.6 },
     rarity: { common: 1, uncommon: 2.4, rare: 5.5, epic: 12 }, body: { ref: 45, exp: 0.5, clamp: [0.6, 1.6] }, legendRematch: 0.4 },
   priceFactor: 1,                    // the balancing job's one common price factor (WICKS §3.2): ×1.0 in 1a, tuned in 1b
+  // ---- a lure's cast (the user, 17 Nov 2026): the line comes back by itself at `pace` m/s; each second the hook table's odds at the area
+  // under the lure are drawn and the fish strikes at takeChance(strike, its grade); at `inAt` m from the raft it comes in quietly
+  lureCast: { pace: 2.5, strike: 0.1, inAt: 2.4 },
   // ---- the hold (SPEC §3.1, §4.2): holdSlots is the bought count (3–8) for every Wick; a Wick's slots are wickSlots / loopSlots
   hold: { start: 3, max: 8, shelfMax: 6,             // shelfMax: the shelf's last hold step (1a: Hold 5, PLAN CHOICE 11; M1 step 3a: Hold 6, the Wellbox, M1 §2.5)
     ladder: [{ slots: 4, price: 30, name: 'Lidded Creel' }, { slots: 5, price: 120, name: 'Double Creel' },

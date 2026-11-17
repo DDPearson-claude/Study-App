@@ -104,7 +104,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
     const list = kind === 'lure' ? arr(hk.lures).map((id) => ({ id, count: null })) : arr(hk.baits);
     const on = kind === 'lure' ? hk.lure : hk.bait;
     return [...list.map((c) => ({ id: c.id, glyph: GEAR_GLYPH[c.id] || (kind === 'lure' ? 'lure' : 'worm'), name: gearName(c.id), count: c.count, on: c.id === on,
-      tipped: kind === 'bait' && c.id === on && !!hk.lure })), { id: null, glyph: null, name: '—', count: null, on: !on }];
+      tipped: kind === 'bait' && c.id === on && !!hk.lure })), { id: null, glyph: null, name: '—', count: null, on: kind === 'bait' && !hk.bait && !hk.lure }];   // (one thing on the hook: one pressed)
   };
   const tackle = {
     head: T.tabs?.tackle || 'Tackle',

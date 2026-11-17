@@ -169,6 +169,7 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
     else if (Array.isArray(v) && !Array.isArray(L[k])) L[k] = v;
   }
   for (const k of ['tackle', 'fitted', 'maps', 'raft', 'home', 'firsts', 'barge']) for (const [kk, vv] of Object.entries(fresh[k])) if (L[k][kk] === undefined) L[k][kk] = vv;
+  if (L.fitted.lure != null && L.fitted.bait != null) L.fitted.bait = null;   // one thing on the hook: a save holding both keeps the lure
   // the barge: a known water (else the first), the waters it was towed to as a list of known ids, each once
   { const known = (id) => typeof id === 'string' && (isObj(D?.LOOP?.waters?.[id]) || id === first);
     if (!known(L.barge.water)) L.barge.water = first;
@@ -867,11 +868,11 @@ export function createLoop(S) {
     };
     try { applyBaitBed(d, L, r); } catch (e) { report('applyBaitBed', e); }   // M1 step 5b: the Bait Bed's free plain bait, topped up
     // M1 step 3a (PLAN §2.1 item 5): the bait slot's fit goes on the line when the bag holds one (the ball rides until her bite)
-    const fb = L.fitted?.bait;
-    if (typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
-    // M1 step 4: the lure slot's fit rides beside the bait (fishing reads run.lure; progression-af's loadout gives the larger Hold)
+    // M1 step 4: or the lure slot's fit (one thing on the hook: a lure, else the bait; fishing reads run.lure)
     const fl = L.fitted?.lure;
     if (typeof fl === 'string' && Array.isArray(L.lures) && L.lures.includes(fl)) r.lure = fl;
+    const fb = L.fitted?.bait;
+    if (!r.lure && typeof fb === 'string' && int(r.bait[fb]) > 0) { r.equippedBait = fb; r.equipped = fb; }
     try {
       const st = S.computeStats?.({}, r);
       if (st) { r.hp = st.maxHp ?? 5; r.oil = st.maxOil ?? 100; r.satiety = st.maxSatiety ?? 100; }
@@ -1073,6 +1074,11 @@ export function createLoop(S) {
     }
     const next = id == null ? null : id, prev = L.fitted.bait ?? null;
     L.fitted.bait = next;
+    if (next && L.fitted.lure != null) {   // one thing on the hook: a bait takes the lure off
+      L.fitted.lure = null;
+      if (trip) r.lure = null;
+      emit('loop:fit', { slot: 'lure', id: null });
+    }
     if (trip) {
       if (next) { r.equippedBait = next; r.equipped = next; }
       else if (prev && r.equippedBait === prev) { r.equippedBait = null; r.equipped = null; }
@@ -1121,6 +1127,12 @@ export function createLoop(S) {
     if (id != null && (typeof id !== 'string' || !lureOf(D(), id) || !(Array.isArray(L.lures) && L.lures.includes(id)))) return { ok: false };
     L.fitted.lure = id == null ? null : id;
     const r = run();
+    if (id != null) {   // one thing on the hook: a lure takes the bait off (it stays in the bag)
+      const hadBait = L.fitted.bait != null;
+      L.fitted.bait = null;
+      if (onTrip(r)) { r.equippedBait = null; r.equipped = null; }
+      if (hadBait) emit('loop:fit', { slot: 'bait', id: null });
+    }
     if (onTrip(r)) { r.lure = L.fitted.lure; emit('bait:change', { baitId: r.equippedBait ?? null, lureId: r.lure }); }
     saveNow();
     emit('loop:fit', { slot: 'lure', id: L.fitted.lure });
@@ -1187,7 +1199,9 @@ export function createLoop(S) {
     const cast = trip && line?.out === true && typeof line.castBait === 'string' ? line.castBait : null;   // the bait out on this cast
     const nowBait = trip ? (cast ?? (typeof r.equippedBait === 'string' ? r.equippedBait : null)) : (L.fitted?.bait ?? null);
     const nowLure = trip ? (typeof r.lure === 'string' ? r.lure : null) : (L.fitted?.lure ?? null);
-    const wantBait = bait === undefined ? nowBait : bait, wantLure = lure === undefined ? nowLure : lure;
+    let wantBait = bait === undefined ? nowBait : bait, wantLure = lure === undefined ? nowLure : lure;
+    // one thing on the hook: a bait asked for alone takes the lure off; otherwise a lure wins and the bait comes off
+    if (wantBait != null && wantLure != null) { if (bait !== undefined && lure === undefined) wantLure = null; else wantBait = null; }
     // the checks, before anything moves (the cast's own bait counts whole: it comes back as the line comes in)
     if (wantBait != null && wantBait !== nowBait) {
       const kind = typeof wantBait === 'string' && (!!ballWater(wantBait) || tinWater(D(), wantBait) != null || wantBait === 'cut_strip');

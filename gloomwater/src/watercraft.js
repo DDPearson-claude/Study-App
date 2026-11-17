@@ -385,19 +385,15 @@ export function fitFactors(D, shares, rounds = 60) {
 /** A legend's bait id on the line is a bare hook to every fish but her (as built): the table's ids, else 'bare'. */
 const baitCol = (row, bait) => (bait && bait !== 'bare' && Object.prototype.hasOwnProperty.call(row, bait) ? bait : 'bare');
 /**
- * A fish's grade on this hook (§3.3–§3.4): no lure → the bait's (none: the bare hook's); a lure → the lure's, one step up (3 at most) when
- * the lure's is ≥ 1 and the bait's ≥ 2; a lure's 0 stays 0. undefined for a species with no row (the caller keeps the built family rule);
- * null where the table has null (the legend; the eel's bare cell).
+ * A fish's grade on this hook (§3.3–§3.4): one thing on the hook (the user, 17 Nov 2026: bait or a lure, never both, no tipping): a lure →
+ * the lure's column alone; else the bait's (none: the bare hook's). undefined for a species with no row (the caller keeps the built family
+ * rule); null where the table has null (the legend; the eel's bare cell).
  */
 export function gradeOf(fishId, { lure = null, bait = null } = {}) {
   const row = W.hook.table[fishId];
   if (!row) return undefined;
-  const bg = row[baitCol(row, bait)];
-  if (!lure || !Object.prototype.hasOwnProperty.call(row, lure) || lure === 'bare') return bg;
-  const lg = row[lure];
-  if (lg == null) return lg;
-  if (lg >= 1 && bg != null && bg >= 2) return Math.min(3, lg + 1);
-  return lg;
+  if (lure && lure !== 'bare' && Object.prototype.hasOwnProperty.call(row, lure)) return row[lure];
+  return row[baitCol(row, bait)];
 }
 const taker = (g) => g !== 0;   // grade ≥ 1, or no row (the built rule), or null
 /** A pre-rolled fish's take (§3.6): grade 0 → 0.01; 1 → base; 2 → max(base, min(0.9, base + 0.1)); 3 → max(base, min(0.9, base + 0.2));
@@ -541,6 +537,12 @@ export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = n
   if (tot > 0) for (const e of rest) entries.push({ sp: e.sp, p: left * e.w / tot, from: 'pool', g: e.g, ...(e.giant ? { giant: true } : {}) });
   else if (pre) pre.p = 1;
   return { entries, S, taper, waited };
+}
+/** A lure's strike roll (one a second while it comes back): one draw over castOdds' entries (r1), then that fish takes it at
+ *  takeChance(base, its grade) (r2). → the entry that struck, or null (no strike this second). */
+export function lureStrike(odds, r1, r2, base = 0.1) {
+  const e = drawOdds(odds, r1);
+  return e && num(r2, 1) < takeChance(base, e.g) ? e : null;
 }
 /** One draw over castOdds' entries with r in [0, 1) (the game passes its seeded rnd()). → the entry, or null for an empty cast. */
 export function drawOdds(odds, r) {

@@ -112,7 +112,7 @@ import { tellOptions, pickTell, answerFor, normTells, formMakers, lightOf as tel
 import * as SI from './fishing-sight.js';
 import * as WCX from './watercraft.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
-import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
+import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds, lureStrike } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
@@ -1034,7 +1034,12 @@ export function create(ctx) {
       view.place = S.cast.place?.id || null;
       refreshFloat(); S.floatT = 0.5;
     }
-    rollBite();
+    S.retrieve = null;
+    if (mossLoop() && fittedLure() && !S.castBait) {   // a lure's cast: no wait; the line comes back by itself (updateRetrieve)
+      S.species = null; S.events = []; S.evIdx = 0; S.legendCast = false; S.taperRule = false; S.comeback = null; S.find = null;
+      S.zRolled = false; S.tell = null; S.hookTried = false; S.waitDur = Infinity;
+      S.retrieve = { next: 1 };
+    } else rollBite();
     if (S.comeback) {
       // Ashwick's comeback settles in: an ember glow on the float (unlike any built sign) and its hiss (audio)
       // (WC-2, WATERCRAFT §7.2: on the Mossmere under the loop nothing shows: the returning fish is a surprise; the event still fires)
@@ -4162,9 +4167,37 @@ export function create(ctx) {
     return Math.hypot(V.bob.x - x, V.bob.z - z) > S.castDist + num(BAL('cast').lineBreakDist, 4);
   }
 
+  // ---- a lure's cast (the user, 17 Nov 2026; LOOP.lureCast): the lure comes back toward the raft at a steady pace; each second a strike
+  // is rolled from the hook table's odds at the area under it (watercraft.lureStrike); a strike stops it and the bite plays from there
+  // (the class tell, the bite, the hook, the play); at inAt m from the raft the line comes in quietly (nothing spent, no miss)
+  function updateRetrieve(dt) {
+    const LC = D().LOOP?.lureCast || {}, R = S.retrieve, raft = raftPos();
+    const dx = raft.x - V.bob.x, dz = raft.z - V.bob.z, d = Math.hypot(dx, dz);
+    if (d <= num(LC.inAt, 2.4)) { S.retrieve = null; reelInQuiet(); return; }
+    const step = Math.min(d, num(LC.pace, 2.5) * dt);
+    V.bob.x += (dx / d) * step; V.bob.z += (dz / d) * step;
+    api.bobberPos = bobberPosV.set(V.bob.x, 0, V.bob.z);
+    if (S.stateT < R.next) return;
+    R.next += 1;
+    if (S.cast) { S.cast.x = V.bob.x; S.cast.z = V.bob.z; if (!S.cast.place && !S.cast.mist) S.cast.area = castArea(V.bob.x, V.bob.z); }
+    const odds = castOddsNow(num(stats().rarityBonus, 0), null, null);
+    S.lastOdds = odds;
+    const e = odds ? lureStrike(odds, rnd(), rnd(), num(LC.strike, 0.1)) : null;
+    if (!e) return;
+    S.retrieve = null;
+    S.forceSpecies = e.sp;
+    rollBite();
+    S.taperRule = !!odds.taper;
+    S.events = []; S.evIdx = 0;
+    S.waitDur = S.stateT + (afOn() ? TELL_LEAD_AF : TELL_LEAD) + 0.1;
+    emit('fishing:lureStrike', { lure: fittedLure() });
+  }
+
   function updateWaiting(dt) {
     const Bt = BAL('bite');
     if (lineBroken()) { cancel('moved'); return; }
+    if (S.retrieve) updateRetrieve(dt);
+    if (state !== 'waiting') return;
     // nibble / feint / tell events
     let bobState = 'floating';
     S.dipT -= dt;
@@ -4217,7 +4250,7 @@ export function create(ctx) {
       const dx = V.bob.x - V.raft.x, dz = V.bob.z - V.raft.z, l = Math.hypot(dx, dz) || 1;
       ox = (dx / l) * slide; oz = (dz / l) * slide;
     }
-    const h = waterH(V.bob.x, V.bob.z);
+    const h = waterH(V.bob.x, V.bob.z) - (S.retrieve ? 0.1 : 0);   // (a lure coming back: the marker rides low)
     V.tmp.set(V.bob.x + ox, h - dip, V.bob.z + oz);
     aBob(true, V.tmp, bobState);
     aLine(true, V.tmp, 0.05, 0.7);
@@ -4397,6 +4430,7 @@ export function create(ctx) {
       beginCast(d || 4, 0.6, true);
     } else if (state === 'casting') land();
     if (state === 'waiting') {
+      S.retrieve = null;   // (a lure's cast stops coming back: the forced bite is where it is)
       if (fsp && S.species !== fsp) { S.species = fsp; S.zRolled = false; }
       if (o.z != null && spV3(S.species)) { S.forceZ = o.z; S.zRolled = false; }
       if (!o.natural) S.events.length = 0;   // natural: keep the cast's own wait and nibbles (tests of the nibble schedule)

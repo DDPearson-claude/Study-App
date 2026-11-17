@@ -212,7 +212,7 @@ section('a lure swap, none, a bare hook; the last bait out; the legend\'s ball')
   F.cast();
   eq(r.bait.lumen_moss ?? 0, 0, 'cast: the last Lumen Moss is out');
   ok(L.changeHook({ lure: 'feather_fly' }).ok, 'a lure change mid-wait');
-  ok(r.bait.lumen_moss === 1 && r.equippedBait === 'lumen_moss' && r.lure === 'feather_fly', 'the moss back (1) and still on the hook, the Feather Fly on', { bag: r.bait, eq: r.equippedBait, lure: r.lure });
+  ok(r.bait.lumen_moss === 1 && !r.equippedBait && r.lure === 'feather_fly', 'the moss back (1) in the bag and off the hook, the Feather Fly on (one thing on the hook)', { bag: r.bait, eq: r.equippedBait, lure: r.lure });
   F.idle();
   // the ball: never spent at the cast, so nothing comes back
   ok(L.changeHook({ bait: 'heartmoss' }).ok && r.equippedBait === 'heartmoss', 'the Heartmoss Ball fits');
@@ -227,11 +227,22 @@ section('at home: the change is the Chart\'s fit (the next trip carries it)');
   const { L, ctx } = env;
   let res = L.changeHook({ bait: 'lumen_moss', lure: 'feather_fly' });
   ok(res.ok && res.changed && !res.reeled, 'at home: ok, nothing to reel', res);
-  eq([ctx.state.meta.loop.fitted.bait, ctx.state.meta.loop.fitted.lure], ['lumen_moss', 'feather_fly'], 'meta.loop.fitted carries both');
+  eq([ctx.state.meta.loop.fitted.bait, ctx.state.meta.loop.fitted.lure], [null, 'feather_fly'], 'one thing on the hook: asked for both, the lure is fitted and the bait is not');
   res = L.changeHook({ bait: 'cut_strip' });
   eq(res.reason, 'bait', 'at home an empty bait is refused too');
   const r = startTrip(env);
-  ok(r.equippedBait === 'lumen_moss' && r.lure === 'feather_fly', 'the trip starts with them on the line');
+  ok(!r.equippedBait && r.lure === 'feather_fly', 'the trip starts with the lure alone on the line');
+  ok(L.changeHook({ bait: 'lumen_moss' }).ok && r.equippedBait === 'lumen_moss' && !r.lure && ctx.state.meta.loop.fitted.lure === null, 'a bait asked for alone takes the lure off');
+}
+
+section('one thing on the hook: a save holding a lure and a bait keeps the lure');
+{
+  const env = makeEnv({ meta: tackleMeta({ fitted: { bait: 'lumen_moss', lure: 'feather_fly' } }) });
+  env.L.fitted();
+  const f = env.ctx.state.meta.loop.fitted;
+  ok(f.lure === 'feather_fly' && f.bait === null, 'the lure kept, the bait off the hook', f);
+  const r = startTrip(env);
+  ok(r.lure === 'feather_fly' && !r.equippedBait && r.bait.lumen_moss === 10, 'the trip: the lure on the line, the tin in the bag');
 }
 
 // =====================================================================================================================
@@ -292,7 +303,9 @@ section('the tin\'s and the drawer\'s model (ui-tackle.tackleModel), its words a
   eq(m.bait.map((b) => [b.id, b.count, b.on]), [['mireworm', 0, true], ['lumen_moss', 3, false], [null, null, false]], 'the last worm out on the line: still shown, pressed, 0 left; an empty tin is not offered');
   eq(m.lure.map((b) => [b.id, b.on]), [['bell_spinner', true], [null, false]], 'a lure on the line stays listed');
   m = T.tackleModel(D, { run: { zone: 'mossmere', bait: {}, equippedBait: null, lure: null }, metaLoop: { lures: [] } });
-  eq([m.bait.map((b) => [b.id, b.on]), m.lure.map((b) => [b.id, b.on])], [[[null, true]], [[null, true]]], 'nothing in the bag, no lure: a bare hook and no lure, pressed');
+  eq([m.bait.map((b) => [b.id, b.on]), m.lure.map((b) => [b.id, b.on])], [[[null, true]], [[null, false]]], 'nothing in the bag, no lure: the bare hook pressed (one thing pressed)');
+  m = T.tackleModel(D, { run: { zone: 'mossmere', bait: { mireworm: 4 }, equippedBait: null, lure: 'glimmer_spoon' }, metaLoop: { lures: ['glimmer_spoon'] } });
+  eq([...m.bait, ...m.lure].filter((b) => b.on).map((b) => b.id), ['glimmer_spoon'], 'a lure on: the lure alone pressed (no bare hook, no bait)');
   for (const [kind, id] of [['bait', 'mireworm'], ['bait', 'lumen_moss'], ['bait', 'cut_strip'], ['bait', 'heartmoss'], ...all.map((x) => ['lure', x])]) {
     const svg = E.engrave(T.artCard(D, kind, id), { uid: `t-${id}` });
     ok(/^<svg class="cat-eng/.test(svg) && svg.length > 400 && !/NaN|undefined/.test(svg), `${id}: its engraving draws (${E.plateKey(T.artCard(D, kind, id))})`);

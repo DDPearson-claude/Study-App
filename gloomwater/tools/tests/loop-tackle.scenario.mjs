@@ -132,7 +132,7 @@ export default async function (api) {
     K.check(lay.faults.length === 0, `the drawer's layout at ${width}×${height}`, lay);
     seen.push({ size: `${width}x${height}`, sheet: lay.sheet, box: lay.box, names: lay.names?.filter((n) => n.lines > 1).map((n) => n.t) });
     const pressed = await g(() => [...document.querySelectorAll('[data-loop=tackle] [aria-pressed=true]')].map((b) => b.dataset.bait ?? b.dataset.lure));
-    K.check(JSON.stringify(pressed) === JSON.stringify(['mireworm', '']), 'pressed: Mire Worms and No lure', pressed);
+    K.check(JSON.stringify(pressed) === JSON.stringify(['mireworm']), 'pressed: Mire Worms alone (one thing on the hook)', pressed);
     const rows = await g(() => ['bait', 'lure'].map((k) => [...document.querySelectorAll(`[data-loop=tackle] [data-row=${k}] .gw-tk-it`)].map((b) => b.dataset[k])));
     K.check(JSON.stringify(rows) === JSON.stringify([['heartmoss', 'mireworm', 'lumen_moss', ''], ['feather_fly', 'glimmer_spoon', 'bell_spinner', '']]), 'Bait: the ball, the two tins, a bare hook; Lure: the three owned, none', rows);
     const words = await g(() => document.querySelector('[data-loop=tackle]')?.innerText || '');
@@ -152,9 +152,9 @@ export default async function (api) {
     await K.settle(250);
     r = await R();
     const fitted = await g(() => ({ ...window.__gw.state.meta.loop.fitted }));
-    K.check(r.lure === 'glimmer_spoon' && fitted.lure === 'glimmer_spoon' && fitted.bait === 'lumen_moss', 'the Glimmer Spoon on; both saved in meta.loop.fitted', { r, fitted });
+    K.check(r.lure === 'glimmer_spoon' && !r.eq && fitted.lure === 'glimmer_spoon' && fitted.bait === null && r.bait.lumen_moss === 10, 'the Glimmer Spoon on, the moss off the hook (in the bag); saved in meta.loop.fitted', { r, fitted });
     const pressed2 = await g(() => [...document.querySelectorAll('[data-loop=tackle] [aria-pressed=true]')].map((b) => b.dataset.bait ?? b.dataset.lure));
-    K.check(JSON.stringify(pressed2) === JSON.stringify(['lumen_moss', 'glimmer_spoon']), 'the drawer marks the new two pressed', pressed2);
+    K.check(JSON.stringify(pressed2) === JSON.stringify(['glimmer_spoon']), 'the drawer marks the Spoon alone pressed', pressed2);
     await K.shoot(`drawer-changed-${width}x${height}`);
     await K.key('Escape');
     await K.settle(300);
@@ -165,10 +165,29 @@ export default async function (api) {
     K.check(!ev.includes('fishing:miss') && !ev.includes('fishing:escaped') && !ev.includes('fish:escaped') && !ev.includes('fishing:bite'), 'no miss, no lost fish, no bite', ev);
     K.check(ev.filter((e) => e === 'fishing:reelIn').length === 1 && ev.includes('loop:hook'), 'one quiet reel-in; loop:hook', ev);
     t = await TK();
-    K.check(t.bait === 'lumen_moss' && t.lure === 'glimmer_spoon', 'the tin shows Lumen Moss and the Spoon', t);
+    K.check(t.lure === 'glimmer_spoon', 'the tin shows the Spoon', t);
     await K.shoot(`tin-changed-${width}x${height}`);
 
-    K.step('tk: the next cast carries the new choice');
+    K.step('tk: a lure\'s cast: no float wait, the line comes back toward the raft by itself, nothing spent');
+    await castReal('the lure cast');
+    r = await R();
+    K.check(r.bait.lumen_moss === 10 && r.bait.mireworm === 10, 'nothing spent on a lure cast', r.bait);
+    const lureD = () => g(() => { const c = window.__gw, b = c.fishing.bobberPos, p = c.player?.position || c.state?.player?.position; return b && p ? Math.hypot(b.x - p.x, b.z - p.z) : null; });
+    const da = await lureD();
+    await K.secs(1.2);
+    const db = await lureD();
+    const fsL = await g(() => window.__gw.fishing.state);
+    K.check(fsL !== 'waiting' || (da != null && db != null && da - db > 1.5), 'the lure comes in by itself (about 2.5 m a second)', { da, db, fsL });
+    await K.shoot(`lure-coming-in-${width}x${height}`);
+    const inL = await K.until("c.fishing.state === 'idle' || c.fishing.state === 'bite' || c.fishing.state === 'reeling'", 14);
+    K.check(inL.ok, 'the lure reaches the raft quietly, or a fish strikes', inL);
+    await g(() => window.__gw.debug.fishOutcome?.('land'));
+    if ((await g(() => window.__gw.fishing.state)) !== 'idle') { await g(() => window.__gw.debug.fishStrike?.('struck')); await g(() => window.__gw.debug.fishPlayTo?.(0.97)); await K.toCard('the lure\'s fish', { dwell: 0.6 }); await K.until("c.fishing.state === 'idle'", 6); }
+
+    K.step('tk: a bait back on: the next cast carries it');
+    K.need((await g(() => window.__gw.progression.loop.changeHook({ bait: 'lumen_moss' })?.ok)) === true, 'Lumen Moss back on (the lure comes off)');
+    r = await R();
+    K.check(r.eq === 'lumen_moss' && !r.lure, 'the moss on, the lure off', r);
     await castReal('the next cast');
     const fd = await g(() => window.__gw.debug.fishing());
     r = await R();

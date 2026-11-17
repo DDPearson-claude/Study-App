@@ -211,12 +211,12 @@ section('(c) the user\'s rule: every grade-0 fish ≤ 1.00% of the whole cast, f
 }
 
 // =====================================================================================
-section('(d) a lure tipped with a bait (§3.4)');
+section('(d) one thing on the hook: a lure reads its own column alone (no tipping; the user, 17 Nov 2026)');
 {
-  const h = { lure: 'glimmer_spoon', bait: 'mireworm' };
-  eq(['mossback_perch', 'overbold_bass', 'likely_chub', 'reedjaw_pike', 'weeping_carp'].map((id) => WC.gradeOf(id, h)), [3, 3, 2, 3, 0], 'spoon + worms: perch 3, bass 3, chub 2, pike 3, the carp a stray');
-  eq([WC.gradeOf('dusk_minnow', { lure: 'feather_fly', bait: 'lumen_moss' }), WC.gradeOf('candlefin_koi', { lure: 'feather_fly', bait: 'lumen_moss' })], [3, 2], 'fly + moss: the minnow 2→3, the koi 1→2');
-  eq(['reedjaw_pike', 'milkeye_perch', 'kissmark_trout'].map((id) => WC.gradeOf(id, { lure: 'bone_jig', bait: 'cut_strip' })), [3, 3, 3], 'jig + strip: the pike 2→3, the zander 3, the trout 2→3');
+  const ids = ['mossback_perch', 'overbold_bass', 'likely_chub', 'reedjaw_pike', 'weeping_carp', 'dusk_minnow', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout'];
+  for (const [lure, bait] of [['glimmer_spoon', 'mireworm'], ['feather_fly', 'lumen_moss'], ['bone_jig', 'cut_strip']]) {
+    eq(ids.map((id) => WC.gradeOf(id, { lure, bait })), ids.map((id) => WC.gradeOf(id, { lure })), `${lure} + ${bait}: the lure's grades alone (no tipped step)`);
+  }
   eq(WC.gradeOf('weeping_carp', { lure: 'glimmer_spoon', bait: 'lumen_moss' }), 0, 'a lure\'s 0 stays 0 whatever the bait');
 }
 

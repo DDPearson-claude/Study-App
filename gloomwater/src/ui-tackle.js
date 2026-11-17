@@ -52,11 +52,11 @@ export function tackleModel(D, { run = null, metaLoop = null, line = null } = {}
   if (baitOn && !ids.includes(baitOn)) ids.push(baitOn);
   const bait = ids.filter((id) => int(bag[id]) > 0 || id === baitOn)
     .map((id) => ({ id, name: nameOf(D, id), count: int(bag[id]), glyph: GEAR_GLYPH[id] || 'worm', on: id === baitOn }));
-  bait.push({ id: null, name: W.bare, count: null, glyph: 'hook', on: baitOn == null });
+  bait.push({ id: null, name: W.bare, count: null, glyph: 'hook', on: baitOn == null && lureOn == null });   // (one thing on the hook: one pressed)
   const own = new Set(arr(ml.lures));
   const lure = Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => own.has(id) || id === lureOn)
     .map((id) => ({ id, name: nameOf(D, id), glyph: GEAR_GLYPH[id] || 'spoon', on: id === lureOn }));
-  lure.push({ id: null, name: W.none, glyph: null, on: lureOn == null });
+  lure.push({ id: null, name: W.none, glyph: null, on: false });
   return { bait, lure, baitOn, lureOn, count: baitOn ? int(bag[baitOn]) : null };
 }
 

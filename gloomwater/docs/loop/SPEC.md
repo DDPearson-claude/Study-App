@@ -2202,6 +2202,8 @@ the sheet's tap on its bait and lure chips. Never while a fish is on (its tell a
 the float waits brings the line in quietly with its bait back in the bag (no miss, no favour or streak lost); the hook table and its 1%
 cap read the bait at the cast, unchanged. (Answer 43's own line below carries the same note.)
 
+**Bait or a lure, never both (the user, 17 November 2026; reverses decision 5's lure beside the bait):** one thing on the hook; a bait cast is the float and the wait; a lure cast comes back to the raft by itself while the hook table's odds at the area under it roll a strike each second (WATERCRAFT §3.4, `LOOP.lureCast`).
+
 1. ~~Should each of the twelve new waters be a full 3D lake of its own?~~ **Answered: yes, all twelve are full 3D waters** (v7: six of them rivers, on the river layout).
 2. ~~Is about 48 hours to buy everything the right length?~~ **Answered: yes.** The pacing run ends at 47.6 h (v8, gated; 48.9 h in v7.1, §4.9).
 3. ~~May late fish sell for hundreds of thousands of clams, shown with "k" and "m"?~~ **Answered: yes.** v7.1: a Trophy giant of the Inkwood about 196k (218k at most), an Elder Emberbelly about 548k; the last lake map 984k.
