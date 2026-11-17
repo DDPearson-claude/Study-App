@@ -355,7 +355,9 @@ reach I's hand (whether it should be 3D instead is `M1.md` §8 question 6; defau
 - **The first visit home**: the sail home's glide ends at the barge's stern, and the first tally is the player's first sight
   of home at first light (the glide in showed it at late day). The barge's four targets carry the tiles' words under them, so nothing more needs teaching;
   no cue is drawn at home once the tutorial is done. A reload before the first Sail lands on the chart beat over the barge
-  (the chart table's target breathes, as the Chart tile did).
+  (the chart table's target breathes, as the Chart tile did). From M1 step 5d the first **Sold** is also the first step
+  aboard: one ink dip into the Wick's own eye on the stern deck, looking astern at the new porch and then turning slowly to
+  the cabin door, no words (`BARGE-INSIDE.md` §2.6); every beat above is unchanged, since the tutorial is done before it.
 - The First Evening's director (`first-evening.js`), its fishing lesson and the Quayling stay the v3 build's; the loop's
   tutorial does not teach fishing at home (§8). The title stays on the Mossmere. `INTRO.cove`'s unbuilt variant is not used:
   the film is the same film with the same line 3.
@@ -392,7 +394,7 @@ Fishing is taught on the water, on evening 1 only (the loop's counters read the 
 | the save | the title | after Continue |
 |---|---|---|
 | a trip out | Continue · Settings · Prologue | the trip, as saved |
-| at home, tutorial done | Continue · Settings · Prologue | the Jetty (from M1 step 5 the barge at the Jetty; the tally first if one is unseen), the goal line, no cue |
+| at home, tutorial done | Continue · Settings · Prologue | the Jetty (from M1 step 5 the barge at the Jetty; the tally first if one is unseen), the goal line, no cue; from M1 step 5d aboard at the Deck, in first person (the tally first, then the dip aboard; `BARGE-INSIDE.md` §2.4) |
 | at home, tutorial not done (closed mid-tutorial) | Continue · Settings (· Prologue if the film was seen) | the Jetty, the tutorial from the wake (from M1 step 5: from the wake at the Landing, or from the chart beat if the tow was begun, §6.2) |
 | a wiped save | New Descent · Settings | the whole opening again |
 
