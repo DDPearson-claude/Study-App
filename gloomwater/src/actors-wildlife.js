@@ -182,8 +182,7 @@ function buildMoths(C, max, rng) {
 // ------------------------------------------------------------------ lampbills (pure)
 const clampTo = (g, R, x, z) => { const dx = x - g.x, dz = z - g.z, d = Math.hypot(dx, dz); return d <= R ? [x, z] : [g.x + (dx / d) * R, g.z + (dz / d) * R]; };
 /** The birds at their beats (LOOP.wildlife.lampbills.groups), seeded; `n` caps the count. → B {birds, groups, C, t} */
-export function createLampbills(D, rng = Math.random, n = null) {
-  const C = wildOn(D)?.lampbills;
+export function createLampbills(D, rng = Math.random, n = null, C = wildOn(D)?.lampbills) {   // (C: another water's birds' data, LAKE 2's frogs)
   if (!C) return { birds: [], groups: [], C: null, t: 0 };
   const groups = (C.groups || []).map((g, i) => ({ ...g, i, R: num(g.r) + num(g.range, num(C.range, 1.5)), th: rng() * TAU, dir: rng() < 0.5 ? -1 : 1 }));
   const birds = [];
@@ -340,8 +339,8 @@ if (aPart < 2.5) {                  // the dive: head down, tail and feet up, th
   transformed.xz *= 0.7 + 0.6 * (1.0 - iMark);
 }
 `;
-function buildLampbills(C, max) {
-  const g = lampbillGeo(C);
+function buildLampbills(C, max, geoOf = lampbillGeo, name = 'lampbills') {
+  const g = geoOf(C);
   g.setAttribute('iPose', new THREE.InstancedBufferAttribute(new Float32Array(max * 4), 4));
   g.setAttribute('iMark', new THREE.InstancedBufferAttribute(new Float32Array(max), 1));
   const m = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.35, rimColor: 0xcfc8ec, steps: 3, transparent: true });
@@ -358,9 +357,35 @@ function buildLampbills(C, max) {
   };
   m.customProgramCacheKey = () => 'gwToonSurf:lampbill';
   const mesh = new THREE.InstancedMesh(g, m, max);
-  mesh.name = 'lampbills'; mesh.frustumCulled = false; mesh.visible = false;
+  mesh.name = name; mesh.frustumCulled = false; mesh.visible = false;
   setupSurface(mesh, { cast: false, reflect: false });
   return { mesh, g, m };
+}
+
+// ------------------------------------------------------------------ the lily frog (LAKE 2, lane W2: Sporewood's; the lampbill's parts and pose)
+/** A squat frog 12 cm long (× its scale): a moss-green back, a cream throat, amber eyes; its hind legs (the "feet") show as it dives; its
+ *  V-wake and dimple as the lampbill's. The parts keep the lampbill's aPart codes, so its pose stage drives it unchanged. */
+function frogGeo(C) {
+  const body = lin(C.body ?? 0x566e48), throat = lin(C.throat ?? 0xf0e2c8), eye = lin(C.eye ?? 0xe8ac4c), ink = lin(0x0c0b16);
+  const back = body.map((c) => c * 0.72);
+  const part = (g, v) => { g.setAttribute('aPart', new THREE.Float32BufferAttribute(typeof v === 'function' ? Array.from({ length: g.attributes.position.count }, (_, i) => v(g, i)) : new Array(g.attributes.position.count).fill(v), 1)); return g; };
+  const parts = [];
+  // the body: a squat dome, dark down the back, the cream throat under its chin (it sits on a pad: its belly at the water's skin)
+  parts.push(part(prep(new THREE.SphereGeometry(0.06, 7, 5), { matrix: mat(0, 0.045, 0, 0, 0, 0, [1.05, 0.62, 1.2]), colorFn: (x, y, z) => (y < 0.035 && z > 0.02 ? throat : y > 0.07 ? back : body) }), 0));
+  // the head: the brow and the two eye bumps, amber with a dark slit
+  parts.push(part(prep(new THREE.SphereGeometry(0.042, 6, 4), { matrix: mat(0, 0.06, 0.055, 0, 0, 0, [1.25, 0.7, 0.9]), colorFn: (x, y) => (y < 0.05 ? throat : body) }), 1));
+  for (const s of [-1, 1]) parts.push(part(prep(new THREE.SphereGeometry(0.016, 5, 3), { matrix: mat(s * 0.026, 0.082, 0.068), colorFn: (x, y, z) => (z > 0.078 ? ink : eye) }), 1));
+  // the folded hind legs either side (they kick up as it dives)
+  for (const s of [-1, 1]) parts.push(part(prep(new THREE.SphereGeometry(0.03, 5, 3), { matrix: mat(s * 0.055, 0.025, -0.035, 0, s * 0.4, 0, [0.7, 0.5, 1.4]), color: back }), 2));
+  // the V-wake and the dimple, as the lampbill's
+  {
+    const P = [], I = [], A = [], y = 0.012;
+    for (const s of [-1, 1]) { const b = P.length / 3; P.push(s * 0.02, y, 0.04, s * 0.05, y, 0.025, s * 0.35, y, -0.7, s * 0.45, y, -0.66); A.push(3, 3, 3.9, 3.9); I.push(b, b + 2, b + 1, b + 1, b + 2, b + 3); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setIndex(I); g.computeVertexNormals();
+    prep(g, { color: ink }); g.setAttribute('aPart', new THREE.Float32BufferAttribute(A, 1)); parts.push(g);
+  }
+  { const d = new THREE.CircleGeometry(0.2, 8); d.rotateX(-Math.PI / 2); d.translate(0, 0.014, 0); prep(d, { color: ink }); part(d, (g, i) => (i === 0 ? 4 : 4.9)); parts.push(d); }
+  return merge(parts);
 }
 
 // ------------------------------------------------------------------ main's line
@@ -378,6 +403,16 @@ export function attachWildlife(ctx) {
   if (L) scene.add(L.mesh);
   const birdRng = faceRng(0x1a3b11);
   const B = createLampbills(ctx.data, birdRng, birdMax);
+  // (LAKE 2, lane W2: another water's own life, LOOP.wildlife[water]: Sporewood's spore moths (the moths in its colours, round its
+  // glowcaps) and its lily frogs (the lampbills' ways on the lily rafts))
+  const FC = W.sporewood?.frogs || null;
+  const frogMax = FC ? Math.max(num(FC.count?.high, 0), num(FC.count?.medium, 0)) | 0 : 0;
+  const Fm = frogMax > 0 ? buildLampbills(FC, frogMax, frogGeo, 'lilyFrogs') : null;
+  if (Fm) scene.add(Fm.mesh);
+  const frogRng = faceRng(0xf209a5);
+  const FB = Fm ? createLampbills(ctx.data, frogRng, frogMax, FC) : null;
+  const fsc = new THREE.Vector3().setScalar(Math.max(0.5, num(FC?.scale, 1)));
+  const mothCol = { fore: new THREE.Color(), hind: new THREE.Color(), zone: null };
   const S = { t: 0, pick: 0, slots: [], next: [], keys: [], on: false, wake: 0, doze: 0 };
   const raftLamp = { key: 'raft', kind: 'raft', x: 0, y: -50, z: 0, k: 1 };
   const v = new THREE.Vector3(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(1, 1, 1), up = new THREE.Vector3(0, 1, 0);
@@ -409,10 +444,17 @@ export function attachWildlife(ctx) {
     const q0 = ctx.render?.quality || 'high';
     const flow = ctx.flow, home = flow === 'home';
     // (hidden through the whole catch show: main's `show` from the reveal close-up at T0, ctx.cinematic from the lift)
-    const on = q0 !== 'low' && faceOn(ctx.data, zoneId()) && (flow === 'playing' || home) && !ctx.cinematic && !show;
+    const zid = zoneId(), here = zid && zid !== 'mossmere' ? W[zid] || null : null;
+    const on = q0 !== 'low' && (faceOn(ctx.data, zid) || !!here) && (flow === 'playing' || home) && !ctx.cinematic && !show;
     S.on = on;
     if (M) M.mesh.visible = on;
-    if (L) L.mesh.visible = on;
+    if (L) L.mesh.visible = on && !here;
+    if (Fm) Fm.mesh.visible = on && zid === 'sporewood';
+    if (M && mothCol.zone !== zid) {   // (each water's moths in its own colours)
+      mothCol.zone = zid;
+      M.u.uFore.value.set(here?.moths?.fore ?? MC.fore ?? 0xece4cf); M.u.uHind.value.set(here?.moths?.hind ?? MC.hind ?? 0x8a7fa3);
+      S.slots = [];
+    }
     if (!on) return;
     const d = Math.min(0.1, Math.max(0, num(dt, 0)));
     S.t += d;
@@ -433,8 +475,25 @@ export function attachWildlife(ctx) {
       S.wake = wk.wake; S.doze = wk.doze;
       M.u.uWake.value = wk.wake; M.u.uDoze.value = wk.doze; M.u.uTime.value = S.t;
     }
+    // ---- the lily frogs (Sporewood)
+    if (Fm && Fm.mesh.visible) {
+      const n = Math.min(FB.birds.length, Math.max(0, num(FC.count?.[q0], 0) | 0));
+      stepLampbills(FB, { dt: d, raft, phase, rng: frogRng });
+      const iP = Fm.g.attributes.iPose, iM = Fm.g.attributes.iMark;
+      for (let i = 0; i < n; i++) {
+        const b = FB.birds[i];
+        let wy = 0;
+        try { wy = ctx.water && !ctx.water.isStub ? num(ctx.water.getHeight?.(b.x, b.z), 0) : 0; } catch { wy = 0; }
+        q.setFromAxisAngle(up, b.yaw);
+        Fm.mesh.setMatrixAt(i, m4.compose(v.set(b.x, wy * 0.4 + 0.03, b.z), q, fsc));
+        iP.setXYZW(i, b.dip, b.tuck, b.dive, b.wake);
+        iM.setX(i, b.dimple);
+      }
+      Fm.mesh.count = n;
+      Fm.mesh.instanceMatrix.needsUpdate = true; iP.needsUpdate = true; iM.needsUpdate = true;
+    }
     // ---- the lampbills
-    if (L) {
+    if (L && L.mesh.visible) {
       const n = Math.min(B.birds.length, wildCount(ctx.data, 'lampbills', q0));
       stepLampbills(B, { dt: d, raft, phase, rng: birdRng });
       const iP = L.g.attributes.iPose, iM = L.g.attributes.iMark;
@@ -454,8 +513,10 @@ export function attachWildlife(ctx) {
   return {
     update,
     state: () => ({ on: S.on, moths: M ? { count: M.mesh.count, wake: +S.wake.toFixed(2), doze: +S.doze.toFixed(2), lamps: S.slots.map((c) => c?.key ?? null) } : null,
-      lampbills: B.birds.map((b) => ({ g: b.g, mode: b.mode, x: +b.x.toFixed(2), z: +b.z.toFixed(2), dives: b.dives, flees: b.flees })) }),
-    calls: () => (S.on ? (M ? 1 : 0) + (L ? 1 : 0) : 0),
-    dispose() { for (const o of [M, L]) if (o) { scene.remove(o.mesh); o.g.dispose(); o.m.dispose(); } },
+      lampbills: B.birds.map((b) => ({ g: b.g, mode: b.mode, x: +b.x.toFixed(2), z: +b.z.toFixed(2), dives: b.dives, flees: b.flees })),
+      frogs: FB ? FB.birds.map((b) => ({ g: b.g, mode: b.mode, x: +b.x.toFixed(2), z: +b.z.toFixed(2), dives: b.dives, flees: b.flees })) : [] }),
+    calls: () => (S.on ? (M ? 1 : 0) + (L?.mesh.visible ? 1 : 0) + (Fm?.mesh.visible ? 1 : 0) : 0),
+    frogs: () => (FB ? FB.birds.map((b) => ({ g: b.g, mode: b.mode, x: +b.x.toFixed(2), z: +b.z.toFixed(2), dives: b.dives, flees: b.flees })) : []),
+    dispose() { for (const o of [M, L, Fm]) if (o) { scene.remove(o.mesh); o.g.dispose(); o.m.dispose(); } },
   };
 }

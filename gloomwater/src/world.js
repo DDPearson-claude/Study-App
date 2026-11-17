@@ -8,6 +8,7 @@ import { clamp, damp, smoothstep, TAU } from './core.js';
 import { buildLayout, depthAt, isOpenWaterL, notchFrame, notchHalfW, notchShoreR, shoreDist, fromShore, groundAt, shoreAlong } from './world-layout.js';
 import { sdfAt, sdfGrad } from './world-outline.js';   // LAKE2 §3.1 (lane W1): an outline shore's collision
 import { buildArena } from './world-art.js';
+import { lushLook } from './world-flora.js';   // LAKE 2, lane W2: a lush water's look (its places' banks wear its spore-haze)
 import { AIR } from './world-fx.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
 import { buildPlaces } from './world-places.js';
@@ -266,7 +267,8 @@ export function create(ctx) {
       if (lp.length) {
         try {
           placesVis = buildPlaces(ctx, layout, arena, { places: lp, pal: Object.assign({}, FALLBACK_ZONE.palette, zone.palette || {}), quality: quality(),
-            mist: ctx.data?.LOOP?.mist, giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true && zone.id === 'mossmere', hero: getHeroAnchor(),   // (W9's toll-tower and Sluice Veil are the Mossmere's)
+            // (LAKE 2, lane W2: a lush water's banks wear its spore-haze, its look's `mist`)
+            mist: Object.assign({}, ctx.data?.LOOP?.mist, lushLook(ctx.data, zone.id)?.mist), giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true && zone.id === 'mossmere', hero: getHeroAnchor(),   // (W9's toll-tower and Sluice Veil are the Mossmere's)
             liteMist: liteMist() });
           group.add(placesVis.group);
           placesVis.setPlaces(placeState);
@@ -594,6 +596,7 @@ export function create(ctx) {
       (arena.lampPosts || []).forEach((p, i) => { if (p.light !== false) lampSpots.push({ key: `post${i}`, kind: 'post', x: p.x + Math.cos(-p.ry) * (red ? 0.68 : 0.75), y: p.y + (red ? 2.4 : p.h - 0.35), z: p.z + Math.sin(-p.ry) * (red ? 0.68 : 0.75), k: 1 }); });
       (arena.dockBuoys || []).forEach((f, i) => lampSpots.push({ key: `buoy${i}`, kind: 'buoy', x: f.x, y: 1.0 * (f.s || 1), z: f.z, k: 1, dock: i, watch: !!f.watch }));
       (arena.slits || []).forEach((q, i) => lampSpots.push({ key: `slit${i}`, kind: 'slit', x: q.x, y: q.y, z: q.z, k: 1, slit: q }));
+      for (const l of arena.capLamps || []) lampSpots.push({ ...l });   // (LAKE 2, lane W2: Sporewood's glowcaps, the spore moths' lamps)
     }
     for (const l of lampSpots) if (l.slit) l.k = Number.isFinite(l.slit.k) ? l.slit.k : 1;   // (a slit gone out: its moths drift off)
     for (const l of lampSpots) if (l.watch) { const li = watchLamps.findIndex((w) => w.dock === l.dock); l.k = li >= 0 ? Math.min(1, Number(v3Info.lamps[li]?.k) || 0) : 1; }
@@ -898,6 +901,6 @@ export function create(ctx) {
         ? { x: l.x, y: Number.isFinite(l.y) ? l.y : 2, z: l.z, color: l.color, intensity: l.intensity, radius: Number.isFinite(l.radius) ? l.radius : 20, streak: l.streak } : null;
     },
     // <<< INTRO LANE A
-    debugInfo: () => ({ zone: zone?.id, radius: bounds.radius, obstacles: obstacles.length, gate: gateState, mood: { ...mood }, arena: arena?.stats?.() }),
+    debugInfo: () => ({ zone: zone?.id, radius: bounds.radius, obstacles: obstacles.length, gate: gateState, mood: { ...mood }, arena: arena?.stats?.(), lush: arena?.lush ?? null }),
   };
 }

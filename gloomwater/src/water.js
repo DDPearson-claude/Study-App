@@ -11,6 +11,7 @@
 // into a reduced half-float target that the shader looks up (GW_REFL); setKeyLight(light) hands over the key light,
 // whose direction drives the glitter and whose shadow map the water samples (GW_SHADOW). Low keeps the analytic water.
 import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's face (pure)
+import { lushLook, lushMasks } from './world-flora.js';   // LAKE 2, lane W2: a lush water's dapple and weed film (baked; GW_LUSH)
 import { notchFrame, notchHalfW } from './world-layout.js';   // the cut behind the Sluice Veil (LOST-TACKLE §5.3)
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
@@ -734,6 +735,12 @@ export function create(ctx) {
     const S = depthJob.half;
     const end = Math.min(DEPTH_RES, depthJob.row + 24);
     if (depthJob.row === 0) depthJob.face = WCW && wcFaceNow();   // (WC-3: the face's masks for the lake being baked)
+    if (depthJob.row === 0) {   // (LAKE 2, lane W2: a lush water's dapple and weed film in the same spare channels; its define with them)
+      depthJob.lush = WCW ? lushLook(ctx.data, wcZoneNow()) : null;
+      if (depthJob.lush && !U.uLushWeed) Object.assign(U, { uLushWeed: { value: new THREE.Vector4(0, 0, 0, 0) }, uLushDapple: { value: 0 } });
+      if (depthJob.lush) { const c = new THREE.Color(depthJob.lush.weed?.color ?? 0x4a5a36); U.uLushWeed.value.set(c.r, c.g, c.b, Number(depthJob.lush.weed?.k) || 0.3); U.uLushDapple.value = Number(depthJob.lush.dapple?.k) || 0.4; }
+      setDefine('GW_LUSH', !!depthJob.lush);
+    }
     if (depthJob.row === 0) {
       const N = typeof w.getNotch === 'function' ? w.getNotch() : null; depthJob.notch = N && Number.isFinite(N.r0) ? N : null;
       if (U.uCut) { if (depthJob.notch) U.uCut.value.set(N.ca, N.sa, N.r0, 1); else U.uCut.value.w = 0; }
@@ -766,7 +773,11 @@ export function create(ctx) {
             still = clamp((f.along - Nb.r0 + 0.5) / 2.5, 0, 1) * clamp((hw + 0.8 - Math.abs(f.lc)) / 1.2, 0, 1) * (1 - clamp((f.along - (Nb.end - 2.5)) / 2, 0, 1) * 0.7);
           }
           depthData[i + 1] = Math.round(clamp((sd + 16) / 32, 0, 1) * 255);
-          if (WCW) {
+          if (WCW && depthJob.lush) {
+            const m = lushMasks(depthJob.lush, x, z, sd, d);
+            depthData[i + 2] = Math.round(m.dapple * 255);
+            depthData[i + 3] = Math.round(m.weed * 255);
+          } else if (WCW) {
             const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sd, notch: Nb }) : null;
             depthData[i + 2] = m ? Math.round(m.seam * (1 - still) * 255) : 0;
             depthData[i + 3] = m ? Math.round(m.fan * (1 - still) * 255) : 0;

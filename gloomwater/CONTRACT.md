@@ -2439,3 +2439,28 @@ there and a third of it is kept for good; found things travel; each water's lure
   true`, `shoreDist`, `bbox`, the shore every 2 m and each island's `outline`).
 - **Debug and tools**: `tools/outline-map.mjs` (a top-down PNG of an outline water), `tools/tests/lake2-w1.scenario.mjs` (the world put
   on Sporewood in the browser, the raft driven at its banks, frames by day, dusk and night).
+
+### 14.25 A lush water's look: the vegetation kit and Sporewood's landmarks (LAKE 2, lane W2; `docs/loop/LAKE2.md` §1A, §3.3–§3.6, §9.5)
+- **The switch**: `data.ZONE_LOOKS[zone]` (Sporewood only: `lush` 0.33, the leaf keys, `mossG`, `bloom`, `fireflies`, `gain`, `floor`,
+  `night`, `flora` counts, `tiers`, `haze`, `mist`, `dapple`, `weed`). `world-flora.lushLook(D, zoneId)` is the look under the loop with
+  lush > 0, else null; everything below is built only for an outline water with a look. The Mossmere has none: its programs, its draws
+  and its geometry are as they were (outline-shore.test.mjs part 1); off the loop nothing reads ZONE_LOOKS.
+- **`src/world-flora.js`** (the kit): `floraPlan(L, look, {tier, avoid, glides, geo, lens, caps, extra, rafts})` (pure, seeded,
+  `L.artSeed ^ 0xF10A`) and `buildFlora(L, look, {tier, low, K, rimC, plan})` → `{group, meshes, update(dt, t, focus, renderer),
+  applyMood(env), stats()}`; `lushColor`, `lushFloor`, `lushMasks` (the water's dapple and weed, baked by water.js); `FLORA` the figures.
+- **`src/world-sporewood.js`** (the landmarks): `buildSporewoodArt({ctx, L, look, kit, hero, P, K, PL, halos, addAnchor, low, inkC})` →
+  `{extra, caps, lamps, cuts, falls, haze, info}`: its stalks and caps join world-art's statics (0 draws), its strands and ferns are
+  the kit's items; the Seep's card and the spore-haze one draw each. `landAlong`, `narrowest` (pure).
+- **world-art**: `arena.lush` ({flora: stats, art: info}) and `arena.capLamps` (the glowcaps, the spore moths' lamps; world's
+  `getLampSpots` lists them); the see-through cut on a lush water too, reading `lushArt.cuts` (the Gill Harp's lens-side stalk, the
+  willow arch). world's `debugInfo().lush`.
+- **water**: on a lush water the depth texture's spare B and A carry `lushMasks` (the moon coins' dapple, the shallows' weed film) under
+  the `GW_LUSH` define (set when its bake starts; `uLushWeed`, `uLushDapple` added the first time). The Mossmere's program is as built.
+- **render**: `render-camera.waterLens(tgt, LOOP.camera[water], raft)` in fillTargets for the sail and night framings on the water
+  (Sporewood: × 0.8 and +4°; closer and 5° steeper in the neck). A water with no profile is untouched.
+- **world-places**: `mist.lit/litN/shade/shadeN/low` (a lush water's look's `mist`, merged by world.js) tint the banks and sit them
+  lower; LOOP.mist alone (the Mossmere) is as built.
+- **wildlife and ambient**: `LOOP.wildlife.sporewood` (the moths' colours per water; the lily frogs: `createLampbills(D, rng, n, C)` on
+  their own data, `actors-wildlife` `frogs` in its state) and `LOOP.ambient.sporewood.flakes` (`createBoats(D, rng, n, C)`, no flame).
+- **Tests and tools**: `tools/tests/lake2-w2.test.mjs`; `tools/tests/lake2-w2.scenario.mjs` (`--hue --tier=medium`: the hue-report's
+  nine frames); `clarity-perf.scenario.mjs --loop --sporewood`; `tools/loop-colour-script.py` (Sporewood's frame and the exception).

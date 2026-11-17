@@ -27,8 +27,7 @@ import {
   v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
   SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showOutEase, showArrival,
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
-  landmarkShot, landmarkWeight, WATCH, portraitFit,
-} from './render-camera.js';
+  landmarkShot, landmarkWeight, WATCH, portraitFit, waterLens } from './render-camera.js';
 import { targetCorners } from './home-targets.js';   // (LOST-TACKLE §5.2: the chart table's place on the home barge)
 
 const DEG = Math.PI / 180;
@@ -782,6 +781,12 @@ export function create(ctx) {
     // portrait screens: widen, pull back and tilt down so the raft and its pool fit; on the Mossmere under the loop, with the raft
     // at rest, the watch eases in over it (render-camera.js portraitFit, WATCH: the near water close enough to see a fish in it)
     portraitFit(tgt, W / H, mode, mode === 'sail' || mode === 'night' || mode === 'fish' ? watch.w : 0);
+    // (LAKE 2, lane W2: a water's own lens on its open water, LOOP.camera[water]: Sporewood's lower and closer; the Mossmere has none)
+    if ((mode === 'sail' || mode === 'night') && ctx.flow === 'playing' && ctx.data?.LOOP_ENABLED === true) {
+      let zid = null; try { zid = ctx.world?.getZone?.()?.id ?? null; } catch { zid = null; }
+      const prof = zid ? ctx.data.LOOP?.camera?.[zid] : null;
+      if (prof) waterLens(tgt, prof, p);
+    }
     // the home camera's lens (M1 step 5a): the mooring's pose's own fov (its portrait pose has its own)
     if (mode === 'home') { const hp = homePose(); if (hp) tgt.fov = Number(hp.fov) || tgt.fov; }
   }

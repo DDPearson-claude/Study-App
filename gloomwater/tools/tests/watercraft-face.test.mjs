@@ -33,6 +33,7 @@ const MOSS = await import('../../src/audio-mossmere.js');
 const AF = await import('../../src/ui-af.js');
 const here = dirname(fileURLToPath(import.meta.url));
 const src = (f) => readFileSync(resolve(here, '../../src', f), 'utf8');
+const FL = await import('../../src/world-flora.js');   // (LAKE 2, lane W2: a lush water's masks)
 
 let pass = 0, fail = 0;
 function ok(cond, msg, extra) { if (cond) pass++; else { fail++; console.log('  FAIL:', msg, extra !== undefined ? JSON.stringify(extra).slice(0, 600) : ''); } }
@@ -177,10 +178,22 @@ section('the water: GW_WC only in a loop build, RGBA only there, the masks only 
   ok(U.uWc.value === 1, 'uWc on, on the Mossmere');
   const lane = WC.laneFor(3);
   ok(Math.abs(U.uLane.value.x - lane.x) < 1e-6 && Math.abs(U.uLane.value.y - lane.z) < 1e-6 && U.uLane.value.w > 0, 'uLane from laneFor(the trip\'s evening), fading in at dusk', U.uLane.value);
-  const ws = createWater(fakeCtx(D, 'sporewood')); ws.init(); bake(ws);
-  const is = ws.material.uniforms.uDepthTex.value.image.data;
+  const wg = createWater(fakeCtx(D, 'glasswater')); wg.init(); bake(wg);
+  const is = wg.material.uniforms.uDepthTex.value.image.data;
   let bs = 0; for (let i = 0; i < is.length; i += 4) bs += is[i + 2] + is[i + 3];
-  ok(ws.material.uniforms.uWc.value === 0 && bs === 0, 'another water in a loop build: uWc off, no masks');
+  ok(wg.material.uniforms.uWc.value === 0 && bs === 0 && !wg.material.defines.GW_LUSH, 'another water in a loop build: uWc off, no masks');
+  // (LAKE 2, lane W2: a lush water (Sporewood) bakes its own masks in the spare channels, never the Mossmere's: B the moon coins' dapple,
+  // A the weed film, as world-flora.lushMasks reads them, under GW_LUSH)
+  const ws = createWater(fakeCtx(D, 'sporewood')); ws.init(); bake(ws);
+  const US = ws.material.uniforms, ims = US.uDepthTex.value.image, half = 1 / (2 * US.uDepthScale.value);
+  let worst = 0, shade = 0;
+  for (let r = 0; r < ims.height; r += 7) for (let c = 0; c < ims.width; c += 7) {
+    const x = ((c + 0.5) / ims.width) * 2 * half - half, z = ((r + 0.5) / ims.height) * 2 * half - half, i = (r * ims.width + c) * 4;
+    const sd = L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z), m = FL.lushMasks(D.ZONE_LOOKS.sporewood, x, z, sd, Math.max(0, Math.min(1, depthAt(L, x, z))));
+    worst = Math.max(worst, Math.abs(ims.data[i + 2] - Math.round(m.dapple * 255)), Math.abs(ims.data[i + 3] - Math.round(m.weed * 255)));
+    if (ims.data[i + 2] < 200) shade++;
+  }
+  ok(US.uWc.value === 0 && ws.material.defines.GW_LUSH === 1 && worst <= 1 && shade > 0, 'a lush water (Sporewood): uWc off; its own masks (the dapple, the weed film) under GW_LUSH, none of the Mossmere\'s', { worst, shade });
   const wv = createWater(fakeCtx(DV3, 'mossmere')); wv.init();
   ok(!wv.material.defines.GW_WC && !('uWc' in wv.material.uniforms) && wv.material.uniforms.uDepthTex.value.format === THREE.RGFormat, 'a v3 build without the loop: no GW_WC, no new uniform, the depth texture RG as built');
   const samplers = [...WATER_FRAG.matchAll(/uniform sampler2D (\w+)/g)].map((m) => m[1]).sort();

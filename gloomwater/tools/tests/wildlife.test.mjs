@@ -198,7 +198,8 @@ section('nothing to do with the catch; drawn cheaply; hooked by main');
   ok(/const wildShow = LOOP_ON && safe\(\(\) => ctx\.fishing\.inShow, false\) === true;/.test(ms) && (ms.match(/\.update\(running \? realDt : 0, \{ show: wildShow \}\)/g) || []).length === 3
     && /!ctx\.cinematic && !\(W && show\);/.test(src('actors-heron.js')), 'and through the whole catch show: main hands the moths, the lampbills, the candle-boats and (with the wildlife on) the heron the show from its reveal close-up at T0, not only the lift\'s cinematic');
   ok(/setupSurface\(mesh, \{ cast: false, reflect: false \}\)/.test(ws) && /frustumCulled = false/.test(ws), 'no shadow or mirror pass');
-  ok(/attachWildlife\(ctx\)/.test(src('main.js')) && /faceOn\(ctx\.data, zoneId\(\)\)/.test(ws), 'main attaches it under the loop; the Mossmere only');
+  ok(/attachWildlife\(ctx\)/.test(src('main.js')) && /\(faceOn\(ctx\.data, zid\) \|\| !!here\)/.test(ws) && /here = zid && zid !== 'mossmere' \? W\[zid\] \|\| null : null/.test(ws),
+    'main attaches it under the loop; on the Mossmere, and on a water with its own life in LOOP.wildlife (LAKE 2: Sporewood\'s moths and frogs)');
   ok(/!wildMoths\(\)/.test(src('actors-home.js')), 'the barge\'s smoke-pool specks give way to the moths');
 }
 

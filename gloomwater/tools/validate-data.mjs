@@ -797,6 +797,33 @@ if (process.argv.includes('--loop')) {
     }
   }
   // <<< LAKE 2, lane W1
+  // >>> LAKE 2, lane W2 (docs/loop/LAKE2.md §1A, §3.3–§3.6; WATERS §3.2, §7): Sporewood's look. The look is Sporewood's alone (the
+  // Mossmere has none: lush 0), its leaf keys inside the step-5 neon cap and on the track, the fireflies pale lime, the air as built (the
+  // green only from materials); the lens's profile; the frogs' beats and the gill-flakes' lines on the water, clear of the glides
+  {
+    const ZL = L4.ZONE_LOOKS || {}, LK = ZL.sporewood, hsv = (hex) => { const r = ((hex >> 16) & 255) / 255, g = ((hex >> 8) & 255) / 255, b = (hex & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+      let h = 0; if (d > 0) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return { h: ((h * 60) + 360) % 360, s: mx > 0 ? d / mx : 0, v: mx }; };
+    ok4(!!LK && Object.keys(ZL).every((k) => k !== 'mossmere') && LK.lush > 0 && LK.lush < 1 && Number.isInteger(LK.step) && Math.abs(LK.lush - LK.step / 15) < 0.01, 'LAKE2 W2: ZONE_LOOKS: Sporewood\'s look (lush = its step / 15); the Mossmere has none (lush 0)');
+    if (LK) {
+      const cap = Math.min(0.62, 0.25 + 0.04 * LK.step);
+      ok4(['leafDark', 'leaf', 'leafHi', 'moss2', 'mossG', 'mossGHi'].every((k) => { const c = hsv(LK[k]); return c.s <= cap + 0.005 && c.v <= 0.7 && c.h >= 65 && c.h < 160; }), `LAKE2 W2: the leaf keys inside the step-${LK.step} cap (s ≤ ${cap.toFixed(2)}, v ≤ 0.70)`);
+      const day = hsv(LK.leaf).h, ff = hsv(LK.fireflies);
+      ok4(day >= 82 && day <= 135 && ff.h >= 55 && ff.h <= 80 && ff.s <= 0.4, 'LAKE2 W2: the mid leaf on the day track (82–135°), the fireflies pale lime (55–80°, s ≤ 0.40)');
+      const P = L4.ZONE_BY_ID.sporewood.palette;
+      ok4(['fog', 'ink', 'ambient', 'far', 'light', 'nebula', 'lamp', 'glow', 'candle', 'water'].every((k) => { const c = hsv(P[k]); return !(c.h >= 65 && c.h < 195 && c.s >= 0.12); }), 'LAKE2 W2: the air, the light and the water never green (the palette as built)');
+      ok4(Object.values(LK.flora || {}).every((v) => Number.isInteger(v) && v >= 0) && Array.isArray(LK.gain) && LK.gain.length === 3 && LK.tiers?.low === 0.4 && LK.tiers?.medium === 0.7, 'LAKE2 W2: the kit\'s counts, its gain and its tiers');
+      const CP = LP.camera?.sporewood;
+      ok4(!!CP && CP.eye > 0.6 && CP.eye < 1 && CP.fov > 0 && CP.fov <= 6 && !LP.camera.mossmere, 'LAKE2 W2: Sporewood\'s lens lower and closer (LOOP.camera.sporewood); the Mossmere\'s as built');
+      const Lay = WLY.buildLayout(L4.ZONE_BY_ID.sporewood), sd = (x, z) => WLY.shoreDist(Lay, x, z);
+      const glides = Object.values(LP.places).filter((p) => p?.water === 'sporewood').map((p) => p.out);
+      const segD = (x, z, a, b) => { const vx = b[0] - a[0], vz = b[1] - a[1], q = vx * vx + vz * vz, t = Math.max(0, Math.min(1, ((x - a[0]) * vx + (z - a[1]) * vz) / q)); return Math.hypot(x - a[0] - vx * t, z - a[1] - vz * t); };
+      const gD = (x, z) => Math.min(...glides.flatMap((g) => g.slice(1).map((q, i) => segD(x, z, g[i], q))));
+      const FR = LP.wildlife?.sporewood?.frogs, FK = LP.ambient?.sporewood?.flakes;
+      ok4(!!FR && FR.groups.every((g) => sd(g.x, g.z) > 2 && gD(g.x, g.z) >= 6 && sd(g.roost.x, g.roost.z) > 1), 'LAKE2 W2: the lily frogs\' beats and roosts on the water, 6 m and more off the glides');
+      ok4(!!FK && FK.lines.every((ln) => ln.length >= 2 && ln.every(([x, z]) => sd(x, z) > 0.3 && gD(x, z) >= 5)), 'LAKE2 W2: the gill-flakes\' lines on the water to the Root Weir, 5 m and more off the glides');
+    }
+  }
+  // <<< LAKE 2, lane W2
   // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
   const FL = L4.FIRST_EVENING?.lines || {};
   const depart = Math.max(murkHold(TL.murk.firstChart, FL), ...Object.values(TL.murk.firstChartBy || {}).map((x) => murkHold(x, FL)));
