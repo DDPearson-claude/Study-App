@@ -177,7 +177,7 @@ export function createHudV3(K, el, R, w) {
     if (p.phase === 'glimpse' && !p.legendary && (p.kind === 'skitter' || ['prize', 'trophy', 'elder', 'ancient'].includes(p.sizeClass))) glimpsed = p.sizeClass || true;
   });
   onAf('fishing:cast', () => { glimpsed = false; playSeen = false; dismissNote(); });
-  onAf('fish:escaped', (p) => { if (!trip()) nmQ.push({ p, at: performance.now() }); });   // (WC-3: the queue never fills on a trip)
+  onAf('fish:escaped', (p) => { if (!trip()) nmQ.push({ p, at: performance.now() }); else if (p.overCap) showGearAway(p); });   // (WC-3: the queue never fills on a trip)
   on('player:scorched', () => showScorched());
 
   // ------------------------------------------------------------------ frame
@@ -544,6 +544,22 @@ export function createHudV3(K, el, R, w) {
     strikeW.className = `gw-strike-w${word ? ` gw-tone-${word.tone}` : ''}`;
     restartAnim(strike, 'gw-on');
     strikeT = 3;   // (the phone haptic for the grade, AUTOFISH.strike.haptic, is fishing's: one owner, no double buzz)
+  }
+
+  /** GEAR-GATES §4.3: a fish over the gear's cap got away (fish:escaped with overCap, a trip only): one line in the strike word's slot under
+   *  the float for 2.5 s, naming the gear that would hold it (TEXT_LOOP.gate.away), never the fish; clamped inside the screen's sides. */
+  function showGearAway(p) {
+    const A = D().TEXT_LOOP?.gate?.away || {}, text = A[p.overCap?.key] || A[p.overCap?.by] || '';
+    if (!text) return;
+    const W = K.vw, H = K.vh;
+    const x0 = strikeAt.ok ? strikeAt.x : W / 2, y0 = strikeAt.ok ? strikeAt.y : H * 0.55;
+    strike.dataset.grade = 'gear';
+    strikeW.textContent = text;
+    strikeW.className = 'gw-strike-w gw-strike-gear';
+    const half = Math.min(W / 2 - 16, (num(strikeW.offsetWidth, 0) || text.length * 10) / 2);
+    strike.style.transform = `translate3d(${Math.max(16 + half, Math.min(W - 16 - half, x0)).toFixed(0)}px,${Math.max(80, Math.min(H - 200, y0)).toFixed(0)}px,0)`;
+    restartAnim(strike, 'gw-on');
+    strikeT = 3;
   }
 
   // ------------------------------------------------------------------ the got-away note (DESIGN §25.6.7, fish:escaped)

@@ -330,7 +330,7 @@ section('the words (SPEC §8.4, §8.6)');
   eq(TL.shelf.bell_spinner, "For the Mossmere's giants.", 'a giants\' lure: its water\'s giants (the polish audit, batch 3)');
   eq(TL.shelf.lumen_moss, 'For the Gloam Eel and the Candlefin Koi.', 'Lumen Moss: the fish it is for (SPEC §8.11, batch 3)');
   eq(['mireworm', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig'].map((id) => TL.shelf[id]), ['Nearly every fish takes a worm.', 'Meat, for the hunters.',
-    'For Dusk Minnows, Chub, Lampsippers and Koi.', 'Flash, for the hunters.', 'Hopped on the bottom, for bottom feeders.'], 'the tins\' and lures\' lines, SPEC §8.11 (WC-1, batch 3)');
+    'For Dusk Minnows, Chub, Lampsippers and Koi.', 'Flash, for pike and the big hunters.', 'Hopped deep, for big perch and bass.'], 'the tins\' and lures\' lines, SPEC §8.11 (WC-1, batch 3)');
   eq(TL.murk.firstSmall, 'Small ones make good bait. Press and hold \u201cLet go\u201d.', "Murk's first-Small line, SPEC §8.6");
   const strings = [];
   const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };

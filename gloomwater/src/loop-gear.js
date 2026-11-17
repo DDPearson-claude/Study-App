@@ -53,7 +53,7 @@ export function gearName(D, id) {
 }
 const ROMAN = ['I', 'II', 'III', 'IV'];
 /** The shelf cards' drawings (ui-icons' names). */
-const ART = { feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', mireworm: 'worm', lumen_moss: 'moss',
+const ART = { feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'spoon', mireworm: 'worm', lumen_moss: 'moss',
   oars: 'oar', keel: 'hull', lantern: 'lantern', orders: 'ledger' };
 function levelName(D, slot, lv) {
   const n = D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1];
@@ -77,7 +77,7 @@ export function gearItems(D, metaLoop, session = []) {
   const waters = ownedWaters(D, ml), have = new Set(arr(ml.lures)), withs = ownedOrders(D, ml);
   // the lures (Tackle)
   for (const [id, L] of Object.entries(LP.lures)) {
-    if (!isObj(L) || !waters.includes(L.water)) continue;
+    if (!isObj(L) || !waters.includes(L.water) || L.start === true) continue;   // (GEAR-GATES §2.1: the start kit's lure is never on the shelf)
     out.push({ id: `lure:${id}`, tab: 'tackle', slot: 'lure', level: null, lureId: id, water: L.water, art: ART[id] || 'lure', name: gearName(D, id), goalName: gearName(D, id),
       line: TL.shelf?.[id] ?? '', price: num(L.price, 0), bought: have.has(id) });
   }

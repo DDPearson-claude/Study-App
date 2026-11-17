@@ -40,9 +40,10 @@ section('S3 the Hold rule: the land roll gives a tin\'s or lure\'s Hold to the f
     const helped = MOSS.filter((sp) => WC.gradeOf(sp.id, {}) !== undefined && D.catchItemHold(id, sp) > 0).map((s) => s.id).sort();
     eq(helped, WC.gradeTargets(id, D).filter((x) => MOSS.some((s) => s.id === x)).sort(), `S3 ${id} helps exactly its gradeTargets`);
   }
-  // the counts the gear line prints (SHEET §8.1's measured audit, now true in the roll): Mire Worms 8, Lumen Moss 6, Cut Strip 10, the Feather Fly 5
-  eq(['mireworm', 'lumen_moss', 'cut_strip', 'feather_fly'].map((id) => MOSS.filter((sp) => D.catchItemHold(id, sp) > 0).length), [8, 6, 10, 5],
-    'S3 the fish each helps on the Mossmere: worms 8, moss 6, strip 10, fly 5');
+  // the counts the gear line prints (SHEET §8.1's measured audit, now true in the roll): Mire Worms 8, Lumen Moss 6, Cut Strip 8 (GEAR-GATES
+  // §3: no longer the giants'), the Feather Fly 5
+  eq(['mireworm', 'lumen_moss', 'cut_strip', 'feather_fly'].map((id) => MOSS.filter((sp) => D.catchItemHold(id, sp) > 0).length), [8, 6, 8, 5],
+    'S3 the fish each helps on the Mossmere: worms 8, moss 6, strip 8, fly 5');
   ok(D.catchItemHold('glimmer_spoon', 'mossback_perch') > 0 && D.catchItemHold('glimmer_spoon', 'hullkiss_lamprey') === 0, 'S3 the spoon helps the Mossback Perch, not the Hullkiss Lamprey');
   ok(D.CATCH_V3.items.cut_strip.family === 'predator' && D.CATCH_V3.items.mireworm.attract === true, 'S3 family and attract stay on the records (the sim\'s fallback)');
 }
@@ -164,8 +165,12 @@ section('S6 your odds: catchParts with the hook\'s larger Hold, the struck strik
   let worst = 0;
   for (const r of S.odds.rows) for (const c of ['keeper', 'prize', 'trophy']) if (r.land[c] != null) worst = Math.max(worst, Math.abs(r.land[c] - D.catchParts(r.id, c, kit, { strike: 'struck' }).p));
   ok(worst < 1e-12, 'S6 every figure is catchParts');
-  eq(fl(row(S, 'dusk_minnow').land.elder), 15, 'S6 the Dusk Minnow\'s Elder at Under the Span at dusk on worms: 15 (the Ancient share mixed in)');
-  eq([fl(row(S, 'thousandcast_pike').land.small), fl(row(S, 'thousandcast_pike').land.keeper), fl(row(S, 'thousandcast_pike').land.trophy)], [null, 61, 16], 'S6 the pinned giant: Small —, Keeper 61, Trophy 16');
+  // GEAR-GATES §5.1: a class over the hook's and the line's cap reads "—" (Line T1 lands up to Trophy; a stray up to Keeper)
+  eq(fl(row(S, 'dusk_minnow').land.elder), null, 'S6 the Dusk Minnow\'s Elder at Under the Span at dusk on worms and Line T1: — (over the line\'s Trophy)');
+  eq(row(S, 'dusk_minnow').cap, 'trophy', '… its row carries the cap (Trophy)');
+  { const m2 = example(); m2.loop.tackle.line = 2; const S2 = model(m2, { view: SPAN });
+    ok(row(S2, 'dusk_minnow').land.elder > 0, `S6 … on Line T2 its Elder lands again (${fl(row(S2, 'dusk_minnow').land.elder)}, the Ancient share mixed in)`); }
+  eq([fl(row(S, 'thousandcast_pike').land.small), fl(row(S, 'thousandcast_pike').land.keeper), fl(row(S, 'thousandcast_pike').land.trophy)], [null, 61, null], 'S6 the pinned giant on worms (a stray: up to Keeper): Small —, Keeper 61, Trophy —');
   const open = model(m, { view: { place: null, light: 'dusk' } });
   ok(open.odds.rows.every((r) => r.land.elder === null), 'S6 no Elder in the open water');
   const maze = model(m, { view: { place: 'lily_maze', light: 'day' } });
@@ -280,7 +285,8 @@ section('S10 the new marks: a buy marks its key; markSheetSeen clears it; a foun
   const old = example(); delete old.loop.sheetSeen;
   PL.migrateLoop(old, D);
   eq(SM.sheetModel(old, D, {}).fresh, [], 'S10 an older save (no sheetSeen) opens with no marks: seeded before the fill');
-  eq(PL.freshLoop(D).sheetSeen, [], 'S10 a fresh save: sheetSeen []');
+  eq(PL.freshLoop(D).sheetSeen, ['lure:bent_spoon'], 'S10 a fresh save: sheetSeen holds only the start kit\'s lure (GEAR-GATES §2.1: seen, so no mark)');
+  eq(SM.sheetModel(FX.freshLoopMeta(D), D, {}).fresh, [], 'S10 … so a fresh save\'s sheet marks nothing');
   const f = FX.fakeLoop({ D, lures: ['glimmer_spoon'] });
   ok(f.sheet().fresh.includes('lure:glimmer_spoon') && f.markSheetSeen(['lure:glimmer_spoon', 'rod:9']) && !f.sheet().fresh.includes('lure:glimmer_spoon') && !f.s.sheetSeen.includes('rod:9'),
     'S10 fakeLoop: markSheetSeen clears an owned mark and ignores a key not owned');

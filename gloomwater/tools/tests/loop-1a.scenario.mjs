@@ -1444,6 +1444,37 @@ export default async function (api) {
       K.check((await g(() => { try { return window.__gw.debug.fishLinger?.() ?? null; } catch { return null; } })) === null, 'T9: fishLinger() is null (F16 dropped)');
       await K.noErrors('the smoke step');
 
+      // ---------------------------------------------------------- GEAR-GATES §4.3: a fish over the gear's cap hooks, then gets away
+      K.step('main: a fish over the gear\'s cap');
+      {
+        const kitNow = await g(() => { const r = window.__gw.state.run; return { bait: r?.equippedBait ?? null, lure: r?.lure ?? null, bag: { ...(r?.bait || {}) } }; });
+        K.note('evening 2\'s hook (the start kit)', kitNow);
+        e0 = await K.evCount();
+        const n0 = (await K.state()).hold?.n;
+        await realCatch('mossback_perch', 2.2, { what: 'a Trophy perch on the start kit', outcome: 'land' });
+        const away = await K.until("window.__lp.ev.some((e) => e.e === 'fish:escaped' && e.p?.overCap)", 25);
+        K.check(away.ok, 'GEAR-GATES: a Trophy perch on Twine hooks, then gets away (fish:escaped {overCap})', await K.state());
+        await K.settle(320);
+        const line = await g(() => {
+          const el = document.querySelector('.gw-strike-w.gw-strike-gear');
+          if (!el) return null;
+          el.style.animationPlayState = 'paused';
+          const b = el.getBoundingClientRect(), tin = document.querySelector('.gw-tk-tin')?.getBoundingClientRect() || null;
+          const hit = (a, c) => !!a && !!c && a.left < c.right && c.left < a.right && a.top < c.bottom && c.top < a.bottom;
+          return { text: el.textContent, l: Math.round(b.left), r: Math.round(b.right), t: Math.round(b.top), b: Math.round(b.bottom), h: Math.round(b.height), vw: innerWidth, vh: innerHeight,
+            op: +getComputedStyle(el).opacity, tin: hit(b, tin) };
+        });
+        const words = Object.values(TL?.gate?.away || {});
+        K.check(line && words.includes(line.text), 'GEAR-GATES: the got-away line in the "Hook set" slot names the gear (TEXT_LOOP.gate.away)', line);
+        K.check(line && line.l >= 12 && line.r <= line.vw - 12 && line.t >= 0 && line.b <= line.vh && line.h < 40, 'GEAR-GATES: one line, inside the screen\'s sides', line);
+        K.check(line && !line.tin, 'GEAR-GATES: clear of the tackle tin', line);
+        await K.shoot('gear-away');
+        await g(() => { const el = document.querySelector('.gw-strike-w.gw-strike-gear'); if (el) el.style.animationPlayState = ''; });
+        await K.until("c.fishing.state === 'idle'", 15);
+        K.check((await K.state()).hold?.n === n0, 'GEAR-GATES: nothing in the hold is lost (the fish only got away)');
+        seen.gearAway = line?.text ?? null;
+      }
+
       // ---------------------------------------------------------- the gate is scenery (T46, T43)
       K.step('main: the gate');
       const gate = await g(() => { const gi = window.__gw.world.getGate?.(); return gi?.position ? { x: gi.position.x, z: gi.position.z, r: gi.radius ?? 4.5 } : null; });
@@ -1483,6 +1514,9 @@ export default async function (api) {
         const jt = await g(() => window.__lp.text('[data-modal=journal]') || '');
         K.check(!/\bDay\b/.test(jt) && /Evening\s+\d/.test(jt), 'T47: the species page reads "Evening N", no "Day"', jt.slice(0, 240));
         await K.scan('the Journal\'s species page', { allow: false });
+        // GEAR-GATES §5.1: the page says what the save's gear lands of a met fish (the start kit: worms on Twine, up to Prize)
+        const gate = await g(() => { const el = document.querySelector('[data-modal=journal] .gw-cat-gate'); if (!el) return null; const b = el.getBoundingClientRect(); return { text: el.textContent, t: Math.round(b.top), b: Math.round(b.bottom), vh: innerHeight }; });
+        K.check(gate && /^(Lands up to (Small|Keeper|Prize|Trophy|Elder)|Needs .+)\.$/.test(gate.text) && gate.b <= gate.vh, 'GEAR-GATES: the species page\'s gate line, on screen', gate);
         await K.shoot('journal');
         await K.key('Escape');
         await K.settle();

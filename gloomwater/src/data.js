@@ -4925,7 +4925,7 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
   sail: 'Sail', resume: 'Resume', continue: 'Continue', next: 'Next: {name} · {price}', holdName: 'Hold {n}',
   tabs: { tackle: 'Tackle', raft: 'Raft', bait: 'Bait', maps: 'Maps', home: 'Home', giants: 'Giants' },   // giants: the ★ tab's accessible name only (PLAN CHOICE 25)
   jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal', wall: 'The Long Wall' },   // (wall: the doorway's accessible name only, SPEC §6.3's; no word is drawn under it)
-  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Holds the long runs.', reel: 'More line for the big ones.',
+  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Lands bigger fish.', reel: 'More line for the big ones.',
     heartmoss: 'For the Belled Matriarch. One try.' },   // a legend's bait (SPEC §8.4)
   // the place maps' lines (SPEC §5.2's table), one per place, each ≤ 8 words
   maps: { lily_maze: 'Koi glow under the pads like lanterns.', under_the_span: 'The bridge kept its chain. Something kept it.',
@@ -4971,6 +4971,8 @@ TEXT_LOOP.hookSet = 'Hook set';   // the word under the float on a Clean strike 
 // home.orders); tools/tests/loop-4.test.mjs checks they agree. `with` is the water (catalogue order) whose map puts a level on the
 // shelf (SPEC §4.7's "on the shelf with", decision 38): 1 the start; Keel III the Pallid Deep's (4), Order Board III Glasswater's (3).
 LOOP.lures = {
+  // the start kit's lure (GEAR-GATES.md §2.1, the user's "start off with one lure … low quality"): free, never on the shelf (`start`)
+  bent_spoon:    { water: 'mossmere', price: 0, start: true },
   // the Mossmere's four (SPEC §4.4): three family lures (+5 / +6 Hold on their family, drawn × their built `attract`) and its giants'
   // lure, re-aimed at its giants (+10 Hold on the fish named, its giants' share × `share`); bought once and kept for good
   feather_fly:   { water: 'mossmere', price: 50,  family: 'insect' },
@@ -5014,7 +5016,7 @@ TEXT_LOOP.castTip = 'Press on the water. Let go to cast.';
 TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
 // the items' names as the shelf, the slots and the gear log show them (the built LURES / BAITS names, SPEC §4.4, §4.5)
 TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
-  mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip' };
+  mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip', bent_spoon: 'Bent Spoon' };
 // <<< M1 step 4 (lane 4)
 // >>> TK, the tackle tin (the user's words of 16 November 2026: "We should have an option to equip bait or change lures whilst out on the
 // lake"; src/ui-tackle.js, CONTRACT §14.19). Few words: the tin's name, the drawer's two rows, its two empties, the one line while a fish
@@ -5045,7 +5047,7 @@ LOOP.cost = Object.assign({ consumables: 1 }, LOOP.cost || {}, { factor: loopCos
 // the shelf's one line for each tin and lure (SPEC §8.11, replacing lane 4's family lines; the Spinner's as built)
 Object.assign(TEXT_LOOP.shelf, {
   mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'For the Gloam Eel and the Candlefin Koi.', cut_strip: 'Meat, for the hunters.',
-  feather_fly: 'For Dusk Minnows, Chub, Lampsippers and Koi.', glimmer_spoon: 'Flash, for the hunters.', bone_jig: 'Hopped on the bottom, for bottom feeders.',
+  feather_fly: 'For Dusk Minnows, Chub, Lampsippers and Koi.', glimmer_spoon: 'Flash, for pike and the big hunters.', bone_jig: 'Hopped deep, for big perch and bass.',
   bell_spinner: "For the Mossmere's giants.",
 });   // (the polish audit, batch 3: each ≤ 8 words, none repeats another; the Fly's and the Moss's fish are LOOP.items' own)
 // the gear log's words (SPEC §8.11): the Who bites block and a tin's or lure's Hold line (WC-3 renders them)
@@ -5054,6 +5056,34 @@ TEXT_LOOP.log = Object.assign(TEXT_LOOP.log || {}, {
   gear: '+{n} Hold on the fish it suits ({m} you have met).',
 });
 // <<< WC-1
+
+// >>> GEAR-GATES (docs/loop/GEAR-GATES.md; the user, 17 Nov 2026: "start off with one lure and some bait … Certain fish we shouldn't be
+// able to access without certain lures or bait … the standard fish … Capped at a certain size"). Loop-only keys and words (LOOP and
+// TEXT_LOOP are not in the v3 fingerprint); the Bent Spoon's LURES and CATCH_V3.items rows are added in the loop's apply block.
+// the start kit (§2.1): a fresh save owns the Bent Spoon and one tin of Mire Worms at its first water, fitted
+LOOP.start = { lures: ['bent_spoon'], bait: { mireworm: 10 }, fit: 'mireworm' };
+// the bare hook (§2.2): on a trip with nothing on the hook the wait is × waitMult before the 2–25 s clamp (never a legend's cast or the
+// tutorial's), and its fish run small (a favour term)
+LOOP.bare = { waitMult: 2.5, favour: -0.5 };
+// the gear's size caps (§4.1, watercraft.gearCap): the landed class is the lowest of the fish's grade on the hook ([stray 'keeper'],
+// takes it, likes it, the right bait), the free hooks' ceiling and the line's (Twine, Line T1, T2 and up); capZ still applies on top. A
+// fish over the cap hooks, then gets away (fishing: its land chance 0); on evening 1 and in the tutorial it lands at the cap instead
+// (`firstEvening`), and Ashwick's comeback of a cap loss returns at the cap (`ashwick`)
+LOOP.gearCap = {
+  grade: [null, 'keeper', 'prize', 'elder'],
+  item: { bare: 'keeper', bent_spoon: 'keeper', cut_strip: 'prize' },
+  line: ['prize', 'trophy', 'elder'],
+  firstEvening: 'cap', ashwick: 'cap',
+};
+// the words (§4.3, §5.1): the got-away line on a cap loss (in the "Hook set" slot; it names the gear, never the fish), Murk's once-line,
+// and the logs' lines (the Journal's species page, the sheet's pinned fish, the gear log)
+TEXT_LOOP.gate = {
+  upTo: 'Lands up to {class}.', needs: 'Needs {item}.',
+  away: { line: 'Too heavy for your line.', bare: 'Too big for a bare hook.', bent_spoon: 'Too big for the Bent Spoon.', cut_strip: 'Too big for Cut Strip.',
+    lure: 'It wants a better lure.', bait: 'It wants a better bait.' },
+};
+TEXT_LOOP.murk.firstAway = 'Lost a big one? Better gear holds them.';
+// <<< GEAR-GATES
 
 // ---- The loop's pure helpers (PLAN §3.1, WICKS §5). Each reads only LOOP and the built size model; the sim calls the same ones.
 /** A fish's clams (SPEC §4.1) on the built size: max(1, round(tier × rarity × body(sizeL50) × clamp(e^(perZ·z)) × classBonus ×
@@ -5946,6 +5976,10 @@ if (V3_ENABLED) {
       const b = BAITS.find((x) => x.id === id && !x.legend);
       if (b) { b.bonus = { ...b.bonus, attract: [...new Set([...(b.bonus?.attract || []), sp.id])] }; }
     }
+    // GEAR-GATES §2.1: the start kit's Bent Spoon, a lure of the loop's own (no family, so its favour −0.25 is every fish's; +3 Hold on the
+    // fish it likes, filled from the hook table by the Wick's sheet block below)
+    if (!LURES.some((l) => l.id === 'bent_spoon')) LURES.push({ id: 'bent_spoon', name: 'Bent Spoon', depth: 'mid', attract: 1, favour: -0.25, price: 0, onSale: null });
+    if (!CATCH_V3.items.bent_spoon) CATCH_V3.items.bent_spoon = { kind: 'lure', hold: 3, species: [] };
     // the Harbour-Bell Spinner re-aimed at the Mossmere's giants (SPEC §4.4: +10 Hold on the fish named)
     CATCH_V3.items.bell_spinner = { ...CATCH_V3.items.bell_spinner, species: LOOP.lures.bell_spinner.giants.slice() };
     { const l = LURES.find((x) => x.id === 'bell_spinner'); if (l) l.species = LOOP.lures.bell_spinner.giants.slice(); }

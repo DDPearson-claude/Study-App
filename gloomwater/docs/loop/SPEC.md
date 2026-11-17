@@ -181,6 +181,24 @@
 
 **Sources.** v4 (commit 1aa478c) reconciled three proposals: economy, maps, and trip-and-home (§15). v5 (commit 3fc4a12) rebuilt the fish values, the catalogue and the build plan around the roster (commit d20aa74). v6 is v5 revised after the player's-advocate and builder critics (§0.1).
 
+### 0.16 What v8.10 changed (gear gates: the start kit, the slow bare hook, gates by lure and bait, size caps; 17 November 2026)
+
+The user's ask of 17 November 2026 ("So far we start with no bait and no lure. Yet it still feels like fish bite frequently. Let's
+start off with one lure and some bait … Certain fish we shouldn't be able to access without certain lures or bait but the standard
+fish … should be achievable but maybe Capped at a certain size"), designed and built in `docs/loop/GEAR-GATES.md`. A fresh save owns
+the **Bent Spoon** (free, never sold, favour −0.25, +3 Hold on the perch and the bass) and **one tin of Mire Worms, fitted**
+(`LOOP.start`); an old save gets the spoon and no bait. The **bare hook** waits ×2.5 before the clamp, runs small (favour −0.5) and
+brings the seven commons only (`LOOP.bare`). Both giants need a bought lure (their Cut Strip cells 0), the Spinner is the lamprey's
+right lure and the worm the crayfish's. **The gear caps the size landed** (`LOOP.gearCap`, `watercraft.gearCap`): the lowest of the
+fish's grade on the hook (Keeper · Prize · the top), the free hooks' ceiling (bare and the Bent Spoon Keeper, Cut Strip Prize) and
+the line (Twine Prize, Line T1 Trophy, T2 the top), `capZ` on top. A fish over the cap hooks, then gets away (its land chance 0; the
+line parts on a line cap, else the hook comes free), and one line in the "Hook set" slot names the gear, never the fish ("Too heavy
+for your line."); evening 1 lands it at the cap instead, and Ashwick's comeback returns at the cap. Murk says once at home "Lost a
+big one? Better gear holds them." The logs say where the caps are (the Journal's species page "Lands up to {Class}." / "Needs
+{item}.", the sheet's "—" over the cap, the gear log's "Lands up to" line); the shelf and the HUD never do. This changes §4.4–§4.5's
+start (no lure, no bait), §16 question 38's bare hook (no carp, koi or Bridgechain; no giant on Cut Strip) and, for cap losses only,
+`WATERCRAFT.md` §7.1's "no note".
+
 ### 0.15 What v8.9 changed (the Slow Hearth inside, first person, and the stern line; 16 November 2026)
 
 The user's words of 16 November 2026 after an hour's play-test of the preview (§0 row 39; the same message's gear and character sheet is row 38's, `SHEET.md`, written beside this as v8.8), designed in `docs/loop/BARGE-INSIDE.md` (revision 2, after two reviews). **Built as M1 step 5d**, after tonight's MVP merge and the sheet's lane (§13; `M1.md` revision 10).
@@ -733,7 +751,7 @@ Lures are bought once and kept for good; a snapped line never loses one. **Famil
 ### 4.5 Bait (consumable, one fitted beside the lure)
 
 - *(v8.7, the user's row 37; the Mossmere)* **A tin changes which fish bite**: `WATERCRAFT.md` §3's hook table grades every Mossmere fish against the bare hook, Mire Worms, Lumen Moss and Cut Strip (a worm never brings a pike past 1 bite in 100, nor does a bare hook: on the Mossmere the bare hook brings the small fish, the bottom fish, the carp and the koi, and Cut Strip is the hunters' bait); the rest of this section (the tin's size, price, favour and Hold) stands, the Hold going to the fish the tin suits. On the later waters the line "a tin does not change which fish bite" below holds until their slices write their rows.
-- A **tin holds 10** and is **Murk's bait for one water**. **Every tin in a water costs the same: 1.5 × that water's value tier** (rounded to 5). One bait is spent per hooked fish (built: spent at the cast, refunded when the bite is let pass). With no bait you fish a bare hook; that is always allowed.
+- A **tin holds 10** and is **Murk's bait for one water**. **Every tin in a water costs the same: 1.5 × that water's value tier** (rounded to 5). One bait is spent per hooked fish (built: spent at the cast, refunded when the bite is let pass). With no bait you fish a bare hook; that is always allowed. *(v8.10, `GEAR-GATES.md` §2: a fresh save starts with a tin of Mire Worms fitted and the free Bent Spoon; on the Mossmere the bare hook bites ×2.5 slower, runs small and lands up to Keeper.)*
 - **Every tin does the same two things**: every fish runs bigger (favour +0.3), and the fish that favour it hold better (+5 Hold; the built tins keep their built Hold; the roster's `favours` say which fish). Where the lure and the bait both give Hold, the fish gets the larger, never both (built). **A tin does not change which fish bite**, except that a fish that bites on one bait only needs it: the Gloam Eel and the Sleepspore Jelly on Lumen Moss, the Threadling Eel on Spore Cake, the Chime Jelly on Glass Larvae, the Blind Scrivener and the Lampwarden Angler on Ember Roe (v8 names all six, as the sim and the built `bait` field always had them; v7.1 named three). So picking a tin is picking the fish you are after. A bait-only fish whose bait is its water's plain bait (the Threadling Eel, the Blind Scrivener, the Lampwarden Angler) is on its water's list; one that needs another tin is not, so no tin is a hidden key (§5.5 (c)).
 
 | a tin of 10 | the Mossmere | Sporewood | Glasswater | the Pallid Deep | the Rime Sound | the Thin Water | Rushlight Fen | the Salt Gate | the Inkwood |

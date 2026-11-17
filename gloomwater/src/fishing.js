@@ -112,7 +112,7 @@ import { tellOptions, pickTell, answerFor, normTells, formMakers, lightOf as tel
 import * as SI from './fishing-sight.js';
 import * as WCX from './watercraft.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
-import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds, lureStrike } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
+import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds, lureStrike, gearCap } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
@@ -188,7 +188,7 @@ export function create(ctx) {
     // event or the save), the plan and its playback, the reveal, the loss
     castLoadout: null, castItem: null, grade: null, p: null, draws: null, outcome: null, plan: null, plan0: null, loss: null,
     playT: 0, beatI: -1, evI: 0, playCls: null, towDone: 0, panYaw: 0, panFrom: null, hurry: false, estimated: false,
-    reveal: null, lostT: 0, noteSent: false, lostInfo: null, forceOutcome: null, forceCause: null, strikeT: -1,
+    reveal: null, lostT: 0, noteSent: false, lostInfo: null, forceOutcome: null, forceCause: null, overCap: null, strikeT: -1,
     hookedNight: null, letPassTip: false, hurryTip: false, tutorial: null, tutorialPlays: 0, lastInput: null,
     mist: null,   // the loop (M1 step 3a): a cast into a bank, {placeId, x, z, wisps} while its float is under
   };
@@ -626,6 +626,8 @@ export function create(ctx) {
     const sk = info.sign?.kind;
     if (sk && num(Fv.signs?.[sk], 0)) out.push({ family: 'signs', id: sk, value: num(Fv.signs[sk], 0) });
     if (trip) {
+      // GEAR-GATES §2.2: nothing on the hook on the Mossmere: small fish come to a bare hook (LOOP.bare.favour; the float's notches show it)
+      if (wcOn() && !info.baitId && !info.lure && num(D().LOOP?.bare?.favour, 0)) out.push({ family: 'tackle', id: 'bare', value: num(D().LOOP.bare.favour, 0) });
       // the loop (SPEC §3.2, §3.3): no let-it-pass and no pressure; the water's own quiet and the let-go's mercy instead
       const q = loopFavour(info.waterKey);
       if (q) {
@@ -689,8 +691,23 @@ export function create(ctx) {
     const left = loopBitesLeft(info.waterKey);   // the loop: the float's good-bite dots (PLAN §3.6)
     if (left !== null) { view.favour.bitesLeft = left; view.favour.quiet = left <= 0; }
   }
+  /** GEAR-GATES §4.1: the gear's cap on this cast's fish (a trip on the Mossmere, not a legend or a find): watercraft.gearCap on the cast's
+   *  hook (the fitted lure, else the cast's bait; a legend's ball is a bare hook to every fish but her) and the fitted line, with `key`
+   *  the got-away line's (TEXT_LOOP.gate.away: 'line', the free hook's id, else 'lure' / 'bait'); or null (no cap). */
+  function gearCapNow(sp) {
+    if (!wcOn() || !sp || sp.rarity === 'legendary' || S.find) return null;
+    const lure = fittedLure(), bait = legendBaitId(S.castBait) ? null : (S.castBait ?? null);
+    let line = num(S.castLoadout?.line, NaN);
+    if (!Number.isFinite(line)) { try { line = num(loadoutNow()?.line, 0); } catch { line = 0; } }
+    let g = null;
+    try { g = gearCap(D(), sp.id, { lure, bait, line }); } catch (e) { report(e); return null; }
+    if (!g) return null;
+    const key = g.by === 'line' ? 'line' : g.by === 'item' ? (lure || bait || 'bare') : (lure ? 'lure' : 'bait');
+    return { ...g, key };
+  }
   /** Roll the size score of the hooked species (F1): z ~ N(μ, 1) truncated to the cast's cap; legends are authored (μ 0). */
   function rollSize(sp = S.species, info = S.cast) {
+    S.overCap = null;
     if (!spV3(sp)) return;
     const SZ = BAL('size');
     const zone = zoneData()?.id || run()?.zone || null;
@@ -704,8 +721,14 @@ export function create(ctx) {
       S.mu = 0; S.favourTerms = [];
     } else {
       const f = favourAt(info, sp), trip = LOOP();
-      const cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ, loop: trip });
+      let cap = capZ({ species: sp, place: info.place, giantWater: info.giant, size: SZ, loop: trip });
+      // GEAR-GATES §4.2: the gear's size cap (watercraft.gearCap on the cast's hook and the fitted line). Evening 1 and the tutorial land an
+      // over-cap fish at the cap (no loss); after that a fish over it hooks, then gets away at the strike (S.overCap)
+      const g = gearCapNow(sp), soft = !!g && (num(run()?.evening, 0) <= 1 || !!S.tutorial) && D().LOOP?.gearCap?.firstEvening === 'cap';
+      if (soft && g.z < cap) cap = g.z;
       z = S.forceZ != null ? S.forceZ : pre != null ? pre : rollZ(f.mu, rnd, { min: giantMinZ(sp, num(SZ.z?.min, -2), trip), max: num(SZ.z?.max, 3.6), sd: num(SZ.z?.sd, 1), cap });
+      if (soft && z > g.z) z = g.z;
+      S.overCap = g && !soft && z > g.z + 1e-9 ? { by: g.by, cls: g.cls, z: g.z, key: g.key } : null;
       S.mu = f.mu; S.favourTerms = f.terms.filter((t) => t.value);
     }
     S.forceZ = null; S.prerollZ = null;
@@ -1037,7 +1060,7 @@ export function create(ctx) {
     S.retrieve = null;
     if (mossLoop() && fittedLure() && !S.castBait) {   // a lure's cast: no wait; the line comes back by itself (updateRetrieve)
       S.species = null; S.events = []; S.evIdx = 0; S.legendCast = false; S.taperRule = false; S.comeback = null; S.find = null;
-      S.zRolled = false; S.tell = null; S.hookTried = false; S.waitDur = Infinity;
+      S.zRolled = false; S.tell = null; S.hookTried = false; S.waitDur = Infinity; S.overCap = null;
       S.retrieve = { next: 1 };
     } else rollBite();
     if (S.comeback) {
@@ -1255,7 +1278,7 @@ export function create(ctx) {
       try { S.find = loopApi()?.snagRoll?.({ legendCast: false, tutorial: !!S.tutorial, rng: S.findRng || Math.random, force }) ?? null; } catch (e) { report(e); S.find = null; }
       if (typeof S.find !== 'string' || !S.find) S.find = null;
     }
-    S.zRolled = false; S.z = null; S.sizeClass = null; S.ancient = false; S.tell = null; S.hookTried = false; S.revealed = false;
+    S.zRolled = false; S.z = null; S.sizeClass = null; S.ancient = false; S.tell = null; S.hookTried = false; S.revealed = false; S.overCap = null;
     if (spV3(sp)) S.weight = 1;   // v3: the size score is rolled when the bite begins (rollSize), not here
     else S.weight = sp ? rollWeight(sp, baitId) : 1;
     // wait
@@ -1268,6 +1291,8 @@ export function create(ctx) {
       // the loop: Stub's quick bites (WICKS §2.3; not on a legend cast) and quiet water's slower waits (SPEC §3.3), before the clamp
       const q = loopFavour(S.cast?.waterKey);
       W *= (S.legendCast ? 1 : num(wickDef()?.waitMul, 1)) * num(q?.waitMult, 1);
+      // GEAR-GATES §2.2: nothing on the hook on the Mossmere bites slowly (never a legend's cast or the tutorial's), before the clamp
+      if (wcOn() && !S.legendCast && !S.tutorial && !fittedLure() && (!baitId || legendBaitId(baitId))) W *= num(D().LOOP?.bare?.waitMult, 1);
     }
     W = clamp(W, num(Bt.waitMin, 2), num(Bt.waitMax, 25));
     if (S.legendCast) W *= num(SP.legend?.waitMult, 0.7);
@@ -1656,6 +1681,7 @@ export function create(ctx) {
     try { p = d.catchChance(trip ? sp : sp.id, cls, lo, mods); } catch (e) { report(e); }
     S.p = Number.isFinite(p) ? p : num(d.CATCH_V3?.floor, 0.01);
     if (S.find) S.p = 1;   // M1 step 5c: a find is never lost (its land chance is 1)
+    else if (S.overCap) S.p = 0;   // GEAR-GATES §4.2: a fish over the gear's cap hooks, then gets away (the four draws below as ever)
     const dr = drawStrike(rnd);   // always all four, in this order: [planSeed, u, causeU, momentU]
     S.draws = dr;
     const u = S.forceOutcome === 'land' ? 0 : S.forceOutcome === 'lose' ? 1 : dr.u;   // debug fishOutcome overrides u only
@@ -1669,7 +1695,8 @@ export function create(ctx) {
     S.loss = null;
     if (S.outcome === 'lose') {
       const foul = !!S.cast?.place?.foul || !!S.cast?.place?.rule?.foul;
-      S.loss = chooseLoss(plan, { style, grade, foul, leaper: style === 'leaper', causeU: dr.causeU, momentU: dr.momentU, cause: S.forceCause || null, A });
+      const capCause = S.overCap && !S.find ? (S.overCap.by === 'line' ? 'snapped' : 'thrown') : null;   // (the line parts, else the hook comes free)
+      S.loss = chooseLoss(plan, { style, grade, foul, leaper: style === 'leaper', causeU: dr.causeU, momentU: dr.momentU, cause: capCause || S.forceCause || null, A });
       S.plan = applyLoss(plan, S.loss);
     } else S.plan = plan;
     S.playT = 0; S.beatI = -1; S.evI = 0; S.towDone = 0; S.panYaw = 0; S.panFrom = null; S.holding = false; S.hurry = false; S.estimated = false;
@@ -1996,7 +2023,8 @@ export function create(ctx) {
     // (the loop, M1 step 3a, PLAN CHOICE 22: a lost giant is a Marked Fish at any class; the ledger marks it for every Wick)
     const markedFish = !legendary && ((!!sp.giant && LOOP()) || classIndex(S.sizeClass) >= classIndex(place ? mf.place : mf.openWater));
     emit('fish:escaped', { speciesId: sp.id, sizeClass: legendary ? null : S.sizeClass, ancient: !!S.ancient, z: S.z, approxLength: cm, reason: I.cause,
-      place, x: Math.round(I.x * 100) / 100, zPos: Math.round(I.z * 100) / 100, markedFish, grade: S.grade, legendary, zone: lakeId() });
+      place, x: Math.round(I.x * 100) / 100, zPos: Math.round(I.z * 100) / 100, markedFish, grade: S.grade, legendary, zone: lakeId(),
+      ...(S.overCap && !legendary ? { overCap: { ...S.overCap } } : {}) });   // GEAR-GATES §4.2–§4.3: the got-away line's key, Ashwick's cap
   }
   /** partLine('staggered') (combat, Gloomtide's hand slam that lands on a non-legendary play): the one outside end of a play. */
   function partLine(reason = 'staggered') {
@@ -4696,7 +4724,7 @@ export function create(ctx) {
           // automatic fishing (hidden state: debug builds only)
           af: afOn(), grade: S.grade, p: S.p, outcome: S.outcome, playT: S.playT, playCls: S.playCls, plan: !!S.plan, loss: S.loss ? { ...S.loss } : null,
           castItem: S.castItem, castLoadout: S.castLoadout ? JSON.parse(JSON.stringify(S.castLoadout)) : null, window: S.window, cleanFrom: S.cleanFrom, cleanPart: S.cleanPart,
-          tellTotal: S.tellTotal ?? null, waitDur: S.waitDur, lostInfo: S.lostInfo ? { cause: S.lostInfo.cause, noteSent: !!S.noteSent } : null, tutorial: S.tutorial ? { ...S.tutorial } : null }),
+          tellTotal: S.tellTotal ?? null, waitDur: S.waitDur, lostInfo: S.lostInfo ? { cause: S.lostInfo.cause, noteSent: !!S.noteSent } : null, overCap: S.overCap ? { ...S.overCap } : null, tutorial: S.tutorial ? { ...S.tutorial } : null }),
         fishFx: () => fx,   // the fx object (tests wrap its methods to trace every call)
       });
       // automatic fishing (CONTRACT §13.11): the hooks that return hidden state (species, z, the roll, the plan, a pre-roll) exist only

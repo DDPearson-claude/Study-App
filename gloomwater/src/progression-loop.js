@@ -21,7 +21,8 @@ import { homeItems, applyHome, applyBaitBed } from './home-shelf.js';
 import { notePrint as notePrintOf, printsView, galleryModel } from './home-prints.js';
 import { uid } from './core.js';
 // M1 step 4 (lane 4): the tins and lures, the raft's parts and Murk's orders, pure (src/loop-gear.js)
-import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches } from './loop-gear.js';
+import { gearItems, applyGear, tinWater, lureOf, assignOrders, refillOrders, orderPhrase, orderMatches, tinPrice } from './loop-gear.js';
+import { gradeOf as wcGradeOf, gearCap as wcGearCap } from './watercraft.js';   // GEAR-GATES §5.1: the Journal's gate line
 import { sheetModel, sheetKeys } from './loop-sheet.js';   // the Wick's sheet (SHEET.md §7): the pure model; the shelf comes in from here
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
@@ -94,11 +95,23 @@ function firstWater(D) {
   return D?.ZONES?.[0]?.id || 'mossmere';
 }
 
-/** A fresh meta.loop (SPEC §9, PLAN §3.4): 3 slots (LOOP.hold.start), T0, the first water owned, no Wick and no tutorial yet. */
+/** The start kit (GEAR-GATES.md §2.1, LOOP.start): the lures a fresh save owns (known LOOP.lures ids), its first water's bag and the bait
+ *  fitted (one the bag holds). → {lures, bait, fit}. */
+export function startKit(D) {
+  const ST = isObj(D?.LOOP?.start) ? D.LOOP.start : {}, Ls = isObj(D?.LOOP?.lures) ? D.LOOP.lures : {};
+  const lures = (Array.isArray(ST.lures) ? ST.lures : []).filter((id, i, a) => typeof id === 'string' && isObj(Ls[id]) && a.indexOf(id) === i);
+  const bag = {};
+  for (const [id, n] of Object.entries(isObj(ST.bait) ? ST.bait : {})) if (int(n) > 0) bag[id] = int(n);
+  const fit = typeof ST.fit === 'string' && bag[ST.fit] > 0 ? ST.fit : null;
+  return { lures, bait: Object.keys(bag).length ? { [firstWater(D)]: bag } : {}, fit };
+}
+/** A fresh meta.loop (SPEC §9, PLAN §3.4): 3 slots (LOOP.hold.start), T0, the first water owned, no Wick and no tutorial yet; the start
+ *  kit (GEAR-GATES.md §2.1: the Bent Spoon and a tin of Mire Worms, fitted). */
 export function freshLoop(D) {
+  const kit = startKit(D);
   return {
     v: LOOP_SCHEMA, clams: 0, evenings: 0, holdSlots: int(D?.LOOP?.hold?.start, 3) || 3,
-    tackle: { rod: 0, line: 0, reel: 0 }, lures: [], fitted: { lure: null, bait: null }, bait: {},
+    tackle: { rod: 0, line: 0, reel: 0 }, lures: kit.lures, fitted: { lure: null, bait: kit.fit }, bait: kit.bait,
     maps: { lakes: [firstWater(D)], places: [] }, raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 },
     looks: [], orders: [], legends: {}, giants: {}, prints: {}, ledgerPaid: [],
     said: {}, lastTrip: null, wick: null, tutorial: null, firsts: { seen: [], seals: [], best: {} },
@@ -109,7 +122,7 @@ export function freshLoop(D) {
     lifted: [], best: {}, chartPick: null,
     // the home barge (SPEC §6.5, M1 §2.11): its own field, apart from `home` (the upgrades); the opening's tow writes `towed`
     barge: { water: firstWater(D), towed: [] },
-    sheetSeen: [],   // the Wick's sheet (SHEET.md §5.2): the owned keys the player has seen on the sheet (a fresh save owns nothing to mark)
+    sheetSeen: kit.lures.map((id) => `lure:${id}`),   // the Wick's sheet (SHEET.md §5.2): the owned keys the player has seen on the sheet (a fresh save marks nothing: its start kit is seen)
   };
 }
 
@@ -129,7 +142,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   if (!isObj(meta.loop)) meta.loop = fresh;
   const L = meta.loop;
   // the Wick's sheet (SHEET.md §5.2): an older save opens with no "new" marks, seeded here before the fill (which would copy [])
-  if (L.sheetSeen === undefined) { try { L.sheetSeen = sheetKeys(L, D); } catch { L.sheetSeen = []; } }
+  const seeded = L.sheetSeen === undefined;
+  if (seeded) { try { L.sheetSeen = sheetKeys(L, D); } catch { L.sheetSeen = []; } }
   const v0 = num(L.v);
   if (!(v0 >= LOOP_SCHEMA)) {
     // rule 1: a flat bait bag belongs to the only water a v4/v5 draft sold bait for
@@ -170,6 +184,8 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   }
   for (const k of ['tackle', 'fitted', 'maps', 'raft', 'home', 'firsts', 'barge']) for (const [kk, vv] of Object.entries(fresh[k])) if (L[k][kk] === undefined) L[k][kk] = vv;
   if (L.fitted.lure != null && L.fitted.bait != null) L.fitted.bait = null;   // one thing on the hook: a save holding both keeps the lure
+  // GEAR-GATES §2.1: a save from before the start kit gets its free lure (never a bait; nothing is taken away)
+  if (Array.isArray(L.lures)) for (const id of fresh.lures) if (!L.lures.includes(id)) { L.lures.push(id); if (seeded && Array.isArray(L.sheetSeen)) L.sheetSeen.push(`lure:${id}`); }
   // the barge: a known water (else the first), the waters it was towed to as a list of known ids, each once
   { const known = (id) => typeof id === 'string' && (isObj(D?.LOOP?.waters?.[id]) || id === first);
     if (!known(L.barge.water)) L.barge.water = first;
@@ -520,6 +536,41 @@ export function catalogueFor(meta, D, waterId) {
 }
 
 /**
+ * GEAR-GATES §5.1: the Journal species page's one gate line for a fish (pure): the largest class the save's own hooks land of it (the bare
+ * hook, Cut Strip, the owned lures and the tins with any in the bag, each that takes it, on the fitted line: watercraft.gearCap) →
+ * {kind: 'upTo', cls, text: "Lands up to {Class}."}; if none of them takes it, the cheapest item of its water's shelf that does →
+ * {kind: 'needs', item, text: "Needs the Glimmer Spoon."} (a lure with "the", a tin without); null for a fish with no hook row (another
+ * water's, the legend) or with no LOOP.gearCap.
+ */
+export function gateLine(D, metaLoop, fishId) {
+  const T = D?.TEXT_LOOP?.gate, LP = D?.LOOP;
+  if (!isObj(T) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
+  const g0 = wcGradeOf(fishId, {});
+  if (g0 === undefined || !wcGearCap(D, fishId, { bait: 'mireworm' })) return null;
+  const ml = isObj(metaLoop) ? metaLoop : {}, water = firstWater(D), line = int(ml.tackle?.line);
+  const bag = isObj(ml.bait?.[water]) ? ml.bait[water] : {};
+  const ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
+  const hooks = [{}, { bait: 'cut_strip' }, ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id])).map((lure) => ({ lure })),
+    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).filter((id) => int(bag[id]) > 0).map((bait) => ({ bait }))];
+  let best = null;
+  for (const h of hooks) {
+    if (!(num(wcGradeOf(fishId, h)) >= 1)) continue;
+    const c = wcGearCap(D, fishId, { ...h, line });
+    if (c && (!best || ORDER.indexOf(c.cls) > ORDER.indexOf(best.cls))) best = c;
+  }
+  const label = (cls) => (Array.isArray(D?.SIZE_CLASSES) ? D.SIZE_CLASSES.find((c) => c?.id === cls)?.label : null) || cls;
+  if (best) return { kind: 'upTo', cls: best.cls, text: String(T.upTo).replace('{class}', label(best.cls)) };
+  const name = (id) => D?.TEXT_LOOP?.gearItems?.[id] || id;
+  const items = [
+    ...Object.entries(isObj(LP.lures) ? LP.lures : {}).filter(([, L]) => isObj(L) && L.water === water && L.start !== true).map(([id, L]) => ({ id, lure: true, price: num(L.price) })),
+    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).map((id) => ({ id, lure: false, price: tinPrice(D, water) })),
+  ].filter((it) => num(wcGradeOf(fishId, it.lure ? { lure: it.id } : { bait: it.id })) >= 1).sort((a, b) => a.price - b.price);
+  if (!items.length) return null;
+  const it = items[0];
+  return { kind: 'needs', item: it.id, text: String(T.needs).replace('{item}', it.lure ? `the ${name(it.id)}` : name(it.id)) };
+}
+
+/**
  * The Wick's ledger (WICKS §2.1): record a measured fish in `meta.loop.firsts` = {seen: [speciesId], seals: ['id|class'], best:
  * {speciesId: cm}} and say whether it is a first of this New Descent: a kind not seen before; that kind's first Prize, Trophy or
  * Elder (the built class seals, `seals` = data.sealsFor(sp)) or its first Ancient; or a new personal best (longer than any of that
@@ -803,14 +854,17 @@ export function createLoop(S) {
     const wasComeback = lastBiteComeback;
     lastBiteComeback = false;
     if (!onTrip(r)) return false;
+    if (isObj(e.overCap)) flags(r).capLost = true;   // GEAR-GATES §4.3: Murk's once-line at home after a trip with a cap loss
     const sp = spOf(e.speciesId);
     // M1 step 3a (M1.md §2.4, PLAN CHOICE 22): a giant lost at its own place is a Marked Fish there, for every Wick and at any class
     if (sp && sp.giant === true && sp.rarity !== 'legendary' && (!sp.place || e.place === sp.place)) markGiant(sp.id);
     if (passive(wickIdOf(r.character)) !== 'burns_back') return false;
     if (wasComeback || e.cut === true || e.reason === 'cut' || e.legendary === true) return false;
     if (!sp || sp.rarity === 'legendary' || sp.giant === true || e.giant === true) return false;
-    const z = Number(e.z);
+    let z = Number(e.z);
     if (!Number.isFinite(z)) return false;
+    // GEAR-GATES §4.2: a fish lost over the gear's cap comes back at the cap (LOOP.gearCap.ashwick), so it lands on the same gear
+    if (isObj(e.overCap) && Number.isFinite(Number(e.overCap.z)) && LOOP()?.gearCap?.ashwick === 'cap') z = Math.min(z, Number(e.overCap.z) - 0.001);
     const zone = e.zone || r.zone;
     r.comeback = { waterKey: keyOf(e.place ?? null, zone), speciesId: sp.id, z, zone, sizeClass: e.sizeClass ?? null };
     requestSave();
@@ -901,7 +955,7 @@ export function createLoop(S) {
     if (ord) for (const l of lines) if (ord.fills.has(l.uid)) l.order = true;
     // the bag comes home (tallyBook); a fitted ball with none left comes off the slot (a fit needs one in the bag)
     if (typeof L.fitted?.bait === 'string' && !(int(L.bait?.[r.zone]?.[L.fitted.bait]) > 0)) L.fitted.bait = null;
-    L.lastTrip = { id: r.id ?? null, evening: int(r.evening) || L.evenings, zone: r.zone ?? null, total, lines, seen: false };
+    L.lastTrip = { id: r.id ?? null, evening: int(r.evening) || L.evenings, zone: r.zone ?? null, total, lines, seen: false, ...(flags(r).capLost ? { away: true } : {}) };
     if (ord) { L.orders = ord.orders; try { refillOrders(D(), L, { listFor }); } catch (e) { report('refillOrders', e); } }   // new at each visit home
     r.creel = [];
     try { S.pending?.clear?.(); } catch { /* optional */ }

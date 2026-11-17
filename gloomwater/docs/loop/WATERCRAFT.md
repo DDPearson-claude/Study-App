@@ -303,7 +303,10 @@ every pool the game can draw has S > 0 (a fail check, §8.3; measured on the tab
   Perch, the Kissmark Trout, the Thousandcast Pike, the Hullkiss Lamprey: grade 0). A fresh save meets them by doing what
   Murk already tells it ("Small ones make good bait. Hold Let go.", LANE 4's `TEXT_LOOP.murk.firstSmall`): Cut Strip, free,
   is the right bait for every hunter. So the user's own example reads true both ways: take the worm off and the pike still
-  does not come; put a strip of fish on and it does.
+  does not come; put a strip of fish on and it does. *(GEAR-GATES.md §2.2–§3, 17 Nov 2026: the bare hook now brings the seven
+  commons only (carp, koi and the Bridgechain 1 → 0), waits ×2.5 and lands up to Keeper; Cut Strip is the right bait for the
+  Reedjaw Pike, the Milkeye Perch and the Kissmark Trout but no longer for the two giants, who need a bought lure; the Bent Spoon
+  is a ninth column.)*
 - **A bait-only fish** (the Gloam Eel) still needs its bait to be in the pool at all (as built, `placePool`'s `s.bait`, and
   as a gate before any pre-roll takes, §3.6); with its bait on, the table grades it as any fish.
 - **The legend** is outside the table: her sure bite is her own rule (SPEC §3.5), and no other fish takes her bait.
@@ -725,7 +728,9 @@ The line goes slack and the float pops up and settles; a splash and a wake sized
 the cause's sound (a snap, a thrown hook's flick, the slurp of a fish pulling free); for a Trophy or bigger the low "got
 away" sting (built, by class); the shape bolts and fades. **No note, no toast, no card, no name, no species art, no class
 word or glyph, no weight, no size word, no place line, no cause line, no hint, no link, no mark on the Chart.** The sound and
-the water tell heft, as a real line does: something heavy or light went; that is all.
+the water tell heft, as a real line does: something heavy or light went; that is all. *(GEAR-GATES.md §4.3, the one exception: a
+fish lost over the gear's size cap shows one line in the "Hook set" slot that names the gear, never the fish, e.g. "Too heavy for
+your line.", and Murk says once at home "Lost a big one? Better gear holds them.")*
 
 ### 7.2 Every place that told, and what it does now (on a trip, and on the Chart under the loop; the flag-off game unchanged)
 

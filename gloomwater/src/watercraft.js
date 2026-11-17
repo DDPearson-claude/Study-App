@@ -19,16 +19,18 @@
 //   drawOdds(odds, r)            one draw over castOdds' entries with r in [0, 1)
 //   openMix(D, {light, …, rb})   the blind caster's open-water mix at one hour, with the rarity bonus (the sheet's Odds, SHEET.md §7.3)
 //   bitesTable(D, {lure, bait})  the gear log's Who bites: each fish's share of the blind open-water bites over an evening, beside the bare hook's
+//   gearCap(D, fishId, kit)      GEAR-GATES.md §4.1: the largest class this hook and line land of a fish ({cls, z, by}, or null: no cap)
 
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
 const arr = (v) => (Array.isArray(v) ? v : []);
 const LIGHTS = ['day', 'dusk', 'night'];
 export const AREAS = ['margin', 'reeds', 'pads', 'stones', 'dropoff', 'lane', 'open', 'deep', 'inflow', 'outflow'];
-/** The five hunters: never a bare hook past 1 in 100 (§3.3); Cut Strip is the right bait for each. */
+/** The five hunters: never a bare hook past 1 in 100 (§3.3); Cut Strip is the right bait for the first three (the giants need a bought
+ *  lure since GEAR-GATES.md §3). */
 export const HUNTERS = ['reedjaw_pike', 'milkeye_perch', 'kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'];
-/** The hook's items, in the gear log's order (the bare hook first). */
-export const HOOK_ITEMS = ['bare', 'mireworm', 'lumen_moss', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner'];
-export const LURE_IDS = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner'];
+/** The hook's items, in the gear log's order (the bare hook first; the start kit's Bent Spoon, GEAR-GATES.md §2.1, last). */
+export const HOOK_ITEMS = ['bare', 'mireworm', 'lumen_moss', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner', 'bent_spoon'];
+export const LURE_IDS = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner', 'bent_spoon'];
 export const BAIT_IDS = ['mireworm', 'lumen_moss', 'cut_strip'];
 
 // the raw weights (§2.4), columns in AREAS' order: margin, reeds, pads, stones, dropoff, lane, open, deep, inflow, outflow
@@ -48,26 +50,29 @@ const RAW_ROWS = {
 };
 const rowOf = (cells) => Object.fromEntries(AREAS.map((a, i) => [a, cells[i]]));
 
-// the hook table (§3.2), columns: bare, mireworm, lumen_moss, cut_strip, feather_fly, glimmer_spoon, bone_jig, bell_spinner.
+// the hook table (§3.2), columns: bare, mireworm, lumen_moss, cut_strip, feather_fly, glimmer_spoon, bone_jig, bell_spinner, bent_spoon.
 // Grades: 0 won't take it (a stray) · 1 takes it · 2 likes it · 3 the right bait · null not in the table
+// (GEAR-GATES.md §2–§3, the user's ask of 17 Nov 2026: the Bent Spoon's column; the bare hook brings the seven commons only (carp, koi and
+// the Bridgechain 1 → 0); both giants need a bought lure (their Cut Strip 3 → 0); the Spinner is the lamprey's right lure (2 → 3); the
+// worm is the crayfish's right bait (2 → 3), so its top classes stay earnable under the size caps)
 const HOOK_ROWS = {
-  dusk_minnow:          [1, 3, 2, 0, 2, 0, 0, 0],
-  mossback_perch:       [1, 3, 0, 2, 1, 2, 3, 2],
-  gutter_crayfish:      [1, 2, 1, 3, 0, 0, 0, 0],
-  likely_chub:          [1, 2, 2, 2, 3, 1, 1, 2],
-  overbold_bass:        [1, 2, 0, 2, 2, 2, 3, 2],
-  rustfin_sucker:       [1, 3, 1, 0, 0, 0, 0, 0],
-  lampsipper:           [1, 1, 2, 0, 3, 0, 0, 0],
-  weeping_carp:         [1, 2, 3, 0, 0, 0, 0, 0],
-  candlefin_koi:        [1, 1, 3, 0, 1, 0, 0, 0],
-  milkeye_perch:        [0, 1, 0, 3, 0, 2, 3, 1],
-  kissmark_trout:       [0, 1, 0, 2, 2, 3, 2, 2],
-  reedjaw_pike:         [0, 0, 0, 3, 0, 3, 2, 3],
-  bridgechain_sturgeon: [1, 3, 0, 3, 0, 0, 0, 0],
-  thousandcast_pike:    [0, 0, 0, 3, 0, 2, 2, 3],
-  hullkiss_lamprey:     [0, 0, 0, 3, 0, 1, 0, 2],
-  gloam_eel:            [null, 0, 3, 0, 0, 0, 0, 0],
-  belled_matriarch:     [null, null, null, null, null, null, null, null],
+  dusk_minnow:          [1, 3, 2, 0, 2, 0, 0, 0, 0],
+  mossback_perch:       [1, 3, 0, 2, 1, 2, 3, 2, 2],
+  gutter_crayfish:      [1, 3, 1, 3, 0, 0, 0, 0, 0],
+  likely_chub:          [1, 2, 2, 2, 3, 1, 1, 2, 1],
+  overbold_bass:        [1, 2, 0, 2, 2, 2, 3, 2, 2],
+  rustfin_sucker:       [1, 3, 1, 0, 0, 0, 0, 0, 0],
+  lampsipper:           [1, 1, 2, 0, 3, 0, 0, 0, 0],
+  weeping_carp:         [0, 2, 3, 0, 0, 0, 0, 0, 0],
+  candlefin_koi:        [0, 1, 3, 0, 1, 0, 0, 0, 0],
+  milkeye_perch:        [0, 1, 0, 3, 0, 2, 3, 1, 1],
+  kissmark_trout:       [0, 1, 0, 2, 2, 3, 2, 2, 1],
+  reedjaw_pike:         [0, 0, 0, 3, 0, 3, 2, 3, 0],
+  bridgechain_sturgeon: [0, 3, 0, 3, 0, 0, 0, 0, 0],
+  thousandcast_pike:    [0, 0, 0, 0, 0, 2, 2, 3, 0],
+  hullkiss_lamprey:     [0, 0, 0, 0, 0, 1, 0, 3, 0],
+  gloam_eel:            [null, 0, 3, 0, 0, 0, 0, 0, 0],
+  belled_matriarch:     [null, null, null, null, null, null, null, null, null],
 };
 const hookRow = (cells) => Object.fromEntries(HOOK_ITEMS.map((id, i) => [id, cells[i]]));
 
@@ -597,4 +602,35 @@ export function bitesTable(D, { lure = null, bait = null } = {}) {
   const on = eveningMix(D, { lure, bait }), bare = eveningMix(D, {});
   const ids = [...new Set([...Object.keys(on), ...Object.keys(bare)])];
   return ids.map((id) => ({ id, share: on[id] || 0, bare: bare[id] || 0 })).sort((a, b) => b.share - a.share || b.bare - a.bare || (a.id < b.id ? -1 : 1));
+}
+
+// ---------------------------------------------------------------- the gear's size cap (GEAR-GATES.md §4.1; the user, 17 Nov 2026)
+const CAP_ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
+/**
+ * The largest class this hook and line land of a fish: the lowest of three terms, D.LOOP.gearCap's: by its grade on the hook (a stray
+ * 'keeper' · takes it · likes it · the right bait), the free hooks' own ceiling (`item`: the bare hook, the Bent Spoon, Cut Strip) and the
+ * line's (`line`, by tier: Twine · Line T1 · T2 and up). kit {lure, bait, line} (one thing on the hook, as gradeOf reads it; a bait id the
+ * table does not know is a bare hook). → {cls, z (BALANCE_V3.size.classMaxZ[cls]), by: 'item' | 'line' | 'grade' (ties in that order)},
+ * or null: no D.LOOP.gearCap, a fish with no row (another water's), or a null grade (the legend). capZ still applies on top (Elders stay
+ * old water's and a giant's own place's).
+ */
+export function gearCap(D, fishId, { lure = null, bait = null, line = 0 } = {}) {
+  const G = D?.LOOP?.gearCap;
+  if (!G) return null;
+  const g = gradeOf(fishId, { lure, bait });
+  if (g === undefined || g === null) return null;
+  const row = W.hook.table[fishId];
+  const item = lure && lure !== 'bare' && Object.prototype.hasOwnProperty.call(row, lure) ? lure : baitCol(row, bait);
+  const lines = arr(G.line), t = Math.max(0, Math.min(lines.length - 1, Math.trunc(num(line, 0))));
+  const terms = [['item', G.item?.[item] ?? null], ['line', lines[t] ?? null], ['grade', g === 0 ? 'keeper' : arr(G.grade)[g] ?? null]];
+  let best = null;
+  for (const [by, cls] of terms) {
+    const i = CAP_ORDER.indexOf(cls);
+    if (i < 0) continue;
+    if (!best || i < best.i) best = { by, cls, i };
+  }
+  if (!best) return null;
+  const top = D?.BALANCE_V3?.size?.classMaxZ || {};
+  const z = best.cls === 'elder' ? num(D?.BALANCE_V3?.size?.z?.max, num(top.elder, 3.6)) : num(top[best.cls], Infinity);
+  return { cls: best.cls, z, by: best.by };
 }

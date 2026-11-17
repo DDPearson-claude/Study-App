@@ -376,3 +376,49 @@ Still failing with this design (fixes noted):
 1. The got-away line on a cap loss: **yes** (default) / no, only the splash and Murk's once-line.
 2. Gate the Hullkiss Lamprey behind a bought lure (**yes**, default; the Buoy Lights pays less) / keep it on Cut Strip up to Prize.
 3. Tins at 20 (**yes**, default) / back to 10 (the shelf would end about 3% sooner).
+
+---
+
+## 9. Built (gw-gear, 17 November 2026)
+
+Built item by item as §7 lists it, on 4049c61 with this document merged. Where the build differs from the text above:
+
+- **Tins stay 20, not 40.** The game's shelf already prices a tin at Murk's factor (20 at ×2: `shelfItems` doubles every card), so
+  `LOOP.baitRule.grade` stays 1.5; raising it to 3 would have made a tin 40. The sim now prices a tin at the factor on M1 (`tinK`),
+  which is what §6's "tins at 20" measured. Question 3 is then already answered as built.
+- **The line's cause is `snapped`**, the play's own key (`AUTOFISH.loss`); `thrown` otherwise, as §4.2 says.
+- **No lure mesh exists** (a cast shows the float only), so the Bent Spoon has no model to dull; its glyph and engraving are the
+  spoon's.
+- **The Heartmoss Ball away from her pool is a bare hook** for the cap, the favour and the wait (fishing's rule for every fish but
+  her); at her pool her cast is a legend's and none of the three applies.
+- **A cap loss spends its bite**, as any lost fish does in the game (the scratch patch had refunded it). The sim does not model
+  evening 1's soft cap (it measures kits, not one evening).
+- The got-away line is ui-hud-v3's `showGearAway` (2.5 s, italic 21 px, 19 px on a phone, clamped 16 px inside the screen's sides);
+  Murk's `firstAway` follows the first sale (or comes alone after an empty hold); the Journal's line is `progression-loop.gateLine`.
+
+Measured (`clams.mjs --shipped=mossmere`, full, ×2; `--wicks --quick`), beside §6's scratch figures:
+
+| | §6 (scratch) | built |
+|---|---|---|
+| first buy | Line T1, trip 3, 8 min | Line T1, trip 3, 8 min |
+| bought by 10 min / 1 h | 1 / 7 | 1 / 7 |
+| Glimmer Spoon · Bone Jig · Feather Fly · Spinner | 78 · 103 · 115 · 127 min | 75 · 100 · 112 · 124 min |
+| the empty shelf: blind · reader · stalker-reader | 5.28 · 4.65 · 4.67 h | **5.26 · 4.56 · 4.60 h** |
+| longest wait · first giant · trips | 37 min · 2.3 h · ≤ 4.8 min | 37 min (Hold 6) · 2.3 h · ≤ 4.5 min |
+| the list p95 / p99 | 44 / 52 min | 45 / 53 min |
+| place maps a minute | +28 / +20 / +7.2% | +26.5 / +19.1 / +5.9% |
+| per Wick | 4.44–4.88 h (mean 4.66) | 4.40–4.88 h (mean 4.62), each within ±10% |
+| cap losses per hooked fish (Hold 3): bare · worms · Bent Spoon · strip · worms on T1 | 14 · 11 · 19 · 11 · 5% | 14 · 10 · 19 · 12 · 5% |
+
+Still failing, as §6 foresaw: the Hold steps (Hold 4 −6.9% a minute when bought; the user's prices); per Wick, Taper 4.40 h and
+Ashwick 4.45 h just under 4.5, the first buy after trip 2 for the Wick, Taper, Tallow and Ashwick, and the Buoy Lights +2.2–2.8% for
+Taper, Stub and Ashwick. The tin check's band is now "earns ≥ 1.3× its price" (3.8×). Tests: `tools/tests/gear-gates.test.mjs`
+(GG1–GG9), with the hook-table, sheet, lost-fish and evening suites updated where the start kit or the cells changed what they read;
+`validate-data --loop` checks the caps' totality, the start kit and "the bare hook takes the commons alone".
+
+Browser (`loop-1a.scenario.mjs` main pass, a dev build, desktop 960×540 and `--mobile` 820×900): the first trip sails with the
+worms on the hook (the tin reads 10, then 9, 7); on evening 2 a Trophy perch on worms and Twine hooks and gets away with "Too heavy
+for your line." in the strike word's slot, one line, inside the screen and clear of the tackle tin, nothing lost from the hold; the
+Journal's Dusk Minnow page reads "Lands up to Prize." under its class. The runs' other failures are older than this build: the goal
+line expects PLAN §0's "Hold 4" where the shelf's cheapest card is now Ashwood at 100 (Hold 4 is 400), and at 820 px `--mobile` the
+New Descent cards are the desktop row (T59's phone grid is for narrower screens).

@@ -509,6 +509,23 @@ if (process.argv.includes('--loop')) {
       pools++; if (o.S < minS) { minS = o.S; at = `${where.place ?? where.area}, ${ph}, ${[h.lure, h.bait].filter(Boolean).join('+') || 'bare'}`; }
     }
     ok4(minS > 0, `WC-1: every pool the game can draw has a taker (${pools} pools; smallest S ${minS.toFixed(2)}, ${at})`);
+    // GEAR-GATES (§4.1, test GG2): the gear's size caps are whole: every Mossmere fish but the legend reaches the top class it can be
+    // sealed at (data.sealsFor) on some M1 hook that takes it, on Line T2; the start kit owns real ids; the bare hook brings the commons alone
+    if (LP.gearCap) {
+      const ORD = ['small', 'keeper', 'prize', 'trophy', 'elder'], short = [];
+      for (const id of rows) {
+        const sp = L4.SPECIES.find((x) => x.id === id);
+        if (!sp || sp.rarity === 'legendary') continue;
+        const top = Math.max(1, ...(L4.sealsFor?.(sp) || []).map((c) => ORD.indexOf(c)));
+        const best = Math.max(-1, ...HOOKS.filter((h) => !(h.lure && h.bait) && (WC.gradeOf(id, h) ?? 0) >= 1).map((h) => ORD.indexOf(WC.gearCap(L4, id, { ...h, line: 2 })?.cls)));
+        if (best < top) short.push(`${id} ${ORD[best] ?? 'none'} < ${ORD[top]}`);
+      }
+      ok4(!short.length, `GEAR-GATES: every Mossmere fish reaches its top seal on some hook at Line T2${short.length ? ': ' + short.join(', ') : ''}`);
+      const ST = LP.start || {};
+      ok4((ST.lures || []).every((id) => LP.lures?.[id]?.start === true && L4.LURES.some((l) => l.id === id)) && Object.keys(ST.bait || {}).every((id) => (LP.tins?.mossmere || []).includes(id)) && (!ST.fit || (ST.bait || {})[ST.fit] > 0),
+        `GEAR-GATES: the start kit's lures are LOOP.lures' start lures with LURES rows, its bait a tin, its fit in the bag (${[...(ST.lures || []), ...Object.keys(ST.bait || {})].join(', ')})`);
+      ok4(rows.every((id) => T[id].bare == null || (T[id].bare >= 1) === (L4.SPECIES.find((x) => x.id === id)?.rarity === 'common')), 'GEAR-GATES: the bare hook takes the commons and no other fish');
+    }
   }
   // <<< WC-1
   // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
