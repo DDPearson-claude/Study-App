@@ -2295,6 +2295,8 @@ cap read the bait at the cast, unchanged. (Answer 43's own line below carries th
 46. **After the tally: aboard at once?** **Default: yes**, an ink dip on Sold (the arrival shot stays under the tally). The other way: stay on the view from the water with its targets, and go aboard when you tap the barge.
 47. **The sky at home.** **Default: first light, held** (the clock stands still at home). The other way: while you sit on the bench the morning comes up slowly, and goes back to first light when you get up.
 
+**Answered by the user, 17 November 2026 ("Yes", and "a very small mini game ... with the clean strike being moderately difficult to hit"), built on `gw-strike`:** the strike gauge, under the loop only (data.js's strike-gauge apply block; the v3 tables keep their fingerprint): a thin filigree arc beside the float, an ink needle sweeping the window, one gold notch for Clean (`AUTOFISH.strike.notch` {at 0.22, width 0.2} of the window, the latency compensation kept) on the pale Struck band, Late after it, graded exactly as drawn; it replaces the ring aid (the setting kept, harmless). Clean sets the hook: +8 Hold (Struck +2), "Hook set" under the float (`TEXT_LOOP.hookSet`, also on a trip), a firmer splash, a heavier haptic and a doubled, lower tock; Taper's Sheet's Tackle section carries "Hook set: Hold +8" (`TEXT_LOOP.sheet.hookSet`).
+
 ---
 
 ## Appendix A. Every fish: where it bites and what it sells for

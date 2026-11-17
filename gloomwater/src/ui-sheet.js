@@ -110,6 +110,8 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
     head: T.tabs?.tackle || 'Tackle',
     rating: M.tackle?.rating ? AF.ratingLine(D, M.tackle.rating, { speciesName: nm(M.tackle.rating.reference) }) : '',
     plates: arr(M.tackle?.slots).map(slotPlate),
+    // what a Clean strike adds (the gauge's notch; CATCH_V3.strike.clean, never typed): one quiet line
+    hookSet: num(D?.CATCH_V3?.strike?.clean, 0) > 0 && TS.hookSet ? fill(TS.hookSet, { hold: num(D.CATCH_V3.strike.clean, 0) }) : '',
     hook: { lure: hookPlate('lure'), bait: hookPlate('bait'), lureChips: chips('lure'), baitChips: chips('bait'), canFit: !!hk.canFit, tipped: !!hk.tipped },
   };
   // ---- Raft and Home
@@ -254,6 +256,7 @@ const CSS = `
 .gw-sh-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border: 1px solid var(--cat-ink-2); border-radius: 2px; font: 400 16px/1.1 var(--f-body); }
 /* a plate */
 .gw-sh-rating { margin: 0 0 8px; font: italic 400 17px/1.3 var(--f-body); text-align: center; text-wrap: balance; }
+.gw-sh-hookset { margin: -2px 0 10px; font: italic 400 16px/1.3 var(--f-body); text-align: center; opacity: .78; }
 .gw-sh-plate { position: relative; display: grid; grid-template-columns: 120px 1fr; gap: 2px 14px; padding: 8px 0 10px; border-top: 1px solid rgba(38, 29, 44, .22); }
 .gw-sh-plate:first-of-type { border-top: none; }
 .gw-sh-art { grid-row: span 6; width: 120px; height: 90px; display: flex; align-items: center; justify-content: center; }
@@ -654,6 +657,7 @@ export function createSheetView(K) {
     // ---- Tackle
     const tk = sec('tackle', v.tackle.head);
     if (v.tackle.rating) { const r = document.createElement('p'); r.className = 'gw-sh-rating'; r.textContent = v.tackle.rating; tk.appendChild(r); }
+    if (v.tackle.hookSet) { const r = document.createElement('p'); r.className = 'gw-sh-hookset'; r.textContent = v.tackle.hookSet; tk.appendChild(r); }
     for (const p of v.tackle.plates) tk.appendChild(plateEl(p, { open: opened(p.key, s.from === 'rack') }));
     const hr = document.createElement('div'); hr.className = 'gw-sh-hookrow';
     for (const kind of ['lure', 'bait']) {

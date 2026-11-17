@@ -83,9 +83,10 @@ export const slotLevels = (slot) => D.BALANCE_V3.upgradeTiers.slots[slot].reduce
 // the strike model: reaction after the "!" ~ lognormal(median, σ) (AUTOFISH.strike.reaction), + input latency − its compensation
 const normCdf = (x) => { const t = 1 / (1 + 0.2316419 * Math.abs(x)), d = 0.3989423 * Math.exp(-x * x / 2), p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return x > 0 ? 1 - p : p; };
 export function strikeGrades(cls, who = 'novice', input = 'touch', latency = { touch: 0.075, mouse: 0.035, key: 0.02 }) {
-  const S = A.strike, win = S.window[cls], clean = Math.max(S.cleanMin, S.cleanFrac * win), [med, sg] = S.reaction[who];
+  // the gauge's Clean notch (AUTOFISH.strike.notch): from at·win to (at + width)·win; Struck is the rest of the window
+  const S = A.strike, win = S.window[cls], c0 = S.notch ? S.notch.at * win : 0, clean = S.notch ? c0 + S.notch.width * win : Math.max(S.cleanMin, S.cleanFrac * win), [med, sg] = S.reaction[who];
   const shift = (latency[input] ?? 0) - (S.latencyComp[input] ?? 0), P = (t) => (t <= 0 ? 0 : normCdf(Math.log(t / med) / sg));
-  const pc = P(clean - shift), ps = P(win - shift) - pc, pl = P(win + S.lateGrace - shift) - P(win - shift);
+  const pc = P(clean - shift) - P(c0 - shift), ps = P(win - shift) - pc, pl = P(win + S.lateGrace - shift) - P(win - shift);
   return { clean: pc, struck: ps, late: pl, passed: 1 - pc - ps - pl };
 }
 export function targets() {
@@ -151,7 +152,7 @@ export function targets() {
   chk(`the Lantern-Swallower on per-run gear: Rod T3 / Line T2 / Reel T3 ${G.perRunSwallower.R3L2E3.map((x) => x * 100).join('–')}%, T4 ≤ ${G.perRunSwallower.T4Max * 100}%`,
     swMixed >= G.perRunSwallower.R3L2E3[0] && swMixed <= G.perRunSwallower.R3L2E3[1] && swT4 <= G.perRunSwallower.T4Max, `${(swMixed * 100).toFixed(1)}% · T4 ${(swT4 * 100).toFixed(1)}% (first attempt, no wounds, the tier's relics)`);
   const nc = strikeGrades('small', 'novice', 'touch').clean;
-  chk(`a novice on a phone strikes Clean on ≥ ${G.noviceCleanSmall * 100}% of Small bites`, nc >= G.noviceCleanSmall, `${(nc * 100).toFixed(0)}% (median reaction ${A.strike.reaction.novice[0]} s; Clean part ${Math.max(A.strike.cleanMin, A.strike.cleanFrac * A.strike.window.small).toFixed(2)} s; touch latency compensated ${A.strike.latencyComp.touch} s)`);
+  chk(`a novice on a phone strikes Clean on ≥ ${G.noviceCleanSmall * 100}% of Small bites`, nc >= G.noviceCleanSmall, `${(nc * 100).toFixed(0)}% (median reaction ${A.strike.reaction.novice[0]} s; Clean ${A.strike.notch ? `notch ${(A.strike.notch.at * A.strike.window.small).toFixed(2)}–${((A.strike.notch.at + A.strike.notch.width) * A.strike.window.small).toFixed(2)}` : `part ${Math.max(A.strike.cleanMin, A.strike.cleanFrac * A.strike.window.small).toFixed(2)}`} s; touch latency compensated ${A.strike.latencyComp.touch} s)`);
   say('== Targets'); for (const r of res) say(r); say();
   return res;
 }

@@ -91,6 +91,17 @@ export function createHudV3(K, el, R, w) {
   // centred on the float itself (the "!" rides 40 px above it), so the ring visibly closes onto the float
   ringK.setAttribute('class', 'k'); ringK.setAttribute('cx', '35'); ringK.setAttribute('cy', '75'); ringK.setAttribute('r', '30');
   R.bite.querySelector('svg')?.appendChild(ringK);
+  // the strike gauge (the user's mini-game, 17 Nov 2026): a thin filigree arc beside the float, an ink needle sweeping it over the
+  // window (view.strikeGauge {t, win, from, to, end}); one narrow gold notch for Clean, the pale band for Struck, the hairline after it
+  // Late. fishing grades the tap exactly as drawn. No words: the grade's word comes after the tap.
+  const GA = (f, r = 56) => { const a = (210 + 120 * Math.max(0, Math.min(1, f))) * Math.PI / 180; return [60 + r * Math.cos(a), 70 + r * Math.sin(a)]; };
+  const arcD = (f0, f1, r = 56) => { const [x0, y0] = GA(f0, r), [x1, y1] = GA(f1, r); return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`; };
+  const gauge = h('div', 'gw-sgauge', `<svg viewBox="0 0 120 50" aria-hidden="true"><path class="gw-sg-track" d="${arcD(0, 1)}"/><path class="gw-sg-fil" d="${arcD(0, 1, 61)}"/>
+    <path class="gw-sg-fil" d="M11.5 42c-4.6 1.4-7.8-1.6-6.4-4.6 1-2.2 4-2.2 4.6-.2"/><path class="gw-sg-fil" d="M108.5 42c4.6 1.4 7.8-1.6 6.4-4.6-1-2.2-4-2.2-4.6-.2"/>
+    <path class="gw-sg-band"/><path class="gw-sg-notch"/><line class="gw-sg-nb"/><line class="gw-sg-n"/></svg>`);
+  R.fishui.appendChild(gauge);
+  const gBand = gauge.querySelector('.gw-sg-band'), gNotch = gauge.querySelector('.gw-sg-notch'), gNb = gauge.querySelector('.gw-sg-nb'), gN = gauge.querySelector('.gw-sg-n');
+  let gaugeKey = '';
   // the got-away note (DESIGN §25.6.7): a one-line ink toast (Small–Prize) …
   const away = h('button', 'gw-away', `<svg class="gw-away-wash" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-ink-edge)" d="M18 14 C150 4 450 4 584 16 C594 30 592 44 580 52 C440 62 160 62 20 52 C8 42 8 26 18 14 Z"/></svg><span class="gw-away-t"></span><i class="gw-away-go" aria-hidden="true">›</i>`);
   away.type = 'button';
@@ -461,6 +472,7 @@ export function createHudV3(K, el, R, w) {
     toggle(hurryEl, 'hurry', 'gw-on', hurry);
     toggle(play, 'play', 'gw-on', af && (st === 'reeling' || st === 'bite'));
     if (!af) return;
+    paintGauge(st, v);
     // the strike ring at the float while the bite is live (settings.strikeRing: always / first expedition / never)
     const S = settings();
     const r = run();
@@ -486,6 +498,29 @@ export function createHudV3(K, el, R, w) {
       toggle(R.bite, 'ring', 'gw-ring-clean', k < cleanK);
     }
   }
+  /** The strike gauge beside the float while the bite lives; it fades the moment the tap lands or the window ends. */
+  function paintGauge(st, v) {
+    const g = st === 'bite' && v.strikeGauge && num(v.strikeGauge.end) > 0 ? v.strikeGauge : null;
+    toggle(gauge, 'gauge', 'gw-on', !!g);
+    if (!g || !strikeAt.ok) return;
+    const end = num(g.end), key = `${num(g.win).toFixed(3)}|${num(g.from).toFixed(3)}|${num(g.to).toFixed(3)}|${end.toFixed(3)}`;
+    if (key !== gaugeKey) {
+      gaugeKey = key;
+      gBand.setAttribute('d', arcD(0, num(g.win) / end));
+      gNotch.setAttribute('d', arcD(num(g.from) / end, num(g.to) / end));
+    }
+    const f = Math.min(1, num(g.t) / end), [x0, y0] = GA(f, 47), [x1, y1] = GA(f, 64);
+    for (const ln of [gNb, gN]) { ln.setAttribute('x1', x0.toFixed(2)); ln.setAttribute('y1', y0.toFixed(2)); ln.setAttribute('x2', x1.toFixed(2)); ln.setAttribute('y2', y1.toFixed(2)); }
+    // beside the float (the "!" rides 40 px above it), to its right unless the edge is near; clear of the HUD's corners and the tin
+    const W = K.vw, H = K.vh, G = D().AUTOFISH?.strike?.gauge || {};
+    const w = num(G.px?.[W < 700 ? 'phone' : 'desktop'], W < 700 ? 96 : 112), hgt = w * 50 / 120, gap = num(G.gap, 34);
+    let x = strikeAt.x + gap;
+    if (x + w > W - 16) x = strikeAt.x - gap - w;
+    x = Math.max(16, Math.min(W - 16 - w, x));
+    const y = Math.max(96, Math.min(H - 200 - hgt, strikeAt.y - 40 - hgt / 2));
+    setStyle(gauge, 'gaugeT', 'transform', `translate3d(${x.toFixed(0)}px,${y.toFixed(0)}px,0)`);
+    setStyle(gauge, 'gaugeW', 'width', `${w}px`);
+  }
   const setAttr = (node, key, name, val) => { if (last(key) !== val) { lastSet(key, val); node.setAttribute(name, val); } };
 
   // ------------------------------------------------------------------ the strike word and its ring burst (DESIGN §25.6.4)
@@ -495,7 +530,7 @@ export function createHudV3(K, el, R, w) {
     const m = K.meta();
     m.seenTips = m.seenTips || {};
     const n = num(m.seenTips.ui_struck, 0);
-    const word = trip() ? null : AF.strikeWord(D(), grade, n);   // (a trip: the ring burst says it, no word)
+    const word = trip() && grade !== 'clean' ? null : AF.strikeWord(D(), grade, n);   // (a trip: the ring burst says it, no word; but "Hook set")
     if (grade === 'struck' && word) m.seenTips.ui_struck = n + 1;   // "Struck" is printed for the first 20 strikes, then the ring says it
     const W = K.vw, H = K.vh;
     // (WC-3: on a trip a strike whose float is not on screen bursts nowhere: the frame's middle is where the Wick sits, and a ring
@@ -619,7 +654,7 @@ export function createHudV3(K, el, R, w) {
     get cardUp() { return scT0 > 0; },
     /** a got-away note is on screen (the log lock lifts when it shows; ui.js tracks that from the bus) */
     get noteUp() { return nmT0 > 0 || awayT0 > 0; },
-    debug: () => ({ strike: strike.classList.contains('gw-on') ? { grade: strike.dataset.grade, word: strikeW.textContent } : null, estimate: clsShown || null, ring: ringOn,
+    debug: () => ({ strike: strike.classList.contains('gw-on') ? { grade: strike.dataset.grade, word: strikeW.textContent } : null, estimate: clsShown || null, ring: ringOn, gauge: gauge.classList.contains('gw-on'),
       note: nmT0 > 0 ? { mode: 'card', t: Math.round(nmT0 * 100) / 100, cls: nm.dataset.cls } : awayT0 > 0 ? { mode: 'toast', t: Math.round(awayT0 * 100) / 100, cls: away.dataset.cls } : null }),
     reset() { hitAt = -1e9; swarmSeen = false; nightKey = ''; favN = -1; favQuiet = null; favSig = ''; favPinned = false; favOpen = false; dotsLeft = -1; dotsMax = 0; favDots.innerHTML = ''; tellId = ''; clsShown = ''; estEl.className = 'gw-play-est'; estEl.innerHTML = ''; glimpsed = false; playSeen = false; strikeT = 0; strike.classList.remove('gw-on'); nmQ.length = 0; nmT0 = 0; nm.classList.remove('gw-on'); awayT0 = 0; away.classList.remove('gw-on'); scT0 = 0; sc.classList.remove('gw-on'); el.classList.remove('gw-sc-up'); },
     /** the clock's durations from survival (v3 phases: 210 / 20 / 90 / 10 on day 1) */

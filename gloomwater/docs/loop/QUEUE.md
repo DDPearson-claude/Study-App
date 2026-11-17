@@ -106,3 +106,4 @@ The merge review (15 November) found no regression a player would see; these are
 | Wick balancing in the sim | "each one has a powerful unique passive ability" | job 8 |
 | Slice 1a build (three slots on the built fish, the opening, the Chart) | — | job 9, the start of M1 |
 | Finish the Mossmere and the home base first (M1) | "What do we need to do to get map 1 and the home base fully 100% finished and playable" · "Yes" (15 November 2026) | jobs 5 and 9–14 |
+| The strike gauge: a small timing mini-game at the bite (a needle, a narrow gold Clean notch); Clean +8 Hold and a "Hook set" moment; the sheet's line | "Yes" · "give a very small mini game the play visually when striking with the clean strike being moderately difficult to hit" (17 November 2026) | built on `gw-strike` (SPEC §16) |

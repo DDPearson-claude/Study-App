@@ -587,7 +587,7 @@ section('the First Evening\'s seam: setTutorial takes waits and presentation onl
   const d = env.dbg();
   ok(d.waitDur >= 2.5 && d.waitDur <= 3.5 && d.events.length === 1, `the first tutorial cast: the bite at ${d.waitDur.toFixed(2)} s, one nibble`);
   for (let i = 0; i < 200 && env.F.state === 'waiting'; i++) env.tick(1);
-  ok(!!env.F.view.strikeRing, 'the strike ring shows during the tutorial');
+  ok(env.F.view.strikeRing === null && !!env.F.view.strikeGauge && env.F.view.strikeGauge.to > 0, 'the strike gauge (it replaced the ring) shows during the tutorial');
   env.tick(3); env.F.onPointerDown();
   ok(env.F.view.sizeClass === D.sizeClassOf(env.dbg().z), 'the estimate stamps on a tutorial Small / Keeper');
   env.F.setTutorial(null);

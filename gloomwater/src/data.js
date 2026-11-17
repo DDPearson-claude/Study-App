@@ -4956,6 +4956,7 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
 // >>> MVP teach (the user's play-test, 16 November 2026: "add a one-time teaching moment for both"): the float's two marks, each
 // explained once by an ink caption with a leader to it (src/ui-teach.js; ≤ 6 words, no number). The quiet water is Murk's firstQuiet.
 TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
+TEXT_LOOP.hookSet = 'Hook set';   // the word under the float on a Clean strike (the user's yes, 17 Nov 2026; SPEC §16)
 // <<< MVP teach
 
 // >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
@@ -5444,6 +5445,7 @@ TEXT_LOOP.sheet = {
     ashwick: 'Once, tired: +{hold} Hold when it bites again. Never a giant.',
   },
   cast: 'Casts {m} m · {n} longer to strike',   // ({n} is filled as a percentage)
+  hookSet: 'Hook set: Hold +{hold}',   // the Tackle section's quiet line: what a Clean strike adds (CATCH_V3.strike.clean, never typed)
   bigger: { predator: 'Bigger predators.', bottom: 'Bigger bottom feeders.' },
   giants: 'Giants ×{k}.', rarer: 'Rarer fish.', sooner: 'Bites sooner ×{k}.', good: 'Good bites',
   move: '{what} {from} → {to}', moveNext: '{what} {from} → {to} with this.',
@@ -5944,6 +5946,19 @@ if (V3_ENABLED) {
     const mi = SPECIES.findIndex((x) => x.id === 'belled_matriarch');
     if (mi >= 0) SPECIES[mi] = { ...v3clone(SPECIES[mi]), model: { ...SPECIES[mi].model, shape: 'catfish', whiskers: 2, head: 'shovel', tail: 'eel', bell: true } };
   }   // <<< M1 step 4 (lane 4)
+  if (LOOP_ENABLED) {   // >>> the strike gauge (the user's yes and mini-game, 17 Nov 2026; SPEC §16): under the loop only, so the v3
+    // tables keep their fingerprint. A Clean strike sets the hook: +8 Hold (Struck stays +2). An ink needle sweeps the window beside
+    // the float (ui-hud-v3's gauge); Clean only inside one narrow gold notch, from `at` of the window and `width` of it wide (moderately
+    // hard), Struck in the rest of the pale band, Late after it; the latency compensation stays. The gauge replaces the ring aid (its
+    // setting is kept, harmless). The economy's average player strikes Clean less often (the notch is narrower), worth twice as much.
+    CATCH_V3.strike = { ...CATCH_V3.strike, clean: 8 };
+    AUTOFISH.strike.notch = { at: 0.22, width: 0.2 };
+    AUTOFISH.strike.gauge = { px: { phone: 96, desktop: 112 }, gap: 34 };   // the gauge's width beside the float and its gap (screen px)
+    AUTOFISH.strike.haptic = { ...AUTOFISH.strike.haptic, clean: [28, 30, 40] };   // "Hook set": a heavier buzz than Struck's [15]
+    AUTOFISH.text.hookSet = TEXT_LOOP.hookSet;
+    AUTOFISH.player.strike = { clean: 0.2, struck: 0.65, early: 0.075, late: 0.075 };
+    CATCH_V3.targets.noviceCleanSmall = 0.08;   // by reaction alone; timing the needle does better (the user's moderately hard Clean)
+  }   // <<< the strike gauge
   if (LOOP_ENABLED) {   // >>> the Wick's sheet (SHEET.md §8.1, SPEC decision 108): on the Mossmere under the loop a tin's or lure's Hold helps
     // the fish that like it or better (WATERCRAFT.md §3.7: watercraft.gradeTargets), as the sim's itemHold and WC-3's gear line already
     // say. A loop-only data patch: catchItemHold's text is untouched (the v3 fingerprint hashes it); `species` is read before `family`,

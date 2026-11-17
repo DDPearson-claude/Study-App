@@ -72,7 +72,7 @@ export function logLocked({ af = false, state = 'idle', awaitingNote = false, ca
 export function strikeWord(D, grade, n = 0) {
   const words = T(D).strike || {};
   const word = words[grade] || CLASS_LABEL[grade] || cap(grade);
-  if (grade === 'clean') return { text: word, grade, tone: 'clean' };
+  if (grade === 'clean') return { text: T(D).hookSet || word, grade, tone: 'clean' };   // (under the loop "Hook set", the user's moment, 17 Nov 2026)
   if (grade === 'struck') return num(n) < num(D?.AUTOFISH?.strike?.showStruckWord, 20) ? { text: word, grade, tone: 'struck' } : null;
   if (grade === 'early' || grade === 'late') return { text: word, grade, tone: 'dim' };
   return null;
@@ -86,15 +86,17 @@ export function strikeRingOn(setting, { firstExpedition = false, firstEvening = 
   if (s === 'always') return true;
   return !!(firstExpedition || firstEvening || tutorial);
 }
-/** The window after the "!" by size class (× the strike-window multiplier the player's Rod, Boons and relics give), clamped, and its
- *  Clean part (the first 40%, at least 0.3 s). Never by species. Returns {dur, clean, cleanK}. */
+/** The window after the "!" by size class (× the strike-window multiplier the player's Rod, Boons and relics give), clamped, and the
+ *  gauge's Clean notch (AUTOFISH.strike.notch: from `at` of the window, `width` wide). Never by species. Returns {dur, from, clean
+ *  (the notch's end, s), cleanK}. */
 export function strikeTiming(D, cls, mult = 1) {
   const S = D?.AUTOFISH?.strike || {};
   const base = num(S.window?.[cls], num(S.window?.keeper, 0.7));
   const [lo, hi] = arr(S.clamp).length === 2 ? S.clamp : [0.35, 1.4];
   const dur = Math.max(lo, Math.min(hi, base * Math.max(0.1, num(mult, 1))));
-  const clean = Math.min(dur, Math.max(dur * num(S.cleanFrac, 0.4), num(S.cleanMin, 0.3)));
-  return { dur, clean, cleanK: dur > 0 ? clean / dur : 0.4 };
+  const N = S.notch, from = N ? Math.max(0, Math.min(1, num(N.at, 0.22))) * dur : 0;
+  const clean = Math.min(dur, N ? from + Math.max(0.02, Math.min(1, num(N.width, 0.2))) * dur : Math.max(dur * num(S.cleanFrac, 0.4), num(S.cleanMin, 0.3)));
+  return { dur, from, clean, cleanK: dur > 0 ? clean / dur : 0.4 };
 }
 
 // ------------------------------------------------------------------ words for a fish

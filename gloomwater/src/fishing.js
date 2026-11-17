@@ -81,7 +81,7 @@
 //       tell (or 0.3 s before the "!" when the tell is shorter) Early, inside the Clean part (40%, ≥ 0.3 s) Clean, the rest Struck,
 //       up to 0.3 s after Late, no tap → passed (refund, favour +0.15); a tap during the nibbles is 'spooked'. Nibble counts,
 //       times and feints never depend on the species or its rarity. fishing:strike {grade, sizeClass}, fishing:hook {grade,
-//       perfect, sizeClass}. The strike ring (meta.settings.strikeRing) closes on the float over the window.
+//       perfect, sizeClass}. The strike gauge (view.strikeGauge) sweeps the window beside the float.
 //   F2′ the automatic play: at the strike p = data.catchChance(the fish that bit, its class, the loadout ON THE LINE AT THE CAST
 //       (progression.getLoadout, else per-run upgradeHold / fitted tiers), {strike, buffs: progression.getCatchBuffs, wounds,
 //       landings, lake, night, perRun}); then always [planSeed, u, causeU, momentU] (fishing-play.drawStrike); the plan
@@ -145,7 +145,7 @@ export function create(ctx) {
     show: null,       // the show (CONTRACT §13.7b): {phase: 'reveal'|'lift'|'hold'|'pause'|'card', cls, pose, t, poseT, dur, hurried, protected, swarm, …}; view.measure stays null
     estimate: null,   // v3: the class estimate {sizeClass, length (cm, the class length)} once stamped (first Prize+ glimpse, the Small skitter)
     // automatic fishing (CONTRACT §13.7a): the strike grade and the play's presentation (class, z and the fitted tackle only)
-    strike: null, play: null, strikeRing: null,
+    strike: null, play: null, strikeRing: null, strikeGauge: null,
   };
 
   // ---------------------------------------------------------------- internal state
@@ -751,7 +751,7 @@ export function create(ctx) {
     view.phaseName = ''; view.legendary = false; view.enraged = false; view.tell = null; view.anchoring = false;
     view.holding = false; view.lightMult = 1; view.snapAt = 1; view.inSpot = false;
     view.favour = null; view.sizeClass = null; view.ancient = false; view.pips = null; view.biteTell = null; view.slip = 0; view.place = null;
-    view.estimate = null; view.strike = null; view.play = null; view.strikeRing = null;
+    view.estimate = null; view.strike = null; view.play = null; view.strikeRing = null; view.strikeGauge = null;
     S.cast = null; S.tell = null;
   }
 
@@ -1350,7 +1350,11 @@ export function create(ctx) {
         * num(pl?.hookWindowMult, 1) + num(pl?.hookWindowAdd, 0);
       if (sp.rarity === 'legendary' && legendState(sp.id).wounds > 0) win += num(L.windowBonus, 0.1);
       S.window = clamp(win, num(A.clamp?.[0], 0.35), num(A.clamp?.[1], 1.4));
-      S.cleanPart = Math.min(S.window, Math.max(num(A.cleanMin, 0.3), num(A.cleanFrac, 0.4) * S.window));
+      // the gauge's notch (AUTOFISH.strike.notch): Clean only from cleanFrom to cleanPart, a little after the "!"
+      // (no notch, the flag-off tables: the first 40%, ≥ 0.3 s, as built)
+      const N = A.notch;
+      S.cleanFrom = N ? clamp(num(N.at, 0.22), 0, 1) * S.window : 0;
+      S.cleanPart = Math.min(S.window, N ? S.cleanFrom + clamp(num(N.width, 0.2), 0.02, 1) * S.window : Math.max(num(A.cleanMin, 0.3), num(A.cleanFrac, 0.4) * S.window));
     }
     const x = V.bob.x, z = V.bob.z;
     call(() => ctx.water?.splash?.(x, z, { size: v3 ? 0.5 + 0.12 * Math.max(0, classIndex(S.sizeClass) - 1) : 0.5, count: 12 }));
@@ -1373,11 +1377,9 @@ export function create(ctx) {
       } else
       emit('fishing:bite', withLegend({ sizeClass: shownClass(), biteTell: S.tell }));   // no species (F17)
       haptic(AF().strike?.haptic?.bite?.[afClass() === 'legend' ? 'elder' : afClass()]);
-      if (strikeRingOn()) {   // the strike ring: a thin ink ring closing on the float over the window, its Clean part brighter (timing only)
-        fx.pulse(x, z, { color: 0xc9c3e6, r0: 1.8, r1: 0.22, duration: S.window, width: 0.035, alpha: 0.7 });
-        fx.pulse(x, z, { color: 0xfff1cf, r0: 1.8, r1: 1.8 - 1.58 * (S.cleanPart / S.window), duration: S.cleanPart, width: 0.05, alpha: 1 });
-        view.strikeRing = { window: S.window, clean: S.cleanPart };
-      } else view.strikeRing = null;
+      // the strike gauge (ui draws it beside the float): the needle's sweep is the window, graded as drawn (strikeTap)
+      view.strikeRing = null;   // (the old ring aid: replaced by the gauge; the setting is kept, harmless)
+      view.strikeGauge = gaugeView();
       return;
     }
     emit('fishing:bite', v3 ? { speciesId: sp.id, sizeClass: S.sizeClass, biteTell: S.tell } : { speciesId: sp.id });
@@ -1552,15 +1554,9 @@ export function create(ctx) {
     const landings = Array.isArray(meta.records?.legendGrowth?.[id]) ? meta.records.legendGrowth[id].length : 0;
     return { wounds, landings };
   }
-  /** The strike ring (AUTOFISH.strike.ring; meta.settings.strikeRing): on during the first outing (and the First Evening), then by setting. */
-  function strikeRingOn() {
-    if (S.tutorial?.strikeRing) return true;
-    const set = ctx.state?.meta?.settings?.strikeRing ?? AF().strike?.ring?.default ?? 'firstExpedition';
-    if (set === 'always') return true;
-    if (set === 'never') return false;
-    const r = run(), meta = ctx.state?.meta || {};
-    if (LOOP()) return num(r?.evening, 1) <= 1;   // the loop: the first evening (meta.runs is never written on a trip, PLAN CHOICE 3)
-    return r?.outing === 'first' || num(meta.expeditions, NaN) <= 1 || num(meta.runs, 0) <= 1;
+  /** The strike gauge's view: the needle's time, the window, the notch and the end of the late grace (s). */
+  function gaugeView() {
+    return { t: Math.max(0, S.stateT), win: S.window, from: S.cleanFrom, to: S.cleanPart, end: S.window + num(AF().strike?.lateGrace, 0.3) };
   }
   /** Hurry (Small / Keeper, from the 2nd run): a hold speeds the play to the same outcome. */
   function hurryAllowed() {
@@ -1596,7 +1592,8 @@ export function create(ctx) {
       spook();
       return true;
     }
-    if (state === 'bite') { hookAF(t < 0 ? 'early' : t <= S.cleanPart ? 'clean' : t <= S.window ? 'struck' : 'late', input); return true; }
+    // graded as the gauge draws it: Clean only inside the notch, Struck in the rest of the band, Late after it
+    if (state === 'bite') { hookAF(t < 0 ? 'early' : t >= num(S.cleanFrom, 0) && t <= S.cleanPart ? 'clean' : t <= S.window ? 'struck' : 'late', input); return true; }
     return false;
   }
   /** A tap during the nibbles: the fish felt it ('spooked'); the cast ends, the bait is spent, no favour is carried. */
@@ -1616,8 +1613,9 @@ export function create(ctx) {
   /** The strike's water and float (≤ 0.6 s, readable with the sound off): the word under the float is ui's (fishing:strike). */
   function strikeFx(grade) {
     const x = V.bob.x, z = V.bob.z;
-    if (grade === 'clean') {
+    if (grade === 'clean') {   // "Hook set": a firmer splash, a second ring, a heavier haptic (AUTOFISH.strike.haptic.clean)
       fx.pulse(x, z, { color: 0xf3eedf, r0: 0.15, r1: 1.7, duration: 0.5, width: 0.07, alpha: 1 });
+      fx.pulse(x, z, { color: 0xf0d79a, r0: 0.1, r1: 1.1, duration: 0.35, width: 0.09, alpha: 0.9 });
       fx.burst(x, 0.25, z, { color: 0xf0d79a, color2: 0xfff6e0, count: 16, spread: 1.8, up: 2.6, gravity: 5, size: 0.06, life: 0.7 });
     } else if (grade === 'struck') {
       fx.pulse(x, z, { color: 0xe9e2cf, r0: 0.15, r1: 1.3, duration: 0.5, width: 0.06, alpha: 0.85 });
@@ -1626,7 +1624,8 @@ export function create(ctx) {
     } else {
       fx.pulse(x, z, { color: 0x9d98bf, r0: 0.3, r1: 1.0, duration: 0.6, width: 0.05, alpha: 0.5 });
     }
-    call(() => ctx.water?.splash?.(x, z, { size: 0.45 + 0.25 * S.fishLen, count: grade === 'clean' ? 16 : 10 }));
+    call(() => ctx.water?.splash?.(x, z, { size: (grade === 'clean' ? 0.7 : 0.45) + 0.25 * S.fishLen, count: grade === 'clean' ? 26 : 10 }));
+    if (grade === 'clean') call(() => ctx.water?.addRipple?.(x, z, 1.6));
     haptic(AF().strike?.haptic?.[grade]);
   }
   /** The strike: graded, the one roll (p from the fish that bit), the four draws, the plan, the play begins. */
@@ -1681,7 +1680,7 @@ export function create(ctx) {
     if (V.lineDir.lengthSq() < 1e-4) V.lineDir.set(0, 0, -1); else V.lineDir.normalize();
     S.veiled = false;
     view.speciesId = legendary ? sp.id : null; view.rarity = legendary ? sp.rarity : null; view.legendary = legendary;
-    view.favour = null; view.biteTell = null; view.pips = null; view.strike = grade; view.strikeRing = null;
+    view.favour = null; view.biteTell = null; view.pips = null; view.strike = grade; view.strikeRing = null; view.strikeGauge = null;
     view.sizeClass = null; view.ancient = false; view.estimate = null;
     spawnHookedAF(sp);
     if (S.find) S.fishLen = Math.max(0.15, num((d.LOOP?.finds?.items || []).find((x) => x.id === S.find)?.size, 0.3));   // (5c: the dark shape at its size)
@@ -4265,6 +4264,7 @@ export function create(ctx) {
     if (lineBroken()) { cancel('moved'); return; }
     if (afOn()) {
       view.biteWindow = clamp(1 - S.stateT / Math.max(0.05, S.window), 0, 1);
+      view.strikeGauge = gaugeView();
       const h0 = waterH(V.bob.x, V.bob.z);
       V.tmp.set(V.bob.x, h0 - num(BAL('bite').plunge, 0.25), V.bob.z);
       aBob(true, V.tmp, 'bite');
@@ -4273,7 +4273,7 @@ export function create(ctx) {
         const refunded = letItPass();
         emit('fishing:miss', { reason: 'passed', refunded, favour: S.letPass?.value ?? 0, lingers: false });
         call(() => ctx.water?.addRipple?.(V.bob.x, V.bob.z, 0.5));
-        view.strikeRing = null;
+        view.strikeRing = null; view.strikeGauge = null;
         toLost(num(BAL('cast').reelInTime, 0.6));
       }
       return;
@@ -4695,7 +4695,7 @@ export function create(ctx) {
           prerollTook: !!S.prerollTook, chum: S.chumArmed, signs: S.signs.length, ceremony: !!S.show && S.show.phase !== 'reveal', show: S.show ? S.show.phase : null,
           // automatic fishing (hidden state: debug builds only)
           af: afOn(), grade: S.grade, p: S.p, outcome: S.outcome, playT: S.playT, playCls: S.playCls, plan: !!S.plan, loss: S.loss ? { ...S.loss } : null,
-          castItem: S.castItem, castLoadout: S.castLoadout ? JSON.parse(JSON.stringify(S.castLoadout)) : null, window: S.window, cleanPart: S.cleanPart,
+          castItem: S.castItem, castLoadout: S.castLoadout ? JSON.parse(JSON.stringify(S.castLoadout)) : null, window: S.window, cleanFrom: S.cleanFrom, cleanPart: S.cleanPart,
           tellTotal: S.tellTotal ?? null, waitDur: S.waitDur, lostInfo: S.lostInfo ? { cause: S.lostInfo.cause, noteSent: !!S.noteSent } : null, tutorial: S.tutorial ? { ...S.tutorial } : null }),
         fishFx: () => fx,   // the fx object (tests wrap its methods to trace every call)
       });

@@ -2290,7 +2290,7 @@ if (V3) {
     { const { strikeGrades } = await import('./sim/catch-v3.mjs'); const nc = strikeGrades('small', 'novice', 'touch').clean;
       ok(nc >= CT.targets.noviceCleanSmall, `a novice on a phone strikes Clean on ${(nc * 100).toFixed(0)}% of Small bites (≥ ${CT.targets.noviceCleanSmall * 100}%)`); }
     ok(CLS.every((c, i) => SW[c] > 0 && (i === 0 || SW[c] >= SW[CLS[i - 1]])) && SW.legend >= SW.ancient, 'AUTOFISH.strike.window: by class (never by species), never shorter for a bigger class');
-    ok(CLS.every((c) => Math.max(AF.strike.cleanMin, AF.strike.cleanFrac * SW[c]) < SW[c]) && AF.strike.clamp[0] <= SW.small && AF.strike.clamp[1] >= SW.legend, 'AUTOFISH.strike: the Clean part fits every window; the clamp holds every window');
+    ok((AF.strike.notch ? AF.strike.notch.at > 0 && AF.strike.notch.at + AF.strike.notch.width < 1 && AF.strike.notch.width >= 0.18 && AF.strike.notch.width <= 0.22 : CLS.every((c) => Math.max(AF.strike.cleanMin, AF.strike.cleanFrac * SW[c]) < SW[c])) && AF.strike.clamp[0] <= SW.small && AF.strike.clamp[1] >= SW.legend, 'AUTOFISH.strike: the Clean part (under the loop the gauge\'s notch: 0.18–0.22 of the window, a little after its start) fits every window; the clamp holds every window');
     ok(AF.strike.grades.every((g) => g in CT.strike) && AF.strike.reference === CT.display.reference.strike, 'AUTOFISH.strike grades match CATCH_V3.strike; the log uses the reference strike');
     // items: every bait / lure target exists, every lure and non-legend bait has an entry
     const baitIds = new Set([...D.BAITS, ...D.WALK_BAITS].filter((b) => !b.legend).map((b) => b.id)), lureIds = new Set(D.LURES.map((l) => l.id));

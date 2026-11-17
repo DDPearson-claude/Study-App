@@ -117,6 +117,9 @@ export const SFX_AF = {
     chime(v, out, t + 0.05, mtof(84), 0.15, 0.7);
     chime(v, out, t + 0.1, mtof(88), 0.13, 0.8);
     chime(v, out, t + 0.15, mtof(91), 0.12, 1.1);
+    // "Hook set": the tock doubled, a lower second knock as the hook goes home
+    v.tone(out, { type: 'sine', f: 760 * p, f2: 520 * p, glide: 0.03, t: t + 0.075, a: 0.0008, d: 0.07, peak: 0.5 });
+    v.tone(out, { type: 'sine', f: lerp(130, 60, k), f2: lerp(52, 28, k), glide: 0.12, t: t + 0.08, a: 0.002, d: 0.2 + 0.1 * k, peak: 0.45 + 0.25 * k });
   } },
   strike_struck: { gain: 0.9, gap: 0.15, max: 2, pri: 3, wet: 0.22, pj: 0.02, fn(v, out, t, p, o) {
     const k = K(o);

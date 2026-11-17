@@ -564,7 +564,19 @@ section('fishing: the hours (T15), the counters (T55), no giant water (T30)');
   const E1 = tripEnv({ evening: 1 }), E2 = tripEnv({ evening: 2 });
   E1.ctx.state.meta.runs = 9; E2.ctx.state.meta.runs = 0;   // (meta.runs is never the evening on a trip)
   E1.toBite({ speciesId: 'dusk_minnow', z: -1 }); E2.toBite({ speciesId: 'dusk_minnow', z: -1 });
-  ok(!!E1.F.view.strikeRing && E2.F.view.strikeRing === null, 'T55: the strike ring on evening 1, not on evening 2');
+  ok(E1.F.view.strikeRing === null && E2.F.view.strikeRing === null && !!E1.F.view.strikeGauge && !!E2.F.view.strikeGauge, 'T55: the strike gauge on every evening (it replaced the evening-1 ring)');
+  {   // the strike gauge's notch (the user's mini-game, 17 Nov 2026): graded as drawn; Clean +8 Hold, Struck +2
+    const N = D.AUTOFISH.strike.notch, grade = (frac) => {
+      const E = tripEnv({ evening: 2 }); E.toBite({ speciesId: 'dusk_minnow', z: -1 });
+      const g = E.F.view.strikeGauge, t = frac * g.win;
+      E.tick(Math.max(0, Math.round((t + D.AUTOFISH.strike.latencyComp.mouse) / (1 / 30)) - 1)); E.F.onPointerDown({ input: 'mouse' });
+      return [E.dbg().grade, g];
+    };
+    const [gIn, g] = grade(N.at + N.width / 2), [gBefore] = grade(N.at * 0.3), [gAfter] = grade(Math.min(0.95, N.at + N.width + 0.15));
+    ok(D.CATCH_V3.strike.clean === 8 && D.CATCH_V3.strike.struck === 2 && N.width >= 0.18 && N.width <= 0.22 && N.at > 0.1 && Math.abs(g.from - N.at * g.win) < 1e-9 && Math.abs(g.to - (N.at + N.width) * g.win) < 1e-9,
+      `the gauge: a notch ${N.at}–${N.at + N.width} of the window (${g.from.toFixed(3)}–${g.to.toFixed(3)} of ${g.win.toFixed(3)} s), Clean +8 Hold`);
+    ok(gIn === 'clean' && gBefore === 'struck' && gAfter === 'struck', `graded as drawn: inside the notch ${gIn}, before it ${gBefore}, after it ${gAfter}`);
+  }
   for (const E of [E1, E2]) { E.ctx.debug.fishOutcome('land'); E.tick(3); E.F.onPointerDown({ input: 'mouse' }); E.F.onPointerUp(); E.tick(2); E.F.onPointerDown({ input: 'mouse' }); E.tick(3); }
   ok(E1.F.view.play && E1.F.view.play.hurry === false && E2.F.view.play?.hurry === true, 'T55: a hold hurries a Small on evening 2, not on evening 1');
   const W = tripEnv();
