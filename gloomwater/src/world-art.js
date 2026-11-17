@@ -927,12 +927,12 @@ vec2 gwTwitch(vec2 p, float hgt) {
         acc += dt;
         if (acc < (low ? 1 / 12 : 1 / 24)) return;
         acc = 0;
-        gateSlits.forEach((q, i) => {
-          const k = S.k[i], b = base[i];
+        for (let i = 0; i < gateSlits.length; i++) {
+          const q = gateSlits[i], k = S.k[i], b = base[i];
           for (let j = 0; j < b.box.length; j++) col.array[q.v0 * 3 + j] = b.box[j] * k;
           for (let j = 0; j < 3; j++) hc.array[q.halo * 3 + j] = b.halo[j] * k;
           if (q.rec) q.rec.k = k;
-        });
+        }
         col.clearUpdateRanges(); col.addUpdateRange(v0 * 3, (v1 - v0) * 3); col.needsUpdate = true;
         hc.clearUpdateRanges(); hc.addUpdateRange(h0 * 3, (h1 - h0) * 3); hc.needsUpdate = true;
       },

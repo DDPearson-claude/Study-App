@@ -111,7 +111,7 @@ export function stepBoats(B, { dt = 0.016, raft = null, rng = Math.random } = {}
   const d = Math.max(0, num(dt, 0));
   B.t += d;
   for (const b of B.boats) {
-    b.events = []; b.t += d;
+    b.events.length = 0; b.t += d;   // (cleared in place: no new array a frame)
     const L = B.lines[b.line];
     // the push relaxes (0.35 m/s) while the raft is off
     const pl = Math.hypot(b.px, b.pz);
@@ -328,6 +328,7 @@ export function attachAmbient(ctx) {
   const fl = lin(C.flame ?? 0xffbf78), fy = flameY(C);
   const S = { on: false, lit: 0 };
   const v = new THREE.Vector3(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(), v2 = new THREE.Vector2();
+  const step = { dt: 0.016, raft: null, rng }, raft = { x: 0, z: 0 };   // (one options object and one raft, mutated each frame)
   const zoneId = () => { try { return ctx.world?.getZone?.()?.id ?? ctx.state?.run?.zone ?? null; } catch { return null; } };
   function update(dt = 0.016, { show = false } = {}) {
     const q0 = ctx.render?.quality || 'high';
@@ -337,7 +338,9 @@ export function attachAmbient(ctx) {
     if (!on) return;
     const d = Math.min(0.1, Math.max(0, num(dt, 0)));
     const p = ctx.player?.position;
-    stepBoats(B, { dt: d, raft: p ? { x: p.x, z: p.z } : null, rng });
+    if (p) { raft.x = p.x; raft.z = p.z; }
+    step.dt = d; step.raft = p ? raft : null;
+    stepBoats(B, step);
     let pi = null;
     try { pi = ctx.survival?.getPhaseInfo?.() || null; } catch { pi = null; }
     const lit = flameLight(pi?.phase || ctx.state?.run?.phase || 'calm', pi?.k);
