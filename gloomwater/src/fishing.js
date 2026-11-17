@@ -199,7 +199,7 @@ export function create(ctx) {
     tmp: new THREE.Vector3(), tmp2: new THREE.Vector3(), tip: new THREE.Vector3(), perp: new THREE.Vector3(),
   };
   const F = {   // hooked fish motion
-    fv: null, lat: 0, latV: 0, latTarget: 0, dash: 0, dist: 8, y: 0, yaw: 0, splashT: 0, wakeT: 0, rippleT: 0,
+    fv: null, lat: 0, latV: 0, latTarget: 0, dash: 0, dist: 8, y: 0, yaw: 0, splashT: 0, wakeT: 0, rippleT: 0, swirlT: 0,
     leap: false, leapT: 0, leapDur: 1, leapH: 1, leapCount: 0, roll: 0, phase: Math.random() * 10,
     landFrom: new THREE.Vector3(), landing: false,
   };
@@ -1613,7 +1613,11 @@ export function create(ctx) {
   /** The strike's water and float (≤ 0.6 s, readable with the sound off): the word under the float is ui's (fishing:strike). */
   function strikeFx(grade) {
     const x = V.bob.x, z = V.bob.z;
-    if (grade === 'clean') {   // "Hook set": a firmer splash, a second ring, a heavier haptic (AUTOFISH.strike.haptic.clean)
+    // (wave 2, the owner's choice: on the Mossmere under the loop no bright pulse ring at the float: the splash, its water-white drops
+    // and the play's soft swirl at the fish (siltPuff, from the strike on) say it; the strike gauge and the bite's ring are kept)
+    if (mossLoop()) {
+      if (grade === 'clean') fx.burst(x, 0.25, z, { color: 0xdfe3ea, color2: 0xc9ced8, count: 12, spread: 1.6, up: 2.4, gravity: 5, size: 0.05, life: 0.6 });
+    } else if (grade === 'clean') {   // "Hook set": a firmer splash, a second ring, a heavier haptic (AUTOFISH.strike.haptic.clean)
       fx.pulse(x, z, { color: 0xf3eedf, r0: 0.15, r1: 1.7, duration: 0.5, width: 0.07, alpha: 1 });
       fx.pulse(x, z, { color: 0xf0d79a, r0: 0.1, r1: 1.1, duration: 0.35, width: 0.09, alpha: 0.9 });
       fx.burst(x, 0.25, z, { color: 0xf0d79a, color2: 0xfff6e0, count: 16, spread: 1.8, up: 2.6, gravity: 5, size: 0.06, life: 0.7 });
@@ -1712,7 +1716,7 @@ export function create(ctx) {
    *  class length (presentLength) and no species model exists until the reveal. */
   function spawnHookedAF(sp) {
     disposeHooked(false);
-    F.lat = 0; F.latV = 0; F.dash = 0; F.leap = false; F.splashT = 0; F.wakeT = 0; F.rippleT = 0; F.landing = false;
+    F.lat = 0; F.latV = 0; F.dash = 0; F.leap = false; F.splashT = 0; F.wakeT = 0; F.rippleT = 0; F.swirlT = 0; F.landing = false;
     F.dist = S.hookDist; F.y = -0.1; F.roll = 0; F.yaw = Math.atan2(V.lineDir.x, V.lineDir.z);
     if (sp.rarity === 'legendary') {
       let fv = null;
@@ -1899,6 +1903,11 @@ export function create(ctx) {
     const silt = !!S.find && mossLoop();
     if (silt) { if (F.wakeT <= 0) { F.wakeT = 0.42; siltPuff(px, pz, L); } }
     else if (!lp && speed > 0.8 && F.wakeT <= 0) { F.wakeT = 0.14; call(() => ctx.water?.addWake?.(px, pz, -hx, -hz, clamp(speed / 4, 0.2, 1) * (0.5 + L * 0.3))); }
+    // (wave 2, the owner's choice: on the Mossmere under the loop the play shows where the fish pulls as a soft swirl of the water's
+    // own dark at the fish, its faint line trailing out the way it pulls (the find's silt form, so never a ring or a glint; none within
+    // 2.4 m of the raft); the first at the strike itself)
+    F.swirlT -= dt;
+    if (!silt && !lp && F.swirlT <= 0 && mossLoop()) { F.swirlT = 0.5; siltPuff(px, pz, L * 0.8, Math.atan2(-hx, -hz)); }
     F.rippleT -= dt;
     if (!lp && !silt && F.rippleT <= 0) { F.rippleT = pr.phase === 'surge' ? 0.25 : pr.phase === 'still' ? 1.6 : 0.8; if (ringOk(px, pz, 0.3 + L * 0.18)) call(() => ctx.water?.addRipple?.(px, pz, 0.3 + L * 0.18)); }
     // the line, the rod, the reel and the Wick
@@ -2354,7 +2363,7 @@ export function create(ctx) {
     const trueL = honestLength(sp);
     // v3 (F3): createFish(species, {z}) is the true length in metres (models A1); the mesh keeps scale 1 all fight long
     try { fv = ctx.models?.createFish?.(sp.id, trueL != null ? { z: S.z, zone: zoneData()?.id || run()?.zone || null } : S.weight); } catch (e) { report(e); }
-    F.lat = 0; F.latV = 0; F.dash = 0; F.leap = false; F.splashT = 0; F.wakeT = 0; F.rippleT = 0; F.landing = false;
+    F.lat = 0; F.latV = 0; F.dash = 0; F.leap = false; F.splashT = 0; F.wakeT = 0; F.rippleT = 0; F.swirlT = 0; F.landing = false;
     F.dist = S.hookDist; F.y = -0.1; F.roll = 0; F.yaw = Math.atan2(V.lineDir.x, V.lineDir.z);
     if (fv && !fv.isStub && fv.object3d) {
       F.fv = fv;
@@ -3577,7 +3586,7 @@ export function create(ctx) {
   // glint), each blooming to at most SILT_R m and settling over SILT_LIFE s, a faint weed-line trailing it along the haul; no puff
   // reaches within SILT_KEEP m of the raft (its bloom held short of it: never a disc round it), at most SILT_CAP alive
   const SILT_LIFE = 6, SILT_KEEP = 2.4, SILT_CAP = 14, SILT_R = 2;
-  function siltPuff(x, z, L) {
+  function siltPuff(x, z, L, h = null) {
     const raft = raftPos();
     if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
     const dx = raft.x - x, dz = raft.z - z, dist = Math.hypot(dx, dz);
@@ -3585,7 +3594,7 @@ export function create(ctx) {
     const R = Math.min(SILT_R, (dist - SILT_KEEP - 0.1) / 1.1);
     if (!(R >= 0.4)) return false;
     const W2 = wc2(), list = W2.silt || (W2.silt = []);
-    list.push({ x, z, t0: S.clock, L: Math.max(0.3, Math.min(1.2, L)), seed: Math.random(), R, h: Math.atan2(dx, dz) });
+    list.push({ x, z, t0: S.clock, L: Math.max(0.3, Math.min(1.2, L)), seed: Math.random(), R, h: Number.isFinite(h) ? h : Math.atan2(dx, dz) });
     if (list.length > SILT_CAP) list.shift();
     return true;
   }

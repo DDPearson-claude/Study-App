@@ -164,6 +164,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     transformed.y += (h * 0.4 + length(tw) * 0.05 * sin(gwTwT * 9.0)) / sc;
     transformed.xz += tw * 0.05 / sc;
   }
+  // (wave 2, audit #16: a pad within about 3 m of the lens shrinks away into the water: never a big flat blob over the frame)
+  transformed *= smoothstep(1.4, 3.0, distance((modelMatrix * vec4(instanceMatrix[3].xyz, 1.0)).xyz, cameraPosition));
 #endif`;
       shader.vertexShader = shader.vertexShader
         .replace('#include <common>', `#include <common>${TW_PARS}${kind === 'pads' ? '\nattribute float aBed; uniform vec4 gwWaveA[4]; uniform vec2 gwWaveB[4]; uniform float gwWaveT;' : ''}`)

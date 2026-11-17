@@ -646,9 +646,10 @@ export const SFX_V3 = {
     chime(v, out, t + 1.55, mtof(r + 24) * p, 0.1, 1.8);
     chime(v, out, t + 1.68, mtof(r + 31) * p, 0.08, 2.0);
   } },
-  stillnight_bed: { gain: 0.4, gap: 1, max: 2, pri: 0, wet: 0.6, vj: 0.2, fn(v, out, t, p) {
+  stillnight_bed: { gain: 0.4, gap: 1, max: 2, pri: 0, wet: 0.6, vj: 0.2, fn(v, out, t, p, o) {
     // one breath of the Stillnight bed: frogs far across the water, a reed-cricket trill, a slow drip
-    const n = 1 + ((Math.random() * 3) | 0);
+    // (wave 2, the owner's choice: o.frogs false on the Mossmere under the loop: no frogs in the stone north (LORE), the rest kept)
+    const n = o?.frogs === false ? 0 : 1 + ((Math.random() * 3) | 0);
     for (let i = 0; i < n; i++) {
       const tt = t + i * rnd(0.22, 0.4), f = rnd(170, 250) * p, end = tt + 0.3;
       const src = v.osc('triangle', f, tt, end);
@@ -686,14 +687,8 @@ export const SFX_MOSS = {
     if (Math.random() < 0.5) { const f = rnd(700, 1100); v.tone(dst, { type: 'sine', f, f2: f * 1.6, glide: 0.04, t: t + rnd(0.4, 1.6), a: 0.002, d: 0.07, peak: 0.06 }); }
   } },
   moss_dusk: { gain: 0.45, gap: 2, max: 2, pri: 0, wet: 0.55, vj: 0.2, fn(v, out, t, p, o) {
-    // dusk: the air thinner; one far frog tries its voice
+    // dusk: the air thinner (wave 2: its far frog is gone: no frogs in the stone north, LORE)
     const dst = muffled(v, out, o);
-    const f = rnd(115, 150) * p, end = t + 0.34;
-    const src = v.osc('triangle', f, t, end), bp = v.filter('bandpass', f * 2.4, 2.2), am = v.gain(0.5);
-    const lfo = v.osc('square', rnd(22, 30), t, end), lg = v.gain(0.5); lfo.connect(lg); lg.connect(am.gain);
-    const env = v.gain(0);
-    env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(0.2, t + 0.04); env.gain.setTargetAtTime(0, t + 0.16, 0.05);
-    src.connect(bp); bp.connect(am); am.connect(env); env.connect(dst);
     v.burst(dst, { kind: 'pink', t: t + 0.2, a: 0.9, hold: 0.3, d: 1.2, peak: 0.07, ft: 'bandpass', f: 3600 * p, q: 0.9 });
   } },
   moss_night: { gain: 0.55, gap: 3, max: 1, pri: 0, wet: 0.6, dly: 0.15, vj: 0.15, fn(v, out, t, p, o) {

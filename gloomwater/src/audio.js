@@ -119,7 +119,7 @@ export function create(ctx) {
   let strain = null, charge = null, aura = null, water = null;
   const scratch = { volume: 1, pitch: 1, pan: 0, delay: 0, crit: false, big: false, elite: false, perfect: false, dying: false, force: false, rarity: undefined, power: undefined, anchored: undefined, resource: undefined,
     cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined, k: undefined, creak: undefined,
-    muffle: undefined };
+    muffle: undefined, frogs: undefined };
   let inPointer = false, zapFrame = -1;
   let rmsBuf = null;
   let override = null;          // debug: force score params, e.g. {intensity: 0.8, tension: 0.6}
@@ -318,7 +318,7 @@ export function create(ctx) {
     s.volume = 1; s.pitch = 1; s.pan = 0; s.delay = 0; s.crit = false; s.big = false; s.elite = false; s.perfect = false;
     s.dying = false; s.force = false; s.rarity = undefined; s.power = undefined; s.anchored = undefined; s.resource = undefined;
     s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined; s.at = undefined;
-    s.dur = undefined; s.voicing = undefined; s.k = undefined; s.creak = undefined; s.muffle = undefined;
+    s.dur = undefined; s.voicing = undefined; s.k = undefined; s.creak = undefined; s.muffle = undefined; s.frogs = undefined;
     return s;
   }
   function phaseInfo() {
@@ -1257,6 +1257,8 @@ export function create(ctx) {
       if (live) bedTimer -= dt;
       if (bedTimer <= 0) {
         resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.6; scratch.volume = 0.7 + Math.random() * 0.3;
+        // (wave 2: the Mossmere under the loop keeps the crickets and the drip, never the frogs: no frogs in the stone north)
+        if (MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? null, outing: run?.outing ?? null })) scratch.frogs = false;
         play('stillnight_bed', scratch);
         bedTimer = 2.6 + Math.random() * 2.8;
       }
