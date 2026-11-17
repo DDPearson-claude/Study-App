@@ -24,8 +24,9 @@ import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
 import { targetCorners, wickCorners, raftCorners, rectOf, layoutTargets, UNDER_WORD, stickHint } from './home-targets.js';
-import { orderPhraseOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
+import { orderPhraseOk, orderSayOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
 import { createGearView, CHALK_TICK } from './ui-gear.js';   // M1 step 4 (lane 4): the lure slot, the tins, the orders' board, the ticks
+import { createOrderSlate } from './ui-orders.js';   // Murk's orders on the water (the user, 17 Nov 2026)
 import { createTackleView } from './ui-tackle.js';   // TK: the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake)
 
 export { murkLineFor };
@@ -530,6 +531,7 @@ export function textAllowed(text, { D = null, screen = null, words = null } = {}
   if (/shells?|memories/i.test(t)) return false;
   if (W.has(t)) return true;
   if (/^(?:\d+ |an? )/.test(t) && orderPhraseOk(t, D)) return true;   // M1 step 4: an order as Murk chalks it ("2 Dusk Minnows")
+  if (orderSayOk(t, D)) return true;   // Murk says a new order ("Bring me a Weeping Carp."; TEXT_LOOP.orderSay)
   if (NUM_RE.test(t) || WEIGHT_RE.test(t) || KEY_RE.test(t) || t === '—' || t === '·' || t === '★' || t === '· · ·') return true;
   if (CM_RE.test(t)) return screen === 'catch' || screen === 'prints' || screen === 'gallery' || screen === 'journal';   // (M1 step 5b: a print's small line, SPEC §6.4)
   if (/^Your first (Small|Keeper|Prize|Trophy|Elder|Ancient)$/.test(t) || /^A legend of /.test(t)) return true;
@@ -702,6 +704,8 @@ export function createLoopView(K) {
   const gear = createGearView({ K, L, D, report: (w, e) => report(w, e), murkToast: (line) => murkToast(line) });   // M1 step 4 (lane 4)
   let tackle = null;   // TK: the tackle tin on the trip's HUD and its drawer (src/ui-tackle.js; CONTRACT §14.19)
   try { tackle = createTackleView({ K, L, D, report: (w, e) => report(w, e) }); } catch (e) { report('tackle', e); }
+  let slate = null;   // Murk's orders on the water: the HUD's chalk slate (src/ui-orders.js)
+  try { slate = createOrderSlate({ K, L, D, trip: () => onTrip(), report: (w, e) => report(w, e) }); } catch (e) { report('oslate', e); }
   try {
     const idle = typeof requestIdleCallback === 'function' ? (f) => requestIdleCallback(f, { timeout: 2500 }) : (f) => setTimeout(f, 0);
     setTimeout(() => idle(() => { chart.prepare(); }), 400);
@@ -858,6 +862,8 @@ export function createLoopView(K) {
     return J.line;
   }
   function openJetty({ line = null, press = null } = {}) {
+    // Murk says a new order (chalked at this visit home) when he has no other line, once an order (loop.sayOrders marks it said)
+    if (!line && !tut.isActive()) line = L('sayOrders') || null;
     J.line = line || null; J.lineT = 0;
     J.lineHold = line ? 4.5 + 0.05 * String(line).length : 0;
     // M1 step 3a (T144, PLAN CHOICE 12): the catch seal presses with Murk's line, once (its own stamp; loop:seal for its sound)
@@ -1357,6 +1363,11 @@ export function createLoopView(K) {
       if (String(id).startsWith('place:')) { const line = L('sayOnce', 'firstMap'); if (line) entry.state.line = line; }
       // M1 step 5b (M1.md §2.5, SPEC §8.6): the shelf's last permanent card bought: Murk's empty-shelf line, once
       try { const all = arr(L('shelf')?.tabs).flatMap((t) => arr(t.items)); if (shelfBare(all)) { const line = L('sayOnce', 'shelfBare'); if (line) entry.state.line = line; } } catch (e) { report('shelfBare', e); }
+      // the Order Board (the user, 17 Nov 2026): Murk says what he wants, and the book turns to its cover, his slate in view
+      if (String(id).startsWith('orders:')) {
+        const line = L('sayOrders');
+        if (line) { entry.state.line = line; entry.render(); setTimeout(() => { try { if (K.entry('shelf') === entry) book.cover(); } catch (e) { report('book.cover', e); } }, 650); return; }
+      }
     } else K.sfx?.('denied', { volume: 0.5 });
     entry.render();
   }
@@ -1625,13 +1636,22 @@ export function createLoopView(K) {
   function update(dt) {
     const d = Math.max(0, Math.min(0.25, num(dt)));
     try { tackle?.update(d); } catch (e) { report('tackle.update', e); }   // TK
+    try { slate?.update(d); } catch (e) { report('oslate.update', e); }
     if (LT.el) { LT.t += d; if (LT.t >= LT.dur) dropLiftTitle(); }
     // the tutorial's clock (real time; it runs only under the Jetty or the Chart)
     const topId = K.top()?.id ?? null;
     if (ctx.flow === 'home') {
       tut.update(d, { top: topId });
       if (tut.wantsChart && topId === 'jetty') { tut.onTile('chart'); openChart(); }
-      if (J.line && topId === 'jetty') { J.lineT += d; if (J.lineT > J.lineHold) { J.line = null; J.press = null; } }
+      if (J.line && topId === 'jetty') {
+        J.lineT += d;
+        if (J.lineT > J.lineHold) {
+          J.line = null; J.press = null;
+          // a new order waits behind Murk's other line at a visit home, then he says it (once)
+          const ol = tut.isActive() ? null : L('sayOrders');
+          if (ol) { J.line = ol; J.lineT = 0; J.lineHold = 4.5 + 0.05 * ol.length; }
+        }
+      }
       if (topId === 'jetty') refreshJetty();
       if (K.has('jetty')) placeTargets();
     }
@@ -1686,6 +1706,7 @@ export function createLoopView(K) {
   return {
     murkBook: book,   // Murk's catalogue: debug() (its layout, page, chapters), go(page), pageOf(focus)
     tackle,   // TK: the tackle tin (debug(), open(), close(), toggle())
+    slate,   // Murk's orders on the water (debug(): shown, why, its rect, the tip)
     update, handleKey, openJetty, openTally, openShelf, openChart, openHomePause, paintHold,
     /** M1 step 3a: the list Chart, the bait slot (its own piece, for either Chart's foot), the next water's seals as buttons */
     renderChartList, baitSlot, placeBaitSlot, sealRow,

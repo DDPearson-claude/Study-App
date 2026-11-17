@@ -294,6 +294,8 @@ export function fakeLoop(over = {}) {
     orders: () => (Array.isArray(s.orders) ? s.orders.map((o) => ({ ...o })) : []),
     wipeOrder(id) { const before = (s.orders || []).length; s.orders = (s.orders || []).filter((o) => o.id !== id); return { ok: s.orders.length < before, orders: api.orders() }; },
     orderFor: (fish) => (Array.isArray(s.orders) ? s.orders.find((o) => o.speciesId === fish?.speciesId)?.id ?? null : null),
+    // Murk says each new order once (the user, 17 Nov 2026): "Bring me …" for the orders not yet said, marked said
+    sayOrders() { const fresh = (s.orders || []).filter((o) => o.said !== true); if (!fresh.length) return null; for (const o of fresh) o.said = true; s.saves++; return `Bring me ${fresh.map((o) => o.text || o.speciesId).join(' and ')}.`; },
     // the Wick's sheet (SHEET.md §7.3): the real model on the fake's meta (a trip's run when s.run is set), the marks seen
     sheet: (view = {}, live = null, cast = null) => (D ? sheetModel(metaNow(), D, { run: s.run || null, view, live, cast, shelf: items(), canChange: !(s.onTrip && s.fishOn === true) }) : null),
     markSheetSeen(keys = []) { const own = new Set(D ? sheetKeys(metaLoop(), D) : []); for (const k of keys || []) if (own.has(k) && !s.sheetSeen.includes(k)) s.sheetSeen.push(k); s.saves++; return true; },

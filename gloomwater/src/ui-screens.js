@@ -13,7 +13,8 @@ import { renderPrintsPage } from './ui-prints.js';   // M1 step 5b (lane 5b-home
 import { listFor as loopListFor, catalogueFor, gateLine } from './progression-loop.js';
 import { cardHooks as gearCardHooks, whoBitesHtml } from './ui-gear.js';   // (WC-3: the gear log's Who bites)   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
-import { createSheetView } from './ui-sheet.js';   // the Wick's sheet (SHEET.md): the Journal's first tab under the loop
+import { createSheetView } from './ui-sheet.js';
+import { speciesWanted } from './loop-gear.js';   // Murk's orders: the Journal's "Murk wants one." (the user, 17 Nov 2026)   // the Wick's sheet (SHEET.md): the Journal's first tab under the loop
 // <<< LOOP 1a
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
@@ -1815,6 +1816,9 @@ export function createScreens(K) {
       // name and class, above the lore, inside the page's own scroll
       { const gl = J[s.sel] ? safe(() => gateLine(D(), m.loop, s.sel), null) : null;
         if (gl?.text) { const p = h('p', 'gw-cat-gate'); p.textContent = gl.text; const lore = det.querySelector('.gw-lore'); if (lore) det.insertBefore(p, lore); else det.appendChild(p); } }
+      // Murk's orders (the user, 17 Nov 2026): "Murk wants one." while an open order names this fish (TEXT_LOOP.orderSay.wants)
+      { const w = J[s.sel] ? speciesWanted(safe(() => ctx.progression?.loop?.orders?.(), []), s.sel) : false;
+        if (w && TL().orderSay?.wants) { const p = h('p', 'gw-cat-gate gw-cat-wants'); p.dataset.loop = 'wants'; p.textContent = TL().orderSay.wants; const lore = det.querySelector('.gw-lore'); if (lore) det.insertBefore(p, lore); else det.appendChild(p); } }
       content.appendChild(page);
       if (s.section === 'odds') {
         const sec = page.querySelector('.gw-odds');

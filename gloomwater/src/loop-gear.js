@@ -10,6 +10,7 @@
 //   raftTerms(D, metaLoop, phase)              the Keel's and the Lantern's favour terms on a trip ({family, id, value})
 //   raftStats(D, metaLoop)                     {speed: m/s added, light: the light's radius ×}
 //   orders: orderPool · newOrder · refillOrders · orderMatches · assignOrders · orderPhrase · orderPhraseOk · orderCount
+//           orderSayLine · orderSayOk · slateOrders · slateShown · speciesWanted (Murk says a new order once; the HUD's chalk slate)
 import { uid } from './core.js';
 import { findOrderBonus } from './loop-finds.js';   // M1 step 5c: the Rust Buoy-Bell's one more order (the integration's seam)
 
@@ -287,4 +288,45 @@ export function orderPhraseOk(t, D, names = null) {
   const body = m[1];
   if (N.has(body)) return true;
   return labels.some((l) => body.startsWith(`${l} `) && N.has(body.slice(l.length + 1)));
+}
+
+// ---------------------------------------------------------------- Murk says what he wants (the user, 17 Nov 2026), and the HUD's slate
+/** Murk's line for the orders he has not yet said (o.said !== true): "Bring me a Weeping Carp." (TEXT_LOOP.orderSay.line), two or more
+ *  joined by its `and`. → {line, ids} (line null when every order is said). Pure: the caller marks `ids` said. */
+export function orderSayLine(D, orders) {
+  const T = D?.TEXT_LOOP?.orderSay || { line: 'Bring me {order}.', and: 'and' };
+  const fresh = arr(orders).filter((o) => isObj(o) && typeof o.speciesId === 'string' && o.said !== true);
+  if (!fresh.length) return { line: null, ids: [] };
+  const words = fresh.map((o) => orderPhrase(D, o)).filter(Boolean);
+  const list = words.length < 2 ? words.join('') : `${words.slice(0, -1).join(', ')} ${T.and} ${words[words.length - 1]}`;
+  return { line: String(T.line || '{order}').replace('{order}', list), ids: fresh.map((o) => o.id) };
+}
+/** Is a text node orderSayLine's line (ui-loop's textAllowed)? */
+export function orderSayOk(t, D) {
+  const T = D?.TEXT_LOOP?.orderSay;
+  if (!T || typeof T.line !== 'string' || !T.line.includes('{order}')) return false;
+  const [a, b = ''] = T.line.split('{order}');
+  if (!t.startsWith(a) || !t.endsWith(b) || t.length <= a.length + b.length) return false;
+  const body = t.slice(a.length, t.length - b.length);
+  const parts = body.split(new RegExp(`, | ${T.and} `));
+  return parts.length > 0 && parts.every((p) => orderPhraseOk(p, D));
+}
+/** The HUD slate's orders (pure): each open order {id, speciesId, text, done}; `done` when the hold's fish (the trip's creel) fill it as
+ *  the tally will (assignOrders, lightest first is the tally's: here the creel's order, the same count). */
+export function slateOrders(D, orders, creel = []) {
+  const open = arr(orders).filter((o) => isObj(o) && typeof o.speciesId === 'string');
+  if (!open.length) return [];
+  const fish = arr(creel).filter(isObj).map((f, i) => (f.uid == null ? { ...f, uid: `__s${i}` } : f));
+  const { filled } = assignOrders(D, open, fish);
+  return open.map((o) => ({ id: o.id, speciesId: o.speciesId, text: typeof o.text === 'string' ? o.text : orderPhrase(D, o), done: filled.includes(o.id) }));
+}
+/** The fishing states the slate keeps out of (a fish on: the bite, the strike's gauge, the play, the landing and the catch show). */
+export const SLATE_QUIET = Object.freeze(['bite', 'reeling', 'landing', 'lost', 'show']);
+/** Is the HUD's chalk slate up (pure)? On a trip, playing, at least one open order, no fish on the line, no screen over the water. */
+export function slateShown({ trip = false, flow = null, orders = [], fishing = 'idle', modal = null, tutorial = false } = {}) {
+  return trip === true && flow === 'playing' && arr(orders).length > 0 && !SLATE_QUIET.includes(fishing) && !modal && tutorial !== true;
+}
+/** Does an open order name this species (the Journal's "Murk wants one.")? Pure. */
+export function speciesWanted(orders, speciesId) {
+  return typeof speciesId === 'string' && arr(orders).some((o) => isObj(o) && o.speciesId === speciesId);
 }
