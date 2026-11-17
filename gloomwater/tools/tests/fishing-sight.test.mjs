@@ -110,7 +110,7 @@ section('how far, how many (§6.3)');
   // night: inside the lantern's light
   const nr = SI.spawnRange(0.5, { light: 'night', lanternR: 8, keepOff: 4 });
   ok(nr[1] <= SI.lanternReach(8, 0.25) + 1e-9 && nr[0] >= 4, `night: from its own distance to where the light is 0.25 (${nr.map((v) => v.toFixed(2)).join('–')} m)`);
-  ok(SI.sightCap('high') === 4 && SI.sightCap('medium') === 4 && SI.sightCap('low') === 3, '≤ 4 alive (3 on low)');
+  ok(SI.sightCap('high') === 2 && SI.sightCap('medium') === 2 && SI.sightCap('low') === 2, '≤ 2 alive on every tier (a shoal counts as one)');
   ok(SI.SIGHT.every.join() === '12,30' && SI.SIGHT.life.join() === '40,90', 'a new one every 12–30 s; each lives 40–90 s');
 }
 
@@ -121,7 +121,7 @@ section('how they move (§6.4)');
   pike.life = 1e9;
   let still = 0, T = 0, maxV = 0;
   for (let t = 0; t < 3000; t += 0.05) { SI.stepSight(pike, 0.05, { raft: { x: 100, z: 100 }, ok: () => true, rng }); if (pike.speed < 0.01) still += 0.05; T += 0.05; maxV = Math.max(maxV, pike.speed); }
-  ok(near(still / T, 0.7, 0.06) && near(maxV, 1.5, 1e-9), `the pike holds ${(100 * still / T).toFixed(0)}% of the time and darts at 1.5 m/s`);
+  ok(still / T > 0.55 && still / T < 0.85 && maxV <= 0.35 + 1e-9 && maxV > 0.15, `the pike holds ${(100 * still / T).toFixed(0)}% of the time and glides ≤ 0.35 m/s (never darts; ${maxV.toFixed(2)})`);
   const carp = SI.createSight({ sp: SP('weeping_carp'), length: 0.5, x: 0, z: 0, light: 'dusk', area: 'margin', rng });
   carp.life = 1e9;
   let tails = 0, vmax = 0, dmax = 0;
@@ -142,6 +142,40 @@ section('how they move (§6.4)');
   ok(!inside && !bolted, `it keeps its ${perch.keepOff.toFixed(2)} m off a still raft`);
   const ev = SI.stepSight(perch, 0.05, { raft: { x: perch.x + 1, z: perch.z }, ok: () => true, rng });
   ok(ev.some((e) => e.type === 'bolt') && perch.mode === 'bolt', 'the raft within its distance: it bolts');
+}
+
+section('it glides (17 Nov 2026): no jump, no dart, gentle turns, a calm bolt, a ~1 s fade');
+{
+  const rng = mul(77), G = SI.SIGHT.glide, dt = 1 / 30;
+  let worstTurn = 0, worstAcc = 0, worstStep = 0, vmax = 0;
+  const ids = [['reedjaw_pike', 0.7, 'reeds'], ['mossback_perch', 0.3, 'stones'], ['weeping_carp', 0.6, 'margin'], ['dusk_minnow', 0.2, 'margin'], ['gutter_crayfish', 0.15, 'stones']];
+  for (const [id, L, area] of ids) {
+    const f = SI.createSight({ sp: SP(id), length: L, x: 6, z: 0, light: 'day', area, rng });
+    f.life = 1e9;
+    for (let t = 0; t < 400; t += dt) {
+      const h0 = f.heading, v0 = f.speed, x0 = f.x, z0 = f.z;
+      SI.stepSight(f, dt, { raft: { x: 0, z: 0 }, ok: (x, z) => Math.hypot(x - 6, z) < 3.5, depth: () => 0.3, rng });
+      worstTurn = Math.max(worstTurn, Math.abs(Math.atan2(Math.sin(f.heading - h0), Math.cos(f.heading - h0))) / dt);
+      worstAcc = Math.max(worstAcc, Math.abs(f.speed - v0) / dt);
+      worstStep = Math.max(worstStep, Math.hypot(f.x - x0, f.z - z0) / dt);
+      vmax = Math.max(vmax, f.speed);
+    }
+  }
+  ok(worstTurn <= G.turn + 1e-6 && worstAcc <= G.boltAcc + 1e-6 && worstStep <= vmax + 1e-6 && vmax <= 0.8 + 1e-9,
+    `while it swims: turns ≤ ${G.turn} rad/s (${worstTurn.toFixed(2)}), eases its pace ≤ ${G.boltAcc} m/s² (${worstAcc.toFixed(2)}), never jumps, ≤ 0.8 m/s`);
+  // a calm bolt: it turns away and speeds up smoothly as it fades out over about 1 s
+  const b = SI.createSight({ sp: SP('mossback_perch'), length: 0.3, x: 0, z: 0, heading: 0, light: 'day', area: 'stones', rng });
+  b.alpha = 1; b.mode = 'cruise'; b.speed = b.vT = 0.4;
+  SI.boltFrom(b, 0, 1);
+  let bTurn = 0, bAcc = 0, bV = 0, T = 0, gone = false;
+  while (!gone && T < 5) { const h0 = b.heading, v0 = b.speed; gone = SI.stepSight(b, dt, { rng }).some((e) => e.type === 'gone'); T += dt;
+    bTurn = Math.max(bTurn, Math.abs(Math.atan2(Math.sin(b.heading - h0), Math.cos(b.heading - h0))) / dt); bAcc = Math.max(bAcc, Math.abs(b.speed - v0) / dt); bV = Math.max(bV, b.speed); }
+  ok(gone && T >= 0.8 && T <= 1.6 && bTurn <= G.boltTurn + 1e-6 && bAcc <= G.boltAcc + 1e-6 && bV <= G.boltV + 1e-9, `a calm bolt: gone in ${T.toFixed(2)} s, turn ≤ ${G.boltTurn} rad/s, ≤ ${G.boltV} m/s, smooth`);
+  // the fade in and out: about 1 s each way
+  const c = SI.createSight({ sp: SP('weeping_carp'), length: 0.5, x: 0, z: 0, light: 'day', area: 'margin', rng });
+  let tin = 0; while (c.alpha < 1 && tin < 5) { SI.stepSight(c, dt, { rng }); tin += dt; }
+  c.life = c.age; let tout = 0; while (!c.gone && tout < 5) { SI.stepSight(c, dt, { rng }); tout += dt; }
+  ok(tin >= 0.8 && tin <= 1.3 && tout >= 0.8 && tout <= 1.6, `it fades in over ${tin.toFixed(2)} s and out over ${tout.toFixed(2)} s`);
 }
 
 section('spooking and leading (§6.5, §6.6)');
@@ -165,7 +199,7 @@ section('spooking and leading (§6.5, §6.6)');
   f.mode = 'cruise'; f.speed = 0.4;
   ok(!SI.spookTest(f, { splash: { x: 1.5, z: 0 } }), 'a splash by a moving fish does not');
   const bo = SI.boltFrom(f, 0, -1);
-  ok(bo.type === 'bolt' && f.mode === 'bolt' && near(f.heading, 0, 1e-9), 'it bolts straight away from the cast');
+  ok(bo.type === 'bolt' && f.mode === 'bolt' && near(f.hT, 0, 1e-9), 'it bolts straight away from the cast');
   const quiet = [{ x: 0, z: 0, until: 30 }];
   ok(SI.quietAt(quiet, 9.9, 0, 29) && !SI.quietAt(quiet, 10.1, 0, 29) && !SI.quietAt(quiet, 0, 0, 30.1), 'the spot goes quiet: 10 m, 30 s');
 }
