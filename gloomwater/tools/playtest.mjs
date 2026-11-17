@@ -39,6 +39,8 @@ const context = await browser.newContext({
 // v3 debug builds (CONTRACT §13.1, §13.11): hidden-state hooks register only when GW_DEBUG is set before the page's scripts
 // run; scenarios get them unless --release (a release build: no species, roll, plan or pre-roll on window.__gw)
 if (!args.release) await context.addInitScript(() => { globalThis.GW_DEBUG = true; });
+// the first-play guide (src/ui-guide.js) is off for every scenario that does not test it: a preset the page's ?guide=1 overrides
+await context.addInitScript(() => { globalThis.GW_GUIDE = false; });
 const page = await context.newPage();
 const consoleErrors = [];
 const pageErrors = [];

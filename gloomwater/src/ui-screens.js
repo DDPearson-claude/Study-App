@@ -2154,6 +2154,7 @@ export function createScreens(K) {
         content.appendChild(toggleRow('hurry', 'Hold to hurry', true, SW ? SW.hurry : 'From your second outing, hold anywhere to hurry a small fish in. It never changes the outcome'));
       } else content.appendChild(toggleRow('reelToggle', 'Tap to reel', false, 'Tap once to start reeling, tap again to ease'));
       if (D().V3_ENABLED) content.appendChild(toggleRow('favourDetails', 'Favour details', false, "Always list what the water favours beside the float, not only on a long press"));
+      if (SW) safe(() => K.loop?.guide?.settingsRows?.(content, entry), null);   // the first-play guide's two rows (under the loop)
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">The Long Dark</div>');
       const rrow = h('div', 'gw-set-row');
       rrow.innerHTML = `<span class="gw-set-label">Forget everything<small>${SW ? esc(SW.forgetRow) : 'Memories, relics, trials, the Journal. There is no undo.'}</small></span>`;

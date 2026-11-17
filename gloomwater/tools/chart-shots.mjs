@@ -41,7 +41,7 @@ async function run(kind) {
   const phone = kind !== 'desk';
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-webgl'] });
   const context = await browser.newContext({ viewport: VIEW[kind].vp, deviceScaleFactor: VIEW[kind].dpr, hasTouch: phone, isMobile: phone });
-  await context.addInitScript(() => { globalThis.GW_DEBUG = true; });
+  await context.addInitScript(() => { globalThis.GW_DEBUG = true; globalThis.GW_GUIDE = false; });   // (the first-play guide off)
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e?.message || e)));

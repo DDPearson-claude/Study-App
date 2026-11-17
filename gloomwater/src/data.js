@@ -4990,6 +4990,27 @@ LOOP.showCard = { lowFoot: 0.45 };
 TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
 TEXT_LOOP.hookSet = 'Hook set';   // the word under the float on a Clean strike (the user's yes, 17 Nov 2026; SPEC §16)
 // <<< MVP teach
+// >>> the first-play guide (the user's ask, 17 Nov 2026: "some nice text boxes that appear to walk you through what you're doing and
+// why ... breaking the 4th wall and just talking to you like a person"): src/ui-guide.js shows each box once, at its moment. Plain
+// words, not the game's voice; each at most 30 words. `tackle` and `away` are written for the start kit of docs/loop/GEAR-GATES.md
+// (worms and the Bent Spoon; a fish over the gear's cap gets away), so they match at that merge.
+TEXT_LOOP.guide = {
+  tag: 'Guide', ok: 'Got it', skip: 'Skip the guide',
+  boxes: {
+    welcome: "Welcome! This is a calm fishing game, and you can't lose. Catch fish, sell them for clams, and spend clams on better gear to catch bigger, rarer fish.",
+    chart: 'This is your chart of the lake. Press SAIL to head out and fish. Later, Murk sells maps to new spots, each with its own fish.',
+    cast: 'Press and hold on the water to aim. The cast swings out and back, so let go when it reaches your spot. Fish like reeds, lily pads and stones.',
+    bite: 'When the float dips, press straight away. Stop the swinging needle in the bright notch for a clean strike: the fish is less likely to get away.',
+    fight: 'Hooked! The fight plays out by itself, so just watch. Better rods and lines land big fish more often.',
+    card: "Keep it to sell to Murk at home (the number is what he'll pay), or let it go. Your hold only fits a few fish.",
+    tackle: 'Use your tackle tin to change the hook. Worms are bait: cast and wait. The spoon is a lure: it swims back by itself, and hunting fish chase it.',
+    home: 'Your hold is full. Press HOME to sail back and sell your catch to Murk.',
+    murk: 'Murk bought your catch. Press MURK to spend clams on better gear for bigger fish. The line at the bottom shows what to save for next.',
+    away: 'That one got away! Big fish can break free, and some are too big for your gear. Better line and lures will hold them.',
+  },
+  settings: { group: 'Guide', tips: 'Guide tips', tipsSub: 'Short notes for your first play', replay: 'Replay guide', replaySub: 'Show every note again', replayBtn: 'Replay' },
+};
+// <<< the first-play guide
 
 // >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
 // Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; LOOP and TEXT_LOOP are not in the v3

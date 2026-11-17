@@ -2353,3 +2353,20 @@ Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (
 - **A phone's Journal** on the sheet: the row `.gw-tabs--sheet` (the sheet's tab the portrait alone, its label `.gw-tab-lab` hidden;
   `.gw-tabs--tight` drops the count badges while the row would scroll sideways) and the panel's head "{name}'s Sheet" clear of the X.
 - **Files**: `src/loop-sheet.js`, `src/ui-sheet.js`, `tools/tests/loop-sheet.test.mjs` (S1–S16), `tools/tests/loop-sheet.scenario.mjs`.
+
+### 14.21 The first-play guide (the user's ask of 17 November 2026: plain boxes that walk a new player through what and why)
+- **The view** (`src/ui-guide.js`, `ctx.ui.loop.guide`; built by ui.js beside the loop view, so never off the loop): ten boxes in
+  `GUIDE_ORDER` (welcome, chart, cast, bite, fight, card, tackle, home, murk, away), each shown once a save at its moment
+  (`guideCond`: the Landing's arrive or home; the Chart; the water before the first cast; the settled float; the first hook; the
+  catch card after its count; the line back after a cast; the hold full; the Jetty after a trip; idle after `fish:escaped`, the lost
+  fish's event, which GEAR-GATES' got-away also emits). Never in a bite, the strike gauge, the show, a lift or a pause; two due together
+  queue in `GUIDE_ORDER`, each after `GUIDE_WAIT[id]` calm seconds. A box is a **blocking, quiet modal** `'guide'` (the game, the
+  tutorial's and the tow's clocks wait; every tap and key goes to it; no `ui:modal`), placed beside its `GUIDE_TARGETS` target with a
+  small arrow, never over it; while one is up `.gw-guide-on` hides the in-world lines (`.gw-loop-tip`, `.gw-teach`, `.gw-murk-line`).
+  Emits `loop:guide {id}`. Debug: `debug()`, `show(id)`, `close(how)`.
+- **Words**: `TEXT_LOOP.guide` (`tag`, `ok`, `skip`, `boxes[id]` ≤ 30 words each, `settings`); `tackle` and `away` are GEAR-GATES'.
+- **The save**: `meta.guide = {on, seen: {id: true}}`, made on its first read (`guideRecord`): on for a new save, off for one that has
+  landed a fish (`landedAny`). Settings (under the loop) adds "Guide tips" (on/off) and "Replay guide" (clears `seen`, turns it on).
+- **The switch**: `?guide=0|1` (wins), else a preset `GW_GUIDE` boolean; `tools/playtest.mjs` and `tools/chart-shots.mjs` preset it
+  off, so every scenario but `loop-guide.scenario.mjs` (which loads `?guide=1`) plays as before.
+- **Files**: `src/ui-guide.js`, `tools/tests/ui-guide.test.mjs`, `tools/tests/loop-guide.scenario.mjs`.

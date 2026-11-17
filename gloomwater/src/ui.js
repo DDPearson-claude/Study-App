@@ -16,6 +16,7 @@ import { createIntroView } from './ui-intro.js';
 // >>> LOOP 1a (lane C): the Full Hold's screens (docs/loop/slice-1a/PLAN.md §2.3); built only when data.LOOP_ENABLED
 import { createLoopView } from './ui-loop.js';
 import { createTeachView } from './ui-teach.js';   // MVP teach: the float's marks taught once
+import { createGuideView } from './ui-guide.js';   // the first-play guide: plain cards, each once, at its moment
 import { createTowView } from './ui-tow.js';   // M1 step 5b (LANE 5B-TOW)
 import { setLoopArt, hatchProbe } from './ui-fishart.js';
 import { createFindsView } from './ui-finds.js';   // M1 step 5c (lane 5C): the find card, the finds row, the glyphs
@@ -652,6 +653,8 @@ export function create(ctx) {
   // >>> MVP teach: the float's two marks taught once (src/ui-teach.js; ctx.ui.loop.teach)
   if (loopView) { try { loopView.teach = createTeachView(K); } catch (e) { report('teach view', e); } }
   // <<< MVP teach
+  // the first-play guide (src/ui-guide.js; ctx.ui.loop.guide): under the loop only
+  if (loopView) { try { loopView.guide = createGuideView(K); } catch (e) { report('guide view', e); } }
   // <<< LOOP 1a
   // M1 step 5c (lane 5C): the finds' view (the find card at the show's card; null off the loop)
   let findsView = null;
@@ -972,6 +975,7 @@ export function create(ctx) {
       // <<< INTRO LANE B
       if (loopView) { try { loopView.update(dt); } catch (e) { report('loop view', e); } }
       if (loopView?.teach) { try { loopView.teach.update(dt); } catch (e) { report('teach view', e); } }   // (MVP teach)
+      if (loopView?.guide) { try { loopView.guide.update(dt); } catch (e) { report('guide view', e); } }   // (the first-play guide)
       if (findsView) { try { findsView.update(dt); } catch (e) { report('finds view', e); } }   // (M1 step 5c)
     },
     isBlocking: () => hasBlocking(),
