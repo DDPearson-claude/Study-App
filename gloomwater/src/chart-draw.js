@@ -1127,7 +1127,9 @@ function drawCardTop(ctx, L, card, model, view, dpr, F, a) {
   deckle(ctx, card.x, card.y, card.w, card.h, 3, 1.4); ctx.clip();
   // the water's name and the catalogue's book beside it (SPEC §8.8: no word)
   const pick = model?.pick || {};
-  const nw = letter(ctx, L, card.name.text, card.name.x, card.name.y, card.name.font, { align: 'left', dpr, reserve: 0.7 });
+  // M1 step 5b (lane 5b-home; M1.md §2.5): a water complete is re-inked in gold (chart-gild.js, passed in as view.gild: its name's colour)
+  const gilt = view.gild?.(ctx, card, model, a, view);
+  const nw = letter(ctx, L, card.name.text, card.name.x, card.name.y, card.name.font, { align: 'left', dpr, reserve: 0.7, colour: gilt });
   if (pick.water === card.waterId && !pick.place) underline(ctx, card.name.x, card.name.y + 12, nw);
   if (card.book) bookGlyph(ctx, card.book.x, card.book.y, card.book.s);
   // the places

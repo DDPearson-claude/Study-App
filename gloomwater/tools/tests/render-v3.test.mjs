@@ -240,5 +240,44 @@ section('the show camera: the fit of named points, for 16:9 and a phone held upr
   ok(SC.followStill > SC.follow && SC.settleAfter < data.AUTOFISH.show.beats.keeper.hold && SC.headroom >= 0 && SC.footroom >= 0 && SC.margin.landscape + SC.footroom < 0.2, 'the target is frozen inside the shortest hold; room at the foot within reason');
 }
 
+// ------------------------------------------------------------------ M1 step 3a: the lift's shot (landmarkShot; the stage bcb76be, the fix pass)
+section('M1 step 3a: the lift\'s landmark shot (a path filmed broadside outside its radius, clear of the islands; a place\'s own crane)');
+{
+  const span = { x: -29.5, y: 1.8, z: 0.5, r: 14.5, face: [-9 / 22.85, 21 / 22.85] };   // Under the Span: (−40, −4) → (−19, 5), w 8
+  const along = [21 / 22.85, 9 / 22.85];
+  for (const raft of [{ x: -25, z: -10 }, { x: -20, z: 12 }]) {
+    const s = C.landmarkShot(raft, span, { aspect: 16 / 9 });
+    const vx = s.pos[0] - span.x, vz = s.pos[2] - span.z, h = Math.hypot(vx, vz);
+    const cosAlong = Math.abs((vx * along[0] + vz * along[1]) / h);
+    ok(cosAlong < 0.05, `a path is filmed across its broadside, never down its length (raft ${raft.x},${raft.z}: ${cosAlong.toFixed(3)} along it)`);
+    ok(Math.sign(vx * span.face[0] + vz * span.face[1]) === Math.sign((raft.x - span.x) * span.face[0] + (raft.z - span.z) * span.face[1]), '… on the raft\'s side of it');
+    ok(s.dist >= 0.7 * C.LANDMARK_SHOT.near && h > 8, `… from outside its water (${h.toFixed(1)} m out)`);
+    eq(s.look, [span.x, span.y, span.z], '… looking at the place');
+  }
+  // dropping the anchor's radius and broadside (the bug bcb76be fixed): filmed down the bridge's length
+  const bare = C.landmarkShot({ x: -45, z: -10 }, { x: span.x, y: span.y, z: span.z });
+  const bv = [bare.pos[0] - span.x, bare.pos[2] - span.z], bh = Math.hypot(bv[0], bv[1]);
+  ok(Math.abs((bv[0] * along[0] + bv[1] * along[1]) / bh) > 0.5, '(without its face the shot stands down the path: the face is what turns it)');
+  // an island between the lens and the place: the lens steps round (then up) until its line is clear (the stage's boulder)
+  const islands = [{ x: -30, z: 14, r: 6.68, kind: 'island' }, { x: -40, z: -4, r: 1.4, kind: 'column' }];
+  const raftN = { x: -33, z: 12 };
+  const s0 = C.landmarkShot(raftN, span, { aspect: 16 / 9 });
+  ok(!!C.shotBlocked(s0.pos, s0.look, islands), '(the raft by the north island: the plain broadside stands over the island)');
+  const s1 = C.landmarkShot(raftN, span, { aspect: 16 / 9, obstacles: islands });
+  ok(!C.shotBlocked(s1.pos, s1.look, islands) && Math.hypot(s1.pos[0] + 30, s1.pos[2] - 14) > 6.68 + 3, 'with the islands given, the lens stands clear of the island and its line to the place is open');
+  ok(C.shotBlocked([span.x, 2, span.z + 30], span.look ?? [span.x, 1.8, span.z], [{ x: span.x, z: span.z + 15, r: 6, kind: 'island' }]) !== null, 'shotBlocked: a low line through an island is blocked');
+  ok(C.shotBlocked([span.x, 2, span.z + 30], [span.x, 1.8, span.z], [{ x: span.x - 20, z: span.z + 15, r: 6, kind: 'island' }, { x: span.x, z: span.z + 15, r: 1.4, kind: 'column' }]) === null, 'shotBlocked: an island off the line, or the place\'s own pier, is not');
+  // a portrait frame: the long place filmed off its broadside and further back (all three spans fit)
+  const sp = C.landmarkShot({ x: -25, z: -10 }, span, { aspect: 390 / 844 }), sl = C.landmarkShot({ x: -25, z: -10 }, span, { aspect: 16 / 9 });
+  const pv = [sp.pos[0] - span.x, sp.pos[2] - span.z], ph = Math.hypot(pv[0], pv[1]);
+  const offDeg = Math.acos(Math.min(1, Math.abs((pv[0] * span.face[0] + pv[1] * span.face[1]) / ph))) / DEG;
+  ok(offDeg > 25 && offDeg < 50 && sp.dist > sl.dist && sp.fov > sl.fov, `on a portrait frame a path is filmed ${offDeg.toFixed(0)}° off its broadside, further back, wider`);
+  // a place's own crane (the Bell Pool: its side, elevation and distance)
+  const bell = { x: -3.4, y: 0, z: -15.9, r: 6, side: [0.93, 0.37], elev: 46, dist: 10.5 };
+  const sb = C.landmarkShot({ x: -20, z: -30 }, bell, { aspect: 16 / 9 });
+  near(sb.pos[1], 10.5 * Math.sin(46 * DEG), 'a place\'s elev and dist: the Bell Pool\'s lens about 7.5 m up, looking down on its bell', 1e-6);
+  ok((sb.pos[0] - bell.x) * 0.93 + (sb.pos[2] - bell.z) * 0.37 > 7, '… from its own side whatever side the raft is on');
+}
+
 console.log(`render-v3: ${pass} passed, ${fail} failed`);
 if (fail) { console.log(failures.join('\n')); process.exit(1); }

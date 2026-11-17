@@ -7,8 +7,13 @@
 // #c8c0b0), and the lamp's glow, halo and PointLight candle-warm #ffe2b0 (the v1 / v2 build keeps
 // the old green lamp). A trace of verdigris on the hand bell is the only green he carries
 // (COVE.greenBudget).
+//
+// The Full Hold (M1 step 5a, SPEC §6.1): a `moored` mode, Murk's barge at the home barge's mooring (the mooring's `murk` slot)
+// through home and every evening: moor(pos, yaw) places him at once; his lamp's PointLight held at 0 (its glow mesh and halo
+// only, so home keeps "no PointLight"); no turning to track the raft (his breath, blink and the ledger's idle only: a page of his
+// ledger turned now and then); leave() keeps him moored unless {unmoor: true}. Off the loop nothing calls moor().
 import * as THREE from 'three';
-import { toonMaterial, addOutline, glowSprite, glowMaterial, canvasTexture } from './toon.js';
+import { toonMaterial, addOutline, glowSprite, glowMaterial, canvasTexture, REFLECT_LAYER } from './toon.js';
 import { TAU, xf, paint, mergeGeos, tube, bezierPts, blob, spike, lumpy, smoothNormals, shadowTexture } from './models-kit.js';
 
 const damp = THREE.MathUtils.damp;
@@ -182,6 +187,39 @@ export function createMerchant(ctx) {
   const bell = new THREE.Mesh(bellGeo, bellMat);
   addOutline(bell, { thickness: 0.01 }); bellPivot.add(bell);
 
+  // ---------------------------------------------------------------- the ledger (moored mode only: his idle at home)
+  const ledger = new THREE.Group(); ledger.position.set(0, 0.22, 0.62); ledger.visible = false; bob.add(ledger);
+  const ledgerMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.2, rimPower: 0.75 }));
+  ledger.add(new THREE.Mesh(mergeGeos([
+    paint(xf(new THREE.BoxGeometry(0.46, 0.22, 0.34), { p: [0, 0.11, 0] }), 0x3e2c1c),
+    paint(xf(new THREE.BoxGeometry(0.5, 0.03, 0.38), { p: [0, 0.235, 0] }), 0x2e2016),
+    paint(xf(new THREE.BoxGeometry(0.4, 0.025, 0.28), { p: [0, 0.262, 0], r: [0.12, 0, 0] }), 0x4a2a2a),
+    paint(xf(new THREE.BoxGeometry(0.18, 0.02, 0.26), { p: [-0.1, 0.28, 0], r: [0.12, 0, 0.06] }), 0xcfc4ae),
+    paint(xf(new THREE.BoxGeometry(0.18, 0.02, 0.26), { p: [0.1, 0.28, 0], r: [0.12, 0, -0.06] }), 0xcfc4ae),
+  ]), ledgerMat));
+  const pageHinge = new THREE.Group(); pageHinge.position.set(0, 0.29, 0); pageHinge.rotation.x = 0.12; ledger.add(pageHinge);
+  const page = new THREE.Mesh(xf(new THREE.PlaneGeometry(0.17, 0.25), { p: [0.09, 0.001, 0], r: [-Math.PI / 2, 0, 0] }), M(toonMaterial({ color: 0xd8ccb4, rim: 0.2, side: THREE.DoubleSide })));
+  pageHinge.add(page);
+  let pageT = 6, pageK = 0;
+  /**
+   * Moored (the home frame, M1 §2.14): his small parts (the lids, the sac, the bell and its post, the chime, the lamp's iron, the
+   * ledger, the lotus lamps' glows) leave the shadow and mirror passes, which cannot show them at home's distance; the large ones
+   * (the pad, the body, the pack, the head) keep both. Put back as built when he leaves the moored mode.
+   */
+  function trimPasses(on) {
+    object3d.traverse((o) => {
+      if (!(o.isMesh || o.isSprite) || o.userData?.isOutline) return;
+      const u = o.userData;
+      if (u.gwPass0 === undefined) u.gwPass0 = { cast: !!o.castShadow, refl: o.layers.isEnabled(REFLECT_LAYER) };
+      let r = Infinity;
+      if (o.isSprite) r = Math.max(o.scale.x, o.scale.y) * 0.5;
+      else if (o.geometry) { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); r = (o.geometry.boundingSphere?.radius ?? Infinity) * Math.max(o.scale.x, o.scale.y, o.scale.z); }
+      const small = on && r < 0.45;
+      o.castShadow = small ? false : u.gwPass0.cast;
+      if (small || !u.gwPass0.refl) o.layers.disable(REFLECT_LAYER); else o.layers.enable(REFLECT_LAYER);
+    });
+  }
+
   // ---------------------------------------------------------------- shadow + pick proxy
   const shMat = M(new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, opacity: 0.45, depthWrite: false, fog: true }));
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 5.4), shMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.03; shadow.userData.noReflect = true; object3d.add(shadow);
@@ -191,6 +229,7 @@ export function createMerchant(ctx) {
   // ---------------------------------------------------------------- behaviour
   const position = new THREE.Vector3();          // mooring spot (truth for gameplay)
   const from = new THREE.Vector3(), to = new THREE.Vector3(), tmp = new THREE.Vector3();
+  let lampLit = 0;
   let tongueT = 6, tongueK = 0, bodyYaw = 0, present = false, mode = 'hidden', modeT = 0, modeDur = 1, yaw = 0, yawFrom = 0, ring = 0, blinkT = 3, blink = 0, sacT = 2, sacK = 0, smokeT = 0, lookYaw = 0, t = 0, fade = 0;
   const ease = (x) => 1 - Math.pow(1 - x, 3), easeIn = (x) => x * x * x;
   function awayDir(out, p, y) {
@@ -205,7 +244,32 @@ export function createMerchant(ctx) {
     get present() { return present; },
     get position() { return position; },
     get mode() { return mode; },
+    /** The lamp's own PointLight share this frame (0 while moored or hidden; the ceremony may borrow the light, which is not this). */
+    get lampLit() { return lampLit; },
+    /** His body's turn on the pad and his head's (radians): the raft is tracked only outside the moored mode (tests). */
+    get facing() { return { bodyYaw, lookYaw }; },
+    /**
+     * The loop's moored mode (M1 step 5a): Murk at the mooring's murk slot at once, facing (−sin y, −cos y) (the docks' heading
+     * convention), his lamp's PointLight held at 0, no turning toward the raft.
+     */
+    moor(pos, y = 0) {
+      if (pos) position.set(pos.x || 0, 0, pos.z || 0);
+      yaw = Number.isFinite(y) ? y + Math.PI : Math.PI;
+      present = true;
+      to.copy(position); from.copy(position);
+      mode = 'moored'; modeT = 0; ring = 0; fade = 1;
+      object3d.visible = true;
+      object3d.position.copy(position);
+      object3d.rotation.y = yaw;
+      bodyYaw = 0; murk.rotation.y = 0; lookYaw = 0;
+      tongue.visible = false; tongueK = 0;
+      ledger.visible = true;
+      light.intensity = 0; lampLit = 0;
+      trimPasses(true);
+    },
     arrive(pos, y = 0, { instant = false } = {}) {
+      if (mode === 'moored') trimPasses(false);
+      ledger.visible = false;
       if (pos) position.set(pos.x || 0, 0, pos.z || 0);
       yaw = Number.isFinite(y) ? y + Math.PI : Math.PI;
       present = true;
@@ -220,7 +284,10 @@ export function createMerchant(ctx) {
       if (pl && !ctx.player.isStub) { const dx = pl.x - to.x, dz = pl.z - to.z; bodyYaw = Math.atan2(Math.sin(Math.atan2(dx, dz) - yaw), Math.cos(Math.atan2(dx, dz) - yaw)); murk.rotation.y = bodyYaw; }
       if (instant) { ring = 1.5; fade = 1; }
     },
-    leave({ instant = false } = {}) {
+    leave({ instant = false, unmoor = false } = {}) {
+      if (mode === 'moored' && !unmoor) return;   // (the loop: moored Murk stays at home; only a new water unmoors him)
+      if (mode === 'moored') trimPasses(false);
+      ledger.visible = false;
       present = false;
       if (!object3d.visible) { mode = 'hidden'; return; }
       if (instant) { object3d.visible = false; mode = 'hidden'; light.intensity = 0; return; }
@@ -232,7 +299,7 @@ export function createMerchant(ctx) {
     },
     update(dt, heightFn) {
       t += dt; modeT += dt;
-      if (mode === 'hidden') { light.intensity = 0; return; }
+      if (mode === 'hidden') { light.intensity = 0; lampLit = 0; return; }
       const k = Math.min(1, modeT / modeDur);
       if (mode === 'arriving') {
         object3d.position.lerpVectors(from, to, ease(k));
@@ -244,10 +311,15 @@ export function createMerchant(ctx) {
         object3d.rotation.y = yawFrom + Math.sin(k * Math.PI) * 0.4;
         fade = 1 - Math.max(0, (k - 0.6) / 0.4);
         if (k >= 1) { mode = 'hidden'; object3d.visible = false; light.intensity = 0; return; }
+      } else if (mode === 'moored') {
+        object3d.position.x = position.x; object3d.position.z = position.z;
+        object3d.rotation.y = damp(object3d.rotation.y, yaw + Math.sin(t * 0.17) * 0.025, 2, dt);
+        fade = 1;
       } else {
         object3d.rotation.y = damp(object3d.rotation.y, yaw + Math.sin(t * 0.21) * 0.05, 2, dt);
         fade = 1;
       }
+      const moored = mode === 'moored';
       const px = object3d.position.x, pz = object3d.position.z;
       const wy = heightFn ? heightFn(px, pz) : 0;
       const hx = heightFn ? heightFn(px + 1.5, pz) - heightFn(px - 1.5, pz) : 0, hz = heightFn ? heightFn(px, pz + 1.5) - heightFn(px, pz - 1.5) : 0;
@@ -263,8 +335,8 @@ export function createMerchant(ctx) {
       blinkT -= dt; if (blinkT <= 0) { blinkT = 2.5 + Math.random() * 4; blink = 0.18; }
       blink = Math.max(0, blink - dt);
       for (const l of lids) l.rotation.x = blink > 0 ? 1.45 : 0.55 + Math.sin(t * 0.4) * 0.06;
-      const pl = ctx.player?.position;
-      let ly = Math.sin(t * 0.25) * 0.3;
+      const pl = moored ? null : ctx.player?.position;   // (moored: he never turns to the raft; his eyes stay on the ledger and the water)
+      let ly = Math.sin(t * 0.25) * (moored ? 0.18 : 0.3);
       if (pl && !ctx.player.isStub) {
         object3d.updateMatrixWorld();
         tmp.copy(pl); murk.worldToLocal(tmp);
@@ -279,19 +351,28 @@ export function createMerchant(ctx) {
       }
       murk.rotation.y = bodyYaw;
       lookYaw = damp(lookYaw, ly, 2.5, dt);
-      head.rotation.set(Math.sin(t * 0.6) * 0.03, lookYaw, Math.sin(t * 0.5) * 0.03);
+      // moored: the ledger's idle, a page turned now and then, his head dipping to read it
+      let dip = 0;
+      if (moored) {
+        pageT -= dt;
+        if (pageT <= 0 && pageK <= 0) { pageT = 9 + Math.random() * 7; pageK = 0.001; }
+        if (pageK > 0) { pageK += dt / 0.9; const e = Math.min(1, pageK); pageHinge.rotation.z = -Math.PI * (e * e * (3 - 2 * e)); if (pageK >= 1) { pageK = 0; pageHinge.rotation.z = 0; } }
+        dip = 0.16 + Math.sin(t * 0.31) * 0.04;
+      }
+      head.rotation.set(Math.sin(t * 0.6) * 0.03 + dip, lookYaw, Math.sin(t * 0.5) * 0.03);
       // lamp sway, bell ring
       lampPivot.rotation.set(Math.sin(t * 1.1) * 0.08 + bob.rotation.x * 2, 0, Math.sin(t * 0.83) * 0.1 + bob.rotation.z * 2);
       ring = Math.max(0, ring - dt * 0.5);
       bellPivot.rotation.z = Math.sin(t * 11) * 0.5 * Math.min(1, ring);
       bellPivot.rotation.x = Math.sin(t * 7) * 0.08 * Math.min(1, ring);
       const flick = 0.85 + Math.sin(t * 7.3) * 0.06 + Math.sin(t * 13.1) * 0.04;
-      light.intensity = 3.2 * fade * flick;
+      lampLit = moored ? 0 : 3.2 * fade * flick;   // (moored: the glow mesh and the halo only, no PointLight)
+      light.intensity = lampLit;
       lampHalo.material.opacity = 0.35 * fade * flick;
       ember.scale.setScalar(0.8 + Math.sin(t * 2.3) * 0.25);
       fchime.rotation.set(Math.sin(t * 1.4) * 0.12 + bob.rotation.x * 2, 0, Math.sin(t * 1.1) * 0.15);
       tongueT -= dt;
-      if (tongueT <= 0) { tongueT = 7 + Math.random() * 9; tongueK = 0.001; }
+      if (tongueT <= 0) { tongueT = 7 + Math.random() * 9; tongueK = moored ? 0 : 0.001; }
       if (tongueK > 0) { tongueK += dt / 0.32; const e = Math.sin(Math.min(1, tongueK) * Math.PI); tongue.visible = e > 0.02; tongue.scale.set(1, 1, Math.max(0.001, e)); tongue.rotation.x = -0.3 + e * 0.2; if (tongueK >= 1) { tongueK = 0; tongue.visible = false; } }
       lotusSprites.forEach((sp, i) => { sp.material.opacity = 0.4 * fade * (0.8 + Math.sin(t * 1.4 + i) * 0.2); });
       if (light.parent !== lampPivot) { lampGlow.getWorldPosition(light.position); light.parent?.worldToLocal(light.position); }

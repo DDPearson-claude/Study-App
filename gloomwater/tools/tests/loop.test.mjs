@@ -40,6 +40,15 @@ section('core: the loop switch (PLAN §3.2, CHOICE 18) and fmtClams');
   eq(R({ preset: { loop: true } }), { on: true, source: 'preset', apply: false }, 'a preset on is left alone');
   eq(R({ preset: { v3: false }, search: '?loop=1' }).on, false, 'a preset GW_V3 === false keeps the loop off (a v1 template)');
   eq(R({ rollout: { on: true } }).apply, true, 'the gate commit flips LOOP_ROLLOUT.on');
+  // M1 step 3a (PLAN CHOICE 13): the re-dress's dev switch, read once beside ?loop; data.js's LOOP.redress is false without it
+  const RR = core.resolveRedressFlag;
+  eq([RR({}).on, RR({ search: '?loop=1' }).on, RR({ search: '?redress=0' }).on], [false, false, false], '?redress: off by default, and with ?redress=0');
+  eq(RR({ search: '?loop=1&redress=1' }), { on: true, source: 'url', apply: true }, '?redress=1 → on');
+  eq(RR({ preset: false, search: '?redress=1' }), { on: false, source: 'preset', apply: false }, 'a preset GW_REDRESS wins');
+  ok(core.REDRESS_FLAGS.apply === false && globalThis.GW_REDRESS === undefined, 'node import: the re-dress switch writes nothing');
+  const rp = { document: {}, location: { search: '?loop=1&redress=1' } }, rq = { document: {}, location: { search: '?loop=1' } };
+  core.applyRedressFlag(rp); core.applyRedressFlag(rq);
+  ok(rp.GW_REDRESS === true && rq.GW_REDRESS === undefined, 'a fake page: GW_REDRESS written only with ?redress=1');
   const page = { document: {}, location: { search: '?loop=1&v3=0&v3phase=4' } };
   eq(core.applyLoopFlags(page).on, true, 'a fake page with ?loop=1 → on');
   ok(page.GW_LOOP === true && page.GW_V3 === true && page.GW_V3_PHASE === 1, 'a fake page: GW_LOOP, GW_V3 and GW_V3_PHASE = 1 written');
@@ -80,7 +89,7 @@ section('data.js: the LOOP tables');
 {
   const L = D.LOOP;
   eq(L.hold.ladder.map((s) => [s.slots, s.price]), [[4, 30], [5, 120], [6, 450], [7, 2000], [8, 3500]], 'the hold ladder (SPEC §4.2)');
-  ok(L.hold.start === 3 && L.hold.max === 8 && L.hold.shelfMax === 5, 'the hold: 3 to 8, the 1a shelf to Hold 5');
+  ok(L.hold.start === 3 && L.hold.max === 8 && L.hold.shelfMax === 6, 'the hold: 3 to 8, the shelf to Hold 6 (M1 step 3a; 1a stopped at 5)');
   eq(L.tackle.price, [0, 50, 300, 1200, 6000, 32000, 100000], 'tackle prices');
   eq(L.tackle.shelfAt, [1, 1, 1, 2, 3, 4, 9], 'v8: shelfAt[6] = 9');
   eq(L.access.gear, { sporewood: 'rod:1' }, 'v8: the one gear key 1a carries');
@@ -152,14 +161,14 @@ section('data.js: fishClams, loopWaterKey, loopWickId, the Wick helpers, sailPla
 section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 bookkeeping, T35, T38), the shelf (T23, T24), the list (T81, T82)');
 {
   const f = PL.freshLoop(D);
-  ok(f.v === 3 && f.holdSlots === 3 && f.clams === 0 && f.evenings === 0, 'freshLoop: 3 slots, no clams, no evening');
+  ok(f.v === PL.LOOP_SCHEMA && f.holdSlots === 3 && f.clams === 0 && f.evenings === 0, 'freshLoop: 3 slots, no clams, no evening');
   ok(f.wick === null && f.tutorial === null && f.lastTrip === null, 'freshLoop: no Wick, no tutorial (T67)');
   eq(f.maps, { lakes: ['mossmere'], places: [] }, 'freshLoop: the Mossmere owned');
   eq(f.firsts, { seen: [], seals: [], best: {} }, "freshLoop: the Wick's ledger, empty");
   // T51: a v2 block
   const m2 = { runs: 4, journal: { dusk_minnow: { caught: 2 } }, loop: { v: 2, clams: 5, bait: { mireworm: 4 }, hold: 2, raft: { hull: 2, oars: 1 }, maps: { lakes: ['mossmere'], places: ['lily_maze'] } } };
   PL.migrateLoop(m2, D);
-  ok(m2.loop.v === 3 && m2.loop.holdSlots === 5 && !('hold' in m2.loop), 'T51: hold 2 → holdSlots 5');
+  ok(m2.loop.v === PL.LOOP_SCHEMA && m2.loop.holdSlots === 5 && !('hold' in m2.loop), 'T51: hold 2 → holdSlots 5');
   eq(m2.loop.bait, { mossmere: { mireworm: 4 } }, 'T51: flat bait counts move under the Mossmere');
   ok(m2.loop.clams === 705 && !('hull' in m2.loop.raft) && m2.loop.raft.oars === 1, 'T51: the hull refunded (700) and removed');
   eq(m2.loop.maps.places, ['lily_maze'], 'T51: places kept');
@@ -210,7 +219,12 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   ok(PL.sellStrandedTrip(v1save).sold === false && JSON.stringify(v1save) === before, 'T39: a non-trip envelope is returned untouched');
   // T23/T24: the shelf
   const shelf0 = PL.shelfItems(D, PL.freshLoop(D));
-  eq(shelf0.map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 30, false]], 'T23: the fresh shelf');
+  // (M1 step 4's cards, the lures, tins, raft parts and Order Board, are tools/tests/loop-4.test.mjs's: these checks read the rest)
+  const step4 = (i) => /^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id), no4 = (items) => items.filter((i) => !step4(i));
+  const kit = (items) => no4(items).filter((i) => i.tab === 'tackle' || i.tab === 'raft');
+  eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 30, false]], 'T23: the fresh shelf (Tackle and Raft)');
+  eq(no4(shelf0).filter((i) => i.tab === 'bait' || i.tab === 'maps').map((i) => [i.id, i.price, i.bought]),
+    [['bait:heartmoss', 60, false], ['place:lily_maze', 60, false], ['place:under_the_span', 150, false], ['lake:sporewood', null, false]], 'M1 step 3a: the Bait tab and the Maps tab (two place maps and the sealed card)');
   eq(shelf0.find((i) => i.id === 'hold:4').name, 'Lidded Creel', "a hold card names the ladder's step");
   ok(!shelf0.some((i) => i.id === 'hold:5' || i.id === 'rod:2'), 'T24: Hold 5 and T2 wait for the step below');
   eq(PL.goalOf(shelf0), { id: 'hold:4', name: 'Hold 4', price: 30, slot: 'hold', level: 4 }, 'the goal line: the cheapest, "Hold 4 · 30"');
@@ -218,13 +232,18 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   const ses = PL.shelfItems(D, after, ['hold:4', 'rod:1']);
   eq(ses.filter((i) => i.bought).map((i) => i.id), ['rod:1', 'hold:4'], 'CHOICE 26: bought while open, the card reads Yours. in place');
   eq(PL.shelfItems(D, after).filter((i) => ['rod', 'hold'].includes(i.slot)).map((i) => [i.id, i.price]), [['rod:2', 300], ['hold:5', 120]], 'T23: the next steps on the next open');
-  const top = PL.shelfItems(D, { ...PL.freshLoop(D), holdSlots: 5, tackle: { rod: 2, line: 2, reel: 2 } });
-  ok(top.length === 4 && top.every((i) => i.bought), 'CHOICE 26: Hold 5 and T2 keep a permanent Yours. card');
-  eq(PL.goalOf(top), null, 'an empty shelf: no goal line');
+  // M1 step 3a: the shelf's last hold step is Hold 6 (LOOP.hold.shelfMax), so Hold 5 is followed by the Wellbox at 450
+  const five = PL.shelfItems(D, { ...PL.freshLoop(D), holdSlots: 5, tackle: { rod: 2, line: 2, reel: 2 } });
+  eq(kit(five).map((i) => [i.id, i.price, i.bought]), [['rod:2', 300, true], ['line:2', 300, true], ['reel:2', 300, true], ['hold:6', 450, false]], 'M1 step 3a: after Hold 5, Hold 6 at 450 (shelfMax 6)');
+  const all4 = PL.freshLoop(D); all4.maps.places = ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'];
+  const top = PL.shelfItems(D, { ...all4, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
+  ok(kit(top).length === 4 && kit(top).every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
+  eq(top.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed]), [['lake:sporewood', true]], 'every place map owned: the Maps tab is the sealed card alone');
+  eq(PL.goalOf(no4(top).filter((i) => i.tab !== 'home')), null, 'an empty shelf: no goal line (the ball is a consumable, the sealed card has no price)');
   // T81/T82: the list
-  eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'reedjaw_pike'], "T81: the Mossmere's list, computed (M1 step 2: the eleven)");
+  eq(PL.listFor(D, 'mossmere'), ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper', 'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'], "T81: the Mossmere's list, computed (M1 step 3a: the twelve, with the Kissmark Trout)");
   const jm = { journal: { dusk_minnow: { caught: 1 }, weeping_carp: { seen: true, caught: 0 }, reedjaw_pike: {}, gloam_eel: { caught: 3 }, mossback_perch: { caught: '2' } } };
-  eq(PL.listCount(jm, D, 'mossmere'), { have: 2, need: 11 }, 'T82: caught > 0 only (Glimpsed and off-list entries do not count)');
+  eq(PL.listCount(jm, D, 'mossmere'), { have: 2, need: 12 }, 'T82: caught > 0 only (Glimpsed and off-list entries do not count)');
 }
 
 // ------------------------------------------------------------------ the method set: createLoop (inert in S) and the fixture

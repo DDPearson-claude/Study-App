@@ -216,7 +216,7 @@ section('the Chart\'s Sail: the glide out, then the trip (T66)');
   eq(zc?.p, { zone: 'mossmere', prev: null, sail: true }, 'T66: zone:change {prev: null, sail: true}');
   ok(E.names().indexOf('zone:change') < E.names().indexOf('run:start'), '… then run:start');
   eq(E.player.position, plan.to, 'T66: after run:start the raft is at the glide\'s end (no respawn jump)');
-  ok(E.ctx.state.run?.outing === 'trip' && E.calls.includes('merchant.leave'), 'the run is a trip; Murk stays home');
+  ok(E.ctx.state.run?.outing === 'trip' && !E.calls.includes('merchant.leave'), 'the run is a trip; Murk stays moored (M1 step 5a: startTrip never calls merchant.leave)');
   // a trip that ended near docks[2]: the sail home leaves the raft at docks[0], and the next Sail starts there
   E.player.position = { x: 33, z: -36 };
   E.ev.length = 0;
@@ -262,6 +262,159 @@ section('the trip\'s ends and refusals (T31, T45, PLAN CHOICE 5)');
   const T = homeEnv(); T.ctx.flow = 'title';
   ok(T.H.enterHome('title') && T.ctx.flow === 'home' && T.ev.find((x) => x.e === 'home:enter')?.p.from === 'title', 'the title\'s Continue at home: home:enter {from: title}');
   ok(T.loop.s.tutorial?.done === false, 'rev. 4: every enterHome begins a missing tutorial');
+}
+
+// =====================================================================================================================
+// M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 item 5, PLAN CHOICEs 7, 8, 24): the lift at a trip's start, Sail toward a place
+function liftEnv({ own = ['lily_maze', 'bell_pool'], lifted = [], reduced = false, pick = null } = {}) {
+  const E = homeEnv({ flow: 'home', loopOver: { maps: { lakes: ['mossmere'], places: own.slice() }, lifted: lifted.slice(), tutorial: { done: true, step: null }, chartPick: pick } });
+  const C = E.calls;
+  Object.assign(E.ctx.world, {
+    liftMist: (id, s) => { C.push(`liftMist:${id}:${s}`); return true; },
+    placeAnchor: (id) => ({ ...D.loopPlace(id).landmark }),
+    setPlaces: (p) => { C.push(`setPlaces:${p.owned.join('+')}|${p.lifted.join('+')}`); },
+  });
+  E.ctx.render = { frameLandmark: (p, o = {}) => { C.push(`frame:${p ? `${p.x},${p.z}` : 'null'}:${o.dur ?? '-'}:${o.back ?? '-'}`); if (p) E.framed.push({ ...p }); return true; } };
+  E.framed = [];
+  if (reduced) E.ctx.state.meta.settings = { ...(E.ctx.state.meta.settings || {}), reducedMotion: true };
+  /** the lift's clock: n seconds of main's frame at dt (and the fake world's events at their times) */
+  E.run = (sec, dt = 1 / 30) => { const n = Math.round(sec / dt); for (let i = 0; i < n; i++) { E.ctx.time = { t: (E.ctx.time?.t || 0) + dt }; E.H.update(dt); } };
+  E.lifts = () => E.ev.filter((x) => x.e === 'place:lift').map((x) => `${x.p.placeId}:${x.p.phase}`);
+  return E;
+}
+section('M1 step 3a: the lift at a trip\'s start (T128)');
+{
+  const E = liftEnv();
+  ok(E.H.sail({ water: 'mossmere' }) === true, '(Sail with two places owned and not lifted)');
+  await E.step(3.2);
+  eq(E.ctx.flow, 'playing', '(the trip)');
+  ok(E.calls.some((c) => c === 'setPlaces:lily_maze+bell_pool|'), 'T128: world.setPlaces({owned, lifted}) at run:start (nothing lifted yet)');
+  eq(E.lifts(), ['lily_maze:start'], 'T128: after the glide out and run:start the first due place\'s lift begins (price order: the Lily Maze)');
+  ok(E.names().indexOf('run:start') < E.names().indexOf('place:lift'), '… after run:start');
+  const st = E.ev.find((x) => x.e === 'place:lift').p;
+  eq(st, { placeId: 'lily_maze', phase: 'start', name: 'The Lily Maze' }, 'T128: place:lift {placeId, phase: start, name}');
+  ok(E.calls.includes(`liftMist:lily_maze:${D.LOOP.lift.thin}`), `T128: world.liftMist(id, ${D.LOOP.lift.thin})`);
+  const lm = D.loopPlace('lily_maze').landmark;
+  ok(E.calls.includes(`frame:${lm.x},${lm.z}:${D.LOOP.lift.thin + D.LOOP.lift.title}:${D.LOOP.lift.back}`), 'T128: render.frameLandmark(the landmark, {dur: thin + title, back})');
+  ok(E.ctx.cinematic === true && E.H.lifting() === 'lily_maze', 'T128: ctx.cinematic on; lifting() names the place');
+  eq(E.H.canGoHome(), { ok: false, why: 'show' }, 'T128: no Home press during it');
+  E.run(2.9);
+  eq(E.lifts(), ['lily_maze:start'], '… still thinning at 2.9 s');
+  E.run(0.15);
+  eq(E.lifts(), ['lily_maze:start', 'lily_maze:title'], `T128: {phase: title} at ${D.LOOP.lift.thin} s`);
+  eq(E.ev.filter((x) => x.e === 'place:lift').at(-1).p.name, 'The Lily Maze', '… with the place\'s name');
+  ok(!E.loop.s.lifted.includes('lily_maze'), 'T112: not marked before its end (a reload here replays it)');
+  E.run(1.1);
+  ok(!E.lifts().includes('lily_maze:end') && E.ctx.cinematic, '… the title holds to 4.2 s');
+  E.run(0.15);
+  ok(E.lifts().includes('lily_maze:end') && E.loop.s.lifted.includes('lily_maze'), `T128: {phase: end} and markLifted at ${D.LOOP.lift.thin + D.LOOP.lift.title} s`);
+  ok(E.calls.some((c) => c === 'setPlaces:lily_maze+bell_pool|lily_maze'), '… the places synced with it lifted');
+  eq(E.lifts().at(-1), 'bell_pool:start', 'PLAN CHOICE 24: the next due lift follows (the Bell Pool)');
+  ok(E.ctx.cinematic === true, 'T128: ctx.cinematic true throughout');
+  E.run(4.3);
+  ok(E.lifts().includes('bell_pool:end') && E.ctx.cinematic === false && E.H.lifting() === null, 'T128: after the last, cinematic off and nothing lifting');
+  eq(E.loop.s.lifted, ['lily_maze', 'bell_pool'], '… both lifted, in price order');
+  eq(E.H.canGoHome(), { ok: true, why: null }, '… and Home is open again');
+  // a tap (or a skip key: main routes both to skipLift) ends the running lift at once
+  const K = liftEnv();
+  K.H.sail({ water: 'mossmere' }); await K.step(3.2); K.run(1);
+  ok(K.H.skipLift() === true, 'T128: a tap or a skip key ends the running lift');
+  ok(K.lifts().includes('lily_maze:end') && K.loop.s.lifted.includes('lily_maze'), '… at once, marked');
+  ok(K.calls.includes('liftMist:lily_maze:0') && K.calls.some((c) => c.startsWith('frame:null')), '… the bank gone (liftMist(id, 0)) and the camera sent back');
+  eq(K.lifts().at(-1), 'bell_pool:start', '… then the next due lift');
+  K.H.skipLift();
+  ok(K.H.skipLift() === false && K.ctx.cinematic === false, '… with none running a skip does nothing');
+  // reduced motion: no thinning, the title still shows
+  const R = liftEnv({ own: ['under_the_span'], reduced: true });
+  R.H.sail({ water: 'mossmere' }); await R.step(3.2);
+  ok(R.calls.includes('liftMist:under_the_span:0'), 'T128: reduced motion skips the thinning (liftMist(id, 0))');
+  eq(R.lifts(), ['under_the_span:start', 'under_the_span:title'], '… the title shows at once');
+  R.run(D.LOOP.lift.title + 0.1);
+  ok(R.lifts().includes('under_the_span:end') && R.loop.s.lifted.includes('under_the_span'), '… and ends after it');
+  // the pause holds a lift; nothing due: no lift; a lifted place never lifts again
+  const P = liftEnv({ own: ['lily_maze'] });
+  P.H.sail({ water: 'mossmere' }); await P.step(3.2);
+  P.ctx.paused = true; P.run(6);
+  ok(P.H.lifting() === 'lily_maze' && !P.lifts().includes('lily_maze:title'), 'the pause holds the lift');
+  P.ctx.paused = false; P.run(4.4);
+  ok(P.lifts().includes('lily_maze:end'), '… and it goes on after');
+  const N = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
+  N.H.sail({ water: 'mossmere' }); await N.step(3.2);
+  ok(N.lifts().length === 0 && N.ctx.cinematic === false && N.calls.some((c) => c === 'setPlaces:lily_maze|lily_maze'), 'T128: a place already lifted never lifts again (its dressing lit from run:start)');
+  // the anchor's radius, a path's broadside and a place's own crane reach the shot (the stage's bcb76be dropped none of them again: the
+  // Span was filmed down its length behind its first pier when loop-home passed only x, y, z)
+  const A2 = liftEnv({ own: ['under_the_span', 'bell_pool'] });
+  A2.ctx.world.placeAnchor = (id) => (id === 'under_the_span' ? { x: -29.5, y: 1.8, z: 0.5, r: 14.5, face: [-0.39, 0.92] } : { x: -3.4, y: 0, z: -15.9, r: 6, side: [0.93, 0.37], elev: 46, dist: 10.5 });
+  A2.H.sail({ water: 'mossmere' }); await A2.step(3.2); A2.run(4.4); A2.run(4.6);
+  const fs = Object.fromEntries(A2.framed.map((p) => [p.x, p]));
+  eq(fs[-29.5], { x: -29.5, y: 1.8, z: 0.5, r: 14.5, face: [-0.39, 0.92] }, 'T128: Under the Span\'s anchor reaches the shot whole (its radius and its broadside)');
+  eq(fs[-3.4], { x: -3.4, y: 0, z: -15.9, r: 6, side: [0.93, 0.37], elev: 46, dist: 10.5 }, 'T128: the Bell Pool\'s crane reaches the shot (its side, elevation and distance)');
+  // a Continue's run:start syncs the places; it replays only a lift the page closed on (owned, not lifted: PLAN CHOICE 8's "a reload
+  // mid-lift replays it"), and plays none when every owned place is lifted
+  const Q = liftEnv({ own: ['buoy_lights'] }); Q.ctx.flow = 'playing'; Q.ctx.state.run = Q.loop.createTrip({});
+  Q.bus = Q.ctx.bus; Q.ctx.bus.emit('run:start', { continued: true });
+  ok(Q.lifts().includes('buoy_lights:start') && Q.calls.some((c) => c === 'setPlaces:buoy_lights|'), 'a Continue after a reload mid-lift: the places synced and the cut-short lift replayed', Q.lifts());
+  const Q2 = liftEnv({ own: ['buoy_lights'], lifted: ['buoy_lights'] }); Q2.ctx.flow = 'playing'; Q2.ctx.state.run = Q2.loop.createTrip({});
+  Q2.ctx.bus.emit('run:start', { continued: true });
+  ok(Q2.lifts().length === 0 && Q2.ctx.cinematic === false && Q2.calls.some((c) => c === 'setPlaces:buoy_lights|buoy_lights'), 'a Continue with every owned place lifted: the places synced, no lift');
+  // home:enter and a buy sync the places too
+  const H2 = liftEnv({ own: [] });
+  H2.ctx.bus.emit('home:enter', { from: 'title' }); H2.loop.s.maps.places.push('lily_maze'); H2.ctx.bus.emit('loop:buy', { item: 'place:lily_maze', price: 60, clams: 0 });
+  ok(H2.calls.includes('setPlaces:|') && H2.calls.includes('setPlaces:lily_maze|'), 'world.setPlaces at home:enter and after loop:buy');
+}
+section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
+{
+  const dock = { x: 24, z: 38 };
+  const E = liftEnv({ own: ['lily_maze'], lifted: ['lily_maze'] });
+  ok(E.H.sail({ water: 'mossmere', place: 'lily_maze' }) === true, 'Sail({water, place})');
+  eq(E.loop.s.chartPick, { water: 'mossmere', place: 'lily_maze' }, 'T129: the pick is saved (loop.setPick)');
+  // (the stage: the game's glide toward a place is the data's, data.loopSailPlan, which validate-data --loop proves clear (T118); the
+  // Lily Maze's is its authored `out`, bent south of the statue off the Jetty; a place with none glides outDist m toward its centre)
+  const g = E.player.glides.at(-1), lm = D.loopPlace('lily_maze'), plan = D.loopSailPlan(dock, { water: 'mossmere', place: 'lily_maze' });
+  eq(g.pts, plan.path, 'T129: the glide out heads for the place (data.loopSailPlan: the Lily Maze\'s authored glide)');
+  const dir = (a, b) => Math.atan2(b.z - a.z, b.x - a.x);
+  ok(Math.abs(dir(dock, g.pts.at(-1)) - dir(dock, lm)) < (30 * Math.PI) / 180, 'T129: … toward the place (its bearing within 30° of the line from the Jetty)');
+  near(Math.hypot(g.pts.at(-1).x - dock.x, g.pts.at(-1).z - dock.z), D.LOOP.tutorial.outDist, `T129: … about ${D.LOOP.tutorial.outDist} m out`, 0.5);
+  ok(g.o.kind === 'sailOut' && g.o.duration === D.LOOP.tutorial.out, '… the same 3 s glide (kind sailOut)');
+  await E.step(3.2);
+  ok(E.ctx.flow === 'playing' && E.player.position.x === plan.to.x && E.H.sailPlace === 'lily_maze', 'T129: the trip starts where that glide ended');
+  const open = D.sailPlan(dock, { x: 0, z: 0 }, D.LOOP.tutorial, 'mossmere');
+  const U = liftEnv({ own: [] });
+  U.H.sail({ water: 'mossmere', place: 'bell_pool' });
+  ok(U.loop.s.chartPick === null && JSON.stringify(U.player.glides.at(-1).pts.at(-1)) === JSON.stringify(open.to), 'T129: a place not owned: the pick refused, open water\'s glide');
+  const O = liftEnv({ own: ['lily_maze'] });
+  O.H.sail({ water: 'mossmere', place: null });
+  ok(JSON.stringify(O.player.glides.at(-1).pts) === JSON.stringify(open.path) && O.loop.s.chartPick?.place === null, 'T129: open water (place null): 1a\'s authored glide (T66), the pick {place: null}');
+  const S = liftEnv({ own: ['under_the_span'], pick: { water: 'mossmere', place: 'under_the_span' } });
+  S.H.sail({ water: 'mossmere' });
+  const us = D.loopPlace('under_the_span');
+  const sp0 = S.player.glides.at(-1).pts.at(-1), sp1 = D.sailPlan(dock, { x: us.x, z: us.z }, D.LOOP.tutorial, null).to;
+  near(Math.hypot(sp0.x - sp1.x, sp0.z - sp1.z), 0, 'with no `place` the Chart\'s saved pick of that water is sailed to (3b writes it on a tap)', 1e-9);
+  const W = liftEnv({ own: [] });
+  W.H.sail({ water: 'mossmere' });
+  eq(W.player.glides.at(-1).pts.at(-1), open.to, 'T66 unchanged: no pick, no place: open water\'s glide');
+  // the glide's clearance (T118's rule: the raft's radius + 0.3 m off every island and pillar): a bearing turned the least that clears
+  const clear = D.BALANCE.move.raftRadius + 0.3;
+  const blocker = [{ x: 24 - 9, z: 38, r: 1.2 }];
+  near(R.glideClearance([{ x: 0, z: 0 }, { x: 10, z: 0 }], [{ x: 5, z: 3, r: 1 }]), 2, 'glideClearance: the least distance to an obstacle\'s edge', 1e-9);
+  const bent = R.placeGlide(D.sailPlan, dock, { x: -10, z: 38 }, D.LOOP.tutorial, blocker, { clear });
+  const wrap = (a) => Math.abs(((a + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
+  ok(bent && R.glideClearance(bent.path, blocker) >= clear && wrap(Math.atan2(bent.to.z - 38, bent.to.x - 24) - Math.PI) <= (60 * Math.PI) / 180 + 1e-9 && wrap(Math.atan2(bent.to.z - 38, bent.to.x - 24) - Math.PI) > 0.01, `placeGlide: an obstacle on the line: the bearing turned (to ${bent?.to.x.toFixed(1)}, ${bent?.to.z.toFixed(1)}), clear by ${R.glideClearance(bent?.path, blocker).toFixed(2)} m`);
+  ok(R.placeGlide(D.sailPlan, dock, { x: -10, z: 38 }, D.LOOP.tutorial, [{ x: 24, z: 38, r: 30 }], { clear }) === null, 'placeGlide: nothing clear within 60°: null (open water\'s glide)');
+  // the Mossmere's own layout: each place's glide out from the Jetty clears every obstacle (a straight one to the Lily Maze would not)
+  const { buildLayout, isOpenWaterL } = await import('../../src/world-layout.js');
+  const LY = buildLayout(D.ZONES[0]);
+  for (const id of Object.keys(D.LOOP.places)) {
+    const p = D.loopPlace(id), straight = D.sailPlan(dock, { x: p.x, z: p.z }, D.LOOP.tutorial, null);
+    const g2 = R.placeGlide(D.sailPlan, dock, { x: p.x, z: p.z }, D.LOOP.tutorial, LY.obstacles, { clear });
+    const turn = g2 ? Math.abs(((Math.atan2(g2.to.z - 38, g2.to.x - 24) - Math.atan2(p.z - 38, p.x - 24) + 3 * Math.PI) % (2 * Math.PI)) - Math.PI) * 180 / Math.PI : null;
+    ok(g2 && R.glideClearance(g2.path, LY.obstacles) >= clear && isOpenWaterL(LY, LY.obstacles, g2.to.x, g2.to.z, D.BALANCE.move.raftRadius),
+      `T129/T118: the glide toward ${id} clears every obstacle by ≥ ${clear} m (${R.glideClearance(g2?.path, LY.obstacles).toFixed(2)} m; turned ${turn?.toFixed(0)}°; straight ${R.glideClearance(straight.path, LY.obstacles).toFixed(2)} m)`);
+  }
+  const Ob = liftEnv({ own: ['lily_maze'] });
+  Ob.ctx.world.getObstacles = () => LY.obstacles;
+  Ob.H.sail({ water: 'mossmere', place: 'lily_maze' });
+  ok(R.glideClearance(Ob.player.glides.at(-1).pts, LY.obstacles) >= clear && Ob.H.sailPlace === 'lily_maze', 'T129: Sail toward the Lily Maze with the world\'s obstacles: its glide clears the statue off the Jetty');
 }
 
 // =====================================================================================================================
@@ -417,9 +570,14 @@ section('fishing: the hours (T15), the counters (T55), no giant water (T30)');
   const W = tripEnv();
   const G = DV3.RAFT_FALLBACK_V3?.mossmere?.giants || [];
   ok(G.length > 0 && G.every((g) => W.F.waterAt({ x: g.x, z: g.z })?.giant === false), 'T30: no giant water at the old stopgap centres');
-  let pts = 0;
-  for (let i = 0; i < 20; i++) { const a = i * 2.39996, r = 6 + 40 * ((i * 0.618) % 1); const w = W.F.waterAt({ x: Math.cos(a) * r, z: Math.sin(a) * r }); if (w?.giant === false && w.waterKey === OPEN && w.placeId === null) pts++; }
-  eq(pts, 20, 'T30: 20 open-water points: no giant, the open key');
+  // (M1 step 3a's seam: the four places are in the arena under the loop, so a point inside one keeps that place's key; no giant water)
+  let pts = 0, inPlace = 0;
+  for (let i = 0; i < 20; i++) {
+    const a = i * 2.39996, r = 6 + 40 * ((i * 0.618) % 1), x = Math.cos(a) * r, z = Math.sin(a) * r, w = W.F.waterAt({ x, z }), pl = D.placeAtV3('mossmere', x, z);
+    if (pl) inPlace++;
+    if (w?.giant === false && (pl ? w.waterKey === pl.id && w.placeId === pl.id : w.waterKey === OPEN && w.placeId === null)) pts++;
+  }
+  eq(pts, 20, `T30: 20 points: no giant water; the open key in open water (${20 - inPlace}), a place's own key inside it (${inPlace})`);
   const cap = D.BALANCE.size.classMaxZ.trophy;
   let worst = -9, elder = 0;
   for (const id of ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'weeping_carp', 'candlefin_koi', 'reedjaw_pike']) {
@@ -461,7 +619,7 @@ section('the Wicks on the water: Taper (WICKS §2.2)');
   const pool = (phase, d) => D.SPECIES.filter((s) => s.zone === 'mossmere' && s.rarity !== 'legendary' && !s.bait && d >= (s.depth?.[0] ?? 0) && d <= (s.depth?.[1] ?? 1)
     && (s.time === 'calm' ? phase !== 'gloomtide' : s.time === 'gloom' ? phase === 'gloomtide' : true));
   const wait = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95].map((d) => ['gloomtide', d]).concat([0.05, 0.15, 0.25].map((d) => ['calm', d]))
-    .find(([ph, d]) => { const p = pool(ph, d), w = p.map((s) => D.RARITY_WEIGHTS[s.rarity]); return D.wickPoolWeights('taper', p, w, { firstBite: true, signRule: D.AUTOFISH.signRule }) === w && p.some((s) => s.rarity === 'common'); });
+    .find(([ph, d]) => { const p = pool(ph, d), w = p.map((s) => D.RARITY_WEIGHTS[s.rarity] ?? 10); return D.wickPoolWeights('taper', p, w, { firstBite: true, signRule: D.AUTOFISH.signRule }) === w && p.some((s) => s.rarity === 'common'); });
   if (wait) {
     const N = tripEnv({ wick: 'taper', phase: wait[0] }); N.ctx._depth = wait[1];
     let c = 0, sp = 0;
@@ -487,11 +645,11 @@ section('the Wicks on the water: Stub\'s spook exposure, recorded (WICKS §2.3)'
 }
 section('the Wicks on the water: Ashwick\'s comeback (WICKS §2.5)');
 {
-  const cb = { waterKey: OPEN, speciesId: 'reedjaw_pike', z: 2.05 };
+  const cb = { waterKey: OPEN, speciesId: 'weeping_carp', z: 2.05 };   // (WC-1: a fish the bare hook brings; a stray's comeback waits: watercraft.test.mjs)
   const E = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb } } });
   E.events.length = 0;
   ok(E.toBite({}), '(the bite is live)');
-  ok(E.dbg().species === 'reedjaw_pike' && Math.abs(E.dbg().z - 2.05) < 1e-9, 'Ashwick: the next bite at that water is that fish at the same z');
+  ok(E.dbg().species === 'weeping_carp' && Math.abs(E.dbg().z - 2.05) < 1e-9, 'Ashwick: the next bite at that water is that fish at the same z');
   ok(E.count('fishing:comeback') === 1, 'Ashwick: the float settles with the ember (fishing:comeback, the hiss)');
   const b = E.events.find((x) => x.e === 'fishing:bite')?.p;
   ok(b && b.comeback === true && b.waterKey === OPEN, 'Ashwick: fishing:bite {comeback: true, waterKey}');
@@ -500,6 +658,10 @@ section('the Wicks on the water: Ashwick\'s comeback (WICKS §2.5)');
   E.toIdle(); E.events.length = 0;
   E.toBite({}); E.toIdle();
   ok(!E.events.some((x) => x.e === 'fishing:bite' && x.p.comeback), 'Ashwick: it comes back once');
+  // WC-1 (WATERCRAFT.md §3.6): a pike's comeback waits on the bare hook (it never takes one past 1 in 100): kept, no fishing:comeback
+  const P = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb, speciesId: 'reedjaw_pike' } } }); P.events.length = 0;
+  P.toBite({}); P.toIdle();
+  ok(P.loop.s.comeback !== null && P.count('fishing:comeback') === 0 && !P.events.some((x) => x.e === 'fishing:bite' && x.p.comeback), 'Ashwick (WC-1): a stray\'s comeback waits on a hook it will not take');
   const S = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb } } });
   S.ctx.debug.forceBite({ wait: 3 }); S.tick(3); S.F.onPointerDown({ input: 'mouse' });
   ok(S.loop.s.comeback === null, 'Ashwick: a spook spends it');
@@ -664,7 +826,8 @@ section('audio: home, the sail, the passives\' sounds (T56) and the show\'s left
   A.done();
   const B = makeAudioHarness({ create: createAudio, data: D, run: tripRun(D, {}) });
   B.bus.emit('fishing:comeback', { phase: 'float' }); B.step(0.1);
-  ok(B.log().some((e) => e.name === 'ember_hiss'), 'Ashwick: the ember hiss');
+  // (WC-3, WATERCRAFT §7.2: Ashwick's comeback is a surprise on the Mossmere under the loop: no ember hiss there)
+  ok(!B.log().some((e) => e.name === 'ember_hiss'), 'Ashwick: no ember hiss on the Mossmere under the loop (WATERCRAFT §7.2)');
   B.done();
   const S = makeAudioHarness({ create: createAudio, data: DV3, run: { zone: 'mossmere', day: 1, phase: 'calm' } });
   S.ctx.flow = 'intro';

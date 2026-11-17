@@ -1,6 +1,9 @@
 // Offline renders of GLOOMWATER's synthesised sounds, to look at (spectrograms) and listen to (WAV) without playing the game.
 //
-//   node tools/audio-render.mjs [--out=tools/out/audio-render] [--only=name,name] [--set=af|fe|intro|all] [--sr=32000]
+//   node tools/audio-render.mjs [--out=tools/out/audio-render] [--only=name,name] [--set=af|fe|intro|mossmere|all] [--sr=32000]
+//   --set=mossmere  the Mossmere under the loop (M1 step 3a, src/audio-mossmere.js): bed_day, bed_dusk, bed_night (the bed's layers
+//                and breaths by light), each place clear and through its bank (lily, span, buoys, bell: _clear, _muffled),
+//                giant_roll (through its bank), mist_lift, seal_press; exit code 1 if the master's peak passes -1.0 dBFS in any
 //   --set=intro  the opening cut scene's cue (src/audio-intro.js, INTRO.sound): `intro_cue` is the whole film through the game's
 //                bus (with ember_swell and flame_catch), `intro_bus` the cue's own bus alone, whose peak must stay under
 //                INTRO.sound.peakDb + 3 dB (exit code 1 otherwise); `intro_skip_*` a skip's 0.25 s fade at three moments
@@ -97,6 +100,7 @@ import * as DATA from '${resolve(root, 'src/data.js').replace(/\\/g, '/')}';
 import { createIntroCue } from '${resolve(root, 'src/audio-intro.js').replace(/\\/g, '/')}';
 import { soundEvents } from '${resolve(root, 'src/intro.js').replace(/\\/g, '/')}';
 import { create as createAudio } from '${resolve(root, 'src/audio.js').replace(/\\/g, '/')}';
+import * as MOSS from '${resolve(root, 'src/audio-mossmere.js').replace(/\\/g, '/')}';
 function bus(ac, eng) {
   const master = ac.createGain(); master.gain.value = 0.85;
   const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
@@ -210,6 +214,46 @@ window.renderIntro = (mode, skipAt) => {
   }).then((pcm) => ({ pcm, beats: I.beats.map((b) => [b.id, +(0.05 + b.t0).toFixed(2)]), events: ev.filter((e) => e.kind !== 'off' && (!skipAt || e.t <= skipAt)).map((e) => [e.id + (e.kind === 'note' ? e.i : ''), +(0.05 + e.t).toFixed(2)]) }));
 };
 window.introPeakDb = DATA.INTRO.sound.peakDb;
+// ---- the Mossmere under the loop (--set=mossmere; M1 step 3a, src/audio-mossmere.js): the bed by light, each place's voice clear
+// and through its bank, the giant's roll, the lift, the catch seal's press. The loops are built as audio.js builds them (its
+// makeNoiseLoop / makeOscLoop and the LFO on the filter), into the SFX bus's dry path; the one-shots are the game's SFX_MOSS.
+const seeded = (seed) => { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+function mossLoop(ac, eng, def, dest, level, t0, t1) {
+  const g = ac.createGain(); g.gain.value = 0; g.connect(dest);
+  const flt = ac.createBiquadFilter(); flt.type = def.ft; flt.frequency.value = def.src === 'osc' ? def.ff : def.f; flt.Q.value = def.q; flt.connect(g);
+  let src;
+  if (def.src === 'osc') {
+    src = ac.createOscillator(); src.type = def.type; src.frequency.value = def.f;
+    const lfo = ac.createOscillator(); lfo.frequency.value = 0.13; const lg = ac.createGain(); lg.gain.value = def.vib || 0; lfo.connect(lg); lg.connect(src.frequency); lfo.start(t0); lfo.stop(t1);
+  } else {
+    src = ac.createBufferSource(); src.buffer = eng.buf(def.kind); src.loop = true;
+    if (def.lfo) { const lfo = ac.createOscillator(); lfo.frequency.value = def.lfo.rate; const lg = ac.createGain(); lg.gain.value = def.lfo.depth; lfo.connect(lg); lg.connect(flt.frequency); lfo.start(t0); lfo.stop(t1); }
+  }
+  src.connect(flt); src.start(t0); src.stop(t1);
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(level, t0 + 0.6); g.gain.setValueAtTime(level, t1 - 0.6); g.gain.linearRampToValueAtTime(0, t1 - 0.05);
+}
+window.renderMossBed = (light, dur, seed) => {
+  const prev = Math.random; Math.random = seeded(seed);
+  return render(dur, (ac, eng, B) => {
+    const L = MOSS.bedLevels(light);
+    for (const [key, def] of Object.entries(MOSS.BED_LAYERS)) if (L[key] > 0) mossLoop(ac, eng, def, B.master, L[key], 0.05, dur);
+    const Bth = MOSS.bedBreath(light);
+    for (const t of MOSS.voiceSchedule(Bth.every, dur - 3, Math.random, 0.8)) voice(eng, B, Bth.sfx, t, { volume: Bth.volume, pan: (Math.random() * 2 - 1) * 0.55 });
+  }).then((pcm) => { Math.random = prev; return pcm; });
+};
+window.renderMossPlace = (id, muffled, dur, seed) => {
+  const prev = Math.random; Math.random = seeded(seed);
+  const V = MOSS.PLACE_VOICES[id], b = MOSS.bankVoice(!muffled);
+  return render(dur, (ac, eng, B) => {
+    if (V.hum) {
+      const H = V.hum, lp = b.muffle > 0 ? Math.min(H.ff, b.muffle * 0.3) : H.ff;
+      mossLoop(ac, eng, { src: 'osc', type: H.type, f: H.f, ft: H.ft, ff: lp, q: H.q, vib: H.vib }, B.master, H.level * b.gain * MOSS.humLight('night'), 0.05, dur);
+    }
+    for (const t of MOSS.voiceSchedule(V.every, dur - (id === 'bell_pool' ? 6 : 1.2), Math.random, 0.3)) voice(eng, B, V.sfx, t, { volume: V.volume * b.gain, muffle: b.muffle });
+  }).then((pcm) => { Math.random = prev; return pcm; });
+};
+window.mossMuffle = MOSS.ROLL_MUFFLE;
+window.mossLiftDur = DATA.LOOP?.lift?.thin ?? 3;
 // ---- the catch show's film (--set=show): one take of a film run's sound log through the game's own audio module.
 // The module is given an OfflineAudioContext (behind a face that always reads 'running' and cannot be resumed or suspended by
 // the module) and a ctx whose every read answers from the log's snapshot of that step; the context is suspended at each step's
@@ -543,6 +587,20 @@ if (set === 'intro' || (set === 'all' && only && [...only].some((n) => n.startsW
   if (want('intro_bus')) jobs.push({ name: 'intro_bus', play: true, limitDb: true, run: () => page.evaluate(() => window.renderIntro('raw', 0)) });
   for (const t of [3, 7.95, 16]) { const name = `intro_skip_${String(t).replace('.', '_')}`; if (want(name)) jobs.push({ name, play: true, skipAt: t, run: () => page.evaluate((x) => window.renderIntro('raw', x), t) }); }
 }
+// the Mossmere (M1 step 3a, PLAN T131): the bed's three lights, each place clear and through its bank, the roll, the lift, the press;
+// exit 1 if the master's peak passes -1.0 dBFS in any
+if (set === 'mossmere') {
+  for (const [i, light] of ['day', 'dusk', 'night'].entries()) { const name = `bed_${light}`; if (want(name)) jobs.push({ name, moss: true, run: () => page.evaluate(([l, s]) => window.renderMossBed(l, 14, s), [light, 11 + i]) }); }
+  for (const [i, [id, short]] of [['lily_maze', 'lily'], ['under_the_span', 'span'], ['buoy_lights', 'buoys'], ['bell_pool', 'bell']].entries()) {
+    for (const muffled of [false, true]) {
+      const name = `${short}_${muffled ? 'muffled' : 'clear'}`;
+      if (want(name)) jobs.push({ name, moss: true, run: () => page.evaluate(([p, m, d, s]) => window.renderMossPlace(p, m, d, s), [id, muffled, id === 'bell_pool' ? 26 : 10, 21 + i]) });
+    }
+  }
+  if (want('giant_roll')) jobs.push({ name: 'giant_roll', moss: true, run: () => page.evaluate(() => window.renderOne('giant_roll', { muffle: window.mossMuffle }, 3.6)) });
+  if (want('mist_lift')) jobs.push({ name: 'mist_lift', moss: true, run: () => page.evaluate(() => window.renderOne('mist_lift', { dur: window.mossLiftDur }, window.mossLiftDur + 3)) });
+  if (want('seal_press')) jobs.push({ name: 'seal_press', moss: true, run: () => page.evaluate(() => window.renderOne('seal_press', {}, 3.2)) });
+}
 const summary = [];
 let over = 0;
 const peakDb = await page.evaluate(() => window.introPeakDb);
@@ -557,6 +615,13 @@ for (const j of jobs) {
   const rms = Math.sqrt(ss / pcm[0].length);
   summary.push({ name: j.name, sec: +(pcm[0].length / SR).toFixed(2), peak: +peak.toFixed(3), rms: +rms.toFixed(4), ...(j.play ? { beats: r.beats.map((b) => b.join('@')).join(' '), events: r.events.map((e) => e.join('@')).join(' ') } : {}) });
   console.log(`${j.name.padEnd(26)} ${String(summary.at(-1).sec).padStart(5)} s  peak ${summary.at(-1).peak.toFixed(3)}  rms ${summary.at(-1).rms.toFixed(4)}${j.play ? `\n    beats ${summary.at(-1).beats}\n    events ${summary.at(-1).events}` : ''}`);
+  if (j.moss) {
+    // the Mossmere's master gate (T131): every render's peak under -1.0 dBFS
+    const dbfs = 20 * Math.log10(Math.max(1e-6, peak)), rmsDb = 20 * Math.log10(Math.max(1e-6, rms));
+    summary.at(-1).peakDb = +dbfs.toFixed(2); summary.at(-1).rmsDb = +rmsDb.toFixed(1);
+    console.log(`    peak ${dbfs.toFixed(1)} dBFS, rms ${rmsDb.toFixed(1)} dBFS${dbfs > -1.0 ? '   FAIL: over -1.0 dBFS' : ''}`);
+    if (dbfs > -1.0) over++;
+  }
   if (j.limitDb) {
     // the cue's own bus (A7): its peak against INTRO.sound.peakDb, never over -3 dBFS; and where in the film the peak falls
     const dbfs = 20 * Math.log10(Math.max(1e-6, peak));

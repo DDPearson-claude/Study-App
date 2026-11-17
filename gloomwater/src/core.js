@@ -228,6 +228,31 @@ export function setLoopFlag(on) {
 /** How this page load resolved the loop's switch (read by main). Declared ABOVE V3_FLAGS: it must write its globals first. */
 export const LOOP_FLAGS = applyLoopFlags();
 
+// ---------------------------------------------------------------- the harbour re-dress's dev switch (M1 step 3a, PLAN CHOICE 13)
+// `?redress=1` (on, true, yes) in the page URL writes GW_REDRESS = true before data.js evaluates; data.js reads it once, as
+// LOOP.redress = LOOP_ENABLED && GW_REDRESS === true, so it does nothing off the loop. A preset GW_REDRESS (boolean) wins and is left
+// untouched; nothing is stored, so a reload without the flag is today's harbour. Node tools (no document) are never touched.
+/** Pure: {preset: GW_REDRESS, search: location.search} → {on, source: 'preset'|'url'|'default', apply}. */
+export function resolveRedressFlag({ preset = undefined, search = '' } = {}) {
+  if (typeof preset === 'boolean') return { on: preset, source: 'preset', apply: false };
+  let q = null;
+  try { q = new URLSearchParams(search || ''); } catch { q = null; }
+  const u = q && q.has('redress') ? parseFlagOn(q.get('redress')) : null;
+  return u === null ? { on: false, source: 'default', apply: false } : { on: u, source: 'url', apply: u };
+}
+/** Browser pages only: reads the URL and writes GW_REDRESS = true when it turns the re-dress on. In node it writes nothing. */
+export function applyRedressFlag(g = globalThis) {
+  const page = typeof g.document !== 'undefined';
+  let search = '';
+  if (page) { try { search = g.location?.search || ''; } catch { search = ''; } }
+  const r = resolveRedressFlag({ preset: g.GW_REDRESS, search });
+  if (!page) return { ...r, apply: false };
+  if (r.on && r.apply) g.GW_REDRESS = true;
+  return r;
+}
+/** How this page load resolved the re-dress's switch (read once, beside LOOP_FLAGS, before data.js evaluates). */
+export const REDRESS_FLAGS = applyRedressFlag();
+
 /** How this page load resolved the switch (read by main's debug hooks). */
 export const V3_FLAGS = applyV3Flags();
 

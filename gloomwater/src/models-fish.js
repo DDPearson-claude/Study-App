@@ -297,8 +297,8 @@ const SHAPES = {
     r.opts.glowFins = true;
     return r;
   },
-  pike(M) {
-    return standard({
+  pike(M, o = {}) {
+    const r = standard({
       w: [[0, 0.006], [0.04, 0.03], [0.1, 0.042], [0.2, 0.055], [0.45, 0.07], [0.7, 0.058], [0.88, 0.03], [1, 0.018]],
       ht: [[0, 0.004], [0.04, 0.016], [0.1, 0.028], [0.2, 0.055], [0.45, 0.078], [0.7, 0.07], [0.88, 0.04], [1, 0.024]],
       hb: [[0, 0.004], [0.04, 0.012], [0.12, 0.03], [0.25, 0.06], [0.5, 0.07], [0.72, 0.06], [0.88, 0.035], [1, 0.02]],
@@ -307,6 +307,12 @@ const SHAPES = {
         ['pelvic', 'pect', { s: 0.5, len: 0.07, h: 0.04 }]],
       eye: { s: 0.15, r: 0.02, up: 0.55 }, gill: 0.26, R: 36, anim: { waveK: 4, amp: 0.07, freq: 7 },
     }, M);
+    // the loop's plan parameters (M1 step 3a, ROSTER §4: the Thousandcast's upright bars and amber eye rim; read only under the loop)
+    if (o.loop) {
+      if (M.bars === 'upright') r.opts.bars = 'upright';
+      if (M.eyeRim === 'amber') r.extras.push(...eyeRims(r.eyes, 0xd9963a));
+    }
+    return r;
   },
   eel(M) {
     return standard({
@@ -502,6 +508,158 @@ const SHAPES = {
   },
 };
 
+// ------------------------------------------------------------------ the loop's plans (M1 step 3a; PLAN §2.4 item 5, ROSTER §4)
+// Read only under the loop (PLAN CHOICE 14): off the loop a species of one of these shapes draws as today's fallback (the minnow), so a
+// v3 phase-2 build's Bridgechain Sturgeon is unchanged. Each is a built plan with its parameters: the lamprey from the eel (a mouth
+// parameter: a toothed disc, no jaw, no paired fins, seven gill holes lit), the sturgeon from the leviathan's long profile (scutes, a
+// shovel snout, barbels, a tail with a long upper lobe), the trout from the minnow (a fatty fin, a plain jaw, star-spots, one scar).
+function eyeRims(eyes, col) {
+  const out = [];
+  if (!eyes) return out;
+  for (const [x, y, z] of eyes.pos) {
+    const side = Math.sign(x) || 1;
+    const g = new THREE.TorusGeometry(eyes.r * 1.05, eyes.r * 0.22, 5, 14);
+    out.push(paint(xf(g, { p: [x + side * eyes.r * 0.18, y, z], r: [0, side * Math.PI / 2, 0] }), col));
+  }
+  return out;
+}
+export const LOOP_SHAPES = {
+  lamprey(M) {
+    const r = standard({
+      w: [[0, 0.03], [0.015, 0.036], [0.05, 0.037], [0.12, 0.036], [0.5, 0.034], [0.78, 0.026], [0.93, 0.012], [1, 0.004]],
+      ht: [[0, 0.028], [0.015, 0.035], [0.05, 0.038], [0.5, 0.037], [0.8, 0.028], [0.93, 0.014], [1, 0.004]],
+      hb: [[0, 0.028], [0.015, 0.033], [0.05, 0.034], [0.5, 0.033], [0.8, 0.025], [0.93, 0.012], [1, 0.004]],
+      fins: [['dorsal', 'ribbon', { a: 0.55, b: 0.69, h: 0.032, rake: 0.1, segV: 10 }], ['dorsal', 'ribbon', { a: 0.73, b: 1.0, h: 0.042, rake: 0, segV: 18 }],
+        ['ventral', 'ribbon', { a: 0.86, b: 1.0, h: 0.026, rake: 0, segV: 10 }]],
+      eye: { s: 0.055, r: 0.0095, up: 0.5 }, gill: -1, R: 64, A: 14, anim: { waveK: 12, amp: 0.07, freq: 8 },
+    }, M);
+    const f = r.f, y0 = f.yc(0);
+    // the mouth: a round sucking disc on the snout, its rim, its throat, and two rings of amber teeth facing out
+    r.extras.push(paint(blob(0.034, 0.033, 0.006, [0, y0 - 0.004, 0.5 + 0.001], 18, 6), C(hexColor(M.belly, 0xd8d2c4)).lerp(C(hexColor(M.body, 0x1c1a2a)), 0.35)));
+    r.extras.push(paint(blob(0.012, 0.012, 0.004, [0, y0 - 0.004, 0.5 + 0.005], 10, 5), 0x0a0507));
+    const teeth = [], amber = M.teeth === 'amber' ? 0xd9963a : 0xe8e0c8;
+    for (const [rr, n, len] of [[0.026, 14, 0.006], [0.017, 9, 0.0045]]) {
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * TAU + (rr < 0.02 ? 0.2 : 0);
+        teeth.push(spike([Math.cos(a) * rr, y0 - 0.004 + Math.sin(a) * rr, 0.5 + 0.005], [-Math.cos(a) * 0.4, -Math.sin(a) * 0.4, 1], 0.0022, len, 4));
+      }
+    }
+    r.extras.push(paint(mergeGeos(teeth), amber));
+    // seven gill holes in a row behind each eye: dark pits with a lit point in each (the bite's "seven lavender points in a row")
+    const nG = Number.isFinite(M.gills) ? M.gills : 7, pits = [];
+    for (const side of [1, -1]) {
+      for (let k = 0; k < nG; k++) {
+        const s = 0.085 + k * 0.013, x = side * f.w(s) * 0.97, y = f.yc(s) + f.ht(s) * 0.12, z = 0.5 - s;
+        pits.push(blob(0.0042, 0.0048, 0.0042, [x, y, z], 6, 5));
+        r.glows.push(blob(0.0026, 0.003, 0.0026, [x + side * 0.0016, y, z], 6, 5));
+      }
+    }
+    r.extras.push(paint(mergeGeos(pits), 0x0c0a14));
+    if (M.gillGlow !== undefined && M.gillGlow !== null) r.opts.glowCol = M.gillGlow;
+    return r;
+  },
+  sturgeon(M) {
+    const r = standard({
+      w: [[0, 0.034], [0.02, 0.046], [0.05, 0.05], [0.1, 0.054], [0.2, 0.062], [0.5, 0.06], [0.78, 0.04], [0.9, 0.022], [1, 0.012]],
+      ht: [[0, 0.005], [0.02, 0.011], [0.05, 0.02], [0.1, 0.038], [0.2, 0.058], [0.5, 0.06], [0.78, 0.042], [0.9, 0.024], [1, 0.016]],
+      hb: [[0, 0.005], [0.02, 0.011], [0.05, 0.02], [0.1, 0.03], [0.2, 0.046], [0.5, 0.05], [0.78, 0.034], [0.9, 0.02], [1, 0.012]],
+      yc: [[0, -0.022], [0.1, -0.008], [0.3, 0], [1, 0.008]],
+      fins: [['tail', 'fork', { s: 0.965, len: 0.17, h: 0.24, y: 0.035 }], ['dorsal', 'soft', { a: 0.68, b: 0.79, h: 0.07, rake: 0.45 }],
+        ['ventral', 'soft', { a: 0.72, b: 0.81, h: 0.05 }], ['pect', 'pect', { s: 0.17, len: 0.13, h: 0.06, yOff: -0.6, down: 0.6 }],
+        ['pelvic', 'pect', { s: 0.56, len: 0.07, h: 0.04 }]],
+      eye: { s: 0.115, r: 0.011, up: 0.58, out: 0.92 }, gill: 0.16, R: 48, anim: { waveK: 6, amp: 0.05, freq: 4.5 },
+    }, M);
+    const f = r.f;
+    // the shovel snout's underside: four barbels hanging in a row before the mouth
+    const bc = C(hexColor(M.belly, 0xcfcabd)).lerp(C(hexColor(M.fin, 0x8a4b3a)), 0.35);
+    for (const x of [-0.016, -0.006, 0.006, 0.016]) {
+      const s = 0.045, y = f.yc(s) - f.hb(s) * 0.9, z = 0.5 - s;
+      r.extras.push(paint(tube(bezierPts([[x, y, z], [x * 1.2, y - 0.018, z - 0.004], [x * 1.3, y - 0.032, z - 0.012]], 8), (u) => 0.0028 * (1 - u * 0.7) + 0.0006, 4), bc));
+    }
+    // the scutes: rust bony plates in five rows (the back and each flank twice), every other one turned like the links of a chain
+    const sc = M.scutes === 'rust' ? C(0x8a4b3a) : C(hexColor(M.fin, 0x8a4b3a)), plates = [];
+    for (let k = 0; k < 13; k++) {
+      const s = 0.2 + k * 0.042, top = f.top(s);
+      plates.push(blob(0.009, 0.007, 0.016, [0, top - 0.001, 0.5 - s], 8, 5, [-0.2, k % 2 ? Math.PI / 2 * 0.35 : 0, 0]));
+    }
+    for (const side of [1, -1]) for (const up of [0.45, -0.2]) {
+      for (let k = 0; k < 20; k++) {
+        const s = 0.19 + k * 0.034, w = f.w(s), y = f.yc(s) + (up > 0 ? f.ht(s) : f.hb(s)) * up;
+        plates.push(blob(0.004, 0.0085, 0.012, [side * w * 0.97, y, 0.5 - s], 7, 5, [0, side * 0.25, k % 2 ? 0.9 : 0]));
+      }
+    }
+    r.extras.push(paint(mergeGeos(plates), sc));
+    // the jaw's line under the snout (a sturgeon's mouth sits below, behind the barbels)
+    r.extras.push(paint(tube(bezierPts([[-0.018, f.yc(0.06) - f.hb(0.06) * 0.95, 0.5 - 0.06], [0, f.yc(0.065) - f.hb(0.065) * 1.02, 0.5 - 0.064], [0.018, f.yc(0.06) - f.hb(0.06) * 0.95, 0.5 - 0.06]], 8), 0.0026, 4), 0x0a0806));
+    if (M.snout === 'shovel') r.opts.shovel = true;
+    return r;
+  },
+  trout(M) {
+    const r = standard({
+      w: [[0, 0.006], [0.03, 0.03], [0.12, 0.054], [0.32, 0.064], [0.58, 0.05], [0.82, 0.024], [0.93, 0.014], [1, 0.011]],
+      ht: [[0, 0.006], [0.03, 0.034], [0.14, 0.08], [0.34, 0.1], [0.6, 0.076], [0.84, 0.034], [0.94, 0.022], [1, 0.018]],
+      hb: [[0, 0.006], [0.03, 0.03], [0.16, 0.066], [0.38, 0.082], [0.62, 0.056], [0.84, 0.026], [1, 0.015]],
+      yc: [[0, -0.008], [0.25, 0], [1, 0]],
+      fins: [['tail', 'fork', { s: 0.97, len: 0.21, h: 0.27 }], ['dorsal', 'soft', { a: 0.36, b: 0.52, h: 0.1 }],
+        ['ventral', 'soft', { a: 0.64, b: 0.75, h: 0.06 }], ['pect', 'pect', { s: 0.2, len: 0.12, h: 0.06 }],
+        ['pelvic', 'pect', { s: 0.47, len: 0.075, h: 0.045 }]],
+      eye: { s: 0.085, r: 0.023, up: 0.32 }, gill: 0.22, anim: { waveK: 5, amp: 0.09, freq: 9 },
+    }, M);
+    const f = r.f;
+    // the fatty fin: a small rounded flap on the back between the dorsal and the tail (no rays)
+    if (M.fattyFin !== false) {
+      const s = 0.78, top = f.top(s);
+      r.extras.push(paint(blob(0.004, 0.018, 0.026, [0, top + 0.012, 0.5 - s], 8, 6, [0.3, 0, 0]), C(hexColor(M.fin, 0x8a4b3a)).lerp(C(hexColor(M.body, 0x5a6270)), 0.5)));
+    }
+    // the jaw: the long upper jaw's line from the snout back past the eye, on each side
+    for (const side of [1, -1]) {
+      r.extras.push(paint(tube(bezierPts([[side * f.w(0.006) * 0.9, f.yc(0.02) - 0.006, 0.497], [side * f.w(0.05) * 1.0, f.yc(0.05) - f.hb(0.05) * 0.32, 0.45], [side * f.w(0.11) * 0.98, f.yc(0.11) - f.hb(0.11) * 0.28, 0.39]], 8), 0.0032, 4), 0x0a0806));
+    }
+    if (M.spots === 'stars') r.opts.stars = true;
+    if (M.scar) r.opts.scar = true;
+    return r;
+  },
+};
+
+// >>> M1 step 4 (lane 4, ROSTER §4's catfish row; M1.md §2.3, §2.4): the catfish plan, from the pike's profile with a flattened head:
+// a broad flat head over a wide mouth, two long whiskers (bell-ropes, the Belled Matriarch's `whiskers: 2`) and four short chin barbels,
+// small eyes, a low body tapering to an eel tail with a long belly fin and a small rounded tail, a small dorsal; her `bell`: a tarnished
+// harbour bell sunk in the skull. Read only under the loop (LOOP_SHAPES); only the Matriarch rides on it in M1.
+LOOP_SHAPES.catfish = function catfish(M) {
+  const r = standard({
+    w: [[0, 0.034], [0.03, 0.062], [0.09, 0.078], [0.2, 0.074], [0.42, 0.06], [0.66, 0.042], [0.86, 0.022], [1, 0.008]],
+    ht: [[0, 0.012], [0.03, 0.026], [0.09, 0.042], [0.2, 0.058], [0.42, 0.06], [0.66, 0.048], [0.86, 0.03], [1, 0.012]],
+    hb: [[0, 0.014], [0.03, 0.03], [0.09, 0.046], [0.2, 0.062], [0.42, 0.064], [0.66, 0.05], [0.86, 0.03], [1, 0.012]],
+    yc: [[0, -0.012], [0.15, 0], [1, 0.004]],
+    fins: [['tail', 'round', { s: 0.975, len: 0.08, h: 0.11 }], ['dorsal', 'soft', { a: 0.26, b: 0.32, h: 0.05, rake: 0.3 }],
+      ['ventral', 'ribbon', { a: 0.4, b: 0.97, h: 0.05, rake: 0, segV: 26 }], ['pect', 'pect', { s: 0.13, len: 0.1, h: 0.05, yOff: -0.4 }],
+      ['pelvic', 'pect', { s: 0.38, len: 0.05, h: 0.03 }]],
+    eye: { s: 0.055, r: 0.007, up: 0.48, out: 0.86 }, gill: 0.15, R: 48, anim: { waveK: 7, amp: 0.075, freq: 4.6 },
+  }, M);
+  const f = r.f;
+  const n = Number.isFinite(M.whiskers) ? M.whiskers : 2;
+  if (n >= 2) {   // the two long whiskers from the mouth's corners, swept out and trailing back along her flanks like bell-ropes
+    const wc = C(hexColor(M.fin, 0x333333)).multiplyScalar(0.85);
+    for (const side of [1, -1]) {
+      const s0 = 0.025, x0 = side * f.w(s0) * 0.92, y0 = f.yc(s0) - f.hb(s0) * 0.25, z0 = 0.5 - s0;
+      const pts = bezierPts([[x0, y0, z0], [x0 + side * 0.07, y0 - 0.02, z0 - 0.06], [x0 + side * 0.11, y0 - 0.06, z0 - 0.2], [x0 + side * 0.09, y0 - 0.1, z0 - 0.4]], 14);
+      r.extras.push(paint(tube(pts, (u) => 0.007 * (1 - u * 0.85) + 0.0012, 4), wc));
+    }
+  }
+  r.extras.push(...barbels(f, M, 0.06, 0.03), ...barbels(f, M, 0.05, 0.045));   // four short chin barbels
+  // the mouth: a wide dark seam across the flat snout
+  r.extras.push(paint(tube(bezierPts([[-f.w(0.02) * 0.95, f.yc(0.02) - 0.004, 0.49], [0, f.yc(0.0) - 0.012, 0.503], [f.w(0.02) * 0.95, f.yc(0.02) - 0.004, 0.49]], 10), 0.0035, 4), 0x0a0806));
+  if (M.bell) {   // the bell in her skull: a bronze dome breaking the skin behind the eyes, a dark mouth-rim and a verdigris lip
+    const s = 0.11, top = f.top(s);
+    const bell = new THREE.LatheGeometry([[0, 0.028], [0.012, 0.027], [0.02, 0.02], [0.024, 0.008], [0.028, 0], [0.03, -0.004]].map(([x, y]) => new THREE.Vector2(x, y)), 12);
+    r.extras.push(paint(xf(bell, { p: [0, top - 0.004, 0.5 - s], r: [-0.25, 0, 0] }), 0x9a7a44));
+    r.extras.push(paint(xf(new THREE.TorusGeometry(0.029, 0.003, 4, 14), { p: [0, top - 0.007, 0.5 - s], r: [Math.PI / 2 - 0.25, 0, 0] }), 0x5f7a66));
+  }
+  r.opts.broadHead = true;
+  return r;
+};
+// <<< M1 step 4 (lane 4)
+
 // ------------------------------------------------------------------ skins
 function cssColor(c) { return '#' + c.getHexString(); }
 function bodyTexture(M, shape, parts) {
@@ -514,7 +672,8 @@ function bodyTexture(M, shape, parts) {
   const tmp = new THREE.Color();
   for (let y = 0; y < H; y++) {
     const v = 1 - (y + 0.5) / H, th = -Math.PI / 2 + v * TAU, up = Math.sin(th);
-    const t = THREE.MathUtils.smoothstep(up, -0.5, 0.45);
+    // (the loop's lamprey keeps its ink over the whole flank: only the belly's last band pales)
+    const t = shape === 'lamprey' ? THREE.MathUtils.smoothstep(up, -0.85, -0.35) : THREE.MathUtils.smoothstep(up, -0.5, 0.45);
     tmp.copy(belly).lerp(body, t).multiplyScalar(1 - 0.32 * Math.max(0, up) ** 2);
     g.fillStyle = cssColor(tmp); g.fillRect(0, y, W, 1);
   }
@@ -527,7 +686,14 @@ function bodyTexture(M, shape, parts) {
   let eg = null;
   if (ems) { ems.width = W; ems.height = H; eg = ems.getContext('2d'); eg.fillStyle = '#000'; eg.fillRect(0, 0, W, H); }
   const dot = (ctx2, x, y, r, col) => { ctx2.fillStyle = col; ctx2.beginPath(); ctx2.arc(x, y, r, 0, TAU); ctx2.fill(); };
-  if (pat === 'stripes') {
+  if (pat === 'stripes' && parts.opts.bars === 'upright') {
+    // (the loop's Thousandcast: dark upright bars, straight and close, on a stone-white flank)
+    const ink = body.clone().multiplyScalar(0.28), inkCss = `rgba(${ink.r * 255 | 0},${ink.g * 255 | 0},${ink.b * 255 | 0},0.8)`;
+    for (let k = 0; k < 9; k++) {
+      const x = W * (0.25 + k * 0.075), wdt = 4.5 + rnd() * 3;
+      for (const [y0, y1] of [[yM(-0.08), yM(0.22)], [yP(0.22), yP(-0.08)]]) { g.fillStyle = inkCss; g.beginPath(); g.moveTo(x - wdt / 2, y0); g.lineTo(x + wdt / 2 + 1, y0); g.lineTo(x + wdt / 2, y1); g.lineTo(x - wdt / 2 - 1, y1); g.closePath(); g.fill(); }
+    }
+  } else if (pat === 'stripes') {
     const n = shape === 'ray' ? 5 : 6;
     for (let k = 0; k < n; k++) {
       const x = W * (0.24 + k * (0.62 / n)), wdt = 6 + rnd() * 4;
@@ -544,6 +710,11 @@ function bodyTexture(M, shape, parts) {
       g.strokeStyle = 'rgba(0,0,0,0.26)'; g.beginPath(); g.arc(x, y, 3.4, -Math.PI / 2, Math.PI / 2); g.stroke();
       g.strokeStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.arc(x - 1, y, 2.4, -Math.PI / 2, Math.PI / 2); g.stroke();
     }
+  } else if (pat === 'spots' && parts.opts.stars) {
+    // (the loop's Kissmark Trout: ivory star-spots on slate, thicker on the back)
+    const star = (x, y, r) => { g.beginPath(); for (let i = 0; i < 10; i++) { const a = i / 10 * TAU - Math.PI / 2, rr = i % 2 ? r * 0.42 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.fill(); };
+    g.fillStyle = 'rgba(236,230,214,0.85)';
+    for (let k = 0; k < 34; k++) { const x = W * (0.14 + rnd() * 0.8), a = 0.02 + rnd() * 0.23, r = 1.6 + rnd() * 2.2; star(x, yP(a), r); star(x, yM(a), r); }
   } else if (pat === 'spots') {
     if (shape === 'koi') {
       const pc = cssColor(fin.clone().lerp(C(0xff6a30), 0.25));
@@ -558,6 +729,13 @@ function bodyTexture(M, shape, parts) {
         dot(g, x, yP(a), r, col); dot(g, x, yM(a), r, col);
         if (eg && rnd() < 0.55) { dot(eg, x, yP(a), r * 0.9, '#fff'); dot(eg, x, yM(a), r * 0.9, '#fff'); }
       }
+    }
+  }
+  // (the loop's Kissmark Trout: one pale round scar on each flank, where something let go)
+  if (parts.opts.scar) {
+    for (const y of [yP(0.07), yM(0.07)]) {
+      g.fillStyle = 'rgba(236,230,214,0.32)'; g.beginPath(); g.ellipse(W * 0.47, y, 7, 5.5, 0, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(236,230,214,0.7)'; g.lineWidth = 1.4; g.beginPath(); g.ellipse(W * 0.47, y, 7, 5.5, 0, 0, TAU); g.stroke();
     }
   }
   // lateral line
@@ -622,6 +800,9 @@ const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0
 
 export function createFishFactory(ctx) {
   const cache = new Map();
+  // the loop's plans join the built shapes only under the loop (PLAN CHOICE 14): read once, as every flag is
+  const LOOP_ON = ctx.data?.LOOP_ENABLED === true;
+  const SH = LOOP_ON ? { ...SHAPES, ...LOOP_SHAPES } : SHAPES;
   const speciesOf = (x) => {
     if (x && typeof x === 'object') return x;
     const D = ctx.data || {};
@@ -630,11 +811,11 @@ export function createFishFactory(ctx) {
 
   function build(sp) {
     const M = { ...DEFAULT_MODEL, ...(sp?.model || {}) };
-    const shape = SHAPES[M.shape] ? M.shape : (typeof sp === 'string' && SHAPES[sp] ? sp : 'minnow');
+    const shape = SH[M.shape] ? M.shape : (typeof sp === 'string' && SH[sp] ? sp : 'minnow');
     const key = (sp?.id || 'anon') + '|' + shape + '|' + [M.body, M.belly, M.fin, M.glow, M.pattern, M.eyes].join(',');
     if (cache.has(key)) return cache.get(key);
-    const parts = SHAPES[shape](M);
-    const glowCol = hexColor(M.glow, 0xffd9a0);
+    const parts = SH[shape](M, { loop: LOOP_ON });
+    const glowCol = hexColor(parts.opts.glowCol ?? M.glow, 0xffd9a0);   // (the lamprey's gill holes light lavender with no glow on its body)
     const skin = parts.opts.vertexBody ? { map: null, emissiveMap: null } : bodyTexture(M, shape, parts);
     const eyes = eyeGeos(parts.eyes, M.eyes, glowCol);
     const fins = parts.fins.length ? mergeGeos(parts.fins) : null;
@@ -661,7 +842,7 @@ export function createFishFactory(ctx) {
   const trueLength = (sp, arg) => trueLengthM(sp, arg, { data: ctx.data, zone: ctx.state?.run?.zone ?? null });
 
   function createFish(speciesOrId, weightKg = 1) {
-    const sp = speciesOf(speciesOrId) || (typeof speciesOrId === 'string' && SHAPES[speciesOrId] ? { id: 'shape_' + speciesOrId, model: { ...DEFAULT_MODEL, shape: speciesOrId } } : null);
+    const sp = speciesOf(speciesOrId) || (typeof speciesOrId === 'string' && SH[speciesOrId] ? { id: 'shape_' + speciesOrId, model: { ...DEFAULT_MODEL, shape: speciesOrId } } : null);
     const E = build(sp);
     const M = E.M, P = E.parts;
     let L = trueLength(sp, weightKg);
@@ -942,5 +1123,5 @@ export function createFishFactory(ctx) {
     return visual;
   }
 
-  return { createFish, speciesOf, shapes: Object.keys(SHAPES) };
+  return { createFish, speciesOf, shapes: Object.keys(SH) };
 }

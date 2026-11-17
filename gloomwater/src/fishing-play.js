@@ -192,6 +192,24 @@ export function planPlay(sizeClass, z, seed, { leapChance = 0, tiers = 0, place 
   plan.knots = progressKnots(plan);
   return plan;
 }
+/**
+ * M1 step 5c (lane 5C; FINDS §2, §6.1): a find's play, the `find` plan. A slow, steady wind with the rod bowed: the take, one long
+ * gain, the lift; no runs, no surges, no holds, no last stand, no glimpse, no leap, no pan beats, no tow, no music; never lost (the
+ * caller's land chance is 1). `dur` is the haul's time by the find's pose (LOOP.finds.haul: 2 pinch, 3 both, 4 alongside); a hold
+ * hurries it as a small fish. Same shape as planPlay's plan (sizeClass 'find'), so presentAt and the play step read it unchanged.
+ */
+export function findPlan(dur = 3, seed = 1, { A = AUTOFISH } = {}) {
+  const D = Math.max(1, Number(dur) || 3);
+  const take1 = Math.min(0.35, D * 0.15), lift0 = Math.max(take1 + 0.4, D - Math.min(0.7, D * 0.25));
+  const plan = { v: 1, sizeClass: 'find', find: true, z: 0, seed: seed >>> 0, tier: 0, legend: null, place: null,
+    beats: [{ phase: 'take', kind: null, t0: 0, t1: r4(take1), strength: 0.5 }, { phase: 'gain', kind: 'steady', t0: r4(take1), t1: r4(lift0), strength: 0.45 },
+      { phase: 'lift', kind: null, t0: r4(lift0), t1: r4(D), strength: 0.5 }],
+    events: [], lastStands: [], still: null, firstGlimpse: null, leapCount: 0, leaps: 0,
+    tow: 0, bend: 0.62, shake: 0, music: null, strainPitch: 0, pass: false, loss: null, end: r4(D), dur: r4(D) };
+  void A;
+  plan.knots = progressKnots(plan);
+  return plan;
+}
 function mergeBeats(beats) {   // slivers (a beat split around a reserved block, < 0.12 s) join the beat before them
   const out = [];
   for (const b of beats) {

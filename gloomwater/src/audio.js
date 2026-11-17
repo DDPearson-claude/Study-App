@@ -69,10 +69,17 @@
 //   firstEvening:step framing     → the bed rises; ember_swell at FIRST_EVENING.ember.at (or on firstEvening:beat {id: 'ember'})
 //   firstEvening:step wake        → flame_catch (after the framing) · setout → the lantern flaring (flame_catch {flare})
 //   firstEvening:line {kind: 'murk'} → murk_grumble, as many syllables as the line, from Murk's barge
+// The Mossmere under the loop (M1 step 3a, docs/loop/m1-step3a/PLAN.md §2.2 item 7; the rules in audio-mossmere.js), on a trip
+// there or at home only (never off the loop: the v3 beds are unchanged):
+//   the bed by light (late day's air and reeds, dusk thinner with a low tone, night's low tones) and its breaths; each place in
+//   earshot (moss_lily, moss_chain, the Buoy Lights' hum and moss_buoy, moss_toll), low-passed and quieter through a standing bank;
+//   world:giantBack {placeId, x, z} → giant_roll (at night only) · place:lift {phase: 'start'} → mist_lift · loop:seal → seal_press
 import { createEngine, clamp, lerp, mtof } from './audio-dsp.js';
 import { createMusic, ZONE_MUSIC } from './audio-music.js';
 import { SFX, CONTRACT_SFX, V3_SFX } from './audio-sfx.js';
 import * as V3 from './audio-v3.js';
+import * as MOSS from './audio-mossmere.js';   // M1 step 3a: the Mossmere's own sound under the loop (pure rules)
+import * as HOME from './audio-home.js';   // M1 step 5b (lane 5b-home): home's bed on the barge (pure rules and recipes)
 // >>> INTRO LANE B: import (the opening cut scene's sound cue; docs/v3/intro/SPEC.md section 7.7)
 import { createIntroCue } from './audio-intro.js';
 import { soundEvents, soundEventsBetween } from './intro.js';
@@ -111,7 +118,8 @@ export function create(ctx) {
   let lastProgress = 0, wasDanger = false, wasSurgeWarn = false, wasClean = false, statsT = 99, statsCache = null, fishIdle = 0;
   let strain = null, charge = null, aura = null, water = null;
   const scratch = { volume: 1, pitch: 1, pan: 0, delay: 0, crit: false, big: false, elite: false, perfect: false, dying: false, force: false, rarity: undefined, power: undefined, anchored: undefined, resource: undefined,
-    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined, k: undefined, creak: undefined };
+    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined, k: undefined, creak: undefined,
+    muffle: undefined };
   let inPointer = false, zapFrame = -1;
   let rmsBuf = null;
   let override = null;          // debug: force score params, e.g. {intensity: 0.8, tension: 0.6}
@@ -131,6 +139,8 @@ export function create(ctx) {
   // v3 the Landing (FE-Au1): the cove bed and the First Evening's cues
   const cove = { active: false, from: null, fire: null, roar: null, lap: null, pan: null, idle: 0, breathT: 1.5, bellT: 7, flickT: 0, risenAt: -9 };
   const fe = { emberDue: null, emberDone: true, step: null };
+  // M1 step 3a: the Mossmere's layers (audio-mossmere.js): the bed's loops, its breath timer, each place's voice timer and the hum
+  const moss = { layers: {}, idle: 0, breathT: 2, places: [], placesT: 0, timers: {}, hum: null, humPan: null, light: null, level: 0 };
   const handlers = Object.create(null);   // event → [fn]: audio's own listeners (debug.audioEvent drives them without the bus)
   // >>> INTRO LANE B: state (the opening cut scene's cue: one bus into the music gain, played by the film's clock)
   const intro = { cue: null, events: null, t: -1, hold: false, skipped: false, water: false, releaseAt: 0, sfx: [], started: 0 };
@@ -308,7 +318,7 @@ export function create(ctx) {
     s.volume = 1; s.pitch = 1; s.pan = 0; s.delay = 0; s.crit = false; s.big = false; s.elite = false; s.perfect = false;
     s.dying = false; s.force = false; s.rarity = undefined; s.power = undefined; s.anchored = undefined; s.resource = undefined;
     s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined; s.at = undefined;
-    s.dur = undefined; s.voicing = undefined; s.k = undefined; s.creak = undefined;
+    s.dur = undefined; s.voicing = undefined; s.k = undefined; s.creak = undefined; s.muffle = undefined;
     return s;
   }
   function phaseInfo() {
@@ -865,6 +875,210 @@ export function create(ctx) {
       cove.bellT = 26 + Math.random() * 18;
     }
   }
+  // ---------------------------------------------------------------- the Mossmere under the loop (M1 step 3a; audio-mossmere.js)
+  const LOOP_ON = () => ctx.data?.LOOP_ENABLED === true;
+  /** The loop's places with their water, centre and whether their mist has lifted (re-read every 0.5 s). */
+  function mossPlaces() {
+    const P = ctx.data?.LOOP?.places || {}, lp = ctx.data?.loopPlace;
+    let lifted = [];
+    try { const l = ctx.progression?.loop; const v = l && !l.isStub ? l.lifted?.() : null; lifted = Array.isArray(v) ? v : []; } catch { lifted = []; }
+    const out = [];
+    for (const id of Object.keys(P)) {
+      let p = null;
+      try { p = typeof lp === 'function' ? lp(id) : null; } catch { p = null; }
+      if (p?.area) out.push({ id, area: p.area, x: num(p.x), z: num(p.z), lifted: lifted.includes(id) });
+    }
+    return out;
+  }
+  function mossKill() {
+    for (const k of Object.keys(moss.layers)) moss.layers[k] = killLoop(moss.layers[k]);
+    moss.layers = {};
+    moss.hum = killLoop(moss.hum);
+    if (moss.humPan) { const pn = moss.humPan; moss.humPan = null; setTimeout(() => { try { pn.disconnect(); } catch { /* ignore */ } }, 500); }
+  }
+  function mossLayer(def) {
+    if (def.src === 'osc') {
+      const l = makeOscLoop(def.type, def.f, def.ft, def.ff, def.q, N.sfxDry);
+      l.lfo.frequency.value = 0.13; l.lg.gain.value = num(def.vib, 0);
+      return l;
+    }
+    const l = makeNoiseLoop(def.kind, def.ft, def.f, def.q, N.sfxDry);
+    if (def.lfo) {
+      l.lfo = ac.createOscillator(); l.lfo.frequency.value = def.lfo.rate;
+      l.lg = ac.createGain(); l.lg.gain.value = def.lfo.depth;
+      l.lfo.connect(l.lg); l.lg.connect(l.flt.frequency); l.lfo.start();
+    }
+    return l;
+  }
+  /** The bed by light, its breaths, and each place's voice by distance (clear when lifted, through its bank when not). */
+  function mossContinuous(dt, flow) {
+    const run = ctx.state?.run;
+    const on = MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? (flow === 'home' ? 'mossmere' : null), outing: run?.outing ?? null });
+    const k = MOSS.mossLevel(on, { paused: ctx.paused === true, blocking: isBlocking() }) * (now0() < af.stillUntil ? 0.2 : 1);
+    moss.level = k;
+    if (k <= 0) {
+      if (Object.keys(moss.layers).length || moss.hum) {
+        for (const l of Object.values(moss.layers)) if (l && !l.dead) setT(l, 'g', l.g.gain, 0, 0.8);
+        if (moss.hum && !moss.hum.dead) setT(moss.hum, 'g', moss.hum.g.gain, 0, 0.8);
+        moss.idle += dt;
+        if (moss.idle > 3) mossKill();
+      }
+      return;
+    }
+    moss.idle = 0;
+    const light = MOSS.mossLight(phaseName());
+    moss.light = light;
+    const L = MOSS.bedLevels(light);
+    for (const [key, def] of Object.entries(MOSS.BED_LAYERS)) {
+      if (!moss.layers[key] && L[key] > 0) moss.layers[key] = mossLayer(def);
+      const l = moss.layers[key];
+      if (l) setT(l, 'g', l.g.gain, L[key] * k, 2.5);
+    }
+    const live = k >= 1;
+    if (live) {
+      moss.breathT -= dt;
+      if (moss.breathT <= 0) {
+        const B = MOSS.bedBreath(light);
+        resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.55; scratch.volume = B.volume * (0.7 + 0.3 * Math.random()); scratch.why = `bed:${light}`;
+        play(B.sfx, scratch);
+        moss.breathT = B.every[0] + (B.every[1] - B.every[0]) * Math.random();
+      }
+    }
+    // the places: their voices at the raft (re-read every 0.5 s: what is lifted changes at a lift's end)
+    moss.placesT -= dt;
+    if (moss.placesT <= 0 || !moss.places.length) { moss.placesT = 0.5; moss.places = mossPlaces(); }
+    const p = ctx.player?.position, px = num(p?.x, NaN), pz = num(p?.z, NaN);
+    let hum = null;
+    for (const pl of moss.places) {
+      const V = MOSS.PLACE_VOICES[pl.id];
+      if (!V) continue;
+      const at = MOSS.placeVoiceAt(pl.area, px, pz, { lifted: pl.lifted });
+      pl.gain = at.gain; pl.muffle = at.muffle; pl.dist = at.dist;
+      if (V.hum) hum = { V, pl, at };
+      if (!live || at.gain <= 0.01) { moss.timers[pl.id] = Math.min(num(moss.timers[pl.id], 0.5), 0.5); continue; }
+      moss.timers[pl.id] = num(moss.timers[pl.id], 0.5) - dt;
+      if (moss.timers[pl.id] > 0) continue;
+      moss.timers[pl.id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch(); spatial({ x: pl.x, z: pl.z }, scratch);
+      scratch.volume = V.volume * at.gain * k; scratch.muffle = at.muffle; scratch.why = `${pl.id}${at.muffle ? ':bank' : ''}`;
+      play(V.sfx, scratch);
+    }
+    mossWaterVoices(dt, k, light, px, pz, live);   // WC-3: the inflow's trickle
+    // the Buoy Lights' low hum: a loop through its own panner, by distance, louder once its lamps are lit at night
+    const hg = hum ? hum.at.gain * MOSS.humLight(light) * k * hum.V.hum.level : 0;
+    if (hg > 0.0005 && !moss.hum) {
+      moss.humPan = ac.createStereoPanner ? ac.createStereoPanner() : ac.createGain();
+      moss.humPan.connect(N.sfxDry);
+      const H = hum.V.hum;
+      moss.hum = makeOscLoop(H.type, H.f, H.ft, H.ff, H.q, moss.humPan);
+      moss.hum.lfo.frequency.value = 0.21; moss.hum.lg.gain.value = num(H.vib, 0);
+    }
+    if (moss.hum && !moss.hum.dead) {
+      setT(moss.hum, 'g', moss.hum.g.gain, hg, 0.8);
+      if (hum) {
+        setT(moss.hum, 'f', moss.hum.flt.frequency, hum.at.muffle > 0 ? Math.min(hum.V.hum.ff, hum.at.muffle * 0.3) : hum.V.hum.ff, 0.8, 0.01);
+        const o = { pan: 0 }; spatial({ x: hum.pl.x, z: hum.pl.z }, o);
+        if (moss.humPan?.pan) setT(moss, 'hp', moss.humPan.pan, o.pan * 0.8, 0.5, 0.01);
+      }
+    }
+  }
+  // >>> WC-3 (WATERCRAFT §5.4, §5.6): the water's own voices on the Mossmere under the loop (audio-mossmere.js's SFX_WC)
+  const wcS = { reg: false, timers: {} };
+  function wcReg() { if (!wcS.reg) { wcS.reg = true; Object.assign(SFX, MOSS.SFX_WC); } }
+  function mossWaterVoices(dt, k, light, px, pz, live) {
+    wcReg();
+    for (const [id, V] of Object.entries(MOSS.WATER_VOICES)) {
+      const at = MOSS.waterVoiceAt(V, px, pz);
+      if (!live || at.gain <= 0.01) { wcS.timers[id] = Math.min(num(wcS.timers[id], 0.4), 0.4); continue; }
+      wcS.timers[id] = num(wcS.timers[id], 0.4) - dt;
+      if (wcS.timers[id] > 0) continue;
+      wcS.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch(); spatial({ x: V.x, z: V.z }, scratch);
+      scratch.volume = V.volume * at.gain * k * MOSS.trickleLight(light); scratch.why = id;
+      play(V.sfx, scratch);
+    }
+  }
+  function mossTrip() { const r = ctx.state?.run; return LOOP_ON() && MOSS.mossOn({ loopOn: true, flow: ctx.flow, zone: r?.zone ?? null, outing: r?.outing ?? null }); }
+  function wcStems(p) {
+    if (!mossTrip()) return;
+    const pl = ctx.player?.position, g = MOSS.stemsRustle(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.STEMS.volume * g; scratch.why = 'stems'; play(MOSS.STEMS.sfx, scratch);
+  }
+  function wcToll(p) {
+    if (!mossTrip() || !MOSS.tollOn(p)) return;
+    let at = null;
+    try { const lp = ctx.data?.loopPlace?.(MOSS.TOLL.place); if (lp && Number.isFinite(lp.x)) at = { x: lp.x, z: lp.z }; } catch { at = null; }
+    resetScratch(); if (at) spatial(at, scratch);
+    scratch.pitch = MOSS.TOLL.pitch; scratch.volume = MOSS.TOLL.volume; scratch.why = 'toll'; scratch.force = true;
+    play(MOSS.TOLL.sfx, scratch);
+  }
+  function wcCroak(p) {
+    if (!LOOP_ON()) return;
+    const pl = ctx.player?.position, g = MOSS.croakGain(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p?.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.CROAK.volume * g; scratch.why = 'heron'; play(MOSS.CROAK.sfx, scratch);
+  }
+  // <<< WC-3
+  // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): home's bed (audio-home.js)
+  const homeS = { stove: null, idle: 0, timers: {}, reg: false };
+  /** Where a home voice sounds: the cabin door (the stove), the barge's side, Murk's barge, or nowhere (far: unpanned). */
+  function homeAt(at) {
+    let M = null;
+    try { M = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { M = null; }
+    if (!M?.hull) return null;
+    if (at === 'murk' && M.murk) return { x: M.murk.x, z: M.murk.z };
+    if (at === 'stove') return { x: M.hull.x - Math.sin(M.hull.yaw) * -2.3, z: M.hull.z - Math.cos(M.hull.yaw) * -2.3 };
+    if (at === 'hull') return { x: M.hull.x, z: M.hull.z };
+    return null;
+  }
+  function homeContinuous(dt, flow) {
+    if (!homeS.reg) { homeS.reg = true; Object.assign(SFX, HOME.SFX_HOME); }   // (registered under the loop only, the first time)
+    const on = HOME.homeOn({ loopOn: true, flow });
+    const k = HOME.homeLevel(on, { blocking: isBlocking(), paused: ctx.paused === true });
+    if (k <= 0) {
+      if (homeS.stove && !homeS.stove.dead) { setT(homeS.stove, 'g', homeS.stove.g.gain, 0, 0.8); homeS.idle += dt; if (homeS.idle > 3) homeS.stove = killLoop(homeS.stove); }
+      homeS.timers = {};
+      return;
+    }
+    homeS.idle = 0;
+    const B = HOME.HOME_BED.stove;
+    if (!homeS.stove || homeS.stove.dead) homeS.stove = makeNoiseLoop(B.kind, B.ft, B.f, B.q, N.sfxDry);
+    setT(homeS.stove, 'g', homeS.stove.g.gain, B.level * k, 2);
+    for (const [id, V] of Object.entries(HOME.HOME_VOICES)) {
+      if (homeS.timers[id] == null) homeS.timers[id] = V.first ?? V.every[0] * Math.random();
+      homeS.timers[id] -= dt;
+      if (homeS.timers[id] > 0) continue;
+      homeS.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch();
+      const pos = homeAt(V.at), g = pos ? spatial(pos, scratch) : 1;
+      scratch.volume = V.volume * k * Math.max(0.5, g); scratch.why = `home:${id}`;
+      play(V.sfx, scratch);
+    }
+  }
+  const now0 = () => (ac ? ac.currentTime : 0);
+  /** world:giantBack {placeId, x, z}: the deep roll at night, through the bank it turns in. */
+  function mossGiantBack(p = {}) {
+    if (!LOOP_ON() || !MOSS.giantRollOn(phaseName())) return;
+    if (!MOSS.mossOn({ loopOn: true, flow: ctx.flow, zone: ctx.state?.run?.zone, outing: ctx.state?.run?.outing })) return;
+    resetScratch();
+    const pos = Number.isFinite(p.x) ? { x: p.x, z: p.z } : null, pp = ctx.player?.position;
+    const d = pos && pp ? Math.hypot(pos.x - num(pp.x), pos.z - num(pp.z)) : 30;
+    spatial(pos, scratch);
+    scratch.volume = Math.max(0.3, MOSS.voiceGain(d, MOSS.ROLL_EARSHOT)); scratch.muffle = MOSS.ROLL_MUFFLE; scratch.why = p.placeId || 'giant';
+    play(MOSS.MOSS_EVENTS.giantBack, scratch);
+  }
+  /** place:lift {placeId, phase: 'start'}: the mist drawing up off its water. */
+  function mossLift(p = {}) {
+    if (!LOOP_ON() || p.phase !== 'start') return;
+    resetScratch();
+    let c = null; try { c = ctx.data?.loopPlace?.(p.placeId); } catch { c = null; }
+    if (c && Number.isFinite(c.x)) spatial({ x: c.x, z: c.z }, scratch);
+    scratch.pan *= 0.6; scratch.volume = 0.9; scratch.dur = num(ctx.data?.LOOP?.lift?.thin, 3); scratch.why = p.placeId || 'lift'; scratch.force = true;
+    play(MOSS.MOSS_EVENTS.liftStart, scratch);
+  }
   function murkPan(o) {
     const m = ctx.actors?.merchant?.position;
     if (m && typeof m.x === 'number') return spatial(m, o);
@@ -1055,6 +1269,8 @@ export function create(ctx) {
     // --- v3: the automatic play's hum and drone, the Landing's bed
     afContinuous(dt, flow, fs, fv);
     coveContinuous(dt, flow);
+    if (LOOP_ON()) mossContinuous(dt, flow);   // M1 step 3a: the Mossmere's bed and its places (never off the loop)
+    if (LOOP_ON()) homeContinuous(dt, flow);   // M1 step 5b: home's bed on the barge (the stove, the hulls, a far bell, Murk's hand bell)
 
     // --- heartbeat at hp ≤ 2 (DESIGN §6.6), quicker on the last Ember
     const hp = num(run?.hp, 99);
@@ -1337,14 +1553,20 @@ export function create(ctx) {
     on('firstEvening:line', (p) => feLine(p));
     // an Elder's old trick (fishing:surge {trick} already plays the splash and strain) gets a low warning swell
     // the loop, Ashwick's comeback settling on the float (WICKS §2.5): a short ember hiss beside the bobber
-    on('fishing:comeback', () => { resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });
+    on('fishing:comeback', () => { if (MOSS.comebackQuiet({ loopOn: LOOP_ON(), zone: ctx.state?.run?.zone ?? null })) return; resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });   // (WC-3: silent on the Mossmere under the loop)
+    // the loop, M1 step 3a: the giant's back, a place's lift, the catch seal's press (audio-mossmere.js)
+    on('world:giantBack', (p) => mossGiantBack(p));
+    on('place:lift', (p) => mossLift(p));
+    on('loop:seal', (p) => { if (LOOP_ON() && (p?.seal ?? 'catch') === 'catch') { resetScratch(); scratch.volume = 0.95; scratch.why = 'catch'; scratch.force = true; play(MOSS.MOSS_EVENTS.seal, scratch); } });
     on('fishing:oldTrick', () => { resetScratch(); scratch.pan = bobberPan(); scratch.pitch = 0.72; scratch.volume = 0.9; play('surge_warn', scratch); });
     // a legend snag (Still / Lantern Grasping Dark): the 1 s telegraph, then the strain of the +0.2 spike
     on('fishing:snag', (p) => {
       resetScratch(); scratch.pan = bobberPan();
       if (p.state === 'warn') { scratch.pitch = 0.6; play('surge_warn', scratch); } else { scratch.volume = 0.9; play('line_strain', scratch); }
     });
-    on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); });
+    on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); else if (p.kind === 'stems') wcStems(p); });   // (WC-3: the stems' rustle)
+    on('fishing:bite', (p) => wcToll(p));   // WC-3: the Matriarch takes: a low toll from the Bell Pool's floor
+    on('heron:lift', (p) => wcCroak(p));     // WC-3: the heron lifts off with a croak
     on('sign:rise', (p) => riseSound(p));
     on('sign:end', (p) => { if (p.id !== undefined) signHeard.delete(p.id); });
     on('fish:measured', () => {
@@ -1520,6 +1742,13 @@ export function create(ctx) {
         cord: cord ? { ticks: cord.ticks, chimes: cord.chimes.slice(), end: cord.end, compact: !!cord.compact, active: !!ac && ac.currentTime < cord.end } : null,
         play: af.cls ? { active: af.active, cls: af.cls, mood: af.music?.mood ?? null } : null,
         cove: { active: cove.active, from: cove.from, bed: !!(cove.fire && !cove.fire.dead && (cove.fire._g ?? 0) > 0), step: fe.step },
+      });
+      // M1 step 3a: the Mossmere's layers as audio has them (the loop only)
+      if (ctx.data?.LOOP_ENABLED === true) ctx.debug.audioMoss = () => ({
+        level: moss.level, light: moss.light,
+        layers: Object.fromEntries(Object.entries(moss.layers).map(([k, l]) => [k, r3(num(l?._g, 0))])),
+        hum: moss.hum && !moss.hum.dead ? { level: r3(num(moss.hum._g, 0)), lowpass: r3(num(moss.hum._f, 0)) } : null,
+        places: moss.places.map((p) => ({ id: p.id, lifted: p.lifted, gain: r3(num(p.gain, 0)), muffle: num(p.muffle, 0), dist: p.dist === undefined ? null : r3(p.dist) })),
       });
       // v3 (Au2): the automatic play as audio hears it — class, class length, tier, the score, the hum and drone, the beats
       ctx.debug.audioPlay = () => {

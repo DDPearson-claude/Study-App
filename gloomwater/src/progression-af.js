@@ -23,6 +23,7 @@
 //         Wick's buff is Ashwick's tired comeback only (WICKS §2.5); the counters read the evening; a comeback is not also marked.
 import { uid } from './core.js';
 import { elderName } from './progression-v3.js';
+import { HOOK_ITEMS as WC_ITEMS, gradeTargets } from './watercraft.js';   // WC-3: a Mossmere tin's or lure's fish (WATERCRAFT §3.7)
 
 const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const SLOTS = ['rod', 'line', 'reel'];
@@ -141,6 +142,15 @@ export function createAutofish(S) {
       const tk = loopBlock()?.tackle || {};
       const out = { rod: tk.rod | 0, line: tk.line | 0, reel: tk.reel | 0, hold: loopHold(tk), item: null, itemLevel: 1, perRun: false };
       if (!r) out.runless = true;
+      // M1 step 4 (lane 4, SPEC §4.5): a lure and a bait on the line together, the fish gets the larger Hold, never both: the lure is the
+      // item and the cast's bait (a tin or Cut Strip; a legend's bait gives none) rides as the never-stacked second (catchParts' max)
+      const L = loopBlock() || {}, items = C3()?.items || {};
+      const lureId = r ? (typeof r.lure === 'string' ? r.lure : null) : (typeof L.fitted?.lure === 'string' ? L.fitted.lure : null);
+      if (lureId && items[lureId]?.kind === 'lure' && Array.isArray(L.lures) && L.lures.includes(lureId)) out.item = lureId;
+      const baitId = r ? (lineOut() && castSnap?.runId === r.id ? castSnap.item : r.equippedBait) : (typeof L.fitted?.bait === 'string' ? L.fitted.bait : null);
+      if (typeof baitId === 'string' && items[baitId]?.kind === 'bait' && !S.bait?.(baitId)?.legend) {
+        if (out.item) out.upgrade = { id: baitId, level: 1 }; else out.item = baitId;
+      }
       return out;
     }
     if (!r) return { rod: 0, line: 0, reel: 0, item: null, itemLevel: 1, perRun: perRunOf(null), runless: true };
@@ -328,6 +338,13 @@ export function createAutofish(S) {
   function targetsOf(itemId) {
     const it = C3()?.items?.[itemId];
     if (!it) return [];
+    // >>> WC-3 (WATERCRAFT §3.7): under the loop a Mossmere tin's or lure's Hold helps the fish it suits (watercraft.gradeTargets; the
+    // Spinner keeps its named giants); the log counts the ones met and names none
+    if (loopOn() && itemId !== 'bare' && WC_ITEMS.includes(itemId)) {
+      const suits = safe(() => gradeTargets(itemId, D()), []).filter((id) => S.species(id));
+      return { suits: true, fish: suits, met: suits.filter(met) };
+    }
+    // <<< WC-3
     if (it.all) return 'all';
     const helps = safe(() => D().catchItemTargets(itemId), []).filter((id) => S.species(id));
     if (it.species) return it.species.filter((id) => S.species(id));
@@ -345,6 +362,7 @@ export function createAutofish(S) {
     const hold = it.holdPerLevel ? `${it.holdPerLevel} per level` : it.hold;
     if (it.all) return (T.tackle || '+{hold} Hold on every fish').split(' · ')[0].replace('{hold}', hold).replace(/\.$/, '') + '.';
     const t = targetsOf(itemId);
+    if (t && t.suits === true) return String(D().TEXT_LOOP?.log?.gear || '+{n} Hold on the fish it suits ({m} you have met).').replace('{n}', hold).replace('{m}', t.met.length);   // (WC-3)
     let whom;
     if (it.family) whom = FAMILY_WORDS[it.family] || it.family;
     else if (it.night) whom = 'night fish, at night';
@@ -468,6 +486,30 @@ export function createAutofish(S) {
       : expeditions() && r?.outing !== 'descent'
         ? (D().LURES || []).filter((L) => lureLit(L, r) || meta()?.lures?.[L.id]).map((L) => ({ L, price: L.price, owned: !!meta()?.lures?.[L.id], onSale: lureLit(L, r) }))
         : [];
+    // M1 step 4 (lane 4): under the loop, at the shelf's Odds › and on a trip, the water's lures (owned or on the shelf) and its tins and
+    // Cut Strip (held), each with its Hold and the fish it helps; the log is the only place a fish's odds show (the pinned compare)
+    if (loopOn() && (!r || loopRun(r))) {
+      const LB = loopBlock() || {}, LL = D().LOOP?.lures || {}, own = new Set(Array.isArray(LB.lures) ? LB.lures : []);
+      const fit = LB.fitted || {}, onLine = r ? { lure: r.lure ?? null, bait: r.equippedBait ?? null } : fit;
+      for (const [id, row0] of Object.entries(LL)) {
+        const it = C.items[id];
+        if (!it || !(LB.maps?.lakes || ['mossmere']).includes(row0.water)) continue;
+        const row = { id, kind: 'lure', name: D().TEXT_LOOP?.gearItems?.[id] ?? lure(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: row0.price,
+          owned: own.has(id), onSale: !own.has(id), equipped: onLine.lure === id, giants: !!it.species };
+        if (pinSp) row.compare = compareWith({ ...base, item: id });
+        out.push(row);
+      }
+      const bag = r ? r.bait || {} : LB.bait?.[LB.barge?.water || 'mossmere'] || {};
+      for (const id of [...Object.values(D().LOOP?.tins || {}).flat(), 'cut_strip']) {
+        if (out.some((x) => x.id === id && x.kind === 'bait')) continue;
+        const it = C.items[id], held = bag[id] | 0;
+        if (!it || (id === 'cut_strip' && !held)) continue;
+        const row = { id, kind: 'bait', name: D().TEXT_LOOP?.gearItems?.[id] ?? S.bait?.(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: null, owned: held,
+          equipped: onLine.bait === id, onSale: id !== 'cut_strip' };
+        if (pinSp) row.compare = compareWith({ ...base, item: id });
+        out.push(row);
+      }
+    }
     for (const { L, price, owned, onSale } of lureRows) {
       const it = C.items[L.id];
       if (!it) continue;
@@ -557,6 +599,20 @@ export function createAutofish(S) {
     const cls = legend ? 'legend' : e.sizeClass || (z != null ? (D().isAncient?.(z) ? 'ancient' : D().sizeClassOf?.(z)) : null);
     const elder = !legend && (cls === 'elder' || cls === 'ancient');
     let name = e.name || null;
+    // >>> WC-3 (WATERCRAFT §7.2-§7.3, the lost fish): on a trip the loss writes nothing a screen could show: no Glimpsed page, no Got
+    // away list, no escape, no Elder name or Elder Log line, no gear-log pin, no run got-away line, no journal:seen. Only what the
+    // water silently remembers: the legend's wound and the Marked Fish (as built; progression-loop marks the giant and stores
+    // Ashwick's comeback). The flag-off game and the expeditions keep the whole of the built path below.
+    if (loopRun(r)) {
+      const lake = r?.zone || S.hubZone() || sp.zone || null;
+      if (legend) addLegendWound(sp.id);
+      else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
+      // (a giant lost on a trip is the ledger's Marked giant, M1 step 3a: never also a built Marked Fish)
+      else if (e.markedFish && !comeback && sp.giant !== true) addMarkedFish({ ...e, name: null, zone: lake });
+      S.requestSave();
+      return;
+    }
+    // <<< WC-3
     if (elder && !name) { name = nameElder(sp.id, `${e.reason || 'lost'}:${z}:${m.runs | 0}:${r?.day ?? 0}:${frame()}`); if (name) e.name = name; }
     const len = Number(e.approxLength) > 0 ? Number(e.approxLength) : null;
     const lake = r?.zone || S.hubZone() || sp.zone || null;
@@ -581,7 +637,9 @@ export function createAutofish(S) {
     // legends: wounded (+6 Hold on the next attempt, ≤ 3 counted); Marked Fish: a re-hooked one stays out there, a new one is marked
     if (legend) addLegendWound(sp.id);
     else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
-    else if (e.markedFish && !comeback) addMarkedFish({ ...e, name, zone: lake });   // the Full Hold: Ashwick's comeback is not also marked
+    // the Full Hold: Ashwick's comeback is not also marked; a giant lost on a trip is the ledger's Marked giant (meta.loop.giants, M1
+    // step 3a), never also a built Marked Fish (nothing on a trip would ever clear it)
+    else if (e.markedFish && !comeback && !(loopRun(r) && sp.giant === true)) addMarkedFish({ ...e, name, zone: lake });
     // the gear log pins the last fish that got away (not the Landing's Quayling: the gear log is about the lakes)
     if (!S.isCove(sp.id)) m.lastAway = { speciesId: sp.id, sizeClass: cls, reason: e.reason || null, name, approxLength: len, zone: lake };
     if (r) {

@@ -8,13 +8,65 @@ import { drawFish, drawFishInk } from './ui-fishart.js';
 import { classInfo, fmtLength, favourGroups, favourMu, notchesFor, modeCards, v3Run, pickMomentOk, SNUFF_EPITAPHS, recordLines, cordRuler, fmtWeight, fishWeight, fmtCm, weightCount, weightSizers, weightHtml } from './ui-v3.js';
 import * as AF from './ui-af.js';
 // >>> LOOP 1a (lane C): the Full Hold's words and models (docs/loop/slice-1a/PLAN.md §2.3 item 5); read only under data.LOOP_ENABLED
-import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS } from './ui-loop.js';
-import { listFor as loopListFor } from './progression-loop.js';
+import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS, catalogueView, giantsView } from './ui-loop.js';
+import { renderPrintsPage } from './ui-prints.js';   // M1 step 5b (lane 5b-home): the Journal's Prints page
+import { listFor as loopListFor, catalogueFor } from './progression-loop.js';
+import { cardHooks as gearCardHooks, whoBitesHtml } from './ui-gear.js';   // (WC-3: the gear log's Who bites)   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
+import { createSheetView } from './ui-sheet.js';   // the Wick's sheet (SHEET.md): the Journal's first tab under the loop
 // <<< LOOP 1a
 
 const RARITY_LABEL = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+
+// The catch card's name never runs past its column or the card (the user's play-test of 2026-11-16: "Bridgechain" cut at the
+// card's edge on a near-square phone). The name wraps at its spaces as before; a single word wider than its box, or reaching past
+// the card's inner edge (a column the card's own width cannot hold), steps the type down 2 px at a time to a 20 px floor, and only
+// past that floor may a word break. It is measured again once the web fonts are in, and whenever the card's width changes while it
+// is open (a turned phone, a resized window).
+const NAME_FLOOR = 20;
+/** How far the name runs past its own box or past the card's inner (content) edge, in px (<= 0: it fits). */
+export function nameOverflow(el, pn) {
+  let o = el.scrollWidth - el.clientWidth;
+  const doc = globalThis.document;
+  if (pn && typeof pn.getBoundingClientRect === 'function' && typeof doc?.createRange === 'function') {
+    const rg = doc.createRange(); rg.selectNodeContents(el);
+    let right = -Infinity;
+    for (const b of rg.getClientRects()) if (b.width > 0) right = Math.max(right, b.right);
+    const pr = pn.getBoundingClientRect();
+    const scale = pn.offsetWidth > 0 ? pr.width / pn.offsetWidth : 1;   // (the card may still be rising or unfolding: a transform)
+    const pad = (parseFloat(getComputedStyle(pn).paddingRight) || 0) * scale;
+    if (Number.isFinite(right)) o = Math.max(o, (right - (pr.right - pad)) / (scale || 1));
+  }
+  return o;
+}
+export function fitCatchName(content, pn) {
+  const fit = () => {
+    const el = content?.querySelector?.('.gw-catch-name');
+    if (!el || !el.isConnected || typeof getComputedStyle !== 'function') return;
+    el.style.fontSize = ''; el.style.overflowWrap = '';
+    if (!(el.clientWidth > 0)) return;
+    let fs = parseFloat(getComputedStyle(el).fontSize) || 0;
+    for (let i = 0; i < 40 && fs > NAME_FLOOR && nameOverflow(el, pn) > 1; i++) { fs = Math.max(NAME_FLOOR, fs - 2); el.style.fontSize = `${fs}px`; }
+    if (nameOverflow(el, pn) > 1) el.style.overflowWrap = 'anywhere';
+  };
+  fit();
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(fit);
+  globalThis.document?.fonts?.ready?.then?.(fit, () => {});
+  if (!pn) return;
+  pn.__gwFitName = fit;   // (a card drawn again keeps its one observer, which fits the newest name)
+  if (!pn.__gwFitRO && typeof ResizeObserver === 'function') {
+    let lastW = -1, seen = false;
+    const ro = new ResizeObserver(() => {
+      if (!pn.isConnected) { if (seen) { ro.disconnect(); pn.__gwFitRO = null; } return; }   // (closed: let go of it)
+      seen = true;
+      const w = Math.round(pn.clientWidth);
+      if (w !== lastW) { lastW = w; pn.__gwFitName?.(); }   // (only a change of width: the name's new size changes the card's height)
+    });
+    pn.__gwFitRO = ro;
+    ro.observe(pn);
+  }
+}
 
 export function createScreens(K) {
   const { ctx, h, esc, fill, fmt, fmtKg, num, arr, safe, D, stat, run, meta, icon, ORN, sfx } = K;
@@ -90,6 +142,9 @@ export function createScreens(K) {
   const V3 = () => D().V3_ENABLED === true;
   /** The Full Hold (PLAN §2.3 item 5): one switch, read from the data; a trip is `run.outing === 'trip'`. Off the loop: false. */
   const loopOn = () => D().LOOP_ENABLED === true;
+  // the Wick's sheet (SHEET.md): one view, made on first use under the loop with automatic fishing (null otherwise)
+  let sheetInst = null;
+  const sheetV = () => { if (!sheetInst && loopOn() && D().AUTOFISH && ctx.progression?.loop) { try { sheetInst = createSheetView(K); } catch (e) { K.report?.('sheet view', e); sheetInst = null; } } return sheetInst; };
   const TL = () => D().TEXT_LOOP || {};
   const lbs = (sp, fish) => fmtWeight(fishWeight(sp, fish));
   const prog = () => (ctx.progression && !K.isStub(ctx.progression) ? ctx.progression : null);
@@ -826,7 +881,7 @@ export function createScreens(K) {
       // the card across its middle
       const sideK = !phone && N.v3 && showCard() && K.vw >= K.vh * 1.2 && K.vh >= 480 ? Math.max(0, Math.min(0.6, num(D().AUTOFISH?.show?.camera?.behindCard?.landscapeSide, 0))) : 0;
       const sideW = sideK > 0 ? Math.round(Math.max(380, Math.min(560, K.vw * sideK - 34))) : 0, sideM = sideK > 0 ? Math.round(Math.max(0, Math.min(40, K.vw * 0.012))) : 0;
-      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}${loopCard ? ` gw-cc-loop${fish.giant === true ? ' gw-cc-giant' : ''}` : ''}`, close: false });
+      const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-catch gw-cc r-${sp.rarity || 'common'}${legend ? ' gw-legend' : ''}${p.isNew ? ' gw-new' : ''}${p.isRecord ? ' gw-record' : ''}${N.v3 ? ` gw-cc-v3 gw-cls-${N.cls.id}` : ''}${loopCard ? ` gw-cc-loop${fish.giant === true || sp.giant === true ? ' gw-cc-giant' : ''}` : ''}`, close: false });
       pn.style.setProperty('--rc', K.rarityCss(sp.rarity));
       // the show: the card unfolds from where the fish is held (its centre on screen, from fishing:show {card}); a phone's card
       // still rises from the foot, and a re-render (more, make room, a boon picked) never replays the entrance
@@ -920,13 +975,15 @@ export function createScreens(K) {
         for (const x of content.querySelectorAll('.gw-cc-stats > :not(.gw-cc-lenk):not(.gw-cc-len)')) x.remove();
         const kick = content.querySelector('.gw-cc-kicker');
         if (kick && (!N.special || / \u00b7 /.test(N.kicker))) kick.remove(); else kick?.classList.remove('gw-cc-xtra');
-        if (fish.giant === true) content.querySelector('.gw-catch-name')?.insertAdjacentHTML('afterbegin', '<i class="gw-cc-star" aria-hidden="true">\u2605</i>');
+        // a giant's card (SPEC §8.2, M1.md §2.4): a gold ★ before its name ("★ Thousandcast Pike") and its class seal stamped in gold
+        if (fish.giant === true || sp.giant === true) content.querySelector('.gw-catch-name')?.insertAdjacentHTML('afterbegin', '<i class="gw-cc-star">\u2605 </i>');
       }
       const art = content.querySelector('.gw-cc-art');
       const aw = phone ? 300 : 400, ah = phone ? 120 : 170;
       const c = h('canvas', 'gw-fishart gw-fish-ink');
       try { drawFishInk(c, sp, { w: aw, h: ah, pad: 0.05, color: legend ? '#efd9a6' : '#ece8f4' }); } catch (e) { K.report('fishart', e); }
       art.appendChild(c);
+      fitCatchName(content, pn);
       content.querySelector('[data-room]')?.addEventListener('click', () => { s.room = !s.room; sfx('ui_click'); entry.render(); });
       pn.classList.toggle('gw-cc-open', !!s.more);
       content.querySelector('[data-more]')?.addEventListener('click', (e) => {
@@ -975,6 +1032,9 @@ export function createScreens(K) {
         foot.classList.add('gw-catch-actions--loop');
         foot.appendChild(btn(`${esc(K1.label)} <em data-to="${K1.clams}">${icon('clam')}<b style="min-width:${K1.clamsText.length}ch">${esc(fmtClams(s.loopCounted ? K1.clams : 0))}</b></em>`, { ...A, key: K1.key, action: K1.action, cls: 'gw-cc-act gw-btn--primary gw-cc-keep', disabled: K1.disabled, onClick: act('keep'), autofocus: K1.autofocus }));
         foot.appendChild(btn(esc(K2.label), { ...A, key: K2.key, action: K2.action, cls: 'gw-cc-act gw-cc-letgo', onClick: act('letgo'), autofocus: K2.autofocus }));
+        // M1 step 4 (lane 4): Keep's chalk tick when the fish fills an order; Let go held on a Small or a Keeper cuts it into Cut Strip
+        gearCardHooks({ ctx, fish, sp, keepBtn: foot.querySelector('.gw-cc-keep'), letBtn: foot.querySelector('.gw-cc-letgo'), state: s,
+          close: () => K.closeModal('catch'), report: (w, e) => K.report?.(w, e) });
       } else {
       foot.appendChild(btn(legend ? 'Keep as trophy' : 'Keep', { ...A, key: '1', action: 'keep', cls: 'gw-cc-act gw-btn--primary', disabled: full, title: full ? 'Your creel is full' : 'Keep it to sell, eat or burn later', onClick: act('keep'), autofocus: !full }));
       foot.appendChild(btn(`Eat <em>+${fmt(y.food)}</em>`, { ...A, key: '2', action: 'eat', cls: 'gw-cc-act', title: `+${fmt(y.food)} satiety`, onClick: act('eat'), autofocus: full }));
@@ -1460,6 +1520,65 @@ export function createScreens(K) {
     }, { state: { ...extra } });
   }
 
+  /** A species' page (the built Journal's detail column): its art, its facts, its lore, its odds block (the player's own log), its
+   *  Got away list. The built Journal and, under the loop (M1 step 3a), the catalogue's species page draw it. */
+  function speciesDetail(sp, s, { J, caughtOf, glimpsedOf, JM, listed, loopJ }) {
+    const det = h('div', 'gw-jr-detail');
+    const T = D().TEXT || {};
+    if (sp) {
+      const rec = J[sp.id];
+      const known = caughtOf(sp.id), glimpsed = glimpsedOf(sp.id);
+      const art = h('div', `gw-jr-art${glimpsed ? ' gw-jr-art-ink' : ''}`);
+      art.style.setProperty('--rc', K.rarityCss(sp.rarity));
+      art.appendChild(fishCanvas(sp, K.vw < 700 ? 240 : 300, K.vw < 700 ? 120 : 150, { silhouette: !known }));
+      det.appendChild(art);
+      if (known) {
+        const pb = num(rec.pbLength);
+        // v3: the biggest is the weight of the best length (a legacy row with no length reads its stored kg in pounds); the
+        // species' range in pounds and ounces. Flag off, both read as v1 wrote them
+        const jBig = V3() ? esc(fmtWeight(fishWeight(sp, { length: pb, weight: num(rec.pbWeight) || num(rec.biggest) })))
+          : pb > 0 ? esc(fmtLength(pb, D())) : rec.biggest ? fmtKg(rec.biggest) : '—';   // v1
+        // (the range runs from its smallest to a top Trophy, the most open water holds; the ceiling, an Elder's, is what it is
+        // "said to reach": a perch page reads "10 oz – 5 lb 15 oz", then "said to reach 17 lb 11 oz")
+        const span = V3() ? D().weightSpan?.(sp) : null;
+        const reach = span && fmtWeight(span.reach) !== fmtWeight(span.top) ? fill(D().TEXT_V3?.saidToReach || 'said to reach {w}', { w: fmtWeight(span.reach) }) : '';
+        const jRange = V3() ? (span ? `<span class="gw-facts-range">${esc(`${fmtWeight(span.min)} \u2013 ${fmtWeight(span.top)}`)}</span>${reach ? `<small class="gw-facts-sub">${esc(reach)}</small>` : ''}` : '—')
+          : arr(sp.weight).length ? `${sp.weight[0]}–${sp.weight[1]} kg` : '—';   // v1
+        det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3>${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
+          <div class="gw-kicker" style="--rc:${K.rarityCss(sp.rarity)}">${esc(RARITY_LABEL[sp.rarity] || '')}</div>
+          <p class="gw-lore">${esc(sp.lore || '')}</p>
+          <dl class="gw-facts"><div><dt>Biggest</dt><dd>${jBig}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
+          <div><dt>First</dt><dd>${loopJ ? esc(journalFirst(rec)) : `${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}`}</dd></div><div><dt>Weight</dt><dd>${jRange}</dd></div></dl>
+          <p class="gw-jr-where">${icon('map_pin')}${esc(hintFor(sp, true))}</p>`);
+      } else if (glimpsed) {
+        const last = arr(rec.gotAway).slice(-1)[0] || rec.escape || null;
+        const near = last ? AF.nearWeight(D(), sp, last.length) : '';
+        const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}${near ? `, ${near}` : ''}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day && !loopJ ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
+        det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3><div class="gw-kicker gw-glimpse-k">Glimpsed</div>
+          <p class="gw-lore">${esc(line)}</p>${JM && listed.has(sp.id) ? '' : `<p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`}`);
+      } else {
+        det.insertAdjacentHTML('beforeend', `<h3 class="gw-dim">Unnamed</h3><p class="gw-lore">${esc(T.journalUnknown || '')}</p>${JM && listed.has(sp.id) ? '' : `<p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`}`);
+      }
+      const ob = oddsBlock(sp, s.hl);
+      if (ob) det.insertAdjacentHTML('beforeend', ob);
+      if (af() && !loopOn()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));   // (WC-3, WATERCRAFT §7.2: no Got away list under the loop)
+      if (ob && loopOn() && sheetV()) {
+        // the Wick's sheet (SHEET.md §2.4): "Odds ›" at home and on a trip; it pins this fish at the class the page lights (else Trophy)
+        const gl = h('button', 'gw-link gw-odds-gear gw-odds-sheet');
+        gl.type = 'button';
+        gl.textContent = TL().odds || 'Odds ›';
+        gl.addEventListener('click', () => { sfx('ui_click'); safe(() => ctx.progression?.pinGear?.(sp.id, s.hl || 'trophy'), null); openSheet({ from: 'species', section: 'odds', pauseChild: !!s.pauseChild, view: { cls: s.hl || 'trophy' } }); });
+        det.appendChild(gl);
+      } else if (ob && ctx.flow === 'playing') {
+        const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
+        gl.type = 'button';
+        gl.addEventListener('click', () => { sfx('ui_click'); openTackle({ pauseChild: !!s.pauseChild }); });
+        det.appendChild(gl);
+      }
+    }
+    return det;
+  }
+
   // ================================================================== JOURNAL
   // v3 automatic fishing (U19): each species page carries the Your odds block (progression.getOdds: floored %, owned relics in,
   // "?" unseen, "—" out of reach, the best owned item's row), a lost-before-landed species gets a Glimpsed page (name, ink
@@ -1467,6 +1586,8 @@ export function createScreens(K) {
   // refused while a line is out (every route: J, the HUD, pause, the got-away link, the First Evening's glyph, openLog).
   function openJournal(extra = {}) {
     if (K.refuseLocked?.(extra.from || 'journal')) return false;
+    // M1 step 3a (SPEC §8.8): under the loop the Journal is each owned water's catalogue (and the giants' page)
+    if (loopOn()) return openCatalogue(extra);
     const zones = arr(D().ZONES);
     const cove = af() ? coveSpecies() : [];
     let tabZones = cove.length ? [...zones, { id: COVE_ID, name: D().COVE?.name || 'The Landing' }] : zones;
@@ -1542,51 +1663,7 @@ export function createScreens(K) {
       }
       wrap.appendChild(grid);
       const sp = sps.find((x) => x.id === s.sel);
-      const det = h('div', 'gw-jr-detail');
-      if (sp) {
-        const rec = J[sp.id];
-        const known = caughtOf(sp.id), glimpsed = glimpsedOf(sp.id);
-        const art = h('div', `gw-jr-art${glimpsed ? ' gw-jr-art-ink' : ''}`);
-        art.style.setProperty('--rc', K.rarityCss(sp.rarity));
-        art.appendChild(fishCanvas(sp, K.vw < 700 ? 240 : 300, K.vw < 700 ? 120 : 150, { silhouette: !known }));
-        det.appendChild(art);
-        if (known) {
-          const pb = num(rec.pbLength);
-          // v3: the biggest is the weight of the best length (a legacy row with no length reads its stored kg in pounds); the
-          // species' range in pounds and ounces. Flag off, both read as v1 wrote them
-          const jBig = V3() ? esc(fmtWeight(fishWeight(sp, { length: pb, weight: num(rec.pbWeight) || num(rec.biggest) })))
-            : pb > 0 ? esc(fmtLength(pb, D())) : rec.biggest ? fmtKg(rec.biggest) : '—';   // v1
-          // (the range runs from its smallest to a top Trophy, the most open water holds; the ceiling, an Elder's, is what it is
-          // "said to reach": a perch page reads "10 oz – 5 lb 15 oz", then "said to reach 17 lb 11 oz")
-          const span = V3() ? D().weightSpan?.(sp) : null;
-          const reach = span && fmtWeight(span.reach) !== fmtWeight(span.top) ? fill(D().TEXT_V3?.saidToReach || 'said to reach {w}', { w: fmtWeight(span.reach) }) : '';
-          const jRange = V3() ? (span ? `<span class="gw-facts-range">${esc(`${fmtWeight(span.min)} \u2013 ${fmtWeight(span.top)}`)}</span>${reach ? `<small class="gw-facts-sub">${esc(reach)}</small>` : ''}` : '—')
-            : arr(sp.weight).length ? `${sp.weight[0]}–${sp.weight[1]} kg` : '—';   // v1
-          det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3>${sp.epithet ? `<div class="gw-catch-epithet">${esc(sp.epithet)}</div>` : ''}
-            <div class="gw-kicker" style="--rc:${K.rarityCss(sp.rarity)}">${esc(RARITY_LABEL[sp.rarity] || '')}</div>
-            <p class="gw-lore">${esc(sp.lore || '')}</p>
-            <dl class="gw-facts"><div><dt>Biggest</dt><dd>${jBig}</dd></div><div><dt>Caught</dt><dd>${fmt(rec.caught || 0)}</dd></div>
-            <div><dt>First</dt><dd>${loopJ ? esc(journalFirst(rec)) : `${rec.firstDay ? `Day ${rec.firstDay}` : '—'}${rec.firstRun ? `, descent ${rec.firstRun}` : ''}`}</dd></div><div><dt>Weight</dt><dd>${jRange}</dd></div></dl>
-            <p class="gw-jr-where">${icon('map_pin')}${esc(hintFor(sp, true))}</p>`);
-        } else if (glimpsed) {
-          const last = arr(rec.gotAway).slice(-1)[0] || rec.escape || null;
-          const near = last ? AF.nearWeight(D(), sp, last.length) : '';
-          const line = last ? `Got away: ${AF.classPhrase(D(), last.sizeClass, last.ancient).toLowerCase()}${near ? `, ${near}` : ''}${AF.placePhrase(placeNameOf(last.place)) ? `, ${AF.placePhrase(placeNameOf(last.place))}` : ''}${last.day && !loopJ ? `, day ${last.day}` : ''}.` : 'It got away before you could name it properly.';
-          det.insertAdjacentHTML('beforeend', `<h3>${esc(sp.name)}</h3><div class="gw-kicker gw-glimpse-k">Glimpsed</div>
-            <p class="gw-lore">${esc(line)}</p>${JM && listed.has(sp.id) ? '' : `<p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`}`);
-        } else {
-          det.insertAdjacentHTML('beforeend', `<h3 class="gw-dim">Unnamed</h3><p class="gw-lore">${esc(T.journalUnknown || '')}</p>${JM && listed.has(sp.id) ? '' : `<p class="gw-jr-where">${icon('quill')}${esc(hintFor(sp))}</p>`}`);
-        }
-        const ob = oddsBlock(sp, s.hl);
-        if (ob) det.insertAdjacentHTML('beforeend', ob);
-        if (af()) det.insertAdjacentHTML('beforeend', gotAwayBlock(rec, sp));
-        if (ob && ctx.flow === 'playing') {
-          const gl = h('button', 'gw-link gw-odds-gear', `Your gear log <i aria-hidden="true">\u203a</i>`);
-          gl.type = 'button';
-          gl.addEventListener('click', () => { sfx('ui_click'); openTackle({ pauseChild: !!s.pauseChild }); });
-          det.appendChild(gl);
-        }
-      }
+      const det = speciesDetail(sp, s, { J, caughtOf, glimpsedOf, JM, listed, loopJ });
       wrap.appendChild(det);
       content.appendChild(wrap);
       if (!loopJ) foot.insertAdjacentHTML('beforeend', `<div class="gw-jr-foot"><span>${esc(zoneName(s.zone))}: ${nZ} / ${sps.length} named</span>${perk ? `<span class="${nZ >= sps.length ? 'gw-earned' : ''}">${icon(nZ >= sps.length ? 'check' : 'lock')} ${esc(perk.label)} — ${esc(perk.desc)}</span>` : ''}</div>`);
@@ -1600,6 +1677,247 @@ export function createScreens(K) {
       onKey: (code) => { const t = K.top(); return tabKeys(t, tabZones.map((z) => z.id), () => t.state.zone, (v) => { t.state.zone = v; t.state.sel = null; t.state.hl = null; t.state.section = null; })(code); } });
     return true;
   }
+  // ================================================================== THE CATALOGUE (M1 step 3a; SPEC §8.8, M1.md §2.17)
+  // Under the loop the Journal is one page per owned water (in M1 the Mossmere's): the head (the name, the count and the next water's
+  // three seals while it is the frontier), the list's twelve notched, the thin rule, the places' groups under their kind glyphs (a name
+  // once owned), Odds › at the foot; the ★ tab is the giants' page. A fish not yet caught is its hatched silhouette and "· · ·"; caught,
+  // its ink drawing and name; under it only glyphs, never a number or a rate (revision 7). A tap opens a caught fish's built species
+  // page (Back returns to the page) or enlarges a missing one's silhouette (a tap or Back closes it). openJournal({from: 'chart', zone})
+  // opens it over the Chart (the list's book glyph, 3b's, the sealed card's catch seal); closing it returns there.
+  let catDebug = null;
+  function openCatalogue(extra = {}) {
+    const W = D().LOOP?.waters || {};
+    const zones = arr(meta().loop?.maps?.lakes).filter((id) => W[id] && arr(D().ZONES).some((z) => z.id === id));
+    if (!zones.length) zones.push(arr(D().ZONES)[0]?.id || 'mossmere');
+    const cur = run()?.zone;
+    const sp0 = extra.sel ? K.speciesData(extra.sel) : null;
+    const zone = zones.includes(extra.zone) ? extra.zone : sp0 && zones.includes(sp0.zone) ? sp0.zone : zones.includes(cur) ? cur : zones[0];
+    const st = { zone, tab: extra.tab === 'giants' || extra.tab === 'prints' || (extra.tab === 'sheet' && sheetV()) ? extra.tab : 'water', view: sp0 ? 'species' : 'page', sel: sp0?.id || null, hl: extra.hl || null,
+      section: extra.section || null, big: null, from: extra.from || null, titleChild: ctx.flow !== 'playing', pauseChild: !!extra.pauseChild };
+    if (extra.view && typeof extra.view === 'object') st.sheetView = { ...extra.view };   // (the Wick's sheet: a pick to open on)
+    const open = K.entry?.('journal');
+    if (open) { Object.assign(open.state, st); open.render(); return true; }
+    K.openModal('journal', renderCatalogue, { state: st, cls: 'gw-m-catalogue', onEscape: (e) => catalogueBack(e), onClose: () => { safe(() => sheetV()?.flushSeen(), null); },
+      onKey: (code) => {
+        const t = K.top();
+        if (!t || t.id !== 'journal') return false;
+        if (t.state.view !== 'page' || t.state.big) return false;
+        const ids = [...(sheetV() ? ['sheet'] : []), ...zones, 'prints', 'giants'];   // (M1 step 5b: the Prints page before the giants'; the sheet first)
+        const tabbed = (id) => id === 'giants' || id === 'prints' || id === 'sheet';
+        const curId = tabbed(t.state.tab) ? t.state.tab : t.state.zone;
+        return tabKeys(t, ids, () => curId, (v) => { if (tabbed(v)) t.state.tab = v; else { t.state.tab = 'water'; t.state.zone = v; } t.state.section = null; })(code);
+      } });
+    return true;
+  }
+  /** Escape, Back or the scrim: the enlarged silhouette closes first, then the species page returns to the page, then the Journal. */
+  function catalogueBack(entry) {
+    const s = entry?.state;
+    if (!s) return;
+    if (s.big) { s.big = null; entry.render(); return; }
+    if (s.view === 'species') { s.view = 'page'; s.sel = null; s.hl = null; entry.render(); return; }
+    K.closeModal('journal');
+  }
+  /** The catalogue's card size (SPEC §8.8: 116 × 62 on a desktop, 100 × 54 on a phone) and the enlarged silhouette's (240 × 128; 2×
+   *  the card on a phone). */
+  const catSize = () => (K.vw < 700 ? { w: 100, h: 54, bw: 200, bh: 108 } : { w: 116, h: 62, bw: 240, bh: 128 });
+  function catGlyphs(glyphs) {
+    return `<span class="gw-cat-glyphs" aria-hidden="true">${arr(glyphs).map((g) => `<i class="gw-cat-glyph gw-cat-glyph--${esc(g)}">${icon(g)}</i>`).join('')}</span>`;
+  }
+  function catCard(entry, c) {
+    const s = entry.state;
+    const sp = K.speciesData(c.id);
+    const z = catSize();
+    const b = h('button', `gw-cat-card${c.caught ? ' gw-caught' : ' gw-hatched'}${c.listed ? ' gw-jr-listed' : ''}${c.star ? ' gw-star' : ''}${c.edge === 'gold' ? ' gw-cat-giant' : ''}${c.gold ? ' gw-cat-legend' : ''}`);
+    b.type = 'button';
+    b.dataset.fish = c.id;
+    b.dataset.species = c.id;
+    b.setAttribute('aria-label', c.caught ? sp?.name || c.id : '· · ·');
+    const art = h('span', 'gw-cat-art');
+    const cv = h('canvas', 'gw-fishart');
+    cv.style.width = `${z.w}px`; cv.style.height = `${z.h}px`;
+    try {
+      if (c.caught) drawFishInk(cv, sp, { w: z.w, h: z.h, pad: 0.08, gain: 6.2, color: c.star ? '#f1d9a4' : '#ece8f4' });
+      else drawFish(cv, sp, { w: z.w, h: z.h, hatch: true });
+    } catch (e) { K.report('catalogue art', e); }
+    art.appendChild(cv);
+    b.appendChild(art);
+    b.insertAdjacentHTML('beforeend', `<span class="gw-cat-name">${c.star ? '<i class="gw-cat-star" aria-hidden="true">★</i>' : ''}<span></span></span>${catGlyphs(c.glyphs)}`);
+    b.querySelector('.gw-cat-name > span').textContent = c.name;
+    if (c.listed) b.insertAdjacentHTML('beforeend', `<i class="gw-jr-notch${c.caught ? ' gw-on' : ''}" aria-hidden="true"></i>`);
+    b.addEventListener('click', (e) => {
+      e.stopPropagation(); sfx('ui_click');
+      s.pageScroll = b.closest('.gw-cat-scroll')?.scrollTop ?? 0;
+      if (c.caught) { s.view = 'species'; s.sel = c.id; s.hl = null; s.big = null; }
+      else s.big = { id: c.id, glyphs: c.glyphs.slice(), star: c.star };
+      entry.render();
+    });
+    return b;
+  }
+  function renderCatalogue(entry, body) {
+    const s = entry.state;
+    const m = meta();
+    const J = m.journal || {};
+    const TLs = TL();
+    let jTitle = D().TEXT?.journalTitle || 'Journal';
+    const wid = safe(() => D().loopWickId?.(run()?.character || ctx.progression?.loop?.wick?.()), null);
+    const nm = wid ? arr(D().CHARACTERS).find((c) => c?.id === wid)?.name : null;
+    if (nm && /^The Wick(?=['’]s )/.test(jTitle)) jTitle = jTitle.replace(/^The Wick/, nm);
+    const onSheet = s.tab === 'sheet' && !!sheetV();
+    if (onSheet && K.vw < 700) jTitle = safe(() => sheetV().title(), jTitle);   // (a phone: the sheet's running head, SHEET §2.1, the user's answer 42)
+    const { panel: pn, content, foot } = panel(entry, body, { title: jTitle, cls: `gw-p-wide gw-p-journal gw-p-journal--loop gw-p-catalogue${s.tab === 'giants' && s.view !== 'species' ? ' gw-cat-on-giants' : ''}${af() ? ' gw-p-af' : ''}${onSheet ? ' gw-p-sheet' : ''}` });
+    pn.dataset.loop = 'catalogue';
+    // the tabs: each owned water (its name and its list's count) and the giants' ★ (no word: its accessible name, PLAN CHOICE 25)
+    const W = D().LOOP?.waters || {};
+    const zones = arr(m.loop?.maps?.lakes).filter((id) => W[id] && arr(D().ZONES).some((z) => z.id === id));
+    if (!zones.length) zones.push(s.zone);
+    const cat = (zid) => safe(() => ctx.progression?.loop?.catalogue?.(zid), null) || safe(() => catalogueFor(m, D(), zid), null);
+    const tabList = zones.map((zid) => { const v = catalogueView(cat(zid), D()); return { id: zid, label: zoneName(zid).replace(/^The /, ''), badge: v ? v.head.count : '' }; });
+    tabList.push({ id: 'prints', label: TLs.tabs?.prints || 'Prints' });   // M1 step 5b (lane 5b-home): the Prints page (SPEC §8.8's tab row)
+    tabList.push({ id: 'giants', label: '', icon: 'star' });
+    // the Wick's sheet (SHEET.md §2.1): the first tab, its flyleaf: the Wick's portrait and "{name}'s Sheet" (the bare name if a phone's row is full)
+    const SV = sheetV();
+    if (SV) tabList.unshift({ id: 'sheet', label: SV.title() });
+    const tabbed = (id) => id === 'giants' || id === 'prints' || id === 'sheet';
+    const curTab = tabbed(s.tab) ? s.tab : s.zone;
+    const tb = tabs(tabList, curTab, (id) => { if (tabbed(id)) s.tab = id; else { s.tab = 'water'; s.zone = id; } s.view = 'page'; s.sel = null; s.big = null; s.section = null; s.pageScroll = null; entry.render(); });
+    const gt = [...tb.querySelectorAll('.gw-tab')].pop();
+    if (gt) { gt.classList.add('gw-tab--giants'); gt.setAttribute('aria-label', TLs.tabs?.giants || 'Giants'); }
+    if (SV) {
+      const st0 = tb.querySelector('.gw-tab');
+      if (st0) {
+        st0.classList.add('gw-tab--sheet'); st0.dataset.tab = 'sheet'; st0.setAttribute('aria-label', SV.title());
+        st0.insertAdjacentHTML('afterbegin', `<span class="gw-tab-wick" aria-hidden="true">${safe(() => SV.portrait('tab'), '')}</span>`);
+        if (safe(() => SV.hasFresh(), false)) st0.insertAdjacentHTML('beforeend', SV.DROP);
+        // a phone (the review at 358 px: four tabs in 302 px): the portrait alone from the first paint, its accessible name whole, the page's
+        // running head "{name}'s Sheet" (ui-sheet's CSS); the count badges go only when the row would still scroll sideways
+        if (K.vw < 700) { tb.classList.add('gw-tabs--many', 'gw-tabs--sheet'); st0.querySelector('span:not(.gw-tab-wick)')?.classList.add('gw-tab-lab'); requestAnimationFrame(() => { try { if (tb.scrollWidth > tb.clientWidth + 1) tb.classList.add('gw-tabs--tight'); } catch { /* ignore */ } }); }
+      }
+    }
+    pn.insertBefore(tb, content);
+    const backWord = TLs.back || 'Back';
+    if (s.view === 'species' && s.sel) {
+      // a caught fish's built species page (its line, its print in pounds, its seals, its odds block as built: the player's own log)
+      const sp = K.speciesData(s.sel);
+      const caughtOf = (id) => !!J[id] && (num(J[id].caught) > 0 || !(J[id].seen && !num(J[id].caught)));
+      const glimpsedOf = (id) => !!J[id] && !!J[id].seen && !(num(J[id].caught) > 0);
+      const page = h('div', 'gw-cat-species');
+      page.appendChild(btn(esc(backWord), { cls: 'gw-btn--sm gw-cat-back', icon: 'close', hooks: false, onClick: () => catalogueBack(entry) }));
+      page.appendChild(speciesDetail(sp, s, { J, caughtOf, glimpsedOf, JM: null, listed: new Set(), loopJ: true }));
+      content.appendChild(page);
+      if (s.section === 'odds') {
+        const sec = page.querySelector('.gw-odds');
+        if (sec) { sec.classList.add('gw-odds-focus'); requestAnimationFrame(() => { try { sec.scrollIntoView({ block: 'start', inline: 'nearest' }); } catch { /* ignore */ } }); }
+      }
+    } else if (s.tab === 'sheet' && SV) {
+      if (s.sheetView) { entry.state.picks = { ...(entry.state.picks || {}), ...s.sheetView }; s.sheetView = null; }
+      safe(() => SV.render(entry, content), null);
+    } else if (s.tab === 'giants') renderGiants(entry, content, zones);
+    else if (s.tab === 'prints') {   // M1 step 5b: each printed fish's best print; a tap opens its page (Back returns here)
+      const pv = safe(() => ctx.progression?.loop?.prints?.(zones), null);
+      renderPrintsPage({ h, content, view: pv, phone: K.vw < 700, D: D(), onPick: (id) => { sfx('ui_click'); s.view = 'species'; s.sel = id; s.big = null; entry.render(); } });
+    }
+    else renderCataloguePage(entry, content, catalogueView(cat(s.zone), D()));
+    if (s.big) {
+      // the enlarged silhouette (SPEC §8.8): drawn large in place with its glyphs; no name, no number, no word. A tap or Back closes it
+      const z = catSize(), sp = K.speciesData(s.big.id);
+      const big = h('div', 'gw-cat-big');
+      big.dataset.fish = s.big.id;
+      const cv = h('canvas', 'gw-fishart');
+      cv.style.width = `${z.bw}px`; cv.style.height = `${z.bh}px`;
+      try { drawFish(cv, sp, { w: z.bw, h: z.bh, hatch: true }); } catch (e) { K.report('catalogue big', e); }
+      big.innerHTML = `<span class="gw-cat-big-art${s.big.star ? ' gw-star' : ''}"></span>${catGlyphs(s.big.glyphs)}`;
+      big.querySelector('.gw-cat-big-art').appendChild(cv);
+      big.addEventListener('click', (e) => { e.stopPropagation(); catalogueBack(entry); });
+      content.appendChild(big);
+      requestAnimationFrame(() => { try { big.scrollIntoView({ block: 'nearest' }); } catch { /* ignore */ } });
+    }
+    const fromHome = s.from === 'chart' || s.from === 'shelf';
+    foot.appendChild(btn(esc(s.big || s.view === 'species' ? backWord : fromHome ? backWord : 'Close'), { onClick: () => (s.big || s.view === 'species' ? catalogueBack(entry) : K.closeModal('journal')), autofocus: true }));
+    catDebug = () => ({ tab: s.tab, zone: s.zone, view: s.view, sel: s.sel, big: s.big?.id ?? null, from: s.from });
+  }
+  function renderCataloguePage(entry, content, v) {
+    const s = entry.state;
+    const scroll = h('div', 'gw-cat-scroll');
+    scroll.addEventListener('scroll', () => { if (!s.big && s.view === 'page') s.pageScroll = scroll.scrollTop; }, { passive: true });
+    if (!v) { content.appendChild(scroll); return; }
+    const head = h('div', 'gw-cat-head');
+    head.innerHTML = `<b class="gw-cat-water"></b><span class="gw-cat-count"></span><span class="gw-cat-seals"></span>`;
+    head.querySelector('.gw-cat-water').textContent = v.head.name || zoneName(s.zone);
+    head.querySelector('.gw-cat-count').textContent = v.head.count;
+    const listEl = h('div', 'gw-cat-grid gw-cat-list');
+    if (v.head.seals && K.loop?.sealRow) {
+      const atHome = ctx.flow === 'home';
+      const row = K.loop.sealRow(v.head.seals, { from: 'catalogue', zone: s.zone, onCatch: () => { try { listEl.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch { /* ignore */ } } });
+      if (!atHome) { const gb = row.querySelector('[data-seal=gear]'); if (gb) { gb.disabled = true; gb.setAttribute('aria-disabled', 'true'); } }
+      head.querySelector('.gw-cat-seals').appendChild(row);
+    } else head.querySelector('.gw-cat-seals').remove();
+    // the head is fixed above the list, outside its scroll (it was sticky inside it, and the cards scrolled under its fading veil and drew
+    // through the seals on a phone; the fix pass): the list scrolls under a hard edge with the scroll's 10 px feather
+    content.appendChild(head);
+    for (const c of v.list) listEl.appendChild(catCard(entry, c));
+    scroll.appendChild(listEl);
+    if (v.groups.length) scroll.appendChild(h('div', 'gw-jr-rule gw-cat-rule', `<svg viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true"><path filter="url(#gw-brush)" d="M8 6 C120 4 280 8 392 6"/></svg>`));
+    for (const g of v.groups) {
+      const sec = h('section', `gw-cat-group gw-cat-group--${g.kind}${g.owned ? ' gw-owned' : ''}`);
+      if (g.placeId) sec.dataset.place = g.placeId;
+      const hd = h('div', 'gw-cat-gh', `<i class="gw-cat-kind" aria-hidden="true">${icon(`kind_${g.kind}`)}</i>${g.name ? '<b></b>' : ''}`);
+      if (g.name) hd.querySelector('b').textContent = g.name;
+      sec.appendChild(hd);
+      const grid = h('div', 'gw-cat-grid');
+      for (const c of g.cards) grid.appendChild(catCard(entry, c));
+      sec.appendChild(grid);
+      scroll.appendChild(sec);
+    }
+    if (v.finds && K.finds?.renderRow) { try { scroll.appendChild(K.finds.renderRow(entry, v.finds, { phone: K.vw < 700 })); } catch (e) { K.report('finds row', e); } }   // M1 step 5c
+    if (af()) {
+      const odds = h('button', 'gw-link gw-cat-odds');
+      odds.type = 'button';
+      odds.textContent = TL().odds || 'Odds ›';
+      odds.addEventListener('click', (e) => { e.stopPropagation(); sfx('ui_click'); openTackle({ pauseChild: !!s.pauseChild, titleChild: ctx.flow !== 'playing' }); });
+      scroll.appendChild(odds);
+    }
+    content.appendChild(scroll);
+    // (the page's place is kept across a species page or an enlarged silhouette: Back returns to it)
+    if (Number.isFinite(s.pageScroll)) { const y = s.pageScroll; scroll.scrollTop = y; requestAnimationFrame(() => { scroll.scrollTop = y; }); }
+    if (s.section === 'list') { s.section = null; requestAnimationFrame(() => { try { listEl.scrollIntoView({ block: 'start' }); } catch { /* ignore */ } }); }
+  }
+  /** The giants' page (the ★ tab; PLAN CHOICE 11): the owned waters' giants and legend, hatched until landed, then each gold-framed ink
+   *  drawing with its name and its best weight; a tap opens a landed one's page, a missing one's silhouette. */
+  function renderGiants(entry, content, zones) {
+    const s = entry.state;
+    const scroll = h('div', 'gw-cat-scroll gw-cat-scroll--giants');
+    const grid = h('div', 'gw-cat-giants');
+    const phone = K.vw < 700, w = phone ? 150 : 196, hh = phone ? 80 : 104;
+    for (const g of giantsView(meta(), D(), zones)) {
+      const sp = K.speciesData(g.id);
+      const b = h('button', `gw-cat-gcard${g.caught ? ' gw-caught' : ' gw-hatched'}${g.legend ? ' gw-cat-legend' : ''}`);
+      b.type = 'button';
+      b.dataset.fish = g.id;
+      b.setAttribute('aria-label', g.caught ? sp?.name || g.id : '· · ·');
+      const cv = h('canvas', 'gw-fishart');
+      cv.style.width = `${w}px`; cv.style.height = `${hh}px`;
+      try { if (g.caught) drawFishInk(cv, sp, { w, h: hh, pad: 0.07, gain: 6.2, color: '#f1d9a4' }); else drawFish(cv, sp, { w, h: hh, hatch: true }); } catch (e) { K.report('giants art', e); }
+      const art = h('span', 'gw-cat-gframe');
+      if (g.caught) art.insertAdjacentHTML('beforeend', `<i class="gw-cat-gfil gw-cat-gfil--top" aria-hidden="true">${ORN.crest}</i>`);
+      art.appendChild(cv);
+      if (g.caught) art.insertAdjacentHTML('beforeend', `<i class="gw-cat-gfil gw-cat-gfil--bot" aria-hidden="true">${ORN.flourish}</i>`);
+      b.appendChild(art);
+      b.insertAdjacentHTML('beforeend', `<span class="gw-cat-name"><i class="gw-cat-star" aria-hidden="true">★</i><span></span></span>${g.weight ? '<small class="gw-cat-gw"></small>' : ''}`);
+      b.querySelector('.gw-cat-name > span').textContent = g.name;
+      if (g.weight) b.querySelector('.gw-cat-gw').textContent = g.weight;
+      b.addEventListener('click', (e) => {
+        e.stopPropagation(); sfx('ui_click');
+        s.pageScroll = null;
+        if (g.caught) { s.view = 'species'; s.sel = g.id; s.big = null; }
+        else { const ce = catalogueView(safe(() => catalogueFor(meta(), D(), sp?.zone || s.zone), null), D()); const card = ce ? [...ce.list, ...ce.groups.flatMap((q) => q.cards)].find((x) => x.id === g.id) : null; s.big = { id: g.id, glyphs: card?.glyphs || [], star: true }; }
+        entry.render();
+      });
+      grid.appendChild(b);
+    }
+    scroll.appendChild(grid);
+    content.appendChild(scroll);
+  }
+
   /** CONTRACT §13.7 ui openLog({speciesId, section: 'odds'|'field'|…, sizeClass?}): the Journal at that species' page (its lake's
    *  tab; the Landing's Quayling on the Landing tab), the odds block in view with the class lit. Refused while a line is out. */
   function openLog(o = {}) {
@@ -1607,6 +1925,7 @@ export function createScreens(K) {
     const sp = K.speciesData(o.speciesId);
     const zone = sp ? (sp.zone === COVE_ID || sp.cove ? COVE_ID : sp.zone || (arr(sp.zones)[0]) || null) : null;
     const st = { sel: sp?.id || null, section: o.section || 'odds', hl: o.sizeClass || null };
+    if (loopOn() && sp) Object.assign(st, { view: 'species', tab: 'water', big: null });   // (M1 step 3a: the catalogue's species page)
     if (zone) st.zone = zone;
     const open = K.entry?.('journal');
     if (open) { Object.assign(open.state, st); open.render(); return true; }
@@ -1618,8 +1937,24 @@ export function createScreens(K) {
   // The Gear Bench's Tackle screen in P3; in P1–P2 a read-only page of the run's tackle, baits and lures: each item's Hold, the
   // styles its slot counts ×1.6 against, the fish it helps, and the compare pinned to the last fish that got away. Words and % only
   // from progression (getGearLog / compareOdds); refused while a line is out.
+  /** The Wick's sheet (SHEET.md §2): the Journal opened (or re-pointed) on its first tab. o.from: 'pause' | 'ledger' | 'rack' | 'odds' |
+   *  'species' | 'book'; o.section: 'odds' | 'tackle' (the head by default); o.pin {speciesId, sizeClass}; refused while a line is out.
+   *  The seam with the barge's interiors (BARGE-INSIDE §4.3): openSheet({from: 'ledger'}) and openSheet({from: 'rack', section: 'tackle'}). */
+  function openSheet(o = {}) {
+    if (!loopOn() || !sheetV()) return false;
+    if (K.refuseLocked?.('sheet')) return false;
+    if (o.pin?.speciesId) safe(() => ctx.progression?.pinGear?.(o.pin.speciesId, o.pin.sizeClass || 'trophy'), null);
+    const section = o.section || (o.from === 'rack' ? 'tackle' : null);
+    const st = { tab: 'sheet', view: 'page', sel: null, big: null, section, from: o.from || null, ...(o.view ? { sheetView: { ...o.view } } : {}) };
+    const open = K.entry?.('journal');
+    if (open) { Object.assign(open.state, st); open.render(); return true; }
+    if (K.has('pause') && o.pauseChild !== false) st.pauseChild = true;
+    return openCatalogue({ ...st, tab: 'sheet', pauseChild: !!(o.pauseChild || st.pauseChild), view: o.view }) !== false;
+  }
   function openTackle(extra = {}) {
     if (!af()) return false;
+    // the Wick's sheet (SHEET.md §2.4): under the loop the gear log is the sheet's Odds, so every Odds › follows with no change of its own
+    if (loopOn() && sheetV()) return openSheet({ from: 'odds', section: 'odds', pauseChild: !!extra.pauseChild });
     if (K.refuseLocked?.('gearBench')) return false;
     K.openModal('gear', (entry, body) => {
       const r = run();
@@ -1646,6 +1981,8 @@ export function createScreens(K) {
           const row = h('div', `gw-item gw-gear-row${e.id === equipped ? ' gw-equipped' : ''}`);
           row.innerHTML = `<span class="gw-item-ico">${icon(ic)}</span><div class="gw-item-text"><div class="gw-item-name">${esc(e.name || itemName(e.id))}${own}</div>
             <div class="gw-item-hold">${esc(L.hold)}</div>${L.compare ? `<div class="gw-item-cmp">${esc(L.compare)}</div>` : ''}</div>`;
+          // (WC-3, WATERCRAFT §3.9: a Mossmere tin's or lure's Who bites under its line: the fish met by name, the rest counted)
+          if (loopOn()) row.querySelector('.gw-item-text')?.insertAdjacentHTML('beforeend', safe(() => whoBitesHtml(D(), e, { met: (id) => !!meta()?.journal?.[id], names, esc }), ''));
           content.appendChild(row);
         }
       }
@@ -1873,11 +2210,29 @@ export function createScreens(K) {
 
   // >>> LOOP 1a: the pause on a trip (SPEC §8.5, PLAN §2.3 item 5, CHOICE 12): no title and no sub-line; Resume · Home (dimmed with no
   // words while home is not allowed: the tally, as from the pill) · the built Settings. No Journal, Trials, Title, Abandon or boons
+  /** The pause menu's "{name}'s Sheet" (SHEET.md §2.2): the Wick's portrait, the drop while something is new; refused (dimmed, "Reel in
+   *  first.") while a line is out; none during the opening's tutorial. → the button, or null. */
+  function sheetItem(o = {}) {
+    const SV = sheetV();
+    if (!SV) return null;
+    const tut = safe(() => ctx.progression?.loop?.tutorial?.(), null);
+    if (!tut || tut.done !== true) return null;
+    const locked = !!K.logLocked?.();
+    const lockW = D().AUTOFISH?.text?.logLocked || 'Reel in first.';
+    const b = btn(esc(SV.title()), { cls: `gw-mbtn gw-loop-sheet${locked ? ' gw-locked' : ''}`, onClick: () => { if (K.logLocked?.()) { K.refuseLocked?.('sheet'); return; } openSheet({ from: 'pause', ...o }); } });
+    b.dataset.loop = 'sheet';
+    b.insertAdjacentHTML('afterbegin', `<span class="gw-sh-wick" aria-hidden="true">${safe(() => SV.portrait('pz'), '')}</span>`);
+    if (safe(() => SV.hasFresh(), false)) b.querySelector('span:not(.gw-sh-wick)')?.insertAdjacentHTML('beforeend', SV.DROP);
+    if (locked) { b.setAttribute('aria-label', `${SV.title()}: ${lockW}`); b.insertAdjacentHTML('beforeend', `<small class="gw-lock-w">${esc(lockW)}</small>`); }
+    else b.setAttribute('aria-label', SV.title());
+    return b;
+  }
   function openTripPause() {
     K.openModal('pause', (entry, body) => {
       const { content, foot } = panel(entry, body, { cls: 'gw-p-pause gw-p-trippause', close: false });
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn(esc(TL().resume || 'Resume'), { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
+      { const it = sheetItem({ pauseChild: true }); if (it) menu.appendChild(it); }   // the Wick's sheet (SHEET.md §2.2), after the tutorial
       const can = safe(() => ctx.game?.canGoHome?.({ fromPause: true }), null)?.ok === true;
       // (main's goHome({fromPause}) clears the pause itself and ends the trip, whose run:end closes the screens; refused, the pause resumes)
       const home = btn(esc(TL().home || 'Home'), { cls: 'gw-mbtn gw-loop-home', icon: 'hearth', disabled: !can, onClick: () => {
@@ -2057,6 +2412,8 @@ export function createScreens(K) {
     }, { dismissable: false, onEscape: () => {}, cls: 'gw-m-center gw-m-victory', state: { summary } });
   }
 
+  /** M1 step 3a (debug builds: ctx.debug.ui.catalogue): the open catalogue's tab, view, chosen fish and enlarged one. */
+  function catalogueDebug() { return K.has('journal') && catDebug ? catDebug() : null; }
   function refreshIfOpen(id) {
     const entry = K.entry?.(id);
     if (entry && !entry.state?.locked) entry.render?.();
@@ -2065,6 +2422,9 @@ export function createScreens(K) {
   return {
     showTitle, openNewDescent, showCatch, openLevelUp, openShop, openCreel, openJournal, openShrine,
     openChallenges, openSettings, openPause, openDescend, showDeath, showVictory, confirm, refreshIfOpen, openLog, openTackle,
+    openSheet, sheetItem, sheetModel: (view) => safe(() => sheetV()?.model(view) || null, null),   // the Wick's sheet (SHEET.md §2)
+    /** M1 step 3a: the open catalogue's state (debug builds, ctx.debug.ui.catalogue) */
+    catalogueDebug,
     /** the building blocks, for ui-loop (PLAN §2.3 item 5): additive */
     parts: { panel, btn, tabs, fishCanvas, murkSay },
   };

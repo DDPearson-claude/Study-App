@@ -14,6 +14,7 @@
 // writes nothing but the chosen place (meta.loop.chartPick). Never a ring or a disc round the raft or the player.
 import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
+import { gildStep, gildCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home)
 import { buildLayout } from './world-layout.js';
 import { drawFishInk } from './ui-fishart.js';
 
@@ -129,12 +130,13 @@ export function createChartView(deps) {
   const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
   // ---- the images, decoded once in idle time after the title is up, and the chart's faces with them (M1.md §3.2)
+  // a data: URI decodes through an <img> only, never fetch(): a page host's Content-Security-Policy may block fetch() of data:
+  // (connect-src) while images stay allowed (img-src) — the user's phone in the app showed the Landing's sheet blank (16 Nov). An
+  // <img> that fails throws: the status goes to 'failed' and the list Chart covers it
   const decode = async (uri) => {
-    if (typeof createImageBitmap === 'function' && typeof fetch === 'function') {
-      const blob = await (await fetch(uri)).blob();
-      return createImageBitmap(blob);
-    }
-    const img = new Image(); img.src = uri; await img.decode(); return img;
+    const img = new Image(); img.decoding = 'async'; img.src = uri; await img.decode();
+    if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
+    return img;
   };
   // the paper (M1's view of the bake's paper, a 167 x 125 px JPEG stretched about 11 times over the vellum): its signal is a slow
   // mottle of a level or two, under the JPEG's 8 x 8 blocks, so it is blurred once at its own size (a box of 3 px, twice each way)
@@ -283,8 +285,10 @@ export function createChartView(deps) {
           sheetK = ink.sheet >= 1 ? 1 : S.inkHold; for (const id of Object.keys(ink.places)) placeK[id] = S.inkHold; more = false;
         }
       }
+      const G5 = gildStep(ml, m, now(), st, opts.reduced); more ||= G5.more;   // M1 step 5b: the gilding's re-inking (on the page's own clock)
       const g = cv.getContext('2d');
       const view = {
+        gild: (c, d, mm, a, v) => gildCard(c, d, mm, a * G5.k, v),
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
         water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),

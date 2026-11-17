@@ -9,6 +9,7 @@ import { buildLayout, depthAt, isOpenWaterL } from './world-layout.js';
 import { buildArena } from './world-art.js';
 import { AIR } from './world-fx.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
+import { buildPlaces } from './world-places.js';
 import { setToonFloor } from './toon.js';   // CLARITY LANE B: key light
 
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
@@ -109,6 +110,15 @@ export function create(ctx) {
   // v3 (W1, CONTRACT §13.7 world): the lake's watch-lamps and stopgap giant water (pure data, cached per lake) and the v3
   // visuals (watch-lamp pools, the legend pool's low glimmer); all empty / null with the flag off
   let watchLamps = [], giantSpots = [], v3vis = null;
+  // the loop (M1 step 3a, PLAN §2.4): the places' banks and dressing (world-places.js), built only when LOOP_ENABLED for a lake that
+  // has loop places; placeState is what main last said ({owned, lifted}), re-applied whenever the arena is rebuilt
+  let placesVis = null;
+  const placeState = { owned: [], lifted: [] };
+  const loopOn = () => ctx.data?.LOOP_ENABLED === true;
+  function loopPlacesFor(z) {
+    if (!loopOn() || typeof ctx.data?.loopPlaceIds !== 'function' || typeof ctx.data?.loopPlace !== 'function') return [];
+    try { return ctx.data.loopPlaceIds(z?.id).map((id) => ctx.data.loopPlace(id)).filter((p) => p && p.area); } catch { return []; }
+  }
   const v3Info = { night: 0, fogDensity: 0.0055, lamps: [], moored: [], legendK: 0 };
   const bounds = { radius: 60 };
   const obstacles = [];                 // stable array (refilled in place)
@@ -155,6 +165,11 @@ export function create(ctx) {
     return layout ? _spawnV.set(layout.spawn.x, 0, layout.spawn.z) : _spawnV.set(0, 0, 0);
   }
   const _spawnV = new THREE.Vector3();
+  /** The raft's position, or null (no player yet): the banks thin only for a real raft inside them. */
+  function raftPos() {
+    const p = ctx.player?.position;
+    return p && !ctx.player.isStub && typeof p.x === 'number' && Number.isFinite(p.x) ? p : null;
+  }
 
   function refillObstacles() {
     obstacles.length = 0;
@@ -172,9 +187,23 @@ export function create(ctx) {
     return 'sealed';
   }
 
+  // the loop's home barge (M1 step 5a, SPEC §6.5): the water's mooring on its docks, and the hulls' keel circles in the lake's
+  // obstacles (the raft's collision, the water's foam and the validator read them); off the loop there is none
+  let mooring = null;
   function setLayout(z) {
     zone = z;
     layout = buildLayout(z);
+    mooring = ctx.data?.LOOP_ENABLED === true && typeof ctx.data.loopMooring === 'function' ? ctx.data.loopMooring(z.id, layout.docks) : null;
+    if (mooring) {
+      // the Jetty's two mooring posts were Murk's old berth: with the barge moored there they go (their circles and their art)
+      const d = layout.docks[mooring.dock], posts = Array.isArray(d?.posts) ? d.posts : [];
+      if (posts.length) {
+        const at = (o) => posts.some((p) => Math.abs(p.x - o.x) < 1e-9 && Math.abs(p.z - o.z) < 1e-9);
+        for (let i = layout.obstacles.length - 1; i >= 0; i--) if (layout.obstacles[i].kind === 'post' && at(layout.obstacles[i])) layout.obstacles.splice(i, 1);
+        d.posts = [];
+      }
+      for (const c of mooring.circles) layout.obstacles.push({ x: c.x, z: c.z, r: c.r, kind: c.kind });
+    }
     bounds.radius = layout.R;
     gateInfo.position.set(layout.gate.x, 0, layout.gate.z);
     gateInfo.radius = layout.gate.radius;
@@ -203,7 +232,9 @@ export function create(ctx) {
     if (arena) { arena.dispose(); arena = null; }
     try {
       const watchDocks = new Set(watchLamps.filter((l) => l.kind === 'buoy' && l.dock != null).map((l) => l.dock));
-      arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500, ...(watchDocks.size ? { watchDocks } : {}) });
+      // (M1 step 3a: W9's rest behind LOOP.redress, off by default: the bollards replace the lamp-posts in the arena's own statics)
+      const redress = loopOn() && ctx.data?.LOOP?.redress === true;
+      arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500, ...(watchDocks.size ? { watchDocks } : {}), ...(redress ? { redress: true } : {}) });
       group.add(arena.group);
       const v3Lamps = watchLamps.filter((l) => l.kind === 'buoy');
       const v3Legend = legendGlimmerOn() && layout.legendPool ? layout.legendPool : null;
@@ -215,6 +246,20 @@ export function create(ctx) {
           console.error('[world] v3 visuals failed', e);
           ctx.errors?.push?.(`world.v3: ${e?.message || e}`);
           v3vis = null;
+        }
+      }
+      if (placesVis) { placesVis.dispose(); placesVis = null; }
+      const lp = loopPlacesFor(zone);
+      if (lp.length) {
+        try {
+          placesVis = buildPlaces(ctx, layout, arena, { places: lp, pal: Object.assign({}, FALLBACK_ZONE.palette, zone.palette || {}), quality: quality(),
+            mist: ctx.data?.LOOP?.mist, giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true, hero: getHeroAnchor() });
+          group.add(placesVis.group);
+          placesVis.setPlaces(placeState);
+        } catch (e) {
+          console.error('[world] places failed', e);
+          ctx.errors?.push?.(`world.places: ${e?.message || e}`);
+          placesVis = null;
         }
       }
       arena.setGate(gateState, true);
@@ -450,6 +495,9 @@ export function create(ctx) {
       // the water's lit pool follows the gameplay light radius, not the PointLight falloff (no reach ring)
       const lr = ctx.survival && !ctx.survival.isStub ? Number(ctx.survival.lightRadius) : NaN;
       s.radius = Number.isFinite(lr) && lr > 0 ? lr : undefined; s.ring = 0;
+      // (the integration's fix: on the Mossmere under the loop the lantern lays its warm pool and no glitter path, whose gold flecks
+      // strung toward the lens through every haul; its true image stays in the mirror: "no glitter on the water")
+      if (ctx.data?.LOOP_ENABLED === true && zone?.id === 'mossmere') s.streak = 0;
       waterLights.push(s);
     }
     // >>> INTRO LANE A: stage hooks (the great lantern's light on the water)
@@ -467,6 +515,13 @@ export function create(ctx) {
       s.position.set(m.position.x, (m.position.y || 0) + 2.2, m.position.z);
       // a pinpoint, not a column: half the reflection streak and a dimmer pool than other lights
       s.color.copy(MERCHANT_LAMP); s.intensity = 1.5 * env.glowK; s.distance = 8; s.streak = 0.45;
+      waterLights.push(s);
+    }
+    // the loop's home barge (M1 step 5a): its windows' warm streak on the water (emissive only: no PointLight, no pool's edge)
+    const hl = ctx.actors?.home?.waterLight;
+    if (hl && !ctx.actors.isStub && hl.intensity > 0.01 && i < wl.length) {
+      const s = wl[i++];
+      s.position.copy(hl.position); s.color.copy(hl.color); s.intensity = hl.intensity * env.glowK; s.distance = hl.distance; s.streak = hl.streak; s.radius = hl.radius;
       waterLights.push(s);
     }
     if (arena) {
@@ -543,6 +598,9 @@ export function create(ctx) {
       const legId = zone?.legendary;
       const landed = !!(legId && run?.legendaries?.[legId]);
       legendK = (landed ? 0.14 : lp?.active ? 1 : lp?.dim ? 0.25 : 0.55) * (0.85 + 0.3 * n);
+      // the loop (M1 step 3a): her pool's gold glimmer waits under its standing bank and through its lift (the motes washed the bell out of
+      // the lift's shot; the fix pass); placesVis is built only under the loop, so the flag-off glimmer is as built
+      if (placesVis && layout?.legendPool && !placesVis.openAt(layout.legendPool.x, layout.legendPool.z)) legendK = 0;
     }
     v3Info.night = n; v3Info.fogDensity = env.fogDensity; v3Info.legendK = legendK;
     v3vis.update(dt, t, v3Info);
@@ -640,6 +698,11 @@ export function create(ctx) {
     }
   }
 
+  function placesReadout() {
+    if (!placesVis) return null;
+    return { zone: zone?.id ?? null, owned: placeState.owned.slice(), ...placesVis.readout() };
+  }
+
   // initial layout (pure data) so queries work before init
   setLayout(titleZone());
 
@@ -656,6 +719,13 @@ export function create(ctx) {
       buildVisuals();
       computeMood(1, true);
       applyAtmosphere(0, true);
+      // the loop's places (M1 step 3a, PLAN §3.4): ctx.debug.world.places() for the scenarios and the stage
+      if (ctx.debug && typeof ctx.debug === 'object' && loopOn()) {
+        ctx.debug.world = Object.assign(ctx.debug.world && typeof ctx.debug.world === 'object' ? ctx.debug.world : {}, {
+          places: () => placesReadout(),
+          giantBack: (id, near = null) => placesVis?.forceBack?.(id, near) ?? false,
+        });
+      }
       // v3 debug hooks (CONTRACT §13.11): world giantSpots(), plus the watch-lamps and the v3 visuals at a glance
       if (ctx.debug && typeof ctx.debug === 'object' && ctx.data?.BALANCE?.nightModes) {
         Object.assign(ctx.debug, {
@@ -677,11 +747,17 @@ export function create(ctx) {
       pickTimer -= d;
       if (pickTimer <= 0) { pickTimer = 0.3; pickAnchors(focus); updateDocks(); }
       if (v3vis) { try { updateV3(d, t || 0); } catch (e) { ctx.errors?.push?.(`world.v3: ${e?.message || e}`); v3vis?.dispose(); v3vis = null; } }
+      if (placesVis) {
+        try { placesVis.update(d, t || 0, { raft: raftPos(), phase: ctx.state?.run ? phaseInfo()?.phase ?? null : null, night: env.night, fog: env.fog, fogDensity: env.fogDensity, glowK: env.glowK }); }
+        catch (e) { ctx.errors?.push?.(`world.places: ${e?.message || e}`); placesVis?.dispose(); placesVis = null; }
+      }
       updateAccents(d);
       updateWaterLights();
     },
     setZone,
     getZone: () => zone,
+    /** WC-3 (WATERCRAFT §5.4): the reeds' and pads' twitch, {nudge(x, z, k)}, on the Mossmere under the loop; null elsewhere. */
+    get stems() { return arena?.stems || null; },
     getSpawn,
     getDepth,
     collide,
@@ -697,10 +773,29 @@ export function create(ctx) {
     getWatchLamps,
     /** The stopgap's holdsGiants water [{id, kind: 'ring'|'disc', x, z, r}] in a lake whose places are not in the build. */
     getGiantSpots: () => giantSpots,
+    // ---- the loop's places (M1 step 3a, PLAN §3.4; inert with the loop off or on a lake with no places)
+    /** {owned, lifted}: the banks stand over every place not lifted; a lifted place's dressing is lit. */
+    setPlaces(p = {}) {
+      placeState.owned = Array.isArray(p.owned) ? p.owned.slice() : [];
+      placeState.lifted = Array.isArray(p.lifted) ? p.lifted.slice() : [];
+      return placesVis ? placesVis.setPlaces(placeState) : false;
+    },
+    /** Lift a place's mist over `sec` s (0: at once). → whether the place has a bank here. */
+    liftMist(id, sec = 3) {
+      const ok = placesVis ? placesVis.liftMist(id, sec) : false;
+      if (ok && !placeState.lifted.includes(id)) placeState.lifted.push(id);
+      return ok;
+    },
+    /** Where the lift's shot looks for a place: {x, y, z, r}, or null. */
+    placeAnchor: (id) => (placesVis ? placesVis.placeAnchor(id) : null),
+    /** The places' readout (banks, opacities, lifted, the back), or null. */
+    places: () => placesReadout(),
     // ---- optional extras (not in CONTRACT; safe to ignore)
     getShoreRadius: (angle) => shoreR(angle),
     getDocks: () => (layout?.docks || []).map((d) => ({ position: new THREE.Vector3(d.x, 0, d.z), yaw: d.yaw })),
     getMood: () => mood,
+    /** The loop (M1 step 5a): this water's mooring (data.loopMooring on its docks: raft, hull, murk, lane, cam, circles), or null. */
+    getMooring: () => mooring,
     getLightShafts: () => (layout?.cracks || []).map((c) => ({ x: c.x, z: c.z })),
     // >>> INTRO LANE A: stage hooks
     getHeroAnchor,

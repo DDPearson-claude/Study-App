@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { glowMaterial, INK, setupSurface, evenOutline, REFLECT_LAYER } from './toon.js';
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, rockGeo, taperTube, latheGeo, crystalGeo, wobble, lin, mixArr, scaleArr, fbm3, vnoise3, makeRingNoise, ringNoise } from './world-geo.js';
+import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's reed beds and lily beds (pure plans)
 import { inkToon, outlineMat, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
 
@@ -114,6 +115,61 @@ export function buildArena(ctx, L, opts = {}) {
   const olOrg = M(evenOutline(outlineMat(0.05, INK)));
 
   const kit = { rock: [], org: [], glow: [], fine: [] };
+  // >>> WC-3 (docs/loop/WATERCRAFT.md §5.4): on the Mossmere under the loop the reeds and pads carry a twitch (up to four points the
+  // stems tell nudges, world.stems.nudge) and the four lily beds' pads bob in the shader only. Their own seeded stream: the built art's
+  // draws are untouched, and off the loop nothing here is built.
+  const wcOn = theme === 'mossmere' && opts.face !== false && WF.faceOn(ctx?.data, zone.id || 'mossmere');   // (opts.face false: the built arena, for tests)
+  const twU = wcOn ? {
+    gwTw: { value: Array.from({ length: WF.FACE.twitch.max }, () => new THREE.Vector4(0, 0, -99, 0)) }, gwTwT: { value: 0 },
+    gwWaveA: { value: new Float32Array(16) }, gwWaveB: { value: new Float32Array(8) }, gwWaveT: { value: 0 },
+  } : null;
+  const twState = { i: 0, t: 0, linked: false };
+  const TW_PARS = `
+uniform vec4 gwTw[${WF.FACE.twitch.max}]; uniform float gwTwT;
+vec2 gwTwitch(vec2 p, float hgt) {
+  vec2 s = vec2(0.0);
+  for (int i = 0; i < ${WF.FACE.twitch.max}; i++) {
+    vec4 q = gwTw[i];
+    float age = gwTwT - q.z;
+    if (age < 0.0 || age > ${WF.FACE.twitch.life.toFixed(2)} || q.w <= 0.0) continue;
+    vec2 d = p - q.xy;
+    float r = length(d);
+    float env = q.w * exp(-age * 1.7) * (1.0 - smoothstep(1.2, ${WF.FACE.twitch.reach.toFixed(2)}, r)) * smoothstep(0.0, 0.06, age);
+    s += (d / max(r, 0.3)) * sin(age * 17.0 - r * 2.3) * env * hgt;
+  }
+  return s;
+}`;
+  /** inkToon with the twitch in its vertex stage: reeds bend from the foot (y), pads (instanced: aBed 1) bob on the swell. */
+  const twitchMat = (opts, fog, kind) => {
+    const mat = inkToon(opts, fog);
+    const base = mat.onBeforeCompile;
+    mat.onBeforeCompile = (shader, r) => {
+      base?.call(mat, shader, r);
+      Object.assign(shader.uniforms, twU);
+      const body = kind === 'reeds'
+        ? `{ float hgt = clamp(transformed.y + 0.1, 0.0, 2.4);
+  vec2 sway = vec2(sin(gwTwT * 1.1 + transformed.x * 0.37 + transformed.z * 0.21), cos(gwTwT * 0.93 + transformed.z * 0.41 + transformed.x * 0.13)) * 0.016 * hgt;
+  transformed.xz += sway + gwTwitch(transformed.xz, hgt) * 0.12; }`
+        : `#ifdef USE_INSTANCING
+  if (aBed > 0.5) {
+    vec2 ip = vec2(instanceMatrix[3].x, instanceMatrix[3].z);
+    float sc = max(length(instanceMatrix[0].xyz), 0.05);
+    float h = 0.0;
+    for (int i = 0; i < 4; i++) { vec4 a = gwWaveA[i]; h += a.w * sin(a.z * (a.x * ip.x + a.y * ip.y) + gwWaveB[i].x * gwWaveT + gwWaveB[i].y); }
+    vec2 tw = gwTwitch(ip, 1.0);
+    transformed.y += (h * 0.4 + length(tw) * 0.05 * sin(gwTwT * 9.0)) / sc;
+    transformed.xz += tw * 0.05 / sc;
+  }
+#endif`;
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', `#include <common>${TW_PARS}${kind === 'pads' ? '\nattribute float aBed; uniform vec4 gwWaveA[4]; uniform vec2 gwWaveB[4]; uniform float gwWaveT;' : ''}`)
+        .replace('#include <begin_vertex>', `#include <begin_vertex>\n${body}`);
+    };
+    const key = mat.customProgramCacheKey?.() || 'gwInkToonFog';
+    mat.customProgramCacheKey = () => `${key}:wc:${kind}`;
+    return mat;
+  };
+  // <<< WC-3
   const colorRock = (mossAmt = 1, wet = true) => (x, y, z, nx, ny, nz) => {
     const n = fbm3(x * 0.35, y * 0.35, z * 0.35, 2);
     let c = mixArr(K.rock, K.rockHi, n * 0.9);
@@ -359,6 +415,32 @@ export function buildArena(ctx, L, opts = {}) {
     return Number.isFinite(best) ? best - 0.15 : 0;
   };
 
+  // M1 step 3a: what the loop's places read of the built art (pure records, no geometry): the Toppled Bridge's piers as drawn
+  // (their height and whether the top is broken) and every street lamp-post; opts.redress (LOOP.redress, W9's rest) swaps the
+  // posts for rust bollards and buoy-lanterns
+  const piers = [], lampPosts = [];
+  const redressOn = opts.redress === true && theme === 'mossmere';
+  const RUST = lin(0x8a4b3a);
+  function bollard(x, y, z, ry, light) {
+    // a rust mooring bollard with a tall iron davit, a buoy-lantern hung on a short chain from its crook (the fix pass: the squat bollard
+    // read as a brown lump and hid its low lantern; the lantern now hangs at the old lamp's height, clear of the bollard on every side,
+    // and lights the same amber pool the lamp-post did)
+    const b = latheGeo([[0.19, -0.3], [0.21, 0.0], [0.17, 0.95], [0.22, 1.0], [0.22, 1.08], [0.13, 1.12], [0.1, 1.17], [0.01, 1.19]], 10);
+    kit.org.push(prep(b, { matrix: mat(x, y, z, 0, ry, 0), colorFn: (px, py) => mixArr(RUST, K.iron, py - y < 0.25 ? 0.6 : py - y > 0.94 ? 0.1 : 0.3) }));
+    // the davit: up from the bollard's head and over in a shepherd's crook
+    kit.org.push(prep(taperTube([V(0, 1.05, 0), V(0.02, 2.2, 0), V(0.08, 2.85, 0), V(0.32, 3.1, 0), V(0.6, 3.02, 0), V(0.68, 2.86, 0)], (t) => 0.055 - 0.02 * t, 5, 14), { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
+    const lx = x + Math.cos(-ry) * 0.68, lz = z + Math.sin(-ry) * 0.68, ly = y + 2.42;
+    kit.org.push(prep(taperTube([V(0, 2.86, 0), V(0, 2.62, 0)], () => 0.018, 4, 3), { matrix: mat(lx, y, lz), color: K.iron }));
+    // the buoy-lantern: a rust float-body with its glass cage and a hood
+    const body = latheGeo([[0.01, -0.24], [0.16, -0.17], [0.19, -0.02], [0.15, 0.06], [0.06, 0.08], [0.06, 0.3], [0.16, 0.34], [0.03, 0.44], [0.01, 0.45]], 8);
+    kit.org.push(prep(body, { matrix: mat(lx, ly - 0.24, lz), colorFn: (px, py) => (py < ly - 0.2 ? mixArr(RUST, K.wood, 0.3) : K.iron) }));
+    if (light) {
+      kit.glow.push(prep(new THREE.OctahedronGeometry(0.15, 0), { matrix: mat(lx, ly - 0.02, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.candle, 2.4) }));
+      halos.add(lx, ly - 0.02, lz, scaleArr(PL.candle, 1.1), 2.4);
+      addAnchor(lx, ly, lz, candleLight, 3.0, 12);
+    }
+  }
+
   // ---------------- theme prop builders
   const P = {
     column(x, z, r, h, broken = true, baseY = 0) {
@@ -377,10 +459,15 @@ export function buildArena(ctx, L, opts = {}) {
       if (!broken) kit.rock.push(prep(new THREE.BoxGeometry(r * 2.3, r * 0.5, r * 2.3), { matrix: mat(x, baseY + hh - 0.2, z, 0, rng() * TAU, 0), color: K.stone }));
     },
     lamp(x, y, z, h = 3.2, light = true) {
+      // M1 step 3a (W9 behind LOOP.redress, PLAN §2.4 item 3): with opts.redress the street lamp-post becomes a rust bollard with a
+      // buoy-lantern on its head, merged into the same statics (0 net calls). The rng is drawn exactly as the post draws it, so
+      // every other piece of the lake is placed as built; off the switch nothing here changes.
+      if (redressOn) { const ry = rng() * TAU; lampPosts.push({ x, y, z, h, ry }); bollard(x, y, z, ry, light); return; }
       const post = new THREE.CylinderGeometry(0.07, 0.11, h, 6);
       kit.org.push(prep(post, { matrix: mat(x, y + h / 2, z), color: K.iron }));
       const arm = taperTube([V(0, h - 0.1, 0), V(0.35, h + 0.25, 0), V(0.75, h + 0.1, 0)], () => 0.045, 5, 8);
       const ry = rng() * TAU;
+      lampPosts.push({ x, y, z, h, ry });
       kit.org.push(prep(arm, { matrix: mat(x, y, z, 0, ry, 0), color: K.iron }));
       const lx = x + Math.cos(-ry) * 0.75, lz = z + Math.sin(-ry) * 0.75, ly = y + h - 0.35;
       kit.org.push(prep(new THREE.ConeGeometry(0.26, 0.22, 6), { matrix: mat(lx, ly + 0.3, lz), color: K.iron }));
@@ -618,7 +705,12 @@ export function buildArena(ctx, L, opts = {}) {
   for (const p of L.pillars) {
     const s = p.h;
     switch (p.kind) {
-      case 'column': P.column(p.x, p.z, p.r * 0.95, rng.range(4, 9) * s, rng() < 0.7); break;
+      case 'column': {
+        const h = rng.range(4, 9) * s, broken = rng() < 0.7;   // (the same draws, in the same order, as the built call)
+        P.column(p.x, p.z, p.r * 0.95, h, broken);
+        if (p.dataKind === 'pier') piers.push({ x: p.x, z: p.z, r: p.r * 0.95, h, broken });
+        break;
+      }
       case 'pilings': P.pilings(p.x, p.z, p.r); break;
       case 'wreck': P.wreck(p.x, p.z, p.r * 0.85, p.rot); break;
       case 'lamp':
@@ -761,6 +853,22 @@ export function buildArena(ctx, L, opts = {}) {
     }
   }
   mark('props');
+  // >>> WC-3: the four shore reed beds and the reeds round the islands (thick on the rock isles, thin on the masonry ones), all in
+  // the 'fine' static (0 new calls); open-ended cones (their foot is under the water)
+  if (wcOn) {
+    const wr = WF.faceRng(((L.artSeed | 0) ^ 0x5eed5) >>> 0);
+    const plan = WF.reedPlan(L, wr, { low, avoid: WF.avoidList(L, ctx.data, zone.id || 'mossmere') });
+    for (const c of plan) {
+      for (let i = 0; i < c.n; i++) {
+        const a = wr() * TAU, d = wr() * 0.6, hh = c.h * wr.range(0.6, 1.2);
+        const g = new THREE.ConeGeometry(0.045, hh, 4, 1, true);
+        kit.fine.push(prep(g, { matrix: mat(c.x + Math.cos(a) * d, hh / 2 - 0.12, c.z + Math.sin(a) * d, wr.range(-0.22, 0.22), wr() * TAU, wr.range(-0.22, 0.22)),
+          color: mixArr(K.organic, K.mossHi, wr() * 0.45) }));
+      }
+    }
+    prof.wcReeds = plan.length;
+  }
+  // <<< WC-3
   // ---------------- merge statics
   const statics = [];
   const addStatic = (list, material, outline, name, cast = true) => {
@@ -777,7 +885,9 @@ export function buildArena(ctx, L, opts = {}) {
   };
   addStatic(kit.rock, rockMat, olRock, 'rocks');
   addStatic(kit.org, orgMat, olOrg, 'organics');
-  addStatic(kit.fine, orgMat, null, 'fine', false);   // reeds and coral twigs: too fine to cast
+  // (WC-3: on the Mossmere under the loop the 'fine' static has its own material, the twitch's)
+  const fineMat = wcOn ? M(twitchMat({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'wood', detailAmount: 0.7, grain: [0, 1, 0], wet: 0.5, gloss: 0.1, shine: 56, floor: 1 }, { fogScale: 0.9, fogMax: 1 }, 'reeds')) : orgMat;
+  addStatic(kit.fine, fineMat, null, 'fine', false);   // reeds and coral twigs: too fine to cast
   addStatic(kit.glow, glowMat, null, 'glows');
   const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3, detail: 'stone', detailAmount: 0.8, gloss: 0.05, floor: 1.7 }, { fogScale: 0.5, fogMax: 0.72 }));
   addStatic(hero.ink, heroMat, null, 'landmarks');
@@ -862,12 +972,17 @@ export function buildArena(ctx, L, opts = {}) {
   if (theme === 'mossmere') {
     const pad = new THREE.CylinderGeometry(0.55, 0.55, 0.04, 12, 1, false, 0.3, TAU - 0.6);
     prep(pad, { colorFn: (x, y, z) => scaleArr(mixArr(K.organic, K.woodHi, 0.2 + 0.5 * vnoise3(x * 3, 0, z * 3)), 0.7) });
-    const padMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.18, rimColor: pal.far, steps: 3 }, { fogScale: 0.9 }));
+    const padOpts = { color: 0xffffff, vertexColors: true, rim: 0.18, rimColor: pal.far, steps: 3 };
+    const padMat = M(wcOn ? twitchMat(padOpts, { fogScale: 0.9 }, 'pads') : inkToon(padOpts, { fogScale: 0.9 }));
     const flowerG = new THREE.ConeGeometry(0.1, 0.16, 6); flowerG.translate(0.1, 0.1, 0.05);
     prep(flowerG, { color: [1, 1, 1] });
     const flowerMat = M(glowMaterial(pal.accent, 2.4));
     const nP = low ? 40 : 75;
-    const padT = makeFloatType(pad, padMat, nP, 'lilypads', { cast: false, reflect: false });
+    // (WC-3: the four lily beds' pads ride in the same InstancedMesh, after the floaters: static, bobbed in the shader only)
+    const bedPads = wcOn ? WF.bedPadPlan(L, WF.faceRng(((L.artSeed | 0) ^ 0xbed5) >>> 0), { low, avoid: WF.avoidList(L, ctx.data, zone.id || 'mossmere') }) : [];
+    const padT = makeFloatType(pad, padMat, nP + bedPads.length, 'lilypads', { cast: false, reflect: false });
+    const aBed = wcOn ? new THREE.InstancedBufferAttribute(new Float32Array(nP + bedPads.length), 1) : null;
+    if (aBed) padT.geometry.setAttribute('aBed', aBed);
     const flT = makeFloatType(flowerG, flowerMat, 18, 'lilyflowers', { reflect: false });
     // lily pads cluster in shallows around islands and the shore
     let placed = 0;
@@ -880,6 +995,16 @@ export function buildArena(ctx, L, opts = {}) {
       addFloater(withFlower ? [padT, flT] : [padT], x, z, { s: rng.range(0.6, 1.4), bob: 0.4, halo: withFlower ? scaleArr(PL.accent, 0.5) : null, haloSize: 0.8, haloY: 0.15 });
       placed++;
     }
+    // >>> WC-3: the bed pads (never in `floaters`: the CPU bob loop does not see them)
+    for (const q of bedPads) {
+      if (padT.count >= padT.instanceMatrix.count) break;
+      const i = padT.count++;
+      e4.set(0, q.ry, 0, 'YXZ'); q4.setFromEuler(e4); s4.setScalar(q.s);
+      padT.setMatrixAt(i, m4.compose(p4.set(q.x, 0.015, q.z), q4, s4));
+      aBed.setX(i, 1);
+    }
+    if (aBed) { aBed.needsUpdate = true; padT.instanceMatrix.needsUpdate = true; prof.wcPads = bedPads.length; }
+    // <<< WC-3
   } else if (theme === 'sporewood') {
     const capG = latheGeo([[0.01, 0], [0.2, -0.02], [0.34, 0.02], [0.22, 0.12], [0.01, 0.16]], 10);
     prep(capG, { colorFn: (x, y) => (y < 0.01 ? scaleArr(PL.glow, 1.6) : mixArr(K.cap, K.capHi, y * 4)) });
@@ -1120,6 +1245,14 @@ export function buildArena(ctx, L, opts = {}) {
   const _v = new THREE.Vector3();
   let viewH = 720;
   function update(dt, t, focus, env) {
+    // >>> WC-3: the twitch's clock and the bed pads' swell (the water's own uniforms, by reference)
+    if (twU) {
+      twState.t = t; twU.gwTwT.value = t;
+      const WU = ctx.water && !ctx.water.isStub ? ctx.water.material?.uniforms : null;
+      if (WU?.uWaveA && !twState.linked) { twU.gwWaveA.value = WU.uWaveA.value; twU.gwWaveB.value = WU.uWaveB.value; twState.linked = true; }
+      if (WU?.uWaveT) twU.gwWaveT.value = WU.uWaveT.value;
+    }
+    // <<< WC-3
     const wh = ctx.water?.getHeight;
     const hasWater = typeof wh === 'function' && !ctx.water.isStub;
     domeMat.uniforms.uTime.value = t;
@@ -1186,6 +1319,19 @@ export function buildArena(ctx, L, opts = {}) {
   return {
     group, anchors, update, applyMood, dispose, rings, statics, sky, keyDir,
     crackTop, crackBottom, dockBuoys, halos,
+    piers, lampPosts, redress: redressOn,   // M1 step 3a: the Toppled Bridge's piers and the street lamp-posts as drawn (records)
+    // >>> WC-3: the stems tell's nudge (WC-2 calls world.stems.nudge(x, z, k)): the reeds and pads within a few metres twitch, then
+    // settle (one of four points, the oldest replaced). null off the Mossmere's loop
+    stems: twU ? {
+      nudge(x, z, k = 1) {
+        if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
+        const v = twU.gwTw.value[twState.i]; twState.i = (twState.i + 1) % twU.gwTw.value.length;
+        v.set(x, z, twState.t, Math.max(0, Math.min(2, Number.isFinite(k) ? k : 1)));
+        return true;
+      },
+      points: () => twU.gwTw.value.map((v) => ({ x: v.x, z: v.y, t0: v.z, k: v.w })),
+    } : null,
+    // <<< WC-3
     setGate: (s, instant) => gate.set(s, instant),
     get gateState() { return gate.state; },
     get gateOpenK() { return gate.openK; },

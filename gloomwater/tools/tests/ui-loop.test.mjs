@@ -93,9 +93,11 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
 {
   const L = fakeLoop({ D, clams: 40 });
   let m = U.shelfCards(L.shelf(), { D, clams: 40 });
-  eq(m.tabs.map((t) => t.id), ['tackle', 'raft'], 'only the tabs with an item: Tackle and Raft');
-  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft], 'one word each, TEXT_LOOP.tabs');
-  const tack = m.tabs[0].cards, raft = m.tabs[1].cards;
+  eq(m.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps', 'home'], 'only the tabs with an item: Tackle, Raft (M1 step 3a: Bait and Maps; M1 step 4: Home)');
+  eq(m.tabs.map((t) => t.label), [TL.tabs.tackle, TL.tabs.raft, TL.tabs.bait, TL.tabs.maps, TL.tabs.home], 'one word each, TEXT_LOOP.tabs');
+  // (M1 step 4's cards, the lures, tins, raft parts and the Order Board, are tools/tests/loop-4.test.mjs's: these checks read the rest)
+  const no4 = (cards) => cards.filter((c) => !/^(lure|tin|cut|oars|keel|lantern|orders):/.test(c.id));
+  const tack = no4(m.tabs[0].cards), raft = no4(m.tabs[1].cards);
   eq(tack.map((c) => c.id), ['rod:1', 'line:1', 'reel:1'], 'Tackle: the next tier of each slot');
   eq(tack.map((c) => c.name), ['Ashwood', 'Braided Gut', 'Brass Spool'], 'the TACKLE names');
   eq(tack.map((c) => c.line), [TL.shelf.rod, TL.shelf.line, TL.shelf.reel], 'the one line each');
@@ -110,11 +112,12 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
   m = U.shelfCards(L.shelf(), { D, clams: 10 });
   const h5 = m.tabs.find((t) => t.id === 'raft').cards[0];
   ok(h5.id === 'hold:5' && h5.price === 120 && h5.name === 'Double Creel' && h5.dear, 'the next open: Hold 5 · 120, the Double Creel');
-  // Hold 5 and T2 keep a permanent "Yours." card (the last steps a 1a shelf offers)
-  const L2 = fakeLoop({ D, clams: 0, holdSlots: 5, tackle: { rod: 2, line: 2, reel: 2 } });
+  // Hold 6 and T2 keep a permanent "Yours." card (the last steps the shelf offers; M1 step 3a: LOOP.hold.shelfMax 6)
+  const L2 = fakeLoop({ D, clams: 0, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   m = U.shelfCards(L2.shelf(), { D, clams: 0 });
-  ok(m.tabs.length === 2 && m.tabs.every((t) => t.cards.every((c) => c.bought && c.buyWord === TL.yours)), 'Hold 5 and the T2s: permanent "Yours." cards', m.tabs.map((t) => t.cards.map((c) => c.id)));
-  eq(m.tabs[0].cards.map((c) => c.id), ['rod:2', 'line:2', 'reel:2'], 'the T2s in place');
+  const kitTabs = m.tabs.filter((t) => t.id === 'tackle' || t.id === 'raft');   // M1 step 3a: the Bait and Maps tabs are lane C's T133–T135
+  ok(kitTabs.length === 2 && kitTabs.every((t) => no4(t.cards).every((c) => c.bought && c.buyWord === TL.yours)), 'Hold 6 and the T2s: permanent "Yours." cards', kitTabs.map((t) => t.cards.map((c) => c.id)));
+  eq(no4(m.tabs[0].cards).map((c) => c.id), ['rod:2', 'line:2', 'reel:2'], 'the T2s in place');
   ok(U.shelfCards(null, { D }).tabs.length === 0 && U.shelfCards({ tabs: [{ id: 'bait', items: [] }] }, { D }).tabs.length === 0, 'an empty shelf: no tabs');
   for (const t of U.shelfCards(L.shelf(), { D }).tabs) for (const c of t.cards) ok(U.textAllowed(c.name, { D }) && U.textAllowed(c.line, { D }), `allow-list: ${c.name} and its line`);
 }
@@ -354,7 +357,7 @@ section('the Chart: chartModel (SPEC §5.4, M1.md §3.8)');
 {
   const m = freshLoopMeta(D);
   const C = U.chartModel(m, D, {});
-  ok(C.sheets.length === 1 && C.sheets[0].waterId === 'mossmere' && C.sheets[0].name === 'The Mossmere' && C.sheets[0].places.length === 0, 'a fresh save: one sheet, the Mossmere, no places');
+  ok(C.sheets.length === 1 && C.sheets[0].waterId === 'mossmere' && C.sheets[0].name === 'The Mossmere' && C.sheets[0].places.length === 4, 'a fresh save: one sheet, the Mossmere, its four places (M1 step 3a)');
   ok(C.next?.waterId === 'sporewood' && C.next.shipped === false && C.pick.water === 'mossmere' && C.pick.place === null, 'the next water sealed (M1 step 3b: Sporewood, "Coming soon"); open water chosen');
   ok(C.hold.slots === 3, 'three slots');
   ok(U.chartModel(m, D, { slots: 4 }).hold.slots === 4, 'hold.slots from loop.hold().slots');
@@ -367,14 +370,164 @@ section('the Chart: chartModel (SPEC §5.4, M1.md §3.8)');
   ok(!/gate|sluice/i.test(v), 'no gate on the Chart (scenery, never a destination)');
 }
 
+section('T133: chartModel\'s places and its one next (M1.md §3.8; the signature and keys unchanged)');
+{
+  const { placesMeta } = await import('./loop-fixture.mjs');
+  const { mapCards, sealsOf } = await import('../../src/progression-loop.js');
+  ok(U.chartModel.length === 2, 'chartModel(meta, D, opts = {}): one signature');
+  const m = freshLoopMeta(D);
+  const C = U.chartModel(m, D, {});
+  eq(Object.keys(C), ['sheets', 'next', 'hold', 'fitted', 'pick', 'tutorial'], 'its keys are 1a\'s');
+  const P = C.sheets[0].places;
+  eq(P.map((p) => p.id), ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'], 'a fresh save: the four places in the Chart\'s order (day, old, night, crown)');
+  ok(P.every((p) => JSON.stringify(Object.keys(p)) === JSON.stringify(['id', 'kind', 'owned', 'price', 'best', 'giantLanded', 'marked', 'wounds'])), 'each place exactly {id, kind, owned, price, best, giantLanded, marked, wounds}', P[0]);
+  eq(P.map((p) => p.kind), ['day', 'old', 'night', 'crown'], 'their kinds');
+  eq(P.map((p) => p.price), [60, 150, null, null], 'the prices are mapCards\' (Murk\'s three: the two cheapest place maps): 60, 150, null, null');
+  ok(P.every((p) => p.owned === false && p.best === null && p.giantLanded === false && p.marked === false && p.wounds === 0), 'none owned, no best, no giant, no mark, no wound');
+  eq(C.next, { waterId: 'sporewood', shipped: false, seals: sealsOf(m, D, 'sporewood') }, 'next: {waterId: sporewood, shipped: false, seals: sealsOf\'s} (one source)');
+  const sl = C.next.seals;
+  ok(typeof sl.map.held === 'boolean' && typeof sl.gear.held === 'boolean' && sl.gear.slot === 'rod' && sl.gear.tier === 1 && typeof sl.catch.held === 'boolean' && sl.catch.have === 0 && sl.catch.need === 12, 'a superset of 3b\'s chartNext shape (map.held, gear.held/slot/tier, catch.held/have/need)', sl);
+  eq(U.chartNext(m, D), C.next, 'chartNext(meta, D) is the one next (3b\'s export, its seals sealsOf\'s)');
+  const old = freshLoopMeta(D); old.loop.maps.lakes = ['mossmere', 'sporewood'];
+  const on = U.chartNext(old, D);
+  ok(on?.waterId === 'sporewood' && on.shipped === false && on.seals.map.held === true, 'an old save that owns Sporewood\'s map: Sporewood is still the next sheet, its map seal pressed', on);
+  const T = U.chartModel(m, D, { tutorial: true });
+  ok(T.next === null && T.sheets[0].places.every((p) => p.price === null), 'in the tutorial every price null and next null');
+  // a later save: two owned, a best fish there, a giant landed, a mark, the Matriarch's wounds
+  const pm = placesMeta(D, { own: ['lily_maze', 'bell_pool'] });
+  pm.loop.best = { lily_maze: { speciesId: 'candlefin_koi', length: 51, extra: 'no' }, 'open:mossmere': { speciesId: 'reedjaw_pike', length: 60 } };
+  pm.loop.giants = { thousandcast_pike: { landed: 0, marked: 1 }, hullkiss_lamprey: { landed: 2, marked: 0 } };
+  pm.loop.legends = { belled_matriarch: 1 };
+  pm.legendWounds = { belled_matriarch: 2 };
+  const L = U.chartModel(pm, D, {}).sheets[0].places, by = Object.fromEntries(L.map((p) => [p.id, p]));
+  ok(by.lily_maze.owned && by.lily_maze.price === null && by.bell_pool.owned && by.bell_pool.price === null, 'an owned place\'s price is null');
+  eq(by.lily_maze.best, { speciesId: 'candlefin_koi', weight: D.fishWeight(D.SPECIES_BY_ID.candlefin_koi, { length: 51 }) }, 'best: {speciesId, weight} with weight = data.fishWeight of the saved length, no other field passed through');
+  // (WC-3, WATERCRAFT §7.2: under the loop the Chart names no lost fish: marked false and wounds 0 though the save keeps both)
+  ok(by.under_the_span.marked === false && by.under_the_span.giantLanded === false && by.buoy_lights.giantLanded === true && by.buoy_lights.marked === false && pm.loop.giants.thousandcast_pike.marked === 1, 'giantLanded from meta.loop.giants; the mark kept in the save, never on the Chart');
+  ok(by.bell_pool.giantLanded === true && by.bell_pool.wounds === 0 && by.lily_maze.wounds === 0 && pm.legendWounds.belled_matriarch === 2, 'the Bell Pool: its legend landed; her wounds kept in the save, no nick on the Chart');
+  eq(L.filter((p) => p.price != null).map((p) => [p.id, p.price]), [['under_the_span', 150], ['buoy_lights', 260]], 'the two cheapest unowned maps priced');
+  // a giant (or the legend) landed and let go: never sold, so the ledger has no sale, but the Journal has it caught (M1 §2.4's ★)
+  {
+    const lg = placesMeta(D, { own: ['under_the_span', 'bell_pool'] });
+    lg.loop.giants = { thousandcast_pike: { landed: 0, marked: 0 } };
+    lg.loop.legends = {};
+    lg.journal = { ...(lg.journal || {}), thousandcast_pike: { caught: 1, pbLength: 140 }, belled_matriarch: { caught: 1, pbLength: 120 } };
+    const G = Object.fromEntries(U.chartModel(lg, D, {}).sheets[0].places.map((p) => [p.id, p]));
+    ok(G.under_the_span.giantLanded === true && G.bell_pool.giantLanded === true && G.buoy_lights.giantLanded === false, 'a giant and the legend landed and let go: their places\' ★ (the Journal\'s caught), the unlanded one none', G);
+  }
+  // T109's Chart case: the Chart's non-null prices are exactly mapCards' place cards
+  for (const own of [[], ['lily_maze'], ['lily_maze', 'under_the_span'], ['under_the_span', 'buoy_lights'], ['lily_maze', 'under_the_span', 'buoy_lights'], ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']]) {
+    const mm = placesMeta(D, { own });
+    const cards = mapCards(D, mm.loop, { meta: mm }).filter((c) => c.placeId).map((c) => [c.placeId, c.price]);
+    const chart = U.chartModel(mm, D, {}).sheets[0].places.filter((p) => p.price != null).map((p) => [p.id, p.price]);
+    eq(chart, cards, `T109: the Chart's prices are mapCards' (${own.join(', ') || 'none owned'})`);
+  }
+  // the pick: the saved one while the Chart can still choose it
+  pm.loop.chartPick = { water: 'mossmere', place: 'bell_pool' };
+  eq(U.chartModel(pm, D, {}).pick, { water: 'mossmere', place: 'bell_pool' }, 'the first open chooses the place sailed to last (meta.loop.chartPick)');
+  pm.loop.chartPick = { water: 'mossmere', place: 'buoy_lights' };
+  eq(U.chartModel(pm, D, {}).pick, { water: 'mossmere', place: null }, 'a pick the Chart cannot choose (a place not owned): open water');
+  pm.loop.chartPick = 'first';
+  eq(U.chartModel(pm, D, {}).pick, { water: 'mossmere', place: null }, 'a chartPick that is not an object reads as none');
+  pm.loop.chartPick = { water: 'mossmere', place: 'bell_pool' };
+  eq(U.chartModel(pm, D, { tutorial: true }).pick, { water: 'mossmere', place: null }, 'the tutorial: open water');
+}
+
+section('T134 (node): the list Chart\'s rows, the bait slot, the forced list');
+{
+  const { placesMeta } = await import('./loop-fixture.mjs');
+  const fresh = U.chartModel(freshLoopMeta(D), D, {});
+  const rows = U.chartRows(fresh, D);
+  eq(rows.map((r) => [r.id, r.owned, r.price, r.name]), [['lily_maze', false, 60, null], ['under_the_span', false, 150, null]], 'a fresh save: a row per priced place, unnamed (the blot\'s rule), nothing else');
+  const pm = placesMeta(D, { own: ['lily_maze', 'bell_pool'], balls: 2 });
+  const C = U.chartModel(pm, D, {});
+  eq(U.chartRows(C, D).map((r) => [r.id, r.owned, r.price, r.name]), [['lily_maze', true, null, 'The Lily Maze'], ['under_the_span', false, 150, null], ['buoy_lights', false, 260, null], ['bell_pool', true, null, 'The Bell Pool']],
+    'owned rows named, priced rows priced, in the Chart\'s order');
+  eq(U.chartRows(U.chartModel(pm, D, { tutorial: true }), D), [], 'the tutorial: exactly 1a\'s list (no place row)');
+  eq(U.baitSlotModel(C, pm.loop, D), { id: 'heartmoss', water: 'mossmere', name: 'Heartmoss Ball', count: 2, fitted: false, can: true }, 'the bait slot: the Heartmoss Ball and its count');
+  pm.loop.fitted.bait = 'heartmoss';
+  ok(U.baitSlotModel(U.chartModel(pm, D, {}), pm.loop, D).fitted === true, 'fitted once loop.fit has written fitted.bait');
+  const none = placesMeta(D, {});
+  eq(U.baitSlotModel(U.chartModel(none, D, {}), none.loop, D), { id: 'heartmoss', water: 'mossmere', name: 'Heartmoss Ball', count: 0, fitted: false, can: false }, 'none in the bag: an empty slot');
+  ok(U.baitSlotModel(U.chartModel(pm, D, { tutorial: true }), pm.loop, D) === null, 'no bait slot in the tutorial (T65, T67)');
+  const v = src('ui-loop.js');
+  ok(/function renderChartList\(entry, body, model\)/.test(v) && /function baitSlot\(model, \{ onFit = null \} = \{\}\)/.test(v) && /function placeBaitSlot\(root, model, entry\)/.test(v), 'renderChartList(entry, body, model), baitSlot(model, {onFit}) and placeBaitSlot are their own pieces');
+  ok(/b\.dataset\.slot = 'bait';/.test(v) && /sail\.parentNode\.insertBefore\(el, sail\)/.test(v), 'the bait slot is [data-slot=bait], put in the foot before [data-action=sail]');
+  ok(/book\.dataset\.action = 'catalogue';/.test(v) && /openJournal\?\.\(\{ from: 'chart', zone: sh\.waterId \}\)/.test(v), 'the Mossmere row\'s book glyph [data-action=catalogue] opens openJournal({from: \'chart\', zone})');
+  ok(/openShelf\(\{ tab: 'maps', focus: r\.id \}\)/.test(v) && /L\('setPick', \{ \.\.\.s\.pick \}\)/.test(v) && /emit\('chart:pick'/.test(v), 'a priced row opens its map card; an owned row is chosen (setPick, chart:pick)');
+  ok(/chartList: \(on\) =>/.test(v) && /ctx\.debug\.ui\.chartList = /.test(src('ui.js')), 'ctx.debug.ui.chartList(on): the forced list for 3b\'s drawn Chart');
+}
+
+section('T141: the hold row (Hold 6, Tallow\'s seven; two rows past six on a phone, one on a desktop)');
+{
+  ok(U.slotCells(fakeLoop({ D, holdSlots: 6, wick: 'tallow' }).hold(), { D }).length === 7, 'Tallow at Hold 6: seven cells');
+  ok(U.slotCells(fakeLoop({ D, holdSlots: 6, wick: 'wick' }).hold(), { D }).length === 6, 'the Wick at Hold 6: six cells');
+  ok(D.LOOP.hold.shelfMax === 6, 'Hold 6 on the shelf (shelfMax 6)');
+  const v = src('ui-loop.js'), css = src('ui.css');
+  ok(/holdRow\.classList\.toggle\('gw-hold--wrap', cells\.length > 6\)/.test(v), 'the row marks itself past six cells');
+  const phone = css.slice(css.lastIndexOf('@media (max-width: 700px)'));
+  ok(/\.gw-hud\.gw-loop \.gw-hold\.gw-hold--wrap \{ flex-wrap: wrap; width: 196px;/.test(phone) && /\.gw-hud\.gw-loop \.gw-hold\.gw-hold--wrap \{ flex-wrap: nowrap; \}/.test(css), 'two rows (4 + 3, 196 px) on a phone, one on a desktop');
+  ok(/Math\.min\(9, Math\.round\(F\.bitesLeft\)\)/.test(src('ui-hud-v3.js')), 'the good-bite dots up to nine');
+}
+
+section('T142: the lift\'s title card (place:lift {phase: \'title\', name}, 1.2 s, the HUD layer)');
+{
+  eq(U.liftTitle({ placeId: 'lily_maze', phase: 'title', name: 'The Lily Maze' }, D), { show: true, name: 'The Lily Maze', dur: D.LOOP.lift.title }, 'the title phase: the place\'s name for LOOP.lift.title s');
+  ok(U.liftTitle({ placeId: 'lily_maze', phase: 'start', name: 'The Lily Maze' }, D).show === false && U.liftTitle({ placeId: 'lily_maze', phase: 'end' }, D).show === false, 'nothing at start or end');
+  eq(U.liftTitle({ placeId: 'bell_pool', phase: 'title' }, D).name, 'The Bell Pool', 'no name in the payload: the place\'s own');
+  ok(D.LOOP.lift.title === 1.2, '1.2 s');
+  const v = src('ui-loop.js');
+  ok(/on\('place:lift'/.test(v) && /hudEl\.appendChild\(el\)/.test(v.slice(v.indexOf('function showLiftTitle'), v.indexOf('function dropLiftTitle'))), 'shown in the HUD layer (never in world space)');
+  ok(U.textAllowed('The Lily Maze', { D }) && U.textAllowed('Under the Span', { D }) && U.textAllowed('The Buoy Lights', { D }) && U.textAllowed('The Bell Pool', { D }), 'its words are the places\' names');
+}
+
+section('T143: words (TEXT_LOOP, names, numbers; no percentage literal)');
+{
+  const W = U.allowedWords(D);
+  for (const w of [TL.comingSoon, ...Object.values(TL.maps), TL.shelf.heartmoss, TL.back, 'Heartmoss Ball', 'Thousandcast Pike', '★ Thousandcast Pike', '12/12', '7/12', '· · ·', '★', '14 lb 10 oz', '60', '150'])
+    ok(U.textAllowed(w, { D, words: W }), `"${w}"`);
+  for (const w of ['6%', 'Coming Soon!', 'Locked', 'The Thousandcast Pike bites at dusk']) ok(!U.textAllowed(w, { D, words: W }), `not "${w}"`);
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+  for (const f of ['ui-loop.js', 'ui-screens.js']) {
+    const code = strip(src(f));
+    const loopPart = f === 'ui-screens.js' ? code.slice(code.indexOf('function openCatalogue'), code.indexOf('function openLog')) : code;
+    ok(loopPart.length > 1000 && !/\d\s*%['"`]|%\$\{|['"`]%/.test(loopPart), `no percentage literal in ${f}${f === 'ui-screens.js' ? '\'s catalogue' : ''}`);
+  }
+  const walk = (v, out = []) => { if (typeof v === 'string') out.push(v); else if (v && typeof v === 'object') Object.values(v).forEach((x) => walk(x, out)); return out; };
+  ok(!walk({ ...TL, log: { ...(TL.log || {}), under: '' } }).some((t) => /%/.test(t)), 'no percentage in TEXT_LOOP (but the gear log\'s "<1%", SPEC §8.11: WC-1)');
+}
+
+section('T144: Murk\'s lines at their moments, each once a save; the catch seal\'s press');
+{
+  eq(TL.murk.firstMap, "It's in the mist. Go and look.", 'the first place map');
+  eq(TL.murk.firstGiant, 'That one had a name before you met it.', 'the first giant sold');
+  eq(TL.murk.legendFirst, "Her. You brought me her. Sit down, I'll count it twice.", 'the Matriarch\'s first tally');
+  eq(TL.murk.listComplete, "Every fish in this water. I'll write that down.", 'the list complete');
+  eq(TL.shelf.heartmoss, 'For the Belled Matriarch. One try.', 'the ball\'s shelf line');
+  const row = (o) => ({ giant: false, legend: false, sizeClass: 'keeper', ...o });
+  eq(U.saleLineId({ rows: [row({})], said: {} }), 'firstSale', 'a first sale: firstSale');
+  eq(U.saleLineId({ rows: [row({ giant: true })], said: { firstSale: true } }), 'firstGiant', 'the first giant sold: firstGiant');
+  eq(U.saleLineId({ rows: [row({ giant: true })], said: { firstSale: true, firstGiant: true } }), 'firstTrophy', 'a second giant: the first Trophy-or-bigger line (once)');
+  eq(U.saleLineId({ rows: [row({ legend: true }), row({ giant: true })], said: { firstSale: true } }), 'legendFirst', 'her first tally: legendFirst first');
+  eq(U.saleLineId({ rows: [row({ legend: true })], said: { firstSale: true, legendFirst: true, firstGiant: true, firstTrophy: true } }), null, 'each once');
+  eq(U.saleLineId({ rows: [row({ legend: true })], said: { firstSale: true }, listDone: true }), 'listComplete', 'the list complete: its line before any other (the catch seal presses with it)');
+  eq(U.saleLineId({ rows: [], empty: true, said: {}, listDone: true }), 'listComplete', '… after an empty hold too (a fish let go counts)');
+  eq(U.saleLineId({ rows: [], empty: true, said: { listComplete: true }, listDone: true }), null, 'once a save');
+  const fl = fakeLoop({ D });
+  ok(fl.sayOnce('listComplete') === TL.murk.listComplete && fl.sayOnce('listComplete') === null, 'sayOnce gives each line once (the ledger\'s rule)');
+  const v = src('ui-loop.js');
+  ok(/sayOnce', 'firstMap'\)/.test(v) && /String\(id\)\.startsWith\('place:'\)/.test(v), 'firstMap after a place map is bought (the shelf\'s head)');
+  ok(/emit\('loop:seal', \{ seal: which \}\)/.test(v) && /press: line && id === 'listComplete' \? 'catch' : null/.test(v), 'the press: loop:seal {seal: \'catch\'} with Murk\'s line at the first home after the list completes');
+}
+
 section('v8 T83: the Journal\'s Mossmere tab under the loop: the list first, its count');
 {
   const m = freshLoopMeta(D);
   const ids = listFor(D, 'mossmere');
   m.journal = { [ids[0]]: { caught: 2 }, [ids[1]]: { caught: 0, seen: true }, [ids[2]]: { caught: 0 }, gloam_eel: { caught: 4 } };
   const J = U.journalModel(m, D, 'mossmere', { listFor });
-  ok(J.need === 11 && J.list.length === 11, 'eleven on the list (M1 step 2)', J.list.map((x) => x.id));
-  ok(J.have === 1 && J.badge === '1/11', 'counted by num(caught) > 0 only: a Glimpsed entry and a caught-0 entry do not count, a fish off the list neither', J.badge);
+  ok(J.need === 12 && J.list.length === 12, 'twelve on the list (M1 step 3a, with the Kissmark Trout)', J.list.map((x) => x.id));
+  ok(J.have === 1 && J.badge === '1/12', 'counted by num(caught) > 0 only: a Glimpsed entry and a caught-0 entry do not count, a fish off the list neither', J.badge);
   ok(J.rest.map((x) => x.id).includes('gloam_eel') && J.rest.map((x) => x.id).includes('belled_matriarch') && !J.rest.some((x) => ids.includes(x.id)), 'the Eel and the Matriarch follow, outside the count');
   ok(J.list[0].landed && !J.list[1].landed, 'each listed card knows its notch');
   ok(U.journalModel(m, D, 'mossmere', {}).need === 0, 'no listFor: an empty list (the built grid)');
@@ -387,6 +540,7 @@ section('every word the screens show is TEXT_LOOP\'s or a built word SPEC §8 na
   const W = U.allowedWords(D);
   const words = [
     ...U.titleModel({ fresh: true, D }).words, ...U.titleModel({ fresh: false, replay: true, D }).words, ...U.descentModel(D, 'stub').words,
+    // (M1 step 3a: every tab's cards, the Bait and Maps tabs' too: T143's allow-list names the places and the bait)
     ...U.shelfCards(fakeLoop({ D }).shelf(), { D }).tabs.flatMap((t) => [t.label, ...t.cards.flatMap((c) => [c.name, c.line, c.priceText])]),
     ...U.cardActions({ clams: 9, D }).map((a) => a.label), TL.sold, TL.sail, TL.home, TL.resume, TL.holdFull, TL.odds, TL.yours,
     ...Object.values(TL.jetty), U.tallyPlan({ lines: [] }, { D }).line,

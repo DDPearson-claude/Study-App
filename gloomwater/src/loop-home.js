@@ -10,8 +10,17 @@
 //   beginIntro(opts)         New Descent's Start: the Wick, then the film (main's startIntro) or the Jetty with no film
 //   canGoHome / goHome       the Home pill and the pause's Home
 //   skipHomeGlide()          a tap or a skip key: the running home glide ends at its end and what follows runs at once
+// M1 step 3a (docs/loop/m1-step3a/PLAN.md §2.2 items 5–6, PLAN CHOICEs 7, 8, 24; T128, T129):
+//   the lift                 at a trip's start (and on a Continue, only one the page closed on), each owned place whose mist has not lifted (loop.liftDue(), price
+//                            order) in turn: ctx.cinematic on, place:lift {placeId, phase: 'start', name}, world.liftMist(id, 3),
+//                            render.frameLandmark(landmark, {dur, back}); at 3 s {phase: 'title'}; at 4.2 s {phase: 'end'},
+//                            loop.markLifted(id), the places synced; cinematic off after the last. update(dt) runs its clock (main's
+//                            frame); skipLift() (a tap or a skip key) ends the running one at once; reduced motion skips the thinning
+//   the places               world.setPlaces({owned, lifted}) at run:start, home:enter and after a buy (loop:buy)
+//   sail({water, place})     the pick saved (loop.setPick); the glide out heads for an owned place's centre (sailPlan toward it);
+//                            with no `place` the Chart's saved pick of that water; open water keeps 1a's authored glide
 // Every neighbour is read through optional chaining (PLAN §3's stub rule): an absent one means the built behaviour, never a throw.
-import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath } from './loop-rules.js';
+import { tripEndAllowed, tripStartAllowed, goHomeAllowed, filmAllowed, homeGlidePath, placeGlide, glideClearance, glideInPath } from './loop-rules.js';
 
 const numOr = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 
@@ -34,7 +43,14 @@ export function createLoopHome(deps) {
     const l = p.loop;
     return l && typeof l === 'object' && !l.isStub ? l : null;
   }
-  const S = { glide: null, sailing: false };   // never saved: a reload during a glide is a reload at the Jetty
+  const S = { glide: null, sailing: false, lift: null };   // never saved: a reload during a glide is a reload at the Jetty (a lift
+  // is marked only at its end, so a reload mid-lift plays it again on the next trip: T112)
+  const LIFT = { thin: numOr(LOOPD.lift?.thin, 3), title: numOr(LOOPD.lift?.title, 1.2), back: numOr(LOOPD.lift?.back, 0.6) };
+  const reducedMotion = typeof deps.reduced === 'function' ? deps.reduced : () => {
+    if (ctx.state?.meta?.settings?.reducedMotion === true) return true;
+    try { return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true; } catch { return false; }
+  };
+  const emit = (e, p) => { try { ctx.bus?.emit?.(e, p); } catch (err) { report(`emit ${e}`, err); } };
   /** The Jetty's dock (CHOICE 44: home is always docks[0]) as {position: {x, z}, yaw}, or null without a world. */
   function dockAt(i = 0) {
     const ds = safe(() => ctx.world?.getDocks?.(), null);
@@ -43,12 +59,20 @@ export function createLoopHome(deps) {
   }
   function teleport(p, yaw) { if (p) { try { ctx.player?.teleport?.(p, numOr(yaw, 0)); } catch (e) { report('player.teleport', e); } } }
   function teleportHome() { const d = dockAt(); if (d) teleport(d.position, d.yaw); }
-  /** Murk's barge moored at the Jetty: the next dock, else beside the first (R10). */
+  /** The water's mooring (M1 step 5a, SPEC §6.5: world.getMooring(), data.loopMooring on its docks), or null. */
+  const mooring = () => safe(() => ctx.world?.getMooring?.(), null);
+  /** Murk's barge moored at the Jetty: the mooring's murk slot (moored mode: lamp dark, no turning); else the next dock, else beside
+   *  the first (R10). */
   function moorMurk() {
+    const M = mooring(), V = ctx.THREE?.Vector3;
+    if (M?.murk && typeof ctx.actors?.merchant?.moor === 'function') {
+      const pos = V ? new V(M.murk.x, 0, M.murk.z) : { x: M.murk.x, y: 0, z: M.murk.z };
+      try { ctx.actors.merchant.moor(pos, M.murk.yaw, { zone: M.water }); } catch (e) { report('merchant.moor', e); }
+      return;
+    }
     const d1 = dockAt(1), d0 = dockAt();
     const m = d1 || (d0 ? { position: { x: d0.position.x + 6 * Math.cos(d0.yaw), z: d0.position.z - 6 * Math.sin(d0.yaw) }, yaw: d0.yaw } : null);
     if (!m) return;
-    const V = ctx.THREE?.Vector3;
     const pos = V ? new V(m.position.x, 0, m.position.z) : { x: m.position.x, y: 0, z: m.position.z };
     try { ctx.actors?.merchant?.arrive?.(pos, m.yaw, { instant: true }); } catch (e) { report('merchant.arrive', e); }
   }
@@ -83,6 +107,98 @@ export function createLoopHome(deps) {
     return true;
   }
 
+  // ---------------------------------------------------------------- M1 step 3a: the places and their lift
+  /** A loop place ({id, name, x, z, landmark, area, kind, …}: data.loopPlace), or null. */
+  const placeOf = (id) => safe(() => data.loopPlace?.(id), null);
+  /** The ledger's places as plain arrays: {owned, lifted}. */
+  function placesNow() {
+    const L = loopApi();
+    const ml = safe(() => L?.state?.(), null);
+    const owned = Array.isArray(ml?.maps?.places) ? ml.maps.places.slice() : [];
+    const lf = safe(() => L?.lifted?.(), null);
+    const lifted = Array.isArray(lf) ? lf.slice() : Array.isArray(ml?.lifted) ? ml.lifted.slice() : [];
+    return { owned, lifted };
+  }
+  /** world.setPlaces({owned, lifted}): the banks over what is not lifted, each place's dressing lit once it is. */
+  function syncPlaces() {
+    const p = placesNow();
+    try { ctx.world?.setPlaces?.(p); } catch (e) { report('world.setPlaces', e); }
+    return p;
+  }
+  if (ctx.bus?.on) {
+    // a Continue syncs the places, and replays a lift the page closed on (its place owned, not lifted: PLAN CHOICE 8's "a reload
+    // mid-lift replays it"; else the place stood in mist all evening, every cast there a mist cast; the fix pass)
+    ctx.bus.on('run:start', (e) => { syncPlaces(); if (e?.continued === true) beginLifts(); });
+    ctx.bus.on('home:enter', () => { S.lift = null; syncPlaces(); });
+    ctx.bus.on('loop:buy', () => syncPlaces());
+  }
+  /** Where the lift's shot looks: world.placeAnchor(id), else the place's landmark, else its centre. */
+  function landmarkOf(id) {
+    const a = safe(() => ctx.world?.placeAnchor?.(id), null);
+    // (the anchor's radius and a path's broadside go to the shot too: without them every place was framed as an r 6 disc, and Under the
+    // Span from 14.6 m down its own length behind its first pier; the stage)
+    // (and a place's own crane, the Bell Pool's: its side, elevation and distance; the fix pass)
+    if (a && Number.isFinite(a.x) && Number.isFinite(a.z)) return { x: a.x, y: numOr(a.y, 0), z: a.z, ...(Number.isFinite(a.r) ? { r: a.r } : {}), ...(Array.isArray(a.face) ? { face: a.face.slice(0, 2) } : {}),
+      ...(Array.isArray(a.side) ? { side: a.side.slice(0, 2) } : {}), ...(Number.isFinite(a.elev) ? { elev: a.elev } : {}), ...(Number.isFinite(a.dist) ? { dist: a.dist } : {}) };
+    const p = placeOf(id), m = p?.landmark;
+    if (m && Number.isFinite(m.x)) return { x: m.x, y: numOr(m.y, 0), z: m.z };
+    return p && Number.isFinite(p.x) ? { x: p.x, y: 0, z: p.z } : null;
+  }
+  /** The lifts due at a trip's start (loop.liftDue(): owned, not lifted, in price order), one after another. → whether one began. */
+  function beginLifts(ids = null) {
+    if (ctx.flow !== 'playing' || ctx.state.run?.outing !== 'trip') return false;
+    const due = Array.isArray(ids) ? ids : safe(() => loopApi()?.liftDue?.(), []);
+    const q = (Array.isArray(due) ? due : []).filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i && !!placeOf(id));
+    if (!q.length) return false;
+    if (S.lift) { for (const id of q) if (S.lift.cur?.id !== id && !S.lift.queue.includes(id)) S.lift.queue.push(id); return true; }
+    S.lift = { queue: q, cur: null };
+    nextLift();
+    return true;
+  }
+  function nextLift() {
+    const L = S.lift;
+    const id = L?.queue.shift();
+    if (!id) { endLifts(); return; }
+    const reduced = reducedMotion() === true;
+    const c = { id, name: placeOf(id)?.name ?? id, t: 0, phase: 'start', thin: reduced ? 0 : LIFT.thin, reduced };
+    L.cur = c;
+    ctx.cinematic = false; ctx.cinematic = true;   // (each lift a fresh valve; the evening's clock stands still, T14's rule)
+    emit('place:lift', { placeId: id, phase: 'start', name: c.name });
+    try { ctx.world?.liftMist?.(id, c.thin); } catch (e) { report('world.liftMist', e); }
+    const p = landmarkOf(id);
+    if (p) { try { ctx.render?.frameLandmark?.(p, { dur: c.thin + LIFT.title, back: LIFT.back }); } catch (e) { report('render.frameLandmark', e); } }
+    if (c.thin <= 0) toTitle(c);   // reduced motion: no thinning, the title still shows
+  }
+  function toTitle(c) { c.phase = 'title'; emit('place:lift', { placeId: c.id, phase: 'title', name: c.name }); }
+  /** The running lift's end: {phase: 'end'}, markLifted (written only now: a reload mid-lift replays it), the places synced. */
+  function endLift(skipped = false) {
+    const c = S.lift?.cur;
+    if (!c) return;
+    S.lift.cur = null;
+    if (skipped) {   // a tap or a skip key: the bank gone at once and the camera back
+      try { ctx.world?.liftMist?.(c.id, 0); } catch (e) { report('world.liftMist', e); }
+      try { ctx.render?.frameLandmark?.(null, { back: LIFT.back }); } catch (e) { report('render.frameLandmark', e); }
+    }
+    c.phase = 'end';
+    emit('place:lift', { placeId: c.id, phase: 'end', name: c.name });
+    try { loopApi()?.markLifted?.(c.id); } catch (e) { report('loop.markLifted', e); }
+    syncPlaces();
+    if (S.lift?.queue.length) nextLift(); else endLifts();
+  }
+  function endLifts() { S.lift = null; ctx.cinematic = false; }
+  /** The lift's clock (main's frame, real seconds while the game runs). */
+  function update(dt) {
+    const c = S.lift?.cur;
+    if (!c) return;
+    if (ctx.flow !== 'playing' || !ctx.state.run) { S.lift = null; return; }   // (a lift never outlives its trip)
+    if (ctx.paused || !(dt > 0)) return;
+    c.t += Math.min(dt, 0.25);
+    if (c.phase === 'start' && c.t >= c.thin) toTitle(c);
+    if (c.phase === 'title' && c.t >= c.thin + LIFT.title) endLift(false);
+  }
+  /** A tap or a skip key during a lift: it ends at once (marked); the next due one follows. */
+  function skipLift() { if (!S.lift?.cur) return false; endLift(true); return true; }
+
   /** Flow `home`, the Jetty (PLAN §2.2 item 7). */
   function enterHome(from = 'title', tally = null) {
     const start = raftNow();
@@ -90,6 +206,7 @@ export function createLoopHome(deps) {
     ctx.state.run = null;
     ctx.paused = false;
     S.sailing = false;
+    S.lift = null;
     if (S.glide) { S.glide.over = true; S.glide = null; }
     closeScreens();
     const L = loopApi();
@@ -105,9 +222,29 @@ export function createLoopHome(deps) {
       ctx.bus.emit('home:enter', { from, tally });
       save();
     };
+    // >>> M1 step 5b (LANE 5B-TOW; OPENING §6.2 rev. 5): while the opening's tow is still to play (a fresh save's film hand-off, Start
+    // with no film, or Continue before the tow began) the opening starts at the Landing on the Chart and plays the first tow
+    // (src/loop-tow.js); its glide in ends here, at `arrive` (Murk moored, home:enter, the save). Without the tow: 5a's hand-off below.
+    if ((from === 'intro' || from === 'new' || from === 'title') && typeof deps.tow === 'function') {
+      if (from === 'intro') moorMurk();
+      const T = safe(() => deps.tow(), null);
+      if (T && safe(() => T.opening({ from, arrive: () => arrive() }), false) === true) { save(); return true; }
+    }
+    // <<< M1 step 5b
     if (from === 'trip') {
-      // the sail home: 2 s of raft speed toward the Jetty's dock; the clams were paid and saved before it started (R3: the snap to
-      // the dock lands in the task that opens the tally)
+      // the sail home: 2 s toward the Jetty; the clams were paid and saved before it started. With the home barge (M1 step 5a) the
+      // glide ends at its stern, the raft's tie-up (docks[0]): straight in or through the mooring's lane, at most LOOP.barge.reach
+      // m of it (a longer way begins that far out, the camera put there with the raft); the tally opens as it ties up
+      const M = mooring();
+      if (M && start) {
+        const g = glideInPath(start, M, { reach: numOr(LOOPD.barge?.reach, 24), pad: raftPad(), obstacles: obstacleList() });
+        if (g && g.len > 0.05) {
+          if (g.cut) teleport({ x: g.path[0][0], z: g.path[0][1] }, headingOf(g.path));
+          homeGlide(g.path, { duration: numOr(LOOPD.time?.home, 2), kind: 'home', to: M.raft, yaw: M.raft.yaw, done: () => arrive() });
+          if (g.cut) snapCamera();   // (the sail framing on the raft where the glide begins: the glide is running, so not the home's)
+        } else { teleportHome(); arrive(); }
+        return true;
+      }
       const path = dock && start ? homeGlidePath(start, dock.position, numOr(LOOPD.time?.raftSpeed, 6), 2) : null;
       if (path) homeGlide(path, { duration: 2, kind: 'home', to: dock.position, yaw: dock.yaw, done: () => arrive() });
       else { teleportHome(); arrive(); }
@@ -117,17 +254,28 @@ export function createLoopHome(deps) {
       // the hand-off (PLAN CHOICE 35): Murk moored and the save written at once (the seen film, the Wick and the tutorial reach the
       // disk before the glide), then 3 s from where the film left the raft to the first dock
       moorMurk();
+      towed();
       save();
       const d = start && dock ? Math.hypot(dock.position.x - start.x, dock.position.z - start.z) : 0;
-      if (d > 0.05) homeGlide([[start.x, start.z], [dock.position.x, dock.position.z]], { duration: numOr(TUT.arrive, 3), kind: 'home', to: dock.position, yaw: dock.yaw, done: () => arrive({ moored: true }) });
+      // (the home barge: the glide in reaches the stern through the mooring's lane when the straight way crosses a hull)
+      const M = mooring(), g = M && d > 0.05 ? glideInPath(start, M, { pad: raftPad(), obstacles: obstacleList() }) : null;
+      const path = g && !g.cut ? g.path : [[start?.x, start?.z], [dock?.position.x, dock?.position.z]];
+      if (d > 0.05) homeGlide(path, { duration: numOr(TUT.arrive, 3), kind: 'home', to: dock.position, yaw: dock.yaw, done: () => arrive({ moored: true }) });
       else { teleportHome(); arrive({ moored: true }); }
       return true;
     }
+    if (from === 'new') towed();
     teleportHome();
-    try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); }   // (no glide from the title: the Jetty on the cut)
+    snapCamera();   // (no glide from the title: the Jetty on the cut)
     arrive();
     return true;
   }
+  /** The opening's barge (M1 step 5a; step 5b's tow writes the same): the barge lies at the first water, its tow played. */
+  function towed() { try { loopApi()?.towBarge?.(LAKE); } catch (e) { report('loop.towBarge', e); } }
+  function snapCamera() { try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); } }
+  const raftPad = () => numOr(data?.BALANCE?.move?.raftRadius, 1.6);
+  const obstacleList = () => { const o = safe(() => ctx.world?.getObstacles?.(), null); return Array.isArray(o) ? o : null; };
+  const headingOf = (P) => (P.length >= 2 ? Math.atan2(-(P[1][0] - P[0][0]), -(P[1][1] - P[0][1])) : 0);
 
   /** A trip (PLAN §2.2 item 3): the evening on the water, created by progression's loop; on failure the Wick stays home. */
   function startTrip(opts = {}) {
@@ -149,8 +297,9 @@ export function createLoopHome(deps) {
     savedRun.set(null);
     ctx.paused = false;
     S.sailing = false; S.glide = null;
-    // Murk stays home (M1 step 5 drops this line: his barge is moored beside the home barge, PLAN rev. 9)
-    try { ctx.actors?.merchant?.leave?.({ instant: true }); } catch (e) { report('merchant.leave', e); }
+    // Murk stays moored beside the home barge through the evening (M1 step 5a: no merchant.leave; PLAN rev. 9's T29: no
+    // merchant:arrive and no Trade pill on a trip); moored again before the Sail's zone:change, so nothing unmoors him
+    moorMurk();
     closeScreens();
     setFlow('playing');
     // the lake is already on screen: render does not flash, audio plays `setout`, ui shows no banner (PLAN §3.6)
@@ -159,6 +308,7 @@ export function createLoopHome(deps) {
     // the player's run:start listener put the raft at the lake's spawn: back where the glide out ended, before any frame (R16)
     if (opts.at?.position) teleport(opts.at.position, opts.at.yaw);
     save();
+    beginLifts();   // M1 step 3a: the mist lifts over each place bought since the last evening (PLAN CHOICE 8)
     return true;
   }
 
@@ -206,8 +356,27 @@ export function createLoopHome(deps) {
     if (L?.tutorial?.()?.done !== true) { try { L?.tutorialDone?.(); } catch (e) { report('loop.tutorialDone', e); } }
     closeScreens();   // (a blocking Chart would freeze the glide, R17)
     if (ctx.flow !== 'home') { showLake(water); resetBeats(); ctx.state.run = null; ctx.paused = false; setFlow('home'); teleportHome(); }
-    const dock = dockAt(), at = raftNow();
-    const g = data.sailPlan(dock ? dock.position : at, { x: 0, z: 0 }, TUT, water);
+    // M1 step 3a (PLAN CHOICE 7): Sail toward a place. `place` given (a string, or null for open water) is saved as the pick; with no
+    // `place` the Chart's saved pick of this water is read. An owned place's glide heads for its centre (sailPlan toward it); open
+    // water keeps 1a's authored glide (T66)
+    const given = !!plan && typeof plan === 'object' && Object.prototype.hasOwnProperty.call(plan, 'place');
+    let place = given ? plan.place : null;
+    if (!given) { const pk = safe(() => L?.pick?.(), null); if (pk && pk.water === water) place = pk.place; }
+    if (typeof place !== 'string' || !place) place = null;
+    if (given) safe(() => L?.setPick?.({ water, place }), null);
+    const owned = !!place && (safe(() => L?.state?.()?.maps?.places, null) || []).includes(place);
+    const P = owned ? placeOf(place) : null;
+    const dock = dockAt(), at = raftNow(), from = dock ? dock.position : at;
+    // (toward a place: the data's glide, data.loopSailPlan, which validate-data --loop proves clear of every island and pillar by the
+    // raft's radius + 0.3 m (the Lily Maze's own authored `out` bends round the statue off the Jetty); should the live obstacles ever
+    // disagree, its bearing turned the least that keeps it clear (placeGlide); none clear: open water's glide)
+    const obstacles = safe(() => ctx.world?.getObstacles?.(), null), obs = Array.isArray(obstacles) ? obstacles : [];
+    const clear = numOr(data.BALANCE?.move?.raftRadius, 1.6) + 0.3;
+    const gd = P && Number.isFinite(P.x) && from && typeof data.loopSailPlan === 'function' ? safe(() => data.loopSailPlan(from, { water, place }, TUT), null) : null;
+    const gp = gd && glideClearance(gd.path, obs) >= clear ? gd
+      : P && Number.isFinite(P.x) && from ? placeGlide(data.sailPlan, from, { x: P.x, z: P.z }, TUT, obs, { clear }) : null;
+    const g = gp || data.sailPlan(from, { x: 0, z: 0 }, TUT, water);
+    S.sailPlace = gp ? place : null;
     S.sailing = true;
     const go = () => {
       if (!S.sailing) return;
@@ -237,9 +406,21 @@ export function createLoopHome(deps) {
   }
 
   return {
-    enterHome, startTrip, endTripHome, beginIntro, sail, canGoHome, goHome, skipHomeGlide, loopApi,
+    enterHome, startTrip, endTripHome, beginIntro, sail, canGoHome, goHome, skipHomeGlide, loopApi, moorMurk,
+    /** M1 step 5b (LANE 5B-TOW): a home glide for the tow's glide in (a tap or a skip key ends it at its end, as every home glide). */
+    glideHome: (path, o) => homeGlide(path, o),
     /** A home glide is running: its kind ('home' | 'sailOut') or null. */
     gliding: () => (S.glide ? S.glide.kind : null),
     get sailing() { return S.sailing; },
+    // M1 step 3a
+    update, skipLift, syncPlaces, placesNow,
+    /** Play the lifts of these places now (a trip only; the debug hook's): → whether one began or was queued. */
+    beginLifts: (ids) => beginLifts(ids),
+    /** The place whose lift is playing, or null (game.lifting()). */
+    lifting: () => S.lift?.cur?.id ?? null,
+    /** The running lift's readout {placeId, phase, t, queue} (debug), or null. */
+    liftState: () => (S.lift?.cur ? { placeId: S.lift.cur.id, phase: S.lift.cur.phase, t: Math.round(S.lift.cur.t * 100) / 100, queue: S.lift.queue.slice() } : null),
+    /** The place the last Sail headed for (null: open water). */
+    get sailPlace() { return S.sailPlace ?? null; },
   };
 }

@@ -27,6 +27,7 @@ import { createMarket } from './progression-market.js';
 import { createAutofish } from './progression-af.js';
 import * as V3H from './progression-v3.js';
 import { createLoop } from './progression-loop.js';
+import { raftStats } from './loop-gear.js';   // M1 step 4 (lane 4): the raft's parts on a trip's stats
 import * as DATA from './data.js';
 
 /**
@@ -194,6 +195,8 @@ export function create(ctx) {
     const wid = typeof d.loopWickId === 'function' ? d.loopWickId(r.character) : 'wick';
     const add = d.LOOP?.wicks?.[wid]?.stats || {};
     for (const k in add) { const v = add[k]; if (typeof v === 'number' && k in out) out[k] += v; }
+    // M1 step 4 (lane 4, SPEC §7): the Oars' speed (+1.5 m/s a level) and the Lantern's light (15% farther a level)
+    { const rs = raftStats(d, L); if ('moveSpeed' in out) out.moveSpeed += rs.speed; if ('lightRadius' in out) out.lightRadius *= rs.light; }
     for (const k in STATS) {
       const s = STATS[k];
       let v = Math.round(out[k] * 1e6) / 1e6;
@@ -535,6 +538,17 @@ export function create(ctx) {
   function restorePendingTrip() {
     const r = run();
     try { loop.refundOpenBite(); } catch (e) { report('loop.refundOpenBite', e); }
+    // M1 step 5c (lane 5C): a find still on its card at the close reopens there (fishing:found {restored: true}, ui-finds), never lost
+    try {
+      const fe = loop.restoreFind?.() ?? null;
+      if (fe) {
+        const fRun = r.id;
+        Promise.resolve().then(() => {
+          const now = run();
+          if (now && now.id === fRun && now.active !== false) ctx.bus.emit('fishing:found', { findId: fe.find, waterKey: fe.waterKey ?? null, uid: fe.uid, kind: fe.kind ?? null, grade: fe.grade ?? null, entry: fe, restored: true });
+        });
+      }
+    } catch (e) { report('loop.restoreFind', e); }
     const list = Array.isArray(r?.flags?.pendingCatch) ? r.flags.pendingCatch : [];
     delete r.flags.pendingCatch;
     const back = [];
@@ -791,7 +805,7 @@ export function create(ctx) {
     if (V3()) { r.flags.prevItem = null; r.equipped = r.equippedBait ?? null; }
     ctx.bus.emit('bait:change', { baitId: r.equippedBait });
     const b = bait(id);
-    if (b && !b.legend) toast(`Out of ${b.name}.${r.equippedBait ? ` ${bait(r.equippedBait)?.name} on the hook.` : ' A bare hook it is.'}`, 'info');
+    if (b && !b.legend && r.outing !== 'trip') toast(`Out of ${b.name}.${r.equippedBait ? ` ${bait(r.equippedBait)?.name} on the hook.` : ' A bare hook it is.'}`, 'info');
   }
   /** Called by fishing once per cast. Legend baits are spent only when their legend is hooked. */
   function consumeBait() {
@@ -1081,6 +1095,10 @@ export function create(ctx) {
         if (firstShells > 0) addShells(firstShells, 'journal');
       }
       if (lp) {
+        // M1 step 3a: a giant's fish carries `giant` (the hold's gold edge, the tally's last place); the best fish there (meta.loop.best)
+        if (sp.giant === true) fish.giant = true;
+        try { loop.noteBest(fish, fish.waterKey); } catch (e) { report('loop.noteBest', e); }
+        try { loop.notePrint?.(fish, sp, cls); } catch (e) { report('loop.notePrint', e); }   // M1 step 5b: the ink print, kept or let go
         // the Wick's ledger in the same save as the Journal (WICKS §2.1), then the card: the fish waits there, measured
         try { loopIn.noteFirst(fish, sp, cls); } catch (e) { report('loop.noteFirst', e); }
         fish.measured = true;
@@ -1851,9 +1869,12 @@ export function create(ctx) {
     } else f.streak = 0;
     market.bountyEvent('hook', { perfect: !!perfect, streak: f.streak });
     challenges.evaluate(['perfectHooks']);
-    // a legend bait is spent the moment its legend is hooked
+    // a legend bait is spent the moment its legend is hooked; on a trip only through the ledger's spendBait (M1 step 3a, PLAN CHOICE 5:
+    // once a bite, so fishing's own call at her hook and this one spend one ball between them)
     const sp = species(speciesId);
-    if (sp?.rarity === 'legendary' && sp.bait && (r.bait?.[sp.bait] | 0) > 0) {
+    if (sp?.rarity === 'legendary' && sp.bait && loop && tripRun(r)) {
+      if (loop.spendBait(sp.bait)) afterBaitSpent(sp.bait);
+    } else if (sp?.rarity === 'legendary' && sp.bait && (r.bait?.[sp.bait] | 0) > 0) {
       r.bait[sp.bait] -= 1;
       afterBaitSpent(sp.bait);
     }

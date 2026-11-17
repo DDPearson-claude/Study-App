@@ -7,8 +7,10 @@
 // Vocabulary: Embers = health (hearts), Cinders = XP dropped by gloomlings, Shells =
 // run currency, Memories = meta currency, Relics = permanent upgrades.
 
-import { rosterSpecies, rosterItemNames } from './roster-species.js';
+import { rosterSpecies, rosterItemNames, HOUR_WINDOWS } from './roster-species.js';
 import { ROSTER_SHIPPED } from './roster-shipped.js';
+import { findShares as findSharesOf } from './loop-finds.js';   // M1 step 5c (lane 5C): the finds' one draw, pure
+import { HOOK_ITEMS as WC_HOOK_ITEMS, gradeTargets as wcGradeTargets, gradeOf as wcGradeOf } from './watercraft.js';   // the sheet (SHEET.md §8.1): the Hold rule's targets, pure
 
 // =====================================================================================
 // STATS (DESIGN §6–§10) — every stat key the game reads. base = value before
@@ -3176,14 +3178,31 @@ export const ROSTER_ART = {
   overbold_bass:  { prefers: 'mist', model: { shape: 'perch', body: 0x5f5a4c, belly: 0xc9c2ad, fin: 0x3a3c40, glow: null, pattern: 'stripes', eyes: 'normal', scale: 0.85 } },
   rustfin_sucker: { prefers: 'hush', model: { shape: 'carp', body: 0x646a74, belly: 0xd6d2c6, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 1.0, barbels: 'none' } },
   milkeye_perch:  { prefers: 'mist', model: { shape: 'perch', body: 0x6a707a, belly: 0xe2ddd0, fin: 0x4a4e58, glow: 0xd8d0ff, pattern: 'stripes', eyes: 'glow', scale: 1.1 } },
+  // M1 step 3a (ROSTER §3.1, §4): the two giants and the Kissmark Trout, with the plan parameters models-fish.js builds them from (read
+  // only under the loop, PLAN CHOICE 14): the pike's upright bars and amber eye rim; the lamprey's toothed disc mouth and its seven gill
+  // holes lit lavender; the trout's fatty fin, plain jaw, ivory star-spots and one pale round scar. No glow on any body. The lamprey's
+  // and the trout's bellies are a cool stone (lane A's look: a warm stone-white mixed into their flanks read gold-bronze under the
+  // show's candle light, where the Starlit palette wants ink and slate)
+  thousandcast_pike: { prefers: 'mist', model: { shape: 'pike', body: 0xd4cec0, belly: 0xe8e2d4, fin: 0x8a4b3a, glow: null, pattern: 'stripes', eyes: 'normal', scale: 1.45,
+    bars: 'upright', eyeRim: 'amber' } },
+  hullkiss_lamprey:  { prefers: 'drip', model: { shape: 'lamprey', body: 0x1c1a2a, belly: 0xc6c2cc, fin: 0x2a2838, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
+    mouth: 'disc', teeth: 'amber', gills: 7, gillGlow: 0xb8b0ee } },
+  kissmark_trout:    { prefers: 'hush', model: { shape: 'trout', body: 0x5a6270, belly: 0xd0d0d2, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.2,
+    fattyFin: true, jaw: 'plain', spots: 'stars', scar: true } },
+  // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
+  // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
+  bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
 };
 // The loop's own body keys (pounds SPEC §6.4 rule 2): a roster fish whose cousin is more than ±30% off its plan's k gets a key of its own,
 // a plain build word, never a species' name. The Milkeye Perch (a slim, pike-built perch: perch 0.013 would be +37%) and the Rustfin
 // Sucker (a slimmer bottom fish than a carp: carp 0.016 would be +45%). Each value is the cousin's weight at the fish's L50 (roster.json's
 // docs-only reference, checked ±30% by tools/sim/roster-check.mjs). Merged into BALANCE_V3.size.k under the loop only.
-export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011 };
-/** The loop's species table for the shipped waters (M1 step 2: the Mossmere's 11 open-water fish), built by the converter in the apply
- *  block; empty off the loop. SPECIES under the loop holds these in place of the built records of the same ids. */
+// M1 step 3a adds the lamprey plan's key (SPEC §6.4 rule 1: a new plan's k from a real cousin, here the eel's 0.0022: an adult lamprey
+// runs about 0.8 kg at 70 cm, the roster's docs-only reference weight), merged under the loop only so v3's size table is untouched.
+export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011, lamprey: 0.0022 };
+/** The loop's species table for the shipped waters (M1 step 2: the Mossmere's 11 open-water fish; M1 step 3a: its open water's twelve,
+ *  then its places' own fish and giants, 15), built by the converter in the apply block; empty off the loop. SPECIES under the loop holds
+ *  these in place of the built records of the same ids. */
 export const SPECIES_LOOP = [];
 // Elder names (brief §5.8): "Old Ninefin". A name is pre + core + suffix, seeded by the fish; lakes lend the core.
 export const ELDER_NAMES = {
@@ -4793,7 +4812,7 @@ export const LOOP = {
     rarity: { common: 1, uncommon: 2.4, rare: 5.5, epic: 12 }, body: { ref: 45, exp: 0.5, clamp: [0.6, 1.6] }, legendRematch: 0.4 },
   priceFactor: 1,                    // the balancing job's one common price factor (WICKS §3.2): ×1.0 in 1a, tuned in 1b
   // ---- the hold (SPEC §3.1, §4.2): holdSlots is the bought count (3–8) for every Wick; a Wick's slots are wickSlots / loopSlots
-  hold: { start: 3, max: 8, shelfMax: 5,             // shelfMax: the 1a shelf stops at Hold 5 (PLAN CHOICE 11); raised in slice 2
+  hold: { start: 3, max: 8, shelfMax: 6,             // shelfMax: the shelf's last hold step (1a: Hold 5, PLAN CHOICE 11; M1 step 3a: Hold 6, the Wellbox, M1 §2.5)
     ladder: [{ slots: 4, price: 30, name: 'Lidded Creel' }, { slots: 5, price: 120, name: 'Double Creel' },
       { slots: 6, price: 450, name: 'Wellbox' }, { slots: 7, price: 2000, name: 'Ferry Hamper' },
       { slots: 8, price: 3500, name: 'Harbour Chest' }], startName: 'Wicker Creel' },
@@ -4821,9 +4840,11 @@ export const LOOP = {
   shipped: 'mossmere',
   // the Mossmere's open water as SPECIES_LOOP ships it (M1.md §2.3), in the Journal's order: the roster's eight on built plans and the
   // three built species the roster keeps (`kept`; the Lampsipper's phase-2 record lifted past the loop's phase pin)
+  // (M1 step 3a: twelve with the Kissmark Trout, on its new plan; the places' own fish and giants follow them in SPECIES_LOOP, from
+  // LOOP.places' `own` and `giant` in the Chart's order)
   species: { mossmere: ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper',
-    'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'reedjaw_pike'] },
-  kept: ['gutter_crayfish', 'candlefin_koi', 'lampsipper'],
+    'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'] },
+  kept: ['gutter_crayfish', 'candlefin_koi', 'lampsipper', 'bridgechain_sturgeon'],   // M1 step 3a: + the Bridgechain (phase 2, lifted)
   leaps: { overbold_bass: 0.3 },     // a roster fish's leap chance (AUTOFISH.leaps under the loop): the bass "jumps on the first run"
   // the visit home and the trip's fixed times (the sim's; T37 measures them). show 0: AUTOFISH.time.ceremony holds the show (PLAN CHOICE 15)
   time: { out: 14, between: 8, raftSpeed: 6, home: 2, sale: 5.8, shop: 16, pass: 0.9, show: 0 },
@@ -4840,13 +4861,70 @@ export const LOOP = {
   // ---- the opening's tutorial at home (docs/loop/OPENING.md §6, PLAN §5.5): seconds, metres, the Mossmere's glide out
   tutorial: { arrive: 3, out: 3, chartWait: 3, slotInk: 0.25, castTipAfter: 1.5, outDist: 15,
     outPath: { mossmere: [[24, 38], [16, 25.3]] }, budget: { reference: 20, tapThrough: 8, max: 45 } },
+  // ---- M1 step 3a (SPEC §5.1–§5.2, M1.md §2.4; docs/loop/m1-step3a/PLAN.md §3.1): the Mossmere's four places, in the Chart's order
+  // (day, old, night, crown). Their geometry, name, landmark, look and build are MOSSMERE_V3.places' records of the same id (loopPlace
+  // merges them; the apply block copies them into the arena through LOOP_PLACE_KEYS); this table holds only what the loop decides: the
+  // kind, the map's price (LOOP.waters[water].prices[kind]), the fish its card names, its giant, its own fish, the open-water fish it
+  // draws (× weight) and its crown's legend. Never in LOOP.waters[w].places (a lake map's places, migrateLoop rule 5; PLAN CHOICE 1).
+  places: {
+    // `out`: a place's own glide out from the Jetty when the straight one toward its centre would graze a pillar (PLAN CHOICE 7; the
+    // Lily Maze's passes the statue at (8, 36) within 0.5 m of its collision, so it bends south of it: 15.3 m, 4.6 m clear; loopSailPlan)
+    lily_maze:      { water: 'mossmere', kind: 'day',   price: 60,  card: 'candlefin_koi',     draws: { candlefin_koi: 3, weeping_carp: 1.5 },
+      out: [[24, 38], [18, 32.5], [11, 31]] },
+    under_the_span: { water: 'mossmere', kind: 'old',   price: 150, card: 'thousandcast_pike', giant: 'thousandcast_pike', own: ['bridgechain_sturgeon'] },
+    buoy_lights:    { water: 'mossmere', kind: 'night', price: 260, card: 'hullkiss_lamprey',  giant: 'hullkiss_lamprey' },
+    bell_pool:      { water: 'mossmere', kind: 'crown', price: 500, card: 'belled_matriarch',  legend: 'belled_matriarch' },
+  },
+  // the place pool (the sim's, moved from tools/sim/clams.mjs's draft, T42): a common at a place ×common; a day water's open uncommon
+  // and rare ×dayDraw; a fish of a kind of place (the Gloam Eel's night water) ×kindWeight; a place's own fish a rare's weight × kept
+  // (weight × live); the place favour base + its kind's window (day +0.55 … crown +0.35, SPEC §3.3)
+  place: { common: 0.5, dayDraw: 1.5, kindWeight: 2.5, kept: { weight: 3, live: 0.5 },
+    favour: { base: 0.15, window: { day: 0.4, old: 0.4, night: 0.3, crown: 0.2 } } },
+  // the rare giants (SPEC §3.5, decision 7; M1.md §2.4): a fixed share of the bites at its own place (inHour in its hours, offHour outside
+  // them: more in its hour, never none), +favour, never Small (minZ), +10 Fight over a rare (+2 more as an Elder); a lost giant is a
+  // Marked Fish at its place (+6 Hold on its next hook, once, for every Wick)
+  giant: { share: { inHour: 0.06, offHour: 0.025 }, favour: 0.3, minZ: -0.25, fight: 10, elderFight: 2, markedHold: 6 },
+  legendBait: { mossmere: { id: 'heartmoss', price: 60 } },   // a legend's bait, one try (SPEC §4.6); the built BAITS row keeps its own price
+  lift: { thin: 3, title: 1.2, back: 0.6 },                    // the first evening's lift, in seconds (SPEC §5.1 rule 7)
+  // the giant's back in a standing bank: every 25–45 s for 2 s, "on clear nights" (SPEC §5.1 rule 6; the loop has no weather: PLAN CHOICE 10)
+  giantBack: { every: [25, 45], dur: 3, phases: ['gloomtide'], places: ['under_the_span', 'buoy_lights'] },   // (3 s: the fix pass; 2 s read as a blink)
+  mist: { inside: 0.35, ease: 0.8 },   // a bank's whole opacity while the raft is inside its footprint, and the ease (s): never a clearing
+  // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches), built only behind this switch: false unless the dev
+  // URL flag ?redress=1 (core.js, read once beside ?loop; PLAN CHOICE 13). The user's yes flips the data value in a commit of its own.
+  redress: LOOP_ENABLED && globalThis.GW_REDRESS === true,
+  // Murk's prices (the user, 16 Nov 2026: "The cost of items in murks shop should be way higher", then "For now just double the original
+  // costs ill playtest and tell you how it is"): every shelf price (tackle, hold, maps, lures, tins, raft, home) is its base × factor,
+  // applied once by progression-loop's mapCards and shelfItems; nothing earned changes. A preset GW_LOOP_COST (a positive number) sets
+  // it, so a build or a preview can play at ×2 while the tests keep base prices (WATERCRAFT.md §8, step P, settles the default).
+  cost: { factor: (Number(globalThis.GW_LOOP_COST) > 0 ? Number(globalThis.GW_LOOP_COST) : 1) },
+  // ---- M1 step 5a, the home barge (SPEC §6.1, §6.5; M1.md §4 step 5): the Slow Hearth, about 12 × 3.6 m, its hull a row of keel
+  // circles in the lake's obstacles (the raft's collision, the water's foam and the validator read them), Murk's barge its own
+  barge: { length: 12, beam: 3.6, keel: { n: 5, r: 1.8, step: 2.4 }, murkR: 2.4,
+    // the glide in (the sail home, the film's hand-off): its last stretch is the mooring's lane, so it reaches the stern from open
+    // water; `reach` m of it at most in the sail home's 2 s (twice the raft's speed; past that the glide begins `reach` m out)
+    reach: 24, arc: ['mossmere'] },   // arc I's stones on the sill, in road order (the reach's waters as each ships)
+  // one mooring per water (SPEC §6.5): the Mossmere's is the Jetty, docks[0]; the raft's tie-up at the stern IS docks[dock] (PLAN
+  // CHOICE 44's place); hull {x, z, yaw} the Slow Hearth's centre and heading (yaw 0: the bow faces −Z), murk Murk's barge (his
+  // facing in the docks' convention), lane the glide in's points before the tie-up (the glide out, reversed), cam the home camera
+  // (pos, look, fov; `portrait` for a screen taller than wide, its lens keeping its across angle from the aspect `across` on, and
+  // in the blend band closing by `tight` with its look `lift` m higher, eased in from `across` on;
+  // `blend` the aspects W / H between which the two ease into each other, a tablet held sideways, a 4:3 or a square window:
+  // homeCamAt)
+  mooring: {
+    mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [29.23, 4.5, 23.49], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } },
+  },
 };
 export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)
   holdFull: "Hold's full.", home: 'Home', keep: 'Keep', letGo: 'Let go', sold: 'Sold', yours: 'Yours.', odds: 'Odds ›',
   sail: 'Sail', resume: 'Resume', continue: 'Continue', next: 'Next: {name} · {price}', holdName: 'Hold {n}',
-  tabs: { tackle: 'Tackle', raft: 'Raft', bait: 'Bait', maps: 'Maps', home: 'Home' },
-  jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal' },
-  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Holds every fish better.', reel: 'Holds every fish better.' },
+  tabs: { tackle: 'Tackle', raft: 'Raft', bait: 'Bait', maps: 'Maps', home: 'Home', giants: 'Giants' },   // giants: the ★ tab's accessible name only (PLAN CHOICE 25)
+  jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal', wall: 'The Long Wall' },   // (wall: the doorway's accessible name only, SPEC §6.3's; no word is drawn under it)
+  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Holds every fish better.', reel: 'Holds every fish better.',
+    heartmoss: 'For the Belled Matriarch. One try.' },   // a legend's bait (SPEC §8.4)
+  // the place maps' lines (SPEC §5.2's table), one per place, each ≤ 8 words
+  maps: { lily_maze: 'Koi glow under the pads like lanterns.', under_the_span: 'The bridge kept its chain. Something kept it.',
+    buoy_lights: 'The harbour lights went under, still lit.', bell_pool: 'The moon looks in on the old bell.' },
   murk: { empty: 'Nothing? The water keeps its own counsel. Go again.',
     wake: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it.",
     firstChart: 'Three slots in that hold. Fill them and come home.',
@@ -4855,7 +4933,10 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
     firstQuiet: 'Quiet water. Move on, or go home.',
     firstLetGo: 'Let one go and the water remembers.',
     firstTrophy: "Now that's a fish.",
-    sailOut: ['Bring me something with a story.', 'The big ones come up at dusk. They always did.', 'Back already? Good. Out you go.'] },
+    sailOut: ['Bring me something with a story.', 'The big ones come up at dusk. They always did.', 'Back already? Good. Out you go.'],
+    // M1 step 3a: SPEC §8.6's lines, exactly (each said once a save)
+    firstMap: "It's in the mist. Go and look.", firstGiant: 'That one had a name before you met it.',
+    legendFirst: "Her. You brought me her. Sit down, I'll count it twice.", listComplete: "Every fish in this water. I'll write that down." },
   // the opening (SPEC §8.5): the user's New Descent and Start; Back; the five passives' names and lines (WICKS §2, one line each;
   // the names shown and four lines made plainer for the user's "more obvious what it does", 16 November 2026, WICKS §7.4)
   newDescent: 'New Descent', start: 'Start', back: 'Back',
@@ -4869,6 +4950,98 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
     hurry: 'From your second evening, hold anywhere to hurry a small fish in. It never changes the outcome' },
   forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm: 'Every clam, every piece of gear and every name in the Journal will be lost.' },
 };   // no tagline: §8.5 gives none, so the loop's title draws none (the lead's ruling, PLAN §7.2)
+// >>> MVP teach (the user's play-test, 16 November 2026: "add a one-time teaching moment for both"): the float's two marks, each
+// explained once by an ink caption with a leader to it (src/ui-teach.js; ≤ 6 words, no number). The quiet water is Murk's firstQuiet.
+TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
+// <<< MVP teach
+
+// >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
+// Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; LOOP and TEXT_LOOP are not in the v3
+// fingerprint). The values are the sim's draft tables (tools/sim/clams.mjs: familyLures, giantsLures, baitRule, bait, tinSize, raft,
+// home.orders); tools/tests/loop-4.test.mjs checks they agree. `with` is the water (catalogue order) whose map puts a level on the
+// shelf (SPEC §4.7's "on the shelf with", decision 38): 1 the start; Keel III the Pallid Deep's (4), Order Board III Glasswater's (3).
+LOOP.lures = {
+  // the Mossmere's four (SPEC §4.4): three family lures (+5 / +6 Hold on their family, drawn × their built `attract`) and its giants'
+  // lure, re-aimed at its giants (+10 Hold on the fish named, its giants' share × `share`); bought once and kept for good
+  feather_fly:   { water: 'mossmere', price: 50,  family: 'insect' },
+  glimmer_spoon: { water: 'mossmere', price: 90,  family: 'predator' },
+  bone_jig:      { water: 'mossmere', price: 110, family: 'bottom' },
+  bell_spinner:  { water: 'mossmere', price: 180, giants: ['thousandcast_pike', 'hullkiss_lamprey', 'reedjaw_pike'], share: 1.5, hold: 10 },
+};
+// every tin of a water costs grade × its value tier, rounded to 5 (the Mossmere's 10); a tin holds `tin` baits; every tin gives `favour`
+// (every fish runs bigger) and +Hold on the fish that favour it (the larger of the lure's and the bait's, never both)
+LOOP.baitRule = { grade: 1.5, favour: 0.3, tin: 10 };
+LOOP.tins = { mossmere: ['mireworm', 'lumen_moss'] };   // the Mossmere's tins, in the shelf's order (SPEC §4.5: both "first on the shelf with the Mossmere")
+// Cut Strip (SPEC §3.2, §4.5): holding Let go on a Small or a Keeper cuts it into `strips` (free; +0.3 favour and +4 Hold on predators)
+LOOP.cut = { strips: 3, classes: ['small', 'keeper'], hold: 0.6 };
+LOOP.raft = {
+  oars:    { prices: [60, 300], with: [1, 1], speed: 1.5 },               // raft speed +1.5 m/s a level (6 → 9)
+  keel:    { prices: [100, 600, 3000], with: [1, 1, 4], favour: 0.1 },   // every fish runs a little bigger: favour +0.1 everywhere a level
+  lantern: { prices: [100, 500], with: [1, 1], favour: 0.1, light: 0.15 },   // night fish bigger (+0.1 after dark a level); the light 15% farther a level
+};
+LOOP.home = Object.assign(LOOP.home || {}, {
+  // Murk's Order Board (SPEC §6.3): 1 / 2 / 3 orders on the bounty engine's shape (progression-loop's orders; src/loop-gear.js)
+  orders: { prices: [70, 400, 4000], with: [1, 1, 3], count: [1, 2, 3] },
+});
+// the orders' rules (SPEC §6.3): two in three ask for a common or uncommon fish; never a giant or the legend; never expiring; every fish
+// that fills one sells for `double` × at the tally. Kinds: `count` ("2 Dusk Minnows"), `class` ("a Prize Weeping Carp"), `heavy` ("a
+// Reedjaw Pike over 9 lb 0 oz": data.weightTarget of the fish's weight at z `heavyZ`, checked on the ounces the card shows)
+LOOP.orders = { common: 2 / 3, double: 2, count: { common: [2, 3], uncommon: [1, 2], rare: [1, 1] }, kinds: { count: 0.6, class: 0.2, heavy: 0.2 },
+  rareKinds: { count: 0.6, heavy: 0.4 }, cls: 'prize', heavyZ: 0.35 };
+// the words (SPEC §8.4's lines, §8.6's line; the names the shelf's cards carry, SPEC §4.7's table). The order phrases are composed of
+// these, the species' names and data.fmtWeight's figures (ui-gear.js orderPhrase; ui-loop's textAllowed reads them)
+Object.assign(TEXT_LOOP.shelf, {
+  feather_fly: '+5 Hold against insect eaters.', glimmer_spoon: '+6 Hold against predators.', bone_jig: '+6 Hold against bottom feeders.',
+  bell_spinner: 'For the Thousandcast Pike.',
+  mireworm: 'For the Mossmere.', lumen_moss: 'The Gloam Eel bites on nothing else.', cut_strip: 'Holds predators better.',
+  oars: 'Faster.', keel: 'Bigger fish.', lantern: 'Bigger fish at night.', orders: 'Orders pay double.',
+});
+TEXT_LOOP.gearNames = { oars: ['Oars I', 'Oars II'], keel: ['Keel I', 'Keel II', 'Keel III'], lantern: ['Lantern I', 'Lantern II'],
+  orders: ["Murk's Order Board I", "Murk's Order Board II", "Murk's Order Board III"] };
+TEXT_LOOP.murk.firstSmall = 'Small ones make good bait. Hold Let go.';
+TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
+// the items' names as the shelf, the slots and the gear log show them (the built LURES / BAITS names, SPEC §4.4, §4.5)
+TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
+  mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip' };
+// <<< M1 step 4 (lane 4)
+// >>> TK, the tackle tin (the user's words of 16 November 2026: "We should have an option to equip bait or change lures whilst out on the
+// lake"; src/ui-tackle.js, CONTRACT §14.19). Few words: the tin's name, the drawer's two rows, its two empties, the one line while a fish
+// is on. The items' names are TEXT_LOOP.gearItems' (and the built BAITS' for the legend's ball); no odds, no likes, no percentage.
+TEXT_LOOP.tackle = { tin: 'Tackle', bait: 'Bait', lure: 'Lure', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' };
+// <<< TK
+
+// >>> WC-1 (docs/loop/WATERCRAFT.md rev. 2 §3.9, §8.1; SPEC v8.7 §8.11, decisions 93–104). Additive: LOOP.cost (Murk's price factor, read
+// by the sim now and applied in the game by the integrator's step P), loopCost and nice, loopLight's export, and the watercraft words.
+// None of these is in the v3 fingerprint (LOOP and TEXT_LOOP are read only under data.LOOP_ENABLED).
+// Murk's price = nice(base × factor); a consumable (a tin, a legend's bait) × consumables. The factor the game ships at is `shipped`:
+// the user, 16 Nov 2026, "For now just double the original costs ill playtest and tell you how it is" (×2; WATERCRAFT.md §8 designed
+// ×3 and the sim fits ×4: the lead's step P may change this one number). Which factor a load plays at (loopCostFactor): a preset
+// GW_LOOP_COST (a positive number) wins; else a browser page plays at its ?cost=N or at `shipped`; node tools and tests keep the base
+// prices (×1) unless they preset GW_LOOP_COST, and the sim's M1 view reads `shipped`. Other keys of a LOOP.cost the build holds stay.
+export const LOOP_COST_SHIPPED = 2;
+/** Pure: the price factor a load plays at, from its globals ({GW_LOOP_COST, document, location}). */
+export function loopCostFactor(g = globalThis) {
+  const preset = Number(g?.GW_LOOP_COST);
+  if (preset > 0) return preset;
+  if (typeof g?.document === 'undefined' || typeof g?.location?.search !== 'string') return 1;
+  let q = null;
+  try { q = new URLSearchParams(g.location.search); } catch { q = null; }
+  const n = q && q.has('cost') ? Number(q.get('cost')) : NaN;
+  return n > 0 ? n : LOOP_COST_SHIPPED;
+}
+LOOP.cost = Object.assign({ consumables: 1 }, LOOP.cost || {}, { factor: loopCostFactor(), shipped: LOOP_COST_SHIPPED });
+// the shelf's one line for each tin and lure (SPEC §8.11, replacing lane 4's family lines; the Spinner's as built)
+Object.assign(TEXT_LOOP.shelf, {
+  mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'Sweet. The Gloam Eel bites on nothing else.', cut_strip: 'Meat, for the hunters.',
+  feather_fly: 'For the fish that rise.', glimmer_spoon: 'Flash, for the hunters.', bone_jig: 'Hopped on the bottom, for the hunters.',
+  bell_spinner: 'For the Thousandcast Pike.',
+});
+// the gear log's words (SPEC §8.11): the Who bites block and a tin's or lure's Hold line (WC-3 renders them)
+TEXT_LOOP.log = Object.assign(TEXT_LOOP.log || {}, {
+  whoBites: 'Who bites', bare: 'Bare hook', under: '<1%', unmet: 'and {n} you have not met',
+  gear: '+{n} Hold on the fish it suits ({m} you have met).',
+});
+// <<< WC-1
 
 // ---- The loop's pure helpers (PLAN §3.1, WICKS §5). Each reads only LOOP and the built size model; the sim calls the same ones.
 /** A fish's clams (SPEC §4.1) on the built size: max(1, round(tier × rarity × body(sizeL50) × clamp(e^(perZ·z)) × classBonus ×
@@ -4895,9 +5068,10 @@ export function wickSlots(holdSlots, wickId) { return (Number(holdSlots) || 0) +
 export function loopSlots(metaLoop, wickId = metaLoop?.wick) { return wickSlots(metaLoop?.holdSlots ?? LOOP.hold.start, wickId); }
 /** Good bites a water gives each evening (SPEC §3.3, WICKS §2.4): open water wickSlots × openPerSlot + openExtra + the Wick's `good`;
  *  a place LOOP.water.good[kind], plus the Wick's `good` where its `everyWater` (Tallow's). holdSlots is the bought count. */
-export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null } = {}) {
+export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null, extra = 0 } = {}) {
   const W = LOOP.water, K = LOOP.wicks[loopWickId(wickId)];
-  if (kind === 'open') return Math.round(wickSlots(holdSlots, wickId) * W.openPerSlot) + W.openExtra + (K?.good || 0);
+  // (M1 step 5c: `extra` is a bite part's +1 at its own water's open water, loop-finds.findBiteBonus; 0 elsewhere and by default)
+  if (kind === 'open') return Math.round(wickSlots(holdSlots, wickId) * W.openPerSlot) + W.openExtra + (K?.good || 0) + Math.max(0, Math.round(Number(extra) || 0));
   return (Number(W.good[kind]) || 0) + (K?.everyWater ? K.good || 0 : 0);
 }
 /** The quiet terms of a bite `over` bites past a water's good bites (SPEC §3.3; the caller counts over, PLAN CHOICE 17): favour
@@ -4907,6 +5081,56 @@ export function quietTerms(over, wickId = null) {
   const step = K.quietStep != null ? -K.quietStep : S.favour;
   return { over: n, favour: n > 0 ? Math.max(S.floor, step * n) : 0, waitMult: K.quietWait === false ? 1 : Math.min(S.waitMax, 1 + S.wait * n) };
 }
+// >>> M1 step 5c (lane 5C: the Mossmere's finds; docs/loop/FINDS.md §10, §5.1, §9; SPEC §4.10, decisions 49–57). Additive: a new LOOP
+// key and new TEXT_LOOP words, read only under data.LOOP_ENABLED (LOOP and TEXT_LOOP are not in the v3 fingerprint). The rules are
+// src/loop-finds.js's (pure); findShares below is the one function the snag roll draws from and the catalogue prints.
+LOOP.finds = {
+  snag: { perBite: 0.05, firstEvening: 0, legendCast: 0 },   // a snag in place of a fish: 1 bite in 20 (est.); never evening 1 or a legend's cast
+  kind: { share: 0.35, step: 0.15, cap: 0.8 },                // of snags, while the water has an unowned part or look (the soft guarantee)
+  parts: { bait: 1, order: 1, bite: 1 },                      // each kind's effect at its own water, capped at one (FINDS §3.2)
+  grades: { plain: { share: 0.54, x: 2 }, fine: { share: 0.29, x: 6 }, precious: { share: 0.12, x: 15 },   // shares of ALL the water's
+    rare: { share: 0.04, x: 50 }, jackpot: { share: 0.01, x: 250 } },                                     // snags (revision 3)
+  haul: { pinch: 2, both: 3, alongside: 4 },                  // s: the slow steady wind, never lost
+  hold: { pinch: 1.2, both: 1.5, alongside: 1.8, jackpot: 2.6 },   // the show's held beat, s (the jackpot a giant's longer beat)
+  tin: 10,                                                    // a tin's baits when LOOP.baitRule (step 4) is not in this build
+  // the Mossmere's eleven (FINDS §5.1): five treasures, three parts (one of each effect), three looks (one per wearer). `size` the
+  // prop's length in metres (the show holds it at its own size), `slot` where a part or a look goes, `bait` the bait part's tin
+  items: [
+    { id: 'tin_spoon', water: 'mossmere', kind: 'treasure', grade: 'plain', pose: 'pinch', size: 0.2 },
+    { id: 'door_ring', water: 'mossmere', kind: 'treasure', grade: 'fine', pose: 'both', size: 0.26 },
+    { id: 'salt_lens', water: 'mossmere', kind: 'treasure', grade: 'precious', pose: 'both', size: 0.2 },
+    { id: 'two_headed_coin', water: 'mossmere', kind: 'treasure', grade: 'rare', pose: 'pinch', size: 0.12 },
+    { id: 'toll_purse', water: 'mossmere', kind: 'treasure', grade: 'jackpot', pose: 'both', size: 0.28 },
+    { id: 'buoy_bell', water: 'mossmere', kind: 'part', effect: 'order', slot: 'bow_post', pose: 'both', size: 0.3 },
+    { id: 'gate_glass', water: 'mossmere', kind: 'part', effect: 'bite', slot: 'cabin_windows', pose: 'both', size: 0.3 },
+    { id: 'moat_bollard', water: 'mossmere', kind: 'part', effect: 'bait', slot: 'stern_deck', pose: 'alongside', size: 0.62, bait: 'mireworm' },
+    { id: 'rod_tassel', water: 'mossmere', kind: 'look', slot: 'wick_rod', wearer: 'wick', pose: 'pinch', size: 0.2 },
+    { id: 'toll_vane', water: 'mossmere', kind: 'look', slot: 'raft_stern_post', wearer: 'raft', pose: 'both', size: 0.4 },
+    { id: 'lily_boxes', water: 'mossmere', kind: 'look', slot: 'barge_window_boxes', wearer: 'barge', pose: 'both', size: 0.46 },
+  ],
+};
+// the words (FINDS §9): each find's name and one line, the catalogue row's heading, Murk's three once-lines
+TEXT_LOOP.finds = {
+  snags: 'Snags', biteIn: '1 bite in {n}',
+  items: {
+    tin_spoon: { name: 'Bent Tin Spoon', line: 'Someone ate every meal with this, slowly.' },
+    door_ring: { name: 'Brass Door-Ring', line: 'Off a door four Wicks tall.' },
+    salt_lens: { name: 'Salt-Glass Lens', line: 'Fitted to a lantern long since drowned.' },
+    two_headed_coin: { name: 'Two-Headed Coin', line: 'Lucky, they said. Heads every time.' },
+    toll_purse: { name: "The Toll-Keeper's Purse", line: 'Full. Nobody came to collect.' },
+    buoy_bell: { name: 'Rust Buoy-Bell', line: 'It rang the boats home once.' },
+    gate_glass: { name: 'Gate Lamp-Glass', line: "Amber, from the Gate's drowned lamps." },
+    moat_bollard: { name: 'Moat Bollard', line: 'Carved stone. Boats tied here for centuries.' },
+    rod_tassel: { name: 'Knotted Rod Tassel', line: 'Every knot, a fish someone was proud of.' },
+    toll_vane: { name: 'Toll-Tower Vane', line: 'It still points into the wind.' },
+    lily_boxes: { name: 'Night-Lily Window Boxes', line: 'A window box, still flowering.' },
+  },
+};
+Object.assign(TEXT_LOOP.murk, { firstTreasure: 'The water keeps what it takes. Mostly.', firstPart: "That'll fit her. I'll see to it by morning.",
+  firstJackpot: "Somebody's whole fortune. Now it's yours." });
+/** M1 step 5c (FINDS §10): the share of the water's next snag for each of its finds as the save stands (pure; loop-finds.js). */
+export function findShares(meta, D = { LOOP, TEXT_LOOP }, waterId = 'mossmere', opts = {}) { return findSharesOf(meta, D, waterId, opts); }
+// <<< M1 step 5c (lane 5C)
 /** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
  *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
  *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the
@@ -4932,6 +5156,300 @@ export function sailPlan(dock, centre = { x: 0, z: 0 }, T = LOOP.tutorial, lake 
   const to = path[path.length - 1], a = path[path.length - 2];
   return { from, to, yaw: Math.atan2(-(to.x - a.x), -(to.z - a.z)), path };
 }
+/** M1 step 3a (PLAN CHOICE 7): the glide out of a Sail toward a water or a place of it, from the dock. A place: its own authored glide
+ *  (LOOP.places[id].out, [[x, z], …], the first point the dock) when it has one, else T.outDist m toward its centre; no place (or one
+ *  LOOP.places does not hold): the water's glide (sailPlan with the lake: its outPath, else toward the lake's centre). validate-data
+ *  --loop proves every one clears each island and pillar by the raft's radius + 0.3 m. */
+export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T = LOOP.tutorial) {
+  const P = place ? LOOP.places?.[place] : null, rec = P ? MOSSMERE_V3.places.find((q) => q.id === place) : null;
+  if (!P || !rec) return sailPlan(dock, { x: 0, z: 0 }, T, water);
+  if (Array.isArray(P.out) && P.out.length >= 2) return sailPlan(dock, { x: rec.x, z: rec.z }, { ...T, outPath: { [place]: P.out } }, place);
+  return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
+}
+
+// >>> M1 step 5b (LANE 5B-TOW): the opening at the Landing and the tow (OPENING.md §6.2 rev. 5, SPEC §6.5, M1.md §2.1, §2.13).
+// The tow is one Chart component every water's first tow reuses (src/loop-tow.js, src/ui-tow.js): its leg on the drawn Chart (the
+// road's piece, the raft's mark towing the barge's on a line, Murk's alongside), one ink dip into the water, then the glide in to the
+// mooring in the water. Seconds and metres; no word of its own (it is felt, never read). Read only under the loop.
+export const LOOP_TOW = {
+  opening: true,                     // the opening starts at the Landing and plays the first tow (false: 5a's hand-off glide)
+  // the leg: `base` s, plus `crossing` s for each lock flight, fall or sea passage on it, never more than `max`; reduced motion inks
+  // it at once and holds `reducedHold` s
+  leg: { base: 4, crossing: 0.5, max: 6, reducedHold: 1.5 },
+  dip: 0.6,                          // the ink dip into the water (in and out; held at full until the water's first frame is drawn)
+  glide: 3,                          // the glide in, the raft at the barge's stern, Murk alongside
+  // the opening's two beats before the tow, on the Chart at the Landing: `dip` the film's last frame into the sheet; `arrive` the
+  // picture alone (a tap ends it early); the wake: the Wick's mark kindles over `kindle` s with Murk's line; `wakeAfter` s after the
+  // line ends (or a tap once it shows) the tow begins
+  landing: { dip: 0.6, arrive: 1.5, kindle: 0.8, wakeAfter: 1 },
+  // each water's leg of the Lamp Road, as the Chart's live layer draws it (CHART_ART.live.pieces): the piece, its direction (the
+  // Sluice Run runs down to the Landing, so the tow goes up it, `reverse`), and the crossings on it as fractions of the way
+  legs: {
+    mossmere: { from: 'landing', piece: 'sluiceRun', reverse: true, crossings: [{ kind: 'locks', at: 0.3 }, { kind: 'fall', at: 0.78 }] },
+  },
+  // the glide in on each water: `d` m out along the barge's own line from its mooring (it comes in bow first, the raft at its stern
+  // on a short line, Murk's barge alongside, all moving as one), eased to rest in `glide` s
+  glideIn: { mossmere: { d: 14, line: 3 } },   // (the raft leads on a `line` m tow line ahead of the bow: loop-tow.towLeadPose)
+  // the glide in's camera: the mooring's own framing drawn back `pull` times its distance at the dip, dollying in as they arrive
+  // (the portrait pose drawn back 1.9 times, turned 30° west round its look point: its straight line back crosses an island; the
+  // landscape's turned 40° west, so Murk's moored barge no longer stands between the lens and the raft leading on its line: east,
+  // the island at (34, 20) blocks the view and the barge's own hull hides the raft)
+  cam: { pull: 2.2, turn: -40, portrait: { pull: 1.9, turn: -30 } },
+};
+LOOP.tow = LOOP_TOW;
+/** The leg's seconds (SPEC §6.5): base + crossing a crossing, at most max; reduced motion its hold. Pure. */
+export function towLegSeconds(leg, { reduced = false } = {}, T = LOOP_TOW) {
+  if (reduced) return Number(T.leg.reducedHold) || 1.5;
+  const n = Array.isArray(leg?.crossings) ? leg.crossings.length : 0;
+  return Math.min(Number(T.leg.max) || 6, (Number(T.leg.base) || 4) + n * (Number(T.leg.crossing) || 0.5));
+}
+/** A water's tow: {water, leg (LOOP_TOW.legs[water]) | null, legS, dip, glide, total}; null for a water with no leg. Pure. */
+export function towPlan(waterId, { reduced = false } = {}, T = LOOP_TOW) {
+  const leg = T.legs?.[waterId] || null;
+  if (!leg) return null;
+  const legS = towLegSeconds(leg, { reduced }, T), dip = Number(T.dip) || 0.6, glide = reduced ? 0 : Number(T.glide) || 3;
+  return { water: waterId, leg, legS, dip, glide, total: legS + dip + glide };
+}
+/**
+ * The glide in's poses (SPEC §6.5): the mooring M (loopMooring's) moved `d` m back along the barge's line, eased to rest. u 0..1 →
+ * {hull: {x, z, yaw}, murk: {x, z, yaw} | null, raft: {x, z, yaw}, stern: {x, z}} (the raft travels the way the barge's bow faces,
+ * so its heading is the barge's yaw). `ease` false: u is already the way travelled (the raft's own glide eases it). Pure.
+ */
+export function towGlidePose(M, u, { d = 14, ease = true } = {}, B = LOOP.barge) {
+  if (!M?.hull || !M?.raft) return null;
+  const k = Math.min(1, Math.max(0, Number(u) || 0)), e = ease ? 1 - (1 - k) * (1 - k) * (1 - k) : k;   // (ease out: it slows into its berth)
+  const yaw = M.hull.yaw, fx = -Math.sin(yaw), fz = -Math.cos(yaw), back = (1 - e) * (Number(d) || 0);
+  const at = (p) => ({ x: p.x - fx * back, z: p.z - fz * back });
+  const half = (Number(B?.length) || 12) / 2;
+  const hull = { ...at(M.hull), yaw };
+  return { hull, murk: M.murk ? { ...at(M.murk), yaw: M.murk.yaw } : null, raft: { ...at(M.raft), yaw }, stern: { x: hull.x - fx * half, z: hull.z - fz * half } };
+}
+/** Is the opening's tow still to play? (a loop block whose tutorial is not done and whose barge has not been towed to its first water) */
+export function towOpeningDue(metaLoop, waterId = 'mossmere', T = LOOP_TOW) {
+  if (!LOOP_ENABLED || T?.opening !== true || !metaLoop || typeof metaLoop !== 'object') return false;
+  if (metaLoop.tutorial && metaLoop.tutorial.done === true) return false;
+  const towed = Array.isArray(metaLoop.barge?.towed) ? metaLoop.barge.towed : [];
+  return !towed.includes(waterId) && !!T.legs?.[waterId];
+}
+// <<< M1 step 5b (LANE 5B-TOW)
+
+// ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.1): the places, the place pool and the giants' share. Pure: each reads only LOOP,
+// MOSSMERE_V3's place records and RARITY_WEIGHTS; the sim's poolFor (tools/sim/clams.mjs, fixed in the seam) is the same rule.
+/** The fields a loop place keeps of its MOSSMERE_V3 record (PLAN §2.1 item 3): its geometry and its look, never a v3 rule (`rule`,
+ *  `attract`, `maxClass`, `giantsKept`, `holdsGiants`, `giantsWhile`, `giantsDuring`, `reveal`, `tally`, `tallyAt`, `legend`, `night`,
+ *  `phase`: PLAN CHOICE 2). The apply block's arena records are these plus the loop's `kind` and the zone. */
+export const LOOP_PLACE_KEYS = Object.freeze(['id', 'name', 'x', 'z', 'access', 'stand', 'water', 'landmark', 'look', 'build']);
+const loopPlaceRecord = (id) => {
+  const src = MOSSMERE_V3.places.find((p) => p.id === id), L = LOOP.places?.[id];
+  if (!src || !L) return null;
+  const out = {};
+  for (const k of LOOP_PLACE_KEYS) if (src[k] !== undefined) out[k] = v3clone(src[k]);
+  return { ...out, kind: L.kind, zone: L.water };
+};
+/** A place of the loop: LOOP.places[id] over its MOSSMERE_V3 record, a fresh object: {id, name, x, z, access, stand, landmark, look,
+ *  build, area (the footprint: the record's `water` geometry), zone and water (the water's id), kind, price, card, giant?, own?,
+ *  draws?, legend?}; null for an id LOOP.places does not hold. */
+export function loopPlace(id) {
+  const rec = loopPlaceRecord(id);
+  if (!rec) return null;
+  const { water: area = null, ...geo } = rec;
+  return { ...geo, area, ...v3clone(LOOP.places[id]) };
+}
+/** The places of a water in the Chart's order (day, old, night, crown): LOOP.places' order. */
+export function loopPlaceIds(waterId = 'mossmere') { return Object.keys(LOOP.places || {}).filter((id) => LOOP.places[id]?.water === waterId); }
+// a game phase in the sim's words (the evening's calm is its day; a night place is a place from the gloomtide)
+const LOOP_LIGHT = { calm: 'day', dawn: 'day', day: 'day', dusk: 'dusk', gloomtide: 'night', night: 'night' };
+// >>> WC-1: the light a phase is in the sim's (and watercraft's) words, and Murk's price (WATERCRAFT.md §8.1)
+/** A game phase as the loop's light: 'day' | 'dusk' | 'night' (calm, dawn, day → day; gloomtide, night → night). */
+export function loopLight(phase) { return LOOP_LIGHT[phase] ?? 'day'; }
+/** A price made nice (WATERCRAFT.md §8.1): to 5 under 100, to 10 under 1,000, to 50 under 10,000, to 100 above. */
+export function nice(x) {
+  const v = Math.max(0, Number(x) || 0), step = v < 100 ? 5 : v < 1000 ? 10 : v < 10000 ? 50 : 100;
+  return Math.round(v / step) * step;
+}
+/** Murk's price of a base price (SPEC §4.2–§4.8, M1 §2.5): nice(base × LOOP.cost.factor); a consumable (a tin, a legend's bait)
+ *  nice(base × LOOP.cost.consumables) (its base at 1). The game applies it once, where a price is made (step P); the sim reads it now. */
+export function loopCost(base, { consumable = false } = {}) {
+  const C = LOOP.cost || { factor: 1, consumables: 1 }, b = Number(base) || 0;
+  const f = consumable ? Number(C.consumables ?? 1) : Number(C.factor ?? 1);
+  return f === 1 ? b : nice(b * f);
+}
+// <<< WC-1
+// the built species' hour words (the sim's BUILT_TIME): calm is day and dusk, gloom night, dawn day; the roster's are HOUR_WINDOWS
+const LOOP_BUILT_HOURS = { calm: ['day', 'dusk'], gloom: ['night'], dawn: ['day'] };
+/** A species' hour window in the sim's words (['day', 'dusk'], ['dusk', 'night'], ['day', 'dusk', 'night'] …): a roster `time` (a
+ *  LOOP.hours key) by HOUR_WINDOWS, a built `time` by the built timeOk words; anything else every light. A fresh array. */
+export function loopHours(sp) {
+  const t = sp?.time;
+  return (HOUR_WINDOWS[t] || LOOP_BUILT_HOURS[t] || HOUR_WINDOWS.any).slice();
+}
+/** A giant's share of the bites at its place (SPEC §3.5, decision 7): LOOP.giant.share.inHour in its hours, offHour outside them; a Wick
+ *  with a giantShare (Taper) × it, never above its giantCap. `phase`: 'calm' | 'dusk' | 'gloomtide' (or the sim's day / dusk / night). */
+export function giantShare(sp, phase, wickId = null) {
+  const G = LOOP.giant.share, light = LOOP_LIGHT[phase] ?? 'day', K = LOOP.wicks[loopWickId(wickId)];
+  const share = loopHours(sp).includes(light) ? G.inHour : G.offHour;
+  return K?.giantShare ? Math.min(K.giantCap ?? 1, share * K.giantShare) : share;
+}
+/**
+ * The bites a cast can draw at a place, or in open water (placeId null): the sim's pool rule (clams.mjs poolFor, as fixed in the seam:
+ * PLAN CHOICE 27) on the game's records, with no lure and no pull (3a). `species` is SPECIES (only those of the place's water, or of
+ * `water`, count). Open-water fish bite everywhere (a common at a place ×LOOP.place.common; a day water's uncommon and rare ×dayDraw,
+ * or the place's `draws`); a place's own fish (a record with that `place`) a rare's weight × kept.weight × kept.live there only; a fish
+ * of a kind of place (`kind`, the Gloam Eel's 'night') ×kindWeight at a place of that kind only; a fish that bites on one bait only needs
+ * it (×1.5 on it); "best at night" ×1.5 after dark; a fish outside its hours never, but when little of this hour bites (under a common's
+ * weight) the water's open fish still do; a legend never (her sure bite is her own). The giant is a fixed share of the rest
+ * (giantShare: its inHour share in its hours, its offHour share outside them). A night place before 'gloomtide' is open water
+ * (PLAN CHOICE 3). A record with no `kind` (or kind 'open') and no `place` is open water.
+ * Returns {list: [[sp, w], …] (the rest: every fish but the giant), giant: {sp, share, weight} | null (weight = rest × share / (1 −
+ * share), drawn last), tot (the rest and the giant), place (the place id the pool is, or null: open water)}.
+ */
+export function placePool(species, { placeId = null, phase = 'calm', bait = null, wickId = null, water = null } = {}) {
+  const PL = LOOP.place, RW = RARITY_WEIGHTS, light = LOOP_LIGHT[phase] ?? 'day', def = LOOP.places?.[placeId] || null;
+  const P = def && !(def.kind === 'night' && light !== 'night') ? { id: placeId, ...def } : null;
+  const zone = water || def?.water || 'mossmere';
+  const all = (Array.isArray(species) ? species : []).filter((s) => s && s.zone === zone && s.rarity !== 'legendary' && !s.cove);
+  const open = (s) => !s.place && (!s.kind || s.kind === 'open');
+  const list = [];
+  let giant = null, rest = 0;
+  for (const s of all) {
+    if (s.bait && s.bait !== bait) continue;
+    if (s.giant) { if (P && s.place === P.id) giant = s; continue; }   // a giant reaches its share whatever the hour (the fixed sim)
+    if (!loopHours(s).includes(light)) continue;
+    let w;
+    if (s.place) { if (!P || s.place !== P.id) continue; w = (RW.rare ?? 6) * PL.kept.weight * PL.kept.live; }
+    else if (!open(s)) { if (!P || P.kind !== s.kind) continue; w = (RW[s.rarity] ?? 6) * (s.rarity === 'common' ? PL.common : PL.kindWeight); }
+    else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? PL.dayDraw : 1)) * (P && s.rarity === 'common' ? PL.common : 1);
+    if (s.bestNight && light === 'night') w *= 1.5;
+    if (bait && s.bait === bait) w *= 1.5;
+    list.push([s, w]); rest += w;
+  }
+  if (rest < (RW.common ?? 70)) for (const s of all) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
+    if (!open(s) || s.giant || loopHours(s).includes(light) || (s.bait && s.bait !== bait)) continue;
+    const w = RW[s.rarity] ?? 6; list.push([s, w]); rest += w;
+  }
+  let g = null;
+  if (giant && rest > 0) { const share = giantShare(giant, phase, wickId); g = { sp: giant, share, weight: rest * share / (1 - share) }; }
+  return { list, giant: g, tot: rest + (g ? g.weight : 0), place: P ? P.id : null };
+}
+
+/**
+ * M1 step 5a (SPEC §6.5): a water's mooring, resolved on its lake's docks ([{x, z, yaw}] or world.getDocks()' {position, yaw}).
+ * → null when the water has none, else {water, dock, raft: {x, z, yaw} (the stern's tie-up, docks[dock]), hull: {x, z, yaw},
+ * murk: {x, z, yaw}, lane: [{x, z}], cam, circles: the hulls' obstacle circles [{x, z, r, kind: 'hull' | 'murk'}]}.
+ */
+export function loopMooring(waterId, docks = [], B = LOOP.barge, M = LOOP.mooring) {
+  const m = M?.[waterId];
+  if (!m || typeof m !== 'object') return null;
+  const ds = Array.isArray(docks) ? docks : [];
+  const d = ds[Number(m.dock) || 0];
+  const dx = Number(d?.position?.x ?? d?.x), dz = Number(d?.position?.z ?? d?.z);
+  if (!Number.isFinite(dx) || !Number.isFinite(dz)) return null;
+  const hull = { x: Number(m.hull.x), z: Number(m.hull.z), yaw: Number(m.hull.yaw) || 0 };
+  const murk = m.murk ? { x: Number(m.murk.x), z: Number(m.murk.z), yaw: Number(m.murk.yaw) || 0 } : null;
+  const K = B?.keel || { n: 5, r: 1.8, step: 2.4 }, fx = -Math.sin(hull.yaw), fz = -Math.cos(hull.yaw);
+  const circles = [];
+  for (let i = 0; i < K.n; i++) { const s = (i - (K.n - 1) / 2) * K.step; circles.push({ x: hull.x + fx * s, z: hull.z + fz * s, r: K.r, kind: 'hull' }); }
+  if (murk) circles.push({ x: murk.x, z: murk.z, r: Number(B?.murkR) || 2.4, kind: 'murk' });
+  return {
+    water: waterId, dock: Number(m.dock) || 0, raft: { x: dx, z: dz, yaw: Number(d?.yaw) || 0 }, hull, murk,
+    lane: (Array.isArray(m.lane) ? m.lane : []).map((q) => ({ x: Number(q[0]), z: Number(q[1]) })), cam: m.cam || null, circles,
+  };
+}
+
+/**
+ * The home camera at a screen's aspect W / H (M1 step 5a; the integration's fix for a tablet held sideways, a 4:3 or a square
+ * window): the mooring's `portrait` pose below `blend[0]`, its landscape pose from `blend[1]`, and between them the two eased into
+ * each other (pos, look and fov together), so the raft, the Wick, the barge and Murk stay in frame at every shape of screen.
+ * pull 0..1 (a tow's glide in): the pose drawn back `pull` times its distance and turned `turn`° round its look point, the tow's
+ * landscape and portrait settings (LOOP.tow.cam) eased by the same weight. → {pos, look, fov, k} (k 0 the portrait pose … 1 the
+ * landscape); null without a pose. Pure: render's homePose and the validator's frame check share it.
+ */
+export function homeCamAt(cam, aspect, { pull = 0, tow = null } = {}) {
+  if (!cam || !Array.isArray(cam.pos) || !Array.isArray(cam.look)) return null;
+  const P = cam.portrait && Array.isArray(cam.portrait.pos) && Array.isArray(cam.portrait.look) ? cam.portrait : null;
+  const [b0, b1] = Array.isArray(cam.blend) ? cam.blend.map(Number) : [0.85, 1.7];
+  const a = Number(aspect), u = !P ? 1 : !(a > b0) ? 0 : a >= b1 ? 1 : (a - b0) / (b1 - b0);
+  const k = u * u * (3 - 2 * u);
+  const mix = (p, q) => p.map((v, i) => Number(q[i]) + (Number(v) - Number(q[i])) * k);
+  const pos = P ? mix(cam.pos, P.pos) : cam.pos.map(Number), look = P ? mix(cam.look, P.look) : cam.look.map(Number);
+  // (the portrait pose's lens on a wider screen keeps its across angle from `P.across` (an aspect) on, so a square window frames the
+  // barge as the phone does instead of widening round it)
+  const pf = P ? Number(P.fov) || 45 : 0, ac = P && Number(P.across) > 0 && a > Number(P.across) ? Number(P.across) : 0;
+  // (in the blend band the portrait lens closes by `P.tight` and its look rises `P.lift` m, so a square or near-square window holds
+  // the group a little larger and lower, less empty water under it: the weight rises from `across` and goes with the
+  // landscape pose's own weight, so a phone held upright (under `across`) and a wide screen (from blend[1]) are exactly as before;
+  // eased in over 0.4 of an aspect from `across`, so the pose never jumps as a window is dragged wider)
+  const a0 = Number(P?.across) > 0 ? Number(P.across) : b0 - 0.1, v = P ? Math.min(1, Math.max(0, (a - a0) / 0.4)) : 0;
+  const wb = (v * v * (3 - 2 * v)) * (1 - k), tight = 1 - (1 - (Number(P?.tight) || 1)) * wb, lift = (Number(P?.lift) || 0) * wb;
+  if (lift) look[1] += lift;
+  const pfov = ac || tight !== 1 ? 2 * Math.atan(Math.tan(pf * Math.PI / 360) * (ac ? ac / a : 1) * tight) * 180 / Math.PI : pf;
+  const fov = P ? pfov + ((Number(cam.fov) || 45) - pfov) * k : Number(cam.fov) || 45;
+  const w = Math.min(1, Math.max(0, Number(pull) || 0));
+  if (w > 0) {
+    const TL = tow || {}, TP = TL.portrait || TL, by = (f, d) => (Number(TP[f]) || d) + ((Number(TL[f]) || d) - (Number(TP[f]) || d)) * k;
+    const K = 1 + (Math.max(1, by('pull', 2.2)) - 1) * w, r = (by('turn', 0) * Math.PI / 180) * w;
+    const ox = pos[0] - look[0], oz = pos[2] - look[2];
+    return { pos: [look[0] + (ox * Math.cos(r) - oz * Math.sin(r)) * K, look[1] + (pos[1] - look[1]) * K, look[2] + (ox * Math.sin(r) + oz * Math.cos(r)) * K], look, fov, k };
+  }
+  return { pos, look, fov, k };
+}
+
+// >>> M1 step 5b (lane 5b-home: the barge's side; docs/loop/M1.md §2.5, §2.6, §4 step 5b; SPEC §4.7, §6.3, §6.4, §8.4, §8.6).
+// Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; neither is in the v3 fingerprint, and
+// TEXT.loop is set only under the loop). `with` is the water (catalogue order) whose map puts a level on the shelf (SPEC §4.7,
+// decision 38): 1 the start; Glasswater 3, the Pallid Deep 4, the reaches' first lakes 5, 9 and 13. src/home-shelf.js reads them.
+LOOP.home = Object.assign(LOOP.home || {}, {
+  // the Bait Bed (SPEC §6.3): each evening you set out with at least `floor` of the water's plain bait (its first tin), free
+  baitBed: { prices: [120, 700, 9000], with: [1, 1, 4], floor: [3, 6, 10] },
+  // the Long Wall: one wing a reach (four waters each), the best print of every fish of its waters at true size (SPEC §6.4)
+  wall: { prices: [250, 30000, 80000, 150000], with: [1, 5, 9, 13] },
+  // Barge lights (was Landing lights): looks only (I lanterns on the rails; II the roof's edge; III a beacon on the bow)
+  lights: { prices: [200, 1200, 14000], with: [1, 3, 4] },
+});
+// the looks M1 sells (SPEC §6.3: COSMETICS_V3's first three, the start's), each worn where it says; the six dearer ones wait for their waters
+LOOP.looks = {
+  slate_dye:       { price: 300, with: 1, on: 'wick' },   // the Wick's cloak in slate
+  oxblood_pennant: { price: 400, with: 1, on: 'raft' },   // the raft's pennant dyed oxblood (undyed bone-grey cloth until then)
+  amber_glass:     { price: 600, with: 1, on: 'raft' },   // the raft lantern's glass in deep amber
+};
+// the gallery (SPEC §6.3, §6.4): wing N hangs the prints of the reach's four waters (catalogue order 4N−3 … 4N)
+LOOP.gallery = { perWing: 4 };
+Object.assign(TEXT_LOOP.shelf, { baitBed: 'Free bait every evening.', wall: 'Your best prints, on the wall.' });   // SPEC §8.4 (lights, looks: no line)
+TEXT_LOOP.homeNames = {   // the shelf's names for the home items (SPEC §4.7, M1.md §2.5: "Barge lights", not "Landing lights")
+  baitBed: ['Bait Bed I', 'Bait Bed II', 'Bait Bed III'],
+  wall: ['The Long Wall, wing I', 'The Long Wall, wing II', 'The Long Wall, wing III', 'The Long Wall, wing IV'],
+  lights: ['Barge lights I', 'Barge lights II', 'Barge lights III'],
+};
+TEXT_LOOP.lookNames = { slate_dye: 'Slate Cloak Dye', oxblood_pennant: 'Oxblood Pennant', amber_glass: 'Amber Lantern Glass' };   // COSMETICS_V3's names
+TEXT_LOOP.tabs.prints = 'Prints';   // the Journal's Prints page (SPEC §8.8's tab row)
+TEXT_LOOP.murk.shelfBare = "Shelf's bare. Keep the rest; the road goes on.";   // the last item of the shelf bought (SPEC §8.6; M1.md §2.5)
+// <<< M1 step 5b (lane 5b-home)
+// >>> Murk's catalogue (the user's words of 16 November 2026: the shelf as a printed brochure browsed page by page; src/ui-catalogue-murk.js):
+// its name on the running head and the cover, and the order line under a marked item. Every other word in the book is the shelf's.
+TEXT_LOOP.goods = { name: "Murk's Goods", buy: 'Buy · {price}' };
+// <<< Murk's catalogue
+// >>> the Wick's sheet (docs/loop/SHEET.md v2 §6; SPEC §8.12, the user's answers 41–43): "{name}'s Sheet" on the pause menu and the
+// Journal's first tab; two heads; the passives' exact numbers (templates filled from LOOP.wicks, never typed); the few effect words; the
+// moves; the size lines' labels; the user's "where you last cast" (Q41: the area never named); accessible names only for the rest.
+TEXT_LOOP.sheet = {
+  title: "{name}'s Sheet", buffs: 'Buffs', odds: 'Odds',
+  exact: {
+    wick: 'Each sells ×{mult}, at least {floor} more. Never a giant.',
+    taper: 'First bite never a common fish. Giants ×{share} as often, to {cap}.',   // ({cap} is filled as a percentage)
+    stub: 'Bites sooner ×{sooner}. Quiet water costs ×{quiet} as much, and never slows them.',
+    tallow: '+{good} good bite at every water and place, too.',
+    ashwick: 'Once, tired: +{hold} Hold when it bites again. Never a giant.',
+  },
+  cast: 'Casts {m} m · {n} longer to strike',   // ({n} is filled as a percentage)
+  bigger: { predator: 'Bigger predators.', bottom: 'Bigger bottom feeders.' },
+  giants: 'Giants ×{k}.', rarer: 'Rarer fish.', sooner: 'Bites sooner ×{k}.', good: 'Good bites',
+  move: '{what} {from} → {to}', moveNext: '{what} {from} → {to} with this.',
+  family: { predator: 'Predators:', bottom: 'Bottom feeders:' },
+  lastCast: 'Where you last cast',
+  quiet: 'Quiet water',   // a buff's source on a trip (the float's quiet term)
+  hours: { day: 'Day', dusk: 'Dusk', night: 'Night' }, fresh: 'New', pinned: 'Pinned', tipped: 'Tipped', notches: '{n} of {of}',
+};
+// <<< the Wick's sheet
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
@@ -5148,7 +5666,10 @@ export function upgradeHold(levels = {}) {
 // {wellFed, boons, relics, character, firstHookTonight}, marked?, wounds?, landings?, night?, perRun?}. Pure: no state, no RNG.
 const CATCH_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const CATCH_CLASS_MAX = { keeper: 1, prize: 2, trophy: 3, elder: 5 };
-const catchSp = (s) => (typeof s === 'string' ? SPECIES_V3_BY_ID[s] : s) || null;
+// Under the loop an id resolves to the loop's own record first (SPECIES_BY_ID: the converter's roster fish, which SPECIES_V3_BY_ID lacks,
+// such as the Likely Chub or the Thousandcast Pike, or holds as built), so fishing's catchChance(sp.id, …) is the sim's land chance;
+// off the loop the built v3 record, as before (M1 step 3a: four step-2 fish and the three new ones read null by id before).
+const catchSp = (s) => (typeof s === 'string' ? (LOOP_ENABLED ? SPECIES_BY_ID[s] ?? SPECIES_V3_BY_ID[s] : SPECIES_V3_BY_ID[s]) : s) || null;
 export function catchHomeLake(sp) { sp = catchSp(sp); return sp ? (sp.zone || sp.zones?.[0] || null) : null; }
 /** Can this species be this class at all (species caps: the Quayling at Keeper, the Lampwarden at Trophy)? Legends: 'legend' only. */
 export function catchClassAllowed(sp, cls) {
@@ -5357,19 +5878,42 @@ if (V3_ENABLED) {
     // records; the kept built species cloned (the Lampsipper lifted past the phase pin); every one at any depth (the converter's rule:
     // the sim has no cast depth); SPECIES holds them in place of the built records of the same ids, ahead of the rest
     Object.assign(BALANCE_V3.size.k, LOOP_BODY_K);
-    const ids = LOOP.species.mossmere, kept = new Set(LOOP.kept);
+    // M1 step 3a: the open water's twelve, then each place's own fish and its giant in the Chart's order (LOOP.places' own, giant): the
+    // Bridgechain (a kept built record, lifted past the phase pin, its `weather` dropped: the loop has none), the Thousandcast Pike and
+    // the Hullkiss Lamprey (the converter's epic giants, each with its `place`)
+    const placeFish = loopPlaceIds('mossmere').flatMap((p) => [...(LOOP.places[p].own || []), ...(LOOP.places[p].giant ? [LOOP.places[p].giant] : [])]);
+    const ids = [...LOOP.species.mossmere, ...placeFish], kept = new Set(LOOP.kept);
     const conv = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
       diff, art: ROSTER_ART, waters: ['mossmere'] });
     const byId = new Map(conv.map((x) => [x.id, x]));
     for (const id of ids) {
-      const x = kept.has(id) ? { ...v3clone(SPECIES_V3_BY_ID[id]), depth: [0, 1], roster: false, ...(SPECIES_V3_BY_ID[id].phase > 1 ? { loopLift: true } : {}) } : byId.get(id);
+      let x = byId.get(id);
+      if (kept.has(id)) {
+        x = { ...v3clone(SPECIES_V3_BY_ID[id]), depth: [0, 1], roster: false, ...(SPECIES_V3_BY_ID[id].phase > 1 ? { loopLift: true } : {}) };
+        delete x.weather;
+        if (ROSTER_ART[id]?.model) x.model = { ...x.model, ...v3clone(ROSTER_ART[id].model) };   // a kept fish's new plan (the Bridgechain's)
+      }
       if (x) SPECIES_LOOP.push(v3fin(x));
     }
     const lifted = new Set(SPECIES_LOOP.map((x) => x.id));
     const rest = SPECIES.filter((x) => !lifted.has(x.id));
     SPECIES.length = 0;
     SPECIES.push(...SPECIES_LOOP, ...rest);
+    // a built record the loop keeps as built but for the water it bites in (the roster's `place`): the Gloam Eel's night water. Set on
+    // a copy in its own slot, so SPECIES' order is unchanged and SPECIES_V3's record is not touched; its bait, hours and size as built
+    for (const [id, kind] of Object.entries({ gloam_eel: 'night' })) {
+      const i = SPECIES.findIndex((x) => x.id === id);
+      if (i >= 0) SPECIES[i] = { ...v3clone(SPECIES[i]), kind };
+    }
     Object.assign(AUTOFISH.leaps, LOOP.leaps);
+    // the three new plans (lamprey, sturgeon, trout; read only under the loop: PLAN CHOICE 14), the giants' Fight and the thin hang
+    for (const sh of ['lamprey', 'sturgeon', 'trout']) if (!FISH_SHAPES.includes(sh)) FISH_SHAPES.push(sh);
+    // an epic giant fights LOOP.giant.fight over a rare (+elderFight more as an Elder), as the sim's landP gives it. catchParts takes
+    // CATCH_V3.kept (−2) from every fish with a `place` (a place-kept fish); a giant's place is where it lives, not a kept fish's (the
+    // sim passes it none), so its rarity term carries that 2 back: its net Fight is the sim's rare + 10 (+ 2 as an Elder)
+    CATCH_V3.rarity.epic = CATCH_V3.rarity.rare + LOOP.giant.fight - CATCH_V3.kept;
+    CATCH_V3.elderRarity.epic = CATCH_V3.elderRarity.rare + LOOP.giant.elderFight;
+    if (!AUTOFISH.show.poseRules.thin.includes('lamprey')) AUTOFISH.show.poseRules.thin.push('lamprey');
   }
   if (LOOP_ENABLED) {   // the Full Hold's words, Ashwick's tired comeback (no `on`: getCatchBuffs names Ashwick only while a comeback
     // bite is open; catchBuffHold is not edited, WICKS §2.5) and the film's line 3 under the loop (LORE §12, PLAN §2.2 item 26)
@@ -5378,6 +5922,37 @@ if (V3_ENABLED) {
     INTRO.text[2] = INTRO.cove.text[2] = TEXT_LOOP.introLine3;
     INTRO.lines[2].out = 15.2;   // line 3's longer words stay ≤ the A5 reading rate (17.4 a second; the gap to line 4 stays 0.5 s)
   }
+  if (LOOP_ENABLED) {   // >>> M1 step 4 (lane 4; SPEC §4.4, §4.5, M1.md §2.3, §2.4): under the loop only, so no v3 table moves off it
+    // Cut Strip is a bait in the bag (free, never sold): a BAITS row of the loop's own, so the built cast spends it and a pass refunds it
+    if (!BAITS.some((b) => b.id === 'cut_strip')) BAITS.push({ id: 'cut_strip', name: 'Cut Strip', price: 0, count: LOOP.cut.strips, zoneMin: 0, unlock: null, legend: false, icon: 'strip', bonus: {} });
+    // every tin gives the same favour (SPEC §4.5: every fish runs bigger), read by fishing's cast terms as a bait's own term
+    for (const id of Object.values(LOOP.tins).flat()) BALANCE_V3.favour.tackle.bait[id] = LOOP.baitRule.favour;
+    // a tin's Hold goes to the fish that favour it: the roster's `favours` (the converter's `baits`), as the sim's itemHold reads them
+    for (const sp of SPECIES_LOOP) for (const id of sp.baits || []) {
+      const b = BAITS.find((x) => x.id === id && !x.legend);
+      if (b) { b.bonus = { ...b.bonus, attract: [...new Set([...(b.bonus?.attract || []), sp.id])] }; }
+    }
+    // the Harbour-Bell Spinner re-aimed at the Mossmere's giants (SPEC §4.4: +10 Hold on the fish named)
+    CATCH_V3.items.bell_spinner = { ...CATCH_V3.items.bell_spinner, species: LOOP.lures.bell_spinner.giants.slice() };
+    { const l = LURES.find((x) => x.id === 'bell_spinner'); if (l) l.species = LOOP.lures.bell_spinner.giants.slice(); }
+    // the Belled Matriarch a catfish (ROSTER §3.1, M1.md §2.3): her plan only (models-fish.js `catfish`, read under the loop); her size,
+    // her Fight, her authored play (AUTOFISH.legend's take, toll, run, toll, circle, last stand, lift) and so her land chance as built
+    if (!FISH_SHAPES.includes('catfish')) FISH_SHAPES.push('catfish');
+    const mi = SPECIES.findIndex((x) => x.id === 'belled_matriarch');
+    if (mi >= 0) SPECIES[mi] = { ...v3clone(SPECIES[mi]), model: { ...SPECIES[mi].model, shape: 'catfish', whiskers: 2, head: 'shovel', tail: 'eel', bell: true } };
+  }   // <<< M1 step 4 (lane 4)
+  if (LOOP_ENABLED) {   // >>> the Wick's sheet (SHEET.md §8.1, SPEC decision 108): on the Mossmere under the loop a tin's or lure's Hold helps
+    // the fish that like it or better (WATERCRAFT.md §3.7: watercraft.gradeTargets), as the sim's itemHold and WC-3's gear line already
+    // say. A loop-only data patch: catchItemHold's text is untouched (the v3 fingerprint hashes it); `species` is read before `family`,
+    // `night` and `attract`, which stay on the record for the sim's fallback. Every species with no hook row keeps the built rule (read
+    // here, before the patch). The Harbour-Bell Spinner keeps lane 4's named giants (set above).
+    for (const id of WC_HOOK_ITEMS) {
+      if (id === 'bare' || id === 'bell_spinner' || !CATCH_V3.items[id]) continue;
+      const rows = wcGradeTargets(id);
+      const rest = SPECIES.filter((s) => s.rarity !== 'legendary' && wcGradeOf(s.id, {}) === undefined && catchItemHold(id, s) > 0).map((s) => s.id);
+      CATCH_V3.items[id] = { ...CATCH_V3.items[id], species: [...rows, ...rest] };
+    }
+  }   // <<< the Wick's sheet
   // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
   const moss = ZONES[0];
   Object.assign(moss.palette, MOSSMERE_V3.palette);
@@ -5387,6 +5962,10 @@ if (V3_ENABLED) {
     moss.arena.pillars.push(...MOSSMERE_V3.props.map((p) => ({ ...p })));
     moss.arena.cracks = v3clone(MOSSMERE_V3.cracks);
   }
+  // M1 step 3a (PLAN §2.1 item 3): the loop's four places in the arena (and so in PLACES): MOSSMERE_V3's records through the keep list
+  // (LOOP_PLACE_KEYS) with the loop's kind, so no built reader (capZ's maxClass, waterInfo's giant water, the loss's rule.foul) sees a
+  // v3 twist; the props, the cracks and the other places stay v3's phase 2
+  if (LOOP_ENABLED) moss.arena.places = loopPlaceIds('mossmere').map(loopPlaceRecord).filter(Boolean);
   // raft fallbacks: a lake with no places in this build gets the stopgap giant water; §24's lakes without §24 get raft watch lamps
   // and a raft Homeward stone (CONTRACT §13.8)
   for (const z of ZONES) {
