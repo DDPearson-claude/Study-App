@@ -111,7 +111,8 @@ void main() {
   int lamp; int l2;
   vec4 A = mothAt(uTime, lamp);
   vec4 B = mothAt(uTime + 0.05, l2);
-  bool hide = aPh.w >= uWake + uDoze || uLamp[lamp].w < 0.05;
+  // (hidden while its own slot or the lamp it is at holds no lamp: an empty slot is dark, not piled on the raft's lantern)
+  bool hide = aPh.w >= uWake + uDoze || uLamp[lamp].w < 0.05 || uLamp[int(aPh.y + 0.5)].w < 0.05;
   vec3 d = B.xyz - A.xyz;
   float yaw = length(d.xz) > 1e-4 ? atan(d.x, d.z) : aPh.z * 6.2831;
   // the wings flap about the body's long axis; settled, they lie in a low tent
@@ -126,6 +127,7 @@ void main() {
   gl_Position = hide ? vec4(2.0, 2.0, 2.0, 1.0) : projectionMatrix * mvPosition;
   float dd = distance(w, lampC(lamp));
   vLit = uLampCol * (uLamp[lamp].w * 1.6 / (1.0 + dd * dd * 5.0)) + vec3(uAmb);
+  vLit = min(vLit, vec3(0.9));   // (pale wax by the lamp, never a white spark)
   vHind = aHind;
   #include <fog_vertex>
 }`;
@@ -295,7 +297,7 @@ function lampbillGeo(C) {
   parts.push(part(prep(new THREE.SphereGeometry(0.12, 6, 4), { matrix: mat(0, 0.02, 0, 0, 0, 0, [1, 0.78, 1.35]), colorFn: (x, y) => (y > 0.06 ? body.map((c) => c * 0.8) : body) }), 0));
   // the head, its pale candle-wax shield on the brow, and the bill
   parts.push(part(prep(new THREE.SphereGeometry(0.064, 5, 3), { matrix: mat(0, 0.135, 0.13), color: body.map((c) => c * 0.7) }), 1));
-  parts.push(part(prep(new THREE.SphereGeometry(0.032, 4, 3), { matrix: mat(0, 0.16, 0.172, 0, 0, 0, [1, 1.1, 0.7]), color: shield }), 1));
+  parts.push(part(prep(new THREE.SphereGeometry(0.032, 4, 3), { matrix: mat(0, 0.16, 0.172, 0, 0, 0, [1.55, 1.25, 0.8]), color: shield }), 1));
   const bill = new THREE.ConeGeometry(0.022, 0.065, 4); bill.rotateX(Math.PI / 2);
   parts.push(part(prep(bill, { matrix: mat(0, 0.125, 0.215), color: shield }), 1));
   // lobed grey feet trailing under the tail (they show as it tips up to dive)
@@ -343,7 +345,7 @@ function buildLampbills(C, max) {
   g.setAttribute('iPose', new THREE.InstancedBufferAttribute(new Float32Array(max * 4), 4));
   g.setAttribute('iMark', new THREE.InstancedBufferAttribute(new Float32Array(max), 1));
   const m = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.35, rimColor: 0xcfc8ec, steps: 3, transparent: true });
-  m.alphaTest = 0.015;
+  m.alphaTest = 0.06;   // (the faint ends of a wake and a dimple are discarded, so they write no depth over the mist behind)
   const base = m.onBeforeCompile;
   m.onBeforeCompile = (sh, r) => {
     base(sh, r);
@@ -379,6 +381,7 @@ export function attachWildlife(ctx) {
   const S = { t: 0, pick: 0, slots: [], next: [], keys: [], on: false, wake: 0, doze: 0 };
   const raftLamp = { key: 'raft', kind: 'raft', x: 0, y: -50, z: 0, k: 1 };
   const v = new THREE.Vector3(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(1, 1, 1), up = new THREE.Vector3(0, 1, 0);
+  sc.setScalar(Math.max(0.5, num(BC?.scale, 1)));   // (the lampbills drawn at LOOP.wildlife.lampbills.scale)
   const zoneId = () => { try { return ctx.world?.getZone?.()?.id ?? ctx.state?.run?.zone ?? null; } catch { return null; } };
   const phaseInfo = () => { try { return ctx.survival?.getPhaseInfo?.() || null; } catch { return null; } };
   const kindOf = (k) => MC.kinds?.[k] || MC.kinds?.post || [0.2, 0.5, 0.1, 0];
@@ -392,7 +395,7 @@ export function attachWildlife(ctx) {
   function setSlot(i, c, first) {
     const K = kindOf(c.kind), L4 = M.u.uLamp.value[i], F = M.u.uFrom.value[i];
     const x = c.x, y = c.y + K[0], z = c.z;
-    if (first) F.set(x, y, z, -10); else if (S.keys[i] !== c.key) { const p = centreOf(i); F.set(p[0], p[1], p[2], S.t); }
+    if (first || (i > 0 && S.keys[i] === 'raft')) F.set(x, y, z, -10); else if (S.keys[i] !== c.key) { const p = centreOf(i); F.set(p[0], p[1], p[2], S.t); }
     L4.set(x, y, z, Math.min(1, num(c.k, 1)));
     M.u.uShape.value[i].set(K[1], K[2], K[3], S.next[i] ?? i);
     S.keys[i] = c.key;
@@ -402,10 +405,11 @@ export function attachWildlife(ctx) {
     S.slots = r.slots; S.next = r.next;
     r.slots.forEach((c, i) => setSlot(i, c || raftLamp, first));
   }
-  function update(dt = 0.016) {
+  function update(dt = 0.016, { show = false } = {}) {
     const q0 = ctx.render?.quality || 'high';
     const flow = ctx.flow, home = flow === 'home';
-    const on = q0 !== 'low' && faceOn(ctx.data, zoneId()) && (flow === 'playing' || home) && !ctx.cinematic;
+    // (hidden through the whole catch show: main's `show` from the reveal close-up at T0, ctx.cinematic from the lift)
+    const on = q0 !== 'low' && faceOn(ctx.data, zoneId()) && (flow === 'playing' || home) && !ctx.cinematic && !show;
     S.on = on;
     if (M) M.mesh.visible = on;
     if (L) L.mesh.visible = on;
@@ -422,9 +426,9 @@ export function attachWildlife(ctx) {
       try { const ll = ctx.actors?.lanternLight; if (ll?.getWorldPosition) { ll.getWorldPosition(v); raftLamp.x = v.x; raftLamp.y = v.y; raftLamp.z = v.z; } } catch { /* optional */ }
       S.pick -= d;
       if (S.pick <= 0 || !S.slots.length) { S.pick = 0.5; pickLamps(raft || raftLamp, !S.slots.length); }
-      // (the raft's lantern rides with the raft every frame, in each slot that holds it)
+      // (the raft's lantern rides with the raft every frame in slot 0; a later slot with no lamp of its own is dark, its moths hidden)
       const KR = kindOf('raft');
-      S.slots.forEach((c, i) => { if (c === raftLamp || !c) M.u.uLamp.value[i].set(raftLamp.x, raftLamp.y + KR[0], raftLamp.z, 1); });
+      S.slots.forEach((c, i) => { if (c === raftLamp || !c) M.u.uLamp.value[i].set(raftLamp.x, raftLamp.y + KR[0], raftLamp.z, i === 0 ? 1 : 0); });
       const wk = mothWake(phase, pi?.k, home);
       S.wake = wk.wake; S.doze = wk.doze;
       M.u.uWake.value = wk.wake; M.u.uDoze.value = wk.doze; M.u.uTime.value = S.t;

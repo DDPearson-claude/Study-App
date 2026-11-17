@@ -1247,8 +1247,10 @@ function frame(now) {
   if (loopHome) { try { loopHome.update(running ? realDt : 0); } catch (e) { const n = (errorCounts.get('loopHome') || 0) + 1; errorCounts.set('loopHome', n); if (n <= 3) report('update(loopHome)', e); } }
   // M1 step 5b (LANE 5B-TOW): the tow's clock (real time; it waits by itself while another screen is over its Chart)
   if (loopTow) { try { loopTow.update(realDt); } catch (e) { const n = (errorCounts.get('loopTow') || 0) + 1; errorCounts.set('loopTow', n); if (n <= 3) report('update(loopTow)', e); } }
-  if (LOOP_ON && heronW !== false) { try { if (!heronW) { heronW = attachHeron(ctx) || false; if (heronW) ctx.debug.heron = heronW.state; } if (heronW) heronW.update(running ? realDt : 0); } catch (e) { heronW = false; report('update(heron)', e); } }   // WC-3: the heron
-  if (LOOP_ON && wildW !== false) { try { if (!wildW) { wildW = attachWildlife(ctx) || false; if (wildW) ctx.debug.wildlife = wildW.state; } if (wildW) wildW.update(running ? realDt : 0); } catch (e) { wildW = false; report('update(wildlife)', e); } }   // the moths and the lampbills
+  // (the catch show, its reveal close-up from T0 as well as the lift's ctx.cinematic: the wildlife keeps out of it; main hands them the flag, they read no fishing)
+  const wildShow = LOOP_ON && safe(() => ctx.fishing.inShow, false) === true;
+  if (LOOP_ON && heronW !== false) { try { if (!heronW) { heronW = attachHeron(ctx) || false; if (heronW) ctx.debug.heron = heronW.state; } if (heronW) heronW.update(running ? realDt : 0, { show: wildShow }); } catch (e) { heronW = false; report('update(heron)', e); } }   // WC-3: the heron
+  if (LOOP_ON && wildW !== false) { try { if (!wildW) { wildW = attachWildlife(ctx) || false; if (wildW) ctx.debug.wildlife = wildW.state; } if (wildW) wildW.update(running ? realDt : 0, { show: wildShow }); } catch (e) { wildW = false; report('update(wildlife)', e); } }   // the moths and the lampbills
   if (FE_ON) {
     // the First Evening's clock (lines, beats) runs on the hub's game time (stopped by a pause or a blocking card); the hearth cut
     if (ctx.firstEvening) { try { ctx.firstEvening.update(inHub ? time.gameDt : 0); } catch (e) { const n = (errorCounts.get('firstEvening') || 0) + 1; errorCounts.set('firstEvening', n); if (n <= 3) report('update(firstEvening)', e); } }

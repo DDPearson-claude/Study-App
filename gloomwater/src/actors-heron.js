@@ -206,9 +206,10 @@ export function attachHeron(ctx) {
   const S = { H: null, spots: [], key: '', roost: null };
   const zoneId = () => { try { return ctx.world?.getZone?.()?.id ?? ctx.state?.run?.zone ?? null; } catch { return null; } };
   const phaseNow = () => { try { return ctx.survival?.getPhaseInfo?.()?.phase || ctx.state?.run?.phase || 'calm'; } catch { return 'calm'; } };
-  function update(dt = 0.016) {
+  function update(dt = 0.016, { show = false } = {}) {
     const q = ctx.render?.quality || 'high';
-    const on = q !== 'low' && faceOn(ctx.data, zoneId()) && (ctx.flow === 'playing' || ctx.flow === 'home') && !ctx.cinematic;
+    // (with the wildlife on it also keeps out of the catch show's reveal close-up, main's `show`; off, as built)
+    const on = q !== 'low' && faceOn(ctx.data, zoneId()) && (ctx.flow === 'playing' || ctx.flow === 'home') && !ctx.cinematic && !(W && show);
     if (!on) { mesh.visible = false; return; }
     const phase = phaseNow(), light = lightOf(phase);
     if (light !== S.key) {

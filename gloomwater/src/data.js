@@ -4902,17 +4902,19 @@ export const LOOP = {
   wildlife: {
     on: LOOP_ENABLED && globalThis.GW_WILD !== false,
     // wick-moths: wax-white forewings, ash-violet hindwings, lit only by the lamp they circle (no glow of their own)
-    moths: { count: { high: 48, medium: 24, low: 0 }, span: 0.1, slots: 8, reach: 45, next: 9, cycle: [14, 22], raftShare: 0.34,
+    moths: { count: { high: 48, medium: 24, low: 0 }, span: 0.1, slots: 8, reach: 45, next: 9, cycle: [14, 22], raftShare: 0.2,
       fore: 0xf2ecdc, hind: 0x9a90b4, lampCol: 0xffe2c0, amb: 0.14, minY: 0.65,
       // per lamp kind: [lift of the orbit's centre over the lamp, orbit radius, rest radius, rest height under the centre]
       kinds: { raft: [0.34, 0.55, 0.07, -0.14], post: [0.16, 0.5, 0.17, 0.1], buoy: [0.36, 0.45, 0.07, -0.16], cap: [1.5, 0.7, 0.1, -0.3], barge: [0.16, 0.34, 0.08, 0.06], slit: [0.1, 0.6, 0.05, 0] } },
-    // lampbills: round little diving birds in pairs and threes (slate-violet, a candle-wax shield on brow and bill, lobed grey feet)
-    lampbills: { count: { high: 8, medium: 8, low: 0 }, speed: 0.3, dip: [0.9, 1.3], act: [5, 11], diveP: 0.4, dive: [3, 6], surface: [3, 5],
-      flee: 10, keep: 3, fleeFar: [5, 7], cool: 6, range: 1.5, body: 0x6b6589, shield: 0xf2e8d0, feet: 0x8d8a99,
+    // lampbills: round little diving birds in pairs and threes (slate-violet, a candle-wax shield on brow and bill, lobed grey feet),
+    // drawn `scale`× the model's 30 cm so they read from the play and home cameras
+    lampbills: { count: { high: 8, medium: 8, low: 0 }, scale: 1.45, speed: 0.3, dip: [0.9, 1.3], act: [5, 11], diveP: 0.4, dive: [3, 6], surface: [3, 5],
+      flee: 10, keep: 3, fleeFar: [5, 7], cool: 6, range: 1.5, body: 0x7a74a0, shield: 0xf2e8d0, feet: 0x8d8a99,
       // beats (x, z, loop r, birds; they keep within r + range): the lee of Mossbell Isle and the open water by the old pylon east of the
-      // gate's lane in the play camera's northern view (the Elder Sister's lee lay behind the Span from it), and the south lily bed in
-      // the home's view; every point 6 m and more off the mooring, the glide-in, the places and the gate's lane. Each sleeps at its roost
-      groups: [{ x: -19.5, z: 20, r: 2.6, n: 3, roost: { x: -21.5, z: 18.5 } }, { x: 1, z: 53, r: 1.8, n: 2, roost: { x: 2, z: 52 } },
+      // gate's lane in the play camera's northern view (the Elder Sister's lee lay behind the Span from it), and the open water past
+      // Murk's raft in the home's view (about 18 m beyond its look point, right of Murk on every screen shape); every point 6 m and more
+      // off the mooring, the glide-in, the places and the gate's lane. Each sleeps at its roost
+      groups: [{ x: -19.5, z: 20, r: 2.6, n: 3, roost: { x: -21.5, z: 18.5 } }, { x: 3, z: 50, r: 1.8, n: 2, roost: { x: 4, z: 49 } },
         { x: 12, z: -26, r: 2.4, n: 3, range: 1.2, roost: { x: 13.4, z: -24.6 } }] },
     // the heron, made to count: bigger with a darker back, spots in the north half of the view and on the islands' shores the raft
     // sails past (their south faces), and at night a still roost, head sunk, in profile at the foot of the Drowned Gatehouse's broken

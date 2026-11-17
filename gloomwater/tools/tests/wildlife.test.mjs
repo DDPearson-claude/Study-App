@@ -143,6 +143,8 @@ section('wick-moths: when they fly, which lamps');
   ok(C.kinds.raft[0] - 0.2 > 0, 'over the raft\'s lantern (above the Wick\'s head), never out over the float');
   const ws = src('actors-wildlife.js');
   ok(/vLit = uLampCol \* \(uLamp\[lamp\]\.w/.test(ws) && !/emissive|glowSprite|halos/.test(ws.replace(/^\/\/.*$/gm, '')), 'lit only by the lamp they circle: no glow of their own');
+  ok(/vLit = min\(vLit, vec3\(0\.9\)\)/.test(ws) && /raftLamp\.z, i === 0 \? 1 : 0\)/.test(ws) && /uLamp\[int\(aPh\.y \+ 0\.5\)\]\.w < 0\.05/.test(ws) && D.LOOP.wildlife.moths.raftShare <= 0.25,
+    'pale wax, never a white spark; only slot 0 is the raft\'s lantern (an empty slot is dark, its moths hidden, not piled round the raft), a fifth of them there');
 }
 
 section('the heron, made to count');
@@ -191,7 +193,10 @@ section('nothing to do with the catch; drawn cheaply; hooked by main');
 {
   const ws = src('actors-wildlife.js');
   ok(!/fishing|castOdds|rollSpecies|progression|hookWeights|finishPool|bait/i.test(ws.replace(/^\/\/.*$/gm, '')), 'it reads no fishing, odds, bait or progression (it changes no odd and takes no bait)');
-  ok((ws.match(/new THREE\.InstancedMesh\(/g) || []).length === 2 && /q0 !== 'low'/.test(ws) && /!ctx\.cinematic/.test(ws), 'one InstancedMesh a creature (2 draw calls), hidden on low and in a cinematic (the catch show)');
+  ok((ws.match(/new THREE\.InstancedMesh\(/g) || []).length === 2 && /q0 !== 'low'/.test(ws) && /!ctx\.cinematic && !show;/.test(ws), 'one InstancedMesh a creature (2 draw calls), hidden on low and in a cinematic');
+  const ms = src('main.js');
+  ok(/const wildShow = LOOP_ON && safe\(\(\) => ctx\.fishing\.inShow, false\) === true;/.test(ms) && (ms.match(/\.update\(running \? realDt : 0, \{ show: wildShow \}\)/g) || []).length === 2
+    && /!ctx\.cinematic && !\(W && show\);/.test(src('actors-heron.js')), 'and through the whole catch show: main hands the moths, the lampbills and (with the wildlife on) the heron the show from its reveal close-up at T0, not only the lift\'s cinematic');
   ok(/setupSurface\(mesh, \{ cast: false, reflect: false \}\)/.test(ws) && /frustumCulled = false/.test(ws), 'no shadow or mirror pass');
   ok(/attachWildlife\(ctx\)/.test(src('main.js')) && /faceOn\(ctx\.data, zoneId\(\)\)/.test(ws), 'main attaches it under the loop; the Mossmere only');
   ok(/!wildMoths\(\)/.test(src('actors-home.js')), 'the barge\'s smoke-pool specks give way to the moths');
