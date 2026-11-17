@@ -33,6 +33,9 @@ const W = teachWords(D);
     ok(U.textAllowed(t, { D }), `${k}: ui-loop's textAllowed lets it on the water`);
     ok(U.allowedWords(D).has(t), `${k}: on allowedWords`);
   }
+  // (the live region speaks both captions once, in one text node in the toasts layer: loop-1a's T43 scan reads it whole)
+  ok(W && U.textAllowed(`${W.notches} ${W.dots}`, { D }), 'the live region\'s one line (both captions) passes textAllowed');
+  ok(!U.textAllowed(`${W?.notches} ${W?.dots} Extra.`, { D }), '… and only that line, not any run of sentences');
   ok(teachWords({}) === null && teachWords({ TEXT_LOOP: { teach: { notches: 'x' } } }) === null, 'no words, no moment');
 }
 

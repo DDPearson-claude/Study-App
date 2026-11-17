@@ -506,6 +506,8 @@ export function allowedWords(D) {
   // M1 step 5c (FINDS §9): the finds row's heading as it is drawn ("Snags", "· 1 bite in 20"); the names and lines are TEXT_LOOP's
   { const pb = Number(D?.LOOP?.finds?.snag?.perBite), bi = T_(D).finds?.biteIn;
     if (pb > 0 && typeof bi === 'string') { const r = bi.replace('{n}', String(Math.round(1 / pb))); out.add(r); out.add(`· ${r}`); } }
+  // the MVP's teaching moment (ui-teach.js): its two TEXT_LOOP.teach captions as the live region speaks them once, in one line
+  { const tc = T_(D).teach; if (isObj(tc) && typeof tc.notches === 'string' && typeof tc.dots === 'string') out.add(`${tc.notches} ${tc.dots}`); }
   return out;
 }
 const NUM_RE = /^[+]?\d[\d,]*(\.\d+)?[km]?$/;
