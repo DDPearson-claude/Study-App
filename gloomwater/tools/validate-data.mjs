@@ -508,6 +508,9 @@ if (process.argv.includes('--loop')) {
     for (const [water, raw] of moorings) {
       const Z = L4.ZONE_BY_ID[water];
       if (!ok4(!!Z, `LOOP.mooring.${water}: a lake`)) continue;
+      // (LAKE 2, lane D1: a later water's mooring is the design's figures until its arena has the outline shore it is fitted to, lane
+      // W1's; its checks run from then on. The Mossmere's always run)
+      if (water !== 'mossmere' && !Z.arena?.outline) { warns.push(`LOOP.mooring.${water}: the design's figures, checked once ${water}'s arena has its outline (LAKE2 lane W1)`); continue; }
       const Lay = WLY.buildLayout(Z), M = L4.loopMooring(water, Lay.docks);
       if (!ok4(!!M && M.circles.filter((c) => c.kind === 'hull').length === B.keel.n && M.circles.filter((c) => c.kind === 'murk').length === 1, `${water}: the mooring resolves (${B.keel.n} keel circles and Murk's)`)) continue;
       const d0 = Lay.docks[raw.dock || 0];
@@ -593,7 +596,7 @@ if (process.argv.includes('--loop')) {
     ok4(['reedjaw_pike', 'milkeye_perch', 'kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'].every((id) => T[id].bare === 0) && T.reedjaw_pike.mireworm === 0, 'WC-1: the bare hook is 0 for the five hunters, and a worm 0 for the Reedjaw Pike (the user\'s rule)');
     let minS = Infinity, at = '', pools = 0;
     const HOOKS = [{}, { bait: 'mireworm' }, { bait: 'lumen_moss' }, { bait: 'cut_strip' }, ...WC.LURE_IDS.map((l) => ({ lure: l })), { lure: 'glimmer_spoon', bait: 'mireworm' }, { lure: 'feather_fly', bait: 'lumen_moss' }, { lure: 'bone_jig', bait: 'cut_strip' }];
-    for (const where of [...WC.AREAS.map((a) => ({ area: a })), ...Object.keys(LP.places || {}).map((p) => ({ place: p }))]) for (const ph of ['calm', 'dusk', 'gloomtide']) for (const h of HOOKS) for (const wick of [null, 'taper']) {
+    for (const where of [...WC.AREAS.map((a) => ({ area: a })), ...L4.loopPlaceIds('mossmere').map((p) => ({ place: p }))]) for (const ph of ['calm', 'dusk', 'gloomtide']) for (const h of HOOKS) for (const wick of [null, 'taper']) {
       const pool = L4.placePool(L4.SPECIES, { placeId: where.place ?? null, phase: ph, bait: h.bait ?? null, wickId: wick, water: 'mossmere' });
       const o = WC.castOdds(L4, { pool, area: pool.place ? null : where.area ?? 'open', phase: ph, lure: h.lure ?? null, bait: h.bait ?? null, wickId: wick });
       pools++; if (o.S < minS) { minS = o.S; at = `${where.place ?? where.area}, ${ph}, ${[h.lure, h.bait].filter(Boolean).join('+') || 'bare'}`; }
@@ -618,6 +621,122 @@ if (process.argv.includes('--loop')) {
     }
   }
   // <<< WC-1
+  // >>> LAKE 2, lane D1 (docs/loop/LAKE2.md §9; the user's answers of 17 Nov 2026): Sporewood Pools under the loop, as data. Every key,
+  // every item a water's, no lure or tin in two waters, the hook table whole (the 1% stray rule as the Mossmere's), the line's cap by its
+  // total Hold reproducing GEAR-GATES' Mossmere caps, the list rule, the repeats rule, the carry's shape (the raft's parts and the hold
+  // among it, answer 1), the words; and nothing of it reaches the Mossmere (LOOP.shipped stays 'mossmere')
+  {
+    const WC = await import('../src/watercraft.js'), SW = WC.WATERCRAFT.sporewood, W2 = LP.waters.sporewood, PLC = LP.places;
+    const words = (t) => String(t).trim().split(/\s+/).length, noDigit = (t) => typeof t === 'string' && !/\d/.test(t);
+    ok4(LP.shipped === 'mossmere' && !PLM.waterShipped(L4, 'sporewood'), 'LAKE2 D1: LOOP.shipped stays the Mossmere (Sporewood ships at the integration gate)');
+    ok4(W2 && W2.order === 2 && W2.tier === 11 && same(W2.prices, { night: 1200, crown: 2200 }) && W2.lake === 1400 && W2.plainBait === LP.tins.sporewood?.[0],
+      'LAKE2 D1: LOOP.waters.sporewood: order 2, tier 11, the Veilwater 1,200 and the Mother\'s Cup 2,200, the lake map 1,400, its plain bait its first tin');
+    // the places (§3.2)
+    const SPL = L4.loopPlaceIds('sporewood');
+    ok4(same(SPL, ['lullaby', 'gill_harp', 'veilwater', 'mothers_cup']) && same(SPL.map((id) => PLC[id].kind), ['day', 'old', 'night', 'crown']), 'LAKE2 D1: Sporewood\'s four places in the Chart\'s order (day, old, night, crown)');
+    ok4(same((W2.places || []).map((p) => [p.id, p.kind]), SPL.filter((id) => PLC[id].lake === true).map((id) => [id, PLC[id].kind])) && W2.places.every((p) => ['day', 'old'].includes(p.kind)),
+      'LAKE2 D1: the lake map opens the day and the old water (LOOP.waters.sporewood.places), each a `lake` place');
+    for (const id of SPL) {
+      const p = PLC[id], q = L4.loopPlace(id), card = L4.SPECIES_BY_ID[p.card];
+      ok4(p.water === 'sporewood' && (p.lake === true ? p.price === 0 : p.price === W2.prices[p.kind]), `LAKE2 D1: ${id}: priced by its kind (${p.lake ? 'opened by the lake map' : W2.prices[p.kind]})`);
+      ok4(!!q && q.zone === 'sporewood' && typeof q.name === 'string' && q.area?.kind === 'disc' && num4(q.area.r) && q.area.r > 0 && L4.SPOREWOOD_LOOP.places.some((r) => r.id === id), `LAKE2 D1: ${id}: its record (SPOREWOOD_LOOP), name, footprint`);
+      ok4(card?.zone === 'sporewood', `LAKE2 D1: ${id}: its card's fish (${p.card}) is Sporewood's`);
+      if (p.giant) ok4(L4.SPECIES_BY_ID[p.giant]?.giant === true && L4.SPECIES_BY_ID[p.giant].place === id && L4.SPECIES_BY_ID[p.giant].rarity === 'epic', `LAKE2 D1: ${id}: its giant ${p.giant} is an epic giant whose place is ${id}`);
+      for (const o of p.own || []) ok4(L4.SPECIES_BY_ID[o]?.place === id && !L4.SPECIES_BY_ID[o].giant, `LAKE2 D1: ${id}: its own fish ${o} has that place`);
+      if (p.legend) ok4(L4.SPECIES_BY_ID[p.legend]?.rarity === 'legendary' && L4.SPECIES_BY_ID[p.legend].bait === LP.legendBait.sporewood?.id, `LAKE2 D1: ${id}: its legend ${p.legend} on Sporewood's legend bait`);
+      for (const d of Object.keys(p.draws || {})) ok4(L4.SPECIES_BY_ID[d]?.zone === 'sporewood' && !L4.SPECIES_BY_ID[d].place && (L4.SPECIES_BY_ID[d].kind ?? 'open') === 'open', `LAKE2 D1: ${id}: it draws ${d}, an open-water fish of Sporewood`);
+      ok4(Array.isArray(p.out) && p.out.length >= 2 && p.out.every((v) => Array.isArray(v) && v.length === 2 && v.every(num4)), `LAKE2 D1: ${id}: its glide out`);
+      ok4(typeof TL.maps?.[id] === 'string' && words(TL.maps[id]) <= 8 && noDigit(TL.maps[id]), `LAKE2 D1: ${id}: its card line, ≤ 8 words`);
+      const pools = ['calm', 'dusk', 'gloomtide'].map((ph) => L4.placePool(L4.SPECIES, { placeId: id, phase: ph, water: 'sporewood', bait: L4.SPECIES_BY_ID[p.card]?.bait ?? null }));
+      ok4(pools.every((x) => x.list.length > 0 && x.list.every(([s]) => s.zone === 'sporewood')), `LAKE2 D1: ${id}: it bites in every light, only Sporewood's fish`);
+    }
+    ok4(typeof TL.maps?.sporewood === 'string' && words(TL.maps.sporewood) <= 8, 'LAKE2 D1: the lake map\'s own line, ≤ 8 words');
+    // the fish (§2.1, §2.2): the fourteen, the list rule, the repeats rule
+    const FOURTEEN = ['drifting_grove', 'harpstring_eel', 'festival_puffer', 'lostsea_mackerel', 'downcast_catfish', 'nightbloom_carp', 'mildew_angler', 'sleepspore_jelly',
+      'threadling_eel', 'cindertail_catfish', 'velvet_ray', 'falsesmile_barb', 'netcloud_fry', 'capshell_crayfish'];
+    const SWS = L4.SPECIES.filter((x) => x.zone === 'sporewood');
+    ok4(same(SWS.map((x) => x.id).sort(), FOURTEEN.slice().sort()), `LAKE2 D1: loop SPECIES holds Sporewood's fourteen, once each (got ${SWS.length}: ${SWS.map((x) => x.id).join(', ')})`);
+    ok4((LP.leftOut?.sporewood || []).every((id) => !L4.SPECIES.some((x) => x.id === id)) && same((LP.leftOut?.sporewood || []).slice().sort(), ['hushcap_koi', 'plumgill_perch', 'sporebelly_puffer']),
+      'LAKE2 D1: the Sporebelly Puffer, the Hushcap Koi and the Plumgill Perch are out of the loop\'s SPECIES (§2.2; their built records stay for the flag-off game)');
+    ok4(same(LP.species.sporewood, PLM.listFor(L4, 'sporewood')) && LP.species.sporewood.length === 9, `LAKE2 D1: the list rule: Sporewood's list is its nine open-water fish, computed (got ${PLM.listFor(L4, 'sporewood').join(', ')})`);
+    const mossIds = new Set(L4.SPECIES.filter((x) => x.zone === 'mossmere').map((x) => x.id));
+    ok4(SWS.every((x) => !mossIds.has(x.id)) && same((LP.guests?.mossmere || []).filter((id) => L4.SPECIES_BY_ID[id]?.zone === 'sporewood'), ['nightbloom_carp']),
+      'LAKE2 D1: no fish repeats between the waters; the one fish of both is the Nightbloom Carp, the Mossmere\'s guest a notebook brings (§2.2)');
+    ok4(SWS.every((x) => x.phase === 1 && x.depth?.[0] === 0 && x.depth?.[1] === 1 && Array.isArray(x.weight) && x.weight.every((v) => num4(v) && v > 0)), 'LAKE2 D1: each Sporewood record the loop\'s own: inside the phase pin, any depth, a finite weight');
+    ok4(SWS.every((x) => L4.ROSTER_ART[x.id]?.model && (x.rarity === 'legendary' || num4(x.size?.k))), 'LAKE2 D1: each of the fourteen has its look\'s key (ROSTER_ART; lane F fills it) and a body key');
+    ok4(L4.SPECIES_LOOP.every((x) => x.zone === 'mossmere'), 'LAKE2 D1: SPECIES_LOOP is the shipped water\'s alone');
+    // the items (§5.6, §5.7, §7.1): every item a water's, no lure or tin in two waters, each with its rows, names and lines
+    const LU = LP.lures, lw = Object.entries(LU);
+    ok4(lw.every(([, v]) => typeof v.water === 'string' && LP.waters[v.water]), 'LAKE2 D1: every lure is a water\'s (LOOP.lures[id].water in LOOP.waters)');
+    const tinsAll = Object.values(LP.tins).flat();
+    ok4(new Set(tinsAll).size === tinsAll.length && !tinsAll.includes('cut_strip'), 'LAKE2 D1: no tin in two waters; Cut Strip is no water\'s tin (every water\'s hook)');
+    const swLures = lw.filter(([, v]) => v.water === 'sporewood').map(([id]) => id);
+    ok4(same(swLures, ['seedpod_twirl', 'spore_moth', 'ember_minnow', 'root_jig', 'sporelamp_fly']), `LAKE2 D1: Sporewood's five lures (${swLures.join(', ')})`);
+    ok4(swLures.every((id) => L4.LURES.some((l) => l.id === id) && L4.CATCH_V3.items?.[id]?.kind === 'lure' && typeof TL.gearItems?.[id] === 'string'), 'LAKE2 D1: each Sporewood lure has a LURES row, a CATCH_V3 item and its name');
+    ok4((LP.tins.sporewood || []).every((id) => L4.BAITS.some((b) => b.id === id && !b.legend) && L4.CATCH_V3.items?.[id]?.kind === 'bait' && typeof TL.gearItems?.[id] === 'string'), 'LAKE2 D1: each Sporewood tin has a BAITS row, a CATCH_V3 item and its name');
+    const mossItems = new Set([...(LP.tins.mossmere || []), ...lw.filter(([, v]) => v.water === 'mossmere').map(([id]) => id)]);
+    ok4([...swLures, ...(LP.tins.sporewood || [])].every((id) => !mossItems.has(id)), 'LAKE2 D1: every lure and bait at Sporewood is new (none of the Mossmere\'s: the user\'s "completely different lures etc on every new map")');
+    ok4(LU.seedpod_twirl.start === true && LU.seedpod_twirl.price === 0 && same(LU.sporelamp_fly.giants, ['harpstring_eel', 'festival_puffer']) && same(L4.CATCH_V3.items.sporelamp_fly.species, LU.sporelamp_fly.giants),
+      'LAKE2 D1: the Seedpod Twirl free (the start lure); the Spore-Lamp Fly re-aimed at Sporewood\'s giants');
+    const ST2 = LP.start.sporewood;
+    ok4(ST2 && (ST2.lures || []).every((id) => LU[id]?.water === 'sporewood' && LU[id].start === true) && Object.keys(ST2.bait || {}).every((id) => (LP.tins.sporewood || []).includes(id)) && ST2.bait?.[ST2.fit] > 0,
+      'LAKE2 D1: Sporewood\'s start kit: its free lure and a tin of its plain bait, fitted');
+    ok4(LP.legendBait.sporewood?.id === 'glowcap_bulb' && L4.BAITS.some((b) => b.id === 'glowcap_bulb' && b.legend) && num4(LP.legendBait.sporewood.price), 'LAKE2 D1: the Glowcap Bulb is Sporewood\'s legend bait (a built legend bait)');
+    // the hook table (§2.4)
+    const T2 = SW.hook.table, HI = WC.HOOK_ITEMS_AT.sporewood, ITEMS2 = new Set([...swLures, ...(LP.tins.sporewood || []), 'cut_strip', 'guard_button']);
+    ok4(same(Object.keys(T2).sort(), FOURTEEN.slice().sort()) && HI.every((id) => id === 'bare' || ITEMS2.has(id)) && same(SW.hookItems, HI), `LAKE2 D1: Sporewood's hook table: a row for each of its fourteen, its columns its own items (${HI.join(', ')})`);
+    const bad2 = [];
+    for (const id of Object.keys(T2)) for (const it of HI) { const g = T2[id][it], leg = L4.SPECIES_BY_ID[id]?.rarity === 'legendary'; if (leg ? g !== null : !(Number.isInteger(g) && g >= 0 && g <= 3)) bad2.push(`${id}.${it} ${g}`); }
+    ok4(!bad2.length && same(SW.hook.mult, WC.WATERCRAFT.mossmere.hook.mult) && SW.hook.cap === WC.WATERCRAFT.mossmere.hook.cap, `LAKE2 D1: every grade 0–3 (null only for the legend); the stray rule's mult and 1% cap the Mossmere's${bad2.length ? ': ' + bad2.slice(0, 4).join(', ') : ''}`);
+    ok4(Object.keys(T2).filter((id) => T2[id].bare != null).every((id) => (T2[id].bare >= 1) === (L4.SPECIES_BY_ID[id]?.rarity === 'common')), 'LAKE2 D1: the bare hook takes the commons and no other fish');
+    ok4(T2.lostsea_mackerel.bare === 0 && T2.lostsea_mackerel.seedpod_twirl === 0, 'LAKE2 D1: the hunter takes neither the bare hook nor the free Twirl');
+    const bought = swLures.filter((id) => !LU[id].start);
+    ok4(['harpstring_eel', 'festival_puffer'].every((id) => HI.every((it) => (bought.includes(it) ? true : T2[id][it] === 0)) && T2[id].sporelamp_fly === 3), 'LAKE2 D1: both giants need a bought lure (0 on every bait, the free hooks and the Button; the Spore-Lamp Fly their right lure)');
+    ok4(['threadling_eel', 'sleepspore_jelly'].every((id) => { const t = HI.filter((it) => T2[id][it] > 0); return t.length === 1 && t[0] === L4.SPECIES_BY_ID[id]?.bait; }), 'LAKE2 D1: the two bait-only fish take their one bait and nothing else');
+    ok4(Object.keys(T2).every((id) => T2[id].guard_button === (T2[id].bare === null ? null : SW.hook.button.not.includes(id) ? 0 : SW.hook.button.grade)), 'LAKE2 D1: the Gate-Guard\'s Button\'s column is its rule (2 but for the giants, the legend and the bait-only fish)');
+    ok4(Object.keys(T2).filter((id) => T2[id].bare !== null).every((id) => HI.some((it) => T2[id][it] >= 1)), 'LAKE2 D1: every fish can be caught (some Sporewood hook takes each)');
+    ok4(same(Object.keys(SW.raw).sort(), LP.species.sporewood.slice().sort()) && Object.values(SW.raw).every((r) => WC.AREAS.every((a) => num4(r[a]) && r[a] > 0)), 'LAKE2 D1: the raw area weights: the open water\'s nine, ten positive weights each');
+    // the gear loop (§5, answer 1): per-water gear, the carry, the line's cap
+    const GR = LP.gear, CAP = LP.gearCap;
+    ok4(['rod', 'line', 'reel'].every((s) => same(GR.mossmere[s].map((t) => t.hold), [0, 1, 2].map((i) => L4.TACKLE[s][i].hold)) && same(GR.mossmere[s].map((t) => t.price), LP.tackle.price.slice(0, 3))),
+      'LAKE2 D1: LOOP.gear.mossmere is TACKLE T0–T2 at LOOP.tackle\'s prices');
+    ok4(same(['rod', 'line', 'reel'].map((s) => GR.sporewood[s].map((t) => t.hold)), [[0, 3, 6], [0, 3, 7], [0, 3, 6]]) && same(GR.sporewood.rod.map((t) => t.cast), [0, 2, 4]),
+      'LAKE2 D1: Sporewood\'s tiers: +0 · +3 · +6 / +7 / +6 Hold, the rods casting +2 and +4 m (§7.1)');
+    ok4(['rod', 'line', 'reel'].every((s) => GR.sporewood[s][0].start === true && GR.sporewood[s][0].id === GR.mossmere[s][0].id && GR.sporewood[s].slice(1).every((t) => typeof TL.gearItems?.[t.id] === 'string' && typeof TL.shelf?.[t.id] === 'string' && words(TL.shelf[t.id]) <= 8)),
+      'LAKE2 D1: the start pieces are every water\'s (they travel); each Sporewood tier named, with its shelf line');
+    const gearIds = Object.values(GR).flatMap((g) => ['rod', 'line', 'reel'].flatMap((s) => g[s].filter((t) => !t.start).map((t) => t.id)));
+    ok4(new Set(gearIds).size === gearIds.length, 'LAKE2 D1: no tackle piece in two waters');
+    const HL = GR.sporewood.hold;
+    ok4(HL.shelfMax === 7 && HL.ladder.map((s) => s.slots).every((n, i, a) => i === 0 ? n > LP.hold.start : n === a[i - 1] + 1) && HL.ladder.at(-1).slots === 7 && HL.ladder.every((s) => num4(s.price) && s.name && !LP.hold.ladder.some((m) => m.name === s.name)),
+      'LAKE2 D1: Sporewood\'s hold steps on its own shelf to Hold 7, each its own creel (the hold\'s slots are bought gear: answer 1)');
+    ok4(['oars', 'keel', 'lantern'].every((s) => { const R = GR.sporewood.raft[s], N = TL.gearNamesAt?.sporewood?.[s]; return R && R.prices.length === R.with.length && R.prices.length <= LP.raft[s].prices.length && Array.isArray(N) && N.length === R.prices.length && R.with.every((w) => w === W2.order); }),
+      'LAKE2 D1: Sporewood\'s raft parts on its own shelf, each level named (the raft\'s parts are bought gear: answer 1)');
+    const C = LP.carry;
+    ok4(C && C.share > 0 && C.share < 1 && C.round === 'up' && C.castFrom === L4.TACKLE.rod[0].castMax && same(C.tackle, ['rod', 'line', 'reel']) && C.slots === true && same(C.raft, ['oars', 'keel', 'lantern']),
+      'LAKE2 D1: LOOP.carry: a share of the tackle\'s Hold, the cast, the hold\'s slots and the raft\'s parts (answer 1)');
+    const carried = (h) => Math.ceil(h * C.share - 1e-9), mT2 = GR.mossmere.line[2].hold;
+    ok4(carried(mT2) + GR.sporewood.line[1].hold >= CAP.lineAt.sporewood.trophy && carried(mT2) < CAP.lineAt.sporewood.trophy && carried(mT2) + GR.sporewood.line[2].hold >= CAP.lineAt.sporewood.elder,
+      'LAKE2 D1: at Sporewood the carried line alone fishes at Prize, its first line lifts it to Trophy, its second to Elder (§5.6)');
+    const capAt = (w, h) => (h < CAP.lineAt[w].trophy ? 'prize' : h < CAP.lineAt[w].elder ? 'trophy' : 'elder');
+    ok4(same([0, 1, 2].map((t) => capAt('mossmere', L4.TACKLE.line[t].hold)), CAP.line), 'LAKE2 D1: lineAt.mossmere reproduces GEAR-GATES\' line caps (Twine · Line T1 · T2: Prize · Trophy · Elder)');
+    ok4(CAP.item.seedpod_twirl === 'keeper' && CAP.item.bare === 'keeper' && CAP.item.cut_strip === 'prize', 'LAKE2 D1: the free Twirl lands up to Keeper, as the bare hook and the Bent Spoon');
+    const AR = LP.arrival;
+    ok4(AR && Number.isInteger(AR.evenings) && AR.evenings >= 1 && AR.cap === CAP.firstEvening && Array.isArray(AR.fight) && AR.fight.length === AR.evenings
+      && AR.fight.every((f, i, a) => num4(f) && f < 0 && (i === 0 || f > a[i - 1])), 'LAKE2 D1 (answer 2): a new water\'s first evenings land an over-cap fish at the cap and ease its Fight term, less each evening, then whole');
+    // the words (§5.2, §6.4, §6.5)
+    const Lv = TL.leave || {};
+    ok4(['title', 'stays', 'keeps', 'wait', 'come', 'tow', 'notYet'].every((k) => typeof Lv[k] === 'string' && Lv[k] && words(Lv[k]) <= 8 && noDigit(Lv[k])), 'LAKE2 D1: the leaving card\'s title, four lines and two buttons, each ≤ 8 words');
+    ok4(typeof TL.mapLeaves === 'string' && words(TL.mapLeaves) <= 8 && typeof TL.carry === 'string' && ['{r}', '{l}', '{c}'].every((k) => TL.carry.includes(k)), 'LAKE2 D1: the map card\'s line and the carried line (rod · line · reel)');
+    ok4(['map', 'home', 'away'].every((k) => typeof TL.murk?.at?.sporewood?.[k] === 'string' && words(TL.murk.at.sporewood[k]) <= 10 && noDigit(TL.murk.at.sporewood[k])), 'LAKE2 D1: Murk\'s three lines at Sporewood');
+    ok4(typeof TL.guide?.newWater === 'string' && words(TL.guide.newWater) <= 30 && !('newWater' in (TL.guide.boxes || {})), 'LAKE2 D1: the new water\'s guide box (its own key, never one of the Mossmere\'s boxes)');
+    ok4(Object.values(TL.shelfAt?.sporewood || {}).every((t) => words(t) <= 8 && noDigit(t)) && [...swLures.filter((id) => !LU[id].start), ...(LP.tins.sporewood || []), 'glowcap_bulb'].every((id) => typeof TL.shelf?.[id] === 'string' && words(TL.shelf[id]) <= 8),
+      'LAKE2 D1: every Sporewood shelf line, ≤ 8 words');
+    // nothing reaches the Mossmere: its shelf, its map cards, its Chart's sheets and its catalogue tabs are as they were
+    const fresh = PLM.freshLoop(L4), shelf = PLM.shelfItems(L4, fresh);
+    ok4(!shelf.some((it) => it.water === 'sporewood' || swLures.includes(it.lureId) || (LP.tins.sporewood || []).includes(it.baitId)), 'LAKE2 D1: a fresh save\'s shelf offers nothing of Sporewood\'s');
+    ok4(PLM.mapCards(L4, fresh).every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood' && c.sealed === true), 'LAKE2 D1: the map cards are the Mossmere\'s and Sporewood\'s sealed card');
+  }
+  // <<< LAKE 2, lane D1
   // the tutorial's time budget (T72): arrive + Murk's wake line + chartWait + the longest departure line + out ≤ budget.max
   const FL = L4.FIRST_EVENING?.lines || {};
   const depart = Math.max(murkHold(TL.murk.firstChart, FL), ...Object.values(TL.murk.firstChartBy || {}).map((x) => murkHold(x, FL)));

@@ -29,7 +29,7 @@ export default async function (api) {
     await g(() => {
       const c = window.__gw;
       window.__wp = {
-        own(lifted) { const m = c.state.meta.loop; m.maps = m.maps || {}; m.maps.places = Object.keys(c.data.LOOP.places); m.lifted = lifted ? m.maps.places.slice() : []; c.world.setPlaces?.({ owned: m.maps.places, lifted: m.lifted }); },
+        own(lifted) { const m = c.state.meta.loop; m.maps = m.maps || {}; m.maps.places = c.data.loopPlaceIds('mossmere'); m.lifted = lifted ? m.maps.places.slice() : []; c.world.setPlaces?.({ owned: m.maps.places, lifted: m.lifted }); },
         measure(N) {
           const R = c.render, rr = R.renderer, gl = rr.getContext(), px = new Uint8Array(4), t = [];
           let key = null; R.scene.traverse((o) => { if (o.isDirectionalLight && o.castShadow && o.shadow) key = o; });

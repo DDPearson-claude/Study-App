@@ -218,10 +218,16 @@ export function tallyRowAt(row, t) {
  * Mossmere; no Sporewood row), open water chosen, no places; next is null (and always null in the tutorial). opts.slots is
  * loop.hold().slots (the Wick's count); without it data.loopSlots(meta.loop). M1 step 3's drawn Chart draws the same model.
  */
+/** Is a water inside what ships (LOOP.shipped a string: its order ≥ the water's > 0; an array: listed; none: in LOOP.waters)? (LAKE 2,
+ *  lane D1: a later water's LOOP.waters entry is data before it ships; the Chart draws a water only once it does) */
+const shipsWater = (D, id) => {
+  const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {}, sh = D?.LOOP?.shipped, o = (x) => num(W[x]?.order, 0);
+  return typeof sh === 'string' ? o(id) > 0 && o(id) <= o(sh) : Array.isArray(sh) ? sh.includes(id) : isObj(W[id]);
+};
 export function chartModel(meta, D, opts = {}) {
   const ml = isObj(meta?.loop) ? meta.loop : {};
   const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {};
-  const lakes = arr(ml.maps?.lakes).filter((id) => typeof id === 'string' && isObj(W[id]));
+  const lakes = arr(ml.maps?.lakes).filter((id) => typeof id === 'string' && isObj(W[id]) && shipsWater(D, id));
   if (!lakes.length && isObj(W.mossmere)) lakes.push('mossmere');
   lakes.sort((a, b) => num(W[a].order, 99) - num(W[b].order, 99));
   const zone = (id) => D?.ZONE_BY_ID?.[id] || arr(D?.ZONES).find((z) => z?.id === id) || null;
@@ -253,7 +259,7 @@ export function chartNext(meta, D) {
   if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
   // the frontier is the last water the Chart draws (owned and in LOOP.waters): an old save's unshipped lake is the next sheet, its
   // map seal pressed, never a water past it
-  const drawn = owned.filter((id) => isObj(W[id]));
+  const drawn = owned.filter((id) => isObj(W[id]) && shipsWater(D, id));
   const at = Math.max(-1, ...drawn.map((id) => zones.findIndex((z) => z.id === id)));
   const nz = zones[at + 1];
   if (!nz || at < 0) return null;

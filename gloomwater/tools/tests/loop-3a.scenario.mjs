@@ -74,7 +74,7 @@ export function installPlaces() {
   const c = window.__gw;
   const B = () => (c.debug?.loop && typeof c.debug.loop.own === 'function' ? c.debug.loop : null);
   const ml = () => { try { return c.progression?.loop?.state?.() ?? c.state.meta.loop; } catch { return c.state.meta.loop; } };
-  const ids = (id) => (id === 'all' ? Object.keys(c.data.LOOP?.places || {}) : [id]);
+  const ids = (id) => (id === 'all' ? (c.data.loopPlaceIds?.('mossmere') || []).filter((p) => c.data.LOOP.places[p]?.secret !== true) : [id]);   // (the Mossmere's four: LAKE 2's places are data before Sporewood ships)
   const sync = () => { const m = ml(); try { c.world.setPlaces?.({ owned: (m?.maps?.places || []).slice(), lifted: (m?.lifted || []).slice() }); } catch { /* optional */ } };
   const P = {
     viaB: () => !!B(),
@@ -240,7 +240,7 @@ export default async function (api) {
   try {
     K.step('boot: the step-2 save, Hold 5, T1, clams');
     await K.boot(seededSave({ clams: 2400, holdSlots: 5, over: { tackle: { rod: 1, line: 1, reel: 1 } } }));
-    const D = await g(() => { const d = window.__gw.data; return { loop: d.LOOP_ENABLED === true, places: Object.keys(d.LOOP?.places || {}), T: d.TEXT_LOOP, lift: d.LOOP?.lift, prices: Object.fromEntries(Object.entries(d.LOOP?.places || {}).map(([k, v]) => [k, v.price])) }; });
+    const D = await g(() => { const d = window.__gw.data; return { loop: d.LOOP_ENABLED === true, places: (d.loopPlaceIds?.('mossmere') || []).filter((p) => d.LOOP.places[p]?.secret !== true), T: d.TEXT_LOOP, lift: d.LOOP?.lift, prices: Object.fromEntries(Object.entries(d.LOOP?.places || {}).map(([k, v]) => [k, v.price])) }; });
     K.need(D.loop, 'a loop build');
     K.check(JSON.stringify(D.places) === JSON.stringify(PLACE_IDS), 'LOOP.places holds the four in the Chart\'s order', D.places);
     await K.toJetty();
@@ -543,7 +543,7 @@ export async function dryRun() {
     if (!p || !q) { bad.push(`no pose for ${id}`); continue; }
     if (!(q.z > (p.area.z ?? p.area.pts[0][1]))) bad.push(`${id}: the pose is south of the place`);
   }
-  if (JSON.stringify(Object.keys(D.LOOP.places)) !== JSON.stringify(PLACE_IDS)) bad.push('PLACE_IDS is LOOP.places\' order');
+  if (JSON.stringify(D.loopPlaceIds('mossmere').filter((p) => D.LOOP.places[p].secret !== true)) !== JSON.stringify(PLACE_IDS)) bad.push('PLACE_IDS is LOOP.places\' order');
   if (typeof installPlaces.toString() !== 'string' || !/window\.__p3/.test(installPlaces.toString())) bad.push('installPlaces serialises');
   return bad;
 }

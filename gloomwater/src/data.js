@@ -10,7 +10,7 @@
 import { rosterSpecies, rosterItemNames, HOUR_WINDOWS } from './roster-species.js';
 import { ROSTER_SHIPPED } from './roster-shipped.js';
 import { findShares as findSharesOf } from './loop-finds.js';   // M1 step 5c (lane 5C): the finds' one draw, pure
-import { HOOK_ITEMS as WC_HOOK_ITEMS, gradeTargets as wcGradeTargets, gradeOf as wcGradeOf } from './watercraft.js';   // the sheet (SHEET.md §8.1): the Hold rule's targets, pure
+import { HOOK_ITEMS as WC_HOOK_ITEMS, gradeTargets as wcGradeTargets, gradeOf as wcGradeOf, WATERCRAFT as WC_TABLES } from './watercraft.js';   // the sheet (SHEET.md §8.1): the Hold rule's targets, pure
 
 // =====================================================================================
 // STATS (DESIGN §6–§10) — every stat key the game reads. base = value before
@@ -3199,6 +3199,24 @@ export const ROSTER_ART = {
   // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
   // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
   bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
+  // LAKE 2, lane D1 (docs/loop/LAKE2.md §2.3): Sporewood's fourteen looks, each its plan and the build words of the modeller's brief, so
+  // each fish with a relative in the Mossmere reads as a different animal. Lane F builds the new plans (disc, bream, finlet) and the new
+  // words, and paints each in the Clear Night palette (plum, amber, rose, cream; glow only where the brief names it). A new fish's model
+  // is this one; a kept or re-founded built fish (the Capshell, the Angler, the Jelly, the Velvet Ray, the Threadling, the Harpstring,
+  // the Grove) has it merged over its built model under the loop (an empty model: as built). The Nightbloom Carp's is its key above
+  netcloud_fry:       { model: { shape: 'minnow', skin: 'glass', spine: true, eye: 1.6, tailSpot: 'amber', cloud: 5 } },
+  falsesmile_barb:    { model: { shape: 'bream', depth: 0.95, jaw: 'square_teeth', tail: 'scythe' } },
+  capshell_crayfish:  { model: { carapace: 'dome', claws: 0.4, antennae: 1.8, tail: 'fan' } },
+  threadling_eel:     { model: { girth: 0.5, pects: false, dorsal: 'none', ventral: 'fold', tail: 'point', eye: 0.5, glow: null } },
+  cindertail_catfish: { model: { shape: 'catfish', head: 'bullet', whiskers: 8, dorsal: 'tall', fattyFin: true, tail: 'fork' } },
+  velvet_ray:         { model: { shape: 'disc', eyeRings: 12, turrets: true, tail: 'sting' } },
+  lostsea_mackerel:   { model: { shape: 'finlet', dorsals: 2, finlets: true, tail: 'crescent' } },
+  downcast_catfish:   { model: { shape: 'catfish', head: 'bullet_round', whiskers: 0, deep: true, dorsal: 'shark', tail: 'fork_tall', eyeSet: 'low' } },
+  mildew_angler:      { model: {} },
+  sleepspore_jelly:   { model: {} },
+  harpstring_eel:     { model: { girth: 1.5, head: 'paddle', dorsal: 'none', ventral: 'ribbon_full', section: 'square', strings: 3 } },
+  festival_puffer:    { model: { shape: 'puffer', beak: 4, prickles: 'short', eyeSpots: 'amber' } },
+  drifting_grove:     { model: { shape: 'disc', snout: 'point', tail: 'whip_barb', meadow: true } },
 };
 // The loop's own body keys (pounds SPEC §6.4 rule 2): a roster fish whose cousin is more than ±30% off its plan's k gets a key of its own,
 // a plain build word, never a species' name. The Milkeye Perch (a slim, pike-built perch: perch 0.013 would be +37%) and the Rustfin
@@ -3206,7 +3224,10 @@ export const ROSTER_ART = {
 // docs-only reference, checked ±30% by tools/sim/roster-check.mjs). Merged into BALANCE_V3.size.k under the loop only.
 // M1 step 3a adds the lamprey plan's key (SPEC §6.4 rule 1: a new plan's k from a real cousin, here the eel's 0.0022: an adult lamprey
 // runs about 0.8 kg at 70 cm, the roster's docs-only reference weight), merged under the loop only so v3's size table is untouched.
-export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011, lamprey: 0.0022 };
+// LAKE 2, lane D1: Sporewood's plans' keys from a real cousin each (SPEC §6.4 rule 1), for lane F to confirm with roster-check.mjs: the disc
+// the built ray's (0.012), the bream a carp's (a deep-bodied cousin, 0.016), the finlet a trout's (a torpedo cousin, 0.011), the catfish a
+// sucker's (a bottom fish of the same heft, 0.011; the Matriarch, a legend, keeps her authored size)
+export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011, lamprey: 0.0022, disc: 0.012, bream: 0.016, finlet: 0.011, catfish: 0.011 };
 /** The loop's species table for the shipped waters (M1 step 2: the Mossmere's 11 open-water fish; M1 step 3a: its open water's twelve,
  *  then its places' own fish and giants, 15), built by the converter in the apply block; empty off the loop. SPECIES under the loop holds
  *  these in place of the built records of the same ids. */
@@ -5370,7 +5391,7 @@ export function sailPlan(dock, centre = { x: 0, z: 0 }, T = LOOP.tutorial, lake 
  *  LOOP.places does not hold): the water's glide (sailPlan with the lake: its outPath, else toward the lake's centre). validate-data
  *  --loop proves every one clears each island and pillar by the raft's radius + 0.3 m. */
 export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T = LOOP.tutorial) {
-  const P = place ? LOOP.places?.[place] : null, rec = P ? MOSSMERE_V3.places.find((q) => q.id === place) : null;
+  const P = place ? LOOP.places?.[place] : null, rec = P ? loopPlaceRecord(place) : null;
   if (!P || !rec) return sailPlan(dock, { x: 0, z: 0 }, T, water);
   if (Array.isArray(P.out) && P.out.length >= 2) return sailPlan(dock, { x: rec.x, z: rec.z }, { ...T, outPath: { [place]: P.out } }, place);
   return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
@@ -5449,7 +5470,8 @@ export function towOpeningDue(metaLoop, waterId = 'mossmere', T = LOOP_TOW) {
  *  `phase`: PLAN CHOICE 2). The apply block's arena records are these plus the loop's `kind` and the zone. */
 export const LOOP_PLACE_KEYS = Object.freeze(['id', 'name', 'x', 'z', 'access', 'stand', 'water', 'landmark', 'look', 'build']);
 const loopPlaceRecord = (id) => {
-  const src = MOSSMERE_V3.places.find((p) => p.id === id), L = LOOP.places?.[id];
+  // (LAKE 2, lane D1: a later water's place records are its own table's, SPOREWOOD_LOOP.places; the Mossmere's are MOSSMERE_V3's)
+  const src = MOSSMERE_V3.places.find((p) => p.id === id) || SPOREWOOD_LOOP.places.find((p) => p.id === id), L = LOOP.places?.[id];
   if (!src || !L) return null;
   const out = {};
   for (const k of LOOP_PLACE_KEYS) if (src[k] !== undefined) out[k] = v3clone(src[k]);
@@ -5666,6 +5688,148 @@ TEXT_LOOP.sheet = {
   hours: { day: 'Day', dusk: 'Dusk', night: 'Night' }, fresh: 'New', pinned: 'Pinned', tipped: 'Tipped', notches: '{n} of {of}',
 };
 // <<< the Wick's sheet
+
+// >>> LAKE 2, lane D1 (docs/loop/LAKE2.md §9; §5 as the user's answers of 17 Nov 2026 amend it): Sporewood Pools under the loop, as data
+// only. Additive: new LOOP keys and entries, new TEXT_LOOP words, and (in the apply block, under the loop only) Sporewood's fish and its
+// items' built-shaped rows. LOOP.shipped stays 'mossmere', so no lake map, sheet, shelf card or trip reaches any of it: every reader of a
+// shared table (LOOP.lures, .tins, .places, .legendBait) already keeps to the owned and shipped waters, and lane D2 threads the water
+// through the rest (the carry, the reset at the tow, the per-water shelf, holdOf, the line's cap by lineAt).
+// Sporewood's water: catalogue order 2, its value tier (the sim's draft 11; the Mossmere's 7), its place maps' prices by kind, its lake
+// map (1,400 base, 2,800 as Murk asks: LAKE2 §8), its plain bait (its first tin; the list's bait rule) and the two places its lake map
+// opens (the day water and the old water: migrateLoop rule 5's list, listFor's `opens`)
+LOOP.waters.sporewood = { order: 2, tier: 11, prices: { night: 1200, crown: 2200 }, lake: 1400, plainBait: 'spore_cake',
+  places: [{ id: 'lullaby', kind: 'day' }, { id: 'gill_harp', kind: 'old' }] };
+// its four places (§3.2), in the Chart's order (day, old, night, crown). `lake`: opened by the lake map (no map of its own, never a map
+// card: price 0); `out` the glide out from the mooring (LOOP.mooring.sporewood's raft first), every West Pool place through the neck.
+// Their geometry, name and landmark are SPOREWOOD_LOOP.places' records (loopPlace merges them, as MOSSMERE_V3's for the Mossmere);
+// lane W1 fits both to the outline shore. The Nightbloom Carp is night water's own kind of fish (its `kind`), so it reaches the
+// Veilwater by LOOP.place.kindWeight, as the Gloam Eel the Buoy Lights
+Object.assign(LOOP.places, {
+  lullaby:     { water: 'sporewood', kind: 'day', price: 0, lake: true, card: 'sleepspore_jelly', own: ['sleepspore_jelly'], draws: { velvet_ray: 3 },
+    out: [[30, 28], [12, 8], [0, 6], [-14, 0], [-32, -20], [-46, -32]] },
+  gill_harp:   { water: 'sporewood', kind: 'old', price: 0, lake: true, card: 'harpstring_eel', giant: 'harpstring_eel', draws: { cindertail_catfish: 2 },
+    out: [[30, 28], [12, 8]] },
+  veilwater:   { water: 'sporewood', kind: 'night', price: 1200, card: 'festival_puffer', giant: 'festival_puffer',
+    out: [[30, 28], [12, 8], [0, 6], [-16, 18], [-44, 24], [-72, 32]] },
+  mothers_cup: { water: 'sporewood', kind: 'crown', price: 2200, card: 'drifting_grove', legend: 'drifting_grove', out: [[34, 24], [44, 12]] },
+});
+/** Sporewood's place records under the loop (LAKE2 §3.2, §3.4): the geometry loopPlace merges under LOOP.places' fields (LOOP_PLACE_KEYS),
+ *  as MOSSMERE_V3.places' for the Mossmere. Placed on the design's outline; lane W1 fits them to the built shore. Never in a v3 build. */
+export const SPOREWOOD_LOOP = Object.freeze({
+  places: Object.freeze([
+    { id: 'lullaby', name: 'The Lullaby', access: 'raft', stand: null, x: -50, z: -36, water: { kind: 'disc', x: -50, z: -36, r: 7, depth: [0.3, 0.55] },
+      landmark: { x: -52, y: 1.5, z: -40 }, look: 'lily rafts over a sleeping cove' },
+    { id: 'gill_harp', name: 'The Gill Harp', access: 'raft', stand: null, x: 0, z: 6, water: { kind: 'disc', x: 0, z: 6, r: 5, depth: [0.5, 0.65] },
+      landmark: { x: 0, y: 6, z: 6 }, look: 'cap gills hanging over the neck like strings' },
+    { id: 'veilwater', name: 'The Veilwater', access: 'raft', stand: null, x: -82, z: 33, water: { kind: 'disc', x: -82, z: 33, r: 5, depth: [0.4, 0.7] },
+      landmark: { x: -80, y: 2.5, z: 30 }, look: 'a backwater behind a curtain of moss' },
+    { id: 'mothers_cup', name: "The Mother's Cup", access: 'raft', stand: null, x: 48, z: 6, water: { kind: 'disc', x: 48, z: 6, r: 6, depth: [0.8, 1] },
+      landmark: { x: 56, y: 18, z: 10 }, look: 'a deep well under the Mother Cap' },
+  ].map((p) => Object.freeze(p))),
+});
+// the open water's nine (§2.1, the list: open water and the Lullaby's and the Gill Harp's fish on Spore Cake, computed by listFor), in the
+// Journal's order; the places' own fish and giants and the legend follow them in SPECIES (the apply block)
+LOOP.species.sporewood = ['netcloud_fry', 'falsesmile_barb', 'capshell_crayfish', 'threadling_eel', 'cindertail_catfish', 'velvet_ray', 'lostsea_mackerel',
+  'downcast_catfish', 'mildew_angler'];
+LOOP.kept.push('capshell_crayfish', 'mildew_angler', 'sleepspore_jelly');   // the three built species Sporewood keeps (§2.1), as built but…
+// … a kept fish's terms at its water under the loop (its built record otherwise): the Sleepspore Jelly is the Lullaby's own and bites on
+// Amber Larvae only (its built Lumen Moss is the Mossmere's)
+LOOP.keptAs = { sleepspore_jelly: { place: 'lullaby', bait: 'amber_larvae' } };
+// the built species of a water this edition leaves out of the loop's pool, its list and its Journal page (§2.2: a second puffer, a second
+// koi, a fourth perch-built fish): their SPECIES_V3 records stay for the flag-off game
+LOOP.leftOut = { sporewood: ['sporebelly_puffer', 'plumgill_perch', 'hushcap_koi'] };
+LOOP.legendBait.sporewood = { id: 'glowcap_bulb', price: 250 };   // the Drifting Grove's bait, one try (SPEC §4.6), the built Glowcap Bulb
+// ---- the gear loop across waters (LAKE2 §5, the user's words of 17 Nov 2026: "at the next lake you lose everything you bought but keep
+// permanently a portion of the stats you got"; the user's answer 1: the raft's parts and the hold's slots are bought gear too)
+// Each water's own bought gear: its tackle tiers per slot (level 0 the start piece, shared by every water and never bought: it travels),
+// its hold ladder and its raft's parts. A tier's `hold` is the piece's own Hold, added to the carry (holdOf = the carry + the fitted piece);
+// a rod's `cast` the metres it casts beyond the start rod's LOOP.carry.castFrom, its `hookWindow` as TACKLE's. The Mossmere's tiers are
+// TACKLE T0–T2 at LOOP.tackle's prices (read from them, so the two never drift), its ladder LOOP.hold's to shelfMax, its raft LOOP.raft.
+// Sporewood's (§7.1, in its own materials: stalk, cap, root, moth silk, amber) do the same jobs; their names are TEXT_LOOP.gearItems'.
+{
+  const tierOf = (slot, t) => ({ id: TACKLE[slot][t].id, hold: TACKLE[slot][t].hold, ...(slot === 'rod' ? { cast: TACKLE.rod[t].castMax - TACKLE.rod[0].castMax, hookWindow: TACKLE.rod[t].hookWindow } : {}),
+    price: LOOP.tackle.price[t], ...(t === 0 ? { start: true } : {}) });
+  const start = (slot) => tierOf(slot, 0);
+  LOOP.gear = {
+    mossmere: { rod: [0, 1, 2].map((t) => tierOf('rod', t)), line: [0, 1, 2].map((t) => tierOf('line', t)), reel: [0, 1, 2].map((t) => tierOf('reel', t)),
+      hold: { ladder: LOOP.hold.ladder.filter((s) => s.slots <= LOOP.hold.shelfMax), shelfMax: LOOP.hold.shelfMax }, raft: LOOP.raft },
+    sporewood: {
+      rod:  [start('rod'), { id: 'stalkwood', hold: 3, cast: 2, hookWindow: 1.04, price: 300 }, { id: 'amberheart', hold: 6, cast: 4, hookWindow: 1.08, price: 1400 }],
+      line: [start('line'), { id: 'rootthread', hold: 3, price: 300 }, { id: 'mothsilk', hold: 7, price: 1400 }],
+      reel: [start('reel'), { id: 'capwheel', hold: 3, price: 300 }, { id: 'burlwheel', hold: 6, price: 1400 }],
+      // the hold's steps on Sporewood's shelf (a step at or under the slots a save brings is never offered), to Hold 7 (the user's yes)
+      hold: { ladder: [{ slots: 4, price: 300, id: 'bark_creel', name: 'Bark Creel' }, { slots: 5, price: 500, id: 'rootwoven_creel', name: 'Rootwoven Creel' },
+        { slots: 6, price: 1000, id: 'mossbed_basket', name: 'Mossbed Basket' }, { slots: 7, price: 2000, id: 'gardeners_hamper', name: "Gardener's Hamper" }], shelfMax: 7 },
+      // the raft's parts on Sporewood's shelf: each level's job as LOOP.raft's (oars +speed, keel +favour, lantern +night favour and light),
+      // `with` Sporewood's catalogue order; their names TEXT_LOOP.gearNamesAt.sporewood
+      // (the prices: LAKE2 §8.3's measured walk, the empty shelf inside its 3–5 h with the creels and the raft bought again)
+      raft: { oars: { prices: [100, 500], with: [2, 2] }, keel: { prices: [200, 900], with: [2, 2] }, lantern: { prices: [200, 800], with: [2, 2] } },
+    },
+  };
+}
+// the carried portion (LAKE2 §5.3 as the user's answers amend it): at each first tow to a new water, of the gear bought at the water left,
+// `share` is kept for good, on top of what earlier tows carried. Whole-number stats (each tackle slot's Hold, the rod's cast in metres
+// beyond castFrom, the hold's bought slots) round up: carry += ceil(x × share). The raft's parts carry their bought levels × share,
+// unrounded (each level's stat, LOOP.raft's: oars +1.5 m/s, keel +0.1 favour, lantern +0.1 at night and +15% light). Lures and tins stay
+// at their water; found things, the barge's home items and the Wick's own things travel whole (§5.2)
+LOOP.carry = { share: 1 / 3, round: 'up', castFrom: TACKLE.rod[0].castMax, tackle: ['rod', 'line', 'reel'], cast: true, slots: true, raft: ['oars', 'keel', 'lantern'] };
+// the first evenings at a water reached by a tow (the user's answer 2: "Sporewood's first evenings must not punish"; LAKE2 §8.3): over
+// its first `evenings` evenings there a fish over the gear's size cap lands at the cap (GEAR-GATES' first-evening rule, `cap`), and the
+// water's Fight term (CATCH_V3.lake) is eased by `fight[k]` on its k-th evening, then whole. Measured on the scratch sim (§8.3): the first
+// evening at Sporewood loses one hooked fish in five and earns 73% of the Mossmere's last trip (119% of its clams a minute)
+LOOP.arrival = { evenings: 3, cap: 'cap', fight: [-10, -6, -3] };
+// Sporewood's lures (§5.6, §7.1): its free start lure, its three of the Mossmere's jobs (`family` the job: the insect fly, the hunting
+// lure, the bottom lure) and its giants' lure, the built Spore-Lamp Fly re-aimed at its giants (+10 Hold on them, their share ×1.5)
+Object.assign(LOOP.lures, {
+  seedpod_twirl: { water: 'sporewood', price: 0, start: true },
+  spore_moth:    { water: 'sporewood', price: 240, family: 'insect' },
+  ember_minnow:  { water: 'sporewood', price: 400, family: 'predator' },
+  root_jig:      { water: 'sporewood', price: 440, family: 'bottom' },
+  sporelamp_fly: { water: 'sporewood', price: 1000, giants: ['harpstring_eel', 'festival_puffer'], share: 1.5, hold: 10 },
+});
+LOOP.tins.sporewood = ['spore_cake', 'amber_larvae'];   // its plain bait first (the Bait Bed's, the list's), then its glow and night bait
+// the start kit at a water reached by a first tow (GEAR-GATES §2.1's shape): its free lure and a tin of its plain bait, fitted
+LOOP.start.sporewood = { lures: ['seedpod_twirl'], bait: { spore_cake: 10 }, fit: 'spore_cake' };
+// the line's cap by its total Hold (§5.6: GEAR-GATES §4.1's line term, one rule for every water): Prize below `trophy`, Trophy below
+// `elder`, else Elder, on the fitted line's Hold plus the carry. The Mossmere's reproduces Twine · Line T1 · T2 (Hold 0 · 2 · 5) exactly;
+// at Sporewood the carried +2 alone fishes at Prize, Rootthread lifts it to Trophy (2 + 3), Mothsilk to Elder (2 + 7)
+LOOP.gearCap.lineAt = { mossmere: { trophy: 2, elder: 5 }, sporewood: { trophy: 4, elder: 7 } };
+LOOP.gearCap.item.seedpod_twirl = 'keeper';   // the free Twirl lands up to Keeper, as the Bent Spoon
+// the home barge's mooring at Sporewood (§3.5): the Slow Hearth in Rootfoot cove, its bow west, the raft at its stern on the root-post
+// jetty (the lake's docks[dock], which lane W1 builds there), Murk's barge east of it; the home camera looks north-west across the East
+// Pool, the Mother Cap on the right and the neck's mouth on the left. The design's figures: lane W1 fits them to the built shore and
+// validate-data's mooring checks run on them once Sporewood's arena has its outline
+LOOP.mooring.sporewood = { dock: 0, hull: { x: 36, z: 34, yaw: Math.PI / 2 }, murk: { x: 44, z: 30, yaw: -2.2 }, lane: [[30, 28]],
+  cam: { pos: [46, 6, 44], look: [37, 1.3, 32], fov: 40, portrait: { pos: [50, 9, 46], look: [38, 1.3, 31], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } };
+// the words (§5.2, §5.6, §6.4, §6.5, §7.1): the items' names, the shelf's lines (each ≤ 8 words, no odds), the place maps' lines, Murk's
+// three lines at Sporewood, the leaving card, the map card's line, the carried line (logs only) and the new water's guide box
+Object.assign(TEXT_LOOP.gearItems, {
+  seedpod_twirl: 'Seedpod Twirl', spore_cake: 'Spore Cake', amber_larvae: 'Amber Larvae', spore_moth: 'Spore Moth', ember_minnow: 'Ember Minnow',
+  root_jig: 'Root Jig', sporelamp_fly: 'Spore-Lamp Fly', rootthread: 'Rootthread', mothsilk: 'Mothsilk', stalkwood: 'Stalkwood', amberheart: 'Amberheart',
+  capwheel: 'Capwheel', burlwheel: 'Burlwheel',
+});
+TEXT_LOOP.gearNamesAt = { sporewood: { oars: ['Capleaf Oars I', 'Capleaf Oars II'], keel: ['Root Keel I', 'Root Keel II'], lantern: ['Glowcap Lantern I', 'Glowcap Lantern II'] } };
+Object.assign(TEXT_LOOP.shelf, {
+  spore_cake: 'Nearly everything here eats it.', amber_larvae: 'For the Jelly and the night carp.',
+  rootthread: 'Twisted root hair. Lands bigger fish.', mothsilk: 'Lands the biggest fish.', stalkwood: 'Light, and springs back.', amberheart: 'Amber at the heart. It holds.',
+  capwheel: 'Turned from a shelf cap.', burlwheel: 'Cut from a root burl.',
+  spore_moth: 'Skates the top, for small risers.', ember_minnow: 'Wobbles warm, for the hunters.', root_jig: 'Hopped on the bottom, for rays.',
+  sporelamp_fly: "For the Pools' giants.", glowcap_bulb: "For the Mother's Cup. One try.",
+});
+TEXT_LOOP.shelfAt = { sporewood: { hold: 'Room for one more.', oars: 'Faster through the neck.', keel: 'Rides low. Bigger fish.', lantern: 'Glowcap light. Bigger fish at night.' } };
+Object.assign(TEXT_LOOP.maps, { lullaby: 'Something sleeps under every lily raft.', gill_harp: 'The gills hang down. One of them hums.',
+  veilwater: 'Behind the moss, a lantern floats.', mothers_cup: 'The Mother breathes. Big things breathe with her.',
+  sporewood: 'A harp in the Pools knows one song.' });   // (`sporewood`: the lake map's own line, its card's)
+TEXT_LOOP.murk.at = { sporewood: { map: 'New water, new tackle. Your hands keep a third.', home: 'Spore Cake on the hook. They like it sweet here.',
+  away: 'Lost a big one? Rootthread holds them.' } };   // (map: the lake map bought; home: the first evening home there; away: its first cap loss)
+// the leaving card (§5.2, before the first Sail for a water not yet towed to): its title, four lines and two buttons; `carry` below
+// shows what the hands keep, in figures, under `keeps`
+TEXT_LOOP.leave = { title: 'To {water}', stays: 'Bought tackle, raft parts and creels stay here.', keeps: 'Your hands keep a third of it.',
+  wait: 'Lures and bait wait here.', come: 'Found things come with you.', tow: 'Tow', notYet: 'Not yet' };
+TEXT_LOOP.mapLeaves = 'Moving on leaves bought gear behind.';   // under the lake map's price on its card (the shelf, the catalogue)
+TEXT_LOOP.carry = 'Carried {r} · {l} · {c}';   // rod · line · reel (the Wick's sheet at Tackle, the Tackle screen's head; logs only)
+TEXT_LOOP.guide.newWater = "New water: new gear, lures and bait at Murk's.";   // one box, at the first cast at a new water (ui-guide.js)
+// <<< LAKE 2, lane D1
 
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
@@ -6206,6 +6370,69 @@ if (V3_ENABLED) {
       CATCH_V3.items[id] = { ...CATCH_V3.items[id], species: [...rows, ...rest] };
     }
   }   // <<< the Wick's sheet
+  if (LOOP_ENABLED) {   // >>> LAKE 2, lane D1 (LAKE2.md §2, §5.6, §5.7, §7.1): Sporewood under the loop, as data, before its water ships.
+    // Nothing here is the Mossmere's: its SPECIES_LOOP, its pool, its hook table's targets and every item it sells are as they were.
+    // (1) Sporewood's items as built-shaped rows of the loop's own (the Spore-Lamp Fly, Spore Cake and the Glowcap Bulb are built rows):
+    // each lure does a Mossmere lure's job, so it takes that lure's draw and favour (the Moth the Feather Fly's, the Minnow the Glimmer
+    // Spoon's, the Jig the Bone Jig's, the free Twirl the Bent Spoon's); Amber Larvae a tin of the loop's own (sold by LOOP.tins' rule)
+    const like = (id) => LURES.find((l) => l.id === id) || {}, G = TEXT_LOOP.gearItems;
+    const swLures = [
+      { id: 'seedpod_twirl', like: 'bent_spoon', depth: 'mid' }, { id: 'spore_moth', like: 'feather_fly', depth: 'surface' },
+      { id: 'ember_minnow', like: 'glimmer_spoon', depth: 'mid' }, { id: 'root_jig', like: 'bone_jig', depth: 'bottom' },
+    ];
+    for (const { id, like: lk, depth } of swLures) {
+      if (LURES.some((l) => l.id === id)) continue;
+      const L = like(lk), fam = LOOP.lures[id]?.family ?? null;
+      LURES.push({ id, name: G[id], depth, ...(fam ? { family: fam } : {}), attract: L.attract ?? 1, favour: L.favour ?? 0, ...(L.riseWaitMult ? { riseWaitMult: L.riseWaitMult } : {}), price: 0, onSale: null });
+      const f = BALANCE_V3.favour.tackle.lure?.[lk];
+      if (Number.isFinite(f)) BALANCE_V3.favour.tackle.lure[id] = f;
+    }
+    if (!BAITS.some((b) => b.id === 'amber_larvae')) BAITS.push({ id: 'amber_larvae', name: G.amber_larvae, price: 0, count: LOOP.baitRule.tin, zoneMin: 1, zone: 'sporewood', unlock: null, legend: false, icon: 'worm', bonus: {} });
+    // (2) its fish (§2.1): the roster's on the converter, the three kept built species cloned (as the Mossmere's kept fish: any depth, the
+    // loop's own record, their terms at this water from LOOP.keptAs), each look merged from ROSTER_ART over a built model; the open water's
+    // nine in the Journal's order, then each place's own fish, giant and legend in the Chart's order. The Nightbloom Carp's record is its
+    // guest record already in SPECIES (one record: Sporewood's night-water fish and the Mossmere's guest). In SPECIES after SPECIES_LOOP, in
+    // place of the built records of the same ids; the species this edition leaves out (LOOP.leftOut) are out of the loop's SPECIES
+    for (const [w, open] of Object.entries(LOOP.species)) {
+      if (w === 'mossmere' || !Array.isArray(open)) continue;
+      const pf = loopPlaceIds(w).flatMap((p) => { const q = LOOP.places[p]; return [...(q.own || []), ...(q.giant ? [q.giant] : []), ...(q.legend ? [q.legend] : [])]; });
+      const ids = [...open, ...pf].filter((id, i, a) => a.indexOf(id) === i && !SPECIES.some((x) => x.id === id && x.guestOf));
+      const kept = new Set(LOOP.kept);
+      const conv = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
+        diff, art: ROSTER_ART, waters: [w] });
+      const recs = [];
+      for (const id of ids) {
+        let x = conv.find((c) => c.id === id) || null;
+        if (kept.has(id) && SPECIES_V3_BY_ID[id]) {
+          x = { ...v3clone(SPECIES_V3_BY_ID[id]), depth: [0, 1], roster: false, ...(SPECIES_V3_BY_ID[id].phase > 1 ? { loopLift: true } : {}), ...v3clone(LOOP.keptAs?.[id] || {}) };
+          delete x.weather;
+        }
+        if (!x) continue;
+        if (!kept.has(id) && Number(x.phase) > 1) x.phase = 1;   // (a re-founded built record is the loop's own: inside the phase pin, as a new roster fish is)
+        if (SPECIES_V3_BY_ID[id] && ROSTER_ART[id]?.model) x.model = { ...x.model, ...v3clone(ROSTER_ART[id].model) };   // (a new fish's model is ROSTER_ART's already)
+        recs.push(v3fin(x));
+      }
+      const drop = new Set([...recs.map((x) => x.id), ...(LOOP.leftOut?.[w] || [])]), n0 = SPECIES_LOOP.length;
+      const rest = SPECIES.filter((x) => !drop.has(x.id));
+      SPECIES.length = 0;
+      SPECIES.push(...rest.slice(0, n0), ...recs, ...rest.slice(n0));
+    }
+    // (3) the Spore-Lamp Fly re-aimed at Sporewood's giants (as the Harbour-Bell Spinner at the Mossmere's: +10 Hold on the fish named)
+    { const sl = LOOP.lures.sporelamp_fly, l = LURES.find((x) => x.id === 'sporelamp_fly');
+      CATCH_V3.items.sporelamp_fly = { ...(CATCH_V3.items.sporelamp_fly || { kind: 'lure' }), hold: sl.hold, species: sl.giants.slice() };
+      if (l) l.species = sl.giants.slice(); }
+    // (4) the Hold a Sporewood item gives (the Wick's sheet's rule, SHEET.md §8.1): the fish of its water that like it or better on its
+    // water's hook table (grade 2 or 3); Cut Strip, every water's hook, adds Sporewood's to the Mossmere's. A new item's own Hold is its
+    // Mossmere twin's (the tins' 5, the Moth's 5, the Minnow's and the Jig's 6, the Twirl's 3)
+    const SWT = WC_TABLES.sporewood.hook.table, swFish = new Set(Object.keys(SWT));
+    const swTargets = (id) => Object.keys(SWT).filter((f) => SWT[f][id] === 2 || SWT[f][id] === 3);
+    const twin = { spore_cake: 'mireworm', amber_larvae: 'lumen_moss', spore_moth: 'feather_fly', ember_minnow: 'glimmer_spoon', root_jig: 'bone_jig', seedpod_twirl: 'bent_spoon' };
+    for (const [id, tw] of Object.entries(twin)) {
+      const T = CATCH_V3.items[tw] || {}, kind = T.kind || (LOOP.lures[id] ? 'lure' : 'bait');
+      CATCH_V3.items[id] = { kind, hold: Number(CATCH_V3.items[id]?.hold ?? T.hold ?? 5), species: swTargets(id) };
+    }
+    { const cs = CATCH_V3.items.cut_strip; if (cs) cs.species = [...(cs.species || []).filter((f) => !swFish.has(f)), ...swTargets('cut_strip')]; }
+  }   // <<< LAKE 2, lane D1
   // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
   const moss = ZONES[0];
   Object.assign(moss.palette, MOSSMERE_V3.palette);

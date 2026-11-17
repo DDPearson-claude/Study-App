@@ -108,8 +108,8 @@ export default async function (api) {
     const gi = await g(() => {
       const c = window.__gw, d = c.data, L = c.state.meta.loop, J = c.state.meta.journal;
       Object.assign(L, { holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 }, looks: ['slate_dye', 'oxblood_pennant', 'amber_glass'] });
-      L.maps.places = Object.keys(d.LOOP.places); L.home = { ...L.home, baitBed: 2, wall: 1, lights: 1, orders: 2 };
-      L.raft = { ...L.raft, oars: 2, keel: 2, lantern: 2 }; if (d.LOOP.lures) L.lures = Object.keys(d.LOOP.lures);
+      L.maps.places = d.loopPlaceIds('mossmere'); L.home = { ...L.home, baitBed: 2, wall: 1, lights: 1, orders: 2 };
+      L.raft = { ...L.raft, oars: 2, keel: 2, lantern: 2 }; if (d.LOOP.lures) L.lures = Object.keys(d.LOOP.lures).filter((id) => d.LOOP.lures[id].water === 'mossmere');
       for (const s of d.SPECIES.filter((x) => x.zone === 'mossmere' && !x.cove)) J[s.id] = { ...(J[s.id] || {}), caught: 1 };
       L.home.lights = 0; L.clams = 500; delete L.gilt; if (L.said) delete L.said.shelfBare;   // (the last card left: Barge lights I)
       const items = c.progression.loop.shelf().tabs.flatMap((t) => t.items);

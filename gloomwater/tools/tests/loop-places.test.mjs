@@ -41,10 +41,11 @@ const T1 = { rod: 1, line: 1, reel: 1 };
 section('T101: the four places (LOOP.places, loopPlace, the arena\'s keep list, PLACES)');
 {
   // (LOST-TACKLE §5: the four, then Veilback Brook, a secret place shown by a lost notebook: never a map, never priced)
-  eq(Object.keys(D.LOOP.places), [...FOUR, 'veilback_brook'], 'LOOP.places holds exactly the four, in the Chart\'s order, then the secret brook');
+  eq(D.loopPlaceIds('mossmere'), [...FOUR, 'veilback_brook'], 'LOOP.places holds exactly the four, in the Chart\'s order, then the secret brook');
+  eq(Object.keys(D.LOOP.places).filter((id) => D.LOOP.places[id].water !== 'mossmere'), ['lullaby', 'gill_harp', 'veilwater', 'mothers_cup'], 'LAKE 2 (lane D1): every other place is Sporewood\'s four, in its Chart\'s order');
   eq(D.loopPlaceIds('mossmere'), [...FOUR, 'veilback_brook'], 'loopPlaceIds(mossmere): the Chart\'s order');
   ok(D.LOOP.places.veilback_brook.secret === true && D.LOOP.places.veilback_brook.price === 0 && D.LOOP.places.veilback_brook.revealedBy === 'veil_notebook' && D.LOOP.lostTackle.veil_notebook.reveals === 'veilback_brook', 'the brook: secret, free, shown by the Veil Angler\'s Notebook');
-  eq(D.loopPlaceIds('sporewood'), [], 'loopPlaceIds of a water with no place map: none');
+  eq(D.loopPlaceIds('glasswater'), [], 'loopPlaceIds of a water with no place map: none');
   eq(FOUR.map((id) => D.LOOP.places[id].kind), ['day', 'old', 'night', 'crown'], 'their kinds: day, old, night, crown');
   eq(FOUR.map((id) => D.LOOP.places[id].price), FOUR.map((id) => D.LOOP.waters.mossmere.prices[D.LOOP.places[id].kind]), "each price is LOOP.waters.mossmere.prices[kind]");
   eq(FOUR.map((id) => D.LOOP.places[id].price), [60, 150, 260, 500], '60, 150, 260, 500');

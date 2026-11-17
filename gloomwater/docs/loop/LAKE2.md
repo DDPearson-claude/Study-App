@@ -6,6 +6,9 @@ GEAR-GATES, FINDS, LOST-TACKLE and WATERCRAFT; where it changes one of them, the
 writes it into that file when it builds. Figures marked* measured* come from the scratch sim of §8; figures marked *est.* are hand
 figures.*
 
+*Revised on `gw-lake2` by lane D1 (17 November 2026, the data shape): the user's answers to §11 override this design where they differ;
+§0A lists them and every section they change carries a note. Figures marked *measured (D1)* come from §8.3's scratch run.*
+
 ---
 
 ## 0. The user's words, and what each becomes
@@ -17,6 +20,19 @@ figures.*
 | 3 | "And make sure each new fish looks completely different from any related version of that fish." | Every Sporewood fish with a relative in the Mossmere gets a different body plan or a different build of the plan: silhouette, head and mouth, fins, tail, markings, colour and size (§2.3). Three new plans (disc, bream, tuna) and new parameters on five built ones |
 | 4 | "Make sure the next lake has more greenery than the moss mere also make sure its more of a natural shaped design not just a geometric shape. Its important to feel very different from the previous lake" (binding) | §1A, point by point: far more green, an irregular two-pool basin with coves, a neck, points, a spit and six islands, drawn so on the Chart, and different from the Mossmere in twelve named ways |
 | 5 | "I think the gameplay loop from the gear purchase perspective is at the next lake you lose everything you bought but keep permanently a portion of the stats you got. Anything you found whilst fishing you keep permanently and you can change rods and reels at your leisure in an options menu. Gear from murk at the new location needs to perform a similar job but feel different. There should also be completely different lures etc on every new map." (binding, from Lake 2 on) | §5, the gear loop across waters: bought tackle stays behind and a third of its Hold (and of the rod's cast) is carried for good; found things travel; a Tackle screen; Murk's Sporewood shelf does the Mossmere's jobs in Sporewood's own materials; every lure and bait at Sporewood is new |
+
+### 0A. The user's answers (17 November 2026), over this design's defaults
+
+| # | the answer | what changes |
+|---|---|---|
+| 1 | The raft's parts (oars, keel, lantern) and the hold's slots **are bought gear**: they are left behind at the tow, with a share of their stats kept like the rest. The barge's own home items (the Order Board, the lights, the Bait Bed…) stay with the home | **§5's default is overridden** (§5.2's row "the raft's parts and the hold travel" and §11 question 2's "No"): at the first tow the bought Oars, Keel and Lantern levels and the bought hold slots stay at the water left; a third of each is carried (§5.3). Sporewood's shelf sells its own creels (Hold 4 to 7) and its own raft parts (§7.1), doing the same jobs in its own materials |
+| 2 | Sporewood's first evenings must not punish: on the first evening at Sporewood at most about one hooked fish in five gets away, and a trip earns at least about 60% of the Mossmere's last pace; the carried share, Sporewood's early prices and values, its caps for the start kit and its first buys are the knobs | the first evenings at a water reached by a tow (`LOOP.arrival`): over the first three a fish over the gear's cap lands at the cap (GEAR-GATES' first-evening rule) and the water's Fight term is eased (−10, −6, −3 off its 7), then whole; the creels and the raft parts priced so the empty shelf stays inside 3–5 h. *Measured (D1)*: evening 1 loses **20%** of hooked fish and earns **73%** of the Mossmere's last trip (**119%** of its clams a minute) (§8.3). The carried share stays a third |
+| 3 | The design's other defaults stand: about 12% green by day; Cut Strip at every water; on the way back the Mossmere's lures wait; the three repeating kept species left out; a third carried; the map at 2,800; Hold 7 on Sporewood's shelf; and no swapping fish, ever | as designed (§1A, §5.7, §6.3, §2.2, §5.3, §6.1, §7.1) |
+
+Lane D1's renames (the names rule and the originality scan, which every word in `src/` passes): the plan written **tuna** here is
+**`finlet`** in the code and in `roster.json` (the word is a research name, which `src/` never carries; ROSTER §4 notes it), and the glow
+and night bait written *Amber Grubs* is **Amber Larvae** (`amber_larvae`; "grubs" is another game's word). The place ids are `lullaby`,
+`gill_harp`, `veilwater` and `mothers_cup`.
 
 ---
 
@@ -446,10 +462,11 @@ What is there: §1. Greener, natural, different: §1A. The roster: §2. The wate
 
 ### 5.1 The rule in one breath
 
-When the home is towed to a new water for the first time, **every rod, line and reel bought from Murk at the old water stays
-behind**, and **a third of the Hold they gave (and of the rod's cast) is carried for good**: the Wick's hands keep what they learned.
+When the home is towed to a new water for the first time, **every rod, line and reel, every raft part (Oars, Keel, Lantern) and every
+creel bought from Murk at the old water stays behind** (the user's answer 1, §0A), and **a third of what they gave is carried for
+good** (the tackle's Hold and the rod's cast, the hold's bought slots, the raft parts' levels): the Wick's hands keep what they learned.
 **The old water's lures and tins stay at that water** (they only work there, and they are there again on the way back). **Everything
-found while fishing travels** with the home, and so do the raft, the hold, the barge and everything on it. At the new water Murk
+found while fishing travels** with the home, and so do the raft itself, the barge and its home items. At the new water Murk
 gives its own start kit and sells **its own tackle, lures and baits**, doing the same jobs in that water's materials. **The player is
 told once, plainly, before buying the map and again before the tow.**
 
@@ -462,7 +479,7 @@ told once, plainly, before buying the map and again before the tow.**
 | **bait tins** (counts) | **stay at their water** (`meta.loop.bait[water]` already keys them so) | as lures |
 | the start tackle (Willow Switch, Twine, Wooden Winch) | **travels** (never bought) | so there is always a rod |
 | **found tackle** (the Lamplighter's Pole, the Belfry Winch, the Ferrywife's Thread, the Gate-Guard's Button, both notebooks) | **travels, for good**; the Button works at every water (grade 2 for every fish but giants, legends and the bait-only fish); a notebook's boost and guest stay its water's own | (b) |
-| **the raft's parts** (Oars, Keel, Lantern) and **the hold** (its slots) | **travel** (default; question 2) | they are the raft and its creel, towed with home; resetting the hold too measured punishing (§8) |
+| **the raft's parts** (Oars, Keel, Lantern) and **the hold** (its bought slots) | **left behind**; a third of their levels and slots is carried (§5.3) | **the user's answer 1** (§0A), over this design's default (they travelled); the first evenings' rule (`LOOP.arrival`, §8.3) keeps the move from punishing |
 | the barge and its home items, prints, the gallery, looks, barge parts | travel | the home goes where you go |
 | clams | kept | money, not gear |
 | the Journal, records, class seals, prints, the list's ticks, the keys | kept | the record |
@@ -476,13 +493,14 @@ told once, plainly, before buying the map and again before the tow.**
 - **Before the tow** (the first Sail for a water not yet towed to): one card over the Chart, with the Wick's sheet glyphs:
 
   > **To Sporewood Pools**
-  > Bought rods, lines and reels stay here.
-  > Your hands keep a third: **+2 Hold** each.
-  > Lures and bait wait at the Mossmere.
+  > Bought tackle, raft parts and creels stay here.
+  > Your hands keep a third of it. *Carried +2 · +2 · +2*
+  > Lures and bait wait here.
   > Found things come with you.
   > **[Tow]** **[Not yet]**
 
-  The **+2** is computed (§5.3). "Not yet" returns to the Chart; nothing changes until Tow. Tow writes `barge.towed`, then the carry
+  (The words as lane D1 wrote them, `TEXT_LOOP.leave`, after the user's answer 1; the map card's line is `TEXT_LOOP.mapLeaves`,
+  "Moving on leaves bought gear behind.") The carried figures are computed (§5.3) and drawn in the carried line's words. "Not yet" returns to the Chart; nothing changes until Tow. Tow writes `barge.towed`, then the carry
   and the reset, in one save (a reload lands at the new mooring with all of it written, SPEC §6.5's rule).
 
 ### 5.3 The carried portion
@@ -494,6 +512,10 @@ told once, plainly, before buying the map and again before the tow.**
   left** (not counting what was already carried); the cast likewise: ceil((the best bought rod's cast − 16 m) / 3). Leaving the
   Mossmere with T2 everywhere (5 / 5 / 5, cast 19 m): **+2 / +2 / +2 Hold, +1 m cast**. With T1 only: +1 each. Never less than 0;
   a slot never bought carries nothing new.
+- **The hold and the raft** (the user's answer 1): the hold's bought slots carry ceil(B / 3), B the slots bought at the water left
+  (the Mossmere's Hold 6: +1, so Sporewood opens on Hold 4); each raft part carries its bought levels × ⅓, unrounded (the Mossmere's
+  Oars II, Keel II and Lantern II: 0.67 of a level each: +1 m/s, +0.067 favour, +0.067 at night and +10% light). Sporewood's shelf
+  sells its own creels from the step above the carried slots to Hold 7, and its own raft parts (`LOOP.gear.sporewood.hold`, `.raft`).
 - **Stacking without breaking the ladder**: the carry only grows, by a third of each water's own bought gear, and **each water's
   tiers are authored on top of the carry a player who bought that water's top would bring** (the "expected carry"), so every water's
   top tier with that carry lands on SPEC §4.3's settled Hold for its era: Sporewood's top (+6 / +7 / +6) on +2 gives **8 / 9 / 8**,
@@ -624,8 +646,8 @@ at Murk's."** Nothing else; the leaving card and Murk's line carry the rest.
 | item | kind | base · **shown** | what it does | its look | its motion | shelf line (≤ 8 words, no odds) |
 |---|---|---|---|---|---|---|
 | Seedpod Twirl | start lure | free | grade 1–2 on the small fish; lands up to Keeper | a dried winged seedpod, cream and brown, a hook through its seed | spins down slowly like a falling key | (never on the shelf) |
-| Spore Cake, a tin of 10 | plain bait | 15 · **35** | the right bait of the barb, the crayfish, the Downcast; the Threadling takes nothing else | a crumbly plum-brown cake studded with gold spores | dissolves in a slow gold cloud | "Nearly everything here eats it." |
-| Amber Grubs, a tin of 10 | glow bait | 15 · **35** | the right bait of the night carp and the angler; the Sleepspore Jelly takes nothing else | fat cream grubs with softly lit amber segments | curl and uncurl on the hook | "For the Jelly and the night carp." |
+| Spore Cake, a tin of 10 | plain bait | 15 · **30** (as Amber Larvae's) | the right bait of the barb, the crayfish, the Downcast; the Threadling takes nothing else | a crumbly plum-brown cake studded with gold spores | dissolves in a slow gold cloud | "Nearly everything here eats it." |
+| Amber Larvae (written Amber Grubs before D1, §0A), a tin of 10 | glow bait | 15 · **30** (the game's tin price: tier 11 × 1.5, to 5, ×2) | the right bait of the night carp and the angler; the Sleepspore Jelly takes nothing else | fat cream larvae with softly lit amber segments | curl and uncurl on the hook | "For the Jelly and the night carp." |
 | Rootthread | Line I | 300 · **600** | +3 Hold; lifts the cap to Trophy | brown line of twisted root hair | — | "Lands bigger fish." |
 | Stalkwood | Rod I | 300 · **600** | +3 Hold, casts +2 m | a pale fungus-stalk rod ringed like a mushroom stem, a bark grip | — | "Light, and springs back." |
 | Capwheel | Reel I | 300 · **600** | +3 Hold | a reel turned from a dried shelf-fungus cap, gills on its face | — | "Turned from a shelf cap." |
@@ -639,11 +661,13 @@ at Murk's."** Nothing else; the leaving card and Murk's line carry the rest.
 | the Veilwater | night place map | 1,200 · **2,400** | §3.2 | — | — | its card line |
 | the Mother's Cup | crown place map | 2,200 · **4,400** | §3.2 | — | — | its card line |
 | Glowcap Bulb | the legend's bait, one try | **250** | the Drifting Grove only | built | — | "For the Mother's Cup. One try." |
-| Hold 7, the Ferry Hamper | the hold ladder | 2,000 · **4,000** | 7 slots (it travels) | built ladder | — | built line |
+| Bark Creel · Rootwoven Creel · Mossbed Basket · Gardener's Hamper | the hold's steps (the user's answer 1: the slots are bought gear) | 300 · 500 · 1,000 · 2,000 (· **600 · 1,000 · 2,000 · 4,000**) | Hold 4 · 5 · 6 · 7 (a step at or under the carried slots is never offered) | woven root, moss-lined, a gardener's lidded hamper | — | "Room for one more." |
+| Capleaf Oars I–II · Root Keel I–II · Glowcap Lantern I–II | the raft's parts (answer 1) | oars 100 · 500, keel 200 · 900, lantern 200 · 800 (×2 shown) | each level's job as the Mossmere's (+1.5 m/s; +0.1 favour; +0.1 at night, +15% light) | pressed-cap paddles, a root keel, a glowcap in the lantern | — | "Faster through the neck." · "Rides low. Bigger fish." · "Glowcap light. Bigger fish at night." |
 
 Each item gets an engraving in Murk's catalogue (`murk-engrave.js`, his line-engraving style) and a mesh where it is seen on the
 raft (lures on the rod tip, the reel on the rod; the tackle's meshes follow the built tiers' shapes in the new materials). Thirteen
-permanent items, 25,160 shown (with Hold 7), beside two tins and the Glowcap Bulb. Raft and home items: none new in this edition (§10).
+permanent items, 25,160 shown (with Hold 7), beside two tins and the Glowcap Bulb; with the user's answer 1, also Hold 5 and Hold 6
+again (3,000 shown) and the six raft-part levels (5,400 shown): 8,400 shown more. Home items: none new in this edition (§10); they travel.
 
 ### 7.2 Orders
 
@@ -736,6 +760,42 @@ node <scratch>/sw-pace.mjs --carry=0|1|3 --pk=2 --list      # the other rows; --
 node tools/sim/clams.mjs --shipped=mossmere --quick         # the Mossmere under the loop
 ```
 
+### 8.3 Measured with everything bought reset (lane D1, the user's answers 1 and 2)
+
+The scratch sim of §8.2 again (`tools/sim/clams.mjs` copied outside the repo, as the dev branch at 09106ba has it), with three more
+hooks: a raft part's level may be a fraction (the carried ⅓ of a level), a fish over the gear's cap may land at the cap on an evening
+the arrival rule covers, and Sporewood's Fight term (`CATCH_V3.lake.sporewood`, 7) eased per evening. The arrival kit: the Mossmere's
+end (T2 5 / 5 / 5, Hold 6, Oars II, Keel II, Lantern II) left behind, **a third carried** (+2 Hold a slot, +1 m cast, Hold 3 + 1 = **4**,
+0.67 of a level of each raft part), the Seedpod Twirl and a tin of Spore Cake, 160 clams banked. Sporewood's lures still stand in for
+the Mossmere's family lures (the hook table of §2.4 is D2's to port), so the figures are the answer's shape; lane D2's
+`clams.mjs --shipped=sporewood` re-measures them on the game's tables and moves the same knobs. The Mossmere's last trip: **347 clams in
+4.8 min, 72 a minute** (§8.2).
+
+| the first evenings at Sporewood (best hook: Spore Cake) | lost of hooked (over the cap) | clams a trip (of the Mossmere's 347) | clams a minute (of its 72) |
+|---|---|---|---|
+| this design's rule with the hold and raft reset (no arrival rule) | 44% (21%) | 134 (39%) | 36 (50%) |
+| over-cap fish land at the cap on evening 1, Fight 7 | 33% (0%) | 201 (58%) | 60 (83%) |
+| … and a half carried in place of a third (+3, Hold 5) | 28% (0%) | 256 (74%) | 69 (96%) |
+| … a third, everything kept (+5, Hold 6, the raft whole) | 25% (0%) | 410 (118%) | 97 (135%) |
+| **the arrival rule (`LOOP.arrival`): evening 1, Fight 7 − 10** | **20% (0%)** | **255 (73%)** | **86 (119%)** |
+| evening 2, Fight 7 − 6 | 25% (0%) | 232 (67%) | 75 (105%) |
+| evening 3, Fight 7 − 3 | 29% (0%) | 214 (62%) | 67 (93%) |
+| from evening 4: Fight 7, the caps as GEAR-GATES' (Rootthread bought after trip 2) | — | 230 (66%) | 68 (94%) |
+
+The carried share is a weak knob (a half carried, or everything kept, still loses a quarter of the hooked fish at Sporewood's Fight
+term), so the first evenings' rule carries the user's target and the share stays a third. With the creels and the raft parts bought
+again at the prices of §7.1, the walk (n = 1,200 a kit, the buying order Rootthread, Hold 5, Stalkwood, Capwheel, Oars I, the hunting
+lure, Hold 6, Keel I, the bottom lure, Lantern I, the Veilwater, the insect fly, the Spore-Lamp Fly, Oars II, Mothsilk, Burlwheel,
+Keel II, Amberheart, Lantern II, the Mother's Cup, the Grove's hunt, Hold 7): the first buy after **trip 2** (0.10 h); back to the
+Mossmere's clams a trip at Hold 6 (trip 21, 1.28 h; its clams a minute from evening 1); the longest wait **32 min**; the empty shelf
+**4.77 h, 71 trips** (inside §8.1's 3–5 h; the first draft's raft and creel prices, half as dear again, gave 5.10 h). Commands (from
+the scratch folder):
+
+```
+node sw-pace2.mjs --share=0.3333 --ease=-10,-6,-3 --fen=3 --h5=500 --h6=1000 --o1=100 --o2=500 --k1=200 --k2=900 --l1=200 --l2=800
+node sw-pace2.mjs --walk=0 --share=0.5 | --share=1 | --df=-7 …      # the other rows
+```
+
 ---
 
 ## 9. The build plan (lanes, two at a time)
@@ -769,6 +829,36 @@ and the Legion Go (touch and controller); `hue-report` and `clarity-perf` on Spo
 `LOOP.shipped = 'sporewood'`, `index.html` rebuilt, the user's look sheet (the two waters side by side, day, dusk, night) and a short
 film of the tow and the first evening.
 
+### 9.1 Lane D1 as built (gw-lake2)
+
+Data only; `LOOP.shipped` stays `'mossmere'`, so no lake map, sheet, shelf card, Journal tab, gallery wing or trip reaches any of it,
+and the Mossmere plays as before (the readers of a shared table keep to the shipped waters: the Chart's sheets and next water,
+`mapCards`' frontier, the Journal's tabs, the gallery's wings, the gear log's tins and lures).
+
+- **`src/data.js`**: `LOOP.waters.sporewood` (order 2, tier 11, its place prices, `lake` 1,400, `plainBait`, the `places` its lake map
+  opens: the Lullaby and the Gill Harp); `LOOP.places` += `lullaby` (day, `lake`), `gill_harp` (old, `lake`, the Harpstring),
+  `veilwater` (night, 1,200, the Festival Puffer), `mothers_cup` (crown, 2,200, the Drifting Grove), each with `out`, `card`, `draws`;
+  `SPOREWOOD_LOOP.places` (their geometry and names, which `loopPlace` merges as MOSSMERE_V3's; W1 refits them); `LOOP.species.sporewood`
+  (the nine); `LOOP.kept` += the Capshell, the Angler, the Jelly, `LOOP.keptAs` (the Jelly the Lullaby's own on Amber Larvae);
+  `LOOP.leftOut.sporewood` (the three); `LOOP.legendBait.sporewood`; **`LOOP.gear`** (each water's tackle tiers, hold steps and raft
+  parts: the Mossmere's read from TACKLE, LOOP.hold and LOOP.raft; Sporewood's §7.1 and §0A); **`LOOP.carry`** (share ⅓, round up,
+  castFrom 16, tackle, cast, slots, raft); **`LOOP.arrival`** (§8.3); `LOOP.lures` += the five (`water: 'sporewood'`); `LOOP.tins.sporewood`;
+  `LOOP.start.sporewood`; `LOOP.gearCap.lineAt`, `.item.seedpod_twirl`; `LOOP.mooring.sporewood` (the design's figures; validate-data
+  checks it once the arena has its outline, a warning until then); `LOOP_BODY_K` += disc, bream, finlet, catfish (each a cousin's, for F
+  to confirm); `ROSTER_ART` += the fourteen looks' keys (the §2.3 words; F builds and paints them). Under the loop the apply block adds the
+  new items' LURES and BAITS rows, Sporewood's fourteen records in SPECIES after SPECIES_LOOP (the left-out three out; the Nightbloom its
+  one guest record), the Spore-Lamp Fly re-aimed at the two giants and each Sporewood item's Hold targets from its hook table.
+- **Words** (`TEXT_LOOP`): `gearItems` (the thirteen), `gearNamesAt.sporewood` (the raft parts), `shelf` (each item's line), `shelfAt.sporewood`
+  (the creels' and the raft's lines), `maps` (the four places and the lake map), `murk.at.sporewood` (map, home, away), `leave`, `mapLeaves`,
+  `carry`, `guide.newWater`.
+- **`src/watercraft.js`**: `WATERCRAFT.sporewood` (`hookItems`, `raw`, `hook.table` with the Button's column made from `hook.button`'s
+  rule, `mult` and `cap` as the Mossmere's, `giants`; `geometry`, `shares`, `factors`, `tells`, `sight` null for W1, D2 and the watercraft
+  lanes), `HOOK_ITEMS_AT`, `LURE_IDS_AT`, `BAIT_IDS_AT`. Every reader still keeps to the Mossmere's tables: D2 threads the water through.
+- **The roster**: `roster.json`'s eleven `favours` read Sporewood's items (the Threadling "bites on Spore Cake only", its body the swampeel's);
+  `tools/roster-export.mjs` `NEXT` exports Sporewood's ten beside the Nightbloom.
+- **Checks**: validate-data `--loop`'s "LAKE2 D1" block (every key above, the list rule, the repeats rule, the hook table, `lineAt`, the
+  words, nothing on a fresh save's shelf or map cards).
+
 ---
 
 ## 10. Left for later (named, not built)
@@ -786,7 +876,7 @@ ships); WATERS' re-stepping of waters 3–16 after Sporewood's new figure.
 | # | question | default |
 |---|---|---|
 | 1 | Sporewood's green pushed to about 12% of the frame by day (the old plan's step 4–5; the plan had 3%), with every later water re-stepped from there? | **Yes** (your binding words) |
-| 2 | Do the raft's parts (oars, keel, lantern) and the hold's slots count as "bought gear" that stays behind? | **No: they travel with the raft and the home.** Resetting the hold too measured punishing (41% of the old pace on the first evening, and 3,000 clams of Hold 5 and 6 to buy again) |
+| 2 | Do the raft's parts (oars, keel, lantern) and the hold's slots count as "bought gear" that stays behind? | ~~No: they travel with the raft and the home.~~ **Answered 17 Nov 2026: yes, they are bought gear** (left behind, a share kept); the first evenings tuned not to punish (§0A, §8.3) |
 | 3 | Cut Strip (cut from your own small fish, never bought) at every water? | **Yes**, the one hook that is the same everywhere |
 | 4 | Going back to the Mossmere: your new tackle works there and its old lures and tins are waiting there? | **Yes** |
 | 5 | Leave the Sporebelly Puffer, the Hushcap Koi and the Plumgill Perch out of Sporewood (a second puffer, a second koi, a fourth perch-like fish)? | **Yes** (14 fish, none repeated) |

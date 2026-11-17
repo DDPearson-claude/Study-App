@@ -1696,7 +1696,7 @@ export function createScreens(K) {
   let catDebug = null;
   function openCatalogue(extra = {}) {
     const W = D().LOOP?.waters || {};
-    const zones = arr(meta().loop?.maps?.lakes).filter((id) => W[id] && arr(D().ZONES).some((z) => z.id === id));
+    const zones = arr(meta().loop?.maps?.lakes).filter((id) => W[id] && (typeof D().loopShipped !== 'function' || D().loopShipped(id)) && arr(D().ZONES).some((z) => z.id === id));   // (LAKE 2, lane D1: a water's page once it ships)
     if (!zones.length) zones.push(arr(D().ZONES)[0]?.id || 'mossmere');
     const cur = run()?.zone;
     const sp0 = extra.sel ? K.speciesData(extra.sel) : null;
@@ -1789,7 +1789,7 @@ export function createScreens(K) {
     pn.dataset.loop = 'catalogue';
     // the tabs: each owned water (its name and its list's count) and the giants' ★ (no word: its accessible name, PLAN CHOICE 25)
     const W = D().LOOP?.waters || {};
-    const zones = arr(m.loop?.maps?.lakes).filter((id) => W[id] && arr(D().ZONES).some((z) => z.id === id));
+    const zones = arr(m.loop?.maps?.lakes).filter((id) => W[id] && (typeof D().loopShipped !== 'function' || D().loopShipped(id)) && arr(D().ZONES).some((z) => z.id === id));
     if (!zones.length) zones.push(s.zone);
     const cat = (zid) => safe(() => ctx.progression?.loop?.catalogue?.(zid), null) || safe(() => catalogueFor(m, D(), zid), null);
     const tabList = zones.map((zid) => { const v = catalogueView(cat(zid), D()); return { id: zid, label: zoneName(zid).replace(/^The /, ''), badge: v ? v.head.count : '' }; });

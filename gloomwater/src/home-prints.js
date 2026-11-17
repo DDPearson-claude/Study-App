@@ -78,7 +78,10 @@ export function printsView(meta, D, waters = ['mossmere']) {
 /** The waters a wing hangs (wing n: catalogue order 4n−3 … 4n, LOOP.gallery.perWing), as ids. */
 export function wingWaters(D, n) {
   const per = Math.max(1, int(D?.LOOP?.gallery?.perWing, 4)), lo = (n - 1) * per + 1, hi = n * per, W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {};
-  return Object.keys(W).filter((id) => { const o = num(W[id]?.order, NaN); return o >= lo && o <= hi; }).sort((a, b) => num(W[a].order) - num(W[b].order));
+  // (LAKE 2, lane D1: only the waters that ship hang on a wing; a later water's LOOP.waters entry is data before it does)
+  const sh = D?.LOOP?.shipped, last = typeof sh === 'string' ? num(W[sh]?.order, Infinity) : Infinity;
+  return Object.keys(W).filter((id) => { const o = num(W[id]?.order, NaN); return o >= lo && o <= hi && o <= last && (!Array.isArray(sh) || sh.includes(id)); })
+    .sort((a, b) => num(W[a].order) - num(W[b].order));
 }
 /**
  * The cabin's gallery (SPEC §6.3): one wing per Long Wall level owned (M1: wing I, the Mossmere's), each hanging the best print of

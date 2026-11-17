@@ -456,7 +456,7 @@ function frontierOf(metaLoop, D) {
   const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {}, zones = chartWaters(D);
   const owned = (Array.isArray(metaLoop?.maps?.lakes) ? metaLoop.maps.lakes : []).filter((id) => typeof id === 'string');
   if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
-  const at = Math.max(-1, ...owned.filter((id) => isObj(W[id])).map((id) => zones.indexOf(id)));
+  const at = Math.max(-1, ...owned.filter((id) => isObj(W[id]) && shippedAsChart(D, id)).map((id) => zones.indexOf(id)));   // (LAKE 2, lane D1: drawn once it ships)
   return { frontier: at >= 0 ? zones[at] : null, next: at >= 0 ? zones[at + 1] ?? null : null };
 }
 /** Is a water inside what ships, as 3b's chartNext computes it (LOOP.shipped a string: its order ≥ the water's > 0; an array: listed;

@@ -508,15 +508,17 @@ export function createAutofish(S) {
       const fit = LB.fitted || {}, onLine = r ? { lure: r.lure ?? null, bait: r.equippedBait ?? null } : fit;
       for (const [id, row0] of Object.entries(LL)) {
         const it = C.items[id];
-        if (!it || !(LB.maps?.lakes || ['mossmere']).includes(row0.water)) continue;
+        if (!it || !(LB.maps?.lakes || ['mossmere']).includes(row0.water) || (typeof D().loopShipped === 'function' && !D().loopShipped(row0.water))) continue;   // (LAKE 2, lane D1: a lure of a water that ships)
         if (row0.found === true && !own.has(id)) continue;   // (LOST-TACKLE §3.2: a found lure shows once it is found, never on sale)
         const row = { id, kind: 'lure', name: D().TEXT_LOOP?.gearItems?.[id] ?? lure(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: row0.price,
           owned: own.has(id), onSale: !own.has(id), equipped: onLine.lure === id, giants: !!it.species, ...(row0.found === true ? { found: true, likes: gradeTargets(id, D()).length } : {}) };
         if (pinSp) row.compare = compareWith({ ...base, item: id });
         out.push(row);
       }
-      const bag = r ? r.bait || {} : LB.bait?.[LB.barge?.water || 'mossmere'] || {};
-      for (const id of [...Object.values(D().LOOP?.tins || {}).flat(), 'cut_strip']) {
+      const bagWater = LB.barge?.water || 'mossmere', bag = r ? r.bait || {} : LB.bait?.[bagWater] || {};
+      // (LAKE 2, lane D1: this water's tins, the trip's or the barge's; every water had only the Mossmere's before Sporewood's data)
+      const tinWaterOf = r && typeof r.zone === 'string' && D().LOOP?.tins?.[r.zone] ? r.zone : bagWater;
+      for (const id of [...(D().LOOP?.tins?.[tinWaterOf] || []), 'cut_strip']) {
         if (out.some((x) => x.id === id && x.kind === 'bait')) continue;
         const it = C.items[id], held = bag[id] | 0;
         if (!it || (id === 'cut_strip' && !held)) continue;

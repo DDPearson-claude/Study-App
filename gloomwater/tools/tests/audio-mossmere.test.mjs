@@ -38,7 +38,7 @@ section('the rules (pure)');
   ok(mono && MOSS.voiceGain(21) > 0.4 && MOSS.voiceGain(21) < 0.6, 'earshot: falling between, about half at 21 m');
   const bank = MOSS.bankVoice(false), clear = MOSS.bankVoice(true);
   ok(bank.gain < 1 && bank.gain > 0 && bank.muffle > 0 && clear.gain === 1 && clear.muffle === 0, `a standing bank's voice: low-passed (${bank.muffle} Hz) and quieter (×${bank.gain}); clear once lifted`);
-  for (const id of Object.keys(D.LOOP.places)) {
+  for (const id of D.loopPlaceIds('mossmere')) {   // (the Mossmere's places: LAKE 2's Sporewood places are lane A's to voice)
     const p = D.loopPlace(id);
     const c = p.area.kind === 'path' ? { x: (p.area.pts[0][0] + p.area.pts[1][0]) / 2, z: (p.area.pts[0][1] + p.area.pts[1][1]) / 2 } : { x: p.area.x, z: p.area.z };
     ok(MOSS.placeDistance(p.area, c.x, c.z) === 0, `placeDistance: 0 inside ${id}'s water (${p.area.kind})`);

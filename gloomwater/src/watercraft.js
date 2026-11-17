@@ -208,6 +208,80 @@ export const WATERCRAFT = {
 };
 const W = WATERCRAFT.mossmere;
 
+// >>> LAKE 2, lane D1 (docs/loop/LAKE2.md §2.4, §5.5, §5.7, §9): Sporewood Pools' hook columns, its hook table, its raw area weights and
+// the stubs the later lanes fill. Data only: every reader above keeps to the Mossmere's tables (W), so nothing the Mossmere draws moves;
+// lane D2 threads the water through gradeOf, hookWeights, finishPool, castOdds and gearCap (HOOK_ITEMS_AT, WATERCRAFT[water]).
+/** Sporewood's hook columns (§2.4), in the gear log's order: its own baits and lures, Cut Strip (the one hook of every water, §5.7), the
+ *  free Seedpod Twirl, and the found Gate-Guard's Button last (its column made from `hook.button`'s rule, never authored). */
+const SW_HOOK_ITEMS = ['bare', 'spore_cake', 'amber_larvae', 'cut_strip', 'spore_moth', 'ember_minnow', 'root_jig', 'sporelamp_fly', 'seedpod_twirl', 'guard_button'];
+const SW_LURE_IDS = ['spore_moth', 'ember_minnow', 'root_jig', 'sporelamp_fly', 'seedpod_twirl', 'guard_button'];
+const SW_BAIT_IDS = ['spore_cake', 'amber_larvae', 'cut_strip'];
+/** Each water's hook columns, lures and baits (the Mossmere's are the exports above). */
+export const HOOK_ITEMS_AT = Object.freeze({ mossmere: HOOK_ITEMS, sporewood: SW_HOOK_ITEMS });
+export const LURE_IDS_AT = Object.freeze({ mossmere: LURE_IDS, sporewood: SW_LURE_IDS });
+export const BAIT_IDS_AT = Object.freeze({ mossmere: BAIT_IDS, sporewood: SW_BAIT_IDS });
+// the raw weights (§2.4), columns in AREAS' order (`stones` is shown as "the roots" here: root snags, cap stumps, the Tongue, Rootknot;
+// `lane` is the drifting line of spores across the open water at dusk): margin, reeds, pads, stones, dropoff, lane, open, deep, inflow, outflow
+const SW_RAW_ROWS = {
+  netcloud_fry:       [2, 1.5, 1.8, 0.6, 0.4, 2.2, 1.2, 0.3, 1.5, 1],
+  falsesmile_barb:    [1.5, 1.2, 2.5, 1, 0.5, 1.5, 0.8, 0.3, 2, 1],
+  capshell_crayfish:  [1.2, 0.6, 0.5, 3, 0.6, 0.2, 0.3, 0.2, 1.2, 1.8],
+  threadling_eel:     [2.2, 2, 1, 2, 0.4, 0.2, 0.3, 0.3, 0.8, 1],
+  cindertail_catfish: [0.6, 0.8, 0.6, 2.2, 2, 0.6, 1, 1.2, 1, 2],
+  velvet_ray:         [1.8, 0.4, 0.8, 0.6, 1.2, 0.6, 1.6, 0.8, 0.6, 0.8],
+  lostsea_mackerel:   [0.2, 0.2, 0.2, 0.4, 1.5, 2.5, 2.2, 1.6, 1, 0.8],
+  downcast_catfish:   [0.3, 0.3, 0.3, 0.8, 2.2, 0.6, 1.2, 3, 0.6, 1],
+  mildew_angler:      [0.6, 0.8, 1.2, 2.5, 1.2, 0.2, 0.4, 1.2, 0.4, 0.6],
+};
+// the hook table (§2.4), the nine authored columns: bare, spore_cake, amber_larvae, cut_strip, spore_moth, ember_minnow, root_jig,
+// sporelamp_fly, seedpod_twirl. Grades as the Mossmere's (0 a stray · 1 takes it · 2 likes it · 3 the right bait · null the legend's).
+// The bare hook brings the three commons alone; the hunter (the Lostsea Mackerel) never takes the bare hook or the free Twirl; both
+// giants need a bought lure; the Threadling takes Spore Cake only and the Sleepspore Jelly Amber Larvae only
+const SW_HOOK_ROWS = {
+  netcloud_fry:       [1, 2, 1, 0, 3, 0, 0, 0, 1],
+  falsesmile_barb:    [1, 3, 1, 0, 2, 0, 1, 0, 1],
+  capshell_crayfish:  [1, 3, 1, 2, 0, 0, 2, 0, 0],
+  threadling_eel:     [0, 3, 0, 0, 0, 0, 0, 0, 0],
+  velvet_ray:         [0, 2, 1, 2, 0, 0, 3, 0, 0],
+  cindertail_catfish: [0, 1, 0, 3, 0, 3, 2, 1, 0],
+  lostsea_mackerel:   [0, 0, 0, 2, 1, 3, 0, 2, 0],
+  downcast_catfish:   [0, 3, 1, 1, 0, 0, 2, 2, 0],
+  mildew_angler:      [0, 1, 3, 2, 0, 1, 0, 0, 0],
+  sleepspore_jelly:   [0, 0, 3, 0, 0, 0, 0, 0, 0],
+  nightbloom_carp:    [0, 2, 3, 0, 0, 0, 1, 2, 0],
+  harpstring_eel:     [0, 0, 0, 0, 0, 2, 1, 3, 0],
+  festival_puffer:    [0, 0, 0, 0, 0, 1, 2, 3, 0],
+  drifting_grove:     [null, null, null, null, null, null, null, null, null],
+};
+/** The found Gate-Guard's Button at Sporewood (§2.4, LOST-TACKLE §3.2's rule at every water): grade 2 for every fish but the giants, the
+ *  legend and the two bait-only fish (0: never a stray past 1 in 100; null for the legend, whose row is all null). */
+const SW_BUTTON = Object.freeze({ grade: 2, not: Object.freeze(['harpstring_eel', 'festival_puffer', 'threadling_eel', 'sleepspore_jelly']) });
+const swHookRow = (id, cells) => {
+  const row = Object.fromEntries(SW_HOOK_ITEMS.slice(0, cells.length).map((it, i) => [it, cells[i]]));
+  row.guard_button = cells.every((g) => g === null) ? null : SW_BUTTON.not.includes(id) ? 0 : SW_BUTTON.grade;
+  return row;
+};
+WATERCRAFT.sporewood = {
+  hookItems: SW_HOOK_ITEMS,
+  // the areas' geometry, their baked shares and the factors that keep the blind mix tilted (§2.4): lane W1 authors the geometry on the
+  // outline shore (LAKE2.md §3.1) and `watercraft.test.mjs --bake` bakes the rest on Sporewood's layout, as for the Mossmere
+  geometry: null, shares: null, factors: null, laneAvoid: [], laneFallback: null,
+  raw: Object.fromEntries(Object.entries(SW_RAW_ROWS).map(([id, c]) => [id, rowOf(c)])),
+  night: {}, tilts: {},
+  hook: {
+    table: Object.fromEntries(Object.entries(SW_HOOK_ROWS).map(([id, c]) => [id, swHookRow(id, c)])),
+    guests: {},
+    mult: W.hook.mult.slice(), cap: W.hook.cap,   // the user's 1% stray rule, as at the Mossmere
+    button: SW_BUTTON,
+    giants: ['harpstring_eel', 'festival_puffer'],   // the giants' lure's fish (LOOP.lures.sporelamp_fly.giants) when D is not passed
+  },
+  take: { ...W.take }, waits: { ...W.waits },
+  // the tells (WATERCRAFT §5: sip for the Fry and the Barb, splash for the Mackerel and the Cindertail, roll for the Downcast at dusk, the
+  // bow wave for the giants) and the silhouettes are the watercraft lanes' to author with Sporewood's makers
+  tells: null, sight: null,
+};
+// <<< LAKE 2, lane D1
+
 /** A game phase (calm, day, dawn, dusk, gloomtide, night) as the light the tables are keyed by. */
 export function lightOf(phase) {
   if (phase === 'dusk') return 'dusk';
