@@ -94,6 +94,7 @@ The merge review (15 November) found no regression a player would see; these are
 | The world map and the story (LORE.md, WORLD.md, the continent map) | `wf_83a11939-9e7` | `gw-loop-world` | the judge, writing LORE.md and WORLD.md |
 | The three keys to a new water | `wf_1c95633f-092` | `gw-loop-access` | the sim re-tune |
 | The Wicks' passives | `wf_91d42619-6b9` | `gw-loop-wicks` | the proposals |
+| Black blobs on the water while sitting still (the user's report, 17 Nov 2026; device not yet known; suspects: a game mark firing without cause, or NaN pixels on AMD) | `wf_c566ca85-e47` | `gw-blobs` (empty) | paused by the user before any change ("Pause that. Begin work on lake 2") |
 
 ## Parked by the user (17 November 2026: "Park these for now and finish what you're working on")
 
