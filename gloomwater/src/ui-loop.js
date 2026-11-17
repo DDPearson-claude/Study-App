@@ -23,7 +23,7 @@ import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
 import { mapCards, sealsOf } from './progression-loop.js';
-import { targetCorners, wickCorners, rectOf, layoutTargets } from './home-targets.js';
+import { targetCorners, wickCorners, raftCorners, rectOf, layoutTargets, UNDER_WORD, stickHint } from './home-targets.js';
 import { orderPhraseOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
 import { createGearView, CHALK_TICK } from './ui-gear.js';   // M1 step 4 (lane 4): the lure slot, the tins, the orders' board, the ticks
 import { createTackleView } from './ui-tackle.js';   // TK: the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake)
@@ -984,7 +984,11 @@ export function createLoopView(K) {
     const reserve = ['.gw-jetty-purse', '[data-loop=homepause]', '.gw-jetty-goal'].map(box).filter(Boolean);
     const word = phone ? 30 : 34;
     const wick = rectOf(wickCorners(M), proj);
-    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false, rack: false }, reserve, margin: phone ? 6 : 10, wordSize: wordMetricsOf(btns, vw, vh), avoid: wick ? [wick] : [] });
+    // CHART's word under the raft (the user, 17 Nov 2026), off the touch stick's ring on a phone held upright
+    const raft = rectOf(raftCorners(M), proj), under = {};
+    for (const [id, of] of Object.entries(UNDER_WORD)) if (of === 'raft' && raft) under[id] = raft;
+    const lay = layoutTargets(rects, { vw, vh, min: 44, word, words: { wall: false, rack: false }, reserve, margin: phone ? 6 : 10, wordSize: wordMetricsOf(btns, vw, vh), avoid: wick ? [wick] : [],
+      under, underOff: phone && vw < vh ? [stickHint(vw, vh)] : [] });
     const sig = lay.items.map((it) => `${it.id}:${Math.round(it.l)},${Math.round(it.t)},${Math.round(it.w)},${Math.round(it.h)},${Math.round(it.dx)},${Math.round(it.dy)},${it.hooks ? 1 : 0}`).join('|');
     TG.last = lay;
     if (!force && sig === TG.sig) return lay;

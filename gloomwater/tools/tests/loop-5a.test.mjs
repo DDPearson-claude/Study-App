@@ -252,12 +252,16 @@ section('the targets: the home camera\'s frame at 358 px and every size, each bu
     const W = r.layout.items.filter((it) => it.wordBox), wick = HT.rectOf(HT.wickCorners(M), (p) => HT.project(p, D.homeCamAt(cam, vw / vh), vw, vh));
     let gapW = Infinity, gapWick = Infinity;
     for (let i = 0; i < W.length; i++) { gapWick = Math.min(gapWick, HT.apart(W[i].wordBox, wick)); for (let j = i + 1; j < W.length; j++) gapW = Math.min(gapW, HT.apart(W[i].wordBox, W[j].wordBox)); }
+    // CHART's word under the raft (the user, 17 Nov 2026: "below the raft not to the right of the raft"): its centre below the raft's
+    // lowest projected point, inside the raft's width
+    const raft = HT.rectOf(HT.raftCorners(M), (p) => HT.project(p, D.homeCamAt(cam, vw / vh), vw, vh)), cw = r.layout.items.find((it) => it.id === 'chart')?.wordBox;
+    ok(raft && cw && (cw.t + cw.b) / 2 > raft.b && (cw.l + cw.r) / 2 >= raft.l && (cw.l + cw.r) / 2 <= raft.r, `${vw} × ${vh}: CHART's word centred under the raft (its centre ${cw ? ((cw.t + cw.b) / 2).toFixed(0) : '-'} px down, the raft's foot ${raft ? raft.b.toFixed(0) : '-'})`);
     ok(W.length === 3 && gapW >= 15.5 && gapWick >= 15.5, `${vw} × ${vh}: Murk, Chart and Journal each ≥ 16 px apart (${gapW.toFixed(0)} px) and off the Wick (${gapWick.toFixed(0)} px), the hooks counted where shown`);
   }
   // the words measured as drawn: a wide word is kept apart all the same, its hooks dropped first, then nudged along its band
   { const pose = D.homeCamAt(cam, 900 / 900), wide = { murk: { w: 150, h: 22, hook: 42 }, chart: { w: 150, h: 22, hook: 42 }, journal: { w: 190, h: 22, hook: 42 } };
     const r = HT.frameCheck(M, pose, { vw: 900, vh: 900, wordSize: wide });
-    ok(r.ok && r.layout.items.filter((it) => it.wordBox).every((it) => !it.hooks || it.id === 'murk'), 'frameCheck with wider measured words: still apart, the close ones without their hooks', r.faults);
+    ok(r.ok && r.layout.items.filter((it) => it.wordBox).every((it) => !it.hooks || it.id === 'murk' || it.id === 'chart'), 'frameCheck with wider measured words: still apart, the close ones without their hooks (CHART under the raft, clear, keeps its own)', r.faults);
     // self-test: the words laid over each other fail the check
     const lay = HT.layoutTargets({ chart: { l: 100, t: 100, r: 160, b: 160 }, journal: { l: 172, t: 100, r: 232, b: 160 } }, { vw: 900, vh: 900, word: 34, wordSize: { chart: { w: 120, h: 22, hook: 0 }, journal: { w: 120, h: 22, hook: 0 } } });
     const wa = lay.items.find((it) => it.id === 'chart').wordBox, wb = lay.items.find((it) => it.id === 'journal').wordBox;
