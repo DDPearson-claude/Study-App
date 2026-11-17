@@ -508,6 +508,8 @@ export function allowedWords(D) {
     if (pb > 0 && typeof bi === 'string') { const r = bi.replace('{n}', String(Math.round(1 / pb))); out.add(r); out.add(`· ${r}`); } }
   // the MVP's teaching moment (ui-teach.js): its two TEXT_LOOP.teach captions as the live region speaks them once, in one line
   { const tc = T_(D).teach; if (isObj(tc) && typeof tc.notches === 'string' && typeof tc.dots === 'string') out.add(`${tc.notches} ${tc.dots}`); }
+  // the heart at an Elder's or an Ancient's hook set (ui-heart.js)
+  for (const w of Object.values(isObj(T_(D).heart) ? T_(D).heart : {})) if (typeof w === 'string') out.add(w);
   return out;
 }
 const NUM_RE = /^[+]?\d[\d,]*(\.\d+)?[km]?$/;

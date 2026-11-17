@@ -235,6 +235,13 @@ export const SFX = {
     v.burst(out, { kind: 'pink', t, a: 0.002, d: 0.08, peak: 0.45, ft: 'lowpass', f: 300, q: 0.7 });
     v.tone(out, { type: 'sine', f: 100, f2: 44, glide: 0.09, t: t + 0.17, a: 0.004, d: 0.25, peak: 0.7 });
   } },
+  // the loop's hook set on an Elder or an Ancient (ui-heart.js): a soft low lub-dub under the fight, o.gap s apart; p < 1 deeper
+  heart_hook: { gain: 0.7, gap: 0, max: 3, pri: 2, pj: 0.01, vj: 0.04, wet: 0.12, fn(v, out, t, p, o) {
+    const g = num0(o?.gap, 0.19);
+    v.tone(out, { type: 'sine', f: 92 * p, f2: 41 * p, glide: 0.1, t, a: 0.006, d: 0.26, peak: 0.85 });
+    v.burst(out, { kind: 'pink', t, a: 0.004, d: 0.07, peak: 0.22, ft: 'lowpass', f: 210 * p, q: 0.7 });
+    v.tone(out, { type: 'sine', f: 78 * p, f2: 36 * p, glide: 0.1, t: t + g, a: 0.008, d: 0.3, peak: 0.6 });
+  } },
   boss_roar: { gain: 1.0, gap: 1, max: 1, pri: 3, wet: 0.6, duck: [0.45, 2.5], fn(v, out, t, p, o) {
     const dying = !!o.dying;
     const dur = dying ? 2.6 : 2.2;

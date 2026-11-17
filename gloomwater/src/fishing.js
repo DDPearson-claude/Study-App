@@ -1689,6 +1689,8 @@ export function create(ctx) {
     const sc = shownClass();
     emit('fishing:strike', withLegend({ grade, sizeClass: sc }));
     emit('fishing:hook', withLegend(legendary ? { grade, perfect: grade === 'clean', sizeClass: sc, name: sp.name, epithet: sp.epithet || '' } : { grade, perfect: grade === 'clean', sizeClass: sc }));
+    // the loop (the user's ask, 17 Nov 2026): the hook is set; ui-heart's heartbeat for an Elder or an Ancient (no odds, no species)
+    if (trip && !legendary && !S.find) emit('fishing:hookset', { sizeClass: S.sizeClass || 'keeper', ancient: !!S.ancient });
     // the Measuring Cord (L1) names the class at the bite; the First Evening shows the estimate on its first Small / Keeper plays
     const cord = num(ctx.state?.meta?.relics?.measuring_cord, 0) >= 1;
     const tut = S.tutorial?.estimate && S.tutorialPlays < num(d.FIRST_EVENING?.estimate?.plays, 2) && (d.FIRST_EVENING?.estimate?.classes || ['small', 'keeper']).includes(S.sizeClass);

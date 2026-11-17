@@ -16,6 +16,7 @@ import { createIntroView } from './ui-intro.js';
 // >>> LOOP 1a (lane C): the Full Hold's screens (docs/loop/slice-1a/PLAN.md §2.3); built only when data.LOOP_ENABLED
 import { createLoopView } from './ui-loop.js';
 import { createTeachView } from './ui-teach.js';   // MVP teach: the float's marks taught once
+import { createHeartView } from './ui-heart.js';   // the heart races at an Elder's or an Ancient's hook set (loop only)
 import { createTowView } from './ui-tow.js';   // M1 step 5b (LANE 5B-TOW)
 import { setLoopArt, hatchProbe } from './ui-fishart.js';
 import { createFindsView } from './ui-finds.js';   // M1 step 5c (lane 5C): the find card, the finds row, the glyphs
@@ -651,6 +652,7 @@ export function create(ctx) {
   if (loopView) { try { loopView.tow = createTowView(K); } catch (e) { report('tow view', e); } }
   // >>> MVP teach: the float's two marks taught once (src/ui-teach.js; ctx.ui.loop.teach)
   if (loopView) { try { loopView.teach = createTeachView(K); } catch (e) { report('teach view', e); } }
+  if (loopView) { try { loopView.heart = createHeartView(K); } catch (e) { report('heart view', e); } }   // (ctx.ui.loop.heart)
   // <<< MVP teach
   // <<< LOOP 1a
   // M1 step 5c (lane 5C): the finds' view (the find card at the show's card; null off the loop)
@@ -972,6 +974,7 @@ export function create(ctx) {
       // <<< INTRO LANE B
       if (loopView) { try { loopView.update(dt); } catch (e) { report('loop view', e); } }
       if (loopView?.teach) { try { loopView.teach.update(dt); } catch (e) { report('teach view', e); } }   // (MVP teach)
+      if (loopView?.heart) { try { loopView.heart.update(dt); } catch (e) { report('heart view', e); } }
       if (findsView) { try { findsView.update(dt); } catch (e) { report('finds view', e); } }   // (M1 step 5c)
     },
     isBlocking: () => hasBlocking(),
